@@ -6,27 +6,22 @@
 #      License or the Artistic License, as specified in the README file.
 #
 package B;
-use strict;
 
+$B::VERSION = '1.58_01';
+
+require XSLoader;
 require Exporter;
 @B::ISA = qw(Exporter);
 
+# cperl:
+# Note that we need to fix "RT#81332 744aaba059 bloats the B
+# compilers" here, by moving the XSLoader::load to the end, which
+# would otherwise pollute all Bytecode compiled .pmc files with all B
+# constants (13K), which renders Bytecode unusable.  p5p refuses to
+# undo that breakage.
+
 # walkoptree_slow comes from B.pm (you are there),
 # walkoptree comes from B.xs
-
-BEGIN {
-    $B::VERSION = '1.58';
-    @B::EXPORT_OK = ();
-
-    # Our BOOT code needs $VERSION set, and will append to @EXPORT_OK.
-    # Want our constants loaded before the compiler meets OPf_KIDS below, as
-    # the combination of having the constant stay a Proxy Constant Subroutine
-    # and its value being inlined saves a little over .5K
-
-    require XSLoader;
-    XSLoader::load();
-}
-
 push @B::EXPORT_OK, (qw(minus_c ppname save_BEGINs
 			class peekop cast_I32 cstring cchar hash threadsv_names
 			main_root main_start main_cv svref_2object opnumber
@@ -36,6 +31,8 @@ push @B::EXPORT_OK, (qw(minus_c ppname save_BEGINs
 			begin_av init_av check_av end_av regex_padav dowarn
 			defstash curstash warnhook diehook inc_gv @optype
 			@specialsv_name unitcheck_av safename));
+sub OPf_KIDS ();
+use strict;
 
 @B::SV::ISA = 'B::OBJECT';
 @B::NULL::ISA = 'B::SV';
@@ -339,6 +336,8 @@ sub walksymtable {
 	}
     }
 }
+
+XSLoader::load();
 
 1;
 
