@@ -7718,7 +7718,7 @@ Perl_yylex(pTHX)
 		    goto really_sub;
                 /* const is the only type qualifier, unsigned not worth the
                    parsing trouble, volatile not relevant. */
-		if (len == 5 && strnEQ(PL_tokenbuf, "const", 5)) {
+		if (FEATURE_CONST_IS_ENABLED && (len == 5) && strnEQ(PL_tokenbuf, "const", 5)) {
                     pl_yylval.ival = 2;
                     s = SKIPSPACE1(s);
                     s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);

@@ -31,6 +31,7 @@ my %feature = (
     unicode_eval    => 'unieval',
     unicode_strings => 'unicode',
     fc              => 'fc',
+    const           => 'const',
 );
 
 # NOTE: If a feature is ever enabled in a non-contiguous range of Perl
@@ -48,7 +49,7 @@ my %feature_bundle = (
     "5.15"   =>	[qw(say state switch unicode_strings unicode_eval
 		    evalbytes current_sub fc)],
     "5.17"   =>	[qw(say state switch unicode_strings unicode_eval
-		    evalbytes current_sub fc)],
+		    evalbytes current_sub fc const)],
 );
 
 
@@ -338,7 +339,7 @@ read_only_bottom_close_and_rename($h);
 __END__
 package feature;
 
-our $VERSION = '1.29';
+our $VERSION = '1.30';
 
 FEATURES
 
@@ -523,6 +524,16 @@ which implements Unicode casefolding.
 See L<perlfunc/fc> for details.
 
 This feature is available from Perl 5.16 onwards.
+
+=head2 The 'const' feature
+
+This parses the C<const> type qualifier for lexical variable declarations.
+Without this feature C<my const $var;> will parse C<const> as package name.
+With this feature the const declared variable will be marked at compile-time
+as read-only on the pad, and enables compile-time checks and optimizations,
+in contrast to C<use constants> or C<use Readonly> declarations.
+
+This feature is available starting with Perl 5.18.
 
 =head1 FEATURE BUNDLES
 

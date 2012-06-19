@@ -5,12 +5,13 @@
 
 package feature;
 
-our $VERSION = '1.29';
+our $VERSION = '1.30';
 
 our %feature = (
     fc              => 'feature_fc',
     say             => 'feature_say',
     state           => 'feature_state',
+    const           => 'feature_const',
     switch          => 'feature_switch',
     evalbytes       => 'feature_evalbytes',
     array_base      => 'feature_arybase',
@@ -23,7 +24,8 @@ our %feature_bundle = (
     "5.10"    => [qw(array_base say state switch)],
     "5.11"    => [qw(array_base say state switch unicode_strings)],
     "5.15"    => [qw(current_sub evalbytes fc say state switch unicode_eval unicode_strings)],
-    "all"     => [qw(array_base current_sub evalbytes fc say state switch unicode_eval unicode_strings)],
+    "5.17"    => [qw(const current_sub evalbytes fc say state switch unicode_eval unicode_strings)],
+    "all"     => [qw(array_base const current_sub evalbytes fc say state switch unicode_eval unicode_strings)],
     "default" => [qw(array_base)],
 );
 
@@ -31,13 +33,12 @@ $feature_bundle{"5.12"} = $feature_bundle{"5.11"};
 $feature_bundle{"5.13"} = $feature_bundle{"5.11"};
 $feature_bundle{"5.14"} = $feature_bundle{"5.11"};
 $feature_bundle{"5.16"} = $feature_bundle{"5.15"};
-$feature_bundle{"5.17"} = $feature_bundle{"5.15"};
-$feature_bundle{"5.18"} = $feature_bundle{"5.15"};
+$feature_bundle{"5.18"} = $feature_bundle{"5.17"};
 $feature_bundle{"5.9.5"} = $feature_bundle{"5.10"};
 
 our $hint_shift   = 26;
 our $hint_mask    = 0x1c000000;
-our @hint_bundles = qw( default 5.10 5.11 5.15 );
+our @hint_bundles = qw( default 5.10 5.11 5.15 5.17 );
 
 # This gets set (for now) in $^H as well as in %^H,
 # for runtime speed of the uc/lc/ucfirst/lcfirst functions.
@@ -226,6 +227,16 @@ See L<perlfunc/fc> for details.
 
 This feature is available from Perl 5.16 onwards.
 
+=head2 The 'const' feature
+
+This parses the C<const> type qualifier for lexical variable declarations.
+Without this feature C<my const $var;> will parse C<const> as package name.
+With this feature the const declared variable will be marked at compile-time
+as read-only on the pad, and enables compile-time checks and optimizations,
+in contrast to C<use constants> or C<use Readonly> declarations.
+
+This feature is available starting with Perl 5.18.
+
 =head1 FEATURE BUNDLES
 
 It's possible to load multiple features together, using
@@ -250,7 +261,7 @@ The following feature bundles are available:
             unicode_eval evalbytes current_sub fc
 
   :5.18     say state switch unicode_strings
-            unicode_eval evalbytes current_sub fc
+            unicode_eval evalbytes current_sub fc const
 
 The C<:default> bundle represents the feature set that is enabled before
 any C<use feature> or C<no feature> declaration.
