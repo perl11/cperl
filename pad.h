@@ -127,6 +127,7 @@ typedef enum {
 #define padadd_STATE		0x02	   /* state declaration. */
 #define padadd_NO_DUP_CHECK	0x04	   /* skip warning on dups. */
 #define padadd_UTF8_NAME	SVf_UTF8   /* name is UTF-8 encoded. */
+#define padadd_CONST		SVf_READONLY /* sv is const. */
 
 /* ASSERT_CURPAD_LEGAL and ASSERT_CURPAD_ACTIVE respectively determine
  * whether PL_comppad and PL_curpad are consistent and whether they have

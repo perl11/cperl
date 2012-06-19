@@ -544,7 +544,7 @@ Perl_pad_add_name_pvn(pTHX_ const char *namepv, STRLEN namelen,
 
     PERL_ARGS_ASSERT_PAD_ADD_NAME_PVN;
 
-    if (flags & ~(padadd_OUR|padadd_STATE|padadd_NO_DUP_CHECK|padadd_UTF8_NAME))
+    if (flags & ~(padadd_OUR|padadd_STATE|padadd_NO_DUP_CHECK|padadd_UTF8_NAME|padadd_CONST))
 	Perl_croak(aTHX_ "panic: pad_add_name_pvn illegal flag bits 0x%" UVxf,
 		   (UV)flags);
 

@@ -7708,6 +7708,7 @@ Perl_yylex(pTHX)
 	case KEY_state:
 	    PL_in_my = (U16)tmp;
 	    s = SKIPSPACE1(s);
+	    pl_yylval.ival = 1;
 	    if (isIDFIRST_lazy_if(s,UTF)) {
 #ifdef PERL_MAD
 		char* start = s;
@@ -7715,6 +7716,13 @@ Perl_yylex(pTHX)
 		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
 		if (len == 3 && strnEQ(PL_tokenbuf, "sub", 3))
 		    goto really_sub;
+                /* const is the only type qualifier, unsigned not worth the
+                   parsing trouble, volatile not relevant. */
+		if (len == 5 && strnEQ(PL_tokenbuf, "const", 5)) {
+                    pl_yylval.ival = 2;
+                    s = SKIPSPACE1(s);
+                    s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
+                }
 		PL_in_my_stash = find_in_my_stash(PL_tokenbuf, len);
 		if (!PL_in_my_stash) {
 		    char tmpbuf[1024];
@@ -7730,7 +7738,6 @@ Perl_yylex(pTHX)
 		}
 #endif
 	    }
-	    pl_yylval.ival = 1;
 	    OPERATOR(MY);
 
 	case KEY_next:
@@ -8513,6 +8520,11 @@ S_pending_ident(pTHX)
     const STRLEN tokenbuf_len = strlen(PL_tokenbuf);
     /* All routes through this function want to know if there is a colon.  */
     const char *const has_colon = (const char*) memchr (PL_tokenbuf, ':', tokenbuf_len);
+    int flag = UTF ? SVf_UTF8 : 0;
+    if (pl_yylval.ival == 2) {
+        flag += SVf_READONLY;
+        pl_yylval.ival = 1;
+    }
     PL_pending_ident = 0;
 
     /* PL_realtokenstart = realtokenend = PL_bufptr - SvPVX(PL_linestr); */
@@ -8530,18 +8542,17 @@ S_pending_ident(pTHX)
             if (has_colon)
                 yyerror_pv(Perl_form(aTHX_ "No package name allowed for "
                                   "variable %s in \"our\"",
-                                  PL_tokenbuf), UTF ? SVf_UTF8 : 0);
-            tmp = allocmy(PL_tokenbuf, tokenbuf_len, UTF ? SVf_UTF8 : 0);
+                                     PL_tokenbuf), flag);
+            tmp = allocmy(PL_tokenbuf, tokenbuf_len, flag);
         }
         else {
             if (has_colon)
                 yyerror_pv(Perl_form(aTHX_ PL_no_myglob,
 			    PL_in_my == KEY_my ? "my" : "state", PL_tokenbuf),
-                            UTF ? SVf_UTF8 : 0);
+                            flag);
 
             pl_yylval.opval = newOP(OP_PADANY, 0);
-            pl_yylval.opval->op_targ = allocmy(PL_tokenbuf, tokenbuf_len,
-                                                        UTF ? SVf_UTF8 : 0);
+            pl_yylval.opval->op_targ = allocmy(PL_tokenbuf, tokenbuf_len, flag);
             return PRIVATEREF;
         }
     }
@@ -8561,7 +8572,7 @@ S_pending_ident(pTHX)
     if (!has_colon) {
 	if (!PL_in_my)
 	    tmp = pad_findmy_pvn(PL_tokenbuf, tokenbuf_len,
-                                    UTF ? SVf_UTF8 : 0);
+                                    flag);
         if (tmp != NOT_IN_PAD) {
             /* might be an "our" variable" */
             if (PAD_COMPNAME_FLAGS_isOUR(tmp)) {
@@ -8633,7 +8644,7 @@ S_pending_ident(pTHX)
     /* build ops for a bareword */
     pl_yylval.opval = (OP*)newSVOP(OP_CONST, 0, newSVpvn_flags(PL_tokenbuf + 1,
 						      tokenbuf_len - 1,
-                                                      UTF ? SVf_UTF8 : 0 ));
+                                                      flag ));
     pl_yylval.opval->op_private = OPpCONST_ENTERED;
     gv_fetchpvn_flags(PL_tokenbuf+1, tokenbuf_len - 1,
 		     (PL_in_eval ? (GV_ADDMULTI | GV_ADDINEVAL) : GV_ADD)
