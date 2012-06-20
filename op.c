@@ -2,7 +2,7 @@
 /*    op.c
  *
  *    Copyright (C) 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
- *    2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by Larry Wall and others
+ *    2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2012 by Larry Wall and others
  *
  *    You may distribute under the terms of either the GNU General Public
  *    License or the Artistic License, as specified in the README file.
@@ -2550,6 +2550,23 @@ Perl_my_attrs(pTHX_ OP *o, OP *attrs)
 #else
     maybe_scalar = 1;
 #endif
+
+    /* This hack assumes that there cannot be a valid OP* at 0x1
+       (unaligned and on no known OS) */
+    if (PTR2nat(attrs) == 1) {
+        if (DEBUG_T_TEST_) {
+            if (o->op_type == OP_PADSV ||
+                o->op_type == OP_PADAV ||
+                o->op_type == OP_PADHV ||
+                o->op_type == OP_PADANY)
+                PerlIO_printf(Perl_debug_log, "### Initialize my const %"SVf"\n",
+                              PAD_COMPNAME_SV(o->op_targ));
+            else
+                PerlIO_printf(Perl_debug_log, "### Initialize my const ()\n");
+        }
+        o->op_private = (OPpPAD_CONST | OPpPAD_CONSTINIT); /* PAD or LIST */
+        attrs = NULL;
+    }
     if (attrs)
 	SAVEFREEOP(attrs);
     rops = NULL;
@@ -2923,8 +2940,10 @@ Perl_localize(pTHX_ OP *o, I32 lex)
 	    }
 	}
     }
+
+    /* This hack assumes that there is no valid OP* at 0x1 on the heap. */
     if (lex)
-	o = my(o);
+	o = my(o, lex==2 ? INT2PTR(OP*,1) : NULL); /* mark my const init */
     else
 	o = op_lvalue(o, OP_NULL);		/* a bit kludgey */
     PL_parser->in_my = FALSE;
@@ -5228,6 +5247,10 @@ will be set automatically, and, shifted up eight bits, the eight bits
 of C<op_private>, except that the bit with value 1 or 2 is automatically
 set as required.
 
+If I<left> is a C<my const> initialization then the ASSIGNOP is marked
+with C<OPf_SPECIAL>, so that the first const initialization does not
+fail, as C<SVf_READONLY> is set before a value is assigned.
+
 =cut
 */
 
@@ -5238,6 +5261,12 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
     OP *o;
 
     if (optype) {
+	if ((left->op_type == OP_PADSV ||
+	     left->op_type == OP_PADAV ||
+	     left->op_type == OP_PADHV ||
+	     left->op_type == OP_PADANY) && left->op_private & OPpPAD_CONST) /* was SvREADONLY(PAD_SVl(left->op_targ) */
+            yyerror(Perl_form(aTHX_ "Invalid assignment to const variable %"SVf,
+                              PAD_COMPNAME_SV(left->op_targ)));
 	if (optype == OP_ANDASSIGN || optype == OP_ORASSIGN || optype == OP_DORASSIGN) {
 	    return newLOGOP(optype, 0,
 		op_lvalue(scalar(left), optype),
@@ -5249,6 +5278,14 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 	}
     }
 
+    if ((left->op_type == OP_PADSV ||
+         left->op_type == OP_PADAV ||
+         left->op_type == OP_PADHV ||
+         left->op_type == OP_PADANY) && /* really PADANY? */
+        left->op_private & (OPpPAD_CONST | OPpPAD_CONSTINIT)) {
+        flags |= OPf_SPECIAL;
+    }
+
     if (is_list_assignment(left)) {
 	static const char no_list_state[] = "Initialization of state variables"
 	    " in list context currently forbidden";
@@ -5258,12 +5295,16 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 	PL_modcount = 0;
 	left = op_lvalue(left, OP_AASSIGN);
 	curop = list(force_list(left));
+
 	o = newBINOP(OP_AASSIGN, flags, list(force_list(right)), curop);
 	o->op_private = (U8)(0 | (flags >> 8));
 
 	if ((left->op_type == OP_LIST
 	     || (left->op_type == OP_NULL && left->op_targ == OP_LIST)))
 	{
+            if (left->op_private & OPpPAD_CONSTINIT) {
+                o->op_flags |= OPf_SPECIAL;
+            }
 	    OP* lop = ((LISTOP*)left)->op_first;
 	    maybe_common_vars = FALSE;
 	    while (lop) {
@@ -5286,6 +5327,7 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 		    } else {
 			/* Each my variable in
 			   (state $a, my $b, our $c, $d, undef) = ... */
+                        ;
 		    }
 		} else if (lop->op_type == OP_UNDEF ||
 			   lop->op_type == OP_PUSHMARK) {
@@ -5398,7 +5440,7 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 		scalar(right));
     }
     else {
-	o = newBINOP(OP_SASSIGN, flags,
+	return newBINOP(OP_SASSIGN, flags,
 	    scalar(right), op_lvalue(scalar(left), OP_SASSIGN) );
     }
     return o;

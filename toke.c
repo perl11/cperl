@@ -1,7 +1,7 @@
 /*    toke.c
  *
  *    Copyright (C) 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
- *    2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by Larry Wall and others
+ *    2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2012 by Larry Wall and others
  *
  *    You may distribute under the terms of either the GNU General Public
  *    License or the Artistic License, as specified in the README file.
@@ -1757,7 +1757,7 @@ S_skipspace2(pTHX_ register char *s, SV **svp)
 	sv_free(PL_skipwhite);
 	PL_skipwhite = 0;
     }
-    
+
     return s;
 }
 #endif
@@ -2658,7 +2658,7 @@ S_sublex_done(pTHX)
 	  } (end if backslash)
           handle regular character
     } (end while character to read)
-		
+
 */
 
 STATIC char *
@@ -2691,7 +2691,7 @@ S_scan_const(pTHX_ char *start)
      * the needed size, SvGROW() is called.  Its size parameter each time is
      * based on the best guess estimate at the time, namely the length used so
      * far, plus the length the current construct will occupy, plus room for
-     * the trailing NUL, plus one byte for every input byte still unscanned */ 
+     * the trailing NUL, plus one byte for every input byte still unscanned */
 
     UV uv;
 #ifdef EBCDIC
@@ -2814,7 +2814,7 @@ S_scan_const(pTHX_ char *start)
                         else
 #endif
                             *d++ = (char)i;
- 
+
 #ifdef EBCDIC
                 if (uvmax) {
                     d = (char*)uvchr_to_utf8((U8*)d, 0x100);
@@ -3044,7 +3044,7 @@ S_scan_const(pTHX_ char *start)
 		 * enough room in sv since such escapes will be longer than any
 		 * UTF-8 sequence they can end up as, except if they force us
 		 * to recode the rest of the string into utf8 */
-		
+
 		/* Here uv is the ordinal of the next character being added in
 		 * unicode (converted from native). */
 		if (!UNI_IS_INVARIANT(uv)) {
@@ -3052,7 +3052,7 @@ S_scan_const(pTHX_ char *start)
 			/* Might need to recode whatever we have accumulated so
 			 * far if it contains any chars variant in utf8 or
 			 * utf-ebcdic. */
-			  
+
 			SvCUR_set(sv, d - SvPVX_const(sv));
 			SvPOK_on(sv);
 			*d = '\0';
@@ -3124,7 +3124,7 @@ S_scan_const(pTHX_ char *start)
 		 * requires braces */
 		s++;
 		if (*s != '{') {
-		    yyerror("Missing braces on \\N{}"); 
+		    yyerror("Missing braces on \\N{}");
 		    continue;
 		}
 		s++;
@@ -3429,7 +3429,7 @@ S_scan_const(pTHX_ char *start)
 		    }
 		} /* End \N{NAME} */
 #ifdef EBCDIC
-		if (!dorange) 
+		if (!dorange)
 		    native_range = FALSE; /* \N{} is defined to be Unicode */
 #endif
 		s = e + 1;  /* Point to just after the '}' */
@@ -3906,7 +3906,7 @@ Perl_filter_add(pTHX_ filter_t funcp, SV *datasv)
 		STRLEN const last_lop_pos =
 		    PL_parser->last_lop ? PL_parser->last_lop - buf : 0;
 		av_push(PL_rsfp_filters, linestr);
-		PL_parser->linestr = 
+		PL_parser->linestr =
 		    newSVpvn(SvPVX(linestr), ++s-SvPVX(linestr));
 		buf = SvPVX(PL_parser->linestr);
 		PL_parser->bufend = buf + SvCUR(PL_parser->linestr);
@@ -4134,7 +4134,7 @@ S_readpipe_override(pTHX)
     }
 }
 
-#ifdef PERL_MAD 
+#ifdef PERL_MAD
  /*
  * Perl_madlex
  * The intent of this yylex wrapper is to minimize the changes to the
@@ -4261,7 +4261,7 @@ Perl_madlex(pTHX)
     case '}':
 	if (PL_faketokens)
 	    break;
-	/* remember any fake bracket that lexer is about to discard */ 
+	/* remember any fake bracket that lexer is about to discard */
 	if (PL_lex_brackets == 1 &&
 	    ((expectation)PL_lex_brackstack[0] & XFAKEBRACK))
 	{
@@ -4812,7 +4812,7 @@ Perl_yylex(pTHX)
             d = UTF ? (char *) Perl_utf8_hop(aTHX_ (U8 *) s, -UNRECOGNIZED_PRECEDE_COUNT) : s - UNRECOGNIZED_PRECEDE_COUNT;
         } else {
             d = PL_linestart;
-        }	
+        }
         *s = '\0';
         sv_setpv(dsv, d);
         if (UTF)
@@ -6224,7 +6224,7 @@ Perl_yylex(pTHX)
                                        && get_cvn_flags(tmpbuf, len, UTF ? SVf_UTF8 : 0))
 				    Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
 						"You need to quote \"%"SVf"\"",
-						  SVfARG(newSVpvn_flags(tmpbuf, len, 
+						  SVfARG(newSVpvn_flags(tmpbuf, len,
                                                     SVs_TEMP | (UTF ? SVf_UTF8 : 0))));
 			    }
 			}
@@ -7400,7 +7400,7 @@ Perl_yylex(pTHX)
 
 	case KEY_exists:
 	    UNI(OP_EXISTS);
-	
+
 	case KEY_exit:
 	    if (PL_madskills)
 		UNI(OP_INT);
@@ -7639,7 +7639,7 @@ Perl_yylex(pTHX)
 	case KEY_last:
 	    s = force_word(s,WORD,TRUE,FALSE,FALSE);
 	    LOOPX(OP_LAST);
-	
+
 	case KEY_lc:
 	    UNI(OP_LC);
 
@@ -7718,7 +7718,11 @@ Perl_yylex(pTHX)
 		    goto really_sub;
                 /* const is the only type qualifier, unsigned not worth the
                    parsing trouble, volatile not relevant. */
-		if (FEATURE_CONST_IS_ENABLED && (len == 5) && strnEQ(PL_tokenbuf, "const", 5)) {
+		if (
+#if 0
+		FEATURE_CONST_IS_ENABLED &&
+#endif
+		                            (len == 5) && strnEQ(PL_tokenbuf, "const", 5)) {
                     pl_yylval.ival = 2;
                     s = SKIPSPACE1(s);
                     s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
@@ -7826,7 +7830,7 @@ Perl_yylex(pTHX)
 
 	case KEY_pos:
 	    UNIDOR(OP_POS);
-	
+
 	case KEY_pack:
 	    LOP(OP_PACK,XTERM);
 
@@ -7944,7 +7948,7 @@ Perl_yylex(pTHX)
 		orig_keyword = 0;
 		pl_yylval.ival = 1;
 	    }
-	    else 
+	    else
 		pl_yylval.ival = 0;
 	    PL_expect = XTERM;
 	    PL_bufptr = s;
@@ -8012,7 +8016,7 @@ Perl_yylex(pTHX)
 
 	case KEY_chomp:
 	    UNI(OP_CHOMP);
-	
+
 	case KEY_scalar:
 	    UNI(OP_SCALAR);
 
@@ -8521,10 +8525,6 @@ S_pending_ident(pTHX)
     /* All routes through this function want to know if there is a colon.  */
     const char *const has_colon = (const char*) memchr (PL_tokenbuf, ':', tokenbuf_len);
     int flag = UTF ? SVf_UTF8 : 0;
-    if (pl_yylval.ival == 2) {
-        flag += SVf_READONLY;
-        pl_yylval.ival = 1;
-    }
     PL_pending_ident = 0;
 
     /* PL_realtokenstart = realtokenend = PL_bufptr - SvPVX(PL_linestr); */
@@ -8543,6 +8543,10 @@ S_pending_ident(pTHX)
                 yyerror_pv(Perl_form(aTHX_ "No package name allowed for "
                                   "variable %s in \"our\"",
                                      PL_tokenbuf), flag);
+            if (pl_yylval.ival == 2) {
+                flag += SVf_READONLY;
+                pl_yylval.ival = 1;
+            }
             tmp = allocmy(PL_tokenbuf, tokenbuf_len, flag);
         }
         else {
@@ -8550,7 +8554,10 @@ S_pending_ident(pTHX)
                 yyerror_pv(Perl_form(aTHX_ PL_no_myglob,
 			    PL_in_my == KEY_my ? "my" : "state", PL_tokenbuf),
                             flag);
-
+            if (pl_yylval.ival == 2) {
+                flag += SVf_READONLY;
+                pl_yylval.ival = 1;
+            }
             pl_yylval.opval = newOP(OP_PADANY, 0);
             pl_yylval.opval->op_targ = allocmy(PL_tokenbuf, tokenbuf_len, flag);
             return PRIVATEREF;
@@ -8648,7 +8655,7 @@ S_pending_ident(pTHX)
     pl_yylval.opval->op_private = OPpCONST_ENTERED;
     gv_fetchpvn_flags(PL_tokenbuf+1, tokenbuf_len - 1,
 		     (PL_in_eval ? (GV_ADDMULTI | GV_ADDINEVAL) : GV_ADD)
-                     | ( UTF ? SVf_UTF8 : 0 ),
+		      | ( UTF ? SVf_UTF8 : 0 ),
 		     ((PL_tokenbuf[0] == '$') ? SVt_PV
 		      : (PL_tokenbuf[0] == '@') ? SVt_PVAV
 		      : SVt_PVHV));
@@ -8737,7 +8744,7 @@ S_new_constant(pTHX_ const char *s, STRLEN len, const char *key, STRLEN keylen,
 	|| ! SvOK(*cvp))
     {
 	SV *msg;
-	
+
 	/* Here haven't found what we're looking for.  If it is charnames,
 	 * perhaps it needs to be loaded.  Try doing that before giving up */
 	if (strEQ(key,"charnames")) {
@@ -9231,7 +9238,7 @@ S_scan_pat(pTHX_ char *start, I32 type)
     /* issue a warning if /c is specified,but /g is not */
     if ((pm->op_pmflags & PMf_CONTINUE) && !(pm->op_pmflags & PMf_GLOBAL))
     {
-        Perl_ck_warner(aTHX_ packWARN(WARN_REGEXP), 
+        Perl_ck_warner(aTHX_ packWARN(WARN_REGEXP),
 		       "Use of /c modifier is meaningless without /g" );
     }
 
@@ -9459,7 +9466,7 @@ S_scan_heredoc(pTHX_ register char *s)
 #ifdef PERL_MAD
     I32 stuffstart = s - SvPVX(PL_linestr);
     char *tstart;
- 
+
     PL_realtokenstart = -1;
 #endif
 
@@ -9894,7 +9901,7 @@ intro_sym:
 	($*@)		sub prototypes		sub foo ($)
 	(stuff)		sub attr parameters	sub foo : attr(stuff)
 	<>		readline or globs	<FOO>, <>, <$fh>, or <*.c>
-	
+
    In most of these cases (all but <>, patterns and transliterate)
    yylex() calls scan_str().  m// makes yylex() call scan_pat() which
    calls scan_str().  s/// makes yylex() call scan_subst() which calls
@@ -10098,7 +10105,7 @@ S_scan_str(pTHX_ char *start, int keep_quoted, int keep_delims, int re_reparse)
 		*to = *s;
 	    }
 	}
-	
+
 	/* if the terminator isn't the same as the start character (e.g.,
 	   matched brackets), we have to allow more in the quoting, and
 	   be prepared for nested brackets.
@@ -10153,7 +10160,7 @@ S_scan_str(pTHX_ char *start, int keep_quoted, int keep_delims, int re_reparse)
 	else if (to - SvPVX_const(sv) == 1 && to[-1] == '\r')
 	    to[-1] = '\n';
 #endif
-	
+
      read_more_line:
 	/* if we're out of file, or a read fails, bail and reset the current
 	   line marker so we can report where the unterminated string began

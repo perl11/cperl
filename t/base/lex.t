@@ -1,6 +1,6 @@
 #!./perl
 
-print "1..68\n";
+print "1..57\n";
 
 $x = 'x';
 
@@ -273,48 +273,3 @@ $test++;
 @a = (1,2,3);
 print "not " unless($a[~~2] == 3);
 print "ok 57\n";
-
-$test=58;
-{
-  use 5.017;
-  # parse valid const
-  my $result = eval 'use 5.017;my const $a=1;print "# ",$a;$a';
-  if (!$@ and $result == 1) { print "ok $test\n"; } else { print "not ok $test - declare and set const \$i\n"; }
-  $test++;
-  my $result = eval 'use 5.017;my const @a=(1);print "# ",$a[0];$a[0]';
-  if (!$@ and $result == 1) { print "ok $test\n"; } else { print "not ok $test - declare and set const \@i\n"; }
-  $test++;
-  my $result = eval 'use 5.017;my const %a=("a"=>"ok");print "# ",$a{a};$a{a}';
-  if (!$@ and $result eq 'ok') { print "ok $test\n"; } else { print "not ok $test - declare and set const \%i\n"; }
-  $test++;
-
-  # throw PL_no_modify compile-time errors
-  eval 'my const $a=1; $a=0';
-  if ($@ =~ /Modification of a read-only value attempted/) { print "ok $test\n"; } else { print "not ok $test - set const \$i\n"; }
-  $test++;
-  eval 'my const @a = (1,2,3);@a=(0)';
-  if ($@ =~ /Modification of a read-only value attempted/) { print "ok $test\n"; } else { print "not ok $test - set const \@a\n"; }
-  $test++;
-  eval 'my const @a = (1,2,3);push @a,0';
-  if ($@ =~ /Modification of a read-only value attempted/) { print "ok $test\n"; } else { print "not ok $test - push const \@a\n"; }
-  $test++;
-  eval 'my const %a = (0=>1,1=>2);%a=(0=>1)';
-  if ($@ =~ /Attempt to access disallowed key/) { print "ok $test\n"; } else { print "not ok $test - const \%a restricted hash\n"; }
-  $test++;
-
-  # mixed with types
-  $result = eval '$int::x=0;my const int $a=1;print "# ",$a;$a';
-  if (!$@ and $result == 1) { print "ok $test\n"; } else { print "not ok $test - declare and set const int \$i\n"; }
-  $test++;
-  $result = eval 'my unknown $a=1;$a;';
-  if ($@ =~ /No such class unknown/) { print "ok $test\n"; } else { print "not ok $test - No such class unknown\n"; }
-  $test++;
-  $result = eval 'my const unknown $a=1;$a;';
-  if ($@ =~ /No such class unknown/) { print "ok $test\n"; } else { print "not ok $test - No such class unknown with const\n"; }
-  $test++;
-}
-
-# lexical types without const
-$result = eval '$int::x=0;my int $a=1;$a;';
-if (!$@ and $result == 1) { print "ok $test\n"; } else { print "not ok $test - my int \$i\n"; }
-$test++;

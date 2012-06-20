@@ -209,8 +209,17 @@ PP(pp_sassign)
 	Perl_warner(aTHX_
 	    packWARN(WARN_MISC), "Useless assignment to a temporary"
 	);
-    SvSetMagicSV(left, right);
-    SETs(left);
+
+    /* my const $i = val; initialization must temp. lift constness */
+    if (PL_op->op_flags & OPf_SPECIAL && PL_op->op_private & OPpPAD_CONST) {
+        SvREADONLY_off(left);
+        SvSetMagicSV(left, right);
+        SETs(left);
+        SvREADONLY_on(left);
+    } else {
+        SvSetMagicSV(left, right);
+        SETs(left);
+    }
     RETURN;
 }
 
@@ -992,6 +1001,10 @@ PP(pp_aassign)
     while (lelem <= lastlelem) {
 	TAINT_NOT;		/* Each item stands on its own, taintwise. */
 	sv = *lelem++;
+        if (PL_op->op_flags & OPf_SPECIAL && SvREADONLY(sv)) { /* cons init */
+            SvREADONLY_off(sv);
+            PL_op->op_private |= OPpASSIGN_CONSTINIT; /* pp_aassign internal only */
+        }
 	switch (SvTYPE(sv)) {
 	case SVt_PVAV:
 	    ary = MUTABLE_AV(sv);
@@ -1090,6 +1103,10 @@ PP(pp_aassign)
 	    SvSETMAGIC(sv);
 	    break;
 	}
+        if (PL_op->op_flags & OPf_SPECIAL && PL_op->op_private & OPpASSIGN_CONSTINIT) {
+            SvREADONLY_on(*lastlelem);
+            PL_op->op_private &= ~OPpASSIGN_CONSTINIT;
+        }
     }
     if (PL_delaymagic & ~DM_DELAY) {
 	/* Will be used to set PL_tainting below */

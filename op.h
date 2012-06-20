@@ -148,6 +148,7 @@ Deprecated.  Use C<GIMME_V> instead.
 				    - Before ck_glob, called as CORE::glob
 				    - After ck_glob, use Perl glob function
 			         */
+				/*  On SASSIGN and AASSIGN or ex-LIST for const init */
 
 /* old names; don't use in new code, but don't break them, either */
 #define OPf_LIST	OPf_WANT_LIST
@@ -178,6 +179,7 @@ Deprecated.  Use C<GIMME_V> instead.
 
 /* Private for OP_AASSIGN */
 #define OPpASSIGN_COMMON	64	/* Left & right have syms in common. */
+#define OPpASSIGN_CONSTINIT	128	/* const init READONLY state */
 
 /* Private for OP_SASSIGN */
 #define OPpASSIGN_BACKWARDS	64	/* Left & right switched. */
@@ -237,6 +239,9 @@ Deprecated.  Use C<GIMME_V> instead.
   /* OP_PADSV only */
 #define OPpPAD_STATE		16	/* is a "state" pad */
   /* for OP_RV2?V, lower bits carry hints (currently only HINT_STRICT_REFS) */
+  /* All OP_PAD*: See OPpDEREF above taking 32-64, OPpLVAL_INTRO 128 */
+#define OPpPAD_CONST		2	/* mark a PAD as const */
+#define OPpPAD_CONSTINIT	4	/* to propagate const init to ASSIGNOP OPf_SPECIAL */
 
   /* OP_RV2GV only */
 #define OPpDONT_INIT_GV		4	/* Call gv_fetchpv with GV_NOINIT */
@@ -260,6 +265,7 @@ Deprecated.  Use C<GIMME_V> instead.
 
 /* Private for OP_LIST */
 #define OPpLIST_GUESSED		64	/* Guessed that pushmark was needed. */
+/* Also OPpPAD_CONSTINIT (128) */
 
 /* Private for OP_DELETE */
 #define OPpSLICE		64	/* Operating on a list of keys */
@@ -701,7 +707,7 @@ least an C<UNOP>.
 #endif
 
 #ifdef PERL_CORE
-#  define my(o)	my_attrs((o), NULL)
+#  define my(o,lex)	my_attrs((o), (OP*)(void*)lex)
 #endif
 
 #ifdef USE_REENTRANT_API
