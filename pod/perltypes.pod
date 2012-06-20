@@ -1,0 +1,239 @@
+=head1 NAME
+
+perltypes - Perl type system
+
+=head1 DESCRIPTION
+
+=head2 Dynamic types
+
+Perl is a dynamic language with dynamic data types. The actual type is
+typically determined at run-time, context-dependent and usually the operator
+leads to automatic type conversions, cached in the data.
+
+=head2 Types in lexical variables
+
+Perl optionally allows storing the type, i.e. an existing package
+name, in the declaration of lexical variables. Lexicals are stored in
+pads, the package name, i.e. the C<type>, is stored in the
+C<comppad_name> slot for each pad. Up to version 5.18 Perl did not
+use these types for checks and optimizations, only external modules did.
+
+Remember: A type is implemented as package. A valid type must be an
+existing and loaded package.
+
+Global variables can not store types.
+
+=head2 coretypes
+
+With C<use coretypes> Perl allows B<strict types> of C<int>, C<double>
+and C<string>, which can be applied to scalars, arrays and
+hashes. I<TODO: functions not yet. This would be the return type.>
+
+Any type change for those strictly typed variables will be detected at
+compile-time and if this fails at run-time.  The type int is
+interpreted as IV, double as NV and string as PV only. There is
+no stringification for IV and NV, no magic such as L<perlfunc/tie>,
+no setting to C<undef> allowed.
+
+=head2 const
+
+L<perldata/const> is a new type qualifier for lexical variables to
+enable compile-time readonly and assignment checks and
+type-optimizations.  Esp. useful are declarations of const packages
+and the @ISA inheritance tree to optimize method calls at
+compile-time.
+const sets the internal READONLY flags for the variable, if it's
+a scalar, array or hash. The special package stash (e.g. C<%MyClass::>)
+counts as hash.
+
+TODO:
+    const package ... { ... }
+
+=head2 Compile-time type checks
+
+Assignment to const variables are only allowed once during declaration
+with assignment.
+
+    my const $i = 1;
+    my const ($x,$y) = (0,1);
+    my const @a = (0,1);
+    my const %h = ('ok' => 1, 'nok' => 0);
+
+Declaration of a const variable without initialization B<XXX> 
+    1. is disallowed I<(preferred)>
+    2. leads to a warning
+    3. stores undef
+
+External modules, such as L<coretypes>, L<types>, L<typesafety> or
+L<Moose> implement their type checks for their types during execution
+of L<perlmod/CHECK> blocks.
+
+=head2 Compile-time type optimizations
+
+Since Perl core does not deal with types stored in C<comppad_name> per
+se, type checks and optimizations are deferred to the modules which
+implement respective types. The only type optimization currently in
+effect is constant folding, and the change of compile-time static
+method calls, determined either by name or by type and const-ness of
+all searched packages to static function calls.  Thus the dynamic
+method search, in which object this method is implemented is
+avoided. This is about ~10% faster.
+
+X<http://www.perl.com/pub/2000/06/p5pdigest/THISWEEK-20000625.html#Method_Lookup_Speedup_>
+X<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
+
+=head3 Constant folding
+
+Right-hand-side expressions with resolve at compile-time to constant integers
+may be optimized to a CONST value, and left-hand-side numeric ops may be optimized
+to use their optimized <i_> counterparts.
+Note that i_ ops do not overflow, the integer values just wrap around.
+
+    my $c = $a + (1 << 8);
+    => my $c = $a + 256;  # add $a CONST(IV 256)
+
+    use coretypes;
+    my int $a;
+    my $c = $a + (1 << 8);
+    => my $c = $a + 256;  # i_add $a CONST(IV 256)
+
+    { use integer;
+      my $a = 1;
+      my $c = $a + (1 << 8);
+    }
+    => my $c = $a + 256;   # padsv($a) CONST(IV 1); i_add $a CONST(IV 256)
+
+    { use integer;
+      my $c = 1 + (1 << 8);
+    }
+    => my $c = 257;       # CONST(IV 257)
+
+    my const $a = 1;
+    my $c = $a + (1 << 8);
+    => my $c = 257;       # CONST(IV 257)
+
+
+=head3 Static method calls
+
+    strict->import()
+    => strict::import()
+
+When the method is defined directly in the package, it is not possible
+to inject another package at run-time into the method search, thus the
+method call can be short-cut.
+
+=head3 const packages
+
+    const package MyBase 0.01 {
+      our @ISA = ();
+      sub new { bless { @_ }, shift }
+    }
+    const package MyChild 0.01 {
+      our const @ISA = ('MyBase');
+    }
+
+    my $obj = MyChild->new;
+    => MyClass::new()
+
+When the method search goes only through const packages and their
+const C<@ISA>, it is not possible to inject another package at run-time
+into the method search, thus the method call can be short-cut.
+
+Note that the C<package MyBase> must be constant here. Otherwise
+C<&MyBase::new> can be deleted and C<@MyBase::ISA> be changed to lead
+a parent object at run-time.
+
+=head3 Types and const inheritance
+
+    package MyBase 0.01 {
+      our @ISA = ();
+      sub new { bless { @_ }, shift }
+    }
+    package MyChild 0.01 {
+      our @ISA = ('MyBase');
+    }
+
+    # closed call.
+    my MyChild $obj = MyChild->new;
+    => MyBase::new()
+
+When the left-hand side of a method call is typed, the result of the
+method call must be of this type or any dependent type. C<$obj> is
+already declared of type C<MyChild>, thus it cannot be of any other
+run-time injected package.
+
+    package MyBase 0.01 {
+      our @ISA = ();
+      sub new { bless { @_ }, shift }
+    }
+    const package MyChild 0.01 {
+      our const @ISA = ('MyBase');
+    }
+
+    # open call. MyChild is of type MyBase
+    my MyBase $obj = MyChild->new;
+    => MyBase::new()
+
+When the left-hand side of a method call is typed, the result of the
+method call must be of this type or any dependent type (i.e., C<MyBase>
+or C<MyChild>).  Since C<MyChild> is constant, i.e. no C<&MyChild::new>
+method can be added at run-time, and C<@MyChild::ISA> is also
+constant, it can only be C<&MyBase::new>, even if C<MyBase> itself is
+not constant.
+
+=head3 Lexical subs I<NYI>
+
+    package MyClass 0.01 {
+      our @ISA = ();
+      my sub new { bless { @_ }, shift }
+    }
+    ...
+    package main;
+    my $obj = new MyClass;
+
+Since C<&MyClass::new> is lexically defined, the compiler may statically
+optimize all sub and method calls to C<&MyClass::new> to an improved entersub
+(the CV being a pad) without namespace lookup and dynamic method
+resolution, without having to const C<%MyClass::> and const C<@MyClass::ISA>.
+
+Lexical definition guarantees compile-time definition, which is not overridable
+dynamically at run-time.
+
+=head3 coretypes
+
+The L<coretypes> module implements efficient implementations of
+natively typed scalars, arrays and hashes (I<at least since 5.18>),
+and the @ISA of the three coretypes are guaranteed to be empty. Thus
+there will no mother of all, such as a generic type C<object> to override
+coretypes, but there will be I<softer> children of coretypes to allow
+stringification and undef.
+
+So it is safe to optimize coretypes to its native operations at
+compile-time.
+
+See also L<perldata/coretypes> for examples.
+
+=head3 External type modules
+
+External modules, such as L<types>, L<typesafety> or L<Moose>,
+implement their type optimizations for the types they declare or allow
+declaration for during execution of L<perlsub/CHECK> blocks.
+X<Note: no compile-time attribute hooks for my yet>
+
+=head2 XXX __PACKAGE__ types I<questionable>
+
+As convenience for module authors it be handy to allow declarations, like
+
+    package MyClass;
+    my __PACKAGE__ $obj = __PACKAGE__->new;
+
+Currently only the right-hand side is valid Perl.
+See L<http://www.perl.com/pub/2000/06/p5pdigest/THISWEEK-20000625.html#my___PACKAGE___obj_>
+
+=head1 SEE ALSO
+
+See L<perldata/"Constant and typed lexical variables"> for the syntax
+of Perl's built-in type declarations for variables, and
+L<??? p5-mop design> for the syntax of Perl's argument and return type declarations.
+
+L<http://perl.plover.com/classes/typing/> I<Strong Typing Doesn't Have to Suck>
