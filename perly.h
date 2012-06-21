@@ -5,12 +5,11 @@
  */
 
 #ifdef PERL_CORE
-/* A Bison parser, made by GNU Bison 2.4.3.  */
+/* A Bison parser, made by GNU Bison 2.5.  */
 
-/* Skeleton interface for Bison's Yacc-like parsers in C
+/* Bison interface for Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
-   2009, 2010 Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989-1990, 2000-2011 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -215,7 +214,7 @@
 typedef union YYSTYPE
 {
 
-/* Line 1685 of yacc.c  */
+/* Line 2068 of yacc.c  */
 
     I32	ival; /* __DEFAULT__ (marker for regen_perly.pl;
 				must always be 1st union member) */
@@ -235,7 +234,7 @@ typedef union YYSTYPE
 
 
 
-/* Line 1685 of yacc.c  */
+/* Line 2068 of yacc.c  */
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -247,6 +246,6 @@ typedef union YYSTYPE
 
 
 /* Generated from:
- * 27cce68ad4844f1b8053bfc11206fb9f559e08be6cefd4a986aaa606c0e5fb38 perly.y
- * af56f4a86c1ef4bfc3d6a42ca6a75bb0adf9417da936013dca0d10b5eaa5efc4 regen_perly.pl
+ * 74ea708e010c2ae653afc128402c87eb8b0758eb07983e214961496300842203 perly.y
+ * 38f866dcd8341ad3c0810347587113eb2c6ac7d4f33bdab75b020efce92865be regen_perly.pl
  * ex: set ro: */
