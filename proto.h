@@ -2498,6 +2498,11 @@ PERL_CALLCONV OP *	Perl_my_attrs(pTHX_ OP *o, OP *attrs)
 #define PERL_ARGS_ASSERT_MY_ATTRS	\
 	assert(o)
 
+PERL_CALLCONV OP *	Perl_my_attrs_lex(pTHX_ OP *o, OP *attrs, I32 lex)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_MY_ATTRS_LEX	\
+	assert(o)
+
 PERL_CALLCONV void	Perl_my_clearenv(pTHX);
 PERL_CALLCONV int	Perl_my_dirfd(pTHX_ DIR* dir);
 PERL_CALLCONV void	Perl_my_exit(pTHX_ U32 status)

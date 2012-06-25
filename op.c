@@ -2531,8 +2531,15 @@ S_my_kid(pTHX_ OP *o, OP *attrs, OP **imopsp)
     return o;
 }
 
+/* non-public. Now unused in CORE. Can be deprecated. */
 OP *
 Perl_my_attrs(pTHX_ OP *o, OP *attrs)
+{
+    return Perl_my_attrs_lex(aTHX_ o, attrs, 0);
+}
+
+OP *
+Perl_my_attrs_lex(pTHX_ OP *o, OP *attrs, I32 lex)
 {
     dVAR;
     OP *rops;
@@ -2551,9 +2558,7 @@ Perl_my_attrs(pTHX_ OP *o, OP *attrs)
     maybe_scalar = 1;
 #endif
 
-    /* This hack assumes that there cannot be a valid OP* at 0x1
-       (unaligned and on no known OS) */
-    if (PTR2nat(attrs) == 1) {
+    if (lex == 2) {
         if (DEBUG_T_TEST_) {
             if (o->op_type == OP_PADSV ||
                 o->op_type == OP_PADAV ||
@@ -2564,8 +2569,7 @@ Perl_my_attrs(pTHX_ OP *o, OP *attrs)
             else
                 PerlIO_printf(Perl_debug_log, "### Initialize my const ()\n");
         }
-        o->op_private = (OPpPAD_CONST | OPpPAD_CONSTINIT); /* PAD or LIST */
-        attrs = NULL;
+        o->op_private |= OPpPAD_CONSTINIT; /* PAD or LIST */
     }
     if (attrs)
 	SAVEFREEOP(attrs);
@@ -2941,9 +2945,8 @@ Perl_localize(pTHX_ OP *o, I32 lex)
 	}
     }
 
-    /* This hack assumes that there is no valid OP* at 0x1 on the heap. */
     if (lex)
-	o = my(o, lex==2 ? INT2PTR(OP*,1) : NULL); /* mark my const init */
+	o = my(o, lex); 			/* mark my const init */
     else
 	o = op_lvalue(o, OP_NULL);		/* a bit kludgey */
     PL_parser->in_my = FALSE;
@@ -5261,10 +5264,11 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
     OP *o;
 
     if (optype) {
+        /* compile-time const check */
 	if ((left->op_type == OP_PADSV ||
 	     left->op_type == OP_PADAV ||
 	     left->op_type == OP_PADHV ||
-	     left->op_type == OP_PADANY) && left->op_private & OPpPAD_CONST) /* was SvREADONLY(PAD_SVl(left->op_targ) */
+	     left->op_type == OP_PADANY) && SvREADONLY(PAD_SVl(left->op_targ)))
             yyerror(Perl_form(aTHX_ "Invalid assignment to const variable %"SVf,
                               PAD_COMPNAME_SV(left->op_targ)));
 	if (optype == OP_ANDASSIGN || optype == OP_ORASSIGN || optype == OP_DORASSIGN) {
@@ -5282,7 +5286,7 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
          left->op_type == OP_PADAV ||
          left->op_type == OP_PADHV ||
          left->op_type == OP_PADANY) && /* really PADANY? */
-        left->op_private & (OPpPAD_CONST | OPpPAD_CONSTINIT)) {
+        left->op_private & OPpPAD_CONSTINIT) {
         flags |= OPf_SPECIAL;
     }
 
@@ -5302,10 +5306,10 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 	if ((left->op_type == OP_LIST
 	     || (left->op_type == OP_NULL && left->op_targ == OP_LIST)))
 	{
-            if (left->op_private & OPpPAD_CONSTINIT) {
-                o->op_flags |= OPf_SPECIAL;
-            }
 	    OP* lop = ((LISTOP*)left)->op_first;
+
+            if (left->op_private & OPpPAD_CONSTINIT)
+                o->op_flags |= OPf_SPECIAL;
 	    maybe_common_vars = FALSE;
 	    while (lop) {
 		if (lop->op_type == OP_PADSV ||

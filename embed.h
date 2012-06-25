@@ -1154,6 +1154,7 @@
 #define mro_isa_changed_in(a)	Perl_mro_isa_changed_in(aTHX_ a)
 #define mro_package_moved(a,b,c,d)	Perl_mro_package_moved(aTHX_ a,b,c,d)
 #define my_attrs(a,b)		Perl_my_attrs(aTHX_ a,b)
+#define my_attrs_lex(a,b,c)	Perl_my_attrs_lex(aTHX_ a,b,c)
 #define my_clearenv()		Perl_my_clearenv(aTHX)
 #define my_lstat_flags(a)	Perl_my_lstat_flags(aTHX_ a)
 #define my_stat_flags(a)	Perl_my_stat_flags(aTHX_ a)
