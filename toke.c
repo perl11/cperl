@@ -7716,7 +7716,7 @@ Perl_yylex(pTHX)
 		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
 		if (len == 3 && strnEQ(PL_tokenbuf, "sub", 3))
 		    goto really_sub;
-                /* const is the only type qualifier, unsigned not worth the
+                /* const is the only type qualifier. unsigned not worth the
                    parsing trouble, volatile not relevant. */
 		if (
 #if 0
@@ -8538,15 +8538,13 @@ S_pending_ident(pTHX)
        if it's a legal name, the OP is a PADANY.
     */
     if (PL_in_my) {
+        if (pl_yylval.ival == 2)
+            flag += SVf_READONLY;
         if (PL_in_my == KEY_our) {	/* "our" is merely analogous to "my" */
             if (has_colon)
                 yyerror_pv(Perl_form(aTHX_ "No package name allowed for "
                                   "variable %s in \"our\"",
                                      PL_tokenbuf), flag);
-            if (pl_yylval.ival == 2) {
-                flag += SVf_READONLY;
-                pl_yylval.ival = 1;
-            }
             tmp = allocmy(PL_tokenbuf, tokenbuf_len, flag);
         }
         else {
@@ -8554,10 +8552,6 @@ S_pending_ident(pTHX)
                 yyerror_pv(Perl_form(aTHX_ PL_no_myglob,
 			    PL_in_my == KEY_my ? "my" : "state", PL_tokenbuf),
                             flag);
-            if (pl_yylval.ival == 2) {
-                flag += SVf_READONLY;
-                pl_yylval.ival = 1;
-            }
             pl_yylval.opval = newOP(OP_PADANY, 0);
             pl_yylval.opval->op_targ = allocmy(PL_tokenbuf, tokenbuf_len, flag);
             return PRIVATEREF;

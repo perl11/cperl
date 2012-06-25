@@ -211,7 +211,7 @@ PP(pp_sassign)
 	);
 
     /* my const $i = val; initialization must temp. lift constness */
-    if (PL_op->op_flags & OPf_SPECIAL && PL_op->op_private & OPpPAD_CONST) {
+    if (PL_op->op_flags & OPf_SPECIAL && SvREADONLY(left)) {
         SvREADONLY_off(left);
         SvSetMagicSV(left, right);
         SETs(left);
@@ -1001,9 +1001,9 @@ PP(pp_aassign)
     while (lelem <= lastlelem) {
 	TAINT_NOT;		/* Each item stands on its own, taintwise. */
 	sv = *lelem++;
-        if (PL_op->op_flags & OPf_SPECIAL && SvREADONLY(sv)) { /* cons init */
+        if (PL_op->op_flags & OPf_SPECIAL && SvREADONLY(sv)) { /* const init */
             SvREADONLY_off(sv);
-            PL_op->op_private |= OPpASSIGN_CONSTINIT; /* pp_aassign internal only */
+            PL_op->op_private |= OPpASSIGN_CONSTINIT; /* aassign internal */
         }
 	switch (SvTYPE(sv)) {
 	case SVt_PVAV:
@@ -1032,6 +1032,10 @@ PP(pp_aassign)
 	    if (PL_delaymagic & DM_ARRAY_ISA)
 		SvSETMAGIC(MUTABLE_SV(ary));
 	    LEAVE;
+            if (PL_op->op_flags & OPf_SPECIAL && PL_op->op_private & OPpASSIGN_CONSTINIT) {
+                SvREADONLY_on(ary);
+                PL_op->op_private &= ~OPpASSIGN_CONSTINIT;
+            }
 	    break;
 	case SVt_PVHV: {				/* normal hash */
 		SV *tmpstr;
@@ -1079,6 +1083,10 @@ PP(pp_aassign)
 		}
 		LEAVE;
 	    }
+            if (PL_op->op_flags & OPf_SPECIAL && PL_op->op_private & OPpASSIGN_CONSTINIT) {
+                SvREADONLY_on(hash);
+                PL_op->op_private &= ~OPpASSIGN_CONSTINIT;
+            }
 	    break;
 	default:
 	    if (SvIMMORTAL(sv)) {
@@ -1101,12 +1109,12 @@ PP(pp_aassign)
 	    else
 		sv_setsv(sv, &PL_sv_undef);
 	    SvSETMAGIC(sv);
+            if (PL_op->op_flags & OPf_SPECIAL && PL_op->op_private & OPpASSIGN_CONSTINIT) {
+                SvREADONLY_on(sv);
+                PL_op->op_private &= ~OPpASSIGN_CONSTINIT;
+            }
 	    break;
 	}
-        if (PL_op->op_flags & OPf_SPECIAL && PL_op->op_private & OPpASSIGN_CONSTINIT) {
-            SvREADONLY_on(*lastlelem);
-            PL_op->op_private &= ~OPpASSIGN_CONSTINIT;
-        }
     }
     if (PL_delaymagic & ~DM_DELAY) {
 	/* Will be used to set PL_tainting below */

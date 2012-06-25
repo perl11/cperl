@@ -1,6 +1,6 @@
 #!./perl
 
-print "1..13\n";
+print "1..14\n";
 my $test=1;
 {
   BEGIN {push @INC, 'lib';}
@@ -9,17 +9,20 @@ my $test=1;
   my $result = eval 'use 5.017;my const $a=1;print "# \$a=",$a,"\n";$a';
   if (!$@ and $result == 1) { print "ok $test\n"; } else { print "not ok $test - declare and set const \$i\n"; }
   $test++;
-  my $result = eval 'use 5.017;my const @a=(1);print "# \$a[0]=",$a[0],"\n";$a[0]';
+  $result = eval 'use 5.017;my const @a=(1);print "# \$a[0]=",$a[0],"\n";$a[0]';
   if (!$@ and $result == 1) { print "ok $test\n"; } else { print "not ok $test - declare and set const \@a\n"; }
   $test++;
-  my $result = eval 'use 5.017;my const %a=("a"=>"ok");print "# \$a{a}=",$a{a},"\n";$a{a}';
+  $result = eval 'use 5.017;my const %a=("a"=>"ok");print "# \$a{a}=",$a{a},"\n";$a{a}';
   if (!$@ and $result eq 'ok') { print "ok $test\n"; } else { print "not ok $test - declare and set const \%a\n"; }
   $test++;
-  my $result = eval 'use 5.017;my const($a,$b)=(1,2);print "# \$a,\$b=",$a,$b,"\n";$a';
+  $result = eval 'use 5.017;my const($a,$b)=(1,2);print "# \$a,\$b=",$a,$b,"\n";$a';
   if (!$@ and $result == 1) { print "ok $test\n"; } else { print "not ok $test - const in list_assignment\n"; }
   $test++;
 
   # throw PL_no_modify compile-time errors
+  $result = eval 'use 5.017;my const($a,$b)=(1,2);$b=0;';
+  if ($@ =~ /Modification of a read-only value attempted/) { print "ok $test\n"; } else { print "not ok $test - #TODO set const \$b in (\$a,\$b)\n"; }
+  $test++;
   eval 'use 5.017;my const $a=1; $a=0';
   if ($@ =~ /Modification of a read-only value attempted/) { print "ok $test\n"; } else { print "not ok $test - set const \$i\n"; }
   $test++;
@@ -34,7 +37,7 @@ my $test=1;
   if ($@ =~ /Modification of a read-only value attempted/) { print "ok $test\n"; } else { print "not ok $test - push const \@a\n"; }
   $test++;
   eval 'use 5.017;my const %a = (0=>1,1=>2);%a=(0=>1)';
-  if ($@ =~ /Attempt to access disallowed key/) { print "ok $test\n"; } else { print "not ok $test - TODO const \%a restricted hash\n"; }
+  if ($@ =~ /Attempt to access disallowed key/) { print "ok $test\n"; } else { print "not ok $test - #TODO const \%a restricted hash\n"; }
   $test++;
 
   # mixed with types
