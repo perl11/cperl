@@ -37,17 +37,39 @@ no setting to C<undef> allowed.
 
 =head2 const
 
+X<const lexical>
 L<perldata/const> is a new type qualifier for lexical variables to
 enable compile-time readonly and assignment checks and
-type-optimizations.  Esp. useful are declarations of const packages
-and the @ISA inheritance tree to optimize method calls at
-compile-time.
-const sets the internal READONLY flags for the variable, if it's
+type optimizations. You must assign a value within the declaration.
+
+  my const $a = 0;
+  my const($b,$c) = (0,1);
+  my (const $d, $free) = (0,1);
+  my (const int $i, const string $s) = (0,"1");
+
+const sets the internal SVf_READONLY flag for the variable, if it's
 a scalar, array or hash. The special package stash (e.g. C<%MyClass::>)
 counts as hash.
+Arrays and hashes are only I<shallow const>, only the structure is
+protected, not the values. For I<deep constness> you have to manually
+const all values also, or use a module.
 
-TODO:
-    const package ... { ... }
+Currently most const assignment violations are caught at compile-time,
+and if not you get at least an error at run-time.
+
+X<const package>
+Additionally to lexical variables we can also declare packages as
+const.  That means that the structure of previously parsed package
+const stash can not me modified, I<shallow constness>. You may not
+change, add or delete keys of the stash, but you may change the value
+of stash entries.
+
+    const package MyBase { ... }
+i.e.
+    our const %MyBase:: = {}
+
+Especially useful are declarations of const packages and the @ISA
+inheritance tree to optimize method calls at compile-time.
 
 =head2 Compile-time type checks
 
@@ -60,34 +82,38 @@ with assignment.
     my const %h = ('ok' => 1, 'nok' => 0);
 
 Declaration of a const variable without initialization B<XXX> 
-    1. is disallowed I<(preferred)>
-    2. leads to a warning
-    3. stores undef
+    1. is a compile-time error I<(preferred)>
+    2. is a compile-time warning
+    3. silently stores undef
 
-External modules, such as L<coretypes>, L<types>, L<typesafety> or
-L<Moose> implement their type checks for their types during execution
-of L<perlmod/CHECK> blocks.
+As Perl itself supports no types, external modules such as
+L<coretypes>, L<types>, L<typesafety> or L<MooseX::Types> implement
+checks for their types during execution of L<perlmod/CHECK>
+blocks, I<at quasi compile-time>.
 
 =head2 Compile-time type optimizations
 
 Since Perl core does not deal with types stored in C<comppad_name> per
 se, type checks and optimizations are deferred to the modules which
-implement respective types. The only type optimization currently in
-effect is constant folding, and the change of compile-time static
-method calls, determined either by name or by type and const-ness of
-all searched packages to static function calls.  Thus the dynamic
-method search, in which object this method is implemented is
-avoided. This is about ~10% faster.
+implement respective types.
+
+The only type optimization currently in effect is constant folding,
+and the change of compile-time static method calls, determined either
+by name or by type and const-ness of all searched packages to static
+function calls.  Thus the dynamic method search, in which object this
+method is implemented is avoided. This is about ~10% faster.
 
 X<http://www.perl.com/pub/2000/06/p5pdigest/THISWEEK-20000625.html#Method_Lookup_Speedup_>
 X<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
 
 =head3 Constant folding
 
-Right-hand-side expressions with resolve at compile-time to constant integers
-may be optimized to a CONST value, and left-hand-side numeric ops may be optimized
-to use their optimized <i_> counterparts.
-Note that i_ ops do not overflow, the integer values just wrap around.
+Right-hand-side expressions which resolve at compile-time to constant
+integers may be optimized to a CONST value, and left-hand-side numeric
+ops may be optimized to use their optimized <i_> counterparts.  Note
+that i_ ops do not overflow, the integer values just wrap around. So
+the type and data range must be determined in advance and if not possible
+i_opt promotion it is forbidden.
 
     my $c = $a + (1 << 8);
     => my $c = $a + 256;  # add $a CONST(IV 256)
@@ -183,18 +209,27 @@ not constant.
 
 =head3 Lexical subs I<NYI>
 
+Lexically defined subs are private subs but public callable and optimizable methods
+
     package MyClass 0.01 {
       our @ISA = ();
       my sub new { bless { @_ }, shift }
+      my $private; # pad in maincv
+      our $open;   # in stash
     }
+
     ...
     package main;
-    my $obj = new MyClass;
+    my $obj = new MyClass; # i.e MyClass->new is valid and optimized.
+                           # Indirect method call syntax helps.
 
-Since C<&MyClass::new> is lexically defined, the compiler may statically
-optimize all sub and method calls to C<&MyClass::new> to an improved entersub
-(the CV being a pad) without namespace lookup and dynamic method
-resolution, without having to const C<%MyClass::> and const C<@MyClass::ISA>.
+    my $obj = MyClass::new(); # invalid
+    => Undefined subroutine &MyClass::new called
+
+Since C<&MyClass::new> is lexically defined in the package scope, the compiler
+may statically optimize all method calls to C<&MyClass::new> to an improved entersub
+(the CV being on a pad) without namespace lookup and dynamic method resolution,
+without having to const C<%MyClass::> and const C<@MyClass::ISA>.
 
 Lexical definition guarantees compile-time definition, which is not overridable
 dynamically at run-time.
@@ -222,12 +257,16 @@ X<Note: no compile-time attribute hooks for my yet>
 
 =head2 XXX __PACKAGE__ types I<questionable>
 
-As convenience for module authors it be handy to allow declarations, like
+As convenience for module authors it was asked to allow declarations, like
 
     package MyClass;
     my __PACKAGE__ $obj = __PACKAGE__->new;
 
 Currently only the right-hand side is valid Perl.
+
+This looks awful though. Refactoring of the package name should really
+refactor the internal types also, besides the type of all library users.
+But it would be consistent.
 See L<http://www.perl.com/pub/2000/06/p5pdigest/THISWEEK-20000625.html#my___PACKAGE___obj_>
 
 =head1 SEE ALSO
