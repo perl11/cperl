@@ -1,0 +1,488 @@
+=head1 SUMMARY
+
+perl design draft - types and const
+
+=head2 Perl already has a type system
+
+E.g. C<my Dog $wuff>; stores the "Dog" stashname in comppad_names.
+
+Only for lexicals (which is good and strict-safe). Almost nobody uses it.
+There are ~5 typed modules on CPAN, Net::DNS the most prominent.
+5.10 broke all old type modules. Moose started afresh, but naive and
+different.
+
+The biggest performance win would be to be able to mark packages and
+its @ISA as B<readonly> i.e. B<const> or type objects instances to do
+method_call compile-time optimizations.  Also hash function
+optimizations (I<perfect>), natively typed arrays and hashes,
+more constant folding and maybe shared strings.
+
+    const package MyBase 0.01 {
+      our @ISA = ();
+      sub new { bless { @_ }, shift }
+    }
+    const package MyChild 0.01 {
+      our const @ISA = ('MyBase');
+    }
+
+    my $obj = MyChild->new;
+    => MyClass::new()
+
+See L<perltypes/"Compile-time type optimizations">
+
+Static compilers such as <B::C> and <B::CC> can optimize storage and
+run-time performance furthermore. Most of the previously dynamically
+allocated data can be made static (no parsing time, instant startup
+time), some data can use COW.
+
+The management win would be to actually enable strict typing rules
+and to catch coding mistakes at compile-time.
+See L<perltypes/"Compile-time type checks">
+
+=head2 MOP with 5.18
+
+With the new MOP we can mark classes as C<closed> or immutable
+(= optimizable), and C<type> function arguments (optimizable method
+calls + optional type checks).
+
+    package My;
+    
+    class MyBase (is_closed => 1) { sub new { bless {@_}, shift } }
+    class MyDog (is_closed => 1, extends => MyBase) {
+      #sub disallowed!
+      method bark (Dog $dog) { print "bark ",ref $dog; }
+    }
+
+=head2 const
+
+Declaration of C<my const> variables and packages allows compile-time
+checks, shared strings, lexical scope instead of C<use constant>,
+familiar syntax, and efficient optimizations, also for extensions,
+as the L<p5-mop>, L<coretypes> or L<B::C>.
+
+    use coretypes;
+    my const int @a = (0..9);
+    my const string %h
+       = ('ok'  => '1',
+          'bad' => '2');
+
+Why not as attribute C<my $var :const>?
+
+1. This was my first proposal. I<blogs.perl Feb 2011>
+
+2. This attribute must also be special cased in core as my const.
+The hard part is optree support for const pads, not the keyword.
+
+3. Third party modules cannot use this attribute, as there is no
+CHECK time hook for attributes yet, only at run-time. But at
+run-time it is too late.
+
+4. The internal implementation look both bad, I'll try both.
+It will be easier to use for C<class>, as class declarations
+are already overloaded with new syntax: extends, with, is,
+is_closed, metaclass, DEMOLISH, BUILD, FINALIZE.
+class NAME (is_closed => 1) {} currently defines an
+immutable, constant class.
+
+5. my const looks better and familiar
+
+  my const($a, int $b) = (0,1);
+  my (const $a, int $b) = (0,1);
+vs:
+  my ($a:const, int $b:const) = (0,1);
+
+=head2 p5 does NOT declare a type system
+
+p5 only allows storing types in C<comppad_names> and does some
+compile-time optimizations with const and methods.  It only declares
+const.
+
+p5 does not declare a type system by itself. One must use an extension
+which declares and handles its types. p5-mop is such a meta type system.
+
+L<coretypes> declares the native core types int, double and string for
+IV, NV and PV, for scalars, arrays and hashes.  Not for functions yet,
+as function parameters are handled by extensions.  coretypes is 
+backwards compat.
+
+There is no p5 super object, such as C<class> or C<object>. Maybe the
+mop needs one, but the three coretypes do not inherit. There is no
+C<< $var->>print >>, C<< @a->reverse >> and such planned.
+This can be done by mixins. coretypes will be slim, p5-mop will be fat.
+But hopefully optimizable (i.e. compile-time) in the general case.
+
+PS: Several people at YAPC expressed their wish to make class immutable
+to be the new default. Then there must be a syntax to allow run-time changes
+(i.e. non-constant classes).
+   class NAME (is_closed => 0) {}
+   class NAME :mutable {}
+or such.
+
+
+=head2 Acceptable type upgrades with const and coretypes
+
+const variables are not purely constant, they are different from strictly 
+typed variables.
+const variables may be upgraded to its string or numeric representation.
+They may be numified and/or stringified, strictly typed variables not.
+
+
+  my const $a = 1;
+  my const $s = "1";
+  my int $ti = 0;
+  my string $ts = "1";
+
+  print "my $a";  # valid, upgraded from IV to PVIV
+  print "my $ti"; # invalid, compile-time type violation error,
+                  # the int IV cannot be stringified
+You have to use:
+  sprintf "my %d",$ti; # or
+  print "my ",$ti;
+
+  $g = $s + 1;  # valid, upgraded from PV to PVIV
+  $g = $ts + 1; # invalid numify, compile-time type violation error
+  $g = 0+$ts;   # invalid numify, compile-time type violation error
+
+=head2 const and magic @_
+
+How about function arguments and return value constness?
+
+Return values are always copied without keeping constness from within a function.
+
+  # valid
+  perl -MReadonly -e'sub ret { Readonly my $i => 1; $i} my $x=ret();$x+=1'
+
+Arguments handled by reference keep constness:
+
+  # invalid
+  perl -MReadonly -e'sub get { Readonly $_[0]; } my $x=1; get($x); $x+=1;'
+  => Modification of a read-only value attempted
+
+Arguments copied by value from @_ loose constness:
+
+  # valid
+  perl -MReadonly -e'sub get { my $x=shift; Readonly $x; } my $x=1; get($x); $x+=1;'
+  perl -MReadonly -e'sub get { my $x=shift; $x+=1; } Readonly my $x=>1; get($x);'
+
+=head2 Declare function signatures and types (target 5.20)
+
+perlsub has this say:
+"Some folks would prefer full alphanumeric prototypes.  Alphanumerics have been
+intentionally left out of prototypes for the express purpose of someday in the
+future adding named, formal parameters.  The current mechanism's main goal is to let
+module writers provide better diagnostics for module users.  Larry feels the
+notation quite understandable to Perl programmers, and that it will not intrude
+greatly upon the meat of the module, nor make it harder to read.  The line noise is
+visually encapsulated into a small pill that's easy to swallow."
+
+We want to optionally declare function parameter names and types and
+the return type.  There is no need to come up with new keywords like
+fun just seperate sub prototypes from sub parameters.  The simple rule
+is: If there is a whitespace or alphanumeric sequence in the protoype,
+it's no prototype.  The general rule, esp. for single parameters: If
+there is any non-prototype character, it's an parameter declaration
+then.
+
+Prototype changes the parser bindings, named function signatures
+avoids manual @_ extraction, function types and const declarations
+will catch type errors earlier and helps in compiler-time
+optimizations.
+
+  sub fun ($arg1) {}
+
+Function parameters have optional names and if so use them inside the function as such.
+@_ is not used then externaly, ony internaly.
+
+  sub adder ($arg1, $arg2) { $arg1 + arg2 }
+
+You are able to declare types of function parameters and return values.
+
+  int sub adder (const int $arg1, const int $arg2) { $arg1 + arg2 }
+
+You can als use types only without names. Note that the C<;> semicolon here
+denotes the 2nd argument as optional.
+
+  int sub adder (const int; const int) { shift + shift }
+
+With names it is better to use the C<=> syntax for optional parameter declarations
+and a default value.
+You are able to declare optional parameter default values with using a name and C<=> 
+and a literal default value. Default values can be constants or variables, but no 
+function calls.
+
+  int sub adder (const int $arg1, const int $arg2=0) { $arg1 + arg2 }
+  adder(1);
+  adder(1,1);
+
+Arguments are copied by default. To use pass by reference style as with $_[0]
+which changes the passed value, use the ref syntax \$name
+
+  int sub adder (int \$arg1, const int $arg2=0) { $arg1 += arg2 }
+  my $i=0; 
+  adder($i,1);
+  adder($i,1);
+  print $i;
+  => 2
+
+See also <Method::Signatures>.
+
+=head3 Return type declarations
+
+The parameters were straightforward, but this is now hairy, as there
+are many competing syntax variants currently used.
+
+At first: return types loose constness.
+
+  const int
+  sub ret_const { # => returns const int  
+    ReadOnly my $foo => 1;
+    my const $myarg = shift;
+
+    $_[0] = 2; # run-time error byref
+    $foo       # return a copy of a const
+  }
+
+  my const $arg = 1;
+  my $foo = ret_const($arg);
+  $foo += 1;
+
+Pointy Variant
+  sub function (int $i -> int) {}
+Hashy Variant
+  sub function (int $i => int) {}
+Old Variant (use typesafety)
+  sub function (int; int $i) {}
+Modern C-like variant
+  int sub function (int $i) {}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=head1 Private implementation notes
+
+Please ignore
+
+=head2 optree traversal
+
+Generally, optree traversal to do optimizations in perl5 is forward only.
+You do not know the previous op, even kids do not know its parents.
+Some ops have special pointers backwards though, such as some UNOPs and BINOPs.
+So to do a simple tree-optimization, such as
+
+  my const $i = 0;
+
+  const (IV 0)
+  padsv [$a]/CONST
+  sassign *
+
+which is represented in the optree as
+
+  5     <2> sassign vKS*/2 ->6
+  3        <$> const(IV 0) s ->4
+  4        <0> padsv[$a:1,2] sRM*/LVINTRO,CONSTINIT ->5
+
+you need to step forward to sassign to see that the 2nd argument 
+padsv is constant, so either in the case of 
+  $i = 1;  # $i being a const pad
+
+  9     <2> sassign vKS/2 ->a
+  7        <$> const(IV 1) s ->8
+  8        <0> padsv[$a:1,2] sRM* ->9
+
+which is illegal and throws a compiler error. 
+
+Or in the case above as
+  my const $i = 0;
+which is a valid initialization, and allows overwriting the constant $i pad.
+
+1.
+
+One would like to do constant folding directly at sassign, to check if the rhs of 
+the expression evaluates to a constant.
+
+  my $i = 1 + ($a << 2);
+
+constant if $a is const, otherwise not.
+
+If so, the rhs can be shortened to CONST. No need for various compiler passes
+through the whole optree. I<"localize optimizations">
+
+  my $i;
+  my const $a = 2;
+  $i = 1 + ($a << 2);
+ =>
+  const(IV 2)
+  padsv [$a] /CONST
+  sassign /CONSTINIT
+  const(IV 9) <=== optimized 1 + (2 << 2)
+  padsv [$i]
+  sassign
+
+2.
+
+Or get rid of a const padsv initialization by sassign at all 
+if the rhs is parsed already to a constant scalar.
+
+  perl -DT -e'my const $a=0;'
+
+ 0:LEX_NORMAL/XSTATE "\n;"
+ <== MY(ival=1)
+
+ 1:LEX_NORMAL/XTERM "$a=0;\n"
+ <== '$'
+
+ 1:LEX_NORMAL/XOPERATOR "=0;\n"
+ Pending identifier '$a'
+ <== PRIVATEREF(opval=op_padany)
+
+ 1:LEX_NORMAL/XOPERATOR "=0;\n"
+ <== ASSIGNOP(ival=op_null)
+
+ 1:LEX_NORMAL/XTERM "0;\n"
+ Saw number in ";\n"
+ <== THING(opval=op_const) IV(0)
+
+ 1:LEX_NORMAL/XOPERATOR ";\n"
+ <== ';'
+
+ 1:LEX_NORMAL/XSTATE "\n"
+ <== ';'
+
+ 1:LEX_NORMAL/XSTATE ""
+ Tokener got EOF
+ <== EOF
+
+ parsed as:
+   MY $a(padany) ASSIGNOP THING const(IV 0);
+ compiled to:
+   const(IV 0)
+   padsv[$a]/CONST
+   sassign /CONSTINIT
+
+Since padsv already knows that it will be assigned to a CONST, and that is const
+it should store the value and the READONLY flag and omit the CONST and SASSIGN ops at all.
+
+=head2 CONST
+
+It would be nice to use compile my const $i=1 to
+CONST(IV=1) instead of PADSV($i) with $i SVf_READONLY
+to have faster access for the optimizer.
+
+But the compiler needs to find lexical pads in the scope
+upwards, and I'm not sure if a CONST->op_sv assumption 
+pointing to a pad is a good idea. A lexical is still a
+lexical.
+Every PAD*V($i) with $i SVf_READONLY should be marked as
+op_private = OPpPAD_CONST when the PAD is created (looked up)
+to be easier and more reliable detectable by the compiler,
+and visible via B::Concise/Deparse.
+
+store my const $padsv as OP_CONST with ->op_sv pointing to the pad?
+  at all, convert early or later?
+how about pad_findlex and lexical scoping rules then?
+
+  { my const $i;
+    sub x {$i+20}
+  }
+seems to be safe to convert early, and not waste a padsv.
+not for padav and padhv.
+
+How to pad_findlex a const $i if optimized to OP_CONST? 
+How about dynamic scope at run-time?
+How about late binding CvLATE: ANON and PVFM. (delayed creation of the pad)
+intro_my?
+
+if so:
+ck: save to strip off padsv and sassign
+  CONST IV=1
+
+Nope. Better add const PADSV to the optimizers.
+CONST wants its sv as sv.
+
+--
+
+my const $i=1; # simple scalar case
+
+Lexer:
+  MY(ival=2)
+  PRIVATEREF padany
+  ASSIGNOP
+  Initialize my const $i
+  const IV 1
+op:
+  CONST IV=1
+  PADSV    OPpPAD_CONST+OPpPAD_CONSTINIT, targ -> READONLY
+  SASSIGN  OPf_SPECIAL (for const init temp. overwrite)
+
+--
+
+my const ($i)=(1); # list case
+
+Lexer:
+  MY(ival=2)
+  PRIVATEREF padany
+  ASSIGNOP
+  Initialize my const $i
+  const IV 1
+op:
+  CONST IV=1
+  PADSV    OPpPAD_CONST+OPpPAD_CONSTINIT, targ -> READONLY
+  SASSIGN  OPf_SPECIAL (for const init temp. overwrite)
+
+--
+
+my const @a=(1); # PADAV
+
+Lexer:
+  MY(ival=2)
+  PRIVATEREF padany
+  ASSIGNOP
+  Initialize my const @a
+  const IV 1
+op:
+  pushmark
+  CONST IV=1
+  pushmark
+  PADAV    OPpPAD_CONST+OPpPAD_CONSTINIT, targ -> READONLY
+  AASSIGN  OPf_SPECIAL
+
+--
+
+my const $i;
+...
+should warn: Uninitialized const $i at -e, line 1
+
+constant folding:
+my const $i=1; $x=$i+20;
+
+const 1
+padsv $i
+sassign
+            =>
+padsv $i          const 21
+const 20          
+add
+gvsv              gvsv
+sassign           sassign
