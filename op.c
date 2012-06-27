@@ -10871,6 +10871,8 @@ Perl_ck_require(pTHX_ OP *o)
                 Perl_die(aTHX_ "Bareword in require maps to disallowed filename \"%s\"", s);
 #endif
             }
+            if (s == end)
+                DIE(aTHX_ "Bareword in require maps to empty filename");
 
 	    for (; s < end; s++) {
 		if (*s == ':' && s[1] == ':') {
