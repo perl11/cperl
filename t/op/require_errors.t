@@ -8,7 +8,7 @@ BEGIN {
 use strict;
 use warnings;
 
-plan(tests => 17);
+plan(tests => 18);
 
 my $nonfile = tempfile();
 
@@ -26,10 +26,12 @@ for my $file ($nonfile, ' ') {
 	"correct error message for require '$file'";
 }
 
-eval "require $nonfile";
+for my $file ($nonfile, "::$nonfile") {
+    eval "require $file";
 
-like $@, qr/^Can't locate $nonfile\.pm in \@INC \(you may need to install the $nonfile module\) \(\@INC contains: @INC\) at/,
-    "correct error message for require $nonfile";
+    like $@, qr/^Can't locate $nonfile\.pm in \@INC \(you may need to install the $nonfile module\) \(\@INC contains: @INC\) at/,
+    "correct error message for require $file";
+}
 
 eval {
     require "$nonfile.ph";

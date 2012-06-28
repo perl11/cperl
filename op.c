@@ -10846,6 +10846,7 @@ Perl_ck_require(pTHX_ OP *o)
 	U32 hash;
 	char *s;
 	STRLEN len;
+
 	if (kid->op_type == OP_CONST) {
 	  SV * const sv = kid->op_sv;
 	  U32 const was_readonly = SvREADONLY(sv);
@@ -10853,14 +10854,24 @@ Perl_ck_require(pTHX_ OP *o)
             dVAR;
 	    const char *end;
 
-	    if (was_readonly) {
-		    SvREADONLY_off(sv);
-	    }   
-	    if (SvIsCOW(sv)) sv_force_normal_flags(sv, 0);
+	    if (was_readonly)
+                SvREADONLY_off(sv);
+	    if (SvIsCOW(sv))
+                sv_force_normal_flags(sv, 0);
 
 	    s = SvPVX(sv);
 	    len = SvCUR(sv);
 	    end = s + len;
+            /* Either treat ::foo::bar as foo::bar, or throw an error */
+            if (len >= 2 && s[0] == ':' && s[1] == ':') {
+#if 1
+                Move(s+2, s, len - 2, char);
+                end -= 2;
+#else
+                Perl_die(aTHX_ "Bareword in require maps to disallowed filename \"%s\"", s);
+#endif
+            }
+
 	    for (; s < end; s++) {
 		if (*s == ':' && s[1] == ':') {
 		    *s = '/';
