@@ -256,6 +256,33 @@ Modern C-like variant
   int sub function (int $i) {}
 
 
+=head2 Changes & existing bugs
+
+=head3 Can't declare subroutine entry in "my"
+
+Multiple B<my> declarations with types are not parsed correctly.
+
+  perl -e'$i::x; my (j $a, i $b)=(1,2);'
+  => Can't declare subroutine entry in "my" at -e line 1, near ")="
+
+  perl -e'$i::x; my (i $a)=(1);'
+  => Can't declare subroutine entry in "my" at -e line 1, near ")="
+
+This is a parser problem.
+A C<my (TYPE EXPR, ...)> declaration should not be mixed with a function call,
+i.e. subroutine entry.  C<my> is a reserved keyword and cannot be the name of
+a subroutine.
+
+The error should be the same as with
+  perl -e'my j $a;'
+  => No such class j at -e line 1, near "my j"
+and
+  perl -e'$i::x; my i $a;'
+parses correctly.
+
+
+
+
 
 
 
