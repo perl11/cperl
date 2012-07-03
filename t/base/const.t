@@ -1,6 +1,5 @@
 #!./perl
-
-print "1..14\n";
+BEGIN { $| = 1; print "1..15\n"; }
 my $test=1;
 {
   BEGIN {push @INC, 'lib';}
@@ -17,6 +16,9 @@ my $test=1;
   $test++;
   $result = eval 'use 5.017;my const($a,$b)=(1,2);print "# \$a,\$b=",$a,$b,"\n";$a';
   if (!$@ and $result == 1) { print "ok $test\n"; } else { print "not ok $test - const in list_assignment\n"; }
+  $test++;
+  $result = eval 'use 5.017;my (const $a, const $b)=(1,2);print "# \$a,\$b=",$a,$b,"\n";$a';
+  if (!$@ and $result == 1) { print "ok $test\n"; } else { print "not ok $test - #TODO const in list_assignment2\n"; }
   $test++;
 
   # throw PL_no_modify compile-time errors
