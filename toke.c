@@ -7703,6 +7703,11 @@ Perl_yylex(pTHX)
 	case KEY_msgsnd:
 	    LOP(OP_MSGSND,XTERM);
 
+	case KEY_const:
+            if (!PL_in_my)
+                yyerror("const only valid in lexical or sub declarations");
+            goto my_const;
+
 	case KEY_our:
 	case KEY_my:
 	case KEY_state:
@@ -7723,6 +7728,7 @@ Perl_yylex(pTHX)
 		FEATURE_CONST_IS_ENABLED &&
 #endif
 		                            (len == 5) && strnEQ(PL_tokenbuf, "const", 5)) {
+              my_const:
                     pl_yylval.ival = 2;
                     s = SKIPSPACE1(s);
                     s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);

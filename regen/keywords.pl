@@ -51,6 +51,7 @@ my %feature_kw = (
 	__SUB__ => '__SUB__',
 
 	fc      => 'fc',
+	const   => 'const',
 	);
 
 my %pos = map { ($_ => 1) } @{$by_strength{'+'}};
@@ -150,6 +151,7 @@ __END__
 -closedir
 -cmp
 -connect
++const
 -continue
 -cos
 -crypt
@@ -370,3 +372,4 @@ __END__
 -x
 -xor
 +y
+
