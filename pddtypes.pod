@@ -263,14 +263,14 @@ Modern C-like variant
 
 =head2 Changes & existing bugs
 
-=head3 Can't declare subroutine entry in "my"
+=head3 [#21979] [#todo] Can't declare subroutine entry in "my"
 
 Multiple B<my> declarations with types are not parsed correctly.
 
   perl -e'$i::x; my (j $a, i $b)=(1,2);'
   => Can't declare subroutine entry in "my" at -e line 1, near ")="
 
-  perl -e'$i::x; my (i $a)=(1);'
+  perl -e'my (i $a)=(1);'
   => Can't declare subroutine entry in "my" at -e line 1, near ")="
 
 This is a parser problem.
@@ -285,7 +285,19 @@ and
   perl -e'$i::x; my i $a;'
 parses correctly.
 
+=head3 [#21979][#109744] referenced constant loses readonlyness
 
+On a threading Perl, a list-mode refgen applied to a constant will copy the constant
+rather than reference it, but the SVf_READONLY flag is not copied.
+An srefgen, however, will reference it. On a non-threading Perl constness
+is preserved.
+
+L<http://github.com/rurban/perl/branch/typed/ro> starts with support for const
+pads (preserve and use const-ness at compile-time).
+
+See also L<Scalar::Construct> to create a const. This module was
+created in response to the ticket [#109744], similar but with less features
+than L<Readonly> or L<Const::Fast>.
 
 
 
