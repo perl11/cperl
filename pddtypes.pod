@@ -55,16 +55,23 @@ calls + optional type checks).
 
 =head2 const
 
+const is added as type-qualifier to lexical declarations and to packages
+with the feature B<'const'>, which was added with v5.18.
+
 Declaration of C<my const> variables and packages allows compile-time
 checks, shared strings, lexical scope instead of C<use constant>,
 familiar syntax, and efficient optimizations, also for extensions,
 as the L<p5-mop>, L<coretypes> or L<B::C>.
+const packages allow compile-time optimizations of method calls.
 
-    use coretypes;
-    my const int @a = (0..9);
-    my const string %h
-       = ('ok'  => '1',
-          'bad' => '2');
+    use v5.18;
+    my const $a = 0;
+    my const @a = (0..9);
+    my const %h = ('ok'  => '1',
+                   'bad' => '2');
+    const package foo {
+       ...
+    }
 
 Why not as attribute C<my $var :const>?
 
@@ -125,7 +132,6 @@ const variables are not purely constant, they are different from strictly
 typed variables.
 const variables may be upgraded to its string or numeric representation.
 They may be numified and/or stringified, strictly typed variables not.
-
 
   my const $a = 1;
   my const $s = "1";
@@ -224,7 +230,7 @@ which changes the passed value, use the ref syntax \$name
   print $i;
   => 2
 
-See also <Method::Signatures>.
+See also L<Method::Signatures>.
 
 =head3 Return type declarations
 
@@ -254,7 +260,6 @@ Old Variant (use typesafety)
   sub function (int; int $i) {}
 Modern C-like variant
   int sub function (int $i) {}
-
 
 =head2 Changes & existing bugs
 
