@@ -256,6 +256,7 @@ Deprecated.  Use C<GIMME_V> instead.
 #define OPpITER_DEF		8	/* for $_ or for my $_ */
 
 /* Private for OP_CONST */
+#define	OPpCONST_PAD		1	/* points to a PAD not GVSV */
 #define	OPpCONST_NOVER		2	/* no 6; */
 #define	OPpCONST_SHORTCIRCUIT	4	/* eg the constant 5 in (5 || foo) */
 #define	OPpCONST_STRICT		8	/* bareword subject to strict 'subs' */
