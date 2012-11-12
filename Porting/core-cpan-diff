@@ -45,7 +45,6 @@ use constant SRC_DIR => 'tarballs';
 use constant UNTAR_DIR => 'untarred';
 
 use constant DIFF_CMD => 'diff';
-use constant WGET_CMD => 'wget';
 
 sub usage {
     print STDERR "\n@_\n\n" if @_;
@@ -59,7 +58,6 @@ Usage: $0 [opts] [ -d | -v | -x ] [ -a | module ... ]
 
 -d/--diff     Display file differences using diff(1), rather than just
               listing which files have changed.
-              The diff(1) command is assumed to be in your PATH.
 
 --diffopts    Options to pass to the diff command. Defaults to '-u'.
 
@@ -88,6 +86,10 @@ those in the perl source tree.
 
 Must be run from the root of the perl source tree.
 Module names must match the keys of %Modules in Maintainers.pl.
+
+The diff(1) command is assumed to be in your PATH and is used to diff files
+regardless of whether the --diff option has been chosen to display any file
+differences.
 HERE
     exit(1);
 }
@@ -153,7 +155,9 @@ sub run {
     }
 
     if ( defined $cache_dir ) {
-        die "ERROR: no such directory: '$cache_dir'\n" unless -d $cache_dir;
+        die "ERROR: not a directory: '$cache_dir'\n"
+            if !-d $cache_dir && -e $cache_dir;
+        File::Path::mkpath($cache_dir);
     }
     else {
         $cache_dir = File::Temp::tempdir( CLEANUP => 1 );
@@ -636,7 +640,7 @@ sub get_distribution {
 
     if ( -f $download_file and !-s $download_file ) {
 
-        # wget can leave a zero-length file on failed download
+        # failed download might leave a zero-length file
         unlink $download_file;
     }
 
@@ -653,6 +657,7 @@ sub get_distribution {
     my $path = catfile( $untar_dir, $filename );
 
     $path =~ s/\.tar\.gz$//
+      or $path =~ s/\.tgz$//
       or $path =~ s/\.zip$//
       or die
       "ERROR: downloaded file does not have a recognised suffix: $path\n";

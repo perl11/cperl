@@ -308,36 +308,42 @@ struct regnode_charclass_class {
 #define ANYOF_NONBITMAP(node)	(ARG(node) != ANYOF_NONBITMAP_EMPTY)
 
 /* Flags for node->flags of ANYOF.  These are in short supply, so some games
- * are done to share them, as described below.  If necessary, the ANYOF_LOCALE
- * and ANYOF_CLASS bits could be shared with a space penalty for locale nodes,
- * but this isn't quite so easy, as the optimizer also uses ANYOF_CLASS.
- * Another option would be to push them into new nodes.  E.g. there could be an
- * ANYOF_LOCALE node that would be in place of the flag of the same name.
- * Once the planned change to compile all the above-latin1 code points is done,
- * then the UNICODE_ALL bit can be freed up, with a small performance penalty.
- * If flags need to be added that are applicable to the synthetic start class
- * only, with some work, they could be put in the next-node field, or in an
- * unused bit of the classflags field. */
+ * are done to share them, as described below.  Already, the ANYOF_LOCALE and
+ * ANYOF_CLASS bits are shared, making a space penalty for all locale nodes.
+ * An option would be to push them into new nodes.  E.g. there could be an
+ * ANYOF_LOCALE node that would be in place of the flag of the same name.  But
+ * there are better options.  The UNICODE_ALL bit could be freed up by
+ * resorting to creating a swash containing everything above 255.  This
+ * introduces a performance penalty.  Better would be to split it off into a
+ * separate node, which actually would improve performance by allowing adding a
+ * case statement to regexec.c use the bit map for code points under 256, and
+ * to match everything above.  If flags need to be added that are applicable to
+ * the synthetic start class only, with some work, they could be put in the
+ * next-node field, or in an unused bit of the classflags field.  This could be
+ * done with the current EOS flag, and a new node type created that is just for
+ * the scc, freeing up that bit */
 
 #define ANYOF_LOCALE		 0x01	    /* /l modifier */
 
 /* The fold is calculated and stored in the bitmap where possible at compile
- * time.  However there are two cases where it isn't possible.  These share
- * this bit:  1) under locale, where the actual folding varies depending on
- * what the locale is at the time of execution; and 2) where the folding is
- * specified in a swash, not the bitmap, such as characters which aren't
- * specified in the bitmap, or properties that aren't looked at at compile time
- */
-#define ANYOF_LOC_NONBITMAP_FOLD 0x02
+ * time.  However under locale, the actual folding varies depending on
+ * what the locale is at the time of execution, so it has to be deferred until
+ * then */
+#define ANYOF_LOC_FOLD 0x02
 
 #define ANYOF_INVERT		 0x04
 
 /* Set if this is a struct regnode_charclass_class vs a regnode_charclass.  This
  * is used for runtime \d, \w, [:posix:], ..., which are used only in locale
  * and the optimizer's synthetic start class.  Non-locale \d, etc are resolved
- * at compile-time */
-#define ANYOF_CLASS	 0x08
+ * at compile-time.  Now shared with ANYOF_LOCALE, forcing all locale nodes to
+ * be large */
+#define ANYOF_CLASS	 ANYOF_LOCALE
 #define ANYOF_LARGE      ANYOF_CLASS    /* Same; name retained for back compat */
+
+/* Should this character class warn if matched against a character above
+ * Unicode */
+#define ANYOF_WARN_SUPER        0x08
 
 /* EOS, meaning that it can match an empty string too, is used for the
  * synthetic start class only. */
@@ -369,47 +375,50 @@ struct regnode_charclass_class {
  * regardless of being inverted; whereas ANYOF_UNICODE_ALL means something
  * different if inverted */
 #define INVERSION_UNAFFECTED_FLAGS (ANYOF_LOCALE                        \
-	                           |ANYOF_LOC_NONBITMAP_FOLD            \
+	                           |ANYOF_LOC_FOLD                      \
 	                           |ANYOF_CLASS                         \
 	                           |ANYOF_EOS                           \
 	                           |ANYOF_NONBITMAP_NON_UTF8)
 
 /* Character classes for node->classflags of ANYOF */
 /* Should be synchronized with a table in regprop() */
-/* 2n should pair with 2n+1 */
+/* 2n should be the normal one, paired with its complement at 2n+1 */
 
-#define ANYOF_ALNUM	 0	/* \w, PL_utf8_alnum, utf8::IsWord, ALNUM */
-#define ANYOF_NALNUM	 1
-#define ANYOF_SPACE	 2	/* \s */
-#define ANYOF_NSPACE	 3
-#define ANYOF_DIGIT	 4	/* \d */
-#define ANYOF_NDIGIT	 5
-#define ANYOF_ALNUMC	 6	/* [[:alnum:]] isalnum(3), utf8::IsAlnum, ALNUMC */
-#define ANYOF_NALNUMC	 7
-#define ANYOF_ALPHA	 8
-#define ANYOF_NALPHA	 9
-#define ANYOF_ASCII	10
-#define ANYOF_NASCII	11
-#define ANYOF_CNTRL	12
-#define ANYOF_NCNTRL	13
-#define ANYOF_GRAPH	14
-#define ANYOF_NGRAPH	15
-#define ANYOF_LOWER	16
-#define ANYOF_NLOWER	17
-#define ANYOF_PRINT	18
-#define ANYOF_NPRINT	19
-#define ANYOF_PUNCT	20
-#define ANYOF_NPUNCT	21
-#define ANYOF_UPPER	22
-#define ANYOF_NUPPER	23
-#define ANYOF_XDIGIT	24
-#define ANYOF_NXDIGIT	25
-#define ANYOF_PSXSPC	26	/* POSIX space: \s plus the vertical tab */
-#define ANYOF_NPSXSPC	27
-#define ANYOF_BLANK	28	/* GNU extension: space and tab: non-vertical space */
-#define ANYOF_NBLANK	29
+#define ANYOF_WORDCHAR ((_CC_WORDCHAR) * 2)  /* \w, PL_utf8_alnum, utf8::IsWord, ALNUM */
+#define ANYOF_NWORDCHAR   ((ANYOF_WORDCHAR) + 1)
+#define ANYOF_SPACE    ((_CC_SPACE) * 2)     /* \s */
+#define ANYOF_NSPACE   ((ANYOF_SPACE) + 1)
+#define ANYOF_DIGIT    ((_CC_DIGIT) * 2)     /* \d */
+#define ANYOF_NDIGIT   ((ANYOF_DIGIT) + 1)
+#define ANYOF_ALNUMC   ((_CC_ALNUMC) * 2)    /* [[:alnum:]] isalnum(3), utf8::IsAlnum, ALNUMC */
+#define ANYOF_NALNUMC  ((ANYOF_ALNUMC) + 1)
+#define ANYOF_ALPHA    ((_CC_ALPHA) * 2)
+#define ANYOF_NALPHA   ((ANYOF_ALPHA) + 1)
+#define ANYOF_ASCII    ((_CC_ASCII) * 2)
+#define ANYOF_NASCII   ((ANYOF_ASCII) + 1)
+#define ANYOF_CNTRL    ((_CC_CNTRL) * 2)
+#define ANYOF_NCNTRL   ((ANYOF_CNTRL) + 1)
+#define ANYOF_GRAPH    ((_CC_GRAPH) * 2)
+#define ANYOF_NGRAPH   ((ANYOF_GRAPH) + 1)
+#define ANYOF_LOWER    ((_CC_LOWER) * 2)
+#define ANYOF_NLOWER   ((ANYOF_LOWER) + 1)
+#define ANYOF_PRINT    ((_CC_PRINT) * 2)
+#define ANYOF_NPRINT   ((ANYOF_PRINT) + 1)
+#define ANYOF_PUNCT    ((_CC_PUNCT) * 2)
+#define ANYOF_NPUNCT   ((ANYOF_PUNCT) + 1)
+#define ANYOF_UPPER    ((_CC_UPPER) * 2)
+#define ANYOF_NUPPER   ((ANYOF_UPPER) + 1)
+#define ANYOF_XDIGIT   ((_CC_XDIGIT) * 2)
+#define ANYOF_NXDIGIT  ((ANYOF_XDIGIT) + 1)
+#define ANYOF_PSXSPC   ((_CC_PSXSPC) * 2)    /* POSIX space: \s plus the vertical tab */
+#define ANYOF_NPSXSPC  ((ANYOF_PSXSPC) + 1)
+#define ANYOF_BLANK    ((_CC_BLANK) * 2)     /* GNU extension: space and tab: non-vertical space */
+#define ANYOF_NBLANK   ((ANYOF_BLANK) + 1)
 
 #define ANYOF_MAX	32
+#if (ANYOF_MAX <= _HIGHEST_REGCOMP_DOT_H_SYNC * 2 + 1)
+#   error Problem with handy.h _CC_foo #defines
+#endif
 
 /* pseudo classes, not stored in the class bitmap, but used as flags
    during compilation of char classes */
@@ -425,6 +434,8 @@ struct regnode_charclass_class {
 #define ANYOF_NALNUML	 ANYOF_NALNUM
 #define ANYOF_SPACEL	 ANYOF_SPACE
 #define ANYOF_NSPACEL	 ANYOF_NSPACE
+#define ANYOF_ALNUM ANYOF_WORDCHAR
+#define ANYOF_NALNUM ANYOF_NWORDCHAR
 
 /* Utility macros for the bitmap and classes of ANYOF */
 
@@ -575,10 +586,10 @@ struct reg_data {
 #define check_offset_max substrs->data[2].max_offset
 #define check_end_shift substrs->data[2].end_shift
 
-#define RX_ANCHORED_SUBSTR(rx)	(((struct regexp *)SvANY(rx))->anchored_substr)
-#define RX_ANCHORED_UTF8(rx)	(((struct regexp *)SvANY(rx))->anchored_utf8)
-#define RX_FLOAT_SUBSTR(rx)	(((struct regexp *)SvANY(rx))->float_substr)
-#define RX_FLOAT_UTF8(rx)	(((struct regexp *)SvANY(rx))->float_utf8)
+#define RX_ANCHORED_SUBSTR(rx)	(ReANY(rx)->anchored_substr)
+#define RX_ANCHORED_UTF8(rx)	(ReANY(rx)->anchored_utf8)
+#define RX_FLOAT_SUBSTR(rx)	(ReANY(rx)->float_substr)
+#define RX_FLOAT_UTF8(rx)	(ReANY(rx)->float_utf8)
 
 /* trie related stuff */
 

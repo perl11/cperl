@@ -5,17 +5,17 @@
 
 package feature;
 
-our $VERSION = '1.30';
+our $VERSION = '1.31';
 
 our %feature = (
     fc              => 'feature_fc',
     say             => 'feature_say',
     state           => 'feature_state',
-    const           => 'feature_const',
     switch          => 'feature_switch',
     evalbytes       => 'feature_evalbytes',
     array_base      => 'feature_arybase',
     current_sub     => 'feature___SUB__',
+    lexical_subs    => 'feature_lexsubs',
     unicode_eval    => 'feature_unieval',
     unicode_strings => 'feature_unicode',
 );
@@ -24,8 +24,7 @@ our %feature_bundle = (
     "5.10"    => [qw(array_base say state switch)],
     "5.11"    => [qw(array_base say state switch unicode_strings)],
     "5.15"    => [qw(current_sub evalbytes fc say state switch unicode_eval unicode_strings)],
-    "5.17"    => [qw(const current_sub evalbytes fc say state switch unicode_eval unicode_strings)],
-    "all"     => [qw(array_base const current_sub evalbytes fc say state switch unicode_eval unicode_strings)],
+    "all"     => [qw(array_base current_sub evalbytes fc lexical_subs say state switch unicode_eval unicode_strings)],
     "default" => [qw(array_base)],
 );
 
@@ -33,12 +32,16 @@ $feature_bundle{"5.12"} = $feature_bundle{"5.11"};
 $feature_bundle{"5.13"} = $feature_bundle{"5.11"};
 $feature_bundle{"5.14"} = $feature_bundle{"5.11"};
 $feature_bundle{"5.16"} = $feature_bundle{"5.15"};
-$feature_bundle{"5.18"} = $feature_bundle{"5.17"};
+$feature_bundle{"5.17"} = $feature_bundle{"5.15"};
+$feature_bundle{"5.18"} = $feature_bundle{"5.15"};
 $feature_bundle{"5.9.5"} = $feature_bundle{"5.10"};
+my %experimental = (
+    lexical_subs => 1,
+);
 
 our $hint_shift   = 26;
 our $hint_mask    = 0x1c000000;
-our @hint_bundles = qw( default 5.10 5.11 5.15 5.17 );
+our @hint_bundles = qw( default 5.10 5.11 5.15 );
 
 # This gets set (for now) in $^H as well as in %^H,
 # for runtime speed of the uc/lc/ucfirst/lcfirst functions.
@@ -80,7 +83,7 @@ pragma.)
 =head2 Lexical effect
 
 Like other pragmas (C<use strict>, for example), features have a lexical
-effect. C<use feature qw(foo)> will only make the feature "foo" available
+effect.  C<use feature qw(foo)> will only make the feature "foo" available
 from that point to the end of the enclosing block.
 
     {
@@ -227,15 +230,19 @@ See L<perlfunc/fc> for details.
 
 This feature is available from Perl 5.16 onwards.
 
-=head2 The 'const' feature
+=head2 The 'lexical_subs' feature
 
-This parses the C<const> type qualifier for lexical variable declarations.
-Without this feature C<my const $var;> will parse C<const> as package name.
-With this feature the const declared variable will be marked at compile-time
-as read-only on the pad, and enables compile-time checks and optimizations,
-in contrast to C<use constants> or C<use Readonly> declarations.
+B<WARNING>: This feature is still experimental and the implementation may
+change in future versions of Perl.  For this reason, F<feature.pm> will
+warn when you enable the feature, unless you have explicitly disabled the
+warning:
 
-This feature is available starting with Perl 5.18.
+    no warnings "experimental::lexical_subs";
+
+This enables declaration of subroutines via C<my sub foo>, C<state sub foo>
+and C<our sub foo> syntax.  See L<perlsub/Lexical Subroutines> for details.
+
+This feature is available from Perl 5.18 onwards.
 
 =head1 FEATURE BUNDLES
 
@@ -261,7 +268,7 @@ The following feature bundles are available:
             unicode_eval evalbytes current_sub fc
 
   :5.18     say state switch unicode_strings
-            unicode_eval evalbytes current_sub fc const
+            unicode_eval evalbytes current_sub fc
 
 The C<:default> bundle represents the feature set that is enabled before
 any C<use feature> or C<no feature> declaration.
@@ -373,6 +380,11 @@ sub __common {
 	if ($import) {
 	    $^H{$feature{$name}} = 1;
 	    $^H |= $hint_uni8bit if $name eq 'unicode_strings';
+	    if ($experimental{$name}) {
+		require warnings;
+		warnings::warnif("experimental::$name",
+				 "The $name feature is experimental");
+	    }
 	} else {
             delete $^H{$feature{$name}};
             $^H &= ~ $hint_uni8bit if $name eq 'unicode_strings';

@@ -7,7 +7,7 @@ package _charnames;
 use strict;
 use warnings;
 use File::Spec;
-our $VERSION = '1.32';
+our $VERSION = '1.33';
 use unicore::Name;    # mktables-generated algorithmically-defined names
 
 use bytes ();          # for $bytes::hint_bits
@@ -143,8 +143,12 @@ sub carp
 
 sub alias (@) # Set up a single alias
 {
+  my @errors;
+
   my $alias = ref $_[0] ? $_[0] : { @_ };
-  foreach my $name (keys %$alias) {
+  foreach my $name (sort keys %$alias) {  # Sort only because it helps having
+                                          # deterministic output for
+                                          # t/lib/charnames/alias
     my $value = $alias->{$name};
     next unless defined $value;          # Omit if screwed up.
 
@@ -163,11 +167,33 @@ sub alias (@) # Set up a single alias
         $^H{charnames_inverse_ords}{sprintf("%05X", $value)} = $name;
     }
     else {
-        # XXX validate syntax when deprecation cycle complete. ie. start
-        # with an alpha only, etc.
-        $^H{charnames_name_aliases}{$name} = $value;
+        # This regex needs to be sync'd with the code in toke.c that checks
+        # for the same thing
+        if ($name !~ / ^
+                       \p{_Perl_Charname_Begin}
+                       \p{_Perl_Charname_Continue}*
+                       $ /x) {
+          push @errors, $name;
+        }
+        else {
+          $^H{charnames_name_aliases}{$name} = $value;
+        }
     }
   }
+
+  # We find and output all errors from this :alias definition, rather than
+  # failing on the first one, so fewer runs are needed to get it to compile
+  if (@errors) {
+    foreach my $name (@errors) {
+      my $ok = "";
+      $ok = $1 if $name =~ / ^ ( \p{Alpha} [-\p{XPosixWord} ():\xa0]* ) /x;
+      my $first_bad = substr($name, length($ok), 1);
+      $name = "Invalid character in charnames alias definition; marked by <-- HERE in '$ok$first_bad<-- HERE " . substr($name, length($ok) + 1) . "'";
+    }
+    croak join "\n", @errors;
+  }
+
+  return;
 } # alias
 
 sub not_legal_use_bytes_msg {
@@ -454,18 +480,8 @@ sub lookup_name ($$$) {
           }
 
           my $case = $name_has_uppercase ? "CAPITAL" : "SMALL";
-          if (! $scripts_trie
-              || $txt !~
-              /\t (?: $scripts_trie ) \ (?:$case\ )? LETTER \ \U$lookup_name $/xm)
-          {
-            # Here we still don't have it, give up.
-            return if $runtime;
-
-            # May have zapped input name, get it again.
-            $name = (defined $save_input) ? $save_input : $_[0];
-            carp "Unknown charname '$name'";
-            return ($wants_ord) ? 0xFFFD : pack("U", 0xFFFD);
-          }
+          return if (! $scripts_trie || $txt !~
+             /\t (?: $scripts_trie ) \ (?:$case\ )? LETTER \ \U$lookup_name $/xm);
 
           # Here have found the input name in the table.
           @off = ($-[0] + 1, $+[0]);  # The 1 is for the tab

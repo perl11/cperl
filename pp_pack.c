@@ -2558,18 +2558,7 @@ S_pack_rec(pTHX_ SV *cat, tempsym_t* symptr, SV **beglist, SV **endlist )
 		if (lookahead.howlen == e_number) count = lookahead.length;
 		else {
 		    if (items > 0) {
-			if (SvGAMAGIC(*beglist)) {
-			    /* Avoid reading the active data more than once
-			       by copying it to a temporary.  */
-			    STRLEN len;
-			    const char *const pv = SvPV_const(*beglist, len);
-			    SV *const temp
-				= newSVpvn_flags(pv, len,
-						 SVs_TEMP | SvUTF8(*beglist));
-			    *beglist = temp;
-			}
-			count = DO_UTF8(*beglist) ?
-			    sv_len_utf8(*beglist) : sv_len(*beglist);
+			count = sv_len_utf8(*beglist);
 		    }
 		    else count = 0;
 		    if (lookahead.code == 'Z') count++;
@@ -3569,7 +3558,7 @@ extern const double _double_constants[];
 	    from_utf8 = DO_UTF8(fromstr);
 	    if (from_utf8) {
 		aend = aptr + fromlen;
-		fromlen = sv_len_utf8(fromstr);
+		fromlen = sv_len_utf8_nomg(fromstr);
 	    } else aend = NULL; /* Unused, but keep compilers happy */
 	    GROWING(utf8, cat, start, cur, (fromlen+2) / 3 * 4 + (fromlen+len-1)/len * 2);
 	    while (fromlen > 0) {
@@ -3615,11 +3604,11 @@ extern const double _double_constants[];
 PP(pp_pack)
 {
     dVAR; dSP; dMARK; dORIGMARK; dTARGET;
-    register SV *cat = TARG;
+    SV *cat = TARG;
     STRLEN fromlen;
     SV *pat_sv = *++MARK;
-    register const char *pat = SvPV_const(pat_sv, fromlen);
-    register const char *patend = pat + fromlen;
+    const char *pat = SvPV_const(pat_sv, fromlen);
+    const char *patend = pat + fromlen;
 
     MARK++;
     sv_setpvs(cat, "");

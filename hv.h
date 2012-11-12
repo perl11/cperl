@@ -90,6 +90,7 @@ struct xpvhv_aux {
  */
     I32		xhv_name_count;
     struct mro_meta *xhv_mro_meta;
+    HV *	xhv_super;	/* SUPER method cache */
 };
 
 /* hash structure: */
@@ -140,10 +141,10 @@ struct xpvhv {
 
 #define PERL_HASH_INTERNAL_(hash,str,len,internal) \
      STMT_START	{ \
-	register const char * const s_PeRlHaSh_tmp = str; \
-	register const unsigned char *s_PeRlHaSh = (const unsigned char *)s_PeRlHaSh_tmp; \
-	register I32 i_PeRlHaSh = len; \
-	register U32 hash_PeRlHaSh = (internal ? PL_rehash_seed : PERL_HASH_SEED); \
+	const char * const s_PeRlHaSh_tmp = str; \
+	const unsigned char *s_PeRlHaSh = (const unsigned char *)s_PeRlHaSh_tmp; \
+	I32 i_PeRlHaSh = len; \
+	U32 hash_PeRlHaSh = (internal ? PL_rehash_seed : PERL_HASH_SEED); \
 	while (i_PeRlHaSh--) { \
 	    hash_PeRlHaSh += *s_PeRlHaSh++; \
 	    hash_PeRlHaSh += (hash_PeRlHaSh << 10); \
@@ -208,7 +209,12 @@ be assigned to. The C<HePV()> macro is usually preferable for finding key
 lengths.
 
 =for apidoc Am|SV*|HeVAL|HE* he
-Returns the value slot (type C<SV*>) stored in the hash entry.
+Returns the value slot (type C<SV*>) stored in the hash entry. Can be assigned
+to.
+
+  SV *foo= HeVAL(hv);
+  HeVAL(hv)= sv;
+
 
 =for apidoc Am|U32|HeHASH|HE* he
 Returns the computed hash stored in the hash entry.

@@ -561,7 +561,7 @@ my $TEST = 'TEST';
 	$one = $1;
     }
     is_tainted($s,     "$desc: s tainted");
-    is_tainted($res,   "$desc: res tainted");
+    isnt_tainted($res, "$desc: res tainted");
     isnt_tainted($one, "$desc: \$1 not tainted");
     is($s,  '123',     "$desc: s value");
     is($res, 3,        "$desc: res value");
@@ -918,7 +918,7 @@ my $TEST = 'TEST';
 	    $one = $1;
 	}
 	is_tainted($s,     "$desc: s tainted");
-	is_tainted($res,   "$desc: res tainted");
+	isnt_tainted($res, "$desc: res tainted");
 	isnt_tainted($one, "$desc: \$1 not tainted");
 	is($s,  '123',     "$desc: s value");
 	is($res, 3,        "$desc: res value");
@@ -2050,10 +2050,7 @@ end
     formline('@' .('<'*5) . ' | @*', 'hallo', 'welt');
     isnt_tainted($^A, "accumulator still untainted");
     formline('@' .('<'*(5+$TAINT0)) . ' | @*', 'hallo', 'welt');
-    TODO: {
-        local $::TODO = "get magic handled too late?";
-        is_tainted($^A, "the accumulator should be tainted already");
-    }
+    is_tainted($^A, "the accumulator should be tainted already");
     is_tainted($^A, "tainted formline picture makes a tainted accumulator");
 }
 

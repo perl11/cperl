@@ -39,8 +39,15 @@ my $null = devnull();
 unless (defined $tag_to_compare) {
     # Thanks to David Golden for this suggestion.
 
-    $tag_to_compare = `git describe --abbrev=0`;
+    $tag_to_compare = `git describe --abbrev=0 2>$null`;
     chomp $tag_to_compare;
+}
+
+unless (length $tag_to_compare) {
+    die "$0: Git found, but no Git tags found\n"
+	unless $tap;
+    print "1..0 # SKIP: Git found, but no Git tags found\n";
+    exit 0;
 }
 
 my $tag_exists = `git --no-pager tag -l $tag_to_compare 2>$null`;
@@ -146,6 +153,7 @@ printf "1..%d\n" => scalar keys %module_diffs if $tap;
 
 my $count;
 my $diff_cmd = "git --no-pager diff $tag_to_compare ";
+my $q = ($^O eq 'MSWin32' || $^O eq 'NetWare' || $^O eq 'VMS') ? '"' : "'";
 my (@diff);
 
 foreach my $pm_file (sort keys %module_diffs) {
@@ -157,7 +165,8 @@ foreach my $pm_file (sort keys %module_diffs) {
     ++$count;
 
     if (!defined $orig_pm_version || $orig_pm_version eq 'undef') { # sigh
-        print "ok $count - SKIP Can't pass \$VERSION in $pm_file\n" if $tap;
+        print "ok $count - SKIP Can't parse \$VERSION in $pm_file\n"
+          if $tap;
     } elsif (!defined $pm_version || $pm_version eq 'undef') {
         print "not ok $count - in $pm_file version was $orig_pm_version, now unparsable\n" if $tap;
     } elsif ($pm_version ne $orig_pm_version) { # good
@@ -165,7 +174,7 @@ foreach my $pm_file (sort keys %module_diffs) {
     } else {
 	if ($tap) {
 	    foreach (sort @{$module_diffs{$pm_file}}) {
-		print "# $_" for `$diff_cmd '$_'`;
+		print "# $_" for `$diff_cmd $q$_$q`;
 	    }
 	    if (exists $skip_versions{$pm_file}
 		and grep $pm_version eq $_, @{$skip_versions{$pm_file}}) {
@@ -189,6 +198,6 @@ sub get_file_from_git {
 if ($diffs) {
     for (sort @diff) {
 	print "\n";
-	system "$diff_cmd '$_'";
+	system "$diff_cmd $q$_$q";
     }
 }

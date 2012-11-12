@@ -6,7 +6,7 @@ BEGIN {
     require 'test.pl';
 }
 use warnings;
-plan( tests => 171 );
+plan( tests => 172 );
 
 # these shouldn't hang
 {
@@ -770,7 +770,8 @@ cmp_ok($answer,'eq','good','sort subr called from other package');
 
 {
     local $TODO = "sort should make sure elements are not freed in the sort block";
-    eval { @nomodify_x=(1..8); our @copy = sort { @nomodify_x = (0) } (@nomodify_x, 3); };
+    eval { @nomodify_x=(1..8);
+	   our @copy = sort { undef @nomodify_x; 1 } (@nomodify_x, 3); };
     is($@, "");
 }
 
@@ -960,3 +961,20 @@ is @x, 0, 'sort; returns empty list';
 eval '{@x = sort} 1';
 is $@, '', '{sort} does not die';
 is @x, 0, '{sort} returns empty list';
+
+# this happened while the padrange op was being added. Sort blocks
+# are executed in void context, and the padrange op was skipping pushing
+# the item in void cx. The net result was that the return value was
+# whatever was on the stack last.
+
+{
+    my @a = sort {
+	my $r = $a <=> $b;
+	if ($r) {
+	    undef; # this got returned by mistake
+	    return $r
+	}
+	return 0;
+    } 5,1,3,6,0;
+    is "@a", "0 1 3 5 6", "padrange and void context";
+}

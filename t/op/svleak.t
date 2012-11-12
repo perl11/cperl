@@ -13,7 +13,9 @@ BEGIN {
 	or skip_all("XS::APItest not available");
 }
 
-plan tests => 21;
+use Config;
+
+plan tests => 60;
 
 # run some code N times. If the number of SVs at the end of loop N is
 # greater than (N-1)*delta at the end of loop 1, we've got a leak
@@ -28,6 +30,16 @@ sub leak {
 	$sv0 = $sv1 if $i == 1;
     }
     cmp_ok($sv1-$sv0, '<=', ($n-1)*$delta, @rest);
+}
+
+# Like leak, but run a string eval instead; takes into account existing
+# string eval leaks under -Dmad (except when -Dmad leaks two or
+# more SVs). The code is used instead of the test name
+# if the name is absent.
+sub eleak {
+    my ($n,$delta,$code,@rest) = @_;
+    leak $n, $delta + !!$Config{mad}, sub { eval $code },
+         @rest ? @rest : $code
 }
 
 # run some expression N times. The expr is concatenated N times and then
@@ -57,6 +69,8 @@ my @a;
 leak(5, 0, sub {},                 "basic check 1 of leak test infrastructure");
 leak(5, 0, sub {push @a,1;pop @a}, "basic check 2 of leak test infrastructure");
 leak(5, 1, sub {push @a,1;},       "basic check 3 of leak test infrastructure");
+
+eleak(2, 0, 'sub{<*>}');
 
 sub TIEARRAY	{ bless [], $_[0] }
 sub FETCH	{ $_[0]->[$_[1]] }
@@ -159,4 +173,184 @@ leak(2, 0,
     }, "named regexp captures");
 }
 
+eleak(2,0,'/[:]/');
+eleak(2,0,'/[\xdf]/i');
+eleak(2,0,'s![^/]!!');
+eleak(2,0,'/[pp]/');
+eleak(2,0,'/[[:ascii:]]/');
+
 leak(2,0,sub { !$^V }, '[perl #109762] version object in boolean context');
+
+
+# [perl #114356] run-time rexexp with unchanging pattern got
+# inflated refcounts
+
+SKIP: {
+    skip "disabled under -Dmad (eval leaks)" if $Config{mad};
+    leak(2, 0, sub { eval q{ my $x = "x"; "abc" =~ /$x/ for 1..5 } }, '#114356');
+}
+
+# Syntax errors
+eleak(2, 0, '"${<<END}"
+                 ', 'unterminated here-doc in quotes in multiline eval');
+eleak(2, 0, '"${<<END
+               }"', 'unterminated here-doc in multiline quotes in eval');
+leak(2, !!$Config{mad}, sub { eval { do './op/svleak.pl' } },
+        'unterminated here-doc in file');
+eleak(2, 0, 'tr/9-0//');
+eleak(2, 0, 'tr/a-z-0//');
+eleak(2, 0, 'no warnings; nonexistent_function 33838',
+        'bareword followed by number');
+eleak(2, 0, '//dd;'x20, '"too many errors" when parsing m// flags');
+eleak(2, 0, 's///dd;'x20, '"too many errors" when parsing s/// flags');
+eleak(2, !!$Config{mad}, 'no warnings; 2 2;BEGIN{}',
+      'BEGIN block after syntax error');
+{
+    local %INC; # in case Errno is already loaded
+    eleak(2, 0, 'no warnings; 2@!{',
+                'implicit "use Errno" after syntax error');
+}
+eleak(2, 0, "\"\$\0\356\"", 'qq containing $ <null> something');
+{
+    local $::TODO = 'eval "END blah blah" still leaks';
+    eleak(2, 0, 'END OF TERMS AND CONDITIONS', 'END followed by words');
+}
+
+
+# [perl #114764] Attributes leak scalars
+leak(2, 0, sub { eval 'my $x : shared' }, 'my $x :shared used to leak');
+
+eleak(2, 0, 'ref: 1', 'labels');
+
+# Tied hash iteration was leaking if the hash was freed before itera-
+# tion was over.
+package t {
+    sub TIEHASH { bless [] }
+    sub FIRSTKEY { 0 }
+}
+leak(2, 0, sub {
+    my $h = {};
+    tie %$h, t;
+    each %$h;
+    undef $h;
+}, 'tied hash iteration does not leak');
+
+package explosive_scalar {
+    sub TIESCALAR { my $self = shift; bless [undef, {@_}], $self  }
+    sub FETCH     { die 'FETCH' if $_[0][1]{FETCH}; $_[0][0] }
+    sub STORE     { die 'STORE' if $_[0][1]{STORE}; $_[0][0] = $_[1] }
+}
+tie my $die_on_fetch, 'explosive_scalar', FETCH => 1;
+
+# List assignment was leaking when assigning explosive scalars to
+# aggregates.
+leak(2, 0, sub {
+    eval {%a = ($die_on_fetch, 0)}; # key
+    eval {%a = (0, $die_on_fetch)}; # value
+    eval {%a = ($die_on_fetch, $die_on_fetch)}; # both
+}, 'hash assignment does not leak');
+leak(2, 0, sub {
+    eval {@a = ($die_on_fetch)};
+    eval {($die_on_fetch, $b) = ($b, $die_on_fetch)};
+    # restore
+    tie $die_on_fetch, 'explosive_scalar', FETCH => 1;
+}, 'array assignment does not leak');
+
+# [perl #107000]
+package hhtie {
+    sub TIEHASH { bless [] }
+    sub STORE    { $_[0][0]{$_[1]} = $_[2] }
+    sub FETCH    { die if $explosive; $_[0][0]{$_[1]} }
+    sub FIRSTKEY { keys %{$_[0][0]}; each %{$_[0][0]} }
+    sub NEXTKEY  { each %{$_[0][0]} }
+}
+leak(2,!!$Config{mad}, sub {
+    eval q`
+    	BEGIN {
+	    $hhtie::explosive = 0;
+	    tie %^H, hhtie;
+	    $^H{foo} = bar;
+	    $hhtie::explosive = 1;
+    	}
+	{ 1; }
+    `;
+}, 'hint-hash copying does not leak');
+
+package explosive_array {
+    sub TIEARRAY  { bless [[], {}], $_[0]  }
+    sub FETCH     { die if $_[0]->[1]{FETCH}; $_[0]->[0][$_[1]]  }
+    sub FETCHSIZE { die if $_[0]->[1]{FETCHSIZE}; scalar @{ $_[0]->[0]  }  }
+    sub STORE     { die if $_[0]->[1]{STORE}; $_[0]->[0][$_[1]] = $_[2]  }
+    sub CLEAR     { die if $_[0]->[1]{CLEAR}; @{$_[0]->[0]} = ()  }
+    sub EXTEND    { die if $_[0]->[1]{EXTEND}; return  }
+    sub explode   { my $self = shift; $self->[1] = {@_} }
+}
+
+leak(2, 0, sub {
+    tie my @a, 'explosive_array';
+    tied(@a)->explode( STORE => 1 );
+    my $x = 0;
+    eval { @a = ($x)  };
+}, 'explosive array assignment does not leak');
+
+leak(2, 0, sub {
+    my ($a, $b);
+    eval { warn $die_on_fetch };
+}, 'explosive warn argument');
+
+leak(2, 0, sub {
+    my $foo = sub { return $die_on_fetch };
+    my $res = eval { $foo->() };
+    my @res = eval { $foo->() };
+}, 'function returning explosive does not leak');
+
+leak(2, 0, sub {
+    my $res = eval { {$die_on_fetch, 0} };
+    $res = eval { {0, $die_on_fetch} };
+}, 'building anon hash with explosives does not leak');
+
+leak(2, 0, sub {
+    my $res = eval { [$die_on_fetch] };
+}, 'building anon array with explosives does not leak');
+
+leak(2, 0, sub {
+    my @a;
+    eval { push @a, $die_on_fetch };
+}, 'pushing exploding scalar does not leak');
+
+leak(2, 0, sub {
+    eval { push @-, '' };
+}, 'pushing onto read-only array does not leak');
+
+
+# Run-time regexp code blocks
+{
+    use re 'eval';
+    my $madness = !!$Config{mad};
+    my @tests = ('[(?{})]','(?{})');
+    for my $t (@tests) {
+	leak(2, $madness, sub {
+	    / $t/;
+	}, "/ \$x/ where \$x is $t does not leak");
+	leak(2, $madness, sub {
+	    /(?{})$t/;
+	}, "/(?{})\$x/ where \$x is $t does not leak");
+    }
+}
+
+
+{
+    use warnings FATAL => 'all';
+    leak(2, 0, sub {
+	no warnings 'once';
+	eval { printf uNopened 42 };
+    }, 'printfing to bad handle under fatal warnings does not leak');
+    open my $fh, ">", \my $buf;
+    leak(2, 0, sub {
+	eval { printf $fh chr 2455 };
+    }, 'wide fatal warning does not make printf leak');
+    close $fh or die $!;
+}
+
+
+leak(2,0,sub{eval{require untohunothu}}, 'requiring nonexistent module');

@@ -163,6 +163,7 @@ ab|cd	abcd	y	$&	ab
 ()ef	def	y	$&-$1	ef-
 ()ef	def	y	$-[0]	1
 ()ef	def	y	$+[0]	3
+()\x{100}\x{1000}	d\x{100}\x{1000}	y	$+[0]	3
 ()ef	def	y	$-[1]	1
 ()ef	def	y	$+[1]	1
 *a	-	c	-	Quantifier follows nothing
@@ -481,7 +482,7 @@ a(?:b|(c|e){1,2}?|d)+?(.)	ace	y	$1$2	ce
 (?<!c)b	cb	n	-	-
 (?<!c)b	b	y	-	-
 (?<!c)b	b	y	$&	b
-(?<%)b	-	c	-	Sequence (?<%...) not recognized
+(?<%)b	-	c	-	Group name must start with a non-digit word character
 (?:..)*a	aba	y	$&	aba
 (?:..)*?a	aba	y	$&	a
 ^(?:b|a(?=(.)))*\1	abc	y	$&	ab
@@ -649,8 +650,7 @@ $(?<=^(a))	a	y	$1	a
 (?>(a+))b	aaab	y	$1	aaa
 ((?>[^()]+)|\([^()]*\))+	((abc(ade)ufh()()x	y	$&	abc(ade)ufh()()x
 (?<=x+)y	-	c	-	Variable length lookbehind not implemented
-a{37,17}	-	c	-	Can't do {n,m} with n > m
-a{37,0}	-	c	-	Can't do {n,m} with n > m
+((def){37,17})?ABC	ABC	y	$&	ABC
 \Z	a\nb\n	y	$-[0]	3
 \z	a\nb\n	y	$-[0]	4
 $	a\nb\n	y	$-[0]	3
@@ -849,6 +849,7 @@ abb$	b\nca	n	-	-
 'abb\Z'm	b\nca	n	-	-
 'abb\z'm	b\nca	n	-	-
 'abb$'m	b\nca	n	-	-
+'\Aa$'m	a\n\n	y	$&	a
 (^|x)(c)	ca	y	$2	c
 a*abc?xyz+pqr{3}ab{2,}xy{4,5}pq{0,6}AB{0,}zz	x	n	-	-
 a(?{$a=2;$b=3;($b)=$a})b	yabz	y	$b	2
@@ -1082,8 +1083,8 @@ X(?<=foo.)[YZ]	..XfooXY..	y	pos	8
 (?P<n>foo|bar|baz)(?P<m>[ew]+)	snofooewa	yM	$+{m}	ew	miniperl cannot load Tie::Hash::NamedCapture
 (?P<n>foo)|(?P<n>bar)|(?P<n>baz)	snofooewa	yM	$+{n}	foo	miniperl cannot load Tie::Hash::NamedCapture
 (?P<n>foo)(??{ $+{n} })	snofooefoofoowaa	yM	$+{n}	foo	miniperl cannot load Tie::Hash::NamedCapture
-(?P<=n>foo|bar|baz)	snofooewa	c	-	Sequence (?P<=...) not recognized
-(?P<!n>foo|bar|baz)	snofooewa	c	-	Sequence (?P<!...) not recognized
+(?P<=n>foo|bar|baz)	snofooewa	c	-	Group name must start with a non-digit word character
+(?P<!n>foo|bar|baz)	snofooewa	c	-	Group name must start with a non-digit word character
 (?PX<n>foo|bar|baz)	snofooewa	c	-	Sequence (?PX<...) not recognized
 /(?'n'foo|bar|baz)/	snofooewa	y	$1	foo
 /(?'n'foo|bar|baz)/	snofooewa	yM	$+{n}	foo	miniperl cannot load Tie::Hash::NamedCapture
@@ -1262,14 +1263,14 @@ a*(*F)	aaaab	n	-	-
 /(?<_>foo) \k<_>/	..foo foo..	yM	$+{_}	foo	miniperl cannot load Tie::Hash::NamedCapture
 /(?'_0_'foo) \k'_0_'/	..foo foo..	yM	$+{_0_}	foo	miniperl cannot load Tie::Hash::NamedCapture
 /(?<_0_>foo) \k<_0_>/	..foo foo..	yM	$+{_0_}	foo	miniperl cannot load Tie::Hash::NamedCapture
-/(?'0'foo) bar/	..foo bar..	c	-	Sequence (?'
-/(?<0>foo) bar/	..foo bar..	c	-	Sequence (?<
-/(?'12'foo) bar/	..foo bar..	c	-	Sequence (?'
-/(?<12>foo) bar/	..foo bar..	c	-	Sequence (?<
-/(?'1a'foo) bar/	..foo bar..	c	-	Sequence (?'
-/(?<1a>foo) bar/	..foo bar..	c	-	Sequence (?<
-/(?''foo) bar/	..foo bar..	c	-	Sequence (?''
-/(?<>foo) bar/	..foo bar..	c	-	Sequence (?<>
+/(?'0'foo) bar/	..foo bar..	c	-	Group name must start with a non-digit word character
+/(?<0>foo) bar/	..foo bar..	c	-	Group name must start with a non-digit word character
+/(?'12'foo) bar/	..foo bar..	c	-	Group name must start with a non-digit word character
+/(?<12>foo) bar/	..foo bar..	c	-	Group name must start with a non-digit word character
+/(?'1a'foo) bar/	..foo bar..	c	-	Group name must start with a non-digit word character
+/(?<1a>foo) bar/	..foo bar..	c	-	Group name must start with a non-digit word character
+/(?''foo) bar/	..foo bar..	c	-	Group name must start with a non-digit word character
+/(?<>foo) bar/	..foo bar..	c	-	Group name must start with a non-digit word character
 /foo \k'n'/	foo foo	c	-	Reference to nonexistent named group
 /foo \k<n>/	foo foo	c	-	Reference to nonexistent named group
 /foo \k'a1'/	foo foo	c	-	Reference to nonexistent named group
@@ -1278,14 +1279,14 @@ a*(*F)	aaaab	n	-	-
 /foo \k<_>/	foo foo	c	-	Reference to nonexistent named group
 /foo \k'_0_'/	foo foo	c	-	Reference to nonexistent named group
 /foo \k<_0_>/	foo foo	c	-	Reference to nonexistent named group
-/foo \k'0'/	foo foo	c	-	Sequence \\k'
-/foo \k<0>/	foo foo	c	-	Sequence \\k<
-/foo \k'12'/	foo foo	c	-	Sequence \\k'
-/foo \k<12>/	foo foo	c	-	Sequence \\k<
-/foo \k'1a'/	foo foo	c	-	Sequence \\k'
-/foo \k<1a>/	foo foo	c	-	Sequence \\k<
-/foo \k''/	foo foo	c	-	Sequence \\k'
-/foo \k<>/	foo foo	c	-	Sequence \\k<
+/foo \k'0'/	foo foo	c	-	Group name must start with a non-digit word character
+/foo \k<0>/	foo foo	c	-	Group name must start with a non-digit word character
+/foo \k'12'/	foo foo	c	-	Group name must start with a non-digit word character
+/foo \k<12>/	foo foo	c	-	Group name must start with a non-digit word character
+/foo \k'1a'/	foo foo	c	-	Group name must start with a non-digit word character
+/foo \k<1a>/	foo foo	c	-	Group name must start with a non-digit word character
+/foo \k''/	foo foo	c	-	Group name must start with a non-digit word character
+/foo \k<>/	foo foo	c	-	Group name must start with a non-digit word character
 /(?<as>as) (\w+) \k<as> (\w+)/	as easy as pie	y	$1-$2-$3	as-easy-pie
 
 # \g{...} with a name as the argument 
@@ -1443,7 +1444,7 @@ abc\N	abc\n	n
 # figures it out.
 \N{U+}	-	c	-	Invalid hexadecimal number
 [\N{U+}]	-	c	-	Invalid hexadecimal number
-\N{U+4AG3}	-	c	-	Illegal hexadecimal digit
+\N{U+4AG3}	-	c	-	Invalid hexadecimal number
 [\N{U+4AG3}]	-	c	-	Invalid hexadecimal number
 abc\N{def	-	c	-	\\N{NAME} must be resolved by the lexer
 
@@ -1457,7 +1458,7 @@ abc\N{def	-	c	-	\\N{NAME} must be resolved by the lexer
 
 # Verify works in single quotish context; regex compiler delivers slightly different msg
 # \N{U+BEEF.BEAD} succeeds here, because can't completely hide it from the outside.
-\N{U+0xBEEF}	-	c	-	Illegal hexadecimal digit
+\N{U+0xBEEF}	-	c	-	Invalid hexadecimal number
 \c`	-	c	-	\"\\c`\" is more clearly written simply as \"\\ \"
 \c1	-	c	-	\"\\c1\" is more clearly written simply as \"q\"
 \cA	\001	y	$&	\1
@@ -1543,7 +1544,8 @@ a\97	a97	y	$&	a97
 /^\p{L}/	\x{3400}	y	$&	\x{3400}
 
 # RT #89774
-/[s\xDF]/ui	\xDFs	ybT	$&	\xDFs
+/[s\xDF]a/ui	ssa	y	$&	ssa
+/[s\xDF]a/ui	sa	y	$&	sa
 
 # RT #99928
 /^\R\x0A$/	\x0D\x0A	n	-	-
@@ -1677,5 +1679,41 @@ ab[c\\\](??{"x"})]{3}d	ab\\](d	y	-	-
 
 ^(?:(X)?(\d)|(X)?(\d\d))$	X12	y	$1-$2-$3-$4	--X-12
 ^(?:(XX)?(\d)|(XX)?(\d\d))$	XX12	y	$1-$2-$3-$4	--XX-12
+
+# rt 113770
+\A(?>\[(?:(?:)(?:R){1}|T|V?|A)\])\z	[A]	y	$&	[A]
+# rt 114068
+/( [^z] $ [^z]+)/xm	aa\nbb\ncc\n	y	$1	a\nbb\ncc\n
+
+# [perl #114220]
+/[\h]/	\x{A0}	y	$&	\xA0
+/[\H]/	\x{BF}	y	$&	\xBF
+/[\H]/	\x{A0}	n	-	-
+/[\H]/	\x{A1}	y	$&	\xA1
+
+[^\n]+	\nb	y	$&	b
+[^\n]+	a\n	y	$&	a
+
+# /a has no effect on properties
+(?a:\p{Any})	\x{100}	y	$&	\x{100}
+(?aa:\p{Any})	\x{100}	y	$&	\x{100}
+
+\w	\x{200C}	y	$&	\x{200C}
+\W	\x{200C}	n	-	-
+\w	\x{200D}	y	$&	\x{200D}
+\W	\x{200D}	n	-	-
+
+/^(?d:\xdf|_)*_/i	\x{17f}\x{17f}_	y	$&	\x{17f}\x{17f}_
+#
+# check that @-, @+ count chars, not bytes; especially if beginning of
+# string is not copied
+
+(\x{100})	\x{2000}\x{2000}\x{2000}\x{100}	y	$-[0]:$-[1]:$+[0]:$+[1]	3:3:4:4
+
+^\R{2}$	\r\n\r\n	y	$&	\r\n\r\n
+
+/^\D{11}/a	\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}	n	-	-
+/^\S{11}/a	\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}	n	-	-
+/^\W{11}/a	\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}\x{10FFFF}	n	-	-
 
 # vim: softtabstop=0 noexpandtab

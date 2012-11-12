@@ -34,7 +34,7 @@ while (<DESC>) {
         next;
     }
     unless ($lastregop) {
-        ($name[$ind], $desc, $rest[$ind]) = /^(\S+)\s+([^\t]+)\s*;\s*(.*)/;
+        ($name[$ind], $desc, $rest[$ind]) = /^(\S+)\s+([^\t]+?)\s*;\s*(.*)/;
         ($type[$ind], $code[$ind], $args[$ind], $flags[$ind], $longj[$ind])
           = split /[,\s]\s*/, $desc;
         ++$ind;
@@ -253,7 +253,7 @@ foreach my $file ("op_reg_common.h", "regexp.h") {
 
         # optional leading '_'.  Return symbol in $1, and strip it from
         # rest of line
-        if (s/ \#define \s+ ( _? RXf_ \w+ ) \s+ //xi) {
+        if (s/ \# \s* define \s+ ( _? RXf_ \w+ ) \s+ //xi) {
             chomp;
             my $define = $1;
             s: / \s* \* .*? \* \s* / : :x;    # Replace comments by a blank

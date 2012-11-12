@@ -557,6 +557,7 @@ brian.d.foy\100gmail.com                bdfoy\100cpan.org
 BQW10602\100nifty.com                   sadahiro\100cpan.org
 
 chromatic\100wgz.org                    chromatic\100rmci.net
+ckuskie\100cadence.com                  colink\100perldreamer.com
 claes\100surfar.nu                      claes\100versed.se
 clintp\100geeksalad.org                 cpierce1\100ford.com
 clkao\100clkao.org                      clkao\100bestpractical.com
@@ -826,6 +827,7 @@ rootbeer\100teleport.com                rootbeer\100redcat.com
 rurban\100x-ray.at                      rurban\100cpan.org
 +                                       rurban\100cpanel.net
 sartak\100bestpractical.com             sartak\100gmail.com
++                                       code\100sartak.org
 sadinoff\100olf.com                     danny-cpan\100sadinoff.com
 schubiger\100cpan.org                   steven\100accognoscere.org
 +                                       sts\100accognoscere.org

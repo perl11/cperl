@@ -85,17 +85,29 @@ my ($embed, $core, $ext, $api) = setup_embed();
 	}
 
 	if ($flags =~ /([si])/) {
-	    my $type = ($1 eq 's') ? "STATIC" : "PERL_STATIC_INLINE";
+	    my $type;
+	    if ($never_returns) {
+		$type = $1 eq 's' ? "PERL_STATIC_NO_RET" : "PERL_STATIC_INLINE_NO_RET";
+	    }
+	    else {
+		$type = $1 eq 's' ? "STATIC" : "PERL_STATIC_INLINE";
+	    }
 	    warn "$func: i and s flags are mutually exclusive"
 					    if $flags =~ /s/ && $flags =~ /i/;
 	    $retval = "$type $splint_flags$retval";
 	    $func = "S_$plain_func";
 	}
 	else {
-	    $retval = "PERL_CALLCONV $splint_flags$retval";
+	    if ($never_returns) {
+		$retval = "PERL_CALLCONV_NO_RET $splint_flags$retval";
+	    }
+	    else {
+		$retval = "PERL_CALLCONV $splint_flags$retval";
+	    }
 	    if ($flags =~ /[bp]/) {
 		$func = "Perl_$plain_func";
-	    } else {
+	    }
+	    else {
 		$func = $plain_func;
 	    }
 	}

@@ -5,7 +5,7 @@ BEGIN {
     chdir 't' if -d 't';
     @INC = '../lib';
     require './test.pl';
-    plan (tests => 156);
+    plan (tests => 178);
 }
 
 # Test that defined() returns true for magic variables created on the fly,
@@ -20,6 +20,7 @@ BEGIN {
 	SIG ^OPEN ^TAINT ^UNICODE ^UTF8LOCALE ^WARNING_BITS 1 2 3 4 5 6 7 8
 	9 42 & ` ' : ? ! _ - [ ^ ~ = % . ( ) < > \ / $ | + ; ] ^A ^C ^D
 	^E ^F ^H ^I ^L ^N ^O ^P ^S ^T ^V ^W ^UTF8CACHE ::12345 main::98732
+	^LAST_FH
     )) {
 	my $v = $_;
 	# avoid using any global vars here:
@@ -54,7 +55,6 @@ $Is_VMS      = $^O eq 'VMS';
 $Is_Dos      = $^O eq 'dos';
 $Is_os2      = $^O eq 'os2';
 $Is_Cygwin   = $^O eq 'cygwin';
-$Is_MPE      = $^O eq 'mpeix';		
 $Is_BeOS     = $^O eq 'beos';
 
 $PERL = $ENV{PERL}
@@ -63,9 +63,32 @@ $PERL = $ENV{PERL}
        $Is_MSWin32            ? '.\perl' :
        './perl');
 
+sub env_is {
+    my ($key, $val, $desc) = @_;
+
+    use open IN => ":raw";
+    if ($Is_MSWin32) {
+        # cmd.exe will echo 'variable=value' but 4nt will echo just the value
+        # -- Nikola Knezevic
+	require Win32;
+	my $cp = Win32::GetConsoleOutputCP();
+	Win32::SetConsoleOutputCP(Win32::GetACP());
+        (my $set = `set $key`) =~ s/\r\n$/\n/;
+	Win32::SetConsoleOutputCP($cp);
+        like $set, qr/^(?:\Q$key\E=)?\Q$val\E$/, $desc;
+    } elsif ($Is_VMS) {
+        is `write sys\$output f\$trnlnm("\Q$key\E")`, "$val\n", $desc;
+    } else {
+        is `echo \$\Q$key\E`, "$val\n", $desc;
+    }
+}
+
 END {
     # On VMS, environment variable changes are peristent after perl exits
-    delete $ENV{'FOO'} if $Is_VMS;
+    if ($Is_VMS) {
+        delete $ENV{'FOO'};
+        delete $ENV{'__NoNeSuCh'};
+    }
 }
 
 eval '$ENV{"FOO"} = "hi there";';	# check that ENV is inited inside eval
@@ -83,7 +106,7 @@ close FOO; # just mention it, squelch used-only-once
 
 SKIP: {
     skip('SIGINT not safe on this platform', 5)
-	if $Is_MSWin32 || $Is_NetWare || $Is_Dos || $Is_MPE;
+	if $Is_MSWin32 || $Is_NetWare || $Is_Dos;
   # the next tests are done in a subprocess because sh spits out a
   # newline onto stderr when a child process kills itself with SIGINT.
   # We use a pipe rather than system() because the VMS command buffer
@@ -293,7 +316,7 @@ $^X = Cygwin::win_to_posix_path(Cygwin::posix_to_win_path($^X, 1));
 $0 = Cygwin::win_to_posix_path(Cygwin::posix_to_win_path($0, 1));
 EOX
     }
-    if ($^O eq 'os390' or $^O eq 'posix-bc' or $^O eq 'vmesa') {  # no shebang
+    if ($^O eq 'os390' or $^O eq 'posix-bc') {  # no shebang
 	$headmaybe = <<EOH ;
     eval 'exec ./perl -S \$0 \${1+"\$\@"}'
         if 0;
@@ -581,15 +604,37 @@ SKIP: {
     }
 }
 
+# ${^LAST_FH}
+() = tell STDOUT;
+is ${^LAST_FH}, \*STDOUT, '${^LAST_FH} after tell';
+() = tell STDIN;
+is ${^LAST_FH}, \*STDIN, '${^LAST_FH} after another tell';
+{
+    my $fh = *STDOUT;
+    () = tell $fh;
+    is ${^LAST_FH}, \$fh, '${^LAST_FH} referencing lexical coercible glob';
+}
+# This also tests that ${^LAST_FH} is a weak reference:
+is ${^LAST_FH}, undef, '${^LAST_FH} is undef when PL_last_in_gv is NULL';
+
+
+# $|
+fresh_perl_is 'print $| = ~$|', "1\n", {switches => ['-l']}, 
+ '[perl #4760] print $| = ~$|';
+fresh_perl_is
+ 'select f; undef *f; ${q/|/}; print STDOUT qq|ok\n|', "ok\n", {}, 
+ '[perl #115206] no crash when vivifying $| while *{+select}{IO} is undef';
+
+
 # ^^^^^^^^^ New tests go here ^^^^^^^^^
 
 SKIP: {
-    skip("%ENV manipulations fail or aren't safe on $^O", 4)
-	if $Is_VMS || $Is_Dos;
+    skip("%ENV manipulations fail or aren't safe on $^O", 19)
+	if $Is_Dos;
 
  SKIP: {
-	skip("clearing \%ENV is not safe when running under valgrind")
-	    if $ENV{PERL_VALGRIND};
+	skip("clearing \%ENV is not safe when running under valgrind or on VMS")
+	    if $ENV{PERL_VALGRIND} || $Is_VMS;
 
 	    $PATH = $ENV{PATH};
 	    $PDL = $ENV{PERL_DESTRUCT_LEVEL} || 0;
@@ -604,15 +649,57 @@ SKIP: {
 	    }
 	}
 
-	$ENV{__NoNeSuCh} = "foo";
-	$0 = "bar";
-# cmd.exe will echo 'variable=value' but 4nt will echo just the value
-# -- Nikola Knezevic
-    	if ($Is_MSWin32) {
-	    like `set __NoNeSuCh`, qr/^(?:__NoNeSuCh=)?foo$/;
-	} else {
-	    is `echo \$__NoNeSuCh`, "foo\n";
+	$ENV{__NoNeSuCh} = 'foo';
+	$0 = 'bar';
+	env_is(__NoNeSuCh => 'foo', 'setting $0 does not break %ENV');
+
+	# stringify a glob
+	$ENV{foo} = *TODO;
+	env_is(foo => '*main::TODO', 'ENV store of stringified glob');
+
+	# stringify a ref
+	my $ref = [];
+	$ENV{foo} = $ref;
+	env_is(foo => "$ref", 'ENV store of stringified ref');
+
+	# downgrade utf8 when possible
+	$bytes = "eh zero \x{A0}";
+	utf8::upgrade($chars = $bytes);
+	$forced = $ENV{foo} = $chars;
+	ok(!utf8::is_utf8($forced) && $forced eq $bytes, 'ENV store downgrades utf8 in SV');
+	env_is(foo => $bytes, 'ENV store downgrades utf8 in setenv');
+
+	# warn when downgrading utf8 is not possible
+	$chars = "X-Day \x{1998}";
+	utf8::encode($bytes = $chars);
+	{
+	  my $warned = 0;
+	  local $SIG{__WARN__} = sub { ++$warned if $_[0] =~ /^Wide character in setenv/; print "# @_" };
+	  $forced = $ENV{foo} = $chars;
+	  ok($warned == 1, 'ENV store warns about wide characters');
 	}
+	ok(!utf8::is_utf8($forced) && $forced eq $bytes, 'ENV store encodes high utf8 in SV');
+	env_is(foo => $bytes, 'ENV store encodes high utf8 in SV');
+
+	# test local $ENV{foo} on existing foo
+	{
+	  local $ENV{__NoNeSuCh};
+	  { local $TODO = 'exists on %ENV should reflect real env';
+	    ok(!exists $ENV{__NoNeSuCh}, 'not exists $ENV{existing} during local $ENV{existing}'); }
+	  env_is(__NoNeLoCaL => '');
+	}
+	ok(exists $ENV{__NoNeSuCh}, 'exists $ENV{existing} after local $ENV{existing}');
+	env_is(__NoNeSuCh => 'foo');
+
+	# test local $ENV{foo} on new foo
+	{
+	  local $ENV{__NoNeLoCaL} = 'foo';
+	  ok(exists $ENV{__NoNeLoCaL}, 'exists $ENV{new} during local $ENV{new}');
+	  env_is(__NoNeLoCaL => 'foo');
+	}
+	ok(!exists $ENV{__NoNeLoCaL}, 'not exists $ENV{new} after local $ENV{new}');
+	env_is(__NoNeLoCaL => '');
+
     SKIP: {
 	    skip("\$0 check only on Linux and FreeBSD", 2)
 		unless $^O =~ /^(linux|freebsd)$/

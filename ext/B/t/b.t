@@ -218,8 +218,12 @@ is(B::opnumber("pp_null"), 0, "Testing opnumber with opname (pp_null)");
     like($hash, qr/\A0x[0-9a-f]+\z/, "Testing B::hash(\"wibble\")");
     unlike($hash, qr/\A0x0+\z/, "Testing B::hash(\"wibble\")");
 
-    like(B::hash("\0" x $_), qr/\A0x0+\z/, "Testing B::hash(\"0\" x $_)")
-	 for 0..19;
+    SKIP: {
+        skip "Nulls don't hash to the same bucket regardless of length with this PERL_HASH implementation", 20
+            if B::hash("") ne B::hash("\0" x 19);
+        like(B::hash("\0" x $_), qr/\A0x0+\z/, "Testing B::hash(\"0\" x $_)")
+             for 0..19;
+    }
 
     $hash = eval {B::hash(chr 256)};
     is($hash, undef, "B::hash() refuses non-octets");
@@ -268,7 +272,8 @@ is(B::opnumber("pp_null"), 0, "Testing opnumber with opname (pp_null)");
 
 is(B::class(bless {}, "Wibble::Bibble"), "Bibble", "Testing B::class()");
 is(B::cast_I32(3.14), 3, "Testing B::cast_I32()");
-is(B::opnumber("chop"), 39, "Testing opnumber with opname (chop)");
+is(B::opnumber("chop"), $] >= 5.015 ? 39 : 38,
+			    "Testing opnumber with opname (chop)");
 
 {
     no warnings 'once';
@@ -302,11 +307,73 @@ my $cop = B::svref_2object($sub1)->ROOT->first->first;
 my $bobby = B::svref_2object($sub2)->ROOT->first->first;
 is $cop->stash->object_2svref, \%main::, 'COP->stash';
 is $cop->stashpv, 'main', 'COP->stashpv';
-is $bobby->stashpv, "Pe\0e\x{142}", 'COP->stashpv with utf8 and nulls';
-if ($Config::Config{useithreads}) {
+
+SKIP: {
+    skip "no nulls in packages before 5.17", 1 if $] < 5.017;
+    is $bobby->stashpv, "Pe\0e\x{142}", 'COP->stashpv with utf8 and nulls';
+}
+
+SKIP: {
+    skip "no stashoff", 2 if $] < 5.017 || !$Config::Config{useithreads};
     like $cop->stashoff, qr/^[1-9]\d*\z/a, 'COP->stashoff';
     isnt $cop->stashoff, $bobby->stashoff,
 	'different COP->stashoff for different stashes';
+}
+
+
+# Test $B::overlay
+{
+    my $methods = {
+	BINOP =>  [ qw(last) ],
+	COP   =>  [ qw(arybase cop_seq file filegv hints hints_hash io
+		       label line stash stashpv
+		       stashoff warnings) ],
+	LISTOP => [ qw(children) ],
+	LOGOP =>  [ qw(other) ],
+	LOOP  =>  [ qw(lastop nextop redoop) ],
+	OP    =>  [ qw(desc flags name next opt ppaddr private sibling
+		       size spare targ type) ],
+	PADOP =>  [ qw(gv padix sv) ],
+	PMOP  =>  [ qw(code_list pmflags pmoffset pmreplroot pmreplstart pmstash pmstashpv precomp reflags) ],
+	PVOP  =>  [ qw(pv) ],
+	SVOP  =>  [ qw(gv sv) ],
+	UNOP  =>  [ qw(first) ],
+    };
+
+    my $overlay = {};
+    my $op = B::svref_2object(sub { my $x = 1 })->ROOT;
+
+    for my $class (sort keys %$methods) {
+	for my $meth (@{$methods->{$class}}) {
+	    my $full = "B::${class}::$meth";
+	    die "Duplicate method '$full'\n"
+		if grep $_ eq $full, @{$overlay->{$meth}};
+	    push @{$overlay->{$meth}}, "B::${class}::$meth";
+	}
+    }
+
+    {
+	local $B::overlay; # suppress 'used once' warning
+	local $B::overlay = { $$op => $overlay };
+
+	for my $class (sort keys %$methods) {
+	    bless $op, "B::$class"; # naughty
+	    for my $meth (@{$methods->{$class}}) {
+		if ($op->can($meth)) {
+		    my $list = $op->$meth;
+		    ok(defined $list
+			    && ref($list) eq "ARRAY"
+			    && grep($_ eq "B::${class}::$meth", @$list),
+			"overlay: B::$class $meth");
+		}
+		else {
+		    pass("overlay: B::$class $meth (skipped; no method)");
+		}
+	    }
+	}
+    }
+    # B::overlay should be disabled again here
+    is($op->name, "leavesub", "overlay: orig name");
 }
 
 done_testing();

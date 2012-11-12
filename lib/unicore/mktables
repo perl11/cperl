@@ -814,6 +814,8 @@ push @tables_that_may_be_empty, 'Script_Extensions=Katakana_Or_Hiragana'
                                                     if $v_version ge v6.0.0;
 push @tables_that_may_be_empty, 'Grapheme_Cluster_Break=Prepend'
                                                     if $v_version ge v6.1.0;
+push @tables_that_may_be_empty, 'Canonical_Combining_Class=CCC133'
+                                                    if $v_version ge v6.2.0;
 
 # The lists below are hashes, so the key is the item in the list, and the
 # value is the reason why it is in the list.  This makes generation of
@@ -1019,7 +1021,7 @@ if ($v_version ge v4.1.0) {
     $why_suppressed{'Script=Katakana_Or_Hiragana'} = 'Obsolete.  All code points previously matched by this have been moved to "Script=Common".';
 }
 if ($v_version ge v6.0.0) {
-    $why_suppressed{'Script=Katakana_Or_Hiragana'} .= '  Consider instead using "Script_Extensions=Katakana" or "Script_Extensions=Hiragana (or both)"';
+    $why_suppressed{'Script=Katakana_Or_Hiragana'} .= '  Consider instead using "Script_Extensions=Katakana" or "Script_Extensions=Hiragana" (or both)';
     $why_suppressed{'Script_Extensions=Katakana_Or_Hiragana'} = 'All code points that would be matched by this are matched by either "Script_Extensions=Katakana" or "Script_Extensions=Hiragana"';
 }
 
@@ -1076,7 +1078,7 @@ END
 # The input files don't list every code point.  Those not listed are to be
 # defaulted to some value.  Below are hard-coded what those values are for
 # non-binary properties as of 5.1.  Starting in 5.0, there are
-# machine-parsable comment lines in the files the give the defaults; so this
+# machine-parsable comment lines in the files that give the defaults; so this
 # list shouldn't have to be extended.  The claim is that all missing entries
 # for binary properties will default to 'N'.  Unicode tried to change that in
 # 5.2, but the beta period produced enough protest that they backed off.
@@ -1147,6 +1149,8 @@ my %ignored_files = (
     'ReadMe.txt' => 'Documentation',
     'StandardizedVariants.txt' => 'Certain glyph variations for character display are standardized.  This lists the non-Unihan ones; the Unihan ones are also not used by Perl, and are in a separate Unicode data base L<http://www.unicode.org/ivd>',
     'EmojiSources.txt' => 'Maps certain Unicode code points to their legacy Japanese cell-phone values',
+    'USourceData.txt' => 'Documentation of status and cross reference of proposals for encoding by Unicode of Unihan characters',
+    'USourceData.pdf' => 'Documentation of status and cross reference of proposals for encoding by Unicode of Unihan characters',
     'auxiliary/WordBreakTest.html' => 'Documentation of validation tests',
     'auxiliary/SentenceBreakTest.html' => 'Documentation of validation tests',
     'auxiliary/GraphemeBreakTest.html' => 'Documentation of validation tests',
@@ -3015,6 +3019,10 @@ sub trace { return main::trace(@_); }
 
     our $addr;
 
+    # Max is initialized to a negative value that isn't adjacent to 0, for
+    # simpler tests
+    my $max_init = -2;
+
     main::setup_package();
 
     my %ranges;
@@ -3070,9 +3078,7 @@ sub trace { return main::trace(@_); }
 
         Carp::carp_extra_args(\%args) if main::DEBUG && %args;
 
-        # Max is initialized to a negative value that isn't adjacent to 0,
-        # for simpler tests
-        $max{$addr} = -2;
+        $max{$addr} = $max_init;
 
         $_search_ranges_cache{$addr} = 0;
         $ranges{$addr} = [];
@@ -4157,7 +4163,12 @@ sub trace { return main::trace(@_); }
         # otherwise recalculate it.  This is done too rarely to worry about
         # performance.
         if ($operation eq '-' && @return) {
-            $max{$addr} = $r->[-1]->end;
+            if (@$r) {
+                $max{$addr} = $r->[-1]->end;
+            }
+            else {  # Now empty
+                $max{$addr} = $max_init;
+            }
         }
         return @return;
     }
@@ -11476,7 +11487,7 @@ sub filter_old_style_case_folding {
     # Create the map for simple only if are going to output it, for otherwise
     # it takes no part in anything we do.
     my $to_output_simple;
-    my $non_final_folds;
+    my $all_folds;
 
     sub setup_case_folding($) {
         # Read in the case foldings in CaseFolding.txt.  This handles both
@@ -11489,10 +11500,10 @@ sub filter_old_style_case_folding {
             property_ref('Case_Folding')->set_proxy_for('Simple_Case_Folding');
         }
 
-        $non_final_folds = $perl->add_match_table("_Perl_Non_Final_Folds",
+        $all_folds = $perl->add_match_table("_Perl_Any_Folds",
                            Perl_Extension => 1,
                            Fate => $INTERNAL_ONLY,
-                           Description => "Code points that particpate in a multi-char fold and are not the final character of said fold",
+                           Description => "Code points that particpate in some fold",
                            );
 
         # If we ever wanted to show that these tables were combined, a new
@@ -11545,13 +11556,20 @@ END
         # so that _swash_inversion_hash() is able to construct closures
         # without having to worry about F mappings.
         if ($type eq 'C' || $type eq 'F' || $type eq 'I' || $type eq 'S') {
+            my $from = hex $range;  # Assumes range is single
+            $all_folds->add_range($from, $from);
             $_ = "$range; Case_Folding; "
                  . "$CMD_DELIM$REPLACE_CMD=$MULTIPLE_BEFORE$CMD_DELIM$map";
+
             if ($type eq 'F') {
                 my @string = split " ", $map;
                 for my $i (0 .. @string  - 1 -1) {
-                    $non_final_folds->add_range(hex $string[$i], hex $string[$i]);
+                    my $decimal = hex $string[$i];
+                    $all_folds->add_range($decimal, $decimal);
                 }
+            }
+            else {
+                $all_folds->add_range(hex $map, hex $map);
             }
         }
         else {
@@ -13146,6 +13164,13 @@ sub compile_perl() {
     else {
         $Word += ord('_');  # Make sure this is a $Word
     }
+    my $JC = property_ref('Join_Control');  # Wasn't in release 1
+    if (defined $JC) {
+        $Word += $JC->table('Y');
+    }
+    else {
+        $Word += 0x200C + 0x200D;
+    }
 
     # This is a Perl extension, so the name doesn't begin with Posix.
     my $PerlWord = $perl->add_match_table('PerlWord',
@@ -13188,7 +13213,7 @@ sub compile_perl() {
                 Initialize => $Blank + $VertSpace,
     );
     $Space->add_alias('XPosixSpace');
-    $perl->add_match_table("PosixSpace",
+    my $posix_space = $perl->add_match_table("PosixSpace",
                             Description => "\\t, \\n, \\cK, \\f, \\r, and ' '.  (\\cK is vertical tab)",
                             Initialize => $Space & $ASCII,
                             );
@@ -13455,9 +13480,27 @@ sub compile_perl() {
 
     $perl_xidc &= $Word;
 
-    # These two tables are for the 'extended' grapheme cluster, which came in
-    # 5.1; create empty ones if not already present.  The non-extended
-    # definition differs from the extended (see
+    my $charname_begin = $perl->add_match_table('_Perl_Charname_Begin',
+                    Perl_Extension => 1,
+                    Fate => $INTERNAL_ONLY,
+                    Initialize => $gc->table('Letter') & $Alpha & $perl_xids,
+                    );
+
+    my $charname_continue = $perl->add_match_table('_Perl_Charname_Continue',
+                        Perl_Extension => 1,
+                        Fate => $INTERNAL_ONLY,
+                        Initialize => $perl_xidc
+                                    + 0x0020        # SPACE
+                                    + 0x0028        # (
+                                    + 0x0029        # )
+                                    + 0x002D        # -
+                                    + 0x00A0        # NBSP
+                        );
+
+    # These two tables are for matching \X, which is based on the 'extended'
+    # grapheme cluster, which came in 5.1; create empty ones if not already
+    # present.  The straight 'grapheme cluster' (non-extended) is used prior
+    # to 5.1, and differs from the extended (see
     # http://www.unicode.org/reports/tr29/) only by these two tables, so we
     # get the older definition automatically when they are empty.
     my $gcb = property_ref('Grapheme_Cluster_Break');
@@ -13471,31 +13514,19 @@ sub compile_perl() {
         push @tables_that_may_be_empty, $perl_prepend->complete_name;
     }
 
+    # All the tables with _X_ in their names are used in defining \X handling,
+    # and are based on the Unicode GCB property.  Basically, \X matches:
+    #   CR-LF
+    #   | Prepend* Begin Extend*
+    #   | .
+    # Begin is:           ( Special_Begin | ! Control )
+    # Begin is also:      ( Regular_Begin | Special_Begin )
+    #   where Regular_Begin is defined as ( ! Control - Special_Begin )
+    # Special_Begin is:   ( Regional-Indicator+ | Hangul-syllable )
+    # Extend is:          ( Grapheme_Extend | Spacing_Mark )
+    # Control is:         [ GCB_Control CR LF ]
+    # Hangul-syllable is: ( T+ | ( L* ( L | ( LVT | ( V | LV ) V* ) T* ) ))
 
-    # These are used in Unicode's definition of \X
-    my $begin = $perl->add_match_table('_X_Begin', Perl_Extension => 1,
-                                       Fate => $INTERNAL_ONLY);
-    my $extend = $perl->add_match_table('_X_Extend', Perl_Extension => 1,
-                                        Fate => $INTERNAL_ONLY);
-
-    # In the line below, two negatives means: yes hangul
-    $begin += ~ property_ref('Hangul_Syllable_Type')
-                                                ->table('Not_Applicable')
-            + ~ ($gcb->table('Control')
-                + $gcb->table('CR')
-                + $gcb->table('LF'));
-    $begin->add_comment('For use in \X; matches: Hangul_Syllable | ! Control');
-
-    $extend += $gcb->table('Extend');
-    if (defined (my $sm = $gcb->table('SpacingMark'))) {
-        $extend += $sm;
-    }
-    $extend->add_comment('For use in \X; matches: Extend | SpacingMark');
-
-    # More GCB.  Populate a combined hangul syllables table
-    my $lv_lvt_v = $perl->add_match_table('_X_LV_LVT_V',
-                                          Perl_Extension => 1,
-                                          Fate => $INTERNAL_ONLY);
     foreach my $gcb_name (qw{ L V T LV LVT }) {
 
         # The perl internal extension's name is the gcb table name prepended
@@ -13511,13 +13542,61 @@ sub compile_perl() {
             push @tables_that_may_be_empty, $perl_table->complete_name;
         }
     }
-    $perl->add_match_table('_X_HST_Not_Applicable',
-                            Perl_Extension => 1,
-                            Fate => $INTERNAL_ONLY,
-                            Initialize => property_ref('HST')->table('NA'),
-                            );
+
+    # More GCB.  Populate a combined hangul syllables table
+    my $lv_lvt_v = $perl->add_match_table('_X_LV_LVT_V',
+                                          Perl_Extension => 1,
+                                          Fate => $INTERNAL_ONLY);
     $lv_lvt_v += $gcb->table('LV') + $gcb->table('LVT') + $gcb->table('V');
-    $lv_lvt_v->add_comment('For use in \X; matches: hst=LV | hst=LVT | hst=V');
+    $lv_lvt_v->add_comment('For use in \X; matches: gcb=LV | gcb=LVT | gcb=V');
+
+    my $ri = $perl->add_match_table('_X_RI', Perl_Extension => 1,
+                                    Fate => $INTERNAL_ONLY);
+    if ($v_version ge v6.2) {
+        $ri += $gcb->table('RI');
+    }
+    else {
+        push @tables_that_may_be_empty, $ri->full_name;
+    }
+
+    my $specials_begin = $perl->add_match_table('_X_Special_Begin',
+                                       Perl_Extension => 1,
+                                       Fate => $INTERNAL_ONLY,
+                                       Initialize => $lv_lvt_v
+                                                   + $gcb->table('L')
+                                                   + $gcb->table('T')
+                                                   + $ri
+                                      );
+    $specials_begin->add_comment(join_lines( <<END
+For use in \\X; matches first character of potential multi-character
+sequences that can begin an extended grapheme cluster.  They need special
+handling because of their complicated nature.
+END
+    ));
+    my $regular_begin = $perl->add_match_table('_X_Regular_Begin',
+                                       Perl_Extension => 1,
+                                       Fate => $INTERNAL_ONLY,
+                                       Initialize => ~ $gcb->table('Control')
+                                                   - $specials_begin
+                                                   - $gcb->table('CR')
+                                                   - $gcb->table('LF')
+                                      );
+    $regular_begin->add_comment(join_lines( <<END
+For use in \\X; matches first character of anything that can begin an extended
+grapheme cluster, except those that require special handling.
+END
+    ));
+
+    my $extend = $perl->add_match_table('_X_Extend', Perl_Extension => 1,
+                                        Fate => $INTERNAL_ONLY,
+                                        Initialize => $gcb->table('Extend')
+                                       );
+    if (defined (my $sm = $gcb->table('SpacingMark'))) {
+        $extend += $sm;
+    }
+    $extend->add_comment('For use in \X; matches: Extend | SpacingMark');
+
+    # End of GCB \X processing
 
     my @composition = ('Name', 'Unicode_1_Name', 'Name_Alias');
 
@@ -15265,7 +15344,7 @@ the left brace completely changes the meaning of the construct, from "match"
 (for C<\\p{}>) to "doesn't match" (for C<\\P{}>).  Casing in this document is
 for improved legibility.
 
-Also, white space, hyphens, and underscores are also normally ignored
+Also, white space, hyphens, and underscores are normally ignored
 everywhere between the {braces}, and hence can be freely added or removed
 even if the C</x> modifier hasn't been specified on the regular expression.
 But $a_bold_stricter at the beginning of an entry in the table below
@@ -15740,8 +15819,8 @@ package charnames;
     my \$run_on_code_point_re = qr/$run_on_code_point_re/;
     my \$code_point_re = qr/$code_point_re/;
 
-    # In the following hash, the keys are the bases of names which includes
-    # the code point in the name, like CJK UNIFIED IDEOGRAPH-4E01.  The values
+    # In the following hash, the keys are the bases of names which include
+    # the code point in the name, like CJK UNIFIED IDEOGRAPH-4E01.  The value
     # of each key is another hash which is used to get the low and high ends
     # for each range of code points that apply to the name.
     my %names_ending_in_code_point = (
@@ -17306,13 +17385,14 @@ my @input_file_objects = (
                     Property => 'Composition_Exclusion',
                     ),
     Input_file->new('BidiMirroring.txt', v3.0.1,
-                    Has_Missings_Defaults => ($v_version lt v6.2.0)
-                                             ? $NO_DEFAULTS
-                                             # Is <none> which doesn't mean
-                                             # anything to us, we will use the
-                                             # null string
-                                             : $IGNORED,
                     Property => 'Bidi_Mirroring_Glyph',
+                    Has_Missings_Defaults => ($v_version lt v6.2.0)
+                                              ? $NO_DEFAULTS
+                                              # Is <none> which doesn't mean
+                                              # anything to us, we will use the
+                                              # null string
+                                              : $IGNORED,
+
                     ),
     Input_file->new("NormTest.txt", v3.0.0,
                      Handler => \&process_NormalizationsTest,
@@ -17597,7 +17677,7 @@ END
 
 # Create the list of input files from the objects we have defined, plus
 # version
-my @input_files = 'version';
+my @input_files = qw(version Makefile);
 foreach my $object (@input_file_objects) {
     my $file = $object->file;
     next if ! defined $file;    # Not all objects have files
@@ -17627,6 +17707,10 @@ foreach my $in (@input_files) {
         construct_filename($file, 'mutable', \@directories);
     }
 }
+
+# We use 'Makefile' just to see if it has changed since the last time we
+# rebuilt.  Now discard it.
+@input_files = grep { $_ ne 'Makefile' } @input_files;
 
 my $rebuild = $write_unchanged_files    # Rebuild: if unconditional rebuild
               || ! scalar @mktables_list_output_files  # or if no outputs known

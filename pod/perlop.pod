@@ -48,7 +48,7 @@ values only, not array values.
     left	|| //
     nonassoc	..  ...
     right	?:
-    right	= += -= *= etc.
+    right	= += -= *= etc. goto last next redo dump
     left	, =>
     nonassoc	list operators (rightward)
     right	not
@@ -1489,7 +1489,9 @@ otherwise to Unicode.
 =back
 
 B<NOTE>: Unlike C and other languages, Perl has no C<\v> escape sequence for
-the vertical tab (VT - ASCII 11), but you may use C<\ck> or C<\x0b>.  (C<\v>
+the vertical tab (VT, which is 11 in both ASCII and EBCDIC), but you may
+use C<\ck> or
+C<\x0b>.  (C<\v>
 does have meaning in regular expression patterns in Perl, see L<perlre>.)
 
 The following escape sequences are available in constructs that interpolate,
@@ -1775,11 +1777,10 @@ regex with an C<m> (so C<//> becomes C<m//>).
 
 If the C</g> option is not used, C<m//> in list context returns a
 list consisting of the subexpressions matched by the parentheses in the
-pattern, that is, (C<$1>, C<$2>, C<$3>...).  (Note that here C<$1> etc. are
-also set, and that this differs from Perl 4's behavior.)  When there are
-no parentheses in the pattern, the return value is the list C<(1)> for
-success.  With or without parentheses, an empty list is returned upon
-failure.
+pattern, that is, (C<$1>, C<$2>, C<$3>...)  (Note that here C<$1> etc. are
+also set).  When there are no parentheses in the pattern, the return
+value is the list C<(1)> for success.  
+With or without parentheses, an empty list is returned upon failure.
 
 Examples:
 
@@ -2010,7 +2011,7 @@ specific options:
 Any non-whitespace delimiter may replace the slashes.  Add space after
 the C<s> when using a character allowed in identifiers.  If single quotes
 are used, no interpretation is done on the replacement string (the C</e>
-modifier overrides this, however).  Unlike Perl 4, Perl 5 treats backticks
+modifier overrides this, however).  Note that Perl treats backticks
 as normal delimiters; the replacement text is not evaluated as a command.
 If the PATTERN is delimited by bracketing quotes, the REPLACEMENT has
 its own pair of quotes, which may or may not be bracketing quotes, for example,
@@ -2201,7 +2202,7 @@ multiple commands in a single line by separating them with the command
 separator character, if your shell supports that (for example, C<;> on 
 many Unix shells and C<&> on the Windows NT C<cmd> shell).
 
-Beginning with v5.6.0, Perl will attempt to flush all files opened for
+Perl will attempt to flush all files opened for
 output before starting the child process, but this may not be supported
 on some platforms (see L<perlport>).  To be safe, you may need to set
 C<$|> ($AUTOFLUSH in English) or call the C<autoflush()> method of
@@ -2473,24 +2474,24 @@ you'll need to remove leading whitespace from each line manually:
     FINIS
 
 If you use a here-doc within a delimited construct, such as in C<s///eg>,
-the quoted material must come on the lines following the final delimiter.
-So instead of
+the quoted material must still come on the line following the
+C<<< <<FOO >>> marker, which means it may be inside the delimited
+construct:
 
     s/this/<<E . 'that'
     the other
     E
      . 'more '/eg;
 
-you have to write
+It works this way as of Perl 5.18.  Historically, it was inconsistent, and
+you would have to write
 
     s/this/<<E . 'that'
      . 'more '/eg;
     the other
     E
 
-If the terminating identifier is on the last line of the program, you
-must be sure there is a newline after it; otherwise, Perl will give the
-warning B<Can't find string terminator "END" anywhere before EOF...>.
+outside of string evals.
 
 Additionally, quoting rules for the end-of-string identifier are
 unrelated to Perl's quoting rules. C<q()>, C<qq()>, and the like are not
@@ -3228,17 +3229,19 @@ provide faster implementations via external C libraries.
 
 Here is a short, but incomplete summary:
 
-  Math::Fraction         big, unlimited fractions like 9973 / 12967
   Math::String           treat string sequences like numbers
   Math::FixedPrecision   calculate with a fixed precision
   Math::Currency         for currency calculations
   Bit::Vector            manipulate bit vectors fast (uses C)
   Math::BigIntFast       Bit::Vector wrapper for big numbers
   Math::Pari             provides access to the Pari C library
-  Math::BigInteger       uses an external C library
-  Math::Cephes           uses external Cephes C library (no big numbers)
+  Math::Cephes           uses the external Cephes C library (no
+                         big numbers)
   Math::Cephes::Fraction fractions via the Cephes library
   Math::GMP              another one using an external C library
+  Math::GMPz             an alternative interface to libgmp's big ints
+  Math::GMPq             an interface to libgmp's fraction numbers
+  Math::GMPf             an interface to libgmp's floating point numbers
 
 Choose wisely.
 

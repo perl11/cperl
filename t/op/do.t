@@ -1,6 +1,10 @@
 #!./perl -w
 
-require './test.pl';
+BEGIN {
+    chdir 't';
+    @INC = '../lib';
+    require './test.pl';
+}
 use strict;
 no warnings 'void';
 
@@ -296,6 +300,16 @@ SKIP: {
     ok(!$rv,          "do returns false on io errror");
     ok(!$saved_error, "\$\@ not set on io error");
     ok($saved_errno,  "\$! set on io error");
+}
+
+# do subname should not be do "subname"
+{
+    my $called;
+    sub fungi { $called .= "fungible" }
+    $@ = "scrimptious scrobblings";
+    do fungi;
+    is $called, "fungible", "do-file does not force bareword";
+    isnt $@, "scrimptious scrobblings", "It was interpreted as do-file";
 }
 
 done_testing();

@@ -6,6 +6,8 @@
 # not-a-number ...), of the effects of locale, and of features
 # specific to multi-byte characters (under the utf8 pragma and such).
 
+# For tests that do not fit this format, use sprintf2.t.
+
 BEGIN {
     chdir 't' if -d 't';
     @INC = '../lib';
@@ -62,6 +64,8 @@ $SIG{__WARN__} = sub {
 	$w .= ' UNINIT';
     } elsif ($_[0] =~ /^Missing argument/) {
 	$w .= ' MISSING';
+    } elsif ($_[0]=~/^vector argument not supported with alpha versions/) {
+	$w .= ' ALPHA';
     } else {
 	warn @_;
     }
@@ -317,6 +321,7 @@ __END__
 >%vd<       >[version->new("1.002")]< >1.2<
 >%vd<       >[version->new("1048576.5")]< >1048576.5<
 >%vd<       >[version->new("50")]< >50<
+>[%vd]<     >[version->new(v1.1_1)]< >[] ALPHA<
 >%v.3d<     >"\01\02\03"< >001.002.003<
 >%0v3d<     >"\01\02\03"< >001.002.003<
 >%v.3d<     >[version::qv("1.2.3")]< >001.002.003<
@@ -399,7 +404,7 @@ __END__
 > %.0g<     >[]<          > 0 MISSING<
 >%.2g<      >[]<          >0 MISSING<
 >%.2gC<      >[]<          >0C MISSING<
->%.0g<      >-0.0<        >-0<		   >C99 standard mandates minus sign but C89 does not skip: MSWin32 VMS hpux:10.20 openbsd netbsd:1.5 irix darwin<
+>%.0g<      >-0.0<        >-0<		   >C99 standard mandates minus sign but C89 does not skip: MSWin32 VMS hpux:10.20 openbsd netbsd:1.5 irix darwin freebsd:4.9<
 >%.0g<      >12345.6789<  >1e+04<
 >%#.0g<     >12345.6789<  >1.e+04<
 >%.2g<      >12345.6789<  >1.2e+04<

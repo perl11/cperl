@@ -1,3 +1,40 @@
+2.78 Sat Nov 12 2012
+  - Fix hash order dependency bug in deprecated_in().
+    Tests would would fail or succeed depending on what order keys()
+    would return the version list in. List::Utils::min() considers
+    '5.011' and '5.011000' to be equivalent, and returns the first
+    whichever it encounters. Changing to List::Utils::minstr() fixes
+    this.
+
+2.77 Sat Nov 10 2012
+  - Updated for v5.12.5
+  - deprecated_in() function added
+  - corelist reports deprecated data
+
+2.76 Fri Nov  1 2012
+  - Updated for v5.16.2
+
+2.75 Fri Oct 20 2012
+  - Updated for v5.17.5
+
+2.74 Fri Oct 12 2012
+  - Updated for v5.14.3
+
+2.73 Thu Sep 20 2012
+  - Updated for v.5.17.4
+
+2.72 Tue aug 21 2012
+  - Fix for older perls
+
+2.71 Mon Aug 20 2012
+  - Updated for v5.17.3
+
+2.70 Thu Aug 9 2012
+  - Updated for v5.16.1
+
+2.69 Fri Jul 20 2012
+  - Updated for v5.17.2
+
 2.68 Tue Jun 19 2012
   - Updated for v5.17.1
 

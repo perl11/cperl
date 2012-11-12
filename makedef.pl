@@ -105,15 +105,12 @@ open(CFG, '<', 'config.h') || die "Cannot open config.h: $!\n";
 while (<CFG>) {
     $define{$1} = 1 if /^\s*\#\s*define\s+(MYMALLOC|MULTIPLICITY
                                            |SPRINTF_RETURNS_STRLEN
+                                           |KILL_BY_SIGPRC
                                            |(?:PERL|USE|HAS)_\w+)\b/x;
 }
 close(CFG);
 
 # perl.h logic duplication begins
-
-if ($define{PERL_IMPLICIT_SYS}) {
-    $define{PL_OP_SLAB_ALLOC} = 1;
-}
 
 if ($define{USE_ITHREADS}) {
     if (!$define{MULTIPLICITY}) {
@@ -408,23 +405,6 @@ unless ($define{'PERL_IMPLICIT_CONTEXT'}) {
 			 );
 }
 
-unless ($define{'PL_OP_SLAB_ALLOC'}) {
-    ++$skip{$_} foreach qw(
-                     PL_OpPtr
-                     PL_OpSlab
-                     PL_OpSpace
-		     Perl_Slab_Alloc
-		     Perl_Slab_Free
-			 );
-}
-
-unless ($define{'PERL_DEBUG_READONLY_OPS'}) {
-    ++$skip{$_} foreach qw(
-		    PL_slab_count
-		    PL_slabs
-			 );
-}
-
 unless ($define{'PERL_NEED_APPCTX'}) {
     ++$skip{PL_appctx};
 }
@@ -492,7 +472,17 @@ if ($define{HAS_SIGACTION}) {
     if ($ARGS{PLATFORM} eq 'vms') {
         # FAKE_PERSISTENT_SIGNAL_HANDLERS defined as !defined(HAS_SIGACTION)
         ++$skip{PL_sig_ignoring};
+        ++$skip{PL_sig_handlers_initted} unless $define{KILL_BY_SIGPRC};
     }
+}
+
+if ($ARGS{PLATFORM} eq 'vms' && !$define{KILL_BY_SIGPRC}) {
+    # FAKE_DEFAULT_SIGNAL_HANDLERS defined as KILL_BY_SIGPRC
+    ++$skip{Perl_csighandler_init};
+    ++$skip{Perl_my_kill};
+    ++$skip{Perl_sig_to_vmscondition};
+    ++$skip{PL_sig_defaulting};
+    ++$skip{PL_sig_handlers_initted} unless !$define{HAS_SIGACTION};
 }
 
 unless ($define{USE_LOCALE_COLLATE}) {
@@ -807,8 +797,6 @@ try_symbols(qw(
 
 if ($ARGS{PLATFORM} eq 'win32') {
     try_symbols(qw(
-				 setgid
-				 setuid
 				 win32_free_childdir
 				 win32_free_childenv
 				 win32_get_childdir

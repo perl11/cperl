@@ -1,10 +1,10 @@
 ; charset=UTF-8
 @@@	The Unicode Standard 6.2
-@@@+	U62M120605.lst
-	Unicode 6.2 names list, second delta (converted to UTF-8).
-	Added annotations for 09FA.
-	Adjusted subheads for additional letters in Georgian and Georgian Supplement blocks.
-	Added annotations and xrefs for 02B9, 02BE, 02BF.
+@@@+	U62M120808.lst
+	Unicode 6.2 names list, third delta (converted to UTF-8).
+	Updated more annotations in the Bengali block.
+	Added clarifying annotations for 0342.
+	Updated alias for 1110E.
 	This file is semi-automatically derived from UnicodeData.txt and
 	a set of manually created annotations using a script to select
 	or suppress information from the data file. The rules used
@@ -2478,6 +2478,10 @@
 	: 0301 combining acute accent
 @		Additions for Greek
 0342	COMBINING GREEK PERISPOMENI
+	* Greek-specific form of circumflex for rising-falling accent
+	* alternative glyph is similar to an inverted breve
+	x (combining tilde - 0303)
+	x (combining inverted breve - 0311)
 0343	COMBINING GREEK KORONIS
 	: 0313 combining comma above
 0344	COMBINING GREEK DIALYTIKA TONOS
@@ -4894,8 +4898,12 @@
 	= bengali letter va with lower diagonal (1.0)
 @		Currency signs
 09F2	BENGALI RUPEE MARK
+	= taka
+	* historic currency sign
 09F3	BENGALI RUPEE SIGN
+	= Bangladeshi taka
 @		Historic symbols for fractional values
+@+		The use of these signs is not limited to currency, despite the character names.
 09F4	BENGALI CURRENCY NUMERATOR ONE
 	* not in current usage
 09F5	BENGALI CURRENCY NUMERATOR TWO
@@ -4911,7 +4919,7 @@
 	* represents the name of a deity
 	= svargiya
 	* written before the name of a deceased person
-@		Currency sign
+@		Historic currency sign
 09FB	BENGALI GANDA MARK
 @@	0A00	Gurmukhi	0A7F
 @		Various signs
@@ -29114,7 +29122,7 @@ FFFF	<not a character>
 1110D	CHAKMA LETTER CHAA
 	= majaraa chaa
 1110E	CHAKMA LETTER JAA
-	= dvipadalaa haa
+	= dvipadalaa jaa
 1110F	CHAKMA LETTER JHAA
 	= uraauraa jhaa
 11110	CHAKMA LETTER NYAA

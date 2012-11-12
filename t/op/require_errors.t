@@ -7,17 +7,28 @@ BEGIN {
     require './test.pl';
 }
 
-plan(tests => 6);
+plan(tests => 11);
 
 my $nonfile = tempfile();
 
 @INC = qw(Perl Rules);
 
-eval {
-    require $nonfile;
-};
+# The tests for ' ' and '.h' never did fail, but previously the error reporting
+# code would read memory before the start of the SV's buffer
 
-like $@, qr/^Can't locate $nonfile in \@INC \(\@INC contains: @INC\) at/;
+for my $file ($nonfile, ' ') {
+    eval {
+	require $file;
+    };
+
+    like $@, qr/^Can't locate $file in \@INC \(\@INC contains: @INC\) at/,
+	"correct error message for require '$file'";
+}
+
+eval "require $nonfile";
+
+like $@, qr/^Can't locate $nonfile\.pm in \@INC \(you may need to install the $nonfile module\) \(\@INC contains: @INC\) at/,
+    "correct error message for require $nonfile";
 
 eval {
     require "$nonfile.ph";
@@ -25,11 +36,23 @@ eval {
 
 like $@, qr/^Can't locate $nonfile\.ph in \@INC \(did you run h2ph\?\) \(\@INC contains: @INC\) at/;
 
-eval {
-    require "$nonfile.h";
-};
+for my $file ("$nonfile.h", ".h") {
+    eval {
+	require $file
+    };
 
-like $@, qr/^Can't locate $nonfile\.h in \@INC \(change \.h to \.ph maybe\?\) \(did you run h2ph\?\) \(\@INC contains: @INC\) at/;
+    like $@, qr/^Can't locate \Q$file\E in \@INC \(change \.h to \.ph maybe\?\) \(did you run h2ph\?\) \(\@INC contains: @INC\) at/,
+	"correct error message for require '$file'";
+}
+
+for my $file ("$nonfile.ph", ".ph") {
+    eval {
+	require $file
+    };
+
+    like $@, qr/^Can't locate \Q$file\E in \@INC \(did you run h2ph\?\) \(\@INC contains: @INC\) at/,
+	"correct error message for require '$file'";
+}
 
 eval 'require <foom>';
 like $@, qr/^<> should be quotes at /, 'require <> error';

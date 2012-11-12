@@ -847,17 +847,28 @@ Perl_my_atof(pTHX_ const char* s)
 
     PERL_ARGS_ASSERT_MY_ATOF;
 
-    if (PL_numeric_local && IN_SOME_LOCALE_FORM) {
-	NV y;
+    if (PL_numeric_local && PL_numeric_radix_sv && IN_SOME_LOCALE_FORM) {
+        const char *standard = NULL, *local = NULL;
+        bool use_standard_radix;
 
-	/* Scan the number twice; once using locale and once without;
-	 * choose the larger result (in absolute value). */
-	Perl_atof2(s, x);
-	SET_NUMERIC_STANDARD();
-	Perl_atof2(s, y);
-	SET_NUMERIC_LOCAL();
-	if ((y < 0.0 && y < x) || (y > 0.0 && y > x))
-	    return y;
+        /* Look through the string for the first thing that looks like a
+         * decimal point: either the value in the current locale or the
+         * standard fallback of '.'. The one which appears earliest in the
+         * input string is the one that we should have atof look for. Note that
+         * we have to determine this beforehand because on some systems,
+         * Perl_atof2 is just a wrapper around the system's atof. */
+        standard = strchr(s, '.');
+        local = strstr(s, SvPV_nolen(PL_numeric_radix_sv));
+
+        use_standard_radix = standard && (!local || standard < local);
+
+        if (use_standard_radix)
+            SET_NUMERIC_STANDARD();
+
+        Perl_atof2(s, x);
+
+        if (use_standard_radix)
+            SET_NUMERIC_LOCAL();
     }
     else
 	Perl_atof2(s, x);

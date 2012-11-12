@@ -1,5 +1,5 @@
 # DerivedCombiningClass-6.2.0.txt
-# Date: 2012-05-20, 00:42:30 GMT [MD]
+# Date: 2012-08-13, 19:56:56 GMT [MD]
 #
 # Unicode Character Database
 # Copyright (c) 1991-2012 Unicode, Inc.
@@ -1893,7 +1893,7 @@ FB1E          ; 26 # Mn       HEBREW POINT JUDEO-SPANISH VARIKA
 
 # ================================================
 
-# Canonical_Combining_Class=CCC133
+# Canonical_Combining_Class=CCC132
 
 0F74          ; 132 # Mn       TIBETAN VOWEL SIGN U
 

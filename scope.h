@@ -58,6 +58,7 @@
 #define SAVEt_INT_SMALL		48
 #define SAVEt_GVSV		49
 #define SAVEt_FREECOPHH		50
+#define SAVEt_CLEARPADRANGE	51
 
 #define SAVEf_SETMAGIC		1
 #define SAVEf_KEEPOLDELEM	2
@@ -162,7 +163,9 @@ scope has the given name. Name must be a literal string.
 #define ENTER_with_name(name) ENTER
 #define LEAVE_with_name(name) LEAVE
 #endif
-#define LEAVE_SCOPE(old) if (PL_savestack_ix > old) leave_scope(old)
+#define LEAVE_SCOPE(old) STMT_START { \
+	if (PL_savestack_ix > old) leave_scope(old); \
+    } STMT_END
 
 #define SAVEI8(i)	save_I8((I8*)&(i))
 #define SAVEI16(i)	save_I16((I16*)&(i))
@@ -269,7 +272,23 @@ scope has the given name. Name must be a literal string.
 
 #define save_freesv(op)		save_pushptr((void *)(op), SAVEt_FREESV)
 #define save_mortalizesv(op)	save_pushptr((void *)(op), SAVEt_MORTALIZESV)
-#define save_freeop(op)		save_pushptr((void *)(op), SAVEt_FREEOP)
+#if defined(__GNUC__) && !defined(PERL_GCC_BRACE_GROUPS_FORBIDDEN)
+# define save_freeop(op)                    \
+    ({                                       \
+      OP * const _o = (OP *)(op);             \
+      assert(!_o->op_savefree);               \
+      _o->op_savefree = 1;                     \
+      save_pushptr((void *)(_o), SAVEt_FREEOP); \
+    })
+#else
+# define save_freeop(op)                       \
+    (                                           \
+      PL_Xpv = (XPV *)(op),                      \
+      assert_(!((OP *)PL_Xpv)->op_savefree)      \
+      ((OP *)PL_Xpv)->op_savefree = 1,            \
+      save_pushptr((void *)(PL_Xpv), SAVEt_FREEOP) \
+    )
+#endif
 #define save_freepv(pv)		save_pushptr((void *)(pv), SAVEt_FREEPV)
 #define save_op()		save_pushptr((void *)(PL_op), SAVEt_OP)
 

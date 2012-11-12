@@ -15,6 +15,8 @@ B<perl>	S<[ B<-sTtuUWX> ]>
 	S<[ B<-i>[I<extension>] ]>
 	S<[ [B<-e>|B<-E>] I<'command'> ] [ B<--> ] [ I<programfile> ] [ I<argument> ]...>
 
+For more information on these options, you can run C<perldoc perlrun>.
+
 =head1 GETTING HELP
 
 The F<perldoc> program gives you access to all the documentation that comes
@@ -50,6 +52,7 @@ aux a2p c2ph h2ph h2xs perlbug pl2pm pod2html pod2man s2p splain xsubpp
 
     perl		Perl overview (this section)
     perlintro		Perl introduction for beginners
+    perlrun		Perl execution and options
     perltoc		Perl documentation table of contents
 
 =head2 Tutorials
@@ -94,7 +97,6 @@ aux a2p c2ph h2ph h2xs perlbug pl2pm pod2html pod2man s2p splain xsubpp
     perlpod		Perl plain old documentation
     perlpodspec 	Perl plain old documentation format specification
     perlpodstyle	Perl POD style guide
-    perlrun		Perl execution and options
     perldiag		Perl diagnostic messages
     perllexwarn 	Perl warnings and their control
     perldebug		Perl debugging
@@ -177,12 +179,20 @@ aux a2p c2ph h2ph h2xs perlbug pl2pm pod2html pod2man s2p splain xsubpp
 
     perlhist		Perl history records
     perldelta		Perl changes since previous version
+    perl5175delta	Perl changes in version 5.17.5
+    perl5174delta	Perl changes in version 5.17.4
+    perl5173delta	Perl changes in version 5.17.3
+    perl5172delta	Perl changes in version 5.17.2
     perl5171delta	Perl changes in version 5.17.1
     perl5170delta	Perl changes in version 5.17.0
+    perl5161delta	Perl changes in version 5.16.1
+    perl5162delta	Perl changes in version 5.16.2
     perl5160delta	Perl changes in version 5.16.0
+    perl5143delta	Perl changes in version 5.14.3
     perl5142delta	Perl changes in version 5.14.2
     perl5141delta	Perl changes in version 5.14.1
     perl5140delta	Perl changes in version 5.14.0
+    perl5125delta	Perl changes in version 5.12.5
     perl5124delta	Perl changes in version 5.12.4
     perl5123delta	Perl changes in version 5.12.3
     perl5122delta	Perl changes in version 5.12.2
@@ -238,7 +248,6 @@ aux a2p c2ph h2ph h2xs perlbug pl2pm pod2html pod2man s2p splain xsubpp
     perllinux		Perl notes for Linux
     perlmacos		Perl notes for Mac OS (Classic)
     perlmacosx		Perl notes for Mac OS X
-    perlmpeix		Perl notes for MPE/iX
     perlnetware 	Perl notes for NetWare
     perlopenbsd 	Perl notes for OpenBSD
     perlos2		Perl notes for OS/2
@@ -250,8 +259,6 @@ aux a2p c2ph h2ph h2xs perlbug pl2pm pod2html pod2man s2p splain xsubpp
     perlsolaris 	Perl notes for Solaris
     perlsymbian 	Perl notes for Symbian
     perltru64		Perl notes for Tru64
-    perluts		Perl notes for UTS
-    perlvmesa		Perl notes for VM/ESA
     perlvms		Perl notes for VMS
     perlvos		Perl notes for Stratus VOS
     perlwin32		Perl notes for Windows
@@ -272,8 +279,9 @@ On a Unix-like system, these documentation files will usually also be
 available as manpages for use with the F<man> program.
 
 In general, if something strange has gone wrong with your program and you're
-not sure where you should look for help, try the B<-w> switch first.  It will
-often point out exactly where the trouble is.
+not sure where you should look for help, try making your code comply with
+B<use strict> and B<use warnings>.  These will often point out exactly
+where the trouble is.
 
 =head1 DESCRIPTION
 
@@ -423,8 +431,13 @@ Perl developers, please write to perl-thanks@perl.org .
 
 =head1 DIAGNOSTICS
 
-The C<use warnings> pragma (and the B<-w> switch) produces some 
-lovely diagnostics.
+Using the C<use strict> pragma ensures that all variables are properly
+declared and prevents other misuses of legacy Perl features.
+
+The C<use warnings> pragma produces some lovely diagnostics. One can
+also use the B<-w> flag, but its use is normally discouraged, because
+it gets applied to all executed Perl code, including that not under
+your control.
 
 See L<perldiag> for explanations of all Perl's diagnostics.  The C<use
 diagnostics> pragma automatically turns Perl's normally terse warnings
@@ -438,12 +451,12 @@ B<-e> is counted as one line.)
 Setuid scripts have additional constraints that can produce error
 messages such as "Insecure dependency".  See L<perlsec>.
 
-Did we mention that you should definitely consider using the B<-w>
-switch?
+Did we mention that you should definitely consider using the B<use warnings>
+pragma?
 
 =head1 BUGS
 
-The B<-w> switch is not mandatory.
+The behavior implied by the B<use warnings> pragma is not mandatory.
 
 Perl is at the mercy of your machine's definitions of various
 operations such as type casting, atof(), and floating-point

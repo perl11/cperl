@@ -32,6 +32,24 @@
 	PERL_SUB_RETURN(tmp_func, file, line, stash);	\
     }
 
+#    define OP_ENTRY_PROBE(name)                        \
+    if (PERL_OP_ENTRY_ENABLED()) {    		        \
+	const char *tmp_name = name;			\
+	PERL_OP_ENTRY(tmp_name, file, line, stash);	\
+    }
+
+#    define LOADING_FILE_PROBE(name) 	                        \
+    if (PERL_LOADING_FILE_ENABLED()) {    		        \
+	const char *tmp_name = name;			\
+	PERL_LOADING_FILE(tmp_name);	                        \
+    }
+
+#    define LOADED_FILE_PROBE(name) 	                        \
+    if (PERL_LOADED_FILE_ENABLED()) {    		        \
+	const char *tmp_name = name;			\
+	PERL_LOADED_FILE(tmp_name);	                        \
+    }
+
 #  else
 
 #    define ENTRY_PROBE(func, file, line, stash) 	\
@@ -42,6 +60,21 @@
 #    define RETURN_PROBE(func, file, line, stash)	\
     if (PERL_SUB_RETURN_ENABLED()) {    		\
 	PERL_SUB_RETURN(func, file, line, stash); 	\
+    }
+
+#    define OP_ENTRY_PROBE(name)	                \
+    if (PERL_OP_ENTRY_ENABLED()) {    		        \
+	PERL_OP_ENTRY(name); 	                        \
+    }
+
+#    define LOADING_FILE_PROBE(name)	                        \
+    if (PERL_LOADING_FILE_ENABLED()) {    		        \
+	PERL_LOADING_FILE(name); 	                                \
+    }
+
+#    define LOADED_FILE_PROBE(name)	                        \
+    if (PERL_LOADED_FILE_ENABLED()) {    		        \
+	PERL_LOADED_FILE(name); 	                                \
     }
 
 #  endif
@@ -57,6 +90,9 @@
 #  define ENTRY_PROBE(func, file, line, stash)
 #  define RETURN_PROBE(func, file, line, stash)
 #  define PHASE_CHANGE_PROBE(new_phase, old_phase)
+#  define OP_ENTRY_PROBE(name)
+#  define LOADING_FILE_PROBE(name)
+#  define LOADED_FILE_PROBE(name)
 
 #endif
 

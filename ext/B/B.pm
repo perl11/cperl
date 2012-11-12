@@ -15,7 +15,7 @@ require Exporter;
 # walkoptree comes from B.xs
 
 BEGIN {
-    $B::VERSION = '1.36';
+    $B::VERSION = '1.40';
     @B::EXPORT_OK = ();
 
     # Our BOOT code needs $VERSION set, and will append to @EXPORT_OK.
@@ -35,8 +35,7 @@ push @B::EXPORT_OK, (qw(minus_c ppname save_BEGINs
 			parents comppadlist sv_undef compile_stats timing_info
 			begin_av init_av check_av end_av regex_padav dowarn
 			defstash curstash warnhook diehook inc_gv @optype
-			@specialsv_name
-		      ), $] > 5.009 && 'unitcheck_av');
+			@specialsv_name unitcheck_av));
 
 @B::SV::ISA = 'B::OBJECT';
 @B::NULL::ISA = 'B::SV';
@@ -49,10 +48,8 @@ push @B::EXPORT_OK, (qw(minus_c ppname save_BEGINs
 @B::PVNV::ISA = qw(B::PVIV B::NV);
 @B::PVMG::ISA = 'B::PVNV';
 @B::REGEXP::ISA = 'B::PVMG' if $] >= 5.011;
-# Change in the inheritance hierarchy post 5.9.0
-@B::PVLV::ISA = $] > 5.009 ? 'B::GV' : 'B::PVMG';
-# BM is eliminated post 5.9.5, but effectively is a specialisation of GV now.
-@B::BM::ISA = $] > 5.009005 ? 'B::GV' : 'B::PVMG';
+@B::PVLV::ISA = 'B::GV';
+@B::BM::ISA = 'B::GV';
 @B::AV::ISA = 'B::PVMG';
 @B::GV::ISA = 'B::PVMG';
 @B::HV::ISA = 'B::PVMG';
@@ -1236,6 +1233,29 @@ Since perl 5.17.1
 =item hints_hash
 
 =back
+
+
+=head2 $B::overlay
+
+Although the optree is read-only, there is an overlay facility that allows
+you to override what values the various B::*OP methods return for a
+particular op. C<$B::overlay> should be set to reference a two-deep hash:
+indexed by OP address, then method name. Whenever a an op method is
+called, the value in the hash is returned if it exists. This facility is
+used by B::Deparse to "undo" some optimisations. For example:
+
+
+    local $B::overlay = {};
+    ...
+    if ($op->name eq "foo") {
+        $B::overlay->{$$op} = {
+                name => 'bar',
+                next => $op->next->next,
+        };
+    }
+    ...
+    $op->name # returns "bar"
+    $op->next # returns the next op but one
 
 
 =head1 AUTHOR

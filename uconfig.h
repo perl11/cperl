@@ -527,7 +527,7 @@
  *	This symbol, if defined, indicates that the strtol routine is available
  *	to provide better numeric string conversion than atoi() and friends.
  */
-/*#define HAS_STRTOL	/ **/
+#define HAS_STRTOL	/**/
 
 /* HAS_STRXFRM:
  *	This symbol, if defined, indicates that the strxfrm() routine is
@@ -916,13 +916,10 @@
 /* MEM_ALIGNBYTES:
  *	This symbol contains the number of bytes required to align a
  *	double, or a long double when applicable. Usual values are 2,
- *	4 and 8. The default is eight, for safety.
+ *	4 and 8. The default is eight, for safety.  For cross-compiling
+ *  	or multiarch support, Configure will set a minimum of 8.
  */
-#if defined(USE_CROSS_COMPILE) || defined(MULTIARCH)
-#  define MEM_ALIGNBYTES 8
-#else
 #define MEM_ALIGNBYTES 4
-#endif
 
 /* ARCHLIB:
  *	This variable, if defined, holds the name of the directory in
@@ -962,7 +959,7 @@
  */
 #define BIN "/usr/local/bin"	/**/
 #define BIN_EXP "/usr/local/bin"	/**/
-/*#define PERL_RELOCATABLE_INC  		/ **/
+#define PERL_RELOCATABLE_INC "undef" 		/**/
 
 /* INTSIZE:
  *	This symbol contains the value of sizeof(int) so that the C
@@ -2359,9 +2356,21 @@
  *	This symbol, if defined, indicates that the struct sockaddr_in6
  *	structure has a member called sin6_scope_id.
  */
+/* HAS_IP_MREQ:
+ *	This symbol, if defined, indicates the availability of
+ *	struct ip_mreq;
+ */
+/* HAS_IP_MREQ_SOURCE:
+ *	This symbol, if defined, indicates the availability of
+ *	struct ip_mreq_source;
+ */
 /* HAS_IPV6_MREQ:
  *	This symbol, if defined, indicates the availability of
  *	struct ipv6_mreq;
+ */
+/* HAS_IPV6_MREQ_SOURCE:
+ *	This symbol, if defined, indicates the availability of
+ *	struct ipv6_mreq_source;
  */
 /*#define	HAS_SOCKET		/ **/
 /*#define	HAS_SOCKETPAIR	/ **/
@@ -2374,7 +2383,10 @@
 /*#define	HAS_SCM_RIGHTS	/ **/
 /*#define	HAS_SOCKADDR_IN6	/ **/
 /*#define	HAS_SIN6_SCOPE_ID	/ **/
+/*#define	HAS_IP_MREQ	/ **/
+/*#define	HAS_IP_MREQ_SOURCE	/ **/
 /*#define	HAS_IPV6_MREQ	/ **/
+/*#define	HAS_IPV6_MREQ_SOURCE	/ **/
 
 /* HAS_SRAND48_R:
  *	This symbol, if defined, indicates that the srand48_r routine
@@ -4734,6 +4746,6 @@
 #endif
 
 /* Generated from:
- * d9b6a68b192c72c0695b560fae6e4916b381f55df5fdf7911b0ef434840f092e config_h.SH
- * 573628443b0f7d922ef2706de7e05f3d5ff794bcb6708b68ddcecd0e2d30e7bd uconfig.sh
+ * 698ca4e70ddc9d59faa4a988e8f518b575093890d4f78e8f50272e904ac03693 config_h.SH
+ * 0b6320512dbf7572c05acf6d6add343230d232f287d02f6d32a7a32edadd97b9 uconfig.sh
  * ex: set ro: */

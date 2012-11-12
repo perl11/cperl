@@ -9,7 +9,8 @@
 # Note that the order in this file is important.
 #
 # Format for first section: 
-# NAME \s+ TYPE, arg-description [flags] [num-args] [longjump-len] ; DESCRIPTION
+# NAME \s+ TYPE, arg-description [num-args] [flags] [longjump-len] ; DESCRIPTION
+#   flag <S> means is REGNODE_SIMPLE; flag <V> means is REGNODE_VARIES
 #
 #
 # run perl regen.pl after editing this file
@@ -31,11 +32,17 @@ EOS         EOL,        no        ; Match "" at end of string.
 EOL         EOL,        no        ; Match "" at end of line.
 MEOL        EOL,        no        ; Same, assuming multiline.
 SEOL        EOL,        no        ; Same, assuming singleline.
+# The regops that have varieties that vary depending on the character set regex
+# modifiers have to ordered thusly: /d, /l, /u, /a, /aa.  This is because code
+# in regcomp.c uses the enum value of the modifier as an offset from the /d
+# version.  The complements must come after the non-complements.
+# BOUND, ALNUM, SPACE, DIGIT, and their complements are affected, as well as
+# EXACTF.
 BOUND       BOUND,      no        ; Match "" at any word boundary using native charset semantics for non-utf8
 BOUNDL      BOUND,      no        ; Match "" at any locale word boundary
 BOUNDU      BOUND,      no        ; Match "" at any word boundary using Unicode semantics
 BOUNDA      BOUND,      no         ; Match "" at any word boundary using ASCII semantics
-# All NBOUND nodes are required by a line regexec.c to be greater than all BOUND ones
+# All NBOUND nodes are required by code in regexec.c to be greater than all BOUND ones
 NBOUND      NBOUND,     no        ; Match "" at any word non-boundary using native charset semantics for non-utf8
 NBOUNDL     NBOUND,     no        ; Match "" at any locale word non-boundary
 NBOUNDU     NBOUND,     no        ; Match "" at any word non-boundary using Unicode semantics
@@ -48,7 +55,11 @@ REG_ANY     REG_ANY,    no 0 S    ; Match any one character (except newline).
 SANY        REG_ANY,    no 0 S    ; Match any one character.
 CANY        REG_ANY,    no 0 S    ; Match any one byte.
 ANYOF       ANYOF,      sv 0 S    ; Match character in (or not in) this class, single char match only
-ANYOFV      ANYOF,      sv 0 V    ; Match character in (or not in) this class, can match-multiple chars
+
+# Order (within each group) of the below is important.  See ordering comment
+# above.  The PLACEHOLDERn ones are wasting a value.  Right now, we have plenty
+# to spare, but these would be obvious candidates if ever we ran out of node
+# types in a U8.
 ALNUM       ALNUM,      no 0 S    ; Match any alphanumeric character using native charset semantics for non-utf8
 ALNUML      ALNUM,      no 0 S    ; Match any alphanumeric char in locale
 ALNUMU      ALNUM,      no 0 S    ; Match any alphanumeric char using Unicode semantics
@@ -67,10 +78,23 @@ NSPACEU     NSPACE,     no 0 S    ; Match any non-whitespace char using Unicode 
 NSPACEA     NSPACE,     no 0 S    ; Match [^ \t\n\f\r]
 DIGIT       DIGIT,      no 0 S    ; Match any numeric character using native charset semantics for non-utf8
 DIGITL      DIGIT,      no 0 S    ; Match any numeric character in locale
+PLACEHOLDER1 NOTHING,   no        ; placeholder for missing DIGITU
 DIGITA      DIGIT,      no 0 S    ; Match [0-9]
 NDIGIT      NDIGIT,     no 0 S    ; Match any non-numeric character using native charset semantics for non-utf8
 NDIGITL     NDIGIT,     no 0 S    ; Match any non-numeric character in locale
+PLACEHOLDER2 NOTHING,   no        ; placeholder for missing NDIGITU
 NDIGITA     NDIGIT,     no 0 S    ; Match [^0-9]
+
+POSIXD      POSIXD,     none 0 S   ; currently unused except as a placeholder
+POSIXL      POSIXD,     none 0 S   ; currently unused except as a placeholder
+POSIXU      POSIXD,     none 0 S   ; currently unused except as a placeholder
+POSIXA      POSIXD,     none 0 S   ; Some [[:class:]] under /a; the FLAGS field gives which one
+NPOSIXD     POSIXD,     none 0 S   ; currently unused except as a placeholder
+NPOSIXL     POSIXD,     none 0 S   ; currently unused except as a placeholder
+NPOSIXU     POSIXD,     none 0 S   ; currently unused except as a placeholder
+NPOSIXA     POSIXD,     none 0 S   ; complement of POSIXA, [[:^class:]]
+# End of order is important (within groups)
+
 CLUMP       CLUMP,      no 0 V    ; Match any extended grapheme cluster sequence
 
 #* Alternation
@@ -98,9 +122,9 @@ EXACT       EXACT,      str       ; Match this string (preceded by length).
 EXACTF      EXACT,      str       ; Match this non-UTF-8 string (not guaranteed to be folded) using /id rules (w/len).
 EXACTFL     EXACT,      str       ; Match this string (not guaranteed to be folded) using /il rules (w/len).
 EXACTFU     EXACT,      str	  ; Match this string (folded iff in UTF-8, length in folding doesn't change if not in UTF-8) using /iu rules (w/len).
+EXACTFA     EXACT,      str	  ; Match this string (not guaranteed to be folded) using /iaa rules (w/len).
 EXACTFU_SS  EXACT,      str	  ; Match this string (folded iff in UTF-8, length in folding may change even if not in UTF-8) using /iu rules (w/len).
 EXACTFU_TRICKYFOLD EXACT,  str	  ; Match this folded UTF-8 string using /iu rules
-EXACTFA     EXACT,      str	  ; Match this string (not guaranteed to be folded) using /iaa rules (w/len).
 
 #*Do nothing types
 
@@ -212,11 +236,13 @@ KEEPS       KEEPS,      no        ; $& begins here.
 
 #*New charclass like patterns
 LNBREAK     LNBREAK,    none      ; generic newline pattern
+
+# regcomp.c expects the node number of the complement to be one greater than
+# the non-complement
 VERTWS      VERTWS,     none 0 S  ; vertical whitespace         (Perl 6)
 NVERTWS     NVERTWS,    none 0 S  ; not vertical whitespace     (Perl 6)
 HORIZWS     HORIZWS,    none 0 S  ; horizontal whitespace       (Perl 6)
 NHORIZWS    NHORIZWS,   none 0 S  ; not horizontal whitespace   (Perl 6)
-
 
 # NEW STUFF SOMEWHERE ABOVE THIS LINE
 

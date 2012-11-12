@@ -9,7 +9,7 @@
  *
  */
 
-
+#define PERL_NO_GET_CONTEXT
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -281,9 +281,8 @@ char * string;
             croak("%s: buffer parameter is a reference to a reference", string) ;
     }
 
-    if (!SvOK(sv)) { 
-        sv = newSVpv("", 0);
-    }
+    if (!SvOK(sv))
+        sv = sv_2mortal(newSVpv("", 0));
 
     return sv ;
 }
@@ -299,6 +298,7 @@ char * string ;
 {
     dTHX;
     bool wipe = 0 ;
+    STRLEN na;
     
     SvGETMAGIC(sv);
     wipe = ! SvOK(sv) ;
@@ -326,10 +326,9 @@ char * string ;
     SvUPGRADE(sv, SVt_PV);
 
     if (wipe)
-        SvCUR_set(sv, 0);
-    
-    SvOOK_off(sv);
-    SvPOK_only(sv);
+        sv_setpv(sv, "") ;
+    else
+        (void)SvPVbyte_force(sv, na) ;
 
     return sv ;
 }
@@ -497,7 +496,7 @@ bzdeflate (s, buf, output)
     if (DO_UTF8(buf) && !sv_utf8_downgrade(buf, 1))
          croak("Wide character in " COMPRESS_CLASS "::bzdeflate input parameter");
 #endif         
-    s->stream.next_in = (char*)SvPVbyte_nolen(buf) ;
+    s->stream.next_in = (char*)SvPV_nomg_nolen(buf) ;
     s->stream.avail_in = SvCUR(buf) ;
      
     /* and retrieve the output buffer */
@@ -512,16 +511,16 @@ bzdeflate (s, buf, output)
         /* sv_setpvn(output, "", 0); */
     }
     cur_length =  SvCUR(output) ;
-    s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length;
+    s->stream.next_out = (char*) SvPVX(output) + cur_length;
     increment =  SvLEN(output) -  cur_length;
     s->stream.avail_out =  increment;
     while (s->stream.avail_in != 0) {
 
         if (s->stream.avail_out == 0) {
 	    /* out of space in the output buffer so make it bigger */
-            Sv_Grow(output, SvLEN(output) + bufinc) ;
+            s->stream.next_out = Sv_Grow(output, SvLEN(output) + bufinc) ;
             cur_length += increment ;
-            s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length ;
+            s->stream.next_out += cur_length ;
             increment = bufinc ;
             s->stream.avail_out = increment;
             bufinc *= 2 ;
@@ -576,16 +575,16 @@ bzclose(s, output)
         /* sv_setpvn(output, "", 0); */
     }
     cur_length =  SvCUR(output) ;
-    s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length;
+    s->stream.next_out = (char*) SvPVX(output) + cur_length;
     increment =  SvLEN(output) -  cur_length;
     s->stream.avail_out =  increment;
 
     for (;;) {
         if (s->stream.avail_out == 0) {
 	    /* consumed all the available output, so extend it */
-            Sv_Grow(output, SvLEN(output) + bufinc) ;
+            s->stream.next_out = Sv_Grow(output, SvLEN(output) + bufinc) ;
             cur_length += increment ;
-            s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length ;
+            s->stream.next_out += cur_length ;
             increment = bufinc ;
             s->stream.avail_out = increment;
             bufinc *= 2 ;
@@ -637,16 +636,16 @@ bzflush(s, output)
         /* sv_setpvn(output, "", 0); */
     }
     cur_length =  SvCUR(output) ;
-    s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length;
+    s->stream.next_out = (char*) SvPVX(output) + cur_length;
     increment =  SvLEN(output) -  cur_length;
     s->stream.avail_out =  increment;
 
     for (;;) {
         if (s->stream.avail_out == 0) {
 	    /* consumed all the available output, so extend it */
-            Sv_Grow(output, SvLEN(output) + bufinc) ;
+            s->stream.next_out = Sv_Grow(output, SvLEN(output) + bufinc) ;
             cur_length += increment ;
-            s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length ;
+            s->stream.next_out += cur_length ;
             increment = bufinc ;
             s->stream.avail_out = increment;
             bufinc *= 2 ;
@@ -724,7 +723,6 @@ bzinflate (s, buf, output)
     uInt	cur_length = 0;
     uInt	prefix_length = 0;
     uInt	increment = 0;
-    STRLEN  stmp   = NO_INIT
     uInt    bufinc = NO_INIT
   PREINIT:
 #ifdef UTF8_AVAILABLE    
@@ -743,7 +741,7 @@ bzinflate (s, buf, output)
 #endif         
     
     /* initialise the input buffer */
-    s->stream.next_in = (char*)SvPVbyte_force(buf, stmp) ;
+    s->stream.next_in = (char*)SvPV_nomg_nolen(buf) ;
     s->stream.avail_in = SvCUR(buf);
 	
     /* and retrieve the output buffer */
@@ -774,7 +772,7 @@ bzinflate (s, buf, output)
         */
         if (SvLEN(output) > cur_length + 1)
         {
-            s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length;
+            s->stream.next_out = (char*) SvPVX(output) + cur_length;
             increment = SvLEN(output) -  cur_length - 1;
             s->stream.avail_out = increment;
         }
@@ -788,9 +786,9 @@ bzinflate (s, buf, output)
 
         if (s->stream.avail_out == 0) {
 	    /* out of space in the output buffer so make it bigger */
-            Sv_Grow(output, SvLEN(output) + bufinc + 1) ;
+            s->stream.next_out = Sv_Grow(output, SvLEN(output) + bufinc + 1) ;
             cur_length += increment ;
-            s->stream.next_out = (char*) SvPVbyte_nolen(output) + cur_length ;
+            s->stream.next_out += cur_length ;
             increment = bufinc ;
             s->stream.avail_out = increment;
             bufinc *= 2 ;
@@ -799,7 +797,10 @@ bzinflate (s, buf, output)
         /* DispStream(s, "pre"); */
         RETVAL = BZ2_bzDecompress (&(s->stream));
 
-        /* DispStream(s, "apres"); */
+        /* 
+        printf("Status %d\n", RETVAL);
+        DispStream(s, "apres"); 
+        */ 
         if (RETVAL != BZ_OK || s->flags & FLAG_LIMIT_OUTPUT) 
             break ;
 
@@ -835,7 +836,7 @@ bzinflate (s, buf, output)
 	    in = s->stream.avail_in ;
 	    SvCUR_set(buf, in) ;
 	    if (in)
-	        Move(s->stream.next_in, SvPVbyte_nolen(buf), in, char) ;	
+	        Move(s->stream.next_in, SvPVX(buf), in, char) ;	
             *SvEND(buf) = '\0';
             SvSETMAGIC(buf);
 	}

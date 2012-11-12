@@ -7,7 +7,7 @@ BEGIN {
     chdir 't' if -d 't';
     @INC = '../lib';
     require './test.pl';
-    plan (tests => 303);
+    plan (tests => 312);
 }
 
 use strict;
@@ -247,6 +247,23 @@ for ([chdir=>''],[chmod=>'0,'],[chown=>'0,0,'],[utime=>'0,0,'],
     $dummy  =  select $var, undef, undef, 0
                             ; check_count 'select $tied_undef, ...';
 }
+
+chop(my $u = "\xff\x{100}");
+tie $var, "main", $u;
+$dummy  = pack "u", $var; check_count 'pack "u", $utf8';
+
+tie $var, "main", "\x{100}";
+pos$var = 0             ; check_count 'lvalue pos $utf8';
+$dummy=sprintf"%1s",$var; check_count 'sprintf "%1s", $utf8';
+$dummy=sprintf"%.1s",$var; check_count 'sprintf "%.1s", $utf8';
+$dummy  = substr$var,0,1; check_count 'substr $utf8';
+my $l   =\substr$var,0,1;
+$dummy  = $$l           ; check_count 'reading lvalue substr($utf8)';
+$$l     = 0             ; check_count 'setting lvalue substr($utf8)';
+tie $var, "main", "a";
+$$l     = "\x{100}"     ; check_count 'assigning $utf8 to lvalue substr';
+tie $var1, "main", "a";
+substr$var1,0,0,"\x{100}"; check_count '4-arg substr with utf8 replacement';
 
 {
     local $SIG{__WARN__} = sub {};

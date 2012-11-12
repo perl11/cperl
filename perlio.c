@@ -141,17 +141,6 @@ perlsio_binmode(FILE *fp, int iotype, int mode)
      * This used to be contents of do_binmode in doio.c
      */
 #ifdef DOSISH
-#  if defined(atarist)
-    PERL_UNUSED_ARG(iotype);
-    if (!fflush(fp)) {
-        if (mode & O_BINARY)
-            ((FILE *) fp)->_flag |= _IOBIN;
-        else
-            ((FILE *) fp)->_flag &= ~_IOBIN;
-        return 1;
-    }
-    return 0;
-#  else
     dTHX;
     PERL_UNUSED_ARG(iotype);
 #ifdef NETWARE
@@ -163,7 +152,6 @@ perlsio_binmode(FILE *fp, int iotype, int mode)
     }
     else
         return 0;
-#  endif
 #else
 #  if defined(USEMYBINMODE)
     dTHX;
@@ -462,7 +450,7 @@ PerlIO_debug(const char *fmt, ...)
     dSYS;
     va_start(ap, fmt);
     if (!PL_perlio_debug_fd) {
-	if (!PL_tainting &&
+	if (!TAINTING_get &&
 	    PerlProc_getuid() == PerlProc_geteuid() &&
 	    PerlProc_getgid() == PerlProc_getegid()) {
 	    const char * const s = PerlEnv_getenv("PERLIO_DEBUG");
@@ -478,7 +466,6 @@ PerlIO_debug(const char *fmt, ...)
 	}
     }
     if (PL_perlio_debug_fd > 0) {
-	dTHX;
 #ifdef USE_ITHREADS
 	const char * const s = CopFILE(PL_curcop);
 	/* Use fixed buffer as sv_catpvf etc. needs SVs */
@@ -1167,7 +1154,7 @@ PerlIO_default_layers(pTHX)
 {
     dVAR;
     if (!PL_def_layerlist) {
-	const char * const s = (PL_tainting) ? NULL : PerlEnv_getenv("PERLIO");
+	const char * const s = TAINTING_get ? NULL : PerlEnv_getenv("PERLIO");
 	PERLIO_FUNCS_DECL(*osLayer) = &PerlIO_unix;
 	PL_def_layerlist = PerlIO_list_alloc(aTHX);
 	PerlIO_define_layer(aTHX_ PERLIO_FUNCS_CAST(&PerlIO_unix));
@@ -2349,10 +2336,7 @@ S_more_refcounted_fds(pTHX_ const int new_fd) {
 #ifdef USE_ITHREADS
 	MUTEX_UNLOCK(&PL_perlio_mutex);
 #endif
-	/* Can't use PerlIO to write as it allocates memory */
-	PerlLIO_write(PerlIO_fileno(Perl_error_log),
-		      PL_no_mem, strlen(PL_no_mem));
-	my_exit(1);
+	croak_no_mem();
     }
 
     PL_perlio_fd_refcnt_size = new_max;
@@ -2407,7 +2391,6 @@ PerlIOUnix_refcnt_inc(int fd)
 int
 PerlIOUnix_refcnt_dec(int fd)
 {
-    dTHX;
     int cnt = 0;
     if (fd >= 0) {
 	dVAR;
@@ -2416,12 +2399,12 @@ PerlIOUnix_refcnt_dec(int fd)
 #endif
 	if (fd >= PL_perlio_fd_refcnt_size) {
 	    /* diag_listed_as: refcnt_dec: fd %d%s */
-	    Perl_croak(aTHX_ "refcnt_dec: fd %d >= refcnt_size %d\n",
+	    Perl_croak_nocontext("refcnt_dec: fd %d >= refcnt_size %d\n",
 		       fd, PL_perlio_fd_refcnt_size);
 	}
 	if (PL_perlio_fd_refcnt[fd] <= 0) {
 	    /* diag_listed_as: refcnt_dec: fd %d%s */
-	    Perl_croak(aTHX_ "refcnt_dec: fd %d: %d <= 0\n",
+	    Perl_croak_nocontext("refcnt_dec: fd %d: %d <= 0\n",
 		       fd, PL_perlio_fd_refcnt[fd]);
 	}
 	cnt = --PL_perlio_fd_refcnt[fd];
@@ -2431,7 +2414,7 @@ PerlIOUnix_refcnt_dec(int fd)
 #endif
     } else {
 	/* diag_listed_as: refcnt_dec: fd %d%s */
-	Perl_croak(aTHX_ "refcnt_dec: fd %d < 0\n", fd);
+	Perl_croak_nocontext("refcnt_dec: fd %d < 0\n", fd);
     }
     return cnt;
 }
@@ -3805,12 +3788,14 @@ PerlIO_releaseFILE(PerlIO *p, FILE *f)
     while ((l = *p)) {
 	if (l->tab == &PerlIO_stdio) {
 	    PerlIOStdio *s = PerlIOSelf(&l, PerlIOStdio);
-	    if (s->stdio == f) {
-		dTHX;
+	    if (s->stdio == f) { /* not in a loop */
 		const int fd = fileno(f);
 		if (fd >= 0)
 		    PerlIOUnix_refcnt_dec(fd);
-		PerlIO_pop(aTHX_ p);
+		{
+		    dTHX;
+		    PerlIO_pop(aTHX_ p);
+		}
 		return;
 	    }
 	}
@@ -4859,8 +4844,8 @@ Perl_PerlIO_stderr(pTHX)
 char *
 PerlIO_getname(PerlIO *f, char *buf)
 {
-    dTHX;
 #ifdef VMS
+    dTHX;
     char *name = NULL;
     bool exported = FALSE;
     FILE *stdio = PerlIOSelf(f, PerlIOStdio)->stdio;
@@ -4876,7 +4861,7 @@ PerlIO_getname(PerlIO *f, char *buf)
 #else
     PERL_UNUSED_ARG(f);
     PERL_UNUSED_ARG(buf);
-    Perl_croak(aTHX_ "Don't know how to get file name");
+    Perl_croak_nocontext("Don't know how to get file name");
     return NULL;
 #endif
 }
@@ -5016,7 +5001,9 @@ PerlIO_stdoutf(const char *fmt, ...)
 PerlIO *
 PerlIO_tmpfile(void)
 {
+#ifndef WIN32
      dTHX;
+#endif
      PerlIO *f = NULL;
 #ifdef WIN32
      const int fd = win32_tmpfd();
@@ -5026,7 +5013,7 @@ PerlIO_tmpfile(void)
 #    if defined(HAS_MKSTEMP) && ! defined(VMS) && ! defined(OS2)
      int fd = -1;
      char tempname[] = "/tmp/PerlIO_XXXXXX";
-     const char * const tmpdir = PL_tainting ? NULL : PerlEnv_getenv("TMPDIR");
+     const char * const tmpdir = TAINTING_get ? NULL : PerlEnv_getenv("TMPDIR");
      SV * sv = NULL;
      /*
       * I have no idea how portable mkstemp() is ... NI-S
@@ -5106,9 +5093,9 @@ Perl_PerlIO_context_layers(pTHX_ const char *mode)
 int
 PerlIO_setpos(PerlIO *f, SV *pos)
 {
-    dTHX;
     if (SvOK(pos)) {
 	STRLEN len;
+	dTHX;
 	const Off_t * const posn = (Off_t *) SvPV(pos, len);
 	if (f && len == sizeof(Off_t))
 	    return PerlIO_seek(f, *posn, SEEK_SET);

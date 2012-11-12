@@ -292,17 +292,14 @@ The C variable which corresponds to Perl's $^W warning variable.
 */
 
 PERLVAR(I, dowarn,	U8)
-PERLVAR(I, sawampersand, bool)		/* must save all match strings */
+PERLVAR(I, sawampersand, U8)		/* must save all match strings */
 PERLVAR(I, unsafe,	bool)
 PERLVAR(I, exit_flags,	U8)		/* was exit() unexpected, etc. */
 
 PERLVAR(I, inplace,	char *)
 PERLVAR(I, e_script,	SV *)
 
-/* magical thingies */
 PERLVAR(I, basetime,	Time_t)		/* $^T */
-PERLVAR(I, formfeed,	SV *)		/* $^L */
-
 
 PERLVARI(I, maxsysfd,	I32,	MAXSYSFD)
 					/* top fd to pass to subprocesses */
@@ -443,8 +440,8 @@ PERLVARI(I, profiledata, U32 *,	NULL)	/* table of ops, counts */
 PERLVAR(I, compiling,	COP)		/* compiling/done executing marker */
 
 PERLVAR(I, compcv,	CV *)		/* currently compiling subroutine */
-PERLVAR(I, comppad,	AV *)		/* storage for lexically scoped temporaries */
-PERLVAR(I, comppad_name, AV *)		/* variable names for "my" variables */
+PERLVAR(I, comppad,	PAD *)		/* storage for lexically scoped temporaries */
+PERLVAR(I, comppad_name, PADNAMELIST *)	/* variable names for "my" variables */
 PERLVAR(I, comppad_name_fill,	I32)	/* last "introduced" variable offset */
 PERLVAR(I, comppad_name_floor,	I32)	/* start of vars in innermost block */
 
@@ -611,9 +608,13 @@ PERLVAR(I, XPosixXDigit, SV *)
 
 PERLVAR(I, VertSpace,   SV *)
 
+PERLVAR(I, NonL1NonFinalFold,   SV *)
+PERLVAR(I, HasMultiCharFold,   SV *)
+
 /* utf8 character class swashes */
 PERLVAR(I, utf8_alnum,	SV *)
 PERLVAR(I, utf8_alpha,	SV *)
+PERLVAR(I, utf8_blank,	SV *)
 PERLVAR(I, utf8_space,	SV *)
 PERLVAR(I, utf8_graph,	SV *)
 PERLVAR(I, utf8_digit,	SV *)
@@ -623,21 +624,15 @@ PERLVAR(I, utf8_print,	SV *)
 PERLVAR(I, utf8_punct,	SV *)
 PERLVAR(I, utf8_xdigit,	SV *)
 PERLVAR(I, utf8_mark,	SV *)
-PERLVAR(I, utf8_X_begin, SV *)
+PERLVAR(I, utf8_X_regular_begin, SV *)
 PERLVAR(I, utf8_X_extend, SV *)
-PERLVAR(I, utf8_X_prepend, SV *)
-PERLVAR(I, utf8_X_non_hangul, SV *)
-PERLVAR(I, utf8_X_L,	SV *)
-PERLVAR(I, utf8_X_LV,	SV *)
 PERLVAR(I, utf8_X_LVT,	SV *)
-PERLVAR(I, utf8_X_T,	SV *)
-PERLVAR(I, utf8_X_V,	SV *)
-PERLVAR(I, utf8_X_LV_LVT_V, SV *)
 PERLVAR(I, utf8_toupper, SV *)
 PERLVAR(I, utf8_totitle, SV *)
 PERLVAR(I, utf8_tolower, SV *)
 PERLVAR(I, utf8_tofold,	SV *)
-PERLVAR(I, utf8_quotemeta, SV *)
+PERLVAR(I, utf8_charname_begin, SV *)
+PERLVAR(I, utf8_charname_continue, SV *)
 PERLVAR(I, last_swash_hv, HV *)
 PERLVAR(I, last_swash_tmps, U8 *)
 PERLVAR(I, last_swash_slen, STRLEN)
@@ -805,17 +800,6 @@ PERLVARI(I, dumper_fd,	int,	-1)
 PERLVARI(I, madskills,	bool,	FALSE)	/* preserve all syntactic info */
 					/* (MAD = Misc Attribute Decoration) */
 PERLVARI(I, xmlfp,	PerlIO *, NULL)
-#endif
-
-#ifdef PL_OP_SLAB_ALLOC
-PERLVAR(I, OpPtr,	I32 **)
-PERLVARI(I, OpSpace,	I32,	0)
-PERLVAR(I, OpSlab,	I32 *)
-#endif
-
-#ifdef PERL_DEBUG_READONLY_OPS
-PERLVARI(I, slabs,	I32**,	NULL)	/* Array of slabs that have been allocated */
-PERLVARI(I, slab_count, U32,	0)	/* Size of the array */
 #endif
 
 #ifdef DEBUG_LEAKING_SCALARS

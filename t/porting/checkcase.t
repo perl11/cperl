@@ -3,6 +3,7 @@
 
 BEGIN {
     @INC = '..' if -f '../TestInit.pm';
+    require './test.pl';
 }
 use TestInit qw(T); # T is chdir to the top level
 
@@ -13,7 +14,7 @@ use File::Find;
 my %files;
 my $test_count = 0;
 
-find(sub {
+find({no_chdir => 1, wanted => sub {
 	   my $name = $File::Find::name;
 	   # Assumes that the path separator is exactly one character.
 	   $name =~ s/^\..//;
@@ -33,15 +34,11 @@ find(sub {
 	   }
 
 	   push @{$files{lc $name}}, $name;
-	 }, '.');
+	 }}, '.');
 
 foreach (sort values %files) {
-    if (@$_ > 1) {
-		print "not ok ".++$test_count. " - ". join(", ", @$_), "\n";
-		print STDERR "# $_\n" foreach @$_;
-    } else {
-		print "ok ".++$test_count. " - ". join(", ", @$_), "\n";
-	}
+    is( @$_, 1, join(", ", @$_) ) or
+        do{ note($_) foreach @$_; };
 }
 
-print "1..".$test_count."\n";
+done_testing();

@@ -273,12 +273,13 @@ EXPECT
 0
 ########
 #
-# FETCH freeing tie'd SV
+# FETCH freeing tie'd SV still works
 sub TIESCALAR { bless [] }
-sub FETCH { *a = \1; 1 }
+sub FETCH { *a = \1; 2 }
 tie $a, 'main';
 print $a;
 EXPECT
+2
 ########
 
 #  [20020716.007] - nested FETCHES
@@ -1288,4 +1289,46 @@ untie @a;
 
 sub T::TIEARRAY { my $s; bless \$s => "T" }
 EXPECT
+########
 
+# NAME Test that tying a hash does not leak a deleted iterator
+# This produced unbalanced string table warnings under
+# PERL_DESTRUCT_LEVEL=2.
+package l {
+    sub TIEHASH{bless[]}
+}
+$h = {foo=>0};
+each %$h;
+delete $$h{foo};
+tie %$h, 'l';
+EXPECT
+########
+
+# NAME EXISTS on arrays
+sub TIEARRAY{bless[]};
+sub FETCHSIZE { 50 }
+sub EXISTS { print "does $_[1] exist?\n" }
+tie @a, "";
+exists $a[1];
+exists $a[-1];
+$NEGATIVE_INDICES=1;
+exists $a[-1];
+EXPECT
+does 1 exist?
+does 49 exist?
+does -1 exist?
+########
+
+# Crash when using negative index on array tied to non-object
+sub TIEARRAY{bless[]};
+${\tie @a, ""} = undef;
+eval { $_ = $a[-1] }; print $@;
+eval { $a[-1] = '' }; print $@;
+eval { delete $a[-1] }; print $@;
+eval { exists $a[-1] }; print $@;
+
+EXPECT
+Can't call method "FETCHSIZE" on an undefined value at - line 5.
+Can't call method "FETCHSIZE" on an undefined value at - line 6.
+Can't call method "FETCHSIZE" on an undefined value at - line 7.
+Can't call method "FETCHSIZE" on an undefined value at - line 8.

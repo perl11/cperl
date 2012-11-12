@@ -40,7 +40,7 @@ use constant ERROR_58_HINTS => q{Non-subroutine %s hints for %s are not supporte
 use constant MIN_IPC_SYS_SIMPLE_VER => 0.12;
 
 # All the Fatal/autodie modules share the same version number.
-our $VERSION = '2.11';
+our $VERSION = '2.13';
 
 our $Debug ||= 0;
 
@@ -117,6 +117,8 @@ my %TAGS = (
     ':2.09'  => [qw(:default)],
     ':2.10'  => [qw(:default)],
     ':2.11'  => [qw(:default)],
+    ':2.12'  => [qw(:default)],
+    ':2.13'  => [qw(:default)],
 );
 
 # chmod was only introduced in 2.07
@@ -144,6 +146,58 @@ my %Use_defined_or;
     CORE::sysseek
     CORE::umask
 )} = ();
+
+
+# A snippet of code to apply the open pragma to a handle
+
+
+
+# Optional actions to take on the return value before returning it.
+
+my %Retval_action = (
+    "CORE::open"        => q{
+
+    # apply the open pragma from our caller
+    if( defined $retval ) {
+        # Get the caller's hint hash
+        my $hints = (caller 0)[10];
+
+        # Decide if we're reading or writing and apply the appropriate encoding
+        # These keys are undocumented.
+        # Match what PerlIO_context_layers() does.  Read gets the read layer,
+        # everything else gets the write layer.
+        my $encoding = $_[1] =~ /^\+?>/ ? $hints->{"open>"} : $hints->{"open<"};
+
+        # Apply the encoding, if any.
+        if( $encoding ) {
+            binmode $_[0], $encoding;
+        }
+    }
+
+},
+    "CORE::sysopen"     => q{
+
+    # apply the open pragma from our caller
+    if( defined $retval ) {
+        # Get the caller's hint hash
+        my $hints = (caller 0)[10];
+
+        require Fcntl;
+
+        # Decide if we're reading or writing and apply the appropriate encoding.
+        # Match what PerlIO_context_layers() does.  Read gets the read layer,
+        # everything else gets the write layer.
+        my $open_read_only = !($_[2] ^ Fcntl::O_RDONLY());
+        my $encoding = $open_read_only ? $hints->{"open<"} : $hints->{"open>"};
+
+        # Apply the encoding, if any.
+        if( $encoding ) {
+            binmode $_[0], $encoding;
+        }
+    }
+
+},
+);
 
 # Cached_fatalised_sub caches the various versions of our
 # fatalised subs as they're produced.  This means we don't
@@ -356,7 +410,9 @@ sub _install_subs {
 
     my $pkg_sym = "${pkg}::";
 
-    while(my ($sub_name, $sub_ref) = each %$subs_to_reinstate) {
+    # It does not hurt to do this in a predictable order, and might help debugging.
+    foreach my $sub_name (sort keys %$subs_to_reinstate) {
+        my $sub_ref= $subs_to_reinstate->{$sub_name};
 
         my $full_path = $pkg_sym.$sub_name;
 
@@ -811,6 +867,8 @@ sub _one_invocation {
 
     ];
 
+    my $retval_action = $Retval_action{$call} || '';
+
     if ( $hints and ( ref($hints->{list} ) || "" ) eq 'CODE' ) {
 
         # NB: Subroutine hints are passed as a full list.
@@ -863,6 +921,7 @@ sub _one_invocation {
 
         return $code .= qq{
             if ( \$hints->{scalar}->(\$retval) ) { $die };
+            $retval_action
             return \$retval;
         };
 
@@ -871,7 +930,7 @@ sub _one_invocation {
         return $code . qq{
 
             if ( \$retval ~~ \$hints->{scalar} ) { $die };
-
+            $retval_action
             return \$retval;
         };
     }
@@ -883,11 +942,12 @@ sub _one_invocation {
     ( $use_defined_or ? qq{
 
         $die if not defined \$retval;
-
+        $retval_action
         return \$retval;
 
     } : qq{
 
+        $retval_action
         return \$retval || $die;
 
     } ) ;

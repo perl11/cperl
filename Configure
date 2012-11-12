@@ -28,7 +28,7 @@
 # See Porting/pumpkin.pod for more information on metaconfig.
 #
 
-# Generated on Sun Apr  1 12:00:35 CEST 2012 [metaconfig 3.5 PL0]
+# Generated on Sun Aug 26 14:33:39 CEST 2012 [metaconfig 3.5 PL0]
 # (with additional metaconfig patches by perlbug@perl.org)
 
 cat >c1$$ <<EOF
@@ -723,7 +723,10 @@ d_snprintf=''
 d_vsnprintf=''
 d_sockatmark=''
 d_sockatmarkproto=''
+d_ip_mreq=''
+d_ip_mreq_source=''
 d_ipv6_mreq=''
+d_ipv6_mreq_source=''
 d_msg_ctrunc=''
 d_msg_dontroute=''
 d_msg_oob=''
@@ -11371,6 +11374,42 @@ set d_sin6_scope_id; eval $setvar
 $rm_try
 
 echo " "
+echo "Checking the availability struct ip_mreq ..." >&4
+$cat >try.c <<EOF
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+int main() {
+struct ip_mreq mreq;
+return (mreq.imr_multiaddr.s_addr);
+}
+EOF
+val="$undef"
+set try; if eval $compile; then
+       val="$define"
+fi
+set d_ip_mreq; eval $setvar
+$rm_try
+
+echo " "
+echo "Checking the availability struct ip_mreq_source ..." >&4
+$cat >try.c <<EOF
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+int main() {
+struct ip_mreq_source mreq;
+return (mreq.imr_multiaddr.s_addr);
+}
+EOF
+val="$undef"
+set try; if eval $compile; then
+       val="$define"
+fi
+set d_ip_mreq_source; eval $setvar
+$rm_try
+
+echo " "
 echo "Checking the availability struct ipv6_mreq ..." >&4
 $cat >try.c <<EOF
 #include <sys/types.h>
@@ -11386,6 +11425,24 @@ set try; if eval $compile; then
 	val="$define"
 fi
 set d_ipv6_mreq; eval $setvar
+$rm_try
+
+echo " "
+echo "Checking the availability struct ipv6_mreq_source ..." >&4
+$cat >try.c <<EOF
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+int main() {
+struct ipv6_mreq_source mreq;
+return (mreq.imr_multiaddr.s_addr);
+}
+EOF
+val="$undef"
+set try; if eval $compile; then
+       val="$define"
+fi
+set d_ipv6_mreq_source; eval $setvar
 $rm_try
 
 echo " "
@@ -15011,9 +15068,9 @@ $cat >isblank.c <<'EOCP'
 int main() {
 	int c = ' ';
 	if (isblank(c))
-		exit(0);
+		return 0 ;
 	else
-		exit(1);
+		return 1 ;
 }
 EOCP
 if $cc $ccflags $ldflags -o isblank isblank.c $libs >/dev/null 2>&1 ; then
@@ -18965,11 +19022,10 @@ Revision='$Revision'
 
 : check for alignment requirements
 echo " "
-case "$usecrosscompile$multiarch" in
+case "$usecrosscompile" in
 *$define*)
 	$cat <<EOM
-You seem to be either cross-compiling or doing a multiarchitecture build,
-skipping the memory alignment check.
+You seem to be cross-compiling.  Skipping the memory alignment check.
 
 EOM
 	case "$alignbytes" in
@@ -19007,6 +19063,17 @@ EOCP
 			dflt='8'
 			echo "(I can't seem to compile the test program...)"
 		fi
+		case "$multiarch" in
+		*$define*)
+			: The usual safe value is 8, but Darwin with -Duselongdouble
+			: needs 16.  Hence, we will take 8 as a minimum, but allow
+			: Configure to pick a larger value if needed.
+			if $test "$dflt" -lt 8; then
+			    dflt='8'
+				echo "Setting alignment to 8 for multiarch support.">&4
+			fi
+			;;
+		esac
 		;;
 	*) dflt="$alignbytes"
 		;;
@@ -20405,9 +20472,9 @@ case "$pager" in
 	esac
 	;;
 *)	dflt="$pager"
-	fn="f/($pager)"
 	;;
 esac
+fn="f/($dflt)"
 echo " "
 rp='What pager is used on your system?'
 . ./getfile
@@ -23023,7 +23090,10 @@ d_inetaton='$d_inetaton'
 d_inetntop='$d_inetntop'
 d_inetpton='$d_inetpton'
 d_int64_t='$d_int64_t'
+d_ip_mreq='$d_ip_mreq'
+d_ip_mreq_source='$d_ip_mreq_source'
 d_ipv6_mreq='$d_ipv6_mreq'
+d_ipv6_mreq_source='$d_ipv6_mreq_source'
 d_isascii='$d_isascii'
 d_isblank='$d_isblank'
 d_isfinite='$d_isfinite'

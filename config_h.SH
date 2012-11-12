@@ -1,3 +1,5 @@
+#!/bin/sh
+#
 # THIS IS A GENERATED FILE
 # DO NOT HAND-EDIT
 #
@@ -949,13 +951,10 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 /* MEM_ALIGNBYTES:
  *	This symbol contains the number of bytes required to align a
  *	double, or a long double when applicable. Usual values are 2,
- *	4 and 8. The default is eight, for safety.
+ *	4 and 8. The default is eight, for safety.  For cross-compiling
+ *  	or multiarch support, Configure will set a minimum of 8.
  */
-#if defined(USE_CROSS_COMPILE) || defined(MULTIARCH)
-#  define MEM_ALIGNBYTES 8
-#else
 #define MEM_ALIGNBYTES $alignbytes
-#endif
 
 /* ARCHLIB:
  *	This variable, if defined, holds the name of the directory in
@@ -995,7 +994,7 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #define BIN "$bin"	/**/
 #define BIN_EXP "$binexp"	/**/
-#$userelocatableinc PERL_RELOCATABLE_INC  		/**/
+#define PERL_RELOCATABLE_INC "$userelocatableinc" 		/**/
 
 /* INTSIZE:
  *	This symbol contains the value of sizeof(int) so that the C
@@ -2392,9 +2391,21 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *	This symbol, if defined, indicates that the struct sockaddr_in6
  *	structure has a member called sin6_scope_id.
  */
+/* HAS_IP_MREQ:
+ *	This symbol, if defined, indicates the availability of
+ *	struct ip_mreq;
+ */
+/* HAS_IP_MREQ_SOURCE:
+ *	This symbol, if defined, indicates the availability of
+ *	struct ip_mreq_source;
+ */
 /* HAS_IPV6_MREQ:
  *	This symbol, if defined, indicates the availability of
  *	struct ipv6_mreq;
+ */
+/* HAS_IPV6_MREQ_SOURCE:
+ *	This symbol, if defined, indicates the availability of
+ *	struct ipv6_mreq_source;
  */
 #$d_socket	HAS_SOCKET		/**/
 #$d_sockpair	HAS_SOCKETPAIR	/**/
@@ -2407,7 +2418,10 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$d_scm_rights	HAS_SCM_RIGHTS	/**/
 #$d_sockaddr_in6	HAS_SOCKADDR_IN6	/**/
 #$d_sin6_scope_id	HAS_SIN6_SCOPE_ID	/**/
+#$d_ip_mreq	HAS_IP_MREQ	/**/
+#$d_ip_mreq_source	HAS_IP_MREQ_SOURCE	/**/
 #$d_ipv6_mreq	HAS_IPV6_MREQ	/**/
+#$d_ipv6_mreq_source	HAS_IPV6_MREQ_SOURCE	/**/
 
 /* HAS_SRAND48_R:
  *	This symbol, if defined, indicates that the srand48_r routine

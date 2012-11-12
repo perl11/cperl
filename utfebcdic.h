@@ -295,12 +295,6 @@ EXTCONST unsigned char PL_a2e[] = { /* ASCII (iso-8859-1) to EBCDIC (IBM-1047) *
  0x8C, 0x49, 0xCD, 0xCE, 0xCB, 0xCF, 0xCC, 0xE1, 0x70, 0xDD, 0xDE, 0xDB, 0xDC, 0x8D, 0x8E, 0xDF
 };
 
-#define LATIN_SMALL_LETTER_Y_WITH_DIAERESIS 0xDF
-#define LATIN_SMALL_LETTER_SHARP_S 0x59
-#define MICRO_SIGN 0xA0
-#define LATIN_CAPITAL_LETTER_A_WITH_RING_ABOVE 0x0067
-#define LATIN_SMALL_LETTER_A_WITH_RING_ABOVE 0x0047
-
 EXTCONST unsigned char PL_e2a[] = { /* EBCDIC (IBM-1047) to ASCII (iso-8859-1) */
  0x00, 0x01, 0x02, 0x03, 0x9C, 0x09, 0x86, 0x7F, 0x97, 0x8D, 0x8E, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
  0x10, 0x11, 0x12, 0x13, 0x9D, 0x0A, 0x08, 0x87, 0x18, 0x19, 0x92, 0x8F, 0x1C, 0x1D, 0x1E, 0x1F,
@@ -377,12 +371,6 @@ EXTCONST unsigned char PL_a2e[] = { /* ASCII (ISO8859-1) to EBCDIC (POSIX-BC) */
  0x8C, 0x49, 0xCD, 0xCE, 0xCB, 0xCF, 0xCC, 0xE1, 0x70, 0xC0, 0xDE, 0xDB, 0xDC, 0x8D, 0x8E, 0xDF
 };
 
-#define LATIN_SMALL_LETTER_Y_WITH_DIAERESIS 0xDF
-#define LATIN_SMALL_LETTER_SHARP_S 0x59
-#define MICRO_SIGN 0xA0
-#define LATIN_CAPITAL_LETTER_A_WITH_RING_ABOVE 0x0067
-#define LATIN_SMALL_LETTER_A_WITH_RING_ABOVE 0x0047
-
 EXTCONST unsigned char PL_e2a[] = { /* EBCDIC (POSIX-BC) to ASCII (ISO8859-1) */
  0x00, 0x01, 0x02, 0x03, 0x9C, 0x09, 0x86, 0x7F, 0x97, 0x8D, 0x8E, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
  0x10, 0x11, 0x12, 0x13, 0x9D, 0x0A, 0x08, 0x87, 0x18, 0x19, 0x92, 0x8F, 0x1C, 0x1D, 0x1E, 0x1F,
@@ -458,13 +446,6 @@ EXTCONST unsigned char PL_a2e[] = { /* ASCII (ISO8859-1) to EBCDIC (IBM-037) */
  0x44, 0x45, 0x42, 0x46, 0x43, 0x47, 0x9C, 0x48, 0x54, 0x51, 0x52, 0x53, 0x58, 0x55, 0x56, 0x57,
  0x8C, 0x49, 0xCD, 0xCE, 0xCB, 0xCF, 0xCC, 0xE1, 0x70, 0xDD, 0xDE, 0xDB, 0xDC, 0x8D, 0x8E, 0xDF
 };
-
-
-#define LATIN_SMALL_LETTER_Y_WITH_DIAERESIS 0xDF
-#define LATIN_SMALL_LETTER_SHARP_S 0x59
-#define MICRO_SIGN 0xA0
-#define LATIN_CAPITAL_LETTER_A_WITH_RING_ABOVE 0x0067
-#define LATIN_SMALL_LETTER_A_WITH_RING_ABOVE 0x0047
 
 EXTCONST unsigned char PL_e2a[] = { /* EBCDIC (IBM-037) to ASCII (ISO8859-1) */
  0x00, 0x01, 0x02, 0x03, 0x9C, 0x09, 0x86, 0x7F, 0x97, 0x8D, 0x8E, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -581,20 +562,34 @@ END_EXTERN_C
 		      (uv) < 0x400000       ? 5 : \
 		      (uv) < 0x4000000      ? 6 : 7 )
 
-
 #define UNI_IS_INVARIANT(c)		((c) <  0xA0)
+
 /* UTF-EBCDIC semantic macros - transform back into I8 and then compare */
 
 #define UTF8_IS_START(c)		(NATIVE_TO_UTF(c) >= 0xC5 && NATIVE_TO_UTF(c) != 0xE0)
 #define UTF8_IS_CONTINUATION(c)		((NATIVE_TO_UTF(c) & 0xE0) == 0xA0)
 #define UTF8_IS_CONTINUED(c) 		(NATIVE_TO_UTF(c) >= 0xA0)
 #define UTF8_IS_DOWNGRADEABLE_START(c)	(NATIVE_TO_UTF(c) >= 0xC5 && NATIVE_TO_UTF(c) <= 0xC7)
+#define UTF8_IS_ABOVE_LATIN1(c)	(NATIVE_TO_I8(c) >= 0xC8)
 
 #define UTF_START_MARK(len) (((len) >  7) ? 0xFF : ((U8)(0xFE << (7-(len)))))
 #define UTF_START_MASK(len) (((len) >= 6) ? 0x01 : (0x1F >> ((len)-2)))
 #define UTF_CONTINUATION_MARK		0xA0
 #define UTF_CONTINUATION_MASK		((U8)0x1f)
 #define UTF_ACCUMULATION_SHIFT		5
+
+/* How wide can a single UTF-8 encoded character become in bytes. */
+/* NOTE: Strictly speaking Perl's UTF-8 should not be called UTF-8 since UTF-8
+ * is an encoding of Unicode, and Unicode's upper limit, 0x10FFFF, can be
+ * expressed with 5 bytes.  However, Perl thinks of UTF-8 as a way to encode
+ * non-negative integers in a binary format, even those above Unicode */
+#define UTF8_MAXBYTES 7
+
+/* The maximum number of UTF-8 bytes a single Unicode character can
+ * uppercase/lowercase/fold into.  Unicode guarantees that the maximum
+ * expansion is 3 characters.  On EBCDIC platforms, the highest Unicode
+ * character occupies 5 bytes, therefore this number is 15 */
+#define UTF8_MAXBYTES_CASE	15
 
 /*
  * Local variables:

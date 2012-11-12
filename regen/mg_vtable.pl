@@ -2,6 +2,8 @@
 #
 # Regenerate (overwriting only if changed):
 #
+#    mg_names.c
+#    mg_raw.h
 #    mg_vtable.h
 #    pod/perlguts.pod
 #
@@ -40,7 +42,7 @@ my %mg =
      env => { char => 'E', vtable => 'env', desc => '%ENV hash' },
      envelem => { char => 'e', vtable => 'envelem',
 		  desc => '%ENV hash element' },
-     fm => { char => 'f', vtable => 'regdata', value_magic => 1,
+     fm => { char => 'f', vtable => 'regexp', value_magic => 1,
 	     readonly_acceptable => 1, desc => "Formline ('compiled' format)" },
      regex_global => { char => 'g', vtable => 'mglob', value_magic => 1,
 		       readonly_acceptable => 1, desc => 'm//g target' },
@@ -82,7 +84,7 @@ my %mg =
 		    unknown_to_sv_magic => 1 },
      vec => { char => 'v', vtable => 'vec', value_magic => 1,
 	      desc => 'vec() lvalue' },
-     vstring => { char => 'V', value_magic => 1, vtable => 'vstring',
+     vstring => { char => 'V', value_magic => 1,
 		  desc => 'SV was vstring literal' },
      utf8 => { char => 'w', vtable => 'utf8', value_magic => 1,
 	       desc => 'Cached UTF-8 information' },
@@ -92,6 +94,7 @@ my %mg =
 		  desc => "Shadow \"foreach\" iterator variable /\nsmart parameter vivification" },
      arylen => { char => '#', vtable => 'arylen', value_magic => 1,
 		 desc => 'Array length ($#ary)' },
+     proto => { char => '&', desc => 'my sub prototype CV' },
      pos => { char => '.', vtable => 'pos', value_magic => 1,
 	      desc => 'pos() lvalue' },
      backref => { char => '<', vtable => 'backref', value_magic => 1,
@@ -110,7 +113,7 @@ my %mg =
 # These have a subtly different "namespace" from the magic types.
 my %sig =
     (
-     'sv' => {get => 'get', set => 'set', len => 'len'},
+     'sv' => {get => 'get', set => 'set'},
      'env' => {set => 'set_all_env', clear => 'clear_all_env'},
      'envelem' => {set => 'setenv', clear => 'clearenv'},
      'sigelem' => {get => 'getsig', set => 'setsig', clear => 'clearsig',
@@ -140,7 +143,6 @@ my %sig =
 		    cond => '#ifdef USE_LOCALE_COLLATE'},
      'hintselem' => {set => 'sethint', clear => 'clearhint'},
      'hints' => {clear => 'clearhints'},
-     'vstring' => {set => 'setvstring'},
      'checkcall' => {copy => 'copycallchecker'},
 );
 

@@ -1,6 +1,30 @@
 CHANGES
 -------
 
+  2.057 10 November 2012
+
+      * IO::Compress::Zip
+        Allow member name & Zip Comment to be "0"
+   
+      * IO::Compress::Base::Common
+        Remove "-r" test - the file open will catch this.
+        RT# 80855: IO::Compress::Base::Common returns that it cannot read readable files in NFS
+
+      * RT# 79820: Install to 'site' instead of 'perl' when perl version is 5.11+
+      
+      * General Performance improvements.
+                
+  2.055 5 August 2012
+
+      * FAQ
+        Added a few paragraphs on how to deal with pbzip2 files
+        [RT# #77743: Interoperability problems with pbzip2]
+
+      * Compress::Zip
+        speed up compress, uncompress, memGzip & memGunzip.
+        [RT# #77350: Compress::Zlib::uncompress() is slowed down needlessly 
+                     by parameter validation
+
   2.052 29 April 2012
 
       * IO::Compress::Zip

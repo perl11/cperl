@@ -268,7 +268,7 @@ bit, or edit F<Porting/exec-bit.txt>
 
 =item *
 
-Run C<make>, see if C<perl> compiles.
+Run C<make> (or C<nmake> on Windows), see if C<perl> compiles.
 
 =item *
 
@@ -296,7 +296,10 @@ For entries with a non-simple C<FILES> section, or with a C<MAP>, you
 may have to take more steps than listed above.
 
 F<Porting/sync-with-cpan> is a script that automates most of the steps
-above; but see the comments at the beginning of the file.
+above; but see the comments at the beginning of the file.  In particular,
+it has not yet been exercised on Windows, but will certainly require a set
+of Unix tools such as Cygwin, and steps that run C<make> will need to run
+C<nmake> instead.
 
 
 =head3 dual-life CPAN module stability
@@ -325,7 +328,8 @@ Ensure dual-life CPAN modules are stable, which comes down to:
 =head3 monitor smoke tests for failures
 
 Similarly, monitor the smoking of core tests, and try to fix.  See
-L<http://doc.procura.nl/smoke/index.html> for a summary. See also
+L<http://doc.procura.nl/smoke/index.html> and L<http://perl5.test-smoke.org/>
+for a summary. See also
 L<http://www.nntp.perl.org/group/perl.daily-build.reports/> which has
 the raw reports.
 
@@ -402,7 +406,7 @@ Commit your changes:
     $ git commit -a -m 'Bump the perl version in various places for 5.x.y'
 
 At this point you may want to compare the commit with a previous bump to
-see if they look similar.  See commit 8891dd8d for an example of a
+see if they look similar.  See commit 0e79a3d1bc for an example of a
 previous version bump.
 
 When the version number is bumped, you should also update Module::CoreList
@@ -467,12 +471,6 @@ BLEAD-FINAL, MAINT, and RC releases, since blead will already be frozen in
 those cases. Create the branch by running
 
   git checkout -b release-5.xx.yy
-
-
-=head3 bump version number
-
-For a BLEAD-POINT release, if you did not bump the perl version number as
-part of I<advance actions>, do that now.
 
 
 =head3 finalize perldelta
@@ -553,10 +551,8 @@ I<blead> and subsequently cherry-pick any releases since the last
 maint release and then your recent commit.  XXX need a better example
 
 F<corelist.pl> uses ftp.funet.fi to verify information about dual-lived
-modules on CPAN. It can use a full, local CPAN mirror or fall back
-to C<wget> or C<curl> to fetch only package metadata remotely. (If you're
-on Win32, then installing Cygwin is one way to have commands like C<wget>
-and C<curl> available.)
+modules on CPAN. It can use a full, local CPAN mirror and/or fall back
+on HTTP::Tiny to fetch package metadata remotely.
 
 (If you'd prefer to have a full CPAN mirror, see 
 http://www.cpan.org/misc/cpan-faq.html#How_mirror_CPAN)
@@ -591,10 +587,6 @@ Check that file over carefully:
 
     $ git diff dist/Module-CoreList/lib/Module/CoreList.pm
 
-If this is a .0 Perl version, add the appropriate lines in F<Corelist.pm>
-to alias "5.nnn000" to "5.nnn" in each hash.  (If feeling energetic,
-amend F<corelist.pl> to automate this.)
-
 =head4 Bump C<$Module::CoreList::VERSION>
 
 If necessary, bump C<$Module::CoreList::VERSION> (there's no need to do this for
@@ -606,6 +598,16 @@ number as a CPAN release.)
 
 Edit the version number in the new C<< 'Module::CoreList' => 'X.YZ' >>
 entry, as that is likely to reflect the previous version number.
+
+=head4 Bump C<$Module::CoreList::TieHashDelta::VERSION>
+
+C<$Module::CoreList::TieHashDelta::VERSION> should always be equal to
+C<$Module::CoreList::VERSION>. Make sure the two versions match before
+proceeding.
+
+Edit the version number in the new
+C<< 'Module::CoreList::TieHashDelta' => 'X.YZ' >> entry, as that is likely to
+reflect the previous version number.
 
 =head4 Bump version in Module::CoreList F<Changes>
 
@@ -658,6 +660,10 @@ Make sure that the correct pumpking is listed in the left-hand column, and
 if this is the first release under the stewardship of a new pumpking, make
 sure that his or her name is listed in the section entitled
 C<THE KEEPERS OF THE PUMPKIN>.
+
+I<If you're making a BLEAD-FINAL release>, also update the "SELECTED
+RELEASE SIZES" section with the output of
+F<Porting/perlhist_calculate.pl>.
 
 Be sure to commit your changes:
 
@@ -714,8 +720,7 @@ Then delete the temporary installation.
 
 Push all your recent commits:
 
-    $ git push origin ....
-
+    $ git push origin release-5.xx.yy
 
 =head3 tag the release
 
@@ -832,17 +837,13 @@ previous is 5.10.0:
     find . -type f | sort > /tmp/f2
     diff -u /tmp/f[12]
 
-=head4 Test the CPAN client
+=head4 Bootstrap the CPAN client
 
 Bootstrap the CPAN client on the clean install:
 
-    $ bin/perl -MCPAN -e "shell"
+    $ bin/cpan
 
-If you're running this on Win32 you probably also need a set of Unix
-command-line tools available for CPAN to function correctly without
-Perl alternatives like LWP installed. Cygwin is an obvious choice.)
-
-=head4 Install the Inline module and test it
+=head4 Install the Inline module with CPAN and test it
 
 Try installing a popular CPAN module that's reasonably complex and that
 has dependencies; for example:
@@ -861,10 +862,6 @@ Check that your perl can run this:
 Bootstrap the CPANPLUS client on the clean install:
 
     $ bin/cpanp
-
-(Again, on Win32 you'll need something like Cygwin installed, but make sure
-that you don't end up with its various F<bin/cpan*> programs being found on
-the PATH before those of the Perl that you're trying to test.)
 
 =head4 Install the DBI module with CPANPLUS
 
@@ -1063,7 +1060,7 @@ When C<make test_porting> passes, commit the new perldelta.
 =back
 
 At this point you may want to compare the commit with a previous bump to
-see if they look similar.  See commit e3c71926d3 for an example of a
+see if they look similar.  See commit 4eabcf701b for an example of a
 previous version bump.
 
 =for checklist skip MAINT RC
@@ -1175,7 +1172,7 @@ Edit F<pod/perl.pod> to add an entry for the file, e.g.:
 
 Then rebuild various files:
 
-    $ perl pod/buildtoc --build-all
+    $ perl Porting/pod_rules.pl
 
 Finally, commit:
 
@@ -1232,12 +1229,11 @@ to ensure that the tarballs are available on the website.
 
 Check C</src> on CPAN (on a fast mirror) to ensure that links to
 the new tarballs have appeared.  There should be links in C</src/5.0>
-(which is accumulating all new versions), links in C</src> (which shows
-only the latest version on each branch), and an appropriate mention in
-C</src/README.html> (which describes the latest versions).
+(which is accumulating all new versions), and an appropriate mention in
+C</src> (which describes the latest versions in each branch, with links).
 
 These links should appear automatically, some hours after upload.
-If they don't, or the C<README.html> description is inadequate,
+If they don't, or the C</src> description is inadequate,
 ask Ask <ask@perl.org>.
 
 =item *
@@ -1259,7 +1255,7 @@ It should be visible at a URL like C<http://search.cpan.org/dist/perl-5.10.1/>.
 
 I<You MUST SKIP this step for a RC release>
 
-In your C<perlorg> repository, link to the new release.  For a new
+In your C<perlweb> repository, link to the new release.  For a new
 latest-maint release, edit F<docs/shared/tpl/stats.html>.  Otherwise,
 edit F<docs/dev/perl5/index.html>.
 

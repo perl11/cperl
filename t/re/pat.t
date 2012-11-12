@@ -19,7 +19,7 @@ BEGIN {
     require './test.pl';
 }
 
-plan tests => 452;  # Update this when adding/deleting tests.
+plan tests => 465;  # Update this when adding/deleting tests.
 
 run_tests() unless caller;
 
@@ -1158,7 +1158,7 @@ use utf8;;
 "abc" =~ qr/(?<$char>abc)/;
 EOP
             utf8::encode($prog);
-            fresh_perl_like($prog, qr!Sequence.* not recognized!, "",
+            fresh_perl_like($prog, qr!Group name must start with a non-digit word character!, "",
                         sprintf("'U+%04X not legal IDFirst'", ord($char)));
         }
     }
@@ -1275,6 +1275,28 @@ EOP
 	my $o = bless [ bless [], "Qr1" ], 'Qr_indirect';
 	ok("A51" =~ /^A$o/, "Qr_indirect");
 	ok("51" =~ /$o/, "Qr_indirect bare");
+    }
+
+    {   # Various flags weren't being set when a [] is optimized into an
+        # EXACTish node
+        ;
+        ;
+        ok("\x{017F}\x{017F}" =~ qr/^[\x{00DF}]?$/i, "[] to EXACTish optimization");
+    }
+
+    {
+        for my $char (":", "\x{f7}", "\x{2010}") {
+            my $utf8_char = $char;
+            utf8::upgrade($utf8_char);
+            my $display = $char;
+            $display = display($display);
+            my $utf8_display = "utf8::upgrade(\"$display\")";
+
+            like($char, qr/^$char?$/, "\"$display\" =~ /^$display?\$/");
+            like($char, qr/^$utf8_char?$/, "my \$p = \"$display\"; utf8::upgrade(\$p); \"$display\" =~ /^\$p?\$/");
+            like($utf8_char, qr/^$char?$/, "my \$c = \"$display\"; utf8::upgrade(\$c); \"\$c\" =~ /^$display?\$/");
+            like($utf8_char, qr/^$utf8_char?$/, "my \$c = \"$display\"; utf8::upgrade(\$c); my \$p = \"$display\"; utf8::upgrade(\$p); \"\$c\" =~ /^\$p?\$/");
+        }
     }
 
 } # End of sub run_tests

@@ -24,11 +24,13 @@ plan tests => 113;
 
 my $Perl = which_perl();
 
+$ENV{LC_ALL}   = 'C';		# Forge English error messages.
+$ENV{LANGUAGE} = 'C';		# Ditto in GNU.
+
 $Is_Amiga   = $^O eq 'amigaos';
 $Is_Cygwin  = $^O eq 'cygwin';
 $Is_Darwin  = $^O eq 'darwin';
 $Is_Dos     = $^O eq 'dos';
-$Is_MPE     = $^O eq 'mpeix';
 $Is_MSWin32 = $^O eq 'MSWin32';
 $Is_NetWare = $^O eq 'NetWare';
 $Is_OS2     = $^O eq 'os2';
@@ -249,6 +251,7 @@ SKIP: {
     skip "ls command not available to Perl in OpenVMS right now.", 6
       if $Is_VMS;
 
+    delete $ENV{CLICOLOR_FORCE};
     my $LS  = $Config{d_readlink} ? "ls -lL" : "ls -l";
     my $CMD = "$LS /dev 2>/dev/null";
     my $DEV = qx($CMD);

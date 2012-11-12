@@ -7,39 +7,57 @@
 /* See the generating file for comments */
 
 
-UV Latin1_invlist[] = {
+#ifndef PERL_IN_XSUB_RE
+
+static UV Latin1_invlist[] = {
 	2,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	0,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	256,
 	0
 };
 
-UV AboveLatin1_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV AboveLatin1_invlist[] = {
 	1,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	256
 };
 
-UV ASCII_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV ASCII_invlist[] = {
 	2,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	0,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	128,
 	0
 };
 
-UV L1Cased_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV L1Cased_invlist[] = {
 	16,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	65,
@@ -60,10 +78,15 @@ UV L1Cased_invlist[] = {
 	443
 };
 
-UV VertSpace_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV VertSpace_invlist[] = {
 	6,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	10,
@@ -74,10 +97,15 @@ UV VertSpace_invlist[] = {
 	8234
 };
 
-UV PerlSpace_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PerlSpace_invlist[] = {
 	4,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	9,
@@ -86,10 +114,15 @@ UV PerlSpace_invlist[] = {
 	33
 };
 
-UV XPerlSpace_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV XPerlSpace_invlist[] = {
 	22,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	9,
@@ -116,10 +149,15 @@ UV XPerlSpace_invlist[] = {
 	12289
 };
 
-UV PosixAlnum_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixAlnum_invlist[] = {
 	6,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	48,
@@ -130,10 +168,15 @@ UV PosixAlnum_invlist[] = {
 	123
 };
 
-UV L1PosixAlnum_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV L1PosixAlnum_invlist[] = {
 	18,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	48,
@@ -156,10 +199,15 @@ UV L1PosixAlnum_invlist[] = {
 	706
 };
 
-UV PosixAlpha_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixAlpha_invlist[] = {
 	4,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	65,
@@ -168,10 +216,15 @@ UV PosixAlpha_invlist[] = {
 	123
 };
 
-UV L1PosixAlpha_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV L1PosixAlpha_invlist[] = {
 	16,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	65,
@@ -192,10 +245,15 @@ UV L1PosixAlpha_invlist[] = {
 	706
 };
 
-UV PosixBlank_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixBlank_invlist[] = {
 	4,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	9,
@@ -204,10 +262,15 @@ UV PosixBlank_invlist[] = {
 	33
 };
 
-UV XPosixBlank_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV XPosixBlank_invlist[] = {
 	18,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	9,
@@ -230,10 +293,15 @@ UV XPosixBlank_invlist[] = {
 	12289
 };
 
-UV PosixCntrl_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixCntrl_invlist[] = {
 	4,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	0,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	32,
@@ -242,10 +310,15 @@ UV PosixCntrl_invlist[] = {
 	0
 };
 
-UV XPosixCntrl_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV XPosixCntrl_invlist[] = {
 	4,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	0,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	32,
@@ -254,30 +327,45 @@ UV XPosixCntrl_invlist[] = {
 	0
 };
 
-UV PosixDigit_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixDigit_invlist[] = {
 	2,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	48,
 	58
 };
 
-UV PosixGraph_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixGraph_invlist[] = {
 	2,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	33,
 	127
 };
 
-UV L1PosixGraph_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV L1PosixGraph_invlist[] = {
 	4,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	33,
@@ -286,20 +374,30 @@ UV L1PosixGraph_invlist[] = {
 	888
 };
 
-UV PosixLower_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixLower_invlist[] = {
 	2,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	97,
 	123
 };
 
-UV L1PosixLower_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV L1PosixLower_invlist[] = {
 	12,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	97,
@@ -316,20 +414,30 @@ UV L1PosixLower_invlist[] = {
 	256
 };
 
-UV PosixPrint_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixPrint_invlist[] = {
 	2,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	32,
 	127
 };
 
-UV L1PosixPrint_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV L1PosixPrint_invlist[] = {
 	4,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	32,
@@ -338,10 +446,15 @@ UV L1PosixPrint_invlist[] = {
 	888
 };
 
-UV PosixPunct_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixPunct_invlist[] = {
 	8,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	33,
@@ -354,10 +467,15 @@ UV PosixPunct_invlist[] = {
 	127
 };
 
-UV L1PosixPunct_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV L1PosixPunct_invlist[] = {
 	20,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	33,
@@ -382,10 +500,15 @@ UV L1PosixPunct_invlist[] = {
 	192
 };
 
-UV PosixSpace_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixSpace_invlist[] = {
 	4,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	9,
@@ -394,10 +517,15 @@ UV PosixSpace_invlist[] = {
 	33
 };
 
-UV XPosixSpace_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV XPosixSpace_invlist[] = {
 	22,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	9,
@@ -424,20 +552,30 @@ UV XPosixSpace_invlist[] = {
 	12289
 };
 
-UV PosixUpper_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixUpper_invlist[] = {
 	2,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	65,
 	91
 };
 
-UV L1PosixUpper_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV L1PosixUpper_invlist[] = {
 	6,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	65,
@@ -448,10 +586,15 @@ UV L1PosixUpper_invlist[] = {
 	223
 };
 
-UV PosixWord_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixWord_invlist[] = {
 	8,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	48,
@@ -464,10 +607,15 @@ UV PosixWord_invlist[] = {
 	123
 };
 
-UV L1PosixWord_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV L1PosixWord_invlist[] = {
 	20,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	48,
@@ -492,10 +640,15 @@ UV L1PosixWord_invlist[] = {
 	706
 };
 
-UV PosixXDigit_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV PosixXDigit_invlist[] = {
 	6,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	48,
@@ -506,10 +659,15 @@ UV PosixXDigit_invlist[] = {
 	103
 };
 
-UV XPosixXDigit_invlist[] = {
+#endif
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV XPosixXDigit_invlist[] = {
 	12,	/* Number of elements */
 	0,	/* Current iteration position */
-	1064334010, /* Version and data structure type */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
 	1,	/* 0 if this is the first element of the list proper;
 		   1 if the next element is the first */
 	48,
@@ -525,5 +683,131 @@ UV XPosixXDigit_invlist[] = {
 	65345,
 	65351
 };
+
+#endif
+
+static UV NonL1_Perl_Non_Final_Folds_invlist[] = {
+	44,	/* Number of elements */
+	0,	/* Current iteration position */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
+	1,	/* 0 if this is the first element of the list proper;
+		   1 if the next element is the first */
+	700,
+	701,
+	776,
+	777,
+	787,
+	788,
+	834,
+	835,
+	940,
+	941,
+	942,
+	943,
+	945,
+	946,
+	951,
+	952,
+	953,
+	954,
+	961,
+	962,
+	965,
+	966,
+	969,
+	970,
+	974,
+	975,
+	1381,
+	1382,
+	1396,
+	1397,
+	1406,
+	1407,
+	7936,
+	7944,
+	7968,
+	7976,
+	8032,
+	8040,
+	8048,
+	8049,
+	8052,
+	8053,
+	8060,
+	8061
+};
+
+#ifndef PERL_IN_XSUB_RE
+
+static UV _Perl_Multi_Char_Folds_invlist[] = {
+	58,	/* Number of elements */
+	0,	/* Current iteration position */
+	0,	/* Cache of previous search index result */
+	290655244, /* Version and data structure type */
+	1,	/* 0 if this is the first element of the list proper;
+		   1 if the next element is the first */
+	223,
+	224,
+	304,
+	305,
+	329,
+	330,
+	496,
+	497,
+	912,
+	913,
+	944,
+	945,
+	1415,
+	1416,
+	7830,
+	7835,
+	7838,
+	7839,
+	8016,
+	8017,
+	8018,
+	8019,
+	8020,
+	8021,
+	8022,
+	8023,
+	8064,
+	8112,
+	8114,
+	8117,
+	8118,
+	8120,
+	8124,
+	8125,
+	8130,
+	8133,
+	8134,
+	8136,
+	8140,
+	8141,
+	8146,
+	8148,
+	8150,
+	8152,
+	8162,
+	8165,
+	8166,
+	8168,
+	8178,
+	8181,
+	8182,
+	8184,
+	8188,
+	8189,
+	64256,
+	64263,
+	64275,
+	64280
+};
+
+#endif
 
 /* ex: set ro: */

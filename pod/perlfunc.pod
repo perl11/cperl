@@ -480,7 +480,7 @@ Example:
     print "Text\n" if -T _;
     print "Binary\n" if -B _;
 
-As of Perl 5.9.1, as a form of purely syntactic sugar, you can stack file
+As of Perl 5.10.0, as a form of purely syntactic sugar, you can stack file
 test operators, in a way that C<-f -w -x $file> is equivalent to
 C<-x $file && -w _ && -f _>.  (This is only fancy fancy: if you use
 the return value of C<-f $file> as an argument to another filetest
@@ -721,10 +721,10 @@ See L<perlmod/"Perl Modules">.
 
 Break out of a C<given()> block.
 
-This keyword is enabled by the C<"switch"> feature: see
-L<feature> for more information.  You can also access it by
-prefixing it with C<CORE::>.  Alternately, include a C<use
-v5.10> or later to the current scope.
+This keyword is enabled by the C<"switch"> feature; see L<feature> for
+more information on C<"switch">.  You can also access it by prefixing it
+with C<CORE::>.  Alternatively, include a C<use v5.10> or later to the
+current scope.
 
 =item caller EXPR
 X<caller> X<call stack> X<stack> X<stack trace>
@@ -763,8 +763,10 @@ frame.)  $subroutine may also be C<(unknown)> if this particular
 subroutine happens to have been deleted from the symbol table.
 C<$hasargs> is true if a new instance of C<@_> was set up for the frame.
 C<$hints> and C<$bitmask> contain pragmatic hints that the caller was
-compiled with.  The C<$hints> and C<$bitmask> values are subject to change
-between versions of Perl, and are not meant for external use.
+compiled with.  C<$hints> corresponds to C<$^H>, and C<$bitmask>
+corresponds to C<${^WARNING_BITS}>.  The
+C<$hints> and C<$bitmask> values are subject
+to change between versions of Perl, and are not meant for external use.
 
 C<$hinthash> is a reference to a hash containing the value of C<%^H> when the
 caller was compiled, or C<undef> if C<%^H> was empty.  Do not modify the values
@@ -1545,8 +1547,8 @@ See L<perlsyn> for alternative strategies.
 =item do SUBROUTINE(LIST)
 X<do>
 
-This form of subroutine call is deprecated.  SUBROUTINE can be a bareword,
-a scalar variable or a subroutine beginning with C<&>.
+This form of subroutine call is deprecated.  SUBROUTINE can be a bareword
+or scalar variable.
 
 =item do EXPR
 X<do>
@@ -1595,6 +1597,8 @@ file.  Manual error checking can be done this way:
 =item dump LABEL
 X<dump> X<core> X<undump>
 
+=item dump EXPR
+
 =item dump
 
 =for Pod::Functions create an immediate core dump
@@ -1607,7 +1611,9 @@ having initialized all your variables at the beginning of the
 program.  When the new binary is executed it will begin by executing
 a C<goto LABEL> (with all the restrictions that C<goto> suffers).
 Think of it as a goto with an intervening core dump and reincarnation.
-If C<LABEL> is omitted, restarts the program from the top.
+If C<LABEL> is omitted, restarts the program from the top.  The
+C<dump EXPR> form, available starting in Perl 5.18.0, allows a name to be
+computed at run time, being otherwise identical to C<dump LABEL>.
 
 B<WARNING>: Any files opened at the time of the dump will I<not>
 be open any more when the program is reincarnated, with possible
@@ -1617,6 +1623,11 @@ This function is now largely obsolete, mostly because it's very hard to
 convert a core file into an executable.  That's why you should now invoke
 it as C<CORE::dump()>, if you don't want to be warned against a possible
 typo.
+
+Unlike most named operators, this has the same precedence as assignment.
+It is also exempt from the looks-like-a-function rule, so
+C<dump ("foo")."bar"> will cause "bar" to be part of the argument to
+C<dump>.
 
 Portability issues: L<perlport/dump>.
 
@@ -1675,6 +1686,13 @@ The exact behaviour may change in a future version of Perl.
 
     while (($key,$value) = each $hashref) { ... }
 
+As of Perl 5.18 you can use a bare C<each> in a C<while> loop,
+which will set C<$_> on every iteration.
+
+    while(each %ENV) {
+	print "$_=$ENV{$_}\n";
+    }
+
 To avoid confusing would-be users of your code who are running earlier
 versions of Perl with mysterious syntax errors, put this sort of thing at
 the top of your file to signal that your code will work I<only> on Perls of
@@ -1682,6 +1700,7 @@ a recent vintage:
 
     use 5.012;	# so keys/values/each work on arrays
     use 5.014;	# so keys/values/each work on scalars (experimental)
+    use 5.018;	# so each assigns to $_ in a lone while test
 
 See also C<keys>, C<values>, and C<sort>.
 
@@ -1987,11 +2006,11 @@ program, passing it C<"surprise"> an argument.  The second version didn't;
 it tried to run a program named I<"echo surprise">, didn't find it, and set
 C<$?> to a non-zero value indicating failure.
 
-Beginning with v5.6.0, Perl attempts to flush all files opened for
-output before the exec, but this may not be supported on some platforms
-(see L<perlport>).  To be safe, you may need to set C<$|> ($AUTOFLUSH
-in English) or call the C<autoflush()> method of C<IO::Handle> on any
-open handles to avoid lost output.
+Perl attempts to flush all files opened for output before the exec,
+but this may not be supported on some platforms (see L<perlport>).
+To be safe, you may need to set C<$|> ($AUTOFLUSH in English) or
+call the C<autoflush()> method of C<IO::Handle> on any open handles
+to avoid lost output.
 
 Note that C<exec> will not call your C<END> blocks, nor will it invoke
 C<DESTROY> methods on your objects.
@@ -2329,7 +2348,7 @@ fork(), great care has gone into making it extremely efficient (for
 example, using copy-on-write technology on data pages), making it the
 dominant paradigm for multitasking over the last few decades.
 
-Beginning with v5.6.0, Perl attempts to flush all files opened for
+Perl attempts to flush all files opened for
 output before forking the child process, but this may not be supported
 on some platforms (see L<perlport>).  To be safe, you may need to set
 C<$|> ($AUTOFLUSH in English) or call the C<autoflush()> method of
@@ -2842,7 +2861,7 @@ each pairing of fruits and colors:
 
     @many =  glob "{apple,tomato,cherry}={green,yellow,red}";
 
-Beginning with v5.6.0, this operator is implemented using the standard
+This operator is implemented using the standard
 C<File::Glob> extension.  See L<File::Glob> for details, including
 C<bsd_glob> which does not treat whitespace as a pattern separator.
 
@@ -2892,6 +2911,8 @@ necessarily recommended if you're optimizing for maintainability:
 As shown in this example, C<goto-EXPR> is exempt from the "looks like a
 function" rule.  A pair of parentheses following it does not (necessarily)
 delimit its argument.  C<goto("NE")."XT"> is equivalent to C<goto NEXT>.
+Also, unlike most named operators, this has the same precedence as
+assignment.
 
 Use of C<goto-LABEL> or C<goto-EXPR> to jump into a construct is
 deprecated and will issue a warning.  Even then, it may not be used to
@@ -3176,11 +3197,20 @@ L<perlport> for notes on the portability of this construct.
 Unlike in the shell, if SIGNAL is negative, it kills process groups instead
 of processes.  That means you usually
 want to use positive not negative signals.
-You may also use a signal name in quotes.
+
+You may also use a signal name in quotes.  A negative signal name is the
+same as a negative signal number, killing process groups instead of processes.
+For example, C<kill -KILL, $pgrp> will send C<SIGKILL> to the entire process
+group specified.
 
 The behavior of kill when a I<PROCESS> number is zero or negative depends on
 the operating system.  For example, on POSIX-conforming systems, zero will
-signal the current process group and -1 will signal all processes.
+signal the current process group, -1 will signal all processes, and any
+other negative PROCESS number will act as a negative signal number and
+kill the entire process group specified.
+
+If both the SIGNAL and the PROCESS are negative, the results are undefined.
+A warning may be produced in a future version.
 
 See L<perlipc/"Signals"> for more details.
 
@@ -3201,13 +3231,18 @@ Portability issues: L<perlport/kill>.
 =item last LABEL
 X<last> X<break>
 
+=item last EXPR
+
 =item last
 
 =for Pod::Functions exit a block prematurely
 
 The C<last> command is like the C<break> statement in C (as used in
 loops); it immediately exits the loop in question.  If the LABEL is
-omitted, the command refers to the innermost enclosing loop.  The
+omitted, the command refers to the innermost enclosing
+loop.  The C<last EXPR> form, available starting in Perl
+5.18.0, allows a label name to be computed at run time,
+and is otherwise identical to C<last LABEL>.  The
 C<continue> block, if any, is not executed:
 
     LINE: while (<STDIN>) {
@@ -3225,6 +3260,11 @@ exit out of such a block.
 
 See also L</continue> for an illustration of how C<last>, C<next>, and
 C<redo> work.
+
+Unlike most named operators, this has the same precedence as assignment.
+It is also exempt from the looks-like-a-function rule, so
+C<last ("foo")."bar"> will cause "bar" to be part of the argument to
+C<last>.
 
 =item lc EXPR
 X<lc> X<lowercase>
@@ -3717,6 +3757,8 @@ L<attributes>, and L<Attribute::Handlers>.
 =item next LABEL
 X<next> X<continue>
 
+=item next EXPR
+
 =item next
 
 =for Pod::Functions iterate a block prematurely
@@ -3731,7 +3773,9 @@ the next iteration of the loop:
 
 Note that if there were a C<continue> block on the above, it would get
 executed even on discarded lines.  If LABEL is omitted, the command
-refers to the innermost enclosing loop.
+refers to the innermost enclosing loop.  The C<next EXPR> form, available
+as of Perl 5.18.0, allows a label name to be computed at run time, being
+otherwise identical to C<next LABEL>.
 
 C<next> cannot be used to exit a block which returns a value such as
 C<eval {}>, C<sub {}>, or C<do {}>, and should not be used to exit
@@ -3742,6 +3786,11 @@ that executes once.  Thus C<next> will exit such a block early.
 
 See also L</continue> for an illustration of how C<last>, C<next>, and
 C<redo> work.
+
+Unlike most named operators, this has the same precedence as assignment.
+It is also exempt from the looks-like-a-function rule, so
+C<next ("foo")."bar"> will cause "bar" to be part of the argument to
+C<next>.
 
 =item no MODULE VERSION LIST
 X<no declarations>
@@ -3924,7 +3973,7 @@ works for symmetry, but you really should consider writing something
 to the temporary file first.  You will need to seek() to do the
 reading.
 
-Since v5.8.0, Perl has built using PerlIO by default.  Unless you've
+Perl is built using PerlIO by default; Unless you've
 changed this (such as building Perl with C<Configure -Uuseperlio>), you can
 open filehandles directly to Perl scalars via:
 
@@ -4124,7 +4173,7 @@ that intentionally contain shell metacharacters, such as:
 
 See L<perlipc/"Safe Pipe Opens"> for more examples of this.
 
-Beginning with v5.6.0, Perl will attempt to flush all files opened for
+Perl will attempt to flush all files opened for
 output before any operation that may do a fork, but this may not be
 supported on some platforms (see L<perlport>).  To be safe, you may need
 to set C<$|> ($AUTOFLUSH in English) or call the C<autoflush()> method
@@ -4258,18 +4307,18 @@ X<our> X<global>
 
 =for Pod::Functions +5.6.0 declare and assign a package variable (lexical scoping)
 
-C<our> associates a simple name with a package variable in the current
-package for use within the current scope.  When C<use strict 'vars'> is in
-effect, C<our> lets you use declared global variables without qualifying
-them with package names, within the lexical scope of the C<our> declaration.
-In this way C<our> differs from C<use vars>, which is package-scoped.
+C<our> makes a lexical alias to a package variable of the same name in the current
+package for use within the current lexical scope.
 
-Unlike C<my> or C<state>, which allocates storage for a variable and
-associates a simple name with that storage for use within the current
-scope, C<our> associates a simple name with a package (read: global)
-variable in the current package, for use within the current lexical scope.
-In other words, C<our> has the same scoping rules as C<my> or C<state>, but
-does not necessarily create a variable.
+C<our> has the same scoping rules as C<my> or C<state>, but C<our> only
+declares an alias, whereas C<my> or C<state> both declare a variable name and
+allocate storage for that name within the current scope.
+
+This means that when C<use strict 'vars'> is in effect, C<our> lets you use
+a package variable without qualifying it with the package name, but only within
+the lexical scope of the C<our> declaration.  In this way, C<our> differs from
+C<use vars>, which allows use of an unqualified name I<only> within the
+affected package, but across scopes.
 
 If more than one value is listed, the list must be placed
 in parentheses.
@@ -4277,7 +4326,7 @@ in parentheses.
     our $foo;
     our($bar, $baz);
 
-An C<our> declaration declares a global variable that will be visible
+An C<our> declaration declares an alias for a package variable that will be visible
 across its entire lexical scope, even across package boundaries.  The
 package in which the variable is entered is determined at the point
 of the declaration, not at the point of use.  This means the following
@@ -4430,6 +4479,28 @@ TEMPLATE (the second column lists letters for which the modifier is valid):
 The C<< > >> and C<< < >> modifiers can also be used on C<()> groups 
 to force a particular byte-order on all components in that group, 
 including all its subgroups.
+
+=begin comment
+
+Larry recalls that the hex and bit string formats (H, h, B, b) were added to
+pack for processing data from NASA's Magellan probe. Magellan was in an
+elliptical orbit, using the antenna for the radar mapping when close to
+Venus and for communicating data back to Earth for the rest of the orbit.
+There were two transmission units, but one of these failed, and then the
+other developed a fault whereby it would randomly flip the sense of all the
+bits. It was easy to automatically detect complete records with the correct
+sense, and complete records with all the bits flipped. However, this didn't
+recover the records where the sense flipped midway. A colleague of Larry's
+was able to pretty much eyeball where the records flipped, so they wrote an
+editor named kybble (a pun on the dog food Kibbles 'n Bits) to enable him to
+manually correct the records and recover the data. For this purpose pack
+gained the hex and bit string format specifiers.
+
+git shows that they were added to perl 3.0 in patch #44 (Jan 1991, commit
+27e2fb84680b9cc1), but the patch description makes no mention of their
+addition, let alone the story behind them.
+
+=end comment
 
 The following rules apply:
 
@@ -4719,7 +4790,7 @@ immediately below.  See also L<perlport>.
 
 =item *
 
-Starting with Perl 5.9.2, integer and floating-point formats, along with
+Starting with Perl 5.10.0, integer and floating-point formats, along with
 the C<p> and C<P> formats and C<()> groups, may all be followed by the 
 C<< > >> or C<< < >> endianness modifiers to respectively enforce big-
 or little-endian byte-order.  These modifiers are especially useful 
@@ -4968,7 +5039,7 @@ when they're one of the special identifiers that qualify into C<main::>,
 like C<STDOUT>, C<ARGV>, C<ENV>, and the punctuation variables.
 
 A package statement affects dynamic variables only, including those
-you've used C<local> on, but I<not> lexical variables, which are created
+you've used C<local> on, but I<not> lexically-scoped variables, which are created
 with C<my>, C<state>, or C<our>.  Typically it would be the first 
 declaration in a file included by C<require> or C<use>.  You can switch into a
 package in more than one place, since this only determines which default 
@@ -5129,16 +5200,23 @@ X<printf>
 =for Pod::Functions output a formatted list to a filehandle
 
 Equivalent to C<print FILEHANDLE sprintf(FORMAT, LIST)>, except that C<$\>
-(the output record separator) is not appended.  The first argument of the
-list will be interpreted as the C<printf> format.  See
+(the output record separator) is not appended.  The FORMAT and the
+LIST are actually parsed as a single list.  The first argument
+of the list will be interpreted as the C<printf> format.  This
+means that C<printf(@_)> will use C<$_[0]> as the format.  See
 L<sprintf|/sprintf FORMAT, LIST> for an
-explanation of the format argument.  If you omit the LIST, C<$_> is used;
-to use FILEHANDLE without a LIST, you must use a real filehandle like
-C<FH>, not an indirect one like C<$fh>.  If C<use locale> (including
+explanation of the format argument.  If C<use locale> (including
 C<use locale ':not_characters'>) is in effect and
 POSIX::setlocale() has been called, the character used for the decimal
 separator in formatted floating-point numbers is affected by the LC_NUMERIC
 locale setting.  See L<perllocale> and L<POSIX>.
+
+For historical reasons, if you omit the list, C<$_> is used as the format;
+to use FILEHANDLE without a list, you must use a real filehandle like
+C<FH>, not an indirect one like C<$fh>.  However, this will rarely do what
+you want; if $_ contains formatting codes, they will be replaced with the
+empty string and a warning will be emitted if warnings are enabled.  Just
+use C<print> if you want to print the contents of $_.
 
 Don't fall into the trap of using a C<printf> when a simple
 C<print> would do.  The C<print> is more efficient and less
@@ -5396,7 +5474,7 @@ C<chdir> there, it would have been testing the wrong file.
     @dots = grep { /^\./ && -f "$some_dir/$_" } readdir($dh);
     closedir $dh;
 
-As of Perl 5.11.2 you can use a bare C<readdir> in a C<while> loop,
+As of Perl 5.12 you can use a bare C<readdir> in a C<while> loop,
 which will set C<$_> on every iteration.
 
     opendir(my $dh, $some_dir) || die;
@@ -5519,6 +5597,8 @@ case pretty much any characters can be read.
 =item redo LABEL
 X<redo>
 
+=item redo EXPR
+
 =item redo
 
 =for Pod::Functions start this loop iteration over again
@@ -5526,7 +5606,9 @@ X<redo>
 The C<redo> command restarts the loop block without evaluating the
 conditional again.  The C<continue> block, if any, is not executed.  If
 the LABEL is omitted, the command refers to the innermost enclosing
-loop.  Programs that want to lie to themselves about what was just input 
+loop.  The C<redo EXPR> form, available starting in Perl 5.18.0, allows a
+label name to be computed at run time, and is otherwise identical to C<redo
+LABEL>.  Programs that want to lie to themselves about what was just input 
 normally use this command:
 
     # a simpleminded Pascal comment stripper
@@ -5556,6 +5638,11 @@ turn it into a looping construct.
 
 See also L</continue> for an illustration of how C<last>, C<next>, and
 C<redo> work.
+
+Unlike most named operators, this has the same precedence as assignment.
+It is also exempt from the looks-like-a-function rule, so
+C<redo ("foo")."bar"> will cause "bar" to be part of the argument to
+C<redo>.
 
 =item ref EXPR
 X<ref> X<reference>
@@ -5853,6 +5940,10 @@ scalar context, and (of course) nothing at all in void context.
 or do FILE automatically returns the value of the last expression
 evaluated.)
 
+Unlike most named operators, this is also exempt from the
+looks-like-a-function rule, so C<return ("foo")."bar"> will
+cause "bar" to be part of the argument to C<return>.
+
 =item reverse LIST
 X<reverse> X<rev> X<invert>
 
@@ -5874,8 +5965,8 @@ Used without arguments in scalar context, reverse() reverses C<$_>.
     print scalar reverse;                  # Hello, world
 
 Note that reversing an array to itself (as in C<@a = reverse @a>) will
-preserve non-existent elements whenever possible, i.e., for non magical
-arrays or tied arrays with C<EXISTS> and C<DELETE> methods.
+preserve non-existent elements whenever possible; i.e., for non-magical
+arrays or for tied arrays with C<EXISTS> and C<DELETE> methods.
 
 This operator is also handy for inverting a hash, although there are some
 caveats.  If a value is duplicated in the original hash, only one of those
@@ -7246,12 +7337,8 @@ of a recent vintage:
     use 5.014;	# so srand returns the seed
 
 If C<srand()> is not called explicitly, it is called implicitly without a
-parameter at the first use of the C<rand> operator.  However, this was not true
-of versions of Perl before 5.004, so if your script will run under older
-Perl versions, it should call C<srand>; otherwise most programs won't call
-C<srand()> at all.
-
-But there are a few situations in recent Perls where programs are likely to
+parameter at the first use of the C<rand> operator.
+However, there are a few situations where programs are likely to
 want to call C<srand>.  One is for generating predictable results, generally for
 testing or debugging.  There, you use C<srand($seed)>, with the same C<$seed>
 each time.  Another case is that you may want to call C<srand()>
@@ -7267,21 +7354,6 @@ Most implementations of C<srand> take an integer and will silently
 truncate decimal numbers.  This means C<srand(42)> will usually
 produce the same results as C<srand(42.1)>.  To be safe, always pass
 C<srand> an integer.
-
-In versions of Perl prior to 5.004 the default seed was just the
-current C<time>.  This isn't a particularly good seed, so many old
-programs supply their own seed value (often C<time ^ $$> or C<time ^
-($$ + ($$ << 15))>), but that isn't necessary any more.
-
-Frequently called programs (like CGI scripts) that simply use
-
-    time ^ $$
-
-for a seed can fall prey to the mathematical property that
-
-    a^b == (a+1)^(b+1)
-
-one-third of the time.  So don't do that.
 
 A typical use of the returned seed is for a test program which has too many
 combinations to test comprehensively in the time available to it each run.  It
@@ -7329,8 +7401,10 @@ meanings of the fields:
   8 atime    last access time in seconds since the epoch
   9 mtime    last modify time in seconds since the epoch
  10 ctime    inode change time in seconds since the epoch (*)
- 11 blksize  preferred block size for file system I/O
- 12 blocks   actual number of blocks allocated
+ 11 blksize  preferred I/O size in bytes for interacting with the
+             file (may vary from file to file)
+ 12 blocks   actual number of system-specific blocks allocated
+             on disk (often, but not always, 512 bytes each)
 
 (The epoch was at 00:00 January 1, 1970 GMT.)
 
@@ -7704,7 +7778,7 @@ X<O_RDONLY> X<O_RDWR> X<O_WRONLY>
 For historical reasons, some values work on almost every system
 supported by Perl: 0 means read-only, 1 means write-only, and 2
 means read/write.  We know that these values do I<not> work under
-OS/390 & VM/ESA Unix and on the Macintosh; you probably don't want to
+OS/390 and on the Macintosh; you probably don't want to
 use them in new code.
 
 If the file named by FILENAME does not exist and the C<open> call creates
@@ -7832,7 +7906,7 @@ platforms).  If there are no shell metacharacters in the argument,
 it is split into words and passed directly to C<execvp>, which is
 more efficient.
 
-Beginning with v5.6.0, Perl will attempt to flush all files opened for
+Perl will attempt to flush all files opened for
 output before any operation that may do a fork, but this may not be
 supported on some platforms (see L<perlport>).  To be safe, you may need
 to set C<$|> ($AUTOFLUSH in English) or call the C<autoflush()> method
@@ -8408,7 +8482,7 @@ C<use VERSION> also enables all features available in the requested
 version as defined by the C<feature> pragma, disabling any features
 not in the requested version's feature bundle.  See L<feature>.
 Similarly, if the specified Perl version is greater than or equal to
-5.11.0, strictures are enabled lexically as
+5.12.0, strictures are enabled lexically as
 with C<use strict>.  Any explicit use of
 C<use strict> or C<no strict> overrides C<use VERSION>, even if it comes
 before it.  In both cases, the F<feature.pm> and F<strict.pm> files are
@@ -8505,7 +8579,7 @@ the user running the program:
     $atime = $mtime = time;
     utime $atime, $mtime, @ARGV;
 
-Since Perl 5.7.2, if the first two elements of the list are C<undef>, 
+Since Perl 5.8.0, if the first two elements of the list are C<undef>, 
 the utime(2) syscall from your C library is called with a null second
 argument.  On most systems, this will set the file's access and
 modification times to the current time (i.e., equivalent to the example
