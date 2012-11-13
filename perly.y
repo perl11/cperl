@@ -1344,7 +1344,7 @@ term	:	termbinop
 
 /* "my" declarations, with optional attributes */
 myattrterm:	MY myterm myattrlist
-			{ $$ = my_attrs($2,$3,IVAL($1));
+			{ $$ = my_attrs_lex($2,$3,IVAL($1));
 			  DO_MAD(
 			      token_getmad($1,$$,'d');
 			      append_madprops($3->op_madprop, $$, 'a');

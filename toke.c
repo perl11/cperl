@@ -4986,24 +4986,26 @@ Perl_yylex(pTHX)
 	if (isIDFIRST_lazy_if(s,UTF))
 	    goto keylookup;
 	{
-        SV *dsv = newSVpvs_flags("", SVs_TEMP);
-        const char *c = UTF ? savepv(sv_uni_display(dsv, newSVpvn_flags(s,
-                                                    UTF8SKIP(s),
-                                                    SVs_TEMP | SVf_UTF8),
-                                            10, UNI_DISPLAY_ISPRINT))
-                            : Perl_form(aTHX_ "\\x%02X", (unsigned char)*s);
-        len = UTF ? Perl_utf8_length(aTHX_ (U8 *) PL_linestart, (U8 *) s) : (STRLEN) (s - PL_linestart);
-        if (len > UNRECOGNIZED_PRECEDE_COUNT) {
-            d = UTF ? (char *) Perl_utf8_hop(aTHX_ (U8 *) s, -UNRECOGNIZED_PRECEDE_COUNT) : s - UNRECOGNIZED_PRECEDE_COUNT;
-        } else {
-            d = PL_linestart;
+            SV *dsv = newSVpvs_flags("", SVs_TEMP);
+            const char *c = UTF ? savepv(sv_uni_display(dsv, newSVpvn_flags(s,
+                                                        UTF8SKIP(s),
+                                                        SVs_TEMP | SVf_UTF8),
+                                                        10, UNI_DISPLAY_ISPRINT))
+                : Perl_form(aTHX_ "\\x%02X", (unsigned char)*s);
+            len = UTF ? Perl_utf8_length(aTHX_ (U8 *) PL_linestart, (U8 *) s)
+                      : (STRLEN) (s - PL_linestart);
+            if (len > UNRECOGNIZED_PRECEDE_COUNT) {
+                d = UTF ? (char *) Perl_utf8_hop(aTHX_ (U8 *) s, -UNRECOGNIZED_PRECEDE_COUNT)
+                        : s - UNRECOGNIZED_PRECEDE_COUNT;
+            } else {
+                d = PL_linestart;
+            }
+            *s = '\0';
+            sv_setpv(dsv, d);
+            if (UTF)
+                SvUTF8_on(dsv);
+            Perl_croak(aTHX_  "Unrecognized character %s; marked by <-- HERE after %"SVf"<-- HERE near column %d", c, SVfARG(dsv), (int) len + 1);
         }
-        *s = '\0';
-        sv_setpv(dsv, d);
-        if (UTF)
-            SvUTF8_on(dsv);
-        Perl_croak(aTHX_  "Unrecognized character %s; marked by <-- HERE after %"SVf"<-- HERE near column %d", c, SVfARG(dsv), (int) len + 1);
-    }
     case 4:
     case 26:
 	goto fake_eof;			/* emulate EOF on ^D or ^Z */
@@ -8013,13 +8015,12 @@ Perl_yylex(pTHX)
 				   tmp == KEY_my    ? "my"    :
 				   tmp == KEY_state ? "state" : "our");
 		    goto really_sub;
-                /* const is the only type qualifier. unsigned not worth the
-                   parsing trouble, volatile not relevant. */
-		if (
-#if 0
-		FEATURE_CONST_IS_ENABLED &&
-#endif
-		                            (len == 5) && strnEQ(PL_tokenbuf, "const", 5)) {
+                }
+                /* const is the only type qualifier.
+                   unsigned not worth the parsing trouble, volatile not relevant. */
+		if (FEATURE_CONST_IS_ENABLED &&
+                    (len == 5) && strnEQ(PL_tokenbuf, "const", 5))
+                {
               my_const:
                     pl_yylval.ival = 2;
                     s = SKIPSPACE1(s);
@@ -8836,7 +8837,7 @@ Perl_yylex(pTHX)
       build ops for a bareword
 */
 
-static int
+STATIC int
 S_pending_ident(pTHX)
 {
     dVAR;
@@ -8846,7 +8847,6 @@ S_pending_ident(pTHX)
     /* All routes through this function want to know if there is a colon.  */
     const char *const has_colon = (const char*) memchr (PL_tokenbuf, ':', tokenbuf_len);
     int flag = UTF ? SVf_UTF8 : 0;
-    PL_pending_ident = 0;
 
     DEBUG_T({ PerlIO_printf(Perl_debug_log,
           "### Pending identifier '%s'\n", PL_tokenbuf); });

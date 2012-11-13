@@ -2687,7 +2687,7 @@ Perl_my_attrs_lex(pTHX_ OP *o, OP *attrs, I32 lex)
     maybe_scalar = 1;
 #endif
 
-    if (lex == 2) {
+    if (lex == 2) { /* declare lexical const */
         if (DEBUG_T_TEST_) {
             if (o->op_type == OP_PADSV ||
                 o->op_type == OP_PADAV ||
