@@ -424,14 +424,14 @@ my $chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 sub op_flags { # common flags (see BASOP.op_flags in op.h)
     my($x) = @_;
     my(@v);
-    push @v, "v" if ($x & 3) == 1;
-    push @v, "s" if ($x & 3) == 2;
-    push @v, "l" if ($x & 3) == 3;
-    push @v, "K" if $x & 4;
-    push @v, "P" if $x & 8;
-    push @v, "R" if $x & 16;
-    push @v, "M" if $x & 32;
-    push @v, "S" if $x & 64;
+    push @v, "v" if ($x & 3) == 1; # want_void
+    push @v, "s" if ($x & 3) == 2; # want_scalar
+    push @v, "l" if ($x & 3) == 3; # want_list
+    push @v, "K" if $x & 4;   # KIDS
+    push @v, "P" if $x & 8;   # PARENS
+    push @v, "R" if $x & 16;  # REF
+    push @v, "M" if $x & 32;  # MOD
+    push @v, "S" if $x & 64;  # STACKED
     push @v, "*" if $x & 128; # SPECIAL
     return join("", @v);
 }
@@ -599,10 +599,10 @@ $priv{$_}{128} = "LVINTRO"
        "padav", "padhv", "enteriter", "entersub", "padrange", "pushmark");
 $priv{$_}{64} = "REFC" for ("leave", "leavesub", "leavesublv", "leavewrite");
 $priv{"aassign"}{64} = "COMMON";
-$priv{"aassign"}{32} = "STATE";
-$priv{"sassign"}{32} = "STATE";
 $priv{"sassign"}{64} = "BKWARD";
 $priv{"sassign"}{128}= "CV2GV";
+#$priv{"aassign"}{32} = "STATE";
+#$priv{"sassign"}{32} = "STATE";
 $priv{$_}{64} = "RTIME" for ("match", "subst", "substcont", "qr");
 @{$priv{"trans"}}{1,2,4,8,16,64} = ("<UTF", ">UTF", "IDENT", "SQUASH", "DEL",
 				    "COMPL", "GROWS");
@@ -612,9 +612,9 @@ $priv{"leaveloop"}{64} = "CONT";
 $priv{$_}{4} = "DREFed" for (qw(rv2sv rv2av rv2hv));
 @{$priv{$_}}{32,64,96} = ("DREFAV", "DREFHV", "DREFSV")
   for (qw(rv2gv rv2sv padsv aelem helem));
-$priv{$_}{16} = "STATE" for ("padav", "padhv", "padsv");
-$priv{$_}{2} = "CONST" for ("padav", "padhv", "padsv");
-$priv{$_}{4} = "CONSTINIT" for ("padav", "padhv", "padsv");
+$priv{$_}{16} = "STATE" for (qw(padav padhv padsv));
+$priv{$_}{2} = "CONST" for (qw(padav padhv padsv padcv padany));
+$priv{$_}{4} = "CONSTINIT" for (qw(padav padhv padsv padcv padany));
 @{$priv{rv2gv}}{4,16} = qw "NOINIT FAKE";
 @{$priv{"entersub"}}{1,4,16,32,64} = qw( INARGS TARG DBG DEREF );
 @{$priv{rv2cv}}{1,8,128} = ("CONST","AMPER","NO()");
@@ -639,8 +639,8 @@ $priv{$_}{16} = "TARGMY"
        "exec", "kill", "getppid", "getpgrp", "setpgrp", "getpriority",
        "setpriority", "time", "sleep");
 $priv{$_}{4} = "REVERSED" for ("enteriter", "iter");
-@{$priv{"const"}}{2,4,8,16,64,128} =
-    ("NOVER","SHORT","STRICT","ENTERED","BARE","FOLD");
+@{$priv{"const"}}{1,2,4,8,16,64,128} =
+    ("PAD","NOVER","SHORT","STRICT","ENTERED","BARE","FOLD");
 $priv{"flip"}{64} = $priv{"flop"}{64} = "LINENUM";
 $priv{"list"}{64} = "GUESSED";
 $priv{"delete"}{64} = "SLICE";
