@@ -1,8 +1,7 @@
 #!./perl
-BEGIN { $| = 1; print "1..16\n"; }
+BEGIN { $| = 1; print "1..16\n"; push @INC, 'lib'; }
 my $test=1;
 {
-  BEGIN {push @INC, 'lib';}
   use 5.017;
   # parse valid const
   my $result = eval 'use feature "const";my const $a=1;print "# \$a=",$a,"\n";$a';
@@ -18,7 +17,7 @@ my $test=1;
   if (!$@ and $result == 1) { print "ok $test\n"; } else { print "not ok $test - list_assignment $@\n"; }
   $test++;
   $result = eval 'use feature "const";my (const $a, const $b)=(1,2);print "# \$a,\$b=",$a,$b,"\n";$a';
-  if (!$@ and $result == 1) { print "ok $test\n"; } else { print "not ok $test - #TODO list_assignment2 $@\n"; }
+  if (!$@ and $result == 1) { print "ok $test\n"; } else { print "not ok $test - #TODO list_assignment2\n"; }
   $test++;
 
   # compile-time errors
@@ -41,10 +40,10 @@ my $test=1;
   if (!$@ and $result == 0) { print "ok $test\n"; } else { print "not ok $test - set \$[0] elem\n"; }
   $test++;
   eval 'use feature "const";my const @a=(1,2,3); push @a,0';
-  if ($@ =~ /Modification of a read-only value attempted/) { print "ok $test\n"; } else { print "not ok $test - push const \@a\n"; }
+  if ($@ =~ /Modification of a read-only value attempted/) { print "ok $test\n"; } else { print "not ok $test - #TODO push const \@a\n"; }
   $test++;
   eval 'use feature "const";my const %a=(0=>1,1=>2); %a=(0=>1)';
-  if ($@ =~ /Attempt to access disallowed key/) { print "ok $test\n"; } else { print "not ok $test - set const \%a restricted hash\n"; }
+  if ($@ =~ /Attempt to access disallowed key/) { print "ok $test\n"; } else { print "not ok $test - #TODO set const \%a restricted hash\n"; }
   $test++;
 
   # mixed with types
