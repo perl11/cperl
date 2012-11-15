@@ -1,6 +1,6 @@
 =head1 NAME
 
-perltypes - Perl type system
+perltypes - Perl type support
 
 =head1 DESCRIPTION
 
@@ -10,10 +10,10 @@ Perl is a dynamic language with dynamic data types. The actual type is
 typically determined at run-time, context-dependent and usually the operator
 leads to automatic type conversions, cached in the data.
 
-=head2 Types in lexical variables
+=head2 Static types in lexical variables
 
-Perl optionally allows storing the type, i.e. an existing package
-name, in the declaration of lexical variables. Lexicals are stored in
+Perl optionally allows static types, i.e. an existing package
+name, declared with lexical variables. Lexicals are stored in
 pads, the package name, i.e. the C<type>, is stored in the
 C<comppad_name> slot for each pad. Up to version 5.18 Perl did not
 use these types for checks and optimizations, only external modules did.
@@ -35,6 +35,10 @@ interpreted as IV, double as NV and string as PV only. There is
 no stringification for IV and NV, no magic such as L<perlfunc/tie>,
 no setting to C<undef> allowed.
 
+    my int @a = (0..9);
+    tie @a, 'Tie::Array';
+    => compile-time error: Invalid tie for typed array
+
 =head2 const
 
 X<const lexical>
@@ -50,12 +54,15 @@ type optimizations. You must assign a value within the declaration.
 const sets the internal SVf_READONLY flag for the variable, if it's
 a scalar, array or hash. The special package stash (e.g. C<%MyClass::>)
 counts as hash.
+Elements of const arrays and hashes are protected against vivification.
 Arrays and hashes are only I<shallow const>, only the structure is
 protected, not the values. For I<deep constness> you have to manually
 const all values also, or use a module.
 
 Currently most const assignment violations are caught at compile-time,
 and if not you get at least an error at run-time.
+
+Accesses to const hashes can be optimized via L<study> at run-time.
 
 X<const package>
 Additionally to lexical variables we can also declare packages as
@@ -82,9 +89,27 @@ with assignment.
     my const %h = ('ok' => 1, 'nok' => 0);
 
 Declaration of a const variable without initialization B<XXX> 
+
     1. is a compile-time error I<(preferred)>
     2. is a compile-time warning
     3. silently stores undef
+
+Elements of const arrays and hashes are protected against vivification.
+With wrong constant indicies, the error will be compile-time,
+otherwise run-time.
+
+    my const @a = (0..9);
+    $a[10] = 0;
+    => compile-time error: Invalid index for const array
+
+    my const @a = (0..9);
+    my $i = 10;
+    $a[$i] = 0;
+    => run-time error: Invalid index for const array
+
+    my const %a = map {$_ => 1} (0..9);
+    $a{10} = 0;
+    => compile-time error: Invalid key for const hash
 
 As Perl itself supports no types, external modules such as
 L<coretypes>, L<types>, L<typesafety> or L<MooseX::Types> implement

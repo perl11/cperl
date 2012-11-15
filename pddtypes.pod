@@ -328,6 +328,37 @@ than L<Readonly> or L<Const::Fast>.
 
 Please ignore
 
+=head2 assign to const
+
+    $ ./perl -Ilib -MO=Concise -e'my const $a=0; $a=1'
+    a  <@> leave[1 ref] vKP/REFC ->(end)
+    1     <0> enter ->2
+    2     <;> nextstate(main 1 -e:1) v:{ ->3
+    5     <2> sassign vKS*/2 ->6
+    3        <$> const(IV 0) s ->4
+    4        <0> padsv[$a:1,2] sRM*/LVINTRO,CONSTINIT ->5
+    6     <;> nextstate(main 2 -e:1) v:{ ->7
+    9     <2> sassign vKS/2 ->a
+    7        <$> const(IV 1) s ->8
+    8        <0> padsv[$a:1,2] sRM* ->9
+
+The parser detects my const, and marks it with ival=2 for my_attrs_lex.
+It creates SASSIGN/AASSIGN with OPf_SPECIAL ('*'),
+with left pad* OPpPAD_CONSTINIT and the data as SvREADONLY.
+
+newASSIGNOP throws a compile-time error when the left pad is SvREADONLY,
+unless it is CONSTINIT.
+
+SvREADONLY is bypassed in pp_*assign with OPf_SPECIAL.
+
+AASSIGN (multiple assignments) additionally sets OPpASSIGN_CONSTINIT
+for the current assignment only, cleaned afterwards.
+
+The subsequent const PAD ops have no CONST marker, so do it in a
+new ck_pad() to set OPpPAD_CONST in all readonly pads, so the optimizer
+can treat PADops with OPpPAD_CONST as the CONST op. (or replace the PADop
+by CONST)
+
 =head2 optree traversal
 
 Generally, optree traversal to do optimizations in perl5 is forward only.
@@ -477,7 +508,7 @@ Lexer:
   const IV 1
 op:
   CONST IV=1
-  PADSV    OPpPAD_CONST+OPpPAD_CONSTINIT, targ -> READONLY
+  PADSV    OPpPAD_CONSTINIT, targ -> READONLY
   SASSIGN  OPf_SPECIAL (for const init temp. overwrite)
 
 --
@@ -492,7 +523,7 @@ Lexer:
   const IV 1
 op:
   CONST IV=1
-  PADSV    OPpPAD_CONST+OPpPAD_CONSTINIT, targ -> READONLY
+  PADSV    OPpPAD_CONSTINIT, targ -> READONLY
   SASSIGN  OPf_SPECIAL (for const init temp. overwrite)
 
 --
@@ -509,7 +540,7 @@ op:
   pushmark
   CONST IV=1
   pushmark
-  PADAV    OPpPAD_CONST+OPpPAD_CONSTINIT, targ -> READONLY
+  PADAV    OPpPAD_CONSTINIT, targ -> READONLY
   AASSIGN  OPf_SPECIAL
 
 --
@@ -522,11 +553,12 @@ constant folding:
 my const $i=1; $x=$i+20;
 
 const 1
-padsv $i
+padsv $i/CONSTINIT
 sassign
             =>
-padsv $i          const 21
+padsv $i/CONST
 const 20          
-add
+add         =>    const 21
+
 gvsv              gvsv
 sassign           sassign

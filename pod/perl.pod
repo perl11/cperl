@@ -110,6 +110,7 @@ aux a2p c2ph h2ph h2xs perlbug pl2pm pod2html pod2man s2p splain xsubpp
     perlobj		Perl objects
     perltie		Perl objects hidden behind simple variables
       perldbmfilter	Perl DBM filters
+    perltypes		Perl type support
 
     perlipc		Perl interprocess communication
     perlfork		Perl fork() information
