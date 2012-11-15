@@ -2688,15 +2688,18 @@ Perl_my_attrs_lex(pTHX_ OP *o, OP *attrs, I32 lex)
 #endif
 
     if (lex == 2) { /* declare lexical const */
-        if (DEBUG_T_TEST_) {
-            if (o->op_type == OP_PADSV ||
-                o->op_type == OP_PADAV ||
-                o->op_type == OP_PADHV ||
-                o->op_type == OP_PADANY)
+        if (o->op_type == OP_PADSV || o->op_type == OP_PADAV ||
+            o->op_type == OP_PADHV || o->op_type == OP_PADCV ||
+            o->op_type == OP_PADANY)
+        {
+            if (DEBUG_T_TEST_) {
                 PerlIO_printf(Perl_debug_log, "### Initialize my const %"SVf"\n",
                               PAD_COMPNAME_SV(o->op_targ));
-            else
-                PerlIO_printf(Perl_debug_log, "### Initialize my const ()\n");
+            }
+            SvREADONLY_on(PAD_SVl(o->op_targ));
+        }
+        else if (DEBUG_T_TEST_) {
+            PerlIO_printf(Perl_debug_log, "### Initialize my const ()\n");
         }
         o->op_private |= OPpPAD_CONSTINIT; /* PAD or LIST */
     }
@@ -5487,31 +5490,33 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
     dVAR;
     OP *o;
 
-    if (optype) {
-        /* compile-time const check */
-	if ((left->op_type == OP_PADSV ||
-	     left->op_type == OP_PADAV ||
-	     left->op_type == OP_PADHV ||
-	     left->op_type == OP_PADANY) && SvREADONLY(PAD_SVl(left->op_targ)))
+    /* compile-time const check */
+    if (left->op_type == OP_PADSV ||
+        left->op_type == OP_PADAV ||
+        left->op_type == OP_PADHV ||
+        left->op_type == OP_PADCV ||
+        left->op_type == OP_PADANY)
+    {
+        if (left->op_private & OPpPAD_CONSTINIT)
+            flags |= OPf_SPECIAL;
+        else if (SvREADONLY(PAD_SVl(left->op_targ))) {
             yyerror(Perl_form(aTHX_ "Invalid assignment to const variable %"SVf,
                               PAD_COMPNAME_SV(left->op_targ)));
-	if (optype == OP_ANDASSIGN || optype == OP_ORASSIGN || optype == OP_DORASSIGN) {
-	    return newLOGOP(optype, 0,
-		op_lvalue(scalar(left), optype),
-		newUNOP(OP_SASSIGN, 0, scalar(right)));
-	}
-	else {
-	    return newBINOP(optype, OPf_STACKED,
-		op_lvalue(scalar(left), optype), scalar(right));
-	}
+        }
     }
 
-    if ((left->op_type == OP_PADSV ||
-         left->op_type == OP_PADAV ||
-         left->op_type == OP_PADHV ||
-         left->op_type == OP_PADANY) && /* really PADANY? */
-        left->op_private & OPpPAD_CONSTINIT) {
-        flags |= OPf_SPECIAL;
+    if (optype) {
+        flags |= OPf_STACKED;
+	if (optype == OP_ANDASSIGN || optype == OP_ORASSIGN || optype == OP_DORASSIGN) {
+            flags &= ~OPf_STACKED;
+	    return newLOGOP(optype, 0,
+		op_lvalue(scalar(left), optype),
+		newUNOP(OP_SASSIGN, flags, scalar(right)));
+	}
+	else {
+	    return newBINOP(optype, flags,
+		op_lvalue(scalar(left), optype), scalar(right));
+	}
     }
 
     if (is_list_assignment(left)) {
@@ -5540,6 +5545,10 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 		    lop->op_type == OP_PADAV ||
 		    lop->op_type == OP_PADHV ||
 		    lop->op_type == OP_PADANY) {
+                    if (!(o->op_flags & OPf_SPECIAL) && SvREADONLY(PAD_SVl(lop->op_targ))) {
+                        yyerror(Perl_form(aTHX_ "Invalid assignment to const variable %"SVf,
+                                          PAD_COMPNAME_SV(lop->op_targ)));
+                    }
 		    if (!(lop->op_private & OPpLVAL_INTRO))
 			maybe_common_vars = TRUE;
 
@@ -9188,6 +9197,36 @@ Perl_ck_defined(pTHX_ OP *o)		/* 19990527 MJD */
 	}
     }
     return ck_rfun(o);
+}
+
+/*
+   check CONST: set OPpPAD_CONST in all readonly pads
+ */
+OP *
+Perl_ck_pad(pTHX_ OP *o)
+{
+    const SV* sv;
+    const OPCODE type = o->op_type;
+
+    PERL_ARGS_ASSERT_CK_PAD;
+
+#ifdef DEBUGGING
+    if (type == OP_PADSV ||
+        type == OP_PADAV ||
+        type == OP_PADHV ||
+        type == OP_PADCV ||
+        type == OP_PADANY)
+    {
+#endif
+        sv = PAD_SVl(cSVOPo->op_targ);
+        if (SvREADONLY(sv) && !(o->op_private & OPpPAD_CONSTINIT))
+            o->op_flags |= OPpPAD_CONST;
+        return o;
+#ifdef DEBUGGING
+    }
+    else
+        assert(type);
+#endif
 }
 
 OP *

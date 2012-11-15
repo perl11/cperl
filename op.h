@@ -140,7 +140,7 @@ Deprecated.  Use C<GIMME_V> instead.
 				    - Before ck_glob, called as CORE::glob
 				    - After ck_glob, use Perl glob function
 			         */
-				/*  On SASSIGN and AASSIGN or ex-LIST for const init */
+				/*  On OP_SASSIGN, OP_AASSIGN or ex-LIST const init */
                                 /*  On OP_PADRANGE, push @_ */
 
 /* old names; don't use in new code, but don't break them, either */
@@ -240,7 +240,7 @@ Deprecated.  Use C<GIMME_V> instead.
   /* for OP_RV2?V, lower bits carry hints (currently only HINT_STRICT_REFS) */
   /* All OP_PAD*: See OPpDEREF above taking 32-64, OPpLVAL_INTRO 128 */
 #define OPpPAD_CONST		2	/* mark pad as CONST (not yet) */
-#define OPpPAD_CONSTINIT	4	/* to propagate const init to ASSIGNOP
+#define OPpPAD_CONSTINIT	4	/* propagate const init to ASSIGNOP
                                            via OPf_SPECIAL. */
 
   /* OP_PADRANGE only */

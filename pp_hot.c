@@ -209,8 +209,17 @@ PP(pp_sassign)
 	Perl_warner(aTHX_
 	    packWARN(WARN_MISC), "Useless assignment to a temporary"
 	);
-    SvSetMagicSV(left, right);
-    SETs(left);
+
+    /* my const $i = val; initialization must temp. lift constness */
+    if (PL_op->op_flags & OPf_SPECIAL && SvREADONLY(left)) {
+        SvREADONLY_off(left);
+        SvSetMagicSV(left, right);
+        SETs(left);
+        SvREADONLY_on(left);
+    } else {
+        SvSetMagicSV(left, right);
+        SETs(left);
+    }
     RETURN;
 }
 
@@ -1028,6 +1037,10 @@ PP(pp_aassign)
     while (lelem <= lastlelem) {
 	TAINT_NOT;		/* Each item stands on its own, taintwise. */
 	sv = *lelem++;
+        if (PL_op->op_flags & OPf_SPECIAL && SvREADONLY(sv)) { /* const init */
+            SvREADONLY_off(sv);
+            PL_op->op_private |= OPpASSIGN_CONSTINIT; /* aassign internal */
+        }
 	switch (SvTYPE(sv)) {
 	case SVt_PVAV:
 	    ary = MUTABLE_AV(sv);
@@ -1056,52 +1069,60 @@ PP(pp_aassign)
 	    if (PL_delaymagic & DM_ARRAY_ISA)
 		SvSETMAGIC(MUTABLE_SV(ary));
 	    LEAVE;
+            if (PL_op->op_flags & OPf_SPECIAL && PL_op->op_private & OPpASSIGN_CONSTINIT) {
+                SvREADONLY_on(sv);
+                PL_op->op_private &= ~OPpASSIGN_CONSTINIT;
+            }
 	    break;
-	case SVt_PVHV: {				/* normal hash */
-		SV *tmpstr;
-		SV** topelem = relem;
+	case SVt_PVHV:				/* normal hash */
+            {
+                SV *tmpstr;
+                SV** topelem = relem;
 
-		hash = MUTABLE_HV(sv);
-		magic = SvMAGICAL(hash) != 0;
-		ENTER;
-		SAVEFREESV(SvREFCNT_inc_simple_NN(sv));
-		hv_clear(hash);
-		firsthashrelem = relem;
+                hash = MUTABLE_HV(sv);
+                magic = SvMAGICAL(hash) != 0;
+                ENTER;
+                SAVEFREESV(SvREFCNT_inc_simple_NN(sv));
+                hv_clear(hash);
+                firsthashrelem = relem;
 
-		while (relem < lastrelem) {	/* gobble up all the rest */
-		    HE *didstore;
-		    sv = *relem ? *relem : &PL_sv_no;
-		    relem++;
-		    tmpstr = sv_newmortal();
-		    if (*relem)
-			sv_setsv(tmpstr,*relem);	/* value */
-		    relem++;
-		    if (gimme != G_VOID) {
-			if (hv_exists_ent(hash, sv, 0))
-			    /* key overwrites an existing entry */
-			    duplicates += 2;
-			else
-			if (gimme == G_ARRAY) {
-			    /* copy element back: possibly to an earlier
-			     * stack location if we encountered dups earlier */
-			    *topelem++ = sv;
-			    *topelem++ = tmpstr;
-			}
-		    }
-		    didstore = hv_store_ent(hash,sv,tmpstr,0);
-		    if (didstore) SvREFCNT_inc_simple_void_NN(tmpstr);
-		    if (magic) {
-			if (SvSMAGICAL(tmpstr))
-			    mg_set(tmpstr);
-		    }
-		    TAINT_NOT;
-		}
-		if (relem == lastrelem) {
-		    do_oddball(hash, relem, firstrelem);
-		    relem++;
-		}
-		LEAVE;
-	    }
+                while (relem < lastrelem) {	/* gobble up all the rest */
+                    HE *didstore;
+                    sv = *relem ? *relem : &PL_sv_no;
+                    relem++;
+                    tmpstr = sv_newmortal();
+                    if (*relem)
+                        sv_setsv(tmpstr,*relem);	/* value */
+                    relem++;
+                    if (gimme != G_VOID) {
+                        if (hv_exists_ent(hash, sv, 0))
+                            /* key overwrites an existing entry */
+                            duplicates += 2;
+                        else if (gimme == G_ARRAY) {
+                            /* copy element back: possibly to an earlier
+                             * stack location if we encountered dups earlier */
+                            *topelem++ = sv;
+                            *topelem++ = tmpstr;
+                        }
+                    }
+                    didstore = hv_store_ent(hash,sv,tmpstr,0);
+                    if (didstore) SvREFCNT_inc_simple_void_NN(tmpstr);
+                    if (magic) {
+                        if (SvSMAGICAL(tmpstr))
+                            mg_set(tmpstr);
+                    }
+                    TAINT_NOT;
+                }
+                if (relem == lastrelem) {
+                    do_oddball(hash, relem, firstrelem);
+                    relem++;
+                }
+                LEAVE;
+                if (PL_op->op_flags & OPf_SPECIAL && PL_op->op_private & OPpASSIGN_CONSTINIT) {
+                    SvREADONLY_on(sv);
+                    PL_op->op_private &= ~OPpASSIGN_CONSTINIT;
+                }
+            }
 	    break;
 	default:
 	    if (SvIMMORTAL(sv)) {
@@ -1124,9 +1145,14 @@ PP(pp_aassign)
 	    else
 		sv_setsv(sv, &PL_sv_undef);
 	    SvSETMAGIC(sv);
+            if (PL_op->op_flags & OPf_SPECIAL && PL_op->op_private & OPpASSIGN_CONSTINIT) {
+                SvREADONLY_on(sv);
+                PL_op->op_private &= ~OPpASSIGN_CONSTINIT;
+            }
 	    break;
 	}
     }
+
     if (PL_delaymagic & ~DM_DELAY) {
 	/* Will be used to set PL_tainting below */
 	UV tmp_uid  = PerlProc_getuid();
