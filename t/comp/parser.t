@@ -3,7 +3,7 @@
 # Checks if the parser behaves correctly in edge cases
 # (including weird syntax errors)
 
-print "1..154\n";
+print "1..164\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
