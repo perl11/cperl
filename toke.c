@@ -601,6 +601,10 @@ S_missingterm(pTHX_ char *s)
 
 #include "feature.h"
 
+/* DEBUGGING only */
+#undef FEATURE_CONST_IS_ENABLED
+#define FEATURE_CONST_IS_ENABLED 1
+
 /*
  * Check whether the named feature is enabled.
  */
