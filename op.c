@@ -9219,7 +9219,7 @@ Perl_ck_pad(pTHX_ OP *o)
     {
 #endif
         sv = PAD_SVl(cSVOPo->op_targ);
-        if (SvREADONLY(sv) && !(o->op_private & OPpPAD_CONSTINIT))
+        if (SvREADONLY(sv) && !SvIsCOW(sv) && !(o->op_private & OPpPAD_CONSTINIT))
             o->op_flags |= OPpPAD_CONST;
         return o;
 #ifdef DEBUGGING
