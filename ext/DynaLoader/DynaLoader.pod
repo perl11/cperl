@@ -362,10 +362,10 @@ Syntax:
 
     dl_install_xsub($perl_name, $symref [, $filename])
 
-Create a new Perl external subroutine named C<$perl_name> using C<$symref> as
-a pointer to the function which implements the routine.  This is simply
-a direct call to C<newXSUB()>.  Returns a reference to the installed
-function.
+Create a new Perl external subroutine named C<$perl_name> using
+C<$symref> as a pointer to the function which implements the routine.
+This is simply a direct call to C<newXS()>/C<newXS_flags()>.  Returns
+a reference to the installed function.
 
 The C<$filename> parameter is used by Perl to identify the source file for
 the function if required by C<die()>, C<caller()> or the debugger.  If
