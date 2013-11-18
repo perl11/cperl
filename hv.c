@@ -804,21 +804,40 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 #endif
 
     if (!entry && SvREADONLY(hv) && !(action & HV_FETCH_ISEXISTS)) {
-        /* If the hash has a name report it also */
         HEK *const name = HvNAME_HEK(hv);
-        if (name) {
-            /* But allow DESTROY calls in restricted coretypes */
-            if ( strNEc(key, "DESTROY") && strNEc(key, "AUTOLOAD") ) {
-                SV *msg = newSVpvs_flags("Attempt to access disallowed key '%" SVf "' in"
-                                         " the restricted hash '%%", SVs_TEMP);
-                sv_cathek(msg, name);
-                sv_catpvs(msg, "::'");
-                hv_notallowed(flags, key, klen, SvPVX(msg));
+        if (action & (HV_FETCH_ISSTORE|HV_FETCH_LVALUE)) {
+            /* if the hash has a name report it also */
+            if (name) {
+                /* But allow DESTROY calls in restricted coretypes */
+                if (strNEc(key, "DESTROY") && strNEc(key, "AUTOLOAD")) {
+                    SV *msg = newSVpvs_flags("Attempt to store key '%" SVf "' in"
+                                             " the readonly hash '%%", SVs_TEMP);
+                    sv_cathek(msg, name);
+                    sv_catpvs(msg, "::'");
+                    hv_notallowed(flags, key, klen, SvPVX(msg));
+                }
             }
-        } else {
-            hv_notallowed(flags, key, klen,
-			"Attempt to access disallowed key '%" SVf "' in"
-			" a restricted hash");
+            else {
+                hv_notallowed(flags, key, klen,
+                              "Attempt to store key '%" SVf "' in"
+                              " a readonly hash");
+            }
+        }
+        else if ( HvRESTRICTED(hv) ) {
+            if (name) {
+                /* But allow DESTROY calls in restricted coretypes */
+                if (strNEc(key, "DESTROY") && strNEc(key, "AUTOLOAD")) {
+                    SV *msg = newSVpvs_flags("Attempt to access disallowed key '%" SVf "' in"
+                                             " the restricted hash '%%", SVs_TEMP);
+                    sv_cathek(msg, name);
+                    sv_catpvs(msg, "::'");
+                    hv_notallowed(flags, key, klen, SvPVX(msg));
+                }
+            } else {
+                hv_notallowed(flags, key, klen,
+                              "Attempt to fetch disallowed key '%" SVf "' in"
+                              " a restricted hash");
+            }
         }
     }
     if (!(action & (HV_FETCH_LVALUE|HV_FETCH_ISSTORE))) {
@@ -2051,7 +2070,7 @@ Perl_newHVhv(pTHX_ HV *ohv)
 
 	    /* Copy the linked list of entries. */
 	    for (; oent; oent = HeNEXT(oent)) {
-		const HEK *hek = HeKEY_hek(oent);
+		HEK *const hek = HeKEY_hek(oent);
 		HE * const ent = new_HE();
 		SV * const val = HeVAL(oent);
 
@@ -2159,7 +2178,7 @@ STATIC SV*
 S_hv_free_ent_ret(pTHX_ HV *hv, HE *entry)
 {
     SV *val;
-    const HEK* hek = HeKEY_hek(entry);
+    HEK *const hek = HeKEY_hek(entry);
 
     PERL_ARGS_ASSERT_HV_FREE_ENT_RET;
 

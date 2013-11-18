@@ -468,6 +468,10 @@ C<SV*>.
 #define HvSMALL(hv)		(HvTOTALKEYS(hv) <= PERL_HV_SMALL_MAX)
 #define XHvSMALL(xhv)		(XHvTOTALKEYS(xhv) <= PERL_HV_SMALL_MAX)
 
+#define HvRESTRICTED(hv)        (SvFLAGS(hv) & SVphv_RESTRICTED)
+#define HvRESTRICTED_on(hv)     (SvFLAGS(hv) |= SVphv_RESTRICTED)
+#define HvRESTRICTED_off(hv)    (SvFLAGS(hv) &= ~SVphv_RESTRICTED)
+
 #define HvSHAREKEYS(hv)		(SvFLAGS(hv) & SVphv_SHAREKEYS)
 #define HvSHAREKEYS_on(hv)	(SvFLAGS(hv) |= SVphv_SHAREKEYS)
 #define HvSHAREKEYS_off(hv)	(SvFLAGS(hv) &= ~SVphv_SHAREKEYS)

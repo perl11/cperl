@@ -1260,15 +1260,24 @@ Perl_leave_scope(pTHX_ I32 base)
                     (SvREFCNT(sv) <= 1 && !SvOBJECT(sv)) ? "clear" : "abandon"));
 
                 /* Can clear pad variable in place? */
-                if (SvREFCNT(sv) == 1 && !SvOBJECT(sv)) {
+                if (SvREFCNT(sv) <= 1 && !SvOBJECT(sv)) {
+                    /*
+                     * if a my variable that was made readonly is going out of
+                     * scope, we want to remove the readonlyness so that it can
+                     * go out of scope quietly
+                     */
 
-                    /* these flags are the union of all the relevant flags
-                     * in the individual conditions within */
-                    if (UNLIKELY(SvFLAGS(sv) & (
-                            SVf_READONLY|SVf_PROTECT /*for SvREADONLY_off*/
-                          | (SVs_GMG|SVs_SMG|SVs_RMG) /* SvMAGICAL() */
-                          | SVf_OOK
-                          | SVf_THINKFIRST)))
+                    if (SvTYPE(sv) == SVt_PVHV) {
+                        if (SvPADMY(sv)) {
+                            SvREADONLY_off(sv);
+                            HvRESTRICTED_off(sv);
+                        }
+                        Perl_hv_kill_backrefs(aTHX_ MUTABLE_HV(sv));
+                    } else if (SvPADMY(sv) && !SvFAKE(sv)) {
+                        SvREADONLY_off(sv);
+                    }
+
+                    if (SvMAGICAL(sv))
                     {
                         /* if a my variable that was made readonly is
                          * going out of scope, we want to remove the
