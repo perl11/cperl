@@ -773,7 +773,7 @@ PPt(pp_add, "(:Number,:Number):Number")
 
 /* also used for: pp_aelemfast_lex() */
 
-PP(pp_aelemfast)
+PPt(pp_aelemfast, "():Scalar")
 {
     dSP;
     AV * const av = PL_op->op_type == OP_AELEMFAST_LEX
@@ -789,6 +789,64 @@ PP(pp_aelemfast)
     if (!lval && SvRMAGICAL(av) && SvGMAGICAL(sv)) /* see note in pp_helem() */
 	mg_get(sv);
     PUSHs(sv);
+    RETURN;
+}
+
+/* aelemsize_const with constant index. my @a[5];
+   we cannot declare global arrays as sized, only lexical.
+   Those sized arrays accesses are already checked at compile-time.
+   dies on illegal index */
+PPt(pp_aelemsize_const, "():Scalar")
+{
+    dVAR; dSP;
+    SV** svp;
+    AV * const av = MUTABLE_AV(PAD_SV(PL_op->op_targ));
+    IV index = (I8)PL_op->op_private; /* index already compile-time checked */
+
+#ifdef AELEMSIZE_RT_NEGATIVE /* slower but allow the actual size be smaller than the declared size */
+    if (index >= 0)
+#endif
+        svp = &AvARRAY(av)[index];
+#ifdef AELEMSIZE_RT_NEGATIVE
+    else {
+        svp = &AvARRAY(av)[AvFILLp(av) + index];
+    }
+#endif
+
+    if (UNLIKELY(!svp))
+        DIE(aTHX_ PL_no_aelem, index);
+
+    EXTEND(SP, 1);
+    PUSHs(*svp);
+    RETURN;
+}
+
+/* unchecked array element access with variable index.
+   only for sized arrays already checked at compile-time as above.
+   some private bits (variants), like OPpLVAL_DEFER,OPpLVAL_INTRO,OPpDEREF are forbidden
+ */
+PPt(pp_aelemsize, "(:Array(:Scalar),:Int):Scalar")
+{
+    dVAR; dSP;
+    SV** svp = NULL;
+    SV* elemsv = POPs;
+    IV index = SvIV(elemsv);
+    AV * const av = MUTABLE_AV(TOPs);
+    const U32 lval = PL_op->op_flags & OPf_MOD || LVRET;
+    /*const U32 defer = PL_op->op_private & OPpLVAL_DEFER;
+      const bool localizing = PL_op->op_private & OPpLVAL_INTRO;*/
+
+    if (UNLIKELY(SvTYPE(av) != SVt_PVAV)) /* likely is that AvARRAY is uninit, or lval */
+	RETSETUNDEF;
+    if (!AvARRAY(av)) {
+        TOPs = lval ? newSV(0) : &PL_sv_undef;
+        RETURN;
+    }
+    svp = &AvARRAY(av)[index]; /* negative indices are illegal for _u */
+    if (!svp)
+        TOPs = lval ? newSV(0) : &PL_sv_undef;
+    else
+        TOPs = *svp;
     RETURN;
 }
 

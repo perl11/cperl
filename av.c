@@ -430,6 +430,92 @@ Perl_av_make(pTHX_ SSize_t size, SV **strp)
 }
 
 /*
+=for apidoc av_init_sized
+
+Populates the sized array with the default values, which depends on
+the optional type declaration.
+undef for none, 0 for int and uint, 0.0 for num, "" for str.
+The type can empty, native, like int, uint, str, num,
+or a coretype, like Int, UInt, Str, Num.
+
+Perl equivalent: C<my @a[5]; my int @b[5]; my Int @c[5];>
+
+=cut
+*/
+
+AV *
+Perl_av_init_sized(pTHX_ AV* av, const SSize_t size, const HV *type)
+{
+    SV** ary;
+    SSize_t i;
+    char *name;
+    SV *def = NULL;
+    PERL_ARGS_ASSERT_AV_INIT_SIZED;
+    assert(SvTYPE(av) == SVt_PVAV);
+
+    AvSIZED_on(av);
+    SvREADONLY_on(av);
+    Newx(ary,size,SV*);
+    AvALLOC(av) = ary;
+    AvARRAY(av) = ary;
+    AvMAX(av)  = size-1;
+    AvFILLp(av) = size;
+    if (LIKELY(!type)) {
+        def = &PL_sv_undef;
+        SvREFCNT(def) += size;
+    }
+    /* for now dispatch only by name. this is just the initializer */
+    else if ((name = HvNAME(type))) {
+        int l = HvNAMELEN(type);
+        if      (memEQs(name, l, "main::Int")
+              || memEQs(name, l, "main::Numeric"))
+            def = newSViv(0);
+        else if (memEQs(name, l, "main::UInt"))
+            def = newSVuv(0);
+        else if (memEQs(name, l, "main::Num"))
+            def = newSVnv(0.0);
+        else if (memEQs(name, l, "main::Str"))
+            def = newSVpvs("");
+        else if (memEQs(name, l, "main::Scalar"))
+            def = &PL_sv_undef;
+        else if (memEQs(name, l, "main::int")
+              || memEQs(name, l, "main::uint")
+              || memEQs(name, l, "main::str"))
+            ;
+        else if (memEQs(name, l, "main::num"))
+#if IVSIZE != NVSIZE
+            Perl_croak(aTHX_ "Invalid type for sized array declaration: num\n"
+                  "Sorry! native num needs the same wordsize for IV and NV");
+#else
+            ;
+#endif
+        else
+            /* XXX we might want to pass op_targ down here to display
+               the name of the variable */
+            Perl_croak(aTHX_ "Invalid type for sized array declaration: %s\n"
+                  "Only coretypes are supported.",
+                  name);
+        if (LIKELY(!isLOWER(name[7]))) /* no native type */
+            SvREFCNT(def) += size;
+        else {
+            AvREAL_off(av); /* skip clear */
+            memset(ary, 0, size*sizeof(SV*));
+            return av;
+        }
+    } else {
+        Perl_croak(aTHX_ "Invalid type for sized array declaration\n"
+              "Only coretypes are supported.");
+    }
+    assert(def);
+    /* TODO: use a better wordwise_memset. https://github.com/Smattr/memset
+       Does it the optimizer for us? */
+    for (i = 0; i < size; i++) {
+        ary[i] = def;
+    }
+    return av;
+}
+
+/*
 =for apidoc av_clear
 
 Clears an array, making it empty.  Does not free the memory the av uses to
@@ -445,7 +531,7 @@ void
 Perl_av_clear(pTHX_ AV *av)
 {
     SSize_t extra;
-    bool real;
+    bool real = FALSE;
 
     PERL_ARGS_ASSERT_AV_CLEAR;
     assert(SvTYPE(av) == SVt_PVAV);
@@ -471,7 +557,7 @@ Perl_av_clear(pTHX_ AV *av)
     if (AvMAX(av) < 0)
 	return;
 
-    if ((real = !!AvREAL(av))) {
+    if (!AvSIZED(av) && (real = !!AvREAL(av))) {
 	SV** const ary = AvARRAY(av);
 	SSize_t index = AvFILLp(av) + 1;
 	ENTER;

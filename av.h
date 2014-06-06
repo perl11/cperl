@@ -65,6 +65,7 @@ Same as C<av_top_index()>.
 #define AvFILLp(av)	((XPVAV*)  SvANY(av))->xav_fill
 #define AvARYLEN(av)	(*Perl_av_arylen_p(aTHX_ MUTABLE_AV(av)))
 
+/* holds SVs? */
 #define AvREAL(av)	(SvFLAGS(av) & SVpav_REAL)
 #define AvREAL_on(av)	(SvFLAGS(av) |= SVpav_REAL)
 #define AvREAL_off(av)	(SvFLAGS(av) &= ~SVpav_REAL)
@@ -72,8 +73,10 @@ Same as C<av_top_index()>.
 #define AvREIFY(av)	(SvFLAGS(av) & SVpav_REIFY)
 #define AvREIFY_on(av)	(SvFLAGS(av) |= SVpav_REIFY)
 #define AvREIFY_off(av)	(SvFLAGS(av) &= ~SVpav_REIFY)
-#define AvREIFY_only(av)	(AvREAL_off(av), SvFLAGS(av) |= SVpav_REIFY)
-
+#define AvREIFY_only(av)(AvREAL_off(av), SvFLAGS(av) |= SVpav_REIFY)
+/* native sized arrays also set AvREAL_off */
+#define AvSIZED(av)	(SvFLAGS(av) & SVpav_SIZED)
+#define AvSIZED_on(av)	(SvFLAGS(av) |= SVpav_SIZED)
 
 #define AvREALISH(av)	(SvFLAGS(av) & (SVpav_REAL|SVpav_REIFY))
                                           

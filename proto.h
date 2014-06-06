@@ -234,6 +234,11 @@ PERL_CALLCONV void	Perl_av_fill(pTHX_ AV *av, SSize_t fill)
 #define PERL_ARGS_ASSERT_AV_FILL	\
 	assert(av)
 
+PERL_CALLCONV AV*	Perl_av_init_sized(pTHX_ AV *av, const SSize_t size, const HV *type)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_AV_INIT_SIZED	\
+	assert(av)
+
 PERL_CALLCONV IV*	Perl_av_iter_p(pTHX_ AV *av)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_AV_ITER_P	\

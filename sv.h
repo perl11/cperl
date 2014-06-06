@@ -426,7 +426,7 @@ perform the upgrade if necessary.  See C<svtype>.
 /* PVAV could probably use 0x2000000 without conflict. I assume that PVFM can
    be UTF-8 encoded, and PVCVs could well have UTF-8 prototypes. PVIOs haven't
    been restructured, so sometimes get used as string buffers.  */
-
+#define SVpav_SIZED     0x20000000  /* PVAV with declared size */
 
 /* Some private flags. */
 

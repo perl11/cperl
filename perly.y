@@ -68,7 +68,7 @@
 
 %type <opval> stmtseq fullstmt labfullstmt barestmt block mblock else
 %type <opval> expr term subscripted scalar ary hsh arylen star amper sideff
-%type <opval> sliceme kvslice gelem
+%type <opval> sliceme kvslice gelem sizearydecl
 %type <opval> listexpr nexpr texpr iexpr mexpr mnexpr miexpr
 %type <opval> optlistexpr optexpr optrepl indirob listop method
 %type <opval> formname subname proto optsubbody cont my_scalar my_var
@@ -1066,6 +1066,8 @@ myterm	:	'(' expr ')'
 			{ $$ = $1; }
 	|	hsh 	%prec '('
 			{ $$ = $1; }
+	|	sizearydecl %prec '('
+			{ $$ = $1; }
 	|	ary 	%prec '('
 			{ $$ = $1; }
 	;
@@ -1117,6 +1119,31 @@ ary	:	'@' indirob
 			  if ($$) $$->op_private |= $1;
 			}
 	;
+
+sizearydecl :	'@' PRIVATEREF '[' THING ']'
+                        {
+                          SV *constsv = cSVOPx_sv($4);
+                          assert($2->op_targ);
+                          if (SvTYPE(constsv) != SVt_IV)
+                            Perl_croak(aTHX_ "Invalid array size %s[%s]",
+                                  PadnamePV(PAD_COMPNAME($2->op_targ)),
+                                  SvPOK(constsv) ? SvPVX(constsv) : "");
+                          /* - is not a THING, syntax error near "[-"
+                          if (size <= 0)
+                            Perl_croak(aTHX_ "Invalid array size %s[%d]",
+                                  PadnamePV(PAD_COMPNAME($2->op_targ)), size);
+                          */
+			  if (!FEATURE_SIZED_ARRAYS_IS_ENABLED)
+                              Perl_croak(aTHX_ "Experimental "
+                                    "sized_arrays not enabled");
+			  /*ck_warner_d(
+				packWARN(WARN_EXPERIMENTAL__SIZED_ARRAYS),
+				"The sized_arrays feature is experimental");*/
+			  $$ = newAVREF($2);
+                          av_init_sized(MUTABLE_AV(PAD_SV($2->op_targ)), SvIVX(constsv),
+                                        PadnameTYPE(PAD_COMPNAME($2->op_targ)));
+			}
+
 
 hsh	:	'%' indirob
 			{ $$ = newHVREF($2);
