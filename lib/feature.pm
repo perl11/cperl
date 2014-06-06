@@ -21,6 +21,7 @@ our %feature = (
     refaliasing     => 'feature_refaliasing',
     lexical_subs    => 'feature_lexsubs',
     postderef_qq    => 'feature_postderef_qq',
+    sized_arrays    => 'feature_sized_arrays',
     unicode_eval    => 'feature_unieval',
     unicode_strings => 'feature_unicode',
 );
@@ -29,7 +30,8 @@ our %feature_bundle = (
     "5.10"    => [qw(array_base say state switch)],
     "5.11"    => [qw(array_base say state switch unicode_strings)],
     "5.15"    => [qw(current_sub evalbytes fc say state switch unicode_eval unicode_strings)],
-    "all"     => [qw(array_base bitwise current_sub evalbytes fc lexical_subs postderef postderef_qq refaliasing say signatures state switch unicode_eval unicode_strings)],
+    "5.21"    => [qw(current_sub evalbytes fc say sized_arrays state switch unicode_eval unicode_strings)],
+    "all"     => [qw(array_base bitwise current_sub evalbytes fc lexical_subs postderef postderef_qq refaliasing say signatures sized_arrays state switch unicode_eval unicode_strings)],
     "default" => [qw(array_base)],
 );
 
@@ -41,15 +43,14 @@ $feature_bundle{"5.17"} = $feature_bundle{"5.15"};
 $feature_bundle{"5.18"} = $feature_bundle{"5.15"};
 $feature_bundle{"5.19"} = $feature_bundle{"5.15"};
 $feature_bundle{"5.20"} = $feature_bundle{"5.15"};
-$feature_bundle{"5.21"} = $feature_bundle{"5.15"};
-$feature_bundle{"5.22"} = $feature_bundle{"5.15"};
-$feature_bundle{"5.23"} = $feature_bundle{"5.15"};
-$feature_bundle{"5.24"} = $feature_bundle{"5.15"};
+$feature_bundle{"5.22"} = $feature_bundle{"5.21"};
+$feature_bundle{"5.23"} = $feature_bundle{"5.21"};
+$feature_bundle{"5.24"} = $feature_bundle{"5.21"};
 $feature_bundle{"5.9.5"} = $feature_bundle{"5.10"};
 
 our $hint_shift   = 26;
 our $hint_mask    = 0x1c000000;
-our @hint_bundles = qw( default 5.10 5.11 5.15 );
+our @hint_bundles = qw( default 5.10 5.11 5.15 5.21 );
 
 # This gets set (for now) in $^H as well as in %^H,
 # for runtime speed of the uc/lc/ucfirst/lcfirst functions.
@@ -340,6 +341,26 @@ See L<perlop/Bitwise String Operators> for details.
 
 This feature is available from Perl 5.22 onwards.
 
+=head2 The 'sized_arrays' feature
+
+This allows parsing a size declaration in lexical array declarations, like
+
+    my @a[10];
+
+and using then optimized opcodes to access the values at the given
+index.  Sized array cannot be tied to some magic and will die then.
+Sized arrays cannot grow beyond the declared size.  The declared size
+is always equal to the actual size, the array is pre-filled with
+undef. Thus sized arrays are faster to access at run-time than
+aelemfast (constant indices).
+
+If declared with a L<coretype>, the elements are preinitialized with the
+corresponding 0 values.
+
+   my int @a[10]; # pre-declares 10 elements with 0
+
+This feature is available from cperl 5.22 onwards.
+
 =head1 FEATURE BUNDLES
 
 It's possible to load multiple features together, using
@@ -371,9 +392,11 @@ The following feature bundles are available:
 
   :5.22     say state switch unicode_strings
             unicode_eval evalbytes current_sub fc
+            sized_arrays
 
   :5.24     say state switch unicode_strings
             unicode_eval evalbytes current_sub fc
+            sized_arrays
 
 The C<:default> bundle represents the feature set that is enabled before
 any C<use feature> or C<no feature> declaration.

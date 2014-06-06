@@ -37,6 +37,7 @@ my %feature = (
     unicode_strings => 'unicode',
     fc              => 'fc',
     signatures      => 'signatures',
+    sized_arrays    => 'sized_arrays'
 );
 
 # NOTE: If a feature is ever enabled in a non-contiguous range of Perl
@@ -58,9 +59,9 @@ my %feature_bundle = (
     "5.19"   =>	[qw(say state switch unicode_strings unicode_eval
 		    evalbytes current_sub fc)],
     "5.21"   =>	[qw(say state switch unicode_strings unicode_eval
-		    evalbytes current_sub fc)],
+		    evalbytes current_sub fc sized_arrays)],
     "5.23"   =>	[qw(say state switch unicode_strings unicode_eval
-		    evalbytes current_sub fc)],
+		    evalbytes current_sub fc sized_arrays)],
 );
 
 # not actually used currently
@@ -654,6 +655,26 @@ same applies to the assignment variants (C<&= |= ^= &.= |.= ^.=>).
 See L<perlop/Bitwise String Operators> for details.
 
 This feature is available from Perl 5.22 onwards.
+
+=head2 The 'sized_arrays' feature
+
+This allows parsing a size declaration in lexical array declarations, like
+
+    my @a[10];
+
+and using then optimized opcodes to access the values at the given
+index.  Sized array cannot be tied to some magic and will die then.
+Sized arrays cannot grow beyond the declared size.  The declared size
+is always equal to the actual size, the array is pre-filled with
+undef. Thus sized arrays are faster to access at run-time than
+aelemfast (constant indices).
+
+If declared with a L<coretype>, the elements are preinitialized with the
+corresponding 0 values.
+
+   my int @a[10]; # pre-declares 10 elements with 0
+
+This feature is available from cperl 5.22 onwards.
 
 =head1 FEATURE BUNDLES
 

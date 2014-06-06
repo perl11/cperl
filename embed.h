@@ -57,6 +57,7 @@
 #define av_extend(a,b)		Perl_av_extend(aTHX_ a,b)
 #define av_fetch(a,b,c)		Perl_av_fetch(aTHX_ a,b,c)
 #define av_fill(a,b)		Perl_av_fill(aTHX_ a,b)
+#define av_init_sized(a,b,c)	Perl_av_init_sized(aTHX_ a,b,c)
 #define av_len(a)		Perl_av_len(aTHX_ a)
 #define av_make(a,b)		Perl_av_make(aTHX_ a,b)
 #define av_pop(a)		Perl_av_pop(aTHX_ a)

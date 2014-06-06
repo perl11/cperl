@@ -12,6 +12,8 @@ PERL_CALLCONV OP *Perl_pp_add(pTHX);
 PERL_CALLCONV OP *Perl_pp_aeach(pTHX);
 PERL_CALLCONV OP *Perl_pp_aelem(pTHX);
 PERL_CALLCONV OP *Perl_pp_aelemfast(pTHX);
+PERL_CALLCONV OP *Perl_pp_aelemsize(pTHX);
+PERL_CALLCONV OP *Perl_pp_aelemsize_const(pTHX);
 PERL_CALLCONV OP *Perl_pp_akeys(pTHX);
 PERL_CALLCONV OP *Perl_pp_alarm(pTHX);
 PERL_CALLCONV OP *Perl_pp_and(pTHX);

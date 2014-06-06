@@ -280,8 +280,10 @@ quotemeta	quotemeta		ck_fun		fstu%	S?
 # Arrays.
 
 rv2av		array dereference	ck_rvconst	dt1	R	"(:Ref):Hash"
-aelemfast	constant array element	ck_null		ds$		"():Scalar"
-aelemfast_lex	constant lexical array element	ck_null	d0		"():Scalar"
+aelemfast	constant array element	ck_null		ds$	A S	"():Scalar"
+aelemfast_lex	constant lexical array element	ck_null	d0	A S	"():Scalar"
+aelemsize_const	unchecked constant aelem	ck_null	d0	A S	"():Scalar"
+aelemsize	unchecked array aelem	ck_null		s2	A S	"(:Array(:Scalar),:Int):Scalar"
 aelem		array element		ck_null		s2	A S	"(:Array(:Scalar),:Int):Scalar"
 i_aelem		int array element	  ck_null	s2	A S	"(:Array(:Int),:Int):Int"
 n_aelem		num array element	  ck_null	s2	A S	"(:Array(:Num),:Int):Num"

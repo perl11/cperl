@@ -310,7 +310,7 @@ invert_opset function.
     rv2sv sassign
 
     rv2av aassign aelem aelemfast aelemfast_lex aslice kvaslice
-    av2arylen
+    av2arylen aelemsize aelemsize_const
 
     rv2hv helem hslice kvhslice each values keys exists delete
     aeach akeys avalues reach rvalues rkeys multideref
