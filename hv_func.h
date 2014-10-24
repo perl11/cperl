@@ -159,7 +159,7 @@
  * are only needed to help derive these 3.
  *
  * U8TO32_LE(x)   Read a little endian unsigned 32-bit int
- * UNALIGNED_SAFE   Defined if READ_UINT32 works on non-word boundaries
+ * UNALIGNED_SAFE   Defined if unaligned access is safe
  * ROTL32(x,r)      Rotate x left by r bits
  */
 
