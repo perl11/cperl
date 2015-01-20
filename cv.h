@@ -232,6 +232,10 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvANONCONST_on(cv)	(CvFLAGS(cv) |= CVf_ANONCONST)
 #define CvANONCONST_off(cv)	(CvFLAGS(cv) &= ~CVf_ANONCONST)
 
+#define CvHASSIG(cv)		(CvFLAGS(cv) & CVf_HASSIG)
+#define CvHASSIG_on(cv)	        (CvFLAGS(cv) |= CVf_HASSIG)
+#define CvHASSIG_off(cv)	(CvFLAGS(cv) &= ~CVf_HASSIG)
+
 #define CvTYPED(cv)		(CvFLAGS(cv) & CVf_TYPED)
 #define CvTYPED_on(cv)		(CvFLAGS(cv) |= CVf_TYPED)
 

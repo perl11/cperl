@@ -199,6 +199,14 @@ int yyparse ();
 #endif
 
 /* Generated from:
+<<<<<<< 5ae80e6d43bb57050b03e6887bc91f4cabd60a20
  * f067b22562c0326d671962e4611ab6ea9e01bf5f009d0ce90b253f41b820822b perly.y
  * 6da94fc09ee67416fa6399400bdf7b3d76f4f63ca704a9ea882e66344942c7cb regen_perly.pl
+||||||| merged common ancestors
+ * 3bf3c065b47fd70be44a0c302926f1a7c5e5cbfc123a4408adc80e4d5f82eb04 perly.y
+ * d1d4df7b8e30ac9dede664af9179e6e5e7ddc7f2ad9c4eff9e2e5b32c9e16a6e regen_perly.pl
+=======
+ * 0551680436f992c1570e3faa5f7a383c6a5e68d585a15fb0122b4c5537da1b53 perly.y
+ * d1d4df7b8e30ac9dede664af9179e6e5e7ddc7f2ad9c4eff9e2e5b32c9e16a6e regen_perly.pl
+>>>>>>> add OP_SIGNATURE
  * ex: set ro: */
