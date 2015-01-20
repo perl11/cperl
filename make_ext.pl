@@ -221,6 +221,7 @@ if ($Config{osname} eq 'catamount' and @extspec) {
     # Snowball's chance of building extensions.
     die "This is $Config{osname}, not building $extspec[0], sorry.\n";
 }
+$ENV{PERL_CORE} = 1;
 
 foreach my $spec (@extspec)  {
     my $mname = $spec;
@@ -276,7 +277,6 @@ sub build_extension { #build_extensions is not recursion safe
     $perl ||= "$up/miniperl";
     my $return_dir = $up;
     my $lib_dir = "$up/lib";
-    $ENV{PERL_CORE} = 1;
 
     my ($makefile_no_minus_f);
     if (IS_VMS) {
