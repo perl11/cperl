@@ -245,6 +245,7 @@ PERL_CALLCONV OP *Perl_pp_shift(pTHX);
 PERL_CALLCONV OP *Perl_pp_shmwrite(pTHX);
 PERL_CALLCONV OP *Perl_pp_shostent(pTHX);
 PERL_CALLCONV OP *Perl_pp_shutdown(pTHX);
+PERL_CALLCONV OP *Perl_pp_signature(pTHX);
 PERL_CALLCONV OP *Perl_pp_sin(pTHX);
 PERL_CALLCONV OP *Perl_pp_sleep(pTHX);
 PERL_CALLCONV OP *Perl_pp_smartmatch(pTHX);
