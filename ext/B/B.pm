@@ -22,6 +22,7 @@ require Exporter;
 
 # walkoptree_slow comes from B.pm (you are there),
 # walkoptree comes from B.xs
+
 push @B::EXPORT_OK, (qw(minus_c ppname save_BEGINs
 			class peekop cast_I32 cstring cchar hash threadsv_names
 			main_root main_start main_cv svref_2object opnumber

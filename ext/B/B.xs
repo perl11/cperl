@@ -1372,6 +1372,9 @@ string(o, cv)
         case OP_MULTIDEREF:
             ret = multideref_stringify(o, cv);
             break;
+        case OP_SIGNATURE:
+            ret = signature_stringify(o, cv);
+            break;
         default:
             ret = sv_2mortal(newSVpvn("", 0));
         }
@@ -1488,6 +1491,68 @@ aux_list(o)
                 XSRETURN(len);
 
             } /* OP_MULTIDEREF */
+
+
+        case OP_SIGNATURE:
+            {
+                UNOP_AUX_item *items = cUNOP_AUXo->op_aux;
+                UV len = items[-1].uv;
+                UV actions = items[1].uv;
+
+                EXTEND(SP, len);
+                mPUSHu(items[0].uv);
+                mPUSHu(actions);
+                items++;
+
+                while (1) {
+                    switch (actions & SIGNATURE_ACTION_MASK) {
+
+                    case SIGNATURE_reload:
+                        actions = (++items)->uv;
+                        mPUSHu(actions);
+                        continue;
+
+                    case SIGNATURE_end:
+                        goto finish;
+
+                    case SIGNATURE_padintro:
+                        mPUSHu((++items)->uv);
+                        break;
+
+                    case SIGNATURE_arg:
+                    case SIGNATURE_arg_default_none:
+                    case SIGNATURE_arg_default_undef:
+                    case SIGNATURE_arg_default_0:
+                    case SIGNATURE_arg_default_1:
+                    case SIGNATURE_arg_default_op:
+                    case SIGNATURE_slurp_array:
+                    case SIGNATURE_slurp_hash:
+                        break;
+
+                    case SIGNATURE_arg_default_iv:
+                        mPUSHu((++items)->iv);
+                        break;
+
+                    case SIGNATURE_arg_default_const:
+                        PUSH_SV(++items);
+                        break;
+
+                    case SIGNATURE_arg_default_padsv:
+                        mPUSHu((++items)->pad_offset);
+                        break;
+
+                    case SIGNATURE_arg_default_gvsv:
+                        PUSH_SV(++items);
+                        break;
+
+                    } /* switch */
+
+                    actions >>= SIGNATURE_SHIFT;
+                } /* while */
+              finish:
+                XSRETURN(len);
+
+            } /* OP_SIGNATURE */
         } /* switch */
 
 
