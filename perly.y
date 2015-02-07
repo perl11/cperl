@@ -644,9 +644,9 @@ subsignature:	'('
 			  /* We shouldn't get here otherwise */
 			  assert(FEATURE_SIGNATURES_IS_ENABLED);
 
-			  Perl_ck_warner_d(aTHX_
+			  /*Perl_ck_warner_d(aTHX_
 				packWARN(WARN_EXPERIMENTAL__SIGNATURES),
-				"The signatures feature is experimental");
+				"The signatures feature is experimental");*/
 			  $<opval>$ = parse_subsignature();
 			}
 		')'

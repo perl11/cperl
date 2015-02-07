@@ -11777,6 +11777,14 @@ S_parse_opt_lexvar(pTHX)
     return var;
 }
 
+/*
+=for apidoc Amx|OP *|parse_subsignature|
+
+Parse a sequence of zero or more Perl signature arguments, everything between
+the C<()> brackets.
+
+*/
+
 OP *
 Perl_parse_subsignature(pTHX)
 {
