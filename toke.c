@@ -11846,25 +11846,43 @@ S_sig_push_action(pTHX_ struct parse_subsignature_state *stp, UV action)
     }
 }
 
+/*
+=for apidoc pR|OP *|parse_subsignature|
 
+Parse a sequence of zero or more Perl signature arguments, everything between
+the C<()> parentheses, seperated by ',', with optional '=' default values and
+ending slurpy params ('@' or '%').
 
-/* parse a sub signature, i.e. the bit in parentheses in something like
- *     sub f ($a, $b = 1) {...}
- * return an OP_LINESEQ op, which has as its children, an OP_SIGNATURE,
- * plus 0 or more (sassign, nextstate) pairs for each default arg
- * expression that can't be optimised into the OP_SIGNATURE.
- * Returns NULL on error.
- *
- * It gives the OP_SIGNATURE op an op_aux array, which contains
- * collections of actions and args; the args being things like what pad
- * ranges to introduce, and simple default args such as an integer
- * constant, an SV constant, or a simple lex or package var.
- *
- * Note that we attach this data to CV via an OP_SIGNATURE rather than
- * directly attaching it to the CV, so that it doesn't need copying
- * each time a new thread is cloned.
- */
+    sub f ($a, $b = 1) {...}
 
+Return an OP_LINESEQ op, which has as its children, an OP_SIGNATURE,
+plus 0 or more (sassign, nextstate) pairs for each default arg
+expression that can't be optimised into the OP_SIGNATURE.
+Returns NULL on error.
+
+It gives the OP_SIGNATURE op an op_aux array, which contains
+collections of actions and args; the args being things like what pad
+ranges to introduce, and simple default args such as an integer
+constant, an SV constant, or a simple lex or package var.
+
+Note that we attach this data to CV via an OP_SIGNATURE rather than
+directly attaching it to the CV, so that it doesn't need copying
+each time a new thread is cloned.
+
+Todo:
+- types in leading position (int $i)
+- attributes (:const, types), ($i :int :const)
+- scalar references compiled to direct access, not just copies
+  (\$a) => my $a = $_[0].
+- no double copies into @_, only copy rest when there is no slurpy arg and
+  @_ occurs in the body. mark how many then.
+  Or when \$ works none at all. warn in ck_subr when @_/$_[] is used.
+
+=cut
+*/
+
+/* Note that we need to replace this function with a real parse in
+   perly.y to untangle and scale this mess. */
 OP *
 Perl_parse_subsignature(pTHX)
 {
