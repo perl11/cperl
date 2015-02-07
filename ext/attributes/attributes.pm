@@ -1,6 +1,6 @@
 package attributes;
 
-our $VERSION = 0.26;
+our $VERSION = '0.26_01';
 
 @EXPORT_OK = qw(get reftype);
 @EXPORT = ();
@@ -51,6 +51,22 @@ sub _modify_attrs_and_deprecate {
     } _modify_attrs(@_);
 }
 
+sub _check_reserved {
+    my ($svtype, @pkgattrs) = @_;
+    require warnings;
+    return unless warnings::enabled('reserved');
+    @pkgattrs = grep { m/\A[[:lower:]]+(?:\z|\()/ } @pkgattrs;
+    if (@pkgattrs) {
+      for my $attr (@pkgattrs) {
+        $attr =~ s/\(.+\z//s;
+      }
+      my $s = ((@pkgattrs == 1) ? '' : 's');
+      carp "$svtype package attribute$s " .
+        "may clash with future reserved word$s: " .
+        join(' : ' , @pkgattrs);
+    }
+}
+
 sub import {
     @_ > 2 && ref $_[2] or do {
 	require Exporter;
@@ -59,30 +75,25 @@ sub import {
     my (undef,$home_stash,$svref,@attrs) = @_;
 
     my $svtype = uc reftype($svref);
-    my $pkgmeth;
-    $pkgmeth = UNIVERSAL::can($home_stash, "MODIFY_${svtype}_ATTRIBUTES")
+    my $pkgmeth = UNIVERSAL::can($home_stash, "CHECK_${svtype}_ATTRIBUTES")
 	if defined $home_stash && $home_stash ne '';
-    my @badattrs;
+    my (@pkgattrs, @badattrs);
     if ($pkgmeth) {
-	my @pkgattrs = _modify_attrs_and_deprecate($svtype, $svref, @attrs);
+        @pkgattrs = _modify_attrs_and_deprecate($svtype, $svref, @attrs);
 	@badattrs = $pkgmeth->($home_stash, $svref, @pkgattrs);
-	if (!@badattrs && @pkgattrs) {
-            require warnings;
-	    return unless warnings::enabled('reserved');
-	    @pkgattrs = grep { m/\A[[:lower:]]+(?:\z|\()/ } @pkgattrs;
-	    if (@pkgattrs) {
-		for my $attr (@pkgattrs) {
-		    $attr =~ s/\(.+\z//s;
-		}
-		my $s = ((@pkgattrs == 1) ? '' : 's');
-		carp "$svtype package attribute$s " .
-		    "may clash with future reserved word$s: " .
-		    join(' : ' , @pkgattrs);
-	    }
-	}
+        _check_reserved($svtype, @pkgattrs) if !@badattrs and @pkgattrs;
     }
     else {
-	@badattrs = _modify_attrs_and_deprecate($svtype, $svref, @attrs);
+      $pkgmeth = UNIVERSAL::can($home_stash, "MODIFY_${svtype}_ATTRIBUTES")
+	if defined $home_stash && $home_stash ne '';
+      @pkgattrs = _modify_attrs_and_deprecate($svtype, $svref, @attrs);
+      if ($pkgmeth) {
+        @badattrs = $pkgmeth->($home_stash, $svref, @pkgattrs);
+        _check_reserved($svtype, @pkgattrs) if !@badattrs and @pkgattrs;
+      }
+      else {
+        @badattrs = @pkgattrs;
+      }
     }
     if (@badattrs) {
 	croak "Invalid $svtype attribute" .
@@ -344,6 +355,22 @@ The class methods invoked for modifying and fetching are these:
 
 =over 4
 
+=item CHECK_I<type>_ATTRIBUTES
+
+This method is called with two fixed arguments, followed by the list of
+attributes from the relevant declaration.  The two fixed arguments are
+the relevant package name and a reference to the declared subroutine or
+variable.  The expected return value is a list of attributes which were
+not recognized by this handler.  Note that this allows for a derived class
+to delegate a call to its base class, and then only examine the attributes
+which the base class didn't already handle for it.
+
+The call to this method is made at compile-time, at the CHECK phase,
+which guarantees the processing of the declaration.  In particular,
+this means that a subroutine reference will probably be for an
+undefined subroutine, even if this declaration is actually part of the
+definition.
+
 =item FETCH_I<type>_ATTRIBUTES
 
 This method is called with two arguments:  the relevant package name,
@@ -503,7 +530,7 @@ not your own.
 
 =item 1.
 
-    sub MODIFY_CODE_ATTRIBUTES {
+    sub CHECK_CODE_ATTRIBUTES {
        my ($class,$code,@attrs) = @_;
 
        my $allowed = 'MyAttribute';
@@ -516,16 +543,15 @@ not your own.
        print "foo\n";
     }
 
-This example runs.  At compile time
-C<MODIFY_CODE_ATTRIBUTES> is called.  In that
-subroutine, we check if any attribute is disallowed and we return a list of
-these "bad attributes".
+This example runs.  At compile time C<CHECK_CODE_ATTRIBUTES> is
+called.  In that subroutine, we check if any attribute is disallowed
+and we return a list of these "bad attributes".
 
 As we return an empty list, everything is fine.
 
 =item 2.
 
-  sub MODIFY_CODE_ATTRIBUTES {
+  sub CHECK_CODE_ATTRIBUTES {
      my ($class,$code,@attrs) = @_;
 
      my $allowed = 'MyAttribute';
@@ -539,8 +565,7 @@ As we return an empty list, everything is fine.
   }
 
 This example is aborted at compile time as we use the attribute "Test" which
-isn't allowed.  C<MODIFY_CODE_ATTRIBUTES>
-returns a list that contains a single
+isn't allowed.  C<CHECK_CODE_ATTRIBUTES> returns a list that contains a single
 element ('Test').
 
 =back

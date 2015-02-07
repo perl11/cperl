@@ -1110,6 +1110,9 @@ void
 Perl_boot_core_PerlIO(pTHX)
 {
 #ifdef USE_ATTRIBUTES_FOR_PERLIO
+    /* support run-time and compile-time IO attributes */
+    newXS("io::CHECK_SCALAR_ATTRIBUTES", XS_io_MODIFY_SCALAR_ATTRIBUTES,
+          __FILE__);
     newXS("io::MODIFY_SCALAR_ATTRIBUTES", XS_io_MODIFY_SCALAR_ATTRIBUTES,
 	  __FILE__);
 #endif
