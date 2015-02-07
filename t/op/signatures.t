@@ -1303,6 +1303,24 @@ is scalar(t117()), undef;
 is scalar(@{[ t117(333, 444) ]}), 0;
 is scalar(t117(333, 444)), undef;
 
+sub t118 (\$a) { $a++ }
+{
+    is prototype(\&t118), undef;
+    my $a = 222;
+    is scalar(@{[ t118($a) ]}), 0;
+    is scalar(t118($a)), undef;
+    is $a == 224;
+}
+
+sub t119(int $a) :int { $a || 0 }
+{
+    is prototype(\&t119), undef;
+    is scalar(@{[ t119(222) ]}), 0;
+    is scalar(t119(222)), 222;
+    # todo: compile-time error checking
+    eval "$a = t119('a');";
+}
+
 use File::Spec::Functions;
 my $keywords_file = catfile(updir,'regen','keywords.pl');
 open my $kh, $keywords_file
