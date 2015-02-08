@@ -11779,13 +11779,23 @@ S_parse_opt_lexvar(pTHX)
 }
 
 /*
-=for apidoc Amx|OP *|parse_subsignature|
+=for apidoc pR|OP *|parse_subsignature|
 
 Parse a sequence of zero or more Perl signature arguments, everything between
-the C<()> brackets.
+the C<()> brackets, seperated by ',', with optional '=' default values, ending
+slurpy params ('@' or '%').
 
+Todo:
+- types in leading position (int $i)
+- attributes (:const, types), ($i :int :const)
+- scalar references compiled to direct access, not just copies, (\$a) => my $a = $_[0]
+- no double copies into @_, only copy rest when there is no slurpy arg.
+
+=cut
 */
 
+/* Note that we need to replace this function with a real parse in
+   perly.y to untangle and scale this mess. */
 OP *
 Perl_parse_subsignature(pTHX)
 {
@@ -11796,6 +11806,7 @@ Perl_parse_subsignature(pTHX)
     c = lex_peek_unichar(0);
     while (c != /*(*/')') {
 	switch (c) {
+            /* untyped scalar */
 	    case '$': {
 		OP *var, *expr;
 		if (prev_type == 2)
@@ -11848,6 +11859,39 @@ Perl_parse_subsignature(pTHX)
 				newSTATEOP(0, NULL, expr));
 		max_arity = ++pos;
 	    } break;
+            /* referenced scalar */
+	    case '\\': {
+		OP *var, *expr;
+		if (prev_type == 2)
+		    qerror(Perl_mess(aTHX_ "Slurpy parameter not last"));
+                c = lex_peek_unichar(0);
+                if (c != '$') /* (no \@ \% \[$] yet) */
+		    qerror(Perl_mess(aTHX_ "No scalar lvalue reference"));
+		var = parse_opt_lexvar();
+		expr = var ?
+		    newBINOP(OP_AELEM, 0,
+			ref(newUNOP(OP_RV2AV, 0, newGVOP(OP_GV, 0, PL_defgv)),
+			    OP_RV2AV),
+			newSVOP(OP_CONST, 0, newSViv(pos))) :
+		    NULL;
+		lex_read_space(0);
+		c = lex_peek_unichar(0);
+		if (c == '=') {
+		    qerror(Perl_mess(aTHX_ "Scalar reference cannot take default value"));
+		    prev_type = 1;
+		} else {
+		    if (prev_type == 1)
+			qerror(Perl_mess(aTHX_ "Mandatory parameter "
+				"follows optional parameter"));
+		    prev_type = 0;
+		    min_arity = pos + 1;
+		}
+		if (var) expr = newASSIGNOP(OPf_STACKED, var, 0, expr);
+		if (expr)
+		    initops = op_append_list(OP_LINESEQ, initops,
+				newSTATEOP(0, NULL, expr));
+		max_arity = ++pos;
+            } break;
 	    case '@':
 	    case '%': {
 		OP *var;
