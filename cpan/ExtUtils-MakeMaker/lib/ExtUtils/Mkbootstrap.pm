@@ -3,7 +3,7 @@ package ExtUtils::Mkbootstrap;
 # There's just too much Dynaloader incest here to turn on strict vars.
 use strict 'refs';
 
-our $VERSION = '7.04';
+our $VERSION = '7.04_01c';
 
 require Exporter;
 our @ISA = ('Exporter');
@@ -18,6 +18,8 @@ sub Mkbootstrap {
     my($baseext, @bsloadlibs)=@_;
     @bsloadlibs = grep($_, @bsloadlibs); # strip empty libs
 
+    print "Running Mkbootstrap for $baseext (@bsloadlibs)\n"
+         if !defined $ENV{MAKEFLAGS} or $ENV{MAKEFLAGS} !~ /\b(s|silent|quiet)\b/;
     print "	bsloadlibs=@bsloadlibs\n" if $Verbose;
 
     # We need DynaLoader here because we and/or the *_BS file may
