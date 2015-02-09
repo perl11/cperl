@@ -6,6 +6,7 @@ use constant{IS_CROSS => defined $Config::Config{usecrosscompile} ? 1 : 0,
              IS_WIN32 => $^O eq 'MSWin32',
              IS_VMS   => $^O eq 'VMS',
              IS_UNIX  => $^O ne 'MSWin32' && $^O ne 'VMS',
+             SILENT   => (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0,
 };
 
 my @ext_dirs = qw(cpan dist ext);
@@ -520,7 +521,7 @@ EOM
 	   local $ENV{PERL_MM_USE_DEFAULT} = 1;
 	    system $perl, @args;
 	};
-	warn "$code from $ext_dir\'s Makefile.PL" if $code;
+	warn "Error $code from $ext_dir\'s Makefile.PL" if $code;
 
 	# Right. The reason for this little hack is that we're sitting inside
 	# a program run by ./miniperl, but there are tasks we need to perform
@@ -656,7 +657,8 @@ sub just_pm_to_blib {
     die "Inconsistent module $mname has both lib/ and $first/"
         if $has_lib && $has_topdir;
 
-    print "\nRunning pm_to_blib for $ext_dir directly\n";
+    print "\nRunning pm_to_blib for $ext_dir directly\n"
+      unless SILENT;
 
     my %pm;
     if ($has_top) {

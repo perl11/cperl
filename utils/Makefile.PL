@@ -16,7 +16,8 @@ if (@ARGV) {
 require 'regen/regen_lib.pl';
 
 my $target = 'utils/Makefile';
-print "Extracting $target (with variable substitutions)\n";
+print "Extracting $target (with variable substitutions)\n"
+  unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
 my $fh = open_new($target, undef, {by => $0}, 1);
 
 # These use the Cwd extension.  For statically-built perls, we
