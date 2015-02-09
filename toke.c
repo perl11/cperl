@@ -8243,7 +8243,8 @@ Perl_yylex(pTHX)
 		    COPLINE_SET_FROM_MULTI_END;
 		    if (!s)
 			Perl_croak(aTHX_ "Prototype not terminated");
-		    (void)validate_proto(PL_subname, PL_lex_stuff, ckWARN(WARN_ILLEGALPROTO));
+                    if (ckWARN(WARN_ILLEGALPROTO))
+                        (void)validate_proto(PL_subname, PL_lex_stuff, 1);
 		    have_proto = TRUE;
 
 		    s = skipspace(s);
