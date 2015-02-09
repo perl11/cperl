@@ -5199,6 +5199,13 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$usesocks	USE_SOCKS		/**/
 #endif
 
+/* USE_CPERL:
+ *	This symbol, if defined, indicates that Perl is the cperl variant.
+ */
+#ifndef USE_CPERL
+#$usecperl	USE_CPERL		/**/
+#endif
+
 #endif
 !GROK!THIS!
 ;;

@@ -5382,6 +5382,10 @@ usecbacktrace (usebacktrace.U):
 	This variable indicates whether we are compiling with backtrace
 	support.
 
+usecperl (Devel.U):
+	This variable conditionally defines the USE_CPERL symbol,
+	and indicates that Perl is the cperl variant.
+
 usecrosscompile (Cross.U):
 	This variable conditionally defines the USE_CROSS_COMPILE symbol,
 	and indicates that Perl has been cross-compiled.

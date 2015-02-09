@@ -1362,6 +1362,7 @@ versiononly=''
 yacc=''
 yaccflags=''
 CONFIG=''
+usecperl=''
 
 : Detect odd OSs
 define='define'
@@ -7118,6 +7119,17 @@ $define)
 		;;
 	esac
 	;;
+esac
+case "$usecperl" in
+$define) usecperl='define'
+         echo "cperl variant selected." >&4
+         set usecperl
+	;;
+'')     if test -f ../README.cperl; then usecperl='define'; echo "cperl variant assumed."
+        else usecperl='undef'; fi
+        set usecperl
+        ;;
+*)      usecperl='undef' ;;
 esac
 if $test -f archname.cbu; then
 	echo "Your platform has some specific hints for architecture name, using them..."
@@ -24777,6 +24789,7 @@ use5005threads='$use5005threads'
 use64bitall='$use64bitall'
 use64bitint='$use64bitint'
 usecbacktrace='$usecbacktrace'
+usecperl='$usecperl'
 usecrosscompile='$usecrosscompile'
 usedevel='$usedevel'
 usedl='$usedl'
