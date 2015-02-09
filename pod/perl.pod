@@ -110,6 +110,7 @@ aux c2ph h2ph h2xs perlbug pl2pm pod2html pod2man splain xsubpp
     perlobj		Perl objects
     perltie		Perl objects hidden behind simple variables
       perldbmfilter	Perl DBM filters
+    perltypes		Perl type support
 
     perlipc		Perl interprocess communication
     perlfork		Perl fork() information
@@ -221,6 +222,7 @@ aux c2ph h2ph h2xs perlbug pl2pm pod2html pod2man splain xsubpp
     perl5004delta	Perl changes in version 5.004
 
     perlexperiment	A listing of experimental features in Perl
+    perlcperl		Perl notes for cperl (variant)
 
     perlartistic	Perl Artistic License
     perlgpl		GNU General Public License
