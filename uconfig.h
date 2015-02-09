@@ -5211,9 +5211,16 @@
 /*#define	USE_SOCKS		/ **/
 #endif
 
+/* USE_CPERL:
+ *	This symbol, if defined, indicates that Perl is the cperl variant.
+ */
+#ifndef USE_CPERL
+/*#define	USE_CPERL		/ **/
+#endif
+
 #endif
 
 /* Generated from:
- * c784534c0c9ca4f445c518a18404c8fd0b3be9aac3de1ee4a94453807935584c config_h.SH
- * 0ce9d24f6ed83c533882929bc7c0138fe345656c4b7070aad99bb103dbf3790a uconfig.sh
+ * 17fd8d5b737e12b16d82bd849e361bc4a62db37caa4f24a881f3e4d6ddf95f8d config_h.SH
+ * 89be4a694379d2accd34b1e4bc2e418a315631a1533b4b1aab4fa418cda57fab uconfig.sh
  * ex: set ro: */
