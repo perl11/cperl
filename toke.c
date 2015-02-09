@@ -5531,7 +5531,8 @@ Perl_yylex(pTHX)
 		    PL_lex_stuff = NULL;
 		}
 		else {
-		    if (len == 6 && strnEQ(SvPVX(sv), "unique", len)) {
+                    const char *pv = SvPVX(sv);
+		    if (len == 6 && strnEQ(pv, "unique", len)) {
 			sv_free(sv);
 			if (PL_in_my == KEY_our) {
 			    deprecate(":unique");
@@ -5542,22 +5543,30 @@ Perl_yylex(pTHX)
 
 		    /* NOTE: any CV attrs applied here need to be part of
 		       the CVf_BUILTIN_ATTRS define in cv.h! */
-		    else if (!PL_in_my && len == 6 && strnEQ(SvPVX(sv), "lvalue", len)) {
+		    else if (!PL_in_my && len == 6 && strnEQ(pv, "lvalue", len)) {
 			sv_free(sv);
 			CvLVALUE_on(PL_compcv);
 		    }
-		    else if (!PL_in_my && len == 6 && strnEQ(SvPVX(sv), "locked", len)) {
+		    else if (!PL_in_my && len == 6 && strnEQ(pv, "locked", len)) {
 			sv_free(sv);
 			deprecate(":locked");
 		    }
-		    else if (!PL_in_my && len == 6 && strnEQ(SvPVX(sv), "method", len)) {
+		    else if (!PL_in_my && len == 6 && strnEQ(pv, "method", len)) {
 			sv_free(sv);
 			CvMETHOD_on(PL_compcv);
 		    }
-		    else if (!PL_in_my && len == 5
-			  && strnEQ(SvPVX(sv), "const", len))
-		    {
+		    else if (
+#ifndef USE_CPERL
+                        !PL_in_my &&
+#endif
+                        len == 5 && strnEQ(pv, "const", len))
+                    {
 			sv_free(sv);
+#ifdef USE_CPERL
+			CvCONST_on(PL_compcv); /* inlinable */
+			if (CvANON(PL_compcv))
+                            CvANONCONST_on(PL_compcv);
+#else
 			Perl_ck_warner_d(aTHX_
 			    packWARN(WARN_EXPERIMENTAL__CONST_ATTR),
 			   ":const is experimental"
@@ -5566,6 +5575,7 @@ Perl_yylex(pTHX)
 			if (!CvANON(PL_compcv))
 			    yyerror(":const is not permitted on named "
 				    "subroutines");
+#endif
 		    }
 		    /* After we've set the flags, it could be argued that
 		       we don't need to do the attributes.pm-based setting
@@ -5578,9 +5588,7 @@ Perl_yylex(pTHX)
 		       justified by the performance win for the common case
 		       of applying only built-in attributes.) */
 		    else
-		        attrs = op_append_elem(OP_LIST, attrs,
-					    newSVOP(OP_CONST, 0,
-					      	    sv));
+		        attrs = op_append_elem(OP_LIST, attrs, newSVOP(OP_CONST, 0, sv));
 		}
 		s = skipspace(d);
 		if (*s == ':' && s[1] != ':')
@@ -8435,7 +8443,7 @@ S_pending_ident(pTHX)
                 GCC_DIAG_RESTORE;
             }
 
-            pl_yylval.opval = newOP(OP_PADANY, 0);
+            pl_yylval.opval = newOP(OP_PADANY, 0); /* this op leaks! */
             pl_yylval.opval->op_targ = allocmy(PL_tokenbuf, tokenbuf_len,
                                                         UTF ? SVf_UTF8 : 0);
 	    return PRIVATEREF;
