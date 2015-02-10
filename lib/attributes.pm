@@ -107,8 +107,8 @@ sub get ($) {
     @_ == 1  && ref $_[0] or
 	croak 'Usage: '.__PACKAGE__.'::get $ref';
     my $svref = shift;
-    my $svtype = uc reftype($svref);
-    my $stash = _guess_stash($svref);
+    my $svtype = uc reftype $svref;
+    my $stash = _guess_stash $svref;
     $stash = caller unless defined $stash;
     my $pkgmeth;
     $pkgmeth = UNIVERSAL::can($stash, "FETCH_${svtype}_ATTRIBUTES")
@@ -121,8 +121,15 @@ sub get ($) {
 
 sub require_version { goto &UNIVERSAL::VERSION }
 
-require XSLoader;
-XSLoader::load();
+## forward declaration(s) rather than wrapping the bootstrap call in BEGIN{}
+#sub reftype ($) ;
+#sub _fetch_attrs ($) ;
+#sub _guess_stash ($) ;
+#sub _modify_attrs ;
+#
+# The extra trips through newATTRSUB in the interpreter wipe out any savings
+# from avoiding the BEGIN block.  Just do the bootstrap now.
+BEGIN { bootstrap attributes }
 
 1;
 __END__
@@ -592,3 +599,4 @@ L<perlsub/"Subroutine Attributes"> for details on the basic declarations;
 L<perlfunc/use> for details on the normal invocation mechanism.
 
 =cut
+
