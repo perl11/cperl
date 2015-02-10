@@ -1,6 +1,6 @@
 package attributes;
 
-our $VERSION = '0.26_01';
+our $VERSION = '0.26_01c';
 
 @EXPORT_OK = qw(get reftype);
 @EXPORT = ();
@@ -26,7 +26,7 @@ $deprecated{ARRAY} = $deprecated{HASH} = $deprecated{SCALAR}
 my %msg = (
     lvalue => 'lvalue attribute applied to already-defined subroutine',
    -lvalue => 'lvalue attribute removed from already-defined subroutine',
-    const  => 'Useless use of attribute "const"',
+    # const  => 'Useless use of attribute "const"',
 );
 
 sub _modify_attrs_and_deprecate {
@@ -273,10 +273,16 @@ It was used as part of the now-removed "Perl 5.005 threads".
 
 =item const
 
-This experimental attribute, introduced in Perl 5.22, only applies to
-anonymous subroutines.  It causes the subroutine to be called as soon as
-the C<sub> expression is evaluated.  The return value is captured and
-turned into a constant subroutine.
+This is experimental attribute was introduced in Perl 5.22. With the
+cperl variant it works for all subroutines, without only for
+anonymous subroutines.  It causes the subroutine to be called as soon
+as the C<sub> expression is evaluated.  The return value is captured
+and turned into a constant subroutine.
+
+=item int, num, str
+
+With the cperl variant use coretypes which declares these types is implicit.
+These types declare the strict return type for the subroutine.
 
 =back
 
@@ -295,6 +301,15 @@ The "unique" attribute is deprecated, and has no effect in 5.10.0 and later.
 It used to indicate that a single copy of an C<our> variable was to be used by
 all interpreters should the program happen to be running in a
 multi-interpreter environment.
+
+=item const
+
+With the cperl variant :const declares a lexical variable as constant.
+
+=item int, num, str
+
+With the cperl variant use coretypes which declares these types is implicit.
+These types declare the strict type for the lexical variable.
 
 =back
 
