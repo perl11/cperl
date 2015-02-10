@@ -26,6 +26,9 @@ our $anon1; eval_ok '$anon1 = sub : method { $_[0]++ }';
 eval 'sub e1 ($) : plugh ;';
 like $@, qr/^Invalid CODE attributes?: ["']?plugh["']? at/;
 
+eval 'sub e1 ($) :int ;';
+is $@, '';
+
 eval 'sub e2 ($) : plugh(0,0) xyzzy ;';
 like $@, qr/^Invalid CODE attributes: ["']?plugh\(0,0\)["']? /;
 

@@ -878,7 +878,8 @@ MICROCORE_SRC	=		\
 		..\toke.c	\
 		..\universal.c	\
 		..\utf8.c	\
-		..\util.c
+		..\util.c	\
+		..\xsutils.c
 
 EXTRACORE_SRC	+= perllib.c
 
@@ -1493,7 +1494,8 @@ distclean: realclean
 		$(PERLIMPLIB) ..\miniperl$(a) $(PERLEXESTATIC) $(PERLSTATICLIB)
 	-del /f $(LIBDIR)\Encode.pm $(LIBDIR)\encoding.pm $(LIBDIR)\Errno.pm
 	-del /f $(LIBDIR)\Config.pod $(LIBDIR)\POSIX.pod $(LIBDIR)\threads.pm
-	-del /f $(LIBDIR)\.exists $(LIBDIR)\attributes.pm $(LIBDIR)\DynaLoader.pm
+	-del /f $(LIBDIR)\.exists $(LIBDIR)\DynaLoader.pm
+	-del /f $(LIBDIR)\XSLoader.pm $(LIBDIR)\lib.pm
 	-del /f $(LIBDIR)\Fcntl.pm $(LIBDIR)\IO.pm $(LIBDIR)\Opcode.pm
 	-del /f $(LIBDIR)\ops.pm $(LIBDIR)\Safe.pm
 	-del /f $(LIBDIR)\SDBM_File.pm $(LIBDIR)\Socket.pm $(LIBDIR)\POSIX.pm

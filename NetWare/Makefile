@@ -173,13 +173,12 @@ NLM_INCLUDE_PATH = $(NLM_INCLUDE_PATH) $(NLM_INCLUDE_UCS)
 INCLUDE = $(INC_THIS) $(INC_PREV) -I- $(NLM_INCLUDE_PATH)
 
 PATH = $(PATH);$(TOOL_PATH)
- 
+
 NLM_INCLUDES	= -I$(COREDIR) $(INCLUDE_NW)
 
 CCFLAGS     = $(CCFLAGS) $(INCLUDE)
 
 COMPLER_FLAGS	=  $(BS_CFLAGS) $(ADD_BUILDOPT) $(NW_FLAGS) $(COMPILER_FLAG) $(MPKFLAGS) $(CCFLAGS)
-                  
 
 # Source file list
 NW_H_FILES			=	\
@@ -312,7 +311,6 @@ IO_NLM		= $(AUTODIR)\IO\IO.NLM
 OPCODE_NLM	= $(AUTODIR)\Opcode\Opcode.NLM
 SDBM_FILE_NLM = $(AUTODIR)\SDBM_File\SDBM_File.NLM
 POSIX_NLM	= $(AUTODIR)\POSIX\POSIX.NLM
-ATTRIBUTES_NLM	= $(AUTODIR)\attributes\attributes.NLM
 B_NLM		= $(AUTODIR)\B\B.NLM
 DUMPER_NLM	= $(AUTODIR)\Data\Dumper\Dumper.NLM
 PEEK_NLM	= $(AUTODIR)\Devel\Peek\Peek.NLM
@@ -336,7 +334,6 @@ EXTENSION_NLM	= 		\
 		$(SOCKET_NLM)	\
 		$(OPCODE_NLM)	\
 		$(B_NLM)		\
-		$(ATTRIBUTES_NLM)	\
 		$(SDBM_FILE_NLM)	\
 		$(POSIX_NLM)	\
 		$(DUMPER_NLM)	\
@@ -719,7 +716,8 @@ MICROCORE_SRC	=		\
 		..\toke.c	\
 		..\universal.c	\
 		..\utf8.c	\
-		..\util.c
+		..\util.c	\
+		..\xsutils.c
 
 #EXTRACORE_SRC	= $(EXTRACORE_SRC) perllib.c
 
@@ -769,12 +767,12 @@ CORE_NOCFG_H	=		\
 		..\EXTERN.h	\
 		..\perlvars.h	\
 		..\intrpvar.h
-		
+
 CORE_H		= $(CORE_NOCFG_H) .\config.h
 
 DLL_OBJ		= $(DLL_SRC:.c=.obj)
 
-DYNAMIC_EXT	= Socket IO Fcntl Opcode SDBM_File POSIX attributes B re \
+DYNAMIC_EXT	= Socket IO Fcntl Opcode SDBM_File POSIX B re \
 		Data/Dumper Devel/Peek ByteLoader File/Glob \
 		Storable/Storable List/Util MIME/Base64/Base64 XS/APItest/APItest \
 		XS/Typemap/Typemap Unicode/Collate/Collate Unicode/Normalize/Normalize Sys/Hostname
@@ -789,7 +787,6 @@ OPCODE		= $(EXTDIR)\Opcode\Opcode
 SDBM_FILE	= $(EXTDIR)\SDBM_File\SDBM_File
 IO			= $(EXTDIR)\IO\IO
 POSIX		= $(EXTDIR)\POSIX\POSIX
-ATTRIBUTES		= $(EXTDIR)\attributes\attributes
 B			= $(EXTDIR)\B\B
 RE			= $(EXTDIR)\re\re
 DUMPER		= $(EXTDIR)\Data\Dumper\Dumper
@@ -816,7 +813,6 @@ EXTENSION_C	= 		\
 		$(SDBM_FILE).c	\
 		$(IO).c		\
 		$(POSIX).c	\
-		$(ATTRIBUTES).c	\
 		$(RE).c		\
 		$(DUMPER).c	\
 		$(PEEK).c	\
@@ -992,13 +988,13 @@ $(NLM_NAME): MESSAGE HEADERS $(BLDDIR)\nul $(NLM_OBJ) $(NEWTARE_OBJ_DEP) $(NEWTA
 
 # Create the debug or release directory if not existing
 $(BLDDIR)\nul:
-  	@echo . . . . mkdir $(BLDDIR)
-  	@mkdir $(BLDDIR)
+	@echo . . . . mkdir $(BLDDIR)
+	@mkdir $(BLDDIR)
 	@echo '$(BLDDIR)' directory created.
 
 MESSAGE: 
 	@echo======= $(MAKE_ACTION)ing $(NLM_NAME) at $(MAKEDIR)\$(BLDDIR) ======= 
-  
+
 $(PERLIMPLIB): perllib.imp
 #    @echo Building $(PERLIMPLIB)...
 #    $(LD) -type library $(NLM_OBJ) $(BLDDIR)\nw5.obj $(BLDDIR)\nwmain.obj $(BLDDIR)\nw5thread.obj $(BLDDIR)\nwtinfo.obj \
@@ -1010,12 +1006,12 @@ perllib.imp : $(MINIPERL) $(CONFIGPM) ..\embed.fnc ..\makedef.pl
 #	$(MINIPERL) -w ..\makedef.pl PLATFORM=netware FILETYPE=def $(ADD_BUILDOPT) \
 #	    CCTYPE=$(CCTYPE) TARG_DIR=..\ > perllib.def
 	@echo (Perl) > perl.imp
-  	$(MINIPERL) -w ..\makedef.pl PLATFORM=netware FILETYPE=imp $(BS_CFLAGS) $(DEFINES) $(ADD_BUILDOPT) \
+	$(MINIPERL) -w ..\makedef.pl PLATFORM=netware FILETYPE=imp $(BS_CFLAGS) $(DEFINES) $(ADD_BUILDOPT) \
 	    CCTYPE=$(CCTYPE) TARG_DIR=..\ >> perl.imp
 	copy perl.imp $(COREDIR)
-  
+
 $(DLL_OBJ) : $(DYNALOADER).c $(CORE_H) $(EXTDIR)\DynaLoader\dlutils.c
-  	@echo $(MPKMESSAGE)...$(BLDMESG)...$@
+	@echo $(MPKMESSAGE)...$(BLDMESG)...$@
 	@$(C_COMPILER) $(NLM_INCLUDES) $(COMPLER_FLAGS) $(NLM_INCLUDES) $(ADD_LOCDEFS) $(ERROR_FLAG) -I$(EXTDIR)\DynaLoader \
 	$(EXTDIR)\DynaLoader\$(*F).c -o $@
 	@echo $(@) Done.
@@ -1043,8 +1039,7 @@ $(NLM_OBJ)	: ..\$(*F).c
 	@echo $(MPKMESSAGE) $(BLDMESG) $@
 	$(C_COMPILER) $(COMPLER_FLAGS) $(NLM_INCLUDES) $(ADD_LOCDEFS) $(ERROR_FLAG) ..\$(*F).c -o $@
 	@echo Built $(@)
-	
-    
+
 $(NEWTARE_OBJ_DEP) : $(NW_H_FILES) $(NW_HOST_H_FILES) $(*F).c
 	@echo $(MPKMESSAGE) $(BLDMESG) $@
 	$(C_COMPILER) $(COMPLER_FLAGS) $(NLM_INCLUDES) $(ADD_LOCDEFS) $(ERROR_FLAG) $(*F).c -o $@
@@ -1162,12 +1157,6 @@ $(POSIX_NLM):
 	$(MAKE)
 	cd ..\..\netware
 
-$(ATTRIBUTES_NLM):
-	cd $(EXTDIR)\$(*B)
-	..\..\miniperl -I..\..\lib Makefile.PL PERL_CORE=1 INSTALLDIRS=perl
-	$(MAKE)
-	cd ..\..\netware
-
 $(SDBM_FILE_NLM):
 	cd $(EXTDIR)\$(*B)
 	..\..\miniperl -I..\..\lib Makefile.PL PERL_CORE=1 INSTALLDIRS=perl
@@ -1248,7 +1237,7 @@ $(TYPE_SRC_OBJ): $*.c
 	@echo $(MPKMESSAGE) $(BLDMESG) $@
 	$(C_COMPILER) $(NLM_INCLUDES) $(COMPLER_FLAGS) $(ADD_LOCDEFS) $(ERROR_FLAG) $*.c -o $@
 	@echo Built $(@)
-	
+
 $(TYPE_NLM): $(TYPE_SRC_OBJ)
 	@echo======= Linking $@ =======
 # Linker definitions and lining come here for CODEWARRIOR
@@ -1330,7 +1319,7 @@ distclean: clean nwclean
 	-del /f /q $(EXTDIR)\DynaLoader\dl_win32.xs
 	-del /f /q $(EXTDIR)\DynaLoader\DynaLoader.pm
 	-del /f /q $(EXTDIR)\DynaLoader\XSLoader.pm
-	-del /f /q $(LIBDIR)\.exists $(LIBDIR)\attributes.pm $(LIBDIR)\DynaLoader.pm
+	-del /f /q $(LIBDIR)\.exists $(LIBDIR)\DynaLoader.pm
 	-del /f /q $(LIBDIR)\XSLoader.pm
 	-del /f /q $(LIBDIR)\Fcntl.pm $(LIBDIR)\IO.pm $(LIBDIR)\Opcode.pm
 	-del /f /q $(LIBDIR)\ops.pm $(LIBDIR)\Safe.pm

@@ -1,6 +1,6 @@
 package attributes;
 
-our $VERSION = '0.27_01';
+our $VERSION = '0.27_01c';
 
 @EXPORT_OK = qw(get reftype);
 @EXPORT = ();
@@ -26,7 +26,7 @@ $deprecated{ARRAY} = $deprecated{HASH} = $deprecated{SCALAR}
 my %msg = (
     lvalue => 'lvalue attribute applied to already-defined subroutine',
    -lvalue => 'lvalue attribute removed from already-defined subroutine',
-    const  => 'Useless use of attribute "const"',
+    # const  => 'Useless use of attribute "const"',
 );
 
 sub _modify_attrs_and_deprecate {
@@ -107,8 +107,8 @@ sub get ($) {
     @_ == 1  && ref $_[0] or
 	croak 'Usage: '.__PACKAGE__.'::get $ref';
     my $svref = shift;
-    my $svtype = uc reftype($svref);
-    my $stash = _guess_stash($svref);
+    my $svtype = uc reftype $svref;
+    my $stash = _guess_stash $svref;
     $stash = caller unless defined $stash;
     my $pkgmeth;
     $pkgmeth = UNIVERSAL::can($stash, "FETCH_${svtype}_ATTRIBUTES")
@@ -121,8 +121,15 @@ sub get ($) {
 
 sub require_version { goto &UNIVERSAL::VERSION }
 
-require XSLoader;
-XSLoader::load();
+## forward declaration(s) rather than wrapping the bootstrap call in BEGIN{}
+#sub reftype ($) ;
+#sub _fetch_attrs ($) ;
+#sub _guess_stash ($) ;
+#sub _modify_attrs ;
+#
+# The extra trips through newATTRSUB in the interpreter wipe out any savings
+# from avoiding the BEGIN block.  Just do the bootstrap now.
+BEGIN { bootstrap attributes }
 
 1;
 __END__
@@ -273,10 +280,16 @@ It was used as part of the now-removed "Perl 5.005 threads".
 
 =item const
 
-This experimental attribute, introduced in Perl 5.22, only applies to
-anonymous subroutines.  It causes the subroutine to be called as soon as
-the C<sub> expression is evaluated.  The return value is captured and
-turned into a constant subroutine.
+This is experimental attribute was introduced in Perl 5.22. With the
+cperl variant it works for all subroutines, without only for
+anonymous subroutines.  It causes the subroutine to be called as soon
+as the C<sub> expression is evaluated.  The return value is captured
+and turned into a constant subroutine.
+
+=item int, num, str
+
+With the cperl variant use coretypes which declares these types is implicit.
+These types declare the strict return type for the subroutine.
 
 =back
 
@@ -295,6 +308,15 @@ The "unique" attribute is deprecated, and has no effect in 5.10.0 and later.
 It used to indicate that a single copy of an C<our> variable was to be used by
 all interpreters should the program happen to be running in a
 multi-interpreter environment.
+
+=item const
+
+With the cperl variant :const declares a lexical variable as constant.
+
+=item int, num, str
+
+With the cperl variant use coretypes which declares these types is implicit.
+These types declare the strict type for the lexical variable.
 
 =back
 
@@ -577,3 +599,4 @@ L<perlsub/"Subroutine Attributes"> for details on the basic declarations;
 L<perlfunc/use> for details on the normal invocation mechanism.
 
 =cut
+

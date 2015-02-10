@@ -112,6 +112,10 @@ See L<perlguts/Autoloading with XSUBs>.
 	  : 0                                           \
 	)
 
+/* Stashname of the return type at index 0 in the padnames */
+#define CvTYPE(cv)            PadnameTYPE(PadlistNAMESARRAY(CvPADLIST(cv))[0])
+#define CvTYPE_set(cv, stash) PadnameTYPE_set(PadlistNAMESARRAY(CvPADLIST(cv))[0], stash)
+
 #define CVf_METHOD	0x0001	/* CV is explicitly marked as a method */
 #define CVf_LVALUE	0x0002  /* CV return value can be used as lvalue */
 #define CVf_CONST	0x0004  /* inlinable sub */
@@ -134,10 +138,11 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CVf_HASEVAL	0x4000	/* contains string eval  */
 #define CVf_NAMED	0x8000  /* Has a name HEK */
 #define CVf_LEXICAL	0x10000 /* Omit package from name */
-#define CVf_ANONCONST	0x20000 /* :const - create anonconst op */
+#define CVf_ANONCONST	0x20000 /* :const without name - create anonconst op */
+#define CVf_TYPED	0x40000 /* Has return type */
 
 /* This symbol for optimised communication between toke.c and op.c: */
-#define CVf_BUILTIN_ATTRS	(CVf_METHOD|CVf_LVALUE|CVf_ANONCONST)
+#define CVf_BUILTIN_ATTRS	(CVf_METHOD|CVf_LVALUE|CVf_ANONCONST|CVf_TYPED)
 
 #define CvCLONE(cv)		(CvFLAGS(cv) & CVf_CLONE)
 #define CvCLONE_on(cv)		(CvFLAGS(cv) |= CVf_CLONE)
@@ -223,6 +228,9 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvANONCONST(cv)		(CvFLAGS(cv) & CVf_ANONCONST)
 #define CvANONCONST_on(cv)	(CvFLAGS(cv) |= CVf_ANONCONST)
 #define CvANONCONST_off(cv)	(CvFLAGS(cv) &= ~CVf_ANONCONST)
+
+#define CvTYPED(cv)		(CvFLAGS(cv) & CVf_TYPED)
+#define CvTYPED_on(cv)		(CvFLAGS(cv) |= CVf_TYPED)
 
 /* Flags for newXS_flags  */
 #define XS_DYNAMIC_FILENAME	0x01	/* The filename isn't static  */
