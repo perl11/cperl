@@ -713,8 +713,12 @@ Perl_do_binmode(pTHX_ PerlIO *fp, int iotype, int mode)
 bool
 Perl_do_aexec(pTHX_ SV *really, SV **mark, SV **sp)
 {
+    SV** current;
     PERL_ARGS_ASSERT_DO_AEXEC;
 
+    for (current = mark + 1; current <= SP; current++) {
+	SvGETMAGIC(*current);
+    }
     return do_aexec5(really, mark, sp, 0, 0);
 }
 #endif

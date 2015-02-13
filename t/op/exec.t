@@ -36,7 +36,7 @@ $ENV{LANGUAGE} = 'C';		# Ditto in GNU.
 my $Is_VMS   = $^O eq 'VMS';
 my $Is_Win32 = $^O eq 'MSWin32';
 
-plan(tests => 24);
+plan(tests => 26);
 
 my $Perl = which_perl();
 
@@ -151,6 +151,24 @@ TODO: {
 
     ok( !exec("lskdjfalksdjfdjfkls"), 
         "exec failure doesn't terminate process");
+}
+
+SKIP: {
+    skip 'Doesn\'t work on Windows/VMS', 2 if $Is_VMS || $Is_Win32;
+    open my $fh, '-|', 'echo', $$;
+    my $pid = <$fh>;
+    chomp $pid;
+    is($pid, $$, 'Pid is as expected in openpipe');
+
+    skip 'Can\'t load POSIX' if not eval { require POSIX };
+    if (my $child = open my $fh, '-|') {
+	my $pid = <$fh>;
+	chomp $pid;
+	is($pid, $child, 'Pid is as expected in system');
+    } else {
+	system 'echo', $$;
+	POSIX::_exit(0);
+    }
 }
 
 my $test = curr_test();

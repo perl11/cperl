@@ -2364,6 +2364,13 @@ Perl_my_popen_list(pTHX_ const char *mode, int n, SV **args)
     /* Try for another pipe pair for error return */
     if (PerlProc_pipe(pp) >= 0)
 	did_pipes = 1;
+
+    {
+	SV** current;
+	for (current = args; current <= args-1+n; current++) {
+	    SvGETMAGIC(*current);
+	}
+    }
     while ((pid = PerlProc_fork()) < 0) {
 	if (errno != EAGAIN) {
 	    PerlLIO_close(p[This]);

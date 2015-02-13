@@ -4278,6 +4278,12 @@ PP(pp_system)
 	MARK = ORIGMARK;
 	TAINT_PROPER("system");
     }
+    else {
+	while (++MARK <= SP) {
+	    (void)SvGETMAGIC(*MARK);      /* For get magic */
+	}
+	MARK = ORIGMARK;
+    }
     PERL_FLUSHALL_FOR_CHILD;
 #if (defined(HAS_FORK) || defined(AMIGAOS)) && !defined(VMS) && !defined(OS2) || defined(PERL_MICRO)
     {

@@ -1552,7 +1552,7 @@ Perl_do_aexec5(pTHX_ SV *really, SV **mark, SV **sp,
 
 	while (++mark <= sp) {
 	    if (*mark)
-		*a++ = SvPV_nolen_const(*mark);
+		*a++ = SvPV_nomg_nolen(*mark);
 	    else
 		*a++ = "";
 	}
