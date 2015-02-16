@@ -555,7 +555,6 @@ splintflags = \
 splintfiles = $(c1)
 
 .c$(OBJ_EXT): 
-	@echo `$(CCCMD)` $(PLDLFLAGS) $*.c
 	@`$(CCCMD)` $(PLDLFLAGS) $*.c
 
 .c.i:	perl.h config.h
