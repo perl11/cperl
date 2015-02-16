@@ -257,7 +257,7 @@ EOT_EOT
 EONT_EONT
 
 checkOptree ( name      => 'padrange and @_',
-	      code	=> sub { my ($a,$b) = @_;
+	      code	=> sub { my (@a,$b) = @_;
 				 my ($c,$d) = @X::_;
 				 package Y;
 				 my ($e,$f) = @_;
