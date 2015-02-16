@@ -2514,3 +2514,24 @@ sub ($a, $ = ) {
     $a;
 }
 ;
+####
+# traditional args which may be optimised into fake signature
+sub {
+    my($a, undef, $b, undef) = @_;
+    $a;
+}
+;
+####
+# traditional args which may be optimised into fake signature, with slurp @
+sub {
+    my($a, undef, $b, undef, @c) = @_;
+    $a;
+}
+;
+####
+# traditional args which may be optimised into fake signature, with slurp %
+sub {
+    my($a, undef, $b, undef, %c) = @_;
+    $a;
+}
+;
