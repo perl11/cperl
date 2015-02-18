@@ -393,6 +393,7 @@ d_printf_format_null=''
 d_backtrace=''
 d_bcmp=''
 d_bcopy=''
+d_builtin_arith_overflow=''
 d_builtin_choose_expr=''
 d_builtin_expect=''
 d_bzero=''
@@ -16946,6 +16947,78 @@ case "$i64type" in
 	;;
 esac
 
+: Look for GCC-5, clang-3.5 style __builtin_saddl_overflow
+: requires ivsize
+case "$d_builtin_arith_overflow" in
+'')
+    echo " "
+    suffix=
+    case "$ivsize" in
+        16) suffix=ll
+           ;;
+        8) suffix=l
+           ;;
+    esac
+    echo "Checking whether your compiler can handle all 6 __builtin_<arith>${suffix}_overflow intrinsics..." >&4
+    $cat >try.c <<EOCP
+#include <stdlib.h>
+#include <stdio.h>
+
+#define SADDOV(x,y,r) if (__builtin_sadd${suffix}_overflow( x, y, r )) yes++;\
+  else printf("saddov ")
+#define UADDOV(x,y,r) if (__builtin_uadd${suffix}_overflow( x, y, r )) yes++;\
+  else printf("uaddov ")
+#define SSUBOV(x,y,r) if (__builtin_ssub${suffix}_overflow( x, y, r )) yes++;\
+  else printf("ssubov ")
+#define USUBOV(x,y,r) if (__builtin_usub${suffix}_overflow( x, y, r )) yes++;\
+  else printf("usubov ")
+#define SMULOV(x,y,r) if (__builtin_smul${suffix}_overflow( x, y, r )) yes++;\
+  else printf("smulov ")
+#define UMULOV(x,y,r) if (__builtin_umul${suffix}_overflow( x, y, r )) yes++;\
+  else printf("umulov ")
+
+#define UV_MAX (~(unsigned $ivtype)0)
+#define IV_MAX (UV_MAX >> 1)
+
+int main(void) {
+    $ivtype iv;
+    unsigned $ivtype uv;
+    int yes = 0;
+
+    SADDOV(IV_MAX, 1, &iv);
+    UADDOV(UV_MAX, 1, &uv);
+    SSUBOV(-10, IV_MAX, &iv);
+    USUBOV(0, UV_MAX, &uv);
+    SMULOV(IV_MAX, 2, &iv);
+    UMULOV(UV_MAX, 2, &uv);
+
+    if (yes == 6) {
+      puts( "All good!" );
+      exit(0);
+    }
+    else {
+      printf( "- %d missing\n", 6-yes );
+      exit(1);
+    }
+}
+EOCP
+    set try
+    if eval $compile && $run ./try; then
+	echo "Your C compiler supports all 6 __builtin_<arith>_overflow intrinsics."
+	val="$define"
+    else
+	echo "Your C compiler doesn't support all 6 __builtin_<arith>_overflow intrinsics."
+	val="$undef"
+    fi
+    echo " "
+;;
+*) val="$d_builtin_arith_overflow" ;;
+esac
+
+set d_builtin_arith_overflow
+eval $setvar
+$rm_try
+
 $echo "Checking how many bits of your UVs your NVs can preserve..." >&4
 : volatile so that the compiler has to store it out to memory.
 if test X"$d_volatile" = X"$define"; then
@@ -24089,6 +24162,7 @@ d_bcopy='$d_bcopy'
 d_bsd='$d_bsd'
 d_bsdgetpgrp='$d_bsdgetpgrp'
 d_bsdsetpgrp='$d_bsdsetpgrp'
+d_builtin_arith_overflow='$d_builtin_arith_overflow'
 d_builtin_choose_expr='$d_builtin_choose_expr'
 d_builtin_expect='$d_builtin_expect'
 d_bzero='$d_bzero'

@@ -1282,6 +1282,39 @@ PP(pp_multiply)
 	/* Left operand is defined, so is it IV? */
 	if (SvIV_please_nomg(svl)) {
 	    bool auvok = SvUOK(svl);
+#ifdef HAS_BUILTIN_ARITH_OVERFLOW
+            /* Use fast overflow intrinsics */
+            const IV aiv = SvIVX(svl);
+            const IV biv = SvIVX(svr);
+	    const bool buvok = SvUOK(svr);
+            const bool both_neg = (aiv < 0 && biv < 0);
+            SP--;
+            /* Use unsigned calc if both are unsigned or >= 0 or both <0 */
+            if (((auvok || aiv >= 0) && (buvok || biv >= 0))
+                || both_neg) {
+                UV result;
+		const UV auv = both_neg ? (UV)(-aiv) : (UV)aiv;
+		const UV buv = both_neg ? (UV)(-biv) : (UV)biv;
+                if (BUILTIN_UMUL_OVERFLOW(auv, buv, &result)) {
+                    SETn( (NV)auv * (NV)buv );
+                } else {
+                    if ((auvok & buvok) || result > IV_MAX)
+                        /* Preserve UV result only if both are UV or
+                           result does not fit into IV */
+                        SETu( result );
+                    else
+                        SETi( result );
+                }
+            } else {
+                IV value;
+                if (BUILTIN_SMUL_OVERFLOW(aiv, biv, &value)) {
+                    SETn( (NV)aiv * (NV)biv );
+                } else {
+                    SETi( value );
+                }
+            }
+            RETURN;
+#else
 	    bool buvok = SvUOK(svr);
 	    const UV topmask = (~ (UV)0) << (4 * sizeof (UV));
 	    const UV botmask = ~((~ (UV)0) << (4 * sizeof (UV)));
@@ -1385,6 +1418,7 @@ PP(pp_multiply)
 		    }
 		} /* product_middle too large */
 	    } /* ahigh && bhigh */
+#endif
 	} /* SvIOK(svl) */
     } /* SvIOK(svr) */
 #endif
@@ -1812,6 +1846,7 @@ PP(pp_subtract)
 	    if (SvIV_please_nomg(svl)) {
 		if ((auvok = SvUOK(svl)))
 		    auv = SvUVX(svl);
+#ifndef HAS_BUILTIN_ARITH_OVERFLOW
 		else {
 		    const IV aiv = SvIVX(svl);
 		    if (aiv >= 0) {
@@ -1821,16 +1856,41 @@ PP(pp_subtract)
 			auv = (aiv == IV_MIN) ? (UV)aiv : (UV)-aiv;
 		    }
 		}
+#endif
 		a_valid = 1;
 	    }
 	}
 	if (a_valid) {
-	    bool result_good = 0;
 	    UV result;
-	    UV buv;
+            const IV biv = SvIVX(svr);
 	    bool buvok = SvUOK(svr);
-	
-	    if (buvok)
+
+#ifdef HAS_BUILTIN_ARITH_OVERFLOW
+            /* Use fast overflow intrinsics */
+            SP--;
+            /* Use unsigned calc only if both are unsigned */
+            if (auvok & buvok) {
+		const UV buv = (UV)biv;
+                if (BUILTIN_USUB_OVERFLOW(auv, buv, &result)) {
+                    SETn( (NV)auv - (NV)buv );
+                } else {
+                    SETu( result );
+                }
+            } else {
+                IV value;
+                const IV aiv = useleft ? SvIVX(svl) : 0;
+                if (BUILTIN_SSUB_OVERFLOW(aiv, biv, &value)) {
+                    SETn( (NV)aiv - (NV)biv );
+                } else {
+                    SETi( value );
+                }
+            }
+            RETURN;
+#else
+	    UV buv;
+	    bool result_good = 0;
+
+            if (buvok)
 		buv = SvUVX(svr);
 	    else {
 		const IV biv = SvIVX(svr);
@@ -1888,6 +1948,7 @@ PP(pp_subtract)
 		}
 		RETURN;
 	    } /* Overflow, drop through to NVs.  */
+#endif
 	}
     }
 #endif

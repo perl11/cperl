@@ -242,4 +242,26 @@
         code    => 'index $x, "b"',
     },
 
+    'expr::add::fast_arith_o' => {
+        desc    => 'fast overflow to double with add',
+        setup   => 'my $a = 1<<$Config{ivsize}*8 - 1; my $b = 1',
+        code    => '$a + $b',
+    },
+    'expr::multiply::fast_arith_o' => {
+        desc    => 'fast overflow to double with multiply',
+        setup   => 'my $a = 1<<$Config{ivsize}*8 - 1; my $b = 2',
+        code    => '$a * $b',
+    },
+    'expr::add::fast_arith' => {
+        desc    => 'fast arithmetic with add',
+        setup   => 'my $a = 0xFF; my $b = 1',
+        code    => '$a + $b',
+    },
+    'expr::multiply::fast_arith' => {
+        desc    => 'fast arithmetic with multiply',
+        setup   => 'my $a = 0xFF; my $b = 2',
+        code    => '$a * $b',
+    },
+
+ 
 ];
