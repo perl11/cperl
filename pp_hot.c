@@ -628,12 +628,13 @@ PP(pp_add)
 	/* Unless the left argument is integer in range we are going to have to
 	   use NV maths. Hence only attempt to coerce the right argument if
 	   we know the left is integer.  */
+#ifndef HAS_BUILTIN_ARITH_OVERFLOW
 	UV auv = 0;
+#endif
 	bool auvok = FALSE;
 	bool a_valid = 0;
 
 	if (!useleft) {
-	    auv = 0;
 	    a_valid = auvok = 1;
 	    /* left operand is undef, treat as zero. + 0 is identity,
 	       Could SETi or SETu right now, but space optimise by not adding
@@ -641,7 +642,9 @@ PP(pp_add)
 	} else {
 	    /* Left operand is defined, so is it IV? */
 	    if (SvIV_please_nomg(svl)) {
-		if ((auvok = SvUOK(svl)))
+                auvok = SvUOK(svl);
+#ifndef HAS_BUILTIN_ARITH_OVERFLOW
+		if (auvok)
 		    auv = SvUVX(svl);
 		else {
 		    const IV aiv = SvIVX(svl);
@@ -652,15 +655,45 @@ PP(pp_add)
 			auv = (aiv == IV_MIN) ? (UV)aiv : (UV)(-aiv);
 		    }
 		}
+#endif
 		a_valid = 1;
 	    }
 	}
 	if (a_valid) {
-	    bool result_good = 0;
 	    UV result;
+            const IV biv = SvIVX(svr);
+
+#ifdef HAS_BUILTIN_ARITH_OVERFLOW
+            /* Use fast overflow intrinsics */
+            const IV aiv = useleft ? SvIVX(svl) : 0;
+	    const bool buvok = SvUOK(svr);
+            SP--;
+            /* Use unsigned calc if both are unsigned or >= 0 */
+            if ((auvok || aiv >= 0) & (buvok || biv >= 0)) {
+		const UV auv = (UV)aiv;
+		const UV buv = (UV)biv;
+                if (BUILTIN_UADD_OVERFLOW(auv, buv, &result)) {
+                    SETn( (NV)auv + (NV)buv );
+                } else {
+                    if ((auvok & buvok) || result > IV_MAX)
+                        /* Preserve UV result only if both are UV or
+                           result does not fit into IV */
+                        SETu( result );
+                    else
+                        SETi( result );
+                }
+            } else {
+                IV value;
+                if (BUILTIN_SADD_OVERFLOW(aiv, biv, &value)) {
+                    SETn( (NV)aiv + (NV)biv );
+                } else {
+                    SETi( value );
+                }
+            }
+            RETURN;
+#else
 	    UV buv;
-	    bool buvok = SvUOK(svr);
-	
+	    bool result_good = 0;
 	    if (buvok)
 		buv = SvUVX(svr);
 	    else {
@@ -719,6 +752,7 @@ PP(pp_add)
 		}
 		RETURN;
 	    } /* Overflow, drop through to NVs.  */
+#endif
 	}
     }
 #endif

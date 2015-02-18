@@ -487,8 +487,8 @@ union _xnvu {
 };
 
 union _xivu {
-    IV	    xivu_iv;		/* integer value */
-    UV	    xivu_uv;
+    IV	    xivu_iv;		/* signed integer value */
+    UV	    xivu_uv;		/* unsigned variant */
     HEK *   xivu_namehek;	/* xpvlv, xpvgv: GvNAME */
 };
 

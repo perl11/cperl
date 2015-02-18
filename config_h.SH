@@ -3473,6 +3473,13 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$d_builtin_expect HAS_BUILTIN_EXPECT	/**/
 #$d_builtin_choose_expr HAS_BUILTIN_CHOOSE_EXPR	/**/
 
+/* HAS_BUILTIN_ARITH_OVERFLOW:
+ *	This symbol is defined if the compiler supports the intrinsics
+ *	__builtin_saddl_overflow() for signed and unsigned IV sizes.
+ *      GCC since 5.0, clang since 3.6
+ */
+#$d_builtin_arith_overflow HAS_BUILTIN_ARITH_OVERFLOW	/**/
+
 /* HAS_C99_VARIADIC_MACROS:
  *	If defined, the compiler supports C99 variadic macros.
  */

@@ -1700,6 +1700,34 @@ typedef UVTYPE UV;
 #define PERL_PRESERVE_IVUV	/* We like our integers to stay integers. */
 #endif
 
+/* gcc-5.0, clang-3.6 intrinsics */
+#ifdef HAS_BUILTIN_ARITH_OVERFLOW
+# if IVSIZE > 8
+#  define BUILTIN_SADD_OVERFLOW(x, y, r) __builtin_saddll_overflow(x, y, r)
+#  define BUILTIN_UADD_OVERFLOW(x, y, r) __builtin_uaddll_overflow(x, y, r)
+#  define BUILTIN_SSUB_OVERFLOW(x, y, r) __builtin_ssubll_overflow(x, y, r)
+#  define BUILTIN_USUB_OVERFLOW(x, y, r) __builtin_usubll_overflow(x, y, r)
+#  define BUILTIN_SMUL_OVERFLOW(x, y, r) __builtin_smulll_overflow(x, y, r)
+#  define BUILTIN_UMUL_OVERFLOW(x, y, r) __builtin_umulll_overflow(x, y, r)
+# else
+#  if IVSIZE == 8
+#  define BUILTIN_SADD_OVERFLOW(x, y, r) __builtin_saddl_overflow(x, y, r)
+#  define BUILTIN_UADD_OVERFLOW(x, y, r) __builtin_uaddl_overflow(x, y, r)
+#  define BUILTIN_SSUB_OVERFLOW(x, y, r) __builtin_ssubl_overflow(x, y, r)
+#  define BUILTIN_USUB_OVERFLOW(x, y, r) __builtin_usubl_overflow(x, y, r)
+#  define BUILTIN_SMUL_OVERFLOW(x, y, r) __builtin_smull_overflow(x, y, r)
+#  define BUILTIN_UMUL_OVERFLOW(x, y, r) __builtin_umull_overflow(x, y, r)
+#  else
+#  define BUILTIN_SADD_OVERFLOW(x, y, r) __builtin_sadd_overflow(x, y, r)
+#  define BUILTIN_UADD_OVERFLOW(x, y, r) __builtin_uadd_overflow(x, y, r)
+#  define BUILTIN_SSUB_OVERFLOW(x, y, r) __builtin_ssub_overflow(x, y, r)
+#  define BUILTIN_USUB_OVERFLOW(x, y, r) __builtin_usub_overflow(x, y, r)
+#  define BUILTIN_SMUL_OVERFLOW(x, y, r) __builtin_smul_overflow(x, y, r)
+#  define BUILTIN_UMUL_OVERFLOW(x, y, r) __builtin_umul_overflow(x, y, r)
+#  endif
+# endif
+#endif
+
 /*
  *  The macros INT2PTR and NUM2PTR are (despite their names)
  *  bi-directional: they will convert int/float to or from pointers.

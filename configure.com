@@ -6912,6 +6912,7 @@ $   WC "d_asctime_r='undef'"
 $   WC "ctime_r_proto='0'"
 $   WC "d_ctime_r='undef'"
 $ ENDIF
+$ WC "d_builtin_arith_overflow='undef'"
 $ WC "d_crypt_r='undef'"
 $ WC "d_ctermid_r='undef'"
 $ WC "d_drand48_r='undef'"

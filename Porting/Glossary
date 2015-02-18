@@ -516,6 +516,12 @@ d_bsdsetpgrp (d_setpgrp.U):
 	setpgrp needs two arguments whereas USG one needs none.
 	See also d_setpgid for a POSIX interface.
 
+d_builtin_arith_overflow (d_builtin.U):
+	This conditionally defines HAS_BUILTIN_ARITH_OVERFLOW, which indicates
+	that the compiler supports __builtin_saddl_overflow(left, right, &result).
+        for add, sub and mul, which may overflow to doubles, for
+        the size of our IV, i.e. the int, long or long long variant.
+
 d_builtin_choose_expr (d_builtin.U):
 	This conditionally defines HAS_BUILTIN_CHOOSE_EXPR, which
 	indicates that the compiler supports __builtin_choose_expr(x,y,z).
