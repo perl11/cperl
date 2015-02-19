@@ -349,6 +349,16 @@ and performance regression tests.
 we follow the perl6 development principles.
 we take github pull request and do not ignore them.
 
+We track stable upstream releases only. The previous stable release
+was 5.14.4, as 5.16 introduced critical instabilities which were not
+fixed mostly until 5.20 and this version, and 5.20 alone was not worth
+to update cperl to. The previous stable release was 5.8.9 and the one
+before was 5.6.2.  So we do not know which will be the next stable
+cperl release. It could be 5.24, but usually upstream development
+makes grave mistakes which needs several releases to overcome. So
+something like 5.30 sounds realistic.
+
+
 =head1 How to detect cperl?
 
 =over
