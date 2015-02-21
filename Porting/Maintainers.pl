@@ -1334,7 +1334,6 @@ use File::Glob qw(:case);
                 ext/XS-APItest/
                 ext/XS-Typemap/
                 ext/arybase/
-                ext/attributes/
                 ext/mro/
                 ext/re/
                 lib/AnyDBM_File.{pm,t}
