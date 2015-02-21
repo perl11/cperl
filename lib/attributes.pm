@@ -7,6 +7,7 @@ our $VERSION = '0.27_01c';
 %EXPORT_TAGS = (ALL => [@EXPORT, @EXPORT_OK]);
 
 use strict;
+use Config ();
 
 sub croak {
     require Carp;
@@ -129,7 +130,10 @@ sub require_version { goto &UNIVERSAL::VERSION }
 #
 # The extra trips through newATTRSUB in the interpreter wipe out any savings
 # from avoiding the BEGIN block.  Just do the bootstrap now.
-BEGIN { bootstrap attributes }
+# In cperl attributes is again a builtin.
+unless ($Config::Config{usecperl}) {
+  BEGIN { bootstrap attributes }
+}
 
 1;
 __END__
