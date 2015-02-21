@@ -57,6 +57,8 @@ is( $result, '', "output free of warnings" );
 
 # cleanup
 END {
+  if (!$result) {
     1 while unlink("lib/h2ph.ph");
     1 while unlink("_h2ph_pre.ph");
+  }
 }
