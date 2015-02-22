@@ -23,15 +23,11 @@
 #include "perl.h"
 #include "XSUB.h"
 
-/*
- * Contributed by Spider Boardman (spider.boardman@orb.nashua.nh.us).
- */
-
 /* package attributes; */
 PERL_XS_EXPORT_C void XS_attributes_reftype(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_attributes__fetch_attrs(pTHX_ CV *cv);
 PERL_XS_EXPORT_C void XS_attributes__modify_attrs(pTHX_ CV *cv);
 PERL_XS_EXPORT_C void XS_attributes__guess_stash(pTHX_ CV *cv);
-PERL_XS_EXPORT_C void XS_attributes__fetch_attrs(pTHX_ CV *cv);
 PERL_XS_EXPORT_C void XS_attributes_bootstrap(pTHX_ CV *cv);
 /* converted to XS */
 PERL_XS_EXPORT_C void XS_attributes_import(pTHX_ CV *cv);
@@ -57,18 +53,12 @@ static const char file[] = __FILE__;
 #ifdef USE_CPERL
 #include "feature.h"
 
-<<<<<<<
 /* internal only */
 static void boot_core_cperl(pTHX); /* called by boot_core_xsutils() */
-PERL_STATIC_INLINE void
-xs_incset(pTHX_ const char *const unixname,
-          const STRLEN unixlen, const SV* xsfile);
-static SV*  _fetch_attrs(pTHX_ SV*);
+PERL_STATIC_INLINE void xs_incset(pTHX_ const char *const unixname,
+                                  const STRLEN unixlen, SV* xsfile);
 static HV*  _guess_stash(pTHX_ SV*);
-=======
-/* internal only, called by boot_core_xsutils() */
-static void boot_core_cperl(pTHX);
->>>>>>>
+static void _attributes__push_fetch(SV *sv);
 
 /*
  * Set non-experimental/stable features for the compiler cop, to
@@ -98,13 +88,22 @@ static void boot_core_cperl(pTHX) {
     CopHINTHASH_set(&PL_compiling,
         cophh_store_pvn(CopHINTHASH_get(&PL_compiling), he_name2, sizeof(he_name2), 0,
             on, 0));
+    /* initialize our core types */
+#define DEF_CORETYPE(s) gv_HVadd(gv_fetchpvs("main::" s "::", GV_ADD, SVt_PVHV))
+    DEF_CORETYPE("int");
+    DEF_CORETYPE("num");
+    DEF_CORETYPE("str");
+    DEF_CORETYPE("int?"); /* int | undef */
+    DEF_CORETYPE("num?");
+    DEF_CORETYPE("str?");
+#undef DEF_CORETYPE
 }
 #endif
 
 void
 Perl_boot_core_xsutils(pTHX)
 {
-    const SV* xsfile = newSVpv_share(__FILE__, 0);
+    SV* xsfile = newSVpv_share(__FILE__, 0);
     /* static internal builtins */
     newXS("attributes::bootstrap",	XS_attributes_bootstrap,file);
     newXS("attributes::_modify_attrs",	   XS_attributes__modify_attrs, file);
@@ -141,17 +140,21 @@ Perl_boot_core_xsutils(pTHX)
 }
 
 PERL_STATIC_INLINE void
-xs_incset(pTHX_ const char *const unixname, const STRLEN unixlen, const SV* xsfile)
+xs_incset(pTHX_ const char *const unixname, const STRLEN unixlen, SV* xsfile)
 {
     HV *inchv = GvHVn(PL_incgv);
 #if 0
     SV** const svp = hv_fetch(inchv, unixname, unixlen, 0);
     if (!svp)
 #endif
-        (void)hv_store(inchv, unixname, unixlen, (SV*)xsfile, 0);
+        (void)hv_store(inchv, unixname, unixlen, SvREFCNT_inc_simple_NN(xsfile), 0);
 }
 
 /* attributes */
+/*
+ * Contributed by Spider Boardman (spider.boardman@orb.nashua.nh.us).
+ * Extended by cPanel.
+ */
 
 /* helper for the default modify handler for builtin attributes */
 static int
@@ -164,6 +167,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 	STRLEN len;
 	const char *name = SvPV_const(attr, len);
 	const bool negated = (*name == '-');
+        HV *typestash;
 
 	if (negated) {
 	    name++;
@@ -237,6 +241,11 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		}
 		break;
 	    }
+            if (!negated && (typestash = gv_stashpvn(name, len, SvUTF8(attr)))) {
+                CvTYPED_on(sv);
+                CvTYPE_set((CV*)sv, typestash);
+                continue;
+            }
 	    break;
 	case SVt_IV:
 	case SVt_PVIV:
@@ -275,27 +284,6 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
     }
 
     return nret;
-}
-
-/* helper for the default fetch handler for builtin attributes */
-static SV*
-_fetch_attrs(aTHX_ SV* sv)
-{
-    cv_flags_t cvflags;
-
-    switch (SvTYPE(sv)) {
-    case SVt_PVCV:
-	cvflags = CvFLAGS((const CV *)sv);
-	if (cvflags & CVf_LVALUE)
-	    return newSVpvs_flags("lvalue", SVs_TEMP);
-	if (cvflags & CVf_METHOD)
-	    return newSVpvs_flags("method", SVs_TEMP);
-        /* TODO: the others default attributes: return type, const */
-	break;
-    default:
-	break;
-    }
-    return NULL;
 }
 
 /* helper to return the stash for a svref, (Sv|Cv|Gv|GvE)STASH */
@@ -410,6 +398,31 @@ XS(XS_attributes_import)
      */
 }
 
+static void _attributes__push_fetch(SV *sv)
+{
+    dSP;
+    switch (SvTYPE(sv)) {
+    case SVt_PVCV:
+    {
+	cv_flags_t cvflags = CvFLAGS((const CV *)sv);
+	if (cvflags & CVf_LVALUE) {
+            XPUSHs(newSVpvs_flags("lvalue", SVs_TEMP));
+        }
+	if (cvflags & CVf_METHOD) {
+            XPUSHs(newSVpvs_flags("method", SVs_TEMP));
+        }
+	if (cvflags & CVf_TYPED) {
+            HV *typestash = CvTYPE((CV*)sv); /* skip the "main::" prefix */
+            XPUSHs(newSVpvn_flags(HvNAME(typestash)+6, HvNAMELEN(typestash)-6, SVs_TEMP));
+        }
+	break;
+    }
+    default:
+	break;
+    }
+    PUTBACK;
+}
+
 /*
   This routine expects a single parameter--a reference to a subroutine
   or variable.  It returns a list of attributes, which may be empty.
@@ -424,7 +437,7 @@ XS(XS_attributes_get)
 {
     dVAR;
     dXSARGS;
-    SV *rv, *sv, *result;
+    SV *rv, *sv;
     HV* stash;
     dXSTARG;
 
@@ -447,16 +460,21 @@ usage:
             stash = CopSTASH(cx->blk_oldcop);
         }
     }
-    result = _fetch_attrs(aTHX_ sv);
-    if (result) {
-        XPUSHs(result);
-    }
+<<<<<<<
+    PUTBACK;
+    _attributes__push_fetch(sv);
+    SPAGAIN;
+=======
+    _attributes__push_fetch(sv);
+    SPAGAIN;
+>>>>>>>
     if (stash && HvNAMELEN(stash)) {
         char name[sizeof("FETCH_svtype_ATTRIBUTES")]; /* max of SCALAR,ARRAY,HASH,CODE */
+        const char *reftype = sv_reftype(sv, 0);
 
-        strcpy(name, "FETCH_");
-        strcat(name, sv_reftype(sv, 0));
-        strcat(name, "_ATTRIBUTES");
+        my_strlcpy(name, "FETCH_", sizeof("FETCH_"));
+        my_strlcat(name, reftype, strlen(reftype));
+        my_strlcat(name, "_ATTRIBUTES", sizeof("_ATTRIBUTES"));
         PUSHMARK(sp);
         XPUSHs((SV*)stash);
         XPUSHs(sv_2mortal(newSVpvn(name, strlen(name))));
@@ -465,10 +483,7 @@ usage:
             Perl_die(aTHX_ "UNIVERSAL::can did not return a value");
             XSRETURN(0);
         }
-        SPAGAIN;
     }
-
-    XSRETURN(1);
 }
 
 /* default modify handler for builtin attributes */
@@ -498,7 +513,7 @@ XS(XS_attributes__fetch_attrs)
 {
     dVAR;
     dXSARGS;
-    SV *rv, *sv, *result;
+    SV *rv, *sv;
 
     if (items != 1) {
 usage:
@@ -510,10 +525,12 @@ usage:
     if (!(SvOK(rv) && SvROK(rv)))
 	goto usage;
     sv = SvRV(rv);
-    result = _fetch_attrs(aTHX_ sv);
-    if (result) {
-        XPUSHs(result);
-    }
+<<<<<<<
+    PUTBACK;
+    _attributes__push_fetch(sv);
+=======
+    _attributes__push_fetch(sv);
+>>>>>>>
     PUTBACK;
 }
 

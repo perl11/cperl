@@ -29,9 +29,9 @@
 
 /* package attributes; */
 PERL_XS_EXPORT_C void XS_attributes_reftype(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_attributes__fetch_attrs(pTHX_ CV *cv);
 PERL_XS_EXPORT_C void XS_attributes__modify_attrs(pTHX_ CV *cv);
 PERL_XS_EXPORT_C void XS_attributes__guess_stash(pTHX_ CV *cv);
-PERL_XS_EXPORT_C void XS_attributes__fetch_attrs(pTHX_ CV *cv);
 PERL_XS_EXPORT_C void XS_attributes_bootstrap(pTHX_ CV *cv);
 /* converted to XS */
 PERL_XS_EXPORT_C void XS_attributes_import(pTHX_ CV *cv);
@@ -57,18 +57,11 @@ static const char file[] = __FILE__;
 #ifdef USE_CPERL
 #include "feature.h"
 
-<<<<<<<
 /* internal only */
 static void boot_core_cperl(pTHX); /* called by boot_core_xsutils() */
-PERL_STATIC_INLINE void
-xs_incset(pTHX_ const char *const unixname,
-          const STRLEN unixlen, const SV* xsfile);
-static SV*  _fetch_attrs(pTHX_ SV*);
+PERL_STATIC_INLINE void xs_incset(pTHX_ const char *const unixname,
+                                  const STRLEN unixlen, SV* xsfile);
 static HV*  _guess_stash(pTHX_ SV*);
-=======
-/* internal only, called by boot_core_xsutils() */
-static void boot_core_cperl(pTHX);
->>>>>>>
 
 /*
  * Set non-experimental/stable features for the compiler cop, to
@@ -104,7 +97,7 @@ static void boot_core_cperl(pTHX) {
 void
 Perl_boot_core_xsutils(pTHX)
 {
-    const SV* xsfile = newSVpv_share(__FILE__, 0);
+    SV* xsfile = newSVpv_share(__FILE__, 0);
     /* static internal builtins */
     newXS("attributes::bootstrap",	XS_attributes_bootstrap,file);
     newXS("attributes::_modify_attrs",	   XS_attributes__modify_attrs, file);
@@ -141,14 +134,14 @@ Perl_boot_core_xsutils(pTHX)
 }
 
 PERL_STATIC_INLINE void
-xs_incset(pTHX_ const char *const unixname, const STRLEN unixlen, const SV* xsfile)
+xs_incset(pTHX_ const char *const unixname, const STRLEN unixlen, SV* xsfile)
 {
     HV *inchv = GvHVn(PL_incgv);
 #if 0
     SV** const svp = hv_fetch(inchv, unixname, unixlen, 0);
     if (!svp)
 #endif
-        (void)hv_store(inchv, unixname, unixlen, (SV*)xsfile, 0);
+        (void)hv_store(inchv, unixname, unixlen, SvREFCNT_inc_simple_NN(xsfile), 0);
 }
 
 /* attributes */
@@ -277,6 +270,8 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
     return nret;
 }
 
+<<<<<<<
+=======
 /* helper for the default fetch handler for builtin attributes */
 static SV*
 _fetch_attrs(aTHX_ SV* sv)
@@ -290,7 +285,12 @@ _fetch_attrs(aTHX_ SV* sv)
 	    return newSVpvs_flags("lvalue", SVs_TEMP);
 	if (cvflags & CVf_METHOD)
 	    return newSVpvs_flags("method", SVs_TEMP);
-        /* TODO: the others default attributes: return type, const */
+	if (SvREADONLY(sv))
+	    return newSVpvs_flags("const", SVs_TEMP);
+        /* TODO: the others default attributes: return type */
+	/*if (SvIsUV(sv))
+          XXX: only together with :int or let :unsigned be a standalone coretype for UV?
+          return newSVpvs_flags("unsigned", SVs_TEMP); */
 	break;
     default:
 	break;
@@ -298,6 +298,7 @@ _fetch_attrs(aTHX_ SV* sv)
     return NULL;
 }
 
+>>>>>>>
 /* helper to return the stash for a svref, (Sv|Cv|Gv|GvE)STASH */
 static HV*
 _guess_stash(aTHX_ SV* sv)
@@ -357,17 +358,17 @@ to the code and 'method'.
 
 So you want to know what C<import> actually does?
 
-First of all C<import> gets the type of the third parameter ('CODE' in this case).
-C<attributes.pm> checks if there is a subroutine called C<< MODIFY_<reftype>_ATTRIBUTES >>
-in the caller's namespace (here: 'main').  In this case a
-subroutine C<MODIFY_CODE_ATTRIBUTES> is required.  Then this
-method is called to check if you have used a "bad attribute".
-The subroutine call in this example would look like
+First of all C<import> gets the type of the third parameter ('CODE' in
+this case).  L<attributes> checks if there is a subroutine called
+C<< MODIFY_<reftype>_ATTRIBUTES >> in the caller's namespace (here:
+'main').  In this case a subroutine C<MODIFY_CODE_ATTRIBUTES> is
+required.  Then this method is called to check if you have used a "bad
+attribute".  The subroutine call in this example would look like
 
   MODIFY_CODE_ATTRIBUTES( 'main', \&foo, 'method' );
 
-C<< MODIFY_<reftype>_ATTRIBUTES >> has to return a list of all "bad attributes".
-If there are any bad attributes C<import> croaks.
+C<< MODIFY_<reftype>_ATTRIBUTES >> has to return a list of all "bad
+attributes".  If there are any bad attributes C<import> croaks.
 
 */
 
@@ -417,14 +418,14 @@ XS(XS_attributes_import)
   find an appropriate package name for a class method lookup, it will
   include the results from a C<FETCH_I<type>_ATTRIBUTES> call in its
   return list, as described in L<"Package-specific Attribute
-  Handling"> below.  Otherwise, only L<built-in attributes|"Built-in
+  Handling">.  Otherwise, only L<built-in attributes|"Built-in
   Attributes"> will be returned.
  */
 XS(XS_attributes_get)
 {
     dVAR;
     dXSARGS;
-    SV *rv, *sv, *result;
+    SV *rv, *sv;
     HV* stash;
     dXSTARG;
 
@@ -447,9 +448,23 @@ usage:
             stash = CopSTASH(cx->blk_oldcop);
         }
     }
-    result = _fetch_attrs(aTHX_ sv);
-    if (result) {
-        XPUSHs(result);
+    switch (SvTYPE(sv)) {
+    case SVt_PVCV:
+    {
+	cv_flags_t cvflags = CvFLAGS((const CV *)sv);
+	if (cvflags & CVf_LVALUE) {
+            XPUSHs(newSVpvs_flags("lvalue", SVs_TEMP));
+        }
+	if (cvflags & CVf_METHOD) {
+            XPUSHs(newSVpvs_flags("method", SVs_TEMP));
+        }
+	/*if (cvflags & CVf_TYPED) TODO: better return the actual type
+            XPUSHs(newSVpvs_flags("typed", SVs_TEMP)); */
+	break;
+    }
+    default:
+        /* const and shared not, we better check the flags only. */
+	break;
     }
     if (stash && HvNAMELEN(stash)) {
         char name[sizeof("FETCH_svtype_ATTRIBUTES")]; /* max of SCALAR,ARRAY,HASH,CODE */
@@ -467,8 +482,6 @@ usage:
         }
         SPAGAIN;
     }
-
-    XSRETURN(1);
 }
 
 /* default modify handler for builtin attributes */
@@ -498,7 +511,7 @@ XS(XS_attributes__fetch_attrs)
 {
     dVAR;
     dXSARGS;
-    SV *rv, *sv, *result;
+    SV *rv, *sv;
 
     if (items != 1) {
 usage:
@@ -510,9 +523,22 @@ usage:
     if (!(SvOK(rv) && SvROK(rv)))
 	goto usage;
     sv = SvRV(rv);
-    result = _fetch_attrs(aTHX_ sv);
-    if (result) {
-        XPUSHs(result);
+    switch (SvTYPE(sv)) {
+    case SVt_PVCV:
+    {
+	cv_flags_t cvflags = CvFLAGS((const CV *)sv);
+	if (cvflags & CVf_LVALUE) {
+            XPUSHs(newSVpvs_flags("lvalue", SVs_TEMP));
+        }
+	if (cvflags & CVf_METHOD) {
+            XPUSHs(newSVpvs_flags("method", SVs_TEMP));
+        }
+	/*if (cvflags & CVf_TYPED) TODO: better return the actual type
+            XPUSHs(newSVpvs_flags("typed", SVs_TEMP)); */
+	break;
+    }
+    default:
+	break;
     }
     PUTBACK;
 }
