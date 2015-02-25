@@ -189,7 +189,7 @@ boot_attributes(pTHX_ SV *xsfile)
     newXSproto("attributes::reftype",      XS_attributes_reftype,       file, "$");
   /*newXS("attributes::import",            XS_attributes_import,        file);*/
     newXSproto("attributes::get",          XS_attributes_get,           file, "$");
-    xs_incset(aTHX_ STR_WITH_LEN("attributes.pm"), xsfile);
+  /*xs_incset(aTHX_ STR_WITH_LEN("attributes.pm"), xsfile); not yet fully converted */
 }
 
 void
@@ -365,13 +365,17 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    if (negated)
 			CvCONST_off(sv);
 		    else {
-			const bool warn = (!CvANON(sv) || CvCLONED(sv))
-				       && !CvCONST(sv);
-			CvCONST_on(sv);
-			if (warn)
-			    break;
+#ifndef USE_CPERL
+                        const bool warn = (!CvANON(sv) || CvCLONED(sv))
+                                        && !CvCONST(sv);
+                        CvCONST_on(sv);
+                        if (warn)
+                            break;
+#else
+                        CvCONST_on(sv);
+#endif
 		    }
-		    continue;
+		    goto next_attr;
 		}
 		break;
 	    case 6:
@@ -387,7 +391,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 			else
 			    CvFLAGS(MUTABLE_CV(sv)) |= CVf_LVALUE;
 			if (warn) break;
-			continue;
+                        goto next_attr;
 		    }
 		    break;
 		case 'h':
@@ -396,7 +400,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 			    CvFLAGS(MUTABLE_CV(sv)) &= ~CVf_METHOD;
 			else
 			    CvFLAGS(MUTABLE_CV(sv)) |= CVf_METHOD;
-			continue;
+                        goto next_attr;
 		    }
 		    break;
 		}
@@ -421,7 +425,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		                                    SvUTF8(attr));
 		    sv_setpvn(MUTABLE_SV(sv), name+10, len-11);
 		    if (SvUTF8(attr)) SvUTF8_on(MUTABLE_SV(sv));
-		    continue;
+		    goto next_attr;
 		}
 		break;
 	    }
@@ -443,7 +447,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                     SvIsUV_on(sv);
                 continue;
             }
-            /* fallthru */
+            /* fallthru - all other data types */
 	default:
             if (memEQ(name, "const", 5)
                 && !(SvFLAGS(sv) & SVf_PROTECT))
@@ -465,6 +469,8 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 	/* anything recognized had a 'continue' above */
 	*retlist++ = attr;
 	nret++;
+    next_attr:
+        ;
     }
 
     return nret;
@@ -599,7 +605,8 @@ S_attributes__push_fetch(pTHX_ SV *sv)
         }
 	if (cvflags & CVf_TYPED) {
             HV *typestash = CvTYPE((CV*)sv);
-            XPUSHs(newSVpvn_flags(HvNAME(typestash)+6, HvNAMELEN(typestash)-6, SVs_TEMP));
+            XPUSHs(newSVpvn_flags(HvNAME(typestash), HvNAMELEN(typestash),
+                                  SVs_TEMP|HvNAMEUTF8(typestash)));
         }
 	break;
     }
@@ -640,12 +647,8 @@ usage:
     sv = SvRV(rv);
 
     stash = _guess_stash(sv);
-    if (!stash) {
-        const PERL_CONTEXT *cx = caller_cx(0 + !!(PL_op->op_private & OPpOFFBYONE), NULL);
-        if (cx && SvTYPE(CopSTASH(cx->blk_oldcop)) == SVt_PVHV) {
-            stash = CopSTASH(cx->blk_oldcop);
-        }
-    }
+    if (!stash)
+        stash = CopSTASH(PL_curcop);
     SP--;
     PUTBACK;
     _attributes__push_fetch(sv);
@@ -655,6 +658,7 @@ usage:
         char name[len]; /* max of SCALAR,ARRAY,HASH,CODE */
         const char *reftype = sv_reftype(sv, 0);
 
+        /* TODO: check the phase. at compile-time use CHECK instead */
         my_strlcpy(name, "FETCH_", sizeof("FETCH_"));
         my_strlcat(name, reftype, len);
         my_strlcat(name, "_ATTRIBUTES", len);
