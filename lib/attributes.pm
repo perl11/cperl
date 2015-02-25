@@ -1,11 +1,11 @@
 package attributes;
 
-our $VERSION = '0.27_01c';
-
-@EXPORT_OK = qw(get reftype);
+#our $VERSION = '0.27_01c';
+#@EXPORT_OK = qw(get reftype);
 @EXPORT = ();
 %EXPORT_TAGS = (ALL => [@EXPORT, @EXPORT_OK]);
 
+# TODO: convert import also to XS
 use strict;
 use Config ();
 
@@ -18,7 +18,7 @@ sub carp {
     require Carp;
     goto &Carp::carp;
 }
-
+ 
 my %deprecated;
 $deprecated{CODE} = qr/\A-?(locked)\z/;
 $deprecated{ARRAY} = $deprecated{HASH} = $deprecated{SCALAR}
@@ -104,39 +104,42 @@ sub import {
     }
 }
 
-sub get ($) {
-    @_ == 1  && ref $_[0] or
-	croak 'Usage: '.__PACKAGE__.'::get $ref';
-    my $svref = shift;
-    my $svtype = uc reftype $svref;
-    my $stash = _guess_stash $svref;
-    $stash = caller unless defined $stash;
-    my $pkgmeth;
-    $pkgmeth = UNIVERSAL::can($stash, "FETCH_${svtype}_ATTRIBUTES")
-	if defined $stash && $stash ne '';
-    return $pkgmeth ?
-		(_fetch_attrs($svref), $pkgmeth->($stash, $svref)) :
-		(_fetch_attrs($svref))
-	;
-}
-
-sub require_version { goto &UNIVERSAL::VERSION }
-
-## forward declaration(s) rather than wrapping the bootstrap call in BEGIN{}
-#sub reftype ($) ;
-#sub _fetch_attrs ($) ;
-#sub _guess_stash ($) ;
-#sub _modify_attrs ;
+# with cperl implemented in xsutils.c
 #
-# The extra trips through newATTRSUB in the interpreter wipe out any savings
-# from avoiding the BEGIN block.  Just do the bootstrap now.
-# In cperl attributes is again a builtin.
-unless ($Config::Config{usecperl}) {
-  BEGIN { bootstrap attributes }
-}
-
+# sub get ($) {
+#     @_ == 1  && ref $_[0] or
+# 	croak 'Usage: '.__PACKAGE__.'::get $ref';
+#     my $svref = shift;
+#     my $svtype = uc reftype $svref;
+#     my $stash = _guess_stash $svref;
+#     $stash = caller unless defined $stash;
+#     my $pkgmeth;
+#     $pkgmeth = UNIVERSAL::can($stash, "FETCH_${svtype}_ATTRIBUTES")
+# 	if defined $stash && $stash ne '';
+#     return $pkgmeth ?
+# 		(_fetch_attrs($svref), $pkgmeth->($stash, $svref)) :
+# 		(_fetch_attrs($svref))
+# 	;
+# }
+# 
+# sub require_version { goto &UNIVERSAL::VERSION }
+# 
+# ## forward declaration(s) rather than wrapping the bootstrap call in BEGIN{}
+# #sub reftype ($) ;
+# #sub _fetch_attrs ($) ;
+# #sub _guess_stash ($) ;
+# #sub _modify_attrs ;
+# #
+# # The extra trips through newATTRSUB in the interpreter wipe out any savings
+# # from avoiding the BEGIN block.  Just do the bootstrap now.
+# # In cperl attributes is again a builtin.
+# unless ($Config::Config{usecperl}) {
+#   BEGIN { bootstrap attributes }
+# }
+ 
 1;
 __END__
+
 #The POD goes here
 
 =head1 NAME
@@ -284,16 +287,19 @@ It was used as part of the now-removed "Perl 5.005 threads".
 
 =item const
 
-This is experimental attribute was introduced in Perl 5.22. With the
-cperl variant it works for all subroutines, without only for
-anonymous subroutines.  It causes the subroutine to be called as soon
-as the C<sub> expression is evaluated.  The return value is captured
-and turned into a constant subroutine.
+This experimental attribute was introduced in Perl 5.22.
+
+With the cperl variant it works for all data values, without only for
+anonymous subroutines.  For subroutines it causes compile-time
+evaluation.  The return value is captured and turned into a constant
+subroutine.  For other data it sets the READONLY flag and enables
+compile-time optimizations.
 
 =item int, num, str
 
-With the cperl variant use coretypes which declares these types is implicit.
-These types declare the strict return type for the subroutine.
+The cperl variant uses coretypes which declares these types.  For
+subroutines these types declare the strict return type for the
+subroutine.
 
 =back
 
@@ -315,12 +321,13 @@ multi-interpreter environment.
 
 =item const
 
-With the cperl variant :const declares a lexical variable as constant.
+With the cperl variant :const declares a lexical variable as
+compile-time constant, it sets the READONLY flag.
 
 =item int, num, str
 
-With the cperl variant use coretypes which declares these types is implicit.
-These types declare the strict type for the lexical variable.
+The cperl variant uses coretypes which declares these types.
+These types attributes declare the strict type for the variable.
 
 =back
 
