@@ -11789,7 +11789,9 @@ Todo:
 - types in leading position (int $i)
 - attributes (:const, types), ($i :int :const)
 - scalar references compiled to direct access, not just copies, (\$a) => my $a = $_[0]
-- no double copies into @_, only copy rest when there is no slurpy arg.
+- no double copies into @_ in entersub, only copy rest when there is no slurpy arg.
+  mark how many then.
+  Or when \$ works none at all. warn in ck_subr when @_/$_[] is used.
 
 =cut
 */
@@ -11805,6 +11807,20 @@ Perl_parse_subsignature(pTHX)
     lex_read_space(0);
     c = lex_peek_unichar(0);
     while (c != /*(*/')') {
+        if (c != '$' && c != '@' && c != '%' && c != '\\') {
+            char *s = PL_parser->bufptr;
+            STRLEN len;
+            s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
+            PL_in_my_stash = find_in_my_stash(PL_tokenbuf, len);
+            if (!PL_in_my_stash) {
+                char tmpbuf[1024];
+                int len;
+                PL_bufptr = s;
+                len = my_snprintf(tmpbuf, sizeof(tmpbuf), "No such class %.1000s", PL_tokenbuf);
+                PERL_MY_SNPRINTF_POST_GUARD(len, sizeof(tmpbuf));
+                yyerror_pv(tmpbuf, UTF ? SVf_UTF8 : 0);
+            }
+        }
 	switch (c) {
             /* untyped scalar */
 	    case '$': {
