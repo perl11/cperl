@@ -11930,6 +11930,7 @@ Perl_parse_subsignature(pTHX)
     I32 c;
     int prev_type = 0, pos = 0, min_arity = 0, max_arity = 0;
     OP *initops = NULL;
+    HV *typestash = NULL;
     lex_read_space(0);
     c = lex_peek_unichar(0);
     while (c != /*(*/')') {
@@ -11937,8 +11938,8 @@ Perl_parse_subsignature(pTHX)
             char *s = PL_parser->bufptr;
             STRLEN len;
             s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
-            PL_in_my_stash = find_in_my_stash(PL_tokenbuf, len);
-            if (!PL_in_my_stash) {
+            typestash = find_in_my_stash(PL_tokenbuf, len);
+            if (!typestash) {
                 char tmpbuf[1024];
                 int len;
                 PL_bufptr = s;
@@ -11954,6 +11955,12 @@ Perl_parse_subsignature(pTHX)
 		if (prev_type == 2)
 		    qerror(Perl_mess(aTHX_ "Slurpy parameter not last"));
 		var = parse_opt_lexvar();
+                if (var && typestash) { /* store stash in comppad */
+                    PADNAME *pn = padnamelist_fetch(PL_comppad_name, var->op_targ);
+                    SvPAD_TYPED_on(pn);
+                    PadnameTYPE_set(pn,
+                        MUTABLE_HV(SvREFCNT_inc_simple_NN(MUTABLE_SV(typestash))));
+                }
 		expr = var ?
 		    newBINOP(OP_AELEM, 0,
 			ref(newUNOP(OP_RV2AV, 0, newGVOP(OP_GV, 0, PL_defgv)),
@@ -12010,6 +12017,12 @@ Perl_parse_subsignature(pTHX)
                 if (c != '$') /* (no \@ \% \[$] yet) */
 		    qerror(Perl_mess(aTHX_ "No scalar lvalue reference"));
 		var = parse_opt_lexvar();
+                if (var && typestash) { /* store stash in comppad */
+                    PADNAME *pn = padnamelist_fetch(PL_comppad_name, var->op_targ);
+                    SvPAD_TYPED_on(pn);
+                    PadnameTYPE_set(pn,
+                        MUTABLE_HV(SvREFCNT_inc_simple_NN(MUTABLE_SV(typestash))));
+                }
 		expr = var ?
 		    newBINOP(OP_AELEM, 0,
 			ref(newUNOP(OP_RV2AV, 0, newGVOP(OP_GV, 0, PL_defgv)),
@@ -12068,7 +12081,14 @@ Perl_parse_subsignature(pTHX)
 				initops);
 		}
 		if (var) {
-		    OP *slice = pos ?
+		    OP *slice;
+                    if (typestash) { /* (HashClass %x, ListClass @a) */
+                        PADNAME *pn = padnamelist_fetch(PL_comppad_name, var->op_targ);
+                        SvPAD_TYPED_on(pn);
+                        PadnameTYPE_set(pn,
+                            MUTABLE_HV(SvREFCNT_inc_simple_NN(MUTABLE_SV(typestash))));
+                    }
+		    slice = pos ?
 			op_prepend_elem(OP_ASLICE,
 			    newOP(OP_PUSHMARK, 0),
 			    newLISTOP(OP_ASLICE, 0,
