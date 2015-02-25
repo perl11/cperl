@@ -652,6 +652,7 @@ usage:
         char name[len]; /* max of SCALAR,ARRAY,HASH,CODE */
         const char *reftype = sv_reftype(sv, 0);
 
+        /* TODO: check the phase. at compile-time use CHECK instead */
         my_strlcpy(name, "FETCH_", sizeof("FETCH_"));
         my_strlcat(name, reftype, len);
         my_strlcat(name, "_ATTRIBUTES", len);

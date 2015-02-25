@@ -2,7 +2,7 @@ package attributes;
 
 our $VERSION = '0.26_01c';
 
-@EXPORT_OK = qw(get reftype);
+#@EXPORT_OK = qw(get reftype);
 @EXPORT = ();
 %EXPORT_TAGS = (ALL => [@EXPORT, @EXPORT_OK]);
 
@@ -18,7 +18,7 @@ sub carp {
     require Carp;
     goto &Carp::carp;
 }
-
+ 
 my %deprecated;
 $deprecated{CODE} = qr/\A-?(locked)\z/;
 $deprecated{ARRAY} = $deprecated{HASH} = $deprecated{SCALAR}
@@ -103,40 +103,41 @@ sub import {
 	    join(' : ', @badattrs);
     }
 }
-
-sub get ($) {
-    @_ == 1  && ref $_[0] or
-	croak 'Usage: '.__PACKAGE__.'::get $ref';
-    my $svref = shift;
-    my $svtype = uc reftype $svref;
-    my $stash = _guess_stash $svref;
-    $stash = caller unless defined $stash;
-    my $pkgmeth;
-    $pkgmeth = UNIVERSAL::can($stash, "FETCH_${svtype}_ATTRIBUTES")
-	if defined $stash && $stash ne '';
-    return $pkgmeth ?
-		(_fetch_attrs($svref), $pkgmeth->($stash, $svref)) :
-		(_fetch_attrs($svref))
-	;
-}
-
-sub require_version { goto &UNIVERSAL::VERSION }
-
-## forward declaration(s) rather than wrapping the bootstrap call in BEGIN{}
-#sub reftype ($) ;
-#sub _fetch_attrs ($) ;
-#sub _guess_stash ($) ;
-#sub _modify_attrs ;
-#
-# The extra trips through newATTRSUB in the interpreter wipe out any savings
-# from avoiding the BEGIN block.  Just do the bootstrap now.
-# In cperl attributes is again a builtin.
-unless ($Config::Config{usecperl}) {
-  BEGIN { bootstrap attributes }
-}
-
+ 
+# sub get ($) {
+#     @_ == 1  && ref $_[0] or
+# 	croak 'Usage: '.__PACKAGE__.'::get $ref';
+#     my $svref = shift;
+#     my $svtype = uc reftype $svref;
+#     my $stash = _guess_stash $svref;
+#     $stash = caller unless defined $stash;
+#     my $pkgmeth;
+#     $pkgmeth = UNIVERSAL::can($stash, "FETCH_${svtype}_ATTRIBUTES")
+# 	if defined $stash && $stash ne '';
+#     return $pkgmeth ?
+# 		(_fetch_attrs($svref), $pkgmeth->($stash, $svref)) :
+# 		(_fetch_attrs($svref))
+# 	;
+# }
+# 
+# sub require_version { goto &UNIVERSAL::VERSION }
+# 
+# ## forward declaration(s) rather than wrapping the bootstrap call in BEGIN{}
+# #sub reftype ($) ;
+# #sub _fetch_attrs ($) ;
+# #sub _guess_stash ($) ;
+# #sub _modify_attrs ;
+# #
+# # The extra trips through newATTRSUB in the interpreter wipe out any savings
+# # from avoiding the BEGIN block.  Just do the bootstrap now.
+# # In cperl attributes is again a builtin.
+# unless ($Config::Config{usecperl}) {
+#   BEGIN { bootstrap attributes }
+# }
+ 
 1;
 __END__
+
 #The POD goes here
 
 =head1 NAME
