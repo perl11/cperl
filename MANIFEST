@@ -4142,6 +4142,7 @@ lib/Config/Extensions.pm	Convenient hash lookup for built extensions
 lib/Config/Extensions.t		See if Config::Extensions works
 lib/Config.t			See if Config works
 lib/CORE.pod			document the CORE namespace
+lib/cperl.pm			Pragma to protect from incompatible cperl syntax
 lib/DBM_Filter/compress.pm	DBM Filter to compress keys/values
 lib/DBM_Filter/encode.pm	DBM Filter for encoding
 lib/DBM_Filter/int32.pm		DBM Filter for creating int32 keys/values
