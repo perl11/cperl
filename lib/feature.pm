@@ -282,6 +282,10 @@ This feature is available from Perl 5.20 onwards.
 
 =head2 The 'signatures' feature
 
+B<cperl>: This feature is enabled per default with L<cperl>. In cperl
+this is a significantly enhanced version to the 5.20 and 5.22 version
+of perl experimental signatures.
+
 B<WARNING>: This feature is still experimental and the implementation may
 change in future versions of Perl.  For this reason, Perl will
 warn when you use the feature, unless you have explicitly disabled the
