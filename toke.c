@@ -11808,6 +11808,7 @@ Perl_parse_subsignature(pTHX)
     lex_read_space(0);
     c = lex_peek_unichar(0);
     while (c != /*(*/')') {
+        char ref = 0;
         if (c != '$' && c != '@' && c != '%' && c != '\\') {
             char *s = PL_parser->bufptr;
             STRLEN len;
@@ -11823,6 +11824,14 @@ Perl_parse_subsignature(pTHX)
             }
         }
 	switch (c) {
+            /* referenced scalar */
+	    case '\\': {
+                ref = 1;
+                c = lex_peek_unichar(0);
+                if (c != '$') /* (no \@ \% \[$] yet) */
+		    qerror(Perl_mess(aTHX_ "No scalar lvalue reference parameter"));
+                /* fallthrough */
+            }
             /* untyped scalar */
 	    case '$': {
 		OP *var, *expr;
@@ -11843,32 +11852,38 @@ Perl_parse_subsignature(pTHX)
 		    NULL;
 		lex_read_space(0);
 		c = lex_peek_unichar(0);
-		if (c == '=') {
-		    lex_token_boundary();
-		    lex_read_unichar(0);
-		    lex_read_space(0);
-		    c = lex_peek_unichar(0);
-		    if (c == ',' || c == /*(*/')') {
-			if (var)
-			    qerror(Perl_mess(aTHX_ "Optional parameter "
-				    "lacks default expression"));
-		    } else {
-			OP *defexpr = parse_termexpr(0);
-			if (defexpr->op_type == OP_UNDEF &&
+                if (c == '=') {
+                    if (ref) {
+                        qerror(Perl_mess(aTHX_ "Scalar reference cannot take default value"));
+                        prev_type = 1;
+                    }
+                    else {
+                        lex_token_boundary();
+                        lex_read_unichar(0);
+                        lex_read_space(0);
+                        c = lex_peek_unichar(0);
+                        if (c == ',' || c == /*(*/')') {
+                            if (var)
+                                qerror(Perl_mess(aTHX_ "Optional parameter "
+                                                 "lacks default expression"));
+                        } else {
+                            OP *defexpr = parse_termexpr(0);
+                            if (defexpr->op_type == OP_UNDEF &&
 				!(defexpr->op_flags & OPf_KIDS)) {
-			    op_free(defexpr);
-			} else {
-			    OP *ifop = 
-				newBINOP(OP_GE, 0,
-				    scalar(newUNOP(OP_RV2AV, 0,
-					    newGVOP(OP_GV, 0, PL_defgv))),
-				    newSVOP(OP_CONST, 0, newSViv(pos+1)));
-			    expr = var ?
-				newCONDOP(0, ifop, expr, defexpr) :
-				newLOGOP(OP_OR, 0, ifop, defexpr);
-			}
-		    }
-		    prev_type = 1;
+                                op_free(defexpr);
+                            } else {
+                                OP *ifop = 
+                                    newBINOP(OP_GE, 0,
+                                             scalar(newUNOP(OP_RV2AV, 0,
+                                                            newGVOP(OP_GV, 0, PL_defgv))),
+                                             newSVOP(OP_CONST, 0, newSViv(pos+1)));
+                                expr = var ?
+                                    newCONDOP(0, ifop, expr, defexpr) :
+                                    newLOGOP(OP_OR, 0, ifop, defexpr);
+                            }
+                        }
+                        prev_type = 1;
+                    }
 		} else {
 		    if (prev_type == 1)
 			qerror(Perl_mess(aTHX_ "Mandatory parameter "
@@ -11882,45 +11897,6 @@ Perl_parse_subsignature(pTHX)
 				newSTATEOP(0, NULL, expr));
 		max_arity = ++pos;
 	    } break;
-            /* referenced scalar */
-	    case '\\': {
-		OP *var, *expr;
-		if (prev_type == 2)
-		    qerror(Perl_mess(aTHX_ "Slurpy parameter not last"));
-                c = lex_peek_unichar(0);
-                if (c != '$') /* (no \@ \% \[$] yet) */
-		    qerror(Perl_mess(aTHX_ "No scalar lvalue reference"));
-		var = parse_opt_lexvar();
-                if (var && typestash) { /* store stash in comppad */
-                    PADNAME *pn = padnamelist_fetch(PL_comppad_name, var->op_targ);
-                    SvPAD_TYPED_on(pn);
-                    PadnameTYPE_set(pn,
-                        MUTABLE_HV(SvREFCNT_inc_simple_NN(MUTABLE_SV(typestash))));
-                }
-		expr = var ?
-		    newBINOP(OP_AELEM, 0,
-			ref(newUNOP(OP_RV2AV, 0, newGVOP(OP_GV, 0, PL_defgv)),
-			    OP_RV2AV),
-			newSVOP(OP_CONST, 0, newSViv(pos))) :
-		    NULL;
-		lex_read_space(0);
-		c = lex_peek_unichar(0);
-		if (c == '=') {
-		    qerror(Perl_mess(aTHX_ "Scalar reference cannot take default value"));
-		    prev_type = 1;
-		} else {
-		    if (prev_type == 1)
-			qerror(Perl_mess(aTHX_ "Mandatory parameter "
-				"follows optional parameter"));
-		    prev_type = 0;
-		    min_arity = pos + 1;
-		}
-		if (var) expr = newASSIGNOP(OPf_STACKED, var, 0, expr);
-		if (expr)
-		    initops = op_append_list(OP_LINESEQ, initops,
-				newSTATEOP(0, NULL, expr));
-		max_arity = ++pos;
-            } break;
 	    case '@':
 	    case '%': {
 		OP *var;
