@@ -11834,22 +11834,30 @@ Perl_parse_subsignature(pTHX)
             }
             /* untyped scalar */
 	    case '$': {
-		OP *var, *expr;
+		OP *var, *expr = NULL;
 		if (prev_type == 2)
 		    qerror(Perl_mess(aTHX_ "Slurpy parameter not last"));
 		var = parse_opt_lexvar();
-                if (var && typestash) { /* store stash in comppad */
-                    PADNAME *pn = padnamelist_fetch(PL_comppad_name, var->op_targ);
-                    SvPAD_TYPED_on(pn);
-                    PadnameTYPE_set(pn,
-                        MUTABLE_HV(SvREFCNT_inc_simple_NN(MUTABLE_SV(typestash))));
+                if (var) {
+                    if (typestash) { /* store stash in comppad */
+                        PADNAME *pn = padnamelist_fetch(PL_comppad_name, var->op_targ);
+                        SvPAD_TYPED_on(pn);
+                        PadnameTYPE_set(pn,
+                                        MUTABLE_HV(SvREFCNT_inc_simple_NN(MUTABLE_SV(typestash))));
+                    }
+                    /* rhs $_[pos] */
+                    if (pos > 127) {
+                        expr = newBINOP(OP_AELEM, 0,
+                                    ref ? newGVOP(OP_GV, 0, PL_defgv)
+                                        : ref(newUNOP(OP_RV2AV, 0, newGVOP(OP_GV, 0, PL_defgv)),
+                                              OP_RV2AV),
+                                        newSVOP(OP_CONST, 0, newSViv(pos)));
+                    }
+                    else {
+                        expr = (OP*)newSVOP(OP_AELEMFAST, ref ? OPf_MOD : 0, (SV*)PL_defgv);
+                        expr->op_private = (U8)pos;
+                    }
                 }
-		expr = var ?
-		    newBINOP(OP_AELEM, 0,
-			ref(newUNOP(OP_RV2AV, 0, newGVOP(OP_GV, 0, PL_defgv)),
-			    OP_RV2AV),
-			newSVOP(OP_CONST, 0, newSViv(pos))) :
-		    NULL;
 		lex_read_space(0);
 		c = lex_peek_unichar(0);
                 if (c == '=') {
