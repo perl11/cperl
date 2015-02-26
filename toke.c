@@ -11922,8 +11922,6 @@ Todo:
 =cut
 */
 
-/* Note that we need to replace this function with a real parse in
-   perly.y to untangle and scale this mess. */
 OP *
 Perl_parse_subsignature(pTHX)
 {
@@ -11969,7 +11967,7 @@ Perl_parse_subsignature(pTHX)
                         PADNAME *pn = padnamelist_fetch(PL_comppad_name, var->op_targ);
                         SvPAD_TYPED_on(pn);
                         PadnameTYPE_set(pn,
-                                        MUTABLE_HV(SvREFCNT_inc_simple_NN(MUTABLE_SV(typestash))));
+                            MUTABLE_HV(SvREFCNT_inc_simple_NN(MUTABLE_SV(typestash))));
                     }
                     /* rhs $_[pos] */
                     if (pos > 127) {
@@ -12114,9 +12112,30 @@ Perl_parse_subsignature(pTHX)
 		goto parse_error;
 	}
     }
-    if (min_arity != 0) {
+    if (min_arity == max_arity) {
 	initops = op_append_list(OP_LINESEQ,
-	    newSTATEOP(0, NULL,
+              newSTATEOP(0, NULL,
+		newLOGOP(OP_OR, 0,
+		    newBINOP(OP_EQ, 0,
+			scalar(newUNOP(OP_RV2AV, 0,
+			    newGVOP(OP_GV, 0, PL_defgv))),
+			newSVOP(OP_CONST, 0, newSViv(min_arity))),
+		    op_convert_list(OP_DIE, 0,
+		        op_convert_list(OP_SPRINTF, 0,
+		            op_append_list(OP_LIST,
+		                newSVOP(OP_CONST, 0,
+		                    newSVpvs("Wrong number of arguments for subroutine at %s line %d.\n")),
+                                newSLICEOP(0,
+                                    op_append_list(OP_LIST,
+                                        newSVOP(OP_CONST, 0, newSViv(1)),
+                                        newSVOP(OP_CONST, 0, newSViv(2))),
+                                            newOP(OP_CALLER, 0))))))),
+                         initops);
+    }
+    else {
+        if (min_arity != 0) {
+            initops = op_append_list(OP_LINESEQ,
+	      newSTATEOP(0, NULL,
 		newLOGOP(OP_OR, 0,
 		    newBINOP(OP_GE, 0,
 			scalar(newUNOP(OP_RV2AV, 0,
@@ -12133,10 +12152,10 @@ Perl_parse_subsignature(pTHX)
 		                        newSVOP(OP_CONST, 0, newSViv(2))),
 		                    newOP(OP_CALLER, 0))))))),
 	    initops);
-    }
-    if (max_arity != -1) {
-	initops = op_append_list(OP_LINESEQ,
-	    newSTATEOP(0, NULL,
+        }
+        if (max_arity != -1) {
+            initops = op_append_list(OP_LINESEQ,
+	      newSTATEOP(0, NULL,
 		newLOGOP(OP_OR, 0,
 		    newBINOP(OP_LE, 0,
 			scalar(newUNOP(OP_RV2AV, 0,
@@ -12153,6 +12172,7 @@ Perl_parse_subsignature(pTHX)
 		                        newSVOP(OP_CONST, 0, newSViv(2))),
 		                    newOP(OP_CALLER, 0))))))),
 	    initops);
+        }
     }
     return initops;
 }
