@@ -8238,16 +8238,27 @@ Perl_yylex(pTHX)
 		}
 
 		/* Look for a prototype. signatures are backcompat */
-		if (*s == '(' && !FEATURE_SIGNATURES_IS_ENABLED) {
+                if (*s == '('
+#if !defined(USE_CPERL)
+                    && !FEATURE_SIGNATURES_IS_ENABLED
+#endif
+                    ) {
+                    char *olds = s;
+                    DEBUG_T( { printbuf("### Looks like prototype? %s\n", s); } );
 		    s = scan_str(s,FALSE,FALSE,FALSE,NULL);
 		    COPLINE_SET_FROM_MULTI_END;
 		    if (!s)
 			Perl_croak(aTHX_ "Prototype not terminated");
-                    if (ckWARN(WARN_ILLEGALPROTO))
-                        (void)validate_proto(PL_subname, PL_lex_stuff, 1);
-		    have_proto = TRUE;
-
-		    s = skipspace(s);
+		    have_proto = validate_proto(PL_subname, PL_lex_stuff,
+                                                ckWARN(WARN_ILLEGALPROTO));
+                    if (have_proto) {
+                        DEBUG_T( { printbuf("### Is prototype %s\n", olds); } );
+                        s = skipspace(s);
+                    } else {
+                        DEBUG_T( { printbuf("### No prototype %s, signature probably\n", olds); } );
+                        s = olds;
+                        PL_lex_stuff = NULL;
+                    }
 		}
 		else
 		    have_proto = FALSE;
