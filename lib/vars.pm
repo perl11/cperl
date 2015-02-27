@@ -4,7 +4,7 @@ use 5.006;
 
 our $VERSION = '1.03';
 
-use warnings::register;
+use warnings::register "vars";
 use strict qw(vars subs);
 
 sub import {
@@ -18,8 +18,8 @@ sub import {
 		if ($sym =~ /^\w+[[{].*[]}]$/) {
 		    require Carp;
 		    Carp::croak("Can't declare individual elements of hash or array");
-		} elsif (warnings::enabled() and length($sym) == 1 and $sym !~ tr/a-zA-Z//) {
-		    warnings::warn("No need to declare built-in vars");
+		} elsif (warnings::enabled("vars") and length($sym) == 1 and $sym !~ tr/a-zA-Z//) {
+		    warnings::warn("vars", "No need to declare built-in vars");
 		} elsif  (($^H &= strict::bits('vars'))) {
 		    require Carp;
 		    Carp::croak("'$_' is not a valid variable name under strict vars");

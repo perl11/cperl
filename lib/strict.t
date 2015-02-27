@@ -3,7 +3,7 @@
 chdir 't' if -d 't';
 @INC = '../lib';
 
-our $local_tests = 6;
+our $local_tests = 9;
 require "../t/lib/common.pl";
 
 eval qq(use strict 'garbage');
@@ -25,3 +25,7 @@ eval 'use strict; use v5.10; ${"c"}';
 like($@,
     qr/^Can't use string \("c"\) as a SCALAR ref while "strict refs" in use/,
     "use v5.10 doesn't disable explicit strict ref");
+
+is(strict::bits("refs"), 2, 'bits refs');
+is(strict::bits("subs"), 512, 'bits subs');
+is(strict::bits("vars"), 1024, 'bits vars');

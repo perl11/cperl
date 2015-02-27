@@ -6056,7 +6056,10 @@ Perl_utilize(pTHX_ int aver, I32 floor, OP *version, OP *idop, OP *arg)
 	use_version = sv_2mortal(new_version(use_version));
 	S_enable_feature_bundle(aTHX_ use_version);
 
-	/* If a version >= 5.11.0 is requested, strictures are on by default! */
+	/* If a version >= 5.11.0 is requested, strictures are on by default!
+           TODO:
+           This needs to be replaced by a single bit to denote argless default
+           import vs argful special import. */
 	if (vcmp(use_version,
 		 sv_2mortal(upg_version(newSVnv(5.011000), FALSE))) >= 0) {
 	    if (!(PL_hints & HINT_EXPLICIT_STRICT_REFS))

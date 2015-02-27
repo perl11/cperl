@@ -5651,3 +5651,4 @@ win32/wince.h			WinCE port
 win32/wincesck.c		WinCE port
 write_buildcustomize.pl		Generate lib/buildcustomize.pl
 XSUB.h				Include file for extension subroutines
+xsutils.c			Additional bundled package methods not in UNIVERSAL::
