@@ -2188,6 +2188,7 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
 
     boot_core_PerlIO();
     boot_core_UNIVERSAL();
+    boot_core_xsutils();
     boot_core_mro();
     newXS("Internals::V", S_Internals_V, __FILE__);
 
