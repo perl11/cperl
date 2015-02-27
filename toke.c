@@ -12022,32 +12022,32 @@ Perl_parse_subsignature(pTHX)
                     fail_op)),
             initops);
     }
-    else if (max_arity == -1) {
-        return op_append_list(OP_LINESEQ,
-            newSTATEOP(0, NULL,
-                newLOGOP(OP_OR, 0,
-                    newBINOP(OP_GE, 0,
-                        scalar(newUNOP(OP_RV2AV, 0,
-                                newGVOP(OP_GV, 0, PL_defgv))),
-                        newSVOP(OP_CONST, 0, newSViv(min_arity))),
-                    fail_op)),
-            initops);
-    }
-    else {
-        return op_append_list(OP_LINESEQ,
-            newSTATEOP(0, NULL,
-                newLOGOP(OP_AND, 0,
+    else if (min_arity > 0) {
+        if (max_arity == -1)
+            return op_append_list(OP_LINESEQ,
+                newSTATEOP(0, NULL,
                     newLOGOP(OP_OR, 0,
-                        newBINOP(OP_LT, 0,
+                        newBINOP(OP_GE, 0,
                             scalar(newUNOP(OP_RV2AV, 0,
                                     newGVOP(OP_GV, 0, PL_defgv))),
                             newSVOP(OP_CONST, 0, newSViv(min_arity))),
-                        newBINOP(OP_GT, 0,
-                            scalar(newUNOP(OP_RV2AV, 0,
-                                    newGVOP(OP_GV, 0, PL_defgv))),
-                            newSVOP(OP_CONST, 0, newSViv(max_arity)))),
-                    fail_op)),
-            initops);
+                        fail_op)),
+                initops);
+        else
+            return op_append_list(OP_LINESEQ,
+                newSTATEOP(0, NULL,
+                    newLOGOP(OP_AND, 0,
+                        newLOGOP(OP_OR, 0,
+                            newBINOP(OP_LT, 0,
+                                scalar(newUNOP(OP_RV2AV, 0,
+                                        newGVOP(OP_GV, 0, PL_defgv))),
+                                newSVOP(OP_CONST, 0, newSViv(min_arity))),
+                            newBINOP(OP_GT, 0,
+                                scalar(newUNOP(OP_RV2AV, 0,
+                                        newGVOP(OP_GV, 0, PL_defgv))),
+                                newSVOP(OP_CONST, 0, newSViv(max_arity)))),
+                        fail_op)),
+                initops);
     }
     return initops;
 }
