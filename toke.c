@@ -12009,12 +12009,16 @@ Perl_parse_subsignature(pTHX)
 		        op_convert_list(OP_SPRINTF, 0,
 		            op_append_list(OP_LIST,
 		                newSVOP(OP_CONST, 0,
-		                    newSVpvs("Wrong number of arguments for subroutine at %s line %d.\n")),
-                                newSLICEOP(0,
-                                    op_append_list(OP_LIST,
-                                        newSVOP(OP_CONST, 0, newSViv(1)),
-                                        newSVOP(OP_CONST, 0, newSViv(2))),
-                                            newOP(OP_CALLER, 0))))))),
+		                    newSVpvs("Wrong number of arguments for subroutine %s at %s line %d.\n")),
+                                    newSLICEOP(0,
+                                        op_append_list(OP_LIST,
+                                            newSVOP(OP_CONST, 0, newSViv(3)),
+                                            op_append_list(OP_LIST,
+                                                newSVOP(OP_CONST, 0, newSViv(1)),
+                                                newSVOP(OP_CONST, 0, newSViv(2)))),
+                                        op_convert_list(OP_LIST, 0,
+                                            newUNOP(OP_CALLER, 0,
+                                                newSVOP(OP_CONST, 0, newSViv(0)))))))))),
                          initops);
     }
     else {
