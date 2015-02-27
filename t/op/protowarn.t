@@ -37,6 +37,7 @@ BEGIN {
 
 BEGIN { @warnings = () }
 
+# TODO in cperl this illegal proto actually fails with an syntax error
 $sub = sub (x) { };
 
 BEGIN {
