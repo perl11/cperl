@@ -11812,7 +11812,7 @@ Perl_parse_subsignature(pTHX)
 {
     I32 c;
     int prev_type = 0, pos = 0, min_arity = 0, max_arity = 0;
-    OP *initops = NULL;
+    OP *initops = NULL, *fail_op;
     HV *typestash = NULL;
     lex_read_space(0);
     c = lex_peek_unichar(0);
@@ -11997,71 +11997,57 @@ Perl_parse_subsignature(pTHX)
 		goto parse_error;
 	}
     }
+    fail_op = op_convert_list(OP_DIE, 0,
+        op_convert_list(OP_SPRINTF, 0,
+            op_append_list(OP_LIST,
+                newSVOP(OP_CONST, 0,
+                    newSVpvs("Wrong number of arguments for subroutine %s at %s line %d.\n")),
+                newSLICEOP(0,
+                    op_append_list(OP_LIST,
+                        newSVOP(OP_CONST, 0, newSViv(3)),
+                        op_append_list(OP_LIST,
+                            newSVOP(OP_CONST, 0, newSViv(1)),
+                            newSVOP(OP_CONST, 0, newSViv(2)))),
+                    op_convert_list(OP_LIST, 0,
+                        newUNOP(OP_CALLER, 0,
+                            newSVOP(OP_CONST, 0, newSViv(0))))))));
     if (min_arity == max_arity) {
-	initops = op_append_list(OP_LINESEQ,
-              newSTATEOP(0, NULL,
-		newLOGOP(OP_OR, 0,
-		    newBINOP(OP_EQ, 0,
-			scalar(newUNOP(OP_RV2AV, 0,
-			    newGVOP(OP_GV, 0, PL_defgv))),
-			newSVOP(OP_CONST, 0, newSViv(min_arity))),
-		    op_convert_list(OP_DIE, 0,
-		        op_convert_list(OP_SPRINTF, 0,
-		            op_append_list(OP_LIST,
-		                newSVOP(OP_CONST, 0,
-		                    newSVpvs("Wrong number of arguments for subroutine %s at %s line %d.\n")),
-                                    newSLICEOP(0,
-                                        op_append_list(OP_LIST,
-                                            newSVOP(OP_CONST, 0, newSViv(3)),
-                                            op_append_list(OP_LIST,
-                                                newSVOP(OP_CONST, 0, newSViv(1)),
-                                                newSVOP(OP_CONST, 0, newSViv(2)))),
-                                        op_convert_list(OP_LIST, 0,
-                                            newUNOP(OP_CALLER, 0,
-                                                newSVOP(OP_CONST, 0, newSViv(0)))))))))),
-                         initops);
+        return op_append_list(OP_LINESEQ,
+            newSTATEOP(0, NULL,
+                newLOGOP(OP_OR, 0,
+                    newBINOP(OP_EQ, 0,
+                        scalar(newUNOP(OP_RV2AV, 0,
+                                newGVOP(OP_GV, 0, PL_defgv))),
+                        newSVOP(OP_CONST, 0, newSViv(min_arity))),
+                    fail_op)),
+            initops);
+    }
+    else if (max_arity == -1) {
+        return op_append_list(OP_LINESEQ,
+            newSTATEOP(0, NULL,
+                newLOGOP(OP_OR, 0,
+                    newBINOP(OP_GE, 0,
+                        scalar(newUNOP(OP_RV2AV, 0,
+                                newGVOP(OP_GV, 0, PL_defgv))),
+                        newSVOP(OP_CONST, 0, newSViv(min_arity))),
+                    fail_op)),
+            initops);
     }
     else {
-        if (min_arity != 0) {
-            initops = op_append_list(OP_LINESEQ,
-	      newSTATEOP(0, NULL,
-		newLOGOP(OP_OR, 0,
-		    newBINOP(OP_GE, 0,
-			scalar(newUNOP(OP_RV2AV, 0,
-			    newGVOP(OP_GV, 0, PL_defgv))),
-			newSVOP(OP_CONST, 0, newSViv(min_arity))),
-		    op_convert_list(OP_DIE, 0,
-		        op_convert_list(OP_SPRINTF, 0,
-		            op_append_list(OP_LIST,
-		                newSVOP(OP_CONST, 0,
-		                    newSVpvs("Too few arguments for subroutine at %s line %d.\n")),
-		                newSLICEOP(0,
-		                    op_append_list(OP_LIST,
-		                        newSVOP(OP_CONST, 0, newSViv(1)),
-		                        newSVOP(OP_CONST, 0, newSViv(2))),
-		                    newOP(OP_CALLER, 0))))))),
-	    initops);
-        }
-        if (max_arity != -1) {
-            initops = op_append_list(OP_LINESEQ,
-	      newSTATEOP(0, NULL,
-		newLOGOP(OP_OR, 0,
-		    newBINOP(OP_LE, 0,
-			scalar(newUNOP(OP_RV2AV, 0,
-			    newGVOP(OP_GV, 0, PL_defgv))),
-			newSVOP(OP_CONST, 0, newSViv(max_arity))),
-		    op_convert_list(OP_DIE, 0,
-		        op_convert_list(OP_SPRINTF, 0,
-		            op_append_list(OP_LIST,
-		                newSVOP(OP_CONST, 0,
-		                    newSVpvs("Too many arguments for subroutine at %s line %d.\n")),
-		                newSLICEOP(0,
-		                    op_append_list(OP_LIST,
-		                        newSVOP(OP_CONST, 0, newSViv(1)),
-		                        newSVOP(OP_CONST, 0, newSViv(2))),
-		                    newOP(OP_CALLER, 0))))))),
-	    initops);
-        }
+        return op_append_list(OP_LINESEQ,
+            newSTATEOP(0, NULL,
+                newLOGOP(OP_AND, 0,
+                    newLOGOP(OP_OR, 0,
+                        newBINOP(OP_LT, 0,
+                            scalar(newUNOP(OP_RV2AV, 0,
+                                    newGVOP(OP_GV, 0, PL_defgv))),
+                            newSVOP(OP_CONST, 0, newSViv(min_arity))),
+                        newBINOP(OP_GT, 0,
+                            scalar(newUNOP(OP_RV2AV, 0,
+                                    newGVOP(OP_GV, 0, PL_defgv))),
+                            newSVOP(OP_CONST, 0, newSViv(max_arity)))),
+                    fail_op)),
+            initops);
     }
     return initops;
 }
