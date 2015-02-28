@@ -1438,10 +1438,12 @@ use File::Glob qw(:case);
                 lib/User/grent.{pm,t}
                 lib/User/pwent.{pm,t}
                 lib/_charnames.pm
+                lib/attributes.pm
                 lib/blib.{pm,t}
                 lib/bytes.{pm,t}
                 lib/bytes_heavy.pl
                 lib/charnames.{pm,t}
+                lib/cperl.pm
                 lib/dbm_filter_util.pl
                 lib/deprecate.pm
                 lib/diagnostics.{pm,t}
