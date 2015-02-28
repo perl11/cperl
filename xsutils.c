@@ -40,6 +40,8 @@ PERL_XS_EXPORT_C void XS_Carp_croak(pTHX_ CV *cv);
 PERL_XS_EXPORT_C void XS_Carp_confess(pTHX_ CV *cv);
 PERL_XS_EXPORT_C void XS_Carp_carp(pTHX_ CV *cv);
 PERL_XS_EXPORT_C void XS_Carp_cluck(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_Carp_shortmess(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_Carp_longmess(pTHX_ CV *cv);
 
 /* internal only */
 static HV*  _guess_stash(pTHX_ SV*);
@@ -197,12 +199,14 @@ boot_attributes(pTHX_ SV *xsfile)
 static void
 boot_Carp(pTHX_ SV *xsfile)
 {
-    set_version(STR_WITH_LEN("Carp::VERSION"), STR_WITH_LEN("1.10c"), 1.10);
+    set_version(STR_WITH_LEN("Carp::VERSION"), STR_WITH_LEN("2.00c"), 2.00);
 
     newXS("Carp::croak",		XS_Carp_croak,	file);
     newXS("Carp::confess",		XS_Carp_confess,file);
     newXS("Carp::carp",			XS_Carp_carp,	file);
     newXS("Carp::cluck",		XS_Carp_cluck,	file);
+    newXS("Carp::shortmess",		XS_Carp_shortmess, file);
+    newXS("Carp::longmess",		XS_Carp_longmess, file);
     xs_incset(aTHX_ STR_WITH_LEN("Carp.pm"), xsfile);
 }
 
@@ -790,81 +794,89 @@ usage:
 }
 
 /*
-  See L<Carp>
+  See L<Carp> - alternative warn and die for modules
+  with backtrace.
 */
 
-static void shortmess(AV* args) {
-}
-static void longmess(AV* args) {
+static int short_error_loc() {
+    return 1;
 }
 static int long_error_loc() {
+    return 1;
 }
-static SV* ret_backtrace(AV* args) {
+static SV* ret_summary(int i, SV* errstr) {
+    return errstr;
+}
+static SV* carp_longmess(int ax, SV* errstr);
+static SV* carp_backtrace(int i, SV* errstr) {
+    return errstr;
+}
+
+#define CARP_VERBOSE "Carp::Verbose"
+static SV* carp_shortmess(int ax, SV* errstr) {
+    GV* gv = gv_fetchpvn_flags(CARP_VERBOSE, sizeof CARP_VERBOSE, 0, SVt_IV);
+    int i, verbose = gv ? SvIVX(GvSV(gv)) : 0;
+    if (verbose) return carp_longmess(ax, errstr);
+    i = short_error_loc();
+    if (i) return ret_summary(i, errstr);
+    else return carp_longmess(ax, errstr);
+}
+static SV* carp_longmess(int ax, SV* errstr) {
+    if (!SvROK(ST(0))) return errstr;
+    return carp_backtrace(long_error_loc(), errstr);
+}
+/* joins the error prefix for the die or warn message, seperate from the backtrace */
+static SV* carp_error(IV ax, IV items) {
+    SV* err = newSVpvn("",0);
+    if (items > 0) {
+        int i;
+        for (i=0; i<items; i++) {
+            STRLEN len;
+            const char *s = SvPV_const(ST(i),len);
+            sv_catpvn_flags(err,s,len,
+                SvUTF8(ST(i)) ? SV_CATUTF8 : SV_CATBYTES);
+        }
+    }
+    return err;
 }
 
 XS(XS_Carp_croak)
 {
-    dVAR;
     dXSARGS;
-    SV* err = newSVpvn("",0);
-    if (items > 0 && !SvROK(ST(0))) {
-        int i;
-        for (i=0; i<items; i++) {
-            STRLEN len;
-            const char *s = SvPV_const(ST(i),len);
-            sv_catpvn_flags(err,s,len,
-                SvUTF8(ST(i)) ? SV_CATUTF8 : SV_CATBYTES);
-        }
-    }
-    Perl_die(aTHX_ SvPVX(err));
+    const char* err = SvPVX_const(carp_shortmess(ax, carp_error(ax, items)));
+    Perl_die(aTHX_ err);
 }
 XS(XS_Carp_confess)
 {
-    dVAR;
     dXSARGS;
-    SV* err = newSVpvn("",0);
-    if (items > 0 && !SvROK(ST(0))) {
-        int i;
-        for (i=0; i<items; i++) {
-            STRLEN len;
-            const char *s = SvPV_const(ST(i),len);
-            sv_catpvn_flags(err,s,len,
-                SvUTF8(ST(i)) ? SV_CATUTF8 : SV_CATBYTES);
-        }
-    }
-    Perl_die(aTHX_ SvPVX(err));
+    const char* err = SvPVX_const(carp_longmess(ax, carp_error(ax, items)));
+    Perl_die(aTHX_ err);
 }
 XS(XS_Carp_carp)
 {
-    dVAR;
     dXSARGS;
-    SV* err = newSVpvn("",0);
-    if (items > 0 && !SvROK(ST(0))) {
-        int i;
-        for (i=0; i<items; i++) {
-            STRLEN len;
-            const char *s = SvPV_const(ST(i),len);
-            sv_catpvn_flags(err,s,len,
-                SvUTF8(ST(i)) ? SV_CATUTF8 : SV_CATBYTES);
-        }
-    }
-    Perl_warn(aTHX_ SvPVX(err));
+    const char* err = SvPVX_const(carp_shortmess(ax, carp_error(ax, items)));
+    Perl_warn(aTHX_ err);
+    XSRETURN_EMPTY;
 }
 XS(XS_Carp_cluck)
 {
-    dVAR;
     dXSARGS;
-    SV* err = newSVpvn("",0);
-    if (items > 0 && !SvROK(ST(0))) {
-        int i;
-        for (i=0; i<items; i++) {
-            STRLEN len;
-            const char *s = SvPV_const(ST(i),len);
-            sv_catpvn_flags(err,s,len,
-                SvUTF8(ST(i)) ? SV_CATUTF8 : SV_CATBYTES);
-        }
-    }
-    Perl_warn(aTHX_ SvPVX(err));
+    const char* err = SvPVX_const(carp_longmess(ax, carp_error(ax, items)));
+    Perl_warn(aTHX_ err);
+    XSRETURN_EMPTY;
+}
+XS(XS_Carp_shortmess)
+{
+    dXSARGS;
+    XPUSHs(carp_shortmess(ax, carp_error(ax, items)));
+    XSRETURN(1);
+}
+XS(XS_Carp_longmess)
+{
+    dXSARGS;
+    XPUSHs(carp_longmess(ax, carp_error(ax, items)));
+    XSRETURN(1);
 }
 
 

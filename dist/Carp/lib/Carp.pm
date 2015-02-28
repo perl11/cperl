@@ -133,7 +133,7 @@ sub _cgc {
     return;
 }
 
-sub longmess {
+sub pp_longmess {
     local($!, $^E);
     # Icky backwards compatibility wrapper. :-(
     #
@@ -154,7 +154,7 @@ sub longmess {
 
 our @CARP_NOT;
 
-sub shortmess {
+sub pp_shortmess {
     local($!, $^E);
     my $cgc = _cgc();
 
