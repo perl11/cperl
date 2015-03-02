@@ -716,9 +716,9 @@ case 2:
   case 96:
 #line 643 "perly.y"
     {
+#ifndef USE_CPERL
 			  /* We shouldn't get here otherwise */
 			  assert(FEATURE_SIGNATURES_IS_ENABLED);
-#ifndef USE_CPERL
 			  Perl_ck_warner_d(aTHX_
 				packWARN(WARN_EXPERIMENTAL__SIGNATURES),
 				"The signatures feature is experimental");
@@ -1589,6 +1589,6 @@ case 2:
     
 
 /* Generated from:
- * 928e6e7b999ffa567601c3e9b516cdc2376d20d9b5e28b9bc705355be80622cc perly.y
+ * 44b9b078cc30f7feeff719085c8ffe0554f3ab7c151dbafc643ef69be2a83388 perly.y
  * 2feea80485f43aef8b803623b1cb0092c6af61dc8325bbfc76da01497554b62a regen_perly.pl
  * ex: set ro: */
