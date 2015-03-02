@@ -1,0 +1,11 @@
+#!/bin/sh
+
+br=`git branch --no-color --list|grep ^*|cut -c3-`
+
+for b in master `git branch --list --no-color|cut -c3- | egrep '^(bugfix/|feature|compiler/|smoke)'`; do
+    if [ $b != smoke/gh7-signatures -a $b != feature/gh6-no-miniperl ]; then
+        git checkout $b && ../do-conf-cperl-fast >/dev/null 2>&1 && ../minibench.sh
+    fi
+done
+
+git checkout $br
