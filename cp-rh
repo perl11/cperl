@@ -1,0 +1,16 @@
+#!/bin/sh
+# git reset --hard all cperl branches (reset rebased changes from remote)
+# when there exists a remote origin branch matching the name of the local counterpart.
+
+echo -n "Really reset hard all bugfix/|feature branches to remote origin? You will loose all your local changes (Ctrl-C) "
+read y
+git checkout master
+git pull --rebase || exit
+
+for b in `git branch --list --no-color|cut -c3- \
+	| egrep '^(bugfix/|feature|smoke/|compiler/|branch-point)'`
+do
+    git checkout -f $b && git reset --hard origin/$b
+done
+
+git checkout branch-point
