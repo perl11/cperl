@@ -2,12 +2,14 @@
 
 # Testing the : prototype(..) attribute
 
-
+use Config ();
 BEGIN {
     chdir 't' if -d 't';
     @INC = '../lib';
     require './test.pl';
-    skip_all_if_miniperl("miniperl can't load attributes");
+    unless ($Config::Config{usecperl}) {
+      skip_all_if_miniperl("miniperl can't load attributes");
+    }
 }
 use warnings;
 
