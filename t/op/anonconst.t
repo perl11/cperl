@@ -1,5 +1,7 @@
 #!./perl
 
+use Config ();
+my $cperl = $Config::Config{usecperl};
 BEGIN {
     chdir 't';
     require './test.pl';
@@ -12,7 +14,7 @@ plan 8;
     my $w;
     local $SIG{__WARN__} = sub { $w .= shift };
     eval '+sub : const {}';
-    like $w, qr/^:const is experimental at /, 'experimental warning';
+    like $w, $cperl ? qr/^$/ : qr/^:const is experimental at /, 'experimental warning';
 }
 
 no warnings 'experimental::const_attr';
@@ -44,8 +46,8 @@ is &{sub () : const { 42 }}, 42, ':const with truly constant sub';
 }
 
 eval 'sub bar : const';
-like $@, qr/^:const is not permitted on named subroutines at /,
+like $@, $cperl ? qr/^$/ : qr/^:const is not permitted on named subroutines at /,
     ':const on named stub';
 eval 'sub baz : const { }';
-like $@, qr/^:const is not permitted on named subroutines at /,
+like $@, $cperl ? qr/^$/ : qr/^:const is not permitted on named subroutines at /,
     ':const on named sub';
