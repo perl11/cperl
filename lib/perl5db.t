@@ -2225,12 +2225,10 @@ DebugWrap->new({
             prog => '../lib/perl5db/t/test-m-statement-1',
         }
     );
-
-    $wrapper->contents_like(qr#
-        ^'strict\.pm'\ =>\ '\d+\.\d+\ from
-        #msx,
-        "Test M",
-    );
+    my $from = $Config{usecperl}
+        ? qr#^'strict\.pm'\ =>\ '\d+\.\d+c\ from#msx
+        : qr#^'strict\.pm'\ =>\ '\d+\.\d+\ from#msx;
+    $wrapper->contents_like($from, "Test M");
 
 }
 
