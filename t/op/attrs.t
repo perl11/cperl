@@ -131,7 +131,8 @@ is "@attrs", "method";
 sub Z::MODIFY_CODE_ATTRIBUTES { (); }
 eval 'package Z; sub L { $_[0] } sub L : Z method';
 @attrs = eval 'attributes::get \&Z::L';
-is "@attrs", "method Z";
+# with cperl Z is also stored as return type
+is "@attrs", $Config::Config{usecperl} ? "method Z Z" : "method Z";
 
 # Begin testing attributes that tie
 
@@ -398,8 +399,12 @@ is $ProtoTest::Proto, '$', 'prototypes are visible in attr handlers';
     my $w;
     local $SIG{__WARN__} = sub { $w = shift };
     attributes ->import(__PACKAGE__, \&foo, "const");
-    like $w, qr/^Useless use of attribute "const" at /,
-            'Warning for useless const via attributes.pm';
+    if ($Config::Config{usecperl}) {
+      is $w, undef, 'Builtin const via attributes.pm';
+    } else {
+      like $w, qr/^Useless use of attribute "const" at /,
+      'Warning for useless const via attributes.pm';
+    }
     $w = '';
     attributes ->import(__PACKAGE__, \&foo, "const");
     is $w, '', 'no warning for const if already applied';
@@ -412,7 +417,7 @@ is $ProtoTest::Proto, '$', 'prototypes are visible in attr handlers';
         attributes->import(shift, shift, lc shift) if $_[2]; ()
     }
     $_ = 32487;
-    my $sub = eval '+sub : Const { $_ }';
+    my $sub = eval '+sub : const { $_ }';
     ::is $w, '',
      'no warning for :const applied to closure protosub via attributes.pm';
     undef $_;
