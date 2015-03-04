@@ -87,7 +87,7 @@ BEGIN {
     }
 }
 
-our $VERSION = '1.35';
+#our $VERSION = '1.35';
 
 our $MaxEvalLen = 0;
 our $Verbose    = 0;
@@ -115,10 +115,10 @@ our %CarpInternal;
 our %Internal;
 
 # disable these by default, so they can live w/o require Carp
-$CarpInternal{Carp}++;
-$CarpInternal{warnings}++;
-$Internal{Exporter}++;
-$Internal{'Exporter::Heavy'}++;
+#$CarpInternal{Carp}++;
+#$CarpInternal{warnings}++;
+#$Internal{Exporter}++;
+#$Internal{'Exporter::Heavy'}++;
 
 # if the caller specifies verbose usage ("perl -MCarp=verbose script.pl")
 # then the following method will be called by the Exporter which knows
@@ -163,10 +163,10 @@ sub pp_shortmess {
     shortmess_heavy(@_);
 }
 
-sub pp_croak   { die shortmess @_ }
-sub pp_confess { die longmess @_ }
-sub pp_carp    { warn shortmess @_ }
-sub pp_cluck   { warn longmess @_ }
+sub pp_croak   { die pp_shortmess @_ }
+sub pp_confess { die pp_longmess @_ }
+sub pp_carp    { warn pp_shortmess @_ }
+sub pp_cluck   { warn pp_longmess @_ }
 
 BEGIN {
     if("$]" >= 5.015002 || ("$]" >= 5.014002 && "$]" < 5.015) ||
@@ -876,17 +876,18 @@ not placed on the line where C<croak> was called.
 
 =head2 $Carp::CarpLevel
 
-This variable determines how many additional call frames are to be
-skipped that would not otherwise be when reporting where an error
-occurred on a call to one of C<Carp>'s functions.  It is fairly easy
-to count these call frames on calls that generate a full stack
-backtrace.  However it is much harder to do this accounting for calls
-that generate a short message.  Usually people skip too many call
-frames.  If they are lucky they skip enough that C<Carp> goes all of
-the way through the call stack, realizes that something is wrong, and
-then generates a full stack backtrace.  If they are unlucky then the
-error is reported from somewhere misleading very high in the call
-stack.
+This deprecated variable is not supported anymore.
+
+It determined how many additional call frames are to be skipped that
+would not otherwise be when reporting where an error occurred on a
+call to one of C<Carp>'s functions.  It is fairly easy to count these
+call frames on calls that generate a full stack backtrace.  However it
+is much harder to do this accounting for calls that generate a short
+message.  Usually people skip too many call frames.  If they are lucky
+they skip enough that C<Carp> goes all of the way through the call
+stack, realizes that something is wrong, and then generates a full
+stack backtrace.  If they are unlucky then the error is reported from
+somewhere misleading very high in the call stack.
 
 Therefore it is best to avoid C<$Carp::CarpLevel>.  Instead use
 C<@CARP_NOT>, C<%Carp::Internal> and C<%Carp::CarpInternal>.
