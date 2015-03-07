@@ -69,6 +69,7 @@ set_version(pTHX_ const char *name, STRLEN nlen, const char *strval, STRLEN plen
     SvCUR_set(ver, plen);
     SvNVX(ver) = nvval;
     SvFLAGS(ver) |= (SVf_NOK|SVf_POK|SVf_READONLY|SVp_NOK|SVp_POK);
+    SvREADONLY_on(ver);
 }
 
 #ifdef USE_CPERL
@@ -107,6 +108,48 @@ static void boot_core_cperl(pTHX) {
             on, 0));
     SvREFCNT(on) = 2;
 }
+
+#define DEF_CORETYPE(s) \
+    stash = GvHV(gv_HVadd(gv_fetchpvs("main::" s "::", GV_ADD, SVt_PVHV))); \
+    set_version(STR_WITH_LEN(s "::VERSION"), STR_WITH_LEN("0.01c"), 0.01); \
+    isa = GvAV(gv_AVadd(gv_fetchpvs(s "::ISA", GV_ADD, SVt_PVAV)));     \
+    mg_set(MUTABLE_SV(isa));
+
+#define TYPE_EXTENDS(t, t1, t2)          \
+    av_push(isa, newSVpvs(t1));          \
+    av_push(isa, newSVpvs(t2));          \
+    mg_set(MUTABLE_SV(isa));             \
+    SvREADONLY_on(MUTABLE_SV(isa));      \
+    SvREADONLY_on(MUTABLE_SV(stash));
+
+/* initialize our core types */
+static void
+boot_coretypes(pTHX_ SV *xsfile)
+{
+    AV *isa; HV *stash;
+    DEF_CORETYPE("undef");
+    SvREADONLY_on(MUTABLE_SV(isa));
+    SvREADONLY_on(MUTABLE_SV(stash));
+    DEF_CORETYPE("int");
+    SvREADONLY_on(MUTABLE_SV(isa));
+    SvREADONLY_on(MUTABLE_SV(stash));
+    DEF_CORETYPE("num");
+    SvREADONLY_on(MUTABLE_SV(isa));
+    SvREADONLY_on(MUTABLE_SV(stash));
+    DEF_CORETYPE("str");
+    SvREADONLY_on(MUTABLE_SV(isa));
+    SvREADONLY_on(MUTABLE_SV(stash));
+    DEF_CORETYPE("int?"); /* int | undef */
+    TYPE_EXTENDS("int?", "int", "undef");
+    DEF_CORETYPE("num?");
+    TYPE_EXTENDS("num?", "num", "undef");
+    DEF_CORETYPE("str?");
+    TYPE_EXTENDS("str?", "str", "undef");
+    set_version(STR_WITH_LEN("coretypes::VERSION"), STR_WITH_LEN("0.01c"), 0.01);
+    xs_incset(aTHX_ STR_WITH_LEN("coretypes.pm"), xsfile);
+}
+#undef DEF_CORETYPE
+#undef TYPE_EXTENDS
 
 #endif
 
@@ -148,6 +191,7 @@ Perl_boot_core_xsutils(pTHX)
 #endif
 
 #ifdef USE_CPERL
+    boot_coretypes(aTHX_ xsfile);
     boot_core_cperl(aTHX);
 #endif
 }
