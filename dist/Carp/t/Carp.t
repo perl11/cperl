@@ -26,8 +26,8 @@ use Carp qw(carp cluck croak confess);
 BEGIN {
     # This test must be run at BEGIN time, because code later in this file
     # sets CORE::GLOBAL::caller
-    ok !exists $CORE::GLOBAL::{caller},
-        "Loading doesn't create CORE::GLOBAL::caller";
+    ok !exists $CORE::GLOBAL::{caller}, "Loading doesn't create CORE::GLOBAL::caller";
+    chdir 'dist/Carp' if -f 'dist/Carp/t/Carp.t' && !-f 't/Carp.t';
 }
 
 {

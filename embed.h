@@ -1410,6 +1410,10 @@
 #  if defined(PERL_IN_UTF8_C) || defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C)
 #define _to_fold_latin1		Perl__to_fold_latin1
 #  endif
+#  if defined(PERL_IN_XSUTILS_C)
+#define carp_longmess(a,b)	Perl_carp_longmess(aTHX_ a,b)
+#define carp_shortmess(a,b)	Perl_carp_shortmess(aTHX_ a,b)
+#  endif
 #  if defined(USE_CPERL)
 #define _get_encoding()		Perl__get_encoding(aTHX)
 #define arg_check_type_sv(a,b,c)	Perl_arg_check_type_sv(aTHX_ a,b,c)

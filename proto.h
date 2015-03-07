@@ -10921,6 +10921,20 @@ STATIC void	S_vwarner_security(pTHX_ U32 err, const char* pat, va_list* args)
 #  endif
 #endif
 #if defined(PERL_IN_XSUTILS_C)
+PERL_CALLCONV SV*	Perl_carp_longmess(pTHX_ I32 ax, SV *errsv)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CARP_LONGMESS	\
+	assert(errsv)
+
+PERL_CALLCONV SV *	Perl_carp_shortmess(pTHX_ I32 ax, SV *errsv)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CARP_SHORTMESS	\
+	assert(errsv)
+
 STATIC void	S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_3);
