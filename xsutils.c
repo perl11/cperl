@@ -36,6 +36,10 @@ PERL_XS_EXPORT_C void XS_attributes_bootstrap(pTHX_ CV *cv);
 /* converted to XS */
 PERL_XS_EXPORT_C void XS_attributes_import(pTHX_ CV *cv);
 PERL_XS_EXPORT_C void XS_attributes_get(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_Carp_croak(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_Carp_confess(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_Carp_carp(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_Carp_cluck(pTHX_ CV *cv);
 
 /* internal only */
 static HV*  _guess_stash(pTHX_ SV*);
@@ -190,6 +194,18 @@ boot_attributes(pTHX_ SV *xsfile)
     xs_incset(aTHX_ STR_WITH_LEN("attributes.pm"), xsfile);
 }
 
+static void
+boot_Carp(pTHX_ SV *xsfile)
+{
+    set_version(STR_WITH_LEN("Carp::VERSION"), STR_WITH_LEN("1.10c"), 1.10);
+
+    newXS("Carp::croak",		XS_Carp_croak,	file);
+    newXS("Carp::confess",		XS_Carp_confess,file);
+    newXS("Carp::carp",			XS_Carp_carp,	file);
+    newXS("Carp::cluck",		XS_Carp_cluck,	file);
+    xs_incset(aTHX_ STR_WITH_LEN("Carp.pm"), xsfile);
+}
+
 void
 Perl_boot_core_xsutils(pTHX)
 {
@@ -198,10 +214,9 @@ Perl_boot_core_xsutils(pTHX)
     /* static internal builtins */
     boot_strict(aTHX_ xsfile);
     boot_attributes(aTHX_ xsfile);
-
-#if 0
     boot_Carp(aTHX_ xsfile);
 
+#if 0
     /* static_xs: not with miniperl */
     boot_Exporter(aTHX_ xsfile);
     boot_DynaLoader("DynaLoader");
@@ -773,6 +788,85 @@ usage:
 
     XSRETURN(1);
 }
+
+/*
+  See L<Carp>
+*/
+
+static void shortmess(AV* args) {
+}
+static void longmess(AV* args) {
+}
+static int long_error_loc() {
+}
+static SV* ret_backtrace(AV* args) {
+}
+
+XS(XS_Carp_croak)
+{
+    dVAR;
+    dXSARGS;
+    SV* err = newSVpvn("",0);
+    if (items > 0 && !SvROK(ST(0))) {
+        int i;
+        for (i=0; i<items; i++) {
+            STRLEN len;
+            const char *s = SvPV_const(ST(i),len);
+            sv_catpvn_flags(err,s,len,
+                SvUTF8(ST(i)) ? SV_CATUTF8 : SV_CATBYTES);
+        }
+    }
+    Perl_die(aTHX_ SvPVX(err));
+}
+XS(XS_Carp_confess)
+{
+    dVAR;
+    dXSARGS;
+    SV* err = newSVpvn("",0);
+    if (items > 0 && !SvROK(ST(0))) {
+        int i;
+        for (i=0; i<items; i++) {
+            STRLEN len;
+            const char *s = SvPV_const(ST(i),len);
+            sv_catpvn_flags(err,s,len,
+                SvUTF8(ST(i)) ? SV_CATUTF8 : SV_CATBYTES);
+        }
+    }
+    Perl_die(aTHX_ SvPVX(err));
+}
+XS(XS_Carp_carp)
+{
+    dVAR;
+    dXSARGS;
+    SV* err = newSVpvn("",0);
+    if (items > 0 && !SvROK(ST(0))) {
+        int i;
+        for (i=0; i<items; i++) {
+            STRLEN len;
+            const char *s = SvPV_const(ST(i),len);
+            sv_catpvn_flags(err,s,len,
+                SvUTF8(ST(i)) ? SV_CATUTF8 : SV_CATBYTES);
+        }
+    }
+    Perl_warn(aTHX_ SvPVX(err));
+}
+XS(XS_Carp_cluck)
+{
+    dVAR;
+    dXSARGS;
+    SV* err = newSVpvn("",0);
+    if (items > 0 && !SvROK(ST(0))) {
+        int i;
+        for (i=0; i<items; i++) {
+            STRLEN len;
+            const char *s = SvPV_const(ST(i),len);
+            sv_catpvn_flags(err,s,len,
+                SvUTF8(ST(i)) ? SV_CATUTF8 : SV_CATBYTES);
+        }
+    }
+    Perl_warn(aTHX_ SvPVX(err));
+}
+
 
 /*
  * Local variables:

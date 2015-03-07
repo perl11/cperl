@@ -163,10 +163,10 @@ sub shortmess {
     shortmess_heavy(@_);
 }
 
-sub croak   { die shortmess @_ }
-sub confess { die longmess @_ }
-sub carp    { warn shortmess @_ }
-sub cluck   { warn longmess @_ }
+sub pp_croak   { die shortmess @_ }
+sub pp_confess { die longmess @_ }
+sub pp_carp    { warn shortmess @_ }
+sub pp_cluck   { warn longmess @_ }
 
 BEGIN {
     if("$]" >= 5.015002 || ("$]" >= 5.014002 && "$]" < 5.015) ||
