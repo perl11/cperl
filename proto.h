@@ -10243,6 +10243,22 @@ STATIC void	S_mem_log_common(enum mem_log_type mlt, const UV n, const UV typesiz
 
 #  endif
 #endif
+#if defined(PERL_IN_XSUTILS_C)
+PERL_CALLCONV SV*	Perl_carp_longmess(pTHX_ I32 ax, SV *errsv)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CARP_LONGMESS	\
+	assert(errsv)
+
+PERL_CALLCONV SV *	Perl_carp_shortmess(pTHX_ I32 ax, SV *errsv)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CARP_SHORTMESS	\
+	assert(errsv)
+
+#endif
 #if defined(PERL_MEM_LOG)
 PERL_CALLCONV Malloc_t	Perl_mem_log_alloc(const UV nconst, UV typesize, const char *type_name, Malloc_t newalloc, const char *filename, const int linenumber, const char *funcname)
 			__attribute__nonnull__(3)

@@ -88,7 +88,7 @@ BEGIN {
     }
 }
 
-our $VERSION = '1.42c';
+our $VERSION = '2.00c';
 $VERSION =~ tr/_//d;
 $VERSION =~ tr/_c//d;
 
@@ -136,7 +136,7 @@ sub _cgc () {
     return;
 }
 
-sub longmess {
+sub pp_longmess {
     local($!, $^E);
     # Icky backwards compatibility wrapper. :-(
     #
@@ -157,7 +157,7 @@ sub longmess {
 
 our @CARP_NOT;
 
-sub shortmess {
+sub pp_shortmess {
     local($!, $^E);
     my $cgc = _cgc();
 
@@ -166,10 +166,10 @@ sub shortmess {
     shortmess_heavy(@_);
 }
 
-sub croak   { die shortmess @_ }
-sub confess { die longmess @_ }
-sub carp    { warn shortmess @_ }
-sub cluck   { warn longmess @_ }
+sub pp_croak   { die shortmess @_ }
+sub pp_confess { die longmess @_ }
+sub pp_carp    { warn shortmess @_ }
+sub pp_cluck   { warn longmess @_ }
 
 BEGIN {
     if("$]" >= 5.015002 || ("$]" >= 5.014002 && "$]" < 5.015) ||

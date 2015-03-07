@@ -36,6 +36,13 @@ XS_EXTERNAL(XS_attributes_bootstrap);
 /* converted to XS */
 XS_EXTERNAL(XS_attributes_import);
 XS_EXTERNAL(XS_attributes_get);
+XS_EXTERNAL(XS_Carp_croak);
+XS_EXTERNAL(XS_Carp_confess);
+XS_EXTERNAL(XS_Carp_carp);
+XS_EXTERNAL(XS_Carp_cluck);
+XS_EXTERNAL(XS_Carp_shortmess);
+XS_EXTERNAL(XS_Carp_longmess);
+XS_EXTERNAL(XS_Carp_verbose);
 
 /* internal only */
 static HV*  S_guess_stash(pTHX_ SV*);
@@ -240,6 +247,39 @@ boot_attributes(pTHX_ SV *xsfile)
   /*xs_incset(aTHX_ STR_WITH_LEN("attributes.pm"), xsfile); not yet fully converted */
 }
 
+static void
+boot_Carp(pTHX_ SV *xsfile)
+{
+    SV* on = newSViv(1);
+    GV *GvInternal     = gv_fetchpvs("Carp::Internal", GV_ADD, SVt_PVHV);
+    GV *GvCarpInternal = gv_fetchpvs("Carp::CarpInternal", GV_ADD, SVt_PVHV);
+    HV *HvInternal     = GvHV(gv_HVadd(GvInternal));
+    HV *HvCarpInternal = GvHV(gv_HVadd(GvInternal));
+    (void)hv_stores(HvCarpInternal, "Carp", on);
+    (void)hv_stores(HvCarpInternal, "warnings", on);
+    (void)hv_stores(HvInternal,     "Exporter", on);
+    (void)hv_stores(HvInternal,     "Exporter::Heavy", on);
+    SvREFCNT(on) = 4;
+    /* Avoid used only once warnings */
+    GvMULTI_on(GvInternal); GvMULTI_on(GvCarpInternal);
+
+    /*Perl_set_version(aTHX_ STR_WITH_LEN("Carp::VERSION"), STR_WITH_LEN("2.00c"), 2.00);*/
+
+    newXS("Carp::croak",		XS_Carp_croak,	file);
+    newXS("Carp::confess",		XS_Carp_confess,file);
+    newXS("Carp::carp",			XS_Carp_carp,	file);
+    newXS("Carp::cluck",		XS_Carp_cluck,	file);
+    newXS("Carp::shortmess",		XS_Carp_shortmess, file);
+    newXS("Carp::longmess",		XS_Carp_longmess, file);
+    /*xs_incset(aTHX_ STR_WITH_LEN("Carp.pm"), xsfile); -- nope, we still need it */
+}
+
+static void
+boot_Exporter(pTHX_ SV *xsfile)
+{
+    xs_incset(aTHX_ STR_WITH_LEN("Exporter.pm"), xsfile);
+}
+
 void
 Perl_boot_core_xsutils(pTHX)
 {
@@ -252,10 +292,9 @@ Perl_boot_core_xsutils(pTHX)
     /* static internal builtins */
     boot_strict(aTHX_ xsfile);
     boot_attributes(aTHX_ xsfile);
-
-#if 0
     boot_Carp(aTHX_ xsfile);
 
+#if 0
     /* static_xs: not with miniperl */
     newXS("Exporter::boot_Exporter",	boot_Exporter,	file);
     newXS("XSLoader::boot_XSLoader",	boot_XSLoader,	file);
@@ -851,6 +890,338 @@ usage:
 
     XSRETURN(1);
 }
+
+/*
+  See L<Carp> - alternative warn and die for modules
+  with or without backtrace.
+*/
+
+/* Store the stash pointers to compare them later */
+static AV* push_hashstash(AV* av, const HV* hash) {
+    STRLEN i;
+    HE *he;
+    if (!HvKEYS(hash))
+        return av;
+    for (i=0; i <= HvMAX(hash); i++) {
+        for (he = HvARRAY(hash)[i]; he; he = HeNEXT(he)) {
+            GV *gv;
+            SV *key = newSVpvs("main::");
+            sv_catsv_nomg(key, (SV*)hv_iterkeysv(he));
+            sv_catpvs(key, "::");
+            if ((gv = gv_fetchsv(key, GV_NO_SVGMAGIC|GV_NOEXPAND|GV_NOADD_NOINIT, SVt_PVHV))) {
+                /*Perl_deb(aTHX_ "# -- Found \"%s\"\n", SvPVX(key));*/
+                if (GvHV(gv))
+                    av_push(av, SvREFCNT_inc_NN(GvHV(gv)));
+            }
+        }
+    }
+    return av;
+}
+
+/* Figures out what call (from the point of view of the caller)
+   the long error backtrace should start at.
+   Skip reporting from internal packages, like Carp, warnings, Exporter, Exporter::Heavy
+   Deprecated global $Carp::CarpLevel is not supported anymore. */
+static int long_error_loc() {
+    int i = -1;
+    int lvl = 0;
+
+    /* Those 2 symbols do exist because there are initialized earlier.
+       Get stash of keys of %Carp::Internal and %Carp::CarpInternal into an array.
+       At least DBIx::Class and Test::NoWarnings use $Carp::Internal{ (__PACKAGE__) }++
+    */
+    const HV *HvInternal     = GvHV(gv_fetchpvs("Carp::Internal", 0, SVt_PVHV));
+    const HV *HvCarpInternal = GvHV(gv_fetchpvs("Carp::CarpInternal", 0, SVt_PVHV));
+    const AV *AvInternal     = push_hashstash(newAV(), HvInternal);
+    const AV *AvCarpInternal = push_hashstash(newAV(), HvCarpInternal);
+
+L_CONT:
+    do {
+        int j;
+        HV *pkg = NULL;
+        if (i == -1) {
+            pkg = CopSTASH(PL_curcop);
+            if (!pkg) {
+                if (CopLINE(PL_curcop)) {
+                    if (0 > --lvl)
+                        continue;
+                }
+            }
+            i++;
+        } else {
+            const PERL_CONTEXT *cx = caller_cx(++i + !!(PL_op->op_private & OPpOFFBYONE), NULL);
+            if (cx && SvTYPE(CopSTASH(cx->blk_oldcop)) == SVt_PVHV) {
+                pkg = CopSTASH(cx->blk_oldcop);
+            }
+            if (!pkg) {
+                /* check caller[2]
+                   This can happen when the stash has been deleted.
+                   In that case, just assume that it's a reasonable place to
+                   stop (the file and line data will still be intact in any
+                   case) - the only issue is that we can't detect if the
+                   deleted package was internal (so don't do that then)
+                   -doy */
+                if (cx && CopLINE(cx->blk_oldcop)) {
+                    if (0 > --lvl)
+                        continue;
+                }
+                break;
+            }
+        }
+        DEBUG_L(Perl_deb(aTHX_ "# long_error_loc: %d %s\n", i, HvNAME(pkg)));
+        if (AvFILL((AV*)AvCarpInternal) > 0) {
+            for (j=0; j<AvMAX(AvCarpInternal); j++) {
+                if (pkg == (HV*)AvARRAY(AvCarpInternal)[j]) {
+                    DEBUG_L(Perl_deb(aTHX_ "# long_error_loc: skip %d %s\n",
+                            i, HvNAME(pkg)));
+                    goto L_CONT;
+                }
+            }
+        }
+        if (0 > --lvl)
+            break;
+        for (j=0; j<AvMAX(AvInternal); j++) { /* Always contains %Carp:: */
+            if (pkg == (HV*)AvARRAY(AvInternal)[j]) {
+                DEBUG_L(Perl_deb(aTHX_ "# long_error_loc: skip %d %s\n", i, HvNAME(pkg)));
+                goto L_CONT;
+            }
+        }
+    } while (lvl >= 0);
+    DEBUG_L(Perl_deb(aTHX_ "# long_error_loc => %d\n", i));
+
+    SvREFCNT_dec((SV*)AvCarpInternal);
+    SvREFCNT_dec((SV*)AvInternal);
+    return i;
+}
+
+/* TODO: shortmess logic:
+   Take an educated guess from which file/package the error originated from
+   and only display one summary line.
+   Skips packages which do trust each other.
+
+   Search the call-stack for a function call stack where they have not
+   been told that there shouldn't be an error.  If every call is marked
+   safe, they give up and give a full stack backtrace instead.  In other
+   words they presume that the first likely looking potential suspect is
+   guilty.  Their rules for telling whether a call shouldn't generate
+   errors work as follows:
+   * Any call from a package to itself is safe
+   * Packages claim that there won't be errors on calls to or from
+     packages explicitly marked as safe by inclusion in C<@CARP_NOT>, or
+     (if that array is empty) C<@ISA>
+   * The trust in item 2 is transitive.  If A trusts B, and B
+     trusts C, then A trusts C.  So if you do not override C<@ISA>
+     with C<@CARP_NOT>, then this trust relationship is identical to,
+     "inherits from".
+   * Any call from an internal Perl module is safe.  (Nothing keeps
+   user modules from marking themselves as internal to Perl, but
+   this practice is discouraged.)
+   * Any call to Perl's warning system (eg Carp itself) is safe.
+   (This rule is what keeps it from reporting the error at the
+   point where you call C<carp> or C<croak>.)
+
+   Plan: We could also support a new C<:caller>/C<:-caller> attribute. C<:caller>
+   for XS functions to place themselves into the backtrace. They are by
+   default not visible in backtraces. And the negative no-caller as better C<@CARP_NOT>.
+   See the cperl branch C<feature/CM-445-cperl-xsloader-builtin-cvcaller> for this.
+ */
+static int short_error_loc() {
+    return long_error_loc();
+}
+static SV* ret_summary(pTHX_ int i, SV* errsv) {
+    int line = 0;
+    char *file = NULL;
+    SV   *tid_msg = NULL;
+
+    /* Note that we don't really want to support that tid message. perl core does not print
+       it in its vcroak. */
+#ifdef USE_ITHREAD
+    {
+        dSP;
+        PUTBACK;
+        if (call_pv("thread::tid", G_SCALAR) && ST(0)) {
+            tid_msg = newSVpvs_flags("", SVs_TEMP);
+            sv_catpvf(tid_msg, " thread %d", ST(0));
+        }
+    }
+#endif
+    if (i == 0) { /* caller(0) == PL_curcop */
+        line = CopLINE(PL_curcop);
+        file = OutCopFILE(PL_curcop);
+    } else {
+        const PERL_CONTEXT *cx = caller_cx(i + !!(PL_op->op_private & OPpOFFBYONE), NULL);
+        if (cx) {
+            const COP *lcop = closest_cop(cx->blk_oldcop, OpSIBLING(cx->blk_oldcop),
+                                          cx->blk_sub.retop, TRUE);
+            if (!lcop)
+                lcop = cx->blk_oldcop;
+            line = CopLINE(lcop);
+            file = OutCopFILE(cx->blk_oldcop);
+        }
+    }
+    sv_catpvf(errsv, " at %s line %d%s.\n",
+              file, line, tid_msg ? SvPVX(tid_msg) : "");
+    return errsv;
+}
+static SV* carp_backtrace(pTHX_ int i, SV* errsv) {
+    int line = 0;
+    char *file = NULL;
+    SV   *tid_msg = NULL;
+    const PERL_CONTEXT *cx;
+    const PERL_CONTEXT *dbcx;
+
+    DEBUG_L(Perl_deb(aTHX_ "# carp_backtrace: %d %s\n", i, SvPVX(errsv)));
+    errsv = ret_summary(aTHX_ i, errsv);
+
+    /* Note that we don't really want to support that tid message. perl core
+       does not print it in its vcroak. (Untested) */
+#ifdef USE_ITHREAD
+    {
+        dSP;
+        PUTBACK;
+        if (call_pv("thread::tid", G_SCALAR) && ST(0)) {
+            if (SvIOK(ST(0)) && SvIVX(ST(0)) > 0) {
+                tid_msg = newSVpvs_flags("", SVs_TEMP);
+                sv_catpvf(tid_msg, " thread %d", SvIVX(ST(0)));
+            }
+        }
+    }
+#endif
+    while ((cx = caller_cx(++i + !!(PL_op->op_private & OPpOFFBYONE), &dbcx))) {
+        const COP *lcop = closest_cop(cx->blk_oldcop, OpSIBLING(cx->blk_oldcop),
+                                      cx->blk_sub.retop, TRUE);
+        char *subname = (char *)"(unknown)";
+        if (i == 1) {
+            line = CopLINE(PL_curcop);
+            file = OutCopFILE(PL_curcop);
+        } else {
+            if (!lcop)
+                lcop = cx->blk_oldcop;
+            line = CopLINE(lcop);
+            file = OutCopFILE(cx->blk_oldcop);
+        }
+        DEBUG_L(Perl_deb(aTHX_ "# carp_backtrace: %d\n", i));
+        if (CxTYPE(cx) == CXt_SUB || CxTYPE(cx) == CXt_FORMAT) {
+            if (CvHASGV(dbcx->blk_sub.cv))
+                subname = SvPVX(cv_name(dbcx->blk_sub.cv, 0, 0));
+        }
+        else subname = (char *)"(eval)";
+        sv_catpvf(errsv, "\t%s called at %s line %d%s.\n", subname,
+                  file, line, tid_msg ? SvPVX(tid_msg) : "");
+    }
+    return errsv;
+}
+
+/*
+=for apidoc carp_longmess(ax, prefix)
+
+Returns a new PV with the Carp backtrace, starting at C<ax>, the stack base offset,
+which is defined in a XS function.
+See L<Carp::longmess>.
+
+=cut
+*/
+
+SV* Perl_carp_longmess(pTHX_ I32 ax, SV* errsv) {
+    PERL_ARGS_ASSERT_CARP_LONGMESS;
+    if (SvROK(ST(0))) return errsv; /* don't break references as exceptions */
+    return carp_backtrace(aTHX_ long_error_loc(), errsv);
+}
+
+/*
+=for apidoc carp_shortmess(ax, prefix)
+
+Returns a new PV with the short Carp message, starting at C<ax>, the stack base offset,
+which is defined in a XS function.
+See L<Carp::shortmess>.
+
+=cut
+*/
+
+SV* Perl_carp_shortmess(pTHX_ I32 ax, SV* errsv) {
+    GV* gv = gv_fetchpvs("Carp::Verbose", 0, SVt_IV);
+    int i, verbose = (gv && SvIOK(GvSV(gv))) ? SvIVX(GvSV(gv)) : 0;
+    PERL_ARGS_ASSERT_CARP_SHORTMESS;
+    if (verbose) return carp_longmess(ax, errsv);
+    i = short_error_loc();
+    if (i >= 0) return ret_summary(aTHX_ i, errsv);
+    else return carp_longmess(ax, errsv);
+}
+
+/* joins the error prefix for the die or warn message, seperate from the backtrace */
+static SV* carp_errorprefix(IV ax, IV items) {
+    SV* err = newSVpvn("",0);
+    if (items > 0) {
+        int i;
+        for (i=0; i<items; i++) {
+            STRLEN len;
+            const char *s = SvPV_const(ST(i),len);
+            sv_catpvn_flags(err,s,len,
+                SvUTF8(ST(i)) ? SV_CATUTF8 : SV_CATBYTES);
+        }
+    }
+    return err;
+}
+
+XS(XS_Carp_croak)
+{
+    dXSARGS;
+    const char* err = SvPVX_const(carp_shortmess(ax, carp_errorprefix(ax, items)));
+    Perl_die(aTHX_ err);
+}
+XS(XS_Carp_confess)
+{
+    dXSARGS;
+    const char* err = SvPVX_const(carp_longmess(ax, carp_errorprefix(ax, items)));
+    Perl_die(aTHX_ err);
+}
+XS(XS_Carp_carp)
+{
+    dXSARGS;
+    const char* err = SvPVX_const(carp_shortmess(ax, carp_errorprefix(ax, items)));
+    Perl_warn(aTHX_ err);
+    XSRETURN_EMPTY;
+}
+XS(XS_Carp_cluck)
+{
+    dXSARGS;
+    const char* err = SvPVX_const(carp_longmess(ax, carp_errorprefix(ax, items)));
+    Perl_warn(aTHX_ err);
+    XSRETURN_EMPTY;
+}
+XS(XS_Carp_shortmess)
+{
+    dXSARGS;
+    EXTEND(SP, 1);
+    ST(0) = carp_shortmess(ax, carp_errorprefix(ax, items));
+    XSRETURN(1);
+}
+XS(XS_Carp_longmess)
+{
+    dXSARGS;
+    EXTEND(SP, 1);
+    ST(0) = carp_longmess(ax, carp_errorprefix(ax, items));
+    XSRETURN(1);
+}
+XS(XS_Carp_verbose)
+{
+    dXSARGS;
+    GV* gv = gv_fetchpvs("Carp::Verbose", 0, SVt_IV);
+    if (items > 0 && SvIOK(ST(0))) {
+        if (gv) {
+            SvIVX(GvSV(gv)) = SvIVX(ST(0));
+        } else {
+            gv = gv_fetchpvs("Carp::Verbose", GV_ADD, SVt_IV);
+            GvSV(gv) = ST(0);
+        }
+    } else if (!items) {
+        ST(0) = gv ? GvSV(gv) : &PL_sv_undef;
+    } else {
+        Perl_die(aTHX_ "Usage: Carp::verbose [ 1 or 0 ]\n");
+    }
+    XSRETURN(1);
+}
+
 
 /*
  * Local variables:
