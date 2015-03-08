@@ -10,7 +10,7 @@ BEGIN {
 
 use Config;
 
-use Test::More 0 # $Config{useperlio}
+use Test::More $Config{useperlio}
     ? (tests => 1)
     : (skip_all => 'No PerlIO enabled');
 
