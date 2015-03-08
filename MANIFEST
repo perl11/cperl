@@ -4603,6 +4603,7 @@ pod/perlcall.pod		Perl calling conventions from C
 pod/perlcheat.pod		Perl cheat sheet
 pod/perlclib.pod		Internal replacements for standard C library functions
 pod/perlcommunity.pod		Perl community information
+pod/perlcperl.pod		Perl notes for cperl (variant)
 pod/perldata.pod		Perl data structures
 pod/perldbmfilter.pod		Perl DBM filters
 pod/perldebguts.pod		Perl debugging guts and tips
@@ -4777,7 +4778,6 @@ README.android			Perl notes for Android
 README.bs2000			Perl notes for POSIX-BC BS2000
 README.ce			Perl notes for WinCE
 README.cn			Perl for Simplified Chinese (in EUC-CN)
-README.cperl			Perl cperl variant
 README.cygwin			Perl notes for Cygwin
 README.dos			Perl notes for DOS
 README.freebsd			Perl notes for FreeBSD
