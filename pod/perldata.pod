@@ -534,16 +534,15 @@ C<1.#INF> are understood, but on output the values are normalized to
 C<Inf> and C<NaN>.
 
 =head3 Constant and typed lexical variables
-X<const> X<type>
+X<:const> X<type>
 
-You can declare lexical my, our or state variables with the
-type-qualifier C<const>. const is only available in 5.18 or higher,
-and only with a C<use v5.18> or C<use feature "const">
-declaration.
+You can declare lexical my, our or state variables with the C<:const>
+attribute as readonly. C<:const> is only available with the
+L<perlcperl> variant.
 
-    my const $i = 1;
-    my const @i = (1);
-    my const %i = ('ok' => 1);
+    my $i :const = 1;
+    my @i :const = (1);
+    my %i :const = ('ok' => 1);
 
 You can also declare the type of a lexical variable with an existing
 packagename:
@@ -551,11 +550,11 @@ packagename:
     package Int;
     my Int $i;
 
-    my const Int $i = 0;
+    my Int $i :const = 0;
 
 Lexical const variables cannot be modified, and thus better optimized
 internally at compile-time.  This is similar to the L<Readonly>
-module, just not backwards compatible and const can throw errors
+module, just not backwards compatible and C<:const> can throw errors
 earlier, at compile-time.
 
 The type information can be used by external modules to implement type
@@ -564,45 +563,45 @@ implementations and short-cut method calls. See
 L<perltypes/"Compile-time type optimizations">.
 
 X<coretypes>
-With C<use coretypes> you can declare the type of a lexical variable
-as C<int>, C<double> or C<string>. C<double> uses the internal
-floating point represention, which might be better or worse than IEEE
-doubles.
+With the cperl variant C<coretypes> is implicitly loaded
+and you can declare the type of a lexical variable as C<int>,
+C<num> or C<str>. C<num> uses the internal floating point
+represention, which might be better or worse than IEEE doubles.
 
 Such native typed variables can not be magic, i.e. not tied, and type
-violations such as stringification of int or double, setting to undef
+violations such as stringification of int or num, setting to undef
 or more will throw compile-time errors.
 
     my int $j;
-    my const int $i = 0;
+    my int $i :const = 0;
     my int @a;
-    my const int @b = (0..9);
-    my string %h;
-    my const string %h
+    my int @b :const = (0..9);
+    my str %h;
+    my str %h :const
        = ('ok' => '1',
           'bad' => '2');
 
 Array keys are always of type int, so the array type declaration specifies
-the type of all values.  The const qualifier for arrays specifies
+the type of all values.  The :const attribute for arrays specifies
 const-ness of the array size, so you are allowed to change existing array
 values, but you may not add or delete array entries.
 
-    my const @a = (0..4);
+    my @a :const = (0..4);
     $a[0] = 'ok';
     push @a, 'bad';
     => Modification of a read-only value attempted
 
-Hash keys are always of type string, so the hash type declaration specifies
-the type of all values.  The const qualifier for hashes specifies
+Hash keys are always of type str, so the hash type declaration specifies
+the type of all values.  The const attribute for hashes specifies
 const-ness of all keys, so you are allowed to change hash values, but
 you may not add or delete or change hash keys.
 
-    my const %h = ('ok' => 0);
+    my %h :const = ('ok' => 0);
     $a{ok} = 1;
     $a{bad} = 1;
     => Attempt to access disallowed key
 
-const hashes are implemented as perfect hashes, with element access in O(1)
+:const hashes are implemented as perfect hashes, with element access in O(1)
 time. Existing hashes can be converted to such perfect hashes with
 L<perlfunc/study>.
 
