@@ -7,7 +7,7 @@ NOTE: To be published only when the critical points are already implemented.
 
 =head1 NAME
 
-cperl - a perl5 with classes, types, compilable, for the business environment
+perlcperl - a perl5 with classes, types, compilable, for the business environment
 
 =head1 SYNOPSIS
 
@@ -223,7 +223,7 @@ harm.
 =head2 Undo B bootstrap breakage
 
 L<B> was changed to support C<use strict> from the very beginning,
-which broke the L<B::Bytecode> compiler performance advantage by all
+which broke the C<B::Bytecode> compiler performance advantage by all
 compiler internal constants to the emitted bytecode.  Reverting this
 breakage was denied because this developer did not understand the code.
 It is too bothersome in the long run to maintain our reversion of this
@@ -375,7 +375,7 @@ types prevent from costly run-time checks for types and magic hooks.
 =head2 typed and sized arrays
 
 Enable faster array access, uniformly typed array values, use less
-memory (cache friendly), help the type system. See L<perltypes.pod>.
+memory (cache friendly), help the type system. See L<perltypes>.
 
   my int $a[20];         # or
   my int[20] $a;         # (probably not), or

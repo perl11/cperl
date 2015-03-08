@@ -63,7 +63,7 @@ For I<deep constness> you have to manually const all values also, or use a modul
 Currently most const assignment violations are caught at compile-time,
 and if not you get at least an error at run-time.
 
-Accesses to const hashes can be optimized via L<study> at run-time.
+Accesses to const hashes can be optimized via L<perlfunc/study> at run-time.
 
 X<const package>
 Additionally to lexical variables we can also declare packages as
