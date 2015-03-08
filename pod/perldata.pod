@@ -534,10 +534,10 @@ C<1.#INF> are understood, but on output the values are normalized to
 C<Inf> and C<NaN>.
 
 =head3 Constant and typed lexical variables
-X<:const> X<type>
+X<:const> X<type> X<coretypes>
 
 You can declare lexical my, our or state variables with the C<:const>
-attribute as readonly. C<:const> is only available with the
+attribute as readonly. C<:const> is currently only available with the
 L<perlcperl> variant.
 
     my $i :const = 1;
@@ -562,7 +562,6 @@ checks and type optimizations, such as using more efficient
 implementations and short-cut method calls. See
 L<perltypes/"Compile-time type optimizations">.
 
-X<coretypes>
 With the cperl variant C<coretypes> is implicitly loaded
 and you can declare the type of a lexical variable as C<int>,
 C<num> or C<str>. C<num> uses the internal floating point
