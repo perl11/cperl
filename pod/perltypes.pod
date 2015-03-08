@@ -41,18 +41,19 @@ no setting to C<undef> allowed.
     => compile-time error: Invalid tie for typed array
 
 =head2 :const
-
 X<const lexical>
-L<perldata/const> is a new type qualifier for lexical variables to
-enable compile-time readonly and assignment checks and
-type optimizations. You must assign a value within the declaration.
 
-  my $a:const = 0;
-  my ($b:const,$c:const) = (0,1);
-  my ($d:const, $free) = (0,1);
-  my (int $i:const, string $s:const) = (0,"1");
+C<:const> is a new attribute for lexical variables, functions and
+packages to enable compile-time readonly and assignment checks and
+type optimizations. With variables you must assign a value within the
+declaration.  See L<perldata/"Constant and typed lexical variables">.
 
-:const sets the internal SVf_READONLY flag for the variable, if it's
+  my $a :const = 0;
+  my ($b :const,$c :const) = (0,1);
+  my ($d :const, $free) = (0,1);
+  my (int $i:const, str $s :const) = (0,"1");
+
+C<:const> sets the internal SVf_READONLY flag for the variable, if it's
 a scalar, array or hash. The special package stash (e.g. C<%MyClass::>)
 counts as hash.
 Elements of const arrays and hashes are protected against vivification.
@@ -66,7 +67,7 @@ and if not you get at least an error at run-time.
 Accesses to const hashes can be optimized via L<perlfunc/study> at run-time.
 
 X<const package>
-Additionally to lexical variables we can also declare packages as
+Additionally to lexical variables and functions we can also declare packages as
 const.  That means that the structure of previously parsed package
 const stash can not me modified, I<shallow constness>. You may not
 change, add or delete keys of the stash, but you may change the value
@@ -114,7 +115,7 @@ otherwise run-time.
     => compile-time error: Invalid key for const hash
 
 As Perl itself supports no types, external modules such as
-L<coretypes>, L<types>, L<typesafety> or L<MooseX::Types> implement
+L</coretypes>, L<types>, L<typesafety> or L<MooseX::Types> implement
 checks for their types during execution of L<perlmod/CHECK>
 blocks, I<at compile-time>.
 
@@ -265,12 +266,12 @@ dynamically at run-time.
 
 =head3 coretypes
 
-The L<coretypes> module implements efficient implementations of
-natively typed scalars, arrays and hashes (I<at least since 5.18>),
-and the @ISA of the three coretypes are guaranteed to be empty. Thus
-there will no mother of all, such as a generic type C<object> to override
-coretypes, but there will be I<softer> children of coretypes to allow
-stringification and undef.
+The builtin C<coretypes> module implements efficient implementations
+of natively typed scalars, arrays and hashes (I<at least since 5.18>),
+and the C<@ISA> of the three coretypes are guaranteed to be
+empty. Thus there will no mother of all, such as a generic type
+C<object> to override coretypes, but there will be I<softer> children
+of coretypes to allow stringification and undef.
 
 So it is safe to optimize coretypes to its native operations at
 compile-time.
@@ -281,7 +282,7 @@ See also L<perldata/coretypes> for examples.
 
 External modules, such as L<types>, L<typesafety> or L<Moose>,
 implement their type checks or optimizations for the types they
-declare or allow declaration for during execution of L<perlsub/CHECK>
+declare or allow declaration for during execution of L<perlmod/CHECK>
 blocks.
 
 =head2 XXX __PACKAGE__ types I<questionable>
@@ -307,6 +308,31 @@ the syntax of Perl's future argument and return type declarations.
 
 L<http://perl.plover.com/classes/typing/> I<Strong Typing Doesn't Have to Suck>
 
-Typed extensions for javascript: L<http://www.typescriptlang.org/Content/TypeScript%20Language%20Specification.pdf>, L<http://hacklang.org/>, or Google's soundscript.
-python: L<https://www.python.org/dev/peps/pep-0484/> and L<http://www.mypy-lang.org/>.
-ruby 3.0: L<https://news.ycombinator.com/item?id=8620129> and L<http://crystal-lang.org/>.
+Most dynamic languages are currently in the process to get type
+support:
+
+=over
+
+=item L<http://www.typescriptlang.org/Content/TypeScript%20Language%20Specification.pdf>  (microsoft's javascript with types)
+
+=item L<https://code.facebook.com/posts/1505962329687926/flow-a-new-static-type-checker-for-javascript/> (facebook's javascript with types)
+
+=item L<https://github.com/rwaldron/tc39-notes/blob/master/es6/2015-01/JSExperimentalDirections.pdf> Soundscript, google's javascript with types
+
+=item L<https://www.python.org/dev/peps/pep-0484/>  (planned python with types)
+
+=item L<http://www.mypy-lang.org/> (existing python with types)
+
+=item L<https://news.ycombinator.com/item?id=8620129> (ruby 3.0 planned with types)
+
+=item L<http://crystal-lang.org/> (a good existing ruby with types)
+
+=item L<http://hacklang.org/> (facebook's php with types)
+
+=item L<http://blog.pascal-martin.fr/post/in-favor-of-rfc-scalar-type-hints.html> (php 7 types overview)
+
+=item L<https://wiki.php.net/rfc/scalar_type_hints> (php 7)
+
+=item L<https://wiki.php.net/rfc/return_types> (php 7)
+
+=back
