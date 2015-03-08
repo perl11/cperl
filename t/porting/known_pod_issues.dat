@@ -274,7 +274,7 @@ pod/perlapio.pod	Verbatim line length including indents exceeds 79 by	5
 pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlcall.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perlce.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	9
+pod/perlcperl.pod	Apparent broken link	2
 pod/perlcygwin.pod	Verbatim line length including indents exceeds 79 by	24
 pod/perldata.pod	Apparent broken link	1
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	34
