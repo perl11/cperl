@@ -1,0 +1,35 @@
+#!/bin/sh
+# cperl rebase all branches. before git push cp -f (update all dependent branches)
+if [ -x$1 = x-f ]; then force=1; shift fi
+if [ -x$1 = x--hard ]; then hard=1; shift fi
+
+function rb {
+    b=$1
+    m=$2
+    echo rebase $b onto $m
+    if [ -n $force ]; then git checkout -f $b; fi
+    git checkout $b && git rebase master
+}
+
+git checkout master
+for b in `git branch | grep bugfix/`; do
+    if [ -n $hard ]; then git reset --hard; fi
+    rb $b master
+done
+git checkout master
+
+rb feature/CM-366-cperl-strict-builtin master
+rb feature/CM-440-cperl-declare-coretypes master
+
+git checkout master
+# find upper branch for our features
+for b in `git branch | grep feature/`; do
+    case $b in
+    feature/CM-316-cperl-fast-arithmetic-use-new-intrinsics) rb $b master ;;
+    feature/CM-366-cperl-strict-builtin)    ;;
+    feature/CM-440-cperl-declare-coretypes) ;;
+    feature/CM-367-cperl-carp-builtin)      rb $b feature/CM-353-cperl-attributes-builtin ;;
+    *)                                      rb $b feature/CM-353-cperl-attributes-builtin ;;
+    esac
+done
+git branch | egrep 'master|bugfix/|feature/'

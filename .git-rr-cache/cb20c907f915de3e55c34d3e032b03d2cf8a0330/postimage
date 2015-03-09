@@ -1,0 +1,614 @@
+/*    xsutils.c
+ *
+ *    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+ *    by Larry Wall and others
+ *    Copyright (C) 2015 cPanel Inc
+ *
+ *    You may distribute under the terms of either the GNU General Public
+ *    License or the Artistic License, as specified in the README file.
+ *
+ */
+
+/*
+ * 'Perilous to us all are the devices of an art deeper than we possess
+ *  ourselves.'                                            --Gandalf
+ *
+ *     [p.597 of _The Lord of the Rings_, III/xi: "The Palantír"]
+ */
+
+#define PERL_NO_GET_CONTEXT
+
+#include "EXTERN.h"
+#define PERL_IN_XSUTILS_C
+#include "perl.h"
+#include "XSUB.h"
+
+/* public XS package methods */
+PERL_XS_EXPORT_C void XS_attributes_reftype(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_attributes__fetch_attrs(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_attributes__modify_attrs(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_attributes__guess_stash(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_attributes_bootstrap(pTHX_ CV *cv);
+/* converted to XS */
+PERL_XS_EXPORT_C void XS_attributes_import(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_attributes_get(pTHX_ CV *cv);
+
+
+/*
+ * Note that only ${pkg}::bootstrap definitions should go here.
+ * This helps keep down the start-up time, which is especially
+ * relevant for users who don't invoke any features which are
+ * (partially) implemented here.
+ *
+ * The various bootstrap definitions can take care of doing
+ * package-specific newXS() calls.  Since the layout of the
+ * bundled *.pm files is in a version-specific directory,
+ * version checks in these bootstrap calls are optional.
+ */
+
+static const char file[] = __FILE__;
+
+/* Boot the cperl builtins */
+
+#ifdef USE_CPERL
+#include "feature.h"
+
+/* internal only */
+static void boot_core_cperl(pTHX); /* called by boot_core_xsutils() */
+PERL_STATIC_INLINE void xs_incset(pTHX_ const char *const unixname,
+                                  const STRLEN unixlen, SV* xsfile);
+static SV*  _fetch_attrs(pTHX_ SV*);
+static HV*  _guess_stash(pTHX_ SV*);
+static void _attributes__push_fetch(SV *sv);
+
+/*
+ * Set non-experimental/stable features for the compiler cop, to
+ * be able to skip the use feature 'lexical_subs', 'signatures';
+ * no warnings 'experimental'; nonsense on non-conflicting code.
+ * Note that currently run-time still needs these features and no warnings.
+ *
+ * Initialize the type inferencer and checker.
+ * Well, type checks probably only with use types;
+ * but the inferencer, yes.
+ */
+
+static void boot_core_cperl(pTHX) {
+    const char he_name1[] = "feature_signatures";
+    const char he_name2[] = "feature_lexsubs";
+    SV* on = sv_2mortal(newSViv(1));
+    /* use feature "signatures";
+       i.e. $^H{$feature{signatures}} = 1; */
+    /* This broke CM-364 by nasty side-effect. HINT_LOCALIZE_HH was added to fix
+       strtable global destruction issues with wrong refcounts.
+       So we get now only signatures and lexsubs for free.
+    PL_hints |= HINT_LOCALIZE_HH | (FEATURE_BUNDLE_515 << HINT_FEATURE_SHIFT);
+    */
+    CopHINTHASH_set(&PL_compiling,
+        cophh_store_pvn(CopHINTHASH_get(&PL_compiling), he_name1, sizeof(he_name1), 0,
+            on, 0));
+    CopHINTHASH_set(&PL_compiling,
+        cophh_store_pvn(CopHINTHASH_get(&PL_compiling), he_name2, sizeof(he_name2), 0,
+            on, 0));
+    /* initialize our core types */
+#define DEF_CORETYPE(s) gv_HVadd(gv_fetchpvs("main::" s "::", GV_ADD, SVt_PVHV))
+    DEF_CORETYPE("int");
+    DEF_CORETYPE("num");
+    DEF_CORETYPE("str");
+    DEF_CORETYPE("int?"); /* int | undef */
+    DEF_CORETYPE("num?");
+    DEF_CORETYPE("str?");
+#undef DEF_CORETYPE
+}
+#endif
+
+void
+Perl_boot_core_xsutils(pTHX)
+{
+    SV* xsfile = newSVpv_share(__FILE__, 0);
+    /* static internal builtins */
+    newXS("attributes::bootstrap",	XS_attributes_bootstrap,file);
+    newXS("attributes::_modify_attrs",	   XS_attributes__modify_attrs, file);
+    newXSproto("attributes::_guess_stash", XS_attributes__guess_stash,  file, "$");
+    newXSproto("attributes::_fetch_attrs", XS_attributes__fetch_attrs,  file, "$");
+    newXSproto("attributes::reftype",	   XS_attributes_reftype,       file, "$");
+  /*newXS("attributes::import",	   	   XS_attributes_import,        file);*/
+    newXSproto("attributes::get",	   XS_attributes_get,           file, "$");
+    /* TODO: the hash value needs to exist, and be a .pm for require to succeed */
+    xs_incset(aTHX_ "attributes.pm", sizeof("attributes.pm"), xsfile);
+
+#if 0
+    newXS("strict::bootstrap",		XS_strict_bootstrap,	file);
+    newXS("DynaLoader::bootstrap",	XS_DynaLoader_bootstrap,file);
+    newXS("Exporter::bootstrap",	XS_Exporter_bootstrap,	file);
+    newXS("Carp::bootstrap",		XS_Carp_bootstrap,	file);
+
+    xs_incset(aTHX_ "strict.pm", sizeof("strict.pm"), xsfile);
+    xs_incset(aTHX_ "DynaLoader.pm", sizeof("DynaLoader.pm"), xsfile);
+    xs_incset(aTHX_ "Exporter.pm", sizeof("Exporter.pm"), xsfile);
+    xs_incset(aTHX_ "Carp.pm", sizeof("Carp.pm"), xsfile);
+
+    /* shared, generated external modules */
+    newXS("warnings::bootstrap",	XS_warnings_bootstrap,	file);
+    newXS("Config::bootstrap",		XS_Config_bootstrap,	file);
+    newXS("unicode::bootstrap",		XS_unicode_bootstrap,	file);
+    xs_incset(aTHX_ "warnings.pm", sizeof("warnings.pm"), xsfile);
+    xs_incset(aTHX_ "Config.pm", sizeof("Config.pm"), xsfile);
+    xs_incset(aTHX_ "utf8_heavy.pl", sizeof("utf8_heavy.pl"), xsfile);
+#endif
+#ifdef USE_CPERL
+    boot_core_cperl(aTHX);
+#endif
+}
+
+PERL_STATIC_INLINE void
+xs_incset(pTHX_ const char *const unixname, const STRLEN unixlen, SV* xsfile)
+{
+    HV *inchv = GvHVn(PL_incgv);
+#if 0
+    SV** const svp = hv_fetch(inchv, unixname, unixlen, 0);
+    if (!svp)
+#endif
+        (void)hv_store(inchv, unixname, unixlen, SvREFCNT_inc_simple_NN(xsfile), 0);
+}
+
+/* attributes */
+/*
+ * Contributed by Spider Boardman (spider.boardman@orb.nashua.nh.us).
+ * Extended by cPanel.
+ */
+
+/* helper for the default modify handler for builtin attributes */
+static int
+modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
+{
+    SV *attr;
+    int nret;
+
+    for (nret = 0 ; numattrs && (attr = *attrlist++); numattrs--) {
+	STRLEN len;
+	const char *name = SvPV_const(attr, len);
+	const bool negated = (*name == '-');
+        HV *typestash;
+
+	if (negated) {
+	    name++;
+	    len--;
+	}
+	switch (SvTYPE(sv)) {
+	case SVt_PVCV:
+	    switch ((int)len) {
+	    case 5:
+		if (memEQ(name, "const", 5)) {
+		    if (negated)
+			CvCONST_off(sv);
+		    else {
+			const bool warn = (!CvANON(sv) || CvCLONED(sv))
+				       && !CvCONST(sv);
+			CvCONST_on(sv);
+			if (warn)
+			    break;
+		    }
+		    continue;
+		}
+		break;
+	    case 6:
+		switch (name[3]) {
+		case 'l':
+		    if (memEQ(name, "lvalue", 6)) {
+			bool warn =
+			    !CvISXSUB(MUTABLE_CV(sv))
+			 && CvROOT(MUTABLE_CV(sv))
+			 && !CvLVALUE(MUTABLE_CV(sv)) != negated;
+			if (negated)
+			    CvFLAGS(MUTABLE_CV(sv)) &= ~CVf_LVALUE;
+			else
+			    CvFLAGS(MUTABLE_CV(sv)) |= CVf_LVALUE;
+			if (warn) break;
+			continue;
+		    }
+		    break;
+		case 'h':
+		    if (memEQ(name, "method", 6)) {
+			if (negated)
+			    CvFLAGS(MUTABLE_CV(sv)) &= ~CVf_METHOD;
+			else
+			    CvFLAGS(MUTABLE_CV(sv)) |= CVf_METHOD;
+			continue;
+		    }
+		    break;
+		}
+		break;
+	    default:
+		if (len > 10 && memEQ(name, "prototype(", 10)) {
+		    SV * proto = newSVpvn(name+10,len-11);
+		    HEK *const hek = CvNAME_HEK((CV *)sv);
+		    SV *subname;
+		    if (name[len-1] != ')')
+			Perl_croak(aTHX_ "Unterminated attribute parameter in attribute list");
+		    if (hek)
+			subname = sv_2mortal(newSVhek(hek));
+		    else
+			subname=(SV *)CvGV((const CV *)sv);
+		    if (ckWARN(WARN_ILLEGALPROTO))
+			Perl_validate_proto(aTHX_ subname, proto, TRUE);
+		    Perl_cv_ckproto_len_flags(aTHX_ (const CV *)sv,
+		                                    (const GV *)subname,
+		                                    name+10,
+		                                    len-11,
+		                                    SvUTF8(attr));
+		    sv_setpvn(MUTABLE_SV(sv), name+10, len-11);
+		    if (SvUTF8(attr)) SvUTF8_on(MUTABLE_SV(sv));
+		    continue;
+		}
+		break;
+	    }
+            if (!negated && (typestash = gv_stashpvn(name, len, SvUTF8(attr)))) {
+                CvTYPED_on(sv);
+                CvTYPE_set((CV*)sv, typestash);
+                continue;
+            }
+	    break;
+	case SVt_IV:
+	case SVt_PVIV:
+	case SVt_PVMG:
+            if (memEQ(name, "unsigned", 8)
+                && (SvIOK(sv) || SvUOK(sv)))
+            {
+                if (negated) /* :-unsigned alias for :signed */
+                    SvIsUV_off(sv);
+                else
+                    SvIsUV_on(sv);
+                continue;
+            }
+            /* fallthru */
+	default:
+            if (memEQ(name, "const", 5)
+                && !(SvFLAGS(sv) & SVf_PROTECT))
+            {
+                if (negated)
+                    SvREADONLY_off(sv);
+                else
+                    SvREADONLY_on(sv);
+                continue;
+            }
+	    if (memEQs(name, len, "shared")) {
+                if (negated)
+                    Perl_croak(aTHX_ "A variable may not be unshared");
+                SvSHARE(sv);
+                continue;
+	    }
+	    break;
+	}
+	/* anything recognized had a 'continue' above */
+	*retlist++ = attr;
+	nret++;
+    }
+
+    return nret;
+}
+
+/* helper to return the stash for a svref, (Sv|Cv|Gv|GvE)STASH */
+static HV*
+_guess_stash(aTHX_ SV* sv)
+{
+    if (SvOBJECT(sv)) {
+	return SvSTASH(sv);
+    }
+    else {
+	HV *stash = NULL;
+	switch (SvTYPE(sv)) {
+	case SVt_PVCV:
+	    if (CvGV(sv) && isGV(CvGV(sv)) && GvSTASH(CvGV(sv)))
+		return GvSTASH(CvGV(sv));
+	    else if (/* !CvANON(sv) && */ CvSTASH(sv))
+		return CvSTASH(sv);
+	    break;
+	case SVt_PVGV:
+	    if (isGV_with_GP(sv) && GvGP(sv) && GvESTASH(MUTABLE_GV(sv)))
+		return GvESTASH(MUTABLE_GV(sv));
+	    break;
+	default:
+	    break;
+	}
+        return stash;
+    }
+}
+
+XS(XS_attributes_bootstrap)
+{
+    dVAR;
+    dXSARGS;
+
+    if( items > 1 )
+	croak_xs_usage(cv, "$module");
+    XSRETURN(0);
+}
+
+/*
+
+    attributes::->import(__PACKAGE__, \$x, 'Bent');
+
+=head2 What C<import> does
+
+In the description it is mentioned that
+
+  sub foo : method;
+
+is equivalent to
+
+  use attributes __PACKAGE__, \&foo, 'method';
+
+As you might know this calls the C<import> function of C<attributes> at compile 
+time with these parameters: 'attributes', the caller's package name, the reference 
+to the code and 'method'.
+
+  attributes->import( __PACKAGE__, \&foo, 'method' );
+
+So you want to know what C<import> actually does?
+
+First of all C<import> gets the type of the third parameter ('CODE' in this case).
+C<attributes.pm> checks if there is a subroutine called C<< MODIFY_<reftype>_ATTRIBUTES >>
+in the caller's namespace (here: 'main').  In this case a
+subroutine C<MODIFY_CODE_ATTRIBUTES> is required.  Then this
+method is called to check if you have used a "bad attribute".
+The subroutine call in this example would look like
+
+  MODIFY_CODE_ATTRIBUTES( 'main', \&foo, 'method' );
+
+C<< MODIFY_<reftype>_ATTRIBUTES >> has to return a list of all "bad attributes".
+If there are any bad attributes C<import> croaks.
+
+*/
+
+XS(XS_attributes_import)
+{
+    /*
+      @_ > 2 && ref $_[2] or do {
+     	require Exporter;
+     	goto &Exporter::import;
+         };
+         my (undef,$home_stash,$svref,@attrs) = @_;
+     
+         my $svtype = uc reftype($svref);
+         my $pkgmeth = UNIVERSAL::can($home_stash, "CHECK_${svtype}_ATTRIBUTES")
+     	if defined $home_stash && $home_stash ne '';
+         my (@pkgattrs, @badattrs);
+         if ($pkgmeth) {
+             @pkgattrs = _modify_attrs_and_deprecate($svtype, $svref, @attrs);
+     	@badattrs = $pkgmeth->($home_stash, $svref, @pkgattrs);
+             _check_reserved($svtype, @pkgattrs) if !@badattrs and @pkgattrs;
+         }
+         else {
+           $pkgmeth = UNIVERSAL::can($home_stash, "MODIFY_${svtype}_ATTRIBUTES")
+     	if defined $home_stash && $home_stash ne '';
+           @pkgattrs = _modify_attrs_and_deprecate($svtype, $svref, @attrs);
+           if ($pkgmeth) {
+             @badattrs = $pkgmeth->($home_stash, $svref, @pkgattrs);
+             _check_reserved($svtype, @pkgattrs) if !@badattrs and @pkgattrs;
+           }
+           else {
+             @badattrs = @pkgattrs;
+           }
+         }
+         if (@badattrs) {
+     	croak "Invalid $svtype attribute" .
+     	    (( @badattrs == 1 ) ? '' : 's') .
+     	    ": " .
+     	    join(' : ', @badattrs);
+         }
+     */
+}
+
+static void _attributes__push_fetch(SV *sv)
+{
+    dSP;
+
+    switch (SvTYPE(sv)) {
+    case SVt_PVCV:
+    {
+	cv_flags_t cvflags = CvFLAGS((const CV *)sv);
+	if (cvflags & CVf_LVALUE) {
+            XPUSHs(newSVpvs_flags("lvalue", SVs_TEMP));
+        }
+	if (cvflags & CVf_METHOD) {
+            XPUSHs(newSVpvs_flags("method", SVs_TEMP));
+        }
+	if (cvflags & CVf_TYPED) {
+            HV *typestash = CvTYPE((CV*)sv); /* skip the "main::" prefix */
+            XPUSHs(newSVpvn_flags(HvNAME(typestash)+6, HvNAMELEN(typestash)-6, SVs_TEMP));
+        }
+	break;
+    }
+    default:
+	break;
+    }
+    PUTBACK;
+}
+
+/*
+  This routine expects a single parameter--a reference to a subroutine
+  or variable.  It returns a list of attributes, which may be empty.
+  If passed invalid arguments, it raises a fatal exception.  If it can
+  find an appropriate package name for a class method lookup, it will
+  include the results from a C<FETCH_I<type>_ATTRIBUTES> call in its
+  return list, as described in L<"Package-specific Attribute
+  Handling"> below.  Otherwise, only L<built-in attributes|"Built-in
+  Attributes"> will be returned.
+ */
+XS(XS_attributes_get)
+{
+    dVAR;
+    dXSARGS;
+    dXSTARG;
+    SV *rv, *sv;
+    HV* stash;
+
+    if( items != 1 ) {
+usage:
+	croak_xs_usage(cv, "$reference");
+    }
+
+    rv = ST(0);
+    ST(0) = TARG;
+    SvGETMAGIC(rv);
+    if (!(SvOK(rv) && SvROK(rv)))
+	goto usage;
+    sv = SvRV(rv);
+
+    stash = _guess_stash(aTHX_ sv);
+    if (!stash) {
+        const PERL_CONTEXT *cx = caller_cx(0 /* ++!!(PL_op->op_private & OPpOFFBYONE) */, NULL);
+        if (cx && SvTYPE(CopSTASH(cx->blk_oldcop)) == SVt_PVHV) {
+            stash = CopSTASH(cx->blk_oldcop);
+        }
+    }
+    SP--;
+    PUTBACK;
+    _attributes__push_fetch(sv);
+    SPAGAIN;
+    if (stash && HvNAMELEN(stash)) {
+        const Size_t len = sizeof("FETCH_svtype_ATTRIBUTES");
+        char name[len]; /* max of SCALAR,ARRAY,HASH,CODE */
+        const char *reftype = sv_reftype(sv, 0);
+
+        my_strlcpy(name, "FETCH_", sizeof("FETCH_"));
+        my_strlcat(name, reftype, len);
+        my_strlcat(name, "_ATTRIBUTES", len);
+
+        PUSHMARK(SP);
+        XPUSHs((SV*)stash);
+        XPUSHs(sv_2mortal(newSVpvn(name, strlen(name))));
+        PUTBACK;
+        if (call_pv("UNIVERSAL::can", G_SCALAR) != 1) {
+            Perl_die(aTHX_ "UNIVERSAL::can did not return a value");
+            XSRETURN(0);
+        }
+        SPAGAIN;
+        rv = POPs;
+        if (rv && rv != &PL_sv_undef) {
+            ENTER;
+            SAVETMPS;
+            PUSHMARK(SP);
+            XPUSHs((SV*)stash);
+            XPUSHs(sv);
+            PUTBACK;
+            call_sv(rv, G_ARRAY);
+            SPAGAIN;
+            FREETMPS;
+            LEAVE;
+        }
+        PUTBACK;
+    }
+}
+
+/* default modify handler for builtin attributes */
+XS(XS_attributes__modify_attrs)
+{
+    dVAR;
+    dXSARGS;
+    SV *rv, *sv;
+
+    if (items < 1) {
+usage:
+	croak_xs_usage(cv, "@attributes");
+    }
+
+    rv = ST(0);
+    if (!(SvOK(rv) && SvROK(rv)))
+	goto usage;
+    sv = SvRV(rv);
+    if (items > 1)
+	XSRETURN(modify_SV_attributes(aTHX_ sv, &ST(0), &ST(1), items-1));
+
+    XSRETURN(0);
+}
+
+/* default fetch handler for builtin attributes */
+XS(XS_attributes__fetch_attrs)
+{
+    dVAR;
+    dXSARGS;
+    SV *rv, *sv;
+
+    if (items != 1) {
+usage:
+	croak_xs_usage(cv, "$reference");
+    }
+
+    rv = ST(0);
+    SP--;
+    if (!(SvOK(rv) && SvROK(rv)))
+	goto usage;
+    sv = SvRV(rv);
+    PUTBACK;
+    _attributes__push_fetch(sv);
+}
+
+/* helper function to return and set the stash of the svref */
+XS(XS_attributes__guess_stash)
+{
+    dVAR;
+    dXSARGS;
+    SV *rv, *sv;
+    HV *stash;
+    dXSTARG;
+
+    if (items != 1) {
+usage:
+	croak_xs_usage(cv, "$reference");
+    }
+
+    rv = ST(0);
+    ST(0) = TARG;
+    if (!(SvOK(rv) && SvROK(rv)))
+	goto usage;
+    sv = SvRV(rv);
+
+    stash = _guess_stash(aTHX_ sv);
+    if (stash)
+        Perl_sv_sethek(aTHX_ TARG, HvNAME_HEK(stash));
+
+    SvSETMAGIC(TARG);
+    XSRETURN(1);
+}
+
+/*
+  This routine expects a single parameter--a reference to a subroutine or
+  variable.  It returns the built-in type of the referenced variable,
+  ignoring any package into which it might have been blessed.
+  This can be useful for determining the I<type> value which forms part of
+  the method names described in L<"Package-specific Attribute Handling"> below.
+*/
+XS(XS_attributes_reftype)
+{
+    dVAR;
+    dXSARGS;
+    SV *rv, *sv;
+    dXSTARG;
+
+    if (items != 1) {
+usage:
+	croak_xs_usage(cv, "$reference");
+    }
+
+    rv = ST(0);
+    ST(0) = TARG;
+    SvGETMAGIC(rv);
+    if (!(SvOK(rv) && SvROK(rv)))
+	goto usage;
+    sv = SvRV(rv);
+    sv_setpv(TARG, sv_reftype(sv, 0));
+    SvSETMAGIC(TARG);
+
+    XSRETURN(1);
+}
+
+/*
+ * Local variables:
+ * c-indentation-style: bsd
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set ts=8 sts=4 sw=4 et:
+ */
