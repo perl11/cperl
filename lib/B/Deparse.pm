@@ -502,7 +502,8 @@ sub next_todo {
 	# hints and deparse them.
 	# When lex subs cease being experimental, we should be able to
 	# remove this code.
-	{
+        if (0) # cannot load Config here: unless ($Config::Config{usecperl})
+        {
 	    local $^H = $self->{'hints'};
 	    local %^H = %{ $self->{'hinthash'} || {} };
 	    local ${^WARNING_BITS} = $self->{'warnings'};
