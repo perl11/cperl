@@ -1,0 +1,9 @@
+#!/bin/sh
+# git pull --rebase all cperl branches (import rebased changes from remote)
+
+git checkout master
+git pull --rebase || exit
+
+for b in `git branch | egrep 'bugfix/|feature/'`; do
+    git checkout $b && git pull --rebase
+done

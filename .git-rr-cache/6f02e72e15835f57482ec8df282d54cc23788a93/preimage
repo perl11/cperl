@@ -1,0 +1,69 @@
+<<<<<<<
+#!/bin/bash
+# cperl rebase all branches. before git push cp -f (update all dependent branches)
+if [ -x$1 = x-f ]; then force=1; shift; fi
+if [ -x$1 = x--hard ]; then hard=1; shift; fi
+
+function rb {
+    b=$1
+    m=$2
+    echo rebase $b onto $m
+    if [ -n $force ]; then git checkout -f $b; fi
+    git checkout $b && git rebase master
+}
+
+git checkout master
+for b in `git branch | grep bugfix/`; do
+    if [ -n $hard ]; then git reset --hard; fi
+    rb $b master
+done
+rb feature/CM-316-cperl-fast-arithmetic-use-new-intrinsics master
+
+declare -a feat
+feat=(master feature/CM-366-cperl-strict-builtin feature/CM-440-cperl-declare-coretypes \
+      feature/CM-353-cperl-attributes-builtin feature/CM-367-cperl-carp-builtin)
+N=4
+for i in `seq 0 $(($N - 1))`; do
+    n=$(($i + 1))
+    rb ${feat[$n]} ${feat[$i]}
+done
+
+#rb feature/CM-366-cperl-strict-builtin     master
+#rb feature/CM-440-cperl-declare-coretypes  feature/CM-366-cperl-strict-builtin
+#rb feature/CM-353-cperl-attributes-builtin feature/CM-440-cperl-declare-coretypes
+#rb feature/CM-367-cperl-carp-builtin       feature/CM-353-cperl-attributes-builtin
+rb feature/CM-317-cperl-signatures         feature/CM-353-cperl-attributes-builtin
+
+git branch | egrep 'master|bugfix/|feature/'
+=======
+#!/bin/sh
+# cperl rebase all branches. before git push cp -f (update all dependent branches)
+
+git checkout master
+for b in `git branch | grep bugfix/`; do
+    if [ -x$1 = x--hard ]; then git reset --hard; fi
+    echo rebase $b onto master
+    if [ -x$1 = x-f ]; then git checkout -f $b; fi
+    git checkout $b && git rebase master
+done
+
+b=feature/CM-353-cperl-attributes-builtin
+echo rebase $b onto master
+if [ -x$1 = x-f ]; then git checkout -f $b; fi
+git checkout $b && git rebase master
+
+git checkout master
+# find upper branch for our features
+for b in `git branch | grep feature/`; do
+    case $b in
+    feature/CM-316-cperl-fast-arithmetic-use-new-intrinsics) base=master;;
+    feature/CM-353-cperl-attributes-builtin) base=master;;
+    feature/CM-367-cperl-carp-builtin) base=feature/CM-366-cperl-strict-builtin;;
+    *) base=feature/CM-353-cperl-attributes-builtin;;
+    esac
+    echo rebase $b onto $base
+if [ -x$1 = x-f ]; then git checkout -f $b; fi
+    git checkout $b && git rebase $base
+done
+git branch | egrep 'master|bugfix/|feature/'
+>>>>>>>
