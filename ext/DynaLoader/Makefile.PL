@@ -11,10 +11,10 @@ WriteMakefile(
     DEFINE	=> '-DLIBC="$(LIBC)"',
     SKIP	=> [qw(dynamic dynamic_lib dynamic_bs)],
     XSPROTOARG => '-noprototypes', 		# XXX remove later?
-    VERSION_FROM => 'DynaLoader_pm.PL',
-    PL_FILES	=> {'DynaLoader_pm.PL'=>'DynaLoader.pm'},
+    VERSION_FROM => 'DynaLoader.pm',
     PM		=> {'DynaLoader.pm' => '$(INST_LIBDIR)/DynaLoader.pm'},
-    depend      => {	'DynaLoader$(OBJ_EXT)' => 'dlutils.c',
+    depend      => {	'DynaLoader$(OBJ_EXT)' => 'dlutils.c dlboot.c',
+			'dlboot.c'     => 'dlboot_c.PL',
 			'DynaLoader.c' => 'DynaLoader.xs'},
     clean	=> {FILES => 'DynaLoader.c DynaLoader.xs DynaLoader.pm'},
 );

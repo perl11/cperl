@@ -165,3 +165,4 @@ SaveError(pTHX_ const char* pat, ...)
 }
 #endif
 
+#include "dlboot.c"   /* bootstrap code converted from .pm */
