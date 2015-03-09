@@ -47,18 +47,19 @@ package main;
 {
     local $ENV{PERL_DESTRUCT_LEVEL} = 2;
     fresh_perl_is(
-		  'package A::B; sub a { // }; %A::=""',
-		  '',
-		  {},
-		  );
+      'package A::B; sub a { // }; %A::=""',
+      '',
+      {},
+      );
     # Variant of the above which creates an object that persists until global
     # destruction, and triggers an assertion failure prior to change
     # a420522db95b7762
     fresh_perl_is(
-		  'use Exporter; package A; sub a { // }; delete $::{$_} for keys %::',
-		  '',
-		  {},
-		  );
+      'use Exporter; package A; sub a { // };'
+      .'for (keys %::) {delete $::{$_} unless Internals::SvREADONLY(%{$_})}',
+      '',
+      {},
+      );
 }
 
 # now tests with strictures
