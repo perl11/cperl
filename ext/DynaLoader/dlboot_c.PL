@@ -115,6 +115,7 @@ AV *dl_require_symbols;      /* names of symbols we need */
 AV *dl_resolve_using;        /* names of files to link with */
 AV *dl_library_path;         /* path to look for files */
 EOT
+die "Invalid \$Config{path_sep}" unless $Config{path_sep};
 print OUT <<"EOT";
 const char dl_ext[] = "$Config{dlext}";
 const char dl_so[]  = "$Config{so}";
@@ -135,10 +136,11 @@ PERL_CALLCONV void XS_DynaLoader_mod2fname(pTHX_ CV *cv);
 
 EXTERN_C void
 dl_boot (pTHX) {
+    char *env;
     const char *debug = PerlEnv_getenv("PERL_DL_DEBUG");
     HV * dl_stash = get_hv("main::DynaLoader::", GV_ADDMULTI);
     newCONSTSUB( dl_stash, "dl_load_flags", newSViv(0) );
-    if (*debug) { /* enable debug/trace messages from DynaLoader perl code */
+    if (debug && *debug) { /* enable debug/trace messages from DynaLoader perl code */
         dl_debug = grok_atou(debug, NULL);
         sv_setiv(get_sv("DynaLoader::dl_debug", GV_ADDMULTI), dl_debug);
     }
@@ -170,7 +172,20 @@ for my $pth (resolve_duplicate_paths(split(' ', $Config{libpth}))) {
     av_store(dl_library_path, AvFILLp(dl_library_path)+1, newSVpvs($pth));
 EOT
 }
-
+if ($ldlibpthname_defined and $Config{path_sep}) {
+  print OUT <<"EOT";
+    if ((env = getenv(ldlibpthname)) != NULL) {
+        char *cur = env;
+        for (; *env; cur++) {
+            if (*cur == *pthsep || !*cur) {
+                av_store(dl_library_path, AvFILLp(dl_library_path)+1, newSVpvn(env, cur-env));
+                if (!*cur) break;
+                env = cur + 1;
+            }
+        }
+    }
+EOT
+}
 print OUT <<'EOT';
 }
 
@@ -226,56 +241,9 @@ static AV * dl_findfile(aTHX_ AV* args) {
 /*
 EOT
 
-my $cfg_dl_library_path = <<'EOT';
-push(@dl_library_path, split(' ', $Config::Config{libpth}));
-EOT
-
 sub dquoted_comma_list {
     join(", ", map {'"'.quotemeta($_).'"'} @_);
 }
-
-if ($ENV{PERL_BUILD_EXPAND_CONFIG_VARS}) {
-    eval $cfg_dl_library_path;
-    if (!$ENV{PERL_BUILD_EXPAND_ENV_VARS}) {
-        my $dl_library_path = dquoted_comma_list(@dl_library_path);
-        print OUT <<EOT;
-# The below \@dl_library_path has been expanded (%Config) in Perl build time.
-
-\@dl_library_path = ($dl_library_path);
-
-EOT
-    }
-}
-else {
-    print OUT <<EOT;
-# Initialise \@dl_library_path with the 'standard' library path
-# for this platform as determined by Configure.
-
-$cfg_dl_library_path
-
-EOT
-}
-
-my $ldlibpthname;
-my $ldlibpthname_defined;
-my $pthsep;
-
-if ($ENV{PERL_BUILD_EXPAND_CONFIG_VARS}) {
-    $ldlibpthname         = to_string($Config::Config{ldlibpthname});
-    $ldlibpthname_defined = to_string(defined $Config::Config{ldlibpthname} ? 1 : 0);
-    $pthsep               = to_string($Config::Config{path_sep});
-}
-else {
-    $ldlibpthname         = q($Config::Config{ldlibpthname});
-    $ldlibpthname_defined = q(defined $Config::Config{ldlibpthname});
-    $pthsep               = q($Config::Config{path_sep});
-}
-print OUT <<EOT;
-my \$ldlibpthname         = $ldlibpthname;
-my \$ldlibpthname_defined = $ldlibpthname_defined;
-my \$pthsep               = $pthsep;
-
-EOT
 
 my $env_dl_library_path = <<'EOT';
 if ($ldlibpthname_defined &&
