@@ -13,7 +13,7 @@ sub to_dqstring {
     return "\"$value\"";
 }
 
-# TODO: resolve symlinks or not?
+# symlinks are currently also resolved.
 # e.g.
 #    ("/usr/lib", "/lib/x86_64-linux-gnu", "/lib/../lib", "/usr/lib/x86_64-linux-gnu", "/usr/lib/../lib")
 # => ("/usr/lib", "/lib/x86_64-linux-gnu", "/lib", "/usr/lib/x86_64-linux-gnu")
@@ -131,8 +131,9 @@ PERL_CALLCONV void XS_DynaLoader_bootstrap(pTHX_ CV *cv);
 PERL_CALLCONV void XS_DynaLoader_dl_findfile(pTHX_ CV *cv);
 PERL_CALLCONV void XS_DynaLoader_dl_expandspec(pTHX_ CV *cv);
 PERL_CALLCONV void XS_DynaLoader_dl_find_symbol_anywhere(pTHX_ CV *cv);
+PERL_CALLCONV void XS_DynaLoader_mod2fname(pTHX_ CV *cv);
 
-void
+EXTERN_C void
 dl_boot (pTHX) {
     const char *debug = PerlEnv_getenv("PERL_DL_DEBUG");
     HV * dl_stash = get_hv("main::DynaLoader::", GV_ADDMULTI);
@@ -150,6 +151,7 @@ dl_boot (pTHX) {
     newXS("DynaLoader::dl_findfile",       XS_DynaLoader_dl_findfile, file);
     newXS("DynaLoader::dl_expandspec",     XS_DynaLoader_dl_expandspec, file);
     newXS("DynaLoader::dl_find_symbol_anywhere", XS_DynaLoader_dl_find_symbol_anywhere, file);
+    newXS("DynaLoader::mod2fname", 	   XS_DynaLoader_mod2fname, file);
 
 EOT
 print OUT <<'EOT' if $Config{dlsrc} eq "dl_dld.xs";
@@ -207,6 +209,11 @@ XS(XS_DynaLoader_dl_expandspec)
     XSRETURN_EMPTY;
 }
 XS(XS_DynaLoader_dl_find_symbol_anywhere)
+{
+    dXSARGS;
+    XSRETURN_EMPTY;
+}
+XS(XS_DynaLoader_mod2fname)
 {
     dXSARGS;
     XSRETURN_EMPTY;
