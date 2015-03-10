@@ -154,7 +154,8 @@ dl_boot (pTHX) {
 EOT
 print OUT <<'EOT' if $Config{dlsrc} eq "dl_dld.xs";
     /* This is a fix to support DLD's unfortunate desire to relink -lc */
-    dl_resolve_using = dl_findfile(av_store(newAV(), 0, newSVpvs("-lc")));
+    dl_resolve_using = get_av("main::DynaLoader::dl_resolve_using", GV_ADDMULTI);
+    dl_resolve_using = dl_findfile(av_store(dl_resolve_using, 0, newSVpvs("-lc")));
 EOT
 
 print OUT <<'EOT';
@@ -190,7 +191,15 @@ XS(XS_DynaLoader_bootstrap)
 XS(XS_DynaLoader_dl_findfile)
 {
     dXSARGS;
-    XSRETURN_EMPTY;
+    SSize_t i, size;
+    AV *args = av_make(items, SP);
+    args = dl_findfile(args);
+    SP -= items;
+    size = AvFILL(args);
+    for (i=0; i<size; i++) {
+      XPUSHs(AvARRAY(args)[i]);
+    }
+    XSRETURN(size);
 }
 XS(XS_DynaLoader_dl_expandspec)
 {
