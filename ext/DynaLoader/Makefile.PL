@@ -13,8 +13,7 @@ WriteMakefile(
     XSPROTOARG => '-noprototypes', 		# XXX remove later?
     VERSION_FROM => 'DynaLoader.pm',
     PM		=> {'DynaLoader.pm' => '$(INST_LIBDIR)/DynaLoader.pm'},
-    depend      => {	'DynaLoader$(OBJ_EXT)' => 'dlutils.c dlboot.c',
-			'dlboot.c'     => 'dlboot_c.PL',
+    depend      => {	'DynaLoader$(OBJ_EXT)' => 'dlutils.c dlboot_c',
 			'DynaLoader.c' => 'DynaLoader.xs'},
     clean	=> {FILES => 'DynaLoader.c DynaLoader.xs DynaLoader.pm'},
 );

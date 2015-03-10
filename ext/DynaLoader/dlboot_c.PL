@@ -6,6 +6,38 @@ sub to_string {
     $value =~ s/'/\\'/g;
     return "'$value'";
 }
+sub to_dqstring {
+    my ($value) = @_;
+    $value =~ s/\\/\\\\/g;
+    $value =~ s/"/\\"/g;
+    return "\"$value\"";
+}
+
+# TODO: resolve symlinks or not?
+# e.g.
+#    ("/usr/lib", "/lib/x86_64-linux-gnu", "/lib/../lib", "/usr/lib/x86_64-linux-gnu", "/usr/lib/../lib")
+# => ("/usr/lib", "/lib/x86_64-linux-gnu", "/lib", "/usr/lib/x86_64-linux-gnu")
+sub resolve_duplicate_paths {
+  # first resolve w/../w => w
+  foreach (@_) {
+    s{(\w+)/\.\./\1$}{\1};
+  }
+  # then remove duplicates, but keep order intact
+  my %p = ();
+  my @out = ();
+  foreach (@_) {
+    unless (exists $p{$_}) {
+      if (-l $_ && -e readlink $_) {
+        $_ = readlink $_;
+      }
+      if (-e $_) {
+        push @out, $_;
+        $p{$_} = 1;
+      }
+    }
+  }
+  @out
+}
 
 #
 # subroutine expand_os_specific expands $^O-specific preprocessing information
@@ -111,6 +143,7 @@ dl_boot (pTHX) {
     }
     do_expand = get_sv("DynaLoader::dl_expand", GV_ADDMULTI);
     sv_setiv(do_expand, DL_DO_EXPAND);
+    dl_library_path = get_av("main::DynaLoader::dl_library_path", GV_ADDMULTI);
 
     newXS("DynaLoader::bootstrap_inherit", XS_DynaLoader_bootstrap_inherit, file);
     newXS("DynaLoader::bootstrap",         XS_DynaLoader_bootstrap, file);
@@ -121,56 +154,60 @@ dl_boot (pTHX) {
 EOT
 print OUT <<'EOT' if $Config{dlsrc} eq "dl_dld.xs";
     /* This is a fix to support DLD's unfortunate desire to relink -lc */
-    dl_resolve_using = dl_findfile(av_push(newAV(),newSVpvs("-lc")));
+    dl_resolve_using = dl_findfile(av_store(newAV(), 0, newSVpvs("-lc")));
 EOT
+
+print OUT <<'EOT';
+    /* with duplicates removed and symlinks resolved from libpth */
+EOT
+# resolve duplicates at least here, if Configure is not up to the task
+for my $pth (resolve_duplicate_paths(split(' ', $Config{libpth}))) {
+  $pth = to_dqstring($pth);
+  print OUT <<"EOT";
+    av_store(dl_library_path, AvFILLp(dl_library_path)+1, newSVpvs($pth));
+EOT
+}
+
 print OUT <<'EOT';
 }
 
 XS(XS_DynaLoader_bootstrap_inherit)
 {
     dXSARGS;
+    /* perl:
+    my $module = $_[0];
+    local *isa = *{"$module\::ISA"};
+    local @isa = (@isa, 'DynaLoader');
+    # Cannot goto due to delocalization.  Will report errors on a wrong line?
+    bootstrap(@_); */
     XSRETURN_EMPTY;
 }
-XS(XS_DynaLoader_bootstrap
+XS(XS_DynaLoader_bootstrap)
 {
     dXSARGS;
     XSRETURN_EMPTY;
 }
-XS(XS_DynaLoader_dl_findfile
+XS(XS_DynaLoader_dl_findfile)
 {
     dXSARGS;
     XSRETURN_EMPTY;
 }
-XS(XS_DynaLoader_dl_expandspec
+XS(XS_DynaLoader_dl_expandspec)
 {
     dXSARGS;
     XSRETURN_EMPTY;
 }
-XS(XS_DynaLoader_dl_find_symbol_anywhere
+XS(XS_DynaLoader_dl_find_symbol_anywhere)
 {
     dXSARGS;
     XSRETURN_EMPTY;
 }
 
-EOT
-print OUT expand_os_specific(<<'EOT');
+static AV * dl_findfile(aTHX_ AV* args) {
+  return args;
+}
+
 /*
-<<$^O-eq-VMS>>
-# Some systems need special handling to expand file specifications
-# (VMS support by Charles Bailey <bailey@HMIVAX.HUMGEN.UPENN.EDU>)
-# See dl_expandspec() for more details. Should be harmless but
-# inefficient to define on systems that don't need it.
-$Is_VMS    = $^O eq 'VMS';
-<</$^O-eq-VMS>>
-
-#XSLoader.pm may have added elements before we were required
-#@dl_shared_objects  = ();       # shared objects for symbols we have 
-#@dl_librefs         = ();       # things we have loaded
-#@dl_modules         = ();       # Modules we have loaded
-
-# This is a fix to support DLD's unfortunate desire to relink -lc
-@dl_resolve_using = dl_findfile('-lc') if $dlsrc eq "dl_dld.xs";
-
 EOT
 
 my $cfg_dl_library_path = <<'EOT';
