@@ -152,10 +152,14 @@ dl_boot (pTHX) {
     newXS("DynaLoader::dl_findfile",       XS_DynaLoader_dl_findfile, file);
     newXS("DynaLoader::dl_expandspec",     XS_DynaLoader_dl_expandspec, file);
     newXS("DynaLoader::dl_find_symbol_anywhere", XS_DynaLoader_dl_find_symbol_anywhere, file);
-    newXS("DynaLoader::mod2fname", 	   XS_DynaLoader_mod2fname, file);
-
 EOT
+if ( $Config::Config{d_libname_unique} ) {
+    printf OUT <<'EOT';
+    newXS("DynaLoader::mod2fname", 	   XS_DynaLoader_mod2fname, file);
+EOT
+}
 print OUT <<'EOT' if $Config{dlsrc} eq "dl_dld.xs";
+
     /* This is a fix to support DLD's unfortunate desire to relink -lc */
     dl_resolve_using = get_av("main::DynaLoader::dl_resolve_using", GV_ADDMULTI);
     dl_resolve_using = dl_findfile(av_store(dl_resolve_using, 0, newSVpvs("-lc")));
@@ -220,17 +224,97 @@ print OUT <<'EOT';
 XS(XS_DynaLoader_bootstrap_inherit)
 {
     dXSARGS;
-    /* perl:
-    my $module = $_[0];
-    local *isa = *{"$module\::ISA"};
-    local @isa = (@isa, 'DynaLoader');
-    # Cannot goto due to delocalization.  Will report errors on a wrong line?
-    bootstrap(@_); */
+    AV* isa;
+    if (items < 1 || !SvPOK(SP[0]))
+      Perl_die(aTHX_ "Usage: DynaLoader::bootstrap_inherit(module)\n");
+    ENTER_with_name("bootstrap");
+    SAVETMPS;
+    {
+        SV *module = newSVpvn(SvPVX(SP[0]), SvCUR(SP[0]));
+        sv_catpvs(module, "::ISA");
+        isa = get_av(SvPVX(module), 0);
+        SAVESPTR(isa);
+        av_store(isa, AvFILL(isa)+1, newSVpvs("DynaLoader"));
+        call_pv("DynaLoader::bootstrap", G_DISCARD);
+    }
+    FREETMPS;
+    LEAVE_with_name("bootstrap");
     XSRETURN_EMPTY;
 }
 XS(XS_DynaLoader_bootstrap)
 {
     dXSARGS;
+    CV *dl_load_file;
+    CV *dl_mod2fname;
+    AV *modparts, *unresolved;
+    SV *module, *mod2fname, *modpname, *dir, *file, *bootname, *boot_symbol_ref;
+    CV *xs;
+    U32 i, flags;
+    char *modulename;
+
+    if (items < 1 || !SvPOK(SP[0]))
+      Perl_die(aTHX_ "Usage: DynaLoader::bootstrap(module)\n");
+    dl_load_file = get_cv("DynaLoader::dl_load_file", 0);
+    module = SP[0];
+    modulename = SvPVX(module);
+    if (!dl_load_file) {
+      Perl_die(aTHX_ "Can't load module %s, dynamic loading not available in this perl.\n"
+               "  (You may need to build a new perl executable which either supports\n"
+               "  dynamic loading or has the %s module statically linked into it.)\n",
+               modulename, modulename);
+    }
+EOT
+  print OUT <<'EOT' if $^O eq 'os2';
+    if (!SvTRUE_NN(get_sv("OS2::is_static")))
+        Perl_die(aTHX_ "Dynaloaded Perl modules are not available in this build of Perl");
+EOT
+
+  # now start splitting and walking modparts /::/ (no utf8 yet)
+  print OUT <<'EOT';
+    modparts = newAV();
+    {
+        char *mn = SvPVX(module);
+        char *cur = mn;
+        for (; *mn; cur++) {
+            if (!*cur || (*cur == ':' && *(cur-1) == ':')) {
+                av_store(modparts, AvFILLp(modparts)+1, newSVpvn(mn, cur-mn));
+                if (!*cur) break;
+                mn = cur + 1;
+            }
+        }
+    }
+    mod2fname = AvARRAY(modparts)[AvFILLp(modparts)];
+
+    /* Some systems have restrictions on files names for DLL's etc.
+       mod2fname returns appropriate file base name (typically truncated).
+       It may also edit @modparts if required. */
+    dl_mod2fname = get_cv("DynaLoader::mod2fname", 0);
+    if (dl_mod2fname) {
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter mod2fname with '%s'\n", SvPVX(mod2fname)));
+        PUSHMARK(SP);
+        PUTBACK;
+        XPUSHs(newRV(modparts));
+        call_sv(dl_mod2fname, G_SCALAR);
+        SPAGAIN;
+        mod2fname = POPs;
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Got mod2fname => '%s'\n", SvPVX(mod2fname)));
+    }
+EOT
+  print OUT <<'EOT' if $^O eq 'NetWare';
+    /* Truncate the module name to 8.3 format for NetWare */
+    if (SvCUR(modfname) > 8)
+	SvCUR_set((modfname, 8);
+EOT
+  print OUT <<'EOT';
+    modpname = newSVpvn("", 0);
+    for (i=0; i<AvFILLp(modparts)-1; i++) {
+        sv_catsv(modpname, AvARRAY(modparts)[i]);
+        sv_catpvs(modpname, "/");
+    }
+    sv_catsv(modpname, AvARRAY(modparts)[AvFILLp(modparts)]);
+    DLDEBUG(1, PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap for %s "
+        "(auto/%s/%s.%s)\n", modulename, SvPVX(modpname), SvPVX(mod2fname), dl_ext));
+
     XSRETURN_EMPTY;
 }
 XS(XS_DynaLoader_dl_findfile)
@@ -298,16 +382,6 @@ EOT
 
 # following long string contains $^O-specific stuff, which is factored out
 print OUT expand_os_specific(<<'EOT');
-
-sub croak   { require Carp; Carp::croak(@_)   }
-
-sub bootstrap_inherit {
-    my $module = $_[0];
-    local *isa = *{"$module\::ISA"};
-    local @isa = (@isa, 'DynaLoader');
-    # Cannot goto due to delocalization.  Will report errors on a wrong line?
-    bootstrap(@_);
-}
 
 sub bootstrap {
     # use local vars to enable $module.bs script to edit values
