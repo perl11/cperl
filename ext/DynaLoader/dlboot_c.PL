@@ -173,7 +173,7 @@ for my $pth (resolve_duplicate_paths(split(' ', $Config{libpth}))) {
 EOT
 }
 if ($ldlibpthname_defined and $Config{path_sep}) {
-  print OUT <<"EOT";
+  print OUT <<'EOT';
     if ((env = getenv(ldlibpthname)) != NULL) {
         char *cur = env;
         for (; *env; cur++) {
@@ -186,6 +186,22 @@ if ($ldlibpthname_defined and $Config{path_sep}) {
     }
 EOT
 }
+if ($ldlibpthname_defined and $ldlibpthname ne 'LD_LIBRARY_PATH' and $Config{path_sep}) {
+  print OUT <<'EOT';
+    /* E.g. HP-UX supports both its native SHLIB_PATH *and* LD_LIBRARY_PATH. */
+    if ((env = getenv("LD_LIBRARY_PATH")) != NULL) {
+        char *cur = env;
+        for (; *env; cur++) {
+            if (*cur == *pthsep || !*cur) {
+                av_store(dl_library_path, AvFILLp(dl_library_path)+1, newSVpvn(env, cur-env));
+                if (!*cur) break;
+                env = cur + 1;
+            }
+        }
+    }
+EOT
+}
+
 print OUT <<'EOT';
 }
 
@@ -244,21 +260,6 @@ EOT
 sub dquoted_comma_list {
     join(", ", map {'"'.quotemeta($_).'"'} @_);
 }
-
-my $env_dl_library_path = <<'EOT';
-if ($ldlibpthname_defined &&
-    exists $ENV{$ldlibpthname}) {
-    push(@dl_library_path, split(/$pthsep/, $ENV{$ldlibpthname}));
-}
-
-# E.g. HP-UX supports both its native SHLIB_PATH *and* LD_LIBRARY_PATH.
-
-if ($ldlibpthname_defined &&
-    $ldlibpthname ne 'LD_LIBRARY_PATH' &&
-    exists $ENV{LD_LIBRARY_PATH}) {
-    push(@dl_library_path, split(/$pthsep/, $ENV{LD_LIBRARY_PATH}));
-}
-EOT
 
 if ($ENV{PERL_BUILD_EXPAND_CONFIG_VARS} && $ENV{PERL_BUILD_EXPAND_ENV_VARS}) {
     eval $env_dl_library_path;
