@@ -69,6 +69,8 @@ START_MY_CXT
 #define DLDEBUG(level,code)	NOOP
 #endif
 
+#include "dlboot.c"   /* bootstrap code converted from .pm */
+
 #ifdef DL_UNLOAD_ALL_AT_EXIT
 /* Close all dlopen'd files */
 static void
@@ -134,6 +136,7 @@ dl_generic_private_init(pTHX)	/* called by dl_*.xs dl_private_init() */
 #ifdef DL_UNLOAD_ALL_AT_EXIT
     call_atexit(&dl_unload_all_files, (void*)0);
 #endif
+    dl_boot(aTHX);
 }
 
 
