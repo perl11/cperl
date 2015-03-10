@@ -120,9 +120,7 @@ print OUT <<"EOT";
 const char dl_ext[] = "$Config{dlext}";
 const char dl_so[]  = "$Config{so}";
 const char dl_src[] = "$Config{dlsrc}";
-const char ldlibpthname[]       = "$Config{ldlibpthname}";
-const int ldlibpthname_defined  = $ldlibpthname_defined;
-const char pthsep[]             = "$Config{path_sep}";
+const char pthsep[] = "$Config{path_sep}";
 
 EOT
 print OUT <<'EOT';
@@ -136,6 +134,7 @@ PERL_CALLCONV void XS_DynaLoader_mod2fname(pTHX_ CV *cv);
 
 EXTERN_C void
 dl_boot (pTHX) {
+    dSP;
     char *env;
     const char *debug = PerlEnv_getenv("PERL_DL_DEBUG");
     HV * dl_stash = get_hv("main::DynaLoader::", GV_ADDMULTI);
@@ -173,8 +172,9 @@ for my $pth (resolve_duplicate_paths(split(' ', $Config{libpth}))) {
 EOT
 }
 if ($ldlibpthname_defined and $Config{path_sep}) {
-  print OUT <<'EOT';
-    if ((env = getenv(ldlibpthname)) != NULL) {
+  print OUT <<"EOT";
+
+    if ((env = getenv(\"$Config{ldlibpthname}\")) != NULL) {
         char *cur = env;
         for (; *env; cur++) {
             if (*cur == *pthsep || !*cur) {
@@ -186,7 +186,7 @@ if ($ldlibpthname_defined and $Config{path_sep}) {
     }
 EOT
 }
-if ($ldlibpthname_defined and $ldlibpthname ne 'LD_LIBRARY_PATH' and $Config{path_sep}) {
+if ($ldlibpthname_defined and $Config{ldlibpthname} ne 'LD_LIBRARY_PATH' and $Config{path_sep}) {
   print OUT <<'EOT';
     /* E.g. HP-UX supports both its native SHLIB_PATH *and* LD_LIBRARY_PATH. */
     if ((env = getenv("LD_LIBRARY_PATH")) != NULL) {
@@ -201,8 +201,20 @@ if ($ldlibpthname_defined and $ldlibpthname ne 'LD_LIBRARY_PATH' and $Config{pat
     }
 EOT
 }
-
 print OUT <<'EOT';
+    /* No prizes for guessing why we don't say 'bootstrap DynaLoader;' here.
+       NOTE: All dl_*.xs (including dl_none.xs) define a dl_error() XSUB */
+    if (get_cv("boot_DynaLoader", 0) && !get_cv("DynaLoader::dl_error", 0)) {
+        PUSHMARK(SP);
+        XPUSHs(newSVpvs("DynaLoader"));
+        PUTBACK;
+        call_pv("boot_DynaLoader", G_DISCARD);
+    }
+    if (dl_debug) {
+        PerlIO_printf(Perl_debug_log, "DynaLoader.pm loaded (@INC, @dl_library_path)\n");
+        if (!get_cv("boot_DynaLoader", 0))
+            PerlIO_printf(Perl_debug_log, "DynaLoader not linked into this perl\n");
+    }
 }
 
 XS(XS_DynaLoader_bootstrap_inherit)
@@ -257,34 +269,6 @@ static AV * dl_findfile(aTHX_ AV* args) {
 /*
 EOT
 
-sub dquoted_comma_list {
-    join(", ", map {'"'.quotemeta($_).'"'} @_);
-}
-
-if ($ENV{PERL_BUILD_EXPAND_CONFIG_VARS} && $ENV{PERL_BUILD_EXPAND_ENV_VARS}) {
-    eval $env_dl_library_path;
-}
-else {
-    print OUT <<EOT;
-# Add to \@dl_library_path any extra directories we can gather from environment
-# during runtime.
-
-$env_dl_library_path
-
-EOT
-}
-
-if ($ENV{PERL_BUILD_EXPAND_CONFIG_VARS} && $ENV{PERL_BUILD_EXPAND_ENV_VARS}) {
-    my $dl_library_path = dquoted_comma_list(@dl_library_path);
-    print OUT <<EOT;
-# The below \@dl_library_path has been expanded (%Config, %ENV)
-# in Perl build time.
-
-\@dl_library_path = ($dl_library_path);
-
-EOT
-}
-
 if ( $Config::Config{d_libname_unique} ) {
     printf OUT <<'EOT', length($Config::Config{dlext}) + 1;
 sub mod2fname {
@@ -314,19 +298,6 @@ EOT
 
 # following long string contains $^O-specific stuff, which is factored out
 print OUT expand_os_specific(<<'EOT');
-# No prizes for guessing why we don't say 'bootstrap DynaLoader;' here.
-# NOTE: All dl_*.xs (including dl_none.xs) define a dl_error() XSUB
-boot_DynaLoader('DynaLoader') if defined(&boot_DynaLoader) &&
-                                !defined(&dl_error);
-
-if ($dl_debug) {
-    print STDERR "DynaLoader.pm loaded (@INC, @dl_library_path)\n";
-    print STDERR "DynaLoader not linked into this perl\n"
-	    unless defined(&boot_DynaLoader);
-}
-
-1; # End of main code
-
 
 sub croak   { require Carp; Carp::croak(@_)   }
 
