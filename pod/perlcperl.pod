@@ -25,9 +25,11 @@ Description of changes and enhancements of the cperl variant of perl5.
     git branch -r | grep cp/
 
 We need a shared rerere cache to be able to continously merge and rebase with perl5
-upstream.
+upstream and our branch progress.
 See L<https://medium.com/@porteneuve/fix-conflicts-only-once-with-git-rerere-7d116b2cec67>
 The F<rr-cache> commits can be safely ignored upstream.
+
+All branches are frequently rebased. Use the provided helpers F<cp-rb>, F<cp-lb> and F<cp-rh>.
 
 =head1 Fix breakage and bad design
 
@@ -440,7 +442,8 @@ and methods, but this will be slow, without native ops.
 
 =head2 Rewrite critical core modules in C as builtins
 
-Builtins: C<strict>, C<Exporter>, C<DynaLoader>, C<Carp>, C<attributes>.
+Builtins: C<strict>, C<Carp>, C<attributes>, C<DynaLoader>, C<XSLoader>,
+C<Exporter>.
 
 As shared lib: C<warnings>, C<Config> and I<unicode folding tables> to save
 memory, startup time and reduce bloat.
@@ -456,6 +459,95 @@ We need to reduce memory, and want to reduce the size of compiled code
 by 30%, but in some cases it will be 200%.
 As builtin or shared library we go to zero startup-time overhead for those
 modules.
+
+=head3 strict 1.10c as builtin
+
+Starting with cperl (based on Perl 5.22) L<strict> is now a builtin module,
+implemented as XS functions which are always available.
+
+Changes:
+
+F<strict.pm> is only provided for documentation, C<$INC{'strict.pm'} =
+'xsutils.c'> With a list of wrong tags only the wrong tags are
+reportyed one-by-one, and not together.  All other functionality stays
+the same.
+
+=head3 attributes 0.26_01c as builtin
+
+Starting with cperl (based on Perl 5.22) L<attributes> is now again a
+builtin XS module.  There's no need to dynaload it at parse time.
+
+F<attributes.pm> moved back to F<lib/attributes.pm> and is only provided for
+documentation and import.
+
+C<CHECK_I<type>_ATTRIBUTES> is a new compile-time hook, like a readonly
+variant of C<MODIFY_I<type>_ATTRIBUTES>, or the compile-time variant of
+C<FETCH_I<type>_ATTRIBUTES>.
+
+There are several new builtin attributes:
+
+=over
+
+=item :const for all types
+
+=item :unsigned for all integer types, sets SvIsUV_on|off
+
+=item existing classes as types are recognized
+
+and stored for lexical types and subroutine return types.
+
+=back
+
+=head3 Carp 2.00c as builtin
+
+Starting with cperl (based on Perl 5.22) L<Carp> is now a builtin XS module.
+There's no need to require it.  F<Carp.pm> is only provided for
+documentation, C<$INC{'Carp.pm'} = 'xsutils.c'>
+
+B<Changes>:
+
+Currently shortmess is only simplified, the step to skip packages which
+trust each other (via C<@CARP_NOT> or C<@ISA>) is not yet implemented,
+neither is the C<CARP_TRACE> formatting hook.  The deprecated
+C<$Carp::CarpLevel> variable is now ignored.
+
+Other not yet implemented variables: C<$Carp::MaxEvalLen>,
+C<$Carp::MaxArgLen>, C<$Carp::MaxArgNums>, C<$Carp::RefArgFormatter>
+
+=head3 DynaLoader 2.00c as builtin
+
+Starting with cperl (based on Perl 5.22) L<DynaLoader> has no perl code
+anymore, F<DynaLoader.pm> was rewritten as F<dlboot.c>.
+
+B<Changes>:
+
+C<@dl_library_path> eliminates now all duplicate paths and resolves symlinks of
+C<$Config{libpth}> at build time.
+
+Only the C<$ENV{PERL_BUILD_EXPAND_CONFIG_VARS}> settings are
+implemented. All Config settings are compiled in at build time, run-time
+changes are not honored. Config is now also a compiled module,
+F<Config_heavy.pl> is gone, and its hash was always readonly, so there's no
+way to change Config values at run-time without recompiling it.
+
+Not sure yet about keeping support for F<.bs> hooks and C<@dl_resolve_using>.
+
+TODO:
+Provide a C<XSLoader::load_file($module, $modlibname, ...)> function and
+make L<XSLoader> a builtin also. C<...> is passed to the loaded XS function
+as with C<XSLoader::load($module, ...)>.
+
+=head3 warnings as XS extension
+
+It will be compiled to a shared library.
+
+=head3 Config as XS extension
+
+It will be compiled to a shared library.
+
+=head3 unicode folding tables as XS extension
+
+They will be compiled to a shared library.
 
 =head2 Remove Attribute::Handler from core
 
