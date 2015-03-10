@@ -704,12 +704,12 @@ __EOF__
 lib\\lib.pm:
 	perl lib\\lib_pm.PL
 
-ext\\DynaLoader\\DynaLoader.pm:
-	-del /f ext\\DynaLoader\\DynaLoader.pm
-	perl -Ixlib\\symbian ext\\DynaLoader\\DynaLoader_pm.PL
-	perl -pi.bak -e "s/__END__//" DynaLoader.pm
-	copy /y DynaLoader.pm ext\\DynaLoader\\DynaLoader.pm
-	-del /f DynaLoader.pm DynaLoader.pm.bak
+ext\\DynaLoader\\dlboot.c:
+	-del /f ext\\DynaLoader\\dlboot.c
+	perl -Ixlib\\symbian ext\\DynaLoader\\dlboot_c.PL
+	perl -pi.bak -e "s/__END__//" dlboot.c
+	copy /y dlboot.c ext\\DynaLoader\\dlboot.c
+	-del /f dlboot.c.pm dlboot.c.pm.bak
 
 ext\\DynaLoader\\XSLoader.pm:
 	perl \$(XLIB) symbian\\xsbuild.pl \$(XSBOPT) XSLoader
@@ -860,7 +860,7 @@ clean:	clean_${WIN} clean_arm rerename_makedef
 	-del /f xlib\\symbian\\Config_heavy.pl
 	-rmdir /s /q xlib
 	-del /f config.sh
-	-del /f DynaLoader.pm ext\\DynaLoader\\DynaLoader.pm
+	-del /f DynaLoader.pm ext\\DynaLoader\\dlboot.c
 	-del /f ext\\DynaLoader\\Makefile
 	-del /f ext\\SDBM_File\\sdbm\\Makefile
 	-del /f symbian\\*.lst
