@@ -81,8 +81,8 @@ set_version(pTHX_ const char *name, STRLEN nlen, const char *strval, STRLEN plen
     Move(strval, SvPVX(ver), plen, char);
     SvCUR_set(ver, plen);
     SvNVX(ver) = nvval;
-    SvFLAGS(ver) |= (SVf_NOK|SVf_POK|SVf_READONLY|SVp_NOK|SVp_POK);
-    SvREADONLY_on(ver);
+    /* not the PROTECT bit */
+    SvFLAGS(ver) |= (SVf_NOK|SVp_NOK|SVf_POK|SVp_POK|SVf_READONLY);
 }
 
 #ifdef USE_CPERL
@@ -205,9 +205,10 @@ Perl_boot_core_xsutils(pTHX)
     boot_Carp(aTHX_ xsfile);
 
     /* static_xs: not with miniperl */
+    newXS("Exporter::boot_Exporter",	boot_Exporter,	file);
+    newXS("XSLoader::boot_XSLoader",	boot_XSLoader,	file);
     boot_Exporter(aTHX_ xsfile);
-    boot_DynaLoader("DynaLoader");
-    xs_incset(aTHX_ STR_WITH_LEN("DynaLoader.pm"), xsfile);
+    boot_XSLoader(aTHX_ xsfile);
 
     /* shared xs: generated external modules without .pm */
     newXS("warnings::bootstrap",	XS_warnings_bootstrap,	file);
