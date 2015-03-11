@@ -117,6 +117,8 @@ dl_boot (pTHX) {
         SvIV_set(do_expand, DL_DO_EXPAND);
     }
     dl_library_path = get_av("DynaLoader::dl_library_path", GV_ADDMULTI);
+    (void)hv_store(GvHVn(PL_incgv), "DynaLoader.pm", sizeof("DynaLoader.pm")-1,
+                   SvREFCNT_inc_simple_NN(newSVpv_share(__FILE__, 0)), 0);
 
     newXS("DynaLoader::bootstrap_inherit", XS_DynaLoader_bootstrap_inherit, file);
     newXS("DynaLoader::bootstrap",         XS_DynaLoader_bootstrap, file);
