@@ -109,8 +109,11 @@ dl_boot (pTHX) {
     HV * dl_stash = get_hv("main::DynaLoader::", GV_ADDMULTI);
     newCONSTSUB( dl_stash, "dl_load_flags", newSViv(0) );
     if (debug && *debug) { /* enable debug/trace messages from DynaLoader perl code */
+        SV *sv;
         dl_debug = grok_atou(debug, NULL);
-        SvIV_set(get_sv("DynaLoader::dl_debug", GV_ADDMULTI), dl_debug);
+        sv = get_sv("DynaLoader::dl_debug", GV_ADDMULTI);
+        sv_upgrade(sv, SVt_IV);
+        SvIV_set(sv, dl_debug);
     }
     do_expand = get_sv("DynaLoader::dl_expand", GV_ADDMULTI);
     if (SvTYPE(do_expand) < SVt_IV || !SvIOK(do_expand)) {
@@ -197,7 +200,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
     if (dl_debug) {
         PerlIO_printf(Perl_debug_log, "DynaLoader.pm loaded (%s, %s)\n",
                       av_tostr(aTHX_ GvAVn(PL_incgv)), av_tostr(aTHX_ dl_library_path));
-        if (!get_cv("boot_DynaLoader", 0))
+        if (!get_cv("DynaLoader::boot_DynaLoader", 0))
             PerlIO_printf(Perl_debug_log, "DynaLoader not linked into this perl\n");
     }
 }
@@ -252,7 +255,7 @@ print OUT line_prefix(__LINE__, <<'EOT') if $^O eq 'os2';
 EOT
 
 # now start splitting and walking modparts /::/ (no utf8 yet)
-print OUT <<'EOT';
+print OUT line_prefix(__LINE__, <<'EOT');
     modparts = newAV();
     {
         char *mn = SvPVX(module);
@@ -288,7 +291,7 @@ print OUT line_prefix(__LINE__, <<'EOT') if $^O eq 'NetWare';
 	SvCUR_set((modfname, 8);
 EOT
 print OUT line_prefix(__LINE__, <<'EOT');
-    modpname = newSVpvn("", 0);
+    modpname = newSVpvs("");
     for (i=0; i<AvFILLp(modparts)-1; i++) {
         sv_catsv(modpname, AvARRAY(modparts)[i]);
         sv_catpvs(modpname, "/");
@@ -302,6 +305,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
         SV **pdir = av_fetch(GvAVn(PL_incgv), i, 0);
         SV *dir = *pdir;
         SV *slib;
+        file = NULL;
 #ifdef VMS
         char *buf = tounixpath_utf8_ts(aTHX_ dir, NULL, SvUTF8(dir));
         int len = strlen(buf);
@@ -322,7 +326,6 @@ print OUT line_prefix(__LINE__, <<'EOT');
         sv_catpvs(slib, "/");
         sv_catsv(slib, modfname);
         sv_catpv(slib, dl_ext);
-        file = NULL;
 
         if (SvIVX(do_expand)) {
 #ifdef VMS
@@ -346,7 +349,8 @@ print OUT line_prefix(__LINE__, <<'EOT');
                                 av_tostr(aTHX_ dirs), av_tostr(aTHX_ GvAV(PL_incgv))));
         /* last resort, let dl_findfile have a go in all known locations */
         /* map("-L$_",@dirs,@INC), $modfname */
-        file = dl_findfile(aTHX_ dirs, G_SCALAR);
+        if (AvFILLp(dirs) >= 0)
+            file = dl_findfile(aTHX_ dirs, G_SCALAR);
         if (!file)
             file = dl_findfile(aTHX_ GvAV(PL_incgv), G_SCALAR);
     }
@@ -501,6 +505,9 @@ XS(XS_DynaLoader_dl_findfile)
     dXSARGS;
     AV *args = av_make(items, SP);
     SV *file = dl_findfile(aTHX_ args, GIMME);
+    if (!file) {
+      XSRETURN_UNDEF;
+    }
     SP -= items;
     if (GIMME == G_SCALAR) {
         XPUSHs(file);
@@ -509,10 +516,14 @@ XS(XS_DynaLoader_dl_findfile)
     else {
         U32 i;
         AV* found = (AV*)file;
-        for (i=0; i<AvFILLp(found); i++) {
-            XPUSHs(AvARRAY(found)[i]);
+        if (AvFILLp(found)>=0) {
+            for (i=0; i<AvFILLp(found); i++) {
+                XPUSHs(AvARRAY(found)[i]);
+            }
+            XSRETURN(i+1);
         }
-        XSRETURN(i);
+        else
+            XSRETURN_UNDEF;
     }
 }
 
@@ -618,7 +629,9 @@ print OUT line_prefix(__LINE__, <<'EOT');
 
 /* Read L<DynaLoader> for detailed information.
  * This function does not automatically consider the architecture
- * or the perl library auto directories. */
+ * or the perl library auto directories.
+ * May return NULL if not found.
+ */
 static SV * dl_findfile(pTHX_ AV* args, int gimme) {
     AV* dirs;   /* which directories to search */
     AV *found;  /* full paths to real files we have found */
@@ -632,7 +645,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
     for (i=0; i<AvFILLp(args); i++) {
         SV *file = AvARRAY(args)[i];
         char *fn = SvPVX(file);
-        U32 dirsize;
+        IV dirsize;
         AV *names;
         /* Special fast case: full filepath may require no search */
 #ifndef VMS
@@ -716,19 +729,19 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
         }
         else { /* Umm, a bare name. Try various alternatives */
                /* these should be ordered with the most likely first */
-            SV *name = newSVpvn(SvPVX(file), SvCUR(file));
-            SV *copy = newSVpvn(SvPVX(file), SvCUR(file));
+            char *fn = SvPVX(file);
+            SV *name = newSVpvn(fn, SvCUR(file));
              /* push(@names,"$_.$dl_dlext")    unless m/\.$dl_dlext$/o; */
             if (!strstr(fn, dl_ext)) {
                 sv_catpv(name, dl_ext);
                 AV_PUSH(names, name);
-                name = copy;
+                name = newSVpvn(fn, SvCUR(file));
             }
             /* push(@names,"$_.$dl_so")     unless m/\.$dl_so$/o; */
             if (!dl_so_eq_ext && !strstr(fn, dl_so)) {
                 sv_catpv(name, dl_so);
                 AV_PUSH(names, name);
-                name = copy;
+                name = newSVpvn(fn, SvCUR(file));
             }
 #ifdef __CYGWIN__
             if (!strchr(fn, '/')) { /* push(@names,"cyg$_.$dl_so")  unless m:/:; */
@@ -736,7 +749,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
                 sv_catsv(name, file);
                 sv_catpv(name, dl_ext);
                 AV_PUSH(names, name);
-                name = copy;
+                name = newSVpvn(fn, SvCUR(file));
             }
 #endif
             if (!strchr(fn, '/')) { /* push(@names,"lib$_.$dl_so")  unless m:/:; */
@@ -744,7 +757,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
                 sv_catsv(name, file);
                 sv_catpv(name, dl_so);
                 AV_PUSH(names, name);
-                name = copy;
+                name = newSVpvn(fn, SvCUR(file));
             }
 EOT
 
@@ -752,12 +765,12 @@ print OUT line_prefix(__LINE__, <<'EOT') if $dlsrc eq "dl_dld.xs";
             if (!strstr(fn, ".a")) { /* push(@names,"$_.a") if !m/\.a$/ and $dlsrc eq "dl_dld.xs"; */
                 sv_catpvs(name, ".a");
                 AV_PUSH(names, name);
-                name = copy;
+                name = newSVpvn(fn, SvCUR(file));
             }
 EOT
 
 print OUT line_prefix(__LINE__, <<'EOT');
-            AV_PUSH(names, copy);
+            AV_PUSH(names, name);
         }
 EOT
 
@@ -785,8 +798,10 @@ print OUT line_prefix(__LINE__, <<'EOT');
         dirsize = AvFILLp(dirs);
         for (j=0; j<dirsize+AvFILLp(dl_library_path); j++) {
             U32 k;
-            SV *dir = j < dirsize ? AvARRAY(dirs)[j] : AvARRAY(dl_library_path)[j+dirsize];
+            SV *dir = (dirsize >= 0 && j < dirsize) ? AvARRAY(dirs)[j]
+                      : AvARRAY(dl_library_path)[j+(dirsize>=0?dirsize:0)];
             char *dirn = SvPVX(dir);
+            if (dirsize == -1) dirsize = 0;
             PL_laststatval = PerlLIO_stat(dirn, &PL_statcache);
 	    if (!S_ISDIR(PL_statcache.st_mode))
                 continue;
@@ -870,7 +885,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
     if (gimme != G_ARRAY) {
         DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_findfile found (%s)\n",
                                 av_tostr(found)));
-        return AvARRAY(found)[0];
+        return AvFILLp(found)>=0 ? AvARRAY(found)[0] : NULL;
     }
     return (SV*)found;
 }
@@ -878,7 +893,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
 static char * av_tostr(pTHX_ AV *args) {
     int i;
     SV *pv = newSVpvs("");
-    for (i=0; i<AvFILL(args); i++) {
+    for (i=0; i<AvFILLp(args); i++) {
         SV **sv = av_fetch(args, i, 0);
         if (SvPOK(*sv)) {
             sv_catsv(pv, *sv);
