@@ -69,7 +69,8 @@ AV *dl_library_path;         /* path to look for files */
 #define AV_PUSH(av, val) av_store(av, AvFILLp(av)+1, val)
 EOT
 die "Invalid \$Config{path_sep}" unless $Config{path_sep};
-my $dl_so_eq_ext = $Config{dlext} eq $Config{so};
+# darwin?
+my $dl_so_eq_ext = $Config{dlext} eq $Config{so} ? 1 : 0;
 my $dirsep = $^O eq 'symbian' ? "'\\'" : "'/'";
 # we only deal with ".<ext>" so add the dot to the extension for internal optimizations,
 # unlike in old DynaLoader.pm
