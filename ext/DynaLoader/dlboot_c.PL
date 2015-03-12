@@ -337,10 +337,16 @@ print OUT line_prefix(__LINE__, <<'EOT');
         sv_catpv(slib, dl_ext);
 
         if (SvIVX(do_expand)) {
-#ifdef VMS
-            if ((file = dl_expandspec(slib)))
+            PUSHMARK(SP);
+            PUTBACK;
+            XPUSHs(slib);
+            call_pv("DynaLoader::dl_expandspec", G_SCALAR);
+            SPAGAIN;
+            file = POPs;
+            if (file == &PL_sv_undef)
+                file = NULL;
+            else
                 break;
-#endif
         }
         else {
             PL_laststatval = PerlLIO_stat(SvPVX(slib), &PL_statcache);
@@ -584,6 +590,7 @@ XS(XS_DynaLoader_dl_expandspec)
         DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_expandspec(%s) => %s\n",
                                 fn, fn));
     }
+    ST(0) = file;
     XSRETURN(1);
 }
 #endif
