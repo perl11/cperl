@@ -207,7 +207,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
         call_pv("boot_DynaLoader", G_DISCARD);
     }
     if (dl_debug) {
-        PerlIO_printf(Perl_debug_log, "DynaLoader.pm loaded (%s, %s)\n",
+        PerlIO_printf(Perl_debug_log, "DynaLoader.pm loaded (%s %s)\n",
                       av_tostr(aTHX_ GvAV(PL_incgv)), av_tostr(aTHX_ dl_library_path));
         if (!get_cv("DynaLoader::boot_DynaLoader", 0))
             PerlIO_printf(Perl_debug_log, "DynaLoader not linked into this perl\n");
@@ -325,8 +325,9 @@ print OUT line_prefix(__LINE__, <<'EOT');
         sv_catpvs(dir, "/auto/");
         sv_catsv(dir, modpname);
         {
-            const char *fname = SvPV_nolen_const(dir);
-            PL_laststatval = PerlLIO_stat(fname, &PL_statcache);
+            const char *path = SvPV_nolen_const(dir);
+            /* skip over uninteresting directories */
+            PL_laststatval = PerlLIO_stat(path, &PL_statcache);
 	    if (!S_ISDIR(PL_statcache.st_mode))
                 continue;
         }
@@ -871,8 +872,8 @@ print OUT line_prefix(__LINE__, <<'EOT');
                           "/"
 #endif
                 );
-                sv_catsv(file, AvARRAY(names)[k]);
-                DLDEBUG(1,PerlIO_printf(Perl_debug_log, "checking in %s for %s\n",
+                sv_catsv(file, name);
+                DLDEBUG(1,PerlIO_printf(Perl_debug_log, " checking in %s for %s\n",
                                 dirn, SvPVX(name)));
                 if (SvIVX(do_expand)) {
                     dSP;
@@ -941,11 +942,11 @@ static char * av_tostr(pTHX_ AV *args) {
         SV **sv = av_fetch(args, i, 0);
         if (SvPOK(*sv)) {
             sv_catsv(pv, *sv);
-            sv_catpvs(pv, ", ");
+            sv_catpvs(pv, " ");
         }
     }
     if (SvCUR(pv))
-        SvCUR_set(pv, SvCUR(pv) - 2);
+        SvCUR_set(pv, SvCUR(pv) - 1);
     return SvPVX(pv);
 }
 
