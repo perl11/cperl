@@ -230,9 +230,10 @@ XS(XS_DynaLoader_bootstrap_inherit)
     {
         SV *module = newSVpvn(SvPVX(SP[0]), SvCUR(SP[0]));
         sv_catpvs(module, "::ISA");
-        isa = get_av(SvPVX(module), 0);
-        SAVESPTR(isa);
-        AV_PUSH(isa, newSVpvs("DynaLoader"));
+        if ((isa = get_av(SvPVX(module), 0))) {
+            SAVESPTR(isa);
+            AV_PUSH(isa, newSVpvs("DynaLoader"));
+        }
         call_pv("DynaLoader::bootstrap", G_DISCARD);
     }
     FREETMPS;
