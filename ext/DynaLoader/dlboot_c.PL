@@ -53,18 +53,21 @@ my $ldlibpthname_defined = defined $Config{ldlibpthname};
 print OUT line_prefix(__LINE__, <<'EOT');
 /*
   Generated from dlboot_c.PL
-  Reini Urban for cPanel, March 2015
+  Copyright (C) 2015 cPanel Inc
+  Licensed under the same terms as Perl itself.
 */
 static const char file[] = __FILE__;
 #ifdef VMS
-#define DL_DO_EXPAND 1
+#  define DL_DO_EXPAND 1
 #else
-#define DL_DO_EXPAND 0
+#  define DL_DO_EXPAND 0
 #endif
-SV *do_expand;
+/* DynaLoader globals */
+SV *do_expand;               /* if to call dl_expandspec hook */
 AV *dl_require_symbols;      /* names of symbols we need */
 AV *dl_resolve_using;        /* names of files to link with */
 AV *dl_library_path;         /* path to look for files */
+/* dl_debug;                 -- IV from $ENV{PERL_DL_DEBUG}, stored in CTX */
 
 #define AV_PUSH(av, val) av_store(av, AvFILLp(av)+1, val)
 EOT
@@ -74,6 +77,7 @@ my $dl_so_eq_ext = $Config{dlext} eq $Config{so} ? 1 : 0;
 my $dirsep = $^O eq 'symbian' ? "'\\'" : "'/'";
 # we only deal with ".<ext>" so add the dot to the extension for internal optimizations,
 # unlike in old DynaLoader.pm
+# TODO: put those into config.h to get rid of miniperl.
 print OUT line_prefix(__LINE__, <<"EOT");
 const char dl_ext[] = ".$Config{dlext}";
 const char dl_so[]  = ".$Config{so}";
@@ -132,6 +136,7 @@ dl_boot (pTHX) {
 #endif
     newXS("DynaLoader::dl_find_symbol_anywhere", XS_DynaLoader_dl_find_symbol_anywhere, file);
 EOT
+# TODO: put this into config.h to get rid of miniperl.
 if ( $Config::Config{d_libname_unique} ) {
   print OUT line_prefix(__LINE__, <<'EOT');
     newXS("DynaLoader::mod2fname", 	   XS_DynaLoader_mod2fname, file);
@@ -149,9 +154,12 @@ print OUT line_prefix(__LINE__, <<'EOT') if $Config{dlsrc} eq "dl_dld.xs";
 EOT
 
 print OUT line_prefix(__LINE__, <<'EOT');
-    /* with duplicates removed and symlinks resolved from libpth */
+    /* with duplicates removed and symlinks resolved from $Config{libpth} */
 EOT
+
 # resolve duplicates at least here, if Configure is not up to the task
+# TODO: Do this in Configure, put this into config.h to get rid of miniperl.
+# This is the only non-trivial part to get rid of miniperl.
 for my $pth (resolve_duplicate_paths(split(' ', $Config{libpth}))) {
   $pth = to_dqstring($pth);
   print OUT <<"EOT";
@@ -173,6 +181,7 @@ if ($ldlibpthname_defined and $Config{path_sep}) {
     }
 EOT
 }
+# TODO: put such a bool into config.h to get rid of miniperl.
 if ($ldlibpthname_defined and $Config{ldlibpthname} ne 'LD_LIBRARY_PATH' and $Config{path_sep}) {
   print OUT line_prefix(__LINE__, <<'EOT');
     /* E.g. HP-UX supports both its native SHLIB_PATH *and* LD_LIBRARY_PATH. */
@@ -363,6 +372,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
     }
 EOT
 
+# TODO: put d_vms_case_sensitive_symbols into config.h to get rid of miniperl.
 print OUT line_prefix(__LINE__, <<'EOT') if $^O eq 'vms' and $Config::Config{d_vms_case_sensitive_symbols};
 #ifdef VMS
     if (!SvUTF8(file)) {
@@ -576,6 +586,7 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
 }
 EOT
 
+# d_libname_unique is set on linux-android, which does support utf8 pathnames
 if ( $Config::Config{d_libname_unique} ) {
   printf OUT line_prefix(__LINE__, <<'EOT'), length($Config::Config{dlext}) + 1;
 XS(XS_DynaLoader_mod2fname)
@@ -601,8 +612,8 @@ XS(XS_DynaLoader_mod2fname)
         return libname;
 
     /* It's too darned big, so we need to go strip. We use the same
-       algorithm as xsubpp does. First, strip out doubled __.
-       TODO: utf8
+       algorithm as xsubpp does. First, strip out doubled "__".
+       TODO: utf8 safe? Are there utf8 encodings with "__"? Highly unlikely
        $libname =~ s/__/_/g; */
     for (i=1; i<SvCUR(libname); i++) {
       char *s = SvPVX(libname);
@@ -821,7 +832,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
                 SV* name = AvARRAY(names)[k];
                 SV* file = newSVpv(dirn, SvCUR(dir));
                 sv_catpvs(file,
-#ifdef SYMBIAN
+#ifdef __SYMBIAN32__
                           "\\"
 #else
                           "/"
