@@ -72,7 +72,7 @@ can_ok( 'DynaLoader' => 'dl_find_symbol_anywhere' );
 # Check error messages
 # .. for bootstrap()
 eval { DynaLoader::bootstrap() };
-like( $@, qr/^Usage: DynaLoader::bootstrap\(module\)/,
+like( $@, qr/^Usage: DynaLoader::bootstrap\((module\)|\$packagename)/,
         "calling DynaLoader::bootstrap() with no argument" );
 
 eval { package egg_bacon_sausage_and_spam; DynaLoader::bootstrap("egg_bacon_sausage_and_spam") };
