@@ -1009,18 +1009,43 @@ static SV* carp_backtrace(pTHX_ int i, SV* errsv) {
     }
     return errsv;
 }
-static SV* carp_longmess(pTHX_ int ax, SV* errsv) {
+
+/*
+=for apidoc carp_longmess(ax, prefix)
+
+Returns a new PV with the Carp backtrace, starting at C<ax>, the stack base offset,
+which is defined in a XS function.
+See L<Carp::longmess>.
+
+=cut
+*/
+
+SV* Perl_carp_longmess(pTHX_ I32 ax, SV* errsv) {
+    PERL_ARGS_ASSERT_CARP_LONGMESS;
     if (SvROK(ST(0))) return errsv; /* don't break references as exceptions */
     return carp_backtrace(aTHX_ long_error_loc(), errsv);
 }
-static SV* carp_shortmess(pTHX_ int ax, SV* errsv) {
+
+/*
+=for apidoc carp_shortmess(ax, prefix)
+
+Returns a new PV with the short Carp message, starting at C<ax>, the stack base offset,
+which is defined in a XS function.
+See L<Carp::shortmess>.
+
+=cut
+*/
+
+SV* Perl_carp_shortmess(pTHX_ I32 ax, SV* errsv) {
     GV* gv = gv_fetchpvs("Carp::Verbose", 0, SVt_IV);
     int i, verbose = (gv && SvIOK(GvSV(gv))) ? SvIVX(GvSV(gv)) : 0;
-    if (verbose) return carp_longmess(aTHX_ ax, errsv);
+    PERL_ARGS_ASSERT_CARP_SHORTMESS;
+    if (verbose) return carp_longmess(ax, errsv);
     i = short_error_loc();
     if (i >= 0) return ret_summary(aTHX_ i, errsv);
-    else return carp_longmess(aTHX_ ax, errsv);
+    else return carp_longmess(ax, errsv);
 }
+
 /* joins the error prefix for the die or warn message, seperate from the backtrace */
 static SV* carp_error(IV ax, IV items) {
     SV* err = newSVpvn("",0);
@@ -1039,26 +1064,26 @@ static SV* carp_error(IV ax, IV items) {
 XS(XS_Carp_croak)
 {
     dXSARGS;
-    const char* err = SvPVX_const(carp_shortmess(aTHX_ ax, carp_error(ax, items)));
+    const char* err = SvPVX_const(carp_shortmess(ax, carp_error(ax, items)));
     Perl_die(aTHX_ err);
 }
 XS(XS_Carp_confess)
 {
     dXSARGS;
-    const char* err = SvPVX_const(carp_longmess(aTHX_ ax, carp_error(ax, items)));
+    const char* err = SvPVX_const(carp_longmess(ax, carp_error(ax, items)));
     Perl_die(aTHX_ err);
 }
 XS(XS_Carp_carp)
 {
     dXSARGS;
-    const char* err = SvPVX_const(carp_shortmess(aTHX_ ax, carp_error(ax, items)));
+    const char* err = SvPVX_const(carp_shortmess(ax, carp_error(ax, items)));
     Perl_warn(aTHX_ err);
     XSRETURN_EMPTY;
 }
 XS(XS_Carp_cluck)
 {
     dXSARGS;
-    const char* err = SvPVX_const(carp_longmess(aTHX_ ax, carp_error(ax, items)));
+    const char* err = SvPVX_const(carp_longmess(ax, carp_error(ax, items)));
     Perl_warn(aTHX_ err);
     XSRETURN_EMPTY;
 }
@@ -1066,14 +1091,14 @@ XS(XS_Carp_shortmess)
 {
     dXSARGS;
     EXTEND(SP, 1);
-    ST(0) = carp_shortmess(aTHX_ ax, carp_error(ax, items));
+    ST(0) = carp_shortmess(ax, carp_error(ax, items));
     XSRETURN(1);
 }
 XS(XS_Carp_longmess)
 {
     dXSARGS;
     EXTEND(SP, 1);
-    ST(0) = carp_longmess(aTHX_ ax, carp_error(ax, items));
+    ST(0) = carp_longmess(ax, carp_error(ax, items));
     XSRETURN(1);
 }
 XS(XS_Carp_verbose)

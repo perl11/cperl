@@ -2489,6 +2489,11 @@ sn	|void	|mem_log_common	|enum mem_log_type mlt|const UV n|const UV typesize \
 #endif
 #endif
 
+#if defined(PERL_IN_XSUTILS_C)
+XEpR	|SV*	|carp_longmess |I32 ax|NN SV *errsv
+XEpR	|SV *	|carp_shortmess|I32 ax|NN SV *errsv
+#endif
+
 #if defined(PERL_IN_NUMERIC_C)
 #ifndef USE_QUADMATH
 sn	|NV|mulexp10	|NV value|I32 exponent
