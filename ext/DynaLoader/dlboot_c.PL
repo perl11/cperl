@@ -208,7 +208,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
     }
     if (dl_debug) {
         PerlIO_printf(Perl_debug_log, "DynaLoader.pm loaded (%s, %s)\n",
-                      av_tostr(aTHX_ GvAVn(PL_incgv)), av_tostr(aTHX_ dl_library_path));
+                      av_tostr(aTHX_ GvAV(PL_incgv)), av_tostr(aTHX_ dl_library_path));
         if (!get_cv("DynaLoader::boot_DynaLoader", 0))
             PerlIO_printf(Perl_debug_log, "DynaLoader not linked into this perl\n");
     }
@@ -310,8 +310,8 @@ print OUT line_prefix(__LINE__, <<'EOT');
         "(auto/%s/%s%s)\n", modulename, SvPVX(modpname), SvPVX(modfname), dl_ext));
 
     dirs = newAV();
-    for (i=0; i<AvFILL(GvAVn(PL_incgv)); i++) {
-        SV **pdir = av_fetch(GvAVn(PL_incgv), i, 0);
+    for (i=0; i<AvFILL(GvAV(PL_incgv)); i++) {
+        SV **pdir = av_fetch(GvAV(PL_incgv), i, 0);
         SV *dir = *pdir;
         SV *slib;
         file = NULL;
@@ -357,16 +357,32 @@ print OUT line_prefix(__LINE__, <<'EOT');
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Searching now %s and %s\n",
                                 av_tostr(aTHX_ dirs), av_tostr(aTHX_ GvAV(PL_incgv))));
         /* last resort, let dl_findfile have a go in all known locations */
-        /* map("-L$_",@dirs,@INC), $modfname */
-        if (AvFILLp(dirs) >= 0)
-            file = dl_findfile(aTHX_ dirs, G_SCALAR);
-        if (!file)
-            file = dl_findfile(aTHX_ GvAV(PL_incgv), G_SCALAR);
+        if (AvFILLp(dirs) >= 0) {
+            AV *tmp = newAV();
+            for (i=0; i<AvFILLp(dirs); i++) {
+                SV *dir = newSVpvs("-L");
+                sv_catsv(dir, AvARRAY(dirs)[i]);
+                AV_PUSH(tmp, dir);
+            }
+            file = dl_findfile(aTHX_ tmp, G_SCALAR);
+            SvREFCNT_dec_NN(tmp);
+        }
+        if (!file && AvFILLp(GvAV(PL_incgv)) >= 0) {
+            AV *ori = GvAV(PL_incgv);
+            AV *tmp = newAV();
+            for (i=0; i<AvFILLp(ori); i++) {
+                SV *dir = newSVpvs("-L");
+                sv_catsv(dir, AvARRAY(ori)[i]);
+                AV_PUSH(tmp, dir);
+            }
+            file = dl_findfile(aTHX_ tmp, G_SCALAR);
+            SvREFCNT_dec_NN(tmp);
+        }
     }
     if (!file) {
         /* wording similar to error from 'require' */
         Perl_die(aTHX_ "Can't locate loadable object for module %s in @INC (@INC contains: %s)",
-                 modulename, av_tostr(aTHX_ GvAVn(PL_incgv)));
+                 modulename, av_tostr(aTHX_ GvAV(PL_incgv)));
     } else {
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Found %s\n", SvPVX(file)));
     }
@@ -733,7 +749,11 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
             SV *copy;
             sv_catpv(name, &fn[2]);
             copy = newSVpvn(SvPVX(name), SvCUR(name));
+#ifdef DARWIN
+            sv_catpv(name, dl_ext);
+#else
             sv_catpv(name, dl_so);
+#endif
             AV_PUSH(names, name);
             sv_catpvs(copy, ".a");
             AV_PUSH(names, copy);
@@ -748,12 +768,14 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
                 AV_PUSH(names, name);
                 name = newSVpvn(fn, SvCUR(file));
             }
+#ifndef DARWIN
             /* push(@names,"$_.$dl_so")     unless m/\.$dl_so$/o; */
             if (!dl_so_eq_ext && !strstr(fn, dl_so)) {
                 sv_catpv(name, dl_so);
                 AV_PUSH(names, name);
                 name = newSVpvn(fn, SvCUR(file));
             }
+#endif
 #ifdef __CYGWIN__
             if (!strchr(fn, '/')) { /* push(@names,"cyg$_.$dl_so")  unless m:/:; */
                 name = newSVpvs("cyg");
@@ -766,7 +788,11 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
             if (!strchr(fn, '/')) { /* push(@names,"lib$_.$dl_so")  unless m:/:; */
                 name = newSVpvs("lib");
                 sv_catsv(name, file);
+#ifdef DARWIN
+                sv_catpv(name, dl_ext);
+#else
                 sv_catpv(name, dl_so);
+#endif
                 AV_PUSH(names, name);
                 name = newSVpvn(fn, SvCUR(file));
             }
