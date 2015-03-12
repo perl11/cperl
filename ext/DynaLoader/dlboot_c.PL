@@ -275,10 +275,15 @@ print OUT line_prefix(__LINE__, <<'EOT');
     {
         char *mn = SvPVX(module);
         char *cur = mn;
-        for (; *mn; cur++) {
-            if (!*cur || (*cur == ':' && *(cur-1) == ':')) {
-                AV_PUSH(modparts, newSVpvn(mn, cur-mn));
-                if (!*cur) break;
+        int utf8 = SvUTF8(module);
+        for (;; cur++) {
+            if (!*cur) {
+                AV_PUSH(modparts, newSVpvn_flags(mn, cur-mn, utf8));
+                break;
+            }
+            else
+            if (*cur == ':' && *(cur-1) == ':') {
+                AV_PUSH(modparts, newSVpvn_flags(mn, cur-mn-1, utf8));
                 mn = cur + 1;
             }
         }
@@ -442,30 +447,32 @@ print OUT line_prefix(__LINE__, <<'EOT');
     /* TODO .bs support, call flags method */
     flagsiv = newSViv(flags);
 
-#ifdef DARWIN
     {
+        CV *dl_find_symbol = get_cv("DynaLoader::dl_find_symbol", 0);
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_find_symbol with 0, '%s'\n",
                                 SvPVX(bootname)));
         PUSHMARK(SP);
-        PUTBACK;
+        XPUSHs(newSViv(0)); /* first try empty library handle, may already be loaded */
         XPUSHs(file);
-        XPUSHs(flagsiv);
-        call_sv((SV*)dl_find_symbol, G_SCALAR);
+        PUTBACK;
+        items = call_sv((SV*)dl_find_symbol, G_SCALAR);
         SPAGAIN;
-        boot_symbol_ref = POPs;
+        if (items == 1 && SvROK(TOPs))
+            boot_symbol_ref = POPs;
+        else
+            boot_symbol_ref = NULL;
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Got boot_symbol_ref => '%p'\n", boot_symbol_ref));
         if (boot_symbol_ref)
             goto boot;
     }
-#endif
 
     {
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_load_file with '%s' %d\n",
                                 SvPVX(file), flags));
         PUSHMARK(SP);
-        PUTBACK;
         XPUSHs(file);
         XPUSHs(flagsiv);
+        PUTBACK;
         call_sv((SV*)dl_load_file, G_SCALAR);
         SPAGAIN;
         libref = POPs;
@@ -495,12 +502,12 @@ print OUT line_prefix(__LINE__, <<'EOT');
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_find_symbol with %p %s\n",
                                 libref, SvPVX(bootname)));
         PUSHMARK(SP);
-        PUTBACK;
         XPUSHs(libref);
         XPUSHs(bootname);
+        PUTBACK;
         call_sv((SV*)dl_find_symbol, G_SCALAR);
         SPAGAIN;
-        boot_symbol_ref = POPs;
+        boot_symbol_ref = SvROK(TOPs) ? POPs : NULL;
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Got boot_symbol_ref => '%p'\n", boot_symbol_ref));
     }
     if (!boot_symbol_ref)
@@ -516,11 +523,11 @@ print OUT line_prefix(__LINE__, <<'EOT');
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_install_xsub with %s::bootstrap %p %s\n",
                                 modulename, boot_symbol_ref, SvPVX(file)));
         PUSHMARK(SP);
-        PUTBACK;
         sv_catsv(bootstrap, module);
         sv_catpvs(bootstrap, "::bootstrap");
         XPUSHs(boot_symbol_ref);
         XPUSHs(file);
+        PUTBACK;
         call_sv((SV*)dl_install_xsub, G_SCALAR);
         SPAGAIN;
         xs = POPs;
@@ -532,14 +539,12 @@ print OUT line_prefix(__LINE__, <<'EOT');
         AV_PUSH(dl_shared_objects, file); /* record loaded files */
     }
 
-#ifdef DARWIN
    boot:
-#endif
     {
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter &%s::bootstrap %p\n",
                                 modulename, xs));
         PUTBACK;
-        call_sv(xs, GIMME);
+        XSRETURN(call_sv(xs, GIMME));
     }
 }
 
@@ -770,7 +775,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
             SV *copy;
             sv_catpv(name, &fn[2]);
             copy = newSVpvn(SvPVX(name), SvCUR(name));
-#ifdef DARWIN
+#ifdef PERL_DARWIN
             sv_catpv(name, dl_ext);
 #else
             sv_catpv(name, dl_so);
@@ -792,7 +797,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
                 DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
                 name = newSVpvn(fn, SvCUR(file));
             }
-#ifndef DARWIN
+#ifdef PERL_DARWIN
             /* push(@names,"$_.$dl_so")     unless m/\.$dl_so$/o; */
             if (!dl_so_eq_ext && !strstr(fn, dl_so)) {
                 sv_catpv(name, dl_so);
@@ -811,7 +816,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
                 name = newSVpvn(fn, SvCUR(file));
             }
 #endif
-#ifndef DARWIN
+#ifndef PERL_DARWIN
             if (!strchr(fn, '/')) { /* push(@names,"lib$_.$dl_so")  unless m:/:; */
                 name = newSVpvs("lib");
                 sv_catsv(name, file);
