@@ -243,9 +243,9 @@ XS(XS_DynaLoader_bootstrap_inherit)
 XS(XS_DynaLoader_bootstrap)
 {
     dXSARGS;
-    U32 i, flags = 0;
+    IV i, flags = 0;
     char *modulename;
-    CV *dl_load_file;
+    CV *dl_load_file, *dl_find_symbol;
     CV *mod2fname;
     AV *modparts, *dirs;
     SV *module, *modfname, *modpname, *file, *bootname, *libref, *boot_symbol_ref;
@@ -437,49 +437,58 @@ print OUT line_prefix(__LINE__, <<'EOT');
 
     bootname = newSVpvs("boot_");
     sv_catsv(bootname, module);
-    for (i=5; i<SvCUR(bootname); i++) { /* $bootname =~ s/\W/_/g; */
+    for (i=5; i<(IV)SvCUR(bootname); i++) { /* $bootname =~ s/\W/_/g; */
         char *s = SvPVX(bootname);
         if (!isALNUMC_A(s[i]))
             s[i] = '_';
     }
     av_store(dl_require_symbols, 0, bootname);
+    dl_find_symbol = get_cv("DynaLoader::dl_find_symbol", 0);
 
     /* TODO .bs support, call flags method */
     flagsiv = newSViv(flags);
 
     {
-        CV *dl_find_symbol = get_cv("DynaLoader::dl_find_symbol", 0);
+        char *save_last_error = dl_last_error;
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_find_symbol with 0, '%s'\n",
                                 SvPVX(bootname)));
         PUSHMARK(SP);
         XPUSHs(newSViv(0)); /* first try empty library handle, may already be loaded */
-        XPUSHs(file);
+        XPUSHs(bootname);
+        XPUSHs(newSViv(1)); /* ignore error, cperl only */
         PUTBACK;
         items = call_sv((SV*)dl_find_symbol, G_SCALAR);
         SPAGAIN;
-        if (items == 1 && SvROK(TOPs))
+        if (items == 1 && SvIOK(TOPs))
             boot_symbol_ref = POPs;
         else
             boot_symbol_ref = NULL;
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Got boot_symbol_ref => '%p'\n", boot_symbol_ref));
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got loaded boot_symbol_ref => %lx\n",
+            boot_symbol_ref ? SvIVX(boot_symbol_ref) : 0));
         if (boot_symbol_ref)
             goto boot;
+        dl_last_error = save_last_error;
     }
 
     {
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_load_file with '%s' %d\n",
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_load_file with '%s' %ld\n",
                                 SvPVX(file), flags));
         PUSHMARK(SP);
         XPUSHs(file);
         XPUSHs(flagsiv);
         PUTBACK;
-        call_sv((SV*)dl_load_file, G_SCALAR);
+        items = call_sv((SV*)dl_load_file, G_SCALAR);
         SPAGAIN;
-        libref = POPs;
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Got libref => '%p'\n", libref));
+        if (items == 1 && SvIOK(TOPs))
+            libref = POPs;
+        else
+            libref = NULL;
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got libref=%lx\n", libref ? SvIVX(libref) : 0));
     }
     if (!libref) {
-        Perl_die(aTHX_ "Can't load '%s' for module %s:", file, modulename /*, dl_error()*/);
+        SaveError(aTHX_ "Can't load '%s' for module %s:", file, modulename, dlerror());
+        /* Perl_die(aTHX_ SvPVX_const(carp_shortmess(ax, MY_CXT.x_dl_last_error)); */
+        Perl_die(aTHX_ dl_last_error);
     }
     {
         AV *dl_librefs = get_av("DynaLoader::dl_librefs", GV_ADDMULTI);
@@ -488,30 +497,38 @@ print OUT line_prefix(__LINE__, <<'EOT');
     {
         PUSHMARK(SP);
         PUTBACK;
-        call_pv("DynaLoader::dl_undef_symbols", G_ARRAY);
+        items = call_pv("DynaLoader::dl_undef_symbols", G_ARRAY);
         SPAGAIN;
-        if (SP > MARK) {
+        if (items > 0) {
             AV *unresolved = newAV();
-            for (; SP <= MARK; SP++)
-                AV_PUSH(unresolved, *SP);
-            Perl_die("Undefined symbols present after loading %s: %s\n", SvPVX(file), av_tostr(unresolved));
+            for (i=0; i<items; i++) {
+                SV *sym = POPs;
+                if (SvPOK(sym))
+                    AV_PUSH(unresolved, sym);
+            }
+            SaveError(aTHX_ "Undefined symbols present after loading %s: %s\n", SvPVX(file), av_tostr(unresolved));
+            Perl_die(aTHX_ dl_last_error);
         }
     }
     {
-        CV *dl_find_symbol = get_cv("DynaLoader::dl_find_symbol", 0);
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_find_symbol with %p %s\n",
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_find_symbol with %p '%s'\n",
                                 libref, SvPVX(bootname)));
         PUSHMARK(SP);
         XPUSHs(libref);
         XPUSHs(bootname);
         PUTBACK;
-        call_sv((SV*)dl_find_symbol, G_SCALAR);
+        items = call_sv((SV*)dl_find_symbol, G_SCALAR);
         SPAGAIN;
-        boot_symbol_ref = SvROK(TOPs) ? POPs : NULL;
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Got boot_symbol_ref => '%p'\n", boot_symbol_ref));
+        if (items == 1 && SvIOK(TOPs))
+            boot_symbol_ref = POPs;
+        else
+            boot_symbol_ref = NULL;
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got boot_symbol_ref => %lx\n",
+                                boot_symbol_ref ? SvIVX(boot_symbol_ref) : 0));
     }
-    if (!boot_symbol_ref)
-         Perl_die(aTHX_ "Can't find '%s' symbol in %s\n", SvPVX(bootname), SvPVX(file));
+    if (!boot_symbol_ref) {
+        Perl_die(aTHX_ "Can't find '%s' symbol in %s\n", SvPVX(bootname), SvPVX(file));
+    }
     {
         AV *dl_modules = get_av("DynaLoader::dl_modules", GV_ADDMULTI);
         AV_PUSH(dl_modules, module); /* record loaded module */
@@ -520,18 +537,22 @@ print OUT line_prefix(__LINE__, <<'EOT');
     {
         CV *dl_install_xsub = get_cv("DynaLoader::dl_install_xsub", 0);
         SV *bootstrap = newSVpvs("");
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_install_xsub with %s::bootstrap %p %s\n",
-                                modulename, boot_symbol_ref, SvPVX(file)));
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_install_xsub with %s::bootstrap %lx %s\n",
+                                modulename, SvIVX(boot_symbol_ref), SvPVX(file)));
         PUSHMARK(SP);
         sv_catsv(bootstrap, module);
         sv_catpvs(bootstrap, "::bootstrap");
+        XPUSHs(bootstrap);
         XPUSHs(boot_symbol_ref);
         XPUSHs(file);
         PUTBACK;
-        call_sv((SV*)dl_install_xsub, G_SCALAR);
+        items = call_sv((SV*)dl_install_xsub, G_SCALAR);
         SPAGAIN;
-        xs = POPs;
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Got %s::bootstrap => '%p'\n",
+        if (items == 1 && SvROK(TOPs))
+            xs = POPs;
+        else
+            xs = NULL;
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got %s::bootstrap => CV<%p>\n",
                                 modulename, xs));
     }
     {
@@ -541,7 +562,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
 
    boot:
     {
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter &%s::bootstrap %p\n",
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter &%s::bootstrap CV<%p>\n",
                                 modulename, xs));
         PUTBACK;
         XSRETURN(call_sv(xs, GIMME));
@@ -612,15 +633,32 @@ XS(XS_DynaLoader_dl_expandspec)
 
 XS(XS_DynaLoader_dl_find_symbol_anywhere)
 {
-    /*
-    my $sym = shift;
-    my $libref;
-    foreach $libref (@dl_librefs) {
-	my $symref = dl_find_symbol($libref,$sym);
-	return $symref if $symref;
+    dXSARGS;
+    SV *sym, *dl_find_symbol;
+    AV *dl_librefs;
+    IV i;
+    if (items != 1 || !SvPOK(ST(0)))
+        Perl_die(aTHX_ "Usage: DynaLoader::dl_find_symbol_anywhere($symbol)\n");
+
+    sym = ST(0);
+    dl_librefs = get_av("DynaLoader::dl_librefs", GV_ADDMULTI);
+    dl_find_symbol = (SV*)get_cv("DynaLoader::dl_find_symbol", 0);
+    for (i=0; i<=AvFILLp(dl_librefs); i++) {
+        SV *libref = AvARRAY(dl_librefs)[i];
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "dl_find_symbol_anywhere(symbol=%s, libref=%p)\n",
+                                SvPVX(sym), libref));
+        PUSHMARK(SP);
+        XPUSHs(libref);
+        XPUSHs(sym);
+        PUTBACK;
+        items = call_sv(dl_find_symbol, G_SCALAR);
+        SPAGAIN;
+        if (items == 1 && SvIOK(TOPs)) {
+            DLDEBUG(2,PerlIO_printf(Perl_debug_log, "  symbolref = 0x%lx\n", SvIVX(TOPs)));
+            XSRETURN(1);
+        }
     }
-    return undef;
-    */
+    XSRETURN_UNDEF;
 }
 EOT
 
