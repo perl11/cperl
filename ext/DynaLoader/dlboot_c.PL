@@ -312,9 +312,8 @@ print OUT line_prefix(__LINE__, <<'EOT');
     dirs = newAV();
     for (i=0; i<AvFILL(GvAV(PL_incgv)); i++) {
         SV **pdir = av_fetch(GvAV(PL_incgv), i, 0);
-        SV *dir = *pdir;
+        SV *dir = newSVpvn_flags(SvPVX(*pdir), SvCUR(*pdir), SVs_TEMP);
         SV *slib;
-        file = NULL;
 #ifdef VMS
         char *buf = tounixpath_utf8_ts(aTHX_ dir, NULL, SvUTF8(dir));
         int len = strlen(buf);
@@ -322,14 +321,18 @@ print OUT line_prefix(__LINE__, <<'EOT');
         SvPV_set(dir, buf);
         SvCUR_set(dir, len);
 #endif
+        file = NULL;
         sv_catpvs(dir, "/auto/");
         sv_catsv(dir, modpname);
         {
             const char *path = SvPV_nolen_const(dir);
             /* skip over uninteresting directories */
             PL_laststatval = PerlLIO_stat(path, &PL_statcache);
-	    if (!S_ISDIR(PL_statcache.st_mode))
+	    if (!S_ISDIR(PL_statcache.st_mode)) {
+	        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " skipping %s (not existing)\n",
+                                        path));
                 continue;
+            }
         }
 
         slib = newSVpvn_flags(SvPVX(dir), SvCUR(dir), SVs_TEMP);
@@ -353,15 +356,17 @@ print OUT line_prefix(__LINE__, <<'EOT');
             PL_laststatval = PerlLIO_stat(SvPVX(slib), &PL_statcache);
 	    if (S_ISLNK(PL_statcache.st_mode) || S_ISREG(PL_statcache.st_mode)) {
                 file = slib;
+	        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " found %s\n",
+                                        SvPVX(slib)));
                 break;
             }
         }
         av_push(dirs, dir);
     }
     if (!file) {
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: @INC/auto/%s/%s%s not found\n",
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: @INC/auto/%s/%s%s not found\n",
                                 SvPVX(modpname), SvPVX(modfname), dl_ext));
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Searching now %s and %s\n",
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Searching now %s and %s\n",
                                 av_tostr(aTHX_ dirs), av_tostr(aTHX_ GvAV(PL_incgv))));
         /* last resort, let dl_findfile have a go in all known locations */
         if (AvFILLp(dirs) >= 0) {
