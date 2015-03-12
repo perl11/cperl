@@ -81,7 +81,7 @@ if ($Config{usedl}) {
         "calling DynaLoader::bootstrap() with a package without binary object" );
 } else {
      like( $@, qr/^Can't load module egg_bacon_sausage_and_spam/,
-        "calling DynaLoader::bootstrap() with a package without binary object" );
+        "calling DynaLoader::bootstrap() with a package without usedl" );
 }
 
 # .. for dl_load_file()

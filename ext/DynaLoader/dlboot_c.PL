@@ -70,7 +70,12 @@ AV *dl_library_path;         /* path to look for files */
 /* dl_debug;                 -- IV from $ENV{PERL_DL_DEBUG}, stored in CTX */
 
 #define AV_PUSH(av, val) av_store(av, AvFILLp(av)+1, val)
+#define fn_exists(fn) (PerlLIO_stat(fn, &PL_statcache) >= 0              \
+                   && (S_ISLNK(PL_statcache.st_mode) || S_ISREG(PL_statcache.st_mode)))
+#define dir_exists(dir) (PerlLIO_stat(dir, &PL_statcache) >= 0 && S_ISDIR(PL_statcache.st_mode))
+#define pv_copy(pv)     newSVpvn_flags(SvPVX(pv), SvCUR(pv), SvUTF8(pv))
 EOT
+
 die "Invalid \$Config{path_sep}" unless $Config{path_sep};
 # darwin?
 my $dl_so_eq_ext = $Config{dlext} eq $Config{so} ? 1 : 0;
@@ -246,7 +251,7 @@ XS(XS_DynaLoader_bootstrap)
     SV *xs, *flagsiv;
 
     if (items < 1 || !SvPOK(SP[0]))
-      Perl_die(aTHX_ "Usage: DynaLoader::bootstrap(module)\n");
+        Perl_die(aTHX_ "Usage: DynaLoader::bootstrap(module)\n");
     dl_load_file = get_cv("DynaLoader::dl_load_file", 0);
     module = SP[0];
     modulename = SvPVX(module);
@@ -301,7 +306,7 @@ print OUT line_prefix(__LINE__, <<'EOT') if $^O eq 'NetWare';
 EOT
 print OUT line_prefix(__LINE__, <<'EOT');
     modpname = newSVpvs("");
-    for (i=0; i<AvFILLp(modparts)-1; i++) {
+    for (i=0; i<=AvFILLp(modparts)-1; i++) {
         sv_catsv(modpname, AvARRAY(modparts)[i]);
         sv_catpvs(modpname, "/");
     }
@@ -310,9 +315,9 @@ print OUT line_prefix(__LINE__, <<'EOT');
         "(auto/%s/%s%s)\n", modulename, SvPVX(modpname), SvPVX(modfname), dl_ext));
 
     dirs = newAV();
-    for (i=0; i<AvFILL(GvAV(PL_incgv)); i++) {
+    for (i=0; i<=AvFILL(GvAV(PL_incgv)); i++) {
         SV **pdir = av_fetch(GvAV(PL_incgv), i, 0);
-        SV *dir = newSVpvn_flags(SvPVX(*pdir), SvCUR(*pdir), SVs_TEMP);
+        SV *dir = pv_copy(*pdir);
         SV *slib;
 #ifdef VMS
         char *buf = tounixpath_utf8_ts(aTHX_ dir, NULL, SvUTF8(dir));
@@ -326,16 +331,14 @@ print OUT line_prefix(__LINE__, <<'EOT');
         sv_catsv(dir, modpname);
         {
             const char *path = SvPV_nolen_const(dir);
-            /* skip over uninteresting directories */
-            PL_laststatval = PerlLIO_stat(path, &PL_statcache);
-	    if (!S_ISDIR(PL_statcache.st_mode)) {
+	    if (!dir_exists(path)) { /* skip over uninteresting directories */
 	        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " skipping %s (not existing)\n",
                                         path));
                 continue;
             }
         }
 
-        slib = newSVpvn_flags(SvPVX(dir), SvCUR(dir), SVs_TEMP);
+        slib = pv_copy(dir);
         sv_catpvs(slib, "/");
         sv_catsv(slib, modfname);
         sv_catpv(slib, dl_ext);
@@ -353,8 +356,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
                 break;
         }
         else {
-            PL_laststatval = PerlLIO_stat(SvPVX(slib), &PL_statcache);
-	    if (S_ISLNK(PL_statcache.st_mode) || S_ISREG(PL_statcache.st_mode)) {
+	    if (fn_exists(SvPVX(slib))) {
                 file = slib;
 	        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " found %s\n",
                                         SvPVX(slib)));
@@ -371,22 +373,24 @@ print OUT line_prefix(__LINE__, <<'EOT');
         /* last resort, let dl_findfile have a go in all known locations */
         if (AvFILLp(dirs) >= 0) {
             AV *tmp = newAV();
-            for (i=0; i<AvFILLp(dirs); i++) {
+            for (i=0; i<=AvFILLp(dirs); i++) {
                 SV *dir = newSVpvs("-L");
                 sv_catsv(dir, AvARRAY(dirs)[i]);
                 AV_PUSH(tmp, dir);
             }
+            AV_PUSH(tmp, modfname);
             file = dl_findfile(aTHX_ tmp, G_SCALAR);
             SvREFCNT_dec_NN(tmp);
         }
         if (!file && AvFILLp(GvAV(PL_incgv)) >= 0) {
             AV *ori = GvAV(PL_incgv);
             AV *tmp = newAV();
-            for (i=0; i<AvFILLp(ori); i++) {
+            for (i=0; i<=AvFILLp(ori); i++) {
                 SV *dir = newSVpvs("-L");
                 sv_catsv(dir, AvARRAY(ori)[i]);
                 AV_PUSH(tmp, dir);
             }
+            AV_PUSH(tmp, modfname);
             file = dl_findfile(aTHX_ tmp, G_SCALAR);
             SvREFCNT_dec_NN(tmp);
         }
@@ -555,7 +559,7 @@ XS(XS_DynaLoader_dl_findfile)
         U32 i;
         AV* found = (AV*)file;
         if (AvFILLp(found)>=0) {
-            for (i=0; i<AvFILLp(found); i++) {
+            for (i=0; i<=AvFILLp(found); i++) {
                 XPUSHs(AvARRAY(found)[i]);
             }
             XSRETURN(i+1);
@@ -587,8 +591,7 @@ XS(XS_DynaLoader_dl_expandspec)
 
     file = ST(0);
     fn = SvPVX(file);
-    PL_laststatval = PerlLIO_stat(fn, &PL_statcache);
-    if (!S_ISLNK(PL_statcache.st_mode) && !S_ISREG(PL_statcache.st_mode)) {
+    if (!fn_exists(fn)) {
         DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_expandspec(%s) => %s\n",
                                 fn, "undef"));
         file = &PL_sv_undef;
@@ -676,35 +679,35 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
     AV* dirs;   /* which directories to search */
     AV *found;  /* full paths to real files we have found */
     U32 i, j;
-    DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_findfile(%s)\n",
-                           av_tostr(aTHX_ args)));
+    DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_findfile(%s) %d\n",
+                           av_tostr(aTHX_ args), gimme));
     found = newAV();
     dirs  = newAV();
 
     /* accumulate directories but process files as they appear */
-    for (i=0; i<AvFILLp(args); i++) {
+    for (i=0; i<=AvFILLp(args); i++) {
         SV *file = AvARRAY(args)[i];
         char *fn = SvPVX(file);
-        IV dirsize;
+        IV dirsize, lsize;
         AV *names;
+        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " find %s\n", fn));
         /* Special fast case: full filepath may require no search */
 #ifndef VMS
         if (strchr(fn, '/')) {
-            PL_laststatval = PerlLIO_stat(fn, &PL_statcache);
-	    if (S_ISLNK(PL_statcache.st_mode) || S_ISREG(PL_statcache.st_mode)) {
+	    if (fn_exists(fn)) {
                 if (gimme != G_ARRAY) {
                     DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_findfile found (%s)\n",
                                 fn));
                     return file;
                 }
                 AV_PUSH(found, file);
+                DLDEBUG(3,PerlIO_printf(Perl_debug_log, " found %s\n", fn));
             }
         }
 #else
         /* Originally: if (m%[:>/\]]% && -f $_) but stat'ing looks cheaper than searching for
            those chars. */
-        PL_laststatval = PerlLIO_stat(fn, &PL_statcache);
-	if (S_ISLNK(PL_statcache.st_mode) || S_ISREG(PL_statcache.st_mode)) {
+	if (fn_exists(fn)) {
             PUSHMARK(SP);
             PUTBACK;
             XPUSHs(file);
@@ -725,24 +728,27 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
                 return file;
             }
             AV_PUSH(found, file);
+            DLDEBUG(3,PerlIO_printf(Perl_debug_log, " found %s\n", fn));
         }
 #endif
         /* Deal with directories first:
            Using a -L prefix is the preferred option (faster and more robust)
            if (m:^-L:) { s/^-L//; push(@dirs, $_); next; } */
         if (fn[0] == '-' && fn[1] == 'L') {
-            Move(&fn[2], fn, SvCUR(file)-2, char);
-            ((XPV*)SvANY(file))->xpv_cur--;
-            AV_PUSH(dirs, file);
+	    if (dir_exists(&fn[2])) {
+                SV *tmp = newSVpvn_flags(&fn[2], SvCUR(file)-2, SvUTF8(file));
+                AV_PUSH(dirs, tmp);
+                DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +dirs %s\n", &fn[2]));
+            }
             continue;
         }
         /*  Otherwise we try to try to spot directories by a heuristic
             (this is a more complicated issue than it first appears)
             if (m:/: && -d $_) {   push(@dirs, $_); next; } */
         if (strchr(fn, '/')) {
-            PL_laststatval = PerlLIO_stat(fn, &PL_statcache);
-	    if (S_ISDIR(PL_statcache.st_mode)) {
-                AV_PUSH(dirs, file);
+	    if (dir_exists(fn)) {
+                AV_PUSH(dirs, pv_copy(file));
+                DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +dirs %s\n", fn));
                 continue;
             }
         }
@@ -750,8 +756,9 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
         /* VMS: we may be using native VMS directory syntax instead of
            Unix emulation, so check this as well. We've already stat'ed this string.
            if (/[:>\]]/ && -d $_) {   push(@dirs, $_); next; } */
-        if (S_ISDIR(PL_statcache.st_mode)) {
-            AV_PUSH(dirs, file);
+        if (dir_exists(fn)) {
+            AV_PUSH(dirs, pv_copy(file));
+            DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +dirs %s\n", fn));
             continue;
         }
 #endif
@@ -768,17 +775,20 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
             sv_catpv(name, dl_so);
 #endif
             AV_PUSH(names, name);
+            DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
             sv_catpvs(copy, ".a");
             AV_PUSH(names, copy);
+            DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(copy)));
         }
         else { /* Umm, a bare name. Try various alternatives */
                /* these should be ordered with the most likely first */
+            SV *name = pv_copy(file);
             char *fn = SvPVX(file);
-            SV *name = newSVpvn(fn, SvCUR(file));
              /* push(@names,"$_.$dl_dlext")    unless m/\.$dl_dlext$/o; */
             if (!strstr(fn, dl_ext)) {
                 sv_catpv(name, dl_ext);
                 AV_PUSH(names, name);
+                DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
                 name = newSVpvn(fn, SvCUR(file));
             }
 #ifndef DARWIN
@@ -786,6 +796,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
             if (!dl_so_eq_ext && !strstr(fn, dl_so)) {
                 sv_catpv(name, dl_so);
                 AV_PUSH(names, name);
+                DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
                 name = newSVpvn(fn, SvCUR(file));
             }
 #endif
@@ -795,32 +806,34 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
                 sv_catsv(name, file);
                 sv_catpv(name, dl_ext);
                 AV_PUSH(names, name);
+                DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
                 name = newSVpvn(fn, SvCUR(file));
             }
 #endif
+#ifndef DARWIN
             if (!strchr(fn, '/')) { /* push(@names,"lib$_.$dl_so")  unless m:/:; */
                 name = newSVpvs("lib");
                 sv_catsv(name, file);
-#ifdef DARWIN
-                sv_catpv(name, dl_ext);
-#else
                 sv_catpv(name, dl_so);
-#endif
                 AV_PUSH(names, name);
+                DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
                 name = newSVpvn(fn, SvCUR(file));
             }
+#endif
 EOT
 
 print OUT line_prefix(__LINE__, <<'EOT') if $dlsrc eq "dl_dld.xs";
             if (!strstr(fn, ".a")) { /* push(@names,"$_.a") if !m/\.a$/ and $dlsrc eq "dl_dld.xs"; */
                 sv_catpvs(name, ".a");
                 AV_PUSH(names, name);
+                DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
                 name = newSVpvn(fn, SvCUR(file));
             }
 EOT
 
 print OUT line_prefix(__LINE__, <<'EOT');
             AV_PUSH(names, name);
+            DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
         }
 EOT
 
@@ -831,12 +844,12 @@ print OUT line_prefix(__LINE__, <<'EOT') if $^O eq 'symbian';
             int j;
             char drive[2];
             drive[0] = fn[0]; drive[1] = fn[1]; drive[2] = '\0';
-            for (j=0; j<AvFILLp(dirs); j++) {
+            for (j=0; j<=AvFILLp(dirs); j++) {
                 SV *newdir = newSVpvn(drive, 2);
                 sv_catsv(newdir, AvARRAY(dirs)[j]);
                 AvARRAY(dirs)[j] = newdir;
             }
-            for (j=0; j<AvFILLp(dl_library_path); j++) {
+            for (j=0; j<=AvFILLp(dl_library_path); j++) {
                 SV *newdir = newSVpvn(drive, 2);
                 sv_catsv(newdir, AvARRAY(dl_library_path)[j]);
                 AvARRAY(dl_library_path)[j] = newdir;
@@ -846,15 +859,19 @@ EOT
 
 print OUT line_prefix(__LINE__, <<'EOT');
         dirsize = AvFILLp(dirs);
-        for (j=0; j<dirsize+AvFILLp(dl_library_path); j++) {
+        lsize = AvFILLp(dl_library_path);
+        if (dirsize + lsize > -1) /* if one of them is not empty */
+          /* loop both arrays in one loop. -1 means empty */
+          for (j=0; j<=(dirsize>=0?dirsize:0)+(lsize>=0?lsize:0); j++) {
             U32 k;
-            SV *dir = (dirsize >= 0 && j < dirsize) ? AvARRAY(dirs)[j]
-                      : AvARRAY(dl_library_path)[j+(dirsize>=0?dirsize:0)];
+            SV *dir = (dirsize >= 0 && j <= dirsize)
+                      ? AvARRAY(dirs)[j]
+                      : AvARRAY(dl_library_path)[j-dirsize-1];
             char *dirn = SvPVX(dir);
-            if (dirsize == -1) dirsize = 0;
-            PL_laststatval = PerlLIO_stat(dirn, &PL_statcache);
-	    if (!S_ISDIR(PL_statcache.st_mode))
+	    if (!dir_exists(dirn)) {
+                DLDEBUG(3,PerlIO_printf(Perl_debug_log, " skip %s\n", dirn));
                 continue;
+            }
 #ifdef VMS
             {
                 dSP;
@@ -867,7 +884,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
                 SvCUR_set(dir, SvCUR(dir)-1);
             }
 #endif
-            for (k=0; k<AvFILLp(names); k++) {
+            for (k=0; k<=AvFILLp(names); k++) {
                 SV* name = AvARRAY(names)[k];
                 SV* file = newSVpv(dirn, SvCUR(dir));
                 sv_catpvs(file,
@@ -902,8 +919,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
                         }
                     }
                 } else {
-                    PL_laststatval = PerlLIO_stat(SvPVX(file), &PL_statcache);
-	            if (S_ISLNK(PL_statcache.st_mode) || S_ISREG(PL_statcache.st_mode)) {
+	            if (fn_exists(SvPVX(file))) {
                         if (gimme != G_ARRAY) {
                             SvREFCNT_dec_NN(found);
                             SvREFCNT_dec_NN(dirs);
@@ -922,10 +938,9 @@ print OUT line_prefix(__LINE__, <<'EOT');
         SvREFCNT_dec_NN(names);
     }
     if (dl_debug) {
-        for (i=0; i<AvFILLp(dirs); i++) {
+        for (i=0; i<=AvFILLp(dirs); i++) {
             const char* fn = SvPVX(AvARRAY(dirs)[i]);
-            PL_laststatval = PerlLIO_stat(fn, &PL_statcache);
-	    if (!S_ISDIR(PL_statcache.st_mode)) {
+	    if (!dir_exists(fn)) {
                 PerlIO_printf(Perl_debug_log, " dl_findfile ignored non-existent directory: %s\n",
                                 fn);
             }
@@ -943,7 +958,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
 static char * av_tostr(pTHX_ AV *args) {
     int i;
     SV *pv = newSVpvs("");
-    for (i=0; i<AvFILLp(args); i++) {
+    for (i=0; i<=AvFILLp(args); i++) {
         SV **sv = av_fetch(args, i, 0);
         if (SvPOK(*sv)) {
             sv_catsv(pv, *sv);
