@@ -43,6 +43,8 @@ typedef struct {
 #endif
 } my_cxt_t;
 
+EXTERN_C void dl_boot (pTHX);
+
 START_MY_CXT
 
 #define dl_last_error	(SvPVX(MY_CXT.x_dl_last_error))
@@ -68,8 +70,6 @@ START_MY_CXT
 #else
 #define DLDEBUG(level,code)	NOOP
 #endif
-
-#include "dlboot.c"   /* bootstrap code converted from .pm */
 
 #ifdef DL_UNLOAD_ALL_AT_EXIT
 /* Close all dlopen'd files */
@@ -168,3 +168,4 @@ SaveError(pTHX_ const char* pat, ...)
 }
 #endif
 
+#include "dlboot.c"   /* bootstrap code converted from .pm */
