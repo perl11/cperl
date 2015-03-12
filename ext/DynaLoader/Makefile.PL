@@ -16,7 +16,7 @@ WriteMakefile(
     PM		=> {'DynaLoader.pm' => '$(INST_LIBDIR)/DynaLoader.pm'},
     depend      => {	'DynaLoader$(OBJ_EXT)' => 'dlutils.c dlboot_c',
 			'DynaLoader.c' => 'DynaLoader.xs'},
-    clean	=> {FILES => 'DynaLoader.c DynaLoader.xs DynaLoader.pm'},
+    clean	=> {FILES => 'dlboot.c DynaLoader.c DynaLoader.xs'},
 );
 
 sub MY::cflags {
