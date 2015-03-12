@@ -1015,10 +1015,10 @@ static SV* carp_longmess(pTHX_ int ax, SV* errsv) {
 }
 static SV* carp_shortmess(pTHX_ int ax, SV* errsv) {
     GV* gv = gv_fetchpvs("Carp::Verbose", 0, SVt_IV);
-    int i, verbose = gv ? SvIVX(GvSV(gv)) : 0;
+    int i, verbose = (gv && SvIOK(GvSV(gv))) ? SvIVX(GvSV(gv)) : 0;
     if (verbose) return carp_longmess(aTHX_ ax, errsv);
     i = short_error_loc();
-    if (i) return ret_summary(aTHX_ i, errsv);
+    if (i >= 0) return ret_summary(aTHX_ i, errsv);
     else return carp_longmess(aTHX_ ax, errsv);
 }
 /* joins the error prefix for the die or warn message, seperate from the backtrace */
@@ -1089,6 +1089,8 @@ XS(XS_Carp_verbose)
         }
     } else if (!items) {
         ST(0) = gv ? GvSV(gv) : &PL_sv_undef;
+    } else {
+        Perl_die(aTHX_ "Usage: Carp::verbose [ 1 or 0 ]\n");
     }
     XSRETURN(1);
 }
