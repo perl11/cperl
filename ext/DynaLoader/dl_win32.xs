@@ -157,21 +157,21 @@ dl_unload_file(libref)
     RETVAL
 
 void
-dl_find_symbol(libhandle, symbolname)
+dl_find_symbol(libhandle, symbolname, ign_err=0)
     void *	libhandle
     char *	symbolname
-    PREINIT:
+    int	        ign_err
+  PREINIT:
     void *retv;
-    CODE:
+  CODE:
     DLDEBUG(2,PerlIO_printf(Perl_debug_log,"dl_find_symbol(handle=%x, symbol=%s)\n",
 		      libhandle, symbolname));
     retv = (void*) GetProcAddress((HINSTANCE) libhandle, symbolname);
     DLDEBUG(2,PerlIO_printf(Perl_debug_log,"  symbolref = %x\n", retv));
-    ST(0) = sv_newmortal() ;
-    if (retv == NULL)
-	SaveError(aTHX_ "find_symbol:%s",
-		  OS_Error_String(aTHX)) ;
-    else
+    ST(0) = sv_newmortal();
+    if (retv == NULL) {
+        if (!ign_err) SaveError(aTHX_ "find_symbol:%s", OS_Error_String(aTHX));
+    } else
 	sv_setiv( ST(0), (IV)retv);
 
 
@@ -188,7 +188,7 @@ dl_install_xsub(perl_name, symref, filename="$Package")
     char *		perl_name
     void *		symref 
     char *		filename
-    CODE:
+  CODE:
     DLDEBUG(2,PerlIO_printf(Perl_debug_log,"dl_install_xsub(name=%s, symref=%x)\n",
 		      perl_name, symref));
     ST(0) = sv_2mortal(newRV((SV*)newXS(perl_name,
