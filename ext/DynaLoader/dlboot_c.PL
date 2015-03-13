@@ -250,11 +250,30 @@ XS(XS_DynaLoader_bootstrap)
     AV *modparts, *dirs;
     SV *module, *modfname, *modpname, *file, *bootname, *libref, *boot_symbol_ref;
     SV *xs, *flagsiv;
+    I32 nret;
 
     if (items < 1 || !SvPOK(SP[0]))
         Perl_die(aTHX_ "Usage: DynaLoader::bootstrap(module)\n");
     dl_load_file = get_cv("DynaLoader::dl_load_file", 0);
-    module = SP[0];
+    module = ST(0);
+
+    /* XXX HACK! */
+    if (items > 1) {
+      if (SvPOK(module)) {
+        modulename = SvPVX(module);
+        if (modulename[0] >= '0' && modulename[0] <= '9')
+          goto hack;
+      }
+      if (SvNOK(module)) {
+        hack:
+        DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap stack corruption %g\n",
+                                SvNVX(ST(0))));
+        SP--;
+        module = ST(0);
+        DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap module %s\n",
+                                SvPVX(ST(0))));
+      }
+    }
     modulename = SvPVX(module);
     if (!dl_load_file) {
       Perl_die(aTHX_ "Can't load module %s, dynamic loading not available in this perl.\n"
@@ -457,9 +476,9 @@ print OUT line_prefix(__LINE__, <<'EOT');
         XPUSHs(bootname);
         XPUSHs(newSViv(1)); /* ignore error, cperl only */
         PUTBACK;
-        items = call_sv((SV*)dl_find_symbol, G_SCALAR);
+        nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
         SPAGAIN;
-        if (items == 1 && SvIOK(TOPs))
+        if (nret == 1 && SvIOK(TOPs))
             boot_symbol_ref = POPs;
         else
             boot_symbol_ref = NULL;
@@ -477,9 +496,9 @@ print OUT line_prefix(__LINE__, <<'EOT');
         XPUSHs(file);
         XPUSHs(flagsiv);
         PUTBACK;
-        items = call_sv((SV*)dl_load_file, G_SCALAR);
+        nret = call_sv((SV*)dl_load_file, G_SCALAR);
         SPAGAIN;
-        if (items == 1 && SvIOK(TOPs))
+        if (nret == 1 && SvIOK(TOPs))
             libref = POPs;
         else
             libref = NULL;
@@ -497,11 +516,11 @@ print OUT line_prefix(__LINE__, <<'EOT');
     {
         PUSHMARK(SP);
         PUTBACK;
-        items = call_pv("DynaLoader::dl_undef_symbols", G_ARRAY);
+        nret = call_pv("DynaLoader::dl_undef_symbols", G_ARRAY);
         SPAGAIN;
-        if (items > 0) {
+        if (nret > 0) {
             AV *unresolved = newAV();
-            for (i=0; i<items; i++) {
+            for (i=0; i<nret; i++) {
                 SV *sym = POPs;
                 if (SvPOK(sym))
                     AV_PUSH(unresolved, sym);
@@ -517,9 +536,9 @@ print OUT line_prefix(__LINE__, <<'EOT');
         XPUSHs(libref);
         XPUSHs(bootname);
         PUTBACK;
-        items = call_sv((SV*)dl_find_symbol, G_SCALAR);
+        nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
         SPAGAIN;
-        if (items == 1 && SvIOK(TOPs))
+        if (nret == 1 && SvIOK(TOPs))
             boot_symbol_ref = POPs;
         else
             boot_symbol_ref = NULL;
@@ -546,9 +565,9 @@ print OUT line_prefix(__LINE__, <<'EOT');
         XPUSHs(boot_symbol_ref);
         XPUSHs(file);
         PUTBACK;
-        items = call_sv((SV*)dl_install_xsub, G_SCALAR);
+        nret = call_sv((SV*)dl_install_xsub, G_SCALAR);
         SPAGAIN;
-        if (items == 1 && SvROK(TOPs))
+        if (nret == 1 && SvROK(TOPs))
             xs = POPs;
         else
             xs = NULL;
@@ -562,8 +581,12 @@ print OUT line_prefix(__LINE__, <<'EOT');
 
    boot:
     {
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter &%s::bootstrap CV<%p>\n",
-                                modulename, xs));
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter &%s::bootstrap CV<%p> with %d args\n",
+                                modulename, xs, items));
+        SP = MARK + (items-1);
+        PUSHMARK(SP);
+        MARK = SP;
+        /* XPUSHs(module); while (items-- > 1) XPUSHs(*++MARK);*/
         PUTBACK;
         XSRETURN(call_sv(xs, GIMME));
     }
