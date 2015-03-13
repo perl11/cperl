@@ -114,9 +114,12 @@ EXTERN_C void
 dl_boot (pTHX) {
     dSP;
     char *env;
+#ifdef DEBUGGING
     const char *debug = PerlEnv_getenv("PERL_DL_DEBUG");
+#endif
     HV * dl_stash = get_hv("main::DynaLoader::", GV_ADDMULTI);
     newCONSTSUB( dl_stash, "dl_load_flags", newSViv(0) );
+#ifdef DEBUGGING
     if (debug && *debug) { /* enable debug/trace messages from DynaLoader perl code */
         SV *sv;
         dl_debug = grok_atou(debug, NULL);
@@ -124,6 +127,7 @@ dl_boot (pTHX) {
         sv_upgrade(sv, SVt_IV);
         SvIV_set(sv, dl_debug);
     }
+#endif
     do_expand = get_sv("DynaLoader::dl_expand", GV_ADDMULTI);
     if (SvTYPE(do_expand) < SVt_IV || !SvIOK(do_expand)) {
         sv_upgrade(do_expand, SVt_IV);
@@ -211,12 +215,14 @@ print OUT line_prefix(__LINE__, <<'EOT');
         PUTBACK;
         call_pv("boot_DynaLoader", G_DISCARD);
     }
+#ifdef DEBUGGING
     if (dl_debug) {
         PerlIO_printf(Perl_debug_log, "DynaLoader.pm loaded (%s %s)\n",
                       av_tostr(aTHX_ GvAV(PL_incgv)), av_tostr(aTHX_ dl_library_path));
         if (!get_cv("DynaLoader::boot_DynaLoader", 0))
             PerlIO_printf(Perl_debug_log, "DynaLoader not linked into this perl\n");
     }
+#endif
 }
 
 XS(XS_DynaLoader_bootstrap_inherit)
@@ -248,8 +254,8 @@ XS(XS_DynaLoader_bootstrap)
     CV *dl_load_file, *dl_find_symbol;
     CV *mod2fname;
     AV *modparts, *dirs;
-    SV *module, *modfname, *modpname, *file, *bootname, *libref, *boot_symbol_ref;
-    SV *xs, *flagsiv;
+    SV *module, *modfname, *modpname, *file, *bootname, *libref, *boot_symbol_ref, *flagsiv;
+    SV *xs = NULL;
     I32 nret;
 
     if (items < 1 || !SvPOK(SP[0]))
@@ -568,9 +574,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
         nret = call_sv((SV*)dl_install_xsub, G_SCALAR);
         SPAGAIN;
         if (nret == 1 && SvROK(TOPs))
-            xs = POPs;
-        else
-            xs = NULL;
+            xs = POPs;                /* cannot return NULL */
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got %s::bootstrap => CV<%p>\n",
                                 modulename, xs));
     }
@@ -1004,6 +1008,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
         }
         SvREFCNT_dec_NN(names);
     }
+#ifdef DEBUGGING
     if (dl_debug) {
         for (i=0; i<=AvFILLp(dirs); i++) {
             const char* fn = SvPVX(AvARRAY(dirs)[i]);
@@ -1013,6 +1018,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
             }
         }
     }
+#endif
     SvREFCNT_dec_NN(dirs);
     if (gimme != G_ARRAY) {
         DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_findfile found (%s)\n",
