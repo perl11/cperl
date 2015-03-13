@@ -7123,13 +7123,21 @@ esac
 case "$usecperl" in
 $define) usecperl='define'
          echo "cperl variant selected." >&4
+         package='cperl'
+         spackage='cPerl'
          set usecperl
 	;;
-'')     if test -f ../README.cperl; then usecperl='define'; echo "cperl variant assumed."
-        else usecperl='undef'; fi
+'')     if test -f ../pod/perlcperl.pod; then
+            usecperl='define'
+            echo "cperl variant assumed."
+            package='cperl'
+            spackage='cPerl'
+        else
+            usecperl='undef'
+        fi
         set usecperl
         ;;
-*)      usecperl='undef' ;;
+*)      usecperl='undef';;
 esac
 if $test -f archname.cbu; then
 	echo "Your platform has some specific hints for architecture name, using them..."
