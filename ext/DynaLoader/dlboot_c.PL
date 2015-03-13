@@ -209,7 +209,7 @@ EOT
 print OUT line_prefix(__LINE__, <<'EOT');
     /* No prizes for guessing why we don't say 'bootstrap DynaLoader;' here.
        NOTE: All dl_*.xs (including dl_none.xs) define a dl_error() XSUB */
-    if (get_cv("boot_DynaLoader", 0) && !get_cv("DynaLoader::dl_error", 0)) {
+    if (get_cv("DynaLoader::boot_DynaLoader", 0) && !get_cv("DynaLoader::dl_error", 0)) {
         PUSHMARK(SP);
         XPUSHs(newSVpvs("DynaLoader"));
         PUTBACK;
@@ -229,58 +229,59 @@ XS(XS_DynaLoader_bootstrap_inherit)
 {
     dXSARGS;
     AV* isa;
-    if (items < 1 || !SvPOK(SP[0]))
-      Perl_die(aTHX_ "Usage: DynaLoader::bootstrap_inherit(module)\n");
-    ENTER_with_name("bootstrap");
-    SAVETMPS;
+    if (items < 1 || !SvPOK(TOPs))
+        Perl_die(aTHX_ "Usage: DynaLoader::bootstrap_inherit($packagename [, $VERSION])\n");
     {
-        SV *module = newSVpvn(SvPVX(SP[0]), SvCUR(SP[0]));
+        SV *module = pv_copy(TOPs);
+        SV *name   = pv_copy(TOPs);
         sv_catpvs(module, "::ISA");
+        sv_catpvs(name, "::bootstrap");
         if ((isa = get_av(SvPVX(module), 0))) {
             SAVESPTR(isa);
             AV_PUSH(isa, newSVpvs("DynaLoader"));
         }
-        call_pv("DynaLoader::bootstrap", G_DISCARD);
+        XSRETURN(call_pv(SvPVX(name), GIMME));
     }
-    FREETMPS;
-    LEAVE_with_name("bootstrap");
-    XSRETURN_EMPTY;
 }
 XS(XS_DynaLoader_bootstrap)
 {
     dXSARGS;
     IV i, flags = 0;
     char *modulename;
-    CV *dl_load_file, *dl_find_symbol;
-    CV *mod2fname;
+    CV *dl_load_file, *dl_find_symbol, *mod2fname;
     AV *modparts, *dirs;
     SV *module, *modfname, *modpname, *file, *bootname, *libref, *boot_symbol_ref, *flagsiv;
     SV *xs = NULL;
     I32 nret;
 
-    if (items < 1 || !SvPOK(SP[0]))
-        Perl_die(aTHX_ "Usage: DynaLoader::bootstrap(module)\n");
-    dl_load_file = get_cv("DynaLoader::dl_load_file", 0);
-    module = ST(0);
+    if (items < 1 || !SvPOK(TOPs))
+        Perl_die(aTHX_ "Usage: DynaLoader::bootstrap($packagename [ ,$VERSION ])\n");
+    module = TOPs;
 
+#if 1
     /* XXX HACK! */
     if (items > 1) {
       if (SvPOK(module)) {
         modulename = SvPVX(module);
-        if (modulename[0] >= '0' && modulename[0] <= '9')
-          goto hack;
+        if (modulename[0] >= '0' && modulename[0] <= '9' && SvPOK(ST(-1))) {
+           DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap stack corruption. wrong package \"%s\"\n",
+                                   modulename));
+            goto hack;
+        }
       }
-      if (SvNOK(module)) {
-        hack:
+      else if (SvNOK(module) && SvPOK(ST(-1))) {
         DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap stack corruption %g\n",
-                                SvNVX(ST(0))));
+                                TOPn));
+      hack:
         SP--;
-        module = ST(0);
+        module = TOPs;
         DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap module %s\n",
-                                SvPVX(ST(0))));
+                                TOPpx));
       }
     }
+#endif
     modulename = SvPVX(module);
+    dl_load_file = get_cv("DynaLoader::dl_load_file", 0);
     if (!dl_load_file) {
       Perl_die(aTHX_ "Can't load module %s, dynamic loading not available in this perl.\n"
                "  (You may need to build a new perl executable which either supports\n"
@@ -344,6 +345,8 @@ print OUT line_prefix(__LINE__, <<'EOT');
     sv_catsv(modpname, AvARRAY(modparts)[AvFILLp(modparts)]);
     DLDEBUG(1, PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap for %s "
         "(auto/%s/%s%s)\n", modulename, SvPVX(modpname), SvPVX(modfname), dl_ext));
+    SvREFCNT_inc_NN(modfname);
+    SvREFCNT_dec(modparts);
 
     dirs = newAV();
     for (i=0; i<=AvFILL(GvAV(PL_incgv)); i++) {
@@ -426,6 +429,8 @@ print OUT line_prefix(__LINE__, <<'EOT');
             SvREFCNT_dec_NN(tmp);
         }
     }
+    SvREFCNT_dec(modpname);
+    SvREFCNT_dec(modfname);
     if (!file) {
         /* wording similar to error from 'require' */
         Perl_die(aTHX_ "Can't locate loadable object for module %s in @INC (@INC contains: %s)",
@@ -511,9 +516,12 @@ print OUT line_prefix(__LINE__, <<'EOT');
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got libref=%lx\n", libref ? SvIVX(libref) : 0));
     }
     if (!libref) {
-        SaveError(aTHX_ "Can't load '%s' for module %s:", file, modulename, dlerror());
-        /* Perl_die(aTHX_ SvPVX_const(carp_shortmess(ax, MY_CXT.x_dl_last_error)); */
+        SaveError(aTHX_ "Can't load '%s' for module %s: %s", file, modulename, dlerror());
+#ifdef carp_shortmess
+        Perl_die(aTHX_ SvPVX_const(carp_shortmess(ax, MY_CXT.x_dl_last_error));
+#else
         Perl_die(aTHX_ dl_last_error);
+#endif
     }
     {
         AV *dl_librefs = get_av("DynaLoader::dl_librefs", GV_ADDMULTI);
@@ -556,7 +564,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
     }
     {
         AV *dl_modules = get_av("DynaLoader::dl_modules", GV_ADDMULTI);
-        AV_PUSH(dl_modules, module); /* record loaded module */
+        AV_PUSH(dl_modules, pv_copy(module)); /* record loaded module */
     }
 
     {
