@@ -8048,6 +8048,12 @@ PERL_CALLCONV SV *	Perl_carp_shortmess(pTHX_ I32 ax, SV *errsv)
 #define PERL_ARGS_ASSERT_CARP_SHORTMESS	\
 	assert(errsv)
 
+PERL_CALLCONV void	Perl_set_version(pTHX_ const char *name, STRLEN nlen, const char *strval, STRLEN plen, NV nvval)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_SET_VERSION	\
+	assert(name); assert(strval)
+
 #endif
 #if defined(PERL_USES_PL_PIDSTATUS) && defined(PERL_IN_UTIL_C)
 STATIC void	S_pidgone(pTHX_ Pid_t pid, int status);

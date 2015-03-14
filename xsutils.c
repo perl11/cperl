@@ -75,8 +75,21 @@ xs_incset(pTHX_ const char *const unixname, const STRLEN unixlen, SV* xsfile)
     (void)hv_store(inchv, unixname, unixlen, SvREFCNT_inc_simple_NN(xsfile), 0);
 }
 
-static void
-set_version(pTHX_ const char *name, STRLEN nlen, const char *strval, STRLEN plen, NV nvval)
+/*
+=for apidoc set_version(name, nlen, strval, plen, nvval)
+
+Sets a VERSION dualvar to its string and NV parts.
+
+Synopsis:
+
+    set_version(SvPV(version), SvCUR(version), "0.01_01", sizeof("0.01_01")-1, 0.0101);
+    Perl_set_version(aTHX_ STR_WITH_LEN("Module::VERSION"), STR_WITH_LEN("0.01_01"), 0.0101);
+
+=cut
+*/
+
+void
+Perl_set_version(pTHX_ const char *name, STRLEN nlen, const char *strval, STRLEN plen, NV nvval)
 {
     SV* ver = GvSV(gv_add_by_type(gv_fetchpvn(name, nlen, GV_ADD, SVt_PVNV),
                                   SVt_PVNV));
@@ -129,7 +142,7 @@ static void boot_core_cperl(pTHX) {
 
 #define DEF_CORETYPE(s) \
     stash = GvHV(gv_HVadd(gv_fetchpvs("main::" s "::", GV_ADD, SVt_PVHV))); \
-    set_version(STR_WITH_LEN(s "::VERSION"), STR_WITH_LEN("0.01c"), 0.01);  \
+    Perl_set_version(aTHX_ STR_WITH_LEN(s "::VERSION"), STR_WITH_LEN("0.01c"), 0.01);  \
     isa = GvAV(gv_AVadd(gv_fetchpvs(s "::ISA", GV_ADD, SVt_PVAV)));         \
     mg_set(MUTABLE_SV(isa));
 
@@ -163,7 +176,7 @@ boot_coretypes(pTHX_ SV *xsfile)
     TYPE_EXTENDS("num?", "num", "undef");
     DEF_CORETYPE("str?");
     TYPE_EXTENDS("str?", "str", "undef");
-    set_version(STR_WITH_LEN("coretypes::VERSION"), STR_WITH_LEN("0.01c"), 0.01);
+    Perl_set_version(aTHX_ STR_WITH_LEN("coretypes::VERSION"), STR_WITH_LEN("0.01c"), 0.01);
     xs_incset(aTHX_ STR_WITH_LEN("coretypes.pm"), xsfile);
 }
 #undef DEF_CORETYPE
@@ -174,7 +187,7 @@ boot_coretypes(pTHX_ SV *xsfile)
 static void
 boot_strict(pTHX_ SV *xsfile)
 {
-    set_version(STR_WITH_LEN("strict::VERSION"), STR_WITH_LEN("1.10c"), 1.10);
+    Perl_set_version(aTHX_ STR_WITH_LEN("strict::VERSION"), STR_WITH_LEN("1.10c"), 1.10);
 
     newXS("strict::bits",	XS_strict_bits,		file);
     newXS("strict::import",	XS_strict_import,	file);
@@ -185,7 +198,7 @@ boot_strict(pTHX_ SV *xsfile)
 static void
 boot_attributes(pTHX_ SV *xsfile)
 {
-    set_version(STR_WITH_LEN("attributes::VERSION"), STR_WITH_LEN("1.10c"), 1.10);
+    Perl_set_version(aTHX_ STR_WITH_LEN("attributes::VERSION"), STR_WITH_LEN("1.10c"), 1.10);
 
     newXS("attributes::bootstrap",     	   XS_attributes_bootstrap,file);
     newXS("attributes::_modify_attrs",     XS_attributes__modify_attrs, file);
@@ -213,7 +226,7 @@ boot_Carp(pTHX_ SV *xsfile)
     /* Avoid used only once warnings */
     GvMULTI_on(GvInternal); GvMULTI_on(GvCarpInternal);
 
-    set_version(STR_WITH_LEN("Carp::VERSION"), STR_WITH_LEN("2.00c"), 2.00);
+    Perl_set_version(aTHX_ STR_WITH_LEN("Carp::VERSION"), STR_WITH_LEN("2.00c"), 2.00);
 
     newXS("Carp::croak",		XS_Carp_croak,	file);
     newXS("Carp::confess",		XS_Carp_confess,file);

@@ -2490,8 +2490,12 @@ sn	|void	|mem_log_common	|enum mem_log_type mlt|const UV n|const UV typesize \
 #endif
 
 #if defined(PERL_IN_XSUTILS_C)
-XEpR	|SV*	|carp_longmess |I32 ax|NN SV *errsv
-XEpR	|SV *	|carp_shortmess|I32 ax|NN SV *errsv
+AMpR	|SV*	|carp_longmess |I32 ax|NN SV *errsv
+AMpR	|SV *	|carp_shortmess|I32 ax|NN SV *errsv
+: Used in xsutils.c, dlboot.c and xs-only extensions
+AMp	|void	|set_version   |NN const char *name  |STRLEN nlen \
+                               |NN const char *strval|STRLEN plen \
+                               |NV nvval
 #endif
 
 #if defined(PERL_IN_NUMERIC_C)
