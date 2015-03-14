@@ -379,6 +379,18 @@ PERL_CALLCONV bool	Perl_cando(pTHX_ Mode_t mode, bool effective, const Stat_t* s
 #define PERL_ARGS_ASSERT_CANDO	\
 	assert(statbufp)
 
+PERL_CALLCONV SV*	Perl_carp_longmess(pTHX_ I32 ax, SV *errsv)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CARP_LONGMESS	\
+	assert(errsv)
+
+PERL_CALLCONV SV *	Perl_carp_shortmess(pTHX_ I32 ax, SV *errsv)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CARP_SHORTMESS	\
+	assert(errsv)
+
 PERL_CALLCONV I32	Perl_cast_i32(NV f)
 			__attribute__warn_unused_result__;
 
@@ -4052,6 +4064,12 @@ PERL_CALLCONV void	Perl_set_context(void *t)
 PERL_CALLCONV void	Perl_set_numeric_local(pTHX);
 PERL_CALLCONV void	Perl_set_numeric_radix(pTHX);
 PERL_CALLCONV void	Perl_set_numeric_standard(pTHX);
+PERL_CALLCONV void	Perl_set_version(pTHX_ const char *name, STRLEN nlen, const char *strval, STRLEN plen, NV nvval)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_SET_VERSION	\
+	assert(name); assert(strval)
+
 PERL_CALLCONV void	Perl_setdefout(pTHX_ GV* gv)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SETDEFOUT	\
@@ -8034,26 +8052,6 @@ STATIC void	S_mem_log_common(enum mem_log_type mlt, const UV n, const UV typesiz
 	assert(type_name); assert(filename); assert(funcname)
 
 #  endif
-#endif
-#if defined(PERL_IN_XSUTILS_C)
-PERL_CALLCONV SV*	Perl_carp_longmess(pTHX_ I32 ax, SV *errsv)
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_CARP_LONGMESS	\
-	assert(errsv)
-
-PERL_CALLCONV SV *	Perl_carp_shortmess(pTHX_ I32 ax, SV *errsv)
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_CARP_SHORTMESS	\
-	assert(errsv)
-
-PERL_CALLCONV void	Perl_set_version(pTHX_ const char *name, STRLEN nlen, const char *strval, STRLEN plen, NV nvval)
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_3);
-#define PERL_ARGS_ASSERT_SET_VERSION	\
-	assert(name); assert(strval)
-
 #endif
 #if defined(PERL_USES_PL_PIDSTATUS) && defined(PERL_IN_UTIL_C)
 STATIC void	S_pidgone(pTHX_ Pid_t pid, int status);

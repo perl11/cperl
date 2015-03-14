@@ -79,6 +79,8 @@
 #define call_pv(a,b)		Perl_call_pv(aTHX_ a,b)
 #define call_sv(a,b)		Perl_call_sv(aTHX_ a,b)
 #define caller_cx(a,b)		Perl_caller_cx(aTHX_ a,b)
+#define carp_longmess(a,b)	Perl_carp_longmess(aTHX_ a,b)
+#define carp_shortmess(a,b)	Perl_carp_shortmess(aTHX_ a,b)
 #define cast_i32		Perl_cast_i32
 #define cast_iv			Perl_cast_iv
 #define cast_ulong		Perl_cast_ulong
@@ -570,6 +572,7 @@
 #define set_numeric_local()	Perl_set_numeric_local(aTHX)
 #define set_numeric_radix()	Perl_set_numeric_radix(aTHX)
 #define set_numeric_standard()	Perl_set_numeric_standard(aTHX)
+#define set_version(a,b,c,d,e)	Perl_set_version(aTHX_ a,b,c,d,e)
 #define setdefout(a)		Perl_setdefout(aTHX_ a)
 #define share_hek(a,b,c)	Perl_share_hek(aTHX_ a,b,c)
 #define sortsv(a,b,c)		Perl_sortsv(aTHX_ a,b,c)
@@ -824,11 +827,6 @@
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C)
 #define _get_regclass_nonbitmap_data(a,b,c,d,e,f)	Perl__get_regclass_nonbitmap_data(aTHX_ a,b,c,d,e,f)
-#endif
-#if defined(PERL_IN_XSUTILS_C)
-#define carp_longmess(a,b)	Perl_carp_longmess(aTHX_ a,b)
-#define carp_shortmess(a,b)	Perl_carp_shortmess(aTHX_ a,b)
-#define set_version(a,b,c,d,e)	Perl_set_version(aTHX_ a,b,c,d,e)
 #endif
 #if defined(UNLINK_ALL_VERSIONS)
 #define unlnk(a)		Perl_unlnk(aTHX_ a)
