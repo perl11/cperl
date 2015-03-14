@@ -136,7 +136,12 @@ dl_generic_private_init(pTHX)	/* called by dl_*.xs dl_private_init() */
 #ifdef DL_UNLOAD_ALL_AT_EXIT
     call_atexit(&dl_unload_all_files, (void*)0);
 #endif
-    dl_boot(aTHX);
+#ifdef DL_LOADONCEONLY
+    if (!dl_loaded_files)
+#else
+    if (!get_cv("DynaLoader::bootstrap", 0))
+#endif
+      dl_boot(aTHX);
 }
 
 

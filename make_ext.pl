@@ -612,6 +612,7 @@ sub just_pm_to_blib {
     my ($first) = $mname =~ /^([^:]+)/;
 
     my $pm_to_blib = IS_VMS ? 'pm_to_blib.ts' : 'pm_to_blib';
+    my $silent = defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
 
     foreach my $leaf (<*>) {
         if (-d $leaf) {
@@ -657,7 +658,7 @@ sub just_pm_to_blib {
         if $has_lib && $has_topdir;
 
     print "\nRunning pm_to_blib for $ext_dir directly\n"
-      if !defined $ENV{MAKEFLAGS} or $ENV{MAKEFLAGS} !~ /\b(s|silent|quiet)\b/;
+      unless $silent;
 
     my %pm;
     if ($has_top) {
