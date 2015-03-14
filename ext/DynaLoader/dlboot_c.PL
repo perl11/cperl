@@ -144,6 +144,7 @@ dl_boot (pTHX) {
     dl_library_path = get_av("DynaLoader::dl_library_path", GV_ADDMULTI);
     (void)hv_store(GvHVn(PL_incgv), "DynaLoader.pm", sizeof("DynaLoader.pm")-1,
                    SvREFCNT_inc_simple_NN(newSVpv_share(__FILE__, 0)), 0);
+    Perl_set_version(aTHX_ STR_WITH_LEN("DynaLoader::VERSION"), STR_WITH_LEN("2.00c"), 2.0);
 
     newXS("DynaLoader::bootstrap_inherit", XS_DynaLoader_bootstrap_inherit, file);
     newXS("DynaLoader::bootstrap",         XS_DynaLoader_bootstrap, file);
@@ -232,15 +233,22 @@ XS(XS_DynaLoader_bootstrap_inherit)
     if (items < 1 || !SvPOK(TOPs))
         Perl_die(aTHX_ "Usage: DynaLoader::bootstrap_inherit($packagename [, $VERSION])\n");
     {
-        SV *module = pv_copy(TOPs);
-        SV *name   = pv_copy(TOPs);
-        sv_catpvs(module, "::ISA");
-        sv_catpvs(name, "::bootstrap");
-        if ((isa = get_av(SvPVX(module), 0))) {
+        SV *module_isa = pv_copy(TOPs);
+        char *s;
+        sv_catpvs(module_isa, "::ISA");
+        s = SvPVX(module_isa);
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap_inherit '%s'\n", TOPpx));
+	ENTER;
+        SAVETMPS;
+        if ((isa = get_av(s, GV_ADDMULTI))) {
             SAVESPTR(isa);
             AV_PUSH(isa, newSVpvs("DynaLoader"));
+            DLDEBUG(2,PerlIO_printf(Perl_debug_log, "@%s=(%s)\n", s, av_tostr(isa)));
         }
-        XSRETURN(call_pv(SvPVX(name), GIMME));
+        items = call_pv("DynaLoader::bootstrap", GIMME);
+        FREETMPS;
+        LEAVE;
+        XSRETURN(items);
     }
 }
 XS(XS_DynaLoader_bootstrap)
@@ -1030,7 +1038,7 @@ static char * av_tostr(pTHX_ AV *args) {
     SV *pv = newSVpvs("");
     for (i=0; i<=AvFILLp(args); i++) {
         SV **sv = av_fetch(args, i, 0);
-        if (SvPOK(*sv)) {
+        if (*sv && SvPOK(*sv)) {
             sv_catsv(pv, *sv);
             sv_catpvs(pv, " ");
         }
