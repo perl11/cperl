@@ -129,7 +129,7 @@ sub read_only_top {
         unless exists $lang_opener{$lang};
     my $style = $args{style} ? " $args{style} " : '   ';
 
-    my $raw = "-*- buffer-read-only: t -*-\n";
+    my $raw = "ex: set ro ft=c: -*- buffer-read-only: t -*-\n";
 
     if ($args{file}) {
 	$raw .= "\n   $args{file}\n";
