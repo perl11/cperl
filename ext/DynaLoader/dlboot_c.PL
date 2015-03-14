@@ -20,7 +20,7 @@ sub to_dqstring {
 sub resolve_duplicate_paths {
     # first resolve w/../w => w
     foreach (@_) {
-        s{(\w+)/\.\./\1$}{\1};
+        s{(\w+)/\.\./$1$}{$1};
     }
     # then remove duplicates, but keep order intact
     my %p = ();
