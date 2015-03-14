@@ -22,7 +22,6 @@
 #undef MAGIC
 #endif
 
-#define PERL_EXT
 #include "EXTERN.h"
 #define PERL_IN_DL_HPUX_XS
 #include "perl.h"

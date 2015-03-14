@@ -120,16 +120,20 @@ dl_boot (pTHX) {
     char *env;
 #ifdef DEBUGGING
     const char *debug = PerlEnv_getenv("PERL_DL_DEBUG");
+    UV tmp_dl_debug;
 #endif
     HV * dl_stash = get_hv("main::DynaLoader::", GV_ADDMULTI);
     newCONSTSUB( dl_stash, "dl_load_flags", newSViv(0) );
 #ifdef DEBUGGING
-    if (debug && *debug) { /* enable debug/trace messages from DynaLoader perl code */
-        SV *sv;
-        dl_debug = grok_atou(debug, NULL);
-        sv = get_sv("DynaLoader::dl_debug", GV_ADDMULTI);
+    /* enable debug/trace messages from DynaLoader perl code */
+    if (debug && *debug
+       && (grok_number(debug, strlen(debug), &tmp_dl_debug) & IS_NUMBER_IN_UV)
+       && tmp_dl_debug <= INT_MAX)
+    {
+        SV *sv = get_sv("DynaLoader::dl_debug", GV_ADDMULTI);
         sv_upgrade(sv, SVt_IV);
-        SvIV_set(sv, dl_debug);
+        SvIV_set(sv, tmp_dl_debug);
+        dl_debug = (int)tmp_dl_debug;
     }
 #endif
     do_expand = get_sv("DynaLoader::dl_expand", GV_ADDMULTI);

@@ -12,7 +12,6 @@
  */
 
 #define PERLIO_NOT_STDIO 0
-#define PERL_EXT
 #define PERL_IN_DL_AIX_XS
 
 /*
