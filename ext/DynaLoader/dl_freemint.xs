@@ -37,7 +37,6 @@
  *
  */
 
-#define PERL_EXT
 #include "EXTERN.h"
 #define PERL_IN_DL_FREEMINT_XS
 #include "perl.h"
