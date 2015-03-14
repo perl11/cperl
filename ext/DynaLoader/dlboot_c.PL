@@ -91,8 +91,6 @@ const char pthsep[] = "$Config{path_sep}";
 const int  dl_so_eq_ext = $dl_so_eq_ext;
 const char dirsep = $dirsep;
 
-EOT
-print OUT line_prefix(__LINE__, <<"EOT");
 static SV * dl_findfile(pTHX_ AV* args, int gimme);
 static char * av_tostr(pTHX_ AV *args);
 PERL_CALLCONV void XS_DynaLoader_bootstrap_inherit(pTHX_ CV *cv);
@@ -103,11 +101,14 @@ PERL_CALLCONV void XS_DynaLoader_dl_expandspec(pTHX_ CV *cv);
 #endif
 PERL_CALLCONV void XS_DynaLoader_dl_find_symbol_anywhere(pTHX_ CV *cv);
 EOT
+
+# TODO: put this into config.h to get rid of miniperl.
 if ( $Config::Config{d_libname_unique} ) {
     print OUT <<'EOT';
 PERL_CALLCONV void XS_DynaLoader_mod2fname(pTHX_ CV *cv);
 EOT
 }
+
 print OUT line_prefix(__LINE__, <<'EOT');
 
 EXTERN_C void
@@ -145,26 +146,15 @@ dl_boot (pTHX) {
 #endif
     newXS("DynaLoader::dl_find_symbol_anywhere", XS_DynaLoader_dl_find_symbol_anywhere, file);
 EOT
+
 # TODO: put this into config.h to get rid of miniperl.
 if ( $Config::Config{d_libname_unique} ) {
   print OUT line_prefix(__LINE__, <<'EOT');
     newXS("DynaLoader::mod2fname", 	   XS_DynaLoader_mod2fname, file);
-EOT
-}
-print OUT line_prefix(__LINE__, <<'EOT') if $Config{dlsrc} eq "dl_dld.xs";
 
-    /* This is a fix to support DLD's unfortunate desire to relink -lc */
-    dl_resolve_using = get_av("DynaLoader::dl_resolve_using", GV_ADDMULTI);
-    {
-        SV *sv = dl_findfile(aTHX_ av_store(dl_resolve_using, 0, newSVpvs("-lc")), G_SCALAR);
-        if (sv)
-            AV_PUSH(dl_resolve_using, sv);
-    }
-EOT
-
-print OUT line_prefix(__LINE__, <<'EOT');
     /* with duplicates removed and symlinks resolved from $Config{libpth} */
 EOT
+}
 
 # resolve duplicates at least here, if Configure is not up to the task
 # TODO: Do this in Configure, put this into config.h to get rid of miniperl.
@@ -175,6 +165,7 @@ for my $pth (resolve_duplicate_paths(split(' ', $Config{libpth}))) {
     AV_PUSH(dl_library_path, newSVpvs($pth));
 EOT
 }
+
 if ($ldlibpthname_defined and $Config{path_sep}) {
   print OUT line_prefix(__LINE__, <<"EOT");
 
@@ -190,6 +181,7 @@ if ($ldlibpthname_defined and $Config{path_sep}) {
     }
 EOT
 }
+
 # TODO: put such a bool into config.h to get rid of miniperl.
 if ($ldlibpthname_defined and $Config{ldlibpthname} ne 'LD_LIBRARY_PATH' and $Config{path_sep}) {
   print OUT line_prefix(__LINE__, <<'EOT');
@@ -206,6 +198,7 @@ if ($ldlibpthname_defined and $Config{ldlibpthname} ne 'LD_LIBRARY_PATH' and $Co
     }
 EOT
 }
+
 print OUT line_prefix(__LINE__, <<'EOT');
     /* No prizes for guessing why we don't say 'bootstrap DynaLoader;' here.
        NOTE: All dl_*.xs (including dl_none.xs) define a dl_error() XSUB */
@@ -290,6 +283,7 @@ XS(XS_DynaLoader_bootstrap)
     }
     dl_require_symbols = get_av("DynaLoader::dl_require_symbols", GV_ADDMULTI);
 EOT
+
 print OUT line_prefix(__LINE__, <<'EOT') if $^O eq 'os2';
     if (!SvTRUE_NN(get_sv("OS2::is_static")))
         Perl_die(aTHX_ "Dynaloaded Perl modules are not available in this build of Perl");
@@ -899,18 +893,6 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
                 name = newSVpvn(fn, SvCUR(file));
             }
 #endif
-EOT
-
-print OUT line_prefix(__LINE__, <<'EOT') if $dlsrc eq "dl_dld.xs";
-            if (!strstr(fn, ".a")) { /* push(@names,"$_.a") if !m/\.a$/ and $dlsrc eq "dl_dld.xs"; */
-                sv_catpvs(name, ".a");
-                AV_PUSH(names, name);
-                DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
-                name = newSVpvn(fn, SvCUR(file));
-            }
-EOT
-
-print OUT line_prefix(__LINE__, <<'EOT');
             AV_PUSH(names, name);
             DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
         }
