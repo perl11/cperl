@@ -232,15 +232,22 @@ XS(XS_DynaLoader_bootstrap_inherit)
     if (items < 1 || !SvPOK(TOPs))
         Perl_die(aTHX_ "Usage: DynaLoader::bootstrap_inherit($packagename [, $VERSION])\n");
     {
-        SV *module = pv_copy(TOPs);
-        SV *name   = pv_copy(TOPs);
-        sv_catpvs(module, "::ISA");
-        sv_catpvs(name, "::bootstrap");
-        if ((isa = get_av(SvPVX(module), 0))) {
+        SV *module_isa = pv_copy(TOPs);
+        char *s;
+        sv_catpvs(module_isa, "::ISA");
+        s = SvPVX(module_isa);
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap_inherit '%s'\n", TOPpx));
+	ENTER;
+        SAVETMPS;
+        if ((isa = get_av(s, GV_ADDMULTI))) {
             SAVESPTR(isa);
             AV_PUSH(isa, newSVpvs("DynaLoader"));
+            DLDEBUG(2,PerlIO_printf(Perl_debug_log, "@%s=(%s)\n", s, av_tostr(isa)));
         }
-        XSRETURN(call_pv(SvPVX(name), GIMME));
+        items = call_pv("DynaLoader::bootstrap", GIMME);
+        FREETMPS;
+        LEAVE;
+        XSRETURN(items);
     }
 }
 XS(XS_DynaLoader_bootstrap)
@@ -1030,7 +1037,7 @@ static char * av_tostr(pTHX_ AV *args) {
     SV *pv = newSVpvs("");
     for (i=0; i<=AvFILLp(args); i++) {
         SV **sv = av_fetch(args, i, 0);
-        if (SvPOK(*sv)) {
+        if (*sv && SvPOK(*sv)) {
             sv_catsv(pv, *sv);
             sv_catpvs(pv, " ");
         }
