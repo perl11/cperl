@@ -25,7 +25,6 @@ calls.
 #include <string.h>
 
 #define PERL_NO_GET_CONTEXT
-#define PERL_EXT
 #define PERL_IN_DL_WIN32_XS
 
 #include "EXTERN.h"
