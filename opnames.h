@@ -1,4 +1,4 @@
-/* -*- buffer-read-only: t -*-
+/* ex: set ro ft=c: -*- buffer-read-only: t -*-
  *
  *    opnames.h
  *
