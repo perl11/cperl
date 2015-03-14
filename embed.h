@@ -569,6 +569,7 @@
 #define set_numeric_local()	Perl_set_numeric_local(aTHX)
 #define set_numeric_radix()	Perl_set_numeric_radix(aTHX)
 #define set_numeric_standard()	Perl_set_numeric_standard(aTHX)
+#define set_version(a,b,c,d,e)	Perl_set_version(aTHX_ a,b,c,d,e)
 #define setdefout(a)		Perl_setdefout(aTHX_ a)
 #define share_hek(a,b,c)	Perl_share_hek(aTHX_ a,b,c)
 #define sortsv(a,b,c)		Perl_sortsv(aTHX_ a,b,c)

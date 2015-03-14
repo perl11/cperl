@@ -527,7 +527,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
     if (!libref) {
         SaveError(aTHX_ "Can't load '%s' for module %s: %s", file, modulename, dlerror());
 #ifdef carp_shortmess
-        Perl_die(aTHX_ SvPVX_const(carp_shortmess(ax, MY_CXT.x_dl_last_error));
+        Perl_die(aTHX_ SvPVX_const(carp_shortmess(ax, MY_CXT.x_dl_last_error)));
 #else
         Perl_die(aTHX_ dl_last_error);
 #endif
