@@ -244,16 +244,21 @@ XS(XS_DynaLoader_bootstrap_inherit)
         sv_catpvs(module_isa, "::ISA");
         s = SvPVX(module_isa);
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap_inherit '%s'\n", TOPpx));
-	ENTER;
+	ENTER_with_name("bootstrap");
         SAVETMPS;
         if ((isa = get_av(s, GV_ADDMULTI))) {
             SAVESPTR(isa);
+            if (AvFILL(isa)>=0)
+                isa = av_make(AvFILL(isa), AvARRAY(isa));
+            else
+                isa = newAV();
             AV_PUSH(isa, newSVpvs("DynaLoader"));
             DLDEBUG(2,PerlIO_printf(Perl_debug_log, "@%s=(%s)\n", s, av_tostr(isa)));
+            SAVEFREESV(isa);
         }
         items = call_pv("DynaLoader::bootstrap", GIMME);
         FREETMPS;
-        LEAVE;
+        LEAVE_with_name("bootstrap");
         XSRETURN(items);
     }
 }
@@ -1050,8 +1055,10 @@ static char * av_tostr(pTHX_ AV *args) {
             sv_catpvs(pv, " ");
         }
     }
-    if (SvCUR(pv))
-        SvCUR_set(pv, SvCUR(pv) - 1);
+    if (SvCUR(pv)) {
+        STRLEN cur = ((XPV*)SvANY(pv))->xpv_cur--;
+        SvPVX_mutable(pv)[cur-1] = '\0';
+    }
     return SvPVX(pv);
 }
 
