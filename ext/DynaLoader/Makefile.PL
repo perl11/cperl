@@ -6,17 +6,15 @@ my $is_netware  = $^O eq 'NetWare';
 my $is_vms      = $^O eq 'VMS';
 
 WriteMakefile(
-    NAME => 'DynaLoader',
-    LINKTYPE	=> 'static',
-    DEFINE	=> '-DLIBC="$(LIBC)"',
-    SKIP	=> [qw(dynamic dynamic_lib dynamic_bs)],
-    XSPROTOARG => '-noprototypes', 		# XXX remove later?
-    VERSION_FROM => 'DynaLoader_pm.PL',
-    PL_FILES	=> {'DynaLoader_pm.PL'=>'DynaLoader.pm'},
-    PM		=> {'DynaLoader.pm' => '$(INST_LIBDIR)/DynaLoader.pm'},
-    depend      => {	'DynaLoader$(OBJ_EXT)' => 'dlutils.c dlboot_c',
+    NAME         => 'DynaLoader',
+    LINKTYPE	 => 'static',
+    DEFINE	 => '-DLIBC="$(LIBC)"',
+    SKIP	 => [qw(dynamic dynamic_lib dynamic_bs)],
+    XSPROTOARG   => '-noprototypes', 		# XXX remove later?
+    VERSION_FROM => 'dlboot_c.PL',
+    depend       => {	'DynaLoader$(OBJ_EXT)' => 'dlutils.c dlboot_c',
 			'DynaLoader.c' => 'DynaLoader.xs'},
-    clean	=> {FILES => 'dlboot.c DynaLoader.c DynaLoader.xs'},
+    clean	 => {FILES => 'dlboot.c DynaLoader.c DynaLoader.xs'},
 );
 
 sub MY::cflags {

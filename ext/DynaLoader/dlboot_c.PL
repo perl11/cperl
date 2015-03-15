@@ -1,4 +1,5 @@
 use Config;
+our $VERSION = "2.00c";
 
 sub to_string {
     my ($value) = @_;
@@ -77,6 +78,7 @@ AV *dl_library_path;         /* path to look for files */
                    && (S_ISLNK(PL_statcache.st_mode) || S_ISREG(PL_statcache.st_mode)))
 #define dir_exists(dir) (PerlLIO_stat(dir, &PL_statcache) >= 0 && S_ISDIR(PL_statcache.st_mode))
 #define pv_copy(pv)     newSVpvn_flags(SvPVX(pv), SvCUR(pv), SvUTF8(pv))
+
 EOT
 
 die "Invalid \$Config{path_sep}" unless $Config{path_sep};
@@ -144,8 +146,12 @@ dl_boot (pTHX) {
     dl_library_path = get_av("DynaLoader::dl_library_path", GV_ADDMULTI);
     (void)hv_store(GvHVn(PL_incgv), "DynaLoader.pm", sizeof("DynaLoader.pm")-1,
                    SvREFCNT_inc_simple_NN(newSVpv_share(__FILE__, 0)), 0);
-    Perl_set_version(aTHX_ STR_WITH_LEN("DynaLoader::VERSION"), STR_WITH_LEN("2.00c"), 2.0);
-
+EOT
+my $NUMVER = 0+$VERSION;
+print OUT line_prefix(__LINE__, <<"EOT");
+    Perl_set_version(aTHX_ STR_WITH_LEN("DynaLoader::VERSION"), STR_WITH_LEN("$VERSION"), $NUMVER);
+EOT
+print OUT line_prefix(__LINE__, <<'EOT');
     newXS("DynaLoader::bootstrap_inherit", XS_DynaLoader_bootstrap_inherit, file);
     newXS("DynaLoader::bootstrap",         XS_DynaLoader_bootstrap, file);
     newXS("DynaLoader::dl_findfile",       XS_DynaLoader_dl_findfile, file);
@@ -215,6 +221,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
         XPUSHs(newSVpvs("DynaLoader"));
         PUTBACK;
         call_pv("boot_DynaLoader", G_DISCARD);
+        /* SP = PL_stack_base + POPMARK; */
     }
 #ifdef DEBUGGING
     if (dl_debug) {
@@ -230,24 +237,31 @@ XS(XS_DynaLoader_bootstrap_inherit)
 {
     dXSARGS;
     AV* isa;
-    if (items < 1 || !SvPOK(TOPs))
+
+    if (items < 1 || !SvPOK(ST(0)))
         Perl_die(aTHX_ "Usage: DynaLoader::bootstrap_inherit($packagename [, $VERSION])\n");
     {
-        SV *module_isa = pv_copy(TOPs);
+        SV *module_isa = pv_copy(ST(0));
         char *s;
         sv_catpvs(module_isa, "::ISA");
         s = SvPVX(module_isa);
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap_inherit '%s'\n", TOPpx));
-	ENTER;
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap_inherit '%s' %d args\n", TOPpx, items));
+	ENTER_with_name("bootstrap");
         SAVETMPS;
         if ((isa = get_av(s, GV_ADDMULTI))) {
             SAVESPTR(isa);
+            if (AvFILL(isa)>=0)
+                isa = av_make(AvFILL(isa), AvARRAY(isa));
+            else
+                isa = newAV();
             AV_PUSH(isa, newSVpvs("DynaLoader"));
             DLDEBUG(2,PerlIO_printf(Perl_debug_log, "@%s=(%s)\n", s, av_tostr(isa)));
+            SAVEFREESV(isa);
         }
+        PUSHMARK(SP);
         items = call_pv("DynaLoader::bootstrap", GIMME);
         FREETMPS;
-        LEAVE;
+        LEAVE_with_name("bootstrap");
         XSRETURN(items);
     }
 }
@@ -262,32 +276,11 @@ XS(XS_DynaLoader_bootstrap)
     SV *xs = NULL;
     I32 nret;
 
-    if (items < 1 || !SvPOK(TOPs))
+    DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap '%s' %d args\n", SvPVX(ST(0)), items));
+    if (items < 1 || !SvPOK(ST(0)))
         Perl_die(aTHX_ "Usage: DynaLoader::bootstrap($packagename [ ,$VERSION ])\n");
-    module = TOPs;
+    module = ST(0);
 
-#if 1
-    /* XXX HACK! */
-    if (items > 1) {
-      if (SvPOK(module)) {
-        modulename = SvPVX(module);
-        if (modulename[0] >= '0' && modulename[0] <= '9' && SvPOK(ST(-1))) {
-           DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap stack corruption. wrong package \"%s\"\n",
-                                   modulename));
-            goto hack;
-        }
-      }
-      else if (SvNOK(module) && SvPOK(ST(-1))) {
-        DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap stack corruption %g\n",
-                                TOPn));
-      hack:
-        SP--;
-        module = TOPs;
-        DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap module %s\n",
-                                TOPpx));
-      }
-    }
-#endif
     modulename = SvPVX(module);
     dl_load_file = get_cv("DynaLoader::dl_load_file", 0);
     if (!dl_load_file) {
@@ -1043,8 +1036,10 @@ static char * av_tostr(pTHX_ AV *args) {
             sv_catpvs(pv, " ");
         }
     }
-    if (SvCUR(pv))
-        SvCUR_set(pv, SvCUR(pv) - 1);
+    if (SvCUR(pv)) {
+        STRLEN cur = ((XPV*)SvANY(pv))->xpv_cur--;
+        SvPVX_mutable(pv)[cur-1] = '\0';
+    }
     return SvPVX(pv);
 }
 
