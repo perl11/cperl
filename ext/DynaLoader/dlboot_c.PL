@@ -1,4 +1,5 @@
 use Config;
+our $VERSION = "2.00c";
 
 sub to_string {
     my ($value) = @_;
@@ -77,6 +78,7 @@ AV *dl_library_path;         /* path to look for files */
                    && (S_ISLNK(PL_statcache.st_mode) || S_ISREG(PL_statcache.st_mode)))
 #define dir_exists(dir) (PerlLIO_stat(dir, &PL_statcache) >= 0 && S_ISDIR(PL_statcache.st_mode))
 #define pv_copy(pv)     newSVpvn_flags(SvPVX(pv), SvCUR(pv), SvUTF8(pv))
+
 EOT
 
 die "Invalid \$Config{path_sep}" unless $Config{path_sep};
@@ -144,8 +146,12 @@ dl_boot (pTHX) {
     dl_library_path = get_av("DynaLoader::dl_library_path", GV_ADDMULTI);
     (void)hv_store(GvHVn(PL_incgv), "DynaLoader.pm", sizeof("DynaLoader.pm")-1,
                    SvREFCNT_inc_simple_NN(newSVpv_share(__FILE__, 0)), 0);
-    Perl_set_version(aTHX_ STR_WITH_LEN("DynaLoader::VERSION"), STR_WITH_LEN("2.00c"), 2.0);
-
+EOT
+my $NUMVER = 0+$VERSION;
+print OUT line_prefix(__LINE__, <<"EOT");
+    Perl_set_version(aTHX_ STR_WITH_LEN("DynaLoader::VERSION"), STR_WITH_LEN("$VERSION"), $NUMVER);
+EOT
+print OUT line_prefix(__LINE__, <<'EOT');
     newXS("DynaLoader::bootstrap_inherit", XS_DynaLoader_bootstrap_inherit, file);
     newXS("DynaLoader::bootstrap",         XS_DynaLoader_bootstrap, file);
     newXS("DynaLoader::dl_findfile",       XS_DynaLoader_dl_findfile, file);
@@ -269,23 +275,24 @@ XS(XS_DynaLoader_bootstrap)
 #if 1
     /* XXX HACK! */
     if (items > 1) {
-      if (SvPOK(module)) {
-        modulename = SvPVX(module);
-        if (modulename[0] >= '0' && modulename[0] <= '9' && SvPOK(ST(-1))) {
-           DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap stack corruption. wrong package \"%s\"\n",
-                                   modulename));
-            goto hack;
+        if (SvPOK(module)) {
+            modulename = SvPVX(module);
+            if (modulename[0] >= '0' && modulename[0] <= '9' && SvPOK(ST(-1))) {
+                DLDEBUG(1,PerlIO_printf(Perl_debug_log,
+                              "!! DynaLoader::bootstrap stack corruption. wrong package \"%s\"\n",
+                              modulename));
+                goto hack;
+            }
         }
-      }
-      else if (SvNOK(module) && SvPOK(ST(-1))) {
-        DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap stack corruption %g\n",
-                                TOPn));
-      hack:
-        SP--;
-        module = TOPs;
-        DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap module %s\n",
-                                TOPpx));
-      }
+        else if (SvNOK(module) && SvPOK(ST(-1))) {
+            DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap stack corruption %g\n",
+                                    TOPn));
+          hack:
+            SP--;
+            module = TOPs;
+            DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap module %s\n",
+                                    TOPpx));
+        }
     }
 #endif
     modulename = SvPVX(module);

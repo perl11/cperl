@@ -1,12 +1,5 @@
-# Now documentation only. See dlboot.c instead.
-
-package DynaLoader;
-BEGIN {
-    $VERSION = '2.00c';
-}
-1;
-__END__
-
+#   Now documentation only. See dlboot.c instead.
+#
 #   And Gandalf said: 'Many folk like to know beforehand what is to
 #   be set on the table; but those who have laboured to prepare the
 #   feast like to keep their secret; for wonder makes the words of
