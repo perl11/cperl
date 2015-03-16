@@ -78,6 +78,10 @@ AV *dl_library_path;         /* path to look for files */
                    && (S_ISLNK(PL_statcache.st_mode) || S_ISREG(PL_statcache.st_mode)))
 #define dir_exists(dir) (PerlLIO_stat(dir, &PL_statcache) >= 0 && S_ISDIR(PL_statcache.st_mode))
 #define pv_copy(pv)     newSVpvn_flags(SvPVX(pv), SvCUR(pv), SvUTF8(pv))
+#ifdef DEBUGGING
+#define DLax(s)    DLDEBUG(1,PerlIO_printf(Perl_debug_log, "%20s ax: %d sp: %p, mark: %p, base: %p\n",\
+                               s, ax, PL_stack_sp, mark, PL_stack_base))
+#endif
 
 EOT
 
@@ -121,6 +125,8 @@ dl_boot (pTHX) {
     dSP;
     char *env;
 #ifdef DEBUGGING
+    SV** mark       = PL_stack_base + TOPMARK;
+    const I32  ax   = (I32)(mark - PL_stack_base + 1);
     const char *debug = PerlEnv_getenv("PERL_DL_DEBUG");
     UV tmp_dl_debug;
 #endif
@@ -137,6 +143,7 @@ dl_boot (pTHX) {
         SvIV_set(sv, tmp_dl_debug);
         dl_debug = (int)tmp_dl_debug;
     }
+    DLax("dl_boot");
 #endif
     do_expand = get_sv("DynaLoader::dl_expand", GV_ADDMULTI);
     if (SvTYPE(do_expand) < SVt_IV || !SvIOK(do_expand)) {
@@ -220,8 +227,11 @@ print OUT line_prefix(__LINE__, <<'EOT');
         PUSHMARK(SP);
         XPUSHs(newSVpvs("DynaLoader"));
         PUTBACK;
+        DLax("call boot");
         call_pv("boot_DynaLoader", G_DISCARD);
+        /* SP = PL_stack_base + POPMARK; */
     }
+    DLax("boot end");
 #ifdef DEBUGGING
     if (dl_debug) {
         PerlIO_printf(Perl_debug_log, "DynaLoader.pm loaded (%s %s)\n",
@@ -229,6 +239,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
         if (!get_cv("DynaLoader::boot_DynaLoader", 0))
             PerlIO_printf(Perl_debug_log, "DynaLoader not linked into this perl\n");
     }
+    DLax("dl_boot");
 #endif
 }
 
@@ -236,6 +247,7 @@ XS(XS_DynaLoader_bootstrap_inherit)
 {
     dXSARGS;
     AV* isa;
+
     if (items < 1 || !SvPOK(TOPs))
         Perl_die(aTHX_ "Usage: DynaLoader::bootstrap_inherit($packagename [, $VERSION])\n");
     {
@@ -243,7 +255,7 @@ XS(XS_DynaLoader_bootstrap_inherit)
         char *s;
         sv_catpvs(module_isa, "::ISA");
         s = SvPVX(module_isa);
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap_inherit '%s'\n", TOPpx));
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap_inherit '%s' %d args\n", TOPpx, items));
 	ENTER_with_name("bootstrap");
         SAVETMPS;
         if ((isa = get_av(s, GV_ADDMULTI))) {
@@ -256,6 +268,8 @@ XS(XS_DynaLoader_bootstrap_inherit)
             DLDEBUG(2,PerlIO_printf(Perl_debug_log, "@%s=(%s)\n", s, av_tostr(isa)));
             SAVEFREESV(isa);
         }
+        PUSHMARK(SP);
+        DLax("inherit");
         items = call_pv("DynaLoader::bootstrap", GIMME);
         FREETMPS;
         LEAVE_with_name("bootstrap");
@@ -273,11 +287,13 @@ XS(XS_DynaLoader_bootstrap)
     SV *xs = NULL;
     I32 nret;
 
+    DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap '%s' %d args\n", TOPpx, items));
     if (items < 1 || !SvPOK(TOPs))
         Perl_die(aTHX_ "Usage: DynaLoader::bootstrap($packagename [ ,$VERSION ])\n");
     module = TOPs;
 
 #if 1
+    DLax("bootstrap");
     /* XXX HACK! */
     if (items > 1) {
         if (SvPOK(module)) {
