@@ -2884,6 +2884,11 @@ for more details on allowed version formats.
 Perhaps the internals were modified directly in some way or
 an arbitrary reference was blessed into the "version" class.
 
+=item Invalid XS module boot function name changed to '%s', %d non-word chars
+
+(W locale) You passed a module name with a non-word character other than ':'
+to DynaLoader, which was replaced by '_' to look up the boot name.
+
 =item In '(*VERB...)', the '(' and '*' must be adjacent in regex;
 marked by S<<-- HERE> in m/%s/
 

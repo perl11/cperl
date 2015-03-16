@@ -4523,6 +4523,11 @@
  */
 /*#define HAS_USTAT		/ **/
 
+/* HAS_VMS_CASE_SENSITIVE_SYMBOLS:
+ *	This symbol, if defined, indicates case sensitive symbols on VMS.
+ */
+/*#define HAS_VMS_CASE_SENSITIVE_SYMBOLS	/ **/
+
 /* HAS_WCSCMP:
  *	This symbol, if defined, indicates that the wcscmp routine is
  *	available to compare two wide character strings.
@@ -4773,6 +4778,33 @@
         on darwin DYLD_LIBRARY_PATH. It might be an empty string.
  */
 #define LDLIBPTHNAME 	""		/**/
+
+/* PATH_SEP:
+ *	This symbol indicates the character used to separate elements
+ *      in the command shell search PATH.
+ */
+#define PATH_SEP 	":"		/**/
+
+/* DLEXT:
+ *	This symbol indicates the extension that is to be used for the
+ *	dynamically loaded modules that perl generates. The "." is included.
+ */
+/* DLSO:
+ *	This variable holds the extension used to identify shared libraries
+ *	(also known as shared objects) to be linked on the system. Usually set to '.so'.
+ *      E.g. On darwin "dylib" vs. "bundle" for DLEXT.
+ */
+/* DLSRC:
+ *	This variable contains the name of the dynamic loading file that
+	will be used with the package.
+ */
+/* DL_SO_EQ_EXT:
+ *	This variable is defined if DLEXT equals DLSO.
+ */
+#define DLEXT 	".so"		/**/
+#define DLSO 	".so"			/**/
+#define DLSRC 	"dl_none.xs"		/**/
+#define DL_SO_EQ_EXT 		/**/
 
 /* PERL_PRIfldbl:
  *	This symbol, if defined, contains the string used by stdio to
@@ -5236,6 +5268,6 @@
 #endif
 
 /* Generated from:
- * 17fd8d5b737e12b16d82bd849e361bc4a62db37caa4f24a881f3e4d6ddf95f8d config_h.SH
- * 89be4a694379d2accd34b1e4bc2e418a315631a1533b4b1aab4fa418cda57fab uconfig.sh
+ * f24b6cad5dfea049496a372df0377184e70273dda142898f2dcb6e101a304ede config_h.SH
+ * 30683b5fda2b5642c67b352cfb09d5458df890f0da678db606833d4181293c56 uconfig.sh
  * ex: set ro: */

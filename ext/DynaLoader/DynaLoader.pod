@@ -180,6 +180,8 @@ requires that the module's F<Makefile.PL> specify (in C<WriteMakefile()>):
 
     DLEXT => 'unusual_ext',
 
+Note that this feature is not avaliable in the cperl variant.
+
 =item dl_findfile()
 
 Syntax:
@@ -432,6 +434,35 @@ If the optional $version argument is not given, it defaults to
 C<$XS_VERSION // $VERSION> in the module's symbol table. The default code
 compares the Perl-space version with the version of the compiled XS code,
 and croaks with an error if they do not match.
+
+=back
+
+=head1 CPERL CHANGES
+
+This cperl variant of DynaLoader is entirely written in C and available immediately
+without the need to C<require DynaLoader;>.
+
+=over
+
+=item .bs bootstrap files are not supported anymore
+
+=item More PERL_DL_DEBUG=3 diagnostics
+
+=item compile-time expansion of Config and ENV vars
+
+Most used Config and ENV vars are already expanded at compile-time, as with the
+C<$ENV{PERL_BUILD_EXPAND_CONFIG_VARS}> and C<$ENV{PERL_BUILD_EXPAND_ENV_VARS}>
+being set.
+
+Exception: C<$Config{LDLIBPTHNAME}> i.e. C<LD_LIBRARY_PATH> is expanded at run-time.
+
+=item $DynaLoader::dl_dlext not honored
+
+local overrides as in C<local $DynaLoader::dl_dlext = 'unusual_ext';> are not honored.
+
+=item dl_load_flags not yet honored
+
+flags, the 2nd argument to dl_load_file, is still hardcoded to C<0>.
 
 =back
 
