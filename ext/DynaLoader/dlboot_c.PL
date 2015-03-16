@@ -60,12 +60,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
  * Copyright (C) 2015 cPanel Inc
  * Licensed under the same terms as Perl itself.
  */
-static const char file[] = __FILE__;
-#ifdef VMS
-#  define DL_DO_EXPAND 1
-#else
-#  define DL_DO_EXPAND 0
-#endif
+
 /* DynaLoader globals */
 SV *do_expand;               /* if to call dl_expandspec hook */
 AV *dl_require_symbols;      /* names of symbols we need */
@@ -83,22 +78,14 @@ AV *dl_library_path;         /* path to look for files */
                                s, ax, PL_stack_sp, mark, PL_stack_base))
 #endif
 
-EOT
-
-die "Invalid \$Config{path_sep}" unless $Config{path_sep};
-# darwin?
-my $dl_so_eq_ext = $Config{dlext} eq $Config{so} ? 1 : 0;
-my $dirsep = $^O eq 'symbian' ? "'\\'" : "'/'";
-# we only deal with ".<ext>" so add the dot to the extension for internal optimizations,
-# unlike in old DynaLoader.pm
-# TODO: put those into config.h to get rid of miniperl.
-print OUT line_prefix(__LINE__, <<"EOT");
-const char dl_ext[] = ".$Config{dlext}";
-const char dl_so[]  = ".$Config{so}";
-const char dl_src[] = "$Config{dlsrc}";
-const char pthsep[] = "$Config{path_sep}";
-const int  dl_so_eq_ext = $dl_so_eq_ext;
-const char dirsep = $dirsep;
+#ifdef VMS
+#  define DL_DO_EXPAND 1
+#else
+#  define DL_DO_EXPAND 0
+#endif
+static const char file[]  = __FILE__;
+const char pthsep[]       = PATH_SEP;
+const char ldlibpthname[] = LDLIBPTHNAME;
 
 static SV * dl_findfile(pTHX_ AV* args, int gimme);
 static char * av_tostr(pTHX_ AV *args);
@@ -176,40 +163,34 @@ for my $pth (resolve_duplicate_paths(split(' ', $Config{libpth}))) {
 EOT
 }
 
-if ($ldlibpthname_defined and $Config{path_sep}) {
-  print OUT line_prefix(__LINE__, <<"EOT");
-
-    if ((env = getenv(\"$Config{ldlibpthname}\")) != NULL) {
-        char *cur = env;
-        for (; *env; cur++) {
-            if (*cur == *pthsep || !*cur) {
-                AV_PUSH(dl_library_path, newSVpvn(env, cur-env));
-                if (!*cur) break;
-                env = cur + 1;
-            }
-        }
-    }
-EOT
-}
-
-# TODO: put such a bool into config.h to get rid of miniperl.
-if ($ldlibpthname_defined and $Config{ldlibpthname} ne 'LD_LIBRARY_PATH' and $Config{path_sep}) {
-  print OUT line_prefix(__LINE__, <<'EOT');
-    /* E.g. HP-UX supports both its native SHLIB_PATH *and* LD_LIBRARY_PATH. */
-    if ((env = getenv("LD_LIBRARY_PATH")) != NULL) {
-        char *cur = env;
-        for (; *env; cur++) {
-            if (*cur == *pthsep || !*cur) {
-                AV_PUSH(dl_library_path, newSVpvn(env, cur-env));
-                if (!*cur) break;
-                env = cur + 1;
-            }
-        }
-    }
-EOT
-}
-
 print OUT line_prefix(__LINE__, <<'EOT');
+#ifdef PATH_SEP
+    if (*ldlibpthname) {
+        if ((env = getenv(LDLIBPTHNAME)) != NULL) {
+            char *cur = env;
+            for (; *env; cur++) {
+                if (*cur == *pthsep || !*cur) {
+                    AV_PUSH(dl_library_path, newSVpvn(env, cur-env));
+                    if (!*cur) break;
+                    env = cur + 1;
+                }
+            }
+        }
+        /* E.g. HP-UX supports both its native SHLIB_PATH *and* LD_LIBRARY_PATH. */
+        /* Not so sure about LIBPATH, but just add it. This is the original logic. */
+        if (strNE(ldlibpthname,"LD_LIBRARY_PATH") && (env = getenv("LD_LIBRARY_PATH")) != NULL) {
+            char *cur = env;
+            for (; *env; cur++) {
+                if (*cur == *pthsep || !*cur) {
+                    AV_PUSH(dl_library_path, newSVpvn(env, cur-env));
+                    if (!*cur) break;
+                    env = cur + 1;
+                }
+            }
+        }
+    }
+#endif
+
     /* No prizes for guessing why we don't say 'bootstrap DynaLoader;' here.
        NOTE: All dl_*.xs (including dl_none.xs) define a dl_error() XSUB */
     if (get_cv("DynaLoader::boot_DynaLoader", 0) && !get_cv("DynaLoader::dl_error", 0)) {
@@ -371,7 +352,7 @@ XS(XS_DynaLoader_bootstrap)
     }
     sv_catsv(modpname, AvARRAY(modparts)[AvFILLp(modparts)]);
     DLDEBUG(1, PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap for %s "
-        "(auto/%s/%s%s)\n", modulename, SvPVX(modpname), SvPVX(modfname), dl_ext));
+        "(auto/%s/%s%s)\n", modulename, SvPVX(modpname), SvPVX(modfname), DLEXT));
     SvREFCNT_inc_NN(modfname);
     SvREFCNT_dec(modparts);
 
@@ -402,7 +383,7 @@ XS(XS_DynaLoader_bootstrap)
         slib = pv_copy(dir);
         sv_catpvs(slib, "/");
         sv_catsv(slib, modfname);
-        sv_catpv(slib, dl_ext);
+        sv_catpv(slib, DLEXT);
 
         if (SvIVX(do_expand)) {
             PUSHMARK(SP);
@@ -428,7 +409,7 @@ XS(XS_DynaLoader_bootstrap)
     }
     if (!file) {
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: @INC/auto/%s/%s%s not found\n",
-                                SvPVX(modpname), SvPVX(modfname), dl_ext));
+                                SvPVX(modpname), SvPVX(modfname), DLEXT));
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Searching now %s and %s\n",
                                 av_tostr(aTHX_ dirs), av_tostr(aTHX_ GvAV(PL_incgv))));
         /* last resort, let dl_findfile have a go in all known locations */
@@ -769,6 +750,11 @@ XS(XS_DynaLoader_mod2fname)
  * This function does not automatically consider the architecture
  * or the perl library auto directories.
  * May return NULL if not found.
+ *
+ * Warning: Note that the old code traditionally will also find static libs (.a)
+ * and not dynaloadable libs (.dylib).
+ * No idea how to sanitize that and where it is used or should be used. ExtUtils::Embed?
+ * We might need to use a strict flag.
  */
 static SV * dl_findfile(pTHX_ AV* args, int gimme) {
     AV* dirs;   /* which directories to search */
@@ -865,12 +851,13 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
             sv_catpv(name, &fn[2]);
             copy = newSVpvn(SvPVX(name), SvCUR(name));
 #ifdef PERL_DARWIN
-            sv_catpv(name, dl_ext);
+            sv_catpv(name, DLEXT);
 #else
-            sv_catpv(name, dl_so);
+            sv_catpv(name, DLSO);
 #endif
             AV_PUSH(names, name);
             DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
+            /* .a is very questionable and should be avoided (only useful for Extutils::Embed) */
             sv_catpvs(copy, ".a");
             AV_PUSH(names, copy);
             DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(copy)));
@@ -880,16 +867,17 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
             SV *name = pv_copy(file);
             char *fn = SvPVX(file);
              /* push(@names,"$_.$dl_dlext")    unless m/\.$dl_dlext$/o; */
-            if (!strstr(fn, dl_ext)) {
-                sv_catpv(name, dl_ext);
+            if (!strstr(fn, DLEXT)) {
+                sv_catpv(name, DLEXT);
                 AV_PUSH(names, name);
                 DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
                 name = newSVpvn(fn, SvCUR(file));
             }
 #ifdef PERL_DARWIN
+            /* .dylib is very questionable and should be avoided (only useful for Extutils::Embed) */
             /* push(@names,"$_.$dl_so")     unless m/\.$dl_so$/o; */
-            if (!dl_so_eq_ext && !strstr(fn, dl_so)) {
-                sv_catpv(name, dl_so);
+            if (!DL_SO_EQ_EXT && !strstr(fn, DLSO)) {
+                sv_catpv(name, DLSO);
                 AV_PUSH(names, name);
                 DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
                 name = newSVpvn(fn, SvCUR(file));
@@ -899,7 +887,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
             if (!strchr(fn, '/')) { /* push(@names,"cyg$_.$dl_so")  unless m:/:; */
                 name = newSVpvs("cyg");
                 sv_catsv(name, file);
-                sv_catpv(name, dl_ext);
+                sv_catpv(name, DLEXT);
                 AV_PUSH(names, name);
                 DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
                 name = newSVpvn(fn, SvCUR(file));
@@ -909,7 +897,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
             if (!strchr(fn, '/')) { /* push(@names,"lib$_.$dl_so")  unless m:/:; */
                 name = newSVpvs("lib");
                 sv_catsv(name, file);
-                sv_catpv(name, dl_so);
+                sv_catpv(name, DLSO);
                 AV_PUSH(names, name);
                 DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
                 name = newSVpvn(fn, SvCUR(file));
