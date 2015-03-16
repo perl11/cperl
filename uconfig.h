@@ -4516,6 +4516,11 @@
  */
 /*#define HAS_USTAT		/ **/
 
+/* HAS_VMS_CASE_SENSITIVE_SYMBOLS:
+ *	This symbol, if defined, indicates case sensitive symbols on VMS.
+ */
+/*#define HAS_VMS_CASE_SENSITIVE_SYMBOLS	/ **/
+
 /* HAS_WCSCMP:
  *	This symbol, if defined, indicates that the wcscmp routine is
  *	available to compare two wide character strings.
@@ -5174,6 +5179,6 @@
 #endif
 
 /* Generated from:
- * 113de7857710526eddfaf1ba42033c91ecd3895683d39405a48f5aa79107e39d config_h.SH
- * 9807e4213d2d69eee43a55ba23de02d64bd0cb40bad6ea36767a7a644435fb32 uconfig.sh
+ * 00f9ae68fdf5c1c4e023a6d647a538779d0e148bbcd2ded1f1e30199f111ec80 config_h.SH
+ * f3b3c606d63d1766240019edb012bc2b1ce21498a3dd14f369451cf894a3b6d9 uconfig.sh
  * ex: set ro: */

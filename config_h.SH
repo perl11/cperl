@@ -4551,6 +4551,11 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$d_ustat HAS_USTAT		/**/
 
+/* HAS_VMS_CASE_SENSITIVE_SYMBOLS:
+ *	This symbol, if defined, indicates case sensitive symbols on VMS.
+ */
+#$d_vms_case_sensitive_symbols HAS_VMS_CASE_SENSITIVE_SYMBOLS	/**/
+
 /* HAS_WCSCMP:
  *	This symbol, if defined, indicates that the wcscmp routine is
  *	available to compare two wide character strings.
