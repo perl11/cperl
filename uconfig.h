@@ -4775,7 +4775,7 @@
  *	This symbol indicates the name of the shared library
 	search path. On a unix typically LD_LIBRARY_PATH, LIBPATH,
         SHLIB_PATH, LD_LIBRARYN32_PATH or LD_LIBRARYN64_PATH,
-        on darwin DYLD_LIBRARY_PATH.
+        on darwin DYLD_LIBRARY_PATH. It might be an empty string.
  */
 #define LDLIBPTHNAME 	""		/**/
 
@@ -5194,6 +5194,6 @@
 #endif
 
 /* Generated from:
- * a0e189370ac788892247f2cb515a2cd9bd6cb749f0c5d22934db9bedf45abbd8 config_h.SH
+ * f25e973500e13064dd1d7494049cfd5ee077744a417b8bbbe35b532ced263884 config_h.SH
  * 3fa3c2f2b3a2d56ac9c8825091dd8eb07825b5e7e9bc5b238d0e0d8bdca27c4d uconfig.sh
  * ex: set ro: */

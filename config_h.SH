@@ -4810,7 +4810,7 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *	This symbol indicates the name of the shared library
 	search path. On a unix typically LD_LIBRARY_PATH, LIBPATH,
         SHLIB_PATH, LD_LIBRARYN32_PATH or LD_LIBRARYN64_PATH,
-        on darwin DYLD_LIBRARY_PATH.
+        on darwin DYLD_LIBRARY_PATH. It might be an empty string.
  */
 #define LDLIBPTHNAME 	"$ldlibpthname"		/**/
 
