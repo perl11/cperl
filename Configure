@@ -914,6 +914,7 @@ d_wcsxfrm=''
 d_wctomb=''
 d_writev=''
 dlext=''
+dl_so_eq_ext=''
 bin_ELF=''
 cccdlflags=''
 ccdlflags=''
@@ -12592,6 +12593,9 @@ EOM
 	dlext="none"
 	;;
 esac
+
+: Set dl_so_eq_ext
+if $test x$dlext = x$so; then dl_so_eq_ext='define'; else dl_so_eq_ext='undef'; fi
 
 : Check if dlsym need a leading underscore
 echo " "
@@ -24308,6 +24312,7 @@ db_version_minor='$db_version_minor'
 db_version_patch='$db_version_patch'
 direntrytype='$direntrytype'
 dlext='$dlext'
+dl_so_eq_ext='$dl_so_eq_ext'
 dlsrc='$dlsrc'
 doublekind='$doublekind'
 doublesize='$doublesize'

@@ -4814,6 +4814,33 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #define LDLIBPTHNAME 	"$ldlibpthname"		/**/
 
+/* PATH_SEP:
+ *	This symbol indicates the character used to separate elements
+ *      in the command shell search PATH.
+ */
+#define PATH_SEP 	"$path_sep"		/**/
+
+/* DLEXT:
+ *	This symbol indicates the extension that is to be used for the
+ *	dynamically loaded modules that perl generates. The "." is included.
+ */
+/* DLSO:
+ *	This variable holds the extension used to identify shared libraries
+ *	(also known as shared objects) to be linked on the system. Usually set to '.so'.
+ *      E.g. On darwin "dylib" vs. "bundle" for DLEXT.
+ */
+/* DLSRC:
+ *	This variable contains the name of the dynamic loading file that
+	will be used with the package.
+ */
+/* DL_SO_EQ_EXT:
+ *	This variable is defined if DLEXT equals DLSO.
+ */
+#define DLEXT 	".$dlext"		/**/
+#define DLSO 	".$so"			/**/
+#define DLSRC 	"$dlsrc"		/**/
+#$dl_so_eq_ext DL_SO_EQ_EXT 		/**/
+
 /* PERL_PRIfldbl:
  *	This symbol, if defined, contains the string used by stdio to
  *	format long doubles (format 'f') for output.
