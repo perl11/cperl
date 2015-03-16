@@ -4766,6 +4766,14 @@
  */
 /*#define	I_USTAT		/ **/
 
+/* LDLIBPTHNAME:
+ *	This symbol indicates the name of the shared library
+	search path. On a unix typically LD_LIBRARY_PATH, LIBPATH,
+        SHLIB_PATH, LD_LIBRARYN32_PATH or LD_LIBRARYN64_PATH,
+        on darwin DYLD_LIBRARY_PATH. It might be an empty string.
+ */
+#define LDLIBPTHNAME 	""		/**/
+
 /* PERL_PRIfldbl:
  *	This symbol, if defined, contains the string used by stdio to
  *	format long doubles (format 'f') for output.
