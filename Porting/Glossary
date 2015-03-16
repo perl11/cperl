@@ -2840,6 +2840,11 @@ direntrytype (i_dirent.U):
 dlext (dlext.U):
 	This variable contains the extension that is to be used for the
 	dynamically loaded modules that perl generates.
+        E.g. On darwin "bundle" vs. "dylib" for dlext.
+        In the config.h variable DLEXT the "." is included, in the perl variant not.
+
+dl_so_eq_ext (dlext.U):
+	This variable conditionally defines DL_SO_EQ_EXT if DLEXT equals DLSO.
 
 dlsrc (dlsrc.U):
 	This variable contains the name of the dynamic loading file that
@@ -4474,6 +4479,8 @@ patchlevel (patchlevel.U):
 path_sep (Unix.U):
 	This is an old synonym for p_ in Head.U, the character
 	used to separate elements in the command shell search PATH.
+        It sets PATH_SEP. It is typically ':', but can be ';' on Netware,
+        symbian, Windows or other DOS based systems or '|' on VMS.
 
 perl (Loc.U):
 	This variable is used internally by Configure to determine the
@@ -5039,7 +5046,9 @@ smail (Loc.U):
 
 so (so.U):
 	This variable holds the extension used to identify shared libraries
-	(also known as shared objects) on the system. Usually set to 'so'.
+	(also known as shared objects) to be linked on the system. Usually set to 'so'.
+        E.g. On darwin "dylib" vs. "bundle" for dlext.
+        In the config.h variable DLSO the "." is included, in the perl variant not.
 
 sockethdr (d_socket.U):
 	This variable has any cpp '-I' flags needed for socket support.
