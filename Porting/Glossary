@@ -3999,9 +3999,11 @@ ldflags_uselargefiles (uselfs.U):
 	and added to ldflags by hints files.
 
 ldlibpthname (libperl.U):
-	This variable holds the name of the shared library
-	search path, often LD_LIBRARY_PATH.  To get an empty
-	string, the hints file must set this to 'none'.
+	This variable sets LDLIBPTHNAME and holds the name of the shared library
+	search path. On a unix typically LD_LIBRARY_PATH, LIBPATH,
+        SHLIB_PATH, LD_LIBRARYN32_PATH or LD_LIBRARYN64_PATH,
+        on darwin DYLD_LIBRARY_PATH. To get an empty string, the hints file
+        must set this to 'none'.
 
 less (Loc.U):
 	This variable is used internally by Configure to determine the
