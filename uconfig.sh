@@ -706,6 +706,7 @@ ivdformat='"ld"'
 ivsize='4'
 ivtype='long'
 ld_can_script='define'
+ldlibpthname=''
 lib_ext='.a'
 localtime_r_proto='0'
 longdblkind=0

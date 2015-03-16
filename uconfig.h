@@ -4771,6 +4771,14 @@
  */
 /*#define	I_USTAT		/ **/
 
+/* LDLIBPTHNAME:
+ *	This symbol indicates the name of the shared library
+	search path. On a unix typically LD_LIBRARY_PATH, LIBPATH,
+        SHLIB_PATH, LD_LIBRARYN32_PATH or LD_LIBRARYN64_PATH,
+        on darwin DYLD_LIBRARY_PATH.
+ */
+#define LDLIBPTHNAME 	""		/**/
+
 /* PERL_PRIfldbl:
  *	This symbol, if defined, contains the string used by stdio to
  *	format long doubles (format 'f') for output.
@@ -5186,6 +5194,6 @@
 #endif
 
 /* Generated from:
- * 412b93502b63a67b4f411d06e25d4a46bc22ce2afc433782b276cb6256de3b5b config_h.SH
- * 6c464ea0e062a6694a1696a39832d463b169d5956b81e14956308e05ff4adca5 uconfig.sh
+ * a0e189370ac788892247f2cb515a2cd9bd6cb749f0c5d22934db9bedf45abbd8 config_h.SH
+ * 3fa3c2f2b3a2d56ac9c8825091dd8eb07825b5e7e9bc5b238d0e0d8bdca27c4d uconfig.sh
  * ex: set ro: */

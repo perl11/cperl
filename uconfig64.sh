@@ -706,6 +706,7 @@ intsize='4'
 ivdformat='"ld"'
 ivsize='8'
 ivtype='long'
+ldlibpthname=''
 lib_ext='.a'
 localtime_r_proto='0'
 longdblkind=0
