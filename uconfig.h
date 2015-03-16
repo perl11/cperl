@@ -220,6 +220,13 @@
  */
 /*#define HAS_KILLPG	/ **/
 
+/* HAS_LIBNAME_UNIQUE:
+ *	This symbol is defined if the target system insists on unique
+	basenames for shared library files. This is currently true on Android,
+	undef everywhere else we know of.
+ */
+/*#define HAS_LIBNAME_UNIQUE	/ **/
+
 /* HAS_LINK:
  *	This symbol, if defined, indicates that the link routine is
  *	available to create hard links.
