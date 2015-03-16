@@ -2743,9 +2743,9 @@ Perl_call_sv(pTHX_ SV *sv, VOL I32 flags)
     }
     else {
 	myop.op_other = (OP*)&myop;
-	PL_markstack_ptr--;
+	(void)POPMARK;
 	create_eval_scope(flags|G_FAKINGEVAL);
-	PL_markstack_ptr++;
+	(void)INCMARK;
 
 	JMPENV_PUSH(ret);
 
