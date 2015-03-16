@@ -1460,7 +1460,8 @@ d_libm_lib_version (d_libm_lib_version.U):
 	being available in libm
 
 d_libname_unique (so.U):
-	This variable is defined if the target system insists on unique
+	This variable conditionally defines the HAS_LIBNAME_UNIQUE symbol,
+        which defines if the target system insists on unique
 	basenames for shared library files. This is currently true on Android,
 	false everywhere else we know of.
 	Defaults to 'undef'.
