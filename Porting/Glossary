@@ -2732,6 +2732,10 @@ d_vfork (d_vfork.U):
 	This variable conditionally defines the HAS_VFORK symbol, which
 	indicates the vfork() routine is available.
 
+d_vms_case_sensitive_symbols (d_vms.U):
+	This variable conditionally defines the HAS_VMS_CASE_SENSITIVE_SYMBOLS
+        symbol, which indicates case sensitive symbols on VMS.
+
 d_void_closedir (d_closedir.U):
 	This variable conditionally defines VOID_CLOSEDIR if closedir()
 	does not return a value.
