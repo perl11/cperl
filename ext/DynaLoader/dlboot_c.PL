@@ -109,16 +109,9 @@ PERL_XS_EXPORT_C void XS_DynaLoader_dl_findfile(pTHX_ CV *cv);
 PERL_XS_EXPORT_C void XS_DynaLoader_dl_expandspec(pTHX_ CV *cv);
 #endif
 PERL_XS_EXPORT_C void XS_DynaLoader_dl_find_symbol_anywhere(pTHX_ CV *cv);
-EOT
-
-# TODO: put this into config.h to get rid of miniperl.
-if ( $Config::Config{d_libname_unique} ) {
-    print OUT <<'EOT';
+#ifdef HAS_LIBNAME_UNIQUE
 PERL_XS_EXPORT_C void XS_DynaLoader_mod2fname(pTHX_ CV *cv);
-EOT
-}
-
-print OUT line_prefix(__LINE__, <<'EOT');
+#endif
 
 EXTERN_C void
 dl_boot (pTHX) {
@@ -166,16 +159,12 @@ print OUT line_prefix(__LINE__, <<'EOT');
     newXS("DynaLoader::dl_expandspec",     XS_DynaLoader_dl_expandspec, file);
 #endif
     newXS("DynaLoader::dl_find_symbol_anywhere", XS_DynaLoader_dl_find_symbol_anywhere, file);
-EOT
-
-# TODO: put this into config.h to get rid of miniperl.
-if ( $Config::Config{d_libname_unique} ) {
-  print OUT line_prefix(__LINE__, <<'EOT');
+#ifdef HAS_LIBNAME_UNIQUE
     newXS("DynaLoader::mod2fname", 	   XS_DynaLoader_mod2fname, file);
+#endif
 
     /* with duplicates removed and symlinks resolved from $Config{libpth} */
 EOT
-}
 
 # resolve duplicates at least here, if Configure is not up to the task
 # TODO: Do this in Configure, put this into config.h to get rid of miniperl.
@@ -242,7 +231,12 @@ print OUT line_prefix(__LINE__, <<'EOT');
     DLax("dl_boot");
 #endif
 }
+EOT
 
+# TODO: Move the XS funcs to dlutils.c to be used by DynaLoader and XSLoader
+# together. Seperate into helper functions for XSLoader.
+
+print OUT line_prefix(__LINE__, <<'EOT');
 XS(XS_DynaLoader_bootstrap_inherit)
 {
     dXSARGS;
@@ -325,15 +319,13 @@ XS(XS_DynaLoader_bootstrap)
                modulename, modulename);
     }
     dl_require_symbols = get_av("DynaLoader::dl_require_symbols", GV_ADDMULTI);
-EOT
 
-print OUT line_prefix(__LINE__, <<'EOT') if $^O eq 'os2';
+#ifdef OS2
     if (!SvTRUE_NN(get_sv("OS2::is_static")))
         Perl_die(aTHX_ "Dynaloaded Perl modules are not available in this build of Perl");
-EOT
+#endif
 
-# now start splitting and walking modparts /::/ (no utf8 yet)
-print OUT line_prefix(__LINE__, <<'EOT');
+    /* now start splitting and walking modparts /::/ (no utf8 yet) */
     modparts = newAV();
     {
         char *mn = SvPVX(module);
@@ -367,13 +359,11 @@ print OUT line_prefix(__LINE__, <<'EOT');
         modfname = POPs;
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Got mod2fname => '%s'\n", SvPVX(modfname)));
     }
-EOT
-print OUT line_prefix(__LINE__, <<'EOT') if $^O eq 'NetWare';
+#ifdef NETWARE
     /* Truncate the module name to 8.3 format for NetWare */
     if (SvCUR(modfname) > 8)
 	SvCUR_set((modfname, 8);
-EOT
-print OUT line_prefix(__LINE__, <<'EOT');
+#endif
     modpname = newSVpvs("");
     for (i=0; i<=AvFILLp(modparts)-1; i++) {
         sv_catsv(modpname, AvARRAY(modparts)[i]);
@@ -475,11 +465,8 @@ print OUT line_prefix(__LINE__, <<'EOT');
     } else {
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Found %s\n", SvPVX(file)));
     }
-EOT
 
-# TODO: put d_vms_case_sensitive_symbols into config.h to get rid of miniperl.
-print OUT line_prefix(__LINE__, <<'EOT') if $^O eq 'vms' and $Config::Config{d_vms_case_sensitive_symbols};
-#ifdef VMS
+#if defined(VMS) && defined(HAS_VMS_CASE_SENSITIVE_SYMBOLS)
     if (!SvUTF8(file)) {
         /* no utf8 or multibyte! */
         char *fn = SvPVX(file);
@@ -498,9 +485,6 @@ print OUT line_prefix(__LINE__, <<'EOT') if $^O eq 'vms' and $Config::Config{d_v
       *Perl_stack_sp = savestack;
     }
 #endif
-EOT
-
-print OUT line_prefix(__LINE__, <<'EOT');
 
     bootname = newSVpvs("boot_");
     sv_catsv(bootname, module);
@@ -732,16 +716,14 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
     }
     XSRETURN_UNDEF;
 }
-EOT
 
-# d_libname_unique is set on linux-android, which does support utf8 pathnames
-if ( $Config::Config{d_libname_unique} ) {
-  printf OUT line_prefix(__LINE__, <<'EOT'), length($Config::Config{dlext}) + 1;
+/* set on linux-android, which does support utf8 pathnames */
+#ifdef HAS_LIBNAME_UNIQUE
 XS(XS_DynaLoader_mod2fname)
 {
     dXSARGS;
     AV* parts;
-    sonst int so_len = %d;
+    sonst int so_len = sizeof(dlext);
     const int name_max = 255;
     SV *libname;
     U32 i, len;
@@ -781,10 +763,7 @@ XS(XS_DynaLoader_mod2fname)
     SvCUR_set(libname, name_max - so_len);
     return libname;
 }
-EOT
-}
-
-print OUT line_prefix(__LINE__, <<'EOT');
+#endif
 
 /* Read L<DynaLoader> for detailed information.
  * This function does not automatically consider the architecture
@@ -939,9 +918,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
             AV_PUSH(names, name);
             DLDEBUG(3,PerlIO_printf(Perl_debug_log, " +names %s\n", SvPVX(name)));
         }
-EOT
-
-print OUT line_prefix(__LINE__, <<'EOT') if $^O eq 'symbian';
+#ifdef __SYMBIAN32__
         if (fn[1] == ':'
            && ((fn[0] >= 'a' && fn[0] <= 'z')
             || (fn[0] >= 'A' && fn[0] <= 'Z'))) {
@@ -959,9 +936,7 @@ print OUT line_prefix(__LINE__, <<'EOT') if $^O eq 'symbian';
                 AvARRAY(dl_library_path)[j] = newdir;
             }
         }
-EOT
-
-print OUT line_prefix(__LINE__, <<'EOT');
+#endif
         dirsize = AvFILLp(dirs);
         lsize = AvFILLp(dl_library_path);
         if (dirsize + lsize > -1) /* if one of them is not empty */
