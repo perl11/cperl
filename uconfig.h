@@ -220,6 +220,13 @@
  */
 /*#define HAS_KILLPG	/ **/
 
+/* HAS_LIBNAME_UNIQUE:
+ *	This symbol is defined if the target system insists on unique
+	basenames for shared library files. This is currently true on Android,
+	undef everywhere else we know of.
+ */
+/*#define HAS_LIBNAME_UNIQUE	/ **/
+
 /* HAS_LINK:
  *	This symbol, if defined, indicates that the link routine is
  *	available to create hard links.
@@ -5179,6 +5186,6 @@
 #endif
 
 /* Generated from:
- * 00f9ae68fdf5c1c4e023a6d647a538779d0e148bbcd2ded1f1e30199f111ec80 config_h.SH
- * f3b3c606d63d1766240019edb012bc2b1ce21498a3dd14f369451cf894a3b6d9 uconfig.sh
+ * 412b93502b63a67b4f411d06e25d4a46bc22ce2afc433782b276cb6256de3b5b config_h.SH
+ * 6c464ea0e062a6694a1696a39832d463b169d5956b81e14956308e05ff4adca5 uconfig.sh
  * ex: set ro: */
