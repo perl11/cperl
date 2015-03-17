@@ -3591,6 +3591,9 @@ ext/DynaLoader/hints/openbsd.pl	Hint for DynaLoader for named architecture
 ext/DynaLoader/Makefile.PL	Dynamic Loader makefile writer
 ext/DynaLoader/README		Dynamic Loader notes and intro
 ext/DynaLoader/t/DynaLoader.t	See if DynaLoader works
+ext/DynaLoader/t/XSLoader.t	See if XSLoader works
+ext/DynaLoader/XSLoader.pod	XSLoader documentation
+ext/DynaLoader/XSLoader.c	XSLoader implementation
 EXTERN.h			Included before foreign .h files
 ext/Errno/ChangeLog	Errno changes
 ext/Errno/Errno_pm.PL	Errno perl module create script
