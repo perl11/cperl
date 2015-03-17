@@ -3515,9 +3515,6 @@ dist/Tie-File/t/33_defer_vs.t		Like 30_defer.t, but with varying-length records
 dist/Tie-File/t/40_abs_cache.t		Unit tests for Tie::File::Cache
 dist/Tie-File/t/41_heap.t		Unit tests for Tie::File::Heap
 dist/Tie-File/t/42_offset.t		Unit tests for the offset method
-dist/XSLoader/Makefile.PL	Dynamic Loader makefile writer
-dist/XSLoader/t/XSLoader.t	See if XSLoader works
-dist/XSLoader/XSLoader_pm.PL	Simple XS Loader perl module
 djgpp/config.over	DOS/DJGPP port
 djgpp/configure.bat	DOS/DJGPP port
 djgpp/djgpp.c		DOS/DJGPP port
@@ -3610,6 +3607,9 @@ ext/DynaLoader/hints/openbsd.pl	Hint for DynaLoader for named architecture
 ext/DynaLoader/Makefile.PL	Dynamic Loader makefile writer
 ext/DynaLoader/README		Dynamic Loader notes and intro
 ext/DynaLoader/t/DynaLoader.t	See if DynaLoader works
+ext/DynaLoader/t/XSLoader.t	See if XSLoader works
+ext/DynaLoader/XSLoader.c	XSLoader implementation
+ext/DynaLoader/XSLoader.pod	XSLoader documentation
 EXTERN.h			Included before foreign .h files
 ext/Errno/ChangeLog	Errno changes
 ext/Errno/Errno_pm.PL	Errno perl module create script

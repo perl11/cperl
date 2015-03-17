@@ -1,205 +1,105 @@
-use strict;
-use Config;
-# We require DynaLoader to make sure that mod2fname is loaded
-eval { require DynaLoader };
-
-1 while unlink "XSLoader.pm";
-open OUT, ">XSLoader.pm" or die $!;
-print OUT <<'EOT';
 # Generated from XSLoader.pm.PL (resolved %Config::Config value)
-
-package XSLoader;
-
-$VERSION = "0.21";
-
-#use strict;
-
-package DynaLoader;
-
-EOT
-
-# dlutils.c before 5.006 has this:
 #
-#    #ifdef DEBUGGING
-#        dl_debug = SvIV( perl_get_sv("DynaLoader::dl_debug", 0x04) );
-#    #endif
+#package XSLoader;
 #
-# where 0x04 is GV_ADDWARN, which causes a warning to be issued by the call
-# into XS below, if DynaLoader.pm hasn't been loaded.
-# It was changed to 0 in the commit(s) that added XSLoader to the core
-# (9cf41c4d23a47c8b and its parent 9426adcd48655815)
-# Hence to backport XSLoader to work silently with earlier DynaLoaders we need
-# to ensure that the variable exists:
-
-print OUT <<'EOT' if $] < 5.006;
-
-# enable debug/trace messages from DynaLoader perl code
-$dl_debug = $ENV{PERL_DL_DEBUG} || 0 unless defined $dl_debug;
-
-EOT
-
-print OUT <<'EOT';
-# No prizes for guessing why we don't say 'bootstrap DynaLoader;' here.
-# NOTE: All dl_*.xs (including dl_none.xs) define a dl_error() XSUB
-boot_DynaLoader('DynaLoader') if defined(&boot_DynaLoader) &&
-                                !defined(&dl_error);
-package XSLoader;
-
-sub load {
-    package DynaLoader;
-
-    my ($caller, $modlibname) = caller();
-    my $module = $caller;
-
-    if (@_) {
-        $module = $_[0];
-    } else {
-        $_[0] = $module;
-    }
-
-    # work with static linking too
-    my $boots = "$module\::bootstrap";
-    goto &$boots if defined &$boots;
-
-    goto \&XSLoader::bootstrap_inherit unless $module and defined &dl_load_file;
-
-    my @modparts = split(/::/,$module);
-    my $modfname = $modparts[-1];
-
-EOT
-
-# defined &DynaLoader::mod2fname catches most cases, except when
-# cross-compiling to a system that defines mod2fname. Using 
-# $Config{d_libname_unique} is a best attempt at catching those cases.
-print OUT <<'EOT' if defined &DynaLoader::mod2fname || $Config{d_libname_unique};
-    # Some systems have restrictions on files names for DLL's etc.
-    # mod2fname returns appropriate file base name (typically truncated)
-    # It may also edit @modparts if required.
-    $modfname = &DynaLoader::mod2fname(\@modparts) if defined &DynaLoader::mod2fname;
-
-EOT
-
-print OUT <<'EOT' if $^O eq 'os2';
-
-    # os2 static build can dynaload, but cannot dynaload Perl modules...
-    die 'Dynaloaded Perl modules are not available in this build of Perl' if $OS2::is_static;
-
-EOT
-
-print OUT <<'EOT';
-    my $modpname = join('/',@modparts);
-    my $c = () = split(/::/,$caller,-1);
-    $modlibname =~ s,[\\/][^\\/]+$,, while $c--;    # Q&D basename
-EOT
-
-my $dl_dlext = quotemeta($Config::Config{'dlext'});
-
-print OUT <<"EOT";
-    my \$file = "\$modlibname/auto/\$modpname/\$modfname.$dl_dlext";
-EOT
-
-print OUT <<'EOT';
-
-#   print STDERR "XSLoader::load for $module ($file)\n" if $dl_debug;
-
-    my $bs = $file;
-    $bs =~ s/(\.\w+)?(;\d*)?$/\.bs/; # look for .bs 'beside' the library
-
-    if (-s $bs) { # only read file if it's not empty
-#       print STDERR "BS: $bs ($^O, $dlsrc)\n" if $dl_debug;
-        eval { do $bs; };
-        warn "$bs: $@\n" if $@;
-	goto \&XSLoader::bootstrap_inherit;
-    }
-
-    goto \&XSLoader::bootstrap_inherit if not -f $file;
-
-    my $bootname = "boot_$module";
-    $bootname =~ s/\W/_/g;
-    @DynaLoader::dl_require_symbols = ($bootname);
-
-    my $boot_symbol_ref;
-
-EOT
-
-    if ($^O eq 'darwin') {
-      my $extra_arg = ', 1 ' if $DynaLoader::VERSION ge '1.33';
-print OUT <<"EOT";
-    if (\$boot_symbol_ref = dl_find_symbol( 0, \$bootname $extra_arg)) {
-        goto boot; #extension library has already been loaded, e.g. darwin
-    }
-EOT
-    }
-
-print OUT <<'EOT';
-    # Many dynamic extension loading problems will appear to come from
-    # this section of code: XYZ failed at line 123 of DynaLoader.pm.
-    # Often these errors are actually occurring in the initialisation
-    # C code of the extension XS file. Perl reports the error as being
-    # in this perl code simply because this was the last perl code
-    # it executed.
-
-    my $libref = dl_load_file($file, 0) or do { 
-        require Carp;
-        Carp::croak("Can't load '$file' for module $module: " . dl_error());
-    };
-    push(@DynaLoader::dl_librefs,$libref);  # record loaded object
-
-    my @unresolved = dl_undef_symbols();
-    if (@unresolved) {
-        require Carp;
-        Carp::carp("Undefined symbols present after loading $file: @unresolved\n");
-    }
-
-    $boot_symbol_ref = dl_find_symbol($libref, $bootname) or do {
-        require Carp;
-        Carp::croak("Can't find '$bootname' symbol in $file\n");
-    };
-
-    push(@DynaLoader::dl_modules, $module); # record loaded module
-
-  boot:
-    my $xs = dl_install_xsub($boots, $boot_symbol_ref, $file);
-
-    # See comment block above
-    push(@DynaLoader::dl_shared_objects, $file); # record files loaded
-    return &$xs(@_);
-}
-EOT
-
-# Can't test with DynaLoader->can('bootstrap_inherit') when building in the
-# core, as XSLoader gets built before DynaLoader.
-
-if ($] >= 5.006) {
-    print OUT <<'EOT';
-
-sub bootstrap_inherit {
-    require DynaLoader;
-    goto \&DynaLoader::bootstrap_inherit;
-}
-
-EOT
-} else {
-    print OUT <<'EOT';
-
-sub bootstrap_inherit {
-    # Versions of DynaLoader prior to 5.6.0 don't have bootstrap_inherit.
-    package DynaLoader;
-
-    my $module = $_[0];
-    local *DynaLoader::isa = *{"$module\::ISA"};
-    local @DynaLoader::isa = (@DynaLoader::isa, 'DynaLoader');
-    # Cannot goto due to delocalization.  Will report errors on a wrong line?
-    require DynaLoader;
-    DynaLoader::bootstrap(@_);
-}
-
-EOT
-}
-
-print OUT <<'EOT';
-1;
-
+#$VERSION = "0.21";
+#
+##use strict;
+#
+#package DynaLoader;
+#
+## No prizes for guessing why we don't say 'bootstrap DynaLoader;' here.
+## NOTE: All dl_*.xs (including dl_none.xs) define a dl_error() XSUB
+#boot_DynaLoader('DynaLoader') if defined(&boot_DynaLoader) &&
+#                                !defined(&dl_error);
+#package XSLoader;
+#
+#sub load {
+#    package DynaLoader;
+#
+#    my ($caller, $modlibname) = caller();
+#    my $module = $caller;
+#
+#    if (@_) {
+#        $module = $_[0];
+#    } else {
+#        $_[0] = $module;
+#    }
+#
+#    # work with static linking too
+#    my $boots = "$module\::bootstrap";
+#    goto &$boots if defined &$boots;
+#
+#    goto \&XSLoader::bootstrap_inherit unless $module and defined &dl_load_file;
+#
+#    my @modparts = split(/::/,$module);
+#    my $modfname = $modparts[-1];
+#
+#    my $modpname = join('/',@modparts);
+#    my $c = () = split(/::/,$caller,-1);
+#    $modlibname =~ s,[\\/][^\\/]+$,, while $c--;    # Q&D basename
+#    my $file = "$modlibname/auto/$modpname/$modfname.so";
+#
+##   print STDERR "XSLoader::load for $module ($file)\n" if $dl_debug;
+#
+#    my $bs = $file;
+#    $bs =~ s/(\.\w+)?(;\d*)?$/\.bs/; # look for .bs 'beside' the library
+#
+#    if (-s $bs) { # only read file if it's not empty
+##       print STDERR "BS: $bs ($^O, $dlsrc)\n" if $dl_debug;
+#        eval { do $bs; };
+#        warn "$bs: $@\n" if $@;
+#	goto \&XSLoader::bootstrap_inherit;
+#    }
+#
+#    goto \&XSLoader::bootstrap_inherit if not -f $file;
+#
+#    my $bootname = "boot_$module";
+#    $bootname =~ s/\W/_/g;
+#    @DynaLoader::dl_require_symbols = ($bootname);
+#
+#    my $boot_symbol_ref;
+#
+#    # Many dynamic extension loading problems will appear to come from
+#    # this section of code: XYZ failed at line 123 of DynaLoader.pm.
+#    # Often these errors are actually occurring in the initialisation
+#    # C code of the extension XS file. Perl reports the error as being
+#    # in this perl code simply because this was the last perl code
+#    # it executed.
+#
+#    my $libref = dl_load_file($file, 0) or do { 
+#        require Carp;
+#        Carp::croak("Can't load '$file' for module $module: " . dl_error());
+#    };
+#    push(@DynaLoader::dl_librefs,$libref);  # record loaded object
+#
+#    my @unresolved = dl_undef_symbols();
+#    if (@unresolved) {
+#        require Carp;
+#        Carp::carp("Undefined symbols present after loading $file: @unresolved\n");
+#    }
+#
+#    $boot_symbol_ref = dl_find_symbol($libref, $bootname) or do {
+#        require Carp;
+#        Carp::croak("Can't find '$bootname' symbol in $file\n");
+#    };
+#
+#    push(@DynaLoader::dl_modules, $module); # record loaded module
+#
+#  boot:
+#    my $xs = dl_install_xsub($boots, $boot_symbol_ref, $file);
+#
+#    # See comment block above
+#    push(@DynaLoader::dl_shared_objects, $file); # record files loaded
+#    return &$xs(@_);
+#}
+#
+#sub bootstrap_inherit {
+#    require DynaLoader;
+#    goto \&DynaLoader::bootstrap_inherit;
+#}
+#
+#1;
 
 __END__
 
@@ -445,15 +345,15 @@ E<lt>sebastien@aperghis.netE<gt>.
 
 Previous maintainer was Michael G Schwern <schwern@pobox.com>.
 
+Conversion to c and merge with DynaLoader by Reini Urban, 2015.
+This is now in L<cperl|perlcperl> core.
 
 =head1 COPYRIGHT & LICENSE
 
 Copyright (C) 1990-2011 by Larry Wall and others.
+Copyright (C) 2015 cPanel Inc
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
-EOT
-
-close OUT or die $!;
