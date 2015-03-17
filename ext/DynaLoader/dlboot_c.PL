@@ -148,9 +148,11 @@ print OUT line_prefix(__LINE__, <<'EOT');
     newXS("DynaLoader::mod2fname", 	   XS_DynaLoader_mod2fname, utilsfile);
 #endif
 
-    newXS("xXSLoader::load",                XS_XSLoader_load, xsloaderfile);
-    newXS("xXSLoader::load_file",           XS_XSLoader_load_file, xsloaderfile);
-    newXS("xXSLoader::bootstrap_inherit",   XS_XSLoader_bootstrap_inherit, xsloaderfile);
+    newXS("XSLoader::load",                XS_XSLoader_load, xsloaderfile);
+    newXS("XSLoader::load_file",           XS_XSLoader_load_file, xsloaderfile);
+    newXS("XSLoader::bootstrap_inherit",   XS_XSLoader_bootstrap_inherit, xsloaderfile);
+    (void)hv_store(GvHVn(PL_incgv), "XSLoader.pm", sizeof("XSLoader.pm")-1,
+                   newSVpvs("XSLoader.c"), 0);
 
     /* with duplicates removed and symlinks resolved from $Config{libpth} */
 EOT

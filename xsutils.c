@@ -296,8 +296,7 @@ Perl_boot_core_xsutils(pTHX)
 /* Needed by B::Deparse */
 XS(XS_strict_bits)
 {
-    dVAR;
-    dXSARGS;
+    dVAR; dXSARGS;
     UV bits = 0;
     int i;
 
@@ -325,8 +324,7 @@ XS(XS_strict_bits)
 */
 XS(XS_strict_import)
 {
-    dVAR;
-    dXSARGS;
+    dVAR; dXSARGS;
     int i;
 
     if (items == 1) {
@@ -357,8 +355,7 @@ XS(XS_strict_import)
 */
 XS(XS_strict_unimport)
 {
-    dVAR;
-    dXSARGS;
+    dVAR; dXSARGS;
     int i;
 
     if (items == 1) {
@@ -550,9 +547,7 @@ _guess_stash(aTHX_ SV* sv)
 
 XS(XS_attributes_bootstrap)
 {
-    dVAR;
-    dXSARGS;
-
+    dVAR; dXSARGS;
     if( items > 1 )
 	croak_xs_usage(cv, "$module");
     XSRETURN(0);
@@ -671,9 +666,7 @@ static void _attributes__push_fetch(SV *sv)
  */
 XS(XS_attributes_get)
 {
-    dVAR;
-    dXSARGS;
-    dXSTARG;
+    dVAR; dXSARGS; dXSTARG;
     SV *rv, *sv;
     HV* stash;
 
@@ -728,10 +721,8 @@ usage:
 /* default modify handler for builtin attributes */
 XS(XS_attributes__modify_attrs)
 {
-    dVAR;
-    dXSARGS;
+    dVAR; dXSARGS;
     SV *rv, *sv;
-
     if (items < 1) {
 usage:
 	croak_xs_usage(cv, "@attributes");
@@ -750,10 +741,8 @@ usage:
 /* default fetch handler for builtin attributes */
 XS(XS_attributes__fetch_attrs)
 {
-    dVAR;
-    dXSARGS;
+    dVAR; dXSARGS;
     SV *rv, *sv;
-
     if (items != 1) {
 usage:
 	croak_xs_usage(cv, "$reference");
@@ -771,12 +760,9 @@ usage:
 /* helper function to return and set the stash of the svref */
 XS(XS_attributes__guess_stash)
 {
-    dVAR;
-    dXSARGS;
+    dVAR; dXSARGS; dXSTARG;
     SV *rv, *sv;
     HV *stash;
-    dXSTARG;
-
     if (items != 1) {
 usage:
 	croak_xs_usage(cv, "$reference");
@@ -805,11 +791,8 @@ usage:
 */
 XS(XS_attributes_reftype)
 {
-    dVAR;
-    dXSARGS;
+    dVAR; dXSARGS; dXSTARG;
     SV *rv, *sv;
-    dXSTARG;
-
     if (items != 1) {
 usage:
 	croak_xs_usage(cv, "$reference");
@@ -1077,47 +1060,47 @@ static SV* carp_error(IV ax, IV items) {
 
 XS(XS_Carp_croak)
 {
-    dXSARGS;
+    dVAR; dXSARGS;
     const char* err = SvPVX_const(carp_shortmess(ax, carp_error(ax, items)));
     Perl_die(aTHX_ err);
 }
 XS(XS_Carp_confess)
 {
-    dXSARGS;
+    dVAR; dXSARGS;
     const char* err = SvPVX_const(carp_longmess(ax, carp_error(ax, items)));
     Perl_die(aTHX_ err);
 }
 XS(XS_Carp_carp)
 {
-    dXSARGS;
+    dVAR; dXSARGS;
     const char* err = SvPVX_const(carp_shortmess(ax, carp_error(ax, items)));
     Perl_warn(aTHX_ err);
     XSRETURN_EMPTY;
 }
 XS(XS_Carp_cluck)
 {
-    dXSARGS;
+    dVAR; dXSARGS;
     const char* err = SvPVX_const(carp_longmess(ax, carp_error(ax, items)));
     Perl_warn(aTHX_ err);
     XSRETURN_EMPTY;
 }
 XS(XS_Carp_shortmess)
 {
-    dXSARGS;
+    dVAR; dXSARGS;
     EXTEND(SP, 1);
     ST(0) = carp_shortmess(ax, carp_error(ax, items));
     XSRETURN(1);
 }
 XS(XS_Carp_longmess)
 {
-    dXSARGS;
+    dVAR; dXSARGS;
     EXTEND(SP, 1);
     ST(0) = carp_longmess(ax, carp_error(ax, items));
     XSRETURN(1);
 }
 XS(XS_Carp_verbose)
 {
-    dXSARGS;
+    dVAR; dXSARGS;
     GV* gv = gv_fetchpvs("Carp::Verbose", 0, SVt_IV);
     if (items > 0 && SvIOK(ST(0))) {
         if (gv) {
