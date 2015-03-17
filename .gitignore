@@ -116,6 +116,7 @@ lib/Cross.pm
 lib/DynaLoader.pod
 lib/ExtUtils/MANIFEST.SKIP
 lib/ExtUtils/xsubpp
+lib/XSLoader.pod
 lib/auto/
 lib/perldoc.pod
 lib/buildcustomize.pl

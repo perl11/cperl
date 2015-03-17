@@ -3499,9 +3499,6 @@ dist/Tie-File/t/33_defer_vs.t		Like 30_defer.t, but with varying-length records
 dist/Tie-File/t/40_abs_cache.t		Unit tests for Tie::File::Cache
 dist/Tie-File/t/41_heap.t		Unit tests for Tie::File::Heap
 dist/Tie-File/t/42_offset.t		Unit tests for the offset method
-dist/XSLoader/Makefile.PL	Dynamic Loader makefile writer
-dist/XSLoader/t/XSLoader.t	See if XSLoader works
-dist/XSLoader/XSLoader_pm.PL	Simple XS Loader perl module
 djgpp/config.over	DOS/DJGPP port
 djgpp/configure.bat	DOS/DJGPP port
 djgpp/djgpp.c		DOS/DJGPP port
