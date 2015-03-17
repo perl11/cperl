@@ -1317,21 +1317,21 @@ use File::Glob qw(:case);
         ],
     },
 
-    'XSLoader' => {
-        'DISTRIBUTION' => 'SAPER/XSLoader-0.16.tar.gz',
-        'FILES'        => q[dist/XSLoader],
-        'EXCLUDED'     => [
-            qr{^eg/},
-            qw( t/00-load.t
-                t/01-api.t
-                t/distchk.t
-                t/pod.t
-                t/podcover.t
-                t/portfs.t
-                ),
-            'XSLoader.pm',    # we use XSLoader_pm.PL
-        ],
-    },
+    #'XSLoader' => {
+    #    'DISTRIBUTION' => 'SAPER/XSLoader-0.16.tar.gz',
+    #    'FILES'        => q[dist/XSLoader],
+    #    'EXCLUDED'     => [
+    #        qr{^eg/},
+    #        qw( t/00-load.t
+    #            t/01-api.t
+    #            t/distchk.t
+    #            t/pod.t
+    #            t/podcover.t
+    #            t/portfs.t
+    #            ),
+    #        'XSLoader.pm',    # we use XSLoader_pm.PL
+    #    ],
+    #},
 
     # this pseudo-module represents all the files under ext/ and lib/
     # that aren't otherwise claimed. This means that the following two
