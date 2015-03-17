@@ -1020,10 +1020,8 @@ $(DYNALOADER).c : $(MINIPERL) $(EXTDIR)\DynaLoader\dl_netware.xs $(CONFIGPM)
 	if not exist $(AUTODIR) mkdir $(AUTODIR)
 	cd $(EXTDIR)\$(*B)
 	..\$(MINIPERL) -I..\..\lib $(*B)_pm.PL
-	..\$(MINIPERL) -I..\..\lib XSLoader_pm.PL
 	cd ..\..\netware
 	$(XCOPY) $(EXTDIR)\$(*B)\$(*B).pm $(LIBDIR)\$(NULL)
-	$(XCOPY) $(EXTDIR)\$(*B)\XSLoader.pm $(LIBDIR)\$(NULL)
 	cd $(EXTDIR)\$(*B)
 	$(XSUBPP) dl_netware.xs > $(*B).c
 	cd ..\..\netware
