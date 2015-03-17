@@ -1,8 +1,8 @@
-/* XSLoader.c - XSLoader.pm converted to c to reuse DynaLoader code
+/* XSLoader.c - XSLoader.pm converted to c, reusing DynaLoader code
  *
  * This was previously in dist/XSLoader as external module, but
  * maintained by p5p.
- * So far it's no standalone .c file, it is included with
+ * So far it's not a standalone .c file, it is included with
  * DynaLoader.c, dlboot.c, dlutils.c into one DynaLoader.o
  *
  * Copyright (C) 2015 cPanel Inc
@@ -18,6 +18,7 @@ XS(XS_XSLoader_load) {
 
     if (items < 1) {
       const PERL_CONTEXT *cx = caller_cx(0, NULL);
+      DLax("load()");
       if (cx && SvTYPE(CopSTASH(cx->blk_oldcop)) == SVt_PVHV) {
         stash = CopSTASH(cx->blk_oldcop);
         module = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash), HvNAMEUTF8(stash));
@@ -31,6 +32,7 @@ XS(XS_XSLoader_load) {
     else {
       DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load '%s' %d args\n",
               TOPpx, items));
+      DLax("load args");
       module = TOPs;
     }
 

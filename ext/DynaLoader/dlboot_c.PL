@@ -213,7 +213,6 @@ print OUT line_prefix(__LINE__, <<'EOT');
         if (!get_cv("DynaLoader::boot_DynaLoader", 0))
             PerlIO_printf(Perl_debug_log, "DynaLoader not linked into this perl\n");
     }
-    DLax("dl_boot");
 #endif
 }
 EOT
