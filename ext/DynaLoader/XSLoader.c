@@ -17,28 +17,51 @@ XS(XS_XSLoader_load) {
     CV *bootc;
 
     if (items < 1) {
-      const PERL_CONTEXT *cx = caller_cx(0, NULL);
-      DLax("load()");
-      if (cx && SvTYPE(CopSTASH(cx->blk_oldcop)) == SVt_PVHV) {
-        stash = CopSTASH(cx->blk_oldcop);
-        module = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash), HvNAMEUTF8(stash));
-        DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load from caller '%s'\n",
-                HvNAME(stash)));
-      }
-      else {
-        Perl_die(aTHX_ "Missing caller context in XSLoader::load. No package found.\n");
-      }
+        const PERL_CONTEXT *cx = caller_cx(0, NULL);
+        DLax("load()");
+        if (cx && SvTYPE(CopSTASH(cx->blk_oldcop)) == SVt_PVHV) {
+            stash = CopSTASH(cx->blk_oldcop);
+            module = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash), HvNAMEUTF8(stash));
+            DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load from caller '%s'\n",
+                    HvNAME(stash)));
+        }
+        else {
+            Perl_die(aTHX_ "Missing caller context in XSLoader::load. No package found.\n");
+        }
     }
     else {
-      DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load '%s' %d args\n",
-              TOPpx, items));
-      DLax("load args");
-      module = TOPs;
+        DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load '%s' %d args\n",
+                TOPpx, items));
+        DLax("load args");
+        module = TOPs;
+#if 1
+        /* XXX HACK! */
+        if (SvPOK(module)) {
+            const char *modulename = SvPVX(module);
+            if (modulename[0] >= '0' && modulename[0] <= '9' && SvPOK(ST(-1))) {
+                DLDEBUG(1,PerlIO_printf(Perl_debug_log,
+                        "!! ax corruption. wrong package \"%s\"\n",
+                        modulename));
+                goto hack;
+            }
+        }
+        else if (SvNOK(module) && SvPOK(ST(-1))) {
+            DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! ax corruption %g\n",
+                    TOPn));
+        hack:
+            ax--;
+            PL_stack_sp--;
+            MARK--;
+            module = ST(0);
+            DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! module %s\n",
+                    SvPVX(module)));
+        }
+#endif
     }
 
     boots = pv_copy(module);
     sv_catpvs(boots, "::bootstrap");
-    if ((bootc = get_cv(SvPVx_nolen_const(boots), 0))) {
+    if ((bootc = get_cv(SvPV_nolen_const(boots), 0))) {
       DLax("goto &boots");
       PUSHMARK(SP - items); /* goto &$boots */
       XSRETURN(call_sv(MUTABLE_SV(bootc), GIMME));
@@ -52,6 +75,7 @@ XS(XS_XSLoader_load) {
     my ($caller, $modlibname) = caller();
     XXX and now switch over to DynaLoader
     */
+    XSRETURN_UNDEF;
 }
 
 XS(XS_XSLoader_load_file) {

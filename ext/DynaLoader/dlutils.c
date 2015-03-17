@@ -210,7 +210,7 @@ XS(XS_DynaLoader_bootstrap_inherit)
             else
                 isa = newAV();
             AV_PUSH(isa, newSVpvs("DynaLoader"));
-            DLDEBUG(2,PerlIO_printf(Perl_debug_log, "@%s=(%s)\n", s, av_tostr(isa)));
+            DLDEBUG(2,PerlIO_printf(Perl_debug_log, "@%s=(%s)\n", s, av_tostr(aTHX_ isa)));
             SAVEFREESV(isa);
         }
         PUSHMARK(SP);
@@ -232,7 +232,8 @@ XS(XS_DynaLoader_bootstrap)
     SV *xs = NULL;
     I32 nret;
 
-    DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap '%s' %d args\n", SvPV(ST(0)), items));
+    DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap '%s' %d args\n",
+            TOPpx, items));
     if (items < 1 || !SvPOK(ST(0)))
         Perl_die(aTHX_ "Usage: DynaLoader::bootstrap($packagename [ ,$VERSION ])\n");
     module = ST(0);
@@ -252,12 +253,15 @@ XS(XS_DynaLoader_bootstrap)
         }
         else if (SvNOK(module) && SvPOK(ST(-1))) {
             DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap stack corruption %g\n",
-                    SvNV(ST(0)));
+                    TOPn));
           hack:
             ax--;
-            module = ST(0);
+            sp--;
+            MARK--;
+            PUTBACK;
+            module = TOPs;
             DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! DynaLoader::bootstrap module %s\n",
-                    SvPV(module));
+                    TOPpx));
         }
     }
 #endif
@@ -485,7 +489,8 @@ XS(XS_DynaLoader_bootstrap)
             libref = POPs;
         else
             libref = NULL;
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got libref=%lx\n", libref ? SvIVX(libref) : 0));
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got libref=%lx\n",
+                libref ? SvIVX(libref) : 0));
     }
     if (!libref) {
         SaveError(aTHX_ "Can't load '%s' for module %s: %s", file, modulename, dlerror());
@@ -511,7 +516,7 @@ XS(XS_DynaLoader_bootstrap)
                 if (SvPOK(sym))
                     AV_PUSH(unresolved, sym);
             }
-            SaveError(aTHX_ "Undefined symbols present after loading %s: %s\n", SvPVX(file), av_tostr(unresolved));
+            SaveError(aTHX_ "Undefined symbols present after loading %s: %s\n", SvPVX(file), av_tostr(aTHX_ unresolved));
             Perl_die(aTHX_ dl_last_error);
         }
     }
@@ -661,7 +666,7 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
         items = call_sv(dl_find_symbol, G_SCALAR);
         SPAGAIN;
         if (items == 1 && SvIOK(TOPs)) {
-            DLDEBUG(2,PerlIO_printf(Perl_debug_log, "  symbolref = 0x%lx\n", SvIVX(TOPs)));
+            DLDEBUG(2,PerlIO_printf(Perl_debug_log, "  symbolref = 0x%lx\n", TOPi));
             XSRETURN(1);
         }
     }
@@ -989,7 +994,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
     SvREFCNT_dec_NN(dirs);
     if (gimme != G_ARRAY) {
         DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_findfile found (%s)\n",
-                                av_tostr(found)));
+                                av_tostr(aTHX_ found)));
         return AvFILLp(found)>=0 ? AvARRAY(found)[0] : NULL;
     }
     return (SV*)found;
