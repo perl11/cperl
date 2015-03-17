@@ -1,4 +1,6 @@
 # ignore generated .c files, and other module build traces
+!DynaLoader/dlutils.c
+!DynaLoader/XSLoader.c
 *.c
 *.bs
 blib
