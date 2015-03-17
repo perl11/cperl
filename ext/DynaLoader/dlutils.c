@@ -45,6 +45,12 @@ typedef struct {
 #endif
 } my_cxt_t;
 
+
+/* DynaLoader globals */
+AV *dl_require_symbols;      /* names of symbols we need */
+AV *dl_resolve_using;        /* names of files to link with */
+AV *dl_library_path;         /* path to look for files */
+
 EXTERN_C void dl_boot (pTHX);
 
 START_MY_CXT
@@ -72,6 +78,12 @@ START_MY_CXT
 #else
 #define DLDEBUG(level,code)	NOOP
 #endif
+
+#define pv_copy(pv)     newSVpvn_flags(SvPVX(pv), SvCUR(pv), SvUTF8(pv))
+#define fn_exists(fn)   (PerlLIO_stat(fn, &PL_statcache) >= 0  \
+                     && (S_ISLNK(PL_statcache.st_mode) || S_ISREG(PL_statcache.st_mode)))
+#define dir_exists(dir) (PerlLIO_stat(dir, &PL_statcache) >= 0 && S_ISDIR(PL_statcache.st_mode))
+
 
 #ifdef DL_UNLOAD_ALL_AT_EXIT
 /* Close all dlopen'd files */
@@ -1000,3 +1012,6 @@ static char * av_tostr(pTHX_ AV *args) {
     }
     return SvPVX(pv);
 }
+
+#include "XSLoader.c"
+

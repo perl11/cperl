@@ -63,16 +63,9 @@ print OUT line_prefix(__LINE__, <<'EOT');
 
 /* DynaLoader globals */
 SV *do_expand;               /* if to call dl_expandspec hook */
-AV *dl_require_symbols;      /* names of symbols we need */
-AV *dl_resolve_using;        /* names of files to link with */
-AV *dl_library_path;         /* path to look for files */
 /* dl_debug;                 -- IV from $ENV{PERL_DL_DEBUG}, stored in CTX */
 
 #define AV_PUSH(av, val) av_store(av, AvFILLp(av)+1, val)
-#define fn_exists(fn) (PerlLIO_stat(fn, &PL_statcache) >= 0              \
-                   && (S_ISLNK(PL_statcache.st_mode) || S_ISREG(PL_statcache.st_mode)))
-#define dir_exists(dir) (PerlLIO_stat(dir, &PL_statcache) >= 0 && S_ISDIR(PL_statcache.st_mode))
-#define pv_copy(pv)     newSVpvn_flags(SvPVX(pv), SvCUR(pv), SvUTF8(pv))
 #ifdef DEBUGGING
 #define DLax(s)    DLDEBUG(1,PerlIO_printf(Perl_debug_log, "%20s ax: %d sp: %p, mark: %p, base: %p\n",\
                                s, ax, PL_stack_sp, mark, PL_stack_base))
@@ -84,6 +77,8 @@ AV *dl_library_path;         /* path to look for files */
 #  define DL_DO_EXPAND 0
 #endif
 static const char file[]  = __FILE__;
+static const char utilsfile[]  = "dsutils.c";
+static const char xsloaderfile[]  = "XSLoader.c";
 const char pthsep[]       = PATH_SEP;
 const char ldlibpthname[] = LDLIBPTHNAME;
 
@@ -99,6 +94,9 @@ PERL_XS_EXPORT_C void XS_DynaLoader_dl_find_symbol_anywhere(pTHX_ CV *cv);
 #ifdef HAS_LIBNAME_UNIQUE
 PERL_XS_EXPORT_C void XS_DynaLoader_mod2fname(pTHX_ CV *cv);
 #endif
+PERL_XS_EXPORT_C void XS_XSLoader_load(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_XSLoader_load_file(pTHX_ CV *cv);
+PERL_XS_EXPORT_C void XS_XSLoader_bootstrap_inherit(pTHX_ CV *cv);
 
 EXTERN_C void
 dl_boot (pTHX) {
@@ -139,16 +137,20 @@ print OUT line_prefix(__LINE__, <<"EOT");
     Perl_set_version(aTHX_ STR_WITH_LEN("DynaLoader::VERSION"), STR_WITH_LEN("$VERSION"), $NUMVER);
 EOT
 print OUT line_prefix(__LINE__, <<'EOT');
-    newXS("DynaLoader::bootstrap_inherit", XS_DynaLoader_bootstrap_inherit, file);
-    newXS("DynaLoader::bootstrap",         XS_DynaLoader_bootstrap, file);
-    newXS("DynaLoader::dl_findfile",       XS_DynaLoader_dl_findfile, file);
+    newXS("DynaLoader::bootstrap_inherit", XS_DynaLoader_bootstrap_inherit, utilsfile);
+    newXS("DynaLoader::bootstrap",         XS_DynaLoader_bootstrap, utilsfile);
+    newXS("DynaLoader::dl_findfile",       XS_DynaLoader_dl_findfile, utilsfile);
 #ifndef VMS
-    newXS("DynaLoader::dl_expandspec",     XS_DynaLoader_dl_expandspec, file);
+    newXS("DynaLoader::dl_expandspec",     XS_DynaLoader_dl_expandspec, utilsfile);
 #endif
-    newXS("DynaLoader::dl_find_symbol_anywhere", XS_DynaLoader_dl_find_symbol_anywhere, file);
+    newXS("DynaLoader::dl_find_symbol_anywhere", XS_DynaLoader_dl_find_symbol_anywhere, utilsfile);
 #ifdef HAS_LIBNAME_UNIQUE
-    newXS("DynaLoader::mod2fname", 	   XS_DynaLoader_mod2fname, file);
+    newXS("DynaLoader::mod2fname", 	   XS_DynaLoader_mod2fname, utilsfile);
 #endif
+
+    newXS("xXSLoader::load",                XS_XSLoader_load, xsloaderfile);
+    newXS("xXSLoader::load_file",           XS_XSLoader_load_file, xsloaderfile);
+    newXS("xXSLoader::bootstrap_inherit",   XS_XSLoader_bootstrap_inherit, xsloaderfile);
 
     /* with duplicates removed and symlinks resolved from $Config{libpth} */
 EOT
