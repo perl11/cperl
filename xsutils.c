@@ -596,7 +596,7 @@ static void _attributes__push_fetch(SV *sv)
         }
 	if (cvflags & CVf_TYPED) {
             HV *typestash = CvTYPE((CV*)sv);
-            XPUSHs(newSVpvn_flags(HvNAME(typestash)+6, HvNAMELEN(typestash)-6, SVs_TEMP));
+            XPUSHs(newSVpvn_flags(HvNAME(typestash)+6, HvNAMELEN(typestash)-6, SVs_TEMP|HvNAMEUTF8(typestash)));
         }
 	break;
     }
