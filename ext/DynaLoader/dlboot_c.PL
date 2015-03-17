@@ -74,6 +74,7 @@ SV *do_expand;               /* if to call dl_expandspec hook */
 #endif
 static const char file[]  = __FILE__;
 static const char utilsfile[]  = "dsutils.c";
+static const char xsloaderfile[]  = "XSLoader.c";
 const char pthsep[]       = PATH_SEP;
 const char ldlibpthname[] = LDLIBPTHNAME;
 
@@ -89,6 +90,9 @@ PERL_CALLCONV void XS_DynaLoader_dl_find_symbol_anywhere(pTHX_ CV *cv);
 #ifdef HAS_LIBNAME_UNIQUE
 PERL_CALLCONV void XS_DynaLoader_mod2fname(pTHX_ CV *cv);
 #endif
+PERL_CALLCONV void XS_XSLoader_load(pTHX_ CV *cv);
+PERL_CALLCONV void XS_XSLoader_load_file(pTHX_ CV *cv);
+PERL_CALLCONV void XS_XSLoader_bootstrap_inherit(pTHX_ CV *cv);
 
 EXTERN_C void
 dl_boot (pTHX) {
@@ -136,6 +140,10 @@ print OUT line_prefix(__LINE__, <<'EOT');
 #ifdef HAS_LIBNAME_UNIQUE
     newXS("DynaLoader::mod2fname", 	   XS_DynaLoader_mod2fname, utilsfile);
 #endif
+
+    newXS("xXSLoader::load",                XS_XSLoader_load, xsloaderfile);
+    newXS("xXSLoader::load_file",           XS_XSLoader_load_file, xsloaderfile);
+    newXS("xXSLoader::bootstrap_inherit",   XS_XSLoader_bootstrap_inherit, xsloaderfile);
 
     /* with duplicates removed and symlinks resolved from $Config{libpth} */
 EOT

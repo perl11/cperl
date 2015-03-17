@@ -1072,3 +1072,4 @@ static char * av_tostr(pTHX_ AV *args) {
     return SvPVX(pv);
 }
 
+#include "XSLoader.c"
