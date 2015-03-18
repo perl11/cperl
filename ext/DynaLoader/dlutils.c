@@ -196,7 +196,7 @@ XS(XS_DynaLoader_bootstrap_inherit)
     dVAR; dXSARGS;
     AV* isa;
     if (items < 1 || !SvPOK(TOPs))
-        Perl_die(aTHX_ "Usage: DynaLoader::bootstrap_inherit($packagename [, $VERSION])\n");
+        Perl_die(aTHX_ "Usage: DynaLoader::bootstrap_inherit($packagename [,$VERSION])\n");
     {
         SV *module_isa = pv_copy(TOPs);
         char *s;
@@ -215,8 +215,9 @@ XS(XS_DynaLoader_bootstrap_inherit)
             DLDEBUG(2,PerlIO_printf(Perl_debug_log, "@%s=(%s)\n", s, av_tostr(aTHX_ isa)));
             SAVEFREESV(isa);
         }
-        PUSHMARK(SP);
+        PUSHMARK(MARK);
         DLax("inherit");
+        PUTBACK;
         items = call_pv("DynaLoader::bootstrap", GIMME);
         FREETMPS;
         LEAVE_with_name("bootstrap");
@@ -295,7 +296,7 @@ XS(XS_DynaLoader_bootstrap)
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap '%s' %d args\n",
             TOPpx, items));
     if (items < 1 || !SvPOK(ST(0)))
-        Perl_die(aTHX_ "Usage: DynaLoader::bootstrap($packagename [ ,$VERSION ])\n");
+        Perl_die(aTHX_ "Usage: DynaLoader::bootstrap($packagename [,$VERSION])\n");
     module = ST(0);
 
 #if 1
@@ -453,9 +454,8 @@ XS(XS_DynaLoader_dl_findfile)
     dVAR; dXSARGS;
     AV *args = av_make(items, SP);
     SV *file = dl_findfile(aTHX_ args, GIMME);
-    if (!file) {
+    if (!file)
       XSRETURN_UNDEF;
-    }
     SP -= items;
     if (GIMME == G_SCALAR) {
         XPUSHs(file);
@@ -756,10 +756,8 @@ dl_load_file(pTHX_ SV* file, SV *module, int gimme)
     {
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter &%s::bootstrap CV<%p> with %d args\n",
                                 modulename, xs, items));
-        SP = MARK + (items-1);
+        SP -= items;
         PUSHMARK(SP);
-        MARK = SP;
-        /* XPUSHs(module); while (items-- > 1) XPUSHs(*++MARK);*/
         PUTBACK;
         return call_sv(xs, gimme);
     }

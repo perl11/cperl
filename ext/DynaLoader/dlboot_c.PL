@@ -67,6 +67,9 @@ SV *do_expand;               /* if to call dl_expandspec hook */
 
 #define AV_PUSH(av, val) av_store(av, AvFILLp(av)+1, val)
 #ifdef DEBUGGING
+/* ax is the absolute stack offset. (MARK - base + 1) */
+/* MARK is base + ax++, ax is kept in *PL_markstack_ptr scope. */
+/* SP the lower stack point (= base[ax]), MARK is the upper stack point */
 #define DLax(s)    DLDEBUG(1,PerlIO_printf(Perl_debug_log, "%20s ax: %d sp: %p, mark: %p, base: %p\n",\
                                s, ax, PL_stack_sp, mark, PL_stack_base))
 #endif

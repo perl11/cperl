@@ -67,25 +67,18 @@ XS(XS_XSLoader_load) {
     sv_catpvs(boots, "::bootstrap");
     if ((bootc = get_cv(SvPV_nolen_const(boots), 0))) {
       DLax("goto &boots");
-      PUSHMARK(SP - items); /* goto &$boots */
+      PUSHMARK(MARK); /* goto &$boots */
       XSRETURN(call_sv(MUTABLE_SV(bootc), GIMME));
     }
     if (!module) {
       xsl_bsinherit:
-        DLax("goto &dl::bootstrap_inherit");
-        PUSHMARK(SP - items);
+        DLax("goto &dl::bs_inherit");
+        PUSHMARK(MARK);
         XSRETURN(call_pv("DynaLoader::bootstrap_inherit", GIMME));
     }
     if (!modlibname) {
-        SPAGAIN;
-        PUSHMARK(SP);
-        XPUSHs(TOPs);
-        if (items > 1) {
-            SP--;
-            XPUSHs(TOPs);
-            SP--;
-        }
-        PUTBACK;
+        DLax("goto &dl::bootstrap_inherit");
+        PUSHMARK(MARK);
         XSRETURN(call_pv("DynaLoader::bootstrap", GIMME));
     }
     modparts = dl_split_modparts(aTHX_ module);
@@ -143,8 +136,9 @@ XS(XS_XSLoader_bootstrap_inherit) {
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::bootstrap_inherit '%s' %d args\n",
             TOPpx, items));
     if (items < 1 || !SvPOK(TOPs))
-        Perl_die(aTHX_ "Usage: XSLoader::bootstrap_inherit($packagename [ ,$VERSION ])\n");
-    PUSHMARK(SP - items);
+        Perl_die(aTHX_ "Usage: XSLoader::bootstrap_inherit($packagename [,$VERSION])\n");
+    PUSHMARK(MARK);
     DLax("inherit");
+    PUTBACK;
     XSRETURN(call_pv("DynaLoader::bootstrap_inherit", GIMME));
 }
