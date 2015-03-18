@@ -52,6 +52,8 @@ AV *dl_resolve_using;        /* names of files to link with */
 AV *dl_library_path;         /* path to look for files */
 
 EXTERN_C void dl_boot (pTHX);
+static AV*    dl_split_modparts (pTHX_ SV* module);
+static int    dl_load_file(pTHX_ SV* file, SV *module, int gimme);
 
 START_MY_CXT
 
@@ -221,16 +223,74 @@ XS(XS_DynaLoader_bootstrap_inherit)
         XSRETURN(items);
     }
 }
+
+/*
+  now start splitting and walking modparts /::/
+  module => ($modpname... /$modfname)
+*/
+static AV*
+dl_split_modparts (pTHX_ SV* module) {
+    AV *modparts = newAV();
+    char *mn  = SvPVX(module);
+    char *cur = mn;
+    int  utf8 = SvUTF8(module);
+    for (;; cur++) {
+        if (!*cur) {
+            AV_PUSH(modparts, newSVpvn_flags(mn, cur-mn, utf8));
+            break;
+        }
+        else if (*cur == ':' && *(cur-1) == ':') {
+            AV_PUSH(modparts, newSVpvn_flags(mn, cur-mn-1, utf8));
+            mn = cur + 1;
+        }
+    }
+    return modparts;
+}
+
+static SV*
+dl_construct_modpname(pTHX_ AV* modparts) {
+    dSP;
+    IV i;
+    SV *modpname;
+    SV *modfname = AvARRAY(modparts)[AvFILLp(modparts)];
+
+    /* Some systems have restrictions on files names for DLL's etc.
+       mod2fname returns appropriate file base name (typically truncated).
+       It may also edit @modparts if required. */
+    CV *mod2fname = get_cv("DynaLoader::mod2fname", 0);
+    if (mod2fname) {
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter mod2fname with '%s'\n", SvPVX(modfname)));
+        SPAGAIN;
+        PUSHMARK(SP);
+        PUTBACK;
+        XPUSHs(newRV((SV*)modparts));
+        call_sv((SV*)mod2fname, G_SCALAR);
+        SPAGAIN;
+        modfname = POPs;
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Got mod2fname => '%s'\n", SvPVX(modfname)));
+    }
+#ifdef NETWARE
+    /* Truncate the module name to 8.3 format for NetWare */
+    if (SvCUR(modfname) > 8)
+	SvCUR_set((modfname, 8);
+#endif
+    modpname = newSVpvs("");
+    for (i=0; i<=AvFILLp(modparts)-1; i++) {
+        sv_catsv(modpname, AvARRAY(modparts)[i]);
+        sv_catpvs(modpname, "/");
+    }
+    sv_catsv(modpname, AvARRAY(modparts)[AvFILLp(modparts)]);
+    return modpname;
+}
+
 XS(XS_DynaLoader_bootstrap)
 {
     dVAR; dXSARGS;
-    IV i, flags = 0;
+    IV i;
     char *modulename;
-    CV *dl_load_file, *dl_find_symbol, *mod2fname;
+    CV *cv_load_file;
     AV *modparts, *dirs;
-    SV *module, *modfname, *modpname, *file, *bootname, *libref, *boot_symbol_ref, *flagsiv;
-    SV *xs = NULL;
-    I32 nret;
+    SV *module, *modfname, *modpname, *file;
 
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap '%s' %d args\n",
             TOPpx, items));
@@ -266,8 +326,8 @@ XS(XS_DynaLoader_bootstrap)
     }
 #endif
     modulename = SvPVX(module);
-    dl_load_file = get_cv("DynaLoader::dl_load_file", 0);
-    if (!dl_load_file) {
+    cv_load_file = get_cv("DynaLoader::dl_load_file", 0);
+    if (!cv_load_file) {
       Perl_die(aTHX_ "Can't load module %s, dynamic loading not available in this perl.\n"
                "  (You may need to build a new perl executable which either supports\n"
                "  dynamic loading or has the %s module statically linked into it.)\n",
@@ -280,53 +340,14 @@ XS(XS_DynaLoader_bootstrap)
         Perl_die(aTHX_ "Dynaloaded Perl modules are not available in this build of Perl");
 #endif
 
-    /* now start splitting and walking modparts /::/ (no utf8 yet) */
-    modparts = newAV();
-    {
-        char *mn = SvPVX(module);
-        char *cur = mn;
-        int utf8 = SvUTF8(module);
-        for (;; cur++) {
-            if (!*cur) {
-                AV_PUSH(modparts, newSVpvn_flags(mn, cur-mn, utf8));
-                break;
-            }
-            else
-            if (*cur == ':' && *(cur-1) == ':') {
-                AV_PUSH(modparts, newSVpvn_flags(mn, cur-mn-1, utf8));
-                mn = cur + 1;
-            }
-        }
-    }
+    /* now start splitting and walking modparts /::/ */
+    modparts = dl_split_modparts(aTHX_ module);
     modfname = AvARRAY(modparts)[AvFILLp(modparts)];
+    modpname = dl_construct_modpname(aTHX_ modparts);
 
-    /* Some systems have restrictions on files names for DLL's etc.
-       mod2fname returns appropriate file base name (typically truncated).
-       It may also edit @modparts if required. */
-    mod2fname = get_cv("DynaLoader::mod2fname", 0);
-    if (mod2fname) {
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter mod2fname with '%s'\n", SvPVX(modfname)));
-        PUSHMARK(SP);
-        PUTBACK;
-        XPUSHs(newRV((SV*)modparts));
-        call_sv((SV*)mod2fname, G_SCALAR);
-        SPAGAIN;
-        modfname = POPs;
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Got mod2fname => '%s'\n", SvPVX(modfname)));
-    }
-#ifdef NETWARE
-    /* Truncate the module name to 8.3 format for NetWare */
-    if (SvCUR(modfname) > 8)
-	SvCUR_set((modfname, 8);
-#endif
-    modpname = newSVpvs("");
-    for (i=0; i<=AvFILLp(modparts)-1; i++) {
-        sv_catsv(modpname, AvARRAY(modparts)[i]);
-        sv_catpvs(modpname, "/");
-    }
-    sv_catsv(modpname, AvARRAY(modparts)[AvFILLp(modparts)]);
     DLDEBUG(1, PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap for %s "
         "(auto/%s/%s%s)\n", modulename, SvPVX(modpname), SvPVX(modfname), DLEXT));
+
     SvREFCNT_inc_NN(modfname);
     SvREFCNT_dec(modparts);
 
@@ -420,164 +441,10 @@ XS(XS_DynaLoader_bootstrap)
     } else {
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Found %s\n", SvPVX(file)));
     }
-
-#if defined(VMS) && defined(HAS_VMS_CASE_SENSITIVE_SYMBOLS)
-    if (!SvUTF8(file)) {
-        /* no utf8 or multibyte! */
-        char *fn = SvPVX(file);
-	for (; *fn; fn++)
-#ifdef USE_LOCALE_CTYPE
-            *fn = (U8)toUPPER_LC(*fn);
-#else
-            *fn = (U8)toUPPER(*fn);
-#endif
+    if ((items = dl_load_file(aTHX_ file, module, GIMME))) {
+        XSRETURN(items);
     } else {
-      /* call pp_uc */
-      SV *savestack = *Perl_stack_sp;
-      *Perl_stack_sp = file;
-      Perl_pp_uc();
-      file = *Perl_stack_sp;
-      *Perl_stack_sp = savestack;
-    }
-#endif
-
-    bootname = newSVpvs("boot_");
-    sv_catsv(bootname, module);
-    for (i=5; i<(IV)SvCUR(bootname); i++) { /* $bootname =~ s/\W/_/g; */
-        char *s = SvPVX(bootname);
-        if (!isALNUMC_A(s[i]))
-            s[i] = '_';
-    }
-    av_store(dl_require_symbols, 0, bootname);
-    dl_find_symbol = get_cv("DynaLoader::dl_find_symbol", 0);
-
-    /* TODO .bs support, call flags method */
-    flagsiv = newSViv(flags);
-
-    {
-        char *save_last_error = dl_last_error;
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_find_symbol with 0, '%s'\n",
-                                SvPVX(bootname)));
-        PUSHMARK(SP);
-        XPUSHs(newSViv(0)); /* first try empty library handle, may already be loaded */
-        XPUSHs(bootname);
-        XPUSHs(newSViv(1)); /* ignore error, cperl only */
-        PUTBACK;
-        nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
-        SPAGAIN;
-        if (nret == 1 && SvIOK(TOPs))
-            boot_symbol_ref = POPs;
-        else
-            boot_symbol_ref = NULL;
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got loaded boot_symbol_ref => %lx\n",
-            boot_symbol_ref ? SvIVX(boot_symbol_ref) : 0));
-        if (boot_symbol_ref)
-            goto boot;
-        dl_last_error = save_last_error;
-    }
-
-    {
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_load_file with '%s' %ld\n",
-                                SvPVX(file), flags));
-        PUSHMARK(SP);
-        XPUSHs(file);
-        XPUSHs(flagsiv);
-        PUTBACK;
-        nret = call_sv((SV*)dl_load_file, G_SCALAR);
-        SPAGAIN;
-        if (nret == 1 && SvIOK(TOPs))
-            libref = POPs;
-        else
-            libref = NULL;
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got libref=%lx\n",
-                libref ? SvIVX(libref) : 0));
-    }
-    if (!libref) {
-        SaveError(aTHX_ "Can't load '%s' for module %s: %s", file, modulename, dlerror());
-#ifdef carp_shortmess
-        Perl_die(aTHX_ SvPVX_const(carp_shortmess(ax, MY_CXT.x_dl_last_error)));
-#else
-        Perl_die(aTHX_ dl_last_error);
-#endif
-    }
-    {
-        AV *dl_librefs = get_av("DynaLoader::dl_librefs", GV_ADDMULTI);
-        AV_PUSH(dl_librefs, libref); /* record loaded object */
-    }
-    {
-        PUSHMARK(SP);
-        PUTBACK;
-        nret = call_pv("DynaLoader::dl_undef_symbols", G_ARRAY);
-        SPAGAIN;
-        if (nret > 0) {
-            AV *unresolved = newAV();
-            for (i=0; i<nret; i++) {
-                SV *sym = POPs;
-                if (SvPOK(sym))
-                    AV_PUSH(unresolved, sym);
-            }
-            SaveError(aTHX_ "Undefined symbols present after loading %s: %s\n", SvPVX(file), av_tostr(aTHX_ unresolved));
-            Perl_die(aTHX_ dl_last_error);
-        }
-    }
-    {
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_find_symbol with %p '%s'\n",
-                                libref, SvPVX(bootname)));
-        PUSHMARK(SP);
-        XPUSHs(libref);
-        XPUSHs(bootname);
-        PUTBACK;
-        nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
-        SPAGAIN;
-        if (nret == 1 && SvIOK(TOPs))
-            boot_symbol_ref = POPs;
-        else
-            boot_symbol_ref = NULL;
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got boot_symbol_ref => %lx\n",
-                                boot_symbol_ref ? SvIVX(boot_symbol_ref) : 0));
-    }
-    if (!boot_symbol_ref) {
-        Perl_die(aTHX_ "Can't find '%s' symbol in %s\n", SvPVX(bootname), SvPVX(file));
-    }
-    {
-        AV *dl_modules = get_av("DynaLoader::dl_modules", GV_ADDMULTI);
-        AV_PUSH(dl_modules, pv_copy(module)); /* record loaded module */
-    }
-
-    {
-        CV *dl_install_xsub = get_cv("DynaLoader::dl_install_xsub", 0);
-        SV *bootstrap = newSVpvs("");
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_install_xsub with %s::bootstrap %lx %s\n",
-                                modulename, SvIVX(boot_symbol_ref), SvPVX(file)));
-        PUSHMARK(SP);
-        sv_catsv(bootstrap, module);
-        sv_catpvs(bootstrap, "::bootstrap");
-        XPUSHs(bootstrap);
-        XPUSHs(boot_symbol_ref);
-        XPUSHs(file);
-        PUTBACK;
-        nret = call_sv((SV*)dl_install_xsub, G_SCALAR);
-        SPAGAIN;
-        if (nret == 1 && SvROK(TOPs))
-            xs = POPs;                /* cannot return NULL */
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got %s::bootstrap => CV<%p>\n",
-                                modulename, xs));
-    }
-    {
-        AV *dl_shared_objects = get_av("DynaLoader::shared_objects", GV_ADDMULTI);
-        AV_PUSH(dl_shared_objects, file); /* record loaded files */
-    }
-
-   boot:
-    {
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter &%s::bootstrap CV<%p> with %d args\n",
-                                modulename, xs, items));
-        SP = MARK + (items-1);
-        PUSHMARK(SP);
-        MARK = SP;
-        /* XPUSHs(module); while (items-- > 1) XPUSHs(*++MARK);*/
-        PUTBACK;
-        XSRETURN(call_sv(xs, GIMME));
+        XSRETURN_UNDEF;
     }
 }
 
@@ -720,6 +587,184 @@ XS(XS_DynaLoader_mod2fname)
     return libname;
 }
 #endif
+
+static int
+dl_load_file(pTHX_ SV* file, SV *module, int gimme)
+{
+    dSP;
+    IV i, nret, flags = 0;
+    CV *cv_load_file, *dl_find_symbol;
+    SV *bootname, *libref, *boot_symbol_ref, *flagsiv;
+    SV *xs = NULL;
+    char *modulename = SvPVX(module);
+
+    SV** mark       = PL_stack_base + TOPMARK;
+    const I32  ax   = (I32)(mark - PL_stack_base + 1);
+    dITEMS;
+
+#if defined(VMS) && defined(HAS_VMS_CASE_SENSITIVE_SYMBOLS)
+    if (!SvUTF8(file)) {
+        /* no utf8 or multibyte! */
+        char *fn = SvPVX(file);
+	for (; *fn; fn++)
+#ifdef USE_LOCALE_CTYPE
+            *fn = (U8)toUPPER_LC(*fn);
+#else
+            *fn = (U8)toUPPER(*fn);
+#endif
+    } else {
+      /* call pp_uc */
+      SV *savestack = *Perl_stack_sp;
+      *Perl_stack_sp = file;
+      Perl_pp_uc();
+      file = *Perl_stack_sp;
+      *Perl_stack_sp = savestack;
+    }
+#endif
+
+    bootname = newSVpvs("boot_");
+    sv_catsv(bootname, module);
+    for (i=5; i<(IV)SvCUR(bootname); i++) { /* $bootname =~ s/\W/_/g; */
+        char *s = SvPVX(bootname);
+        if (!isALNUMC_A(s[i]))
+            s[i] = '_';
+    }
+    av_store(dl_require_symbols, 0, bootname);
+    dl_find_symbol = get_cv("DynaLoader::dl_find_symbol", 0);
+
+    /* TODO .bs support, call flags method */
+    flagsiv = newSViv(flags);
+    {
+        char *save_last_error = dl_last_error;
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_find_symbol with 0, '%s'\n",
+                                SvPVX(bootname)));
+        SPAGAIN;
+        PUSHMARK(SP);
+        XPUSHs(newSViv(0)); /* first try empty library handle, may already be loaded */
+        XPUSHs(bootname);
+        XPUSHs(newSViv(1)); /* ignore error, cperl only */
+        PUTBACK;
+        nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
+        SPAGAIN;
+        if (nret == 1 && SvIOK(TOPs))
+            boot_symbol_ref = POPs;
+        else
+            boot_symbol_ref = NULL;
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got loaded boot_symbol_ref => %lx\n",
+            boot_symbol_ref ? SvIVX(boot_symbol_ref) : 0));
+        if (boot_symbol_ref)
+            goto boot;
+        dl_last_error = save_last_error;
+    }
+
+    {
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_load_file with '%s' %ld\n",
+                                SvPVX(file), flags));
+        cv_load_file = get_cv("DynaLoader::dl_load_file", 0);
+        PUSHMARK(SP);
+        XPUSHs(file);
+        XPUSHs(flagsiv);
+        PUTBACK;
+        nret = call_sv((SV*)cv_load_file, G_SCALAR);
+        SPAGAIN;
+        if (nret == 1 && SvIOK(TOPs))
+            libref = POPs;
+        else
+            libref = NULL;
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got libref=%lx\n",
+                libref ? SvIVX(libref) : 0));
+    }
+    if (!libref) {
+#ifdef carp_shortmess
+#endif
+        SaveError(aTHX_ "Can't load '%s' for module %s: %s", file, modulename, dlerror());
+#ifdef carp_shortmess
+        Perl_die(aTHX_ SvPVX_const(carp_shortmess(ax, MY_CXT.x_dl_last_error)));
+#else
+        Perl_die(aTHX_ dl_last_error);
+#endif
+    }
+    {
+        AV *dl_librefs = get_av("DynaLoader::dl_librefs", GV_ADDMULTI);
+        AV_PUSH(dl_librefs, libref); /* record loaded object */
+    }
+    {
+        PUSHMARK(SP);
+        PUTBACK;
+        nret = call_pv("DynaLoader::dl_undef_symbols", G_ARRAY);
+        SPAGAIN;
+        if (nret > 0) {
+            AV *unresolved = newAV();
+            for (i=0; i<nret; i++) {
+                SV *sym = POPs;
+                if (SvPOK(sym))
+                    AV_PUSH(unresolved, sym);
+            }
+            SaveError(aTHX_ "Undefined symbols present after loading %s: %s\n", SvPVX(file), av_tostr(aTHX_ unresolved));
+            Perl_die(aTHX_ dl_last_error);
+        }
+    }
+    {
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_find_symbol with %p '%s'\n",
+                                libref, SvPVX(bootname)));
+        PUSHMARK(SP);
+        XPUSHs(libref);
+        XPUSHs(bootname);
+        PUTBACK;
+        nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
+        SPAGAIN;
+        if (nret == 1 && SvIOK(TOPs))
+            boot_symbol_ref = POPs;
+        else
+            boot_symbol_ref = NULL;
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got boot_symbol_ref => %lx\n",
+                                boot_symbol_ref ? SvIVX(boot_symbol_ref) : 0));
+    }
+    if (!boot_symbol_ref) {
+        Perl_die(aTHX_ "Can't find '%s' symbol in %s\n", SvPVX(bootname), SvPVX(file));
+    }
+    {
+        AV *dl_modules = get_av("DynaLoader::dl_modules", GV_ADDMULTI);
+        AV_PUSH(dl_modules, pv_copy(module)); /* record loaded module */
+    }
+
+    {
+        CV *dl_install_xsub = get_cv("DynaLoader::dl_install_xsub", 0);
+        SV *bootstrap = newSVpvs("");
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_install_xsub with %s::bootstrap %lx %s\n",
+                                modulename, SvIVX(boot_symbol_ref), SvPVX(file)));
+        PUSHMARK(SP);
+        sv_catsv(bootstrap, module);
+        sv_catpvs(bootstrap, "::bootstrap");
+        XPUSHs(bootstrap);
+        XPUSHs(boot_symbol_ref);
+        XPUSHs(file);
+        PUTBACK;
+        nret = call_sv((SV*)dl_install_xsub, G_SCALAR);
+        SPAGAIN;
+        if (nret == 1 && SvROK(TOPs))
+            xs = POPs;                /* cannot return NULL */
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got %s::bootstrap => CV<%p>\n",
+                                modulename, xs));
+    }
+    {
+        AV *dl_shared_objects = get_av("DynaLoader::shared_objects", GV_ADDMULTI);
+        AV_PUSH(dl_shared_objects, file); /* record loaded files */
+    }
+
+   boot:
+    {
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter &%s::bootstrap CV<%p> with %d args\n",
+                                modulename, xs, items));
+        SP = MARK + (items-1);
+        PUSHMARK(SP);
+        MARK = SP;
+        /* XPUSHs(module); while (items-- > 1) XPUSHs(*++MARK);*/
+        PUTBACK;
+        return call_sv(xs, gimme);
+    }
+    return 0;
+}
 
 /* Read L<DynaLoader> for detailed information.
  * This function does not automatically consider the architecture

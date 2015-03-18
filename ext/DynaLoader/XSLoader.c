@@ -13,8 +13,10 @@
 XS(XS_XSLoader_load) {
     dVAR; dXSARGS;
     HV *stash;
-    SV *module = NULL, *boots;
+    SV *module = NULL, *modlibname = NULL, *file = NULL;
     CV *bootc;
+    AV *modparts;
+    SV *modfname, *modpname, *boots;
 
     if (items < 1) {
         const PERL_CONTEXT *cx = caller_cx(0, NULL);
@@ -22,8 +24,9 @@ XS(XS_XSLoader_load) {
         if (cx && SvTYPE(CopSTASH(cx->blk_oldcop)) == SVt_PVHV) {
             stash = CopSTASH(cx->blk_oldcop);
             module = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash), HvNAMEUTF8(stash));
-            DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load from caller '%s'\n",
-                    HvNAME(stash)));
+            modlibname = newSVpv(OutCopFILE(cx->blk_oldcop), 0);
+            DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load from caller '%s', '%s'\n",
+                    HvNAME(stash), SvPVX(modlibname)));
         }
         else {
             Perl_die(aTHX_ "Missing caller context in XSLoader::load. No package found.\n");
@@ -50,8 +53,9 @@ XS(XS_XSLoader_load) {
                     TOPn));
         hack:
             ax--;
-            PL_stack_sp--;
+            sp--;
             MARK--;
+            SPAGAIN;
             module = ST(0);
             DLDEBUG(1,PerlIO_printf(Perl_debug_log, "!! module %s\n",
                     SvPVX(module)));
@@ -67,15 +71,49 @@ XS(XS_XSLoader_load) {
       XSRETURN(call_sv(MUTABLE_SV(bootc), GIMME));
     }
     if (!module) {
-      DLax("goto &dl::bootstrap_inherit");
-      PUSHMARK(SP - items);
-      XSRETURN(call_pv("DynaLoader::bootstrap_inherit", GIMME));
+      xsl_bsinherit:
+        DLax("goto &dl::bootstrap_inherit");
+        PUSHMARK(SP - items);
+        XSRETURN(call_pv("DynaLoader::bootstrap_inherit", GIMME));
     }
-    /*
-    my ($caller, $modlibname) = caller();
-    XXX and now switch over to DynaLoader
-    */
-    XSRETURN_UNDEF;
+    if (!modlibname) {
+        SPAGAIN;
+        PUSHMARK(SP);
+        XPUSHs(TOPs);
+        if (items > 1) {
+            SP--;
+            XPUSHs(TOPs);
+            SP--;
+        }
+        PUTBACK;
+        XSRETURN(call_pv("DynaLoader::bootstrap", GIMME));
+    }
+    modparts = dl_split_modparts(aTHX_ module);
+    modfname = AvARRAY(modparts)[AvFILLp(modparts)];
+    modpname = dl_construct_modpname(aTHX_ modparts);
+    DLDEBUG(3,PerlIO_printf(Perl_debug_log, "modpname (%s) => '%s'\n",
+            av_tostr(aTHX_ modparts), SvPVX(file)));
+    file = modlibname;
+    sv_catpv(file, "auto/");
+    sv_catsv(file, modpname);
+    sv_catpv(file, "/");
+    sv_catsv(file, modfname);
+    sv_catpv(file, DLEXT);
+    SvREFCNT_inc_NN(modfname);
+    SvREFCNT_dec(modparts);
+
+    /* Note: No dl_expand support with XSLoader */
+    /* TODO no .bs support */
+    if (fn_exists(SvPVX(file))) {
+        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " found %s\n", SvPVX(file)));
+    } else {
+        goto xsl_bsinherit;
+    }
+    if ((items = dl_load_file(aTHX_ file, module, GIMME))) {
+        XSRETURN(items);
+    } else {
+        XSRETURN_UNDEF;
+    }
 }
 
 XS(XS_XSLoader_load_file) {
