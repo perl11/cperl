@@ -117,6 +117,24 @@ XS(XS_XSLoader_load) {
 }
 
 XS(XS_XSLoader_load_file) {
+    dVAR; dXSARGS;
+    SV *file, *module;
+
+    if (items < 2)
+        die("Usage: XSLoader::load_file($module, $file)\n");
+    module = POPs;
+    file = POPs;
+
+    if (fn_exists(SvPVX(file))) {
+        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " found %s\n", SvPVX(file)));
+    } else {
+        die("Error: load_file $file not found\n");
+    }
+    if ((items = dl_load_file(aTHX_ file, module, GIMME))) {
+        XSRETURN(items);
+    } else {
+        XSRETURN_UNDEF;
+    }
 }
 
 XS(XS_XSLoader_bootstrap_inherit) {
