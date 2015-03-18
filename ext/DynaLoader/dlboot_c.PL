@@ -151,7 +151,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
     newXS("DynaLoader::mod2fname", 	   XS_DynaLoader_mod2fname, utilsfile);
 #endif
 
-    newXS("XSLoader::load",                XS_XSLoader_load, xsloaderfile);
+    CvCALLER_on(newXS("XSLoader::load",    XS_XSLoader_load, xsloaderfile));
     newXS("XSLoader::load_file",           XS_XSLoader_load_file, xsloaderfile);
     newXS("XSLoader::bootstrap_inherit",   XS_XSLoader_bootstrap_inherit, xsloaderfile);
     (void)hv_store(GvHVn(PL_incgv), "XSLoader.pm", sizeof("XSLoader.pm")-1,

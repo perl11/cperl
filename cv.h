@@ -140,6 +140,7 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CVf_LEXICAL	0x10000 /* Omit package from name */
 #define CVf_ANONCONST	0x20000 /* :const without name - create anonconst op */
 #define CVf_TYPED	0x40000 /* Has return type */
+#define CVf_CALLER	0x80000 /* XS needs to store caller context */
 
 /* This symbol for optimised communication between toke.c and op.c: */
 #define CVf_BUILTIN_ATTRS	(CVf_METHOD|CVf_LVALUE|CVf_CONST|CVf_ANONCONST|CVf_TYPED)
@@ -231,6 +232,8 @@ See L<perlguts/Autoloading with XSUBs>.
 
 #define CvTYPED(cv)		(CvFLAGS(cv) & CVf_TYPED)
 #define CvTYPED_on(cv)		(CvFLAGS(cv) |= CVf_TYPED)
+#define CvCALLER(cv)		(CvFLAGS(cv) & CVf_CALLER)
+#define CvCALLER_on(cv)		(CvFLAGS(cv) |= CVf_CALLER)
 
 /* Flags for newXS_flags  */
 #define XS_DYNAMIC_FILENAME	0x01	/* The filename isn't static  */

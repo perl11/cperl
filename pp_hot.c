@@ -3077,7 +3077,7 @@ PP(pp_entersub)
     ENTER;
 
   retry:
-    if (UNLIKELY(CvCLONE(cv) && ! CvCLONED(cv)))
+    if (UNLIKELY(CvCLONE(cv) && !CvCLONED(cv)))
 	DIE(aTHX_ "Closure prototype called");
     if (UNLIKELY(!CvROOT(cv) && !CvXSUB(cv))) {
 	GV* autogv;
@@ -3210,6 +3210,18 @@ PP(pp_entersub)
     else {
 	SSize_t markix = TOPMARK;
 
+        /* add optional caller context information for this XS */
+        if (CvCALLER(cv)) {
+            dMARK;
+            I32 depth;
+            PUSHBLOCK(cx, CXt_SUB, MARK);
+            PUSHSUB(cx);
+            cx->blk_sub.retop = PL_op->op_next;
+            if (UNLIKELY((depth = ++CvDEPTH(cv)) >= 2)) {
+                PERL_STACK_OVERFLOW_CHECK();
+            }
+        }
+
 	SAVETMPS;
 	PUTBACK;
 
@@ -3278,6 +3290,12 @@ PP(pp_entersub)
                 PL_stack_sp = svp;
             }
 	}
+
+        if (CvCALLER(cv)) {
+            POPSUB(cx,sv);	/* Stack values are safe: release CV and @_ ... */
+            cxstack_ix--;
+            LEAVESUB(sv);
+        }
 	LEAVE;
 	return NORMAL;
     }

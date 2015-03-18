@@ -228,12 +228,12 @@ boot_Carp(pTHX_ SV *xsfile)
 
     Perl_set_version(aTHX_ STR_WITH_LEN("Carp::VERSION"), STR_WITH_LEN("2.00c"), 2.00);
 
-    newXS("Carp::croak",		XS_Carp_croak,	file);
-    newXS("Carp::confess",		XS_Carp_confess,file);
-    newXS("Carp::carp",			XS_Carp_carp,	file);
-    newXS("Carp::cluck",		XS_Carp_cluck,	file);
-    newXS("Carp::shortmess",		XS_Carp_shortmess, file);
-    newXS("Carp::longmess",		XS_Carp_longmess, file);
+    CvCALLER_on(newXS("Carp::croak",		XS_Carp_croak,	file));
+    CvCALLER_on(newXS("Carp::confess",		XS_Carp_confess,file));
+    CvCALLER_on(newXS("Carp::carp",		XS_Carp_carp,	file));
+    CvCALLER_on(newXS("Carp::cluck",		XS_Carp_cluck,	file));
+    CvCALLER_on(newXS("Carp::shortmess",	XS_Carp_shortmess, file));
+    CvCALLER_on(newXS("Carp::longmess",		XS_Carp_longmess, file));
     /*xs_incset(aTHX_ STR_WITH_LEN("Carp.pm"), xsfile); -- nope, we still need it */
 }
 

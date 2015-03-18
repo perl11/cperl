@@ -9,7 +9,10 @@
  * Licensed under the same terms as Perl itself.
  */
 
-/* A DynaLoader::bootstrap variant which takes the packagename name from caller() */
+/* XSLoader::load - A DynaLoader::bootstrap variant which takes the
+                    optional packagename from caller()
+   Marked as CvCALLER - a new feature for XSUBs, needed also for Carp.
+   Reuses many functions from DynaLoader */
 XS(XS_XSLoader_load) {
     dVAR; dXSARGS;
     HV *stash;
@@ -109,6 +112,8 @@ XS(XS_XSLoader_load) {
     }
 }
 
+/* XSLoader::load_file - A DynaLoader variant optimized when you already know
+   the path of the shared library. */
 XS(XS_XSLoader_load_file) {
     dVAR; dXSARGS;
     SV *file, *module;
@@ -130,6 +135,8 @@ XS(XS_XSLoader_load_file) {
     }
 }
 
+/* XSLoader::bootstrap_inherit - Just forwards to the DynaLoader method.
+   No special caller information is searched for */
 XS(XS_XSLoader_bootstrap_inherit) {
     dVAR; dXSARGS;
 
