@@ -94,7 +94,7 @@ XS(XS_XSLoader_load) {
     modparts = dl_split_modparts(aTHX_ module);
     modfname = AvARRAY(modparts)[AvFILLp(modparts)];
     modpname = dl_construct_modpname(aTHX_ modparts);
-    DLDEBUG(3,PerlIO_printf(Perl_debug_log, "modpname (%s) => '%s'\n",
+    DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  modpname (%s) => '%s'\n",
             av_tostr(aTHX_ modparts), SvPVX(modlibname)));
     file = pv_copy(modlibname);
 
@@ -131,9 +131,9 @@ XS(XS_XSLoader_load) {
     /* Note: No dl_expand support with XSLoader */
     /* TODO no .bs support */
     if (fn_exists(SvPVX(file))) {
-        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " found %s\n", SvPVX(file)));
+        DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  found '%s'\n", SvPVX(file)));
     } else {
-        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " not found %s\n", SvPVX(file)));
+        DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  not found '%s'\n", SvPVX(file)));
         goto xsl_bsinherit;
     }
     if ((items = dl_load_file(aTHX_ file, module, GIMME))) {
@@ -155,7 +155,7 @@ XS(XS_XSLoader_load_file) {
     file = POPs;
 
     if (fn_exists(SvPVX(file))) {
-        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " found %s\n", SvPVX(file)));
+        DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  found %s\n", SvPVX(file)));
     } else {
         die("Error: load_file $file not found\n");
     }

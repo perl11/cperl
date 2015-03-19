@@ -335,7 +335,6 @@ XS(XS_DynaLoader_bootstrap)
                "  dynamic loading or has the %s module statically linked into it.)\n",
                modulename, modulename);
     }
-    dl_require_symbols = get_av("DynaLoader::dl_require_symbols", GV_ADDMULTI);
 
 #ifdef OS2
     if (!SvTRUE_NN(get_sv("OS2::is_static")))
@@ -630,6 +629,7 @@ dl_load_file(pTHX_ SV* file, SV *module, int gimme)
         if (!isALNUMC_A(s[i]))
             s[i] = '_';
     }
+    dl_require_symbols = get_av("DynaLoader::dl_require_symbols", GV_ADDMULTI);
     av_store(dl_require_symbols, 0, bootname);
     dl_find_symbol = get_cv("DynaLoader::dl_find_symbol", 0);
 
