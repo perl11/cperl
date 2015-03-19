@@ -74,28 +74,58 @@ XS(XS_XSLoader_load) {
       XSRETURN(call_sv(MUTABLE_SV(bootc), GIMME));
     }
     if (!module) {
-      xsl_bsinherit:
+        if (modlibname) SvREFCNT_dec(modlibname);
         DLax("goto &dl::bs_inherit");
         PUSHMARK(MARK);
         XSRETURN(call_pv("DynaLoader::bootstrap_inherit", GIMME));
     }
     if (!modlibname) {
-        DLax("goto &dl::bootstrap_inherit");
-        PUSHMARK(MARK);
-        XSRETURN(call_pv("DynaLoader::bootstrap", GIMME));
+      xsl_bsinherit:
+        DLax("goto &dl::bs_inherit");
+        if (module) {
+            PUSHMARK(SP);
+            mXPUSHs(module);
+            PUTBACK;
+        } else {
+            PUSHMARK(MARK);
+        }
+        XSRETURN(call_pv("DynaLoader::bootstrap_inherit", GIMME));
     }
     modparts = dl_split_modparts(aTHX_ module);
     modfname = AvARRAY(modparts)[AvFILLp(modparts)];
     modpname = dl_construct_modpname(aTHX_ modparts);
     DLDEBUG(3,PerlIO_printf(Perl_debug_log, "modpname (%s) => '%s'\n",
-            av_tostr(aTHX_ modparts), SvPVX(file)));
-    file = modlibname;
+            av_tostr(aTHX_ modparts), SvPVX(modlibname)));
+    file = pv_copy(modlibname);
+
+    /* now step back @modparts+1 times: .../lib/Fcntl.pm => .../lib
+       my $c = () = split(/::/,$caller,-1);
+       $modlibname =~ s,[\\/][^\\/]+$,, while $c--;    # Q&D basename */
+    {
+        SSize_t c = AvFILL(modparts) + 1;
+        STRLEN  i = SvCUR(file);
+        char   *s = SvPVX_mutable(file);
+        s += i-1;
+        for (; c>0 && *s; s--, i--) {
+            if (*s == '/' || *s == '\\') {
+                c--;
+                if (c==0) {
+                    s[1] = 0;
+                    SvCUR_set(file, i);
+                    break;
+                }
+            }
+        }
+        if (!*s) {
+            Perl_die(aTHX_ "XSLoader: invalid modlibname %s\n", SvPVX(modlibname));
+        }
+    }
     sv_catpv(file, "auto/");
     sv_catsv(file, modpname);
     sv_catpv(file, "/");
     sv_catsv(file, modfname);
     sv_catpv(file, DLEXT);
-    SvREFCNT_inc_NN(modfname);
+    SvREFCNT_dec(modpname);
     SvREFCNT_dec(modparts);
 
     /* Note: No dl_expand support with XSLoader */
@@ -103,6 +133,7 @@ XS(XS_XSLoader_load) {
     if (fn_exists(SvPVX(file))) {
         DLDEBUG(3,PerlIO_printf(Perl_debug_log, " found %s\n", SvPVX(file)));
     } else {
+        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " not found %s\n", SvPVX(file)));
         goto xsl_bsinherit;
     }
     if ((items = dl_load_file(aTHX_ file, module, GIMME))) {

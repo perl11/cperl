@@ -12,6 +12,7 @@
 
 #define PERL_EUPXS_ALWAYS_EXPORT
 #ifndef START_MY_CXT /* Some IDEs try compiling this standalone. */
+#   define PERL_NO_GET_CONTEXT
 #   define PERL_EXT
 #   include "EXTERN.h"
 #   include "perl.h"
@@ -82,10 +83,10 @@ START_MY_CXT
 #endif
 
 #define pv_copy(pv)     newSVpvn_flags(SvPVX(pv), SvCUR(pv), SvUTF8(pv))
-#define fn_exists(fn)   (PerlLIO_stat(fn, &PL_statcache) >= 0  \
+#define fn_exists(fn)   (PerlLIO_stat((fn), &PL_statcache) >= 0         \
                      && (S_ISLNK(PL_statcache.st_mode) || S_ISREG(PL_statcache.st_mode)))
-#define dir_exists(dir) (PerlLIO_stat(dir, &PL_statcache) >= 0 && S_ISDIR(PL_statcache.st_mode))
-
+#define dir_exists(dir) (PerlLIO_stat((dir), &PL_statcache) >= 0 \
+                     && S_ISDIR(PL_statcache.st_mode))
 
 #ifdef DL_UNLOAD_ALL_AT_EXIT
 /* Close all dlopen'd files */
@@ -349,7 +350,7 @@ XS(XS_DynaLoader_bootstrap)
     DLDEBUG(1, PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap for %s "
         "(auto/%s/%s%s)\n", modulename, SvPVX(modpname), SvPVX(modfname), DLEXT));
 
-    SvREFCNT_inc_NN(modfname);
+    SvREFCNT_inc_NN(modfname); /* is needed later */
     SvREFCNT_dec(modparts);
 
     dirs = newAV();
@@ -458,7 +459,7 @@ XS(XS_DynaLoader_dl_findfile)
       XSRETURN_UNDEF;
     SP -= items;
     if (GIMME == G_SCALAR) {
-        XPUSHs(file);
+        mXPUSHs(file);
         XSRETURN(1);
     }
     else {
@@ -466,7 +467,7 @@ XS(XS_DynaLoader_dl_findfile)
         AV* found = (AV*)file;
         if (AvFILLp(found)>=0) {
             for (i=0; i<=AvFILLp(found); i++) {
-                XPUSHs(AvARRAY(found)[i]);
+                mXPUSHs(AvARRAY(found)[i]);
             }
             XSRETURN(i+1);
         }
@@ -527,8 +528,8 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "dl_find_symbol_anywhere(symbol=%s, libref=%p)\n",
                                 SvPVX(sym), libref));
         PUSHMARK(SP);
-        XPUSHs(libref);
-        XPUSHs(sym);
+        mXPUSHs(libref);
+        mXPUSHs(sym);
         PUTBACK;
         items = call_sv(dl_find_symbol, G_SCALAR);
         SPAGAIN;
@@ -640,9 +641,9 @@ dl_load_file(pTHX_ SV* file, SV *module, int gimme)
                                 SvPVX(bootname)));
         SPAGAIN;
         PUSHMARK(SP);
-        XPUSHs(newSViv(0)); /* first try empty library handle, may already be loaded */
+        mXPUSHs(newSViv(0)); /* first try empty library handle, may already be loaded */
         XPUSHs(bootname);
-        XPUSHs(newSViv(1)); /* ignore error, cperl only */
+        mXPUSHs(newSViv(1)); /* ignore error, cperl only */
         PUTBACK;
         nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
         SPAGAIN;
@@ -663,7 +664,7 @@ dl_load_file(pTHX_ SV* file, SV *module, int gimme)
         cv_load_file = get_cv("DynaLoader::dl_load_file", 0);
         PUSHMARK(SP);
         XPUSHs(file);
-        XPUSHs(flagsiv);
+        mXPUSHs(flagsiv);
         PUTBACK;
         nret = call_sv((SV*)cv_load_file, G_SCALAR);
         SPAGAIN;
@@ -736,8 +737,8 @@ dl_load_file(pTHX_ SV* file, SV *module, int gimme)
         PUSHMARK(SP);
         sv_catsv(bootstrap, module);
         sv_catpvs(bootstrap, "::bootstrap");
-        XPUSHs(bootstrap);
-        XPUSHs(boot_symbol_ref);
+        mXPUSHs(bootstrap);
+        mXPUSHs(boot_symbol_ref);
         XPUSHs(file);
         PUTBACK;
         nret = call_sv((SV*)dl_install_xsub, G_SCALAR);
@@ -756,8 +757,12 @@ dl_load_file(pTHX_ SV* file, SV *module, int gimme)
     {
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter &%s::bootstrap CV<%p> with %d args\n",
                                 modulename, xs, items));
+#if 0
         SP -= items;
         PUSHMARK(SP);
+#else
+        PUSHMARK(MARK);
+#endif
         PUTBACK;
         return call_sv(xs, gimme);
     }
