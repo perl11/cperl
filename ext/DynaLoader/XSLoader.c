@@ -32,7 +32,13 @@ XS(XS_XSLoader_load) {
                     HvNAME(stash), SvPVX(modlibname)));
         }
         else {
-            Perl_die(aTHX_ "Missing caller context in XSLoader::load. No package found.\n");
+            stash = CopSTASH(PL_curcop);
+            module = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash), HvNAMEUTF8(stash));
+            modlibname = newSVpv(OutCopFILE(PL_curcop), 0);
+            DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load from caller '%s', '%s'\n",
+                    HvNAME(stash), SvPVX(modlibname)));
+            
+            /*Perl_die(aTHX_ "Missing caller context in XSLoader::load. No package found.\n");*/
         }
     }
     else {

@@ -233,7 +233,7 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvTYPED(cv)		(CvFLAGS(cv) & CVf_TYPED)
 #define CvTYPED_on(cv)		(CvFLAGS(cv) |= CVf_TYPED)
 #define CvCALLER(cv)		(CvFLAGS(cv) & CVf_CALLER)
-#define CvCALLER_on(cv)		(CvFLAGS(cv) |= CVf_CALLER)
+#define CvCALLER_on(cv)		(CvFLAGS(cv) |= 0)
 
 /* Flags for newXS_flags  */
 #define XS_DYNAMIC_FILENAME	0x01	/* The filename isn't static  */
