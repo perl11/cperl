@@ -396,7 +396,7 @@ XS(XS_DynaLoader_bootstrap)
         else {
 	    if (fn_exists(SvPVX(slib))) {
                 file = slib;
-	        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " found %s\n",
+	        DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  found %s\n",
                                         SvPVX(slib)));
                 break;
             }
@@ -598,10 +598,13 @@ dl_load_file(pTHX_ SV* file, SV *module, int gimme)
     SV *xs = NULL;
     char *modulename = SvPVX(module);
 
-    SV** mark       = PL_stack_base + TOPMARK;
+    SV** mark       = PL_stack_base + TOPMARK + 1;
     const I32  ax   = (I32)(mark - PL_stack_base + 1);
     dITEMS;
 
+    DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_load_file('%s','%s',%d)\n",
+            SvPVX(file), SvPVX(module), gimme));
+    DLax("dl_load_file");
 #if defined(VMS) && defined(HAS_VMS_CASE_SENSITIVE_SYMBOLS)
     if (!SvUTF8(file)) {
         /* no utf8 or multibyte! */
@@ -659,7 +662,7 @@ dl_load_file(pTHX_ SV* file, SV *module, int gimme)
     }
 
     {
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_load_file with '%s' %ld\n",
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter XS dl_load_file with '%s' %ld\n",
                                 SvPVX(file), flags));
         cv_load_file = get_cv("DynaLoader::dl_load_file", 0);
         PUSHMARK(SP);
@@ -676,8 +679,6 @@ dl_load_file(pTHX_ SV* file, SV *module, int gimme)
                 libref ? SvIVX(libref) : 0));
     }
     if (!libref) {
-#ifdef carp_shortmess
-#endif
         SaveError(aTHX_ "Can't load '%s' for module %s: %s", file, modulename, dlerror());
 #ifdef carp_shortmess
         Perl_die(aTHX_ SvPVX_const(carp_shortmess(ax, MY_CXT.x_dl_last_error)));
@@ -757,7 +758,7 @@ dl_load_file(pTHX_ SV* file, SV *module, int gimme)
     {
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter &%s::bootstrap CV<%p> with %d args\n",
                                 modulename, xs, items));
-#if 0
+#if 1
         SP -= items;
         PUSHMARK(SP);
 #else
@@ -794,7 +795,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
         char *fn = SvPVX(file);
         IV dirsize, lsize;
         AV *names;
-        DLDEBUG(3,PerlIO_printf(Perl_debug_log, " find %s\n", fn));
+        DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  find %s\n", fn));
         /* Special fast case: full filepath may require no search */
 #ifndef VMS
         if (strchr(fn, '/')) {
@@ -805,7 +806,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
                     return file;
                 }
                 AV_PUSH(found, file);
-                DLDEBUG(3,PerlIO_printf(Perl_debug_log, " found %s\n", fn));
+                DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  found %s\n", fn));
             }
         }
 #else
@@ -832,7 +833,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
                 return file;
             }
             AV_PUSH(found, file);
-            DLDEBUG(3,PerlIO_printf(Perl_debug_log, " found %s\n", fn));
+            DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  found %s\n", fn));
         }
 #endif
         /* Deal with directories first:
