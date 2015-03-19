@@ -3292,9 +3292,15 @@ PP(pp_entersub)
 	}
 
         if (CvCALLER(cv)) {
-            POPSUB(cx,sv);	/* Stack values are safe: release CV and @_ ... */
+            PMOP *newpm;
+            SV **newsp;
+            POPBLOCK(cx,newpm);
+            cxstack_ix++; /* temporarily protect top context */
+            LEAVE;
+            POPSUB(cx,sv);
             cxstack_ix--;
             LEAVESUB(sv);
+            return NORMAL;
         }
 	LEAVE;
 	return NORMAL;
