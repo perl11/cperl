@@ -739,7 +739,7 @@ dl_load_file(pTHX_ SV* file, SV *module, int gimme)
         sv_catsv(bootstrap, module);
         sv_catpvs(bootstrap, "::bootstrap");
         mXPUSHs(bootstrap);
-        mXPUSHs(boot_symbol_ref);
+        XPUSHs(boot_symbol_ref);
         XPUSHs(file);
         PUTBACK;
         nret = call_sv((SV*)dl_install_xsub, G_SCALAR);
