@@ -121,8 +121,8 @@ been warned.
 
 =head1 FLAG VALUES
 
-The C<flags> parameter in all the I<call_*> functions is one of G_VOID,
-G_SCALAR, or G_ARRAY, which indicate the call context, OR'ed together
+The C<flags> parameter in all the I<call_*> functions is one of C<G_VOID>,
+C<G_SCALAR>, or C<G_ARRAY>, which indicate the call context, OR'ed together
 with a bit mask of any combination of the other G_* symbols defined below.
 
 =head2  G_VOID
@@ -146,7 +146,7 @@ It ensures that nothing is actually returned from the subroutine.
 =back
 
 The value returned by the I<call_*> function indicates how many
-items have been returned by the Perl subroutine--in this case it will
+items have been returned by the Perl subroutine. In this case it will
 be 0.
 
 
@@ -174,10 +174,10 @@ returned.
 =back
 
 The value returned by the I<call_*> function indicates how many
-items have been returned by the Perl subroutine - in this case it will
+items have been returned by the Perl subroutine. In this case it will
 be either 0 or 1.
 
-If 0, then you have specified the G_DISCARD flag.
+If 0, then you have specified the C<G_DISCARD> flag.
 
 If 1, then the item actually returned by the Perl subroutine will be
 stored on the Perl stack - the section I<Returning a Scalar> shows how
@@ -213,13 +213,13 @@ accessible when control returns from the I<call_*> function.
 The value returned by the I<call_*> function indicates how many
 items have been returned by the Perl subroutine.
 
-If 0, then you have specified the G_DISCARD flag.
+If 0, then you have specified the C<G_DISCARD> flag.
 
 If not 0, then it will be a count of the number of items returned by
 the subroutine. These items will be stored on the Perl stack.  The
 section I<Returning a list of values> gives an example of using the
-G_ARRAY flag and the mechanics of accessing the returned items from the
-Perl stack.
+C<G_ARRAY> flag and the mechanics of accessing the returned items from
+the Perl stack.
 
 =head2 G_DISCARD
 
@@ -227,7 +227,7 @@ By default, the I<call_*> functions place the items returned from
 by the Perl subroutine on the stack.  If you are not interested in
 these items, then setting this flag will make Perl get rid of them
 automatically for you.  Note that it is still possible to indicate a
-context to the Perl subroutine by using either G_SCALAR or G_ARRAY.
+context to the Perl subroutine by using either C<G_SCALAR> or C<G_ARRAY>.
 
 If you do not set this flag then it is I<very> important that you make
 sure that any temporaries (i.e., parameters passed to the Perl
@@ -248,7 +248,7 @@ the effect of not creating the C<@_> array for the Perl subroutine.
 Although the functionality provided by this flag may seem
 straightforward, it should be used only if there is a good reason to do
 so.  The reason for being cautious is that, even if you have specified
-the G_NOARGS flag, it is still possible for the Perl subroutine that
+the C<G_NOARGS> flag, it is still possible for the Perl subroutine that
 has been called to think that you have passed it parameters.
 
 In fact, what can happen is that the Perl subroutine you have called
@@ -279,7 +279,7 @@ It is possible for the Perl subroutine you are calling to terminate
 abnormally, e.g., by calling I<die> explicitly or by not actually
 existing.  By default, when either of these events occurs, the
 process will terminate immediately.  If you want to trap this
-type of event, specify the G_EVAL flag.  It will put an I<eval { }>
+type of event, specify the C<G_EVAL> flag.  It will put an I<eval { }>
 around the subroutine call.
 
 Whenever control returns from the I<call_*> function you need to
@@ -298,16 +298,16 @@ returned is as specified in the previous sections.
 
 =item *
 
-If G_DISCARD is specified, the return value will always be 0.
+If C<G_DISCARD> is specified, the return value will always be 0.
 
 =item *
 
-If G_ARRAY is specified I<and> an error has occurred, the return value
+If C<G_ARRAY> is specified I<and> an error has occurred, the return value
 will always be 0.
 
 =item *
 
-If G_SCALAR is specified I<and> an error has occurred, the return value
+If C<G_SCALAR> is specified I<and> an error has occurred, the return value
 will be 1 and the value on the top of the stack will be I<undef>. This
 means that if you have already detected the error by checking C<$@> and
 you want the program to continue, you must remember to pop the I<undef>
@@ -315,11 +315,11 @@ from the stack.
 
 =back
 
-See I<Using G_EVAL> for details on using G_EVAL.
+See I<Using G_EVAL> for details on using C<G_EVAL>.
 
 =head2 G_KEEPERR
 
-Using the G_EVAL flag described above will always set C<$@>: clearing
+Using the C<G_EVAL> flag described above will always set C<$@>: clearing
 it if there was no error, and setting it to describe the error if there
 was an error in the called code.  This is what you want if your intention
 is to handle possible errors, but sometimes you just want to trap errors
@@ -333,22 +333,22 @@ errors in the called code, even if they can't be handled intelligently.
 It may also be useful to do this with code for C<__DIE__> or C<__WARN__>
 hooks, and C<tie> functions.
 
-The G_KEEPERR flag is meant to be used in conjunction with G_EVAL in
+The C<G_KEEPERR> flag is meant to be used in conjunction with C<G_EVAL> in
 I<call_*> functions that are used to implement such code, or with
 C<eval_sv>.  This flag has no effect on the C<call_*> functions when
-G_EVAL is not used.
+C<G_EVAL> is not used.
 
-When G_KEEPERR is used, any error in the called code will terminate the
+When C<G_KEEPERR> is used, any error in the called code will terminate the
 call as usual, and the error will not propagate beyond the call (as usual
-for G_EVAL), but it will not go into C<$@>.  Instead the error will be
+for C<G_EVAL>), but it will not go into C<$@>.  Instead the error will be
 converted into a warning, prefixed with the string "\t(in cleanup)".
 This can be disabled using C<no warnings 'misc'>.  If there is no error,
 C<$@> will not be cleared.
 
-Note that the G_KEEPERR flag does not propagate into inner evals; these
+Note that the C<G_KEEPERR> flag does not propagate into inner evals; these
 may still set C<$@>.
 
-The G_KEEPERR flag was introduced in Perl version 5.002.
+The C<G_KEEPERR> flag was introduced in Perl version 5.002.
 
 See I<Using G_KEEPERR> for an example of a situation that warrants the
 use of this flag.
@@ -367,7 +367,7 @@ section I<Using GIMME_V>.
 
 =head1 EXAMPLES
 
-Enough of the definition talk! Let's have a few examples.
+Enough of the definition talk, let's have a few examples.
 
 Perl provides many macros to assist in accessing the Perl stack.
 Wherever possible, these macros should always be used when interfacing
@@ -415,14 +415,14 @@ the next example.
 
 =item 2.
 
-We aren't passing any parameters to I<PrintUID> so G_NOARGS can be
+We aren't passing any parameters to I<PrintUID> so C<G_NOARGS> can be
 specified.
 
 =item 3.
 
 We aren't interested in anything returned from I<PrintUID>, so
-G_DISCARD is specified. Even if I<PrintUID> was changed to
-return some value(s), having specified G_DISCARD will mean that they
+C<G_DISCARD> is specified. Even if I<PrintUID> was changed to
+return some value(s), having specified C<G_DISCARD> will mean that they
 will be wiped by the time control returns from I<call_pv>.
 
 =item 4.
@@ -433,7 +433,7 @@ code.
 
 =item 5.
 
-Because we specified G_DISCARD, it is not necessary to check the value
+Because we specified C<G_DISCARD>, it is not necessary to check the value
 returned from I<call_pv>. It will always be 0.
 
 =back
@@ -442,8 +442,8 @@ returned from I<call_pv>. It will always be 0.
 
 Now let's make a slightly more complex example. This time we want to
 call a Perl subroutine, C<LeftString>, which will take 2 parameters--a
-string ($s) and an integer ($n).  The subroutine will simply
-print the first $n characters of the string.
+string (I<$s>) and an integer (I<$n>).  The subroutine will simply
+print the first I<$n> characters of the string.
 
 So the Perl subroutine would look like this:
 
@@ -486,12 +486,12 @@ Parameters are passed to the Perl subroutine using the Perl stack.
 This is the purpose of the code beginning with the line C<dSP> and
 ending with the line C<PUTBACK>.  The C<dSP> declares a local copy
 of the stack pointer.  This local copy should B<always> be accessed
-as C<SP>.
+as C<SP>, but better with the C<ST(i)> stack access macro.
 
 =item 2.
 
 If you are going to put something onto the Perl stack, you need to know
-where to put it. This is the purpose of the macro C<dSP>--it declares
+where to put it. This is the purpose of the macro C<dSP>. It declares
 and initializes a I<local> copy of the Perl stack pointer.
 
 All the other macros which will be used in this example require you to
@@ -499,33 +499,35 @@ have used this macro.
 
 The exception to this rule is if you are calling a Perl subroutine
 directly from an XSUB function. In this case it is not necessary to
-use the C<dSP> macro explicitly--it will be declared for you
+use the C<dSP> macro explicitly. It will be declared for you
 automatically.
 
 =item 3.
 
 Any parameters to be pushed onto the stack should be bracketed by the
-C<PUSHMARK> and C<PUTBACK> macros.  The purpose of these two macros, in
-this context, is to count the number of parameters you are
-pushing automatically.  Then whenever Perl is creating the C<@_> array for the
-subroutine, it knows how big to make it.
+C<PUSHMARK> and C<PUTBACK> macros.  The purpose of these two macros,
+in this context, is to count the number of parameters you are pushing.
+Whenever Perl is creating the C<@_> array for the subroutine, it fills
+it with the elements from MARK to SP, and for XSUB function without
+C<@_> array, the C<MARK> pointer marks the beginning of the arguments.
 
-The C<PUSHMARK> macro tells Perl to make a mental note of the current
-stack pointer. Even if you aren't passing any parameters (like the
-example shown in the section I<No Parameters, Nothing Returned>) you
-must still call the C<PUSHMARK> macro before you can call any of the
-I<call_*> functions--Perl still needs to know that there are no
-parameters.
+The C<PUSHMARK> macro marks the begin of argument stack pointer with
+C<MARK>. Even if you aren't passing any parameters (like the example
+shown in the section I<No Parameters, Nothing Returned>) you must
+still call the C<PUSHMARK> macro before you can call any of the
+I<call_*> functions. Perl still needs to know the arity, the number of
+arguments, which is calculated by C<SP - MARK>, and with no arguments
+C<MARK> == C<SP>, and C<items> will be 0.
 
 The C<PUTBACK> macro sets the global copy of the stack pointer to be
 the same as our local copy. If we didn't do this, I<call_pv>
-wouldn't know where the two parameters we pushed were--remember that
+wouldn't know where the two parameters we pushed were. Remember that
 up to now all the stack pointer manipulation we have done is with our
 local copy, I<not> the global copy.
 
 =item 4.
 
-Next, we come to XPUSHs. This is where the parameters actually get
+Next, we come to C<XPUSHs>. This is where the parameters actually get
 pushed onto the stack. In this case we are pushing a string and an
 integer.
 
@@ -565,9 +567,9 @@ an alternative to using these macros.
 =item 6.
 
 Finally, I<LeftString> can now be called via the I<call_pv> function.
-The only flag specified this time is G_DISCARD. Because we are passing
+The only flag specified this time is C<G_DISCARD>. Because we are passing
 2 parameters to the Perl subroutine this time, we have not specified
-G_NOARGS.
+C<G_NOARGS>.
 
 =back
 
@@ -738,7 +740,7 @@ Notes
 
 =item 1.
 
-We wanted list context, so G_ARRAY was used.
+We wanted list context, so C<G_ARRAY> was used.
 
 =item 2.
 
@@ -854,7 +856,7 @@ and here is a C function to call it.
 
 To be able to access the two parameters that were pushed onto the stack
 after they return from I<call_pv> it is necessary to make a note
-of their addresses--thus the two variables C<sva> and C<svb>.
+of their addresses; thus the two variables C<sva> and C<svb>.
 
 The reason this is necessary is that the area of the Perl stack which
 held them will very likely have been overwritten by something else by
@@ -1325,7 +1327,7 @@ values returned via the stack) have been freed by one of these methods:
 
 =item *
 
-Specifying the G_DISCARD flag with I<call_*>
+Specifying the C<G_DISCARD> flag with I<call_*>
 
 =item *
 
@@ -1343,7 +1345,7 @@ has terminated.  This is done by simply not using the
     FREETMPS;
     LEAVE;
 
-sequence in the callback (and not, of course, specifying the G_DISCARD
+sequence in the callback (and not, of course, specifying the C<G_DISCARD>
 flag).
 
 If you are going to use this method you have to be aware of a possible
