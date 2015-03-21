@@ -60,6 +60,7 @@ DynaLoader Interface Summary
   @dl_shared_objects
                                                   Implemented in:
   bootstrap($modulename)                               Perl
+  bootstrap_inherit($modulename)                       Perl
   @filepaths = dl_findfile(@names)                     Perl
   $flags = $modulename->dl_load_flags                  Perl
   $symref  = dl_find_symbol_anywhere($symbol)          Perl
@@ -434,6 +435,15 @@ If the optional C<$version> argument is not given, it defaults to
 C<$XS_VERSION // $VERSION> in the module's symbol table. The default code
 compares the Perl-space version with the version of the compiled XS code,
 and croaks with an error if they do not match.
+
+=item bootstrap_inherit()
+
+Syntax:
+
+    bootstrap_inherit($module [, $VERSION])
+
+This is a replacement for bootstrap, temporarily pushing C<"DynaLoader">
+onto C<@INC>, so that you can skip C<push @INC, "DynaLoader";> in user-code.
 
 =back
 

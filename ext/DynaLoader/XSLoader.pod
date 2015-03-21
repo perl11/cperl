@@ -9,9 +9,7 @@ Version 1.00c
 =head1 SYNOPSIS
 
     package YourPackage;
-    require XSLoader;
-
-    XSLoader::load();
+    XSLoader::load;
 
     XSLoader::load("module");
     XSLoader::load("module", $VERSION);
@@ -24,9 +22,50 @@ This module defines a standard I<simplified> interface to the dynamic
 linking mechanisms available on many platforms.  Its primary purpose is
 to implement cheap automatic dynamic loading of Perl modules.
 
+This is now a L<cperl|perlcperl> core builtin package, so in pure
+cperl code you don't need to require XSLoader.
+
 For a more complicated interface, see L<DynaLoader>.  Many (most)
 features of C<DynaLoader> are not implemented in C<XSLoader>, like for
 example the C<dl_load_flags>, not honored by C<XSLoader>.
+
+=head1 FUNCTIONS
+
+=over
+
+=item load()
+
+Syntax:
+
+    load( [$module [, $VERSION]] )
+
+With optional 1-2 arguments.  A shorter
+L<DynaLoader::bootstrap|DynaLoader/"bootstrap()"> variant which takes the
+package name name from C<caller()>.  It tries to call
+C<DynaLoader::bootstrap> or C<XSLoader::bootstrap_inherit>, tries to
+find the shared library in the auto subdir relative to the found pure
+perl loader, and finally calls C<DynaLoader::dl_load_file> with the
+path of the shared libray and the package name.
+
+=item load_file()
+
+Syntax:
+
+    load_file("module", "sharedlib_path")
+
+C<load_file> is mainly used with embedded programs, which already know the
+path to the shared library. It simply calls C<DynaLoader::dl_load_file> with the
+path of the shared libray and the package name.
+
+=item bootstrap_inherit()
+
+Syntax:
+
+    bootstrap_inherit($module [, $VERSION])
+
+Forwards to L<DynaLoader::bootstrap_inherit|DynaLoader/"bootstrap_inherit()">.
+
+=back
 
 =head2 Migration from C<DynaLoader>
 
@@ -42,7 +81,6 @@ A typical module using L<DynaLoader|DynaLoader> starts like this:
 Change this to
 
     package YourPackage;
-    use XSLoader;
 
     our @ISA = qw( OnePackage OtherPackage );
     our $VERSION = '0.01';
@@ -68,14 +106,14 @@ If no C<$VERSION> was specified on the C<bootstrap> line, the last line becomes
 If the call to C<load> is from C<YourPackage>, then that can be further
 simplified to
 
-    XSLoader::load();
+    XSLoader::load;
 
 as C<load> will use C<caller> to determine the package.
 
 =head2 Backward compatible boilerplate
 
 If you want to have your cake and eat it too, you need a more complicated
-boilerplate.
+boilerplate. Add C<require XSLoader;> to be backwards compatible with perl5.
 
     package YourPackage;
     use vars qw($VERSION @ISA);
@@ -92,9 +130,9 @@ boilerplate.
        bootstrap YourPackage $VERSION;
     };
 
-The parentheses about C<XSLoader::load()> arguments are needed since we replaced
-C<use XSLoader> by C<require>, so the compiler does not know that a function
-C<XSLoader::load()> is present.
+The parentheses about C<XSLoader::load()> arguments are needed in
+perl5 only since we replaced C<use XSLoader> by C<require>, so the
+compiler does not know that a function C<XSLoader::load()> is present.
 
 This boilerplate uses the low-overhead C<XSLoader> if present; if used with
 an antique Perl which has no C<XSLoader>, it falls back to using C<DynaLoader>.
@@ -146,7 +184,6 @@ The first situation being much more frequent, it makes sense to rewrite the
 boilerplate as
 
     package YourPackage;
-    use XSLoader;
     use vars qw($VERSION @ISA);
 
     BEGIN {
@@ -169,7 +206,6 @@ section altogether.  Replace it with a function C<onBOOT()>, and call it like
 this:
 
     package YourPackage;
-    use XSLoader;
     use vars qw($VERSION @ISA);
 
     BEGIN {
@@ -225,6 +261,18 @@ C<make install>.
 The new simpler way to call C<XSLoader::load()> with no arguments at all
 does not work on Perl 5.8.4 and 5.8.5.
 
+=head1 CPERL CHANGES
+
+This cperl variant of XSLoader is entirely written in C and available immediately
+without the need to C<require XSLoader;>. It is builtin.
+
+=over
+
+=item .bs bootstrap files are not supported anymore
+
+=item More PERL_DL_DEBUG=3 diagnostics
+
+=back
 
 =head1 BUGS
 
@@ -245,8 +293,8 @@ E<lt>sebastien@aperghis.netE<gt>.
 
 Previous maintainer was Michael G Schwern <schwern@pobox.com>.
 
-Conversion to c and merged with DynaLoader by Reini Urban, 2015.
-This is now in L<cperl|perlcperl> core.
+Conversion to C and merged with DynaLoader by Reini Urban, 2015.
+This is now a L<cperl|perlcperl> core builtin package.
 
 =head1 COPYRIGHT & LICENSE
 
