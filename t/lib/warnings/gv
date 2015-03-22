@@ -266,3 +266,11 @@ use warnings 'shadow' ;
 package MyPkg::Shadows;
 EXPECT
 Subroutine &MyPkg::Shadows masks new package MyPkg::Shadows at - line 4.
+########
+# from t/op/gv.t
+use warnings;
+no warnings "once";
+my $copy = *XX;
+my $a = sprintf "%d", $copy;
+EXPECT
+Argument "*main::XX" isn't numeric in sprintf at - line 5.

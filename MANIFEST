@@ -5366,6 +5366,13 @@ ext/VMS-Stdio/Makefile.PL	MakeMaker driver for VMS::Stdio
 ext/VMS-Stdio/Stdio.pm		VMS options to stdio routines
 ext/VMS-Stdio/Stdio.xs		VMS options to stdio routines
 ext/VMS-Stdio/t/vms_stdio.t	regression tests for VMS::Stdio
+ext/warnings/register.pm	warnings::register extension
+ext/warnings/warnings.boot	miniperl compatible warnings for bootstrap only
+ext/warnings/warnings.pm	warnings extension
+ext/warnings/warnings.t		Test warnings
+ext/warnings/warnings.xs	Generated warnings.xs hash
+ext/warnings/warnings_xs.in	gperf template for warnings.xs
+ext/warnings/warnings_xs.PL	Generate warnings_xs.in, warnings.xs and warnings.h
 ext/Win32CORE/Makefile.PL	Win32CORE extension
 ext/Win32CORE/t/win32core.t	Win32CORE extension
 ext/Win32CORE/Win32CORE.c	Win32CORE extension
@@ -5921,9 +5928,6 @@ lib/vars.t			See if "use vars" works
 lib/vars_carp.t			See if "use vars" doesn't load Carp.pm per default
 lib/vmsish.pm			Control VMS-specific behavior of Perl core
 lib/vmsish.t			Tests for vmsish.pm
-lib/warnings.pm			For "use warnings"
-lib/warnings.t			See if warning controls work
-lib/warnings/register.pm	For "use warnings::register"
 locale.c			locale-specific utility functions
 make_ext.pl			Used by Makefile to execute extension Makefiles
 make_patchnum.pl		Script to generate git_version.h and lib/Config_git.pl files for all OS'es
@@ -6456,7 +6460,6 @@ regen/regcomp.pl		Builder of regnodes.h
 regen/regen_lib.pl		Common file routines for generator scripts
 regen/uconfig_h.pl		generate uconfig.h (requires /bin/sh)
 regen/unicode_constants.pl	generate unicode_constants.h
-regen/warnings.pl		Program to write warnings.h and lib/warnings.pm
 regen_perly.pl			generate perly.{act,h,tab} from perly.y
 regexec.c			Regular expression evaluator
 regexp.h			Public declarations for the above

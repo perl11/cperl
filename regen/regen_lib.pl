@@ -14,7 +14,8 @@ our $Verbose = 0;
   grep { not($_ eq '-v' and $Verbose = 1) } @ARGV;
 
 END {
-  print STDOUT "Changed: @Changed\n" if @Changed;
+  $/ = " ";
+  print STDOUT "Changed: ",@Changed,"\n" if @Changed;
 }
 
 sub safer_unlink {
@@ -116,6 +117,7 @@ sub close_and_rename {
     safer_unlink $final_name;
     chmod 0600, $name if $Needs_Write;
     rename $name, $final_name or die "renaming $name to $final_name: $!";
+    1;
 }
 
 my %lang_opener = (Perl => '# ', Pod => '', C => '/* ');
@@ -224,6 +226,7 @@ sub digest {
 };
 
 sub wrap {
+    require Text::Wrap;
     local $Text::Wrap::columns = shift;
     require Text::Wrap or return @_;
     Text::Wrap::wrap(@_);

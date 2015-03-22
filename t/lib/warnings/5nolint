@@ -202,3 +202,9 @@ no warnings;
 }
 EXPECT
 
+########
+# from lib/open.t
+no warnings "layer";
+use open IN => ":macguffin";
+EXPECT
+

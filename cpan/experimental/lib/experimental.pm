@@ -3,11 +3,17 @@ $experimental::VERSION = '0.020_01';
 use strict;
 use warnings;
 use version ();
+use Config ();
 
 BEGIN { eval { require feature } };
 use Carp qw/croak carp/;
 
-my %warnings = map { $_ => 1 } grep { /^experimental::/ } keys %warnings::Offsets;
+my @keys = keys %warnings::Offsets;
+unless (@keys and defined &warnings::keys) { # XS warnings
+	@keys = grep { /^experimental::/ } warnings::keys();
+}
+
+my %warnings = map { $_ => 1 } grep { /^experimental::/ } @keys;
 my %features = map { $_ => 1 } $] > 5.015006 ? keys %feature::feature : do {
 	my @features;
 	if ($] >= 5.010) {

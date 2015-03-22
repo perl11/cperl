@@ -1031,7 +1031,7 @@ $(LIBPERL): $& $(perllib_dep) $(DYNALOADER) $(LIBPERLEXPORT)
 #    (so that lib/buildcustomize.pl is always available. This simplifies things)
 # b) have the rest of the Makefile depend on the more obvious $(MINIPERL_EXE)
 
-$(MINIPERL_EXE): lib/buildcustomize.pl
+$(MINIPERL_EXE): lib/buildcustomize.pl warnings_boot
 
 WRITE_BUILDCUSTOMIZE = -f write_buildcustomize.pl
 !NO!SUBS!
@@ -1127,7 +1127,7 @@ lib/buildcustomize.pl: $& $(miniperl_dep) write_buildcustomize.pl
 
 	$spitshell >>$Makefile <<'!NO!SUBS!'
 
-$(PERL_EXE): $& $(perlmain_dep) $(LIBPERL) $(static_ext) ext.libs $(PERLEXPORT) write_buildcustomize.pl
+$(PERL_EXE): $& $(perlmain_dep) $(LIBPERL) $(static_ext) $(boot_ext) ext.libs $(PERLEXPORT) write_buildcustomize.pl
 	-@rm -f miniperl.xok
 !NO!SUBS!
 
@@ -1387,7 +1387,7 @@ esac
 $spitshell >>$Makefile <<'!NO!SUBS!'
 
 .PHONY: preplibrary common_build unidatafiles
-preplibrary: $(MINIPERL_EXE) $(CONFIGPM) $(PREPLIBRARY_LIBPERL)
+preplibrary: $(MINIPERL_EXE) $(CONFIGPM) $(PREPLIBRARY_LIBPERL) warnings_boot
 
 $(CONFIGPM_FROM_CONFIG_SH): $(CONFIGPOD)
 
@@ -1570,7 +1570,7 @@ CHMOD_W = chmod +w
 #	embed.pl:	proto.h embed.h embedvar.h perlapi.h perlapi.c
 #	opcode.pl:	opcode.h opnames.h pp_proto.h
 #	regcomp.pl:	regnodes.h
-#	warnings.pl:	warnings.h lib/warnings.pm
+#	ext/warnings/warnings_xs.PL:	warnings.h ext/warnings/warnings.xs
 #	feature.pl:	feature.h lib/feature.pm
 #       ext/Config/Config_xs.PL: ext/Config/Config_xs.out ext/Config/Config.xs
 # The correct versions should be already supplied with the perl kit,
@@ -1581,9 +1581,10 @@ CHMOD_W = chmod +w
 # (make regen_headers is kept for backwards compatibility)
 
 AUTOGEN_FILES = opcode.h opnames.h pp_proto.h proto.h embed.h embedvar.h \
-		perlapi.h perlapi.c regnodes.h warnings.h lib/warnings.pm \
+		perlapi.h perlapi.c regnodes.h \
 		lib/feature.pm feature.h \
-		ext/Config/Config_xs.out ext/Config/Config.xs
+		ext/Config/Config_xs.out ext/Config/Config.xs \
+		warnings.h lib/warnings.pm ext/warnings/warnings.xs
 
 .PHONY: regen regen_headers regen_meta regen_uni regen_all
 
@@ -1640,6 +1641,25 @@ $(DYNALOADER) $(DL_SRC): preplibrary FORCE $(nonxs_ext)
 
 $(boot_ext): $(DYNALOADER)
 
+.PHONY: mini_boot mini_post warnings_boot warnings_post
+
+mini_boot : warnings_boot
+mini_post : warnings_post
+
+lib/warnings/register.pm : ext/warnings/register.pm
+	mkdir -p lib/warnings/
+	$(CPS) ext/warnings/register.pm lib/warnings/
+
+lib/warnings.pm : ext/warnings/warnings.pm FORCE
+	$(RMS) $@
+	$(CPS) ext/warnings/warnings.pm $@
+
+warnings_boot : lib/warnings/register.pm FORCE
+	$(RMS) lib/warnings.pm
+	$(CPS) ext/warnings/warnings.boot lib/warnings.pm
+
+warnings_post : lib/warnings.pm lib/warnings/register.pm
+
 d_dummy $(dynamic_ext):	preplibrary makeppport $(DYNALOADER) FORCE $(PERLEXPORT) $(LIBPERL)
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=dynamic
 
@@ -1649,6 +1669,33 @@ s_dummy $(static_ext):  preplibrary makeppport $(DYNALOADER) FORCE
 n_dummy $(nonxs_ext):	preplibrary FORCE
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL)
 !NO!SUBS!
+
+case $static_ext in
+    *warnings*) ;;
+    *)
+        $spitshell >>$Makefile <<'EOF'
+
+# defer this to make regen
+ext/warnings/warnings.xs : ext/warnings/warnings_xs.PL ext/warnings/warnings_xs.in \
+			   $(MINIPERL_EXE) warnings_boot lib/buildcustomize.pl
+	$(MINIPERL) ext/warnings/warnings_xs.PL
+
+ext/warnings/warnings.c : ext/warnings/warnings.xs preplibrary dist/ExtUtils-ParseXS/pm_to_blib
+	cd ext/warnings && $(LDLIBPTH) ../../$(MINIPERL_EXE) -I../../lib ../../lib/ExtUtils/xsubpp -noprototypes \
+		-typemap ../../lib/ExtUtils/typemap warnings.xs > warnings.c
+ext/warnings/warnings.i : ext/warnings/warnings.c $(h)
+	@echo `$(CCCMDSRC)` -I. -E ext/warnings/warnings.c \> $@
+	@`$(CCCMDSRC)` -I. -E ext/warnings/warnings.c > $@
+ext/warnings/warnings$(OBJ_EXT) : ext/warnings/warnings.c $(h)
+	`$(CCCMD)` $(LDDLFLAGS) $(CCCDLFLAGS) -I. ext/warnings/warnings.c -o $@
+lib/auto/warnings/warnings$(DLSUFFIX) : ext/warnings/warnings$(OBJ_EXT) $(LIBPERL)
+	mkdir -p lib/auto/warnings
+	$(LD) -o $@ $(LDDLFLAGS) ext/warnings/warnings$(OBJ_EXT)
+	$(MAKE) warnings_post
+
+EOF
+        ;;
+esac
 
 $spitshell >>$Makefile <<EOF
 $extra_dep

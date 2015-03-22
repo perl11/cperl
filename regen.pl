@@ -60,7 +60,7 @@ opcode.pl
 overload.pl
 reentr.pl
 regcomp.pl
-warnings.pl
+../ext/warnings/warnings_xs.PL
 embed.pl
 feature.pl
 uconfig_h.pl

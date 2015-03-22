@@ -53,15 +53,19 @@ EOM
 
 	# This is fragile, because it
 	# is directly poking in the internals of warnings.pm
-	my ($call_file, $call_line, $callers_bitmask) = @caller[1,2,9];
-
-	if (defined $callers_bitmask
-	    && (vec($callers_bitmask, $warnings::Offsets{deprecated}, 1)
-		|| vec($callers_bitmask, $warnings::Offsets{all}, 1))) {
-	    warn <<"EOM";
+        my ($call_file, $call_line, $callers_bitmask) = @caller[1,2,9];
+        my $warn_msg = <<"EOM";
 $package will be removed from the Perl core distribution in the next major release. Please install it from CPAN. It is being used at $call_file, line $call_line.
 EOM
-	}
+        if (%warnings::Offsets) { # pp warnings
+          if (defined $callers_bitmask
+              && (vec($callers_bitmask, $warnings::Offsets{deprecated}, 1)
+                  || vec($callers_bitmask, $warnings::Offsets{all}, 1))) {
+            warn $warn_msg;
+          }
+        } else {
+          warn $warn_msg if warnings::enabled("deprecated") || warnings::enabled("all");
+        }
     }
 }
 

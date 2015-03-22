@@ -146,6 +146,8 @@ lib/unicore/To/
 lib/unicore/UCD.pl
 lib/unicore/lib/
 lib/unicore/mktables.lst
+lib/warnings.pm
+lib/warnings/register.pm
 lib/B/Stash.pm
 lib/ByteLoader.pm
 
