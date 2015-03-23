@@ -26,14 +26,15 @@ rb feature/CM-316-cperl-fast-arithmetic-use-new-intrinsics master
 # our pretty stable branch linear hierarchy
 declare -a feat
 feat=(master feature/CM-353-cperl-attributes-builtin feature/CM-367-cperl-carp-builtin \
-     feature/CM-368-cperl-dynaloader-builtin feature/CM-317-cperl-signatures)
-N=5
+      feature/CM-368-cperl-dynaloader-builtin feature/CM-445-cperl-xsloader-builtin \
+      feature/CM-370-cperl-warnings-xs)
+N=6
 for i in `seq 0 $(($N - 2))`; do
     n=$(($i + 1))
     rb ${feat[$n]} ${feat[$i]}
 done
 
 # unstable side-branches, branching off somewhere
-rb feature/CM-445-cperl-xsloader-builtin feature/CM-368-cperl-dynaloader-builtin
+rb feature/CM-317-cperl-signatures feature/CM-445-cperl-xsloader-builtin
 
 git branch | egrep 'master|bugfix/|feature/'
