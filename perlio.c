@@ -3815,11 +3815,17 @@ PerlIOBuf_pushed(pTHX_ PerlIO *f, const char *mode, SV *arg, PerlIO_funcs *tab)
 {
     PerlIOBuf *b = PerlIOSelf(f, PerlIOBuf);
     const int fd = PerlIO_fileno(f);
+    int reset_errno = 1;
+    dSAVE_ERRNO;
     if (fd >= 0 && PerlLIO_isatty(fd)) {
 	PerlIOBase(f)->flags |= PERLIO_F_LINEBUF | PERLIO_F_TTY;
+        reset_errno = 0;
     }
     if (*PerlIONext(f)) {
 	const Off_t posn = PerlIO_tell(PerlIONext(f));
+        /* if PerlIONext was isatty() and it obviously failed, restore errno */
+	if (reset_errno && errno == ENOTTY)
+            RESTORE_ERRNO;
 	if (posn != (Off_t) - 1) {
 	    b->posn = posn;
 	}
