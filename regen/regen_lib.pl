@@ -15,7 +15,7 @@ $Verbose = 0;
   grep { not($_ eq '-v' and $Verbose = 1) } @ARGV;
 
 END {
-  print STDOUT "Changed: @Changed\n" if @Changed;
+  print STDOUT "Changed: ",@Changed,"\n" if @Changed;
 }
 
 sub safer_unlink {
