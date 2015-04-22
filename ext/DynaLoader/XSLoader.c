@@ -12,19 +12,19 @@
 /* A DynaLoader::bootstrap variant which takes the packagename name from caller() */
 XS(XS_XSLoader_load) {
     dVAR; dXSARGS;
-    HV *stash;
-    SV *module = NULL, *modlibname = NULL, *file = NULL;
+    HV *stash = CopSTASH(PL_curcop);
+    SV *module = NULL, *file = NULL;
+    char *modlibname = NULL;
     CV *bootc;
     AV *modparts;
     SV *modfname, *modpname, *boots;
 
     if (items < 1) {
-        stash = CopSTASH(PL_curcop);
         module = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash), HvNAMEUTF8(stash));
-        modlibname = newSVpv(OutCopFILE(PL_curcop), 0);
+        modlibname = OutCopFILE(PL_curcop);
         DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load from caller '%s', '%s'\n",
-                HvNAME(stash), SvPVX(modlibname)));
-        if (strEQ(SvPVX(modlibname), "-e"))
+                HvNAME(stash), modlibname));
+        if (strEQ(modlibname, "-e"))
             modlibname = NULL;
     }
     else {
@@ -38,25 +38,34 @@ XS(XS_XSLoader_load) {
     boots = pv_copy(module);
     sv_catpvs(boots, "::bootstrap");
     if ((bootc = get_cv(SvPV_nolen_const(boots), 0))) {
-      PUSHMARK(MARK); /* goto &$boots */
-      XSRETURN(call_sv(MUTABLE_SV(bootc), GIMME));
+        PUSHMARK(MARK); /* goto &$boots */
+        PUTBACK;
+        XSRETURN(call_sv(MUTABLE_SV(bootc), GIMME));
     }
-    if (!modlibname)
-        modlibname = newSVpvs("");
+    if (!modlibname) {
+        modlibname = OutCopFILE(PL_curcop);
+        if (memEQ(modlibname, "(eval ", strlen("(eval ")))
+            modlibname = NULL;
+    }
     if (!module) {
         PUSHMARK(MARK);
+        PUTBACK;
         XSRETURN(call_pv("XSLoader::bootstrap_inherit", GIMME));
     }
     modparts = dl_split_modparts(aTHX_ module);
     modfname = AvARRAY(modparts)[AvFILLp(modparts)];
     modpname = dl_construct_modpname(aTHX_ modparts);
     DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  modpname (%s) => '%s'\n",
-            av_tostr(aTHX_ modparts), SvPVX(modlibname)));
-    file = pv_copy(modlibname);
+            av_tostr(aTHX_ modparts), modlibname));
+    file = modlibname ? newSVpvn(modlibname, strlen(modlibname)) : newSVpvs("");
 
-    /* now step back @modparts+1 times: .../lib/Fcntl.pm => .../lib
+    /* now step back @modparts+1 times: .../lib/Fcntl.pm => .../
        my $c = () = split(/::/,$caller,-1);
        $modlibname =~ s,[\\/][^\\/]+$,, while $c--;    # Q&D basename */
+    if (items >= 1) {
+        SV *caller = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash), HvNAMEUTF8(stash));
+        modparts = dl_split_modparts(aTHX_ caller);
+    }
     {
         SSize_t c = AvFILL(modparts) + 1;
         STRLEN  i = SvCUR(file);
