@@ -143,8 +143,17 @@ for my $module (sort keys %modules) {
 }
 
 # checking internal consistency
-is( scalar @DynaLoader::dl_librefs, scalar keys %modules, "checking number of items in \@dl_librefs" );
-is( scalar @DynaLoader::dl_modules, scalar keys %modules, "checking number of items in \@dl_modules" );
+# warnings is now also a xs.
+my $numm = scalar(@DynaLoader::dl_modules);
+my $numl = scalar(@DynaLoader::dl_librefs);
+if (grep /^(warnings|Config)$/, @DynaLoader::dl_modules) {
+  $numm--;
+  $numl--;
+}
+is( $numm, scalar keys %modules, "checking number of items in \@dl_modules" )
+  or warn(join(",",@DynaLoader::dl_modules));
+is( $numl, scalar keys %modules, "checking number of items in \@dl_librefs" )
+  or warn(join(",",@DynaLoader::dl_librefs));
 
 my @loaded_modules = @DynaLoader::dl_modules;
 for my $libref (reverse @DynaLoader::dl_librefs) {
@@ -155,6 +164,7 @@ for my $libref (reverse @DynaLoader::dl_librefs) {
             skip( "unloading unsupported on $^O", 2 )
                 if ($old_darwin || $^O eq 'VMS');
             my $module = pop @loaded_modules;
+            next if $module eq 'warnings' or $module eq 'Config';
             skip( "File::Glob sets PL_opfreehook", 2 ) if $module eq 'File::Glob';
             my $r = eval { DynaLoader::dl_unload_file($libref) };
             is( $@, '', "calling dl_unload_file() for $module" );
