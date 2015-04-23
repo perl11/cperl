@@ -19,8 +19,10 @@ sub BEGIN {
 use strict;
 
 BEGIN {
-  die "Oi! No! Don't change this test so that Carp is used before Storable"
-    if defined &Carp::carp;
+  if (defined &Carp::carp) {
+    print "1..0 # Skip: Don't change this test so that Carp is used before Storable\n";
+    exit 0;
+  }
 }
 use Storable qw(freeze thaw);
 
