@@ -13,5 +13,5 @@ $| = 1;
 print "1..1\n";
 
 use vars;
-# Carp not loaded yet;
-print defined $Carp::VERSION ? "not ok 1\n" : "ok 1\n";
+# Carp not loaded yet; $VERSION is booted early in cperl, so check for a PP sub
+print defined &Carp::get_subname ? "not ok 1\n" : "ok 1\n";
