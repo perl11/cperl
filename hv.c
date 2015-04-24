@@ -2409,7 +2409,7 @@ hek_eq_pvn_flags(pTHX_ const HEK *hek, const char* pv, const I32 pvlen, const U3
 =for apidoc hv_ename_add
 
 Adds a name to a stash's internal list of effective names.  See
-C<hv_ename_delete>.
+C<L</hv_ename_delete>>.
 
 This is called when a stash is assigned to a new location in the symbol
 table.
@@ -2580,7 +2580,7 @@ hv_iternext is implemented as a macro in hv.h
 
 =for apidoc hv_iternext
 
-Returns entries from a hash iterator.  See C<hv_iterinit>.
+Returns entries from a hash iterator.  See C<L</hv_iterinit>>.
 
 You may call C<hv_delete> or C<hv_delete_ent> on the hash entry that the
 iterator currently points to, without losing your place or invalidating your
@@ -2592,7 +2592,8 @@ trigger the resource deallocation.
 
 =for apidoc hv_iternext_flags
 
-Returns entries from a hash iterator.  See C<hv_iterinit> and C<hv_iternext>.
+Returns entries from a hash iterator.  See C<L</hv_iterinit>> and
+C<L</hv_iternext>>.
 The C<flags> value will normally be zero; if HV_ITERNEXT_WANTPLACEHOLDERS is
 set the placeholders keys (for restricted hashes) will be returned in addition
 to normal keys.  By default placeholders are automatically skipped over.
@@ -2758,7 +2759,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 =for apidoc hv_iterkey
 
 Returns the key from the current position of the hash iterator.  See
-C<hv_iterinit>.
+C<L</hv_iterinit>>.
 
 =cut
 */
@@ -2786,7 +2787,7 @@ Perl_hv_iterkey(pTHX_ HE *entry, I32 *retlen)
 
 Returns the key as an C<SV*> from the current position of the hash
 iterator.  The return value will always be a mortal copy of the key.  Also
-see C<hv_iterinit>.
+see C<L</hv_iterinit>>.
 
 =cut
 */
@@ -2803,7 +2804,7 @@ Perl_hv_iterkeysv(pTHX_ HE *entry)
 =for apidoc hv_iterval
 
 Returns the value from the current position of the hash iterator.  See
-C<hv_iterkey>.
+C<L</hv_iterkey>>.
 
 =cut
 */
@@ -2854,7 +2855,7 @@ Now a macro in hv.h
 
 =for apidoc hv_magic
 
-Adds magic to a hash.  See C<sv_magic>.
+Adds magic to a hash.  See C<L</sv_magic>>.
 
 =cut
 */

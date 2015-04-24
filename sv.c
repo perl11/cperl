@@ -1221,7 +1221,7 @@ SV, then copies across as much information as possible from the old body.
 It croaks if the SV is already in a more complex form than requested.  You
 generally want to use the C<SvUPGRADE> macro wrapper, which checks the type
 before calling C<sv_upgrade>, and hence does not croak.  See also
-C<svtype>.
+C<L</svtype>>.
 
 =cut
 */
@@ -1645,7 +1645,7 @@ Perl_sv_grow(pTHX_ SV *const sv, STRLEN newlen)
 =for apidoc sv_setiv
 
 Copies an integer into the given SV, upgrading first if necessary.
-Does not handle 'set' magic.  See also C<sv_setiv_mg>.
+Does not handle 'set' magic.  See also C<L</sv_setiv_mg>>.
 
 =cut
 */
@@ -1705,7 +1705,7 @@ Perl_sv_setiv_mg(pTHX_ SV *const sv, const IV i)
 =for apidoc sv_setuv
 
 Copies an unsigned integer into the given SV, upgrading first if necessary.
-Does not handle 'set' magic.  See also C<sv_setuv_mg>.
+Does not handle 'set' magic.  See also C<L</sv_setuv_mg>>.
 
 =cut
 */
@@ -1756,7 +1756,7 @@ Perl_sv_setuv_mg(pTHX_ SV *const sv, const UV u)
 =for apidoc sv_setnv
 
 Copies a double into the given SV, upgrading first if necessary.
-Does not handle 'set' magic.  See also C<sv_setnv_mg>.
+Does not handle 'set' magic.  See also C<L</sv_setnv_mg>>.
 
 =cut
 */
@@ -4842,7 +4842,7 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
 Copies a string (possibly containing embedded C<NUL> characters) into an SV.
 The C<len> parameter indicates the number of
 bytes to be copied.  If the C<ptr> argument is NULL the SV will become
-undefined.  Does not handle 'set' magic.  See C<sv_setpvn_mg>.
+undefined.  Does not handle 'set' magic.  See C<L</sv_setpvn_mg>>.
 
 =cut
 */
@@ -4899,7 +4899,7 @@ Perl_sv_setpvn_mg(pTHX_ SV *const sv, const char *const ptr, const STRLEN len)
 
 Copies a string into an SV.  The string must be terminated with a C<NUL>
 character.
-Does not handle 'set' magic.  See C<sv_setpv_mg>.
+Does not handle 'set' magic.  See C<L</sv_setpv_mg>>.
 
 =cut
 */
@@ -5364,7 +5364,7 @@ Perl_sv_chop(pTHX_ SV *const sv, const char *const ptr)
 Concatenates the string onto the end of the string which is in the SV.  The
 C<len> indicates number of bytes to copy.  If the SV has the UTF-8
 status set, then the bytes appended should be valid UTF-8.
-Handles 'get' magic, but not 'set' magic.  See C<sv_catpvn_mg>.
+Handles 'get' magic, but not 'set' magic.  See C<L</sv_catpvn_mg>>.
 
 =for apidoc sv_catpvn_flags
 
@@ -5436,8 +5436,8 @@ Perl_sv_catpvn_flags(pTHX_ SV *const dsv, const char *sstr, const STRLEN slen, c
 
 Concatenates the string from SV C<ssv> onto the end of the string in SV
 C<dsv>.  If C<ssv> is null, does nothing; otherwise modifies only C<dsv>.
-Handles 'get' magic on both SVs, but no 'set' magic.  See C<sv_catsv_mg> and
-C<sv_catsv_nomg>.
+Handles 'get' magic on both SVs, but no 'set' magic.  See C<L</sv_catsv_mg>>
+and C<L</sv_catsv_nomg>>.
 
 =for apidoc sv_catsv_flags
 
@@ -5473,7 +5473,8 @@ Perl_sv_catsv_flags(pTHX_ SV *const dsv, SV *const ssv, const I32 flags)
 Concatenates the C<NUL>-terminated string onto the end of the string which is
 in the SV.
 If the SV has the UTF-8 status set, then the bytes appended should be
-valid UTF-8.  Handles 'get' magic, but not 'set' magic.  See C<sv_catpv_mg>.
+valid UTF-8.  Handles 'get' magic, but not 'set' magic.  See
+C<L</sv_catpv_mg>>.
 
 =cut */
 
@@ -5674,7 +5675,7 @@ Adds magic to an SV.  First upgrades C<sv> to type C<SVt_PVMG> if
 necessary, then adds a new magic item of type C<how> to the head of the
 magic list.
 
-See C<sv_magicext> (which C<sv_magic> now calls) for a description of the
+See C<L</sv_magicext>> (which C<sv_magic> now calls) for a description of the
 handling of the C<name> and C<namlen> arguments.
 
 You need to use C<sv_magicext> to add magic to SvREADONLY SVs and also
@@ -6966,7 +6967,7 @@ Perl_sv_free2(pTHX_ SV *const sv, const U32 rc)
 =for apidoc sv_len
 
 Returns the length of the string in the SV.  Handles magic and type
-coercion and sets the UTF8 flag appropriately.  See also C<SvCUR>, which
+coercion and sets the UTF8 flag appropriately.  See also C<L</SvCUR>>, which
 gives raw access to the xpv_cur slot.
 
 =cut
@@ -7759,7 +7760,7 @@ Perl_sv_eq_flags(pTHX_ SV *sv1, SV *sv2, const U32 flags)
 Compares the strings in two SVs.  Returns -1, 0, or 1 indicating whether the
 string in C<sv1> is less than, equal to, or greater than the string in
 C<sv2>.  Is UTF-8 and 'use bytes' aware, handles get magic, and will
-coerce its args to strings if necessary.  See also C<sv_cmp_locale>.
+coerce its args to strings if necessary.  See also C<L</sv_cmp_locale>>.
 
 =for apidoc sv_cmp_flags
 
@@ -7767,7 +7768,7 @@ Compares the strings in two SVs.  Returns -1, 0, or 1 indicating whether the
 string in C<sv1> is less than, equal to, or greater than the string in
 C<sv2>.  Is UTF-8 and 'use bytes' aware and will coerce its args to strings
 if necessary.  If the flags include SV_GMAGIC, it handles get magic.  See
-also C<sv_cmp_locale_flags>.
+also C<L</sv_cmp_locale_flags>>.
 
 =cut
 */
@@ -8003,13 +8004,13 @@ Perl_sv_cmp_flags(pTHX_ SV *const sv1, SV *const sv2,
 
 Compares the strings in two SVs in a locale-aware manner.  Is UTF-8 and
 'use bytes' aware, handles get magic, and will coerce its args to strings
-if necessary.  See also C<sv_cmp>.
+if necessary.  See also C<L</sv_cmp>>.
 
 =for apidoc sv_cmp_locale_flags
 
 Compares the strings in two SVs in a locale-aware manner.  Is UTF-8 and
 'use bytes' aware and will coerce its args to strings if necessary.  If the
-flags contain SV_GMAGIC, it handles get magic.  See also C<sv_cmp_flags>.
+flags contain SV_GMAGIC, it handles get magic.  See also C<L</sv_cmp_flags>>.
 
 =cut
 */
@@ -8078,7 +8079,7 @@ Perl_sv_cmp_locale_flags(pTHX_ SV *const sv1, SV *const sv2,
 =for apidoc sv_collxfrm
 
 This calls C<sv_collxfrm_flags> with the SV_GMAGIC flag.  See
-C<sv_collxfrm_flags>.
+C<L</sv_collxfrm_flags>>.
 
 =for apidoc sv_collxfrm_flags
 
@@ -9040,7 +9041,7 @@ Perl_sv_dec_nomg(pTHX_ SV *const sv)
 Creates a new SV which is a copy of the original SV (using C<sv_setsv>).
 The new SV is marked as mortal.  It will be destroyed "soon", either by an
 explicit call to FREETMPS, or by an implicit call at places such as
-statement boundaries.  See also C<sv_newmortal> and C<sv_2mortal>.
+statement boundaries.  See also C<L</sv_newmortal>> and C<L</sv_2mortal>>.
 
 =cut
 */
@@ -9070,7 +9071,7 @@ Perl_sv_mortalcopy_flags(pTHX_ SV *const oldstr, U32 flags)
 Creates a new null SV which is mortal.  The reference count of the SV is
 set to 1.  It will be destroyed "soon", either by an explicit call to
 FREETMPS, or by an implicit call at places such as statement boundaries.
-See also C<sv_mortalcopy> and C<sv_2mortal>.
+See also C<L</sv_mortalcopy>> and C<L</sv_2mortal>>.
 
 =cut
 */
@@ -9142,8 +9143,8 @@ Perl_newSVpvn_flags(pTHX_ const char *const s, const STRLEN len, const U32 flags
 Marks an existing SV as mortal.  The SV will be destroyed "soon", either
 by an explicit call to FREETMPS, or by an implicit call at places such as
 statement boundaries.  SvTEMP() is turned on which means that the SV's
-string buffer can be "stolen" if this SV is copied.  See also C<sv_newmortal>
-and C<sv_mortalcopy>.
+string buffer can be "stolen" if this SV is copied.  See also
+C<L</sv_newmortal>> and C<L</sv_mortalcopy>>.
 
 =cut
 */
@@ -9874,7 +9875,7 @@ If C<flags> has C<SV_GMAGIC> bit set, will C<mg_get> on C<sv> if
 appropriate, else not.  C<sv_pvn_force> and C<sv_pvn_force_nomg> are
 implemented in terms of this function.
 You normally want to use the various wrapper macros instead: see
-C<SvPV_force> and C<SvPV_force_nomg>
+C<L</SvPV_force>> and C<L</SvPV_force_nomg>>.
 
 =cut
 */
@@ -10295,7 +10296,7 @@ Perl_sv_setref_pvn(pTHX_ SV *const rv, const char *const classname,
 =for apidoc sv_bless
 
 Blesses an SV into a specified package.  The SV must be an RV.  The package
-must be designated by its stash (see C<gv_stashpv()>).  The reference count
+must be designated by its stash (see C<L</gv_stashpv>>).  The reference count
 of the SV is unaffected.
 
 =cut
@@ -10402,7 +10403,7 @@ as a reversal of C<newSVrv>.  The C<cflags> argument can contain
 C<SV_IMMEDIATE_UNREF> to force the reference count to be decremented
 (otherwise the decrementing is conditional on the reference count being
 different from one or the reference being a readonly SV).
-See C<SvROK_off>.
+See C<L</SvROK_off>>.
 
 =cut
 */
@@ -10477,7 +10478,7 @@ Perl_sv_tainted(pTHX_ SV *const sv)
 =for apidoc sv_setpviv
 
 Copies an integer into the given SV, also updating its string value.
-Does not handle 'set' magic.  See C<sv_setpviv_mg>.
+Does not handle 'set' magic.  See C<L</sv_setpviv_mg>>.
 
 =cut
 */
@@ -10554,7 +10555,7 @@ Perl_sv_setpvf_mg_nocontext(SV *const sv, const char *const pat, ...)
 =for apidoc sv_setpvf
 
 Works like C<sv_catpvf> but copies the text into the SV instead of
-appending it.  Does not handle 'set' magic.  See C<sv_setpvf_mg>.
+appending it.  Does not handle 'set' magic.  See C<L</sv_setpvf_mg>>.
 
 =cut
 */
@@ -10575,7 +10576,7 @@ Perl_sv_setpvf(pTHX_ SV *const sv, const char *const pat, ...)
 =for apidoc sv_vsetpvf
 
 Works like C<sv_vcatpvf> but copies the text into the SV instead of
-appending it.  Does not handle 'set' magic.  See C<sv_vsetpvf_mg>.
+appending it.  Does not handle 'set' magic.  See C<L</sv_vsetpvf_mg>>.
 
 Usually used via its frontend C<sv_setpvf>.
 
@@ -10679,7 +10680,7 @@ If the appended data contains "wide" characters
 (including, but not limited to, SVs with a UTF-8 PV formatted with %s,
 and characters >255 formatted with %c), the original SV might get
 upgraded to UTF-8.  Handles 'get' magic, but not 'set' magic.  See
-C<sv_catpvf_mg>.  If the original SV was UTF-8, the pattern should be
+C<L</sv_catpvf_mg>>.  If the original SV was UTF-8, the pattern should be
 valid UTF-8; if the original SV was bytes, the pattern should be too.
 
 =cut */
@@ -10701,7 +10702,7 @@ Perl_sv_catpvf(pTHX_ SV *const sv, const char *const pat, ...)
 
 Processes its arguments like C<sv_catpvfn> called with a non-null C-style
 variable argument list, and appends the formatted
-to an SV.  Does not handle 'set' magic.  See C<sv_vcatpvf_mg>.
+to an SV.  Does not handle 'set' magic.  See C<L</sv_vcatpvf_mg>>.
 
 Usually used via its frontend C<sv_catpvf>.
 
