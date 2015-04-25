@@ -88,6 +88,7 @@ Perl_set_version(pTHX_ const char *name, STRLEN nlen, const char *strval, STRLEN
 {
     SV* ver = GvSV(gv_add_by_type(gv_fetchpvn(name, nlen, GV_ADD, SVt_PVNV),
                                   SVt_PVNV));
+    PERL_ARGS_ASSERT_SET_VERSION;
     SvREADONLY_off(ver);
     SvUPGRADE(ver, SVt_PVNV);
     SvPVX(ver) = SvGROW(ver, plen+1);
