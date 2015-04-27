@@ -144,6 +144,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
     newXS("XSLoader::load",                XS_XSLoader_load, xsloaderfile);
     newXS("XSLoader::load_file",           XS_XSLoader_load_file, xsloaderfile);
     newXS("XSLoader::bootstrap_inherit",   XS_XSLoader_bootstrap_inherit, xsloaderfile);
+    /* TODO CM-604: broke t/comp/require.t test 53: require does not localise %^H at run time */
     Perl_set_version(aTHX_ STR_WITH_LEN("XSLoader::VERSION"), STR_WITH_LEN("1.00c"), 1.00);
     (void)hv_store(GvHVn(PL_incgv), "XSLoader.pm", sizeof("XSLoader.pm")-1,
                    newSVpvs("XSLoader.c"), 0);
