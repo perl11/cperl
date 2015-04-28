@@ -1,0 +1,49 @@
+#!/bin/bash
+# cperl rebase all branches. before git push cp -f (update all dependent branches)
+if [ -x$1 = x-f ]; then force=1; shift; fi
+if [ -x$1 = x--hard ]; then hard=1; shift; fi
+
+function rb {
+    b=$1
+    m=$2
+    echo git rebase $m --onto $b
+    if [ -n $force ]; then git checkout -f $b; fi
+    git checkout $b && (git rebase $m || exit)
+    git checkout master
+}
+
+# merge-upstream is before master, the commits which can upstream now
+# master is stable
+rb master merge-upstream
+
+# not yet merged features or bugfixes, branched of from master
+git checkout master
+for b in `git branch | grep bugfix/`; do
+    if [ -n $hard ]; then git reset --hard; fi
+    rb $b master
+done
+
+# old: feature/CM-353-cperl-attributes-builtin feature/CM-367-cperl-carp-builtin \
+#      feature/CM-368-cperl-dynaloader-builtin feature/CM-445-cperl-xsloader-builtin
+# unstable side-branches, branching off somewhere
+rb feature/CM-316-cperl-fast-arithmetic-use-new-intrinsics master
+<<<<<<<
+rb feature/CM-317-cperl-signatures master
+rb feature/CM-367-carp-builtin master
+rb feature/CM-367-cperl-warnings-xs-carp feature/CM-367-carp-builtin
+=======
+rb feature/CM-317-cperl-signatures master
+rb feature/CM-367-cperl-carp-builtin master
+rb feature/CM-367-cperl-warnings-xs-carp feature/CM-367-carp-builtin
+>>>>>>>
+
+# our pretty stable branch linear hierarchy
+declare -a feat
+feat=(master feature/CM-370-cperl-warnings-xs)
+N=2
+for i in `seq 0 $(($N - 2))`; do
+    n=$(($i + 1))
+    rb ${feat[$n]} ${feat[$i]}
+done
+
+git branch | egrep 'master|bugfix/|feature/'
