@@ -1,0 +1,45 @@
+language: c
+<<<<<<<
+sudo: false
+addons:
+  apt:
+    packages:
+    - build-essential
+    - libtool
+    - gcc-multilib
+=======
+sudo: false
+addons:
+  apt:
+    packages:
+    - build-essential
+    - libtool
+#-m32 misses gdbm for 32bit. wrong probe, would need to download it from somewhere
+>>>>>>>
+
+compiler:
+  - gcc
+  - clang
+
+matrix:
+  include:
+    - compiler: gcc
+      env: CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native"'
+    - compiler: gcc
+      env: CONFIGURE_OPTION='-Duse64bitall -Dusethreads'
+    - compiler: gcc
+      env: CONFIGURE_OPTION='-Duselongdouble -DDEBUGGING'
+    - compiler: gcc
+      env: CONFIGURE_OPTION='-Duse64bitall -Dusethreads -DDEBUGGING'
+    - compiler: clang
+      env: CONFIGURE_OPTION='-DDEBUGGING'
+    - compiler: clang
+      env: CONFIGURE_OPTION='-Duselongdouble'
+    - compiler: clang
+      env: CONFIGURE_OPTION='-Duse64bitall -Dusethreads'
+
+script:
+  - ./Configure -des -Dusedevel -Dusecperl -Uversiononly -Dcc=$CC $CONFIGURE_OPTION -Dprefix=$HOME/perl-blead && TEST_JOBS=4 make -j4 test_harness && make install && $HOME/perl-blead/bin/cperlivp
+after_script:
+cache:
+  apt: true

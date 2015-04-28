@@ -1,0 +1,517 @@
+=encoding utf8
+
+=head1 NAME
+
+perldelta - what is new for perl v5.24.0
+
+=head1 DESCRIPTION
+
+This document describes differences between the 5.22.0 release and the 5.23.0
+release.
+
+If you are upgrading from an earlier release such as 5.22.1, first read
+L<perl5221delta>, which describes differences between 5.22.1 and 5.22.2.
+
+=head1 Notice
+
+B<cperl note>: Some perl-5.22.2 fixes from the maint-5.22 branch are
+broken and were fixed in cperl-5.22.2 before properly. p5p does not
+really understand its codebase and refuses to take our bugreports and
+proper fixes, so usage of perl-5.22.2 is B<officially discouraged>.
+The official explanation of p5p is refering to their new code of
+conduct, which now disallows criticsm on their broken development.
+
+=head1 Security
+
+=head2 Fix out of boundary access in Win32 path handling
+
+This is CVE-2015-8608.  For more information see
+L<[perl #126755]|https://rt.perl.org/Ticket/Display.html?id=126755>
+
+=head2 Fix loss of taint in C<canonpath()>
+
+This is CVE-2015-8607.  For more information see
+L<[perl #126862]|https://rt.perl.org/Ticket/Display.html?id=126862>
+
+=head2 Set proper umask before calling C<mkstemp(3)>
+
+In 5.22 perl started setting umask to C<0600> before calling C<mkstemp(3)>
+and restoring it afterwards. This wrongfully tells C<open(2)> to strip
+the owner read and write bits from the given mode before applying it,
+rather than the intended negation of leaving only those bits in place.
+
+Systems that use mode C<0666> in C<mkstemp(3)> (like old versions of
+glibc) createa a file with permissions C<0066>, leaving world read and
+write permissions regardless of current umask.
+
+This has been fixed by using umask C<0177> instead.
+
+L<[perl #127322]|https://rt.perl.org/Ticket/Display.html?id=127322>
+
+=head2 Postfix dereferencing is no longer experimental
+
+Using the C<postderef> and C<postderef_qq> features no longer emits a warning.
+Existing code that disables that warning category will continue to work. The
+C<5.24> feature bundle now includes those features.
+
+=head1 Incompatible Changes
+
+=head2 Avoid accessing uninitialized memory in win32 C<crypt()>
+
+Added validation that will detect both a short salt and invalid characters
+in the salt.  L<[perl #126922]|https://rt.perl.org/Ticket/Display.html?id=126922>
+
+=head2 Remove duplicate environment variables from C<environ>
+
+Previously, if an environment variable appeared more than once in
+C<environ[]>, C<%ENV> would contain the last entry for that name,
+while a typical C<getenv()> would return the first entry. We now
+make sure C<%ENV> contains the same as what C<getenv> returns.
+
+Second, we remove duplicates from C<environ[]>, so if a setting
+with that name is set in C<%ENV> we won't pass an unsafe value
+to a child process.
+
+This is L<CVE-2016-2381|https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-2381>
+
+=head1 Incompatible Changes
+
+There are no changes intentionally incompatible with 5.22.1 other than the
+following single exception, which we deemed to be a sensible change to make in
+order to get the new C<\b{wb}> and (in particular) C<\b{sb}> features sane
+before people decided they're worthless because of bugs in their Perl 5.22.0
+implementation and avoided them in the future.
+
+If any others exist, they are bugs, and we request that you submit a report.
+See L</Reporting Bugs> below.
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item *
+
+L<File::Spec> has been upgraded from version 3.56 to 3.56_01.
+
+C<canonpath()> now preserves taint.  See L</"Fix loss of taint in C<canonpath()>">.
+
+=item *
+
+L<Module::CoreList> has been upgraded from version 5.20151213 to 5.20160412c.
+
+=item *
+
+The version number of L<Digest::SHA> listed for Perl 5.18.4 was wrong and has
+been corrected.  Likewise for the version number of L<Config> in 5.18.3 and
+5.18.4.
+L<[perl #127624]|https://rt.perl.org/Ticket/Display.html?id=127624>
+
+=back
+
+=head1 Documentation
+
+=head2 Changes to Existing Documentation
+
+=head3 L<perldiag>
+
+=over 4
+
+=item *
+
+The explanation of the warning "unable to close filehandle %s properly: %s"
+which can occur when doing an implicit close of a filehandle has been expanded
+and improved.
+
+=back
+
+=head3 L<perlfunc>
+
+=over 4
+
+=item *
+
+The documentation of C<hex()> has been revised to clarify valid inputs.
+
+=back
+
+=head1 Diagnostics
+
+The following additions or changes have been made to diagnostic output,
+including warnings and fatal error messages.  For the complete list of
+diagnostic messages, see L<perldiag>.
+
+=head2 Changes to Existing Diagnostics
+
+=over 4
+
+=item *
+
+The C<printf> and C<sprintf> builtins are now more careful about the warnings
+they emit: argument reordering now disables the "redundant argument" warning in
+all cases.
+L<[perl #125469]|https://rt.perl.org/Ticket/Display.html?id=125469>
+
+=back
+
+=head1 Configuration and Compilation
+
+=over 4
+
+=item *
+
+Using the C<NO_HASH_SEED> define in combination with the default hash algorithm
+C<PERL_HASH_FUNC_ONE_AT_A_TIME_HARD> resulted in a fatal error while compiling
+the interpreter, since Perl 5.17.10.  This has been fixed.
+
+=item *
+
+Configuring with ccflags containing quotes (e.g.
+C<< -Accflags='-DAPPLLIB_EXP=\"/usr/libperl\"' >>) was broken in Perl 5.22.0
+but has now been fixed again.
+L<[perl #125314]|https://rt.perl.org/Ticket/Display.html?id=125314>
+
+=item *
+
+C<Configure> now acts as if the C<-O> option is always passed, allowing command
+line options to override saved configuration.  This should eliminate confusion
+when command line options are ignored for no obvious reason.  C<-O> is now
+permitted, but ignored.
+
+=item *
+
+Dtrace builds now build sucessfully on systems with a newer dtrace
+that require an input object file that uses the probes in the F<.d>
+file.
+
+Previously the probe would fail and cause a build failure.
+
+L<[perl #122287]|https://rt.perl.org/Ticket/Display.html?id=122287>
+
+=item *
+
+F<Configure> no longer probes for F<libnm> by default.  Originally
+this was the "New Math" library, but the name has been re-used by the
+GNOME NetworkManager.
+
+L<[perl #127131]|https://rt.perl.org/Ticket/Display.html?id=127131>
+
+=item *
+
+F<Configure> now knows about gcc 5.
+
+=item *
+
+Compiling perl with B<-DPERL_MEM_LOG> now works again.
+
+=back
+
+=head1 Platform Support
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item Darwin
+
+Compiling perl with B<-Dusecbacktrace> on Darwin now works again.
+
+L<[perl #127764]|https://rt.perl.org/Ticket/Display.html?id=127764>
+
+=item ppc64el
+
+The floating point format of ppc64el (Debian naming for little-endian
+PowerPC) is now detected correctly.
+
+=item OS X/Darwin
+
+Builds with both B<-DDEBUGGING> and threading enabled would fail with a "panic:
+free from wrong pool" error when built or tested from Terminal on OS X.  This
+was caused by perl's internal management of the environment conflicting with an
+atfork handler using the libc C<setenv()> function to update the environment.
+
+Perl now uses C<setenv()>/C<unsetenv()> to update the environment on OS X.
+
+L<[perl #126240]|https://rt.perl.org/Ticket/Display.html?id=126240>
+
+=item Tru64
+
+A test failure in F<t/porting/extrefs.t> has been fixed.
+
+=item VMS
+
+=over
+
+=item *
+
+On VMS, the math function prototypes in C<math.h> are now visible under C++.
+Now building the POSIX extension with C++ will no longer crash.
+
+=item *
+
+VMS has had C<setenv>/C<unsetenv> since v7.0 (released in 1996),
+C<Perl_vmssetenv> now always uses C<setenv>/C<unsetenv>.
+
+=item *
+
+Perl now implements its own C<killpg> by scanning for processes in the
+specified process group, which may not mean exactly the same thing as a Unix
+process group, but allows us to send a signal to a parent (or master) process
+and all of its sub-processes.  At the perl level, this means we can now send a
+negative pid like so:
+
+    kill SIGKILL, -$pid;
+
+to signal all processes in the same group as C<$pid>.
+
+=item *
+
+For those C<%ENV> elements based on the CRTL environ array, we've always
+preserved case when setting them but did look-ups only after upcasing the
+key first, which made lower- or mixed-case entries go missing. This problem
+has been corrected by making C<%ENV> elements derived from the environ array
+case-sensitive on look-up as well as case-preserving on store.
+
+=item *
+
+Environment look-ups for C<PERL5LIB> and C<PERLLIB> previously only
+considered logical names, but now consider all sources of C<%ENV> as
+determined by C<PERL_ENV_TABLES> and as documented in L<perlvms/%ENV>.
+
+=item *
+
+The minimum supported version of VMS is now v7.3-2, released in 2003.  As a
+side effect of this change, VAX is no longer supported as the terminal
+release of OpenVMS VAX was v7.3 in 2001.
+
+=back
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item *
+
+C<\b{sb}> works much better.  In Perl v5.22.0, this new construct didn't
+seem to give the expected results, yet passed all the tests in the
+extensive suite furnished by Unicode.  It turns out that it was because
+these were short input strings, and the failures had to do with longer
+inputs.  This was fixed in Perl 5.23.4, but the improvement was not
+noticed until after that was released, so is included here now.
+
+=item *
+
+An unwarranted assertion in C<Perl_newATTRSUB_x()> has been removed.  If a stub
+subroutine definition with a prototype has been seen, then any subsequent stub
+(or definition) of the same subroutine with an attribute was causing an
+assertion failure because of a null pointer.
+
+L<[perl #126845]|https://rt.perl.org/Ticket/Display.html?id=126845>
+
+=item *
+
+Calls to the placeholder C<&PL_sv_yes> used internally when an
+C<import()> or C<unimport()> method isn't found now correctly handle scalar
+context.
+L<[perl #126042]|https://rt.perl.org/Ticket/Display.html?id=126042>
+
+=item *
+
+The C<pipe()> operator would assert for C<DEBUGGING> builds instead of
+producing the correct error message.  The condition asserted on is
+detected and reported on correctly without the assertions, so the
+assertions were removed.
+L<[perl #126480]|https://rt.perl.org/Ticket/Display.html?id=126480>
+
+=item *
+
+In some cases, failing to parse a here-doc would attempt to use freed
+memory.  This was caused by a pointer not being restored correctly.
+L<[perl #126443]|https://rt.perl.org/Ticket/Display.html?id=126443>
+
+=item *
+
+Report more context when we see an array where we expect to see an
+operator and avoid an assertion failure. 
+L<[perl #123737]|https://rt.perl.org/Ticket/Display.html?id=123737>
+
+=item *
+
+If a here-doc was found while parsing another operator, the parser had
+already read end of file, and the here-doc was not terminated, perl
+could produce an assertion or a segmentation fault.  This now reliably
+complains about the unterminated here-doc.
+L<[perl #125540]|https://rt.perl.org/Ticket/Display.html?id=125540>
+
+=item *
+
+Avoid parsing beyond the end of the buffer when processing a C<#line>
+directive with no filename.
+L<[perl #127334]|https://rt.perl.org/Ticket/Display.html?id=127334>
+
+=item *
+
+Perl 5.22 added support to the C99 hexadecimal floating point notation,
+but sometimes misparses hex floats. This had been fixed.
+L<[perl #127334]|https://rt.perl.org/Ticket/Display.html?id=127334>
+[perl #127183]
+
+=item *
+
+Certain regex patterns involving a complemented posix class in an
+inverted bracketed character class, and matching something else
+optionally would improperly fail to match.  An example of one that could
+fail is C</qr/_?[^\Wbar]\x{100}/>.  This has been fixed.
+L<[perl #127334]|https://rt.perl.org/Ticket/Display.html?id=127334>
+[perl #127537]
+
+=item *
+
+Fixed an issue with C<< pack >> where C<< pack "H" >> (and C<< pack "h" >>)
+could read past the source when given a non-utf8 source, and a utf8 target.
+L<[perl #127334]|https://rt.perl.org/Ticket/Display.html?id=127334>
+[perl #126325]
+
+=item *
+
+Fixed some cases where perl would abort due to a segmentation fault, or a
+C-level assert.
+L<[perl #126193]|https://rt.perl.org/Ticket/Display.html?id=126193>
+L<[perl #126257]|https://rt.perl.org/Ticket/Display.html?id=126257>
+L<[perl #126258]|https://rt.perl.org/Ticket/Display.html?id=126258>
+L<[perl #126405]|https://rt.perl.org/Ticket/Display.html?id=126405>
+L<[perl #126602]|https://rt.perl.org/Ticket/Display.html?id=126602>
+L<[perl #127773]|https://rt.perl.org/Ticket/Display.html?id=127773>
+L<[perl #127786]|https://rt.perl.org/Ticket/Display.html?id=127786>
+
+=item *
+
+Avoid leaking memory when setting C<$ENV{foo}> on Darwin.
+L<[perl #126240]|https://rt.perl.org/Ticket/Display.html?id=126240>
+
+=item *
+
+Correctly raise an error when trying to compile patterns with
+unterminated character classes while there are trailing backslashes.
+L<[perl #126141]|https://rt.perl.org/Ticket/Display.html?id=126141>
+
+=item *
+
+Handle C<NOTHING> regops and C<EXACTFU_SS> regops in C<make_trie> properly.
+L<[perl #126206]|https://rt.perl.org/Ticket/Display.html?id=126206>
+
+=item *
+
+Only test C<semctl> if we have everything needed to use it. In a FreeBSD
+the C<semctl> entry point may exist, but it can be disabled by policy.
+L<[perl #127533]|https://rt.perl.org/Ticket/Display.html?id=127533>
+
+=item *
+
+A regression that allowed undeclared barewords as hash keys to work despite
+strictures has been fixed.
+L<[perl #126981]|https://rt.perl.org/Ticket/Display.html?id=126981>
+
+=item *
+
+As an optimization, C<uc()>, C<lc()>, C<ucfirst()> and C<lcfirst()> sometimes
+modify their argument in-place rather than returning a modified copy, as of
+Perl 5.20.0.  The critera for this optimization has been made stricter to avoid
+these functions accidentally modifying in-place when they should not, which has
+been happening in some cases, e.g. in L<List::Util>.
+
+=item *
+
+<<<<<<<
+A leak in the XS typemap caused one scalar to be leaked each time a C<FILE *>
+or a C<PerlIO *> was C<OUTPUT:>ed or imported to Perl, since perl 5.000. These
+particular typemap entries are thought to be extremely rarely used by XS
+modules. [perl #124181]
+=======
+A problem with excessive memory usage in the compilation of some regular
+expressions involving non-ASCII characters has been alleviated.
+>>>>>>>
+
+=back
+
+=head1 Known Problems
+
+=over
+
+=item *
+
+Caching of C<DESTROY> methods could result in a non-pointer or a
+non-STASH stored in the C<SvSTASH()> slot of a stash, breaking the C<B>
+C<STASH()> method. Always check for a valid SV pointer returned from B.
+L<[perl #126410]|https://rt.perl.org/Ticket/Display.html?id=126410>
+
+=back
+
+=head1 Acknowledgements
+
+Perl 5.22.2 represents approximately 4 months of development since Perl 5.22.1
+and contains approximately 2,900 lines of changes across 110 files from 24
+authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 1,500 lines of changes to 52 .pm, .t, .c and .h files.
+
+Perl continues to flourish into its third decade thanks to a vibrant community
+of users and developers.  The following people are known to have contributed
+the improvements that became Perl 5.22.2:
+
+Aaron Crane, Abigail, Andreas König, Aristotle Pagaltzis, Chris 'BinGOs'
+Williams, Craig A. Berry, Dagfinn Ilmari Mannsåker, David Golden, David
+Mitchell, H.Merijn Brand, James E Keenan, Jarkko Hietaniemi, Karen Etheridge,
+Karl Williamson, Matthew Horsfall, Niko Tyni, Ricardo Signes, Sawyer X, Stevan
+Little, Steve Hay, Todd Rinaldo, Tony Cook, Vladimir Timofeev, Yves Orton.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history.  In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core.  We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+https://rt.perl.org/ .  There may also be information at
+http://www.perl.org/ , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<perlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If the bug you are reporting has security implications, which make it
+inappropriate to send to a publicly archived mailing list, then please send it
+to perl5-security-report@perl.org.  This points to a closed subscription
+unarchived mailing list, which includes all the core committers, who will be
+able to help assess the impact of issues, figure out a resolution, and help
+co-ordinate the release of patches to mitigate or fix the problem across all
+platforms on which Perl is supported.  Please only use this address for
+security issues in the Perl core, not for modules independently distributed on
+CPAN.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
