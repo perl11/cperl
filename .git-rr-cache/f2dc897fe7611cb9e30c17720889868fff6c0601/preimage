@@ -1,0 +1,72 @@
+#!/bin/bash
+# rbi all our branches
+# sometimes cp-rb leaves a wrong first commit, fix it manually
+
+set -e
+
+function rb {
+    b=$1
+    m=$2
+    echo git rebase $m --onto $b
+    git checkout $b && git rebase --interactive $m
+    if [ x$? != x0 ]; then
+    	echo "rebase exit code:" $?
+    	exit
+    fi
+}
+
+# merge-upstream is before master, the commits which can upstream now
+# master is stable
+# changes to merge-upstream are now forbidden, published on github
+#rb master merge-upstream
+
+# not yet merged features or bugfixes, branched of from branch-point or merge-upstream
+git checkout branch-point
+#rb bugfix/gh26-qw-as-parens        branch-point
+for b in `git branch | grep bugfix/ | grep -v cowrefcnt`; do
+    if [ -n $hard ]; then git reset --hard; fi
+    rb $b branch-point
+done
+
+# compiler branches:
+rb feature/gh8-cowrefcnt-stats     branch-point
+rb bugfix/gh8-cowrefcnt	           feature/gh8-cowrefcnt-stats
+
+# speed branches:
+# unstable side-branches, branching off somewhere
+rb feature/CM-626-cperl-use-dots      branch-point
+rb feature/CM-712-cperl-types-proto   branch-point
+rb feature/gh9-signatures             branch-point
+rb feature/gh24-new-hash-table        branch-point
+rb feature/gh23-inline-subs           branch-point
+rb feature/gh14-native-types          branch-point
+rb feature/gh6-no-miniperl            branch-point
+
+# memory branches:
+rb feature/CM-367-cperl-carp-builtin     branch-point
+rb feature/CM-367-cperl-warnings-xs-carp feature/CM-367-cperl-carp-builtin
+rb feature/gh9-warnings-xs               branch-point
+
+# speed and feature list: our previous pretty stable branch linear hierarchy
+# (for later deeper subtrees)
+declare -a feat
+feat=(branch-point
+      feature/gh9-signatures3
+      feature/gh9-signatures3-gh25-nl
+      feature/gh16-multi
+     )
+N=${#feat[@]}
+for i in `seq 0 $(($N - 2))`; do
+    n=$(($i + 1))
+    rb ${feat[$n]} ${feat[$i]}
+done
+
+<<<<<<<
+rb feature/CM-317-cperl-signatures3-gh25-nl1 feature/CM-317-cperl-signatures3
+git checkout branch-point
+=======
+rb feature/gh9-signatures3-gh25-nl1 feature/gh9-signatures3
+git checkout branch-point
+>>>>>>>
+
+git branch | egrep 'branch-point|master|bugfix/|feature/|merge-'
