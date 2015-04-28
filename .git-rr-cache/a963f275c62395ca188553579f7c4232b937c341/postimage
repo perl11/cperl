@@ -1,0 +1,74 @@
+version: 5.22.2.{build}
+#skip_tags: true
+#os: MinGW
+#os: Visual Studio 2015
+#os: Default Azure
+#build:
+#  verbosity: minimal
+platform:
+  - x64
+  - x86
+environment:
+  matrix:
+    - MSVC_VERSION: 10
+    - MSVC_VERSION: 12  
+clone_depth: 1
+branches:
+  only:
+    - master
+    - /smoke/
+init:
+  - git config --global core.autocrlf input
+
+# from https://github.com/apache/lucy-clownfish/blob/master/appveyor.yml  
+build: off
+
+test_script:
+  - 't\appveyor-smoke.bat'
+  
+# nope: https://ci.appveyor.com/project/rurban/cperl/build/job/ui7b0dk0gprw1eo2
+#  - cinst ruby.devkit
+#  - cinst make
+#install:
+#  - cinst mingw
+#  - SET PATH=%PATH%;C:\tools\mingw64\bin;C:\tools\mingw64\opt\bin
+#  - mingw-get install mingw-developer-toolkit
+#build_script:
+#  - cd win32
+#  - mingw32-make
+#test_script:
+#  - mingw32-make test
+
+deploy_script:
+- cmd: >-
+    if "%MSVC_VERSION%" == "10" exit /b
+    nmake install CCTYPE=MSVC120 USE_NO_REGISTRY=define
+    C:\cperl\usr\bin\cperlivp
+    7z a -y -sfx cperl-%APPVEYOR_REPO_TAG_NAME%-win%PLATFORM%.exe c:\cperl\
+    del /s /f /q C:\cperl
+
+artifacts:
+  - path: cperl-$(APPVEYOR_REPO_TAG_NAME)-win$(PLATFORM).exe
+    name: cperl-$(APPVEYOR_REPO_TAG_NAME)-win$(PLATFORM).exe
+    type: exe
+
+deploy:
+  release: $(APPVEYOR_REPO_TAG_NAME)
+  description: 'cperl windows sfx'
+  provider: GitHub
+  auth_token:
+    secure: "zWVKDFnHOuiPTPwo4/BAzTmn/4TPb4MqkmBYaOpom7L46StKDYA8j81hcdsjnAqZUDKEOTY54ASXV/LqaaVn19bggqT8pZg04/uAv1Ci9bOYKKBsD1W/4kws+1o4IdIVO4m6uSlapSFZPExMl/+BNwoiPuJc6Xbfyuh86p5MQ7nqjYxycLXybDrvLtwSGm8XghxGK3/93q8/LF+BVe+ZsaCrozj8Nd0nnzzzuwxGi+VJPhbDp5BH8p06n7eCv5AMR9p1urNQ3XyrdO9GGDuRNzJf6TZHvYJXl0aM8HRklgdMZl2/FQgcRznk9PZFw5n/NttqZvLKh8mTDqfcXAv3JRHZuzSnyY2netUD1/VmUd6TCCM+8zVp3/592tkr2A6tQfmZvFMLeLH5waVC/vRw3UpljEZ0I/3Jac3gE2T36UJmF+k5DWWWBfjGnvJ2S1MTre/nlBgB+gPXZ/XZOt+dBrjFts8Q3gUTgE2IPJUrkOaGKmj8mXcPL/mES6MPIdfJGKDTVd+XwzDD2TNa6D//Y6LcfBCuIF/gQm6ipSDpQLrm52MqXAWLjGpnjj+JKoSrOcoV4GgzzrA90AJr1SBEOttHNPcuZgRJ3krMYsjsYpNR164XBCcRDXYwQl80JpHdC2bAn7Bnv59etJdF+LETxedvGsPfbRU2u9DhoCqegEU="
+  artifact: cperl-$(APPVEYOR_REPO_TAG_NAME)-win$(PLATFORM).exe
+  draft: false
+  prerelease: false
+  on:
+    appveyor_repo_tag: true
+
+notifications:
+- provider: Email
+  to:
+  - rurban@cpanel.net
+  subject: cperl windows build
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: false

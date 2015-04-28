@@ -1,0 +1,90 @@
+language: c
+sudo: false
+addons:
+  apt:
+    packages:
+    - build-essential
+    - libtool
+    - gperf
+    - gcc-multilib
+    - libgdbm-dev:i386
+  coverity_scan:
+    project:
+      name: "perl11/cperl"
+      description: "a perl5 with classes, types, compilable, company friendly"
+    notification_email: rurban@cpanel.net
+    build_command_prepend: "./Configure -des -Dusedevel -Uversiononly -Dprefix=$HOME/cperl"
+    build_command: "make -s -j4 ECHO=true"
+    branch_pattern: coverity
+
+cache:
+  apt: true
+
+os:
+  - linux
+  - osx
+
+branches:
+  only:
+    - master
+    - /smoke/
+    - /coverity/
+
+env:
+  global:
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #  via the "travis encrypt" command using the project repo's public key
+    #- secure: "PVpGzgkK+HYoVUE4LGE+uYs8G7q+xSIBfWnt+qVU7+5wx7WZX/ICEhyw2MId3UcRsATAKun92fJVPod8yJHF9NdnZ9ifUbzdimB1b46pAws+oqqWjyqfb59oT7ams6mXpd0+yXkH3PmJDUhM9L6K85uidzeJtYYH/4cKDqEMlLaI9eeOX28WySco0+ZRNHIwXIdluQeY2FOirSbTiqMGdKh3/k+dYrZwPkketcnkC6w1CYIVqD1StPjTzjkFkYGV7T6Yl63P8Oq9a1EPOL7NyycWc2uabuaiwaco30FmcW360al3SYgU07n1SKO854LeP239jexYhvTK7BEazVp+NCqHgSl9hzMkOaZ1ACP68jkq2EoNa/dltbSBc2VouvCTNYNWf8idqNvhmHdX3uP9S1Su3HbCThh2sb+IFQQCTqMZQOamQ2jcAW3EAgelV+2xbaFUPo3o6gIZnkwVaEwkWg1C+boX42gD3xWp4fU9SOqrsq/DOygBzkWNw0Z2JFK9mviLmnDDj0bil09PiNTOKc4MZMejgPo2iEUEXklbfwUOA3vHv3s0B+25WMiicM4UhRl1Jo/o3vkv79KSrms3ph0pEfnWYJ7vWz2i7YmBHwO7DHhVioSs30DVtVuAc4JE24mqRgk2Hhh1dsaEG80YBx/KkwLKXzKVmdjjjUJoEmI="
+    # encrypted repo oauth token for deployment
+    - secure: "zWVKDFnHOuiPTPwo4/BAzTmn/4TPb4MqkmBYaOpom7L46StKDYA8j81hcdsjnAqZUDKEOTY54ASXV/LqaaVn19bggqT8pZg04/uAv1Ci9bOYKKBsD1W/4kws+1o4IdIVO4m6uSlapSFZPExMl/+BNwoiPuJc6Xbfyuh86p5MQ7nqjYxycLXybDrvLtwSGm8XghxGK3/93q8/LF+BVe+ZsaCrozj8Nd0nnzzzuwxGi+VJPhbDp5BH8p06n7eCv5AMR9p1urNQ3XyrdO9GGDuRNzJf6TZHvYJXl0aM8HRklgdMZl2/FQgcRznk9PZFw5n/NttqZvLKh8mTDqfcXAv3JRHZuzSnyY2netUD1/VmUd6TCCM+8zVp3/592tkr2A6tQfmZvFMLeLH5waVC/vRw3UpljEZ0I/3Jac3gE2T36UJmF+k5DWWWBfjGnvJ2S1MTre/nlBgB+gPXZ/XZOt+dBrjFts8Q3gUTgE2IPJUrkOaGKmj8mXcPL/mES6MPIdfJGKDTVd+XwzDD2TNa6D//Y6LcfBCuIF/gQm6ipSDpQLrm52MqXAWLjGpnjj+JKoSrOcoV4GgzzrA90AJr1SBEOttHNPcuZgRJ3krMYsjsYpNR164XBCcRDXYwQl80JpHdC2bAn7Bnv59etJdF+LETxedvGsPfbRU2u9DhoCqegEU="
+  matrix:
+    - CONFIGURE_OPTION='' XCC='gcc' XBITS=64
+    - CONFIGURE_OPTION='' XCC="'gcc\ -m32'" XBITS=32
+    - CONFIGURE_OPTION='-DDEBUGGING' XCC='clang'
+    - CONFIGURE_OPTION='-Duse64bitall -Dusethreads' XCC='gcc'
+    - CONFIGURE_OPTION='-Duselongdouble' XCC='clang'
+    - CONFIGURE_OPTION='-Duselongdouble -DDEBUGGING' XCC='gcc'
+    - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall' XCC='clang'
+
+matrix:
+  #allow_failures:
+  #  - env: CONFIGURE_OPTION='' XCC="'gcc\ -m32'"
+  fast_finish: true
+
+#osx:   - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=corei7 -DPERL_FAKE_SIGNATURE"'
+#linux: - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native -msse4.2 -DPERL_FAKE_SIGNATURE"'
+
+script:
+<<<<<<<
+  - ./Configure -des -Dusedevel -Uversiononly -Dcc="$XCC" $CONFIGURE_OPTION -Dprefix=$HOME/cperl && make -j4 -s
+  - TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/cperl/bin/cperlivp
+=======
+  - test -n $TRAVIS_TAG && CONFIGURE_OPTION="$CONFIGURE_OPTION -Dusedevel";
+    ./Configure -des -Uversiononly -Dcc="$XCC" $CONFIGURE_OPTION -Dprefix=$HOME/cperl/usr
+    && make -j4 -s
+  - TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/cperl/usr/bin/cperlivp
+
+# only the cfgs with XBITS set. at all 4 cfgs: linux64 linux32 osx64 osx32(?)
+# windows releases with appveyor. deb, rpm, osx packages done extra at home.
+before_deploy:
+  - test -z $CONFIGURE_OPTION && test -n $XBITS
+    && tar -czvf cperl-${TRAVIS_TAG}-${TRAVIS_OS_NAME}${XBITS}.tar.gz -C $HOME/cperl *
+
+deploy:
+  provider: releases
+  file: "cperl-${TRAVIS_TAG}-${TRAVIS_OS_NAME}${XBITS}.tar.gz"
+  skip_cleanup: true
+  on:
+    tags: true
+>>>>>>>
+
+notifications:
+  irc:
+    channels:
+      - "irc.perl.org#perl11"
+    on_success: always
+    on_failure: always
+    # to enable skip_join, in IRC channel first execute `/mode -n`
+    skip_join: true
+    template:
+      - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message} %{build_url}"
