@@ -7400,6 +7400,18 @@ Perl_yylex(pTHX)
 	    formbrack = 2; /* dot seen where arguments expected */
 	    goto rightbracket;
 	}
+        if (!isDIGIT(s[1]) && s[1] != '"' && s[1] != '\'' && s[1] != '$'
+        &&  !isSPACE(s[1]) /* do concat with whitespace, $, or strings. barewords only */
+        &&  cop_hints_fetch_pvs(PL_curcop, "dots", 0) != &PL_sv_placeholder)
+        {
+            s++;
+            if (isIDFIRST_lazy_if(s,UTF)) {
+                s = force_word(s,METHOD,FALSE,TRUE);
+                TOKEN(ARROW);
+            }
+            else
+                TERM(ARROW);
+        }
 	if (PL_expect == XSTATE && s[1] == '.' && s[2] == '.') {
 	    s += 3;
 	    TERM(YADAYADA); /* really ELLIPSIS */
