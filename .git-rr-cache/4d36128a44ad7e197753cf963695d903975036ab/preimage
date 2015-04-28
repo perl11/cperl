@@ -1,0 +1,580 @@
+=encoding utf8
+
+=head1 NAME
+
+perl5221delta - what is new for perl v5.22.1
+
+=head1 DESCRIPTION
+
+This document describes perl-only differences between the perl 5.22.0 release and the cperl 5.22.1 release.
+
+For B<cperl> see F<Changes> and L<perlcperl>
+
+=head1 Core Enhancements
+
+<<<<<<<
+=item * coretypes (Int, UInt, Num, Str. lowercase native types accepted)
+
+See L<perltypes>
+
+=item * types in signatures as designed and also as attribute
+
+But still using the slow Zefram signatures, which are 2x slower,
+not faster.
+
+=item * function return types declarations as attribute
+
+=item * many more builtin function attributes
+
+=item * shaped arrays with compile-time checks and optims
+
+=item * static loop optims
+
+=item * fast arithmetic overflow
+
+With gcc-5 or clang-3.4 on 64bit new fast compiler intrinsics are used
+for the add and multiply ops, which check just for the overflow flag
+and then jump to the promotion to double. This results in smaller and
+much faster code. The old code which had to compute the results twice,
+and needed many more branches before to check for IV to UV or NV
+promotion.
+
+=item * convert static method to subs
+
+Convert static method calls to subs, as described in
+L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
+
+Only 4% faster.
+
+=item * strict, attributes, DynaLoader, XSLoader as builtin packages, rewritten in C
+
+=item * changed default hash function to the fastest FNV1A
+
+As in the stableperl fork. See L<https://github.com/rurban/smhasher#smhasher> and
+L<https://github.com/rurban/perl-hash-stats#perl-hash-stats>
+
+Added more hash functions to test them: FNV1A,
+FNV1A_YOSHIMITSUTRIAD/FNV1A_YT, CRC32, METRO64CRC, METRO64, SPOOKY32
+In the end the statistically slightly worse and slower FNV1A was the fastest
+when used in a hash table function. For file or database digests other hash
+functions are better.
+
+Allow Configure -Dhash_func=name
+
+=item * new enterxsssub OP
+
+Seperate XS and PP XS calls dynamically with a new enterxssub op.
+12.5% faster, even when lot of XS loaded functions initially start as PP op,
+and are restarted as XS op.
+
+=item * -DI and -Dk
+
+DEBUG_k: -Dk for compiler checks and optimizations, also -Dkv.
+
+DEBUG_I: -DI replaces now PERLIO_DEBUG.
+
+DEBUG_H: -DH is now extended to report more.
+
+=item * add some unicode ops
+
+With utf8 and use 5.22 or -E some new unicode ops are now understood:
+parse unicode superscripts simplified (max 2 digits)
+
+  2²⁵  => 2**25
+  2⁰²⁵ => (2**02)**5
+  $a³ => $a ** 3
+
+And
+
+    → ⇒
+    ⇔ ≠ ≤ ≥ ÷
+
+as shorter to read and harder to write aliases for:
+
+    ARROW -> and FATARROW =>
+    NCMP <=>
+    NE,LE,GE !=,<=,>=
+    DIVIDE /
+
+=item * improved build system
+
+make -s is now more silent, and thus much faster.
+
+CC is now used for compiling and LD for linking. This enables now
+seperate linkers to be used, esp. gold linkers or LLVM optimizations.
+
+=item * extended dump and Devel::Peek
+
+All SV FLAGS are now seperated into the general sv_flags and type specific
+cv,hv,av flags, and printed as hex value and as string interpretation.
+PADs are printed now with more information.
+
+=======
+=over 4
+
+=item * coretypes (Int, UInt, Num, Str. lowercase native types accepted)
+
+See L<perltypes>
+
+=item * types in signatures as designed and also as attribute
+
+But still using the slow Zefram signatures, which are 2x slower,
+not faster.
+
+=item * function return types declarations as attribute
+
+=item * many more builtin function attributes
+
+=item * shaped arrays with compile-time checks and optims
+
+=item * static loop optims
+
+=item * fast arithmetic overflow
+
+With gcc-5 or clang-3.4 on 64bit new fast compiler intrinsics are used
+for the add and multiply ops, which check just for the overflow flag
+and then jump to the promotion to double. This results in smaller and
+much faster code. The old code which had to compute the results twice,
+and needed many more branches before to check for IV to UV or NV
+promotion.
+
+=item * convert static method to subs
+
+Convert static method calls to subs, as described in
+L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
+
+Only 4% faster.
+
+=item * strict, attributes, DynaLoader, XSLoader as builtin packages, rewritten in C
+
+=item * changed default hash function to the fastest FNV1A
+
+As in the stableperl fork. See L<https://github.com/rurban/smhasher#smhasher> and
+L<https://github.com/rurban/perl-hash-stats#perl-hash-stats>
+
+Added more hash functions to test them: FNV1A,
+FNV1A_YOSHIMITSUTRIAD/FNV1A_YT, CRC32, METRO64CRC, METRO64, SPOOKY32
+In the end the statistically slightly worse and slower FNV1A was the fastest
+when used in a hash table function. For file or database digests other hash
+functions are better.
+
+Allow Configure -Dhash_func=name
+
+=item * new enterxsssub OP
+
+Seperate XS and PP XS calls dynamically with a new enterxssub op.
+12.5% faster, even when lot of XS loaded functions initially start as PP op,
+and are restarted as XS op.
+
+=item * -DI and -Dk
+
+DEBUG_k: -Dk for compiler checks and optimizations, also -Dkv.
+
+DEBUG_I: -DI replaces now PERLIO_DEBUG.
+
+DEBUG_H: -DH is now extended to report more.
+
+=item * add some unicode ops
+
+With utf8 and use 5.22 or -E some new unicode ops are now understood:
+
+Parse constant unicode superscripts, grouped into max 2 digits:
+
+    2²⁵  => 2**25
+    2⁰²⁵ => (2**02)**5
+    $a³ => $a ** 3
+
+And
+
+    → ⇒
+    ⇔ ≠ ≤ ≥ ÷
+
+as shorter to read and harder to write aliases for:
+
+    ARROW -> and FATARROW =>
+    NCMP <=>
+    NE,LE,GE !=,<=,>=
+    DIVIDE /
+
+=item * improved build system
+
+make -s is now more silent, and thus much faster.
+
+CC is now used for compiling and LD for linking. This enables now
+seperate linkers to be used, esp. gold linkers or LLVM optimizations.
+
+=item * extended dump and Devel::Peek
+
+All SV FLAGS are now seperated into the general sv_flags and type specific
+cv,hv,av flags, and printed as hex value and as string interpretation.
+PADs are printed now with more information.
+
+=back
+
+>>>>>>>
+=head2 Unicode 8.0 is now supported
+
+For details on what is in this release, see
+L<http://www.unicode.org/versions/Unicode8.0.0/>.
+
+=head1 Incompatible Changes
+
+=head2 exceptions for i_modulo and i_divide with constants
+
+Re-instate pre-2002 exceptions for i_modulo and i_divide with constants
+and typed integers, as with use integer.
+
+[CHANGE] constant integer modulo now behaves as under use integer
+and deviates with one negative argument from post-2002 code.
+
+=head2 integer constants behave now as under use integer
+
+Provide upgrade exceptions with the u_ suffix for u_add and u_multiply
+to allow promotion from signed integers to unsigned.  But results of
+arithmetic operations with only integer constants are not promoted to
+double numbers anymore.
+
+=head2 The C</\C/> character class has been removed.
+
+This regular expression character class was deprecated in v5.20.0 and has
+produced a deprecation warning since v5.22.0. It is now a compile-time
+error. If you need to examine the individual bytes that make up a
+UTF8-encoded character, then use C<utf8::encode()> on the string (or a
+copy) first.
+
+=head2 C<chdir('')> no longer chdirs home
+
+Using C<chdir('')> or C<chdir(undef)> to chdir home has been deprecated since
+perl v5.8, and will now fail.  Use C<chdir()> instead.
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item * strict, attributes, DynaLoader, XSLoader as builtin packages
+
+Those packages are now builtins, and were rewritten in C for performance
+and memory reasons.
+
+=item * Config as XS
+
+Config is now a XS extension, implemented as perfect hash leading to
+dramatic memory savings. See L<http://perl11.org/cperl/STATUS.html>
+
+=item * Safe
+
+Safe was improved to skip loading empty Carp::Heavy, and to add many
+missing tests.
+
+=item *
+
+The libnet distribution has been upgraded from version 3.05 to 3.06.
+
+=item *
+
+The Scalar-List-Utils distribution has been upgraded from version 1.41 to 1.42.
+
+=item *
+
+L<autodie> has been upgraded from version 2.26 to 2.27.
+
+=item *
+
+L<CPAN::Meta> has been upgraded from version 2.150001 to 2.150005.
+
+=item *
+
+L<CPAN::Meta::Requirements> has been upgraded from version 2.132 to 2.133.
+
+=item *
+
+L<CPAN::Meta::YAML> has been upgraded from version 0.012 to 0.016.
+
+=item *
+
+L<Encode> has been upgraded from version 2.72 to 2.73.
+
+=item *
+
+L<encoding> has been upgraded from version 2.14 to 2.15.
+
+=item *
+
+L<ExtUtils::CBuilder> has been upgraded from version 0.280221 to 0.280223.
+
+=item *
+
+L<feature> has been upgraded from version 1.40 to 1.41.
+
+=item *
+
+L<Getopt::Long> has been upgraded from version 2.45 to 2.46.
+
+=item *
+
+L<HTTP::Tiny> has been upgraded from version 0.054 to 0.056.
+
+=item *
+
+L<List::Util> has been upgraded from version 1.41 to 1.42_01.
+
+=item *
+
+L<Locale::Codes> has been upgraded from version 3.34 to 3.35.
+
+=item *
+
+L<Math::BigInt> has been upgraded from version 1.9997 to 1.999701.
+
+Correct the behaviour of bdiv() and bmod() in list context. [perl #124300]
+
+Correct C<< Math::BigInt->new() >> for non-integer input.  [perl #124325]
+
+Speed up Math::BigFloat -> blog(). [perl #124382]
+
+Fix bug in Math::BigFloat's bceil() and bint() methods. [perl #124412]
+
+=item *
+
+L<Math::BigRat> has been upgraded from version 0.2608 to 0.260801.
+
+Correct the behaviour of bdiv() and bmod() in list context. [perl #124303]
+
+=item *
+
+L<Module::CoreList> has been upgraded from version 5.20150520 to 5.20150620.
+
+=item *
+
+L<Module::Metadata> has been upgraded from version 1.000026 to 1.000027.
+
+=item *
+
+L<parent> has been upgraded from version 0.232 to 0.234.
+
+=item *
+
+L<Parse::CPAN::Meta> has been upgraded from version 1.4414 to 1.4417.
+
+=item *
+
+L<perl5db.pl> has been upgraded from version 1.49 to 1.49_01.
+
+User actions are no longer evaluated after the script under the
+debugger finishes.  [perl #71678]
+
+=item *
+
+L<Pod::Simple> has been upgraded from version 3.29 to 3.30.
+
+=item *
+
+L<Pod::Usage> has been upgraded from version 1.64 to 1.67.
+
+=item *
+
+L<POSIX> has been upgraded from version 1.53 to 1.54.
+
+The NaN payload API has been implemented (getpayload, setpayload,
+setpayloadsig, issignaling).
+
+=item *
+
+L<Scalar::Util> has been upgraded from version 1.41 to 1.42_01.
+
+=item *
+
+L<Socket> has been upgraded from version 2.018 to 2.019.
+
+=item *
+
+L<threads> has been upgraded from version 2.01 to 2.02.
+
+=item *
+
+L<Time::Piece> has been upgraded from version 1.29 to 1.30.
+
+=item *
+
+L<UNIVERSAL> has been upgraded from version 1.12 to 1.13.
+
+Don't import from L<UNIVERSAL> in its documentation, it no longer
+exports anything.  [perl #125410]
+
+=back
+
+=head1 Platform Support
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item Win32
+
+=over
+
+=item *
+
+Visual C++ 2013 builds will now execute on XP and higher. Previously they would
+only execute on Vista and higher.
+
+=item *
+
+You can now build perl with GNU Make and GCC.  [perl #123440]
+
+=item *
+
+C<truncate($filename, $size)> now works for files over 4GB in size.
+[perl #125347]
+
+=back
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item * don't fatalize warnings during unwinding
+
+[perl #123398]
+
+=item * Ignore ENOTTY on open via the perlio buffer layer
+
+=item * hash keys keep the tainted info.
+
+See [perlsec](http://perldoc.perl.org/perlsec.html#Taint-mode)
+
+=item * fix ops using lexical $_
+
+This was broken since 2002.
+
+Fixed the old OA_TARGLEX bug with TARGET_MY optimizations.
+
+Tracked down a wrong TARGET_MY optimization on the ucfirst op, where
+is illegal to use, because the (PL_opargs[kid->op_type] & OA_TARGLEX
+usage in maybe_targlex is wrong.
+
+This was testing for one of both bits TARGET 8 OR TARGLEX 16 thus
+always was true for each TARGET t op, like ucfirst, which are not
+prepared to use TARGET_MY.
+
+The bug was there from Ilya's first SASSIGN optimization patch on,
+which added TARGLEX, but this was using the bit 256 in opargs, which
+never caused the bitpattern to match. And where it matched the assert
+was removed.
+Added now a bittester macro OP_HAS_TARGLEX, because people notoriously
+get bit matching with AND or OR wrong.
+
+=item * readonly packages can now be cloned with threads
+
+=item * fixed some crashing cornercases found by the AFL fuzzer or similar:
+
+[perl #125840]: $x=*0; *x=$x  protect from XSRETURN(-1)
+
+[perl #125341]: BEGIN <> (worse fix added upstream)
+
+[perl #125350]: qq{@{[0}*sub{]]}}}=sub{0' . "\c[" (Shlomi Fish, not upstream)
+
+fixed various off-by-one \0 errors with the new 5.16 GV code.
+
+=item *
+
+Duplicating a closed file handle for write no longer creates a
+filename of the form F<GLOB(0xXXXXXXXX)>.  [perl #125115]
+
+=item *
+
+Warning fatality is now ignored when rewinding the stack.  This
+prevents infinite recursion when the now fatal error also causes
+rewinding of the stack.  [perl #123398]
+
+=item * 
+
+In perl v5.22.0, the logic changed when parsing a numeric parameter to the -C
+option, such that the successfully parsed number was not saved as the option
+value if it parsed to the end of the argument.  [perl #125381]
+
+=item *
+
+The PadlistNAMES macro is an lvalue again.
+
+=item *
+
+Zero -DPERL_TRACE_OPS memory for sub-threads.
+
+perl_clone_using() was missing Zero init of PL_op_exec_cnt[].  This
+caused sub-threads in threaded -DPERL_TRACE_OPS builds to spew exceedingly
+large op-counts at destruct.  These counts would print %x as "ABABABAB",
+clearly a mem-poison value.
+
+=back
+
+=head1 Acknowledgements
+
+Perl 5.22.1c represents approximately 6 months of development since Perl 5.22.0
+and contains approximately 86,000 lines of changes across 480 files from 29
+authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 55,000 lines of changes to 270 .pm, .t, .c and .h files.
+
+Perl continues to flourish into its third decade thanks to a vibrant community
+of users and developers. The following people are known to have contributed the
+improvements that became Perl 5.22.1c:
+
+Chase Whitener, Chris 'BinGOs' Williams, Craig A. Berry, Dagfinn Ilmari
+Mannsåker, Daniel Dragan, David Golden, David Mitchell, Hugo van der Sanden,
+Jan Dubois, Jarkko Hietaniemi, Jerry D. Hedden, Jim Cromie, Karen Etheridge,
+Karl Williamson, kmx, Lukas Mai, Martijn Lievaart, Matthew Horsfall, Niko Tyni,
+Peter John Acklam, Rafael Garcia-Suarez, Reini Urban, Ricardo Signes, Shlomi
+Fish, Steve Hay, Thomas Sibley, Tony Cook, Unicode Consortium, Zefram.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+https://rt.perl.org/ .  There may also be information at
+http://www.perl.org/ , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the C<perlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If the bug you are reporting has security implications, which make it
+inappropriate to send to a publicly archived mailing list, then please send it
+to perl5-security-report@perl.org.  This points to a closed subscription
+unarchived mailing list, which includes all the core committers, who will be
+able to help assess the impact of issues, figure out a resolution, and help
+co-ordinate the release of patches to mitigate or fix the problem across all
+platforms on which Perl is supported.  Please only use this address for
+security issues in the Perl core, not for modules independently distributed on
+CPAN.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
