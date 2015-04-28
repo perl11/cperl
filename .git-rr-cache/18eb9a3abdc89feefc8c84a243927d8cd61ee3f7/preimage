@@ -1,0 +1,168 @@
+<<<<<<<
+#!/bin/bash
+# cperl rebase all branches. before git push cp -f (update all dependent branches)
+# now also with cp-rbi functionality with -i
+# ./cp-rb 1 (does 1 skip)
+if [ x$1 = x-f ]; then force=1; shift; fi
+if [ x$1 = x--hard ]; then hard=1; shift; fi
+if [ x$1 = x-i ]; then interactive=--interactive; shift; fi
+case $1 in
+    [0-9]*) rbs=$1; shift;;
+esac
+
+#set -e
+
+function rb {
+    b=$1
+    m=$2
+    echo git rebase $m --onto $b
+    if [ -n $force ]; then git checkout -f $b; fi
+    git checkout $b && git rebase $interactive $m
+    if [ x$? != x0 ]; then
+        # if the rb exit happens in an old to be merged commit, do a --skip (g rbs),
+        # optionally execute ARG1 skips ($rbs)
+        # if it happens in the new branch, resolve it manually
+        if [ x$rbs != x ]; then
+            echo git rebase --skip $rbs x
+            for i in `seq 1 $rbs`; do
+                git rebase --skip
+            done
+        fi
+    fi
+    if [ -e .git/rebase-apply/patch ]; then
+       exit
+    fi
+    git checkout branch-point
+}
+
+# merge-upstream - master - branch-point
+
+# not yet merged features or bugfixes, branched of from branch-point or merge-upstream
+git checkout branch-point
+#rb bugfix/gh26-qw-as-parens        branch-point
+for b in `git branch | grep bugfix/ | grep -v cowrefcnt`; do
+    if [ -n $hard ]; then git reset --hard; fi
+    rb $b branch-point
+done
+
+# compiler branches:
+rb feature/gh8-cowrefcnt-stats     branch-point
+rb bugfix/gh8-cowrefcnt	           feature/gh8-cowrefcnt-stats
+
+# speed branches:
+# unstable side-branches, branching off somewhere
+rb feature/CM-626-cperl-use-dots      branch-point
+rb feature/CM-712-cperl-types-proto   branch-point
+rb feature/gh9-signatures             branch-point
+rb feature/gh24-new-hash-table        branch-point
+rb feature/gh23-inline-subs           branch-point
+rb feature/gh14-native-types          branch-point
+rb feature/gh6-no-miniperl            branch-point
+
+# memory branches:
+rb feature/CM-367-cperl-carp-builtin     branch-point
+rb feature/CM-367-cperl-warnings-xs-carp feature/CM-367-cperl-carp-builtin
+rb feature/gh9-warnings-xs               branch-point
+
+# speed and feature list: our previous pretty stable branch linear hierarchy
+# (for later deeper subtrees)
+declare -a feat
+feat=(branch-point
+      feature/gh9-signatures3
+      feature/gh9-signatures3-gh25-nl
+      feature/gh16-multi
+     )
+N=${#feat[@]}
+for i in `seq 0 $(($N - 2))`; do
+    n=$(($i + 1))
+    rb ${feat[$n]} ${feat[$i]}
+done
+
+rb feature/gh9-signatures3-gh25-nl1 feature/gh9-signatures3
+
+git checkout branch-point
+git branch | egrep 'branch-point|master|bugfix/|feature/|merge-'
+=======
+#!/bin/bash
+# cperl rebase all branches. before git push cp -f (update all dependent branches)
+# now also with cp-rbi functionality with -i
+# ./cp-rb 1 (does 1 skip)
+if [ x$1 = x-f ]; then force=1; shift; fi
+if [ x$1 = x--hard ]; then hard=1; shift; fi
+if [ x$1 = x-i ]; then interactive=--interactive; shift; fi
+if [ x$1 != x ]; then rbs=$1; fi
+
+#set -e
+
+function rb {
+    b=$1
+    m=$2
+    echo git rebase $m --onto $b
+    if [ -n $force ]; then git checkout -f $b; fi
+    git checkout $b && git rebase $interactive $m
+    if [ x$? != x0 ]; then
+        # if the rb exit happens in an old to be merged commit, do a --skip (g rbs),
+        # optionally execute ARG1 skips ($rbs)
+        # if it happens in the new branch, resolve it manually
+        if [ x$rbs != x ]; then
+            echo git rebase --skip $rbs x
+            for i in `seq 1 $rbs`; do
+                git rebase --skip
+            done
+        fi
+    fi
+    if [ -e .git/rebase-apply/patch ]; then
+       exit
+    fi
+    git checkout master
+}
+
+# merge-upstream is before master, the commits which can upstream now
+# master is stable
+# changes to merge-upstream are now forbidden, published on github
+#rb master merge-upstream
+
+# not yet merged features or bugfixes, branched of from master or merge-upstream
+git checkout master
+#for b in `git branch | grep bugfix/`; do
+#    if [ -n $hard ]; then git reset --hard; fi
+#    rb $b master
+#done
+
+# compiler branches:
+rb feature/CM-600-cperl-cowrefcnt-stats     master
+rb bugfix/CM-600-cperl-cowrefcnt	    feature/CM-600-cperl-cowrefcnt-stats
+
+# speed branches:
+# unstable side-branches, branching off somewhere
+rb feature/CM-626-cperl-use-dots         master
+rb feature/CM-712-cperl-types-proto      master
+rb feature/CM-322-cperl-new-hash-table   master
+rb feature/CM-707-cperl-inline-subs      master
+rb feature/CM-713-cperl-native-types     master
+rb feature/CM-916-cperl-no-miniperl      master
+
+# memory branches:
+rb feature/CM-367-cperl-carp-builtin     master
+rb feature/CM-367-cperl-warnings-xs-carp feature/CM-367-cperl-carp-builtin
+rb feature/CM-370-cperl-warnings-xs      master
+
+# speed and feature list: our previous pretty stable branch linear hierarchy
+# (for later deeper subtrees)
+declare -a feat
+feat=(master
+      feature/CM-317-cperl-signatures3
+      feature/CM-317-cperl-signatures3-CM-690-nl
+      feature/CM-910-cperl-multi
+     )
+N=${#feat[@]}
+for i in `seq 0 $(($N - 2))`; do
+    n=$(($i + 1))
+    rb ${feat[$n]} ${feat[$i]}
+done
+
+rb feature/CM-317-cperl-signatures3-CM-690-nl1 feature/CM-317-cperl-signatures3
+
+git checkout master
+git branch | egrep 'master|bugfix/|feature/|merge-'
+>>>>>>>

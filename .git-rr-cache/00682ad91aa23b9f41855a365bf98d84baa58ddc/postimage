@@ -1,0 +1,179 @@
+=encoding utf8
+
+=head1 NAME
+
+release_cperl - Releasing a new version of cperl 5.x
+
+Note that things change at each release, so there may be new things not
+covered here, or tools may need updating.
+
+=head1 SYNOPSIS
+
+There's no C<make release> target yet.
+
+    less Porting/release_manager_guide.pod
+
+    ../do-conf-cperl-release
+    make -s -j4 test && make -s install DESTDIR=`pwd`/../cperl-5.22.2-inst
+
+    mkdir ../cperl-5.22.2
+    cp -rp .git ../cperl-5.22.2/
+    cd ../cperl-5.22.2
+    git reset --hard
+    git clean -dxf
+    perl Porting/makerel -bx  # src tarball
+
+    for t in deb rpm osxpkg solaris pkgin; do
+      fpm -s dir -t $t -C cperl -p ../cperl-5.22.2-inst/ \
+        --version 5.22.2 \
+        -m rurban@cpanel.net \
+        --url http://perl11.org/cperl/$t/ \
+        --deb-config Porting/debian --deb-changelog pod/perl5222cdelta.pod
+    done
+
+So far we have no upstream accepted C<cperl> packages yet, so we
+publish it by our own.  It's trivial.
+
+=head1 DETAILS
+
+=head2 makerel the src tarball
+
+Look into the F<Porting/release_manager_guide.pod> document how to make a normal
+C<.tar.gz> release.
+
+In short: Start in a fresh dir, because we don't want to loose our
+internal test files.
+
+    mkdir ../cperl-5.22.2-build
+    cp -rp .git ../cperl-5.22.2-build/
+    cd ../cperl-5.22.2-build
+    git reset --hard
+    git clean -dxf
+    perl Porting/makerel -bx
+
+=head2 make the native binaries
+
+My C<../do-conf-cperl-release> contains this.
+ccflags is architecture specific.
+
+    ver=5.22.2
+    # we put our clashing utils into scriptdir
+    ./Configure -sder -Dcc=gcc -Dprefix=/usr \
+                -Accflags="-msse4.2" \
+                -Dsitebin=/usr/lib/cperl/site_cperl/$ver/bin \
+                -Dscriptdir=/usr/lib/cperl/$ver/bin \
+                -Dcf_email='rurban@cpanel.net' \
+                -Uusethreads -Doptimize='-O3 -g'
+    
+    sed -i -e's,-fstack-protector-strong,-fstack-protector,' config.sh Makefile cflags
+    touch config.h
+    make -s git_version.h ECHO=true
+    make -s -j4 ECHO=true
+    
+    destdir=`dirname $0`/cperl-$ver-inst
+    rm -rf $destdir
+    make -s test && make install DESTDIR=$destdir
+
+    for f in perldoc perlivp; do
+      rm usr/bin/c$f 2>/dev/null
+      rm usr/lib/cperl/$ver/bin/$f 2>/dev/null
+      ln -s /usr/lib/cperl/$ver/bin/c$f usr/bin/c$f
+      ln -s c$f usr/lib/cperl/$ver/bin/$f
+    done
+
+=head2 create the native packages
+
+Easiest is to use the ruby package B<fpm>. C<gem install fpm> to
+create packages for debian/ubuntu/mint .deb, redhat/centos/fedora
+.rpm, osx .pkg, bsd and solaris packages, but not yet windows .msi
+
+    # on i386 and amd64 debian machines. needs the -1 suffix
+    fpm -s dir -t deb -n cperl -v 5.22.2-1 -m 'rurban@cpanel.net' \
+        -d 'zlib1g (>= 1:1.2.2.3)' -d libbz2-1.0 -d 'libgdbm3 (>= 1.8.3)' -d 'libdb-5.1' \
+        --url http://perl11.org/cperl/deb/ \
+        --deb-changelog pod/perl5222cdelta.pod \
+        -C ../cperl-5.22.2-inst .
+
+    # on i386 and x86_64 centos6 and a centos7 machine. no -1 suffix
+    fpm -s dir -t rpm -n cperl -v 5.22.2 -m 'rurban@cpanel.net' \
+        -d 'zlib' -d bzip2-libs -d 'gdbm' -d 'db4' \
+        --url http://perl11.org/cperl/rpm/ \
+        -C ../cperl-5.22.2-inst .
+
+    # on an amd64 osx machine
+    fpm -s dir -t osxpkg -n cperl -v 5.22.2 -m 'rurban@cpanel.net' \
+        --url http://perl11.org/cperl/osxpkg/ \
+        -C ../cperl-5.22.2-inst .
+
+    # on i386 and amd64 solaris machines
+    fpm -s dir -t solaris -n cperl -v 5.22.2 -m 'rurban@cpanel.net' \
+        --url http://perl11.org/cperl/solaris/ \
+        -C ../cperl-5.22.2-inst .
+
+    # on i386 and amd64 bsd machines
+    fpm -s dir -t pkgin -n cperl -v 5.22.2 -m 'rurban@cpanel.net' \
+        --url http://perl11.org/cperl/pkgin/ \
+        -C ../cperl-5.22.2-inst .
+
+    # on i386 and amd64 windows machines
+    # TODO (see strawberry for .msi)
+
+=head2 prepare the repos on perl11.org
+
+You need write permissions to the C<perl11/perl11.github.com> repo on github,
+i.e. member of the C<perl11/mongers> group.
+Releases are just static files on the web somewhere, for .deb, .rpm and the others.
+We use our static L<http://perl11.org/cperl/> website on github for now.
+
+    cd ..
+    git clone git@github.com:perl11/perl11.github.com.git
+
+=head2 setup the debian apt repo
+
+You need one of the debian repo tools to update the index for the new
+.deb once.
+See e.g. L<https://wiki.debian.org/HowToSetupADebianRepository>
+
+I use L<http://www.aptly.info/tutorial/repo/>
+
+    aptly repo create -distribution=squeeze -component=main cperl
+
+Add the debs to the pool:
+
+    aptly repo add cperl ../../cperl_5.22.2-1_{i386,amd64}.deb
+    aptly publish repo cperl
+    rsync -av ~/.aptly/public/* perl11.github.com/deb/
+
+=head2 setup the yum rpm repos
+
+See e.g. L<https://wiki.centos.org/HowTos/CreateLocalRepos>
+yum just needs some static files with a certain layout.
+We provide native packages for el6 and el7, i.e. RHEL6/Centos6.7
+and RHEL7/Centos7.2
+Copy the created rpms into the rpm dest dirs.
+
+    yum install createrepo
+    cd perl11.github.com/rpm
+
+    for dir in el6/i386 el6/x86_64 el7/i686 el7/x86_64; do
+      mkdir -p $dir 2>/dev/null
+      d=`echo $dir|sed 's,/*,,'`
+      a=`echo $dir|sed 's,*/,,'`
+      cp ../../cperl-5.22.2-1.$d.$a.rpm $dir/ 2>/dev/null
+      createrepo $dir
+      gpg --detach-sign --armor repodata/repomd.xml
+    done
+
+=head2 update the static website
+
+perl11.org/cperl/STATUS.html, perl11.org/cperl/Changes.html and the pods.
+
+(from markdown and pod) TODO...
+
+=head2 publish the website
+
+    git push
+
+Check it and announce it on twitter and your blog.
+
+=cut

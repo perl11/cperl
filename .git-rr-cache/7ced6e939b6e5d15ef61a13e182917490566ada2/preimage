@@ -1,0 +1,119 @@
+<<<<<<<
+#!/bin/bash
+# cperl rebase --interactive all our branches
+# sometimes cp-rb leaves a wrong first commit, fix it manually
+
+set -e
+
+function rb {
+    b=$1
+    m=$2
+    echo git rebase $m --onto $b
+    git checkout $b && git rebase --interactive $m
+    if [ x$? != x0 ]; then
+    	echo "rebase exit code:" $?
+    	exit
+    fi
+}
+
+function rbb {
+    rb $1 branch-point
+}
+
+# merge-upstream - master - branch-point
+# we work above branch-point and move stable tress to master
+
+# not yet merged features or bugfixes, branched of from branch-point
+git checkout branch-point
+rb branch-point master
+
+for b in `git branch | egrep '(bugfix|compiler|feature)/'`; do
+    if [ -n $hard ]; then git reset --hard; fi
+    rb $b branch-point
+done
+
+# memory branches:
+rb feature/CM-367-cperl-warnings-xs-carp feature/CM-367-cperl-carp-builtin
+
+# speed and feature list: our previous pretty stable branch linear hierarchy
+rb featurex/gh16-multi feature/gh7-signatures
+
+# (for later deeper subtrees)
+#declare -a feat
+#feat=(feature/gh7-signatures
+#      featurex/gh16-multi
+#     )
+#N=${#feat[@]}
+#for i in `seq 0 $(($N - 2))`; do
+#    n=$(($i + 1))
+#    rb ${feat[$n]} ${feat[$i]}
+#done
+
+# defunct:
+#rb old/gh7-signatures3-gh25-nl  feature/gh7-signatures
+#rb old/gh7-signatures3-gh25-nl1 feature/gh7-signatures
+
+git checkout branch-point
+git branch | egrep 'branch-point|master|bugfix/|feature'
+=======
+#!/bin/bash
+# rbi all our branches
+# sometimes cp-rb leaves a wrong first commit, fix it manually
+
+trap do_exit ERR
+set -e
+
+function rb {
+    b=$1
+    m=$2
+    echo git rebase $m --onto $b
+    git checkout $b && git rebase --interactive $m
+    if [ x$? != x0 ]; then
+    	echo "rebase exit code:" $?
+    	do_exit
+    fi
+}
+
+# merge-upstream is before master, the commits which can upstream now
+# master is stable
+#rb master merge-upstream
+
+# not yet merged features or bugfixes, branched of from master
+git checkout master
+#for b in `git branch | grep bugfix/`; do
+#    rb $b master
+#done
+
+# compiler branches:
+rb feature/CM-600-cperl-cowrefcnt-stats     master
+rb feature/CM-600-cperl-cowrefcnt	    feature/CM-600-cperl-cowrefcnt-stats
+
+# speed branches:
+# unstable side-branches, branching off somewhere
+rb feature/CM-626-cperl-use-dots    master
+rb feature/CM-317-cperl-signatures  master
+rb feature/CM-317-cperl-signatures3 master
+rb feature/CM-317-cperl-signatures3-CM-690-nl feature/CM-317-cperl-signatures3
+rb feature/CM-317-cperl-signatures3-CM-690-nl1 feature/CM-317-cperl-signatures3
+rb feature/CM-712-cperl-types-proto      master
+rb feature/CM-322-cperl-new-hash-table   master
+rb feature/CM-707-cperl-inline-subs      master
+rb feature/CM-713-cperl-native-types     master
+
+# memory branches:
+rb feature/CM-367-cperl-carp-builtin     master
+rb feature/CM-367-cperl-warnings-xs-carp feature/CM-367-cperl-carp-builtin
+rb feature/CM-370-cperl-warnings-xs      master
+
+# speed list: our pretty stable branch linear hierarchy
+declare -a feat
+feat=(master feature/CM-317-cperl-signatures3
+      )
+N=2
+for i in `seq 0 $(($N - 2))`; do
+    n=$(($i + 1))
+    rb ${feat[$n]} ${feat[$i]}
+done
+
+git branch | egrep 'master|bugfix/|feature/|merge-'
+>>>>>>>

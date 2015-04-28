@@ -313,6 +313,14 @@ cache-friendly open addressing, not simple, slow and DOS'able linked
 lists.  Seperate the keys from the values to fit the search into a
 cache line.
 
+=head2 fast arithmetic - use new intrinsics
+
+gcc-5 and clang-3.6 provide new platform compatible fast intrinsics to
+check for overflow on add, sub or mul and promote the result to double
+then. This is basically just a C<jo +2> instruction on x86. perl5 uses
+a huge and slow logic to check for overflow on these simple ops.
+HAS_BUILTIN_ARITH_OVERFLOW / d_builtin_arith_overflow
+
 =head2 lexical methods
 
 Lexical methods are of course private to its enclosing class, i.e. not

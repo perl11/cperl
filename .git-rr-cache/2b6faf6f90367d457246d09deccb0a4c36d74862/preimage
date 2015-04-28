@@ -1,0 +1,235 @@
+<<<<<<<
+=======
+cperl-5.22.1 / 2015-09-14
+=========================
+
+These are the changes above perl-5.22.1 (i.e. 5.23.0)
+See pod/perlcperl.pod for a summary, but note that perlcperl includes also
+still in work features.
+
+  * Enable cloning of readonly packages with threads (upstream bug)
+  * Add Travis hooks: https://travis-ci.org/perl11/cperl
+  * Do not fallback to u_ ops on 32bit.
+  * installperl uses PERLNAME=cperl with -Dusecperl
+  * installperl honors Configure -Dperlpath
+  * fixed some crashing cornercases found by the AFL fuzzer or similar:
+    #125840: $x=*0; *x=$x
+    protect from XSRETURN(-1)
+    #125341: BEGIN <> (worse fix added upstream)
+    #125350: qq{@{[0}*sub{]]}}}=sub{0' . "\c[" (Shlomi Fish, not upstream)
+    fixed various off-by-one \0 errors with the new 5.16 GV code.
+  * merge SVf_PROTECT with SVf_READONLY, no double readonly system
+  * fix ops using lexical $_, old OA_TARGLEX bug with TARGET_MY optim
+  * add shaped arrays and optimize certain accesses to omit run-time
+    bounds checks. loops with static ranges, constant array indices.
+  * typed all internal ops and use them.
+    provide upgrade and downgrade variant tables.
+  * re-instate pre-2002 exceptions for i_modulo and i_divide with constants
+    and typed integers, as with use integer.
+    [CHANGE] constant integer modulo now behaves as under use integer
+    and deviates with one negative argument from post-2002 code.
+  * integer constants behave now as under use integer. provide upgrade
+    exceptions with the u_ suffix for u_add and u_multiply.
+  * opcodes: re-arrange, add pure, boxret, typed and native variants.
+    renamed some opcodes for harmonization and provide backcompat macros
+  * fix OP_SASSIGN to be a proper BINOP and remove the various exceptions
+  * coretypes as builtins, with type check and promotion.
+    native types implemented, but not yet promoted
+  * convert static method calls to subs, as described in
+    http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html
+    4% faster
+  * DEBUG_k: -Dk for compiler checks and optimizations, also -Dkv
+  * rewrote Config as XS, as perfect hash
+  * change EUMM to depend on lib/Config_heavy.pl, not lib/Config/pm
+    because of Config bootstrapping quirks with miniperl and perl variants
+  * utils: prefix perldoc, perlbug and perlivp with a 'c'.
+    rewrote cperlbug to post to github.com/perl11/cperl/issues
+  * hash_func: add FNV1A, FNV1A_YOSHIMITSUTRIAD/FNV1A_YT, CRC32, METRO64CRC, METRO64,
+    SPOOKY32 hashes
+  * hash_func: select FNV1A as new default. See https://github.com/rurban/perl-hash-stats
+  * allow Configure -Dhash_func=name
+  * DEBUG_H: prefix with HASH, and extend it
+  * fixup (void)INCMARK
+  * B::Deparse test fixup
+  * enterxssub: fix ext/Devel-Peek/t/Peek.t
+  * enterxssub: fix B::Deparse and tests
+  * enterxssub: fix B tests
+  * Safe 2.39_01c, Opcode 1.33c: disable enterxssub
+  * Safe 2.39_01c: Document XS inabilities
+  * add seperate enterxssub op, ~12% faster
+  * Safe: skip loading empty Carp::Heavy
+  * B-Deparse: skip DynaLoader::dl_load_flags on cperl
+  * Test-Harness: fix for cperl
+  * fastarith: on gcc and clang use fast overflow intrinsics
+  * perlcperl.pod: add build + install doc
+  * ExtUtils::Mkbootstrap: allow missing DynaLoader.pm
+  * apidoc: fix placing set_version in perlapi
+  * cperl: do not normalize PL_patchlevel
+  * cperl version: permit ending c in every cperl VERSION
+  * more Porting updates: skip DynaLoader for cmpVERSION
+  * regen Porting/checkcfgvar.pl
+  * fix t/porting/regen.t
+  * t/lib/warnings/op: fix for new DynaLoader
+  * DynaLoader: fix porting/diag.t
+  * DynaLoader: comment about t/comp/require.t test 53
+  * t/porting/args_assert.t: fix for set_version
+  * t/porting/podcheck.t: update for XSLoader/DynaLoader copies
+  * regen: Possible unintended interpolation of @Changed
+  * Makefile: improve DL_SRC dependency, touch ar lib
+  * XSLoader: fix XSLoader.t test 24
+  * Documentation: add cperl specific changes to *Loader.pod
+  * perlcall.pod: format flags with C<>, add more about SP vs MARK
+  * XSLoader: converted to compiled builtin
+  * DynaLoader.pod: formatting
+  * metaconf: add dl extensions and path_sep to config.h
+  * config.h: add LDLIBPTHNAME
+  * metaconf: add HAS_LIBNAME_UNIQUE to config.h
+  * metaconf: add d_vms_case_sensitive_symbols and HAS_VMS_CASE_SENSITIVE_SYMBOLS
+  * xsutils: boot_core_xsutils: boot_DynaLoader
+  * ExtUtils-Embed-1.33 usecperl variant to boot DynaLoader immediately
+  * DynaLoader: converted to compiled builtin
+  * attributes: regen lib/.gitignore via regen/lib_cleanup.pl
+  * attributes: fix t/porting/diag.t, add :-shared error to perldiag.pod
+  * attributes: fix tests for cperl
+  * attributes.pm: disable pp parts
+  * cperl: allow :const and coretype function return attributes
+  * lib/attributes.pm: do not bootstrap with cperl
+  * attributes 0.26_01c converted to XS
+  * Makefile.SH: replace CC with LD to link exes
+  * add use cperl pragma
+  * coretypes: fix t/op/stash.t omit deleting READONLY stash keys
+  * coretypes: declare Undef, Int, UInt, Num, Str
+  * ExtUtils-MakeMaker: fix repreq.t for builtin strict
+  * strict: fix test for cperl
+  * strict 1.10c converted to compiled builtin, re-add xsutils.c
+  * usecperl Deparse: lexical_subs is enabled
+  * mv README.cperl -> pod/perlcperl.pod
+  * cperl.pm: fix t/porting/maintainers.t
+  * cperl: display cperl specifics with -V
+  * Fix cperl pod_rules (readmes in the MANIFESTs)
+  * Update perldata/const from const qualifier to :const attribute
+  * perldata.pod: add const and coretypes
+  * pod: fix porting tests
+  * README.cperl: tailcall optimization (long term plan)
+  * README.cperl: We track stable upstream releases only
+  * README.cperl: php7 + => pod
+  * -DH debug hash fill, size and collisions
+  * Configure: set cperl as package, and use its installstyle
+  * Configure: support -Dusecperl, $Config{usecperl}, ifdef USE_CPERL
+  * add cperl documentation: pod/perltypes.pod README.cperl
+  * add CHECK_*_ATTRIBUTES for compile-time
+  * make -s: more Makefile silencing
+  * make -s: ExtUtils::Mkbootstrap 7.04_01c: silence Running Mkbootstrap
+  * fix RT#81332 744aaba059 bloats the B compilers
+  * test -D switches: add PERLIO_DEBUG changes
+  * test -D switches: new t/run/switchDBG.t
+  * DEBUG_I: add documentation for -DI and PERLIO_DEBUG
+  * PerlIO_debugio: reuse fd from PERLIO_DEBUG for PL_perlio_debug_fd
+  * DEBUG_I: add a seperate -DI instead of PERLIO_DEBUG
+  * schmorp stableperl patches for 5.22.0
+  * restricted hash error message with stashes
+  * [perl #125369] - Set correct flags for smartmatch in certain cases
+  * installperl: no strip with DEBUGGING
+  * parse unicode superscripts simplified (max 2 digits)
+  * parse unicode constant superscripts (one digit)
+  * parse sdot for multiply also
+  * parse some new unicode keywords
+  * hints/darwin.sh: document -no-cpp-precomp cargo cult
+  * Devel::Peek fix tests for changed core dump.c
+  * dump: adjust core tests for changed dump
+  * dump: add FLAGS values and PADLIST sizes
+  * MD5: static is not at beginning of declaration
+  * t/porting/globvar.t: skip PL_memory_debug_header also
+  * add warnings 7fatal testcase for #123398
+  * don't fatalize warnings during unwinding (#123398)
+  * lib/vars_carp.t: fix wrong test
+  * Ignore ENOTTY on open via the perlio buffer layer
+  * regen_lib: add some love for vim
+  * MARK -Ds debugging
+  * XSLoader 0.21: use dl_find_symbol 3rd optional argument
+  * DynaLoader: extend t/DynaLoader.t to be run from basedir also
+  * DynaLoader/dl_*.xs: Define all PERL_IN_DL_*_XS markers
+  * DynaLoader 1.33 dl_find_symbol add 3rd optional argument
+  * Configure: support non-perl5 package, and use its installstyle
+  * xs_boot_epilog (Xp): change ax from U32 to I32
+  * force_next: fix -Wsign-comp warning
+  * perl_hash_crc32: use HW hasher as default with SSE4.2
+  * Makefile: add TAGS target (etags, not ctags)
+  * EUMM: more make -s improvements
+  * make -s: silent means silent
+  * lib/h2ph.t: keep tmpfiles on error
+
+>>>>>>>
+Perl 5
+
+For an overview of what's changed in this release, see pod/perldelta.pod
+and pod/perlcdelta.pod
+
+For the details of changes in previous releases, see the individual
+perlNNNdelta.pod files. For example, pod/perl588delta.pod describes the
+changes between versions 5.8.7 and 5.8.8.
+
+For a list of contributors to perl, see AUTHORS.
+
+If you need a detailed commit history (i.e. descriptions of each
+individual commit),  you can view the git version control history online
+at http://perl5.git.perl.org/perl.git (follow the 'shortlog' link beside
+the relevant tag). Or, you can download a copy of the git repository and
+then run a command like
+
+    git log --name-status v5.12.0..v5.14.0
+
+to view all the changes between 5.12.0 and 5.14.0.
+
+See pod/perlgit.pod for more details on using git and accessing the
+commit history.
+
+In perl releases prior to 2009, the source tarball included a collection
+of Changes files that listed the individual commits that had gone into
+each release. Since these files had become very large, and since the
+same information is now freely available online, it was decided to remove
+them from subsequent releases.
+
+If you need access to these removed files, then they can be be found most
+recently in the 5.8.9 and 5.10.0 tarballs, at
+
+    http://www.cpan.org/src/perl-5.8.9.tar.gz
+    http://www.cpan.org/src/5.0/perl-5.10.0.tar.gz
+
+The contents of the files in question can mostly be regenerated using git
+commands. The following table shows the equivalents. Note that the files
+prior to Changes5.005 were not simple lists of commits, so can't be
+recreated just by running the git command. As it happens, even the latter
+ones are not exact equivalents. This is due to a combination of errors in
+the original Changes files, and "impedance mismatches" when the previous
+version control data was imported into git in December 2008.
+
+For example, the Changes5.005 file includes 206 spurious entries from the
+maint5.004 Perforce branch.
+
+Running the following command with the range argument shown in the table
+will produce *approximately* the same list of changes in the specified
+file shown from the listed tarball.
+
+    git log --name-status <range>
+
+  file           tarball  <range> argument to 'git log'
+  ------------   ------   --------------------------------
+  Changes5.000   Either   N/A
+  Changes5.001   Either   perl-5.000..perl-5.001
+  Changes5.002   Either   perl-5.001..perl-5.002
+  Changes5.003   Either   perl-5.002..perl-5.003
+  Changes5.004   Either   perl-5.003..perl-5.004
+  Changes5.005   Either   perl-5.004..perl-5.005_03
+  Changes5.6     Either   perl-5.005_03..perl-5.6.0
+  Changes5.8     Either   perl-5.6.0..perl-5.8.0
+  Changes5.8.1   5.8.9    perl-5.8.0..perl-5.8.1 ^1ede746b
+  Changes5.8.2   5.8.9    perl-5.8.1..perl-5.8.2
+  Changes5.8.3   5.8.9    perl-5.8.2..perl-5.8.3
+  Changes5.8.4   5.8.9    perl-5.8.3..perl-5.8.4
+  Changes5.8.5   5.8.9    perl-5.8.4..perl-5.8.5 ^3a81978b
+  Changes5.8.6   5.8.9    perl-5.8.5..perl-5.8.6 ^498d59dd
+  Changes5.8.7   5.8.9    perl-5.8.6..perl-5.8.7
+  Changes5.8.8   5.8.9    perl-5.8.7..perl-5.8.8
+  Changes        5.8.9    perl-5.8.8..perl-5.8.9
+  Changes        5.10.0   perl-5.8.0..perl-5.10.0

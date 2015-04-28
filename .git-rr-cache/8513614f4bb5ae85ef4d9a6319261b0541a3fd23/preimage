@@ -1,0 +1,43 @@
+<<<<<<<
+#!/bin/sh
+# test all major cp branches, but not branch-point
+git checkout master
+for b in master `git branch --list --no-color|cut -c3- \
+	       | egrep '^(bugfix/|feature|smoke/|compiler/)'`
+do
+    git checkout $b
+    tfile=log.test-`git describe --long --tags --dirty --always`
+    if [ ! -f $tfile ]; then
+        if [ -f ../do-conf-cperl-fast ]; then ../do-conf-cperl-fast >/dev/null 2>/dev/null;
+        else ../do-conf-cperl >/dev/null 2>/dev/null
+        fi
+        make -s -j4 || make -s 2>/dev/null
+        echo test $b ...
+        if [ -f perl ]; then
+            make -s -j4 test 2>&1 | tee $tfile
+            echo tested $b | tee -a $tfile
+        fi
+    fi
+done
+=======
+#!/bin/sh
+# test all major cp branches, but not branch-point
+git checkout master
+for b in master `git branch --list --no-color|cut -c3- \
+	| egrep '^(bugfix/|feature|smoke/|compiler/)'`
+do
+    git checkout $b
+    tfile=log.test-`git describe --long --tags --dirty --always`
+    if [ ! -f $tfile ]; then
+        if [ -f ../do-conf-cperl-fast ]; then ../do-conf-cperl-fast >/dev/null 2>/dev/null;
+        else ../do-conf-cperl >/dev/null 2>/dev/null
+        fi
+        make -s -j4 || make -s 2>/dev/null
+        echo test $b ...
+        if [ -f perl ]; then
+            make -s -j4 test 2>&1 | tee $tfile
+            echo tested $b | tee -a $tfile
+        fi
+    fi
+done
+>>>>>>>

@@ -1,0 +1,969 @@
+=begin none -*- pod -*-
+
+NOTE: To be published only when the critical issues are already implemented.
+      i.e. end of summer 2015
+
+=end none
+
+=head1 NAME
+
+perlcperl - a perl5 with classes, types, compilable, company friendly
+
+=head1 SYNOPSIS
+
+Description of changes and enhancements of the cperl variant of perl5.
+
+=head1 DEVELOPMENT SETUP
+
+    git remote add cp ssh://git@enterprise.cpanel.net:7999/~reini/cperl.git
+    # NOTE: later we will switch to: ssh://git@github.com/perl11/cperl.git
+    git fetch cp
+    git checkout -t cp master
+    git config rerere enable
+    git config rerere.autoupdate true
+    ln -s ../.git-rr-cache .git/rr-cache
+    git branch -r | grep cp/
+
+We need a shared rerere cache to be able to continously merge and rebase with perl5
+upstream and our branch progress.
+See L<https://medium.com/@porteneuve/fix-conflicts-only-once-with-git-rerere-7d116b2cec67>
+The commits with F<git-rr-cache> and F<cp-rb> in the Subject can be safely ignored
+upstream.
+
+All branches are frequently rebased. Use the provided helpers
+F<cp-rb>, F<cp-lb> and F<cp-rh>.
+
+The tip of the performance branch is currently
+C<feature/CM-712-cperl-types-pp>, and the memory saving branch is
+C<feature/CM-370-cperl-warnings-xs>.
+
+B<INSTALL:>
+
+    ./Configure -sder -Dusedevel -Dusecperl \
+      -Accflags='-msse4.2 -DPERL_FAKE_SIGNATURE' --optimize='-O3 -g' \
+      -Dinstallman1dir=none -Dinstallman3dir=none -Dinstallsiteman1dir=none \
+      -Dinstallsiteman3dir=none
+    make -s -j4 ECHO=true
+    make -s -j4 ECHO=true test
+    sudo make install PERLNAME=cperl
+
+=head1 Incompatible changes
+
+cperl can parse and run almost all of perl5 code. But there are a few
+incompatibilities, which arise from late perl5 signatures design
+changes which we do not follow. perl5 signatures are marked as
+experimental after all.
+
+=over
+
+=item Illegal prototypes die, are not stored
+
+In perl illegal prototypes warn with C<'illegalproto'> and are stored as such.
+
+In cperl illegal prototypes immediately die, they cannot be suppressed with
+C<no warnings 'illegalproto';> and they are not stored.
+
+=item C<@_> is empty in functions with signatures
+
+We only copy or reference arguments to signature variables, but not to C<@_> also.
+C<@_> is empty when signatures are declared.
+
+=item Empty signature variables C<$> die
+
+Using a bare C<$> sigil signature variable is illegal in cperl, but legal in perl.
+
+=back
+
+The tip of the performance branch is currently
+C<feature/CM-712-cperl-types-pp>, and the memory saving branch is
+C<feature/CM-370-cperl-warnings-xs>.
+
+INSTALL:
+
+    ./Configure -sder -Dusedevel -Dusecperl -Accflags='-msse4.2 -DPERL_FAKE_SIGNATURE' --optimize='-O3 -g' -Dinstallman1dir=none -Dinstallman3dir=none -Dinstallsiteman1dir=none -Dinstallsiteman3dir=none
+    make -s -j4 ECHO=true
+    make -s -j4 ECHO=true test
+    sudo make install PERLNAME=cperl
+
+=head1 Incompatible changes
+
+cperl can parse and run almost all of perl5 code. But there are a few
+incompatibilities, which arise from late perl5 signatures design
+changes which we do not follow. perl5 signatures are marked as
+experimental after all.
+
+=over
+
+=item Illegal prototypes die, are not stored
+
+In perl illegal prototypes warn with C<'illegalproto'> and are stored as such.
+
+In cperl illegal prototypes immediately die, they cannot be suppressed with
+C<no warnings 'illegalproto';> and they are not stored.
+
+=item C<@_> is empty in functions with signatures
+
+We only copy or reference arguments to signature variables, but not to C<@_> also.
+C<@_> is empty when signatures are declared.
+
+=item Empty signature variables C<$> die
+
+Using a bare C<$> sigil signature variable is illegal in cperl, but legal in perl.
+
+=back
+
+=head1 Fix breakage and bad design
+
+=head2 signatures
+
+The p5p signature implementions is still lacking many important
+features and is twice as slow as doing without, and twice as slow as
+the cperl implementation. There is no point in using it.  It is the
+only cause for backwards incompatible changes, but it is marked as
+experimental, so they know they cannot keep their current design.
+
+=over
+
+=item Add optional types in signatures
+
+    sub (int $i)   # as in Perl6, or
+    sub ($i: int)  # as in the other gradual typed languages
+
+We use the samed syntax as provided for lexical variable
+declarations. In both variants, in leading position as with C<my int
+$a;> and as attribute, as with C<($i :int :const)>
+
+We need to seperate coretypes (int, uint, str, num) and user-defined types
+(existing class names), and the 2 core attributes C<:const> and
+C<:unsigned>. For more perl6 like traits see below.
+
+Follow the same rules as in lexical declarations. The type must exist
+already as package, otherwise a syntax error is thrown.
+
+    $ cperl -e'sub x(x $x){}'
+    No such class x at -e line 1, near "sub x(x"
+
+    $ cperl -e'sub x(str $s){}'          # coretypes implicitly loaded
+
+    $ cperl -e'%Str::; sub x(Str $s){}'  # user-defined type Str
+
+=item Add subroutine return types
+
+For easier implementation we support subattributes, C<< :<type> >> only,
+not the other possible syntax variants C<< => type >> or C<< returns type >>.
+
+There are just a few semantic conflicts.
+Note that we can use the builtin attributes C<:lvalue>, C<:method>,
+C<:const> and C<:unsigned> also here.
+
+C<:const> does not mean constant result, it rather means constant
+subroutine.  Having this constant means that the compiler is able to
+inline it without run-time checks if it has changed.
+
+C<:unsigned> as coretype or not?  As sub attribute it could mean
+strictly typed to a return result of C<UV>, like C<:int :unsigned>,
+where the C<:int> is optional. C<:-unsigned> would mean C<:int> then,
+return a signed int.  C<:unsigned> could also be no coretype, just a
+hint for C<:int>, and without C<:int> it will just be an attribute,
+not a strictly checked coretype. This decision is still open.
+
+=item Add :pure subroutines
+
+You can flag a function as purely functional, without any
+side-effects, to allow further compiler optimizations.  Note that pure
+functions may throw, but may not access globals or do IO.
+
+A pure function only reacts to its input arguments and will always
+return the same value with the same arguments, thus can be safely
+memoized or constant-folded.
+
+=item Add call by-ref via \$arg
+
+Support scalar lvalue references - sub (\$var)
+
+With perl5 upstream all arguments are copied only, as with C<my $arg1 = shift;> but
+alternate syntax for fast C<$_[0]> access is not provided. So they have to keep
+the otherwise unneeded C<@_> array around.
+
+cperl uses C<\$name> to denote references to scalar lvalues, which change the
+calling variable.
+e.g. C<sub myfunc(int \$i) : int { $i++; }>
+
+For now scalar lvalue references only, C<\@a> or C<\%h> would be nice with
+type checks for arrayref or hashref.  maybe C<\[$]> also.
+
+=item Improve C<@_> handling
+
+Remove C<@_> when not needed. Use the mark stack as in the ops.
+
+With cperl C<@_> will only hold the C<&rest> args, the undeclared rest
+if no other slurpy args are declared.  i.e. C<@_> will be empty when
+signatures are declared with a slurpy ending C<@> or C<%> arg, and
+C<@_> is not referenced in the immediate function body, visible to
+the compiler, i.e. not hidden by a string eval.
+
+We want to use the mark stack for signature calls, same as with OPS, we don't
+need to copy to @_.
+
+Internally the elements of C<@_> are currently accessed via aelem, not
+aelemfast.  But this is moot with the introduction of the new OP_SIGNATURE
+op, which is even faster.
+
+With the old 5.18-5.22 implementation the perl5 arity check is overly
+big and needs two checks and big strings with fixed arity subs.
+
+    perl -MO=Deparse -e'sub x($a){$a++}'
+    sub x {
+        die sprintf("Too many arguments for subroutine at %s line %d.\n",
+          (caller)[1, 2]) unless @_ <= 1;
+        die sprintf("Too few arguments for subroutine at %s line %d.\n",
+          (caller)[1, 2]) unless @_ >= 1;
+        my $a = $_[0];
+        ();
+        $a++;
+    }
+
+cperl changes all arity errors to "Wrong number arguments".
+
+    cperl -MO=Deparse -e'sub x($a){$a++}'
+    sub x {
+        die sprintf("Wrong number arguments for subroutine %s at %s line %d.\n",
+          (caller(0))[3, 1, 2]) if @_ != 1;
+        my $a = $_[0];
+        ();
+        $a++;
+    }
+
+    cperl -MO=Deparse -e'sub x(\$a){$a++}'
+    sub x {
+        die sprintf("Wrong number arguments for subroutine %s at %s line %d.\n",
+          (caller(0))[3, 1, 2]) if @_ != 1;
+        $_[0]++;
+    }
+
+=item Parse signatures with the parser, not undocumented functions
+
+I<We'll see later on this one. Maybe keep it as horrible as it is now.>
+
+=item Improved error reporting
+
+In violations do not only print the position, also the declaration
+which is violated.  e.g.
+
+    @a=(); sub x(\@b) {$b->[0]++} print x(\$a)
+
+C<Type of arg 1 to main::x must be arrayref (not a scalar ref) at -e
+line 1, near "\$a)">
+
+C<< => >>
+
+C<Type of arg 1 \@b to main::x must be arrayref (not a scalar ref) at
+-e line 1, near "\$a)">
+
+Proper signature types are not only a great help for catching errors
+early or improve documentation. They are performance critical, see
+coffescript, dart, microsoft typescript, google soundscript, facebook
+hack, mypy, ruby 3.0 and partially even perl6.  The type inferencer
+will not be able to infer many types without explicit types.  But with
+typed signatures, besides the obvious solution of private methods or
+closed classes we can inline most small methods, ignore run-time magic
+and improve most loops and array accesses. It is also critical to
+implement multi methods (compile-time optimized generics) and
+implement an advanced object system.
+
+=item Support C<...> for efficient varargs passing
+
+C<...> as empty function body already has a special meaning as B<yadayada>
+operator, just croaking, but interestingly not the usual meaning of varargs.
+
+cperl uses C<...> in the natural way to denote unnamed and uncopied
+rest args, and passes the varargs through to the next call.
+
+C<...> denotes a slurpy unnamed signature, and C<...> in a otherwise
+non-empy function body denotes passing those arguments efficiently to
+the next function.  Internally C<...> does not need to copy the values
+into a temporay array, we just need to pass the argument stack
+position down to the next calls using C<...>. By using C<...> instead
+of C<@_> we can avoid copying the values to C<@_>, we only need the stack
+index, not all the values.
+
+    sub foometh($self, ...) { func(...) }
+
+=item strict prototype and signature syntax, no pragmas required.
+
+Illegal prototype and signature syntax does not just warn, it dies with
+an syntax error as it should be.
+
+    $ cperl -e'no warnings "illegalproto"; sub x(x){}'
+    No such class x at -e line 1, near "sub x(x"
+
+C<no warnings "illegalproto";> is a noop.
+
+=item no signatures or lexsubs pragmas required
+
+C<use feature "signatures"> or C<use feature "lexsubs"> is not
+required and is ignored.  All prototypes and signatures are parsed either
+as prototypes or signature, regardless of the scope of a C<use feature
+"signatures"> pragma. C<my sub> is parsed without previous activation.
+
+=back
+
+=head2 Undo blocked dynamic optimizations
+
+We unblocked the possibility to perform dynamic run-time optimizations
+of function bodies, the equivalence of C<eval "sub bla { ...}"> by
+removing one recently added line in core. Blocking L<B::Generate> and
+internal optimizations for no technical reasons already did too much
+harm.  Discussing this block led to even worse blocks on
+optimizations.
+
+Dynamic optimizations on functions is basically the same as C<eval
+"sub bla {}">, changing the body of a function at run-time, just
+with an optimized optree.  We need this to perform type optimizations
+on modules loaded at run-time or generate profile based fast paths.
+Those dynamic optimizations are the basis for all fast dynamic language
+implementations.
+
+=head2 Undo B bootstrap breakage
+
+L<B> was changed to support C<use strict> from the very beginning,
+which broke the L<B::Bytecode> compiler performance advantage, adding
+all compiler internal constants to the emitted bytecode.  Reverting
+this breakage was denied because this developer did not understand the
+code.  It is too bothersome in the long run to maintain our reversion
+of this breakage.  It easier to check for I<usecperl> in the compiler
+to be able to compile to bytecode properly again.
+
+=head2 Undo constant folding i_opt de-optimization
+
+One particular member of p5p which was also responsible for all the
+other compiler breakages described above, removed automatic integer
+optimizations while doing constant folding against community consent
+in the early times of his work.
+
+We re-add this optimization to treat constant integers as such (as via
+an implicit use integer) in constant foldable
+expressions. I.e. integer overflow in constant expressions is only
+checked at compile-time, not run-time.
+
+We are also now able to do constant-folding on subroutine bodies, to
+either inline the body into the caller or replace the body with a
+constant.
+
+=head2 Undo support for binary names
+
+By announcing unicode support for names p5p silently allowed C<\0>
+inside names, which they called an advantage by supporting now binary
+safe names.  In reality unicode names were already supported since
+5.8.4 and the whole 5.16 unicode name theatre was only about binary
+names.  They didn't support binary names in all other code parts which
+had to deal with names, and thus enabled a huge attack vector to hide
+arbitrary user strings behind C<\0> names, which was silently stripped
+before and when used in syscalls.  They moved resonsibility to the
+user, as previously for input strings only, now also for input names,
+e.g. for package names which search the filesystem directly without
+sanitation or proper checks.
+
+We have to keep the new GV API - accepting the string length - but
+even without C<strict names> we strip everything behind the C<\0> as
+before 5.16.
+
+=head2 Warn on \0shellcode attempts for names
+
+Make our C<use warnings "syscalls"> the default.
+
+Any attempt to attack package names with shellcode behing C<\0> is
+being warned per default, and not only optionally with C<use warnings
+"syscalls">. There is no uninnocent or wrong usage of such names, only
+malicious intent, and this must appear in logfiles.  This is worse than
+syntax errors and syntax errors are warned by default. p5p was
+vehemently against this change.
+
+=head2 strict names
+
+With C<use strict "names"> we do not accept unparsable symbols created
+from strings.  this is a new run-time error for use strict.
+
+There's currently no room for an explicit C<use strict 'names'> hint
+due to a bad strict implementation. But later when we freed some
+C<PL_hint> bits to hold strict defaults we can add support for that.
+
+=head2 TR39 confusable names
+
+Reject confusables as described in TR39. Theoretically this can be
+added with L</"strict names"> only, but since this is only dangerous since
+5.16 we can just throw a syntax error by default as in other languages
+with proper unicode support. (I<Java>)
+
+The compiler had to add this warning since 5.16:
+
+I<Perl handling of new unicode identifiers - package and symbol names ->
+I<without proper TR39 handling is considered a security risc and is not fully supported.>
+I<See> L<http://websec.github.io/unicode-security-guide/>.
+
+I<Check your code for syntax spoofs, confusables, strip \0 from package names>
+I<and enable use warnings 'syscalls'>.
+
+=head2 Undo the double readonly system
+
+In order to support Hash unlock code, i.e. undoing readonly setting of
+hash values, p5p added a second readonly bit for special values which
+are not allowed to be writable, even if the better solution to check
+for this special values at Hash unlock would have been trivial.  It
+does not need to take away the last free SV bit, which we used to
+implement fast coretype checks, and unlock really only needs to unlock
+the previously locked values, not make all values unconditionally
+writable, thus making previously readonly values
+writable. C<SVf_PROTECT> does not help with that.
+
+=head2 Fix the hashes
+
+Hash functions need to be implemented as macros, not functions, undo
+that. (I<maybe>)
+
+Provide proper hash table abstractions. We don't need 5 times the same
+bad code copied along for all different kind of HEK (hash key) types.
+
+Do not check the hash key for collisions with 4 different comparisons
+in the hot hash loop, use one instead.
+
+Use fast hash functions, not secure slow ones. We get security by
+fixing the algorithmic problem, not by obscuring the users and fellow
+developers.  We properly analyzed many hash functions and hash tables,
+for security and speed. The fastest, FNV1a, was the one the fellow
+developer schmorp choose I<by his guts> in his stableperl fork.
+
+Use cache-friendly open addressing, not simple, slow and DOS'able
+(i.e. insecure) linked lists. Fix the "security issues", i.e. denial
+of service issues properly.
+
+Seperate the keys from the values to fit the search into a cache line.
+
+Provide a special C<:const> hash table type to enable optimizations to
+perfect hashes. With C<study %hash> you can do the similar costly
+optimizations on non-const hashes to allow faster key access.
+
+=head2 Compile-time attribute hooks
+
+C<CHECK_SCALAR_ATTRIBUTES> (for C<:const>, C<:int>, C<:num>, C<:str>)
+This is basically a read-only C<MODIFY_*_ATTRIBUTES> hook at
+compile-time with a better name to disassociate from the run-time
+check of C<FETCH_*_ATTRIBUTES> with C<my> lexicals.  See also L</"Rewrite
+critical core modules in C as builtins"> below.
+
+=head2 coretypes: Int, UInt, Num, Str
+
+coretypes can only be built-in. Provide the 4 basic ones, and the
+combinations with C<Undef>. Type combination are done via C<@ISA>, i.e.
+
+    class ?Int :const { our @ISA :const = qw(Int Undef); }
+
+Our coretypes and its members are readonly.  Provide fast ops variants
+for these types to omit type checks and magic calls at run-time.
+Scalars declared as C<Int>, C<Uint>, C<Num>, C<Str> cannot hold magic
+associations, such as C<tie>.  With a jit only these will benefit from
+a jit.
+
+We also enabled the C<:const> attribute for all data: scalar, arrays,
+hash, functions, packages+classes. C<:const> hashes should of course
+be perfect, i.e. optimized to constant-time lookup, eliminating hash
+collisions.
+
+
+See L<perltypes/coretypes>.
+
+=head2 native unboxed types: int, uint, num, str
+
+Internally the types for all scalar SV's always start with uppercase
+classnames, same as with most user-defined classes. The four
+lower-case variants C<int>, C<uint>, C<num>, C<str> denote possible
+optimizations to direct unboxed values on the stack, which are not
+reference counted, and cannot be used across function calls. They are
+only safe to use within certain op sequences, and those optimizations
+are done automatically.
+
+See L<perltypes/native types>.
+
+=head2 types
+
+Provide a compile-time type inferencer and type checker. The
+inferencer runs automatically and can currently only infer C<int> on
+array indices and C<str> on hash keys, but has to give up on magic,
+dualvars, and C<no strict 'refs'>. With the help of declarations and
+type checks, as e.g. in C<smartmatch> or C<given>/C<when> with type
+support it can infer much more.
+
+    if (type $a == "int") {  => $a is an int in this scope }
+
+Compile-time type checks need to be enabled with C<use types;> though.
+
+Typed signatures are backwards incompatible to perl5, as the
+trivial 4 line changes are still not yet supported upstream. The
+expected performance win is ~2-10x faster, you get compile-time type
+warnings, a business friendly coding environment and the possibility
+to display and put infered types automatically in your code, with a
+cooperating editor. e.g.
+
+    my $n=1000;
+    for (my $i=0; $i<$n; $i++) { }
+=>
+    my int $n :const = 1000;
+    for (my int $i=0; $i<$n; $i++) { }
+
+B<Note>: When in doubt leave out types. If the inferer cannot find it, it
+might not be worth the trouble. But for hot code always use types, as
+compile-time types prevent from costly run-time checks for types and
+magic hooks.
+
+B<Builtin types> are the coretypes Int, Num, Str, UInt, ?Int, ?Num, ?Str.
+
+=head2 :const for all
+
+Our C<:const> attribute applies to all data types: scalar, arrays, hash,
+functions, packages + classes. C<:const> hashes should of course be
+perfect, i.e. optimized to constant-time lookup, eliminating hash
+collisions.
+
+See L<perltypes/:const>.
+
+=head2 Compile-time optimizations
+
+Perl 5 core does not deal with types stored in C<comppad_name> per se,
+type checks and optimizations are deferred to the modules which
+implement respective types.
+
+cperl does type optimizations, better constant folding, and the change
+of compile-time static method calls, determined either by name or by
+type and const-ness of all searched packages to static function calls.
+Thus the dynamic method search, in which object this method is
+implemented is avoided. This is about ~10% faster.
+
+Perl 5 only inlines constant function bodies with an explicit empty C<()>
+prototype.
+
+    sub x() {1+2} # inlined in perl5
+    sub x   {1+2} # inlined in cperl only
+
+cperl inlines constant function bodies even without empty prototype
+declaration, has type declarations for most internal ops, and
+optimizes these ops depending on the argument types; currently for all
+arithmetic unops and binops.  F<opnames.h> stores C<PL_op_type_variants>,
+all possible type promotions for each op.
+F<opcode.h> stores C<PL_op_type> with the type declarations of all ops.
+
+X<http://www.perl.com/pub/2000/06/p5pdigest/THISWEEK-20000625.html#Method_Lookup_Speedup_>
+X<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
+
+=head2 Rewrite critical core modules in C as builtins
+
+Builtins: C<strict>, C<Carp>, C<attributes>, C<DynaLoader>, C<XSLoader>,
+C<Exporter>.
+
+As shared lib: C<warnings>, C<Config> and I<unicode folding tables> to save
+memory, startup time and reduce bloat.
+
+Big constant hashes and tables need to be in a shared memory segment,
+not recompiled for every fork or thread, similar to the L<Encode> tables,
+which are done properly. The risc to introduce even more performance
+regressions by keeping some critical core modules as F<.pm> is too high
+and broke the compiler too often. Most developers have no idea of the
+impact of innocently looking additions.
+
+We need to reduce memory, and want to reduce the size of compiled code
+by 30%, but in some cases it will be 200%.
+As builtin or shared library we go to zero startup-time overhead for those
+modules.
+
+=head3 strict 1.10c as builtin
+
+Starting with cperl (based on Perl 5.22) L<strict> is now a builtin module,
+implemented as XS functions which are always available.
+
+Changes:
+
+F<strict.pm> is only provided for documentation, C<$INC{'strict.pm'} =
+'xsutils.c'> With a list of wrong tags only the wrong tags are
+reportyed one-by-one, and not together.  All other functionality stays
+the same.
+
+=head3 attributes 0.26_01c as builtin
+
+Starting with cperl (based on Perl 5.22) L<attributes> is now again a
+builtin XS module.  There's no need to dynaload it at parse time.
+
+F<attributes.pm> moved back to F<lib/attributes.pm> and is only provided for
+documentation and import.
+
+C<CHECK_I<type>_ATTRIBUTES> is a new compile-time hook, like a readonly
+variant of C<MODIFY_I<type>_ATTRIBUTES>, or the compile-time variant of
+C<FETCH_I<type>_ATTRIBUTES>.
+
+There are several new builtin attributes:
+
+=over
+
+=item :const for all types
+
+=item :unsigned for all integer types, sets SvIsUV_on|off
+
+=item existing classes as types are recognized
+
+and stored for lexical types and subroutine return types.
+
+=back
+
+=head3 DynaLoader 2.00c and XSLoader as builtins
+
+Starting with cperl (based on Perl 5.22) L<DynaLoader> and XSLoader have
+no perl code anymore, F<DynaLoader.pm> was rewritten as F<dlboot.c>.
+
+B<Changes>:
+
+C<@dl_library_path> eliminates now all duplicate paths and resolves symlinks of
+C<$Config{libpth}> at build time.
+
+Only the C<$ENV{PERL_BUILD_EXPAND_CONFIG_VARS}> settings are
+implemented. All Config settings are compiled in at build time, run-time
+changes are not honored. Config is now also a compiled module,
+F<Config_heavy.pl> is gone, and its hash was always readonly, so there's no
+way to change Config values at run-time without recompiling it.
+
+Not sure yet about keeping support for F<.bs> hooks and C<@dl_resolve_using>.
+
+The C<XSLoader::load_file($module, $modlibname, ...)> function is new,
+L<XSLoader> is a builtin also. C<...> is passed to the loaded XS function
+as with C<XSLoader::load($module, ...)>.
+
+=head3 warnings as XS extension
+
+It is compiled as shared library, the builtin categories are
+implemented as perfect hash, and extended with a normal perl hash.
+Some internal variables are not accessible anymore, the API is via the
+documented functions.
+
+=head3 Config as XS extension
+
+It is compiled as shared library, with all keys as readonly perfect
+hash.  Some internal variables are not accessible anymore, the API is
+via the documented functions.
+
+=head1 Plans for further core features
+
+=head2 Lexical methods
+
+Lexical methods are of course B<private> to its enclosing class,
+i.e. not visable from outside the class. And they are also B<closed>
+(or also called I<sealed> or I<final>) as planned by Damian Conway,
+i.e. they cannot be changed later. This enables the compiler to inline
+them automatically when its worthwhile. e.g. when they are small
+enough.  They are either defined in the new style: C<class .. { my
+method .. }> or old style: C<package .. { my sub .. }>
+
+
+Since all this implementation blockage is too heavy, all the
+decade-long planned features could not go forward, and p5p not only
+forgot about it, they argue now against going forward.
+
+=head2 Typed and sized arrays
+
+Enable faster array access, uniformly typed array values, use less
+memory (cache friendly), help the type system. See L<perltypes>.
+
+  my int @a[20];         # or
+  my @a[20] :int;        # or
+  my int[20] $a;         # (probably not), or
+  my int[int] $a[20];    # (probably not), or
+  my @a :int(20);        # (probably not)
+
+  my int %h;             # or
+  my str{int} %h;        # (probably not)
+  my str %a;             # hash with str values only
+  my int %a{20};         # hash with int values only. fixed hash size, no grow on insertion.
+  my str %a{20} :const   # fixed hash size, no grow on insertion, perfect hash (keys may not change, values do).
+     = (...);
+
+No sparse arrays (i.e. hash with int keys) yet. but this would need a
+different declaration syntax if to be supported natively.
+e.g. C<my int{int} %a;> - sparsehash with int keys and int values.
+or C<my %a : hash(int);>
+variant 2: C<my IntSparseHash %a>, which can go with a user class
+and methods, but this will be slow, without native ops.
+
+=head3 Carp 2.00c as builtin
+
+L<Carp> might be a implemented as builtin XS module.  There's no need
+to require it.  F<Carp.pm> is only provided for documentation,
+C<$INC{'Carp.pm'} = 'xsutils.c'>
+Many carp function are added to the perl5 API and available to core
+and extensions.
+
+B<Changes>:
+
+Currently shortmess is only simplified, the step to skip packages which
+trust each other (via C<@CARP_NOT> or C<@ISA>) is not yet implemented,
+neither is the C<CARP_TRACE> formatting hook.  The deprecated
+C<$Carp::CarpLevel> variable is now ignored.
+
+Other not yet implemented variables: C<$Carp::MaxEvalLen>,
+C<$Carp::MaxArgLen>, C<$Carp::MaxArgNums>, C<$Carp::RefArgFormatter>
+
+B<Note>:
+
+This branch is currently not included. It's too instable to get the
+caller depth right from pure perl vs XS, and most extended hooks
+(format, CARP_TRACE, CARP_NOT) are not yet implemented.
+Note that XS calls usually do not get counted in caller, unless you
+use the SCOPE keyword.
+
+=head3 unicode folding tables as XS extension
+
+They are compiled as shared library, with all keys as readonly perfect
+hash.  Some internal variables are not accessible anymore, the API is
+via the documented functions.
+
+=head2 Remove Attribute::Handler from core
+
+This evals all attributes at compile-time. Discourage its usage.
+
+=head2 Add the compiler back to core
+
+The L<B::C> testsuite runs too long for cpan users, and it needs to be
+developed in sync to avoid typical 6 months wait-time after a core
+change.  Maybe provide python-like precompiled C<ByteCache> F<.pmc> as
+default. You could pre-compile then modules with higher optimization
+levels, esp. the type inferencer.
+
+Maybe include a C<Data::Compile> module to dump only data without all
+the code to a shared library, and possibly C<Perfect::Hash> and a new
+F<ph.c> to create and optimize readonly hashes, which is needed for the
+shared XS hashes of Config, warnings and unicode tables.
+
+=head2 Backport core testsuite fixes for the compiler
+
+Honor differences between compile-time und run-time, when run
+compiled.  Other than a few wrong testcases, the compilers does pass
+the core testsuite.
+
+=head1 Longer term goals
+
+=head2 Faster functions calls
+
+Optionally omit caller, @_, freetmps, exception handler when possible,
+i.e.  no string eval's are present in the kids, the compiler can
+detect it or the right compiler hint is given.
+
+=head2 tailcall optimization
+
+Detect tail positions and replace the call with a fast goto. This needs
+to be in core, not as external module.
+
+=head2 Proper object system
+
+No, not Moose, but close.  Rather an optimizable perl6-like object
+system in core.  Provide a simple mop for reflection purposes, bot not
+for overrides, i.e. metaobjects for classes, proper class and method
+syntax, anonymous classes by pointer not name, proper multi dispatch
+with types, roles, class and method lookup by pointer, not by name.
+Create native optimized shapes via mixins as in p2 (an enhanced
+bless), Lexical methods are private, optimize dispatch for single
+inheritance. i.e the convenient class syntax extends on a single class
+only, classes are finalizable by the calling application.
+
+Eventually prepare multi-dispatch and optimize for early-bound method
+calls with typed arguments and closed classes.
+
+Dispatch is via C3, not the old depth-first left-to-right mro implementation.
+
+For type inference we will need to make C<new> a special keyword,
+which is a shortcut for C<bless>, with a fixed classname. C<bless> can
+use computed classnames and thus enforces dynamic types.
+
+=head2 libffi in core
+
+Declare extern functions and libraries and call them. There's no need
+for XS and seperate compilation for most bindings. Not everybody has a
+compiler, the very same compiler perl was compiled with.
+libffi is the slowest ffi library, but has the best platform support, as it is
+integrated with gcc for java jni support.
+
+=head2 Editor integration
+
+With type inference we can provide a much nicer development
+environment, which also supports the debugger.  B<plsense> should give
+type feedback.  I'm thinking of a port of B<ZeroBrane Studio> for
+perl. This means provide core support for the needed serializers and
+introspection facilities.
+
+=head2 Jit
+
+Add a jit for the easiest platforms, and provide dynamic
+javascript-based optimizations when stacks need to be replaced.
+Eventually even promote to bignum not double automatically, as in
+perl6. But this is optional, the next points are more important.
+Jit's are a bit overrated. a fast bytecode loop can easily beat a jit
+and optimizing compiler, see luajit2,
+L<http://www.emulators.com/docs/nx25_nostradamus.htm> or
+L<http://nominolo.blogspot.de/2012/07/implementing-fast-interpreters.html>
+
+=head2 Optimize the vm, the runloop
+
+We carry around way too much bloat in the ops and the data, which is
+not needed at run-time. e.g. the compiler throws away the nested
+symbol table stashes if not needed, which frees 20% memory.
+But think of a lua/p2-like redesign of tagged values and slimmer ops,
+and eventually put the stack onto the CPU stack.
+
+Optimize special arithmetic op sequences to use unboxed integers and
+strings on the stack.  We experiment in allowing unboxed values on the
+stack, because the stack is not garbage collected, only refcounted.
+We just need to be sure to box them before entering a
+non-collaborating sub, leaving a block with possible exceptions and
+stack cleanup. Those unboxed values are internally typed as C<:int>
+and C<:str>.  Note that the coretypes C<:int> and C<:str> are not
+guaranteed to be unboxed, only if the compiler sees fit. In most cases
+those values are boxed but without a class pointer and magic attached.
+
+Maybe rewrite to a better register-based compiler with fixed-length 2
+operands as in p2, but this might be too tricky for XS, mapping the
+global stack to the local stack.  Probably no SSA (three arguments),
+just a cpu friendly two argument form as in p2/lua 5.1.
+
+Allow faster XS calls, user-provided function calls and method calls.
+provide support for named arguments in the vm, fast not via hashes.
+Many of the current io+sys ops are better implemented as library
+methods.  With ~50ops instead of >300 the runloop might fit into the
+L1 cache again.  Seperate calling of fixed arity methods from varargs.
+detect and use tailcalls automatically.  Do not step into a seperate
+runloop for every single function call, only for coros, which do need
+to record the the stack information.
+
+Run-time optimize the data, no 2x indirection to access hash and array
+structs.
+Provide forwarding pointers to single tuples to hold all.
+This could provide also the possibility for a GC if a second sweep
+for timely destruction is doable.
+
+=head2 Coro support
+
+Keep native threads asis (this is not fixable, better remove it), but
+actively help coro support.
+
+=head2 Untangle the IO layer mess
+
+A stack is a stack.
+
+=head2 Bring back proper `match` and `given/when`
+
+With type support it would be even efficient and helps the inferencer.
+C<match> needs to be structural, p5p C<smartmatch> can stay dumb as it is now.
+
+=head2 clp
+
+Possibly add a B<clp> library, a constraint logic solver, with possible
+bindings to external sat solvers, like minisat, which can be included
+due to its small size and license.  It is solved by checking for lvalue
+function calls in assignments, when the function is not declared as
+C<:lvalue>.
+
+    use clp;
+    sub fact(int $i=0) :int { assert $i>=0; return $i ? fact($i-1) : 1 }
+    say fact(7);     # => 5040
+    fact($_) = 5040; # solve it!
+    say $_;          # => 7
+
+=head1 Different development policies
+
+p5p development and discussions are essentially fruitless since the
+original author Larry Wall left the perl5 community.  No single
+non-trivial feature p5p discussed and implemented was ever successful
+besides C<defined-or> C<//=>, which I count as trivial. Even if the
+discussion about it was enormous and destructive, Tom Christianson
+left.  Switch, smartmatch, given/when, pseudohashes, attributes,
+types, signatures, classes + mop, hash "security", unicode symbols,
+bindings as refalias, and many more.  Additionallly most bugs don't
+get fixed.
+
+With cperl we do fix bugs, implement features and encourage
+discussions.  The lead should be the most competent, not the least
+competent, loudest or most likeable one "community person".  We do
+encourage criticism on bad design and implementation.  We stay civil
+and don't call critics I<"jerks"> or I<"assholes">, unlike in the p5p
+community.  We practice software development best practices, we
+develop in branches only, and only if the branch passes the test suite
+on all major platforms it can be merged.  Pushing directly to master
+is forbidden, but we do have to rebase frequently all our branches.
+Use the provided rebase helper scripts F<cp-*>. We do use build
+servers and performance regression tests.  We follow the perl6
+development principles.  We take github pull request and do not ignore
+them.
+
+We track stable upstream releases for our releases only. The current
+stable release is based in 5.22.1. The previous stable release was
+5.14.4, as 5.16 introduced critical instabilities which were not fixed
+mostly until 5.20 and this version, and 5.20 alone was not worth to
+update cperl to. The previous stable release was 5.8.9 and the one
+before was 5.6.2.  So we do not know which will be the next stable
+cperl release. It could be 5.24, but usually upstream development
+makes grave mistakes which are never acknowledged and needs several
+following releases to overcome. So something like 5.30 sounds
+realistic.  So far we have detected 2 grave API mistakes in
+5.22.0. But we do merge all official p5p releases into our master
+branch monthly.
+
+
+=head1 How to detect cperl?
+
+=over
+
+=item F<config.h> defines <USE_CPERL>
+
+=item F<Config.pm> defines C<usecperl>
+
+=item cperl changed modules end with C<c>, typically C<_01c>.
+
+=item Libraries are installed into F</usr/local/lib/cperl>, not F</usr/local/lib/perl5>.
+
+=back
+
+=head1 Links
+
+Most dynamic languages are currently in the process to get type
+support.  This happened for perl5 at around 2002, but was never
+properly led (the developers had to leave p5p) and was then destroyed
+with 5.10, and then actively blocked for decades.
+
+=over
+
+=item L<http://www.typescriptlang.org/Content/TypeScript%20Language%20Specification.pdf>  (microsoft's javascript with types)
+
+=item L<https://code.facebook.com/posts/1505962329687926/flow-a-new-static-type-checker-for-javascript/> (facebook's javascript with types)
+
+=item L<https://github.com/rwaldron/tc39-notes/blob/master/es6/2015-01/JSExperimentalDirections.pdf> Soundscript, google's javascript with types
+
+=item L<https://www.python.org/dev/peps/pep-0484/>  (planned python with types)
+
+=item L<http://www.mypy-lang.org/> (existing python with types)
+
+=item L<https://news.ycombinator.com/item?id=8620129> (ruby 3.0 planned with types)
+
+=item L<http://crystal-lang.org/> (a good existing ruby with types)
+
+=item L<http://hacklang.org/> (facebook's php with types)
+
+=item L<http://blog.pascal-martin.fr/post/in-favor-of-rfc-scalar-type-hints.html> (php 7 types overview)
+
+=item L<https://wiki.php.net/rfc/scalar_type_hints> (php 7)
+
+=item L<https://wiki.php.net/rfc/return_types> (php 7)
+
+=item L<http://frenchy64.github.io/2015/06/19/gradual-typing.html>
+
+=item L<http://blogs.perl.org/users/rurban/2012/09/my-perl5-todo-list.html> (the old plan, ignored)
+
+=item L<http://perl11.org/cperl> (not yet)
+
+=item L<https://github.com/perl11/cperl> (not yet)
+
+=item L<https://github.com/rurban/perl> (no branches yet, just master)
+
+=back
