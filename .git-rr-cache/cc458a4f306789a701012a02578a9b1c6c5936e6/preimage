@@ -1,0 +1,616 @@
+=encoding utf8
+
+=head1 NAME
+
+<<<<<<<
+perldelta - what is new for perl v5.22.1
+=======
+perldelta - what is new for perl v5.23.0
+>>>>>>>
+
+=head1 DESCRIPTION
+
+<<<<<<<
+This document describes differences between the 5.22.0 release and the 5.22.1
+release.
+=======
+This document describes differences between the 5.22.0 release and the 5.23.0 release.
+>>>>>>>
+
+<<<<<<<
+=head1 Core Enhancements
+
+=head2 Unicode 8.0 is now supported
+
+For details on what is in this release, see
+L<http://www.unicode.org/versions/Unicode8.0.0/>.
+
+=head1 Incompatible Changes
+
+=head2 The C</\C/> character class has been removed.
+
+This regular expression character class was deprecated in v5.20.0 and has
+produced a deprecation warning since v5.22.0. It is now a compile-time
+error. If you need to examine the individual bytes that make up a
+UTF8-encoded character, then use C<utf8::encode()> on the string (or a
+copy) first.
+
+=head2 C<chdir('')> no longer chdirs home
+
+Using C<chdir('')> or C<chdir(undef)> to chdir home has been deprecated since
+perl v5.8, and will now fail.  Use C<chdir()> instead.
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item *
+
+The libnet distribution has been upgraded from version 3.05 to 3.06.
+
+=item *
+
+The Scalar-List-Utils distribution has been upgraded from version 1.41 to 1.42.
+
+=item *
+
+L<autodie> has been upgraded from version 2.26 to 2.27.
+
+=item *
+
+L<CPAN::Meta> has been upgraded from version 2.150001 to 2.150005.
+
+=item *
+
+L<CPAN::Meta::Requirements> has been upgraded from version 2.132 to 2.133.
+
+=item *
+
+L<CPAN::Meta::YAML> has been upgraded from version 0.012 to 0.016.
+
+=item *
+
+L<Encode> has been upgraded from version 2.72 to 2.73.
+
+=item *
+
+L<encoding> has been upgraded from version 2.14 to 2.15.
+
+=item *
+
+L<ExtUtils::CBuilder> has been upgraded from version 0.280221 to 0.280223.
+
+=item *
+
+L<feature> has been upgraded from version 1.40 to 1.41.
+
+=item *
+
+L<Getopt::Long> has been upgraded from version 2.45 to 2.46.
+
+=item *
+
+L<HTTP::Tiny> has been upgraded from version 0.054 to 0.056.
+
+=item *
+
+L<List::Util> has been upgraded from version 1.41 to 1.42_01.
+
+=item *
+
+L<Locale::Codes> has been upgraded from version 3.34 to 3.35.
+=======
+If you are upgrading from an earlier release such as 5.20.0, first read
+L<perl5220delta>, which describes differences between 5.20.0 and 5.22.0.
+
+=head1 Incompatible Changes
+>>>>>>>
+
+There are no changes intentionally incompatible with 5.20.0 other than the
+following single exception, which we deemed to be a sensible change to make in
+order to get the new C<\b{wb}> and (in particular) C<\b{sb}> features sane
+before people decided they're worthless because of bugs in their Perl 5.22.0
+implementation and avoided them in the future.
+If any others exist, they are bugs, and we request that you submit a report.
+See L</Reporting Bugs> below.
+
+<<<<<<<
+=head2 Bounds Checking Constructs
+=======
+L<Math::BigInt> has been upgraded from version 1.9997 to 1.999701.
+>>>>>>>
+
+<<<<<<<
+Correct the behaviour of bdiv() and bmod() in list context. [perl #124300]
+=======
+Several bugs, including a segmentation fault, have been fixed with the bounds
+checking constructs (introduced in Perl 5.22) C<\b{gcb}>, C<\b{sb}>, C<\b{wb}>,
+C<\B{gcb}>, C<\B{sb}>, and C<\B{wb}>.  All the C<\B{}> ones now match an empty
+string; none of the C<\b{}> ones do.
+L<[perl #126319]|https://rt.perl.org/Ticket/Display.html?id=126319>
+>>>>>>>
+
+<<<<<<<
+=head1 Modules and Pragmata
+=======
+Correct C<< Math::BigInt->new() >> for non-integer input.  [perl #124325]
+>>>>>>>
+
+<<<<<<<
+=head2 Updated Modules and Pragmata
+=======
+Speed up Math::BigFloat -> blog(). [perl #124382]
+>>>>>>>
+
+<<<<<<<
+=over 4
+=======
+Fix bug in Math::BigFloat's bceil() and bint() methods. [perl #124412]
+>>>>>>>
+
+=item *
+
+<<<<<<<
+L<Math::BigRat> has been upgraded from version 0.2608 to 0.260801.
+=======
+L<Module::CoreList> has been upgraded from version 5.20150520 to 5.20151213.
+>>>>>>>
+
+<<<<<<<
+=item *
+
+L<PerlIO::scalar> has been upgraded from version 0.22 to 0.23.
+=======
+Correct the behaviour of bdiv() and bmod() in list context. [perl #124303]
+>>>>>>>
+
+=item *
+
+<<<<<<<
+L<Module::CoreList> has been upgraded from version 5.20150520 to 5.20150620.
+
+=item *
+=======
+L<POSIX> has been upgraded from version 1.53 to 1.53_01.
+>>>>>>>
+
+<<<<<<<
+If C<POSIX::strerror> was passed C<$!> as its argument then it accidentally
+cleared C<$!>.  This has been fixed.
+L<[perl #126229]|https://rt.perl.org/Ticket/Display.html?id=126229>
+=======
+L<Module::Metadata> has been upgraded from version 1.000026 to 1.000027.
+>>>>>>>
+
+=item *
+
+<<<<<<<
+L<Storable> has been upgraded from version 2.53 to 2.53_01.
+=======
+L<parent> has been upgraded from version 0.232 to 0.234.
+>>>>>>>
+
+=item *
+
+<<<<<<<
+L<Parse::CPAN::Meta> has been upgraded from version 1.4414 to 1.4417.
+=======
+L<warnings> has been upgraded from version 1.32 to 1.34.
+
+The C<warnings::enabled> example now actually uses C<warnings::enabled>.
+L<[perl #126051]|https://rt.perl.org/Ticket/Display.html?id=126051>
+>>>>>>>
+
+=item *
+
+<<<<<<<
+L<Win32> has been upgraded from version 0.51 to 0.52.
+=======
+L<perl5db.pl> has been upgraded from version 1.49 to 1.49_01.
+>>>>>>>
+
+<<<<<<<
+This has been updated for Windows 8.1, 10 and 2012 R2 Server.
+
+=back
+=======
+User actions are no longer evaluated after the script under the
+debugger finishes.  [perl #71678]
+>>>>>>>
+
+=head1 Documentation
+
+<<<<<<<
+=head2 Changes to Existing Documentation
+=======
+L<Pod::Simple> has been upgraded from version 3.29 to 3.30.
+>>>>>>>
+
+=head3 L<perltie>
+
+<<<<<<<
+=over 4
+=======
+L<Pod::Usage> has been upgraded from version 1.64 to 1.67.
+>>>>>>>
+
+=item *
+
+<<<<<<<
+L<POSIX> has been upgraded from version 1.53 to 1.54.
+=======
+The usage of C<FIRSTKEY> and C<NEXTKEY> has been clarified.
+>>>>>>>
+
+<<<<<<<
+=back
+=======
+The NaN payload API has been implemented (getpayload, setpayload,
+setpayloadsig, issignaling).
+>>>>>>>
+
+=head3 L<perlvar>
+
+<<<<<<<
+=over 4
+=======
+L<Scalar::Util> has been upgraded from version 1.41 to 1.42_01.
+>>>>>>>
+
+=item *
+
+<<<<<<<
+L<Socket> has been upgraded from version 2.018 to 2.019.
+
+=item *
+=======
+The specific true value of C<$!{E...}> is now documented, noting that it is
+subject to change and not guaranteed.
+>>>>>>>
+
+<<<<<<<
+=back
+=======
+L<threads> has been upgraded from version 2.01 to 2.02.
+>>>>>>>
+
+=head1 Diagnostics
+
+<<<<<<<
+L<Time::Piece> has been upgraded from version 1.29 to 1.30.
+=======
+The following additions or changes have been made to diagnostic output,
+including warnings and fatal error messages.  For the complete list of
+diagnostic messages, see L<perldiag>.
+>>>>>>>
+
+=head2 Changes to Existing Diagnostics
+
+<<<<<<<
+=over 4
+=======
+L<UNIVERSAL> has been upgraded from version 1.12 to 1.13.
+>>>>>>>
+
+<<<<<<<
+=item *
+
+The C<printf> and C<sprintf> builtins are now more careful about the warnings
+they emit: argument reordering now disables the "redundant argument" warning in
+all cases.
+L<[perl #125469]|https://rt.perl.org/Ticket/Display.html?id=125469>
+=======
+Don't import from L<UNIVERSAL> in its documentation, it no longer
+exports anything.  [perl #125410]
+>>>>>>>
+
+=back
+
+<<<<<<<
+=head1 Configuration and Compilation
+
+=over 4
+
+=item *
+
+Using the C<NO_HASH_SEED> define in combination with the default hash algorithm
+C<PERL_HASH_FUNC_ONE_AT_A_TIME_HARD> resulted in a fatal error while compiling
+the interpreter, since Perl 5.17.10.  This has been fixed.
+
+=item *
+
+Configuring with ccflags containing quotes (e.g.
+C<< -Accflags='-DAPPLLIB_EXP=\"/usr/libperl\"' >>) was broken in Perl 5.22.0
+but has now been fixed again.
+L<[perl #125314]|https://rt.perl.org/Ticket/Display.html?id=125314>
+=======
+=head1 Platform Support
+>>>>>>>
+
+<<<<<<<
+=back
+=======
+=head2 Platform-Specific Notes
+>>>>>>>
+
+=head1 Platform Support
+
+<<<<<<<
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item IRIX
+
+=over
+
+=item *
+
+Under some circumstances IRIX stdio fgetc() and fread() set the errno to
+C<ENOENT>, which made no sense according to either IRIX or POSIX docs.  Errno
+is now cleared in such cases.
+L<[perl #123977]|https://rt.perl.org/Ticket/Display.html?id=123977>
+
+=item *
+
+Problems when multiplying long doubles by infinity have been fixed.
+L<[perl #126396]|https://rt.perl.org/Ticket/Display.html?id=126396>
+
+=item *
+
+All tests pass now on IRIX with the default build configuration.
+
+=back
+
+=back
+
+=head1 Selected Bug Fixes
+=======
+=item Win32
+>>>>>>>
+
+=over 4
+
+=item *
+
+<<<<<<<
+C<qr/(?[ () ])/> no longer segfaults, giving a syntax error message instead.
+L<[perl #125805]|https://rt.perl.org/Ticket/Display.html?id=125805>
+
+=item *
+
+Regular expression possessive quantifier Perl 5.20 regression now fixed.
+C<qr/>I<PAT>C<{>I<min>,I<max>C<}+>C</> is supposed to behave identically to
+C<qr/(?E<gt>>I<PAT>C<{>I<min>,I<max>C<})/>.  Since Perl 5.20, this didn't work
+if I<min> and I<max> were equal.
+L<[perl #125825]|https://rt.perl.org/Ticket/Display.html?id=125825>
+
+=item *
+
+Certain syntax errors in
+L<perlrecharclass/Extended Bracketed Character Classes> caused panics instead
+of the proper error message.  This has now been fixed.
+L<[perl #126481]|https://rt.perl.org/Ticket/Display.html?id=126481>
+
+=item *
+
+C<< BEGIN <> >> no longer segfaults and properly produces an error message.
+L<[perl #125341]|https://rt.perl.org/Ticket/Display.html?id=125341>
+
+=item *
+
+A regression from Perl 5.20 has been fixed, in which some syntax errors in
+L<C<(?[...])>|perlrecharclass/Extended Bracketed Character Classes> constructs
+within regular expression patterns could cause a segfault instead of a proper
+error message.
+L<[perl #126180]|https://rt.perl.org/Ticket/Display.html?id=126180>
+
+=item *
+
+Another problem with
+L<C<(?[...])>|perlrecharclass/Extended Bracketed Character Classes>
+constructs has been fixed wherein things like C<\c]> could cause panics.
+L<[perl #126181]|https://rt.perl.org/Ticket/Display.html?id=126181>
+=======
+Visual C++ 2013 builds will now execute on XP and higher. Previously they would
+only execute on Vista and higher.
+>>>>>>>
+
+=item *
+
+<<<<<<<
+In Perl 5.22.0, the logic changed when parsing a numeric parameter to the -C
+option, such that the successfully parsed number was not saved as the option
+value if it parsed to the end of the argument.
+L<[perl #125381]|https://rt.perl.org/Ticket/Display.html?id=125381>
+=======
+You can now build perl with GNU Make and GCC.  [perl #123440]
+>>>>>>>
+
+=item *
+
+<<<<<<<
+C<truncate($filename, $size)> now works for files over 4GB in size.
+[perl #125347]
+=======
+Warning fatality is now ignored when rewinding the stack.  This prevents
+infinite recursion when the now fatal error also causes rewinding of the stack.
+L<[perl #123398]|https://rt.perl.org/Ticket/Display.html?id=123398>
+>>>>>>>
+
+=back
+
+<<<<<<<
+=back
+=======
+A crash with C<< %::=(); J->${\"::"} >> has been fixed.
+L<[perl #125541]|https://rt.perl.org/Ticket/Display.html?id=125541>
+>>>>>>>
+
+=head1 Selected Bug Fixes
+
+<<<<<<<
+=over 4
+=======
+Nested quantifiers such as C</.{1}??/> should cause perl to throw a fatal
+error, but were being silently accepted since Perl 5.20.0.  This has been
+fixed.
+L<[perl #126253]|https://rt.perl.org/Ticket/Display.html?id=126253>
+>>>>>>>
+
+=item *
+
+<<<<<<<
+Duplicating a closed file handle for write no longer creates a
+filename of the form F<GLOB(0xXXXXXXXX)>.  [perl #125115]
+=======
+Regular expression sequences such as C</(?i/> (and similarly with other
+recognized flags or combination of flags) should cause perl to throw a fatal
+error, but were being silently accepted since Perl 5.18.0.  This has been
+fixed.
+L<[perl #126178]|https://rt.perl.org/Ticket/Display.html?id=126178>
+>>>>>>>
+
+=item *
+
+<<<<<<<
+A bug in hexadecimal floating point literal support meant that high-order bits
+could be lost in cases where mantissa overflow was caused by too many trailing
+zeros in the fractional part.  This has been fixed.
+L<[perl #126582]|https://rt.perl.org/Ticket/Display.html?id=126582>
+=======
+Warning fatality is now ignored when rewinding the stack.  This
+prevents infinite recursion when the now fatal error also causes
+rewinding of the stack.  [perl #123398]
+>>>>>>>
+
+=item * 
+
+<<<<<<<
+Another hexadecimal floating point bug, causing low-order bits to be lost in
+cases where the last hexadecimal digit of the mantissa has bits straddling the
+limit of the number of bits allowed for the mantissa, has also been fixed.
+L<[perl #126586]|https://rt.perl.org/Ticket/Display.html?id=126586>
+=======
+In perl v5.22.0, the logic changed when parsing a numeric parameter to the -C
+option, such that the successfully parsed number was not saved as the option
+value if it parsed to the end of the argument.  [perl #125381]
+>>>>>>>
+
+=item *
+
+<<<<<<<
+Further hexadecimal floating point bugs have been fixed: In some circumstances,
+the C<%a> format specifier could variously lose the sign of the negative zero,
+fail to display zeros after the radix point with the requested precision, or
+even lose the radix point after the leftmost hexadecimal digit completely.
+=======
+The PadlistNAMES macro is an lvalue again.
+>>>>>>>
+
+=item *
+
+<<<<<<<
+A crash caused by incomplete expressions within C<< /(?[ ])/ >> (e.g.
+C<< /(?[[0]+()+])/ >>) has been fixed.
+L<[perl #126615]|https://rt.perl.org/Ticket/Display.html?id=126615>
+=======
+Zero -DPERL_TRACE_OPS memory for sub-threads.
+
+perl_clone_using() was missing Zero init of PL_op_exec_cnt[].  This
+caused sub-threads in threaded -DPERL_TRACE_OPS builds to spew exceedingly
+large op-counts at destruct.  These counts would print %x as "ABABABAB",
+clearly a mem-poison value.
+>>>>>>>
+
+=back
+
+=head1 Acknowledgements
+
+<<<<<<<
+Perl 5.22.1 represents approximately 6 months of development since Perl 5.22.0
+and contains approximately 19,000 lines of changes across 130 files from 27
+=======
+Perl 5.23.0 represents approximately 3 weeks of development since Perl 5.22.0
+and contains approximately 86,000 lines of changes across 480 files from 29
+>>>>>>>
+authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+<<<<<<<
+approximately 1,700 lines of changes to 44 .pm, .t, .c and .h files.
+=======
+approximately 55,000 lines of changes to 270 .pm, .t, .c and .h files.
+>>>>>>>
+
+Perl continues to flourish into its third decade thanks to a vibrant community
+<<<<<<<
+of users and developers.  The following people are known to have contributed
+the improvements that became Perl 5.22.1:
+
+Aaron Crane, Abigail, Andy Broad, Aristotle Pagaltzis, Chase Whitener, Chris
+'BinGOs' Williams, Craig A. Berry, Daniel Dragan, David Mitchell, Father
+Chrysostomos, Herbert Breunung, Hugo van der Sanden, James E Keenan, Jan
+Dubois, Jarkko Hietaniemi, Karen Etheridge, Karl Williamson, Lukas Mai, Matthew
+Horsfall, Peter Martini, Rafael Garcia-Suarez, Ricardo Signes, Shlomi Fish,
+Sisyphus, Steve Hay, Tony Cook, Victor Adam.
+=======
+of users and developers. The following people are known to have contributed the
+improvements that became Perl 5.23.0:
+
+Chase Whitener, Chris 'BinGOs' Williams, Craig A. Berry, Dagfinn Ilmari
+Mannsåker, Daniel Dragan, David Golden, David Mitchell, Hugo van der Sanden,
+Jan Dubois, Jarkko Hietaniemi, Jerry D. Hedden, Jim Cromie, Karen Etheridge,
+Karl Williamson, kmx, Lukas Mai, Martijn Lievaart, Matthew Horsfall, Niko Tyni,
+Peter John Acklam, Rafael Garcia-Suarez, Reini Urban, Ricardo Signes, Shlomi
+Fish, Steve Hay, Thomas Sibley, Tony Cook, Unicode Consortium, Zefram.
+>>>>>>>
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history.  In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core.  We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+https://rt.perl.org/ .  There may also be information at
+http://www.perl.org/ , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<perlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If the bug you are reporting has security implications, which make it
+inappropriate to send to a publicly archived mailing list, then please send it
+to perl5-security-report@perl.org.  This points to a closed subscription
+unarchived mailing list, which includes all the core committers, who will be
+able to help assess the impact of issues, figure out a resolution, and help
+co-ordinate the release of patches to mitigate or fix the problem across all
+platforms on which Perl is supported.  Please only use this address for
+security issues in the Perl core, not for modules independently distributed on
+CPAN.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut

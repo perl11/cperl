@@ -1,0 +1,482 @@
+=head1 NAME
+
+perltypes - Perl type support
+
+=head1 DESCRIPTION
+
+=head2 Dynamic types
+
+Perl is a dynamic language with dynamic data types. The actual type is
+typically determined at run-time, context-dependent and usually the operator
+leads to automatic type conversions, cached in the data.
+
+=head2 Static types
+
+Perl always allowed optional declaration of static types, i.e. an
+existing package name, for lexical variables and with cperl also for
+function signatures. Lexicals are stored in pads, the package name,
+i.e. the C<type>, is stored in the stash part of the C<comppad_name>
+slot for each pad. Perl itself does not use these types for checks and
+optimizations, only external modules or cperl do.
+
+Remember: A type is implemented as package. A valid type must be an
+existing and loaded package. Type expressions, like parametric types
+or unions cannot be stored in pad stashes yet.
+
+Global variables can not store types, ony lexicals. Constants are
+implicitly typed.
+
+B<cperl> adds support for builtin coretypes, has type declarations for
+most internal ops, and can optimize based in type inference or
+declared types.
+
+
+=head2 Why types? Types are unperlish
+
+No, they are not. Types for lexical variables are permitted since 2001
+and used in a few CPAN modules, i.e. Net::DNS.  Perl6 uses types all
+over.  Every perl5 value is typed. Just all the normal ops are generic
+and are allowed to change the type of its arguments and its result at
+will.
+
+Types allow dramatic performance and size optimizations, lead to
+better documented code and lead to earlier compile-time errors, which
+less need to test all possible run-time types with extensive test
+suites, which rarely cover all type cases.
+
+Natively types arrays are 4x smaller and faster, typed loops can lead
+to static loop optimizations, array elements do not need to be checked
+for out-of-bounds at run-time. There's no need to check for tied
+methods or other magic for typed variables. Most of the run-time
+I<magic>, i.e. checking for extraordinary conditions can be bypassed
+with typed variants. And with unboxed native types all the arithmetic
+ops are at least 2-4x faster.
+
+Without types no multi-dispatch, no proper object system. There's no
+need to overload internal methods anymore. The compiler and run-time
+can dispatch on the types of its arguments.
+
+Without types no builtin FFI, foreign function interface. You still need
+to call an external FFI module or write a XS function, but loose all the
+benefits of builtin types.
+
+But even without explicit type declarations the compiler internally
+can handle the arguments and result types much better as e.g. the
+javascript v8 engine does, but observing the run-time types and
+optimize dynamically. You don't need dart to run fast javascript but
+it helps.
+
+=head2 coretypes
+
+The builtin C<coretypes> module implements efficient implementations
+and B<strict types> of C<Int>, C<UInt>, C<Num> and C<Str>, which can
+be applied to scalars, arrays, hashes and functions, in lexical
+variable declarations and in signature declarations before the
+variable name, or afterwards as attribute.
+
+Any type change for those strictly typed variables will be detected at
+compile-time and if this fails at run-time.  The type C<Int> is
+interpreted as IV, C<Num> as NV and C<Str> as PV only. There is
+no stringification for IV and NV, no magic such as L<perlfunc/tie>,
+no setting to C<undef> allowed.
+
+    my Int @a = (0..9);
+    tie @a, 'Tie::Array';
+    => compile-time error: Invalid tie for typed array
+
+<<<<<<<
+=head2 :const
+X<const lexical>
+=======
+We provide fast ops variants for these types to omit type checks and
+magic calls at run-time.
+
+Operations on typed C<Int> will not promote to double on overflow,
+such as under C<use integer>, but arithmetic on untyped IVs will
+promote to doubles.
+
+The C<@ISA> of the coretypes are guaranteed to be empty. Thus there
+will no parent of all, such as a generic type C<Object>, C<Scalar> or
+C<Dynamic> to override coretypes, but there will be I<subtyped>
+children of coretypes to allow stringification and undef.  So it is
+safe to optimize coretypes to its native operations at compile-time.
+
+See also L<perldata/"coretypes"> for examples.
+
+=head2 native types
+
+Types for perl objects should have classnames names starting as
+uppercase, with several reserved names for core types, see above.
+
+The lower case variants B<int>, B<uint>, B<num> and B<str> are used to
+handle raw unboxed values directly, not refcounted, and are permitted
+for rare cases: in special sequences of ops which do understand
+them. They are also useful for the B<ffi> ("foreign function
+interface") in core, which is in development.
+
+The compiler handles boxing and unboxing automatically for the parts
+where unboxed values are not permitted on the stack. Thus you are
+allowed to use native types instead of coretypes overall, and the
+compiler uses the boxed variants instead as it sees fit.
+
+Note that you are safe to declare native types to all your lexicals,
+even you want to declare them only as Int, Num or Str, i.e. boxed.  A
+type C<int> is a hint to declare the SV a possible native C<int> type,
+but initially every C<int> is treated as C<Int> type, a normal IV.
+
+This reduces memory four to ten times per scalar, and speeds up
+combinations of pure arithmetic code and natively typed arrays.
+
+Operations on native type int will not promote to double on overflow,
+arithmetic on untyped IV will promote to doubles.
+
+B<Internally>
+
+The native op variants start with C<int_>, C<uint_>, C<num_>,
+C<str_>. Any sequence of natively typed ops might need to start with
+an C<unbox_> op to convert the vaues on the stack from boxed to
+unboxed, and end with either a C<box_> op or the C<OPpBOXRET> private
+flag in the op.  This unboxing and boxing adds some runtime costs, so
+the compiler is free to omit such type promotions at it sees
+fit. However with the new FFI the native type declaration is
+guaranteed to be observed by the compiler, and the unbox and box ops
+are added automatically.
+
+Unboxed native values can appear on the stack, on pads and in const
+ops.
+
+=head2 type checker
+>>>>>>>
+
+<<<<<<<
+C<:const> is a new attribute for lexical variables, functions and
+packages to enable compile-time readonly and assignment checks and
+type optimizations. With variables you must assign a value within the
+declaration.  See L<perldata/"Constant and typed lexical variables">.
+
+  my $a :const = 0;
+  my ($b :const,$c :const) = (0,1);
+  my ($d :const, $free) = (0,1);
+  my (int $i:const, str $s :const) = (0,"1");
+=======
+Compile-time type checks need to be enabled with C<use types>.
+>>>>>>>
+
+<<<<<<<
+=head2 type inference
+=======
+C<:const> sets the internal SVf_READONLY flag for the variable, if it's
+a scalar, array or hash. The special package stash (e.g. C<%MyClass::>)
+counts as hash.
+Elements of const arrays and hashes are protected against vivification.
+Arrays and hashes are only I<shallow const>, only the keys and the structure
+is protected, not the values.
+For I<deep constness> you have to manually const all values also, or use a module.
+>>>>>>>
+
+The inferencer runs automatically on some very limited syntax and can
+currently only infer C<Int> on array indices, ranges and C<Str> on
+hash keys, but has to give up on magic, dualvars, and C<no strict
+'refs'>. But the current type inference is fast.  With the help of
+added declarations and type checks, as e.g. in C<smartmatch> or
+C<given>/C<when> with type support it can infer much more.
+
+    if (type $a == "int") {  => $a is an int in this scope }
+
+<<<<<<<
+Typed lexicals and signatures lead to a typical performance win to ~2x
+faster, you get compile-time type warnings, a business friendly coding
+environment and the possibility to display and put infered types
+automatically in your code, with a cooperating editor. e.g.
+=======
+X<const package>
+Additionally to lexical variables and functions we can also declare packages as
+const.  That means that the structure of previously parsed package
+const stash can not me modified, I<shallow constness>. You may not
+change, add or delete keys of the stash, but you may change the value
+of stash entries.
+>>>>>>>
+
+    my $n = 1000;
+    for (my $i=0; $i<$n; $i++) { }
+=>
+    my int $n :const = 1000;
+    for (my int $i=0; $i<$n; $i++) { }
+
+B<Note>: When in doubt leave out types. If the inferer cannot find it,
+it might not be worth the trouble. But for hot code always use types,
+as compile-time types prevent from costly run-time checks for types
+and magic hooks.
+
+=head1 FUNCTIONS
+
+=head2 typedef (NY)
+
+    typedef newtype type-expr;
+
+B<typedef> stores a type expressions, such as a union of types (C< int | uint>) or type
+restrictions as in perl6 (C<< int where int>0 >>) as a new type name.
+
+This is similar to the C<subset> operator in perl6, but perl6 already
+stores types as objects, while cperl still has to store types as
+classnames.
+
+=head2 typeof (NY)
+
+    typeof expr
+
+B<typeof> returns the compile-time declared or inferred type of the expression.
+This may be different from the run-time class name, obtained with L<perlfunc/ref> or
+L<Scalar::Util/reftype>.
+
+=head1 More type terminology
+
+<<<<<<<
+=head2 nominal type system
+
+cperl implements a simple nominal type as in perl6 and most
+dynamic languages, in contrast to a structural type system such as in
+static languages as C or C++. The name of the class or type and its
+subtypes specify correctness, not the list of object fields and
+methods.
+
+TODO: B<co-variant> vs B<contra-variant>
+=======
+As Perl itself supports no types, external modules such as
+L</coretypes>, L<types>, L<typesafety> or L<MooseX::Types> implement
+checks for their types during execution of L<perlmod/CHECK>
+blocks, I<at compile-time>.
+>>>>>>>
+
+=head2 Compile-time type optimizations
+
+Since Perl 5 core does not deal with types stored in C<comppad_name>
+per se, type checks and optimizations were usually deferred to the
+modules which implement respective types checks and optimizations, and
+all those modules were broken with 5.10.
+
+The only type optimization currently in effect in Perl 5 is constant
+folding and use integer.
+
+B<cperl> has type declarations for most internal ops, and can optimize
+these ops depending on the argument types. F<opnames.h> stores
+C<PL_op_type_variants>, all possible type promotions and demotions for
+each op.  F<opcode.h> stores C<PL_op_type> with the type declarations
+of all ops.
+
+cperl is able the change of compile-time static method calls,
+determined either by name or by type and const-ness of all searched
+packages to static function calls.  Thus the dynamic method search, in
+which object this method is implemented is avoided. This is about ~10%
+faster.
+
+X<http://www.perl.com/pub/2000/06/p5pdigest/THISWEEK-20000625.html#Method_Lookup_Speedup_>
+X<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
+
+=head3 Constant folding
+
+Right-hand-side expressions or C<:const> function bodies or function
+bodies with an empty prototype C<()> which resolve at compile-time to
+constant literals may be optimized to a CONST value, and
+left-hand-side numeric ops may be optimized to use their optimized
+C<i_> or even C<int_> counterparts.  Note that C<i_> ops do not
+overflow, the integer values just wrap around. So the type and data
+range must be determined in advance and if not possible i_opt
+promotion it is forbidden.
+
+    my $c = $a + (1 << 8);
+    => my $c = $a + 256;  # add $a CONST(IV 256)
+
+    use coretypes;
+    my int $a;
+    my $c = $a + (1 << 8);
+    => my $c = $a + 256;  # i_add $a CONST(IV 256)
+
+    { use integer;
+      my $a = 1;
+      my $c = $a + (1 << 8);
+    }
+    => my $c = $a + 256;   # padsv($a) CONST(IV 1); i_add $a CONST(IV 256)
+
+    { use integer;
+      my $c = 1 + (1 << 8);
+    }
+    => my $c = 257;       # CONST(IV 257)
+
+    my $a :const = 1;
+    my $c = $a + (1 << 8);
+    => my $c = 257;       # CONST(IV 257)
+
+Unlike perl5, cperl does constant folding of function bodies even
+without an empty prototype.
+
+    sub PI { 3.1415 }
+
+which is the same as the old syntax C<sub PI () { 3.1415 }>
+
+=head3 :const packages
+
+    package MyBase 0.01 :const {
+      our @ISA = ();
+      sub new { bless { @_ }, shift }
+    }
+    package MyChild 0.01 :const {
+      our @ISA :const = ('MyBase');
+    }
+
+    my $obj = MyChild->new;
+    => MyClass::new()
+
+When the method search goes only through const packages and their
+const C<@ISA>, it is not possible to inject another package at
+run-time into the method search, thus the method call can be
+short-cut.  This classes can be B<finialized>, and all those method
+calls can be resolved at compile-time to static function calls, and
+can be inlined, and therefore even more optimized.
+
+Note that the C<package MyBase> must be constant here. Otherwise
+C<&MyBase::new> can be deleted and C<@MyBase::ISA> be changed to lead
+a parent object at run-time.
+
+=head3 Types and const inheritance
+
+    package MyBase 0.01 {
+      our @ISA = ();
+      sub new { bless { @_ }, shift }
+    }
+    package MyChild 0.01 {
+      our @ISA = ('MyBase');
+    }
+
+    # closed call.
+    my MyChild $obj = MyChild->new;
+    => MyBase::new()
+
+When the left-hand side of a method call is typed, the result of the
+method call must be of this type or any dependent type. C<$obj> is
+already declared of type C<MyChild>, thus it cannot be of any other
+run-time injected package.
+
+    package MyBase 0.01 {
+      our @ISA = ();
+      sub new { bless { @_ }, shift }
+    }
+    package MyChild 0.01 :const {
+      our @ISA :const = ('MyBase');
+    }
+
+    # open call. MyChild is of type MyBase
+    my MyBase $obj = MyChild->new;
+    => MyBase::new()
+
+When the left-hand side of a method call is typed, the result of the
+method call must be of this type or any dependent type (i.e., C<MyBase>
+or C<MyChild>).  Since C<MyChild> is constant, i.e. no C<&MyChild::new>
+method can be added at run-time, and C<@MyChild::ISA> is also
+constant, it can only be C<&MyBase::new>, even if C<MyBase> itself is
+not constant.
+
+=head3 Lexical subs I<NYI - move to perlsub.pod>
+
+Lexically defined subs in classes or package blocks are private methods,
+invisible and unchangable.
+
+    package MyClass 0.01 {
+      our @ISA = ();
+      my sub _new { bless { @_ }, shift }
+      sub new (...) { $_[0]->_new(...) }
+      my $private; # pad in maincv
+      our $open;   # in stash
+    }
+
+    ...
+    package main;
+    my $obj = new MyClass; # i.e MyClass->new is valid and optimized.
+                           # Indirect method call syntax helps.
+
+    my $obj = MyClass::_new(); # invalid
+    => Undefined subroutine &MyClass::_new called
+
+Since C<&MyClass::_new> is lexically defined in the package scope, the compiler
+may statically optimize all method calls to C<&MyClass::_new> to an improved entersub
+(the CV being on a pad) without namespace lookup and dynamic method resolution,
+without having to const C<%MyClass::> and const C<@MyClass::ISA>.
+
+Lexical definition guarantees compile-time definition, which is not overridable
+dynamically at run-time.
+
+<<<<<<<
+=======
+=head3 coretypes
+
+The builtin C<coretypes> module implements efficient implementations
+of natively typed scalars, arrays and hashes (I<at least since 5.18>),
+and the C<@ISA> of the three coretypes are guaranteed to be
+empty. Thus there will no mother of all, such as a generic type
+C<object> to override coretypes, but there will be I<softer> children
+of coretypes to allow stringification and undef.
+
+So it is safe to optimize coretypes to its native operations at
+compile-time.
+
+See also L<perldata/coretypes> for examples.
+
+>>>>>>>
+=head3 External type modules
+
+External modules, such as L<types>, L<typesafety> or L<Moose>,
+implement their type checks or optimizations for the types they
+declare or allow declaration for during execution of L<perlmod/CHECK>
+blocks.
+
+=head2 XXX __PACKAGE__ types I<questionable>
+
+As convenience for module authors it was asked to allow declarations, like
+
+    package MyClass;
+    my __PACKAGE__ $obj = __PACKAGE__->new;
+
+Currently only the right-hand side is valid Perl.
+
+This looks awful though. Refactoring of the package name should really
+refactor the internal types also, besides the type of all library users.
+But it would be consistent.
+See L<http://www.perl.com/pub/2000/06/p5pdigest/THISWEEK-20000625.html#my___PACKAGE___obj_>
+
+=head1 SEE ALSO
+
+See L<perldata/"Constant and typed lexical variables"> for the syntax
+of Perl's built-in type declarations for variables, and
+L<https://github.com/stevan/p5-mop/wiki/Signatures-and-Parameters> for
+the syntax of Perl's future argument and return type declarations.
+
+L<http://perl.plover.com/classes/typing/> I<Strong Typing Doesn't Have to Suck>
+
+Most dynamic languages are currently in the process to get type
+support:
+
+=over
+
+=item L<http://www.typescriptlang.org/Content/TypeScript%20Language%20Specification.pdf>  (microsoft's javascript with types)
+
+=item L<https://code.facebook.com/posts/1505962329687926/flow-a-new-static-type-checker-for-javascript/> (facebook's javascript with types)
+
+=item L<https://github.com/rwaldron/tc39-notes/blob/master/es6/2015-01/JSExperimentalDirections.pdf> Soundscript, google's javascript with types
+
+=item L<https://www.python.org/dev/peps/pep-0484/>  (planned python with types)
+
+=item L<http://www.mypy-lang.org/> (existing python with types)
+
+=item L<https://news.ycombinator.com/item?id=8620129> (ruby 3.0 planned with types)
+
+=item L<http://crystal-lang.org/> (a good existing ruby with types)
+
+=item L<http://hacklang.org/> (facebook's php with types)
+
+=item L<http://blog.pascal-martin.fr/post/in-favor-of-rfc-scalar-type-hints.html> (php 7 types overview)
+
+=item L<https://wiki.php.net/rfc/scalar_type_hints> (php 7)
+
+=item L<https://wiki.php.net/rfc/return_types> (php 7)
+
+=back

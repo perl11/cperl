@@ -1,0 +1,636 @@
+use Config;
+
+sub to_string {
+    my ($value) = @_;
+    $value =~ s/\\/\\\\/g;
+    $value =~ s/'/\\'/g;
+    return "'$value'";
+}
+sub to_dqstring {
+    my ($value) = @_;
+    $value =~ s/\\/\\\\/g;
+    $value =~ s/"/\\"/g;
+    return "\"$value\"";
+}
+
+# symlinks are currently also resolved.
+# e.g.
+#    ("/usr/lib", "/lib/x86_64-linux-gnu", "/lib/../lib", "/usr/lib/x86_64-linux-gnu", "/usr/lib/../lib")
+# => ("/usr/lib", "/lib/x86_64-linux-gnu", "/lib", "/usr/lib/x86_64-linux-gnu")
+sub resolve_duplicate_paths {
+  # first resolve w/../w => w
+  foreach (@_) {
+    s{(\w+)/\.\./\1$}{\1};
+  }
+  # then remove duplicates, but keep order intact
+  my %p = ();
+  my @out = ();
+  foreach (@_) {
+    unless (exists $p{$_}) {
+      if (-l $_ && -e readlink $_) {
+        $_ = readlink $_;
+      }
+      if (-e $_) {
+        push @out, $_;
+        $p{$_} = 1;
+      }
+    }
+  }
+  @out
+}
+
+#
+# subroutine expand_os_specific expands $^O-specific preprocessing information
+# so that it will not be re-calculated at runtime in Dynaloader.pm
+#
+# Syntax of preprocessor should be kept extremely simple:
+#  - directives are in double angle brackets <<...>>
+#  - <<=string>> will be just evaluated
+#  - for $^O-specific there are two forms:
+#   <<$^O-eq-osname>>
+#   <<$^O-ne-osname>>
+#  this directive should be closed with respectively
+#   <</$^O-eq-osname>>
+#   <</$^O-ne-osname>>
+#  construct <<|$^O-ne-osname>> means #else
+#  nested <<$^O...>>-constructs are allowed but nested values must be for 
+#   different OS-names!
+#   
+#  -- added by VKON, 03-10-2004 to separate $^O-specific between OSes
+#     (so that Win32 never checks for $^O eq 'VMS' for example)
+#
+# The $^O tests test both for $^O and for $Config{osname}.
+# The latter is better for some for cross-compilation setups.
+#
+sub expand_os_specific {
+    my $s = shift;
+    for ($s) {
+	s/<<=(.*?)>>/$1/gee;
+	s/<<\$\^O-(eq|ne)-(\w+)>>(.*?)<<\/\$\^O-\1-\2>>/
+	  my ($op, $os, $expr) = ($1,$2,$3);
+	  if ($op ne 'eq' and $op ne 'ne') {die "wrong eq-ne arg in $&"};
+	  if ($expr =~ m[^(.*?)<<\|\$\^O-$op-$os>>(.*?)$]s) {
+	      # #if;#else;#endif
+	      my ($if,$el) = ($1,$2);
+	      if (($op eq 'eq' and ($^O eq $os || $Config{osname} eq $os)) || ($op eq 'ne' and ($^O ne $os || $Config{osname} ne $os))) {
+		  $if
+	      }
+	      else {
+		  $el
+	      }
+	  }
+	  else {
+	      # #if;#endif
+	      if (($op eq 'eq' and ($^O eq $os || $Config{osname} eq $os)) || ($op eq 'ne' and ($^O ne $os || $Config{osname} ne $os))) {
+		  $expr
+	      }
+	      else {
+	      	  ""
+	      }
+	  }
+	/ges;
+	if (/<<(=|\$\^O-)/) {die "bad <<\$^O-eq/ne-osname>> expression.".
+	    " Unclosed brackets?";
+	}
+    }
+    $s;
+}
+
+unlink "dlboot.c" if -f "dlboot.c";
+open OUT, ">dlboot.c" or die $!;
+
+my $ldlibpthname_defined = defined $Config{ldlibpthname};
+
+print OUT expand_os_specific(<<'EOT');
+/*
+  Generated from dlboot_c.PL
+  Reini Urban for cPanel, March 2015
+*/
+
+static const char file[] = __FILE__;
+/* 1 on VMS */
+#define DL_DO_EXPAND <<$^O-eq-VMS>>1<<|$^O-eq-VMS>>0<</$^O-eq-VMS>>
+SV *do_expand;
+AV *dl_require_symbols;      /* names of symbols we need */
+AV *dl_resolve_using;        /* names of files to link with */
+AV *dl_library_path;         /* path to look for files */
+EOT
+print OUT <<"EOT";
+const char dl_ext[] = "$Config{dlext}";
+const char dl_so[]  = "$Config{so}";
+const char dl_src[] = "$Config{dlsrc}";
+const char ldlibpthname[]       = "$Config{ldlibpthname}";
+const int ldlibpthname_defined  = $ldlibpthname_defined;
+const char pthsep[]             = "$Config{path_sep}";
+
+EOT
+print OUT <<'EOT';
+static AV * dl_findfile(pTHX_ AV* args);
+PERL_CALLCONV void XS_DynaLoader_bootstrap_inherit(pTHX_ CV *cv);
+PERL_CALLCONV void XS_DynaLoader_bootstrap(pTHX_ CV *cv);
+PERL_CALLCONV void XS_DynaLoader_dl_findfile(pTHX_ CV *cv);
+PERL_CALLCONV void XS_DynaLoader_dl_expandspec(pTHX_ CV *cv);
+PERL_CALLCONV void XS_DynaLoader_dl_find_symbol_anywhere(pTHX_ CV *cv);
+PERL_CALLCONV void XS_DynaLoader_mod2fname(pTHX_ CV *cv);
+
+EXTERN_C void
+dl_boot (pTHX) {
+    const char *debug = PerlEnv_getenv("PERL_DL_DEBUG");
+    HV * dl_stash = get_hv("main::DynaLoader::", GV_ADDMULTI);
+    newCONSTSUB( dl_stash, "dl_load_flags", newSViv(0) );
+    if (*debug) { /* enable debug/trace messages from DynaLoader perl code */
+        dl_debug = grok_atou(debug, NULL);
+        sv_setiv(get_sv("DynaLoader::dl_debug", GV_ADDMULTI), dl_debug);
+    }
+    do_expand = get_sv("DynaLoader::dl_expand", GV_ADDMULTI);
+    sv_setiv(do_expand, DL_DO_EXPAND);
+    dl_library_path = get_av("main::DynaLoader::dl_library_path", GV_ADDMULTI);
+
+    newXS("DynaLoader::bootstrap_inherit", XS_DynaLoader_bootstrap_inherit, file);
+    newXS("DynaLoader::bootstrap",         XS_DynaLoader_bootstrap, file);
+    newXS("DynaLoader::dl_findfile",       XS_DynaLoader_dl_findfile, file);
+    newXS("DynaLoader::dl_expandspec",     XS_DynaLoader_dl_expandspec, file);
+    newXS("DynaLoader::dl_find_symbol_anywhere", XS_DynaLoader_dl_find_symbol_anywhere, file);
+    newXS("DynaLoader::mod2fname", 	   XS_DynaLoader_mod2fname, file);
+
+EOT
+print OUT <<'EOT' if $Config{dlsrc} eq "dl_dld.xs";
+    /* This is a fix to support DLD's unfortunate desire to relink -lc */
+    dl_resolve_using = get_av("main::DynaLoader::dl_resolve_using", GV_ADDMULTI);
+    dl_resolve_using = dl_findfile(av_store(dl_resolve_using, 0, newSVpvs("-lc")));
+EOT
+
+print OUT <<'EOT';
+    /* with duplicates removed and symlinks resolved from libpth */
+EOT
+# resolve duplicates at least here, if Configure is not up to the task
+for my $pth (resolve_duplicate_paths(split(' ', $Config{libpth}))) {
+  $pth = to_dqstring($pth);
+  print OUT <<"EOT";
+    av_store(dl_library_path, AvFILLp(dl_library_path)+1, newSVpvs($pth));
+EOT
+}
+
+print OUT <<'EOT';
+}
+
+XS(XS_DynaLoader_bootstrap_inherit)
+{
+    dXSARGS;
+    /* perl:
+    my $module = $_[0];
+    local *isa = *{"$module\::ISA"};
+    local @isa = (@isa, 'DynaLoader');
+    # Cannot goto due to delocalization.  Will report errors on a wrong line?
+    bootstrap(@_); */
+    XSRETURN_EMPTY;
+}
+XS(XS_DynaLoader_bootstrap)
+{
+    dXSARGS;
+    XSRETURN_EMPTY;
+}
+XS(XS_DynaLoader_dl_findfile)
+{
+    dXSARGS;
+    SSize_t i, size;
+    AV *args = av_make(items, SP);
+    args = dl_findfile(args);
+    SP -= items;
+    size = AvFILL(args);
+    for (i=0; i<size; i++) {
+      XPUSHs(AvARRAY(args)[i]);
+    }
+    XSRETURN(size);
+}
+XS(XS_DynaLoader_dl_expandspec)
+{
+    dXSARGS;
+    XSRETURN_EMPTY;
+}
+XS(XS_DynaLoader_dl_find_symbol_anywhere)
+{
+    dXSARGS;
+    XSRETURN_EMPTY;
+}
+XS(XS_DynaLoader_mod2fname)
+{
+    dXSARGS;
+    XSRETURN_EMPTY;
+}
+
+static AV * dl_findfile(aTHX_ AV* args) {
+  return args;
+}
+
+/*
+EOT
+
+my $cfg_dl_library_path = <<'EOT';
+push(@dl_library_path, split(' ', $Config::Config{libpth}));
+EOT
+
+sub dquoted_comma_list {
+    join(", ", map {'"'.quotemeta($_).'"'} @_);
+}
+
+if ($ENV{PERL_BUILD_EXPAND_CONFIG_VARS}) {
+    eval $cfg_dl_library_path;
+    if (!$ENV{PERL_BUILD_EXPAND_ENV_VARS}) {
+        my $dl_library_path = dquoted_comma_list(@dl_library_path);
+        print OUT <<EOT;
+# The below \@dl_library_path has been expanded (%Config) in Perl build time.
+
+\@dl_library_path = ($dl_library_path);
+
+EOT
+    }
+}
+else {
+    print OUT <<EOT;
+# Initialise \@dl_library_path with the 'standard' library path
+# for this platform as determined by Configure.
+
+$cfg_dl_library_path
+
+EOT
+}
+
+my $ldlibpthname;
+my $ldlibpthname_defined;
+my $pthsep;
+
+if ($ENV{PERL_BUILD_EXPAND_CONFIG_VARS}) {
+    $ldlibpthname         = to_string($Config::Config{ldlibpthname});
+    $ldlibpthname_defined = to_string(defined $Config::Config{ldlibpthname} ? 1 : 0);
+    $pthsep               = to_string($Config::Config{path_sep});
+}
+else {
+    $ldlibpthname         = q($Config::Config{ldlibpthname});
+    $ldlibpthname_defined = q(defined $Config::Config{ldlibpthname});
+    $pthsep               = q($Config::Config{path_sep});
+}
+print OUT <<EOT;
+my \$ldlibpthname         = $ldlibpthname;
+my \$ldlibpthname_defined = $ldlibpthname_defined;
+my \$pthsep               = $pthsep;
+
+EOT
+
+my $env_dl_library_path = <<'EOT';
+if ($ldlibpthname_defined &&
+    exists $ENV{$ldlibpthname}) {
+    push(@dl_library_path, split(/$pthsep/, $ENV{$ldlibpthname}));
+}
+
+# E.g. HP-UX supports both its native SHLIB_PATH *and* LD_LIBRARY_PATH.
+
+if ($ldlibpthname_defined &&
+    $ldlibpthname ne 'LD_LIBRARY_PATH' &&
+    exists $ENV{LD_LIBRARY_PATH}) {
+    push(@dl_library_path, split(/$pthsep/, $ENV{LD_LIBRARY_PATH}));
+}
+EOT
+
+if ($ENV{PERL_BUILD_EXPAND_CONFIG_VARS} && $ENV{PERL_BUILD_EXPAND_ENV_VARS}) {
+    eval $env_dl_library_path;
+}
+else {
+    print OUT <<EOT;
+# Add to \@dl_library_path any extra directories we can gather from environment
+# during runtime.
+
+$env_dl_library_path
+
+EOT
+}
+
+if ($ENV{PERL_BUILD_EXPAND_CONFIG_VARS} && $ENV{PERL_BUILD_EXPAND_ENV_VARS}) {
+    my $dl_library_path = dquoted_comma_list(@dl_library_path);
+    print OUT <<EOT;
+# The below \@dl_library_path has been expanded (%Config, %ENV)
+# in Perl build time.
+
+\@dl_library_path = ($dl_library_path);
+
+EOT
+}
+
+if ( $Config::Config{d_libname_unique} ) {
+    printf OUT <<'EOT', length($Config::Config{dlext}) + 1;
+sub mod2fname {
+    my $parts = shift;
+    my $so_len = %d;
+    my $name_max = 255; # No easy way to get this here
+    
+    my $libname = "PL_" .  join("__", @$parts);
+    
+    return $libname if (length($libname)+$so_len) <= $name_max;
+    
+    # It's too darned big, so we need to go strip. We use the same
+    # algorithm as xsubpp does. First, strip out doubled __
+    $libname =~ s/__/_/g;
+    return $libname if (length($libname)+$so_len) <= $name_max;
+    
+    # Strip duplicate letters
+    1 while $libname =~ s/(.)\1/\U$1/i;
+    return $libname if (length($libname)+$so_len) <= $name_max;
+    
+    # Still too long. Truncate.
+    $libname = substr($libname, 0, $name_max - $so_len);
+    return $libname;
+}
+EOT
+}
+
+# following long string contains $^O-specific stuff, which is factored out
+print OUT expand_os_specific(<<'EOT');
+# No prizes for guessing why we don't say 'bootstrap DynaLoader;' here.
+# NOTE: All dl_*.xs (including dl_none.xs) define a dl_error() XSUB
+boot_DynaLoader('DynaLoader') if defined(&boot_DynaLoader) &&
+                                !defined(&dl_error);
+
+if ($dl_debug) {
+    print STDERR "DynaLoader.pm loaded (@INC, @dl_library_path)\n";
+    print STDERR "DynaLoader not linked into this perl\n"
+	    unless defined(&boot_DynaLoader);
+}
+
+1; # End of main code
+
+
+sub croak   { require Carp; Carp::croak(@_)   }
+
+sub bootstrap_inherit {
+    my $module = $_[0];
+    local *isa = *{"$module\::ISA"};
+    local @isa = (@isa, 'DynaLoader');
+    # Cannot goto due to delocalization.  Will report errors on a wrong line?
+    bootstrap(@_);
+}
+
+sub bootstrap {
+    # use local vars to enable $module.bs script to edit values
+    local(@args) = @_;
+    local($module) = $args[0];
+    local(@dirs, $file);
+
+    unless ($module) {
+	require Carp;
+	Carp::confess("Usage: DynaLoader::bootstrap(module)");
+    }
+
+    # A common error on platforms which don't support dynamic loading.
+    # Since it's fatal and potentially confusing we give a detailed message.
+    croak("Can't load module $module, dynamic loading not available in this perl.\n".
+	"  (You may need to build a new perl executable which either supports\n".
+	"  dynamic loading or has the $module module statically linked into it.)\n")
+	unless defined(&dl_load_file);
+
+
+    <<$^O-eq-os2>>
+    # Can dynaload, but cannot dynaload Perl modules...
+    die 'Dynaloaded Perl modules are not available in this build of Perl' if $OS2::is_static;
+
+    <</$^O-eq-os2>>
+    my @modparts = split(/::/,$module);
+    my $modfname = $modparts[-1];
+
+    # Some systems have restrictions on files names for DLL's etc.
+    # mod2fname returns appropriate file base name (typically truncated)
+    # It may also edit @modparts if required.
+    $modfname = &mod2fname(\@modparts) if defined &mod2fname;
+
+    <<$^O-eq-NetWare>>
+    # Truncate the module name to 8.3 format for NetWare
+	if ((length($modfname) > 8)) {
+		$modfname = substr($modfname, 0, 8);
+	}
+    <</$^O-eq-NetWare>>
+
+    my $modpname = join('/',@modparts);
+
+    print STDERR "DynaLoader::bootstrap for $module ",
+		       "(auto/$modpname/$modfname.$dl_dlext)\n"
+	if $dl_debug;
+
+    foreach (@INC) {
+	<<$^O-eq-VMS>>chop($_ = VMS::Filespec::unixpath($_));<</$^O-eq-VMS>>
+	    my $dir = "$_/auto/$modpname";
+	
+	next unless -d $dir; # skip over uninteresting directories
+	
+	# check for common cases to avoid autoload of dl_findfile
+        my $try = "$dir/$modfname.$dl_dlext";
+	last if $file = ($do_expand) ? dl_expandspec($try) : ((-f $try) && $try);
+	
+	# no luck here, save dir for possible later dl_findfile search
+	push @dirs, $dir;
+    }
+    # last resort, let dl_findfile have a go in all known locations
+    $file = dl_findfile(map("-L$_",@dirs,@INC), $modfname) unless $file;
+
+    croak("Can't locate loadable object for module $module in \@INC (\@INC contains: @INC)")
+	unless $file;	# wording similar to error from 'require'
+
+    <<$^O-eq-VMS>>$file = uc($file) if $Config::Config{d_vms_case_sensitive_symbols};<</$^O-eq-VMS>>
+    my $bootname = "boot_$module";
+    $bootname =~ s/\W/_/g;
+    @dl_require_symbols = ($bootname);
+
+    # Execute optional '.bootstrap' perl script for this module.
+    # The .bs file can be used to configure @dl_resolve_using etc to
+    # match the needs of the individual module on this architecture.
+    my $bs = $file;
+    $bs =~ s/(\.\w+)?(;\d*)?$/\.bs/; # look for .bs 'beside' the library
+    if (-s $bs) { # only read file if it's not empty
+        print STDERR "BS: $bs ($^O, $dlsrc)\n" if $dl_debug;
+        eval { do $bs; };
+        warn "$bs: $@\n" if $@;
+    }
+
+    my $boot_symbol_ref;
+
+    <<$^O-eq-darwin>>
+    if ($boot_symbol_ref = dl_find_symbol(0, $bootname)) {
+        goto boot; #extension library has already been loaded, e.g. darwin
+    }
+    <</$^O-eq-darwin>>
+
+    # Many dynamic extension loading problems will appear to come from
+    # this section of code: XYZ failed at line 123 of DynaLoader.pm.
+    # Often these errors are actually occurring in the initialisation
+    # C code of the extension XS file. Perl reports the error as being
+    # in this perl code simply because this was the last perl code
+    # it executed.
+
+    my $flags = $module->dl_load_flags;
+    <<$^O-eq-android>>
+    # See the note above regarding the linker.
+    $flags = 0x00;
+    <</$^O-eq-android>>
+    my $libref = dl_load_file($file, $flags) or
+	croak("Can't load '$file' for module $module: ".dl_error());
+
+    push(@dl_librefs,$libref);  # record loaded object
+
+    my @unresolved = dl_undef_symbols();
+    if (@unresolved) {
+	require Carp;
+	Carp::carp("Undefined symbols present after loading $file: @unresolved\n");
+    }
+
+    $boot_symbol_ref = dl_find_symbol($libref, $bootname) or
+         croak("Can't find '$bootname' symbol in $file\n");
+
+    push(@dl_modules, $module); # record loaded module
+
+  boot:
+    my $xs = dl_install_xsub("${module}::bootstrap", $boot_symbol_ref, $file);
+
+    # See comment block above
+
+	push(@dl_shared_objects, $file); # record files loaded
+
+    &$xs(@args);
+}
+
+sub dl_findfile {
+    # Read ext/DynaLoader/DynaLoader.doc for detailed information.
+    # This function does not automatically consider the architecture
+    # or the perl library auto directories.
+    my (@args) = @_;
+    my (@dirs,  $dir);   # which directories to search
+    my (@found);         # full paths to real files we have found
+    #my $dl_ext= <<=to_string($Config::Config{'dlext'})>>; # $Config::Config{'dlext'} suffix for perl extensions
+    #my $dl_so = <<=to_string($Config::Config{'so'})>>; # $Config::Config{'so'} suffix for shared libraries
+
+    print STDERR "dl_findfile(@args)\n" if $dl_debug;
+
+    # accumulate directories but process files as they appear
+    arg: foreach(@args) {
+        #  Special fast case: full filepath requires no search
+	<<$^O-eq-VMS>>
+        if (m%[:>/\]]% && -f $_) {
+	    push(@found,dl_expandspec(VMS::Filespec::vmsify($_)));
+	    last arg unless wantarray;
+	    next;
+        }
+	<</$^O-eq-VMS>>
+	<<$^O-ne-VMS>>
+        if (m:/: && -f $_) {
+	    push(@found,$_);
+	    last arg unless wantarray;
+	    next;
+	}
+	<</$^O-ne-VMS>>
+
+        # Deal with directories first:
+        #  Using a -L prefix is the preferred option (faster and more robust)
+        if (m:^-L:) { s/^-L//; push(@dirs, $_); next; }
+
+        #  Otherwise we try to try to spot directories by a heuristic
+        #  (this is a more complicated issue than it first appears)
+        if (m:/: && -d $_) {   push(@dirs, $_); next; }
+
+	<<$^O-eq-VMS>>
+        # VMS: we may be using native VMS directory syntax instead of
+        # Unix emulation, so check this as well
+        if (/[:>\]]/ && -d $_) {   push(@dirs, $_); next; }
+	<</$^O-eq-VMS>>
+
+        #  Only files should get this far...
+        my(@names, $name);    # what filenames to look for
+        if (m:-l: ) {          # convert -lname to appropriate library name
+            s/-l//;
+            push(@names,"lib$_.$dl_so");
+            push(@names,"lib$_.a");
+        } else {                # Umm, a bare name. Try various alternatives:
+            # these should be ordered with the most likely first
+            push(@names,"$_.$dl_dlext")    unless m/\.$dl_dlext$/o;
+            push(@names,"$_.$dl_so")     unless m/\.$dl_so$/o;
+	    <<$^O-eq-cygwin>>
+            push(@names,"cyg$_.$dl_so")  unless m:/:;
+	    <</$^O-eq-cygwin>>
+            push(@names,"lib$_.$dl_so")  unless m:/:;
+            push(@names,"$_.a")          if !m/\.a$/ and $dlsrc eq "dl_dld.xs";
+            push(@names, $_);
+        }
+	my $dirsep = '/';
+	<<$^O-eq-symbian>>
+	$dirsep = '\\';
+	if ($0 =~ /^([a-z]):/i) {
+	    my $drive = $1;
+	    @dirs = map { "$drive:$_" } @dirs;
+	    @dl_library_path = map { "$drive:$_" } @dl_library_path;
+	}
+	<</$^O-eq-symbian>>
+        foreach $dir (@dirs, @dl_library_path) {
+            next unless -d $dir;
+	    <<$^O-eq-VMS>>
+            chop($dir = VMS::Filespec::unixpath($dir));
+	    <</$^O-eq-VMS>>
+            foreach $name (@names) {
+		my($file) = "$dir$dirsep$name";
+                print STDERR " checking in $dir for $name\n" if $dl_debug;
+		$file = ($do_expand) ? dl_expandspec($file) : (-f $file && $file);
+		#$file = _check_file($file);
+		if ($file) {
+                    push(@found, $file);
+                    next arg; # no need to look any further
+                }
+            }
+        }
+    }
+    if ($dl_debug) {
+        foreach(@dirs) {
+            print STDERR " dl_findfile ignored non-existent directory: $_\n" unless -d $_;
+        }
+        print STDERR "dl_findfile found: @found\n";
+    }
+    return $found[0] unless wantarray;
+    @found;
+}
+
+
+<<$^O-eq-VMS>>
+# dl_expandspec should be defined in dl_vms.xs
+<<|$^O-eq-VMS>>
+sub dl_expandspec {
+    my($spec) = @_;
+    # Optional function invoked if DynaLoader.pm sets $do_expand.
+    # Most systems do not require or use this function.
+    # Some systems may implement it in the dl_*.xs file in which case
+    # this Perl version should be excluded at build time.
+
+    # This function is designed to deal with systems which treat some
+    # 'filenames' in a special way. For example VMS 'Logical Names'
+    # (something like unix environment variables - but different).
+    # This function should recognise such names and expand them into
+    # full file paths.
+    # Must return undef if $spec is invalid or file does not exist.
+
+    my $file = $spec; # default output to input
+
+	return undef unless -f $file;
+    print STDERR "dl_expandspec($spec) => $file\n" if $dl_debug;
+    $file;
+}
+<</$^O-eq-VMS>>
+
+sub dl_find_symbol_anywhere
+{
+    my $sym = shift;
+    my $libref;
+    foreach $libref (@dl_librefs) {
+	my $symref = dl_find_symbol($libref,$sym);
+	return $symref if $symref;
+    }
+    return undef;
+}
+
+*/
+EOT
+
+close OUT or die $!;
+
