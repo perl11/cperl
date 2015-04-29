@@ -32,7 +32,7 @@
 /Digest.pm
 /Digest/
 /Dumpvalue.pm
-/DynaLoader.pm
+/DynaLoader.pod
 /Encode.pm
 /Encode/
 /Env.pm
@@ -185,7 +185,7 @@
 /Win32API/
 /Win32CORE.pm
 /XS/
-/XSLoader.pm
+/XSLoader.pod
 /arybase.pm
 /autodie.pm
 /autodie/
