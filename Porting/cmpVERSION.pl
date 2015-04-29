@@ -97,7 +97,7 @@ my %skip_versions = (
 	   # 'some/sample/file.pm' => [ '1.23', '1.24' ],
 	  );
 
-my $skip_dirs = qr|^t/lib|;
+my $skip_dirs = qr{^(t/lib|ext/DynaLoader)};
 
 sub pm_file_from_xs {
     my $xs = shift;
@@ -117,7 +117,8 @@ sub pm_file_from_xs {
 		     sub {
 			 # Try to work out the extension's full package, and
 			 # look for a .pm in lib/ based on that:
-			 my ($path) = shift =~ m!^(.*)/!;
+                         my $xs = shift;
+			 my ($path) = $xs =~ m!^(.*)/!;
 			 my ($last) = $path =~ m!([^/]+)\z!;
 			 $last = 'List-Util' if $last eq 'Scalar-List-Utils';
 			 $last =~ tr !-!/!;
