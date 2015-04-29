@@ -20,7 +20,7 @@ my %skip = map { ("PL_$_", 1) }
 
 $skip{PL_hash_rand_bits}= $skip{PL_hash_rand_bits_enabled}= 1; # we can be compiled without these, so skip testing them
 $skip{PL_warn_locale}= 1; # we can be compiled without locales, so skip testing them
-
+$skip{PL_memory_debug_header}= 1; # skipped in makedef
 
 my $trial = "nm globals$Config{_o} 2>&1";
 my $yes = `$trial`;
