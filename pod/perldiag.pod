@@ -896,6 +896,13 @@ found in the PATH.
 found in the PATH, or at least not with the correct permissions.  The
 script exists in the current directory, but PATH prohibits running it.
 
+=item Can't find '%s' symbol in %s
+
+(F) An empty DynaLoader C<boot_symbol_ref> is returned by
+C<DynaLoader::dl_find_symbol>, when loading a shared library. See
+L<DynaLoader>. You may try with ENV C<PERL_DL_DEBUG=2> to debug this
+case.
+
 =item Can't find string terminator %s anywhere before EOF
 
 (F) Perl strings can stretch over multiple lines.  This message means
