@@ -79,8 +79,22 @@ unless ($version =~ /\b(1\.875[a-z]?|2\.[0134567])\b/) { die <<EOF; }
 
 You have the wrong version of bison in your path; currently 1.875
 2.0, 2.1, 2.3, 2.4, 2.5, 2.6 or 2.7 is required.  Try installing
-    http://ftp.gnu.org/gnu/bison/bison-2.5.1.tar.gz
-or similar.  Your bison identifies itself as:
+bison-2.5.1 or similar:
+
+  pushd /tmp
+  wget http://ftp.gnu.org/gnu/bison/bison-2.5.1.tar.gz
+  tar xfz bison-2.5.1.tar.gz
+  cd bison-2.5.1
+  ./configure --program-suffix=-2.5.1
+  make
+  make check
+  sudo make install
+  cd ..
+  rm -rf bison-2.5.1.tar.gz bison-2.5.1
+  popd
+  perl regen_perly.pl -b bison-2.5.1
+
+Your bison identifies itself as:
 
 $version
 EOF
