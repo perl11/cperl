@@ -1077,9 +1077,10 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
 /* bit flags */
 
 #define SIGNATURE_FLAG_skip        0x10  /* placeholder param */
+#define SIGNATURE_FLAG_ref         0x20
 
-#define SIGNATURE_MASK             0x1F
-#define SIGNATURE_SHIFT               5
+#define SIGNATURE_MASK             0x3F
+#define SIGNATURE_SHIFT               6
 
 #if defined(PERL_IN_DOOP_C) || defined(PERL_IN_PP_C)
 static const char * const deprecated_above_ff_msg
