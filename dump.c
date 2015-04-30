@@ -2542,8 +2542,11 @@ Perl_signature_stringify(pTHX_ const OP *o, CV *cv)
 
             if (actions & SIGNATURE_FLAG_skip)
                 sv_catpvs_nomg(out, "$");
-            else
+            else {
+                if (actions & SIGNATURE_FLAG_ref)
+                    sv_catpvs_nomg(out, "\\");
                 S_append_padvar(aTHX_ pad_ix++, cv, out, 1, 0, 1);
+            }
 
             switch (action) {
             case SIGNATURE_arg:
@@ -2592,15 +2595,15 @@ Perl_signature_stringify(pTHX_ const OP *o, CV *cv)
 
             break;
 
-        case SIGNATURE_slurp_array:
-        case SIGNATURE_slurp_hash:
+        case SIGNATURE_array:
+        case SIGNATURE_hash:
             if (first)
                 first = FALSE;
             else
                 sv_catpvs_nomg(out, ", ");
 
             if (actions & SIGNATURE_FLAG_skip)
-                sv_catpvn_nomg(out, action == SIGNATURE_slurp_array ? "@": "%", 1);
+                sv_catpvn_nomg(out, action == SIGNATURE_array ? "@": "%", 1);
             else
                 S_append_padvar(aTHX_ pad_ix++, cv, out, 1, 0, 0);
             break;
