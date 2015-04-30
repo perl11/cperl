@@ -59,8 +59,8 @@ use B qw(class main_root main_start main_cv svref_2object opnumber perlstring
         SIGNATURE_arg_default_padsv
         SIGNATURE_arg_default_gvsv
         SIGNATURE_arg_default_op
-        SIGNATURE_slurp_array
-        SIGNATURE_slurp_hash
+        SIGNATURE_array
+        SIGNATURE_hash
         SIGNATURE_ACTION_MASK
         SIGNATURE_FLAG_skip
         SIGNATURE_MASK
@@ -1287,8 +1287,8 @@ sub deparse_signature {
 
         my $param;
         if ($actions & SIGNATURE_FLAG_skip) {
-            $param =      $action == SIGNATURE_slurp_array ?
-                    '@' : $action == SIGNATURE_slurp_hash  ?
+            $param =      $action == SIGNATURE_array ?
+                    '@' : $action == SIGNATURE_hash  ?
                     '%' : '$';
         }
         else {
@@ -1344,8 +1344,8 @@ sub deparse_signature {
             $default = $self->const(shift(@items), 7);
         }
         elsif (   $action == SIGNATURE_arg
-               || $action == SIGNATURE_slurp_array
-               || $action == SIGNATURE_slurp_hash)
+               || $action == SIGNATURE_array
+               || $action == SIGNATURE_hash)
         {
             # nothing to do
         }
