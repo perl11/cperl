@@ -639,9 +639,17 @@ myattrlist:	COLONATTR THING
 			{ $$ = (OP*)NULL; }
 	;
 
-/* Subroutine signature or old-style prototype */
+/* Subroutine signature */
 subsignature:	'('
-			{ $<opval>$ = parse_subsignature(); }
+			{
+			  /* We shouldn't get here otherwise */
+			  assert(FEATURE_SIGNATURES_IS_ENABLED);
+
+			  Perl_ck_warner_d(aTHX_
+				packWARN(WARN_EXPERIMENTAL__SIGNATURES),
+				"The signatures feature is experimental");
+			  $<opval>$ = parse_subsignature();
+			}
 		')'
 			{
 			  $$ = $<opval>2;

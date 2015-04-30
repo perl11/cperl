@@ -90,9 +90,16 @@ unless ($version =~ $proper_version) { die <<EOF; }
 You have a wrong version of bison in your path; currently
 1.875, 2.0-2.7 or 3.0 are known to work.  Try installing
     http://ftp.gnu.org/gnu/bison/bison-2.7.1.tar.gz
-or  http://ftp.gnu.org/gnu/bison/bison-2.5.1.tar.gz
 or similar:
-    ./configure --program-suffix=-2.5.1; make; make check; sudo make install
+
+    pushd /tmp
+    wget http://ftp.gnu.org/gnu/bison/bison-2.7.1.tar.gz
+    tar xfz bison-2.7.1.tar.gz
+    cd bison-2.7.1
+    ./configure --program-suffix=-2.7.1; make; make check; sudo make install
+    rm -rf bison-2.7.1.tar.gz bison-2.7.1
+    popd
+    perl regen_perly.pl -b bison-2.7.1
 
 Your bison identifies itself as:
 
