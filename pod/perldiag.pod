@@ -5088,6 +5088,12 @@ to use parens.  In any case, a hash requires key/value B<pairs>.
 (W misc) You have attempted to weaken a reference that is already weak.
 Doing so has no effect.
 
+=item Reference parameter cannot take default value
+
+(F) In a subroutine signature, you put a C<=> after a reference C<\>
+parameter.  A reference parameter cannot be assigned default values on
+subroutine entries.
+
 =item Reference to invalid group 0 in regex; marked by S<<-- HERE> in m/%s/
 
 (F) You used C<\g0> or similar in a regular expression.  You may refer
@@ -6631,6 +6637,13 @@ discovered.  See L<perlre>.
 on anonymous closure prototypes.  You applied it to
 a subroutine via L<attributes.pm|attributes>.  This is only useful
 inside an attribute handler for an anonymous subroutine.
+
+=item Useless use of :caller, did you mean :-caller instead?
+
+(W misc) The ":caller" attribute has no effect in pure perl subroutine
+declarations.  You applied it to a subroutine via
+L<attributes.pm|attributes>.  This is only valid as negated variant
+C<:-caller> on subroutines.
 
 =item Useless use of /d modifier in transliteration operator
 
