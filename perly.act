@@ -1104,7 +1104,7 @@ case 2:
                           /* empty sig sub needs a nextstate at the end
                            * to clear the stack of any default expression
                            * detritus */
-                          if (!body && !OpHAS_SIBLING(sig))
+                          if (!body && (!sig || !OpHAS_SIBLING(sig)))
                                body = newSTATEOP(0, NULL, NULL);
 			  if (parser->copline > (line_t)(ps[(6) - (8)].val.ival))
 			      parser->copline = (line_t)(ps[(6) - (8)].val.ival);
@@ -1598,6 +1598,6 @@ case 2:
     
 
 /* Generated from:
- * 722f5aa9fe1bb838531f58d6136408875865d0b70ac5651b494a891b8e40a2a5 perly.y
+ * daca97161c83666b9d4e768ca1d76c2fe122c2fa580dca86a86e1898d9e7afdb perly.y
  * af369e0c00095e7003f0182d06a52d35c908c9d43a864a7e300b79c1d34fbfdc regen_perly.pl
  * ex: set ro: */
