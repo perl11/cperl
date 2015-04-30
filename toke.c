@@ -1417,6 +1417,8 @@ Perl_lex_peek_unichar(pTHX_ U32 flags)
 	Perl_croak(aTHX_ "Lexing code internal error (%s)", "lex_peek_unichar");
     s = PL_parser->bufptr;
     bufend = PL_parser->bufend;
+    if (s > bufend)
+	Perl_croak(aTHX_ "Lexing code internal error (%s)", "lex_peek_unichar");
     if (UTF) {
 	U8 head;
 	I32 unichar;
@@ -6797,7 +6799,7 @@ Perl_yylex(pTHX)
 
 	default:			/* not a keyword */
 	    /* Trade off - by using this evil construction we can pull the
-	       variable gv into the block labelled keylookup. If not, then
+	       variable gv into the block labeled keylookup. If not, then
 	       we have to give it function scope so that the goto from the
 	       earlier ':' case doesn't bypass the initialisation.  */
 	    if (0) {
@@ -8237,7 +8239,7 @@ Perl_yylex(pTHX)
                         s = skipspace(s);
                     } else {
                         DEBUG_T( { printbuf("### No prototype %s, signature probably\n", olds); } );
-                        s = olds;
+                        s = PL_bufptr = olds;
                         PL_lex_stuff = NULL;
                     }
 		}
