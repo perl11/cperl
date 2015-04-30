@@ -8237,7 +8237,7 @@ Perl_yylex(pTHX)
 		    PREBLOCK(FORMAT);
 		}
 
-		/* Look for a prototype */
+		/* Look for a prototype. signatures are backcompat */
 		if (*s == '(' && !FEATURE_SIGNATURES_IS_ENABLED) {
 		    s = scan_str(s,FALSE,FALSE,FALSE,NULL);
 		    COPLINE_SET_FROM_MULTI_END;

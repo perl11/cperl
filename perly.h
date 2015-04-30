@@ -199,22 +199,6 @@ int yyparse ();
 #endif
 
 /* Generated from:
-<<<<<<< 8c9eb5dbdf243967365e82047881e41f9d6ff937
-<<<<<<< 5ae80e6d43bb57050b03e6887bc91f4cabd60a20
- * f067b22562c0326d671962e4611ab6ea9e01bf5f009d0ce90b253f41b820822b perly.y
- * 6da94fc09ee67416fa6399400bdf7b3d76f4f63ca704a9ea882e66344942c7cb regen_perly.pl
-||||||| merged common ancestors
- * 3bf3c065b47fd70be44a0c302926f1a7c5e5cbfc123a4408adc80e4d5f82eb04 perly.y
- * d1d4df7b8e30ac9dede664af9179e6e5e7ddc7f2ad9c4eff9e2e5b32c9e16a6e regen_perly.pl
-=======
- * 0551680436f992c1570e3faa5f7a383c6a5e68d585a15fb0122b4c5537da1b53 perly.y
- * d1d4df7b8e30ac9dede664af9179e6e5e7ddc7f2ad9c4eff9e2e5b32c9e16a6e regen_perly.pl
->>>>>>> add OP_SIGNATURE
-||||||| merged common ancestors
- * 0551680436f992c1570e3faa5f7a383c6a5e68d585a15fb0122b4c5537da1b53 perly.y
- * d1d4df7b8e30ac9dede664af9179e6e5e7ddc7f2ad9c4eff9e2e5b32c9e16a6e regen_perly.pl
-=======
- * 7efa441b0efc12a0aab2f493b4ef36191a60be98f41e736009a7aa1bc6919e8d perly.y
- * af369e0c00095e7003f0182d06a52d35c908c9d43a864a7e300b79c1d34fbfdc regen_perly.pl
->>>>>>> regen_perly: new generated files
+ * dc2b47f4e65c80ca3c7c57443fd5c4bf73d797ddb5ea7414e8f2462e0987f24e perly.y
+ * 82b7d1e1f57d7b73f14717109a0888760b4a61bc4b2e8a487dbab21278180e28 regen_perly.pl
  * ex: set ro: */
