@@ -1075,9 +1075,10 @@ sib is non-null. For a higher-level interface, see C<op_sibling_splice>.
 /* bit flags */
 
 #define SIGNATURE_FLAG_skip        0x10  /* placeholder param */
+#define SIGNATURE_FLAG_ref         0x20
 
-#define SIGNATURE_MASK             0x1F
-#define SIGNATURE_SHIFT               5
+#define SIGNATURE_MASK             0x3F
+#define SIGNATURE_SHIFT               6
 
 /*
  * ex: set ts=8 sts=4 sw=4 et:
