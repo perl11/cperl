@@ -885,7 +885,7 @@ anonymous:	'[' expr ']'
                           /* empty sig sub needs a nextstate at the end
                            * to clear the stack of any default expression
                            * detritus */
-                          if (!body && !OpHAS_SIBLING(sig))
+                          if (!body && (!sig || !OpHAS_SIBLING(sig)))
                                body = newSTATEOP(0, NULL, NULL);
 			  if (parser->copline > (line_t)$6)
 			      parser->copline = (line_t)$6;
