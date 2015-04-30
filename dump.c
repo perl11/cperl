@@ -845,8 +845,8 @@ Perl_do_op_dump(pTHX_ I32 level, PerlIO *file, const OP *o)
         if (o->op_static)   sv_catpvs(tmpsv, ",STATIC");
         if (o->op_folded)   sv_catpvs(tmpsv, ",FOLDED");
         if (o->op_moresib)  sv_catpvs(tmpsv, ",MORESIB");
-        Perl_dump_indent(aTHX_ level, file, "FLAGS = (%s)\n",
-                         SvCUR(tmpsv) ? SvPVX_const(tmpsv) + 1 : "");
+        Perl_dump_indent(aTHX_ level, file, "FLAGS = 0x%"UVxf" (%s)\n",
+                         (UV)o->op_flags, SvCUR(tmpsv) ? SvPVX_const(tmpsv) + 1 : "");
     }
 
     if (o->op_private) {
@@ -1443,10 +1443,10 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
     /* process general SV flags */
 
     d = Perl_newSVpvf(aTHX_
-		   "(0x%"UVxf") at 0x%"UVxf"\n%*s  REFCNT = %"IVdf"\n%*s  FLAGS = (",
+		   "(0x%"UVxf") at 0x%"UVxf"\n%*s  REFCNT = %"IVdf"\n%*s  FLAGS = 0x%"UVxf" (",
 		   PTR2UV(SvANY(sv)), PTR2UV(sv),
 		   (int)(PL_dumpindent*level), "", (IV)SvREFCNT(sv),
-		   (int)(PL_dumpindent*level), "");
+                      (int)(PL_dumpindent*level), "", (UV)flags);
 
     if ((flags & SVs_PADSTALE))
 	    sv_catpv(d, "PADSTALE,");
@@ -1668,8 +1668,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	sv_setpvs(d, "");
 	if (AvREAL(sv))	sv_catpv(d, ",REAL");
 	if (AvREIFY(sv))	sv_catpv(d, ",REIFY");
-	Perl_dump_indent(aTHX_ level, file, "  FLAGS = (%s)\n",
-			 SvCUR(d) ? SvPVX_const(d) + 1 : "");
+	Perl_dump_indent(aTHX_ level, file, "  FLAGS = 0x%"UVxf" (%s)\n",
+			 (UV)SvFLAGS(sv), SvCUR(d) ? SvPVX_const(d) + 1 : "");
 	if (nest < maxnest && av_tindex(MUTABLE_AV(sv)) >= 0) {
 	    SSize_t count;
 	    for (count = 0; count <=  av_tindex(MUTABLE_AV(sv)) && count < maxnest; count++) {
@@ -1971,10 +1971,12 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	else do_gvgv_dump(level, file, "  GVGV::GV", CvGV(sv));
 	Perl_dump_indent(aTHX_ level, file, "  FILE = \"%s\"\n", CvFILE(sv));
 	Perl_dump_indent(aTHX_ level, file, "  DEPTH = %"IVdf"\n", (IV)CvDEPTH(sv));
-	Perl_dump_indent(aTHX_ level, file, "  FLAGS = 0x%"UVxf"\n", (UV)CvFLAGS(sv));
+	Perl_dump_indent(aTHX_ level, file, "  CVFLAGS = 0x%"UVxf"\n", (UV)CvFLAGS(sv));
 	Perl_dump_indent(aTHX_ level, file, "  OUTSIDE_SEQ = %"UVuf"\n", (UV)CvOUTSIDE_SEQ(sv));
 	if (!CvISXSUB(sv)) {
-	    Perl_dump_indent(aTHX_ level, file, "  PADLIST = 0x%"UVxf"\n", PTR2UV(CvPADLIST(sv)));
+	    Perl_dump_indent(aTHX_ level, file, "  PADLIST = 0x%"UVxf" [%"IVdf"]\n",
+                             PTR2UV(CvPADLIST(sv)),
+                             CvPADLIST(sv) ? (IV)PadlistMAX(CvPADLIST(sv)) : 0);
 	    if (nest < maxnest) {
 		do_dump_pad(level+1, file, CvPADLIST(sv), 0);
 	    }
@@ -2009,7 +2011,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	    Perl_dump_indent(aTHX_ level, file, "  TARGOFF = %"IVdf"\n", (IV)LvTARGOFF(sv));
 	    Perl_dump_indent(aTHX_ level, file, "  TARGLEN = %"IVdf"\n", (IV)LvTARGLEN(sv));
 	    Perl_dump_indent(aTHX_ level, file, "  TARG = 0x%"UVxf"\n", PTR2UV(LvTARG(sv)));
-	    Perl_dump_indent(aTHX_ level, file, "  FLAGS = %"IVdf"\n", (IV)LvFLAGS(sv));
+	    Perl_dump_indent(aTHX_ level, file, "  LVFLAGS = %"IVdf"\n", (IV)LvFLAGS(sv));
 	    if (isALPHA_FOLD_NE(LvTYPE(sv), 't'))
 		do_sv_dump(level+1, file, LvTARG(sv), nest+1, maxnest,
 		    dumpops, pvlim);
