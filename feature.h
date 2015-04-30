@@ -90,11 +90,15 @@
 	 FEATURE_IS_ENABLED("arybase")) \
     )
 
+#ifdef USE_CPERL
+#define FEATURE_SIGNATURES_IS_ENABLED 1
+#else
 #define FEATURE_SIGNATURES_IS_ENABLED \
     ( \
 	CURRENT_FEATURE_BUNDLE == FEATURE_BUNDLE_CUSTOM && \
 	 FEATURE_IS_ENABLED("signatures") \
     )
+#endif
 
 #define FEATURE___SUB___IS_ENABLED \
     ( \
@@ -110,11 +114,15 @@
 	 FEATURE_IS_ENABLED("refaliasing") \
     )
 
+#ifdef USE_CPERL
+#define FEATURE_LEXSUBS_IS_ENABLED 1
+#else
 #define FEATURE_LEXSUBS_IS_ENABLED \
     ( \
 	CURRENT_FEATURE_BUNDLE == FEATURE_BUNDLE_CUSTOM && \
 	 FEATURE_IS_ENABLED("lexsubs") \
     )
+#endif
 
 #define FEATURE_POSTDEREF_QQ_IS_ENABLED \
     ( \
