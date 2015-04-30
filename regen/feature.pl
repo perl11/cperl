@@ -15,7 +15,7 @@ BEGIN {
     push @INC, './lib';
 }
 use strict ;
-
+use Config;
 
 ###########################################################################
 # Hand-editable data
@@ -311,6 +311,20 @@ EOH3
 
 EOH4
     }
+    elsif ($name =~ /^signatures|lexsubs$/) {
+	print $h <<EOH5;
+#ifdef USE_CPERL
+#define FEATURE_$NAME\_IS_ENABLED 1
+#else
+#define FEATURE_$NAME\_IS_ENABLED \\
+    ( \\
+	CURRENT_FEATURE_BUNDLE == FEATURE_BUNDLE_CUSTOM && \\
+	 FEATURE_IS_ENABLED("$name") \\
+    )
+#endif
+
+EOH5
+    }
     else {
 	print $h <<EOH5;
 #define FEATURE_$NAME\_IS_ENABLED \\
@@ -596,6 +610,12 @@ working inside of double-quotish interpolations.
 This feature is available from Perl 5.20 onwards.
 
 =head2 The 'signatures' feature
+
+B<cperl>: This feature is enabled per default with L<cperl>. cperl has
+a significantly enhanced version to the 5.20 and 5.22 version
+of perl experimental signatures. cperl can parse old-style prototypes
+and new-style signatures dynamically, and does not need to disable warnings
+for them.
 
 B<WARNING>: This feature is still experimental and the implementation may
 change in future versions of Perl.  For this reason, Perl will

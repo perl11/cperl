@@ -282,6 +282,12 @@ This feature is available from Perl 5.20 onwards.
 
 =head2 The 'signatures' feature
 
+B<cperl>: This feature is enabled per default with L<cperl>. cperl has
+a significantly enhanced version to the 5.20 and 5.22 version
+of perl experimental signatures. cperl can parse old-style prototypes
+and new-style signatures dynamically, and does not need to disable warnings
+for them.
+
 B<WARNING>: This feature is still experimental and the implementation may
 change in future versions of Perl.  For this reason, Perl will
 warn when you use the feature, unless you have explicitly disabled the
