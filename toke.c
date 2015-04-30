@@ -107,7 +107,7 @@ static const char* const ident_too_long = "Identifier too long";
 /* The maximum number of characters preceding the unrecognized one to display */
 #define UNRECOGNIZED_PRECEDE_COUNT 10
 
-/* In variables named $^X, these are the legal values for X.
+/* In variables named $^X, these are the legal values for x.
  * 1999-02-27 mjd-perl-patch@plover.com */
 #define isCONTROLVAR(x) (isUPPER(x) || strchr("[\\]^_?", (x)))
 
@@ -117,6 +117,23 @@ static const char* const ident_too_long = "Identifier too long";
     (((s[0] == '.') && \
       (isXDIGIT(s[1]) || isALPHA_FOLD_EQ(s[1], 'p'))) || \
      isALPHA_FOLD_EQ(s[0], 'p'))
+
+#include "feature.h"
+
+/* => or ⇒ U+021D2 \342\207\222 */
+PERL_STATIC_INLINE
+int isFATARROW(const char *s) {
+    return (strnEQ(s,"=>",2) ||
+            (UTF && FEATURE_UNICODE_IS_ENABLED
+             ? strnEQ(s,"\xE2\x87\x92",3) : 0));
+}
+/* -> or → U+02192 \342\206\222 */
+PERL_STATIC_INLINE
+int isRIGHTARROW(const char *s) {
+    return (strnEQ(s,"->",2) ||
+            (UTF && FEATURE_UNICODE_IS_ENABLED
+             ? strnEQ(s,"\xE2\x86\x92",3) : 0));
+}
 
 /* LEX_* are values for PL_lex_state, the state of the lexer.
  * They are arranged oddly so that the guard on the switch statement
@@ -578,8 +595,6 @@ S_missingterm(pTHX_ char *s)
     q = strchr(s,'"') ? '\'' : '"';
     Perl_croak(aTHX_ "Can't find string terminator %c%s%c anywhere before EOF",q,s,q);
 }
-
-#include "feature.h"
 
 /*
  * Check whether the named feature is enabled.
@@ -3711,13 +3726,17 @@ S_intuit_more(pTHX_ char *s)
 
     if (PL_lex_brackets)
 	return TRUE;
-    if (*s == '-' && s[1] == '>' && (s[2] == '[' || s[2] == '{'))
-	return TRUE;
-    if (*s == '-' && s[1] == '>'
-     && FEATURE_POSTDEREF_QQ_IS_ENABLED
-     && ( (s[2] == '$' && (s[3] == '*' || (s[3] == '#' && s[4] == '*')))
-	||(s[2] == '@' && strchr("*[{",s[3])) ))
-	return TRUE;
+    if (isRIGHTARROW(s)) {
+        const int l = *s == '-' ? 2 : 3;
+        if (s[l] == '[' || s[l] == '{')
+            return TRUE;
+    }
+    if (isRIGHTARROW(s) && FEATURE_POSTDEREF_QQ_IS_ENABLED) {
+        const int l = *s == '-' ? 2 : 3;
+        if ( (s[l] == '$' && (s[l+1] == '*' || (s[l+1] == '#' && s[l+2] == '*')))
+             || (s[l] == '@' && strchr("*[{",s[l+1])) )
+            return TRUE;
+    }
     if (*s != '{' && *s != '[')
 	return FALSE;
     if (!PL_lex_inpat)
@@ -3919,7 +3938,7 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
 	/* filehandle or package name makes it a method */
 	if (!cv || GvIO(indirgv) || gv_stashpvn(tmpbuf, len, UTF ? SVf_UTF8 : 0)) {
 	    s = skipspace(s);
-	    if ((PL_bufend - s) >= 2 && *s == '=' && *(s+1) == '>')
+	    if ((PL_bufend - s) >= 2 && isFATARROW(s))
 		return 0;	/* no assumptions -- "=>" quotes bareword */
       bare_package:
 	    NEXTVAL_NEXTTOKE.opval = (OP*)newSVOP(OP_CONST, 0,
@@ -4624,6 +4643,7 @@ Perl_yylex(pTHX)
   retry:
     switch (*s) {
     default:
+  switchdefault:
 	if (UTF ? isIDFIRST_utf8((U8*)s) : isALNUMC(*s))
 	    goto keylookup;
 	{
@@ -5047,6 +5067,93 @@ Perl_yylex(pTHX)
                 Perl_croak(aTHX_ "panic: input overflow");
 	}
 	goto retry;
+    case (char)((U8)0xE2): /* lots of utf8: -> => <=> != <= >= */
+        /* requires use utf8 and use 5.22 or -E */
+        if (!UTF || !FEATURE_UNICODE_IS_ENABLED || PL_expect == XREF) {
+            goto switchdefault;
+        }
+        else if (strnEQ(s,"\xE2\x87\x92",3)) { /* ⇒ U+021D2 \342\207\222 */
+            s += 3;
+            if (!PL_lex_allbrackets &&
+                PL_lex_fakeeof >= LEX_FAKEEOF_COMMA) {
+                s -= 3;
+                TOKEN(0);
+            }
+            OPERATOR(',');
+        }
+        else if (strnEQ(s,"\xE2\x86\x92",3)) { /* → U+02192 \342\206\222 */
+            s += 3;
+            s = skipspace(s);
+            if (FEATURE_POSTDEREF_IS_ENABLED &&
+                (
+                 ((*s == '$' || *s == '&') && s[1] == '*')
+                 ||(*s == '$' && s[1] == '#' && s[2] == '*')
+                 ||((*s == '@' || *s == '%') && strchr("*[{", s[1]))
+                 ||(*s == '*' && (s[1] == '*' || s[1] == '{'))
+                 ))
+	    {
+                Perl_ck_warner_d(aTHX_ packWARN(WARN_EXPERIMENTAL__POSTDEREF),
+                                 "Postfix dereference is experimental");
+                PL_expect = XPOSTDEREF;
+                TOKEN(ARROW);
+            }
+            if (isIDFIRST_lazy_if(s,UTF)) {
+                s = force_word(s,METHOD,FALSE,TRUE);
+                TOKEN(ARROW);
+            }
+            else if (*s == '$')
+                OPERATOR(ARROW);
+            else
+                TERM(ARROW);
+        }
+        else if (strnEQ(s,"\xE2\x87\x94",3)) { /* ⇔ <=> U+021D4 \342\207\224 */
+            s += 3;
+            if (!PL_lex_allbrackets &&
+                PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
+                TOKEN(0);
+            }
+            Eop(OP_NCMP);
+        }
+        else if (strnEQ(s,"\xE2\x89\xA0",3)) { /* ≠ != U+02260 \342\211\240 */
+            s += 3;
+            if (!PL_lex_allbrackets &&
+                PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
+                TOKEN(0);
+            }
+            Eop(OP_NE);
+        }
+        else if (strnEQ(s,"\xE2\x89\xA5",3)) { /* ≥ >= U+02265 \342\211\245 */
+            s += 3;
+            if (!PL_lex_allbrackets &&
+                PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
+                TOKEN(0);
+            }
+            Rop(OP_GE);
+        }
+        else if (strnEQ(s,"\xE2\x89\xA4",3)) { /* ≤ <= U+02264 \342\211\244 */
+            s += 3;
+            if (!PL_lex_allbrackets &&
+                PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
+                TOKEN(0);
+            }
+            Rop(OP_LE);
+        }
+        goto switchdefault;
+    case (char)((U8)0xC3): /* more utf8 */
+        if (!UTF || !FEATURE_UNICODE_IS_ENABLED || PL_expect == XREF) {
+            goto switchdefault;
+        }
+	else if (strnEQ(s,"\xC3\xB7",2) && /* ÷ / U+00F7 \303\267 */
+                 PL_expect == XOPERATOR) {
+            s += 2;
+	    if (*s == '=' && !PL_lex_allbrackets &&
+		PL_lex_fakeeof >= LEX_FAKEEOF_ASSIGN) {
+		s--;
+		TOKEN(0);
+	    }
+	    Mop(OP_DIVIDE);
+        }
+        goto switchdefault;
     case '-':
 	if (s[1] && isALPHA(s[1]) && !isWORDCHAR(s[2])) {
 	    I32 ftst = 0;
@@ -5059,7 +5166,7 @@ Perl_yylex(pTHX)
 	    while (s < PL_bufend && SPACE_OR_TAB(*s))
 		s++;
 
-	    if (strnEQ(s,"=>",2)) {
+	    if (isFATARROW(s)) {
 		s = force_word(PL_bufptr,WORD,FALSE,FALSE);
 		DEBUG_T( { printbuf("### Saw unary minus before =>, forcing word %s\n", s); } );
 		OPERATOR('-');		/* unary minus */
@@ -5499,7 +5606,7 @@ Perl_yylex(pTHX)
 	PL_lex_allbrackets--;
 	if (PL_lex_state == LEX_INTERPNORMAL) {
 	    if (PL_lex_brackets == 0) {
-		if (*s == '-' && s[1] == '>')
+		if (isRIGHTARROW(s))
 		    PL_lex_state = LEX_INTERPENDMAYBE;
 		else if (*s != '[' && *s != '{')
 		    PL_lex_state = LEX_INTERPEND;
@@ -5620,7 +5727,7 @@ Perl_yylex(pTHX)
 			while (t < PL_bufend && isSPACE(*t))
 			    t++;
 			/* check for q => */
-			if (t+1 < PL_bufend && t[0] == '=' && t[1] == '>') {
+			if (t+1 < PL_bufend && isFATARROW(t)) {
 			    OPERATOR(HASHBRACK);
 			}
 			term = *t;
@@ -5662,7 +5769,7 @@ Perl_yylex(pTHX)
 		/* if comma follows first term, call it an anon hash */
 		/* XXX it could be a comma expression with loop modifiers */
 		if (t < PL_bufend && ((*t == ',' && (*s == 'q' || !isLOWER(*s)))
-				   || (*t == '=' && t[1] == '>')))
+                                      || isFATARROW(t)))
 		    OPERATOR(HASHBRACK);
 		if (PL_expect == XREF)
 		{
@@ -5719,7 +5826,7 @@ Perl_yylex(pTHX)
 		if (PL_lex_inwhat == OP_SUBST && PL_lex_repl == PL_linestr
 		 && SvEVALED(PL_lex_repl))
 		    PL_lex_state = LEX_INTERPEND;
-		else if (*s == '-' && s[1] == '>')
+		else if (isRIGHTARROW(s))
 		    PL_lex_state = LEX_INTERPENDMAYBE;
 		else if (*s != '[' && *s != '{')
 		    PL_lex_state = LEX_INTERPEND;
@@ -5938,6 +6045,7 @@ Perl_yylex(pTHX)
 		}
 		SHop(OP_LEFT_SHIFT);
 	    }
+            /* or ⇔ LEFT RIGHT DOUBLE ARROW, see above */
 	    if (tmp == '=') {
 		tmp = *s++;
 		if (tmp == '>') {
@@ -6431,7 +6539,7 @@ Perl_yylex(pTHX)
 		d++;	/* no comments skipped here, or s### is misparsed */
 
 	/* Is this a word before a => operator? */
-	if (*d == '=' && d[1] == '>') {
+	if (isFATARROW(d)) {
 	  fat_arrow:
 	    CLINE;
 	    pl_yylval.opval
@@ -6580,7 +6688,7 @@ Perl_yylex(pTHX)
 	    STRLEN bufoff = PL_bufptr - SvPVX(PL_linestr);
 	    STRLEN   soff = s         - SvPVX(PL_linestr);
 	    s = skipspace_flags(s, LEX_NO_INCLINE);
-	    arrow = *s == '=' && s[1] == '>';
+	    arrow = isFATARROW(s);
 	    PL_bufptr = SvPVX(PL_linestr) + bufoff;
 	    s         = SvPVX(PL_linestr) +   soff;
 	    if (arrow)
@@ -6743,7 +6851,7 @@ Perl_yylex(pTHX)
 		s = skipspace(s);
 
 		/* Is this a word before a => operator? */
-		if (*s == '=' && s[1] == '>' && !pkgname) {
+		if (isFATARROW(s) && !pkgname) {
 		    op_free(rv2cv_op);
 		    CLINE;
 		    if (gvp || (lex && !off)) {
@@ -7606,7 +7714,7 @@ Perl_yylex(pTHX)
 		    t++;
 		if ( *t && strchr("|&*+-=!?:.", *t) && ckWARN_d(WARN_PRECEDENCE)
 		    /* [perl #16184] */
-		    && !(t[0] == '=' && t[1] == '>')
+                    && !(isFATARROW(t))
 		    && !(t[0] == ':' && t[1] == ':')
 		    && !keyword(s, d-s, 0)
 		) {
@@ -11063,7 +11171,7 @@ Perl_scan_vstring(pTHX_ const char *s, const char *const e, SV *sv)
 	const char *next = pos;
 	while (next < e && isSPACE(*next))
 	    ++next;
-	if ((e - next) >= 2 && *next == '=' && next[1] == '>' ) {
+	if ((e - next) >= 2 && isFATARROW(next) ) {
 	    /* return string not v-string */
 	    sv_setpvn(sv,(char *)s,pos-s);
 	    return (char *)pos;
