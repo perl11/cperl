@@ -11946,6 +11946,7 @@ Perl_parse_subsignature(pTHX)
     while (c != /*(*/')') {
         I32       sigil;
         bool      is_var;         /* '$foo' rather than '$' */
+        bool      is_ref = FALSE; /* '\$foo' rather than '$foo' */
         PADOFFSET pad_offset;
         UV        action;
         OP       *defexpr = NULL;
@@ -11956,12 +11957,17 @@ Perl_parse_subsignature(pTHX)
             qerror(Perl_mess(aTHX_ "Parse error"));
             return NULL;
 
+        case '\\':
         case '$':
         case '@':
         case '%':
             sigil = c;
             if (prev_type == 2)
                 qerror(Perl_mess(aTHX_ "Slurpy parameter not last"));
+            if (c == '\\') {
+                is_ref = TRUE;
+                sigil = lex_peek_unichar(0);
+            }
 
             pad_offset = S_parse_opt_lexvar(aTHX);
             is_var = (pad_offset != NOT_IN_PAD);
@@ -11999,7 +12005,7 @@ Perl_parse_subsignature(pTHX)
             lex_read_space(0);
             c = lex_peek_unichar(0);
 
-            if (sigil != '$') {
+            if (sigil == '@' || sigil == '%') {
                 /* array or hash */
                 prev_type = 2;
                 slurpy = TRUE;
@@ -12016,7 +12022,10 @@ Perl_parse_subsignature(pTHX)
                     prev_type = 0;
                     mand_args++;
                 }
-                else {
+                else if (is_ref) {
+		    qerror(Perl_mess(aTHX_ "Reference parameter cannot take default value"));
+		    prev_type = 1;
+                } else {
                     /* optional arg */
                     lex_token_boundary();
                     lex_read_unichar(0);
@@ -12201,6 +12210,8 @@ Perl_parse_subsignature(pTHX)
 
             if (!is_var)
                 action |= SIGNATURE_FLAG_skip;
+            else if (is_ref)
+                action |= SIGNATURE_FLAG_ref;
             S_sig_push_action(aTHX_ stp, action);
 
             if (defexpr) {
