@@ -1539,8 +1539,8 @@ aux_list(o, cv)
                     case SIGNATURE_arg_default_0:
                     case SIGNATURE_arg_default_1:
                     case SIGNATURE_arg_default_op:
-                    case SIGNATURE_slurp_array:
-                    case SIGNATURE_slurp_hash:
+                    case SIGNATURE_array:
+                    case SIGNATURE_hash:
                         break;
 
                     case SIGNATURE_arg_default_iv:

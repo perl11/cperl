@@ -11994,7 +11994,10 @@ Perl_parse_subsignature(pTHX)
                 qerror(Perl_mess(aTHX_ "Slurpy parameter not last"));
             if (c == '\\') {
                 is_ref = TRUE;
+                lex_read_unichar(0);
                 sigil = lex_peek_unichar(0);
+            } else {
+                is_ref = FALSE;
             }
 
             pad_offset = S_parse_opt_lexvar(aTHX);
@@ -12039,12 +12042,12 @@ Perl_parse_subsignature(pTHX)
             lex_read_space(0);
             c = lex_peek_unichar(0);
 
-            if (sigil == '@' || sigil == '%') {
-                /* array or hash */
+            if (!is_ref && (sigil == '@' || sigil == '%')) {
+                /* slurpy array or hash */
                 prev_type = 2;
                 slurpy = TRUE;
-                action = (sigil == '@') ? SIGNATURE_slurp_array
-                                        : SIGNATURE_slurp_hash;
+                action = (sigil == '@') ? SIGNATURE_array
+                                        : SIGNATURE_hash;
             }
             else {
                 /* scalar */
@@ -12053,6 +12056,11 @@ Perl_parse_subsignature(pTHX)
                     if (prev_type == 1)
                         qerror(Perl_mess(aTHX_ "Mandatory parameter "
                                 "follows optional parameter"));
+                    if (is_ref) {
+                        if (sigil == '@')      action = SIGNATURE_array;
+                        else if (sigil == '%') action = SIGNATURE_hash;
+                        action |= SIGNATURE_FLAG_ref;
+                    }
                     prev_type = 0;
                     mand_args++;
                 }

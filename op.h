@@ -1067,8 +1067,8 @@ sib is non-null. For a higher-level interface, see C<op_sibling_splice>.
 #define SIGNATURE_arg_default_op     12 /* arg with default which is a
                                            general expression whose ops follow
                                            the signature op */
-#define SIGNATURE_slurp_array        13 /* @array parameter */
-#define SIGNATURE_slurp_hash         14 /* %hash parameter */
+#define SIGNATURE_array              13 /* @array parameter, slurpy or ref */
+#define SIGNATURE_hash               14 /* %hash parameter, slurpy or ref */
 
 #define SIGNATURE_ACTION_MASK       0xf
 

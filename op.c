@@ -2611,8 +2611,8 @@ S_maybe_op_signature(pTHX_ CV *cv, OP *o)
             !kid                     ? SIGNATURE_end
           : kid->op_type == OP_UNDEF ? (SIGNATURE_arg|SIGNATURE_FLAG_skip)
           : kid->op_type == OP_PADSV ? SIGNATURE_arg
-          : kid->op_type == OP_PADAV ? SIGNATURE_slurp_array
-          :                            SIGNATURE_slurp_hash;
+          : kid->op_type == OP_PADAV ? SIGNATURE_array
+          :                            SIGNATURE_hash;
 
         action_acc |= action << (action_count * SIGNATURE_SHIFT);
         assert(actions_ix < size);
