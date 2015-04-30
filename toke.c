@@ -11902,6 +11902,7 @@ Perl_parse_subsignature(pTHX)
     PADOFFSET top_pad  = NOT_IN_PAD; /* highest pad var index seen so far */
     PADOFFSET top_unsafe_pad  = NOT_IN_PAD; /* highest pad var that may be
                                     affected by non-optimised default exprs */
+    HV *typestash = NULL;
 
     /* keep some local vars in a struct so they can be accessed by helper
      * functions */
@@ -11952,7 +11953,22 @@ Perl_parse_subsignature(pTHX)
         UV        action;
         OP       *defexpr = NULL;
 
-	switch (c) {
+        if (c != '$' && c != '@' && c != '%' && c != '\\') {
+            char *s = PL_parser->bufptr;
+            STRLEN len;
+            s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
+            typestash = find_in_my_stash(PL_tokenbuf, len);
+            if (!typestash) {
+                char tmpbuf[1024];
+                int len;
+                PL_bufptr = s;
+                len = my_snprintf(tmpbuf, sizeof(tmpbuf), "No such class %.1000s", PL_tokenbuf);
+                PERL_MY_SNPRINTF_POST_GUARD(len, sizeof(tmpbuf));
+                yyerror_pv(tmpbuf, UTF ? SVf_UTF8 : 0);
+            }
+        }
+
+        switch (c) {
         default:
         parse_error:
             qerror(Perl_mess(aTHX_ "Parse error"));
@@ -11975,6 +11991,12 @@ Perl_parse_subsignature(pTHX)
 
             if (is_var) {
                 top_pad = pad_offset;
+                if (typestash) { /* store type in comppad */
+                    PADNAME *pn = padnamelist_fetch(PL_comppad_name, pad_offset);
+                    SvPAD_TYPED_on(pn);
+                    PadnameTYPE_set(pn,
+                        MUTABLE_HV(SvREFCNT_inc_simple_NN(MUTABLE_SV(typestash))));
+                }
                 /* at the first pad var, or after there are too
                  * many vars for a single SAVEt_CLEARPADRANGE,
                  * or if the pad indexes are non-continuous
