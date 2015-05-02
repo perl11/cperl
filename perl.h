@@ -4522,9 +4522,15 @@ extern char **	environ;	/* environment variables supplied via exec */
 #include "patchlevel.h"
 #undef PERL_PATCHLEVEL_H_IMPLICIT
 
+#ifdef USE_CPERL
+#define PERL_VERSION_STRING	STRINGIFY(PERL_REVISION) "." \
+				STRINGIFY(PERL_VERSION) "." \
+				STRINGIFY(PERL_SUBVERSION) "c"
+#else
 #define PERL_VERSION_STRING	STRINGIFY(PERL_REVISION) "." \
 				STRINGIFY(PERL_VERSION) "." \
 				STRINGIFY(PERL_SUBVERSION)
+#endif
 
 #define PERL_API_VERSION_STRING	STRINGIFY(PERL_API_REVISION) "." \
 				STRINGIFY(PERL_API_VERSION) "." \
