@@ -649,7 +649,7 @@ struct block_format {
 		CopLINE((COP*)CvSTART((const CV*)cx->blk_sub.cv)),	\
 		CopSTASHPV((COP*)CvSTART((const CV*)cx->blk_sub.cv)));	\
 									\
-	if (CxHASARGS(cx)) {						\
+	if (CxHASARGS(cx) && !CvHASSIG((const CV*)cx->blk_sub.cv)) {    \
 	    POP_SAVEARRAY();						\
 	    /* abandon @_ if it got reified */				\
 	    if (AvREAL(cx->blk_sub.argarray)) {				\
