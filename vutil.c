@@ -160,6 +160,9 @@ dotted_decimal_version:
 	    /* found just an integer */
 	    goto version_prescan_finish;
 	}
+#ifdef USE_CPERL
+	else if ( *d == 'c' && !*(d+1)) { goto version_prescan_finish; }
+#endif
 	else if ( d == s ) {
 	    /* didn't find either integer or period */
 	    BADVERSION(s,errstr,"Invalid version format (non-numeric data)");
@@ -223,6 +226,9 @@ version_prescan_finish:
 	d++;
 
     if (!isDIGIT(*d) && (! (!*d || *d == ';' || *d == '{' || *d == '}') )) {
+#ifdef USE_CPERL
+	if ( *d != 'c' )
+#endif
 	/* trailing non-numeric data */
 	BADVERSION(s,errstr,"Invalid version format (non-numeric data)");
     }
@@ -379,6 +385,12 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
 		s = ++pos;
 	    else if ( isDIGIT(*pos) )
 		s = pos;
+#ifdef USE_CPERL
+	    else if ( *pos == 'c' && !*(pos+1) ) {
+		s = ++pos;
+		break;
+            }
+#endif
 	    else {
 		s = pos;
 		break;
@@ -712,6 +724,10 @@ VER_PV:
     }
 
     s = SCAN_VERSION(version, ver, qv);
+#ifdef USE_CPERL
+    if ( *s == 'c' && !*(s+1) )
+        return ver;
+#endif
     if ( *s != '\0' ) 
 	Perl_ck_warner(aTHX_ packWARN(WARN_MISC), 
 		       "Version string '%s' contains invalid data; "
