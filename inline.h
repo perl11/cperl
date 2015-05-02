@@ -573,7 +573,7 @@ S_cx_popsub(pTHX_ PERL_CONTEXT *cx)
 
     PERL_DTRACE_PROBE_RETURN(cx->blk_sub.cv);
 
-    if (CxHASARGS(cx))
+    if (CxHASARGS(cx) && !CvHASSIG((const CV*)cx->blk_sub.cv))
         cx_popsub_args(cx);
     cx_popsub_common(cx);
 }

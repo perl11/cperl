@@ -419,8 +419,7 @@ context block structure (can be used as an lvalue).
 */
 
 #define CX_CURPAD_SAVE(block)  (block).oldcomppad = PL_comppad
-#define CX_CURPAD_SV(block,po) (AvARRAY(MUTABLE_AV(((block).oldcomppad)))[po])
-
+#define CX_CURPAD_SV(block,po) (AvARRAY((block).oldcomppad)[po])
 
 /*
 =for apidoc m|U32|PAD_COMPNAME_FLAGS|PADOFFSET po

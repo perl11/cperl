@@ -556,6 +556,7 @@ struct block_sub {
     /* Above here is the same for sub and format.  */
     I32		olddepth;
     AV  	*savearray;
+    SV **	argarray; /* for signatures only */
 };
 
 
@@ -563,7 +564,7 @@ struct block_sub {
 struct block_format {
     OP *	retop;	/* op to execute on exit from sub */
     /* Above here is the same for sub, format and eval.  */
-    PAD		*prevcomppad; /* the caller's PL_comppad */
+    AV *	prevcomppad; /* the caller's PL_comppad */
     CV *	cv;
     /* Above here is the same for sub and format.  */
     GV *	gv;
@@ -666,11 +667,11 @@ struct block_loop {
 	} lazyiv;
 	struct { /* CXt_LOOP_LAZYSV C<for ('a'..'z')> */
 	    SV * cur;
-	    SV * end; /* maxiumum value (or minimum in reverse) */
+	    SV * end; /* maximum value (or minimum in reverse) */
 	} lazysv;
     } state_u;
 #ifdef USE_ITHREADS
-    PAD *oldcomppad; /* needed to map itervar_u.svp during thread clone */
+    AV *oldcomppad; /* needed to map itervar_u.svp during thread clone */
 #endif
 };
 

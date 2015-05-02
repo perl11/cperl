@@ -4032,22 +4032,27 @@ PP(pp_entersub)
 	    cx->blk_sub.savearray = *defavp;
 	    *defavp = MUTABLE_AV(SvREFCNT_inc_simple_NN(av));
 
-            /* it's the responsibility of whoever leaves a sub to ensure
-             * that a clean, empty AV is left in pad[0]. This is normally
-             * done by cx_popsub() */
-            assert(!AvREAL(av) && AvFILLp(av) == -1);
+            if (CvHASSIG(cv)) { /* and no @_, same call abi as with ops */
+                /* the start of the args on the stack, pp_signature does the rest */
+                cx->blk_sub.argarray = MARK+1;
+            } else {
+                /* it's the responsibility of whoever leaves a sub to ensure
+                 * that a clean, empty AV is left in pad[0]. This is normally
+                 * done by cx_popsub() */
+                assert(!AvREAL(av) && AvFILLp(av) == -1);
 
-            items = SP - MARK;
-	    if (UNLIKELY(items - 1 > AvMAX(av))) {
-                SV **ary = AvALLOC(av);
-                AvMAX(av) = items - 1;
-                Renew(ary, items, SV*);
-                AvALLOC(av) = ary;
-                AvARRAY(av) = ary;
+                items = SP - MARK;
+                if (UNLIKELY(items - 1 > AvMAX(av))) {
+                    SV **ary = AvALLOC(av);
+                    AvMAX(av) = items - 1;
+                    Renew(ary, items, SV*);
+                    AvALLOC(av) = ary;
+                    AvARRAY(av) = ary;
+                }
+
+                Copy(MARK+1,AvARRAY(av),items,SV*);
+                AvFILLp(av) = items - 1;
             }
-
-	    Copy(MARK+1,AvARRAY(av),items,SV*);
-	    AvFILLp(av) = items - 1;
 	}
 	if (UNLIKELY((cx->blk_u16 & OPpENTERSUB_LVAL_MASK) == OPpLVAL_INTRO &&
 	    !CvLVALUE(cv)))
@@ -4304,20 +4309,31 @@ PP(pp_signature)
 
     /* check arity (process arg count limits) */
     {
+	dSP;
+        PERL_CONTEXT *cx = &cxstack[cxstack_ix];
         UV   mand_params; /* number of mandatory parameters */
         UV   opt_params;  /* number of optional parameters */
         bool slurpy;      /* has a @ or % */
         AV  *defav;       /* @_ */
         UV   params = items[0].uv;
+        const CV * cv = cx->blk_sub.cv;
+        const bool hassig = CvHASSIG(cv);
 
         /* split on bits [31..16], [15..15], [14..0] */
         mand_params = params >> 16;
         slurpy      = cBOOL((params >> 15) & 1);
         opt_params  = params & ((1<<15)-1);
 
-        defav = GvAV(PL_defgv);
-        assert(!SvMAGICAL(defav));
-        argc = AvFILLp(defav) + 1;
+        if (hassig) {
+            SV **MARK = cx->blk_sub.argarray;
+            argc = SP - MARK + 2;
+            argp = MARK;
+        } else {
+            defav = GvAV(PL_defgv);
+            assert(!SvMAGICAL(defav));
+            argc = AvFILLp(defav) + 1;
+            argp = AvARRAY(defav);
+        }
 
         if (UNLIKELY(   argc < mand_params
                      || (!slurpy && argc > mand_params + opt_params)))
@@ -4328,8 +4344,6 @@ PP(pp_signature)
          * didn't provide any args */
         if (!params)
             return NORMAL;
-
-        argp = AvARRAY(defav);
     }
 
     defop_skips = 0;
@@ -4387,7 +4401,7 @@ PP(pp_signature)
             SV *argsv;
             SV *varsv = (actions & SIGNATURE_FLAG_skip) ?  NULL : *padp++;
 
-            if (actions & SIGNATURE_FLAG_ref && action != SIGNATURE_arg)
+            if ((actions & SIGNATURE_FLAG_ref) && (action != SIGNATURE_arg))
                 S_croak_caller("Reference parameter cannot take default value");
             if (argc) {
                 argc--;
