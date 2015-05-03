@@ -71,7 +71,10 @@ xs_incset(pTHX_ const char *const unixname, const STRLEN unixlen, SV* xsfile)
 }
 
 /*
-=for apidoc set_version(name, nlen, strval, plen, nvval)
+
+=head1 Miscellaneous Functions
+
+=for apidoc set_version
 
 Sets a VERSION dualvar to its string and NV parts.
 
