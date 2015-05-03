@@ -3331,6 +3331,31 @@ write(fd, buffer, nbytes)
 	char *		buffer
 	size_t		nbytes
 
+char *
+mkdtemp(tmplate)
+        char *tmplate
+
+SV *
+mkstemp(tmplate)
+        char *tmplate
+    PREINIT:
+	int fd;
+    CODE:
+        fd = mkstemp(tmplate);
+        if (fd >= 0) {
+            /* XXX need to gensym from tmplate also */
+            IO * io = GvIOp(gv_IOadd(newGVgen(tmplate)));
+            IoTYPE(io) == IoTYPE_NUMERIC; /* or RDWR */
+            IoIFP(io) = 0;
+            IoOFP(io) = PerlIO_fdopen(fd, "+");
+            RETVAL = (SV*)io;
+            SETERRNO(0, 0);
+        } else {
+            RETVAL = &PL_sv_undef;
+        }
+    OUTPUT:
+	RETVAL
+
 void
 abort()
 

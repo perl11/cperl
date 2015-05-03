@@ -2012,6 +2012,54 @@ For security reasons, which are probably detailed in your system's
 documentation for the C library C<tmpnam()> function, this interface
 is no longer available; instead use L<File::Temp>.
 
+=item C<mkdtemp>
+
+The C<mkdtemp()> function uses the contents of template to construct a
+unique directory name. The string provided in template shall be a
+pathname ending with six trailing C<'X'> s. The C<mkdtemp()> function
+shall replace each C<'X'> with a character from the portable filename
+character set. The characters are chosen such that the resulting name
+does not duplicate the name of an existing file at the time of a call
+to C<mkdtemp()>. The unique directory name is used to attempt to
+create the directory using mode 0700 as modified by the file creation
+mask.
+
+    my str? $new_dir = POSIX::mkdtemp("tmpXXXXXX");
+
+Upon successful completion, the C<mkdtemp()> function shall return a
+string containing the directory name if it was created. Otherwise, it
+shall return a null pointer and shall set C<$!> (errno) to indicate
+the error.
+
+See also the perl reimplementation in L<File::Temp/mkdtemp>.
+
+=item C<mkstemp>
+
+The C<mkstemp()> function shall replace the contents of the string
+pointed to by template by a unique pathname, and return a file
+handle for the file open for reading and writing. The C<mkstemp()>
+function shall create the file, and obtain a file descriptor for it,
+as if by a call to:
+
+    open(pathname, O_RDWR|O_CREAT|O_EXCL, S_IRUSR|S_IWUSR)
+
+    my $fh = POSIX::mkstemp("/tmp/tmpXXXXXX);
+
+The function thus prevents any possible race condition between testing
+whether the file exists and opening it for use. The string in template
+should look like a pathname with six trailing C<'X'> s; C<mkstemp()>
+replaces each C<'X'> with a character from the portable filename
+character set. The characters are chosen such that the resulting name
+does not duplicate the name of an existing file at the time of a call
+to C<mkstemp()>.
+
+Upon successful completion, the C<mkstemp()> function shall return an
+open file handle or undef.
+The error conditions for the C<mkstemp()> function are defined in
+L<perlfunc/open>.
+
+See also the perl reimplementation in L<File::Temp/mkstemp>.
+
 =item C<tolower>
 
 This is identical to the C function, except that it can apply to a single

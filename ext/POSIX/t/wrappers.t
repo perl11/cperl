@@ -64,6 +64,11 @@ SKIP: {
     is_deeply([POSIX::fstat(fileno $fh)], [stat $fh], 'fstat');
 }
 
+my $fh = POSIX::mkstemp("tmpXXXXXX");
+#ok($fh and $fh->fileno, "mkstemp created as ".$fh->filename);
+#is_deeply([POSIX::fstat(fileno $fh)], [stat $fh], 'fstat');
+unlink $fh if $fh;
+
 is(POSIX::getegid(), 0 + $), 'getegid');
 is(POSIX::geteuid(), 0 + $>, 'geteuid');
 is(POSIX::getgid(), 0 + $(, 'getgid');
@@ -192,6 +197,10 @@ foreach ([undef, 0, 'chdir', NOT_HERE],
 
     is(POSIX::mkdir($dir, 0755), 1, 'mkdir');
     is(-d $dir, 1, "$dir now exists");
+
+    my $tmpdir = POSIX::mkdtemp("tmpXXXXXX");
+    ok(-d $tmpdir, "$tmpdir created");
+    is(POSIX::rmdir($tmpdir), 1, 'rmdir');
 
     my $dh = POSIX::opendir($dir);
     isnt($dh, undef, 'opendir');
