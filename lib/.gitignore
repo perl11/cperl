@@ -240,5 +240,7 @@
 /version.pm
 /version.pod
 /version/
+/warnings.pm
+/warnings/
 
 # ex: set ro:

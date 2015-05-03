@@ -1446,6 +1446,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\Unicode\Collate\Locale rmdir /s /q $(LIBDIR)\Unicode\Collate\Locale
 	-if exist $(LIBDIR)\version rmdir /s /q $(LIBDIR)\version
 	-if exist $(LIBDIR)\VMS rmdir /s /q $(LIBDIR)\VMS
+	-if exist $(LIBDIR)\warnings rmdir /s /q $(LIBDIR)\warnings
 	-if exist $(LIBDIR)\Win32API rmdir /s /q $(LIBDIR)\Win32API
 	-if exist $(LIBDIR)\XS rmdir /s /q $(LIBDIR)\XS
 	-if exist $(LIBDIR)\YAML rmdir /s /q $(LIBDIR)\YAML
