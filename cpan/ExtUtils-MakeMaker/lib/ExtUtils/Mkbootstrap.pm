@@ -26,7 +26,7 @@ sub Mkbootstrap {
     # call dl_findfile(). We don't say `use' here because when
     # first building perl extensions the DynaLoader will not have
     # been built when MakeMaker gets first used.
-    require DynaLoader;
+    eval "require DynaLoader;";
 
     rename "$baseext.bs", "$baseext.bso"
       if -s "$baseext.bs";
