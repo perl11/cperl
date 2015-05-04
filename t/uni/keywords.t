@@ -10,12 +10,12 @@ BEGIN {
 use utf8;
 use 5.021011;
 
-plan( tests => 7 );
+plan( tests => 8 );
 
 {
   my $h = eval '{main ⇒ 1}';
   diag $@ if $@;
-  ok %$h, "unicode => HASHBRACK";
+  ok %$h, "unicode => FATCOMMA";
 }
 
 package mypkg {
@@ -35,4 +35,6 @@ ok $a, 'unicode <= LE';
 $a = eval '2≥1';
 ok $a, 'unicode >= GE';
 $a = eval '10÷2';
-ok $a, 'unicode / DIVIDE';
+is ($a, 5, 'unicode / DIVIDE');
+$a = eval '10⋅2';
+is($a, 20, 'unicode * DOT');
