@@ -5073,12 +5073,11 @@ Perl_yylex(pTHX)
             goto switchdefault;
         }
         else if (strnEQ(s,"\xE2\x87\x92",3)) { /* ⇒ U+021D2 \342\207\222 */
-            s += 3;
             if (!PL_lex_allbrackets &&
                 PL_lex_fakeeof >= LEX_FAKEEOF_COMMA) {
-                s -= 3;
                 TOKEN(0);
             }
+            s += 3;
             OPERATOR(',');
         }
         else if (strnEQ(s,"\xE2\x86\x92",3)) { /* → U+02192 \342\206\222 */
@@ -5107,27 +5106,27 @@ Perl_yylex(pTHX)
                 TERM(ARROW);
         }
         else if (strnEQ(s,"\xE2\x87\x94",3)) { /* ⇔ <=> U+021D4 \342\207\224 */
-            s += 3;
             if (!PL_lex_allbrackets &&
                 PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
                 TOKEN(0);
             }
+            s += 3;
             Eop(OP_NCMP);
         }
         else if (strnEQ(s,"\xE2\x89\xA0",3)) { /* ≠ != U+02260 \342\211\240 */
-            s += 3;
             if (!PL_lex_allbrackets &&
                 PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
                 TOKEN(0);
             }
+            s += 3;
             Eop(OP_NE);
         }
         else if (strnEQ(s,"\xE2\x89\xA5",3)) { /* ≥ >= U+02265 \342\211\245 */
-            s += 3;
             if (!PL_lex_allbrackets &&
                 PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
                 TOKEN(0);
             }
+            s += 3;
             Rop(OP_GE);
         }
         else if (strnEQ(s,"\xE2\x89\xA4",3)) { /* ≤ <= U+02264 \342\211\244 */
@@ -5138,6 +5137,15 @@ Perl_yylex(pTHX)
             }
             Rop(OP_LE);
         }
+        else if (strnEQ(s,"\xE2\x8B\x85",3)) { /* ⋅ * U+022C5 \342\200\247 (sdot) */
+            if (*(s+4) == '=' && !PL_lex_allbrackets &&
+		PL_lex_fakeeof >= LEX_FAKEEOF_ASSIGN) {
+                TOKEN(0);
+            }
+            s += 3;
+            PL_parser->saw_infix_sigil = 1;
+            Mop(OP_MULTIPLY);
+        }
         goto switchdefault;
     case (char)((U8)0xC3): /* more utf8 */
         if (!UTF || !FEATURE_UNICODE_IS_ENABLED || PL_expect == XREF) {
@@ -5145,12 +5153,11 @@ Perl_yylex(pTHX)
         }
 	else if (strnEQ(s,"\xC3\xB7",2) && /* ÷ / U+00F7 \303\267 */
                  PL_expect == XOPERATOR) {
-            s += 2;
-	    if (*s == '=' && !PL_lex_allbrackets &&
+	    if (*(s+3) == '=' && !PL_lex_allbrackets &&
 		PL_lex_fakeeof >= LEX_FAKEEOF_ASSIGN) {
-		s--;
-		TOKEN(0);
+                TOKEN(0);
 	    }
+            s += 2;
 	    Mop(OP_DIVIDE);
         }
         goto switchdefault;
