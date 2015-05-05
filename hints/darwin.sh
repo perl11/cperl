@@ -135,6 +135,8 @@ if test -f /usr/include/stdint.h; then
   esac
 fi
 
+# Cargo-culting gcc-2.95 NEXT code. A no-op > 2.95. See
+# http://www.mistys-internet.website/blog/blog/2013/10/19/no-cpp-precomp-the-compiler-flag-that-time-forgot/
 # Avoid Apple's cpp precompiler, better for extensions
 if [ "X`echo | ${cc} -no-cpp-precomp -E - 2>&1 >/dev/null`" = "X" ]; then
     cppflags="${cppflags} -no-cpp-precomp"
@@ -145,7 +147,7 @@ if [ "X`echo | ${cc} -no-cpp-precomp -E - 2>&1 >/dev/null`" = "X" ]; then
 fi
 
 # Known optimizer problems.
-case "`cc -v 2>&1`" in
+case "`${cc} -v 2>&1`" in
   *"3.1 20020105"*) toke_cflags='optimize=""' ;;
 esac
 
@@ -206,7 +208,7 @@ case "$osvers" in
    lddlflags="${ldflags} -bundle -undefined dynamic_lookup"
    case "$ld" in
        *MACOSX_DEVELOPMENT_TARGET*) ;;
-       *) ld="env MACOSX_DEPLOYMENT_TARGET=10.3 ${ld}" ;;
+       *) ld="env MACOSX_DEPLOYMENT_TARGET=10.6 ${ld}" ;;
    esac
    ;;
 esac
