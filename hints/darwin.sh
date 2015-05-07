@@ -159,14 +159,24 @@ usedl='define';
 
 # 10.4 can use dlopen.
 # 10.4 broke poll().
+# at least 14.3 fixed poll
 case "$osvers" in
 [1-7].*)
     dlsrc='dl_dyld.xs';
     ;;
-*)
+[89].*)
+    dlsrc='dl_dlopen.xs';
+    ;;
+10.[123].*)
+    dlsrc='dl_dlopen.xs';
+    ;;
+10.*)
     dlsrc='dl_dlopen.xs';
     d_poll='undef';
     i_poll='undef';
+    ;;
+*)
+    dlsrc='dl_dlopen.xs';
     ;;
 esac
 
