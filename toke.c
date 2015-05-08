@@ -205,7 +205,8 @@ static const char* const lex_state_names[] = {
  * BAop         : bitwise and
  * BCop         : bitwise complement
  * SHop         : shift operator
- * PWop         : power operator
+ * POWop        : power operator
+ * POWcop       : power with constant (as unicode in one char)
  * PMop         : pattern-matching operator
  * Aop          : addition-level operator
  * AopNOASSIGN  : addition-level operator that is never part of .=
@@ -243,7 +244,8 @@ static const char* const lex_state_names[] = {
 #define BCop(f) return pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr = s, \
 		       REPORT('~')
 #define SHop(f)  return ao((pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, (int)SHIFTOP))
-#define PWop(f)  return ao((pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, (int)POWOP))
+#define POWop(f)  return ao((pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, (int)POWOP))
+#define POWcop(c) return ao((pl_yylval.ival=c, PL_expect=XSTATE, PL_bufptr=s, (int)POWCOP))
 #define PMop(f)  return(pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, REPORT((int)MATCHOP))
 #define Aop(f)   return ao((pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, (int)ADDOP))
 #define AopNOASSIGN(f) return (pl_yylval.ival=f, PL_bufptr=s, REPORT((int)ADDOP))
@@ -373,7 +375,8 @@ static struct debug_tokens {
     { POSTJOIN,		TOKENTYPE_NONE,		"POSTJOIN" },
     { POSTDEC,		TOKENTYPE_NONE,		"POSTDEC" },
     { POSTINC,		TOKENTYPE_NONE,		"POSTINC" },
-    { POWOP,		TOKENTYPE_OPNUM,	"POWOP" },
+    { POWOP,		TOKENTYPE_NONE,		"POWOP" },
+    { POWCOP,		TOKENTYPE_IVAL,		"POWCOP" },
     { PREDEC,		TOKENTYPE_NONE,		"PREDEC" },
     { PREINC,		TOKENTYPE_NONE,		"PREINC" },
     { PRIVATEREF,	TOKENTYPE_OPVAL,	"PRIVATEREF" },
@@ -5073,8 +5076,7 @@ Perl_yylex(pTHX)
             goto switchdefault;
         }
         else if (strnEQ(s,"\xE2\x87\x92",3)) { /* ⇒ U+021D2 \342\207\222 */
-            if (!PL_lex_allbrackets &&
-                PL_lex_fakeeof >= LEX_FAKEEOF_COMMA) {
+            if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMMA) {
                 TOKEN(0);
             }
             s += 3;
@@ -5106,35 +5108,31 @@ Perl_yylex(pTHX)
                 TERM(ARROW);
         }
         else if (strnEQ(s,"\xE2\x87\x94",3)) { /* ⇔ <=> U+021D4 \342\207\224 */
-            if (!PL_lex_allbrackets &&
-                PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
+            if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
                 TOKEN(0);
             }
             s += 3;
             Eop(OP_NCMP);
         }
         else if (strnEQ(s,"\xE2\x89\xA0",3)) { /* ≠ != U+02260 \342\211\240 */
-            if (!PL_lex_allbrackets &&
-                PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
+            if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
                 TOKEN(0);
             }
             s += 3;
             Eop(OP_NE);
         }
         else if (strnEQ(s,"\xE2\x89\xA5",3)) { /* ≥ >= U+02265 \342\211\245 */
-            if (!PL_lex_allbrackets &&
-                PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
+            if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
                 TOKEN(0);
             }
             s += 3;
             Rop(OP_GE);
         }
         else if (strnEQ(s,"\xE2\x89\xA4",3)) { /* ≤ <= U+02264 \342\211\244 */
-            s += 3;
-            if (!PL_lex_allbrackets &&
-                PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
+            if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
                 TOKEN(0);
             }
+            s += 3;
             Rop(OP_LE);
         }
         else if (strnEQ(s,"\xE2\x8B\x85",3)) { /* ⋅ * U+022C5 \342\200\247 (sdot) */
@@ -5146,8 +5144,54 @@ Perl_yylex(pTHX)
             PL_parser->saw_infix_sigil = 1;
             Mop(OP_MULTIPLY);
         }
+        /* superscripts as power with a constant: $a ** [0,4-9], single digits only so far */
+        else if (strnEQ(s,"\xE2\x81\xB0",3)) { /* ⁰ **0 U+02070 \342\201\260 */
+            s += 3;
+	    POWcop(0);
+        }
+        else if (strnEQ(s,"\xE2\x81\xB4",3)) { /* ⁴ **4 U+02070 \342\201\264 */
+            s += 3;
+	    POWcop(4);
+        }
+        else if (strnEQ(s,"\xE2\x81\xB5",3)) { /* ⁵ **5 U+02070 \342\201\265 */
+            s += 3;
+	    POWcop(5);
+        }
+        else if (strnEQ(s,"\xE2\x81\xB6",3)) { /* ⁶ **6 U+02070 \342\201\266 */
+            s += 3;
+	    POWcop(6);
+        }
+        else if (strnEQ(s,"\xE2\x81\xB7",3)) { /* ⁷ **7 U+02070 \342\201\267 */
+            s += 3;
+	    POWcop(7);
+        }
+        else if (strnEQ(s,"\xE2\x81\xB8",3)) { /* ⁸ **8 U+02070 \342\201\268 */
+            s += 3;
+	    POWcop(8);
+        }
+        else if (strnEQ(s,"\xE2\x81\xB9",3)) { /* ⁹ **9 U+02070 \342\201\269 */
+            s += 3;
+	    POWcop(9);
+        }
         goto switchdefault;
-    case (char)((U8)0xC3): /* more utf8 */
+    case (char)((U8)0xC2): /* more utf8: 3 superscripts */
+        if (!UTF || !FEATURE_UNICODE_IS_ENABLED || PL_expect == XREF) {
+            goto switchdefault;
+        }
+	else if (strnEQ(s,"\xC2\xB9",2)) { /* ¹ **1 U+02070 \302\271 */
+            s += 2;
+	    POWcop(1);
+        }
+	else if (strnEQ(s,"\xC2\xB2",2)) { /* ² **2 U+02070 \302\262 */
+            s += 2;
+	    POWcop(2);
+        }
+	else if (strnEQ(s,"\xC2\xB3",2)) { /* ³ **3 U+02070 \302\263 */
+            s += 2;
+	    POWcop(3);
+        }
+        goto switchdefault;
+    case (char)((U8)0xC3): /* more utf8: ÷ */
         if (!UTF || !FEATURE_UNICODE_IS_ENABLED || PL_expect == XREF) {
             goto switchdefault;
         }
@@ -5326,7 +5370,7 @@ Perl_yylex(pTHX)
 		s -= 2;
 		TOKEN(0);
 	    }
-	    PWop(OP_POW);
+	    POWop(OP_POW);
 	}
 	if (*s == '=' && !PL_lex_allbrackets &&
 		PL_lex_fakeeof >= LEX_FAKEEOF_ASSIGN) {

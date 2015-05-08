@@ -10,7 +10,7 @@ BEGIN {
 use utf8;
 use 5.021011;
 
-plan( tests => 8 );
+plan( tests => 13 );
 
 {
   my $h = eval '{main ⇒ 1}';
@@ -38,3 +38,17 @@ $a = eval '10÷2';
 is ($a, 5, 'unicode / DIVIDE');
 $a = eval '10⋅2';
 is($a, 20, 'unicode * DOT');
+
+eval 'my $x=2;@a=($x⁰,2¹,$x²,2³,$x⁴,$x⁵,$x⁶,$x⁷,$x⁸,$x⁹);';
+ok(eq_array(\@a, [1,2,4,8,16,32,64,128,256,512]), 'unicode pow 0-9 superscripts');
+$a = eval '(2²)⁵';
+is($a, 1024, 'unicode pow composition');
+$a = eval '2²⁵'; #TODO composition of digits
+is($@, '', 'unicode pow multidigits no error');
+is($a, 33554432, 'TODO unicode pow multidigits 2**25 != (2**2)**5');
+
+{
+  no utf8;
+  eval '2⁴';
+  is($@, 'Unrecognized character \xE2; marked by <-- HERE after 2<-- HERE near column 2 at (eval 20) line 1.'."\n", 'throws error without utf8');
+}
