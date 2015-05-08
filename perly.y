@@ -101,7 +101,7 @@
 %left MULOP
 %left <ival> MATCHOP
 %right <ival> '!' '~' UMINUS REFGEN
-%right <ival> POWOP
+%right <ival> POWOP POWCOP
 %nonassoc <ival> PREINC PREDEC POSTINC POSTDEC POSTJOIN
 %left <ival> ARROW
 %nonassoc <ival> ')'
@@ -790,7 +790,7 @@ subscripted:    gelem '{' expr ';' '}'        /* *main::{something} */
 termbinop:	term ASSIGNOP term                     /* $x = $y */
 			{ $$ = newASSIGNOP(OPf_STACKED, $1, $2, $3); }
 	|	term POWOP term                        /* $x ** $y */
-			{ $$ = newBINOP($2, 0, scalar($1), scalar($3)); }
+			{ $$ = newBINOP(OP_POW, 0, scalar($1), scalar($3)); }
 	|	term MULOP term                        /* $x * $y, $x x $y */
 			{   if ($2 != OP_REPEAT)
 				scalar($1);
@@ -847,6 +847,9 @@ termunop : '-' term %prec UMINUS                       /* -$x */
 					$1
 				       ));
 			}
+	|	term POWCOP                            /* $x⁴ constant unicode superscripts */
+			{ $$ = newBINOP(OP_POW, 0, scalar($1),
+                                        newSVOP(OP_CONST, 0, newSViv(parser->yylval.ival))); }
 	|	PREINC term                            /* ++$x */
 			{ $$ = newUNOP(OP_PREINC, 0,
 					op_lvalue(scalar($2), OP_PREINC)); }
