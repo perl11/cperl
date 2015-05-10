@@ -390,7 +390,7 @@ EO_NOPCS
     SV *sv;
 
     if (!he) {
-        Perl_croak(aTHX_ "Couldn't add key '%s' to %%$package_sprintf_safe\::",
+        croak("Couldn't add key '%s' to %%$package_sprintf_safe\::",
 	      name);
     }
 #if PERL_VERSION < 10
@@ -432,7 +432,7 @@ static int
 Im_sorry_Dave(pTHX_ SV *sv, MAGIC *mg)
 {
     PERL_UNUSED_ARG(mg);
-    Perl_croak(aTHX_ "Your vendor has not defined $package_sprintf_safe macro %" SVf
+    croak("Your vendor has not defined $package_sprintf_safe macro %" SVf
           " used", sv);
     NORETURN_FUNCTION_END;
 }
@@ -502,7 +502,7 @@ MISSING
     print $xs_fh <<"EOBOOT";
 BOOT:
   {
-#ifdef dTHX
+#if defined(dTHX) && !defined(PERL_NO_GET_CONTEXT)
     dTHX;
 #endif
     HV *symbol_table = get_hv("$symbol_table", GV_ADD);
@@ -645,7 +645,7 @@ EXPLODE
 						 HV_FETCH_LVALUE, NULL, 0);
 #endif
 		if (!he) {
-		    Perl_croak(aTHX_ "Couldn't add key '%s' to %%$package_sprintf_safe\::",
+		    croak("Couldn't add key '%s' to %%$package_sprintf_safe\::",
 			  value_for_notfound->name);
 		}
 #if PERL_VERSION < 10
@@ -696,18 +696,18 @@ EXPLODE
 		    CvXSUBANY(cv).any_ptr = NULL;
 		}
 #ifndef SYMBIAN
-#if PERL_VERSION < 10
+# if PERL_VERSION < 10
 		if (!hv_store(${c_subname}_missing, 
                     value_for_notfound->name,
                     value_for_notfound->namelen,
                     &PL_sv_yes, 0))
-#else
+# else
 		hek = HeKEY_hek(he);
 		if (!hv_common(${c_subname}_missing, NULL, HEK_KEY(hek),
  			       HEK_LEN(hek), HEK_FLAGS(hek), HV_FETCH_ISSTORE,
 			       &PL_sv_yes, HEK_HASH(hek)))
-#endif
-		    Perl_croak(aTHX_ "Couldn't add key '%s' to missing_hash",
+# endif
+		    croak("Couldn't add key '%s' to missing_hash",
 			  value_for_notfound->name);
 #endif
 DONT
@@ -828,15 +828,15 @@ EOA
 	    ? get_missing_hash(aTHX) : NULL;
 	if ((C_ARRAY_LENGTH(values_for_notfound) > 1)
 	    ? hv_exists_ent(${c_subname}_missing, sv, 0) : 0) {
-	    Perl_croak(aTHX_ "Your vendor has not defined $package_sprintf_safe macro %" SVf
-			  ", used at %" COP_FILE_F " line %" UVuf "\\n", 
-			  sv, COP_FILE(cop), (UV)CopLINE(cop));
+            croak("Your vendor has not defined $package_sprintf_safe macro %" SVf
+                  ", used at %" COP_FILE_F " line %" UVuf "\\n", 
+                  sv, COP_FILE(cop), (UV)CopLINE(cop));
 	} else
 #endif
 	{
-	    Perl_croak(aTHX_ "%" SVf " is not a valid $package_sprintf_safe macro at %"
-			  COP_FILE_F " line %" UVuf "\\n",
-			  sv, COP_FILE(cop), (UV)CopLINE(cop));
+	    croak("%" SVf " is not a valid $package_sprintf_safe macro at %"
+                  COP_FILE_F " line %" UVuf "\\n",
+                  sv, COP_FILE(cop), (UV)CopLINE(cop));
 	}
 EOC
     } else {
