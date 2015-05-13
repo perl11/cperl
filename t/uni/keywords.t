@@ -10,7 +10,7 @@ BEGIN {
 use utf8;
 use 5.021011;
 
-plan( tests => 13 );
+plan( tests => 15 );
 
 {
   my $h = eval '{main ⇒ 1}';
@@ -42,13 +42,19 @@ is($a, 20, 'unicode * DOT');
 eval 'my $x=2;@a=($x⁰,2¹,$x²,2³,$x⁴,$x⁵,$x⁶,$x⁷,$x⁸,$x⁹);';
 ok(eq_array(\@a, [1,2,4,8,16,32,64,128,256,512]), 'unicode pow 0-9 superscripts');
 $a = eval '(2²)⁵';
-is($a, 1024, 'unicode pow composition');
-$a = eval '2²⁵'; #TODO composition of digits
+is($a, 1024, 'unicode pow stacked');
+$a = eval '2²⁵';
 is($@, '', 'unicode pow multidigits no error');
-is($a, 33554432, 'TODO unicode pow multidigits 2**25 != (2**2)**5');
+is($a, 33554432, 'unicode pow 2 digits composed: 2**25');
+
+# no error, compose the first two, and stack it with the next single or pair.
+$a = eval '2⁰²⁵'; # => (2**02)**5
+is($a, 1024, 'unicode pow 3 digits composed (2**02)**5');
+is($@, '', 'no error with pow >3 digits ');
 
 {
   no utf8;
   eval '2⁴';
-  is($@, 'Unrecognized character \xE2; marked by <-- HERE after 2<-- HERE near column 2 at (eval 20) line 1.'."\n", 'throws error without utf8');
+  is($@, 'Unrecognized character \xE2; marked by <-- HERE after 2<-- HERE near column 2 at (eval 21) line 1.'."\n", 'throws error without utf8');
 }
+

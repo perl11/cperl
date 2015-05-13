@@ -134,6 +134,24 @@ int isRIGHTARROW(const char *s) {
             (UTF && FEATURE_UNICODE_IS_ENABLED
              ? strnEQ(s,"\xE2\x86\x92",3) : 0));
 }
+PERL_STATIC_INLINE
+U8 UNIsuperscript(const char *t) {
+    const U8* s = (U8*)t;
+    switch (*s) {
+    default: return 0xff;
+    case 0xC2:
+        switch (s[1]) {
+        default: return 0xff;
+        case 0xB9: return 1;
+        case 0xB2: return 2;
+        case 0xB3: return 3;
+        }
+    case 0xE2:
+        if (s[1] != 0x81) return 0xff;
+        if (s[2] < 0xB0 || s[2] > 0xB9) return 0xff;
+        return s[2] & 0x0F;
+    }
+}
 
 /* LEX_* are values for PL_lex_state, the state of the lexer.
  * They are arranged oddly so that the guard on the switch statement
@@ -245,7 +263,7 @@ static const char* const lex_state_names[] = {
 		       REPORT('~')
 #define SHop(f)  return ao((pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, (int)SHIFTOP))
 #define POWop(f)  return ao((pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, (int)POWOP))
-#define POWcop(c) return ao((pl_yylval.ival=c, PL_expect=XSTATE, PL_bufptr=s, (int)POWCOP))
+#define POWcop(c) pl_yylval.ival=(c); PL_expect=XSTATE; PL_bufptr=s; return ao((int)POWCOP)
 #define PMop(f)  return(pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, REPORT((int)MATCHOP))
 #define Aop(f)   return ao((pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, (int)ADDOP))
 #define AopNOASSIGN(f) return (pl_yylval.ival=f, PL_bufptr=s, REPORT((int)ADDOP))
@@ -5070,7 +5088,8 @@ Perl_yylex(pTHX)
                 Perl_croak(aTHX_ "panic: input overflow");
 	}
 	goto retry;
-    case (char)((U8)0xE2): /* lots of utf8: -> => <=> != <= >= */
+    case (char)((U8)0xE2): { /* lots of utf8: -> => <=> != <= >= */
+        U8 c;
         /* requires use utf8 and use 5.22 or -E */
         if (!UTF || !FEATURE_UNICODE_IS_ENABLED || PL_expect == XREF) {
             goto switchdefault;
@@ -5144,58 +5163,44 @@ Perl_yylex(pTHX)
             PL_parser->saw_infix_sigil = 1;
             Mop(OP_MULTIPLY);
         }
-        /* superscripts as power with a constant: $a ** [0,4-9], single digits only so far */
-        else if (strnEQ(s,"\xE2\x81\xB0",3)) { /* ⁰ **0 U+02070 \342\201\260 */
-            s += 3;
-	    POWcop(0);
+        /* superscripts as power with a constant: $a ** [0,4-9], 1-2 digits only */
+        /* "\xE2\x81\xB0" ⁰ **0 U+02070 \342\201\260 */
+#define doPOWcop(len,val)                               \
+            U8 r;                                       \
+            s += len;                                   \
+            if ((r = UNIsuperscript(s)) != 0xff) {      \
+                s += ((U8)*s == 0xC2 ? 2 : 3);          \
+                POWcop((val) * 10 + r);                 \
+            } else {                                    \
+                POWcop(val);                            \
+            }
+
+        else if ((c = UNIsuperscript(s)) != 0xff) {
+            doPOWcop(3,c);
         }
-        else if (strnEQ(s,"\xE2\x81\xB4",3)) { /* ⁴ **4 U+02070 \342\201\264 */
-            s += 3;
-	    POWcop(4);
-        }
-        else if (strnEQ(s,"\xE2\x81\xB5",3)) { /* ⁵ **5 U+02070 \342\201\265 */
-            s += 3;
-	    POWcop(5);
-        }
-        else if (strnEQ(s,"\xE2\x81\xB6",3)) { /* ⁶ **6 U+02070 \342\201\266 */
-            s += 3;
-	    POWcop(6);
-        }
-        else if (strnEQ(s,"\xE2\x81\xB7",3)) { /* ⁷ **7 U+02070 \342\201\267 */
-            s += 3;
-	    POWcop(7);
-        }
-        else if (strnEQ(s,"\xE2\x81\xB8",3)) { /* ⁸ **8 U+02070 \342\201\268 */
-            s += 3;
-	    POWcop(8);
-        }
-        else if (strnEQ(s,"\xE2\x81\xB9",3)) { /* ⁹ **9 U+02070 \342\201\269 */
-            s += 3;
-	    POWcop(9);
-        }
+        s++;
         goto switchdefault;
+    }
     case (char)((U8)0xC2): /* more utf8: 3 superscripts */
         if (!UTF || !FEATURE_UNICODE_IS_ENABLED || PL_expect == XREF) {
             goto switchdefault;
         }
-	else if (strnEQ(s,"\xC2\xB9",2)) { /* ¹ **1 U+02070 \302\271 */
-            s += 2;
-	    POWcop(1);
+	else if ((U8)s[1] == 0xB9) { /* ¹ **1 U+02070 \302\271 */
+            doPOWcop(2,1);
         }
-	else if (strnEQ(s,"\xC2\xB2",2)) { /* ² **2 U+02070 \302\262 */
-            s += 2;
-	    POWcop(2);
+	else if ((U8)s[1] == 0xB2) { /* ² **2 U+02070 \302\262 */
+            doPOWcop(2,2);
         }
-	else if (strnEQ(s,"\xC2\xB3",2)) { /* ³ **3 U+02070 \302\263 */
-            s += 2;
-	    POWcop(3);
+	else if ((U8)s[1] == 0xB3) { /* ³ **3 U+02070 \302\263 */
+            doPOWcop(2,3);
         }
+        s++;
         goto switchdefault;
     case (char)((U8)0xC3): /* more utf8: ÷ */
         if (!UTF || !FEATURE_UNICODE_IS_ENABLED || PL_expect == XREF) {
             goto switchdefault;
         }
-	else if (strnEQ(s,"\xC3\xB7",2) && /* ÷ / U+00F7 \303\267 */
+	else if ((U8)s[1] == 0xB7 && /* ÷ / U+00F7 \303\267 */
                  PL_expect == XOPERATOR) {
 	    if (*(s+3) == '=' && !PL_lex_allbrackets &&
 		PL_lex_fakeeof >= LEX_FAKEEOF_ASSIGN) {
@@ -5204,6 +5209,7 @@ Perl_yylex(pTHX)
             s += 2;
 	    Mop(OP_DIVIDE);
         }
+        s++;
         goto switchdefault;
     case '-':
 	if (s[1] && isALPHA(s[1]) && !isWORDCHAR(s[2])) {
