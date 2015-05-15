@@ -1103,7 +1103,7 @@ Perl_lex_stuff_pvn(pTHX_ const char *pv, STRLEN len, U32 flags)
 		}
 		else {
                     assert(p < e -1 );
-		    *bufptr++ = TWO_BYTE_UTF8_TO_NATIVE(*p, *(p+1));
+		    *bufptr++ = EIGHT_BIT_UTF8_TO_NATIVE(*p, *(p+1));
 		    p += 2;
                 }
 	    }
@@ -2684,7 +2684,7 @@ S_get_and_check_backslash_N_name(pTHX_ const char* s, const char* const e)
             }
             s++;
         } else if (UTF8_IS_DOWNGRADEABLE_START(*s)) {
-            if (! isALPHAU(TWO_BYTE_UTF8_TO_NATIVE(*s, *(s+1)))) {
+            if (! isALPHAU(EIGHT_BIT_UTF8_TO_NATIVE(*s, *(s+1)))) {
                 goto bad_charname;
             }
             s += 2;
@@ -2714,7 +2714,7 @@ S_get_and_check_backslash_N_name(pTHX_ const char* s, const char* const e)
                 s++;
             }
             else if (UTF8_IS_DOWNGRADEABLE_START(*s)) {
-                if (! isCHARNAME_CONT(TWO_BYTE_UTF8_TO_NATIVE(*s, *(s+1))))
+                if (! isCHARNAME_CONT(EIGHT_BIT_UTF8_TO_NATIVE(*s, *(s+1))))
                 {
                     goto bad_charname;
                 }
