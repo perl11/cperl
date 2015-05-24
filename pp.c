@@ -1868,13 +1868,17 @@ PP(pp_subtract)
 #ifdef HAS_BUILTIN_ARITH_OVERFLOW
             /* Use fast overflow intrinsics */
             SP--;
-            /* Use unsigned calc only if both are unsigned */
-            if (auvok & buvok) {
+            /* unsigned calc if signs differ: pos - neg => pos, neg - pos => neg */
+            if (auvok ^ buvok) {
 		const UV buv = (UV)biv;
                 if (BUILTIN_USUB_OVERFLOW(auv, buv, &result)) {
                     SETn( (NV)auv - (NV)buv );
-                } else {
+                } else if (auvok) {
                     SETu( result );
+                } else if (result > IV_MAX/2) { /* cannot represent neg. */
+                    SETn( -((NV)result) );
+                } else {
+                    SETi( -result );
                 }
             } else {
                 IV value;
