@@ -1838,7 +1838,6 @@ PP(pp_subtract)
 	bool a_valid = 0;
 
 	if (!useleft) {
-	    auv = 0;
 	    a_valid = auvok = 1;
 	    /* left operand is undef, treat as zero.  */
 	} else {
@@ -1846,7 +1845,6 @@ PP(pp_subtract)
 	    if (SvIV_please_nomg(svl)) {
 		if ((auvok = SvUOK(svl)))
 		    auv = SvUVX(svl);
-#ifndef HAS_BUILTIN_ARITH_OVERFLOW
 		else {
 		    const IV aiv = SvIVX(svl);
 		    if (aiv >= 0) {
@@ -1856,43 +1854,14 @@ PP(pp_subtract)
 			auv = (aiv == IV_MIN) ? (UV)aiv : (UV)-aiv;
 		    }
 		}
-#endif
 		a_valid = 1;
 	    }
 	}
 	if (a_valid) {
 	    UV result;
-            const IV biv = SvIVX(svr);
-	    bool buvok = SvUOK(svr);
-
-#ifdef HAS_BUILTIN_ARITH_OVERFLOW
-            /* Use fast overflow intrinsics */
-            SP--;
-            /* unsigned calc if signs differ: pos - neg => pos, neg - pos => neg */
-            if (auvok ^ buvok) {
-		const UV buv = (UV)biv;
-                if (BUILTIN_USUB_OVERFLOW(auv, buv, &result)) {
-                    SETn( (NV)auv - (NV)buv );
-                } else if (auvok) {
-                    SETu( result );
-                } else if (result > IV_MAX/2) { /* cannot represent neg. */
-                    SETn( -((NV)result) );
-                } else {
-                    SETi( -result );
-                }
-            } else {
-                IV value;
-                const IV aiv = useleft ? SvIVX(svl) : 0;
-                if (BUILTIN_SSUB_OVERFLOW(aiv, biv, &value)) {
-                    SETn( (NV)aiv - (NV)biv );
-                } else {
-                    SETi( value );
-                }
-            }
-            RETURN;
-#else
 	    UV buv;
 	    bool result_good = 0;
+	    bool buvok = SvUOK(svr);
 
             if (buvok)
 		buv = SvUVX(svr);
@@ -1952,7 +1921,6 @@ PP(pp_subtract)
 		}
 		RETURN;
 	    } /* Overflow, drop through to NVs.  */
-#endif
 	}
     }
 #endif
