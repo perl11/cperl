@@ -661,10 +661,10 @@ PP(pp_add)
 	}
 	if (a_valid) {
 	    UV result;
-            const IV biv = SvIVX(svr);
 
 #ifdef HAS_BUILTIN_ARITH_OVERFLOW
             /* Use fast overflow intrinsics */
+            const IV biv = SvIVX(svr);
             const IV aiv = useleft ? SvIVX(svl) : 0;
 	    const bool buvok = SvUOK(svr);
             SP--;
@@ -694,6 +694,7 @@ PP(pp_add)
 #else
 	    UV buv;
 	    bool result_good = 0;
+	    bool buvok = SvUOK(svr);
 	    if (buvok)
 		buv = SvUVX(svr);
 	    else {
