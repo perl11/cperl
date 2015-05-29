@@ -11,16 +11,26 @@ plan 151;
 
 # -------------------- Errors with feature disabled -------------------- #
 
-eval "#line 8 foo\nmy sub foo";
-is $@, qq 'Experimental "my" subs not enabled at foo line 8.\n',
+use Config ();
+if (!$Config::Config{usecperl}) {
+  eval "#line 8 foo\nmy sub foo";
+  is $@, qq 'Experimental "my" subs not enabled at foo line 8.\n',
   'my sub unexperimental error';
-eval "#line 8 foo\nCORE::state sub foo";
-is $@, qq 'Experimental "state" subs not enabled at foo line 8.\n',
+  eval "#line 8 foo\nCORE::state sub foo";
+  is $@, qq 'Experimental "state" subs not enabled at foo line 8.\n',
   'state sub unexperimental error';
-eval "#line 8 foo\nour sub foo";
-is $@, qq 'Experimental "our" subs not enabled at foo line 8.\n',
+  eval "#line 8 foo\nour sub foo";
+  is $@, qq 'Experimental "our" subs not enabled at foo line 8.\n',
   'our sub unexperimental error';
-
+} else {
+  # with cperl we don't need to enable this feature
+  eval "#line 8 foo\nmy sub foo";
+  is $@, '', 'no my sub unexperimental error';
+  eval "#line 8 foo\nCORE::state sub foo";
+  is $@, '', 'no state sub unexperimental error';
+  eval "#line 8 foo\nour sub foo";
+  is $@, '', 'no our sub unexperimental error';
+}
 # -------------------- our -------------------- #
 
 no warnings "experimental::lexical_subs";
@@ -574,8 +584,15 @@ package main;
 
   my $coderef = eval "my sub foo (\$\x{30cd}) {1}; \\&foo";
   my $proto = prototype $coderef;
-  ok(utf8::is_utf8($proto), "my sub with UTF8 proto maintains the UTF8ness");
-  is($proto, "\$\x{30cd}", "check the prototypes actually match");
+  if (!$Config::Config{usecperl}) {
+    ok(utf8::is_utf8($proto), "my sub with UTF8 proto maintains the UTF8ness");
+    is($proto, "\$\x{30cd}", "check the prototypes actually match");
+  } else {
+    # with cperl this not a valid prototype, it's a signature
+    # there are no legal prototypes with utf8 chars
+    ok(1, "skip utf8 check on illegal prototypes");
+    is($proto, undef, "catch illegal prototypes");
+  }
 }
 {
   my sub if() { 44 }
