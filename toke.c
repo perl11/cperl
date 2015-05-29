@@ -8192,7 +8192,6 @@ Perl_yylex(pTHX)
                         SvUTF8_on(PL_subname);
 		    have_name = TRUE;
 
-
 		    s = skipspace(d);
 		}
 		else {
@@ -8219,13 +8218,15 @@ Perl_yylex(pTHX)
 		    PREBLOCK(FORMAT);
 		}
 
-		/* Look for a prototype. signatures are backcompat */
+		/* Look for a prototype or signature */
                 if (*s == '('
 #if !defined(USE_CPERL)
                     && !FEATURE_SIGNATURES_IS_ENABLED
 #endif
                     ) {
                     char *olds = s;
+                    yy_parser saveparser = *PL_parser;
+                    char *oldlinestrp = SvPVX(PL_linestr);
                     DEBUG_T( { printbuf("### Looks like prototype? %s\n", s); } );
 		    s = scan_str(s,FALSE,FALSE,FALSE,NULL);
 		    COPLINE_SET_FROM_MULTI_END;
@@ -8237,8 +8238,11 @@ Perl_yylex(pTHX)
                         DEBUG_T( { printbuf("### Is prototype %s\n", olds); } );
                         s = skipspace(s);
                     } else {
-                        DEBUG_T( { printbuf("### No prototype %s, signature probably\n", olds); } );
-                        s = PL_bufptr = olds;
+                        DEBUG_T( { printbuf("### No prototype %s, signature probably\n",
+                                            SvPVX(PL_lex_stuff)); } );
+                        s = olds;
+                        *PL_parser = saveparser;
+                        SvPVX(PL_linestr) = oldlinestrp;
                         PL_lex_stuff = NULL;
                     }
 		}
