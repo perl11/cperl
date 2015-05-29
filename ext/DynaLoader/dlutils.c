@@ -258,22 +258,20 @@ dl_construct_modpname(pTHX_ AV* modparts) {
     dSP;
     IV i;
     SV *modpname;
-    SV *modfname = AvARRAY(modparts)[AvFILLp(modparts)];
 
     /* Some systems have restrictions on files names for DLL's etc.
        mod2fname returns appropriate file base name (typically truncated).
        It may also edit @modparts if required. */
     CV *mod2fname = get_cv("DynaLoader::mod2fname", 0);
     if (mod2fname) {
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter mod2fname with '%s'\n", SvPVX(modfname)));
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter mod2fname with '%s'\n", SvPVX(AvARRAY(modparts)[AvFILLp(modparts)])));
         SPAGAIN;
         PUSHMARK(SP);
         PUTBACK;
         XPUSHs(newRV((SV*)modparts));
         call_sv((SV*)mod2fname, G_SCALAR);
         SPAGAIN;
-        modfname = POPs;
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Got mod2fname => '%s'\n", SvPVX(modfname)));
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Got mod2fname => '%s'\n", SvPVX(POPs)));
     }
 #ifdef NETWARE
     /* Truncate the module name to 8.3 format for NetWare */
