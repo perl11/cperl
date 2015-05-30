@@ -238,7 +238,7 @@ our %DeadBits = (
 
 # These are used by various things, including our own tests
 our $NONE				=  "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-our $DEFAULT				=  "\x10\x01\x00\x00\x00\x50\x04\x00\x00\x00\x00\x00\x00\x55\x45\x55\x01", # [2,59,60,52,53,56,61,62,54,57,55,63,4,64,22,23,25]
+our $DEFAULT				=  "\x10\x01\x00\x00\x00\x50\x04\x00\x00\x00\x00\x00\x00\x54\x41\x54\x01", # [2,59,53,56,61,62,54,55,63,4,64,22,23,25]
 our $LAST_BIT				=  134 ;
 our $BYTES				=  17 ;
 
