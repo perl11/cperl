@@ -3228,7 +3228,7 @@ PP(pp_subst)
     }
 
     /* See "how taint works" above */
-    if (TAINTING_get) {
+    if (UNLIKELY(TAINTING_get)) {
 	if ((rxtainted & SUBST_TAINT_PAT) ||
 	    ((rxtainted & (SUBST_TAINT_STR|SUBST_TAINT_RETAINT)) ==
 				(SUBST_TAINT_STR|SUBST_TAINT_RETAINT))
