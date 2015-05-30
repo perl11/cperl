@@ -640,35 +640,37 @@ struct block_format {
 #define POPSUB(cx,sv)							\
     STMT_START {							\
 	const I32 olddepth = cx->blk_sub.olddepth;			\
+	const CV* cv = cx->blk_sub.cv;                                  \
         if (!(cx->blk_u16 & CxPOPSUB_DONE)) {                           \
-        cx->blk_u16 |= CxPOPSUB_DONE;                                   \
-	RETURN_PROBE(CvNAMED(cx->blk_sub.cv)				\
-			? HEK_KEY(CvNAME_HEK(cx->blk_sub.cv))		\
-			: GvENAME(CvGV(cx->blk_sub.cv)),		\
-		CopFILE((COP*)CvSTART((const CV*)cx->blk_sub.cv)),	\
-		CopLINE((COP*)CvSTART((const CV*)cx->blk_sub.cv)),	\
-		CopSTASHPV((COP*)CvSTART((const CV*)cx->blk_sub.cv)));	\
+            cx->blk_u16 |= CxPOPSUB_DONE;                               \
+	    RETURN_PROBE(CvNAMED(cv)                                    \
+                           ? HEK_KEY(CvNAME_HEK(cv))                    \
+                           : GvENAME(CvGV(cv)),                         \
+                         CopFILE((COP*)CvSTART(cv)),                    \
+                         CopLINE((COP*)CvSTART(cv)),                    \
+                         CopSTASHPV((COP*)CvSTART(cv)));                \
 									\
-	if (CxHASARGS(cx) && !CvHASSIG((const CV*)cx->blk_sub.cv)) {    \
-	    POP_SAVEARRAY();						\
-	    /* abandon @_ if it got reified */				\
-	    if (AvREAL(cx->blk_sub.argarray)) {				\
-		const SSize_t fill = AvFILLp(cx->blk_sub.argarray);	\
-		SvREFCNT_dec_NN(cx->blk_sub.argarray);			\
-		cx->blk_sub.argarray = newAV();				\
-		av_extend(cx->blk_sub.argarray, fill);			\
-		AvREIFY_only(cx->blk_sub.argarray);			\
-		CX_CURPAD_SV(cx->blk_sub, 0) = MUTABLE_SV(cx->blk_sub.argarray); \
+	    if (CxHASARGS(cx) && !CvHASSIG(cv)) {                       \
+                AV* argav = cx->blk_sub.argarray;                       \
+	        POP_SAVEARRAY();                                        \
+	        /* abandon @_ if it got reified */                      \
+	        if (AvREAL(argav)) {                                    \
+                    const SSize_t fill = AvFILLp(argav);                \
+                    SvREFCNT_dec_NN(argav);                             \
+                    cx->blk_sub.argarray = argav = newAV();             \
+                    av_extend(argav, fill);                             \
+                    AvREIFY_only(argav);                                \
+                    CX_CURPAD_SV(cx->blk_sub, 0) = MUTABLE_SV(argav);   \
+	        }                                                       \
+	        else {							\
+                    CLEAR_ARGARRAY(argav);                              \
+	        }                                                       \
 	    }								\
-	    else {							\
-		CLEAR_ARGARRAY(cx->blk_sub.argarray);			\
-	    }								\
-	}								\
         }                                                               \
-	sv = MUTABLE_SV(cx->blk_sub.cv);				\
+	sv = (SV*)cv;                                                   \
 	LEAVE_SCOPE(PL_scopestack[cx->blk_oldscopesp-1]);		\
-	if (sv && (CvDEPTH((const CV*)sv) = olddepth))			\
-	    sv = NULL;						\
+	if (sv && (CvDEPTH(cv) = olddepth))                             \
+	    sv = NULL;                                                  \
     } STMT_END
 
 #define LEAVESUB(sv)							\
