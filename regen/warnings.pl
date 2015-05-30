@@ -86,7 +86,7 @@ my $tree = {
         'imprecision'   => [ 5.011, DEFAULT_OFF],
         'experimental'  => [ 5.017, {
                                 'experimental::lexical_subs' =>
-                                    [ 5.017, DEFAULT_ON ],
+                                    [ 5.017, DEFAULT_OFF ],
                                 'experimental::regex_sets' =>
                                     [ 5.017, DEFAULT_ON ],
                                 'experimental::lexical_topic' =>
@@ -98,7 +98,7 @@ my $tree = {
                                 'experimental::autoderef' =>
                                     [ 5.019, DEFAULT_ON ],
                                 'experimental::signatures' =>
-                                    [ 5.019, DEFAULT_ON ],
+                                    [ 5.019, DEFAULT_OFF ],
                                 'experimental::win32_perlio' =>
                                     [ 5.021, DEFAULT_ON ],
                                 'experimental::refaliasing' =>
@@ -106,7 +106,7 @@ my $tree = {
                                 'experimental::re_strict' =>
                                     [ 5.021, DEFAULT_ON ],
                                 'experimental::const_attr' =>
-                                    [ 5.021, DEFAULT_ON ],
+                                    [ 5.021, DEFAULT_OFF ],
                                 'experimental::bitwise' =>
                                     [ 5.021, DEFAULT_ON ],
                         }],
