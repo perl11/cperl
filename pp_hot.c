@@ -3744,7 +3744,7 @@ PP(pp_signature)
                 /* do $varsv = $argsv */
 
                 /* cargo-culted from pp_sassign */
-                if (TAINTING_get && UNLIKELY(TAINT_get) && !SvTAINTED(argsv))
+                if (UNLIKELY(TAINTING_get && TAINT_get && !SvTAINTED(argsv)))
                     TAINT_NOT;
 
                 /* Short-cut assignment of IV and RV values as these are
