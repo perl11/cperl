@@ -11884,14 +11884,15 @@ Note that we attach this data to CV via an OP_SIGNATURE rather than
 directly attaching it to the CV, so that it doesn't need copying
 each time a new thread is cloned.
 
-Todo:
+Done:
 - types in leading position (int $i)
 - attributes (:const, types), ($i :int :const)
+- no double copies into @_
 - scalar references compiled to direct access, not just copies
   (\$a) => my $a = $_[0].
-- no double copies into @_, only copy rest when there is no slurpy arg and
-  @_ occurs in the body. mark how many then.
-  Or when \$ works none at all. warn in ck_subr when @_/$_[] is used.
+Todo:
+- error in ck_subr when @_/$_[] in signatured bodies is used
+- copy to pad on call by value (currently all by ref)
 
 =cut
 */
