@@ -126,24 +126,26 @@ Perl_set_version(pTHX_ const char *name, STRLEN nlen, const char *strval, STRLEN
  */
 
 static void boot_core_cperl(pTHX) {
-    const char he_name1[] = "feature_signatures";
-    const char he_name2[] = "feature_lexsubs";
+    /* enable some features
+       use feature "signatures";
+       i.e. $^H{$feature{signatures}} = 1; */
+    const char const *he_names[] =
+        { "feature_signatures", "feature_lexsubs", "experimental::const_attr", NULL };
     SV* on = newSViv(1);
 
-    /* use feature "signatures";
-       i.e. $^H{$feature{signatures}} = 1; */
     /* This broke CM-364 by nasty side-effect. HINT_LOCALIZE_HH was added to fix
        strtable global destruction issues with wrong refcounts.
        So we get now only signatures and lexsubs for free.
     PL_hints |= HINT_LOCALIZE_HH | (FEATURE_BUNDLE_515 << HINT_FEATURE_SHIFT);
     */
-    CopHINTHASH_set(&PL_compiling,
-        cophh_store_pvn(CopHINTHASH_get(&PL_compiling), he_name1, sizeof(he_name1)-1, 0,
-            on, 0));
-    CopHINTHASH_set(&PL_compiling,
-        cophh_store_pvn(CopHINTHASH_get(&PL_compiling), he_name2, sizeof(he_name2)-1, 0,
-            on, 0));
-    SvREFCNT(on) = 2;
+    char** he = (char**)he_names;
+    while (*he) {
+        CopHINTHASH_set(&PL_compiling,
+            cophh_store_pvn(CopHINTHASH_get(&PL_compiling),
+                            *he, sizeof(*he)-1, 0, on, 0));
+        he++;
+        SvREFCNT(on)++;
+    }
 }
 
 #define DEF_CORETYPE(s) \
