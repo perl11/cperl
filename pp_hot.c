@@ -3300,6 +3300,7 @@ PP(pp_entersub)
                 /* the start of the args on the stack, pp_signature does the rest */
                 cx->blk_sub.argarray = (AV*)(MARK+1);
             } else {
+                /* copy from stack to @_ */
                 cx->blk_sub.argarray = av;
                 items = SP - MARK;
                 if (UNLIKELY(items - 1 > AvMAX(av))) {
