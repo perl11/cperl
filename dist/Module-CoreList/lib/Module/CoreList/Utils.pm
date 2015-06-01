@@ -6,7 +6,7 @@ use vars qw[$VERSION %utilities];
 use Module::CoreList;
 use Module::CoreList::TieHashDelta;
 
-$VERSION = '5.20150820c';
+$VERSION = '5.20151213c';
 
 sub utilities {
     my $perl = shift;
@@ -1100,6 +1100,41 @@ my %delta = (
         removed => {
         }
     },
+    5.020003 => {
+        delta_from => 5.020002,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.023003 => {
+        delta_from => 5.023002,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.023004 => {
+        delta_from => 5.023003,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.023005 => {
+        delta_from => 5.023004,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.022001 => {
+        delta_from => 5.022,
+        changed => {
+        },
+        removed => {
+        }
+    },
 );
 
 for my $version (sort { version_sort($a, $b) } keys %delta) {
@@ -1133,7 +1168,8 @@ sub _create_aliases {
     }
 }
 
-'foo';
+1;
+__END__
 
 =pod
 
