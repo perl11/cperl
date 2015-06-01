@@ -2581,15 +2581,15 @@ in Linux with cperl-5.22.2 is as follows (under $Config{prefix}):
   ./lib/cperl/5.22.2/feature.pm
   ./lib/cperl/5.22.2/i686-linux/auto/File/Glob/Glob.so
 
-and with perl-5.22.0:
+and with perl-5.22.1:
 
   ./bin/perl
-  ./lib/perl5/5.22.0/strict.pm
-  ./lib/perl5/5.22.0/warnings.pm
-  ./lib/perl5/5.22.0/i686-linux/File/Glob.pm
-  ./lib/perl5/5.22.0/feature.pm
-  ./lib/perl5/5.22.0/XSLoader.pm
-  ./lib/perl5/5.22.0/i686-linux/auto/File/Glob/Glob.so
+  ./lib/perl5/5.22.1/strict.pm
+  ./lib/perl5/5.22.1/warnings.pm
+  ./lib/perl5/5.22.1/i686-linux/File/Glob.pm
+  ./lib/perl5/5.22.1/feature.pm
+  ./lib/perl5/5.22.1/XSLoader.pm
+  ./lib/perl5/5.22.1/i686-linux/auto/File/Glob/Glob.so
 
 Secondly, for perl-5.10.1, the Debian perl-base package contains 591
 files, (of which 510 are for lib/unicore) totaling about 3.5MB in its
