@@ -499,8 +499,7 @@ EOF
 eleak(2, 0, <<'EOF', 'OP_SIGNATURE');
 use feature 'signatures';
 no warnings 'experimental::signatures';
-sub Foo::f1 ($a, $b = undef, $c = 0, $d = 1, $e = -2, $f = "boo",
-     $g = $Foo::bar1, $h = $g + 1) {
+sub Foo::f1 ($a,$b=undef,$c=0,$d=1,$e=-2,$f="boo",$g=$Foo::bar1,$h=$g+1) {
 }
 delete $::{'Foo::'};
 EOF
@@ -511,6 +510,6 @@ eleak(2, 0, <<'EOF', 'OP_SIGNATURE err');
 use feature 'signatures';
 no warnings 'experimental::signatures';
 sub Foo::f1 ($a, $b = undef, $c = 0, $d = 1, $e = -2, $f = "boo",
-     $g = $Foo::bar2, $h = $g + 1, BAD) {
+             $g = $Foo::bar2, $h = $g + 1, BAD) {
 }
 EOF
