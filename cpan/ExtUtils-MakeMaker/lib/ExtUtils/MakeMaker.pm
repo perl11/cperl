@@ -23,6 +23,8 @@ my @Prepend_parent;
 my %Recognized_Att_Keys;
 our %macro_fsentity; # whether a macro is a filesystem name
 our %macro_dep; # whether a macro is a dependency
+use constant SILENT => (defined $ENV{MAKEFLAGS}
+                        and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
 
 our $VERSION = '7.04_01';
 $VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
@@ -930,7 +932,7 @@ sub _parse_line {
 }
 
 sub check_manifest {
-    print "Checking if your kit is complete...\n";
+    print "Checking if your kit is complete...\n" unless SILENT;
     require ExtUtils::Manifest;
     # avoid warning
     $ExtUtils::Manifest::Quiet = $ExtUtils::Manifest::Quiet = 1;
@@ -941,7 +943,7 @@ sub check_manifest {
         print "\n";
         print "Please inform the author.\n";
     } else {
-        print "Looks good\n";
+        print "Looks good\n" unless SILENT;
     }
 }
 
@@ -1166,8 +1168,8 @@ sub flush {
     }
 
     my $finalname = $self->{MAKEFILE};
-    print "Generating a $type $finalname\n";
-    print "Writing $finalname for $self->{NAME}\n";
+    print "Generating a $type $finalname\n" unless SILENT;
+    print "Writing $finalname for $self->{NAME}\n" unless SILENT;
 
     unlink($finalname, "MakeMaker.tmp", $Is_VMS ? 'Descrip.MMS' : ());
     open(my $fh,">", "MakeMaker.tmp")
@@ -1192,7 +1194,7 @@ sub flush {
     unless ($self->{NO_MYMETA}) {
         # Write MYMETA.yml to communicate metadata up to the CPAN clients
         if ( $self->write_mymeta( $self->mymeta ) ) {
-            print "Writing MYMETA.yml and MYMETA.json\n";
+            print "Writing MYMETA.yml and MYMETA.json\n" unless SILENT;
         }
 
     }
