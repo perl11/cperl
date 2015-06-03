@@ -2270,6 +2270,14 @@ Perl_new_warnings_bitfield(pTHX_ STRLEN *buffer, const char *const bits,
     Copy(bits, (buffer + 1), size, char);
     if (size < WARNsize)
 	Zero((char *)(buffer + 1) + size, WARNsize - size, char);
+#if 0 && defined(DEBUGGING)
+    if (DEBUG_v_TEST_) {
+        SV *dsv = newSVpvn("", 80);
+        Perl_deb("new_warnings_bitfield %s\n",
+                 pv_display( dsv, (char*)&buffer[1], size, size, 80));
+        SvREFCNT_dec(dsv);
+    }
+#endif
     return buffer;
 }
 
