@@ -1,15 +1,18 @@
 #!./perl
 
+use strict;
+use Config ();
 BEGIN {
     chdir 't' if -d 't';
+    require './test.pl';
+    if ($Config::Config{usecperl}) {
+      skip_all("cperl does not store illegal prototypes");
+    }
     @INC = qw(. ../lib);
 }
-
-use strict;
 use warnings;
 
 BEGIN {
-    require './test.pl';
     plan( tests => 12 );
 }
 
@@ -37,7 +40,7 @@ BEGIN {
 
 BEGIN { @warnings = () }
 
-# TODO in cperl this illegal proto actually fails with an syntax error
+# in cperl this illegal proto actually fails with an syntax error
 $sub = sub (x) { };
 
 BEGIN {
