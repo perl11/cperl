@@ -5,10 +5,12 @@
 use Config ();
 BEGIN {
     chdir 't' if -d 't';
-    @INC = '../lib';
     require './test.pl';
-    unless ($Config::Config{usecperl}) {
+    if ($Config::Config{usecperl}) {
+      skip_all("cperl does not store illegal prototypes");
+    } else {
       skip_all_if_miniperl("miniperl can't load attributes");
+      @INC = '../lib';
     }
 }
 use warnings;
@@ -21,7 +23,7 @@ sub Q::MODIFY_CODE_ATTRIBUTES { my ($name, $ref, @attrs) = @_; $attrs = "@attrs"
 $SIG{__WARN__} = sub { push @warnings, shift;};
 
 $ret = eval 'package Q; sub A(bar) : prototype(bad) : dummy1 {} prototype \&A;';
-is $ret, "bad", "Prototype is set to \"bad\"";
+is $ret, "bad", "Illegal prototype is set to \"bad\"";
 is $attrs, "dummy1", "MODIFY_CODE_ATTRIBUTES called, but not for prototype(..)";
 like shift @warnings, qr/Illegal character in prototype for Q::A : bar/,
     "First warning is bad prototype - bar";
@@ -56,7 +58,7 @@ like shift @warnings, qr/Prototype mismatch: sub Q::B \(bad\) vs \(baz\)/,
     "Attempting to redeclare triggers prototype mismatch warning against first prototype";
 is @warnings, 0, "No more warnings";
 
-# Confirm redifining with a prototype attribute takes it
+# Confirm redefining with a prototype attribute takes it
 $ret = eval 'package Q; sub B(ignored) : prototype(baz) dummy4 {5}; prototype \&B;';
 is $ret, "baz", "Redefining with prototype(..) changes the prototype";
 is $attrs, "dummy4", "MODIFY_CODE_ATTRIBUTES called, but not for prototype(..)";
