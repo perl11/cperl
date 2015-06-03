@@ -50,7 +50,7 @@ C<($i :int :const)>
 
 We need to seperate coretypes (int, str, num) and user-defined types
 (existing class names), and the 2 core attributes C<:const> and
-C<:unsigned>. Maybe more later.
+C<:unsigned>. For more perl6 like traits see below.
 
 Follow the same rules as in lexical declarations. The type must exist
 already as package, otherwise a syntax error is thrown.
@@ -259,15 +259,17 @@ only checked at compile-time, not run-time.
 
 =head2 Undo support for binary names
 
-By introducing unicode support for names p5p silently allowed C<\0>
+By announcing unicode support for names p5p silently allowed C<\0>
 inside names, which they called an advantage by supporting now binary
-safe names.  In reality they didn't support binary names in all other
-code parts which had to deal with names, and thus enabled a huge
-attack vector to hide arbitrary user strings behind C<\0> names, which
-was silently stripped before and when used in syscalls.  They moved
-resonsibility to the user, as previously for input strings only, now
-also for input names, e.g. for package names which search the
-filesystem directly without sanitation or proper checks.
+safe names.  In reality unicode names were already supported since
+5.8.4 and the whole 5.16 unicode name theatre was only about binary
+names.  They didn't support binary names in all other code parts which
+had to deal with names, and thus enabled a huge attack vector to hide
+arbitrary user strings behind C<\0> names, which was silently stripped
+before and when used in syscalls.  They moved resonsibility to the
+user, as previously for input strings only, now also for input names,
+e.g. for package names which search the filesystem directly without
+sanitation or proper checks.
 
 We have to keep the new GV API - accepting the string length - but
 even without C<strict names> we strip everything behind the C<\0> as
@@ -329,6 +331,9 @@ that. (I<maybe>)
 Provide proper hash table abstractions. We don't need 5 times the same
 bad code copied along for all different kind of HEK (hash key) types.
 
+Do not check the hash key for collisions with 4 different comparisons
+in the hot hash loop, use one instead.
+
 Use fast hash functions, not secure slow ones. We get security by
 fixing the algorithmic problem, not by obscuring the users and fellow
 developers.
@@ -339,7 +344,7 @@ of service issues properly.
 
 Seperate the keys from the values to fit the search into a cache line.
 
-Provide a special C<:const> hash table type via optimizations to
+Provide a special C<:const> hash table type to enable optimizations to
 perfect hashes. With C<study %hash> you can do the similar costly
 optimizations on non-const hashes to allow faster key access.
 
@@ -347,11 +352,11 @@ optimizations on non-const hashes to allow faster key access.
 
 Lexical methods are of course B<private> to its enclosing class,
 i.e. not visable from outside the class. And they are also B<closed>
-as planned by Damian Conway, i.e. they cannot be changed later. This
-enables the compiler to inline them automatically when its
-worthwhile. e.g. when they are small enough.  They are either defined
-in the new style: C<class .. { my method .. }> or old style: C<package
-.. { my sub .. }>
+(or also called I<sealed> or I<final>) as planned by Damian Conway,
+i.e. they cannot be changed later. This enables the compiler to inline
+them automatically when its worthwhile. e.g. when they are small
+enough.  They are either defined in the new style: C<class .. { my
+method .. }> or old style: C<package .. { my sub .. }>
 
 
 Since all this implementation blockage is too heavy, all the
