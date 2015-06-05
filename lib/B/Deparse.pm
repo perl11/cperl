@@ -46,7 +46,7 @@ use B qw(class main_root main_start main_cv svref_2object opnumber perlstring
         MDEREF_SHIFT
     );
 
-$VERSION = '1.35';
+$VERSION = '1.35c';
 use strict;
 use vars qw/$AUTOLOAD/;
 use warnings ();
@@ -502,7 +502,7 @@ sub next_todo {
 	# hints and deparse them.
 	# When lex subs cease being experimental, we should be able to
 	# remove this code.
-        if (0) # cannot load Config here: unless ($Config::Config{usecperl})
+        if (0) # cperl
         {
 	    local $^H = $self->{'hints'};
 	    local %^H = %{ $self->{'hinthash'} || {} };
@@ -592,7 +592,7 @@ sub next_todo {
 	    }
 	}
 	if ($use_dec) {
-	    return "$p$l$use_dec";
+	    return $p.$l.$use_dec;
 	}
         if ( $name !~ /::/ and $self->lex_in_scope("&$name")
                             || $self->lex_in_scope("&$name", 1) )
@@ -601,10 +601,15 @@ sub next_todo {
         } elsif (defined $stash) {
             $name =~ s/^\Q$stash\E::(?!\z|.*::)//;
         }
-	my $ret = "${p}${l}" . $self->keyword("sub") . " $name "
-	      . $self->deparse_sub($cv);
+	my $ret = $self->keyword("sub") . " ".$name." "
+          . $self->deparse_sub($cv);
+        if (1 # cperl ony. cannot load $Config::Config{usecperl}
+        and $name eq "DynaLoader::dl_load_flags"
+        and $ret eq "sub DynaLoader::dl_load_flags () { 0 }\n") {
+            $ret = "";
+        }
 	$self->{'subs_declared'}{$name} = 1;
-	return $ret;
+	return $p.$l.$ret;
     }
 }
 
