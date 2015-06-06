@@ -4338,6 +4338,98 @@ START_EXTERN_C
 END_EXTERN_C
 #endif
 
+/* If you are thinking of using HUGE_VAL for infinity, or using
+ * <math.h> functions to generate NV_INF (e.g. exp(1e9), log(-1.0)),
+ * stop.  Neither will work portably: HUGE_VAL can be just DBL_MAX,
+ * and the math functions might be just generating DBL_MAX, or even
+ * zero.  */
+
+#if !defined(NV_INF) && defined(USE_LONG_DOUBLE)
+#  if !defined(NV_INF) && defined(LDBL_INFINITY)
+#    define NV_INF LDBL_INFINITY
+#  endif
+#  if !defined(NV_INF) && defined(INFINITYL)
+#    define NV_INF INFINITYL
+#  endif
+#endif
+#if !defined(NV_INF) && defined(DBL_INFINITY)
+#  define NV_INF (NV)DBL_INFINITY
+#endif
+#if !defined(NV_INF) && defined(INFINITY)
+#  define NV_INF (NV)INFINITY
+#endif
+#if !defined(NV_INF) && defined(INF)
+#  define NV_INF (NV)INF
+#endif
+#if !defined(NV_INF)
+#  if INTSIZE == 4
+/* At this point we assume the IEEE 754 floating point (and of course,
+ * we also assume a floating point format that can encode an infinity).
+ * We will coerce an int32 (which will encode the infinity) into
+ * a 32-bit float, which will then be cast into NV.
+ *
+ * Note that we intentionally use a float and 32-bit int, instead of
+ * shifting a small integer into a full IV, and from that into a full
+ * NV, because:
+ *
+ * (1) an IV might not be wide enough to cover all the bits of an NV.
+ * (2) the exponent part (including the infinity and nan bits) of a NV
+ *     might be wider than just 16 bits.
+ *
+ * Below the NV_NAN logic has similar __PL_nan_u fallback, the only
+ * difference being the int32 constant being coerced. */
+#    define __PL_inf_float_int32 0x7F800000
+static const union { unsigned int __i; float __f; } __PL_inf_u =
+    { __PL_inf_float_int32 };
+#    define NV_INF ((NV)(__PL_inf_u.__f))
+#  endif
+#endif
+#if !defined(NV_INF)
+#  define NV_INF ((NV)1.0/0.0) /* Some compilers will warn. */
+#endif
+
+#if !defined(NV_NAN) && defined(USE_LONG_DOUBLE)
+#   if !defined(NV_NAN) && defined(LDBL_NAN)
+#       define NV_NAN LDBL_NAN
+#   endif
+#   if !defined(NV_NAN) && defined(NANL)
+#       define NV_NAN NANL
+#   endif
+#   if !defined(NV_NAN) && defined(LDBL_QNAN)
+#       define NV_NAN LDBL_QNAN
+#   endif
+#endif
+#if !defined(NV_NAN) && defined(DBL_NAN)
+#  define NV_NAN (NV)DBL_NAN
+#endif
+#if !defined(NV_NAN) && defined(DBL_QNAN)
+#  define NV_NAN (NV)DBL_QNAN
+#endif
+#if !defined(NV_NAN) && defined(NAN)
+#  define NV_NAN (NV)NAN
+#endif
+#if !defined(NV_NAN) && defined(QNAN)
+#  define NV_NAN (NV)QNAN
+#endif
+#if !defined(NV_NAN) && defined(USE_LONG_DOUBLE) && defined(I_SUNMATH)
+#  define NV_NAN (NV)quiet_nan()
+#endif
+#if !defined(NV_NAN)
+#  if INTSIZE == 4
+/* See the discussion near __PL_inf_u. */
+#    define __PL_nan_float_int32 0x7FC00000
+static const union { unsigned int __i; float __f; } __PL_nan_u =
+    { __PL_nan_float_int32 };
+#    define NV_NAN ((NV)(__PL_nan_u.__f))
+#  endif
+#endif
+#if !defined(NV_NAN)
+#  define NV_NAN ((NV)0.0/0.0) /* Some compilers will warn. */
+#endif
+/* Do NOT try doing NV_NAN based on NV_INF and trying (NV_INF-NV_INF).
+ * Though IEEE-754-logically correct, some compilers (like Visual C 2003)
+ * falsely misoptimize that to zero (x-x is zero, right?) */
+
 #ifndef __cplusplus
 #  if !defined(WIN32) && !defined(VMS)
 #ifndef crypt
