@@ -3675,7 +3675,6 @@ S_join_exact(pTHX_ RExC_state_t *pRExC_state, regnode *scan,
                     break;
                 }
                 s++;
-                continue;
             }
         }
 	else {
