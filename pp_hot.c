@@ -37,14 +37,14 @@
 
 /* Hot code. */
 
-PP(pp_const)
+PPt(pp_const, "():Scalar")
 {
     dSP;
     XPUSHs(cSVOP_sv);
     RETURN;
 }
 
-PP(pp_nextstate)
+PPt(pp_nextstate, "():Void")
 {
     PL_curcop = (COP*)PL_op;
     PL_sawalias = 0;
@@ -55,7 +55,7 @@ PP(pp_nextstate)
     return NORMAL;
 }
 
-PP(pp_gvsv)
+PPt(pp_gvsv, "():Scalar")
 {
     dSP;
     EXTEND(SP,1);
@@ -71,20 +71,20 @@ PP(pp_gvsv)
 
 /* also used for: pp_lineseq() pp_regcmaybe() pp_scalar() pp_scope() */
 
-PP(pp_null)
+PPt(pp_null, "():Void")
 {
     return NORMAL;
 }
 
 /* This is sometimes called directly by pp_coreargs, pp_grepstart and
    amagic_call. */
-PP(pp_pushmark)
+PPt(pp_pushmark, "():Void")
 {
     PUSHMARK(PL_stack_sp);
     return NORMAL;
 }
 
-PP(pp_stringify)
+PPt(pp_stringify, "(:Scalar):Str")
 {
     dSP; dTARGET;
     SV * const sv = TOPs;
@@ -95,7 +95,7 @@ PP(pp_stringify)
     return NORMAL;
 }
 
-PP(pp_gv)
+PPt(pp_gv, "():Scalar")
 {
     dSP;
     XPUSHs(MUTABLE_SV(cGVOP_gv));
@@ -108,7 +108,7 @@ PP(pp_gv)
 
 /* also used for: pp_andassign() */
 
-PP(pp_and)
+PPt(pp_and, "(:Scalar,:Scalar):Void")
 {
     PERL_ASYNC_CHECK();
     {
@@ -128,7 +128,7 @@ PP(pp_and)
     }
 }
 
-PP(pp_sassign)
+PPt(pp_sassign, "(:Scalar,:Scalar):Scalar")
 {
     dSP;
     /* sassign keeps its args in the optree traditionally backwards.
@@ -233,7 +233,7 @@ PP(pp_sassign)
     RETURN;
 }
 
-PP(pp_cond_expr)
+PPt(pp_cond_expr, "(:Scalar):Void")
 {
     dSP;
     PERL_ASYNC_CHECK();
@@ -243,7 +243,7 @@ PP(pp_cond_expr)
 	RETURNOP(cLOGOP->op_next);
 }
 
-PP(pp_unstack)
+PPt(pp_unstack, "():Void")
 {
     PERL_ASYNC_CHECK();
     TAINT_NOT;		/* Each statement is presumed innocent */
@@ -256,7 +256,7 @@ PP(pp_unstack)
     return NORMAL;
 }
 
-PP(pp_concat)
+PPt(pp_concat, "(:Any,:Any):Str")
 {
   dSP; dATARGET; tryAMAGICbin_MG(concat_amg, AMGf_assign);
   {
@@ -395,8 +395,7 @@ PP(pp_padrange)
     RETURN;
 }
 
-
-PP(pp_padsv)
+PPt(pp_padsv, "(:Any):Any")
 {
     dSP;
     EXTEND(SP, 1);
@@ -426,7 +425,7 @@ PP(pp_padsv)
     }
 }
 
-PP(pp_readline)
+PPt(pp_readline, "(:Scalar):Any")
 {
     dSP;
     if (TOPs) {
@@ -453,7 +452,7 @@ PP(pp_readline)
     return do_readline();
 }
 
-PP(pp_eq)
+PPt(pp_eq, "(:Scalar,:Scalar):Bool")
 {
     dSP;
     SV *left, *right;
@@ -472,7 +471,7 @@ PP(pp_eq)
 
 /* also used for: pp_i_predec() pp_i_preinc() pp_predec() */
 
-PP(pp_preinc)
+PPt(pp_preinc, "(:Scalar):Scalar")
 {
     dSP;
     const bool inc =
@@ -569,7 +568,7 @@ PP(pp_defined)
     RETPUSHNO;
 }
 
-PP(pp_add)
+PPt(pp_add, "(:Number,:Number):Number")
 {
     dSP; dATARGET; bool useleft; SV *svl, *svr;
     tryAMAGICbin_MG(add_amg, AMGf_assign|AMGf_numeric);
@@ -792,7 +791,7 @@ PP(pp_aelemfast)
     RETURN;
 }
 
-PP(pp_join)
+PPt(pp_join, "(:Scalar,...):Str")
 {
     dSP; dMARK; dTARGET;
     MARK++;

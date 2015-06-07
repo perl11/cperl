@@ -556,6 +556,14 @@ True if this op will be the return value of an lvalue subroutine
 #  define FIND_RUNCV_padid_eq	1
 #  define FIND_RUNCV_level_eq	2
 
+/* Declare op types */
+#if 0
+void S_sub_type(OP* pp(void), const char* typ);
+#define PPt(s,t) S_sub_type(&Perl_##s, t); OP * Perl_##s(pTHX)
+#else
+#define PPt(s,t) OP * Perl_##s(pTHX)
+#endif
+
 #endif
 
 /*
