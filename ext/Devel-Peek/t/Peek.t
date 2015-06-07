@@ -112,6 +112,7 @@ sub do_test {
 	    print $dump, "\n"    if $DEBUG;
 	    like( $dump, qr/\A$pattern\Z/ms, $_[0])
 	      or note("line " . (caller)[2]);
+            #require Text::Diff; diag Text::Diff::diff($dump, $pattern);
 
             local $TODO = $repeat_todo;
             is($dump2, $dump, "$_[0] (unchanged by dump)")
@@ -321,7 +322,7 @@ do_test('reference to anon sub with empty prototype',
     OWNER = $ADDR)?
     FLAGS = 0x490				# $] < 5.015 || (!thr && $] <= 5.022)
     FLAGS = 0x1490				# $] >= 5.015 && thr && $] <= 5.022
-    CVFLAGS = 0x(?:80)?490 \\(ANON,WEAKOUTSIDE,CVGV_RC(?:,DYNFILE)?(?:,INLINABLE)?\\)	# $] > 5.022
+    CVFLAGS = 0x(?:40)?(?:0|1)?490 \\(ANON,WEAKOUTSIDE,CVGV_RC(?:,DYNFILE)?(?:,INLINABLE)?\\)	# $] > 5.022
     OUTSIDE_SEQ = \\d+
     PADLIST = $ADDR				# $] <= 5.022
     PADLIST = $ADDR \\[\\d+\\]			# $] > 5.022

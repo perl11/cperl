@@ -95,6 +95,7 @@ const struct flag_to_name cv_flags_names[] = {
     {CVf_TYPED, "TYPED,"},
     {CVf_ANONCONST, "ANONCONST,"},
     {CVf_HASSIG, "HASSIG,"},
+    {CVf_HASSIG, "TYPED,"},
     {CVf_PURE, "PURE,"},
     {CVf_INLINABLE, "INLINABLE,"},
     {CVf_MULTI, "MULTI,"}
