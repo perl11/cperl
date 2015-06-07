@@ -26,6 +26,7 @@
 #   has a corresponding integer version - I  (OA_OTHERINT)
 #   make temp copy in list assignment   - d  (OA_DANGEROUS)
 #   uses $_ if no argument given        - u  (OA_DEFGV)
+#   is pure                             - p  (OA_PURE)
 
 # Values for the operands are:
 # scalar      - S            list     - L            array     - A
@@ -38,16 +39,16 @@
 
 # Nothing.
 
-null		null operation		ck_null		0	
-stub		stub			ck_null		0
-scalar		scalar			ck_fun		s%	S
+null		null operation		ck_null		p0	
+stub		stub			ck_null		p0
+scalar		scalar			ck_fun		ps%	S
 
 # Pushy stuff.
 
-pushmark	pushmark		ck_null		s0	
+pushmark	pushmark		ck_null		ps0	
 wantarray	wantarray		ck_null		is0	
 
-const		constant item		ck_svconst	s$	
+const		constant item		ck_svconst	ps$	
 
 gvsv		scalar variable		ck_null		ds$	
 gv		glob value		ck_null		ds$	
@@ -82,7 +83,7 @@ rcatline	append I/O operator	ck_null		t$
 
 # Bindable operators.
 
-regcmaybe	regexp internal guard	ck_fun		s1	S
+regcmaybe	regexp internal guard	ck_fun		ps1	S
 regcreset	regexp internal reset	ck_fun		s1	S
 regcomp		regexp compilation	ck_null		s|	S
 match		pattern match (m//)	ck_match	/
@@ -118,64 +119,64 @@ i_postdec	integer postdecrement (--)	ck_lfun		ist1	S
 
 # Ordinary operators.
 
-pow		exponentiation (**)	ck_null		fsT2	S S
+pow		exponentiation (**)	ck_null		pfsT2	S S
 
-multiply	multiplication (*)	ck_null		IfsT2	S S
-i_multiply	integer multiplication (*)	ck_null		ifsT2	S S
-divide		division (/)		ck_null		IfsT2	S S
-i_divide	integer division (/)	ck_null		ifsT2	S S
-modulo		modulus (%)		ck_null		IifsT2	S S
-i_modulo	integer modulus (%)	ck_null		ifsT2	S S
+multiply	multiplication (*)	ck_null		pIfsT2	S S
+i_multiply	integer multiplication (*)	ck_null		pifsT2	S S
+divide		division (/)		ck_null		pIfsT2	S S
+i_divide	integer division (/)	ck_null		pifsT2	S S
+modulo		modulus (%)		ck_null		pIifsT2	S S
+i_modulo	integer modulus (%)	ck_null		pifsT2	S S
 repeat		repeat (x)		ck_repeat	fmt2	L S
 
-add		addition (+)		ck_null		IfsT2	S S
-i_add		integer addition (+)	ck_null		ifsT2	S S
-subtract	subtraction (-)		ck_null		IfsT2	S S
-i_subtract	integer subtraction (-)	ck_null		ifsT2	S S
-concat		concatenation (.) or string	ck_concat	fsT2	S S
+add		addition (+)		ck_null		pIfsT2	S S
+i_add		integer addition (+)	ck_null		pifsT2	S S
+subtract	subtraction (-)		ck_null		pIfsT2	S S
+i_subtract	integer subtraction (-)	ck_null		pifsT2	S S
+concat		concatenation (.) or string	ck_concat	pfsT2	S S
 stringify	string			ck_stringify	fsT@	S
 
-left_shift	left bitshift (<<)	ck_bitop	fsT2	S S
-right_shift	right bitshift (>>)	ck_bitop	fsT2	S S
+left_shift	left bitshift (<<)	ck_bitop	pfsT2	S S
+right_shift	right bitshift (>>)	ck_bitop	pfsT2	S S
 
-lt		numeric lt (<)		ck_cmp		Iifs2	S S<
-i_lt		integer lt (<)		ck_cmp		ifs2	S S<
-gt		numeric gt (>)		ck_cmp		Iifs2	S S<
-i_gt		integer gt (>)		ck_cmp		ifs2	S S<
-le		numeric le (<=)		ck_cmp		Iifs2	S S<
-i_le		integer le (<=)		ck_cmp		ifs2	S S<
-ge		numeric ge (>=)		ck_cmp		Iifs2	S S<
-i_ge		integer ge (>=)		ck_cmp		ifs2	S S<
-eq		numeric eq (==)		ck_null		Iifs2	S S<
-i_eq		integer eq (==)		ck_null		ifs2	S S<
-ne		numeric ne (!=)		ck_null		Iifs2	S S<
-i_ne		integer ne (!=)		ck_null		ifs2	S S<
-ncmp		numeric comparison (<=>)	ck_null		Iifst2	S S<
-i_ncmp		integer comparison (<=>)	ck_null		ifst2	S S<
+lt		numeric lt (<)		ck_cmp		pIifs2	S S<
+i_lt		integer lt (<)		ck_cmp		pifs2	S S<
+gt		numeric gt (>)		ck_cmp		pIifs2	S S<
+i_gt		integer gt (>)		ck_cmp		pifs2	S S<
+le		numeric le (<=)		ck_cmp		pIifs2	S S<
+i_le		integer le (<=)		ck_cmp		pifs2	S S<
+ge		numeric ge (>=)		ck_cmp		pIifs2	S S<
+i_ge		integer ge (>=)		ck_cmp		pifs2	S S<
+eq		numeric eq (==)		ck_null		pIifs2	S S<
+i_eq		integer eq (==)		ck_null		pifs2	S S<
+ne		numeric ne (!=)		ck_null		pIifs2	S S<
+i_ne		integer ne (!=)		ck_null		pifs2	S S<
+ncmp		numeric comparison (<=>)	ck_null		pIifst2	S S<
+i_ncmp		integer comparison (<=>)	ck_null		pifst2	S S<
 
-slt		string lt		ck_null		ifs2	S S
-sgt		string gt		ck_null		ifs2	S S
-sle		string le		ck_null		ifs2	S S
-sge		string ge		ck_null		ifs2	S S
-seq		string eq		ck_null		ifs2	S S
-sne		string ne		ck_null		ifs2	S S
-scmp		string comparison (cmp)	ck_null		ifst2	S S
+slt		string lt		ck_null		pifs2	S S
+sgt		string gt		ck_null		pifs2	S S
+sle		string le		ck_null		pifs2	S S
+sge		string ge		ck_null		pifs2	S S
+seq		string eq		ck_null		pifs2	S S
+sne		string ne		ck_null		pifs2	S S
+scmp		string comparison (cmp)	ck_null		pifst2	S S
 
-bit_and		bitwise and (&)		ck_bitop	fst2	S S|
-bit_xor		bitwise xor (^)		ck_bitop	fst2	S S|
-bit_or		bitwise or (|)		ck_bitop	fst2	S S|
-nbit_and	numeric bitiwse and (&)	ck_bitop	fsT2	S S|
-nbit_xor	numeric bitwise xor (^)	ck_bitop	fsT2	S S|
-nbit_or		numeric bitwise or (|)	ck_bitop	fsT2	S S|
+bit_and		bitwise and (&)		ck_bitop	pfst2	S S|
+bit_xor		bitwise xor (^)		ck_bitop	pfst2	S S|
+bit_or		bitwise or (|)		ck_bitop	pfst2	S S|
+nbit_and	numeric bitiwse and (&)	ck_bitop	pfsT2	S S|
+nbit_xor	numeric bitwise xor (^)	ck_bitop	pfsT2	S S|
+nbit_or		numeric bitwise or (|)	ck_bitop	pfsT2	S S|
 sbit_and	string bitiwse and (&)	ck_bitop	fst2	S S|
 sbit_xor	string bitwise xor (^)	ck_bitop	fst2	S S|
 sbit_or		string bitwise or (|)	ck_bitop	fst2	S S|
 
-negate		negation (-)		ck_null		Ifst1	S
-i_negate	integer negation (-)	ck_null		ifst1	S
-not		not			ck_null		ifs1	S
-complement	1's complement (~)	ck_bitop	fst1	S
-ncomplement	numeric 1's complement (~)	ck_bitop	fsT1	S
+negate		negation (-)		ck_null		pIfst1	S
+i_negate	integer negation (-)	ck_null		pifst1	S
+not		not			ck_null		pifs1	S
+complement	1's complement (~)	ck_bitop	pfst1	S
+ncomplement	numeric 1's complement (~)	ck_bitop	pfsT1	S
 # scomplement uses ck_bitop only for the experimental warning.  Once the
 # warning is gone, this can change to ck_null.
 scomplement	string 1's complement (~)	ck_bitop	fsT1	S
@@ -184,21 +185,21 @@ smartmatch	smart match		ck_smartmatch	s2
 
 # High falutin' math.
 
-atan2		atan2			ck_fun		fsT@	S S
-sin		sin			ck_fun		fsTu%	S?
-cos		cos			ck_fun		fsTu%	S?
+atan2		atan2			ck_fun		pfsT@	S S
+sin		sin			ck_fun		pfsTu%	S?
+cos		cos			ck_fun		pfsTu%	S?
 rand		rand			ck_fun		sT%	S?
 srand		srand			ck_fun		sT%	S?
-exp		exp			ck_fun		fsTu%	S?
-log		log			ck_fun		fsTu%	S?
-sqrt		sqrt			ck_fun		fsTu%	S?
+exp		exp			ck_fun		pfsTu%	S?
+log		log			ck_fun		pfsTu%	S?
+sqrt		sqrt			ck_fun		pfsTu%	S?
 
 # Lowbrow math.
 
-int		int			ck_fun		fsTu%	S?
-hex		hex			ck_fun		fsTu%	S?
-oct		oct			ck_fun		fsTu%	S?
-abs		abs			ck_fun		fsTu%	S?
+int		int			ck_fun		pfsTu%	S?
+hex		hex			ck_fun		pfsTu%	S?
+oct		oct			ck_fun		pfsTu%	S?
+abs		abs			ck_fun		pfsTu%	S?
 
 # String stuff.
 
@@ -289,7 +290,7 @@ and		logical and (&&)		ck_null		|
 or		logical or (||)			ck_null		|	
 xor		logical xor			ck_null		fs2	S S	
 dor		defined or (//)			ck_null		|
-cond_expr	conditional expression		ck_null		|	
+cond_expr	conditional expression		ck_null		p|	
 andassign	logical and assignment (&&=)	ck_null		s|	
 orassign	logical or assignment (||=)	ck_null		s|	
 dorassign	defined or assignment (//=)	ck_null		s|
@@ -304,13 +305,13 @@ warn		warn			ck_fun		imst@	L
 die		die			ck_fun		imst@	L
 reset		symbol reset		ck_fun		is%	S?
 
-lineseq		line sequence		ck_null		@	
+lineseq		line sequence		ck_null		p@	
 nextstate	next statement		ck_null		s;	
 dbstate		debug next statement	ck_null		s;	
 unstack		iteration finalizer	ck_null		s0
 enter		block entry		ck_null		0	
 leave		block exit		ck_null		@	
-scope		block			ck_null		@	
+scope		block			ck_null		p@	
 enteriter	foreach loop entry	ck_null		d{	
 iter		foreach loop iterator	ck_null		0	
 enterloop	loop entry		ck_null		d{	

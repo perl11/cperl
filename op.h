@@ -514,7 +514,7 @@ struct loop {
 #  define Nullop ((OP*)NULL)
 #endif
 
-/* Lowest byte of PL_opargs */
+/* Lowest 9 bits of PL_opargs */
 #define OA_MARK 1
 #define OA_FOLDCONST 2
 #define OA_RETSCALAR 4
@@ -523,11 +523,16 @@ struct loop {
 #define OA_OTHERINT 32
 #define OA_DANGEROUS 64
 #define OA_DEFGV 128
+#define OA_PURE 256
 
 /* The next 4 bits (8..11) encode op class information */
-#define OCSHIFT 8
+#define OCSHIFT 9
+/* Each remaining 4bit nybbles of PL_opargs (i.e. bits 13..16, 17..20 etc)
+ * encode the type for each arg */
+#define OASHIFT (OCSHIFT+4)
 
-#define OA_CLASS_MASK (15 << OCSHIFT)
+/* 0b0001_1110_0000_0000 or 0xf << OCSHIFT */
+#define OA_CLASS_MASK 0x1e00
 
 #define OA_BASEOP (0 << OCSHIFT)
 #define OA_UNOP (1 << OCSHIFT)
@@ -545,10 +550,6 @@ struct loop {
 #define OA_LOOPEXOP (13 << OCSHIFT)
 #define OA_METHOP (14 << OCSHIFT)
 #define OA_UNOP_AUX (15 << OCSHIFT)
-
-/* Each remaining nybble of PL_opargs (i.e. bits 12..15, 16..19 etc)
- * encode the type for each arg */
-#define OASHIFT 12
 
 #define OA_SCALAR 1
 #define OA_LIST 2
