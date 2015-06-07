@@ -139,10 +139,13 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CVf_NAMED	0x8000  /* Has a name HEK */
 #define CVf_LEXICAL	0x10000 /* Omit package from name */
 #define CVf_ANONCONST	0x20000 /* :const without name - create anonconst op */
-#define CVf_TYPED	0x40000 /* Has return type */
+#define CVf_HASSIG	0x40000 /* with signature sub f($a,$b) {}, without @_ */
+#define CVf_TYPED	0x80000 /* Has return type */
+#define CVf_PURE	0x100000 /* purely functional, side-effect free */
 
 /* This symbol for optimised communication between toke.c and op.c: */
-#define CVf_BUILTIN_ATTRS	(CVf_METHOD|CVf_LVALUE|CVf_CONST|CVf_ANONCONST|CVf_TYPED)
+#define CVf_BUILTIN_ATTRS	(CVf_METHOD|CVf_LVALUE|CVf_CONST|CVf_ANONCONST \
+                                 |CVf_TYPED|CVf_PURE)
 
 #define CvCLONE(cv)		(CvFLAGS(cv) & CVf_CLONE)
 #define CvCLONE_on(cv)		(CvFLAGS(cv) |= CVf_CLONE)
@@ -231,6 +234,9 @@ See L<perlguts/Autoloading with XSUBs>.
 
 #define CvTYPED(cv)		(CvFLAGS(cv) & CVf_TYPED)
 #define CvTYPED_on(cv)		(CvFLAGS(cv) |= CVf_TYPED)
+
+#define CvPURE(cv)		(CvFLAGS(cv) & CVf_PURE)
+#define CvPURE_on(cv)		(CvFLAGS(cv) |= CVf_PURE)
 
 /* Flags for newXS_flags  */
 #define XS_DYNAMIC_FILENAME	0x01	/* The filename isn't static  */

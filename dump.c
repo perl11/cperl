@@ -1357,8 +1357,10 @@ const struct flag_to_name cv_flags_names[] = {
     {CVf_NAMED, "NAMED,"},
     {CVf_LEXICAL, "LEXICAL,"},
     {CVf_ISXSUB, "ISXSUB,"},
+    {CVf_TYPED, "TYPED,"},
     {CVf_ANONCONST, "ANONCONST,"},
-    {CVf_TYPED, "TYPED,"}
+    {CVf_HASSIG, "HASSIG,"},
+    {CVf_PURE, "PURE,"}
 };
 
 const struct flag_to_name hv_flags_names[] = {

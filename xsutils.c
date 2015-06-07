@@ -404,6 +404,14 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 	switch (SvTYPE(sv)) {
 	case SVt_PVCV:
 	    switch ((int)len) {
+	    case 4:
+		if (memEQ(name, "pure", 4)) {
+		    if (negated)
+			Perl_croak(aTHX_ "Illegal :-pure attribute");
+                    CvPURE_on(sv);
+		    goto next_attr;
+                }
+		break;
 	    case 5:
 		if (memEQ(name, "const", 5)) {
 		    if (negated)
@@ -646,6 +654,9 @@ S_attributes__push_fetch(pTHX_ SV *sv)
         }
 	if (cvflags & CVf_METHOD) {
             XPUSHs(newSVpvs_flags("method", SVs_TEMP));
+        }
+	if (cvflags & CVf_PURE) {
+            XPUSHs(newSVpvs_flags("pure", SVs_TEMP));
         }
 	if (cvflags & CVf_TYPED) {
             HV *typestash = CvTYPE((CV*)sv);
