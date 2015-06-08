@@ -1372,7 +1372,9 @@ like(
    "PROTOTYPE is escaped correctly"
 );
 
-{
+SKIP: {
+    skip "cperl sigs are not stored as prototype string", 1
+      if $Config{usecperl};
     my $coderef = eval <<"EOP";
     use feature 'lexical_subs';
     no warnings 'experimental::lexical_subs';
@@ -1562,5 +1564,22 @@ ok( $dump =~ /\(OOK,SHAREKEYS,OVERLOAD\)\n\s+AUX_FLAGS = 0/ms,
 #    "survives SvTAIL without crashing [cperl #59]"
 #);
 #diag _dump(\&eq_hash),
+
+# pp_signature() makes the assumption that a variable that has been assigned
+# an int or ref will be of type SVt_IV on 2nd and later entries to
+# that sub. If that assumption changes, fix pp_signature() accordingly.
+{
+    my ($d1, $d2);
+    my $f = sub {
+        my ($v1, $v2);
+        $d1 = _dump($v1);
+        $d2 = _dump($v2);
+        $v1 = 13;
+        $v2 = {};
+    };
+    $f->() for 1..2;
+    like( $d1, qr/^SV = IV\(/m, "int lexical var stays IV");
+    like( $d2, qr/^SV = IV\(/m, "ref lexical var stays IV");
+}
 
 done_testing();
