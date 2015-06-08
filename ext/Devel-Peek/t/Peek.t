@@ -1372,7 +1372,9 @@ like(
    "PROTOTYPE is escaped correctly"
 );
 
-{
+SKIP: {
+    skip "cperl sigs are not stored as prototype string", 1
+      if $Config{usecperl};
     my $coderef = eval <<"EOP";
     use feature 'lexical_subs';
     no warnings 'experimental::lexical_subs';
@@ -1575,8 +1577,8 @@ ok( $dump =~ /\(OOK,SHAREKEYS,OVERLOAD\)\n\s+AUX_FLAGS = 0/ms,
         $v2 = {};
     };
     $f->() for 1..2;
-    like( $d1, qr/^SV = IV\(/, "int lexical var stays IV");
-    like( $d2, qr/^SV = IV\(/, "ref lexical var stays IV");
+    like( $d1, qr/^SV = IV\(/m, "int lexical var stays IV");
+    like( $d2, qr/^SV = IV\(/m, "ref lexical var stays IV");
 }
 
 done_testing();
