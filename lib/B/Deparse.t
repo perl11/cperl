@@ -86,6 +86,7 @@ EOC
 	$regex =~ s/(\S+)/\Q$1/g;
 	$regex =~ s/\s+/\\s+/g;
 	$regex = '^\{\s*' . $regex . '\s*\}$';
+        $deparsed =~ s/\n\n$/\n/;
 
         like($deparsed, qr/$regex/, $desc);
     }
@@ -309,6 +310,7 @@ is runperl(stderr => 1, switches => [ '-MO=-qq,Deparse', $path ],
 $x
 .
 }
+
 EOCODN
 
 # CORE::format
@@ -329,6 +331,7 @@ $a = `$^X $path "-MO=Deparse" -e "foo()" 2>&1`;
 $a =~ s/-e syntax OK\n//g;
 is($a, <<'EOCODI', 'no extra output when deparsing foo()');
 foo();
+
 EOCODI
 
 # Sub calls compiled before importation
@@ -358,6 +361,7 @@ sub _121050empty ( ) {
     
 }
 () = _121050empty + 1;
+
 EOCODP
 
 # CORE::no
@@ -433,6 +437,7 @@ sub BEGIN {
         }
     }
 }
+
 EOCODJ
 }
 is runperl(stderr => 1, switches => [ '-MO=-qq,Deparse', $path ], prog => '
@@ -459,6 +464,7 @@ is runperl(stderr => 1, switches => [ '-MO=-qq,Deparse', $path ], prog => '
 sub BEGIN {
     pop @ARGV;
 }
+
 EOCODL
 
 # BEGIN blocks should not be called __ANON__
@@ -475,6 +481,7 @@ use constant ('FOO', do {
 });
 no overloading;
 die;
+
 EOCODK
 
 # BEGIN blocks inside predeclared subs
@@ -514,7 +521,7 @@ is runperl(stderr => 1, switches => [ '-MO=-qq,Deparse', $path ],
 
 is runperl(stderr => 1, switches => [ '-MO=-qq,Deparse', $path, '-T' ],
            prog => '$x =~ (1?/$a/:0)'),
-  '$x =~ ($_ =~ /$a/);'."\n",
+  '$x =~ ($_ =~ /$a/);'."\n\n",
   '$foo =~ <branch-folded match> under taint mode';
 
 unlike runperl(stderr => 1, switches => [ '-MO=-qq,Deparse', $path, '-w' ],
