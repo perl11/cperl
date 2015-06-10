@@ -761,9 +761,18 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 #endif
 
     if (!entry && SvREADONLY(hv) && !(action & HV_FETCH_ISEXISTS)) {
-	hv_notallowed(flags, key, klen,
+        /* if the hash has a name report it also */
+        if (HvNAME_get(hv)) {
+            SV *msg = newSVpvs_flags("Attempt to access disallowed key '%"SVf"' in"
+                                     " the restricted hash '%", SVs_TEMP);
+            sv_cathek(msg, HvNAME_HEK(hv));
+            sv_catpvs(msg, "::'");
+            hv_notallowed(flags, key, klen, SvPVX(msg));
+        } else {
+            hv_notallowed(flags, key, klen,
 			"Attempt to access disallowed key '%"SVf"' in"
 			" a restricted hash");
+        }
     }
     if (!(action & (HV_FETCH_LVALUE|HV_FETCH_ISSTORE))) {
 	/* Not doing some form of store, so return failure.  */
