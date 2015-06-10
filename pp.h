@@ -558,8 +558,15 @@ True if this op will be the return value of an lvalue subroutine
 
 /* Declare op types */
 #if 0
-void S_sub_type(OP* pp(void), const char* typ);
-#define PPt(s,t) S_sub_type(&Perl_##s, t); OP * Perl_##s(pTHX)
+void S_sub_type(Perl_ppaddr_t pp, const char* typ);
+struct sub_type {
+    Perl_ppaddr_t pp;
+    const char *typ;
+} PL_sub_types;
+#define PPt(s,t) OP * Perl_##s(pTHX); \
+    PL_sub_types[sizeof(PL_sub_types)/sizeof(PL_sub_types[0])] = \
+        { .pp = Perl_##s, .typ = t }; \
+    OP * Perl_##s(pTHX)
 #else
 #define PPt(s,t) OP * Perl_##s(pTHX)
 #endif

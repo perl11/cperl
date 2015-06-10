@@ -514,19 +514,21 @@ struct loop {
 #  define Nullop ((OP*)NULL)
 #endif
 
-/* Lowest 9 bits of PL_opargs */
-#define OA_MARK 1
-#define OA_FOLDCONST 2
-#define OA_RETSCALAR 4
-#define OA_TARGET 8
-#define OA_TARGLEX 16
-#define OA_OTHERINT 32
+/* Lowest 11 bits of PL_opargs */
+#define OA_MARK       1
+#define OA_FOLDCONST  2
+#define OA_RETSCALAR  4
+#define OA_TARGET     8
+#define OA_TARGLEX   16
+#define OA_OTHERINT  32
 #define OA_DANGEROUS 64
-#define OA_DEFGV 128
-#define OA_PURE 256
+#define OA_DEFGV    128
+#define OA_PURE     256
+#define OA_RETINT   512
+#define OA_RETSTR  1024
 
-/* The next 4 bits (8..11) encode op class information */
-#define OCSHIFT 9
+/* The next 4 bits (11..14) encode op class information */
+#define OCSHIFT 11
 /* Each remaining 4bit nybbles of PL_opargs (i.e. bits 13..16, 17..20 etc)
  * encode the type for each arg */
 #define OASHIFT (OCSHIFT+4)
@@ -534,28 +536,28 @@ struct loop {
 /* 0b0001_1110_0000_0000 or 0xf << OCSHIFT */
 #define OA_CLASS_MASK 0x1e00
 
-#define OA_BASEOP (0 << OCSHIFT)
-#define OA_UNOP (1 << OCSHIFT)
-#define OA_BINOP (2 << OCSHIFT)
-#define OA_LOGOP (3 << OCSHIFT)
-#define OA_LISTOP (4 << OCSHIFT)
-#define OA_PMOP (5 << OCSHIFT)
-#define OA_SVOP (6 << OCSHIFT)
-#define OA_PADOP (7 << OCSHIFT)
+#define OA_BASEOP 	(0 << OCSHIFT)
+#define OA_UNOP 	(1 << OCSHIFT)
+#define OA_BINOP 	(2 << OCSHIFT)
+#define OA_LOGOP 	(3 << OCSHIFT)
+#define OA_LISTOP 	(4 << OCSHIFT)
+#define OA_PMOP 	(5 << OCSHIFT)
+#define OA_SVOP 	(6 << OCSHIFT)
+#define OA_PADOP 	(7 << OCSHIFT)
 #define OA_PVOP_OR_SVOP (8 << OCSHIFT)
-#define OA_LOOP (9 << OCSHIFT)
-#define OA_COP (10 << OCSHIFT)
+#define OA_LOOP 	(9 << OCSHIFT)
+#define OA_COP 		(10 << OCSHIFT)
 #define OA_BASEOP_OR_UNOP (11 << OCSHIFT)
-#define OA_FILESTATOP (12 << OCSHIFT)
-#define OA_LOOPEXOP (13 << OCSHIFT)
-#define OA_METHOP (14 << OCSHIFT)
-#define OA_UNOP_AUX (15 << OCSHIFT)
+#define OA_FILESTATOP 	(12 << OCSHIFT)
+#define OA_LOOPEXOP 	(13 << OCSHIFT)
+#define OA_METHOP 	(14 << OCSHIFT)
+#define OA_UNOP_AUX 	(15 << OCSHIFT)
 
-#define OA_SCALAR 1
-#define OA_LIST 2
-#define OA_AVREF 3
-#define OA_HVREF 4
-#define OA_CVREF 5
+#define OA_SCALAR  1
+#define OA_LIST    2
+#define OA_AVREF   3
+#define OA_HVREF   4
+#define OA_CVREF   5
 #define OA_FILEREF 6
 #define OA_SCALARREF 7
 #define OA_OPTIONAL 8
