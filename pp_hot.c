@@ -37,12 +37,13 @@
 
 /* Hot code. */
 
-PPt(pp_const, "():Scalar")
+PP(pp_const)
 {
     dSP;
     XPUSHs(cSVOP_sv);
     RETURN;
 }
+PPt(pp_const, "():Scalar");
 
 PPt(pp_nextstate, "():Void")
 {
