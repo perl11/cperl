@@ -255,7 +255,14 @@ C<require 'file'>.
 =item Attempt to access disallowed key '%s' in a restricted hash
 
 (F) The failing code has attempted to get or set a key which is not in
-the current set of allowed keys of a restricted hash.
+the current set of allowed keys of a restricted hash. Check with
+exists first.
+
+=item Attempt to access disallowed key '%s' in the restricted hash '%s'
+
+(F) The failing code has attempted to get or set a key which is not in
+the current set of allowed keys of the restricted hash, i.e. a closed
+class. Check with exists first.
 
 =item Attempt to bless into a freed package
 
