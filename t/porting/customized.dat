@@ -45,7 +45,7 @@ Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 99fe178fa11ef47b51df37950733
 Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL d1473c88b8cc5543d174966096b95f2d84a7fdcc
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
 Safe dist/Safe/Safe.pm fb1cf6efdfcd1d2dac2aca90bccd05cb8d1ac1c4
-Safe dist/Safe/t/safeops.t 2254dd5654230a6de6082510fe766ef7cbb6e7e7
+Safe dist/Safe/t/safeops.t b962ac5a408e7f911cbcd31c06c6f7acb9986ea5
 Scalar::Util cpan/Scalar-List-Utils/lib/List/Util.pm e479a29c6b66ac5cbbde4ef2296afaab6c4635a6
 Scalar::Util cpan/Scalar-List-Utils/lib/List/Util/XS.pm cbc38838d32fd213ae7b37ac38e30195355be3b9
 Scalar::Util cpan/Scalar-List-Utils/lib/Scalar/Util.pm 14a20075dfb9a4ef33b99115ed6f43e6d1a15f9b

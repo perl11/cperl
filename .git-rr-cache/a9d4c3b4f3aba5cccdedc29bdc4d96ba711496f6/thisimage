@@ -44,7 +44,7 @@ sub opset_to_hex ($) {
 }
 
 sub opdump (;$) {
-	my $pat = shift;
+    my $pat = shift;
     # handy utility: perl -MOpcode=opdump -e 'opdump File'
     foreach(opset_to_ops(full_opset)) {
         my $op = sprintf "  %12s  %s\n", $_, opdesc($_);
@@ -314,21 +314,23 @@ invert_opset function.
     rv2sv sassign
 
     rv2av aassign aelem aelemfast aelemfast_lex aslice kvaslice
-    av2arylen
+    av2arylen aelem_u aelemfast_lex_u
+    n_aelem s_aelem_u i_aelem_u i_aelem n_aelem_u s_aelem
 
     rv2hv helem hslice kvhslice each values keys exists delete
-    aeach akeys avalues reach rvalues rkeys multideref signature
+    aeach akeys avalues multideref
 
     preinc i_preinc predec i_predec postinc i_postinc
-    postdec i_postdec int hex oct abs pow multiply i_multiply
-    divide i_divide modulo i_modulo add i_add subtract i_subtract
+    postdec i_postdec int hex oct abs pow multiply i_multiply u_multiply
+    divide i_divide modulo i_modulo
+    add i_add u_add subtract i_subtract u_subtract
 
-    left_shift right_shift bit_and bit_xor bit_or nbit_and
-    nbit_xor nbit_or sbit_and sbit_xor sbit_or negate i_negate not
-    complement ncomplement scomplement
+    left_shift right_shift bit_and bit_xor bit_or i_bit_and
+    i_bit_xor i_bit_or s_bit_and s_bit_xor s_bit_or negate i_negate not
+    complement i_complement s_complement
 
-    lt i_lt gt i_gt le i_le ge i_ge eq i_eq ne i_ne ncmp i_ncmp
-    slt sgt sle sge seq sne scmp
+    lt i_lt gt i_gt le i_le ge i_ge eq i_eq ne i_ne cmp i_cmp
+    s_lt s_gt s_le s_ge s_eq s_ne s_cmp
 
     substr vec stringify study pos length index rindex ord chr
 

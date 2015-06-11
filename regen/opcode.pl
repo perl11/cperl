@@ -153,7 +153,6 @@ my @raw_alias = (
 		 Perl_pp_s_bit_or => ['s_bit_xor'],
 		 Perl_pp_rv2av => ['rv2hv'],
 		 Perl_pp_akeys => ['avalues'],
-		 Perl_pp_rkeys => [qw(rvalues reach)],
 		 Perl_pp_trans => [qw(trans transr)],
 		 Perl_pp_chop => [qw(chop chomp)],
 		 Perl_pp_schop => [qw(schop schomp)],

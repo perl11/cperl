@@ -77,6 +77,16 @@ to a child process.
 
 This is L<CVE-2016-2381|https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-2381>
 
+=head1 Deprecations
+
+=head2 The C<autoderef> feature has been removed
+
+The experimental C<autoderef> feature (which allowed calling C<push>,
+C<pop>, C<shift>, C<unshift>, C<splice>, C<keys>, C<values>, and C<each> on
+a scalar argument) has been deemed unsuccessful. It has now been removed;
+trying to use the feature (or to disable the C<experimental::autoderef>
+warning it previously triggered) now yields an exception.
+
 =head1 Incompatible Changes
 
 There are no changes intentionally incompatible with 5.22.1 other than the
