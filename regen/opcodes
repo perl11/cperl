@@ -28,6 +28,7 @@
 #   is pure                             - p  (OA_PURE)
 #   produces an unboxed int             - i  (OA_RETINT)
 #   produces an unboxed str             - z  (OA_RETSTR)
+#   produces an unboxed double          - n  (OA_RETDBL) (64bit only)
 
 # Values for the operands are:
 # scalar      - S            list     - L            array     - A
@@ -111,14 +112,14 @@ undef		undef operator		ck_fun		s%	R?
 study		study			ck_fun		su%	S?
 pos		match position		ck_fun		stu%	R?
 
-preinc		preincrement (++)		ck_lfun		dIs1	S	"(:Scalar):Scalar"
-i_preinc	integer preincrement (++)	ck_lfun		dis1	S	"(:Int):Int"
-predec		predecrement (--)		ck_lfun		dIs1	S	"(:Scalar):Scalar"
-i_predec	integer predecrement (--)	ck_lfun		dis1	S	"(:Int):Int"
-postinc		postincrement (++)		ck_lfun		Ist1	S	"(:Scalar):Scalar"
-i_postinc	integer postincrement (++)	ck_lfun		ist1	S	"(:Int):Int"
-postdec		postdecrement (--)		ck_lfun		Ist1	S	"(:Scalar):Scalar"
-i_postdec	integer postdecrement (--)	ck_lfun		ist1	S	"(:Int):Int"
+preinc		preincrement (++)	   ck_lfun	dIs1	S	"(:Scalar):Scalar"
+i_preinc	integer preincrement (++)  ck_lfun	dis1	S	"(:Int):Int"
+predec		predecrement (--)	   ck_lfun	dIs1	S	"(:Scalar):Scalar"
+i_predec	integer predecrement (--)  ck_lfun	dis1	S	"(:Int):Int"
+postinc		postincrement (++)	   ck_lfun	Ist1	S	"(:Scalar):Scalar"
+i_postinc	integer postincrement (++) ck_lfun	ist1	S	"(:Int):Int"
+postdec		postdecrement (--)	   ck_lfun	Ist1	S	"(:Scalar):Scalar"
+i_postdec	integer postdecrement (--) ck_lfun	ist1	S	"(:Int):Int"
 
 # Ordinary operators.
 
@@ -207,6 +208,10 @@ abs		abs			ck_fun		pfsTu%	S?
 # unboxed raw stack values
 box_int		box int to IV		ck_null		s1	I	"(:int):Int"
 box_str		box ASCIIZ string to PV	ck_null		s1	Z	"(:str):Str"
+box_num		box double to NV	ck_null		s1	N	"(:num):Num"
+unbox_int	unbox IV to int		ck_null		i1	S	"(:Int):int"
+unbox_str	unbox PV to ASCIIZ	ck_null		z1	S	"(:Str):str"
+unbox_num	unbox NV to double	ck_null		n1	S	"(:Num):num"
 int_lshift	unboxed left bitshift (<<)  ck_bitop	pfiT2	I I	"(:int,:uint):uint"
 int_rshift	unboxed right bitshift (>>) ck_bitop	pfiT2	I I	"(:int,:uint):uint"
 int_preinc	unboxed preincrement (++)  ck_lfun	dis1	I	"(:int):int"
@@ -217,7 +222,7 @@ int_add		unboxed addition (+)	ck_null		pifsT2	I I	"(:int,:int):int"
 int_subtract	unboxed subtraction (-)	ck_null		pifsT2	I I	"(:int,:int):int"
 int_negate	unboxed negation (-)	ck_null		pifst1	I	"(:int):int"
 int_not		unboxed integer not	ck_null		pifs1	I	"(:int):int"
-int_complement	1's complement (~)	ck_bitop	pifst1	I	"(:int):int"
+int_complement	unboxed 1's complement (~) ck_bitop	pifst1	I	"(:int):int"
 str_concat	unboxed concatenation   ck_concat	pzfsT2	Z Z	"(:str,:str):str"
 str_length	unboxed length		ck_length	fsTu%	Z       "(:str):Int"
 
@@ -338,7 +343,7 @@ reset		symbol reset		ck_fun		is%	S?
 
 lineseq		line sequence		ck_null		p@		"():Void"
 nextstate	next statement		ck_null		s;		"():Void"
-dbstate		debug next statement	ck_null		s;	
+dbstate		debug next statement	ck_null		s;	        "():Void"
 unstack		iteration finalizer	ck_null		s0		"():Void"
 enter		block entry		ck_null		0	
 leave		block exit		ck_null		@	
@@ -354,10 +359,10 @@ redo		redo			ck_null		s}
 dump		dump			ck_null		ds}	
 goto		goto			ck_null		s}	
 exit		exit			ck_fun		s%	S?
-method_named	method with known name	ck_null		d.
-method_super	super with known name	ck_null		d.
-method_redir	redirect method with known name	ck_null	d.
-method_redir_super	redirect super method with known name	ck_null	d.
+method_named	named method		ck_null		d.
+method_super	named super method	ck_null		d.
+method_redir	redirect named method	ck_null	d.
+method_redir_super redirect named super	ck_null	d.
 
 entergiven	given()			ck_null		d|
 leavegiven	leave given block	ck_null		1
@@ -415,7 +420,8 @@ send		send			ck_fun		imst@	Fs S S S?
 recv		recv			ck_fun		imst@	Fs R S S
 
 socket		socket			ck_fun		is@	Fs S S S
-sockpair	socketpair		ck_fun		is@	Fs Fs S S S
+#sockpair	socketpair		ck_fun		is@	Fs Fs S S S
+sockpairl	socketpair		ck_fun		is@	L
 
 bind		bind			ck_fun		is@	Fs S
 connect		connect			ck_fun		is@	Fs S
@@ -521,7 +527,8 @@ shmwrite	shmwrite		ck_fun		imst@	S S S S
 msgget		msgget			ck_fun		imst@	S S
 msgctl		msgctl			ck_fun		imst@	S S S
 msgsnd		msgsnd			ck_fun		imst@	S S S
-msgrcv		msgrcv			ck_fun		imst@	S S S S S
+#msgrcv		msgrcv			ck_fun		imst@	S S S S S
+msgrcvl		msgrcv			ck_fun		imst@	L
 
 # Semaphores.
 

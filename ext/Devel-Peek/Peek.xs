@@ -411,7 +411,8 @@ static const XOP my_xop = {
     "Devel_Peek_Dump",					/* xop_name */
     "Dump",						/* xop_desc */
     OA_BINOP,						/* xop_class */
-    NULL						/* xop_peep */
+    NULL,						/* xop_peep */
+    "" 							/* xop_type */
 };
 
 MODULE = Devel::Peek		PACKAGE = Devel::Peek

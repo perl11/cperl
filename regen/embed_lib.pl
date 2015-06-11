@@ -86,12 +86,18 @@ sub setup_embed {
     open IN, $prefix . 'regen/opcodes' or die $!;
     {
 	my %syms;
-
 	while (<IN>) {
 	    chomp;
 	    next unless $_;
 	    next if /^#/;
-	    my $check = (split /\t+/, $_)[2];
+            my ($key, @split) = split(/\s+/, $_);
+            my $check;
+            for (@split) {
+              if (/^ck_/) { # collapse desc: find ck_
+                $check = $_;
+                last;
+              }
+            }
 	    next if $syms{$check}++;
 
 	    # These are all indirectly referenced by globals.c.

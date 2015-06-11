@@ -514,7 +514,7 @@ struct loop {
 #  define Nullop ((OP*)NULL)
 #endif
 
-/* Lowest 11 bits of PL_opargs */
+/* Lowest 12 bits of PL_opargs */
 #define OA_MARK       1
 #define OA_FOLDCONST  2
 #define OA_RETSCALAR  4
@@ -526,10 +526,11 @@ struct loop {
 #define OA_PURE     256
 #define OA_RETINT   512
 #define OA_RETSTR  1024
+#define OA_RETDBL  2048
 
-/* The next 4 bits (11..14) encode op class information */
-#define OCSHIFT 11
-/* Each remaining 4bit nybbles of PL_opargs (i.e. bits 13..16, 17..20 etc)
+/* The next 4 bits (12..15) encode op class information */
+#define OCSHIFT 12
+/* Each remaining 4bit nybbles of PL_opargs (i.e. bits 16..19, 20..23 etc)
  * encode the type for each arg */
 #define OASHIFT (OCSHIFT+4)
 
@@ -851,6 +852,7 @@ struct custom_op {
     const char	   *xop_desc;
     U32		    xop_class;
     void	  (*xop_peep)(pTHX_ OP *o, OP *oldop);
+    const char	   *xop_type;
 };
 
 /* return value of Perl_custom_op_get_field, similar to void * then casting but
@@ -862,6 +864,7 @@ typedef union {
     U32		    xop_class;
     void	  (*xop_peep)(pTHX_ OP *o, OP *oldop);
     XOP            *xop_ptr;
+    const char	   *xop_type;
 } XOPRETANY;
 
 #define XopFLAGS(xop) ((xop)->xop_flags)
@@ -870,6 +873,7 @@ typedef union {
 #define XOPf_xop_desc	0x02
 #define XOPf_xop_class	0x04
 #define XOPf_xop_peep	0x08
+#define XOPf_xop_type	0x10
 
 /* used by Perl_custom_op_get_field for option checking */
 typedef enum {
@@ -877,13 +881,15 @@ typedef enum {
     XOPe_xop_name = XOPf_xop_name,
     XOPe_xop_desc = XOPf_xop_desc,
     XOPe_xop_class = XOPf_xop_class,
-    XOPe_xop_peep = XOPf_xop_peep
+    XOPe_xop_peep = XOPf_xop_peep,
+    XOPe_xop_type = XOPf_xop_type
 } xop_flags_enum;
 
 #define XOPd_xop_name	PL_op_name[OP_CUSTOM]
 #define XOPd_xop_desc	PL_op_desc[OP_CUSTOM]
 #define XOPd_xop_class	OA_BASEOP
 #define XOPd_xop_peep	((Perl_cpeep_t)0)
+#define XOPd_xop_type	PL_op_type[OP_CUSTOM]
 
 #define XopENTRY_set(xop, which, to) \
     STMT_START { \
@@ -976,6 +982,9 @@ sib is non-null. For a higher-level interface, see C<op_sibling_splice>.
 #define OP_CLASS(o) ((o)->op_type == OP_CUSTOM \
 		     ? XopENTRYCUSTOM(o, xop_class) \
 		     : (PL_opargs[(o)->op_type] & OA_CLASS_MASK))
+#define OP_TYPE_STR(o) ((o)->op_type == OP_CUSTOM \
+                    ? XopENTRYCUSTOM(o, xop_type) \
+		    : PL_op_type[(o)->op_type])
 
 #define OP_TYPE_IS(o, type) ((o) && (o)->op_type == (type))
 #define OP_TYPE_IS_NN(o, type) ((o)->op_type == (type))
