@@ -26,7 +26,7 @@ BEGIN {
 my $oc = open_new('opcode.h', '>',
 		  {by => 'regen/opcode.pl', from => 'its data',
 		   file => 'opcode.h', style => '*',
-		   copyright => [1993 .. 2007]});
+		   copyright => [1993 .. 2015]});
 
 my $on = open_new('opnames.h', '>',
 		  { by => 'regen/opcode.pl', from => 'its data', style => '*',
@@ -38,12 +38,12 @@ my $oprivpm = open_new('lib/B/Op_private.pm', '>',
                            ."and pod embedded in regen/opcode.pl",
                     style => '#',
 		    file => 'lib/B/Op_private.pm',
-                    copyright => [2014 .. 2014] });
+                    copyright => [2014 .. 2015] });
 
 # Read 'opcodes' data.
 
 my %seen;
-my (@ops, %desc, %check, %ckname, %flags, %args, %opnum);
+my (@ops, %desc, %check, %ckname, %flags, %args, %opnum, %type);
 
 open OPS, 'regen/opcodes' or die $!;
 
@@ -51,8 +51,33 @@ while (<OPS>) {
     chop;
     next unless $_;
     next if /^#/;
-    my ($key, $desc, $check, $flags, $args) = split(/\t+/, $_, 5);
+    my ($key, @split) = split(/\s+/, $_);
+    my ($desc, $check, $flags, $args, $type);
+    my $i = 0;
+  SPLIT:
+    for (@split) {
+        if (/^ck_/) { # collapse desc: find ck_
+            $desc = join(" ", @split[0 .. $i-1]);
+            $check = $_;
+            $flags = $split[$i+1];
+            my $j = $i+2;
+            # collapse args, find type
+            for (@split[$j .. $#split]) {
+                if (/^"/) { # args are optional
+                    $type = substr($_, 1, -1);
+                    $args = join(" ", @split[$i+2 .. $j-1]);
+                    last SPLIT;
+                }
+                $j++;
+            }
+            $args = join(" ", @split[$i+2 .. $#split]); # no type
+            $type = '';
+            last SPLIT;
+        }
+        $i++;
+    }
     $args = '' unless defined $args;
+    $type = '' unless defined $type;
 
     warn qq[Description "$desc" duplicates $seen{$desc}\n]
      if $seen{$desc} and $key !~ "transr|(?:intro|clone)cv|lvref";
@@ -69,6 +94,7 @@ while (<OPS>) {
     $ckname{$check}++;
     $flags{$key} = $flags;
     $args{$key} = $args;
+    $type{$key} = $type;
 }
 
 # Set up aliases
@@ -981,12 +1007,14 @@ EXTCONST char* const PL_op_name[];
 EXTCONST char* const PL_op_name[] = {
 END
 
+$i = 0;
 for (@ops) {
-    print $oc qq(\t"$_",\n);
+    print $oc qq(\t"$_",\t/* $i: $desc{$_} */\n);
+    $i++;
 }
 
-print $oc <<'END';
-	"freed",
+print $oc <<"END";
+	"freed",	/* $i: freed op */
 };
 #endif
 
@@ -996,17 +1024,36 @@ EXTCONST char* const PL_op_desc[];
 EXTCONST char* const PL_op_desc[] = {
 END
 
+$i = 0;
 for (@ops) {
     my($safe_desc) = $desc{$_};
 
     # Have to escape double quotes and escape characters.
     $safe_desc =~ s/([\\"])/\\$1/g;
 
-    print $oc qq(\t"$safe_desc",\n);
+    print $oc qq(\t"$safe_desc",\t/* $i: $_ */\n);
+    $i++;
 }
 
-print $oc <<'END';
-	"freed op",
+print $oc <<"END";
+	\"freed op\",	/* $i: freed */
+};
+#endif
+
+#ifndef DOINIT
+EXTCONST char* const PL_op_type[];
+#else
+EXTCONST char* const PL_op_type[] = {
+END
+
+$i = 0;
+for (@ops) {
+    my $type = $type{$_};
+    print $oc qq(\t"$type",\t/* $i: $_ */\n);
+    $i++;
+}
+print $oc <<"END";
+	\"\",	/* $i: freed */
 };
 #endif
 
@@ -1098,6 +1145,9 @@ my %argnum = (
     'C',  5,		# code value
     'F',  6,		# file value
     'R',  7,		# scalar reference
+    'I',  8,		# unboxed int
+    'Z',  9,		# unboxed ASCIIZ str
+    'N',  10,		# unboxed double (num, 64-bit only)
 );
 
 my %opclass = (
@@ -1130,6 +1180,9 @@ my %opflags = (
     'd' =>  64,		# danger, make temp copy in list assignment
     'u' => 128,		# defaults to $_
     'p' => 256,		# is pure
+    'i' => 512,         # produces an unboxed int
+    'z' => 1024,        # produces an unboxed str
+    'n' => 2048,        # produces an unboxed double (num, 64bit only)
 );
 
 my %OP_IS_SOCKET;	# /Fs/
@@ -1139,7 +1192,7 @@ my %OP_IS_NUMCOMPARE;	# /S</
 my %OP_IS_DIRHOP;	# /Fd/
 my %OP_IS_INFIX_BIT;	# /S\|/
 
-my $OCSHIFT = 9;
+my $OCSHIFT = scalar keys %opflags; # 12
 my $OASHIFT = $OCSHIFT + 4;
 
 for my $op (@ops) {
@@ -1172,10 +1225,10 @@ for my $op (@ops) {
 	    $OP_IS_INFIX_BIT {$op} = $opnum{$op} if $arg =~ s/\|//;
 	}
 	my $argnum = ($arg =~ s/\?//) ? 8 : 0;
-        die "op = $op, arg = $arg\n"
+        die "op = $op, arg = $arg does not exist in \%argnum\n"
 	    unless exists $argnum{$arg};
 	$argnum += $argnum{$arg};
-	die "Argument overflow for '$op'\n"
+	die "Argument overflow for '$op' $argnum/$argshift\n"
 	    if $argshift >= $ARGBITS ||
 	       $argnum > ((1 << ($ARGBITS - $argshift)) - 1);
 	$argsum += $argnum << $argshift;
