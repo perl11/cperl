@@ -540,9 +540,6 @@ aeach		SKIP each @t
 akeys		SKIP keys @t
 avalues		SKIP values @t
 custom		SKIP (no way)
-reach		SKIP (not yet)
-rkeys		SKIP (not yet)
-rvalues		SKIP (not yet)
 coreargs       	SKIP (not yet)
 runcv		SKIP (not yet)
 fc		SKIP (not yet)
