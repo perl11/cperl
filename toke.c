@@ -5158,8 +5158,6 @@ Perl_yylex(pTHX)
                  ||(*s == '*' && (s[1] == '*' || s[1] == '{'))
                  ))
 	    {
-                Perl_ck_warner_d(aTHX_ packWARN(WARN_EXPERIMENTAL__POSTDEREF),
-                                 "Postfix dereference is experimental");
                 PL_expect = XPOSTDEREF;
                 TOKEN(ARROW);
             }
@@ -5345,10 +5343,6 @@ Perl_yylex(pTHX)
 		  ||(*s == '*' && (s[1] == '*' || s[1] == '{'))
 		 ))
 		{
-		    Perl_ck_warner_d(aTHX_
-			packWARN(WARN_EXPERIMENTAL__POSTDEREF),
-			"Postfix dereference is experimental"
-		    );
 		    PL_expect = XPOSTDEREF;
 		    TOKEN(ARROW);
 		}
