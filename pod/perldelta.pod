@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-perldelta - what is new for perl v5.22.2
+perldelta - what is new for perl v5.24.0
 
 =head1 DESCRIPTION
 
-This document describes differences between the 5.22.1 release and the 5.22.2
+This document describes differences between the 5.22.0 release and the 5.23.0
 release.
 
 If you are upgrading from an earlier release such as 5.22.1, first read
@@ -47,6 +47,14 @@ write permissions regardless of current umask.
 This has been fixed by using umask C<0177> instead.
 
 L<[perl #127322]|https://rt.perl.org/Ticket/Display.html?id=127322>
+
+=head2 Postfix dereferencing is no longer experimental
+
+Using the C<postderef> and C<postderef_qq> features no longer emits a warning.
+Existing code that disables that warning category will continue to work. The
+C<5.24> feature bundle now includes those features.
+
+=head1 Incompatible Changes
 
 =head2 Avoid accessing uninitialized memory in win32 C<crypt()>
 
