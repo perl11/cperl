@@ -336,6 +336,7 @@ EXTCONST char* const PL_op_name[] = {
 	"dorassign",
 	"method",
 	"entersub",
+	"enterxssub",
 	"leavesub",
 	"leavesublv",
 	"caller",
@@ -740,6 +741,7 @@ EXTCONST char* const PL_op_desc[] = {
 	"defined or assignment (//=)",
 	"method lookup",
 	"subroutine entry",
+	"XS subroutine entry",
 	"subroutine exit",
 	"lvalue subroutine return",
 	"caller",
@@ -1158,6 +1160,7 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_dorassign,	/* implemented by Perl_pp_defined */
 	Perl_pp_method,
 	Perl_pp_entersub,
+	Perl_pp_enterxssub,
 	Perl_pp_leavesub,
 	Perl_pp_leavesublv,
 	Perl_pp_caller,
@@ -1572,6 +1575,7 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_null,		/* dorassign */
 	Perl_ck_method,		/* method */
 	Perl_ck_subr,		/* entersub */
+	Perl_ck_subr,		/* enterxssub */
 	Perl_ck_null,		/* leavesub */
 	Perl_ck_null,		/* leavesublv */
 	Perl_ck_fun,		/* caller */
@@ -1980,6 +1984,7 @@ EXTCONST U32 PL_opargs[] = {
 	0x00000304,	/* dorassign */
 	0x00000e40,	/* method */
 	0x00002141,	/* entersub */
+	0x00002141,	/* enterxssub */
 	0x00000100,	/* leavesub */
 	0x00000100,	/* leavesublv */
 	0x00009b08,	/* caller */
@@ -2618,6 +2623,7 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
        0, /* dorassign */
        0, /* method */
      139, /* entersub */
+       0, /* enterxssub */
      146, /* leavesub */
      146, /* leavesublv */
      148, /* caller */
@@ -2846,7 +2852,7 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
  */
 
 EXTCONST U16  PL_op_private_bitdefs[] = {
-    0x0003, /* scalar, prototype, refgen, srefgen, ref, readline, regcmaybe, regcreset, regcomp, chop, schop, defined, undef, study, preinc, i_preinc, predec, i_predec, postinc, i_postinc, postdec, i_postdec, negate, i_negate, not, complement, ucfirst, lcfirst, uc, lc, quotemeta, aeach, akeys, avalues, each, values, pop, shift, range, and, or, dor, andassign, orassign, dorassign, method, method_named, method_super, method_redir, method_redir_super, entergiven, leavegiven, enterwhen, leavewhen, untie, tied, dbmclose, getsockname, getpeername, lstat, stat, readlink, readdir, telldir, rewinddir, closedir, localtime, alarm, require, dofile, entertry, ghbyname, gnbyname, gpbyname, shostent, snetent, sprotoent, sservent, gpwnam, gpwuid, ggrnam, ggrgid, lock, once, reach, rvalues, fc, anonconst */
+    0x0003, /* scalar, prototype, refgen, srefgen, ref, readline, regcmaybe, regcreset, regcomp, chop, schop, defined, undef, study, preinc, i_preinc, predec, i_predec, postinc, i_postinc, postdec, i_postdec, negate, i_negate, not, complement, ucfirst, lcfirst, uc, lc, quotemeta, aeach, akeys, avalues, each, values, pop, shift, range, and, or, dor, andassign, orassign, dorassign, method, enterxssub, method_named, method_super, method_redir, method_redir_super, entergiven, leavegiven, enterwhen, leavewhen, untie, tied, dbmclose, getsockname, getpeername, lstat, stat, readlink, readdir, telldir, rewinddir, closedir, localtime, alarm, require, dofile, entertry, ghbyname, gnbyname, gpbyname, shostent, snetent, sprotoent, sservent, gpwnam, gpwuid, ggrnam, ggrgid, lock, once, reach, rvalues, fc, anonconst */
     0x29dc, 0x3bd9, /* pushmark */
     0x00bd, /* wantarray, runcv */
     0x03b8, 0x1570, 0x3c8c, 0x3748, 0x2da5, /* const */
@@ -3103,6 +3109,7 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* DORASSIGN  */ (OPpARG1_MASK),
     /* METHOD     */ (OPpARG1_MASK),
     /* ENTERSUB   */ (OPpENTERSUB_INARGS|OPpHINT_STRICT_REFS|OPpENTERSUB_HASTARG|OPpENTERSUB_AMPER|OPpDEREF|OPpENTERSUB_DB|OPpLVAL_INTRO),
+    /* ENTERXSSUB */ (OPpARG1_MASK),
     /* LEAVESUB   */ (OPpARG1_MASK|OPpREFCOUNTED),
     /* LEAVESUBLV */ (OPpARG1_MASK|OPpREFCOUNTED),
     /* CALLER     */ (OPpARG4_MASK|OPpOFFBYONE),
