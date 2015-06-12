@@ -27,9 +27,10 @@ sub lexless_anon_sub {
 
 use strict;
 use Carp;
-BEGIN { eval q{
-    use Carp::Heavy;
-} }
+# since Carp 1.12 there is no Carp::Heavy anymore. We are at 1.36
+#BEGIN { eval q{
+#    use Carp::Heavy;
+#} }
 
 use B ();
 BEGIN {
