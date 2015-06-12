@@ -3111,6 +3111,12 @@ PP(pp_entersub)
             break;
         }
     }
+    if (CvISXSUB(cv)) {
+        /* dynamically bootstrapped XS. goto to the XS variant */
+        PL_op->op_type = OP_ENTERXSSUB;
+        PL_op->op_ppaddr = PL_ppaddr[OP_ENTERXSSUB];
+        return PL_op->op_ppaddr(aTHX);
+    }
 
     ENTER;
 
@@ -3180,6 +3186,12 @@ PP(pp_entersub)
 	PADLIST * const padlist = CvPADLIST(cv);
         I32 depth;
 
+        /* A XS function can be redefined back to a normal sub */
+        if (PL_op->op_type != OP_ENTERSUB) {
+            PL_op->op_type = OP_ENTERSUB;
+            PL_op->op_ppaddr = PL_ppaddr[OP_ENTERSUB];
+        }
+
 	PUSHBLOCK(cx, CXt_SUB, MARK);
 	PUSHSUB(cx);
 	cx->blk_sub.retop = PL_op->op_next;
@@ -3245,8 +3257,148 @@ PP(pp_entersub)
 	    sub_crush_depth(cv);
 	RETURNOP(CvSTART(cv));
     }
-    else {
+    else { /* XS code: change this op type and goto enterxssub */
+        PL_op->op_type = OP_ENTERXSSUB;
+        PL_op->op_ppaddr = PL_ppaddr[OP_ENTERXSSUB];
+        return PL_op->op_ppaddr(aTHX);
+    }
+}
+
+PP(pp_enterxssub)
+{
+    dSP; dPOPss;
+    GV *gv;
+    CV *cv = MUTABLE_CV(sv);
+    /*PERL_CONTEXT *cx;*/
+    const bool hasargs = (PL_op->op_flags & OPf_STACKED) != 0;
+
+    if (UNLIKELY(!sv))
+	DIE(aTHX_ "Not a CODE reference");
+    /* This is overwhelmingly the most common case:  */
+    if (0 && (!LIKELY(SvTYPE(sv) == SVt_PVGV) && (cv = GvCVu((const GV *)sv)))) {
+        switch (SvTYPE(sv)) {
+        case SVt_PVGV:
+          we_have_a_glob:
+            if (!(cv = GvCVu((const GV *)sv))) {
+                HV *stash;
+                cv = sv_2cv(sv, &stash, &gv, 0);
+            }
+            if (!cv) {
+                ENTER;
+                SAVETMPS;
+                goto try_autoload;
+            }
+            break;
+        case SVt_PVLV:
+            if(isGV_with_GP(sv)) goto we_have_a_glob;
+            /* FALLTHROUGH */
+        default:
+            if (sv == &PL_sv_yes) {		/* unfound import, ignore */
+                if (hasargs)
+                    SP = PL_stack_base + POPMARK;
+                else
+                    (void)POPMARK;
+                RETURN;
+            }
+            SvGETMAGIC(sv);
+            if (SvROK(sv)) {
+                if (SvAMAGIC(sv)) {
+                    sv = amagic_deref_call(sv, to_cv_amg);
+                    /* Don't SPAGAIN here.  */
+                }
+            }
+            else {
+                const char *sym;
+                STRLEN len;
+                if (!SvOK(sv))
+                    DIE(aTHX_ PL_no_usym, "a subroutine");
+                sym = SvPV_nomg_const(sv, len);
+                if (PL_op->op_private & HINT_STRICT_REFS)
+                    DIE(aTHX_ "Can't use string (\"%" SVf32 "\"%s) as a subroutine ref while \"strict refs\" in use", sv, len>32 ? "..." : "");
+                cv = get_cvn_flags(sym, len, GV_ADD|SvUTF8(sv));
+                break;
+            }
+            cv = MUTABLE_CV(SvRV(sv));
+            if (SvTYPE(cv) == SVt_PVCV)
+                break;
+            /* FALLTHROUGH */
+        case SVt_PVHV:
+        case SVt_PVAV:
+            DIE(aTHX_ "Not a CODE reference");
+            /* This is the second most common case:  */
+        case SVt_PVCV:
+            cv = MUTABLE_CV(sv);
+            break;
+        }
+    }
+
+    ENTER;
+
+  retry:
+    if (UNLIKELY(CvCLONE(cv) && ! CvCLONED(cv)))
+	DIE(aTHX_ "Closure prototype called");
+    if (UNLIKELY(0 && !CvROOT(cv) && !CvXSUB(cv))) {
+	GV* autogv;
+	SV* sub_name;
+
+	/* anonymous or undef'd function leaves us no recourse */
+	if (CvLEXICAL(cv) && CvHASGV(cv))
+	    DIE(aTHX_ "Undefined subroutine &%"SVf" called",
+		       SVfARG(cv_name(cv, NULL, 0)));
+	if (CvANON(cv) || !CvHASGV(cv)) {
+	    DIE(aTHX_ "Undefined subroutine called");
+	}
+
+	/* autoloaded stub? */
+	if (cv != GvCV(gv = CvGV(cv))) {
+	    cv = GvCV(gv);
+	}
+	/* should call AUTOLOAD now? */
+	else {
+          try_autoload:
+	    if ((autogv = gv_autoload_pvn(GvSTASH(gv), GvNAME(gv), GvNAMELEN(gv),
+				   GvNAMEUTF8(gv) ? SVf_UTF8 : 0)))
+	    {
+		cv = GvCV(autogv);
+	    }
+	    else {
+	       sorry:
+		sub_name = sv_newmortal();
+		gv_efullname3(sub_name, gv, NULL);
+		DIE(aTHX_ "Undefined subroutine &%"SVf" called", SVfARG(sub_name));
+	    }
+	}
+	if (!cv)
+	    goto sorry;
+	goto retry;
+    }
+
+    if (UNLIKELY((PL_op->op_private & OPpENTERSUB_DB) && GvCV(PL_DBsub)
+            && !CvNODEBUG(cv)))
+    {
+	 Perl_get_db_sub(aTHX_ &sv, cv);
+	 if (CvISXSUB(cv))
+	     PL_curcopdb = PL_curcop;
+         if (CvLVALUE(cv)) {
+             /* check for lsub that handles lvalue subroutines */
+	     cv = GvCV(gv_fetchpvs("DB::lsub", GV_ADDMULTI, SVt_PVCV));
+             /* if lsub not found then fall back to DB::sub */
+	     if (!cv) cv = GvCV(PL_DBsub);
+         } else {
+             cv = GvCV(PL_DBsub);
+         }
+
+	if (!cv || (!CvXSUB(cv) && !CvSTART(cv)))
+	    DIE(aTHX_ "No DB::sub routine defined");
+    }
+
+    /* There's no way to unbootstrap a XS function. Is there?
+       Yes, by dynamic sub redefinition, which we have to catch there. */
+    assert(CvISXSUB(cv));
+
+    {
 	SSize_t markix = TOPMARK;
+        I32 gimme;
 
 	SAVETMPS;
 	PUTBACK;
@@ -3296,6 +3448,7 @@ PP(pp_entersub)
                 }
 	    }
 	}
+
 	/* We assume first XSUB in &DB::sub is the called one. */
 	if (UNLIKELY(PL_curcopdb)) {
 	    SAVEVPTR(PL_curcop);
@@ -3309,6 +3462,7 @@ PP(pp_entersub)
 	CvXSUB(cv)(aTHX_ cv);
 
 	/* Enforce some sanity in scalar context. */
+        gimme = GIMME_V;
 	if (gimme == G_SCALAR) {
             SV **svp = PL_stack_base + markix + 1;
             if (svp != PL_stack_sp) {

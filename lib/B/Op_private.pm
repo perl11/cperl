@@ -289,6 +289,7 @@ $bits{enteriter}{3} = 'OPpITER_DEF';
 $bits{entertry}{0} = $bf[0];
 $bits{enterwhen}{0} = $bf[0];
 @{$bits{enterwrite}}{3,2,1,0} = ($bf[3], $bf[3], $bf[3], $bf[3]);
+$bits{enterxssub}{0} = $bf[0];
 @{$bits{eof}}{3,2,1,0} = ($bf[3], $bf[3], $bf[3], $bf[3]);
 @{$bits{eq}}{1,0} = ($bf[1], $bf[1]);
 @{$bits{exec}}{3,2,1,0} = ($bf[3], $bf[3], $bf[3], $bf[3]);

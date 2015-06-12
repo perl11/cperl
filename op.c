@@ -9094,6 +9094,9 @@ Perl_newXS_len_flags(pTHX_ const char *name, STRLEN len,
                                         ),
                                         cv, const_svp);
                 }
+                /* TODO with CvROOT(cv) it would be nice if the entersub ops using
+                   this function could be changed to enterxssub after the fact. For now
+                   we are patching the op when being called. */
                 interleave = TRUE;
                 ENTER;
                 SAVEFREESV(cv);
