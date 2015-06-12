@@ -4772,6 +4772,7 @@ pp_pack.c			Push/Pop code for pack/unpack
 pp_proto.h			C++ definitions for Push/Pop code
 pp_sort.c			Push/Pop code for sort
 pp_sys.c			Push/Pop code for system interaction
+pp_type.c			Push/Pop code for typed ops
 proto.h				Prototypes
 qnx/ar				QNX implementation of "ar" utility
 qnx/cpp				QNX implementation of preprocessor filter

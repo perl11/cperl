@@ -135,8 +135,9 @@ my @raw_alias = (
 		 Perl_pp_link => ['symlink'],
 		 Perl_pp_ftrread => [qw(ftrwrite ftrexec fteread ftewrite
  					fteexec)],
-		 Perl_pp_shmwrite => [qw(shmread msgsnd msgrcv semop)],
+		 Perl_pp_shmwrite => [qw(shmread msgsnd msgrcv msgrcvl semop)],
 		 Perl_pp_syswrite => {send => '#ifdef HAS_SOCKET'},
+		 Perl_pp_sockpair => [qw(sockpairl)],
 		 Perl_pp_defined => [qw(dor dorassign)],
                  Perl_pp_and => ['andassign'],
 		 Perl_pp_or => ['orassign'],

@@ -3208,7 +3208,11 @@ S_is_handle_constructor(const OP *o, I32 numargs)
 
     switch (o->op_type) {
     case OP_PIPE_OP:
+#ifdef USE_CPERL
+    case OP_SOCKPAIRL:
+#else
     case OP_SOCKPAIR:
+#endif
 	if (numargs == 2)
 	    return TRUE;
 	/* FALLTHROUGH */
@@ -14028,7 +14032,7 @@ Perl_custom_op_get_field(pTHX_ const OP *o, const xop_flags_enum field)
     HE *he = NULL;
     XOP *xop;
 
-    static const XOP xop_null = { 0, 0, 0, 0, 0 };
+    static const XOP xop_null = { 0, 0, 0, 0, 0, 0 };
 
     PERL_ARGS_ASSERT_CUSTOM_OP_GET_FIELD;
     assert(o->op_type == OP_CUSTOM);
