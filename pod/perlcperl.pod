@@ -7,7 +7,7 @@ NOTE: To be published only when the critical issues are already implemented.
 
 =head1 NAME
 
-perlcperl - a perl5 with classes, types, compilable, business friendly
+perlcperl - a perl5 with classes, types, compilable, company friendly
 
 =head1 SYNOPSIS
 
@@ -27,28 +27,75 @@ Description of changes and enhancements of the cperl variant of perl5.
 We need a shared rerere cache to be able to continously merge and rebase with perl5
 upstream and our branch progress.
 See L<https://medium.com/@porteneuve/fix-conflicts-only-once-with-git-rerere-7d116b2cec67>
-The F<rr-cache> commits can be safely ignored upstream.
+The commits with F<git-rr-cache> and F<cp-rb> in the Subject can be safely ignored
+upstream.
 
-All branches are frequently rebased. Use the provided helpers F<cp-rb>, F<cp-lb> and F<cp-rh>.
+All branches are frequently rebased. Use the provided helpers
+F<cp-rb>, F<cp-lb> and F<cp-rh>.
+
+The tip of the performance branch is currently
+C<feature/CM-712-cperl-types-pp>, and the memory saving branch is
+C<feature/CM-370-cperl-warnings-xs>.
+
+B<INSTALL:>
+
+    ./Configure -sder -Dusedevel -Dusecperl \
+      -Accflags='-msse4.2 -DPERL_FAKE_SIGNATURE' --optimize='-O3 -g' \
+      -Dinstallman1dir=none -Dinstallman3dir=none -Dinstallsiteman1dir=none \
+      -Dinstallsiteman3dir=none
+    make -s -j4 ECHO=true
+    make -s -j4 ECHO=true test
+    sudo make install PERLNAME=cperl
+
+=head1 Incompatible changes
+
+cperl can parse and run almost all of perl5 code. But there are a few
+incompatibilities, which arise from late perl5 signatures design
+changes which we do not follow. perl5 signatures are marked as
+experimental after all.
+
+=over
+
+=item Illegal prototypes die, are not stored
+
+In perl illegal prototypes warn with C<'illegalproto'> and are stored as such.
+
+In cperl illegal prototypes immediately die, they cannot be suppressed with
+C<no warnings 'illegalproto';> and they are not stored.
+
+=item C<@_> is empty in functions with signatures
+
+We only copy or reference arguments to signature variables, but not to C<@_> also.
+C<@_> is empty when signatures are declared.
+
+=item Empty signature variables C<$> die
+
+Using a bare C<$> sigil signature variable is illegal in cperl, but legal in perl.
+
+=back
 
 =head1 Fix breakage and bad design
 
 =head2 signatures
 
-The p5p signature implementions is still lacking many important features.
+The p5p signature implementions is still lacking many important
+features and is twice as slow as doing without, and twice as slow as
+the cperl implementation. There is no point in using it.  It is the
+only cause for backwards incompatible changes, but it is marked as
+experimental, so they know they cannot keep their current design.
 
 =over
 
 =item Add optional types in signatures
 
-    sub (int $i) # or
-    sub ($i: int)
+    sub (int $i)   # as in Perl6, or
+    sub ($i: int)  # as in the other gradual typed languages
 
-Same as provided for lexical variable declarations. In both variants,
-in leading position as with C<my int $a;> and as attribute, as with
-C<($i :int :const)>
+We use the samed syntax as provided for lexical variable
+declarations. In both variants, in leading position as with C<my int
+$a;> and as attribute, as with C<($i :int :const)>
 
-We need to seperate coretypes (int, str, num) and user-defined types
+We need to seperate coretypes (int, uint, str, num) and user-defined types
 (existing class names), and the 2 core attributes C<:const> and
 C<:unsigned>. For more perl6 like traits see below.
 
@@ -64,16 +111,16 @@ already as package, otherwise a syntax error is thrown.
 
 =item Add subroutine return types
 
-For easier implementation we support subattributes, C<< :<type> >> only.
- not the other possible syntax variants C<< => type >> or C<< returns type >>.
+For easier implementation we support subattributes, C<< :<type> >> only,
+not the other possible syntax variants C<< => type >> or C<< returns type >>.
 
 There are just a few semantic conflicts.
 Note that we can use the builtin attributes C<:lvalue>, C<:method>,
 C<:const> and C<:unsigned> also here.
 
-C<:const> does not mean constant result, it rather means constant subroutine.
-Having this constant means that the compiler is able to inline it without
-run-time checks if it has changed.
+C<:const> does not mean constant result, it rather means constant
+subroutine.  Having this constant means that the compiler is able to
+inline it without run-time checks if it has changed.
 
 C<:unsigned> as coretype or not?  As sub attribute it could mean
 strictly typed to a return result of C<UV>, like C<:int :unsigned>,
@@ -162,8 +209,8 @@ I<We'll see later on this one. Maybe keep it as horrible as it is now.>
 
 =item Improved error reporting
 
-In violations do not only print the position, also the declaration which is violated.
-e.g.
+In violations do not only print the position, also the declaration
+which is violated.  e.g.
 
     @a=(); sub x(\@b) {$b->[0]++} print x(\$a)
 
@@ -225,13 +272,15 @@ as prototypes or signature, regardless of the scope of a C<use feature
 
 =head2 Undo blocked dynamic optimizations
 
-We unblock the possibility to perform dynamic run-time optimizations
-by removing one line. Blocking L<B::Generate> and internal
-optimizations for no technical reasons already did too much harm.
-Discussing this block led to even worse blocks on optimizations.
+We unblocked the possibility to perform dynamic run-time optimizations
+of function bodies, the equivalence of C<eval "sub bla { ...}"> by
+removing one recently added line in core. Blocking L<B::Generate> and
+internal optimizations for no technical reasons already did too much
+harm.  Discussing this block led to even worse blocks on
+optimizations.
 
 Dynamic optimizations on functions is basically the same as C<eval
-"sub bla {}">, changing the definition of a function at run-time, just
+"sub bla {}">, changing the body of a function at run-time, just
 with an optimized optree.  We need this to perform type optimizations
 on modules loaded at run-time or generate profile based fast paths.
 Those dynamic optimizations are the basis for all fast dynamic language
@@ -252,10 +301,16 @@ to be able to compile to bytecode properly again.
 One particular member of p5p which was also responsible for all the
 other compiler breakages described above, removed automatic integer
 optimizations while doing constant folding against community consent
-in the early times of his work.  We re-add this optimization to treat
-constant integers as such (as via an implicit use integer) in constant
-foldable expressions. I.e. integer overflow in constant expressions is
-only checked at compile-time, not run-time.
+in the early times of his work.
+
+We re-add this optimization to treat constant integers as such (as via
+an implicit use integer) in constant foldable
+expressions. I.e. integer overflow in constant expressions is only
+checked at compile-time, not run-time.
+
+We are also now able to do constant-folding on subroutine bodies, to
+either inline the body into the caller or replace the body with a
+constant.
 
 =head2 Undo support for binary names
 
@@ -336,7 +391,9 @@ in the hot hash loop, use one instead.
 
 Use fast hash functions, not secure slow ones. We get security by
 fixing the algorithmic problem, not by obscuring the users and fellow
-developers.
+developers.  We properly analyzed many hash functions and hash tables,
+for security and speed. The fastest, FNV1a, was the one the fellow
+developer schmorp choose I<by his guts> in his stableperl fork.
 
 Use cache-friendly open addressing, not simple, slow and DOS'able
 (i.e. insecure) linked lists. Fix the "security issues", i.e. denial
@@ -348,24 +405,6 @@ Provide a special C<:const> hash table type to enable optimizations to
 perfect hashes. With C<study %hash> you can do the similar costly
 optimizations on non-const hashes to allow faster key access.
 
-=head2 Lexical methods
-
-Lexical methods are of course B<private> to its enclosing class,
-i.e. not visable from outside the class. And they are also B<closed>
-(or also called I<sealed> or I<final>) as planned by Damian Conway,
-i.e. they cannot be changed later. This enables the compiler to inline
-them automatically when its worthwhile. e.g. when they are small
-enough.  They are either defined in the new style: C<class .. { my
-method .. }> or old style: C<package .. { my sub .. }>
-
-
-Since all this implementation blockage is too heavy, all the
-decade-long planned features could not go forward, and p5p not only
-forgot about it, they argue now against going forward.
-
-
-=head1 Plans for further core features
-
 =head2 Compile-time attribute hooks
 
 C<CHECK_SCALAR_ATTRIBUTES> (for C<:const>, C<:int>, C<:num>, C<:str>)
@@ -374,18 +413,20 @@ compile-time with a better name to disassociate from the run-time
 check of C<FETCH_*_ATTRIBUTES> with C<my> lexicals.  See also L</"Rewrite
 critical core modules in C as builtins"> below.
 
-=head2 coretypes: int, num, str
+=head2 coretypes: Int, UInt, Num, Str
 
-coretypes can only be a builtin. Provide the 3 basic ones, and the
-combinations with C<undef>. Type combination are done via C<@ISA>, i.e.
-    class int? { our @ISA :const = qw(int undef); } :const
+coretypes can only be built-in. Provide the 3 basic ones, and the
+combinations with C<Undef>. Type combination are done via C<@ISA>, i.e.
+
+    class ?Int :const { our @ISA :const = qw(Int Undef); }
+
 Our coretypes and its members are of course readonly.
 Provide fast ops variants for these types to omit type checks at
 run-time. With a jit only these will benefit from a jit.
 
-Also add a C<:const> attribute for all data: scalar, arrays, hash,
-functions, packages+classes. C<:const> hashes should of course be
-perfect, i.e. optimized to constant-time lookup, eliminating hash
+We also enabled the C<:const> attribute for all data: scalar, arrays,
+hash, functions, packages+classes. C<:const> hashes should of course
+be perfect, i.e. optimized to constant-time lookup, eliminating hash
 collisions.
 
 =head2 types
@@ -419,32 +460,7 @@ might not be worth the trouble. But for hot code always use types, as
 compile-time types prevent from costly run-time checks for types and
 magic hooks.
 
-B<Builtin types> are the coretypes int, num, str, undef, dyn, int?, num?, str?.
-
-=head2 Typed and sized arrays
-
-Enable faster array access, uniformly typed array values, use less
-memory (cache friendly), help the type system. See L<perltypes>.
-
-  my int @a[20];         # or
-  my @a[20] :int;        # or
-  my int[20] $a;         # (probably not), or
-  my int[int] $a[20];    # (probably not), or
-  my @a :int(20);        # (probably not)
-
-  my int %h;             # or
-  my str{int} %h;        # (probably not)
-  my str %a;             # hash with str values only
-  my int %a{20};         # hash with int values only. fixed hash size, no grow on insertion.
-  my str %a{20} :const   # fixed hash size, no grow on insertion, perfect hash (keys may not change, values do).
-     = (...);
-
-No sparse arrays (i.e. hash with int keys) yet. but this would need a
-different declaration syntax if to be supported natively.
-e.g. C<my int{int} %a;> - sparsehash with int keys and int values.
-or C<my %a : hash(int);>
-variant 2: C<my intsparsehash %a>, which can go with a user class
-and methods, but this will be slow, without native ops.
+B<Builtin types> are the coretypes Int, Num, Str, UInt, ?Int, ?Num, ?Str.
 
 =head2 Rewrite critical core modules in C as builtins
 
@@ -504,30 +520,6 @@ and stored for lexical types and subroutine return types.
 
 =back
 
-=head3 Carp 2.00c as builtin
-
-L<Carp> might be a implemented as builtin XS module.  There's no need
-to require it.  F<Carp.pm> is only provided for documentation,
-C<$INC{'Carp.pm'} = 'xsutils.c'>
-Many carp function are added to the perl5 API and available to core
-and extensions.
-
-B<Changes>:
-
-Currently shortmess is only simplified, the step to skip packages which
-trust each other (via C<@CARP_NOT> or C<@ISA>) is not yet implemented,
-neither is the C<CARP_TRACE> formatting hook.  The deprecated
-C<$Carp::CarpLevel> variable is now ignored.
-
-Other not yet implemented variables: C<$Carp::MaxEvalLen>,
-C<$Carp::MaxArgLen>, C<$Carp::MaxArgNums>, C<$Carp::RefArgFormatter>
-
-B<Note>:
-
-This branch is currently not included. It's too instable to get the
-caller depth right, and most extended hooks (format, CARP_TRACE,
-CARP_NOT) are not yet implemented.
-
 =head3 DynaLoader 2.00c and XSLoader as builtins
 
 Starting with cperl (based on Perl 5.22) L<DynaLoader> and XSLoader have
@@ -562,6 +554,72 @@ documented functions.
 It is compiled as shared library, with all keys as readonly perfect
 hash.  Some internal variables are not accessible anymore, the API is
 via the documented functions.
+
+=head1 Plans for further core features
+
+=head2 Lexical methods
+
+Lexical methods are of course B<private> to its enclosing class,
+i.e. not visable from outside the class. And they are also B<closed>
+(or also called I<sealed> or I<final>) as planned by Damian Conway,
+i.e. they cannot be changed later. This enables the compiler to inline
+them automatically when its worthwhile. e.g. when they are small
+enough.  They are either defined in the new style: C<class .. { my
+method .. }> or old style: C<package .. { my sub .. }>
+
+
+Since all this implementation blockage is too heavy, all the
+decade-long planned features could not go forward, and p5p not only
+forgot about it, they argue now against going forward.
+
+=head2 Typed and sized arrays
+
+Enable faster array access, uniformly typed array values, use less
+memory (cache friendly), help the type system. See L<perltypes>.
+
+  my int @a[20];         # or
+  my @a[20] :int;        # or
+  my int[20] $a;         # (probably not), or
+  my int[int] $a[20];    # (probably not), or
+  my @a :int(20);        # (probably not)
+
+  my int %h;             # or
+  my str{int} %h;        # (probably not)
+  my str %a;             # hash with str values only
+  my int %a{20};         # hash with int values only. fixed hash size, no grow on insertion.
+  my str %a{20} :const   # fixed hash size, no grow on insertion, perfect hash (keys may not change, values do).
+     = (...);
+
+No sparse arrays (i.e. hash with int keys) yet. but this would need a
+different declaration syntax if to be supported natively.
+e.g. C<my int{int} %a;> - sparsehash with int keys and int values.
+or C<my %a : hash(int);>
+variant 2: C<my intsparsehash %a>, which can go with a user class
+and methods, but this will be slow, without native ops.
+
+=head3 Carp 2.00c as builtin
+
+L<Carp> might be a implemented as builtin XS module.  There's no need
+to require it.  F<Carp.pm> is only provided for documentation,
+C<$INC{'Carp.pm'} = 'xsutils.c'>
+Many carp function are added to the perl5 API and available to core
+and extensions.
+
+B<Changes>:
+
+Currently shortmess is only simplified, the step to skip packages which
+trust each other (via C<@CARP_NOT> or C<@ISA>) is not yet implemented,
+neither is the C<CARP_TRACE> formatting hook.  The deprecated
+C<$Carp::CarpLevel> variable is now ignored.
+
+Other not yet implemented variables: C<$Carp::MaxEvalLen>,
+C<$Carp::MaxArgLen>, C<$Carp::MaxArgNums>, C<$Carp::RefArgFormatter>
+
+B<Note>:
+
+This branch is currently not included. It's too instable to get the
+caller depth right, and most extended hooks (format, CARP_TRACE,
+CARP_NOT) are not yet implemented.
 
 =head3 unicode folding tables as XS extension
 
@@ -784,6 +842,8 @@ with 5.10, and then actively blocked for decades.
 =item L<https://wiki.php.net/rfc/scalar_type_hints> (php 7)
 
 =item L<https://wiki.php.net/rfc/return_types> (php 7)
+
+=item L<http://frenchy64.github.io/2015/06/19/gradual-typing.html>
 
 =item L<http://blogs.perl.org/users/rurban/2012/09/my-perl5-todo-list.html> (the old plan, ignored)
 
