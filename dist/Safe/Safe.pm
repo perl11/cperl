@@ -3,7 +3,7 @@ package Safe;
 use 5.003_11;
 use Scalar::Util qw(reftype refaddr);
 
-$Safe::VERSION = "2.39";
+$Safe::VERSION = "2.39_01c";
 
 # *** Don't declare any lexicals above this point ***
 #
@@ -486,8 +486,12 @@ Safe - Compile and execute code in restricted compartments
 
 =head1 DESCRIPTION
 
-The Safe extension module allows the creation of compartments
-in which perl code can be evaluated. Each compartment has
+The Safe extension module allows the creation of compartments in which
+perl code can be evaluated. But note that every XS function call
+violates the safe compartment rules, and we cannot seperate and safe
+pure perl function calls from unsafe XS function calls in this module.
+
+Each compartment has
 
 =over 8
 
@@ -553,6 +557,11 @@ of this software.
 
 Your mileage will vary. If in any doubt B<do not use it>.
 
+Esp. calling XS functions does potentially violate all Safe
+compartment rules. There is no way to introspect XS functions, and no
+good way to forbid them. The safest way would be to forbid the
+DynaLoader at configuration C<-Uusedl>, thus forbid all C<dynamic_ext>
+and define safe and allowed C<static_ext> extensions.
 
 =head1 METHODS
 
