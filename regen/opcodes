@@ -207,13 +207,15 @@ abs		abs			ck_fun		pfsTu%	S?
 
 # unboxed raw stack values
 box_int		box int to IV		ck_null		s1	I	"(:int):Int"
+box_uint	box uint to UV		ck_null		s1	I	"(:uint):UInt"
 box_str		box ASCIIZ string to PV	ck_null		s1	Z	"(:str):Str"
 box_num		box double to NV	ck_null		s1	N	"(:num):Num"
 unbox_int	unbox IV to int		ck_null		i1	S	"(:Int):int"
+unbox_uint	unbox IV/UV to uint	ck_null		i1	S	"(:Int):uint"
 unbox_str	unbox PV to ASCIIZ	ck_null		z1	S	"(:Str):str"
 unbox_num	unbox NV to double	ck_null		n1	S	"(:Num):num"
-int_lshift	unboxed left bitshift (<<)  ck_bitop	pfiT2	I I	"(:int,:uint):uint"
-int_rshift	unboxed right bitshift (>>) ck_bitop	pfiT2	I I	"(:int,:uint):uint"
+uint_lshift	unboxed left bitshift (<<)  ck_bitop	pfiT2	I I	"(:int,:uint):uint"
+uint_rshift	unboxed right bitshift (>>) ck_bitop	pfiT2	I I	"(:int,:uint):uint"
 int_preinc	unboxed preincrement (++)  ck_lfun	dis1	I	"(:int):int"
 int_predec	unboxed predecrement (--)  ck_lfun	dis1	I	"(:int):int"
 int_postinc	unboxed postincrement (++) ck_lfun	ist1	I	"(:int):int"
@@ -255,9 +257,9 @@ aelem		array element		ck_null		s2	A S
 i_aelem		int array element	  ck_null	s2	A S	"(:Array(:Int),:Int):Int"
 int_aelem	unboxed int array element ck_null	i2	A I	"(:Array(:int),:int):int"
 n_aelem		num array element	  ck_null	s2	A S	"(:Array(:Num),:Int):Num"
-num_aelem	unboxed	num array element ck_null	s2	A I	"(:Array(:Num),:int):Num"
+num_aelem	unboxed	num array element ck_null	s2	A N	"(:Array(:num),:int):num"
 s_aelem		str array element	  ck_null	s2	A S	"(:Array(:Str),:Int):Str"
-str_aelem	unboxed str array element ck_null	z2	A I	"(:Array(:str),:int):str"
+str_aelem	unboxed str array element ck_null	z2	A Z	"(:Array(:str),:int):str"
 
 aslice		array slice		ck_null		m@	A L
 kvaslice	index/value array slice	ck_null		m@	A L
@@ -272,13 +274,13 @@ avalues		values on array		ck_each		dt%	A
 each		each			ck_each		d%	H
 values		values			ck_each		dt%	H
 keys		keys			ck_each		t%	H
-delete		delete			ck_delete	%	S
-exists		exists			ck_exists	is%	S
+delete		delete			ck_delete	%	S	"(:str):Void"
+exists		exists			ck_exists	is%	S	"(:str):Bool"
 rv2hv		hash dereference	ck_rvconst	d1	
-helem		hash element		ck_null		s2	H S
-str_helem	unboxed hash element	ck_null		z2	H Z
-str_delete	unboxed delete		ck_delete	%	Z
-str_exists	unboxed exists		ck_exists	s%	Z
+helem		hash element		ck_null		s2	H S	"(:Hash(:Scalar),:Str):Scalar"
+str_helem	unboxed hash element	ck_null		z2	H Z	"(:Hash(:Scalar),:str):Scalar"
+str_delete	unboxed delete		ck_delete	%	Z	"(:str):Void"
+str_exists	unboxed exists		ck_exists	s%	Z	"(:str):Bool"
 hslice		hash slice		ck_null		m@	H L
 kvhslice	key/value hash slice	ck_null		m@	H L
 
@@ -420,8 +422,9 @@ send		send			ck_fun		imst@	Fs S S S?
 recv		recv			ck_fun		imst@	Fs R S S
 
 socket		socket			ck_fun		is@	Fs S S S
+# Safe and Opcode need sockpair, maybe we should just change the sockpair API
 #sockpair	socketpair		ck_fun		is@	Fs Fs S S S
-sockpairl	socketpair		ck_fun		is@	L
+sockpairl	socketpair		ck_fun		is@	Fs Fs L
 
 bind		bind			ck_fun		is@	Fs S
 connect		connect			ck_fun		is@	Fs S

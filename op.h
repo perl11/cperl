@@ -534,8 +534,8 @@ struct loop {
  * encode the type for each arg */
 #define OASHIFT (OCSHIFT+4)
 
-/* 0b0001_1110_0000_0000 or 0xf << OCSHIFT */
-#define OA_CLASS_MASK 0x1e00
+/* 0b0011_1100_0000_0000 / 0xf000 */
+#define OA_CLASS_MASK (0xf << OCSHIFT)
 
 #define OA_BASEOP 	(0 << OCSHIFT)
 #define OA_UNOP 	(1 << OCSHIFT)
