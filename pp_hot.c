@@ -3069,6 +3069,10 @@ PP(pp_entersub)
                 goto try_autoload;
             }
             break;
+        /* This is the second most common case:  */
+        case SVt_PVCV:
+            cv = MUTABLE_CV(sv);
+            break;
         case SVt_PVLV:
             if(isGV_with_GP(sv)) goto we_have_a_glob;
             /* FALLTHROUGH */
@@ -3105,10 +3109,6 @@ PP(pp_entersub)
         case SVt_PVHV:
         case SVt_PVAV:
             DIE(aTHX_ "Not a CODE reference");
-            /* This is the second most common case:  */
-        case SVt_PVCV:
-            cv = MUTABLE_CV(sv);
-            break;
         }
     }
     if (CvISXSUB(cv)) {
@@ -3267,14 +3267,15 @@ PP(pp_entersub)
 PP(pp_enterxssub)
 {
     dSP; dPOPss;
-    GV *gv;
     CV *cv = MUTABLE_CV(sv);
-    /*PERL_CONTEXT *cx;*/
+    /*PERL_CONTEXT *cx;
+      GV *gv;*/
     const bool hasargs = (PL_op->op_flags & OPf_STACKED) != 0;
 
-    if (UNLIKELY(!sv))
+    /* enterxssub can only be called with an cv. entersub allows more */
+    if (UNLIKELY(!cv || (SvTYPE(cv) != SVt_PVCV)))
 	DIE(aTHX_ "Not a CODE reference");
-    /* This is overwhelmingly the most common case:  */
+#if 0
     if (0 && (!LIKELY(SvTYPE(sv) == SVt_PVGV) && (cv = GvCVu((const GV *)sv)))) {
         switch (SvTYPE(sv)) {
         case SVt_PVGV:
@@ -3288,6 +3289,10 @@ PP(pp_enterxssub)
                 SAVETMPS;
                 goto try_autoload;
             }
+            break;
+        /* This is the second most common case:  */
+        case SVt_PVCV:
+            cv = MUTABLE_CV(sv);
             break;
         case SVt_PVLV:
             if(isGV_with_GP(sv)) goto we_have_a_glob;
@@ -3325,60 +3330,27 @@ PP(pp_enterxssub)
         case SVt_PVHV:
         case SVt_PVAV:
             DIE(aTHX_ "Not a CODE reference");
-            /* This is the second most common case:  */
-        case SVt_PVCV:
-            cv = MUTABLE_CV(sv);
-            break;
         }
+    }
+#endif
+
+    /* There's no way to unbootstrap a XS function. Is there?
+       Yes, by dynamic sub redefinition, which we have to catch there. */
+    if (!CvISXSUB(cv)) {
+        PL_op->op_type = OP_ENTERSUB;
+        PL_op->op_ppaddr = PL_ppaddr[OP_ENTERSUB];
+        return PL_op->op_ppaddr(aTHX);
     }
 
     ENTER;
 
-  retry:
-    if (UNLIKELY(CvCLONE(cv) && ! CvCLONED(cv)))
+    if (UNLIKELY(CvCLONE(cv) && !CvCLONED(cv)))
 	DIE(aTHX_ "Closure prototype called");
-    if (UNLIKELY(0 && !CvROOT(cv) && !CvXSUB(cv))) {
-	GV* autogv;
-	SV* sub_name;
-
-	/* anonymous or undef'd function leaves us no recourse */
-	if (CvLEXICAL(cv) && CvHASGV(cv))
-	    DIE(aTHX_ "Undefined subroutine &%"SVf" called",
-		       SVfARG(cv_name(cv, NULL, 0)));
-	if (CvANON(cv) || !CvHASGV(cv)) {
-	    DIE(aTHX_ "Undefined subroutine called");
-	}
-
-	/* autoloaded stub? */
-	if (cv != GvCV(gv = CvGV(cv))) {
-	    cv = GvCV(gv);
-	}
-	/* should call AUTOLOAD now? */
-	else {
-          try_autoload:
-	    if ((autogv = gv_autoload_pvn(GvSTASH(gv), GvNAME(gv), GvNAMELEN(gv),
-				   GvNAMEUTF8(gv) ? SVf_UTF8 : 0)))
-	    {
-		cv = GvCV(autogv);
-	    }
-	    else {
-	       sorry:
-		sub_name = sv_newmortal();
-		gv_efullname3(sub_name, gv, NULL);
-		DIE(aTHX_ "Undefined subroutine &%"SVf" called", SVfARG(sub_name));
-	    }
-	}
-	if (!cv)
-	    goto sorry;
-	goto retry;
-    }
-
     if (UNLIKELY((PL_op->op_private & OPpENTERSUB_DB) && GvCV(PL_DBsub)
             && !CvNODEBUG(cv)))
     {
 	 Perl_get_db_sub(aTHX_ &sv, cv);
-	 if (CvISXSUB(cv))
-	     PL_curcopdb = PL_curcop;
+         PL_curcopdb = PL_curcop;
          if (CvLVALUE(cv)) {
              /* check for lsub that handles lvalue subroutines */
 	     cv = GvCV(gv_fetchpvs("DB::lsub", GV_ADDMULTI, SVt_PVCV));
@@ -3391,10 +3363,6 @@ PP(pp_enterxssub)
 	if (!cv || (!CvXSUB(cv) && !CvSTART(cv)))
 	    DIE(aTHX_ "No DB::sub routine defined");
     }
-
-    /* There's no way to unbootstrap a XS function. Is there?
-       Yes, by dynamic sub redefinition, which we have to catch there. */
-    assert(CvISXSUB(cv));
 
     {
 	SSize_t markix = TOPMARK;
@@ -3455,7 +3423,6 @@ PP(pp_enterxssub)
 	    PL_curcop = PL_curcopdb;
 	    PL_curcopdb = NULL;
 	}
-	/* Do we need to open block here? XXXX */
 
 	/* CvXSUB(cv) must not be NULL because newXS() refuses NULL xsub address */
 	assert(CvXSUB(cv));
