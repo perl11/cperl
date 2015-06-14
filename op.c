@@ -510,12 +510,6 @@ Perl_op_refcnt_dec(pTHX_ OP *o)
 
 #define RETURN_UNLIMITED_NUMBER (PERL_INT_MAX / 2)
 
-#define OpTYPE_set(o,type) \
-    STMT_START {				\
-	o->op_type = (OPCODE)type;		\
-	o->op_ppaddr = PL_ppaddr[type];		\
-    } STMT_END
-
 STATIC OP *
 S_no_fh_allowed(pTHX_ OP *o)
 {
@@ -1611,6 +1605,7 @@ S_scalar_slice_warning(pTHX_ const OP *o)
     case OP_SORT:
     case OP_REVERSE:
     case OP_ENTERSUB:
+    case OP_ENTERXSSUB:
     case OP_CALLER:
     case OP_LSTAT:
     case OP_STAT:
@@ -2782,6 +2777,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	    break;
 	goto nomod;
     case OP_ENTERSUB:
+    case OP_ENTERXSSUB:
 	if ((type == OP_UNDEF || type == OP_REFGEN || type == OP_LOCK) &&
 	    !(o->op_flags & OPf_STACKED)) {
             OpTYPE_set(o, OP_RV2CV);		/* entersub => rv2cv */
@@ -2792,7 +2788,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	else {				/* lvalue subroutine call */
 	    o->op_private |= OPpLVAL_INTRO;
 	    PL_modcount = RETURN_UNLIMITED_NUMBER;
-	    if (type == OP_GREPSTART || type == OP_ENTERSUB
+	    if (type == OP_GREPSTART || type == OP_ENTERSUB || type == OP_ENTERXSSUB
 	     || type == OP_REFGEN    || type == OP_LEAVESUBLV) {
 		/* Potential lvalue context: */
 		o->op_private |= OPpENTERSUB_INARGS;
@@ -2846,13 +2842,13 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
       nomod:
 	if (flags & OP_LVALUE_NO_CROAK) return NULL;
 	/* grep, foreach, subcalls, refgen */
-	if (type == OP_GREPSTART || type == OP_ENTERSUB
+	if (type == OP_GREPSTART || type == OP_ENTERSUB || type == OP_ENTERXSSUB
 	 || type == OP_REFGEN    || type == OP_LEAVESUBLV)
 	    break;
 	yyerror(Perl_form(aTHX_ "Can't modify %s in %s",
 		     (o->op_type == OP_NULL && (o->op_flags & OPf_SPECIAL)
 		      ? "do block"
-		      : (o->op_type == OP_ENTERSUB
+		      : ((o->op_type == OP_ENTERSUB || type == OP_ENTERXSSUB)
 			? "non-lvalue subroutine call"
 			: OP_DESC(o))),
 		     type ? PL_op_desc[type] : "local"));
@@ -3018,7 +3014,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
     case OP_AELEM:
     case OP_HELEM:
 	ref(cBINOPo->op_first, o->op_type);
-	if (type == OP_ENTERSUB &&
+	if ((type == OP_ENTERSUB || type == OP_ENTERXSSUB) &&
 	     !(o->op_private & (OPpLVAL_INTRO | OPpDEREF)))
 	    o->op_private |= OPpLVAL_DEFER;
 	if (type == OP_LEAVESUBLV)
@@ -3149,7 +3145,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 			   "Useless localization of %s", OP_DESC(o));
 	}
     }
-    else if (type != OP_GREPSTART && type != OP_ENTERSUB
+    else if (type != OP_GREPSTART && type != OP_ENTERSUB && type != OP_ENTERXSSUB
              && type != OP_LEAVESUBLV)
 	o->op_flags |= OPf_REF;
     return o;
@@ -3254,6 +3250,7 @@ Perl_doref(pTHX_ OP *o, I32 type, bool set_op_ref)
 
     switch (o->op_type) {
     case OP_ENTERSUB:
+    case OP_ENTERXSSUB:
 	if ((type == OP_EXISTS || type == OP_DEFINED) &&
 	    !(o->op_flags & OPf_STACKED)) {
             OpTYPE_set(o, OP_RV2CV);             /* entersub => rv2cv */
@@ -7555,7 +7552,7 @@ Perl_newLOOPEX(pTHX_ I32 type, OP *label)
     }
     else {
 	/* Check whether it's going to be a goto &function */
-	if (label->op_type == OP_ENTERSUB
+	if ((label->op_type == OP_ENTERSUB || label->op_type == OP_ENTERXSSUB)
 		&& !(label->op_flags & OPf_STACKED))
 	    label = newUNOP(OP_REFGEN, 0, op_lvalue(label, OP_REFGEN));
     }
@@ -7703,6 +7700,7 @@ S_looks_like_bool(pTHX_ const OP *o)
 	    && looks_like_bool(cUNOPo->op_first));
 
 	case OP_ENTERSUB:
+	case OP_ENTERXSSUB:
 
 	case OP_NOT:	case OP_XOR:
 
@@ -9736,7 +9734,7 @@ Perl_ck_exists(pTHX_ OP *o)
     o = ck_fun(o);
     if (o->op_flags & OPf_KIDS) {
 	OP * const kid = cUNOPo->op_first;
-	if (kid->op_type == OP_ENTERSUB) {
+	if (kid->op_type == OP_ENTERSUB || kid->op_type == OP_ENTERXSSUB) {
 	    (void) ref(kid, o->op_type);
 	    if (kid->op_type != OP_RV2CV
 			&& !(PL_parser && PL_parser->error_count))
@@ -11920,7 +11918,11 @@ Perl_ck_subr(pTHX_ OP *o)
 	SV *ckobj;
 	U8 flags;
 	S_cv_get_call_checker(cv, &ckfun, &ckobj, &flags);
-	if (CvISXSUB(cv) || !CvROOT(cv))
+	if (CvISXSUB(cv)) {
+            o->op_targ = pad_alloc(OP_ENTERXSSUB, SVs_PADTMP);
+            o->op_private |= OPpENTERSUB_HASTARG;
+        }
+        else if (!CvROOT(cv))
 	    S_entersub_alloc_targ(aTHX_ o);
 	if (!namegv) {
 	    /* The original call checker API guarantees that a GV will be
