@@ -678,6 +678,9 @@ sub mkCheckRex {
     $str =~ s/([\[\]()*.\$\@\#\|{}])/\\$1/msg;
     # $str =~ s/(?<!\\)([\[\]\(\)*.\$\@\#\|{}])/\\$1/msg;
 
+    # accept enterxssub also
+    #$str =~ s/enter(xs)?sub/enter\(\?:xs\)\?sub/msg;
+
     # treat dbstate like nextstate (no in-debugger false reports)
     # Note also that there may be 1 level of () nexting, if there's an eval
     # Seems easiest to explicitly match the eval, rather than trying to parse
