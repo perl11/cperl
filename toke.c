@@ -7713,11 +7713,8 @@ Perl_yylex(pTHX)
 	    LOP(OP_MSGGET,XTERM);
 
 	case KEY_msgrcv:
-#ifdef USE_CPERL
-	    LOP(OP_MSGRCVL,XTERM);
-#else
 	    LOP(OP_MSGRCV,XTERM);
-#endif
+
         case KEY_msgsnd:
 	    LOP(OP_MSGSND,XTERM);
 
@@ -8094,11 +8091,7 @@ Perl_yylex(pTHX)
 	    LOP(OP_SOCKET,XTERM);
 
 	case KEY_socketpair:
-#ifdef USE_CPERL
-	    LOP(OP_SOCKPAIRL,XTERM);
-#else
 	    LOP(OP_SOCKPAIR,XTERM);
-#endif
 
 	case KEY_sort:
 	    checkcomma(s,PL_tokenbuf,"subroutine name");

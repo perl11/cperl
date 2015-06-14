@@ -16051,11 +16051,7 @@ S_find_uninit_var(pTHX_ const OP *const obase, const SV *const uninit_sv,
     case OP_SEND:
     case OP_IOCTL:
     case OP_SOCKET:
-#ifdef USE_CPERL
-    case OP_SOCKPAIRL:
-#else
     case OP_SOCKPAIR:
-#endif
     case OP_BIND:
     case OP_CONNECT:
     case OP_LISTEN:

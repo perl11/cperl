@@ -3208,11 +3208,7 @@ S_is_handle_constructor(const OP *o, I32 numargs)
 
     switch (o->op_type) {
     case OP_PIPE_OP:
-#ifdef USE_CPERL
-    case OP_SOCKPAIRL:
-#else
     case OP_SOCKPAIR:
-#endif
 	if (numargs == 2)
 	    return TRUE;
 	/* FALLTHROUGH */

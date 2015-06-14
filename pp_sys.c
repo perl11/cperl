@@ -4755,11 +4755,7 @@ PP(pp_shmwrite)
     case OP_MSGSND:
 	value = (I32)(do_msgsnd(MARK, SP) >= 0);
 	break;
-#ifdef USE_CPERL
-    case OP_MSGRCVL:
-#else
     case OP_MSGRCV:
-#endif
 	value = (I32)(do_msgrcv(MARK, SP) >= 0);
 	break;
     case OP_SEMOP:
