@@ -6,7 +6,7 @@ use strict;
 
 our($VERSION, @ISA, @EXPORT_OK);
 
-$VERSION = "1.32";
+$VERSION = "1.33c";
 
 use Carp;
 use Exporter ();
@@ -185,7 +185,8 @@ tags and sets. All are available for export by the package.
 =item opcodes
 
 In a scalar context opcodes returns the number of opcodes in this
-version of perl (around 350 for perl-5.7.0).
+version of perl (around 350 for perl-5.7.0, 396 for perl-5.22, 427 for
+cperl).
 
 In a list context it returns a list of all the operator names.
 (Not yet implemented, use @names = opset_to_ops(full_opset).)
@@ -556,6 +557,8 @@ about calling environment and args.
     caller runcv
 
 =item :still_to_be_decided
+
+    enterxssub -- can do everything
 
     chdir
     flock ioctl
