@@ -672,7 +672,7 @@ sub begin_is_use {
 	return "use $module $version ();\n" if defined $version;
 	return "use $module ();\n";
     }
-    return if $entersub->name ne "entersub";
+    return if $entersub->name !~ /^enter(xs)?sub/;
 
     # See if there are import arguments
     my $args = '';
@@ -2623,7 +2623,7 @@ sub pp_refgen {
             return $self->e_anoncode({ code => $self->padval($anoncode->targ) });
 	} elsif ($kid->name eq "pushmark") {
             my $sib_name = $kid->sibling->name;
-            if ($sib_name eq 'entersub') {
+            if ($sib_name =~ /^enter(xs)?sub/) {
                 my $text = $self->deparse($kid->sibling, 1);
                 # Always show parens for \(&func()), but only with -p otherwise
                 $text = "($text)" if $self->{'parens'}
@@ -3297,7 +3297,7 @@ sub indirop {
 	$indir = '{$b cmp $a} ';
     }
     for (; !null($kid); $kid = $kid->sibling) {
-	$expr = $self->deparse($kid, !$indir && $kid == $firstkid && $name eq "sort" && $firstkid->name eq "entersub" ? 16 : 6);
+	$expr = $self->deparse($kid, !$indir && $kid == $firstkid && $name eq "sort" && $firstkid->name =~ /^enter(xs)?sub/ ? 16 : 6);
 	push @exprs, $expr;
     }
     my $name2;
@@ -3325,7 +3325,7 @@ sub indirop {
     } elsif (
 	!$indir && $name eq "sort"
       && !null($op->first->sibling)
-      && $op->first->sibling->name eq 'entersub'
+      && $op->first->sibling->name =~ /^enter(xs)?sub/
     ) {
 	# We cannot say sort foo(bar), as foo will be interpreted as a
 	# comparison routine.  We have to say sort(...) in that case.
@@ -3376,10 +3376,10 @@ BEGIN {
 	eval { require B::Op_private }
 	  ? @{$B::Op_private::ops_using{OPpLVAL_INTRO}}
 	  : qw(gvsv rv2sv rv2hv rv2gv rv2av aelem helem aslice
-	       hslice delete padsv padav padhv enteriter entersub padrange
-	       pushmark cond_expr refassign list)
+	       hslice delete padsv padav padhv enteriter entersub enterxssub 
+               padrange pushmark cond_expr refassign list)
     } = ();
-    delete @uses_intro{qw( lvref lvrefslice lvavref entersub )};
+    delete @uses_intro{qw( lvref lvrefslice lvavref entersub enterxssub)};
 }
 
 sub pp_list {
@@ -3899,7 +3899,7 @@ sub is_subscriptable {
     my $op = shift;
     if ($op->name =~ /^([ahg]elem|multideref$)/) {
 	return 1;
-    } elsif ($op->name eq "entersub") {
+    } elsif ($op->name =~ /^enter(xs)?sub/) {
 	my $kid = $op->first;
 	return 0 unless null $kid->sibling;
 	$kid = $kid->first;
@@ -4424,6 +4424,8 @@ sub retscalar {
                  |spwent|epwent|sgrent|egrent|getlogin|syscall|lock|runcv
                  |fc)\z/x
 }
+
+sub pp_enterxssub { goto &pp_entersub; }
 
 sub pp_entersub {
     my $self = shift;
