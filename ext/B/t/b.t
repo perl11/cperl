@@ -259,7 +259,7 @@ is(B::opnumber("pp_null"), 0, "Testing opnumber with opname (pp_null)");
 
     $hash = eval {B::hash(chr 256)};
     is($hash, undef, "B::hash() refuses non-octets");
-    like($@, qr/^Wide character in subroutine entry/);
+    like($@, qr/^Wide character in (XS)? subroutine entry/);
 
     $hash = B::hash(chr 163);
     my $str = chr(163) . chr 256;
