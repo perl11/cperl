@@ -198,7 +198,7 @@ use strict;
 
     # find which ops use 0,1,2,3 or 4 bits of op_private for arg count info
 
-    $args0{$_} = 1 for qw(entersub); # UNOPs that usurp bit 0
+    $args0{$_} = 1 for qw(entersub enterxssub); # UNOPs that usurp bit 0
 
     $args1{$_} = 1 for (
                         qw(reverse), # ck_fun(), but most bits stolen
@@ -301,7 +301,7 @@ for (qw(nextstate dbstate)) {
 
 addbits($_, 7 => qw(OPpLVAL_INTRO LVINTRO))
     for qw(gvsv rv2sv rv2hv rv2gv rv2av aelem helem aslice
-           hslice delete padsv padav padhv enteriter entersub padrange
+           hslice delete padsv padav padhv enteriter entersub enterxssub padrange
            pushmark cond_expr refassign lvref lvrefslice lvavref multideref),
            'list', # this gets set in my_attrs() for some reason
            ;
@@ -406,7 +406,7 @@ addbits($_, 6 => qw(OPpRUNTIME RTIME))
 
 
 # autovivify: Want ref to something
-for (qw(rv2gv rv2sv padsv aelem helem entersub)) {
+for (qw(rv2gv rv2sv padsv aelem helem entersub enterxssub)) {
     addbits($_, '4..5' => {
                 mask_def  => 'OPpDEREF',
                 enum => [ qw(
@@ -514,7 +514,7 @@ addbits('repeat', 6 => qw(OPpREPEAT_DOLIST DOLIST)); # List replication
 
 # OP_ENTERSUB and OP_RV2CV flags
 #
-# Flags are set on entersub and rv2cv in three phases:
+# Flags are set on entersub, enterxssub and rv2cv in three phases:
 #   parser  - the parser passes the flag to the op constructor
 #   check   - the check routine called by the op constructor sets the flag
 #   context - application of scalar/ref/lvalue context applies the flag
@@ -539,7 +539,7 @@ addbits('repeat', 6 => qw(OPpREPEAT_DOLIST DOLIST)); # List replication
 
 # NB: OPpHINT_STRICT_REFS must equal HINT_STRICT_REFS
 
-addbits('entersub',
+addbits($_,
     0      => qw(OPpENTERSUB_INARGS   INARGS), # Lval used as arg to a sub
     1      => qw(OPpHINT_STRICT_REFS  STRICT), # 'use strict' in scope
     2      => qw(OPpENTERSUB_HASTARG  TARG  ), # Called from OP tree
@@ -547,7 +547,7 @@ addbits('entersub',
     # 4..5 => OPpDEREF,      already defined above
     6      => qw(OPpENTERSUB_DB       DBG   ), # Debug subroutine
     # 7    => OPpLVAL_INTRO, already defined above
-);
+) for qw(entersub enterxssub);
 
 # note that some of these flags are just left-over from when an entersub
 # is converted into an rv2cv, and could probably be cleared/re-assigned
