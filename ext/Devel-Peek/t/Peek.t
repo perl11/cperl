@@ -1513,7 +1513,7 @@ dumpindent is 4 at -e line 1.
         PACKAGE = "t"
     }
     {
-5       TYPE = entersub  ===> 1
+5       TYPE = enterxssub  ===> 1
         TARG = 1
         FLAGS = (VOID,KIDS,STACKED,SLABBED)
         PRIVATE = (TARG)
