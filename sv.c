@@ -16114,6 +16114,7 @@ S_find_uninit_var(pTHX_ const OP *const obase, const SV *const uninit_sv,
 	goto do_op;
 
     case OP_ENTERSUB:
+    case OP_ENTERXSSUB:
     case OP_GOTO:
 	/* XXX tmp hack: these two may call an XS sub, and currently
 	  XS subs don't have a SUB entry on the context stack, so CV and
