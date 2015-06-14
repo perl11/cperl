@@ -68,7 +68,6 @@
 #define Perl_pp_recv Perl_unimplemented_op
 #define Perl_pp_socket Perl_unimplemented_op
 #endif
-#define Perl_pp_sockpairl Perl_pp_sockpair
 #ifdef HAS_SOCKET
 #define Perl_pp_connect Perl_pp_bind
 #define Perl_pp_gsockopt Perl_pp_ssockopt
@@ -118,7 +117,7 @@
 #define Perl_pp_msgget Perl_pp_semget
 #define Perl_pp_msgctl Perl_pp_semctl
 #define Perl_pp_msgsnd Perl_pp_shmwrite
-#define Perl_pp_msgrcvl Perl_pp_shmwrite
+#define Perl_pp_msgrcv Perl_pp_shmwrite
 #define Perl_pp_semop Perl_pp_shmwrite
 #define Perl_pp_dofile Perl_pp_require
 #define Perl_pp_ghbyname Perl_pp_ghostent
@@ -437,7 +436,7 @@ EXTCONST char* const PL_op_name[] = {
 	"send",	/* 282: send */
 	"recv",	/* 283: recv */
 	"socket",	/* 284: socket */
-	"sockpairl",	/* 285: socketpair */
+	"sockpair",	/* 285: socketpair */
 	"bind",	/* 286: bind */
 	"connect",	/* 287: connect */
 	"listen",	/* 288: listen */
@@ -518,7 +517,7 @@ EXTCONST char* const PL_op_name[] = {
 	"msgget",	/* 363: msgget */
 	"msgctl",	/* 364: msgctl */
 	"msgsnd",	/* 365: msgsnd */
-	"msgrcvl",	/* 366: msgrcv */
+	"msgrcv",	/* 366: msgrcv */
 	"semop",	/* 367: semop */
 	"semget",	/* 368: semget */
 	"semctl",	/* 369: semctl */
@@ -872,7 +871,7 @@ EXTCONST char* const PL_op_desc[] = {
 	"send",	/* 282: send */
 	"recv",	/* 283: recv */
 	"socket",	/* 284: socket */
-	"socketpair",	/* 285: sockpairl */
+	"socketpair",	/* 285: sockpair */
 	"bind",	/* 286: bind */
 	"connect",	/* 287: connect */
 	"listen",	/* 288: listen */
@@ -953,7 +952,7 @@ EXTCONST char* const PL_op_desc[] = {
 	"msgget",	/* 363: msgget */
 	"msgctl",	/* 364: msgctl */
 	"msgsnd",	/* 365: msgsnd */
-	"msgrcv",	/* 366: msgrcvl */
+	"msgrcv",	/* 366: msgrcv */
 	"semop",	/* 367: semop */
 	"semget",	/* 368: semget */
 	"semctl",	/* 369: semctl */
@@ -1307,7 +1306,7 @@ EXTCONST char* const PL_op_type[] = {
 	"",	/* 282: send */
 	"",	/* 283: recv */
 	"",	/* 284: socket */
-	"",	/* 285: sockpairl */
+	"",	/* 285: sockpair */
 	"",	/* 286: bind */
 	"",	/* 287: connect */
 	"",	/* 288: listen */
@@ -1388,7 +1387,7 @@ EXTCONST char* const PL_op_type[] = {
 	"",	/* 363: msgget */
 	"",	/* 364: msgctl */
 	"",	/* 365: msgsnd */
-	"",	/* 366: msgrcvl */
+	"",	/* 366: msgrcv */
 	"",	/* 367: semop */
 	"",	/* 368: semget */
 	"",	/* 369: semctl */
@@ -1756,7 +1755,7 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_send,	/* implemented by Perl_pp_syswrite */
 	Perl_pp_recv,	/* implemented by Perl_pp_sysread */
 	Perl_pp_socket,
-	Perl_pp_sockpairl,	/* implemented by Perl_pp_sockpair */
+	Perl_pp_sockpair,
 	Perl_pp_bind,
 	Perl_pp_connect,	/* implemented by Perl_pp_bind */
 	Perl_pp_listen,
@@ -1837,7 +1836,7 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_msgget,	/* implemented by Perl_pp_semget */
 	Perl_pp_msgctl,	/* implemented by Perl_pp_semctl */
 	Perl_pp_msgsnd,	/* implemented by Perl_pp_shmwrite */
-	Perl_pp_msgrcvl,	/* implemented by Perl_pp_shmwrite */
+	Perl_pp_msgrcv,	/* implemented by Perl_pp_shmwrite */
 	Perl_pp_semop,	/* implemented by Perl_pp_shmwrite */
 	Perl_pp_semget,
 	Perl_pp_semctl,
@@ -2201,7 +2200,7 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_fun,		/* send */
 	Perl_ck_fun,		/* recv */
 	Perl_ck_fun,		/* socket */
-	Perl_ck_fun,		/* sockpairl */
+	Perl_ck_fun,		/* sockpair */
 	Perl_ck_fun,		/* bind */
 	Perl_ck_fun,		/* connect */
 	Perl_ck_fun,		/* listen */
@@ -2282,7 +2281,7 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_fun,		/* msgget */
 	Perl_ck_fun,		/* msgctl */
 	Perl_ck_fun,		/* msgsnd */
-	Perl_ck_fun,		/* msgrcvl */
+	Perl_ck_fun,		/* msgrcv */
 	Perl_ck_fun,		/* semop */
 	Perl_ck_fun,		/* semget */
 	Perl_ck_fun,		/* semctl */
@@ -2640,7 +2639,7 @@ EXTCONST U32 PL_opargs[] = {
 	0x9116420d,	/* send */
 	0x1176420d,	/* recv */
 	0x11164204,	/* socket */
-	0x02664204,	/* sockpairl */
+	0x02664204,	/* sockpair */
 	0x00164204,	/* bind */
 	0x00164204,	/* connect */
 	0x00164204,	/* listen */
@@ -2721,7 +2720,7 @@ EXTCONST U32 PL_opargs[] = {
 	0x0011420d,	/* msgget */
 	0x0111420d,	/* msgctl */
 	0x0111420d,	/* msgsnd */
-	0x0002420d,	/* msgrcvl */
+	0x0002420d,	/* msgrcv */
 	0x0011420d,	/* semop */
 	0x0111420d,	/* semget */
 	0x1111420d,	/* semctl */
@@ -3309,7 +3308,7 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
       49, /* send */
       49, /* recv */
       49, /* socket */
-      49, /* sockpairl */
+      49, /* sockpair */
       49, /* bind */
       49, /* connect */
       49, /* listen */
@@ -3390,7 +3389,7 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
       49, /* msgget */
       49, /* msgctl */
       49, /* msgsnd */
-      49, /* msgrcvl */
+      49, /* msgrcv */
       49, /* semop */
       49, /* semget */
       49, /* semctl */
@@ -3484,7 +3483,7 @@ EXTCONST U16  PL_op_private_bitdefs[] = {
     0x29dc, 0x2ef8, 0x0256, 0x3c84, 0x0003, /* rv2sv */
     0x2acc, 0x0003, /* av2arylen, pos, keys, rkeys */
     0x2c3c, 0x0b98, 0x08f4, 0x028c, 0x3e48, 0x3c84, 0x0003, /* rv2cv */
-    0x012f, /* bless, glob, sprintf, formline, unpack, pack, join, anonlist, anonhash, splice, warn, die, reset, exit, close, pipe_op, fileno, umask, binmode, tie, dbmopen, sselect, select, getc, read, enterwrite, sysopen, sysseek, sysread, syswrite, eof, tell, seek, truncate, fcntl, ioctl, send, recv, socket, sockpairl, bind, connect, listen, accept, shutdown, gsockopt, ssockopt, open_dir, seekdir, gmtime, shmget, shmctl, shmread, shmwrite, msgget, msgctl, msgsnd, msgrcvl, semop, semget, semctl, ghbyaddr, gnbyaddr, gpbynumber, gsbyname, gsbyport, syscall */
+    0x012f, /* bless, glob, sprintf, formline, unpack, pack, join, anonlist, anonhash, splice, warn, die, reset, exit, close, pipe_op, fileno, umask, binmode, tie, dbmopen, sselect, select, getc, read, enterwrite, sysopen, sysseek, sysread, syswrite, eof, tell, seek, truncate, fcntl, ioctl, send, recv, socket, sockpair, bind, connect, listen, accept, shutdown, gsockopt, ssockopt, open_dir, seekdir, gmtime, shmget, shmctl, shmread, shmwrite, msgget, msgctl, msgsnd, msgrcv, semop, semget, semctl, ghbyaddr, gnbyaddr, gpbynumber, gsbyname, gsbyport, syscall */
     0x30dc, 0x2ff8, 0x24b4, 0x23f0, 0x0003, /* backtick */
     0x3698, 0x0003, /* substcont */
     0x0c9c, 0x1dd8, 0x0834, 0x3ef0, 0x3a0c, 0x2168, 0x01e4, 0x0141, /* trans, transr */
@@ -3825,7 +3824,7 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* SEND       */ (OPpARG4_MASK),
     /* RECV       */ (OPpARG4_MASK),
     /* SOCKET     */ (OPpARG4_MASK),
-    /* SOCKPAIRL  */ (OPpARG4_MASK),
+    /* SOCKPAIR   */ (OPpARG4_MASK),
     /* BIND       */ (OPpARG4_MASK),
     /* CONNECT    */ (OPpARG4_MASK),
     /* LISTEN     */ (OPpARG4_MASK),
@@ -3906,7 +3905,7 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* MSGGET     */ (OPpARG4_MASK),
     /* MSGCTL     */ (OPpARG4_MASK),
     /* MSGSND     */ (OPpARG4_MASK),
-    /* MSGRCVL    */ (OPpARG4_MASK),
+    /* MSGRCV     */ (OPpARG4_MASK),
     /* SEMOP      */ (OPpARG4_MASK),
     /* SEMGET     */ (OPpARG4_MASK),
     /* SEMCTL     */ (OPpARG4_MASK),

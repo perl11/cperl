@@ -422,9 +422,8 @@ send		send			ck_fun		imst@	Fs S S S?
 recv		recv			ck_fun		imst@	Fs R S S
 
 socket		socket			ck_fun		is@	Fs S S S
-# Safe and Opcode need sockpair, maybe we should just change the sockpair API
 #sockpair	socketpair		ck_fun		is@	Fs Fs S S S
-sockpairl	socketpair		ck_fun		is@	Fs Fs L
+sockpair	socketpair		ck_fun		is@	Fs Fs L
 
 bind		bind			ck_fun		is@	Fs S
 connect		connect			ck_fun		is@	Fs S
@@ -531,7 +530,7 @@ msgget		msgget			ck_fun		imst@	S S
 msgctl		msgctl			ck_fun		imst@	S S S
 msgsnd		msgsnd			ck_fun		imst@	S S S
 #msgrcv		msgrcv			ck_fun		imst@	S S S S S
-msgrcvl		msgrcv			ck_fun		imst@	L
+msgrcv		msgrcv			ck_fun		imst@	L
 
 # Semaphores.
 
