@@ -1707,6 +1707,15 @@ S_Internals_V(pTHX_ CV *cv)
 #  ifdef PERL_HASH_FUNC_DJB2
 			     " PERL_HASH_FUNC_DJB2"
 #  endif
+#  ifdef PERL_HASH_FUNC_FNV1A
+			     " PERL_HASH_FUNC_FNV1A"
+#  endif
+#  ifdef PERL_HASH_FUNC_METRO64
+			     " PERL_HASH_FUNC_METRO64"
+#  endif
+#  ifdef PERL_HASH_FUNC_METRO64CRC
+			     " PERL_HASH_FUNC_METRO64CRC"
+#  endif
 #  ifdef PERL_HASH_FUNC_MURMUR3
 			     " PERL_HASH_FUNC_MURMUR3"
 #  endif
