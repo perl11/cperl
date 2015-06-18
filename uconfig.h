@@ -3438,6 +3438,13 @@
 /*#define HAS_BUILTIN_EXPECT	/ **/
 /*#define HAS_BUILTIN_CHOOSE_EXPR	/ **/
 
+/* HAS_BUILTIN_ARITH_OVERFLOW:
+ *	This symbol is defined if the compiler supports the intrinsics
+ *	__builtin_saddl_overflow() for signed and unsigned IV sizes.
+ *      GCC since 5.0, clang since 3.6
+ */
+/*#define HAS_BUILTIN_ARITH_OVERFLOW	/ **/
+
 /* HAS_C99_VARIADIC_MACROS:
  *	If defined, the compiler supports C99 variadic macros.
  */
@@ -5265,9 +5272,16 @@
 /*#define	USE_CPERL		/ **/
 #endif
 
+/* PERL_HASH_FUNC_*:
+ *	This symbol, if defined, defines the used perl hash function variant.
+ */
+#ifndef PERL_HASH_FUNC_MURMUR3
+#define	PERL_HASH_FUNC_MURMUR3	/**/
+#endif
+
 #endif
 
 /* Generated from:
- * f24b6cad5dfea049496a372df0377184e70273dda142898f2dcb6e101a304ede config_h.SH
- * 62fe5cc4f4d52a1a41889d5009338fc6c28e8a463067e8123046e52248a5183f uconfig.sh
+ * 33faf955718b4857a4472c34872371f2476fac6cd45cfa905a7136d8b26fce3c config_h.SH
+ * 4c8c9d3aafa22b09fc4a750f067087778685e00839061a8e04e5ea1a3970dd41 uconfig.sh
  * ex: set ro: */

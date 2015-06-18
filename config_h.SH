@@ -5307,7 +5307,22 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$usecperl	USE_CPERL		/**/
 #endif
 
-#endif
+/* PERL_HASH_FUNC_*:
+ *	This symbol, if defined, defines the used perl hash function variant.
+ */
 !GROK!THIS!
+
+if test -n "$hash_func"; then
+  cat <<END >>$CONFIG_H
+#ifndef PERL_HASH_FUNC_${hash_func}
+#define	PERL_HASH_FUNC_${hash_func}	/**/
+#endif
+END
+fi
+
+cat <<END >>$CONFIG_H
+
+#endif
+END
 ;;
 esac
