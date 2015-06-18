@@ -12,17 +12,34 @@
 #ifndef PERL_SEEN_HV_FUNC_H /* compile once */
 #define PERL_SEEN_HV_FUNC_H
 
+/* use shorter names */
+#ifdef PERL_HASH_FUNC_ONE_AT_A_TIME
+#define PERL_HASH_FUNC_OAAT
+#endif
+#ifdef PERL_HASH_FUNC_ONE_AT_A_TIME_HARD
+#define PERL_HASH_FUNC_OAAT_HARD
+#endif
+#ifdef PERL_HASH_FUNC_ONE_AT_A_TIME_OLD
+#define PERL_HASH_FUNC_OAAT_OLD
+#endif
+#ifdef PERL_HASH_FUNC_MURMUR_HASH_64A
+#define PERL_HASH_FUNC_MURMUR64A
+#endif
+#ifdef PERL_HASH_FUNC_MURMUR_HASH_64B
+#define PERL_HASH_FUNC_MURMUR64B
+#endif
+
 #if !( 0 \
         || defined(PERL_HASH_FUNC_SIPHASH) \
         || defined(PERL_HASH_FUNC_SDBM) \
         || defined(PERL_HASH_FUNC_DJB2) \
         || defined(PERL_HASH_FUNC_SUPERFAST) \
         || defined(PERL_HASH_FUNC_MURMUR3) \
-        || defined(PERL_HASH_FUNC_ONE_AT_A_TIME) \
-        || defined(PERL_HASH_FUNC_ONE_AT_A_TIME_HARD) \
-        || defined(PERL_HASH_FUNC_ONE_AT_A_TIME_OLD) \
-        || defined(PERL_HASH_FUNC_MURMUR_HASH_64A) \
-        || defined(PERL_HASH_FUNC_MURMUR_HASH_64B) \
+        || defined(PERL_HASH_FUNC_OAAT) \
+        || defined(PERL_HASH_FUNC_OAAT_HARD) \
+        || defined(PERL_HASH_FUNC_OAAT_OLD) \
+        || defined(PERL_HASH_FUNC_MURMUR64A) \
+        || defined(PERL_HASH_FUNC_MURMUR64B) \
         || defined(PERL_HASH_FUNC_FNV1A) \
         || defined(PERL_HASH_FUNC_CRC32) \
         || defined(PERL_HASH_FUNC_METRO64CRC) \
@@ -58,23 +75,23 @@
 #   define PERL_HASH_FUNC "SDBM"
 #   define PERL_HASH_SEED_BYTES 4
 #   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_sdbm((seed),(U8*)(str),(len))
-#elif defined(PERL_HASH_FUNC_ONE_AT_A_TIME_HARD)
+#elif defined(PERL_HASH_FUNC_OAAT_HARD)
 #   define PERL_HASH_FUNC "ONE_AT_A_TIME_HARD"
 #   define PERL_HASH_SEED_BYTES 8
 #   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_one_at_a_time_hard((seed),(U8*)(str),(len))
-#elif defined(PERL_HASH_FUNC_ONE_AT_A_TIME)
+#elif defined(PERL_HASH_FUNC_OAAT)
 #   define PERL_HASH_FUNC "ONE_AT_A_TIME"
 #   define PERL_HASH_SEED_BYTES 4
 #   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_one_at_a_time((seed),(U8*)(str),(len))
-#elif defined(PERL_HASH_FUNC_ONE_AT_A_TIME_OLD)
+#elif defined(PERL_HASH_FUNC_OAAT_OLD)
 #   define PERL_HASH_FUNC "ONE_AT_A_TIME_OLD"
 #   define PERL_HASH_SEED_BYTES 4
 #   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_old_one_at_a_time((seed),(U8*)(str),(len))
-#elif defined(PERL_HASH_FUNC_MURMUR_HASH_64A)
+#elif defined(PERL_HASH_FUNC_MURMUR64A)
 #   define PERL_HASH_FUNC "MURMUR_HASH_64A"
 #   define PERL_HASH_SEED_BYTES 8
 #   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_murmur_hash_64a((seed),(U8*)(str),(len))
-#elif defined(PERL_HASH_FUNC_MURMUR_HASH_64B)
+#elif defined(PERL_HASH_FUNC_MURMUR64B)
 #   define PERL_HASH_FUNC "MURMUR_HASH_64B"
 #   define PERL_HASH_SEED_BYTES 8
 #   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_murmur_hash_64b((seed),(U8*)(str),(len))
@@ -604,7 +621,7 @@ S_perl_hash_old_one_at_a_time(const unsigned char * const seed, const unsigned c
     return (hash + (hash << 15));
 }
 
-#ifdef PERL_HASH_FUNC_MURMUR_HASH_64A
+#ifdef PERL_HASH_FUNC_MURMUR64A
 /* This code is from Austin Appleby and is in the public domain.
    Altered by Yves Orton to match Perl's hash interface, and to
    return a 32 bit hash.
@@ -662,7 +679,7 @@ S_perl_hash_murmur_hash_64a (const unsigned char * const seed, const unsigned ch
 
 #endif
 
-#ifdef PERL_HASH_FUNC_MURMUR_HASH_64B
+#ifdef PERL_HASH_FUNC_MURMUR64B
 /* This code is from Austin Appleby and is in the public domain.
    Altered by Yves Orton to match Perl's hash interface and return
    a 32 bit value

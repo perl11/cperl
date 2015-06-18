@@ -606,6 +606,7 @@ gmtime_r_proto='0'
 groupstype=int
 h_fcntl='false'
 h_sysfile='true'
+hash_func=''
 i16size='2'
 i16type='short'
 i32size='4'
