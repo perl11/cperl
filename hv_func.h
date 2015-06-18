@@ -23,12 +23,18 @@
         || defined(PERL_HASH_FUNC_ONE_AT_A_TIME_OLD) \
         || defined(PERL_HASH_FUNC_MURMUR_HASH_64A) \
         || defined(PERL_HASH_FUNC_MURMUR_HASH_64B) \
+        || defined(PERL_HASH_FUNC_FNV1A) \
         || defined(PERL_HASH_FUNC_CRC32) \
+        || defined(PERL_HASH_FUNC_METRO64CRC) \
+        || defined(PERL_HASH_FUNC_METRO64) \
+        || defined(PERL_HASH_FUNC_FARMHASH64) \
     )
 #if (defined(__SSE4_2__) || defined(AARCH64_FL_CRC))
-#define PERL_HASH_FUNC_CRC32
+#  define PERL_HASH_FUNC_METRO64CRC
+#elif defined(HAS_QUAD)
+#  define PERL_HASH_FUNC_METRO64
 #else
-#define PERL_HASH_FUNC_ONE_AT_A_TIME_HARD
+#  define PERL_HASH_FUNC_MURMUR3
 #endif
 #endif
 
@@ -72,14 +78,26 @@
 #   define PERL_HASH_FUNC "MURMUR_HASH_64B"
 #   define PERL_HASH_SEED_BYTES 8
 #   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_murmur_hash_64b((seed),(U8*)(str),(len))
+#elif defined(PERL_HASH_FUNC_FNV1A)
+#   define PERL_HASH_FUNC "FNV1A"
+#   define PERL_HASH_SEED_BYTES 4
+#   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_fnv1a((seed),(U8*)(str),(len))
 #elif defined(PERL_HASH_FUNC_CRC32)
 #   define PERL_HASH_FUNC "CRC32"
 #   define PERL_HASH_SEED_BYTES 4
 #   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_crc32((seed),(U8*)(str),(len))
-#elif defined(PERL_HASH_FUNC_CITY)
-#   define PERL_HASH_FUNC "CITY"
-#   define PERL_HASH_SEED_BYTES 4
-#   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_city((seed),(U8*)(str),(len))
+#elif defined(PERL_HASH_FUNC_METRO64CRC)
+#   define PERL_HASH_FUNC "METRO64CRC"
+#   define PERL_HASH_SEED_BYTES 8
+#   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_metro64crc((seed),(U8*)(str),(len))
+#elif defined(PERL_HASH_FUNC_METRO64)
+#   define PERL_HASH_FUNC "METRO64"
+#   define PERL_HASH_SEED_BYTES 8
+#   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_metro64((seed),(U8*)(str),(len))
+#elif defined(PERL_HASH_FUNC_FARMHASH64)
+#   define PERL_HASH_FUNC "FARMHASH64"
+#   define PERL_HASH_SEED_BYTES 8
+#   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_farmhash64((seed),(U8*)(str),(len))
 #endif
 
 #ifndef PERL_HASH_WITH_SEED
@@ -714,6 +732,22 @@ S_perl_hash_murmur_hash_64b (const unsigned char * const seed, const unsigned ch
 }
 #endif
 
+#ifdef PERL_HASH_FUNC_FNV1A
+/* schmorp: without any experiments, fnv1a should be faster than
+   one-at-a-time, but should be easily beaten by murmur hash (for long
+   data), which would probably be preferable if I had more time
+   to add a portable version of it. */
+PERL_STATIC_INLINE U32
+S_perl_hash_fnv1a(const unsigned char * const seed, const unsigned char *str, const STRLEN len) {
+    const unsigned char * const end = (const unsigned char *)str + len;
+    U32 hash = 0x811C9DC5 + *((U32*)seed); /* maybe also get rid of seed */
+    while (str < end) {
+        hash ^= *str++;
+        hash *= 16777619;
+    }
+    return hash;
+}
+#endif
 
 #if defined(PERL_HASH_FUNC_CRC32) && (defined(__SSE4_2__) || defined(AARCH64_FL_CRC))
 #include <smmintrin.h>
@@ -728,6 +762,10 @@ S_perl_hash_murmur_hash_64b (const unsigned char * const seed, const unsigned ch
     }                                                                   \
   } while(0)
 
+/* iSCSCI CRC32-C is using the HW intrinsics, is by far the fastest, and
+   one of the best hash functions, but is however very easy to break.
+   See https://github.com/rurban/smhasher
+*/
 PERL_STATIC_INLINE U32
 S_perl_hash_crc32(const unsigned char * const seed, const unsigned char *str, STRLEN len) {
     const char* buf = (const char*)str;
@@ -739,30 +777,178 @@ S_perl_hash_crc32(const unsigned char * const seed, const unsigned char *str, ST
     }
 
 #ifdef __x86_64__
-    CALC_CRC(_mm_crc32_u64, hash, uint64_t, buf, len);
+    CALC_CRC(_mm_crc32_u64, hash, U64TYPE, buf, len);
 #endif
-    CALC_CRC(_mm_crc32_u32, hash, uint32_t, buf, len);
-    CALC_CRC(_mm_crc32_u16, hash, uint16_t, buf, len);
-    CALC_CRC(_mm_crc32_u8, hash, uint8_t, buf, len);
+    CALC_CRC(_mm_crc32_u32, hash, U32, buf, len);
+    CALC_CRC(_mm_crc32_u16, hash, U16, buf, len);
+    CALC_CRC(_mm_crc32_u8,  hash, U8,  buf, len);
 
     return hash;
 }
 #endif
 
-#if 0
-/* Should be the best on non-x86 CPUs. NYI */
-PERL_STATIC_INLINE U32
-S_perl_hash_city(const unsigned char * const seed, const unsigned char *str, const STRLEN len) {
-    U32 hash = *((U32*)seed);
-#define k2 0x9ae16a3b2f90404fULL
-    return HashLen16(CityHash64(str, len) - k2, hash);
-#undef k2
-    return (hash ^ 0xFFFFFFFF);
+#if defined(HAS_QUAD) && (defined(PERL_HASH_FUNC_METRO64CRC) || defined(PERL_HASH_FUNC_METRO64))
+/* rotate right idiom recognized by compiler*/
+inline static U64TYPE rotate_right(U64TYPE v, unsigned k) {
+    return (v >> k) | (v << (64 - k));
+}
+// unaligned reads, fast and safe on Nehalem and later microarchitectures
+inline static U64TYPE read_u64(const void * const ptr) {
+    return *(U64TYPE*)ptr;
+}
+inline static U64TYPE read_u32(const void * const ptr) {
+    return (U64TYPE)(*(U32*)ptr);
+}
+inline static U64TYPE read_u16(const void * const ptr) {
+    return (U64TYPE)(*(U16*)ptr);
+}
+inline static U64TYPE read_u8 (const void * const ptr) {
+    return (U64TYPE)(*(U8*)ptr);
 }
 #endif
 
+/* metrohash is also optionally using the CRC32 HW intrinsics,
+   is almost as fast as CRC32, one of the best hash functions
+   and relatively secure.
+   cfarmhash for 32 bit would be a bit better though. */
+#if defined(PERL_HASH_FUNC_METRO64CRC) && \
+    (defined(__SSE4_2__) || defined(AARCH64_FL_CRC))
+#include <nmmintrin.h>
 
-/* legacy - only mod_perl should be doing this.  */
+/* The MIT License (MIT)
+  Copyright (c) 2015 J. Andrew Rogers
+  Copyright (c) 2015 cPanel Inc.
+  See https://github.com/rurban/smhasher
+ */
+PERL_STATIC_INLINE U32
+S_perl_hash_metro64crc(const unsigned char * const seed, const unsigned char *str, STRLEN len) {
+    static const U64TYPE k0 = 0xC83A91E1;
+    static const U64TYPE k1 = 0x8648DBDB;
+    static const U64TYPE k2 = 0x7BDEC03B;
+    static const U64TYPE k3 = 0x2F5870A5;
+
+    const U8 * ptr = (const U8*)(str);
+    const U8 * const end = ptr + len;
+
+    U64TYPE hash = ((*(U64TYPE*)seed + k2) * k0) + len;
+
+    if (len >= 32) {
+        U64TYPE v[4];
+        v[0] = hash;
+        v[1] = hash;
+        v[2] = hash;
+        v[3] = hash;
+
+        do {
+            v[0] ^= _mm_crc32_u64(v[0], read_u64(ptr) * k0); ptr += 8;
+            v[1] ^= _mm_crc32_u64(v[1], read_u64(ptr) * k1); ptr += 8;
+            v[2] ^= _mm_crc32_u64(v[2], read_u64(ptr) * k2); ptr += 8;
+            v[3] ^= _mm_crc32_u64(v[3], read_u64(ptr) * k3); ptr += 8;
+        } while (ptr <= (end - 32));
+
+        v[2] ^= rotate_right(((v[0] + v[3]) * k0) + v[1], 33) * k1;
+        v[3] ^= rotate_right(((v[1] + v[2]) * k1) + v[0], 33) * k0;
+        v[0] ^= rotate_right(((v[0] + v[2]) * k0) + v[3], 33) * k1;
+        v[1] ^= rotate_right(((v[1] + v[3]) * k1) + v[2], 33) * k0;
+        hash += v[0] ^ v[1];
+    }
+    if ((end - ptr) >= 16) {
+        U64TYPE v0 = hash + (read_u64(ptr) * k0); ptr += 8; v0 = rotate_right(v0,33) * k1;
+        U64TYPE v1 = hash + (read_u64(ptr) * k1); ptr += 8; v1 = rotate_right(v1,33) * k2;
+        v0 ^= rotate_right(v0 * k0, 35) + v1;
+        v1 ^= rotate_right(v1 * k3, 35) + v0;
+        hash += v1;
+    }
+    if ((end - ptr) >= 8) {
+        hash += _mm_crc32_u64(hash, read_u64(ptr)); ptr += 8;
+        hash ^= rotate_right(hash, 33) * k1;
+    }
+    if ((end - ptr) >= 4) {
+        hash ^= _mm_crc32_u64(hash, read_u32(ptr)); ptr += 4;
+        hash ^= rotate_right(hash, 15) * k1;
+    }
+    if ((end - ptr) >= 2) {
+        hash ^= _mm_crc32_u64(hash, read_u16(ptr)); ptr += 2;
+        hash ^= rotate_right(hash, 13) * k1;
+    }
+    if ((end - ptr) >= 1) {
+        hash ^= _mm_crc32_u64(hash, read_u8(ptr));
+        hash ^= rotate_right(hash, 25) * k1;
+    }
+    hash ^= rotate_right(hash, 33);
+    hash *= k0;
+    hash ^= rotate_right(hash, 33);
+
+    return (U32)hash;
+}
+#endif
+
+#if defined(PERL_HASH_FUNC_METRO64) && defined(HAS_QUAD)
+PERL_STATIC_INLINE U32
+S_perl_hash_metro64(const unsigned char * const seed, const unsigned char *str, STRLEN len) {
+    static const U64TYPE k0 = 0xC83A91E1;
+    static const U64TYPE k1 = 0x8648DBDB;
+    static const U64TYPE k2 = 0x7BDEC03B;
+    static const U64TYPE k3 = 0x2F5870A5;
+
+    const U8 * ptr = (const U8*)(str);
+    const U8 * const end = ptr + len;
+
+    U64TYPE hash = ((*(U64TYPE*)seed + k2) * k0) + len;
+
+    if (len >= 32) {
+        U64TYPE v[4];
+        v[0] = hash;
+        v[1] = hash;
+        v[2] = hash;
+        v[3] = hash;
+
+        do {
+            v[0] += read_u64(ptr) * k0; ptr += 8; v[0] = rotate_right(v[0],29) + v[2];
+            v[1] += read_u64(ptr) * k1; ptr += 8; v[1] = rotate_right(v[1],29) + v[3];
+            v[2] += read_u64(ptr) * k2; ptr += 8; v[2] = rotate_right(v[2],29) + v[0];
+            v[3] += read_u64(ptr) * k3; ptr += 8; v[3] = rotate_right(v[3],29) + v[1];
+        } while (ptr <= (end - 32));
+
+        v[2] ^= rotate_right(((v[0] + v[3]) * k0) + v[1], 33) * k1;
+        v[3] ^= rotate_right(((v[1] + v[2]) * k1) + v[0], 33) * k0;
+        v[0] ^= rotate_right(((v[0] + v[2]) * k0) + v[3], 33) * k1;
+        v[1] ^= rotate_right(((v[1] + v[3]) * k1) + v[2], 33) * k0;
+        hash += v[0] ^ v[1];
+    }
+    if ((end - ptr) >= 16) {
+        U64TYPE v0 = hash + (read_u64(ptr) * k0); ptr += 8; v0 = rotate_right(v0,33) * k1;
+        U64TYPE v1 = hash + (read_u64(ptr) * k1); ptr += 8; v1 = rotate_right(v1,33) * k2;
+        v0 ^= rotate_right(v0 * k0, 35) + v1;
+        v1 ^= rotate_right(v1 * k3, 35) + v0;
+        hash += v1;
+    }
+    if ((end - ptr) >= 8) {
+        hash += read_u64(ptr) * k3; ptr += 8;
+        hash ^= rotate_right(hash, 33) * k1;
+    }
+    if ((end - ptr) >= 4) {
+        hash += read_u32(ptr) * k3; ptr += 4;
+        hash ^= rotate_right(hash, 15) * k1;
+    }
+    if ((end - ptr) >= 2) {
+        hash += read_u16(ptr) * k3; ptr += 2;
+        hash ^= rotate_right(hash, 13) * k1;
+    }
+    if ((end - ptr) >= 1) {
+        hash += read_u8 (ptr) * k3;
+        hash ^= rotate_right(hash, 25) * k1;
+    }
+
+    hash ^= rotate_right(hash, 33);
+    hash *= k0;
+    hash ^= rotate_right(hash, 33);
+
+    return (U32)hash;
+}
+#endif
+
+/* legacy - only mod_perl should be doing this. */
 #ifdef PERL_HASH_INTERNAL_ACCESS
 #define PERL_HASH_INTERNAL(hash,str,len) PERL_HASH(hash,str,len)
 #endif
