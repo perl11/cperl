@@ -22,6 +22,7 @@
 #define PerlIO_stderr()			PerlSIO_stderr
 #define PerlIO_stdout()			PerlSIO_stdout
 #define PerlIO_stdin()			PerlSIO_stdin
+#define PerlIO_debugio()		PerlSIO_stderr
 
 #define PerlIO_isutf8(f)		0
 

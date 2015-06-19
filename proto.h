@@ -8247,6 +8247,9 @@ PERL_CALLCONV char*	Perl_sv_collxfrm_flags(pTHX_ SV *const sv, STRLEN *const nxp
 #if defined(USE_PERLIO)
 PERL_CALLCONV void	Perl_PerlIO_clearerr(pTHX_ PerlIO *f);
 PERL_CALLCONV int	Perl_PerlIO_close(pTHX_ PerlIO *f);
+PERL_CALLCONV PerlIO *	Perl_PerlIO_debugio(pTHX)
+			__attribute__warn_unused_result__;
+
 PERL_CALLCONV int	Perl_PerlIO_eof(pTHX_ PerlIO *f);
 PERL_CALLCONV int	Perl_PerlIO_error(pTHX_ PerlIO *f);
 PERL_CALLCONV int	Perl_PerlIO_fileno(pTHX_ PerlIO *f);
