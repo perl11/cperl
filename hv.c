@@ -743,7 +743,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	    Safefree(key);
 
         /* fill, size, found index in collision list */
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "%lu\t%lu\t%u\n", HvKEYS(hv), HvMAX(hv), linear));
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u\n", HvKEYS(hv), HvMAX(hv), linear));
 	if (return_svp) {
 	    return entry ? (void *) &HeVAL(entry) : NULL;
 	}
@@ -752,7 +752,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 
   not_found:
     /* fill, size, not found, size of collision list */
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "%lu\t%lu\t%u -\n", HvKEYS(hv), HvMAX(hv), linear));
+    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u -\n", HvKEYS(hv), HvMAX(hv), linear));
 #ifdef DYNAMIC_ENV_FETCH  /* %ENV lookup?  If so, try to fetch the value now */
     if (!(action & HV_FETCH_ISSTORE) 
 	&& SvRMAGICAL((const SV *)hv)
@@ -1148,7 +1148,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	if (HeVAL(entry) == &PL_sv_placeholder) {
 	    if (k_flags & HVhek_FREEKEY)
 		Safefree(key);
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "%lu\t%lu\t%u DELpl\n", HvKEYS(hv), HvMAX(hv), linear));
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DELpl\n", HvKEYS(hv), HvMAX(hv), linear));
 	    return NULL;
 	}
 	if (SvREADONLY(hv) && HeVAL(entry) && SvREADONLY(HeVAL(entry))) {
@@ -1237,7 +1237,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	else if (mro_changes == 2)
 	    mro_package_moved(NULL, stash, gv, 1);
 
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "%lu\t%lu\t%u DEL+\n", HvKEYS(hv), HvMAX(hv), linear));
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL+\n", HvKEYS(hv), HvMAX(hv), linear));
 	return sv;
     }
 
@@ -1250,7 +1250,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 
     if (k_flags & HVhek_FREEKEY)
 	Safefree(key);
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "%lu\t%lu\t%u DEL-\n", HvKEYS(hv), HvMAX(hv), linear));
+    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL-\n", HvKEYS(hv), HvMAX(hv), linear));
     return NULL;
 }
 
