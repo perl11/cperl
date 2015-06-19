@@ -44,6 +44,7 @@
         || defined(PERL_HASH_FUNC_CRC32) \
         || defined(PERL_HASH_FUNC_METRO64CRC) \
         || defined(PERL_HASH_FUNC_METRO64) \
+        || defined(PERL_HASH_FUNC_SPOOKY32) \
         || defined(PERL_HASH_FUNC_FARMHASH64) \
     )
 /* FNV1A is the fastest, MURMUR3 the fastest of the stable ones.
@@ -108,6 +109,10 @@
 #   define PERL_HASH_FUNC "METRO64"
 #   define PERL_HASH_SEED_BYTES 8
 #   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_metro64((seed),(U8*)(str),(len))
+#elif defined(PERL_HASH_FUNC_SPOOKY32)
+#   define PERL_HASH_FUNC "SPOOKY32"
+#   define PERL_HASH_SEED_BYTES 16
+#   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_spooky32((seed),(U8*)(str),(len))
 #elif defined(PERL_HASH_FUNC_FARMHASH64)
 #   define PERL_HASH_FUNC "FARMHASH64"
 #   define PERL_HASH_SEED_BYTES 8
@@ -162,6 +167,7 @@
 #endif
 
 
+#define UNALIGNED_SAFE 0
 /* Now find best way we can to READ_UINT32 */
 #if (BYTEORDER == 0x1234 || BYTEORDER == 0x12345678) && U32SIZE == 4
   /* CPU endian matches murmurhash algorithm, so read 32-bit word directly */
@@ -173,13 +179,13 @@
   #else
     /* Without a known fast bswap32 we're just as well off doing this */
     #define U8TO32_LE(ptr)   (ptr[0]|ptr[1]<<8|ptr[2]<<16|ptr[3]<<24)
-    #define UNALIGNED_SAFE
+    #define UNALIGNED_SAFE 1
   #endif
 #else
   /* Unknown endianess so last resort is to read individual bytes */
   #define U8TO32_LE(ptr)   (ptr[0]|ptr[1]<<8|ptr[2]<<16|ptr[3]<<24)
   /* Since we're not doing word-reads we can skip the messing about with realignment */
-  #define UNALIGNED_SAFE
+  #define UNALIGNED_SAFE 1
 #endif
 
 #ifdef HAS_QUAD
@@ -429,7 +435,7 @@ S_perl_hash_murmur3(const unsigned char * const seed, const unsigned char *ptr, 
     int bytes_in_carry = 0; /* bytes in carry */
     I32 total_length= (I32)len;
 
-#if defined(UNALIGNED_SAFE)
+#if UNALIGNED_SAFE
     /* Handle carry: commented out as its only used in incremental mode - it never fires for us
     int i = (4-n) & 3;
     if(i && i <= len) {
@@ -776,8 +782,9 @@ S_perl_hash_fnv1a(const unsigned char * const seed, const unsigned char *str, co
     }                                                                   \
   } while(0)
 
-/* iSCSCI CRC32-C is using the HW intrinsics, is by far the fastest, and
-   one of the best hash functions, but is however very easy to break.
+/* iSCSCI CRC32-C is using the HW intrinsics. By far the fastest, and
+   measured as one of the best hash functions, but is however very easy to break,
+   and has low qualities in smhasher.
    See https://github.com/rurban/smhasher
 */
 PERL_STATIC_INLINE U32
@@ -961,6 +968,183 @@ S_perl_hash_metro64(const unsigned char * const seed, const unsigned char *str, 
     return (U32)hash;
 }
 #endif
+
+#if defined(PERL_HASH_FUNC_SPOOKY32) && defined(HAS_QUAD)
+
+/* Spooky Hash
+   A 128-bit noncryptographic hash, for checksums and table lookup
+   By Bob Jenkins.  Public domain.
+     Oct 31 2010: published framework, disclaimer ShortHash isn't right
+     Nov 7 2010:  disabled ShortHash
+     Oct 31 2011: replace End, ShortMix, ShortEnd, enable ShortHash again */
+
+/* left rotate a 64-bit value by k bytes */
+PERL_STATIC_INLINE U64TYPE
+Rot64(U64TYPE x, int k) {
+    return (x << k) | (x >> (64 - k));
+}
+
+/* The goal is for each bit of the input to expand into 128 bits of  */
+/*   apparent entropy before it is fully overwritten. */
+/* n trials both set and cleared at least m bits of h0 h1 h2 h3 */
+/*   n: 2   m: 29 */
+/*   n: 3   m: 46 */
+/*   n: 4   m: 57 */
+/*   n: 5   m: 107 */
+/*   n: 6   m: 146 */
+/*   n: 7   m: 152 */
+/* when run forwards or backwards */
+/* for all 1-bit and 2-bit diffs */
+/* with diffs defined by either xor or subtraction */
+/* with a base of all zeros plus a counter, or plus another bit, or random */
+
+#define ShortMix(h0, h1, h2, h3) \
+    h2 = Rot64(h2,50);  h2 += h3;  h0 ^= h2; \
+    h3 = Rot64(h3,52);  h3 += h0;  h1 ^= h3; \
+    h0 = Rot64(h0,30);  h0 += h1;  h2 ^= h0; \
+    h1 = Rot64(h1,41);  h1 += h2;  h3 ^= h1; \
+    h2 = Rot64(h2,54);  h2 += h3;  h0 ^= h2; \
+    h3 = Rot64(h3,48);  h3 += h0;  h1 ^= h3; \
+    h0 = Rot64(h0,38);  h0 += h1;  h2 ^= h0; \
+    h1 = Rot64(h1,37);  h1 += h2;  h3 ^= h1; \
+    h2 = Rot64(h2,62);  h2 += h3;  h0 ^= h2; \
+    h3 = Rot64(h3,34);  h3 += h0;  h1 ^= h3; \
+    h0 = Rot64(h0,5);   h0 += h1;  h2 ^= h0; \
+    h1 = Rot64(h1,36);  h1 += h2;  h3 ^= h1
+
+/* Mix all 4 inputs together so that h0, h1 are a hash of them all. */
+
+/* For two inputs differing in just the input bits */
+/* Where "differ" means xor or subtraction */
+/* And the base value is random, or a counting value starting at that bit */
+/* The final result will have each bit of h0, h1 flip */
+/* For every input bit, */
+/* with probability 50 +- .3% (it is probably better than that) */
+/* For every pair of input bits, */
+/* with probability 50 +- .75% (the worst case is approximately that) */
+#define ShortEnd(h0, h1, h2, h3) \
+    h3 ^= h2;  h2 = Rot64(h2,15);  h3 += h2;     \
+    h0 ^= h3;  h3 = Rot64(h3,52);  h0 += h3;     \
+    h1 ^= h0;  h0 = Rot64(h0,26);  h1 += h0;     \
+    h2 ^= h1;  h1 = Rot64(h1,51);  h2 += h1;     \
+    h3 ^= h2;  h2 = Rot64(h2,28);  h3 += h2;     \
+    h0 ^= h3;  h3 = Rot64(h3,9);   h0 += h3;     \
+    h1 ^= h0;  h0 = Rot64(h0,47);  h1 += h0;     \
+    h2 ^= h1;  h1 = Rot64(h1,54);  h2 += h1;     \
+    h3 ^= h2;  h2 = Rot64(h2,32);  h3 += h2;     \
+    h0 ^= h3;  h3 = Rot64(h3,25);  h0 += h3;     \
+    h1 ^= h0;  h0 = Rot64(h0,63);  h1 += h0;
+
+/* sc_const: a constant which: */
+/*  * is not zero */
+/*  * is odd */
+/*  * is a not-very-regular mix of 1's and 0's */
+/*  * does not need any other special mathematical properties */
+static const U64TYPE sc_const = 0xdeadbeefdeadbeefULL;
+
+PERL_STATIC_INLINE U32
+S_perl_hash_spooky32(const unsigned char * const seed, const unsigned char *str, STRLEN len)
+{
+    U64TYPE *hash1 = (U64TYPE*)seed;
+    U64TYPE *hash2 = (U64TYPE*)(seed+8);
+    U64TYPE buf[12];
+    union 
+    { 
+        const U8 *p8; 
+        U32      *p32;
+        U64TYPE  *p64; 
+        size_t    i; 
+    } u;
+
+    u.p8 = (const U8 *)str;
+
+    if (!UNALIGNED_SAFE && (u.i & 0x7))
+    {
+        memcpy(buf, str, len);
+        u.p64 = buf;
+    }
+
+    size_t remainder = len%32;
+    U64TYPE a = *hash1;
+    U64TYPE b = *hash2;
+    U64TYPE c = sc_const;
+    U64TYPE d = sc_const;
+
+    if (len > 15)
+    {
+        const U64TYPE *end = u.p64 + (len/32)*4;
+        
+        // handle all complete sets of 32 bytes
+        for (; u.p64 < end; u.p64 += 4)
+        {
+            c += u.p64[0];
+            d += u.p64[1];
+            ShortMix(a,b,c,d);
+            a += u.p64[2];
+            b += u.p64[3];
+        }
+        
+        //Handle the case of 16+ remaining bytes.
+        if (remainder >= 16)
+        {
+            c += u.p64[0];
+            d += u.p64[1];
+            ShortMix(a,b,c,d);
+            u.p64 += 2;
+            remainder -= 16;
+        }
+    }
+    
+    // Handle the last 0..15 bytes, and its len
+    d = ((U64TYPE)len) << 56;
+    switch (remainder)
+    {
+    case 15:
+        d += ((U64TYPE)u.p8[14]) << 48;
+    case 14:
+        d += ((U64TYPE)u.p8[13]) << 40;
+    case 13:
+        d += ((U64TYPE)u.p8[12]) << 32;
+    case 12:
+        d += u.p32[2];
+        c += u.p64[0];
+        break;
+    case 11:
+        d += ((U64TYPE)u.p8[10]) << 16;
+    case 10:
+        d += ((U64TYPE)u.p8[9]) << 8;
+    case 9:
+        d += (U64TYPE)u.p8[8];
+    case 8:
+        c += u.p64[0];
+        break;
+    case 7:
+        c += ((U64TYPE)u.p8[6]) << 48;
+    case 6:
+        c += ((U64TYPE)u.p8[5]) << 40;
+    case 5:
+        c += ((U64TYPE)u.p8[4]) << 32;
+    case 4:
+        c += u.p32[0];
+        break;
+    case 3:
+        c += ((U64TYPE)u.p8[2]) << 16;
+    case 2:
+        c += ((U64TYPE)u.p8[1]) << 8;
+    case 1:
+        c += (U64TYPE)u.p8[0];
+        break;
+    case 0:
+        c += sc_const;
+        d += sc_const;
+    }
+    ShortEnd(a,b,c,d);
+    /* *hash1 = a;
+       *hash2 = b; */
+    return (U32)a;    
+}
+#endif
+
 
 /* legacy - only mod_perl should be doing this. */
 #ifdef PERL_HASH_INTERNAL_ACCESS
