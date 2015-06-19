@@ -3042,6 +3042,7 @@ Perl_get_debug_opts(pTHX_ const char **s, bool givehelp)
       "  x  Syntax tree dump\n",
       "  u  Tainting checks\n"
       "  H  Hash dump -- usurps values()\n"
+      "  I  PerlIO, as previously with env PERLIO_DEBUG\n"
       "  X  Scratchpad allocation\n"
       "  D  Cleaning up\n"
       "  S  Op slab allocation\n"
@@ -3063,7 +3064,7 @@ Perl_get_debug_opts(pTHX_ const char **s, bool givehelp)
 
     if (isALPHA(**s)) {
 	/* if adding extra options, remember to update DEBUG_MASK */
-	static const char debopts[] = "psltocPmfrxuUHXDSTRJvCAqMBL";
+	static const char debopts[] = "psltocPmfrxuUHXDSTRJvCAqMBLI";
 
 	for (; isWORDCHAR(**s); (*s)++) {
 	    const char * const d = strchr(debopts,**s);
