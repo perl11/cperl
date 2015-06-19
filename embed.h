@@ -863,6 +863,7 @@
 #if defined(USE_PERLIO)
 #define PerlIO_clearerr(a)	Perl_PerlIO_clearerr(aTHX_ a)
 #define PerlIO_close(a)		Perl_PerlIO_close(aTHX_ a)
+#define PerlIO_debugio()	Perl_PerlIO_debugio(aTHX)
 #define PerlIO_eof(a)		Perl_PerlIO_eof(aTHX_ a)
 #define PerlIO_error(a)		Perl_PerlIO_error(aTHX_ a)
 #define PerlIO_fileno(a)	Perl_PerlIO_fileno(aTHX_ a)

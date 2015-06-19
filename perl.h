@@ -3965,7 +3965,7 @@ Gid_t getegid (void);
 #endif
 
 #ifndef Perl_debug_log
-#  define Perl_debug_log	PerlIO_stderr()
+#  define Perl_debug_log	PerlIO_debugio()
 #endif
 
 #ifndef Perl_error_log

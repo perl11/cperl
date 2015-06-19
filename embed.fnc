@@ -2566,6 +2566,7 @@ ApR	|SSize_t	  |PerlIO_get_cnt	|NULLOK PerlIO *f
 ApR	|PerlIO *|PerlIO_stdin
 ApR	|PerlIO *|PerlIO_stdout
 ApR	|PerlIO *|PerlIO_stderr
+ApR	|PerlIO *|PerlIO_debugio
 #endif /* USE_PERLIO */
 
 : Only used in dump.c

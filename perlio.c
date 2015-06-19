@@ -376,7 +376,8 @@ PerlIO_debug(const char *fmt, ...)
     va_start(ap, fmt);
     if (!PL_perlio_debug_fd) {
         /* with DEBUGGING it would have been initialized already
-           in PerlIO_stdstreams() */
+           in PerlIO_stdstreams(). Here we need it only for one call in 
+           PerlIO__Layer__NoWarnings */
 #ifndef DEBUGGING
 	if (!TAINTING_get &&
 	    PerlProc_getuid() == PerlProc_geteuid() &&
@@ -872,7 +873,7 @@ XS(XS_PerlIO__Layer__NoWarnings)
     dXSARGS;
     PERL_UNUSED_ARG(cv);
     if (items)
-    	PerlIO_debug("warning:%s\n",SvPV_nolen_const(ST(0)));
+    	DEBUG_I(PerlIO_debug("warning:%s\n",SvPV_nolen_const(ST(0))));
     XSRETURN(0);
 }
 
@@ -1142,6 +1143,7 @@ PerlIO_stdstreams(pTHX)
 	PerlIO_fdopen(1, "Iw" PERLIO_STDTEXT);
 	PerlIO_fdopen(2, "Iw" PERLIO_STDTEXT);
 #ifdef DEBUGGING
+        PL_perlio_debug_fd = 2;
 	if (!TAINTING_get &&
             PerlEnv_getenv("PERLIO_DEBUG") &&
 	    PerlProc_getuid() == PerlProc_geteuid() &&
@@ -2396,11 +2398,11 @@ PerlIO_cleanup(pTHX)
 #endif
 
     /* Raise STDIN..STDERR refcount so we don't close them */
-    for (i=0; i < 3; i++)
+    for (i=0; i < PERLIO_MAX; i++)
 	PerlIOUnix_refcnt_inc(i);
     PerlIO_cleantable(aTHX_ &PL_perlio);
     /* Restore STDIN..STDERR refcount */
-    for (i=0; i < 3; i++)
+    for (i=0; i < PERLIO_MAX; i++)
 	PerlIOUnix_refcnt_dec(i);
 
     if (PL_known_layers) {
@@ -2431,7 +2433,7 @@ void PerlIO_teardown(void) /* Call only from PERL_SYS_TERM(). */
 #define PERLIO_TEARDOWN_MESSAGE_FD 2
 	char buf[PERLIO_TEARDOWN_MESSAGE_BUF_SIZE];
 	int i;
-	for (i = 3; i < PL_perlio_fd_refcnt_size; i++) {
+	for (i = PERLIO_MAX; i < PL_perlio_fd_refcnt_size; i++) {
 	    if (PL_perlio_fd_refcnt[i]) {
 		const STRLEN len =
 		    my_snprintf(buf, sizeof(buf),
@@ -4865,6 +4867,15 @@ Perl_PerlIO_stderr(pTHX)
 	PerlIO_stdstreams(aTHX);
     }
     return (PerlIO*)&PL_perlio[3];
+}
+
+PerlIO *
+Perl_PerlIO_debugio(pTHX)
+{
+    if (!PL_perlio) {
+	PerlIO_stdstreams(aTHX);
+    }
+    return PL_perlio_debug_fd>2 ? (PerlIO*)&PL_perlio[4] : (PerlIO*)&PL_perlio[3];
 }
 
 /*--------------------------------------------------------------------------------------*/
