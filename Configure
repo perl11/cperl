@@ -23547,13 +23547,14 @@ case "$ccflags" in
         $echo "  OAAT OAAT_HARD OAAT_OLD ONE_AT_A_TIME_HARD ONE_AT_A_TIME ONE_AT_A_TIME_OLD"
         $echo "  MURMUR3 MURMUR64A MURMUR64B MURMUR_HASH_64A MURMUR_HASH_64B CRC32 METRO64CRC METRO64"
         rp="Which hash function do you want to use?"
-        dflt=default
+        test -z "$hash_func" && hash_func=MURMUR3
+        dflt=$hash_func
         . ./myread
 esac
 ans=`echo $ans|tr a-z A-Z`
 case "$ans" in
-    DEFAULT)
-        hash_func='' ;;
+    DEFAULT|'')
+        hash_func='MURMUR3' ;;
     OAAT|OAAT_HARD|OAAT_OLD)
         hash_func=`echo $ans|sed 's,OAAT,ONE_AT_A_TIME,'` ;;
     MURMUR64A|MURMUR64B)
