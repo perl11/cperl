@@ -46,13 +46,10 @@
         || defined(PERL_HASH_FUNC_METRO64) \
         || defined(PERL_HASH_FUNC_FARMHASH64) \
     )
-#if (defined(__SSE4_2__) || defined(AARCH64_FL_CRC))
-#  define PERL_HASH_FUNC_METRO64CRC
-#elif defined(HAS_QUAD)
-#  define PERL_HASH_FUNC_METRO64
-#else
-#  define PERL_HASH_FUNC_MURMUR3
-#endif
+/* FNV1A is the fastest, MURMUR3 the fastest of the stable ones.
+   See https://github.com/rurban/smhasher#smhasher
+ */
+#define PERL_HASH_FUNC_MURMUR3
 #endif
 
 #if defined(PERL_HASH_FUNC_SIPHASH)
