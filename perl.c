@@ -1734,6 +1734,9 @@ S_Internals_V(pTHX_ CV *cv)
 #  ifdef PERL_HASH_FUNC_SIPHASH
 			     " PERL_HASH_FUNC_SIPHASH"
 #  endif
+#  ifdef PERL_HASH_FUNC_SPOOKY32
+			     " PERL_HASH_FUNC_SPOOKY32"
+#  endif
 #  ifdef PERL_HASH_FUNC_SUPERFAST
 			     " PERL_HASH_FUNC_SUPERFAST"
 #  endif
