@@ -5,7 +5,7 @@
 #	Windows SDK 64-bit compiler and tools
 #
 # This is set up to build a cperl.exe that runs off a shared library
-# (cperl522.dll).  Also makes individual DLLs for the XS extensions.
+# (cperl523.dll).  Also makes individual DLLs for the XS extensions.
 #
 
 ##
@@ -43,7 +43,7 @@ USE_CPERL	= define
 # versioned installation can be obtained by setting INST_TOP above to a
 # path that includes an arbitrary version string.
 #
-#INST_VER	= \5.22.3
+#INST_VER	= \5.23.1
 
 #
 # Comment this out if you DON'T want your perl installation to have
@@ -197,7 +197,7 @@ CCTYPE		= MSVC90FREE
 # set this to additionally provide a statically linked perl-static.exe.
 # Note that dynamic loading will not work with this perl, so you must
 # include required modules statically using the STATIC_EXT or ALL_STATIC
-# variables below. A static library perl522s.lib will also be created.
+# variables below. A static library perl523s.lib will also be created.
 # Ordinary perl.exe is not affected by this option.
 #
 #BUILD_STATIC	= define
@@ -1234,8 +1234,8 @@ utils: $(PERLEXE) ..\utils\Makefile
 	copy ..\README.tw       ..\pod\perltw.pod
 	copy ..\README.vos      ..\pod\perlvos.pod
 	copy ..\README.win32    ..\pod\perlwin32.pod
+	copy ..\pod\perlcdelta.pod ..\pod\perl5222cdelta.pod
 	copy ..\pod\perldelta.pod ..\pod\perl5222delta.pod
-	copy ..\pod\perlcdelta.pod ..\pod\perl5223cdelta.pod
 	cd ..\win32
 	$(PERLEXE) $(PL2BAT) $(UTILS)
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
@@ -1341,7 +1341,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\XS rmdir /s /q $(LIBDIR)\XS
 	-if exist $(LIBDIR)\YAML rmdir /s /q $(LIBDIR)\YAML
 	-cd $(PODDIR) && del /f *.html *.bat roffitall \
-	    perl5222delta.pod perl5223cdelta.pod perlaix.pod perlamiga.pod \
+	    perl5222cdelta.pod perl5222delta.pod perlaix.pod perlamiga.pod \
 	    perlandroid.pod perlapi.pod perlbs2000.pod perlce.pod \
 	    perlcn.pod perlcygwin.pod perldos.pod perlfreebsd.pod \
 	    perlhaiku.pod perlhpux.pod perlhurd.pod perlintern.pod \
