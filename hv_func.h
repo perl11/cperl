@@ -41,14 +41,17 @@
         || defined(PERL_HASH_FUNC_MURMUR64A) \
         || defined(PERL_HASH_FUNC_MURMUR64B) \
         || defined(PERL_HASH_FUNC_FNV1A) \
+        || defined(PERL_HASH_FUNC_FNV1A_YOSHIMITSUTRIAD) \
         || defined(PERL_HASH_FUNC_CRC32) \
         || defined(PERL_HASH_FUNC_METRO64CRC) \
         || defined(PERL_HASH_FUNC_METRO64) \
         || defined(PERL_HASH_FUNC_SPOOKY32) \
         || defined(PERL_HASH_FUNC_FARMHASH64) \
     )
-/* FNV1A is the fastest, MURMUR3 the fastest of the stable ones.
+/* FNV1A and CRC32 are the fastest,
+   SPOOKY32, METRO64CRC and MURMUR3 the fastest of the stable ones.
    See https://github.com/rurban/smhasher#smhasher
+   and https://github.com/rurban/perl-hash-stats
  */
 #define PERL_HASH_FUNC_MURMUR3
 #endif
@@ -97,6 +100,10 @@
 #   define PERL_HASH_FUNC "FNV1A"
 #   define PERL_HASH_SEED_BYTES 4
 #   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_fnv1a((seed),(U8*)(str),(len))
+#elif defined(PERL_HASH_FUNC_FNV1A_YOSHIMITSUTRIAD)
+#   define PERL_HASH_FUNC "FNV1A_YoshimitsuTRIAD"
+#   define PERL_HASH_SEED_BYTES 4
+#   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_fnv1a_yt((seed),(U8*)(str),(len))
 #elif defined(PERL_HASH_FUNC_CRC32)
 #   define PERL_HASH_FUNC "CRC32"
 #   define PERL_HASH_SEED_BYTES 4
@@ -766,6 +773,58 @@ S_perl_hash_fnv1a(const unsigned char * const seed, const unsigned char *str, co
         hash *= 16777619;
     }
     return hash;
+}
+#endif
+
+#ifdef PERL_HASH_FUNC_FNV1A_YOSHIMITSUTRIAD
+/* faster unrolled fnv1a variant by sanmayce. http://www.sanmayce.com/Fastest_Hash/
+   fixed for some same basic security problems. */
+PERL_STATIC_INLINE U32
+S_perl_hash_fnv1a_yt(const unsigned char * const s, const unsigned char *str, const STRLEN l) {
+    const U8  *p = (const U8 *)str;
+    STRLEN len = (STRLEN)l;
+    const U32 seed = *(U32*)s;
+    const U32  PRIME = 709607;
+    U32	  hash32A = seed ^ 2166136261;
+    U32	  hash32B = 2166136261 + len;
+    U32	  hash32C = 2166136261;
+
+    for (; len >= 3 * 2 * sizeof(U32); len -= 3 * 2 * sizeof(U32), p += 3 * 2 * sizeof(U32)) {
+        hash32A = (hash32A ^ (ROTL32(*(U32 *) (p + 0), 5)  ^ *(U32 *) (p + 4)))  * PRIME;
+        hash32B = (hash32B ^ (ROTL32(*(U32 *) (p + 8), 5)  ^ *(U32 *) (p + 12))) * PRIME;
+        hash32C = (hash32C ^ (ROTL32(*(U32 *) (p + 16), 5) ^ *(U32 *) (p + 20))) * PRIME;
+    }
+    if (p != str) {
+        hash32A = (hash32A ^ ROTL32(hash32C, 5)) * PRIME;
+    }
+    /* Cases 0..31 */
+    if (len & 4 * sizeof(U32)) {
+        hash32A = (hash32A ^ (ROTL32(*(U32 *) (p + 0), 5) ^ *(U32 *) (p + 4))) * PRIME;
+        hash32B = (hash32B ^ (ROTL32(*(U32 *) (p + 8), 5) ^ *(U32 *) (p + 12))) * PRIME;
+        p += 8 * sizeof(U16);
+    }
+    /* Cases 0..15 */
+    if (len & 2 * sizeof(U32)) {
+        hash32A = (hash32A ^ *(U32 *) (p + 0)) * PRIME;
+        hash32B = (hash32B ^ *(U32 *) (p + 4)) * PRIME;
+        p += 4 * sizeof(U16);
+    }
+    /* Cases 0..7 */
+    if (len & sizeof(U32)) {
+        hash32A = (hash32A ^ *(U16 *) (p + 0)) * PRIME;
+        hash32B = (hash32B ^ *(U16 *) (p + 2)) * PRIME;
+        p += 2 * sizeof(U16);
+    }
+    /* Cases 0..3 */
+    if (len & sizeof(U16)) {
+        hash32A = (hash32A ^ *(U16 *) p) * PRIME;
+        p += sizeof(U16);
+    }
+    if (len & 1)
+        hash32A = (hash32A ^ *p) * PRIME;
+
+    hash32A = (hash32A ^ ROTL32(hash32B, 5)) * PRIME;
+    return hash32A ^ (hash32A >> 16);
 }
 #endif
 

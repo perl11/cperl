@@ -23543,7 +23543,7 @@ case "$ccflags" in
         ;;
     *)  $echo " "
         $echo "Perl will select the best hash function for you automatically."
-        $echo "Available hash functions: FNV1A SIPHASH SUPERFAST DJB2 SDBM"
+        $echo "Available hash functions: FNV1A FNV1A_YT FNV1A_YOSHIMITSUTRIAD SIPHASH SUPERFAST DJB2 SDBM"
         $echo "  OAAT OAAT_HARD OAAT_OLD ONE_AT_A_TIME_HARD ONE_AT_A_TIME ONE_AT_A_TIME_OLD"
         $echo "  MURMUR3 MURMUR64A MURMUR64B MURMUR_HASH_64A MURMUR_HASH_64B CRC32 METRO64CRC METRO64"
         $echo "  SPOOKY32"
@@ -23558,9 +23558,11 @@ case "$ans" in
         hash_func='MURMUR3' ;;
     OAAT|OAAT_HARD|OAAT_OLD)
         hash_func=`echo $ans|sed 's,OAAT,ONE_AT_A_TIME,'` ;;
+    FNV1A_YT)
+        hash_func=FNV1A_YOSHIMITSUTRIAD ;;
     MURMUR64A|MURMUR64B)
         hash_func=`echo $ans|sed 's,MURMUR64,MURMUR_HASH_64,'` ;;
-    FNV1A|SIPHASH|SUPERFAST|MURMUR3|DJB2|SDBM|ONE_AT_A_TIME_HARD|ONE_AT_A_TIME|ONE_AT_A_TIME_OLD|MURMUR_HASH_64A|MURMUR_HASH_64B|CRC32|METRO64CRC|METRO64|SPOOKY32)
+    FNV1A|FNV1A_YOSHIMITSUTRIAD|SIPHASH|SUPERFAST|MURMUR3|DJB2|SDBM|ONE_AT_A_TIME_HARD|ONE_AT_A_TIME|ONE_AT_A_TIME_OLD|MURMUR_HASH_64A|MURMUR_HASH_64B|CRC32|METRO64CRC|METRO64|SPOOKY32)
         hash_func=$ans ;;
     [0-9A-Z_]*)
         echo >&2 "$me:  Fatal Error: Invalid hash_func name '$ans'";
