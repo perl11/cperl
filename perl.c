@@ -1710,6 +1710,9 @@ S_Internals_V(pTHX_ CV *cv)
 #  ifdef PERL_HASH_FUNC_FNV1A
 			     " PERL_HASH_FUNC_FNV1A"
 #  endif
+#  ifdef PERL_HASH_FUNC_FNV1A_YOSHIMITSUTRIAD
+			     " PERL_HASH_FUNC_FNV1A_YOSHIMITSUTRIAD"
+#  endif
 #  ifdef PERL_HASH_FUNC_METRO64
 			     " PERL_HASH_FUNC_METRO64"
 #  endif
