@@ -7,11 +7,13 @@
  *
  */
 
-/* This file contains type variants of general pp functions, see also regen/opcodes.
-   The types starting with an uppercase letter are "boxed", a SV typed as Int or Str or Num.
-   The native unboxed types starting with lowercase are special values on the stack, and can
-   only be used within certain op basic blocks. The compiler has to ensure that no unboxed value
-   remains on the stack with non-local exits, and at function call boundaries.
+/* This file contains optimized type variants of general pp functions,
+   see also regen/opcodes.  The types starting with an uppercase
+   letter are "boxed", a SV typed as Int or Str or Num.  The native
+   unboxed types starting with lowercase are special values on the
+   stack, and can only be used within certain op basic blocks. The
+   compiler has to ensure that no unboxed value remains on the stack
+   with non-local exits, and at function call boundaries.
  */
 
 #include "EXTERN.h"
@@ -30,14 +32,14 @@ PPt(pp_box_int, "(:int):Int")
 {
     dSP;
     TOPs = newSViv((IV)TOPs);
-    RETURN;
+    return NORMAL;
 }
 /* box uint to UV */
 PPt(pp_box_uint, "(:uint):UInt")
 {
     dSP;
     TOPs = newSVuv((UV)TOPs);
-    RETURN;
+    return NORMAL;
 }
 /* box double to NV if IVSIZE==NVSIZE */
 PPt(pp_box_num, "(:num):Num")
@@ -48,101 +50,157 @@ PPt(pp_box_num, "(:num):Num")
 #if IVSIZE == NVSIZE
     TOPs = newSVnv(PTR2NV(TOPs));
 #else
-    assert(0);
+    assert(IVSIZE == NVSIZE);
 #endif
-    RETURN;
+    return NORMAL;
 }
 /* box ASCIIZ string to PV */
 PPt(pp_box_str, "(:str):Str")
 {
     dSP;
     TOPs = newSVpv((const char *const)TOPs, 0);
-    RETURN;
+    return NORMAL;
 }
 /* unbox IV to int */
 PPt(pp_unbox_int, "(:Int):int")
 {
-    die("NYI");
+    dSP;
+    TOPs = (SV*)SvIVX(TOPs);
+    return NORMAL;
 }
 /* unbox UV to uint */
 PPt(pp_unbox_uint, "(:Int):uint")
 {
-    die("NYI");
+    dSP;
+    TOPs = (SV*)SvUVX(TOPs);
+    return NORMAL;
 }
 /* unbox PV to ASCIIZ */
 PPt(pp_unbox_str, "(:Str):str")
 {
-    die("NYI");
+    dSP;
+    TOPs = (SV*)SvPVX(TOPs);
+    return NORMAL;
 }
 /* unbox NV to double if IVSIZE==NVSIZE */
-PPt(pp_unbox_num, ""(:Num):num"")
+PPt(pp_unbox_num, "(:Num):num")
 {
-    die("NYI");
+    dSP;
+#if IVSIZE == NVSIZE
+    union { NV n; SV* sv; } num;
+    num.n = SvNVX(TOPs);
+    TOPs = num.sv;
+#else
+    assert(IVSIZE == NVSIZE);
+#endif
+    return NORMAL;
 }
 /* unboxed left bitshift (<<)  ck_bitop	pfiT2	I I */
 PPt(pp_uint_lshift, "(:int,:uint):uint")
 {
-    die("NYI");
+    dSP;
+    TOPs = (SV*)(SvUVX(POPs) << SvIVX(TOPs));
+    RETURN;
 }
 /* unboxed right bitshift (>>) ck_bitop	pfiT2	I I */
 PPt(pp_uint_rshift, "(:int,:uint):uint")
 {
-    die("NYI");
+    dSP;
+    TOPs = (SV*)(SvUVX(POPs) >> SvIVX(TOPs));
+    RETURN;
 }
 /* unboxed preincrement (++)  ck_lfun	dis1	I */
 PPt(pp_int_preinc, "(:int):int")
 {
-    die("NYI");
+    dSP;
+    IV *iv = (IV*)TOPs;
+    ++(*iv);
+    return NORMAL;
 }
 /* unboxed predecrement (--)  ck_lfun	dis1	I */
 PPt(pp_int_predec, "(:int):int")
 {
-    die("NYI");
+    dSP;
+    IV *iv = (IV*)TOPs;
+    --(*iv);
+    return NORMAL;
 }
 /* unboxed postincrement (++) ck_lfun	ist1	I */
+/* same as pp_int_preinc */
 PPt(pp_int_postinc, "(:int):int")
 {
-    die("NYI");
+    dSP;
+    IV *iv = (IV*)TOPs;
+    (*iv)++;
+    return NORMAL;
 }
 /* unboxed postdecrement (--) ck_lfun	ist1	I */
+/* same as pp_int_predec */
 PPt(pp_int_postdec, "(:int):int")
 {
-    die("NYI");
+    dSP;
+    IV *iv = (IV*)TOPs;
+    (*iv)--;
+    return NORMAL;
 }
 /* unboxed addition (+)	ck_null		pifsT2	I I */
 PPt(pp_int_add, "(:int,:int):int")
 {
-    die("NYI");
+    dSP;
+    IV *iv = (IV*)TOPs;
+    sp--;
+    TOPs = (SV*)(iv + (IV)(TOPs));
+    RETURN;
 }
 /* unboxed subtraction (-)	ck_null		pifsT2	I I */
 PPt(pp_int_subtract, "(:int,:int):int")
 {
-    die("NYI");
+    dSP;
+    IV *iv = (IV*)TOPs;
+    sp--;
+    TOPs = (SV*)(iv - (IV)(TOPs));
+    RETURN;
 }
 /* unboxed negation (-)	ck_null		pifst1	I */
 PPt(pp_int_negate, "(:int):int")
 {
-    die("NYI");
+    dSP;
+    IV *iv = (IV*)TOPs;
+    TOPs = (SV*)-(*iv);
+    return NORMAL;
 }
 /* unboxed integer not	ck_null		pifs1	I */
 PPt(pp_int_not, "(:int):int")
 {
-    die("NYI");
+    dSP;
+    IV *iv = (IV*)TOPs;
+    TOPs = (SV*)!(*iv);
+    return NORMAL;
 }
 /* unboxed 1's complement (~) ck_bitop	pifst1	I */
 PPt(pp_int_complement, "(:int):int")
 {
-    die("NYI");
+    dSP;
+    IV *iv = (IV*)TOPs;
+    TOPs = (SV*)~(*iv);
+    return NORMAL;
 }
-/* unboxed concatenation   ck_concat	pzfsT2	Z Z */
+/* unboxed concatenation   ck_concat	pzfsT2	Z Z
+   buffer needs to be large enough! */
 PPt(pp_str_concat, "(:str,:str):str")
 {
-    die("NYI");
+    dSP;
+    char * first = (char *)TOPs;
+    sp--;
+    TOPs = (SV*)strcat(first, (char *)TOPs);
+    RETURN;
 }
 /* unboxed length		ck_length	fsTu%	Z */
-PPt(pp_str_length, "(:str):Int")
+PPt(pp_str_length, "(:str):int")
 {
-    die("NYI");
+    dSP;
+    TOPs = (SV*)strlen((char *)TOPs);
+    return NORMAL;
 }
 /* No magic allowed, but out of bounds, negative i, lval, defer allowed */
 PPt(pp_i_aelem, "(:Array(:Int),:Int):Int")
@@ -199,35 +257,55 @@ PPt(pp_i_aelem, "(:Array(:Int),:Int):Int")
     RETURN;
 }
 
+/* same as pp_num_aelem and pp_str_aelem */
 PPt(pp_int_aelem, "(:Array(:int),:int):int")
 {
     dSP;
-    TOPs = AvARRAY((AV*)TOPs)[(IV)(sp+1)];
+    SV *sv = AvARRAY((AV*)TOPs)[(IV)TOPm1s];
+    sp--;
+    TOPs = sv;
     RETURN;
 }
 
 /* n_aelem		num array element  ck_null	s2	A S */
+/* same as pp_s_aelem */
 PPt(pp_n_aelem, "(:Array(:Num),:Int):Num")
 {
-    die("NYI");
+    dSP;
+    SV *sv = AvARRAY((AV*)TOPs)[SvIVX(TOPm1s)];
+    sp--;
+    TOPs = sv;
+    RETURN;
 }
 
 /* unboxed	num array element ck_null	s2	A I */
 PPt(pp_num_aelem, "(:Array(:num),:int):num")
 {
-    die("NYI");
+    dSP;
+    SV *sv = AvARRAY((AV*)TOPs)[(IV)TOPm1s];
+    sp--;
+    TOPs = sv;
+    RETURN;
 }
 
 /* str array element  ck_null	s2	A S */
 PPt(pp_s_aelem, "(:Array(:Str),:Int):Str")
 {
-    die("NYI");
+    dSP;
+    SV *sv = AvARRAY((AV*)TOPs)[SvIVX(TOPm1s)];
+    sp--;
+    TOPs = sv;
+    RETURN;
 }
 
 /* unboxed	str array element ck_null	z2	A Z */
 PPt(pp_str_aelem, "(:Array(:str),:int):str")
 {
-    die("NYI");
+    dSP;
+    SV *sv = AvARRAY((AV*)TOPs)[(IV)TOPm1s];
+    sp--;
+    TOPs = sv;
+    RETURN;
 }
 
 /* unboxed hash element	ck_null		s2	H Z */
