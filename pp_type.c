@@ -126,7 +126,7 @@ PPt(pp_int_predec, "(:int):int")
     return NORMAL;
 }
 /* unboxed postincrement (++) ck_lfun	ist1	I */
-/* same as pp_int_preinc */
+/* same as pp_int_preinc
 PPt(pp_int_postinc, "(:int):int")
 {
     dSP;
@@ -134,8 +134,9 @@ PPt(pp_int_postinc, "(:int):int")
     (*iv)++;
     return NORMAL;
 }
+*/
 /* unboxed postdecrement (--) ck_lfun	ist1	I */
-/* same as pp_int_predec */
+/* same as pp_int_predec
 PPt(pp_int_postdec, "(:int):int")
 {
     dSP;
@@ -143,6 +144,7 @@ PPt(pp_int_postdec, "(:int):int")
     (*iv)--;
     return NORMAL;
 }
+*/
 /* unboxed addition (+)	ck_null		pifsT2	I I */
 PPt(pp_int_add, "(:int,:int):int")
 {
@@ -186,7 +188,7 @@ PPt(pp_int_complement, "(:int):int")
     return NORMAL;
 }
 /* unboxed concatenation   ck_concat	pzfsT2	Z Z
-   buffer needs to be large enough! */
+   buffer needs to be large enough! only with sized Str. */
 PPt(pp_str_concat, "(:str,:str):str")
 {
     dSP;
@@ -202,7 +204,8 @@ PPt(pp_str_length, "(:str):int")
     TOPs = (SV*)strlen((char *)TOPs);
     return NORMAL;
 }
-/* No magic allowed, but out of bounds, negative i, lval, defer allowed */
+/* No magic allowed, but with bounds check,
+   negative i, lval, defer allowed */
 PPt(pp_i_aelem, "(:Array(:Int),:Int):Int")
 {
     dSP;
@@ -257,7 +260,8 @@ PPt(pp_i_aelem, "(:Array(:Int),:Int):Int")
     RETURN;
 }
 
-/* same as pp_num_aelem and pp_str_aelem */
+/* same as pp_num_aelem and pp_str_aelem.
+   no bounds check */
 PPt(pp_int_aelem, "(:Array(:int),:int):int")
 {
     dSP;
@@ -268,6 +272,8 @@ PPt(pp_int_aelem, "(:Array(:int),:int):int")
 }
 
 /* n_aelem		num array element  ck_null	s2	A S */
+/* currently different than i_aelem. no negative index, lvalue,
+   no out of bounds, no defer */
 /* same as pp_s_aelem */
 PPt(pp_n_aelem, "(:Array(:Num),:Int):Num")
 {
@@ -279,6 +285,7 @@ PPt(pp_n_aelem, "(:Array(:Num),:Int):Num")
 }
 
 /* unboxed	num array element ck_null	s2	A I */
+/* same as int_aelem
 PPt(pp_num_aelem, "(:Array(:num),:int):num")
 {
     dSP;
@@ -287,8 +294,9 @@ PPt(pp_num_aelem, "(:Array(:num),:int):num")
     TOPs = sv;
     RETURN;
 }
-
+*/
 /* str array element  ck_null	s2	A S */
+/* same as pp_n_aelem
 PPt(pp_s_aelem, "(:Array(:Str),:Int):Str")
 {
     dSP;
@@ -297,8 +305,9 @@ PPt(pp_s_aelem, "(:Array(:Str),:Int):Str")
     TOPs = sv;
     RETURN;
 }
-
+*/
 /* unboxed	str array element ck_null	z2	A Z */
+/* same as int_aelem
 PPt(pp_str_aelem, "(:Array(:str),:int):str")
 {
     dSP;
@@ -307,7 +316,7 @@ PPt(pp_str_aelem, "(:Array(:str),:int):str")
     TOPs = sv;
     RETURN;
 }
-
+*/
 /* unboxed hash element	ck_null		s2	H Z */
 PPt(pp_str_helem, "(:Hash(:Scalar),:str):Scalar")
 {
