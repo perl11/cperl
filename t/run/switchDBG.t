@@ -163,4 +163,22 @@ like( runperl( switches => [ "-DL" ], stderr => 1,
       qr/^\nEXECUTING...\n\n$/,
       "-DL trace locale setting information" );
 
+# Tests for -D with PERLIO_DEBUG
 
+my $filename = tempfile();
+unlink $filename if -e $filename;
+push @tmpfiles, $filename;
+{
+      local $ENV{PERLIO_DEBUG} = $filename;
+      ok(!-e $filename, 'PERLIO_DEBUG');
+      like( runperl( switches => [ "-Dp" ], stderr => 1,
+               prog => '1' ),
+            qr/^$/,
+            "PERLIO_DEBUG empty stderr" );
+      ok(-e $filename, "PERLIO_DEBUG into file");
+      open my $fh, '<', $filename;
+      my $s = <$fh>; $s .= <$fh>;
+      like($s,
+            qr/^Starting parse\nEntering state 0/,
+            "PERLIO_DEBUG write into file only" );
+}
