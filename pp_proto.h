@@ -174,7 +174,6 @@ PERL_CALLCONV OP *Perl_pp_mkdir(pTHX);
 PERL_CALLCONV OP *Perl_pp_modulo(pTHX);
 PERL_CALLCONV OP *Perl_pp_multideref(pTHX);
 PERL_CALLCONV OP *Perl_pp_multiply(pTHX);
-PERL_CALLCONV OP *Perl_pp_n_aelem(pTHX);
 PERL_CALLCONV OP *Perl_pp_nbit_and(pTHX);
 PERL_CALLCONV OP *Perl_pp_nbit_or(pTHX);
 PERL_CALLCONV OP *Perl_pp_ncmp(pTHX);

@@ -272,9 +272,9 @@ PPt(pp_int_aelem, "(:Array(:int),:int):int")
 }
 
 /* n_aelem		num array element  ck_null	s2	A S */
-/* currently different than i_aelem. no negative index, lvalue,
-   no out of bounds, no defer */
-/* same as pp_s_aelem */
+/* same as pp_i_aelem */
+/* this version below is different than i_aelem, for bounds checked indices already.
+   no negative index, lvalue, no out of bounds, no defer
 PPt(pp_n_aelem, "(:Array(:Num),:Int):Num")
 {
     dSP;
@@ -283,7 +283,7 @@ PPt(pp_n_aelem, "(:Array(:Num),:Int):Num")
     TOPs = sv;
     RETURN;
 }
-
+*/
 /* unboxed	num array element ck_null	s2	A I */
 /* same as int_aelem
 PPt(pp_num_aelem, "(:Array(:num),:int):num")
@@ -296,7 +296,7 @@ PPt(pp_num_aelem, "(:Array(:num),:int):num")
 }
 */
 /* str array element  ck_null	s2	A S */
-/* same as pp_n_aelem
+/* same as pp_i_aelem
 PPt(pp_s_aelem, "(:Array(:Str),:Int):Str")
 {
     dSP;

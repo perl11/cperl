@@ -167,8 +167,8 @@ my @raw_alias = (
 		 Perl_pp_int_preinc => ['int_postinc'],
 		 Perl_pp_int_predec => ['int_postdec'],
 		 Perl_pp_int_aelem => ['num_aelem', 'str_aelem'],
-		 # same as n_aelem or i_aelem?
-		 Perl_pp_n_aelem   => ['s_aelem'],
+		 # same as n_aelem or i_aelem? depends on the type checker
+		 Perl_pp_i_aelem   => ['n_aelem', 's_aelem'],
 		);
 
 while (my ($func, $names) = splice @raw_alias, 0, 2) {
