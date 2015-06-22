@@ -44,8 +44,9 @@
 #define Perl_pp_rindex Perl_pp_index
 #define Perl_pp_lcfirst Perl_pp_ucfirst
 #define Perl_pp_aelemfast_lex Perl_pp_aelemfast
+#define Perl_pp_n_aelem Perl_pp_i_aelem
 #define Perl_pp_num_aelem Perl_pp_int_aelem
-#define Perl_pp_s_aelem Perl_pp_n_aelem
+#define Perl_pp_s_aelem Perl_pp_i_aelem
 #define Perl_pp_str_aelem Perl_pp_int_aelem
 #define Perl_pp_avalues Perl_pp_akeys
 #define Perl_pp_values Perl_do_kv
@@ -1637,9 +1638,9 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_aelem,
 	Perl_pp_i_aelem,
 	Perl_pp_int_aelem,
-	Perl_pp_n_aelem,
+	Perl_pp_n_aelem,	/* implemented by Perl_pp_i_aelem */
 	Perl_pp_num_aelem,	/* implemented by Perl_pp_int_aelem */
-	Perl_pp_s_aelem,	/* implemented by Perl_pp_n_aelem */
+	Perl_pp_s_aelem,	/* implemented by Perl_pp_i_aelem */
 	Perl_pp_str_aelem,	/* implemented by Perl_pp_int_aelem */
 	Perl_pp_aslice,
 	Perl_pp_kvaslice,
