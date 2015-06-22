@@ -421,6 +421,7 @@ B<-D14> is equivalent to B<-Dtls>):
               like BEGIN
  67108864  L  trace Locale-related info; what gets output is very
               subject to change
+ 134217728 I  PerlIO debugging (previously via env PERLIO_DEBUG)
 
 All these flags require B<-DDEBUGGING> when you compile the Perl
 executable (but see C<:opd> in L<Devel::Peek> or L<re/'debug' mode>
@@ -1151,16 +1152,22 @@ is run in taint mode.
 =item PERLIO_DEBUG
 X<PERLIO_DEBUG>
 
-If set to the name of a file or device, certain operations of PerlIO
-subsystem will be logged to that file, which is opened in append mode.
+If set to the name of a file or device, C<perl -D> debug messages will
+not be printed to C<STDERR> but will be appended to this file. This way
+you can seperate debug messages from warnings.
+
+In older perls C<PERLIO_DEBUG> was available even with non debugging
+perl.  This is now only available with C<DEBUGGING> and PerlIO-only
+debugging is available via the new switch C<-DI>.
+
 Typical uses are in Unix:
 
-   % env PERLIO_DEBUG=/dev/tty perl script ...
+   % env PERLIO_DEBUG=/dev/tty perl -DoI script ...
 
 and under Win32, the approximately equivalent:
 
    > set PERLIO_DEBUG=CON
-   perl script ...
+   perl -DI script ...
 
 This functionality is disabled for setuid scripts and for scripts run
 with B<-T>.

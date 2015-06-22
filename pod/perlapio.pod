@@ -288,7 +288,7 @@ it has nothing to do with $| auto-flush.)
 There is outline support for co-existence of PerlIO with stdio.
 Obviously if PerlIO is implemented in terms of stdio there is no
 problem. However in other cases then mechanisms must exist to create a
-FILE * which can be passed to library code which is going to use stdio
+C<FILE *> which can be passed to library code which is going to use stdio
 calls.
 
 The first step is to add this line:
@@ -296,11 +296,11 @@ The first step is to add this line:
    #define PERLIO_NOT_STDIO 0
 
 I<before> including any perl header files. (This will probably become
-the default at some point).  That prevents "perlio.h" from attempting
+the default at some point).  That prevents F<perlio.h> from attempting
 to #define stdio functions onto PerlIO functions.
 
-XS code is probably better using "typemap" if it expects FILE *
-arguments.  The standard typemap will be adjusted to comprehend any
+XS code is probably better using F<typemap> if it expects C<FILE *>
+arguments.  The standard F<typemap> will be adjusted to comprehend any
 changes in this area.
 
 =over 4
@@ -318,10 +318,10 @@ use "r+" to indicate a read/write stream.
 Once called the FILE * should I<ONLY> be closed by calling
 C<PerlIO_close()> on the returned PerlIO *.
 
-The PerlIO is set to textmode. Use PerlIO_binmode if this is
+The PerlIO is set to textmode. Use C<PerlIO_binmode> if this is
 not the desired mode.
 
-This is B<not> the reverse of PerlIO_exportFILE().
+This is B<not> the reverse of C<PerlIO_exportFILE()>.
 
 =item B<PerlIO_exportFILE(f,mode)>
 
@@ -491,13 +491,14 @@ buffered as well, or only apply to subsequent data.)
 
 =item PerlIO_debug(fmt,...)
 
-PerlIO_debug is a printf()-like function which can be used for
+C<PerlIO_debug> is a printf()-like function which can be used for
 debugging.  No return value. Its main use is inside PerlIO where using
 real printf, warn() etc. would recursively call PerlIO and be a
 problem.
 
-PerlIO_debug writes to the file named by $ENV{'PERLIO_DEBUG'} typical
-use might be
+C<PerlIO_debug> writes to the file named by $ENV{'PERLIO_DEBUG'}.
+See also L<perlrun/PERLIO_DEBUG>.
+Typical use might be
 
   Bourne shells (sh, ksh, bash, zsh, ash, ...):
    PERLIO_DEBUG=/dev/tty ./perl somescript some args
@@ -507,12 +508,13 @@ use might be
    ./perl somescript some args
 
   If you have the "env" utility:
-   env PERLIO_DEBUG=/dev/tty ./perl somescript some args
+   env PERLIO_DEBUG=/dev/tty ./perl -DI somescript some args
 
   Win32:
    set PERLIO_DEBUG=CON
-   perl somescript some args
+   perl -DI somescript some args
 
-If $ENV{'PERLIO_DEBUG'} is not set PerlIO_debug() is a no-op.
+If C<$ENV{'PERLIO_DEBUG'}> is not set C<PerlIO_debug()> is a no-op.
+With newer perls you need a C<DEBUGGING> configuration.
 
 =back
