@@ -39,9 +39,14 @@
 #define Perl_pp_log Perl_pp_sin
 #define Perl_pp_sqrt Perl_pp_sin
 #define Perl_pp_hex Perl_pp_oct
+#define Perl_pp_int_postinc Perl_pp_int_preinc
+#define Perl_pp_int_postdec Perl_pp_int_predec
 #define Perl_pp_rindex Perl_pp_index
 #define Perl_pp_lcfirst Perl_pp_ucfirst
 #define Perl_pp_aelemfast_lex Perl_pp_aelemfast
+#define Perl_pp_num_aelem Perl_pp_int_aelem
+#define Perl_pp_s_aelem Perl_pp_n_aelem
+#define Perl_pp_str_aelem Perl_pp_int_aelem
 #define Perl_pp_avalues Perl_pp_akeys
 #define Perl_pp_values Perl_do_kv
 #define Perl_pp_keys Perl_do_kv
@@ -1602,8 +1607,8 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_uint_rshift,
 	Perl_pp_int_preinc,
 	Perl_pp_int_predec,
-	Perl_pp_int_postinc,
-	Perl_pp_int_postdec,
+	Perl_pp_int_postinc,	/* implemented by Perl_pp_int_preinc */
+	Perl_pp_int_postdec,	/* implemented by Perl_pp_int_predec */
 	Perl_pp_int_add,
 	Perl_pp_int_subtract,
 	Perl_pp_int_negate,
@@ -1633,9 +1638,9 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_i_aelem,
 	Perl_pp_int_aelem,
 	Perl_pp_n_aelem,
-	Perl_pp_num_aelem,
-	Perl_pp_s_aelem,
-	Perl_pp_str_aelem,
+	Perl_pp_num_aelem,	/* implemented by Perl_pp_int_aelem */
+	Perl_pp_s_aelem,	/* implemented by Perl_pp_n_aelem */
+	Perl_pp_str_aelem,	/* implemented by Perl_pp_int_aelem */
 	Perl_pp_aslice,
 	Perl_pp_kvaslice,
 	Perl_pp_aeach,
