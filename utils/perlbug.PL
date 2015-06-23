@@ -34,7 +34,8 @@ my $patchlevel_date = (stat _)[9];
 # append a list of individual differences to the bug report.
 
 
-print "Extracting $file (with variable substitutions)\n";
+print "Extracting $file (with variable substitutions)\n"
+  unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
 
 # In this section, perl variables will be expanded during extraction.
 # You can use $Config{...} to use Configure variables.
