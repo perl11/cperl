@@ -655,6 +655,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 
         for (; entry; entry = HeNEXT(entry)) {
             HEK *hek = HeKEY_hek(entry);
+            DEBUG_H(linear++);
             if (hek == keysv_hek)
                 goto found;
             if (HEK_FLAGS(hek) != keysv_flags)
@@ -1115,6 +1116,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 
         for (; entry; oentry = &HeNEXT(entry), entry = *oentry) {
             HEK *hek = HeKEY_hek(entry);
+            DEBUG_H(linear++);
             if (hek == keysv_hek)
                 goto found;
             if (HEK_FLAGS(hek) != keysv_flags)
@@ -1128,6 +1130,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
     }
 
     for (; entry; oentry = &HeNEXT(entry), entry = *oentry) {
+        DEBUG_H(linear++);
 	if (HeHASH(entry) != hash)		/* strings can't be equal */
 	    continue;
 	if (HeKLEN(entry) != (I32)klen)
