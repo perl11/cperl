@@ -1096,7 +1096,8 @@ ENDOFTAIL
 
 close(GLOS) if $Opts{glossary};
 close(CONFIG_POD);
-print "written $Config_POD\n";
+print "written $Config_POD\n"
+  unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
 
 my $orig_config_txt = "";
 my $orig_heavy_txt = "";
@@ -1114,8 +1115,10 @@ if ($orig_config_txt ne $config_txt or $orig_heavy_txt ne $heavy_txt) {
     print CONFIG_HEAVY $heavy_txt;
     close(CONFIG_HEAVY);
     close(CONFIG);
-    print "updated $Config_PM\n";
-    print "updated $Config_heavy\n";
+    unless (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) {
+        print "updated $Config_PM\n";
+        print "updated $Config_heavy\n";
+    }
 }
 
 # Now do some simple tests on the Config.pm file we have created

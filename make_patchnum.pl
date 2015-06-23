@@ -113,12 +113,16 @@ sub write_files {
     my $files= join " and ", map { "'$_'" } @files;
     foreach my $file (@files) {
         if (read_file($file) ne $content{$file}) {
-            print "Updating $files\n";
+            print "Updating $files\n"
+                unless defined $ENV{MAKEFLAGS}
+                   and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
             write_file($_,$content{$_}) for @files;
             return 1;
         }
     }
-    print "Reusing $files\n";
+    print "Reusing $files\n"
+      unless defined $ENV{MAKEFLAGS}
+         and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
     return 0;
 }
 
