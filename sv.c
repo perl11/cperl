@@ -1580,10 +1580,9 @@ Perl_sv_grow(pTHX_ SV *const sv, STRLEN newlen)
 	sv_backoff(sv);
 	s = SvPVX_mutable(sv);
 	if (newlen > SvLEN(sv))
-	    newlen += 10 * (newlen - SvCUR(sv)); /* avoid copy each time */
+	    newlen += 8 * (newlen - SvCUR(sv)); /* avoid copy each time */
     }
-    else
-    {
+    else {
 	if (SvIsCOW(sv)) S_sv_uncow(aTHX_ sv, 0);
 	s = SvPVX_mutable(sv);
     }
@@ -1609,7 +1608,7 @@ Perl_sv_grow(pTHX_ SV *const sv, STRLEN newlen)
 
     if (newlen > SvLEN(sv)) {		/* need more room? */
 	STRLEN minlen = SvCUR(sv);
-	minlen += (minlen >> PERL_STRLEN_EXPAND_SHIFT) + 10;
+	minlen += (minlen >> PERL_STRLEN_EXPAND_SHIFT) + 2;
 	if (newlen < minlen)
 	    newlen = minlen;
 #ifndef PERL_UNWARANTED_CHUMMINESS_WITH_MALLOC
