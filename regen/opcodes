@@ -38,8 +38,8 @@
 # reference   - R
 # "?" denotes an optional operand.
 
-# Idea: (unboxed raw value, no SV, on the stack. :int, :str)
-# int         - I            ASCIIZ   - Z
+# unboxed raw value, no SV, on the stack. :int, :str, :num
+# int         - I            ASCIIZ   - Z            double   - N
 
 # Nothing.
 
@@ -206,27 +206,49 @@ oct		oct			ck_fun		pfsTu%	S?
 abs		abs			ck_fun		pfsTu%	S?
 
 # unboxed raw stack values
-box_int		box int to IV		ck_null		s1	I	"(:int):Int"
-box_uint	box uint to UV		ck_null		s1	I	"(:uint):UInt"
-box_str		box ASCIIZ string to PV	ck_null		s1	Z	"(:str):Str"
-box_num		box double to NV	ck_null		s1	N	"(:num):Num"
-unbox_int	unbox IV to int		ck_null		i1	S	"(:Int):int"
-unbox_uint	unbox IV/UV to uint	ck_null		i1	S	"(:Int):uint"
-unbox_str	unbox PV to ASCIIZ	ck_null		z1	S	"(:Str):str"
-unbox_num	unbox NV to double	ck_null		n1	S	"(:Num):num"
-uint_lshift	unboxed left bitshift (<<)  ck_bitop	pfiT2	I I	"(:int,:uint):uint"
-uint_rshift	unboxed right bitshift (>>) ck_bitop	pfiT2	I I	"(:int,:uint):uint"
-int_preinc	unboxed preincrement (++)  ck_lfun	dis1	I	"(:int):int"
-int_predec	unboxed predecrement (--)  ck_lfun	dis1	I	"(:int):int"
-int_postinc	unboxed postincrement (++) ck_lfun	ist1	I	"(:int):int"
-int_postdec	unboxed postdecrement (--) ck_lfun	ist1	I	"(:int):int"
-int_add		unboxed addition (+)	ck_null		pifsT2	I I	"(:int,:int):int"
-int_subtract	unboxed subtraction (-)	ck_null		pifsT2	I I	"(:int,:int):int"
-int_negate	unboxed negation (-)	ck_null		pifst1	I	"(:int):int"
-int_not		unboxed integer not	ck_null		pifs1	I	"(:int):int"
-int_complement	unboxed 1's complement (~) ck_bitop	pifst1	I	"(:int):int"
-str_concat	unboxed concatenation   ck_concat	pzfsT2	Z Z	"(:str,:str):str"
-str_length	unboxed length		ck_length	fsTu%	Z       "(:str):Int"
+box_int		box int to IV		ck_null		ps1	I	"(:int):Int"
+box_uint	box uint to UV		ck_null		ps1	I	"(:uint):UInt"
+box_str		box ASCIIZ string to PV	ck_null		ps1	Z	"(:str):Str"
+box_num		box double to NV	ck_null		ps1	N	"(:num):Num"
+unbox_int	unbox IV to int		ck_null		pi1	S	"(:Int):int"
+unbox_uint	unbox IV/UV to uint	ck_null		pi1	S	"(:Int):uint"
+unbox_str	unbox PV to ASCIIZ	ck_null		pz1	S	"(:Str):str"
+unbox_num	unbox NV to double	ck_null		pn1	S	"(:Num):num"
+uint_lshift	unboxed left bitshift (<<)  ck_bitop	pfi2	I I	"(:int,:uint):uint"
+uint_rshift	unboxed right bitshift (>>) ck_bitop	pfi2	I I	"(:int,:uint):uint"
+int_preinc	unboxed preincrement (++)  ck_lfun	i1	I	"(:int):int"
+int_predec	unboxed predecrement (--)  ck_lfun	i1	I	"(:int):int"
+int_postinc	unboxed postincrement (++) ck_lfun	i1	I	"(:int):int"
+int_postdec	unboxed postdecrement (--) ck_lfun	i1	I	"(:int):int"
+int_add		unboxed addition (+)	ck_null		pif2	I I	"(:int,:int):int"
+int_subtract	unboxed subtraction (-)	ck_null		pif2	I I	"(:int,:int):int"
+int_multiply	unboxed multiplication (*) ck_null	pif2	I I	"(:int,:int):int"
+int_divide	unboxed division (/)	ck_null		pif2	I I	"(:int,:int):int"
+int_modulo	unboxed modulus (%)	ck_null		pif2	I I	"(:int,:int):int"
+int_negate	unboxed negation (-)	ck_null		pif1	I	"(:int):int"
+int_not		unboxed integer not	ck_null		pif1	I	"(:int):int"
+int_complement	unboxed 1's complement (~) ck_bitop	pif1	I	"(:int):int"
+int_abs		unboxed abs		ck_fun		pif1	I	"(:int):int"
+int_lt		unboxed integer lt (<)	ck_cmp		pif2	I I	"(:int,:int):int"
+int_gt		unboxed integer gt (>)	ck_cmp		pif2	I I	"(:int,:int):int"
+int_le		unboxed integer le (<=)	ck_cmp		pif2	I I	"(:int,:int):int"
+int_ge		unboxed integer ge (>=)	ck_cmp		pif2	I I	"(:int,:int):int"
+int_eq		unboxed integer eq (==)	ck_null		pif2	I I	"(:int,:int):int"
+int_ne		unboxed integer ne (!=)	ck_null		pif2	I I	"(:int,:int):int"
+
+num_add		unboxed num addition (+)	ck_null	pnf2	N N	"(:num,:num):num"
+num_subtract	unboxed num subtraction (-)	ck_null	pnf2	N N	"(:num,:num):num"
+num_multiply	unboxed num multiplication (*)	ck_null	pnf2	N N	"(:num,:num):num"
+num_divide	unboxed num division (/)	ck_null	pnf2	N N	"(:num,:num):num"
+num_atan2	unboxed num atan2		ck_fun	pnf2	N N	"(:num,:num):num"
+num_sin		unboxed num sin			ck_fun	pnf1	N	"(:num):num"
+num_cos		unboxed num cos			ck_fun	pnf1	N	"(:num):num"
+num_exp		unboxed num exp			ck_fun	pnf1	N	"(:num):num"
+num_log		unboxed num log			ck_fun	pnf1	N	"(:num):num"
+num_sqrt	unboxed num sqrt		ck_fun	pnf1	N	"(:num):num"
+
+str_concat	unboxed concatenation   ck_concat	pzf2	Z Z	"(:str,:str):str"
+str_length	unboxed length		ck_length	pfs2	Z       "(:str):Int"
 
 # String stuff.
 
@@ -279,8 +301,8 @@ exists		exists			ck_exists	is%	S	"(:str):Bool"
 rv2hv		hash dereference	ck_rvconst	d1	
 helem		hash element		ck_null		s2	H S	"(:Hash(:Scalar),:Str):Scalar"
 str_helem	unboxed hash element	ck_null		z2	H Z	"(:Hash(:Scalar),:str):Scalar"
-str_delete	unboxed delete		ck_delete	%	Z	"(:str):Void"
-str_exists	unboxed exists		ck_exists	s%	Z	"(:str):Bool"
+str_delete	unboxed delete		ck_delete	2	H Z	"(:str):Void"
+str_exists	unboxed exists		ck_exists	s2	H Z	"(:str):Bool"
 hslice		hash slice		ck_null		m@	H L
 kvhslice	key/value hash slice	ck_null		m@	H L
 
