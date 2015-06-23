@@ -59,7 +59,7 @@ sub do_test {
 	close(OUT);
 	if (open(IN, "peek$$")) {
 	    local $/;
-	    $pattern =~ s/FLAGS = \\/FLAGS = \$ADDR \\/g if $] >= 5.021011;
+	    $pattern =~ s/  FLAGS = \\/  FLAGS = \$ADDR \\/g if $] >= 5.021011;
 	    $pattern =~ s/\n    RAND = \$ADDR//mg if cperl and $] >= 5.022002;
 	    $pattern =~ s/\$ADDR/0x[[:xdigit:]]+/g;
 	    $pattern =~ s/\$FLOAT/(?:\\d*\\.\\d+(?:e[-+]\\d+)?|\\d+)/g;
@@ -764,7 +764,7 @@ do_test('blessing to a class with embedded NUL characters',
         (bless {}, "\0::foo::\n::baz::\t::\0"),
 'SV = $RV\\($ADDR\\) at $ADDR
   REFCNT = 1
-  FLAGS = \\(ROK\\)
+  FLAGS = 0x801 \\(ROK\\)
   RV = $ADDR
   SV = PVHV\\($ADDR\\) at $ADDR
     REFCNT = [12]
