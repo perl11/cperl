@@ -3623,6 +3623,7 @@ PP(pp_chdir)
         }
         else {
             PUSHi(0);
+            SETERRNO(EINVAL, LIB_INVARG);
             TAINT_PROPER("chdir");
             RETURN;
         }
