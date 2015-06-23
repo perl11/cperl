@@ -267,7 +267,7 @@ fresh_perl_is(
     ::is *$globref, "*rile::tat",
      'globs stringify the same way when stashes are moved';
     ::is ref $obj, "rile",
-     'ref() returns the same thing when an object’s stash is moved';
+     'ref() returns the same thing when an object\'s stash is moved';
     ::like "$obj", qr "^rile=ARRAY\(0x[\da-f]+\)\z",
      'objects stringify the same way when their stashes are moved';
     ::is eval '__PACKAGE__', 'rile',
@@ -281,7 +281,7 @@ fresh_perl_is(
     ::is *$globref, "*rile::tat",
      'globs stringify the same way when stashes are detached';
     ::is ref $obj, "rile",
-     'ref() returns the same thing when an object’s stash is detached';
+     'ref() returns the same thing when an object\'s stash is detached';
     ::like "$obj", qr "^rile=ARRAY\(0x[\da-f]+\)\z",
      'objects stringify the same way when their stashes are detached';
     ::is eval '__PACKAGE__', 'rile',
