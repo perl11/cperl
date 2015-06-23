@@ -29,15 +29,15 @@ checkOptree ( name	=> 'OP_AELEMFAST opclass',
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
 # 7  <1> leavesub[1 ref] K/REFC,1 ->(end)
 # -     <@> lineseq KP ->7
-# 1        <;> nextstate(main 634 optree_misc.t:25) v:>,<,% ->2
-# 2        <0> padav[@x:634,636] vM/LVINTRO ->3
+# 1        <;> nextstate(main 1607 optree_misc.t:25) v:>,<,% ->2
+# 2        <0> padav[@x 1607,1609] vM/LVINTRO ->3
 # -        <;> ex-nextstate(main 1594 optree_misc.t:27) v:>,<,% ->3
 # -        <1> rv2av[t4] vK/OURINTR,1 ->3
 # -           <#> gv[*y] s ->-
-# 3        <;> nextstate(main 636 optree_misc.t:25) v:>,<,%,{ ->4
+# 3        <;> nextstate(main 1609 optree_misc.t:25) v:>,<,%,{ ->4
 # 6        <2> add[t6] sK/2 ->7
 # -           <1> ex-aelem sK/2 ->5
-# 4              <0> aelemfast_lex[@x:634,636] sR/127 ->5
+# 4              <0> aelemfast_lex[@x 1607,1609] sR/127 ->5
 # -              <0> ex-const s ->-
 # -           <1> ex-aelem sK/2 ->6
 # -              <1> ex-rv2av sKR/1 ->-
@@ -46,15 +46,15 @@ checkOptree ( name	=> 'OP_AELEMFAST opclass',
 EOT_EOT
 # 7  <1> leavesub[1 ref] K/REFC,1 ->(end)
 # -     <@> lineseq KP ->7
-# 1        <;> nextstate(main 634 optree_misc.t:27) v:>,<,% ->2
-# 2        <0> padav[@x:634,636] vM/LVINTRO ->3
+# 1        <;> nextstate(main 1607 optree_misc.t:27) v:>,<,% ->2
+# 2        <0> padav[@x 1607,1609] vM/LVINTRO ->3
 # -        <;> ex-nextstate(main 1594 optree_misc.t:27) v:>,<,% ->3
 # -        <1> rv2av[t3] vK/OURINTR,1 ->3
 # -           <$> gv(*y) s ->-
-# 3        <;> nextstate(main 636 optree_misc.t:27) v:>,<,%,{ ->4
+# 3        <;> nextstate(main 1609 optree_misc.t:27) v:>,<,%,{ ->4
 # 6        <2> add[t4] sK/2 ->7
 # -           <1> ex-aelem sK/2 ->5
-# 4              <0> aelemfast_lex[@x:634,636] sR/127 ->5
+# 4              <0> aelemfast_lex[@x 1607,1609] sR/127 ->5
 # -              <0> ex-const s ->-
 # -           <1> ex-aelem sK/2 ->6
 # -              <1> ex-rv2av sKR/1 ->-
@@ -201,15 +201,15 @@ checkOptree ( name      => 'padrange',
 # -     <@> lineseq KP ->f
 # 1        <;> nextstate(main 1 -e:1) v:>,<,% ->2
 # -        <@> list vKP ->3
-# 2           <0> padrange[$x:1,2; $y:1,2] vM/LVINTRO,2 ->3
-# -           <0> padsv[$x:1,2] vM/LVINTRO ->-
-# -           <0> padsv[$y:1,2] vM/LVINTRO ->-
+# 2           <0> padrange[$x 1,2; $y:1,2] vM/LVINTRO,2 ->3
+# -           <0> padsv[$x 1,2] vM/LVINTRO ->-
+# -           <0> padsv[$y 1,2] vM/LVINTRO ->-
 # 3        <;> nextstate(main 2 -e:1) v:>,<,% ->4
 # 8        <2> aassign[t4] vKS ->9
 # -           <1> ex-list lKP ->5
-# 4              <0> padrange[$x:1,2; $y:1,2] /2 ->5
-# -              <0> padsv[$x:1,2] s ->-
-# -              <0> padsv[$y:1,2] s ->-
+# 4              <0> padrange[$x 1,2; $y 1,2] /2 ->5
+# -              <0> padsv[$x 1,2] s ->-
+# -              <0> padsv[$y 1,2] s ->-
 # -           <1> ex-list lK ->8
 # 5              <0> pushmark s ->6
 # 7              <1> rv2av[t3] lKRM*/1 ->8
@@ -221,23 +221,23 @@ checkOptree ( name      => 'padrange',
 # c              <1> rv2av[t5] lK/1 ->d
 # b                 <#> gv[*a] s ->c
 # -           <1> ex-list lKPRM* ->e
-# d              <0> padrange[$x:1,2; $y:1,2] RM/2 ->e
-# -              <0> padsv[$x:1,2] sRM* ->-
-# -              <0> padsv[$y:1,2] sRM* ->-
+# d              <0> padrange[$x 1,2; $y 1,2] RM/2 ->e
+# -              <0> padsv[$x 1,2] sRM* ->-
+# -              <0> padsv[$y 1,2] sRM* ->-
 EOT_EOT
 # f  <1> leavesub[1 ref] K/REFC,1 ->(end)
 # -     <@> lineseq KP ->f
 # 1        <;> nextstate(main 1 -e:1) v:>,<,% ->2
 # -        <@> list vKP ->3
-# 2           <0> padrange[$x:1,2; $y:1,2] vM/LVINTRO,2 ->3
-# -           <0> padsv[$x:1,2] vM/LVINTRO ->-
-# -           <0> padsv[$y:1,2] vM/LVINTRO ->-
+# 2           <0> padrange[$x 1,2; $y 1,2] vM/LVINTRO,2 ->3
+# -           <0> padsv[$x 1,2] vM/LVINTRO ->-
+# -           <0> padsv[$y 1,2] vM/LVINTRO ->-
 # 3        <;> nextstate(main 2 -e:1) v:>,<,% ->4
 # 8        <2> aassign[t4] vKS ->9
 # -           <1> ex-list lKP ->5
-# 4              <0> padrange[$x:1,2; $y:1,2] /2 ->5
-# -              <0> padsv[$x:1,2] s ->-
-# -              <0> padsv[$y:1,2] s ->-
+# 4              <0> padrange[$x 1,2; $y 1,2] /2 ->5
+# -              <0> padsv[$x 1,2] s ->-
+# -              <0> padsv[$y 1,2] s ->-
 # -           <1> ex-list lK ->8
 # 5              <0> pushmark s ->6
 # 7              <1> rv2av[t3] lKRM*/1 ->8
@@ -249,9 +249,9 @@ EOT_EOT
 # c              <1> rv2av[t5] lK/1 ->d
 # b                 <$> gv(*a) s ->c
 # -           <1> ex-list lKPRM* ->e
-# d              <0> padrange[$x:1,2; $y:1,2] RM/2 ->e
-# -              <0> padsv[$x:1,2] sRM* ->-
-# -              <0> padsv[$y:1,2] sRM* ->-
+# d              <0> padrange[$x 1,2; $y 1,2] RM/2 ->e
+# -              <0> padsv[$x 1,2] sRM* ->-
+# -              <0> padsv[$y 1,2] sRM* ->-
 EONT_EONT
 
 checkOptree ( name      => 'padrange and @_',
@@ -268,13 +268,13 @@ checkOptree ( name      => 'padrange and @_',
 # 1        <;> nextstate(main 1 p3:1) v:>,<,% ->2
 # 3        <2> aassign[t5] vKS ->4
 # -           <1> ex-list lK ->-
-# 2              <0> padrange[$a:1,4; $b:1,4] */LVINTRO,2 ->3
+# 2              <0> padrange[@a 1,4; $b 1,4] */LVINTRO,2 ->3
 # -              <1> rv2av[t4] lK/1 ->-
 # -                 <#> gv[*_] s ->-
 # -           <1> ex-list lKPRM* ->3
 # -              <0> pushmark sRM*/LVINTRO ->-
-# -              <0> padsv[$a:1,4] sRM*/LVINTRO ->-
-# -              <0> padsv[$b:1,4] sRM*/LVINTRO ->-
+# -              <0> padav[@a 1,4] lRM*/LVINTRO ->-
+# -              <0> padsv[$b 1,4] sRM*/LVINTRO ->-
 # 4        <;> nextstate(main 2 p3:2) v:>,<,% ->5
 # 9        <2> aassign[t10] vKS ->a
 # -           <1> ex-list lK ->8
@@ -282,32 +282,32 @@ checkOptree ( name      => 'padrange and @_',
 # 7              <1> rv2av[t9] lK/1 ->8
 # 6                 <#> gv[*X::_] s ->7
 # -           <1> ex-list lKPRM* ->9
-# 8              <0> padrange[$c:2,4; $d:2,4] RM/LVINTRO,2 ->9
-# -              <0> padsv[$c:2,4] sRM*/LVINTRO ->-
-# -              <0> padsv[$d:2,4] sRM*/LVINTRO ->-
+# 8              <0> padrange[$c 2,4; $d 2,4] RM/LVINTRO,2 ->9
+# -              <0> padsv[$c 2,4] sRM*/LVINTRO ->-
+# -              <0> padsv[$d 2,4] sRM*/LVINTRO ->-
 # a        <;> nextstate(Y 3 p3:4) v:>,<,%,{ ->b
 # c        <2> aassign[t15] KS ->d
 # -           <1> ex-list lK ->-
-# b              <0> padrange[$e:3,4; $f:3,4] */LVINTRO,2 ->c
+# b              <0> padrange[$e 3,4; $f 3,4] */LVINTRO,2 ->c
 # -              <1> rv2av[t14] lK/1 ->-
 # -                 <#> gv[*_] s ->-
 # -           <1> ex-list lKPRM* ->c
 # -              <0> pushmark sRM*/LVINTRO ->-
-# -              <0> padsv[$e:3,4] sRM*/LVINTRO ->-
-# -              <0> padsv[$f:3,4] sRM*/LVINTRO ->-
+# -              <0> padsv[$e 3,4] sRM*/LVINTRO ->-
+# -              <0> padsv[$f 3,4] sRM*/LVINTRO ->-
 EOT_EOT
 # d  <1> leavesub[1 ref] K/REFC,1 ->(end)
 # -     <@> lineseq KP ->d
 # 1        <;> nextstate(main 1 p3:1) v:>,<,% ->2
 # 3        <2> aassign[t5] vKS ->4
 # -           <1> ex-list lK ->-
-# 2              <0> padrange[$a:1,4; $b:1,4] */LVINTRO,2 ->3
+# 2              <0> padrange[@a 1,4; $b 1,4] */LVINTRO,2 ->3
 # -              <1> rv2av[t4] lK/1 ->-
 # -                 <$> gv(*_) s ->-
 # -           <1> ex-list lKPRM* ->3
 # -              <0> pushmark sRM*/LVINTRO ->-
-# -              <0> padsv[$a:1,4] sRM*/LVINTRO ->-
-# -              <0> padsv[$b:1,4] sRM*/LVINTRO ->-
+# -              <0> padav[@a 1,4] lRM*/LVINTRO ->-
+# -              <0> padsv[$b 1,4] sRM*/LVINTRO ->-
 # 4        <;> nextstate(main 2 p3:2) v:>,<,% ->5
 # 9        <2> aassign[t10] vKS ->a
 # -           <1> ex-list lK ->8
@@ -315,18 +315,18 @@ EOT_EOT
 # 7              <1> rv2av[t9] lK/1 ->8
 # 6                 <$> gv(*X::_) s ->7
 # -           <1> ex-list lKPRM* ->9
-# 8              <0> padrange[$c:2,4; $d:2,4] RM/LVINTRO,2 ->9
-# -              <0> padsv[$c:2,4] sRM*/LVINTRO ->-
-# -              <0> padsv[$d:2,4] sRM*/LVINTRO ->-
+# 8              <0> padrange[$c 2,4; $d 2,4] RM/LVINTRO,2 ->9
+# -              <0> padsv[$c 2,4] sRM*/LVINTRO ->-
+# -              <0> padsv[$d 2,4] sRM*/LVINTRO ->-
 # a        <;> nextstate(Y 3 p3:4) v:>,<,%,{ ->b
 # c        <2> aassign[t15] KS ->d
 # -           <1> ex-list lK ->-
-# b              <0> padrange[$e:3,4; $f:3,4] */LVINTRO,2 ->c
+# b              <0> padrange[$e 3,4; $f 3,4] */LVINTRO,2 ->c
 # -              <1> rv2av[t14] lK/1 ->-
 # -                 <$> gv(*_) s ->-
 # -           <1> ex-list lKPRM* ->c
 # -              <0> pushmark sRM*/LVINTRO ->-
-# -              <0> padsv[$e:3,4] sRM*/LVINTRO ->-
+# -              <0> padsv[$e 3,4] sRM*/LVINTRO ->-
 # -              <0> padsv[$f:3,4] sRM*/LVINTRO ->-
 EONT_EONT
 
@@ -339,14 +339,14 @@ checkOptree ( name      => 'consolidate padranges',
 # -     <@> lineseq KP ->5
 # 1        <;> nextstate(main 900 optree_misc.t:334) v:>,<,% ->2
 # -        <@> list vKP ->-
-# 2           <0> padrange[$a:900,902; $b:900,902; $c:901,902; $d:901,902] vM/LVINTRO,4 ->3
-# -           <0> padsv[$a:900,902] vM/LVINTRO ->-
-# -           <0> padsv[$b:900,902] vM/LVINTRO ->-
+# 2           <0> padrange[$a 900,902; $b:900,902; $c:901,902; $d:901,902] vM/LVINTRO,4 ->3
+# -           <0> padsv[$a 900,902] vM/LVINTRO ->-
+# -           <0> padsv[$b 900,902] vM/LVINTRO ->-
 # -        <;> nextstate(main 901 optree_misc.t:334) v:>,<,% ->-
 # -        <@> list vKP ->3
 # -           <0> pushmark vM/LVINTRO ->-
-# -           <0> padsv[$c:901,902] vM/LVINTRO ->-
-# -           <0> padsv[$d:901,902] vM/LVINTRO ->-
+# -           <0> padsv[$c 901,902] vM/LVINTRO ->-
+# -           <0> padsv[$d 901,902] vM/LVINTRO ->-
 # 3        <;> nextstate(main 902 optree_misc.t:334) v:>,<,%,{ ->4
 # 4        <$> const[IV 1] s ->5
 EOT_EOT
@@ -354,14 +354,14 @@ EOT_EOT
 # -     <@> lineseq KP ->5
 # 1        <;> nextstate(main 900 optree_misc.t:334) v:>,<,% ->2
 # -        <@> list vKP ->-
-# 2           <0> padrange[$a:900,902; $b:900,902; $c:901,902; $d:901,902] vM/LVINTRO,4 ->3
-# -           <0> padsv[$a:900,902] vM/LVINTRO ->-
-# -           <0> padsv[$b:900,902] vM/LVINTRO ->-
+# 2           <0> padrange[$a 900,902; $b 900,902; $c 901,902; $d 901,902] vM/LVINTRO,4 ->3
+# -           <0> padsv[$a 900,902] vM/LVINTRO ->-
+# -           <0> padsv[$b 900,902] vM/LVINTRO ->-
 # -        <;> nextstate(main 901 optree_misc.t:334) v:>,<,% ->-
 # -        <@> list vKP ->3
 # -           <0> pushmark vM/LVINTRO ->-
-# -           <0> padsv[$c:901,902] vM/LVINTRO ->-
-# -           <0> padsv[$d:901,902] vM/LVINTRO ->-
+# -           <0> padsv[$c 901,902] vM/LVINTRO ->-
+# -           <0> padsv[$d 901,902] vM/LVINTRO ->-
 # 3        <;> nextstate(main 902 optree_misc.t:334) v:>,<,%,{ ->4
 # 4        <$> const(IV 1) s ->5
 EONT_EONT
@@ -377,16 +377,16 @@ checkOptree ( name      => 'consolidate padranges and singletons',
 # -     <@> lineseq KP ->5
 # 1        <;> nextstate(main 903 optree_misc.t:371) v:>,<,% ->2
 # -        <@> list vKP ->-
-# 2           <0> padrange[$a:903,910; $b:903,910; $c:904,910; $d:905,910; $e:905,910; @f:906,910; $g:907,910; $h:908,910; $i:908,910; %j:909,910] vM/LVINTRO,10 ->3
-# -           <0> padsv[$a:903,910] vM/LVINTRO ->-
-# -           <0> padsv[$b:903,910] vM/LVINTRO ->-
+# 2           <0> padrange[$a 903,910; $b 903,910; $c 904,910; $d 1632,910; $e 1632,910; @f 906,910; $g 907,910; $h 908,910; $i 908,910; %j 909,910] vM/LVINTRO,10 ->3
+# -           <0> padsv[$a 903,910] vM/LVINTRO ->-
+# -           <0> padsv[$b 903,910] vM/LVINTRO ->-
 # -        <;> nextstate(main 904 optree_misc.t:371) v:>,<,% ->-
-# -        <0> padsv[$c:904,910] vM/LVINTRO ->-
-# -        <;> nextstate(main 905 optree_misc.t:371) v:>,<,%,{ ->-
+# -        <0> padsv[$c 904,910] vM/LVINTRO ->-
+# -        <;> nextstate(main 1632 optree_misc.t:371) v:>,<,%,{ ->-
 # -        <@> list vKP ->-
 # -           <0> pushmark vM/LVINTRO ->-
-# -           <0> padsv[$d:905,910] vM/LVINTRO ->-
-# -           <0> padsv[$e:905,910] vM/LVINTRO ->-
+# -           <0> padsv[$d 1632,910] vM/LVINTRO ->-
+# -           <0> padsv[$e 1632,910] vM/LVINTRO ->-
 # -        <;> nextstate(main 906 optree_misc.t:372) v:>,<,%,{ ->-
 # -        <0> padav[@f:906,910] vM/LVINTRO ->-
 # -        <;> nextstate(main 907 optree_misc.t:372) v:>,<,%,{ ->-
@@ -394,10 +394,10 @@ checkOptree ( name      => 'consolidate padranges and singletons',
 # -        <;> nextstate(main 908 optree_misc.t:372) v:>,<,%,{ ->-
 # -        <@> list vKP ->-
 # -           <0> pushmark vM/LVINTRO ->-
-# -           <0> padsv[$h:908,910] vM/LVINTRO ->-
-# -           <0> padsv[$i:908,910] vM/LVINTRO ->-
+# -           <0> padsv[$h 908,910] vM/LVINTRO ->-
+# -           <0> padsv[$i 908,910] vM/LVINTRO ->-
 # -        <;> nextstate(main 909 optree_misc.t:372) v:>,<,%,{ ->-
-# -        <0> padhv[%j:909,910] vM/LVINTRO ->3
+# -        <0> padhv[%j 909,910] vM/LVINTRO ->3
 # 3        <;> nextstate(main 910 optree_misc.t:372) v:>,<,%,{ ->4
 # 4        <$> const[IV 1] s ->5
 EOT_EOT
@@ -405,16 +405,16 @@ EOT_EOT
 # -     <@> lineseq KP ->5
 # 1        <;> nextstate(main 903 optree_misc.t:371) v:>,<,% ->2
 # -        <@> list vKP ->-
-# 2           <0> padrange[$a:903,910; $b:903,910; $c:904,910; $d:905,910; $e:905,910; @f:906,910; $g:907,910; $h:908,910; $i:908,910; %j:909,910] vM/LVINTRO,10 ->3
-# -           <0> padsv[$a:903,910] vM/LVINTRO ->-
-# -           <0> padsv[$b:903,910] vM/LVINTRO ->-
+# 2           <0> padrange[$a 903,910; $b 903,910; $c 904,910; $d 1632,910; $e 1632,910; @f 906,910; $g 907,910; $h 908,910; $i 908,910; %j 909,910] vM/LVINTRO,10 ->3
+# -           <0> padsv[$a 903,910] vM/LVINTRO ->-
+# -           <0> padsv[$b 903,910] vM/LVINTRO ->-
 # -        <;> nextstate(main 904 optree_misc.t:371) v:>,<,% ->-
-# -        <0> padsv[$c:904,910] vM/LVINTRO ->-
-# -        <;> nextstate(main 905 optree_misc.t:371) v:>,<,%,{ ->-
+# -        <0> padsv[$c 904,910] vM/LVINTRO ->-
+# -        <;> nextstate(main 1632 optree_misc.t:371) v:>,<,%,{ ->-
 # -        <@> list vKP ->-
 # -           <0> pushmark vM/LVINTRO ->-
-# -           <0> padsv[$d:905,910] vM/LVINTRO ->-
-# -           <0> padsv[$e:905,910] vM/LVINTRO ->-
+# -           <0> padsv[$d 1632,910] vM/LVINTRO ->-
+# -           <0> padsv[$e 1632,910] vM/LVINTRO ->-
 # -        <;> nextstate(main 906 optree_misc.t:372) v:>,<,%,{ ->-
 # -        <0> padav[@f:906,910] vM/LVINTRO ->-
 # -        <;> nextstate(main 907 optree_misc.t:372) v:>,<,%,{ ->-
@@ -422,10 +422,10 @@ EOT_EOT
 # -        <;> nextstate(main 908 optree_misc.t:372) v:>,<,%,{ ->-
 # -        <@> list vKP ->-
 # -           <0> pushmark vM/LVINTRO ->-
-# -           <0> padsv[$h:908,910] vM/LVINTRO ->-
-# -           <0> padsv[$i:908,910] vM/LVINTRO ->-
+# -           <0> padsv[$h 908,910] vM/LVINTRO ->-
+# -           <0> padsv[$i 908,910] vM/LVINTRO ->-
 # -        <;> nextstate(main 909 optree_misc.t:372) v:>,<,%,{ ->-
-# -        <0> padhv[%j:909,910] vM/LVINTRO ->3
+# -        <0> padhv[%j 909,910] vM/LVINTRO ->3
 # 3        <;> nextstate(main 910 optree_misc.t:372) v:>,<,%,{ ->4
 # 4        <$> const(IV 1) s ->5
 EONT_EONT

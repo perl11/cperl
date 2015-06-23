@@ -30,7 +30,8 @@ plan tests =>     11 # REGEX TEST HARNESS SELFTEST
 		+  3 # TEST FATAL ERRS
 		+ 11 # TEST -e \$srcCode
 		+  5 # REFTEXT FIXUP TESTS
-		+  5 # CANONICAL B::Concise EXAMPLE
+                +  5 # CANONICAL B::Concise EXAMPLE
+                +  3 # TYPE in pad
 		+ 16 * $gOpts{selftest}; # XXX I don't understand this - DAPM
 
 pass("REGEX TEST HARNESS SELFTEST");
@@ -149,26 +150,26 @@ checkOptree ( name	=> 'fixup nextstate (in reftext)',
 	      strip_open_hints => 1,
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
 # 1  <;> nextstate( NOTE THAT THIS CAN BE ANYTHING ) v:>,<,%
-# 2  <0> padsv[$a:54,55] sM/LVINTRO
+# 2  <0> padsv[$a 1629,1630] sM/LVINTRO
 # 3  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
-# 1  <;> nextstate(main 54 optree_concise.t:84) v:>,<,%
-# 2  <0> padsv[$a:54,55] sM/LVINTRO
+# 1  <;> nextstate(main 1632 optree_concise.t:84) v:>,<,%
+# 2  <0> padsv[$a 1629,1630] sM/LVINTRO
 # 3  <1> leavesub[1 ref] K/REFC,1
 EONT_EONT
 
 checkOptree ( name	=> 'fixup opcode args',
 	      bcopts	=> '-exec',
-	      #fail	=> 1, # uncomment to see real padsv args: [$a:491,492] 
+	      #fail	=> 1, # uncomment to see real padsv args: [$a 491,492] 
 	      code	=> sub {my $a},
 	      strip_open_hints => 1,
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
-# 1  <;> nextstate(main 56 optree_concise.t:96) v:>,<,%
-# 2  <0> padsv[$a:56,57] sM/LVINTRO
+# 1  <;> nextstate(main 1632 optree_check.t:96) v:>,<,%
+# 2  <0> padsv[$a 1632,1633] sM/LVINTRO
 # 3  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
-# 1  <;> nextstate(main 56 optree_concise.t:96) v:>,<,%
-# 2  <0> padsv[$a:56,57] sM/LVINTRO
+# 1  <;> nextstate(main 1632 optree_check.t:96) v:>,<,%
+# 2  <0> padsv[$a 1632,1633] sM/LVINTRO
 # 3  <1> leavesub[1 ref] K/REFC,1
 EONT_EONT
 
@@ -222,4 +223,31 @@ EOT_EOT
 # 5  <$> gvsv(*a) s
 # 6  <2> sassign sKS/2
 # 7  <1> leavesub[1 ref] K/REFC,1
+EONT_EONT
+
+#################################
+pass("TYPE in pad");
+
+checkOptree ( code	=> 'my int $a=0; $b=$a+42',
+	      bcopts	=> '-exec',
+	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
+# 1  <;> nextstate(main 837 (eval 24):1) v:{
+# 2  <#> gvsv[*b] s
+# 3  <$> const[IV 42] s
+# 4  <2> add[t3] sK/2
+# 5  <#> gvsv[*a] s
+# 6  <2> sassign sKS/2
+# 7  <1> leavesub[1 ref] K/REFC,1
+EOT_EOT
+# 1  <;> nextstate(main 1679 (eval 13):1) v
+# 2  <$> const(IV 0) s
+# 3  <0> padsv[$a:int 1679,1680] sRM*/LVINTRO
+# 4  <2> sassign vKS/2
+# 5  <;> nextstate(main 1680 (eval 13):1) v:{
+# 6  <0> padsv[$a:int 1679,1680] s
+# 7  <$> const(IV 42) s
+# 8  <2> add[t2] sK/2
+# 9  <$> gvsv(*b) s
+# a  <2> sassign sKS/2
+# b  <1> leavesub[1 ref] K/REFC,1
 EONT_EONT
