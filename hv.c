@@ -796,7 +796,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
                               HvKEYS(hv), HvMAX(hv), linear, action,
                               HvNAME_get(hv)?HvNAME_get(hv):"", key));
 	if (return_svp) {
-	    return entry ? (void *) &HeVAL(entry) : NULL;
+            return (void *) &HeVAL(entry);
 	}
 	return entry;
     }
