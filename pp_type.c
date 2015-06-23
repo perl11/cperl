@@ -242,6 +242,11 @@ UNBOXED_NUM_UNOP(exp, exp)
 UNBOXED_NUM_UNOP(log, log)
 UNBOXED_NUM_UNOP(sqrt, sqrt)
 
+/* native str ops for now disabled.
+   strcat: it might be too hard for the optimizer to prove
+   that the first arg is big enough. and with only one remaining op it
+   makes not much sense */
+#if 0
 
 /* unboxed concatenation   ck_concat	pzfsT2	Z Z
    buffer needs to be large enough! only with sized Str. */
@@ -260,6 +265,8 @@ PPt(pp_str_length, "(:str):int")
     TOPs = (SV*)strlen((char *)TOPs);
     return NORMAL;
 }
+#endif
+
 /* No magic allowed, but with bounds check,
    negative i, lval, defer allowed */
 PPt(pp_i_aelem, "(:Array(:Int),:Int):Int")
