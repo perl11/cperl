@@ -21,7 +21,7 @@ use Net::Config;
 
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw(hostname hostdomain hostfqdn domainname);
-our $VERSION = "3.06";
+our $VERSION = "3.06_01c";
 
 my ($host, $domain, $fqdn) = (undef, undef, undef);
 
@@ -48,7 +48,7 @@ sub _hostname {
     }
     return $host;
   }
-  elsif ($^O eq 'MacOS') {
+  elsif ($^O =~ /^MacOS|darwin$/) {
     chomp($host = `hostname`);
   }
   elsif ($^O eq 'VMS') {    ## multiple varieties of net s/w makes this hard
