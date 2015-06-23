@@ -300,9 +300,9 @@ delete		delete			ck_delete	%	S	"(:str):Void"
 exists		exists			ck_exists	is%	S	"(:str):Bool"
 rv2hv		hash dereference	ck_rvconst	d1	
 helem		hash element		ck_null		s2	H S	"(:Hash(:Scalar),:Str):Scalar"
-str_helem	unboxed hash element	ck_null		z2	H Z	"(:Hash(:Scalar),:str):Scalar"
-str_delete	unboxed delete		ck_delete	2	H Z	"(:str):Void"
-str_exists	unboxed exists		ck_exists	s2	H Z	"(:str):Bool"
+#str_helem	unboxed hash element	ck_null		z2	H Z	"(:Hash(:Scalar),:str):Scalar"
+#str_delete	unboxed delete		ck_delete	2	H Z	"(:str):Void"
+#str_exists	unboxed exists		ck_exists	s2	H Z	"(:str):Bool"
 hslice		hash slice		ck_null		m@	H L
 kvhslice	key/value hash slice	ck_null		m@	H L
 
