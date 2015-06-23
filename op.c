@@ -12873,6 +12873,16 @@ Perl_rpeep(pTHX_ OP *o)
 	o->op_opt = 1;
 	PL_op = o;
 
+        /* TODO: native types strength reduction:
+         * Change ops with typed or const args into typed.
+         * e.g. padsv[$a:int] const(iv) add => i_add
+         *
+         * With more than 2 ops with unboxable args, maybe unbox it.
+         * e.g. padsv[$a:int] const(iv) add padsv[$b:int] multiply
+         *   => padsv[$a:int] const(iv) unbox[2] int_add
+         *      padsv[$b:int] unbox int_multiply box_int
+         */
+
         /* look for a series of 1 or more aggregate derefs, e.g.
          *   $a[1]{foo}[$i]{$k}
          * and replace with a single OP_MULTIDEREF op.
