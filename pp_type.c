@@ -380,23 +380,24 @@ PPt(pp_str_aelem, "(:Array(:str),:int):str")
     RETURN;
 }
 */
+
+# if 0
 /* unboxed hash element	ck_null		s2	H Z */
 PPt(pp_str_helem, "(:Hash(:Scalar),:str):Scalar")
 {
     die("NYI");
 }
-
-/* str_delete	unboxed delete		ck_delete	%	H Z */
+/* unboxed delete	ck_delete	%	H Z */
 PPt(pp_str_delete, "(:Hash(:Scalar),:str):Void")
 {
     die("NYI");
 }
-
-/* str_exists	unboxed exists		ck_exists	s%	H Z */
+/* unboxed exists	ck_exists	s%	H Z */
 PPt(pp_str_exists, "(:Hash(:Scalar),:str):Bool")
 {
     die("NYI");
 }
+#endif
 
 /*
  * ex: set ts=8 sts=4 sw=4 et:
