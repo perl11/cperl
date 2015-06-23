@@ -14,7 +14,7 @@ use warnings; # uses #3 and #4, since warnings uses Carp
 
 use Exporter (); # use #5
 
-our $VERSION   = "0.996";
+our $VERSION   = "0.997c";
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw( set_style set_style_standard add_callback
 		     concise_subref concise_cv concise_main
@@ -792,7 +792,12 @@ sub concise_op {
 	    if (defined $padname and class($padname) ne "SPECIAL" and
 		$padname->LEN)
 	    {
-		$targarg  = $padname->PVX;
+                $targarg  = $padname->PVX;
+                my $targtype = '';
+                if (class($padname->TYPE) ne 'SPECIAL') {
+                    $targtype = ":".$padname->TYPE->NAME;
+                    $targtype =~ s/^:main::/:/;
+                }
 		if ($padname->FLAGS & SVf_FAKE) {
 		    # These changes relate to the jumbo closure fix.
 		    # See changes 19939 and 20005
@@ -803,13 +808,13 @@ sub concise_op {
 			if $padname->PARENT_FAKELEX_FLAGS & PAD_FAKELEX_MULTI;
 		    $fake .= ':' . $padname->PARENT_PAD_INDEX
 			if $curcv->CvFLAGS & CVf_ANON;
-		    $targarglife = "$targarg:FAKE:$fake";
+		    $targarglife = "$targarg$targtype FAKE:$fake";
 		}
 		else {
 		    my $intro = $padname->COP_SEQ_RANGE_LOW - $cop_seq_base;
 		    my $finish = int($padname->COP_SEQ_RANGE_HIGH) - $cop_seq_base;
 		    $finish = "end" if $finish == 999999999 - $cop_seq_base;
-		    $targarglife = "$targarg:$intro,$finish";
+		    $targarglife = "$targarg$targtype $intro,$finish";
 		}
 	    } else {
 		$targarglife = $targarg = "t" . ($h{targ}+$i);
