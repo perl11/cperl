@@ -1,4 +1,4 @@
-/* -*- buffer-read-only: t -*-
+/* ex: set ro ft=c: -*- buffer-read-only: t -*-
  *
  *    regcharclass.h
  *
@@ -2514,7 +2514,7 @@
  * 1a0687fb9c6c4567e853913549df0944fe40821279a3e9cdaa6ab8679bc286fd lib/unicore/extracted/DLineBreak.txt
  * 40bcfed3ca727c19e1331f6c33806231d5f7eeeabd2e6a9e06a3740c85d0c250 lib/unicore/extracted/DNumType.txt
  * a18d502bad39d527ac5586d7bc93e29f565859e3bcc24ada627eff606d6f5fed lib/unicore/extracted/DNumValues.txt
- * c9326eab8d7861c3543963e555d5b927348f4467c93071db23154dece7619654 lib/unicore/mktables
+ * db59d5e6fea588d3b855e6ea78b7475c3633ceb6870ddac844a80f62656237a7 lib/unicore/mktables
  * 462c9aaa608fb2014cd9649af1c5c009485c60b9c8b15b89401fdc10cf6161c6 lib/unicore/version
  * c6884f4d629f04d1316f3476cb1050b6a1b98ca30c903262955d4eae337c6b1e regen/charset_translations.pl
  * 1c951614c1cf87c2a801c615a65470d8f5e9388b62690e7498c7661eb7782a01 regen/regcharclass.pl

@@ -731,7 +731,6 @@ while (@ARGV) {
         -d $use_directory or croak "Unknown directory '$use_directory'";
     }
     elsif ($arg eq '-L') {
-
         # Existence not tested until have chdir'd
         $file_list = shift;
     }
@@ -777,6 +776,11 @@ usage: $0 [-c|-p|-q|-v|-w] [-C dir] [-L filelist] [ -P pod_dir ]
 END
     }
 }
+
+# but ignore -p with make -s
+$verbosity = 0
+  if $verbosity == $PROGRESS and
+     (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/);
 
 # Stores the most-recently changed file.  If none have changed, can skip the
 # build
