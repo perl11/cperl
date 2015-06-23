@@ -247,8 +247,8 @@ num_exp		unboxed num exp			ck_fun	pnf1	N	"(:num):num"
 num_log		unboxed num log			ck_fun	pnf1	N	"(:num):num"
 num_sqrt	unboxed num sqrt		ck_fun	pnf1	N	"(:num):num"
 
-str_concat	unboxed concatenation   ck_concat	pzf2	Z Z	"(:str,:str):str"
-str_length	unboxed length		ck_length	pfs2	Z       "(:str):Int"
+#str_concat	unboxed concatenation   ck_concat	pzf2	Z Z	"(:str,:str):str"
+#str_length	unboxed length		ck_length	pfs2	Z       "(:str):Int"
 
 # String stuff.
 
