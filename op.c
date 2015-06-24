@@ -9890,6 +9890,9 @@ Perl_ck_ftst(pTHX_ OP *o)
     return o;
 }
 
+/* check and fix arguments of internal op calls,
+   but not entersub user-level signatured or prototyped calls.
+   throw arity errors, unify arg list, e.g. add scalar cast, add $_ ... */
 OP *
 Perl_ck_fun(pTHX_ OP *o)
 {
@@ -12111,6 +12114,28 @@ Perl_ck_length(pTHX_ OP *o)
 
     return o;
 }
+
+/* check unop and binops for typed args */
+OP *
+Perl_ck_type(pTHX_ OP *o)
+{
+    OPCODE typ = o->op_type;
+    if ((PL_opargs[typ] & OA_CLASS_MASK) == OA_UNOP) {
+        OP* arg1 = cUNOPx(o)->op_first;
+        Perl_deb(aTHX_ "ck_type: %s(%s)\n", PL_op_name[typ], OP_NAME(arg1));
+    }
+    else if ((PL_opargs[typ] & OA_CLASS_MASK) == OA_BINOP) {
+        OP* arg1 = cBINOPx(o)->op_first;
+        OP* arg2 = cBINOPx(o)->op_last;
+        Perl_deb(aTHX_ "ck_type: %s(%s, %s)\n", PL_op_name[typ], OP_NAME(arg1), OP_NAME(arg2));
+    }
+    else {
+        Perl_die(aTHX_ "Invalid op_type for ck_type");
+    }
+    /*debop(o); if changed */
+    return o;
+}
+
 
 /* Check for in place reverse and sort assignments like "@a = reverse @a"
    and modify the optree to make them work inplace */
