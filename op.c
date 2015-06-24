@@ -1785,7 +1785,7 @@ Perl_scalarvoid(pTHX_ OP *arg)
         if (o->op_type == OP_NEXTSTATE
             || o->op_type == OP_DBSTATE
             || (o->op_type == OP_NULL && (o->op_targ == OP_NEXTSTATE
-                                          || o->op_targ == OP_DBSTATE)))
+                                       || o->op_targ == OP_DBSTATE)))
             PL_curcop = (COP*)o;                /* for warning below */
 
         /* assumes no premature commitment */
@@ -12338,6 +12338,7 @@ Perl_ck_type(pTHX_ OP *o)
                                 PL_op_name[v], n2));
                     if (S_match_type1(n2, type1)) {
                         OpTYPE_set(o, v);
+                        /* but newUNOP does not skip op_std_init */
                         DEBUG_k(op_dump(o));
                         return o;
                     }
@@ -12368,7 +12369,9 @@ Perl_ck_type(pTHX_ OP *o)
                                 PL_op_name[v], n2));
                     if (S_match_type2(n2, type1, type2)) {
                         OpTYPE_set(o, v);
-                        /* if we use unboxed types add unbox ops now, or forget */
+                        /* XXX upstream hack:
+                           newBINOP skips this if type changed in ck */
+                        o = fold_constants(op_integerize(op_std_init(o)));
                         DEBUG_k(op_dump(o));
                         return o;
                     }
