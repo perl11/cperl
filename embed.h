@@ -1123,6 +1123,7 @@
 #define ck_method(a)		Perl_ck_method(aTHX_ a)
 #define ck_null(a)		Perl_ck_null(aTHX_ a)
 #define ck_open(a)		Perl_ck_open(aTHX_ a)
+#define ck_pad(a)		Perl_ck_pad(aTHX_ a)
 #define ck_prototype(a)		Perl_ck_prototype(aTHX_ a)
 #define ck_readline(a)		Perl_ck_readline(aTHX_ a)
 #define ck_refassign(a)		Perl_ck_refassign(aTHX_ a)

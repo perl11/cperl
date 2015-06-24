@@ -57,7 +57,7 @@ const		constant item		ck_svconst	ps$		"():Scalar"
 gvsv		scalar variable		ck_null		ds$		"():Scalar"
 gv		glob value		ck_null		ds$		"():Scalar"
 gelem		glob elem		ck_null		ds2	S S
-padsv		private variable	ck_null		ds0
+padsv		private variable	ck_pad		ds0
 padav		private array		ck_null		d0
 padhv		private hash		ck_null		d0
 padany		private value		ck_null		d0		"(:Any):Any"
@@ -214,8 +214,8 @@ unbox_int	unbox IV to int		ck_null		pi1	S	"(:Int):int"
 unbox_uint	unbox IV/UV to uint	ck_null		pi1	S	"(:Int):uint"
 unbox_str	unbox PV to ASCIIZ	ck_null		pz1	S	"(:Str):str"
 unbox_num	unbox NV to double	ck_null		pn1	S	"(:Num):num"
-uint_lshift	unboxed shift left (<<) ck_bitop	pfi2	I I	"(:uint,:int):uint"
-uint_rshift	unboxed shift right (>>) ck_bitop	pfi2	I I	"(:uint,:int):uint"
+uint_left_shift	unboxed shift left (<<) ck_bitop	pfi2	I I	"(:uint,:int):uint"
+uint_right_shift unboxed shift right (>>) ck_bitop	pfi2	I I	"(:uint,:int):uint"
 uint_pow	unboxed int exp (**)	 ck_null	pfi2	I I	"(:uint,:int):uint"
 uint_complement	unboxed 1's complement (~) ck_bitop	pfi1	I	"(:uint):uint"
 int_preinc	unboxed preincrement (++)  ck_lfun	i1	I	"(:int):int"

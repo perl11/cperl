@@ -405,7 +405,7 @@ addbits($_, 6 => qw(OPpRUNTIME RTIME))
 
 # native typed ops: box return value
 addbits($_, 4 => qw(OPpBOXRET BOXRET)) for
-  qw(uint_rshift uint_lshift uint_pow uint_complement int_preinc int_predec int_postinc
+  qw(uint_right_shift uint_left_shift uint_pow uint_complement int_preinc int_predec int_postinc
      int_postdec int_add int_subtract int_multiply int_divide int_modulo
      int_negate int_not int_abs int_lt int_gt int_le int_ge
      int_eq int_ne num_add num_subtract num_multiply num_divide num_atan2 num_pow

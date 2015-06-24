@@ -108,6 +108,10 @@ recursive, but it's recursive on basic blocks, not on tree nodes.
 #define CALL_PEEP(o) PL_peepp(aTHX_ o)
 #define CALL_RPEEP(o) PL_rpeepp(aTHX_ o)
 #define CALL_OPFREEHOOK(o) if (PL_opfreehook) PL_opfreehook(aTHX_ o)
+#define op_typed(a) S_op_typed(aTHX_ a)
+#define core_type_name(t) S_core_type_name(aTHX_ t)
+#define match_type1(sig, arg) S_match_type1(aTHX_ sig, arg)
+#define match_type2(sig, arg1, arg2) S_match_type2(aTHX_ sig, arg1, arg2)
 
 /* Used to avoid recursion through the op tree in scalarvoid() and
    op_free()
@@ -2873,8 +2877,8 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
     case OP_I_MODULO:
     case OP_I_ADD:
     case OP_I_SUBTRACT:
-    case OP_UINT_LSHIFT:
-    case OP_UINT_RSHIFT:
+    case OP_UINT_LEFT_SHIFT:
+    case OP_UINT_RIGHT_SHIFT:
     case OP_UINT_POW:
     case OP_UINT_COMPLEMENT:
     case OP_INT_ADD:
@@ -9618,7 +9622,7 @@ Perl_ck_delete(pTHX_ OP *o)
     PERL_ARGS_ASSERT_CK_DELETE;
 
     o = ck_fun(o);
-    DEBUG_k(deb("ck_delete: %s\n", OP_NAME(o)));
+    DEBUG_k(Perl_deb(aTHX_ "ck_delete: %s\n", OP_NAME(o)));
     o->op_private = 0;
     if (o->op_flags & OPf_KIDS) {
 	OP * const kid = cUNOPo->op_first;
@@ -9657,7 +9661,7 @@ Perl_ck_eof(pTHX_ OP *o)
 {
     PERL_ARGS_ASSERT_CK_EOF;
 
-    DEBUG_k(deb("ck_eof: %s\n", OP_NAME(o)));
+    DEBUG_k(Perl_deb(aTHX_ "ck_eof: %s\n", OP_NAME(o)));
     if (o->op_flags & OPf_KIDS) {
 	OP *kid;
 	if (cLISTOPo->op_first->op_type == OP_STUB) {
@@ -9682,7 +9686,7 @@ Perl_ck_eval(pTHX_ OP *o)
 
     PERL_ARGS_ASSERT_CK_EVAL;
 
-    DEBUG_k(deb("ck_eval: %s\n", OP_NAME(o)));
+    DEBUG_k(Perl_deb(aTHX_ "ck_eval: %s\n", OP_NAME(o)));
     PL_hints |= HINT_BLOCK_SCOPE;
     if (o->op_flags & OPf_KIDS) {
 	SVOP * const kid = (SVOP*)cUNOPo->op_first;
@@ -9744,7 +9748,7 @@ Perl_ck_exec(pTHX_ OP *o)
 {
     PERL_ARGS_ASSERT_CK_EXEC;
 
-    DEBUG_k(deb("ck_exec: %s\n", OP_NAME(o)));
+    DEBUG_k(Perl_deb(aTHX_ "ck_exec: %s\n", OP_NAME(o)));
     if (o->op_flags & OPf_STACKED) {
         OP *kid;
 	o = ck_fun(o);
@@ -9764,7 +9768,7 @@ Perl_ck_exists(pTHX_ OP *o)
     PERL_ARGS_ASSERT_CK_EXISTS;
 
     o = ck_fun(o);
-    DEBUG_k(deb("ck_exists: %s\n", OP_NAME(o)));
+    DEBUG_k(Perl_deb(aTHX_ "ck_exists: %s\n", OP_NAME(o)));
     if (o->op_flags & OPf_KIDS) {
 	OP * const kid = cUNOPo->op_first;
         DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME((OP*)kid)));
@@ -9800,7 +9804,7 @@ Perl_ck_rvconst(pTHX_ OP *o)
 	int iscv;
 	GV *gv;
 	SV * const kidsv = kid->op_sv;
-        DEBUG_k(deb("ck_rvconst: %s %s\n", OP_NAME(o), OP_NAME((OP*)kid)));
+        DEBUG_k(Perl_deb(aTHX_ "ck_rvconst: %s %s\n", OP_NAME(o), OP_NAME((OP*)kid)));
         DEBUG_kv(op_dump(o));
 
 	/* Is it a constant from cv_const_sv()? */
@@ -9876,7 +9880,7 @@ Perl_ck_rvconst(pTHX_ OP *o)
 	    SvFAKE_off(gv);
 	}
     } else {
-        DEBUG_k(deb("ck_rvconst: %s WRONG\n", OP_NAME(o)));
+        DEBUG_k(Perl_deb(aTHX_ "ck_rvconst: %s WRONG\n", OP_NAME(o)));
         DEBUG_kv(op_dump(o));
     }
     return o;
@@ -9889,7 +9893,7 @@ Perl_ck_ftst(pTHX_ OP *o)
     const I32 type = o->op_type;
 
     PERL_ARGS_ASSERT_CK_FTST;
-    DEBUG_k(deb("ck_ftst: %s\n", OP_NAME(o)));
+    DEBUG_k(Perl_deb(aTHX_ "ck_ftst: %s\n", OP_NAME(o)));
     DEBUG_kv(op_dump(o));
 
     if (o->op_flags & OPf_REF) {
@@ -9946,7 +9950,7 @@ Perl_ck_fun(pTHX_ OP *o)
     I32 oa = PL_opargs[type] >> OASHIFT;
 
     PERL_ARGS_ASSERT_CK_FUN;
-    DEBUG_k(deb("ck_fun: %s\n", OP_NAME(o)));
+    DEBUG_k(Perl_deb(aTHX_ "ck_fun: %s\n", OP_NAME(o)));
     DEBUG_kv(op_dump(o));
 
     if (o->op_flags & OPf_STACKED) {
@@ -12133,7 +12137,7 @@ Perl_ck_length(pTHX_ OP *o)
             SV *name = NULL;
             const bool hash = kid->op_type == OP_PADHV
                            || kid->op_type == OP_RV2HV;
-            DEBUG_k(deb("ck_length: %s %s\n", OP_NAME(o), OP_NAME(kid)));
+            DEBUG_k(Perl_deb(aTHX_ "ck_length: %s %s\n", OP_NAME(o), OP_NAME(kid)));
             switch (kid->op_type) {
                 case OP_PADHV:
                 case OP_PADAV:
@@ -12164,24 +12168,223 @@ Perl_ck_length(pTHX_ OP *o)
     return o;
 }
 
-/* check unop and binops for typed args */
+typedef enum {
+    type_none = 0,
+    type_int,
+    type_uint,
+    type_num,
+    type_str,
+    type_Int,
+    type_UInt,
+    type_Num,
+    type_Str,
+    type_Scalar,
+    type_Number,
+    type_Any,
+    type_Array,
+    type_List,
+    type_Void = 255,
+} core_types_t;
+static const char* core_types_n[] = {
+    "",
+    "int",
+    "uint",
+    "num",
+    "str",
+    "Int",
+    "UInt",
+    "Num",
+    "Str",
+    "Scalar",
+    "Number",
+    "Any",
+    "Array",
+    "List",
+    "Void"
+};
+
+/* check for const and types */
+OP *
+Perl_ck_pad(pTHX_ OP *o)
+{
+    PERL_ARGS_ASSERT_CK_PAD;
+    {
+        SV* sv = PAD_SV(o->op_targ);
+        if (SvREADONLY(sv)) {
+            OpTYPE_set(o, OP_CONST);
+            cSVOPx(o)->op_sv = sv;
+            /* maybe check typeinfo also, and set some
+               SVf_TYPED flag if we still had one */
+        }
+        DEBUG_k(Perl_deb(aTHX_ "ck_pad: %s[%s]\n", PL_op_name[o->op_type],
+                    PadnamePV(PAD_COMPNAME(o->op_targ))));
+    }
+    return o;
+}
+
+/* so far for scalars only */
+PERL_STATIC_INLINE
+core_types_t S_op_typed(pTHX_ OP* o)
+{
+    core_types_t t = type_none;
+    if (o->op_type == OP_PADSV)
+        o = ck_pad(o);
+    if (o->op_type == OP_CONST) {
+        SV* c = cSVOPx(o)->op_sv;
+        switch (SvTYPE(c)) {
+        case SVt_IV: if(!SvROK(c)) t = SvUOK(c) ? type_UInt : type_Int; break;
+        case SVt_PV: t = type_Str; break;
+        case SVt_NV: t = type_Num; break;
+        case SVt_PVIV: t = type_Scalar; break;
+        default: t = type_Scalar;
+        }
+    }
+    else if (o->op_type == OP_PADSV) {
+        /*SV* c = PAD_SV(o->op_targ);*/
+        PADNAME * const pn = PAD_COMPNAME(o->op_targ);
+        HV *typ = PadnameTYPE(pn);
+        /* at first a very naive string check */
+        if (typ && HvNAME(typ)) {
+            const char *name = HvNAME(typ);
+            int l = HvNAMELEN(typ);
+            if      (memEQs(name, l, "main::int"))
+                t = type_Int;
+            else if (memEQs(name, l, "main::uint"))
+                t = type_UInt;
+            else if (memEQs(name, l, "main::Int"))
+                t = type_Int;
+            else if (memEQs(name, l, "main::UInt"))
+                t = type_UInt;
+            else if (memEQs(name, l, "main::str"))
+                t = type_Str;
+            else if (memEQs(name, l, "main::Str"))
+                t = type_Str;
+            else if (memEQs(name, l, "main::num"))
+                t = type_Num;
+            else if (memEQs(name, l, "main::Num"))
+                t = type_Num;
+            else if (memEQs(name, l, "main::Number"))
+                t = type_Number;
+            else
+                t = type_Scalar;
+        } else {
+            t = type_Scalar;
+        }
+    }
+    return t;
+}
+
+/* so far for scalars only */
+PERL_STATIC_INLINE
+const char * S_core_type_name(pTHX_ core_types_t t)
+{
+    return core_types_n[t];
+}
+
+/* index for the )
+   i.e. "(:Int,:Int):Int" => ":Int,:Int" */
+PERL_STATIC_INLINE
+int S_sigtype_args(const char* sig, int *i)
+{
+    char *p;
+    if (sig[0] != '(') return 0;
+    if (!(p = strchr(sig, ')'))) return 0;
+    *i = p - sig - 1;
+    return 1;
+}
+
+/* match an UNOP type with the given args */
+PERL_STATIC_INLINE
+int S_match_type1(pTHX_ const char* sig, core_types_t arg1)
+{
+    int i;
+    if (!S_sigtype_args(sig, &i)) Perl_die(aTHX_ "Invalid function type %s", sig);
+    return memEQ(&sig[2], core_type_name(arg1), i - 1);
+}
+
+/* match an BINOP type with the given args */
+PERL_STATIC_INLINE
+int S_match_type2(pTHX_ const char* sig, core_types_t arg1, core_types_t arg2)
+{
+    int i;
+    char p[20];
+    if (!S_sigtype_args(sig, &i)) Perl_die(aTHX_ "Invalid function type %s", sig);
+    sprintf(p, ":%s,:%s", core_type_name(arg1), core_type_name(arg2));
+    return memEQ(&sig[1], p, i);
+}
+
+/* check unop and binops for typed args.
+   forget about native types here, and use the boxed variants.
+   we can only box them later in peep, by adding unbox...box ops.
+ */
 OP *
 Perl_ck_type(pTHX_ OP *o)
 {
     OPCODE typ = o->op_type;
-    if ((PL_opargs[typ] & OA_CLASS_MASK) == OA_UNOP) {
-        OP* arg1 = cUNOPx(o)->op_first;
-        DEBUG_k(Perl_deb(aTHX_ "ck_type: %s(%s)\n", PL_op_name[typ], OP_NAME(arg1)));
+    OP* a = cUNOPx(o)->op_first;
+    core_types_t type1 = op_typed(a);
+    if (!type1 || type1 >= type_Scalar) {
+        return o;
+    }
+    else if ((PL_opargs[typ] & OA_CLASS_MASK) == OA_UNOP) {
+        DEBUG_k(Perl_deb(aTHX_ "ck_type: %s(%s:%s)\n", PL_op_name[typ],
+                    OP_NAME(a), core_type_name(type1)));
+        DEBUG_kv(op_dump(a));
+        /* search for typed variants and check matching types */
+        if (HAS_OP_TYPE_VARIANT(typ)) {
+            int i;
+            const char* n1 = PL_op_type[typ];
+            for (i=0; i<8; i++) {
+                int v = OP_TYPE_VARIANT(typ, i);
+                if (v) {
+                    const char* n2 = PL_op_type[v];
+                    DEBUG_k(Perl_deb(aTHX_ "%s %s <=> %s %s\n", PL_op_name[typ], n1,
+                                PL_op_name[v], n2));
+                    if (match_type1(n2, type1)) {
+                        OpTYPE_set(o, v);
+                        DEBUG_k(op_dump(o));
+                        return o;
+                    }
+                }
+            }
+        }
     }
     else if ((PL_opargs[typ] & OA_CLASS_MASK) == OA_BINOP) {
-        OP* arg1 = cBINOPx(o)->op_first;
-        OP* arg2 = cBINOPx(o)->op_last;
-        DEBUG_k(Perl_deb(aTHX_ "ck_type: %s(%s, %s)\n", PL_op_name[typ], OP_NAME(arg1), OP_NAME(arg2)));
+        OP* b = cBINOPx(o)->op_last;
+        core_types_t type2 = op_typed(b);
+        DEBUG_k(Perl_deb(aTHX_ "ck_type: %s(%s:%s, %s:%s)\n", PL_op_name[typ],
+                    OP_NAME(a), core_type_name(type1),
+                    OP_NAME(b), core_type_name(type2)));
+        /* search for typed variants and check matching types */
+        if ((type1 == type2
+             || (type1 == type_int && type2 == type_Int)
+             || (type1 == type_uint && type2 == type_int)
+             || (type1 == type_UInt && type2 == type_Int))
+            && HAS_OP_TYPE_VARIANT(typ))
+        {
+            int i;
+            const char* n1 = PL_op_type[typ];
+            for (i=0; i<8; i++) {
+                int v = OP_TYPE_VARIANT(typ, i);
+                if (v) {
+                    const char* n2 = PL_op_type[v];
+                    DEBUG_k(Perl_deb(aTHX_ "%s %s <=> %s %s\n", PL_op_name[typ], n1,
+                                PL_op_name[v], n2));
+                    if (match_type2(n2, type1, type2)) {
+                        OpTYPE_set(o, v);
+                        /* if we use unboxed types add unbox ops now, or forget */
+                        DEBUG_k(op_dump(o));
+                        return o;
+                    }
+                }
+            }
+        }
+        /*DEBUG_kv(op_dump(a));
+          DEBUG_kv(op_dump(b));*/
     }
     else {
         Perl_die(aTHX_ "Invalid op_type for ck_type");
     }
-    /*debop(o); if changed */
     return o;
 }
 
@@ -12947,10 +13150,8 @@ Perl_rpeep(pTHX_ OP *o)
 	o->op_opt = 1;
 	PL_op = o;
 
-        /* TODO: native types strength reduction:
-         * Change ops with typed or const args into typed.
-         * e.g. padsv[$a:int] const(iv) add => i_add
-         *
+        /* boxed type promotions done in ck_type.
+         * unbox/native todo here:
          * With more than 2 ops with unboxable args, maybe unbox it.
          * e.g. padsv[$a:int] const(iv) add padsv[$b:int] multiply
          *   => padsv[$a:int] const(iv) unbox[2] int_add

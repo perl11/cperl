@@ -179,9 +179,9 @@ PPt(pp_##name, "(:int):int")                    \
 }
 
 /* unboxed left bitshift (<<)  ck_bitop	pfi2	U I */
-UNBOXED_UINT_BINOP(rshift, >>)
+UNBOXED_UINT_BINOP(right_shift, >>)
 /* unboxed right bitshift (>>) ck_bitop	pfi2	U I */
-UNBOXED_UINT_BINOP(lshift, <<)
+UNBOXED_UINT_BINOP(left_shift, <<)
 /* unboxed 1's complement (~) 	ck_bitop pif1	U */
 UNBOXED_UINT_UNOP(complement, ~)
 
