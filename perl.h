@@ -4034,8 +4034,9 @@ Gid_t getegid (void);
 #define DEBUG_M_FLAG		0x01000000 /*16777216*/
 #define DEBUG_B_FLAG		0x02000000 /*33554432*/
 #define DEBUG_L_FLAG		0x04000000 /*67108864*/
-#define DEBUG_I_FLAG		0x08000000 /**/
-#define DEBUG_MASK		0x0FFFEFFF /* mask of all the standard flags */
+#define DEBUG_I_FLAG		0x08000000 /*134217728*/
+#define DEBUG_k_FLAG		0x10000000 /*268435456*/
+#define DEBUG_MASK		0x1FFFEFFF /* mask of all the standard flags */
 
 #define DEBUG_DB_RECURSE_FLAG	0x40000000
 #define DEBUG_TOP_FLAG		0x80000000 /* -D was given --> PL_debug |= FLAG */
@@ -4068,6 +4069,8 @@ Gid_t getegid (void);
 #  define DEBUG_B_TEST_ (PL_debug & DEBUG_B_FLAG)
 #  define DEBUG_L_TEST_ (PL_debug & DEBUG_L_FLAG)
 #  define DEBUG_I_TEST_ (PL_debug & DEBUG_I_FLAG)
+#  define DEBUG_k_TEST_ (PL_debug & DEBUG_k_FLAG)
+#  define DEBUG_kv_TEST_ (DEBUG_k_TEST_ && DEBUG_v_TEST_)
 #  define DEBUG_Xv_TEST_ (DEBUG_X_TEST_ && DEBUG_v_TEST_)
 #  define DEBUG_Uv_TEST_ (DEBUG_U_TEST_ && DEBUG_v_TEST_)
 #  define DEBUG_Pv_TEST_ (DEBUG_P_TEST_ && DEBUG_v_TEST_)
@@ -4102,6 +4105,8 @@ Gid_t getegid (void);
 #  define DEBUG_B_TEST DEBUG_B_TEST_
 #  define DEBUG_L_TEST DEBUG_L_TEST_
 #  define DEBUG_I_TEST DEBUG_I_TEST_
+#  define DEBUG_k_TEST DEBUG_k_TEST_
+#  define DEBUG_kv_TEST DEBUG_kv_TEST_
 #  define DEBUG_Xv_TEST DEBUG_Xv_TEST_
 #  define DEBUG_Uv_TEST DEBUG_Uv_TEST_
 #  define DEBUG_Pv_TEST DEBUG_Pv_TEST_
@@ -4156,6 +4161,8 @@ Gid_t getegid (void);
 #  define DEBUG_B(a) DEBUG__(DEBUG_B_TEST, a)
 #  define DEBUG_L(a) DEBUG__(DEBUG_L_TEST, a)
 #  define DEBUG_I(a) DEBUG__(DEBUG_I_TEST, a)
+#  define DEBUG_k(a) DEBUG__(DEBUG_k_TEST, a)
+#  define DEBUG_kv(a) DEBUG__(DEBUG_kv_TEST, a)
 
 #else /* DEBUGGING */
 
@@ -4187,6 +4194,8 @@ Gid_t getegid (void);
 #  define DEBUG_B_TEST (0)
 #  define DEBUG_L_TEST (0)
 #  define DEBUG_I_TEST (0)
+#  define DEBUG_k_TEST (0)
+#  define DEBUG_kv_TEST (0)
 #  define DEBUG_Xv_TEST (0)
 #  define DEBUG_Uv_TEST (0)
 #  define DEBUG_Pv_TEST (0)
@@ -4221,6 +4230,8 @@ Gid_t getegid (void);
 #  define DEBUG_B(a)
 #  define DEBUG_L(a)
 #  define DEBUG_I(a)
+#  define DEBUG_k(a)
+#  define DEBUG_kv(a)
 #  define DEBUG_Xv(a)
 #  define DEBUG_Uv(a)
 #  define DEBUG_Pv(a)
