@@ -2044,10 +2044,10 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_null,		/* modulo */
 	Perl_ck_null,		/* i_modulo */
 	Perl_ck_repeat,		/* repeat */
-	Perl_ck_null,		/* add */
-	Perl_ck_null,		/* i_add */
-	Perl_ck_null,		/* subtract */
-	Perl_ck_null,		/* i_subtract */
+	Perl_ck_type,		/* add */
+	Perl_ck_type,		/* i_add */
+	Perl_ck_type,		/* subtract */
+	Perl_ck_type,		/* i_subtract */
 	Perl_ck_concat,		/* concat */
 	Perl_ck_stringify,	/* stringify */
 	Perl_ck_bitop,		/* left_shift */
