@@ -12185,6 +12185,7 @@ typedef enum {
     type_List,
     type_Void = 255,
 } core_types_t;
+
 static const char* core_types_n[] = {
     "",
     "int",
@@ -12243,26 +12244,23 @@ core_types_t S_op_typed(pTHX_ OP* o)
         /*SV* c = PAD_SV(o->op_targ);*/
         PADNAME * const pn = PAD_COMPNAME(o->op_targ);
         HV *typ = PadnameTYPE(pn);
-        /* at first a very naive string check */
+        /* at first a very naive string check.
+           we should really use a PL_coretypes array with stash ptrs */
         if (typ && HvNAME(typ)) {
             const char *name = HvNAME(typ);
             int l = HvNAMELEN(typ);
-            if      (memEQs(name, l, "main::int"))
+            if      (memEQs(name, l, "main::int")
+                  || memEQs(name, l, "main::Int"))
                 t = type_Int;
-            else if (memEQs(name, l, "main::uint"))
-                t = type_UInt;
-            else if (memEQs(name, l, "main::Int"))
-                t = type_Int;
-            else if (memEQs(name, l, "main::UInt"))
-                t = type_UInt;
-            else if (memEQs(name, l, "main::str"))
-                t = type_Str;
-            else if (memEQs(name, l, "main::Str"))
-                t = type_Str;
-            else if (memEQs(name, l, "main::num"))
+            else if (memEQs(name, l, "main::num")
+                  || memEQs(name, l, "main::Num"))
                 t = type_Num;
-            else if (memEQs(name, l, "main::Num"))
-                t = type_Num;
+            else if (memEQs(name, l, "main::uint")
+                  || memEQs(name, l, "main::UInt"))
+                t = type_UInt;
+            else if (memEQs(name, l, "main::str")
+                  || memEQs(name, l, "main::Str"))
+                t = type_Str;
             else if (memEQs(name, l, "main::Number"))
                 t = type_Number;
             else
