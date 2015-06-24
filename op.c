@@ -9887,23 +9887,23 @@ S_cv_do_inline(pTHX_ const OP *o, const OP *cvop, CV *cv, bool meth)
 
     assert(o); /* the pushmark */
     assert(cv);
-    assert(OP_TYPE_IS(cvop, OP_ENTERSUB));
+    assert(IS_TYPE(o, PUSHMARK));
+    assert(IS_TYPE(cvop, ENTERSUB));
     /* first translate the args to the temp vars */
 
-    for (; o; o = o->op_next) {
+    if (meth) { /* push self */
+        if (UNLIKELY(OP_TYPE_IS(o->op_next, OP_GVSV))) { /* $self->meth not,
+                                                as we don't know the run-time dispatch */
+            DEBUG_k(deb("rpeep: skip inline $self->%s\n", HEK_KEY(CvNAME_HEK(cv))));
+            return (OP*)pushmarkop;
+        }
+        if (OP_TYPE_IS(o->op_next, OP_CONST)) { /* pkg->meth yes, if pkg::meth exists */
+            /* my $self = const pv */
+        }
+    }
+    for (; o != cvop; o = o->op_next) {
 	const OPCODE type = o->op_type;
-	if (type == OP_NEXTSTATE || type == OP_DBSTATE
-            || type == OP_NULL   || type == OP_LINESEQ
-            || type == OP_PUSHMARK)
-            continue;
-	if (   type == OP_RETURN || type == OP_GOTO
-            || type == OP_CALLER || type == OP_WARN
-            || type == OP_DIE    || type == OP_RESET
-            || type == OP_RUNCV  || type == OP_PADRANGE)
-	    return NULL;
-	else if (type == OP_LEAVESUB)
-	    break;
-	else if (type == OP_ENTERSUB) {
+	if (type == OP_GV && meth) {
 	    return NULL;
 	}
     }
@@ -18526,14 +18526,49 @@ Perl_rpeep(pTHX_ OP *o)
 #else
                     SV *gv = cSVOPx(gvop)->op_sv;
 #endif
-                    CV* cv;
+                    CV* cv = NULL;
+                    char *cvname = NULL;
                     /* for methods only if the static &pkg->cv exists, or the obj is typed */
-                    if (gv && ((SvTYPE(gv) == SVt_PVGV && (cv = GvCV(gv)))
-                            || (SvROK(gv) && (cv = (CV*)SvRV((SV*)gv))
-                                          && SvTYPE(cv) == SVt_PVCV))) {
-                        if (CvINLINABLE(cv)) {
-                            DEBUG_v(deb("rpeep: inline %s %s\n", meth ? "method" : "sub",
-                                        HEK_KEY(CvNAME_HEK(cv))));
+                    if (gv) {
+                        if (SvTYPE(gv) == SVt_PVGV && (cv = GvCV(gv))
+                            && SvTYPE(cv) == SVt_PVCV)
+#ifdef DEBUGGING
+                            cvname = GvNAME_get(gv)
+#endif
+                                ;
+                        else if (SvROK(gv) && (cv = (CV*)SvRV((SV*)gv))
+                                 && SvTYPE(cv) == SVt_PVCV)
+#ifdef DEBUGGING
+                            cvname = HEK_KEY(CvNAME_HEK(cv))
+#endif
+                                ;
+                        else if (SvTYPE(gv) == SVt_PV
+                                 && OP_TYPE_IS(o->op_next, OP_CONST)
+                                 && OP_TYPE_IS(gvop, OP_METHOD_NAMED)) {
+                            SV *name = cSVOPx(o->op_next)->op_sv;
+                            if (SvTYPE(name) == SVt_PV) {
+                                GV *gvf;
+                                name = newSVpvn_utf8(SvPVX(name), SvCUR(name), SvUTF8(name));
+                                if (SvPVX(name))
+                                    sv_catpvs(name, "::");
+                                else
+                                    sv_catpvs(name, "main::");
+                                sv_catpvn(name, SvPVX(gv), SvCUR(gv));
+                                if (!SvUTF8(name) && SvUTF8(gv))
+                                    SvUTF8_on(name);
+                                gvf = gv_fetchsv(name, 0, SVt_PVCV);
+#ifdef DEBUGGING
+                                cvname = SvPVX(name);
+#endif
+                                if (gvf && GvCV(gvf)) {
+                                    cv = GvCV(gvf);
+                                    /* TODO: convert to normal sub */
+                                }
+                            }
+                        }
+                        if (cv && CvINLINABLE(cv)) {
+                            DEBUG_k(deb("rpeep: inline %s %s\n", meth ? "method" : "sub",
+                                        cvname));
                             o2 = S_cv_do_inline(o, o2, cv, !!meth);
                         }
                     }
