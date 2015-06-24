@@ -12880,7 +12880,9 @@ Perl_rpeep(pTHX_ OP *o)
          * With more than 2 ops with unboxable args, maybe unbox it.
          * e.g. padsv[$a:int] const(iv) add padsv[$b:int] multiply
          *   => padsv[$a:int] const(iv) unbox[2] int_add
-         *      padsv[$b:int] unbox int_multiply box_int
+         *      padsv[$b:int] unbox int_multiply[BOXRET]
+         * OPpBOXRET bit as in box_int
+         * (5 with 2 slow ops -> 7 ops with 4 fast ops)
          */
 
         /* look for a series of 1 or more aggregate derefs, e.g.

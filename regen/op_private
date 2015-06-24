@@ -403,7 +403,14 @@ addbits($_, 7 => qw(OPpLVALUE LV)) for qw(leave leaveloop);
 addbits($_, 6 => qw(OPpRUNTIME RTIME))
     for qw(match subst substcont qr pushre);
 
-
+# native typed ops: box return value
+addbits($_, 4 => qw(OPpBOXRET BOXRET)) for
+  qw(uint_rshift uint_lshift int_preinc int_predec int_postinc
+     int_postdec int_add int_subtract int_multiply int_divide int_modulo
+     int_negate int_not int_complement int_abs int_lt int_gt int_le int_ge
+     int_eq int_ne num_add num_subtract num_multiply num_divide num_atan2
+     num_sin num_cos num_exp num_log num_sqrt
+     int_aelem num_aelem str_aelem);
 
 # autovivify: Want ref to something
 for (qw(rv2gv rv2sv padsv aelem helem entersub enterxssub)) {
