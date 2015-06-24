@@ -167,7 +167,13 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
-=item Storable 2.53_02
+=item Storable 2.53_03
+
+Add new optional flags argument to retrieve()/thaw() for flags, or set new
+global $Storable::flags: 2 for BLESS_OK | 4 TIE_OK. default 6.
+With 0 disable blessing and tieing of objects for proper security.
+
+Compute CAN_FLOCK at compile-time, to avoid Config in perlcc compiled binaries.
 
 Broke support for restoring restricted hashes [perl #73972] with the new
 default PERL_PERTURB_KEYS_TOP strategy.
