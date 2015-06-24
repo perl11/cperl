@@ -120,7 +120,7 @@ our %bits;
 
 our $VERSION = "5.023000";
 
-$bits{$_}{4} = 'OPpBOXRET' for qw(int_abs int_add int_aelem int_divide int_eq int_ge int_gt int_le int_lt int_modulo int_multiply int_ne int_negate int_not int_postdec int_postinc int_predec int_preinc int_subtract num_add num_aelem num_atan2 num_cos num_divide num_exp num_log num_multiply num_pow num_sin num_sqrt num_subtract str_aelem uint_complement uint_lshift uint_pow uint_rshift);
+$bits{$_}{4} = 'OPpBOXRET' for qw(int_abs int_add int_aelem int_divide int_eq int_ge int_gt int_le int_lt int_modulo int_multiply int_ne int_negate int_not int_postdec int_postinc int_predec int_preinc int_subtract num_add num_aelem num_atan2 num_cos num_divide num_exp num_log num_multiply num_pow num_sin num_sqrt num_subtract str_aelem uint_complement uint_left_shift uint_pow uint_right_shift);
 $bits{$_}{3} = 'OPpENTERSUB_AMPER' for qw(entersub enterxssub rv2cv);
 $bits{$_}{6} = 'OPpENTERSUB_DB' for qw(entersub enterxssub rv2cv);
 $bits{$_}{2} = 'OPpENTERSUB_HASTARG' for qw(entersub enterxssub rv2cv);
@@ -592,9 +592,9 @@ $bits{tied}{0} = $bf[0];
 $bits{uc}{0} = $bf[0];
 $bits{ucfirst}{0} = $bf[0];
 $bits{uint_complement}{0} = $bf[0];
-@{$bits{uint_lshift}}{1,0} = ($bf[1], $bf[1]);
+@{$bits{uint_left_shift}}{1,0} = ($bf[1], $bf[1]);
 @{$bits{uint_pow}}{1,0} = ($bf[1], $bf[1]);
-@{$bits{uint_rshift}}{1,0} = ($bf[1], $bf[1]);
+@{$bits{uint_right_shift}}{1,0} = ($bf[1], $bf[1]);
 @{$bits{umask}}{3,2,1,0} = ($bf[3], $bf[3], $bf[3], $bf[3]);
 $bits{unbox_int}{0} = $bf[0];
 $bits{unbox_num}{0} = $bf[0];
@@ -806,7 +806,7 @@ our %ops_using = (
     OPpALLOW_FAKE            => [qw(rv2gv)],
     OPpASSIGN_BACKWARDS      => [qw(sassign)],
     OPpASSIGN_COMMON         => [qw(aassign)],
-    OPpBOXRET                => [qw(int_abs int_add int_aelem int_divide int_eq int_ge int_gt int_le int_lt int_modulo int_multiply int_ne int_negate int_not int_postdec int_postinc int_predec int_preinc int_subtract num_add num_aelem num_atan2 num_cos num_divide num_exp num_log num_multiply num_pow num_sin num_sqrt num_subtract str_aelem uint_complement uint_lshift uint_pow uint_rshift)],
+    OPpBOXRET                => [qw(int_abs int_add int_aelem int_divide int_eq int_ge int_gt int_le int_lt int_modulo int_multiply int_ne int_negate int_not int_postdec int_postinc int_predec int_preinc int_subtract num_add num_aelem num_atan2 num_cos num_divide num_exp num_log num_multiply num_pow num_sin num_sqrt num_subtract str_aelem uint_complement uint_left_shift uint_pow uint_right_shift)],
     OPpCONST_BARE            => [qw(const)],
     OPpCOREARGS_DEREF1       => [qw(coreargs)],
     OPpEARLY_CV              => [qw(gv)],

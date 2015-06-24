@@ -285,8 +285,8 @@ EXTCONST char* const PL_op_name[] = {
 	"unbox_uint",	/* 125: unbox IV/UV to uint */
 	"unbox_str",	/* 126: unbox PV to ASCIIZ */
 	"unbox_num",	/* 127: unbox NV to double */
-	"uint_lshift",	/* 128: unboxed shift left (<<) */
-	"uint_rshift",	/* 129: unboxed shift right (>>) */
+	"uint_left_shift",	/* 128: unboxed shift left (<<) */
+	"uint_right_shift",	/* 129: unboxed shift right (>>) */
 	"uint_pow",	/* 130: unboxed int exp (**) */
 	"uint_complement",	/* 131: unboxed 1's complement (~) */
 	"int_preinc",	/* 132: unboxed preincrement (++) */
@@ -737,8 +737,8 @@ EXTCONST char* const PL_op_desc[] = {
 	"unbox IV/UV to uint",	/* 125: unbox_uint */
 	"unbox PV to ASCIIZ",	/* 126: unbox_str */
 	"unbox NV to double",	/* 127: unbox_num */
-	"unboxed shift left (<<)",	/* 128: uint_lshift */
-	"unboxed shift right (>>)",	/* 129: uint_rshift */
+	"unboxed shift left (<<)",	/* 128: uint_left_shift */
+	"unboxed shift right (>>)",	/* 129: uint_right_shift */
 	"unboxed int exp (**)",	/* 130: uint_pow */
 	"unboxed 1's complement (~)",	/* 131: uint_complement */
 	"unboxed preincrement (++)",	/* 132: int_preinc */
@@ -1189,8 +1189,8 @@ EXTCONST char* const PL_op_type[] = {
 	"(:Int):uint",	/* 125: unbox_uint */
 	"(:Str):str",	/* 126: unbox_str */
 	"(:Num):num",	/* 127: unbox_num */
-	"(:uint,:int):uint",	/* 128: uint_lshift */
-	"(:uint,:int):uint",	/* 129: uint_rshift */
+	"(:uint,:int):uint",	/* 128: uint_left_shift */
+	"(:uint,:int):uint",	/* 129: uint_right_shift */
 	"(:uint,:int):uint",	/* 130: uint_pow */
 	"(:uint):uint",	/* 131: uint_complement */
 	"(:int):int",	/* 132: int_preinc */
@@ -1655,8 +1655,8 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_unbox_uint,
 	Perl_pp_unbox_str,
 	Perl_pp_unbox_num,
-	Perl_pp_uint_lshift,
-	Perl_pp_uint_rshift,
+	Perl_pp_uint_left_shift,
+	Perl_pp_uint_right_shift,
 	Perl_pp_uint_pow,
 	Perl_pp_uint_complement,
 	Perl_pp_int_preinc,
@@ -1998,7 +1998,7 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_null,		/* gvsv */
 	Perl_ck_null,		/* gv */
 	Perl_ck_null,		/* gelem */
-	Perl_ck_null,		/* padsv */
+	Perl_ck_pad,		/* padsv */
 	Perl_ck_null,		/* padav */
 	Perl_ck_null,		/* padhv */
 	Perl_ck_null,		/* padany */
@@ -2117,8 +2117,8 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_null,		/* unbox_uint */
 	Perl_ck_null,		/* unbox_str */
 	Perl_ck_null,		/* unbox_num */
-	Perl_ck_bitop,		/* uint_lshift */
-	Perl_ck_bitop,		/* uint_rshift */
+	Perl_ck_bitop,		/* uint_left_shift */
+	Perl_ck_bitop,		/* uint_right_shift */
 	Perl_ck_null,		/* uint_pow */
 	Perl_ck_bitop,		/* uint_complement */
 	Perl_ck_lfun,		/* int_preinc */
@@ -2573,8 +2573,8 @@ EXTCONST U32 PL_opargs[] = {
 	0x00011300,	/* unbox_uint */
 	0x00011500,	/* unbox_str */
 	0x00011900,	/* unbox_num */
-	0x00882302,	/* uint_lshift */
-	0x00882302,	/* uint_rshift */
+	0x00882302,	/* uint_left_shift */
+	0x00882302,	/* uint_right_shift */
 	0x00882302,	/* uint_pow */
 	0x00081302,	/* uint_complement */
 	0x00081200,	/* int_preinc */
@@ -3261,8 +3261,8 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
        0, /* unbox_uint */
        0, /* unbox_str */
        0, /* unbox_num */
-      79, /* uint_lshift */
-      79, /* uint_rshift */
+      79, /* uint_left_shift */
+      79, /* uint_right_shift */
       79, /* uint_pow */
       81, /* uint_complement */
       81, /* int_preinc */
@@ -3620,7 +3620,7 @@ EXTCONST U16  PL_op_private_bitdefs[] = {
     0x3fd0, 0x0067, /* pow, multiply, i_multiply, divide, i_divide, modulo, i_modulo, add, i_add, subtract, i_subtract, concat, left_shift, right_shift, nbit_and, nbit_xor, nbit_or */
     0x1138, 0x0067, /* repeat */
     0x3fd0, 0x012f, /* stringify, atan2, rand, srand, index, rindex, crypt, push, unshift, flock, chdir, chown, unlink, chmod, utime, rename, link, symlink, mkdir, waitpid, system, exec, kill, getpgrp, setpgrp, getpriority, setpriority, sleep */
-    0x0690, 0x0067, /* uint_lshift, uint_rshift, uint_pow, int_add, int_subtract, int_multiply, int_divide, int_modulo, int_lt, int_gt, int_le, int_ge, int_eq, int_ne, num_add, num_subtract, num_multiply, num_divide, num_atan2, num_pow, int_aelem, num_aelem, str_aelem */
+    0x0690, 0x0067, /* uint_left_shift, uint_right_shift, uint_pow, int_add, int_subtract, int_multiply, int_divide, int_modulo, int_lt, int_gt, int_le, int_ge, int_eq, int_ne, num_add, num_subtract, num_multiply, num_divide, num_atan2, num_pow, int_aelem, num_aelem, str_aelem */
     0x0690, 0x0003, /* uint_complement, int_preinc, int_predec, int_postinc, int_postdec, int_negate, int_not, int_abs, num_sin, num_cos, num_exp, num_log, num_sqrt */
     0x34d0, 0x2bac, 0x00cb, /* substr */
     0x2bac, 0x0067, /* vec */
@@ -3796,8 +3796,8 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* UNBOX_UINT */ (OPpARG1_MASK),
     /* UNBOX_STR  */ (OPpARG1_MASK),
     /* UNBOX_NUM  */ (OPpARG1_MASK),
-    /* UINT_LSHIFT */ (OPpARG2_MASK|OPpBOXRET),
-    /* UINT_RSHIFT */ (OPpARG2_MASK|OPpBOXRET),
+    /* UINT_LEFT_SHIFT */ (OPpARG2_MASK|OPpBOXRET),
+    /* UINT_RIGHT_SHIFT */ (OPpARG2_MASK|OPpBOXRET),
     /* UINT_POW   */ (OPpARG2_MASK|OPpBOXRET),
     /* UINT_COMPLEMENT */ (OPpARG1_MASK|OPpBOXRET),
     /* INT_PREINC */ (OPpARG1_MASK|OPpBOXRET),
