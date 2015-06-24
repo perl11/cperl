@@ -38,8 +38,8 @@
 # reference   - R
 # "?" denotes an optional operand.
 
-# unboxed raw value, no SV, on the stack. :int, :str, :num
-# int         - I            ASCIIZ   - Z            double   - N
+# unboxed raw value, no SV, on the stack. :int, :uint, :str, :num
+# int  - I      ASCIIZ   - Z   double   - N
 
 # Nothing.
 
@@ -214,8 +214,10 @@ unbox_int	unbox IV to int		ck_null		pi1	S	"(:Int):int"
 unbox_uint	unbox IV/UV to uint	ck_null		pi1	S	"(:Int):uint"
 unbox_str	unbox PV to ASCIIZ	ck_null		pz1	S	"(:Str):str"
 unbox_num	unbox NV to double	ck_null		pn1	S	"(:Num):num"
-uint_lshift	unboxed left bitshift (<<)  ck_bitop	pfi2	I I	"(:int,:uint):uint"
-uint_rshift	unboxed right bitshift (>>) ck_bitop	pfi2	I I	"(:int,:uint):uint"
+uint_lshift	unboxed shift left (<<) ck_bitop	pfi2	I I	"(:uint,:int):uint"
+uint_rshift	unboxed shift right (>>) ck_bitop	pfi2	I I	"(:uint,:int):uint"
+uint_pow	unboxed int exp (**)	 ck_null	pfi2	I I	"(:uint,:int):uint"
+uint_complement	unboxed 1's complement (~) ck_bitop	pfi1	I	"(:uint):uint"
 int_preinc	unboxed preincrement (++)  ck_lfun	i1	I	"(:int):int"
 int_predec	unboxed predecrement (--)  ck_lfun	i1	I	"(:int):int"
 int_postinc	unboxed postincrement (++) ck_lfun	i1	I	"(:int):int"
@@ -227,7 +229,6 @@ int_divide	unboxed division (/)	ck_null		pif2	I I	"(:int,:int):int"
 int_modulo	unboxed modulus (%)	ck_null		pif2	I I	"(:int,:int):int"
 int_negate	unboxed negation (-)	ck_null		pif1	I	"(:int):int"
 int_not		unboxed integer not	ck_null		pif1	I	"(:int):int"
-int_complement	unboxed 1's complement (~) ck_bitop	pif1	I	"(:int):int"
 int_abs		unboxed abs		ck_fun		pif1	I	"(:int):int"
 int_lt		unboxed integer lt (<)	ck_cmp		pif2	I I	"(:int,:int):int"
 int_gt		unboxed integer gt (>)	ck_cmp		pif2	I I	"(:int,:int):int"
@@ -241,6 +242,7 @@ num_subtract	unboxed num subtraction (-)	ck_null	pnf2	N N	"(:num,:num):num"
 num_multiply	unboxed num multiplication (*)	ck_null	pnf2	N N	"(:num,:num):num"
 num_divide	unboxed num division (/)	ck_null	pnf2	N N	"(:num,:num):num"
 num_atan2	unboxed num atan2		ck_fun	pnf2	N N	"(:num,:num):num"
+num_pow		unboxed exponentiation (**)	ck_null	pnf2	N N	"(:num,:num):num"
 num_sin		unboxed num sin			ck_fun	pnf1	N	"(:num):num"
 num_cos		unboxed num cos			ck_fun	pnf1	N	"(:num):num"
 num_exp		unboxed num exp			ck_fun	pnf1	N	"(:num):num"

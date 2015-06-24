@@ -2873,6 +2873,29 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
     case OP_I_MODULO:
     case OP_I_ADD:
     case OP_I_SUBTRACT:
+    case OP_UINT_LSHIFT:
+    case OP_UINT_RSHIFT:
+    case OP_UINT_POW:
+    case OP_UINT_COMPLEMENT:
+    case OP_INT_ADD:
+    case OP_INT_SUBTRACT:
+    case OP_INT_MULTIPLY:
+    case OP_INT_DIVIDE:
+    case OP_INT_MODULO:
+    case OP_INT_NEGATE:
+    case OP_INT_NOT:
+    case OP_INT_ABS:
+    case OP_NUM_ADD:
+    case OP_NUM_SUBTRACT:
+    case OP_NUM_MULTIPLY:
+    case OP_NUM_DIVIDE:
+    case OP_NUM_ATAN2:
+    case OP_NUM_SIN:
+    case OP_NUM_COS:
+    case OP_NUM_EXP:
+    case OP_NUM_LOG:
+    case OP_NUM_SQRT:
+    case OP_NUM_POW:
 	if (!(o->op_flags & OPf_STACKED))
 	    goto nomod;
 	PL_modcount++;
@@ -12122,12 +12145,12 @@ Perl_ck_type(pTHX_ OP *o)
     OPCODE typ = o->op_type;
     if ((PL_opargs[typ] & OA_CLASS_MASK) == OA_UNOP) {
         OP* arg1 = cUNOPx(o)->op_first;
-        Perl_deb(aTHX_ "ck_type: %s(%s)\n", PL_op_name[typ], OP_NAME(arg1));
+        DEBUG_v(Perl_deb(aTHX_ "ck_type: %s(%s)\n", PL_op_name[typ], OP_NAME(arg1)));
     }
     else if ((PL_opargs[typ] & OA_CLASS_MASK) == OA_BINOP) {
         OP* arg1 = cBINOPx(o)->op_first;
         OP* arg2 = cBINOPx(o)->op_last;
-        Perl_deb(aTHX_ "ck_type: %s(%s, %s)\n", PL_op_name[typ], OP_NAME(arg1), OP_NAME(arg2));
+        DEBUG_v(Perl_deb(aTHX_ "ck_type: %s(%s, %s)\n", PL_op_name[typ], OP_NAME(arg1), OP_NAME(arg2)));
     }
     else {
         Perl_die(aTHX_ "Invalid op_type for ck_type");
