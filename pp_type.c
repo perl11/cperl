@@ -142,9 +142,19 @@ PPt(pp_uint_##name, "(:uint,:int):uint")        \
     UV uv = PTR2UV(TOPs);                       \
     sp--;                                       \
     TOPs = (PL_op->op_private & OPpBOXRET)      \
-        ? newSVuv(uv op PTR2IV(TOPs))          \
+        ? newSVuv(uv op PTR2IV(TOPs))           \
         : INT2PTR(SV*, uv op PTR2IV(TOPs));     \
     RETURN;                                     \
+}
+#define UNBOXED_UINT_UNOP(name, op)             \
+PPt(pp_uint_##name, "(:uint):uint")             \
+{                                               \
+    dSP;                                        \
+    IV iv = PTR2IV(TOPs);                       \
+    TOPs = (PL_op->op_private & OPpBOXRET)      \
+        ? newSViv(op(iv))                       \
+        : INT2PTR(SV*, op(iv));                 \
+    return NORMAL;                              \
 }
 #define UNBOXED_INT_BINOP(name, op)             \
 PPt(pp_int_##name, "(:int,:int):int")           \
@@ -172,6 +182,32 @@ PPt(pp_##name, "(:int):int")                    \
 UNBOXED_UINT_BINOP(rshift, >>)
 /* unboxed right bitshift (>>) ck_bitop	pfi2	U I */
 UNBOXED_UINT_BINOP(lshift, <<)
+/* unboxed 1's complement (~) 	ck_bitop pif1	U */
+UNBOXED_UINT_UNOP(complement, ~)
+
+PERL_STATIC_INLINE
+UV S_upow(UV base, IV exp) {
+    UV result = 1;
+    if (base == 2) return 2 << exp;
+    while (exp) {
+        if (exp & 1)
+            result *= base;
+        exp >>= 1;
+        base *= base;
+    }
+    return result;    
+}
+/* unboxed int exp (**)	ck_null		pif2	I I	"(:uint,:int):uint" */
+PPt(pp_uint_pow, "(:uint,:int):uint")
+{
+    dSP;
+    UV uv = PTR2UV(TOPs);
+    sp--;
+    TOPs = (PL_op->op_private & OPpBOXRET)
+        ? newSVuv(S_upow(uv, PTR2IV(TOPs)))
+        : INT2PTR(SV*, S_upow(uv, PTR2IV(TOPs)));
+    RETURN;
+}
 
 /* unboxed addition (+)		ck_null	pif2	I I */
 UNBOXED_INT_BINOP(add, +)
@@ -188,12 +224,11 @@ UNBOXED_INT_BINOP(ge, >=)
 UNBOXED_INT_BINOP(eq, ==)
 UNBOXED_INT_BINOP(ne, !=)
 
+/* here we need the int_ prefix, because of the reserved keyword not */
 /* unboxed negation (-)		ck_null	 pif1	I */
 UNBOXED_INT_UNOP(int_negate, -)
 /* unboxed integer not		ck_null	 pif1	I */
 UNBOXED_INT_UNOP(int_not, !)
-/* unboxed 1's complement (~) 	ck_bitop pif1	I */
-UNBOXED_INT_UNOP(int_complement, ~)
 UNBOXED_INT_UNOP(int_predec, --)
 UNBOXED_INT_UNOP(int_preinc, ++)
 UNBOXED_INT_UNOP(int_abs, abs)
@@ -262,6 +297,7 @@ UNBOXED_NUM_BINOP(subtract, -)
 UNBOXED_NUM_BINOP(multiply, *)
 UNBOXED_NUM_BINOP(divide, /)
 UNBOXED_NUM_BINFUNC(atan2, Perl_atan2)
+UNBOXED_NUM_BINFUNC(pow, Perl_pow)
 UNBOXED_NUM_UNOP(sin, sin)
 UNBOXED_NUM_UNOP(cos, cos)
 UNBOXED_NUM_UNOP(exp, exp)

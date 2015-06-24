@@ -3080,6 +3080,7 @@ Perl_get_debug_opts(pTHX_ const char **s, bool givehelp)
       "  M  trace smart match resolution\n"
       "  B  dump suBroutine definitions, including special Blocks like BEGIN\n",
       "  L  trace some locale setting information--for Perl core development\n",
+      "  k  ck_ check and optimizer functions\n"
       NULL
     };
     UV uv = 0;

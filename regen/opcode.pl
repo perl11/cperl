@@ -1150,7 +1150,7 @@ my %argnum = (
     'C',  5,		# code value
     'F',  6,		# file value
     'R',  7,		# scalar reference
-    'I',  8,		# unboxed int
+    'I',  8,		# unboxed int or uint
     'Z',  9,		# unboxed ASCIIZ str
     'N',  10,		# unboxed double (num, 64-bit only)
 );
@@ -1185,9 +1185,9 @@ my %opflags = (
     'd' =>  64,		# danger, make temp copy in list assignment
     'u' => 128,		# defaults to $_
     'p' => 256,		# is pure
-    'i' => 512,         # produces an unboxed int
+    'i' => 512,         # produces an unboxed int or uint
     'z' => 1024,        # produces an unboxed str
-    'n' => 2048,        # produces an unboxed double (num, 64bit only)
+    'n' => 2048,        # produces an unboxed double (num, only if IVSIZE==NVSIZE)
 );
 
 my %OP_IS_SOCKET;	# /Fs/
