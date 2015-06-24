@@ -28,7 +28,7 @@
 #   is pure                             - p  (OA_PURE)
 #   produces an unboxed int             - i  (OA_RETINT)
 #   produces an unboxed str             - z  (OA_RETSTR)
-#   produces an unboxed double          - n  (OA_RETDBL) (64bit only)
+#   produces an unboxed double          - n  (OA_RETDBL) (if IVSIZE==NVSIZE)
 
 # Values for the operands are:
 # scalar      - S            list     - L            array     - A

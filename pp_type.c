@@ -97,23 +97,23 @@ PPt(pp_unbox_num, "(:Num):num")
 }
 
 /* unboxed left bitshift (<<)  ck_bitop	pfiT2	I I */
-PPt(pp_uint_lshift, "(:int,:uint):uint")
+/*PPt(pp_uint_lshift, "(:int,:uint):uint")
 {
     dSP;
     UV uv = PTR2UV(TOPs);
     sp--;
     TOPs = INT2PTR(SV*, uv << PTR2IV(TOPs));
     RETURN;
-}
+}*/
 /* unboxed right bitshift (>>) ck_bitop	pfiT2	I I */
-PPt(pp_uint_rshift, "(:int,:uint):uint")
+/*PPt(pp_uint_rshift, "(:int,:uint):uint")
 {
     dSP;
     UV uv = PTR2UV(TOPs);
     sp--;
     TOPs = INT2PTR(SV*, uv >> PTR2IV(TOPs));
     RETURN;
-}
+}*/
 /* unboxed preincrement (++)  ck_lfun	is1	I */
 /* PPt(pp_int_preinc, "(:int):int")
 {
@@ -135,13 +135,26 @@ PPt(pp_uint_rshift, "(:int,:uint):uint")
 /* unboxed postdecrement (--) ck_lfun	is1	I */
 /* same as pp_int_predec */
 
+#define UNBOXED_UINT_BINOP(name, op)            \
+PPt(pp_uint_##name, "(:uint,:int):uint")        \
+{                                               \
+    dSP;                                        \
+    UV uv = PTR2UV(TOPs);                       \
+    sp--;                                       \
+    TOPs = (PL_op->op_private & OPpBOXRET)      \
+        ? newSVuv(uv op PTR2IV(TOPs))          \
+        : INT2PTR(SV*, uv op PTR2IV(TOPs));     \
+    RETURN;                                     \
+}
 #define UNBOXED_INT_BINOP(name, op)             \
 PPt(pp_int_##name, "(:int,:int):int")           \
 {                                               \
     dSP;                                        \
     IV iv = PTR2IV(TOPs);                       \
     sp--;                                       \
-    TOPs = INT2PTR(SV*, iv op PTR2IV(TOPs));    \
+    TOPs = (PL_op->op_private & OPpBOXRET)      \
+        ? newSViv(iv op PTR2IV(TOPs))           \
+        : INT2PTR(SV*, iv op PTR2IV(TOPs));     \
     RETURN;                                     \
 }
 #define UNBOXED_INT_UNOP(name, op)              \
@@ -149,15 +162,22 @@ PPt(pp_##name, "(:int):int")                    \
 {                                               \
     dSP;                                        \
     IV iv = PTR2IV(TOPs);                       \
-    TOPs = INT2PTR(SV*, op(iv));                \
+    TOPs = (PL_op->op_private & OPpBOXRET)      \
+        ? newSViv(op(iv))                       \
+        : INT2PTR(SV*, op(iv));                 \
     return NORMAL;                              \
 }
 
-/* unboxed addition (+)		ck_null		pif2	I I */
+/* unboxed left bitshift (<<)  ck_bitop	pfi2	U I */
+UNBOXED_UINT_BINOP(rshift, >>)
+/* unboxed right bitshift (>>) ck_bitop	pfi2	U I */
+UNBOXED_UINT_BINOP(lshift, <<)
+
+/* unboxed addition (+)		ck_null	pif2	I I */
 UNBOXED_INT_BINOP(add, +)
-/* unboxed subtraction (-)	ck_null		pif2	I I */
+/* unboxed subtraction (-)	ck_null	pif2	I I */
 UNBOXED_INT_BINOP(subtract, -)
-/* unboxed multiplication (*)	ck_null		pif2	I I */
+/* unboxed multiplication (*)	ck_null	pif2	I I */
 UNBOXED_INT_BINOP(multiply, *)
 UNBOXED_INT_BINOP(divide, /)
 UNBOXED_INT_BINOP(modulo, %)
@@ -168,11 +188,11 @@ UNBOXED_INT_BINOP(ge, >=)
 UNBOXED_INT_BINOP(eq, ==)
 UNBOXED_INT_BINOP(ne, !=)
 
-/* unboxed negation (-)	ck_null		pif1	I */
+/* unboxed negation (-)		ck_null	 pif1	I */
 UNBOXED_INT_UNOP(int_negate, -)
-/* unboxed integer not	ck_null		pif1	I */
+/* unboxed integer not		ck_null	 pif1	I */
 UNBOXED_INT_UNOP(int_not, !)
-/* unboxed 1's complement (~) ck_bitop	pif1	I */
+/* unboxed 1's complement (~) 	ck_bitop pif1	I */
 UNBOXED_INT_UNOP(int_complement, ~)
 UNBOXED_INT_UNOP(int_predec, --)
 UNBOXED_INT_UNOP(int_preinc, ++)
@@ -188,7 +208,9 @@ PPt(pp_num_##name, "(:num,:num):num")           \
     sp--;                                       \
     num2.sv = TOPs;                             \
     num1.n = num1.n op num2.n;                  \
-    TOPs = num1.sv;                             \
+    TOPs = (PL_op->op_private & OPpBOXRET)      \
+        ? newSVnv(num1.n)                       \
+        : num1.sv;                              \
     RETURN;                                     \
 }
 #define UNBOXED_NUM_BINFUNC(name, func)         \
@@ -200,7 +222,9 @@ PPt(pp_num_##name, "(:num,:num):num")           \
     sp--;                                       \
     num2.sv = TOPs;                             \
     num1.n = func(num1.n, num2.n);              \
-    TOPs = num1.sv;                             \
+    TOPs = (PL_op->op_private & OPpBOXRET)      \
+        ? newSVnv(num1.n)                       \
+        : num1.sv;                              \
     RETURN;                                     \
 }
 #define UNBOXED_NUM_UNOP(name, op)              \
@@ -210,7 +234,9 @@ PPt(pp_num_##name, "(:num):num")                \
     union { NV n; SV* sv; } num;                \
     num.sv = TOPs;                              \
     num.n = Perl_##op(num.n);                   \
-    TOPs = num.sv;                              \
+    TOPs = (PL_op->op_private & OPpBOXRET)      \
+        ? newSVnv(num.n)                        \
+        : num.sv;                               \
     return NORMAL;                              \
 }
 #else
