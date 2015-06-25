@@ -2240,7 +2240,7 @@ PerlIOBase_dup(pTHX_ PerlIO *f, PerlIO *o, CLONE_PARAMS *param, int flags)
 	DEBUG_I(PerlIO_debug("PerlIOBase_dup %s f=%p o=%p param=%p\n",
 		     self ? self->name : "(Null)",
                              (void*)f, (void*)o, (void*)param));
-	if (self && self->Getarg)
+	if (self->Getarg)
 	    arg = (*self->Getarg)(aTHX_ o, param, flags);
 	f = PerlIO_push(aTHX_ f, self, PerlIO_modestr(o,buf), arg);
 	if (f && PerlIOBase(o)->flags & PERLIO_F_UTF8)
