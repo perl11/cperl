@@ -8587,15 +8587,17 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
     }
 
     if (!block
-#ifndef USE_CPERL
+#ifndef USE_CPERLxx
         /* allow inlining of constant bodies on cperl even without empty proto*/
         || !ps || *ps /* perl5: sub x{1+2} => no proto, so not inlinable */
-#endif
         || attrs
+#endif
 	|| CvLVALUE(PL_compcv)
-	)
+	) {
+        /* XXX attr :const or :pure should not prevent from inlining.
+           :method :lvalue should */
 	const_sv = NULL;
-    else
+    } else
         /* check the body if it's in-lineable. */
 	const_sv =
 	    S_op_const_sv(aTHX_ start, PL_compcv, cBOOL(CvCLONE(PL_compcv)));
@@ -12348,16 +12350,17 @@ Perl_ck_type(pTHX_ OP *o)
         return o;
     }
     else if ((PL_opargs[typ] & OA_CLASS_MASK) == OA_UNOP) {
+        const int n = NUM_OP_TYPE_VARIANTS(typ);
         DEBUG_k(Perl_deb(aTHX_ "ck_type: %s(%s:%s)\n", PL_op_name[typ],
                     OP_NAME(a), core_type_name(type1)));
         DEBUG_kv(op_dump(a));
         /* search for typed variants and check matching types */
-        if (HAS_OP_TYPE_VARIANT(typ)) {
+        if (n) {
             int i;
 #ifdef DEBUGGING
             const char* n1 = PL_op_type[typ];
 #endif
-            for (i=0; i<8; i++) {
+            for (i=1; i<=n; i++) {
                 int v = OP_TYPE_VARIANT(typ, i);
                 if (v) {
                     const char* n2 = PL_op_type[v];
@@ -12376,21 +12379,24 @@ Perl_ck_type(pTHX_ OP *o)
     else if ((PL_opargs[typ] & OA_CLASS_MASK) == OA_BINOP) {
         OP* b = cBINOPx(o)->op_last;
         core_types_t type2 = op_typed(b);
+        const int n = NUM_OP_TYPE_VARIANTS(typ);
         DEBUG_k(Perl_deb(aTHX_ "ck_type: %s(%s:%s, %s:%s)\n", PL_op_name[typ],
                     OP_NAME(a), core_type_name(type1),
                     OP_NAME(b), core_type_name(type2)));
-        /* search for typed variants and check matching types */
-        if ((type1 == type2
+        /* Search for typed variants and check matching types */
+        /* Note that this shortcut below is not correct, only tuned
+           to our current ops */
+        if (n && (type1 == type2
              || (type1 == type_int && type2 == type_Int)
              || (type1 == type_uint && type2 == type_int)
              || (type1 == type_UInt && type2 == type_Int))
-            && HAS_OP_TYPE_VARIANT(typ))
+            )
         {
             int i;
 #ifdef DEBUGGING
             const char* n1 = PL_op_type[typ];
 #endif
-            for (i=0; i<8; i++) {
+            for (i=1; i<=n; i++) {
                 int v = OP_TYPE_VARIANT(typ, i);
                 if (v) {
                     const char* n2 = PL_op_type[v];

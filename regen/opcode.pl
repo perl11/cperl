@@ -1005,7 +1005,9 @@ print $on "#define OP_FREED MAXO\n";
 
 print $on <<"END";
 
-/* This encodes the offsets as signed char of the typed variants for each op */
+/* This encodes the offsets as signed char of the typed variants for each op.
+   The first byte is the number of following bytes, max 8.
+   variants: i_ n_ s_ int_ uint_ num_ str_ */
 #ifndef DOINIT
 EXTCONST const char PL_op_type_variants[][8];
 #else
@@ -1013,26 +1015,27 @@ EXTCONST const char PL_op_type_variants[][8] = {
 END
 
 # find typed variants, max 8 bytes
+# puts the number of variants into the first byte.
 $i = 0;
 for my $o (@ops) {
-  my @a;
+  my (@a, @s);
   my $type = $type{$o};
   my $found;
   my $op = $opnum{$o};
-  print $on qq(\t/* $i $o */\t");
-  # for dummy reserve byte for better alignment
+  printf $on "\t/* %3d %-16s */ {", $i, $o;
+  my $s = "";
   for my $p (qw(i_ n_ s_ int_ uint_ num_ str_)) {
     # encode the distance as signed byte (-127 + 128)
     if (exists $opnum{$p.$o}) {
       my $diff = $opnum{$p.$o} - $op;
-      push @a, "$p$o:".$opnum{$p.$o};
-      printf $on "\\%o", $diff < 0 ? $diff + 128 : $diff;
       warn $diff, $o if $diff < 0; # but we dont want to encode negative signed chars
+      push @a, "$p$o:".$opnum{$p.$o};
+      push @s, $diff < 0 ? $diff + 128 : $diff;
       $found++;
     } elsif ($o =~ /^(i|n|s)_/ and $p !~ /^(?:i|n|s)_/) {
       my $s = substr($o, 2);
       my $i1 = $1;
-      # # forbid n => int but allow int => uint and i => uint
+      # forbid n => int but allow int => uint and i => uint
       if (exists $opnum{$p.$s} and
           (($i1 eq 'i' and $p =~ /^[iu]i?nt_/)
           or
@@ -1041,16 +1044,14 @@ for my $o (@ops) {
         my $diff = $opnum{$p.$s} - $op;
         warn $diff, $o if $diff < 0;
         push @a, "$p$s:".$opnum{$p.$s};
-        printf $on "\\%o", $diff < 0 ? $diff + 128 : $diff;
+        push @s, $diff < 0 ? $diff + 128 : $diff;
         $found++;
-      } else {
-        printf $on "\\000";
       }
-    } else {
-      printf $on "\\000";
     }
   }
-  print $on '"'.",/* @a */\n";
+  unshift @s, scalar(@s);
+  print $on join(",",@s);
+  print $on "},\t/* @a */\n";
   $i++;
 }
 print $on <<"END";
@@ -1061,15 +1062,9 @@ END
 
 print $on <<'END';
 
-#ifdef HAS_QUADxx
-#define HAS_OP_TYPE_VARIANT(op) \
-   PTR2ul(*(PL_op_type_variants[(op)]))
-#else
-#define HAS_OP_TYPE_VARIANT(op) \
-   !memEQs(PL_op_type_variants[(op)], 8, "\000\000\000\000\000\000\000\000")
-#endif
+#define NUM_OP_TYPE_VARIANTS(op) PL_op_type_variants[op][0]
 
-/* for 0 to 7 */
+/* for 1 to num */
 #define OP_TYPE_VARIANT(op, _j) \
   (PL_op_type_variants[(op)][(_j)] \
     ? (op) + PL_op_type_variants[(op)][(_j)] \

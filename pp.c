@@ -2150,7 +2150,7 @@ PP(pp_ncmp)
 }
 
 
-/* also used for: pp_sge() pp_sgt() pp_slt() */
+/* also used for: pp_s_ge() pp_s_gt() pp_s_lt() */
 
 PP(pp_sle)
 {
