@@ -2764,11 +2764,6 @@ PP(pp_goto)
 	    oldsave = PL_scopestack[cx->blk_oldscopesp - 1];
 	    LEAVE_SCOPE(oldsave);
 
-	    if (CxTYPE(cx) == CXt_SUB) {
-		CvDEPTH(cx->blk_sub.cv) = cx->blk_sub.olddepth;
-                SvREFCNT_dec_NN(cx->blk_sub.cv);
-            }
-
 	    /* A destructor called during LEAVE_SCOPE could have undefined
 	     * our precious cv.  See bug #99850. */
 	    if (!CvROOT(cv) && !CvXSUB(cv)) {
@@ -2782,6 +2777,11 @@ PP(pp_goto)
 		}
 		DIE(aTHX_ "Goto undefined subroutine");
 	    }
+
+	    if (CxTYPE(cx) == CXt_SUB) {
+		CvDEPTH(cx->blk_sub.cv) = cx->blk_sub.olddepth;
+                SvREFCNT_dec_NN(cx->blk_sub.cv);
+            }
 
 	    /* Now do some callish stuff. */
 	    SAVETMPS;
