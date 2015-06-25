@@ -6810,6 +6810,11 @@ S_search_const(pTHX_ OP *o)
 	    if (o->op_flags & OPf_KIDS)
 		return search_const(cUNOPo->op_first);
 	    break;
+        case OP_PADSV: /* search_const is called immed. from newLOGOP/CONDOP.
+                          there was no time to constant fold it yet. */
+            if (o->op_targ && SvREADONLY(PAD_SV(o->op_targ)))
+                return ck_pad(o);
+            break;
 	case OP_LEAVE:
 	case OP_SCOPE:
 	case OP_LINESEQ:
