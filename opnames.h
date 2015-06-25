@@ -97,30 +97,30 @@ typedef enum opcode {
 	OP_I_EQ		 = 80,
 	OP_NE		 = 81,
 	OP_I_NE		 = 82,
-	OP_NCMP		 = 83,
-	OP_I_NCMP	 = 84,
-	OP_SLT		 = 85,
-	OP_SGT		 = 86,
-	OP_SLE		 = 87,
-	OP_SGE		 = 88,
-	OP_SEQ		 = 89,
-	OP_SNE		 = 90,
-	OP_SCMP		 = 91,
+	OP_CMP		 = 83,
+	OP_I_CMP	 = 84,
+	OP_S_LT		 = 85,
+	OP_S_GT		 = 86,
+	OP_S_LE		 = 87,
+	OP_S_GE		 = 88,
+	OP_S_EQ		 = 89,
+	OP_S_NE		 = 90,
+	OP_S_CMP	 = 91,
 	OP_BIT_AND	 = 92,
 	OP_BIT_XOR	 = 93,
 	OP_BIT_OR	 = 94,
-	OP_NBIT_AND	 = 95,
-	OP_NBIT_XOR	 = 96,
-	OP_NBIT_OR	 = 97,
-	OP_SBIT_AND	 = 98,
-	OP_SBIT_XOR	 = 99,
-	OP_SBIT_OR	 = 100,
+	OP_N_BIT_AND	 = 95,
+	OP_N_BIT_XOR	 = 96,
+	OP_N_BIT_OR	 = 97,
+	OP_S_BIT_AND	 = 98,
+	OP_S_BIT_XOR	 = 99,
+	OP_S_BIT_OR	 = 100,
 	OP_NEGATE	 = 101,
 	OP_I_NEGATE	 = 102,
 	OP_NOT		 = 103,
 	OP_COMPLEMENT	 = 104,
-	OP_NCOMPLEMENT	 = 105,
-	OP_SCOMPLEMENT	 = 106,
+	OP_N_COMPLEMENT	 = 105,
+	OP_S_COMPLEMENT	 = 106,
 	OP_SMARTMATCH	 = 107,
 	OP_ATAN2	 = 108,
 	OP_SIN		 = 109,
@@ -464,6 +464,7 @@ typedef enum opcode {
 #define MAXO 444
 #define OP_FREED MAXO
 
+
 /* This encodes the offsets as signed char of the typed variants for each op.
    The first byte is the number of following bytes, max 8.
    variants: i_ n_ s_ int_ uint_ num_ str_ */
@@ -542,42 +543,42 @@ EXTCONST const char PL_op_type_variants[][8] = {
 	/*  68 stringify        */ {0},	/*  */
 	/*  69 left_shift       */ {1,59},	/* uint_left_shift:128 */
 	/*  70 right_shift      */ {1,59},	/* uint_right_shift:129 */
-	/*  71 lt               */ {2,1,73},	/* i_lt:72 int_lt:144 */
+	/*  71 lt               */ {3,1,14,73},	/* i_lt:72 s_lt:85 int_lt:144 */
 	/*  72 i_lt             */ {1,72},	/* int_lt:144 */
-	/*  73 gt               */ {2,1,72},	/* i_gt:74 int_gt:145 */
+	/*  73 gt               */ {3,1,13,72},	/* i_gt:74 s_gt:86 int_gt:145 */
 	/*  74 i_gt             */ {1,71},	/* int_gt:145 */
-	/*  75 le               */ {2,1,71},	/* i_le:76 int_le:146 */
+	/*  75 le               */ {3,1,12,71},	/* i_le:76 s_le:87 int_le:146 */
 	/*  76 i_le             */ {1,70},	/* int_le:146 */
-	/*  77 ge               */ {2,1,70},	/* i_ge:78 int_ge:147 */
+	/*  77 ge               */ {3,1,11,70},	/* i_ge:78 s_ge:88 int_ge:147 */
 	/*  78 i_ge             */ {1,69},	/* int_ge:147 */
-	/*  79 eq               */ {2,1,69},	/* i_eq:80 int_eq:148 */
+	/*  79 eq               */ {3,1,10,69},	/* i_eq:80 s_eq:89 int_eq:148 */
 	/*  80 i_eq             */ {1,68},	/* int_eq:148 */
-	/*  81 ne               */ {2,1,68},	/* i_ne:82 int_ne:149 */
+	/*  81 ne               */ {3,1,9,68},	/* i_ne:82 s_ne:90 int_ne:149 */
 	/*  82 i_ne             */ {1,67},	/* int_ne:149 */
-	/*  83 ncmp             */ {1,1},	/* i_ncmp:84 */
-	/*  84 i_ncmp           */ {0},	/*  */
-	/*  85 slt              */ {0},	/*  */
-	/*  86 sgt              */ {0},	/*  */
-	/*  87 sle              */ {0},	/*  */
-	/*  88 sge              */ {0},	/*  */
-	/*  89 seq              */ {0},	/*  */
-	/*  90 sne              */ {0},	/*  */
-	/*  91 scmp             */ {0},	/*  */
-	/*  92 bit_and          */ {0},	/*  */
-	/*  93 bit_xor          */ {0},	/*  */
-	/*  94 bit_or           */ {0},	/*  */
-	/*  95 nbit_and         */ {0},	/*  */
-	/*  96 nbit_xor         */ {0},	/*  */
-	/*  97 nbit_or          */ {0},	/*  */
-	/*  98 sbit_and         */ {0},	/*  */
-	/*  99 sbit_xor         */ {0},	/*  */
-	/* 100 sbit_or          */ {0},	/*  */
+	/*  83 cmp              */ {2,1,8},	/* i_cmp:84 s_cmp:91 */
+	/*  84 i_cmp            */ {0},	/*  */
+	/*  85 s_lt             */ {0},	/*  */
+	/*  86 s_gt             */ {0},	/*  */
+	/*  87 s_le             */ {0},	/*  */
+	/*  88 s_ge             */ {0},	/*  */
+	/*  89 s_eq             */ {0},	/*  */
+	/*  90 s_ne             */ {0},	/*  */
+	/*  91 s_cmp            */ {0},	/*  */
+	/*  92 bit_and          */ {2,3,6},	/* n_bit_and:95 s_bit_and:98 */
+	/*  93 bit_xor          */ {2,3,6},	/* n_bit_xor:96 s_bit_xor:99 */
+	/*  94 bit_or           */ {2,3,6},	/* n_bit_or:97 s_bit_or:100 */
+	/*  95 n_bit_and        */ {0},	/*  */
+	/*  96 n_bit_xor        */ {0},	/*  */
+	/*  97 n_bit_or         */ {0},	/*  */
+	/*  98 s_bit_and        */ {0},	/*  */
+	/*  99 s_bit_xor        */ {0},	/*  */
+	/* 100 s_bit_or         */ {0},	/*  */
 	/* 101 negate           */ {2,1,40},	/* i_negate:102 int_negate:141 */
 	/* 102 i_negate         */ {1,39},	/* int_negate:141 */
 	/* 103 not              */ {1,39},	/* int_not:142 */
-	/* 104 complement       */ {1,27},	/* uint_complement:131 */
-	/* 105 ncomplement      */ {0},	/*  */
-	/* 106 scomplement      */ {0},	/*  */
+	/* 104 complement       */ {3,1,2,27},	/* n_complement:105 s_complement:106 uint_complement:131 */
+	/* 105 n_complement     */ {0},	/*  */
+	/* 106 s_complement     */ {0},	/*  */
 	/* 107 smartmatch       */ {0},	/*  */
 	/* 108 atan2            */ {1,46},	/* num_atan2:154 */
 	/* 109 sin              */ {1,47},	/* num_sin:156 */
@@ -944,12 +945,51 @@ EXTCONST const char PL_op_type_variants[][8] = {
 	((op) >= OP_FTRREAD && (op) <= OP_FTEEXEC)
 
 #define OP_IS_NUMCOMPARE(op)	\
-	((op) >= OP_LT && (op) <= OP_I_NCMP)
+	((op) >= OP_LT && (op) <= OP_I_CMP)
 
 #define OP_IS_DIRHOP(op)	\
 	((op) >= OP_READDIR && (op) <= OP_CLOSEDIR)
 
 #define OP_IS_INFIX_BIT(op)	\
-	((op) >= OP_BIT_AND && (op) <= OP_SBIT_OR)
+	((op) >= OP_BIT_AND && (op) <= OP_S_BIT_OR)
+
+/* backcompat old names: */
+#if 1
+#define OP_NCMP		 OP_CMP
+#define OP_I_NCMP	 OP_I_CMP
+#define OP_SLT		 OP_S_LT
+#define OP_SGT		 OP_S_GT
+#define OP_SLE		 OP_S_LE
+#define OP_SGE		 OP_S_GE
+#define OP_SEQ		 OP_S_EQ
+#define OP_SNE		 OP_S_NE
+#define OP_SCMP		 OP_S_CMP
+#define OP_NBIT_AND	 OP_N_BIT_AND
+#define OP_NBIT_XOR	 OP_N_BIT_XOR
+#define OP_NBIT_OR	 OP_N_BIT_OR
+#define OP_SBIT_AND	 OP_S_BIT_AND
+#define OP_SBIT_XOR	 OP_S_BIT_XOR
+#define OP_SBIT_OR	 OP_S_BIT_OR
+#define OP_NCOMPLEMENT	 OP_N_COMPLEMENT
+#define OP_SCOMPLEMENT	 OP_S_COMPLEMENT
+
+#define Perl_pp_ncmp	 Perl_pp_cmp
+#define Perl_pp_i_ncmp	 Perl_pp_i_cmp
+#define Perl_pp_slt	 Perl_pp_s_lt
+#define Perl_pp_sgt	 Perl_pp_s_gt
+#define Perl_pp_sle	 Perl_pp_s_le
+#define Perl_pp_sge	 Perl_pp_s_ge
+#define Perl_pp_seq	 Perl_pp_s_eq
+#define Perl_pp_sne	 Perl_pp_s_ne
+#define Perl_pp_scmp	 Perl_pp_s_cmp
+#define Perl_pp_nbit_and Perl_pp_n_bit_and
+#define Perl_pp_nbit_xor Perl_pp_n_bit_xor
+#define Perl_pp_nbit_or	 Perl_pp_n_bit_or
+#define Perl_pp_sbit_and Perl_pp_s_bit_and
+#define Perl_pp_sbit_xor Perl_pp_s_bit_xor
+#define Perl_pp_sbit_or	 Perl_pp_s_bit_or
+#define Perl_pp_ncomplement Perl_pp_n_complement
+#define Perl_pp_scomplement Perl_pp_s_complement
+#endif
 
 /* ex: set ro: */

@@ -4924,7 +4924,7 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
     DEBUG_M(Perl_deb(aTHX_ "    applying rule Any-Any\n"));
     PUSHs(d); PUSHs(e);
     PUTBACK;
-    return Perl_pp_seq(aTHX);
+    return Perl_pp_s_eq(aTHX);
 }
 
 PP(pp_enterwhen)
