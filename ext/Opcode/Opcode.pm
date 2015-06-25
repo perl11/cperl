@@ -319,12 +319,21 @@ invert_opset function.
     postdec i_postdec int hex oct abs pow multiply i_multiply
     divide i_divide modulo i_modulo add i_add subtract i_subtract
 
-    left_shift right_shift bit_and bit_xor bit_or nbit_and
-    nbit_xor nbit_or sbit_and sbit_xor sbit_or negate i_negate not
-    complement ncomplement scomplement
+    left_shift right_shift bit_and bit_xor bit_or n_bit_and
+    n_bit_xor n_bit_or s_bit_and s_bit_xor s_bit_or negate i_negate not
+    complement n_complement s_complement
 
-    lt i_lt gt i_gt le i_le ge i_ge eq i_eq ne i_ne ncmp i_ncmp
-    slt sgt sle sge seq sne scmp
+    lt i_lt gt i_gt le i_le ge i_ge eq i_eq ne i_ne cmp i_cmp
+    s_lt s_gt s_le s_ge s_eq s_ne s_cmp
+
+    box_int box_uint box_str box_num unbox_int unbox_uint unbox_str
+    unbox_num uint_left_shift uint_right_shift uint_pow
+    uint_complement int_preinc int_predec int_postinc int_postdec
+    int_add int_subtract int_multiply int_divide int_modulo int_negate
+    int_not int_abs int_lt int_gt int_le int_ge int_eq int_ne num_add
+    num_subtract num_multiply num_divide num_atan2 num_pow num_sin
+    num_cos num_exp num_log num_sqrt
+    i_aelem n_aelem s_aelem int_aelem num_aelem str_aelem
 
     substr vec stringify study pos length index rindex ord chr
 
