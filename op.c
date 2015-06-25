@@ -4330,6 +4330,8 @@ S_fold_constants(pTHX_ OP *o)
 
     for (curop = LINKLIST(o); curop != o; curop = LINKLIST(curop)) {
 	const OPCODE type = curop->op_type;
+        if (type == OP_PADSV && curop->op_targ)
+            curop = ck_pad(curop); /* possibly convert readonly to CONST */
 	if ((type != OP_CONST || (curop->op_private & OPpCONST_BARE)) &&
 	    type != OP_LIST &&
 	    type != OP_SCALAR &&
@@ -12204,8 +12206,9 @@ static const char* core_types_n[] = {
     "Void"
 };
 
-/* check for const and types, but this is too early.
-   the target is attached later. */
+/* Check for const and types.
+   Called from newOP/newPADOP this is too early,
+   the target is attached later. But we also call it from constant folding */
 OP *
 Perl_ck_pad(pTHX_ OP *o)
 {
@@ -12217,10 +12220,10 @@ Perl_ck_pad(pTHX_ OP *o)
             cSVOPx(o)->op_sv = sv;
             pad_swipe(o->op_targ, 0);
             o->op_targ = 0;
-            /* maybe check typeinfo also, and set some
-               SVf_TYPED flag if we still had one. This const
-               looses all type info, and is either int|num|str. */
         }
+        /* maybe check typeinfo also, and set some
+           SVf_TYPED flag if we still had one. This const
+           looses all type info, and is either int|num|str. */
         DEBUG_k(Perl_deb(aTHX_ "ck_pad: %s[%s]\n", PL_op_name[o->op_type],
                     PadnamePV(PAD_COMPNAME(o->op_targ))));
     }
