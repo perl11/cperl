@@ -12354,7 +12354,9 @@ Perl_ck_type(pTHX_ OP *o)
         /* search for typed variants and check matching types */
         if (HAS_OP_TYPE_VARIANT(typ)) {
             int i;
+#ifdef DEBUGGING
             const char* n1 = PL_op_type[typ];
+#endif
             for (i=0; i<8; i++) {
                 int v = OP_TYPE_VARIANT(typ, i);
                 if (v) {
@@ -12385,7 +12387,9 @@ Perl_ck_type(pTHX_ OP *o)
             && HAS_OP_TYPE_VARIANT(typ))
         {
             int i;
+#ifdef DEBUGGING
             const char* n1 = PL_op_type[typ];
+#endif
             for (i=0; i<8; i++) {
                 int v = OP_TYPE_VARIANT(typ, i);
                 if (v) {
