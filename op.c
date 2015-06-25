@@ -4272,6 +4272,7 @@ S_fold_constants(pTHX_ OP *o)
     if (!(PL_opargs[type] & OA_FOLDCONST))
 	goto nope;
 
+    DEBUG_kv(Perl_deb(aTHX_ "fold_constant(%s)?\n", OP_NAME(o)));
     switch (type) {
     case OP_UCFIRST:
     case OP_LCFIRST:
@@ -4342,6 +4343,7 @@ S_fold_constants(pTHX_ OP *o)
 	}
     }
 
+    /*DEBUG_k(Perl_deb(aTHX_ "fold_constant(%s)", OP_NAME(o)));*/
     curop = LINKLIST(o);
     old_next = o->op_next;
     o->op_next = 0;
@@ -4419,6 +4421,8 @@ S_fold_constants(pTHX_ OP *o)
 	SvREADONLY_on(sv);
     }
     newop = newSVOP(OP_CONST, 0, MUTABLE_SV(sv));
+    DEBUG_k(Perl_deb(aTHX_ "fold_constant => %s\n", OP_NAME(newop)));
+    DEBUG_kv(debop(newop));
     if (!is_stringify) newop->op_folded = 1;
     return newop;
 
@@ -7997,13 +8001,12 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 	    SAVEFREESV(sv);
 	}
 	else if (allow_lex && type == OP_PADSV) {
-		if (PAD_COMPNAME_FLAGS(o->op_targ) & PADNAMEt_OUTER)
-		{
-		    sv = &PL_sv_undef; /* an arbitrary non-null value */
-		    padsv = TRUE;
-		}
-		else
-		    return NULL;
+            if (PAD_COMPNAME_FLAGS(o->op_targ) & PADNAMEt_OUTER) {
+                sv = &PL_sv_undef; /* an arbitrary non-null value */
+                padsv = TRUE;
+            }
+            else
+                return NULL;
 	}
 	else {
 	    return NULL;
@@ -8075,7 +8078,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
     U32 ps_utf8 = 0;
     CV *cv = NULL;
     CV *compcv = PL_compcv;
-    SV *const_sv;
+    SV *const_sv = NULL;
     PADNAME *name;
     PADOFFSET pax = o->op_targ;
     CV *outcv = CvOUTSIDE(PL_compcv);
@@ -8176,11 +8179,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 	block->op_next = 0;
         if (ps && !*ps && !attrs && !CvLVALUE(compcv))
             const_sv = S_op_const_sv(aTHX_ start, compcv, FALSE);
-        else
-            const_sv = NULL;
     }
-    else
-        const_sv = NULL;
 
     if (cv) {
         const bool exists = CvROOT(cv) || CvXSUB(cv);
@@ -8586,8 +8585,20 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
         else
             const_sv = NULL;
     }
+
+    if (!block
+#ifndef USE_CPERL
+        /* allow inlining of constant bodies on cperl even without empty proto*/
+        || !ps || *ps /* perl5: sub x{1+2} => no proto, so not inlinable */
+#endif
+        || attrs
+	|| CvLVALUE(PL_compcv)
+	)
+	const_sv = NULL;
     else
-        const_sv = NULL;
+        /* check the body if it's in-lineable. */
+	const_sv =
+	    S_op_const_sv(aTHX_ start, PL_compcv, cBOOL(CvCLONE(PL_compcv)));
 
     if (SvPOK(gv) || (SvROK(gv) && SvTYPE(SvRV(gv)) != SVt_PVCV)) {
 	assert (block);
@@ -9958,7 +9969,7 @@ Perl_ck_fun(pTHX_ OP *o)
 
     PERL_ARGS_ASSERT_CK_FUN;
     DEBUG_k(Perl_deb(aTHX_ "ck_fun: %s\n", OP_NAME(o)));
-    DEBUG_kv(op_dump(o));
+    /*DEBUG_kv(op_dump(o));*/
 
     if (o->op_flags & OPf_STACKED) {
 	if ((oa & OA_OPTIONAL) && (oa >> 4) && !((oa >> 4) & OA_OPTIONAL))
