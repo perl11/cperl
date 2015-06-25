@@ -28,12 +28,12 @@
 #define Perl_pp_i_postinc Perl_pp_postinc
 #define Perl_pp_postdec Perl_pp_postinc
 #define Perl_pp_i_postdec Perl_pp_postinc
-#define Perl_pp_slt Perl_pp_sle
-#define Perl_pp_sgt Perl_pp_sle
-#define Perl_pp_sge Perl_pp_sle
+#define Perl_pp_s_lt Perl_pp_s_le
+#define Perl_pp_s_gt Perl_pp_s_le
+#define Perl_pp_s_ge Perl_pp_s_le
 #define Perl_pp_bit_xor Perl_pp_bit_or
-#define Perl_pp_nbit_xor Perl_pp_nbit_or
-#define Perl_pp_sbit_xor Perl_pp_sbit_or
+#define Perl_pp_n_bit_xor Perl_pp_n_bit_or
+#define Perl_pp_s_bit_xor Perl_pp_s_bit_or
 #define Perl_pp_cos Perl_pp_sin
 #define Perl_pp_exp Perl_pp_sin
 #define Perl_pp_log Perl_pp_sin
@@ -240,30 +240,30 @@ EXTCONST char* const PL_op_name[] = {
 	"i_eq",	/* 80: integer eq (==) */
 	"ne",	/* 81: numeric ne (!=) */
 	"i_ne",	/* 82: integer ne (!=) */
-	"ncmp",	/* 83: numeric comparison (<=>) */
-	"i_ncmp",	/* 84: integer comparison (<=>) */
-	"slt",	/* 85: string lt */
-	"sgt",	/* 86: string gt */
-	"sle",	/* 87: string le */
-	"sge",	/* 88: string ge */
-	"seq",	/* 89: string eq */
-	"sne",	/* 90: string ne */
-	"scmp",	/* 91: string comparison (cmp) */
+	"cmp",	/* 83: numeric comparison (<=>) */
+	"i_cmp",	/* 84: integer comparison (<=>) */
+	"s_lt",	/* 85: string lt */
+	"s_gt",	/* 86: string gt */
+	"s_le",	/* 87: string le */
+	"s_ge",	/* 88: string ge */
+	"s_eq",	/* 89: string eq */
+	"s_ne",	/* 90: string ne */
+	"s_cmp",	/* 91: string comparison (cmp) */
 	"bit_and",	/* 92: bitwise and (&) */
 	"bit_xor",	/* 93: bitwise xor (^) */
 	"bit_or",	/* 94: bitwise or (|) */
-	"nbit_and",	/* 95: numeric bitiwse and (&) */
-	"nbit_xor",	/* 96: numeric bitwise xor (^) */
-	"nbit_or",	/* 97: numeric bitwise or (|) */
-	"sbit_and",	/* 98: string bitiwse and (&) */
-	"sbit_xor",	/* 99: string bitwise xor (^) */
-	"sbit_or",	/* 100: string bitwise or (|) */
+	"n_bit_and",	/* 95: numeric bitiwse and (&) */
+	"n_bit_xor",	/* 96: numeric bitwise xor (^) */
+	"n_bit_or",	/* 97: numeric bitwise or (|) */
+	"s_bit_and",	/* 98: string bitiwse and (&) */
+	"s_bit_xor",	/* 99: string bitwise xor (^) */
+	"s_bit_or",	/* 100: string bitwise or (|) */
 	"negate",	/* 101: negation (-) */
 	"i_negate",	/* 102: integer negation (-) */
 	"not",	/* 103: not */
 	"complement",	/* 104: 1's complement (~) */
-	"ncomplement",	/* 105: numeric 1's complement (~) */
-	"scomplement",	/* 106: string 1's complement (~) */
+	"n_complement",	/* 105: numeric 1's complement (~) */
+	"s_complement",	/* 106: string 1's complement (~) */
 	"smartmatch",	/* 107: smart match */
 	"atan2",	/* 108: atan2 */
 	"sin",	/* 109: sin */
@@ -692,30 +692,30 @@ EXTCONST char* const PL_op_desc[] = {
 	"integer eq (==)",	/* 80: i_eq */
 	"numeric ne (!=)",	/* 81: ne */
 	"integer ne (!=)",	/* 82: i_ne */
-	"numeric comparison (<=>)",	/* 83: ncmp */
-	"integer comparison (<=>)",	/* 84: i_ncmp */
-	"string lt",	/* 85: slt */
-	"string gt",	/* 86: sgt */
-	"string le",	/* 87: sle */
-	"string ge",	/* 88: sge */
-	"string eq",	/* 89: seq */
-	"string ne",	/* 90: sne */
-	"string comparison (cmp)",	/* 91: scmp */
+	"numeric comparison (<=>)",	/* 83: cmp */
+	"integer comparison (<=>)",	/* 84: i_cmp */
+	"string lt",	/* 85: s_lt */
+	"string gt",	/* 86: s_gt */
+	"string le",	/* 87: s_le */
+	"string ge",	/* 88: s_ge */
+	"string eq",	/* 89: s_eq */
+	"string ne",	/* 90: s_ne */
+	"string comparison (cmp)",	/* 91: s_cmp */
 	"bitwise and (&)",	/* 92: bit_and */
 	"bitwise xor (^)",	/* 93: bit_xor */
 	"bitwise or (|)",	/* 94: bit_or */
-	"numeric bitiwse and (&)",	/* 95: nbit_and */
-	"numeric bitwise xor (^)",	/* 96: nbit_xor */
-	"numeric bitwise or (|)",	/* 97: nbit_or */
-	"string bitiwse and (&)",	/* 98: sbit_and */
-	"string bitwise xor (^)",	/* 99: sbit_xor */
-	"string bitwise or (|)",	/* 100: sbit_or */
+	"numeric bitiwse and (&)",	/* 95: n_bit_and */
+	"numeric bitwise xor (^)",	/* 96: n_bit_xor */
+	"numeric bitwise or (|)",	/* 97: n_bit_or */
+	"string bitiwse and (&)",	/* 98: s_bit_and */
+	"string bitwise xor (^)",	/* 99: s_bit_xor */
+	"string bitwise or (|)",	/* 100: s_bit_or */
 	"negation (-)",	/* 101: negate */
 	"integer negation (-)",	/* 102: i_negate */
 	"not",	/* 103: not */
 	"1's complement (~)",	/* 104: complement */
-	"numeric 1's complement (~)",	/* 105: ncomplement */
-	"string 1's complement (~)",	/* 106: scomplement */
+	"numeric 1's complement (~)",	/* 105: n_complement */
+	"string 1's complement (~)",	/* 106: s_complement */
 	"smart match",	/* 107: smartmatch */
 	"atan2",	/* 108: atan2 */
 	"sin",	/* 109: sin */
@@ -1144,30 +1144,30 @@ EXTCONST char* const PL_op_type[] = {
 	"(:Int,:Int):Bool",	/* 80: i_eq */
 	"(:Scalar,:Scalar):Bool",	/* 81: ne */
 	"(:Int,:Int):Bool",	/* 82: i_ne */
-	"(:Scalar,:Scalar):Int",	/* 83: ncmp */
-	"(:Int,:Int):Int",	/* 84: i_ncmp */
-	"(:Str,:Str):Bool",	/* 85: slt */
-	"(:Str,:Str):Bool",	/* 86: sgt */
-	"(:Str,:Str):Bool",	/* 87: sle */
-	"(:Str,:Str):Bool",	/* 88: sge */
-	"(:Str,:Str):Bool",	/* 89: seq */
-	"(:Str,:Str):Bool",	/* 90: sne */
-	"(:Str,:Str):Int",	/* 91: scmp */
+	"(:Scalar,:Scalar):Int",	/* 83: cmp */
+	"(:Int,:Int):Int",	/* 84: i_cmp */
+	"(:Str,:Str):Bool",	/* 85: s_lt */
+	"(:Str,:Str):Bool",	/* 86: s_gt */
+	"(:Str,:Str):Bool",	/* 87: s_le */
+	"(:Str,:Str):Bool",	/* 88: s_ge */
+	"(:Str,:Str):Bool",	/* 89: s_eq */
+	"(:Str,:Str):Bool",	/* 90: s_ne */
+	"(:Str,:Str):Int",	/* 91: s_cmp */
 	"",	/* 92: bit_and */
 	"",	/* 93: bit_xor */
 	"",	/* 94: bit_or */
-	"",	/* 95: nbit_and */
-	"",	/* 96: nbit_xor */
-	"",	/* 97: nbit_or */
-	"",	/* 98: sbit_and */
-	"",	/* 99: sbit_xor */
-	"",	/* 100: sbit_or */
+	"",	/* 95: n_bit_and */
+	"",	/* 96: n_bit_xor */
+	"",	/* 97: n_bit_or */
+	"",	/* 98: s_bit_and */
+	"",	/* 99: s_bit_xor */
+	"",	/* 100: s_bit_or */
 	"",	/* 101: negate */
 	"",	/* 102: i_negate */
 	"",	/* 103: not */
 	"",	/* 104: complement */
-	"",	/* 105: ncomplement */
-	"",	/* 106: scomplement */
+	"",	/* 105: n_complement */
+	"",	/* 106: s_complement */
 	"",	/* 107: smartmatch */
 	"",	/* 108: atan2 */
 	"",	/* 109: sin */
@@ -1610,30 +1610,30 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_i_eq,
 	Perl_pp_ne,
 	Perl_pp_i_ne,
-	Perl_pp_ncmp,
-	Perl_pp_i_ncmp,
-	Perl_pp_slt,	/* implemented by Perl_pp_sle */
-	Perl_pp_sgt,	/* implemented by Perl_pp_sle */
-	Perl_pp_sle,
-	Perl_pp_sge,	/* implemented by Perl_pp_sle */
-	Perl_pp_seq,
-	Perl_pp_sne,
-	Perl_pp_scmp,
+	Perl_pp_cmp,
+	Perl_pp_i_cmp,
+	Perl_pp_s_lt,	/* implemented by Perl_pp_s_le */
+	Perl_pp_s_gt,	/* implemented by Perl_pp_s_le */
+	Perl_pp_s_le,
+	Perl_pp_s_ge,	/* implemented by Perl_pp_s_le */
+	Perl_pp_s_eq,
+	Perl_pp_s_ne,
+	Perl_pp_s_cmp,
 	Perl_pp_bit_and,
 	Perl_pp_bit_xor,	/* implemented by Perl_pp_bit_or */
 	Perl_pp_bit_or,
-	Perl_pp_nbit_and,
-	Perl_pp_nbit_xor,	/* implemented by Perl_pp_nbit_or */
-	Perl_pp_nbit_or,
-	Perl_pp_sbit_and,
-	Perl_pp_sbit_xor,	/* implemented by Perl_pp_sbit_or */
-	Perl_pp_sbit_or,
+	Perl_pp_n_bit_and,
+	Perl_pp_n_bit_xor,	/* implemented by Perl_pp_n_bit_or */
+	Perl_pp_n_bit_or,
+	Perl_pp_s_bit_and,
+	Perl_pp_s_bit_xor,	/* implemented by Perl_pp_s_bit_or */
+	Perl_pp_s_bit_or,
 	Perl_pp_negate,
 	Perl_pp_i_negate,
 	Perl_pp_not,
 	Perl_pp_complement,
-	Perl_pp_ncomplement,
-	Perl_pp_scomplement,
+	Perl_pp_n_complement,
+	Perl_pp_s_complement,
 	Perl_pp_smartmatch,
 	Perl_pp_atan2,
 	Perl_pp_sin,
@@ -2072,30 +2072,30 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_null,		/* i_eq */
 	Perl_ck_null,		/* ne */
 	Perl_ck_null,		/* i_ne */
-	Perl_ck_null,		/* ncmp */
-	Perl_ck_null,		/* i_ncmp */
-	Perl_ck_null,		/* slt */
-	Perl_ck_null,		/* sgt */
-	Perl_ck_null,		/* sle */
-	Perl_ck_null,		/* sge */
-	Perl_ck_null,		/* seq */
-	Perl_ck_null,		/* sne */
-	Perl_ck_null,		/* scmp */
+	Perl_ck_null,		/* cmp */
+	Perl_ck_null,		/* i_cmp */
+	Perl_ck_null,		/* s_lt */
+	Perl_ck_null,		/* s_gt */
+	Perl_ck_null,		/* s_le */
+	Perl_ck_null,		/* s_ge */
+	Perl_ck_null,		/* s_eq */
+	Perl_ck_null,		/* s_ne */
+	Perl_ck_null,		/* s_cmp */
 	Perl_ck_bitop,		/* bit_and */
 	Perl_ck_bitop,		/* bit_xor */
 	Perl_ck_bitop,		/* bit_or */
-	Perl_ck_bitop,		/* nbit_and */
-	Perl_ck_bitop,		/* nbit_xor */
-	Perl_ck_bitop,		/* nbit_or */
-	Perl_ck_bitop,		/* sbit_and */
-	Perl_ck_bitop,		/* sbit_xor */
-	Perl_ck_bitop,		/* sbit_or */
+	Perl_ck_bitop,		/* n_bit_and */
+	Perl_ck_bitop,		/* n_bit_xor */
+	Perl_ck_bitop,		/* n_bit_or */
+	Perl_ck_bitop,		/* s_bit_and */
+	Perl_ck_bitop,		/* s_bit_xor */
+	Perl_ck_bitop,		/* s_bit_or */
 	Perl_ck_null,		/* negate */
 	Perl_ck_null,		/* i_negate */
 	Perl_ck_null,		/* not */
 	Perl_ck_bitop,		/* complement */
-	Perl_ck_bitop,		/* ncomplement */
-	Perl_ck_bitop,		/* scomplement */
+	Perl_ck_bitop,		/* n_complement */
+	Perl_ck_bitop,		/* s_complement */
 	Perl_ck_smartmatch,	/* smartmatch */
 	Perl_ck_fun,		/* atan2 */
 	Perl_ck_fun,		/* sin */
@@ -2528,30 +2528,30 @@ EXTCONST U32 PL_opargs[] = {
 	0x00112306,	/* i_eq */
 	0x00112326,	/* ne */
 	0x00112306,	/* i_ne */
-	0x0011232e,	/* ncmp */
-	0x0011230e,	/* i_ncmp */
-	0x00112306,	/* slt */
-	0x00112306,	/* sgt */
-	0x00112306,	/* sle */
-	0x00112306,	/* sge */
-	0x00112306,	/* seq */
-	0x00112306,	/* sne */
-	0x0011230e,	/* scmp */
+	0x0011232e,	/* cmp */
+	0x0011230e,	/* i_cmp */
+	0x00112306,	/* s_lt */
+	0x00112306,	/* s_gt */
+	0x00112306,	/* s_le */
+	0x00112306,	/* s_ge */
+	0x00112306,	/* s_eq */
+	0x00112306,	/* s_ne */
+	0x0011230e,	/* s_cmp */
 	0x0011210e,	/* bit_and */
 	0x0011210e,	/* bit_xor */
 	0x0011210e,	/* bit_or */
-	0x0011211e,	/* nbit_and */
-	0x0011211e,	/* nbit_xor */
-	0x0011211e,	/* nbit_or */
-	0x0011200e,	/* sbit_and */
-	0x0011200e,	/* sbit_xor */
-	0x0011200e,	/* sbit_or */
+	0x0011211e,	/* n_bit_and */
+	0x0011211e,	/* n_bit_xor */
+	0x0011211e,	/* n_bit_or */
+	0x0011200e,	/* s_bit_and */
+	0x0011200e,	/* s_bit_xor */
+	0x0011200e,	/* s_bit_or */
 	0x0001112e,	/* negate */
 	0x0001110e,	/* i_negate */
 	0x00011106,	/* not */
 	0x0001110e,	/* complement */
-	0x0001111e,	/* ncomplement */
-	0x0001101e,	/* scomplement */
+	0x0001111e,	/* n_complement */
+	0x0001101e,	/* s_complement */
 	0x00002004,	/* smartmatch */
 	0x0011411e,	/* atan2 */
 	0x0009b19e,	/* sin */
@@ -3216,30 +3216,30 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
       12, /* i_eq */
       12, /* ne */
       12, /* i_ne */
-      12, /* ncmp */
-      12, /* i_ncmp */
-      12, /* slt */
-      12, /* sgt */
-      12, /* sle */
-      12, /* sge */
-      12, /* seq */
-      12, /* sne */
-      12, /* scmp */
+      12, /* cmp */
+      12, /* i_cmp */
+      12, /* s_lt */
+      12, /* s_gt */
+      12, /* s_le */
+      12, /* s_ge */
+      12, /* s_eq */
+      12, /* s_ne */
+      12, /* s_cmp */
       12, /* bit_and */
       12, /* bit_xor */
       12, /* bit_or */
-      73, /* nbit_and */
-      73, /* nbit_xor */
-      73, /* nbit_or */
-      12, /* sbit_and */
-      12, /* sbit_xor */
-      12, /* sbit_or */
+      73, /* n_bit_and */
+      73, /* n_bit_xor */
+      73, /* n_bit_or */
+      12, /* s_bit_and */
+      12, /* s_bit_xor */
+      12, /* s_bit_or */
        0, /* negate */
        0, /* i_negate */
        0, /* not */
        0, /* complement */
-      71, /* ncomplement */
-      71, /* scomplement */
+      71, /* n_complement */
+      71, /* s_complement */
       12, /* smartmatch */
       77, /* atan2 */
       71, /* sin */
@@ -3601,7 +3601,7 @@ EXTCONST U16  PL_op_private_bitdefs[] = {
     0x03b8, 0x1650, 0x3d6c, 0x3828, 0x2e85, /* const */
     0x2abc, 0x2fd9, /* gvsv */
     0x14b5, /* gv */
-    0x0067, /* gelem, lt, i_lt, gt, i_gt, le, i_le, ge, i_ge, eq, i_eq, ne, i_ne, ncmp, i_ncmp, slt, sgt, sle, sge, seq, sne, scmp, bit_and, bit_xor, bit_or, sbit_and, sbit_xor, sbit_or, smartmatch, i_aelem, n_aelem, s_aelem, lslice, xor */
+    0x0067, /* gelem, lt, i_lt, gt, i_gt, le, i_le, ge, i_ge, eq, i_eq, ne, i_ne, cmp, i_cmp, s_lt, s_gt, s_le, s_ge, s_eq, s_ne, s_cmp, bit_and, bit_xor, bit_or, s_bit_and, s_bit_xor, s_bit_or, smartmatch, i_aelem, n_aelem, s_aelem, lslice, xor */
     0x2abc, 0x3cb8, 0x0257, /* padsv */
     0x2abc, 0x3cb8, 0x2bac, 0x39a9, /* padav */
     0x2abc, 0x3cb8, 0x0534, 0x05d0, 0x2bac, 0x39a9, /* padhv */
@@ -3616,8 +3616,8 @@ EXTCONST U16  PL_op_private_bitdefs[] = {
     0x0d7c, 0x1eb8, 0x0914, 0x3fd0, 0x3aec, 0x2248, 0x01e4, 0x0141, /* trans, transr */
     0x0bbc, 0x0458, 0x0067, /* sassign */
     0x0838, 0x2bac, 0x0067, /* aassign */
-    0x3fd0, 0x0003, /* chomp, schomp, ncomplement, scomplement, sin, cos, exp, log, sqrt, int, hex, oct, abs, length, ord, chr, chroot, rmdir */
-    0x3fd0, 0x0067, /* pow, multiply, i_multiply, divide, i_divide, modulo, i_modulo, add, i_add, subtract, i_subtract, concat, left_shift, right_shift, nbit_and, nbit_xor, nbit_or */
+    0x3fd0, 0x0003, /* chomp, schomp, n_complement, s_complement, sin, cos, exp, log, sqrt, int, hex, oct, abs, length, ord, chr, chroot, rmdir */
+    0x3fd0, 0x0067, /* pow, multiply, i_multiply, divide, i_divide, modulo, i_modulo, add, i_add, subtract, i_subtract, concat, left_shift, right_shift, n_bit_and, n_bit_xor, n_bit_or */
     0x1138, 0x0067, /* repeat */
     0x3fd0, 0x012f, /* stringify, atan2, rand, srand, index, rindex, crypt, push, unshift, flock, chdir, chown, unlink, chmod, utime, rename, link, symlink, mkdir, waitpid, system, exec, kill, getpgrp, setpgrp, getpriority, setpriority, sleep */
     0x0690, 0x0067, /* uint_left_shift, uint_right_shift, uint_pow, int_add, int_subtract, int_multiply, int_divide, int_modulo, int_lt, int_gt, int_le, int_ge, int_eq, int_ne, num_add, num_subtract, num_multiply, num_divide, num_atan2, num_pow, int_aelem, num_aelem, str_aelem */
@@ -3751,30 +3751,30 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* I_EQ       */ (OPpARG2_MASK),
     /* NE         */ (OPpARG2_MASK),
     /* I_NE       */ (OPpARG2_MASK),
-    /* NCMP       */ (OPpARG2_MASK),
-    /* I_NCMP     */ (OPpARG2_MASK),
-    /* SLT        */ (OPpARG2_MASK),
-    /* SGT        */ (OPpARG2_MASK),
-    /* SLE        */ (OPpARG2_MASK),
-    /* SGE        */ (OPpARG2_MASK),
-    /* SEQ        */ (OPpARG2_MASK),
-    /* SNE        */ (OPpARG2_MASK),
-    /* SCMP       */ (OPpARG2_MASK),
+    /* CMP        */ (OPpARG2_MASK),
+    /* I_CMP      */ (OPpARG2_MASK),
+    /* S_LT       */ (OPpARG2_MASK),
+    /* S_GT       */ (OPpARG2_MASK),
+    /* S_LE       */ (OPpARG2_MASK),
+    /* S_GE       */ (OPpARG2_MASK),
+    /* S_EQ       */ (OPpARG2_MASK),
+    /* S_NE       */ (OPpARG2_MASK),
+    /* S_CMP      */ (OPpARG2_MASK),
     /* BIT_AND    */ (OPpARG2_MASK),
     /* BIT_XOR    */ (OPpARG2_MASK),
     /* BIT_OR     */ (OPpARG2_MASK),
-    /* NBIT_AND   */ (OPpARG2_MASK|OPpTARGET_MY),
-    /* NBIT_XOR   */ (OPpARG2_MASK|OPpTARGET_MY),
-    /* NBIT_OR    */ (OPpARG2_MASK|OPpTARGET_MY),
-    /* SBIT_AND   */ (OPpARG2_MASK),
-    /* SBIT_XOR   */ (OPpARG2_MASK),
-    /* SBIT_OR    */ (OPpARG2_MASK),
+    /* N_BIT_AND  */ (OPpARG2_MASK|OPpTARGET_MY),
+    /* N_BIT_XOR  */ (OPpARG2_MASK|OPpTARGET_MY),
+    /* N_BIT_OR   */ (OPpARG2_MASK|OPpTARGET_MY),
+    /* S_BIT_AND  */ (OPpARG2_MASK),
+    /* S_BIT_XOR  */ (OPpARG2_MASK),
+    /* S_BIT_OR   */ (OPpARG2_MASK),
     /* NEGATE     */ (OPpARG1_MASK),
     /* I_NEGATE   */ (OPpARG1_MASK),
     /* NOT        */ (OPpARG1_MASK),
     /* COMPLEMENT */ (OPpARG1_MASK),
-    /* NCOMPLEMENT */ (OPpARG1_MASK|OPpTARGET_MY),
-    /* SCOMPLEMENT */ (OPpARG1_MASK|OPpTARGET_MY),
+    /* N_COMPLEMENT */ (OPpARG1_MASK|OPpTARGET_MY),
+    /* S_COMPLEMENT */ (OPpARG1_MASK|OPpTARGET_MY),
     /* SMARTMATCH */ (OPpARG2_MASK),
     /* ATAN2      */ (OPpARG4_MASK|OPpTARGET_MY),
     /* SIN        */ (OPpARG1_MASK|OPpTARGET_MY),

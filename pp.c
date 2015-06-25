@@ -2130,7 +2130,7 @@ Perl_do_ncmp(pTHX_ SV* const left, SV * const right)
 }
 
 
-PP(pp_ncmp)
+PP(pp_cmp)
 {
     dSP;
     SV *left, *right;
@@ -2152,7 +2152,7 @@ PP(pp_ncmp)
 
 /* also used for: pp_s_ge() pp_s_gt() pp_s_lt() */
 
-PP(pp_sle)
+PP(pp_s_le)
 {
     dSP;
 
@@ -2161,18 +2161,18 @@ PP(pp_sle)
     int rhs = 1;
 
     switch (PL_op->op_type) {
-    case OP_SLT:
+    case OP_S_LT:
 	amg_type = slt_amg;
 	/* cmp < 0 */
 	rhs = 0;
 	break;
-    case OP_SGT:
+    case OP_S_GT:
 	amg_type = sgt_amg;
 	/* cmp > 0 */
 	multiplier = -1;
 	rhs = 0;
 	break;
-    case OP_SGE:
+    case OP_S_GE:
 	amg_type = sge_amg;
 	/* cmp >= 0 */
 	multiplier = -1;
@@ -2194,7 +2194,7 @@ PP(pp_sle)
     }
 }
 
-PP(pp_seq)
+PP(pp_s_eq)
 {
     dSP;
     tryAMAGICbin_MG(seq_amg, AMGf_set);
@@ -2205,7 +2205,7 @@ PP(pp_seq)
     }
 }
 
-PP(pp_sne)
+PP(pp_s_ne)
 {
     dSP;
     tryAMAGICbin_MG(sne_amg, AMGf_set);
@@ -2216,7 +2216,7 @@ PP(pp_sne)
     }
 }
 
-PP(pp_scmp)
+PP(pp_s_cmp)
 {
     dSP; dTARGET;
     tryAMAGICbin_MG(scmp_amg, 0);
@@ -2262,7 +2262,7 @@ PP(pp_bit_and)
     }
 }
 
-PP(pp_nbit_and)
+PP(pp_n_bit_and)
 {
     dSP;
     tryAMAGICbin_MG(band_amg, AMGf_assign|AMGf_numarg);
@@ -2280,7 +2280,7 @@ PP(pp_nbit_and)
     RETURN;
 }
 
-PP(pp_sbit_and)
+PP(pp_s_bit_and)
 {
     dSP;
     tryAMAGICbin_MG(sband_amg, AMGf_assign);
@@ -2327,45 +2327,45 @@ PP(pp_bit_or)
     }
 }
 
-/* also used for: pp_nbit_xor() */
+/* also used for: pp_n_bit_xor() */
 
-PP(pp_nbit_or)
+PP(pp_n_bit_or)
 {
     dSP;
     const int op_type = PL_op->op_type;
 
-    tryAMAGICbin_MG((op_type == OP_NBIT_OR ? bor_amg : bxor_amg),
+    tryAMAGICbin_MG((op_type == OP_N_BIT_OR ? bor_amg : bxor_amg),
 		    AMGf_assign|AMGf_numarg);
     {
 	dATARGET; dPOPTOPssrl;
 	if (PL_op->op_private & HINT_INTEGER) {
 	  const IV l = (USE_LEFT(left) ? SvIV_nomg(left) : 0);
 	  const IV r = SvIV_nomg(right);
-	  const IV result = op_type == OP_NBIT_OR ? (l | r) : (l ^ r);
+	  const IV result = op_type == OP_N_BIT_OR ? (l | r) : (l ^ r);
 	  SETi(result);
 	}
 	else {
 	  const UV l = (USE_LEFT(left) ? SvUV_nomg(left) : 0);
 	  const UV r = SvUV_nomg(right);
-	  const UV result = op_type == OP_NBIT_OR ? (l | r) : (l ^ r);
+	  const UV result = op_type == OP_N_BIT_OR ? (l | r) : (l ^ r);
 	  SETu(result);
 	}
     }
     RETURN;
 }
 
-/* also used for: pp_sbit_xor() */
+/* also used for: pp_s_bit_xor() */
 
-PP(pp_sbit_or)
+PP(pp_s_bit_or)
 {
     dSP;
     const int op_type = PL_op->op_type;
 
-    tryAMAGICbin_MG((op_type == OP_SBIT_OR ? sbor_amg : sbxor_amg),
+    tryAMAGICbin_MG((op_type == OP_S_BIT_OR ? sbor_amg : sbxor_amg),
 		    AMGf_assign);
     {
 	dATARGET; dPOPTOPssrl;
-	do_vop(op_type == OP_SBIT_OR ? OP_BIT_OR : OP_BIT_XOR, TARG, left,
+	do_vop(op_type == OP_S_BIT_OR ? OP_BIT_OR : OP_BIT_XOR, TARG, left,
 	       right);
 	RETSETTARG;
     }
@@ -2447,7 +2447,7 @@ PP(pp_not)
 }
 
 static void
-S_scomplement(pTHX_ SV *targ, SV *sv)
+S_s_complement(pTHX_ SV *targ, SV *sv)
 {
 	U8 *tmps;
 	I32 anum;
@@ -2543,14 +2543,14 @@ PP(pp_complement)
 	}
       }
       else {
-	S_scomplement(aTHX_ TARG, sv);
+	S_s_complement(aTHX_ TARG, sv);
 	SETTARG;
       }
       return NORMAL;
     }
 }
 
-PP(pp_ncomplement)
+PP(pp_n_complement)
 {
     dSP;
     tryAMAGICun_MG(compl_amg, AMGf_numeric|AMGf_numarg);
@@ -2568,13 +2568,13 @@ PP(pp_ncomplement)
     return NORMAL;
 }
 
-PP(pp_scomplement)
+PP(pp_s_complement)
 {
     dSP;
     tryAMAGICun_MG(scompl_amg, AMGf_numeric);
     {
 	dTARGET; dTOPss;
-	S_scomplement(aTHX_ TARG, sv);
+	S_s_complement(aTHX_ TARG, sv);
 	SETTARG;
 	return NORMAL;
     }
@@ -2795,7 +2795,7 @@ PP(pp_i_ne)
     }
 }
 
-PP(pp_i_ncmp)
+PP(pp_i_cmp)
 {
     dSP; dTARGET;
     tryAMAGICbin_MG(ncmp_amg, 0);

@@ -5134,7 +5134,7 @@ Perl_yylex(pTHX)
                 TOKEN(0);
             }
             s += 3;
-            Eop(OP_NCMP);
+            Eop(OP_CMP);
         }
         else if (strnEQ(s,"\xE2\x89\xA0",3)) { /* ≠ != U+02260 \342\211\240 */
             if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
@@ -5427,7 +5427,7 @@ Perl_yylex(pTHX)
 	    TOKEN(0);
 	}
 	s++;
-	BOop(bof ? d == s-2 ? OP_SBIT_XOR : OP_NBIT_XOR : OP_BIT_XOR);
+	BOop(bof ? d == s-2 ? OP_S_BIT_XOR : OP_N_BIT_XOR : OP_BIT_XOR);
     case '[':
 	if (PL_lex_brackets > 100)
 	    Renew(PL_lex_brackstack, PL_lex_brackets + 10, char);
@@ -5452,9 +5452,9 @@ Perl_yylex(pTHX)
 	s++;
 	if ((bof = FEATURE_BITWISE_IS_ENABLED) && *s == '.') {
 	    s++;
-	    BCop(OP_SCOMPLEMENT);
+	    BCop(OP_S_COMPLEMENT);
 	}
-	BCop(bof ? OP_NCOMPLEMENT : OP_COMPLEMENT);
+	BCop(bof ? OP_N_COMPLEMENT : OP_COMPLEMENT);
     case ',':
 	if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMMA)
 	    TOKEN(0);
@@ -5943,10 +5943,10 @@ Perl_yylex(pTHX)
 	    }
 	    if (d == s) {
 		PL_parser->saw_infix_sigil = 1;
-		BAop(bof ? OP_NBIT_AND : OP_BIT_AND);
+		BAop(bof ? OP_N_BIT_AND : OP_BIT_AND);
 	    }
 	    else
-		BAop(OP_SBIT_AND);
+		BAop(OP_S_BIT_AND);
 	}
 
 	PL_tokenbuf[0] = '&';
@@ -5979,7 +5979,7 @@ Perl_yylex(pTHX)
 	    s = d - 1;
 	    TOKEN(0);
 	}
-	BOop(bof ? s == d ? OP_NBIT_OR : OP_SBIT_OR : OP_BIT_OR);
+	BOop(bof ? s == d ? OP_N_BIT_OR : OP_S_BIT_OR : OP_BIT_OR);
     case '=':
 	s++;
 	{
@@ -6122,7 +6122,7 @@ Perl_yylex(pTHX)
 			s -= 3;
 			TOKEN(0);
 		    }
-		    Eop(OP_NCMP);
+		    Eop(OP_CMP);
 		}
 		s--;
 		if (!PL_lex_allbrackets &&
@@ -7322,7 +7322,7 @@ Perl_yylex(pTHX)
 	case KEY_cmp:
 	    if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE)
 		return REPORT(0);
-	    Eop(OP_SCMP);
+	    Eop(OP_S_CMP);
 
 	case KEY_caller:
 	    UNI(OP_CALLER);
@@ -7418,7 +7418,7 @@ Perl_yylex(pTHX)
 	case KEY_eq:
 	    if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE)
 		return REPORT(0);
-	    Eop(OP_SEQ);
+	    Eop(OP_S_EQ);
 
 	case KEY_exists:
 	    UNI(OP_EXISTS);
@@ -7518,12 +7518,12 @@ Perl_yylex(pTHX)
 	case KEY_gt:
 	    if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE)
 		return REPORT(0);
-	    Rop(OP_SGT);
+	    Rop(OP_S_GT);
 
 	case KEY_ge:
 	    if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE)
 		return REPORT(0);
-	    Rop(OP_SGE);
+	    Rop(OP_S_GE);
 
 	case KEY_grep:
 	    LOP(OP_GREPSTART, XREF);
@@ -7671,12 +7671,12 @@ Perl_yylex(pTHX)
 	case KEY_lt:
 	    if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE)
 		return REPORT(0);
-	    Rop(OP_SLT);
+	    Rop(OP_S_LT);
 
 	case KEY_le:
 	    if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE)
 		return REPORT(0);
-	    Rop(OP_SLE);
+	    Rop(OP_S_LE);
 
 	case KEY_localtime:
 	    UNI(OP_LOCALTIME);
@@ -7756,7 +7756,7 @@ Perl_yylex(pTHX)
 	case KEY_ne:
 	    if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE)
 		return REPORT(0);
-	    Eop(OP_SNE);
+	    Eop(OP_S_NE);
 
 	case KEY_no:
 	    s = tokenize_use(0, s);

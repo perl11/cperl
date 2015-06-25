@@ -141,15 +141,15 @@ my @raw_alias = (
                  Perl_pp_and => ['andassign'],
 		 Perl_pp_or => ['orassign'],
 		 Perl_pp_ucfirst => ['lcfirst'],
-		 Perl_pp_sle => [qw(slt sgt sge)],
+		 Perl_pp_s_le => [qw(s_lt s_gt s_ge)],
 		 Perl_pp_print => ['say'],
 		 Perl_pp_index => ['rindex'],
 		 Perl_pp_oct => ['hex'],
 		 Perl_pp_shift => ['pop'],
 		 Perl_pp_sin => [qw(cos exp log sqrt)],
 		 Perl_pp_bit_or => ['bit_xor'],
-		 Perl_pp_nbit_or => ['nbit_xor'],
-		 Perl_pp_sbit_or => ['sbit_xor'],
+		 Perl_pp_n_bit_or => ['n_bit_xor'],
+		 Perl_pp_s_bit_or => ['s_bit_xor'],
 		 Perl_pp_rv2av => ['rv2hv'],
 		 Perl_pp_akeys => ['avalues'],
 		 Perl_pp_rkeys => [qw(rvalues reach)],
@@ -170,6 +170,28 @@ my @raw_alias = (
 		 # same as n_aelem or i_aelem? depends on the type checker
 		 Perl_pp_i_aelem   => ['n_aelem', 's_aelem'],
 		);
+
+# cperl changes: harmonized type prefices, for automatic type promotion
+my @cperl_changes =
+  (
+   ncmp    => 'cmp',
+   i_ncmp  => 'i_cmp',
+   slt     => 's_lt',
+   sgt     => 's_gt',
+   sle     => 's_le',
+   sge     => 's_ge',
+   seq     => 's_eq',
+   sne     => 's_ne',
+   scmp    => 's_cmp',
+   nbit_and  => 'n_bit_and',
+   nbit_xor  => 'n_bit_xor',
+   nbit_or   => 'n_bit_or',
+   sbit_and  => 's_bit_and',
+   sbit_xor  => 's_bit_xor',
+   sbit_or   => 's_bit_or',
+   ncomplement => 'n_complement',
+   scomplement => 's_complement'
+   );
 
 while (my ($func, $names) = splice @raw_alias, 0, 2) {
     if (ref $names eq 'ARRAY') {
@@ -999,9 +1021,7 @@ for (@ops) {
 print $on "\t", tab(3,"OP_max"), "\n";
 print $on "} opcode;\n";
 print $on "\n#define MAXO ", scalar @ops, "\n";
-print $on "#define OP_FREED MAXO\n";
-
-# Emit op names and descriptions.
+print $on "#define OP_FREED MAXO\n\n";
 
 print $on <<"END";
 
@@ -1341,12 +1361,12 @@ gen_op_is_macro( \%OP_IS_INFIX_BIT, 'OP_IS_INFIX_BIT');
 sub gen_op_is_macro {
     my ($op_is, $macname) = @_;
     if (keys %$op_is) {
-	
+
 	# get opnames whose numbers are lowest and highest
 	my ($first, @rest) = sort {
 	    $op_is->{$a} <=> $op_is->{$b}
 	} keys %$op_is;
-	
+
 	my $last = pop @rest;	# @rest slurped, get its last
 	die "Invalid range of ops: $first .. $last\n" unless $last;
 
@@ -1355,7 +1375,6 @@ sub gen_op_is_macro {
 	# verify that op-ct matches 1st..last range (and fencepost)
 	# (we know there are no dups)
 	if ( $op_is->{$last} - $op_is->{$first} == scalar @rest + 1) {
-	    
 	    # contiguous ops -> optimized version
 	    print $on "(op) >= OP_" . uc($first)
 		. " && (op) <= OP_" . uc($last);
@@ -1367,6 +1386,19 @@ sub gen_op_is_macro {
 	print $on ")\n";
     }
 }
+
+print $on "\n/* backcompat old Perl 5 names: */\n";
+print $on "#if 1\n";
+my @bak = @cperl_changes;
+while (my ($old, $new) = splice @cperl_changes, 0, 2) {
+    print $on "#define ",tab(3,"OP_\U$old"), " OP_\U$new","\n";
+}
+print $on "\n";
+@cperl_changes = @bak;
+while (my ($old, $new) = splice @cperl_changes, 0, 2) {
+    print $on "#define ",tab(3,"Perl_pp_$old"), " Perl_pp_$new","\n";
+}
+print $on "#endif\n";
 
 my $pp = open_new('pp_proto.h', '>',
 		  { by => 'opcode.pl', from => 'its data' });

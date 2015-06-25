@@ -16105,7 +16105,7 @@ S_find_uninit_var(pTHX_ const OP *const obase, const SV *const uninit_sv,
     case OP_CALLER:
     case OP_DOFILE:
     case OP_PROTOTYPE:
-    case OP_NCMP:
+    case OP_CMP:
     case OP_SMARTMATCH:
     case OP_UNPACK:
     case OP_SYSOPEN:

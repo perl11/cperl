@@ -4284,11 +4284,11 @@ S_fold_constants(pTHX_ OP *o)
 	    goto nope;
 #endif
         break;
-    case OP_SLT:
-    case OP_SGT:
-    case OP_SLE:
-    case OP_SGE:
-    case OP_SCMP:
+    case OP_S_LT:
+    case OP_S_GT:
+    case OP_S_LE:
+    case OP_S_GE:
+    case OP_S_CMP:
 #ifdef USE_LOCALE_COLLATE
 	if (IN_LC_COMPILETIME(LC_COLLATE))
 	    goto nope;
@@ -7744,12 +7744,10 @@ S_looks_like_bool(pTHX_ const OP *o)
 
 	case OP_EQ:	case OP_NE:	case OP_LT:
 	case OP_GT:	case OP_LE:	case OP_GE:
-
 	case OP_I_EQ:	case OP_I_NE:	case OP_I_LT:
 	case OP_I_GT:	case OP_I_LE:	case OP_I_GE:
-
-	case OP_SEQ:	case OP_SNE:	case OP_SLT:
-	case OP_SGT:	case OP_SLE:	case OP_SGE:
+	case OP_S_EQ:	case OP_S_NE:	case OP_S_LT:
+	case OP_S_GT:	case OP_S_LE:	case OP_S_GE:
 	
 	case OP_SMARTMATCH:
 	
@@ -9520,10 +9518,10 @@ Perl_ck_bitop(pTHX_ OP *o)
 
     o->op_private = (U8)(PL_hints & HINT_INTEGER);
 
-    if (o->op_type == OP_NBIT_OR     || o->op_type == OP_SBIT_OR
-     || o->op_type == OP_NBIT_XOR    || o->op_type == OP_SBIT_XOR
-     || o->op_type == OP_NBIT_AND    || o->op_type == OP_SBIT_AND
-     || o->op_type == OP_NCOMPLEMENT || o->op_type == OP_SCOMPLEMENT)
+    if (o->op_type == OP_N_BIT_OR     || o->op_type == OP_S_BIT_OR
+     || o->op_type == OP_N_BIT_XOR    || o->op_type == OP_S_BIT_XOR
+     || o->op_type == OP_N_BIT_AND    || o->op_type == OP_S_BIT_AND
+     || o->op_type == OP_N_COMPLEMENT || o->op_type == OP_S_COMPLEMENT)
 	Perl_ck_warner_d(aTHX_ packWARN(WARN_EXPERIMENTAL__BITWISE),
 			      "The bitwise feature is experimental");
     if (!(o->op_flags & OPf_STACKED) /* Not an assignment */
@@ -9538,13 +9536,13 @@ Perl_ck_bitop(pTHX_ OP *o)
 	    Perl_ck_warner(aTHX_ packWARN(WARN_PRECEDENCE),
 			  "Possible precedence problem on bitwise %s operator",
 			   o->op_type ==  OP_BIT_OR
-			 ||o->op_type == OP_NBIT_OR  ? "|"
+			 ||o->op_type == OP_N_BIT_OR  ? "|"
 			:  o->op_type ==  OP_BIT_AND
-			 ||o->op_type == OP_NBIT_AND ? "&"
+			 ||o->op_type == OP_N_BIT_AND ? "&"
 			:  o->op_type ==  OP_BIT_XOR
-			 ||o->op_type == OP_NBIT_XOR ? "^"
-			:  o->op_type == OP_SBIT_OR  ? "|."
-			:  o->op_type == OP_SBIT_AND ? "&." : "^."
+			 ||o->op_type == OP_N_BIT_XOR ? "^"
+			:  o->op_type == OP_S_BIT_OR  ? "|."
+			:  o->op_type == OP_S_BIT_AND ? "&." : "^."
 			   );
     }
     return o;
@@ -11055,9 +11053,9 @@ S_simplify_sort(pTHX_ OP *o)
 	return;
     kid = kLISTOP->op_last;				/* get past scope */
     switch(kid->op_type) {
-	case OP_NCMP:
-	case OP_I_NCMP:
-	case OP_SCMP:
+	case OP_CMP:
+	case OP_I_CMP:
+	case OP_S_CMP:
 	    if (!have_scopeop) goto padkids;
 	    break;
 	default:
@@ -11129,9 +11127,9 @@ S_simplify_sort(pTHX_ OP *o)
     o->op_flags &= ~(OPf_STACKED | OPf_SPECIAL);
     if (descending)
 	o->op_private |= OPpSORT_DESCEND;
-    if (k->op_type == OP_NCMP)
+    if (k->op_type == OP_CMP)
 	o->op_private |= OPpSORT_NUMERIC;
-    if (k->op_type == OP_I_NCMP)
+    if (k->op_type == OP_I_CMP)
 	o->op_private |= OPpSORT_NUMERIC | OPpSORT_INTEGER;
     kid = OpSIBLING(cLISTOPo->op_first);
     /* cut out and delete old block (second sibling) */
