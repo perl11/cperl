@@ -12204,18 +12204,22 @@ static const char* core_types_n[] = {
     "Void"
 };
 
-/* check for const and types */
+/* check for const and types, but this is too early.
+   the target is attached later. */
 OP *
 Perl_ck_pad(pTHX_ OP *o)
 {
     PERL_ARGS_ASSERT_CK_PAD;
-    {
+    if (o->op_targ) { /* newPADOP sets it, newOP only with OA_TARGET */
         SV* sv = PAD_SV(o->op_targ);
         if (SvREADONLY(sv)) {
             OpTYPE_set(o, OP_CONST);
             cSVOPx(o)->op_sv = sv;
+            pad_swipe(o->op_targ, 0);
+            o->op_targ = 0;
             /* maybe check typeinfo also, and set some
-               SVf_TYPED flag if we still had one */
+               SVf_TYPED flag if we still had one. This const
+               looses all type info, and is either int|num|str. */
         }
         DEBUG_k(Perl_deb(aTHX_ "ck_pad: %s[%s]\n", PL_op_name[o->op_type],
                     PadnamePV(PAD_COMPNAME(o->op_targ))));
