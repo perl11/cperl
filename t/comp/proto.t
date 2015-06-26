@@ -21,6 +21,7 @@ use strict;
 print "1..215\n";
 
 my $i = 1;
+my $x;
 
 sub testing (&$) {
     my $p = prototype(shift);
@@ -486,12 +487,12 @@ print "not " unless $@ =~ /^Not enough/;
 print "ok ", $i++, "\n";
 
 sub X::foo3;
-*X::foo3 = sub {'ok'};
+*X::foo3 = sub {'ok'}; # now inlined with cperl
 print "# $@not " unless eval {X->foo3} eq 'ok';
 print "ok ", $i++, "\n";
 
 sub X::foo4 ($);
-*X::foo4 = sub ($) {'ok'};
+*X::foo4 = sub ($) {'ok'}; # now inlined with cperl
 print "not " unless X->foo4 eq 'ok';
 print "ok ", $i++, "\n";
 
@@ -688,23 +689,23 @@ for my $p ( "", qw{ () ($) ($@) ($%) ($;$) (&) (&\@) (&@) (%) (\%) (\@) } ) {
     print "not " unless myref(*myglob)  =~ /^GLOB\(/;
     print "ok ", $i++, "\n";
 
-    eval q/sub multi1 (\[%@]) { 1 } multi1 $myvar;/;
+    eval q/sub multi1 (\[%@]) { $x } multi1 $myvar;/;
     print "not "
 	unless $@ =~ /Type of arg 1 to main::multi1 must be one of \[%\@\] /;
     print "ok ", $i++, "\n";
-    eval q/sub multi2 (\[$*&]) { 1 } multi2 @myarray;/;
+    eval q/sub multi2 (\[$*&]) { $x } multi2 @myarray;/;
     print "not "
 	unless $@ =~ /Type of arg 1 to main::multi2 must be one of \[\$\*&\] /;
     print "ok ", $i++, "\n";
-    eval q/sub multi3 (\[$@]) { 1 } multi3 %myhash;/;
+    eval q/sub multi3 (\[$@]) { $x } multi3 %myhash;/;
     print "not "
 	unless $@ =~ /Type of arg 1 to main::multi3 must be one of \[\$\@\] /;
     print "ok ", $i++, "\n";
-    eval q/sub multi4 ($\[%]) { 1 } multi4 1, &mysub;/;
+    eval q/sub multi4 ($\[%]) { $x } multi4 1, &mysub;/;
     print "not "
 	unless $@ =~ /Type of arg 2 to main::multi4 must be one of \[%\] /;
     print "ok ", $i++, "\n";
-    eval q/sub multi5 (\[$@]$) { 1 } multi5 *myglob;/;
+    eval q/sub multi5 (\[$@]$) { $x } multi5 *myglob;/;
     print "not "
 	unless $@ =~ /Type of arg 1 to main::multi5 must be one of \[\$\@\] /
 	    && $@ =~ /Not enough arguments/;
