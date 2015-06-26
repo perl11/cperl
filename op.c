@@ -12186,42 +12186,6 @@ Perl_ck_length(pTHX_ OP *o)
     return o;
 }
 
-typedef enum {
-    type_none = 0,
-    type_int,
-    type_uint,
-    type_num,
-    type_str,
-    type_Int,
-    type_UInt,
-    type_Num,
-    type_Str,
-    type_Scalar,
-    type_Number,
-    type_Any,
-    type_Array,
-    type_List,
-    type_Void = 255,
-} core_types_t;
-
-static const char* core_types_n[] = {
-    "",
-    "int",
-    "uint",
-    "num",
-    "str",
-    "Int",
-    "UInt",
-    "Num",
-    "Str",
-    "Scalar",
-    "Number",
-    "Any",
-    "Array",
-    "List",
-    "Void"
-};
-
 /* Check for const and types.
    Called from newOP/newPADOP this is too early,
    the target is attached later. But we also call it from constant folding */
