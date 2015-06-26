@@ -52,25 +52,26 @@ scalar		scalar			ck_fun		ps%	S	"():Void"
 pushmark	pushmark		ck_null		ps0		"():Void"
 wantarray	wantarray		ck_null		is0		""
 
-const		constant item		ck_svconst	ps$		"():Scalar"
+const		constant item		ck_svconst	ps$	S	"():Scalar"
 
-gvsv		scalar variable		ck_null		ds$		"():Scalar"
-gv		glob value		ck_null		ds$		"():Scalar"
+gvsv		scalar variable		ck_null		ds$	S	"():Scalar"
+gv		glob value		ck_null		ds$	S	"():Scalar"
 gelem		glob elem		ck_null		ds2	S S
 padsv		private variable	ck_pad		ds0
 padav		private array		ck_null		d0
 padhv		private hash		ck_null		d0
-padany		private value		ck_null		d0		"(:Any):Any"
+# throws unimplemented op
+padany		private value		ck_null		d0		"():Void"
 
 pushre		push regexp		ck_null		d/
 
 # References and stuff.
 
-rv2gv		ref-to-glob cast	ck_rvconst	ds1	
-rv2sv		scalar dereference	ck_rvconst	ds1	
-av2arylen	array length		ck_null		is1	
-rv2cv		subroutine dereference	ck_rvconst	d1
-anoncode	anonymous subroutine	ck_anoncode	s$	
+rv2gv		ref-to-glob cast	ck_rvconst	ds1	R
+rv2sv		scalar dereference	ck_rvconst	ds1	R
+av2arylen	array length		ck_null		is1	A
+rv2cv		subroutine dereference	ck_rvconst	d1	R
+anoncode	anonymous subroutine	ck_anoncode	s$	S
 prototype	subroutine prototype	ck_prototype	su%	S?
 refgen		reference constructor	ck_spair	m1	L
 srefgen		single ref constructor	ck_null		fs1	S
@@ -166,15 +167,15 @@ s_eq		string eq		ck_null		pifs2	S S	"(:Str,:Str):Bool"
 s_ne		string ne		ck_null		pifs2	S S	"(:Str,:Str):Bool"
 s_cmp		string comparison (cmp)	ck_null		pifst2	S S	"(:Str,:Str):Int"
 
-bit_and		bitwise and (&)		ck_bitop	pfst2	S S|
-bit_xor		bitwise xor (^)		ck_bitop	pfst2	S S|
-bit_or		bitwise or (|)		ck_bitop	pfst2	S S|
-n_bit_and	numeric bitiwse and (&)	ck_bitop	pfsT2	S S|
-n_bit_xor	numeric bitwise xor (^)	ck_bitop	pfsT2	S S|
-n_bit_or		numeric bitwise or (|)	ck_bitop	pfsT2	S S|
+bit_and		bitwise and (&)		ck_bitop	pfst2	S S|	"(:Number,:Number):UInt"
+bit_xor		bitwise xor (^)		ck_bitop	pfst2	S S|	"(:Number,:Number):UInt"
+bit_or		bitwise or (|)		ck_bitop	pfst2	S S|	"(:Number,:Number):UInt"
+i_bit_and	integer bitwise and (&)	ck_bitop	pfsT2	S S|	"(:Int,:Int):UInt"
+i_bit_xor	integer bitwise xor (^)	ck_bitop	pfsT2	S S|	"(:Int,:Int):UInt"
+i_bit_or	integer bitwise or (|)	ck_bitop	pfsT2	S S|	"(:Int,:Int):UInt"
 s_bit_and	string bitiwse and (&)	ck_bitop	fst2	S S|
 s_bit_xor	string bitwise xor (^)	ck_bitop	fst2	S S|
-s_bit_or		string bitwise or (|)	ck_bitop	fst2	S S|
+s_bit_or	string bitwise or (|)	ck_bitop	fst2	S S|
 
 negate		negation (-)		ck_null		pIfst1	S
 i_negate	integer negation (-)	ck_null		pfst1	S
@@ -188,15 +189,17 @@ s_complement	string 1's complement (~) ck_bitop	fsT1	S
 smartmatch	smart match		ck_smartmatch	s2
 
 # High falutin' math.
-
-atan2		atan2			ck_fun		pfsT@	S S
-sin		sin			ck_fun		pfsTu%	S?
-cos		cos			ck_fun		pfsTu%	S?
-rand		rand			ck_fun		sT%	S?
-srand		srand			ck_fun		sT%	S?
-exp		exp			ck_fun		pfsTu%	S?
-log		log			ck_fun		pfsTu%	S?
-sqrt		sqrt			ck_fun		pfsTu%	S?
+# Note those types here deviate. e.g. for "pfsTu% S?" the ops are unops, not % (baseop/unop)
+# and require exact one S. But the parser allows implicit _ and the generated
+# prototype needs to be _ not $.
+atan2		atan2			ck_fun		pfsT@	S S	"(:Num,:Num):Num"
+sin		sin			ck_fun		pfsTu%	S?	"(:Num):Num"
+cos		cos			ck_fun		pfsTu%	S?	"(:Num):Num"
+rand		rand			ck_fun		sT%	S?	"(:Num?):Num"
+srand		srand			ck_fun		sT%	S?	"(:Num?):Num"
+exp		exp			ck_fun		pfsTu%	S?	"(:Num):Num"
+log		log			ck_fun		pfsTu%	S?	"(:Num):Num"
+sqrt		sqrt			ck_fun		pfsTu%	S?	"(:Num):Num"
 
 # Lowbrow math.
 
@@ -274,15 +277,15 @@ quotemeta	quotemeta		ck_fun		fstu%	S?
 
 # Arrays.
 
-rv2av		array dereference	ck_rvconst	dt1	
-aelemfast	constant array element	ck_null		ds$	A S
-aelemfast_lex	constant lexical array element	ck_null	d0	A S
-aelem		array element		ck_null		s2	A S
+rv2av		array dereference	ck_rvconst	dt1	R	"(:Ref):Hash"
+aelemfast	constant array element	ck_null		ds$		"():Scalar"
+aelemfast_lex	constant lexical array element	ck_null	d0		"():Scalar"
+aelem		array element		ck_null		s2	A S	"(:Array(:Scalar),:Int):Scalar"
 i_aelem		int array element	  ck_null	s2	A S	"(:Array(:Int),:Int):Int"
-int_aelem	unboxed int array element ck_null	i2	A I	"(:Array(:int),:int):int"
 n_aelem		num array element	  ck_null	s2	A S	"(:Array(:Num),:Int):Num"
-num_aelem	unboxed	num array element ck_null	s2	A N	"(:Array(:num),:int):num"
 s_aelem		str array element	  ck_null	s2	A S	"(:Array(:Str),:Int):Str"
+int_aelem	unboxed int array element ck_null	i2	A I	"(:Array(:int),:int):int"
+num_aelem	unboxed	num array element ck_null	n2	A N	"(:Array(:num),:int):num"
 str_aelem	unboxed str array element ck_null	z2	A Z	"(:Array(:str),:int):str"
 
 aslice		array slice		ck_null		m@	A L
@@ -292,21 +295,23 @@ aeach		each on array		ck_each		d%	A
 akeys		keys on array		ck_each		t%	A
 avalues		values on array		ck_each		dt%	A
 
-
 # Hashes.
 
 each		each			ck_each		d%	H
 values		values			ck_each		dt%	H
 keys		keys			ck_each		t%	H
-delete		delete			ck_delete	%	S	"(:str):Void"
-exists		exists			ck_exists	is%	S	"(:str):Bool"
-rv2hv		hash dereference	ck_rvconst	d1	
-helem		hash element		ck_null		s2	H S	"(:Hash(:Str)):Scalar"
-#int_helem	unboxed int hash	ck_null		z2	H Z	"(:Hash(:Str)):int"
-#num_helem	unboxed num hash	ck_null		z2	H Z	"(:Hash(:Str)):num"
-#str_helem	unboxed str hash	ck_null		z2	H Z	"(:Hash(:Str)):str"
-#str_delete	unboxed delete		ck_delete	2	H Z	"(:str):Void"
-#str_exists	unboxed exists		ck_exists	s2	H Z	"(:str):Bool"
+delete		delete			ck_delete	%	S	"(:Str):Void"
+exists		exists			ck_exists	is%	S	"(:Str):Bool"
+rv2hv		hash dereference	ck_rvconst	d1	R	"(:Ref):Hash"
+helem		hash element		ck_null		s2	H S	"(:Hash(:Scalar)):Scalar"
+#i_helem	int hash		ck_null		s2	H S	"(:Hash(:Int)):Int"
+#n_helem	num hash		ck_null		s2	H S	"(:Hash(:Num)):Num"
+#s_helem	str hash		ck_null		s2	H S	"(:Hash(:Str)):Str"
+#int_helem	unboxed int hash	ck_null		i2	H I	"(:Hash(:int)):int"
+#num_helem	unboxed num hash	ck_null		n2	H N	"(:Hash(:num)):num"
+#str_helem	unboxed str hash	ck_null		z2	H Z	"(:Hash(:str)):str"
+#str_delete	unboxed delete		ck_delete	2	H Z	"(:Hash(:str)):Void"
+#str_exists	unboxed exists		ck_exists	s2	H Z	"(:Hash(:str)):Bool"
 hslice		hash slice		ck_null		m@	H L
 kvhslice	key/value hash slice	ck_null		m@	H L
 
@@ -619,6 +624,7 @@ lock		lock			ck_rfun		s%	R
 
 once		once			ck_null		|	
 
+# throws unimplemented op initially
 custom		unknown custom operator	ck_null		0
 
 # For smart dereference for each/keys/values

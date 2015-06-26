@@ -109,9 +109,9 @@ typedef enum opcode {
 	OP_BIT_AND	 = 92,
 	OP_BIT_XOR	 = 93,
 	OP_BIT_OR	 = 94,
-	OP_N_BIT_AND	 = 95,
-	OP_N_BIT_XOR	 = 96,
-	OP_N_BIT_OR	 = 97,
+	OP_I_BIT_AND	 = 95,
+	OP_I_BIT_XOR	 = 96,
+	OP_I_BIT_OR	 = 97,
 	OP_S_BIT_AND	 = 98,
 	OP_S_BIT_XOR	 = 99,
 	OP_S_BIT_OR	 = 100,
@@ -195,10 +195,10 @@ typedef enum opcode {
 	OP_AELEMFAST_LEX = 178,
 	OP_AELEM	 = 179,
 	OP_I_AELEM	 = 180,
-	OP_INT_AELEM	 = 181,
-	OP_N_AELEM	 = 182,
-	OP_NUM_AELEM	 = 183,
-	OP_S_AELEM	 = 184,
+	OP_N_AELEM	 = 181,
+	OP_S_AELEM	 = 182,
+	OP_INT_AELEM	 = 183,
+	OP_NUM_AELEM	 = 184,
 	OP_STR_AELEM	 = 185,
 	OP_ASLICE	 = 186,
 	OP_KVASLICE	 = 187,
@@ -564,12 +564,12 @@ EXTCONST const char PL_op_type_variants[][8] = {
 	/*  89 s_eq             */ {0},	/*  */
 	/*  90 s_ne             */ {0},	/*  */
 	/*  91 s_cmp            */ {0},	/*  */
-	/*  92 bit_and          */ {2,3,6},	/* n_bit_and:95 s_bit_and:98 */
-	/*  93 bit_xor          */ {2,3,6},	/* n_bit_xor:96 s_bit_xor:99 */
-	/*  94 bit_or           */ {2,3,6},	/* n_bit_or:97 s_bit_or:100 */
-	/*  95 n_bit_and        */ {0},	/*  */
-	/*  96 n_bit_xor        */ {0},	/*  */
-	/*  97 n_bit_or         */ {0},	/*  */
+	/*  92 bit_and          */ {2,3,6},	/* i_bit_and:95 s_bit_and:98 */
+	/*  93 bit_xor          */ {2,3,6},	/* i_bit_xor:96 s_bit_xor:99 */
+	/*  94 bit_or           */ {2,3,6},	/* i_bit_or:97 s_bit_or:100 */
+	/*  95 i_bit_and        */ {0},	/*  */
+	/*  96 i_bit_xor        */ {0},	/*  */
+	/*  97 i_bit_or         */ {0},	/*  */
 	/*  98 s_bit_and        */ {0},	/*  */
 	/*  99 s_bit_xor        */ {0},	/*  */
 	/* 100 s_bit_or         */ {0},	/*  */
@@ -651,12 +651,12 @@ EXTCONST const char PL_op_type_variants[][8] = {
 	/* 176 rv2av            */ {0},	/*  */
 	/* 177 aelemfast        */ {0},	/*  */
 	/* 178 aelemfast_lex    */ {0},	/*  */
-	/* 179 aelem            */ {6,1,3,5,2,4,6},	/* i_aelem:180 n_aelem:182 s_aelem:184 int_aelem:181 num_aelem:183 str_aelem:185 */
-	/* 180 i_aelem          */ {1,1},	/* int_aelem:181 */
-	/* 181 int_aelem        */ {0},	/*  */
-	/* 182 n_aelem          */ {1,1},	/* num_aelem:183 */
-	/* 183 num_aelem        */ {0},	/*  */
-	/* 184 s_aelem          */ {1,1},	/* str_aelem:185 */
+	/* 179 aelem            */ {6,1,2,3,4,5,6},	/* i_aelem:180 n_aelem:181 s_aelem:182 int_aelem:183 num_aelem:184 str_aelem:185 */
+	/* 180 i_aelem          */ {1,3},	/* int_aelem:183 */
+	/* 181 n_aelem          */ {1,3},	/* num_aelem:184 */
+	/* 182 s_aelem          */ {1,3},	/* str_aelem:185 */
+	/* 183 int_aelem        */ {0},	/*  */
+	/* 184 num_aelem        */ {0},	/*  */
 	/* 185 str_aelem        */ {0},	/*  */
 	/* 186 aslice           */ {0},	/*  */
 	/* 187 kvaslice         */ {0},	/*  */
@@ -953,7 +953,7 @@ EXTCONST const char PL_op_type_variants[][8] = {
 #define OP_IS_INFIX_BIT(op)	\
 	((op) >= OP_BIT_AND && (op) <= OP_S_BIT_OR)
 
-/* backcompat old names: */
+/* backcompat old Perl 5 names: */
 #if 1
 #define OP_NCMP		 OP_CMP
 #define OP_I_NCMP	 OP_I_CMP
@@ -964,9 +964,9 @@ EXTCONST const char PL_op_type_variants[][8] = {
 #define OP_SEQ		 OP_S_EQ
 #define OP_SNE		 OP_S_NE
 #define OP_SCMP		 OP_S_CMP
-#define OP_NBIT_AND	 OP_N_BIT_AND
-#define OP_NBIT_XOR	 OP_N_BIT_XOR
-#define OP_NBIT_OR	 OP_N_BIT_OR
+#define OP_NBIT_AND	 OP_I_BIT_AND
+#define OP_NBIT_XOR	 OP_I_BIT_XOR
+#define OP_NBIT_OR	 OP_I_BIT_OR
 #define OP_SBIT_AND	 OP_S_BIT_AND
 #define OP_SBIT_XOR	 OP_S_BIT_XOR
 #define OP_SBIT_OR	 OP_S_BIT_OR
@@ -982,9 +982,9 @@ EXTCONST const char PL_op_type_variants[][8] = {
 #define Perl_pp_seq	 Perl_pp_s_eq
 #define Perl_pp_sne	 Perl_pp_s_ne
 #define Perl_pp_scmp	 Perl_pp_s_cmp
-#define Perl_pp_nbit_and Perl_pp_n_bit_and
-#define Perl_pp_nbit_xor Perl_pp_n_bit_xor
-#define Perl_pp_nbit_or	 Perl_pp_n_bit_or
+#define Perl_pp_nbit_and Perl_pp_i_bit_and
+#define Perl_pp_nbit_xor Perl_pp_i_bit_xor
+#define Perl_pp_nbit_or	 Perl_pp_i_bit_or
 #define Perl_pp_sbit_and Perl_pp_s_bit_and
 #define Perl_pp_sbit_xor Perl_pp_s_bit_xor
 #define Perl_pp_sbit_or	 Perl_pp_s_bit_or

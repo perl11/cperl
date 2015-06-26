@@ -103,7 +103,7 @@ my %alias;
 
 # Format is "this function" => "does these op names"
 my @raw_alias = (
-		 Perl_do_kv => [qw( keys values )],
+		 Perl_do_kv => [qw( keys values )], # ouch
 		 Perl_unimplemented_op => [qw(padany custom)],
 		 # All the ops with a body of { return NORMAL; }
 		 Perl_pp_null => [qw(scalar regcmaybe lineseq scope)],
@@ -148,7 +148,7 @@ my @raw_alias = (
 		 Perl_pp_shift => ['pop'],
 		 Perl_pp_sin => [qw(cos exp log sqrt)],
 		 Perl_pp_bit_or => ['bit_xor'],
-		 Perl_pp_n_bit_or => ['n_bit_xor'],
+		 Perl_pp_i_bit_or => ['i_bit_xor'],
 		 Perl_pp_s_bit_or => ['s_bit_xor'],
 		 Perl_pp_rv2av => ['rv2hv'],
 		 Perl_pp_akeys => ['avalues'],
@@ -171,7 +171,8 @@ my @raw_alias = (
 		 Perl_pp_i_aelem   => ['n_aelem', 's_aelem'],
 		);
 
-# cperl changes: harmonized type prefices, for automatic type promotion
+# cperl changes: harmonized type prefices, for readable type promotion.
+# not strictly required, but it makes more sense.
 my @cperl_changes =
   (
    ncmp    => 'cmp',
@@ -183,9 +184,9 @@ my @cperl_changes =
    seq     => 's_eq',
    sne     => 's_ne',
    scmp    => 's_cmp',
-   nbit_and  => 'n_bit_and',
-   nbit_xor  => 'n_bit_xor',
-   nbit_or   => 'n_bit_or',
+   nbit_and  => 'i_bit_and',
+   nbit_xor  => 'i_bit_xor',
+   nbit_or   => 'i_bit_or',
    sbit_and  => 's_bit_and',
    sbit_xor  => 's_bit_xor',
    sbit_or   => 's_bit_or',

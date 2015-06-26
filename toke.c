@@ -5424,7 +5424,7 @@ Perl_yylex(pTHX)
 	    TOKEN(0);
 	}
 	s++;
-	BOop(bof ? d == s-2 ? OP_S_BIT_XOR : OP_N_BIT_XOR : OP_BIT_XOR);
+	BOop(bof ? d == s-2 ? OP_S_BIT_XOR : OP_I_BIT_XOR : OP_BIT_XOR);
     case '[':
 	if (PL_lex_brackets > 100)
 	    Renew(PL_lex_brackstack, PL_lex_brackets + 10, char);
@@ -5940,7 +5940,7 @@ Perl_yylex(pTHX)
 	    }
 	    if (d == s) {
 		PL_parser->saw_infix_sigil = 1;
-		BAop(bof ? OP_N_BIT_AND : OP_BIT_AND);
+		BAop(bof ? OP_I_BIT_AND : OP_BIT_AND);
 	    }
 	    else
 		BAop(OP_S_BIT_AND);
@@ -5976,7 +5976,7 @@ Perl_yylex(pTHX)
 	    s = d - 1;
 	    TOKEN(0);
 	}
-	BOop(bof ? s == d ? OP_N_BIT_OR : OP_S_BIT_OR : OP_BIT_OR);
+	BOop(bof ? s == d ? OP_I_BIT_OR : OP_S_BIT_OR : OP_BIT_OR);
     case '=':
 	s++;
 	{
