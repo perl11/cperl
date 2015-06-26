@@ -5543,17 +5543,21 @@ Perl_yylex(pTHX)
 
 		    /* NOTE: any CV attrs applied here need to be part of
 		       the CVf_BUILTIN_ATTRS define in cv.h! */
-		    else if (!PL_in_my && len == 6 && strnEQ(pv, "lvalue", len)) {
-			sv_free(sv);
-			CvLVALUE_on(PL_compcv);
-		    }
-		    else if (!PL_in_my && len == 6 && strnEQ(pv, "locked", len)) {
-			sv_free(sv);
-			deprecate(":locked");
-		    }
-		    else if (!PL_in_my && len == 6 && strnEQ(pv, "method", len)) {
-			sv_free(sv);
-			CvMETHOD_on(PL_compcv);
+		    else if (!PL_in_my && len == 6) {
+                        if (strnEQ(pv, "lvalue", len)) {
+                            sv_free(sv);
+                            CvLVALUE_on(PL_compcv);
+                        }
+                        else if (strnEQ(pv, "locked", len)) {
+                            sv_free(sv);
+                            deprecate(":locked");
+                        }
+                        else if (strnEQ(pv, "method", len)) {
+                            sv_free(sv);
+                            CvMETHOD_on(PL_compcv);
+                        }
+                        else
+                            goto load_attributes;
 		    }
 		    else if (
 #ifndef USE_CPERL
@@ -5577,6 +5581,27 @@ Perl_yylex(pTHX)
 				    "subroutines");
 #endif
 		    }
+#ifdef USE_CPERL
+		    else if (!PL_in_my && len == 4 && strnEQ(pv, "pure", len)) {
+			sv_free(sv);
+			CvPURE_on(PL_compcv);
+		    }
+                    /* handle coretypes here, so we can pass an empty attrs
+                       to newATTRSUB */
+		    else if (len == 3
+                             && (strnEQ(pv, "int", len) || strnEQ(pv, "num", len)
+                                 || strnEQ(pv, "str", len)
+                                 || strnEQ(pv, "Int", len) || strnEQ(pv, "Num", len)
+                                 || strnEQ(pv, "Str", len))) {
+                        sv_free(sv);
+                        CvTYPED_on(PL_compcv);
+		    }
+		    else if (len == 4
+                             && (strnEQ(pv, "uint", len) || strnEQ(pv, "UInt", len))) {
+                        sv_free(sv);
+                        CvTYPED_on(PL_compcv);
+		    }
+#endif
 		    /* After we've set the flags, it could be argued that
 		       we don't need to do the attributes.pm-based setting
 		       process, and shouldn't bother appending recognized
@@ -5587,8 +5612,10 @@ Perl_yylex(pTHX)
 		       rejected) by a package's attribute routines, but is
 		       justified by the performance win for the common case
 		       of applying only built-in attributes.) */
-		    else
+		    else {
+                    load_attributes:
 		        attrs = op_append_elem(OP_LIST, attrs, newSVOP(OP_CONST, 0, sv));
+                    }
 		}
 		s = skipspace(d);
 		if (*s == ':' && s[1] != ':')

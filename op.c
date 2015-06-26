@@ -8014,6 +8014,12 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 	CvCONST_on(cv);
 	return NULL;
     }
+    DEBUG_k(deb("op_const_sv: inlined SV 0x%p\n", sv));
+#ifdef DEBUGGING
+    if (sv) {
+        DEBUG_kv(Perl_sv_dump(aTHX sv));
+    }
+#endif
     return sv;
 }
 
@@ -8585,18 +8591,21 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
     }
 
     if (!block
-#ifndef USE_CPERLxx
+#ifndef USE_CPERL_not_yet
         /* allow inlining of constant bodies on cperl even without empty proto*/
-        || !ps || *ps /* perl5: sub x{1+2} => no proto, so not inlinable */
-        || attrs
+        || !ps || *ps /* perl5: sub x{1} => no proto, so not inlinable */
 #endif
+        /* the core attrs are already applied and attrs will be empty.
+           we need to keep the cv to call user-attrs on it. */
+        || attrs
 	|| CvLVALUE(PL_compcv)
 	) {
-        /* XXX attr :const or :pure should not prevent from inlining.
-           :method :lvalue should */
 	const_sv = NULL;
     } else
-        /* check the body if it's in-lineable. */
+        /* check the body if it's in-lineable.
+           TODO: return an OP* to be able to inline more ops than just one SV*.
+           TODO: should :const enforce inlining?
+         */
 	const_sv =
 	    S_op_const_sv(aTHX_ start, PL_compcv, cBOOL(CvCLONE(PL_compcv)));
 
@@ -8653,10 +8662,16 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	    }
 	}
     }
+    /* inline the SV* by creating a CONSTSUB constant.
+       note that we cannot inline OP*'s here yet, as const_sv && cv is
+       used for something else.
+     */
     if (const_sv) {
 	SvREFCNT_inc_simple_void_NN(const_sv);
 	SvFLAGS(const_sv) |= SVs_PADTMP;
-	if (cv) {
+	if (cv) { /* we need to keep the ENTERSUB */
+            /* use an intermediate XS call to a dummy const_sv_xsub with
+               the any_ptr as value*/
 	    assert(!CvROOT(cv) && !CvCONST(cv));
 	    cv_forget_slab(cv);
 	    sv_setpvs(MUTABLE_SV(cv), "");  /* prototype is "" */
