@@ -12308,7 +12308,17 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 	    CvSTASH_set(cv, PL_curstash);
 	    *spot = cv;
 	}
-        SvPVCLEAR(MUTABLE_SV(cv));  /* prototype is "" */
+        if (*ps) {
+            SvPV_set(MUTABLE_SV(cv), ps);
+            SvCUR_set(MUTABLE_SV(cv), ps_len);
+            if (ps_utf8)
+                SvUTF8_on(MUTABLE_SV(cv));
+        }
+        else
+            if (CvMETHOD(cv))
+                sv_setpvs(MUTABLE_SV(cv), "$");  /* prototype for $self */
+            else
+                SvPVCLEAR(MUTABLE_SV(cv));  /* prototype is "" */
 	CvXSUBANY(cv).any_ptr = const_sv;
 	CvXSUB(cv) = S_const_sv_xsub;
 	CvCONST_on(cv);
@@ -12796,7 +12806,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
     }
 
     if (!block
-#ifndef USE_CPERL_not_yet
+#ifndef USE_CPERL
         /* allow inlining of constant bodies on cperl even without empty proto*/
         || !ps || *ps /* perl5: sub x{1} => no proto, so not inlinable */
 #endif
@@ -12898,7 +12908,17 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
                the any_ptr as value*/
 	    assert(!CvROOT(cv) && !CvCONST(cv));
 	    cv_forget_slab(cv);
-            SvPVCLEAR(MUTABLE_SV(cv));  /* prototype is "" */
+            if (*ps) {
+                SvPV_set(MUTABLE_SV(cv), ps);
+                SvCUR_set(MUTABLE_SV(cv), ps_len);
+                if (ps_utf8)
+                    SvUTF8_on(MUTABLE_SV(cv));
+            }
+            else
+                if (CvMETHOD(cv))
+                    sv_setpvs(MUTABLE_SV(cv), "$");  /* prototype for $self */
+                else
+                    SvPVCLEAR(MUTABLE_SV(cv));  /* prototype is "" */
 	    CvXSUBANY(cv).any_ptr = const_sv;
 	    CvXSUB(cv) = S_const_sv_xsub;
 	    CvCONST_on(cv);
