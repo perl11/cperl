@@ -46,6 +46,8 @@ PL_op_private_bitdefs
 PL_op_private_bitfields
 PL_op_private_labels
 PL_op_private_valid
+PL_op_type
+PL_op_type_variants
 PL_opargs
 PL_phase_names
 PL_ppaddr
