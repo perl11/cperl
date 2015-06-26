@@ -2262,7 +2262,7 @@ PP(pp_bit_and)
     }
 }
 
-PP(pp_n_bit_and)
+PP(pp_i_bit_and)
 {
     dSP;
     tryAMAGICbin_MG(band_amg, AMGf_assign|AMGf_numarg);
@@ -2327,27 +2327,27 @@ PP(pp_bit_or)
     }
 }
 
-/* also used for: pp_n_bit_xor() */
+/* also used for: pp_i_bit_xor() */
 
-PP(pp_n_bit_or)
+PP(pp_i_bit_or)
 {
     dSP;
     const int op_type = PL_op->op_type;
 
-    tryAMAGICbin_MG((op_type == OP_N_BIT_OR ? bor_amg : bxor_amg),
+    tryAMAGICbin_MG((op_type == OP_I_BIT_OR ? bor_amg : bxor_amg),
 		    AMGf_assign|AMGf_numarg);
     {
 	dATARGET; dPOPTOPssrl;
 	if (PL_op->op_private & HINT_INTEGER) {
 	  const IV l = (USE_LEFT(left) ? SvIV_nomg(left) : 0);
 	  const IV r = SvIV_nomg(right);
-	  const IV result = op_type == OP_N_BIT_OR ? (l | r) : (l ^ r);
+	  const IV result = op_type == OP_I_BIT_OR ? (l | r) : (l ^ r);
 	  SETi(result);
 	}
 	else {
 	  const UV l = (USE_LEFT(left) ? SvUV_nomg(left) : 0);
 	  const UV r = SvUV_nomg(right);
-	  const UV result = op_type == OP_N_BIT_OR ? (l | r) : (l ^ r);
+	  const UV result = op_type == OP_I_BIT_OR ? (l | r) : (l ^ r);
 	  SETu(result);
 	}
     }
@@ -2945,7 +2945,7 @@ PP(pp_srand)
     dSP; dTARGET;
     UV anum;
 
-    if (MAXARG >= 1 && (TOPs || POPs)) {
+    if (MAXARG >= 1 && (TOPs || POPs)) { /* ??? */
         SV *top;
         char *pv;
         STRLEN len;
@@ -6137,7 +6137,7 @@ PP(pp_lock)
 }
 
 
-/* used for: pp_padany(), pp_mapstart(), pp_custom(); plus any system ops
+/* used for: pp_padany(), pp_custom(); plus any system ops
  * that aren't implemented on a particular platform */
 
 PP(unimplemented_op)

@@ -32,7 +32,7 @@
 #define Perl_pp_s_gt Perl_pp_s_le
 #define Perl_pp_s_ge Perl_pp_s_le
 #define Perl_pp_bit_xor Perl_pp_bit_or
-#define Perl_pp_n_bit_xor Perl_pp_n_bit_or
+#define Perl_pp_i_bit_xor Perl_pp_i_bit_or
 #define Perl_pp_s_bit_xor Perl_pp_s_bit_or
 #define Perl_pp_cos Perl_pp_sin
 #define Perl_pp_exp Perl_pp_sin
@@ -45,8 +45,8 @@
 #define Perl_pp_lcfirst Perl_pp_ucfirst
 #define Perl_pp_aelemfast_lex Perl_pp_aelemfast
 #define Perl_pp_n_aelem Perl_pp_i_aelem
-#define Perl_pp_num_aelem Perl_pp_int_aelem
 #define Perl_pp_s_aelem Perl_pp_i_aelem
+#define Perl_pp_num_aelem Perl_pp_int_aelem
 #define Perl_pp_str_aelem Perl_pp_int_aelem
 #define Perl_pp_avalues Perl_pp_akeys
 #define Perl_pp_values Perl_do_kv
@@ -252,9 +252,9 @@ EXTCONST char* const PL_op_name[] = {
 	"bit_and",	/* 92: bitwise and (&) */
 	"bit_xor",	/* 93: bitwise xor (^) */
 	"bit_or",	/* 94: bitwise or (|) */
-	"n_bit_and",	/* 95: numeric bitiwse and (&) */
-	"n_bit_xor",	/* 96: numeric bitwise xor (^) */
-	"n_bit_or",	/* 97: numeric bitwise or (|) */
+	"i_bit_and",	/* 95: integer bitwise and (&) */
+	"i_bit_xor",	/* 96: integer bitwise xor (^) */
+	"i_bit_or",	/* 97: integer bitwise or (|) */
 	"s_bit_and",	/* 98: string bitiwse and (&) */
 	"s_bit_xor",	/* 99: string bitwise xor (^) */
 	"s_bit_or",	/* 100: string bitwise or (|) */
@@ -338,10 +338,10 @@ EXTCONST char* const PL_op_name[] = {
 	"aelemfast_lex",	/* 178: constant lexical array element */
 	"aelem",	/* 179: array element */
 	"i_aelem",	/* 180: int array element */
-	"int_aelem",	/* 181: unboxed int array element */
-	"n_aelem",	/* 182: num array element */
-	"num_aelem",	/* 183: unboxed num array element */
-	"s_aelem",	/* 184: str array element */
+	"n_aelem",	/* 181: num array element */
+	"s_aelem",	/* 182: str array element */
+	"int_aelem",	/* 183: unboxed int array element */
+	"num_aelem",	/* 184: unboxed num array element */
 	"str_aelem",	/* 185: unboxed str array element */
 	"aslice",	/* 186: array slice */
 	"kvaslice",	/* 187: index/value array slice */
@@ -704,9 +704,9 @@ EXTCONST char* const PL_op_desc[] = {
 	"bitwise and (&)",	/* 92: bit_and */
 	"bitwise xor (^)",	/* 93: bit_xor */
 	"bitwise or (|)",	/* 94: bit_or */
-	"numeric bitiwse and (&)",	/* 95: n_bit_and */
-	"numeric bitwise xor (^)",	/* 96: n_bit_xor */
-	"numeric bitwise or (|)",	/* 97: n_bit_or */
+	"integer bitwise and (&)",	/* 95: i_bit_and */
+	"integer bitwise xor (^)",	/* 96: i_bit_xor */
+	"integer bitwise or (|)",	/* 97: i_bit_or */
 	"string bitiwse and (&)",	/* 98: s_bit_and */
 	"string bitwise xor (^)",	/* 99: s_bit_xor */
 	"string bitwise or (|)",	/* 100: s_bit_or */
@@ -790,10 +790,10 @@ EXTCONST char* const PL_op_desc[] = {
 	"constant lexical array element",	/* 178: aelemfast_lex */
 	"array element",	/* 179: aelem */
 	"int array element",	/* 180: i_aelem */
-	"unboxed int array element",	/* 181: int_aelem */
-	"num array element",	/* 182: n_aelem */
-	"unboxed num array element",	/* 183: num_aelem */
-	"str array element",	/* 184: s_aelem */
+	"num array element",	/* 181: n_aelem */
+	"str array element",	/* 182: s_aelem */
+	"unboxed int array element",	/* 183: int_aelem */
+	"unboxed num array element",	/* 184: num_aelem */
 	"unboxed str array element",	/* 185: str_aelem */
 	"array slice",	/* 186: aslice */
 	"index/value array slice",	/* 187: kvaslice */
@@ -1073,7 +1073,7 @@ EXTCONST char* const PL_op_type[] = {
 	"",	/* 9: padsv */
 	"",	/* 10: padav */
 	"",	/* 11: padhv */
-	"(:Any):Any",	/* 12: padany */
+	"():Void",	/* 12: padany */
 	"",	/* 13: pushre */
 	"",	/* 14: rv2gv */
 	"",	/* 15: rv2sv */
@@ -1153,12 +1153,12 @@ EXTCONST char* const PL_op_type[] = {
 	"(:Str,:Str):Bool",	/* 89: s_eq */
 	"(:Str,:Str):Bool",	/* 90: s_ne */
 	"(:Str,:Str):Int",	/* 91: s_cmp */
-	"",	/* 92: bit_and */
-	"",	/* 93: bit_xor */
-	"",	/* 94: bit_or */
-	"",	/* 95: n_bit_and */
-	"",	/* 96: n_bit_xor */
-	"",	/* 97: n_bit_or */
+	"(:Number,:Number):UInt",	/* 92: bit_and */
+	"(:Number,:Number):UInt",	/* 93: bit_xor */
+	"(:Number,:Number):UInt",	/* 94: bit_or */
+	"(:Int,:Int):UInt",	/* 95: i_bit_and */
+	"(:Int,:Int):UInt",	/* 96: i_bit_xor */
+	"(:Int,:Int):UInt",	/* 97: i_bit_or */
 	"",	/* 98: s_bit_and */
 	"",	/* 99: s_bit_xor */
 	"",	/* 100: s_bit_or */
@@ -1169,14 +1169,14 @@ EXTCONST char* const PL_op_type[] = {
 	"",	/* 105: n_complement */
 	"",	/* 106: s_complement */
 	"",	/* 107: smartmatch */
-	"",	/* 108: atan2 */
-	"",	/* 109: sin */
-	"",	/* 110: cos */
-	"",	/* 111: rand */
-	"",	/* 112: srand */
-	"",	/* 113: exp */
-	"",	/* 114: log */
-	"",	/* 115: sqrt */
+	"(:Num,:Num):Num",	/* 108: atan2 */
+	"(:Num):Num",	/* 109: sin */
+	"(:Num):Num",	/* 110: cos */
+	"(:Num?):Num",	/* 111: rand */
+	"(:Num?):Num",	/* 112: srand */
+	"(:Num):Num",	/* 113: exp */
+	"(:Num):Num",	/* 114: log */
+	"(:Num):Num",	/* 115: sqrt */
 	"",	/* 116: int */
 	"",	/* 117: hex */
 	"",	/* 118: oct */
@@ -1237,15 +1237,15 @@ EXTCONST char* const PL_op_type[] = {
 	"",	/* 173: uc */
 	"",	/* 174: lc */
 	"",	/* 175: quotemeta */
-	"",	/* 176: rv2av */
-	"",	/* 177: aelemfast */
-	"",	/* 178: aelemfast_lex */
-	"",	/* 179: aelem */
+	"(:Ref):Hash",	/* 176: rv2av */
+	"():Scalar",	/* 177: aelemfast */
+	"():Scalar",	/* 178: aelemfast_lex */
+	"(:Array(:Scalar),:Int):Scalar",	/* 179: aelem */
 	"(:Array(:Int),:Int):Int",	/* 180: i_aelem */
-	"(:Array(:int),:int):int",	/* 181: int_aelem */
-	"(:Array(:Num),:Int):Num",	/* 182: n_aelem */
-	"(:Array(:num),:int):num",	/* 183: num_aelem */
-	"(:Array(:Str),:Int):Str",	/* 184: s_aelem */
+	"(:Array(:Num),:Int):Num",	/* 181: n_aelem */
+	"(:Array(:Str),:Int):Str",	/* 182: s_aelem */
+	"(:Array(:int),:int):int",	/* 183: int_aelem */
+	"(:Array(:num),:int):num",	/* 184: num_aelem */
 	"(:Array(:str),:int):str",	/* 185: str_aelem */
 	"",	/* 186: aslice */
 	"",	/* 187: kvaslice */
@@ -1255,10 +1255,10 @@ EXTCONST char* const PL_op_type[] = {
 	"",	/* 191: each */
 	"",	/* 192: values */
 	"",	/* 193: keys */
-	"(:str):Void",	/* 194: delete */
-	"(:str):Bool",	/* 195: exists */
-	"",	/* 196: rv2hv */
-	"(:Hash(:Scalar),:Str):Scalar",	/* 197: helem */
+	"(:Str):Void",	/* 194: delete */
+	"(:Str):Bool",	/* 195: exists */
+	"(:Ref):Hash",	/* 196: rv2hv */
+	"(:Hash(:Scalar)):Scalar",	/* 197: helem */
 	"",	/* 198: hslice */
 	"",	/* 199: kvhslice */
 	"",	/* 200: multideref */
@@ -1622,9 +1622,9 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_bit_and,
 	Perl_pp_bit_xor,	/* implemented by Perl_pp_bit_or */
 	Perl_pp_bit_or,
-	Perl_pp_n_bit_and,
-	Perl_pp_n_bit_xor,	/* implemented by Perl_pp_n_bit_or */
-	Perl_pp_n_bit_or,
+	Perl_pp_i_bit_and,
+	Perl_pp_i_bit_xor,	/* implemented by Perl_pp_i_bit_or */
+	Perl_pp_i_bit_or,
 	Perl_pp_s_bit_and,
 	Perl_pp_s_bit_xor,	/* implemented by Perl_pp_s_bit_or */
 	Perl_pp_s_bit_or,
@@ -1708,10 +1708,10 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_aelemfast_lex,	/* implemented by Perl_pp_aelemfast */
 	Perl_pp_aelem,
 	Perl_pp_i_aelem,
-	Perl_pp_int_aelem,
 	Perl_pp_n_aelem,	/* implemented by Perl_pp_i_aelem */
-	Perl_pp_num_aelem,	/* implemented by Perl_pp_int_aelem */
 	Perl_pp_s_aelem,	/* implemented by Perl_pp_i_aelem */
+	Perl_pp_int_aelem,
+	Perl_pp_num_aelem,	/* implemented by Perl_pp_int_aelem */
 	Perl_pp_str_aelem,	/* implemented by Perl_pp_int_aelem */
 	Perl_pp_aslice,
 	Perl_pp_kvaslice,
@@ -2084,9 +2084,9 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_bitop,		/* bit_and */
 	Perl_ck_bitop,		/* bit_xor */
 	Perl_ck_bitop,		/* bit_or */
-	Perl_ck_bitop,		/* n_bit_and */
-	Perl_ck_bitop,		/* n_bit_xor */
-	Perl_ck_bitop,		/* n_bit_or */
+	Perl_ck_bitop,		/* i_bit_and */
+	Perl_ck_bitop,		/* i_bit_xor */
+	Perl_ck_bitop,		/* i_bit_or */
 	Perl_ck_bitop,		/* s_bit_and */
 	Perl_ck_bitop,		/* s_bit_xor */
 	Perl_ck_bitop,		/* s_bit_or */
@@ -2170,10 +2170,10 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_null,		/* aelemfast_lex */
 	Perl_ck_null,		/* aelem */
 	Perl_ck_null,		/* i_aelem */
-	Perl_ck_null,		/* int_aelem */
 	Perl_ck_null,		/* n_aelem */
-	Perl_ck_null,		/* num_aelem */
 	Perl_ck_null,		/* s_aelem */
+	Perl_ck_null,		/* int_aelem */
+	Perl_ck_null,		/* num_aelem */
 	Perl_ck_null,		/* str_aelem */
 	Perl_ck_null,		/* aslice */
 	Perl_ck_null,		/* kvaslice */
@@ -2450,20 +2450,20 @@ EXTCONST U32 PL_opargs[] = {
 	0x0001b104,	/* scalar */
 	0x00000104,	/* pushmark */
 	0x00000204,	/* wantarray */
-	0x00006104,	/* const */
-	0x00006044,	/* gvsv */
-	0x00006044,	/* gv */
+	0x00016104,	/* const */
+	0x00016044,	/* gvsv */
+	0x00016044,	/* gv */
 	0x00112044,	/* gelem */
 	0x00000044,	/* padsv */
 	0x00000040,	/* padav */
 	0x00000040,	/* padhv */
 	0x00000040,	/* padany */
 	0x00005040,	/* pushre */
-	0x00001044,	/* rv2gv */
-	0x00001044,	/* rv2sv */
-	0x00001204,	/* av2arylen */
-	0x00001040,	/* rv2cv */
-	0x00006004,	/* anoncode */
+	0x00071044,	/* rv2gv */
+	0x00071044,	/* rv2sv */
+	0x00031204,	/* av2arylen */
+	0x00071040,	/* rv2cv */
+	0x00016004,	/* anoncode */
 	0x0009b084,	/* prototype */
 	0x00021001,	/* refgen */
 	0x00011006,	/* srefgen */
@@ -2540,9 +2540,9 @@ EXTCONST U32 PL_opargs[] = {
 	0x0011210e,	/* bit_and */
 	0x0011210e,	/* bit_xor */
 	0x0011210e,	/* bit_or */
-	0x0011211e,	/* n_bit_and */
-	0x0011211e,	/* n_bit_xor */
-	0x0011211e,	/* n_bit_or */
+	0x0011211e,	/* i_bit_and */
+	0x0011211e,	/* i_bit_xor */
+	0x0011211e,	/* i_bit_or */
 	0x0011200e,	/* s_bit_and */
 	0x0011200e,	/* s_bit_xor */
 	0x0011200e,	/* s_bit_or */
@@ -2621,15 +2621,15 @@ EXTCONST U32 PL_opargs[] = {
 	0x0009b08e,	/* uc */
 	0x0009b08e,	/* lc */
 	0x0009b08e,	/* quotemeta */
-	0x00001048,	/* rv2av */
-	0x00136044,	/* aelemfast */
-	0x00130040,	/* aelemfast_lex */
+	0x00071048,	/* rv2av */
+	0x00006044,	/* aelemfast */
+	0x00000040,	/* aelemfast_lex */
 	0x00132004,	/* aelem */
 	0x00132004,	/* i_aelem */
-	0x00832200,	/* int_aelem */
 	0x00132004,	/* n_aelem */
-	0x00a32004,	/* num_aelem */
 	0x00132004,	/* s_aelem */
+	0x00832200,	/* int_aelem */
+	0x00a32800,	/* num_aelem */
 	0x00932400,	/* str_aelem */
 	0x00234001,	/* aslice */
 	0x00234001,	/* kvaslice */
@@ -2641,7 +2641,7 @@ EXTCONST U32 PL_opargs[] = {
 	0x0004b008,	/* keys */
 	0x0001b000,	/* delete */
 	0x0001b204,	/* exists */
-	0x00001040,	/* rv2hv */
+	0x00071040,	/* rv2hv */
 	0x00142004,	/* helem */
 	0x00244001,	/* hslice */
 	0x00244001,	/* kvhslice */
@@ -3228,9 +3228,9 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
       12, /* bit_and */
       12, /* bit_xor */
       12, /* bit_or */
-      73, /* n_bit_and */
-      73, /* n_bit_xor */
-      73, /* n_bit_or */
+      73, /* i_bit_and */
+      73, /* i_bit_xor */
+      73, /* i_bit_or */
       12, /* s_bit_and */
       12, /* s_bit_xor */
       12, /* s_bit_or */
@@ -3314,10 +3314,10 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
       94, /* aelemfast_lex */
       95, /* aelem */
       12, /* i_aelem */
-      79, /* int_aelem */
       12, /* n_aelem */
-      79, /* num_aelem */
       12, /* s_aelem */
+      79, /* int_aelem */
+      79, /* num_aelem */
       79, /* str_aelem */
      100, /* aslice */
      103, /* kvaslice */
@@ -3617,7 +3617,7 @@ EXTCONST U16  PL_op_private_bitdefs[] = {
     0x0bbc, 0x0458, 0x0067, /* sassign */
     0x0838, 0x2bac, 0x0067, /* aassign */
     0x3fd0, 0x0003, /* chomp, schomp, n_complement, s_complement, sin, cos, exp, log, sqrt, int, hex, oct, abs, length, ord, chr, chroot, rmdir */
-    0x3fd0, 0x0067, /* pow, multiply, i_multiply, divide, i_divide, modulo, i_modulo, add, i_add, subtract, i_subtract, concat, left_shift, right_shift, n_bit_and, n_bit_xor, n_bit_or */
+    0x3fd0, 0x0067, /* pow, multiply, i_multiply, divide, i_divide, modulo, i_modulo, add, i_add, subtract, i_subtract, concat, left_shift, right_shift, i_bit_and, i_bit_xor, i_bit_or */
     0x1138, 0x0067, /* repeat */
     0x3fd0, 0x012f, /* stringify, atan2, rand, srand, index, rindex, crypt, push, unshift, flock, chdir, chown, unlink, chmod, utime, rename, link, symlink, mkdir, waitpid, system, exec, kill, getpgrp, setpgrp, getpriority, setpriority, sleep */
     0x0690, 0x0067, /* uint_left_shift, uint_right_shift, uint_pow, int_add, int_subtract, int_multiply, int_divide, int_modulo, int_lt, int_gt, int_le, int_ge, int_eq, int_ne, num_add, num_subtract, num_multiply, num_divide, num_atan2, num_pow, int_aelem, num_aelem, str_aelem */
@@ -3763,9 +3763,9 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* BIT_AND    */ (OPpARG2_MASK),
     /* BIT_XOR    */ (OPpARG2_MASK),
     /* BIT_OR     */ (OPpARG2_MASK),
-    /* N_BIT_AND  */ (OPpARG2_MASK|OPpTARGET_MY),
-    /* N_BIT_XOR  */ (OPpARG2_MASK|OPpTARGET_MY),
-    /* N_BIT_OR   */ (OPpARG2_MASK|OPpTARGET_MY),
+    /* I_BIT_AND  */ (OPpARG2_MASK|OPpTARGET_MY),
+    /* I_BIT_XOR  */ (OPpARG2_MASK|OPpTARGET_MY),
+    /* I_BIT_OR   */ (OPpARG2_MASK|OPpTARGET_MY),
     /* S_BIT_AND  */ (OPpARG2_MASK),
     /* S_BIT_XOR  */ (OPpARG2_MASK),
     /* S_BIT_OR   */ (OPpARG2_MASK),
@@ -3849,10 +3849,10 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* AELEMFAST_LEX */ (255),
     /* AELEM      */ (OPpARG2_MASK|OPpMAYBE_LVSUB|OPpDEREF|OPpLVAL_DEFER|OPpLVAL_INTRO),
     /* I_AELEM    */ (OPpARG2_MASK),
-    /* INT_AELEM  */ (OPpARG2_MASK|OPpBOXRET),
     /* N_AELEM    */ (OPpARG2_MASK),
-    /* NUM_AELEM  */ (OPpARG2_MASK|OPpBOXRET),
     /* S_AELEM    */ (OPpARG2_MASK),
+    /* INT_AELEM  */ (OPpARG2_MASK|OPpBOXRET),
+    /* NUM_AELEM  */ (OPpARG2_MASK|OPpBOXRET),
     /* STR_AELEM  */ (OPpARG2_MASK|OPpBOXRET),
     /* ASLICE     */ (OPpSLICEWARNING|OPpMAYBE_LVSUB|OPpLVAL_INTRO),
     /* KVASLICE   */ (OPpMAYBE_LVSUB),

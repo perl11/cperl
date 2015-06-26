@@ -9518,9 +9518,9 @@ Perl_ck_bitop(pTHX_ OP *o)
 
     o->op_private = (U8)(PL_hints & HINT_INTEGER);
 
-    if (o->op_type == OP_N_BIT_OR     || o->op_type == OP_S_BIT_OR
-     || o->op_type == OP_N_BIT_XOR    || o->op_type == OP_S_BIT_XOR
-     || o->op_type == OP_N_BIT_AND    || o->op_type == OP_S_BIT_AND
+    if (o->op_type == OP_I_BIT_OR     || o->op_type == OP_S_BIT_OR
+     || o->op_type == OP_I_BIT_XOR    || o->op_type == OP_S_BIT_XOR
+     || o->op_type == OP_I_BIT_AND    || o->op_type == OP_S_BIT_AND
      || o->op_type == OP_N_COMPLEMENT || o->op_type == OP_S_COMPLEMENT)
 	Perl_ck_warner_d(aTHX_ packWARN(WARN_EXPERIMENTAL__BITWISE),
 			      "The bitwise feature is experimental");
@@ -9536,11 +9536,11 @@ Perl_ck_bitop(pTHX_ OP *o)
 	    Perl_ck_warner(aTHX_ packWARN(WARN_PRECEDENCE),
 			  "Possible precedence problem on bitwise %s operator",
 			   o->op_type ==  OP_BIT_OR
-			 ||o->op_type == OP_N_BIT_OR  ? "|"
+			 ||o->op_type == OP_I_BIT_OR  ? "|"
 			:  o->op_type ==  OP_BIT_AND
-			 ||o->op_type == OP_N_BIT_AND ? "&"
+			 ||o->op_type == OP_I_BIT_AND ? "&"
 			:  o->op_type ==  OP_BIT_XOR
-			 ||o->op_type == OP_N_BIT_XOR ? "^"
+			 ||o->op_type == OP_I_BIT_XOR ? "^"
 			:  o->op_type == OP_S_BIT_OR  ? "|."
 			:  o->op_type == OP_S_BIT_AND ? "&." : "^."
 			   );
