@@ -97,39 +97,9 @@ PPt(pp_unbox_num, "(:Num):num")
 }
 
 /* unboxed left bitshift (<<)  ck_bitop	pfiT2	I I */
-/*PPt(pp_uint_lshift, "(:int,:uint):uint")
-{
-    dSP;
-    UV uv = PTR2UV(TOPs);
-    sp--;
-    TOPs = INT2PTR(SV*, uv << PTR2IV(TOPs));
-    RETURN;
-}*/
 /* unboxed right bitshift (>>) ck_bitop	pfiT2	I I */
-/*PPt(pp_uint_rshift, "(:int,:uint):uint")
-{
-    dSP;
-    UV uv = PTR2UV(TOPs);
-    sp--;
-    TOPs = INT2PTR(SV*, uv >> PTR2IV(TOPs));
-    RETURN;
-}*/
 /* unboxed preincrement (++)  ck_lfun	is1	I */
-/* PPt(pp_int_preinc, "(:int):int")
-{
-    dSP;
-    IV iv = PTR2IV(TOPs);
-    TOPs = INT2PTR(SV*, ++iv);
-    RETURN;
-} */
 /* unboxed predecrement (--)  ck_lfun	is1	I */
-/* PPt(pp_int_predec, "(:int):int")
-{
-    dSP;
-    IV iv = PTR2IV(TOPs);
-    TOPs = INT2PTR(SV*, --iv);
-    RETURN;
-} */
 /* unboxed postincrement (++) ck_lfun	is1	I */
 /* same as pp_int_preinc */
 /* unboxed postdecrement (--) ck_lfun	is1	I */
@@ -164,7 +134,7 @@ PPt(pp_int_##name, "(:int,:int):int")           \
     sp--;                                       \
     TOPs = (PL_op->op_private & OPpBOXRET)      \
         ? newSViv(iv op PTR2IV(TOPs))           \
-        : INT2PTR(SV*, iv op PTR2IV(TOPs));     \
+        : INT2PTR(SV*, (intptr_t)(iv op PTR2IV(TOPs)));        \
     RETURN;                                     \
 }
 #define UNBOXED_INT_UNOP(name, op)              \
@@ -174,7 +144,7 @@ PPt(pp_##name, "(:int):int")                    \
     IV iv = PTR2IV(TOPs);                       \
     TOPs = (PL_op->op_private & OPpBOXRET)      \
         ? newSViv(op(iv))                       \
-        : INT2PTR(SV*, op(iv));                 \
+        : INT2PTR(SV*, (intptr_t)(op(iv)));    \
     return NORMAL;                              \
 }
 
