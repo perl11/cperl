@@ -319,8 +319,8 @@ invert_opset function.
     postdec i_postdec int hex oct abs pow multiply i_multiply
     divide i_divide modulo i_modulo add i_add subtract i_subtract
 
-    left_shift right_shift bit_and bit_xor bit_or n_bit_and
-    n_bit_xor n_bit_or s_bit_and s_bit_xor s_bit_or negate i_negate not
+    left_shift right_shift bit_and bit_xor bit_or i_bit_and
+    i_bit_xor i_bit_or s_bit_and s_bit_xor s_bit_or negate i_negate not
     complement n_complement s_complement
 
     lt i_lt gt i_gt le i_le ge i_ge eq i_eq ne i_ne cmp i_cmp
