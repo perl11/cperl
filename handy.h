@@ -174,10 +174,14 @@ typedef U16TYPE U16;
 typedef I32TYPE I32;
 typedef U32TYPE U32;
 #ifdef PERL_CORE
-#   ifdef HAS_QUAD
+#  ifdef HAS_QUAD
 typedef I64TYPE I64;
 typedef U64TYPE U64;
-#   endif
+#  endif
+#  if !defined(I_STDINT) && !defined(WIN32)
+/* windows, where it would be int, has it defined already, see win32.c */
+typedef long intptr_t
+#  endif
 #endif /* PERL_CORE */
 
 /* INT64_C/UINT64_C are C99 from <stdint.h> (so they will not be
