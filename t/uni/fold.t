@@ -361,7 +361,7 @@ foreach my $test_ref (@CF) {
     use feature qw(fc);
     package Eeyup  { use overload q{""} => sub { main::uni_to_native("\x{df}")   }, fallback => 1 }
     package Uunope { use overload q{""} => sub { "\x{30cb}" }, fallback => 1 }
-    package Undef  { use overload q{""} => sub {   undef    }, fallback => 1 }
+    package Undeff { use overload q{""} => sub {   undef    }, fallback => 1 }
 
     my $obj = bless {}, "Eeyup";
     is(fc($obj), "ss", "fc() works on overloaded objects returning latin-1");
@@ -373,7 +373,7 @@ foreach my $test_ref (@CF) {
     $obj = bless {}, "Uunope";
     is("\F$obj", "\x{30cb}", '\F works on overloaded objects returning UTF-8');
 
-    $obj = bless {}, "Undef";
+    $obj = bless {}, "Undeff";
     my $warnings;
     {
         no warnings;
