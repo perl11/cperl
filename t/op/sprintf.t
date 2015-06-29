@@ -653,14 +653,14 @@ __END__
 >%2$d %d %d<	>[12, 34]<	>34 12 34<
 >%3$d %d %d<	>[12, 34, 56]<	>56 12 34<
 >%2$*3$d %d<	>[12, 34, 3]<	> 34 12<
->%*3$2$d %d<	>[12, 34, 3]<	>%*3$2$d 12 INVALID<
+>%*3$2$d %d<	>[12, 34, 3]<	>%*3$2$d 12 INVALID REDUNDANT<
 >%2$d<		>12<	>0 MISSING<
 >%0$d<		>12<	>%0$d INVALID REDUNDANT<
->%1$$d<		>12<	>%1$$d INVALID<
->%1$1$d<	>12<	>%1$1$d INVALID<
->%*2$*2$d<	>[12, 3]<	>%*2$*2$d INVALID<
+>%1$$d<		>12<	>%1$$d INVALID REDUNDANT<
+>%1$1$d<	>12<	>%1$1$d INVALID REDUNDANT<
+>%*2$*2$d<	>[12, 3]<	>%*2$*2$d INVALID REDUNDANT<
 >%*2*2$d<	>[12, 3]<	>%*2*2$d INVALID REDUNDANT<
->%*2$1d<	>[12, 3]<	>%*2$1d INVALID<
+>%*2$1d<	>[12, 3]<	>%*2$1d INVALID REDUNDANT<
 >%0v2.2d<	>''<	><
 >%vc,%d<	>[63, 64, 65]<	>%vc,63 INVALID REDUNDANT<
 >%v%,%d<	>[63, 64, 65]<	>%v%,63 INVALID REDUNDANT<
@@ -714,7 +714,7 @@ __END__
 >%V-%s<		>["Hello"]<	>%V-Hello INVALID<
 >%K %d %d<	>[13, 29]<	>%K 13 29 INVALID<
 >%*.*K %d<	>[13, 29, 76]<	>%*.*K 13 INVALID REDUNDANT<
->%4$K %d<	>[45, 67]<	>%4$K 45 MISSING INVALID<
+>%4$K %d<	>[45, 67]<	>%4$K 45 INVALID REDUNDANT<
 >%d %K %d<	>[23, 45]<	>23 %K 45 INVALID<
 >%*v*999\$d %d %d<	>[11, 22, 33]<	>%*v*999\$d 11 22 INVALID REDUNDANT<
 >%#b<		>0<	>0<
