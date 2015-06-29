@@ -5,7 +5,7 @@ BEGIN {
     require "./test.pl";
 }
 
-plan(111);
+plan(112);
 
 # A lot of tests to check that reversed for works.
 
@@ -603,3 +603,15 @@ for my$a(1..2) { $i++ }
 is($i, 2, 'for my$a parses [cperl #145]');
 for our$a(1..2) { $i++ }
 is($i, 4, 'for our$a parses [cperl #145]');
+
+# DAPM: while messing with the scope code, I broke some cpan/ code,
+# but surprisingly didn't break any dedicated tests. So test it:
+
+sub fscope {
+    for my $y (1,2) {
+	my $a = $y;
+	return $a;
+    }
+}
+
+is(fscope(), 1, 'return via loop in sub');
