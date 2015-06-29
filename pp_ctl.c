@@ -1993,7 +1993,6 @@ PP(pp_dbstate)
 		PERL_STACK_OVERFLOW_CHECK();
 		pad_push(CvPADLIST(cv), CvDEPTH(cv));
 	    }
-	    SAVECOMPPAD();
 	    PAD_SET_CUR_NOSAVE(CvPADLIST(cv), CvDEPTH(cv));
 	    RETURNOP(CvSTART(cv));
 	}
@@ -2763,6 +2762,8 @@ PP(pp_goto)
 	    assert(PL_scopestack_ix == cx->blk_oldscopesp);
 	    oldsave = PL_scopestack[cx->blk_oldscopesp - 1];
 	    LEAVE_SCOPE(oldsave);
+            PL_comppad = cx->blk_sub.prevcomppad;
+            PL_curpad = LIKELY(PL_comppad) ? AvARRAY(PL_comppad) : NULL;
 
 	    /* A destructor called during LEAVE_SCOPE could have undefined
 	     * our precious cv.  See bug #99850. */
@@ -2849,7 +2850,7 @@ PP(pp_goto)
 		    pad_push(padlist, CvDEPTH(cv));
 		}
 		PL_curcop = cx->blk_oldcop;
-		SAVECOMPPAD();
+                cx->blk_sub.prevcomppad = PL_comppad;
 		PAD_SET_CUR_NOSAVE(padlist, CvDEPTH(cv));
 		if (CxHASARGS(cx))
 		{
