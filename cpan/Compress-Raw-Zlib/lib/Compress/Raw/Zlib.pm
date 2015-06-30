@@ -111,7 +111,7 @@ sub AUTOLOAD {
     my ($error, $val) = constant($constname);
     Carp::croak $error if $error;
     no strict 'refs';
-    *{$AUTOLOAD} = sub { $val };
+    *{$AUTOLOAD} = sub () { $val };
     goto &{$AUTOLOAD};
 }
 

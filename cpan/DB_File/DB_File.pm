@@ -163,7 +163,7 @@ our ($db_version, $use_XSLoader, $splice_end_array_no_length, $splice_end_array,
 use Carp;
 
 # Module not thread safe, so don't clone
-sub CLONE_SKIP { 1 } 
+sub CLONE_SKIP { 1 }
 
 $VERSION = "1.852" ;
 $VERSION = eval $VERSION; # needed for dev releases
@@ -240,7 +240,7 @@ sub AUTOLOAD {
     my ($error, $val) = constant($constname);
     Carp::croak $error if $error;
     no strict 'refs';
-    *{$AUTOLOAD} = sub { $val };
+    *{$AUTOLOAD} = sub () { $val };
     goto &{$AUTOLOAD};
 }           
 
