@@ -74,7 +74,7 @@ sub AUTOLOAD
   }
   {
     no strict 'refs';
-    *$AUTOLOAD = sub { $val };
+    *$AUTOLOAD = sub () { $val };
   }
   goto &$AUTOLOAD;
 }
