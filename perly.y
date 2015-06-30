@@ -63,6 +63,7 @@
 %token <ival> DOLSHARP DO HASHBRACK NOAMP
 %token <ival> LOCAL MY REQUIRE
 %token <ival> COLONATTR FORMLBRACK FORMRBRACK
+%token <ival> PROTOTYPE SIGNATURE
 
 %type <ival> grammar remember mremember
 %type <ival>  startsub startanonsub startformsub
@@ -646,21 +647,14 @@ myattrlist:	COLONATTR THING
 			{ $$ = (OP*)NULL; }
 	;
 
-/* Subroutine signature or old-style prototype */
-subsignature:	'('
+subsignature:	'(' SIGNATURE ')'
 			{
-#ifndef USE_CPERL
-			  /* We shouldn't get here otherwise */
-			  assert(FEATURE_SIGNATURES_IS_ENABLED);
-			  Perl_ck_warner_d(aTHX_
-				packWARN(WARN_EXPERIMENTAL__SIGNATURES),
-				"The signatures feature is experimental");
-#endif
-			  $<opval>$ = parse_subsignature();
+			  $$ = parse_subsignature();
+			  parser->expect = XATTRBLOCK;
 			}
-		')'
+	| 	'(' PROTOTYPE ')'
 			{
-			  $$ = $<opval>2;
+			  $$ = $2;
 			  parser->expect = XATTRBLOCK;
 			}
 	;
