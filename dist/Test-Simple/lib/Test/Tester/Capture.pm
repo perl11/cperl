@@ -16,7 +16,7 @@ BEGIN {
 	}
 	else {
 		*share = sub { 0 };
-		*lock  = sub { 0 };
+                *lock  = sub (\$) { 0 } if $] < 5.008001;
 	}
 }
 
