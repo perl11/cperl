@@ -102,29 +102,31 @@
      COLONATTR = 313,
      FORMLBRACK = 314,
      FORMRBRACK = 315,
-     PREC_LOW = 316,
-     DOROP = 317,
-     OROP = 318,
-     ANDOP = 319,
-     NOTOP = 320,
-     ASSIGNOP = 321,
-     DORDOR = 322,
-     OROR = 323,
-     ANDAND = 324,
-     BITOROP = 325,
-     BITANDOP = 326,
-     SHIFTOP = 327,
-     MATCHOP = 328,
-     REFGEN = 329,
-     UMINUS = 330,
-     POWCOP = 331,
-     POWOP = 332,
-     POSTJOIN = 333,
-     POSTDEC = 334,
-     POSTINC = 335,
-     PREDEC = 336,
-     PREINC = 337,
-     ARROW = 338
+     PROTOTYPE = 316,
+     SIGNATURE = 317,
+     PREC_LOW = 318,
+     DOROP = 319,
+     OROP = 320,
+     ANDOP = 321,
+     NOTOP = 322,
+     ASSIGNOP = 323,
+     DORDOR = 324,
+     OROR = 325,
+     ANDAND = 326,
+     BITOROP = 327,
+     BITANDOP = 328,
+     SHIFTOP = 329,
+     MATCHOP = 330,
+     REFGEN = 331,
+     UMINUS = 332,
+     POWCOP = 333,
+     POWOP = 334,
+     POSTJOIN = 335,
+     POSTDEC = 336,
+     POSTINC = 337,
+     PREDEC = 338,
+     PREINC = 339,
+     ARROW = 340
    };
 #endif
 
@@ -187,29 +189,31 @@
 #define COLONATTR 313
 #define FORMLBRACK 314
 #define FORMRBRACK 315
-#define PREC_LOW 316
-#define DOROP 317
-#define OROP 318
-#define ANDOP 319
-#define NOTOP 320
-#define ASSIGNOP 321
-#define DORDOR 322
-#define OROR 323
-#define ANDAND 324
-#define BITOROP 325
-#define BITANDOP 326
-#define SHIFTOP 327
-#define MATCHOP 328
-#define REFGEN 329
-#define UMINUS 330
-#define POWCOP 331
-#define POWOP 332
-#define POSTJOIN 333
-#define POSTDEC 334
-#define POSTINC 335
-#define PREDEC 336
-#define PREINC 337
-#define ARROW 338
+#define PROTOTYPE 316
+#define SIGNATURE 317
+#define PREC_LOW 318
+#define DOROP 319
+#define OROP 320
+#define ANDOP 321
+#define NOTOP 322
+#define ASSIGNOP 323
+#define DORDOR 324
+#define OROR 325
+#define ANDAND 326
+#define BITOROP 327
+#define BITANDOP 328
+#define SHIFTOP 329
+#define MATCHOP 330
+#define REFGEN 331
+#define UMINUS 332
+#define POWCOP 333
+#define POWOP 334
+#define POSTJOIN 335
+#define POSTDEC 336
+#define POSTINC 337
+#define PREDEC 338
+#define PREINC 339
+#define ARROW 340
 
 
 
@@ -262,6 +266,6 @@ typedef union YYSTYPE
 
 
 /* Generated from:
- * 12385d614bc912e2d3359f5e05183a4d385a1c7f3019d718a8144f46e5dd0b4a perly.y
+ * acc70e7612cc23be568788ac5ea4a9c85779c8e9a0e187bfdc4d9e2335cf0ed9 perly.y
  * af369e0c00095e7003f0182d06a52d35c908c9d43a864a7e300b79c1d34fbfdc regen_perly.pl
  * ex: set ro: */
