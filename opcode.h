@@ -1116,17 +1116,17 @@ EXTCONST char* const PL_op_type[] = {
 	"(:Int):Int",	/* 52: i_postinc */
 	"(:Scalar):Scalar",	/* 53: postdec */
 	"(:Int):Int",	/* 54: i_postdec */
-	"(:Number,:Number):Number",	/* 55: pow */
-	"(:Number,:Number):Number",	/* 56: multiply */
+	"(:Numeric,:Numeric):Numeric",	/* 55: pow */
+	"(:Numeric,:Numeric):Numeric",	/* 56: multiply */
 	"(:Int,:Int):Int",	/* 57: i_multiply */
-	"(:Number,:Number):Number",	/* 58: divide */
+	"(:Numeric,:Numeric):Numeric",	/* 58: divide */
 	"(:Int,:Int):Int",	/* 59: i_divide */
-	"(:Number,:Number):Number",	/* 60: modulo */
+	"(:Numeric,:Numeric):Numeric",	/* 60: modulo */
 	"(:Int,:Int):Int",	/* 61: i_modulo */
 	"(:List,:Int):List",	/* 62: repeat */
-	"(:Number,:Number):Number",	/* 63: add */
+	"(:Numeric,:Numeric):Numeric",	/* 63: add */
 	"(:Int,:Int):Int",	/* 64: i_add */
-	"(:Number,:Number):Number",	/* 65: subtract */
+	"(:Numeric,:Numeric):Numeric",	/* 65: subtract */
 	"(:Int,:Int):Int",	/* 66: i_subtract */
 	"(:Any,:Any):Str",	/* 67: concat */
 	"(:Scalar):Str",	/* 68: stringify */
@@ -1153,9 +1153,9 @@ EXTCONST char* const PL_op_type[] = {
 	"(:Str,:Str):Bool",	/* 89: s_eq */
 	"(:Str,:Str):Bool",	/* 90: s_ne */
 	"(:Str,:Str):Int",	/* 91: s_cmp */
-	"(:Number,:Number):UInt",	/* 92: bit_and */
-	"(:Number,:Number):UInt",	/* 93: bit_xor */
-	"(:Number,:Number):UInt",	/* 94: bit_or */
+	"(:Numeric,:Numeric):UInt",	/* 92: bit_and */
+	"(:Numeric,:Numeric):UInt",	/* 93: bit_xor */
+	"(:Numeric,:Numeric):UInt",	/* 94: bit_or */
 	"(:Int,:Int):UInt",	/* 95: i_bit_and */
 	"(:Int,:Int):UInt",	/* 96: i_bit_xor */
 	"(:Int,:Int):UInt",	/* 97: i_bit_or */

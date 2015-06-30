@@ -12263,8 +12263,8 @@ core_types_t S_op_typed(pTHX_ OP* o)
             else if (memEQs(name, l, "main::str")
                   || memEQs(name, l, "main::Str"))
                 t = type_Str;
-            else if (memEQs(name, l, "main::Number"))
-                t = type_Number;
+            else if (memEQs(name, l, "main::Numeric"))
+                t = type_Numeric;
             else
                 t = type_Scalar;
         } else {
