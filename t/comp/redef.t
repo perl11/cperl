@@ -12,28 +12,29 @@ sub ok ($$) {
 }
 
 print "1..20\n";
+my ($x, $y);
 
 my $NEWPROTO = 'Prototype mismatch:';
 
-sub sub0 { 1 }
-sub sub0 { 2 }
+sub sub0 { $x }
+sub sub0 { $y }
 
 ok 1, $warn =~ s/Subroutine sub0 redefined[^\n]+\n//s;
 
-sub sub1    { 1 }
+sub sub1    { $x }
 sub sub1 () { 2 }
 
 ok 2, $warn =~ s/$NEWPROTO \Qsub main::sub1: none vs ()\E[^\n]+\n//s; #todo
 ok 3, $warn =~ s/Subroutine sub1 redefined[^\n]+\n//s;
 
-sub sub2     { 1 }
-sub sub2 ($) { 2 }
+sub sub2     { $x }
+sub sub2 ($) { $y }
 
 ok 4, $warn =~ s/$NEWPROTO \Qsub main::sub2: none vs ($)\E[^\n]+\n//s;
 ok 5, $warn =~ s/Subroutine sub2 redefined[^\n]+\n//s;
 
 sub sub3 () { 1 }
-sub sub3    { 2 }
+sub sub3    { $x }
 
 ok 6, $warn =~ s/$NEWPROTO \Qsub main::sub3 () vs none\E[^\n]+\n//s;
 ok 7, $warn =~ s/Constant subroutine sub3 redefined[^\n]+\n//s;
@@ -44,30 +45,30 @@ sub sub4 () { 2 }
 ok 8, $warn =~ s/Constant subroutine sub4 redefined[^\n]+\n//s;
 
 sub sub5 ()  { 1 }
-sub sub5 ($) { 2 }
+sub sub5 ($) { $y }
 
 ok  9, $warn =~ s/$NEWPROTO \Qsub main::sub5 () vs ($)\E[^\n]+\n//s;
 ok 10, $warn =~ s/Constant subroutine sub5 redefined[^\n]+\n//s;
 
-sub sub6 ($) { 1 }
-sub sub6     { 2 }
+sub sub6 ($) { $x }
+sub sub6     { $y }
 
 ok 11, $warn =~ s/$NEWPROTO \Qsub main::sub6 ($) vs none\E[^\n]+\n//s;
 ok 12, $warn =~ s/Subroutine sub6 redefined[^\n]+\n//s;
 
-sub sub7 ($) { 1 }
+sub sub7 ($) { $x }
 sub sub7 ()  { 2 }
 
 ok 13, $warn =~ s/$NEWPROTO \Qsub main::sub7 ($) vs ()\E[^\n]+\n//s; #todo
 ok 14, $warn =~ s/Subroutine sub7 redefined[^\n]+\n//s;
 
-sub sub8 ($) { 1 }
-sub sub8 ($) { 2 }
+sub sub8 ($) { $x }
+sub sub8 ($) { $y }
 
 ok 15, $warn =~ s/Subroutine sub8 redefined[^\n]+\n//s;
 
-sub sub9 ($@) { 1 }
-sub sub9 ($)  { 2 }
+sub sub9 ($@) { $x }
+sub sub9 ($)  { $y }
 
 ok 16, $warn =~ s/$NEWPROTO sub main::sub9 \(\$\Q@) vs ($)\E[^\n]+\n//s;
 ok 17, $warn =~ s/Subroutine sub9 redefined[^\n]+\n//s;
