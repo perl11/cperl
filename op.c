@@ -12262,7 +12262,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 	start = LINKLIST(block);
 	OpNEXT(block) = NULL;
         /* XXX attrs might be :const */
-        if (ps && !*ps && !attrs && !CvLVALUE(compcv))
+        if (!attrs && !CvLVALUE(compcv)) /* ps && !*ps && */
             const_sv = op_const_sv(start, compcv, FALSE);
     }
 
@@ -12271,9 +12271,9 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 
         /* if the subroutine doesn't exist and wasn't pre-declared
          * with a prototype, assume it will be AUTOLOADed,
-         * skipping the prototype check
+         * skipping the prototype check. Do it only with not constant-folded body.
          */
-        if (exists || SvPOK(cv))
+        if ((exists || SvPOK(cv)) && !const_sv)
             cv_ckproto_len_flags(cv, (GV *)PadnameSV(name), ps, ps_len,
                                  ps_utf8);
 	/* already defined? */
@@ -12877,9 +12877,9 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 
         /* if the subroutine doesn't exist and wasn't pre-declared
          * with a prototype, assume it will be AUTOLOADed,
-         * skipping the prototype check
+         * skipping the prototype check. Do it only with not constant-folded body.
          */
-        if (exists || SvPOK(cv))
+        if ((exists || SvPOK(cv)) && !const_sv)
             cv_ckproto_len_flags(cv, gv, ps, ps_len, ps_utf8);
 	/* already defined (or promised)? */
 	if (exists || (isGV(gv) && GvASSUMECV(gv))) {
