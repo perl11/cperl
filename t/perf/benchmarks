@@ -53,9 +53,30 @@
 
 
 [
-    'call::sub::3_args' => {
+    'call::sub::empty' => {
+        desc    => 'function call with no args or body',
+        setup   => 'sub f { }',
+        code    => 'f()',
+    },
+    'call::sub::args3' => {
         desc    => 'function call with 3 local lexical vars',
-        setup   => 'sub f { my ($a, $b, $c) = @_ }',
+        setup   => 'sub f { my ($a, $b, $c) = @_; 1 }',
+        code    => 'f(1,2,3)',
+    },
+    'call::sub::args3_ret3' => {
+        desc    => 'function call with 3 local lex vars and 3 return values',
+        setup   => 'my @a; sub f { my ($a, $b, $c) = @_; $a+$b, $c, 1 }',
+        code    => '@a = f(1,2,3)',
+    },
+
+    'call::goto::empty' => {
+        desc    => 'goto &funtion with no args or body',
+        setup   => 'sub f { goto &g } sub g {}',
+        code    => 'f()',
+    },
+    'call::goto::args3' => {
+        desc    => 'goto &funtion with 3 local lexical vars',
+        setup   => 'sub f { goto &g } sub g { my ($a, $b, $c) = @_ }',
         code    => 'f(1,2,3)',
     },
 
@@ -354,49 +375,6 @@
         code    => 'index $x, "b"',
     },
 
-    'expr::add::fast_arith_o' => {
-        desc    => 'fast overflow to double with add',
-        setup   => 'my $a = 1<<$Config{ivsize}*8 - 1; my $b = 1',
-        code    => '$a + $b',
-    },
-    'expr::multiply::fast_arith_o' => {
-        desc    => 'fast overflow to double with multiply',
-        setup   => 'my $a = 1<<$Config{ivsize}*8 - 1; my $b = 2',
-        code    => '$a * $b',
-    },
-    'expr::add::fast_arith' => {
-        desc    => 'fast arithmetic with add',
-        setup   => 'my $a = 0xFF; my $b = 1',
-        code    => '$a + $b',
-    },
-    'expr::multiply::fast_arith' => {
-        desc    => 'fast arithmetic with multiply',
-        setup   => 'my $a = 0xFF; my $b = 2',
-        code    => '$a * $b',
-    },
-
-    'expr::arith::preinc' => {
-        desc    => '++$x',
-        setup   => 'my $x = 1;',
-        code    => '++$x',
-    },
-    'expr::arith::predec' => {
-        desc    => '--$x',
-        setup   => 'my $x = 1;',
-        code    => '--$x',
-    },
-    'expr::arith::postinc' => {
-        desc    => '$x++',
-        setup   => 'my $x = 1; my $y',
-        code    => '$y = $x++', # scalar context so not optimised to ++$x
-    },
-    'expr::arith::postdec' => {
-        desc    => '$x--',
-        setup   => 'my $x = 1; my $y',
-        code    => '$y = $x--', # scalar context so not optimised to --$x
-
-    },
- 
 
     # list assign, OP_AASSIGN
 
@@ -782,6 +760,27 @@
     },
 
 
+    'expr::add::fast_arith_o' => {
+        desc    => 'fast overflow to double with add',
+        setup   => 'my $a = 1<<$Config{ivsize}*8 - 1; my $b = 1',
+        code    => '$a + $b',
+    },
+    'expr::multiply::fast_arith_o' => {
+        desc    => 'fast overflow to double with multiply',
+        setup   => 'my $a = 1<<$Config{ivsize}*8 - 1; my $b = 2',
+        code    => '$a * $b',
+    },
+    'expr::add::fast_arith' => {
+        desc    => 'fast arithmetic with add',
+        setup   => 'my $a = 0xFF; my $b = 1',
+        code    => '$a + $b',
+    },
+    'expr::multiply::fast_arith' => {
+        desc    => 'fast arithmetic with multiply',
+        setup   => 'my $a = 0xFF; my $b = 2',
+        code    => '$a * $b',
+    },
+ 
     'expr::arith::add_lex_ii' => {
         desc    => 'add two integers and assign to a lexical var',
         setup   => 'my ($x,$y,$z) = 1..3;',
@@ -895,7 +894,6 @@
         setup   => 'my $x = 1; my $y',
         code    => '$y = $x--', # scalar context so not optimised to --$x
     },
-
 
     'loop::for_my_range' => {
         desc    => 'empty for loop with my var and integer range',
