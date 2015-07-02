@@ -1472,7 +1472,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
     switch (type) {
     case SVt_PVCV:
     case SVt_PVFM:
-	append_flags(d, CvFLAGS(sv), cv_flags_names);
+	/*append_flags(d, CvFLAGS(sv), cv_flags_names);*/
 	break;
     case SVt_PVHV:
 	append_flags(d, flags, hv_flags_names);
@@ -1532,8 +1532,16 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 #endif
     Perl_dump_indent(aTHX_ level, file, "SV = ");
 
-    /* Dump SV type */
+#define SV_SET_STRINGIFY_FLAGS(d,flags,names) STMT_START { \
+            sv_setpv(d,"");                                 \
+            append_flags(d, flags, names);     \
+            if (SvCUR(d) > 0 && *(SvEND(d) - 1) == ',') {       \
+                SvCUR_set(d, SvCUR(d) - 1);                 \
+                SvPVX(d)[SvCUR(d)] = '\0';                  \
+            }                                               \
+} STMT_END
 
+    /* Dump SV type */
     if (type < SVt_LAST) {
 	PerlIO_printf(file, "%s%s\n", svtypenames[type], s);
 
@@ -1790,11 +1798,11 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	{
 	    const char * const hvname = HvNAME_get(sv);
 	    if (hvname) {
-          SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
-     Perl_dump_indent(aTHX_ level, file, "  NAME = \"%s\"\n",
+                SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
+                Perl_dump_indent(aTHX_ level, file, "  NAME = \"%s\"\n",
                                        generic_pv_escape( tmpsv, hvname,
                                            HvNAMELEN(sv), HvNAMEUTF8(sv)));
-        }
+            }
 	}
 	if (SvOOK(sv)) {
 	    AV * const backrefs
@@ -1817,7 +1825,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 			+ (count < 0 ? -count : count);
 		    while (hekp < endp) {
 			if (HEK_LEN(*hekp)) {
-             SV *tmp = newSVpvs_flags("", SVs_TEMP);
+                            SV *tmp = newSVpvs_flags("", SVs_TEMP);
 			    Perl_sv_catpvf(aTHX_ names, ", \"%s\"",
                               generic_pv_escape(tmp, HEK_KEY(*hekp), HEK_LEN(*hekp), HEK_UTF8(*hekp)));
 			} else {
@@ -1922,14 +1930,14 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
     case SVt_PVCV:
 	if (CvAUTOLOAD(sv)) {
 	    SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
-       STRLEN len;
+            STRLEN len;
 	    const char *const name =  SvPV_const(sv, len);
 	    Perl_dump_indent(aTHX_ level, file, "  AUTOLOAD = \"%s\"\n",
 			     generic_pv_escape(tmpsv, name, len, SvUTF8(sv)));
 	}
 	if (SvPOK(sv)) {
-       SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
-       const char *const proto = CvPROTO(sv);
+            SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
+            const char *const proto = CvPROTO(sv);
 	    Perl_dump_indent(aTHX_ level, file, "  PROTOTYPE = \"%s\"\n",
 			     generic_pv_escape(tmpsv, proto, CvPROTOLEN(sv),
                                 SvUTF8(sv)));
@@ -1971,7 +1979,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	else do_gvgv_dump(level, file, "  GVGV::GV", CvGV(sv));
 	Perl_dump_indent(aTHX_ level, file, "  FILE = \"%s\"\n", CvFILE(sv));
 	Perl_dump_indent(aTHX_ level, file, "  DEPTH = %"IVdf"\n", (IV)CvDEPTH(sv));
-	Perl_dump_indent(aTHX_ level, file, "  CVFLAGS = 0x%"UVxf"\n", (UV)CvFLAGS(sv));
+        SV_SET_STRINGIFY_FLAGS(d,CvFLAGS(sv),cv_flags_names);
+	Perl_dump_indent(aTHX_ level, file, "  CVFLAGS = 0x%"UVxf" (%s)\n", (UV)CvFLAGS(sv), SvPVX(d));
 	Perl_dump_indent(aTHX_ level, file, "  OUTSIDE_SEQ = %"UVuf"\n", (UV)CvOUTSIDE_SEQ(sv));
 	if (!CvISXSUB(sv)) {
 	    Perl_dump_indent(aTHX_ level, file, "  PADLIST = 0x%"UVxf" [%"IVdf"]\n",
@@ -2028,7 +2037,9 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
        }
 	Perl_dump_indent(aTHX_ level, file, "  NAMELEN = %"IVdf"\n", (IV)GvNAMELEN(sv));
 	do_hv_dump (level, file, "  GvSTASH", GvSTASH(sv));
-	Perl_dump_indent(aTHX_ level, file, "  FLAGS = 0x%"UVxf"\n", (UV)GvFLAGS(sv));
+        SV_SET_STRINGIFY_FLAGS(d,GvFLAGS(sv),gp_flags_names);
+	Perl_dump_indent(aTHX_ level, file, "  GvFLAGS = 0x%"UVxf" (%s)\n",
+                         (UV)GvFLAGS(sv), SvPVX_const(d));
 	Perl_dump_indent(aTHX_ level, file, "  GP = 0x%"UVxf"\n", PTR2UV(GvGP(sv)));
 	if (!GvGP(sv))
 	    break;
@@ -2099,33 +2110,25 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	{
 	    struct regexp * const r = ReANY((REGEXP*)sv);
 
-#define SV_SET_STRINGIFY_REGEXP_FLAGS(d,flags,names) STMT_START { \
-            sv_setpv(d,"");                                 \
-            append_flags(d, flags, names);     \
-            if (SvCUR(d) > 0 && *(SvEND(d) - 1) == ',') {       \
-                SvCUR_set(d, SvCUR(d) - 1);                 \
-                SvPVX(d)[SvCUR(d)] = '\0';                  \
-            }                                               \
-} STMT_END
-            SV_SET_STRINGIFY_REGEXP_FLAGS(d,r->compflags,regexp_extflags_names);
+            SV_SET_STRINGIFY_FLAGS(d,r->compflags,regexp_extflags_names);
             Perl_dump_indent(aTHX_ level, file, "  COMPFLAGS = 0x%"UVxf" (%s)\n",
                                 (UV)(r->compflags), SvPVX_const(d));
 
-            SV_SET_STRINGIFY_REGEXP_FLAGS(d,r->extflags,regexp_extflags_names);
+            SV_SET_STRINGIFY_FLAGS(d,r->extflags,regexp_extflags_names);
 	    Perl_dump_indent(aTHX_ level, file, "  EXTFLAGS = 0x%"UVxf" (%s)\n",
                                 (UV)(r->extflags), SvPVX_const(d));
 
             Perl_dump_indent(aTHX_ level, file, "  ENGINE = 0x%"UVxf" (%s)\n",
                                 PTR2UV(r->engine), (r->engine == &PL_core_reg_engine) ? "STANDARD" : "PLUG-IN" );
             if (r->engine == &PL_core_reg_engine) {
-                SV_SET_STRINGIFY_REGEXP_FLAGS(d,r->intflags,regexp_core_intflags_names);
+                SV_SET_STRINGIFY_FLAGS(d,r->intflags,regexp_core_intflags_names);
                 Perl_dump_indent(aTHX_ level, file, "  INTFLAGS = 0x%"UVxf" (%s)\n",
                                 (UV)(r->intflags), SvPVX_const(d));
             } else {
                 Perl_dump_indent(aTHX_ level, file, "  INTFLAGS = 0x%"UVxf"\n",
 				(UV)(r->intflags));
             }
-#undef SV_SET_STRINGIFY_REGEXP_FLAGS
+#undef SV_SET_STRINGIFY_FLAGS
 	    Perl_dump_indent(aTHX_ level, file, "  NPARENS = %"UVuf"\n",
 				(UV)(r->nparens));
 	    Perl_dump_indent(aTHX_ level, file, "  LASTPAREN = %"UVuf"\n",

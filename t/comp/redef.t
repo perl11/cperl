@@ -23,7 +23,7 @@ ok 1, $warn =~ s/Subroutine sub0 redefined[^\n]+\n//s;
 sub sub1    { 1 }
 sub sub1 () { 2 }
 
-ok 2, $warn =~ s/$NEWPROTO \Qsub main::sub1: none vs ()\E[^\n]+\n//s;
+ok 2, $warn =~ s/$NEWPROTO \Qsub main::sub1: none vs ()\E[^\n]+\n//s; #todo
 ok 3, $warn =~ s/Subroutine sub1 redefined[^\n]+\n//s;
 
 sub sub2     { 1 }
@@ -58,7 +58,7 @@ ok 12, $warn =~ s/Subroutine sub6 redefined[^\n]+\n//s;
 sub sub7 ($) { 1 }
 sub sub7 ()  { 2 }
 
-ok 13, $warn =~ s/$NEWPROTO \Qsub main::sub7 ($) vs ()\E[^\n]+\n//s;
+ok 13, $warn =~ s/$NEWPROTO \Qsub main::sub7 ($) vs ()\E[^\n]+\n//s; #todo
 ok 14, $warn =~ s/Subroutine sub7 redefined[^\n]+\n//s;
 
 sub sub8 ($) { 1 }
@@ -78,7 +78,7 @@ BEGIN {
 }
 
 ok 18, $warn =~ s/$NEWPROTO \Qsub main::sub10 () vs none\E[^\n]+\n//s;
-ok 19, $warn =~ s/Constant subroutine sub10 redefined[^\n]+\n//s;
+ok 19, $warn =~ s/Constant subroutine sub10 redefined[^\n]+\n//s; # todo
 
 ok 20, $warn eq '';
 
