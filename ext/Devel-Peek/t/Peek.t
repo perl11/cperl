@@ -157,7 +157,7 @@ do_test('immediate constant (integer)',
         456,
 'SV = IV\\($ADDR\\) at $ADDR
   REFCNT = 1
-  FLAGS = \\(.*IOK,READONLY,pIOK\\)			# $] < 5.021005
+  FLAGS = \\(.*IOK,READONLY,pIOK\\)		# $] < 5.021005
   FLAGS = \\(.*IOK,READONLY,PROTECT,pIOK\\)	# $] >=5.021005
   IV = 456');
 
@@ -165,8 +165,7 @@ do_test('assignment of immediate constant (integer)',
         $c = 456,
 'SV = IV\\($ADDR\\) at $ADDR
   REFCNT = 1
-  FLAGS = \\($PADMY,IOK,pIOK\\)		# $] < 5.021011
-  FLAGS = \\($PADMY,IOK,pIOK\\)	# $] >= 5.021011
+  FLAGS = \\($PADMY,IOK,pIOK\\)
   IV = 456');
 
 # If perl is built with PERL_PRESERVE_IVUV then maths is done as integers
@@ -300,8 +299,8 @@ do_test('reference to anon sub with empty prototype',
   RV = $ADDR
   SV = PVCV\\($ADDR\\) at $ADDR
     REFCNT = 2
-    FLAGS = \\($PADMY,POK,pPOK,ANON,WEAKOUTSIDE,CVGV_RC\\) # $] < 5.015 || !thr
-    FLAGS = \\($PADMY,POK,pPOK,ANON,WEAKOUTSIDE,CVGV_RC,DYNFILE\\) # $] >= 5.015 && thr
+    FLAGS = \\($PADMY,POK,pPOK,ANON,WEAKOUTSIDE,CVGV_RC(?:,DYNFILE)?\\) # $] <= 5.022
+    FLAGS = \\(POK,pPOK\\) 		# $] > 5.022
     PROTOTYPE = ""
     COMP_STASH = $ADDR\\t"main"
     START = $ADDR ===> \\d+
@@ -311,12 +310,12 @@ do_test('reference to anon sub with empty prototype',
     DEPTH = 0(?:
     MUTEXP = $ADDR
     OWNER = $ADDR)?
-    FLAGS = 0x490				# $] < 5.015 || (!thr && $]<5.021011)
-    FLAGS = 0x1490				# $] >= 5.015 && thr && $]<5.021011
-    CVFLAGS = 0x1?490				# $] >= 5.021011
+    FLAGS = 0x490				# $] < 5.015 || (!thr && $] <= 5.022)
+    FLAGS = 0x1490				# $] >= 5.015 && thr && $] <= 5.022
+    CVFLAGS = 0x1?490 \\(ANON,WEAKOUTSIDE,CVGV_RC\\)	# $] > 5.022
     OUTSIDE_SEQ = \\d+
-    PADLIST = $ADDR				# $] < 5.021_011
-    PADLIST = $ADDR \\[\\d+\\]			# $] >= 5.021_011
+    PADLIST = $ADDR				# $] <= 5.022
+    PADLIST = $ADDR \\[\\d+\\]			# $] > 5.022
     PADNAME = $ADDR\\($ADDR\\) PAD = $ADDR\\($ADDR\\)
     OUTSIDE = $ADDR \\(MAIN\\)');
 
@@ -341,7 +340,7 @@ do_test('reference to named subroutine without prototype',
     OWNER = $ADDR)?
     FLAGS = 0x(?:[c4]00)?0		# $] < 5.015 || (!thr && $] < 5.021_011)
     FLAGS = 0x[cd145]000		# $] >= 5.015 && thr && $] < 5.021_011
-    CVFLAGS = $ADDR			# $] >= 5.021_011
+    CVFLAGS = $ADDR \\(HASEVAL,NAMED\\)	# $] >= 5.021_011
     OUTSIDE_SEQ = \\d+
     PADLIST = $ADDR				# $] < 5.021_011
     PADLIST = $ADDR \\[\\d+\\]			# $] >= 5.021_011
@@ -475,7 +474,7 @@ do_test('typeglob',
   NAME = "a"
   NAMELEN = 1
   GvSTASH = $ADDR\\t"main"
-  FLAGS = $ADDR					# $] >=5.021004
+  GvFLAGS = $ADDR \\(MULTI\\)		# $] >=5.021004
   GP = $ADDR
     SV = $ADDR
     REFCNT = 1
@@ -485,7 +484,7 @@ do_test('typeglob',
     HV = 0x0
     CV = 0x0
     CVGEN = 0x0
-    GPFLAGS = 0x0 \(\)				# $] >= 5.021004
+    GPFLAGS = 0x0 \\(\\)			# $] >= 5.021004
     LINE = \\d+
     FILE = ".*\\b(?i:peek\\.t)"
     FLAGS = $ADDR				# $] < 5.021004
@@ -671,7 +670,8 @@ do_test('constant subroutine',
   SV = PVCV\\($ADDR\\) at $ADDR
     REFCNT = (2)
     FLAGS = \\(POK,pPOK,CONST,ISXSUB\\)		# $] < 5.015
-    FLAGS = \\(POK,pPOK,CONST,DYNFILE,ISXSUB\\)	# $] >= 5.015
+    FLAGS = \\(POK,pPOK,CONST,DYNFILE,ISXSUB\\)	# $] >= 5.015 && $] <= 5.022
+    FLAGS = \\(POK,pPOK\\)			# $] > 5.022
     PROTOTYPE = ""
     COMP_STASH = 0x0				# $] < 5.021004
     COMP_STASH = $ADDR	"main"			# $] >=5.021004
@@ -692,8 +692,8 @@ do_test('constant subroutine',
     OWNER = $ADDR)?
     FLAGS = 0xc00				# $] < 5.013
     FLAGS = 0xc					# $] >= 5.013 && $] < 5.015
-    FLAGS = 0x100c				# $] >= 5.015 && $] < 5.021011
-    CVFLAGS = 0x100c				# $] >= 5.021011
+    FLAGS = 0x100c				# $] >= 5.015 && $] <= 5.022
+    CVFLAGS = 0x100c \\(CONST,DYNFILE,ISXSUB\\)	# $] > 5.022
     OUTSIDE_SEQ = 0
     PADLIST = 0x0				# $] < 5.021006
     HSCXT = $ADDR				# $] >= 5.021006
@@ -731,7 +731,8 @@ do_test('IO',
     FMT_GV = 0x0
     BOTTOM_GV = 0x0
     TYPE = \'>\'
-    FLAGS = 0x4');
+    FLAGS = 0x4		# $] <= 5.022
+    IoFLAGS = 0x4	# $] > 5.022');
 
 do_test('FORMAT',
 	*PIE{FORMAT},
@@ -752,13 +753,13 @@ do_test('FORMAT',
     DEPTH = 0)?(?:
     MUTEXP = $ADDR
     OWNER = $ADDR)?
-    FLAGS = 0x0					# $] < 5.015 || (!thr && $] < 5.021011)
-    FLAGS = 0x1000				# $] >= 5.015 && thr && $] < 5.021011
-    CVFLAGS = 0x(100)?0				# $] >= 5.021011
+    FLAGS = 0x0					# $] < 5.015 || (!thr && $] <= 5.022)
+    FLAGS = 0x1000				# $] >= 5.015 && thr && $] <= 5.022
+    CVFLAGS = 0x(100)?0 \\(\\)			# $] > 5.022
     OUTSIDE_SEQ = \\d+
     LINES = 0					# $] < 5.017_003
-    PADLIST = $ADDR				# $] < 5.021_011
-    PADLIST = $ADDR \\[\\d+\\]			# $] >= 5.021_011
+    PADLIST = $ADDR				# $] <= 5.022
+    PADLIST = $ADDR \\[\\d+\\]			# $] > 5.022
     PADNAME = $ADDR\\($ADDR\\) PAD = $ADDR\\($ADDR\\)
     OUTSIDE = $ADDR \\(MAIN\\)');
 
@@ -1546,7 +1547,7 @@ EODUMP
                  switches => ['-Ilib'],
                  prog => 'package t; use Devel::Peek q-DumpProg-; DumpProg();',
                  stderr=>1;
-    $out =~ s/FLAGS = 0x[[:xdigit:]]+ \(/FLAGS = \(/g if $] >= 5.021011;
+    $out =~ s/FLAGS = 0x[[:xdigit:]]+ \(/FLAGS = \(/g if $] > 5.022;
     $out =~ s/ *SEQ = .*\n//;
     is $out, $e, "DumpProg() has no 'Attempt to free X prematurely' warning";
 }

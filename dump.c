@@ -2103,7 +2103,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
             Perl_dump_indent(aTHX_ level, file, "  TYPE = '%c'\n", IoTYPE(sv));
 	else
             Perl_dump_indent(aTHX_ level, file, "  TYPE = '\\%o'\n", IoTYPE(sv));
-	Perl_dump_indent(aTHX_ level, file, "  FLAGS = 0x%"UVxf"\n", (UV)IoFLAGS(sv));
+	Perl_dump_indent(aTHX_ level, file, "  IoFLAGS = 0x%"UVxf"\n", (UV)IoFLAGS(sv));
 	break;
     case SVt_REGEXP:
       dumpregexp:
