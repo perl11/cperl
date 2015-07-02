@@ -8,8 +8,10 @@
 #
 # Regenerate the files
 #
-#    lib/Config.pm
+#    lib/Config.pm      (for miniperl only)
+#    lib/Config_mini.pl (the fallback)
 #    lib/Config_heavy.pl
+#    lib/Config_xs_heavy.pl
 #    lib/Config.pod
 #
 #
@@ -121,19 +123,12 @@ if ($Opts{chdir}) {
     chdir $Opts{chdir} or die "$0: could not chdir $Opts{chdir}: $!"
 }
 
-my ($Config_SH, $Config_PM, $Config_heavy, $Config_POD);
-my $Glossary = 'Porting/Glossary';
+my ($Glossary, $Config_SH, $Config_PM, $Config_POD,
+    $Config_heavy, $Config_xs_heavy, $Config_mini) =
+  ('Porting/Glossary', "config.sh", "lib/Config.pm", "lib/Config.pod",
+   "lib/Config_heavy.pl", "lib/Config_xs_heavy.pl", "lib/Config_mini.pl");
 
-$Config_PM = "lib/Config.pm";
-$Config_POD = "lib/Config.pod";
-$Config_SH = "config.sh";
-
-($Config_heavy = $Config_PM) =~ s/\.pm$/_heavy.pl/;
-die "Can't automatically determine name for Config_heavy.pl from '$Config_PM'"
-  if $Config_heavy eq $Config_PM;
-
-my $config_txt;
-my $heavy_txt;
+my ($config_txt, $heavy_txt);
 
 my $export_funcs = <<'EOT';
 my %Export_Cache = (myconfig => 1, config_sh => 1, config_vars => 1,
@@ -237,6 +232,7 @@ my %seen_quotes;
 	}
         # and remove wrong duplicate lowercase versions
         next if $k =~ /^perl_(version|subversion|revision)$/;
+        next if $k =~ /^(LANG|LC_ALL)$/;
     }
 
     # We can delimit things in config.sh with either ' or ". 
@@ -559,6 +555,35 @@ sub myconfig {
     $summary_expanded;
 }
 
+EOT
+my $heavy_xs_txt = $heavy_txt;
+
+$heavy_xs_txt .= <<'EOT';
+sub config_sh {
+    my $s = ' ' x 32000; # prealloc 32.000 byte, I got 33568
+    $s = '';
+    for my $k (Config::KEYS()) {
+        my $v = Config->FETCH($k);
+        $s .= defined $v ? "$k='$v'\n" : "$k=''\n";
+    }
+    $s
+}
+
+sub config_re {
+    my $re = shift or return ();
+    my @s;
+    for my $k (Config::KEYS()) {
+        if (eval { $k =~ /^(?:$re)/ }) {
+            my $v = Config->FETCH($k);
+            push @s, defined $v ? "$k='$v'" : "$k=''";
+        }
+    }
+    sort @s
+}
+
+EOT
+
+$heavy_txt .= <<'EOT';
 local *_ = \my $a;
 $_ = <<'!END!';
 EOT
@@ -728,7 +753,9 @@ sub config_re {
     return map { chomp; $_ } grep eval{ /^(?:$re)=/ }, split /^/,
     $Config_SH_expanded;
 }
+ENDOFEND
 
+my $config_vars_txt = <<'ENDOFEND';
 sub config_vars {
     # implements -V:cfgvar option (see perlrun -V:)
     foreach (@_) {
@@ -761,6 +788,9 @@ sub launcher {
 1;
 ENDOFEND
 
+$heavy_txt .= $config_vars_txt;
+$heavy_xs_txt .= $config_vars_txt;
+
 if ($^O eq 'os2') {
     $config_txt .= <<'ENDOFSET';
 my %preconfig;
@@ -772,7 +802,10 @@ if ($OS2::is_aout) {
     }
 }
 $preconfig{d_fork} = undef unless $OS2::can_fork; # Some funny cases can't
-sub TIEHASH { bless {%preconfig} }
+sub TIEHASH {
+    $_[1] = {} unless $_[1];
+    bless {%preconfig}
+}
 ENDOFSET
     # Extract the name of the DLL from the makefile to avoid duplication
     my ($f) = grep -r, qw(GNUMakefile Makefile);
@@ -788,6 +821,7 @@ ENDOFSET
 } else {
     $config_txt .= <<'ENDOFSET';
 sub TIEHASH {
+    $_[1] = {} unless $_[1];
     bless $_[1], $_[0];
 }
 ENDOFSET
@@ -825,9 +859,15 @@ $config_txt .= sprintf <<'ENDOFTIE', $fast_config;
 sub DESTROY { }
 
 sub AUTOLOAD {
-    require 'Config_heavy.pl';
-    goto \&launcher unless $Config::AUTOLOAD =~ /launcher$/;
-    die "&Config::AUTOLOAD failed on $Config::AUTOLOAD";
+    if (defined &XSLoader::load) {
+        no warnings 'redefine';
+        XSLoader::load('Config', $VERSION);
+        return Config->FETCH($_[0]);
+    } else {
+        require 'Config_heavy.pl';
+        goto \&launcher unless $Config::AUTOLOAD =~ /launcher$/;
+        die "&Config::AUTOLOAD failed on $Config::AUTOLOAD";
+    }
 }
 
 # tie returns the object, so the value returned to require will be true.
@@ -989,7 +1029,7 @@ in such cases.
 ENDOFTAIL
 
 if ($Opts{glossary}) {
-  open(GLOS, "<$Glossary") or die "Can't open $Glossary: $!";
+  open(GLOS, "<", $Glossary) or die "Can't open $Glossary: $!";
 }
 my %seen = ();
 my $text = 0;
@@ -1101,13 +1141,13 @@ close(CONFIG_POD);
 print "written $Config_POD\n"
   unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
 
-my $orig_config_txt = "";
-my $orig_heavy_txt = "";
+my ($orig_config_txt, $orig_heavy_txt, $orig_heavy_xs_txt) = ("", "", "");
 {
     local $/;
     my $fh;
     $orig_config_txt = <$fh> if open $fh, "<", $Config_PM;
     $orig_heavy_txt  = <$fh> if open $fh, "<", $Config_heavy;
+    $orig_heavy_xs_txt  = <$fh> if open $fh, "<", $Config_xs_heavy;
 }
 
 if ($orig_config_txt ne $config_txt or $orig_heavy_txt ne $heavy_txt) {
@@ -1115,11 +1155,20 @@ if ($orig_config_txt ne $config_txt or $orig_heavy_txt ne $heavy_txt) {
     open CONFIG_HEAVY, ">", $Config_heavy or die "Can't open $Config_heavy: $!\n";
     print CONFIG $config_txt;
     print CONFIG_HEAVY $heavy_txt;
-    close(CONFIG_HEAVY);
-    close(CONFIG);
+    close CONFIG_HEAVY;
+    close CONFIG;
     unless (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) {
         print "updated $Config_PM\n";
         print "updated $Config_heavy\n";
+        print "updated $Config_mini\n";
+    }
+}
+if ($orig_heavy_xs_txt ne $heavy_xs_txt) {
+    open CONFIG_HEAVY, ">", $Config_xs_heavy or die "Can't open $Config_xs_heavy: $!\n";
+    print CONFIG_HEAVY $heavy_xs_txt;
+    close CONFIG_HEAVY ;
+    unless (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) {
+        print "updated $Config_xs_heavy\n";
     }
 }
 
@@ -1128,6 +1177,8 @@ unshift(@INC,'lib');
 require $Config_PM;
 require $Config_heavy;
 import Config;
+
+system ($Config{'cp'}, $Config_PM, $Config_mini);
 
 die "$0: $Config_PM not valid"
 	unless $Config{'PERL_CONFIG_SH'} eq 'true';
