@@ -333,6 +333,11 @@ RUN_PERL = \$(LDLIBPTH) \$(RUN) ./perl\$(EXE_EXT) -Ilib
 	;;
 esac
 
+case $static_ext in
+    *Config*) ;;
+    *) boot_ext="$boot_ext lib/auto/Config/Config\$(DLSUFFIX)" ;;
+esac
+
 $spitshell >>$Makefile <<!GROK!THIS!
 # Macros to run our tests
 RUN_TESTS = \$(LDLIBPTH) ./runtests
@@ -341,7 +346,8 @@ dynamic_ext = $dynamic_list
 dynamic_ext_re = $dynamic_ext_re
 static_ext = $static_list
 nonxs_ext = $nonxs_list
-ext = \$(dynamic_ext) \$(static_ext) \$(nonxs_ext)
+boot_ext = $boot_ext
+ext = \$(boot_ext) \$(dynamic_ext) \$(static_ext) \$(nonxs_ext)
 DYNALOADER = DynaLoader\$(OBJ_EXT)
 DL_SRC = ext/DynaLoader/DynaLoader.xs ext/DynaLoader/dlboot.c ext/DynaLoader/dlutils.c
 
@@ -1161,22 +1167,25 @@ CHMOD_W = chmod +w
 #	regcomp.pl:	regnodes.h
 #	warnings.pl:	warnings.h lib/warnings.pm
 #	feature.pl:	feature.h lib/feature.pm
+#       ext/Config/Config_xs.PL: ext/Config/Config_xs.out ext/Config/Config.xs
 # The correct versions should be already supplied with the perl kit,
 # in case you don't have perl available.
 # To force them to be regenerated, run
-#       perl regen.pl
+#       make regen
 # with your existing copy of perl
 # (make regen_headers is kept for backwards compatibility)
 
 AUTOGEN_FILES = opcode.h opnames.h pp_proto.h proto.h embed.h embedvar.h \
 		perlapi.h perlapi.c regnodes.h warnings.h lib/warnings.pm \
-		lib/feature.pm feature.h
+		lib/feature.pm feature.h \
+		ext/Config/Config_xs.out ext/Config/Config.xs
 
-.PHONY: regen_headers regen_all
+.PHONY: regen regen_headers regen_all
 
 regen:	FORCE
 	-perl regen.pl
 	-perl regen/uconfig_h.pl
+	-perl ext/Config/Config_xs.PL --force
 
 regen_headers regen-headers:	FORCE
 	-perl regen.pl -v
@@ -1215,15 +1224,60 @@ manicheck:	FORCE
 $(DYNALOADER) $(DL_SRC): $(MINIPERL_EXE) lib/buildcustomize.pl preplibrary FORCE $(nonxs_ext)
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=static $(STATIC_LDFLAGS)
 
+$(boot_ext): $(DYNALOADER)
+
+.PHONY: mini_boot mini_post Config_boot Config_post
+
+mini_boot : Config_boot
+mini_post : Config_post
+
+Config_boot : lib/Config_heavy.pl
+	$(CPS) lib/Config_mini.pl lib/Config.pm
+
+Config_post:
+	$(RMS) lib/Config.pm
+	$(CPS) ext/Config/Config.pm lib/Config.pm
+
 d_dummy $(dynamic_ext):	$(MINIPERL_EXE) lib/buildcustomize.pl preplibrary makeppport $(DYNALOADER) FORCE $(PERLEXPORT) $(LIBPERL)
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=dynamic
 
-s_dummy $(static_ext):	$(MINIPERL_EXE) lib/buildcustomize.pl preplibrary makeppport $(DYNALOADER) FORCE
+s_dummy $(static_ext):  $(MINIPERL_EXE) lib/buildcustomize.pl preplibrary makeppport $(DYNALOADER) FORCE
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=static $(STATIC_LDFLAGS)
 
 n_dummy $(nonxs_ext):	$(MINIPERL_EXE) lib/buildcustomize.pl preplibrary FORCE
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL)
 !NO!SUBS!
+
+# in case static_ext contain Config, skip their special Makefile rules
+case $static_ext in
+    *Config*) ;;
+    *)
+        version=$(printf %03d $PERL_VERSION)$(printf %03d $PERL_SUBVERSION)
+        $spitshell >>$Makefile <<EOF
+
+CONFIG_VERSION = 5.$version
+EOF
+        $spitshell >>$Makefile <<'EOF'
+
+ext/Config/Config.xs : ext/Config/Config_xs.PL ext/Config/Config_xs.in \
+			   $(MINIPERL_EXE) Config_boot lib/buildcustomize.pl
+	$(MINIPERL) ext/Config/Config_xs.PL
+ext/Config/Config.c : ext/Config/Config.xs preplibrary dist/ExtUtils-ParseXS/pm_to_blib
+	cd ext/Config && $(LDLIBPTH) ../../$(MINIPERL_EXE) -I../../lib ../../lib/ExtUtils/xsubpp -noprototypes \
+		-typemap ../../lib/ExtUtils/typemap Config.xs > Config.c
+ext/Config/Config.i : ext/Config/Config.c $(h)
+	@echo `$(CCCMDSRC)` -I. -E ext/Config/Config.c \> $@
+	@`$(CCCMDSRC)` -I. -E ext/Config/Config.c > $@
+ext/Config/Config$(OBJ_EXT) : ext/Config/Config.c $(h)
+	`$(CCCMD)` $(LDDLFLAGS) $(CCCDLFLAGS) -I. ext/Config/Config.c -o $@ -DXS_VERSION=\"$(CONFIG_VERSION)\"
+lib/auto/Config/Config$(DLSUFFIX) : ext/Config/Config$(OBJ_EXT)
+	mkdir -p lib/auto/Config
+	$(LD) -o $@ $(LDDLFLAGS) ext/Config/Config$(OBJ_EXT)
+	$(MAKE) Config_post
+
+EOF
+        ;;
+esac
 
 $spitshell >>$Makefile <<EOF
 $extra_dep
@@ -1408,7 +1462,7 @@ test_prep_pre: preplibrary utilities $(nonxs_ext)
 case "$targethost" in
 '') $spitshell >>$Makefile <<'!NO!SUBS!'
 test_prep test-prep: test_prep_pre $(MINIPERL_EXE) $(unidatafiles) $(PERL_EXE) \
-	$(dynamic_ext) $(TEST_PERL_DLL) runtests $(generated_pods)
+	$(dynamic_ext) mini_post $(TEST_PERL_DLL) runtests $(generated_pods)
 	cd t && (rm -f $(PERL_EXE); $(LNS) ../$(PERL_EXE) $(PERL_EXE))
 
 !NO!SUBS!

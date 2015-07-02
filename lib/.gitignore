@@ -24,6 +24,7 @@
 /Carp.pm
 /Carp/
 /Compress/
+/Config.pm
 /Config/Perl/
 /Cwd.pm
 /DB_File.pm

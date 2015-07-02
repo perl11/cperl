@@ -2268,8 +2268,9 @@ Evaluates I<sv> more than once.  Sets I<len> to 0 if C<SvOOK(sv)> is false.
 #define SV_CONST_CLEAR 32
 #define SV_CONST_UNTIE 33
 #define SV_CONST_DESTROY 34
+#define SV_CONST_define 35
 
-#define SV_CONSTS_COUNT 35
+#define SV_CONSTS_COUNT 36
 
 /*
  * ex: set ts=8 sts=4 sw=4 et:
