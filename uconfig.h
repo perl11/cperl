@@ -1930,7 +1930,7 @@
 /* LONG_DOUBLESIZE:
  *	This symbol contains the size of a long double, so that the
  *	C preprocessor can make decisions based on it.  It is only
- *	defined if the system supports long doubles.   Note that this
+ *	defined if the system supports long doubles.  Note that this
  *	is sizeof(long double), which may include unused bytes.
  */
 /* HAS_LDEXPL:
@@ -4842,6 +4842,27 @@
 #define DLSRC 	"dl_none.xs"		/**/
 #define DL_SO_EQ_EXT 		/**/
 
+/* DOUBLEINFBYTES:
+ *	This symbol, if defined, is a comma-separated list of
+ *	hexadecimal bytes for the double precision infinity.
+ */
+/* DOUBLENANBYTES:
+ *	This symbol, if defined, is a comma-separated list of
+ *	hexadecimal bytes (0xHH) for the double precision not-a-number.
+ */
+/* LONGDBLINFBYTES:
+ *	This symbol, if defined, is a comma-separated list of
+ *	hexadecimal bytes for the long double precision infinity.
+ */
+/* LONGDBLNANBYTES:
+ *	This symbol, if defined, is a comma-separated list of
+ *	hexadecimal bytes (0xHH) for the long double precision not-a-number.
+ */
+#define DOUBLEINFBYTES  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x7f		/**/
+#define DOUBLENANBYTES  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf8, 0x7f		/**/
+#define LONGDBLINFBYTES 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00		/**/
+#define LONGDBLNANBYTES 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0xff, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00		/**/
+
 /* PERL_PRIfldbl:
  *	This symbol, if defined, contains the string used by stdio to
  *	format long doubles (format 'f') for output.
@@ -4885,52 +4906,29 @@
 /*#define PERL_PRIeldbl	"lle"	/ **/
 /*#define PERL_SCNfldbl	"llf"	/ **/
 
-/* DOUBLEINFBYTES:
- *	This symbol, if defined, is a comma-separated list of
- *	hexadecimal bytes for the double precision infinity.
- */
-/* DOUBLENANBYTES:
- *	This symbol, if defined, is a comma-separated list of
- *	hexadecimal bytes (0xHH) for the double precision not-a-number.
- */
-/* LONGDBLINFBYTES:
- *	This symbol, if defined, is a comma-separated list of
- *	hexadecimal bytes for the long double precision infinity.
- */
-/* LONGDBLNANBYTES:
- *	This symbol, if defined, is a comma-separated list of
- *	hexadecimal bytes (0xHH) for the long double precision not-a-number.
- */
-#define DOUBLEINFBYTES 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x7f		/**/
-#define DOUBLENANBYTES 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf8, 0x7f		/**/
-#define LONGDBLINFBYTES 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00		/**/
-#define LONGDBLNANBYTES 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0xff, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00		/**/
-
 /* DOUBLEMANTBITS:
  *	This symbol, if defined, tells how many mantissa bits
  *	there are in double precision floating point format.
- *      Note that this is usually DBL_MANT_DIG minus one, since
- *      with the standard IEEE 754 formats DBL_MANT_DIG includes
+ *	Note that this is usually DBL_MANT_DIG minus one, since
+ *	with the standard IEEE 754 formats DBL_MANT_DIG includes
  *	the implicit bit, which doesn't really exist.
  */
-#define DOUBLEMANTBITS 52
-
 /* LONGDBLMANTBITS:
  *	This symbol, if defined, tells how many mantissa bits
  *	there are in long double precision floating point format.
- *      Note that this can be LDBL_MANT_DIG minus one,
- *      since LDBL_MANT_DIG can include the IEEE 754 implicit bit.
- *      The common x86-style 80-bit long double does not have
+ *	Note that this can be LDBL_MANT_DIG minus one,
+ *	since LDBL_MANT_DIG can include the IEEE 754 implicit bit.
+ *	The common x86-style 80-bit long double does not have
  *	an implicit bit.
  */
-#define LONGDBLMANTBITS 64
-
 /* NVMANTBITS:
  *	This symbol, if defined, tells how many mantissa bits
  *	(not including implicit bit) there are in a Perl NV.
  *	This depends on which floating point type was chosen.
  */
-#define NVMANTBITS 52		/**/
+#define DOUBLEMANTBITS  52
+#define LONGDBLMANTBITS 64
+#define NVMANTBITS      52
 
 /* NEED_VA_COPY:
  *	This symbol, if defined, indicates that the system stores
@@ -5312,6 +5310,6 @@
 #endif
 
 /* Generated from:
- * ce479b2b0601957032da31f6d7b4dde4a62c5efd9f851fb35cda8e50ae18a05f config_h.SH
- * 3049efcaee3fcf6c17cbdf5e5cc4ecaf97b73dad96b4291a1fa0d30aace5ca25 uconfig.sh
+ * a70c375f5899f9c1fd4f1bee78021b4d88451c53113c0dead996e368b561da3e config_h.SH
+ * e7992a2ac7d2e90569c600f7f04de4d4fe33fb69ea36fbcd93c8d46eaaa8045a uconfig.sh
  * ex: set ro: */
