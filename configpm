@@ -235,6 +235,8 @@ my %seen_quotes;
 	elsif ($k eq 'PERL_CONFIG_SH') {
 	    push @v_others, "CONFIG='$v'\n";
 	}
+        # and remove wrong duplicate lowercase versions
+        next if $k =~ /^perl_(version|subversion|revision)$/;
     }
 
     # We can delimit things in config.sh with either ' or ". 
