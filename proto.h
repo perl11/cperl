@@ -7322,6 +7322,11 @@ STATIC bool	S_mderef_uoob_gvsv(pTHX_ OP* o, SV* idx)
 #    endif
 #  endif
 #endif
+#if !defined(USE_QUADMATH)
+#  if defined(PERL_IN_NUMERIC_C)
+STATIC NV	S_mulexp10(NV value, I32 exponent);
+#  endif
+#endif
 #if !defined(UV_IS_QUAD)
 #  if defined(PERL_IN_UTF8_C)
 STATIC int	S_is_utf8_cp_above_31_bits(const U8 * const s, const U8 * const e, const bool consider_overlongs)
@@ -10921,20 +10926,6 @@ STATIC void	S_vwarner_security(pTHX_ U32 err, const char* pat, va_list* args)
 #  endif
 #endif
 #if defined(PERL_IN_XSUTILS_C)
-PERL_CALLCONV SV*	Perl_carp_longmess(pTHX_ I32 ax, SV *errsv)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_CARP_LONGMESS	\
-	assert(errsv)
-
-PERL_CALLCONV SV *	Perl_carp_shortmess(pTHX_ I32 ax, SV *errsv)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_CARP_SHORTMESS	\
-	assert(errsv)
-
 STATIC void	S_prep_cif(pTHX_ CV* cv, const char *nativeconv, const char *encoded)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_3);
@@ -11031,6 +11022,20 @@ PERL_CALLCONV void	Perl_av_study(pTHX_ AV *av)
 	assert(av)
 
 PERL_CALLCONV void	Perl_boot_core_xsutils(pTHX);
+PERL_CALLCONV SV*	Perl_carp_longmess(pTHX_ I32 ax, SV *errsv)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CARP_LONGMESS	\
+	assert(errsv)
+
+PERL_CALLCONV SV *	Perl_carp_shortmess(pTHX_ I32 ax, SV *errsv)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CARP_SHORTMESS	\
+	assert(errsv)
+
 PERL_CALLCONV OP*	Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
@@ -11243,6 +11248,10 @@ PERL_CALLCONV void	Perl_hv_study(pTHX_ HV *hv)
 PERL_CALLCONV void	Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
 			__attribute__global__;
 
+PERL_CALLCONV int	long_error_loc(pTHX)
+			__attribute__global__
+			__attribute__warn_unused_result__;
+
 PERL_CALLCONV SV*	Perl_magic_scalarpack(pTHX_ HV *hv, MAGIC *mg)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
@@ -11370,6 +11379,10 @@ PERL_CALLCONV HEK*	Perl_share_hek(pTHX_ const char* str, I32 len, U32 hash)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SHARE_HEK	\
 	assert(str)
+
+PERL_CALLCONV int	short_error_loc(pTHX)
+			__attribute__global__
+			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_signature_stringify(pTHX_ const OP* o, CV *cv)
 			__attribute__global__

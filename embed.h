@@ -1036,6 +1036,8 @@
 #define _is_utf8_perl_idstart(a)	Perl__is_utf8_perl_idstart(aTHX_ a)
 #define av_init_shaped(a,b,c)	Perl_av_init_shaped(aTHX_ a,b,c)
 #define av_study(a)		Perl_av_study(aTHX_ a)
+#define carp_longmess(a,b)	Perl_carp_longmess(aTHX_ a,b)
+#define carp_shortmess(a,b)	Perl_carp_shortmess(aTHX_ a,b)
 #define ck_entersub_args_signature(a,b,c)	Perl_ck_entersub_args_signature(aTHX_ a,b,c)
 #define ckwarn_only(a)		Perl_ckwarn_only(aTHX_ a)
 #define class_role(a)		Perl_class_role(aTHX_ a)
@@ -1061,6 +1063,7 @@
 #define hv_ksplit(a,b)		Perl_hv_ksplit(aTHX_ a,b)
 #define hv_study(a)		Perl_hv_study(aTHX_ a)
 #define hv_undef_flags(a,b)	Perl_hv_undef_flags(aTHX_ a,b)
+#define long_error_loc()	long_error_loc(aTHX)
 #define method_field_type(a)	Perl_method_field_type(aTHX_ a)
 #define newPADNAMEpvn_flags	Perl_newPADNAMEpvn_flags
 #define newSVsv(a)		Perl_newSVsv(aTHX_ a)
@@ -1077,6 +1080,7 @@
 #define repeatcpy		Perl_repeatcpy
 #define set_version(a,b,c,d,e)	Perl_set_version(aTHX_ a,b,c,d,e)
 #define share_hek(a,b,c)	Perl_share_hek(aTHX_ a,b,c)
+#define short_error_loc()	short_error_loc(aTHX)
 #define sv_clean_objs()		Perl_sv_clean_objs(aTHX)
 #define sv_gets(a,b,c)		Perl_sv_gets(aTHX_ a,b,c)
 #define sv_uncow(a,b)		Perl_sv_uncow(aTHX_ a,b)
@@ -1409,10 +1413,6 @@
 #  endif
 #  if defined(PERL_IN_UTF8_C) || defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C)
 #define _to_fold_latin1		Perl__to_fold_latin1
-#  endif
-#  if defined(PERL_IN_XSUTILS_C)
-#define carp_longmess(a,b)	Perl_carp_longmess(aTHX_ a,b)
-#define carp_shortmess(a,b)	Perl_carp_shortmess(aTHX_ a,b)
 #  endif
 #  if defined(USE_CPERL)
 #define _get_encoding()		Perl__get_encoding(aTHX)
@@ -1772,6 +1772,11 @@
 #      if defined(USE_CPERL)
 #define mderef_uoob_gvsv(a,b)	S_mderef_uoob_gvsv(aTHX_ a,b)
 #      endif
+#    endif
+#  endif
+#  if !defined(USE_QUADMATH)
+#    if defined(PERL_IN_NUMERIC_C)
+#define mulexp10		S_mulexp10
 #    endif
 #  endif
 #  if !defined(UV_IS_QUAD)
