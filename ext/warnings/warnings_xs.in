@@ -359,13 +359,18 @@ static int _chk(const char *sub, U32 flags, I32 ax) {
     /* will always get here for &warn. will only get here for &warnif if the
        category is enabled */
 #ifdef USE_PP_CARP
-    if (is_obj)
-        eval_sv(newSVpvs("require Carp;"), G_DISCARD);
-    PUSHMARK(SP);
-    XPUSHs(message);
-    PUTBACK;
-    call_pv("Carp::carp", G_DISCARD);
-    SPAGAIN;
+    {
+        dTARG;
+        if (is_obj)
+            eval_sv(newSVpvs("require Carp;"), G_DISCARD);
+        PUSHMARK(SP);
+        XPUSHi(i);
+        XPUSHs(message);
+        PUTBACK;
+        call_pv("Carp::ret_summary", G_SCALAR);
+        SPAGAIN;
+        warn_sv(TOPs);
+    }
 #else
     warn_sv(carp_shortmess(ax, message));
 #endif

@@ -548,7 +548,7 @@ sub shortmess_heavy {
     my $i = short_error_loc();
     if ($i) {
       if ($^D & 0x00100000) { # -Dv
-        for (0 .. $i-1) {
+        for (0 .. $i+1) {
           print STDERR ret_summary( $_, "== $_: ", @_ );
         }
       }
