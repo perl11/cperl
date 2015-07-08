@@ -291,10 +291,12 @@ static int _chk(const char *sub, U32 flags, I32 ax) {
         SPAGAIN;
         if (i)
             i = (int)TOPi;
+        DEBUG_v(deb("Carp::short_error_loc: %d\n", i));
 #else
         /* TODO Still buggy, off-by-one
            i = short_error_loc(); */
         i = long_error_loc();
+        DEBUG_v(deb("long_error_loc: %d\n", i));
 #endif
     }
 
