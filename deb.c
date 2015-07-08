@@ -180,6 +180,7 @@ Perl_debstack(pTHX)
 
 
 #ifdef DEBUGGING
+/* name of si_type from cop.h, type of runlevel */
 static const char * const si_names[] = {
     "UNKNOWN",
     "UNDEF",
