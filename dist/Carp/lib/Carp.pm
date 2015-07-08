@@ -547,7 +547,12 @@ sub shortmess_heavy {
     return @_ if ref( $_[0] );    # don't break references as exceptions
     my $i = short_error_loc();
     if ($i) {
-        ret_summary( $i, @_ );
+      if ($^D & 0x00100000) { # -Dv
+        for (0 .. $i-1) {
+          print STDERR ret_summary( $_, "== $_: ", @_ );
+        }
+      }
+      ret_summary( $i, @_ );
     }
     else {
         longmess_heavy(@_);
