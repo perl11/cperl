@@ -213,8 +213,8 @@ static int _chk(const char *sub, U32 flags, I32 ax) {
         PUTBACK;
         call_pv("warnings::Croaker", G_DISCARD);
         SPAGAIN;
-        /*croak_sv(carp_shortmess(ax, msg));*/
 #else
+        /*croak_sv(carp_shortmess(ax, msg));*/
         croak("Usage: warnings::%s(%s)", sub, has_message ? "[category,] 'message'" : "[category]");
 #endif
     }
@@ -433,11 +433,10 @@ _do_bits(SV *mask, const SV * const word, int fatal, int nonfatal) {
 #ifdef USE_PP_CARP
             dSP;
 #else
-            dORIGMARK;
             I32 ax = TOPMARK - 1; /* ??? Test with Carp XS */
 #endif
             SV *msg = newSVpvs("Unknown warnings category '");
-            sv_catsv(msg, word);
+            sv_catsv(msg, (SV *const)word);
             sv_catpvs(msg, "'");
             /* But here the fallback to pp warnings::Croaker does not work */
 #ifdef USE_PP_CARP
