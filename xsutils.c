@@ -274,11 +274,13 @@ boot_Carp(pTHX_ SV *xsfile)
     /*xs_incset(aTHX_ STR_WITH_LEN("Carp.pm"), xsfile); -- nope, we still need it */
 }
 
+#if 0
 static void
 boot_Exporter(pTHX_ SV *xsfile)
 {
     xs_incset(aTHX_ STR_WITH_LEN("Exporter.pm"), xsfile);
 }
+#endif
 
 void
 Perl_boot_core_xsutils(pTHX)
@@ -918,11 +920,21 @@ static AV* push_hashstash(AV* av, const HV* hash) {
     return av;
 }
 
-/* Figures out what call (from the point of view of the caller)
-   the long error backtrace should start at.
-   Skip reporting from internal packages, like Carp, warnings, Exporter, Exporter::Heavy
-   Deprecated global $Carp::CarpLevel is not supported anymore. */
-static int long_error_loc() {
+/*
+=for apidoc long_error_loc()
+
+Figures out what call (from the point of view of the caller)
+the long error backtrace should start at.
+
+Skip reporting from internal packages, like L<Carp>, L<warnings>, L<Exporter>,
+L<Exporter::Heavy>
+
+Deprecated global C<$Carp::CarpLevel> is not supported
+anymore.
+
+=cut
+*/
+int long_error_loc() {
     int i = -1;
     int lvl = 0;
 
@@ -994,7 +1006,11 @@ L_CONT:
     return i;
 }
 
-/* TODO: shortmess logic:
+/*
+=for apidoc short_error_loc()
+
+   TODO: shortmess logic:
+
    Take an educated guess from which file/package the error originated from
    and only display one summary line.
    Skips packages which do trust each other.
@@ -1005,6 +1021,7 @@ L_CONT:
    words they presume that the first likely looking potential suspect is
    guilty.  Their rules for telling whether a call shouldn't generate
    errors work as follows:
+
    * Any call from a package to itself is safe
    * Packages claim that there won't be errors on calls to or from
      packages explicitly marked as safe by inclusion in C<@CARP_NOT>, or
@@ -1014,18 +1031,20 @@ L_CONT:
      with C<@CARP_NOT>, then this trust relationship is identical to,
      "inherits from".
    * Any call from an internal Perl module is safe.  (Nothing keeps
-   user modules from marking themselves as internal to Perl, but
-   this practice is discouraged.)
+     user modules from marking themselves as internal to Perl, but
+     this practice is discouraged.)
    * Any call to Perl's warning system (eg Carp itself) is safe.
-   (This rule is what keeps it from reporting the error at the
-   point where you call C<carp> or C<croak>.)
+     (This rule is what keeps it from reporting the error at the
+     point where you call C<carp> or C<croak>.)
 
-   Plan: We could also support a new C<:caller>/C<:-caller> attribute. C<:caller>
-   for XS functions to place themselves into the backtrace. They are by
-   default not visible in backtraces. And the negative no-caller as better C<@CARP_NOT>.
-   See the cperl branch C<feature/CM-445-cperl-xsloader-builtin-cvcaller> for this.
- */
-static int short_error_loc() {
+Plan: We could also support a new C<:caller>/C<:-caller> attribute. C<:caller>
+for XS functions to place themselves into the backtrace. They are by
+default not visible in backtraces. And the negative no-caller as better C<@CARP_NOT>.
+See the cperl branch C<feature/CM-445-cperl-xsloader-builtin-cvcaller> for this.
+
+=cut
+*/
+int short_error_loc() {
     return long_error_loc();
 }
 static SV* ret_summary(pTHX_ int i, SV* errsv) {
@@ -1063,6 +1082,7 @@ static SV* ret_summary(pTHX_ int i, SV* errsv) {
               file, line, tid_msg ? SvPVX(tid_msg) : "");
     return errsv;
 }
+
 static SV* carp_backtrace(pTHX_ int i, SV* errsv) {
     int line = 0;
     char *file = NULL;
@@ -1113,7 +1133,7 @@ static SV* carp_backtrace(pTHX_ int i, SV* errsv) {
 }
 
 /*
-=for apidoc carp_longmess(ax, prefix)
+=for apidoc carp_longmess(ax, errsv)
 
 Returns a new PV with the Carp backtrace, starting at C<ax>, the stack base offset,
 which is defined in a XS function.
@@ -1129,7 +1149,7 @@ SV* Perl_carp_longmess(pTHX_ I32 ax, SV* errsv) {
 }
 
 /*
-=for apidoc carp_shortmess(ax, prefix)
+=for apidoc carp_shortmess(ax, errsv)
 
 Returns a new PV with the short Carp message, starting at C<ax>, the stack base offset,
 which is defined in a XS function.

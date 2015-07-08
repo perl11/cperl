@@ -82,6 +82,8 @@
 #define call_pv(a,b)		Perl_call_pv(aTHX_ a,b)
 #define call_sv(a,b)		Perl_call_sv(aTHX_ a,b)
 #define caller_cx(a,b)		Perl_caller_cx(aTHX_ a,b)
+#define carp_longmess(a,b)	Perl_carp_longmess(aTHX_ a,b)
+#define carp_shortmess(a,b)	Perl_carp_shortmess(aTHX_ a,b)
 #define cast_i32		Perl_cast_i32
 #define cast_iv			Perl_cast_iv
 #define cast_ulong		Perl_cast_ulong
@@ -341,6 +343,7 @@
 #ifndef PERL_IMPLICIT_CONTEXT
 #define load_module		Perl_load_module
 #endif
+#define long_error_loc()	long_error_loc(aTHX)
 #define looks_like_number(a)	Perl_looks_like_number(aTHX_ a)
 #define magic_dump(a)		Perl_magic_dump(aTHX_ a)
 #define markstack_grow()	Perl_markstack_grow(aTHX)
@@ -603,6 +606,7 @@
 #define set_version(a,b,c,d,e)	Perl_set_version(aTHX_ a,b,c,d,e)
 #define setdefout(a)		Perl_setdefout(aTHX_ a)
 #define share_hek(a,b,c)	Perl_share_hek(aTHX_ a,b,c)
+#define short_error_loc()	short_error_loc(aTHX)
 #define sortsv(a,b,c)		Perl_sortsv(aTHX_ a,b,c)
 #define sortsv_flags(a,b,c,d)	Perl_sortsv_flags(aTHX_ a,b,c,d)
 #define stack_grow(a,b,c)	Perl_stack_grow(aTHX_ a,b,c)
@@ -1194,10 +1198,6 @@
 #  endif
 #  if defined(PERL_IN_UTF8_C) || defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C)
 #define _to_fold_latin1(a,b,c,d)	Perl__to_fold_latin1(aTHX_ a,b,c,d)
-#  endif
-#  if defined(PERL_IN_XSUTILS_C)
-#define carp_longmess(a,b)	Perl_carp_longmess(aTHX_ a,b)
-#define carp_shortmess(a,b)	Perl_carp_shortmess(aTHX_ a,b)
 #  endif
 #endif
 #ifdef PERL_CORE

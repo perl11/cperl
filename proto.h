@@ -489,6 +489,20 @@ PERL_CALLCONV bool	Perl_cando(pTHX_ Mode_t mode, bool effective, const Stat_t* s
 #define PERL_ARGS_ASSERT_CANDO	\
 	assert(statbufp)
 
+PERL_CALLCONV SV*	Perl_carp_longmess(pTHX_ I32 ax, SV *errsv)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CARP_LONGMESS	\
+	assert(errsv)
+
+PERL_CALLCONV SV *	Perl_carp_shortmess(pTHX_ I32 ax, SV *errsv)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CARP_SHORTMESS	\
+	assert(errsv)
+
 PERL_CALLCONV I32	Perl_cast_i32(NV f)
 			__attribute__global__
 			__attribute__warn_unused_result__;
@@ -2959,6 +2973,10 @@ PERL_CALLCONV OP*	Perl_localize(pTHX_ OP *o, I32 lex)
 #define PERL_ARGS_ASSERT_LOCALIZE	\
 	assert(o)
 
+PERL_CALLCONV int	long_error_loc(pTHX)
+			__attribute__global__
+			__attribute__warn_unused_result__;
+
 PERL_CALLCONV I32	Perl_looks_like_number(pTHX_ SV *const sv)
 			__attribute__global__
 			__attribute__warn_unused_result__
@@ -5099,6 +5117,10 @@ PERL_CALLCONV HEK*	Perl_share_hek(pTHX_ const char* str, I32 len, U32 hash)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SHARE_HEK	\
 	assert(str)
+
+PERL_CALLCONV int	short_error_loc(pTHX)
+			__attribute__global__
+			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_signature_stringify(pTHX_ const OP* o, CV *cv)
 			__attribute__global__
@@ -10242,22 +10264,6 @@ STATIC void	S_mem_log_common(enum mem_log_type mlt, const UV n, const UV typesiz
 	assert(type_name); assert(filename); assert(funcname)
 
 #  endif
-#endif
-#if defined(PERL_IN_XSUTILS_C)
-PERL_CALLCONV SV*	Perl_carp_longmess(pTHX_ I32 ax, SV *errsv)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_CARP_LONGMESS	\
-	assert(errsv)
-
-PERL_CALLCONV SV *	Perl_carp_shortmess(pTHX_ I32 ax, SV *errsv)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_CARP_SHORTMESS	\
-	assert(errsv)
-
 #endif
 #if defined(PERL_MEM_LOG)
 PERL_CALLCONV Malloc_t	Perl_mem_log_alloc(const UV nconst, UV typesize, const char *type_name, Malloc_t newalloc, const char *filename, const int linenumber, const char *funcname)

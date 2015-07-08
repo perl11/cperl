@@ -2891,11 +2891,6 @@ pn	|Malloc_t	|mem_log_free	|Malloc_t oldalloc|NN const char *filename \
 					|const int linenumber|NN const char *funcname
 #endif
 
-#if defined(PERL_IN_XSUTILS_C)
-XEpR	|SV*	|carp_longmess |I32 ax|NN SV *errsv
-XEpR	|SV *	|carp_shortmess|I32 ax|NN SV *errsv
-#endif
-
 #if defined(PERL_IN_NUMERIC_C)
 #ifndef USE_QUADMATH
 sn	|NV|mulexp10	|NV value|I32 exponent
@@ -3275,6 +3270,10 @@ ApM	|void	|leave_adjust_stacks	|NN SV **from_sp |NN SV **to_sp \
 					|U8 gimme |int filter
 
 : Used in xsutils.c, dlboot.c and xs-only extensions
+AMR	|int	|short_error_loc|
+AMR	|int	|long_error_loc|
+ApMR	|SV*	|carp_longmess |I32 ax|NN SV *errsv
+ApMR	|SV *	|carp_shortmess|I32 ax|NN SV *errsv
 AMp	|void	|set_version   |NN const char *name  |STRLEN nlen \
                                |NN const char *strval|STRLEN plen \
                                |NV nvval
