@@ -2868,7 +2868,7 @@ PP(pp_goto)
 		}
 		else SvREFCNT_dec(arg);
 		if (PERLDB_SUB) {	/* Checking curstash breaks DProf. */
-		    Perl_get_db_sub(aTHX_ NULL, cv);
+		    get_db_sub(NULL, cv);
 		    if (PERLDB_GOTO) {
 			CV * const gotocv = get_cvs("DB::goto", 0);
 			if (gotocv) {

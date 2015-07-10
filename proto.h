@@ -1285,7 +1285,7 @@ PERL_CALLCONV CV*	Perl_get_cvn_flags(pTHX_ const char* name, STRLEN len, I32 fla
 #define PERL_ARGS_ASSERT_GET_CVN_FLAGS	\
 	assert(name)
 
-PERL_CALLCONV void	Perl_get_db_sub(pTHX_ SV **svp, CV *cv)
+PERL_CALLCONV void	Perl_get_db_sub(pTHX_ SV *sv, CV *cv)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_GET_DB_SUB	\
 	assert(cv)

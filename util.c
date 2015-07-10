@@ -5636,12 +5636,12 @@ S_gv_has_usable_name(pTHX_ GV *gv)
 }
 
 void
-Perl_get_db_sub(pTHX_ SV **svp, CV *cv)
+Perl_get_db_sub(pTHX_ SV *sv, CV *cv)
 {
     SV * const dbsv = GvSVn(PL_DBsub);
     const bool save_taint = TAINT_get;
 
-    /* When we are called from pp_goto (svp is null),
+    /* When we are called from pp_goto (sv is null),
      * we do not care about using dbsv to call CV;
      * it's for informational purposes only.
      */
@@ -5653,7 +5653,7 @@ Perl_get_db_sub(pTHX_ SV **svp, CV *cv)
     if (!PERLDB_SUB_NN) {
 	GV *gv = CvGV(cv);
 
-	if (!svp && !CvLEXICAL(cv)) {
+	if (!sv && !CvLEXICAL(cv)) {
 	    gv_efullname3(dbsv, gv, NULL);
 	}
 	else if ( (CvFLAGS(cv) & (CVf_ANON | CVf_CLONED)) || CvLEXICAL(cv)
@@ -5661,10 +5661,10 @@ Perl_get_db_sub(pTHX_ SV **svp, CV *cv)
 	     || ( /* Could be imported, and old sub redefined. */
 		 (GvCV(gv) != cv || !S_gv_has_usable_name(aTHX_ gv))
 		 &&
-		 !( (SvTYPE(*svp) == SVt_PVGV)
-		    && (GvCV((const GV *)*svp) == cv)
+		 !( (SvTYPE(sv) == SVt_PVGV)
+		    && (GvCV((const GV *)sv) == cv)
 		    /* Use GV from the stack as a fallback. */
-		    && S_gv_has_usable_name(aTHX_ gv = (GV *)*svp) 
+		    && S_gv_has_usable_name(aTHX_ gv = (GV *)sv)
 		  )
 		)
 	) {

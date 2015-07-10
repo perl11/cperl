@@ -3111,7 +3111,10 @@ PP(pp_entersub)
             DIE(aTHX_ "Not a CODE reference");
         }
     }
-    if (CvISXSUB(cv) && CvROOT(cv)) {
+    if (CvISXSUB(cv) && CvROOT(cv)
+        /* do not switch from PP cv to XS cd back to PP:DBsub with -d */
+        && !UNLIKELY((PL_op->op_private & OPpENTERSUB_DB) && GvCV(PL_DBsub)
+                     && !CvNODEBUG(cv))) {
         /* dynamically bootstrapped XS. goto to the XS variant */
         OpTYPE_set(PL_op, OP_ENTERXSSUB);
         ++sp; /* and fixup stack */
@@ -3167,7 +3170,7 @@ PP(pp_entersub)
     if (UNLIKELY((PL_op->op_private & OPpENTERSUB_DB) && GvCV(PL_DBsub)
             && !CvNODEBUG(cv)))
     {
-	 Perl_get_db_sub(aTHX_ &sv, cv);
+	 get_db_sub(sv, cv);
 	 if (CvISXSUB(cv))
 	     PL_curcopdb = PL_curcop;
          if (CvLVALUE(cv)) {
@@ -3185,7 +3188,7 @@ PP(pp_entersub)
 
     gimme = GIMME_V;
 
-    if (!(CvISXSUB(cv))) {
+    if (!CvISXSUB(cv)) {
 	/* This path taken at least 75% of the time   */
 	dMARK;
 	PADLIST * const padlist = CvPADLIST(cv);
@@ -3345,6 +3348,24 @@ PP(pp_enterxssub)
         }
     }
 
+    if (UNLIKELY((PL_op->op_private & OPpENTERSUB_DB) && GvCV(PL_DBsub)
+            && !CvNODEBUG(cv)))
+    {
+	 get_db_sub(sv, cv);
+         PL_curcopdb = PL_curcop;
+         /* This turns the XSUB into a PP sub. We should add a DBxsub variant */
+         if (CvLVALUE(cv)) {
+             /* check for lsub that handles lvalue subroutines */
+	     cv = GvCV(gv_fetchpvs("DB::lsub", GV_ADDMULTI, SVt_PVCV));
+             /* if lsub not found then fall back to DB::sub */
+	     if (!cv) cv = GvCV(PL_DBsub);
+         } else {
+             cv = GvCV(PL_DBsub);
+         }
+         if (!cv || (!CvXSUB(cv) && !CvSTART(cv)))
+             DIE(aTHX_ "No DB::sub routine defined");
+    }
+
     /* There's no way to unbootstrap a XS function. Is there?
        Yes there is, by dynamic sub redefinition. */
     if (!CvISXSUB(cv)) {
@@ -3362,24 +3383,6 @@ PP(pp_enterxssub)
 
     if (UNLIKELY(CvCLONE(cv) && !CvCLONED(cv)))
 	DIE(aTHX_ "Closure prototype called");
-    if (UNLIKELY((PL_op->op_private & OPpENTERSUB_DB) && GvCV(PL_DBsub)
-            && !CvNODEBUG(cv)))
-    {
-	 Perl_get_db_sub(aTHX_ &sv, cv);
-         PL_curcopdb = PL_curcop;
-         if (CvLVALUE(cv)) {
-             /* check for lsub that handles lvalue subroutines */
-	     cv = GvCV(gv_fetchpvs("DB::lsub", GV_ADDMULTI, SVt_PVCV));
-             /* if lsub not found then fall back to DB::sub */
-	     if (!cv) cv = GvCV(PL_DBsub);
-         } else {
-             cv = GvCV(PL_DBsub);
-         }
-
-	if (!cv || (!CvXSUB(cv) && !CvSTART(cv)))
-	    DIE(aTHX_ "No DB::sub routine defined");
-    }
-
     {
 	SSize_t markix = TOPMARK;
         I32 gimme;

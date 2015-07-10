@@ -483,7 +483,7 @@ s	|OP*	|gen_constant_list|NULLOK OP* o
 p	|char*	|getenv_len	|NN const char *env_elem|NN unsigned long *len
 #endif
 : Used in pp_ctl.c and pp_hot.c
-pox	|void	|get_db_sub	|NULLOK SV **svp|NN CV *cv
+px	|void	|get_db_sub	|NULLOK SV *sv|NN CV *cv
 Ap	|void	|gp_free	|NULLOK GV* gv
 Ap	|GP*	|gp_ref		|NULLOK GP* gp
 Ap	|GV*	|gv_add_by_type	|NULLOK GV *gv|svtype type

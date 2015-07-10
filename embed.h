@@ -1187,6 +1187,7 @@
 #define find_rundefsv2(a,b)	Perl_find_rundefsv2(aTHX_ a,b)
 #define find_script(a,b,c,d)	Perl_find_script(aTHX_ a,b,c,d)
 #define free_tied_hv_pool()	Perl_free_tied_hv_pool(aTHX)
+#define get_db_sub(a,b)		Perl_get_db_sub(aTHX_ a,b)
 #define get_hash_seed(a)	Perl_get_hash_seed(aTHX_ a)
 #define get_no_modify()		Perl_get_no_modify(aTHX)
 #define get_opargs()		Perl_get_opargs(aTHX)
