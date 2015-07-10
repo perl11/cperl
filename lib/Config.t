@@ -82,7 +82,7 @@ like(Config::config_sh(), qr/osname='\Q$Config{osname}\E'/, "config_sh");
 like(Config::config_sh(), qr/byteorder='[1-8]+'/,
      "config_sh has a valid byteorder");
 foreach my $line (Config::config_re('c.*')) {
-  like($line,                  qr/^c.*?=.*$/,                   'config_re' );
+  like($line,                  qr/^c.*?=.*$/,                   "config_re $line" );
 }
 
 my $out = tie *STDOUT, 'FakeOut';
