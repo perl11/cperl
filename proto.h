@@ -717,6 +717,11 @@ PERL_CALLCONV void	Perl_ck_warner_d(pTHX_ U32 err, const char* pat, ...)
 
 PERL_CALLCONV bool	Perl_ckwarn(pTHX_ U32 w);
 PERL_CALLCONV bool	Perl_ckwarn_d(pTHX_ U32 w);
+PERL_CALLCONV void	Perl_clear_defarray(pTHX_ AV* av, bool abandon)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CLEAR_DEFARRAY	\
+	assert(av)
+
 PERL_CALLCONV const COP*	Perl_closest_cop(pTHX_ const COP *cop, const OP *o, const OP *curop, bool opnext)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CLOSEST_COP	\

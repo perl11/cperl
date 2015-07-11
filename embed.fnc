@@ -2895,6 +2895,7 @@ Ei	|STRLEN	|sv_or_pv_pos_u2b|NN SV *sv|NN const char *pv|STRLEN pos \
 #endif
 
 EMpPX	|SV*	|_get_encoding
+Xp	|void	|clear_defarray	|NN AV* av|bool abandon
 
 : Used in xsutils.c, dlboot.c and xs-only extensions
 AMp	|void	|set_version   |NN const char *name  |STRLEN nlen \
