@@ -2792,8 +2792,6 @@ PP(pp_goto)
             }
 
 	    /* Now do some callish stuff. */
-	    SAVETMPS;
-	    SAVEFREESV(cv); /* later, undo the 'avoid premature free' hack */
 	    if (CvISXSUB(cv)) {
 		SV **newsp;
 		I32 gimme;
@@ -2803,6 +2801,9 @@ PP(pp_goto)
 
                 PERL_UNUSED_VAR(newsp);
                 PERL_UNUSED_VAR(gimme);
+
+                SAVETMPS;
+                SAVEFREESV(cv); /* later, undo the 'avoid premature free' hack */
 
 		/* put GvAV(defgv) back onto stack */
 		if (items) {
@@ -2845,6 +2846,9 @@ PP(pp_goto)
 	    }
 	    else {
 		PADLIST * const padlist = CvPADLIST(cv);
+
+                SAVETMPS;
+                SAVEFREESV(cv); /* later, undo the 'avoid premature free' hack */
 
                 /* partial unrolled PUSHSUB(): */
 
