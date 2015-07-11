@@ -3655,7 +3655,6 @@ PP(pp_entersub)
 
 	PUSHBLOCK(cx, CXt_SUB, MARK);
 	PUSHSUB(cx);
-	SAVETMPS;
 
 	cx->blk_sub.retop = PL_op->op_next;
 	if (UNLIKELY((depth = ++CvDEPTH(cv)) >= 2)) {
