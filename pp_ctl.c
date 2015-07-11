@@ -1973,7 +1973,6 @@ PP(pp_dbstate)
 	    return NORMAL;
 
 	ENTER;
-	SAVETMPS;
 
 	SAVEI32(PL_debug);
 	SAVESTACK_POS();
@@ -1982,6 +1981,7 @@ PP(pp_dbstate)
 	SPAGAIN;
 
 	if (CvISXSUB(cv)) {
+            SAVETMPS;
 	    PUSHMARK(SP);
 	    (void)(*CvXSUB(cv))(aTHX_ cv);
 	    FREETMPS;
@@ -1991,6 +1991,7 @@ PP(pp_dbstate)
 	else {
 	    PUSHBLOCK(cx, CXt_SUB, SP);
 	    PUSHSUB_DB(cx);
+            SAVETMPS;
 	    cx->blk_sub.retop = PL_op->op_next;
 	    CvDEPTH(cv)++;
 	    if (CvDEPTH(cv) >= 2) {
