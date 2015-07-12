@@ -90,7 +90,8 @@ for (1..20) {
     my $k = "config_arg".$_;
     $h{$k} = '' unless exists $h{$k};
 }
-for my $k (qw(libdb_needs_pthread malloc_cflags)) {
+for my $k (qw(libdb_needs_pthread malloc_cflags
+              git_ancestor git_remote_branch git_unpushed)) {
     $h{$k} = '' unless exists $h{$k};
 }
 
