@@ -221,6 +221,15 @@ use File::Glob qw(:case);
         ],
     },
 
+    'Config' => {
+        # maintained by cPanel, with cperl only
+
+        'FILES'      => q[
+                 ext/Config/Config.pm
+                 ext/Config/Config_xs.{in,out,PL}
+        ],
+    },
+
     'Config::Perl::V' => {
         'DISTRIBUTION' => 'HMBRAND/Config-Perl-V-0.24.tgz',
         'FILES'        => q[cpan/Config-Perl-V],
