@@ -2,7 +2,7 @@ package vars;
 
 use 5.006;
 
-our $VERSION = '1.03';
+our $VERSION = '1.03_01c';
 
 use warnings::register "vars";
 use strict qw(vars subs);

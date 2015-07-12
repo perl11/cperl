@@ -5275,13 +5275,13 @@
 /* PERL_HASH_FUNC_*:
  *	This symbol, if defined, defines the used perl hash function variant.
  */
-#ifndef PERL_HASH_FUNC_MURMUR3
-#define	PERL_HASH_FUNC_MURMUR3	/**/
+#ifndef PERL_HASH_FUNC_FNV1A
+#define	PERL_HASH_FUNC_FNV1A	/**/
 #endif
 
 #endif
 
 /* Generated from:
  * 33faf955718b4857a4472c34872371f2476fac6cd45cfa905a7136d8b26fce3c config_h.SH
- * 4c8c9d3aafa22b09fc4a750f067087778685e00839061a8e04e5ea1a3970dd41 uconfig.sh
+ * 3f1968edf63131b2d3c1682a35d219f2a3440c1c04da1a410b40a56718d85367 uconfig.sh
  * ex: set ro: */

@@ -89,6 +89,13 @@ my %skip;
     'lib/Config.pm',		# no version number but contents will vary
     'win32/FindExt.pm',
 } = ();
+# cperl exceptions
+@skip{qw(cpan/Digest-MD5/MD5.xs 
+         cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm
+         cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm
+         dist/lib/lib_pm.PL ext/B/t/OptreeCheck.pm lib/B/Op_private.pm
+         lib/feature.pm lib/vars.pm lib/strict.pm lib/warnings.pm)
+} = ();
 
 # Files to skip just for particular version(s),
 # usually due to some # mix-up
