@@ -4,9 +4,11 @@ our $VERSION = '1.03';
 
 use strict;
 use warnings;
+use Config;
 
 my $no = join('|',qw(GDBM_File ODBM_File NDBM_File DB_File
-                     VMS.* Sys-Syslog IPC-SysV I18N-Langinfo));
+                     VMS.* Sys-Syslog IPC-SysV I18N-Langinfo
+                     Config warnings));
 $no = qr/^(?:$no)$/i;
 
 sub apply_config {
@@ -25,6 +27,8 @@ sub apply_config {
       unless ($config->{i_dbm} || $config->{i_rpcsvcdbm}) && !$config->{d_cplusplus};
     push @no, "VMS.*" unless $^O eq "VMS";
     push @no, "Win32.*" unless $^O eq "MSWin32" || $^O eq "cygwin";
+    push @no, "Config" unless $Config{static_ext} =~ /Config/;
+    push @no, "warnings" unless $Config{static_ext} =~ /warnings/;
 
     $no = join('|', @no);
     $no = qr/^(?:$no)$/i;
@@ -100,14 +104,14 @@ sub has_xs_or_c {
     return 0;
 }
 
-# Function to find available extensions, ignoring DynaLoader
+# Function to find available extensions, ignoring the boot extensions (static or dynamic)
 sub scan_ext
 {
     my $ext_dir = shift;
     opendir my $dh, "$ext_dir";
     while (defined (my $item = readdir $dh)) {
         next if $item =~ /^\.\.?$/;
-        next if $item eq "DynaLoader";
+        next if $item =~ /^(?:DynaLoader|warnings|Config)$/;
         next unless -d "$ext_dir/$item";
         my $this_ext = $item;
         my $leaf = $item;
