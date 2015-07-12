@@ -53,7 +53,7 @@
    See https://github.com/rurban/smhasher#smhasher
    and https://github.com/rurban/perl-hash-stats
  */
-#define PERL_HASH_FUNC_MURMUR3
+#define PERL_HASH_FUNC_FNV1A
 #endif
 
 #if defined(PERL_HASH_FUNC_SIPHASH)
