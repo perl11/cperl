@@ -261,8 +261,14 @@ typedef struct hek HEK;
 # define _SV_FLAGS_FIELD 	U32     sv_flags
 #endif
 
-#define _SV_REFCNT_FIELD \
+#if defined(PERL_NEW_COPY_ON_WRITE)
+# define _SV_REFCNT_FIELD \
+    PERL_BITFIELD32 sv_cowrefcnt:8;	/* how many unchanged PV copies */ \
+    PERL_BITFIELD32 sv_refcnt:24
+#else
+# define _SV_REFCNT_FIELD \
     U32		sv_refcnt
+#endif
 
 #define _SV_HEAD(ptrtype) \
     _SV_ANY_PTR(ptrtype);		/* pointer to body */     \
@@ -2019,8 +2025,6 @@ Like C<sv_catsv> but doesn't process magic.
 #  define SV_DO_COW_SVSETSV	0
 #endif
 
-#define SV_REFCNT_MAX U32_MAX
-
 #define sv_unref(sv)    	sv_unref_flags(sv, 0)
 #define sv_force_normal(sv)	sv_force_normal_flags(sv, 0)
 #define sv_usepvn(sv, p, l)	sv_usepvn_flags(sv, p, l, 0)
@@ -2035,28 +2039,52 @@ Like C<sv_catsv> but doesn't process magic.
 #define SV_CHECK_THINKFIRST_COW_DROP(sv) if (SvTHINKFIRST(sv)) \
 				    sv_force_normal_flags(sv, SV_COW_DROP_PV)
 
-#ifdef PERL_COPY_ON_WRITE
+#ifdef PERL_OLD_COPY_ON_WRITE
+#define SvRELEASE_IVX(sv)   \
+    ((SvIsCOW(sv) ? sv_force_normal_flags(sv, 0) : (void) 0), 0)
+#  define SvIsCOW_normal(sv)	(SvIsCOW(sv) && SvLEN(sv))
+#  define SvRELEASE_IVX_(sv)	SvRELEASE_IVX(sv),
+#  define SvCANCOW(sv) \
+	(SvIsCOW(sv) || (SvFLAGS(sv) & CAN_COW_MASK) == CAN_COW_FLAGS)
+/* This is a pessimistic view. Scalar must be purely a read-write PV to copy-
+   on-write.  */
+#  define CAN_COW_MASK	(SVs_OBJECT|SVs_GMG|SVs_SMG|SVs_RMG|SVf_IOK|SVf_NOK| \
+			 SVf_POK|SVf_ROK|SVp_IOK|SVp_NOK|SVp_POK|SVf_FAKE| \
+			 SVf_OOK|SVf_BREAK|SVf_READONLY|SVf_PROTECT)
+#  define SV_REFCNT_MAX	U32_MAX
+#else
+#  define SvRELEASE_IVX(sv)   0
+/* This little game brought to you by the need to shut this warning up:
+mg.c: In function 'Perl_magic_get':
+mg.c:1024: warning: left-hand operand of comma expression has no effect
+*/
+#  define SvRELEASE_IVX_(sv)  /**/
+#  ifdef PERL_NEW_COPY_ON_WRITE
 #   define SvCANCOW(sv)					    \
 	(SvIsCOW(sv)					     \
 	 ? SvLEN(sv) ? CowREFCNT(sv) != SV_COW_REFCNT_MAX : 1 \
-	 : (SvFLAGS(sv) & CAN_COW_MASK) == CAN_COW_FLAGS       \
-			    && SvCUR(sv)+1 < SvLEN(sv))
+	 : (SvFLAGS(sv) & CAN_COW_MASK) == CAN_COW_FLAGS)
    /* Note: To allow 256 COW "copies", a refcnt of 0 means 1. */
-#   define CowREFCNT(sv)	(*(U8 *)(SvPVX(sv)+SvLEN(sv)-1))
-#   define SV_COW_REFCNT_MAX	((1 << sizeof(U8)*8) - 1)
+   /* Mixing the cow refcount with the read-only string makes no sense */
+#   define CowREFCNT(sv)	(sv)->sv_cowrefcnt
+#   define SV_COW_REFCNT_MAX	((1 << 8) - 1)
+#   define SV_REFCNT_MAX	((1 << 24) - 1)
 #   define CAN_COW_MASK	(SVf_POK|SVf_ROK|SVp_POK|SVf_FAKE| \
 			 SVf_OOK|SVf_BREAK|SVf_READONLY|SVf_PROTECT)
-# ifdef DEBUGGING
-#   define CowREFCNT_dec(sv)	CowREFCNT(sv)--
-#   define CowREFCNT_inc(sv) \
+#   ifdef DEBUGGING
+#     define CowREFCNT_dec(sv)	CowREFCNT(sv)--
+#     define CowREFCNT_inc(sv) \
 			assert(CowREFCNT(sv) < SV_COW_REFCNT_MAX);       \
 			CowREFCNT(sv)++;                                 \
 			if (CowREFCNT(sv) > PL_max_cowrefcnt) PL_max_cowrefcnt++
+#   else
+#     define CowREFCNT_dec(sv)	CowREFCNT(sv)--
+#     define CowREFCNT_inc(sv)	CowREFCNT(sv)++
+#   endif
 # else
-#   define CowREFCNT_dec(sv)	CowREFCNT(sv)--
-#   define CowREFCNT_inc(sv)	CowREFCNT(sv)++
-# endif
-#endif
+#  define SV_REFCNT_MAX	U32_MAX
+#  endif
+#endif /* PERL_OLD_COPY_ON_WRITE */
 
 #define CAN_COW_FLAGS	(SVp_POK|SVf_POK)
 

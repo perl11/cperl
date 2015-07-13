@@ -3818,7 +3818,7 @@ S_check_type_and_open(pTHX_ SV *name)
     int st_rc;
 
     PERL_ARGS_ASSERT_CHECK_TYPE_AND_OPEN;
-
+/*DEBUG_C(deb("open %s\n",p));*/
     /* Checking here captures a reasonable error message when
      * PERL_DISABLE_PMC is true, but when PMC checks are enabled, the
      * user gets a confusing message about looking for the .pmc file
