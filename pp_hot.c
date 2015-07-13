@@ -3477,7 +3477,6 @@ PP(pp_entersub)
     GV *gv;
     CV *cv;
     PERL_CONTEXT *cx;
-    I32 gimme;
     I32 old_savestack_ix;
 
     if (UNLIKELY(!sv))
@@ -3643,14 +3642,13 @@ PP(pp_entersub)
 	    DIE(aTHX_ "No DB::sub routine defined");
     }
 
-    gimme = GIMME_V;
-
-    if (!CvISXSUB(cv)) {
+    if (!(CvISXSUB(cv))) {
 	/* This path taken at least 75% of the time   */
 	dMARK;
 	PADLIST * const padlist = CvPADLIST(cv);
         I32 depth;
         bool hasargs;
+        I32 gimme;
 
         /* A XS function can be redefined back to a normal sub */
         if (PL_op->op_type == OP_ENTERXSSUB) {
@@ -3681,6 +3679,7 @@ PP(pp_entersub)
 	    }
         }
 
+        gimme = GIMME_V;
 	PUSHBLOCK(cx, CXt_SUB, MARK);
         hasargs = cBOOL(PL_op->op_flags & OPf_STACKED);
 	PUSHSUB(cx);
@@ -3846,7 +3845,6 @@ PP(pp_enterxssub)
 	DIE(aTHX_ "Closure prototype called");
     {
 	SSize_t markix = TOPMARK;
-        I32 gimme;
 
 	SAVETMPS;
 	PUTBACK;
@@ -3910,8 +3908,7 @@ PP(pp_enterxssub)
 	CvXSUB(cv)(aTHX_ cv);
 
 	/* Enforce some sanity in scalar context. */
-        gimme = GIMME_V;
-	if (gimme == G_SCALAR) {
+	if (GIMME_V == G_SCALAR) {
             SV **svp = PL_stack_base + markix + 1;
             if (svp != PL_stack_sp) {
                 *svp = svp > PL_stack_sp ? &PL_sv_undef : *PL_stack_sp;
