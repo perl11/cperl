@@ -11,11 +11,15 @@ use strict;
 use warnings;
 
 use Config;
+if ($Config::Config{usecperl}) {
+    use Test::More 'skip_all' => 'cperl bug CM-834';
+}
 use Test::More (
     $Config{d_fork}
     ? 'no_plan'
     : ( 'skip_all' => 'your system already has no fork' )
-);
+  );
+
 use IO::c55Capture;    # for util
 
 use TAP::Harness;
