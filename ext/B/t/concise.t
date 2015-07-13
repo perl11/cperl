@@ -366,19 +366,22 @@ SKIP: {
 # re-vivified later, but not in time for this (BEGIN/CHECK)-time
 # rendering.
 
-$out = runperl ( switches => ["-MO=Concise,Config::AUTOLOAD"],
-		 prog => 'use Config; BEGIN { $Config{awk} }',
-		 stderr => 1 );
+SKIP: {
+    skip("Config::AUTOLOAD is different with cperl", 2)
+      if $Config::Config{usecperl};
 
-like($out, qr/Config::AUTOLOAD exists in stash, but has no START/,
-    "coderef properly undefined");
+    $out = runperl ( switches => ["-MO=Concise,Config::AUTOLOAD"],
+                     prog => 'use Config; BEGIN { $Config{awk} }',
+                     stderr => 1 );
+    like($out, qr/Config::AUTOLOAD exists in stash, but has no START/,
+         "coderef properly undefined");
 
-$out = runperl ( switches => ["-MO=Concise,Config::AUTOLOAD"],
-		 prog => 'use Config; CHECK { $Config{awk} }',
-		 stderr => 1 );
-
-like($out, qr/Config::AUTOLOAD exists in stash, but has no START/,
-    "coderef properly undefined");
+    $out = runperl ( switches => ["-MO=Concise,Config::AUTOLOAD"],
+                     prog => 'use Config; CHECK { $Config{awk} }',
+                     stderr => 1 );
+    like($out, qr/Config::AUTOLOAD exists in stash, but has no START/,
+         "coderef properly undefined");
+}
 
 # test -stash and -src rendering
 $out = runperl ( switches => ["-MO=-qq,Concise,-stash=B::Concise,-src"],
