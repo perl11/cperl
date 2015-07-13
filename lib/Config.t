@@ -18,12 +18,20 @@ ok(keys %Config > 500, "Config has more than 500 entries");
 
 my ($first) = Config::config_sh() =~ /^(\S+)=/m;
 die "Can't find first entry in Config::config_sh()" unless defined $first;
-print "# First entry is '$first'\n";
+print "# First sorted entry is '$first'\n";
 
 # It happens that the we know what the first key should be. This is somewhat
 # cheating, but there was briefly a bug where the key got a bonus newline.
-my ($first_each) = each %Config;
-is($first_each, $first, "First key from each is correct");
+my $first_each;
+if (defined &Config::KEYS) {
+    # when compiled the iter is not sorted anymore
+    my @keys = sort &Config::KEYS; # XXX sort Config::KEYS() is broken
+    $first_each = $keys[0];
+    is($first_each, $first, "First sorted key is correct");
+} else {
+    ($first_each) = each %Config;
+    is($first_each, $first, "First key from each is correct");
+}
 ok(exists($Config{$first_each}), "First key exists");
 ok(!exists($Config{"\n$first"}),
    "Check that first key with prepended newline isn't falsely existing");
@@ -261,6 +269,7 @@ foreach my $lib (qw(applibexp archlibexp privlibexp sitearchexp sitelibexp
 		     vendorarchexp vendorlibexp)) {
   my $dir = $Config{$lib};
   SKIP: {
+    skip "lib $lib not in \@INC with miniperl" unless defined &Config::KEYS;
     skip "lib $lib not in \@INC on Win32" if $^O eq 'MSWin32';
     skip "lib $lib not in \@INC on os390" if $^O eq 'os390';
     skip "lib $lib not defined" unless defined $dir;
