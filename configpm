@@ -562,7 +562,7 @@ $heavy_xs_txt .= <<'EOT';
 sub config_sh {
     my $s = ' ' x 32000; # prealloc 32.000 byte, I got 33568
     $s = '';
-    for my $k (Config::KEYS()) {
+    for my $k (sort &Config::KEYS) { # XXX sort Config::KEYS() is broken
         my $v = Config->FETCH($k);
         $s .= defined $v ? "$k='$v'\n" : "$k=''\n";
     }
@@ -572,8 +572,8 @@ sub config_sh {
 sub config_re {
     my $re = shift or return ();
     my @s;
-    for my $k (Config::KEYS()) {
-        if (eval { $k =~ /^(?:$re)/ }) {
+    for my $k (sort &Config::KEYS) {
+       if (eval { $k =~ /^(?:$re)/ }) {
             my $v = Config->FETCH($k);
             push @s, defined $v ? "$k='$v'" : "$k=''";
         }
