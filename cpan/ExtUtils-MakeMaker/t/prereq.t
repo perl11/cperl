@@ -60,10 +60,12 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
         PREREQ_PM       => {
             vars  => 99999
         }
-    );
+      );
+    my $ver = $vars::VERSION;
+    $ver =~ s/(\d+)\.(\d+)_(\d+)c?/$1.$2$3/;
     is $warnings,
     sprintf("Warning: prerequisite vars 99999 not found. We have %s.\n",
-            $vars::VERSION);
+            $ver);
 
     $warnings = '';
     WriteMakefile(
@@ -100,7 +102,7 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
     is $warnings,
     "Warning: prerequisite I::Do::Not::Exist 0 not found.\n".
     sprintf("Warning: prerequisite vars 99999 not found. We have %s.\n",
-            $vars::VERSION);
+            $ver);
 
     $warnings = '';
     eval {
