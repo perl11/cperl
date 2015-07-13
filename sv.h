@@ -269,6 +269,13 @@ typedef struct hek HEK;
     _SV_REFCNT_FIELD;			/* how many references */ \
     _SV_FLAGS_FIELD
 
+/* same layout, but less refcounts */
+#define _PV_HEAD(ptrtype) \
+    ptrtype	sv_any;		/* pointer to body */	\
+    PERL_BITFIELD32 pv_cowrefcnt:16;	/* how many unchanged copies */ \
+    PERL_BITFIELD32 sv_refcnt:16;	/* how many references */ \
+    U32		sv_flags	/* what we are */
+
 #if NVSIZE <= IVSIZE
 #  define _NV_BODYLESS_UNION NV svu_nv;
 #else
@@ -306,13 +313,26 @@ struct STRUCT_SV {		/* struct sv { */
     _SV_HEAD_UNION;
 };
 
+struct STRUCT_PV {		/* struct pv { */
+    _PV_HEAD(void*);
+    _SV_HEAD_UNION;
+#ifdef DEBUG_LEAKING_SCALARS
+    PERL_BITFIELD32 sv_debug_optype:9;	/* the type of OP that allocated us */
+    PERL_BITFIELD32 sv_debug_inpad:1;	/* was allocated in a pad for an OP */
+    PERL_BITFIELD32 sv_debug_line:16;	/* the line where we were allocated */
+    UV		    sv_debug_serial;	/* serial number of sv allocation   */
+    char *	    sv_debug_file;	/* the file where we were allocated */
+    SV *	    sv_debug_parent;	/* what we were cloned from (ithreads)*/
+#endif
+};
+
 struct gv {
-    _SV_HEAD(XPVGV*);		/* pointer to xpvgv body */
+    _PV_HEAD(XPVGV*);		/* pointer to xpvgv body */
     _SV_HEAD_UNION;
 };
 
 struct cv {
-    _SV_HEAD(XPVCV*);		/* pointer to xpvcv body */
+    _PV_HEAD(XPVCV*);		/* pointer to xpvcv body */
     _SV_HEAD_UNION;
 };
 
@@ -337,6 +357,7 @@ struct p5rx {
 };
 
 #undef _SV_HEAD
+#undef _PV_HEAD
 #undef _SV_HEAD_UNION		/* ensure no pollution */
 
 /*
@@ -345,6 +366,9 @@ struct p5rx {
 =for apidoc Am|U32|SvREFCNT|SV* sv
 Returns the value of the object's reference count. Exposed
 to perl code via Internals::SvREFCNT().
+
+=for apidoc Am|U16|PvREFCNT|PV* sv
+Returns the value of the strings's reference count
 
 =for apidoc Am|SV*|SvREFCNT_inc|SV* sv
 Increments the reference count of the given SV, returning the SV.
@@ -413,6 +437,7 @@ perform the upgrade if necessary.  See C<L</svtype>>.
 #define SvFLAGS(sv)	(sv)->sv_flags
 #define SvREFCNT(sv)	(sv)->sv_refcnt
 #endif
+#define PvREFCNT(pv)	(pv)->sv_refcnt
 
 #define SvREFCNT_inc(sv)		S_SvREFCNT_inc(aTHX_ MUTABLE_SV(sv))
 #define SvREFCNT_inc_simple(sv)		SvREFCNT_inc(sv)
@@ -2042,8 +2067,10 @@ Like C<sv_catsv> but doesn't process magic.
 	 : (SvFLAGS(sv) & CAN_COW_MASK) == CAN_COW_FLAGS       \
 			    && SvCUR(sv)+1 < SvLEN(sv))
    /* Note: To allow 256 COW "copies", a refcnt of 0 means 1. */
-#   define CowREFCNT(sv)	(*(U8 *)(SvPVX(sv)+SvLEN(sv)-1))
-#   define SV_COW_REFCNT_MAX	((1 << sizeof(U8)*8) - 1)
+   /* Mixing the cow refcount with the read-only string makes no sense */
+/*#   define CowREFCNT(sv)	(*(U8 *)(SvPVX(sv)+SvLEN(sv)-1))*/
+#   define CowREFCNT(sv)	(MUTABLE_PV(sv))->pv_cowrefcnt
+#   define SV_COW_REFCNT_MAX	((1 << 16) - 1)
 #   define CAN_COW_MASK	(SVf_POK|SVf_ROK|SVp_POK|SVf_FAKE| \
 			 SVf_OOK|SVf_BREAK|SVf_READONLY|SVf_PROTECT)
 # ifdef DEBUGGING

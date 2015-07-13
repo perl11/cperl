@@ -70,6 +70,7 @@ Null SV pointer.  (No longer available when C<PERL_CORE> is defined.)
 #define MUTABLE_HV(p)	((HV *)MUTABLE_PTR(p))
 #define MUTABLE_IO(p)	((IO *)MUTABLE_PTR(p))
 #define MUTABLE_SV(p)	((SV *)MUTABLE_PTR(p))
+#define MUTABLE_PV(p)	((PV *)MUTABLE_PTR(p))
 
 #if defined(I_STDBOOL) && !defined(PERL_BOOL_AS_CHAR)
 #  include <stdbool.h>

@@ -2596,6 +2596,7 @@ typedef struct interpreter PerlInterpreter;
 #   define STRUCT_SV sv
 #endif
 typedef struct STRUCT_SV SV;
+typedef struct STRUCT_PV PV; /* same layout, but extra sv_cowrefcnt */
 typedef struct av AV;
 typedef struct hv HV;
 typedef struct cv CV;
