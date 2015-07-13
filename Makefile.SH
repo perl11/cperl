@@ -270,6 +270,7 @@ man3ext = $man3ext
 # The following are used to build and install shared libraries for
 # dynamic loading.
 LDDLFLAGS = $lddlflags
+CCCDLFLAGS = $cccdlflags
 SHRPLDFLAGS = $shrpldflags
 CCDLFLAGS = $ccdlflags
 DLSUFFIX = .$dlext
@@ -1221,7 +1222,7 @@ manicheck:	FORCE
 #
 # DynaLoader may be needed for extensions that use Makefile.PL.
 
-$(DYNALOADER) $(DL_SRC): $(MINIPERL_EXE) lib/buildcustomize.pl preplibrary FORCE $(nonxs_ext)
+$(DYNALOADER) $(DL_SRC): preplibrary FORCE $(nonxs_ext)
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=static $(STATIC_LDFLAGS)
 
 $(boot_ext): $(DYNALOADER)
@@ -1238,13 +1239,13 @@ Config_post:
 	$(RMS) lib/Config.pm
 	$(CPS) ext/Config/Config.pm lib/Config.pm
 
-d_dummy $(dynamic_ext):	$(MINIPERL_EXE) lib/buildcustomize.pl preplibrary makeppport $(DYNALOADER) FORCE $(PERLEXPORT) $(LIBPERL)
+d_dummy $(dynamic_ext):	preplibrary makeppport $(DYNALOADER) FORCE $(PERLEXPORT) $(LIBPERL)
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=dynamic
 
-s_dummy $(static_ext):  $(MINIPERL_EXE) lib/buildcustomize.pl preplibrary makeppport $(DYNALOADER) FORCE
+s_dummy $(static_ext):  preplibrary makeppport $(DYNALOADER) FORCE
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=static $(STATIC_LDFLAGS)
 
-n_dummy $(nonxs_ext):	$(MINIPERL_EXE) lib/buildcustomize.pl preplibrary FORCE
+n_dummy $(nonxs_ext):	preplibrary FORCE
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL)
 !NO!SUBS!
 
@@ -1260,16 +1261,17 @@ EOF
         $spitshell >>$Makefile <<'EOF'
 
 ext/Config/Config.xs : ext/Config/Config_xs.PL ext/Config/Config_xs.in \
-			   $(MINIPERL_EXE) Config_boot lib/buildcustomize.pl
+			   $(MINIPERL_EXE)
 	$(MINIPERL) ext/Config/Config_xs.PL
-ext/Config/Config.c : ext/Config/Config.xs preplibrary dist/ExtUtils-ParseXS/pm_to_blib
+ext/Config/Config.c : ext/Config/Config.xs $(MINIPERL_EXE) dist/ExtUtils-ParseXS/pm_to_blib
 	cd ext/Config && $(LDLIBPTH) ../../$(MINIPERL_EXE) -I../../lib ../../lib/ExtUtils/xsubpp -noprototypes \
 		-typemap ../../lib/ExtUtils/typemap Config.xs > Config.c
 ext/Config/Config.i : ext/Config/Config.c $(h)
 	@echo `$(CCCMDSRC)` -I. -E ext/Config/Config.c \> $@
 	@`$(CCCMDSRC)` -I. -E ext/Config/Config.c > $@
 ext/Config/Config$(OBJ_EXT) : ext/Config/Config.c $(h)
-	`$(CCCMD)` $(LDDLFLAGS) $(CCCDLFLAGS) -I. ext/Config/Config.c -o $@ -DXS_VERSION=\"$(CONFIG_VERSION)\"
+	`$(CCCMD)` $(LDDLFLAGS) $(CCCDLFLAGS) -I. ext/Config/Config.c -o $@ \
+	  -DXS_VERSION=\"$(CONFIG_VERSION)\"
 lib/auto/Config/Config$(DLSUFFIX) : ext/Config/Config$(OBJ_EXT)
 	mkdir -p lib/auto/Config
 	$(LD) -o $@ $(LDDLFLAGS) ext/Config/Config$(OBJ_EXT)
