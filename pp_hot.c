@@ -3478,7 +3478,6 @@ PP(pp_entersub)
     CV *cv;
     PERL_CONTEXT *cx;
     I32 gimme;
-    const bool hasargs = (PL_op->op_flags & OPf_STACKED) != 0;
     I32 old_savestack_ix;
 
     if (UNLIKELY(!sv))
@@ -3541,7 +3540,7 @@ PP(pp_entersub)
                     DIE(aTHX_ PL_no_usym, "a subroutine");
 
                 if (UNLIKELY(sv == &PL_sv_yes)) { /* unfound import, ignore */
-                    if (hasargs)
+                    if (PL_op->op_flags & OPf_STACKED) /* hasargs */
                         SP = PL_stack_base + POPMARK;
                     else
                         (void)POPMARK;
@@ -3651,6 +3650,7 @@ PP(pp_entersub)
 	dMARK;
 	PADLIST * const padlist = CvPADLIST(cv);
         I32 depth;
+        bool hasargs;
 
         /* A XS function can be redefined back to a normal sub */
         if (PL_op->op_type == OP_ENTERXSSUB) {
@@ -3682,6 +3682,7 @@ PP(pp_entersub)
         }
 
 	PUSHBLOCK(cx, CXt_SUB, MARK);
+        hasargs = cBOOL(PL_op->op_flags & OPf_STACKED);
 	PUSHSUB(cx);
 	cx->blk_sub.retop = PL_op->op_next;
         cx->blk_sub.old_savestack_ix = old_savestack_ix;
@@ -3857,7 +3858,7 @@ PP(pp_enterxssub)
             DIE(aTHX_ "Can't modify non-lvalue subroutine call of &%"SVf,
                 SVfARG(cv_name(cv, NULL, 0)));
 
-	if (UNLIKELY(!hasargs && GvAV(PL_defgv))) {
+	if (UNLIKELY(!(PL_op->op_flags & OPf_STACKED) && GvAV(PL_defgv))) {
 	    /* Need to copy @_ to stack. Alternative may be to
 	     * switch stack to @_, and copy return values
 	     * back. This would allow popping @_ in XSUB, e.g.. XXXX */
