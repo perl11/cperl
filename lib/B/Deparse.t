@@ -7,6 +7,10 @@ BEGIN {
         print "1..0 # Skip -- Perl configured without B module\n";
         exit 0;
     }
+    if ($Config::Config{'usecperl'}){
+        print "1..0 # Skip -- cperl bug CM-832 Fix B::Deparse last empty line\n";
+        exit 0;
+    }
     require 'test.pl';
 }
 
