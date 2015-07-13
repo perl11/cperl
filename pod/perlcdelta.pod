@@ -17,6 +17,11 @@ For B<cperl> see F<Changes> and L<perlcperl>
 
 =item *
 
+Better support for -DC and -DCv debugging, with new REFCNT statistics.
+Added CowREFCNT_inc,dec and overflow assertions.
+
+=item *
+
 Creating *{"_<$filename"} Perl debugger data structures (see
 L<perldebguts/"Debugger Internals">) for XSUBs and const subs has been
 removed.  This removed one glob/scalar combo for each unique C<.c>

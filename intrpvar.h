@@ -796,6 +796,12 @@ PERLVARA(I, op_exec_cnt, OP_max+2, UV)	/* Counts of executed OPs of the given ty
 
 PERLVAR(I, random_state, PL_RANDOM_STATE_TYPE)
 
+#ifdef DEBUGGING
+PERLVARI(I, max_refcnt, UV, 0)		/* Highest SvREFCNT */
+PERLVARI(I, max_cowrefcnt, UV, 0)	/* Highest CowREFCNT */
+PERLVARI(I, max_refcnt_sv, SV*, NULL)	/* SV with highest SvREFCNT */
+#endif
+
 /* If you are adding a U8 or U16, check to see if there are 'Space' comments
  * above on where there are gaps which currently will be structure padding.  */
 

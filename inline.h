@@ -139,21 +139,52 @@ S_ReANY(const REGEXP * const re)
 PERL_STATIC_INLINE SV *
 S_SvREFCNT_inc(SV *sv)
 {
-    if (LIKELY(sv != NULL))
-	SvREFCNT(sv)++;
+    if (LIKELY(sv != NULL)) {
+        /* We don't inc above MAX, but we keep silent, and leave potential leaks.
+           In practice the highest observed refcnt was 118480, a GvFILE, MAX is 16777216 */
+        if (SvREFCNT(sv) < SV_REFCNT_MAX)
+            SvREFCNT(sv)++;
+#if defined(DEBUGGING) && !defined(PERL_EXT_RE_DEBUG)
+        else
+            warn("refcnt of %s (%p) too high. skipped\n", sv_peek(sv), sv);
+        if (SvREFCNT(sv) > PL_max_refcnt) {
+            PL_max_refcnt++;
+            PL_max_refcnt_sv = sv;
+        }
+#endif
+    }
     return sv;
 }
 PERL_STATIC_INLINE SV *
 S_SvREFCNT_inc_NN(SV *sv)
 {
-    SvREFCNT(sv)++;
+    if (SvREFCNT(sv) < SV_REFCNT_MAX)
+        SvREFCNT(sv)++;
+#if defined(DEBUGGING) && !defined(PERL_EXT_RE_DEBUG)
+    else
+        warn("refcnt of %s (%p) too high. skipped\n", sv_peek(sv), sv);
+    if (SvREFCNT(sv) > PL_max_refcnt) {
+        PL_max_refcnt++;
+        PL_max_refcnt_sv = sv;
+    }
+#endif
     return sv;
 }
 PERL_STATIC_INLINE void
 S_SvREFCNT_inc_void(SV *sv)
 {
-    if (LIKELY(sv != NULL))
-	SvREFCNT(sv)++;
+    if (LIKELY(sv != NULL)) {
+        if (SvREFCNT(sv) < SV_REFCNT_MAX)
+            SvREFCNT(sv)++;
+#if defined(DEBUGGING) && !defined(PERL_EXT_RE_DEBUG)
+        else
+            warn("refcnt of %s (%p) too high. skipped\n", sv_peek(sv), sv);
+        if (SvREFCNT(sv) > PL_max_refcnt) {
+            PL_max_refcnt++;
+            PL_max_refcnt_sv = sv;
+        }
+#endif
+    }
 }
 PERL_STATIC_INLINE void
 S_SvREFCNT_dec(pTHX_ SV *sv)

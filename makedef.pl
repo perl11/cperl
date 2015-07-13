@@ -255,6 +255,9 @@ unless ($define{'DEBUGGING'}) {
 		    Perl_pad_setsv
 		    Perl_set_padlist
 		    Perl_hv_assert
+		    PL_max_cowrefcnt
+		    PL_max_refcnt
+		    PL_max_refcnt_sv
 		    PL_watchaddr
 		    PL_watchok
 		    PL_watch_pvx

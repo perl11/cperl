@@ -536,6 +536,14 @@ perl_destruct(pTHXx)
     PERL_UNUSED_ARG(my_perl);
 #endif
 
+#ifdef DEBUGGING
+    if (DEBUG_v_TEST) {
+        PerlIO_printf(Perl_debug_log, "== max refcnt: %"UVuf" (0x%p), max cowrefcnt: %"UVuf"\n",
+                      PL_max_refcnt, PL_max_refcnt_sv, PL_max_cowrefcnt);
+        sv_dump(PL_max_refcnt_sv);
+    }
+#endif
+
     assert(PL_scopestack_ix == 1);
 
     /* wait for all pseudo-forked children to finish */

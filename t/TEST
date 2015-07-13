@@ -270,7 +270,7 @@ sub _scan_test {
 	test => $test,
 	run_dir => $run_dir,
 	return_dir => $return_dir,
-	testswitch => $testswitch, #.' -DH',
+	testswitch => $testswitch,
 	utf8 => $utf8,
 	file => $file_opts,
 	switch => $switch,

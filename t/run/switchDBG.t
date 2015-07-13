@@ -132,7 +132,7 @@ like( runperl( switches => [ "-DJP" ], stderr => 1,
       "-DJs Do not s,t,P-debug (Jump over) opcodes within package DB" );
 like( runperl( switches => [ "-Dv" ], stderr => 1,
                prog => '1' ),
-      qr/^\nEXECUTING...\n\n$/,
+      qr/^\nEXECUTING...\n\n== max refcnt:/,
       "-Dv Verbose alone" );
 like( runperl( switches => [ "-Dsv" ], stderr => 1,
                prog => '1' ),
@@ -140,7 +140,7 @@ like( runperl( switches => [ "-Dsv" ], stderr => 1,
       "-Dsv Verbose: use in conjunction with other flags" );
 like( runperl( switches => [ "-DC" ], stderr => 1,
                prog => '1' ),
-      qr/^Copy on write: clear\n/,
+      qr/\nCopy on write: clear "IO::Handle"\n/,
       "-DC Copy on write" );
 like( runperl( switches => [ "-DA" ], stderr => 1,
                prog => '1' ),

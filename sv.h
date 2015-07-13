@@ -1875,6 +1875,7 @@ Like sv_utf8_upgrade, but doesn't do magic on C<sv>.
 #  define SV_DO_COW_SVSETSV	0
 #endif
 
+#define SV_REFCNT_MAX U32_MAX
 
 #define sv_unref(sv)    	sv_unref_flags(sv, 0)
 #define sv_force_normal(sv)	sv_force_normal_flags(sv, 0)
@@ -1920,6 +1921,16 @@ mg.c:1024: warning: left-hand operand of comma expression has no effect
 #   define SV_COW_REFCNT_MAX	((1 << sizeof(U8)*8) - 1)
 #   define CAN_COW_MASK	(SVf_POK|SVf_ROK|SVp_POK|SVf_FAKE| \
 			 SVf_OOK|SVf_BREAK|SVf_READONLY|SVf_PROTECT)
+#ifdef DEBUGGING
+#   define CowREFCNT_dec(sv)	CowREFCNT(sv)--
+#   define CowREFCNT_inc(sv) \
+			assert(CowREFCNT(sv) < SV_COW_REFCNT_MAX);       \
+			CowREFCNT(sv)++;                                 \
+			if (CowREFCNT(sv) > PL_max_cowrefcnt) PL_max_cowrefcnt++
+#else
+#   define CowREFCNT_dec(sv)	CowREFCNT(sv)--
+#   define CowREFCNT_inc(sv)	CowREFCNT(sv)++
+#endif
 #  endif
 #endif /* PERL_OLD_COPY_ON_WRITE */
 
