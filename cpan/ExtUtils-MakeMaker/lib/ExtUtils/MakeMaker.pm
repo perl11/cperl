@@ -521,7 +521,7 @@ END
         }
 
         # convert X.Y_Z alpha version #s to X.YZ for easier comparisons
-        $pr_version =~ s/(\d+)\.(\d+)_(\d+)/$1.$2$3/;
+        $pr_version =~ s/(\d+)\.(\d+)_(\d+)c?/$1.$2$3/;
 
         if (!$installed_file) {
             warn sprintf "Warning: prerequisite %s %s not found.\n",
