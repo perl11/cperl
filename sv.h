@@ -316,14 +316,6 @@ struct STRUCT_SV {		/* struct sv { */
 struct STRUCT_PV {		/* struct pv { */
     _PV_HEAD(void*);
     _SV_HEAD_UNION;
-#ifdef DEBUG_LEAKING_SCALARS
-    PERL_BITFIELD32 sv_debug_optype:9;	/* the type of OP that allocated us */
-    PERL_BITFIELD32 sv_debug_inpad:1;	/* was allocated in a pad for an OP */
-    PERL_BITFIELD32 sv_debug_line:16;	/* the line where we were allocated */
-    UV		    sv_debug_serial;	/* serial number of sv allocation   */
-    char *	    sv_debug_file;	/* the file where we were allocated */
-    SV *	    sv_debug_parent;	/* what we were cloned from (ithreads)*/
-#endif
 };
 
 struct gv {
@@ -1954,13 +1946,13 @@ Like C<sv_catsv> but doesn't process magic.
 #  define SvIVx(sv) ({SV *_sv = MUTABLE_SV(sv); SvIV(_sv); })
 #  define SvUVx(sv) ({SV *_sv = MUTABLE_SV(sv); SvUV(_sv); })
 #  define SvNVx(sv) ({SV *_sv = MUTABLE_SV(sv); SvNV(_sv); })
-#  define SvPVx(sv, lp) ({SV *_sv = (sv); SvPV(_sv, lp); })
-#  define SvPVx_const(sv, lp) ({SV *_sv = (sv); SvPV_const(_sv, lp); })
-#  define SvPVx_nolen(sv) ({SV *_sv = (sv); SvPV_nolen(_sv); })
-#  define SvPVx_nolen_const(sv) ({SV *_sv = (sv); SvPV_nolen_const(_sv); })
-#  define SvPVutf8x(sv, lp) ({SV *_sv = (sv); SvPVutf8(_sv, lp); })
-#  define SvPVbytex(sv, lp) ({SV *_sv = (sv); SvPVbyte(_sv, lp); })
-#  define SvPVbytex_nolen(sv) ({SV *_sv = (sv); SvPVbyte_nolen(_sv); })
+#  define SvPVx(sv, lp)       ({PV *_sv = (PV*)(sv); SvPV(_sv, lp); })
+#  define SvPVx_const(sv, lp) ({PV *_sv = (PV*)(sv); SvPV_const(_sv, lp); })
+#  define SvPVx_nolen(sv)     ({PV *_sv = (PV*)(sv); SvPV_nolen(_sv); })
+#  define SvPVx_nolen_const(sv) ({PV *_sv = (PV*)(sv); SvPV_nolen_const(_sv); })
+#  define SvPVutf8x(sv, lp)   ({PV *_sv = (PV*)(sv); SvPVutf8(_sv, lp); })
+#  define SvPVbytex(sv, lp)   ({PV *_sv = (PV*)(sv); SvPVbyte(_sv, lp); })
+#  define SvPVbytex_nolen(sv) ({PV *_sv = (PV*)(sv); SvPVbyte_nolen(_sv); })
 #  define SvTRUEx(sv)      ({SV *_sv = (sv); SvTRUE(_sv); })
 #  define SvTRUEx_nomg(sv) ({SV *_sv = (sv); SvTRUE_nomg(_sv); })
 
@@ -2156,7 +2148,7 @@ Like C<sv_catsv> but doesn't process magic.
 
 #if defined(PERL_CORE) || defined(PERL_EXT)
 # define sv_or_pv_len_utf8(sv, pv, bytelen)	      \
-    (SvGAMAGIC(sv)				       \
+    (SvGAMAGIC((SV*)sv)                                 \
 	? utf8_length((U8 *)(pv), (U8 *)(pv)+(bytelen))	\
 	: sv_len_utf8(sv))
 #endif

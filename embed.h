@@ -185,6 +185,7 @@
 #define get_op_descs()		Perl_get_op_descs(aTHX)
 #define get_op_names()		Perl_get_op_names(aTHX)
 #define get_ppaddr()		Perl_get_ppaddr(aTHX)
+#define get_pv(a,b)		Perl_get_pv(aTHX_ a,b)
 #define get_sv(a,b)		Perl_get_sv(aTHX_ a,b)
 #define get_vtbl(a)		Perl_get_vtbl(aTHX_ a)
 #define getcwd_sv(a)		Perl_getcwd_sv(aTHX_ a)
@@ -591,7 +592,6 @@
 #endif
 #define pad_findmy_pv(a,b)	Perl_pad_findmy_pv(aTHX_ a,b)
 #define pad_findmy_pvn(a,b,c)	Perl_pad_findmy_pvn(aTHX_ a,b,c)
-#define pad_findmy_sv(a,b)	Perl_pad_findmy_sv(aTHX_ a,b)
 #define pad_new(a)		Perl_pad_new(aTHX_ a)
 #define pad_tidy(a)		Perl_pad_tidy(aTHX_ a)
 #define padnamelist_fetch	Perl_padnamelist_fetch
@@ -790,7 +790,6 @@
 #define sv_pos_b2u(a,b)		Perl_sv_pos_b2u(aTHX_ a,b)
 #define sv_pos_b2u_flags(a,b,c)	Perl_sv_pos_b2u_flags(aTHX_ a,b,c)
 #define sv_pos_u2b(a,b,c)	Perl_sv_pos_u2b(aTHX_ a,b,c)
-#define sv_pos_u2b_flags(a,b,c,d)	Perl_sv_pos_u2b_flags(aTHX_ a,b,c,d)
 #ifndef NO_MATHOMS
 #define sv_pvbyten(a,b)		Perl_sv_pvbyten(aTHX_ a,b)
 #endif
@@ -799,9 +798,7 @@
 #define sv_pvn(a,b)		Perl_sv_pvn(aTHX_ a,b)
 #endif
 #define sv_pvn_force_flags(a,b,c)	Perl_sv_pvn_force_flags(aTHX_ a,b,c)
-#ifndef NO_MATHOMS
 #define sv_pvn_nomg(a,b)	Perl_sv_pvn_nomg(aTHX_ a,b)
-#endif
 #ifndef NO_MATHOMS
 #define sv_pvutf8n(a,b)		Perl_sv_pvutf8n(aTHX_ a,b)
 #endif
@@ -845,7 +842,10 @@
 #define sv_setuv_mg(a,b)	Perl_sv_setuv_mg(aTHX_ a,b)
 #define sv_string_from_errnum(a,b)	Perl_sv_string_from_errnum(aTHX_ a,b)
 #define sv_tainted(a)		Perl_sv_tainted(aTHX_ a)
+#ifndef NO_MATHOMS
 #define sv_true(a)		Perl_sv_true(aTHX_ a)
+#endif
+#define sv_uncow(a,b)		Perl_sv_uncow(aTHX_ a,b)
 #define sv_uni_display(a,b,c,d)	Perl_sv_uni_display(aTHX_ a,b,c,d)
 #define sv_unmagic(a,b)		Perl_sv_unmagic(aTHX_ a,b)
 #define sv_unmagicext(a,b,c)	Perl_sv_unmagicext(aTHX_ a,b,c)
@@ -1071,6 +1071,7 @@
 #define pad_find_outer(a,b)	Perl_pad_find_outer(aTHX_ a,b)
 #define pad_findmy_real(a,b)	Perl_pad_findmy_real(aTHX_ a,b)
 #define pad_findmy_realoffset(a,b)	Perl_pad_findmy_realoffset(aTHX_ a,b)
+#define pad_findmy_sv(a,b)	Perl_pad_findmy_sv(aTHX_ a,b)
 #define pv_uni_normalize(a,b,c)	Perl_pv_uni_normalize(aTHX_ a,b,c)
 #define re_op_compile(a,b,c,d,e,f,g,h)	Perl_re_op_compile(aTHX_ a,b,c,d,e,f,g,h)
 #define re_study(a)		Perl_re_study(aTHX_ a)
@@ -1079,7 +1080,6 @@
 #define share_hek(a,b,c)	Perl_share_hek(aTHX_ a,b,c)
 #define sv_clean_objs()		Perl_sv_clean_objs(aTHX)
 #define sv_gets(a,b,c)		Perl_sv_gets(aTHX_ a,b,c)
-#define sv_uncow(a,b)		Perl_sv_uncow(aTHX_ a,b)
 #define sv_vcatpvfn(a,b,c,d,e,f,g)	Perl_sv_vcatpvfn(aTHX_ a,b,c,d,e,f,g)
 #define sv_vcatpvfn_flags(a,b,c,d,e,f,g,h)	Perl_sv_vcatpvfn_flags(aTHX_ a,b,c,d,e,f,g,h)
 #define unshare_hek(a)		Perl_unshare_hek(aTHX_ a)
@@ -2439,6 +2439,7 @@
 #  define perl_get_av(a,b)		get_av(a,b)
 #  define perl_get_cv(a,b)		get_cv(a,b)
 #  define perl_get_hv(a,b)		get_hv(a,b)
+#  define perl_get_pv(a,b)		get_pv(a,b)
 #  define perl_get_sv(a,b)		get_sv(a,b)
 #  define perl_init_i18nl10n(a)		init_i18nl10n(a)
 #  define perl_init_i18nl14n(a)		init_i18nl14n(a)

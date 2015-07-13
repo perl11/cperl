@@ -2074,7 +2074,7 @@ S_Internals_V(pTHX_ CV *cv)
 
     for (i = 1; i <= local_patch_count; i++) {
 	/* This will be an undef, if PL_localpatches[i] is NULL.  */
-	PUSHs(sv_2mortal(newSVpv(PL_localpatches[i], 0)));
+	PUSHs(sv_2mortal(MUTABLE_SV(newSVpv(PL_localpatches[i], 0))));
     }
 
     XSRETURN(entries);
@@ -2893,6 +2893,30 @@ Perl_get_svn_flags(pTHX_ const char *name, STRLEN len, I32 flags)
     PERL_ARGS_ASSERT_GET_SVN_FLAGS;
 
     gv = gv_fetchpvn(name, len, flags, SVt_PV);
+    if (gv)
+	return GvSV(gv);
+    return NULL;
+}
+
+/*
+=for apidoc p||get_pv
+
+Returns the PV of the specified Perl scalar.  C<flags> are passed to
+C<gv_fetchpv>.  If C<GV_ADD> is set and the
+Perl variable does not exist then it will be created.  If C<flags> is zero
+and the variable does not exist then NULL is returned.
+
+=cut
+*/
+
+PV*
+Perl_get_pv(pTHX_ const char *name, I32 flags)
+{
+    GV *gv;
+
+    PERL_ARGS_ASSERT_GET_PV;
+
+    gv = gv_fetchpv(name, flags, SVt_PV);
     if (gv)
 	return GvSV(gv);
     return NULL;
@@ -5475,7 +5499,7 @@ STATIC void
 S_my_exit_jump(pTHX)
 {
     if (PL_e_script) {
-	SvREFCNT_dec(PL_e_script);
+	SvREFCNT_dec((PV*)PL_e_script);
 	PL_e_script = NULL;
     }
 

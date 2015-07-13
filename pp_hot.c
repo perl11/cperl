@@ -6362,7 +6362,7 @@ Perl_vivify_ref(pTHX_ SV *sv, U32 to_what)
 }
 
 PERL_STATIC_INLINE HV *
-S_opmethod_stash(pTHX_ SV* meth)
+S_opmethod_stash(pTHX_ PV* meth)
 {
     SV* ob;
     HV* stash;

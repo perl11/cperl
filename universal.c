@@ -100,7 +100,7 @@ of an SV instead of a string/length pair.
 */
 
 bool
-Perl_sv_derived_from_sv(pTHX_ SV *sv, SV *namesv, U32 flags)
+Perl_sv_derived_from_sv(pTHX_ SV *sv, PV *namesv, U32 flags)
 {
     char *namepv;
     STRLEN namelen;
@@ -185,7 +185,7 @@ The SV can be a Perl object or the name of a Perl class.
 #include "XSUB.h"
 
 bool
-Perl_sv_does_sv(pTHX_ SV *sv, SV *namesv, U32 flags)
+Perl_sv_does_sv(pTHX_ SV *sv, PV *namesv, U32 flags)
 {
     SV *classname;
     bool does_it;

@@ -662,7 +662,7 @@ struct block_eval {
     /* Above here is the same for sub, format and eval.  */
     SV *	old_namesv;
     OP *	old_eval_root;
-    SV *	cur_text;
+    PV *	cur_text;
     CV *	cv;
     JMPENV *	cur_top_env; /* value of PL_top_env when eval CX created */
 };

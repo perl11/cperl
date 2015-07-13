@@ -648,7 +648,7 @@ Perl_save_delete(pTHX_ HV *hv, char *key, I32 klen)
 }
 
 void
-Perl_save_hdelete(pTHX_ HV *hv, SV *keysv)
+Perl_save_hdelete(pTHX_ HV *hv, PV *keysv)
 {
     STRLEN len;
     I32 klen;

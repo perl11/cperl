@@ -44,10 +44,10 @@ Individual members of C<PL_parser> have their own documentation.
 
 #define new_constant(a,b,c,d,e,f,g,h)	\
 	S_new_constant(aTHX_ a, b, STR_WITH_LEN(c), d, e, f, g, h)
-#define def_coretype_1(sv) \
-    S_def_coretype(aTHX_ sv, NULL, 0)
-#define def_coretype_2(sv, t1, len) \
-    S_def_coretype(aTHX_ sv, t1, len)
+#define def_coretype_1(pv) \
+    S_def_coretype(aTHX_ pv, NULL, 0)
+#define def_coretype_2(pv, t1, len) \
+    S_def_coretype(aTHX_ pv, t1, len)
 #define CORETYPE_VERSION_STR "0.03c"
 #define CORETYPE_VERSION_NV   0.03
 
@@ -486,7 +486,7 @@ S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
         enum token_type type = TOKENTYPE_NONE;
         int itype = (int)type;
         const char *name = S_toke_name(aTHX_ rv, &itype);
-        SV* const report = newSVpvs("<== ");
+        PV* const report = newSVpvs("<== ");
         type = (enum token_type)itype;
         if (((U32)rv) & 0xff000000) { /* <<24 */
             Perl_sv_catpvf(aTHX_ report, "%c|", (char)(((U32)rv & 0xff000000) >> 24));
@@ -542,7 +542,7 @@ S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
 STATIC void
 S_printbuf(pTHX_ const char *const fmt, const char *const s)
 {
-    SV* const tmp = newSVpvs_flags("", SVs_TEMP);
+    PV* const tmp = newSVpvs_flags("", SVs_TEMP);
 
     PERL_ARGS_ASSERT_PRINTBUF;
 
@@ -554,9 +554,9 @@ S_printbuf(pTHX_ const char *const fmt, const char *const s)
 #endif
 
 static HV*
-S_def_coretype(pTHX_ SV *sv, const char *t1, int len)
+S_def_coretype(pTHX_ PV *sv, const char *t1, int len)
 {
-    HV* stash; AV* isa; SV* svisa; SV* version;
+    HV* stash; AV* isa; PV* svisa; PV* version;
     sv_catpvs(sv, "::");
     version = newSVpvn(SvPVX(sv), SvCUR(sv)); /* no utf8 */
     sv_catpvs(version, "VERSION");
@@ -568,7 +568,7 @@ S_def_coretype(pTHX_ SV *sv, const char *t1, int len)
     HvCLASS_on(stash);
     isa = GvAV(gv_AVadd(gv_fetchsv(svisa, GV_ADD|GV_NO_SVGMAGIC, SVt_PVAV)));
     if (t1)
-        av_push(isa, newSVpvn(t1, len));
+        av_push(isa, (SV*)newSVpvn(t1, len));
     mg_set(MUTABLE_SV(isa));
     SvREADONLY_on(MUTABLE_SV(isa));
     if (strNEc(SvPVX(sv), "Scalar::"))
@@ -719,7 +719,7 @@ S_missingterm(pTHX_ char *s, STRLEN len)
         s = tmpbuf;
     }
     q = memchr(s, '"', len) ? '\'' : '"';
-    sv = sv_2mortal(newSVpvn(s, len));
+    sv = sv_2mortal((SV*)newSVpvn(s, len));
     if (uni)
         SvUTF8_on(sv);
     Perl_croak(aTHX_ "Can't find string terminator %c%" SVf "%c"
@@ -822,7 +822,7 @@ the script handle is opened on fd 0)
 */
 
 void
-Perl_lex_start(pTHX_ SV *line, PerlIO *rsfp, U32 flags)
+Perl_lex_start(pTHX_ PV *line, PerlIO *rsfp, U32 flags)
 {
     const char *s = NULL;
     yy_parser *parser, *oparser;
@@ -1737,7 +1737,7 @@ Perl_lex_read_space(pTHX_ U32 flags)
 }
 
 /*
-=for apidoc EXMp|bool|validate_proto|SV *name|SV *proto|bool dowarn
+=for apidoc EXMp|bool|validate_proto|PV *name|PV *proto|bool dowarn
 
 This function performs syntax checking on a prototype, C<proto>.
 If C<warn> is true, any illegal characters or mismatched brackets
@@ -1757,7 +1757,7 @@ and returns FALSE then.  Thus the illegalproto warnings are relaxed.
 */
 
 bool
-Perl_validate_proto(pTHX_ SV *name, SV *proto, bool dowarn, bool curstash,
+Perl_validate_proto(pTHX_ PV *name, PV *proto, bool dowarn, bool curstash,
                     bool maybe_sig)
 {
     STRLEN len, origlen;
@@ -1830,7 +1830,7 @@ Perl_validate_proto(pTHX_ SV *name, SV *proto, bool dowarn, bool curstash,
 
     if (dowarn && (in_brackets || proto_after_greedy_proto ||
                    bad_proto   || bad_proto_after_underscore)) {
-        SV *tmpsv = newSVpvs_flags("", SVs_TEMP);
+        PV *tmpsv = newSVpvs_flags("", SVs_TEMP);
         p -= origlen;
         p = SvUTF8(proto)
             ? sv_uni_display(tmpsv,
@@ -1840,9 +1840,9 @@ Perl_validate_proto(pTHX_ SV *name, SV *proto, bool dowarn, bool curstash,
                         PERL_PV_ESCAPE_NONASCII);
 
         if (curstash && !memchr(SvPVX(name), ':', SvCUR(name))) {
-            SV *name2 = sv_2mortal(newSVsv(PL_curstname));
+            PV *name2 = (PV*)sv_2mortal((SV*)newSVsv(PL_curstname));
             sv_catpvs(name2, "::");
-            sv_catsv(name2, (SV *)name);
+            sv_catsv(name2, name);
             name = name2;
         }
 
@@ -2373,7 +2373,7 @@ S_force_ident_maybe_lex(pTHX_ char pit)
 }
 
 NV
-Perl_str_to_version(pTHX_ SV *sv)
+Perl_str_to_version(pTHX_ PV *sv)
 {
     NV retval = 0.0;
     NV nshift = 1.0;
@@ -2723,10 +2723,10 @@ STATIC I32
 S_sublex_done(pTHX)
 {
     if (!PL_lex_starts++) {
-        SV * const sv = newSVpvs("");
-        if (SvUTF8(PL_linestr))
-            SvUTF8_on(sv);
-        PL_expect = XOPERATOR;
+	PV * const sv = newSVpvs("");
+	if (SvUTF8(PL_linestr))
+	    SvUTF8_on(sv);
+	PL_expect = XOPERATOR;
         pl_yylval.opval = newSVOP(OP_CONST, 0, sv);
         return THING;
     }
@@ -4937,35 +4937,35 @@ Perl_find_in_coretypes(pTHX_ const char *pkgname, STRLEN len)
         if (strEQc(pkgname, "int") ||
             strEQc(pkgname, "str") ||
             strEQc(pkgname, "num")) {
-            SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
+            PV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
             return def_coretype_1(sv);
         }
         else if (strEQc(pkgname, "Int")) {
-            SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
+            PV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
             return def_coretype_2(sv, "int", 3);
         }
         else if (strEQc(pkgname, "Num")) {
-            SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
+            PV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
             return def_coretype_2(sv, "num", 3);
         }
         else if (strEQc(pkgname, "Str")) {
-            SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
+            PV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
             return def_coretype_2(sv, "str", 3);
         }
     } else if (len == 4) {
         if (strEQc(pkgname, "UInt")) {
-            SV *sv = newSVpvn_flags(pkgname, 4, SVs_TEMP);
+            PV *sv = newSVpvn_flags(pkgname, 4, SVs_TEMP);
             return def_coretype_2(sv, "uint", 4);
         }
         else if (strEQc(pkgname, "uint")) {
-            SV *sv = newSVpvn_flags(pkgname, 4, SVs_TEMP);
+            PV *sv = newSVpvn_flags(pkgname, 4, SVs_TEMP);
             return def_coretype_2(sv, "int", 3);
         }
     } else if (len == 6 && strEQc(pkgname, "Scalar")) {
-        SV *sv = newSVpvn_flags(pkgname, 6, SVs_TEMP);
+        PV *sv = newSVpvn_flags(pkgname, 6, SVs_TEMP);
         return def_coretype_1(sv);
     } else if (len == 7 && strEQc(pkgname, "Numeric")) {
-        SV *sv = newSVpvn_flags(pkgname, 7, SVs_TEMP);
+        PV *sv = newSVpvn_flags(pkgname, 7, SVs_TEMP);
         return def_coretype_2(sv, "Scalar", 6);
     }
     return NULL;
@@ -5176,12 +5176,12 @@ Perl_yylex(pTHX)
         PL_parser->recheck_utf8_validity = FALSE;
     }
     DEBUG_T( {
-        SV *tmp = newSVpvs_flags("", SVs_TEMP);
-        PerlIO_printf(Perl_debug_log, "### %" IVdf ":LEX_%s/X%s %s\n",
-            (IV)CopLINE(PL_curcop),
-            lex_state_names[PL_lex_state],
-            exp_name[PL_expect],
-            pv_display(tmp, s, strlen(s), 0, 60));
+        PV *tmp = newSVpvs_flags("", SVs_TEMP);
+	PerlIO_printf(Perl_debug_log, "### %" IVdf ":LEX_%s/X%s %s\n",
+	    (IV)CopLINE(PL_curcop),
+	    lex_state_names[PL_lex_state],
+	    exp_name[PL_expect],
+	    pv_display(tmp, s, strlen(s), 0, 60));
     } );
 
     /* when we've already built the next token, just pull it out of the queue */
@@ -5498,7 +5498,7 @@ Perl_yylex(pTHX)
             goto keylookup;
         }
     {
-        SV *dsv = newSVpvs_flags("", SVs_TEMP);
+        PV *dsv = newSVpvs_flags("", SVs_TEMP);
         const char *c;
         if (UTF) {
             STRLEN skiplen = UTF8SKIP(s);
@@ -7922,12 +7922,12 @@ Perl_yylex(pTHX)
 
                 if (!sv)
                     sv = S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len);
-                if (gvp) {
-                    SV * const tmp_sv = sv;
-                    sv = newSVpvs("CORE::GLOBAL::");
-                    sv_catsv(sv, tmp_sv);
-                    SvREFCNT_dec(tmp_sv);
-                }
+		if (gvp) {
+		    PV * const tmp_sv = sv;
+		    sv = newSVpvs("CORE::GLOBAL::");
+		    sv_catsv(sv, tmp_sv);
+		    SvREFCNT_dec(tmp_sv);
+		}
 
 
                 /* Presume this is going to be a bareword of some sort. */
@@ -10744,7 +10744,7 @@ S_scan_subst(pTHX_ char *start)
     }
 
     if (es) {
-        SV * const repl = newSVpvs("");
+	PV * const repl = newSVpvs("");
 
         PL_multi_end = 0;
         pm->op_pmflags |= PMf_EVAL;
@@ -12523,7 +12523,7 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
 STATIC char *
 S_scan_formline(pTHX_ char *s)
 {
-    SV * const stuff = newSVpvs("");
+    PV * const stuff = newSVpvs("");
     bool needargs = FALSE;
     bool eofmt = FALSE;
 
@@ -12730,8 +12730,8 @@ Perl_yyerror_pvn(pTHX_ const char *const s, STRLEN len, U32 flags)
 {
     const char *context = NULL;
     int contlen = -1;
-    SV *msg;
-    SV * const where_sv = newSVpvs_flags("", SVs_TEMP);
+    PV *msg;
+    PV * const where_sv = newSVpvs_flags("", SVs_TEMP);
     int yychar  = PL_parser->yychar;
 
     /* Output error message 's' with length 'len'.  'flags' are SV flags that

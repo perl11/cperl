@@ -25,10 +25,10 @@ typedef struct {
    ing scopes. */
 typedef struct yy_lexshared {
     struct yy_lexshared	*ls_prev;
-    SV			*ls_linestr;	/* mirrors PL_parser->linestr */
+    PV			*ls_linestr;	/* mirrors PL_parser->linestr */
     char		*ls_bufptr;	/* mirrors PL_parser->bufptr */
     char		*re_eval_start;	/* start of "(?{..." text */
-    SV			*re_eval_str;	/* "(?{...})" text */
+    PV			*re_eval_str;	/* "(?{...})" text */
 } LEXSHARED;
 
 #define TOKENBUF_SIZE 1024
@@ -82,7 +82,7 @@ typedef struct yy_parser {
     OP		*lex_sub_op;	/* current op in y/// or pattern */
     SV		*lex_sub_repl;	/* repl of s/// used in sublex_push */
     LEXSHARED	*lex_shared;
-    SV		*linestr;	/* current chunk of src text */
+    PV		*linestr;	/* current chunk of src text */
     char	*bufptr;	/* carries the cursor (current parsing
 				   position) from one invocation of yylex
 				   to the next */

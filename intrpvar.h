@@ -205,7 +205,7 @@ PERLVAR(I, na,		STRLEN)		/* for use in SvPV when length is
 /* stat stuff */
 PERLVAR(I, statcache,	Stat_t)		/* _ */
 PERLVAR(I, statgv,	GV *)
-PERLVARI(I, statname,	SV *,	NULL)
+PERLVARI(I, statname,	PV *,	NULL)
 
 /*
 =for apidoc mn|SV*|PL_rs
@@ -223,7 +223,7 @@ The glob containing the output field separator - C<*,> in Perl space.
 =cut
 */
 
-PERLVAR(I, rs,		SV *)		/* input record separator $/ */
+PERLVAR(I, rs,		PV *)		/* input record separator $/ */
 PERLVAR(I, last_in_gv,	GV *)		/* GV used in last <FH> */
 PERLVAR(I, ofsgv,	GV *)		/* GV of output field separator *, */
 PERLVAR(I, defoutgv,	GV *)		/* default FH for output */
@@ -357,7 +357,7 @@ PERLVAR(I, diehook,	SV *)
 PERLVAR(I, warnhook,	SV *)
 
 /* switches */
-PERLVAR(I, patchlevel,	SV *)
+PERLVAR(I, patchlevel,	PV *)
 PERLVAR(I, localpatches, const char * const *)
 PERLVARI(I, splitstr,	const char *, " ")
 
@@ -372,7 +372,7 @@ PERLVAR(I, doswitches,	bool)
 PERLVAR(I, minus_E,	bool)
 
 PERLVAR(I, inplace,	char *)
-PERLVAR(I, e_script,	SV *)
+PERLVAR(I, e_script,	PV *)
 
 PERLVAR(I, basetime,	Time_t)		/* $^T */
 
@@ -438,7 +438,7 @@ PERLVARA(I, DBcontrol,    DBVARMG_COUNT, IV) /* IV versions of $DB::single, trac
 /* symbol tables */
 PERLVAR(I, debstash,	HV *)		/* symbol table for perldb package */
 PERLVAR(I, globalstash,	HV *)		/* global keyword overrides imported here */
-PERLVAR(I, curstname,	SV *)		/* name of current package */
+PERLVAR(I, curstname,	PV *)		/* name of current package */
 PERLVAR(I, beginav,	AV *)		/* names of BEGIN subroutines */
 PERLVAR(I, endav,	AV *)		/* names of END subroutines */
 PERLVAR(I, unitcheckav,	AV *)		/* names of UNITCHECK subroutines */
@@ -470,7 +470,7 @@ PERLVAR(I, oldname,	char *)		/* what to preserve mode on */
    a single physical line. */
 PERLVAR(I, preambleav,	AV *)
 PERLVAR(I, mess_sv,	SV *)
-PERLVAR(I, ors_sv,	SV *)		/* output record separator $\ */
+PERLVAR(I, ors_sv,	PV *)		/* output record separator $\ */
 
 /* funky return mechanisms */
 PERLVAR(I, forkprocess,	int)		/* so do_open |- can return proc# */
@@ -569,7 +569,7 @@ PERLVARI(I, maxo,	int,	MAXO)	/* maximum number of ops */
 
 PERLVARI(I, runops,	runops_proc_t, RUNOPS_DEFAULT)
 
-PERLVAR(I, subname,	SV *)		/* name of current subroutine */
+PERLVAR(I, subname,	PV *)		/* name of current subroutine */
 
 PERLVAR(I, subline,	I32)		/* line this subroutine began on */
 PERLVAR(I, min_intro_pending, PADOFFSET)/* start of vars to introduce */
@@ -634,7 +634,7 @@ PERLVARI(I, numeric_underlying, bool, TRUE)
 					/* Assume underlying locale numerics */
 PERLVARI(I, numeric_underlying_is_standard, bool, TRUE)
 PERLVAR(I, numeric_name, char *)	/* Name of current numeric locale */
-PERLVAR(I, numeric_radix_sv, SV *)	/* The radix separator if not '.' */
+PERLVAR(I, numeric_radix_sv, PV *)	/* The radix separator if not '.' */
 
 #  ifdef HAS_POSIX_2008_LOCALE
 
@@ -667,7 +667,7 @@ PERLVAR(I, psig_ptr,	SV **)
 /* Array of names of signals, indexed by signal number, for (re)use as the first
    argument to a signal handler.   Only one block of memory is allocated for
    both psig_name and psig_ptr.  */
-PERLVAR(I, psig_name,	SV **)
+PERLVAR(I, psig_name,	PV **)
 
 #if defined(PERL_IMPLICIT_SYS)
 PERLVAR(I, Mem,		struct IPerlMem *)
@@ -799,7 +799,7 @@ PERLVARI(I, dumper_fd,	int,	-1)
 PERLVARI(I, sv_serial,	U32,	0)	/* SV serial number, used in sv.c */
 #endif
 
-PERLVARA(I, sv_consts, SV_CONSTS_COUNT, SV*)	/* constant SVs with precomputed hash value */
+PERLVARA(I, sv_consts, SV_CONSTS_COUNT, PV*)	/* constant PVs with precomputed hash value */
 
 #ifdef PERL_TRACE_OPS
 PERLVARA(I, op_exec_cnt, OP_max+2, UV)	/* Counts of executed OPs of the given type.

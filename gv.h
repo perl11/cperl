@@ -78,6 +78,10 @@ struct gp {
 
 Return the SV from the GV.
 
+=for apidoc Am|PV*|GvPV|GV* gv
+
+Return the PV from the GV.
+
 =for apidoc Am|AV*|GvAV|GV* gv
 
 Return the AV from the GV.
@@ -94,12 +98,15 @@ Return the CV from the GV.
 */
 
 #define GvSV(gv)	(GvGP(gv)->gp_sv)
+#define GvPV(gv)	(MUTABLE_PV(GvGP(gv)->gp_sv))
 #ifdef PERL_DONT_CREATE_GVSV
 #define GvSVn(gv)	(*(GvGP(gv)->gp_sv ? \
 			 &(GvGP(gv)->gp_sv) : \
 			 &(GvGP(gv_SVadd(gv))->gp_sv)))
+#define GvPVn(gv)	MUTABLE_PV(GvSVn(gv))
 #else
 #define GvSVn(gv)	GvSV(gv)
+#define GvPVn(gv)	GvPV(gv)
 #endif
 
 #define GvREFCNT(gv)	(GvGP(gv)->gp_refcnt)

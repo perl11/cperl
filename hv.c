@@ -421,7 +421,7 @@ S_assert_hechain(pTHX_ HE* entry)
 
 /* here klen must be positive */
 void *
-Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
+Perl_hv_common(pTHX_ HV *hv, PV *keysv, const char *key, I32 klen,
 	       int flags, int action, SV *val, U32 hash)
 {
     dVAR;
@@ -1003,11 +1003,11 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 }
 
 STATIC void*
-S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
+S_hv_common_magical(pTHX_ HV *hv, PV **keyp, const char *key, const I32 klen,
                     int flags, const int action, SV *val, const U32 hash,
                     int *return_action)
 {
-    SV* keysv = *keyp;
+    PV* keysv = *keyp;
     const bool is_utf8 = keysv ? (SvUTF8(keysv) != 0)
                                : ((flags & HVhek_UTF8) ? TRUE : FALSE);
     PERL_ARGS_ASSERT_HV_COMMON_MAGICAL;
@@ -1425,7 +1425,7 @@ value, or 0 to ask for it to be computed.
 */
 
 STATIC SV *
-S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
+S_hv_delete_common(pTHX_ HV *hv, PV *keysv, const char *key, I32 klen,
 		   int k_flags, I32 d_flags, U32 hash)
 {
     dVAR;

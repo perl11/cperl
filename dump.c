@@ -163,7 +163,7 @@ const struct flag_to_name pn_flags_names[] = {
 } STMT_END
 
 static void
-S_append_flags(pTHX_ SV *sv, U32 flags, const struct flag_to_name *start,
+S_append_flags(pTHX_ PV *sv, U32 flags, const struct flag_to_name *start,
 	       const struct flag_to_name *const end)
 {
     do {
@@ -231,7 +231,7 @@ Returns a pointer to the escaped text as held by C<dsv>.
 #define PV_ESCAPE_OCTBUFSIZE 32
 
 char *
-Perl_pv_escape( pTHX_ SV *dsv, char const * const str, 
+Perl_pv_escape( pTHX_ PV *dsv, char const * const str, 
                 const STRLEN count, const STRLEN max, 
                 STRLEN * const escaped, const U32 flags ) 
 {
@@ -365,7 +365,7 @@ Returns a pointer to the prettified text as held by C<dsv>.
 */
 
 char *
-Perl_pv_pretty( pTHX_ SV *dsv, char const * const str, const STRLEN count, 
+Perl_pv_pretty( pTHX_ PV *dsv, char const * const str, const STRLEN count, 
   const STRLEN max, char const * const start_color, char const * const end_color, 
   const U32 flags ) 
 {
@@ -433,7 +433,7 @@ Note that the final string may be up to 7 chars longer than pvlim.
 =cut
 */
 char *
-Perl_pv_display(pTHX_ SV *dsv, const char *pv, STRLEN cur, STRLEN len, STRLEN pvlim)
+Perl_pv_display(pTHX_ PV *dsv, const char *pv, STRLEN cur, STRLEN len, STRLEN pvlim)
 {
     PERL_ARGS_ASSERT_PV_DISPLAY;
 
@@ -1082,7 +1082,7 @@ const struct flag_to_name pmflags_flags_names[] = {
 static SV *
 S_pm_description(pTHX_ const PMOP *pm)
 {
-    SV * const desc = newSVpvs("");
+    PV * const desc = newSVpvs("");
     const REGEXP * const regex = PM_GETRE(pm);
     const U32 pmflags = pm->op_pmflags;
 

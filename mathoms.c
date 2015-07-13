@@ -158,7 +158,7 @@ Perl_sv_2nv(pTHX_ SV *sv)
  */
 
 char *
-Perl_sv_2pv(pTHX_ SV *sv, STRLEN *lp)
+Perl_sv_2pv(pTHX_ PV *sv, STRLEN *lp)
 {
     PERL_ARGS_ASSERT_SV_2PV;
 
@@ -175,7 +175,7 @@ use the macro wrapper C<SvPV_nolen(sv)> instead.
 */
 
 char *
-Perl_sv_2pv_nolen(pTHX_ SV *sv)
+Perl_sv_2pv_nolen(pTHX_ PV *sv)
 {
     PERL_ARGS_ASSERT_SV_2PV_NOLEN;
     return sv_2pv(sv, NULL);
@@ -193,7 +193,7 @@ Usually accessed via the C<SvPVbyte_nolen> macro.
 */
 
 char *
-Perl_sv_2pvbyte_nolen(pTHX_ SV *sv)
+Perl_sv_2pvbyte_nolen(pTHX_ PV *sv)
 {
     PERL_ARGS_ASSERT_SV_2PVBYTE_NOLEN;
 
@@ -212,7 +212,7 @@ Usually accessed via the C<SvPVutf8_nolen> macro.
 */
 
 char *
-Perl_sv_2pvutf8_nolen(pTHX_ SV *sv)
+Perl_sv_2pvutf8_nolen(pTHX_ PV *sv)
 {
     PERL_ARGS_ASSERT_SV_2PVUTF8_NOLEN;
 
@@ -254,7 +254,7 @@ Perl_sv_setsv(pTHX_ SV *dstr, SV *sstr)
  */
 
 void
-Perl_sv_catpvn(pTHX_ SV *dsv, const char* sstr, STRLEN slen)
+Perl_sv_catpvn(pTHX_ PV *dsv, const char* sstr, STRLEN slen)
 {
     PERL_ARGS_ASSERT_SV_CATPVN;
 
@@ -270,7 +270,7 @@ Like C<sv_catpvn>, but also handles 'set' magic.
 */
 
 void
-Perl_sv_catpvn_mg(pTHX_ SV *sv, const char *ptr, STRLEN len)
+Perl_sv_catpvn_mg(pTHX_ PV *sv, const char *ptr, STRLEN len)
 {
     PERL_ARGS_ASSERT_SV_CATPVN_MG;
 
@@ -282,7 +282,7 @@ Perl_sv_catpvn_mg(pTHX_ SV *sv, const char *ptr, STRLEN len)
  */
 
 void
-Perl_sv_catsv(pTHX_ SV *dstr, SV *sstr)
+Perl_sv_catsv(pTHX_ PV *dstr, PV *sstr)
 {
     PERL_ARGS_ASSERT_SV_CATSV;
 
@@ -298,7 +298,7 @@ Like C<sv_catsv>, but also handles 'set' magic.
 */
 
 void
-Perl_sv_catsv_mg(pTHX_ SV *dsv, SV *ssv)
+Perl_sv_catsv_mg(pTHX_ PV *dsv, PV *ssv)
 {
     PERL_ARGS_ASSERT_SV_CATSV_MG;
 
@@ -382,7 +382,7 @@ cope with complex macro expressions.  Always use the macro instead.
 */
 
 char *
-Perl_sv_pvn(pTHX_ SV *sv, STRLEN *lp)
+Perl_sv_pvn(pTHX_ PV *sv, STRLEN *lp)
 {
     PERL_ARGS_ASSERT_SV_PVN;
 
@@ -395,7 +395,7 @@ Perl_sv_pvn(pTHX_ SV *sv, STRLEN *lp)
 
 
 char *
-Perl_sv_pvn_nomg(pTHX_ SV *sv, STRLEN *lp)
+Perl_sv_pvn_nomg(pTHX_ PV *sv, STRLEN *lp)
 {
     PERL_ARGS_ASSERT_SV_PVN_NOMG;
 
@@ -411,7 +411,7 @@ Perl_sv_pvn_nomg(pTHX_ SV *sv, STRLEN *lp)
  */
 
 char *
-Perl_sv_pv(pTHX_ SV *sv)
+Perl_sv_pv(pTHX_ PV *sv)
 {
     PERL_ARGS_ASSERT_SV_PV;
 
@@ -426,7 +426,7 @@ Perl_sv_pv(pTHX_ SV *sv)
  */
 
 char *
-Perl_sv_pvn_force(pTHX_ SV *sv, STRLEN *lp)
+Perl_sv_pvn_force(pTHX_ PV *sv, STRLEN *lp)
 {
     PERL_ARGS_ASSERT_SV_PVN_FORCE;
 
@@ -438,7 +438,7 @@ Perl_sv_pvn_force(pTHX_ SV *sv, STRLEN *lp)
  */
 
 char *
-Perl_sv_pvbyte(pTHX_ SV *sv)
+Perl_sv_pvbyte(pTHX_ PV *sv)
 {
     PERL_ARGS_ASSERT_SV_PVBYTE;
 
@@ -461,7 +461,7 @@ instead.
 */
 
 char *
-Perl_sv_pvbyten(pTHX_ SV *sv, STRLEN *lp)
+Perl_sv_pvbyten(pTHX_ PV *sv, STRLEN *lp)
 {
     PERL_ARGS_ASSERT_SV_PVBYTEN;
 
@@ -474,7 +474,7 @@ Perl_sv_pvbyten(pTHX_ SV *sv, STRLEN *lp)
  */
 
 char *
-Perl_sv_pvutf8(pTHX_ SV *sv)
+Perl_sv_pvutf8(pTHX_ PV *sv)
 {
     PERL_ARGS_ASSERT_SV_PVUTF8;
 
@@ -497,7 +497,7 @@ instead.
 */
 
 char *
-Perl_sv_pvutf8n(pTHX_ SV *sv, STRLEN *lp)
+Perl_sv_pvutf8n(pTHX_ PV *sv, STRLEN *lp)
 {
     PERL_ARGS_ASSERT_SV_PVUTF8N;
 
@@ -510,7 +510,7 @@ Perl_sv_pvutf8n(pTHX_ SV *sv, STRLEN *lp)
  */
 
 STRLEN
-Perl_sv_utf8_upgrade(pTHX_ SV *sv)
+Perl_sv_utf8_upgrade(pTHX_ PV *sv)
 {
     PERL_ARGS_ASSERT_SV_UTF8_UPGRADE;
 
@@ -571,7 +571,7 @@ Perl_huge(void)
 
 /* compatibility with versions <= 5.003. */
 void
-Perl_gv_fullname(pTHX_ SV *sv, const GV *gv)
+Perl_gv_fullname(pTHX_ PV *sv, const GV *gv)
 {
     PERL_ARGS_ASSERT_GV_FULLNAME;
 
@@ -588,7 +588,7 @@ Perl_gv_efullname(pTHX_ SV *sv, const GV *gv)
 }
 
 void
-Perl_gv_fullname3(pTHX_ SV *sv, const GV *gv, const char *prefix)
+Perl_gv_fullname3(pTHX_ PV *sv, const GV *gv, const char *prefix)
 {
     PERL_ARGS_ASSERT_GV_FULLNAME3;
 
@@ -792,7 +792,7 @@ Like C<sv_usepvn>, but also handles 'set' magic.
 */
 
 void
-Perl_sv_usepvn_mg(pTHX_ SV *sv, char *ptr, STRLEN len)
+Perl_sv_usepvn_mg(pTHX_ PV *sv, char *ptr, STRLEN len)
 {
     PERL_ARGS_ASSERT_SV_USEPVN_MG;
 
@@ -862,13 +862,13 @@ Perl_pack_cat(pTHX_ SV *cat, const char *pat, const char *patend, SV **beglist, 
 }
 
 HE *
-Perl_hv_store_ent(pTHX_ HV *hv, SV *keysv, SV *val, U32 hash)
+Perl_hv_store_ent(pTHX_ HV *hv, PV *keysv, SV *val, U32 hash)
 {
   return (HE *)hv_common(hv, keysv, NULL, 0, 0, HV_FETCH_ISSTORE, val, hash);
 }
 
 bool
-Perl_hv_exists_ent(pTHX_ HV *hv, SV *keysv, U32 hash)
+Perl_hv_exists_ent(pTHX_ HV *hv, PV *keysv, U32 hash)
 {
     PERL_ARGS_ASSERT_HV_EXISTS_ENT;
 
@@ -876,7 +876,7 @@ Perl_hv_exists_ent(pTHX_ HV *hv, SV *keysv, U32 hash)
 }
 
 HE *
-Perl_hv_fetch_ent(pTHX_ HV *hv, SV *keysv, I32 lval, U32 hash)
+Perl_hv_fetch_ent(pTHX_ HV *hv, PV *keysv, I32 lval, U32 hash)
 {
     PERL_ARGS_ASSERT_HV_FETCH_ENT;
 
@@ -885,7 +885,7 @@ Perl_hv_fetch_ent(pTHX_ HV *hv, SV *keysv, I32 lval, U32 hash)
 }
 
 SV *
-Perl_hv_delete_ent(pTHX_ HV *hv, SV *keysv, I32 flags, U32 hash)
+Perl_hv_delete_ent(pTHX_ HV *hv, PV *keysv, I32 flags, U32 hash)
 {
     PERL_ARGS_ASSERT_HV_DELETE_ENT;
 

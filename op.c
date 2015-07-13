@@ -2151,13 +2151,13 @@ S_op_varname(pTHX_ const OP *o)
 }
 
 static void
-S_op_pretty(pTHX_ const OP *o, SV **retsv, const char **retpv)
+S_op_pretty(pTHX_ const OP *o, PV **retsv, const char **retpv)
 { /* or not so pretty :-) */
     if (IS_CONST_OP(o)) {
-	*retsv = cSVOPo_sv;
+	*retsv = (PV*)cSVOPo_sv;
 	if (SvPOK(*retsv)) {
-	    SV *sv = *retsv;
-	    *retsv = sv_newmortal();
+	    PV *sv = *retsv;
+	    *retsv = (PV*)sv_newmortal();
 	    pv_pretty(*retsv, SvPVX_const(sv), SvCUR(sv), 32, NULL, NULL,
 		      PERL_PV_PRETTY_DUMP |PERL_PV_ESCAPE_UNI_DETECT);
 	}
@@ -2174,8 +2174,8 @@ S_scalar_slice_warning(pTHX_ const OP *o)
     const bool h = OP_TYPE_IS_OR_WAS_NN(o, OP_HSLICE);
     const char lbrack = h ? '{' : '[';
     const char rbrack = h ? '}' : ']';
-    SV *name;
-    SV *keysv = NULL; /* just to silence compiler warnings */
+    PV *name;
+    PV *keysv = NULL; /* just to silence compiler warnings */
     const char *key = NULL;
 
     if (!(o->op_private & OPpSLICEWARNING))
@@ -2961,7 +2961,7 @@ S_check_hash_fields_and_hekify(pTHX_ UNOP *rop, SVOP *key_op, int real)
        as in do {} while */
     CLANG35_DIAG_IGNORE(-Wpointer-bool-conversion);
     for (; key_op; key_op = (SVOP*)OpSIBLING(key_op)) {
-        SV **svp, *sv;
+        PV **svp, *sv;
         CLANG35_DIAG_RESTORE;
         if (ISNT_TYPE(key_op, CONST))
             continue;
@@ -6024,7 +6024,7 @@ S_move_proto_attr(pTHX_ OP **proto, OP **attrs, const GV * name,
             if (IS_CONST_OP(o)) {
                 pv = SvPV(cSVOPo_sv, pvlen);
                 if (memBEGINs(pv, pvlen, "prototype(")) {
-                    SV * const tmpsv = newSVpvn_flags(pv + 10, pvlen - 11, SvUTF8(cSVOPo_sv));
+                    PV * const tmpsv = newSVpvn_flags(pv + 10, pvlen - 11, SvUTF8(cSVOPo_sv));
                     SV ** const tmpo = cSVOPx_svp(o);
                     SvREFCNT_dec(cSVOPo_sv);
                     *tmpo = tmpsv;
@@ -6057,7 +6057,7 @@ S_move_proto_attr(pTHX_ OP **proto, OP **attrs, const GV * name,
     }
 
     if (new_proto) {
-        SV *svname;
+        PV *svname;
         if (isGV(name)) {
             svname = sv_newmortal();
             gv_efullname3(svname, name, NULL);
@@ -6066,7 +6066,7 @@ S_move_proto_attr(pTHX_ OP **proto, OP **attrs, const GV * name,
             svname = newSVpvn_flags(SvPVX((SV *)name)+1, SvCUR(name)-1,
                                     SvUTF8(name)|SVs_TEMP);
         else
-            svname = (SV *)name;
+            svname = (PV *)name;
         if (ckWARN(WARN_ILLEGALPROTO)) {
             if (!validate_proto(svname, cSVOPx_sv(new_proto), TRUE, curstash, FALSE))
                 return;
@@ -8098,7 +8098,7 @@ METHOD_REDIR_SUPER, CUSTOM.
 */
 
 static OP*
-S_newMETHOP_internal(pTHX_ I32 type, I32 flags, OP* dynamic_meth, SV* const_meth) {
+S_newMETHOP_internal(pTHX_ I32 type, I32 flags, OP* dynamic_meth, PV* const_meth) {
     dVAR;
     METHOP *methop;
 
@@ -8140,7 +8140,7 @@ Perl_newMETHOP (pTHX_ I32 type, I32 flags, OP* dynamic_meth) {
 }
 
 /*
-=for apidoc Am|OP *|newMETHOP_named|I32 type|I32 flags|SV *const_meth
+=for apidoc Am|OP *|newMETHOP_named|I32 type|I32 flags|PV *const_meth
 
 Constructs, checks, and returns an op of method type with a constant
 method name.  C<type> is the opcode.  C<flags> gives the eight bits of
@@ -8153,7 +8153,7 @@ Supported optypes: C<OP_METHOD_NAMED>.
 */
 
 OP *
-Perl_newMETHOP_named (pTHX_ I32 type, I32 flags, SV* const_meth) {
+Perl_newMETHOP_named (pTHX_ I32 type, I32 flags, PV* const_meth) {
     PERL_ARGS_ASSERT_NEWMETHOP_NAMED;
     return newMETHOP_internal(type, flags, NULL, const_meth);
 }
@@ -8289,8 +8289,8 @@ S_pmtrans(pTHX_ OP *o, OP *expr, OP *repl)
          * see L<perlunicode.pod/"User-Defined Character Properties"> .
          */
 
-	SV* const listsv = newSVpvs("# comment\n");
-	SV* transv = NULL;
+	PV* const listsv = newSVpvs("# comment\n");
+	PV* transv = NULL;
 	const U8* tend = t + tlen;
 	const U8* rend = r + rlen;
 	STRLEN ulen;
@@ -8407,11 +8407,11 @@ S_pmtrans(pTHX_ OP *o, OP *expr, OP *repl)
 	}
 
 	if (!squash) {
-		if ((!rlen && !del) || t == r ||
-		    (tlen == rlen && memEQ((char *)t, (char *)r, tlen)))
-		{
-		    o->op_private |= OPpTRANS_IDENTICAL;
-		}
+            if ((!rlen && !del) || t == r ||
+                (tlen == rlen && memEQ((char *)t, (char *)r, tlen)))
+	    {
+                o->op_private |= OPpTRANS_IDENTICAL;
+            }
 	}
 
         /* extract char ranges from t and r and append them to listsv */
@@ -9574,7 +9574,7 @@ than C<use>.
 =cut */
 
 void
-Perl_load_module(pTHX_ U32 flags, SV *name, SV *ver, ...)
+Perl_load_module(pTHX_ U32 flags, PV *name, SV *ver, ...)
 {
     va_list args;
 
@@ -9587,7 +9587,7 @@ Perl_load_module(pTHX_ U32 flags, SV *name, SV *ver, ...)
 
 #ifdef PERL_IMPLICIT_CONTEXT
 void
-Perl_load_module_nocontext(U32 flags, SV *name, SV *ver, ...)
+Perl_load_module_nocontext(U32 flags, PV *name, SV *ver, ...)
 {
     dTHX;
     va_list args;
@@ -9599,7 +9599,7 @@ Perl_load_module_nocontext(U32 flags, SV *name, SV *ver, ...)
 #endif
 
 void
-Perl_vload_module(pTHX_ U32 flags, SV *name, SV *ver, va_list *args)
+Perl_vload_module(pTHX_ U32 flags, PV *name, SV *ver, va_list *args)
 {
     OP *veop, *imop;
     OP * modname;
@@ -22513,7 +22513,7 @@ by C<keyword()>.  It must not be equal to 0.
 =cut
 */
 
-SV *
+PV *
 Perl_core_prototype(pTHX_ SV *sv, const char *name, const int code,
                           int * const opnum)
 {
@@ -22612,7 +22612,7 @@ Perl_core_prototype(pTHX_ SV *sv, const char *name, const int code,
     str[n++] = '\0';
     sv_setpvn(sv, str, n - 1);
     if (opnum) *opnum = i;
-    return sv;
+    return MUTABLE_PV(sv);
 }
 
 /*
@@ -22705,7 +22705,7 @@ when use warnings 'redefine' is in effect.
 =cut
 */
 void
-Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_cv,
+Perl_report_redefined_cv(pTHX_ const PV *name, const CV *old_cv,
                          SV * const *new_const_svp)
 {
     const char *hvname;

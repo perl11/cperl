@@ -102,7 +102,7 @@ Perl_mro_set_private_data(pTHX_ struct mro_meta *const smeta,
 }
 
 const struct mro_alg *
-Perl_mro_get_from_name(pTHX_ SV *name) {
+Perl_mro_get_from_name(pTHX_ PV *name) {
     SV **data;
 
     PERL_ARGS_ASSERT_MRO_GET_FROM_NAME;
@@ -878,7 +878,7 @@ Perl_mro_package_moved(pTHX_ HV * const stash, HV * const oldstash,
 
 STATIC void
 S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
-                              HV *stash, HV *oldstash, SV *namesv)
+                              HV *stash, HV *oldstash, PV *namesv)
 {
     XPVHV* xhv;
     HE *entry;

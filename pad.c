@@ -681,7 +681,7 @@ Perl_pad_add_name_pv(pTHX_ const char *name,
 }
 
 /*
-=for apidoc Am|PADOFFSET|pad_add_name_sv|SV *name|U32 flags|HV *typestash|HV *ourstash
+=for apidoc Am|PADOFFSET|pad_add_name_sv|PV *name|U32 flags|HV *typestash|HV *ourstash
 
 Exactly like L</pad_add_name_pvn>, but takes the name string in the form
 of an SV instead of a string/length pair.
@@ -690,7 +690,7 @@ of an SV instead of a string/length pair.
 */
 
 PADOFFSET
-Perl_pad_add_name_sv(pTHX_ SV *name, U32 flags, HV *typestash, HV *ourstash)
+Perl_pad_add_name_sv(pTHX_ PV *name, U32 flags, HV *typestash, HV *ourstash)
 {
     char *namepv;
     STRLEN namelen;
@@ -1039,17 +1039,17 @@ Perl_pad_findmy_pv(pTHX_ const char *name, U32 flags)
 }
 
 /*
-=for apidoc Am|PADOFFSET|pad_findmy_sv|SV *name|U32 flags
+=for apidoc Am|PADOFFSET|pad_findmy_sv|PV *name|U32 flags
 
 Exactly like L</pad_findmy_pvn>, but takes the name string in the form
-of an SV instead of a string/length pair.
+of an PV instead of a string/length pair.
 
 flags must be 0, all pads are utf8
 =cut
 */
 
 PADOFFSET
-Perl_pad_findmy_sv(pTHX_ SV *name, U32 flags)
+Perl_pad_findmy_sv(pTHX_ PV *name, U32 flags)
 {
     char *namepv;
     STRLEN namelen;

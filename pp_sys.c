@@ -515,7 +515,7 @@ PP(pp_die)
 /* I/O. */
 
 OP *
-Perl_tied_method(pTHX_ SV *methname, SV **sp, SV *const sv,
+Perl_tied_method(pTHX_ PV *methname, SV **sp, SV *const sv,
 		 const MAGIC *const mg, const U32 flags, U32 argc, ...)
 {
     SV **orig_sp = sp;
