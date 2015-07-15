@@ -134,6 +134,7 @@ our $show_elapsed_time = $ENV{HARNESS_TIMER} || 0;
 # can't rely on require working.
 {
     my @argv = ();
+    $::debug = '';
     foreach my $idx (0..$#ARGV) {
 	push( @argv, $ARGV[$idx] ), next unless $ARGV[$idx] =~ /^-(\S+)$/;
 	$::benchmark = 1 if $1 eq 'benchmark';
@@ -143,6 +144,9 @@ our $show_elapsed_time = $ENV{HARNESS_TIMER} || 0;
 	$::with_utf8 = 1 if $1 eq 'utf8';
 	$::with_utf16 = 1 if $1 eq 'utf16';
 	$::taintwarn = 1 if $1 eq 'taintwarn';
+	if ($1 =~ /^(D\w+)$/) {
+	    $::debug = "-".$1;
+        }
 	if ($1 =~ /^deparse(,.+)?$/) {
 	    $::deparse = 1;
 	    $::deparse_opts = $1;
@@ -253,6 +257,9 @@ sub _scan_test {
 	} else {
 	    $testswitch = '-I.. -MTestInit';  # -T will remove . from @INC
 	}
+        if ($::debug) {
+            $testswitch .= " $::debug";
+        }
     }
 
     my $utf8 = ($::with_utf8 || $::with_utf16) ? "-I$lib -Mutf8" : '';
