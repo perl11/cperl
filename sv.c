@@ -1629,7 +1629,7 @@ Perl_sv_grow(pTHX_ SV *const sv, STRLEN newlen)
 
     if (newlen > SvLEN(sv)) {		/* need more room? */
 	STRLEN minlen = SvCUR(sv);
-	minlen += (minlen >> PERL_STRLEN_EXPAND_SHIFT) + 2;
+	minlen += (minlen >> PERL_STRLEN_EXPAND_SHIFT) + 1;
 	if (newlen < minlen)
 	    newlen = minlen;
 #ifndef PERL_UNWARANTED_CHUMMINESS_WITH_MALLOC
@@ -4679,9 +4679,9 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
 			     many COW "copies" are possible. */
 		       && CowREFCNT(sstr) != SV_COW_REFCNT_MAX  ))
 		   : (  (sflags & CAN_COW_MASK) == CAN_COW_FLAGS
-		     && !(SvFLAGS(dstr) & SVf_BREAK)
-                        && CHECK_COW_THRESHOLD(cur,len) && cur+1 < len /* <= for new cow */
-                     && (CHECK_COWBUF_THRESHOLD(cur,len) || SvLEN(dstr) < cur+1)
+                        && !(SvFLAGS(dstr) & SVf_BREAK)
+                        && CHECK_COW_THRESHOLD(cur,len)
+                        && (CHECK_COWBUF_THRESHOLD(cur,len) || SvLEN(dstr) < cur+1)
 		    ))
 #else
 		 sflags & SVf_IsCOW
@@ -4737,6 +4737,7 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
 	    }
 	    SvLEN_set(dstr, len);
 	    SvCUR_set(dstr, cur);
+            CowREFCNT(dstr) = CowREFCNT(sstr);
 	    SvIsCOW_on(dstr);
 	} else {
 	    /* Failed the swipe test, and we cannot do copy-on-write either.
@@ -4914,8 +4915,12 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
                 HEK_TAINTED_on(hek);
 	    goto common_exit;
 	}
-	assert(SvCUR(sstr)+1 < SvLEN(sstr));
+# ifdef PERL_OLD_COPY_ON_WRITE
+	SV_COW_NEXT_SV_SET(dstr, SV_COW_NEXT_SV(sstr));
+# else
+	assert(SvCUR(sstr)+1 <= SvLEN(sstr));
 	assert(CowREFCNT(sstr) < SV_COW_REFCNT_MAX);
+# endif
     } else {
 	assert ((SvFLAGS(sstr) & CAN_COW_MASK) == CAN_COW_FLAGS);
 	SvUPGRADE(sstr, SVt_COW);
@@ -4933,6 +4938,7 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
 
   common_exit:
     SvPV_set(dstr, new_pv);
+    CowREFCNT(dstr) = CowREFCNT(sstr);
     SvFLAGS(dstr) = (SVt_COW|SVf_POK|SVp_POK|SVf_IsCOW);
     if (SvUTF8(sstr))
 	SvUTF8_on(dstr);
@@ -5247,13 +5253,8 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
         SvIsCOW_off(sv);
 # ifdef PERL_COPY_ON_WRITE
 	if (len) {
-	    /* Must do this first, since the CowREFCNT uses SvPVX and
-	    we need to write to CowREFCNT, or de-RO the whole buffer if we are
-	    the only owner left of the buffer. */
-            sv_buf_to_rw(sv); /* NOOP if RO-ing not supported */
             if (CowREFCNT(sv) != 0) {
                 CowREFCNT_dec(sv);
-                sv_buf_to_ro(sv);
                 goto copy_over;
             }
 	    /* Else we are the only owner of the buffer. */
