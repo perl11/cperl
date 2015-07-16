@@ -5259,16 +5259,20 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
 	{
             /* This SV doesn't own the buffer, so need to Newx() a new one:  */
             copy_over:
-            SvPV_set(sv, NULL);
-            SvCUR_set(sv, 0);
-            SvLEN_set(sv, 0);
             if (flags & SV_COW_DROP_PV) {
                 DEBUG_C(PerlIO_printf(Perl_debug_log,
                                       "Uncopy on write: drop pv \"%s\"\n", pvx));
                 /* OK, so we don't need to copy our buffer.  */
+                SvPV_set(sv, NULL);
+                SvCUR_set(sv, 0);
+                SvLEN_set(sv, 0);
                 SvPOK_off(sv);
             } else {
-                SvGROW(sv, cur+1);
+                const STRLEN len = cur+1;
+                if (SvLEN(sv) < len)
+                    sv_grow(sv, len); /* sets len */
+                else
+                    SvLEN_set(sv, len);
                 Move(pvx,SvPVX(sv),cur,char);
                 SvCUR_set(sv, cur);
                 *SvEND(sv) = '\0';
