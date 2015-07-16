@@ -4471,12 +4471,12 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
     if (UNLIKELY( dtype == SVt_PVCV )) {
 	/* Assigning to a subroutine sets the prototype.  */
 	if (SvOK(sstr)) {
-	    STRLEN len;
-	    const char *const ptr = SvPV_const(sstr, len);
+	    STRLEN cur;
+	    const char *const ptr = SvPV_const(sstr, cur);
 
-            SvGROW(dstr, len + 1);
-            Copy(ptr, SvPVX(dstr), len + 1, char);
-            SvCUR_set(dstr, len);
+            SvGROW(dstr, cur + 1);
+            Copy(ptr, SvPVX(dstr), cur + 1, char);
+            SvCUR_set(dstr, cur);
 	    SvPOK_only(dstr);
 	    SvFLAGS(dstr) |= sflags & SVf_UTF8;
 	    CvAUTOLOAD_off(dstr);
@@ -5272,7 +5272,7 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
                 /* OK, so we don't need to copy our buffer.  */
                 SvPOK_off(sv);
             } else {
-                SvGROW(sv, cur + 1);
+                SvGROW(sv, cur+1);
                 Move(pvx,SvPVX(sv),cur,char);
                 SvCUR_set(sv, cur);
                 *SvEND(sv) = '\0';
