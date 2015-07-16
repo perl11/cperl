@@ -1265,8 +1265,7 @@ Perl_do_kv(pTHX)
 	    XPUSHs(sv);
 	}
 	if (dovalues) {
-	    SV *tmpstr;
-	    tmpstr = hv_iterval(keys,entry);
+	    SV *tmpstr = hv_iterval(keys,entry);
 #if 0
 	    DEBUG_H(Perl_sv_setpvf(aTHX_ tmpstr, "%lu%%%d=%lu",
 			    (unsigned long)HeHASH(entry),
