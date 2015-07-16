@@ -4179,7 +4179,7 @@ PP(pp_entereval)
 
     /* prepare to compile string */
 
-    if ((PERLDB_LINE || PERLDB_SAVESRC) && PL_curstash != PL_debstash)
+    if (PERLDB_LINE_OR_SAVESRC && PL_curstash != PL_debstash)
 	save_lines(CopFILEAV(&PL_compiling), PL_parser->linestr);
     else {
 	/* XXX For C<eval "...">s within BEGIN {} blocks, this ends up
@@ -4196,7 +4196,7 @@ PP(pp_entereval)
 
     if (doeval(gimme, runcv, seq, saved_hh)) {
 	if (was != PL_breakable_sub_gen /* Some subs defined here. */
-	    ? (PERLDB_LINE || PERLDB_SAVESRC)
+	    ?  PERLDB_LINE_OR_SAVESRC
 	    :  PERLDB_SAVESRC_NOSUBS) {
 	    /* Retain the filegv we created.  */
 	} else if (!saved_delete) {
@@ -4208,7 +4208,7 @@ PP(pp_entereval)
 	/* We have already left the scope set up earlier thanks to the LEAVE
 	   in doeval().  */
 	if (was != PL_breakable_sub_gen /* Some subs defined here. */
-	    ? (PERLDB_LINE || PERLDB_SAVESRC)
+	    ?  PERLDB_LINE_OR_SAVESRC
 	    :  PERLDB_SAVESRC_INVALID) {
 	    /* Retain the filegv we created.  */
 	} else if (!saved_delete) {
