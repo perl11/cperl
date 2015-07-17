@@ -27,7 +27,9 @@ if ( @ARGV ) {
 # Term::ReadLine is not here for building but for allowing the debugger to
 # run under miniperl when nothing but miniperl will build :-(.
 
-my @toolchain = qw(cpan/AutoLoader/lib
+my @toolchain = qw(
+		   dist/Exporter/lib
+		   cpan/AutoLoader/lib
 		   dist/Carp/lib
 		   dist/PathTools dist/PathTools/lib
 		   cpan/ExtUtils-Install/lib
@@ -36,7 +38,6 @@ my @toolchain = qw(cpan/AutoLoader/lib
 		   cpan/File-Path/lib
 		   ext/re
 		   dist/Term-ReadLine/lib
-                   dist/Exporter/lib
                    ext/File-Find/lib
                    cpan/Text-Tabs/lib
 		   dist/constant/lib

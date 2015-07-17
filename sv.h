@@ -1995,7 +1995,7 @@ Like C<sv_catsv> but doesn't process magic.
 #define SV_SMAGIC		128
 #define SV_HAS_TRAILING_NUL	256
 #define SV_COW_SHARED_HASH_KEYS	512
-/* This one is only enabled for PERL_OLD_COPY_ON_WRITE */
+/* This one was only enabled for PERL_OLD_COPY_ON_WRITE */
 /* XXX This flag actually enabled for any COW.  But it appears not to do
        anything.  Can we just remove it?  Or will it serve some future
        purpose.  */
@@ -2039,7 +2039,7 @@ Like C<sv_catsv> but doesn't process magic.
 #define SV_CHECK_THINKFIRST_COW_DROP(sv) if (SvTHINKFIRST(sv)) \
 				    sv_force_normal_flags(sv, SV_COW_DROP_PV)
 
-#ifdef PERL_OLD_COPY_ON_WRITE
+#ifdef PERL_COPY_ON_WRITE
 #define SvRELEASE_IVX(sv)   \
     ((SvIsCOW(sv) ? sv_force_normal_flags(sv, 0) : (void) 0), 0)
 #  define SvIsCOW_normal(sv)	(SvIsCOW(sv) && SvLEN(sv))
@@ -2085,7 +2085,7 @@ mg.c:1024: warning: left-hand operand of comma expression has no effect
 # else
 #  define SV_REFCNT_MAX	U32_MAX
 #  endif
-#endif /* PERL_OLD_COPY_ON_WRITE */
+#endif /* PERL_COPY_ON_WRITE */
 
 #define CAN_COW_FLAGS	(SVp_POK|SVf_POK)
 
@@ -2294,9 +2294,9 @@ properly null terminated. Equivalent to sv_setpvs(""), but more efficient.
 
 #ifdef DEBUGGING
    /* exercise the immortal resurrection code in sv_free2() */
-#  define SvREFCNT_IMMORTAL 1000
+#  define SvREFCNT_IMMORTAL 10000
 #else
-#  define SvREFCNT_IMMORTAL ((~(U32)0)/2)
+#  define SvREFCNT_IMMORTAL SV_REFCNT_MAX
 #endif
 
 /*

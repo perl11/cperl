@@ -5647,8 +5647,10 @@ you see this message, something is very wrong.
 
 =item refcnt of %s (%p) too high. skipped
 
-(S) Too many references for this variable. This is only printed with a
-DEBUGGING perl.
+(W) This one object is referenced too much. The refcount exceeded
+SV_REFCNT_MAX and will not be incremented any more. That means this
+object will leak, which is usually harmless, but if used lexically
+will not be closed at the end of scope.
 
 =item Reference found where even-sized list expected
 

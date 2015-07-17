@@ -2639,15 +2639,19 @@ typedef struct padname PADNAME;
 #  define PERL_OP_PARENT
 #endif
 
-/* enable PERL_COPY_ON_WRITE by default */
-#if !defined(PERL_COPY_ON_WRITE) && !defined(PERL_NO_COW)
-#  define PERL_COPY_ON_WRITE
+#if !defined(PERL_COPY_ON_WRITE) && !defined(PERL_NEW_COPY_ON_WRITE) && !defined(PERL_NO_COW)
+#  define PERL_NEW_COPY_ON_WRITE
 #endif
 
-#ifdef PERL_COPY_ON_WRITE
+#if defined(PERL_COPY_ON_WRITE) || defined(PERL_NEW_COPY_ON_WRITE)
+# if defined(PERL_COPY_ON_WRITE) && defined(PERL_NEW_COPY_ON_WRITE)
+#  error PERL_COPY_ON_WRITE and PERL_NEW_COPY_ON_WRITE are exclusive
+# else
 #  define PERL_ANY_COW
+# endif
 #else
-# define PERL_SAWAMPERSAND
+# define PERL_NO_COW
+# undef  PERL_ANY_COW
 #endif
 
 /* If to optimize away NULL ops in rpeep() */

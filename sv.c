@@ -4671,7 +4671,7 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
         }
 	else if (flags & SV_COW_SHARED_HASH_KEYS
 	      &&
-#ifdef PERL_COPY_ON_WRITE
+#if defined(PERL_COPY_ON_WRITE)
 		 (sflags & SVf_IsCOW
 		   ? (!len ||
                        (  (CHECK_COWBUF_THRESHOLD(cur,len) || SvLEN(dstr) < cur+1)
@@ -4875,7 +4875,7 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
     STRLEN cur = SvCUR(sstr);
     STRLEN len = SvLEN(sstr);
     char *new_pv;
-#if defined(PERL_DEBUG_READONLY_COW) && defined(PERL_COPY_ON_WRITE)
+#if defined(PERL_DEBUG_READONLY_COW) && defined(PERL_ANY_COW)
     const bool already = cBOOL(SvIsCOW(sstr));
 #endif
 
@@ -4903,7 +4903,6 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
     assert (SvPOKp(sstr));
 
     if (SvIsCOW(sstr)) {
-
 	if (SvLEN(sstr) == 0) {
             HEK* hek = share_hek_hek(SvSHARED_HEK_FROM_PV(SvPVX_const(sstr)));
 	    /* source is a COW shared hash key.  */
@@ -4915,12 +4914,8 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
                 HEK_TAINTED_on(hek);
 	    goto common_exit;
 	}
-# ifdef PERL_OLD_COPY_ON_WRITE
-	SV_COW_NEXT_SV_SET(dstr, SV_COW_NEXT_SV(sstr));
-# else
 	assert(SvCUR(sstr)+1 <= SvLEN(sstr));
 	assert(CowREFCNT(sstr) < SV_COW_REFCNT_MAX);
-# endif
     } else {
 	assert ((SvFLAGS(sstr) & CAN_COW_MASK) == CAN_COW_FLAGS);
 	SvUPGRADE(sstr, SVt_COW);
@@ -5251,7 +5246,7 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
         }
 #endif
         SvIsCOW_off(sv);
-# ifdef PERL_COPY_ON_WRITE
+# ifdef PERL_NEW_COPY_ON_WRITE
 	if (len) {
             if (CowREFCNT(sv) != 0) {
                 CowREFCNT_dec(sv);

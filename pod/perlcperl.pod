@@ -243,13 +243,34 @@ Division for two integer constants is an internal exception and
 is not promoted to use integer division. C<< 2/5 => 0.4 >>
 Compile-time shift operations return unsigned integers.
 
-=back
+=item env PERLIO_DEBUG for all
+
+Setting C<PERLIO_DEBUG> is now only effective with a DEBUGGING perl, and
+is used to define the debug filehandle for all C<-D> debug switches. The
+previous behavior is restored by using a DEBUGGING perl and
+C<-DI>. See L<perlrun/PERLIO_DEBUG> or L<perlapio>.
+
+=item CowREFCNT moved away from string, SvREFCNT max 16777215
+
+C<-DPERL_COPY_ON_WRITE> is discouraged, the new default COW
+preprocessor definition is C<PERL_NEW_COPY_ON_WRITE>.
+
+The max SvREFCNT is now capped at C<1<<24> and will warn with a DEBUGGING
+perl if exceeded. It was previously C<1<<32> and did silently overflow,
+leading to a potential free. Both scenarios are not practical though.
+
+Copy-on-write strings are now truly read-only.  The reference count for
+copies is stored together with the old sv_refcnt.  They can now be
+used in a natural and performant way with threads and the compiler,
+i.e the compiler can store now all COW strings statically as read-only
+and is not forced to allocate them dynamically.
+
 
 =head1 Fix breakage and bad design
 
 =head2 signatures
 
-The p5p signature implementions is still lacking many important
+The p5p signature implementions was still lacking many important
 features and is twice as slow as doing without, and twice as slow as
 the cperl implementation which uses the stack variables directly
 without copying them to C<@_>. There is no point in using it.  It is
@@ -564,7 +585,7 @@ Any attempt to attack package names with shellcode behing C<\0> is
 being warned per default, and not only optionally with C<use warnings
 "syscalls">. There is no uninnocent or wrong usage of such names, only
 malicious intent, and this must appear in logfiles.  This is worse than
-syntax errors and syntax errors are warned by default. p5p was
+syntax errors, syntax errors are warned by default. p5p was
 vehemently against this change.
 
 cperl has a new 'security' warnings category, which bypasses STDERR

@@ -1995,6 +1995,9 @@ S_Internals_V(pTHX_ CV *cv)
 #  ifdef PERL_NATIVE_TYPES
 			     " PERL_NATIVE_TYPES"
 #  endif
+#  ifdef PERL_NEW_COPY_ON_WRITE
+			     " PERL_NEW_COPY_ON_WRITE"
+#  endif
 #  ifdef PERL_OP_PARENT
 			     " PERL_OP_PARENT"
 #  endif
