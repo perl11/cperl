@@ -2779,7 +2779,6 @@ Perl_call_sv(pTHX_ SV *sv, VOL I32 flags)
     METHOP method_op;
     I32 oldmark;
     VOL I32 retval = 0;
-    I32 oldscope;
     bool oldcatch = CATCH_GET;
     int ret;
     OP* const oldop = PL_op;
@@ -2811,7 +2810,6 @@ Perl_call_sv(pTHX_ SV *sv, VOL I32 flags)
 	PUTBACK;
     }
     oldmark = TOPMARK;
-    oldscope = PL_scopestack_ix;
 
     if (PERLDB_SUB && PL_curstash != PL_debstash
 	   /* Handle first BEGIN of -d. */
@@ -2845,8 +2843,10 @@ Perl_call_sv(pTHX_ SV *sv, VOL I32 flags)
 	CATCH_SET(oldcatch);
     }
     else {
+        I32 old_cxix;
 	myop.op_other = (OP*)&myop;
 	(void)POPMARK;
+        old_cxix = cxstack_ix;
 	create_eval_scope(flags|G_FAKINGEVAL);
 	(void)INCMARK;
 
@@ -2888,8 +2888,13 @@ Perl_call_sv(pTHX_ SV *sv, VOL I32 flags)
 	    break;
 	}
 
-	if (PL_scopestack_ix > oldscope)
+        /* if we croaked, depending on how we croaked the eval scope
+         * may or may not have already been popped */
+	if (cxstack_ix > old_cxix) {
+            assert(cxstack_ix == old_cxix + 1);
+            assert(CxTYPE(&cxstack[cxstack_ix]) == CXt_EVAL);
 	    delete_eval_scope();
+        }
 	JMPENV_POP;
     }
 
