@@ -4650,14 +4650,40 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
 	{	/* Passes the swipe test, ie. steal the string buffer */
 	    if (SvPVX_const(dstr))	/* we know that dtype >= SVt_PV */
 		SvPV_free(dstr);
+#ifdef DEBUGGING
+#ifndef PERL_DEBUG_READONLY_COW
+#define _STR_CUT(sv,len,ss)           \
+                char *ss = SvPVX(sv); \
+                char _st;             \
+                if (len > 256) {      \
+                    _st = ss[256];    \
+                    ss[256] = 0;      \
+                }
+#define _STR_UNCUT(sv,len,ss)         \
+                if (len > 256)        \
+                    ss[256] = _st
+#else
+/* invalid with READONLY */
+#define _STR_CUT(sv,len,ss)
+#define _STR_UNCUT(sv,ss)
+#endif
+#else
+/* must not show up with non-debugging */
+#define _STR_CUT(sv,len,ss) error
+#define _STR_UNCUT(sv,ss) error
+#endif
+
+#ifdef DEBUGGING
             if (DEBUG_C_TEST) {
-                PerlIO_printf(Perl_debug_log, "Swipe: sstr --> dstr \"%s\"\n",
-                              SvPVX_const(sstr));
+                _STR_CUT(sstr,len,ss);
+                PerlIO_printf(Perl_debug_log, "Swipe: sstr --> dstr \"%s\"\n", ss);
+                _STR_UNCUT(sstr,len,ss);
                 if (DEBUG_v_TEST) {
                     sv_dump(sstr);
                     sv_dump(dstr);
                 }
             }
+#endif
 	    SvPV_set(dstr, SvPVX_mutable(sstr));
 	    SvLEN_set(dstr, SvLEN(sstr));
 	    SvCUR_set(dstr, SvCUR(sstr));
@@ -4692,8 +4718,9 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
                copy-on-write.  */
 #ifdef DEBUGGING
             if (DEBUG_C_TEST) {
-                PerlIO_printf(Perl_debug_log, "Copy on write: sstr --> dstr \"%s\"\n",
-                              SvPVX_const(sstr));
+                _STR_CUT(sstr,len,ss);
+                PerlIO_printf(Perl_debug_log, "Copy on write: sstr --> dstr \"%s\"\n",ss);
+                _STR_UNCUT(sstr,len,ss);
                 if (DEBUG_v_TEST) {
                     sv_dump(sstr);
                     sv_dump(dstr);
@@ -4712,25 +4739,34 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
 
 #ifdef PERL_ANY_COW
 	    if (len) {
-#ifdef PERL_DEBUG_READONLY_COW
+# ifdef PERL_DEBUG_READONLY_COW
                 if (sflags & SVf_IsCOW) {
                     sv_buf_to_rw(sstr);
                 }
-#endif
+# endif
                 CowREFCNT_inc(sstr);
-                DEBUG_C(PerlIO_printf(Perl_debug_log,
-                                      "Copy on write: Splice in \"%s\"\n",
-                                      SvPVX_const(sstr)));
+# ifdef DEBUGGING
+                if (DEBUG_C_TEST) {
+                    _STR_CUT(sstr,len,ss);
+                    PerlIO_printf(Perl_debug_log,
+                                  "Copy on write: Splice in \"%s\"\n", ss);
+                    _STR_UNCUT(sstr,len,ss);
+                }
+# endif
                 SvPV_set(dstr, SvPVX_mutable(sstr));
                 sv_buf_to_ro(sstr);
             } else
 #endif
             {
                 /* SvIsCOW_shared_hash */
-                DEBUG_C(PerlIO_printf(Perl_debug_log,
-                                      "Copy on write: Sharing hash \"%s\"\n",
-                                      SvPVX_const(sstr)));
-
+#ifdef DEBUGGING
+                if (DEBUG_C_TEST) {
+                    _STR_CUT(sstr,len,ss);
+                    PerlIO_printf(Perl_debug_log,
+                                  "Copy on write: Sharing hash \"%s\"\n", ss);
+                    _STR_UNCUT(sstr,len,ss);
+                }
+#endif
                 assert (SvTYPE(dstr) >= SVt_PV);
                 SvPV_set(dstr,
                     HEK_KEY(share_hek_hek(SvSHARED_HEK_FROM_PV(SvPVX_const(sstr)))));
@@ -4875,20 +4911,23 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
     STRLEN cur = SvCUR(sstr);
     STRLEN len = SvLEN(sstr);
     char *new_pv;
-#if defined(PERL_DEBUG_READONLY_COW) && defined(PERL_COPY_ON_WRITE)
+#if defined(PERL_DEBUG_READONLY_COW) && defined(PERL_NEW_COPY_ON_WRITE)
     const bool already = cBOOL(SvIsCOW(sstr));
-#endif
+# endif
 
     PERL_ARGS_ASSERT_SV_SETSV_COW;
-#ifdef DEBUGGING
+
+# ifdef DEBUGGING
     if (DEBUG_C_TEST) {
 	PerlIO_printf(Perl_debug_log, "Fast copy on write: %p -> %p\n",
 		      (void*)sstr, (void*)dstr);
-	sv_dump(sstr);
-	if (dstr)
-		    sv_dump(dstr);
+        if (DEBUG_v_TEST) {
+            sv_dump(sstr);
+            if (dstr)
+                sv_dump(dstr);
+        }
     }
-#endif
+# endif
     if (dstr) {
 	if (SvTHINKFIRST(dstr))
 	    sv_force_normal_flags(dstr, SV_COW_DROP_PV);
@@ -4942,7 +4981,7 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
     SvCUR_set(dstr, cur);
     if (SvTAINTED(sstr))
         SvTAINTED_on(dstr);
-    DEBUG_C(sv_dump(dstr));
+    DEBUG_Cv(sv_dump(dstr));
     return dstr;
 }
 #endif
@@ -5120,6 +5159,14 @@ Perl_sv_sethek(pTHX_ SV *const sv, const HEK *const hek)
 	    SvCUR_set(sv, HEK_LEN(hek));
 	    SvLEN_set(sv, 0);
 	    SvIsCOW_on(sv);
+#ifdef DEBUGGING
+            if (DEBUG_C_TEST) {
+                const STRLEN len = HEK_LEN(hek);
+                _STR_CUT(sv,len,ss);
+                PerlIO_printf(Perl_debug_log, "Copy on write: sethek \"%s\"\n",ss);
+                _STR_UNCUT(sv,len,ss);
+            }
+#endif
 	    SvPOK_on(sv);
 	    if (HEK_UTF8(hek))
 		SvUTF8_on(sv);
@@ -5238,14 +5285,16 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
 	const STRLEN len = SvLEN(sv);
 	const STRLEN cur = SvCUR(sv);
 
-#ifdef DEBUGGING
+# ifdef DEBUGGING
         if (DEBUG_C_TEST) {
-                PerlIO_printf(Perl_debug_log,
-                              "Uncopy on write: Force normal %ld \"%s\"\n",
-                              (long) flags, pvx);
-                DEBUG_v(sv_dump(sv));
+            _STR_CUT(sv,len,ss);
+            PerlIO_printf(Perl_debug_log,
+                          "Uncopy on write: Force normal %ld \"%s\"\n",
+                          (long) flags, pvx);
+            _STR_UNCUT(sv,len,ss);
+            DEBUG_v(sv_dump(sv));
         }
-#endif
+# endif
         SvIsCOW_off(sv);
 # ifdef PERL_COPY_ON_WRITE
 	if (len) {
@@ -5254,6 +5303,14 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
                 goto copy_over;
             }
 	    /* Else we are the only owner of the buffer. */
+#  ifdef DEBUGGING
+            if (DEBUG_C_TEST) {
+                _STR_CUT(sv,len,ss);
+                DEBUG_C(PerlIO_printf(Perl_debug_log,
+                                      "Uncopy on write: only our pv \"%s\"\n", pvx));
+                _STR_UNCUT(sv,len,ss);
+            }
+#  endif
         }
 	else
 # endif
@@ -5264,12 +5321,33 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
             SvCUR_set(sv, 0);
             SvLEN_set(sv, 0);
             if (flags & SV_COW_DROP_PV) {
-                DEBUG_C(PerlIO_printf(Perl_debug_log,
-                                      "Uncopy on write: drop pv \"%s\"\n", pvx));
+# ifdef DEBUGGING
+                if (DEBUG_C_TEST) {
+                    char *ss = (char *)pvx;
+                    char _st;
+#  ifndef PERL_DEBUG_READONLY_COW
+                    if (len > 256) {
+                        _st = ss[256];
+                        ss[256] = 0;
+                    }
+#  endif
+                    PerlIO_printf(Perl_debug_log,
+                                  "Uncopy on write: drop pv \"%s\"\n", ss);
+#  ifndef PERL_DEBUG_READONLY_COW
+                    if (len > 256)
+                        ss[256] = _st;
+#  endif
+                }
+# endif
                 /* OK, so we don't need to copy our buffer.  */
                 SvPOK_off(sv);
+# ifdef PERL_3RD_COPY_ON_WRITE
+                CowREFCNT(sv) = 0;
+# endif
             } else {
-                SvGROW(sv, cur + 1);
+                DEBUG_C(PerlIO_printf(Perl_debug_log,
+                                      "Uncopy on write: copy pv \"%s\"\n", pvx));
+                SvGROW(sv, cur+1);
                 Move(pvx,SvPVX(sv),cur,char);
                 SvCUR_set(sv, cur);
                 *SvEND(sv) = '\0';
@@ -5277,26 +5355,24 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
 	    if (! len) {
 			unshare_hek(SvSHARED_HEK_FROM_PV(pvx));
 	    }
-# ifdef DEBUGGING
-            if (DEBUG_C_TEST && DEBUG_v_TEST)
-                sv_dump(sv);
-# endif
+            DEBUG_Cv(sv_dump(sv));
 	}
 #else
-	    const char * const pvx = SvPVX_const(sv);
-	    const STRLEN len = SvCUR(sv);
-	    SvIsCOW_off(sv);
-	    SvPV_set(sv, NULL);
-	    SvLEN_set(sv, 0);
-	    if (flags & SV_COW_DROP_PV) {
-		/* OK, so we don't need to copy our buffer.  */
-		SvPOK_off(sv);
-	    } else {
-		SvGROW(sv, len + 1);
-		Move(pvx,SvPVX(sv),len,char);
-		*SvEND(sv) = '\0';
-	    }
-            unshare_hek(SvSHARED_HEK_FROM_PV(pvx));
+        /* no COW */
+        const char * const pvx = SvPVX_const(sv);
+        const STRLEN len = SvCUR(sv);
+        SvIsCOW_off(sv);
+        SvPV_set(sv, NULL);
+        SvLEN_set(sv, 0);
+        if (flags & SV_COW_DROP_PV) {
+            /* OK, so we don't need to copy our buffer.  */
+            SvPOK_off(sv);
+        } else {
+            SvGROW(sv, len + 1);
+            Move(pvx,SvPVX(sv),len,char);
+            *SvEND(sv) = '\0';
+        }
+        unshare_hek(SvSHARED_HEK_FROM_PV(pvx));
 #endif
     }
 }
@@ -6856,15 +6932,17 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 		if (SvIsCOW(sv)) {
 #ifdef DEBUGGING
 		    if (DEBUG_C_TEST) {
-			PerlIO_printf(Perl_debug_log, "Copy on write: clear \"%s\"\n",
-                                      SvPVX_const(sv));
+                        const STRLEN len = SvLEN(sv);
+                        _STR_CUT(sv,len,ss);
+			PerlIO_printf(Perl_debug_log, "Copy on write: clear \"%s\"\n",ss);
+                        _STR_UNCUT(sv,len,ss);
 			DEBUG_v(sv_dump(sv));
 		    }
 #endif
 		    if (SvLEN(sv)) {
 			if (CowREFCNT(sv)) {
 			    sv_buf_to_rw(sv);
-			    CowREFCNT_dec(sv);
+			    CowREFCNT(sv) = 0;
 			    sv_buf_to_ro(sv);
 			    SvLEN_set(sv, 0);
 			}
@@ -6994,6 +7072,9 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 	} /* while 1 */
 
     } /* while sv */
+
+#undef _STR_CUT
+#undef _STR_UNCUT
 }
 
 /* This routine curses the sv itself, not the object referenced by sv. So
