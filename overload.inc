@@ -1,6 +1,6 @@
 /* ex: set ro ft=c: -*- buffer-read-only: t -*-
  *
- *    overload.c
+ *    overload.inc
  *
  *    Copyright (C) 1997, 1998, 2000, 2001, 2005, 2006, 2007, 2011
  *    by Larry Wall and others
