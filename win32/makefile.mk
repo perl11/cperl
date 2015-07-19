@@ -910,6 +910,8 @@ MICROCORE_SRC	=		\
 		..\deb.c	\
 		..\doio.c	\
 		..\doop.c	\
+		..\dquote.c	\
+		..\dump.c	\
 		..\globals.c	\
 		..\mro_core.c	\
 		..\locale.c	\
