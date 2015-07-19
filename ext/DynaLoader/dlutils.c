@@ -183,7 +183,7 @@ SaveError(pTHX_ const char* pat, ...)
 
     {
 	dMY_CXT;
-    /* Copy message into dl_last_error (including terminating null char) */
+        /* Copy message into dl_last_error (including terminating null char) */
 	sv_setpvn(MY_CXT.x_dl_last_error, message, len) ;
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: stored error msg '%s'\n",dl_last_error));
     }
@@ -756,7 +756,7 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
                 libref ? SvIVX(libref) : 0));
     }
     if (!libref) {
-        SaveError(aTHX_ "Can't load '%s' for module %s: %s", file, modulename, dlerror());
+        SaveError(aTHX_ "Can't load '%s' for module %s: %s", file, modulename, dl_last_error);
 #ifdef carp_shortmess
         Perl_die(aTHX_ SvPVX_const(carp_shortmess(ax, MY_CXT.x_dl_last_error)));
 #else
