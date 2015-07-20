@@ -22,7 +22,7 @@ use File::Glob qw(:case);
     COPYING Copying cpanfile CREDITS dist.ini GOALS HISTORY INSTALL INSTALL.SKIP
     LICENCE LICENSE Makefile.PL MANIFEST MANIFEST.SKIP META.json META.yml
     MYMETA.json MYMETA.yml NEW NEWS NOTES perlcritic.rc ppport.h README
-    README.PATCHING SIGNATURE THANKS TODO Todo VERSION WHATSNEW
+    README.md README.PATCHING SIGNATURE THANKS TODO Todo VERSION WHATSNEW
 );
 
 # Each entry in the  %Modules hash roughly represents a distribution,
@@ -475,7 +475,6 @@ use File::Glob qw(:case);
         'FILES'        => q[cpan/Devel-PPPort],
         'EXCLUDED'     => [
             'PPPort.pm',    # we use PPPort_pm.PL instead
-            'README.md',
         ],
         # cperl fix to support make -s.
         # 5.16 binary support: https://github.com/rurban/Devel-PPPort/tree/516gvhv
@@ -992,7 +991,6 @@ use File::Glob qw(:case);
         'DISTRIBUTION' => 'ETHER/Module-Metadata-1.000027.tar.gz',
         'FILES'        => q[cpan/Module-Metadata],
         'EXCLUDED'     => [
-            qw(README.md),
             qw(t/00-report-prereqs.t),
             qw(t/00-report-prereqs.dd),
             qr{^xt},
@@ -1003,7 +1001,7 @@ use File::Glob qw(:case);
         'DISTRIBUTION' => 'RURBAN/Net-Ping-2.50.tar.gz',
         'FILES'        => q[dist/Net-Ping],
         'EXCLUDED'     => [
-            qw{README.md t/600_pod.t t/601_pod-coverage.t},
+            qw{t/600_pod.t t/601_pod-coverage.t},
         ],
     },
 
