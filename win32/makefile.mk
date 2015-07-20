@@ -928,6 +928,8 @@ MICROCORE_SRC	=		\
 		..\run.c	\
 		..\scope.c	\
 		..\taint.c	\
+		..\time64.c	\
+		..\toke.c	\
 		..\universal.c	\
 		..\util.c	\
 		..\xsutils.c
