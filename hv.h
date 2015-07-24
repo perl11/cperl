@@ -12,6 +12,15 @@
  * Currently disabling this functionality will break a few tests, but should otherwise work fine.
  * See perlrun for more details. */
 
+#if defined(USE_CPERL)
+/* performance. a random seed is enough for us */
+# define PERL_PERTURB_KEYS_DISABLED
+# undef PERL_HASH_RANDOMIZE_KEYS
+# undef USE_PERL_PERTURB_KEYS
+/* move found bucket to the top for best performance */
+# define PERL_HASH_TOP_BUCKET
+#endif
+
 #if defined(PERL_PERTURB_KEYS_DISABLED)
 #   define PL_HASH_RAND_BITS_ENABLED        0
 #   define PERL_HASH_ITER_BUCKET(iter)      ((iter)->xhv_riter)

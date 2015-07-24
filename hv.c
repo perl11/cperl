@@ -351,8 +351,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 {
     dVAR;
     XPVHV* xhv;
-    HE *entry;
-    HE **oentry;
+    HE *entry, *fentry;
     SV *sv;
     bool is_utf8;
     int masked_flags;
@@ -644,7 +643,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
     else
 #endif
     {
-	entry = (HvARRAY(hv))[hash & (I32) HvMAX(hv)];
+	entry = fentry = (HvARRAY(hv))[hash & (I32) HvMAX(hv)];
     }
 
     if (!entry)
@@ -662,7 +661,6 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
          * cases).
          */
         int keysv_flags = HEK_FLAGS(keysv_hek);
-        HE  *orig_entry = entry;
 
         for (; entry; entry = HeNEXT(entry)) {
             HEK *hek = HeKEY_hek(entry);
@@ -675,7 +673,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
         if (!entry)
             goto not_found;
         /* failed on shortcut - do full search loop */
-        entry = orig_entry;
+        entry = fentry;
     }
 
     for (; entry; entry = HeNEXT(entry)) {
@@ -747,12 +745,26 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 		HeVAL(entry) = val;
 	    }
 	} else if (HeVAL(entry) == &PL_sv_placeholder) {
+#ifdef PERL_HASH_TOP_BUCKET
+            /* move found bucket to the top, fast */
+            if (entry != fentry) {
+                HeNEXT(entry) = fentry;
+                fentry = entry;
+            }
+#endif
 	    /* if we find a placeholder, we pretend we haven't found
 	       anything */
 	    break;
 	}
 	if (flags & HVhek_FREEKEY)
 	    Safefree(key);
+#ifdef PERL_HASH_TOP_BUCKET
+        /* move found bucket to the top, fast */
+        if (entry != fentry) {
+            HeNEXT(entry) = fentry;
+            fentry = entry;
+        }
+#endif
 
         /* fill, size, found index in collision list */
         DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u * %x\t$%s{%s}\n",
@@ -830,7 +842,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
     assert(HvARRAY(hv));
 #if 0
     if (!HvARRAY(hv)) {
-	/* Not sure if we can get here.  I think the only case of oentry being
+	/* Not sure if we can get here.  I think the only case of fentry being
 	   NULL is for %ENV with dynamic env fetch.  But that should disappear
 	   with magic in the previous code.  */
 	char *array;
@@ -840,7 +852,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	HvARRAY(hv) = (HE**)array;
     }
 #endif
-    oentry = &(HvARRAY(hv))[hash & (I32) xhv->xhv_max];
+    /*oentry = &(HvARRAY(hv))[hash & (I32) xhv->xhv_max];*/
 
     entry = new_HE();
     /* share_hek_flags will do the free for us.  This might be considered
@@ -859,7 +871,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	HeKEY_hek(entry) = save_hek_flags(key, klen, hash, flags);
     HeVAL(entry) = val;
 
-    if (!*oentry && SvOOK(hv)) {
+    if (!fentry && SvOOK(hv)) {
         /* initial entry, and aux struct present.  */
         struct xpvhv_aux *const aux = HvAUX(hv);
         if (aux->xhv_fill_lazy)
@@ -872,21 +884,20 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
      * making it harder to see if there is a collision. We also
      * reset the iterator randomizer if there is one.
      */
-    if ( *oentry && PL_HASH_RAND_BITS_ENABLED) {
+    if ( fentry && PL_HASH_RAND_BITS_ENABLED) {
         PL_hash_rand_bits++;
         PL_hash_rand_bits= ROTL_UV(PL_hash_rand_bits,1);
         if ( PL_hash_rand_bits & 1 ) {
-            HeNEXT(entry) = HeNEXT(*oentry);
-            HeNEXT(*oentry) = entry;
-        } else {
-            HeNEXT(entry) = *oentry;
-            *oentry = entry;
+            HeNEXT(entry) = HeNEXT(fentry);
+            HeNEXT(fentry) = entry;
+        } else { /* insert at the top, fast */
+            HeNEXT(entry) = fentry;
+            fentry = entry;
         }
     } else
 #endif
-    {
-        HeNEXT(entry) = *oentry;
-        *oentry = entry;
+    {   /* insert at the top, fast */
+        HeNEXT(entry) = fentry;
     }
 #ifdef PERL_HASH_RANDOMIZE_KEYS
     if (SvOOK(hv)) {
@@ -2200,8 +2211,9 @@ Perl_hv_riter_set(pTHX_ HV *hv, I32 riter) {
 
 void
 Perl_hv_rand_set(pTHX_ HV *hv, U32 new_xhv_rand) {
+#ifdef PERL_HASH_RANDOMIZE_KEYS
     struct xpvhv_aux *iter;
-
+#endif
     PERL_ARGS_ASSERT_HV_RAND_SET;
 
 #ifdef PERL_HASH_RANDOMIZE_KEYS
@@ -2212,7 +2224,7 @@ Perl_hv_rand_set(pTHX_ HV *hv, U32 new_xhv_rand) {
     }
     iter->xhv_rand = new_xhv_rand;
 #else
-    Perl_croak(aTHX_ "This Perl has not been built with support for randomized hash key traversal but something called Perl_hv_rand_set().");
+    croak("This Perl has not been built with support for randomized hash key traversal but something called Perl_hv_rand_set().");
 #endif
 }
 
