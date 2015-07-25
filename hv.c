@@ -351,7 +351,8 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 {
     dVAR;
     XPVHV* xhv;
-    HE *entry, *fentry;
+    HE *entry;
+    HE **oentry;
     SV *sv;
     bool is_utf8;
     int masked_flags;
@@ -639,11 +640,17 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
     masked_flags = (flags & HVhek_MASK);
 
 #ifdef DYNAMIC_ENV_FETCH
-    if (!HvARRAY(hv)) entry = NULL;
-    else
+    if (!HvARRAY(hv)) {
+        entry = oentry = NULL;
+    } else
 #endif
     {
-	entry = fentry = (HvARRAY(hv))[hash & (I32) HvMAX(hv)];
+#ifdef PERL_HASH_TOP_BUCKET
+	oentry = &(HvARRAY(hv))[hash & (I32) HvMAX(hv)];
+        entry = *oentry;
+#else
+	entry = (HvARRAY(hv))[hash & (I32) HvMAX(hv)];
+#endif
     }
 
     if (!entry)
@@ -661,6 +668,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
          * cases).
          */
         int keysv_flags = HEK_FLAGS(keysv_hek);
+        HE  *orig_entry = entry;
 
         for (; entry; entry = HeNEXT(entry)) {
             HEK *hek = HeKEY_hek(entry);
@@ -673,7 +681,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
         if (!entry)
             goto not_found;
         /* failed on shortcut - do full search loop */
-        entry = fentry;
+        entry = orig_entry;
     }
 
     for (; entry; entry = HeNEXT(entry)) {
@@ -745,24 +753,29 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 		HeVAL(entry) = val;
 	    }
 	} else if (HeVAL(entry) == &PL_sv_placeholder) {
-#ifdef PERL_HASH_TOP_BUCKET
-            /* move found bucket to the top, fast */
-            if (entry != fentry) {
-                HeNEXT(entry) = fentry;
-                fentry = entry;
-            }
-#endif
-	    /* if we find a placeholder, we pretend we haven't found
-	       anything */
+	    /* A deleted slot. If we find a placeholder, we pretend we
+               haven't found anything */
 	    break;
 	}
 	if (flags & HVhek_FREEKEY)
 	    Safefree(key);
+
 #ifdef PERL_HASH_TOP_BUCKET
-        /* move found bucket to the top, fast */
-        if (entry != fentry) {
-            HeNEXT(entry) = fentry;
-            fentry = entry;
+        /* move found bucket to the top
+           oe -> e -> B      => e -> oe -> B
+           oe -> A -> e -> B => e -> oe -> A -> B */
+        if (entry != *oentry) {
+            if (HeNEXT(*oentry) == entry) {
+                DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH move up %d\t%s{%s}\n",
+                                      1, HvNAME_get(hv)?HvNAME_get(hv):"", key));
+                HeNEXT(*oentry) = HeNEXT(entry);
+            } else {
+                DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH move up %d\t%s{%s}\n",
+                                      2, HvNAME_get(hv)?HvNAME_get(hv):"", key));
+                HeNEXT(HeNEXT(*oentry)) = HeNEXT(entry);
+            }
+            HeNEXT(entry) = *oentry;
+            *oentry = entry;
         }
 #endif
 
@@ -842,7 +855,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
     assert(HvARRAY(hv));
 #if 0
     if (!HvARRAY(hv)) {
-	/* Not sure if we can get here.  I think the only case of fentry being
+	/* Not sure if we can get here.  I think the only case of *oentry being
 	   NULL is for %ENV with dynamic env fetch.  But that should disappear
 	   with magic in the previous code.  */
 	char *array;
@@ -852,7 +865,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	HvARRAY(hv) = (HE**)array;
     }
 #endif
-    /*oentry = &(HvARRAY(hv))[hash & (I32) xhv->xhv_max];*/
+#ifndef PERL_HASH_TOP_BUCKET
+    oentry = &(HvARRAY(hv))[hash & (I32) xhv->xhv_max];
+#endif
 
     entry = new_HE();
     /* share_hek_flags will do the free for us.  This might be considered
@@ -871,7 +886,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	HeKEY_hek(entry) = save_hek_flags(key, klen, hash, flags);
     HeVAL(entry) = val;
 
-    if (!fentry && SvOOK(hv)) {
+    if (!*oentry && SvOOK(hv)) {
         /* initial entry, and aux struct present.  */
         struct xpvhv_aux *const aux = HvAUX(hv);
         if (aux->xhv_fill_lazy)
@@ -884,20 +899,27 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
      * making it harder to see if there is a collision. We also
      * reset the iterator randomizer if there is one.
      */
-    if ( fentry && PL_HASH_RAND_BITS_ENABLED) {
+    if ( *oentry && PL_HASH_RAND_BITS_ENABLED) {
         PL_hash_rand_bits++;
         PL_hash_rand_bits= ROTL_UV(PL_hash_rand_bits,1);
         if ( PL_hash_rand_bits & 1 ) {
-            HeNEXT(entry) = HeNEXT(fentry);
-            HeNEXT(fentry) = entry;
-        } else { /* insert at the top, fast */
-            HeNEXT(entry) = fentry;
-            fentry = entry;
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert rand1\t$%s{%s}\n",
+                                  HvNAME_get(hv), key));
+            HeNEXT(entry) = HeNEXT(*oentry);
+            HeNEXT(*oentry) = entry;
+        } else { /* insert at the top */
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert rand0\t$%s{%s}\n",
+                                  HvNAME_get(hv), key));
+            HeNEXT(entry) = *oentry;
+            *oentry = entry;
         }
     } else
 #endif
-    {   /* insert at the top, fast */
-        HeNEXT(entry) = fentry;
+    {   /* insert at the top */
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert top\t$%s{%s}\n",
+                              HvNAME_get(hv), key));
+        HeNEXT(entry) = *oentry;
+        *oentry = entry;
     }
 #ifdef PERL_HASH_RANDOMIZE_KEYS
     if (SvOOK(hv)) {
@@ -2224,7 +2246,7 @@ Perl_hv_rand_set(pTHX_ HV *hv, U32 new_xhv_rand) {
     }
     iter->xhv_rand = new_xhv_rand;
 #else
-    croak("This Perl has not been built with support for randomized hash key traversal but something called Perl_hv_rand_set().");
+    croak("This Perl has not been built with support for randomized hash key traversal but something called Perl_hv_rand_set.");
 #endif
 }
 
