@@ -816,6 +816,8 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 
     /* Welcome to hv_store...  */
 
+    assert(HvARRAY(hv));
+#if 0
     if (!HvARRAY(hv)) {
 	/* Not sure if we can get here.  I think the only case of oentry being
 	   NULL is for %ENV with dynamic env fetch.  But that should disappear
@@ -826,7 +828,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	     char);
 	HvARRAY(hv) = (HE**)array;
     }
-
+#endif
     oentry = &(HvARRAY(hv))[hash & (I32) xhv->xhv_max];
 
     entry = new_HE();
