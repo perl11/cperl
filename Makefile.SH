@@ -1602,36 +1602,36 @@ test_reonly test-reonly: test_prep_reonly
 test_porting test-porting: test_prep
 	cd t && $(RUN_PERL) harness porting/*.t ../lib/diagnostics.t
 
-# Handy way to run perlbug -ok without having to install and run the
-# installed perlbug. We don't re-run the tests here - we trust the user.
+# Handy way to run cperlbug -ok without having to install and run the
+# installed cperlbug. We don't re-run the tests here - we trust the user.
 # Please *don't* use this unless all tests pass.
 # If you want to report test failures, use "make nok" instead.
 
 .PHONY: ok okfile oknack okfilenack nok nokfile noknack nokfilenack
 
 ok:	utilities
-	$(RUN_PERL) utils/perlbug -ok -s '(UNINSTALLED)'
+	$(RUN_PERL) utils/cperlbug -ok -s '(UNINSTALLED)'
 
 okfile:	utilities
-	$(RUN_PERL) utils/perlbug -ok -s '(UNINSTALLED)' -F perl.ok
+	$(RUN_PERL) utils/cperlbug -ok -s '(UNINSTALLED)' -F perl.ok
 
 oknack:	utilities
-	$(RUN_PERL) utils/perlbug -ok -s '(UNINSTALLED)' -A
+	$(RUN_PERL) utils/cperlbug -ok -s '(UNINSTALLED)' -A
 
 okfilenack:	utilities
-	$(RUN_PERL) utils/perlbug -ok -s '(UNINSTALLED)' -F perl.ok -A
+	$(RUN_PERL) utils/cperlbug -ok -s '(UNINSTALLED)' -F perl.ok -A
 
 nok:	utilities
-	$(RUN_PERL) utils/perlbug -nok -s '(UNINSTALLED)'
+	$(RUN_PERL) utils/cperlbug -nok -s '(UNINSTALLED)'
 
 nokfile:	utilities
-	$(RUN_PERL) utils/perlbug -nok -s '(UNINSTALLED)' -F perl.nok
+	$(RUN_PERL) utils/cperlbug -nok -s '(UNINSTALLED)' -F perl.nok
 
 noknack:	utilities
-	$(RUN_PERL) utils/perlbug -nok -s '(UNINSTALLED)' -A
+	$(RUN_PERL) utils/cperlbug -nok -s '(UNINSTALLED)' -A
 
 nokfilenack:	utilities
-	$(RUN_PERL) utils/perlbug -nok -s '(UNINSTALLED)' -F perl.nok -A
+	$(RUN_PERL) utils/cperlbug -nok -s '(UNINSTALLED)' -F perl.nok -A
 
 .PHONY: clist hlist
 

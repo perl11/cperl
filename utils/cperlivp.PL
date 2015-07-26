@@ -34,7 +34,7 @@ $Config{'startperl'}
         if \$running_under_some_shell;
 !GROK!THIS!
 
-print OUT "\n# perlivp $^V\n";
+print OUT "\n# cperlivp $^V\n";
 
 # In the following, perl variables are not expanded during extraction.
 
@@ -193,7 +193,7 @@ foreach (qw(Config.pm ExtUtils/Installed.pm)) {
     }
     $@ = undef;
 }
-$label = 'Modules needed for rest of perlivp exist';
+$label = 'Modules needed for rest of cperlivp exist';
 if ($needed_total == $needed_there) {
     print "ok 4 $label\n";
     $pass__total++;
@@ -347,15 +347,15 @@ if ($error_total == 0 && $tests_total) {
 
 =head1 NAME
 
-perlivp - Perl Installation Verification Procedure
+cperlivp - Perl Installation Verification Procedure
 
 =head1 SYNOPSIS
 
-B<perlivp> [B<-p>] [B<-v>] [B<-h>]
+B<cperlivp> [B<-p>] [B<-v>] [B<-h>]
 
 =head1 DESCRIPTION
 
-The B<perlivp> program is set up at Perl source code build time to test the
+The B<cperlivp> program is set up at Perl source code build time to test the
 Perl version it was built under.  It can be used after running:
 
     make install
@@ -410,8 +410,8 @@ Correct by conducting a proper installation.
 
 =item * print "# Needed module '$_' does not appear to be properly installed.\n";
 
-One of the two modules that is used by perlivp was not present in the 
-installation.  This is a serious error since it adversely affects perlivp's
+One of the two modules that is used by cperlivp was not present in the 
+installation.  This is a serious error since it adversely affects cperlivp's
 ability to function.  You may be able to correct this by performing a
 proper perl installation.
 

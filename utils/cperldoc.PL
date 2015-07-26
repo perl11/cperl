@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 
-# This is for generating the perldoc executable.
+# This is for generating the cperldoc executable.
 # It may eventually be expanded to generate many executables, as
 # explained in the preface of /Programming Perl/ 3e.
 
@@ -23,13 +23,13 @@ use Cwd;
 my $origdir = cwd;
 chdir dirname($0);
 my $file = basename($0, '.PL');
-my $file_shortname = $file;  # should be like "perldoc", maybe "perlsyn", etc.
+my $file_shortname = $file;  # should be like "cperldoc", maybe "perlsyn", etc.
 warn "How odd, I'm going to generate $file_shortname?!"
  unless $file_shortname =~ m/^\w+$/;
 
 $file .= '.com' if $^O eq 'VMS';
 
-open OUT,">$file" or die "Can't create $file: $!";
+open OUT,">", $file or die "Can't create $file: $!";
 
 print "Extracting \"$file\" (with variable substitutions)\n"
   unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
