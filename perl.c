@@ -1754,9 +1754,6 @@ S_Internals_V(pTHX_ CV *cv)
 #  ifdef PERL_HASH_FUNC_SUPERFAST
 			     " PERL_HASH_FUNC_SUPERFAST"
 #  endif
-#  ifdef PERL_HASH_TOP_BUCKET
-			     " PERL_HASH_TOP_BUCKET"
-#  endif
 #  ifdef PERL_IS_MINIPERL
 			     " PERL_IS_MINIPERL"
 #  endif
@@ -1783,6 +1780,9 @@ S_Internals_V(pTHX_ CV *cv)
 #  endif
 #  ifdef PERL_PERTURB_KEYS_RANDOM
 			     " PERL_PERTURB_KEYS_RANDOM"
+#  endif
+#  ifdef PERL_PERTURB_KEYS_TOP
+			     " PERL_PERTURB_KEYS_TOP"
 #  endif
 #  ifdef PERL_PRESERVE_IVUV
 			     " PERL_PRESERVE_IVUV"

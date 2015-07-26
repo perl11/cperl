@@ -645,7 +645,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
     } else
 #endif
     {
-#ifdef PERL_HASH_TOP_BUCKET
+#ifdef PERL_PERTURB_KEYS_TOP
 	oentry = &(HvARRAY(hv))[hash & (I32) HvMAX(hv)];
         entry = *oentry;
 #else
@@ -760,7 +760,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	if (flags & HVhek_FREEKEY)
 	    Safefree(key);
 
-#ifdef PERL_HASH_TOP_BUCKET
+#ifdef PERL_PERTURB_KEYS_TOP
         /* move found bucket to the top
            oe -> e -> B      => e -> oe -> B
            oe -> A -> e -> B => e -> oe -> A -> B */
@@ -865,7 +865,8 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	HvARRAY(hv) = (HE**)array;
     }
 #endif
-#ifndef PERL_HASH_TOP_BUCKET
+
+#ifndef PERL_PERTURB_KEYS_TOP
     oentry = &(HvARRAY(hv))[hash & (I32) xhv->xhv_max];
 #endif
 
