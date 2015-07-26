@@ -592,10 +592,11 @@ variables are in the file Porting/Glossary.
 
     Configure variable	Default value
     $prefixexp		/usr/local
+    $variant		perl5 or cperl
     $binexp		$prefixexp/bin
     $scriptdirexp	$prefixexp/bin
-    $privlibexp		$prefixexp/lib/perl5/$version
-    $archlibexp		$prefixexp/lib/perl5/$version/$archname
+    $privlibexp		$prefixexp/lib/$variant/$version
+    $archlibexp		$prefixexp/lib/$variant/$version/$archname
     $man1direxp		$prefixexp/man/man1
     $man3direxp		$prefixexp/man/man3
     $html1direxp	(none)
@@ -624,9 +625,9 @@ be used for installing those add-on modules and scripts.
  $siteprefixexp    $prefixexp
  $sitebinexp       $siteprefixexp/bin
  $sitescriptexp    $siteprefixexp/bin
- $sitelibexp       $siteprefixexp/lib/perl5/site_perl/$version
+ $sitelibexp       $siteprefixexp/lib/$variant/site_perl/$version
  $sitearchexp
-               $siteprefixexp/lib/perl5/site_perl/$version/$archname
+               $siteprefixexp/lib/$variant/site_perl/$version/$archname
  $siteman1direxp   $siteprefixexp/man/man1
  $siteman3direxp   $siteprefixexp/man/man3
  $sitehtml1direxp  (none)
@@ -649,9 +650,9 @@ for you to use to distribute add-on modules.
 
  $vendorbinexp       $vendorprefixexp/bin
  $vendorscriptexp    $vendorprefixexp/bin
- $vendorlibexp       $vendorprefixexp/lib/perl5/vendor_perl/$version
+ $vendorlibexp       $vendorprefixexp/lib/$variant/vendor_perl/$version
  $vendorarchexp
-           $vendorprefixexp/lib/perl5/vendor_perl/$version/$archname
+           $vendorprefixexp/lib/$variant/vendor_perl/$version/$archname
  $vendorman1direxp   $vendorprefixexp/man/man1
  $vendorman3direxp   $vendorprefixexp/man/man3
  $vendorhtml1direxp  (none)
@@ -668,22 +669,22 @@ This would have the effect of setting the following:
 
  $binexp           /usr/bin
  $scriptdirexp     /usr/bin
- $privlibexp       /usr/lib/perl5/$version
- $archlibexp       /usr/lib/perl5/$version/$archname
+ $privlibexp       /usr/lib/$variant/$version
+ $archlibexp       /usr/lib/$variant/$version/$archname
  $man1direxp       /usr/man/man1
  $man3direxp       /usr/man/man3
 
  $sitebinexp       /usr/local/bin
  $sitescriptexp    /usr/local/bin
- $sitelibexp       /usr/local/lib/perl5/site_perl/$version
- $sitearchexp      /usr/local/lib/perl5/site_perl/$version/$archname
+ $sitelibexp       /usr/local/lib/$variant/site_perl/$version
+ $sitearchexp      /usr/local/lib/$variant/site_perl/$version/$archname
  $siteman1direxp   /usr/local/man/man1
  $siteman3direxp   /usr/local/man/man3
 
  $vendorbinexp     /usr/bin
  $vendorscriptexp  /usr/bin
- $vendorlibexp     /usr/lib/perl5/vendor_perl/$version
- $vendorarchexp    /usr/lib/perl5/vendor_perl/$version/$archname
+ $vendorlibexp     /usr/lib/$variant/vendor_perl/$version
+ $vendorarchexp    /usr/lib/$variant/vendor_perl/$version/$archname
  $vendorman1direxp /usr/man/man1
  $vendorman3direxp /usr/man/man3
 
@@ -717,7 +718,7 @@ version-specific subdirectories) for add-on modules and extensions.
 For example, if you have a bundle of perl libraries from a previous
 installation, perhaps in a strange place:
 
-	Configure -Dotherlibdirs=/usr/lib/perl5/site_perl/5.8.1
+	Configure -Dotherlibdirs=/usr/lib/$variant/site_perl/5.8.1
 
 =item APPLLIB_EXP
 
@@ -780,7 +781,7 @@ discussed in L<"Coexistence with earlier versions of perl 5"> below.
 
 If you specify a prefix that contains the string "perl", then the
 library directory structure is slightly simplified.  Instead of
-suggesting $prefix/lib/perl5/, Configure will suggest $prefix/lib.
+suggesting $prefix/lib/$variant/, Configure will suggest $prefix/lib.
 
 Thus, for example, if you Configure with
 -Dprefix=/opt/perl, then the default library directories for 5.9.0 are
@@ -2269,7 +2270,7 @@ make install will install the following:
     library files
 
 			in $privlib and $archlib specified to
-			Configure, usually under /usr/local/lib/perl5/.
+			Configure, usually under /usr/local/lib/$variant/.
 
     documentation
 
@@ -2459,22 +2460,22 @@ used with a newer version of Perl.  Here is how it is supposed to work.
 Suppose you already have version 5.8.7 installed.  The directories
 searched by 5.8.7 are typically like:
 
-	/usr/local/lib/perl5/5.8.7/$archname
-	/usr/local/lib/perl5/5.8.7
-	/usr/local/lib/perl5/site_perl/5.8.7/$archname
-	/usr/local/lib/perl5/site_perl/5.8.7
+	/usr/local/lib/$variant/5.8.7/$archname
+	/usr/local/lib/$variant/5.8.7
+	/usr/local/lib/$variant/site_perl/5.8.7/$archname
+	/usr/local/lib/$variant/site_perl/5.8.7
 
 Now, suppose you install version 5.8.8.  The directories
 searched by version 5.8.8 will be:
 
-	/usr/local/lib/perl5/5.8.8/$archname
-	/usr/local/lib/perl5/5.8.8
-	/usr/local/lib/perl5/site_perl/5.8.8/$archname
-	/usr/local/lib/perl5/site_perl/5.8.8
+	/usr/local/lib/$variant/5.8.8/$archname
+	/usr/local/lib/$variant/5.8.8
+	/usr/local/lib/$variant/site_perl/5.8.8/$archname
+	/usr/local/lib/$variant/site_perl/5.8.8
 
-	/usr/local/lib/perl5/site_perl/5.8.7/$archname
-	/usr/local/lib/perl5/site_perl/5.8.7
-	/usr/local/lib/perl5/site_perl/
+	/usr/local/lib/$variant/site_perl/5.8.7/$archname
+	/usr/local/lib/$variant/site_perl/5.8.7
+	/usr/local/lib/$variant/site_perl/
 
 Notice the last three entries -- Perl understands the default structure
 of the $sitelib directories and will look back in older, compatible
@@ -2482,26 +2483,26 @@ directories.  This way, modules installed under 5.8.7 will continue
 to be usable by 5.8.7 but will also accessible to 5.8.8.  Further,
 suppose that you upgrade a module to one which requires features
 present only in 5.8.8.  That new module will get installed into
-/usr/local/lib/perl5/site_perl/5.8.8 and will be available to 5.8.8,
+/usr/local/lib/$variant/site_perl/5.8.8 and will be available to 5.8.8,
 but will not interfere with the 5.8.7 version.
 
-The last entry, /usr/local/lib/perl5/site_perl/, is there so that
+The last entry, /usr/local/lib/$variant/site_perl/, is there so that
 5.6.0 and above will look for 5.004-era pure perl modules.
 
 Lastly, suppose you now install 5.10.0, which is not binary compatible
 with 5.8.x.  The directories searched by 5.10.0 (if you don't change the
 Configure defaults) will be:
 
-	/usr/local/lib/perl5/5.10.0/$archname
-	/usr/local/lib/perl5/5.10.0
-	/usr/local/lib/perl5/site_perl/5.10.0/$archname
-	/usr/local/lib/perl5/site_perl/5.10.0
+	/usr/local/lib/$variant/5.10.0/$archname
+	/usr/local/lib/$variant/5.10.0
+	/usr/local/lib/$variant/site_perl/5.10.0/$archname
+	/usr/local/lib/$variant/site_perl/5.10.0
 
-	/usr/local/lib/perl5/site_perl/5.8.8
+	/usr/local/lib/$variant/site_perl/5.8.8
 
-	/usr/local/lib/perl5/site_perl/5.8.7
+	/usr/local/lib/$variant/site_perl/5.8.7
 
-	/usr/local/lib/perl5/site_perl/
+	/usr/local/lib/$variant/site_perl/
 
 Note that the earlier $archname entries are now gone, but pure perl
 modules from earlier versions will still be found.
@@ -2572,7 +2573,15 @@ Firstly, the bare minimum to run this script
      print("$f\n");
   }
 
-in Linux with perl-5.23.0 is as follows (under $Config{prefix}):
+in Linux with cperl-5.23.0 is as follows (under $Config{prefix}):
+
+  ./bin/cperl
+  ./lib/cperl/5.23.0/warnings.pm
+  ./lib/cperl/5.23.0/i686-linux/File/Glob.pm
+  ./lib/cperl/5.23.0/feature.pm
+  ./lib/cperl/5.23.0/i686-linux/auto/File/Glob/Glob.so
+
+and with perl-5.23.0:
 
   ./bin/perl
   ./lib/perl5/5.23.0/strict.pm
@@ -2673,7 +2682,7 @@ remaining files are:
 A nice trick to find out the minimal set of Perl library files you will
 need to run a Perl program is
 
-   perl -e 'do "prog.pl"; END { print "$_\n" for sort keys %INC }'
+   perl -le'do "prog.pl"; END { print for sort keys %INC }'
 
 (this will not find libraries required in runtime, unfortunately, but
 it's a minimal set) and if you want to find out all the files you can
