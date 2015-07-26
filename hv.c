@@ -34,8 +34,19 @@ holds the key and hash value.
 #define PERL_HASH_INTERNAL_ACCESS
 #include "perl.h"
 
-#define DO_HSPLIT(xhv) ((xhv)->xhv_keys > (xhv)->xhv_max) /* HvTOTALKEYS(hv) > HvMAX(hv) */
-#define HV_FILL_THRESHOLD 31
+/* New 90% fill rate ("load factor"). Was 100 before */
+#ifndef HV_FILL_RATE
+# define HV_FILL_RATE 90
+#endif
+#ifndef HV_FILL_THRESHOLD
+# define HV_FILL_THRESHOLD 31
+#endif
+
+#if HV_FILL_RATE == 100
+# define DO_HSPLIT(xhv) ((xhv)->xhv_keys >= (xhv)->xhv_max)
+#else
+# define DO_HSPLIT(xhv) !(xhv)->xhv_max || ((STRLEN)(((xhv)->xhv_keys * 100) / (xhv)->xhv_max) >= HV_FILL_RATE)
+#endif
 
 static const char S_strtab_error[]
     = "Cannot modify shared string table in hv_%s";
@@ -906,6 +917,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
     if ( DO_HSPLIT(xhv) ) {
         const STRLEN oldsize = xhv->xhv_max + 1;
         const U32 items = (U32)HvPLACEHOLDERS_get(hv);
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH split %6lu\t%6lu\n", HvKEYS(hv), HvMAX(hv)));
 
         if (items /* hash has placeholders  */
             && !SvREADONLY(hv) /* but is not a restricted hash */) {
@@ -2990,6 +3002,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 	if (!next) {			/* initial entry? */
 	} else if ( DO_HSPLIT(xhv) ) {
             const STRLEN oldsize = xhv->xhv_max + 1;
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH split %6lu\t%6lu\n", xhv->xhv_keys, oldsize));
             hsplit(PL_strtab, oldsize, oldsize * 2);
 	}
     }
