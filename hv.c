@@ -780,8 +780,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 #endif
 
         /* fill, size, found index in collision list */
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u * %x\t$%s{%s}\n",
-                              HvKEYS(hv), HvMAX(hv), linear, action, HvNAME_get(hv), key));
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u * %x\t%s{%s}\n",
+                              HvKEYS(hv), HvMAX(hv), linear, action,
+                              HvNAME_get(hv)?HvNAME_get(hv):"", key));
 	if (return_svp) {
 	    return entry ? (void *) &HeVAL(entry) : NULL;
 	}
@@ -790,8 +791,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 
   not_found:
     /* fill, size, not found, size of collision list */
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u - %x\t$%s{%s}\n",
-                          HvKEYS(hv), HvMAX(hv), linear, action, HvNAME_get(hv), key));
+    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u - %x\t%s{%s}\n",
+                          HvKEYS(hv), HvMAX(hv), linear, action,
+                          HvNAME_get(hv)?HvNAME_get(hv):"", key));
 #ifdef DYNAMIC_ENV_FETCH  /* %ENV lookup?  If so, try to fetch the value now */
     if (!(action & HV_FETCH_ISSTORE) 
 	&& SvRMAGICAL((const SV *)hv)
@@ -904,22 +906,22 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
         PL_hash_rand_bits++;
         PL_hash_rand_bits= ROTL_UV(PL_hash_rand_bits,1);
         if ( PL_hash_rand_bits & 1 ) {
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert rand1\t$%s{%s}\n",
-                                  HvNAME_get(hv), key));
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert rand1\t%s{%s}\n",
+                                  HvNAME_get(hv)?HvNAME_get(hv):"", key));
             HeNEXT(entry) = HeNEXT(*oentry);
             HeNEXT(*oentry) = entry;
         } else { /* insert at the top */
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert rand0\t$%s{%s}\n",
-                                  HvNAME_get(hv), key));
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert rand0\t%s{%s}\n",
+                                  HvNAME_get(hv)?HvNAME_get(hv):"", key));
             HeNEXT(entry) = *oentry;
             *oentry = entry;
         }
     } else
 #endif
-    {   /* insert at the top */
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert top\t$%s{%s}\n",
-                              HvNAME_get(hv), key));
-        HeNEXT(entry) = *oentry;
+    {   /* Insert at the top which gives us the best performance */
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert top\t%s{%s}\n",
+                              HvNAME_get(hv)?HvNAME_get(hv):"", key));
+        HeNEXT(entry) = *oentry; /* oe -> n:   e -> oe -> n */
         *oentry = entry;
     }
 #ifdef PERL_HASH_RANDOMIZE_KEYS
@@ -1216,29 +1218,27 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	 * deleting a package.
 	 */
 	if (HeVAL(entry) && HvENAME_get(hv)) {
-		gv = (GV *)HeVAL(entry);
-		if (keysv) key = SvPV(keysv, klen);
-		if ((
-		     (klen > 1 && key[klen-2] == ':' && key[klen-1] == ':')
-		      ||
-		     (klen == 1 && key[0] == ':')
-		    )
-		 && (klen != 6 || hv!=PL_defstash || memNE(key,"main::",6))
-		 && SvTYPE(gv) == SVt_PVGV && (stash = GvHV((GV *)gv))
-		 && HvENAME_get(stash)) {
-			/* A previous version of this code checked that the
-			 * GV was still in the symbol table by fetching the
-			 * GV with its name. That is not necessary (and
-			 * sometimes incorrect), as HvENAME cannot be set
-			 * on hv if it is not in the symtab. */
-			mro_changes = 2;
-			/* Hang on to it for a bit. */
-			SvREFCNT_inc_simple_void_NN(
-			 sv_2mortal((SV *)gv)
-			);
-		}
-		else if (klen == 3 && strnEQ(key, "ISA", 3))
-		    mro_changes = 1;
+            gv = (GV *)HeVAL(entry);
+            if (keysv) key = SvPV(keysv, klen);
+            if ((
+                 (klen > 1 && key[klen-2] == ':' && key[klen-1] == ':')
+                 ||
+                 (klen == 1 && key[0] == ':')
+                 )
+                && (klen != 6 || hv!=PL_defstash || memNE(key,"main::",6))
+                && SvTYPE(gv) == SVt_PVGV && (stash = GvHV((GV *)gv))
+                && HvENAME_get(stash)) {
+                /* A previous version of this code checked that the
+                 * GV was still in the symbol table by fetching the
+                 * GV with its name. That is not necessary (and
+                 * sometimes incorrect), as HvENAME cannot be set
+                 * on hv if it is not in the symtab. */
+                mro_changes = 2;
+                /* Hang on to it for a bit. */
+                SvREFCNT_inc_simple_void_NN(sv_2mortal((SV *)gv));
+            }
+            else if (klen == 3 && strnEQ(key, "ISA", 3))
+                mro_changes = 1;
 	}
 
 	sv = d_flags & G_DISCARD ? HeVAL(entry) : sv_2mortal(HeVAL(entry));
@@ -1290,7 +1290,8 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	else if (mro_changes == 2)
 	    mro_package_moved(NULL, stash, gv, 1);
 
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL+\n", HvKEYS(hv), HvMAX(hv), linear));
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL+\t{%s}\n",
+                              HvKEYS(hv), HvMAX(hv), linear, key));
 	return sv;
     }
 
@@ -1303,7 +1304,8 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 
     if (k_flags & HVhek_FREEKEY)
 	Safefree(key);
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL-\n", HvKEYS(hv), HvMAX(hv), linear));
+    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL-\t{%s}\n",
+                          HvKEYS(hv), HvMAX(hv), linear, key));
     return NULL;
 }
 
@@ -1815,7 +1817,7 @@ S_hfreeentries(pTHX_ HV *hv)
 
     PERL_ARGS_ASSERT_HFREEENTRIES;
 
-    while ((sv = Perl_hfree_next_entry(aTHX_ hv, &index))||xhv->xhv_keys) {
+    while ((sv = Perl_hfree_next_entry(aTHX_ hv, &index)) || xhv->xhv_keys) {
 	SvREFCNT_dec(sv);
     }
 }
@@ -1844,6 +1846,8 @@ Perl_hfree_next_entry(pTHX_ HV *hv, STRLEN *indexp)
 
     if (SvOOK(hv) && ((iter = HvAUX(hv)))) {
 	if ((entry = iter->xhv_eiter)) {
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hfree iter [%lu]\t%lu %lu DEL\t%s\n",
+                                  *indexp, HvKEYS(hv), HvMAX(hv), HeKEY(entry)));
             /* the iterator may get resurrected after each
              * destructor call, so check each time */
             if (entry && HvLAZYDEL(hv)) {	/* was deleted earlier? */
@@ -1877,6 +1881,8 @@ Perl_hfree_next_entry(pTHX_ HV *hv, STRLEN *indexp)
 	    *indexp = 0;
 	assert(*indexp != orig_index);
     }
+    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hfree [%lu] / %lu\t%lu %lu clear\t{%s}\n",
+                          *indexp,  orig_index, HvKEYS(hv), HvMAX(hv), HeKEY(entry)));
     array[*indexp] = HeNEXT(entry);
     ((XPVHV*) SvANY(hv))->xhv_keys--;
 
@@ -1888,6 +1894,7 @@ Perl_hfree_next_entry(pTHX_ HV *hv, STRLEN *indexp)
 	const char * const key = HePV(entry,klen);
 	if ((klen > 1 && key[klen-1]==':' && key[klen-2]==':')
 	 || (klen == 1 && key[0] == ':')) {
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH mro_package_moved %s\n", key));
 	    mro_package_moved(
 	     NULL, GvHV(HeVAL(entry)),
 	     (GV *)HeVAL(entry), 0
