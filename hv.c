@@ -764,7 +764,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
         /* move found bucket to the top
            oe -> e -> B      => e -> oe -> B
            oe -> A -> e -> B => e -> oe -> A -> B */
-        if (entry != *oentry) {
+        if (!HvEITER_get(hv) && entry != *oentry) {
             if (HeNEXT(*oentry) == entry) {
                 DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH move up %d\t%s{%s}\n",
                                       1, HvNAME_get(hv)?HvNAME_get(hv):"", key));
