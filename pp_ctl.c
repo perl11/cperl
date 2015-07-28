@@ -4043,7 +4043,7 @@ PP(pp_require)
     ENTER_with_name("eval");
     SAVETMPS;
     SAVECOPFILE_FREE(&PL_compiling);
-    CopFILE_set(&PL_compiling, tryname);
+    CopFILE_setn(&PL_compiling, tryname, strlen(tryname));
     lex_start(NULL, tryrsfp, 0);
 
     if (filter_sub || filter_cache) {
