@@ -3302,6 +3302,8 @@ package Multi_Default;
         #        .
         #        .
         #        'U'));
+        # It is best to leave the final value be the one that matches the
+        # above-Unicode code points.
 
         my $class = shift;
 
@@ -10007,8 +10009,9 @@ sub finish_property_setup {
             $lb->set_default_map('Unknown');
         }
         else {
-            my $default = Multi_Default->new( 'Unknown' => '$gc->table("Cn")',
-                                              'AL');
+            my $default = Multi_Default->new('AL' => '~ $gc->table("Cn")',
+                                             'Unknown',
+                                            );
             $lb->set_default_map($default);
         }
     }
