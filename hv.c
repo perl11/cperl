@@ -1838,9 +1838,7 @@ Perl_hfree_next_entry(pTHX_ HV *hv, STRLEN *indexp)
     struct xpvhv_aux *iter;
     HE *entry;
     HE ** array;
-#ifdef DEBUGGING
     STRLEN orig_index = *indexp;
-#endif
 
     PERL_ARGS_ASSERT_HFREE_NEXT_ENTRY;
 
@@ -1877,9 +1875,18 @@ Perl_hfree_next_entry(pTHX_ HV *hv, STRLEN *indexp)
     array = HvARRAY(hv);
     assert(array);
     while ( ! ((entry = array[*indexp])) ) {
-	if ((*indexp)++ >= HvMAX(hv))
+	if (++(*indexp) > HvMAX(hv))
 	    *indexp = 0;
+#ifdef PERL_PERTURB_KEYS_TOP
+	if (*indexp == orig_index) {
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hfree leaked key [%lu] == %lu\t%lu %lu\n",
+                          *indexp,  orig_index, HvKEYS(hv), HvMAX(hv)));
+            ((XPVHV*)SvANY(hv))->xhv_keys--;
+            return NULL;
+        }
+#else
 	assert(*indexp != orig_index);
+#endif
     }
     DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hfree [%lu] / %lu\t%lu %lu clear\t{%s}\n",
                           *indexp,  orig_index, HvKEYS(hv), HvMAX(hv), HeKEY(entry)));
