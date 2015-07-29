@@ -14015,7 +14015,7 @@ S_add_above_Latin1_folds(pTHX_ RExC_state_t *pRExC_state, const U8 cp, SV** invl
             /* Use deprecated warning to increase the chances of this being
              * output */
             if (PASS2) {
-                ckWARN2reg_d(RExC_parse, "Perl folding rules are not up-to-date for 0x%02X; please use the perlbug utility to report;", cp);
+                ckWARN2reg_d(RExC_parse, "Perl folding rules are not up-to-date for 0x%02X; please use the cperlbug utility to report;", cp);
             }
             break;
     }

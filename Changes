@@ -1,17 +1,18 @@
-
 cperl-5.22.0 / 2015-06-23
 =========================
 
-These are the changes above perl-5.22.0
+These are the changes above perl-5.22.1
 See pod/perlcperl.pod for a summary, but note that this includes also
 not yet implemented or still in work features.
 
-  * hash_func: add FNV1A_YOSHIMITSUTRIAD/FNV1A_YT
-  * DEBUG_H: prefix with HASH
-  * hash_func: add Spooky32
-  * hash_func: select MURMUR3 as new default
+  * rewrote Config as XS, as perfect hash
+  * utils: prefix perldoc, perlbug and perlivp with a 'c'.
+    rewrote cperlbug to post to github.com/perl11/cperl/issues
+  * hash_func: add FNV1A, FNV1A_YOSHIMITSUTRIAD/FNV1A_YT, CRC32, METRO64CRC, METRO64,
+    SPOOKY32 hashes
+  * hash_func: select FNV1A as new default. See https://github.com/rurban/perl-hash-stats
   * allow Configure -Dhash_func=name
-  * metrohash: added in 2 variants
+  * DEBUG_H: prefix with HASH, and extend it
   * fixup (void)INCMARK
   * B::Deparse test fixup
   * enterxssub: fix ext/Devel-Peek/t/Peek.t
@@ -21,7 +22,7 @@ not yet implemented or still in work features.
   * enterxssub: fixup cv arg, add -Dt support
   * enterxssub: add op.c compiler support
   * enterxssub: add missing op_private fields
-  * add enterxssub op
+  * add seperate enterxssub op, ~12% faster
   * Safe 2.39_01c: Document XS inabilities
   * Safe: skip loading empty Carp::Heavy
   * B-Deparse: skip DynaLoader::dl_load_flags on cperl
@@ -64,7 +65,7 @@ not yet implemented or still in work features.
   * Makefile.SH: replace CC with LD to link exes
   * add use cperl pragma
   * coretypes: fix t/op/stash.t omit deleting READONLY stash keys
-  * coretypes: declare undef, int, num, str, int?, num?, str?
+  * coretypes: declare Undef, Int, UInt, Num, Str
   * ExtUtils-MakeMaker: fix repreq.t for builtin strict
   * strict: fix test for cperl
   * strict 1.10c converted to compiled builtin, re-add xsutils.c

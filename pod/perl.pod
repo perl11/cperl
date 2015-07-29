@@ -44,7 +44,7 @@ path perlglossary            cpan/perlfaq/lib/
 path perlxs(?:tut|typemap)?  dist/ExtUtils-ParseXS/lib/
 path perldoc                 cpan/Pod-Perldoc/
 
-aux c2ph h2ph h2xs perlbug pl2pm pod2html pod2man splain xsubpp
+aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
 
 =end buildtoc
 
@@ -400,11 +400,13 @@ displayed by diagnostics are internally stored as short integers,
 so they are limited to a maximum of 65535 (higher numbers usually being
 affected by wraparound).
 
-You may mail your bug reports (be sure to include full configuration
+For Perl5 you may mail your bug reports (be sure to include full configuration
 information as output by the myconfig program in the perl source
 tree, or by C<perl -V>) to perlbug@perl.org .  If you've succeeded
-in compiling perl, the L<perlbug> script in the F<utils/> subdirectory
+in compiling perl, the C<perlbug> script in the F<utils/> subdirectory
 can be used to help mail in a bug report.
+For B<cperl> either use the L<cperlbug> script or file an issue at the
+L<https://github.com/perl11/cperl> repository.
 
 Perl actually stands for Pathologically Eclectic Rubbish Lister, but
 don't tell anyone I said that.

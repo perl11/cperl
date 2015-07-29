@@ -88,9 +88,9 @@ to new-style Perl5 modules.
 
 To display and change the libnet configuration run the libnetcfg command.
 
-=item L<perlivp>
+=item L<cperlivp>
 
-The F<perlivp> program is set up at Perl source code build time to test
+The F<cperlivp> program is set up at Perl source code build time to test
 the Perl version it was built under.  It can be used after running C<make
 install> (or your platform's equivalent procedure) to verify that perl
 and its libraries have been installed correctly.
@@ -104,18 +104,12 @@ and in particular, extending Perl with C.
 
 =over 3
 
-=item L<perlbug|perlbug>
+=item L<cperlbug|cperlbug>
 
-F<perlbug> is the recommended way to report bugs in the perl interpreter
+F<cperlbug> is the recommended way to report bugs in the cperl interpreter
 itself or any of the standard library modules back to the developers;
-please read through the documentation for F<perlbug> thoroughly before
+please read through the documentation for F<cperlbug> thoroughly before
 using it to submit a bug report.
-
-=item L<perlthanks|perlbug>
-
-This program provides an easy way to send a thank-you message back to the
-authors and maintainers of perl. It's just F<perlbug> installed under
-another name.
 
 =item L<h2ph|h2ph>
 
@@ -227,7 +221,7 @@ a lot more.  It is similar to the command line mode of the L<CPAN> module,
 
 =item L<instmodsh>
 
-A little interface to ExtUtils::Installed to examine installed modules,
+A little interface to L<ExtUtils::Installed> to examine installed modules,
 validate your packlists and even create a tarball from an installed module.
 
 =back
@@ -238,7 +232,7 @@ L<perldoc|perldoc>, L<pod2man|pod2man>, L<perlpod>,
 L<pod2html|pod2html>, L<pod2usage|pod2usage>, L<podselect|podselect>,
 L<podchecker|podchecker>, L<splain|splain>, L<perldiag>,
 C<roffitall|roffitall>, L<File::Find|File::Find>, L<pl2pm|pl2pm>,
-L<perlbug|perlbug>, L<h2ph|h2ph>, L<c2ph|c2ph>, L<h2xs|h2xs>, L<enc2xs>,
+L<cperlbug|cperlbug>, L<h2ph|h2ph>, L<c2ph|c2ph>, L<h2xs|h2xs>, L<enc2xs>,
 L<xsubpp>, L<cpan>, L<instmodsh>, L<piconv>, L<prove>, L<corelist>, L<ptar>,
 L<ptardiff>, L<shasum>, L<zipdetails>
 
