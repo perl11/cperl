@@ -234,9 +234,9 @@ PERL_CALLCONV void	Perl_av_fill(pTHX_ AV *av, SSize_t fill)
 #define PERL_ARGS_ASSERT_AV_FILL	\
 	assert(av)
 
-PERL_CALLCONV AV*	Perl_av_init_sized(pTHX_ AV *av, const SSize_t size, const HV *type)
+PERL_CALLCONV AV*	Perl_av_init_shaped(pTHX_ AV *av, const SSize_t size, const HV *type)
 			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_AV_INIT_SIZED	\
+#define PERL_ARGS_ASSERT_AV_INIT_SHAPED	\
 	assert(av)
 
 PERL_CALLCONV IV*	Perl_av_iter_p(pTHX_ AV *av)
@@ -400,6 +400,12 @@ PERL_CALLCONV bool	Perl_check_utf8_print(pTHX_ const U8 *s, const STRLEN len)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CHECK_UTF8_PRINT	\
 	assert(s)
+
+PERL_CALLCONV OP *	Perl_ck_aelem(pTHX_ OP *o)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CK_AELEM	\
+	assert(o)
 
 PERL_CALLCONV OP *	Perl_ck_anoncode(pTHX_ OP *o)
 			__attribute__warn_unused_result__
@@ -771,6 +777,12 @@ PERL_CALLCONV_NO_RET void	Perl_croak_no_modify(void)
 
 PERL_CALLCONV_NO_RET void	Perl_croak_popstack(void)
 			__attribute__noreturn__;
+
+PERL_CALLCONV_NO_RET void	Perl_croak_shaped_array(const char *opname)
+			__attribute__noreturn__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_CROAK_SHAPED_ARRAY	\
+	assert(opname)
 
 PERL_CALLCONV_NO_RET void	Perl_croak_sv(pTHX_ SV *baseex)
 			__attribute__noreturn__

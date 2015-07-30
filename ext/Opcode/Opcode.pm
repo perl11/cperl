@@ -40,7 +40,7 @@ sub opset_to_hex ($) {
 }
 
 sub opdump (;$) {
-	my $pat = shift;
+    my $pat = shift;
     # handy utility: perl -MOpcode=opdump -e 'opdump File'
     foreach(opset_to_ops(full_opset)) {
         my $op = sprintf "  %12s  %s\n", $_, opdesc($_);
@@ -310,7 +310,7 @@ invert_opset function.
     rv2sv sassign
 
     rv2av aassign aelem aelemfast aelemfast_lex aslice kvaslice
-    av2arylen aelemsize aelemsize_const
+    av2arylen aelem_u aelemfast_lex_u
 
     rv2hv helem hslice kvhslice each values keys exists delete
     aeach akeys avalues reach rvalues rkeys multideref
@@ -334,6 +334,7 @@ invert_opset function.
     num_subtract num_multiply num_divide num_atan2 num_pow num_sin
     num_cos num_exp num_log num_sqrt
     i_aelem n_aelem s_aelem int_aelem num_aelem str_aelem
+    i_aelem_u n_aelem_u s_aelem_u int_aelem_u num_aelem_u str_aelem_u
 
     substr vec stringify study pos length index rindex ord chr
 

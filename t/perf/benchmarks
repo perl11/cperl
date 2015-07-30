@@ -96,7 +96,6 @@
         code    => '($r//0)->[0][0][0]',
     },
 
-
     'expr::array::pkg_1const_0' => {
         desc    => 'package $array[0]',
         setup   => 'our @a = (1)',
@@ -133,6 +132,12 @@
         code    => '($r//0)->[0][0][0]',
     },
 
+    # compare to expr::array::lex_1const_0
+    'expr::array::shaped_const' => {
+        desc    => 'shaped @a[const]',
+        setup   => 'use v5.22; my @a[5]',
+        code    => '$a[0]',
+    },
 
     'expr::arrayhash::lex_3var' => {
         desc    => 'lexical $h{$k1}[$i]{$k2}',

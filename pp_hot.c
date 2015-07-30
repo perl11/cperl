@@ -792,32 +792,37 @@ PPt(pp_aelemfast, "():Scalar")
     RETURN;
 }
 
-/* aelemsize_const with constant index. my @a[5];
-   we cannot declare global arrays as sized, only lexical.
-   Those sized arrays accesses are already checked at compile-time.
-   dies on illegal index */
-PPt(pp_aelemsize_const, "():Scalar")
+/* Access a constant shaped lexical array index. my @a[5];
+   We cannot declare global arrays as shaped, only lexical.
+   XXX: No magic allowed, even if untyped.
+   The constant shaped arrays indices are already checked at compile-time. */
+PPt(pp_aelemfast_lex_u, "():Scalar")
 {
     dVAR; dSP;
-    SV** svp;
+    SV* sv;
     AV * const av = MUTABLE_AV(PAD_SV(PL_op->op_targ));
-    IV index = (I8)PL_op->op_private; /* index already compile-time checked */
+    const U32 lval = PL_op->op_flags & OPf_MOD;
 
 #ifdef AELEMSIZE_RT_NEGATIVE /* slower but allow the actual size be smaller than the declared size */
+    IV index = (I8)PL_op->op_private; /* index already compile-time checked, -127 - 128 */
     if (index >= 0)
+#else
+    UV index = (U8)PL_op->op_private; /* already normalized to 0-255 */
 #endif
-        svp = &AvARRAY(av)[index];
+    sv = AvARRAY(av)[index];
+    if (!sv && lval)
+        sv = AvARRAY(av)[index] = newSV(0);
 #ifdef AELEMSIZE_RT_NEGATIVE
     else {
-        svp = &AvARRAY(av)[AvFILLp(av) + index];
+        index += AvFILLp(av);
+        sv = AvARRAY(av)[index];
+        if (!sv && lval)
+            sv = AvARRAY(av)[index] = newSV(0);
     }
 #endif
 
-    if (UNLIKELY(!svp))
-        DIE(aTHX_ PL_no_aelem, index);
-
     EXTEND(SP, 1);
-    PUSHs(*svp);
+    PUSHs(sv ? sv : &PL_sv_undef);
     RETURN;
 }
 
@@ -825,7 +830,7 @@ PPt(pp_aelemsize_const, "():Scalar")
    only for sized arrays already checked at compile-time as above.
    some private bits (variants), like OPpLVAL_DEFER,OPpLVAL_INTRO,OPpDEREF are forbidden
  */
-PPt(pp_aelemsize, "(:Array(:Scalar),:Int):Scalar")
+PPt(pp_aelem_u, "(:Array(:Scalar),:Int):Scalar")
 {
     dVAR; dSP;
     SV** svp = NULL;

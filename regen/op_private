@@ -298,6 +298,7 @@ for (qw(nextstate dbstate)) {
 # op is in local context, or pad variable is being introduced, e.g.
 #   local $h{foo}
 #   my $x
+# disabled for aelem*_u
 
 addbits($_, 7 => qw(OPpLVAL_INTRO LVINTRO))
     for qw(gvsv rv2sv rv2hv rv2gv rv2av aelem helem aslice
@@ -412,7 +413,7 @@ addbits($_, 4 => qw(OPpBOXRET BOXRET)) for
      num_sin num_cos num_exp num_log num_sqrt
      int_aelem num_aelem str_aelem);
 
-# autovivify: Want ref to something
+# autovivify: Want ref to something, disabled for aelem*_u
 for (qw(rv2gv rv2sv padsv aelem helem entersub enterxssub)) {
     addbits($_, '4..5' => {
                 mask_def  => 'OPpDEREF',
@@ -428,6 +429,7 @@ for (qw(rv2gv rv2sv padsv aelem helem entersub enterxssub)) {
 
 
 # Defer creation of array/hash elem
+# disabled for aelem*_u
 addbits($_, 6 => qw(OPpLVAL_DEFER LVDEFER)) for qw(aelem helem multideref);
 
 
@@ -446,7 +448,7 @@ addbits($_, 6 => qw(OPpOUR_INTRO OURINTR)) # Variable was in an our()
 
 # We might be an lvalue to return
 addbits($_, 3 => qw(OPpMAYBE_LVSUB LVSUB))
-    for qw(aassign rv2av rv2gv rv2hv padav padhv aelem helem aslice hslice
+    for qw(aassign rv2av rv2gv rv2hv padav padhv aelem aelem_u helem aslice hslice
            av2arylen keys rkeys kvaslice kvhslice substr pos vec multideref);
 
 
@@ -593,7 +595,7 @@ addbits('padrange',
 
 
 
-for (qw(aelemfast aelemfast_lex)) {
+for (qw(aelemfast aelemfast_lex aelemfast_lex_u)) {
     addbits($_,
         '0..7' =>  {
                 label     => '-',

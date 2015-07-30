@@ -1787,6 +1787,18 @@ Perl_croak_popstack(void)
     my_exit(1);
 }
 
+/* used for run-time errors, not compile-time */
+void
+Perl_croak_shaped_array(const char *opname)
+{
+#if 0
+    Perl_croak_nocontext("Invalid modification of shaped array: %s %s",
+        opname, PL_op->op_targ ? PAD_COMPNAME_PV(PL_op->op_targ) : "");
+#else
+    Perl_croak_nocontext("Invalid modification of shaped array: %s", opname);
+#endif
+}
+
 /*
 =for apidoc Am|void|warn_sv|SV *baseex
 
