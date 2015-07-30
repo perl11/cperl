@@ -355,9 +355,9 @@ PPt(pp_i_aelem, "(:Array(:Int),:Int):Int")
     RETURN;
 }
 
-/* same as pp_num_aelem and pp_str_aelem.
-   no bounds check */
-PPt(pp_int_aelem, "(:Array(:int),:int):int")
+/* same as pp_num_aelem_u and pp_str_aelem_u.
+   without bounds check */
+PPt(pp_int_aelem_u, "(:Array(:int),:int):int")
 {
     dSP;
     SV *sv = AvARRAY((AV*)TOPs)[(IV)TOPm1s];
@@ -365,6 +365,31 @@ PPt(pp_int_aelem, "(:Array(:int),:int):int")
     TOPs = sv;
     RETURN;
 }
+
+/* same as pp_num_aelem and pp_str_aelem.
+   with bounds check */
+PPt(pp_int_aelem, "(:Array(:int),:int):int")
+{
+    dVAR; dSP;
+    SV** svp = NULL;
+
+    AV * const av = MUTABLE_AV(POPs);
+    IV index = (IV)TOPm1s;
+    if (index >= 0 && index < AvFILLp(av))
+        svp = &AvARRAY(av)[index];
+    else if (index < 0 && index > -AvFILLp(av) ) { /* @a[20] just declares the len not the size */
+        svp = &AvARRAY(av)[AvFILL(av) + index];
+    }
+
+    if (UNLIKELY(!svp)) /* unassigned elem or fall through for > AvFILL */
+        DIE(aTHX_ PL_no_aelem, index);
+
+    TOPs = *svp;
+    RETURN;
+}
+
+/* pp_i_aelem_u, "(:Array(:Int),:Int):Int")
+   same as pp_aelem_u */
 
 /* n_aelem		num array element  ck_null	s2	A S */
 /* same as pp_i_aelem */

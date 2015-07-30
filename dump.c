@@ -1513,10 +1513,11 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	/* FALLTHROUGH */
 	goto evaled_or_uv;
     case SVt_PVAV:
+	if (AvSHAPED(sv))	sv_catpv(d, "SHAPED,");
 	break;
     }
-    /* SVphv_SHAREKEYS is also 0x20000000 */
-    if ((type != SVt_PVHV) && SvUTF8(sv))
+    /* SVphv_SHAREKEYS and SVpav_SHAPED are also 0x20000000 */
+    if ((type != SVt_PVHV) && (type != SVt_PVAV) && SvUTF8(sv))
         sv_catpv(d, "UTF8");
 
     if (*(SvEND(d) - 1) == ',') {

@@ -430,13 +430,13 @@ Perl_av_make(pTHX_ SSize_t size, SV **strp)
 }
 
 /*
-=for apidoc av_init_sized
+=for apidoc av_init_shaped
 
-Populates the sized array with the default values, which depends on
-the optional type declaration.
+Populates the shaped array with empty default values, where the values
+depend on the optional type declaration.
 undef for none, 0 for int and uint, 0.0 for num, "" for str.
-The type can empty, native, like int, uint, str, num,
-or a coretype, like Int, UInt, Str, Num.
+The type can empty, native like int, uint, str, num,
+or a coretype like Int, UInt, Str, Num.
 
 Perl equivalent: C<my @a[5]; my int @b[5]; my Int @c[5];>
 
@@ -444,47 +444,45 @@ Perl equivalent: C<my @a[5]; my int @b[5]; my Int @c[5];>
 */
 
 AV *
-Perl_av_init_sized(pTHX_ AV* av, const SSize_t size, const HV *type)
+Perl_av_init_shaped(pTHX_ AV* av, const SSize_t size, const HV *type)
 {
     SV** ary;
     SSize_t i;
-    char *name;
     SV *def = NULL;
-    PERL_ARGS_ASSERT_AV_INIT_SIZED;
+    PERL_ARGS_ASSERT_AV_INIT_SHAPED;
     assert(SvTYPE(av) == SVt_PVAV);
 
-    AvSIZED_on(av);
-    SvREADONLY_on(av);
+    AvSHAPED_on(av);
     Newx(ary,size,SV*);
     AvALLOC(av) = ary;
     AvARRAY(av) = ary;
-    AvMAX(av)  = size-1;
-    AvFILLp(av) = size;
-    if (LIKELY(!type)) {
-        def = &PL_sv_undef;
-        SvREFCNT(def) += size;
-    }
-    /* for now dispatch only by name. this is just the initializer */
-    else if ((name = HvNAME(type))) {
-        int l = HvNAMELEN(type);
-        if      (memEQs(name, l, "main::Int")
-              || memEQs(name, l, "main::Numeric"))
+    AvMAX(av)   = size-1;
+    AvFILLp(av) = size-1;
+    if (UNLIKELY(type)) {
+        /* for now dispatch only by name. this is just the initializer */
+        char *name = HvNAME(type);
+        int l = HvNAMELEN(type) - 6;
+        assert(memEQs(name, 6, "main::"));
+        assert(l > 0);
+        name += 6;
+        if      (memEQs(name, l, "Int")
+              || memEQs(name, l, "Numeric"))
             def = newSViv(0);
-        else if (memEQs(name, l, "main::UInt"))
+        else if (memEQs(name, l, "UInt"))
             def = newSVuv(0);
-        else if (memEQs(name, l, "main::Num"))
+        else if (memEQs(name, l, "Num"))
             def = newSVnv(0.0);
-        else if (memEQs(name, l, "main::Str"))
+        else if (memEQs(name, l, "Str"))
             def = newSVpvs("");
-        else if (memEQs(name, l, "main::Scalar"))
-            def = &PL_sv_undef;
-        else if (memEQs(name, l, "main::int")
-              || memEQs(name, l, "main::uint")
-              || memEQs(name, l, "main::str"))
+        else if (memEQs(name, l, "Scalar"))
+            def = NULL; /* not &PL_sv_undef, it's r-o */
+        else if (memEQs(name, l, "int")
+              || memEQs(name, l, "uint")
+              || memEQs(name, l, "str"))
             ;
-        else if (memEQs(name, l, "main::num"))
+        else if (memEQs(name, l, "num"))
 #if IVSIZE != NVSIZE
-            Perl_croak(aTHX_ "Invalid type for sized array declaration: num\n"
+            Perl_croak(aTHX_ "Invalid type for shaped array declaration: num\n"
                   "Sorry! native num needs the same wordsize for IV and NV");
 #else
             ;
@@ -492,21 +490,18 @@ Perl_av_init_sized(pTHX_ AV* av, const SSize_t size, const HV *type)
         else
             /* XXX we might want to pass op_targ down here to display
                the name of the variable */
-            Perl_croak(aTHX_ "Invalid type for sized array declaration: %s\n"
+            Perl_croak(aTHX_ "Invalid type for shaped array declaration: %s\n"
                   "Only coretypes are supported.",
                   name);
-        if (LIKELY(!isLOWER(name[7]))) /* no native type */
-            SvREFCNT(def) += size;
-        else {
+        if (LIKELY(!isLOWER(name[6]))) { /* no native type */
+            if (def)                     /* and !Scalar NULL */
+                SvREFCNT(def) += size;
+        } else {
             AvREAL_off(av); /* skip clear */
             memset(ary, 0, size*sizeof(SV*));
             return av;
         }
-    } else {
-        Perl_croak(aTHX_ "Invalid type for sized array declaration\n"
-              "Only coretypes are supported.");
     }
-    assert(def);
     /* TODO: use a better wordwise_memset. https://github.com/Smattr/memset
        Does it the optimizer for us? */
     for (i = 0; i < size; i++) {
@@ -557,7 +552,7 @@ Perl_av_clear(pTHX_ AV *av)
     if (AvMAX(av) < 0)
 	return;
 
-    if (!AvSIZED(av) && (real = !!AvREAL(av))) {
+    if (!AvSHAPED(av) && (real = !!AvREAL(av))) {
 	SV** const ary = AvARRAY(av);
 	SSize_t index = AvFILLp(av) + 1;
 	ENTER;
@@ -691,6 +686,8 @@ Perl_av_pop(pTHX_ AV *av)
 
     if (SvREADONLY(av))
 	Perl_croak_no_modify();
+    if (AvSHAPED(av))
+        Perl_croak_shaped_array("pop");
     if ((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied))) {
 	retval = Perl_magic_methcall(aTHX_ MUTABLE_SV(av), mg, SV_CONST(POP), 0, 0);
 	if (retval)
@@ -751,6 +748,8 @@ Perl_av_unshift(pTHX_ AV *av, SSize_t num)
 
     if (SvREADONLY(av))
 	Perl_croak_no_modify();
+    if (AvSHAPED(av))
+        Perl_croak_shaped_array("unshift");
 
     if ((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied))) {
 	Perl_magic_methcall(aTHX_ MUTABLE_SV(av), mg, SV_CONST(UNSHIFT),
@@ -815,6 +814,8 @@ Perl_av_shift(pTHX_ AV *av)
 
     if (SvREADONLY(av))
 	Perl_croak_no_modify();
+    if (AvSHAPED(av))
+        Perl_croak_shaped_array("reverse");
     if ((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied))) {
 	retval = Perl_magic_methcall(aTHX_ MUTABLE_SV(av), mg, SV_CONST(SHIFT), 0, 0);
 	if (retval)

@@ -1133,14 +1133,18 @@ sizearydecl :	'@' PRIVATEREF '[' THING ']'
                             Perl_croak(aTHX_ "Invalid array size %s[%d]",
                                   PadnamePV(PAD_COMPNAME($2->op_targ)), size);
                           */
-			  if (!FEATURE_SIZED_ARRAYS_IS_ENABLED)
+			  if (!FEATURE_SHAPED_ARRAYS_IS_ENABLED)
                               Perl_croak(aTHX_ "Experimental "
-                                    "sized_arrays not enabled");
-			  /*ck_warner_d(
-				packWARN(WARN_EXPERIMENTAL__SIZED_ARRAYS),
-				"The sized_arrays feature is experimental");*/
+                                    "shaped_arrays not enabled");
+#if 0
+                          /* Policies... Either provide a stable feature or not.
+                             No need to be defensive about every single new feature */
+			  ck_warner_d(
+				packWARN(WARN_EXPERIMENTAL__SHAPED_ARRAYS),
+				"The shaped_arrays feature is experimental");
+#endif
 			  $$ = newAVREF($2);
-                          av_init_sized(MUTABLE_AV(PAD_SV($2->op_targ)), SvIVX(constsv),
+                          av_init_shaped(MUTABLE_AV(PAD_SV($2->op_targ)), SvIVX(constsv),
                                         PadnameTYPE(PAD_COMPNAME($2->op_targ)));
 			}
 

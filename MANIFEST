@@ -5151,8 +5151,9 @@ t/mro/vulcan_c3.t		mro tests
 t/mro/vulcan_c3_utf8.t		utf8 mro tests
 t/mro/vulcan_dfs.t		mro tests
 t/mro/vulcan_dfs_utf8.t		utf8 mro tests
-toke.c				The tokener
+toke.c				The tokener, i.e. lexer
 t/op/64bitint.t			See if 64 bit integers work
+t/op/aelem_u.t			See if shaped array operations work
 t/op/alarm.t			See if alarm works
 t/op/anonconst.t		See if :const works
 t/op/anonsub.t			See if anonymous subroutines work

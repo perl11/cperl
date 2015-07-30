@@ -21,8 +21,8 @@ our %feature = (
     refaliasing     => 'feature_refaliasing',
     lexical_subs    => 'feature_lexsubs',
     postderef_qq    => 'feature_postderef_qq',
-    sized_arrays    => 'feature_sized_arrays',
     unicode_eval    => 'feature_unieval',
+    shaped_arrays   => 'feature_shaped_arrays',
     unicode_strings => 'feature_unicode',
 );
 
@@ -30,8 +30,8 @@ our %feature_bundle = (
     "5.10"    => [qw(array_base say state switch)],
     "5.11"    => [qw(array_base say state switch unicode_strings)],
     "5.15"    => [qw(current_sub evalbytes fc say state switch unicode_eval unicode_strings)],
-    "5.21"    => [qw(current_sub evalbytes fc say sized_arrays state switch unicode_eval unicode_strings)],
-    "all"     => [qw(array_base bitwise current_sub evalbytes fc lexical_subs postderef postderef_qq refaliasing say signatures sized_arrays state switch unicode_eval unicode_strings)],
+    "5.21"    => [qw(current_sub evalbytes fc say shaped_arrays state switch unicode_eval unicode_strings)],
+    "all"     => [qw(array_base bitwise current_sub evalbytes fc lexical_subs postderef postderef_qq refaliasing say shaped_arrays signatures state switch unicode_eval unicode_strings)],
     "default" => [qw(array_base)],
 );
 
@@ -341,23 +341,36 @@ See L<perlop/Bitwise String Operators> for details.
 
 This feature is available from Perl 5.22 onwards.
 
-=head2 The 'sized_arrays' feature
+=head2 The 'shaped_arrays' feature
 
-This allows parsing a size declaration in lexical array declarations, like
+This parses a single size declaration in lexical array
+declarations, like
 
     my @a[10];
 
 and using then optimized opcodes to access the values at the given
 index.  Sized array cannot be tied to some magic and will die then.
-Sized arrays cannot grow beyond the declared size.  The declared size
-is always equal to the actual size, the array is pre-filled with
-undef. Thus sized arrays are faster to access at run-time than
-aelemfast (constant indices).
+The size needs to be positive integer literal, and cannot be a variable
+or function.
+Shaped arrays are readonly, and cannot grow beyond the declared size.
+The declared size is always equal to the actual size, the array is
+pre-filled with undef. Thus shaped arrays are faster to access at run-time
+than aelemfast (constant indices).
 
 If declared with a L<coretype>, the elements are preinitialized with the
-corresponding 0 values.
+corresponding C<0> values. You can also use native types.
 
-   my int @a[10]; # pre-declares 10 elements with 0
+   my Int @a[10]; # pre-declares 10 elements with IV's of value 0
+   my UInt @a[10];# with UV's of value 0
+   my Num @a[10]; # with NV's of value 0.0
+   my Str @a[10]; # with PV's of value ""
+   my int @a[10]; # with 0
+   my uint @a[10];# with 0
+   my num @a[10]; # with 0.0
+   my str @a[10]; # with NULL
+
+Note that multidimensional arrays will be supported soon, using the
+same feature name. Similar to perl6.
 
 This feature is available from cperl 5.22 onwards.
 
@@ -392,11 +405,11 @@ The following feature bundles are available:
 
   :5.22     say state switch unicode_strings
             unicode_eval evalbytes current_sub fc
-            sized_arrays
+            shaped_arrays
 
   :5.24     say state switch unicode_strings
             unicode_eval evalbytes current_sub fc
-            sized_arrays
+            shaped_arrays
 
 The C<:default> bundle represents the feature set that is enabled before
 any C<use feature> or C<no feature> declaration.

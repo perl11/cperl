@@ -57,7 +57,7 @@
 #define av_extend(a,b)		Perl_av_extend(aTHX_ a,b)
 #define av_fetch(a,b,c)		Perl_av_fetch(aTHX_ a,b,c)
 #define av_fill(a,b)		Perl_av_fill(aTHX_ a,b)
-#define av_init_sized(a,b,c)	Perl_av_init_sized(aTHX_ a,b,c)
+#define av_init_shaped(a,b,c)	Perl_av_init_shaped(aTHX_ a,b,c)
 #define av_len(a)		Perl_av_len(aTHX_ a)
 #define av_make(a,b)		Perl_av_make(aTHX_ a,b)
 #define av_pop(a)		Perl_av_pop(aTHX_ a)
@@ -1099,6 +1099,7 @@
 #define boot_core_xsutils()	Perl_boot_core_xsutils(aTHX)
 #define cando(a,b,c)		Perl_cando(aTHX_ a,b,c)
 #define check_utf8_print(a,b)	Perl_check_utf8_print(aTHX_ a,b)
+#define ck_aelem(a)		Perl_ck_aelem(aTHX_ a)
 #define ck_anoncode(a)		Perl_ck_anoncode(aTHX_ a)
 #define ck_backtick(a)		Perl_ck_backtick(aTHX_ a)
 #define ck_bitop(a)		Perl_ck_bitop(aTHX_ a)
@@ -1153,6 +1154,7 @@
 #define create_eval_scope(a)	Perl_create_eval_scope(aTHX_ a)
 #define croak_no_mem		Perl_croak_no_mem
 #define croak_popstack		Perl_croak_popstack
+#define croak_shaped_array	Perl_croak_shaped_array
 #define custom_op_get_field(a,b)	Perl_custom_op_get_field(aTHX_ a,b)
 #define cv_clone_into(a,b)	Perl_cv_clone_into(aTHX_ a,b)
 #define cv_const_sv_or_av	Perl_cv_const_sv_or_av

@@ -74,9 +74,9 @@ Same as C<av_top_index()>.
 #define AvREIFY_on(av)	(SvFLAGS(av) |= SVpav_REIFY)
 #define AvREIFY_off(av)	(SvFLAGS(av) &= ~SVpav_REIFY)
 #define AvREIFY_only(av)(AvREAL_off(av), SvFLAGS(av) |= SVpav_REIFY)
-/* native sized arrays also set AvREAL_off */
-#define AvSIZED(av)	(SvFLAGS(av) & SVpav_SIZED)
-#define AvSIZED_on(av)	(SvFLAGS(av) |= SVpav_SIZED)
+/* native shaped arrays also set AvREAL_off */
+#define AvSHAPED(av)	(SvFLAGS(av) & SVpav_SHAPED)
+#define AvSHAPED_on(av)	(SvFLAGS(av) |= SVpav_SHAPED)
 
 #define AvREALISH(av)	(SvFLAGS(av) & (SVpav_REAL|SVpav_REIFY))
                                           

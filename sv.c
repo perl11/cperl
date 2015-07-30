@@ -15647,6 +15647,7 @@ S_find_uninit_var(pTHX_ const OP *const obase, const SV *const uninit_sv,
 	return varname(gv, '$', 0, NULL, 0, FUV_SUBSCRIPT_NONE);
 
     case OP_AELEMFAST_LEX:
+    case OP_AELEMFAST_LEX_U:
 	if (match) {
 	    SV **svp;
 	    AV *av = MUTABLE_AV(PAD_SV(obase->op_targ));

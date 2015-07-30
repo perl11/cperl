@@ -211,6 +211,15 @@ operator which expects either a number or a string matching
 C</^[a-zA-Z]*[0-9]*\z/>.  See L<perlop/Auto-increment and
 Auto-decrement> for details.
 
+=item Array index out of bounds %s[%d]
+
+(F) You tried to access an invalid index of a shaped array. With
+constant indices this error is detected at compile-time, with variable
+indices at run-time. For example
+
+    my @a[5];
+    $a[5];
+
 =item assertion botched: %s
 
 (X) The malloc package that comes with Perl had an internal failure.
@@ -2131,6 +2140,14 @@ L<perlrecharclass/Extended Bracketed Character Classes>.
     use feature "refaliasing";
     \$x = \$y;
 
+=item Experimental shaped_arrays not enabled
+
+(F) To declare shaped arrays you must first enable the feature:
+
+    use feature "shaped_arrays";
+    # or simply use v5.22;
+    my @a[5];
+
 =item Experimental subroutine signatures not enabled
 
 (F) To use subroutine signatures, you must first enable them:
@@ -2756,6 +2773,12 @@ by Perl or by a user-supplied handler.  See L<attributes>.
 (F) The indicated attributes for a subroutine or variable were not
 recognized by Perl or by a user-supplied handler.  See L<attributes>.
 
+=item Invalid array size %s[%s]
+
+=item Invalid array size %s[%d]
+
+(F) The declared size for a shaped array was not a positive integer.
+
 =item Invalid character in charnames alias definition; marked by
 S<<-- HERE> in '%s
 
@@ -2807,6 +2830,11 @@ S<<-- HERE> in m/%s/
 (F) The character constant represented by C<...> is not a valid hexadecimal
 number.  Either it is empty, or you tried to use a character other than
 0 - 9 or A - F, a - f in a hexadecimal number.
+
+=item Invalid modification of shaped array: %s %s
+
+(F) You cannot change the size of a shaped array. This error is detected at
+compile-time with operators like push, pop, shift, unshift.
 
 =item Invalid module name %s with -%c option: contains single ':'
 
@@ -2889,6 +2917,17 @@ See L<perlfunc/pack>.
 
 (W) The given character is not a valid pack or unpack type but used to be
 silently ignored.
+
+=item Invalid type for shaped array declaration
+Only coretypes are supported.
+
+=item Invalid type for shaped array declaration: %s
+Only coretypes are supported.
+
+=item Invalid type for shaped array declaration: num
+Sorry! native num needs the same wordsize for IV and NV
+
+(F) The declared type for a shaped array must be a valid coretype.
 
 =item Invalid version format (%s)
 
