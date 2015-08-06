@@ -357,7 +357,7 @@ The declared size is always equal to the actual size, the array is
 pre-filled with undef. Thus shaped arrays are faster to access at run-time
 than aelemfast (constant indices).
 
-If declared with a L<coretype>, the elements are preinitialized with the
+If declared with a L<perltypes/"coretypes">, the elements are preinitialized with the
 corresponding C<0> values. You can also use native types.
 
    my Int @a[10]; # pre-declares 10 elements with IV's of value 0
