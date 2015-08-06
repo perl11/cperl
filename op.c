@@ -9880,7 +9880,7 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
  */
 
 static OP*
-S_cv_do_inline(pTHX_ const OP *o, const OP *cvop, CV *cv)
+S_cv_do_inline(pTHX_ const OP *o, const OP *cvop, CV *cv, bool meth)
 {
     /* WIP splice inlined ENTERSUB into the current body */
     const OP *pushmarkop = o;
@@ -18501,14 +18501,23 @@ Perl_rpeep(pTHX_ OP *o)
 
             /* inline subs or methods */
             {
-                int i = 0;
+                int i = 0, meth = 0;
                 OP* o2 = o;
                 OP* gvop = NULL;
-                /* scan from pushmark to the next entersub call */
-                for (; o2 && i<6; o2 = o2->op_next, i++) {
-                    if (OP_TYPE_IS(o2, OP_GV))
-                        gvop = o2;
-                    if (OP_TYPE_IS(o2, OP_ENTERSUB))
+                /* scan from pushmark to the next entersub call, 4 args with $->$ */
+                for (; o2 && i<8; o2 = o2->op_next, i++) {
+                    OPCODE type = o2->op_type;
+                    if (type == OP_GV || type == OP_GVSV) {
+                        gvop = o2; /* gvsv for variable method parts, left or right */
+                    } else if (type == OP_METHOD_NAMED) {
+                        /* method name only with pkg->m, not $obj->m */
+                        /* TODO: we could speculate and cache an inlined variant for $obj */
+                        gvop = OP_TYPE_IS(o->op_next, OP_CONST) ? o2 : NULL;
+                        meth++;
+                    }
+                    else if (type == OP_METHOD) /* $obj->$m needs run-time dispatch */
+                        break;
+                    else if (type == OP_ENTERSUB || type == OP_ENTERXSSUB)
                         break;
                 }
                 if (o2 && OP_TYPE_IS(o2, OP_ENTERSUB) && gvop) {
@@ -18518,10 +18527,11 @@ Perl_rpeep(pTHX_ OP *o)
                     SV *gv = cSVOPx(gvop)->op_sv;
 #endif
                     CV* cv;
+                    /* for methods only if the static &pkg->cv exists, or the obj is typed */
                     if (gv && SvTYPE(gv) == SVt_PVGV && (cv = GvCV(gv))
                      && CvINLINABLE(cv)) {
-                        DEBUG_v(deb("rpeep: inline cv %s\n", GvNAME_get(gv)));
-                        o2 = S_cv_do_inline(o, o2, cv);
+                        DEBUG_v(deb("rpeep: inline %s %s\n", meth ? "method" : "sub", GvNAME_get(gv)));
+                        o2 = S_cv_do_inline(o, o2, cv, !!meth);
                     }
                 }
             }
