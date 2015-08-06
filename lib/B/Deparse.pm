@@ -2282,8 +2282,8 @@ sub pp_i_predec { pfixop(@_, "--", 23) }
 sub pp_i_postinc { maybe_targmy(@_, \&pfixop, "++", 23, POSTFIX) }
 sub pp_i_postdec { maybe_targmy(@_, \&pfixop, "--", 23, POSTFIX) }
 sub pp_complement { maybe_targmy(@_, \&pfixop, "~", 21) }
-*pp_ncomplement = *pp_complement;
-sub pp_scomplement { maybe_targmy(@_, \&pfixop, "~.", 21) }
+*pp_n_complement = *pp_complement;
+sub pp_s_complement { maybe_targmy(@_, \&pfixop, "~.", 21) }
 
 sub pp_negate { maybe_targmy(@_, \&real_negate) }
 sub real_negate {
@@ -2793,10 +2793,10 @@ BEGIN {
 	     'subtract' => 18, 'i_subtract' => 18,
 	     'concat' => 18,
 	     'left_shift' => 17, 'right_shift' => 17,
-	     'bit_and' => 13, 'nbit_and' => 13, 'sbit_and' => 13,
+	     'bit_and' => 13, 'i_bit_and' => 13, 's_bit_and' => 13,
 	     'bit_or' => 12, 'bit_xor' => 12,
-	     'sbit_or' => 12, 'sbit_xor' => 12,
-	     'nbit_or' => 12, 'nbit_xor' => 12,
+	     's_bit_or' => 12, 's_bit_xor' => 12,
+	     'i_bit_or' => 12, 'i_bit_xor' => 12,
 	     'and' => 3,
 	     'or' => 2, 'xor' => 2,
 	    );
@@ -2906,22 +2906,22 @@ sub pp_lt { binop(@_, "<", 15) }
 sub pp_gt { binop(@_, ">", 15) }
 sub pp_ge { binop(@_, ">=", 15) }
 sub pp_le { binop(@_, "<=", 15) }
-sub pp_ncmp { binop(@_, "<=>", 14) }
+sub pp_cmp { binop(@_, "<=>", 14) }
 sub pp_i_eq { binop(@_, "==", 14) }
 sub pp_i_ne { binop(@_, "!=", 14) }
 sub pp_i_lt { binop(@_, "<", 15) }
 sub pp_i_gt { binop(@_, ">", 15) }
 sub pp_i_ge { binop(@_, ">=", 15) }
 sub pp_i_le { binop(@_, "<=", 15) }
-sub pp_i_ncmp { maybe_targmy(@_, \&binop, "<=>", 14) }
+sub pp_i_cmp { maybe_targmy(@_, \&binop, "<=>", 14) }
 
-sub pp_seq { binop(@_, "eq", 14) }
-sub pp_sne { binop(@_, "ne", 14) }
-sub pp_slt { binop(@_, "lt", 15) }
-sub pp_sgt { binop(@_, "gt", 15) }
-sub pp_sge { binop(@_, "ge", 15) }
-sub pp_sle { binop(@_, "le", 15) }
-sub pp_scmp { maybe_targmy(@_, \&binop, "cmp", 14) }
+sub pp_s_eq { binop(@_, "eq", 14) }
+sub pp_s_ne { binop(@_, "ne", 14) }
+sub pp_s_lt { binop(@_, "lt", 15) }
+sub pp_s_gt { binop(@_, "gt", 15) }
+sub pp_s_ge { binop(@_, "ge", 15) }
+sub pp_s_le { binop(@_, "le", 15) }
+sub pp_s_cmp { maybe_targmy(@_, \&binop, "cmp", 14) }
 
 sub pp_sassign { binop(@_, "=", 7, SWAP_CHILDREN) }
 sub pp_aassign { binop(@_, "=", 7, SWAP_CHILDREN | LIST_CONTEXT) }
@@ -4396,9 +4396,9 @@ sub retscalar {
                  |i_postinc|postdec|i_postdec|pow|multiply|i_multiply
                  |divide|i_divide|modulo|i_modulo|add|i_add|subtract
                  |i_subtract|concat|stringify|left_shift|right_shift|lt
-                 |i_lt|gt|i_gt|le|i_le|ge|i_ge|eq|i_eq|ne|i_ne|ncmp|i_ncmp
-                 |slt|sgt|sle|sge|seq|sne|scmp|[sn]?bit_(?:and|x?or)|negate
-                 |i_negate|not|[sn]?complement|smartmatch|atan2|sin|cos
+                 |i_lt|gt|i_gt|le|i_le|ge|i_ge|eq|i_eq|ne|i_ne|n_cmp|i_cmp
+                 |s_lt|s_gt|s_le|s_ge|s_eq|s_ne|s_cmp|([sn]_)?bit_(?:and|x?or)|negate
+                 |i_negate|not|([sn]_)?complement|smartmatch|atan2|sin|cos
                  |rand|srand|exp|log|sqrt|int|hex|oct|abs|length|substr
                  |vec|index|rindex|sprintf|formline|ord|chr|crypt|ucfirst
                  |lcfirst|uc|lc|quotemeta|aelemfast|aelem|exists|helem
