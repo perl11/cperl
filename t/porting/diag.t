@@ -617,12 +617,15 @@ Out of memory during list extend
 panic queryaddr
 Parse error
 PerlApp::TextQuery: no arguments, please
+pop
 POSIX syntax [%c %c] is reserved for future extensions in regex; marked by <-- HERE in m/%s/
 ptr wrong %p != %p fl=%x nl=%p e=%p for %d
+push
 QUITing...
 Recompile perl with -DDEBUGGING to use -D switch (did you mean -d ?)
 recursion detected in %s
 Regexp *+ operand could be empty in regex; marked by <-- HERE in m/%s/
+reverse
 Reversed %c= operator
 %s: Can't parse EXE/DLL name: '%s'
 %s(%f) failed
@@ -641,6 +644,7 @@ Size magic not implemented
 %s: name `%s' too long
 %s not implemented!
 %s number > %s non-portable
+splice
 %srealloc() %signored
 %s in regex m/%s/
 %s on %s %s
@@ -657,6 +661,7 @@ The crypt() function is not implemented on NetWare
 The flock() function is not implemented on NetWare
 The rewinddir() function is not implemented on NetWare
 The seekdir() function is not implemented on NetWare
+The shaped_arrays feature is experimental
 The telldir() function is not implemented on NetWare
 This perl was compiled without taint support. Cowardly refusing to run with -t or -T flags
 This version of OS/2 does not support %s.%s
@@ -667,6 +672,7 @@ unable to find VMSPIPE.COM for i/o piping
 Unable to locate winsock library!
 Unexpected program mode %d when morphing back from PM
 Unrecognized character %s; marked by <-- HERE after %s<-- HERE near column %d
+unshift
 Unstable directory path, current directory changed unexpectedly
 Unterminated compressed integer in unpack
 Usage: %s(%s)

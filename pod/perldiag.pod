@@ -2831,6 +2831,8 @@ S<<-- HERE> in m/%s/
 number.  Either it is empty, or you tried to use a character other than
 0 - 9 or A - F, a - f in a hexadecimal number.
 
+=item Invalid modification of shaped array: %s
+
 =item Invalid modification of shaped array: %s %s
 
 (F) You cannot change the size of a shaped array. This error is detected at
