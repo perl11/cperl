@@ -8014,10 +8014,10 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 	CvCONST_on(cv);
 	return NULL;
     }
-    DEBUG_k(deb("op_const_sv: inlined SV 0x%p\n", sv));
+    DEBUG_k(Perl_deb(aTHX_ "op_const_sv: inlined SV 0x%p\n", sv));
 #ifdef DEBUGGING
     if (sv) {
-        DEBUG_kv(Perl_sv_dump(aTHX sv));
+        DEBUG_kv(Perl_sv_dump(aTHX_ sv));
     }
 #endif
     return sv;
@@ -12302,14 +12302,19 @@ int S_match_type1(pTHX_ const char* sig, core_types_t arg1)
     return memEQ(&sig[2], core_type_name(arg1), i - 1);
 }
 
-/* match an BINOP type with the given args */
+/* match an BINOP type with the given args.
+   TODO: rewrite this to use integers */
 PERL_STATIC_INLINE
 int S_match_type2(pTHX_ const char* sig, core_types_t arg1, core_types_t arg2)
 {
     int i;
     char p[20];
     if (!S_sigtype_args(sig, &i)) Perl_die(aTHX_ "Invalid function type %s", sig);
-    sprintf(p, ":%s,:%s", core_type_name(arg1), core_type_name(arg2));
+    strcpy(p, ":");
+    strcat(p, core_type_name(arg1));
+    strcat(p, ",:");
+    strcat(p, core_type_name(arg2));
+    /*sprintf(p, ":%s,:%s", core_type_name(arg1), core_type_name(arg2));*/
     return memEQ(&sig[1], p, i);
 }
 
