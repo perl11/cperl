@@ -1102,7 +1102,7 @@ i|const char *  |core_type_name	|core_types_t t
 i|core_types_t	|stash_to_coretype|NULLOK const HV* stash
 in	|int	|match_type1	|const U32 sig|core_types_t arg1
 in	|int	|match_type2	|const U32 sig|core_types_t arg1|core_types_t arg2
-s	|bool	|cv_check_inline|NN const OP *o|NULLOK CV *compcv
+s	|bool	|cv_check_inline|NN const OP *o|NN CV *compcv
 #endif
 : Used in op.c and pp_sys.c
 p	|int	|mode_from_discipline	|NULLOK const char* s|STRLEN len
