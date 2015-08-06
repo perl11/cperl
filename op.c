@@ -18528,10 +18528,14 @@ Perl_rpeep(pTHX_ OP *o)
 #endif
                     CV* cv;
                     /* for methods only if the static &pkg->cv exists, or the obj is typed */
-                    if (gv && SvTYPE(gv) == SVt_PVGV && (cv = GvCV(gv))
-                     && CvINLINABLE(cv)) {
-                        DEBUG_v(deb("rpeep: inline %s %s\n", meth ? "method" : "sub", GvNAME_get(gv)));
-                        o2 = S_cv_do_inline(o, o2, cv, !!meth);
+                    if (gv && ((SvTYPE(gv) == SVt_PVGV && (cv = GvCV(gv)))
+                            || (SvROK(gv) && (cv = (CV*)SvRV((SV*)gv))
+                                          && SvTYPE(cv) == SVt_PVCV))) {
+                        if (CvINLINABLE(cv)) {
+                            DEBUG_v(deb("rpeep: inline %s %s\n", meth ? "method" : "sub",
+                                        HEK_KEY(CvNAME_HEK(cv))));
+                            o2 = S_cv_do_inline(o, o2, cv, !!meth);
+                        }
                     }
                 }
             }
