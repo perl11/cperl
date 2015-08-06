@@ -8003,6 +8003,15 @@ PERL_CALLCONV PerlInterpreter*	perl_clone_using(PerlInterpreter *proto_perl, UV 
 
 #  endif
 #endif
+#if defined(PERL_INLINE_SUBS)
+#  if defined(PERL_IN_OP_C)
+STATIC bool	S_cv_check_inline(pTHX_ const OP *o, CV *compcv)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CV_CHECK_INLINE	\
+	assert(o)
+
+#  endif
+#endif
 #if defined(PERL_IN_AV_C)
 STATIC MAGIC*	S_get_aux_mg(pTHX_ AV *av)
 			__attribute__nonnull__(pTHX_1);

@@ -1632,6 +1632,11 @@
 #define ptr_hash		S_ptr_hash
 #    endif
 #  endif
+#  if defined(PERL_INLINE_SUBS)
+#    if defined(PERL_IN_OP_C)
+#define cv_check_inline(a,b)	S_cv_check_inline(aTHX_ a,b)
+#    endif
+#  endif
 #  if defined(PERL_IN_AV_C)
 #define get_aux_mg(a)		S_get_aux_mg(aTHX_ a)
 #  endif
