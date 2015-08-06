@@ -12298,14 +12298,19 @@ int S_match_type1(const char* sig, core_types_t arg1)
     return memEQ(&sig[2], S_core_type_name(arg1), i - 1);
 }
 
-/* match an BINOP type with the given args */
+/* match an BINOP type with the given args.
+   TODO: rewrite this to use integers */
 PERL_STATIC_INLINE
 int S_match_type2(const char* sig, core_types_t arg1, core_types_t arg2)
 {
     int i;
     char p[20];
     if (!S_sigtype_args(sig, &i)) die("Invalid function type %s", sig);
-    sprintf(p, ":%s,:%s", S_core_type_name(arg1), S_core_type_name(arg2));
+    strcpy(p, ":");
+    strcat(p, S_core_type_name(arg1));
+    strcat(p, ",:");
+    strcat(p, S_core_type_name(arg2));
+    /*sprintf(p, ":%s,:%s", S_core_type_name(arg1), S_core_type_name(arg2));*/
     return memEQ(&sig[1], p, i);
 }
 
