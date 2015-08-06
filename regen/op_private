@@ -603,9 +603,10 @@ addbits('rv2cv',
 
 
 
-#foo() called before sub foo was parsed */
-addbits('gv', 5 => qw(OPpEARLY_CV EARLYCV));
-
+#EARLCYCV: foo() called before sub foo was parsed */
+#OPpGV_WASMETHOD for the next entersub
+addbits('gv', 5 => qw(OPpEARLY_CV EARLYCV),
+              6 => qw(OPpGV_WASMETHOD WASMETHOD));
 
 
 # 1st arg is replacement string */

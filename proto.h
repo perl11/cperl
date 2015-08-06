@@ -8006,9 +8006,10 @@ PERL_CALLCONV PerlInterpreter*	perl_clone_using(PerlInterpreter *proto_perl, UV 
 #if defined(PERL_INLINE_SUBS)
 #  if defined(PERL_IN_OP_C)
 STATIC bool	S_cv_check_inline(pTHX_ const OP *o, CV *compcv)
-			__attribute__nonnull__(pTHX_1);
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_CV_CHECK_INLINE	\
-	assert(o)
+	assert(o); assert(compcv)
 
 #  endif
 #endif

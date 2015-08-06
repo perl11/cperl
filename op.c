@@ -204,6 +204,8 @@ static const char array_passed_to_stat[] =
 #define IS_LEAVESUB_OP(o)  \
     (OP_TYPE_IS_NN((o), OP_LEAVESUB) \
   || OP_TYPE_IS_NN((o), OP_LEAVESUBLV))
+#define IS_SUB_TYPE(type)  \
+    ((type) == OP_ENTERSUB) || ((type) == OP_ENTERXSSUB)
 #define OP_GIMME_VOID(o)    (OP_GIMME((o),0) == G_VOID)
 #define OP_GIMME_SCALAR(o)  (OP_GIMME((o),0) == G_SCALAR)
 
@@ -2907,10 +2909,6 @@ In contrast to op_const_sv allow short op sequences which are not
 constant folded.
 max 15 ops, no new pad, no intermediate return, no recursion, ...
 cv_inline needs to translate the args, change return to jumps.
-handle args: shift, = @_ or just accept SIGNATURED subs with PERL_FAKE_SIGNATURE.
-if arg is call-by-value. make a copy.
-with local need to add SAVETMPS/FREETMPS.
-maybe keep ENTER/LEAVE
 
 $lhs = call(...); => $lhs = do {...inlined...};
 
@@ -2940,7 +2938,7 @@ S_cv_check_inline(pTHX_ const OP *o, CV *compcv)
             || type == OP_NULL   || type == OP_LINESEQ
             || type == OP_PUSHMARK)
             continue;
-	if (type == OP_RETURN    || type == OP_GOTO
+	if (   type == OP_RETURN || type == OP_GOTO
             || type == OP_CALLER || type == OP_WARN
             || type == OP_DIE    || type == OP_RESET
             || type == OP_RUNCV  || type == OP_PADRANGE)
@@ -4011,7 +4009,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
     case OP_AELEM:
     case OP_HELEM:
 	ref(OpFIRST(o), o->op_type);
-	if ((type == OP_ENTERSUB || type == OP_ENTERXSSUB) &&
+	if ((IS_SUB_TYPE(type)) &&
 	     !(o->op_private & (OPpLVAL_INTRO | OPpDEREF)))
 	    o->op_private |= OPpLVAL_DEFER;
 	if (type == OP_LEAVESUBLV)
@@ -9877,6 +9875,50 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
     return sv;
 }
 
+/* cv_do_inline needs to translate the args,
+ * handle args: shift, = @_ or just accept SIGNATURED subs with PERL_FAKE_SIGNATURE.
+ * with a OP_SIGNATURE it is easier. without need to populate @_.
+ * if arg is call-by-value make a copy.
+ * adjust or add targs,
+ * with local need to add SAVETMPS/FREETMPS.
+ * maybe keep ENTER/LEAVE
+ *
+ * $lhs = call(...); => $lhs = do {...inlined...};
+ */
+
+#ifdef PERL_INLINE_SUBS
+static OP*
+S_cv_do_inline(pTHX_ const OP *o, const OP *cvop, CV *cv, bool meth)
+{
+    /* WIP splice inlined ENTERSUB into the current body */
+    const OP *pushmarkop = o;
+
+    assert(o); /* the pushmark */
+    assert(cv);
+    assert(IS_TYPE(o, PUSHMARK));
+    assert(IS_TYPE(cvop, ENTERSUB));
+    /* first translate the args to the temp vars */
+
+    if (meth) { /* push self */
+        if (UNLIKELY(OP_TYPE_IS(o->op_next, OP_GVSV))) { /* $self->meth not,
+                                                as we don't know the run-time dispatch */
+            DEBUG_k(deb("rpeep: skip inline $self->%s\n", HEK_KEY(CvNAME_HEK(cv))));
+            return (OP*)pushmarkop;
+        }
+        if (OP_TYPE_IS(o->op_next, OP_CONST)) { /* pkg->meth yes, if pkg::meth exists */
+            /* my $self = const pv */
+        }
+    }
+    for (; o != cvop; o = o->op_next) {
+	const OPCODE type = o->op_type;
+	if (type == OP_GV && meth) {
+	    return NULL;
+	}
+    }
+    return (OP*)pushmarkop;
+}
+#endif
+
 static void
 S_already_defined(pTHX_ CV *const cv, OP * const block, OP * const o,
 			PADNAME * const name, SV ** const const_svp)
@@ -15683,6 +15725,7 @@ Perl_ck_subr(pTHX_ OP *o)
     if (cv && CvPURE(cv)) /* check for method field op. only for rv2cv */
 #endif
 
+    /* TODO: inlining, null removal */
     o->op_private &= ~1;
     o->op_private |= (PL_hints & HINT_STRICT_REFS);
     if (PERLDB_SUB && PL_curstash != PL_debstash)
@@ -15692,20 +15735,67 @@ Perl_ck_subr(pTHX_ OP *o)
 	    o->op_private |= (cvop->op_private & OPpENTERSUB_AMPER);
 	    op_null(cvop);
 	    break;
-	case OP_METHOD_NAMED: /* check for method field or ctor op */
-            /* ctor CLASS->new */
+	case OP_METHOD_NAMED:
 	    if (IS_CONST_OP(aop)) {
-                OP *m;
-                if ( (m = OpSIBLING(aop)) &&
-                     IS_TYPE(m, METHOD_NAMED) &&
-                     SvPOK(cMETHOPx_meth(m)) &&
-                     /* Mu ctor's */
-                     ( strEQc(SvPVX(cMETHOPx_meth(m)), "new")
-                    || strEQc(SvPVX(cMETHOPx_meth(m)), "CREATE")) )
-                {
-                    HV *stash = gv_stashsv(cSVOPx_sv(aop), 0);
-                    if (stash && HvCLASS(stash))
-                        OpRETTYPE_set(o, type_Object);
+                SV *meth  = cMETHOPx_meth(cvop);
+                /* check for method field or ctor op: ctor CLASS->new */
+                if (LIKELY(SvPOK(meth))) {
+                    SV *pkg   = cSVOPx_sv(aop);
+                    HV *stash = gv_stashsv(pkg, SvUTF8(pkg));
+                    /* skip ""->method */
+                    if (LIKELY((SvPOK(pkg) ? SvCUR(pkg) : TRUE) &&
+                               stash && SvTYPE(stash) == SVt_PVHV)) {
+                        /* bypass cache and gv overhead */
+                        GV **gvp = (GV**)hv_common(stash, meth, NULL, 0, 0,
+                                       HV_FETCH_ISEXISTS|HV_FETCH_JUST_SV, NULL, 0);
+                        /* Mu ctor's */
+                        if ( strEQc(SvPVX(meth), "new") ||
+                             strEQc(SvPVX(meth), "CREATE") ) {
+                            OpRETTYPE_set(o, type_Object);
+                        }
+                        /* static method -> sub */
+                        if (gvp) {
+                            GV *gv = *gvp;
+                            CV* cvf = NULL;
+                            SV *rcv = NULL;
+                            if (SvROK(gv) && SvTYPE(SvRV((SV*)gv)) == SVt_PVCV) {
+                                cvf = (CV*)SvRV((SV*)gv);
+                                rcv = (SV*)gv;
+                            }
+                            else if (SvTYPE(gv) == SVt_PVGV) {
+                                cvf = GvCV(gv);
+                            }
+                            /* allow: sub pkg::meth {} pkg->meth */
+                            if (cvf && (CvSTASH(cvf) == stash || CvSTASH(cvf) == PL_defstash)) {
+                                if (HvCLASS(stash))
+                                    Perl_croak(aTHX_
+                                        "Invalid method call on class subroutine %" SVf,
+                                        SVfARG(cv_name(cvf,NULL,CV_NAME_NOMAIN)));
+                                /*OpPRIVATE(aop) &= ~(OPpCONST_BARE|OPpCONST_STRICT);*/
+                                if (CvISXSUB(cvf) && CvROOT(cvf) &&
+                                    GvXSCV(gv) && !PL_perldb)
+                                {
+                                    DEBUG_k(Perl_deb(aTHX_ "entersub -> xs %" SVf "\n",
+                                        SVfARG(cv_name(cvf, NULL, CV_NAME_NOMAIN))));
+                                    OpTYPE_set(o, OP_ENTERXSSUB);
+                                }
+                                /* from METHOP to GV */
+                                OpTYPE_set(cvop, OP_GV);
+                                OpPRIVATE(cvop) |= OPpGV_WASMETHOD;
+                                /* threads? cGVOPx_gv */
+                                if (UNLIKELY(rcv))
+                                    ((SVOP*)cvop)->op_sv = SvREFCNT_inc_NN(rcv);
+                                else
+                                    ((SVOP*)cvop)->op_sv = SvREFCNT_inc_NN(gv);
+                                SvREFCNT_dec(meth);
+                                cvop->op_flags |= OPf_WANT_SCALAR;
+                                o->op_flags |= OPf_STACKED;
+                                DEBUG_k(Perl_deb(aTHX_
+                                    "ck_subr: static method call to sub %s::%s\n",
+                                    SvPVX_const(pkg), SvPVX_const(meth)));
+                            }
+                        }
+                    }
                 }
             }
             else if (method_field_type(o)) {
@@ -18050,7 +18140,7 @@ Perl_rpeep(pTHX_ OP *o)
                  */
                 ASSUME(!(o2->op_flags &
                             ~(OPf_WANT|OPf_MOD|OPf_PARENS|OPf_SPECIAL)));
-                ASSUME(!(o2->op_private & ~OPpEARLY_CV));
+                ASSUME(!(o2->op_private & ~(OPpEARLY_CV|OPpGV_WASMETHOD)));
 
                 o2 = OpNEXT(o2);
                 /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p\n", o2));*/
@@ -18423,7 +18513,6 @@ Perl_rpeep(pTHX_ OP *o)
 	    break;
 
         case OP_PUSHMARK:
-
             /* Given
                  5 repeat/DOLIST
                  3   ex-list
@@ -18464,6 +18553,154 @@ Perl_rpeep(pTHX_ OP *o)
                     o->op_private = 0;
                     DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p repeat\n", o));
                     break;
+                }
+            }
+
+            /* convert static methods to subs, later inline subs */
+            if (0) {
+                int i = 0, meth = 0;
+                OP* o2 = o;
+                OP* gvop = NULL;
+                /* scan from pushmark to the next entersub call, 4 args with $->$ */
+                while (OpNEXT(o) && IS_TYPE(OpNEXT(o), PUSHMARK)) {
+                    oldop = o;
+                    o = OpNEXT(o);
+                }
+                for (; o2 && i<8; o2 = o2->op_next, i++) {
+                    OPCODE type = o2->op_type;
+                    if (type == OP_GV || type == OP_GVSV) {
+                        gvop = o2; /* gvsv for variable method parts, left or right */
+                    } else if (type == OP_METHOD_NAMED) {
+                        /* method name only with pkg->m, not $obj->m */
+                        /* TODO: we could speculate and cache an inlined variant for $obj,
+                           matching the METHOP rclass */
+                        gvop = IS_TYPE(OpNEXT(o), CONST) ? o2 : NULL;
+                        meth++;
+                    }
+                    else if (type == OP_METHOD) /* $obj->$m needs run-time dispatch */
+                        break;
+                    else if (IS_SUB_TYPE(type))
+                        break;
+                }
+                if (o2 && IS_SUB_OP(o2) && gvop) {
+#ifdef USE_ITHREADS
+                    SV *gv = PAD_SVl(cPADOPx(gvop)->op_padix);
+#else
+                    SV *gv = cSVOPx(gvop)->op_sv;
+#endif
+                    CV* cv = NULL;
+                    SV* rcv = NULL;
+                    /* for methods only if the static &pkg->cv exists, or the obj is typed */
+                    if (gv) {
+                        if (SvTYPE(gv) == SVt_PVGV && (cv = GvCV(gv)) &&
+                            SvTYPE(cv) == SVt_PVCV) {
+                            ;
+                        } else if (SvROK(gv) && (cv = (CV*)SvRV((SV*)gv)) && 
+                                   SvTYPE(cv) == SVt_PVCV) {
+                            rcv = gv;
+                        } else if (SvTYPE(gv) == SVt_PV &&
+                                   IS_TYPE(OpNEXT(o), CONST) &&
+                                   IS_TYPE(gvop, METHOD_NAMED))
+                        {
+                            SV *name = cSVOPx_sv(OpNEXT(o));
+                            /* But do error on ""->method */
+                            if (SvTYPE(name) == SVt_PV && SvCUR(name)) {
+                                GV **gvp = NULL;
+                                GV *gvf = NULL;
+                                HV *stash = gv_stashsv(name, SvUTF8(name));
+                                if (stash && SvTYPE(stash) == SVt_PVHV) {
+                                    /* bypass cache and gv overhead */
+                                    gvp = (GV**)hv_common(stash, gv, NULL, 0, 0,
+                                             HV_FETCH_ISEXISTS|HV_FETCH_JUST_SV, NULL, 0);
+                                }
+                                if (gvp) {
+                                    /*char *stashname = HvNAME_get(stash);*/
+                                    gvf = *gvp;
+                                    if (SvROK(gvf) &&
+                                        SvTYPE(SvRV((SV*)gvf)) == SVt_PVCV) {
+                                        cv = (CV*)SvRV((SV*)gvf);
+                                        rcv = (SV*)gvf;
+                                        SvREFCNT_inc_simple_void_NN(rcv);
+                                    }
+                                    else if (SvTYPE(gvf) == SVt_PVGV &&
+                                             (cv = GvCV(gvf))) {
+                                        ;
+                                    }
+                                }
+                                /* not imported alias, e.g. Exporter */
+                                if (cv && CvSTASH(cv) == stash) {
+                                    assert(gvf);
+                                    /* But a class method called as sub should error.
+                                       Detect this earlier than at run-time in the method_named. */
+                                    if (HvCLASS(stash))
+                                        Perl_croak(aTHX_
+                                            "Invalid method call on class subroutine %" SVf,
+                                            SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)));
+                                    /* convert static method to normal sub */
+                                    /* See http://blogs.perl.org/users/rurban/2011/06/
+                                           how-perl-calls-subs-and-methods.html */
+                                    /* remove bareword-ness of class name */
+                                    o->op_next->op_private &=
+                                        ~(OPpCONST_BARE|OPpCONST_STRICT);
+                                    if (CvISXSUB(cv) && CvROOT(cv) &&
+                                        GvXSCV(gvf) && !PL_perldb)
+                                    {
+                                        DEBUG_k(Perl_deb(aTHX_ "entersub -> xs %" SVf "\n",
+                                            SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));
+                                        OpTYPE_set(o2, OP_ENTERXSSUB);
+                                    }
+                                    /* from METHOP to GV */
+                                    OpTYPE_set(gvop, OP_GV);
+                                    OpPRIVATE(gvop) |= OPpGV_WASMETHOD;
+        /* Cleaning main::BEGIN converted the attached GV (gv-entersub) via
+           sv_unmagic to a PV, which broke the stash{import} entry,
+           breaking all subsequent calls. */
+#if 0
+        /* METH and GV share the same sv* pos, but rather use a cvref.
+           The GV is too fragile when &BEGIN is cleared.
+           But with the cvref lots of tests fail, eg op/hashassign.t
+        */
+                                    if (LIKELY((SV*)gvf != rcv)) {
+                                        if (!rcv)
+                                            rcv = newRV_inc((SV*)cv);
+                                        ((SVOP*)gvop)->op_sv = rcv;
+                                    }
+#else
+                                    if (LIKELY(gv != (SV*)gvf && gv != rcv)) {
+                                        if (UNLIKELY(rcv))
+                                            ((SVOP*)gvop)->op_sv = newRV_inc(rcv);
+                                        else
+                                            ((SVOP*)gvop)->op_sv = SvREFCNT_inc_NN(gvf);
+                                        SvREFCNT_dec(gv);
+                                    }
+#endif
+                                    gvop->op_flags |= OPf_WANT_SCALAR;
+                                    o2->op_flags |= OPf_STACKED;
+                                    DEBUG_k(Perl_deb(aTHX_
+                                        "rpeep: static method call to sub %s::%s\n",
+                                         SvPVX_const(name), SvPVX_const(gv)));
+                                    meth = FALSE;
+                                }
+                            }
+                        }
+#ifdef PERL_INLINE_SUBS
+                        if (cv && CvINLINABLE(cv) && !meth) {
+                            if (cop_hints_fetch_pvs(PL_curcop, "inline", REFCOUNTED_HE_EXISTS)) {
+                                DEBUG_k(Perl_deb(aTHX_ "rpeep: skip inline sub %s, no inline\n",
+                                                 SvPVX_const(cv_name,0,GV_NAME_NOMAIN)));
+                            } else {
+                                OP* tmp;
+                                DEBUG_k(Perl_deb(aTHX_ "rpeep: inline sub %s::%s\n",
+                                                 pkg, cvname));
+                                if ((tmp = cv_do_inline(o, o2, cv))) {
+                                    o = tmp;
+                                    if (oldop)
+                                        oldop->op_next = o;
+                                }
+                            }
+                        }
+#endif
+                    }
                 }
             }
 
