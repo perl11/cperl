@@ -1791,6 +1791,7 @@ Perl_croak_popstack(void)
 void
 Perl_croak_shaped_array(const char *opname)
 {
+    PERL_ARGS_ASSERT_CROAK_SHAPED_ARRAY;
 #if 0
     Perl_croak_nocontext("Invalid modification of shaped array: %s %s",
         opname, PL_op->op_targ ? PAD_COMPNAME_PV(PL_op->op_targ) : "");
