@@ -321,7 +321,7 @@ do_test('reference to anon sub with empty prototype',
     OWNER = $ADDR)?
     FLAGS = 0x490				# $] < 5.015 || (!thr && $] <= 5.022)
     FLAGS = 0x1490				# $] >= 5.015 && thr && $] <= 5.022
-    CVFLAGS = 0x1?490 \\(ANON,WEAKOUTSIDE,CVGV_RC(?:,DYNFILE)?\\)	# $] > 5.022
+    CVFLAGS = 0x(?:80)?490 \\(ANON,WEAKOUTSIDE,CVGV_RC(?:,DYNFILE)?(?:,INLINABLE)?\\)	# $] > 5.022
     OUTSIDE_SEQ = \\d+
     PADLIST = $ADDR				# $] <= 5.022
     PADLIST = $ADDR \\[\\d+\\]			# $] > 5.022

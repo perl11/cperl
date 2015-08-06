@@ -247,6 +247,9 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvTYPED(cv)		(CvFLAGS(cv) & CVf_TYPED)
 #define CvTYPED_on(cv)		(CvFLAGS(cv) |= CVf_TYPED)
 
+#define CvINLINABLE(cv)		(CvFLAGS(cv) & CVf_INLINABLE)
+#define CvINLINABLE_on(cv)	(CvFLAGS(cv) |= CVf_INLINABLE)
+
 #define CvPURE(cv)		(CvFLAGS(cv) & CVf_PURE)
 #define CvPURE_on(cv)		(CvFLAGS(cv) |= CVf_PURE)
 #define CvSTATIC(cv)		(CvFLAGS(cv) & CVf_STATIC)
