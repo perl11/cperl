@@ -9871,7 +9871,8 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 
 /* cv_do_inline needs to translate the args,
  * handle args: shift, = @_ or just accept SIGNATURED subs with PERL_FAKE_SIGNATURE.
- * if arg is call-by-value. make a copy.
+ * with a OP_SIGNATURE it is easier. without need to populate @_.
+ * if arg is call-by-value make a copy.
  * adjust or add targs,
  * with local need to add SAVETMPS/FREETMPS.
  * maybe keep ENTER/LEAVE
@@ -18544,8 +18545,9 @@ Perl_rpeep(pTHX_ OP *o)
                                 ;
                         else if (SvTYPE(gv) == SVt_PV
                                  && OP_TYPE_IS(o->op_next, OP_CONST)
-                                 && OP_TYPE_IS(gvop, OP_METHOD_NAMED)) {
-                            SV *name = cSVOPx(o->op_next)->op_sv;
+                                 && OP_TYPE_IS(gvop, OP_METHOD_NAMED))
+                        {
+                            SV *name = cSVOPx_sv(o->op_next);
                             if (SvTYPE(name) == SVt_PV) {
                                 GV *gvf;
                                 name = newSVpvn_utf8(SvPVX(name), SvCUR(name), SvUTF8(name));
@@ -18556,13 +18558,42 @@ Perl_rpeep(pTHX_ OP *o)
                                 sv_catpvn(name, SvPVX(gv), SvCUR(gv));
                                 if (!SvUTF8(name) && SvUTF8(gv))
                                     SvUTF8_on(name);
-                                gvf = gv_fetchsv(name, 0, SVt_PVCV);
+                                SvIsCOW_off(name);
+                                gvf = gv_fetchsv(name, GV_NOADD_NOINIT|SvUTF8(name), SVt_PVCV);
+                                SvREFCNT_dec(name);
+                                if (gvf && SvROK(gvf) && SvTYPE(SvRV((SV*)gvf)) == SVt_PVCV) {
+                                    cv = (CV*)SvRV((SV*)gvf);
 #ifdef DEBUGGING
-                                cvname = SvPVX(name);
+                                    cvname = HEK_KEY(CvNAME_HEK(cv));
 #endif
-                                if (gvf && GvCV(gvf)) {
+                                }
+                                else if (gvf && SvTYPE(gvf) == SVt_PVGV && GvCV(gvf)) {
                                     cv = GvCV(gvf);
-                                    /* TODO: convert to normal sub */
+#ifdef DEBUGGING
+                                    cvname = GvNAME_get(gvf);
+#endif
+                                }
+                                if (cv) {
+                                    /* convert static method to normal sub */
+/* See http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html */
+#if 0
+                                    OP* cop = o->op_next;
+                                    OP* ngv = cop->op_sibling = scalar(newGVOP(OP_GV, 0, gvf));
+                                    cop->op_private &= ~(OPpCONST_BARE|OPpCONST_STRICT);
+                                    ngv->op_next = o2;
+                                    for (; cop->op_next != gvop; cop=cop->op_next) ;
+                                    cop->op_next = cop->op_sibling = ngv;
+                                    op_free(gvop);
+#else
+                                    /* remove bareword-ness of class name */
+                                    o->op_next->op_private &= ~(OPpCONST_BARE|OPpCONST_STRICT);
+                                    OpTYPE_set(gvop, OP_GV);
+                                    gvop->op_ppaddr = PL_ppaddr[OP_GV];
+                                    SvREFCNT_dec(cSVOPx_sv(gvop));
+                                    ((SVOP*)gvop)->op_sv = (SV*)gvf;
+#endif
+                                    o2->op_flags |= OPf_STACKED;
+                                    DEBUG_k(deb("rpeep: convert static method call to sub %s\n", cvname));
                                 }
                             }
                         }
