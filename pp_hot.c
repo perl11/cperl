@@ -48,7 +48,6 @@ PPt(pp_const, "():Scalar");
 PPt(pp_nextstate, "():Void")
 {
     PL_curcop = (COP*)PL_op;
-    PL_sawalias = 0;
     TAINT_NOT;		/* Each statement is presumed innocent */
     PL_stack_sp = PL_stack_base + cxstack[cxstack_ix].blk_oldsp;
     FREETMPS;
@@ -64,8 +63,6 @@ PPt(pp_gvsv, "():Scalar")
 	PUSHs(save_scalar(cGVOP_gv));
     else
 	PUSHs(GvSVn(cGVOP_gv));
-    if (GvREFCNT(cGVOP_gv) > 1 || GvALIASED_SV(cGVOP_gv))
-	PL_sawalias = TRUE;
     RETURN;
 }
 
@@ -100,9 +97,6 @@ PPt(pp_gv, "():Scalar")
 {
     dSP;
     XPUSHs(MUTABLE_SV(cGVOP_gv));
-    if (isGV(cGVOP_gv)
-     && (GvREFCNT(cGVOP_gv) > 1 || GvALIASED_SV(cGVOP_gv)))
-	PL_sawalias = TRUE;
     RETURN;
 }
 
