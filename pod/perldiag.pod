@@ -4440,6 +4440,11 @@ to even) byte length.
 (P) Something tried to call utf16_to_utf8_reversed with an odd (as opposed
 to even) byte length.
 
+=item panic: wrong function prototype %s for %s
+
+(P) A function declaration expects a CONST prototype, but a wrong prototype
+was declared.
+
 =item panic: yylex, %s
 
 (P) The lexer got into a bad state while processing a case modifier.
