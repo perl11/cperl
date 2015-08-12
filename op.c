@@ -2570,7 +2570,9 @@ S_finalize_op(pTHX_ OP* o)
                 assert(kid->op_sibparent == o);
             }
 #  else
-            if (has_last && !OpHAS_SIBLING(kid))
+            /* {and,or,xor}assign use a hackish unop'y sassign without last */
+            if (has_last && !OpHAS_SIBLING(kid)
+                && (OP_TYPE_ISNT(o, OP_SASSIGN) || cLISTOPo->op_last))
                 assert(kid == cLISTOPo->op_last);
 #  endif
         }
@@ -6462,8 +6464,8 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
     if (optype) {
 	if (optype == OP_ANDASSIGN || optype == OP_ORASSIGN || optype == OP_DORASSIGN) {
 	    return newLOGOP(optype, 0,
-		op_lvalue(scalar(left), optype),
-		newUNOP(OP_SASSIGN, 0, scalar(right)));
+                op_lvalue(scalar(left), optype),
+                newBINOP(OP_SASSIGN, OPpASSIGN_BACKWARDS<<8, scalar(right), NULL));
 	}
 	else {
 	    return newBINOP(optype, OPf_STACKED,
@@ -6984,9 +6986,6 @@ S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
 
     if (!other)
 	return first;
-
-    if (type == OP_ANDASSIGN || type == OP_ORASSIGN || type == OP_DORASSIGN)
-	other->op_private |= OPpASSIGN_BACKWARDS;  /* other is an OP_SASSIGN */
 
     logop = S_alloc_LOGOP(aTHX_ type, first, LINKLIST(other));
     logop->op_flags |= (U8)flags;
