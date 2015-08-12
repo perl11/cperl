@@ -48,6 +48,9 @@ PPt(pp_nextstate, "():Void")
 {
     PL_curcop = (COP*)PL_op;
     TAINT_NOT;		/* Each statement is presumed innocent */
+    /* XXX This is the work of unstack, not nextstate. It should be
+       unnecessary, is slow and is a problem for inlining subs.
+       But we can only implement this with oplines. */
     PL_stack_sp = PL_stack_base + CX_CUR()->blk_oldsp;
     FREETMPS;
     PERL_ASYNC_CHECK();
