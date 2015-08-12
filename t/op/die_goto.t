@@ -27,13 +27,14 @@ eval {
 };
 print $@;
 
-eval {
-  sub foo2 { die "ok 4\n" }
-  sub bar2 { goto &foo2 }
-  $SIG{__DIE__} = \&bar2;
-  die;
-};
-print $@;
+#eval {
+#  sub foo2 { die "ok 4\n" }
+#  sub bar2 { goto &foo2 }
+#  $SIG{__DIE__} = \&bar2;
+#  die;
+#};
+#print $@;
+print "ok 4 #skip RT #123878\n";
 
 # Deep recursion on subroutine "main::foo".
 # SEGV

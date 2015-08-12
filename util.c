@@ -1548,6 +1548,8 @@ S_invoke_exception_hook(pTHX_ SV *ex, bool warn)
     *hook = NULL;
     cv = sv_2cv(oldhook, &stash, &gv, 0);
     LEAVE;
+    /* TODO: catch not only recursive calls !CvDEPTH(cv), also
+       goto &cv, See [perl #123878] */
     if (cv && !CvDEPTH(cv) && (CvROOT(cv) || CvXSUB(cv))) {
 	dSP;
 	SV *exarg;
