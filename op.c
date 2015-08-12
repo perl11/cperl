@@ -8451,7 +8451,9 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 			isGV(gv) ? gv : (GV *)cSVOPo->op_sv);
 
     if (proto) {
-	assert(proto->op_type == OP_CONST);
+        if (OP_TYPE_ISNT(proto, OP_CONST))
+            Perl_croak(aTHX_ "panic: wrong function prototype %s for %s",
+                       OP_NAME(proto), name);
 	ps = SvPV_const(((SVOP*)proto)->op_sv, ps_len);
         ps_utf8 = SvUTF8(((SVOP*)proto)->op_sv);
     }
