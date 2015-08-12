@@ -8233,8 +8233,7 @@ Perl_yylex(pTHX)
 		    COPLINE_SET_FROM_MULTI_END;
 		    if (!s)
 			Perl_croak(aTHX_ "Prototype not terminated");
-		    have_proto = validate_proto(PL_subname, PL_lex_stuff,
-                                                ckWARN(WARN_ILLEGALPROTO));
+		    have_proto = validate_proto(PL_subname, PL_lex_stuff, FALSE);
                     if (have_proto) {
                         DEBUG_T( { printbuf("### Is prototype %s\n", olds); } );
                         s = skipspace(s);
