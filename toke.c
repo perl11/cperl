@@ -446,8 +446,9 @@ S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
 	else if (isGRAPH(rv))
 	{
 	    Perl_sv_catpvf(aTHX_ report, "'%c'", (char)rv);
-	    if ((char)rv == 'p')
-		sv_catpvs(report, " (pending identifier)");
+	    if ((char)rv == 'p') {
+		sv_catpvf(report, " (Pending identifier '%c')", (U8)lvalp->ival);
+            }
 	}
 	else if (!rv)
 	    sv_catpvs(report, "EOF");
@@ -460,7 +461,7 @@ S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
 	    Perl_sv_catpvf(aTHX_ report, "(ival=%"IVdf")", (IV)lvalp->ival);
 	    break;
 	case TOKENTYPE_OPNUM:
-	    Perl_sv_catpvf(aTHX_ report, "(ival=op_%s)",
+	    Perl_sv_catpvf(aTHX_ report, "(opnum=op_%s)",
 				    PL_op_name[lvalp->ival]);
 	    break;
 	case TOKENTYPE_PVAL:
@@ -8471,7 +8472,7 @@ S_pending_ident(pTHX)
                 GCC_DIAG_RESTORE;
             }
 
-            pl_yylval.opval = newOP(OP_PADANY, 0); /* this op leaks! */
+            pl_yylval.opval = newOP(OP_PADANY, 0); /* rurban 2015: this op leaks! */
             pl_yylval.opval->op_targ = allocmy(PL_tokenbuf, tokenbuf_len,
                                                         UTF ? SVf_UTF8 : 0);
 	    return PRIVATEREF;
