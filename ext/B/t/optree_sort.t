@@ -81,7 +81,7 @@ checkOptree ( name	=> 'sub {@a = sort @a}',
 7  <0> pushmark s
 8  <#> gv[*a] s
 9  <1> rv2av[t2] lKRM*/1
-a  <2> aassign[t5] KS/COMMON
+a  <2> aassign[t5] KS/COM_AGG
 b  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
 # 1  <;> nextstate(main 65 optree.t:311) v:>,<,%
@@ -93,7 +93,7 @@ EOT_EOT
 # 7  <0> pushmark s
 # 8  <$> gv(*a) s
 # 9  <1> rv2av[t1] lKRM*/1
-# a  <2> aassign[t3] KS/COMMON
+# a  <2> aassign[t3] KS/COM_AGG
 # b  <1> leavesub[1 ref] K/REFC,1
 EONT_EONT
 
@@ -202,7 +202,7 @@ checkOptree ( name	=> 'sub {my @a; @a = sort @a}',
 7  <@> sort lK
 8  <0> pushmark s
 9  <0> padav[@a:-437,-436] lRM*
-a  <2> aassign[t2] KS/COMMON
+a  <2> aassign[t2] KS/COM_AGG
 b  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
 # 1  <;> nextstate(main 427 optree_sort.t:172) v:>,<,%
@@ -214,7 +214,7 @@ EOT_EOT
 # 7  <@> sort lK
 # 8  <0> pushmark s
 # 9  <0> padav[@a:-437,-436] lRM*
-# a  <2> aassign[t2] KS/COMMON
+# a  <2> aassign[t2] KS/COM_AGG
 # b  <1> leavesub[1 ref] K/REFC,1
 EONT_EONT
 
