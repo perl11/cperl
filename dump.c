@@ -943,15 +943,20 @@ Perl_do_op_dump(pTHX_ I32 level, PerlIO *file, const OP *o)
 	Perl_dump_indent(aTHX_ level, file, "PADIX = %" IVdf "\n", (IV)cPADOPo->op_padix);
 #else
 	if ( ! (o->op_flags & OPf_SPECIAL)) { /* not lexical */
-	    if (cSVOPo->op_sv) {
-      STRLEN len;
-      const char * name;
-      SV * const tmpsv  = newSVpvs_flags("", SVs_TEMP);
-      SV * const tmpsv2 = newSVpvs_flags("", SVs_TEMP);
-		gv_fullname3(tmpsv, MUTABLE_GV(cSVOPo->op_sv), NULL);
-      name = SvPV_const(tmpsv, len);
-		Perl_dump_indent(aTHX_ level, file, "GV = %s\n",
-                       generic_pv_escape( tmpsv2, name, len, SvUTF8(tmpsv)));
+            SV *sv = cSVOPo->op_sv;
+	    if (sv) {
+                if (SvTYPE(sv) == SVt_PVGV) {
+                    STRLEN len;
+                    const char * name;
+                    SV * const tmpsv  = newSVpvs_flags("", SVs_TEMP);
+                    SV * const tmpsv2 = newSVpvs_flags("", SVs_TEMP);
+                    gv_fullname3(tmpsv, MUTABLE_GV(sv), NULL);
+                    name = SvPV_const(tmpsv, len);
+                    Perl_dump_indent(aTHX_ level, file, "GV = %s\n",
+                                     generic_pv_escape( tmpsv2, name, len, SvUTF8(tmpsv)));
+                } else if (SvTYPE(sv) == SVt_IV && SvROK(sv)) {
+                    Perl_dump_indent(aTHX_ level, file, "RV = 0x%"UVxf"\n", PTR2UV(SvRV(sv)));
+                }
 	    }
 	    else
 		Perl_dump_indent(aTHX_ level, file, "GV = NULL\n");
