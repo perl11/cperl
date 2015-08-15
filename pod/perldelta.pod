@@ -194,9 +194,18 @@ exports anything.  [perl #125410]
 
 =over 4
 
-=item Win32
+=item *
 
-=over
+EBCDIC C<cmp()> and C<sort()> fixed for UTF-EBCDIC strings
+
+Comparing two strings that were both encoded in UTF-8 (or more
+precisely, UTF-EBCDIC) did not work properly until now.  Since C<sort()>
+uses C<cmp()>, this fixes that as well.
+ 
+=item *
+
+Parallel building has been added to the dmake C<makefile.mk> makefile. All
+Win32 compilers are supported.
 
 =item *
 
@@ -211,8 +220,6 @@ You can now build perl with GNU Make and GCC.  [perl #123440]
 
 C<truncate($filename, $size)> now works for files over 4GB in size.
 [perl #125347]
-
-=back
 
 =back
 

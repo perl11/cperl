@@ -478,7 +478,7 @@ a = .a
 # Options
 #
 
-INCLUDES	= -I.\include -I. -I.. -I$(COREDIR)
+INCLUDES	= -I.\include -I. -I..
 DEFINES		= -DWIN32
 .IF "$(WIN64)" == "define"
 DEFINES		+= -DWIN64 -DCONSERVATIVE
@@ -566,7 +566,7 @@ RSC		= rc
 # Options
 #
 
-INCLUDES	= -I$(COREDIR) -I.\include -I. -I..
+INCLUDES	= -I.\include -I. -I..
 #PCHFLAGS	= -Fpc:\temp\vcmoduls.pch -YX
 DEFINES		= -DWIN32 -D_CONSOLE -DNO_STRICT
 LOCDEFS		= -DPERLDLL -DPERL_CORE
@@ -869,7 +869,24 @@ XCOPY		= xcopy /f /r /i /d /y
 RCOPY		= xcopy /f /r /i /e /d /y
 NOOP		= @rem
 
+#first ones are arrange in compile time order for faster parallel building
+#see #123867 for details
 MICROCORE_SRC	=		\
+		..\toke.c	\
+		..\regcomp.c	\
+		..\regexec.c	\
+		..\op.c		\
+		..\sv.c		\
+		..\pp.c		\
+		..\pp_ctl.c	\
+		..\pp_sys.c	\
+		..\pp_pack.c	\
+		..\pp_hot.c	\
+		..\gv.c		\
+		..\perl.c	\
+		..\utf8.c	\
+		..\dump.c	\
+		..\hv.c		\
 		..\av.c		\
 		..\caretx.c	\
 		..\deb.c	\
@@ -877,32 +894,21 @@ MICROCORE_SRC	=		\
 		..\doop.c	\
 		..\dump.c	\
 		..\globals.c	\
-		..\gv.c		\
 		..\mro_core.c	\
-		..\hv.c		\
 		..\locale.c	\
 		..\keywords.c	\
 		..\mathoms.c    \
 		..\mg.c		\
 		..\numeric.c	\
-		..\op.c		\
 		..\pad.c	\
-		..\perl.c	\
 		..\perlapi.c	\
 		..\perly.c	\
-		..\pp.c		\
-		..\pp_ctl.c	\
-		..\pp_hot.c	\
-		..\pp_pack.c	\
 		..\pp_sort.c	\
 		..\pp_sys.c	\
 		..\pp_type.c	\
 		..\reentr.c	\
-		..\regcomp.c	\
-		..\regexec.c	\
 		..\run.c	\
 		..\scope.c	\
-		..\sv.c		\
 		..\taint.c	\
 		..\toke.c	\
 		..\universal.c	\
@@ -972,6 +978,10 @@ UUDMAP_H	= ..\uudmap.h
 BITCOUNT_H	= ..\bitcount.h
 MG_DATA_H	= ..\mg_data.h
 GENERATED_HEADERS = $(UUDMAP_H) $(BITCOUNT_H) $(MG_DATA_H)
+#a stub ppport.h must be generated so building XS modules, .c->.obj wise, will
+#work, so this target also represents creating the COREDIR and filling it
+HAVE_COREDIR	= $(COREDIR)\ppport.h
+
 
 MICROCORE_OBJ	= $(MICROCORE_SRC:db:+$(o))
 CORE_OBJ	= $(MICROCORE_OBJ) $(EXTRACORE_SRC:db:+$(o))
@@ -1110,9 +1120,7 @@ regen_config_h:
 
 $(CONFIGPM): ..\config.sh config_h.PL
 	$(MINIPERL) -I..\lib ..\configpm --chdir=..
-	$(XCOPY) ..\*.h $(COREDIR)\*.*
-	$(XCOPY) *.h $(COREDIR)\*.*
-	$(RCOPY) include $(COREDIR)\*.*
+	$(XCOPY) config.h $(COREDIR)\*.*
 	$(MINIPERL) -I..\lib config_h.PL "ARCHPREFIX=$(ARCHPREFIX)" \
 	    || $(PLMAKE) $(MAKEMACROS) $(CONFIGPM) $(MAKEFILE)
 
@@ -1388,7 +1396,7 @@ $(PERLSTATICLIB): $(PERLDLL_OBJ) Extensions_static
 	$(LIB32) $(LIB_FLAGS) -out:$@ @Extensions_static \
 	    @$(mktmp $(PERLDLL_OBJ))
 .ENDIF
-	$(XCOPY) $(PERLSTATICLIB) $(COREDIR)
+	$(XCOPY) $(PERLSTATICLIB) $(COREDIR)\$(NULL)
 
 $(PERLEXE_RES): perlexe.rc $(PERLEXE_MANIFEST) $(PERLEXE_ICO)
 
@@ -1398,6 +1406,13 @@ $(UUDMAP_H) $(MG_DATA_H) : $(BITCOUNT_H)
 
 $(BITCOUNT_H) : $(GENUUDMAP)
 	$(GENUUDMAP) $(GENERATED_HEADERS)
+
+#This generates a stub ppport.h & creates & fills /lib/CORE to allow for XS
+#building .c->.obj wise (linking is a different thing). This taget is AKA
+#$(HAVE_COREDIR).
+$(COREDIR)\ppport.h : $(CORE_H)
+	$(XCOPY) *.h $(COREDIR)\*.* && $(RCOPY) include $(COREDIR)\*.* && $(XCOPY) ..\*.h $(COREDIR)\*.*
+	rem. > $@
 
 $(GENUUDMAP_OBJ) : ..\mg_raw.h
 
@@ -1447,18 +1462,15 @@ $(PERLEXESTATIC): $(PERLSTATICLIB) $(CONFIGPM) $(PERLEXEST_OBJ) $(PERLEXE_RES)
 #-------------------------------------------------------------------------------
 # There's no direct way to mark a dependency on
 # DynaLoader.pm, so this will have to do
-Extensions : ..\make_ext.pl ..\lib\buildcustomize.pl $(PERLDEP) $(CONFIGPM) $(DYNALOADER)
-	$(XCOPY) ..\*.h $(COREDIR)\*.*
-	if not exist $(COREDIR)\ppport.h rem. > $(COREDIR)\ppport.h
+
+#most of deps of this target are in DYNALOADER and therefore omitted here
+Extensions : $(PERLDEP) $(DYNALOADER)
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic
 
-Extensions_reonly : ..\make_ext.pl ..\lib\buildcustomize.pl $(PERLDEP) $(CONFIGPM) $(DYNALOADER)
-	$(XCOPY) ..\*.h $(COREDIR)\*.*
+Extensions_reonly : $(PERLDEP) $(DYNALOADER)
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic +re
 
-Extensions_static : ..\make_ext.pl ..\lib\buildcustomize.pl list_static_libs.pl $(CONFIGPM)
-	$(XCOPY) ..\*.h $(COREDIR)\*.*
-	if not exist $(COREDIR)\ppport.h rem. > $(COREDIR)\ppport.h
+Extensions_static : ..\make_ext.pl ..\lib\buildcustomize.pl list_static_libs.pl $(CONFIGPM) $(HAVE_COREDIR)
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --static
 	$(MINIPERL) -I..\lib list_static_libs.pl > Extensions_static
 
@@ -1466,8 +1478,7 @@ Extensions_nonxs : ..\make_ext.pl ..\lib\buildcustomize.pl $(CONFIGPM) ..\pod\pe
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --nonxs !libs
 
 #lib must be built, it can't be buildcustomize.pl-ed, and is required for XS building
-$(DYNALOADER) : ..\make_ext.pl ..\lib\buildcustomize.pl $(CONFIGPM)
-	$(XCOPY) ..\*.h $(COREDIR)\*.*
+$(DYNALOADER) : ..\make_ext.pl ..\lib\buildcustomize.pl $(CONFIGPM) $(HAVE_COREDIR)
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(EXTDIR) --dir=$(DISTDIR) --dynaloader lib
 
 Extensions_clean :
@@ -1772,7 +1783,7 @@ _clean :
 	-@erase ..\*$(o) ..\*$(a) ..\*.exp *$(o) *$(a) *.exp *.res
 	-@erase ..\t\*.exe ..\t\*.dll ..\t\*.bat
 	-@erase *.ilk
-	-@erase *.pdb
+	-@erase *.pdb ..\*.pdb
 	-@erase Extensions_static
 
 
