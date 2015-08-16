@@ -13167,7 +13167,14 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
     } /* for (pass = ...) */
 }
 
+/* returns the next non-null op */
 
+PERL_STATIC_INLINE OP*
+S_op_next_nn(OP* o) {
+    while(o->op_next && OP_TYPE_IS(o->op_next, OP_NULL))
+        o = o->op_next;
+    return o->op_next;
+}
 
 /* mechanism for deferring recursion in rpeep() */
 
@@ -13187,7 +13194,15 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 
 #define IS_AND_OP(o)   (o->op_type == OP_AND)
 #define IS_OR_OP(o)    (o->op_type == OP_OR)
+#define IS_CONST_OP(o) (o->op_type == OP_CONST)
 
+#ifndef PERL_MAX_UNROLL_LOOP_COUNT
+#  define PERL_MAX_UNROLL_LOOP_COUNT 5
+#else
+# if (PERL_MAX_UNROLL_LOOP_COUNT <= 0) || (PERL_MAX_UNROLL_LOOP_COUNT > 20)
+#  error Invalid PERL_MAX_UNROLL_LOOP_COUNT: max 0..20
+# endif
+#endif
 
 /* A peephole optimizer.  We visit the ops in the order they're to execute.
  * See the comments at the top of this file for more details about when
@@ -13564,6 +13579,103 @@ Perl_rpeep(pTHX_ OP *o)
 
 		break;
 	    }
+
+            /* check loop bounds:
+               1) if index bound to size/arylen, optimize to unchecked aelem_u variants,
+                  even without parametrized typed.
+                  need to check the right array, and if the loop index is used as is, or
+                  within an expression.
+               2) with static bounds check unrolling.
+            */
+	    if (OpSIBLING(o) && OP_TYPE_IS(OpSIBLING(o), OP_LEAVELOOP)) {
+                OP *leave = OpSIBLING(o);
+                OP *next = S_op_next_nn(o);
+                OP *from = OpSIBLING(next);
+                OP *to   = OpSIBLING(from);
+                SV *fromsv, *tosv;
+                o->op_opt = 0;
+
+                if (!to)
+                    break;
+                if (IS_CONST_OP(from) && IS_CONST_OP(to)
+                    && SvIOK(fromsv = cSVOPx(from)->op_sv) && SvIOK(tosv = cSVOPx(to)->op_sv)
+                    && (SvIV(tosv)-SvIV(fromsv) <= PERL_MAX_UNROLL_LOOP_COUNT))
+                {
+                    DEBUG_kv(deb("rpeep: possibly unroll loop (%"IVdf"..%"IVdf")\n",
+                                 SvIV(fromsv), SvIV(tosv)));
+                    /* TODO easy with op_clone_oplist from feature/CM-707-cperl-inline-subs */
+                }
+
+                if (OP_TYPE_IS(to, OP_AV2ARYLEN)) {
+                    OP *kid = cUNOPx(to)->op_first;
+                    OP *loop, *iter, *body;
+                    SV *idx = MUTABLE_SV(PL_defgv);
+                    const char *aname = kid->op_type == OP_GV ? GvNAME_get(kSVOP_sv)
+                        :  kid->op_type == OP_PADAV ? PAD_COMPNAME_PV(kid->op_targ)
+                        :  "";
+#ifdef DEBUGGING
+                    char *iname = (char*)"_";
+#endif
+                    /* array can be global: gv -> rv2av, or rv2av(?), or lexical: padav */
+                    assert(kid->op_type == OP_GV || kid->op_type == OP_PADAV
+                        || kid->op_type == OP_RV2AV );
+                    /* enteriter->iter->and(other) */
+                    loop = cBINOPx(leave)->op_first;
+                    if (loop->op_private & (OPpLVAL_INTRO|OPpOUR_INTRO)) {
+                        idx = PAD_SV(loop->op_targ);
+#ifdef DEBUGGING
+                        iname = PAD_COMPNAME_PV(loop->op_targ);
+#endif
+                    } else {
+                        OP* rv2gv = cLOOPx(loop)->op_last;
+                        if (rv2gv->op_type == OP_RV2GV) {
+                            kid = cUNOPx(rv2gv)->op_first;
+                            if (kid->op_type == OP_GV) {
+                                idx = kSVOP_sv; /* PVGV */
+#ifdef DEBUGGING
+                                iname = GvNAME_get(idx);
+#endif
+                            }
+                        }
+                    }
+                    DEBUG_kv(deb("rpeep: omit loop bounds checks (from..arylen) for %s[%s]\n",
+                                 aname, iname));
+                    iter = loop->op_next;
+                    body = cLOGOPx(iter->op_next)->op_other;
+                    /* replace all aelem with aelem_u for this exact array in
+                       this loop body, if the index is the loop counter */
+                    for (o=body; o!=iter; o=o->op_next) {
+                        const OPCODE type = o->op_type;
+                        /* here aelem might not be already optimized to multideref.
+                           aelem_u is faster. */
+                        if (type == OP_AELEM && OP_TYPE_IS(cUNOPo->op_first, OP_PADAV)
+                            && strEQ(aname, PAD_COMPNAME_PV(cUNOPo->op_first->op_targ))
+                            && !(o->op_private & (OPpLVAL_DEFER|OPpLVAL_INTRO|OPpDEREF))) {
+                            /* check index */
+                            if (o->op_targ && o->op_targ == loop->op_targ) {
+                                DEBUG_k(deb("loop oob: aelem %s[my %s] => aelem_u\n", aname, iname));
+                                OpTYPE_set(o, OP_AELEM_U);
+                            } else if (!o->op_targ && idx) {
+                                OP* ixop = cBINOPx(o)->op_last;
+                                if ((OP_TYPE_IS(ixop, OP_RV2SV)
+                                  && idx == cSVOPx(cUNOPx(ixop)->op_first)->op_sv)) {
+                                    DEBUG_k(deb("loop oob: aelem %s[$%s] => aelem_u\n", aname, iname));
+                                    OpTYPE_set(o, OP_AELEM_U);
+                                }
+                            }
+#ifdef DEBUGGING
+                        } else if (type == OP_MULTIDEREF && o->op_targ
+                                   && strEQ(aname, PAD_COMPNAME_PV(o->op_targ))) {
+                            DEBUG_k(deb("nyi multideref[%s] => MDEREF_AV_*_aelem_u\n", aname));
+                        } else if (type == OP_AELEMFAST
+                                   && strEQ(aname, SvPVX(kSVOP_sv))) {
+                            DEBUG_k(deb("nyi aelemfast[%s] => aelemfast_u\n", aname));
+#endif
+                        }
+                    }
+                    break;
+                }
+            }
 
 	    /* Two NEXTSTATEs in a row serve no purpose. Except if they happen
 	       to carry two labels. For now, take the easier option, and skip
