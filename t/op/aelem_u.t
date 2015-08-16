@@ -52,3 +52,17 @@ is($a[$i], 1, "set");
 $i = -1;
 $a[$i] = 2; # run-time logic
 is($a[4], 2, "negative run-time index");
+
+# eliminating loop out-of-bounds:
+my @b = (0..4);
+for (0..$#b) { $b[$_] };       # _u
+for (0..$#b) { $a[$_] };       # wrong array
+for my $i (0..$#b) { $b[$i] }; # _u
+my $j = 0;
+for my $i (0..$#b) { $b[$j] }; # wrong index: lex
+for my $our (0..$#b) { $b[$i] }; # _u
+for (0..$#b) { $b[$_+1] };     # wrong index: expr
+{ no strict;
+  for $k (0..$#b) { $b[$k] };    # _u
+  for $k (0..$#b) { $b[$j] };    # wrong index: glob
+}
