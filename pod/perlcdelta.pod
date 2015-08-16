@@ -1181,6 +1181,36 @@ is consistent with the behaviour of L<push|perlfunc/push ARRAY,LIST> and
 L<unshift|perlfunc/unshift ARRAY,LIST>.
 L<[perl #131000]|https://rt.perl.org/Public/Bug/Display.html?id=131000>
 
+=item *
+
+C<stat()>, C<lstat()>, and file test operators now fail if given a
+filename containing a nul character, in the same way that C<open()>
+already fails.
+
+=item *
+
+The in-place reverse optimisation now correctly strengthens weak
+references using the L<C<sv_rvunweaken()>|perlapi/sv_rvunweaken>
+API function.
+
+=item *
+
+Fixed a read before buffer when parsing a range starting with C<\N{}>
+at the beginning of the character set for the transliteration
+operator.
+L<[perl #132245]|https://rt.perl.org/Public/Bug/Display.html?id=132245>
+
+=item *
+
+Fixed a leaked SV when parsing an empty C<\N{}> at compile-time.
+L<[perl #132245]|https://rt.perl.org/Public/Bug/Display.html?id=132245>
+
+=item *
+
+Calling C<do $path> on a directory or block device now yields a meaningful
+error code in C<$!>.
+L<[perl #125774]|https://rt.perl.org/Public/Bug/Display.html?id=125774>
+
 =back
 
 =head1 Known Problems
