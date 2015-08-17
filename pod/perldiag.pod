@@ -2790,6 +2790,11 @@ instead, except within S<C<(?[   ])>>, where it is a fatal error.
 The S<<-- HERE> shows whereabouts in the regular expression the
 escape was discovered.
 
+=item Invalid function type %s
+
+(F) The declared type for the function must be a coretype or an existing
+classname.
+
 =item Invalid hexadecimal number in \N{U+...}
 
 =item Invalid hexadecimal number in \N{U+...} in regex; marked by
@@ -2818,6 +2823,10 @@ a module that is a MRO plugin.  See L<mro> and L<perlmroapi>.
 (W utf8) You passed a negative number to C<chr>.  Negative numbers are
 not valid character numbers, so it returns the Unicode replacement
 character (U+FFFD).
+
+=item Invalid op_type for ck_type
+
+(P) The declared type for the internal check function is invalid.
 
 =item invalid option -D%c, use -D'' to see choices
 
