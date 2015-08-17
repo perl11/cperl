@@ -2671,10 +2671,26 @@ provides a list context to its subscript, which can do weird things
 if you're expecting only one subscript.  When called in list context,
 it also returns the key in addition to the value.
 
-=item Invalid number '%s' for -C option.
+=item %s() is deprecated on :utf8 handles
 
-(F) You supplied number to the -C option that either has extra leading
-zeroes or overflows perl's unsigned integer representation.
+(W deprecated) The sysread(), recv(), syswrite() and send() operators
+are deprecated on handles that have the C<:utf8> layer, either
+explicitly, or implicitly, eg., with the C<:encoding(UTF-16LE)> layer.
+
+Both sysread() and recv() currently use only the C<:utf8> flag for the
+stream, ignoring the actual layers.  Since sysread() and recv() do no
+UTF-8 validation they can end up creating invalidly encoded scalars.
+
+Similarly, syswrite() and send() use only the C<:utf8> flag, otherwise
+ignoring any layers.  If the flag is set, both write the value UTF-8
+encoded, even if the layer is some different encoding, such as the
+example above.
+
+Ideally, all of these operators would completely ignore the C<:utf8>
+state, working only with bytes, but this would result in silently
+breaking existing code.  To avoid this a future version of perl will
+throw an exception when any of sysread(), recv(), syswrite() or send()
+are called on handle with the C<:utf8> layer.
 
 =item Insecure dependency in %s
 
@@ -2884,6 +2900,11 @@ a module that is a MRO plugin.  See L<mro> and L<perlmroapi>.
 (W utf8) You passed a negative number to C<chr>.  Negative numbers are
 not valid character numbers, so it returns the Unicode replacement
 character (U+FFFD).
+
+=item Invalid number '%s' for -C option.
+
+(F) You supplied number to the -C option that either has extra leading
+zeroes or overflows perl's unsigned integer representation.
 
 =item Invalid op %s for ck_type
 
