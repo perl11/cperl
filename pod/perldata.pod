@@ -296,16 +296,17 @@ scalar may not directly hold multiple values, it may contain a
 reference to an array or hash which in turn contains multiple values.
 
 Scalars aren't necessarily one thing or another.  Unless using
-L<coretypes> there's no place to declare a scalar variable to be of type
-"string", type "number", type "reference", or anything else.  Because
-of the automatic conversion of scalars, operations that return scalars
-don't need to care (and in fact, cannot care) whether their caller is
-looking for a string, a number, or a reference.  Perl is a
-contextually polymorphic language whose scalars can be strings,
-numbers, or references (which includes objects).  Although strings and
-numbers are considered pretty much the same thing for nearly all
-purposes, references are strongly-typed, uncastable pointers with
-builtin reference-counting and destructor invocation.
+L<coretypes|/"Constant and typed lexical variables"> there's no place
+to declare a scalar variable to be of type "string", type "number",
+type "reference", or anything else.  Because of the automatic
+conversion of scalars, operations that return scalars don't need to
+care (and in fact, cannot care) whether their caller is looking for a
+string, a number, or a reference.  Perl is a contextually polymorphic
+language whose scalars can be strings, numbers, or references (which
+includes objects).  Although strings and numbers are considered pretty
+much the same thing for nearly all purposes, references are
+strongly-typed, uncastable pointers with builtin reference-counting
+and destructor invocation.
 
 A scalar value is interpreted as FALSE in the Boolean sense
 if it is undefined, the null string or the number 0 (or its
