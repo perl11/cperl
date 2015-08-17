@@ -256,6 +256,7 @@ ext/file-find/lib/file/find.pm	Verbatim line length including indents exceeds 79
 ext/file-glob/glob.pm	Verbatim line length including indents exceeds 79 by	15
 ext/hash-util-fieldhash/lib/hash/util/fieldhash.pm	Apparent broken link	1
 ext/hash-util/lib/hash/util.pm	Verbatim line length including indents exceeds 79 by	2
+ext/opcode/opcode.pm	Verbatim line length including indents exceeds 79 by	3
 ext/pod-html/testdir/perlpodspec-copy.pod	Verbatim line length including indents exceeds 79 by	8
 ext/pod-html/testdir/perlvar-copy.pod	? Should you be using L<...> instead of	3
 ext/pod-html/testdir/perlvar-copy.pod	Verbatim line length including indents exceeds 79 by	6
@@ -280,9 +281,9 @@ pod/perlcall.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perlce.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlcperl.pod	? Should you be using F<...> or maybe L<...> instead of	2
 pod/perlcperl.pod	Apparent broken link	2
+pod/perlcperl.pod	There is more than one target	1
 pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	10
 pod/perlcygwin.pod	Verbatim line length including indents exceeds 79 by	24
-pod/perldata.pod	Apparent broken link	1
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	34
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	22
 pod/perldebug.pod	Verbatim line length including indents exceeds 79 by	3
