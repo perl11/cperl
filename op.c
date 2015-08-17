@@ -12324,6 +12324,7 @@ Perl_ck_type(pTHX_ OP *o)
     OPCODE typ = o->op_type;
     OP* a = cUNOPx(o)->op_first;
     core_types_t type1 = S_op_typed(a);
+    PERL_ARGS_ASSERT_CK_TYPE;
     if (!type1 || type1 >= type_Scalar) {
         return o;
     }
