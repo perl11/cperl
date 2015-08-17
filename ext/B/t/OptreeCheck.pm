@@ -716,7 +716,7 @@ sub mkCheckRex {
 
 
     # don't care about:
-    $str =~ s/:-?\d+,-?\d+/:-?\\d+,-?\\d+/msg;		# FAKE line numbers
+    $str =~ s/:-?\d+,-?\d+([\];])/:-?\\d+,-?\\d+\\$1/msg;# FAKE line numbers
     $str =~ s/match\\\(.*?\\\)/match\(.*?\)/msg;	# match args
     $str =~ s/(0x[0-9A-Fa-f]+)/0x[0-9A-Fa-f]+/msg;	# hexnum values
     $str =~ s/".*?"/".*?"/msg;				# quoted strings
@@ -724,6 +724,9 @@ sub mkCheckRex {
 
     $str =~ s/(\d refs?)/\\d+ refs?/msg;		# 1 ref, 2+ refs (plural)
     $str =~ s/leavesub \[\d\]/leavesub [\\d]/msg;	# for -terse
+    # wild pad targ values
+    $str =~ s/pad(sv|av|hv|range)\[(.+?) \d+,\d+\]/$1\[$2 \\d+,\\d+]/mg;
+    $str =~ s/(padrange\[.+?) \d+,\d+;/$1 \\d+,\\d+;/mg;
     #$str =~ s/(\s*)\n/\n/msg;				# trailing spaces
     
     croak "whitespace only reftext found for '$want': $tc->{name}"

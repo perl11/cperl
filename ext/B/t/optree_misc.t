@@ -10,7 +10,7 @@ BEGIN {
 }
 use OptreeCheck;
 use Config;
-plan tests => 18;
+plan tests => $Config::Config{usecperl} ? 10 : 15;
 
 SKIP: {
 skip "no perlio in this build", 4 unless $Config::Config{useperlio};
@@ -192,6 +192,8 @@ EOT_EOT
 # 9                 <$> gv(*b) s ->a
 EONT_EONT
 
+if (!$Config::Config{usecperl}) {
+
 checkOptree ( name      => 'padrange',
 	      code	=> sub { my ($x,$y); @a = ($x,$y); ($x,$y) = @a },
 	      strip_open_hints => 1,
@@ -201,7 +203,7 @@ checkOptree ( name      => 'padrange',
 # -     <@> lineseq KP ->f
 # 1        <;> nextstate(main 1 -e:1) v:>,<,% ->2
 # -        <@> list vKP ->3
-# 2           <0> padrange[$x 1,2; $y:1,2] vM/LVINTRO,2 ->3
+# 2           <0> padrange[$x 1,2; $y 1,2] vM/LVINTRO,2 ->3
 # -           <0> padsv[$x 1,2] vM/LVINTRO ->-
 # -           <0> padsv[$y 1,2] vM/LVINTRO ->-
 # 3        <;> nextstate(main 2 -e:1) v:>,<,% ->4
@@ -430,6 +432,7 @@ EOT_EOT
 # 4        <$> const(IV 1) s ->5
 EONT_EONT
 
+} # !usecperl
 
 checkOptree ( name      => 'm?x?',
 	      code	=> sub { m?x?; },

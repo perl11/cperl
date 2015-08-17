@@ -11,6 +11,10 @@ BEGIN {
         print "1..0 # Skip -- need perlio to walk the optree\n";
         exit 0;
     }
+    if (($Config::Config{'usecperl'}) ){
+        print "1..0 # Skip -- cperl padranges TODO\n";
+        exit 0;
+    }
 }
 use OptreeCheck;
 use Config;
