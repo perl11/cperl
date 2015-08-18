@@ -12274,6 +12274,8 @@ core_types_t S_op_typed(OP* o)
 PERL_STATIC_INLINE
 const char * S_core_type_name(core_types_t t)
 {
+    if (t < type_none || t > type_Void)
+        die("Invalid coretype index %d\n", t);
     return core_types_n[t];
 }
 
@@ -12299,18 +12301,23 @@ int S_match_type1(const char* sig, core_types_t arg1)
 }
 
 /* match an BINOP type with the given args.
-   TODO: rewrite this to use integers */
+   TODO: rewrite this and regen/opcode.pl to use integers */
 PERL_STATIC_INLINE
 int S_match_type2(const char* sig, core_types_t arg1, core_types_t arg2)
 {
     int i;
     char p[20];
     if (!S_sigtype_args(sig, &i)) die("Invalid function type %s", sig);
+#if 1
+    /* t/porting/libperl.t complains about being unsafe, but we use
+       safe static strings here. */
     strcpy(p, ":");
     strcat(p, S_core_type_name(arg1));
     strcat(p, ",:");
     strcat(p, S_core_type_name(arg2));
-    /*sprintf(p, ":%s,:%s", S_core_type_name(arg1), S_core_type_name(arg2));*/
+#else
+    sprintf(p, ":%s,:%s", S_core_type_name(arg1), S_core_type_name(arg2));
+#endif
     return memEQ(&sig[1], p, i);
 }
 
