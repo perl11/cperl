@@ -12863,8 +12863,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 
             /* if something like arybase (a.k.a $[ ) is in scope,
              * abandon optimisation attempt */
-            if (  (o->op_type == OP_AELEM || o->op_type == OP_HELEM)
-               && PL_check[o->op_type] != Perl_ck_null)
+            if (  o->op_type == OP_AELEM && PL_check[o->op_type] != Perl_ck_aelem)
                 return;
 
             if (   o->op_type != OP_AELEM
@@ -12916,7 +12915,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                      * is fairly rare, and has a complex runtime */
                     ok =  !(o->op_private & ~OPpARG1_MASK);
                     if (OP_TYPE_IS_OR_WAS(cUNOPo->op_first, OP_AELEM))
-                        /* skip handling run-tome error */
+                        /* skip handling run-time error */
                         ok = (ok && cBOOL(o->op_flags & OPf_SPECIAL));
                 }
                 else {
@@ -13353,7 +13352,8 @@ Perl_rpeep(pTHX_ OP *o)
                 /* XXX Note that we don't yet compile-time check a destructive splice.
                    This needs to be done at run-time. We also need to search to find
                    the last pushmark arg. shift and push can have multiple args. 
-                   1-arg push is also not caught here. */
+                   1-arg push is also not caught here.
+                   We also have no MDEREF_AV_padav_aelem_u yet. */
                 if (o2->op_next && o2->op_targ && AvSHAPED(PAD_SV(o2->op_targ))) {
                     /* 1 arg case */
                     OPCODE type = o2->op_next->op_type;
@@ -13970,7 +13970,9 @@ Perl_rpeep(pTHX_ OP *o)
                             o->op_ppaddr = PL_ppaddr[OP_AELEMFAST];
                         }
                     }
-		}
+		} else {
+                    o->op_opt = 0;
+                }
 		if (o->op_type != OP_GV)
 		    break;
 	    }
