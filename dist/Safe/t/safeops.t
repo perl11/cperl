@@ -215,7 +215,7 @@ i_negate	SKIP (set by optimizer) my int $x; -$x
 not		!$x
 int_not		SKIP (set by optimizer) my int $x; !$x
 complement	~$x
-n_complement	SKIP (set by optimizer) ~$x
+i_complement	SKIP (set by optimizer) ~$x
 s_complement	SKIP (set by optimizer) ~$x
 smartmatch	no warnings 'experimental::smartmatch'; $x ~~ $y
 atan2		atan2 1
