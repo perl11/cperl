@@ -2779,6 +2779,10 @@ indicated one isn't.  See L<charnames/CUSTOM ALIASES>.
 (W printf) Perl does not understand the given format conversion.  See
 L<perlfunc/sprintf>.
 
+=item Invalid coretype index %d
+
+(P) The type index must be between 0 for none and max 18 for Void.
+
 =item Invalid escape in the specified encoding in regex; marked by
 S<<-- HERE> in m/%s/
 
@@ -2824,9 +2828,10 @@ a module that is a MRO plugin.  See L<mro> and L<perlmroapi>.
 not valid character numbers, so it returns the Unicode replacement
 character (U+FFFD).
 
-=item Invalid op_type for ck_type
+=item Invalid op %s for ck_type
 
-(P) The declared type for the internal check function is invalid.
+(P) The op passed to the internal type check function is invalid.
+We only allow UNOP, BINOP and BASEOP_OR_UNOP op classes yet.
 
 =item invalid option -D%c, use -D'' to see choices
 

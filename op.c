@@ -9532,7 +9532,7 @@ Perl_ck_bitop(pTHX_ OP *o)
     if (o->op_type == OP_I_BIT_OR     || o->op_type == OP_S_BIT_OR
      || o->op_type == OP_I_BIT_XOR    || o->op_type == OP_S_BIT_XOR
      || o->op_type == OP_I_BIT_AND    || o->op_type == OP_S_BIT_AND
-     || o->op_type == OP_N_COMPLEMENT || o->op_type == OP_S_COMPLEMENT)
+     || o->op_type == OP_I_COMPLEMENT || o->op_type == OP_S_COMPLEMENT)
 	Perl_ck_warner_d(aTHX_ packWARN(WARN_EXPERIMENTAL__BITWISE),
 			      "The bitwise feature is experimental");
     if (!(o->op_flags & OPf_STACKED) /* Not an assignment */
@@ -9556,7 +9556,7 @@ Perl_ck_bitop(pTHX_ OP *o)
 			:  o->op_type == OP_S_BIT_AND ? "&." : "^."
 			   );
     }
-    return o;
+    return ck_type(o);
 }
 
 PERL_STATIC_INLINE bool
@@ -9589,7 +9589,7 @@ Perl_ck_cmp(pTHX_ OP *o)
 	    Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
 			"$[ used in %s (did you mean $] ?)", OP_DESC(o));
     }
-    return o;
+    return ck_type(o);
 }
 
 OP *
@@ -9988,6 +9988,7 @@ Perl_ck_fun(pTHX_ OP *o)
 	else
 	    return no_fh_allowed(o);
     }
+    if (oa & OA_OTHERINT || NUM_OP_TYPE_VARIANTS(type)) o = ck_type(o);
 
     if (o->op_flags & OPf_KIDS) {
         OP *prev_kid = NULL;
@@ -10365,7 +10366,6 @@ OP *
 Perl_ck_lfun(pTHX_ OP *o)
 {
     const OPCODE type = o->op_type;
-
     PERL_ARGS_ASSERT_CK_LFUN;
 
     return modkids(ck_fun(o), type);
@@ -12274,7 +12274,7 @@ core_types_t S_op_typed(OP* o)
 PERL_STATIC_INLINE
 const char * S_core_type_name(core_types_t t)
 {
-    if (t < type_none || t > type_Void)
+    if (t < 0 || t > type_Any)
         die("Invalid coretype index %d\n", t);
     return core_types_n[t];
 }
@@ -12292,50 +12292,53 @@ int S_sigtype_args(const char* sig, int *i)
 }
 
 /* match an UNOP type with the given args */
+
 PERL_STATIC_INLINE
-int S_match_type1(const char* sig, core_types_t arg1)
+int S_match_type1(const U32 sig, core_types_t arg1)
 {
-    int i;
-    if (!S_sigtype_args(sig, &i)) die("Invalid function type %s", sig);
-    return memEQ(&sig[2], S_core_type_name(arg1), i - 1);
+    /*int i;*/
+    /*if (!S_sigtype_args(sig, &i)) die("Invalid function type %s", sig);*/
+    /*TODO: OPTIONAL, OR_UNDEF */
+    return sig == ((arg1 << 24) | 0xffff00);
 }
 
-/* match an BINOP type with the given args.
-   TODO: rewrite this and regen/opcode.pl to use integers */
+/* match an BINOP type with the given args. */
+
 PERL_STATIC_INLINE
-int S_match_type2(const char* sig, core_types_t arg1, core_types_t arg2)
+int S_match_type2(const U32 sig, core_types_t arg1, core_types_t arg2)
 {
+#if 1
+    return sig == ((arg1 << 24) | (arg2 << 16) | 0xff00);
+#else
     int i;
     char p[20];
     if (!S_sigtype_args(sig, &i)) die("Invalid function type %s", sig);
-#if 1
     /* t/porting/libperl.t complains about being unsafe, but we use
        safe static strings here. */
     strcpy(p, ":");
     strcat(p, S_core_type_name(arg1));
     strcat(p, ",:");
     strcat(p, S_core_type_name(arg2));
-#else
-    sprintf(p, ":%s,:%s", S_core_type_name(arg1), S_core_type_name(arg2));
-#endif
     return memEQ(&sig[1], p, i);
+#endif
 }
 
-/* check unop and binops for typed args.
-   forget about native types here, and use the boxed variants.
-   we can only box them later in peep, by adding unbox...box ops.
+/* ck_type: check unop and binops for typed args, find spezialed match and promote.
+ * forget about native types here, use the boxed variants.
+ * we can only unbox them later in rpeep sequences, by adding unbox...box ops.
  */
 OP *
 Perl_ck_type(pTHX_ OP *o)
 {
     OPCODE typ = o->op_type;
     OP* a = cUNOPx(o)->op_first;
-    core_types_t type1 = S_op_typed(a);
+    core_types_t type1 = a ? S_op_typed(a) : type_none; /* abs */
+    unsigned int oc = PL_opargs[typ] & OA_CLASS_MASK;
     PERL_ARGS_ASSERT_CK_TYPE;
     if (!type1 || type1 >= type_Scalar) {
         return o;
     }
-    else if ((PL_opargs[typ] & OA_CLASS_MASK) == OA_UNOP) {
+    else if (oc == OA_UNOP || oc == OA_BASEOP_OR_UNOP) {
         const int n = NUM_OP_TYPE_VARIANTS(typ);
         DEBUG_k(deb("ck_type: %s(%s:%s)\n", PL_op_name[typ],
                     OP_NAME(a), S_core_type_name(type1)));
@@ -12343,26 +12346,24 @@ Perl_ck_type(pTHX_ OP *o)
         /* search for typed variants and check matching types */
         if (n) {
             int i;
-#ifdef DEBUGGING
-            const char* n1 = PL_op_type[typ];
-#endif
             for (i=1; i<=n; i++) {
                 int v = OP_TYPE_VARIANT(typ, i);
                 if (v) {
-                    const char* n2 = PL_op_type[v];
-                    DEBUG_k(deb("%s %s <=> %s %s\n", PL_op_name[typ], n1,
-                                PL_op_name[v], n2));
-                    if (S_match_type1(n2, type1)) {
+                    const U32 n2 = PL_op_type[v];
+                    DEBUG_k(deb("match: %s %s <=> %s %s\n", PL_op_name[typ], PL_op_type_str[typ],
+                                PL_op_name[v], PL_op_type_str[v]));
+                    if (S_match_type1(n2 & 0xffffff00, type1)) {
+                        DEBUG_kv(deb("%s (:%s) => %s %s\n", PL_op_name[typ], S_core_type_name(type1),
+                                     PL_op_name[v], PL_op_type_str[v]));
                         OpTYPE_set(o, v);
-                        /* but newUNOP does not skip op_std_init */
-                        DEBUG_k(op_dump(o));
+                        DEBUG_kv(op_dump(o));
                         return o;
                     }
                 }
             }
         }
     }
-    else if ((PL_opargs[typ] & OA_CLASS_MASK) == OA_BINOP) {
+    else if (oc == OA_BINOP) {
         OP* b = cBINOPx(o)->op_last;
         core_types_t type2 = S_op_typed(b);
         const int n = NUM_OP_TYPE_VARIANTS(typ);
@@ -12379,21 +12380,21 @@ Perl_ck_type(pTHX_ OP *o)
             )
         {
             int i;
-#ifdef DEBUGGING
-            const char* n1 = PL_op_type[typ];
-#endif
             for (i=1; i<=n; i++) {
                 int v = OP_TYPE_VARIANT(typ, i);
                 if (v) {
-                    const char* n2 = PL_op_type[v];
-                    DEBUG_k(deb("%s %s <=> %s %s\n", PL_op_name[typ], n1,
-                                PL_op_name[v], n2));
-                    if (S_match_type2(n2, type1, type2)) {
+                    const U32 n2 = PL_op_type[v];
+                    DEBUG_k(deb("match: %s %s <=> %s %s\n", PL_op_name[typ], PL_op_type_str[typ],
+                                PL_op_name[v], PL_op_type_str[v]));
+                    if (S_match_type2(n2 & 0xffffff00, type1, type2)) {
+                        DEBUG_kv(deb("%s (:%s,:%s) => %s %s\n", PL_op_name[typ],
+                                     S_core_type_name(type1), S_core_type_name(type2),
+                                    PL_op_name[v], PL_op_type_str[v]));
                         OpTYPE_set(o, v);
                         /* XXX upstream hack:
                            newBINOP skips this if type changed in ck */
                         o = fold_constants(op_integerize(op_std_init(o)));
-                        DEBUG_k(op_dump(o));
+                        DEBUG_kv(op_dump(o));
                         return o;
                     }
                 }
@@ -12403,7 +12404,7 @@ Perl_ck_type(pTHX_ OP *o)
           DEBUG_kv(op_dump(b));*/
     }
     else {
-        die("Invalid op_type for ck_type");
+        die("Invalid op %s for ck_type", OP_NAME(o));
     }
     return o;
 }
