@@ -321,7 +321,7 @@ invert_opset function.
 
     left_shift right_shift bit_and bit_xor bit_or i_bit_and
     i_bit_xor i_bit_or s_bit_and s_bit_xor s_bit_or negate i_negate not
-    complement n_complement s_complement
+    complement i_complement s_complement
 
     lt i_lt gt i_gt le i_le ge i_ge eq i_eq ne i_ne cmp i_cmp
     s_lt s_gt s_le s_ge s_eq s_ne s_cmp

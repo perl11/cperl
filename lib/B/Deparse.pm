@@ -2282,7 +2282,7 @@ sub pp_i_predec { pfixop(@_, "--", 23) }
 sub pp_i_postinc { maybe_targmy(@_, \&pfixop, "++", 23, POSTFIX) }
 sub pp_i_postdec { maybe_targmy(@_, \&pfixop, "--", 23, POSTFIX) }
 sub pp_complement { maybe_targmy(@_, \&pfixop, "~", 21) }
-*pp_n_complement = *pp_complement;
+*pp_i_complement = *pp_complement;
 sub pp_s_complement { maybe_targmy(@_, \&pfixop, "~.", 21) }
 
 sub pp_negate { maybe_targmy(@_, \&real_negate) }
