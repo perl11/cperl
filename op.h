@@ -1092,52 +1092,6 @@ sib is non-null. For a higher-level interface, see C<op_sibling_splice>.
 #define MDEREF_MASK         0x7F
 #define MDEREF_SHIFT           7
 
-/* core types, see also regen/opcodes */
-
-typedef enum {
-    type_none = 0,
-    type_int,
-    type_uint,
-    type_num,
-    type_str,
-    type_Int,
-    type_UInt,
-    type_Num,
-    type_Str,
-    type_Scalar,
-    type_Numeric,
-    type_Ref,
-    type_Any,
-    type_Array,
-    type_Hash,
-    type_List,
-    type_Sub,
-    type_Void,
-} core_types_t;
-
-#ifdef PERL_IN_OP_C
-static const char* core_types_n[] = {
-    "",
-    "int",
-    "uint",
-    "num",
-    "str",
-    "Int",
-    "UInt",
-    "Num",
-    "Str",
-    "Scalar",
-    "Numeric",
-    "Ref",
-    "Any",
-    "Array",
-    "Hash",
-    "List",
-    "Sub",
-    "Void"
-};
-#endif
-
 /*
  * ex: set ts=8 sts=4 sw=4 et:
  */

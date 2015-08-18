@@ -57,9 +57,9 @@ const		constant item		ck_svconst	ps$	S	"():Scalar"
 gvsv		scalar variable		ck_null		ds$	S	"():Scalar"
 gv		glob value		ck_null		ds$	S	"():Scalar"
 gelem		glob elem		ck_null		ds2	S S
-padsv		private variable	ck_pad		ds0
-padav		private array		ck_null		d0
-padhv		private hash		ck_null		d0
+padsv		private variable	ck_pad		ds0		"():Scalar"
+padav		private array		ck_null		d0		"():Array"
+padhv		private hash		ck_null		d0		"():Hash"
 # throws unimplemented op
 padany		private value		ck_null		d0		"():Void"
 
@@ -67,10 +67,10 @@ pushre		push regexp		ck_null		d/
 
 # References and stuff.
 
-rv2gv		ref-to-glob cast	ck_rvconst	ds1	R
-rv2sv		scalar dereference	ck_rvconst	ds1	R
-av2arylen	array length		ck_null		is1	A
-rv2cv		subroutine dereference	ck_rvconst	d1	R
+rv2gv		ref-to-glob cast	ck_rvconst	ds1	R	"(:Ref):Scalar"
+rv2sv		scalar dereference	ck_rvconst	ds1	R	"(:Ref):Scalar"
+av2arylen	array length		ck_null		is1	A	"(:Array):Int"
+rv2cv		subroutine dereference	ck_rvconst	d1	R	"(:Ref):Sub"
 anoncode	anonymous subroutine	ck_anoncode	s$	S
 prototype	subroutine prototype	ck_prototype	su%	S?
 refgen		reference constructor	ck_spair	m1	L
@@ -102,7 +102,7 @@ transr		transliteration (tr///)	ck_match	is"	S
 # Lvalue operators.
 
 sassign		scalar assignment	ck_sassign	s2	S S	"(:Scalar,:Scalar):Scalar"
-aassign		list assignment		ck_null		t2	L L	"(:List(:Any),:List(:Any)):List(:Any)"
+aassign		list assignment		ck_null		t2	L L	"(:List,:List):List"
 
 chop		chop			ck_spair	mts%	L	"(:List(:Str)):Scalar"
 schop		scalar chop		ck_null		stu%	S?	"(:Str):Int"
@@ -126,11 +126,11 @@ i_postdec	integer postdecrement (--) ck_lfun	ist1	S	"(:Int):Int"
 
 pow		exponentiation (**)	ck_null		pfsT2	S S	"(:Numeric,:Numeric):Numeric"
 
-multiply	multiplication (*)	ck_null		pIfsT2	S S	"(:Numeric,:Numeric):Numeric"
+multiply	multiplication (*)	ck_type		pIfsT2	S S	"(:Numeric,:Numeric):Numeric"
 i_multiply	integer multiplication (*) ck_null	pifsT2	S S	"(:Int,:Int):Int"
-divide		division (/)		ck_null		pIfsT2	S S	"(:Numeric,:Numeric):Numeric"
+divide		division (/)		ck_type		pIfsT2	S S	"(:Numeric,:Numeric):Numeric"
 i_divide	integer division (/)	ck_null		pifsT2	S S	"(:Int,:Int):Int"
-modulo		modulus (%)		ck_null		pIifsT2	S S	"(:Numeric,:Numeric):Numeric"
+modulo		modulus (%)		ck_type		pIifsT2	S S	"(:Numeric,:Numeric):Numeric"
 i_modulo	integer modulus (%)	ck_null		pifsT2	S S	"(:Int,:Int):Int"
 repeat		repeat (x)		ck_repeat	fmt2	L S	"(:List,:Int):List"
 
@@ -152,11 +152,11 @@ le		numeric le (<=)		ck_cmp		pIifs2	S S<	"(:Scalar,:Scalar):Bool"
 i_le		integer le (<=)		ck_cmp		pifs2	S S<	"(:Int,:Int):Bool"
 ge		numeric ge (>=)		ck_cmp		pIifs2	S S<	"(:Scalar,:Scalar):Bool"
 i_ge		integer ge (>=)		ck_cmp		pifs2	S S<	"(:Int,:Int):Bool"
-eq		numeric eq (==)		ck_null		pIifs2	S S<	"(:Scalar,:Scalar):Bool"
+eq		numeric eq (==)		ck_type		pIifs2	S S<	"(:Scalar,:Scalar):Bool"
 i_eq		integer eq (==)		ck_null		pifs2	S S<	"(:Int,:Int):Bool"
-ne		numeric ne (!=)		ck_null		pIifs2	S S<	"(:Scalar,:Scalar):Bool"
+ne		numeric ne (!=)		ck_type		pIifs2	S S<	"(:Scalar,:Scalar):Bool"
 i_ne		integer ne (!=)		ck_null		pifs2	S S<	"(:Int,:Int):Bool"
-cmp		numeric comparison (<=>) ck_null	pIifst2	S S<	"(:Scalar,:Scalar):Int"
+cmp		numeric comparison (<=>) ck_type	pIifst2	S S<	"(:Scalar,:Scalar):Int"
 i_cmp		integer comparison (<=>) ck_null	pifst2	S S<	"(:Int,:Int):Int"
 
 s_lt		string lt		ck_null		pifs2	S S	"(:Str,:Str):Bool"
@@ -173,18 +173,18 @@ bit_or		bitwise or (|)		ck_bitop	pfst2	S S|	"(:Numeric,:Numeric):UInt"
 i_bit_and	integer bitwise and (&)	ck_bitop	pfsT2	S S|	"(:Int,:Int):UInt"
 i_bit_xor	integer bitwise xor (^)	ck_bitop	pfsT2	S S|	"(:Int,:Int):UInt"
 i_bit_or	integer bitwise or (|)	ck_bitop	pfsT2	S S|	"(:Int,:Int):UInt"
-s_bit_and	string bitiwse and (&)	ck_bitop	fst2	S S|
-s_bit_xor	string bitwise xor (^)	ck_bitop	fst2	S S|
-s_bit_or	string bitwise or (|)	ck_bitop	fst2	S S|
+s_bit_and	string bitiwse and (&)	ck_bitop	fst2	S S|	"(:Str,:Str):Str"
+s_bit_xor	string bitwise xor (^)	ck_bitop	fst2	S S|	"(:Str,:Str):Str"
+s_bit_or	string bitwise or (|)	ck_bitop	fst2	S S|	"(:Str,:Str):Str"
 
-negate		negation (-)		ck_null		pIfst1	S
-i_negate	integer negation (-)	ck_null		pfst1	S
-not		not			ck_null		pfs1	S
-complement	1's complement (~)	ck_bitop	pfst1	S
-n_complement	numeric 1's complement (~) ck_bitop	pfsT1	S
-# scomplement uses ck_bitop only for the experimental warning.  Once the
+negate		negation (-)		ck_type		pIfst1	S	"(:Numeric):Numeric"
+i_negate	integer negation (-)	ck_null		pfst1	S	"(:Int):Int"
+not		not			ck_null		pfs1	S	"(:Scalar):Bool"
+complement	1's complement (~)	ck_bitop	pIfst1	S	"(:Scalar):Scalar"
+i_complement	integer 1's complement (~) ck_bitop	pfsT1	S	"(:UInt):UInt"
+# s_complement uses ck_bitop only for the experimental warning.  Once the
 # warning is gone, this can change to ck_null.
-s_complement	string 1's complement (~) ck_bitop	fsT1	S
+s_complement	string 1's complement (~) ck_bitop	fsT1	S	"(:Str):Str"
 
 smartmatch	smart match		ck_smartmatch	s2
 
@@ -203,10 +203,10 @@ sqrt		sqrt			ck_fun		pfsTu%	S?	"(:Num):Num"
 
 # Lowbrow math.
 
-int		int			ck_fun		pfsTu%	S?
-hex		hex			ck_fun		pfsTu%	S?
-oct		oct			ck_fun		pfsTu%	S?
-abs		abs			ck_fun		pfsTu%	S?
+int		int			ck_fun		pfsTu%	S?	"(:Numeric):Numeric"
+hex		hex			ck_fun		pfsTu%	S?	"(:Numeric):UInt"
+oct		oct			ck_fun		pfsTu%	S?	"(:Numeric):UInt"
+abs		abs			ck_fun		pfsTu%	S?	"(:Numeric):Numeric"
 
 # unboxed raw stack values
 box_int		box int to IV		ck_null		ps1	I	"(:int):Int"

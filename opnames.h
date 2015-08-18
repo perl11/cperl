@@ -119,7 +119,7 @@ typedef enum opcode {
 	OP_I_NEGATE	 = 102,
 	OP_NOT		 = 103,
 	OP_COMPLEMENT	 = 104,
-	OP_N_COMPLEMENT	 = 105,
+	OP_I_COMPLEMENT	 = 105,
 	OP_S_COMPLEMENT	 = 106,
 	OP_SMARTMATCH	 = 107,
 	OP_ATAN2	 = 108,
@@ -469,9 +469,9 @@ typedef enum opcode {
    The first byte is the number of following bytes, max 8.
    variants: i_ n_ s_ int_ uint_ num_ str_ */
 #ifndef DOINIT
-EXTCONST const char PL_op_type_variants[][8];
+EXTCONST char PL_op_type_variants[][8];
 #else
-EXTCONST const char PL_op_type_variants[][8] = {
+EXTCONST char PL_op_type_variants[][8] = {
 	/*   0 null             */ {0},	/*  */
 	/*   1 stub             */ {0},	/*  */
 	/*   2 scalar           */ {0},	/*  */
@@ -576,8 +576,8 @@ EXTCONST const char PL_op_type_variants[][8] = {
 	/* 101 negate           */ {2,1,40},	/* i_negate:102 int_negate:141 */
 	/* 102 i_negate         */ {1,39},	/* int_negate:141 */
 	/* 103 not              */ {1,39},	/* int_not:142 */
-	/* 104 complement       */ {3,1,2,27},	/* n_complement:105 s_complement:106 uint_complement:131 */
-	/* 105 n_complement     */ {0},	/*  */
+	/* 104 complement       */ {3,1,2,27},	/* i_complement:105 s_complement:106 uint_complement:131 */
+	/* 105 i_complement     */ {1,26},	/* uint_complement:131 */
 	/* 106 s_complement     */ {0},	/*  */
 	/* 107 smartmatch       */ {0},	/*  */
 	/* 108 atan2            */ {1,46},	/* num_atan2:154 */
@@ -969,7 +969,7 @@ EXTCONST const char PL_op_type_variants[][8] = {
 #define OP_SBIT_AND	 OP_S_BIT_AND
 #define OP_SBIT_XOR	 OP_S_BIT_XOR
 #define OP_SBIT_OR	 OP_S_BIT_OR
-#define OP_NCOMPLEMENT	 OP_N_COMPLEMENT
+#define OP_NCOMPLEMENT	 OP_I_COMPLEMENT
 #define OP_SCOMPLEMENT	 OP_S_COMPLEMENT
 
 #define Perl_pp_ncmp	 Perl_pp_cmp
@@ -987,7 +987,7 @@ EXTCONST const char PL_op_type_variants[][8] = {
 #define Perl_pp_sbit_and Perl_pp_s_bit_and
 #define Perl_pp_sbit_xor Perl_pp_s_bit_xor
 #define Perl_pp_sbit_or	 Perl_pp_s_bit_or
-#define Perl_pp_ncomplement Perl_pp_n_complement
+#define Perl_pp_ncomplement Perl_pp_i_complement
 #define Perl_pp_scomplement Perl_pp_s_complement
 #endif
 

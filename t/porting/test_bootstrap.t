@@ -34,7 +34,7 @@ while (my $file = <$fh>) {
     binmode $t;
     my $contents = <$t>;
     # Make sure that we don't match ourselves
-    unlike($contents, qr/use\s+Test::More/, "$file doesn't use Test::\QMore");
+    unlike($contents, qr/use\s+Test::More/, "$file does use Test::\QMore");
     next unless $file =~ m!^base/! or $file =~ m!^comp!;
 
     # Remove only the excepted constructions for the specific files.

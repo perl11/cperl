@@ -190,7 +190,7 @@ my @cperl_changes =
    sbit_and  => 's_bit_and',
    sbit_xor  => 's_bit_xor',
    sbit_or   => 's_bit_or',
-   ncomplement => 'n_complement',
+   ncomplement => 'i_complement',
    scomplement => 's_complement'
    );
 
@@ -1030,9 +1030,9 @@ print $on <<"END";
    The first byte is the number of following bytes, max 8.
    variants: i_ n_ s_ int_ uint_ num_ str_ */
 #ifndef DOINIT
-EXTCONST const char PL_op_type_variants[][8];
+EXTCONST char PL_op_type_variants[][8];
 #else
-EXTCONST const char PL_op_type_variants[][8] = {
+EXTCONST char PL_op_type_variants[][8] = {
 END
 
 # find typed variants, max 8 bytes
@@ -1135,20 +1135,148 @@ print $oc <<"END";
 };
 #endif
 
-#ifndef DOINIT
-EXTCONST char* const PL_op_type[];
-#else
-EXTCONST char* const PL_op_type[] = {
+/* core types */
+
+typedef enum {
+    type_none = 0,
+END
+
+$i = 0;
+my @coretypes =
+  ("", qw( Void int uint num str Int UInt Num Str
+           Bool Numeric Scalar
+           Ref Sub Array Hash List Any ));
+my %coretype = map { $_ => $i++ } @coretypes;
+
+for (@coretypes) {
+    printf $oc (qq(    type_%s = %d,\n), $_, $coretype{$_}) if $_ ne "";
+}
+
+print $oc <<"END";
+} core_types_t;
+
+#ifdef PERL_IN_OP_C
+static const char* const
+core_types_n[] = {
+END
+
+for (@coretypes) {
+    printf $oc qq(    "%s",\n), $_;
+}
+print $oc <<"END";
+};
+
+static const char* const
+PL_op_type_str[] = {
 END
 
 $i = 0;
 for (@ops) {
-    my $type = $type{$_};
-    print $oc qq(\t"$type",\t/* $i: $_ */\n);
+    printf $oc qq(\t"%s",\t/* %d: %s */\n), $type{$_}, $i, $_;
     $i++;
 }
 print $oc <<"END";
 	\"\",	/* $i: freed */
+};
+
+#endif
+
+END
+
+sub CORETYPE_OR_UNDEF ()   { 0b01100000 } # 5 bit
+sub CORETYPE_LIST_AGGR ()  { 0b10100000 } # 5 bit
+sub CORETYPE_ARRAY_AGGR () { 0b00100000 } # 5 bit
+sub CORETYPE_HASH_AGGR ()  { 0b11000000 } # 5 bit, 31 scalar coretypes
+sub CORETYPE_OPTIONAL ()   { 0b11100000 } # 4 bit, max 15 <Array
+
+printf $oc qq(#define CORETYPE_OR_UNDEF\t0x%02x\n),   CORETYPE_OR_UNDEF();
+printf $oc qq(#define CORETYPE_LIST_AGGR\t0x%02x\n),  CORETYPE_LIST_AGGR();
+printf $oc qq(#define CORETYPE_ARRAY_AGGR\t0x%02x\n), CORETYPE_ARRAY_AGGR();
+printf $oc qq(#define CORETYPE_HASH_AGGR\t0x%02x\n),  CORETYPE_HASH_AGGR();
+printf $oc qq(#define CORETYPE_OPTIONAL\t0x%02x\n),   CORETYPE_OPTIONAL();
+
+sub type_encode ($) {
+    my $type = shift;
+    if (exists $coretype{$type}) {
+        return $coretype{$type};
+    } elsif ($type =~ /^\?/ and exists $coretype{substr($type,1)}) {
+        my $t = 0+$coretype{substr($type,1)};
+        die "Invalid $type | Undef type" if $t >= 31;
+        return $t | CORETYPE_OR_UNDEF;
+    } elsif ($type =~ /\?$/ and exists $coretype{substr($type,0,-1)}) {
+        my $t = 0+$coretype{substr($type,0,-1)};
+        die "Invalid optional type $type" if $t >= 15;
+        return $t | CORETYPE_OPTIONAL;
+    } elsif ($type =~ /(List|Array|Hash)\(:(.+)\)/
+             and exists $coretype{$1}
+             and exists $coretype{$2}) {
+        my $t = 0+$coretype{$2};
+        die "Invalid aggregate subtype $2" if $t >= 31;
+        if ($1 eq 'List') {
+            return $t | CORETYPE_LIST_AGGR;
+        } elsif ($1 eq 'Array') {
+            return $t | CORETYPE_ARRAY_AGGR;
+        } elsif ($1 eq 'Hash') {
+            return $t | CORETYPE_HASH_AGGR;
+        }
+    }
+}
+
+# last byte for the return type
+# the first 3 bytes for max 3 args
+# "(:Int,:Int):Int" => 0x0505ff05
+sub sig_encode ($) {
+    my $s = shift;
+    my $i = 0xffffffff;
+    if ($s) {
+        my ($args, $ret) = ($s =~ /^\(:?(.*)\):(.*)/);
+        my $retenc = type_encode $ret;
+        die "Invalid return type declaration $ret" unless defined $retenc;
+        $i = (0xffffff00 | $retenc);
+        my $j = 0;
+        if ($args) {
+            use integer;
+            for my $arg (split /,:/, $args) {
+                my $enc = type_encode $arg;
+                if (defined $enc) {
+                    my $off = 8*(3-$j);
+                    my $mask = ~(0xff << $off);
+                    $i &= $mask;
+                    my $argenc = $enc << $off;
+                    $i |= $argenc;
+                } else {
+                    warn "Unknown arg type declaration $arg";
+                }
+                $j++;
+                die if $j > 3;
+            }
+            $i & 0xffffffff
+        } else { # ():Type
+            # or maybe just 0xff, no arg
+            ($i | $coretype{Void} << 24) & 0xffffffff;
+        }
+    } else {
+        $i # untyped
+    }
+}
+
+print $oc <<"END";
+
+#ifndef DOINIT
+EXTCONST U32 PL_op_type[];
+#else
+EXTCONST U32 PL_op_type[] = {
+END
+
+# encode the types into bytes, max 4.
+$i = 0;
+for (@ops) {
+    my $type = sig_encode $type{$_};
+    printf $oc qq(\t0x%08x,\t/* %d: %s "%s" */\n), $type, $i, $_, $type{$_};
+    $i++;
+}
+print $oc <<"END";
+	0xffffffff,	/* $i: freed "" */
 };
 #endif
 

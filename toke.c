@@ -5454,7 +5454,7 @@ Perl_yylex(pTHX)
 	    s++;
 	    BCop(OP_S_COMPLEMENT);
 	}
-	BCop(bof ? OP_N_COMPLEMENT : OP_COMPLEMENT);
+	BCop(bof ? OP_I_COMPLEMENT : OP_COMPLEMENT);
     case ',':
 	if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMMA)
 	    TOKEN(0);

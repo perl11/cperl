@@ -262,7 +262,7 @@ EXTCONST char* const PL_op_name[] = {
 	"i_negate",	/* 102: integer negation (-) */
 	"not",	/* 103: not */
 	"complement",	/* 104: 1's complement (~) */
-	"n_complement",	/* 105: numeric 1's complement (~) */
+	"i_complement",	/* 105: integer 1's complement (~) */
 	"s_complement",	/* 106: string 1's complement (~) */
 	"smartmatch",	/* 107: smart match */
 	"atan2",	/* 108: atan2 */
@@ -714,7 +714,7 @@ EXTCONST char* const PL_op_desc[] = {
 	"integer negation (-)",	/* 102: i_negate */
 	"not",	/* 103: not */
 	"1's complement (~)",	/* 104: complement */
-	"numeric 1's complement (~)",	/* 105: n_complement */
+	"integer 1's complement (~)",	/* 105: i_complement */
 	"string 1's complement (~)",	/* 106: s_complement */
 	"smart match",	/* 107: smartmatch */
 	"atan2",	/* 108: atan2 */
@@ -1057,10 +1057,56 @@ EXTCONST char* const PL_op_desc[] = {
 };
 #endif
 
-#ifndef DOINIT
-EXTCONST char* const PL_op_type[];
-#else
-EXTCONST char* const PL_op_type[] = {
+/* core types */
+
+typedef enum {
+    type_none = 0,
+    type_Void = 1,
+    type_int = 2,
+    type_uint = 3,
+    type_num = 4,
+    type_str = 5,
+    type_Int = 6,
+    type_UInt = 7,
+    type_Num = 8,
+    type_Str = 9,
+    type_Bool = 10,
+    type_Numeric = 11,
+    type_Scalar = 12,
+    type_Ref = 13,
+    type_Sub = 14,
+    type_Array = 15,
+    type_Hash = 16,
+    type_List = 17,
+    type_Any = 18,
+} core_types_t;
+
+#ifdef PERL_IN_OP_C
+static const char* const
+core_types_n[] = {
+    "",
+    "Void",
+    "int",
+    "uint",
+    "num",
+    "str",
+    "Int",
+    "UInt",
+    "Num",
+    "Str",
+    "Bool",
+    "Numeric",
+    "Scalar",
+    "Ref",
+    "Sub",
+    "Array",
+    "Hash",
+    "List",
+    "Any",
+};
+
+static const char* const
+PL_op_type_str[] = {
 	"():Void",	/* 0: null */
 	"():Void",	/* 1: stub */
 	"():Void",	/* 2: scalar */
@@ -1070,15 +1116,15 @@ EXTCONST char* const PL_op_type[] = {
 	"():Scalar",	/* 6: gvsv */
 	"():Scalar",	/* 7: gv */
 	"",	/* 8: gelem */
-	"",	/* 9: padsv */
-	"",	/* 10: padav */
-	"",	/* 11: padhv */
+	"():Scalar",	/* 9: padsv */
+	"():Array",	/* 10: padav */
+	"():Hash",	/* 11: padhv */
 	"():Void",	/* 12: padany */
 	"",	/* 13: pushre */
-	"",	/* 14: rv2gv */
-	"",	/* 15: rv2sv */
-	"",	/* 16: av2arylen */
-	"",	/* 17: rv2cv */
+	"(:Ref):Scalar",	/* 14: rv2gv */
+	"(:Ref):Scalar",	/* 15: rv2sv */
+	"(:Array):Int",	/* 16: av2arylen */
+	"(:Ref):Sub",	/* 17: rv2cv */
 	"",	/* 18: anoncode */
 	"",	/* 19: prototype */
 	"",	/* 20: refgen */
@@ -1099,7 +1145,7 @@ EXTCONST char* const PL_op_type[] = {
 	"",	/* 35: trans */
 	"",	/* 36: transr */
 	"(:Scalar,:Scalar):Scalar",	/* 37: sassign */
-	"(:List(:Any),:List(:Any)):List(:Any)",	/* 38: aassign */
+	"(:List,:List):List",	/* 38: aassign */
 	"(:List(:Str)):Scalar",	/* 39: chop */
 	"(:Str):Int",	/* 40: schop */
 	"(:List(:Str)):Scalar",	/* 41: chomp */
@@ -1159,15 +1205,15 @@ EXTCONST char* const PL_op_type[] = {
 	"(:Int,:Int):UInt",	/* 95: i_bit_and */
 	"(:Int,:Int):UInt",	/* 96: i_bit_xor */
 	"(:Int,:Int):UInt",	/* 97: i_bit_or */
-	"",	/* 98: s_bit_and */
-	"",	/* 99: s_bit_xor */
-	"",	/* 100: s_bit_or */
-	"",	/* 101: negate */
-	"",	/* 102: i_negate */
-	"",	/* 103: not */
-	"",	/* 104: complement */
-	"",	/* 105: n_complement */
-	"",	/* 106: s_complement */
+	"(:Str,:Str):Str",	/* 98: s_bit_and */
+	"(:Str,:Str):Str",	/* 99: s_bit_xor */
+	"(:Str,:Str):Str",	/* 100: s_bit_or */
+	"(:Numeric):Numeric",	/* 101: negate */
+	"(:Int):Int",	/* 102: i_negate */
+	"(:Scalar):Bool",	/* 103: not */
+	"(:Scalar):Scalar",	/* 104: complement */
+	"(:UInt):UInt",	/* 105: i_complement */
+	"(:Str):Str",	/* 106: s_complement */
 	"",	/* 107: smartmatch */
 	"(:Num,:Num):Num",	/* 108: atan2 */
 	"(:Num):Num",	/* 109: sin */
@@ -1177,10 +1223,10 @@ EXTCONST char* const PL_op_type[] = {
 	"(:Num):Num",	/* 113: exp */
 	"(:Num):Num",	/* 114: log */
 	"(:Num):Num",	/* 115: sqrt */
-	"",	/* 116: int */
-	"",	/* 117: hex */
-	"",	/* 118: oct */
-	"",	/* 119: abs */
+	"(:Numeric):Numeric",	/* 116: int */
+	"(:Numeric):UInt",	/* 117: hex */
+	"(:Numeric):UInt",	/* 118: oct */
+	"(:Numeric):Numeric",	/* 119: abs */
 	"(:int):Int",	/* 120: box_int */
 	"(:uint):UInt",	/* 121: box_uint */
 	"(:str):Str",	/* 122: box_str */
@@ -1507,6 +1553,465 @@ EXTCONST char* const PL_op_type[] = {
 	"",	/* 443: anonconst */
 	"",	/* 444: freed */
 };
+
+#endif
+
+#define CORETYPE_OR_UNDEF	0x60
+#define CORETYPE_LIST_AGGR	0xa0
+#define CORETYPE_ARRAY_AGGR	0x20
+#define CORETYPE_HASH_AGGR	0xc0
+#define CORETYPE_OPTIONAL	0xe0
+
+#ifndef DOINIT
+EXTCONST U32 PL_op_type[];
+#else
+EXTCONST U32 PL_op_type[] = {
+	0xffffff01,	/* 0: null "():Void" */
+	0xffffff01,	/* 1: stub "():Void" */
+	0xffffff01,	/* 2: scalar "():Void" */
+	0xffffff01,	/* 3: pushmark "():Void" */
+	0xffffffff,	/* 4: wantarray "" */
+	0xffffff0c,	/* 5: const "():Scalar" */
+	0xffffff0c,	/* 6: gvsv "():Scalar" */
+	0xffffff0c,	/* 7: gv "():Scalar" */
+	0xffffffff,	/* 8: gelem "" */
+	0xffffff0c,	/* 9: padsv "():Scalar" */
+	0xffffff0f,	/* 10: padav "():Array" */
+	0xffffff10,	/* 11: padhv "():Hash" */
+	0xffffff01,	/* 12: padany "():Void" */
+	0xffffffff,	/* 13: pushre "" */
+	0x0dffff0c,	/* 14: rv2gv "(:Ref):Scalar" */
+	0x0dffff0c,	/* 15: rv2sv "(:Ref):Scalar" */
+	0x0fffff06,	/* 16: av2arylen "(:Array):Int" */
+	0x0dffff0e,	/* 17: rv2cv "(:Ref):Sub" */
+	0xffffffff,	/* 18: anoncode "" */
+	0xffffffff,	/* 19: prototype "" */
+	0xffffffff,	/* 20: refgen "" */
+	0xffffffff,	/* 21: srefgen "" */
+	0xffffffff,	/* 22: ref "" */
+	0xffffffff,	/* 23: bless "" */
+	0xffffffff,	/* 24: backtick "" */
+	0xffffffff,	/* 25: glob "" */
+	0x0cffff12,	/* 26: readline "(:Scalar):Any" */
+	0xffffffff,	/* 27: rcatline "" */
+	0xffffff01,	/* 28: regcmaybe "():Void" */
+	0xffffffff,	/* 29: regcreset "" */
+	0xffffffff,	/* 30: regcomp "" */
+	0xffffffff,	/* 31: match "" */
+	0xffffffff,	/* 32: qr "" */
+	0xffffffff,	/* 33: subst "" */
+	0xffffffff,	/* 34: substcont "" */
+	0xffffffff,	/* 35: trans "" */
+	0xffffffff,	/* 36: transr "" */
+	0x0c0cff0c,	/* 37: sassign "(:Scalar,:Scalar):Scalar" */
+	0x1111ff11,	/* 38: aassign "(:List,:List):List" */
+	0xa9ffff0c,	/* 39: chop "(:List(:Str)):Scalar" */
+	0x09ffff06,	/* 40: schop "(:Str):Int" */
+	0xa9ffff0c,	/* 41: chomp "(:List(:Str)):Scalar" */
+	0x09ffff06,	/* 42: schomp "(:Str):Int" */
+	0xffffffff,	/* 43: defined "" */
+	0xffffffff,	/* 44: undef "" */
+	0xffffffff,	/* 45: study "" */
+	0xffffffff,	/* 46: pos "" */
+	0x0cffff0c,	/* 47: preinc "(:Scalar):Scalar" */
+	0x06ffff06,	/* 48: i_preinc "(:Int):Int" */
+	0x0cffff0c,	/* 49: predec "(:Scalar):Scalar" */
+	0x06ffff06,	/* 50: i_predec "(:Int):Int" */
+	0x0cffff0c,	/* 51: postinc "(:Scalar):Scalar" */
+	0x06ffff06,	/* 52: i_postinc "(:Int):Int" */
+	0x0cffff0c,	/* 53: postdec "(:Scalar):Scalar" */
+	0x06ffff06,	/* 54: i_postdec "(:Int):Int" */
+	0x0b0bff0b,	/* 55: pow "(:Numeric,:Numeric):Numeric" */
+	0x0b0bff0b,	/* 56: multiply "(:Numeric,:Numeric):Numeric" */
+	0x0606ff06,	/* 57: i_multiply "(:Int,:Int):Int" */
+	0x0b0bff0b,	/* 58: divide "(:Numeric,:Numeric):Numeric" */
+	0x0606ff06,	/* 59: i_divide "(:Int,:Int):Int" */
+	0x0b0bff0b,	/* 60: modulo "(:Numeric,:Numeric):Numeric" */
+	0x0606ff06,	/* 61: i_modulo "(:Int,:Int):Int" */
+	0x1106ff11,	/* 62: repeat "(:List,:Int):List" */
+	0x0b0bff0b,	/* 63: add "(:Numeric,:Numeric):Numeric" */
+	0x0606ff06,	/* 64: i_add "(:Int,:Int):Int" */
+	0x0b0bff0b,	/* 65: subtract "(:Numeric,:Numeric):Numeric" */
+	0x0606ff06,	/* 66: i_subtract "(:Int,:Int):Int" */
+	0x1212ff09,	/* 67: concat "(:Any,:Any):Str" */
+	0x0cffff09,	/* 68: stringify "(:Scalar):Str" */
+	0x0607ff07,	/* 69: left_shift "(:Int,:UInt):UInt" */
+	0x0607ff07,	/* 70: right_shift "(:Int,:UInt):UInt" */
+	0x0c0cff0a,	/* 71: lt "(:Scalar,:Scalar):Bool" */
+	0x0606ff0a,	/* 72: i_lt "(:Int,:Int):Bool" */
+	0x0c0cff0a,	/* 73: gt "(:Scalar,:Scalar):Bool" */
+	0x0606ff0a,	/* 74: i_gt "(:Int,:Int):Bool" */
+	0x0c0cff0a,	/* 75: le "(:Scalar,:Scalar):Bool" */
+	0x0606ff0a,	/* 76: i_le "(:Int,:Int):Bool" */
+	0x0c0cff0a,	/* 77: ge "(:Scalar,:Scalar):Bool" */
+	0x0606ff0a,	/* 78: i_ge "(:Int,:Int):Bool" */
+	0x0c0cff0a,	/* 79: eq "(:Scalar,:Scalar):Bool" */
+	0x0606ff0a,	/* 80: i_eq "(:Int,:Int):Bool" */
+	0x0c0cff0a,	/* 81: ne "(:Scalar,:Scalar):Bool" */
+	0x0606ff0a,	/* 82: i_ne "(:Int,:Int):Bool" */
+	0x0c0cff06,	/* 83: cmp "(:Scalar,:Scalar):Int" */
+	0x0606ff06,	/* 84: i_cmp "(:Int,:Int):Int" */
+	0x0909ff0a,	/* 85: s_lt "(:Str,:Str):Bool" */
+	0x0909ff0a,	/* 86: s_gt "(:Str,:Str):Bool" */
+	0x0909ff0a,	/* 87: s_le "(:Str,:Str):Bool" */
+	0x0909ff0a,	/* 88: s_ge "(:Str,:Str):Bool" */
+	0x0909ff0a,	/* 89: s_eq "(:Str,:Str):Bool" */
+	0x0909ff0a,	/* 90: s_ne "(:Str,:Str):Bool" */
+	0x0909ff06,	/* 91: s_cmp "(:Str,:Str):Int" */
+	0x0b0bff07,	/* 92: bit_and "(:Numeric,:Numeric):UInt" */
+	0x0b0bff07,	/* 93: bit_xor "(:Numeric,:Numeric):UInt" */
+	0x0b0bff07,	/* 94: bit_or "(:Numeric,:Numeric):UInt" */
+	0x0606ff07,	/* 95: i_bit_and "(:Int,:Int):UInt" */
+	0x0606ff07,	/* 96: i_bit_xor "(:Int,:Int):UInt" */
+	0x0606ff07,	/* 97: i_bit_or "(:Int,:Int):UInt" */
+	0x0909ff09,	/* 98: s_bit_and "(:Str,:Str):Str" */
+	0x0909ff09,	/* 99: s_bit_xor "(:Str,:Str):Str" */
+	0x0909ff09,	/* 100: s_bit_or "(:Str,:Str):Str" */
+	0x0bffff0b,	/* 101: negate "(:Numeric):Numeric" */
+	0x06ffff06,	/* 102: i_negate "(:Int):Int" */
+	0x0cffff0a,	/* 103: not "(:Scalar):Bool" */
+	0x0cffff0c,	/* 104: complement "(:Scalar):Scalar" */
+	0x07ffff07,	/* 105: i_complement "(:UInt):UInt" */
+	0x09ffff09,	/* 106: s_complement "(:Str):Str" */
+	0xffffffff,	/* 107: smartmatch "" */
+	0x0808ff08,	/* 108: atan2 "(:Num,:Num):Num" */
+	0x08ffff08,	/* 109: sin "(:Num):Num" */
+	0x08ffff08,	/* 110: cos "(:Num):Num" */
+	0xe8ffff08,	/* 111: rand "(:Num?):Num" */
+	0xe8ffff08,	/* 112: srand "(:Num?):Num" */
+	0x08ffff08,	/* 113: exp "(:Num):Num" */
+	0x08ffff08,	/* 114: log "(:Num):Num" */
+	0x08ffff08,	/* 115: sqrt "(:Num):Num" */
+	0x0bffff0b,	/* 116: int "(:Numeric):Numeric" */
+	0x0bffff07,	/* 117: hex "(:Numeric):UInt" */
+	0x0bffff07,	/* 118: oct "(:Numeric):UInt" */
+	0x0bffff0b,	/* 119: abs "(:Numeric):Numeric" */
+	0x02ffff06,	/* 120: box_int "(:int):Int" */
+	0x03ffff07,	/* 121: box_uint "(:uint):UInt" */
+	0x05ffff09,	/* 122: box_str "(:str):Str" */
+	0x04ffff08,	/* 123: box_num "(:num):Num" */
+	0x06ffff02,	/* 124: unbox_int "(:Int):int" */
+	0x06ffff03,	/* 125: unbox_uint "(:Int):uint" */
+	0x09ffff05,	/* 126: unbox_str "(:Str):str" */
+	0x08ffff04,	/* 127: unbox_num "(:Num):num" */
+	0x0302ff03,	/* 128: uint_left_shift "(:uint,:int):uint" */
+	0x0302ff03,	/* 129: uint_right_shift "(:uint,:int):uint" */
+	0x0302ff03,	/* 130: uint_pow "(:uint,:int):uint" */
+	0x03ffff03,	/* 131: uint_complement "(:uint):uint" */
+	0x02ffff02,	/* 132: int_preinc "(:int):int" */
+	0x02ffff02,	/* 133: int_predec "(:int):int" */
+	0x02ffff02,	/* 134: int_postinc "(:int):int" */
+	0x02ffff02,	/* 135: int_postdec "(:int):int" */
+	0x0202ff02,	/* 136: int_add "(:int,:int):int" */
+	0x0202ff02,	/* 137: int_subtract "(:int,:int):int" */
+	0x0202ff02,	/* 138: int_multiply "(:int,:int):int" */
+	0x0202ff02,	/* 139: int_divide "(:int,:int):int" */
+	0x0202ff02,	/* 140: int_modulo "(:int,:int):int" */
+	0x02ffff02,	/* 141: int_negate "(:int):int" */
+	0x02ffff02,	/* 142: int_not "(:int):int" */
+	0x02ffff02,	/* 143: int_abs "(:int):int" */
+	0x0202ff02,	/* 144: int_lt "(:int,:int):int" */
+	0x0202ff02,	/* 145: int_gt "(:int,:int):int" */
+	0x0202ff02,	/* 146: int_le "(:int,:int):int" */
+	0x0202ff02,	/* 147: int_ge "(:int,:int):int" */
+	0x0202ff02,	/* 148: int_eq "(:int,:int):int" */
+	0x0202ff02,	/* 149: int_ne "(:int,:int):int" */
+	0x0404ff04,	/* 150: num_add "(:num,:num):num" */
+	0x0404ff04,	/* 151: num_subtract "(:num,:num):num" */
+	0x0404ff04,	/* 152: num_multiply "(:num,:num):num" */
+	0x0404ff04,	/* 153: num_divide "(:num,:num):num" */
+	0x0404ff04,	/* 154: num_atan2 "(:num,:num):num" */
+	0x0404ff04,	/* 155: num_pow "(:num,:num):num" */
+	0x04ffff04,	/* 156: num_sin "(:num):num" */
+	0x04ffff04,	/* 157: num_cos "(:num):num" */
+	0x04ffff04,	/* 158: num_exp "(:num):num" */
+	0x04ffff04,	/* 159: num_log "(:num):num" */
+	0x04ffff04,	/* 160: num_sqrt "(:num):num" */
+	0xffffffff,	/* 161: length "" */
+	0xffffffff,	/* 162: substr "" */
+	0xffffffff,	/* 163: vec "" */
+	0xffffffff,	/* 164: index "" */
+	0xffffffff,	/* 165: rindex "" */
+	0xffffffff,	/* 166: sprintf "" */
+	0xffffffff,	/* 167: formline "" */
+	0xffffffff,	/* 168: ord "" */
+	0xffffffff,	/* 169: chr "" */
+	0xffffffff,	/* 170: crypt "" */
+	0xffffffff,	/* 171: ucfirst "" */
+	0xffffffff,	/* 172: lcfirst "" */
+	0xffffffff,	/* 173: uc "" */
+	0xffffffff,	/* 174: lc "" */
+	0xffffffff,	/* 175: quotemeta "" */
+	0x0dffff10,	/* 176: rv2av "(:Ref):Hash" */
+	0xffffff0c,	/* 177: aelemfast "():Scalar" */
+	0xffffff0c,	/* 178: aelemfast_lex "():Scalar" */
+	0x2c06ff0c,	/* 179: aelem "(:Array(:Scalar),:Int):Scalar" */
+	0x2606ff06,	/* 180: i_aelem "(:Array(:Int),:Int):Int" */
+	0x2806ff08,	/* 181: n_aelem "(:Array(:Num),:Int):Num" */
+	0x2906ff09,	/* 182: s_aelem "(:Array(:Str),:Int):Str" */
+	0x2202ff02,	/* 183: int_aelem "(:Array(:int),:int):int" */
+	0x2402ff04,	/* 184: num_aelem "(:Array(:num),:int):num" */
+	0x2502ff05,	/* 185: str_aelem "(:Array(:str),:int):str" */
+	0xffffffff,	/* 186: aslice "" */
+	0xffffffff,	/* 187: kvaslice "" */
+	0xffffffff,	/* 188: aeach "" */
+	0xffffffff,	/* 189: akeys "" */
+	0xffffffff,	/* 190: avalues "" */
+	0xffffffff,	/* 191: each "" */
+	0xffffffff,	/* 192: values "" */
+	0xffffffff,	/* 193: keys "" */
+	0x09ffff01,	/* 194: delete "(:Str):Void" */
+	0x09ffff0a,	/* 195: exists "(:Str):Bool" */
+	0x0dffff10,	/* 196: rv2hv "(:Ref):Hash" */
+	0xccffff0c,	/* 197: helem "(:Hash(:Scalar)):Scalar" */
+	0xffffffff,	/* 198: hslice "" */
+	0xffffffff,	/* 199: kvhslice "" */
+	0xffffffff,	/* 200: multideref "" */
+	0xffffffff,	/* 201: unpack "" */
+	0xffffffff,	/* 202: pack "" */
+	0xffffffff,	/* 203: split "" */
+	0xffffffff,	/* 204: join "" */
+	0xffffffff,	/* 205: list "" */
+	0xffffffff,	/* 206: lslice "" */
+	0xffffffff,	/* 207: anonlist "" */
+	0xffffffff,	/* 208: anonhash "" */
+	0xffffffff,	/* 209: splice "" */
+	0xffffffff,	/* 210: push "" */
+	0xffffffff,	/* 211: pop "" */
+	0xffffffff,	/* 212: shift "" */
+	0xffffffff,	/* 213: unshift "" */
+	0xffffffff,	/* 214: sort "" */
+	0xffffffff,	/* 215: reverse "" */
+	0xffffffff,	/* 216: grepstart "" */
+	0xffffffff,	/* 217: grepwhile "" */
+	0xffffffff,	/* 218: mapstart "" */
+	0xffffffff,	/* 219: mapwhile "" */
+	0xffffffff,	/* 220: range "" */
+	0xffffffff,	/* 221: flip "" */
+	0xffffffff,	/* 222: flop "" */
+	0x0c0cff01,	/* 223: and "(:Scalar,:Scalar):Void" */
+	0xffffffff,	/* 224: or "" */
+	0xffffffff,	/* 225: xor "" */
+	0xffffffff,	/* 226: dor "" */
+	0x0cffff01,	/* 227: cond_expr "(:Scalar):Void" */
+	0xffffffff,	/* 228: andassign "" */
+	0xffffffff,	/* 229: orassign "" */
+	0xffffffff,	/* 230: dorassign "" */
+	0xffffffff,	/* 231: method "" */
+	0xffffffff,	/* 232: entersub "" */
+	0xffffffff,	/* 233: enterxssub "" */
+	0xffffffff,	/* 234: leavesub "" */
+	0xffffffff,	/* 235: leavesublv "" */
+	0xffffffff,	/* 236: caller "" */
+	0xffffffff,	/* 237: warn "" */
+	0xffffffff,	/* 238: die "" */
+	0xffffffff,	/* 239: reset "" */
+	0xffffff01,	/* 240: lineseq "():Void" */
+	0xffffff01,	/* 241: nextstate "():Void" */
+	0xffffff01,	/* 242: dbstate "():Void" */
+	0xffffff01,	/* 243: unstack "():Void" */
+	0xffffffff,	/* 244: enter "" */
+	0xffffffff,	/* 245: leave "" */
+	0xffffff01,	/* 246: scope "():Void" */
+	0xffffffff,	/* 247: enteriter "" */
+	0xffffffff,	/* 248: iter "" */
+	0xffffffff,	/* 249: enterloop "" */
+	0xffffffff,	/* 250: leaveloop "" */
+	0xffffffff,	/* 251: return "" */
+	0xffffffff,	/* 252: last "" */
+	0xffffffff,	/* 253: next "" */
+	0xffffffff,	/* 254: redo "" */
+	0xffffffff,	/* 255: dump "" */
+	0xffffffff,	/* 256: goto "" */
+	0xffffffff,	/* 257: exit "" */
+	0xffffffff,	/* 258: method_named "" */
+	0xffffffff,	/* 259: method_super "" */
+	0xffffffff,	/* 260: method_redir "" */
+	0xffffffff,	/* 261: method_redir_super "" */
+	0xffffffff,	/* 262: entergiven "" */
+	0xffffffff,	/* 263: leavegiven "" */
+	0xffffffff,	/* 264: enterwhen "" */
+	0xffffffff,	/* 265: leavewhen "" */
+	0xffffffff,	/* 266: break "" */
+	0xffffffff,	/* 267: continue "" */
+	0xffffffff,	/* 268: open "" */
+	0xffffffff,	/* 269: close "" */
+	0xffffffff,	/* 270: pipe_op "" */
+	0xffffffff,	/* 271: fileno "" */
+	0xffffffff,	/* 272: umask "" */
+	0xffffffff,	/* 273: binmode "" */
+	0xffffffff,	/* 274: tie "" */
+	0xffffffff,	/* 275: untie "" */
+	0xffffffff,	/* 276: tied "" */
+	0xffffffff,	/* 277: dbmopen "" */
+	0xffffffff,	/* 278: dbmclose "" */
+	0xffffffff,	/* 279: sselect "" */
+	0xffffffff,	/* 280: select "" */
+	0xffffffff,	/* 281: getc "" */
+	0xffffffff,	/* 282: read "" */
+	0xffffffff,	/* 283: enterwrite "" */
+	0xffffffff,	/* 284: leavewrite "" */
+	0xffffffff,	/* 285: prtf "" */
+	0xffffffff,	/* 286: print "" */
+	0xffffffff,	/* 287: say "" */
+	0xffffffff,	/* 288: sysopen "" */
+	0xffffffff,	/* 289: sysseek "" */
+	0xffffffff,	/* 290: sysread "" */
+	0xffffffff,	/* 291: syswrite "" */
+	0xffffffff,	/* 292: eof "" */
+	0xffffffff,	/* 293: tell "" */
+	0xffffffff,	/* 294: seek "" */
+	0xffffffff,	/* 295: truncate "" */
+	0xffffffff,	/* 296: fcntl "" */
+	0xffffffff,	/* 297: ioctl "" */
+	0xffffffff,	/* 298: flock "" */
+	0xffffffff,	/* 299: send "" */
+	0xffffffff,	/* 300: recv "" */
+	0xffffffff,	/* 301: socket "" */
+	0xffffffff,	/* 302: sockpair "" */
+	0xffffffff,	/* 303: bind "" */
+	0xffffffff,	/* 304: connect "" */
+	0xffffffff,	/* 305: listen "" */
+	0xffffffff,	/* 306: accept "" */
+	0xffffffff,	/* 307: shutdown "" */
+	0xffffffff,	/* 308: gsockopt "" */
+	0xffffffff,	/* 309: ssockopt "" */
+	0xffffffff,	/* 310: getsockname "" */
+	0xffffffff,	/* 311: getpeername "" */
+	0xffffffff,	/* 312: lstat "" */
+	0xffffffff,	/* 313: stat "" */
+	0xffffffff,	/* 314: ftrread "" */
+	0xffffffff,	/* 315: ftrwrite "" */
+	0xffffffff,	/* 316: ftrexec "" */
+	0xffffffff,	/* 317: fteread "" */
+	0xffffffff,	/* 318: ftewrite "" */
+	0xffffffff,	/* 319: fteexec "" */
+	0xffffffff,	/* 320: ftis "" */
+	0xffffffff,	/* 321: ftsize "" */
+	0xffffffff,	/* 322: ftmtime "" */
+	0xffffffff,	/* 323: ftatime "" */
+	0xffffffff,	/* 324: ftctime "" */
+	0xffffffff,	/* 325: ftrowned "" */
+	0xffffffff,	/* 326: fteowned "" */
+	0xffffffff,	/* 327: ftzero "" */
+	0xffffffff,	/* 328: ftsock "" */
+	0xffffffff,	/* 329: ftchr "" */
+	0xffffffff,	/* 330: ftblk "" */
+	0xffffffff,	/* 331: ftfile "" */
+	0xffffffff,	/* 332: ftdir "" */
+	0xffffffff,	/* 333: ftpipe "" */
+	0xffffffff,	/* 334: ftsuid "" */
+	0xffffffff,	/* 335: ftsgid "" */
+	0xffffffff,	/* 336: ftsvtx "" */
+	0xffffffff,	/* 337: ftlink "" */
+	0xffffffff,	/* 338: fttty "" */
+	0xffffffff,	/* 339: fttext "" */
+	0xffffffff,	/* 340: ftbinary "" */
+	0xffffffff,	/* 341: chdir "" */
+	0xffffffff,	/* 342: chown "" */
+	0xffffffff,	/* 343: chroot "" */
+	0xffffffff,	/* 344: unlink "" */
+	0xffffffff,	/* 345: chmod "" */
+	0xffffffff,	/* 346: utime "" */
+	0xffffffff,	/* 347: rename "" */
+	0xffffffff,	/* 348: link "" */
+	0xffffffff,	/* 349: symlink "" */
+	0xffffffff,	/* 350: readlink "" */
+	0xffffffff,	/* 351: mkdir "" */
+	0xffffffff,	/* 352: rmdir "" */
+	0xffffffff,	/* 353: open_dir "" */
+	0xffffffff,	/* 354: readdir "" */
+	0xffffffff,	/* 355: telldir "" */
+	0xffffffff,	/* 356: seekdir "" */
+	0xffffffff,	/* 357: rewinddir "" */
+	0xffffffff,	/* 358: closedir "" */
+	0xffffffff,	/* 359: fork "" */
+	0xffffffff,	/* 360: wait "" */
+	0xffffffff,	/* 361: waitpid "" */
+	0xffffffff,	/* 362: system "" */
+	0xffffffff,	/* 363: exec "" */
+	0xffffffff,	/* 364: kill "" */
+	0xffffffff,	/* 365: getppid "" */
+	0xffffffff,	/* 366: getpgrp "" */
+	0xffffffff,	/* 367: setpgrp "" */
+	0xffffffff,	/* 368: getpriority "" */
+	0xffffffff,	/* 369: setpriority "" */
+	0xffffffff,	/* 370: time "" */
+	0xffffffff,	/* 371: tms "" */
+	0xffffffff,	/* 372: localtime "" */
+	0xffffffff,	/* 373: gmtime "" */
+	0xffffffff,	/* 374: alarm "" */
+	0xffffffff,	/* 375: sleep "" */
+	0xffffffff,	/* 376: shmget "" */
+	0xffffffff,	/* 377: shmctl "" */
+	0xffffffff,	/* 378: shmread "" */
+	0xffffffff,	/* 379: shmwrite "" */
+	0xffffffff,	/* 380: msgget "" */
+	0xffffffff,	/* 381: msgctl "" */
+	0xffffffff,	/* 382: msgsnd "" */
+	0xffffffff,	/* 383: msgrcv "" */
+	0xffffffff,	/* 384: semop "" */
+	0xffffffff,	/* 385: semget "" */
+	0xffffffff,	/* 386: semctl "" */
+	0xffffffff,	/* 387: require "" */
+	0xffffffff,	/* 388: dofile "" */
+	0xffffffff,	/* 389: hintseval "" */
+	0xffffffff,	/* 390: entereval "" */
+	0xffffffff,	/* 391: leaveeval "" */
+	0xffffffff,	/* 392: entertry "" */
+	0xffffffff,	/* 393: leavetry "" */
+	0xffffffff,	/* 394: ghbyname "" */
+	0xffffffff,	/* 395: ghbyaddr "" */
+	0xffffffff,	/* 396: ghostent "" */
+	0xffffffff,	/* 397: gnbyname "" */
+	0xffffffff,	/* 398: gnbyaddr "" */
+	0xffffffff,	/* 399: gnetent "" */
+	0xffffffff,	/* 400: gpbyname "" */
+	0xffffffff,	/* 401: gpbynumber "" */
+	0xffffffff,	/* 402: gprotoent "" */
+	0xffffffff,	/* 403: gsbyname "" */
+	0xffffffff,	/* 404: gsbyport "" */
+	0xffffffff,	/* 405: gservent "" */
+	0xffffffff,	/* 406: shostent "" */
+	0xffffffff,	/* 407: snetent "" */
+	0xffffffff,	/* 408: sprotoent "" */
+	0xffffffff,	/* 409: sservent "" */
+	0xffffffff,	/* 410: ehostent "" */
+	0xffffffff,	/* 411: enetent "" */
+	0xffffffff,	/* 412: eprotoent "" */
+	0xffffffff,	/* 413: eservent "" */
+	0xffffffff,	/* 414: gpwnam "" */
+	0xffffffff,	/* 415: gpwuid "" */
+	0xffffffff,	/* 416: gpwent "" */
+	0xffffffff,	/* 417: spwent "" */
+	0xffffffff,	/* 418: epwent "" */
+	0xffffffff,	/* 419: ggrnam "" */
+	0xffffffff,	/* 420: ggrgid "" */
+	0xffffffff,	/* 421: ggrent "" */
+	0xffffffff,	/* 422: sgrent "" */
+	0xffffffff,	/* 423: egrent "" */
+	0xffffffff,	/* 424: getlogin "" */
+	0xffffffff,	/* 425: syscall "" */
+	0xffffffff,	/* 426: lock "" */
+	0xffffffff,	/* 427: once "" */
+	0xffffffff,	/* 428: custom "" */
+	0xffffffff,	/* 429: reach "" */
+	0xffffffff,	/* 430: rkeys "" */
+	0xffffffff,	/* 431: rvalues "" */
+	0xffffffff,	/* 432: coreargs "" */
+	0xffffffff,	/* 433: runcv "" */
+	0xffffffff,	/* 434: fc "" */
+	0xffffffff,	/* 435: padcv "" */
+	0xffffffff,	/* 436: introcv "" */
+	0xffffffff,	/* 437: clonecv "" */
+	0xffffffff,	/* 438: padrange "" */
+	0xffffffff,	/* 439: refassign "" */
+	0xffffffff,	/* 440: lvref "" */
+	0xffffffff,	/* 441: lvrefslice "" */
+	0xffffffff,	/* 442: lvavref "" */
+	0xffffffff,	/* 443: anonconst "" */
+	0xffffffff,	/* 444: freed "" */
+};
 #endif
 
 END_EXTERN_C
@@ -1632,7 +2137,7 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_i_negate,
 	Perl_pp_not,
 	Perl_pp_complement,
-	Perl_pp_n_complement,
+	Perl_pp_i_complement,
 	Perl_pp_s_complement,
 	Perl_pp_smartmatch,
 	Perl_pp_atan2,
@@ -2045,11 +2550,11 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_lfun,		/* postdec */
 	Perl_ck_lfun,		/* i_postdec */
 	Perl_ck_null,		/* pow */
-	Perl_ck_null,		/* multiply */
+	Perl_ck_type,		/* multiply */
 	Perl_ck_null,		/* i_multiply */
-	Perl_ck_null,		/* divide */
+	Perl_ck_type,		/* divide */
 	Perl_ck_null,		/* i_divide */
-	Perl_ck_null,		/* modulo */
+	Perl_ck_type,		/* modulo */
 	Perl_ck_null,		/* i_modulo */
 	Perl_ck_repeat,		/* repeat */
 	Perl_ck_type,		/* add */
@@ -2068,11 +2573,11 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_cmp,		/* i_le */
 	Perl_ck_cmp,		/* ge */
 	Perl_ck_cmp,		/* i_ge */
-	Perl_ck_null,		/* eq */
+	Perl_ck_type,		/* eq */
 	Perl_ck_null,		/* i_eq */
-	Perl_ck_null,		/* ne */
+	Perl_ck_type,		/* ne */
 	Perl_ck_null,		/* i_ne */
-	Perl_ck_null,		/* cmp */
+	Perl_ck_type,		/* cmp */
 	Perl_ck_null,		/* i_cmp */
 	Perl_ck_null,		/* s_lt */
 	Perl_ck_null,		/* s_gt */
@@ -2090,11 +2595,11 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_bitop,		/* s_bit_and */
 	Perl_ck_bitop,		/* s_bit_xor */
 	Perl_ck_bitop,		/* s_bit_or */
-	Perl_ck_null,		/* negate */
+	Perl_ck_type,		/* negate */
 	Perl_ck_null,		/* i_negate */
 	Perl_ck_null,		/* not */
 	Perl_ck_bitop,		/* complement */
-	Perl_ck_bitop,		/* n_complement */
+	Perl_ck_bitop,		/* i_complement */
 	Perl_ck_bitop,		/* s_complement */
 	Perl_ck_smartmatch,	/* smartmatch */
 	Perl_ck_fun,		/* atan2 */
@@ -2549,8 +3054,8 @@ EXTCONST U32 PL_opargs[] = {
 	0x0001112e,	/* negate */
 	0x0001110e,	/* i_negate */
 	0x00011106,	/* not */
-	0x0001110e,	/* complement */
-	0x0001111e,	/* n_complement */
+	0x0001112e,	/* complement */
+	0x0001111e,	/* i_complement */
 	0x0001101e,	/* s_complement */
 	0x00002004,	/* smartmatch */
 	0x0011411e,	/* atan2 */
@@ -3238,7 +3743,7 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
        0, /* i_negate */
        0, /* not */
        0, /* complement */
-      71, /* n_complement */
+      71, /* i_complement */
       71, /* s_complement */
       12, /* smartmatch */
       77, /* atan2 */
@@ -3616,7 +4121,7 @@ EXTCONST U16  PL_op_private_bitdefs[] = {
     0x0d7c, 0x1eb8, 0x0914, 0x3fd0, 0x3aec, 0x2248, 0x01e4, 0x0141, /* trans, transr */
     0x0bbc, 0x0458, 0x0067, /* sassign */
     0x0838, 0x2bac, 0x0067, /* aassign */
-    0x3fd0, 0x0003, /* chomp, schomp, n_complement, s_complement, sin, cos, exp, log, sqrt, int, hex, oct, abs, length, ord, chr, chroot, rmdir */
+    0x3fd0, 0x0003, /* chomp, schomp, i_complement, s_complement, sin, cos, exp, log, sqrt, int, hex, oct, abs, length, ord, chr, chroot, rmdir */
     0x3fd0, 0x0067, /* pow, multiply, i_multiply, divide, i_divide, modulo, i_modulo, add, i_add, subtract, i_subtract, concat, left_shift, right_shift, i_bit_and, i_bit_xor, i_bit_or */
     0x1138, 0x0067, /* repeat */
     0x3fd0, 0x012f, /* stringify, atan2, rand, srand, index, rindex, crypt, push, unshift, flock, chdir, chown, unlink, chmod, utime, rename, link, symlink, mkdir, waitpid, system, exec, kill, getpgrp, setpgrp, getpriority, setpriority, sleep */
@@ -3773,7 +4278,7 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* I_NEGATE   */ (OPpARG1_MASK),
     /* NOT        */ (OPpARG1_MASK),
     /* COMPLEMENT */ (OPpARG1_MASK),
-    /* N_COMPLEMENT */ (OPpARG1_MASK|OPpTARGET_MY),
+    /* I_COMPLEMENT */ (OPpARG1_MASK|OPpTARGET_MY),
     /* S_COMPLEMENT */ (OPpARG1_MASK|OPpTARGET_MY),
     /* SMARTMATCH */ (OPpARG2_MASK),
     /* ATAN2      */ (OPpARG4_MASK|OPpTARGET_MY),

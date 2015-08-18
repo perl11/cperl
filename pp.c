@@ -1115,103 +1115,98 @@ PP(pp_pow)
        we're sure it is safe; otherwise we call pow() and try to convert to
        integer afterwards. */
     if (SvIV_please_nomg(svr) && SvIV_please_nomg(svl)) {
-		UV power;
-		bool baseuok;
-		UV baseuv;
+        UV power;
+        bool baseuok;
+        UV baseuv;
 
-		if (SvUOK(svr)) {
-		    power = SvUVX(svr);
-		} else {
-		    const IV iv = SvIVX(svr);
-		    if (iv >= 0) {
-			power = iv;
-		    } else {
-			goto float_it; /* Can't do negative powers this way.  */
-		    }
-		}
+        if (SvUOK(svr)) {
+            power = SvUVX(svr);
+        } else {
+            const IV iv = SvIVX(svr);
+            if (iv >= 0) {
+                power = iv;
+            } else {
+                goto float_it; /* Can't do negative powers this way.  */
+            }
+        }
 
-		baseuok = SvUOK(svl);
-		if (baseuok) {
-		    baseuv = SvUVX(svl);
-		} else {
-		    const IV iv = SvIVX(svl);
-		    if (iv >= 0) {
-			baseuv = iv;
-			baseuok = TRUE; /* effectively it's a UV now */
-		    } else {
-			baseuv = -iv; /* abs, baseuok == false records sign */
-		    }
-		}
-                /* now we have integer ** positive integer. */
-                is_int = 1;
+        baseuok = SvUOK(svl);
+        if (baseuok) {
+            baseuv = SvUVX(svl);
+        } else {
+            const IV iv = SvIVX(svl);
+            if (iv >= 0) {
+                baseuv = iv;
+                baseuok = TRUE; /* effectively it's a UV now */
+            } else {
+                baseuv = -iv; /* abs, baseuok == false records sign */
+            }
+        }
+        /* now we have integer ** positive integer. */
+        is_int = 1;
+        
+        /* foo & (foo - 1) is zero only for a power of 2.  */
+        if (!(baseuv & (baseuv - 1))) {
+            /* We are raising power-of-2 to a positive integer.
+               The logic here will work for any base (even non-integer
+               bases) but it can be less accurate than
+               pow (base,power) or exp (power * log (base)) when the
+               intermediate values start to spill out of the mantissa.
+               With powers of 2 we know this can't happen.
+               And powers of 2 are the favourite thing for perl
+               programmers to notice ** not doing what they mean. */
+            NV result = 1.0;
+            NV base = baseuok ? baseuv : -(NV)baseuv;
 
-                /* foo & (foo - 1) is zero only for a power of 2.  */
-                if (!(baseuv & (baseuv - 1))) {
-                    /* We are raising power-of-2 to a positive integer.
-                       The logic here will work for any base (even non-integer
-                       bases) but it can be less accurate than
-                       pow (base,power) or exp (power * log (base)) when the
-                       intermediate values start to spill out of the mantissa.
-                       With powers of 2 we know this can't happen.
-                       And powers of 2 are the favourite thing for perl
-                       programmers to notice ** not doing what they mean. */
-                    NV result = 1.0;
-                    NV base = baseuok ? baseuv : -(NV)baseuv;
-
-		    if (power & 1) {
-			result *= base;
-		    }
-		    while (power >>= 1) {
-			base *= base;
-			if (power & 1) {
-			    result *= base;
-			}
-		    }
-                    SP--;
-                    SETn( result );
-                    SvIV_please_nomg(svr);
-                    RETURN;
-		} else {
-		    unsigned int highbit = 8 * sizeof(UV);
-		    unsigned int diff = 8 * sizeof(UV);
-		    while (diff >>= 1) {
-			highbit -= diff;
-			if (baseuv >> highbit) {
-			    highbit += diff;
-			}
-		    }
-		    /* we now have baseuv < 2 ** highbit */
-		    if (power * highbit <= 8 * sizeof(UV)) {
-			/* result will definitely fit in UV, so use UV math
-			   on same algorithm as above */
-			UV result = 1;
-			UV base = baseuv;
-			const bool odd_power = cBOOL(power & 1);
-			if (odd_power) {
-			    result *= base;
-			}
-			while (power >>= 1) {
-			    base *= base;
-			    if (power & 1) {
-				result *= base;
-			    }
-			}
-			SP--;
-			if (baseuok || !odd_power)
-			    /* answer is positive */
-			    SETu( result );
-			else if (result <= (UV)IV_MAX)
-			    /* answer negative, fits in IV */
-			    SETi( -(IV)result );
-			else if (result == (UV)IV_MIN) 
-			    /* 2's complement assumption: special case IV_MIN */
-			    SETi( IV_MIN );
-			else
-			    /* answer negative, doesn't fit */
-			    SETn( -(NV)result );
-			RETURN;
-		    } 
-		}
+            if (power & 1)
+                result *= base;
+            while (power >>= 1) {
+                base *= base;
+                if (power & 1)
+                    result *= base;
+            }
+            SP--;
+            SETn( result );
+            SvIV_please_nomg(svr);
+            RETURN;
+        } else {
+            unsigned int highbit = 8 * sizeof(UV);
+            unsigned int diff = 8 * sizeof(UV);
+            while (diff >>= 1) {
+                highbit -= diff;
+                if (baseuv >> highbit)
+                    highbit += diff;
+            }
+            /* we now have baseuv < 2 ** highbit */
+            if (power * highbit <= 8 * sizeof(UV)) {
+                /* result will definitely fit in UV, so use UV math
+                   on same algorithm as above */
+                UV result = 1;
+                UV base = baseuv;
+                const bool odd_power = cBOOL(power & 1);
+                if (odd_power)
+                    result *= base;
+                while (power >>= 1) {
+                    base *= base;
+                    if (power & 1)
+                        result *= base;
+                }
+                SP--;
+                if (baseuok || !odd_power)
+                    /* answer is positive */
+                    SETu( result );
+                else if (result <= (UV)IV_MAX)
+                    /* answer negative, fits in IV */
+                    SETi( -(IV)result );
+                else if (result == (UV)IV_MIN) 
+                    /* 2's complement assumption: special case IV_MIN */
+                    SETi( IV_MIN );
+                else
+                    /* answer negative, doesn't fit */
+                    SETn( -(NV)result );
+                RETURN;
+            } 
+        }
     }
   float_it:
 #endif    
@@ -1460,80 +1455,80 @@ PP(pp_divide)
 
 #ifdef PERL_TRY_UV_DIVIDE
     if (SvIV_please_nomg(svr) && SvIV_please_nomg(svl)) {
-            bool left_non_neg = SvUOK(svl);
-            bool right_non_neg = SvUOK(svr);
-            UV left;
-            UV right;
+        bool left_non_neg = SvUOK(svl);
+        bool right_non_neg = SvUOK(svr);
+        UV left;
+        UV right;
 
-            if (right_non_neg) {
-                right = SvUVX(svr);
+        if (right_non_neg) {
+            right = SvUVX(svr);
+        }
+        else {
+            const IV biv = SvIVX(svr);
+            if (biv >= 0) {
+                right = biv;
+                right_non_neg = TRUE; /* effectively it's a UV now */
             }
-	    else {
-		const IV biv = SvIVX(svr);
-                if (biv >= 0) {
-                    right = biv;
-                    right_non_neg = TRUE; /* effectively it's a UV now */
-                }
-		else {
-                    right = (biv == IV_MIN) ? (UV)biv : (UV)(-biv);
-                }
+            else {
+                right = (biv == IV_MIN) ? (UV)biv : (UV)(-biv);
             }
-            /* historically undef()/0 gives a "Use of uninitialized value"
-               warning before dieing, hence this test goes here.
-               If it were immediately before the second SvIV_please, then
-               DIE() would be invoked before left was even inspected, so
-               no inspection would give no warning.  */
-            if (right == 0)
-                DIE(aTHX_ "Illegal division by zero");
+        }
+        /* historically undef()/0 gives a "Use of uninitialized value"
+           warning before dieing, hence this test goes here.
+           If it were immediately before the second SvIV_please, then
+           DIE() would be invoked before left was even inspected, so
+           no inspection would give no warning.  */
+        if (right == 0)
+            DIE(aTHX_ "Illegal division by zero");
 
-            if (left_non_neg) {
-                left = SvUVX(svl);
+        if (left_non_neg) {
+            left = SvUVX(svl);
+        }
+        else {
+            const IV aiv = SvIVX(svl);
+            if (aiv >= 0) {
+                left = aiv;
+                left_non_neg = TRUE; /* effectively it's a UV now */
             }
-	    else {
-		const IV aiv = SvIVX(svl);
-                if (aiv >= 0) {
-                    left = aiv;
-                    left_non_neg = TRUE; /* effectively it's a UV now */
-                }
-		else {
-                    left = (aiv == IV_MIN) ? (UV)aiv : (UV)(-aiv);
-                }
+            else {
+                left = (aiv == IV_MIN) ? (UV)aiv : (UV)(-aiv);
             }
+        }
 
-            if (left >= right
+        if (left >= right
 #ifdef SLOPPYDIVIDE
-                /* For sloppy divide we always attempt integer division.  */
+            /* For sloppy divide we always attempt integer division.  */
 #else
-                /* Otherwise we only attempt it if either or both operands
-                   would not be preserved by an NV.  If both fit in NVs
-                   we fall through to the NV divide code below.  However,
-                   as left >= right to ensure integer result here, we know that
-                   we can skip the test on the right operand - right big
-                   enough not to be preserved can't get here unless left is
-                   also too big.  */
+            /* Otherwise we only attempt it if either or both operands
+               would not be preserved by an NV.  If both fit in NVs
+               we fall through to the NV divide code below.  However,
+               as left >= right to ensure integer result here, we know that
+               we can skip the test on the right operand - right big
+               enough not to be preserved can't get here unless left is
+               also too big.  */
 
-                && (left > ((UV)1 << NV_PRESERVES_UV_BITS))
+            && (left > ((UV)1 << NV_PRESERVES_UV_BITS))
 #endif
-                ) {
-                /* Integer division can't overflow, but it can be imprecise.  */
-		const UV result = left / right;
-                if (result * right == left) {
-                    SP--; /* result is valid */
-                    if (left_non_neg == right_non_neg) {
-                        /* signs identical, result is positive.  */
-                        SETu( result );
-                        RETURN;
-                    }
-                    /* 2s complement assumption */
-                    if (result <= (UV)IV_MIN)
-                        SETi(result == (UV)IV_MIN ? IV_MIN : -(IV)result);
-                    else {
-                        /* It's exact but too negative for IV. */
-                        SETn( -(NV)result );
-                    }
+            ) {
+            /* Integer division can't overflow, but it can be imprecise.  */
+            const UV result = left / right;
+            if (result * right == left) {
+                SP--; /* result is valid */
+                if (left_non_neg == right_non_neg) {
+                    /* signs identical, result is positive.  */
+                    SETu( result );
                     RETURN;
-                } /* tried integer divide but it was not an integer result */
-            } /* else (PERL_ABS(result) < 1.0) or (both UVs in range for NV) */
+                }
+                /* 2s complement assumption */
+                if (result <= (UV)IV_MIN)
+                    SETi(result == (UV)IV_MIN ? IV_MIN : -(IV)result);
+                else {
+                    /* It's exact but too negative for IV. */
+                    SETn( -(NV)result );
+                }
+                RETURN;
+            } /* tried integer divide but it was not an integer result */
+        } /* else (PERL_ABS(result) < 1.0) or (both UVs in range for NV) */
     } /* one operand wasn't SvIOK */
 #endif /* PERL_TRY_UV_DIVIDE */
     {
@@ -2526,7 +2521,7 @@ S_s_complement(pTHX_ SV *targ, SV *sv)
 	    *tmps = ~*tmps;
 }
 
-PP(pp_complement)
+PPt(pp_complement, "(:Scalar):Scalar")
 {
     dSP; dTARGET;
     tryAMAGICun_MG(compl_amg, AMGf_numeric);
@@ -2550,7 +2545,21 @@ PP(pp_complement)
     }
 }
 
-PP(pp_n_complement)
+PPt(pp_s_complement, "(:Str):Str")
+{
+    dSP;
+    tryAMAGICun_MG(scompl_amg, AMGf_numeric);
+    {
+	dTARGET; dTOPss;
+	S_s_complement(aTHX_ TARG, sv);
+	SETTARG;
+	return NORMAL;
+    }
+}
+
+/* integer versions of some of the above */
+
+PPt(pp_i_complement, "(:UInt):UInt")
 {
     dSP;
     tryAMAGICun_MG(compl_amg, AMGf_numeric|AMGf_numarg);
@@ -2568,21 +2577,7 @@ PP(pp_n_complement)
     return NORMAL;
 }
 
-PP(pp_s_complement)
-{
-    dSP;
-    tryAMAGICun_MG(scompl_amg, AMGf_numeric);
-    {
-	dTARGET; dTOPss;
-	S_s_complement(aTHX_ TARG, sv);
-	SETTARG;
-	return NORMAL;
-    }
-}
-
-/* integer versions of some of the above */
-
-PP(pp_i_multiply)
+PPt(pp_i_multiply, "(:Int,:Int):Int")
 {
     dSP; dATARGET;
     tryAMAGICbin_MG(mult_amg, AMGf_assign);
@@ -2593,7 +2588,7 @@ PP(pp_i_multiply)
     }
 }
 
-PP(pp_i_divide)
+PPt(pp_i_divide, "(:Int,:Int):Int")
 {
     IV num;
     dSP; dATARGET;
@@ -2620,7 +2615,7 @@ PP(pp_i_divide)
 STATIC
 PP(pp_i_modulo_0)
 #else
-PP(pp_i_modulo)
+PPt(pp_i_modulo, "(:Int,:Int):Int")
 #endif
 {
      /* This is the vanilla old i_modulo. */
@@ -2643,7 +2638,6 @@ PP(pp_i_modulo)
     && ( __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 8))
 STATIC
 PP(pp_i_modulo_1)
-
 {
      /* This is the i_modulo with the workaround for the _moddi3 bug
       * in (at least) glibc 2.2.5 (the PERL_ABS() the workaround).
@@ -2663,7 +2657,7 @@ PP(pp_i_modulo_1)
      }
 }
 
-PP(pp_i_modulo)
+PPt(pp_i_modulo, "(:Int,:Int):Int")
 {
      dVAR; dSP; dATARGET;
      tryAMAGICbin_MG(modulo_amg, AMGf_assign);
@@ -2707,7 +2701,7 @@ PP(pp_i_modulo)
 }
 #endif
 
-PP(pp_i_add)
+PPt(pp_i_add, "(:Int,:Int):Int")
 {
     dSP; dATARGET;
     tryAMAGICbin_MG(add_amg, AMGf_assign);
@@ -2718,7 +2712,7 @@ PP(pp_i_add)
     }
 }
 
-PP(pp_i_subtract)
+PPt(pp_i_subtract, "(:Int,:Int):Int")
 {
     dSP; dATARGET;
     tryAMAGICbin_MG(subtr_amg, AMGf_assign);
@@ -2729,7 +2723,7 @@ PP(pp_i_subtract)
     }
 }
 
-PP(pp_i_lt)
+PPt(pp_i_lt, "(:Int,:Int):Bool")
 {
     dSP;
     tryAMAGICbin_MG(lt_amg, AMGf_set);
@@ -2740,7 +2734,7 @@ PP(pp_i_lt)
     }
 }
 
-PP(pp_i_gt)
+PPt(pp_i_gt, "(:Int,:Int):Bool")
 {
     dSP;
     tryAMAGICbin_MG(gt_amg, AMGf_set);
@@ -2751,7 +2745,7 @@ PP(pp_i_gt)
     }
 }
 
-PP(pp_i_le)
+PPt(pp_i_le, "(:Int,:Int):Bool")
 {
     dSP;
     tryAMAGICbin_MG(le_amg, AMGf_set);
@@ -2762,7 +2756,7 @@ PP(pp_i_le)
     }
 }
 
-PP(pp_i_ge)
+PPt(pp_i_ge, "(:Int,:Int):Bool")
 {
     dSP;
     tryAMAGICbin_MG(ge_amg, AMGf_set);
@@ -2773,7 +2767,7 @@ PP(pp_i_ge)
     }
 }
 
-PP(pp_i_eq)
+PPt(pp_i_eq, "(:Int,:Int):Bool")
 {
     dSP;
     tryAMAGICbin_MG(eq_amg, AMGf_set);
@@ -2784,7 +2778,7 @@ PP(pp_i_eq)
     }
 }
 
-PP(pp_i_ne)
+PPt(pp_i_ne, "(:Int,:Int):Bool")
 {
     dSP;
     tryAMAGICbin_MG(ne_amg, AMGf_set);
@@ -2795,7 +2789,7 @@ PP(pp_i_ne)
     }
 }
 
-PP(pp_i_cmp)
+PPt(pp_i_cmp, "(:Int,:Int):Int")
 {
     dSP; dTARGET;
     tryAMAGICbin_MG(ncmp_amg, 0);
@@ -2814,7 +2808,7 @@ PP(pp_i_cmp)
     }
 }
 
-PP(pp_i_negate)
+PPt(pp_i_negate, "(:Int):Int")
 {
     dSP; dTARGET;
     tryAMAGICun_MG(neg_amg, 0);
@@ -2829,7 +2823,7 @@ PP(pp_i_negate)
 
 /* High falutin' math. */
 
-PP(pp_atan2)
+PPt(pp_atan2, "(:Num,:Num):Num")
 {
     dSP; dTARGET;
     tryAMAGICbin_MG(atan2_amg, 0);
@@ -2843,7 +2837,7 @@ PP(pp_atan2)
 
 /* also used for: pp_cos() pp_exp() pp_log() pp_sqrt() */
 
-PP(pp_sin)
+PPt(pp_sin, "(:Num):Num")
 {
     dSP; dTARGET;
     int amg_type = fallback_amg;
@@ -2900,7 +2894,7 @@ PP(pp_sin)
    --Jarkko Hietaniemi	27 September 1998
  */
 
-PP(pp_rand)
+PPt(pp_rand, "(:Num?):Num")
 {
     if (!PL_srand_called) {
 	(void)seedDrand01((Rand_seed_t)seed());
@@ -2940,7 +2934,7 @@ PP(pp_rand)
     return NORMAL;
 }
 
-PP(pp_srand)
+PPt(pp_srand, "(:Num?):Num")
 {
     dSP; dTARGET;
     UV anum;
@@ -2978,7 +2972,7 @@ PP(pp_srand)
     RETURN;
 }
 
-PP(pp_int)
+PPt(pp_int, "(:Scalar):Int")
 {
     dSP; dTARGET;
     tryAMAGICun_MG(int_amg, AMGf_numeric);
@@ -3022,7 +3016,7 @@ PP(pp_int)
     return NORMAL;
 }
 
-PP(pp_abs)
+PPt(pp_abs, "(:Numeric):Numeric")
 {
     dSP; dTARGET;
     tryAMAGICun_MG(abs_amg, AMGf_numeric);
@@ -3065,7 +3059,7 @@ PP(pp_abs)
 
 /* also used for: pp_hex() */
 
-PP(pp_oct)
+PPt(pp_oct, "(:Numeric):UInt")
 {
     dSP; dTARGET;
     const char *tmps;
