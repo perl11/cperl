@@ -4206,7 +4206,7 @@ PP(pp_fork)
     PUSHi(childpid);
     RETURN;
 #else
-#  if defined(USE_ITHREADS) && defined(PERL_IMPLICIT_SYS)
+#  if (defined(USE_ITHREADS) && defined(PERL_IMPLICIT_SYS)) || defined(__amigaos4__)
     dSP; dTARGET;
     Pid_t childpid;
 
