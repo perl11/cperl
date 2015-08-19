@@ -2396,7 +2396,7 @@ S_negate_string(pTHX)
     return TRUE;
 }
 
-PP(pp_negate)
+PPt(pp_negate, "(:Scalar):Numeric")
 {
     dSP; dTARGET;
     tryAMAGICun_MG(neg_amg, AMGf_numeric);
@@ -2819,7 +2819,7 @@ PPt(pp_i_cmp, "(:Int,:Int):Int")
     }
 }
 
-PPt(pp_i_negate, "(:Int):Int")
+PPt(pp_i_negate, "(:Int|:Str):Int")
 {
     dSP; dTARGET;
     tryAMAGICun_MG(neg_amg, 0);
