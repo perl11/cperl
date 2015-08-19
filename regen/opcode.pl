@@ -170,7 +170,9 @@ my @raw_alias = (
 		 Perl_pp_i_aelem   => ['n_aelem', 's_aelem'],
 		 Perl_pp_aelem_u   => ['i_aelem_u', 'n_aelem_u', 's_aelem_u'],
 		 Perl_pp_int_aelem_u => ['num_aelem_u', 'str_aelem_u'],
-		);
+		 Perl_pp_const => ['int_const', 'uint_const', 'str_const', 'num_const'],
+		 Perl_pp_padsv => ['int_padsv', 'uint_padsv', 'str_padsv', 'num_padsv'],
+  );
 
 # cperl changes: harmonized type prefices, for readable type promotion.
 # not strictly required, but it makes more sense.
@@ -1383,7 +1385,7 @@ my %opclass = (
     '@',  4,		# listop
     '/',  5,		# pmop
     '$',  6,		# svop_or_padop
-    '#',  7,		# padop
+    '#',  7,		# padop (unused)
     '"',  8,		# pvop_or_svop
     '{',  9,		# loop
     ';',  10,		# cop

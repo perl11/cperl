@@ -3033,6 +3033,13 @@ PERL_CALLCONV PADNAME *	Perl_newPADNAMEpvn(const char *s, STRLEN len)
 #define PERL_ARGS_ASSERT_NEWPADNAMEPVN	\
 	assert(s)
 
+PERL_CALLCONV OP*	Perl_newPADOP(pTHX_ I32 type, I32 flags, SV* sv)
+			__attribute__malloc__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_NEWPADOP	\
+	assert(sv)
+
 PERL_CALLCONV OP*	Perl_newPMOP(pTHX_ I32 type, I32 flags)
 			__attribute__malloc__
 			__attribute__warn_unused_result__;
@@ -3163,6 +3170,13 @@ PERL_CALLCONV SV*	Perl_newSVsv(pTHX_ SV *const old)
 PERL_CALLCONV SV*	Perl_newSVuv(pTHX_ const UV u)
 			__attribute__malloc__
 			__attribute__warn_unused_result__;
+
+PERL_CALLCONV OP*	Perl_newUNBOXEDOP(pTHX_ I32 type, I32 flags, const char* data)
+			__attribute__malloc__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_NEWUNBOXEDOP	\
+	assert(data)
 
 PERL_CALLCONV OP*	Perl_newUNOP(pTHX_ I32 type, I32 flags, OP* first)
 			__attribute__malloc__
@@ -6322,6 +6336,12 @@ STATIC void	S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp
 STATIC I32	S_assignment_type(pTHX_ const OP *o)
 			__attribute__warn_unused_result__;
 
+STATIC void	S_bad_type_declared(pTHX_ SV *sv, const char *t)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_BAD_TYPE_DECLARED	\
+	assert(sv); assert(t)
+
 STATIC void	S_bad_type_gv(pTHX_ I32 n, GV *gv, const OP *kid, const char *t)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3)
@@ -6507,10 +6527,10 @@ PERL_CALLCONV void	Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_
 
 #endif
 #if defined(PERL_IN_PAD_C)
-STATIC PADOFFSET	S_pad_alloc_name(pTHX_ PADNAME *name, U32 flags, HV *typestash, HV *ourstash)
+STATIC PADOFFSET	S_pad_alloc_name(pTHX_ PADNAME *padname, U32 flags, HV *typestash, HV *ourstash)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_PAD_ALLOC_NAME	\
-	assert(name)
+	assert(padname)
 
 STATIC void	S_pad_check_dup(pTHX_ PADNAME *name, U32 flags, const HV *ourstash)
 			__attribute__nonnull__(pTHX_1);

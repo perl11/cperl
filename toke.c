@@ -2094,8 +2094,8 @@ S_force_ident(pTHX_ const char *s, int kind)
 
     if (s[0]) {
 	const STRLEN len = s[1] ? strlen(s) : 1; /* s = "\"" see yylex */
-	OP* const o = (OP*)newSVOP(OP_CONST, 0, newSVpvn_flags(s, len,
-                                                                UTF ? SVf_UTF8 : 0));
+	OP* const o = (OP*)newSVOP(OP_CONST, 0,
+                               newSVpvn_flags(s, len, UTF ? SVf_UTF8 : 0));
 	NEXTVAL_NEXTTOKE.opval = o;
 	force_next(WORD);
 	if (kind) {
@@ -3963,7 +3963,7 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
 		return 0;	/* no assumptions -- "=>" quotes bareword */
       bare_package:
 	    NEXTVAL_NEXTTOKE.opval = (OP*)newSVOP(OP_CONST, 0,
-						  S_newSV_maybe_utf8(aTHX_ tmpbuf, len));
+					      S_newSV_maybe_utf8(aTHX_ tmpbuf, len));
 	    NEXTVAL_NEXTTOKE.opval->op_private = OPpCONST_BARE;
 	    PL_expect = XTERM;
 	    force_next(WORD);
@@ -4577,15 +4577,15 @@ Perl_yylex(pTHX)
 	    if (PL_parser->lex_shared->re_eval_str) {
 		sv = PL_parser->lex_shared->re_eval_str;
 		PL_parser->lex_shared->re_eval_str = NULL;
-		SvCUR_set(sv,
-			 PL_bufptr - PL_parser->lex_shared->re_eval_start);
+		SvCUR_set(sv, PL_bufptr - PL_parser->lex_shared->re_eval_start);
 		SvPV_shrink_to_cur(sv);
 	    }
-	    else sv = newSVpvn(PL_parser->lex_shared->re_eval_start,
+	    else {
+                sv = newSVpvn(PL_parser->lex_shared->re_eval_start,
 			 PL_bufptr - PL_parser->lex_shared->re_eval_start);
+            }
 	    NEXTVAL_NEXTTOKE.opval =
-		    (OP*)newSVOP(OP_CONST, 0,
-				 sv);
+		    (OP*)newSVOP(OP_CONST, 0, sv);
 	    force_next(THING);
 	    PL_parser->lex_shared->re_eval_start = NULL;
 	    PL_expect = XTERM;
@@ -6880,8 +6880,7 @@ Perl_yylex(pTHX)
 		if (safebw)
 		    goto safe_bareword;
 
-		if (!off)
-		{
+		if (!off) {
 		    OP *const_op = newSVOP(OP_CONST, 0, SvREFCNT_inc_NN(sv));
 		    const_op->op_private = OPpCONST_BARE;
 		    rv2cv_op =
@@ -7149,15 +7148,17 @@ Perl_yylex(pTHX)
 	    }
 
 	case KEY___FILE__:
-	    FUN0OP(
-		(OP*)newSVOP(OP_CONST, 0, newSVpv(CopFILE(PL_curcop),0))
-	    );
+#ifdef USE_ITHREADS
+            {
+                char *file = CopFILE(PL_curcop);
+                FUN0OP(newUNBOXEDOP(OP_STR_CONST, 0, &file));
+            }
+#else
+            FUN0OP(newSVOP(OP_CONST, 0, newSVpv(CopFILE(PL_curcop),0)));
+#endif
 
 	case KEY___LINE__:
-	    FUN0OP(
-        	(OP*)newSVOP(OP_CONST, 0,
-		    Perl_newSVpvf(aTHX_ "%"IVdf, (IV)CopLINE(PL_curcop)))
-	    );
+	    FUN0OP(newUNBOXEDOP(OP_INT_CONST, 0, (char*)&PL_curcop->cop_line));
 
 	case KEY___PACKAGE__:
 	    FUN0OP(
@@ -10238,6 +10239,7 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
 
     /* We use the first character to decide what type of number this is */
 
+    lvalp->opval = NULL;
     switch (*s) {
     default:
 	Perl_croak(aTHX_ "panic: scan_num, *s=%d", *s);
@@ -10671,17 +10673,20 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
 	    const int flags = grok_number (PL_tokenbuf, d - PL_tokenbuf, &uv);
 
             if (flags == IS_NUMBER_IN_UV) {
-              if (uv <= IV_MAX)
-		sv = newSViv(uv); /* Prefer IVs over UVs. */
-              else
-	    	sv = newSVuv(uv);
+                if (uv <= IV_MAX)
+                    /* Prefer IVs over UVs. */
+                    lvalp->opval = newUNBOXEDOP(OP_INT_CONST, 0, (char*)&uv);
+                else
+                    lvalp->opval = newUNBOXEDOP(OP_UINT_CONST, 0, (char*)&uv);
             } else if (flags == (IS_NUMBER_IN_UV | IS_NUMBER_NEG)) {
-              if (uv <= (UV) IV_MIN)
-                sv = newSViv(-(IV)uv);
+                if (uv <= (UV) IV_MIN) {
+                    IV iv = -(IV)uv;
+                    lvalp->opval = newUNBOXEDOP(OP_INT_CONST, 0, (char*)&iv);
+              }
               else
-	    	floatit = TRUE;
+                  floatit = TRUE;
             } else
-              floatit = TRUE;
+                floatit = TRUE;
         }
 	if (floatit) {
             STORE_LC_NUMERIC_UNDERLYING_SET_STANDARD();
@@ -10717,21 +10722,21 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
     /* if it starts with a v, it could be a v-string */
     case 'v':
     vstring:
-		sv = newSV(5); /* preallocate storage space */
-		ENTER_with_name("scan_vstring");
-		SAVEFREESV(sv);
-		s = scan_vstring(s, PL_bufend, sv);
-		SvREFCNT_inc_simple_void_NN(sv);
-		LEAVE_with_name("scan_vstring");
+        sv = newSV(5); /* preallocate storage space */
+        ENTER_with_name("scan_vstring");
+        SAVEFREESV(sv);
+        s = scan_vstring(s, PL_bufend, sv);
+        SvREFCNT_inc_simple_void_NN(sv);
+        LEAVE_with_name("scan_vstring");
 	break;
     }
 
-    /* make the op for the constant and return */
-
-    if (sv)
-	lvalp->opval = newSVOP(OP_CONST, 0, sv);
-    else
-	lvalp->opval = NULL;
+    if (!lvalp->opval) {
+        if (sv)
+            lvalp->opval = newSVOP(OP_CONST, 0, sv);
+        else
+            lvalp->opval = NULL;
+    }
 
     return (char *)s;
 }
@@ -11786,7 +11791,7 @@ Perl_parse_subsignature(pTHX)
 		    newBINOP(OP_AELEM, 0,
 			ref(newUNOP(OP_RV2AV, 0, newGVOP(OP_GV, 0, PL_defgv)),
 			    OP_RV2AV),
-			newSVOP(OP_CONST, 0, newSViv(pos))) :
+                             newUNBOXEDOP(OP_INT_CONST, 0, (char*)&pos)) :
 		    NULL;
 		lex_read_space(0);
 		c = lex_peek_unichar(0);

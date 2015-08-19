@@ -498,6 +498,42 @@ Perl_sv_peek(pTHX_ SV *sv)
     return SvPV_nolen(t);
 }
 
+char *
+Perl_native_peek(pTHX_ const OP* o)
+{
+    dVAR;
+    SV * const t = sv_newmortal();
+    const U32 type = o->op_type;
+    const SV* data = cSVOPo->op_sv;
+
+    sv_setpvs(t, "");
+    if (!o) {
+	sv_catpv(t, "VOID");
+        return SvPV_nolen(t);
+    }
+    else if (type == OP_INT_CONST || type == OP_INT_PADSV) {
+        Perl_sv_catpvf(aTHX_ t, "(%"IVdf"):int", (IV)data);
+        return SvPV_nolen(t);
+    }
+    else if (type == OP_UINT_CONST || type == OP_UINT_PADSV) {
+        Perl_sv_catpvf(aTHX_ t, "(%"UVuf"):uint", (UV)data);
+        return SvPV_nolen(t);
+    }
+    else if (type == OP_NUM_CONST || type == OP_NUM_PADSV) {
+	STORE_LC_NUMERIC_UNDERLYING_SET_STANDARD();
+	Perl_sv_catpvf(aTHX_ t, "(%"NVgf")", PTR2NV(data));
+	RESTORE_LC_NUMERIC_UNDERLYING();
+        return SvPV_nolen(t);
+    }
+    else if (type == OP_STR_CONST || type == OP_STR_PADSV) {
+        Perl_sv_catpvf(aTHX_ t, "(\"%s\"):str", (char *)data);
+        return SvPV_nolen(t);
+    }
+    else {
+        die("Not a native type op %s\n", OP_NAME(o));
+    }
+}
+
 /*
 =head1 Debugging Utilities
 */
@@ -991,25 +1027,25 @@ Perl_do_op_dump(pTHX_ I32 level, PerlIO *file, const OP *o)
 	if (CopLINE(cCOPo))
 	    Perl_dump_indent(aTHX_ level, file, "LINE = %"UVuf"\n",
 			     (UV)CopLINE(cCOPo));
-    if (CopSTASHPV(cCOPo)) {
-        SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
-        HV *stash = CopSTASH(cCOPo);
-        const char * const hvname = HvNAME_get(stash);
+        if (CopSTASHPV(cCOPo)) {
+            SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
+            HV *stash = CopSTASH(cCOPo);
+            const char * const hvname = HvNAME_get(stash);
         
 	    Perl_dump_indent(aTHX_ level, file, "PACKAGE = \"%s\"\n",
                            generic_pv_escape(tmpsv, hvname,
                               HvNAMELEN(stash), HvNAMEUTF8(stash)));
-    }
-  if (CopLABEL(cCOPo)) {
-       SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
-       STRLEN label_len;
-       U32 label_flags;
-       const char *label = CopLABEL_len_flags(cCOPo,
+        }
+        if (CopLABEL(cCOPo)) {
+            SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
+            STRLEN label_len;
+            U32 label_flags;
+            const char *label = CopLABEL_len_flags(cCOPo,
                                                 &label_len, &label_flags);
-       Perl_dump_indent(aTHX_ level, file, "LABEL = \"%s\"\n",
-                           generic_pv_escape( tmpsv, label, label_len,
-                                      (label_flags & SVf_UTF8)));
-   }
+            Perl_dump_indent(aTHX_ level, file, "LABEL = \"%s\"\n",
+                             generic_pv_escape( tmpsv, label, label_len,
+                                                (label_flags & SVf_UTF8)));
+        }
         Perl_dump_indent(aTHX_ level, file, "SEQ = %u\n",
                          (unsigned int)cCOPo->cop_seq);
 	break;
@@ -1057,6 +1093,17 @@ Perl_do_op_dump(pTHX_ I32 level, PerlIO *file, const OP *o)
 	if (o->op_private & OPpREFCOUNTED)
 	    Perl_dump_indent(aTHX_ level, file, "REFCNT = %"UVuf"\n", (UV)o->op_targ);
 	break;
+    case OP_INT_CONST:
+    case OP_UINT_CONST:
+    case OP_NUM_CONST:
+    case OP_STR_CONST:
+    case OP_INT_PADSV:
+    case OP_UINT_PADSV:
+    case OP_NUM_PADSV:
+    case OP_STR_PADSV:
+        assert(o->op_private & OPpCONST_UNBOXED);
+	Perl_dump_indent(aTHX_ level, file, "VALUE = %s\n", Perl_native_peek(aTHX_ o));
+        break;
     default:
 	break;
     }
@@ -2522,6 +2569,17 @@ Perl_debop(pTHX_ const OP *o)
 	    PerlIO_printf(Perl_debug_log, "(NULL)");
 	break;
 
+    case OP_INT_CONST:
+    case OP_UINT_CONST:
+    case OP_NUM_CONST:
+    case OP_STR_CONST:
+        PerlIO_printf(Perl_debug_log, "(%s)", Perl_native_peek(aTHX_ o));
+        break;
+
+    case OP_INT_PADSV:
+    case OP_UINT_PADSV:
+    case OP_NUM_PADSV:
+    case OP_STR_PADSV:
     case OP_PADSV:
     case OP_PADAV:
     case OP_PADHV:
@@ -2541,6 +2599,12 @@ Perl_debop(pTHX_ const OP *o)
     default:
 	break;
     }
+
+    if ((o->op_private & OPpBOXRET)
+        && ((o->op_type >= OP_UINT_LEFT_SHIFT && o->op_type <= OP_NUM_SQRT)
+         || (o->op_type >= OP_INT_AELEM && o->op_type <= OP_STR_AELEM_U)))
+        PerlIO_printf(Perl_debug_log, " (BOX)");
+
     PerlIO_printf(Perl_debug_log, "\n");
     return 0;
 }

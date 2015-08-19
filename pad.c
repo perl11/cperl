@@ -543,7 +543,7 @@ is done.  Returns the offset of the allocated pad slot.
 */
 
 static PADOFFSET
-S_pad_alloc_name(pTHX_ PADNAME *name, U32 flags, HV *typestash,
+S_pad_alloc_name(pTHX_ PADNAME *padname, U32 flags, HV *typestash,
 		       HV *ourstash)
 {
     const PADOFFSET offset = pad_alloc(OP_PADSV, SVs_PADMY);
@@ -553,21 +553,30 @@ S_pad_alloc_name(pTHX_ PADNAME *name, U32 flags, HV *typestash,
     ASSERT_CURPAD_ACTIVE("pad_alloc_name");
 
     if (typestash) {
-	SvPAD_TYPED_on(name);
-	PadnameTYPE(name) =
-	    MUTABLE_HV(SvREFCNT_inc_simple_NN(MUTABLE_SV(typestash)));
+	SvPAD_TYPED_on(padname); /* unncessary */
+        if (HvNAME(typestash)) { /* is a native type? */
+            const char *name = HvNAME(typestash)+6; /* strip off the "main::" */
+            const int l = HvNAMELEN(typestash) - 6;
+            assert(l>0);
+            if (memEQs(name, l, "int")
+                || memEQs(name, l, "num")
+                || memEQs(name, l, "uint")
+                || memEQs(name, l, "str"))
+                PadnameUNBOXED_on(padname);
+        }
+	PadnameTYPE_set(padname, MUTABLE_HV(SvREFCNT_inc_simple_NN(MUTABLE_SV(typestash))));
     }
     if (ourstash) {
-	SvPAD_OUR_on(name);
-	SvOURSTASH_set(name, ourstash);
+	SvPAD_OUR_on(padname);
+	SvOURSTASH_set(padname, ourstash);
 	SvREFCNT_inc_simple_void_NN(ourstash);
     }
     else if (flags & padadd_STATE) {
-	SvPAD_STATE_on(name);
+	SvPAD_STATE_on(padname);
     }
 
-    padnamelist_store(PL_comppad_name, offset, name);
-    if (PadnameLEN(name) > 1)
+    padnamelist_store(PL_comppad_name, offset, padname);
+    if (PadnameLEN(padname) > 1)
 	PadnamelistMAXNAMED(PL_comppad_name) = offset;
     return offset;
 }
@@ -637,8 +646,8 @@ Perl_pad_add_name_pvn(pTHX_ const char *namepv, STRLEN namelen,
 	sv_upgrade(PL_curpad[offset], SVt_PVCV);
     assert(SvPADMY(PL_curpad[offset]));
     DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-			   "Pad addname: %ld \"%s\" new lex=0x%"UVxf"\n",
-			   (long)offset, PadnamePV(name),
+			   "Pad addname: %ld \"%s\" :%s new lex=0x%"UVxf"\n",
+			   (long)offset, PadnamePV(name), typestash?HvNAME(typestash):"",
 			   PTR2UV(PL_curpad[offset])));
 
     return offset;
@@ -1790,6 +1799,7 @@ Perl_pad_tidy(pTHX_ padtidy_type type)
 =for apidoc m|void|pad_free|PADOFFSET po
 
 Free the SV at offset po in the current pad.
+This should not be called with unboxed values!
 
 =cut
 */

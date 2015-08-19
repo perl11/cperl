@@ -326,6 +326,8 @@ invert_opset function.
     lt i_lt gt i_gt le i_le ge i_ge eq i_eq ne i_ne cmp i_cmp
     s_lt s_gt s_le s_ge s_eq s_ne s_cmp
 
+    int_const uint_const str_const num_const
+    int_padsv uint_padsv str_padsv num_padsv
     box_int box_uint box_str box_num unbox_int unbox_uint unbox_str
     unbox_num uint_left_shift uint_right_shift uint_pow
     uint_complement int_preinc int_predec int_postinc int_postdec

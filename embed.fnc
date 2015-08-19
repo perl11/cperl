@@ -1040,6 +1040,8 @@ Apa	|SV*	|vnewSVpvf	|NN const char *const pat|NULLOK va_list *const args
 Apd	|SV*	|newSVrv	|NN SV *const rv|NULLOK const char *const classname
 Apda	|SV*	|newSVsv	|NULLOK SV *const old
 Apda	|SV*	|newSV_type	|const svtype type
+Apda	|OP*	|newPADOP	|I32 type|I32 flags|NN SV* sv
+Apda	|OP*	|newUNBOXEDOP	|I32 type|I32 flags|NN const char* data
 Apda	|OP*	|newUNOP	|I32 type|I32 flags|NULLOK OP* first
 Apda	|OP*	|newUNOP_AUX	|I32 type|I32 flags|NULLOK OP* first \
 				|NULLOK UNOP_AUX_item *aux
@@ -1952,6 +1954,7 @@ s	|void	|apply_attrs	|NN HV *stash|NN SV *target|NULLOK OP *attrs
 s	|void	|apply_attrs_my	|NN HV *stash|NN OP *target|NULLOK OP *attrs|NN OP **imopsp
 s	|void	|bad_type_pv	|I32 n|NN const char *t|NN const OP *o|NN const OP *kid
 s	|void	|bad_type_gv	|I32 n|NN GV *gv|NN const OP *kid|NN const char *t
+s	|void	|bad_type_declared|NN SV *sv|NN const char *t
 s	|void	|no_bareword_allowed|NN OP *o
 sR	|OP*	|no_fh_allowed|NN OP *o
 sR	|OP*	|too_few_arguments_pv|NN OP *o|NN const char* name|U32 flags
@@ -2586,7 +2589,7 @@ Apda	|PADLIST*|pad_new	|int flags
 pnX	|void|set_padlist| NN CV * cv | NULLOK PADLIST * padlist
 #endif
 #if defined(PERL_IN_PAD_C)
-s	|PADOFFSET|pad_alloc_name|NN PADNAME *name|U32 flags \
+s	|PADOFFSET|pad_alloc_name|NN PADNAME *padname|U32 flags \
 				|NULLOK HV *typestash|NULLOK HV *ourstash
 #endif
 Apd	|PADOFFSET|pad_add_name_pvn|NN const char *namepv|STRLEN namelen\

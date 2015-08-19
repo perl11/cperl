@@ -387,6 +387,7 @@
 #define newPADNAMELIST		Perl_newPADNAMELIST
 #define newPADNAMEouter		Perl_newPADNAMEouter
 #define newPADNAMEpvn		Perl_newPADNAMEpvn
+#define newPADOP(a,b,c)		Perl_newPADOP(aTHX_ a,b,c)
 #define newPMOP(a,b)		Perl_newPMOP(aTHX_ a,b)
 #define newPROG(a)		Perl_newPROG(aTHX_ a)
 #define newPVOP(a,b,c)		Perl_newPVOP(aTHX_ a,b,c)
@@ -413,6 +414,7 @@
 #define newSVrv(a,b)		Perl_newSVrv(aTHX_ a,b)
 #define newSVsv(a)		Perl_newSVsv(aTHX_ a)
 #define newSVuv(a)		Perl_newSVuv(aTHX_ a)
+#define newUNBOXEDOP(a,b,c)	Perl_newUNBOXEDOP(aTHX_ a,b,c)
 #define newUNOP(a,b,c)		Perl_newUNOP(aTHX_ a,b,c)
 #define newUNOP_AUX(a,b,c,d)	Perl_newUNOP_AUX(aTHX_ a,b,c,d)
 #define newWHENOP(a,b)		Perl_newWHENOP(aTHX_ a,b)
@@ -1539,6 +1541,7 @@
 #define apply_attrs(a,b,c)	S_apply_attrs(aTHX_ a,b,c)
 #define apply_attrs_my(a,b,c,d)	S_apply_attrs_my(aTHX_ a,b,c,d)
 #define assignment_type(a)	S_assignment_type(aTHX_ a)
+#define bad_type_declared(a,b)	S_bad_type_declared(aTHX_ a,b)
 #define bad_type_gv(a,b,c,d)	S_bad_type_gv(aTHX_ a,b,c,d)
 #define bad_type_pv(a,b,c,d)	S_bad_type_pv(aTHX_ a,b,c,d)
 #define clear_special_blocks(a,b,c)	S_clear_special_blocks(aTHX_ a,b,c)

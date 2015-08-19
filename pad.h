@@ -246,6 +246,9 @@ Whether this is a "state" variable.
 The stash associated with a typed lexical.  This returns the %Foo:: hash
 for C<my Foo $bar>.
 
+=for apidoc m|bool|PadnameUNBOXED|PADNAME pn
+Whether this is a unboxed native variable, int, uint, str or num.
+
 =for apidoc Amx|SSize_t|PadnameREFCNT|PADNAME pn
 The reference count of the pad name.
 
@@ -326,20 +329,24 @@ Restore the old pad saved into the local variable opad by PAD_SAVE_LOCAL()
 #define PadnameOUTER(pn)	(PadnameFLAGS(pn) & PADNAMEt_OUTER)
 #define PadnameIsSTATE(pn)	(PadnameFLAGS(pn) & PADNAMEt_STATE)
 #define PadnameLVALUE(pn)	(PadnameFLAGS(pn) & PADNAMEt_LVALUE)
+#define PadnameUNBOXED(pn)	(PadnameFLAGS(pn) & PADNAMEt_UNBOXED)
 
 #define PadnameLVALUE_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_LVALUE)
 #define PadnameIsSTATE_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_STATE)
+#define PadnameUNBOXED_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_UNBOXED)
 
 #define PADNAMEt_OUTER	1	/* outer lexical var */
 #define PADNAMEt_STATE	2	/* state var */
 #define PADNAMEt_LVALUE	4	/* used as lvalue */
-#define PADNAMEt_TYPED	8	/* for B; unused by core */
+#define PADNAMEt_TYPED	8	/* unneeded: contains a type stash */
 #define PADNAMEt_OUR	16	/* for B; unused by core */
+#define PADNAMEt_UNBOXED 32	/* is a native (unboxed) type */
 
 /* backward compatibility */
 #define SvPAD_STATE		PadnameIsSTATE
 #define SvPAD_TYPED(pn)		(!!PadnameTYPE(pn))
 #define SvPAD_OUR(pn)		(!!PadnameOURSTASH(pn))
+#define SvPAD_UNBOXED(pn)	(PadnameFLAGS(pn) & PADNAMEt_UNBOXED)
 #define SvPAD_STATE_on		PadnameIsSTATE_on
 #define SvPAD_TYPED_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_TYPED)
 #define SvPAD_OUR_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_OUR)
@@ -348,6 +355,7 @@ Restore the old pad saved into the local variable opad by PAD_SAVE_LOCAL()
 #define SVpad_STATE		PADNAMEt_STATE
 #define SVpad_TYPED		PADNAMEt_TYPED
 #define SVpad_OUR		PADNAMEt_OUR
+#define SVpad_UNBOXED		PADNAMEt_UNBOXED
 
 #ifdef DEBUGGING
 #  define PAD_SV(po)	   pad_sv(po)

@@ -181,6 +181,10 @@ Deprecated.  Use C<GIMME_V> instead.
  in dynamic context */
 #define OPpENTERSUB_LVAL_MASK (OPpLVAL_INTRO|OPpENTERSUB_INARGS)
 
+/* they need to have the same bit 6 */
+#if OPpPAD_UNBOXED != OPpCONST_UNBOXED
+# error "check regen/op_private: OPpPAD_UNBOXED != OPpCONST_UNBOXED"
+#endif
 
 /* things that can be elements of op_aux */
 typedef union  {
@@ -553,6 +557,21 @@ struct loop {
 #define OA_LOOPEXOP 	(13 << OCSHIFT)
 #define OA_METHOP 	(14 << OCSHIFT)
 #define OA_UNOP_AUX 	(15 << OCSHIFT)
+
+#define OpCLASS(o)      (PL_opargs[(o)->op_type] & OA_CLASS_MASK)
+#define OP_IS_BASEOP(o) OpCLASS(o) & (OA_BASEOP|OA_BASEOP_OR_UNOP)
+#define OP_IS_UNOP(o)   OpCLASS(o) & (OA_UNOP|OA_BASEOP_OR_UNOP)
+#define OP_IS_BINOP(o)  OpCLASS(o) == OA_BINOP
+#define OP_IS_LOGOP(o)  OpCLASS(o) == OA_LOGOP
+#define OP_IS_LISTOP(o) OpCLASS(o) == OA_LISTOP
+#define OP_IS_PMOP(o)   OpCLASS(o) == OA_PMOP
+#define OP_IS_SVOP(o)   OpCLASS(o) & (OA_SVOP|OA_PVOP_OR_SVOP)
+#define OP_IS_PADOP(o)  OpCLASS(o) == OA_PADOP
+#define OP_IS_LOOP(o)   OpCLASS(o) == OA_LOOP
+#define OP_IS_COP(o)    OpCLASS(o) == OA_COP
+#define OP_IS_FILESTATOP(o) OpCLASS(o) == OA_FILESTATOP
+#define OP_IS_METHOP(o) OpCLASS(o) == OA_METHOP
+/* See opnames.h for more OP_IS_ tests */
 
 #define OA_SCALAR  1
 #define OA_LIST    2
@@ -1009,6 +1028,9 @@ sib is non-null. For a higher-level interface, see C<op_sibling_splice>.
 #define OP_TYPE_ISNT_AND_WASNT(o, type) \
     ( (o) && OP_TYPE_ISNT_AND_WASNT_NN(o, type) )
 
+#define OP_IS_NATIVE(o) \
+    ( (o) && ((o->op_ppaddr == Perl_pp_padsv && o->op_private & OPpPAD_UNBOXED) \
+           || (o->op_ppaddr == Perl_pp_const && o->op_private & OPpCONST_UNBOXED)) )
 
 #ifdef PERL_OP_PARENT
 #  define OpHAS_SIBLING(o)	(cBOOL((o)->op_moresib))
