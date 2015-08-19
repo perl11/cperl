@@ -2726,8 +2726,9 @@ PPt(pp_i_add, "(:Int,:Int):Int")
     }
 }
 
-/* Nearer to add, handles results which could be interpreted as UV,
- * but does not promote to NV. */
+/* Nearer to add and multiply. Handle results which could be interpreted as UV,
+ * but does not promote to NV. Works fine for IV_MAX .. UV_MAX, but
+ * not in the negative range. Is mostly used for constant folding. */
 
 PPt(pp_u_add, "(:Int,:Int):Numeric")
 {
@@ -2738,6 +2739,19 @@ PPt(pp_u_add, "(:Int,:Int):Numeric")
       SETi( left + right );
       if (SvIVX(TARG) < 0 && left>=0 && right>=0)
           SETu( left + right );
+      RETURN;
+    }
+}
+
+PPt(pp_u_multiply, "(:Int,:Int):Numeric")
+{
+    dSP; dATARGET;
+    tryAMAGICbin_MG(add_amg, AMGf_assign);
+    {
+      dPOPTOPiirl_ul_nomg;
+      SETi( left * right );
+      if (SvIVX(TARG) < 0 && left>=0 && right>=0)
+          SETu( left * right );
       RETURN;
     }
 }

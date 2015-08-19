@@ -8734,7 +8734,7 @@ Perl_sv_inc_nomg(pTHX_ SV *const sv)
 	return;
     if (SvTHINKFIRST(sv)) {
 	if (SvREADONLY(sv)) {
-		Perl_croak_no_modify();
+            Perl_croak_no_modify();
 	}
 	if (SvROK(sv)) {
 	    IV i;
