@@ -1028,7 +1028,7 @@ print $on <<"END";
 
 /* This encodes the offsets as signed char of the typed variants for each op.
    The first byte is the number of following bytes, max 8.
-   variants: i_ n_ s_ int_ uint_ num_ str_ */
+   variants: u_ i_ n_ s_ int_ uint_ num_ str_ */
 #ifndef DOINIT
 EXTCONST char PL_op_type_variants[][8];
 #else
@@ -1045,7 +1045,7 @@ for my $o (@ops) {
   my $op = $opnum{$o};
   printf $on "\t/* %3d %-16s */ {", $i, $o;
   my $s = "";
-  for my $p (qw(i_ n_ s_ int_ uint_ num_ str_)) {
+  for my $p (qw(u_ i_ n_ s_ int_ uint_ num_ str_)) {
     # encode the distance as signed byte (-127 + 128)
     if (exists $opnum{$p.$o}) {
       my $diff = $opnum{$p.$o} - $op;
@@ -1053,7 +1053,7 @@ for my $o (@ops) {
       push @a, "$p$o:".$opnum{$p.$o};
       push @s, $diff < 0 ? $diff + 128 : $diff;
       $found++;
-    } elsif ($o =~ /^(i|n|s)_/ and $p !~ /^(?:i|n|s)_/) {
+    } elsif ($o =~ /^(u|i|n|s)_/ and $p !~ /^(?:u|i|n|s)_/) {
       my $s = substr($o, 2);
       my $i1 = $1;
       # forbid n => int but allow int => uint and i => uint

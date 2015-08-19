@@ -194,8 +194,9 @@ SKIP: {
 
 # I'm sure that there's an IBM format with a 48 bit mantissa
 # IEEE doubles have a 53 bit mantissa
-# 80 bit long doubles have a 64 bit mantissa
-# sparcs have a 112 bit mantissa for their long doubles. Just to be awkward :-)
+# Intel extended 80 bit long doubles have a 64 bit mantissa
+# IEEE long doubles (i.e sparcs, s390 or quadmath) have a 113 bit mantissa
+# PowerPC double-double long doubles have 2x53 mantissas which make less than 113.
 
 my $h_uv_max = 1 + (~0 >> 1);
 my $found;
@@ -205,22 +206,24 @@ for my $n (47..113) {
     next if $plus_1 != $power_of_2;
     my ($start_p, $start_n);
     if ($h_uv_max > $power_of_2 / 2) {
-	my $uv_max = 1 + 2 * (~0 >> 1);
+        # use 2.0 to forbid i_multiply optimization
+	my $uv_max = 1 + 2.0 * (~0 >> 1);
 	# UV_MAX is 2**$something - 1, so subtract 1 to get the start value
-	$start_p = $uv_max - 1;
+	$start_p = int($uv_max - 1);
 	# whereas IV_MIN is -(2**$something), so subtract 2
 	$start_n = -$h_uv_max + 2;
 	print "# Mantissa overflows at 2**$n ($power_of_2)\n";
 	print "# But max UV ($uv_max) is greater so testing that\n";
     } else {
 	print "# Testing 2**$n ($power_of_2) which overflows the mantissa\n";
-	$start_p = int($power_of_2 - 2);
+	$start_p = $power_of_2 - 2.0;
 	$start_n = -$start_p;
 	my $check = $power_of_2 - 2;
 	die "Something wrong with our rounding assumptions: $check vs $start_p"
 	    unless $start_p == $check;
     }
 
+    # This warns only with NVs. So overflow from UV_MAX or NV
     foreach ([$start_p, '++$i', 'pre-inc', 'inc'],
 	     [$start_p, '$i++', 'post-inc', 'inc'],
 	     [$start_n, '--$i', 'pre-dec', 'dec'],
@@ -247,7 +250,7 @@ sub {
     }
 }
 EOC
-
+        # With cperl we get more proper IVs which do not overflow here
 	warnings_like($code, [(qr/Lost precision when ${act}rementing -?\d+/) x 2],
 		      "$description under use warnings 'imprecision'");
     }

@@ -12346,6 +12346,8 @@ Perl_ck_type(pTHX_ OP *o)
                     const U32 n2 = PL_op_type[v];
                     DEBUG_k(Perl_deb(aTHX_ "match: %s %s <=> %s %s\n", PL_op_name[typ], PL_op_type_str[typ],
                                 PL_op_name[v], PL_op_type_str[v]));
+                    if ((PL_hints & HINT_INTEGER) && ((n2 & 0xff) != type_Int)) /* need an Int result, no u_ */
+                        continue;
                     if (match_type1(n2 & 0xffffff00, type1)) {
                         DEBUG_kv(Perl_deb(aTHX_ "%s (:%s) => %s %s\n", PL_op_name[typ], core_type_name(type1),
                                      PL_op_name[v], PL_op_type_str[v]));
@@ -12382,6 +12384,8 @@ Perl_ck_type(pTHX_ OP *o)
                     const U32 n2 = PL_op_type[v];
                     DEBUG_k(Perl_deb(aTHX_ "match: %s %s <=> %s %s\n", PL_op_name[typ], PL_op_type_str[typ],
                                 PL_op_name[v], PL_op_type_str[v]));
+                    if ((PL_hints & HINT_INTEGER) && ((n2 & 0xff) != type_Int)) /* need an Int result, no u_ */
+                        continue;
                     if (match_type2(n2 & 0xffffff00, type1, type2)) {
                         /* Exception: Even if both / operands are int do not use intdiv.
                            TODO: Only if the lhs result needs to be int. But this needs

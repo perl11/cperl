@@ -2712,6 +2712,9 @@ PPt(pp_i_modulo, "(:Int,:Int):Int")
 }
 #endif
 
+/* XXX This will not handle results which could be interpreted as UV,
+ * thus not a proper target for constant folding. */
+
 PPt(pp_i_add, "(:Int,:Int):Int")
 {
     dSP; dATARGET;
@@ -2719,6 +2722,22 @@ PPt(pp_i_add, "(:Int,:Int):Int")
     {
       dPOPTOPiirl_ul_nomg;
       SETi( left + right );
+      RETURN;
+    }
+}
+
+/* Nearer to add, handles results which could be interpreted as UV,
+ * but does not promote to NV. */
+
+PPt(pp_u_add, "(:Int,:Int):Numeric")
+{
+    dSP; dATARGET;
+    tryAMAGICbin_MG(add_amg, AMGf_assign);
+    {
+      dPOPTOPiirl_ul_nomg;
+      SETi( left + right );
+      if (SvIVX(TARG) < 0 && left>=0 && right>=0)
+          SETu( left + right );
       RETURN;
     }
 }

@@ -234,7 +234,7 @@ checkOptree ( code	=> 'my int $a=0; $b=$a+42',
 # 1  <;> nextstate(main 837 (eval 24):1) v:{
 # 2  <#> gvsv[*b] s
 # 3  <$> const[IV 42] s
-# 4  <2> i_add[t3] sK/2
+# 4  <2> u_add[t3] sK/2
 # 5  <#> gvsv[*a] s
 # 6  <2> sassign sKS/2
 # 7  <1> leavesub[1 ref] K/REFC,1
@@ -246,7 +246,7 @@ EOT_EOT
 # 5  <;> nextstate(main 1680 (eval 13):1) v:{
 # 6  <0> padsv[$a:int 1679,1680] s
 # 7  <$> const(IV 42) s
-# 8  <2> i_add[t2] sK/2
+# 8  <2> u_add[t2] sK/2
 # 9  <$> gvsv(*b) s
 # a  <2> sassign sKS/2
 # b  <1> leavesub[1 ref] K/REFC,1
