@@ -53,12 +53,16 @@ experimental after all.
 
 In perl illegal prototypes warn with C<'illegalproto'> and are stored as such.
 
-In cperl illegal prototypes immediately die, they cannot be suppressed with
-C<no warnings 'illegalproto';> and they are not stored.
+In cperl illegal prototypes in signatures used without C<:prototype()>
+immediately die, they cannot be suppressed with C<no warnings
+'illegalproto';> and they are not stored.
 
 Rationale: Illegal prototypes are parsed as signatures. Illegal
 signatures throw a parser error.  The C<'illegalproto'> warning is
 only thrown with explicit extra C<:prototype()> declarations.
+
+Technically this is not a incompatible change, as signatures are
+marked as experimental.
 
 =item C<@_> is empty in functions with signatures
 
@@ -69,6 +73,9 @@ Rationale: With signatures copying all values to @_ also leads to
 double copying which is 2x slower. @_ is not needed anymore. Either
 use no signatures to use @_ variables or use sigantures.
 
+Technically this is not a incompatible change, as signatures are
+marked as experimental.
+
 =item Empty signature variables C<$> die
 
 Using a bare C<$> sigil signature variable is illegal in cperl, but legal in perl.
@@ -77,20 +84,25 @@ Rationale: This clashes with prototypes. A bare C<$> is a prototype
 declaration, not a signature. Use a name in the signature and don't
 use this name in the body to get back to the same behaviour.
 
+Technically this is not a incompatible change, as signatures are
+marked as experimental.
+
 =item negative integer modulo
 
 With typed integer variables or integer constants the modulo operator
 in cperl works like with use integer, it uses the libc functionality
-for C<%>; using C<i_modulo> which is different than the generic
-C<modulo> operator.
+for C<"%">; using the C<i_modulo> operator which is different than the
+generic C<modulo> operator.
 
 With perl5 without use integer it uses a different modulo definition:
 I<"If $n is negative, then $m % $n is $m minus the smallest multiple of
-# $n that is not less than $m (that is, the result will be less than
-or equal to zero)"> from L<perlop/#Multiplicative-Operators>
+$n that is not less than $m (that is, the result will be less than
+or equal to zero)"> from L<perlop/"Multiplicative Operators">.
 
-cperl with typed or constanst integers behaves like perl5 with use integer.
-To fall back to the old behavior use untyped variables and no integer.
+cperl with typed or constant integers behaves like perl5 with use
+integer.  The compiler simply promotes C<modulo> to C<i_modulo> if both
+arguments are integers at compile-time.  To fall back to the old
+behavior use untyped variables and no integer.
 
     perl5:
     -13 % 4 => 3
@@ -112,11 +124,13 @@ To fall back to the old behavior use untyped variables and no integer.
       $a % $b => 3
     }
 
-Rationale: This is a bad perl5 design. cperl uses proper type dispatch
-and with both integer arguments it promotes the modulo op to i_modulo,
-which behaves differently (or "normally").
-Using extra logic to prevent using the libc implementation also makes
-perl5 C<"%"> slower.
+Rationale: This is a bad perl5 design and a side-effect from using
+type-promotion before constant folding.  cperl uses proper type
+dispatch and with both integer arguments it promotes the C<modulo> op
+to C<i_modulo>, which behaves differently (or "normally"). The perl5
+constant folder should do the same, but does not currently.  Using
+extra logic to prevent using the libc implementation also makes perl5
+C<"%"> slower.
 
 =back
 
@@ -126,9 +140,11 @@ perl5 C<"%"> slower.
 
 The p5p signature implementions is still lacking many important
 features and is twice as slow as doing without, and twice as slow as
-the cperl implementation. There is no point in using it.  It is the
-only cause for backwards incompatible changes, but it is marked as
-experimental, so they know they cannot keep their current design.
+the cperl implementation which uses the stack variables directly
+without copying them to C<@_>. There is no point in using it.  It is
+the biggest cause for backwards incompatible changes, but it is marked
+as experimental, so the perl5 implementation can eventually be
+improved, and our changes are not incompatible.
 
 =over
 
@@ -174,16 +190,6 @@ where the C<:int> is optional. C<:-unsigned> would mean C<:int> then,
 return a signed int.  C<:unsigned> could also be no coretype, just a
 hint for C<:int>, and without C<:int> it will just be an attribute,
 not a strictly checked coretype. This decision is still open.
-
-=item Add :pure subroutines
-
-You can flag a function as purely functional, without any
-side-effects, to allow further compiler optimizations.  Note that pure
-functions may throw, but may not access globals or do IO.
-
-A pure function only reacts to its input arguments and will always
-return the same value with the same arguments, thus can be safely
-memoized or constant-folded.
 
 =item Add call by-ref via \$arg
 
@@ -256,6 +262,17 @@ argument is used as default invocant argument name, which can be overridden
 via the C<($class: $args,...)> colon syntax.
 
     sub adder ($a) :method { $self->{add} + $a; }
+
+=item Add :pure attribute for subroutines
+
+You can flag a function as purely functional, without any
+side-effects, to allow further compiler optimizations.  Note that pure
+functions may throw, but may not access globals or do IO.
+
+A pure function only reacts to its input arguments and will always
+return the same value with the same arguments, thus can be safely
+memoized or constant-folded or inlined without having to embed them
+into ENTER/LEAVE blocks.
 
 =item Parse signatures with the parser, not undocumented functions
 
@@ -367,7 +384,7 @@ We are also now able to do constant-folding on subroutine bodies, to
 either inline the body into the caller or replace the body with a
 constant.
 
-=head2 Undo support for binary names
+=head2 Undo support for binary names (maybe)
 
 By announcing unicode support for names p5p silently allowed C<\0>
 inside names, which they called an advantage by supporting now binary
@@ -399,7 +416,7 @@ vehemently against this change.
 =head2 strict names
 
 With C<use strict "names"> we do not accept unparsable symbols created
-from strings.  this is a new run-time error for use strict.
+from strings.  This is a new run-time error for use strict.
 
 There's currently no room for an explicit C<use strict 'names'> hint
 due to a bad strict implementation. But later when we freed some
@@ -409,7 +426,7 @@ C<PL_hint> bits to hold strict defaults we can add support for that.
 
 Reject confusables as described in TR39. Theoretically this can be
 added with L</"strict names"> only, but since this is only dangerous since
-5.16 we can just throw a syntax error by default as in other languages
+v5.16 we can just throw a syntax error by default as in other languages
 with proper unicode support. (I<Java>)
 
 The compiler had to add this warning since 5.16:
@@ -421,7 +438,7 @@ I<See> L<http://websec.github.io/unicode-security-guide/>.
 I<Check your code for syntax spoofs, confusables, strip \0 from package names>
 I<and enable use warnings 'syscalls'>.
 
-=head2 Undo the double readonly system
+=head2 Undo the double readonly system (maybe)
 
 In order to support Hash unlock code, i.e. undoing readonly setting of
 hash values, p5p added a second readonly bit for special values which
@@ -450,6 +467,10 @@ developers.  We properly analyzed many hash functions and hash tables,
 for security and speed. The fastest, FNV1a, was the one the fellow
 developer schmorp choose I<by his guts> in his stableperl fork.
 
+Provide a Configure argument to define the hash function: -Dhash_func=FNV1A
+
+Make the load factor definable, and change the default from 100% to 90%.
+
 Use cache-friendly open addressing, not simple, slow and DOS'able
 (i.e. insecure) linked lists. Fix the "security issues", i.e. denial
 of service issues properly.
@@ -465,8 +486,8 @@ optimizations on non-const hashes to allow faster key access.
 C<CHECK_SCALAR_ATTRIBUTES> (for C<:const>, C<:int>, C<:num>, C<:str>)
 This is basically a read-only C<MODIFY_*_ATTRIBUTES> hook at
 compile-time with a better name to disassociate from the run-time
-check of C<FETCH_*_ATTRIBUTES> with C<my> lexicals.  See also L</"Rewrite
-critical core modules in C as builtins"> below.
+check of C<FETCH_*_ATTRIBUTES> with C<my> lexicals.  See also
+L</"Rewrite critical core modules in C as builtins"> below.
 
 =head2 coretypes: Int, UInt, Num, Str
 
@@ -478,13 +499,18 @@ combinations with C<Undef>. Type combination are done via C<@ISA>, i.e.
 Our coretypes and its members are readonly.  Provide fast ops variants
 for these types to omit type checks and magic calls at run-time.
 Scalars declared as C<Int>, C<Uint>, C<Num>, C<Str> cannot hold magic
-associations, such as C<tie>.  With a jit only these will benefit from
-a jit.
+associations, such as C<tie>.  With a jit mostly these types will benefit.
 
 We also enabled the C<:const> attribute for all data: scalar, arrays,
 hash, functions, packages+classes. C<:const> hashes should of course
 be perfect, i.e. optimized to constant-time lookup, eliminating hash
 collisions.
+
+At compile-time all UNOP's and BINOP's are promoted from the generic
+ops to more specific typed ops, similar to C<use integer>. But use
+integer does not know the types of the variables at compile-time, many
+ops are only dispatched at run-time.
+See e.g. L</"negative integer modulo">.
 
 See L<perltypes/"coretypes"> and L<perldata/"Constant and typed lexical variables">.
 
@@ -497,6 +523,12 @@ optimizations to direct unboxed values on the stack, which are not
 reference counted, and cannot be used across function calls. They are
 only safe to use within certain op sequences, and those optimizations
 are done automatically.
+
+Unlike all other types native types are only hints, not promises. The
+compiler promotes data and code to native types only if its sees fit.
+
+For the FFI we will also provide FFI-specific native types, like
+int32, int64, uint32, uint64 and ptr.
 
 See L<perltypes/native types>.
 
@@ -526,12 +558,19 @@ cooperating editor. e.g.
     my int $n :const = 1000;
     for (my int $i=0; $i<$n; $i++) { }
 
-B<Note>: When in doubt leave out types. If the inferer cannot find it, it
-might not be worth the trouble. But for hot code always use types, as
-compile-time types prevent from costly run-time checks for types and
-magic hooks.
+B<Note>: When in doubt leave out types. If the inferer cannot find it,
+it might not be worth the trouble. But for hot code and to be precise
+always use types, as compile-time types prevent from costly run-time
+checks for types and magic hooks.
 
-B<Builtin types> are the coretypes Int, Num, Str, UInt, ?Int, ?Num, ?Str.
+B<Builtin types> are the coretypes Int, Num, Str, UInt, ?Int, ?Num, ?Str
+and for builtin op-dispatch: Void int uint num str Int UInt Num Str
+Bool Numeric Scalar Ref Sub Array Hash List Any, with
+a C<?> prefix denoting C<| Undef> I<"or undef">, a C<?> suffix
+optional, and for aggregate types using C<()> brackets, like C<:Array(:Int)>.
+
+Status: User code in pure perl or XS is currently not typed-checked nor
+inferred, only internal code.
 
 =head2 :const for all
 
@@ -544,13 +583,11 @@ See L<perltypes/:const>.
 
 =head2 Compile-time optimizations
 
-cperl adds many more traditional compile-time optimizations: type
-optimizations, shaped arrays, usage of constants, loop unrolling,
-omit unnecessary bounds checks, function inlining, and the change of
-compile-time static method calls, determined either by name or by type
-and const-ness of all searched packages to static function calls.
-Thus the dynamic method search, in which object this method is
-implemented is avoided. This is about ~10% faster.
+cperl adds many more traditional compile-time optimizations: more and
+earlier constant folding, type promotions, shaped arrays, usage of
+literal and typed constants, loop unrolling, omit unnecessary array
+bounds checks, function inlining and conversion of static method calls
+to functions.
 
 Perl 5 only inlines constant function bodies with an explicit empty C<()>
 prototype.
@@ -584,8 +621,8 @@ the loop, even if the array is not explicitly declared as shaped array.
 
 Work is ongoing in loop unrolling, function inlining and speculative
 method inlining, which should speed up run-time performance
-dramatically, and enable new optimizations, which were previously
-stopped on each function call.
+dramatically and enable new optimizations, which were previously
+stopped on each function call border.
 
 Check the new DEBUGGING option C<-Dk> which lists all optimizations
 and checks at compile-time, optionally verbose together with C<-Dkv>.
@@ -598,6 +635,38 @@ and checks at compile-time, optionally verbose together with C<-Dkv>.
 When the method is defined directly in the package, it is not possible
 to inject another package at run-time into the method search, thus the
 method call is optimized to a normal functions call.
+
+=head2 Typed and shaped arrays
+
+Enable faster array access, uniformly typed array values, use less
+memory (cache friendly), help the type system. See L<perltypes>.
+
+Type arrays specify the uniform type of the values. Typed arrays with
+native types use much less memory and provide faster direct access.
+
+Shaped arrays define a compile-time constant "shape", the size, which
+cannot be changed.  All values are pre-initialized. With known indices
+the compiler can omit bounds checks on array accesses.
+
+  my int @a[20];         # or
+  my @a[20] :int;        # or
+  my int[20] $a;         # (probably not), or
+  my int[int] $a[20];    # (probably not), or
+  my @a :int(20);        # (probably not)
+
+  my int %h;             # or
+  my str{int} %h;        # (probably not)
+  my str %a;             # hash with str values only
+  my int %a{20};         # hash with int values only. fixed hash size, no grow on insertion.
+  my str %a{20} :const   # fixed hash size, no grow on insertion, perfect hash (keys may not change, values do).
+     = (...);
+
+No sparse arrays (i.e. hash with int keys) yet. but this would need a
+different declaration syntax if to be supported natively.
+e.g. C<my int{int} %a;> - sparsehash with int keys and int values.
+or C<my %a : hash(int);>
+variant 2: C<my IntSparseHash %a>, which can go with a user class
+and methods, but this will be slow, without native ops.
 
 =head2 Rewrite critical core modules in C as builtins
 
@@ -686,6 +755,8 @@ implemented as perfect hash, and extended with a normal perl hash.
 Some internal variables are not accessible anymore, the API is via the
 documented functions.
 
+Status: 1 scope bug with Carp. Not yet enabled.
+
 =head3 Config as XS extension
 
 It is compiled as shared library, with all keys as readonly perfect
@@ -703,36 +774,6 @@ i.e. they cannot be changed later. This enables the compiler to inline
 them automatically when its worthwhile. e.g. when they are small
 enough.  They are either defined in the new style: C<class .. { my
 method .. }> or old style: C<package .. { my sub .. }>
-
-
-Since all this implementation blockage is too heavy, all the
-decade-long planned features could not go forward, and p5p not only
-forgot about it, they argue now against going forward.
-
-=head2 Typed and sized arrays
-
-Enable faster array access, uniformly typed array values, use less
-memory (cache friendly), help the type system. See L<perltypes>.
-
-  my int @a[20];         # or
-  my @a[20] :int;        # or
-  my int[20] $a;         # (probably not), or
-  my int[int] $a[20];    # (probably not), or
-  my @a :int(20);        # (probably not)
-
-  my int %h;             # or
-  my str{int} %h;        # (probably not)
-  my str %a;             # hash with str values only
-  my int %a{20};         # hash with int values only. fixed hash size, no grow on insertion.
-  my str %a{20} :const   # fixed hash size, no grow on insertion, perfect hash (keys may not change, values do).
-     = (...);
-
-No sparse arrays (i.e. hash with int keys) yet. but this would need a
-different declaration syntax if to be supported natively.
-e.g. C<my int{int} %a;> - sparsehash with int keys and int values.
-or C<my %a : hash(int);>
-variant 2: C<my IntSparseHash %a>, which can go with a user class
-and methods, but this will be slow, without native ops.
 
 =head3 Carp 2.00c as builtin
 
