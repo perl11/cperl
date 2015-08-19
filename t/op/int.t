@@ -22,7 +22,8 @@ $x = 1.234;
 cmp_ok(int($x), '==', 1, 'run time evaluation 1');
 cmp_ok(int(-$x), '==', -1, 'run time evaluation -1');
 
-$x = length("abc") % -10;
+$y = -10; # avoid cperl-like i_modulo promotion via constant folding
+$x = length("abc") % $y;
 cmp_ok($x, '==', -7, 'subtract from string length');
 
 {
