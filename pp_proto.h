@@ -310,6 +310,7 @@ PERL_CALLCONV OP *Perl_pp_time(pTHX);
 PERL_CALLCONV OP *Perl_pp_tms(pTHX);
 PERL_CALLCONV OP *Perl_pp_trans(pTHX);
 PERL_CALLCONV OP *Perl_pp_truncate(pTHX);
+PERL_CALLCONV OP *Perl_pp_u_add(pTHX);
 PERL_CALLCONV OP *Perl_pp_uc(pTHX);
 PERL_CALLCONV OP *Perl_pp_ucfirst(pTHX);
 PERL_CALLCONV OP *Perl_pp_uint_complement(pTHX);
