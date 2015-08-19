@@ -7,7 +7,7 @@ BEGIN {
 }
 
 use coretypes;
-plan 16;
+plan 18;
 
 # native or coretypes. the result should be the same
 my int $x = 4;
@@ -23,8 +23,10 @@ is($z, -1, "i_subtract");
 $z = $x * $y;
 is($z, 20, "i_multiply");
 
-$z = $x / $y;
-is($z, 0, "i_divide");
+is($x / $y, 0.8, "divide (special case)");
+is(4 / 5, 0.8, "divide (special case)");
+$z = 4 / 5; # but z is int type, so use i_divide
+ok($z == 0, "i_divide (result must be int, cheating using i_eq)");
 
 $z = $x % $y;
 is($z, 4, "i_modulo");

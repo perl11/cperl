@@ -12383,6 +12383,11 @@ Perl_ck_type(pTHX_ OP *o)
                     DEBUG_k(Perl_deb(aTHX_ "match: %s %s <=> %s %s\n", PL_op_name[typ], PL_op_type_str[typ],
                                 PL_op_name[v], PL_op_type_str[v]));
                     if (match_type2(n2 & 0xffffff00, type1, type2)) {
+                        /* Exception: Even if both / operands are int do not use intdiv.
+                           TODO: Only if the lhs result needs to be int. But this needs
+                           to be decided in the type checker in rpeep later. */
+                        if (typ == OP_DIVIDE && v == OP_I_DIVIDE)
+                            return o;
                         DEBUG_kv(Perl_deb(aTHX_ "%s (:%s,:%s) => %s %s\n", PL_op_name[typ],
                                           core_type_name(type1), core_type_name(type2),
                                           PL_op_name[v], PL_op_type_str[v]));
