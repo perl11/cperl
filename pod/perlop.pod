@@ -310,27 +310,36 @@ X</> X<slash>
 
 Binary C<"%"> is the modulo operator, which computes the division
 remainder of its first argument with respect to its second argument.
-Given integer
-operands C<$m> and C<$n>: If C<$n> is positive, then S<C<$m % $n>> is
-C<$m> minus the largest multiple of C<$n> less than or equal to
-C<$m>.  If C<$n> is negative, then S<C<$m % $n>> is C<$m> minus the
+Given integer operands C<$m> and C<$n>: If C<$n> is positive, then
+S<C<$m % $n>> is C<$m> minus the largest multiple of C<$n> less than
+or equal to C<$m>.
+
+In perl5 without C<use integer>, or with C<no integer>:
+If C<$n> is B<negative>, then S<C<$m % $n>> is C<$m> minus the
 smallest multiple of C<$n> that is not less than C<$m> (that is, the
-result will be less than or equal to zero).  If the operands
-C<$m> and C<$n> are floating point values and the absolute value of
-C<$n> (that is C<abs($n)>) is less than S<C<(UV_MAX + 1)>>, only
-the integer portion of C<$m> and C<$n> will be used in the operation
-(Note: here C<UV_MAX> means the maximum of the unsigned integer type).
-If the absolute value of the right operand (C<abs($n)>) is greater than
-or equal to S<C<(UV_MAX + 1)>>, C<"%"> computes the floating-point remainder
-C<$r> in the equation S<C<($r = $m - $i*$n)>> where C<$i> is a certain
-integer that makes C<$r> have the same sign as the right operand
-C<$n> (B<not> as the left operand C<$m> like C function C<fmod()>)
-and the absolute value less than that of C<$n>.
-Note that when S<C<use integer>> is in scope, C<"%"> gives you direct access
-to the modulo operator as implemented by your C compiler.  This
-operator is not as well defined for negative operands, but it will
-execute faster.
-X<%> X<remainder> X<modulo> X<mod>
+result will be less than or equal to zero).
+
+With B<use integer> or with B<cperl> and typed integer variables or
+integer constants the definition of C<"%"> with one negative argument
+is different and behaves like with use integer. It uses the
+implementation from libc.  See L<perlcperl/"negative integer modulo">.
+Use untyped variables and C<no integer> to use the original perl5 definition
+of modulo.
+
+If the operands C<$m> and C<$n> are floating point values and the
+absolute value of C<$n> (that is C<abs($n)>) is less than S<C<(UV_MAX
++ 1)>>, only the integer portion of C<$m> and C<$n> will be used in
+the operation (Note: here C<UV_MAX> means the maximum of the unsigned
+integer type).  If the absolute value of the right operand
+(C<abs($n)>) is greater than or equal to S<C<(UV_MAX + 1)>>, C<"%">
+computes the floating-point remainder C<$r> in the equation S<C<($r =
+$m - $i*$n)>> where C<$i> is a certain integer that makes C<$r> have
+the same sign as the right operand C<$n> (B<not> as the left operand
+C<$m> like C function C<fmod()>) and the absolute value less than that
+of C<$n>.  Note that when S<C<use integer>> is in scope, C<"%"> gives
+you direct access to the modulo operator as implemented by your C
+compiler.  This operator is not as well defined for negative operands,
+but it will execute faster.  X<%> X<remainder> X<modulo> X<mod>
 
 Binary C<"x"> is the repetition operator.  In scalar context or if the left
 operand is not enclosed in parentheses, it returns a string consisting
@@ -348,7 +357,6 @@ X<x>
 
     @ones = (1) x 80;		# a list of 80 1's
     @ones = (5) x @ones;	# set all elements to 5
-
 
 =head2 Additive Operators
 X<operator, additive>

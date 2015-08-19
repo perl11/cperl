@@ -56,14 +56,67 @@ In perl illegal prototypes warn with C<'illegalproto'> and are stored as such.
 In cperl illegal prototypes immediately die, they cannot be suppressed with
 C<no warnings 'illegalproto';> and they are not stored.
 
+Rationale: Illegal prototypes are parsed as signatures. Illegal
+signatures throw a parser error.  The C<'illegalproto'> warning is
+only thrown with explicit extra C<:prototype()> declarations.
+
 =item C<@_> is empty in functions with signatures
 
 We only copy or reference arguments to signature variables, but not to C<@_> also.
 C<@_> is empty when signatures are declared.
 
+Rationale: With signatures copying all values to @_ also leads to
+double copying which is 2x slower. @_ is not needed anymore. Either
+use no signatures to use @_ variables or use sigantures.
+
 =item Empty signature variables C<$> die
 
 Using a bare C<$> sigil signature variable is illegal in cperl, but legal in perl.
+
+Rationale: This clashes with prototypes. A bare C<$> is a prototype
+declaration, not a signature. Use a name in the signature and don't
+use this name in the body to get back to the same behaviour.
+
+=item negative integer modulo
+
+With typed integer variables or integer constants the modulo operator
+in cperl works like with use integer, it uses the libc functionality
+for C<%>; using C<i_modulo> which is different than the generic
+C<modulo> operator.
+
+With perl5 without use integer it uses a different modulo definition:
+I<"If $n is negative, then $m % $n is $m minus the smallest multiple of
+# $n that is not less than $m (that is, the result will be less than
+or equal to zero)"> from L<perlop/#Multiplicative-Operators>
+
+cperl with typed or constanst integers behaves like perl5 with use integer.
+To fall back to the old behavior use untyped variables and no integer.
+
+    perl5:
+    -13 % 4 => 3
+    13 % -4 => -3
+    {
+      use integer;
+      -13 % 4 => -1
+      13 % -4 => 1
+    }
+
+    cperl:
+    -13 % 4 => -1
+    13 % -4 => 1
+
+    # old perl5 behavior:
+    {
+      no integer;
+      ($a,$b) = (-13,4);
+      $a % $b => 3
+    }
+
+Rationale: This is a bad perl5 design. cperl uses proper type dispatch
+and with both integer arguments it promotes the modulo op to i_modulo,
+which behaves differently (or "normally").
+Using extra logic to prevent using the libc implementation also makes
+perl5 C<"%"> slower.
 
 =back
 
