@@ -9,7 +9,7 @@ BEGIN {
 # functions imported from t/test.pl or Test::More, as those programs/libraries
 # use operators which are what is being tested in this file.
 
-print "1..186\n";
+print "1..190\n";
 
 sub try ($$$) {
    print +($_[1] ? "ok" : "not ok"), " $_[0] - $_[2]\n";
@@ -37,10 +37,29 @@ sub tryeq_sloppy ($$$$) {
 }
 
 my $T = 1;
-tryeq $T++,  13 %  4, 1, 'modulo: positive positive';
-tryeq $T++, -13 %  4, 3, 'modulo: negative positive';
-tryeq $T++,  13 % -4, -3, 'modulo: positive negative';
-tryeq $T++, -13 % -4, -1, 'modulo: negative negative';
+tryeq $T++,  13 %  4, 1,  'i_modulo: positive positive';
+tryeq $T++, -13 % -4, -1, 'i_modulo: negative negative';
+# incompatibilty warning with negative args:
+# with use integer % uses the proper libc module function result, without
+# it uses it's own definition of modulo:
+# If $n is negative, then $m % $n is $m minus the smallest multiple of
+# $n that is not less than $m (that is, the result will be less than or equal to zero).
+# with perl5:
+#tryeq $T++, -13 %  4, 3, 'modulo: negative positive (perl5 specific)';
+#tryeq $T++,  13 % -4, -3, 'modulo: positive negative (perl5 specific)';
+# with typed cperl, the int constants promote modulo to i_modulo which uses the libc
+# functionality:
+tryeq $T++, -13 %  4, -1, 'i_modulo: negative positive (cperl specific)';
+tryeq $T++,  13 % -4, 1,  'i_modulo: positive negative (cperl specific)';
+
+my ($a,$b) = (-13, 4);
+tryeq $T++, $a %  $b, 3, 'modulo: negative positive';
+($a,$b) = (13, -4);
+tryeq $T++, $a % $b, -3,  'modulo: positive negative';
+($a,$b) = (13, 4);
+tryeq $T++, $a % $b, 1,  'modulo: positive positive';
+($a,$b) = (-13, -4);
+tryeq $T++, $a % $b, -1,  'modulo: negative negative';
 
 # Give abs() a good work-out before using it in anger
 tryeq $T++, abs(0), 0, 'abs(): 0 0';
@@ -138,7 +157,7 @@ tryeq $T++, 2147483648 - 2147483650, -2, 'UV - UV promote to IV';
 tryeq $T++, 2000000000 - 4000000000, -2000000000, 'IV - UV promote to IV';
 
 # No warnings should appear;
-my $a;
+$a = 0;
 $a += 1;
 tryeq $T++, $a, 1, '+= with positive';
 undef $a;

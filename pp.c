@@ -1546,7 +1546,14 @@ PP(pp_divide)
     }
 }
 
-PP(pp_modulo)
+/* Handles negative integers in perl5 fashion:
+ * If C<$n> is B<negative>, then S<C<$m % $n>> is C<$m> minus the
+ * smallest multiple of C<$n> that is not less than C<$m> (that is, the
+ * result will be less than or equal to zero).
+ * See L<perlop/Multiplicative-Operators>
+ */
+
+PPt(pp_modulo, "(:Numeric,:Numeric):Numeric")
 {
     dSP; dATARGET;
     tryAMAGICbin_MG(modulo_amg, AMGf_assign|AMGf_numeric);
@@ -2609,6 +2616,10 @@ PPt(pp_i_divide, "(:Int,:Int):Int")
       RETURN;
     }
 }
+
+/* Handles negative integers as with use integer or as in the libc.
+ * See L<perlop/Multiplicative-Operators>
+ */
 
 #if defined(__GLIBC__) && IVSIZE == 8 && !defined(PERL_DEBUG_READONLY_OPS) \
     && ( __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 8))
