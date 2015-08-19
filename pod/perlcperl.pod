@@ -136,27 +136,29 @@ C<"%"> slower.
 
 Operations with only literal integers will not overflow to numbers,
 similar to perl5 with use integer.
-Only C<"+"> will try to use UV (an unsigned value) as result, but not
+Only C<"+"> and C<"*"> will try to use UV (an unsigned value) as result, but not
 NV (an inexact number). All other ops besides divide and shift return
 IV (signed integers). Note that even comparison operators are integerized.
 
-    my $uv_max = 1 + 2 * (~0 >> 1); # i_multiply 2 + IV_MAX will create -1
+    my $iv_min = -(~0 >> 1) - 1;   # ok
+    my $iv_min_1 = -(~0 >> 1) - 2; # BUT this overflows
     =>
-    my $uv_max = 1 + 2.0 * (~0 >> 1); # force a number to create UV_MAX
+    my $iv_min_1 = -(~0 >> 1) - 2.0; # avoid overflow
 
     my int $z = 4 / 5; # => number 0.8, violating the type checker
     # but!
     $z == 0; # => TRUE, because lexical int == const int uses i_eq,
              # the integer variant, which integerizes $z to 0
 
-All coretests pass, just F<t/op/inc.t> had to fixed, by enforcing a
-number like above.
+All coretests pass, no tests had to be changed. In practice only compile-time
+constants in the negative IV_MIN to UV_MIN range will need to be fixed.
 
 Rationale: This was the original issue 2002 which disabled automatic
-integerization of all arithmetic ops with constants. C<"+"> is a good
-exception to allow unsigned results (with the new C<u_add> op), but
-all other operations, like C<"*"> need to be preciser when inexact
-numbers are demanded, and return signed integers.
+integerization of all arithmetic ops with constants. C<"+"> and C<"*">
+are a good exceptions to allow unsigned results (with the new C<u_add>
+and C<u_multiply> ops) to create large constants, but all other
+integer operations need to be preciser when inexact numbers are
+demanded, and return signed integers.
 
 Exceptions, keeping the old behaviour:
 Division for two integer constants is an internal exception and
