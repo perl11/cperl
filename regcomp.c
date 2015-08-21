@@ -5109,6 +5109,7 @@ PerlIO_printf(Perl_debug_log, "LHS=%"UVuf" RHS=%"UVuf"\n",
 		    }
 		    break;
 
+                case ANYOFD:
                 case ANYOFL:
                 case ANYOF:
 		    if (flags & SCF_DO_STCLASS_AND)
@@ -14425,7 +14426,9 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
     ret = reganode(pRExC_state,
                    (LOC)
                     ? ANYOFL
-                    : ANYOF,
+                    : (DEPENDS_SEMANTICS)
+                      ? ANYOFD
+                      : ANYOF,
                    0);
 
     if (SIZE_ONLY) {
