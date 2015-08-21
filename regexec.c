@@ -1823,6 +1823,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
     case ANYOFL:
         _CHECK_AND_WARN_PROBLEMATIC_LOCALE;
         /* FALLTHROUGH */
+    case ANYOFD:
     case ANYOF:
         if (utf8_target) {
             REXEC_FBC_UTF8_CLASS_SCAN(
@@ -5740,6 +5741,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 	case ANYOFL:  /*  /[abc]/l      */
             _CHECK_AND_WARN_PROBLEMATIC_LOCALE;
             /* FALLTHROUGH */
+	case ANYOFD:  /*   /[abc]/d       */
 	case ANYOF:  /*   /[abc]/       */
             if (NEXTCHR_IS_EOS)
                 sayNO;
@@ -8254,6 +8256,7 @@ S_regrepeat(pTHX_ regexp *prog, char **startposp, const regnode *p,
     case ANYOFL:
         _CHECK_AND_WARN_PROBLEMATIC_LOCALE;
         /* FALLTHROUGH */
+    case ANYOFD:
     case ANYOF:
 	if (utf8_target) {
 	    while (hardcount < max
