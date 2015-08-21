@@ -6707,7 +6707,7 @@ Perl_yylex(pTHX)
 		    }
 		}
 		else {
-		    rv2cv_op = newOP(OP_PADANY, 0);
+		    rv2cv_op = newPADSVOP(OP_PADANY, 0);
 		    rv2cv_op->op_targ = off;
 		    cv = find_lexical_cv(off);
 		}
@@ -8462,9 +8462,9 @@ S_pending_ident(pTHX)
                 GCC_DIAG_RESTORE;
             }
 
-            pl_yylval.opval = newOP(OP_PADANY, 0); /* this op leaks! */
+            pl_yylval.opval = newPADSVOP(OP_PADANY, 0); /* this op leaks! */
             pl_yylval.opval->op_targ = allocmy(PL_tokenbuf, tokenbuf_len,
-                                                        UTF ? SVf_UTF8 : 0);
+                                               UTF ? SVf_UTF8 : 0);
 	    return PRIVATEREF;
         }
     }
@@ -8497,7 +8497,7 @@ S_pending_ident(pTHX)
                 return WORD;
             }
 
-            pl_yylval.opval = newOP(OP_PADANY, 0);
+            pl_yylval.opval = newPADSVOP(OP_PADANY, 0);
             pl_yylval.opval->op_targ = tmp;
             return PRIVATEREF;
         }
@@ -9763,7 +9763,7 @@ S_scan_inputsymbol(pTHX_ char *start)
 		    goto intro_sym;
 		}
 		else {
-		    OP * const o = newOP(OP_PADSV, 0);
+		    OP * const o = newPADSVOP(OP_PADSV, 0);
 		    o->op_targ = tmp;
 		    PL_lex_op = readline_overriden
 			? (OP*)newUNOP(OP_ENTERSUB, OPf_STACKED,
@@ -11766,8 +11766,8 @@ S_parse_opt_lexvar(pTHX)
     PL_bufptr = s;
     if (d == PL_tokenbuf+1)
 	return NULL;
-    var = newOP(sigil == '$' ? OP_PADSV : sigil == '@' ? OP_PADAV : OP_PADHV,
-		OPf_MOD | (OPpLVAL_INTRO<<8));
+    var = newPADSVOP(sigil == '$' ? OP_PADSV : sigil == '@' ? OP_PADAV : OP_PADHV,
+                  OPf_MOD | (OPpLVAL_INTRO<<8));
     var->op_targ = allocmy(PL_tokenbuf, d - PL_tokenbuf, UTF ? SVf_UTF8 : 0);
     return var;
 }

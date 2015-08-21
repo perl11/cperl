@@ -3040,6 +3040,10 @@ PERL_CALLCONV OP*	Perl_newPADOP(pTHX_ I32 type, I32 flags, SV* sv)
 #define PERL_ARGS_ASSERT_NEWPADOP	\
 	assert(sv)
 
+PERL_CALLCONV OP*	Perl_newPADSVOP(pTHX_ I32 type, I32 flags)
+			__attribute__malloc__
+			__attribute__warn_unused_result__;
+
 PERL_CALLCONV OP*	Perl_newPMOP(pTHX_ I32 type, I32 flags)
 			__attribute__malloc__
 			__attribute__warn_unused_result__;

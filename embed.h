@@ -388,6 +388,7 @@
 #define newPADNAMEouter		Perl_newPADNAMEouter
 #define newPADNAMEpvn		Perl_newPADNAMEpvn
 #define newPADOP(a,b,c)		Perl_newPADOP(aTHX_ a,b,c)
+#define newPADSVOP(a,b)		Perl_newPADSVOP(aTHX_ a,b)
 #define newPMOP(a,b)		Perl_newPMOP(aTHX_ a,b)
 #define newPROG(a)		Perl_newPROG(aTHX_ a)
 #define newPVOP(a,b,c)		Perl_newPVOP(aTHX_ a,b,c)

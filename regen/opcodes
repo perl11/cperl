@@ -11,10 +11,12 @@
 # The classes are:
 # baseop      - 0            unop     - 1            binop      - 2
 # logop       - |            listop   - @            pmop       - /
-# padop/svop  - $            padop    - # (unused)   loop       - {
+# padop/svop  - $            padop    - #            loop       - {
 # baseop/unop - %            loopexop - }            filestatop - -
 # pvop/svop   - "            cop      - ;            methop     - .
 # unop_aux    - +
+
+# padop only exists with threads
 
 # Other options are:
 #   needs stack mark                    - m  (OA_MARK)
@@ -57,11 +59,11 @@ const		constant item		ck_svconst	ps$	S	"():Scalar"
 gvsv		scalar variable		ck_null		ds$	S	"():Scalar"
 gv		glob value		ck_null		ds$	S	"():Scalar"
 gelem		glob elem		ck_null		ds2	S S
-padsv		private variable	ck_pad		ds0		"():Scalar"
-padav		private array		ck_null		d0		"():Array"
-padhv		private hash		ck_null		d0		"():Hash"
+padsv		private variable	ck_pad		ds$		"():Scalar"
+padav		private array		ck_null		d$		"():Array"
+padhv		private hash		ck_null		d$		"():Hash"
 # throws unimplemented op
-padany		private value		ck_null		d0		"():Void"
+padany		private value		ck_null		d$		"():Void"
 
 pushre		push regexp		ck_null		d/
 
@@ -216,10 +218,10 @@ int_const	const native int	ck_null		pi$	I	"():int"
 uint_const	const native uint	ck_null		pi$	I	"():uint"
 str_const	const native str	ck_null		pz$	Z	"():str"
 num_const	const native double	ck_null		pn$	N	"():num"
-int_padsv	lexical native int 	ck_null		pi0	I	"():int"
-uint_padsv	lexical native uint 	ck_null		pi0	I	"():uint"
-str_padsv	lexical native str 	ck_null		pz0	Z	"():str"
-num_padsv	lexical native num 	ck_null		pn0	N	"():num"
+int_padsv	lexical native int 	ck_null		pi$	I	"():int"
+uint_padsv	lexical native uint 	ck_null		pi$	I	"():uint"
+str_padsv	lexical native str 	ck_null		pz$	Z	"():str"
+num_padsv	lexical native num 	ck_null		pn$	N	"():num"
 box_int		box int to IV		ck_null		ps1	I	"(:int):Int"
 box_uint	box uint to UV		ck_null		ps1	I	"(:uint):UInt"
 box_str		box ASCIIZ string to PV	ck_null		ps1	Z	"(:str):Str"

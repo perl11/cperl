@@ -3499,7 +3499,7 @@ S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp)
     /* Build up the real arg-list. */
     stashsv = stash ? newSVhek(HvNAME_HEK(stash)) : &PL_sv_no;
 
-    arg = newOP(OP_PADSV, 0);
+    arg = newPADSVOP(OP_PADSV, 0);
     arg->op_targ = target->op_targ;
     arg = op_prepend_elem(OP_LIST,
 		       newSVOP(OP_CONST, 0, stashsv),
@@ -5916,7 +5916,7 @@ Perl_newDEFSVOP(pTHX)
 	return newSVREF(newGVOP(OP_GV, 0, PL_defgv));
     }
     else {
-	OP * const o = newOP(OP_PADSV, 0);
+	OP * const o = newPADSVOP(OP_PADSV, 0);
 	o->op_targ = offset;
 	return o;
     }
@@ -5973,6 +5973,45 @@ Perl_newUNBOXEDOP(pTHX_ I32 type, I32 flags, const char *data)
     if (PL_opargs[type] & OA_TARGET)
 	svop->op_targ = pad_alloc(type, SVs_PADTMP);
     return CHECKOP(type, svop);
+}
+
+/*
+=for apidoc Am|OP *|newPADSVOP|I32 type|I32 flags
+
+Constructs, checks, and returns an op of any type that involves a
+reference to a pad element.  I<type> is the opcode.  I<flags> gives the
+eight bits of C<op_flags>.  A pad slot is automatically allocated, and
+is populated with I<sv>; this function takes ownership of one reference
+to it.
+
+PADSV were previously constructed with newOP, since they were only base ops,
+without any additional fields. But since padsv holding readonly data are
+converted to CONST ops, we rather reserve one more field for them.
+
+=cut
+*/
+
+OP *
+Perl_newPADSVOP(pTHX_ I32 type, I32 flags)
+{
+    dVAR;
+    SVOP *o;
+
+    assert((type >= OP_PADSV && type <=  OP_PADANY)
+        || (type >= OP_INT_PADSV && type <=  OP_NUM_PADSV)
+	|| type == OP_CUSTOM);
+
+    NewOp(1101, o, 1, SVOP);
+    OpTYPE_set(o, type);
+    o->op_sv = NULL;
+    o->op_next = (OP*)o;
+    o->op_flags = (U8)flags;
+    o->op_private = (U8)(0 | (flags >> 8));
+    if (PL_opargs[type] & OA_RETSCALAR)
+	scalar((OP*)o);
+    if (PL_opargs[type] & OA_TARGET)
+	o->op_targ = pad_alloc(type, SVs_PADTMP);
+    return CHECKOP(type, o);
 }
 
 #ifdef USE_ITHREADS
@@ -10664,9 +10703,9 @@ Perl_ck_sassign(pTHX_ OP *o)
 		&& (kkid->op_private & (OPpLVAL_INTRO|OPpPAD_STATE))
 		    == (OPpLVAL_INTRO|OPpPAD_STATE)) {
 	    const PADOFFSET target = kkid->op_targ;
-	    OP *const other = newOP(OP_PADSV,
+	    OP *const other = newPADSVOP(OP_PADSV,
 				    kkid->op_flags
-				    | ((kkid->op_private & ~OPpLVAL_INTRO) << 8));
+                                      | ((kkid->op_private & ~OPpLVAL_INTRO) << 8));
 	    OP *const first = newOP(OP_NULL, 0);
 	    OP *const nullop =
 		newCONDOP(0, first, o, other);
@@ -11138,11 +11177,18 @@ Perl_ck_sort(pTHX_ OP *o)
 		    kSVOP->op_sv = fq;
 		}
 		else {
-		    OP * const padop = newOP(OP_PADCV, 0);
-		    padop->op_targ = off;
                     /* replace the const op with the pad op */
-                    op_sibling_splice(firstkid, NULL, 1, padop);
+#if 1
+		    OpTYPE_set(kid, OP_PADCV);
+		    kid->op_targ = off;
+		    kid->op_private = 0; /* but keep the flags */
+                    SvREFCNT_dec(kSVOP_sv);
+#else
+		    OP * const padop = newPADSVOP(OP_PADCV, 0);
+		    kid->op_targ = off;
+		    op_sibling_splice(firstkid, NULL, 1, padop);
 		    op_free(kid);
+#endif
 		}
 	    }
 	}
@@ -12330,10 +12376,6 @@ core_types_t S_op_typed(OP* o, bool with_native)
 {
     core_types_t t = type_none;
     OPCODE type = o->op_type;
-    if (type == OP_PADSV) {
-        o = ck_pad(o); /* possibly upgrade it now */
-        type = o->op_type;
-    }
     if (type == OP_CONST) {
         SV* c = cSVOPx(o)->op_sv;
         switch (SvTYPE(c)) {
@@ -12462,7 +12504,7 @@ Perl_ck_pad(pTHX_ OP *o)
                     PadnamePV(pn));
         }
         else {
-            cSVOPx(o)->op_sv = sv;
+            /* Does this padsv have enough room? */
             bool readonly = SvREADONLY(sv);
             bool typed = !!PadnameTYPE(pn);
             /* This const would loose native type info. */
@@ -12514,12 +12556,17 @@ Perl_ck_pad(pTHX_ OP *o)
                     return o;
                 }
             }
-            if ( readonly )
-                OpTYPE_set(o, OP_CONST);
-            if ( readonly || typed ) {
-                DEBUG_k(deb("ck_pad: upgrade padsv to %s\n", OP_NAME(o)));
+            if ( readonly ) {
+                if (OP_TYPE_IS(o, OP_PADSV) && !typed) {
+                    /* Uh, enough room? */
+                    OpTYPE_set(o, OP_CONST);
+                    cSVOPx(o)->op_sv = sv;
+                }
                 pad_swipe(targ, 0);
                 o->op_targ = 0;
+            }
+            if ( readonly || typed ) {
+                DEBUG_k(deb("ck_pad: upgrade padsv to %s\n", OP_NAME(o)));
             }
         }
         DEBUG_k(deb("ck_pad: %s[%s]\n", PL_op_name[o->op_type],
@@ -13569,7 +13616,7 @@ S_op_native_variant(OP* o, core_types_t type1) {
                     if (S_match_type2(n2 & 0xffffff00, type1, type1))
                         return v;
                 }
-                else if (oc == OA_SVOP || oc == OA_PADOP) {
+                else if (oc == OA_SVOP || typ == OP_PADSV) {
                     /* first match our data, if not reject */
                     core_types_t ourt = S_op_typed(o, TRUE);
                     if (type1 != ourt) {
@@ -13673,6 +13720,8 @@ Perl_rpeep(pTHX_ OP *o)
             for (; o2 && ((is_native = TYPE_IS_NATIVE(o2->op_type))
                        || (v = S_op_native_variant(o2, t))); o2=o2->op_next, i++) {
                 if (!is_native) { /* convert it */
+                    if (o2->op_type == OP_PADSV)
+                        o2 = ck_pad(o2);
                     S_op_upgrade_native(o2, v);
                     o->op_opt = 1;
                 }
@@ -13689,7 +13738,7 @@ Perl_rpeep(pTHX_ OP *o)
                     o->op_opt = 1;
                 } else {
                     t = S_op_typed(o2, TRUE);
-                    v = S_op_native_variant(o2, t);
+                    v = S_op_native_variant(o2, t); /* which box */
                     if (!lastnative)
                         lastnative = o;
                     DEBUG_k(deb("native: insert box for %s -> %s\n", OP_NAME(lastnative), o2?OP_NAME(o2):""));

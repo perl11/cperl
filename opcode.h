@@ -3081,10 +3081,10 @@ EXTCONST U32 PL_opargs[] = {
 	0x00016044,	/* gvsv */
 	0x00016044,	/* gv */
 	0x00112044,	/* gelem */
-	0x00000044,	/* padsv */
-	0x00000040,	/* padav */
-	0x00000040,	/* padhv */
-	0x00000040,	/* padany */
+	0x00006044,	/* padsv */
+	0x00006040,	/* padav */
+	0x00006040,	/* padhv */
+	0x00006040,	/* padany */
 	0x00005040,	/* pushre */
 	0x00071044,	/* rv2gv */
 	0x00071044,	/* rv2sv */
@@ -3198,10 +3198,10 @@ EXTCONST U32 PL_opargs[] = {
 	0x00086300,	/* uint_const */
 	0x00096500,	/* str_const */
 	0x000a6900,	/* num_const */
-	0x00080300,	/* int_padsv */
-	0x00080300,	/* uint_padsv */
-	0x00090500,	/* str_padsv */
-	0x000a0900,	/* num_padsv */
+	0x00086300,	/* int_padsv */
+	0x00086300,	/* uint_padsv */
+	0x00096500,	/* str_padsv */
+	0x000a6900,	/* num_padsv */
 	0x00081104,	/* box_int */
 	0x00081104,	/* box_uint */
 	0x00091104,	/* box_str */

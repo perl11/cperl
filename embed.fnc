@@ -1017,6 +1017,7 @@ AMpdan	|PADNAMELIST *|newPADNAMELIST|size_t max
 #ifdef USE_ITHREADS
 Apda	|OP*	|newPADOP	|I32 type|I32 flags|NN SV* sv
 #endif
+Apda	|OP*	|newPADSVOP	|I32 type|I32 flags
 Apda	|OP*	|newPMOP	|I32 type|I32 flags
 Apda	|OP*	|newPVOP	|I32 type|I32 flags|NULLOK char* pv
 Apa	|SV*	|newRV		|NN SV *const sv
