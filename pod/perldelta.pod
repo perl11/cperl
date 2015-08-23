@@ -107,6 +107,15 @@ C<errno>, C<status>, C<uid>, C<pid>, C<addr> and C<band> fields are now
 included in the hash passed to the handler, if supported by the
 platform.
 
+=head2 C<qr/(?[ ])/> now works in UTF-8 locales
+
+L<Extended Bracketed Character Classes|perlrecharclass/Extended Bracketed Character Classes>
+now will successfully compile when S<C<use locale>> is in effect.  The compiled
+pattern will use standard Unicode rules.  If the runtime locale is not a
+UTF-8 one, a warning is raised and standard Unicode rules are used
+anyway.  No tainting is done since the outcome does not actually depend
+on the locale.
+
 =head1 Security
 
 =head2 Set proper umask before calling C<mkstemp(3)>
