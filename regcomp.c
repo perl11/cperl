@@ -11872,6 +11872,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                        TRUE, /* allow multi-char folds */
                        FALSE, /* don't silence non-portable warnings. */
                        (bool) RExC_strict,
+                       TRUE, /* Allow an optimized regnode result */
                        NULL);
 	if (*RExC_parse != ']') {
 	    RExC_parse = oregcomp_parse;
@@ -12174,6 +12175,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                                          It would be a bug if these returned
                                          non-portables */
                                (bool) RExC_strict,
+                               TRUE, /* Allow an optimized regnode result */
                                NULL);
                 /* regclass() can only return RESTART_UTF8 if multi-char folds
                    are allowed.  */
@@ -13556,6 +13558,7 @@ S_handle_regex_sets(pTHX_ RExC_state_t *pRExC_state, SV** return_invlist,
                                   FALSE, /* don't allow multi-char folds */
                                   TRUE, /* silence non-portable warnings. */
                                   TRUE, /* strict */
+                                  FALSE, /* Require return to be an ANYOF */
                                   &current
                                  ))
                         FAIL2("panic: regclass returned NULL to handle_sets, "
@@ -13811,6 +13814,7 @@ redo_curchar:
                               FALSE, /* don't allow multi-char folds */
                               FALSE, /* don't silence non-portable warnings.  */
                               TRUE,  /* strict */
+                              FALSE, /* Require return to be an ANYOF */
                               &current))
                 {
                     FAIL2("panic: regclass returned NULL to handle_sets, "
@@ -13838,6 +13842,7 @@ redo_curchar:
                              FALSE, /* don't allow multi-char folds */
                              FALSE, /* don't silence non-portable warnings.  */
                              TRUE,   /* strict */
+                             FALSE, /* Require return to be an ANYOF */
                              &current
                             ))
                 {
@@ -14166,6 +14171,7 @@ redo_curchar:
                              well have generated non-portable code points, but
                              they're valid on this machine */
                     FALSE, /* similarly, no need for strict */
+                    FALSE, /* Require return to be an ANYOF */
                     NULL
                 );
     if (!node)
@@ -14326,6 +14332,8 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                                                        about too large
                                                        characters */
                  const bool strict,
+                 const bool optimizable,            /* ? Allow a non-ANYOF return
+                                                       node */
                  SV** ret_invlist  /* Return an inversion list, not a node */
           )
 {
@@ -15520,8 +15528,9 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
      * 2) if the character class contains only a single element (including a
      *    single range), we see if there is an equivalent node for it.
      * Other checks are possible */
-    if (! ret_invlist   /* Can't optimize if returning the constructed
-                           inversion list */
+    if (   optimizable
+        && ! ret_invlist   /* Can't optimize if returning the constructed
+                              inversion list */
         && (UNLIKELY(posixl_matches_all) || element_count == 1))
     {
         U8 op = END;
@@ -16056,7 +16065,8 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
      * be easy, but perhaps too slow, to check any candidates against all the
      * node types they could possibly match using _invlistEQ(). */
 
-    if (cp_list
+    if (   optimizable
+        && cp_list
         && ! invert
         && ! depends_list
         && ! (ANYOF_FLAGS(ret) & (ANYOF_LOCALE_FLAGS))
