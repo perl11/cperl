@@ -26,9 +26,7 @@
 #   make temp copy in list assignment   - d  (OA_DANGEROUS)
 #   uses $_ if no argument given        - u  (OA_DEFGV)
 #   is pure                             - p  (OA_PURE)
-#   produces an unboxed int             - i  (OA_RETINT)
-#   produces an unboxed str             - z  (OA_RETSTR)
-#   produces an unboxed double          - n  (OA_RETDBL) (if IVSIZE==NVSIZE)
+#   has a private boxret bit            - b  (OA_BOXRET)
 
 # Values for the operands are:
 # scalar      - S            list     - L            array     - A
@@ -64,40 +62,6 @@ padhv		private hash		ck_null		d0		"():Hash"
 padany		private value		ck_null		d0		"():Void"
 
 pushre		push regexp		ck_null		d/
-
-# References and stuff.
-
-rv2gv		ref-to-glob cast	ck_rvconst	ds1	R	"(:Ref):Scalar"
-rv2sv		scalar dereference	ck_rvconst	ds1	R	"(:Ref):Scalar"
-av2arylen	array length		ck_null		is1	A	"(:Array):Int"
-rv2cv		subroutine dereference	ck_rvconst	d1	R	"(:Ref):Sub"
-anoncode	anonymous subroutine	ck_anoncode	s$	S
-prototype	subroutine prototype	ck_prototype	su%	S?
-refgen		reference constructor	ck_spair	m1	L
-srefgen		single ref constructor	ck_null		fs1	S
-ref		reference-type operator	ck_fun		stu%	S?
-bless		bless			ck_fun		s@	S S?
-
-# Pushy I/O.
-
-backtick	quoted execution (``, qx)	ck_backtick	tu%	S?
-# glob defaults its first arg to $_
-glob		glob			ck_glob		t@	S?
-readline	<HANDLE>		ck_readline	t%	F?	"(:Scalar):Any"
-rcatline	append I/O operator	ck_null		t$
-
-# Bindable operators.
-
-regcmaybe	regexp internal guard	ck_fun		ps1	S	"():Void"
-regcreset	regexp internal reset	ck_fun		s1	S
-regcomp		regexp compilation	ck_null		s|	S
-match		pattern match (m//)	ck_match	/
-qr		pattern quote (qr//)	ck_match	s/
-subst		substitution (s///)	ck_match	is/	S
-substcont	substitution iterator	ck_null		is|	
-trans		transliteration (tr///)	ck_match	is"	S
-# y///r
-transr		transliteration (tr///)	ck_match	is"	S
 
 # Lvalue operators.
 
@@ -215,47 +179,81 @@ box_int		box int to IV		ck_null		ps1	I	"(:int):Int"
 box_uint	box uint to UV		ck_null		ps1	I	"(:uint):UInt"
 box_str		box ASCIIZ string to PV	ck_null		ps1	Z	"(:str):Str"
 box_num		box double to NV	ck_null		ps1	N	"(:num):Num"
-unbox_int	unbox IV to int		ck_null		pi1	S	"(:Int):int"
-unbox_uint	unbox IV/UV to uint	ck_null		pi1	S	"(:Int):uint"
-unbox_str	unbox PV to ASCIIZ	ck_null		pz1	S	"(:Str):str"
-unbox_num	unbox NV to double	ck_null		pn1	S	"(:Num):num"
-uint_left_shift	unboxed shift left (<<) ck_bitop	pfi2	I I	"(:uint,:int):uint"
-uint_right_shift unboxed shift right (>>) ck_bitop	pfi2	I I	"(:uint,:int):uint"
-uint_pow	unboxed int exp (**)	 ck_null	pfi2	I I	"(:uint,:int):uint"
-uint_complement	unboxed 1's complement (~) ck_bitop	pfi1	I	"(:uint):uint"
-int_preinc	unboxed preincrement (++)  ck_lfun	i1	I	"(:int):int"
-int_predec	unboxed predecrement (--)  ck_lfun	i1	I	"(:int):int"
-int_postinc	unboxed postincrement (++) ck_lfun	i1	I	"(:int):int"
-int_postdec	unboxed postdecrement (--) ck_lfun	i1	I	"(:int):int"
+unbox_int	unbox IV to int		ck_null		p1	S	"(:Int):int"
+unbox_uint	unbox IV/UV to uint	ck_null		p1	S	"(:Int):uint"
+unbox_str	unbox PV to ASCIIZ	ck_null		p1	S	"(:Str):str"
+unbox_num	unbox NV to double	ck_null		p1	S	"(:Num):num"
+uint_left_shift	unboxed shift left (<<) ck_bitop	pfb2	I I	"(:uint,:int):uint"
+uint_right_shift unboxed shift right (>>) ck_bitop	pfb2	I I	"(:uint,:int):uint"
+uint_pow	unboxed int exp (**)	 ck_null	pfb2	I I	"(:uint,:int):uint"
+uint_complement	unboxed 1's complement (~) ck_bitop	pfb1	I	"(:uint):uint"
+int_preinc	unboxed preincrement (++)  ck_lfun	b1	I	"(:int):int"
+int_predec	unboxed predecrement (--)  ck_lfun	b1	I	"(:int):int"
+int_postinc	unboxed postincrement (++) ck_lfun	b1	I	"(:int):int"
+int_postdec	unboxed postdecrement (--) ck_lfun	b1	I	"(:int):int"
 int_add		unboxed addition (+)	ck_null		pif2	I I	"(:int,:int):int"
-int_subtract	unboxed subtraction (-)	ck_null		pif2	I I	"(:int,:int):int"
-int_multiply	unboxed multiplication (*) ck_null	pif2	I I	"(:int,:int):int"
-int_divide	unboxed division (/)	ck_null		pif2	I I	"(:int,:int):int"
-int_modulo	unboxed modulus (%)	ck_null		pif2	I I	"(:int,:int):int"
-int_negate	unboxed negation (-)	ck_null		pif1	I	"(:int):int"
-int_not		unboxed integer not	ck_null		pif1	I	"(:int):int"
-int_abs		unboxed abs		ck_fun		pif1	I	"(:int):int"
-int_lt		unboxed integer lt (<)	ck_cmp		pif2	I I	"(:int,:int):int"
-int_gt		unboxed integer gt (>)	ck_cmp		pif2	I I	"(:int,:int):int"
-int_le		unboxed integer le (<=)	ck_cmp		pif2	I I	"(:int,:int):int"
-int_ge		unboxed integer ge (>=)	ck_cmp		pif2	I I	"(:int,:int):int"
-int_eq		unboxed integer eq (==)	ck_null		pif2	I I	"(:int,:int):int"
+int_subtract	unboxed subtraction (-)	ck_null		pbf2	I I	"(:int,:int):int"
+int_multiply	unboxed multiplication (*) ck_null	pbf2	I I	"(:int,:int):int"
+int_divide	unboxed division (/)	ck_null		pbf2	I I	"(:int,:int):int"
+int_modulo	unboxed modulus (%)	ck_null		pbf2	I I	"(:int,:int):int"
+int_negate	unboxed negation (-)	ck_null		pbf1	I	"(:int):int"
+int_not		unboxed integer not	ck_null		pbf1	I	"(:int):int"
+int_abs		unboxed abs		ck_fun		pbf1	I	"(:int):int"
+int_lt		unboxed integer lt (<)	ck_cmp		pbf2	I I	"(:int,:int):int"
+int_gt		unboxed integer gt (>)	ck_cmp		pbf2	I I	"(:int,:int):int"
+int_le		unboxed integer le (<=)	ck_cmp		pbf2	I I	"(:int,:int):int"
+int_ge		unboxed integer ge (>=)	ck_cmp		pbf2	I I	"(:int,:int):int"
+int_eq		unboxed integer eq (==)	ck_null		pbf2	I I	"(:int,:int):int"
 int_ne		unboxed integer ne (!=)	ck_null		pif2	I I	"(:int,:int):int"
 
-num_add		unboxed num addition (+)	ck_null	pnf2	N N	"(:num,:num):num"
-num_subtract	unboxed num subtraction (-)	ck_null	pnf2	N N	"(:num,:num):num"
-num_multiply	unboxed num multiplication (*)	ck_null	pnf2	N N	"(:num,:num):num"
-num_divide	unboxed num division (/)	ck_null	pnf2	N N	"(:num,:num):num"
-num_atan2	unboxed num atan2		ck_fun	pnf2	N N	"(:num,:num):num"
-num_pow		unboxed exponentiation (**)	ck_null	pnf2	N N	"(:num,:num):num"
-num_sin		unboxed num sin			ck_fun	pnf1	N	"(:num):num"
-num_cos		unboxed num cos			ck_fun	pnf1	N	"(:num):num"
-num_exp		unboxed num exp			ck_fun	pnf1	N	"(:num):num"
-num_log		unboxed num log			ck_fun	pnf1	N	"(:num):num"
-num_sqrt	unboxed num sqrt		ck_fun	pnf1	N	"(:num):num"
+num_add		unboxed num addition (+)	ck_null	pbf2	N N	"(:num,:num):num"
+num_subtract	unboxed num subtraction (-)	ck_null	pbf2	N N	"(:num,:num):num"
+num_multiply	unboxed num multiplication (*)	ck_null	pbf2	N N	"(:num,:num):num"
+num_divide	unboxed num division (/)	ck_null	pbf2	N N	"(:num,:num):num"
+num_atan2	unboxed num atan2		ck_fun	pbf2	N N	"(:num,:num):num"
+num_pow		unboxed exponentiation (**)	ck_null	pbf2	N N	"(:num,:num):num"
+num_sin		unboxed num sin			ck_fun	pbf1	N	"(:num):num"
+num_cos		unboxed num cos			ck_fun	pbf1	N	"(:num):num"
+num_exp		unboxed num exp			ck_fun	pbf1	N	"(:num):num"
+num_log		unboxed num log			ck_fun	pbf1	N	"(:num):num"
+num_sqrt	unboxed num sqrt		ck_fun	pbf1	N	"(:num):num"
 
-#str_concat	unboxed concatenation   ck_concat	pzf2	Z Z	"(:str,:str):str"
-#str_length	unboxed length		ck_length	pfs2	Z       "(:str):Int"
+#str_concat	unboxed concatenation   ck_concat	pbf2	Z Z	"(:str,:str):str"
+#str_length	unboxed length		ck_length	pbf2	Z       "(:str):int"
+
+# References and stuff.
+
+rv2gv		ref-to-glob cast	ck_rvconst	ds1	R	"(:Ref):Scalar"
+rv2sv		scalar dereference	ck_rvconst	ds1	R	"(:Ref):Scalar"
+av2arylen	array length		ck_null		is1	A	"(:Array):Int"
+rv2cv		subroutine dereference	ck_rvconst	d1	R	"(:Ref):Sub"
+anoncode	anonymous subroutine	ck_anoncode	s$	S
+prototype	subroutine prototype	ck_prototype	su%	S?
+refgen		reference constructor	ck_spair	m1	L
+srefgen		single ref constructor	ck_null		fs1	S
+ref		reference-type operator	ck_fun		stu%	S?
+bless		bless			ck_fun		s@	S S?
+
+# Pushy I/O.
+
+backtick	quoted execution (``, qx)	ck_backtick	tu%	S?
+# glob defaults its first arg to $_
+glob		glob			ck_glob		t@	S?
+readline	<HANDLE>		ck_readline	t%	F?	"(:Scalar):Any"
+rcatline	append I/O operator	ck_null		t$
+
+# Bindable operators.
+
+regcmaybe	regexp internal guard	ck_fun		ps1	S	"():Void"
+regcreset	regexp internal reset	ck_fun		s1	S
+regcomp		regexp compilation	ck_null		s|	S
+match		pattern match (m//)	ck_match	/
+qr		pattern quote (qr//)	ck_match	s/
+subst		substitution (s///)	ck_match	is/	S
+substcont	substitution iterator	ck_null		is|	
+trans		transliteration (tr///)	ck_match	is"	S
+# y///r
+transr		transliteration (tr///)	ck_match	is"	S
 
 # String stuff.
 
@@ -286,17 +284,17 @@ aelem		array element		ck_aelem	s2	A S	"(:Array(:Scalar),:Int):Scalar"
 i_aelem		int array element	ck_null		s2	A S	"(:Array(:Int),:Int):Int"
 n_aelem		num array element	ck_null		s2	A S	"(:Array(:Num),:Int):Num"
 s_aelem		str array element	ck_null		s2	A S	"(:Array(:Str),:Int):Str"
-int_aelem	unboxed int array  	ck_null		i2	A I	"(:Array(:int),:int):int"
-num_aelem	unboxed	num array	ck_null		n2	A N	"(:Array(:num),:int):num"
-str_aelem	unboxed str array	ck_null		z2	A Z	"(:Array(:str),:int):str"
+int_aelem	unboxed int array  	ck_null		b2	A I	"(:Array(:int),:int):int"
+num_aelem	unboxed	num array	ck_null		b2	A N	"(:Array(:num),:int):num"
+str_aelem	unboxed str array	ck_null		b2	A Z	"(:Array(:str),:int):str"
 aelemfast_lex_u	unchecked constant aelem ck_null	d0	A S	"():Scalar"
 aelem_u		unchecked aelem		ck_null		s2	A S	"(:Array(:Scalar),:Int):Scalar"
 i_aelem_u	unchecked int aelem 	ck_null		s2	A S	"(:Array(:Int),:Int):Int"
 n_aelem_u	unchecked num aelem 	ck_null		s2	A S	"(:Array(:Num),:Int):Num"
 s_aelem_u	unchecked str aelem 	ck_null		s2	A S	"(:Array(:Str),:Int):Str"
-int_aelem_u	unchecked native int aelem  ck_null	i2	A I	"(:Array(:int),:int):int"
-num_aelem_u	unchecked native num aelem  ck_null	n2	A N	"(:Array(:num),:int):num"
-str_aelem_u	unchecked native str aelem  ck_null	z2	A Z	"(:Array(:str),:int):str"
+int_aelem_u	unchecked native int aelem  ck_null	b2	A I	"(:Array(:int),:int):int"
+num_aelem_u	unchecked native num aelem  ck_null	b2	A N	"(:Array(:num),:int):num"
+str_aelem_u	unchecked native str aelem  ck_null	b2	A Z	"(:Array(:str),:int):str"
 
 aslice		array slice		ck_null		m@	A L
 kvaslice	index/value array slice	ck_null		m@	A L
@@ -317,11 +315,11 @@ helem		hash element		ck_null		s2	H S	"(:Hash(:Scalar)):Scalar"
 #i_helem	int hash		ck_null		s2	H S	"(:Hash(:Int)):Int"
 #n_helem	num hash		ck_null		s2	H S	"(:Hash(:Num)):Num"
 #s_helem	str hash		ck_null		s2	H S	"(:Hash(:Str)):Str"
-#int_helem	unboxed int hash	ck_null		i2	H I	"(:Hash(:int)):int"
-#num_helem	unboxed num hash	ck_null		n2	H N	"(:Hash(:num)):num"
-#str_helem	unboxed str hash	ck_null		z2	H Z	"(:Hash(:str)):str"
-#str_delete	unboxed delete		ck_delete	2	H Z	"(:Hash(:str)):Void"
-#str_exists	unboxed exists		ck_exists	s2	H Z	"(:Hash(:str)):Bool"
+#int_helem	unboxed int hash	ck_null		b2	H I	"(:Hash(:int)):int"
+#num_helem	unboxed num hash	ck_null		b2	H N	"(:Hash(:num)):num"
+#str_helem	unboxed str hash	ck_null		b2	H Z	"(:Hash(:str)):str"
+#str_delete	unboxed delete		ck_delete	b2	H Z	"(:Hash(:str)):Void"
+#str_exists	unboxed exists		ck_exists	bs2	H Z	"(:Hash(:str)):Bool"
 hslice		hash slice		ck_null		m@	H L
 kvhslice	key/value hash slice	ck_null		m@	H L
 

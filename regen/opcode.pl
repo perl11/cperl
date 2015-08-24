@@ -2,8 +2,8 @@
 # 
 # Regenerate (overwriting only if changed):
 #
-#    opcode.h
-#    opnames.h
+#    opcode.h     - initialized structs, see PERL_GLOBAL_STRUCT_INIT
+#    opnames.h    - pure static data
 #    pp_proto.h
 #    lib/B/Op_private.pm
 #
@@ -166,11 +166,14 @@ my @raw_alias = (
 		 Perl_pp_grepstart => ['mapstart'],
 		 Perl_pp_int_preinc => ['int_postinc'],
 		 Perl_pp_int_predec => ['int_postdec'],
-		 Perl_pp_int_aelem => ['num_aelem', 'str_aelem'],
-		 Perl_pp_i_aelem   => ['n_aelem', 's_aelem'],
-		 Perl_pp_aelem_u   => ['i_aelem_u', 'n_aelem_u', 's_aelem_u'],
+		 Perl_pp_int_aelem  => ['num_aelem', 'str_aelem'],
+		 Perl_pp_i_aelem    => ['n_aelem', 's_aelem'],
+		 Perl_pp_aelem_u    => ['i_aelem_u', 'n_aelem_u', 's_aelem_u'],
 		 Perl_pp_int_aelem_u => ['num_aelem_u', 'str_aelem_u'],
-		);
+		 Perl_pp_const       => ['int_const', 'uint_const', 'str_const', 'num_const'],
+		 Perl_pp_int_padsv   => ['uint_padsv', 'str_padsv', 'num_padsv'],
+		 Perl_pp_int_sassign => ['uint_sassign', 'str_sassign', 'num_sassign'],
+  );
 
 # cperl changes: harmonized type prefices, for readable type promotion.
 # not strictly required, but it makes more sense.
@@ -871,6 +874,7 @@ sub print_PL_op_private_tables {
     }
 
     print $fh <<EOF;
+
 START_EXTERN_C
 
 #ifndef PERL_GLOBAL_STRUCT_INIT
@@ -1025,76 +1029,8 @@ print $on "} opcode;\n";
 print $on "\n#define MAXO ", scalar @ops, "\n";
 print $on "#define OP_FREED MAXO\n\n";
 
-print $on <<"END";
-
-/* This encodes the offsets as signed char of the typed variants for each op.
-   The first byte is the number of following bytes, max 8.
-   variants: u_ i_ n_ s_ int_ uint_ num_ str_ */
-#ifndef DOINIT
-EXTCONST char PL_op_type_variants[][8];
-#else
-EXTCONST char PL_op_type_variants[][8] = {
-END
-
-# find typed variants, max 8 bytes
-# puts the number of variants into the first byte.
-$i = 0;
-for my $o (@ops) {
-  my (@a, @s);
-  my $type = $type{$o};
-  my $found;
-  my $op = $opnum{$o};
-  printf $on "\t/* %3d %-16s */ {", $i, $o;
-  my $s = "";
-  for my $p (qw(u_ i_ n_ s_ int_ uint_ num_ str_)) {
-    # encode the distance as signed byte (-127 + 128)
-    if (exists $opnum{$p.$o}) {
-      my $diff = $opnum{$p.$o} - $op;
-      warn $diff, $o if $diff < 0; # but we dont want to encode negative signed chars
-      push @a, "$p$o:".$opnum{$p.$o};
-      push @s, $diff < 0 ? $diff + 128 : $diff;
-      $found++;
-    } elsif ($o =~ /^(u|i|n|s)_/ and $p !~ /^(?:u|i|n|s)_/) {
-      my $s = substr($o, 2);
-      my $i1 = $1;
-      # forbid n => int but allow int => uint and i => uint
-      if (exists $opnum{$p.$s} and
-          (($i1 eq 'i' and $p =~ /^[iu]i?nt_/)
-          or
-          ($i1 ne 'i' and $p =~ /^$i1.._/)))
-      {
-        my $diff = $opnum{$p.$s} - $op;
-        warn $diff, $o if $diff < 0;
-        push @a, "$p$s:".$opnum{$p.$s};
-        push @s, $diff < 0 ? $diff + 128 : $diff;
-        $found++;
-      }
-    }
-  }
-  unshift @s, scalar(@s);
-  print $on join(",",@s);
-  print $on "},\t/* @a */\n";
-  $i++;
-}
-print $on <<"END";
-	/* $i: freed */	{ NULL }
-};
-#endif
-END
-
-print $on <<'END';
-
-#define NUM_OP_TYPE_VARIANTS(op) PL_op_type_variants[op][0]
-
-/* for 1 to num */
-#define OP_TYPE_VARIANT(op, _j) \
-  (PL_op_type_variants[(op)][(_j)] \
-    ? (op) + PL_op_type_variants[(op)][(_j)] \
-    : 0)
-
-END
-
 print $oc <<'END';
+
 START_EXTERN_C
 
 #ifndef DOINIT
@@ -1180,8 +1116,7 @@ for (@ops) {
 print $oc <<"END";
 	\"\",	/* $i: freed */
 };
-
-#endif
+#endif /* !PERL_IN_OP_C */
 
 END
 
@@ -1282,14 +1217,109 @@ print $oc <<"END";
 };
 #endif
 
+END
+
+print $oc <<"END";
+
+/* This encodes the offsets as signed char of the typed variants for each op.
+ * The first byte is the number of following bytes, max 8.
+ * variants: u_ i_ n_ s_ int_ uint_ num_ str_
+ * Note that currently only forward types to upgrade to are stored, no negative offsets
+ * for downgrading types.
+ */
+#ifndef DOINIT
+EXTCONST signed char PL_op_type_variants[][8];
+#else
+EXTCONST signed char PL_op_type_variants[][8] = {
+END
+
+# find typed variants, max 8 bytes
+# puts the number of variants into the first byte.
+# also adds negative offsets for each downgrading variant
+$i = 0;
+for my $o (@ops) {
+  my (@a, @s);
+  my $type = $type{$o};
+  my $found;
+  my $op = $opnum{$o};
+  printf $oc "\t/* %3d %-16s */ {", $i, $o;
+  my $s = "";
+  for my $p (qw(u_ i_ n_ s_ int_ uint_ num_ str_)) {
+    # encode the distance as signed byte (-127 + 128)
+    # positive to upgrade, negative to downgrade.
+    # upgrade to typed
+    if (exists $opnum{$p.$o}) {
+      my $diff = $opnum{$p.$o} - $op;
+      die "$p$o\[$opnum{$p.$o}] .. $o\[$op]: 0>$diff>128 too far away, 0-127." if $diff < 0 or $diff > 127;
+      push @a, "$p$o:".$opnum{$p.$o};
+      push @s, $diff;
+      $found++;
+    # upgrade typed to native
+    } elsif ($o =~ /^(u|i|n|s)_/ and $p !~ /^(?:u|i|n|s)_/) {
+      my $s = substr($o, 2);
+      my $i1 = $1;
+      # forbid n => int but allow int => uint and i => uint
+      if (exists $opnum{$p.$s} and
+          (($i1 eq 'i' and $p =~ /^[iu]i?nt_/)
+          or
+          ($i1 ne 'i' and $p =~ /^$i1.._/)))
+      {
+        my $diff = $opnum{$p.$s} - $op;
+        die "$p$o\[$opnum{$p.$o}] .. $o\[$op]: 0>$diff>128 too far away, 0-127." if $diff < 0 or $diff > 127;
+        push @a, "$p$s:".$opnum{$p.$s};
+        push @s, $diff;
+        $found++;
+      }
+    # downgrade native to typed (or untyped? usually typed is enough)
+    } elsif ($p eq 'u_' and $o =~ /^(?:u?int|str|num)_(.*)$/) { # only the first $p
+      my $b = $1;
+      my $t = substr($o,0,1);
+      if (exists $opnum{$t."_".$b}) {
+        $b = $t."_".$b;
+      } elsif (!exists $opnum{$b}) {
+        die "no base $b for native $o";
+      }
+      my $diff = $opnum{$b} - $op;
+      die "$b\[$opnum{$b}] .. $o\[$op]: -127>$diff>0 too far away, -127-0." if $diff > 0 || $diff < -127;
+      push @a, "$b:".$opnum{$b};
+      push @s, $diff;
+      $found++;
+    }
+  }
+  unshift @s, scalar(@s);
+  print $oc join(",",@s);
+  print $oc "},\t/* @a */\n";
+  $i++;
+}
+print $oc <<"END";
+	/* $i: freed */	{ 0 }
+};
+#endif
+
 END_EXTERN_C
 
 #endif /* !PERL_GLOBAL_STRUCT_INIT */
 END
 
-# Emit ppcode switch array.
-
 print $oc <<'END';
+
+#define NUM_OP_TYPE_VARIANTS(op) PL_op_type_variants[op][0]
+
+/* for 1 to num */
+#define OP_TYPE_VARIANT(op, _j) \
+  (PL_op_type_variants[(op)][(_j)] \
+    ? (op) + PL_op_type_variants[(op)][(_j)] \
+    : 0)
+#define OP_TYPE_UPVARIANT(op, _j) \
+  (PL_op_type_variants[(op)][(_j)] && PL_op_type_variants[(op)][(_j)]>0 \
+    ? (op) + PL_op_type_variants[(op)][(_j)] \
+    : 0)
+#define OP_TYPE_DOWNVARIANT(op, _j) \
+  (PL_op_type_variants[(op)][(_j)] && PL_op_type_variants[(op)][(_j)]<0 \
+    ? (op) + PL_op_type_variants[(op)][(_j)] \
+    : 0)
+
+/* The ppcode switch array */
 
 START_EXTERN_C
 
@@ -1383,7 +1413,7 @@ my %opclass = (
     '@',  4,		# listop
     '/',  5,		# pmop
     '$',  6,		# svop_or_padop
-    '#',  7,		# padop
+    '#',  7,		# padop (unused)
     '"',  8,		# pvop_or_svop
     '{',  9,		# loop
     ';',  10,		# cop
@@ -1394,6 +1424,8 @@ my %opclass = (
     '+',  15,		# unop_aux
 );
 
+# stricter argument types are encoded into PL_op_type, see PL_op_type_str.
+# esp. i to return :Int, and return native types.
 my %opflags = (
     'm' =>   1,		# needs stack mark
     'f' =>   2,		# fold constants
@@ -1405,20 +1437,84 @@ my %opflags = (
     'd' =>  64,		# danger, make temp copy in list assignment
     'u' => 128,		# defaults to $_
     'p' => 256,		# is pure
-    'i' => 512,         # produces an unboxed int or uint
-    'z' => 1024,        # produces an unboxed str
-    'n' => 2048,        # produces an unboxed double (num, only if IVSIZE==NVSIZE)
+    'b' => 512,         # has boxret, can box in the op
 );
 
+my @opflag_names = (
+    'MARK'      => 'm',
+    'FOLDCONST' => 'f',
+    'RETSCALAR' => 's',
+    'TARGET'    => 't',
+    'TARGLEX'   => 'T',
+    'OTHERINT'  => 'I',
+    'DANGEROUS' => 'd',
+    'DEFGV'     => 'u',
+    'PURE'      => 'p',
+    'BOXRET'    => 'b',
+);
+
+my $OCSHIFT = (scalar keys %opflags) - 1; # i is unused
+my $OASHIFT = $OCSHIFT + 4;
+
+print $on <<EOF;
+/* PL_opargs encoding */
+
+/* Lowest $OCSHIFT bits of PL_opargs */
+EOF
+while (@opflag_names) {
+    my $k = shift @opflag_names;
+    my $v = shift @opflag_names;
+    print $on "#define OA_$k\t", $opflags{$v},"\n";
+}
+print $on <<EOF;
+
+/* The next 4 bits ($OCSHIFT..${\($OCSHIFT+3)}) encode op class information */
+#define OCSHIFT $OCSHIFT
+
+/* Each remaining 4bit nybbles of PL_opargs (i.e. bits ${\($OCSHIFT+4)}..${\($OCSHIFT+7)}, ${\($OCSHIFT+8)}..${\($OCSHIFT+11)} etc)
+ * encode the type for each arg */
+#define OASHIFT $OASHIFT
+
+/* arg types */
+#define OA_SCALAR  1
+#define OA_LIST    2
+#define OA_AVREF   3
+#define OA_HVREF   4
+#define OA_CVREF   5
+#define OA_FILEREF 6
+#define OA_SCALARREF 7
+#define OA_OPTIONAL 8
+
+/* 0b0011_1100_0000_0000 / 0xf000 */
+#define OA_CLASS_MASK (0xf << OCSHIFT)
+
+#define OA_BASEOP 	(0 << OCSHIFT)
+#define OA_UNOP 	(1 << OCSHIFT)
+#define OA_BINOP 	(2 << OCSHIFT)
+#define OA_LOGOP 	(3 << OCSHIFT)
+#define OA_LISTOP 	(4 << OCSHIFT)
+#define OA_PMOP 	(5 << OCSHIFT)
+#define OA_SVOP 	(6 << OCSHIFT)
+#define OA_PADOP 	(7 << OCSHIFT)
+#define OA_PVOP_OR_SVOP (8 << OCSHIFT)
+#define OA_LOOP 	(9 << OCSHIFT)
+#define OA_COP 		(10 << OCSHIFT)
+#define OA_BASEOP_OR_UNOP (11 << OCSHIFT)
+#define OA_FILESTATOP 	(12 << OCSHIFT)
+#define OA_LOOPEXOP 	(13 << OCSHIFT)
+#define OA_METHOP 	(14 << OCSHIFT)
+#define OA_UNOP_AUX 	(15 << OCSHIFT)
+
+EOF
+
+my %OP_HAS_BOXRET;	# /b/
+my %OP_HAS_LIST;	# /L/
 my %OP_IS_SOCKET;	# /Fs/
 my %OP_IS_FILETEST;	# /F-/
 my %OP_IS_FT_ACCESS;	# /F-+/
 my %OP_IS_NUMCOMPARE;	# /S</
 my %OP_IS_DIRHOP;	# /Fd/
 my %OP_IS_INFIX_BIT;	# /S\|/
-
-my $OCSHIFT = scalar keys %opflags; # 12
-my $OASHIFT = $OCSHIFT + 4;
 
 for my $op (@ops) {
     my $argsum = 0;
@@ -1428,6 +1524,9 @@ for my $op (@ops) {
 	    die "Flag collision for '$op' ($flags{$op}, $flag)\n"
 		if $argsum & $opflags{$flag};
 	    $argsum |= $opflags{$flag};
+            if ($flag eq 'b') {
+                $OP_HAS_BOXRET{$op} = $opnum{$op};
+            }
 	}
     }
     die qq[Opcode '$op' has no class indicator ($flags{$op} => $flags)\n]
@@ -1449,6 +1548,9 @@ for my $op (@ops) {
 	    $OP_IS_NUMCOMPARE{$op} = $opnum{$op} if $arg =~ s/<//;
 	    $OP_IS_INFIX_BIT {$op} = $opnum{$op} if $arg =~ s/\|//;
 	}
+	elsif ($arg =~ /^L/) {
+            $OP_HAS_LIST{$op} = $opnum{$op};
+        }
 	my $argnum = ($arg =~ s/\?//) ? 8 : 0;
         die "op = $op, arg = $arg does not exist in \%argnum\n"
 	    unless exists $argnum{$arg};
@@ -1476,12 +1578,29 @@ END
 
 print $on <<'EO_OP_IS_COMMENT';
 
-/* the OP_IS_* macros are optimized to a simple range check because
-    all the member OPs are contiguous in regen/opcodes table.
-    opcode.pl verifies the range contiguity, or generates an OR-equals
-    expression */
+#define OpCLASS(oc)      (PL_opargs[(oc)] & OA_CLASS_MASK)
+#define OP_IS_BASEOP(oc) (OpCLASS(oc) == OA_BASEOP || OpCLASS(oc) == OA_BASEOP_OR_UNOP)
+#define OP_IS_UNOP(oc)   (OpCLASS(oc) == OA_UNOP || OpCLASS(oc) == OA_BASEOP_OR_UNOP)
+#define OP_IS_BINOP(oc)  OpCLASS(oc) == OA_BINOP
+#define OP_IS_LOGOP(oc)  OpCLASS(oc) == OA_LOGOP
+#define OP_IS_LISTOP(oc) OpCLASS(oc) == OA_LISTOP
+#define OP_IS_PMOP(oc)   OpCLASS(oc) == OA_PMOP
+#define OP_IS_SVOP(oc)   (OpCLASS(oc) == OA_SVOP || OpCLASS(oc) == OA_PVOP_OR_SVOP)
+#define OP_IS_PADOP(oc)  OpCLASS(oc) == OA_PADOP
+#define OP_IS_LOOP(oc)   OpCLASS(oc) == OA_LOOP
+#define OP_IS_COP(oc)    OpCLASS(oc) == OA_COP
+#define OP_IS_FILESTATOP(oc) OpCLASS(oc) == OA_FILESTATOP
+#define OP_IS_METHOP(oc) OpCLASS(oc) == OA_METHOP
+
+/* The other OP_IS_* macros are optimized to a simple range check because
+   all the member OPs are contiguous in regen/opcodes table.
+   regen/opcode.pl verifies the range contiguity, or generates an OR-equals
+   expression */
 EO_OP_IS_COMMENT
 
+# XXX need to detect two ranges
+#gen_op_is_macro( \%OP_HAS_BOXRET, 'OP_HAS_BOXRET');
+gen_op_is_macro( \%OP_HAS_LIST, 'OP_HAS_LIST');
 gen_op_is_macro( \%OP_IS_SOCKET, 'OP_IS_SOCKET');
 gen_op_is_macro( \%OP_IS_FILETEST, 'OP_IS_FILETEST');
 gen_op_is_macro( \%OP_IS_FT_ACCESS, 'OP_IS_FILETEST_ACCESS');
@@ -1501,18 +1620,18 @@ sub gen_op_is_macro {
 	my $last = pop @rest;	# @rest slurped, get its last
 	die "Invalid range of ops: $first .. $last\n" unless $last;
 
-	print $on "\n#define $macname(op)	\\\n\t(";
+	print $on "\n#define $macname(oc)	\\\n\t(";
 
 	# verify that op-ct matches 1st..last range (and fencepost)
 	# (we know there are no dups)
 	if ( $op_is->{$last} - $op_is->{$first} == scalar @rest + 1) {
 	    # contiguous ops -> optimized version
-	    print $on "(op) >= OP_" . uc($first)
-		. " && (op) <= OP_" . uc($last);
+	    print $on "(oc) >= OP_" . uc($first)
+		. " && (oc) <= OP_" . uc($last);
 	}
 	else {
 	    print $on join(" || \\\n\t ",
-			   map { "(op) == OP_" . uc() } sort keys %$op_is);
+			   map { "(oc) == OP_" . uc() } sort keys %$op_is);
 	}
 	print $on ")\n";
     }

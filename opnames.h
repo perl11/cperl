@@ -28,155 +28,155 @@ typedef enum opcode {
 	OP_PADHV	 = 11,
 	OP_PADANY	 = 12,
 	OP_PUSHRE	 = 13,
-	OP_RV2GV	 = 14,
-	OP_RV2SV	 = 15,
-	OP_AV2ARYLEN	 = 16,
-	OP_RV2CV	 = 17,
-	OP_ANONCODE	 = 18,
-	OP_PROTOTYPE	 = 19,
-	OP_REFGEN	 = 20,
-	OP_SREFGEN	 = 21,
-	OP_REF		 = 22,
-	OP_BLESS	 = 23,
-	OP_BACKTICK	 = 24,
-	OP_GLOB		 = 25,
-	OP_READLINE	 = 26,
-	OP_RCATLINE	 = 27,
-	OP_REGCMAYBE	 = 28,
-	OP_REGCRESET	 = 29,
-	OP_REGCOMP	 = 30,
-	OP_MATCH	 = 31,
-	OP_QR		 = 32,
-	OP_SUBST	 = 33,
-	OP_SUBSTCONT	 = 34,
-	OP_TRANS	 = 35,
-	OP_TRANSR	 = 36,
-	OP_SASSIGN	 = 37,
-	OP_AASSIGN	 = 38,
-	OP_CHOP		 = 39,
-	OP_SCHOP	 = 40,
-	OP_CHOMP	 = 41,
-	OP_SCHOMP	 = 42,
-	OP_DEFINED	 = 43,
-	OP_UNDEF	 = 44,
-	OP_STUDY	 = 45,
-	OP_POS		 = 46,
-	OP_PREINC	 = 47,
-	OP_I_PREINC	 = 48,
-	OP_PREDEC	 = 49,
-	OP_I_PREDEC	 = 50,
-	OP_POSTINC	 = 51,
-	OP_I_POSTINC	 = 52,
-	OP_POSTDEC	 = 53,
-	OP_I_POSTDEC	 = 54,
-	OP_POW		 = 55,
-	OP_MULTIPLY	 = 56,
-	OP_I_MULTIPLY	 = 57,
-	OP_U_MULTIPLY	 = 58,
-	OP_DIVIDE	 = 59,
-	OP_I_DIVIDE	 = 60,
-	OP_MODULO	 = 61,
-	OP_I_MODULO	 = 62,
-	OP_REPEAT	 = 63,
-	OP_ADD		 = 64,
-	OP_I_ADD	 = 65,
-	OP_U_ADD	 = 66,
-	OP_SUBTRACT	 = 67,
-	OP_I_SUBTRACT	 = 68,
-	OP_CONCAT	 = 69,
-	OP_STRINGIFY	 = 70,
-	OP_LEFT_SHIFT	 = 71,
-	OP_RIGHT_SHIFT	 = 72,
-	OP_LT		 = 73,
-	OP_I_LT		 = 74,
-	OP_GT		 = 75,
-	OP_I_GT		 = 76,
-	OP_LE		 = 77,
-	OP_I_LE		 = 78,
-	OP_GE		 = 79,
-	OP_I_GE		 = 80,
-	OP_EQ		 = 81,
-	OP_I_EQ		 = 82,
-	OP_NE		 = 83,
-	OP_I_NE		 = 84,
-	OP_CMP		 = 85,
-	OP_I_CMP	 = 86,
-	OP_S_LT		 = 87,
-	OP_S_GT		 = 88,
-	OP_S_LE		 = 89,
-	OP_S_GE		 = 90,
-	OP_S_EQ		 = 91,
-	OP_S_NE		 = 92,
-	OP_S_CMP	 = 93,
-	OP_BIT_AND	 = 94,
-	OP_BIT_XOR	 = 95,
-	OP_BIT_OR	 = 96,
-	OP_I_BIT_AND	 = 97,
-	OP_I_BIT_XOR	 = 98,
-	OP_I_BIT_OR	 = 99,
-	OP_S_BIT_AND	 = 100,
-	OP_S_BIT_XOR	 = 101,
-	OP_S_BIT_OR	 = 102,
-	OP_NEGATE	 = 103,
-	OP_I_NEGATE	 = 104,
-	OP_NOT		 = 105,
-	OP_COMPLEMENT	 = 106,
-	OP_I_COMPLEMENT	 = 107,
-	OP_S_COMPLEMENT	 = 108,
-	OP_SMARTMATCH	 = 109,
-	OP_ATAN2	 = 110,
-	OP_SIN		 = 111,
-	OP_COS		 = 112,
-	OP_RAND		 = 113,
-	OP_SRAND	 = 114,
-	OP_EXP		 = 115,
-	OP_LOG		 = 116,
-	OP_SQRT		 = 117,
-	OP_INT		 = 118,
-	OP_HEX		 = 119,
-	OP_OCT		 = 120,
-	OP_ABS		 = 121,
-	OP_BOX_INT	 = 122,
-	OP_BOX_UINT	 = 123,
-	OP_BOX_STR	 = 124,
-	OP_BOX_NUM	 = 125,
-	OP_UNBOX_INT	 = 126,
-	OP_UNBOX_UINT	 = 127,
-	OP_UNBOX_STR	 = 128,
-	OP_UNBOX_NUM	 = 129,
-	OP_UINT_LEFT_SHIFT = 130,
-	OP_UINT_RIGHT_SHIFT = 131,
-	OP_UINT_POW	 = 132,
-	OP_UINT_COMPLEMENT = 133,
-	OP_INT_PREINC	 = 134,
-	OP_INT_PREDEC	 = 135,
-	OP_INT_POSTINC	 = 136,
-	OP_INT_POSTDEC	 = 137,
-	OP_INT_ADD	 = 138,
-	OP_INT_SUBTRACT	 = 139,
-	OP_INT_MULTIPLY	 = 140,
-	OP_INT_DIVIDE	 = 141,
-	OP_INT_MODULO	 = 142,
-	OP_INT_NEGATE	 = 143,
-	OP_INT_NOT	 = 144,
-	OP_INT_ABS	 = 145,
-	OP_INT_LT	 = 146,
-	OP_INT_GT	 = 147,
-	OP_INT_LE	 = 148,
-	OP_INT_GE	 = 149,
-	OP_INT_EQ	 = 150,
-	OP_INT_NE	 = 151,
-	OP_NUM_ADD	 = 152,
-	OP_NUM_SUBTRACT	 = 153,
-	OP_NUM_MULTIPLY	 = 154,
-	OP_NUM_DIVIDE	 = 155,
-	OP_NUM_ATAN2	 = 156,
-	OP_NUM_POW	 = 157,
-	OP_NUM_SIN	 = 158,
-	OP_NUM_COS	 = 159,
-	OP_NUM_EXP	 = 160,
-	OP_NUM_LOG	 = 161,
-	OP_NUM_SQRT	 = 162,
+	OP_SASSIGN	 = 14,
+	OP_AASSIGN	 = 15,
+	OP_CHOP		 = 16,
+	OP_SCHOP	 = 17,
+	OP_CHOMP	 = 18,
+	OP_SCHOMP	 = 19,
+	OP_DEFINED	 = 20,
+	OP_UNDEF	 = 21,
+	OP_STUDY	 = 22,
+	OP_POS		 = 23,
+	OP_PREINC	 = 24,
+	OP_I_PREINC	 = 25,
+	OP_PREDEC	 = 26,
+	OP_I_PREDEC	 = 27,
+	OP_POSTINC	 = 28,
+	OP_I_POSTINC	 = 29,
+	OP_POSTDEC	 = 30,
+	OP_I_POSTDEC	 = 31,
+	OP_POW		 = 32,
+	OP_MULTIPLY	 = 33,
+	OP_I_MULTIPLY	 = 34,
+	OP_U_MULTIPLY	 = 35,
+	OP_DIVIDE	 = 36,
+	OP_I_DIVIDE	 = 37,
+	OP_MODULO	 = 38,
+	OP_I_MODULO	 = 39,
+	OP_REPEAT	 = 40,
+	OP_ADD		 = 41,
+	OP_I_ADD	 = 42,
+	OP_U_ADD	 = 43,
+	OP_SUBTRACT	 = 44,
+	OP_I_SUBTRACT	 = 45,
+	OP_CONCAT	 = 46,
+	OP_STRINGIFY	 = 47,
+	OP_LEFT_SHIFT	 = 48,
+	OP_RIGHT_SHIFT	 = 49,
+	OP_LT		 = 50,
+	OP_I_LT		 = 51,
+	OP_GT		 = 52,
+	OP_I_GT		 = 53,
+	OP_LE		 = 54,
+	OP_I_LE		 = 55,
+	OP_GE		 = 56,
+	OP_I_GE		 = 57,
+	OP_EQ		 = 58,
+	OP_I_EQ		 = 59,
+	OP_NE		 = 60,
+	OP_I_NE		 = 61,
+	OP_CMP		 = 62,
+	OP_I_CMP	 = 63,
+	OP_S_LT		 = 64,
+	OP_S_GT		 = 65,
+	OP_S_LE		 = 66,
+	OP_S_GE		 = 67,
+	OP_S_EQ		 = 68,
+	OP_S_NE		 = 69,
+	OP_S_CMP	 = 70,
+	OP_BIT_AND	 = 71,
+	OP_BIT_XOR	 = 72,
+	OP_BIT_OR	 = 73,
+	OP_I_BIT_AND	 = 74,
+	OP_I_BIT_XOR	 = 75,
+	OP_I_BIT_OR	 = 76,
+	OP_S_BIT_AND	 = 77,
+	OP_S_BIT_XOR	 = 78,
+	OP_S_BIT_OR	 = 79,
+	OP_NEGATE	 = 80,
+	OP_I_NEGATE	 = 81,
+	OP_NOT		 = 82,
+	OP_COMPLEMENT	 = 83,
+	OP_I_COMPLEMENT	 = 84,
+	OP_S_COMPLEMENT	 = 85,
+	OP_SMARTMATCH	 = 86,
+	OP_ATAN2	 = 87,
+	OP_SIN		 = 88,
+	OP_COS		 = 89,
+	OP_RAND		 = 90,
+	OP_SRAND	 = 91,
+	OP_EXP		 = 92,
+	OP_LOG		 = 93,
+	OP_SQRT		 = 94,
+	OP_INT		 = 95,
+	OP_HEX		 = 96,
+	OP_OCT		 = 97,
+	OP_ABS		 = 98,
+	OP_BOX_INT	 = 99,
+	OP_BOX_UINT	 = 100,
+	OP_BOX_STR	 = 101,
+	OP_BOX_NUM	 = 102,
+	OP_UNBOX_INT	 = 103,
+	OP_UNBOX_UINT	 = 104,
+	OP_UNBOX_STR	 = 105,
+	OP_UNBOX_NUM	 = 106,
+	OP_UINT_LEFT_SHIFT = 107,
+	OP_UINT_RIGHT_SHIFT = 108,
+	OP_UINT_POW	 = 109,
+	OP_UINT_COMPLEMENT = 110,
+	OP_INT_PREINC	 = 111,
+	OP_INT_PREDEC	 = 112,
+	OP_INT_POSTINC	 = 113,
+	OP_INT_POSTDEC	 = 114,
+	OP_INT_ADD	 = 115,
+	OP_INT_SUBTRACT	 = 116,
+	OP_INT_MULTIPLY	 = 117,
+	OP_INT_DIVIDE	 = 118,
+	OP_INT_MODULO	 = 119,
+	OP_INT_NEGATE	 = 120,
+	OP_INT_NOT	 = 121,
+	OP_INT_ABS	 = 122,
+	OP_INT_LT	 = 123,
+	OP_INT_GT	 = 124,
+	OP_INT_LE	 = 125,
+	OP_INT_GE	 = 126,
+	OP_INT_EQ	 = 127,
+	OP_INT_NE	 = 128,
+	OP_NUM_ADD	 = 129,
+	OP_NUM_SUBTRACT	 = 130,
+	OP_NUM_MULTIPLY	 = 131,
+	OP_NUM_DIVIDE	 = 132,
+	OP_NUM_ATAN2	 = 133,
+	OP_NUM_POW	 = 134,
+	OP_NUM_SIN	 = 135,
+	OP_NUM_COS	 = 136,
+	OP_NUM_EXP	 = 137,
+	OP_NUM_LOG	 = 138,
+	OP_NUM_SQRT	 = 139,
+	OP_RV2GV	 = 140,
+	OP_RV2SV	 = 141,
+	OP_AV2ARYLEN	 = 142,
+	OP_RV2CV	 = 143,
+	OP_ANONCODE	 = 144,
+	OP_PROTOTYPE	 = 145,
+	OP_REFGEN	 = 146,
+	OP_SREFGEN	 = 147,
+	OP_REF		 = 148,
+	OP_BLESS	 = 149,
+	OP_BACKTICK	 = 150,
+	OP_GLOB		 = 151,
+	OP_READLINE	 = 152,
+	OP_RCATLINE	 = 153,
+	OP_REGCMAYBE	 = 154,
+	OP_REGCRESET	 = 155,
+	OP_REGCOMP	 = 156,
+	OP_MATCH	 = 157,
+	OP_QR		 = 158,
+	OP_SUBST	 = 159,
+	OP_SUBSTCONT	 = 160,
+	OP_TRANS	 = 161,
+	OP_TRANSR	 = 162,
 	OP_LENGTH	 = 163,
 	OP_SUBSTR	 = 164,
 	OP_VEC		 = 165,
@@ -474,503 +474,140 @@ typedef enum opcode {
 #define MAXO 454
 #define OP_FREED MAXO
 
+/* PL_opargs encoding */
 
-/* This encodes the offsets as signed char of the typed variants for each op.
-   The first byte is the number of following bytes, max 8.
-   variants: u_ i_ n_ s_ int_ uint_ num_ str_ */
-#ifndef DOINIT
-EXTCONST char PL_op_type_variants[][8];
-#else
-EXTCONST char PL_op_type_variants[][8] = {
-	/*   0 null             */ {0},	/*  */
-	/*   1 stub             */ {0},	/*  */
-	/*   2 scalar           */ {0},	/*  */
-	/*   3 pushmark         */ {0},	/*  */
-	/*   4 wantarray        */ {0},	/*  */
-	/*   5 const            */ {0},	/*  */
-	/*   6 gvsv             */ {0},	/*  */
-	/*   7 gv               */ {0},	/*  */
-	/*   8 gelem            */ {0},	/*  */
-	/*   9 padsv            */ {0},	/*  */
-	/*  10 padav            */ {0},	/*  */
-	/*  11 padhv            */ {0},	/*  */
-	/*  12 padany           */ {0},	/*  */
-	/*  13 pushre           */ {0},	/*  */
-	/*  14 rv2gv            */ {0},	/*  */
-	/*  15 rv2sv            */ {0},	/*  */
-	/*  16 av2arylen        */ {0},	/*  */
-	/*  17 rv2cv            */ {0},	/*  */
-	/*  18 anoncode         */ {0},	/*  */
-	/*  19 prototype        */ {0},	/*  */
-	/*  20 refgen           */ {0},	/*  */
-	/*  21 srefgen          */ {0},	/*  */
-	/*  22 ref              */ {0},	/*  */
-	/*  23 bless            */ {0},	/*  */
-	/*  24 backtick         */ {0},	/*  */
-	/*  25 glob             */ {0},	/*  */
-	/*  26 readline         */ {0},	/*  */
-	/*  27 rcatline         */ {0},	/*  */
-	/*  28 regcmaybe        */ {0},	/*  */
-	/*  29 regcreset        */ {0},	/*  */
-	/*  30 regcomp          */ {0},	/*  */
-	/*  31 match            */ {0},	/*  */
-	/*  32 qr               */ {0},	/*  */
-	/*  33 subst            */ {0},	/*  */
-	/*  34 substcont        */ {0},	/*  */
-	/*  35 trans            */ {0},	/*  */
-	/*  36 transr           */ {0},	/*  */
-	/*  37 sassign          */ {0},	/*  */
-	/*  38 aassign          */ {0},	/*  */
-	/*  39 chop             */ {0},	/*  */
-	/*  40 schop            */ {0},	/*  */
-	/*  41 chomp            */ {0},	/*  */
-	/*  42 schomp           */ {0},	/*  */
-	/*  43 defined          */ {0},	/*  */
-	/*  44 undef            */ {0},	/*  */
-	/*  45 study            */ {0},	/*  */
-	/*  46 pos              */ {0},	/*  */
-	/*  47 preinc           */ {2,1,87},	/* i_preinc:48 int_preinc:134 */
-	/*  48 i_preinc         */ {1,86},	/* int_preinc:134 */
-	/*  49 predec           */ {2,1,86},	/* i_predec:50 int_predec:135 */
-	/*  50 i_predec         */ {1,85},	/* int_predec:135 */
-	/*  51 postinc          */ {2,1,85},	/* i_postinc:52 int_postinc:136 */
-	/*  52 i_postinc        */ {1,84},	/* int_postinc:136 */
-	/*  53 postdec          */ {2,1,84},	/* i_postdec:54 int_postdec:137 */
-	/*  54 i_postdec        */ {1,83},	/* int_postdec:137 */
-	/*  55 pow              */ {2,77,102},	/* uint_pow:132 num_pow:157 */
-	/*  56 multiply         */ {4,2,1,84,98},	/* u_multiply:58 i_multiply:57 int_multiply:140 num_multiply:154 */
-	/*  57 i_multiply       */ {1,83},	/* int_multiply:140 */
-	/*  58 u_multiply       */ {0},	/*  */
-	/*  59 divide           */ {3,1,82,96},	/* i_divide:60 int_divide:141 num_divide:155 */
-	/*  60 i_divide         */ {1,81},	/* int_divide:141 */
-	/*  61 modulo           */ {2,1,81},	/* i_modulo:62 int_modulo:142 */
-	/*  62 i_modulo         */ {1,80},	/* int_modulo:142 */
-	/*  63 repeat           */ {0},	/*  */
-	/*  64 add              */ {4,2,1,74,88},	/* u_add:66 i_add:65 int_add:138 num_add:152 */
-	/*  65 i_add            */ {1,73},	/* int_add:138 */
-	/*  66 u_add            */ {0},	/*  */
-	/*  67 subtract         */ {3,1,72,86},	/* i_subtract:68 int_subtract:139 num_subtract:153 */
-	/*  68 i_subtract       */ {1,71},	/* int_subtract:139 */
-	/*  69 concat           */ {0},	/*  */
-	/*  70 stringify        */ {0},	/*  */
-	/*  71 left_shift       */ {1,59},	/* uint_left_shift:130 */
-	/*  72 right_shift      */ {1,59},	/* uint_right_shift:131 */
-	/*  73 lt               */ {3,1,14,73},	/* i_lt:74 s_lt:87 int_lt:146 */
-	/*  74 i_lt             */ {1,72},	/* int_lt:146 */
-	/*  75 gt               */ {3,1,13,72},	/* i_gt:76 s_gt:88 int_gt:147 */
-	/*  76 i_gt             */ {1,71},	/* int_gt:147 */
-	/*  77 le               */ {3,1,12,71},	/* i_le:78 s_le:89 int_le:148 */
-	/*  78 i_le             */ {1,70},	/* int_le:148 */
-	/*  79 ge               */ {3,1,11,70},	/* i_ge:80 s_ge:90 int_ge:149 */
-	/*  80 i_ge             */ {1,69},	/* int_ge:149 */
-	/*  81 eq               */ {3,1,10,69},	/* i_eq:82 s_eq:91 int_eq:150 */
-	/*  82 i_eq             */ {1,68},	/* int_eq:150 */
-	/*  83 ne               */ {3,1,9,68},	/* i_ne:84 s_ne:92 int_ne:151 */
-	/*  84 i_ne             */ {1,67},	/* int_ne:151 */
-	/*  85 cmp              */ {2,1,8},	/* i_cmp:86 s_cmp:93 */
-	/*  86 i_cmp            */ {0},	/*  */
-	/*  87 s_lt             */ {0},	/*  */
-	/*  88 s_gt             */ {0},	/*  */
-	/*  89 s_le             */ {0},	/*  */
-	/*  90 s_ge             */ {0},	/*  */
-	/*  91 s_eq             */ {0},	/*  */
-	/*  92 s_ne             */ {0},	/*  */
-	/*  93 s_cmp            */ {0},	/*  */
-	/*  94 bit_and          */ {2,3,6},	/* i_bit_and:97 s_bit_and:100 */
-	/*  95 bit_xor          */ {2,3,6},	/* i_bit_xor:98 s_bit_xor:101 */
-	/*  96 bit_or           */ {2,3,6},	/* i_bit_or:99 s_bit_or:102 */
-	/*  97 i_bit_and        */ {0},	/*  */
-	/*  98 i_bit_xor        */ {0},	/*  */
-	/*  99 i_bit_or         */ {0},	/*  */
-	/* 100 s_bit_and        */ {0},	/*  */
-	/* 101 s_bit_xor        */ {0},	/*  */
-	/* 102 s_bit_or         */ {0},	/*  */
-	/* 103 negate           */ {2,1,40},	/* i_negate:104 int_negate:143 */
-	/* 104 i_negate         */ {1,39},	/* int_negate:143 */
-	/* 105 not              */ {1,39},	/* int_not:144 */
-	/* 106 complement       */ {3,1,2,27},	/* i_complement:107 s_complement:108 uint_complement:133 */
-	/* 107 i_complement     */ {1,26},	/* uint_complement:133 */
-	/* 108 s_complement     */ {0},	/*  */
-	/* 109 smartmatch       */ {0},	/*  */
-	/* 110 atan2            */ {1,46},	/* num_atan2:156 */
-	/* 111 sin              */ {1,47},	/* num_sin:158 */
-	/* 112 cos              */ {1,47},	/* num_cos:159 */
-	/* 113 rand             */ {0},	/*  */
-	/* 114 srand            */ {0},	/*  */
-	/* 115 exp              */ {1,45},	/* num_exp:160 */
-	/* 116 log              */ {1,45},	/* num_log:161 */
-	/* 117 sqrt             */ {1,45},	/* num_sqrt:162 */
-	/* 118 int              */ {0},	/*  */
-	/* 119 hex              */ {0},	/*  */
-	/* 120 oct              */ {0},	/*  */
-	/* 121 abs              */ {1,24},	/* int_abs:145 */
-	/* 122 box_int          */ {0},	/*  */
-	/* 123 box_uint         */ {0},	/*  */
-	/* 124 box_str          */ {0},	/*  */
-	/* 125 box_num          */ {0},	/*  */
-	/* 126 unbox_int        */ {0},	/*  */
-	/* 127 unbox_uint       */ {0},	/*  */
-	/* 128 unbox_str        */ {0},	/*  */
-	/* 129 unbox_num        */ {0},	/*  */
-	/* 130 uint_left_shift  */ {0},	/*  */
-	/* 131 uint_right_shift */ {0},	/*  */
-	/* 132 uint_pow         */ {0},	/*  */
-	/* 133 uint_complement  */ {0},	/*  */
-	/* 134 int_preinc       */ {0},	/*  */
-	/* 135 int_predec       */ {0},	/*  */
-	/* 136 int_postinc      */ {0},	/*  */
-	/* 137 int_postdec      */ {0},	/*  */
-	/* 138 int_add          */ {0},	/*  */
-	/* 139 int_subtract     */ {0},	/*  */
-	/* 140 int_multiply     */ {0},	/*  */
-	/* 141 int_divide       */ {0},	/*  */
-	/* 142 int_modulo       */ {0},	/*  */
-	/* 143 int_negate       */ {0},	/*  */
-	/* 144 int_not          */ {0},	/*  */
-	/* 145 int_abs          */ {0},	/*  */
-	/* 146 int_lt           */ {0},	/*  */
-	/* 147 int_gt           */ {0},	/*  */
-	/* 148 int_le           */ {0},	/*  */
-	/* 149 int_ge           */ {0},	/*  */
-	/* 150 int_eq           */ {0},	/*  */
-	/* 151 int_ne           */ {0},	/*  */
-	/* 152 num_add          */ {0},	/*  */
-	/* 153 num_subtract     */ {0},	/*  */
-	/* 154 num_multiply     */ {0},	/*  */
-	/* 155 num_divide       */ {0},	/*  */
-	/* 156 num_atan2        */ {0},	/*  */
-	/* 157 num_pow          */ {0},	/*  */
-	/* 158 num_sin          */ {0},	/*  */
-	/* 159 num_cos          */ {0},	/*  */
-	/* 160 num_exp          */ {0},	/*  */
-	/* 161 num_log          */ {0},	/*  */
-	/* 162 num_sqrt         */ {0},	/*  */
-	/* 163 length           */ {0},	/*  */
-	/* 164 substr           */ {0},	/*  */
-	/* 165 vec              */ {0},	/*  */
-	/* 166 index            */ {0},	/*  */
-	/* 167 rindex           */ {0},	/*  */
-	/* 168 sprintf          */ {0},	/*  */
-	/* 169 formline         */ {0},	/*  */
-	/* 170 ord              */ {0},	/*  */
-	/* 171 chr              */ {0},	/*  */
-	/* 172 crypt            */ {0},	/*  */
-	/* 173 ucfirst          */ {0},	/*  */
-	/* 174 lcfirst          */ {0},	/*  */
-	/* 175 uc               */ {0},	/*  */
-	/* 176 lc               */ {0},	/*  */
-	/* 177 quotemeta        */ {0},	/*  */
-	/* 178 rv2av            */ {0},	/*  */
-	/* 179 aelemfast        */ {0},	/*  */
-	/* 180 aelemfast_lex    */ {0},	/*  */
-	/* 181 aelem            */ {6,1,2,3,4,5,6},	/* i_aelem:182 n_aelem:183 s_aelem:184 int_aelem:185 num_aelem:186 str_aelem:187 */
-	/* 182 i_aelem          */ {1,3},	/* int_aelem:185 */
-	/* 183 n_aelem          */ {1,3},	/* num_aelem:186 */
-	/* 184 s_aelem          */ {1,3},	/* str_aelem:187 */
-	/* 185 int_aelem        */ {0},	/*  */
-	/* 186 num_aelem        */ {0},	/*  */
-	/* 187 str_aelem        */ {0},	/*  */
-	/* 188 aelemfast_lex_u  */ {0},	/*  */
-	/* 189 aelem_u          */ {6,1,2,3,4,5,6},	/* i_aelem_u:190 n_aelem_u:191 s_aelem_u:192 int_aelem_u:193 num_aelem_u:194 str_aelem_u:195 */
-	/* 190 i_aelem_u        */ {1,3},	/* int_aelem_u:193 */
-	/* 191 n_aelem_u        */ {1,3},	/* num_aelem_u:194 */
-	/* 192 s_aelem_u        */ {1,3},	/* str_aelem_u:195 */
-	/* 193 int_aelem_u      */ {0},	/*  */
-	/* 194 num_aelem_u      */ {0},	/*  */
-	/* 195 str_aelem_u      */ {0},	/*  */
-	/* 196 aslice           */ {0},	/*  */
-	/* 197 kvaslice         */ {0},	/*  */
-	/* 198 aeach            */ {0},	/*  */
-	/* 199 akeys            */ {0},	/*  */
-	/* 200 avalues          */ {0},	/*  */
-	/* 201 each             */ {0},	/*  */
-	/* 202 values           */ {0},	/*  */
-	/* 203 keys             */ {0},	/*  */
-	/* 204 delete           */ {0},	/*  */
-	/* 205 exists           */ {0},	/*  */
-	/* 206 rv2hv            */ {0},	/*  */
-	/* 207 helem            */ {0},	/*  */
-	/* 208 hslice           */ {0},	/*  */
-	/* 209 kvhslice         */ {0},	/*  */
-	/* 210 multideref       */ {0},	/*  */
-	/* 211 unpack           */ {0},	/*  */
-	/* 212 pack             */ {0},	/*  */
-	/* 213 split            */ {0},	/*  */
-	/* 214 join             */ {0},	/*  */
-	/* 215 list             */ {0},	/*  */
-	/* 216 lslice           */ {0},	/*  */
-	/* 217 anonlist         */ {0},	/*  */
-	/* 218 anonhash         */ {0},	/*  */
-	/* 219 splice           */ {0},	/*  */
-	/* 220 push             */ {0},	/*  */
-	/* 221 pop              */ {0},	/*  */
-	/* 222 shift            */ {0},	/*  */
-	/* 223 unshift          */ {0},	/*  */
-	/* 224 sort             */ {0},	/*  */
-	/* 225 reverse          */ {0},	/*  */
-	/* 226 grepstart        */ {0},	/*  */
-	/* 227 grepwhile        */ {0},	/*  */
-	/* 228 mapstart         */ {0},	/*  */
-	/* 229 mapwhile         */ {0},	/*  */
-	/* 230 range            */ {0},	/*  */
-	/* 231 flip             */ {0},	/*  */
-	/* 232 flop             */ {0},	/*  */
-	/* 233 and              */ {0},	/*  */
-	/* 234 or               */ {0},	/*  */
-	/* 235 xor              */ {0},	/*  */
-	/* 236 dor              */ {0},	/*  */
-	/* 237 cond_expr        */ {0},	/*  */
-	/* 238 andassign        */ {0},	/*  */
-	/* 239 orassign         */ {0},	/*  */
-	/* 240 dorassign        */ {0},	/*  */
-	/* 241 method           */ {0},	/*  */
-	/* 242 entersub         */ {0},	/*  */
-	/* 243 enterxssub       */ {0},	/*  */
-	/* 244 leavesub         */ {0},	/*  */
-	/* 245 leavesublv       */ {0},	/*  */
-	/* 246 caller           */ {0},	/*  */
-	/* 247 warn             */ {0},	/*  */
-	/* 248 die              */ {0},	/*  */
-	/* 249 reset            */ {0},	/*  */
-	/* 250 lineseq          */ {0},	/*  */
-	/* 251 nextstate        */ {0},	/*  */
-	/* 252 dbstate          */ {0},	/*  */
-	/* 253 unstack          */ {0},	/*  */
-	/* 254 enter            */ {0},	/*  */
-	/* 255 leave            */ {0},	/*  */
-	/* 256 scope            */ {0},	/*  */
-	/* 257 enteriter        */ {0},	/*  */
-	/* 258 iter             */ {0},	/*  */
-	/* 259 enterloop        */ {0},	/*  */
-	/* 260 leaveloop        */ {0},	/*  */
-	/* 261 return           */ {0},	/*  */
-	/* 262 last             */ {0},	/*  */
-	/* 263 next             */ {0},	/*  */
-	/* 264 redo             */ {0},	/*  */
-	/* 265 dump             */ {0},	/*  */
-	/* 266 goto             */ {0},	/*  */
-	/* 267 exit             */ {0},	/*  */
-	/* 268 method_named     */ {0},	/*  */
-	/* 269 method_super     */ {0},	/*  */
-	/* 270 method_redir     */ {0},	/*  */
-	/* 271 method_redir_super */ {0},	/*  */
-	/* 272 entergiven       */ {0},	/*  */
-	/* 273 leavegiven       */ {0},	/*  */
-	/* 274 enterwhen        */ {0},	/*  */
-	/* 275 leavewhen        */ {0},	/*  */
-	/* 276 break            */ {0},	/*  */
-	/* 277 continue         */ {0},	/*  */
-	/* 278 open             */ {0},	/*  */
-	/* 279 close            */ {0},	/*  */
-	/* 280 pipe_op          */ {0},	/*  */
-	/* 281 fileno           */ {0},	/*  */
-	/* 282 umask            */ {0},	/*  */
-	/* 283 binmode          */ {0},	/*  */
-	/* 284 tie              */ {0},	/*  */
-	/* 285 untie            */ {0},	/*  */
-	/* 286 tied             */ {0},	/*  */
-	/* 287 dbmopen          */ {0},	/*  */
-	/* 288 dbmclose         */ {0},	/*  */
-	/* 289 sselect          */ {0},	/*  */
-	/* 290 select           */ {0},	/*  */
-	/* 291 getc             */ {0},	/*  */
-	/* 292 read             */ {0},	/*  */
-	/* 293 enterwrite       */ {0},	/*  */
-	/* 294 leavewrite       */ {0},	/*  */
-	/* 295 prtf             */ {0},	/*  */
-	/* 296 print            */ {0},	/*  */
-	/* 297 say              */ {0},	/*  */
-	/* 298 sysopen          */ {0},	/*  */
-	/* 299 sysseek          */ {0},	/*  */
-	/* 300 sysread          */ {0},	/*  */
-	/* 301 syswrite         */ {0},	/*  */
-	/* 302 eof              */ {0},	/*  */
-	/* 303 tell             */ {0},	/*  */
-	/* 304 seek             */ {0},	/*  */
-	/* 305 truncate         */ {0},	/*  */
-	/* 306 fcntl            */ {0},	/*  */
-	/* 307 ioctl            */ {0},	/*  */
-	/* 308 flock            */ {0},	/*  */
-	/* 309 send             */ {0},	/*  */
-	/* 310 recv             */ {0},	/*  */
-	/* 311 socket           */ {0},	/*  */
-	/* 312 sockpair         */ {0},	/*  */
-	/* 313 bind             */ {0},	/*  */
-	/* 314 connect          */ {0},	/*  */
-	/* 315 listen           */ {0},	/*  */
-	/* 316 accept           */ {0},	/*  */
-	/* 317 shutdown         */ {0},	/*  */
-	/* 318 gsockopt         */ {0},	/*  */
-	/* 319 ssockopt         */ {0},	/*  */
-	/* 320 getsockname      */ {0},	/*  */
-	/* 321 getpeername      */ {0},	/*  */
-	/* 322 lstat            */ {0},	/*  */
-	/* 323 stat             */ {0},	/*  */
-	/* 324 ftrread          */ {0},	/*  */
-	/* 325 ftrwrite         */ {0},	/*  */
-	/* 326 ftrexec          */ {0},	/*  */
-	/* 327 fteread          */ {0},	/*  */
-	/* 328 ftewrite         */ {0},	/*  */
-	/* 329 fteexec          */ {0},	/*  */
-	/* 330 ftis             */ {0},	/*  */
-	/* 331 ftsize           */ {0},	/*  */
-	/* 332 ftmtime          */ {0},	/*  */
-	/* 333 ftatime          */ {0},	/*  */
-	/* 334 ftctime          */ {0},	/*  */
-	/* 335 ftrowned         */ {0},	/*  */
-	/* 336 fteowned         */ {0},	/*  */
-	/* 337 ftzero           */ {0},	/*  */
-	/* 338 ftsock           */ {0},	/*  */
-	/* 339 ftchr            */ {0},	/*  */
-	/* 340 ftblk            */ {0},	/*  */
-	/* 341 ftfile           */ {0},	/*  */
-	/* 342 ftdir            */ {0},	/*  */
-	/* 343 ftpipe           */ {0},	/*  */
-	/* 344 ftsuid           */ {0},	/*  */
-	/* 345 ftsgid           */ {0},	/*  */
-	/* 346 ftsvtx           */ {0},	/*  */
-	/* 347 ftlink           */ {0},	/*  */
-	/* 348 fttty            */ {0},	/*  */
-	/* 349 fttext           */ {0},	/*  */
-	/* 350 ftbinary         */ {0},	/*  */
-	/* 351 chdir            */ {0},	/*  */
-	/* 352 chown            */ {0},	/*  */
-	/* 353 chroot           */ {0},	/*  */
-	/* 354 unlink           */ {0},	/*  */
-	/* 355 chmod            */ {0},	/*  */
-	/* 356 utime            */ {0},	/*  */
-	/* 357 rename           */ {0},	/*  */
-	/* 358 link             */ {0},	/*  */
-	/* 359 symlink          */ {0},	/*  */
-	/* 360 readlink         */ {0},	/*  */
-	/* 361 mkdir            */ {0},	/*  */
-	/* 362 rmdir            */ {0},	/*  */
-	/* 363 open_dir         */ {0},	/*  */
-	/* 364 readdir          */ {0},	/*  */
-	/* 365 telldir          */ {0},	/*  */
-	/* 366 seekdir          */ {0},	/*  */
-	/* 367 rewinddir        */ {0},	/*  */
-	/* 368 closedir         */ {0},	/*  */
-	/* 369 fork             */ {0},	/*  */
-	/* 370 wait             */ {0},	/*  */
-	/* 371 waitpid          */ {0},	/*  */
-	/* 372 system           */ {0},	/*  */
-	/* 373 exec             */ {0},	/*  */
-	/* 374 kill             */ {0},	/*  */
-	/* 375 getppid          */ {0},	/*  */
-	/* 376 getpgrp          */ {0},	/*  */
-	/* 377 setpgrp          */ {0},	/*  */
-	/* 378 getpriority      */ {0},	/*  */
-	/* 379 setpriority      */ {0},	/*  */
-	/* 380 time             */ {0},	/*  */
-	/* 381 tms              */ {0},	/*  */
-	/* 382 localtime        */ {0},	/*  */
-	/* 383 gmtime           */ {0},	/*  */
-	/* 384 alarm            */ {0},	/*  */
-	/* 385 sleep            */ {0},	/*  */
-	/* 386 shmget           */ {0},	/*  */
-	/* 387 shmctl           */ {0},	/*  */
-	/* 388 shmread          */ {0},	/*  */
-	/* 389 shmwrite         */ {0},	/*  */
-	/* 390 msgget           */ {0},	/*  */
-	/* 391 msgctl           */ {0},	/*  */
-	/* 392 msgsnd           */ {0},	/*  */
-	/* 393 msgrcv           */ {0},	/*  */
-	/* 394 semop            */ {0},	/*  */
-	/* 395 semget           */ {0},	/*  */
-	/* 396 semctl           */ {0},	/*  */
-	/* 397 require          */ {0},	/*  */
-	/* 398 dofile           */ {0},	/*  */
-	/* 399 hintseval        */ {0},	/*  */
-	/* 400 entereval        */ {0},	/*  */
-	/* 401 leaveeval        */ {0},	/*  */
-	/* 402 entertry         */ {0},	/*  */
-	/* 403 leavetry         */ {0},	/*  */
-	/* 404 ghbyname         */ {0},	/*  */
-	/* 405 ghbyaddr         */ {0},	/*  */
-	/* 406 ghostent         */ {0},	/*  */
-	/* 407 gnbyname         */ {0},	/*  */
-	/* 408 gnbyaddr         */ {0},	/*  */
-	/* 409 gnetent          */ {0},	/*  */
-	/* 410 gpbyname         */ {0},	/*  */
-	/* 411 gpbynumber       */ {0},	/*  */
-	/* 412 gprotoent        */ {0},	/*  */
-	/* 413 gsbyname         */ {0},	/*  */
-	/* 414 gsbyport         */ {0},	/*  */
-	/* 415 gservent         */ {0},	/*  */
-	/* 416 shostent         */ {0},	/*  */
-	/* 417 snetent          */ {0},	/*  */
-	/* 418 sprotoent        */ {0},	/*  */
-	/* 419 sservent         */ {0},	/*  */
-	/* 420 ehostent         */ {0},	/*  */
-	/* 421 enetent          */ {0},	/*  */
-	/* 422 eprotoent        */ {0},	/*  */
-	/* 423 eservent         */ {0},	/*  */
-	/* 424 gpwnam           */ {0},	/*  */
-	/* 425 gpwuid           */ {0},	/*  */
-	/* 426 gpwent           */ {0},	/*  */
-	/* 427 spwent           */ {0},	/*  */
-	/* 428 epwent           */ {0},	/*  */
-	/* 429 ggrnam           */ {0},	/*  */
-	/* 430 ggrgid           */ {0},	/*  */
-	/* 431 ggrent           */ {0},	/*  */
-	/* 432 sgrent           */ {0},	/*  */
-	/* 433 egrent           */ {0},	/*  */
-	/* 434 getlogin         */ {0},	/*  */
-	/* 435 syscall          */ {0},	/*  */
-	/* 436 lock             */ {0},	/*  */
-	/* 437 once             */ {0},	/*  */
-	/* 438 custom           */ {0},	/*  */
-	/* 439 reach            */ {0},	/*  */
-	/* 440 rkeys            */ {0},	/*  */
-	/* 441 rvalues          */ {0},	/*  */
-	/* 442 coreargs         */ {0},	/*  */
-	/* 443 runcv            */ {0},	/*  */
-	/* 444 fc               */ {0},	/*  */
-	/* 445 padcv            */ {0},	/*  */
-	/* 446 introcv          */ {0},	/*  */
-	/* 447 clonecv          */ {0},	/*  */
-	/* 448 padrange         */ {0},	/*  */
-	/* 449 refassign        */ {0},	/*  */
-	/* 450 lvref            */ {0},	/*  */
-	/* 451 lvrefslice       */ {0},	/*  */
-	/* 452 lvavref          */ {0},	/*  */
-	/* 453 anonconst        */ {0},	/*  */
-	/* 454: freed */	{ NULL }
-};
-#endif
+/* Lowest 10 bits of PL_opargs */
+#define OA_MARK	1
+#define OA_FOLDCONST	2
+#define OA_RETSCALAR	4
+#define OA_TARGET	8
+#define OA_TARGLEX	24
+#define OA_OTHERINT	32
+#define OA_DANGEROUS	64
+#define OA_DEFGV	128
+#define OA_PURE	256
+#define OA_BOXRET	512
 
-#define NUM_OP_TYPE_VARIANTS(op) PL_op_type_variants[op][0]
+/* The next 4 bits (10..13) encode op class information */
+#define OCSHIFT 10
 
-/* for 1 to num */
-#define OP_TYPE_VARIANT(op, _j) \
-  (PL_op_type_variants[(op)][(_j)] \
-    ? (op) + PL_op_type_variants[(op)][(_j)] \
-    : 0)
+/* Each remaining 4bit nybbles of PL_opargs (i.e. bits 14..17, 18..21 etc)
+ * encode the type for each arg */
+#define OASHIFT 14
+
+/* arg types */
+#define OA_SCALAR  1
+#define OA_LIST    2
+#define OA_AVREF   3
+#define OA_HVREF   4
+#define OA_CVREF   5
+#define OA_FILEREF 6
+#define OA_SCALARREF 7
+#define OA_OPTIONAL 8
+
+/* 0b0011_1100_0000_0000 / 0xf000 */
+#define OA_CLASS_MASK (0xf << OCSHIFT)
+
+#define OA_BASEOP 	(0 << OCSHIFT)
+#define OA_UNOP 	(1 << OCSHIFT)
+#define OA_BINOP 	(2 << OCSHIFT)
+#define OA_LOGOP 	(3 << OCSHIFT)
+#define OA_LISTOP 	(4 << OCSHIFT)
+#define OA_PMOP 	(5 << OCSHIFT)
+#define OA_SVOP 	(6 << OCSHIFT)
+#define OA_PADOP 	(7 << OCSHIFT)
+#define OA_PVOP_OR_SVOP (8 << OCSHIFT)
+#define OA_LOOP 	(9 << OCSHIFT)
+#define OA_COP 		(10 << OCSHIFT)
+#define OA_BASEOP_OR_UNOP (11 << OCSHIFT)
+#define OA_FILESTATOP 	(12 << OCSHIFT)
+#define OA_LOOPEXOP 	(13 << OCSHIFT)
+#define OA_METHOP 	(14 << OCSHIFT)
+#define OA_UNOP_AUX 	(15 << OCSHIFT)
 
 
-/* the OP_IS_* macros are optimized to a simple range check because
-    all the member OPs are contiguous in regen/opcodes table.
-    opcode.pl verifies the range contiguity, or generates an OR-equals
-    expression */
+#define OpCLASS(oc)      (PL_opargs[(oc)] & OA_CLASS_MASK)
+#define OP_IS_BASEOP(oc) (OpCLASS(oc) == OA_BASEOP || OpCLASS(oc) == OA_BASEOP_OR_UNOP)
+#define OP_IS_UNOP(oc)   (OpCLASS(oc) == OA_UNOP || OpCLASS(oc) == OA_BASEOP_OR_UNOP)
+#define OP_IS_BINOP(oc)  OpCLASS(oc) == OA_BINOP
+#define OP_IS_LOGOP(oc)  OpCLASS(oc) == OA_LOGOP
+#define OP_IS_LISTOP(oc) OpCLASS(oc) == OA_LISTOP
+#define OP_IS_PMOP(oc)   OpCLASS(oc) == OA_PMOP
+#define OP_IS_SVOP(oc)   (OpCLASS(oc) == OA_SVOP || OpCLASS(oc) == OA_PVOP_OR_SVOP)
+#define OP_IS_PADOP(oc)  OpCLASS(oc) == OA_PADOP
+#define OP_IS_LOOP(oc)   OpCLASS(oc) == OA_LOOP
+#define OP_IS_COP(oc)    OpCLASS(oc) == OA_COP
+#define OP_IS_FILESTATOP(oc) OpCLASS(oc) == OA_FILESTATOP
+#define OP_IS_METHOP(oc) OpCLASS(oc) == OA_METHOP
 
-#define OP_IS_SOCKET(op)	\
-	((op) >= OP_SEND && (op) <= OP_GETPEERNAME)
+/* The other OP_IS_* macros are optimized to a simple range check because
+   all the member OPs are contiguous in regen/opcodes table.
+   regen/opcode.pl verifies the range contiguity, or generates an OR-equals
+   expression */
 
-#define OP_IS_FILETEST(op)	\
-	((op) >= OP_FTRREAD && (op) <= OP_FTBINARY)
+#define OP_HAS_LIST(oc)	\
+	((oc) == OP_AASSIGN || \
+	 (oc) == OP_ANONHASH || \
+	 (oc) == OP_ANONLIST || \
+	 (oc) == OP_ASLICE || \
+	 (oc) == OP_CHMOD || \
+	 (oc) == OP_CHOMP || \
+	 (oc) == OP_CHOP || \
+	 (oc) == OP_CHOWN || \
+	 (oc) == OP_DIE || \
+	 (oc) == OP_ENTERSUB || \
+	 (oc) == OP_ENTERXSSUB || \
+	 (oc) == OP_EXEC || \
+	 (oc) == OP_FORMLINE || \
+	 (oc) == OP_GREPSTART || \
+	 (oc) == OP_HSLICE || \
+	 (oc) == OP_JOIN || \
+	 (oc) == OP_KILL || \
+	 (oc) == OP_KVASLICE || \
+	 (oc) == OP_KVHSLICE || \
+	 (oc) == OP_LIST || \
+	 (oc) == OP_LSLICE || \
+	 (oc) == OP_MAPSTART || \
+	 (oc) == OP_MSGRCV || \
+	 (oc) == OP_OPEN || \
+	 (oc) == OP_PACK || \
+	 (oc) == OP_PRINT || \
+	 (oc) == OP_PRTF || \
+	 (oc) == OP_PUSH || \
+	 (oc) == OP_REFGEN || \
+	 (oc) == OP_REPEAT || \
+	 (oc) == OP_RETURN || \
+	 (oc) == OP_REVERSE || \
+	 (oc) == OP_SAY || \
+	 (oc) == OP_SOCKPAIR || \
+	 (oc) == OP_SORT || \
+	 (oc) == OP_SPLICE || \
+	 (oc) == OP_SPRINTF || \
+	 (oc) == OP_SYSCALL || \
+	 (oc) == OP_SYSTEM || \
+	 (oc) == OP_TIE || \
+	 (oc) == OP_UNLINK || \
+	 (oc) == OP_UNSHIFT || \
+	 (oc) == OP_UTIME || \
+	 (oc) == OP_WARN)
 
-#define OP_IS_FILETEST_ACCESS(op)	\
-	((op) >= OP_FTRREAD && (op) <= OP_FTEEXEC)
+#define OP_IS_SOCKET(oc)	\
+	((oc) >= OP_SEND && (oc) <= OP_GETPEERNAME)
 
-#define OP_IS_NUMCOMPARE(op)	\
-	((op) >= OP_LT && (op) <= OP_I_CMP)
+#define OP_IS_FILETEST(oc)	\
+	((oc) >= OP_FTRREAD && (oc) <= OP_FTBINARY)
 
-#define OP_IS_DIRHOP(op)	\
-	((op) >= OP_READDIR && (op) <= OP_CLOSEDIR)
+#define OP_IS_FILETEST_ACCESS(oc)	\
+	((oc) >= OP_FTRREAD && (oc) <= OP_FTEEXEC)
 
-#define OP_IS_INFIX_BIT(op)	\
-	((op) >= OP_BIT_AND && (op) <= OP_S_BIT_OR)
+#define OP_IS_NUMCOMPARE(oc)	\
+	((oc) >= OP_LT && (oc) <= OP_I_CMP)
+
+#define OP_IS_DIRHOP(oc)	\
+	((oc) >= OP_READDIR && (oc) <= OP_CLOSEDIR)
+
+#define OP_IS_INFIX_BIT(oc)	\
+	((oc) >= OP_BIT_AND && (oc) <= OP_S_BIT_OR)
 
 /* backcompat old Perl 5 names: */
 #if 1

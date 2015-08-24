@@ -3762,7 +3762,6 @@ typedef        struct crypt_data {     /* straight from /usr/include/crypt.h */
 #include "gv.h"
 #include "pad.h"
 #include "cv.h"
-#include "opnames.h"
 #include "op.h"
 #include "hv.h"
 #include "cop.h"
