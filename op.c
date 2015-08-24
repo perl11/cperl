@@ -9612,7 +9612,7 @@ Perl_ck_concat(pTHX_ OP *o)
     if (kid->op_type == OP_CONCAT && !(kid->op_private & OPpTARGET_MY) &&
 	    !(kUNOP->op_first->op_flags & OPf_MOD))
         o->op_flags |= OPf_STACKED;
-    return o;
+    return fold_constants(op_std_init(o));
 }
 
 OP *
@@ -12386,7 +12386,9 @@ Perl_ck_type(pTHX_ OP *o)
     OP* a = o->op_flags & OPf_KIDS ? cUNOPx(o)->op_first : NULL;    /* defgv */
     core_types_t type1 = a ? op_typed(a) : type_none; /* S? ops with defgv */
     unsigned int oc = PL_opargs[typ] & OA_CLASS_MASK;
+
     PERL_ARGS_ASSERT_CK_TYPE;
+
     if (!type1 || type1 >= type_Scalar) {
         return o;
     }
