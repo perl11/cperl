@@ -326,6 +326,8 @@ invert_opset function.
     lt i_lt gt i_gt le i_le ge i_ge eq i_eq ne i_ne cmp i_cmp
     s_lt s_gt s_le s_ge s_eq s_ne s_cmp
 
+    int_const uint_const num_const str_const
+    int_padsv uint_padsv num_padsv str_padsv
     box_int box_uint box_str box_num unbox_int unbox_uint unbox_str
     unbox_num uint_left_shift uint_right_shift uint_pow
     uint_complement int_preinc int_predec int_postinc int_postdec
@@ -335,6 +337,7 @@ invert_opset function.
     num_cos num_exp num_log num_sqrt
     i_aelem n_aelem s_aelem int_aelem num_aelem str_aelem
     i_aelem_u n_aelem_u s_aelem_u int_aelem_u num_aelem_u str_aelem_u
+    int_sassign uint_sassign num_sassign str_sassign
 
     substr vec stringify study pos length index rindex ord chr
 

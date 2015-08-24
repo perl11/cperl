@@ -174,24 +174,40 @@ hex		hex			ck_fun		pfsTu%	S?	"(:Numeric):UInt"
 oct		oct			ck_fun		pfsTu%	S?	"(:Numeric):UInt"
 abs		abs			ck_fun		pfsTu%	S?	"(:Numeric):Numeric"
 
-# unboxed raw stack values
-box_int		box int to IV		ck_null		ps1	I	"(:int):Int"
-box_uint	box uint to UV		ck_null		ps1	I	"(:uint):UInt"
-box_str		box ASCIIZ string to PV	ck_null		ps1	Z	"(:str):Str"
-box_num		box double to NV	ck_null		ps1	N	"(:num):Num"
+# native types, unboxed raw stack values. order matters.
+
+int_const	const native int	ck_null		p$	I	"():int"
+uint_const	const native uint	ck_null		p$	I	"():uint"
+str_const	const native str	ck_null		p$	Z	"():str"
+num_const	const native double	ck_null		p$	N	"():num"
+box_int		box int to IV		ck_null		ps0	I	"(:int):Int"
+box_uint	box uint to UV		ck_null		ps0	I	"(:uint):UInt"
+box_str		box ASCIIZ string to PV	ck_null		ps0	Z	"(:str):Str"
+box_num		box double to NV	ck_null		ps0	N	"(:num):Num"
 unbox_int	unbox IV to int		ck_null		p1	S	"(:Int):int"
 unbox_uint	unbox IV/UV to uint	ck_null		p1	S	"(:Int):uint"
 unbox_str	unbox PV to ASCIIZ	ck_null		p1	S	"(:Str):str"
 unbox_num	unbox NV to double	ck_null		p1	S	"(:Num):num"
-uint_left_shift	unboxed shift left (<<) ck_bitop	pfb2	I I	"(:uint,:int):uint"
-uint_right_shift unboxed shift right (>>) ck_bitop	pfb2	I I	"(:uint,:int):uint"
-uint_pow	unboxed int exp (**)	 ck_null	pfb2	I I	"(:uint,:int):uint"
-uint_complement	unboxed 1's complement (~) ck_bitop	pfb1	I	"(:uint):uint"
-int_preinc	unboxed preincrement (++)  ck_lfun	b1	I	"(:int):int"
-int_predec	unboxed predecrement (--)  ck_lfun	b1	I	"(:int):int"
-int_postinc	unboxed postincrement (++) ck_lfun	b1	I	"(:int):int"
-int_postdec	unboxed postdecrement (--) ck_lfun	b1	I	"(:int):int"
-int_add		unboxed addition (+)	ck_null		pif2	I I	"(:int,:int):int"
+# those four should have the types :native, as just the unboxed value is copied
+int_sassign	unboxed integer assignment ck_null	s2	I I	"(:int,:int):int"
+uint_sassign	unboxed uint assignment ck_null		s2	I I	"(:uint,:uint):uint"
+num_sassign	unboxed num assignment	ck_null		s2	N N	"(:num,:num):num"
+str_sassign	unboxed str assignment	ck_null		s2	Z Z	"(:str,:str):str"
+
+# these HAS_BOXRET
+int_padsv	lexical native int 	ck_null		pb0	I	"():int"
+uint_padsv	lexical native uint 	ck_null		pb0	I	"():uint"
+str_padsv	lexical native str 	ck_null		pb0	Z	"():str"
+num_padsv	lexical native num 	ck_null		pb0	N	"():num"
+uint_left_shift	unboxed shift left (<<) ck_bitop	pbf2	I I	"(:uint,:int):uint"
+uint_right_shift unboxed shift right (>>) ck_bitop	pbf2	I I	"(:uint,:int):uint"
+uint_pow	unboxed int exp (**)	 ck_null	pbf2	I I	"(:uint,:int):uint"
+uint_complement	unboxed 1's complement (~) ck_bitop	pbf1	I	"(:uint):uint"
+int_preinc	unboxed preincrement (++)  ck_lfun	1b	I	"(:int):int"
+int_predec	unboxed predecrement (--)  ck_lfun	1b	I	"(:int):int"
+int_postinc	unboxed postincrement (++) ck_lfun	1b	I	"(:int):int"
+int_postdec	unboxed postdecrement (--) ck_lfun	1b	I	"(:int):int"
+int_add		unboxed addition (+)	ck_null		pbf2	I I	"(:int,:int):int"
 int_subtract	unboxed subtraction (-)	ck_null		pbf2	I I	"(:int,:int):int"
 int_multiply	unboxed multiplication (*) ck_null	pbf2	I I	"(:int,:int):int"
 int_divide	unboxed division (/)	ck_null		pbf2	I I	"(:int,:int):int"
@@ -204,7 +220,7 @@ int_gt		unboxed integer gt (>)	ck_cmp		pbf2	I I	"(:int,:int):int"
 int_le		unboxed integer le (<=)	ck_cmp		pbf2	I I	"(:int,:int):int"
 int_ge		unboxed integer ge (>=)	ck_cmp		pbf2	I I	"(:int,:int):int"
 int_eq		unboxed integer eq (==)	ck_null		pbf2	I I	"(:int,:int):int"
-int_ne		unboxed integer ne (!=)	ck_null		pif2	I I	"(:int,:int):int"
+int_ne		unboxed integer ne (!=)	ck_null		pbf2	I I	"(:int,:int):int"
 
 num_add		unboxed num addition (+)	ck_null	pbf2	N N	"(:num,:num):num"
 num_subtract	unboxed num subtraction (-)	ck_null	pbf2	N N	"(:num,:num):num"
@@ -219,7 +235,7 @@ num_log		unboxed num log			ck_fun	pbf1	N	"(:num):num"
 num_sqrt	unboxed num sqrt		ck_fun	pbf1	N	"(:num):num"
 
 #str_concat	unboxed concatenation   ck_concat	pbf2	Z Z	"(:str,:str):str"
-#str_length	unboxed length		ck_length	pbf2	Z       "(:str):int"
+#str_length	unboxed length		ck_length	pbfs2	Z       "(:str):Int"
 
 # References and stuff.
 
@@ -284,14 +300,14 @@ aelem		array element		ck_aelem	s2	A S	"(:Array(:Scalar),:Int):Scalar"
 i_aelem		int array element	ck_null		s2	A S	"(:Array(:Int),:Int):Int"
 n_aelem		num array element	ck_null		s2	A S	"(:Array(:Num),:Int):Num"
 s_aelem		str array element	ck_null		s2	A S	"(:Array(:Str),:Int):Str"
-int_aelem	unboxed int array  	ck_null		b2	A I	"(:Array(:int),:int):int"
-num_aelem	unboxed	num array	ck_null		b2	A N	"(:Array(:num),:int):num"
-str_aelem	unboxed str array	ck_null		b2	A Z	"(:Array(:str),:int):str"
 aelemfast_lex_u	unchecked constant aelem ck_null	d0	A S	"():Scalar"
 aelem_u		unchecked aelem		ck_null		s2	A S	"(:Array(:Scalar),:Int):Scalar"
 i_aelem_u	unchecked int aelem 	ck_null		s2	A S	"(:Array(:Int),:Int):Int"
 n_aelem_u	unchecked num aelem 	ck_null		s2	A S	"(:Array(:Num),:Int):Num"
 s_aelem_u	unchecked str aelem 	ck_null		s2	A S	"(:Array(:Str),:Int):Str"
+int_aelem	unboxed int array  	ck_null		b2	A I	"(:Array(:int),:int):int"
+num_aelem	unboxed	num array	ck_null		b2	A N	"(:Array(:num),:int):num"
+str_aelem	unboxed str array	ck_null		b2	A Z	"(:Array(:str),:int):str"
 int_aelem_u	unchecked native int aelem  ck_null	b2	A I	"(:Array(:int),:int):int"
 num_aelem_u	unchecked native num aelem  ck_null	b2	A N	"(:Array(:num),:int):num"
 str_aelem_u	unchecked native str aelem  ck_null	b2	A Z	"(:Array(:str),:int):str"
@@ -461,8 +477,7 @@ send		send			ck_fun		imst@	Fs S S S?
 recv		recv			ck_fun		imst@	Fs R S S
 
 socket		socket			ck_fun		is@	Fs S S S
-#sockpair	socketpair		ck_fun		is@	Fs Fs S S S
-sockpair	socketpair		ck_fun		is@	Fs Fs L
+sockpair	socketpair		ck_fun		is@	Fs Fs S S S
 
 bind		bind			ck_fun		is@	Fs S
 connect		connect			ck_fun		is@	Fs S
@@ -568,8 +583,7 @@ shmwrite	shmwrite		ck_fun		imst@	S S S S
 msgget		msgget			ck_fun		imst@	S S
 msgctl		msgctl			ck_fun		imst@	S S S
 msgsnd		msgsnd			ck_fun		imst@	S S S
-#msgrcv		msgrcv			ck_fun		imst@	S S S S S
-msgrcv		msgrcv			ck_fun		imst@	L
+msgrcv		msgrcv			ck_fun		imst@	S S S S S
 
 # Semaphores.
 

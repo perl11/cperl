@@ -130,7 +130,7 @@ Type flag for I/O objects.  See L</svtype>.
 
 
 typedef enum {
-	SVt_NULL,	/* 0 */
+	SVt_NULL,	/* 0, also used for PADTMP and NATIVE curpad values */
 	/* BIND was here, before INVLIST replaced it.  */
 	SVt_IV,		/* 1 */
 	SVt_NV,		/* 2 */
@@ -397,6 +397,13 @@ perform the upgrade if necessary.  See C<svtype>.
 				       Set in S_regtry on PL_reg_curpm, so that
 				       perl_destruct will skip it. */
 #define SVf_READONLY	0x08000000  /* may not be modified */
+
+#ifdef USE_CPERL
+#define SVf_NATIVE	0x00010000  /* for lexicals in curpad[], the PV slot
+                                       holds the value. */
+#undef SVf_PROTECT
+#define SVf_PROTECT	SVf_READONLY
+#endif
 
 
 
@@ -890,6 +897,13 @@ Set the actual length of the string which is in the SV.  See C<SvIV_set>.
 #define SvNOK_off(sv)		(SvFLAGS(sv) &= ~(SVf_NOK|SVp_NOK))
 #define SvNOK_only(sv)		(SvOK_off(sv), \
 				    SvFLAGS(sv) |= (SVf_NOK|SVp_NOK))
+
+#ifdef USE_CPERL
+/* The other variant is to check SVt_NULL and !SvANY, same as PADTMP */
+#define SvNATIVE(sv)		(SvFLAGS(sv) & SVf_NATIVE)
+#define SvNATIVE_on(sv)		(SvFLAGS(sv) |= SVf_NATIVE)
+#define SvNATIVE_off(sv)	(SvFLAGS(sv) &= ~SVf_NATIVE)
+#endif
 
 /*
 =for apidoc Am|U32|SvUTF8|SV* sv

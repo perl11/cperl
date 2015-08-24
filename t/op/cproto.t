@@ -160,7 +160,7 @@ map undef
 mkdir (_;$)
 msgctl ($$$)
 msgget ($$)
-msgrcv (@)
+msgrcv ($$$$$)
 msgsnd ($$$)
 my undef
 ne undef
@@ -233,7 +233,7 @@ shutdown (*$)
 sin (_)
 sleep (;$)
 socket (*$$$)
-socketpair (**@)
+socketpair (**$$$)
 sort undef
 splice (+;$$@)
 split undef

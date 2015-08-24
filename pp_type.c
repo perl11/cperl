@@ -144,7 +144,7 @@ PPt(pp_##name, "(:int):int")                    \
     IV iv = PTR2IV(TOPs);                       \
     TOPs = (PL_op->op_private & OPpBOXRET)      \
         ? newSViv(op(iv))                       \
-        : INT2PTR(SV*, (intptr_t)(op(iv)));    \
+        : INT2PTR(SV*, (intptr_t)(op(iv)));     \
     return NORMAL;                              \
 }
 
@@ -437,6 +437,64 @@ PPt(pp_str_aelem, "(:Array(:str),:int):str")
     RETURN;
 }
 */
+
+/* for all native types. 
+   Note: the type should really be :native, as just the unboxed value is copied.
+     typedef :native :int|:uint|:str|:num;
+     "(:native,:native):native"
+*/
+
+PPt(pp_int_sassign, "(:int,:int):int")
+{
+    dSP;
+    /* sassign keeps its args in the optree traditionally backwards.
+       So we pop them differently.
+    */
+    SV* left = POPs; SV* right = TOPs;
+#if 0
+    /* no typed {or,and,dor}assign yet */
+    if (PL_op->op_private & OPpASSIGN_BACKWARDS) { /* {or,and,dor}assign */
+	const SV* temp = left;
+	left = right; right = temp;
+    }
+#endif
+    /* we can only assign to *_padsv here, not to const and not to gvsv.
+       later to *_aelem */
+    if (LIKELY(SvNATIVE(left)))
+        left->sv_u.svu_iv = (IV)right; /* fill the curpad */
+    SETs(right); /* and the stack */
+    RETURN;
+}
+
+/* needs a different side-effect, push the native value onto the stack */
+PPt(pp_int_padsv, "():int")
+{
+    dSP;
+    EXTEND(SP, 1);
+    {
+        dTARG;
+	OP * const op = PL_op;
+	/* access PL_curpad once */
+	SV ** const padentry = &(PAD_SVl(op->op_targ));
+        assert(PL_op->op_type != OP_NUM_PADSV || IVSIZE == NVSIZE);
+	{
+	    TARG = *padentry;
+            assert(SvNATIVE(TARG));
+            if (!(op->op_flags & OPf_MOD || op->op_private & OPpBOXRET))
+                TARG = (SV*)(TARG->sv_u.svu_iv);
+	    PUSHs(TARG);
+	    PUTBACK; /* no pop/push after this, TOPs ok */
+	}
+	if (op->op_flags & OPf_MOD) {
+	    if (op->op_private & OPpLVAL_INTRO)
+		if (!(op->op_private & OPpPAD_STATE))
+		    save_clearsv(padentry);
+	    if (op->op_private & OPpDEREF)
+		TOPs = vivify_ref(*padentry, op->op_private & OPpDEREF);
+	}
+	return op->op_next;
+    }
+}
 
 # if 0
 /* unboxed hash element	ck_null		s2	H Z */
