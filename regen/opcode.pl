@@ -1431,7 +1431,7 @@ my %opflags = (
     'f' =>   2,		# fold constants
     's' =>   4,		# always produces scalar
     't' =>   8,		# needs target scalar
-    'T' =>   8 | 16,	# ... which may be lexical
+    'T' =>  8|16,	# ... which may be lexical
     'i' =>   0,		# always produces integer (unused since e7311069)
     'I' =>  32,		# has corresponding int op
     'd' =>  64,		# danger, make temp copy in list assignment
@@ -1577,6 +1577,8 @@ END
 # Emit OP_IS_* macros
 
 print $on <<'EO_OP_IS_COMMENT';
+
+#define OP_HAS_TARGLEX(oc) ((PL_opargs[oc] & OA_TARGLEX) == OA_TARGLEX)
 
 #define OpCLASS(oc)      (PL_opargs[(oc)] & OA_CLASS_MASK)
 #define OP_IS_BASEOP(oc) (OpCLASS(oc) == OA_BASEOP || OpCLASS(oc) == OA_BASEOP_OR_UNOP)

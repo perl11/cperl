@@ -538,6 +538,8 @@ typedef enum opcode {
 #define OA_UNOP_AUX 	(15 << OCSHIFT)
 
 
+#define OP_HAS_TARGLEX(oc) ((PL_opargs[oc] & OA_TARGLEX) == OA_TARGLEX)
+
 #define OpCLASS(oc)      (PL_opargs[(oc)] & OA_CLASS_MASK)
 #define OP_IS_BASEOP(oc) (OpCLASS(oc) == OA_BASEOP || OpCLASS(oc) == OA_BASEOP_OR_UNOP)
 #define OP_IS_UNOP(oc)   (OpCLASS(oc) == OA_UNOP || OpCLASS(oc) == OA_BASEOP_OR_UNOP)

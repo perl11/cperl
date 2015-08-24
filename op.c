@@ -1802,7 +1802,7 @@ Perl_scalarvoid(pTHX_ OP *arg)
         }
 
         if ((o->op_private & OPpTARGET_MY)
-            && (PL_opargs[o->op_type] & OA_TARGLEX))/* OPp share the meaning */
+            && OP_HAS_TARGLEX(o->op_type)) /* OPp share the meaning */
         {
             /* newASSIGNOP has already applied scalar context, which we
                leave, as if this op is inside SASSIGN.  */
@@ -2173,7 +2173,7 @@ Perl_list(pTHX_ OP *o)
     }
 
     if ((o->op_private & OPpTARGET_MY)
-	&& (PL_opargs[o->op_type] & OA_TARGLEX))/* OPp share the meaning */
+        && OP_HAS_TARGLEX(o->op_type)) /* OPp share the meaning */
     {
 	return o;				/* As if inside SASSIGN */
     }
@@ -2764,7 +2764,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	return o;
 
     if ((o->op_private & OPpTARGET_MY)
-	&& (PL_opargs[o->op_type] & OA_TARGLEX))/* OPp share the meaning */
+        && OP_HAS_TARGLEX(o->op_type)) /* OPp share the meaning */
     {
 	return o;
     }
@@ -3805,6 +3805,7 @@ Perl_bind_match(pTHX_ I32 type, OP *left, OP *right)
     if (ismatchop && right->op_private & OPpTARGET_MY) {
 	right->op_targ = 0;
 	right->op_private &= ~OPpTARGET_MY;
+        DEBUG_kv(deb("clear TARGET_MY on %s\n", OP_NAME(right)));
     }
     if (!(right->op_flags & OPf_STACKED) && !right->op_targ && ismatchop) {
         if (left->op_type == OP_PADSV
@@ -6426,8 +6427,7 @@ S_aassign_common_vars(pTHX_ OP* o)
 	    else
 		return TRUE;
 	}
-	else if (PL_opargs[curop->op_type] & OA_TARGLEX
-	      && curop->op_private & OPpTARGET_MY)
+	else if ( OP_HAS_TARGLEX(curop->op_type) && curop->op_private & OPpTARGET_MY)
 	    goto padcheck;
 
 	if (curop->op_flags & OPf_KIDS) {
@@ -6452,7 +6452,7 @@ S_aassign_common_vars_aliases_only(pTHX_ OP *o)
 	     curop->op_type == OP_AELEMFAST_LEX ||
 	     curop->op_type == OP_AELEMFAST_LEX_U ||
 	     curop->op_type == OP_PADANY ||
-	     (  PL_opargs[curop->op_type] & OA_TARGLEX
+	     ( OP_HAS_TARGLEX(curop->op_type)
 	     && curop->op_private & OPpTARGET_MY  ))
 	   && PAD_COMPNAME_GEN(curop->op_targ) == PERL_INT_MAX)
 	    return TRUE;
@@ -10508,7 +10508,7 @@ S_maybe_targlex(pTHX_ OP *o)
 {
     OP * const kid = cLISTOPo->op_first;
     /* has a disposable target? */
-    if ((PL_opargs[kid->op_type] & OA_TARGLEX)
+    if (OP_HAS_TARGLEX(kid->op_type)
 	&& !(kid->op_flags & OPf_STACKED)
 	/* Cannot steal the second time! */
 	&& !(kid->op_private & OPpTARGET_MY)
@@ -10527,6 +10527,8 @@ S_maybe_targlex(pTHX_ OP *o)
 	     * Detach kid and free the rest. */
 	    op_sibling_splice(o, NULL, 1, NULL);
 	    op_free(o);
+            assert( OP_HAS_TARGLEX(kid->op_type) );
+            DEBUG_kv(deb("maybe_targlex: set TARGET_MY on %s\n", OP_NAME(kid)));
 	    kid->op_private |= OPpTARGET_MY;	/* Used for context settings */
 	    return kid;
 	}
@@ -10591,6 +10593,8 @@ Perl_ck_match(pTHX_ OP *o)
 	const PADOFFSET offset = pad_findmy_pvs("$_", 0);
 	if (offset != NOT_IN_PAD && !(PAD_COMPNAME_FLAGS_isOUR(offset))) {
 	    o->op_targ = offset;
+            DEBUG_kv(deb("ck_match: esp. set TARGET_MY on %s\n", OP_NAME(o)));
+            /*assert( OP_HAS_TARGLEX(o->op_type) ); they have not */
 	    o->op_private |= OPpTARGET_MY;
 	}
     }
@@ -13702,9 +13706,10 @@ Perl_rpeep(pTHX_ OP *o)
 		    if (o->op_flags & OPf_STACKED) /* chained concats */
 			break; /* ignore_optimization */
 		    else {
-			/* assert(PL_opargs[o->op_type] & OA_TARGLEX); */
+			assert( OP_HAS_TARGLEX(o->op_type) );
 			o->op_targ = o->op_next->op_targ;
 			o->op_next->op_targ = 0;
+                        DEBUG_kv(deb("rpeep: set TARGET_MY on %s\n", OP_NAME(o)));
 			o->op_private |= OPpTARGET_MY;
 		    }
 		}
