@@ -1165,6 +1165,7 @@ core_types_n[] = {
     "Void",
 };
 
+#ifdef DEBUGGING
 static const char* const
 PL_op_type_str[] = {
 	"():Void",	/* 0: null */
@@ -1635,6 +1636,7 @@ PL_op_type_str[] = {
 	"",	/* 465: anonconst */
 	"",	/* 466: freed */
 };
+#endif /* !DEBUGGING */
 #endif /* !PERL_IN_OP_C */
 
 #define CORETYPE_OR_UNDEF	0x60
