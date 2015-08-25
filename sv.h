@@ -1103,7 +1103,18 @@ sv_force_normal does nothing.
 # define SvREADONLY_off(sv)	(SvFLAGS(sv) &=~(SVf_READONLY|SVf_PROTECT))
 #else
 # define SvREADONLY_on(sv)	(SvFLAGS(sv) |= SVf_READONLY)
-# define SvREADONLY_off(sv)	(SvFLAGS(sv) &= ~SVf_READONLY)
+# ifdef USE_CPERL
+#  define SvREADONLY_off(sv)               \
+    ((sv == &PL_sv_placeholder             \
+    || sv == &PL_sv_undef                  \
+    || sv == &PL_sv_yes                    \
+    || sv == &PL_sv_no                     \
+    || sv == (SV*)&PL_padname_const        \
+    || sv == (SV*)&PL_defstash) ?  croak_no_modify() \
+     : (SvFLAGS(sv) &= ~SVf_READONLY))
+# else
+#  define SvREADONLY_off(sv) (SvFLAGS(sv) &= ~SVf_READONLY)
+# endif
 #endif
 
 #define SvSCREAM(sv) ((SvFLAGS(sv) & (SVp_SCREAM|SVp_POK)) == (SVp_SCREAM|SVp_POK))
