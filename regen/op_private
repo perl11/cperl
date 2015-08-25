@@ -390,6 +390,9 @@ addbits($_, 3 => qw(OPpBOXRET BOXRET)) for
 
 addbits($_, 4 => qw(OPpTARGET_MY TARGMY))
     for ops_with_flag('T'),
+    # Note: T should be in opcodes for all these match ops. ck_match is using it
+    # but has a $_ problem with find_uninit_vars, which needs to be fixed.
+    # ck_match does not know about TARGET_MY/TARGLEX.
     # This flag is also used to indicate matches against implicit $_,
     # where $_ is lexical; e.g. my $_; ....; /foo/
     qw(match subst pushre qr trans transr);
@@ -491,7 +494,7 @@ addbits($_, 6 => qw(OPpPAD_NATIVE NATIVE))
   for qw(int_padsv uint_padsv str_padsv num_padsv);
 
 
-
+# 4-6 later reserved by OPpASSIGN_COMMON_SCALAR, 3 used by MAYBE_LVSUB
 addbits('aassign', 6 => qw(OPpASSIGN_COMMON COMMON));
 
 
