@@ -281,9 +281,8 @@ pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlcall.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perlce.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlcperl.pod	? Should you be using F<...> or maybe L<...> instead of	2
-pod/perlcperl.pod	Apparent broken link	2
-pod/perlcperl.pod	There is more than one target	1
-pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	10
+pod/perlcperl.pod	Apparent broken link	1
+pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	14
 pod/perlcygwin.pod	Verbatim line length including indents exceeds 79 by	24
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	34
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	22
@@ -326,7 +325,7 @@ pod/perltie.pod	Verbatim line length including indents exceeds 79 by	13
 pod/perltrap.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perltru64.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perltru64.pod	Verbatim line length including indents exceeds 79 by	5
-pod/perltypes.pod	Apparent broken link	8
+pod/perltypes.pod	Apparent broken link	4
 pod/perltypes.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlwin32.pod	Verbatim line length including indents exceeds 79 by	12
 porting/bisect-runner.pl	Verbatim line length including indents exceeds 79 by	1
