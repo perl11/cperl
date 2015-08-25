@@ -304,8 +304,8 @@ is(B::opnumber("pp_null"), 0, "Testing opnumber with opname (pp_null)");
 
 is(B::class(bless {}, "Wibble::Bibble"), "Bibble", "Testing B::class()");
 is(B::cast_I32(3.14), 3, "Testing B::cast_I32()");
-is(B::opnumber("chop"), $] >= 5.015 ? 39 : 38,
-			    "Testing opnumber with opname (chop)");
+is(B::opnumber("null"), 0, "Testing opnumber with opname (null)");
+is(B::opnumber("stub"), 1, "Testing opnumber with opname (stub)");
 
 {
     no warnings 'once';
