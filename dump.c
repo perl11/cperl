@@ -622,6 +622,15 @@ Perl_sv_peek(pTHX_ SV *sv)
     return SvPV_nolen(t);
 }
 
+/*
+=for apidoc ApdR|char*|op_native_peek|NULLOK const OP* o
+
+Display the value of the native SV attached to the OP*, analog to
+sv_peek.  With the typed OP this is easy, it gets more difficult with
+natives values on the stack.
+
+=cut
+*/
 char *
 Perl_op_native_peek(pTHX_ const OP* o)
 {
