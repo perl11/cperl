@@ -1061,31 +1061,30 @@ EXTCONST char* const PL_op_desc[] = {
 
 typedef enum {
     type_none = 0,
-    type_Void = 1,
-    type_int = 2,
-    type_uint = 3,
-    type_num = 4,
-    type_str = 5,
-    type_Int = 6,
-    type_UInt = 7,
-    type_Num = 8,
-    type_Str = 9,
-    type_Bool = 10,
-    type_Numeric = 11,
-    type_Scalar = 12,
-    type_Ref = 13,
-    type_Sub = 14,
-    type_Array = 15,
-    type_Hash = 16,
-    type_List = 17,
-    type_Any = 18,
+    type_int = 1,
+    type_uint = 2,
+    type_num = 3,
+    type_str = 4,
+    type_Int = 5,
+    type_UInt = 6,
+    type_Num = 7,
+    type_Str = 8,
+    type_Bool = 9,
+    type_Numeric = 10,
+    type_Scalar = 11,
+    type_Ref = 12,
+    type_Sub = 13,
+    type_Array = 14,
+    type_Hash = 15,
+    type_List = 16,
+    type_Any = 17,
+    type_Void = 255,
 } core_types_t;
 
 #ifdef PERL_IN_OP_C
 static const char* const
 core_types_n[] = {
     "",
-    "Void",
     "int",
     "uint",
     "num",
@@ -1103,6 +1102,7 @@ core_types_n[] = {
     "Hash",
     "List",
     "Any",
+    "Void",
 };
 
 static const char* const
@@ -1566,24 +1566,24 @@ PL_op_type_str[] = {
 EXTCONST U32 PL_op_type[];
 #else
 EXTCONST U32 PL_op_type[] = {
-	0xffffff01,	/* 0: null "():Void" */
-	0xffffff01,	/* 1: stub "():Void" */
-	0xffffff01,	/* 2: scalar "():Void" */
-	0xffffff01,	/* 3: pushmark "():Void" */
+	0xffffffff,	/* 0: null "():Void" */
+	0xffffffff,	/* 1: stub "():Void" */
+	0xffffffff,	/* 2: scalar "():Void" */
+	0xffffffff,	/* 3: pushmark "():Void" */
 	0xffffffff,	/* 4: wantarray "" */
-	0xffffff0c,	/* 5: const "():Scalar" */
-	0xffffff0c,	/* 6: gvsv "():Scalar" */
-	0xffffff0c,	/* 7: gv "():Scalar" */
+	0xffffff0b,	/* 5: const "():Scalar" */
+	0xffffff0b,	/* 6: gvsv "():Scalar" */
+	0xffffff0b,	/* 7: gv "():Scalar" */
 	0xffffffff,	/* 8: gelem "" */
-	0xffffff0c,	/* 9: padsv "():Scalar" */
-	0xffffff0f,	/* 10: padav "():Array" */
-	0xffffff10,	/* 11: padhv "():Hash" */
-	0xffffff01,	/* 12: padany "():Void" */
+	0xffffff0b,	/* 9: padsv "():Scalar" */
+	0xffffff0e,	/* 10: padav "():Array" */
+	0xffffff0f,	/* 11: padhv "():Hash" */
+	0xffffffff,	/* 12: padany "():Void" */
 	0xffffffff,	/* 13: pushre "" */
-	0x0dffff0c,	/* 14: rv2gv "(:Ref):Scalar" */
-	0x0dffff0c,	/* 15: rv2sv "(:Ref):Scalar" */
-	0x0fffff06,	/* 16: av2arylen "(:Array):Int" */
-	0x0dffff0e,	/* 17: rv2cv "(:Ref):Sub" */
+	0x0cffff0b,	/* 14: rv2gv "(:Ref):Scalar" */
+	0x0cffff0b,	/* 15: rv2sv "(:Ref):Scalar" */
+	0x0effff05,	/* 16: av2arylen "(:Array):Int" */
+	0x0cffff0d,	/* 17: rv2cv "(:Ref):Sub" */
 	0xffffffff,	/* 18: anoncode "" */
 	0xffffffff,	/* 19: prototype "" */
 	0xffffffff,	/* 20: refgen "" */
@@ -1592,9 +1592,9 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffffff,	/* 23: bless "" */
 	0xffffffff,	/* 24: backtick "" */
 	0xffffffff,	/* 25: glob "" */
-	0x0cffff12,	/* 26: readline "(:Scalar):Any" */
+	0x0bffff11,	/* 26: readline "(:Scalar):Any" */
 	0xffffffff,	/* 27: rcatline "" */
-	0xffffff01,	/* 28: regcmaybe "():Void" */
+	0xffffffff,	/* 28: regcmaybe "():Void" */
 	0xffffffff,	/* 29: regcreset "" */
 	0xffffffff,	/* 30: regcomp "" */
 	0xffffffff,	/* 31: match "" */
@@ -1603,130 +1603,130 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffffff,	/* 34: substcont "" */
 	0xffffffff,	/* 35: trans "" */
 	0xffffffff,	/* 36: transr "" */
-	0x0c0cff0c,	/* 37: sassign "(:Scalar,:Scalar):Scalar" */
-	0x1111ff11,	/* 38: aassign "(:List,:List):List" */
-	0xa9ffff0c,	/* 39: chop "(:List(:Str)):Scalar" */
-	0x09ffff06,	/* 40: schop "(:Str):Int" */
-	0xa9ffff0c,	/* 41: chomp "(:List(:Str)):Scalar" */
-	0x09ffff06,	/* 42: schomp "(:Str):Int" */
+	0x0b0bff0b,	/* 37: sassign "(:Scalar,:Scalar):Scalar" */
+	0x1010ff10,	/* 38: aassign "(:List,:List):List" */
+	0xa8ffff0b,	/* 39: chop "(:List(:Str)):Scalar" */
+	0x08ffff05,	/* 40: schop "(:Str):Int" */
+	0xa8ffff0b,	/* 41: chomp "(:List(:Str)):Scalar" */
+	0x08ffff05,	/* 42: schomp "(:Str):Int" */
 	0xffffffff,	/* 43: defined "" */
 	0xffffffff,	/* 44: undef "" */
 	0xffffffff,	/* 45: study "" */
 	0xffffffff,	/* 46: pos "" */
-	0x0cffff0c,	/* 47: preinc "(:Scalar):Scalar" */
-	0x06ffff06,	/* 48: i_preinc "(:Int):Int" */
-	0x0cffff0c,	/* 49: predec "(:Scalar):Scalar" */
-	0x06ffff06,	/* 50: i_predec "(:Int):Int" */
-	0x0cffff0c,	/* 51: postinc "(:Scalar):Scalar" */
-	0x06ffff06,	/* 52: i_postinc "(:Int):Int" */
-	0x0cffff0c,	/* 53: postdec "(:Scalar):Scalar" */
-	0x06ffff06,	/* 54: i_postdec "(:Int):Int" */
-	0x0b0bff0b,	/* 55: pow "(:Numeric,:Numeric):Numeric" */
-	0x0b0bff0b,	/* 56: multiply "(:Numeric,:Numeric):Numeric" */
-	0x0606ff06,	/* 57: i_multiply "(:Int,:Int):Int" */
-	0x0b0bff0b,	/* 58: divide "(:Numeric,:Numeric):Numeric" */
-	0x0606ff06,	/* 59: i_divide "(:Int,:Int):Int" */
-	0x0b0bff0b,	/* 60: modulo "(:Numeric,:Numeric):Numeric" */
-	0x0606ff06,	/* 61: i_modulo "(:Int,:Int):Int" */
-	0x1106ff11,	/* 62: repeat "(:List,:Int):List" */
-	0x0b0bff0b,	/* 63: add "(:Numeric,:Numeric):Numeric" */
-	0x0606ff06,	/* 64: i_add "(:Int,:Int):Int" */
-	0x0b0bff0b,	/* 65: subtract "(:Numeric,:Numeric):Numeric" */
-	0x0606ff06,	/* 66: i_subtract "(:Int,:Int):Int" */
-	0x1212ff09,	/* 67: concat "(:Any,:Any):Str" */
-	0x0cffff09,	/* 68: stringify "(:Scalar):Str" */
-	0x0607ff07,	/* 69: left_shift "(:Int,:UInt):UInt" */
-	0x0607ff07,	/* 70: right_shift "(:Int,:UInt):UInt" */
-	0x0c0cff0a,	/* 71: lt "(:Scalar,:Scalar):Bool" */
-	0x0606ff0a,	/* 72: i_lt "(:Int,:Int):Bool" */
-	0x0c0cff0a,	/* 73: gt "(:Scalar,:Scalar):Bool" */
-	0x0606ff0a,	/* 74: i_gt "(:Int,:Int):Bool" */
-	0x0c0cff0a,	/* 75: le "(:Scalar,:Scalar):Bool" */
-	0x0606ff0a,	/* 76: i_le "(:Int,:Int):Bool" */
-	0x0c0cff0a,	/* 77: ge "(:Scalar,:Scalar):Bool" */
-	0x0606ff0a,	/* 78: i_ge "(:Int,:Int):Bool" */
-	0x0c0cff0a,	/* 79: eq "(:Scalar,:Scalar):Bool" */
-	0x0606ff0a,	/* 80: i_eq "(:Int,:Int):Bool" */
-	0x0c0cff0a,	/* 81: ne "(:Scalar,:Scalar):Bool" */
-	0x0606ff0a,	/* 82: i_ne "(:Int,:Int):Bool" */
-	0x0c0cff06,	/* 83: cmp "(:Scalar,:Scalar):Int" */
-	0x0606ff06,	/* 84: i_cmp "(:Int,:Int):Int" */
-	0x0909ff0a,	/* 85: s_lt "(:Str,:Str):Bool" */
-	0x0909ff0a,	/* 86: s_gt "(:Str,:Str):Bool" */
-	0x0909ff0a,	/* 87: s_le "(:Str,:Str):Bool" */
-	0x0909ff0a,	/* 88: s_ge "(:Str,:Str):Bool" */
-	0x0909ff0a,	/* 89: s_eq "(:Str,:Str):Bool" */
-	0x0909ff0a,	/* 90: s_ne "(:Str,:Str):Bool" */
-	0x0909ff06,	/* 91: s_cmp "(:Str,:Str):Int" */
-	0x0b0bff07,	/* 92: bit_and "(:Numeric,:Numeric):UInt" */
-	0x0b0bff07,	/* 93: bit_xor "(:Numeric,:Numeric):UInt" */
-	0x0b0bff07,	/* 94: bit_or "(:Numeric,:Numeric):UInt" */
-	0x0606ff07,	/* 95: i_bit_and "(:Int,:Int):UInt" */
-	0x0606ff07,	/* 96: i_bit_xor "(:Int,:Int):UInt" */
-	0x0606ff07,	/* 97: i_bit_or "(:Int,:Int):UInt" */
-	0x0909ff09,	/* 98: s_bit_and "(:Str,:Str):Str" */
-	0x0909ff09,	/* 99: s_bit_xor "(:Str,:Str):Str" */
-	0x0909ff09,	/* 100: s_bit_or "(:Str,:Str):Str" */
-	0x0bffff0b,	/* 101: negate "(:Numeric):Numeric" */
-	0x06ffff06,	/* 102: i_negate "(:Int):Int" */
-	0x0cffff0a,	/* 103: not "(:Scalar):Bool" */
-	0x0cffff0c,	/* 104: complement "(:Scalar):Scalar" */
-	0x07ffff07,	/* 105: i_complement "(:UInt):UInt" */
-	0x09ffff09,	/* 106: s_complement "(:Str):Str" */
+	0x0bffff0b,	/* 47: preinc "(:Scalar):Scalar" */
+	0x05ffff05,	/* 48: i_preinc "(:Int):Int" */
+	0x0bffff0b,	/* 49: predec "(:Scalar):Scalar" */
+	0x05ffff05,	/* 50: i_predec "(:Int):Int" */
+	0x0bffff0b,	/* 51: postinc "(:Scalar):Scalar" */
+	0x05ffff05,	/* 52: i_postinc "(:Int):Int" */
+	0x0bffff0b,	/* 53: postdec "(:Scalar):Scalar" */
+	0x05ffff05,	/* 54: i_postdec "(:Int):Int" */
+	0x0a0aff0a,	/* 55: pow "(:Numeric,:Numeric):Numeric" */
+	0x0a0aff0a,	/* 56: multiply "(:Numeric,:Numeric):Numeric" */
+	0x0505ff05,	/* 57: i_multiply "(:Int,:Int):Int" */
+	0x0a0aff0a,	/* 58: divide "(:Numeric,:Numeric):Numeric" */
+	0x0505ff05,	/* 59: i_divide "(:Int,:Int):Int" */
+	0x0a0aff0a,	/* 60: modulo "(:Numeric,:Numeric):Numeric" */
+	0x0505ff05,	/* 61: i_modulo "(:Int,:Int):Int" */
+	0x1005ff10,	/* 62: repeat "(:List,:Int):List" */
+	0x0a0aff0a,	/* 63: add "(:Numeric,:Numeric):Numeric" */
+	0x0505ff05,	/* 64: i_add "(:Int,:Int):Int" */
+	0x0a0aff0a,	/* 65: subtract "(:Numeric,:Numeric):Numeric" */
+	0x0505ff05,	/* 66: i_subtract "(:Int,:Int):Int" */
+	0x1111ff08,	/* 67: concat "(:Any,:Any):Str" */
+	0x0bffff08,	/* 68: stringify "(:Scalar):Str" */
+	0x0506ff06,	/* 69: left_shift "(:Int,:UInt):UInt" */
+	0x0506ff06,	/* 70: right_shift "(:Int,:UInt):UInt" */
+	0x0b0bff09,	/* 71: lt "(:Scalar,:Scalar):Bool" */
+	0x0505ff09,	/* 72: i_lt "(:Int,:Int):Bool" */
+	0x0b0bff09,	/* 73: gt "(:Scalar,:Scalar):Bool" */
+	0x0505ff09,	/* 74: i_gt "(:Int,:Int):Bool" */
+	0x0b0bff09,	/* 75: le "(:Scalar,:Scalar):Bool" */
+	0x0505ff09,	/* 76: i_le "(:Int,:Int):Bool" */
+	0x0b0bff09,	/* 77: ge "(:Scalar,:Scalar):Bool" */
+	0x0505ff09,	/* 78: i_ge "(:Int,:Int):Bool" */
+	0x0b0bff09,	/* 79: eq "(:Scalar,:Scalar):Bool" */
+	0x0505ff09,	/* 80: i_eq "(:Int,:Int):Bool" */
+	0x0b0bff09,	/* 81: ne "(:Scalar,:Scalar):Bool" */
+	0x0505ff09,	/* 82: i_ne "(:Int,:Int):Bool" */
+	0x0b0bff05,	/* 83: cmp "(:Scalar,:Scalar):Int" */
+	0x0505ff05,	/* 84: i_cmp "(:Int,:Int):Int" */
+	0x0808ff09,	/* 85: s_lt "(:Str,:Str):Bool" */
+	0x0808ff09,	/* 86: s_gt "(:Str,:Str):Bool" */
+	0x0808ff09,	/* 87: s_le "(:Str,:Str):Bool" */
+	0x0808ff09,	/* 88: s_ge "(:Str,:Str):Bool" */
+	0x0808ff09,	/* 89: s_eq "(:Str,:Str):Bool" */
+	0x0808ff09,	/* 90: s_ne "(:Str,:Str):Bool" */
+	0x0808ff05,	/* 91: s_cmp "(:Str,:Str):Int" */
+	0x0a0aff06,	/* 92: bit_and "(:Numeric,:Numeric):UInt" */
+	0x0a0aff06,	/* 93: bit_xor "(:Numeric,:Numeric):UInt" */
+	0x0a0aff06,	/* 94: bit_or "(:Numeric,:Numeric):UInt" */
+	0x0505ff06,	/* 95: i_bit_and "(:Int,:Int):UInt" */
+	0x0505ff06,	/* 96: i_bit_xor "(:Int,:Int):UInt" */
+	0x0505ff06,	/* 97: i_bit_or "(:Int,:Int):UInt" */
+	0x0808ff08,	/* 98: s_bit_and "(:Str,:Str):Str" */
+	0x0808ff08,	/* 99: s_bit_xor "(:Str,:Str):Str" */
+	0x0808ff08,	/* 100: s_bit_or "(:Str,:Str):Str" */
+	0x0affff0a,	/* 101: negate "(:Numeric):Numeric" */
+	0x05ffff05,	/* 102: i_negate "(:Int):Int" */
+	0x0bffff09,	/* 103: not "(:Scalar):Bool" */
+	0x0bffff0b,	/* 104: complement "(:Scalar):Scalar" */
+	0x06ffff06,	/* 105: i_complement "(:UInt):UInt" */
+	0x08ffff08,	/* 106: s_complement "(:Str):Str" */
 	0xffffffff,	/* 107: smartmatch "" */
-	0x0808ff08,	/* 108: atan2 "(:Num,:Num):Num" */
-	0x08ffff08,	/* 109: sin "(:Num):Num" */
-	0x08ffff08,	/* 110: cos "(:Num):Num" */
-	0xe8ffff08,	/* 111: rand "(:Num?):Num" */
-	0xe8ffff08,	/* 112: srand "(:Num?):Num" */
-	0x08ffff08,	/* 113: exp "(:Num):Num" */
-	0x08ffff08,	/* 114: log "(:Num):Num" */
-	0x08ffff08,	/* 115: sqrt "(:Num):Num" */
-	0x0bffff0b,	/* 116: int "(:Numeric):Numeric" */
-	0x0bffff07,	/* 117: hex "(:Numeric):UInt" */
-	0x0bffff07,	/* 118: oct "(:Numeric):UInt" */
-	0x0bffff0b,	/* 119: abs "(:Numeric):Numeric" */
-	0x02ffff06,	/* 120: box_int "(:int):Int" */
-	0x03ffff07,	/* 121: box_uint "(:uint):UInt" */
-	0x05ffff09,	/* 122: box_str "(:str):Str" */
-	0x04ffff08,	/* 123: box_num "(:num):Num" */
-	0x06ffff02,	/* 124: unbox_int "(:Int):int" */
-	0x06ffff03,	/* 125: unbox_uint "(:Int):uint" */
-	0x09ffff05,	/* 126: unbox_str "(:Str):str" */
-	0x08ffff04,	/* 127: unbox_num "(:Num):num" */
-	0x0302ff03,	/* 128: uint_left_shift "(:uint,:int):uint" */
-	0x0302ff03,	/* 129: uint_right_shift "(:uint,:int):uint" */
-	0x0302ff03,	/* 130: uint_pow "(:uint,:int):uint" */
-	0x03ffff03,	/* 131: uint_complement "(:uint):uint" */
-	0x02ffff02,	/* 132: int_preinc "(:int):int" */
-	0x02ffff02,	/* 133: int_predec "(:int):int" */
-	0x02ffff02,	/* 134: int_postinc "(:int):int" */
-	0x02ffff02,	/* 135: int_postdec "(:int):int" */
-	0x0202ff02,	/* 136: int_add "(:int,:int):int" */
-	0x0202ff02,	/* 137: int_subtract "(:int,:int):int" */
-	0x0202ff02,	/* 138: int_multiply "(:int,:int):int" */
-	0x0202ff02,	/* 139: int_divide "(:int,:int):int" */
-	0x0202ff02,	/* 140: int_modulo "(:int,:int):int" */
-	0x02ffff02,	/* 141: int_negate "(:int):int" */
-	0x02ffff02,	/* 142: int_not "(:int):int" */
-	0x02ffff02,	/* 143: int_abs "(:int):int" */
-	0x0202ff02,	/* 144: int_lt "(:int,:int):int" */
-	0x0202ff02,	/* 145: int_gt "(:int,:int):int" */
-	0x0202ff02,	/* 146: int_le "(:int,:int):int" */
-	0x0202ff02,	/* 147: int_ge "(:int,:int):int" */
-	0x0202ff02,	/* 148: int_eq "(:int,:int):int" */
-	0x0202ff02,	/* 149: int_ne "(:int,:int):int" */
-	0x0404ff04,	/* 150: num_add "(:num,:num):num" */
-	0x0404ff04,	/* 151: num_subtract "(:num,:num):num" */
-	0x0404ff04,	/* 152: num_multiply "(:num,:num):num" */
-	0x0404ff04,	/* 153: num_divide "(:num,:num):num" */
-	0x0404ff04,	/* 154: num_atan2 "(:num,:num):num" */
-	0x0404ff04,	/* 155: num_pow "(:num,:num):num" */
-	0x04ffff04,	/* 156: num_sin "(:num):num" */
-	0x04ffff04,	/* 157: num_cos "(:num):num" */
-	0x04ffff04,	/* 158: num_exp "(:num):num" */
-	0x04ffff04,	/* 159: num_log "(:num):num" */
-	0x04ffff04,	/* 160: num_sqrt "(:num):num" */
+	0x0707ff07,	/* 108: atan2 "(:Num,:Num):Num" */
+	0x07ffff07,	/* 109: sin "(:Num):Num" */
+	0x07ffff07,	/* 110: cos "(:Num):Num" */
+	0xe7ffff07,	/* 111: rand "(:Num?):Num" */
+	0xe7ffff07,	/* 112: srand "(:Num?):Num" */
+	0x07ffff07,	/* 113: exp "(:Num):Num" */
+	0x07ffff07,	/* 114: log "(:Num):Num" */
+	0x07ffff07,	/* 115: sqrt "(:Num):Num" */
+	0x0affff0a,	/* 116: int "(:Numeric):Numeric" */
+	0x0affff06,	/* 117: hex "(:Numeric):UInt" */
+	0x0affff06,	/* 118: oct "(:Numeric):UInt" */
+	0x0affff0a,	/* 119: abs "(:Numeric):Numeric" */
+	0x01ffff05,	/* 120: box_int "(:int):Int" */
+	0x02ffff06,	/* 121: box_uint "(:uint):UInt" */
+	0x04ffff08,	/* 122: box_str "(:str):Str" */
+	0x03ffff07,	/* 123: box_num "(:num):Num" */
+	0x05ffff01,	/* 124: unbox_int "(:Int):int" */
+	0x05ffff02,	/* 125: unbox_uint "(:Int):uint" */
+	0x08ffff04,	/* 126: unbox_str "(:Str):str" */
+	0x07ffff03,	/* 127: unbox_num "(:Num):num" */
+	0x0201ff02,	/* 128: uint_left_shift "(:uint,:int):uint" */
+	0x0201ff02,	/* 129: uint_right_shift "(:uint,:int):uint" */
+	0x0201ff02,	/* 130: uint_pow "(:uint,:int):uint" */
+	0x02ffff02,	/* 131: uint_complement "(:uint):uint" */
+	0x01ffff01,	/* 132: int_preinc "(:int):int" */
+	0x01ffff01,	/* 133: int_predec "(:int):int" */
+	0x01ffff01,	/* 134: int_postinc "(:int):int" */
+	0x01ffff01,	/* 135: int_postdec "(:int):int" */
+	0x0101ff01,	/* 136: int_add "(:int,:int):int" */
+	0x0101ff01,	/* 137: int_subtract "(:int,:int):int" */
+	0x0101ff01,	/* 138: int_multiply "(:int,:int):int" */
+	0x0101ff01,	/* 139: int_divide "(:int,:int):int" */
+	0x0101ff01,	/* 140: int_modulo "(:int,:int):int" */
+	0x01ffff01,	/* 141: int_negate "(:int):int" */
+	0x01ffff01,	/* 142: int_not "(:int):int" */
+	0x01ffff01,	/* 143: int_abs "(:int):int" */
+	0x0101ff01,	/* 144: int_lt "(:int,:int):int" */
+	0x0101ff01,	/* 145: int_gt "(:int,:int):int" */
+	0x0101ff01,	/* 146: int_le "(:int,:int):int" */
+	0x0101ff01,	/* 147: int_ge "(:int,:int):int" */
+	0x0101ff01,	/* 148: int_eq "(:int,:int):int" */
+	0x0101ff01,	/* 149: int_ne "(:int,:int):int" */
+	0x0303ff03,	/* 150: num_add "(:num,:num):num" */
+	0x0303ff03,	/* 151: num_subtract "(:num,:num):num" */
+	0x0303ff03,	/* 152: num_multiply "(:num,:num):num" */
+	0x0303ff03,	/* 153: num_divide "(:num,:num):num" */
+	0x0303ff03,	/* 154: num_atan2 "(:num,:num):num" */
+	0x0303ff03,	/* 155: num_pow "(:num,:num):num" */
+	0x03ffff03,	/* 156: num_sin "(:num):num" */
+	0x03ffff03,	/* 157: num_cos "(:num):num" */
+	0x03ffff03,	/* 158: num_exp "(:num):num" */
+	0x03ffff03,	/* 159: num_log "(:num):num" */
+	0x03ffff03,	/* 160: num_sqrt "(:num):num" */
 	0xffffffff,	/* 161: length "" */
 	0xffffffff,	/* 162: substr "" */
 	0xffffffff,	/* 163: vec "" */
@@ -1742,16 +1742,16 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffffff,	/* 173: uc "" */
 	0xffffffff,	/* 174: lc "" */
 	0xffffffff,	/* 175: quotemeta "" */
-	0x0dffff10,	/* 176: rv2av "(:Ref):Hash" */
-	0xffffff0c,	/* 177: aelemfast "():Scalar" */
-	0xffffff0c,	/* 178: aelemfast_lex "():Scalar" */
-	0x2c06ff0c,	/* 179: aelem "(:Array(:Scalar),:Int):Scalar" */
-	0x2606ff06,	/* 180: i_aelem "(:Array(:Int),:Int):Int" */
-	0x2806ff08,	/* 181: n_aelem "(:Array(:Num),:Int):Num" */
-	0x2906ff09,	/* 182: s_aelem "(:Array(:Str),:Int):Str" */
-	0x2202ff02,	/* 183: int_aelem "(:Array(:int),:int):int" */
-	0x2402ff04,	/* 184: num_aelem "(:Array(:num),:int):num" */
-	0x2502ff05,	/* 185: str_aelem "(:Array(:str),:int):str" */
+	0x0cffff0f,	/* 176: rv2av "(:Ref):Hash" */
+	0xffffff0b,	/* 177: aelemfast "():Scalar" */
+	0xffffff0b,	/* 178: aelemfast_lex "():Scalar" */
+	0x2b05ff0b,	/* 179: aelem "(:Array(:Scalar),:Int):Scalar" */
+	0x2505ff05,	/* 180: i_aelem "(:Array(:Int),:Int):Int" */
+	0x2705ff07,	/* 181: n_aelem "(:Array(:Num),:Int):Num" */
+	0x2805ff08,	/* 182: s_aelem "(:Array(:Str),:Int):Str" */
+	0x2101ff01,	/* 183: int_aelem "(:Array(:int),:int):int" */
+	0x2301ff03,	/* 184: num_aelem "(:Array(:num),:int):num" */
+	0x2401ff04,	/* 185: str_aelem "(:Array(:str),:int):str" */
 	0xffffffff,	/* 186: aslice "" */
 	0xffffffff,	/* 187: kvaslice "" */
 	0xffffffff,	/* 188: aeach "" */
@@ -1760,10 +1760,10 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffffff,	/* 191: each "" */
 	0xffffffff,	/* 192: values "" */
 	0xffffffff,	/* 193: keys "" */
-	0x09ffff01,	/* 194: delete "(:Str):Void" */
-	0x09ffff0a,	/* 195: exists "(:Str):Bool" */
-	0x0dffff10,	/* 196: rv2hv "(:Ref):Hash" */
-	0xccffff0c,	/* 197: helem "(:Hash(:Scalar)):Scalar" */
+	0x08ffffff,	/* 194: delete "(:Str):Void" */
+	0x08ffff09,	/* 195: exists "(:Str):Bool" */
+	0x0cffff0f,	/* 196: rv2hv "(:Ref):Hash" */
+	0xcbffff0b,	/* 197: helem "(:Hash(:Scalar)):Scalar" */
 	0xffffffff,	/* 198: hslice "" */
 	0xffffffff,	/* 199: kvhslice "" */
 	0xffffffff,	/* 200: multideref "" */
@@ -1789,11 +1789,11 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffffff,	/* 220: range "" */
 	0xffffffff,	/* 221: flip "" */
 	0xffffffff,	/* 222: flop "" */
-	0x0c0cff01,	/* 223: and "(:Scalar,:Scalar):Void" */
+	0x0b0bffff,	/* 223: and "(:Scalar,:Scalar):Void" */
 	0xffffffff,	/* 224: or "" */
 	0xffffffff,	/* 225: xor "" */
 	0xffffffff,	/* 226: dor "" */
-	0x0cffff01,	/* 227: cond_expr "(:Scalar):Void" */
+	0x0bffffff,	/* 227: cond_expr "(:Scalar):Void" */
 	0xffffffff,	/* 228: andassign "" */
 	0xffffffff,	/* 229: orassign "" */
 	0xffffffff,	/* 230: dorassign "" */
@@ -1806,13 +1806,13 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffffff,	/* 237: warn "" */
 	0xffffffff,	/* 238: die "" */
 	0xffffffff,	/* 239: reset "" */
-	0xffffff01,	/* 240: lineseq "():Void" */
-	0xffffff01,	/* 241: nextstate "():Void" */
-	0xffffff01,	/* 242: dbstate "():Void" */
-	0xffffff01,	/* 243: unstack "():Void" */
+	0xffffffff,	/* 240: lineseq "():Void" */
+	0xffffffff,	/* 241: nextstate "():Void" */
+	0xffffffff,	/* 242: dbstate "():Void" */
+	0xffffffff,	/* 243: unstack "():Void" */
 	0xffffffff,	/* 244: enter "" */
 	0xffffffff,	/* 245: leave "" */
-	0xffffff01,	/* 246: scope "():Void" */
+	0xffffffff,	/* 246: scope "():Void" */
 	0xffffffff,	/* 247: enteriter "" */
 	0xffffffff,	/* 248: iter "" */
 	0xffffffff,	/* 249: enterloop "" */

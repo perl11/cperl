@@ -1143,10 +1143,11 @@ END
 
 $i = 0;
 my @coretypes =
-  ("", qw( Void int uint num str Int UInt Num Str
+  ("", qw( int uint num str Int UInt Num Str
            Bool Numeric Scalar
-           Ref Sub Array Hash List Any ));
+           Ref Sub Array Hash List Any Void ));
 my %coretype = map { $_ => $i++ } @coretypes;
+$coretype{Void} = 0xff;
 
 for (@coretypes) {
     printf $oc (qq(    type_%s = %d,\n), $_, $coretype{$_}) if $_ ne "";
