@@ -399,7 +399,7 @@ if (! $versiononly && ! samepath($installbin, '.') && ($^O ne 'dos') && ! $Is_VM
     } else {
         if ($Config{perlpath} ne "$installbin/$perl_verbase$ver$exe_ext") {
             safe_unlink($Config{perlpath});
-            mv ("$installbin/$perl_verbase$ver$exe_ext", $Config{perlpath});
+            File::Copy::move("$installbin/$perl_verbase$ver$exe_ext", $Config{perlpath});
             link($Config{perlpath}, "$installbin/$perl_verbase$ver$exe_ext");
         }
 	link("$installbin/$perl_verbase$ver$exe_ext",
@@ -419,6 +419,15 @@ if ($opts{archname} && ! samepath($installbin, '.') && ($^O ne 'dos') && ! $Is_V
     } else {
 	link("$installbin/$perl_verbase$ver$exe_ext", "$installbin/$archperl");
     }
+}
+
+# on -Dperlpath provide that as main executable, and link the main exe to it
+if ($Config{perlpath}
+    and $Config{perlpath} ne "$installbin/$perl_verbase$ver$exe_ext") {
+    safe_unlink($Config{perlpath});
+    safe_rename("$installbin/$perl_verbase$ver$exe_ext", $Config{perlpath});
+    print "  $Config{perlpath}\n" unless $opts{silent};
+    link($Config{perlpath}, "$installbin/$perl_verbase$ver$exe_ext");
 }
 
 # Offer to install perl in a "standard" location
