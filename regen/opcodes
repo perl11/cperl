@@ -35,13 +35,12 @@
 # socket      - Fs           filetest - F-           filetest_access - F-+
 # num-compare - S<           dirhandle - DF          infix bitwise   - S|
 # reference   - R
+# native int  - I            native str - Z          native num  - N
 # "?" denotes an optional operand.
-# unboxed raw value, no SV, on the stack. :int, :uint, :str, :num
-# int  - I      ASCIIZ   - Z   double   - N
 
 # Nothing.
 
-null		null operation		ck_null		p0		"():Void"
+null		null operation		ck_null		0		"():Void"
 stub		stub			ck_null		p0		"():Void"
 scalar		scalar			ck_fun		ps%	S	"():Void"
 
