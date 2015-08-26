@@ -232,6 +232,11 @@ version_prescan_finish:
 	/* trailing non-numeric data */
 	BADVERSION(s,errstr,"Invalid version format (non-numeric data)");
     }
+    if (saw_decimal > 1 && d[-1] == '.') {
+	/* no trailing period allowed */
+	BADVERSION(s,errstr,"Invalid version format (trailing decimal)");
+    }
+
 
     if (sqv)
 	*sqv = qv;
@@ -377,8 +382,14 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
 		s = last;
 		break;
 	    }
-	    else if ( *pos == '.' )
-		s = ++pos;
+	    else if ( *pos == '.' ) {
+		pos++;
+		if (qv) {
+		    while (*pos == '0')
+			++pos;
+		}
+		s = pos;
+	    }
 	    else if ( *pos == '_' && isDIGIT(pos[1]) )
 		s = ++pos;
 	    else if ( *pos == ',' && isDIGIT(pos[1]) )
@@ -840,6 +851,11 @@ Perl_vnumify(pTHX_ SV *vs)
     }
 
 
+    if (alpha) {
+	Perl_ck_warner(aTHX_ packWARN(WARN_NUMERIC),
+		       "alpha->numify() is lossy");
+    }
+
     /* attempt to retrieve the version array */
     if ( !(av = MUTABLE_AV(SvRV(*hv_fetchs(MUTABLE_HV(vs), "version", FALSE))) ) ) {
 	return newSVpvs("0");
@@ -910,6 +926,7 @@ Perl_vnormal(pTHX_ SV *vs)
 {
     I32 i, len, digit;
     bool alpha = FALSE;
+    /*bool qv = FALSE;*/
     SV *sv;
     AV *av;
 
@@ -922,6 +939,9 @@ Perl_vnormal(pTHX_ SV *vs)
 
     if ( hv_exists(MUTABLE_HV(vs), "alpha", 5 ) )
 	alpha = TRUE;
+    /*if ( hv_exists(MUTABLE_HV(vs), "qv", 2) )
+        qv = TRUE;*/
+
     av = MUTABLE_AV(SvRV(*hv_fetchs(MUTABLE_HV(vs), "version", FALSE)));
 
     len = av_len(av);
