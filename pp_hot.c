@@ -5499,6 +5499,27 @@ PP(pp_entersub)
                 if (items)
                     Copy(MARK+1,AvARRAY(av),items,SV*);
                 AvFILLp(av) = items - 1;
+#ifdef DEBUGGING
+                MARK = AvARRAY(av);
+                while (items--) {
+                    if (*MARK && SvNATIVE(*MARK)) {
+                        /* We could do this at run-time, but should rather rely in the compiler
+                           do downgrade this at compile-time. Furthermore native CONSTs here are
+                           really fatal. */
+                        Perl_warn(aTHX_ "Internal compiler warning: upgrade left-over native padsv");
+                        if (SvIOK_UV(*MARK))
+                            *MARK = sv_2mortal(newSVuv((*MARK)->sv_u.svu_uv));
+                        else if (SvIOK(*MARK))
+                            *MARK = sv_2mortal(newSViv((*MARK)->sv_u.svu_iv));
+                        else if (SvNOK(*MARK))
+                            *MARK = sv_2mortal(newSVnv((*MARK)->sv_u.svu_nv));
+                        else if (SvPOK(*MARK))
+                            *MARK = sv_2mortal(newSVpvn((*MARK)->sv_u.svu_pv,
+                                                        strlen((*MARK)->sv_u.svu_pv)));
+                    }
+                    MARK++;
+                }
+#endif
             }
 	} else if (CvHASSIG(cv)) { /* mark argc==0 */
             cx->blk_sub.argarray  = MARK+1;

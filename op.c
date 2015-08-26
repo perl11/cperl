@@ -195,9 +195,12 @@ static const char array_passed_to_stat[] =
 #define IS_TYPE(o, type)   OP_TYPE_IS_NN((o), OP_##type)
 #define ISNT_TYPE(o, type) OP_TYPE_ISNT_NN((o), OP_##type)
 #define IS_NULL_OP(o)  ((o)->op_type == OP_NULL)
+/* excluding native variants */
 #define IS_AND_OP(o)   ((o)->op_type == OP_AND)
 #define IS_OR_OP(o)    ((o)->op_type == OP_OR)
+/* including native variants */
 #define IS_CONST_OP(o) ((o)->op_ppaddr == Perl_pp_const)
+#define IS_PADSV_OP(o) ((o)->op_type == OP_PADSV || (o)->op_ppaddr == Perl_pp_int_padsv)
 #define IS_RV2ANY_OP(o)  \
       (OP_TYPE_IS_NN((o), OP_RV2SV) \
     || OP_TYPE_IS_NN((o), OP_RV2AV) \
@@ -2179,6 +2182,12 @@ S_op_varname(pTHX_ const OP *o)
     return S_op_varname_subscript(aTHX_ o, 1);
 }
 
+/* Returns copy of the string sv or a char* pv for a str CONST op.
+   PV_PRETTY_DUMP'ified and PV_ESCAPE_UNI_DETECT
+   Either retpv or if empty the retsv is used.
+   Used for warnings.
+ */
+
 static void
 S_op_pretty(pTHX_ const OP *o, SV **retsv, const char **retpv)
 { /* or not so pretty :-) */
@@ -2192,6 +2201,16 @@ S_op_pretty(pTHX_ const OP *o, SV **retsv, const char **retpv)
 	}
 	else if (!SvOK(*retsv))
 	    *retpv = "undef";
+    }
+    else if (o->op_type == OP_STR_CONST) {
+        const STRLEN len = strlen((char*)cSVOPo_sv);
+        if (len < 32) {
+            *retpv = (char*)cSVOPo_sv;
+        } else {
+            *retsv = sv_newmortal();
+            pv_pretty(*retsv, (char*)cSVOPo_sv, len, 32, NULL, NULL,
+                      PERL_PV_PRETTY_DUMP |PERL_PV_ESCAPE_UNI_DETECT);
+        }
     }
     else *retpv = "...";
 }
@@ -2588,11 +2607,32 @@ Perl_scalarvoid(pTHX_ OP *arg)
                      * use constant Foo, 5; Foo || print; */
                     if (cSVOPo->op_private & OPpCONST_SHORTCIRCUIT)
                         useless = NULL;
-                    else if (cSVOPo->op_private & OPpCONST_UNBOXED)
-                        useless = "a constant (native)";
-                    /* the constants 0 and 1 are permitted as they are
-                       conventionally used as dummies in constructs like
-                       1 while some_condition_with_side_effects;  */
+                    else if (o->op_type ==  OP_STR_CONST) {
+                        SV * const dsv = newSVpvs("");
+                        useless_sv
+                            = Perl_newSVpvf(aTHX_
+                                            "a native constant (%s)",
+                                            pv_pretty(dsv, (char*)sv,
+                                                      strlen((char*)sv), 32, NULL, NULL,
+                                                      PERL_PV_PRETTY_DUMP
+                                                      | PERL_PV_ESCAPE_NOCLEAR
+                                                      | PERL_PV_ESCAPE_UNI_DETECT));
+                        SvREFCNT_dec_NN(dsv);
+                    }
+                    else if (cSVOPo->op_private & OPpCONST_UNBOXED) {
+                        /* the constants 0 and 1 are permitted as they are
+                           conventionally used as dummies in constructs like
+                           1 while some_condition_with_side_effects;  */
+                        const IV iv = const_iv(o);
+                        const NV nv = PTR2NV(sv);
+                        if (iv == 0 || iv == 1)
+                            useless = NULL;
+                        else if (o->op_type == OP_NUM_CONST && ((nv == 0.0 || nv == 1.0)))
+                            useless = NULL;
+                        else
+                            useless_sv = Perl_newSVpvf(aTHX_ "a native constant (%s)",
+                                                       op_native_peek(o));
+                    }
                     else if (SvNIOK(sv) && ((nv = SvNV(sv)) == 0.0 || nv == 1.0))
                         useless = NULL;
                     else if (SvPOK(sv)) {
@@ -2813,6 +2853,7 @@ S_can_const_iv(pTHX_ OP* o)
 
 The static iv value of a const op, with the special case of a native
 CONST_INT.  Returns IV_MAX on error.
+Better check with L</can_const_iv> before.
 
 =cut
 */
@@ -3004,13 +3045,14 @@ S_check_hash_fields_and_hekify(pTHX_ UNOP *rop, SVOP *key_op, int real)
 
     /* find the padsv corresponding to $lex->{} or @{$lex}{} */
     if (rop) {
-        if (IS_TYPE(OpFIRST(rop), PADSV))
+        /* only need op_targ from it, for the FIELDS */
+        if (IS_PADSV_OP(OpFIRST(rop)))
             /* @$hash{qw(keys here)} */
             rop = (UNOP*)OpFIRST(rop);
         else {
             /* @{$hash}{qw(keys here)} */
             if (IS_TYPE(OpFIRST(rop), SCOPE)
-             && IS_TYPE(OpLAST(OpFIRST(rop)), PADSV))
+             && IS_PADSV_OP(OpLAST(OpFIRST(rop))))
             {
                 rop = (UNOP*)OpLAST(OpFIRST(rop));
             }
@@ -21253,7 +21295,7 @@ S_op_upgrade_native(pTHX_ OP* o, OPCODE c, bool mod)
     }
 
     if (type == OP_CONST) {
-        SV* sv = cSVOPo->op_sv;
+        SV* sv = cSVOPo_sv;
 #ifdef DEBUGGING
         if (mod)
             DEBUG_k(Perl_deb(aTHX_ "native: upgrade %s => %s\n", OP_NAME(o), PL_op_name[c]));
@@ -21305,22 +21347,26 @@ S_op_upgrade_native(pTHX_ OP* o, OPCODE c, bool mod)
             if (SvANY(sv) && !SvIOK(sv))
                 bad_type_declared(sv, "int");
             UPGRADE_PAD(o, c);
+            SvIOK_on(sv);
             return TRUE;
         case OP_UINT_PADSV:
             if (SvANY(sv) && (!SvIOK(sv) || !SvUOK(sv)))
                 bad_type_declared(sv, "uint");
             UPGRADE_PAD(o, c);
+            SvIOK_only_UV(sv);
             return TRUE;
         case OP_NUM_PADSV:
             if (SvANY(sv) && !SvNOK(sv))
                 bad_type_declared(sv, "num");
             UPGRADE_PAD(o, c);
+            SvNOK_on(sv);
             return TRUE;
         case OP_STR_PADSV:
             if (SvANY(sv) && !SvPOK(sv))
                 bad_type_declared(sv, "str");
             if (is_native_string(sv->sv_u.svu_pv, SvANY(sv) ? SvCUR(sv) : 0)) {
                 UPGRADE_PAD(o, c);
+                SvPOK_on(sv);
                 return TRUE;
             }
         default: ;
@@ -21422,8 +21468,8 @@ S_op_downgrade_oplist(pTHX_ OP* o, OP* o2)
 {
     PERL_ARGS_ASSERT_OP_DOWNGRADE_OPLIST;
     DEBUG_kv(Perl_deb(aTHX_ "native: downgrade chain %s..%s\n", OP_NAME(o), OP_NAME(o2)));
-    for (; o && IS_NATIVE_OP(o) && o != o2; o = OpNEXT(o)) {
-        op_downgrade_native(o, FALSE);
+    for (; o && o != o2; o = OpNEXT(o)) {
+        if (IS_NATIVE_OP(o)) op_downgrade_native(o, FALSE);
     }
 }
 
@@ -21610,8 +21656,10 @@ Perl_rpeep(pTHX_ OP *o)
         type = o->op_type;
 
         /* consumed the pushmark */
-        if (OP_IS_LISTOP(type) || OP_HAS_LIST(type))
+        if (OP_IS_LISTOP(type) || OP_HAS_LIST(type)) {
+            DEBUG_kv(Perl_deb(aTHX_ "rpeep %s consumes pushmark\n", PL_op_name[type]));
             seen_pushmark = FALSE;
+        }
 
         /* boxed type promotions done in ck_type.
          * check this chain of unboxed/native ops, until we cannot upgrade and need to BOX it.
@@ -22156,6 +22204,7 @@ Perl_rpeep(pTHX_ OP *o)
         case OP_PUSHMARK:
             seen_pushmark = TRUE;
 
+            /*DEBUG_kv(Perl_deb(aTHX_ "rpeep seen pushmark %s\n", OP_NAME(o->op_next)));*/
             /* Given
                  5 repeat/DOLIST
                  3   ex-list
