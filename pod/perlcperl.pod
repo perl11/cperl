@@ -49,7 +49,7 @@ Experts:
       -Dinstallsiteman3dir=none
     make -s -j4 ECHO=true
     make -s -j4 ECHO=true test
-    sudo make install PERLNAME=cperl
+    sudo make install
 
 Debugging with private archlibs and exename:
 

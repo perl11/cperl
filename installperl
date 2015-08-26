@@ -40,7 +40,8 @@ my $mainperldir = "/usr/bin";
 my $exe_ext = $Config{exe_ext};
 
 # Allow "make install PERLNAME=something_besides_perl":
-my $perl = defined($ENV{PERLNAME}) ? $ENV{PERLNAME} : 'perl';
+my $perl = defined($ENV{PERLNAME}) ? $ENV{PERLNAME}
+          : ($Config{usecperl} ? 'cperl' : 'perl');
 
 # This is the base used for versioned names, like "perl5.6.0".
 # It's separate because a common use of $PERLNAME is to install
@@ -296,7 +297,7 @@ elsif ($^O ne 'dos') {
     if (!$Is_NetWare) {
 	safe_unlink("$installbin/$perl_verbase$ver$exe_ext");
 	copy("perl$exe_ext", "$installbin/$perl_verbase$ver$exe_ext");
-	strip("$installbin/$perl_verbase$ver$exe_ext");
+	#strip("$installbin/$perl_verbase$ver$exe_ext");
 	chmod(0755, "$installbin/$perl_verbase$ver$exe_ext");
     }
     else {
@@ -396,8 +397,13 @@ if (! $versiononly && ! samepath($installbin, '.') && ($^O ne 'dos') && ! $Is_VM
 	symlink("$installbin/$perl_verbase$ver$exe_ext",
 		"$installbin/$perl$exe_ext");
     } else {
+        if ($Config{perlpath} ne "$installbin/$perl_verbase$ver$exe_ext") {
+            safe_unlink($Config{perlpath});
+            mv ("$installbin/$perl_verbase$ver$exe_ext", $Config{perlpath});
+            link($Config{perlpath}, "$installbin/$perl_verbase$ver$exe_ext");
+        }
 	link("$installbin/$perl_verbase$ver$exe_ext",
-		"$installbin/$perl$exe_ext");
+             "$installbin/$perl$exe_ext");
     }
 }
 
