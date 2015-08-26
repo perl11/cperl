@@ -328,9 +328,78 @@ XS(XS_DynaLoader_bootstrap)
 
     dirs = newAV();
     for (i=0; i<=AvFILL(GvAV(PL_incgv)); i++) {
-        SV **pdir = av_fetch(GvAV(PL_incgv), i, 0);
-        SV *dir = pv_copy(*pdir);
-        SV *slib;
+        SV * const dirsv = *av_fetch(GvAV(PL_incgv), i, TRUE);
+        SV *slib, *dir;
+
+        /* Handle avref or cvref in @INC. eg: Class::Load::XS.
+           Code from pp_ctl.c: pp_require without source filters */
+        SvGETMAGIC(dirsv);
+        if (SvROK(dirsv)) {
+            int count;
+            SV *loader = dirsv;
+
+            if (SvTYPE(SvRV(loader)) == SVt_PVAV && !SvOBJECT(SvRV(loader))) {
+                loader = *av_fetch(MUTABLE_AV(SvRV(loader)), 0, TRUE);
+                SvGETMAGIC(loader);
+            }
+            ENTER_with_name("call_INC");
+            EXTEND(SP, 2);
+            PUSHMARK(SP);
+            PUSHs(dirsv);
+            PUSHs(modpname);
+            PUTBACK;
+            if (SvGMAGICAL(loader)) {
+                SV *l = sv_newmortal();
+                sv_setsv_nomg(l, loader);
+                loader = l;
+            }
+            if (sv_isobject(loader))
+                count = call_method("INC", G_ARRAY);
+            else
+                count = call_sv(loader, G_ARRAY);
+            SPAGAIN;
+
+            if (count > 0) {
+                /*int i = 0;
+                  SV *arg;*/
+#if 1
+                if (SvPOK(TOPs))
+                    dir = pv_copy(TOPs);
+                else
+                    dir = newSVpvs(".");
+                SP -= count - 1;
+#else
+                arg = SP[i++];
+                if (SvROK(arg) && (SvTYPE(SvRV(arg)) <= SVt_PVLV)
+                    && !isGV_with_GP(SvRV(arg))) {
+                    if (i < count) {
+                        arg = SP[i++];
+                    }
+                }
+                if (SvROK(arg) && isGV_with_GP(SvRV(arg))) {
+                    arg = SvRV(arg);
+                }
+                if (isGV_with_GP(arg)) {
+                    IO * const io = GvIO((const GV *)arg);
+                    if (io) {
+                        if (IoOFP(io) && IoOFP(io) != IoIFP(io)) {
+                            PerlIO_close(IoOFP(io));
+                        }
+                        IoIFP(io) = NULL;
+                        IoOFP(io) = NULL;
+                    }
+                    if (i < count) {
+                        arg = SP[i++];
+                    }
+                }
+                SP--;
+#endif
+            }
+            PUTBACK;
+            LEAVE_with_name("call_INC");
+        } else {
+            dir = pv_copy(dirsv);
+        }
 #ifdef VMS
         char *buf = tounixpath_utf8_ts(aTHX_ dir, NULL, SvUTF8(dir));
         int len = strlen(buf);

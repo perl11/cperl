@@ -3764,9 +3764,7 @@ PP(pp_require)
 		    SV **svp;
 		    SV *loader = dirsv;
 
-		    if (SvTYPE(SvRV(loader)) == SVt_PVAV
-			&& !SvOBJECT(SvRV(loader)))
-		    {
+		    if (SvTYPE(SvRV(loader)) == SVt_PVAV && !SvOBJECT(SvRV(loader))) {
 			loader = *av_fetch(MUTABLE_AV(SvRV(loader)), 0, TRUE);
 			SvGETMAGIC(loader);
 		    }
