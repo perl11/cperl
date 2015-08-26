@@ -5505,7 +5505,9 @@ PP(pp_entersub)
                     if (*MARK && SvNATIVE(*MARK)) {
                         /* We could do this at run-time, but should rather rely in the compiler
                            do downgrade this at compile-time. Furthermore native CONSTs here are
-                           really fatal. */
+                           really fatal. Should have been fixed with
+                           native: fix op_downgrade_oplist, more and
+                           native: downgrade *_padsv also*/
                         Perl_warn(aTHX_ "Internal compiler warning: upgrade left-over native padsv");
                         if (SvIOK_UV(*MARK))
                             *MARK = sv_2mortal(newSVuv((*MARK)->sv_u.svu_uv));

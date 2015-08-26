@@ -175,6 +175,13 @@ recursive, but it's recursive on basic blocks, not on tree nodes.
 #undef op_typed
 #define op_typed(a) S_op_typed(aTHX_ a, TRUE)
 
+#ifdef USE_ITHREADS
+#define	cSVOPo_sv_set(sv) if (cSVOPo->op_sv) cSVOPo->op_sv = (sv); \
+    else PAD_SVl((o)->op_targ) = (sv)
+#else
+#define	cSVOPo_sv_set(sv) cSVOPo->op_sv = (sv)
+#endif
+
 static const char array_passed_to_stat[] =
     "Array passed to stat will be coerced to a scalar";
 
@@ -21407,9 +21414,11 @@ only for const yet.
 we may not downgrade a pad.
 but we better insert a BOX op when we cannot op_downgrade_native.
 native UNOP/BINOP always start with const or pad, so should be no issue.
+But untyped listops, which expect proper boxed values on the pad are. (entersub)
+XXX we cannot pass yet native pads to natively typed subs or XS.
 =cut
 */
-PERL_STATIC_INLINE bool
+static bool
 S_op_downgrade_native(pTHX_ OP* o, bool with_box) {
     const OPCODE type = o->op_type;
     PERL_ARGS_ASSERT_OP_DOWNGRADE_NATIVE;
@@ -21434,15 +21443,51 @@ S_op_downgrade_native(pTHX_ OP* o, bool with_box) {
         OpTYPE_set(o, OP_CONST);
         o->op_private &= ~OPpCONST_UNBOXED;
         break;
-    case OP_PADSV:
-        break;
     case OP_INT_PADSV:
+        if (with_box) {
+            o->op_private |= OPpBOXRET;
+            return TRUE;
+        } else {
+            SV* oldsv = cSVOPo_sv;
+            cSVOPo_sv_set(newSViv(cSVOPo_sv->sv_u.svu_iv));
+            SvREFCNT_dec_NN(oldsv);
+            OpTYPE_set(o, OP_PADSV);
+            o->op_private &= ~OPpPAD_NATIVE;
+        }
+        break;
     case OP_UINT_PADSV:
+        if (with_box) {
+            o->op_private |= OPpBOXRET;
+            return TRUE;
+        } else {
+            SV* oldsv = cSVOPo_sv;
+            cSVOPo_sv_set(newSVuv(oldsv->sv_u.svu_uv));
+            SvREFCNT_dec_NN(oldsv);
+            OpTYPE_set(o, OP_PADSV);
+            o->op_private &= ~OPpPAD_NATIVE;
+        }
+        break;
     case OP_STR_PADSV:
+        if (with_box) {
+            o->op_private |= OPpBOXRET;
+            return TRUE;
+        } else {
+            SV* oldsv = cSVOPo_sv;
+            cSVOPo_sv_set(newSVpvn(oldsv->sv_u.svu_pv, strlen(oldsv->sv_u.svu_pv)));
+            SvREFCNT_dec_NN(oldsv);
+            OpTYPE_set(o, OP_PADSV);
+            o->op_private &= ~OPpPAD_NATIVE;
+        }
+        break;
     case OP_NUM_PADSV:
         if (with_box)
             o->op_private |= OPpBOXRET;
-        return TRUE;
+        else {
+            SV* oldsv = cSVOP_sv;
+            cSVOPo_sv_set(newSVnv(oldsv->sv_u.svu_nv));
+            SvREFCNT_dec_NN(oldsv);
+        }
+        break;
     default:
         if (NUM_OP_TYPE_VARIANTS(type)) {
             OPCODE v = OP_TYPE_DOWNVARIANT(type, 1);
@@ -21506,11 +21551,13 @@ S_op_native_variant(pTHX_ OP* o, core_types_t t) {
                 }
                 else if (oc == OA_BINOP) {
                     core_types_t type1 = op_typed(cBINOPo->op_first);
-                    core_types_t type2 = op_typed(cBINOPo->op_last);
+                    /* sassign can have an empty rhs? */
+                    core_types_t type2 = cBINOPo->op_last ?
+                        op_typed(cBINOPo->op_last) : type_none;
                     /* need an Int result, no u_ */
                     if ((PL_hints & HINT_INTEGER) && ((n2 & 0xff) != type_Int))
                         continue;
-                    if (t==type1 && S_match_type2(n2 & 0xffffff00, type1, type2)) {
+                    if (t==type1 && match_type2(n2 & 0xffffff00, type1, type2)) {
                         /* Exception: Even if both / operands are int do not use intdiv.
                            TODO: Only if the lhs result needs to be int. */
                         if (typ == OP_DIVIDE && v == OP_I_DIVIDE)
