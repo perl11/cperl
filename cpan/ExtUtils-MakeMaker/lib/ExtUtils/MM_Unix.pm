@@ -15,7 +15,7 @@ use ExtUtils::MakeMaker qw($Verbose neatvalue);
 
 # If we make $VERSION an our variable parse_version() breaks
 use vars qw($VERSION);
-$VERSION = '7.04_01';
+$VERSION = '7.04_02';
 $VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
 
 require ExtUtils::MM_Any;
@@ -464,7 +464,7 @@ MAN3PODS = ".$self->wraplist(sort keys %{$self->{MAN3PODS}})."
 
     push @m, q{
 # Where is the Config information that we are using/depend on
-CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)Config.pm $(PERL_INCDEP)$(DFSEP)config.h
+CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)Config_heavy.pl $(PERL_INCDEP)$(DFSEP)config.h
 } if -e File::Spec->catfile( $self->{PERL_INC}, 'config.h' );
 
 
@@ -2872,8 +2872,8 @@ sub perldepend {
 $(PERL_INCDEP)/config.h: $(PERL_SRC)/config.sh
 	-$(NOECHO) $(ECHO) "Warning: $(PERL_INC)/config.h out of date with $(PERL_SRC)/config.sh"; $(FALSE)
 
-$(PERL_ARCHLIB)/Config.pm: $(PERL_SRC)/config.sh
-	$(NOECHO) $(ECHO) "Warning: $(PERL_ARCHLIB)/Config.pm may be out of date with $(PERL_SRC)/config.sh"
+$(PERL_ARCHLIB)/Config_heavy.pl: $(PERL_SRC)/config.sh
+	$(NOECHO) $(ECHO) "Warning: $(PERL_ARCHLIB)/Config_heavy.pl may be out of date with $(PERL_SRC)/config.sh"
 	%s
 MAKE_FRAG
 
