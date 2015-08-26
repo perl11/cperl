@@ -1289,6 +1289,7 @@ sM	|OP*	|op_clone_sv	|NN OP* o
 i	|OP*	|new_entersubop |NN GV* gv |NN OP* arg
 sd	|OPCODE |op_native_variant|NN OP* o|core_types_t t
 i	|IV	|const_iv	|NN OP* o
+i	|bool	|can_const_iv	|NN OP* o
 s	|OP*	|op_pad2const	|NN OP* firstkid|NN OP* o
 s	|void	|op_insert_box	|NN OP* o|NULLOK OP* o2
 i	|bool	|op_can_upgrade_native	|NN OP* o|OPCODE c

@@ -2078,6 +2078,7 @@
 #define arg_type_sv(a,b,c)	S_arg_type_sv(aTHX_ a,b,c)
 #define bad_type_core(a,b,c,d,e,f,g)	S_bad_type_core(aTHX_ a,b,c,d,e,f,g)
 #define can_class_typecheck(a)	S_can_class_typecheck(aTHX_ a)
+#define can_const_iv(a)		S_can_const_iv(aTHX_ a)
 #define cant_declare(a)		S_cant_declare(aTHX_ a)
 #define check_for_bool_cxt	S_check_for_bool_cxt
 #define check_hash_fields_and_hekify(a,b,c)	S_check_hash_fields_and_hekify(aTHX_ a,b,c)

@@ -8804,6 +8804,13 @@ STATIC int	S_can_class_typecheck(pTHX_ const HV* const stash)
 #define PERL_ARGS_ASSERT_CAN_CLASS_TYPECHECK	\
 	assert(stash)
 
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE bool	S_can_const_iv(pTHX_ OP* o)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CAN_CONST_IV	\
+	assert(o)
+#endif
+
 STATIC void	S_cant_declare(pTHX_ OP* o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CANT_DECLARE	\
