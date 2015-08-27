@@ -1239,9 +1239,9 @@ PL_op_type_str[] = {
 	"(:Str,:Str):Bool",	/* 68: s_eq */
 	"(:Str,:Str):Bool",	/* 69: s_ne */
 	"(:Str,:Str):Int",	/* 70: s_cmp */
-	"(:Numeric,:Numeric):UInt",	/* 71: bit_and */
-	"(:Numeric,:Numeric):UInt",	/* 72: bit_xor */
-	"(:Numeric,:Numeric):UInt",	/* 73: bit_or */
+	"(:Scalar,:Scalar):Scalar",	/* 71: bit_and */
+	"(:Scalar,:Scalar):Scalar",	/* 72: bit_xor */
+	"(:Scalar,:Scalar):Scalar",	/* 73: bit_or */
 	"(:Int,:Int):UInt",	/* 74: i_bit_and */
 	"(:Int,:Int):UInt",	/* 75: i_bit_xor */
 	"(:Int,:Int):UInt",	/* 76: i_bit_or */
@@ -1720,9 +1720,9 @@ EXTCONST U32 PL_op_type[] = {
 	0x0808ff09,	/* 68: s_eq "(:Str,:Str):Bool" */
 	0x0808ff09,	/* 69: s_ne "(:Str,:Str):Bool" */
 	0x0808ff05,	/* 70: s_cmp "(:Str,:Str):Int" */
-	0x0a0aff06,	/* 71: bit_and "(:Numeric,:Numeric):UInt" */
-	0x0a0aff06,	/* 72: bit_xor "(:Numeric,:Numeric):UInt" */
-	0x0a0aff06,	/* 73: bit_or "(:Numeric,:Numeric):UInt" */
+	0x0b0bff0b,	/* 71: bit_and "(:Scalar,:Scalar):Scalar" */
+	0x0b0bff0b,	/* 72: bit_xor "(:Scalar,:Scalar):Scalar" */
+	0x0b0bff0b,	/* 73: bit_or "(:Scalar,:Scalar):Scalar" */
 	0x0505ff06,	/* 74: i_bit_and "(:Int,:Int):UInt" */
 	0x0505ff06,	/* 75: i_bit_xor "(:Int,:Int):UInt" */
 	0x0505ff06,	/* 76: i_bit_or "(:Int,:Int):UInt" */
