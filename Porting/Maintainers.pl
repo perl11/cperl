@@ -1538,6 +1538,8 @@ use File::Glob qw(:case);
 
     '_PERLLIB' => {
         'FILES'    => q[
+                ext/Amiga-ARexx/
+                ext/Amiga-Exec/
                 ext/B/
                 ext/Devel-Peek/
                 ext/DynaLoader/
