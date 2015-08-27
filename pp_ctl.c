@@ -2151,6 +2151,7 @@ PP(pp_enteriter)
 	    SvPADSTALE_on(itersave);
 	}
         SvREFCNT_inc_simple_void_NN(itersave);
+	cxtype |= CXp_FOR_PAD;
     }
     else if (LIKELY(isGV(TOPs))) {		/* symbol table variable */
 	GV * const gv = MUTABLE_GV(POPs);
@@ -2158,6 +2159,7 @@ PP(pp_enteriter)
 	itervarp = (void *)gv;
         itersave = *svp;
 	*svp = newSV(0);
+	cxtype |= CXp_FOR_GV;
     }
     else {
 	SV * const sv = POPs;
