@@ -855,7 +855,7 @@ typedef enum {
     ((XopFLAGS(xop) & XOPf_ ## which) ? (xop)->which : XOPd_ ## which)
 
 #define XopENTRYCUSTOM(o, which) \
-    (Perl_custom_op_get_field(aTHX_ o, XOPe_ ## which).which)
+    (Perl_custom_op_get_field(aTHX_ (o), XOPe_ ## which).which)
 
 #define XopDISABLE(xop, which) ((xop)->xop_flags &= ~XOPf_ ## which)
 #define XopENABLE(xop, which) \
@@ -927,9 +927,9 @@ sib is non-null. For a higher-level interface, see C<op_sibling_splice>.
 =cut
 */
 
-#define OP_NAME(o) ((o)->op_type == OP_CUSTOM \
-                    ? XopENTRYCUSTOM(o, xop_name) \
-		    : PL_op_name[(o)->op_type])
+#define OP_NAME(o) (((OP*)o)->op_type == OP_CUSTOM \
+                    ? XopENTRYCUSTOM((OP*)(o), xop_name) \
+		    : PL_op_name[((OP*)o)->op_type])
 #define OP_DESC(o) ((o)->op_type == OP_CUSTOM \
                     ? XopENTRYCUSTOM(o, xop_desc) \
 		    : PL_op_desc[(o)->op_type])

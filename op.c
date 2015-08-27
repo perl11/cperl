@@ -3805,7 +3805,7 @@ Perl_bind_match(pTHX_ I32 type, OP *left, OP *right)
     if (ismatchop && right->op_private & OPpTARGET_MY) {
 	right->op_targ = 0;
 	right->op_private &= ~OPpTARGET_MY;
-        DEBUG_kv(deb("clear TARGET_MY on %s\n", OP_NAME(right)));
+        DEBUG_kv(Perl_deb(aTHX_ "clear TARGET_MY on %s\n", OP_NAME(right)));
     }
     if (!(right->op_flags & OPf_STACKED) && !right->op_targ && ismatchop) {
         if (left->op_type == OP_PADSV
@@ -9664,7 +9664,7 @@ Perl_ck_delete(pTHX_ OP *o)
     o->op_private = 0;
     if (o->op_flags & OPf_KIDS) {
 	OP * const kid = cUNOPo->op_first;
-        DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME((OP*)kid)));
+        DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME(kid)));
 	switch (kid->op_type) {
 	case OP_ASLICE:
 	    o->op_flags |= OPf_SPECIAL;
@@ -9710,7 +9710,7 @@ Perl_ck_eof(pTHX_ OP *o)
 	}
 	o = ck_fun(o);
 	kid = cLISTOPo->op_first;
-        DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME((OP*)kid)));
+        DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME(kid)));
 	if (kid->op_type == OP_RV2GV)
 	    kid->op_private |= OPpALLOW_FAKE;
     }
@@ -9729,7 +9729,7 @@ Perl_ck_eval(pTHX_ OP *o)
     if (o->op_flags & OPf_KIDS) {
 	SVOP * const kid = (SVOP*)cUNOPo->op_first;
 	assert(kid);
-        DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME((OP*)kid)));
+        DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME(kid)));
 
 	if (o->op_type == OP_ENTERTRY) {
 	    LOGOP *enter;
@@ -9791,7 +9791,7 @@ Perl_ck_exec(pTHX_ OP *o)
         OP *kid;
 	o = ck_fun(o);
 	kid = OpSIBLING(cUNOPo->op_first);
-        DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME((OP*)kid)));
+        DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME(kid)));
 	if (kid->op_type == OP_RV2GV)
 	    op_null(kid);
     }
@@ -9809,7 +9809,7 @@ Perl_ck_exists(pTHX_ OP *o)
     DEBUG_k(Perl_deb(aTHX_ "ck_exists: %s\n", OP_NAME(o)));
     if (o->op_flags & OPf_KIDS) {
 	OP * const kid = cUNOPo->op_first;
-        DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME((OP*)kid)));
+        DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME(kid)));
 	if (kid->op_type == OP_ENTERSUB || kid->op_type == OP_ENTERXSSUB) {
 	    (void) ref(kid, o->op_type);
 	    if (kid->op_type != OP_RV2CV
@@ -9842,7 +9842,7 @@ Perl_ck_rvconst(pTHX_ OP *o)
 	int iscv;
 	GV *gv;
 	SV * const kidsv = kid->op_sv;
-        DEBUG_k(Perl_deb(aTHX_ "ck_rvconst: %s %s\n", OP_NAME(o), OP_NAME((OP*)kid)));
+        DEBUG_k(Perl_deb(aTHX_ "ck_rvconst: %s %s\n", OP_NAME(o), OP_NAME(kid)));
         DEBUG_kv(op_dump(o));
 
 	/* Is it a constant from cv_const_sv()? */
@@ -9918,8 +9918,8 @@ Perl_ck_rvconst(pTHX_ OP *o)
 	    SvFAKE_off(gv);
 	}
     } else {
-        DEBUG_k(Perl_deb(aTHX_ "ck_rvconst: %s WRONG\n", OP_NAME(o)));
-        DEBUG_kv(op_dump(o));
+        DEBUG_k(Perl_deb(aTHX_ "ck_rvconst: %s %s\n", OP_NAME(o), OP_NAME(kid)));
+        /*DEBUG_kv(op_dump(o));*/
     }
     return o;
 }
@@ -9940,7 +9940,7 @@ Perl_ck_ftst(pTHX_ OP *o)
     else if (o->op_flags & OPf_KIDS && cUNOPo->op_first->op_type != OP_STUB) {
 	SVOP * const kid = (SVOP*)cUNOPo->op_first;
 	const OPCODE kidtype = kid->op_type;
-        DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME((OP*)kid)));
+        DEBUG_k(PerlIO_printf(Perl_debug_log, "\t%s\n", OP_NAME(kid)));
 
 	if (kidtype == OP_CONST && (kid->op_private & OPpCONST_BARE)
 	 && !kid->op_folded) {
@@ -10528,7 +10528,7 @@ S_maybe_targlex(pTHX_ OP *o)
 	    op_sibling_splice(o, NULL, 1, NULL);
 	    op_free(o);
             assert( OP_HAS_TARGLEX(kid->op_type) );
-            DEBUG_kv(deb("maybe_targlex: set TARGET_MY on %s\n", OP_NAME(kid)));
+            DEBUG_kv(Perl_deb(aTHX_ "maybe_targlex: set TARGET_MY on %s\n", OP_NAME(kid)));
 	    kid->op_private |= OPpTARGET_MY;	/* Used for context settings */
 	    return kid;
 	}
@@ -10593,7 +10593,7 @@ Perl_ck_match(pTHX_ OP *o)
 	const PADOFFSET offset = pad_findmy_pvs("$_", 0);
 	if (offset != NOT_IN_PAD && !(PAD_COMPNAME_FLAGS_isOUR(offset))) {
 	    o->op_targ = offset;
-            DEBUG_kv(deb("ck_match: esp. set TARGET_MY on %s\n", OP_NAME(o)));
+            DEBUG_kv(Perl_deb(aTHX_ "ck_match: esp. set TARGET_MY on %s\n", OP_NAME(o)));
             /*assert( OP_HAS_TARGLEX(o->op_type) ); they have not */
 	    o->op_private |= OPpTARGET_MY;
 	}
@@ -12237,7 +12237,7 @@ Perl_ck_aelem(pTHX_ OP *o)
         if (idx && SvIOK(idx) && AvSHAPED(av)) {
             IV ix = SvIVX(idx);
             if (abs(ix) > AvFILL(av))
-                die("Array index out of bounds %s[%"IVdf"]",
+                Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
                     PadnamePV(PAD_COMPNAME(avop->op_targ)), ix);
         }
         /* TODO specialize to typed ops */
@@ -12271,7 +12271,7 @@ Perl_ck_pad(pTHX_ OP *o)
             /* splice is for now checked at run-time */
             if (type == OP_PUSH  || type == OP_POP
              || type == OP_SHIFT || type == OP_UNSHIFT)
-                die("Invalid modification of shaped array: %s %s",
+                Perl_die(aTHX_ "Invalid modification of shaped array: %s %s",
                     OP_NAME(o->op_next->op_next),
                     PAD_COMPNAME_PV(o->op_targ));
         }
@@ -13380,14 +13380,14 @@ Perl_rpeep(pTHX_ OP *o)
                     OPCODE type = o2->op_next->op_type;
                     if (type == OP_PUSH  || type == OP_POP
                      || type == OP_SHIFT || type == OP_UNSHIFT)
-                        die("Invalid modification of shaped array: %s %s",
+                        Perl_die(aTHX_ "Invalid modification of shaped array: %s %s",
                             OP_NAME(o2->op_next),
                             PAD_COMPNAME_PV(o2->op_targ));
                     /* 2 arg case */
                     if (o2->op_next->op_next) {
                         OPCODE type = o2->op_next->op_next->op_type;
                         if (type == OP_PUSH || type == OP_SHIFT)
-                            die("Invalid modification of shaped array: %s %s",
+                            Perl_die(aTHX_ "Invalid modification of shaped array: %s %s",
                                 OP_NAME(o2->op_next->op_next),
                                 PAD_COMPNAME_PV(o2->op_targ));
                     }
@@ -13607,7 +13607,7 @@ Perl_rpeep(pTHX_ OP *o)
                     && SvIOK(fromsv = cSVOPx(from)->op_sv) && SvIOK(tosv = cSVOPx(to)->op_sv)
                     && (SvIV(tosv)-SvIV(fromsv) <= PERL_MAX_UNROLL_LOOP_COUNT))
                 {
-                    DEBUG_kv(deb("rpeep: possibly unroll loop (%"IVdf"..%"IVdf")\n",
+                    DEBUG_kv(Perl_deb(aTHX_ "rpeep: possibly unroll loop (%"IVdf"..%"IVdf")\n",
                                  SvIV(fromsv), SvIV(tosv)));
                     /* TODO easy with op_clone_oplist from feature/CM-707-cperl-inline-subs */
                 }
@@ -13644,7 +13644,7 @@ Perl_rpeep(pTHX_ OP *o)
                             }
                         }
                     }
-                    DEBUG_kv(deb("rpeep: omit loop bounds checks (from..arylen) for %s[%s]\n",
+                    DEBUG_kv(Perl_deb(aTHX_ "rpeep: omit loop bounds checks (from..arylen) for %s[%s]\n",
                                  aname, iname));
                     iter = loop->op_next;
                     body = cLOGOPx(iter->op_next)->op_other;
@@ -13659,23 +13659,23 @@ Perl_rpeep(pTHX_ OP *o)
                             && !(o->op_private & (OPpLVAL_DEFER|OPpLVAL_INTRO|OPpDEREF))) {
                             /* check index */
                             if (o->op_targ && o->op_targ == loop->op_targ) {
-                                DEBUG_k(deb("loop oob: aelem %s[my %s] => aelem_u\n", aname, iname));
+                                DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[my %s] => aelem_u\n", aname, iname));
                                 OpTYPE_set(o, OP_AELEM_U);
                             } else if (!o->op_targ && idx) {
                                 OP* ixop = cBINOPx(o)->op_last;
                                 if ((OP_TYPE_IS(ixop, OP_RV2SV)
                                   && idx == cSVOPx(cUNOPx(ixop)->op_first)->op_sv)) {
-                                    DEBUG_k(deb("loop oob: aelem %s[$%s] => aelem_u\n", aname, iname));
+                                    DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[$%s] => aelem_u\n", aname, iname));
                                     OpTYPE_set(o, OP_AELEM_U);
                                 }
                             }
 #ifdef DEBUGGING
                         } else if (type == OP_MULTIDEREF && o->op_targ
                                    && strEQ(aname, PAD_COMPNAME_PV(o->op_targ))) {
-                            DEBUG_k(deb("nyi multideref[%s] => MDEREF_AV_*_aelem_u\n", aname));
+                            DEBUG_k(Perl_deb(aTHX_ "nyi multideref[%s] => MDEREF_AV_*_aelem_u\n", aname));
                         } else if (type == OP_AELEMFAST
                                    && strEQ(aname, SvPVX(kSVOP_sv))) {
-                            DEBUG_k(deb("nyi aelemfast[%s] => aelemfast_u\n", aname));
+                            DEBUG_k(Perl_deb(aTHX_ "nyi aelemfast[%s] => aelemfast_u\n", aname));
 #endif
                         }
                     }
@@ -13711,7 +13711,7 @@ Perl_rpeep(pTHX_ OP *o)
 			assert( OP_HAS_TARGLEX(o->op_type) );
 			o->op_targ = o->op_next->op_targ;
 			o->op_next->op_targ = 0;
-                        DEBUG_kv(deb("rpeep: set TARGET_MY on %s\n", OP_NAME(o)));
+                        DEBUG_kv(Perl_deb(aTHX_ "rpeep: set TARGET_MY on %s\n", OP_NAME(o)));
 			o->op_private |= OPpTARGET_MY;
 		    }
 		}
