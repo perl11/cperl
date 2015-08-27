@@ -1,4 +1,4 @@
-#!./miniperl -w
+#!perl -w
 #
 # configpm
 #

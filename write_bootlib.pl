@@ -1,9 +1,9 @@
-#!./miniperl -w
+#!./perl -w
 
 use strict;
 
 my $osname = $^O;
-my $file = 'lib/buildcustomize.pl';
+my $file = 'lib/bootlib.pm';
 
 if ( @ARGV % 2 ) {
     my $dir = shift;

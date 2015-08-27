@@ -31,11 +31,7 @@ bug*.pl
 /makedir
 /makefile
 /myconfig
-/opmini.c
 /perlmain.c
-/perlmini.c
-/ppmini.c
-/xsutilsmini.c
 /pod/Makefile
 /preload
 /runtests
@@ -134,7 +130,7 @@ lib/XSLoader.pod
 lib/Storable/Limit.pm
 lib/auto/
 lib/perldoc.pod
-lib/buildcustomize.pl
+lib/bootlib.pm
 lib/unicore/CombiningClass.pl
 lib/unicore/Decomposition.pl
 lib/unicore/Heavy.pl

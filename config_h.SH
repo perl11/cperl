@@ -2993,6 +2993,12 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #define Netdb_name_t		$netdb_name_type /**/
 #define Netdb_net_t		$netdb_net_type /**/
 
+ /* LIBPTH
+ *	This variable contains a space seperated set of paths for the linker
+ *      and DynaLoader to search for additional libraries.
+ */
+#define LIBPTH "$libpth"
+
 /* PERL_OTHERLIBDIRS:
  *	This variable contains a colon-separated set of paths for the perl
  *	binary to search for additional library files or modules.

@@ -1,5 +1,4 @@
-#!/usr/bin/perl
-
+#!perl
 use strict;
 
 BEGIN {
@@ -10,6 +9,6 @@ BEGIN {
 
 use ExtUtils::Miniperl 1;
 
-my $fh = open_new('miniperlmain.c', undef, {by => "$0 and ExtUtils::Miniperl"});
+my $fh = open_new('perlmain.c', undef, {by => "$0 and ExtUtils::Miniperl"});
 writemain($fh);
 read_only_bottom_close_and_rename($fh);
