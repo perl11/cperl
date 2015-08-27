@@ -5,7 +5,7 @@ BEGIN {
     require "./test.pl";
 }
 
-plan(112);
+plan(113);
 
 # A lot of tests to check that reversed for works.
 
@@ -615,3 +615,14 @@ sub fscope {
 }
 
 is(fscope(), 1, 'return via loop in sub');
+
+# make sure a NULL GvSV is restored at the end of the loop
+
+{
+    local $foo = "boo";
+    {
+        local *foo;
+        for $foo (1,2) {}
+        ok(!defined $foo, "NULL GvSV");
+    }
+}
