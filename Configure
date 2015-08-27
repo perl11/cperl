@@ -5132,6 +5132,7 @@ fi
 # If using gcc or clang, we can get better values for libpth, incpth
 # and usrinc directly from the compiler.
 # Note ccname for clang is now seperate.
+# Note we need to collapse any/../w paths, resolve symlinks and avoid duplicates
 case "$ccname" in
     gcc|clang)
 	$echo 'extern int foo;' > try.c
@@ -5236,6 +5237,7 @@ case "$libpth" in
 esac
 
 : Now check and see which directories actually exist, avoiding duplicates
+: Also resolve symlinks and bla/../paths
 for xxx in $dlist
 do
     if $test -d $xxx; then
@@ -5245,6 +5247,7 @@ do
 	esac
     fi
 done
+libpth="`echo $libpth|$awk '!a[$0]++'`"
 $cat <<'EOM'
 
 Some systems have incompatible or broken versions of libraries.  Among

@@ -17,11 +17,12 @@ sub to_dqstring {
 # symlinks are currently also resolved.
 # e.g.
 #    ("/usr/lib", "/lib/x86_64-linux-gnu", "/lib/../lib", "/usr/lib/x86_64-linux-gnu", "/usr/lib/../lib")
-# => ("/usr/lib", "/lib/x86_64-linux-gnu", "/lib", "/usr/lib/x86_64-linux-gnu")
+# => ("/usr/lib", "/lib/x86_64-linux-gnu", "/lib", "/usr/lib/x86_64-linux-gnu")\
+# TODO: move to Configure: awk '!a[$0]++' or sed '$!N; /^\(.*\)\n\1$/!P; D'
 sub resolve_duplicate_paths {
-    # first resolve w/../w => w
+    # first resolve any/../w => w
     foreach (@_) {
-        s{(\w+)/\.\./$1$}{$1};
+        s{\w+/\.\./(\w+)$}{$1};
     }
     # then remove duplicates, but keep order intact
     my %p = ();
