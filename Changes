@@ -1,11 +1,43 @@
-cperl-5.22.0 / 2015-06-23
+cperl-5.22.1 / 2015-09-14
 =========================
 
-These are the changes above perl-5.22.1
-See pod/perlcperl.pod for a summary, but note that this includes also
-not yet implemented or still in work features.
+These are the changes above perl-5.22.1 (i.e. 5.23.0)
+See pod/perlcperl.pod for a summary, but note that perlcperl includes also
+still in work features.
 
+  * Do not fallback to u_ ops on 32bit.
+  * installperl uses PERLNAME=cperl with -Dusecperl
+  * installperl honors Configure -Dperlpath
+  * fixed some crashing cornercases found by the AFL fuzzer or similar:
+    #125840: $x=*0; *x=$x
+    protect from XSRETURN(-1)
+    #125341: BEGIN <> (worse fix added upstream)
+    #125350: qq{@{[0}*sub{]]}}}=sub{0' . "\c[" (Shlomi Fish, not upstream)
+    fixed various off-by-one \0 errors with the new 5.16 GV code.
+  * merge SVf_PROTECT with SVf_READONLY, no double readonly system
+  * fix old OA_TARGLEX bug with TARGET_MY optim
+  * add shaped arrays and optimize certain accesses to omit run-time
+    bounds checks. loops with static ranges, constant array indices.
+  * typed all internal ops and use them.
+    provide upgrade and downgrade variant tables.
+  * re-instate pre-2002 exceptions for i_modulo and i_divide with constants
+    and typed integers, as with use integer.
+    [CHANGE] constant integer modulo now behaves as under use integer
+    and deviates with one negative argument from post-2002 code.
+  * integer constants behave now as under use integer. provide upgrade
+    exceptions with the u_ suffix for u_add and u_multiply.
+  * opcodes: re-arrange, add pure, boxret, typed and native variants.
+    renamed some opcodes for harmonization and provide backcompat macros
+  * fix OP_SASSIGN to be a proper BINOP and remove the various exceptions
+  * coretypes as builtins, with type check and promotion.
+    native types implemented, but not yet promoted
+  * convert static method calls to subs, as described in
+    http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html
+    4% faster
+  * DEBUG_k: -Dk for compiler checks and optimizations, also -Dkv
   * rewrote Config as XS, as perfect hash
+  * change EUMM to depend on lib/Config_heavy.pl, not lib/Config/pm
+    because of Config bootstrapping quirks with miniperl and perl variants
   * utils: prefix perldoc, perlbug and perlivp with a 'c'.
     rewrote cperlbug to post to github.com/perl11/cperl/issues
   * hash_func: add FNV1A, FNV1A_YOSHIMITSUTRIAD/FNV1A_YT, CRC32, METRO64CRC, METRO64,
@@ -19,11 +51,8 @@ not yet implemented or still in work features.
   * enterxssub: fix B::Deparse and tests
   * enterxssub: fix B tests
   * Safe 2.39_01c, Opcode 1.33c: disable enterxssub
-  * enterxssub: fixup cv arg, add -Dt support
-  * enterxssub: add op.c compiler support
-  * enterxssub: add missing op_private fields
-  * add seperate enterxssub op, ~12% faster
   * Safe 2.39_01c: Document XS inabilities
+  * add seperate enterxssub op, ~12% faster
   * Safe: skip loading empty Carp::Heavy
   * B-Deparse: skip DynaLoader::dl_load_flags on cperl
   * Test-Harness: fix for cperl
