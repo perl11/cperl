@@ -98,33 +98,70 @@ PPt(pp_unbox_num, "(:Num):num")
 
 /* unboxed left bitshift (<<)  ck_bitop	pfiT2	I I */
 /* unboxed right bitshift (>>) ck_bitop	pfiT2	I I */
-/* unboxed preincrement (++)  ck_lfun	is1	I */
-/* unboxed predecrement (--)  ck_lfun	is1	I */
-/* unboxed postincrement (++) ck_lfun	is1	I */
-/* same as pp_int_preinc */
-/* unboxed postdecrement (--) ck_lfun	is1	I */
-/* same as pp_int_predec */
+/* unboxed preincrement (++)  ck_lfun	b1	I */
+/* unboxed predecrement (--)  ck_lfun	b1	I */
+/* unboxed postincrement (++) ck_lfun	bt1	I */
+/* unboxed postdecrement (--) ck_lfun	bt1	I */
 
-#define UNBOXED_UINT_BINOP(name, op)            \
+#define UNBOXED_UINT_BINOP_T(name, op)          \
 PPt(pp_uint_##name, "(:uint,:int):uint")        \
 {                                               \
-    dSP;                                        \
+    dSP; dATARGET;                              \
     UV uv = PTR2UV(TOPs);                       \
     sp--;                                       \
-    TOPs = (PL_op->op_private & OPpBOXRET)      \
+    TARG = (PL_op->op_private & OPpBOXRET)      \
+        || !(PL_op->op_flags & OPf_STACKED)     \
         ? newSVuv(uv op PTR2IV(TOPs))           \
         : INT2PTR(SV*, uv op PTR2IV(TOPs));     \
+    SETs(TARG);                                 \
     RETURN;                                     \
 }
-#define UNBOXED_UINT_UNOP(name, op)             \
+#define UNBOXED_UINT_UNOP_t(name, op)           \
 PPt(pp_uint_##name, "(:uint):uint")             \
 {                                               \
-    dSP;                                        \
+    dSP; dTARGET;                               \
     IV iv = PTR2IV(TOPs);                       \
-    TOPs = (PL_op->op_private & OPpBOXRET)      \
+    TARG = (PL_op->op_private & OPpBOXRET)      \
         ? newSViv(op(iv))                       \
         : INT2PTR(SV*, op(iv));                 \
-    return NORMAL;                              \
+    SETs(TARG);                                 \
+    RETURN;                                     \
+}
+#define UNBOXED_INT_UNOP_t(name, op)            \
+PPt(pp_##name, "(:int):int")                    \
+{                                               \
+    dSP; dTARGET;                               \
+    IV iv = PTR2IV(TOPs);                       \
+    TARG = (PL_op->op_private & OPpBOXRET)      \
+        ? newSViv(op(iv))                       \
+        : INT2PTR(SV*, (intptr_t)(op(iv)));     \
+    SETs(TARG);                                 \
+    RETURN;                                     \
+}
+#define UNBOXED_INT_UNOP_T(name, op)            \
+PPt(pp_##name, "(:int):int")                    \
+{                                               \
+    dSP; dATARGET;                              \
+    IV iv = PTR2IV(TOPs);                       \
+    TARG = (PL_op->op_private & OPpBOXRET)      \
+        || !(PL_op->op_flags & OPf_STACKED)     \
+        ? newSViv(op(iv))                       \
+        : INT2PTR(SV*, (intptr_t)(op(iv)));     \
+    SETs(TARG);                                 \
+    RETURN;                                     \
+}
+#define UNBOXED_INT_BINOP_T(name, op)           \
+PPt(pp_int_##name, "(:int,:int):int")           \
+{                                               \
+    dSP; dATARGET;                              \
+    IV iv = PTR2IV(TOPs);                       \
+    sp--;                                       \
+    TARG = (PL_op->op_private & OPpBOXRET)      \
+        || !(PL_op->op_flags & OPf_STACKED)     \
+        ? newSViv(iv op PTR2IV(TOPs))           \
+        : INT2PTR(SV*, (intptr_t)(iv op PTR2IV(TOPs))); \
+    SETs(TARG);                                 \
+    RETURN;                                     \
 }
 #define UNBOXED_INT_BINOP(name, op)             \
 PPt(pp_int_##name, "(:int,:int):int")           \
@@ -134,7 +171,7 @@ PPt(pp_int_##name, "(:int,:int):int")           \
     sp--;                                       \
     TOPs = (PL_op->op_private & OPpBOXRET)      \
         ? newSViv(iv op PTR2IV(TOPs))           \
-        : INT2PTR(SV*, (intptr_t)(iv op PTR2IV(TOPs)));        \
+        : INT2PTR(SV*, (intptr_t)(iv op PTR2IV(TOPs))); \
     RETURN;                                     \
 }
 #define UNBOXED_INT_UNOP(name, op)              \
@@ -148,12 +185,12 @@ PPt(pp_##name, "(:int):int")                    \
     return NORMAL;                              \
 }
 
-/* unboxed left bitshift (<<)  ck_bitop	pfi2	U I */
-UNBOXED_UINT_BINOP(right_shift, >>)
-/* unboxed right bitshift (>>) ck_bitop	pfi2	U I */
-UNBOXED_UINT_BINOP(left_shift, <<)
-/* unboxed 1's complement (~) 	ck_bitop pif1	U */
-UNBOXED_UINT_UNOP(complement, ~)
+/* unboxed left bitshift (<<)  ck_bitop	pfT2	U I */
+UNBOXED_UINT_BINOP_T(right_shift, >>)
+/* unboxed right bitshift (>>) ck_bitop	pfT2	U I */
+UNBOXED_UINT_BINOP_T(left_shift, <<)
+/* unboxed 1's complement (~) 	ck_bitop pft1	U */
+UNBOXED_UINT_UNOP_t(complement, ~)
 
 PERL_STATIC_INLINE
 UV S_upow(UV base, IV exp) {
@@ -167,26 +204,28 @@ UV S_upow(UV base, IV exp) {
     }
     return result;    
 }
-/* unboxed int exp (**)	ck_null		pif2	I I	"(:uint,:int):uint" */
+/* unboxed int exp (**)	ck_null		pfT2	I I	"(:uint,:int):uint" */
 PPt(pp_uint_pow, "(:uint,:int):uint")
 {
-    dSP;
+    dSP; dATARGET;
     UV uv = PTR2UV(TOPs);
     sp--;
-    TOPs = (PL_op->op_private & OPpBOXRET)
+    TARG = (PL_op->op_private & OPpBOXRET)
+        || !(PL_op->op_flags & OPf_STACKED)
         ? newSVuv(S_upow(uv, PTR2IV(TOPs)))
         : INT2PTR(SV*, S_upow(uv, PTR2IV(TOPs)));
+    SETs(TARG);
     RETURN;
 }
 
-/* unboxed addition (+)		ck_null	pif2	I I */
-UNBOXED_INT_BINOP(add, +)
-/* unboxed subtraction (-)	ck_null	pif2	I I */
-UNBOXED_INT_BINOP(subtract, -)
-/* unboxed multiplication (*)	ck_null	pif2	I I */
-UNBOXED_INT_BINOP(multiply, *)
-UNBOXED_INT_BINOP(divide, /)
-UNBOXED_INT_BINOP(modulo, %)
+/* unboxed addition (+)		ck_null	pbfT2	I I */
+/* with TARGLEX support */
+UNBOXED_INT_BINOP_T(add, +)
+UNBOXED_INT_BINOP_T(subtract, -)
+UNBOXED_INT_BINOP_T(multiply, *)
+UNBOXED_INT_BINOP_T(divide, /)
+UNBOXED_INT_BINOP_T(modulo, %)
+/* without TARGLEX support, stack only */
 UNBOXED_INT_BINOP(lt, <)
 UNBOXED_INT_BINOP(le, <=)
 UNBOXED_INT_BINOP(gt, >)
@@ -196,14 +235,16 @@ UNBOXED_INT_BINOP(ne, !=)
 
 /* here we need the int_ prefix, because of the reserved keyword not */
 /* unboxed negation (-)		ck_null	 pif1	I */
-UNBOXED_INT_UNOP(int_negate, -)
-/* unboxed integer not		ck_null	 pif1	I */
+UNBOXED_INT_UNOP_t(int_negate, -)
+UNBOXED_INT_UNOP_t(int_postdec, --)
+UNBOXED_INT_UNOP_t(int_postinc, ++)
+UNBOXED_INT_UNOP_T(int_abs, abs)
 UNBOXED_INT_UNOP(int_not, !)
 UNBOXED_INT_UNOP(int_predec, --)
 UNBOXED_INT_UNOP(int_preinc, ++)
-UNBOXED_INT_UNOP(int_abs, abs)
 
 #if IVSIZE == NVSIZE
+/* without t nor T TARGLEX */
 #define UNBOXED_NUM_BINOP(name, op)             \
 PPt(pp_num_##name, "(:num,:num):num")           \
 {                                               \
@@ -218,61 +259,86 @@ PPt(pp_num_##name, "(:num,:num):num")           \
         : num1.sv;                              \
     RETURN;                                     \
 }
-#define UNBOXED_NUM_BINFUNC(name, func)         \
+/* with TARGLEX */
+#define UNBOXED_NUM_BINOP_T(name, op)           \
 PPt(pp_num_##name, "(:num,:num):num")           \
 {                                               \
-    dSP;                                        \
+    dSP; dATARGET;                              \
+    union { NV n; SV* sv; } num1, num2;         \
+    num1.sv = TOPs;                             \
+    sp--;                                       \
+    num2.sv = TOPs;                             \
+    num1.n = num1.n op num2.n;                  \
+    TARG = (PL_op->op_private & OPpBOXRET)      \
+        || !(PL_op->op_flags & OPf_STACKED)     \
+        ? newSVnv(num1.n)                       \
+        : num1.sv;                              \
+    (void)POPs;                                 \
+    SETs(TARG);                                 \
+    RETURN;                                     \
+}
+#define UNBOXED_NUM_BINFUNC_T(name, func)       \
+PPt(pp_num_##name, "(:num,:num):num")           \
+{                                               \
+    dSP; dATARGET;                              \
     union { NV n; SV* sv; } num1, num2;         \
     num1.sv = TOPs;                             \
     sp--;                                       \
     num2.sv = TOPs;                             \
     num1.n = func(num1.n, num2.n);              \
-    TOPs = (PL_op->op_private & OPpBOXRET)      \
+    TARG = (PL_op->op_private & OPpBOXRET)      \
+        || !(PL_op->op_flags & OPf_STACKED)     \
         ? newSVnv(num1.n)                       \
         : num1.sv;                              \
+    (void)POPs;                                 \
+    SETs(TARG);                                 \
     RETURN;                                     \
 }
-#define UNBOXED_NUM_UNOP(name, op)              \
+#define UNBOXED_NUM_UNOP_T(name, op)            \
 PPt(pp_num_##name, "(:num):num")                \
 {                                               \
-    dSP;                                        \
+    dSP; dATARGET;                              \
     union { NV n; SV* sv; } num;                \
     num.sv = TOPs;                              \
     num.n = Perl_##op(num.n);                   \
-    TOPs = (PL_op->op_private & OPpBOXRET)      \
+    TARG = (PL_op->op_private & OPpBOXRET)      \
+        || !(PL_op->op_flags & OPf_STACKED)     \
         ? newSVnv(num.n)                        \
         : num.sv;                               \
-    return NORMAL;                              \
+    (void)POPs;                                 \
+    SETs(TARG);                                 \
+    RETURN;                                     \
 }
 #else
-#define UNBOXED_NUM_BINOP(name, op)             \
+#define UNBOXED_NUM_BINOP_T(name, op)           \
 PPt(pp_num_##name, "(:num,:num):num") {         \
     assert(IVSIZE == NVSIZE);                   \
     return NORMAL;                              \
 }
-#define UNBOXED_NUM_BINFUNC(name, op)           \
+#define UNBOXED_NUM_BINFUNC_T(name, op)         \
 PPt(pp_num_##name, "(:num,:num):num") {         \
     assert(IVSIZE == NVSIZE);                   \
     return NORMAL;                              \
 }
-#define UNBOXED_NUM_UNOP(name, op)              \
+#define UNBOXED_NUM_UNOP_T(name, op)            \
 PPt(pp_num_##name, "(:num):num") {              \
     assert(IVSIZE == NVSIZE);                   \
     return NORMAL;                              \
 }
 #endif
 
-UNBOXED_NUM_BINOP(add, +)
-UNBOXED_NUM_BINOP(subtract, -)
-UNBOXED_NUM_BINOP(multiply, *)
-UNBOXED_NUM_BINOP(divide, /)
-UNBOXED_NUM_BINFUNC(atan2, Perl_atan2)
-UNBOXED_NUM_BINFUNC(pow, Perl_pow)
-UNBOXED_NUM_UNOP(sin, sin)
-UNBOXED_NUM_UNOP(cos, cos)
-UNBOXED_NUM_UNOP(exp, exp)
-UNBOXED_NUM_UNOP(log, log)
-UNBOXED_NUM_UNOP(sqrt, sqrt)
+/* all with TARGLEX/OPpTARGET_MY support */
+UNBOXED_NUM_BINOP_T(add, +)
+UNBOXED_NUM_BINOP_T(subtract, -)
+UNBOXED_NUM_BINOP_T(multiply, *)
+UNBOXED_NUM_BINOP_T(divide, /)
+UNBOXED_NUM_BINFUNC_T(atan2, Perl_atan2)
+UNBOXED_NUM_BINFUNC_T(pow, Perl_pow)
+UNBOXED_NUM_UNOP_T(sin, sin)
+UNBOXED_NUM_UNOP_T(cos, cos)
+UNBOXED_NUM_UNOP_T(exp, exp)
+UNBOXED_NUM_UNOP_T(log, log)
+UNBOXED_NUM_UNOP_T(sqrt, sqrt)
 
 /* native str ops for now disabled.
    strcat: it might be too hard for the optimizer to prove

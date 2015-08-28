@@ -388,6 +388,7 @@ addbits($_, 3 => qw(OPpBOXRET BOXRET)) for
   #evtl: int_aelem num_aelem str_aelem int_aelem_u num_aelem_u str_aelem_u
 
 
+# The !OPf_STACKED ops (OA_TARGET, flag t) have no private bit
 addbits($_, 4 => qw(OPpTARGET_MY TARGMY))
     for ops_with_flag('T'),
     # Note: T should be in opcodes for all these match ops. ck_match is using it

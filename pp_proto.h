@@ -148,6 +148,8 @@ PERL_CALLCONV OP *Perl_pp_int_ne(pTHX);
 PERL_CALLCONV OP *Perl_pp_int_negate(pTHX);
 PERL_CALLCONV OP *Perl_pp_int_not(pTHX);
 PERL_CALLCONV OP *Perl_pp_int_padsv(pTHX);
+PERL_CALLCONV OP *Perl_pp_int_postdec(pTHX);
+PERL_CALLCONV OP *Perl_pp_int_postinc(pTHX);
 PERL_CALLCONV OP *Perl_pp_int_predec(pTHX);
 PERL_CALLCONV OP *Perl_pp_int_preinc(pTHX);
 PERL_CALLCONV OP *Perl_pp_int_sassign(pTHX);

@@ -158,7 +158,7 @@ $bits{$_}{7} = 'OPpPV_IS_UTF8' for qw(dump goto last next redo);
 $bits{$_}{6} = 'OPpREFCOUNTED' for qw(leave leaveeval leavesub leavesublv leavewrite);
 $bits{$_}{6} = 'OPpRUNTIME' for qw(match pushre qr subst substcont);
 $bits{$_}{2} = 'OPpSLICEWARNING' for qw(aslice hslice padav padhv rv2av rv2hv);
-$bits{$_}{4} = 'OPpTARGET_MY' for qw(abs add atan2 chdir chmod chomp chown chr chroot concat cos crypt divide exec exp flock getpgrp getppid getpriority hex i_add i_bit_and i_bit_or i_bit_xor i_complement i_divide i_modulo i_multiply i_subtract index int kill left_shift length link log match mkdir modulo multiply oct ord pow push pushre qr rand rename right_shift rindex rmdir s_complement schomp setpgrp setpriority sin sleep sqrt srand stringify subst subtract symlink system time trans transr u_add u_multiply unlink unshift utime wait waitpid);
+$bits{$_}{4} = 'OPpTARGET_MY' for qw(abs add atan2 chdir chmod chomp chown chr chroot concat cos crypt divide exec exp flock getpgrp getppid getpriority hex i_add i_bit_and i_bit_or i_bit_xor i_complement i_divide i_modulo i_multiply i_subtract index int int_abs int_add int_divide int_modulo int_multiply int_subtract kill left_shift length link log match mkdir modulo multiply num_add num_atan2 num_cos num_divide num_exp num_log num_multiply num_pow num_sin num_sqrt num_subtract oct ord pow push pushre qr rand rename right_shift rindex rmdir s_complement schomp setpgrp setpriority sin sleep sqrt srand stringify subst subtract symlink system time trans transr u_add u_multiply uint_left_shift uint_pow uint_right_shift unlink unshift utime wait waitpid);
 $bits{$_}{5} = 'OPpTRANS_COMPLEMENT' for qw(trans transr);
 $bits{$_}{7} = 'OPpTRANS_DELETE' for qw(trans transr);
 $bits{$_}{0} = 'OPpTRANS_FROM_UTF' for qw(trans transr);
@@ -872,7 +872,7 @@ our %ops_using = (
     OPpSORT_DESCEND          => [qw(sort)],
     OPpSPLIT_IMPLIM          => [qw(split)],
     OPpSUBSTR_REPL_FIRST     => [qw(substr)],
-    OPpTARGET_MY             => [qw(abs add atan2 chdir chmod chomp chown chr chroot concat cos crypt divide exec exp flock getpgrp getppid getpriority hex i_add i_bit_and i_bit_or i_bit_xor i_complement i_divide i_modulo i_multiply i_subtract index int kill left_shift length link log match mkdir modulo multiply oct ord pow push pushre qr rand rename right_shift rindex rmdir s_complement schomp setpgrp setpriority sin sleep sqrt srand stringify subst subtract symlink system time trans transr u_add u_multiply unlink unshift utime wait waitpid)],
+    OPpTARGET_MY             => [qw(abs add atan2 chdir chmod chomp chown chr chroot concat cos crypt divide exec exp flock getpgrp getppid getpriority hex i_add i_bit_and i_bit_or i_bit_xor i_complement i_divide i_modulo i_multiply i_subtract index int int_abs int_add int_divide int_modulo int_multiply int_subtract kill left_shift length link log match mkdir modulo multiply num_add num_atan2 num_cos num_divide num_exp num_log num_multiply num_pow num_sin num_sqrt num_subtract oct ord pow push pushre qr rand rename right_shift rindex rmdir s_complement schomp setpgrp setpriority sin sleep sqrt srand stringify subst subtract symlink system time trans transr u_add u_multiply uint_left_shift uint_pow uint_right_shift unlink unshift utime wait waitpid)],
     OPpTRANS_COMPLEMENT      => [qw(trans transr)],
 );
 
