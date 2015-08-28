@@ -18,3 +18,5 @@ cpan/Time-HiRes
 cpan/Win32API-File
 cpan/YAML-LibYAML/LibYAML
 dist/PathTools
+ext/Amiga-ARexx
+ext/Amiga-Exec
