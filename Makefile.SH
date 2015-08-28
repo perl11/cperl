@@ -1430,7 +1430,7 @@ _cleaner2:
 	-rmdir lib/CPAN/FTP lib/CPAN/Exception lib/CPAN/API lib/CPAN
 	-rmdir lib/ByteLoader lib/B/C lib/Attribute lib/Archive/Tar
 	-rmdir lib/Archive lib/App/Prove/State/Result lib/App/Prove/State
-	-rmdir lib/App/Prove lib/App
+	-rmdir lib/App/Prove lib/App lib/Amiga
 
 _realcleaner:
 	@$(LDLIBPTH) $(MAKE) _cleaner1 CLEAN=distclean
