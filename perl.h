@@ -2641,6 +2641,8 @@ typedef struct padname PADNAME;
 #if !defined(PERL_OP_PARENT)
 #  define PERL_OP_PARENT
 #endif
+/* FIXME for native types */
+#undef PERL_OP_PARENT
 
 /* enable PERL_COPY_ON_WRITE by default */
 #if !defined(PERL_COPY_ON_WRITE) && !defined(PERL_NO_COW)

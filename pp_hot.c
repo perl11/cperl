@@ -5499,27 +5499,32 @@ PP(pp_entersub)
                 if (items)
                     Copy(MARK+1,AvARRAY(av),items,SV*);
                 AvFILLp(av) = items - 1;
-#ifdef DEBUGGING
+
+#if 1 || defined(DEBUGGING)
                 MARK = AvARRAY(av);
                 while (items--) {
-                    if (*MARK && SvNATIVE(*MARK)) {
+                    if (*MARK) {
                         /* We could do this at run-time, but should rather rely in the compiler
                            do downgrade this at compile-time. Furthermore native CONSTs here are
                            really fatal. Should have been fixed with
                            native: fix op_downgrade_oplist, more and
-                           native: downgrade *_padsv also*/
-                        Perl_warn(aTHX_ "Internal compiler warning: upgrade left-over native padsv");
-                        if (SvIOK_UV(*MARK))
-                            *MARK = sv_2mortal(newSVuv((*MARK)->sv_u.svu_uv));
-                        else if (SvIOK(*MARK))
-                            *MARK = sv_2mortal(newSViv((*MARK)->sv_u.svu_iv));
-                        else if (SvNOK(*MARK))
-                            *MARK = sv_2mortal(newSVnv((*MARK)->sv_u.svu_nv));
-                        else if (SvPOK(*MARK))
-                            *MARK = sv_2mortal(newSVpvn((*MARK)->sv_u.svu_pv,
-                                                        strlen((*MARK)->sv_u.svu_pv)));
+                           native: downgrade *_padsv also */
+                        if (SvNATIVE(*MARK)) {
+                            Perl_warn(aTHX_ "Internal compiler warning: upgrade left-over native padsv");
+                            if (SvIOK_UV(*MARK))
+                                *MARK = sv_2mortal(newSVuv((*MARK)->sv_u.svu_uv));
+                            else if (SvIOK(*MARK))
+                                *MARK = sv_2mortal(newSViv((*MARK)->sv_u.svu_iv));
+#if NVSIZE <= IVSIZE
+                            else if (SvNOK(*MARK))
+                                *MARK = sv_2mortal(newSVnv((*MARK)->sv_u.svu_nv));
+#endif                            
+                            else if (SvPOK(*MARK))
+                                *MARK = sv_2mortal(newSVpvn((*MARK)->sv_u.svu_pv,
+                                                            strlen((*MARK)->sv_u.svu_pv)));
+                        }
+                        MARK++;
                     }
-                    MARK++;
                 }
 #endif
             }
