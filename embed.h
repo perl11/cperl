@@ -2131,6 +2131,11 @@
 #      endif
 #    endif
 #  endif
+#  if defined(PERL_IN_OP_C) || defined(PERL_IN_PP_HOT_C)
+#    if defined(USE_CPERL)
+#define op_native_padsv(a)	Perl_op_native_padsv(aTHX_ a)
+#    endif
+#  endif
 #  if defined(PERL_IN_OP_C) || defined(PERL_IN_SV_C)
 #define report_redefined_cv(a,b,c)	Perl_report_redefined_cv(aTHX_ a,b,c)
 #  endif

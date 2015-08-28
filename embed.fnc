@@ -650,6 +650,12 @@ i	|void	|op_gv_set	|NN OP* o|NN GV* gv
 #  endif
 s	|OP*	|gen_constant_list|NULLOK OP* o
 #endif
+#if defined(PERL_IN_OP_C) || defined(PERL_IN_PP_HOT_C)
+#  if defined(USE_CPERL)
+: defined in op.c, used in pp_hot.c
+dMp	|void	|op_native_padsv|NN OP* o
+#  endif
+#endif
 #if !defined(HAS_GETENV_LEN)
 : Used in hv.c
 p	|char*	|getenv_len	|NN const char *env_elem|NN unsigned long *len

@@ -2848,6 +2848,7 @@ Either a native CONST_INT or integer constant.
 PERL_STATIC_INLINE bool
 S_can_const_iv(pTHX_ OP* o)
 {
+    PERL_ARGS_ASSERT_CAN_CONST_IV;
     if (o->op_type == OP_INT_CONST
         || (o->op_type == OP_CONST && SvIOK(cSVOPo_sv)))
         return TRUE;
@@ -4847,7 +4848,7 @@ S_finalize_op(pTHX_ OP* o)
                     assert(kid->op_sibparent == o);
                 }
             }
-            DEBUG_kv(Perl_deb(aTHX_ "op_final: kid %s=%p\n", OP_NAME(kid), kid));
+            /*DEBUG_kv(Perl_deb(aTHX_ "op_final: kid %s=%p\n", OP_NAME(kid), kid));*/
         }
 #endif
     } while (( o = traverse_op_tree(top, o)) != NULL);
@@ -7508,6 +7509,31 @@ S_op_typed(pTHX_ OP* o, bool with_native)
         }
     }
     return t;
+}
+
+/*
+=for apidoc dMnp||op_native_padsv|NN OP* o
+
+Upgrade a OP_PADSV op to its native variant, and mark it as BOXRET,
+pushing a boxed SV onto the stack.
+This is needed because different padsv ops can point to the same
+native curpad entry, which could have been upgraded, but the ops not.
+
+Do this on the fly in pp_padsv, so that the next call will use the faster
+variant. This indirectly promotes the lexical variable to a native type,
+but uses the non-native context, because of the BOXRET flag.
+
+=cut
+*/
+void
+Perl_op_native_padsv(pTHX_ OP* o) {
+    const OPCODE v = op_native_variant(o, op_typed(o));
+    PERL_ARGS_ASSERT_OP_NATIVE_PADSV;
+    assert(OP_TYPE_IS_NN(o, OP_PADSV));
+    if (v) {
+        op_upgrade_native(o, v, TRUE);
+        o->op_private |= OPpBOXRET;
+    }
 }
 
 /*

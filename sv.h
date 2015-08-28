@@ -1004,7 +1004,7 @@ and C<L</SvIV_set>>.
 #define SvNATIVE_on(sv)		(SvFLAGS(sv) |= SVf_NATIVE)
 #define SvNATIVE_off(sv)	(SvFLAGS(sv) &= ~SVf_NATIVE)
 #else
-#define SvNATIVE(sv)		0
+#define SvNATIVE(sv)		FALSE
 #define SvNATIVE_on(sv)
 #define SvNATIVE_off(sv)
 #endif
