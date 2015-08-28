@@ -2158,7 +2158,10 @@ PP(pp_enteriter)
 	SV** svp = &GvSV(gv);
 	itervarp = (void *)gv;
         itersave = *svp;
-	*svp = newSV(0);
+        if (LIKELY(itersave))
+            SvREFCNT_inc_simple_void_NN(itersave);
+        else
+            *svp = newSV(0);
 	cxtype |= CXp_FOR_GV;
     }
     else {
