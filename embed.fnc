@@ -1294,7 +1294,7 @@ sM	|OP*	|cv_do_inline   |NULLOK OP *parent|NN OP *o|NN OP *cvop|NN CV *cv
 sM	|OP*	|op_clone_sv	|NN OP* o
 #    endif
 i	|OP*	|new_entersubop |NN GV* gv |NN OP* arg
-sd	|OPCODE |op_native_variant|NN OP* o|core_types_t t
+s	|OPCODE |op_native_variant|NN OP* o|core_types_t typeret|NN int* do_cast
 i	|IV	|const_iv	|NN OP* o
 i	|bool	|can_const_iv	|NN OP* o
 s	|OP*	|op_pad2const	|NN OP* firstkid|NN OP* o

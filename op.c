@@ -7531,7 +7531,8 @@ but uses the non-native context, because of the BOXRET flag.
 */
 void
 Perl_op_native_padsv_on(pTHX_ OP* o) {
-    const OPCODE v = op_native_variant(o, op_typed(o));
+    int do_cast = 0;
+    const OPCODE v = op_native_variant(o, op_typed(o), &do_cast);
     PERL_ARGS_ASSERT_OP_NATIVE_PADSV_ON;
     assert(OP_TYPE_IS_NN(o, OP_PADSV));
     if (v) {
@@ -7574,8 +7575,9 @@ S_op_pad2const(pTHX_ OP* firstkid, OP* o) {
 
     if (PadnameTYPE(pn)) {
         core_types_t t = op_typed(o);
-        const OPCODE v = op_native_variant(o, t);
-        if (v) {
+        int need_cast = 0;
+        const OPCODE v = op_native_variant(o, t, &need_cast);
+        if (v && !need_cast) {
             if (op_upgrade_native(o, v, TRUE))
                 OpTYPE_set(constop, v);
         }
@@ -21611,7 +21613,7 @@ S_op_downgrade_oplist(pTHX_ OP* o, OP* o2)
 }
 
 /*
-=for apidoc s|OPCODE |op_native_variant	|NN OP* o|core_types_t t
+=for apidoc s|OPCODE |op_native_variant	|NN OP* o|core_types_t typeret|NN int* do_cast
 
 check if the result type matches the type of the current data.
 and if the op can be converted to t of o and its args.
@@ -21619,7 +21621,8 @@ and if the op can be converted to t of o and its args.
 =cut
 */
 static OPCODE
-S_op_native_variant(pTHX_ OP* o, core_types_t typeret) {
+S_op_native_variant(pTHX_ OP* o, core_types_t typeret, int *do_cast)
+{
     OPCODE typ = o->op_type;
     const int n = NUM_OP_TYPE_VARIANTS(typ);
     PERL_ARGS_ASSERT_OP_NATIVE_VARIANT;
@@ -21641,8 +21644,10 @@ S_op_native_variant(pTHX_ OP* o, core_types_t typeret) {
                     if ((PL_hints & HINT_INTEGER)
                         && ((n2 & 0xff) != type_Int) && ((n2 & 0xff) != type_int))
                         continue;
-                    if (typeret==type1 && match_type1(n2 & 0xffffff00, type1))
+                    if (typeret==type1 && match_type1(n2 & 0xffffff00, type1)) {
+                        do_cast = 0;
                         return v;
+                    }
                 }
                 else if (oc == OA_BINOP) {
                     OP* first = cBINOPo->op_first;
@@ -21667,11 +21672,39 @@ S_op_native_variant(pTHX_ OP* o, core_types_t typeret) {
                         if (typ == OP_MODULO && v == OP_I_MODULO
                             && (const_iv(first) < 0 || const_iv(last) < 0))
                             continue;
+                        do_cast = 0;
                         return v;
-                    } else if (type1 != type2) { /* maybe cast one value */
-                        /* TODO: int op num => num(int) op num. Int op num => num */
-                        /* TODO: uint op int => u_op */
-                        /* XXX */
+                    /* maybe cast one value, assume type1==type2 in the BINOP.
+                       The cast should still be cheaper then the generic op. */
+                    } else if (*do_cast && type1 != type2 && type1 < type_Bool && type2 < type_Bool) {
+                        int reverse = type2 < type1 ? 0x100 : 0; /* Normalize t1 < t2 */
+                        core_types_t t1 = reverse ? type2 : type1;
+                        core_types_t t2 = reverse ? type1 : type2;
+                        DEBUG_kv(Perl_deb(aTHX_ "type: maybe cast %s (:%s,:%s)\n", PL_op_name[v],
+                                     core_type_name(type1), core_type_name(type2)));
+                        /* int op num => num(int) op num. Does a 7*7 table make sense here?
+                           avoid stringification, do that in the generic op. */
+                        if (t1 == type_int && t2 == type_Int) {
+                            *do_cast = 1|reverse; return v;
+                        }
+                        else if (t1 == type_uint && t2 == type_UInt) {
+                            *do_cast = 2|reverse; return v;
+                        }
+                        else if (t1 == type_num && t2 == type_Num) {
+                            *do_cast = 3|reverse; return v;
+                        }
+                        else if (t1 == type_int && t2 == type_uint) {
+                            *do_cast = 4|reverse; return v;
+                        }
+                        else if (t1 == type_int && t2 == type_num) {
+                            *do_cast = 5|reverse; return v;
+                        }
+                        else if (t1 == type_Int && t2 == type_UInt) {
+                            *do_cast = 6|reverse; return v;
+                        }
+                        else if (t1 == type_Int && t2 == type_Num) {
+                            *do_cast = 7|reverse; return v;
+                        }
                     }
                 }
                 else if (oc == OA_SVOP || typ == OP_PADSV) {
@@ -21684,14 +21717,20 @@ S_op_native_variant(pTHX_ OP* o, core_types_t typeret) {
                         if ((typeret == type_int || typeret == type_uint)
                             && const_iv(o) > 0
                             && (n2 & 0xff) == typeret)
+                        {
+                            do_cast = 0;
                             return v;
+                        }
                     }
-                    else if ((n2 & 0xff) == typeret) /* just match the result type */
+                    else if ((n2 & 0xff) == typeret) { /* just match the result type */
+                        do_cast = 0;
                         return v;
+                    }
                 }
             }
         }
     }
+    do_cast = 0;
     return 0;
 }
 
@@ -21846,6 +21885,7 @@ Perl_rpeep(pTHX_ OP *o)
             OP *lastnative = o;
             OP *prevnative = NULL;
             bool is_native;
+            int do_cast = 1;
             core_types_t t = op_typed(o);
 
             o->op_opt = 0;
@@ -21862,9 +21902,10 @@ Perl_rpeep(pTHX_ OP *o)
             /* LOOP or LISTOP cannot deal with natives on the stack.
                do a 2-pass scan. */
             for (o2 = OpNEXT(o), i=0;
-                 o2 && ((is_native = IS_NATIVE_OP(o2)) || (v = op_native_variant(o2, t)));
-                 o2=OpNEXT(o2), i++)
+                 o2 && ((is_native = IS_NATIVE_OP(o2)) || (v = op_native_variant(o2, t, &do_cast)));
+                 o2 = OpNEXT(o2), i++)
             {
+                do_cast = 1;
                 if (!is_native) { /* convert it */
                     if (!op_can_upgrade_native(o2, v)) {
                         DEBUG_kv(Perl_deb(aTHX_ "rpeep !native cannot upgrade %s break\n", OP_NAME(o)));
@@ -21903,18 +21944,22 @@ Perl_rpeep(pTHX_ OP *o)
             }
             /* Now we can start being destructive */
             if (o->op_type == OP_PADSV) {
-                op_upgrade_native(o, op_native_variant(o, t), TRUE);
+                int cast = 0;
+                op_upgrade_native(o, op_native_variant(o, t, &cast), TRUE);
                 if (o->op_flags & OPf_MOD)
                     o->op_private |= OPpBOXRET;
             }
             /* 2nd pass, upgrade on-the-fly to native */
-            for (o2 = OpNEXT(o);
-                 o2 && ((is_native = IS_NATIVE_OP(o2)) || (v = op_native_variant(o2, t)));
-                 o2 = OpNEXT(o2))
+            for (o2 = OpNEXT(o), do_cast = 1;
+                 o2 && ((is_native = IS_NATIVE_OP(o2)) || (v = op_native_variant(o2, t, &do_cast)));
+                 o2 = OpNEXT(o2), do_cast = 1)
             {
                 if (!is_native) { /* convert it */
                     if (!op_upgrade_native(o2, v, TRUE))
                         break;
+                    if (do_cast) {
+                        DEBUG_k(Perl_deb(aTHX_ "type: TODO cast %s type %x\n", PL_op_name[v], do_cast));
+                    }
                     if (IS_NATIVE_PADSV(o2) && o2->op_flags & OPf_MOD)
                         o->op_private |= OPpBOXRET;
                 }
