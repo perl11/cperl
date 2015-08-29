@@ -539,6 +539,18 @@ Perl_sv_peek(pTHX_ SV *sv)
             Perl_sv_catpvf(aTHX_ t, ">");
         }
     }
+    else if (SvNATIVE(sv)) {
+	sv_catpv(t, "NATIVE ");
+        if (SvPOK(sv))
+            Perl_sv_catpvf(aTHX_ t, "str(%s)", sv->sv_u.svu_pv);
+        else if (SvUOK(sv))
+            Perl_sv_catpvf(aTHX_ t, "uint(%" UVuf ")", sv->sv_u.svu_uv);
+        else if (SvIOK(sv))
+            Perl_sv_catpvf(aTHX_ t, "int(%" IVdf ")", sv->sv_u.svu_iv);
+        else if (SvNOK(sv))
+            Perl_sv_catpvf(aTHX_ t, "num(%" NVgf ")", sv->sv_u.svu_nv);
+	goto finish;
+    }
 
     if (SvROK(sv)) {
 	sv_catpvs(t, "\\");
