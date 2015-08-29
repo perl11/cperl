@@ -37,7 +37,7 @@ sub tryeq_sloppy ($$$$) {
   print " - $_[3]\n";
 }
 
-my $T = 1;
+my Int $T = 1;
 tryeq $T++,  13 %  4, 1,  'i_modulo: positive positive';
 tryeq $T++, -13 % -4, -1, 'i_modulo: negative negative';
 # incompatibilty warning with negative args:
@@ -68,7 +68,7 @@ tryeq $T++, $r, 1,  'modulo: positive positive';
 $r = $a % $b;
 tryeq $T++, $r, -1,  'modulo: negative negative';
 
-my int $limit = 1e6;
+my num $limit = 1e6;
 
 # Division (and modulo) of floating point numbers
 # seem to be rather sloppy in Cray.

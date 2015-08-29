@@ -1316,7 +1316,7 @@ PPt(pp_padsv, "(:Any):Any")
 	    PUTBACK; /* no pop/push after this, TOPs ok */
 	}
         if (SvNATIVE(*padentry))
-            op_native_padsv(PL_op);
+            op_native_padsv_off(PL_op);
 	if (op->op_flags & OPf_MOD) {
 	    if (op->op_private & OPpLVAL_INTRO)
 		if (!(op->op_private & OPpPAD_STATE))

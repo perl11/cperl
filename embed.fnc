@@ -653,7 +653,8 @@ s	|OP*	|gen_constant_list|NULLOK OP* o
 #if defined(PERL_IN_OP_C) || defined(PERL_IN_PP_HOT_C)
 #  if defined(USE_CPERL)
 : defined in op.c, used in pp_hot.c
-dMp	|void	|op_native_padsv|NN OP* o
+dMp	|void	|op_native_padsv_on|NN OP* o
+dMp	|void	|op_native_padsv_off|NN OP* o
 #  endif
 #endif
 #if !defined(HAS_GETENV_LEN)
