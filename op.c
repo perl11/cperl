@@ -21346,38 +21346,65 @@ S_op_upgrade_native(pTHX_ OP* o, OPCODE c, bool mod)
 
     if (type == OP_CONST) {
         SV* sv = cSVOPo_sv;
-#ifdef DEBUGGING
-        if (mod)
-            DEBUG_k(Perl_deb(aTHX_ "native: upgrade %s => %s\n", OP_NAME(o), PL_op_name[c]));
-#endif
         switch (c) {
         case OP_INT_CONST:
-            if (SvANY(sv) && !SvIOK(sv))
-                bad_type_declared(sv, "int");
-            UPGRADE_SVOP(o, c, ((XPVIV*)SvANY(sv))->xiv_iv);
-            return TRUE;
+            if (SvANY(sv) && !SvIOK(sv)) { /* convert ? to int_const */
+                if (SvPOK(sv) || SvNOK(sv)) { /* allow num, str to int_const */
+                    UPGRADE_SVOP(o, c, sv_2iv_flags(sv, SV_SKIP_OVERLOAD));
+                } else {
+                    if (mod) bad_type_declared(sv, "const int");
+                    else return FALSE;
+                }
+            } else {
+                UPGRADE_SVOP(o, c, ((XPVIV*)SvANY(sv))->xiv_iv);
+            }
+            break;
         case OP_UINT_CONST:
-            if (SvANY(sv) && (!SvIOK(sv) || !SvUOK(sv)))
-                bad_type_declared(sv, "uint");
-            UPGRADE_SVOP(o, c, ((XPVUV*)SvANY(sv))->xuv_uv);
-            return TRUE;
+            if (SvANY(sv) && (!SvIOK(sv) || !SvUOK(sv))) {
+                if (SvPOK(sv) || SvNOK(sv)) { /* allow num, str to uint */
+                    UPGRADE_SVOP(o, c, sv_2uv_flags(sv, SV_SKIP_OVERLOAD));
+                } else {
+                    if (mod) bad_type_declared(sv, "const uint");
+                    else return FALSE;
+                }
+            } else {
+                UPGRADE_SVOP(o, c, ((XPVUV*)SvANY(sv))->xuv_uv);
+            }
+            break;
         case OP_NUM_CONST: {
 #if IVSIZE == NVSIZE
             union { NV n; SV* sv; } num;
-            if (SvANY(sv) && !SvNOK(sv))
-                bad_type_declared(sv, "num");
-            num.n = SvNVX(sv);
-            UPGRADE_SVOP(o, c, num.sv);
-            return TRUE;
+            if (SvANY(sv) && !SvNOK(sv)) {
+                if (SvPOK(sv) || SvIOK(sv)) { /* allow int, str to num */
+                    num.n = sv_2nv_flags(sv, SV_SKIP_OVERLOAD);
+                    UPGRADE_SVOP(o, c, num.sv);
+                } else {
+                    if (mod) bad_type_declared(sv, "const num");
+                    else return FALSE;
+                }
+            } else {
+                num.n = SvNVX(sv);
+                UPGRADE_SVOP(o, c, num.sv);
+            }
 #endif
             }
             break;
         case OP_STR_CONST:
-            if (SvANY(sv) && !SvPOK(sv))
-                bad_type_declared(sv, "str");
-            if (is_native_string(sv->sv_u.svu_pv, SvANY(sv) ? SvCUR(sv) : 0)) {
-                UPGRADE_SVOP(o, c, sv->sv_u.svu_pv);
-                return TRUE;
+            if (SvANY(sv) && !SvPOK(sv)) {
+                if (SvNOK(sv) || SvIOK(sv)) { /* allow int, num to str */
+                    STRLEN len;
+                    char *pv = sv_2pv_flags(sv, &len, SV_SKIP_OVERLOAD);
+                    if (is_native_string(pv, len)) {
+                        UPGRADE_SVOP(o, c, pv);
+                    }
+                } else {
+                    if (mod) bad_type_declared(sv, "const str");
+                    else return FALSE;
+                }
+            } else {
+                if (is_native_string(sv->sv_u.svu_pv, SvANY(sv) ? SvCUR(sv) : 0)) {
+                    UPGRADE_SVOP(o, c, sv->sv_u.svu_pv);
+                }
             }
             break;
         default: ;
@@ -21394,30 +21421,34 @@ S_op_upgrade_native(pTHX_ OP* o, OPCODE c, bool mod)
 #endif
         switch (c) {
         case OP_INT_PADSV:
-            if (SvANY(sv) && !SvIOK(sv))
-                bad_type_declared(sv, "int");
+            if (SvANY(sv) && !SvIOK(sv)) {
+                if (mod) bad_type_declared(sv, "int"); else return FALSE;
+            }
             UPGRADE_PAD(o, c, sv);
             SvIOK_on(sv);
-            return TRUE;
+            break;
         case OP_UINT_PADSV:
-            if (SvANY(sv) && (!SvIOK(sv) || !SvUOK(sv)))
-                bad_type_declared(sv, "uint");
+            if (SvANY(sv) && (!SvIOK(sv) || !SvUOK(sv))) {
+                if (mod) bad_type_declared(sv, "uint"); else return FALSE;
+            }
             UPGRADE_PAD(o, c, sv);
             SvIOK_only_UV(sv);
-            return TRUE;
+            break;
         case OP_NUM_PADSV:
-            if (SvANY(sv) && !SvNOK(sv))
-                bad_type_declared(sv, "num");
+            if (SvANY(sv) && !SvNOK(sv)) {
+                if (mod) bad_type_declared(sv, "num"); else return FALSE;
+            }
             UPGRADE_PAD(o, c, sv);
             SvNOK_on(sv);
-            return TRUE;
+            break;
         case OP_STR_PADSV:
-            if (SvANY(sv) && !SvPOK(sv))
-                bad_type_declared(sv, "str");
+            if (SvANY(sv) && !SvPOK(sv)) {
+                if (mod) bad_type_declared(sv, "str"); else return FALSE;
+            }
             if (is_native_string(sv->sv_u.svu_pv, SvANY(sv) ? SvCUR(sv) : 0)) {
                 UPGRADE_PAD(o, c, sv);
                 SvPOK_on(sv);
-                return TRUE;
+                break;
             }
         default: ;
         }
@@ -21588,7 +21619,7 @@ and if the op can be converted to t of o and its args.
 =cut
 */
 static OPCODE
-S_op_native_variant(pTHX_ OP* o, core_types_t t) {
+S_op_native_variant(pTHX_ OP* o, core_types_t typeret) {
     OPCODE typ = o->op_type;
     const int n = NUM_OP_TYPE_VARIANTS(typ);
     PERL_ARGS_ASSERT_OP_NATIVE_VARIANT;
@@ -21606,11 +21637,11 @@ S_op_native_variant(pTHX_ OP* o, core_types_t t) {
                     DEBUG_kv(Perl_deb(aTHX_ "type: %s %s ~ (:%s):%s <=> %s %s\n",
                                  PL_op_name[typ],
                                  PL_op_type_str[typ], core_type_name(type1),
-                                 core_type_name(t), PL_op_name[v], PL_op_type_str[v]));
+                                 core_type_name(typeret), PL_op_name[v], PL_op_type_str[v]));
                     if ((PL_hints & HINT_INTEGER)
                         && ((n2 & 0xff) != type_Int) && ((n2 & 0xff) != type_int))
                         continue;
-                    if (t==type1 && match_type1(n2 & 0xffffff00, type1))
+                    if (typeret==type1 && match_type1(n2 & 0xffffff00, type1))
                         return v;
                 }
                 else if (oc == OA_BINOP) {
@@ -21622,38 +21653,40 @@ S_op_native_variant(pTHX_ OP* o, core_types_t t) {
                     DEBUG_kv(Perl_deb(aTHX_ "type: %s %s ~ (:%s,:%s):%s <=> %s %s\n",
                                  PL_op_name[typ],
                                  PL_op_type_str[typ], core_type_name(type1), core_type_name(type2),
-                                 core_type_name(t), PL_op_name[v], PL_op_type_str[v]));
+                                 core_type_name(typeret), PL_op_name[v], PL_op_type_str[v]));
                     /* need an Int result, no u_ */
                     if ((PL_hints & HINT_INTEGER) && ((n2 & 0xff) != type_Int))
                         continue;
-                    if (t==type1 && match_type2(n2 & 0xffffff00, type1, type2)) {
+                    if (typeret==type1 && match_type2(n2 & 0xffffff00, type1, type2)) {
                         /* Exception: Even if both / operands are int do not use intdiv.
-                           TODO: Only if the lhs result needs to be int. */
+                           Only if the lhs result needs to be int. */
                         if (typ == OP_DIVIDE && v == OP_I_DIVIDE)
                             continue;
                         /* perl5 features a "wild" interpretation of modulo with
                            negative args, which clashes with libc and i_modulo */
                         if (typ == OP_MODULO && v == OP_I_MODULO
-                            && (const_iv(cBINOPx(o)->op_first) < 0
-                             || const_iv(cBINOPx(o)->op_last) < 0))
+                            && (const_iv(first) < 0 || const_iv(last) < 0))
                             continue;
                         return v;
+                    } else if (type1 != type2) { /* maybe cast one value */
+                        /* TODO: int op num => num(int) op num. Int op num => num */
+                        /* TODO: uint op int => u_op */
+                        /* XXX */
                     }
                 }
                 else if (oc == OA_SVOP || typ == OP_PADSV) {
                     /* first match our data, if not reject */
                     core_types_t ourt = op_typed(o);
-                    DEBUG_kv(Perl_deb(aTHX_ "type: %s %s ~ ():%s <=> %s %s\n",
-                                 PL_op_name[typ], PL_op_type_str[typ],
-                                 core_type_name(t), PL_op_name[v], PL_op_type_str[v]));
-                    if (t != ourt) {
+                    DEBUG_kv(Perl_deb(aTHX_ "type: %s %s ~ ():%s <=> %s %s\n", PL_op_name[typ], PL_op_type_str[typ],
+                                 core_type_name(typeret), PL_op_name[v], PL_op_type_str[v]));
+                    if (typeret != ourt) {
                         /* allow upgrading int to uint if positive */
-                        if ((t == type_int || t == type_uint)
+                        if ((typeret == type_int || typeret == type_uint)
                             && const_iv(o) > 0
-                            && (n2 & 0xff) == t)
+                            && (n2 & 0xff) == typeret)
                             return v;
                     }
-                    else if ((n2 & 0xff) == t) /* just match the result type */
+                    else if ((n2 & 0xff) == typeret) /* just match the result type */
                         return v;
                 }
             }

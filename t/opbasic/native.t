@@ -392,8 +392,8 @@ else {
   # up a handler for SIGFPE.  That's why this test is last; to
   # minimize the number of test failures.  --PG
 
-  my int $n = 5000;
-  my $v = 2;
+  my num $n = 5000;
+  my num $v = 2;
   while (--$n)
   {
     $v *= 2;
