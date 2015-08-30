@@ -949,7 +949,7 @@ do_test('large hash',
     hash quality = \d+\\.\d+%
     KEYS = 1000
     FILL = (\d+) \\(cached = \1\\)
-    MAX = 1023
+    MAX = (1023|2047)
     RITER = -1
     EITER = 0x0
     RAND = $ADDR
