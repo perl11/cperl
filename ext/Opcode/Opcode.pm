@@ -311,6 +311,7 @@ invert_opset function.
 
     rv2av aassign aelem aelemfast aelemfast_lex aslice kvaslice
     av2arylen aelem_u aelemfast_lex_u
+    n_aelem s_aelem_u i_aelem_u i_aelem n_aelem_u s_aelem
 
     rv2hv helem hslice kvhslice each values keys exists delete
     aeach akeys avalues reach rvalues rkeys multideref
@@ -325,19 +326,6 @@ invert_opset function.
 
     lt i_lt gt i_gt le i_le ge i_ge eq i_eq ne i_ne cmp i_cmp
     s_lt s_gt s_le s_ge s_eq s_ne s_cmp
-
-    int_const uint_const num_const str_const
-    int_padsv uint_padsv num_padsv str_padsv
-    box_int box_uint box_str box_num unbox_int unbox_uint unbox_str
-    unbox_num uint_left_shift uint_right_shift uint_pow
-    uint_complement int_preinc int_predec int_postinc int_postdec
-    int_add int_subtract int_multiply int_divide int_modulo int_negate
-    int_not int_abs int_lt int_gt int_le int_ge int_eq int_ne num_add
-    num_subtract num_multiply num_divide num_atan2 num_pow num_sin
-    num_cos num_exp num_log num_sqrt
-    i_aelem n_aelem s_aelem int_aelem num_aelem str_aelem
-    i_aelem_u n_aelem_u s_aelem_u int_aelem_u num_aelem_u str_aelem_u
-    int_sassign uint_sassign num_sassign str_sassign
 
     substr vec stringify study pos length index rindex ord chr
 
