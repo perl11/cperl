@@ -12,7 +12,7 @@ BEGIN {
 
 use warnings;
 
-plan( tests => 276 );
+plan(tests => 276 );
 
 # type coercion on assignment
 $foo = 'foo';
@@ -1149,6 +1149,7 @@ pass "No crash due to CvGV pointing to glob copy in the stash";
     $c_125840 = $d_125840;
     is($c_125840, 1, 'RT #125840: $c=$d');
 }
+
 
 __END__
 Perl

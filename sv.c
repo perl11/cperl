@@ -3984,6 +3984,7 @@ S_glob_assign_glob(pTHX_ SV *const dstr, SV *const sstr, const int dtype)
     GvINTRO_off(dstr);		 /* one-shot flag */
     GvGP_set(dstr, gp_ref(GvGP(sstr)));
     LEAVE;
+
     if (SvTAINTED(sstr))
 	SvTAINT(dstr);
     if (GvIMPORTED(dstr) != GVf_IMPORTED
