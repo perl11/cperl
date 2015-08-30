@@ -528,6 +528,7 @@
 #define newPADNAMELIST		Perl_newPADNAMELIST
 #define newPADNAMEouter		Perl_newPADNAMEouter
 #define newPADNAMEpvn		Perl_newPADNAMEpvn
+#define newPADOP(a,b,c)		Perl_newPADOP(aTHX_ a,b,c)
 #define newPMOP(a,b)		Perl_newPMOP(aTHX_ a,b)
 #define newPROG(a)		Perl_newPROG(aTHX_ a)
 #define newPVOP(a,b,c)		Perl_newPVOP(aTHX_ a,b,c)
@@ -553,6 +554,7 @@
 #define newSVpvn_share(a,b,c)	Perl_newSVpvn_share(aTHX_ a,b,c)
 #define newSVrv(a,b)		Perl_newSVrv(aTHX_ a,b)
 #define newSVuv(a)		Perl_newSVuv(aTHX_ a)
+#define newUNBOXEDOP(a,b,c)	Perl_newUNBOXEDOP(aTHX_ a,b,c)
 #define newUNOP(a,b,c)		Perl_newUNOP(aTHX_ a,b,c)
 #define newUNOP_AUX(a,b,c,d)	Perl_newUNOP_AUX(aTHX_ a,b,c,d)
 #define newWHENOP(a,b)		Perl_newWHENOP(aTHX_ a,b)
@@ -570,6 +572,7 @@
 #define op_dump(a)		Perl_op_dump(aTHX_ a)
 #define op_free(a)		Perl_op_free(aTHX_ a)
 #define op_linklist(a)		Perl_op_linklist(aTHX_ a)
+#define op_native_peek(a)	Perl_op_native_peek(aTHX_ a)
 #define op_null(a)		Perl_op_null(aTHX_ a)
 #define op_parent		Perl_op_parent
 #define op_prepend_elem(a,b,c)	Perl_op_prepend_elem(aTHX_ a,b,c)
@@ -1107,7 +1110,6 @@
 #define he_dup(a,b,c)		Perl_he_dup(aTHX_ a,b,c)
 #define hek_dup(a,b)		Perl_hek_dup(aTHX_ a,b)
 #define mg_dup(a,b)		Perl_mg_dup(aTHX_ a,b)
-#define newPADOP(a,b,c)		Perl_newPADOP(aTHX_ a,b,c)
 #define parser_dup(a,b)		Perl_parser_dup(aTHX_ a,b)
 #define re_dup_guts(a,b,c)	Perl_re_dup_guts(aTHX_ a,b,c)
 #define regdupe_internal(a,b)	Perl_regdupe_internal(aTHX_ a,b)
@@ -1822,6 +1824,9 @@
 #define pnl_dump(a)		Perl_pnl_dump(aTHX_ a)
 #    endif
 #  endif
+#  if defined(DEBUGGING) && (defined(PERL_IN_SV_C) || defined (PERL_IN_DEB_C))
+#define looks_like_sv(a)	Perl_looks_like_sv(aTHX_ a)
+#  endif
 #  if defined(DEBUG_LEAKING_SCALARS_FORK_DUMP)
 #define dump_sv_child(a)	Perl_dump_sv_child(aTHX_ a)
 #  endif
@@ -2019,6 +2024,7 @@
 #define apply_attrs(a,b,c)	S_apply_attrs(aTHX_ a,b,c)
 #define apply_attrs_my(a,b,c,d)	S_apply_attrs_my(aTHX_ a,b,c,d)
 #define assignment_type(a)	S_assignment_type(aTHX_ a)
+#define bad_type_declared(a,b)	S_bad_type_declared(aTHX_ a,b)
 #define bad_type_gv(a,b,c,d)	S_bad_type_gv(aTHX_ a,b,c,d)
 #define bad_type_pv(a,b,c,d)	S_bad_type_pv(aTHX_ a,b,c,d)
 #define clear_special_blocks(a,b,c)	S_clear_special_blocks(aTHX_ a,b,c)
@@ -2077,6 +2083,7 @@
 #define check_hash_fields_and_hekify(a,b,c)	S_check_hash_fields_and_hekify(aTHX_ a,b,c)
 #define class_isamagic(a,b,c,d)	S_class_isamagic(aTHX_ a,b,c,d)
 #define const_av_xsub(a)	S_const_av_xsub(aTHX_ a)
+#define const_iv(a)		S_const_iv(aTHX_ a)
 #define const_sv_xsub(a)	S_const_sv_xsub(aTHX_ a)
 #define core_type_name(a)	S_core_type_name(aTHX_ a)
 #define do_method_finalize(a,b,c,d)	S_do_method_finalize(aTHX_ a,b,c,d)
@@ -2092,18 +2099,26 @@
 #define mderef_uoob_targ(a,b)	S_mderef_uoob_targ(aTHX_ a,b)
 #define method_finalize(a,b)	S_method_finalize(aTHX_ a,b)
 #define new_entersubop(a,b)	S_new_entersubop(aTHX_ a,b)
+#define new_entersubop(a,b)	S_new_entersubop(aTHX_ a,b)
 #define new_slab(a)		S_new_slab(aTHX_ a)
+#define op_can_upgrade_native(a,b)	S_op_can_upgrade_native(aTHX_ a,b)
 #define op_check_type(a,b,c,d)	S_op_check_type(aTHX_ a,b,c,d)
 #define op_const_sv(a,b,c)	S_op_const_sv(aTHX_ a,b,c)
 #define op_destroy(a)		S_op_destroy(aTHX_ a)
+#define op_downgrade_native(a,b)	S_op_downgrade_native(aTHX_ a,b)
+#define op_downgrade_oplist(a,b)	S_op_downgrade_oplist(aTHX_ a,b)
 #define op_fixup(a,b,c)		S_op_fixup(aTHX_ a,b,c)
 #define op_gv_set(a,b)		S_op_gv_set(aTHX_ a,b)
+#define op_insert_box(a,b)	S_op_insert_box(aTHX_ a,b)
+#define op_native_variant(a,b)	S_op_native_variant(aTHX_ a,b)
 #define op_next_nn		S_op_next_nn
+#define op_pad2const(a,b)	S_op_pad2const(aTHX_ a,b)
 #define op_prev_nn		S_op_prev_nn
 #define op_prevstart_nn		S_op_prevstart_nn
 #define op_sibling_newUNOP(a,b,c,d)	S_op_sibling_newUNOP(aTHX_ a,b,c,d)
-#define op_typed(a)		S_op_typed(aTHX_ a)
+#define op_typed(a,b)		S_op_typed(aTHX_ a,b)
 #define op_typed_user(a,b,c)	S_op_typed_user(aTHX_ a,b,c)
+#define op_upgrade_native(a,b,c)	S_op_upgrade_native(aTHX_ a,b,c)
 #define padnamelist_type_fixup(a,b,c)	S_padnamelist_type_fixup(aTHX_ a,b,c)
 #define peep_leaveloop(a,b,c)	S_peep_leaveloop(aTHX_ a,b,c)
 #define process_optree(a,b,c)	S_process_optree(aTHX_ a,b,c)
@@ -2117,6 +2132,9 @@
 #  endif
 #  if defined(PERL_IN_OP_C) || defined(PERL_IN_SV_C)
 #define report_redefined_cv(a,b,c)	Perl_report_redefined_cv(aTHX_ a,b,c)
+#  endif
+#  if defined(PERL_IN_OP_C) || defined(PERL_IN_TOKE_C)
+#define is_native_string(a,b)	Perl_is_native_string(aTHX_ a,b)
 #  endif
 #  if defined(PERL_IN_OP_C) || defined(PERL_IN_TOKE_C) || defined(PERL_IN_XSUTILS_C)
 #    if defined(USE_CPERL)

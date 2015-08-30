@@ -3804,7 +3804,7 @@ void
 Perl_report_evil_fh(pTHX_ const GV *gv)
 {
     const IO *io = gv ? GvIO(gv) : NULL;
-    const PERL_BITFIELD16 op = PL_op->op_type;
+    const OPCODE oc = PL_op->op_type;
     const char *vile;
     I32 warn_type;
 
@@ -3822,16 +3822,16 @@ Perl_report_evil_fh(pTHX_ const GV *gv)
             = gv && isGV_with_GP(gv) && GvENAMELEN(gv) ?
                                      sv_2mortal(newSVhek(GvENAME_HEK(gv))) : NULL;
 	const char * const pars =
-	    (const char *)(OP_IS_FILETEST(op) ? "" : "()");
+	    (const char *)(OP_IS_FILETEST(oc) ? "" : "()");
 	const char * const func =
 	    (const char *)
-	    (op == OP_READLINE || op == OP_RCATLINE
+	    (oc == OP_READLINE || oc == OP_RCATLINE
 				 ? "readline"  :	/* "<HANDLE>" not nice */
-	     op == OP_LEAVEWRITE ? "write" :		/* "write exit" not nice */
-	     PL_op_desc[op]);
+	     oc == OP_LEAVEWRITE ? "write" :		/* "write exit" not nice */
+	     PL_op_desc[oc]);
 	const char * const type =
 	    (const char *)
-	    (OP_IS_SOCKET(op) || (io && IoTYPE(io) == IoTYPE_SOCKET)
+	    (OP_IS_SOCKET(oc) || (io && IoTYPE(io) == IoTYPE_SOCKET)
 	     ? "socket" : "filehandle");
 	const bool have_name = name && SvCUR(name);
 	Perl_warner(aTHX_ packWARN(warn_type),

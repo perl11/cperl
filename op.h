@@ -554,6 +554,15 @@ typedef enum {
 
 /* See opnames.h for OA_ class and OP_IS_ tests */
 
+#define OA_SCALAR  1
+#define OA_LIST    2
+#define OA_AVREF   3
+#define OA_HVREF   4
+#define OA_CVREF   5
+#define OA_FILEREF 6
+#define OA_SCALARREF 7
+#define OA_OPTIONAL 8
+
 /* Op_REFCNT is a reference count at the head of each op tree: needed
  * since the tree is shared between threads, and between cloned closure
  * copies in the same thread. OP_REFCNT_LOCK/UNLOCK is used when modifying
@@ -1020,6 +1029,19 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
 #define OpTYPECHECKED(o)	(0 + (o)->op_typechecked)
 #define OpRETTYPE(o)		(U8)(0 + (o)->op_rettype)
 #define OpRETTYPE_set(o, type)	(o)->op_rettype = (U8)(type)
+#define OP_HAS_NATIVE(o) \
+    ( (o) && ((o->op_ppaddr == Perl_pp_padsv || o->op_ppaddr == Perl_pp_padav) \
+               && o->op_private & OPpPAD_UNBOXED)                              \
+           || (o->op_ppaddr == Perl_pp_const && o->op_private & OPpCONST_UNBOXED)) )
+#define IS_NATIVE_OP(o) (o->op_type >= OP_INT_CONST && o->op_type <= OP_NUM_SQRT)
+#define IS_NATIVE_PADSV(o) \
+    ((o->op_type == OP_PADSV || o->op_type == OP_PADAV \
+      || (o->op_type >= OP_INT_PADSV && o->op_type <= OP_NUM_PADSV)) \
+       && SvNATIVE(PAD_SVl(o->op_targ)))
+/* XXX opcode.pl cannot yet detect 2 ranges */
+#define OP_HAS_BOXRET(o)                                     \
+    ((o->op_type >= OP_INT_PADSV && o->op_type <= OP_NUM_SQRT) \
+     || (o->op_type >= OP_INT_AELEM && o->op_type <= OP_STR_AELEM_U))
 
 #define OpNEXT(o)    (o)->op_next
 #define OpFIRST(o)   cUNOPx(o)->op_first

@@ -5,28 +5,22 @@
  *    You may distribute under the terms of either the GNU General Public
  *    License or the Artistic License, as specified in the README file.
  *
- *  This file contains optimized type variants of general pp functions,
- *  see also regen/opcodes.  The types starting with an uppercase
- *  letter are "boxed", a SV typed as Int, UInt, Str or Num.
- *
- *  The native unboxed types starting with lowercase are special
- *  values on the stack and pad, and can only be used within certain
- *  op basic blocks, i.e. expressions, not crossing statement
- *  boundaries, i.e. nextstate. The compiler has to ensure that no
- *  unboxed value remains on the stack with non-local exits and at
- *  function call boundaries. We cannot yet handle native types across
- *  user code signatures, enterxssub XS and entersub PP.
- *  On the stack we use raw unboxed values, on the pad we need to use
- *  PADTMP like SV containers without a body, marked as SVf_NATIVE.
+ */
+
+/* This file contains optimized type variants of general pp functions,
+   see also regen/opcodes.  The types starting with an uppercase
+   letter are "boxed", a SV typed as Int or Str or Num.  The native
+   unboxed types starting with lowercase are special values on the
+   stack, and can only be used within certain op basic blocks. The
+   compiler has to ensure that no unboxed value remains on the stack
+   with non-local exits, and at function call boundaries.
  */
 
 #include "EXTERN.h"
 #define PERL_IN_PP_TYPE_C
 #include "perl.h"
-
-#ifdef PERL_NATIVE_TYPES
-
 #include "keywords.h"
+
 #include "reentr.h"
 #include "regcharclass.h"
 
@@ -244,7 +238,7 @@ UNBOXED_INT_BINOP(ne, !=)
 UNBOXED_INT_UNOP_t(int_negate, -)
 UNBOXED_INT_UNOP_t(int_postdec, --)
 UNBOXED_INT_UNOP_t(int_postinc, ++)
-UNBOXED_INT_UNOP_T(int_abs, abs)
+UNBOXED_INT_UNOP_T(int_abs, labs)
 UNBOXED_INT_UNOP(int_not, !)
 UNBOXED_INT_UNOP(int_predec, --)
 UNBOXED_INT_UNOP(int_preinc, ++)
@@ -346,7 +340,7 @@ UNBOXED_NUM_UNOP_T(exp, exp)
 UNBOXED_NUM_UNOP_T(log, log)
 UNBOXED_NUM_UNOP_T(sqrt, sqrt)
 
-/* native str ops for now disabled. maybe use HEKs for them.
+/* native str ops for now disabled.
    strcat: it might be too hard for the optimizer to prove
    that the first arg is big enough. and with only one remaining op it
    makes not much sense */
@@ -369,26 +363,146 @@ PPt(pp_str_length, "(:str):int")
     TOPs = (SV*)strlen((char *)TOPs);
     return NORMAL;
 }
-
-/* str hashes */
-
-/* unboxed hash element	ck_null		s2	H Z */
-PPt(pp_str_helem, "(:Hash(:Scalar),:str):Scalar")
-{
-    die("NYI");
-}
-/* unboxed delete	ck_delete	%	H Z */
-PPt(pp_str_delete, "(:Hash(:Scalar),:str):Void")
-{
-    die("NYI");
-}
-/* unboxed exists	ck_exists	s%	H Z */
-PPt(pp_str_exists, "(:Hash(:Scalar),:str):Bool")
-{
-    die("NYI");
-}
 #endif
 
+/* No magic allowed, but with bounds check,
+   negative i, lval, defer allowed */
+PPt(pp_i_aelem, "(:Array(:Int),:Int):Int")
+{
+    dSP;
+    SV** svp;
+    SV* const elemsv = POPs;
+    IV elem = SvIV(elemsv);
+    AV *const av = MUTABLE_AV(POPs);
+    const U32 lval = PL_op->op_flags & OPf_MOD || LVRET;
+    const U32 defer = PL_op->op_private & OPpLVAL_DEFER;
+    SV *sv;
+
+    if (UNLIKELY(SvROK(elemsv) && ckWARN(WARN_MISC)))
+	Perl_warner(aTHX_ packWARN(WARN_MISC),
+		    "Use of reference \"%" SVf "\" as array index",
+		    SVfARG(elemsv));
+    if (UNLIKELY(SvTYPE(av) != SVt_PVAV))
+	RETPUSHUNDEF;
+
+    svp = av_fetch(av, elem, lval && !defer);
+    if (lval) {
+#ifdef PERL_MALLOC_WRAP
+	 if (SvUOK(elemsv)) {
+	      const UV uv = SvUV(elemsv);
+	      elem = uv > IV_MAX ? IV_MAX : uv;
+	 }
+	 if (elem > 0) {
+	      static const char oom_array_extend[] =
+		"Out of memory during array extend"; /* Duplicated in av.c */
+	      MEM_WRAP_CHECK_1(elem,SV*,oom_array_extend);
+	 }
+#endif
+	if (!svp || !*svp) {
+	    IV len;
+	    if (!defer)
+		DIE(aTHX_ PL_no_aelem, elem);
+	    len = av_tindex(av);
+	    mPUSHs(newSVavdefelem(av,
+	    /* Resolve a negative index now, unless it points before the
+	       beginning of the array, in which case record it for error
+	       reporting in magic_setdefelem. */
+		elem < 0 && len + elem >= 0 ? len + elem : elem,
+		1));
+	    RETURN;
+	}
+        if (PL_op->op_private & OPpDEREF) {
+	    PUSHs(vivify_ref(*svp, PL_op->op_private & OPpDEREF));
+	    RETURN;
+	}
+    }
+    sv = (svp ? *svp : UNDEF);
+    PUSHs(sv);
+    RETURN;
+}
+
+/* same as pp_num_aelem_u and pp_str_aelem_u.
+   without bounds check */
+PPt(pp_int_aelem_u, "(:Array(:int),:int):int")
+{
+    dSP;
+    SV *sv = AvARRAY((AV*)TOPs)[(IV)TOPm1s];
+    sp--;
+    TOPs = sv;
+    RETURN;
+}
+
+/* same as pp_num_aelem and pp_str_aelem.
+   with bounds check */
+PPt(pp_int_aelem, "(:Array(:int),:int):int")
+{
+    dVAR; dSP;
+    SV** svp = NULL;
+
+    AV * const av = MUTABLE_AV(POPs);
+    IV index = (IV)TOPm1s;
+    if (index >= 0 && index < AvFILLp(av))
+        svp = &AvARRAY(av)[index];
+    else if (index < 0 && index > -AvFILLp(av) ) { /* @a[20] just declares the len not the size */
+        svp = &AvARRAY(av)[AvFILL(av) + index];
+    }
+
+    if (UNLIKELY(!svp)) /* unassigned elem or fall through for > AvFILL */
+        DIE(aTHX_ PL_no_aelem, index);
+
+    TOPs = *svp;
+    RETURN;
+}
+
+/* pp_i_aelem_u, "(:Array(:Int),:Int):Int")
+   same as pp_aelem_u */
+
+/* n_aelem		num array element  ck_null	s2	A S */
+/* same as pp_i_aelem */
+/* this version below is different than i_aelem, for bounds checked indices already.
+   no negative index, lvalue, no out of bounds, no defer
+PPt(pp_n_aelem, "(:Array(:Num),:Int):Num")
+{
+    dSP;
+    SV *sv = AvARRAY((AV*)TOPs)[SvIVX(TOPm1s)];
+    sp--;
+    TOPs = sv;
+    RETURN;
+}
+*/
+/* unboxed	num array element ck_null	s2	A I */
+/* same as int_aelem
+PPt(pp_num_aelem, "(:Array(:num),:int):num")
+{
+    dSP;
+    SV *sv = AvARRAY((AV*)TOPs)[(IV)TOPm1s];
+    sp--;
+    TOPs = sv;
+    RETURN;
+}
+*/
+/* str array element  ck_null	s2	A S */
+/* same as pp_i_aelem
+PPt(pp_s_aelem, "(:Array(:Str),:Int):Str")
+{
+    dSP;
+    SV *sv = AvARRAY((AV*)TOPs)[SvIVX(TOPm1s)];
+    sp--;
+    TOPs = sv;
+    RETURN;
+}
+*/
+/* unboxed	str array element ck_null	z2	A Z */
+/* same as int_aelem
+PPt(pp_str_aelem, "(:Array(:str),:int):str")
+{
+    dSP;
+    SV *sv = AvARRAY((AV*)TOPs)[(IV)TOPm1s];
+    sp--;
+    TOPs = sv;
+    RETURN;
+}
+*/
 
 /* for all native types. 
    Note: the type should really be :native, as just the unboxed value is copied.
@@ -448,146 +562,23 @@ PPt(pp_int_padsv, "():int")
     }
 }
 
-/* same as pp_num_aelem_u and pp_str_aelem_u.
-   without bounds check */
-PPt(pp_int_aelem_u, "(:Array(:int),:int):int")
+# if 0
+/* unboxed hash element	ck_null		s2	H Z */
+PPt(pp_str_helem, "(:Hash(:Scalar),:str):Scalar")
 {
-    dSP;
-    SV *sv = AvARRAY((AV*)TOPs)[(IV)TOPm1s];
-    sp--;
-    TOPs = sv;
-    RETURN;
+    die("NYI");
 }
-
-/* same as pp_num_aelem and pp_str_aelem.
-   with bounds check */
-PPt(pp_int_aelem, "(:Array(:int),:int):int")
+/* unboxed delete	ck_delete	%	H Z */
+PPt(pp_str_delete, "(:Hash(:Scalar),:str):Void")
 {
-    dVAR; dSP;
-    SV** svp = NULL;
-
-    AV * const av = MUTABLE_AV(POPs);
-    IV index = (IV)TOPm1s;
-    if (index >= 0 && index < AvFILLp(av))
-        svp = &AvARRAY(av)[index];
-    else if (index < 0 && index > -AvFILLp(av) ) { /* @a[20] just declares the len not the size */
-        svp = &AvARRAY(av)[AvFILL(av) + index];
-    }
-
-    if (UNLIKELY(!svp)) /* unassigned elem or fall through for > AvFILL */
-        DIE(aTHX_ PL_no_aelem, index);
-
-    TOPs = *svp;
-    RETURN;
+    die("NYI");
 }
-
-#endif /* PERL_NATIVE_TYPES */
-
-/* No magic allowed, but with bounds check,
-   negative i, lval, defer allowed */
-PPt(pp_i_aelem, "(:Array(:Int),:Int):Int")
+/* unboxed exists	ck_exists	s%	H Z */
+PPt(pp_str_exists, "(:Hash(:Scalar),:str):Bool")
 {
-    dSP;
-    SV** svp;
-    SV* const elemsv = POPs;
-    IV elem = SvIV(elemsv);
-    AV *const av = MUTABLE_AV(POPs);
-    const U32 lval = PL_op->op_flags & OPf_MOD || LVRET;
-    const U32 defer = PL_op->op_private & OPpLVAL_DEFER;
-    SV *sv;
-
-    if (UNLIKELY(SvROK(elemsv) && ckWARN(WARN_MISC)))
-	Perl_warner(aTHX_ packWARN(WARN_MISC),
-		    "Use of reference \"%" SVf "\" as array index",
-		    SVfARG(elemsv));
-    if (UNLIKELY(SvTYPE(av) != SVt_PVAV))
-	RETPUSHUNDEF;
-
-    svp = av_fetch(av, elem, lval && !defer);
-    if (lval) {
-#ifdef PERL_MALLOC_WRAP
-	 if (SvUOK(elemsv)) {
-	      const UV uv = SvUV(elemsv);
-	      elem = uv > IV_MAX ? IV_MAX : uv;
-	 }
-	 if (elem > 0) {
-	      static const char oom_array_extend[] =
-		"Out of memory during array extend"; /* Duplicated in av.c */
-	      MEM_WRAP_CHECK_1(elem,SV*,oom_array_extend);
-	 }
+    die("NYI");
+}
 #endif
-	if (!svp || !*svp) {
-	    IV len;
-	    if (!defer)
-		DIE(aTHX_ PL_no_aelem, elem);
-	    len = av_tindex(av);
-	    mPUSHs(newSVavdefelem(av,
-	    /* Resolve a negative index now, unless it points before the
-	       beginning of the array, in which case record it for error
-	       reporting in magic_setdefelem. */
-		elem < 0 && len + elem >= 0 ? len + elem : elem,
-		1));
-	    RETURN;
-	}
-        if (PL_op->op_private & OPpDEREF) {
-	    PUSHs(vivify_ref(*svp, PL_op->op_private & OPpDEREF));
-	    RETURN;
-	}
-    }
-    sv = (svp ? *svp : UNDEF);
-    PUSHs(sv);
-    RETURN;
-}
-
-/* pp_i_aelem_u, "(:Array(:Int),:Int):Int")
-   same as pp_aelem_u */
-
-/* n_aelem		num array element  ck_null	s2	A S */
-/* same as pp_i_aelem */
-/* this version below is different than i_aelem, for bounds checked indices already.
-   no negative index, lvalue, no out of bounds, no defer
-PPt(pp_n_aelem, "(:Array(:Num),:Int):Num")
-{
-    dSP;
-    SV *sv = AvARRAY((AV*)TOPs)[SvIVX(TOPm1s)];
-    sp--;
-    TOPs = sv;
-    RETURN;
-}
-*/
-/* unboxed	num array element ck_null	s2	A I */
-/* same as int_aelem
-PPt(pp_num_aelem, "(:Array(:num),:int):num")
-{
-    dSP;
-    SV *sv = AvARRAY((AV*)TOPs)[(IV)TOPm1s];
-    sp--;
-    TOPs = sv;
-    RETURN;
-}
-*/
-/* str array element  ck_null	s2	A S */
-/* same as pp_i_aelem
-PPt(pp_s_aelem, "(:Array(:Str),:Int):Str")
-{
-    dSP;
-    SV *sv = AvARRAY((AV*)TOPs)[SvIVX(TOPm1s)];
-    sp--;
-    TOPs = sv;
-    RETURN;
-}
-*/
-/* unboxed	str array element ck_null	z2	A Z */
-/* same as int_aelem
-PPt(pp_str_aelem, "(:Array(:str),:int):str")
-{
-    dSP;
-    SV *sv = AvARRAY((AV*)TOPs)[(IV)TOPm1s];
-    sp--;
-    TOPs = sv;
-    RETURN;
-}
-*/
 
 /*
  * ex: set ts=8 sts=4 sw=4 et:

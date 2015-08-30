@@ -366,6 +366,7 @@ S_new_SV(pTHX_ const char *file, int line, const char *func)
     SvANY(sv) = 0;
     SvREFCNT(sv) = 1;
     SvFLAGS(sv) = 0;
+    sv->sv_u.svu_iv = 0;
     sv->sv_debug_optype = PL_op ? PL_op->op_type : 0;
     sv->sv_debug_line = (U16) (PL_parser && PL_parser->copline != NOLINE
 		? PL_parser->copline
@@ -402,6 +403,7 @@ S_new_SV(pTHX_ const char *file, int line, const char *func)
 	SvANY(p) = 0;					\
 	SvREFCNT(p) = 1;				\
 	SvFLAGS(p) = 0;					\
+	p->sv_u.svu_iv = 0;                             \
 	MEM_LOG_NEW_SV(p, __FILE__, __LINE__, FUNCTION__);  \
     } STMT_END
 #endif
@@ -546,6 +548,32 @@ do_report_used(pTHX_ SV *const sv)
 	sv_dump(sv);
     }
 }
+
+/*
+=for apidoc looks_like_sv
+
+Check if allocated in one of the sv arenas.
+Declared with -DDEBUGGING only.
+
+=cut
+*/
+bool
+Perl_looks_like_sv(pTHX_ const SV *const sv)
+{
+    bool found = false;
+    SV* sva = (SV*)PL_curpad;
+    if (sv < sva) /* native value */
+        return false;
+    if (sv > sva && sv < PL_sv_arenaroot) /* curpad? */
+        return true;
+    /* or in one of the newSV arenas */
+    for (sva = PL_sv_arenaroot; sva; sva = MUTABLE_SV(SvANY(sva))) {
+	const SV * const svend = &sva[SvREFCNT(sva)];
+        if (sv > sva && sv < svend) return true;
+    }
+    return found;
+}
+
 #endif
 
 /*
@@ -14182,7 +14210,7 @@ Perl_rvpv_dup(pTHX_ SV *const dstr, const SV *const sstr, CLONE_PARAMS *const pa
 	    /* sstr may not be that normal, but actually copy on write.
 	       But we are a true, independent SV, so:  */
 	    SvIsCOW_off(dstr);
-            if (SvTAINTED(sstr))
+            if (SvTAINTED((SV *const)sstr))
                 SvTAINTED_on(dstr);
 	}
 	else {
@@ -14195,13 +14223,13 @@ Perl_rvpv_dup(pTHX_ SV *const dstr, const SV *const sstr, CLONE_PARAMS *const pa
 		SvPV_set(dstr,
 			 HEK_KEY(hek_dup(SvSHARED_HEK_FROM_PV(SvPVX_const(sstr)),
 					 param)));
-                if (SvTAINTED(sstr))
+                if (SvTAINTED((SV *const)sstr))
                     SvTAINTED_on(dstr);
 	    }
 	    else {
 		/* Some other special case - random pointer */
 		SvPV_set(dstr, (char *) SvPVX_const(sstr));		
-                if (SvTAINTED(sstr))
+                if (SvTAINTED((SV *const)sstr))
                     SvTAINTED_on(dstr);
 	    }
 	}

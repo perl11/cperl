@@ -3941,6 +3941,13 @@ PERL_CALLCONV PADNAME *	Perl_newPADNAMEpvn(const char *s, STRLEN len)
 #define PERL_ARGS_ASSERT_NEWPADNAMEPVN	\
 	assert(s)
 
+PERL_CALLCONV OP*	Perl_newPADOP(pTHX_ I32 type, I32 flags, SV* sv)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_NEWPADOP	\
+	assert(sv)
+
 PERL_CALLCONV OP*	Perl_newPMOP(pTHX_ I32 type, I32 flags)
 			__attribute__global__
 			__attribute__warn_unused_result__;
@@ -4070,6 +4077,10 @@ PERL_CALLCONV SV*	Perl_newSVrv(pTHX_ SV *const rv, const char *const classname)
 	assert(rv)
 
 PERL_CALLCONV SV*	Perl_newSVuv(pTHX_ const UV u)
+			__attribute__global__
+			__attribute__warn_unused_result__;
+
+PERL_CALLCONV OP*	Perl_newUNBOXEDOP(pTHX_ I32 type, I32 flags, SV* data)
 			__attribute__global__
 			__attribute__warn_unused_result__;
 
@@ -4205,6 +4216,10 @@ PERL_CALLCONV OP*	Perl_op_linklist(pTHX_ OP *o)
 
 /* PERL_CALLCONV OP*	op_lvalue(pTHX_ OP* o, I32 type)
 			__attribute__global__; */
+
+PERL_CALLCONV char*	Perl_op_native_peek(pTHX_ const OP* o)
+			__attribute__global__
+			__attribute__warn_unused_result__;
 
 PERL_CALLCONV void	Perl_op_null(pTHX_ OP* o)
 			__attribute__global__
@@ -5809,7 +5824,8 @@ PERL_STATIC_INLINE bool	S_sv_only_taint_gmagic(SV *sv)
 #endif
 
 PERL_CALLCONV char*	Perl_sv_peek(pTHX_ SV* sv)
-			__attribute__global__;
+			__attribute__global__
+			__attribute__warn_unused_result__;
 
 PERL_CALLCONV void	Perl_sv_pos_b2u(pTHX_ SV *const sv, I32 *const offsetp)
 			__attribute__global__
@@ -7588,6 +7604,12 @@ PERL_CALLCONV char*	Perl_pn_peek(pTHX_ PADNAME* pn);
 PERL_CALLCONV void	Perl_pnl_dump(pTHX_ PADNAMELIST* pnl);
 #  endif
 #endif
+#if defined(DEBUGGING) && (defined(PERL_IN_SV_C) || defined (PERL_IN_DEB_C))
+PERL_CALLCONV bool	Perl_looks_like_sv(pTHX_ const SV *const sv)
+			__attribute__warn_unused_result__
+			__attribute__pure__;
+
+#endif
 #if defined(DEBUGGING) && defined(ENABLE_REGEX_SETS_DEBUGGING)
 #  if defined(PERL_IN_REGCOMP_C)
 STATIC void	S_dump_regex_sets_structures(pTHX_ RExC_state_t *pRExC_state, AV * stack, const IV fence, AV * fence_stack)
@@ -8512,6 +8534,12 @@ STATIC void	S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp
 STATIC I32	S_assignment_type(pTHX_ const OP *o)
 			__attribute__warn_unused_result__;
 
+STATIC void	S_bad_type_declared(pTHX_ SV *sv, const char *t)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_BAD_TYPE_DECLARED	\
+	assert(sv); assert(t)
+
 STATIC void	S_bad_type_gv(pTHX_ I32 n, GV *gv, const OP *kid, const char *t)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3)
@@ -8627,6 +8655,13 @@ PERL_STATIC_INLINE OP*	S_op_integerize(pTHX_ OP *o)
 #define PERL_ARGS_ASSERT_OP_INTEGERIZE	\
 	assert(o)
 #endif
+
+PERL_CALLCONV OP*	op_pad2const(OP *firstkid, OP *o)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(2);
+#define PERL_ARGS_ASSERT_OP_PAD2CONST	\
+	assert(firstkid); assert(o)
 
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE OP*	S_op_std_init(pTHX_ OP *o)
@@ -8796,6 +8831,13 @@ STATIC void	S_const_av_xsub(pTHX_ CV* cv)
 #define PERL_ARGS_ASSERT_CONST_AV_XSUB	\
 	assert(cv)
 
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE IV	S_const_iv(pTHX_ OP* o)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CONST_IV	\
+	assert(o)
+#endif
+
 STATIC void	S_const_sv_xsub(pTHX_ CV* cv)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CONST_SV_XSUB	\
@@ -8875,7 +8917,22 @@ PERL_STATIC_INLINE OP*	S_new_entersubop(pTHX_ GV* gv, OP* arg)
 	assert(gv); assert(arg)
 #endif
 
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE OP*	S_new_entersubop(pTHX_ GV* gv, OP* arg)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_NEW_ENTERSUBOP	\
+	assert(gv); assert(arg)
+#endif
+
 STATIC OPSLAB*	S_new_slab(pTHX_ size_t sz);
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE bool	S_op_can_upgrade_native(pTHX_ OP* o, OPCODE c)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_CAN_UPGRADE_NATIVE	\
+	assert(o)
+#endif
+
 STATIC void	S_op_check_type(pTHX_ OP* o, OP* left, OP* right, bool is_assign)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
@@ -8892,6 +8949,19 @@ STATIC SV*	S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE void	S_op_destroy(pTHX_ OP* o);
 #endif
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE bool	S_op_downgrade_native(pTHX_ OP* o, bool with_box)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_DOWNGRADE_NATIVE	\
+	assert(o)
+#endif
+
+STATIC void	S_op_downgrade_oplist(pTHX_ OP* o, OP* o2)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_OP_DOWNGRADE_OPLIST	\
+	assert(o); assert(o2)
+
 STATIC OP*	S_op_fixup(pTHX_ OP *old, OP *newop, U32 init);
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE void	S_op_gv_set(pTHX_ OP* o, GV* gv)
@@ -8901,12 +8971,28 @@ PERL_STATIC_INLINE void	S_op_gv_set(pTHX_ OP* o, GV* gv)
 	assert(o); assert(gv)
 #endif
 
+STATIC void	S_op_insert_box(pTHX_ OP* o, OP* o2)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_INSERT_BOX	\
+	assert(o)
+
+STATIC OPCODE	S_op_native_variant(pTHX_ OP* o, core_types_t t)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_NATIVE_VARIANT	\
+	assert(o)
+
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE OP*	S_op_next_nn(OP* o)
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_OP_NEXT_NN	\
 	assert(o)
 #endif
+
+STATIC OP*	S_op_pad2const(pTHX_ OP* firstkid, OP* o)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_OP_PAD2CONST	\
+	assert(firstkid); assert(o)
 
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE OP*	S_op_prev_nn(const OP* us)
@@ -8925,7 +9011,7 @@ PERL_STATIC_INLINE OP*	S_op_prevstart_nn(const OP* start, const OP* us)
 
 STATIC OP*	S_op_sibling_newUNOP(pTHX_ OP *parent, OP *start, I32 type, I32 flags);
 #ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE core_types_t	S_op_typed(pTHX_ OP* o)
+PERL_STATIC_INLINE core_types_t	S_op_typed(pTHX_ OP* o, bool with_native)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_OP_TYPED	\
 	assert(o)
@@ -8934,6 +9020,11 @@ PERL_STATIC_INLINE core_types_t	S_op_typed(pTHX_ OP* o)
 STATIC core_types_t	S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_OP_TYPED_USER	\
+	assert(o)
+
+STATIC bool	S_op_upgrade_native(pTHX_ OP* o, OPCODE c, bool mod)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_UPGRADE_NATIVE	\
 	assert(o)
 
 STATIC void	S_padnamelist_type_fixup(pTHX_ PADNAMELIST *pnl, HV* oldklass, HV* newklass)
@@ -8984,6 +9075,12 @@ PERL_CALLCONV void	Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_
 	assert(name); assert(old_cv)
 
 #endif
+#if defined(PERL_IN_OP_C) || defined(PERL_IN_TOKE_C)
+PERL_CALLCONV bool	Perl_is_native_string(pTHX_ const char* s, STRLEN len)
+			__attribute__warn_unused_result__
+			__attribute__pure__;
+
+#endif
 #if defined(PERL_IN_OP_C) || defined(PERL_IN_TOKE_C) || defined(PERL_IN_XSUTILS_C)
 #  if defined(USE_CPERL)
 PERL_CALLCONV void	Perl_cv_type_set(pTHX_ CV *cv, HV *stash)
@@ -8995,10 +9092,10 @@ PERL_CALLCONV void	Perl_cv_type_set(pTHX_ CV *cv, HV *stash)
 #  endif
 #endif
 #if defined(PERL_IN_PAD_C)
-STATIC PADOFFSET	S_pad_alloc_name(pTHX_ PADNAME *name, U32 flags, HV *typestash, HV *ourstash)
+STATIC PADOFFSET	S_pad_alloc_name(pTHX_ PADNAME *padname, U32 flags, HV *typestash, HV *ourstash)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_PAD_ALLOC_NAME	\
-	assert(name)
+	assert(padname)
 
 STATIC void	S_pad_check_dup(pTHX_ PADNAME *name, U32 flags, const HV *ourstash)
 			__attribute__nonnull__(pTHX_1);
@@ -11627,13 +11724,6 @@ PERL_CALLCONV struct mro_meta*	Perl_mro_meta_dup(pTHX_ struct mro_meta* smeta, C
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_MRO_META_DUP	\
 	assert(smeta); assert(param)
-
-PERL_CALLCONV OP*	Perl_newPADOP(pTHX_ I32 type, I32 flags, SV* sv)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_3);
-#define PERL_ARGS_ASSERT_NEWPADOP	\
-	assert(sv)
 
 PERL_CALLCONV void	Perl_op_relocate_sv(pTHX_ SV** svp, PADOFFSET* targp)
 			__attribute__global__

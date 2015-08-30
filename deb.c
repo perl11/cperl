@@ -142,7 +142,14 @@ S_deb_stack_n(pTHX_ SV** stack_base, I32 stack_min, I32 stack_max,
 	}
 	if (i > stack_max)
 	    break;
-	PerlIO_printf(Perl_debug_log, "%-4s  ", SvPEEK(stack_base[i]));
+
+        /* With native ops the stack is something else */
+        if (looks_like_sv(stack_base[i]))
+            PerlIO_printf(Perl_debug_log, "%-4s  ", SvPEEK(stack_base[i]));
+        else {
+            PerlIO_printf(Perl_debug_log, "native?(%"IVdf"/0x%p) ", (IV)stack_base[i],
+                          stack_base[i]);
+        }
     }
     while (1);
     PerlIO_printf(Perl_debug_log, "\n");

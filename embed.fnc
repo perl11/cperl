@@ -619,6 +619,7 @@ p	|char*	|find_script	|NN const char *scriptname|bool dosearch \
 s	|OP*	|force_list	|NULLOK OP* arg|bool nullit
 i	|OP*	|op_integerize	|NN OP *o
 i	|OP*	|op_std_init	|NN OP *o
+nMRx    |OP*    |op_pad2const   |NN OP *firstkid|NN OP *o
 i	|OP*	|newMETHOP_internal	|I32 type|I32 flags|NULLOK OP* dynamic_meth \
 					|NULLOK SV* const_meth
 : FIXME
@@ -853,6 +854,9 @@ pR	|OP*	|invert		|NULLOK OP* cmd
 ApR	|I32	|is_lvalue_sub
 : Used in cop.h
 XopR	|I32	|was_lvalue_sub
+#if defined(PERL_IN_OP_C) || defined(PERL_IN_TOKE_C)
+dMPpRx	|bool	|is_native_string |NULLOK const char* s|STRLEN len
+#endif
 ApMRnP	|STRLEN	|_is_utf8_char_helper|NN const U8 * const s|NN const U8 * e|const U32 flags
 AbDMpR	|U32	|to_uni_upper_lc|U32 c
 AbDMpR	|U32	|to_uni_title_lc|U32 c
@@ -1269,7 +1273,7 @@ s	|void	|bad_type_core	|NN const char *argname|NN GV *gv \
                 	|NN const char *wanted|bool wu8
 i	|int	|match_type	|NN const HV* stash|core_types_t atyp|NN const char* aname \
 				|bool au8|NN int *castable
-i|core_types_t	|op_typed	|NN OP* o
+id|core_types_t	|op_typed	|NN OP* o|bool with_native
 s|core_types_t	|op_typed_user	|NN OP* o|NULLOK char** usertype|NULLOK int* u8
 i|const char *  |core_type_name	|core_types_t t
 i|core_types_t	|stash_to_coretype|NULLOK const HV* stash
@@ -1282,6 +1286,15 @@ sM	|bool	|cv_check_inline|NN const OP *o|NN CV *compcv
 sM	|OP*	|cv_do_inline   |NULLOK OP *parent|NN OP *o|NN OP *cvop|NN CV *cv
 sM	|OP*	|op_clone_sv	|NN OP* o
 #    endif
+i	|OP*	|new_entersubop |NN GV* gv |NN OP* arg
+sd	|OPCODE |op_native_variant|NN OP* o|core_types_t t
+i	|IV	|const_iv	|NN OP* o
+s	|OP*	|op_pad2const	|NN OP* firstkid|NN OP* o
+s	|void	|op_insert_box	|NN OP* o|NULLOK OP* o2
+i	|bool	|op_can_upgrade_native	|NN OP* o|OPCODE c
+s	|bool	|op_upgrade_native	|NN OP* o|OPCODE c|bool mod
+i	|bool	|op_downgrade_native	|NN OP* o|bool with_box
+s	|void	|op_downgrade_oplist	|NN OP* o|NN OP* o2
 #  endif
 #endif
 : Used in op.c, pp_hot.c, and universal.c
@@ -1384,9 +1397,6 @@ AMpdRn	|PADNAME *|newPADNAMEpvn|NN const char *s|STRLEN len
 AMpdRn	|PADNAME *|newPADNAMEpvn_flags|NN const char *s|STRLEN len|U32 flags
 #endif
 AMpdRn	|PADNAMELIST *|newPADNAMELIST|size_t max
-#ifdef USE_ITHREADS
-ApdR	|OP*	|newPADOP	|I32 type|I32 flags|NN SV* sv
-#endif
 ApdR	|OP*	|newPMOP	|I32 type|I32 flags
 ApdR	|OP*	|newPVOP	|I32 type|I32 flags|NULLOK char* pv
 ApR	|SV*	|newRV		|NN SV *const sv
@@ -1416,6 +1426,8 @@ ApmdR	|SV*	|newSVsv_nomg	|NULLOK SV *const old
 ApR	|SV*	|newSVsv_flags	|NULLOK SV *const old|I32 flags
 #endif
 ApdR	|SV*	|newSV_type	|const svtype type
+ApdR	|OP*	|newPADOP	|I32 type|I32 flags|NN SV* sv
+ApdR	|OP*	|newUNBOXEDOP	|I32 type|I32 flags|NULLOK SV* data
 ApdR	|OP*	|newUNOP	|I32 type|I32 flags|NULLOK OP* first
 ApdR	|OP*	|newUNOP_AUX	|I32 type|I32 flags|NULLOK OP* first \
 				|NULLOK UNOP_AUX_item *aux
@@ -1908,7 +1920,8 @@ ApdbmR	|SV*	|sv_mortalcopy	|NULLOK SV *const oldsv
 XpR	|SV*	|sv_mortalcopy_flags|NULLOK SV *const oldsv|U32 flags
 ApdR	|SV*	|sv_newmortal
 Apd	|SV*	|sv_newref	|NULLOK SV *const sv
-Ap	|char*	|sv_peek	|NULLOK SV* sv
+ApR	|char*	|sv_peek	|NULLOK SV* sv
+ApR	|char*	|op_native_peek	|NULLOK const OP* o
 ApdD	|void	|sv_pos_u2b	|NULLOK SV *const sv|NN I32 *const offsetp|NULLOK I32 *const lenp
 ApdD	|void	|sv_pos_b2u	|NULLOK SV *const sv|NN I32 *const offsetp
 Apd	|STRLEN	|sv_pos_u2b_flags|NN SV *const sv|STRLEN uoffset \
@@ -2587,6 +2600,7 @@ s	|void	|apply_attrs	|NN HV *stash|NN SV *target|NULLOK OP *attrs
 s	|void	|apply_attrs_my	|NN HV *stash|NN OP *target|NULLOK OP *attrs|NN OP **imopsp
 s	|void	|bad_type_pv	|I32 n|NN const char *t|NN const OP *o|NN const OP *kid
 s	|void	|bad_type_gv	|I32 n|NN GV *gv|NN const OP *kid|NN const char *t
+s	|void	|bad_type_declared|NN SV *sv|NN const char *t
 s	|void	|no_bareword_allowed|NN OP *o
 sR	|OP*	|no_fh_allowed	|NN OP *o
 sR	|OP*	|too_few_arguments_pv|NN OP *o|NN const char* name|U32 flags
@@ -3154,6 +3168,11 @@ pR	|SV *	|varname	|NULLOK const GV *const gv|const char gvtype \
 				|SSize_t aindex|int subscript_type
 #endif
 
+#if defined(DEBUGGING) && (defined(PERL_IN_SV_C) || defined (PERL_IN_DEB_C))
+: Defined in sv.c, used in deb.c
+pPRx	|bool	|looks_like_sv|NULLOK const SV *const sv
+#endif
+
 pX	|void	|sv_del_backref	|NN SV *const tsv|NN SV *const sv
 #if defined(PERL_IN_SV_C)
 niR	|char *	|uiv_2buf	|NN char *const buf|const IV iv|UV uv|const int is_uv \
@@ -3516,7 +3535,7 @@ ApdR	|PADLIST*|pad_new	|int flags
 pnX	|void|set_padlist| NN CV * cv | NULLOK PADLIST * padlist
 #endif
 #if defined(PERL_IN_PAD_C)
-s	|PADOFFSET|pad_alloc_name|NN PADNAME *name|U32 flags \
+s	|PADOFFSET|pad_alloc_name|NN PADNAME *padname|U32 flags \
 				|NULLOK HV *typestash|NULLOK HV *ourstash
 #endif
 Apd	|PADOFFSET|pad_add_name_pvn|NN const char *namepv|STRLEN namelen\

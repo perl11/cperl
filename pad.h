@@ -255,6 +255,9 @@ Whether this is a "state" variable.
 The stash associated with a typed lexical.  This returns the C<%Foo::> hash
 for C<my Foo $bar>.
 
+=for apidoc m|bool|PadnameUNBOXED|PADNAME pn
+Whether this is a unboxed native variable, int, uint, str or num.
+
 =for apidoc Amx|SSize_t|PadnameREFCNT|PADNAME pn
 The reference count of the pad name.
 
@@ -337,17 +340,20 @@ Restore the old pad saved into the local variable C<opad> by C<PAD_SAVE_LOCAL()>
 #define PadnameIsSTATE(pn)	(PadnameFLAGS(pn) & PADNAMEt_STATE)
 #define PadnameLVALUE(pn)	(PadnameFLAGS(pn) & PADNAMEt_LVALUE)
 #define PadnameCONST(pn)	(PadnameFLAGS(pn) & PADNAMEt_CONST)
+#define PadnameUNBOXED(pn)	(PadnameFLAGS(pn) & PADNAMEt_UNBOXED)
 
 #define PadnameLVALUE_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_LVALUE)
 #define PadnameIsSTATE_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_STATE)
+#define PadnameUNBOXED_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_UNBOXED)
 
 #define PADNAMEt_OUTER	1	/* outer lexical var */
 #define PADNAMEt_STATE	2	/* state var */
 #define PADNAMEt_LVALUE	4	/* used as lvalue */
-#define PADNAMEt_TYPED	8	/* for B; unused by core */
+#define PADNAMEt_TYPED	8	/* unneeded: contains a type stash */
 #define PADNAMEt_OUR	16	/* for B; unused by core */
 #define PADNAMEt_UTF8	32	/* cperl only */
 #define PADNAMEt_CONST	64	/* cperl only. has :const field */
+#define PADNAMEt_UNBOXED       128	/* is a native (unboxed) type */
 /* max 128 */
 
 /* backward compatibility */
@@ -355,6 +361,7 @@ Restore the old pad saved into the local variable C<opad> by C<PAD_SAVE_LOCAL()>
 #define SvPAD_TYPED(pn)		(!!PadnameTYPE(pn))
 #define SvPAD_OUR(pn)		(!!PadnameOURSTASH(pn))
 #define SvPAD_UTF8(pn)		(!!PadnameUTF8(pn))
+#define SvPAD_UNBOXED(pn)	(PadnameFLAGS(pn) & PADNAMEt_UNBOXED)
 #define SvPAD_STATE_on		PadnameIsSTATE_on
 #define SvPAD_TYPED_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_TYPED)
 #define SvPAD_OUR_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_OUR)
@@ -364,6 +371,7 @@ Restore the old pad saved into the local variable C<opad> by C<PAD_SAVE_LOCAL()>
 #define SVpad_TYPED		PADNAMEt_TYPED
 #define SVpad_OUR		PADNAMEt_OUR
 #define SVpad_UTF8		PADNAMEt_UTF8
+#define SVpad_UNBOXED		PADNAMEt_UNBOXED
 
 #ifdef DEBUGGING
 #  define PAD_SV(po)	   pad_sv(po)

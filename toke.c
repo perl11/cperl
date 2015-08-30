@@ -2318,10 +2318,10 @@ S_force_word(pTHX_ char *start, int token, int check_keyword, int allow_pack)
                 Safefree(start);
             }
         }
-        NEXTVAL_NEXTTOKE.opval = newSVOP(OP_CONST,0,
-                                     S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len));
-        NEXTVAL_NEXTTOKE.opval->op_private |= OPpCONST_BARE;
-        force_next(token);
+	NEXTVAL_NEXTTOKE.opval
+	    = newSVOP(OP_CONST, OPpCONST_BARE<<8,
+			   S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len));
+	force_next(token);
     }
     return s;
 }
@@ -2343,25 +2343,27 @@ S_force_ident(pTHX_ const char *s, int kind)
     PERL_ARGS_ASSERT_FORCE_IDENT;
 
     if (s[0]) {
-        const STRLEN len = s[1] ? strlen(s) : 1; /* s = "\"" see yylex */
-        OP* const o = newSVOP(OP_CONST, 0,
-                              newSVpvn_flags(s, len, UTF ? SVf_UTF8 : 0));
-        NEXTVAL_NEXTTOKE.opval = o;
-        force_next(BAREWORD);
-        if (kind) {
-            o->op_private = OPpCONST_ENTERED;
-            /* XXX see note in pp_entereval() for why we forgo typo
-               warnings if the symbol must be introduced in an eval.
-               GSAR 96-10-12 */
-            gv_fetchpvn_flags(s, len,
-                              (PL_in_eval ? GV_ADDMULTI
-                              : GV_ADD) | ( UTF ? SVf_UTF8 : 0 ),
-                              kind == '$' ? SVt_PV :
-                              kind == '@' ? SVt_PVAV :
-                              kind == '%' ? SVt_PVHV :
-                              SVt_PVGV
-                              );
-        }
+	const STRLEN len = s[1] ? strlen(s) : 1; /* s = "\"" see yylex */
+	OP* const o = is_native_string(s, len)
+            ? newUNBOXEDOP(OP_STR_CONST, 0, (SV*)s)
+            : newSVOP(OP_CONST, 0,
+                      newSVpvn_flags(s, len, UTF ? SVf_UTF8 : 0));
+	NEXTVAL_NEXTTOKE.opval = o;
+	force_next(BAREWORD);
+	if (kind) {
+	    o->op_private |= OPpCONST_ENTERED;
+	    /* XXX see note in pp_entereval() for why we forgo typo
+	       warnings if the symbol must be introduced in an eval.
+	       GSAR 96-10-12 */
+	    gv_fetchpvn_flags(s, len,
+			      (PL_in_eval ? GV_ADDMULTI
+			      : GV_ADD) | ( UTF ? SVf_UTF8 : 0 ),
+			      kind == '$' ? SVt_PV :
+			      kind == '@' ? SVt_PVAV :
+			      kind == '%' ? SVt_PVHV :
+			      SVt_PVGV
+			      );
+	}
     }
 }
 
@@ -4683,9 +4685,8 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
             if ((PL_bufend - s) >= 2 && isFATARROW(s))
                 return 0;       /* no assumptions -- "=>" quotes bareword */
       bare_package:
-            NEXTVAL_NEXTTOKE.opval = newSVOP(OP_CONST, 0,
+            NEXTVAL_NEXTTOKE.opval = newSVOP(OP_CONST, OPpCONST_BARE<<8,
                                              S_newSV_maybe_utf8(aTHX_ tmpbuf, len));
-	    NEXTVAL_NEXTTOKE.opval->op_private = OPpCONST_BARE;
 	    PL_expect = XTERM;
 	    force_next(BAREWORD);
 	    PL_bufptr = s;
@@ -5361,51 +5362,51 @@ Perl_yylex(pTHX)
         /* FALLTHROUGH */
 
     case LEX_INTERPEND:
-        if (PL_lex_dojoin) {
-            const U8 dojoin_was = PL_lex_dojoin;
-            PL_lex_dojoin = FALSE;
-            PL_lex_state = LEX_INTERPCONCAT;
-            PL_lex_allbrackets--;
-            return REPORT(dojoin_was == 1 ? (int)')' : (int)POSTJOIN);
-        }
-        if (PL_lex_inwhat == OP_SUBST && PL_linestr == PL_lex_repl
-            && SvEVALED(PL_lex_repl))
-        {
-            if (PL_bufptr != PL_bufend)
-                Perl_croak(aTHX_ "Bad evalled substitution pattern");
-            PL_lex_repl = NULL;
-        }
-        /* Paranoia.  re_eval_start is adjusted when scan_heredoc sets
-           re_eval_str.  If the here-doc body’s length equals the previous
-           value of re_eval_start, re_eval_start will now be null.  So
-           check re_eval_str as well. */
-        if (PL_parser->lex_shared->re_eval_start
-         || PL_parser->lex_shared->re_eval_str) {
-            SV *sv;
-            if (*PL_bufptr != ')')
-                Perl_croak(aTHX_ "Sequence (?{...}) not terminated with ')'");
-            PL_bufptr++;
-            /* having compiled a (?{..}) expression, return the original
-             * text too, as a const */
-            if (PL_parser->lex_shared->re_eval_str) {
-                sv = PL_parser->lex_shared->re_eval_str;
-                PL_parser->lex_shared->re_eval_str = NULL;
-                SvCUR_set(sv,
-                         PL_bufptr - PL_parser->lex_shared->re_eval_start);
-                SvPV_shrink_to_cur(sv);
+	if (PL_lex_dojoin) {
+	    const U8 dojoin_was = PL_lex_dojoin;
+	    PL_lex_dojoin = FALSE;
+	    PL_lex_state = LEX_INTERPCONCAT;
+	    PL_lex_allbrackets--;
+	    return REPORT(dojoin_was == 1 ? (int)')' : (int)POSTJOIN);
+	}
+	if (PL_lex_inwhat == OP_SUBST && PL_linestr == PL_lex_repl
+	    && SvEVALED(PL_lex_repl))
+	{
+	    if (PL_bufptr != PL_bufend)
+                /* Oh my, looks like we have to keep that typo */
+		Perl_croak(aTHX_ "Bad evalled substitution pattern");
+	    PL_lex_repl = NULL;
+	}
+	/* Paranoia.  re_eval_start is adjusted when S_scan_heredoc sets
+	   re_eval_str.  If the here-doc body’s length equals the previous
+	   value of re_eval_start, re_eval_start will now be null.  So
+	   check re_eval_str as well. */
+	if (PL_parser->lex_shared->re_eval_start
+	 || PL_parser->lex_shared->re_eval_str) {
+	    SV *sv;
+	    if (*PL_bufptr != ')')
+		Perl_croak(aTHX_ "Sequence (?{...}) not terminated with ')'");
+	    PL_bufptr++;
+	    /* having compiled a (?{..}) expression, return the original
+	     * text too, as a const */
+	    if (PL_parser->lex_shared->re_eval_str) {
+		sv = PL_parser->lex_shared->re_eval_str;
+		PL_parser->lex_shared->re_eval_str = NULL;
+		SvCUR_set(sv, PL_bufptr - PL_parser->lex_shared->re_eval_start);
+		SvPV_shrink_to_cur(sv);
+	    }
+	    else {
+                sv = newSVpvn(PL_parser->lex_shared->re_eval_start,
+			 PL_bufptr - PL_parser->lex_shared->re_eval_start);
             }
-            else sv = newSVpvn(PL_parser->lex_shared->re_eval_start,
-                         PL_bufptr - PL_parser->lex_shared->re_eval_start);
-            NEXTVAL_NEXTTOKE.opval =
-                    newSVOP(OP_CONST, 0,
-                                 sv);
-            force_next(THING);
-            PL_parser->lex_shared->re_eval_start = NULL;
-            PL_expect = XTERM;
-            return REPORT(',');
-        }
+	    NEXTVAL_NEXTTOKE.opval = newSVOP(OP_CONST, 0, sv);
+	    force_next(THING);
+	    PL_parser->lex_shared->re_eval_start = NULL;
+	    PL_expect = XTERM;
+	    return REPORT(',');
+	}
 
-        /* FALLTHROUGH */
+	/* FALLTHROUGH */
     case LEX_INTERPCONCAT:
 #ifdef DEBUGGING
         if (PL_lex_brackets)
@@ -7682,42 +7683,41 @@ Perl_yylex(pTHX)
         while (d < PL_bufend && isSPACE(*d))
             d++;        /* no comments skipped here, or s### is misparsed */
 
-        /* Is this a word before a => operator? */
-        if (isFATARROW(d)) {
-          fat_arrow:
-            CLINE;
-            pl_yylval.opval = newSVOP(OP_CONST, 0,
+	/* Is this a word before a => operator? */
+	if (isFATARROW(d)) {
+	  fat_arrow:
+	    CLINE;
+	    pl_yylval.opval = newSVOP(OP_CONST, OPpCONST_BARE<<8,
                                       S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len));
-            pl_yylval.opval->op_private = OPpCONST_BARE;
-            TERM(BAREWORD);
-        }
+	    TERM(BAREWORD);
+	}
 
-        /* Check for plugged-in keyword */
-        {
-            OP *o;
-            int result;
-            char *saved_bufptr = PL_bufptr;
-            PL_bufptr = s;
-            result = PL_keyword_plugin(aTHX_ PL_tokenbuf, len, &o);
-            s = PL_bufptr;
-            if (result == KEYWORD_PLUGIN_DECLINE) {
-                /* not a plugged-in keyword */
-                PL_bufptr = saved_bufptr;
-            } else if (result == KEYWORD_PLUGIN_STMT) {
-                pl_yylval.opval = o;
-                CLINE;
-                if (!PL_nexttoke) PL_expect = XSTATE;
-                return REPORT(PLUGSTMT);
-            } else if (result == KEYWORD_PLUGIN_EXPR) {
-                pl_yylval.opval = o;
-                CLINE;
-                if (!PL_nexttoke) PL_expect = XOPERATOR;
-                return REPORT(PLUGEXPR);
-            } else {
-                Perl_croak(aTHX_ "Bad plugin affecting keyword '%s'",
-                                        PL_tokenbuf);
-            }
-        }
+	/* Check for plugged-in keyword */
+	{
+	    OP *o;
+	    int result;
+	    char *saved_bufptr = PL_bufptr;
+	    PL_bufptr = s;
+	    result = PL_keyword_plugin(aTHX_ PL_tokenbuf, len, &o);
+	    s = PL_bufptr;
+	    if (result == KEYWORD_PLUGIN_DECLINE) {
+		/* not a plugged-in keyword */
+		PL_bufptr = saved_bufptr;
+	    } else if (result == KEYWORD_PLUGIN_STMT) {
+		pl_yylval.opval = o;
+		CLINE;
+		if (!PL_nexttoke) PL_expect = XSTATE;
+		return REPORT(PLUGSTMT);
+	    } else if (result == KEYWORD_PLUGIN_EXPR) {
+		pl_yylval.opval = o;
+		CLINE;
+		if (!PL_nexttoke) PL_expect = XOPERATOR;
+		return REPORT(PLUGEXPR);
+	    } else {
+		Perl_croak(aTHX_ "Bad plugin affecting keyword '%s'",
+					PL_tokenbuf);
+	    }
+	}
 
 	/* Check for built-in keyword */
 	tmp = keyword(PL_tokenbuf, len, 0);
@@ -7930,10 +7930,9 @@ Perl_yylex(pTHX)
                 }
 
 
-                /* Presume this is going to be a bareword of some sort. */
-                CLINE;
-                pl_yylval.opval = newSVOP(OP_CONST, 0, sv);
-                pl_yylval.opval->op_private = OPpCONST_BARE;
+		/* Presume this is going to be a bareword of some sort. */
+		CLINE;
+		pl_yylval.opval = newSVOP(OP_CONST, OPpCONST_BARE<<8, sv);
 
                 /* And if "Foo::", then that's what it certainly is. */
                 if (safebw)
@@ -7941,25 +7940,24 @@ Perl_yylex(pTHX)
 
                 if (!off) {
                     /* yes, another copy */
-                    OP *const_op = newSVOP(OP_CONST, 0, SvREFCNT_inc_NN(sv));
-                    const_op->op_private = OPpCONST_BARE;
-                    rv2cv_op = newCVREF(OPpMAY_RETURN_CONSTANT<<8, const_op);
-                    cv = lex
-                        ? isGV(gv)
-                            ? GvCV(gv)
-                            : SvROK(gv) && SvTYPE(SvRV(gv)) == SVt_PVCV
-                                ? (CV *)SvRV(gv)
-                                : ((CV *)gv)
-                        : rv2cv_op_cv(rv2cv_op, RV2CVOPCV_RETURN_STUB);
-                }
+		    OP *const_op = newSVOP(OP_CONST, OPpCONST_BARE<<8, SvREFCNT_inc_NN(sv));
+		    rv2cv_op = newCVREF(OPpMAY_RETURN_CONSTANT<<8, const_op);
+		    cv = lex
+			? isGV(gv)
+			    ? GvCV(gv)
+			    : SvROK(gv) && SvTYPE(SvRV(gv)) == SVt_PVCV
+				? (CV *)SvRV(gv)
+				: ((CV *)gv)
+			: rv2cv_op_cv(rv2cv_op, RV2CVOPCV_RETURN_STUB);
+		}
 
-                /* Use this var to track whether intuit_method has been
-                   called.  intuit_method returns 0 or > 255.  */
-                tmp = 1;
+		/* Use this var to track whether intuit_method has been
+		   called.  intuit_method returns 0 or > 255.  */
+		tmp = 1;
 
-                /* See if it's the indirect object for a list operator. */
+		/* See if it's the indirect object for a list operator. */
 
-                if (PL_oldoldbufptr
+		if (PL_oldoldbufptr
                     && PL_oldoldbufptr < PL_bufptr
                     && (PL_oldoldbufptr == PL_last_lop
                         || PL_oldoldbufptr == PL_last_uni)
@@ -8197,43 +8195,45 @@ Perl_yylex(pTHX)
                                        PL_tokenbuf);
                                 GCC_DIAG_RESTORE_STMT;
                             }
-                        }
-                    }
-                }
-                op_free(rv2cv_op);
+			}
+		    }
+		}
+		op_free(rv2cv_op);
 
-            safe_bareword:
-                if ((lastchar == '*' || lastchar == '%' || lastchar == '&')
-                 && saw_infix_sigil) {
-                    Perl_ck_warner_d(aTHX_ packWARN(WARN_AMBIGUOUS),
-                                     "Operator or semicolon missing before %c%" UTF8f,
-                                     lastchar,
-                                     UTF8fARG(UTF, strlen(PL_tokenbuf),
-                                              PL_tokenbuf));
-                    Perl_ck_warner_d(aTHX_ packWARN(WARN_AMBIGUOUS),
-                                     "Ambiguous use of %c resolved as operator %c",
-                                     lastchar, lastchar);
-                }
-                TOKEN(BAREWORD);
-            }
+	    safe_bareword:
+		if ((lastchar == '*' || lastchar == '%' || lastchar == '&')
+		 && saw_infix_sigil) {
+		    Perl_ck_warner_d(aTHX_ packWARN(WARN_AMBIGUOUS),
+				     "Operator or semicolon missing before %c%" UTF8f,
+				     lastchar,
+				     UTF8fARG(UTF, strlen(PL_tokenbuf),
+					      PL_tokenbuf));
+		    Perl_ck_warner_d(aTHX_ packWARN(WARN_AMBIGUOUS),
+				     "Ambiguous use of %c resolved as operator %c",
+				     lastchar, lastchar);
+		}
+		TOKEN(BAREWORD);
+	    }
 
 	case KEY___FILE__:
-	    FUN0OP(
-                newSVOP(OP_CONST, 0, newSVpv(CopFILE(PL_curcop),0))
-	    );
+#ifdef USE_ITHREADS
+            {
+                char *file = CopFILE(PL_curcop);
+                FUN0OP(newUNBOXEDOP(OP_STR_CONST, 0, (SV*)&file));
+            }
+#else
+            FUN0OP(newSVOP(OP_CONST, 0, newSVpv(CopFILE(PL_curcop),0)));
+#endif
 
 	case KEY___LINE__:
-	    FUN0OP(
-                newSVOP(OP_CONST, 0,
-		    Perl_newSVpvf(aTHX_ "%" IVdf, (IV)CopLINE(PL_curcop)))
-	    );
+	    FUN0OP(newUNBOXEDOP(OP_INT_CONST, 0, (SV*)&PL_curcop->cop_line));
 
 	case KEY___PACKAGE__:
 	    FUN0OP(
                 newSVOP(OP_CONST, 0,
 					(PL_curstash
 					 ? newSVhek(HvNAME_HEK(PL_curstash))
-					 : &PL_sv_undef))
+					 : UNDEF))
 	    );
 
 	case KEY___DATA__:
@@ -9895,8 +9895,7 @@ S_pending_ident(pTHX)
                 sv_catpvs(sym, "::");
                 sv_catpvn_flags(sym, PL_tokenbuf+1, tokenbuf_len > 0 ? tokenbuf_len - 1 : 0,
                                 (UTF ? SV_CATUTF8 : SV_CATBYTES ));
-                pl_yylval.opval = newSVOP(OP_CONST, 0, sym);
-                pl_yylval.opval->op_private = OPpCONST_ENTERED;
+                pl_yylval.opval = newSVOP(OP_CONST, OPpCONST_ENTERED<<8, sym);
                 if (pit != '&')
                   gv_fetchsv(sym,
                     GV_ADDMULTI,
@@ -9937,11 +9936,10 @@ S_pending_ident(pTHX)
     }
 
     /* build ops for a bareword */
-    pl_yylval.opval = newSVOP(OP_CONST, 0,
-				   newSVpvn_flags(PL_tokenbuf + 1,
-                                                      tokenbuf_len > 0 ? tokenbuf_len - 1 : 0,
-                                                      UTF ? SVf_UTF8 : 0 ));
-    pl_yylval.opval->op_private = OPpCONST_ENTERED;
+    pl_yylval.opval = newSVOP(OP_CONST, OPpCONST_ENTERED<<8,
+			      newSVpvn_flags(PL_tokenbuf + 1,
+                                             tokenbuf_len > 0 ? tokenbuf_len - 1 : 0,
+                                               UTF ? SVf_UTF8 : 0 ));
     if (pit != '&')
         gv_fetchpvn_flags(PL_tokenbuf+1, tokenbuf_len > 0 ? tokenbuf_len - 1 : 0,
 		     (PL_in_eval ? GV_ADDMULTI : GV_ADD)
@@ -11930,6 +11928,7 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
 
     /* We use the first character to decide what type of number this is */
 
+    lvalp->opval = NULL;
     switch (*s) {
     default:
         Perl_croak(aTHX_ "panic: scan_num, *s=%d", *s);
@@ -12452,22 +12451,26 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
            indicating "float" have been found.
          */
 
-        if (!floatit) {
-            UV uv;
-            const int flags = grok_number (PL_tokenbuf, d - PL_tokenbuf, &uv);
+	if (!floatit) {
+            union {UV uv; SV* sv;} uv;
+	    const int flags = grok_number(PL_tokenbuf, d - PL_tokenbuf, &uv.uv);
 
             if (flags == IS_NUMBER_IN_UV) {
-              if (uv <= IV_MAX)
-                sv = newSViv(uv); /* Prefer IVs over UVs. */
-              else
-                sv = newSVuv(uv);
+                if (uv.uv <= IV_MAX)
+                    /* Prefer IVs over UVs. */
+                    lvalp->opval = newUNBOXEDOP(OP_INT_CONST, 0, uv.sv);
+                else
+                    lvalp->opval = newUNBOXEDOP(OP_UINT_CONST, 0, uv.sv);
             } else if (flags == (IS_NUMBER_IN_UV | IS_NUMBER_NEG)) {
-              if (uv <= (UV) IV_MIN)
-                sv = newSViv(-(IV)uv);
+                if (uv.uv <= (UV) IV_MIN) {
+                    union {IV iv; SV* sv;} iv;
+                    iv.iv = -(IV)uv.uv;
+                    lvalp->opval = newUNBOXEDOP(OP_INT_CONST, 0, iv.sv);
+              }
               else
-                floatit = TRUE;
+                  floatit = TRUE;
             } else
-              floatit = TRUE;
+                floatit = TRUE;
         }
 	if (floatit) {
 	    /* terminate the string */
@@ -12512,10 +12515,12 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
 
     /* make the op for the constant and return */
 
-    if (sv)
-        lvalp->opval = newSVOP(OP_CONST, 0, sv);
-    else
-        lvalp->opval = NULL;
+    if (!lvalp->opval) {
+        if (sv)
+            lvalp->opval = newSVOP(OP_CONST, 0, sv);
+        else
+            lvalp->opval = NULL;
+    }
 
     return (char *)s;
 }

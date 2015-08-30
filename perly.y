@@ -1100,8 +1100,9 @@ term:		termbinop
 	|	FUNC0SUB                             /* Sub treated as nullop */
 			{ $$ = newUNOP(OP_ENTERSUB, OPf_STACKED, scalar($1)); }
 	|	FUNC1 '(' ')'                        /* not () */
-			{ $$ = ($1 == OP_NOT)
-                          ? newUNOP($1, 0, newSVOP(OP_CONST, 0, newSViv(0)))
+                        { IV zero = 0;
+                          $$ = ($1 == OP_NOT)
+                          ? newUNOP(OP_INT_NOT, 0, newUNBOXEDOP(OP_INT_CONST, 0, &zero))
                           : newOP($1, OPf_SPECIAL); }
 	|	FUNC1 '(' expr ')'                   /* not($foo) */
 			{ $$ = newUNOP($1, 0, $3); }
