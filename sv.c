@@ -3985,9 +3985,9 @@ S_glob_assign_glob(pTHX_ SV *const dstr, SV *const sstr, const int dtype)
 	SvTAINT(dstr);
     if (GvIMPORTED(dstr) != GVf_IMPORTED
 	&& CopSTASH_ne(PL_curcop, GvSTASH(dstr)))
-	{
+    {
 	    GvIMPORTED_on(dstr);
-	}
+    }
     GvMULTI_on(dstr);
     if(mro_changes == 2) {
       if (GvAV((const GV *)sstr)) {
@@ -4838,10 +4838,13 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
     if (SvIsCOW(sstr)) {
 
 	if (SvLEN(sstr) == 0) {
+            HEK* hek = share_hek_hek(SvSHARED_HEK_FROM_PV(SvPVX_const(sstr)));
 	    /* source is a COW shared hash key.  */
 	    DEBUG_C(PerlIO_printf(Perl_debug_log,
 				  "Fast copy on write: Sharing hash\n"));
-	    new_pv = HEK_KEY(share_hek_hek(SvSHARED_HEK_FROM_PV(SvPVX_const(sstr))));
+            new_pv = HEK_KEY(hek);
+            if (SvTAINTED(sstr))
+                HEK_TAINTED_on(hek);
 	    goto common_exit;
 	}
 # ifdef PERL_OLD_COPY_ON_WRITE
@@ -4880,6 +4883,8 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
 	SvUTF8_on(dstr);
     SvLEN_set(dstr, len);
     SvCUR_set(dstr, cur);
+    if (SvTAINTED(sstr))
+        SvTAINTED_on(dstr);
     if (DEBUG_C_TEST) {
 	sv_dump(dstr);
     }
@@ -5006,9 +5011,13 @@ Perl_sv_sethek(pTHX_ SV *const sv, const HEK *const hek)
 
     if (HEK_LEN(hek) == HEf_SVKEY) {
 	sv_setsv(sv, *(SV**)HEK_KEY(hek));
+        if (HEK_TAINTED(hek))
+            SvTAINTED_on(sv);
         return;
     } else {
 	const int flags = HEK_FLAGS(hek);
+        if (HEK_TAINTED(hek))
+            SvTAINTED_on(sv);
 	if (flags & HVhek_WASUTF8) {
 	    STRLEN utf8_len = HEK_LEN(hek);
 	    char *as_utf8 = (char *)bytes_to_utf8((U8*)HEK_KEY(hek), &utf8_len);
@@ -9213,7 +9222,10 @@ Perl_newSVhek(pTHX_ const HEK *const hek)
     }
 
     if (HEK_LEN(hek) == HEf_SVKEY) {
-	return newSVsv(*(SV**)HEK_KEY(hek));
+	SV* sv = newSVsv(*(SV**)HEK_KEY(hek));
+        if (HEK_TAINTED(hek))
+            SvTAINTED_on(sv);
+        return sv;
     } else {
 	const int flags = HEK_FLAGS(hek);
 	if (flags & HVhek_WASUTF8) {
@@ -9226,6 +9238,8 @@ Perl_newSVhek(pTHX_ const HEK *const hek)
 	    /* bytes_to_utf8() allocates a new string, which we can repurpose: */
 	    sv_usepvn_flags(sv, as_utf8, utf8_len, SV_HAS_TRAILING_NUL);
 	    SvUTF8_on (sv);
+            if (HEK_TAINTED(hek))
+                SvTAINTED_on(sv);
 	    return sv;
         } else if (flags & HVhek_UNSHARED) {
             /* A hash that isn't using shared hash keys has to have
@@ -9235,6 +9249,8 @@ Perl_newSVhek(pTHX_ const HEK *const hek)
 	    SV * const sv = newSVpvn (HEK_KEY(hek), HEK_LEN(hek));
 	    if (HEK_UTF8(hek))
 		SvUTF8_on (sv);
+            if (HEK_TAINTED(hek))
+                SvTAINTED_on(sv);
 	    return sv;
 	}
 	/* This will be overwhelminly the most common case.  */
@@ -9252,6 +9268,8 @@ Perl_newSVhek(pTHX_ const HEK *const hek)
 	    SvPOK_on(sv);
 	    if (HEK_UTF8(hek))
 		SvUTF8_on(sv);
+            if (HEK_TAINTED(hek))
+                SvTAINTED_on(sv);
 	    return sv;
 	}
     }
@@ -9299,6 +9317,7 @@ Perl_newSVpvn_share(pTHX_ const char *src, I32 len, U32 hash)
     SvLEN_set(sv, 0);
     SvIsCOW_on(sv);
     SvPOK_on(sv);
+    SvTAINT(sv);
     if (is_utf8)
         SvUTF8_on(sv);
     if (src != orig_src)
@@ -13337,6 +13356,8 @@ Perl_rvpv_dup(pTHX_ SV *const dstr, const SV *const sstr, CLONE_PARAMS *const pa
 	    /* sstr may not be that normal, but actually copy on write.
 	       But we are a true, independent SV, so:  */
 	    SvIsCOW_off(dstr);
+            if (SvTAINTED(sstr))
+                SvTAINTED_on(dstr);
 	}
 	else {
 	    /* Special case - not normally malloced for some reason */
@@ -13348,10 +13369,14 @@ Perl_rvpv_dup(pTHX_ SV *const dstr, const SV *const sstr, CLONE_PARAMS *const pa
 		SvPV_set(dstr,
 			 HEK_KEY(hek_dup(SvSHARED_HEK_FROM_PV(SvPVX_const(sstr)),
 					 param)));
+                if (SvTAINTED(sstr))
+                    SvTAINTED_on(dstr);
 	    }
 	    else {
 		/* Some other special case - random pointer */
 		SvPV_set(dstr, (char *) SvPVX_const(sstr));		
+                if (SvTAINTED(sstr))
+                    SvTAINTED_on(dstr);
 	    }
 	}
     }
