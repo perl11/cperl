@@ -5,6 +5,7 @@ CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f89aec2164476eb98e93f05a5e
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf0eb5e96a544eba22bbdef9365
 CPAN::Meta::YAML cpan/CPAN-Meta-YAML/t/lib/TestUtils.pm 89535dc9f122a77a8320df27e5929aa574196753
+Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Zlib.xs 9b79d2a71b2d65282a9af4190d2e0e5c58c648b7
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522.t c0270a7a27f10e924883108e16eabeba052302a9
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t 251d6e11164a6538e5f9765fed9cf66bd8cee9ec
 Config::Perl::V cpan/Config-Perl-V/V.pm 7273b140cc6dfd1575cfc0cca3d5366a5aadad0f
@@ -76,6 +77,6 @@ YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm b9846cabfa2ede801c6df9357a97f
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
 threads dist/threads/lib/threads.pm f8f5f2c4527aba54ef53a5846e3fad728b24eeea
-threads dist/threads/threads.xs 86191214f193293053d11ca82a8960e4ed7a74a7
+threads dist/threads/threads.xs e7de189e7ee9e016675b4f8da665bc6175ff63c6
 version cpan/version/lib/version.pm d0923b895d57f1d669ae36fcf85c87b16db341d1
 version vutil.c a8b145c60cc6df6aec94dbdeff643cd1f32368cd
