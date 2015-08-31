@@ -275,6 +275,9 @@ use File::Glob qw(:case);
                 t/99pod.t
                 ),
         ],
+
+        # https://rt.cpan.org/Ticket/Display.html?id=106799
+        'CUSTOMIZED'   => [ qw[ Zlib.xs ] ],
     },
 
     'Config' => {
