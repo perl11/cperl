@@ -1861,7 +1861,13 @@ foreach my $Locale (@Locale) {
             {
                 foreach my $err (keys %!) {
                     use Errno;
-                    $! = eval "&Errno::$err";   # Convert to strerror() output
+                    # under cperl this is now insecure as hash keys stay tainted
+                    if ($Config{usecperl}) {
+                        my ($err1) = $err =~ /^(.+)$/; # untaint
+                        $! = eval "&Errno::$err1";
+                    } else {
+                        $! = eval "&Errno::$err";   # Convert to strerror() output
+                    }
                     my $strerror = "$!";
                     if ("$strerror" =~ /\P{ASCII}/) {
                         $ok14 = utf8::is_utf8($strerror);
@@ -1910,7 +1916,13 @@ foreach my $Locale (@Locale) {
         foreach my $err (keys %!) {
             no locale;
             use Errno;
-            $! = eval "&Errno::$err";   # Convert to strerror() output
+            # under cperl this is now insecure as hash keys stay tainted
+            if ($Config{usecperl}) {
+                my ($err1) = $err =~ /^(.+)$/; # untaint
+                $! = eval "&Errno::$err1";
+            } else {
+                $! = eval "&Errno::$err";   # Convert to strerror() output
+            }
             my $strerror = "$!";
             if ("$strerror" =~ /\P{ASCII}/) {
                 $ok21 = 0;
