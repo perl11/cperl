@@ -1089,7 +1089,8 @@ use File::Glob qw(:case);
         # first
         'EXCLUDED' => ['perldoc'],
 
-        'CUSTOMIZED'   => [ qw[ Makefile.PL ] ],
+        # https://rt.cpan.org/Ticket/Display.html?id=106798
+        'CUSTOMIZED'   => [ qw[ lib/Pod/Perldoc.pm Makefile.PL ] ],
     },
 
     'Pod::Simple' => {

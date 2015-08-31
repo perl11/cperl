@@ -43,6 +43,7 @@ Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm cb6b569b668a2485397
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 7c0b8960822b1a585e374d3d1a0e4e1e5d652caa
 Net::Domain cpan/libnet/lib/Net/Domain.pm 0fa6d91b3768f3746b4319e97ea7e67b9ff29aac
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 99fe178fa11ef47b51df3795073318cd8f2faf5b
+Pod::Perldoc cpan/Pod-Perldoc/lib/Pod/Perldoc.pm c0c8fc4a80faac4863e9b90a6b4779e5cd880e69
 Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL d1473c88b8cc5543d174966096b95f2d84a7fdcc
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
 Safe dist/Safe/Safe.pm fb1cf6efdfcd1d2dac2aca90bccd05cb8d1ac1c4
