@@ -3505,10 +3505,16 @@ S_minus_v(pTHX)
 #endif /* #ifdef PERL_PATCHNUM */
 	PIO_stdout =  PerlIO_stdout();
 	    PerlIO_printf(PIO_stdout,
-		"\nThis is perl "	STRINGIFY(PERL_REVISION)
+		"\nThis is %s "	STRINGIFY(PERL_REVISION)
 		", version "		STRINGIFY(PERL_VERSION)
 		", subversion "		STRINGIFY(PERL_SUBVERSION)
-		" (%"SVf") built for "	ARCHNAME, SVfARG(level)
+		" (%"SVf") built for "	ARCHNAME,
+#ifdef USE_CPERL
+                          "cperl",
+#else
+                          "perl",
+#endif
+                          SVfARG(level)
 		);
 	    SvREFCNT_dec_NN(level);
 	}

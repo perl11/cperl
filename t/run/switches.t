@@ -306,7 +306,7 @@ is runperl(stderr => 1, prog => '#!perl -M'),
         my $ver = $Config{PERL_VERSION};
         my $rel = $Config{PERL_SUBVERSION};
         like( runperl( switches => ['-v'] ),
-	      qr/This is perl 5, version \Q$ver\E, subversion \Q$rel\E \(\Q$v\E(?:[-*\w]+| \([^)]+\))?\) built for \Q$Config{archname}\E.+Copyright.+Larry Wall.+Artistic License.+GNU General Public License/s,
+	      qr/This is c?perl 5, version \Q$ver\E, subversion \Q$rel\E \(\Q$v\E(?:[-*\w]+| \([^)]+\))?\) built for \Q$Config{archname}\E.+Copyright.+Larry Wall.+Artistic License.+GNU General Public License/s,
               '-v looks okay' );
     }
 }
