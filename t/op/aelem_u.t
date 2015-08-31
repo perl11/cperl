@@ -13,7 +13,7 @@ my @a[5];
 my Int @i[5];
 my int @in[5];
 my Num @n[5];
-my num @nn[5];
+my num @nn[5]; # needs a 64-bit system for true nativeness
 my Str @s[5];
 my str @ss[5];
 

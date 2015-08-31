@@ -480,20 +480,23 @@ Perl_av_init_shaped(pTHX_ AV* av, const SSize_t size, const HV *type)
               || memEQs(name, l, "uint")
               || memEQs(name, l, "str"))
             ;
-        else if (memEQs(name, l, "num"))
+        else if (memEQs(name, l, "num")) {
 #if IVSIZE != NVSIZE
-            Perl_croak(aTHX_ "Invalid type for shaped array declaration: num\n"
-                  "Sorry! native num needs the same wordsize for IV and NV");
+            name = "Num";
+            def = newSVnv(0.0);
+            Perl_warner(aTHX_ packWARN(WARN_MISC),
+                        "Invalid type for shaped array declaration:"
+                        " num on 32-bit used as Num");
 #else
             ;
 #endif
+        }
         else
             /* XXX we might want to pass op_targ down here to display
                the name of the variable */
             Perl_croak(aTHX_ "Invalid type for shaped array declaration: %s\n"
-                  "Only coretypes are supported.",
-                  name);
-        if (LIKELY(!isLOWER(name[6]))) { /* no native type */
+                  "Only coretypes are supported.", name);
+        if (LIKELY(!isLOWER(*name))) {   /* no native type */
             if (def)                     /* and !Scalar NULL */
                 SvREFCNT(def) += size;
         } else {
