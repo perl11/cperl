@@ -253,7 +253,7 @@ Perl_boot_core_xsutils(pTHX)
     boot_Exporter(aTHX_ xsfile);
     boot_XSLoader(aTHX_ xsfile);
 
-    /* shared xs: generated external modules without .pm */
+    /* shared xs: if as generated external modules only, without .pm */
     newXS("warnings::bootstrap",	XS_warnings_bootstrap,	file);
     newXS("Config::bootstrap",		XS_Config_bootstrap,	file);
     newXS("unicode::bootstrap",		XS_unicode_bootstrap,	file);
@@ -280,10 +280,10 @@ Perl_boot_core_xsutils(pTHX)
 /* 3 EXPLICIT bits used only once in use >= v5.11 (on) vs use <= v5.10 (off).
    TODO:
    This needs to be replaced by a single bit to denote argless import vs
-   argful import. We need this to support strict "names" CM-327.
+   argful import. We need this to support strict "names" CM-327 and no magic.
 */
 #define HINT_ALL_EXPLICIT_STRICTS (HINT_EXPLICIT_STRICT_REFS \
-        | HINT_EXPLICIT_STRICT_SUBS                      \
+        | HINT_EXPLICIT_STRICT_SUBS  \
         | HINT_EXPLICIT_STRICT_VARS)
 
 /* Needed by B::Deparse and vars */

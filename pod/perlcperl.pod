@@ -10,8 +10,7 @@ Description of changes and enhancements of the cperl variant of perl5.
 
 =head1 DEVELOPMENT SETUP
 
-    git remote add cp ssh://git@enterprise.cpanel.net:7999/~reini/cperl.git
-    # NOTE: later we will switch to: ssh://git@github.com/perl11/cperl.git
+    git remote add cp ssh://git@github.com/perl11/cperl.git
     git fetch cp
     git checkout -t cp master
     git config rerere enable
@@ -59,9 +58,9 @@ Debugging with private archlibs and exename:
     ./Configure -sder -Dusedevel -Dusecperl -DDEBUGGING \
       -Accflags='-msse4.2 -DDEBUG_LEAKING_SCALARS -DPERL_FAKE_SIGNATURE' --optimize='-g3' \
       -Dinstallman1dir=none -Dinstallman3dir=none -Dinstallsiteman1dir=none -Dinstallsiteman3dir=none \
-      -Darchname="$archname" -Darchlib="/usr/local/lib/cperl/5.23.0/$archname" \
-      -Dsitearch="/usr/local/lib/cperl/site_cperl/5.23.0/$archname" \
-      -Dperlpath="/usr/local/bin/cperl5.23.0$exesuff" -Dstartperl="#!/usr/local/bin/cperl5.23.0$exesuff" \
+      -Darchname="$archname" -Darchlib="/usr/local/lib/cperl/5.22.1/$archname" \
+      -Dsitearch="/usr/local/lib/cperl/site_cperl/5.22.1/$archname" \
+      -Dperlpath="/usr/local/bin/cperl5.22.1$exesuff" -Dstartperl="#!/usr/local/bin/cperl5.22.1$exesuff" \
     make -s -j4 ECHO=true
     make -s -j4 ECHO=true test
     sudo make install
@@ -76,6 +75,8 @@ cperl can parse and run 99.9% all of perl5 code. But there are a few
 incompatibilities, which arise from late perl5 signatures design
 changes and 2002 constant folding changes which we do not
 follow. perl5 signatures are marked as experimental after all.
+
+CPAN works. 2 modules currently need patches in our distroprefs repo.
 
 =over
 
@@ -340,7 +341,7 @@ cperl changes all arity errors to "Wrong number arguments".
         $_[0]++;
     }
 
-=item Support default $self invocant with methods
+=item Support default $self invocant with methods (NY)
 
 If a method is declared as such (via C<method> or C<sub :method>) the C<$self>
 argument is used as default invocant argument name, which can be overridden
@@ -359,7 +360,7 @@ return the same value with the same arguments, thus can be safely
 memoized or constant-folded or inlined without having to embed them
 into ENTER/LEAVE blocks.
 
-=item Parse signatures with the parser, not undocumented functions
+=item Parse signatures with the parser, not undocumented functions (NY)
 
 I<We'll see later on this one. Maybe keep it as horrible as it is now.>
 
@@ -471,7 +472,7 @@ We are also now able to do constant-folding on subroutine bodies, to
 either inline the body into the caller or replace the body with a
 constant in the general case. (i.e. without the C<()> prototype)
 
-=head2 Undo support for binary names (maybe)
+=head2 Undo support for binary names (NY, maybe)
 
 By announcing unicode support for names p5p silently allowed C<\0>
 inside names, which they called an advantage by supporting now binary
@@ -494,7 +495,7 @@ switching from chained hash tables to a single ternary trie, radix tree or
 DAFSA, without support for C<\0> and maybe even without support for
 unicode names.
 
-=head2 Warn on \0shellcode attempts for names
+=head2 Warn on \0shellcode attempts for names (NY)
 
 Make our C<use warnings "syscalls"> the default.
 
@@ -505,7 +506,7 @@ malicious intent, and this must appear in logfiles.  This is worse than
 syntax errors and syntax errors are warned by default. p5p was
 vehemently against this change.
 
-=head2 strict names
+=head2 strict names (NY)
 
 With C<use strict "names"> we do not accept unparsable symbols created
 from strings.  This is a new run-time error for use strict.
@@ -514,12 +515,12 @@ There's currently no room for an explicit C<use strict 'names'> hint
 due to a bad strict implementation. But later when we freed some
 C<PL_hint> bits to hold strict defaults we can add support for that.
 
-=head2 TR39 confusable names
+=head2 TR39 confusable names (NY)
 
 Reject confusables as described in TR39. Theoretically this can be
-added with L</"strict names"> only, but since this is only dangerous since
+added with L</"strict names (NY)"> only, but since this is only dangerous since
 v5.16 we can just throw a syntax error by default as in other languages
-with proper unicode support. (I<Java>)
+with proper unicode support, e.g. I<Java>.
 
 The compiler had to add this warning since 5.16:
 
@@ -547,7 +548,7 @@ were added for the two usecases when the readonly bit is unset.  We
 need the C<SVf_PROTECT> bit to mark native SV's in pad's, and even
 reserved it in 2012.
 
-=head2 Fix the hashes
+=head2 Fix the hashes (NY)
 
 Provide proper hash table abstractions. We don't need 5 times the same
 bad code copied along for all different kind of HEK (hash key) types.
@@ -616,7 +617,7 @@ See e.g. L</"negative integer modulo">.
 
 See L<perltypes/"coretypes"> and L<perldata/"Constant and typed lexical variables">.
 
-=head2 native unboxed types: int, uint, num, str
+=head2 native unboxed types: int, uint, num, str (NY)
 
 Internally the types for all scalar SV's always start with uppercase
 classnames, same as with most user-defined classes. The four
@@ -777,7 +778,7 @@ With constant or type-checked indices in range the access op is
 optimized to omit the bounds check, via unchecked aelem variants.
 Negative constant indices are converted to positive at compile-time.
 
-=head2 Typed and shaped hashes (not yet)
+=head2 Typed and shaped hashes (NY)
 
   my int %h;             # or
   my str %a;             # hash with str values only
@@ -794,7 +795,7 @@ or C<my %a : hash(int);>
 variant 2: C<my IntSparseHash %a>, which can go with a user class
 and methods, but this will be slow, without native ops.
 
-=head2 Inlined functions
+=head2 Inlined functions (NY)
 
 If a function body is inlinable, i.e. simple, with no control ops like
 return, goto caller, warn, die, reset, runcv, padrange, adds no
@@ -882,7 +883,7 @@ The C<XSLoader::load_file($module, $modlibname, ...)> function is new,
 L<XSLoader> is a builtin also. C<...> is passed to the loaded XS function
 as with C<XSLoader::load($module, ...)>.
 
-=head3 warnings as XS extension
+=head3 warnings as XS extension (NY)
 
 It is compiled as shared library, the builtin categories are
 implemented as perfect hash, and extended with a normal perl hash.
@@ -1074,26 +1075,28 @@ Provide forwarding pointers to single tuples to hold all.
 This could provide also the possibility for a GC if a second sweep
 for timely destruction is doable.
 
-Optimize HEK for faster hash comparison, and use it for native str
+Optimize B<HEK> for faster hash comparison, and use it for native str
 types, which might benefit from its immutability and the pre-calculated
 hash, len and utf8 fields.
 
-Check readonly support for PL_strtab for the compiler.
+Check readonly support for C<PL_strtab> for the compiler.
 Builtin ro ph + dynamic as in warnings XS.
 
-Better symbol table: Check converting the GV stash tree of hashes into
-a single global data structure, not a nested hash of hashes: Hash, AVL
-tree, Trie (TST or R² TST), Patricia trie or DAFSA (Deterministic
-acyclic finite state automaton) for faster dynamic variable and
-function name lookup. No binary names, all as UTF8. Maybe restrict to
-ASCII to limit the trie memory (array of 26 vs 256).  Stashes point
-then to trie nodes and need a HV check.  Optionally provide partial
-read-only support for the compiler, as for PL_strtab.
+=head2 Better symbol table
+
+Check converting the GV stash tree of hashes into a single global data
+structure, not a nested hash of hashes: Hash, AVL tree, Trie (TST or
+R² TST), Patricia trie or DAFSA (Deterministic acyclic finite state
+automaton) for faster dynamic variable and function name lookup. No
+binary names, all as UTF8. Maybe restrict to ASCII or valid
+identifiers to limit the trie memory (array of 26 vs 256).  Stashes
+point then to trie nodes and need a HV check.  Optionally provide
+partial read-only support for the compiler, as for C<PL_strtab>.
 
 =head2 Coro support
 
 Keep native threads asis (this is not fixable, better remove it), but
-actively help coro support.
+actively help coroutine and async IO support.
 
 =head2 Untangle the IO layer mess
 
@@ -1118,63 +1121,51 @@ C<:lvalue>.
     fact($_) = 5040; # solve it!
     say $_;          # => 7
 
-=head1 Different development policies
+=head1 Development policies
 
-p5p development and discussions are essentially fruitless since the
-original author Larry Wall left the perl5 community.  No single
-non-trivial feature p5p discussed and implemented was ever successful
-besides C<defined-or> C<//=>, which I count as trivial. Even if the
-discussion about it was enormous and destructive, Tom Christianson
-left.  Switch, smartmatch, given/when, pseudohashes, attributes,
-types, signatures, classes + mop, hash "security theatre", cow system,
-"unicode"(=binary) symbols, bindings as refalias, double readonly
-system and many more.  Additionallly most bugs don't get fixed.
+We favor community-friendly democratic development policies as e.g. in
+perl6 over the usual old-style dictatorial model.  That means the
+powerful (those with management and commit roles) are not allowed to
+abuse their powers, while the powerless users are allowed and need to
+have the abilities to criticise them and their code.
 
-With cperl we do fix bugs, implement features and encourage
-discussions.  The lead should be the most competent, not the least
-competent, loudest or most likeable one "community person".  We do
-encourage criticism on bad design and implementation.  Maintainers
-stay civil and don't call critics I<"jerks"> or I<"assholes">, unlike
-in the p5p community.  We follow software development best practices,
-we develop in branches only, and only if the branch passes the test
-suite on all major platforms it can be merged.  Pushing directly to
-master is forbidden, but because it is a fork we do have to rebase
-frequently all our branches.  Use the provided rebase helper scripts
-F<cp-*>. We do use build servers and performance regression tests.  We
-follow the perl6 development principles.  We take github pull request
-and do not ignore them.
+In the old trust-based dictatorial model as e.g. in linux or perl5 the
+powerful call the not powerful abusive names ("asshole" or "jerk" is
+very common, or "trolls"), and are allowed to avoid discussions
+of features or problems by directly committing to master, rejecting
+tickets or selectively abuse their powers. This is forbidden in cperl.
 
 We track stable upstream releases for our releases only. The current
-stable release is based in 5.22.1. The previous stable release was
-5.14.4, as 5.16 introduced critical instabilities which were not fixed
-mostly until 5.20 and 5.22, and 5.20 alone was not worth to update
-cperl to. The previous stable release was 5.8.9 and the one before was
-5.6.2.  So we do not know which will be the next stable cperl
-release. It could be 5.24, but usually upstream development makes
-grave mistakes which are never acknowledged and needs several
-following releases to overcome. So something like 5.30 sounds
-realistic.  So far we have detected 2 grave API mistakes in
-5.22.0. But we do merge all official p5p releases into our development
-branch monthly.
+stable release is based in 5.23.0, which will lead to 5.22.1. The
+previous stable release was 5.14.4, as 5.16 introduced critical
+instabilities which were not fixed mostly until 5.20 and 5.22, and
+5.20 alone was not worth to update cperl to. The previous stable
+release was 5.8.9 and the one before was 5.6.2.  So we do not know
+which will be the next stable cperl release. It could be 5.24, but
+usually it takes longer, so something like 5.30 sounds realistic.  So
+far we have detected 2 grave API mistakes in 5.22.0. But we do merge
+all official p5p releases into our development branch monthly.
 
-=head1 with classes, types, compilable, company friendly
+=head1 With classes, types, compilable, company friendly
 
 =over
 
 =item classes (not yet)
 
-A true perl6-like object system is in work, but not yet enabled.  It
-supports the perl6-like syntax for class, method, has, roles (mixins,
-compile-time composable classes), method modifiers (:before, :after,
-:around), multiple type dispatch (multi, no need to overload methods),
-finalizable classes (compile-time optimizations) and easier perl6-like
-syntax, which closely resembles C<Moose> without its massive overhead.
+A true perl6-like and efficient object system is in work, but not yet
+enabled.  It supports the perl6-like syntax for class, method, has,
+roles (mixins, compile-time composable classes), method modifiers
+(:before, :after, :around), multiple type dispatch (multi, no need to
+overload methods), finalizable classes (compile-time optimizations)
+and easier perl6-like syntax, which closely resembles early perl6
+designs, Damian Conway's perl5i and C<Moose> without its massive
+overhead.
 
 There's no B<MOP> (meta-object protocol), but reflection. There's no need
 to override the internal behavior of the object system, the dispatch,
 the class and role layout.
 
-See L<perlclass> I<(not yet)>
+See L<perlclass> (NY)
 
 =item types
 
@@ -1189,9 +1180,10 @@ See L<perltypes>
 perl5 proper started being compiler unfriendly with 5.16, with changed
 security and string handling. It can be compiled but it is not
 recommended, as it features only about 5% memory savings. B::C can
-still strip the AST, but needs to keep all COW strings dynamic.
+still strip the nested stashes (namespaces), but needs to keep all COW
+strings dynamic.
 
-With cperl we can again compile to more efficient code, with >30%
+With cperl we can again compile to more efficient code, with >35%
 memory savings.
 
 See L<B::C|http://search.cpan.org/dist/B-C/>
@@ -1220,7 +1212,7 @@ It is also better compilable.
 
 =back
 
-=head1 Links
+=head1 Type links
 
 Most dynamic languages are currently in the process to get type
 support.  This happened for perl5 at around 2002, but was never
@@ -1255,10 +1247,6 @@ with 5.10, and then actively blocked for decades.
 
 =item L<http://blogs.perl.org/users/rurban/2012/09/my-perl5-todo-list.html> (the old plan, ignored)
 
-=item L<http://perl11.org/cperl> (not yet)
-
-=item L<https://github.com/perl11/cperl> (not yet)
-
-=item L<https://github.com/rurban/perl> (no branches yet, just master)
+=item L<http://perl11.org/cperl/>
 
 =back

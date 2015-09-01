@@ -559,6 +559,66 @@ the strings?).
  Ricardo   5.22.0       2015-Jun-01
 
  Ricardo   5.23.0       2015-Jun-20     The 5.23 development track
+ rurban    5.22.1c      2015-Sep-14     cperl 5.22.1
+
+=head2 SELECTED RELEASE MEMORY USAGE
+
+Size in memory measured with massif for B<perl -e0> for most major
+releases, non-threaded.
+
+  release       memory usage
+  ==========================
+  perl5.6.2 	 60405
+  perl5.8.5	 77991
+  perl5.8.9	107468
+  perl5.10.1	114810
+  perl5.12.5	112494
+  perl5.14.4	115511
+  perl5.16.3	118067
+  perl5.18.4	122128
+  perl5.20.2	127253
+  perl5.22.0	127970
+
+For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags>:
+
+  release       memory usage
+  ==========================
+  5.6.2d	673653  (w/ DEBUGGING)
+  5.8.4d	684487  (w/ DEBUGGING)
+  5.8.5d	753069  (w/ DEBUGGING)
+  5.8.8		666789
+  5.10.1	617331
+  5.12.5	656194
+  5.14.4	718838
+  5.16.3	734030
+  5.18.2	878407
+  5.20.0	891716
+  5.20.2	882824
+  5.21.9	936898
+  5.21.10	918720
+  5.21.11	888951
+  5.22.0	888978
+  cperl-5.22.1	595302
+
+With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'>:
+
+  release       memory usage
+  ==========================
+  5.6.2d	 787375  (w/ DEBUGGING)
+  5.8.4d	1225683  (w/ DEBUGGING)
+  5.8.5d	1400612  (w/ DEBUGGING)
+  5.8.8		1357073
+  5.10.1	1343506
+  5.12.5	1693931
+  5.14.4	1719327
+  5.16.3	1941590
+  5.18.2	2338119
+  5.20.2	2451474
+  5.22.0	2616925
+  cperl-5.22.1	2616792
+
+    valgrind --tool=massif --massif-out-file=massif.$r ...
+    grep -h mem_heap_B= massif.$r |cut -c12-|sort -rn|head -n1
 
 =head2 SELECTED RELEASE SIZES
 

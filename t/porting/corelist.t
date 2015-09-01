@@ -16,7 +16,9 @@ use_ok('Module::CoreList::TieHashDelta');
 
 {
   no warnings 'once';
-  ok( defined $Module::CoreList::released{ $] }, "$] exists in released" );
-  ok( defined $Module::CoreList::version{ $] }, "$] exists in version" );
-  ok( defined $Module::CoreList::Utils::utilities{$] }, "$] exists in Utils" );
+  my $v = $];
+  $v .= 'c' if $Config{usecperl};
+  ok( defined $Module::CoreList::released{ $v }, "$v exists in released" );
+  ok( defined $Module::CoreList::version{ $v }, "$v exists in version" );
+  ok( defined $Module::CoreList::Utils::utilities{$v }, "$v exists in Utils" );
 }

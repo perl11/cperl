@@ -7,7 +7,8 @@ BEGIN {
 }
 plan( tests => 16 );
 use coretypes;
-use v5.23;
+use cperl;
+use v5.22;
 
 my @a[5];
 my Int @i[5];

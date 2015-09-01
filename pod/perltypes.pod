@@ -12,16 +12,16 @@ leads to automatic type conversions, cached in the data.
 
 =head2 Static types
 
-Perl optionally allows declaration of static types, i.e. an existing
-package name, for lexical variables or function signatures. Lexicals
-are stored in pads, the package name, i.e. the C<type>, is stored in
-the stash part of the C<comppad_name> slot for each pad. Perl itself
-does not use these types for checks and optimizations, only external
-modules or cperl do.
+Perl always allowed optional declaration of static types, i.e. an
+existing package name, for lexical variables and with cperl also for
+function signatures. Lexicals are stored in pads, the package name,
+i.e. the C<type>, is stored in the stash part of the C<comppad_name>
+slot for each pad. Perl itself does not use these types for checks and
+optimizations, only external modules or cperl do.
 
 Remember: A type is implemented as package. A valid type must be an
 existing and loaded package. Type expressions, like parametric types
-or unions cannot be stored in pads yet.
+or unions cannot be stored in pad stashes yet.
 
 Global variables can not store types, ony lexicals. Constants are
 implicitly typed.
@@ -29,6 +29,42 @@ implicitly typed.
 B<cperl> adds support for builtin coretypes, has type declarations for
 most internal ops, and can optimize based in type inference or
 declared types.
+
+
+=head2 Why types? Types are unperlish
+
+No, they are not. Types for lexical variables are permitted since 2001
+and used in a few CPAN modules, i.e. Net::DNS.  Perl6 uses types all
+over.  Every perl5 value is typed. Just all the normal ops are generic
+and are allowed to change the type of its arguments and its result at
+will.
+
+Types allow dramatic performance and size optimizations, lead to
+better documented code and lead to earlier compile-time errors, which
+less need to test all possible run-time types with extensive test
+suites, which rarely cover all type cases.
+
+Natively types arrays are 4x smaller and faster, typed loops can lead
+to static loop optimizations, array elements do not need to be checked
+for out-of-bounds at run-time. There's no need to check for tied
+methods or other magic for typed variables. Most of the run-time
+I<magic>, i.e. checking for extraordinary conditions can be bypassed
+with typed variants. And with unboxed native types all the arithmetic
+ops are at least 2-4x faster.
+
+Without types no multi-dispatch, no proper object system. There's no
+need to overload internal methods anymore. The compiler and run-time
+can dispatch on the types of its arguments.
+
+Without types no builtin FFI, foreign function interface. You still need
+to call an external FFI module or write a XS function, but loose all the
+benefits of builtin types.
+
+But even without explicit type declarations the compiler internally
+can handle the arguments and result types much better as e.g. the
+javascript v8 engine does, but observing the run-time types and
+optimize dynamically. You don't need dart to run fast javascript but
+it helps.
 
 =head2 coretypes
 
@@ -93,14 +129,17 @@ arithmetic on untyped IV will promote to doubles.
 B<Internally>
 
 The native op variants start with C<int_>, C<uint_>, C<num_>,
-C<str_>. Any sequence of natively typed ops need to start with an
-C<unbox_> op to convert the vaues on the stack from boxed to unboxed,
-and end with either a C<box_> op or the C<OPpBOXRET> private flag in
-the op.  This unboxing and boxing adds some runtime costs, so the
-compiler is free to omit such type promotions at it sees fit. However
-with the new FFI the native type declaration is guaranteed to be
-observed by the compiler, and the unbox and box ops are added
-automatically.
+C<str_>. Any sequence of natively typed ops might need to start with
+an C<unbox_> op to convert the vaues on the stack from boxed to
+unboxed, and end with either a C<box_> op or the C<OPpBOXRET> private
+flag in the op.  This unboxing and boxing adds some runtime costs, so
+the compiler is free to omit such type promotions at it sees
+fit. However with the new FFI the native type declaration is
+guaranteed to be observed by the compiler, and the unbox and box ops
+are added automatically.
+
+Unboxed native values can appear on the stack, on pads and in const
+ops.
 
 =head2 type checker
 
@@ -144,17 +183,19 @@ TODO: co-variant vs contra-variant
 
 =head2 Compile-time type optimizations
 
-Since Perl 5 core does not deal with types stored in C<comppad_name> per
-se, type checks and optimizations are deferred to the modules which
-implement respective types checks and optimizations.
+Since Perl 5 core does not deal with types stored in C<comppad_name>
+per se, type checks and optimizations were usually deferred to the
+modules which implement respective types checks and optimizations, and
+all those modules were broken with 5.10.
 
 The only type optimization currently in effect in Perl 5 is constant
 folding and use integer.
 
 B<cperl> has type declarations for most internal ops, and can optimize
 these ops depending on the argument types. F<opnames.h> stores
-C<PL_op_type_variants>, all possible type promotions for each op.
-F<opcode.h> stores C<PL_op_type> with the type declarations of all ops.
+C<PL_op_type_variants>, all possible type promotions and demotions for
+each op.  F<opcode.h> stores C<PL_op_type> with the type declarations
+of all ops.
 
 cperl is able the change of compile-time static method calls,
 determined either by name or by type and const-ness of all searched
@@ -171,9 +212,10 @@ Right-hand-side expressions or C<:const> function bodies or function
 bodies with an empty prototype C<()> which resolve at compile-time to
 constant literals may be optimized to a CONST value, and
 left-hand-side numeric ops may be optimized to use their optimized
-C<i_> counterparts.  Note that C<i_> ops do not overflow, the integer
-values just wrap around. So the type and data range must be determined
-in advance and if not possible i_opt promotion it is forbidden.
+C<i_> or even C<int_> counterparts.  Note that C<i_> ops do not
+overflow, the integer values just wrap around. So the type and data
+range must be determined in advance and if not possible i_opt
+promotion it is forbidden.
 
     my $c = $a + (1 << 8);
     => my $c = $a + 256;  # add $a CONST(IV 256)
@@ -198,7 +240,10 @@ in advance and if not possible i_opt promotion it is forbidden.
     my $c = $a + (1 << 8);
     => my $c = 257;       # CONST(IV 257)
 
-    sub PI :const { 3.1415 }
+Unlike perl5, cperl does constant folding of function bodies even
+without an empty prototype.
+
+    sub PI { 3.1415 }
 
 which is the same as the old syntax C<sub PI () { 3.1415 }>
 
@@ -216,8 +261,11 @@ which is the same as the old syntax C<sub PI () { 3.1415 }>
     => MyClass::new()
 
 When the method search goes only through const packages and their
-const C<@ISA>, it is not possible to inject another package at run-time
-into the method search, thus the method call can be short-cut.
+const C<@ISA>, it is not possible to inject another package at
+run-time into the method search, thus the method call can be
+short-cut.  This classes can be B<finialized>, and all those method
+calls can be resolved at compile-time to static function calls, and
+can be inlined, and therefore even more optimized.
 
 Note that the C<package MyBase> must be constant here. Otherwise
 C<&MyBase::new> can be deleted and C<@MyBase::ISA> be changed to lead

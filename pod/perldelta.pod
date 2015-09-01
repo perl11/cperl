@@ -2,14 +2,13 @@
 
 =head1 NAME
 
-perldelta - what is new for perl v5.23.0
+perldelta - what is new for perl v5.22.1
 
 =head1 DESCRIPTION
 
-This document describes differences between the perl 5.22.0 release and the 5.23.0
-release.
+This document describes perl-only differences between the perl 5.22.0 release and the cperl 5.22.1 release.
 
-For cperl see F<Changes> and L<perlcperl>
+For B<cperl> see F<Changes> and L<perlcperl>
 
 =head1 Core Enhancements
 
@@ -242,7 +241,7 @@ clearly a mem-poison value.
 
 =head1 Acknowledgements
 
-Perl 5.23.0 represents approximately 3 weeks of development since Perl 5.22.0
+Perl 5.22.1 represents approximately 3 weeks of development since Perl 5.22.0
 and contains approximately 86,000 lines of changes across 480 files from 29
 authors.
 
@@ -251,7 +250,7 @@ approximately 55,000 lines of changes to 270 .pm, .t, .c and .h files.
 
 Perl continues to flourish into its third decade thanks to a vibrant community
 of users and developers. The following people are known to have contributed the
-improvements that became Perl 5.23.0:
+improvements that became Perl 5.22.1:
 
 Chase Whitener, Chris 'BinGOs' Williams, Craig A. Berry, Dagfinn Ilmari
 Mannsåker, Daniel Dragan, David Golden, David Mitchell, Hugo van der Sanden,
