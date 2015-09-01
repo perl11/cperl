@@ -73,6 +73,40 @@ struct flag_to_name {
     const char *name;
 };
 
+const struct flag_to_name cv_flags_names[] = {
+    {CVf_ANON, "ANON,"},
+    {CVf_UNIQUE, "UNIQUE,"},
+    {CVf_CLONE, "CLONE,"},
+    {CVf_CLONED, "CLONED,"},
+    {CVf_CONST, "CONST,"},
+    {CVf_NODEBUG, "NODEBUG,"},
+    {CVf_LVALUE, "LVALUE,"},
+    {CVf_METHOD, "METHOD,"},
+    {CVf_WEAKOUTSIDE, "WEAKOUTSIDE,"},
+    {CVf_CVGV_RC, "CVGV_RC,"},
+    {CVf_DYNFILE, "DYNFILE,"},
+    {CVf_AUTOLOAD, "AUTOLOAD,"},
+    {CVf_HASEVAL, "HASEVAL,"},
+    {CVf_SLABBED, "SLABBED,"},
+    {CVf_NAMED, "NAMED,"},
+    {CVf_LEXICAL, "LEXICAL,"},
+    {CVf_ISXSUB, "ISXSUB,"},
+    {CVf_TYPED, "TYPED,"},
+    {CVf_ANONCONST, "ANONCONST,"},
+    {CVf_HASSIG, "HASSIG,"},
+    {CVf_PURE, "PURE,"},
+    {CVf_MULTI, "MULTI,"}
+};
+
+#define SV_SET_STRINGIFY_FLAGS(d,flags,names) STMT_START { \
+            sv_setpv(d,"");                                 \
+            append_flags(d, flags, names);     \
+            if (SvCUR(d) > 0 && *(SvEND(d) - 1) == ',') {       \
+                SvCUR_set(d, SvCUR(d) - 1);                 \
+                SvPVX(d)[SvCUR(d)] = '\0';                  \
+            }                                               \
+} STMT_END
+
 static void
 S_append_flags(pTHX_ SV *sv, U32 flags, const struct flag_to_name *start,
 	       const struct flag_to_name *const end)
@@ -747,23 +781,28 @@ Perl_dump_sub_perl(pTHX_ const GV *gv, bool justperl)
     SV * const sv = newSVpvs_flags("", SVs_TEMP);
     SV *tmpsv;
     const char * name;
-
+    const CV* cv = GvCV(gv);
+    
     PERL_ARGS_ASSERT_DUMP_SUB_PERL;
 
-    if (justperl && (CvISXSUB(GvCV(gv)) || !CvROOT(GvCV(gv))))
+    if (justperl && (CvISXSUB(cv) || !CvROOT(cv)))
 	return;
 
     tmpsv = newSVpvs_flags("", SVs_TEMP);
     gv_fullname3(sv, gv, NULL);
     name = SvPV_const(sv, len);
-    Perl_dump_indent(aTHX_ 0, Perl_debug_log, "\nSUB %s = ",
+    Perl_dump_indent(aTHX_ 0, Perl_debug_log, "\n%s %s = ",
+                     CvMETHOD(cv)?"METHOD":CvMULTI(cv)?"MULTI":"SUB",
                      generic_pv_escape(tmpsv, name, len, SvUTF8(sv)));
-    if (CvISXSUB(GvCV(gv)))
+    SV_SET_STRINGIFY_FLAGS(tmpsv,CvFLAGS(cv),cv_flags_names);
+    Perl_dump_indent(aTHX_ 0, Perl_debug_log, "\n    CVFLAGS = 0x%" UVxf " (%s)\n",
+                     (UV)CvFLAGS(cv), SvPVX_const(tmpsv));
+    if (CvISXSUB(cv))
 	Perl_dump_indent(aTHX_ 0, Perl_debug_log, "(xsub 0x%" UVxf " %d)\n",
-	    PTR2UV(CvXSUB(GvCV(gv))),
-	    (int)CvXSUBANY(GvCV(gv)).any_i32);
-    else if (CvROOT(GvCV(gv)))
-	op_dump_cv(CvROOT(GvCV(gv)), GvCV(gv));
+	    PTR2UV(CvXSUB(cv)),
+	    (int)CvXSUBANY(cv).any_i32);
+    else if (CvROOT(cv))
+	op_dump_cv(CvROOT(cv), cv);
     else
 	Perl_dump_indent(aTHX_ 0, Perl_debug_log, "<undef>\n");
 }
@@ -1746,30 +1785,6 @@ const struct flag_to_name second_sv_flags_names[] = {
     {SVp_POK, "pPOK,"}
 };
 
-const struct flag_to_name cv_flags_names[] = {
-    {CVf_ANON, "ANON,"},
-    {CVf_UNIQUE, "UNIQUE,"},
-    {CVf_CLONE, "CLONE,"},
-    {CVf_CLONED, "CLONED,"},
-    {CVf_CONST, "CONST,"},
-    {CVf_NODEBUG, "NODEBUG,"},
-    {CVf_LVALUE, "LVALUE,"},
-    {CVf_METHOD, "METHOD,"},
-    {CVf_WEAKOUTSIDE, "WEAKOUTSIDE,"},
-    {CVf_CVGV_RC, "CVGV_RC,"},
-    {CVf_DYNFILE, "DYNFILE,"},
-    {CVf_AUTOLOAD, "AUTOLOAD,"},
-    {CVf_HASEVAL, "HASEVAL,"},
-    {CVf_SLABBED, "SLABBED,"},
-    {CVf_NAMED, "NAMED,"},
-    {CVf_LEXICAL, "LEXICAL,"},
-    {CVf_ISXSUB, "ISXSUB,"},
-    {CVf_TYPED, "TYPED,"},
-    {CVf_ANONCONST, "ANONCONST,"},
-    {CVf_HASSIG, "HASSIG,"},
-    {CVf_PURE, "PURE,"}
-};
-
 const struct flag_to_name hv_flags_names[] = {
     {SVphv_SHAREKEYS, "SHAREKEYS,"},
     {SVphv_LAZYDEL, "LAZYDEL,"},
@@ -1965,15 +1980,6 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
     );
 #endif
     Perl_dump_indent(aTHX_ level, file, "SV = ");
-
-#define SV_SET_STRINGIFY_FLAGS(d,flags,names) STMT_START { \
-            sv_setpv(d,"");                                 \
-            append_flags(d, flags, names);     \
-            if (SvCUR(d) > 0 && *(SvEND(d) - 1) == ',') {       \
-                SvCUR_set(d, SvCUR(d) - 1);                 \
-                SvPVX(d)[SvCUR(d)] = '\0';                  \
-            }                                               \
-} STMT_END
 
     /* Dump SV type */
     if (type < SVt_LAST) {
@@ -2441,7 +2447,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	Perl_dump_indent(aTHX_ level, file, "  FILE = \"%s\"\n", CvFILE(sv));
 	Perl_dump_indent(aTHX_ level, file, "  DEPTH = %" IVdf "\n", (IV)CvDEPTH(sv));
         SV_SET_STRINGIFY_FLAGS(d,CvFLAGS(sv),cv_flags_names);
-	Perl_dump_indent(aTHX_ level, file, "  CVFLAGS = 0x%" UVxf " (%s)\n", (UV)CvFLAGS(sv), SvPVX(d));
+	Perl_dump_indent(aTHX_ level, file, "  CVFLAGS = 0x%" UVxf " (%s)\n", (UV)CvFLAGS(sv), SvPVX_const(d));
 	Perl_dump_indent(aTHX_ level, file, "  OUTSIDE_SEQ = %" UVuf "\n", (UV)CvOUTSIDE_SEQ(sv));
 	if (!CvISXSUB(sv)) {
 	    Perl_dump_indent(aTHX_ level, file, "  PADLIST = 0x%" UVxf " [%" IVdf "]\n",
@@ -2600,7 +2606,6 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
                 Perl_dump_indent(aTHX_ level, file, "  INTFLAGS = 0x%" UVxf "\n",
 				(UV)(r->intflags));
             }
-#undef SV_SET_STRINGIFY_FLAGS
 	    Perl_dump_indent(aTHX_ level, file, "  NPARENS = %" UVuf "\n",
 				(UV)(r->nparens));
 	    Perl_dump_indent(aTHX_ level, file, "  LASTPAREN = %" UVuf "\n",

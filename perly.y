@@ -51,7 +51,7 @@
 %token <opval> FUNC0OP FUNC0SUB UNIOPSUB LSTOPSUB
 %token <opval> PLUGEXPR PLUGSTMT
 %token <pval> LABEL
-%token <ival> FORMAT SUB ANONSUB PACKAGE USE
+%token <ival> FORMAT SUB METHDECL MULTIDECL ANONSUB PACKAGE CLASS USE
 %token <ival> WHILE UNTIL IF UNLESS ELSE ELSIF CONTINUE FOR
 %token <ival> GIVEN WHEN DEFAULT
 %token <ival> LOOPEX DOTDOT YADAYADA
@@ -63,8 +63,8 @@
 
 %type <ival> lpar_or_qw
 
-%type <ival> grammar remember mremember
-%type <ival>  startsub startanonsub startformsub
+%type <ival> grammar remember mremember subdecl
+%type <ival> startsub startanonsub startformsub
 
 %type <ival> mintro
 
@@ -265,7 +265,7 @@ barestmt:	PLUGSTMT
 			      pad_add_weakref(fmtcv);
 			  parser->parsed_sub = 1;
 			}
-	|	SUB subname startsub
+	|	subdecl subname startsub
 			{
 			  if ($2->op_type == OP_CONST) {
 			    const char *const name =
@@ -285,7 +285,8 @@ barestmt:	PLUGSTMT
                                   CvCLONE_on(PL_compcv);
 			  parser->in_my = 0;
 			  parser->in_my_stash = NULL;
-			}
+                          CvFLAGS(PL_compcv) |= $<ival>1;
+                        }
 		proto subattrlist optsubbody
 			{
 			  SvREFCNT_inc_simple_void(PL_compcv);
@@ -297,7 +298,7 @@ barestmt:	PLUGSTMT
 			  intro_my();
 			  parser->parsed_sub = 1;
 			}
-	|	SUB subname startsub
+	|	subdecl subname startsub
 			{
 			  if ($2->op_type == OP_CONST) {
 			    const char *const name =
@@ -317,6 +318,7 @@ barestmt:	PLUGSTMT
                                   CvCLONE_on(PL_compcv);
 			  parser->in_my = 0;
 			  parser->in_my_stash = NULL;
+                          CvFLAGS(PL_compcv) |= $<ival>1;
 			}
 		remember subsignature subattrlist '{' stmtseq '}'
 			{
@@ -484,6 +486,18 @@ barestmt:	PLUGSTMT
 			  if (parser->copline > (line_t)$4)
 			      parser->copline = (line_t)$4;
 			}
+	|	CLASS BAREWORD '{' remember
+			{
+			  package($2);
+			}
+		stmtseq '}'
+			{
+			  /* a block is a loop that happens once */
+			  $$ = newWHILEOP(0, 1, (LOOP*)(OP*)NULL,
+				  (OP*)NULL, block_end($4, $6), (OP*)NULL, 0);
+			  if (parser->copline > (line_t)$3)
+			      parser->copline = (line_t)$3;
+			}
 	|	sideff ';'
 			{
 			  $$ = $1;
@@ -601,10 +615,14 @@ formname:	BAREWORD	{ $$ = $1; }
 	|	/* NULL */	{ $$ = NULL; }
 	;
 
+subdecl:	SUB 		{ $$ = $1; }
+	|       METHDECL	{ $$ = $1; }
+	|       MULTIDECL	{ $$ = $1; }
+	;
+
 startsub:	/* NULL */	/* start a regular subroutine scope */
 			{ $$ = start_subparse(FALSE, 0);
 			    SAVEFREESV(PL_compcv); }
-
 	;
 
 startanonsub:	/* NULL */	/* start an anonymous subroutine scope */

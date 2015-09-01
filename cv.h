@@ -251,7 +251,8 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvPURE_on(cv)		(CvFLAGS(cv) |= CVf_PURE)
 #define CvSTATIC(cv)		(CvFLAGS(cv) & CVf_STATIC)
 
-#define CvMULTI(cv)             0
+#define CvMULTI(cv)		(CvFLAGS(cv) & CVf_MULTI)
+#define CvMULTI_on(cv)		(CvFLAGS(cv) |= CVf_MULTI)
 
 /* Flags for newXS_flags  */
 #define XS_DYNAMIC_FILENAME	0x01	/* The filename isn't static  */
