@@ -138,6 +138,7 @@ __END__
 -chown
 -chr
 -chroot
++class
 -close
 -closedir
 -cmp
@@ -235,11 +236,13 @@ __END__
 -lt
 +m
 +map
++method
 -mkdir
 -msgctl
 -msgget
 -msgrcv
 -msgsnd
++multi
 +my
 -ne
 +next

@@ -950,7 +950,7 @@ Perl_keyword (pTHX_ const char *name, I32 len, bool all_keywords)
           goto unknown;
       }
 
-    case 5: /* 39 tokens of length 5 */
+    case 5: /* 41 tokens of length 5 */
       switch (name[0])
       {
         case 'B':
@@ -1081,14 +1081,29 @@ Perl_keyword (pTHX_ const char *name, I32 len, bool all_keywords)
               }
 
             case 'l':
-              if (name[2] == 'o' &&
-                  name[3] == 's' &&
-                  name[4] == 'e')
-              {                                   /* close            */
-                return -KEY_close;
-              }
+              switch (name[2])
+              {
+                case 'a':
+                  if (name[3] == 's' &&
+                      name[4] == 's')
+                  {                               /* class            */
+                    return KEY_class;
+                  }
 
-              goto unknown;
+                  goto unknown;
+
+                case 'o':
+                  if (name[3] == 's' &&
+                      name[4] == 'e')
+                  {                               /* close            */
+                    return -KEY_close;
+                  }
+
+                  goto unknown;
+
+                default:
+                  goto unknown;
+              }
 
             case 'r':
               if (name[2] == 'y' &&
@@ -1208,15 +1223,31 @@ Perl_keyword (pTHX_ const char *name, I32 len, bool all_keywords)
           }
 
         case 'm':
-          if (name[1] == 'k' &&
-              name[2] == 'd' &&
-              name[3] == 'i' &&
-              name[4] == 'r')
-          {                                       /* mkdir            */
-            return -KEY_mkdir;
-          }
+          switch (name[1])
+          {
+            case 'k':
+              if (name[2] == 'd' &&
+                  name[3] == 'i' &&
+                  name[4] == 'r')
+              {                                   /* mkdir            */
+                return -KEY_mkdir;
+              }
 
-          goto unknown;
+              goto unknown;
+
+            case 'u':
+              if (name[2] == 'l' &&
+                  name[3] == 't' &&
+                  name[4] == 'i')
+              {                                   /* multi            */
+                return KEY_multi;
+              }
+
+              goto unknown;
+
+            default:
+              goto unknown;
+          }
 
         case 'p':
           if (name[1] == 'r' &&
@@ -1445,7 +1476,7 @@ Perl_keyword (pTHX_ const char *name, I32 len, bool all_keywords)
           goto unknown;
       }
 
-    case 6: /* 33 tokens of length 6 */
+    case 6: /* 34 tokens of length 6 */
       switch (name[0])
       {
         case 'a':
@@ -1601,53 +1632,70 @@ Perl_keyword (pTHX_ const char *name, I32 len, bool all_keywords)
           }
 
         case 'm':
-          if (name[1] == 's' &&
-              name[2] == 'g')
+          switch (name[1])
           {
-            switch (name[3])
-            {
-              case 'c':
-                if (name[4] == 't' &&
-                    name[5] == 'l')
-                {                                 /* msgctl           */
-                  return -KEY_msgctl;
+            case 'e':
+              if (name[2] == 't' &&
+                  name[3] == 'h' &&
+                  name[4] == 'o' &&
+                  name[5] == 'd')
+              {                                   /* method           */
+                return KEY_method;
+              }
+
+              goto unknown;
+
+            case 's':
+              if (name[2] == 'g')
+              {
+                switch (name[3])
+                {
+                  case 'c':
+                    if (name[4] == 't' &&
+                        name[5] == 'l')
+                    {                             /* msgctl           */
+                      return -KEY_msgctl;
+                    }
+
+                    goto unknown;
+
+                  case 'g':
+                    if (name[4] == 'e' &&
+                        name[5] == 't')
+                    {                             /* msgget           */
+                      return -KEY_msgget;
+                    }
+
+                    goto unknown;
+
+                  case 'r':
+                    if (name[4] == 'c' &&
+                        name[5] == 'v')
+                    {                             /* msgrcv           */
+                      return -KEY_msgrcv;
+                    }
+
+                    goto unknown;
+
+                  case 's':
+                    if (name[4] == 'n' &&
+                        name[5] == 'd')
+                    {                             /* msgsnd           */
+                      return -KEY_msgsnd;
+                    }
+
+                    goto unknown;
+
+                  default:
+                    goto unknown;
                 }
+              }
 
-                goto unknown;
+              goto unknown;
 
-              case 'g':
-                if (name[4] == 'e' &&
-                    name[5] == 't')
-                {                                 /* msgget           */
-                  return -KEY_msgget;
-                }
-
-                goto unknown;
-
-              case 'r':
-                if (name[4] == 'c' &&
-                    name[5] == 'v')
-                {                                 /* msgrcv           */
-                  return -KEY_msgrcv;
-                }
-
-                goto unknown;
-
-              case 's':
-                if (name[4] == 'n' &&
-                    name[5] == 'd')
-                {                                 /* msgsnd           */
-                  return -KEY_msgsnd;
-                }
-
-                goto unknown;
-
-              default:
-                goto unknown;
-            }
+            default:
+              goto unknown;
           }
-
-          goto unknown;
 
         case 'p':
           if (name[1] == 'r' &&
@@ -3437,5 +3485,5 @@ unknown:
 }
 
 /* Generated from:
- * db0472e0ad4f44bd0816cad799d63b60d1bbd7e11cef40ea15bf0d00f69669f6 regen/keywords.pl
+ * 5ff9da506f33c55de167b3302216407ce904fb998e52514829af57a515ad54bf regen/keywords.pl
  * ex: set ro: */

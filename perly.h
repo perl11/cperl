@@ -74,65 +74,68 @@ extern int yydebug;
     LABEL = 277,
     FORMAT = 278,
     SUB = 279,
-    ANONSUB = 280,
-    PACKAGE = 281,
-    USE = 282,
-    WHILE = 283,
-    UNTIL = 284,
-    IF = 285,
-    UNLESS = 286,
-    ELSE = 287,
-    ELSIF = 288,
-    CONTINUE = 289,
-    FOR = 290,
-    GIVEN = 291,
-    WHEN = 292,
-    DEFAULT = 293,
-    LOOPEX = 294,
-    DOTDOT = 295,
-    YADAYADA = 296,
-    FUNC0 = 297,
-    FUNC1 = 298,
-    FUNC = 299,
-    UNIOP = 300,
-    LSTOP = 301,
-    RELOP = 302,
-    EQOP = 303,
-    MULOP = 304,
-    ADDOP = 305,
-    DOLSHARP = 306,
-    DO = 307,
-    HASHBRACK = 308,
-    NOAMP = 309,
-    LOCAL = 310,
-    MY = 311,
-    REQUIRE = 312,
-    COLONATTR = 313,
-    FORMLBRACK = 314,
-    FORMRBRACK = 315,
-    PREC_LOW = 316,
-    OROP = 317,
-    DOROP = 318,
-    ANDOP = 319,
-    NOTOP = 320,
-    ASSIGNOP = 321,
-    OROR = 322,
-    DORDOR = 323,
-    ANDAND = 324,
-    BITOROP = 325,
-    BITANDOP = 326,
-    SHIFTOP = 327,
-    MATCHOP = 328,
-    UMINUS = 329,
-    REFGEN = 330,
-    POWOP = 331,
-    POWCOP = 332,
-    PREINC = 333,
-    PREDEC = 334,
-    POSTINC = 335,
-    POSTDEC = 336,
-    POSTJOIN = 337,
-    ARROW = 338
+    METHDECL = 280,
+    MULTIDECL = 281,
+    ANONSUB = 282,
+    PACKAGE = 283,
+    CLASS = 284,
+    USE = 285,
+    WHILE = 286,
+    UNTIL = 287,
+    IF = 288,
+    UNLESS = 289,
+    ELSE = 290,
+    ELSIF = 291,
+    CONTINUE = 292,
+    FOR = 293,
+    GIVEN = 294,
+    WHEN = 295,
+    DEFAULT = 296,
+    LOOPEX = 297,
+    DOTDOT = 298,
+    YADAYADA = 299,
+    FUNC0 = 300,
+    FUNC1 = 301,
+    FUNC = 302,
+    UNIOP = 303,
+    LSTOP = 304,
+    RELOP = 305,
+    EQOP = 306,
+    MULOP = 307,
+    ADDOP = 308,
+    DOLSHARP = 309,
+    DO = 310,
+    HASHBRACK = 311,
+    NOAMP = 312,
+    LOCAL = 313,
+    MY = 314,
+    REQUIRE = 315,
+    COLONATTR = 316,
+    FORMLBRACK = 317,
+    FORMRBRACK = 318,
+    PREC_LOW = 319,
+    OROP = 320,
+    DOROP = 321,
+    ANDOP = 322,
+    NOTOP = 323,
+    ASSIGNOP = 324,
+    OROR = 325,
+    DORDOR = 326,
+    ANDAND = 327,
+    BITOROP = 328,
+    BITANDOP = 329,
+    SHIFTOP = 330,
+    MATCHOP = 331,
+    UMINUS = 332,
+    REFGEN = 333,
+    POWOP = 334,
+    POWCOP = 335,
+    PREINC = 336,
+    PREDEC = 337,
+    POSTINC = 338,
+    POSTDEC = 339,
+    POSTJOIN = 340,
+    ARROW = 341
   };
 #endif
 
@@ -159,65 +162,68 @@ extern int yydebug;
 #define LABEL 277
 #define FORMAT 278
 #define SUB 279
-#define ANONSUB 280
-#define PACKAGE 281
-#define USE 282
-#define WHILE 283
-#define UNTIL 284
-#define IF 285
-#define UNLESS 286
-#define ELSE 287
-#define ELSIF 288
-#define CONTINUE 289
-#define FOR 290
-#define GIVEN 291
-#define WHEN 292
-#define DEFAULT 293
-#define LOOPEX 294
-#define DOTDOT 295
-#define YADAYADA 296
-#define FUNC0 297
-#define FUNC1 298
-#define FUNC 299
-#define UNIOP 300
-#define LSTOP 301
-#define RELOP 302
-#define EQOP 303
-#define MULOP 304
-#define ADDOP 305
-#define DOLSHARP 306
-#define DO 307
-#define HASHBRACK 308
-#define NOAMP 309
-#define LOCAL 310
-#define MY 311
-#define REQUIRE 312
-#define COLONATTR 313
-#define FORMLBRACK 314
-#define FORMRBRACK 315
-#define PREC_LOW 316
-#define OROP 317
-#define DOROP 318
-#define ANDOP 319
-#define NOTOP 320
-#define ASSIGNOP 321
-#define OROR 322
-#define DORDOR 323
-#define ANDAND 324
-#define BITOROP 325
-#define BITANDOP 326
-#define SHIFTOP 327
-#define MATCHOP 328
-#define UMINUS 329
-#define REFGEN 330
-#define POWOP 331
-#define POWCOP 332
-#define PREINC 333
-#define PREDEC 334
-#define POSTINC 335
-#define POSTDEC 336
-#define POSTJOIN 337
-#define ARROW 338
+#define METHDECL 280
+#define MULTIDECL 281
+#define ANONSUB 282
+#define PACKAGE 283
+#define CLASS 284
+#define USE 285
+#define WHILE 286
+#define UNTIL 287
+#define IF 288
+#define UNLESS 289
+#define ELSE 290
+#define ELSIF 291
+#define CONTINUE 292
+#define FOR 293
+#define GIVEN 294
+#define WHEN 295
+#define DEFAULT 296
+#define LOOPEX 297
+#define DOTDOT 298
+#define YADAYADA 299
+#define FUNC0 300
+#define FUNC1 301
+#define FUNC 302
+#define UNIOP 303
+#define LSTOP 304
+#define RELOP 305
+#define EQOP 306
+#define MULOP 307
+#define ADDOP 308
+#define DOLSHARP 309
+#define DO 310
+#define HASHBRACK 311
+#define NOAMP 312
+#define LOCAL 313
+#define MY 314
+#define REQUIRE 315
+#define COLONATTR 316
+#define FORMLBRACK 317
+#define FORMRBRACK 318
+#define PREC_LOW 319
+#define OROP 320
+#define DOROP 321
+#define ANDOP 322
+#define NOTOP 323
+#define ASSIGNOP 324
+#define OROR 325
+#define DORDOR 326
+#define ANDAND 327
+#define BITOROP 328
+#define BITANDOP 329
+#define SHIFTOP 330
+#define MATCHOP 331
+#define UMINUS 332
+#define REFGEN 333
+#define POWOP 334
+#define POWCOP 335
+#define PREINC 336
+#define PREDEC 337
+#define POSTINC 338
+#define POSTDEC 339
+#define POSTJOIN 340
+#define ARROW 341
 
 /* Value type.  */
 #ifdef PERL_IN_TOKE_C
@@ -271,6 +277,6 @@ int yyparse (void);
 #endif
 
 /* Generated from:
- * 6bf09ad3ced0febcc3497ae19ced2925a70f29398042313bad63639b7b10af6c perly.y
+ * 0deb9cf3d6080b92f08c0560cf088cdb15d09dd0eb0f4af0a8dbdc41ffa3022b perly.y
  * 34c0653ef7c691f2b4ac71336f4ea94e2bd925344002392f88ceeb0b435555fa regen_perly.pl
  * ex: set ro: */
