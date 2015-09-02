@@ -12804,6 +12804,15 @@ S_aassign_scan(pTHX_ OP* o, bool rhs, bool top, int *scalars_p)
         break;
 
     case OP_UNDEF:
+        /* undef counts as a scalar on the RHS:
+         *   (undef, $x) = ...;         # only 1 scalar on LHS: always safe
+         *   ($x, $y)    = (undef, $x); # 2 scalars on RHS: unsafe
+         */
+        if (rhs)
+            (*scalars_p)++;
+        flags = AAS_SAFE_SCALAR;
+        break;
+
     case OP_PUSHMARK:
     case OP_STUB:
         /* these are all no-ops; they don't push a potentially common SV
@@ -14931,7 +14940,7 @@ Perl_rpeep(pTHX_ OP *o)
                 || !r                      /* .... = (); */
                 || !(l & ~AAS_SAFE_SCALAR) /* (undef, pos()) = ...; */
                 || !(r & ~AAS_SAFE_SCALAR) /* ... = (1,2,length,undef); */
-                || (lscalars < 2)          /* ($x) = ... */
+                || (lscalars < 2)          /* ($x, undef) = ... */
             ) {
                 NOOP; /* always safe */
             }
@@ -14975,7 +14984,7 @@ Perl_rpeep(pTHX_ OP *o)
 
             /* ... = ($x)
              * may have to handle aggregate on LHS, but we can't
-             * have common scalars*/
+             * have common scalars. */
             if (rscalars < 2)
                 o->op_private &=
                         ~(OPpASSIGN_COMMON_SCALAR|OPpASSIGN_COMMON_RC1);
