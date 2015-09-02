@@ -70,7 +70,7 @@ Perl_av_extend(pTHX_ AV *av, SSize_t key)
     assert(SvTYPE(av) == SVt_PVAV);
 
     mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied);
-    if (mg) {
+    if (UNLIKELY(mg)) {
 	SV *arg1 = sv_newmortal();
 	sv_setiv(arg1, (IV)(key + 1));
 	Perl_magic_methcall(aTHX_ MUTABLE_SV(av), mg, SV_CONST(EXTEND), G_DISCARD, 1,
@@ -215,7 +215,7 @@ static bool
 S_adjust_index(pTHX_ AV *av, const MAGIC *mg, SSize_t *keyp)
 {
     bool adjust_index = 1;
-    if (mg) {
+    if (UNLIKELY(mg)) {
 	/* Handle negative array indices 20020222 MJD */
 	SV * const ref = SvTIED_obj(MUTABLE_SV(av), mg);
 	SvGETMAGIC(ref);
@@ -243,7 +243,7 @@ Perl_av_fetch(pTHX_ AV *av, SSize_t key, I32 lval)
     PERL_ARGS_ASSERT_AV_FETCH;
     assert(SvTYPE(av) == SVt_PVAV);
 
-    if (SvRMAGICAL(av)) {
+    if (UNLIKELY(SvRMAGICAL(av))) {
         const MAGIC * const tied_magic
 	    = mg_find((const SV *)av, PERL_MAGIC_tied);
         if (tied_magic || mg_find((const SV *)av, PERL_MAGIC_regdata)) {
@@ -318,7 +318,7 @@ Perl_av_store(pTHX_ AV *av, SSize_t key, SV *val)
        (unicode_alternate may be NULL).
     */
 
-    if (SvRMAGICAL(av)) {
+    if (UNLIKELY(SvRMAGICAL(av))) {
         const MAGIC * const tied_magic = mg_find((const SV *)av, PERL_MAGIC_tied);
         if (tied_magic) {
             if (key < 0) {
@@ -339,7 +339,7 @@ Perl_av_store(pTHX_ AV *av, SSize_t key, SV *val)
 	    return NULL;
     }
 
-    if (SvREADONLY(av) && key >= AvFILL(av))
+    if (UNLIKELY(SvREADONLY(av) && key >= AvFILL(av)))
 	Perl_croak_no_modify();
 
     if (!AvREAL(av) && AvREIFY(av))
@@ -360,7 +360,7 @@ Perl_av_store(pTHX_ AV *av, SSize_t key, SV *val)
     else if (AvREAL(av))
 	SvREFCNT_dec(ary[key]);
     ary[key] = val;
-    if (SvSMAGICAL(av)) {
+    if (UNLIKELY(SvSMAGICAL(av))) {
 	const MAGIC *mg = SvMAGIC(av);
 	bool set = TRUE;
 	for (; mg; mg = mg->mg_moremagic) {
@@ -540,11 +540,11 @@ Perl_av_clear(pTHX_ AV *av)
     }
 #endif
 
-    if (SvREADONLY(av))
+    if (UNLIKELY(SvREADONLY(av)))
 	Perl_croak_no_modify();
 
     /* Give any tie a chance to cleanup first */
-    if (SvRMAGICAL(av)) {
+    if (UNLIKELY(SvRMAGICAL(av))) {
 	const MAGIC* const mg = SvMAGIC(av);
 	if (PL_delaymagic && mg && mg->mg_type == PERL_MAGIC_isa)
 	    PL_delaymagic |= DM_ARRAY_ISA;
@@ -555,7 +555,7 @@ Perl_av_clear(pTHX_ AV *av)
     if (AvMAX(av) < 0)
 	return;
 
-    if (!AvSHAPED(av) && (real = !!AvREAL(av))) {
+    if (LIKELY(!AvSHAPED(av) && (real = !!AvREAL(av)))) {
 	SV** const ary = AvARRAY(av);
 	SSize_t index = AvFILLp(av) + 1;
 	ENTER;
@@ -596,7 +596,7 @@ Perl_av_undef(pTHX_ AV *av)
     assert(SvTYPE(av) == SVt_PVAV);
 
     /* Give any tie a chance to cleanup first */
-    if (SvTIED_mg((const SV *)av, PERL_MAGIC_tied)) 
+    if (UNLIKELY(SvTIED_mg((const SV *)av, PERL_MAGIC_tied)))
 	av_fill(av, -1);
 
     if ((real = !!AvREAL(av))) {
@@ -612,7 +612,7 @@ Perl_av_undef(pTHX_ AV *av)
     AvARRAY(av) = NULL;
     AvMAX(av) = AvFILLp(av) = -1;
 
-    if(SvRMAGICAL(av)) mg_clear(MUTABLE_SV(av));
+    if(UNLIKELY(SvRMAGICAL(av))) mg_clear(MUTABLE_SV(av));
     if(real) LEAVE;
 }
 
@@ -655,10 +655,12 @@ Perl_av_push(pTHX_ AV *av, SV *val)
     PERL_ARGS_ASSERT_AV_PUSH;
     assert(SvTYPE(av) == SVt_PVAV);
 
-    if (SvREADONLY(av))
+    if (UNLIKELY(SvREADONLY(av)))
 	Perl_croak_no_modify();
+    if (UNLIKELY(AvSHAPED(av)))
+        Perl_croak_shaped_array("push");
 
-    if ((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied))) {
+    if (UNLIKELY((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied)))) {
 	Perl_magic_methcall(aTHX_ MUTABLE_SV(av), mg, SV_CONST(PUSH), G_DISCARD, 1,
 			    val);
 	return;
@@ -687,11 +689,11 @@ Perl_av_pop(pTHX_ AV *av)
     PERL_ARGS_ASSERT_AV_POP;
     assert(SvTYPE(av) == SVt_PVAV);
 
-    if (SvREADONLY(av))
+    if (UNLIKELY(SvREADONLY(av)))
 	Perl_croak_no_modify();
-    if (AvSHAPED(av))
+    if (UNLIKELY(AvSHAPED(av)))
         Perl_croak_shaped_array("pop");
-    if ((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied))) {
+    if (UNLIKELY((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied)))) {
 	retval = Perl_magic_methcall(aTHX_ MUTABLE_SV(av), mg, SV_CONST(POP), 0, 0);
 	if (retval)
 	    retval = newSVsv(retval);
@@ -701,7 +703,7 @@ Perl_av_pop(pTHX_ AV *av)
 	return &PL_sv_undef;
     retval = AvARRAY(av)[AvFILLp(av)];
     AvARRAY(av)[AvFILLp(av)--] = NULL;
-    if (SvSMAGICAL(av))
+    if (UNLIKELY(SvSMAGICAL(av)))
 	mg_set(MUTABLE_SV(av));
     return retval ? retval : &PL_sv_undef;
 }
@@ -749,12 +751,12 @@ Perl_av_unshift(pTHX_ AV *av, SSize_t num)
     PERL_ARGS_ASSERT_AV_UNSHIFT;
     assert(SvTYPE(av) == SVt_PVAV);
 
-    if (SvREADONLY(av))
+    if (UNLIKELY(SvREADONLY(av)))
 	Perl_croak_no_modify();
-    if (AvSHAPED(av))
+    if (UNLIKELY(AvSHAPED(av)))
         Perl_croak_shaped_array("unshift");
 
-    if ((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied))) {
+    if (UNLIKELY((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied)))) {
 	Perl_magic_methcall(aTHX_ MUTABLE_SV(av), mg, SV_CONST(UNSHIFT),
 			    G_DISCARD | G_UNDEF_FILL, num);
 	return;
@@ -815,11 +817,11 @@ Perl_av_shift(pTHX_ AV *av)
     PERL_ARGS_ASSERT_AV_SHIFT;
     assert(SvTYPE(av) == SVt_PVAV);
 
-    if (SvREADONLY(av))
+    if (UNLIKELY(SvREADONLY(av)))
 	Perl_croak_no_modify();
-    if (AvSHAPED(av))
-        Perl_croak_shaped_array("reverse");
-    if ((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied))) {
+    if (UNLIKELY(AvSHAPED(av)))
+        Perl_croak_shaped_array("shift");
+    if (UNLIKELY((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied)))) {
 	retval = Perl_magic_methcall(aTHX_ MUTABLE_SV(av), mg, SV_CONST(SHIFT), 0, 0);
 	if (retval)
 	    retval = newSVsv(retval);
@@ -833,7 +835,7 @@ Perl_av_shift(pTHX_ AV *av)
     AvARRAY(av) = AvARRAY(av) + 1;
     AvMAX(av)--;
     AvFILLp(av)--;
-    if (SvSMAGICAL(av))
+    if (UNLIKELY(SvSMAGICAL(av)))
 	mg_set(MUTABLE_SV(av));
     return retval ? retval : &PL_sv_undef;
 }
@@ -888,9 +890,9 @@ Perl_av_fill(pTHX_ AV *av, SSize_t fill)
     PERL_ARGS_ASSERT_AV_FILL;
     assert(SvTYPE(av) == SVt_PVAV);
 
-    if (fill < 0)
+    if (UNLIKELY(fill < 0))
 	fill = -1;
-    if ((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied))) {
+    if (UNLIKELY((mg = SvTIED_mg((const SV *)av, PERL_MAGIC_tied)))) {
 	SV *arg1 = sv_newmortal();
 	sv_setiv(arg1, (IV)(fill + 1));
 	Perl_magic_methcall(aTHX_ MUTABLE_SV(av), mg, SV_CONST(STORESIZE), G_DISCARD,
@@ -913,7 +915,7 @@ Perl_av_fill(pTHX_ AV *av, SSize_t fill)
 	}
 	    
 	AvFILLp(av) = fill;
-	if (SvSMAGICAL(av))
+	if (UNLIKELY(SvSMAGICAL(av)))
 	    mg_set(MUTABLE_SV(av));
     }
     else
@@ -939,10 +941,12 @@ Perl_av_delete(pTHX_ AV *av, SSize_t key, I32 flags)
     PERL_ARGS_ASSERT_AV_DELETE;
     assert(SvTYPE(av) == SVt_PVAV);
 
-    if (SvREADONLY(av))
+    if (UNLIKELY(SvREADONLY(av)))
 	Perl_croak_no_modify();
+    if (UNLIKELY(AvSHAPED(av)))
+        Perl_croak_shaped_array("delete");
 
-    if (SvRMAGICAL(av)) {
+    if (UNLIKELY(SvRMAGICAL(av))) {
         const MAGIC * const tied_magic
 	    = mg_find((const SV *)av, PERL_MAGIC_tied);
         if ((tied_magic || mg_find((const SV *)av, PERL_MAGIC_regdata))) {
@@ -982,7 +986,7 @@ Perl_av_delete(pTHX_ AV *av, SSize_t key, I32 flags)
 		AvFILLp(av)--;
 	    } while (--key >= 0 && !AvARRAY(av)[key]);
 	}
-	if (SvSMAGICAL(av))
+	if (UNLIKELY(SvSMAGICAL(av)))
 	    mg_set(MUTABLE_SV(av));
     }
     if(sv != NULL) {
@@ -1014,7 +1018,7 @@ Perl_av_exists(pTHX_ AV *av, SSize_t key)
     PERL_ARGS_ASSERT_AV_EXISTS;
     assert(SvTYPE(av) == SVt_PVAV);
 
-    if (SvRMAGICAL(av)) {
+    if (UNLIKELY(SvRMAGICAL(av))) {
         const MAGIC * const tied_magic
 	    = mg_find((const SV *)av, PERL_MAGIC_tied);
         const MAGIC * const regdata_magic
@@ -1048,16 +1052,14 @@ Perl_av_exists(pTHX_ AV *av, SSize_t key)
         }
     }
 
-    if (key < 0) {
+    if (UNLIKELY(key < 0)) {
 	key += AvFILL(av) + 1;
 	if (key < 0)
 	    return FALSE;
     }
 
     if (key <= AvFILLp(av) && AvARRAY(av)[key])
-    {
 	return TRUE;
-    }
     else
 	return FALSE;
 }
