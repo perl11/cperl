@@ -143,60 +143,63 @@ static void boot_core_cperl(pTHX) {
     stash = GvHV(gv_HVadd(gv_fetchpvs("main::" s "::", GV_ADD, SVt_PVHV))); \
     Perl_set_version(aTHX_ STR_WITH_LEN(s "::VERSION"), STR_WITH_LEN("0.02c"), 0.02);  \
     isa = GvAV(gv_AVadd(gv_fetchpvs(s "::ISA", GV_ADD, SVt_PVAV)));         \
-    mg_set(MUTABLE_SV(isa));
+    mg_set(MUTABLE_SV(isa))
 
 #define TYPE_EXTENDS_1(t, t1)            \
     av_push(isa, newSVpvs(t1));          \
     mg_set(MUTABLE_SV(isa));             \
     SvREADONLY_on(MUTABLE_SV(isa));      \
-    SvREADONLY_on(MUTABLE_SV(stash));
+    SvREADONLY_on(MUTABLE_SV(stash))
+
 #define TYPE_EXTENDS_2(t, t1, t2)        \
     av_push(isa, newSVpvs(t1));          \
     av_push(isa, newSVpvs(t2));          \
     mg_set(MUTABLE_SV(isa));             \
     SvREADONLY_on(MUTABLE_SV(isa));      \
-    SvREADONLY_on(MUTABLE_SV(stash));
+    SvREADONLY_on(MUTABLE_SV(stash))
+
+#define DEF_CORETYPE_1(s)                \
+    DEF_CORETYPE(s);                     \
+    SvREADONLY_on(MUTABLE_SV(isa));      \
+    SvREADONLY_on(MUTABLE_SV(stash))
 
 /* initialize our core types */
 static void
 boot_coretypes(pTHX_ SV *xsfile)
 {
     AV *isa; HV *stash;
-    DEF_CORETYPE("Undef");
-    SvREADONLY_on(MUTABLE_SV(isa));
-    SvREADONLY_on(MUTABLE_SV(stash));
-    DEF_CORETYPE("Int");
-    SvREADONLY_on(MUTABLE_SV(isa));
-    SvREADONLY_on(MUTABLE_SV(stash));
-    DEF_CORETYPE("Num");
-    SvREADONLY_on(MUTABLE_SV(isa));
-    SvREADONLY_on(MUTABLE_SV(stash));
-    DEF_CORETYPE("Str");
-    SvREADONLY_on(MUTABLE_SV(isa));
-    SvREADONLY_on(MUTABLE_SV(stash));
+    DEF_CORETYPE_1("Int");
+    DEF_CORETYPE_1("Num");
+    DEF_CORETYPE_1("Str");
     DEF_CORETYPE("UInt");
     TYPE_EXTENDS_1("UInt", "Int");
     /* native types */
-    DEF_CORETYPE("int");
-    SvREADONLY_on(MUTABLE_SV(isa));
-    SvREADONLY_on(MUTABLE_SV(stash));
-    DEF_CORETYPE("num");
-    SvREADONLY_on(MUTABLE_SV(isa));
-    SvREADONLY_on(MUTABLE_SV(stash));
-    DEF_CORETYPE("str");
-    SvREADONLY_on(MUTABLE_SV(isa));
-    SvREADONLY_on(MUTABLE_SV(stash));
+    DEF_CORETYPE_1("int");
+    DEF_CORETYPE_1("num");
+    DEF_CORETYPE_1("str");
     DEF_CORETYPE("uint");
     TYPE_EXTENDS_1("uint", "int");
 #if 0
-    /* Note: (:Int?) might be a better syntax for an optional argument
-       (:Int|:Void), and :?Int for (:Int|:Undef) */
+    /* Extended versions, needed only for user types, not core types */
+    DEF_CORETYPE_1("Undef");
+    /* Note: (:Int?) is taken for an optional argument (:Int|:Void),
+       and :?Int for (:Int|:Undef) */
     DEF_CORETYPE("?Int"); /* type alias for (:Int|:Undef) */
     TYPE_EXTENDS_2("?Int", "Int", "Undef");
-    DEF_CORETYPE("Num");
+    DEF_CORETYPE("?Num");
     TYPE_EXTENDS_2("?Num", "Num", "Undef");
     DEF_CORETYPE("?Str");
     TYPE_EXTENDS_2("?Str", "Str", "Undef");
+    DEF_CORETYPE_1("Bool");
+    DEF_CORETYPE_1("Numeric");
+    DEF_CORETYPE_1("Scalar");
+    DEF_CORETYPE_1("Ref");
+    DEF_CORETYPE_1("Sub"); /* Callable */
+    DEF_CORETYPE_1("Array");
+    DEF_CORETYPE_1("Hash");
+    DEF_CORETYPE_1("List");
+    DEF_CORETYPE_1("Any");
+    DEF_CORETYPE_1("Void"); /* needed */
 #endif
     Perl_set_version(aTHX_ STR_WITH_LEN("coretypes::VERSION"), STR_WITH_LEN("0.02c"), 0.02);
     xs_incset(aTHX_ STR_WITH_LEN("coretypes.pm"), xsfile);
