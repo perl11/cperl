@@ -2926,10 +2926,16 @@ Only coretypes are supported.
 =item Invalid type for shaped array declaration: %s
 Only coretypes are supported.
 
-=item Invalid type for shaped array declaration: num
-Sorry! native num needs the same wordsize for IV and NV
+(F) The declared type for a shaped array must be a valid
+coretype.
 
-(F) The declared type for a shaped array must be a valid coretype.
+=item Invalid type for shaped array declaration: 
+num on 32-bit used as Num
+
+(W misc) The declared type for a shaped array must be a valid
+coretype.  On 32-bit systems IVSIZE is usually different from NVSIZE
+(no NVTYPE=float or no 64bitint), so num cannot be represented as a
+single word, so num will be demoted Num.
 
 =item Invalid version format (%s)
 

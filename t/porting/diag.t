@@ -518,6 +518,7 @@ Could not find version 1.1 of winsock dll
 Could not find version 2.0 of winsock dll
 '%c' outside of string in pack
 Debug leaking scalars child failed%s with errno %d: %s
+delete
 detach of a thread which could not start
 detach on an already detached thread
 detach on a thread with a waiter
@@ -638,6 +639,7 @@ set %s %p %p %p
 setservent not implemented!
 %s free() ignored (RMAGIC, PERL_CORE)
 %s has too many errors.
+shift
 SIG%s handler "%s" not defined.
 %s in %s
 Size magic not implemented
