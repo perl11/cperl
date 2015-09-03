@@ -1718,12 +1718,15 @@ typedef UVTYPE UV;
 #  define BUILTIN_SMUL_OVERFLOW(x, y, r) __builtin_smull_overflow(x, y, r)
 #  define BUILTIN_UMUL_OVERFLOW(x, y, r) __builtin_umull_overflow(x, y, r)
 #  else
+#  undef HAS_BUILTIN_ARITH_OVERFLOW
+/* 32bit ivsize=4 broken overflow logic
 #  define BUILTIN_SADD_OVERFLOW(x, y, r) __builtin_sadd_overflow(x, y, r)
 #  define BUILTIN_UADD_OVERFLOW(x, y, r) __builtin_uadd_overflow(x, y, r)
 #  define BUILTIN_SSUB_OVERFLOW(x, y, r) __builtin_ssub_overflow(x, y, r)
 #  define BUILTIN_USUB_OVERFLOW(x, y, r) __builtin_usub_overflow(x, y, r)
 #  define BUILTIN_SMUL_OVERFLOW(x, y, r) __builtin_smul_overflow(x, y, r)
 #  define BUILTIN_UMUL_OVERFLOW(x, y, r) __builtin_umul_overflow(x, y, r)
+*/
 #  endif
 # endif
 #endif

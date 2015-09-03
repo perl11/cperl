@@ -685,6 +685,7 @@ PPt(pp_add, "(:Number,:Number):Number")
             } else {
                 IV value;
                 if (BUILTIN_SADD_OVERFLOW(aiv, biv, &value)) {
+                    /*SETn( (NV)(auvok?SvUVX(svl):aiv) + (NV)(buvok?SvUVX(svr):biv) );*/
                     SETn( (NV)aiv + (NV)biv );
                 } else {
                     SETi( value );
