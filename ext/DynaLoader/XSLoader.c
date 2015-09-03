@@ -30,7 +30,7 @@ XS(XS_XSLoader_load) {
     else {
         module = ST(0);
         DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load '%s' %d args\n",
-                SvPVX(module), items));
+                                SvPVX(module), (int)items));
         if (!SvPOK(module))
             Perl_die(aTHX_ "Usage: XSLoader::load([ $packagename [,$VERSION]])\n");
     }
@@ -135,7 +135,7 @@ XS(XS_XSLoader_bootstrap_inherit) {
     dVAR; dXSARGS;
 
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::bootstrap_inherit '%s' %d args\n",
-            SvPVX(ST(0)), items));
+                            SvPVX(ST(0)), (int)items));
     if (items < 1 || !SvPOK(ST(0)))
         Perl_die(aTHX_ "Usage: XSLoader::bootstrap_inherit($packagename [,$VERSION])\n");
     PUSHMARK(MARK);

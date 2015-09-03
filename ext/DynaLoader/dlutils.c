@@ -203,7 +203,8 @@ XS(XS_DynaLoader_bootstrap_inherit)
         char *s;
         sv_catpvs(module_isa, "::ISA");
         s = SvPVX(module_isa);
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap_inherit '%s' %d args\n", SvPVX(ST(0)), items));
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap_inherit '%s' %d args\n",
+                                SvPVX(ST(0)), (int)items));
 	ENTER_with_name("bootstrap");
         SAVETMPS;
         if ((isa = get_av(s, GV_ADDMULTI))) {
@@ -256,7 +257,7 @@ dl_split_modparts (pTHX_ SV* module) {
 static SV*
 dl_construct_modpname(pTHX_ AV* modparts) {
     dSP;
-    IV i;
+    SSize_t i;
     SV *modpname;
 
     /* Some systems have restrictions on files names for DLL's etc.
@@ -290,14 +291,14 @@ dl_construct_modpname(pTHX_ AV* modparts) {
 XS(XS_DynaLoader_bootstrap)
 {
     dVAR; dXSARGS;
-    IV i;
+    SSize_t i;
     char *modulename;
     CV *cv_load_file;
     AV *modparts, *dirs;
     SV *module, *modfname, *modpname, *file;
 
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader::bootstrap '%s' %d args\n",
-            SvPVX(ST(0)), items));
+                            SvPVX(ST(0)), (int)items));
     if (items < 1 || !SvPOK(ST(0)))
         Perl_die(aTHX_ "Usage: DynaLoader::bootstrap($packagename [,$VERSION])\n");
     module = ST(0);
@@ -508,7 +509,7 @@ XS(XS_DynaLoader_dl_findfile)
         XSRETURN(1);
     }
     else {
-        U32 i;
+        SSize_t i;
         AV* found = (AV*)file;
         if (AvFILLp(found)>=0) {
             for (i=0; i<=AvFILLp(found); i++) {
@@ -561,7 +562,7 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
     dVAR; dXSARGS;
     SV *sym, *dl_find_symbol;
     AV *dl_librefs;
-    IV i;
+    SSize_t i;
     if (items != 1 || !SvPOK(ST(0)))
         Perl_die(aTHX_ "Usage: DynaLoader::dl_find_symbol_anywhere($symbol)\n");
 
@@ -838,7 +839,7 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
     {
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log,
                 "DynaLoader: Enter &%s::bootstrap CV<%p> with %d args\n",
-                                modulename, xs, items));
+                                modulename, xs, (int)items));
         PUSHMARK(MARK);
         sp = MARK + items;
         PUTBACK;
@@ -871,7 +872,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
     for (i=0; i<=AvFILLp(args); i++) {
         SV *file = AvARRAY(args)[i];
         char *fn = SvPVX(file);
-        IV dirsize, lsize;
+        SSize_t dirsize, lsize;
         AV *names;
         DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  find %s\n", fn));
         /* Special fast case: full filepath may require no search */
@@ -1013,7 +1014,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
         if (fn[1] == ':'
            && ((fn[0] >= 'a' && fn[0] <= 'z')
             || (fn[0] >= 'A' && fn[0] <= 'Z'))) {
-            int j;
+            SSize_t j;
             char drive[2];
             drive[0] = fn[0]; drive[1] = fn[1]; drive[2] = '\0';
             for (j=0; j<=AvFILLp(dirs); j++) {
@@ -1033,7 +1034,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
         if (dirsize + lsize > -1) /* if one of them is not empty */
           /* loop both arrays in one loop. -1 means empty */
           for (j=0; j<=(dirsize>=0?dirsize:0)+(lsize>=0?lsize:0); j++) {
-            U32 k;
+            SSize_t k;
             SV *dir = (dirsize >= 0 && j <= dirsize)
                       ? AvARRAY(dirs)[j]
                       : AvARRAY(dl_library_path)[j-dirsize-1];
@@ -1128,7 +1129,7 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
 }
 
 static char * av_tostr(pTHX_ AV *args) {
-    int i;
+    SSize_t i;
     SV *pv = newSVpvs("");
     for (i=0; i<=AvFILLp(args); i++) {
         SV **sv = av_fetch(args, i, 0);
