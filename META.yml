@@ -33,9 +33,6 @@ no_index:
     - dist/IO/
     - dist/lib/
     - dist/Locale-Maketext
-    - dist/Math-BigInt
-    - dist/Math-BigInt-FastCalc
-    - dist/Math-BigRat
     - dist/Module-CoreList
     - dist/Net-Ping
     - dist/PathTools

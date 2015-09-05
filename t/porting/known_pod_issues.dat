@@ -242,8 +242,6 @@ YAML::Syck
 YAML::Tiny
 dist/data-dumper/dumper.pm	? Should you be using L<...> instead of	1
 dist/extutils-constant/lib/extutils/constant.pm	Verbatim line length including indents exceeds 79 by	1
-dist/math-bigint/lib/math/bigint.pm	Verbatim line length including indents exceeds 79 by	70
-dist/math-bigrat/lib/math/bigrat.pm	Verbatim line length including indents exceeds 79 by	7
 dist/module-corelist/lib/module/corelist.pod	Verbatim line length including indents exceeds 79 by	4
 dist/module-corelist/lib/module/corelist/utils.pm	Verbatim line length including indents exceeds 79 by	2
 dist/net-ping/lib/net/ping.pm	Apparent broken link	1
@@ -253,6 +251,8 @@ dist/storable/storable.pm	Verbatim line length including indents exceeds 79 by	4
 dist/thread-queue/lib/thread/queue.pm	Verbatim line length including indents exceeds 79 by	6
 dist/threads/lib/threads.pm	Verbatim line length including indents exceeds 79 by	3
 dist/tie-file/lib/tie/file.pm	Verbatim line length including indents exceeds 79 by	3
+ext/amiga-arexx/arexx.pm	Verbatim line length including indents exceeds 79 by	2
+ext/amiga-exec/exec.pm	Verbatim line length including indents exceeds 79 by	2
 ext/devel-peek/peek.pm	? Should you be using L<...> instead of	2
 ext/dynaloader/dynaloader.pod	Apparent broken link	1
 ext/dynaloader/dynaloader.pod	Verbatim line length including indents exceeds 79 by	1
@@ -263,7 +263,6 @@ ext/opcode/opcode.pm	Verbatim line length including indents exceeds 79 by	2
 ext/pod-html/testdir/perlpodspec-copy.pod	Verbatim line length including indents exceeds 79 by	2
 ext/pod-html/testdir/perlvar-copy.pod	? Should you be using L<...> instead of	3
 ext/pod-html/testdir/perlvar-copy.pod	Verbatim line length including indents exceeds 79 by	6
-ext/posix/lib/posix.pod	? Should you be using F<...> or maybe L<...> instead of	1
 ext/re/re.pm	Apparent broken link	1
 ext/vms-dclsym/dclsym.pm	? Should you be using L<...> instead of	1
 ext/vms-filespec/lib/vms/filespec.pm	Verbatim line length including indents exceeds 79 by	1
