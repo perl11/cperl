@@ -267,7 +267,6 @@ test_opcount(0, 'multideref exists',
     use feature 'signatures';
     no warnings 'experimental::signatures';
 
-
     my $lex;
     our $pkg;
     my @array;
@@ -281,8 +280,7 @@ test_opcount(0, 'multideref exists',
                 );
 
     test_opcount(0, 'signature with all-optimised defaults',
-                    sub ($a=undef, $b=0, $c=1, $d=2, $e="foo",
-                         $f=$lex, $g=$pkg) { },
+                    sub ($a=undef, $b=0, $c=1, $d=2, $e="foo", $f=$lex, $g=$pkg) { },
                     {
                         signature  => 1,
                         nextstate  => 2,
