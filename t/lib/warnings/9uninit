@@ -2177,7 +2177,7 @@ use constant UNDEF => undef;
 
 my $x;
 
-sub f($a, $ = $x + 1, $b = $x - 1, $c = UNDEF) {
+sub f($a, $xx = $x + 1, $b = $x - 1, $c = UNDEF) {
     return "[$a:$b:$c]\n";
 }
 
@@ -2195,12 +2195,7 @@ no warnings 'experimental::signatures';
 
 my $x;
 
-sub f($a,
-      $  = $x + 1,
-      $b = $x - 1,
-      $c = $x * 2,
-      $d = $x / 2,
-      $e = undef)
+sub f($a, $xx = $x + 1, $b = $x - 1, $c = $x * 2, $d = $x / 2, $e = undef)
 {
     return "[$a:$b:$c:$d:$e]\n";
 }
