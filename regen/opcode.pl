@@ -22,6 +22,7 @@ BEGIN {
     # Get function prototypes
     require 'regen/regen_lib.pl';
 }
+use Config;
 
 my $oc = open_new('opcode.h', '>',
 		  {by => 'regen/opcode.pl', from => 'its data',
@@ -171,7 +172,14 @@ my @raw_alias = (
 		 Perl_pp_const       => ['int_const', 'uint_const', 'str_const', 'num_const'],
 		 Perl_pp_int_padsv   => ['uint_padsv', 'str_padsv', 'num_padsv'],
 		 Perl_pp_int_sassign => ['uint_sassign', 'str_sassign', 'num_sassign'],
-  );
+                );
+# see exceptions for those below:
+#push @raw_alias, (
+#		 Perl_pp_add         => ['u_add'],
+#		 Perl_pp_subtract    => ['u_subtract'],
+#		 Perl_pp_multiply    => ['u_multiply']
+#  ) if $Config{ivsize} < 8;
+
 
 # cperl changes: harmonized type prefices, for readable type promotion.
 # not strictly required, but it makes more sense.
@@ -211,6 +219,10 @@ while (my ($func, $names) = splice @raw_alias, 0, 2) {
 foreach my $sock_func (qw(socket bind listen accept shutdown
 			  ssockopt getpeername)) {
     $alias{$sock_func} = ["Perl_pp_$sock_func", '#ifdef HAS_SOCKET'],
+}
+# u_ ops are aliased for 32bit IVSIZE==4 only. on IVSIZE==8 they use the native u_ ops
+foreach my $u_func (qw(add subtract multiply)) {
+    $alias{"u_".$u_func} = ["Perl_pp_$u_func", '#if IVSIZE<=4'],
 }
 
 
@@ -1002,15 +1014,17 @@ print $oc    "#ifndef PERL_GLOBAL_STRUCT_INIT\n\n";
 	my $op_func = "Perl_pp_$_";
 
 	if ($cond ne $last_cond) {
-	    # A change in condition. (including to or from no condition)
-	    unimplemented();
+            # A change in condition. (including to or from no condition)
+            # u_ ops are implemented
+            unimplemented() unless /^u_/;
 	    $last_cond = $cond;
 	    if ($last_cond) {
 		print $oc "$last_cond\n";
 	    }
 	}
-	push @unimplemented, $op_func if $last_cond;
+        push @unimplemented, $op_func if $last_cond and !/^u_/;
 	print $oc "#define $op_func $impl\n" if $impl ne $op_func;
+        print $oc "#endif\n" if $last_cond and /^u_/;
     }
     # If the last op was conditional, we need to close it out:
     unimplemented();
@@ -1340,11 +1354,17 @@ END
 for (@ops) {
     my $op_func = "Perl_pp_$_";
     my $name = $alias{$_};
+    print $oc "\t$op_func,";
     if ($name && $name->[0] ne $op_func) {
-	print $oc "\t$op_func,\t/* implemented by $name->[0] */\n";
+        # u_ ops are implemented, but aliased to generic on 32bit IV
+        if (/^u_/) {
+            print $oc "\t/* on 32bit IV implemented by $name->[0] */\n";
+        } else {
+            print $oc "\t/* implemented by $name->[0] */\n";
+        }
     }
     else {
-	print $oc "\t$op_func,\n";
+	print $oc "\n";
     }
 }
 
@@ -1659,6 +1679,8 @@ my $pp = open_new('pp_proto.h', '>',
     my %funcs;
     for (@ops) {
 	my $name = $alias{$_} ? $alias{$_}[0] : "Perl_pp_$_";
+        # u_ ops are implemented and not aliased on 64bit
+	++$funcs{"Perl_pp_$_"} if /^u_/;
 	++$funcs{$name};
     }
     print $pp "PERL_CALLCONV OP *$_(pTHX);\n" foreach sort keys %funcs;

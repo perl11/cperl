@@ -2726,6 +2726,9 @@ PPt(pp_i_add, "(:Int,:Int):Int")
     }
 }
 
+#if IVSIZE>4
+/* disabled: broke 32bit overflow rules */
+
 /* Nearer to add and multiply. Handle results which could be interpreted as UV,
  * but does not promote to NV. Works fine for IV_MAX .. UV_MAX, but
  * not in the negative range. Is mostly used for constant folding. */
@@ -2738,7 +2741,7 @@ PPt(pp_u_add, "(:Int,:Int):Numeric")
       dPOPTOPiirl_ul_nomg;
       SETi( left + right );
       if (SvIVX(TARG) < 0 && left>=0 && right>=0)
-          SETu( left + right );
+          SETu( TARG );
       RETURN;
     }
 }
@@ -2751,10 +2754,24 @@ PPt(pp_u_multiply, "(:Int,:Int):Numeric")
       dPOPTOPiirl_ul_nomg;
       SETi( left * right );
       if (SvIVX(TARG) < 0 && left>=0 && right>=0)
-          SETu( left * right );
+          SETu( TARG );
       RETURN;
     }
 }
+
+PPt(pp_u_subtract, "(:Int,:Int):Numeric")
+{
+    dSP; dATARGET;
+    tryAMAGICbin_MG(subtr_amg, AMGf_assign);
+    {
+      dPOPTOPiirl_ul_nomg;
+      SETi( left - right );
+      if (SvIVX(TARG) < 0 && left>right)
+          SETu( TARG );
+      RETURN;
+    }
+}
+#endif
 
 PPt(pp_i_subtract, "(:Int,:Int):Int")
 {

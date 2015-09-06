@@ -282,6 +282,7 @@ PERL_CALLCONV OP *Perl_pp_trans(pTHX);
 PERL_CALLCONV OP *Perl_pp_truncate(pTHX);
 PERL_CALLCONV OP *Perl_pp_u_add(pTHX);
 PERL_CALLCONV OP *Perl_pp_u_multiply(pTHX);
+PERL_CALLCONV OP *Perl_pp_u_subtract(pTHX);
 PERL_CALLCONV OP *Perl_pp_uc(pTHX);
 PERL_CALLCONV OP *Perl_pp_ucfirst(pTHX);
 PERL_CALLCONV OP *Perl_pp_umask(pTHX);
