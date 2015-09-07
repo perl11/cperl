@@ -23,35 +23,35 @@ sub D::d {"D::d"}
 
 # First, some basic checks of method-calling syntax:
 my $obj = bless [], "Pack";
-sub Pack::method { shift; join(",", "method", @_) }
-my $mname = "method";
+sub Pack::meth { shift; join(",", "meth", @_) }
+my $mname = "meth";
 
-is(Pack->method("a","b","c"), "method,a,b,c");
-is(Pack->$mname("a","b","c"), "method,a,b,c");
-is(method Pack ("a","b","c"), "method,a,b,c");
-is((method Pack "a","b","c"), "method,a,b,c");
+is(Pack->meth("a","b","c"), "meth,a,b,c");
+is(Pack->$mname("a","b","c"), "meth,a,b,c");
+is(meth Pack ("a","b","c"), "meth,a,b,c");
+is((meth Pack "a","b","c"), "meth,a,b,c");
 
-is(Pack->method(), "method");
-is(Pack->$mname(), "method");
-is(method Pack (), "method");
-is(Pack->method, "method");
-is(Pack->$mname, "method");
-is(method Pack, "method");
+is(Pack->meth(), "meth");
+is(Pack->$mname(), "meth");
+is(meth Pack (), "meth");
+is(Pack->meth, "meth");
+is(Pack->$mname, "meth");
+is(meth Pack, "meth");
 
-is($obj->method("a","b","c"), "method,a,b,c");
-is($obj->$mname("a","b","c"), "method,a,b,c");
-is((method $obj ("a","b","c")), "method,a,b,c");
-is((method $obj "a","b","c"), "method,a,b,c");
+is($obj->meth("a","b","c"), "meth,a,b,c");
+is($obj->$mname("a","b","c"), "meth,a,b,c");
+is((meth $obj ("a","b","c")), "meth,a,b,c");
+is((meth $obj "a","b","c"), "meth,a,b,c");
 
-is($obj->method(0), "method,0");
-is($obj->method(1), "method,1");
+is($obj->meth(0), "meth,0");
+is($obj->meth(1), "meth,1");
 
-is($obj->method(), "method");
-is($obj->$mname(), "method");
-is((method $obj ()), "method");
-is($obj->method, "method");
-is($obj->$mname, "method");
-is(method $obj, "method");
+is($obj->meth(), "meth");
+is($obj->$mname(), "meth");
+is((meth $obj ()), "meth");
+is($obj->meth, "meth");
+is($obj->$mname, "meth");
+is(meth $obj, "meth");
 
 is( A->d, "C::d");		# Update hash table;
 
@@ -128,17 +128,17 @@ $counter = 0;
 
 sub B::AUTOLOAD {
   my $c = ++$counter;
-  my $method = $B::AUTOLOAD; 
-  my $msg = "B: In $method, $c";
-  eval "sub $method { \$msg }";
-  goto &$method;
+  my $meth = $B::AUTOLOAD; 
+  my $msg = "B: In $meth, $c";
+  eval "sub $meth { \$msg }";
+  goto &$meth;
 }
 sub C::AUTOLOAD {
   my $c = ++$counter;
-  my $method = $C::AUTOLOAD; 
-  my $msg = "C: In $method, $c";
-  eval "sub $method { \$msg }";
-  goto &$method;
+  my $meth = $C::AUTOLOAD; 
+  my $msg = "C: In $meth, $c";
+  eval "sub $meth { \$msg }";
+  goto &$meth;
 }
 EOF
 
@@ -160,9 +160,9 @@ no warnings 'redefine';
 *B::AUTOLOAD = sub {
   use warnings;
   my $c = ++$counter;
-  my $method = $::AUTOLOAD; 
+  my $meth = $::AUTOLOAD; 
   no strict 'refs';
-  *$::AUTOLOAD = sub { "new B: In $method, $c" };
+  *$::AUTOLOAD = sub { "new B: In $meth, $c" };
   goto &$::AUTOLOAD;
 };
 }
@@ -216,28 +216,25 @@ like ($@, qr/^\QCan't locate object method "foo" via package "E::F" at/);
 
 # SUPER:: pseudoclass
 @Saab::ISA = "Souper";
-sub Souper::method { @_ }
+sub Souper::meth { @_ }
 @OtherSaab::ISA = "OtherSouper";
-sub OtherSouper::method { "Isidore Ropen, Draft Manager" }
+sub OtherSouper::meth { "Isidore Ropen, Draft Manager" }
 {
    my $o = bless [], "Saab";
    package Saab;
-   my @ret = $o->SUPER::method('whatever');
-   ::is $ret[0], $o, 'object passed to SUPER::method';
-   ::is $ret[1], 'whatever', 'argument passed to SUPER::method';
-   # @ret = $o->SUPER'method('whatever');
-   # ::is $ret[0], $o, "object passed to SUPER'method";
-   # ::is $ret[1], 'whatever', "argument passed to SUPER'method";
-   @ret = Saab->SUPER::method;
-   ::is $ret[0], 'Saab', "package name passed to SUPER::method";
-   @ret = OtherSaab->SUPER::method;
+   my @ret = $o->SUPER::meth('whatever');
+   ::is $ret[0], $o, 'object passed to SUPER::meth';
+   ::is $ret[1], 'whatever', 'argument passed to SUPER::meth';
+   @ret = Saab->SUPER::meth;
+   ::is $ret[0], 'Saab', "package name passed to SUPER::meth";
+   @ret = OtherSaab->SUPER::meth;
    ::is $ret[0], 'OtherSaab',
-      "->SUPER::method uses current package, not invocant";
+      "->SUPER::meth uses current package, not invocant";
 }  
 () = *SUPER::;
 {
    local our @ISA = "Souper";
-   is eval { (main->SUPER::method)[0] }, 'main',
+   is eval { (main->SUPER::meth)[0] }, 'main',
       'Mentioning *SUPER:: does not stop ->SUPER from working in main';
 }
 {
@@ -254,8 +251,8 @@ sub OtherSouper::method { "Isidore Ropen, Draft Manager" }
     ::is eval { Mover->SUPER::dohtem; }, 'dohtem',
         'SUPER inside moved package';
     undef *door::dohtem;
-    *door::dohtem = sub { 'method' };
-    ::is eval { Mover->SUPER::dohtem; }, 'method',
+    *door::dohtem = sub { 'meth' };
+    ::is eval { Mover->SUPER::dohtem; }, 'meth',
         'SUPER inside moved package respects method changes';
 }
 
@@ -277,7 +274,7 @@ package bar120694 {
     }
 }
 is bless( [] => "foo120694" )->plugh, 'xyzzy',
-    '->SUPER::method autoloading uses parent of current pkg';
+    '->SUPER::meth autoloading uses parent of current pkg';
 
 
 # failed method call or UNIVERSAL::can() should not autovivify packages
@@ -394,13 +391,13 @@ is $kalled, 1, 'calling a class method via a magic variable';
 
 {
     package NulTest;
-    sub method { 1 }
+    sub meth { 1 }
 
     package main;
     eval {
-        NulTest->${ \"method\0Whoops" };
+        NulTest->${ \"meth\0Whoops" };
     };
-    like $@, qr/Can't locate object method "method\0Whoops" via package "NulTest" at/,
+    like $@, qr/Can't locate object method "meth\0Whoops" via package "NulTest" at/,
             "method lookup is nul-clean";
 
     *NulTest::AUTOLOAD = sub { our $AUTOLOAD; return $AUTOLOAD };
@@ -508,17 +505,17 @@ package egakacp {
   sub ASI::m { shift; "@_" };
   my @a = (bless([]), 'arg');
   my $r = SUPER::m{@a};
-  ::is $r, 'arg', 'method{@array}';
+  ::is $r, 'arg', 'meth{@array}';
   $r = SUPER::m{}@a;
-  ::is $r, 'arg', 'method{}@array';
+  ::is $r, 'arg', 'meth{}@array';
   $r = SUPER::m{@a}"b";
-  ::is $r, 'arg b', 'method{@array}$more_args';
+  ::is $r, 'arg b', 'meth{@array}$more_args';
 }
 
-# [perl #114924] SUPER->method
+# [perl #114924] SUPER->meth
 @SUPER::ISA = "SUPPER";
 sub SUPPER::foo { "supper" }
-is "SUPER"->foo, 'supper', 'SUPER->method';
+is "SUPER"->foo, 'supper', 'SUPER->meth';
 
 sub flomp { "flimp" }
 sub main::::flomp { "flump" }
@@ -546,8 +543,8 @@ like $@,
  sub IO::Handle::self { $_[0] }
 # This used to stringify the glob:
 is *stdout2->self, (\*stdout2)->self,
-  '*glob->method is equiv to (\*glob)->method';
-sub { $_[0] = *STDOUT; is $_[0]->self, \$::h{k}, '$pvlv_glob->method' }
+  '*glob->meth is equiv to (\*glob)->meth';
+sub { $_[0] = *STDOUT; is $_[0]->self, \$::h{k}, '$pvlv_glob->meth' }
  ->($::h{k});
 
 # Test that PL_stashcache doesn't change the resolution behaviour for file
