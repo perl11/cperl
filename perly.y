@@ -497,6 +497,7 @@ barestmt:	PLUGSTMT
 				  (OP*)NULL, block_end($4, $6), (OP*)NULL, 0);
 			  if (parser->copline > (line_t)$3)
 			      parser->copline = (line_t)$3;
+                          parser->in_class = FALSE;
 			}
 	|	sideff ';'
 			{
