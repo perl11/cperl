@@ -4,7 +4,7 @@ our $VERSION = '1.24';
 
 use strict;
 require 5.006;
-use B qw(peekop class walkoptree walkoptree_exec
+use B qw(peekop walkoptree walkoptree_exec
          main_start main_root cstring sv_undef SVf_NOK SVf_IOK);
 use Config;
 my (@optype, @specialsv_name);
@@ -37,7 +37,7 @@ sub _printop {
   my $addr = ${$op} ? $op->ppaddr : '';
   $addr =~ s/^PL_ppaddr// if $addr;
   if (${$op}) {
-    return sprintf "0x%08x %6s %s", ${$op}, class($op), $addr;
+    return sprintf "0x%08x %6s %s", ${$op}, B::class($op), $addr;
   } else {
     return sprintf "0x%x %6s %s", ${$op}, '', $addr;
   }
@@ -45,7 +45,7 @@ sub _printop {
 
 sub B::OP::debug {
     my ($op) = @_;
-    printf <<'EOT', class($op), $$op, _printop($op), _printop($op->next), _printop($op->sibling), $op->targ, $op->type, $op->name;
+    printf <<'EOT', B::class($op), $$op, _printop($op), _printop($op->next), _printop($op->sibling), $op->targ, $op->type, $op->name;
 %s (0x%lx)
 	op_ppaddr	%s
 	op_next		%s
@@ -143,7 +143,7 @@ sub B::COP::debug {
 	cop_warnings	0x%x
 EOT
   if ($] > 5.008 and $] < 5.011) {
-    my $cop_io = class($op->io) eq 'SPECIAL' ? '' : $op->io->as_string;
+    my $cop_io = B::class($op->io) eq 'SPECIAL' ? '' : $op->io->as_string;
     printf("	cop_io		%s\n", cstring($cop_io));
   }
 }
@@ -191,10 +191,10 @@ sub B::NULL::debug {
 sub B::SV::debug {
     my ($sv) = @_;
     if (!$$sv) {
-	print class($sv), " = NULL\n";
+	print B::class($sv), " = NULL\n";
 	return;
     }
-    printf <<'EOT', class($sv), $$sv, $sv->REFCNT;
+    printf <<'EOT', B::class($sv), $$sv, $sv->REFCNT;
 %s (0x%x)
 	REFCNT		%d
 EOT
@@ -316,7 +316,7 @@ sub _array_debug {
     my (@array) = eval { $av->ARRAY; };
     print "\tARRAY\t\t(", join(", ", map("0x" . $$_, @array)), ")\n";
     my $fill = eval { scalar(@array) };
-    if ($Config{'useithreads'} && class($av) ne 'PADLIST') {
+    if ($Config{'useithreads'} && B::class($av) ne 'PADLIST') {
       printf <<'EOT', $fill, $av->MAX, $av->OFF;
 	FILL		%d
 	MAX		%d
@@ -382,7 +382,7 @@ sub B::SPECIAL::debug {
 
 sub B::PADLIST::debug {
     my ($padlist) = @_;
-    printf <<'EOT', class($padlist), $$padlist, $padlist->REFCNT;
+    printf <<'EOT', B::class($padlist), $$padlist, $padlist->REFCNT;
 %s (0x%x)
 	REFCNT		%d
 EOT

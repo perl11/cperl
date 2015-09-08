@@ -27,7 +27,7 @@ our %EXPORT_TAGS =
       mech	=> [qw( concise_subref concise_cv concise_main )],  );
 
 # use #6
-use B qw(class ppname main_start main_root main_cv cstring svref_2object
+use B qw(ppname main_start main_root main_cv cstring svref_2object
 	 SVf_IOK SVf_NOK SVf_POK SVf_IVisUV SVf_FAKE OPf_KIDS OPf_SPECIAL
          OPf_STACKED
          OPpSPLIT_ASSIGN OPpSPLIT_LEX
@@ -178,7 +178,7 @@ sub concise_cv_obj {
 	print $walkHandle "$name is XS code\n";
 	return;
     }
-    if (class($cv->START) eq "NULL") {
+    if (B::class($cv->START) eq "NULL") {
 	no strict 'refs';
 	if (ref $name eq 'CODE') {
 	    print $walkHandle "coderef $name has no START\n";
@@ -213,13 +213,13 @@ sub concise_main {
     sequence(main_start);
     $curcv = main_cv;
     if ($order eq "exec") {
-	return if class(main_start) eq "NULL";
+	return if B::class(main_start) eq "NULL";
 	walk_exec(main_start);
     } elsif ($order eq "tree") {
-	return if class(main_root) eq "NULL";
+	return if B::class(main_root) eq "NULL";
 	print $walkHandle tree(main_root, 0);
     } elsif ($order eq "basic") {
-	return if class(main_root) eq "NULL";
+	return if B::class(main_root) eq "NULL";
 	walk_topdown(main_root,
 		     sub { $_[0]->concise($_[1]) }, 0);
     }
@@ -474,7 +474,7 @@ sub walk_topdown {
 	    walk_topdown($kid, $sub, $level + 1);
 	}
     }
-    if (class($op) eq "PMOP") {
+    if (B::class($op) eq "PMOP") {
 	my $maybe_root = $op->code_list;
 	if ( ref($maybe_root) and $maybe_root->isa("B::OP")
 	 and not $op->flags & OPf_KIDS) {
@@ -510,7 +510,7 @@ sub walk_exec {
 	    last if $opsseen{$$op}++;
 	    push @$targ, $op;
 	    my $name = $op->name;
-	    if (class($op) eq "LOGOP") {
+	    if (B::class($op) eq "LOGOP") {
 		my $ar = [];
 		push @$targ, $ar;
 		push @todo, [$op->other, $ar];
@@ -532,14 +532,14 @@ sub walk_exec {
 sub sequence {
     my($op) = @_;
     my $oldop = 0;
-    return if class($op) eq "NULL" or exists $sequence_num{$$op};
+    return if B::class($op) eq "NULL" or exists $sequence_num{$$op};
     for (; $$op; $op = $op->next) {
 	last if exists $sequence_num{$$op};
 	my $name = $op->name;
 	$sequence_num{$$op} = $seq_max++;
-	if (class($op) eq "LOGOP") {
+	if (B::class($op) eq "LOGOP") {
 	    sequence($op->other);
-	} elsif (class($op) eq "LOOP") {
+	} elsif (B::class($op) eq "LOOP") {
 	    sequence($op->redoop);
 	    sequence( $op->nextop);
 	    sequence($op->lastop);
@@ -699,7 +699,7 @@ sub private_flags {
 
 sub concise_sv {
     my($sv, $hr, $preferpv) = @_;
-    $hr->{svclass} = class($sv);
+    $hr->{svclass} = B::class($sv);
     $hr->{svclass} = "UV"
       if $hr->{svclass} eq "IV" and $sv->FLAGS & SVf_IVisUV;
     Carp::cluck("bad concise_sv: $sv") unless $sv and $$sv;
@@ -707,7 +707,7 @@ sub concise_sv {
     if ($hr->{svclass} eq "GV" && $sv->isGV_with_GP()) {
 	my $gv = $sv;
 	my $stash = $gv->STASH;
-	if (class($stash) eq "SPECIAL") {
+	if (B::class($stash) eq "SPECIAL") {
 	    $stash = "<none>";
 	}
 	else {
@@ -728,28 +728,28 @@ sub concise_sv {
               return "*" . $sv->RV->NAME_HEK;
         }
 	if ($] >= 5.011) {
-	    while (class($sv) eq "IV" && $sv->FLAGS & SVf_ROK) {
+	    while (B::class($sv) eq "IV" && $sv->FLAGS & SVf_ROK) {
 		$hr->{svval} .= "\\";
 		$sv = $sv->RV;
 	    }
 	} else {
-	    while (class($sv) eq "RV") {
+	    while (B::class($sv) eq "RV") {
 		$hr->{svval} .= "\\";
 		$sv = $sv->RV;
 	    }
 	}
-	if (class($sv) eq "SPECIAL") {
+	if (B::class($sv) eq "SPECIAL") {
 	    $hr->{svval} .= ["Null", "sv_undef", "sv_yes", "sv_no"]->[$$sv];
 	} elsif ($preferpv
-	      && ($sv->FLAGS & SVf_POK || class($sv) eq "REGEXP")) {
+	      && ($sv->FLAGS & SVf_POK || B::class($sv) eq "REGEXP")) {
 	    $hr->{svval} .= cstring($sv->PV);
 	} elsif ($sv->FLAGS & SVf_NOK) {
 	    $hr->{svval} .= $sv->NV;
 	} elsif ($sv->FLAGS & SVf_IOK) {
 	    $hr->{svval} .= $sv->int_value;
-	} elsif ($sv->FLAGS & SVf_POK || class($sv) eq "REGEXP") {
+	} elsif ($sv->FLAGS & SVf_POK || B::class($sv) eq "REGEXP") {
 	    $hr->{svval} .= cstring($sv->PV);
-	} elsif (class($sv) eq "HV") {
+	} elsif (B::class($sv) eq "HV") {
 	    $hr->{svval} .= 'HASH';
 	}
 
@@ -792,14 +792,14 @@ sub padname {
 
     my ($targarg, $targarglife);
     my $padname = (($curcv->PADLIST->ARRAY)[0]->ARRAY)[$targ];
-    if (defined $padname and class($padname) ne "SPECIAL" and
+    if (defined $padname and B::class($padname) ne "SPECIAL" and
         $padname->LEN)
     {
         $targarg  = $padname->PVX;
         my $targtype = '';
-        if (class($padname->TYPE) ne 'SPECIAL') {
-          $targtype = ":".$padname->TYPE->NAME;
-          $targtype =~ s/^:main::/:/;
+        if (B::class($padname->TYPE) ne 'SPECIAL') {
+            $targtype = ":".$padname->TYPE->NAME;
+            $targtype =~ s/^:main::/:/;
         }
         if ($padname->FLAGS & SVf_FAKE) {
             # These changes relate to the jumbo closure fix.
@@ -832,7 +832,7 @@ sub concise_op {
     my %h;
     $h{exname} = $h{name} = $op->name;
     $h{NAME} = uc $h{name};
-    $h{class} = class($op);
+    $h{class} = B::class($op);
     $h{extarg} = $h{targ} = $op->targ;
     $h{extarg} = "" unless $h{extarg};
     $h{privval} = $op->private;
@@ -878,7 +878,7 @@ sub concise_op {
 	    $precomp = "";
 	}
 	if ($op->name eq 'subst') {
-	    if (class($op->pmreplstart) ne "NULL") {
+	    if (B::class($op->pmreplstart) ne "NULL") {
 		undef $lastnext;
 		$extra = " replstart->" . seq($op->pmreplstart);
 	    }
@@ -983,7 +983,7 @@ sub concise_op {
     $h{opt} = $op->opt;
     $h{label} = $labels{$$op};
     $h{next} = $op->next;
-    $h{next} = (class($h{next}) eq "NULL") ? "(end)" : seq($h{next});
+    $h{next} = (B::class($h{next}) eq "NULL") ? "(end)" : seq($h{next});
     $h{nextaddr} = sprintf("%#x", $ {$op->next});
     $h{sibaddr} = sprintf("%#x", $ {$op->sibling});
     $h{firstaddr} = sprintf("%#x", $ {$op->first}) if $op->can("first");
@@ -1009,7 +1009,7 @@ sub B::OP::concise {
     my($op, $level) = @_;
     if ($order eq "exec" and $lastnext and $$lastnext != $$op) {
 	# insert a 'goto' line
-	my $synth = {"seq" => seq($lastnext), "class" => class($lastnext),
+	my $synth = {"seq" => seq($lastnext), "class" => B::class($lastnext),
 		     "addr" => sprintf("%#x", $$lastnext),
 		     "goto" => seq($lastnext), # simplify goto '-' removal
 	     };
@@ -1036,7 +1036,7 @@ sub b_terse {
 
     if ($order eq "exec" and $lastnext and $$lastnext != $$op) {
 	# insert a 'goto'
-	my $h = {"seq" => seq($lastnext), "class" => class($lastnext),
+	my $h = {"seq" => seq($lastnext), "class" => B::class($lastnext),
 		 "addr" => sprintf("%#x", $$lastnext)};
 	print # $walkHandle
 	    fmt_line($h, $op, $style{"terse"}[1], $level+1);

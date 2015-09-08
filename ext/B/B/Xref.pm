@@ -1,6 +1,6 @@
 package B::Xref;
 
-our $VERSION = '1.06';
+our $VERSION = '1.06_01';
 
 =head1 NAME
 
@@ -142,7 +142,7 @@ Malcolm Beattie, mbeattie@sable.ox.ac.uk.
 
 use strict;
 use Config;
-use B qw(peekop class comppadlist main_start svref_2object walksymtable
+use B qw(peekop comppadlist main_start svref_2object walksymtable
          OPpLVAL_INTRO SVf_POK OPpOUR_INTRO cstring
         );
 
@@ -192,12 +192,12 @@ sub load_pad {
     my $padlist = shift;
     my ($namelistav, $vallistav, @namelist, $ix);
     @pad = ();
-    return if class($padlist) =~ '^(?:SPECIAL|NULL)\z';
+    return if B::class($padlist) =~ '^(?:SPECIAL|NULL)\z';
     ($namelistav,$vallistav) = $padlist->ARRAY;
     @namelist = $namelistav->ARRAY;
     for ($ix = 1; $ix < @namelist; $ix++) {
 	my $namesv = $namelist[$ix];
-	next if class($namesv) eq "SPECIAL";
+	next if B::class($namesv) eq "SPECIAL";
 	my ($type, $name) = $namesv->PV =~ /^(.)([^\0]*)(\0.*)?$/;
 	$pad[$ix] = ["(lexical)", $type || '?', $name || '?'];
     }
@@ -206,8 +206,8 @@ sub load_pad {
 	@vallist = $vallistav->ARRAY;
 	for ($ix = 1; $ix < @vallist; $ix++) {
 	    my $valsv = $vallist[$ix];
-	    next unless class($valsv) eq "GV";
-            next if class($valsv->STASH) eq 'SPECIAL';
+	    next unless B::class($valsv) eq "GV";
+            next if B::class($valsv->STASH) eq 'SPECIAL';
 	    # these pad GVs don't have corresponding names, so same @pad
 	    # array can be used without collisions
 	    $pad[$ix] = [$valsv->STASH->NAME, "*", $valsv->NAME];
@@ -342,7 +342,7 @@ sub pp_const {
     # constant could be in the pad (under useithreads)
     if ($$sv) {
 	$top = ["?", "",
-		(class($sv) ne "SPECIAL" && $sv->FLAGS & SVf_POK)
+		(B::class($sv) ne "SPECIAL" && $sv->FLAGS & SVf_POK)
 		? cstring($sv->PV) : "?"];
     }
     else {
