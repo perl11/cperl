@@ -24,7 +24,7 @@ require Exporter;
 # walkoptree comes from B.xs
 
 push @B::EXPORT_OK, (qw(minus_c ppname save_BEGINs
-			class peekop cast_I32 cstring cchar hash threadsv_names
+		        peekop cast_I32 cstring cchar hash threadsv_names
 			main_root main_start main_cv svref_2object opnumber
 			sub_generation amagic_generation perlstring
 			walkoptree_slow walkoptree walkoptree_exec walksymtable
@@ -144,7 +144,7 @@ sub parents { \@parents }
 # For debugging
 sub peekop {
     my $op = shift;
-    return sprintf("%s (0x%x) %s", class($op), $$op, $op->name);
+    return sprintf("%s (0x%x) %s", B::class($op), $$op, $op->name);
 }
 
 sub walkoptree_slow {
@@ -161,7 +161,7 @@ sub walkoptree_slow {
 	}
 	shift @parents;
     }
-    if (class($op) eq 'PMOP'
+    if (B::class($op) eq 'PMOP'
 	&& ref($op->pmreplroot)
 	&& ${$op->pmreplroot}
 	&& $op->pmreplroot->isa( 'B::OP' ))
@@ -211,7 +211,7 @@ sub walkoptree_exec {
 	    print $prefix, "goto $sym\n";
 	    return;
 	}
-	savesym($op, sprintf("%s (0x%lx)", class($op), $$op));
+	savesym($op, sprintf("%s (0x%lx)", B::class($op), $$op));
 	$op->$method($level);
 	$ppname = $op->name;
 	if ($ppname =~

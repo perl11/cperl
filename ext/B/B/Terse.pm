@@ -1,9 +1,9 @@
 package B::Terse;
 
-our $VERSION = '1.07';
+our $VERSION = '1.07_01';
 
 use strict;
-use B qw(class @specialsv_name);
+use B ();
 use B::Concise qw(concise_subref set_style_standard);
 use Carp;
 
@@ -51,7 +51,7 @@ sub B::SV::terse {
 
 sub B::NULL::terse {
     my ($sv, $level) = (@_, 0);
-    my $s = indent($level) . sprintf "%s (0x%lx)", class($sv), $$sv;
+    my $s = indent($level) . sprintf "%s (0x%lx)", B::class($sv), $$sv;
     print "$s\n" unless defined wantarray;
     $s;
 }
@@ -59,7 +59,7 @@ sub B::NULL::terse {
 sub B::SPECIAL::terse {
     my ($sv, $level) = (@_, 0);
     my $s = indent($level)
-	. sprintf( "%s #%d %s", class($sv), $$sv, $specialsv_name[$$sv]);
+	. sprintf( "%s #%d %s", B::class($sv), $$sv, $B::specialsv_name[$$sv]);
     print "$s\n" unless defined wantarray;
     $s;
 }

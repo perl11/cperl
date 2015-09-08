@@ -9,7 +9,7 @@
 
 package B::Deparse;
 use Carp;
-use B qw(class main_root main_start main_cv svref_2object opnumber perlstring
+use B qw(main_root main_start main_cv svref_2object opnumber perlstring
 	 OPf_WANT OPf_WANT_VOID OPf_WANT_SCALAR OPf_WANT_LIST
 	 OPf_KIDS OPf_REF OPf_STACKED OPf_SPECIAL OPf_MOD OPf_PARENS
 	 OPpLVAL_INTRO OPpOUR_INTRO OPpENTERSUB_AMPER OPpSLICE OPpCONST_BARE
@@ -438,7 +438,7 @@ sub _pessimise_walk {
 
 	# pessimisations end here
 
-	if (class($op) eq 'PMOP'
+	if (B::class($op) eq 'PMOP'
 	    && ref($op->pmreplroot)
 	    && ${$op->pmreplroot}
 	    && $op->pmreplroot->isa( 'B::OP' ))
@@ -509,7 +509,7 @@ sub pessimise {
 
 sub null {
     my $op = shift;
-    return class($op) eq "NULL";
+    return B::class($op) eq "NULL";
 }
 
 
@@ -607,7 +607,7 @@ sub next_todo {
 	}
 	my $p = '';
 	my $stash;
-	if (class($cv->STASH) ne "SPECIAL") {
+	if (B::class($cv->STASH) ne "SPECIAL") {
 	    $stash = $cv->STASH->NAME;
 	    if ($stash ne $self->{'curstash'}) {
 		$p = $self->keyword("package") . " $stash;\n";
@@ -666,7 +666,7 @@ sub begin_is_use {
 
     my $version;
     my $version_op = $req_op->sibling;
-    return if class($version_op) eq "NULL";
+    return if B::class($version_op) eq "NULL";
     if ($version_op->name eq "lineseq") {
 	# We have a version parameter; skip nextstate & pushmark
 	my $constop = $version_op->first->next->next;
@@ -674,11 +674,11 @@ sub begin_is_use {
 	return unless $self->const_sv($constop)->PV eq $module;
 	$constop = $constop->sibling;
 	$version = $self->const_sv($constop);
-	if (class($version) eq "IV") {
+	if (B::class($version) eq "IV") {
 	    $version = $version->int_value;
-	} elsif (class($version) eq "NV") {
+	} elsif (B::class($version) eq "NV") {
 	    $version = $version->NV;
-	} elsif (class($version) ne "PVMG") {
+	} elsif (B::class($version) ne "PVMG") {
 	    # Includes PVIV and PVNV
 	    $version = $version->PV;
 	} else {
@@ -770,7 +770,7 @@ sub stash_subs {
 	    # want to dump it.  The only way to distinguish these seems
 	    # to be the SVs_PADTMP flag on the constant, which is admit-
 	    # tedly a hack.
-	    my $class = class(my $referent = $val->RV);
+	    my $class = B::class(my $referent = $val->RV);
 	    if ($class eq "CV") {
 		$self->todo($referent, 0);
 	    } elsif (
@@ -787,25 +787,25 @@ sub stash_subs {
 	    # to find out if it belongs here is to see if the AUTOLOAD
 	    # (if any) for the stash was defined in one of our files.
 	    my $A = $stash{"AUTOLOAD"};
-	    if (defined ($A) && class($A) eq "GV" && defined($A->CV)
-		&& class($A->CV) eq "CV") {
+	    if (defined ($A) && B::class($A) eq "GV" && defined($A->CV)
+		&& B::class($A->CV) eq "CV") {
 		my $AF = $A->FILE;
 		next unless $AF eq $0 || exists $self->{'files'}{$AF};
 	    }
 	    push @{$self->{'protos_todo'}},
 		 [$pack . $key, $flags & SVf_POK ? $val->PV: undef];
-	} elsif (class($val) eq "GV") {
-	    if (class(my $cv = $val->CV) ne "SPECIAL") {
+	} elsif (B::class($val) eq "GV") {
+	    if (B::class(my $cv = $val->CV) ne "SPECIAL") {
 		next if $self->{'subs_done'}{$$val}++;
 		next if $$val != ${$cv->GV};   # Ignore imposters
 		$self->todo($cv, 0);
 	    }
-	    if (class(my $cv = $val->FORM) ne "SPECIAL") {
+	    if (B::class(my $cv = $val->FORM) ne "SPECIAL") {
 		next if $self->{'forms_done'}{$$val}++;
 		next if $$val != ${$cv->GV};   # Ignore imposters
 		$self->todo($cv, 1);
 	    }
-	    if (class($val->HV) ne "SPECIAL" && $key =~ /::$/) {
+	    if (B::class($val->HV) ne "SPECIAL" && $key =~ /::$/) {
 		$self->stash_subs($pack . $key, $seen);
 	    }
 	}
@@ -985,7 +985,7 @@ sub compile {
 	     and ($kid = $root->first)->name eq 'enter'
 	     and !null($kid = $kid->sibling) and $kid->name eq 'stub'
 	     and !null($kid = $kid->sibling) and $kid->name eq 'null'
-	     and class($kid) eq 'COP' and null $kid->sibling )
+	     and B::class($kid) eq 'COP' and null $kid->sibling )
 	    {
 		# ignore
 	    } else {
@@ -1146,7 +1146,7 @@ sub deparse {
     my($op, $cx) = @_;
 
     Carp::confess("Null op in deparse") if !defined($op)
-					|| class($op) eq "NULL";
+					|| B::class($op) eq "NULL";
     my $meth = "pp_" . $op->name;
     return $self->$meth($op, $cx);
 }
@@ -1194,7 +1194,7 @@ sub pad_subs {
     my @todo;
   PADENTRY:
     for my $ix (0.. $#names) { for $_ ($names[$ix]) {
-	next if class($_) eq "SPECIAL";
+	next if B::class($_) eq "SPECIAL";
 	my $name = $_->PVX;
 	if (defined $name && $name =~ /^&./) {
 	    my $low = $_->COP_SEQ_RANGE_LOW;
@@ -1209,14 +1209,14 @@ sub pad_subs {
 	    my $protocv = $flags & SVpad_STATE
 		? $values[$ix]
 		: $_->PROTOCV;
-	    if (class ($protocv) ne 'CV') {
+	    if (B::class ($protocv) ne 'CV') {
 		my $flags = $flags;
 		my $cv = $cv;
 		my $name = $_;
-		while ($flags & PADNAMEt_OUTER && class ($protocv) ne 'CV')
+		while ($flags & PADNAMEt_OUTER && B::class ($protocv) ne 'CV')
 		{
 		    $cv = $cv->OUTSIDE;
-		    next PADENTRY if class($cv) eq 'SPECIAL'; # XXX freed?
+		    next PADENTRY if B::class($cv) eq 'SPECIAL'; # XXX freed?
 		    my $padlist = $cv->PADLIST;
 		    next PADENTRY if ref $padlist eq 'B::NULL';
 		    my $ix = $name->PARENT_PAD_INDEX;
@@ -1492,7 +1492,7 @@ sub is_scope {
     my $op = shift;
     return $op->name eq "leave" || $op->name eq "scope"
       || $op->name eq "lineseq"
-	|| ($op->name eq "null" && class($op) eq "UNOP"
+	|| ($op->name eq "null" && B::class($op) eq "UNOP"
 	    && (is_scope($op->first) || $op->first->name eq "enter"));
 }
 
@@ -1504,7 +1504,7 @@ sub is_state {
 sub is_miniwhile { # check for one-line loop ('foo() while $y--')
     my $op = shift;
     return (!null($op) and null($op->sibling)
-	    and $op->name eq "null" and class($op) eq "UNOP"
+	    and $op->name eq "null" and B::class($op) eq "UNOP"
 	    and (($op->first->name =~ /^(and|or)$/
 		  and $op->first->first->sibling->name eq "lineseq")
 		 or ($op->first->name eq "lineseq"
@@ -2000,16 +2000,16 @@ sub lex_in_scope {
 
 sub populate_curcvlex {
     my $self = shift;
-    for (my $cv = $self->{'curcv'}; class($cv) eq "CV"; $cv = $cv->OUTSIDE) {
+    for (my $cv = $self->{'curcv'}; B::class($cv) eq "CV"; $cv = $cv->OUTSIDE) {
 	my $padlist = $cv->PADLIST;
 	# an undef CV still in lexical chain
-	next if class($padlist) eq "SPECIAL";
+	next if B::class($padlist) eq "SPECIAL";
 	my @padlist = $padlist->ARRAY;
 	my @ns = $padlist[0]->ARRAY;
 
 	for (my $i=0; $i<@ns; ++$i) {
-	    next if class($ns[$i]) eq "SPECIAL";
-	    if (class($ns[$i]) eq "PV") {
+	    next if B::class($ns[$i]) eq "SPECIAL";
+	    if (B::class($ns[$i]) eq "PV") {
 		# Probably that pesky lexical @_
 		next;
 	    }
@@ -2068,7 +2068,7 @@ sub cop_subs {
     if ($] < 5.021006) {
       # If we have nephews, then our sequence number indicates
       # the cop_seq of the end of some sort of scope.
-      if (class($op->sibling) ne "NULL" && $op->sibling->flags & OPf_KIDS
+      if (B::class($op->sibling) ne "NULL" && $op->sibling->flags & OPf_KIDS
 	and my $nseq = $self->find_scope_st($op->sibling) ) {
 	$seq = $nseq;
       }
@@ -2880,11 +2880,11 @@ sub pp_fc { dq_unop(@_, "fc") }
 sub loopex {
     my $self = shift;
     my ($op, $cx, $name) = @_;
-    if (class($op) eq "PVOP") {
+    if (B::class($op) eq "PVOP") {
 	$name .= " " . $op->pv;
-    } elsif (class($op) eq "OP") {
+    } elsif (B::class($op) eq "OP") {
 	# no-op
-    } elsif (class($op) eq "UNOP") {
+    } elsif (B::class($op) eq "UNOP") {
 	(my $kid = $self->deparse($op->first, 7)) =~ s/^\cS//;
 	# last foo() is a syntax error.
 	$kid =~ /^(?!\d)\w/ and $kid = "($kid)";
@@ -2902,7 +2902,7 @@ sub pp_dump { loopex(@_, "CORE::dump") }
 sub ftst {
     my $self = shift;
     my($op, $cx, $name) = @_;
-    if (class($op) eq "UNOP") {
+    if (B::class($op) eq "UNOP") {
 	# Genuine '-X' filetests are exempt from the LLAFR, but not
 	# l?stat()
 	if ($name =~ /^-/) {
@@ -2910,7 +2910,7 @@ sub ftst {
 	    return $self->maybe_parens("$name $kid", $cx, 16);
 	}
 	return $self->maybe_parens_unop($name, $op->first, $cx);
-    } elsif (class($op) =~ /^(SV|PAD)OP$/) {
+    } elsif (B::class($op) =~ /^(SV|PAD)OP$/) {
 	return $self->maybe_parens_func($name, $self->pp_gv($op, 1), $cx, 16);
     } else { # I don't think baseop filetests ever survive ck_ftst, but...
 	return $name;
@@ -2960,7 +2960,7 @@ sub assoc_class {
 	# avoid spurious '=' -- see comment in pp_concat
 	return "concat";
     }
-    if ($name eq "null" and class($op) eq "UNOP"
+    if ($name eq "null" and B::class($op) eq "UNOP"
 	and $op->first->name =~ /^(and|x?or)$/
 	and null $op->first->sibling)
     {
@@ -3571,7 +3571,7 @@ sub pp_list {
     my($op, $cx) = @_;
     my($expr, @exprs);
     my $kid = $op->first->sibling; # skip pushmark
-    return '' if class($kid) eq 'NULL';
+    return '' if B::class($kid) eq 'NULL';
     my $lop;
     my $local = "either"; # could be local(...), my(...), state(...) or our(...)
     my $type;
@@ -3593,7 +3593,7 @@ sub pp_list {
 	    }
 	} elsif ($lopname =~ /^(?:gv|rv2)([ash])v$/
 			&& $loppriv & OPpOUR_INTRO
-		or $lopname eq "null" && class($lop) eq 'UNOP'
+		or $lopname eq "null" && B::class($lop) eq 'UNOP'
 			&& $lop->first->name eq "gvsv"
 			&& $lop->first->private & OPpOUR_INTRO) { # our()
 	    my $newlocal = "local " x !!($loppriv & OPpLVAL_INTRO) . "our";
@@ -3632,7 +3632,7 @@ sub pp_list {
     return $self->deparse($kid, $cx) if null $kid->sibling and not $local;
     for (; !null($kid); $kid = $kid->sibling) {
 	if ($local) {
-	    if (class($kid) eq "UNOP" and $kid->first->name eq "gvsv") {
+	    if (B::class($kid) eq "UNOP" and $kid->first->name eq "gvsv") {
 		$lop = $kid->first;
 	    } else {
 		$lop = $kid;
@@ -3654,7 +3654,7 @@ sub pp_list {
 
 sub is_ifelse_cont {
     my $op = shift;
-    return ($op->name eq "null" and class($op) eq "UNOP"
+    return ($op->name eq "null" and B::class($op) eq "UNOP"
 	    and $op->first->name =~ /^(and|cond_expr)$/
 	    and is_scope($op->first->first->sibling));
 }
@@ -3862,10 +3862,10 @@ sub _op_is_or_was {
 
 sub pp_null {
     my($self, $op, $cx) = @_;
-    if (class($op) eq "OP") {
+    if (B::class($op) eq "OP") {
 	# old value is lost
 	return $self->{'ex_const'} if $op->targ == OP_CONST;
-    } elsif (class ($op) eq "COP") {
+    } elsif (B::class ($op) eq "COP") {
 	    return &pp_nextstate;
     } elsif ($op->first->name eq 'pushmark'
              or $op->first->name eq 'null'
@@ -3905,7 +3905,7 @@ sub pp_null {
 	     . " {\n\t". $self->deparse($op->first, $cx) ."\n\b};";
     } elsif (!null($op->first->sibling) and
 	     $op->first->sibling->name eq "null" and
-	     class($op->first->sibling) eq "UNOP" and
+	     B::class($op->first->sibling) eq "UNOP" and
 	     $op->first->sibling->first->flags & OPf_STACKED and
 	     $op->first->sibling->first->name eq "rcatline") {
 	return $self->maybe_parens($self->deparse($op->first, 18) . " .= "
@@ -3943,9 +3943,9 @@ sub pp_padhv { pp_padsv(@_) }
 sub gv_or_padgv {
     my $self = shift;
     my $op = shift;
-    if (class($op) eq "PADOP") {
+    if (B::class($op) eq "PADOP") {
 	return $self->padval($op->padix);
-    } else { # class($op) eq "SVOP"
+    } else { # B::class($op) eq "SVOP"
 	return $op->gv;
     }
 }
@@ -4004,7 +4004,7 @@ sub rv2x {
     my $self = shift;
     my($op, $cx, $type) = @_;
 
-    if (class($op) eq 'NULL' || !$op->can("first")) {
+    if (B::class($op) eq 'NULL' || !$op->can("first")) {
 	carp("Unexpected op in pp_rv2x");
 	return 'XXX';
     }
@@ -4368,7 +4368,7 @@ sub slice {
     my ($op, $cx, $left, $right, $regname, $padname) = @_;
     my $last;
     my(@elems, $kid, $array, $list);
-    if (class($op) eq "LISTOP") {
+    if (B::class($op) eq "LISTOP") {
 	$last = $op->last;
     } else { # ex-hslice inside delete()
 	for ($kid = $op->first; !null $kid->sibling; $kid = $kid->sibling) {}
@@ -4564,11 +4564,11 @@ sub check_proto {
 		    !null($real = $arg->first) and
 		    ($chr =~ /\$/ && is_scalar($real->first)
 		     or ($chr =~ /@/
-			 && class($real->first->sibling) ne 'NULL'
+			 && B::class($real->first->sibling) ne 'NULL'
 			 && $real->first->sibling->name
 			 =~ /^(rv2|pad)av$/)
 		     or ($chr =~ /%/
-			 && class($real->first->sibling) ne 'NULL'
+			 && B::class($real->first->sibling) ne 'NULL'
 			 && $real->first->sibling->name
 			 =~ /^(rv2|pad)hv$/)
 		     #or ($chr =~ /&/ # This doesn't work
@@ -4663,8 +4663,8 @@ sub pp_entersub {
     } elsif ($kid->first->name eq "gv") {
 	my $gv = $self->gv_or_padgv($kid->first);
 	my $cv;
-	if (class($gv) eq 'GV' && class($cv = $gv->CV) ne "SPECIAL"
-	 || $gv->FLAGS & SVf_ROK && class($cv = $gv->RV) eq 'CV') {
+	if (B::class($gv) eq 'GV' && B::class($cv = $gv->CV) ne "SPECIAL"
+	 || $gv->FLAGS & SVf_ROK && B::class($cv = $gv->RV) eq 'CV') {
 	    $proto = $cv->PV if $cv->FLAGS & SVf_POK;
 	}
 	$simple = 1; # only calls of named functions can be prototyped
@@ -4966,12 +4966,12 @@ sub const {
     if ($self->{'use_dumper'}) {
 	return $self->const_dumper($sv, $cx);
     }
-    if (class($sv) eq "SPECIAL") {
+    if (B::class($sv) eq "SPECIAL") {
 	# sv_undef, sv_yes, sv_no
 	return $$sv == 3 ? $self->maybe_parens("!1", $cx, 21)
 			 : ('undef', '1')[$$sv-1];
     }
-    if (class($sv) eq "NULL") {
+    if (B::class($sv) eq "NULL") {
        return 'undef';
     }
     # convert a version object into the "v1.2.3" string in its V magic
@@ -5034,7 +5034,7 @@ sub const {
 	return $str;
     } elsif ($sv->FLAGS & SVf_ROK && $sv->can("RV")) {
 	my $ref = $sv->RV;
-	my $class = class($ref);
+	my $class = B::class($ref);
 	if ($class eq "AV") {
 	    return "[" . $self->list_const(2, $ref->ARRAY) . "]";
 	} elsif ($class eq "HV") {
@@ -5454,14 +5454,14 @@ sub pp_trans {
     my $self = shift;
     my($op, $cx, $morflags) = @_;
     my($from, $to);
-    my $class = class($op);
+    my $class = B::class($op);
     my $priv_flags = $op->private;
     if ($class eq "PVOP") {
 	($from, $to) = tr_decode_byte($op->pv, $priv_flags);
     } elsif ($class eq "PADOP") {
 	($from, $to)
 	  = tr_decode_utf8($self->padval($op->padix)->RV, $priv_flags);
-    } else { # class($op) eq "SVOP"
+    } else { # B::class($op) eq "SVOP"
 	($from, $to) = tr_decode_utf8($op->sv->RV, $priv_flags);
     }
     my $flags = "";

@@ -1,9 +1,9 @@
 package B::Showlex;
 
-our $VERSION = '1.05';
+our $VERSION = '1.05_01';
 
 use strict;
-use B qw(svref_2object comppadlist class);
+use B qw(svref_2object comppadlist);
 use B::Terse ();
 use B::Concise ();
 
@@ -35,7 +35,7 @@ sub shownamearray {
     print $walkHandle "$name has $count entries\n";
     for ($i = 0; $i < $count; $i++) {
 	my $sv = $els[$i];
-	if (class($sv) ne "SPECIAL") {
+	if (B::class($sv) ne "SPECIAL") {
 	    printf $walkHandle "$i: (0x%lx) %s\n",
 				$$sv, $sv->PVX // "undef" || "const";
 	} else {
@@ -67,7 +67,7 @@ my ($newlex, $nosp1); # rendering state vars
 
 sub padname_terse {
     my $name = shift;
-    return $name->terse if class($name) eq 'SPECIAL';
+    return $name->terse if B::class($name) eq 'SPECIAL';
     my $str = $name->PVX;
     return sprintf "(0x%lx) %s",
 	       $$name,
@@ -85,7 +85,7 @@ sub newlex { # drop-in for showlex
 	printf $walkHandle "$i: %s = %s\n", padname_terse($names[$i]),
 					    $vals[$i]->terse,
 	    unless $nosp1
-	       and class($names[$i]) eq 'SPECIAL' || !$names[$i]->LEN;
+	       and B::class($names[$i]) eq 'SPECIAL' || !$names[$i]->LEN;
     }
 }
 
