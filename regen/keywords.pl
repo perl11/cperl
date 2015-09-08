@@ -104,6 +104,7 @@ read_only_bottom_close_and_rename($_, [$0]) foreach $c, $h;
 
 # coresub_op in op.c expects __FILE__, __LINE__ and __PACKAGE__ to be the
 # first three.
+# my, our, state need to fit into a U8, as they are stored in parser->in_my
 
 __END__
 
@@ -114,6 +115,9 @@ __END__
 +__DATA__
 +__END__
 -__SUB__
++my
++our
++state
 +AUTOLOAD
 +BEGIN
 +UNITCHECK
@@ -243,7 +247,6 @@ __END__
 -msgrcv
 -msgsnd
 +multi
-+my
 -ne
 +next
 +no
@@ -253,7 +256,6 @@ __END__
 -opendir
 -or
 -ord
-+our
 -pack
 +package
 -pipe
@@ -322,7 +324,6 @@ __END__
 -sqrt
 -srand
 -stat
-+state
 +study
 +sub
 -substr

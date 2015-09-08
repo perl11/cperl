@@ -2,6 +2,7 @@
  *
  *    Copyright (C) 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
  *    2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by Larry Wall and others
+ *    Copyright (C) 2015 by cPanel Inc
  *
  *    You may distribute under the terms of either the GNU General Public
  *    License or the Artistic License, as specified in the README file.
@@ -86,6 +87,8 @@ Individual members of C<PL_parser> have their own documentation.
 #define PL_rsfp_filters		(PL_parser->rsfp_filters)
 #define PL_in_my		(PL_parser->in_my)
 #define PL_in_my_stash		(PL_parser->in_my_stash)
+#define PL_in_class		(PL_parser->in_class)
+#define PL_in_pod		(PL_parser->in_pod)
 #define PL_tokenbuf		(PL_parser->tokenbuf)
 #define PL_multi_end		(PL_parser->multi_end)
 #define PL_error_count		(PL_parser->error_count)
@@ -883,7 +886,7 @@ Perl_lex_start(pTHX_ SV *line, PerlIO *rsfp, U32 flags)
     parser->lex_flags = (U8) (flags & (LEX_IGNORE_UTF8_HINTS|LEX_EVALBYTES
                                                         |LEX_DONT_CLOSE_RSFP));
 
-    parser->in_pod = parser->filtered = 0;
+    PL_in_pod = parser->filtered = 0;
 }
 
 
@@ -1478,7 +1481,7 @@ Perl_lex_next_chunk(pTHX_ U32 flags)
 	else if (PL_parser->rsfp)
 	    (void)PerlIO_close(PL_parser->rsfp);
 	PL_parser->rsfp = NULL;
-	PL_parser->in_pod = PL_parser->filtered = 0;
+	PL_in_pod = PL_parser->filtered = 0;
 	if (!PL_in_eval && PL_minus_p) {
 	    sv_catpvs(linestr,
 		/*{*/";}continue{print or die qq(-p destination: $!\\n);}");
@@ -5469,19 +5472,19 @@ Perl_yylex(pTHX)
 		    s = swallow_bom((U8*)s);
 		}
 	    }
-	    if (PL_parser->in_pod) {
+	    if (PL_in_pod) {
 		/* Incest with pod. */
 		if (*s == '=' && memEQc(s, "=cut") && !isALPHA(s[4])) {
                     SvPVCLEAR(PL_linestr);
 		    PL_oldoldbufptr = PL_oldbufptr = s = PL_linestart = SvPVX(PL_linestr);
 		    PL_bufend = SvPVX(PL_linestr) + SvCUR(PL_linestr);
 		    PL_last_lop = PL_last_uni = NULL;
-		    PL_parser->in_pod = 0;
+		    PL_in_pod = 0;
 		}
 	    }
 	    if (PL_rsfp || PL_parser->filtered)
 		incline(s);
-	} while (PL_parser->in_pod);
+	} while (PL_in_pod);
 	PL_oldoldbufptr = PL_oldbufptr = PL_bufptr = PL_linestart = s;
 	PL_bufend = SvPVX(PL_linestr) + SvCUR(PL_linestr);
 	PL_last_lop = PL_last_uni = NULL;
@@ -6206,14 +6209,14 @@ Perl_yylex(pTHX)
                                     sv_free(sv);
                                     CvLVALUE_on(PL_compcv);
                                 }
+                                else if (memEQc(pv, "method")) {
+                                    sv_free(sv);
+                                    CvMETHOD_on(PL_compcv);
+                                }
                                 else if (memEQc(pv, "locked")) {
                                     sv_free(sv);
                                     deprecate_disappears_in("5.28",
                                         "Attribute \"locked\" is deprecated");
-                                }
-                                else if (memEQc(pv, "method")) {
-                                    sv_free(sv);
-                                    CvMETHOD_on(PL_compcv);
                                 }
                                 /* Scalar */
                                 else if (!find_in_coretypes(pv, len))
@@ -6755,7 +6758,7 @@ Perl_yylex(pTHX)
                     goto retry;
                 }
                 s = PL_bufend;
-                PL_parser->in_pod = 1;
+                PL_in_pod = 1;
                 goto retry;
             }
 	}
@@ -8591,6 +8594,7 @@ Perl_yylex(pTHX)
 	                           PL_in_my == KEY_my    ? "my" :
 	                           PL_in_my == KEY_state ? "state" : "our"));
 	    }
+            assert(tmp < 65536); /* max U16 */
 	    PL_in_my = (U16)tmp;
 	    s = skipspace(s);
             if (isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
@@ -8707,12 +8711,16 @@ Perl_yylex(pTHX)
 	    LOP(OP_PACK,XTERM);
 
 	case KEY_class:
+            if (PL_in_class) goto just_a_word;
 	    s = force_word(s,BAREWORD,FALSE,TRUE);
 	    s = skipspace(s);
+            PL_in_class = TRUE;
 	    /*s = force_strict_version(s);*/
 	    PREBLOCK(CLASS);
 
 	case KEY_package:
+            if (PL_in_class)
+                Perl_croak(aTHX_ "Cannot nest a package into a class");
 	    s = force_word(s,BAREWORD,FALSE,TRUE);
 	    s = skipspace(s);
 	    s = force_strict_version(s);
@@ -9022,6 +9030,10 @@ Perl_yylex(pTHX)
 		bool have_name, have_proto;
 
                 SSize_t off = s - SvPVX(PL_linestr);
+                if (!PL_in_class && (tmp == KEY_multi || tmp == KEY_method))
+                    Perl_croak(aTHX_ "Can declare %s only within a class", PL_tokenbuf);
+
+		d = s;
 		s = skipspace(s);
                 d = SvPVX(PL_linestr)+off;
 
