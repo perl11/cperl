@@ -11978,6 +11978,10 @@ Perl_parse_subsignature(pTHX)
                 len = my_snprintf(tmpbuf, sizeof(tmpbuf), "No such class %.1000s", PL_tokenbuf);
                 PERL_MY_SNPRINTF_POST_GUARD(len, sizeof(tmpbuf));
                 yyerror_pv(tmpbuf, UTF ? SVf_UTF8 : 0);
+            } else {
+                PL_bufptr += len;
+                lex_read_space(0);
+                c = lex_peek_unichar(0);
             }
         }
 
