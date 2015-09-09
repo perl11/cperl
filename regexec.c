@@ -1205,10 +1205,10 @@ Perl_re_intuit_start(pTHX_
              * didn't contradict, so just retry the anchored "other"
              * substr */
             DEBUG_EXECUTE_r(PerlIO_printf(Perl_debug_log,
-                "  Found /%s^%s/m, rescanning for anchored from offset %ld (rx_origin now %"IVdf")...\n",
+                "  Found /%s^%s/m, rescanning for anchored from offset %"IVdf" (rx_origin now %"IVdf")...\n",
                 PL_colors[0], PL_colors[1],
-                (long)(rx_origin - strbeg + prog->anchored_offset),
-                (long)(rx_origin - strbeg)
+                (IV)(rx_origin - strbeg + prog->anchored_offset),
+                (IV)(rx_origin - strbeg)
             ));
             goto do_other_substr;
         }
@@ -5534,6 +5534,8 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
             /* FALLTHROUGH */
 
 	case BOUNDL:  /*  /\b/l  */
+        {
+            bool b1, b2;
             _CHECK_AND_WARN_PROBLEMATIC_LOCALE;
 
             if (FLAGS(scan) != TRADITIONAL_BOUND) {
@@ -5546,27 +5548,28 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 
 	    if (utf8_target) {
 		if (locinput == reginfo->strbeg)
-		    ln = isWORDCHAR_LC('\n');
+		    b1 = isWORDCHAR_LC('\n');
 		else {
-                    ln = isWORDCHAR_LC_utf8(reghop3((U8*)locinput, -1,
+                    b1 = isWORDCHAR_LC_utf8(reghop3((U8*)locinput, -1,
                                                         (U8*)(reginfo->strbeg)));
 		}
-                n = (NEXTCHR_IS_EOS)
+                b2 = (NEXTCHR_IS_EOS)
                     ? isWORDCHAR_LC('\n')
                     : isWORDCHAR_LC_utf8((U8*)locinput);
 	    }
 	    else { /* Here the string isn't utf8 */
-		ln = (locinput == reginfo->strbeg)
+		b1 = (locinput == reginfo->strbeg)
                      ? isWORDCHAR_LC('\n')
                      : isWORDCHAR_LC(UCHARAT(locinput - 1));
-                n = (NEXTCHR_IS_EOS)
+                b2 = (NEXTCHR_IS_EOS)
                     ? isWORDCHAR_LC('\n')
                     : isWORDCHAR_LC(nextchr);
 	    }
-            if (to_complement ^ (ln == n)) {
+            if (to_complement ^ (b1 == b2)) {
                 sayNO;
             }
 	    break;
+        }
 
 	case NBOUND:  /*  /\B/   */
             to_complement = 1;
@@ -5583,6 +5586,8 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
             /* FALLTHROUGH */
 
 	case BOUNDA:  /*  /\b/a  */
+        {
+            bool b1, b2;
 
           bound_ascii_match_only:
             /* Here the string isn't utf8, or is utf8 and only ascii characters
@@ -5594,16 +5599,17 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
              * 2) it is a multi-byte character, in which case the final byte is
              *    never mistakable for ASCII, and so the test will say it is
              *    not a word character, which is the correct answer. */
-            ln = (locinput == reginfo->strbeg)
+            b1 = (locinput == reginfo->strbeg)
                  ? isWORDCHAR_A('\n')
                  : isWORDCHAR_A(UCHARAT(locinput - 1));
-            n = (NEXTCHR_IS_EOS)
+            b2 = (NEXTCHR_IS_EOS)
                 ? isWORDCHAR_A('\n')
                 : isWORDCHAR_A(nextchr);
-            if (to_complement ^ (ln == n)) {
+            if (to_complement ^ (b1 == b2)) {
                 sayNO;
             }
 	    break;
+        }
 
 	case NBOUNDU: /*  /\B/u  */
             to_complement = 1;
@@ -5619,15 +5625,18 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
               bound_utf8:
                 switch((bound_type) FLAGS(scan)) {
                     case TRADITIONAL_BOUND:
-                        ln = (locinput == reginfo->strbeg)
+                    {
+                        bool b1, b2;
+                        b1 = (locinput == reginfo->strbeg)
                              ? 0 /* isWORDCHAR_L1('\n') */
                              : isWORDCHAR_utf8(reghop3((U8*)locinput, -1,
                                                                 (U8*)(reginfo->strbeg)));
-                        n = (NEXTCHR_IS_EOS)
+                        b2 = (NEXTCHR_IS_EOS)
                             ? 0 /* isWORDCHAR_L1('\n') */
                             : isWORDCHAR_utf8((U8*)locinput);
-                        match = cBOOL(ln != n);
+                        match = cBOOL(b1 != b2);
                         break;
+                    }
                     case GCB_BOUND:
                         if (locinput == reginfo->strbeg || NEXTCHR_IS_EOS) {
                             match = TRUE; /* GCB always matches at begin and
@@ -5689,14 +5698,17 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 	    else {  /* Not utf8 target */
                 switch((bound_type) FLAGS(scan)) {
                     case TRADITIONAL_BOUND:
-                        ln = (locinput == reginfo->strbeg)
+                    {
+                        bool b1, b2;
+                        b1 = (locinput == reginfo->strbeg)
                             ? 0 /* isWORDCHAR_L1('\n') */
                             : isWORDCHAR_L1(UCHARAT(locinput - 1));
-                        n = (NEXTCHR_IS_EOS)
+                        b2 = (NEXTCHR_IS_EOS)
                             ? 0 /* isWORDCHAR_L1('\n') */
                             : isWORDCHAR_L1(nextchr);
-                        match = cBOOL(ln != n);
+                        match = cBOOL(b1 != b2);
                         break;
+                    }
 
                     case GCB_BOUND:
                         if (locinput == reginfo->strbeg || NEXTCHR_IS_EOS) {
