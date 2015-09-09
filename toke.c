@@ -12053,7 +12053,7 @@ Perl_parse_subsignature(pTHX)
             }
             else {
                 /* scalar */
-                if (c != '=') {
+                if (c != '=' && c != '?') {
                     /* mandatory arg */
                     if (prev_type == 1)
                         qerror(Perl_mess(aTHX_ "Mandatory parameter "
@@ -12069,8 +12069,11 @@ Perl_parse_subsignature(pTHX)
                 else if (is_ref) {
 		    qerror(Perl_mess(aTHX_ "Reference parameter cannot take default value"));
 		    prev_type = 1;
-                } else {
-                    /* optional arg */
+                } else if (c == '?') { /* perl6-style optional arg: $x?, */
+                    lex_read_unichar(0);
+                    action = SIGNATURE_arg_default_none;
+                    defexpr = NULL;
+                } else {               /* perl5-style optional arg: $x = expr, */
                     lex_token_boundary();
                     lex_read_unichar(0);
                     lex_read_space(0);
@@ -12078,14 +12081,13 @@ Perl_parse_subsignature(pTHX)
                     if (c == ',' || c == /*(*/')') {
                         if (is_var)
                             qerror(Perl_mess(aTHX_ "Optional parameter "
-                                    "lacks default expression"));
+                                             "lacks default expression"));
                         action = SIGNATURE_arg_default_none;
                     } else {
                         bool free_def = FALSE;
                         defexpr = parse_termexpr(0);
-
                         if (defexpr->op_type == OP_UNDEF &&
-                                !(defexpr->op_flags & OPf_KIDS))
+                            !(defexpr->op_flags & OPf_KIDS))
                         {
                             /* optimise '$foo = undef' */
                             free_def = TRUE;
@@ -12110,8 +12112,7 @@ Perl_parse_subsignature(pTHX)
                             }
                             /* see "DELAYED DEFEXPR" comment below for
                              * why we don't optimise some some consts */
-                            else if (!defexpr_count || !SvMAGICAL(constsv))
-                            {
+                            else if (!defexpr_count || !SvMAGICAL(constsv)) {
                                 /* general (non-int) const */
 #ifdef USE_ITHREADS
                                 PADOFFSET po;
