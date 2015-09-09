@@ -9,21 +9,24 @@ print "1..8\n";
 my $test = 1;
 
 class Foo {
-  # no has syntax yet
+  # no 'has' syntax yet
   #has $.a = 0;
   my $a = 0;
   method a($v?)              { defined $v ? $a = $v : $a }
+  sub new                    { bless [], 'Foo' }
 
   method meth1               { print "ok $test\n"; $test++; $self->a + 1 }
-  multi method mul1 (Int $a) { print "ok $test\n"; $test++; $self->a * $a }
+  # quirks: just multi, not perl6-style multi method yet
+  multi mul1 (Int $a):method { print "ok $test\n"; $test++; $self->a * $a }
   # no multi decl and dispatch yet
+  #multi method mul1 (Int $a) { print "ok $test\n"; $test++; $self->a * $a }
   #multi method mul1 (Num $a) { $!a * $a; $test\n"; $test++ }
   #multi method mul1 (Str $a) { $!a . $a; $test\n"; $test++ }
 
   sub sub1 ($b)              { print "ok $test\n"; $test++; Foo->a - $b }
 }
 
-my $c=new Foo;
+my $c = new Foo;
 $c->meth1;
 $c->mul1(0);
 Foo::sub1(1);
