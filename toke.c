@@ -8541,8 +8541,13 @@ Perl_yylex(pTHX)
                         COPLINE_SET_FROM_MULTI_END;
                         if (!s)
                             Perl_croak(aTHX_ "Prototype not terminated");
+#ifdef USE_CPERL
+                        have_proto = validate_proto(PL_subname, PL_lex_stuff,
+                                                    FALSE);
+#else
                         have_proto = validate_proto(PL_subname, PL_lex_stuff,
                                                     ckWARN(WARN_ILLEGALPROTO));
+#endif
                     }
                     if (have_proto) {
                         DEBUG_T(printbuf("### Is prototype %s\n", d));
@@ -8799,7 +8804,7 @@ S_pending_ident(pTHX)
                 GCC_DIAG_RESTORE;
             }
 
-            pl_yylval.opval = newOP(OP_PADANY, 0); /* rurban 2015: this op leaks! */
+            pl_yylval.opval = newOP(OP_PADANY, 0); /* rurban 2015: this op leaks #94 */
             pl_yylval.opval->op_targ = allocmy(PL_tokenbuf, tokenbuf_len,
                                                         UTF ? SVf_UTF8 : 0);
 	    return PRIVATEREF;
@@ -9253,7 +9258,13 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni)
             : (! isGRAPH_L1( (U8) *s)
                || UNLIKELY((U8) *(s) == LATIN1_TO_NATIVE(0xAD))))
         {
-            deprecate("literal non-graphic characters in variable names");
+            /* Split messages for back compat */
+            if (isCNTRL_A( (U8) *s)) {
+                deprecate("literal control characters in variable names");
+            }
+            else {
+                deprecate("literal non-graphic characters in variable names");
+            }
         }
 
         if (is_utf8) {
@@ -12416,6 +12427,7 @@ Perl_parse_subsignature(pTHX)
                     SvPAD_TYPED_on(pn);
                     PadnameTYPE_set(pn,
                         MUTABLE_HV(SvREFCNT_inc_simple_NN(MUTABLE_SV(typestash))));
+                    typestash = NULL;
                 }
                 /* at the first pad var, or after there are too
                  * many vars for a single SAVEt_CLEARPADRANGE,
@@ -12475,8 +12487,10 @@ Perl_parse_subsignature(pTHX)
 		    prev_type = 1;
                 } else if (c == '?') { /* perl6-style optional arg: $x?, */
                     lex_read_unichar(0);
-                    action = SIGNATURE_arg_default_none;
+                    action = SIGNATURE_arg_default_undef;
                     defexpr = NULL;
+                    prev_type = 1;
+                    opt_args++;
                 } else {               /* perl5-style optional arg: $x = expr, */
                     lex_token_boundary();
                     lex_read_unichar(0);
@@ -12486,6 +12500,7 @@ Perl_parse_subsignature(pTHX)
                         if (is_var)
                             qerror(Perl_mess(aTHX_ "Optional parameter "
                                              "lacks default expression"));
+                        /* ($=) ignore with arg (for refactoring) */
                         action = SIGNATURE_arg_default_none;
                     } else {
                         bool free_def = FALSE;
@@ -12693,7 +12708,7 @@ Perl_parse_subsignature(pTHX)
 
     /* Sig parsing complete. Set param counts in items[1] */
 
-    if (mand_args + opt_args >= (1<<15))
+    if (UNLIKELY(mand_args + opt_args >= (1<<15)))
         qerror(Perl_mess(aTHX_
                     "Subroutine signature has more than %d parameters",
                     (int)((1<<15)-1) ));
@@ -12701,7 +12716,7 @@ Perl_parse_subsignature(pTHX)
         st.items[1].uv =
             (mand_args << 16) | opt_args | ((slurpy ? 1 : 0) << 15);
 
-    if (st.items_ix < st.items_size) {
+    if (LIKELY(st.items_ix < st.items_size)) {
         /* copy to new allocation of exact size */
         UNOP_AUX_item *new_items = (UNOP_AUX_item*)PerlMemShared_malloc(
                                         sizeof(UNOP_AUX_item) * st.items_ix);
