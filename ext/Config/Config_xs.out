@@ -101,6 +101,7 @@ struct Perl_Config;
 #define MAX_HASH_VALUE 10554
 /* maximum key range = 10548, duplicates = 0 */
 
+
 static unsigned int
 Config_hash (register const char *str, register unsigned int len)
 {

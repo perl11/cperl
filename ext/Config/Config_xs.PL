@@ -192,7 +192,7 @@ while (<$in>) {
         my $l = length $v;
         my $qr = "0,\"@@".$k."@@\"";
         my $new = "$l,\"$v\"";
-        s/$qr/$new/; # we have one line per key only
+        s/$qr/$new/ if $l; # we have one line per key only
         # check correct type
         my $type = t_type($v);
         # T_INT is returned for bool, skip it.
