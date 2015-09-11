@@ -6,6 +6,6 @@ read y
 git checkout master
 git pull --rebase || exit
 
-for b in `git branch | egrep 'bugfix/|feature/'`; do
+for b in `git branch | egrep 'bugfix/|feature/|branch-point'`; do
     git checkout -f $b && git reset --hard origin/$b
 done
