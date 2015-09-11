@@ -1615,9 +1615,11 @@ Perl_pad_swipe(pTHX_ PADOFFSET po, bool refadjust)
 #endif
     if (PadnamelistMAX(PL_comppad_name) != -1
      && (PADOFFSET)PadnamelistMAX(PL_comppad_name) >= po) {
-	if (PadnamelistARRAY(PL_comppad_name)[po]) {
-	    assert(!PadnameLEN(PadnamelistARRAY(PL_comppad_name)[po]));
-	}
+#ifdef DEBUGGING
+	if (PadnamelistARRAY(PL_comppad_name)[po])
+            /* XXX this checks for PL_padname_const, but why? -rurban */
+	    assert(refadjust ? !PadnameLEN(PadnamelistARRAY(PL_comppad_name)[po]) : 1);
+#endif
 	PadnamelistARRAY(PL_comppad_name)[po] = &PL_padname_undef;
     }
     /* Use PL_constpadix here, not PL_padix.  The latter may have been
