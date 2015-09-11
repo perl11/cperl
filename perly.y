@@ -61,6 +61,8 @@
 %token <ival> LOCAL MY REQUIRE
 %token <ival> COLONATTR FORMLBRACK FORMRBRACK
 
+%type <ival> lpar_or_qw
+
 %type <ival> grammar remember mremember
 %type <ival>  startsub startanonsub startformsub
 
@@ -414,12 +416,12 @@ barestmt:	PLUGSTMT
 			  $$ = block_end($3, forop);
 			  parser->copline = (line_t)$1;
 			}
-	|	FOR MY remember my_scalar '(' mexpr ')' mblock cont
+	|	FOR MY remember my_scalar lpar_or_qw mexpr ')' mblock cont
 			{
 			  $$ = block_end($3, newFOROP(0, $4, $6, $8, $9));
 			  parser->copline = (line_t)$1;
 			}
-	|	FOR scalar '(' remember mexpr ')' mblock cont
+	|	FOR scalar lpar_or_qw remember mexpr ')' mblock cont
 			{
 			  $$ = block_end($4, newFOROP(0,
 				      op_lvalue($2, OP_ENTERLOOP), $5, $7, $8));
@@ -427,28 +429,23 @@ barestmt:	PLUGSTMT
 			}
 	|	FOR my_refgen remember my_var
 			{ parser->in_my = 0; $<opval>$ = my($4); }
-		'(' mexpr ')' mblock cont
+		lpar_or_qw mexpr ')' mblock cont
 			{
-			  $$ = block_end(
-				$3,
-				newFOROP(0,
-					 op_lvalue(
-					    newUNOP(OP_REFGEN, 0,
-						    $<opval>5),
-					    OP_ENTERLOOP),
-					 $7, $9, $10)
-			  );
+			  $$ = block_end($3, newFOROP(0,
+			         op_lvalue(newUNOP(OP_REFGEN, 0,
+						    $<opval>6), OP_ENTERLOOP),
+					 $7, $9, $10));
 			  parser->copline = (line_t)$1;
 			}
-	|	FOR REFGEN refgen_topic '(' remember mexpr ')' mblock cont
+	|	FOR REFGEN refgen_topic lpar_or_qw remember mexpr ')' mblock cont
 			{
-			  $$ = block_end($5, newFOROP(
-				0, op_lvalue(newUNOP(OP_REFGEN, 0,
-						     $3),
-					     OP_ENTERLOOP), $6, $8, $9));
+                            $$ = block_end($5, newFOROP(0,
+				    op_lvalue(newUNOP(OP_REFGEN, 0, $3),
+                                              OP_ENTERLOOP),
+                                           $6, $8, $9));
 			  parser->copline = (line_t)$1;
 			}
-	|	FOR '(' remember mexpr ')' mblock cont
+	|	FOR lpar_or_qw remember mexpr ')' mblock cont
 			{
 			  $$ = block_end($3,
 				  newFOROP(0, (OP*)NULL, $4, $6, $7));
@@ -539,7 +536,7 @@ else	:	/* NULL */
 			  $$ = op_scope($2);
 			}
 	|	ELSIF '(' mexpr ')' mblock else
-			{ parser->copline = (line_t)$1;
+			{   parser->copline = (line_t)$1;
 			    $$ = newCONDOP(0,
 				newSTATEOP(OPf_SPECIAL,NULL,$3),
 				op_scope($5), $6);
@@ -1095,6 +1092,14 @@ optrepl:	/* NULL */
 			{ $$ = (OP*)NULL; }
 	|	'/' expr
 			{ $$ = $2; }
+	;
+
+lpar_or_qw:	'('
+			{ $$ = $1; }
+	|	QWLIST
+			{ munge_qwlist_to_paren_list($1); }
+		'('
+			{ $$ = $3; }
 	;
 
 /* A little bit of trickery to make "for my $foo" or "for my Int $i"

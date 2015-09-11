@@ -3352,6 +3352,11 @@ PERL_CALLCONV SV*	Perl_multideref_stringify(pTHX_ const OP* o, CV *cv)
 #define PERL_ARGS_ASSERT_MULTIDEREF_STRINGIFY	\
 	assert(o)
 
+PERL_CALLCONV void	Perl_munge_qwlist_to_paren_list(pTHX_ OP* qwlist)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_MUNGE_QWLIST_TO_PAREN_LIST	\
+	assert(qwlist)
+
 PERL_CALLCONV NV	Perl_my_atof(pTHX_ const char *s)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);

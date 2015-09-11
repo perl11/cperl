@@ -677,3 +677,30 @@ is(fscope(), 1, 'return via loop in sub');
     }
     is($foo, "outside", "RT #123994 array outside");
 }
+
+# old syntax for qw() without parens (qw())
+$r = '';
+for qw(a b c) {
+    $r .= $_;
+}
+is ($r, 'abc', 'qw as parens');
+$r = '';
+for my $i qw(a b c) {
+    $r .= $i;
+}
+is ($r, 'abc', 'qw as parens');
+$r = '';
+for $x qw(a b c) {
+    $r .= $x;
+}
+is ($r, 'abc', 'qw as parens');
+
+{
+  use experimental 'refaliasing';
+  no warnings 'experimental::refaliasing';
+  $r = '';
+  for \my $i qw(a b c) {
+    $r .= $i;
+  }
+  is ($r, 'abc', 'qw as parens');
+}

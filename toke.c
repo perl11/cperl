@@ -7989,8 +7989,8 @@ Perl_yylex(pTHX)
 		d = s;
 
 		if (l >= 3 && memEQc(d, "my")
-                    && (isSPACE(*(d+2)) || *(d+2) == '$'
-                        || (*(d+2) == '\\' && *(d+3) == '$'))) {
+                         && (isSPACE(*(d + 2)) || *(d+2) == '$'
+                             || (*(d+2) == '\\' && *(d+3) == '$'))) {
 		    d += 2;
                     d = skipspace(d);
                 }
@@ -8001,7 +8001,7 @@ Perl_yylex(pTHX)
 		    d += 3;
                     d = skipspace(d);
                 }
-                /* honor optional type, as in "for my Int $x {}" */
+                /* honor optional type, as in "for my Int $x () {}" */
                 if (d != s && isIDFIRST_lazy_if(d, UTF)) {
                     int normalize;
                     d = scan_word(d, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
@@ -8010,6 +8010,10 @@ Perl_yylex(pTHX)
                         Copy(d1, &PL_tokenbuf, len+1, char);
                     }
                     d = skipspace(d);
+                }
+                /* "for qw()" ends up here also. dont error */
+                if (l >= 3 && memEQc(d, "qw(")) {
+                    OPERATOR(FOR);
                 }
                 if (*d != '$' && *d != '\\')
                     Perl_croak(aTHX_ "Missing $ on loop variable");
@@ -13017,6 +13021,22 @@ Perl_parse_subsignature(pTHX)
 }
 
 #undef PUSH_ITEM
+
+void
+Perl_munge_qwlist_to_paren_list(pTHX_ OP *qwlist)
+{
+    PERL_ARGS_ASSERT_MUNGE_QWLIST_TO_PAREN_LIST;
+    force_next((4<<24)|')');
+    if (qwlist->op_type == OP_STUB) {
+	op_free(qwlist);
+    }
+    else {
+        DEBUG_k(Perl_deb(aTHX_ "munge_qwlist_to_paren_list"));
+	NEXTVAL_NEXTTOKE.opval = qwlist;
+	force_next(THING);
+    }
+    force_next((2<<24)|'(');
+}
 
 /*
  * ex: set ts=8 sts=4 sw=4 et:
