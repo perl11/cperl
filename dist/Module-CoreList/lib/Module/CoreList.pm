@@ -4,7 +4,7 @@ use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use Module::CoreList::TieHashDelta;
 use version;
-$VERSION = '5.20150620';
+$VERSION = '5.20150620c';
 
 sub _released_order {   # Sort helper, to make '?' sort after everything else
     (substr($released{$a}, 0, 1) eq "?")
@@ -115,7 +115,7 @@ sub removed_raw {
   $mod = shift if eval { $mod->isa(__PACKAGE__) }
       and scalar @_ and $_[0] =~ m#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z#;
   return unless my @perls = sort { $a cmp $b } first_release_raw($mod);
-  my $last = pop @perls;
+  my $last = version_strip(pop @perls);
   my @removed = grep { $_ > $last } sort { $a cmp $b } keys %version;
   return @removed;
 }
@@ -276,11 +276,24 @@ sub changes_between {
     5.021010 => '2015-03-20',
     5.021011 => '2015-04-20',
     5.022000 => '2015-06-01',
+    '5.022001c' => '2015-09-14',
     5.023000 => '????-??-??',
   );
 
-for my $version ( sort { $a <=> $b } keys %released ) {
-    my $family = int ($version * 1000) / 1000;
+sub version_sort {
+  my ($a, $b) = @_;
+  $a =~ s/c$//;
+  $b =~ s/c$//;
+  $a <=> $b
+}
+sub version_strip {
+  my $a = shift;
+  $a =~ s/c$//;
+  $a
+}
+
+for my $version ( sort { version_sort($a, $b) } keys %released ) {
+    my $family = int (version_strip($version) * 1000) / 1000;
     push @{ $families{ $family }} , $version;
 }
 
@@ -11583,6 +11596,26 @@ for my $version ( sort { $a <=> $b } keys %released ) {
         removed => {
         }
     },
+    '5.022001c' => {
+        delta_from => 5.022000,
+        changed => {
+            'strict'      => '1.10c',
+            'vars'        => '1.03_01c',
+            'DynaLoader'  => '2.00c',
+            'XSLoader'    => '1.00c',
+            'attributes'  => '1.10c',
+            'Safe'        => '2.39_01c',
+            'Opcode'      => '1.33c',
+            'Net::Domain' => '3.06_01c',
+            'B::Concise'  => '0.997c',
+            'coretypes'   => '0.02c',
+            'Module::CoreList' => '5.20150620c',
+            'Module::CoreList::Utils' => '5.20150620c',
+            'Config'      => '5.022001',
+        },
+        removed => {
+        }
+    },
 );
 
 sub is_core
@@ -11636,7 +11669,7 @@ sub is_core
     return $perl_version <= $final_release;
 }
 
-for my $version (sort { $a <=> $b } keys %delta) {
+for my $version (sort { version_sort($a, $b) } keys %delta) {
     my $data = $delta{$version};
 
     tie %{$version{$version}}, 'Module::CoreList::TieHashDelta',
@@ -12148,7 +12181,7 @@ for my $version (sort { $a <=> $b } keys %delta) {
     },
 );
 
-for my $version (sort { $a <=> $b } keys %deprecated) {
+for my $version (sort { version_sort($a, $b) } keys %deprecated) {
     my $data = $deprecated{$version};
 
     tie %{ $deprecated{$version} }, 'Module::CoreList::TieHashDelta',
@@ -12974,6 +13007,7 @@ sub _create_aliases {
     my ($hash) = @_;
 
     for my $version (keys %$hash) {
+        $version =~ s/c$//;
         next unless $version >= 5.006;
 
         my $padded = sprintf "%0.6f", $version;

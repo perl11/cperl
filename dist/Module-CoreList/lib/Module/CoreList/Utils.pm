@@ -6,7 +6,7 @@ use vars qw[$VERSION %utilities];
 use Module::CoreList;
 use Module::CoreList::TieHashDelta;
 
-$VERSION = '5.20150620';
+$VERSION = '5.20150620c';
 
 sub utilities {
     my $perl = shift;
@@ -69,6 +69,18 @@ sub removed_raw {
   my $last = pop @perls;
   my @removed = grep { $_ > $last } sort { $a cmp $b } keys %utilities;
   return @removed;
+}
+
+sub version_sort {
+  my ($a, $b) = @_;
+  $a =~ s/c$//;
+  $b =~ s/c$//;
+  $a <=> $b
+}
+sub version_strip {
+  my $a =shift;
+  $a =~ s/c$//;
+  $a
 }
 
 my %delta = (
@@ -1059,9 +1071,18 @@ my %delta = (
         removed => {
         }
     },
+    '5.022001c' => {
+        delta_from => 5.022000,
+        changed => {
+            'cperlbug'              => 1,
+            'cperlivp'              => 1,
+        },
+        removed => {
+        }
+    },
 );
 
-for my $version (sort { $a <=> $b } keys %delta) {
+for my $version (sort { version_sort($a, $b) } keys %delta) {
     my $data = $delta{$version};
 
     tie %{$utilities{$version}}, 'Module::CoreList::TieHashDelta',
@@ -1079,6 +1100,7 @@ sub _create_aliases {
     my ($hash) = @_;
 
     for my $version (keys %$hash) {
+        $version =~ s/c$//;
         next unless $version >= 5.010;
 
         my $padded = sprintf "%0.6f", $version;
