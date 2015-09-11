@@ -5,7 +5,9 @@
 if [ x$1 = x-f ]; then force=1; shift; fi
 if [ x$1 = x--hard ]; then hard=1; shift; fi
 if [ x$1 = x-i ]; then interactive=--interactive; shift; fi
-if [ x$1 != x ]; then rbs=$1; fi
+case $1 in
+    [0-9]*) rbs=$1; shift;;
+esac
 
 #set -e
 
@@ -29,46 +31,45 @@ function rb {
     if [ -e .git/rebase-apply/patch ]; then
        exit
     fi
-    git checkout master
+    git checkout branch-point
 }
 
-# merge-upstream is before master, the commits which can upstream now
-# master is stable
-# changes to merge-upstream are now forbidden, published on github
-#rb master merge-upstream
+# merge-upstream - master - branch-point
 
-# not yet merged features or bugfixes, branched of from master or merge-upstream
-git checkout master
-#for b in `git branch | grep bugfix/`; do
-#    if [ -n $hard ]; then git reset --hard; fi
-#    rb $b master
-#done
+# not yet merged features or bugfixes, branched of from branch-point or merge-upstream
+git checkout branch-point
+rb branch-point master
+for b in `git branch | grep bugfix/ | grep -v cowrefcnt`; do
+    if [ -n $hard ]; then git reset --hard; fi
+    rb $b branch-point
+done
 
 # compiler branches:
-rb feature/CM-600-cperl-cowrefcnt-stats     master
-rb bugfix/CM-600-cperl-cowrefcnt	    feature/CM-600-cperl-cowrefcnt-stats
+rb feature/gh8-cowrefcnt-stats     branch-point
+rb bugfix/gh8-cowrefcnt	           feature/gh8-cowrefcnt-stats
 
 # speed branches:
 # unstable side-branches, branching off somewhere
-rb feature/CM-626-cperl-use-dots         master
-rb feature/CM-712-cperl-types-proto      master
-rb feature/CM-322-cperl-new-hash-table   master
-rb feature/CM-707-cperl-inline-subs      master
-rb feature/CM-713-cperl-native-types     master
-rb feature/CM-916-cperl-no-miniperl      master
+rb feature/CM-626-cperl-use-dots      branch-point
+rb feature/CM-712-cperl-types-proto   branch-point
+rb feature/gh9-signatures             branch-point
+rb feature/gh24-new-hash-table        branch-point
+rb feature/gh23-inline-subs           branch-point
+rb feature/gh14-native-types          branch-point
+rb feature/gh6-no-miniperl            branch-point
 
 # memory branches:
-rb feature/CM-367-cperl-carp-builtin     master
+rb feature/CM-367-cperl-carp-builtin     branch-point
 rb feature/CM-367-cperl-warnings-xs-carp feature/CM-367-cperl-carp-builtin
-rb feature/CM-370-cperl-warnings-xs      master
+rb feature/gh9-warnings-xs               branch-point
 
 # speed and feature list: our previous pretty stable branch linear hierarchy
 # (for later deeper subtrees)
 declare -a feat
-feat=(master
-      feature/CM-317-cperl-signatures3
-      feature/CM-317-cperl-signatures3-CM-690-nl
-      feature/CM-910-cperl-multi
+feat=(branch-point
+      feature/gh9-signatures3
+      feature/gh9-signatures3-gh25-nl
+      feature/gh16-multi
      )
 N=${#feat[@]}
 for i in `seq 0 $(($N - 2))`; do
@@ -76,7 +77,7 @@ for i in `seq 0 $(($N - 2))`; do
     rb ${feat[$n]} ${feat[$i]}
 done
 
-rb feature/CM-317-cperl-signatures3-CM-690-nl1 feature/CM-317-cperl-signatures3
+rb feature/gh9-signatures3-gh25-nl1 feature/gh9-signatures3
 
-git checkout master
-git branch | egrep 'master|bugfix/|feature/|merge-'
+git checkout branch-point
+git branch | egrep 'branch-point|master|bugfix/|feature/|merge-'
