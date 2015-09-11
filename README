@@ -1,7 +1,24 @@
 Perl is Copyright (C) 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012,
 2013, 2014, 2015 by Larry Wall and others.  All rights reserved.
+cperl is Copyright (C) 2012, 2014, 2015 by cPanel Inc.
 
+
+ABOUT CPERL
+==========
+
+cperl is a better variant of Perl 5 with many Perl 6 based features
+and improvements, but without breaking compatibility. CPAN works. It
+is a "perl 11", 5 + 6 = 11.
+
+The name cperl stands for a perl with classes, types, compiler
+support, or just a company-friendly perl, but currently it's only a
+better 5.22 based variant without classes.
+
+Currently it is about 1.5x faster than perl5.22 overall, more than 2x
+faster then 5.14 and uses the least amount of memory measured since
+5.6, i.e. less than 5.10 and 5.6.2, which were the previous
+leaders. While perl5.22 uses the most memory yet measured.
 
 
 ABOUT PERL
