@@ -85,7 +85,7 @@ SKIP: {
 
 SKIP: {
     find_git_or_skip(6);
-    chomp(my @repo= grep { !/\.gitignore$/ } `git ls-files`);
+    chomp(my @repo= grep { !/\.gitignore|\.git-rr-cache|^cp-/ } `git ls-files`);
     skip("git ls-files didnt work",3)
         if !@repo;
     is( 0+@repo, 0+@files, "git ls-files gives the same number of files as MANIFEST lists");

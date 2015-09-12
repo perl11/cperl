@@ -1,5 +1,7 @@
 # cperl status
 
+[![Build Status](https://travis-ci.org/perl11/cperl.svg?branch=master)](https://travis-ci.org/perl11/cperl)
+
 The name **cperl** stands for **a perl with classes, types, compiler
 support, or just a company-friendly perl**, but currently it's only a
 better 5.22 based variant without classes.
