@@ -46,6 +46,9 @@ my ($in, %h, $gperf_ok);
 
 # collect all the values.
 # and check if any keys had changed. need to update the gperf then.
+if (! -e $heavy) { # help the Makefile deps to produce Config_heavy.pl
+    system("$^X -Ilib configpm");
+}
 open $in, "<", $heavy or die "Error reading '$heavy': $!";
 while (<$in>) {
     last if $_ eq "\$_ = <<'!END!';\n";

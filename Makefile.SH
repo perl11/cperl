@@ -1362,6 +1362,7 @@ _cleaner2:
 	rm -f preload
 	rm -f pod2htmd.tmp
 	rm -rf pod/perlfunc pod/perlipc
+	rm -f lib/Config_mini.pl lib/Config_xs_heavy.pl ext/Config/Config.xs
 	-rmdir ext/B/lib
 	rm -f so_locations $(LIBPERL_NONSHR) $(MINIPERL_NONSHR)
 	-rmdir lib/version lib/threads lib/encoding lib/autodie/exception
