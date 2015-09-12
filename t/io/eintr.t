@@ -11,6 +11,8 @@ BEGIN {
     @INC = '../lib';
     require './test.pl';
     skip_all_without_dynamic_extension('Fcntl');
+
+    skip_all("eintr tests can't be run inside travis-CI VMs") if $ENV{TRAVIS};
 }
 
 use warnings;
