@@ -98,6 +98,7 @@ EXTERN_C void
 dl_boot (pTHX) {
     dSP;
     char *env;
+    dMY_CXT;
 #ifdef DEBUGGING
     const char *debug = PerlEnv_getenv("PERL_DL_DEBUG");
     UV tmp_dl_debug;

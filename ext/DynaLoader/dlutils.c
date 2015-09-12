@@ -638,7 +638,9 @@ static int
 dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
 {
     dSP;
-    IV i, nret, flags = 0;
+    dMY_CXT;
+    SSize_t i;
+    IV nret, flags = 0;
     CV *cv_load_file, *dl_find_symbol;
     SV *bootname, *libref, *boot_symbol_ref, *flagsiv;
     char *modulename = SvPVX(module);
@@ -856,9 +858,10 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
  * We might need to use a strict flag.
  */
 static SV * dl_findfile(pTHX_ AV* args, int gimme) {
+    dMY_CXT;
     AV* dirs;   /* which directories to search */
     AV *found;  /* full paths to real files we have found */
-    U32 i, j;
+    SSize_t i, j;
     DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_findfile(%s) %d\n",
                            av_tostr(aTHX_ args), gimme));
     found = newAV();
