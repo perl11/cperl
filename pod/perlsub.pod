@@ -312,7 +312,7 @@ Perl has an experimental facility to allow a subroutine's formal
 parameters to be introduced by special syntax, separate from the
 procedural code of the subroutine body.  The formal parameter list
 is known as a I<signature>.  The facility must be enabled first by a
-pragmatic declaration, C<use feature 'signatures'>, and it will produce
+pragmatic declaration, C<use feature 'signatures'>, and might produce
 a warning unless the "experimental::signatures" warnings category is
 disabled.
 
@@ -457,14 +457,25 @@ that the caller passed no arguments:
 	return 123;
     }
 
-When using a signature, the arguments are still available in the special
-array variable C<@_>, in addition to the lexical variables of the
-signature.  There is a difference between the two ways of accessing the
+A parameter by reference does not copy the variable into the body, it
+allows destructive modification of the variable. This is the same as
+using the old C<$_[0]> syntax:
+
+    sub foo (\$thing) { $thing++ }
+
+vs:
+
+    sub foo { $_[0]++ }
+
+When using a signature, all processed arguments are not available in
+the special array variable C<@_> anymore, as if they are shifted from
+C<@_>. There is a difference between the two ways of accessing the
 arguments: C<@_> I<aliases> the arguments, but the signature variables
 get I<copies> of the arguments.  So writing to a signature variable
-only changes that variable, and has no effect on the caller's variables,
-but writing to an element of C<@_> modifies whatever the caller used to
-supply that argument.
+which is not referenced only changes that variable, and has no effect
+on the caller's variables, but using a reference variable or without
+signatures writing to an element of C<@_> modifies whatever the caller
+used to supply that argument.
 
 There is a potential syntactic ambiguity between signatures and prototypes
 (see L</Prototypes>), because both start with an opening parenthesis and
@@ -495,6 +506,18 @@ lexical variables at runtime.  You can therefore write
 
 The prototype attribute, and any other attributes, come after 
 the signature.
+
+As with lexical variable declarations you may declare the types of
+parameters, and you may declare the return type of the subroutine with
+a final type attribute:
+
+    sub foo (int $left, str $right) :int {
+	return $left + int($right);
+    }
+
+Those types must be existing packages. Those additional types
+declarations help the compiler to produce better code and to throw
+early compile-time errors if possible.
 
 =head2 Private Variables via my()
 X<my> X<variable, lexical> X<lexical> X<lexical variable> X<scope, lexical>
@@ -1614,6 +1637,9 @@ to make the world a better place.
 =head2 Constant Functions
 X<constant>
 
+Functions declared with the attribute C<:const> are compile-time evaluated and
+inlined.
+
 Functions with a prototype of C<()> are potential candidates for
 inlining.  If the result after optimization and constant folding
 is either a constant or a lexically-scoped scalar which has no other
@@ -1622,6 +1648,8 @@ without C<&>.  Calls made using C<&> are never inlined.  (See
 F<constant.pm> for an easy way to declare most constants.)
 
 The following functions would all be inlined:
+
+    sub PI :const	{ 4 * atan2 1, 1 }	# compile-time evaluated
 
     sub pi ()		{ 3.14159 }		# Not exact, but close.
     sub PI ()		{ 4 * atan2 1, 1 }	# As good as it gets,

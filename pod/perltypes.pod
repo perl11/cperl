@@ -172,14 +172,38 @@ it might not be worth the trouble. But for hot code always use types,
 as compile-time types prevent from costly run-time checks for types
 and magic hooks.
 
+=head1 FUNCTIONS
+
+=head2 typedef (NY)
+
+    typedef newtype type-expr;
+
+B<typedef> stores a type expressions, such as a union of types (C< int | uint>) or type
+restrictions as in perl6 (C<< int where int>0 >>) as a new type name.
+
+This is similar to the C<subset> operator in perl6, but perl6 already
+stores types as objects, while cperl still has to store types as
+classnames.
+
+=head2 typeof (NY)
+
+    typeof expr
+
+B<typeof> returns the compile-time declared or inferred type of the expression.
+This may be different from the run-time class name, obtained with L<perlfunc/ref> or
+L<Scalar::Util/reftype>.
+
+=head1 More type terminology
+
 =head2 nominal type system
 
-cperl implements so far a simple nominal type, in contrast to a
-structural type system such as in C or C++. The name of the class or
-type and its subtypes specify correctness, not the list of object
-fields and methods.
+cperl implements a simple nominal type as in perl6 and most
+dynamic languages, in contrast to a structural type system such as in
+static languages as C or C++. The name of the class or type and its
+subtypes specify correctness, not the list of object fields and
+methods.
 
-TODO: co-variant vs contra-variant
+TODO: B<co-variant> vs B<contra-variant>
 
 =head2 Compile-time type optimizations
 
