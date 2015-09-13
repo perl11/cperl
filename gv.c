@@ -267,10 +267,11 @@ Perl_cvgv_from_hek(pTHX_ CV *cv)
     ASSUME(CvNAME_HEK(cv));
     svp = hv_fetchhek(CvSTASH(cv), CvNAME_HEK(cv), 0);
     gv = MUTABLE_GV(svp && *svp ? *svp : newSV(0));
-    if (!isGV(gv))
-	gv_init_pvn(gv, CvSTASH(cv), HEK_KEY(CvNAME_HEK(cv)),
-		HEK_LEN(CvNAME_HEK(cv)),
-		SVf_UTF8 * !!HEK_UTF8(CvNAME_HEK(cv)));
+    if (!isGV(gv)) {
+        const HEK *hek = CvNAME_HEK(cv);
+	gv_init_pvn(gv, CvSTASH(cv), HEK_KEY(hek),
+		HEK_LEN(hek), SVf_UTF8 * !!HEK_UTF8(hek));
+    }
     if (!CvNAMED(cv)) { /* gv_init took care of it */
 	assert (SvANY(cv)->xcv_gv_u.xcv_gv == gv);
 	return gv;
@@ -2265,7 +2266,13 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
         return NULL;
     
     /* By this point we should have a stash and a name */
-    gvp = (GV**)hv_fetch(stash,name,is_utf8 ? -(I32)len : (I32)len,add);
+    /* On protected stashes and !add try exists first */
+    if (SvREADONLY(stash) && !add)
+        if (!hv_exists(stash, name, is_utf8 ? -(I32)len : (I32)len)) {
+            if (addmg) gv = (GV *)newSV(0);
+            else return NULL;
+        }
+    gvp = (GV**)hv_fetch(stash, name, is_utf8 ? -(I32)len : (I32)len,add);
     if (!gvp || *gvp == (const GV *)&PL_sv_undef) {
 	if (addmg) gv = (GV *)newSV(0);
 	else return NULL;
