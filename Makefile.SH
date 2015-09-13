@@ -888,6 +888,7 @@ lib/buildcustomize.pl: $& $(mini_obj)
 	$(LD) -o $(MINIPERL_EXE) $(CLDFLAGS) $(mini_obj) $(libs)
 	$(LDLIBPTH) ./miniperl$(HOST_EXE_EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
 	$(MINIPERL) -f write_buildcustomize.pl
+	$(MAKE) mini_boot
 !NO!SUBS!
 		;;
 	next4*)
@@ -896,6 +897,7 @@ lib/buildcustomize.pl: $& $(mini_obj) write    ldcustomize.pl
 	$(LD) -o $(MINIPERL_EXE) $(mini_obj    libs)
 	$(LDLIBPTH) ./miniperl$(HOST    _EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
 	$(MINIPERL) -f write_buildcustomize.pl    
+	$(MAKE) mini_boot
 !NO!SUBS!
 		;;
 	darwin*)
@@ -918,6 +920,7 @@ lib/buildcustomize.pl: $& $(mini_obj) write_buildcustomize.pl
 	    $(mini_obj) $(libs)
 	$(LDLIBPTH) ./miniperl$(HOST_EXE_EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
 	$(MINIPERL) -f write_buildcustomize.pl
+	$(MAKE) mini_boot
 !NO!SUBS!
 		;;
 	*)
@@ -929,6 +932,7 @@ lib/buildcustomize.pl: \$& \$(mini_obj) write_buildcustomize.pl
 	\$(LNS) \$(HOST_PERL) \$(MINIPERL_EXE)
 	\$(LDLIBPTH) ./miniperl\$(HOST_EXE_EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
 	\$(MINIPERL) -f write_buildcustomize.pl 'osname' "$osname"
+	$(MAKE) mini_boot
 !GROK!THIS!
 		else
 			$spitshell >>$Makefile <<'!NO!SUBS!'
@@ -938,6 +942,7 @@ lib/buildcustomize.pl: $& $(mini_obj) write_buildcustomize.pl
 	    $(mini_obj) $(libs)
 	$(LDLIBPTH) ./miniperl$(HOST_EXE_EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
 	$(MINIPERL) -f write_buildcustomize.pl
+	$(MAKE) mini_boot
 !NO!SUBS!
 		fi
 		;;
@@ -1004,8 +1009,12 @@ preplibrary: $(MINIPERL_EXE) $(CONFIGPM) $(PREPLIBRARY_LIBPERL)
 
 $(CONFIGPM_FROM_CONFIG_SH): $(CONFIGPOD)
 
+# we have too many circular dependencies. shell out to make mini_boot
+# (i.e. Config_boot) here, to get CONFIGPM
+
 $(CONFIGPOD): config.sh $(MINIPERL_EXE) configpm Porting/Glossary lib/Config_git.pl
 	$(MINIPERL) configpm
+	$(MAKE) mini_boot
 
 unidatafiles $(unidatafiles) pod/perluniprops.pod: uni.data
 
