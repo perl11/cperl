@@ -6736,6 +6736,7 @@ Perl_yylex(pTHX)
 			hgv = gv;
 		}
 		if (!ogv &&
+                    SvTYPE(PL_globalstash) == SVt_PVHV &&
 		    (gvp = (GV**)hv_fetch(PL_globalstash, PL_tokenbuf,
 					  len, FALSE)) &&
 		    (gv = *gvp) && (

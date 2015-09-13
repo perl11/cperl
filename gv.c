@@ -2261,6 +2261,8 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
     if (!stash && !find_default_stash(&stash, name, len, is_utf8, add, sv_type)) {
         return NULL;
     }
+    if (SvTYPE(stash) != SVt_PVHV)
+        return NULL;
     
     /* By this point we should have a stash and a name */
     gvp = (GV**)hv_fetch(stash,name,is_utf8 ? -(I32)len : (I32)len,add);
@@ -3585,7 +3587,10 @@ Perl_gv_override(pTHX_ const char * const name, const STRLEN len)
     GV *gv = gv_fetchpvn(name, len, GV_NOTQUAL, SVt_PVCV);
     GV * const *gvp;
     PERL_ARGS_ASSERT_GV_OVERRIDE;
-    if (gv && GvCVu(gv) && GvIMPORTED_CV(gv)) return gv;
+    if (gv && GvCVu(gv) && GvIMPORTED_CV(gv))
+        return gv;
+    if (SvTYPE(PL_globalstash) != SVt_PVHV)
+        return NULL;
     gvp = (GV**)hv_fetch(PL_globalstash, name, len, FALSE);
     gv = gvp ? *gvp : NULL;
     if (gv && !isGV(gv)) {
