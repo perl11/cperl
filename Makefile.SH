@@ -893,9 +893,9 @@ lib/buildcustomize.pl: $& $(mini_obj)
 		;;
 	next4*)
 		$spitshell >>$Makefile <<'!NO!SUBS!'
-lib/buildcustomize.pl: $& $(mini_obj) write    ldcustomize.pl
-	$(LD) -o $(MINIPERL_EXE) $(mini_obj    libs)
-	$(LDLIBPTH) ./miniperl$(HOST    _EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
+lib/buildcustomize.pl: $& $(mini_obj) write_buildcustomize.pl
+	$(LD) -o $(MINIPERL_EXE) $(mini_obj) $(libs)
+	$(LDLIBPTH) ./miniperl$(HOST_EXE_EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
 	$(MINIPERL) -f write_buildcustomize.pl    
 	$(MAKE) mini_boot
 !NO!SUBS!
