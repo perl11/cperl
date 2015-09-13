@@ -5,11 +5,12 @@ addons:
     packages:
     - build-essential
     - libtool
+
 #-m32 misses gdbm for 32bit. wrong probe, would need to download it from somewhere
 
-compiler:
-  - gcc
-  - clang
+#compiler:
+#  - gcc
+#  - clang
 
 os:
   - linux
@@ -18,26 +19,19 @@ os:
 branches:
   except:
     - branch-point
-    - /^type/
+    - /^type(sd)/
     - /-v5.22.0$/
 
-matrix:
-  include:
-    - compiler: gcc
-      env: CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native"'
-    - compiler: gcc
-      env: CONFIGURE_OPTION='-Duselongdouble -DDEBUGGING'
-    - compiler: clang
-      env: CONFIGURE_OPTION='-DDEBUGGING'
-    - compiler: clang
-      env: CONFIGURE_OPTION='-Duselongdouble'
-  allow_failures:
-    - compiler: gcc
-      env: CONFIGURE_OPTION='-Duse64bitall -Dusethreads -DDEBUGGING'
-    - compiler: clang
-      env: CONFIGURE_OPTION='-Duse64bitall -Dusethreads'
-    - compiler: gcc
-      env: CONFIGURE_OPTION='-Duse64bitall -Dusethreads'
+env:
+  matrix:
+    - CONFIGURE_OPTION='' CC='gcc'
+    - CONFIGURE_OPTION='-DDEBUGGING' CC='clang'
+    - CONFIGURE_OPTION='-Duselongdouble' CC='clang'
+    - CONFIGURE_OPTION='-Duselongdouble -DDEBUGGING' CC='gcc'
+    - CONFIGURE_OPTION='-Duse64bitall -Dusethreads' CC='gcc'
+    - CONFIGURE_OPTION='-Duse64bitall -Dusethreads -DDEBUGGING' CC='clang'
+
+#   - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native"'
 
 script:
   - ./Configure -des -Dusedevel -Dusecperl -Uversiononly -Dcc=$CC $CONFIGURE_OPTION -Dprefix=$HOME/perl-blead && TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/perl-blead/bin/cperlivp
