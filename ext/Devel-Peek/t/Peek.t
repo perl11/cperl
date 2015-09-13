@@ -297,7 +297,7 @@ do_test('reference to anon sub with empty prototype',
   SV = PVCV\\($ADDR\\) at $ADDR
     REFCNT = 2
     FLAGS = \\($PADMY,POK,pPOK,ANON,WEAKOUTSIDE,CVGV_RC(?:,DYNFILE)?\\) # $] <= 5.022
-    FLAGS = \\(POK,pPOK\\) 		# $] > 5.022
+    FLAGS = $ADDR \\(POK,pPOK\\) 		# $] > 5.022
     PROTOTYPE = ""
     COMP_STASH = $ADDR\\t"main"
     START = $ADDR ===> \\d+
@@ -309,7 +309,7 @@ do_test('reference to anon sub with empty prototype',
     OWNER = $ADDR)?
     FLAGS = 0x490				# $] < 5.015 || (!thr && $] <= 5.022)
     FLAGS = 0x1490				# $] >= 5.015 && thr && $] <= 5.022
-    CVFLAGS = 0x1?490 \\(ANON,WEAKOUTSIDE,CVGV_RC\\)	# $] > 5.022
+    CVFLAGS = 0x1?490 \\(ANON,WEAKOUTSIDE,CVGV_RC(?:,DYNFILE)?\\)	# $] > 5.022
     OUTSIDE_SEQ = \\d+
     PADLIST = $ADDR				# $] <= 5.022
     PADLIST = $ADDR \\[\\d+\\]			# $] > 5.022
@@ -324,8 +324,7 @@ do_test('reference to named subroutine without prototype',
   RV = $ADDR
   SV = PVCV\\($ADDR\\) at $ADDR
     REFCNT = (3|4)
-    FLAGS = \\((?:HASEVAL(?:,NAMED)?)?\\)	# $] < 5.015 || !thr
-    FLAGS = \\(DYNFILE(?:,HASEVAL(?:,NAMED)?)?\\) # $] >= 5.015 && thr
+    FLAGS = $ADDR \(\)
     COMP_STASH = $ADDR\\t"main"
     START = $ADDR ===> \\d+
     ROOT = $ADDR
@@ -337,7 +336,7 @@ do_test('reference to named subroutine without prototype',
     OWNER = $ADDR)?
     FLAGS = 0x(?:[c4]00)?0		# $] < 5.015 || (!thr && $] < 5.021_011)
     FLAGS = 0x[cd145]000		# $] >= 5.015 && thr && $] < 5.021_011
-    CVFLAGS = $ADDR \\(HASEVAL,NAMED\\)	# $] >= 5.021_011
+    CVFLAGS = $ADDR \\((?:DYNFILE,)?HASEVAL,NAMED\\)	# $] >= 5.021_011
     OUTSIDE_SEQ = \\d+
     PADLIST = $ADDR				# $] < 5.021_011
     PADLIST = $ADDR \\[\\d+\\]			# $] >= 5.021_011
@@ -733,12 +732,13 @@ do_test('FORMAT',
 	*PIE{FORMAT},
 'SV = $RV\\($ADDR\\) at $ADDR
   REFCNT = 1
-  FLAGS = \\(ROK\\)
+  FLAGS = $ADDR \\(ROK\\)
   RV = $ADDR
   SV = PVFM\\($ADDR\\) at $ADDR
     REFCNT = 2
-    FLAGS = \\(\\)				# $] < 5.015 || !thr
-    FLAGS = \\(DYNFILE\\)			# $] >= 5.015 && thr
+    FLAGS = \\(\\)				# $] < 5.015 || !thr && $] <= 5.022
+    FLAGS = \\(DYNFILE\\)			# $] >= 5.015 && thr && $] <= 5.022
+    FLAGS = $ADDR \\(\\)			# $] > 5.022
 (?:    PV = 0
 )?    COMP_STASH = 0x0
     START = $ADDR ===> \\d+
@@ -750,7 +750,7 @@ do_test('FORMAT',
     OWNER = $ADDR)?
     FLAGS = 0x0					# $] < 5.015 || (!thr && $] <= 5.022)
     FLAGS = 0x1000				# $] >= 5.015 && thr && $] <= 5.022
-    CVFLAGS = 0x(100)?0 \\(\\)			# $] > 5.022
+    CVFLAGS = 0x(100)?0 \\((?:DYNFILE)?\\)	# $] > 5.022
     OUTSIDE_SEQ = \\d+
     LINES = 0					# $] < 5.017_003
     PADLIST = $ADDR				# $] <= 5.022

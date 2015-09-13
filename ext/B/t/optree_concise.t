@@ -180,11 +180,11 @@ checkOptree ( name	=> "terse basic",
 	      bcopts	=> [qw/ -basic -terse /],
 	      code	=> sub{$a},
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
-UNOP (0x82b0918) leavesub [1] 
-    LISTOP (0x82b08d8) lineseq 
-        COP (0x82b0880) nextstate 
-        UNOP (0x82b0860) null [\d+]
-            PADOP (0x82b0840) gvsv  GV (0x82a818c) *a 
+UNOP (0x7fbc2bd50760) leavesub [1] 
+    LISTOP (0x7fbc2bd507a0) lineseq 
+        COP (0x7fbc2bd507e8) nextstate 
+        UNOP (0x7fbc2bd50848) null [\d+] 
+            PADOP (0x7fbc2bd50888) gvsv  GV (0x7fbc2c1f92d0) *a 
 EOT_EOT
 # UNOP (0x8282310) leavesub [1] 
 #     LISTOP (0x82822f0) lineseq 
