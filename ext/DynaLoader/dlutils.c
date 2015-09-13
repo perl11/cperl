@@ -396,6 +396,9 @@ XS(XS_DynaLoader_bootstrap)
                 SP--;
 #endif
             }
+            else {
+                dir = newSVpvs(".");
+            }
             PUTBACK;
             LEAVE_with_name("call_INC");
         } else {
