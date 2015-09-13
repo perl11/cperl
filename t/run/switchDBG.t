@@ -64,7 +64,7 @@ like( runperl( switches => [ "-DP" ], stderr => 1,
       "-DP Print profiling info, source file input state" );
 like( runperl( switches => [ "-Dm" ], stderr => 1,
                prog => '1' ),
-      qr/^0x[0-9a-f]+: \(00\d+\) new_SV \(from sv\.c:\d+ \[Perl_newSVpvn\]\)\n/,
+      qr/^0x[0-9a-f]+: \(0\d+\) (new_SV|realloc) /m,
       "-Dm Memory and SV allocation" );
 like( runperl( switches => [ "-Df" ], stderr => 1,
                prog => '1' ),
