@@ -278,7 +278,7 @@ Public API:
 
 #define plant_SV(p) \
     STMT_START {					\
-	const U32 old_flags = SvFLAGS(p);			\
+	const U32 old_flags = SvFLAGS(p);                   \
 	MEM_LOG_DEL_SV(p, __FILE__, __LINE__, FUNCTION__);  \
 	DEBUG_SV_SERIAL(p);				\
 	FREE_SV_DEBUG_FILE(p);				\
@@ -294,7 +294,7 @@ Public API:
 #define uproot_SV(p) \
     STMT_START {					\
 	(p) = PL_sv_root;				\
-	PL_sv_root = MUTABLE_SV(SvARENA_CHAIN(p));		\
+	PL_sv_root = MUTABLE_SV(SvARENA_CHAIN(p));      \
 	++PL_sv_count;					\
     } STMT_END
 
@@ -337,7 +337,12 @@ S_new_SV(pTHX_ const char *file, int line, const char *func)
 	    );
     sv->sv_debug_inpad = 0;
     sv->sv_debug_parent = NULL;
-    sv->sv_debug_file = PL_curcop ? savesharedpv(CopFILE(PL_curcop)): NULL;
+    sv->sv_debug_file = PL_curcop
+#ifndef USE_ITHREADS
+        && PL_curcop->cop_filegv
+        && !SvIS_FREED(PL_curcop->cop_filegv)
+#endif
+        ? savesharedpv(CopFILE(PL_curcop)): NULL;
 
     sv->sv_debug_serial = PL_sv_serial++;
 
