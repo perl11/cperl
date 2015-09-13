@@ -1510,7 +1510,7 @@ perl_parse(pTHXx_ XSINIT_t xsinit, int argc, char **argv, char **env)
     PERL_UNUSED_ARG(my_perl);
 #endif
 
-#if defined(__amigaos4__)
+#ifdef __amigaos4__
     {
         struct NameTranslationInfo nti;
         __translate_amiga_to_unix_path_name(&argv[0],&nti); 
