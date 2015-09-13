@@ -272,6 +272,7 @@ Return the CV from the GV.
 #define gv_fetchmeth(stash,name,len,level) gv_fetchmeth_pvn(stash, name, len, level, 0)
 #define gv_fetchmeth_autoload(stash,name,len,level) gv_fetchmeth_pvn_autoload(stash, name, len, level, 0)
 #define gv_fetchmethod_flags(stash,name,flags) gv_fetchmethod_pv_flags(stash, name, flags)
+#define gv_fetchmethod_pvs_flags(stash,name,flags) Perl_gv_fetchmethod_pvn_flags(aTHX_ stash, STR_WITH_LEN(name), flags)
 #define gv_autoload4(stash, name, len, method) \
 	gv_autoload_pvn(stash, name, len, !!(method))
 #define newGVgen(pack)  newGVgen_flags(pack, 0)

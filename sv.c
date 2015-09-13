@@ -14345,7 +14345,7 @@ do_mark_cloneable_stash(pTHX_ SV *const sv)
             sv_catpvs(name, "::CLONE_SKIP");
             cloner = gv_fetchsv(name, GV_NOADD_NOINIT, SVt_PVCV);
         } else {
-            cloner = gv_fetchmethod_autoload(MUTABLE_HV(sv), "CLONE_SKIP", 0);
+            cloner = gv_fetchmethod_pvs_flags(MUTABLE_HV(sv), "CLONE_SKIP", 0);
         }
 	SvFLAGS(sv) |= SVphv_CLONEABLE; /* clone objects by default */
 	if (cloner && GvCV(cloner)) {
@@ -15129,7 +15129,7 @@ perl_clone_using(PerlInterpreter *proto_perl, UV flags,
             sv_catpvs(name, "::CLONE");
             cloner = gv_fetchsv(name, GV_NOADD_NOINIT, SVt_PVCV);
         } else {
-            cloner = gv_fetchmethod_autoload(stash, "CLONE", 0);
+            cloner = gv_fetchmethod_pvs_flags(stash, "CLONE", 0);
         }
 	if (cloner && GvCV(cloner)) {
 	    dSP;

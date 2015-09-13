@@ -966,16 +966,18 @@ means yes, look for AUTOLOAD; zero means no, don't look for AUTOLOAD.
 Calling C<gv_fetchmethod> is equivalent to calling C<gv_fetchmethod_autoload>
 with a non-zero C<autoload> parameter.
 
-These functions grant C<"SUPER"> token
-as a prefix of the method name.  Note
-that if you want to keep the returned glob for a long time, you need to
-check for it being "AUTOLOAD", since at the later time the call may load a
-different subroutine due to $AUTOLOAD changing its value.  Use the glob
-created as a side effect to do this.
+These functions grant C<"SUPER"> token as a prefix of the method name.
+Note that if you want to keep the returned glob for a long time, you
+need to check for it being "AUTOLOAD", since at the later time the
+call may load a different subroutine due to $AUTOLOAD changing its
+value.  Use the glob created as a side effect to do this.
 
 These functions have the same side-effects as C<gv_fetchmeth> with
 C<level==0>.  The warning against passing the GV returned by
 C<gv_fetchmeth> to C<call_sv> applies equally to these functions.
+
+XXX Note that restricted stashes are not supported yet, when the method
+does not exist. It will throw a wrong run-time error.
 
 =cut
 */
@@ -1000,6 +1002,7 @@ Perl_gv_fetchmethod_sv_flags(pTHX_ HV *stash, SV *namesv, U32 flags)
     return gv_fetchmethod_pvn_flags(stash, namepv, namelen, flags);
 }
 
+/* This cannot deal with binary names. */
 GV *
 Perl_gv_fetchmethod_pv_flags(pTHX_ HV *stash, const char *name, U32 flags)
 {
@@ -1007,8 +1010,7 @@ Perl_gv_fetchmethod_pv_flags(pTHX_ HV *stash, const char *name, U32 flags)
     return gv_fetchmethod_pvn_flags(stash, name, strlen(name), flags);
 }
 
-/* Don't merge this yet, as it's likely to get a len parameter, and possibly
-   even a U32 hash */
+/* XXX This cannot deal with protected stashes yet. Should not error when the name exists */
 GV *
 Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN len, U32 flags)
 {
