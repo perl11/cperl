@@ -73,6 +73,7 @@ mistakes. It never happened so far.
 See the github issues: [github.com/perl11/cperl/issues](http://github.com/perl11/cperl/issues)
 
 With 32bit fast-arithmetic optimizations are currently disabled.
+With threads a few IO tests fail. `-Dusethreads` is not recommended for now.
 
 # Branch overview
 
@@ -146,7 +147,7 @@ They also revert some wrong decisions p5p already made.
 
 ## Soon
 
-* conversion from private stash to public github repo and issues [gh #1](https://github.com/perl11/cperl/issues/1)
+* threads fixes. threads are unstable currently and fail a few IO tests.
 
 * user facing types and classes, multiple dispatch
 
