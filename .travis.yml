@@ -5,12 +5,10 @@ addons:
     packages:
     - build-essential
     - libtool
+cache:
+  apt: true
 
 #-m32 misses gdbm for 32bit. wrong probe, would need to download it from somewhere
-
-#compiler:
-#  - gcc
-#  - clang
 
 os:
   - linux
@@ -34,10 +32,9 @@ env:
 #   - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native"'
 
 script:
-  - ./Configure -des -Dusedevel -Dusecperl -Uversiononly -Dcc=$CC $CONFIGURE_OPTION -Dprefix=$HOME/perl-blead && TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/perl-blead/bin/cperlivp
-after_script:
-cache:
-  apt: true
+  - ./Configure -des -Dusedevel -Dusecperl -Uversiononly -Dcc=$CC $CONFIGURE_OPTION -Dprefix=$HOME/perl-blead && (make -j4 -s || make -s configpm || true)
+  - make -s || make -s mini_post || true
+  - TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/perl-blead/bin/cperlivp
 
 notifications:
   irc:
