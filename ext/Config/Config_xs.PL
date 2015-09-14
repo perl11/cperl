@@ -60,6 +60,7 @@ while (<$in>) { # as in config.sh
     my ($k,$v) = split(/=/,$_,2);
     $v =~ s/^'//;
     $v =~ s/'$//;
+    #$v =~ s/\\/\\\\/g;
     $h{$k} = $v;
 } 
 while (<$in>) {
@@ -71,6 +72,7 @@ while (<$in>) {
     my ($k,$v) = split(/=/,$_,2);
     $v =~ s/^'//;
     $v =~ s/'$//;
+    #$v =~ s/\\/\\\\/g;
     $h{$k} = $v;
 }
 close $in;
@@ -104,6 +106,7 @@ for my $k (qw(libdb_needs_pthread malloc_cflags
     $gperf_ok = !(system("gperf --output-file=${xsout}_tmp $xsin") >> 8);
     unlink $xsout."_tmp";
 }
+$gperf_ok = 0;
 my $xsfile = $gperf_ok ? $xsin : $xsout;
 my $xs = open_new($xsfile, '>');
 open $in, "<", $xsfile or die "Error reading '$xsfile': $!";
@@ -192,6 +195,7 @@ while (<$in>) {
         my $k = $1;
         my $v = $h{$k};
         my $l = length $v;
+        $l = 0 unless $l;
         my $qr = "0,\"@@".$k."@@\"";
         $v =~ s/\\([^"])/\\\\$1/g;
         my $new = "$l,\"$v\"";
