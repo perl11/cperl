@@ -4,7 +4,7 @@ our $VERSION = '1.03';
 
 use strict;
 use warnings;
-use Config;
+#use Config; #[cperl #33]
 
 my $no = join('|',qw(GDBM_File ODBM_File NDBM_File DB_File
                      VMS.* Sys-Syslog IPC-SysV I18N-Langinfo
@@ -27,8 +27,8 @@ sub apply_config {
       unless ($config->{i_dbm} || $config->{i_rpcsvcdbm}) && !$config->{d_cplusplus};
     push @no, "VMS.*" unless $^O eq "VMS";
     push @no, "Win32.*" unless $^O eq "MSWin32" || $^O eq "cygwin";
-    push @no, "Config" unless $Config{static_ext} =~ /Config/;
-    push @no, "warnings" unless $Config{static_ext} =~ /warnings/;
+    push @no, "Config";   #unless $Config{static_ext} =~ /Config/;
+    push @no, "warnings"; #unless $Config{static_ext} =~ /warnings/;
 
     $no = join('|', @no);
     $no = qr/^(?:$no)$/i;
