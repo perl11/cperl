@@ -99,7 +99,6 @@ for my $k (qw(libdb_needs_pthread malloc_cflags
 }
 
 # Test if gperf works. if not patch xsout instead.
-my $gperf_ok;
 {
     local $!;
     $gperf_ok = !(system("gperf --output-file=${xsout}_tmp $xsin") >> 8);
@@ -194,8 +193,9 @@ while (<$in>) {
         my $v = $h{$k};
         my $l = length $v;
         my $qr = "0,\"@@".$k."@@\"";
+        $v =~ s/\\([^"])/\\\\$1/g;
         my $new = "$l,\"$v\"";
-        s/$qr/$new/ if $l; # we have one line per key only
+        s/$qr/$new/; # we have one line per key only
         # check correct type
         my $type = t_type($v);
         # T_INT is returned for bool, skip it.
@@ -204,8 +204,11 @@ while (<$in>) {
                 s/\tT_...,/\t$type,/;
             }
         }
+        chomp;
+        print $xs $_, " /* $k */\n";
+    } else {
+        print $xs $_;
     }
-    print $xs $_;
 }
 close $in;
 close $xs;
