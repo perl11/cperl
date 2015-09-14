@@ -27,9 +27,11 @@ env:
     - CONFIGURE_OPTION='-Duselongdouble' CC='clang'
     - CONFIGURE_OPTION='-Duselongdouble -DDEBUGGING' CC='gcc'
     - CONFIGURE_OPTION='-Duse64bitall -Dusethreads' CC='gcc'
+  allow_failures:
     - CONFIGURE_OPTION='-Duse64bitall -Dusethreads -DDEBUGGING' CC='clang'
+  fast_finish: true
 
-#   - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native"'
+#- CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native"'
 
 script:
   - ./Configure -des -Dusedevel -Dusecperl -Uversiononly -Dcc=$CC $CONFIGURE_OPTION -Dprefix=$HOME/perl-blead && (make -j4 -s || make -s configpm || true)
