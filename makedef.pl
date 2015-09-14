@@ -1260,7 +1260,8 @@ if ($ARGS{PLATFORM} eq 'os2') {
 
 if ($ARGS{PLATFORM} =~ /^win(?:32|ce)$/) {
     my $dll = $define{PERL_DLL} ? $define{PERL_DLL} =~ s/\.dll$//ir
-	: "perl$Config{api_revision}$Config{api_version}";
+      : "perl$Config{api_revision}$Config{api_version}";
+    $dll = 'c'.$dll if $Config{usecperl};
     print "LIBRARY $dll\n";
     # The DESCRIPTION module definition file statement is not supported
     # by VC7 onwards.

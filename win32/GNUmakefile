@@ -50,6 +50,8 @@ endif
 ## Build configuration.  Edit the values below to suit your needs.
 ##
 
+USE_CPERL	= 1
+
 #
 # Set these to wherever you want "gmake install" to put your
 # newly built perl.
@@ -699,6 +701,7 @@ CFG_VARS	=					\
 		"_a=$(a)"				\
 		"lib_ext=$(a)"				\
 		"static_ext=$(STATIC_EXT)"		\
+		"usecperl=$(USE_CPERL)"			\
 		"usethreads=$(USE_ITHREADS)"		\
 		"useithreads=$(USE_ITHREADS)"		\
 		"usemultiplicity=$(USE_MULTI)"		\
@@ -952,6 +955,8 @@ $(MINIPERL) : ..\lib\buildcustomize.pl
 
 ..\lib\buildcustomize.pl : $(MINIDIR) $(MINI_OBJ) $(CRTIPMLIBS) ..\write_buildcustomize.pl
 	$(LINK32) -mconsole -o $(MINIPERL) $(BLINK_FLAGS) $(MINI_OBJ) $(LIBFILES)
+	$(MINIPERL) -I..\lib -f ..\make_patchnum.pl
+	$(MINIPERL) -I..\lib -f ..\configpm
 	$(MINIPERL) -I..\lib -f ..\write_buildcustomize.pl ..
 
 $(MINIDIR) :
@@ -1052,6 +1057,32 @@ $(PERLEXESTATIC): $(PERLSTATICLIB) $(CONFIGPM) $(PERLEXEST_OBJ) $(PERLEXE_RES)
 
 MakePPPort: $(MINIPERL) $(CONFIGPM) Extensions_nonxs
 	$(MINIPERL) -I..\lib ..\mkppport
+
+#-------------------------------------------------------------------------------
+# cperl miniperl bootstrapping (later also for warnings and unicode)
+mini_boot : Config_boot
+mini_post : Config_post
+
+Config_boot : lib\Config_heavy.pl
+	$(CPS) lib\Config_mini.pl lib\Config.pm
+
+Config_post:
+	$(RMS) lib\Config.pm
+	$(CPS) ext\Config\Config.pm lib\Config.pm
+
+..\ext\Config\Config.xs : ..\ext\Config\Config_xs.PL ext\Config\Config_xs.in $(MINIPERL)
+	$(MINIPERL) -I..\lib  ..\ext\Config\Config_xs.PL
+..\ext\Config\Config.c : ..\ext\Config\Config.xs $(MINIPERL) ..\dist\ExtUtils-ParseXS\pm_to_blib
+	cd ..\ext\Config && $(LDLIBPTH) ..\..\$(MINIPERL) -I..\..\lib ..\..\lib\ExtUtils\xsubpp -noprototypes \
+		-typemap ..\..\lib\ExtUtils\typemap Config.xs > Config.c
+..\ext\Config\Config.i : ..\ext\Config\Config.c $(CORE_NOCFG_H)
+	$(CC) -c -I$(<D) $(CFLAGS_O) -I. -E ..\ext\Config\Config.c > $@
+..\ext\Config\Config$(OBJ_EXT) : ..\ext\Config\Config.c $(CORE_NOCFG_H)
+	$(CC) -c -I$(<D) $(CFLAGS_O) $(LDDLFLAGS) $(CCCDLFLAGS) -I.. ..\ext\Config\Config.c -o $@ -DXS_VERSION=\"$(CONFIG_VERSION)\"
+..\lib\auto\Config\Config.dll : ..\ext\Config\Config$(OBJ_EXT)
+	mkdir -p ..\lib\auto\Config
+	$(LINK32) -o $@ $(BLINK_FLAGS) $< $(LIBFILES)
+	$(MAKE) Config_post
 
 #-------------------------------------------------------------------------------
 # There's no direct way to mark a dependency on
