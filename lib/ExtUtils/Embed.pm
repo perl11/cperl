@@ -117,8 +117,7 @@ EOT
             $fname = "DynaLoader::boot_DynaLoader";
             $retval .= "    newXS(\"$fname\", boot_${cname}, file);\n";
             # with cperl we have no DynaLoader.pm anymore, boot it immediately.
-            $retval .= "    boot_DynaLoader(aTHX_ get_cv(\"$fname\", 0));\n"
-                if $Config{usecperl};
+            $retval .= "    boot_DynaLoader(aTHX_ get_cv(\"$fname\", 0));\n";
         } else {
             $fname = "${mname}::bootstrap";
             $retval .= "    newXS(\"$fname\", boot_${cname}, file);\n"
