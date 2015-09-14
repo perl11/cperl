@@ -5,6 +5,7 @@ These are the changes above perl-5.22.1 (i.e. 5.23.0)
 See pod/perlcperl.pod for a summary, but note that perlcperl includes also
 still in work features.
 
+  * Enable cloning of readonly packages with threads (upstream bug)
   * Add Travis hooks: https://travis-ci.org/perl11/cperl
   * Do not fallback to u_ ops on 32bit.
   * installperl uses PERLNAME=cperl with -Dusecperl
@@ -16,7 +17,7 @@ still in work features.
     #125350: qq{@{[0}*sub{]]}}}=sub{0' . "\c[" (Shlomi Fish, not upstream)
     fixed various off-by-one \0 errors with the new 5.16 GV code.
   * merge SVf_PROTECT with SVf_READONLY, no double readonly system
-  * fix old OA_TARGLEX bug with TARGET_MY optim
+  * fix ops using lexical $_, old OA_TARGLEX bug with TARGET_MY optim
   * add shaped arrays and optimize certain accesses to omit run-time
     bounds checks. loops with static ranges, constant array indices.
   * typed all internal ops and use them.

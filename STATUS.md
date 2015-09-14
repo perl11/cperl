@@ -59,6 +59,7 @@ github repo soon.
 * improved build system (make -s, faster, CC vs LD confusion)
 * hash keys keep the tainted info. see [perlsec](http://perldoc.perl.org/perlsec.html#Taint-mode)
 * fix ops using lexical `$_`
+* readonly packages can be cloned with threads
 
 Most of them only would have a chance to be merged upstream if a
 p5p committer would have written it.
@@ -75,7 +76,17 @@ See the github issues: [github.com/perl11/cperl/issues](http://github.com/perl11
 With 32bit fast-arithmetic optimizations are currently disabled.
 
 OS-specific non-unix Makefiles (e.g. Windows, VMS, os2, Cross, NetWare..)
-cannot generate a dynamic Config yet.
+cannot generate a dynamic Config yet. You may call it our temp. _"Config hell"_,
+but it's worth it. Patches welcome.
+
+Parallel builds sometimes stop at missing `Config.pm`. Redo the make
+then.  Packagers should try a 2nd make if the first stops, sorry. See
+the `.travis.yml` recipe.
+
+Without `-Dusecperl`, i.e. building a normal perl5, fails on a few tests.
+You shouldn't do that. See [#34](http://github.com/perl11/cperl/issues/34).
+USE_CPERL only makes it easier to take patches to upstream, but not all
+cornercases are adjusted.
 
 # Branch overview
 
