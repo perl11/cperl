@@ -27,10 +27,13 @@ env:
     - CONFIGURE_OPTION='-Duselongdouble' CC='clang'
     - CONFIGURE_OPTION='-Duselongdouble -DDEBUGGING' CC='gcc'
     - CONFIGURE_OPTION='-Duse64bitall -Dusethreads' CC='gcc'
-    - CONFIGURE_OPTION='-Uusecperl'
+
 matrix:
   allow_failures:
+    - CONFIGURE_OPTION='-Uusecperl'
     - CONFIGURE_OPTION='-Duse64bitall -Dusethreads -DDEBUGGING' CC='clang'
+
+matrix:
   fast_finish: true
 
 #- CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native"'
