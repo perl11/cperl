@@ -1,14 +1,14 @@
 package FindExt;
 
-our $VERSION = '1.03';
+our $VERSION = '1.03_01c';
 
 use strict;
 use warnings;
-#use Config; #[cperl #33]
+my $no_config;
+BEGIN { eval {require Config;}; $no_config = 1 if $@;}
 
 my $no = join('|',qw(GDBM_File ODBM_File NDBM_File DB_File
-                     VMS.* Sys-Syslog IPC-SysV I18N-Langinfo
-                     Config warnings));
+                     VMS.* Sys-Syslog IPC-SysV I18N-Langinfo));
 $no = qr/^(?:$no)$/i;
 
 sub apply_config {
@@ -27,8 +27,12 @@ sub apply_config {
       unless ($config->{i_dbm} || $config->{i_rpcsvcdbm}) && !$config->{d_cplusplus};
     push @no, "VMS.*" unless $^O eq "VMS";
     push @no, "Win32.*" unless $^O eq "MSWin32" || $^O eq "cygwin";
-    push @no, "Config";   #unless $Config{static_ext} =~ /Config/;
-    push @no, "warnings"; #unless $Config{static_ext} =~ /warnings/;
+    if ($no_config) {
+      push @no, "Config", "warnings";
+    } else {
+      push @no, "Config" unless $Config::Config{static_ext} =~ /Config/;
+      push @no, "warnings" unless $Config::Config{static_ext} =~ /warnings/;
+    }
 
     $no = join('|', @no);
     $no = qr/^(?:$no)$/i;
