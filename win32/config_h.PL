@@ -56,6 +56,7 @@ while (<SH>)
  {
   last if /^$term$/o;
   s/\$([\w_]+)/Config($1)/eg;
+  s/\$\{hash_func\}/Config('hash_func')/eg;
   s/`([^\`]*)`/BackTick($1)/eg;
   munge();
   s/\\\$/\$/g;

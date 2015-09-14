@@ -5273,15 +5273,16 @@
 #endif
 
 /* PERL_HASH_FUNC_*:
- *	This symbol, if defined, defines the used perl hash function variant.
+ *	This symbol defines the used perl hash function variant.
+ *      It is set in Configure or via -Dhash_func=, but can be left blank.
  */
-#ifndef PERL_HASH_FUNC_FNV1A
+#ifndef	PERL_HASH_FUNC_FNV1A
 #define	PERL_HASH_FUNC_FNV1A	/**/
 #endif
 
 #endif
 
 /* Generated from:
- * 33faf955718b4857a4472c34872371f2476fac6cd45cfa905a7136d8b26fce3c config_h.SH
+ * bab58d17bab0ec697840e6568e88a3b0d52225d31bf9a100b995430e1bbdef53 config_h.SH
  * 3f1968edf63131b2d3c1682a35d219f2a3440c1c04da1a410b40a56718d85367 uconfig.sh
  * ex: set ro: */
