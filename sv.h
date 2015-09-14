@@ -398,9 +398,9 @@ perform the upgrade if necessary.  See C<svtype>.
 				       perl_destruct will skip it. */
 #define SVf_READONLY	0x08000000  /* may not be modified */
 
-#ifdef USE_CPERL
 #define SVf_NATIVE	0x00010000  /* for lexicals in curpad[], the PV slot
                                        holds the value. */
+#ifdef USE_CPERL
 #undef SVf_PROTECT
 #define SVf_PROTECT	SVf_READONLY
 #endif
@@ -903,6 +903,10 @@ Set the actual length of the string which is in the SV.  See C<SvIV_set>.
 #define SvNATIVE(sv)		(SvFLAGS(sv) & SVf_NATIVE)
 #define SvNATIVE_on(sv)		(SvFLAGS(sv) |= SVf_NATIVE)
 #define SvNATIVE_off(sv)	(SvFLAGS(sv) &= ~SVf_NATIVE)
+#else
+#define SvNATIVE(sv)		0
+#define SvNATIVE_on(sv)
+#define SvNATIVE_off(sv)
 #endif
 
 /*
