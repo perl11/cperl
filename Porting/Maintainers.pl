@@ -433,6 +433,9 @@ use File::Glob qw(:case);
             qw(README.mkdn),
             qr{^xt},
         ],
+        'CUSTOMIZED'   => [ qw( t/00-have-compiler.t
+                                t/03-cplusplus.t
+	                      )],
     },
 
     'ExtUtils::Command' => {
