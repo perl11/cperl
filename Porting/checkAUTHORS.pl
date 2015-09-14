@@ -115,11 +115,17 @@ sub parse_commits_from_stdin {
 # just grab authors. Quicker than parse_commits_from_stdin
 
 sub parse_commits_from_stdin_authors {
+    my $author;
     while (<>) {
         next unless /^Author:\s*(.*)$/;
-	my $author = $1;
+	$author = $1;
 	$author = _raw_address($author);
 	$patchers{$author}++;
+    }
+    if ($ENV{TRAVIS}) {
+        # allow Travis to change ext/Config/Config_xs.{in,out}
+        $author = _raw_address('Travis CI <noreply@travis-ci.com>');
+        $patchers{$author}++;
     }
 }
 

@@ -34,6 +34,7 @@ my $devnull = File::Spec->devnull;
 my $changes;
 foreach (`git status --porcelain 2>$devnull`) {
     next if /^\?\?/;
+    next if m{ ext/Config/Config_xs\.(in|out)$}; # allow changes there
     ++$changes;
     last;
 }
