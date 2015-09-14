@@ -73,7 +73,9 @@ mistakes. It never happened so far.
 See the github issues: [github.com/perl11/cperl/issues](http://github.com/perl11/cperl/issues)
 
 With 32bit fast-arithmetic optimizations are currently disabled.
-With threads a few IO tests fail. `-Dusethreads` is not recommended for now.
+
+OS-specific non-unix Makefiles (e.g. Windows, VMS, os2, Cross, NetWare..)
+cannot generate a dynamic Config yet.
 
 # Branch overview
 
@@ -147,12 +149,10 @@ They also revert some wrong decisions p5p already made.
 
 ## Soon
 
-* threads fixes. threads are unstable currently and fail a few IO tests.
-
 * user facing types and classes, multiple dispatch
 
 * builtin macros
 
 * builtin ffi
 
-2015-09-09 rurban
+2015-09-14 rurban
