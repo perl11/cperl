@@ -1061,13 +1061,11 @@ static SV * dl_findfile(pTHX_ AV* args, int gimme) {
             for (k=0; k<=AvFILLp(names); k++) {
                 SV* name = AvARRAY(names)[k];
                 SV* file = newSVpv(dirn, SvCUR(dir));
-                sv_catpvs(file,
 #ifdef __SYMBIAN32__
-                          "\\"
+                sv_catpvs(file,"\\");
 #else
-                          "/"
+                sv_catpvs(file, "/");
 #endif
-                );
                 sv_catsv(file, name);
                 DLDEBUG(1,PerlIO_printf(Perl_debug_log, " checking in %s for %s\n",
                                 dirn, SvPVX(name)));

@@ -710,7 +710,7 @@ usage:
     SPAGAIN;
     if (stash && HvNAMELEN(stash)) {
         const Size_t len = sizeof("FETCH_svtype_ATTRIBUTES");
-        char name[len]; /* max of SCALAR,ARRAY,HASH,CODE */
+        char name[sizeof("FETCH_svtype_ATTRIBUTES")]; /* max of SCALAR,ARRAY,HASH,CODE */
         const char *reftype = sv_reftype(sv, 0);
 
         /* TODO: check the phase. at compile-time use CHECK instead */

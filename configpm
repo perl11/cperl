@@ -1151,6 +1151,8 @@ my ($orig_config_txt, $orig_heavy_txt, $orig_heavy_xs_txt) = ("", "", "");
 }
 
 if ($orig_config_txt ne $config_txt or $orig_heavy_txt ne $heavy_txt) {
+    #Config XS makes Config.pm readonly on Win32, undo that to it can be written to
+    -e $Config_PM and chmod(0777, $Config_PM) || die "Can't chmod $Config_PM: $!\n";
     open CONFIG, ">", $Config_PM or die "Can't open $Config_PM: $!\n";
     open CONFIG_HEAVY, ">", $Config_heavy or die "Can't open $Config_heavy: $!\n";
     print CONFIG $config_txt;
@@ -1179,7 +1181,15 @@ require $Config_PM;
 require $Config_heavy;
 import Config;
 
-system ($Config{'cp'}, $Config_PM, $Config_mini);
+if($^O ne 'MSWin32') {
+    system ($Config{'cp'}, $Config_PM, $Config_mini);
+} else {
+    my ($Config_PM, $Config_mini) = ($Config_PM, $Config_mini);
+    #cmd.exe's copy doesn't allow /s only \s
+    $Config_PM =~ tr|/|\\|;
+    $Config_mini =~ tr|/|\\|;
+    system ('copy', $Config_PM, $Config_mini);
+}
 
 die "$0: $Config_PM not valid"
 	unless $Config{'PERL_CONFIG_SH'} eq 'true';

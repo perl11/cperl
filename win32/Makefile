@@ -654,13 +654,13 @@ GLOBBAT		= bin\perlglob.bat
 UTILS		=			\
 		..\utils\h2ph		\
 		..\utils\splain		\
-		..\utils\perlbug	\
+		..\utils\cperlbug	\
 		..\utils\pl2pm 		\
 		..\utils\c2ph		\
 		..\utils\pstruct	\
 		..\utils\h2xs		\
-		..\utils\perldoc	\
-		..\utils\perlivp	\
+		..\utils\cperldoc	\
+		..\utils\cperlivp	\
 		..\utils\libnetcfg	\
 		..\utils\enc2xs		\
 		..\utils\encguess		\
@@ -723,6 +723,7 @@ MICROCORE_SRC	=		\
 		..\pp_pack.c	\
 		..\pp_sort.c	\
 		..\pp_sys.c	\
+		..\pp_type.c	\
 		..\reentr.c	\
 		..\regcomp.c	\
 		..\regexec.c	\
@@ -1213,7 +1214,6 @@ distclean: realclean
 	-del /f $(LIBDIR)\Config.pod $(LIBDIR)\POSIX.pod $(LIBDIR)\threads.pm
 	-del /f $(LIBDIR)\.exists $(LIBDIR)\DynaLoader.pm
 	-del /f $(LIBDIR)\XSLoader.pm $(LIBDIR)\lib.pm
-n.
 	-del /f $(LIBDIR)\Fcntl.pm $(LIBDIR)\IO.pm $(LIBDIR)\Opcode.pm
 	-del /f $(LIBDIR)\ops.pm $(LIBDIR)\Safe.pm
 	-del /f $(LIBDIR)\SDBM_File.pm $(LIBDIR)\Socket.pm $(LIBDIR)\POSIX.pm
@@ -1302,8 +1302,8 @@ n.
 	    perlsolaris.pod perlsymbian.pod perlsynology.pod perltoc.pod \
 	    perltru64.pod perltw.pod perluniprops.pod perlvos.pod \
 	    perlwin32.pod
-	-cd ..\utils && del /f h2ph splain perlbug pl2pm c2ph pstruct h2xs \
-	    perldoc perlivp libnetcfg enc2xs encguess piconv cpan *.bat \
+	-cd ..\utils && del /f h2ph splain cperlbug pl2pm c2ph pstruct h2xs \
+	    cperldoc cperlivp libnetcfg enc2xs encguess piconv cpan *.bat \
 	    xsubpp pod2html instmodsh json_pp prove ptar ptardiff ptargrep shasum corelist zipdetails
 	-del /f ..\config.sh perlmain.c dlutils.c config.h.new \
 	        perlmainst.c
@@ -1427,18 +1427,18 @@ clean : Extensions_clean _clean
 
 realclean : Extensions_realclean _clean
 
-# Handy way to run perlbug -ok without having to install and run the
-# installed perlbug. We don't re-run the tests here - we trust the user.
+# Handy way to run cperlbug -ok without having to install and run the
+# installed cperlbug. We don't re-run the tests here - we trust the user.
 # Please *don't* use this unless all tests pass.
 # If you want to report test failures, use "nmake nok" instead.
 ok: utils
-	$(PERLEXE) ..\utils\perlbug -ok -s "(UNINSTALLED)"
+	$(PERLEXE) ..\utils\cperlbug -ok -s "(UNINSTALLED)"
 
 okfile: utils
-	$(PERLEXE) ..\utils\perlbug -ok -s "(UNINSTALLED)" -F perl.ok
+	$(PERLEXE) ..\utils\cperlbug -ok -s "(UNINSTALLED)" -F perl.ok
 
 nok: utils
-	$(PERLEXE) ..\utils\perlbug -nok -s "(UNINSTALLED)"
+	$(PERLEXE) ..\utils\cperlbug -nok -s "(UNINSTALLED)"
 
 nokfile: utils
-	$(PERLEXE) ..\utils\perlbug -nok -s "(UNINSTALLED)" -F perl.nok
+	$(PERLEXE) ..\utils\cperlbug -nok -s "(UNINSTALLED)" -F perl.nok
