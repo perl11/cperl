@@ -5310,19 +5310,28 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 /* PERL_HASH_FUNC_*:
  *	This symbol, if defined, defines the used perl hash function variant.
  */
-!GROK!THIS!
-
-if test -n "$hash_func"; then
-  cat <<END >>$CONFIG_H
-#ifndef PERL_HASH_FUNC_${hash_func}
+#if !(     defined(PERL_HASH_FUNC_SIPHASH) \
+        || defined(PERL_HASH_FUNC_SDBM) \
+        || defined(PERL_HASH_FUNC_DJB2) \
+        || defined(PERL_HASH_FUNC_SUPERFAST) \
+        || defined(PERL_HASH_FUNC_MURMUR3) \
+        || defined(PERL_HASH_FUNC_OAAT) \
+        || defined(PERL_HASH_FUNC_OAAT_HARD) \
+        || defined(PERL_HASH_FUNC_OAAT_OLD) \
+        || defined(PERL_HASH_FUNC_MURMUR64A) \
+        || defined(PERL_HASH_FUNC_MURMUR64B) \
+        || defined(PERL_HASH_FUNC_FNV1A) \
+        || defined(PERL_HASH_FUNC_FNV1A_YOSHIMITSUTRIAD) \
+        || defined(PERL_HASH_FUNC_CRC32) \
+        || defined(PERL_HASH_FUNC_METRO64CRC) \
+        || defined(PERL_HASH_FUNC_METRO64) \
+        || defined(PERL_HASH_FUNC_SPOOKY32) \
+        || defined(PERL_HASH_FUNC_FARMHASH64) \
+    )
 #define	PERL_HASH_FUNC_${hash_func}	/**/
 #endif
-END
-fi
-
-cat <<END >>$CONFIG_H
 
 #endif
-END
+!GROK!THIS!
 ;;
 esac
