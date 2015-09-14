@@ -349,7 +349,9 @@ use File::Glob qw(:case);
         'EXCLUDED'     => [
             'PPPort.pm',    # we use PPPort_pm.PL instead
             'README.md',
-        ]
+        ],
+        # cperl fix to support make -s
+        'CUSTOMIZED'   => [ qw( PPPort_pm.PL PPPort_xs.PL )],
     },
 
     'Devel::SelfStubber' => {
@@ -368,6 +370,9 @@ use File::Glob qw(:case);
         'DISTRIBUTION' => 'GAAS/Digest-MD5-2.54.tar.gz',
         'FILES'        => q[cpan/Digest-MD5],
         'EXCLUDED'     => ['rfc1321.txt'],
+        # cperl fix for static is not at beginning of declaration
+        # Note that ebcdic needs to regenerate the md5sum in t/files.t
+        'CUSTOMIZED'   => [ qw( MD5.xs t/files.t )],
     },
 
     'Digest::SHA' => {
@@ -390,6 +395,8 @@ use File::Glob qw(:case);
     'Encode' => {
         'DISTRIBUTION' => 'DANKOGAI/Encode-2.73.tar.gz',
         'FILES'        => q[cpan/Encode],
+        # cperl fix to support make -s
+        'CUSTOMIZED'   => [ qw( bin/enc2xs )],
     },
 
     'encoding::warnings' => {
@@ -433,6 +440,7 @@ use File::Glob qw(:case);
             qw(README.mkdn),
             qr{^xt},
         ],
+        # skip them on travis [cperl #32]
         'CUSTOMIZED'   => [ qw( t/00-have-compiler.t
                                 t/03-cplusplus.t
 	                      )],
@@ -486,6 +494,7 @@ use File::Glob qw(:case);
             'README.packaging',
         ],
         # Applied upstream remove customisation when updating EUMM
+        # cperl skips the ending 'c'
         'CUSTOMIZED'   => [ qw[ t/pm_to_blib.t
                                 t/basic.t
                                 lib/ExtUtils/Command/MM.pm
@@ -711,6 +720,8 @@ use File::Glob qw(:case);
                 t/00pod.t
                 ),
         ],
+        # cperl fix to support make -s
+        'CUSTOMIZED'   => [ qw( lib_pm.PL )],
     },
 
     'libnet' => {
@@ -726,6 +737,8 @@ use File::Glob qw(:case);
             qr(^demos/),
             qr(^t/external/),
         ],
+        # cperl fix 3.06_01c for darwin to use hostname
+        'CUSTOMIZED'   => [ qw( lib/Net/Domain.pm )],
     },
 
     'Locale-Codes' => {
@@ -835,6 +848,10 @@ use File::Glob qw(:case);
     'Module::CoreList' => {
         'DISTRIBUTION' => 'BINGOS/Module-CoreList-5.20150520.tar.gz',
         'FILES'        => q[dist/Module-CoreList],
+        # skip ending 'c' in numeric context on cperl
+        'CUSTOMIZED'   => [ qw( lib/Module/CoreList.pm
+                                lib/Module/CoreList/Utils.pm
+	                      )],
     },
 
     'Module::Load' => {
@@ -927,6 +944,10 @@ use File::Glob qw(:case);
     'Pod::Checker' => {
         'DISTRIBUTION' => 'MAREKR/Pod-Checker-1.60.tar.gz',
         'FILES'        => q[cpan/Pod-Checker],
+        # cperl fix to support make -s + dos2unix
+        'CUSTOMIZED'   => [ qw( scripts/podchecker.PL
+			        scripts/podselect.PL
+			      )],
     },
 
     'Pod::Escapes' => {
@@ -968,6 +989,8 @@ use File::Glob qw(:case);
     'Pod::Usage' => {
         'DISTRIBUTION' => 'MAREKR/Pod-Usage-1.67.tar.gz',
         'FILES'        => q[cpan/Pod-Usage],
+        # cperl fix to support make -s
+        'CUSTOMIZED'   => [ qw( scripts/pod2usage.PL )],
     },
 
     'podlators' => {
@@ -977,7 +1000,7 @@ use File::Glob qw(:case);
         # The perl distribution has pod2man.PL and pod2text.PL,  which are
         # run to create pod2man and pod2text, while the CPAN distribution
         # just has the post-generated pod2man and pod2text files.
-        # The following entries attempt to codify that odd fact.
+        # Also: cperl fix to support make -s
         'CUSTOMIZED' => [
             qw( scripts/pod2man.PL
                 scripts/pod2text.PL
@@ -994,8 +1017,11 @@ use File::Glob qw(:case);
     },
 
     'Safe' => {
-        'DISTRIBUTION' => 'RGARCIA/Safe-2.35.tar.gz',
+        'DISTRIBUTION' => 'RGARCIA/Safe-2.39.tar.gz',
         'FILES'        => q[dist/Safe],
+        # improved 2.39_01c on cperl
+        'CUSTOMIZED'   => [ qw( Safe.pm
+				t/safeops.t ) ],
     },
 
     'Scalar-List-Utils' => {
@@ -1102,6 +1128,13 @@ use File::Glob qw(:case);
                 t/lib/if.pm
                 ),
         ],
+        # TODO skipped on cperl: bug CM-834
+        'CUSTOMIZED'   => [
+            qw( t/multiplexer.t
+                t/nofork.t
+                t/regression.t
+                t/sample-tests/switches
+              )],
     },
 
     'Test::Simple' => {
@@ -1281,6 +1314,7 @@ use File::Glob qw(:case);
                 ),
 
             # Merged upstream, waiting for new CPAN release: see CPAN RT#92721
+            # cperl skips the ending 'c'
             qw( vutil.c
                 ),
         ],
