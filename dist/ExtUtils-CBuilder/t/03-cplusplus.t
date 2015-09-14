@@ -19,7 +19,10 @@ my ($source_file, $object_file, $lib_file);
 my $b = ExtUtils::CBuilder->new(quiet => $quiet);
 
 # test plan
-if ( ! $b->have_cplusplus ) {
+if ($ENV{TRAVIS}) {
+  plan skip_all => "Instable Travis-CI test";
+}
+elsif ( ! $b->have_cplusplus ) {
   plan skip_all => "no compiler available for testing";
 }
 else {
