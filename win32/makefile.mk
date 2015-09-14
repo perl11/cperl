@@ -6,7 +6,7 @@
 #	Windows SDK 64-bit compiler and tools
 #
 # This is set up to build a perl.exe that runs off a shared library
-# (perl523.dll).  Also makes individual DLLs for the XS extensions.
+# (cperl522.dll).  Also makes individual DLLs for the XS extensions.
 #
 
 ##
@@ -205,7 +205,7 @@ CCTYPE		*= GCC
 # set this to additionally provide a statically linked perl-static.exe.
 # Note that dynamic loading will not work with this perl, so you must
 # include required modules statically using the STATIC_EXT or ALL_STATIC
-# variables below. A static library perl523s.lib will also be created.
+# variables below. A static library cperl522s.lib will also be created.
 # Ordinary perl.exe is not affected by this option.
 #
 #BUILD_STATIC	*= define
@@ -819,8 +819,8 @@ UTILS		=			\
 
 CFGSH_TMPL	= config.gc
 CFGH_TMPL	= config_H.gc
-PERLIMPLIB	= ..\libperl523$(a)
-PERLSTATICLIB	= ..\libperl523s$(a)
+PERLIMPLIB	= ..\libcperl522$(a)
+PERLSTATICLIB	= ..\libcperl522s$(a)
 INT64		= long long
 
 .ELSE
@@ -833,9 +833,9 @@ INT64		= __int64
 
 # makedef.pl must be updated if this changes, and this should normally
 # only change when there is an incompatible revision of the public API.
-PERLIMPLIB	*= ..\perl523$(a)
-PERLSTATICLIB	*= ..\perl523s$(a)
-PERLDLL		= ..\perl523.dll
+PERLIMPLIB	*= ..\cperl522$(a)
+PERLSTATICLIB	*= ..\cperl522s$(a)
+PERLDLL		= ..\cperl522.dll
 
 XCOPY		= xcopy /f /r /i /d /y
 RCOPY		= xcopy /f /r /i /e /d /y
