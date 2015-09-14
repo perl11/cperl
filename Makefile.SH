@@ -350,7 +350,8 @@ nonxs_ext = $nonxs_list
 boot_ext = $boot_ext
 ext = \$(boot_ext) \$(dynamic_ext) \$(static_ext) \$(nonxs_ext)
 DYNALOADER = DynaLoader\$(OBJ_EXT)
-DL_SRC = ext/DynaLoader/DynaLoader.xs ext/DynaLoader/dlboot.c ext/DynaLoader/dlutils.c
+DL_SRC = ext/DynaLoader/DynaLoader.xs ext/DynaLoader/dlboot.c ext/DynaLoader/dlutils.c \
+         ext/DynaLoader/XSLoader.c
 
 libs = $perllibs $cryptlib
 
