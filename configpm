@@ -1172,6 +1172,7 @@ if ($orig_heavy_xs_txt ne $heavy_xs_txt) {
     }
 }
 
+
 # Now do some simple tests on the Config.pm file we have created
 unshift(@INC,'lib');
 require $Config_PM;

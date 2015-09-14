@@ -34,8 +34,8 @@ env:
 #- CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native"'
 
 script:
-  - ./Configure -des -Dusedevel -Dusecperl -Uversiononly -Dcc=$CC $CONFIGURE_OPTION -Dprefix=$HOME/perl-blead && (make -j4 -s || make -s configpm || true)
-  - make -s || make -s mini_post || true
+  - ./Configure -des -Dusedevel -Dusecperl -Uversiononly -Dcc=$CC $CONFIGURE_OPTION -Dprefix=$HOME/perl-blead && (make -j4 -s || make -s lib/Config.pod || true)
+  - make -s || make mini_post || true
   - TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/perl-blead/bin/cperlivp
 
 notifications:
