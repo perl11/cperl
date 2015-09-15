@@ -4,6 +4,7 @@ use strict;
 # This needs to be able to run from a clean checkout, hence assume only system
 # perl, which may be too old to have autodie
 
+use Config;
 require 'Porting/pod_lib.pl';
 
 my $state = get_pod_metadata(1);
@@ -21,6 +22,8 @@ if ($was_minor < 0) {
     --$was_major;
 }
 my $newdelta_filename = "perl5$new_major${new_minor}delta.pod";
+my $olddeltasname = $Config{usecperl} ? 'perlcdelta.pod' : 'perldelta.pod';
+$newdelta_filename =~ s/delta/cdelta/ if $Config{usecperl};
 
 {
     # For now, just tell the user what to add, as it's safer.
@@ -54,13 +57,15 @@ $gitignore =~ s{^/$state->{delta_target}$}
 write_or_die($filename, $gitignore);
 git_add_modified($filename);
 
-my $olddelta = slurp_or_die('pod/perldelta.pod');
+my $olddelta = slurp_or_die("pod/$olddeltasname");
 
 $olddelta =~ s{^(perl)(delta - what is new for perl v5.$old_major.$old_minor)$}
               {$1 . "5$old_major$old_minor" . $2}me
     or die "Can't find expected NAME contents in $olddelta";
+$olddelta =~ s/ perl/ cperl/ if $Config{usecperl};
 
 my $olddeltaname = "pod/perl5$old_major${old_minor}delta.pod";
+$olddeltaname =~ s/delta/cdelta/ if $Config{usecperl};
 # in a built tree, $olddeltaname is a symlink to perldelta.pod, make sure
 # we don't write through it
 unlink($olddeltaname);
@@ -69,6 +74,10 @@ git_add_new($olddeltaname);
 
 $filename = 'Porting/perldelta_template.pod';
 my $newdelta = slurp_or_die($filename);
+if ($Config{usecperl}) {
+    $newdelta =~ s/ perl/ cperl/;
+    $newdelta =~ s/perldelta/perlcdelta/;
+}
 
 foreach([rXXX => $was_major],
         [sXXX => $old_major],
@@ -82,8 +91,8 @@ foreach([rXXX => $was_major],
         or die "Can't find '$token' in $filename";
 }
 
-write_or_die('pod/perldelta.pod', $newdelta);
-git_add_modified('pod/perldelta.pod');
+write_or_die("pod/$olddeltasname", $newdelta);
+git_add_modified("pod/$olddeltasname");
 
 $filename = 'pod/perl.pod';
 my $pod_master = slurp_or_die($filename);

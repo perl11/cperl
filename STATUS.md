@@ -25,9 +25,12 @@ maintenance than the upstream p5p perl5. See [README.cperl](perlcperl.html).
 Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 
-The first release based on 5.22.1 is scheduled on Sep 14. 2015.
+The first release
+[5.22.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.1)
+was at Sep. 14, 2015.  The next release 5.22.2c is somewhen this year
+2015.
 
-All tests pass, most of CPAN works, 3 fixes in the distroprefs repo
+All tests pass, most of CPAN works, 3 fixes in my `rurban/distroprefs` repo
 for `Variable::Magic` and `CPAN::Meta::Requirements` and `version` are needed.
 This is much less than with a typical major perl5 release.
 
@@ -36,9 +39,6 @@ This is much less than with a typical major perl5 release.
 ![Memory usage: with Config_heavy](cperl-p0.png)
 
 ![Memory usage with unicode s///i](cperl-p1.png)
-
-Issues will be copied over from our internal stash repo to the public
-github repo soon.
 
 # In the stable master branch are the following major features
 
@@ -104,26 +104,26 @@ were rejected and 2 were butchered, i.e. rewritten in a worse way.
 Those branches could theoretically be merged upstream, but the chances
 are limited. So they are based on master.
 
-* [feature/CM-600-cperl-cowrefcnt](http://github.com/perl11/cperl/commits/feature/CM-600-cperl-cowrefcnt)
+* [feature/gh8-cowrefcnt](http://github.com/perl11/cperl/commits/feature/gh8-cowrefcnt)
 
   works for the compiler, but does not do COW yet, i.e. slower for
   uncompiled perls, faster for compiled.
 
 * [feature/CM-367-cperl-warnings-xs-carp](http://github.com/perl11/cperl/commits/feature/CM-367-cperl-warnings-xs-carp)
 * [feature/CM-367-cperl-carp-builtin](http://github.com/perl11/cperl/commits/feature/CM-367-cperl-carp-builtin)
-* [feature/CM-370-cperl-warnings-xs](http://github.com/perl11/cperl/commits/feature/CM-370-cperl-warnings-xs)
+* [feature/gh9-warnings-xs](http://github.com/perl11/cperl/commits/feature/gh9-warnings-xs)
 
   much faster and much less memory, but 3 minor scope test fails.
 
-* [feature/CM-317-cperl-signatures3](http://github.com/perl11/cperl/commits/feature/CM-317-cperl-signatures3)
+* [feature/gh7-signatures3](http://github.com/perl11/cperl/commits/feature/gh7-signatures3)
 
   proper sigs on top of davem's OP_SIGNATURE, 2x faster
 
-* [feature/CM-317-cperl-signatures3-CM-690-nl](http://github.com/perl11/cperl/commits/feature/CM-317-cperl-signatures3-CM-690-nl)
+* [feature/gh7-signatures3-gh25-nl](http://github.com/perl11/cperl/commits/feature/gh7-signatures3-gh25-nl)
 
   newlines in sigs broken, adjusted the tests.
 
-* [feature/CM-916-cperl-no-miniperl](http://github.com/perl11/cperl/commits/feature/CM-916-cperl-no-miniperl)
+* [feature/gh6-no-miniperl](http://github.com/perl11/cperl/commits/feature/gh6-no-miniperl)
 
   Need to fix some Makefile deps and break cross-references
 
@@ -140,21 +140,21 @@ are limited. So they are based on master.
 These are major new features, and have no chance to be merged upstream.
 They also revert some wrong decisions p5p already made.
 
-* [feature/CM-713-cperl-native-types](http://github.com/perl11/cperl/commits/feature/CM-713-cperl-native-types)
+* [feature/gh14-native-types](http://github.com/perl11/cperl/commits/feature/gh14-native-types)
   int, uint, num, str. unboxed data on the stack and pads. some minor compiler fixes needed
 
-* [feature/CM-707-cperl-inline-subs](http://github.com/perl11/cperl/commits/feature/CM-707-cperl-inline-subs)
+* [feature/gh23-inline-subs](http://github.com/perl11/cperl/commits/feature/gh23-inline-subs)
 
   some compiler fixes needed
 
 * [feature/CM-712-cperl-types-proto](http://github.com/perl11/cperl/commits/feature/CM-712-cperl-types-proto)
   constant fold everything, not only with empty `()` protos
 
-* [feature/CM-322-cperl-new-hash-table](http://github.com/perl11/cperl/commits/feature/CM-322-cperl-new-hash-table)
+* [feature/gh24-new-hash-table](http://github.com/perl11/cperl/commits/feature/gh24-new-hash-table)
 
   lots of small attempts, but still too hairy. needs a complete hash rewrite probably.
 
-* [feature/CM-910-cperl-multi](http://github.com/perl11/cperl/commits/feature/CM-910-cperl-multi)
+* [feature/gh16-multi](http://github.com/perl11/cperl/commits/feature/gh16-multi)
 
   class, method and multi keywords but no dispatch, subtyping and type checks yet. in work.
 
@@ -166,4 +166,4 @@ They also revert some wrong decisions p5p already made.
 
 * builtin ffi
 
-2015-09-14 rurban
+2015-09-15 rurban

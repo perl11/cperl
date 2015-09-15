@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-Porting/acknowledgements.pl - Generate perldelta acknowledgements text
+Porting/acknowledgements.pl - Generate perlc?delta acknowledgements text
 
 =head1 SYNOPSIS
 
-  perl Porting/acknowledgements.pl v5.15.0..HEAD
+  perl Porting/acknowledgements.pl v5.15.0..HEAD [-c]
 
 =head1 DESCRIPTION
 
@@ -19,6 +19,7 @@ text.
 
 use strict;
 use warnings;
+use Config;
 use autodie;
 use POSIX qw(ceil);
 use Text::Wrap;
@@ -31,7 +32,7 @@ my $since_until = shift;
 
 my ( $since, $until ) = split '\.\.', $since_until;
 
-die "Usage: perl Porting/acknowledgements.pl v5.15.0..HEAD"
+die "Usage: perl Porting/acknowledgements.pl v5.15.0..HEAD [-c]"
     unless $since_until && $since && $until;
 
 my $previous_version = previous_version();
@@ -73,6 +74,34 @@ community for helping Perl to flourish.
 
 For a more complete list of all of Perl's historical contributors,
 please see the F<AUTHORS> file in the Perl source distribution.";
+
+if ($Config{usecperl} and @ARGV and $ARGV[0] eq '-c') {
+  my $text
+    = "cperl $next_version represents approximately $development_time of development
+since cperl $previous_version and contains approximately $formatted_changes
+lines of changes across $formatted_files files from $nauthors authors.
+
+Excluding auto-generated files, documentation and release tools, there
+were approximately $formatted_code_changes lines of changes to
+$formatted_code_files .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements
+that became cperl $next_version:
+
+$authors
+The list above is almost certainly incomplete as it is
+automatically generated from version control history including the perl
+and cperl repos. In particular, it does not include the names of the (very
+much appreciated) contributors who reported issues to the Perl bug
+tracker and the cperl github issues.
+
+Many of the changes included in this version originated in the CPAN
+modules included in Perl's core. We're grateful to the entire CPAN
+community for helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors,
+please see the F<AUTHORS> file in the Perl source distribution.";
+}
 
 my $wrapped = fill( '', '', $text );
 print "$wrapped\n";
