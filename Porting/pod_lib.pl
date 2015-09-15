@@ -107,25 +107,13 @@ sub open_or_die {
     return $fh;
 }
 
-=head2 C<slurp_or_die()>
-
-=over 4
-
-=item * Purpose
+=head2 C<slurp_or_die($filename)>
 
 Read the contents of a file into memory as a single string.
 
-=item * Arguments
+    $deltacontent = slurp_or_die('pod/perldelta.pod');
 
-String holding name of file to be read into memory.
-
-    $olddelta = slurp_or_die('pod/perldelta.pod');
-
-=item * Return Value
-
-String holding contents of file.
-
-=back
+Returns a string holding contents of file.
 
 =cut
 
@@ -408,11 +396,23 @@ sub __prime_state {
     my $delta_leaf = join '', 'perl', @want, 'delta';
     $state{delta_target} = "$delta_leaf.pod";
     $state{delta_version} = \@want;
+    my $cdelta_leaf;
 
     # This way round so that keys can act as a MANIFEST skip list
     # Targets will always be in the pod directory. Currently we can only cope
     # with sources being in the same directory.
     $state{copies}{$state{delta_target}} = $source;
+
+    if (-e 'pod/perlcdelta.pod') {
+        $contents = slurp_or_die('pod/perlcdelta.pod');
+        my @cwant = # (5, 22, 2, 'c');
+          $contents =~ /perlcdelta - what is new for cperl v(5)\.(\d+)\.(\d+)\n/;
+        push @cwant, 'c';
+        $state{cdelta_version} = \@cwant;
+        $cdelta_leaf = join '', 'perl', @cwant, 'cdelta';
+        $state{cdelta_target} = "$cdelta_leaf.pod";
+        $state{copies}{"$cdelta_leaf.pod"} = 'perlcdelta.pod';
+    }
 
     # The default flags if none explicitly set for the current file.
     my $current_flags = '';
@@ -500,6 +500,12 @@ sub __prime_state {
                 push @{$state{master}},
                     [$delta_leaf, "pod/$state{delta_target}"];
                 $state{pods}{$delta_leaf} = "Perl changes in version @want";
+            }
+            if ($podname eq 'perlcdelta') {
+                local $" = '.';
+                push @{$state{master}},
+                    [$cdelta_leaf, "pod/$state{cdelta_target}"];
+                $state{pods}{$cdelta_leaf} = "cperl changes in version @want";
             }
 
         } else {
