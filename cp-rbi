@@ -64,4 +64,4 @@ done
 rb feature/gh9-signatures3-gh25-nl1 feature/gh9-signatures3
 git checkout branch-point
 
-git branch | egrep 'branch-point|master|bugfix/|feature/|merge-'
+git branch | egrep 'branch-point|master|bugfix/|feature/'

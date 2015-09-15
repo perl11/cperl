@@ -1,5 +1,6 @@
 #!/bin/bash
-# cperl rebase all branches. before git push cp -f (update all dependent branches)
+# cperl rebase all branches above master.
+# before git push cp -f (update all dependent branches)
 # now also with cp-rbi functionality with -i
 # ./cp-rb 1 (does 1 skip)
 if [ x$1 = x-f ]; then force=1; shift; fi
@@ -35,6 +36,7 @@ function rb {
 }
 
 # merge-upstream - master - branch-point
+# we work above branch-point and move stable tress to master
 
 # not yet merged features or bugfixes, branched of from branch-point or merge-upstream
 git checkout branch-point
@@ -80,4 +82,4 @@ done
 rb feature/gh9-signatures3-gh25-nl1 feature/gh9-signatures3
 
 git checkout branch-point
-git branch | egrep 'branch-point|master|bugfix/|feature/|merge-'
+git branch | egrep 'branch-point|master|bugfix/|feature/'
