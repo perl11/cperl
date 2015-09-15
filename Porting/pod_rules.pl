@@ -2,6 +2,7 @@
 
 use strict;
 use vars qw(%Build %Targets $Verbose $Test);
+use Config;
 use Text::Tabs;
 use Text::Wrap;
 use Getopt::Long;
@@ -63,6 +64,11 @@ sub my_die;
 
 if ($Verbose) {
     print "I will be building $_\n" foreach sort keys %Build;
+}
+# FIXME!
+if ($Config{usecperl}) {
+    print "1..0 # SKIP missing cdelta [cperl #40]\n";
+    exit;
 }
 
 my $test = 1;
