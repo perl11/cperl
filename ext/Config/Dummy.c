@@ -1,0 +1,1 @@
+/* convince FindExt.pm that this is a XS module */

@@ -227,6 +227,8 @@ use File::Glob qw(:case);
         'FILES'      => q[
                  ext/Config/Config.pm
                  ext/Config/Config_xs.{in,out,PL}
+                 ext/Config/Dummy.c
+                 ext/Config/Makefile.PL
         ],
     },
 
