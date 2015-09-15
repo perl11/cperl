@@ -4,7 +4,7 @@ use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use Module::CoreList::TieHashDelta;
 use version;
-$VERSION = '5.20150620c';
+$VERSION = '5.20150820c';
 
 sub _released_order {   # Sort helper, to make '?' sort after everything else
     (substr($released{$a}, 0, 1) eq "?")
@@ -74,9 +74,12 @@ sub find_modules {
 
 sub find_version {
     my $v = shift;
-    $v = shift if eval { $v->isa(__PACKAGE__) };
+    if ($v->isa(__PACKAGE__)) {
+        $v = shift;
+        return if not defined $v;
+    }
     return $version{$v} if defined $version{$v};
-    return undef;
+    return;
 }
 
 sub is_deprecated {
@@ -277,7 +280,10 @@ sub changes_between {
     5.021011 => '2015-04-20',
     5.022000 => '2015-06-01',
     '5.022001c' => '2015-09-14',
-    5.023000 => '????-??-??',
+    '5.022002c' => '2015-??-??',
+    5.023000 => '2015-06-20',
+    5.023001 => '2015-07-20',
+    5.023002 => '2015-08-20',
   );
 
 sub version_sort {
@@ -11616,6 +11622,118 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         removed => {
         }
     },
+    '5.022002c' => {
+        delta_from => '5.022001c',
+        changed => {
+            'Config'                  => '5.022002',
+            'Module::CoreList'        => '5.20150820c',
+            'Module::CoreList::Utils' => '5.20150820c',
+        },
+        removed => {
+        }
+    },
+    5.023001 => {
+        delta_from => 5.023000,
+        changed => {
+            'B::Op_private'         => '5.023001',
+            'Config'                => '5.023001',
+            'DynaLoader'            => '1.33',
+            'Encode'                => '2.75',
+            'Encode::MIME::Header'  => '2.17',
+            'Encode::Unicode'       => '2.13',
+            'Fatal'                 => '2.29',
+            'File::Path'            => '2.11',
+            'Getopt::Long'          => '2.47',
+            'I18N::Langinfo'        => '0.13',
+            'IPC::Open3'            => '1.19',
+            'Module::CoreList'      => '5.20150720',
+            'Module::CoreList::TieHashDelta'=> '5.20150720',
+            'Module::CoreList::Utils'=> '5.20150720',
+            'Net::Cmd'              => '3.07',
+            'Net::Config'           => '3.07',
+            'Net::Domain'           => '3.07',
+            'Net::FTP'              => '3.07',
+            'Net::FTP::A'           => '3.07',
+            'Net::FTP::E'           => '3.07',
+            'Net::FTP::I'           => '3.07',
+            'Net::FTP::L'           => '3.07',
+            'Net::FTP::dataconn'    => '3.07',
+            'Net::NNTP'             => '3.07',
+            'Net::Netrc'            => '3.07',
+            'Net::POP3'             => '3.07',
+            'Net::SMTP'             => '3.07',
+            'Net::Time'             => '3.07',
+            'Opcode'                => '1.33',
+            'POSIX'                 => '1.55',
+            'PerlIO::scalar'        => '0.23',
+            'Socket'                => '2.020',
+            'Storable'              => '2.54',
+            'Unicode::Collate'      => '1.14',
+            'Unicode::Collate::CJK::Big5'=> '1.14',
+            'Unicode::Collate::CJK::GB2312'=> '1.14',
+            'Unicode::Collate::CJK::JISX0208'=> '1.14',
+            'Unicode::Collate::CJK::Korean'=> '1.14',
+            'Unicode::Collate::CJK::Pinyin'=> '1.14',
+            'Unicode::Collate::CJK::Stroke'=> '1.14',
+            'Unicode::Collate::CJK::Zhuyin'=> '1.14',
+            'Unicode::Collate::Locale'=> '1.14',
+            'Unicode::Normalize'    => '1.19',
+            'XS::APItest'           => '0.74',
+            'XS::Typemap'           => '0.14',
+            'autodie'               => '2.29',
+            'autodie::Scope::Guard' => '2.29',
+            'autodie::Scope::GuardStack'=> '2.29',
+            'autodie::Util'         => '2.29',
+            'autodie::exception'    => '2.29',
+            'autodie::exception::system'=> '2.29',
+            'autodie::hints'        => '2.29',
+            'autodie::skip'         => '2.29',
+            'encoding'              => '2.16',
+            'feature'               => '1.42',
+            'warnings'              => '1.33',
+        },
+        removed => {
+            'autodie::ScopeUtil'    => 1,
+        }
+    },
+    5.023002 => {
+        delta_from => 5.023001,
+        changed => {
+            'Attribute::Handlers'   => '0.99',
+            'B::Op_private'         => '5.023002',
+            'CPAN::Meta::YAML'      => '0.017',
+            'Config'                => '5.023002',
+            'Cwd'                   => '3.57',
+            'Encode'                => '2.76',
+            'ExtUtils::ParseXS'     => '3.29',
+            'ExtUtils::ParseXS::Constants'=> '3.29',
+            'ExtUtils::ParseXS::CountLines'=> '3.29',
+            'ExtUtils::ParseXS::Eval'=> '3.29',
+            'ExtUtils::ParseXS::Utilities'=> '3.29',
+            'ExtUtils::Typemaps'    => '3.29',
+            'File::Find'            => '1.30',
+            'File::Spec'            => '3.57',
+            'File::Spec::Cygwin'    => '3.57',
+            'File::Spec::Epoc'      => '3.57',
+            'File::Spec::Functions' => '3.57',
+            'File::Spec::Mac'       => '3.57',
+            'File::Spec::OS2'       => '3.57',
+            'File::Spec::Unix'      => '3.57',
+            'File::Spec::VMS'       => '3.57',
+            'File::Spec::Win32'     => '3.57',
+            'Filter::Util::Call'    => '1.55',
+            'Hash::Util'            => '0.19',
+            'Module::CoreList'      => '5.20150820',
+            'Module::CoreList::TieHashDelta'=> '5.20150820',
+            'Module::CoreList::Utils'=> '5.20150820',
+            'POSIX'                 => '1.56',
+            'Term::Cap'             => '1.17',
+            'Unicode::UCD'          => '0.62',
+            'perlfaq'               => '5.021010',
+        },
+        removed => {
+        }
+    },
 );
 
 sub is_core
@@ -12174,6 +12292,30 @@ for my $version (sort { version_sort($a, $b) } keys %delta) {
     },
     5.023000 => {
         delta_from => 5.022000,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    '5.022001c' => {
+        delta_from => 5.023000,
+        changed => {},
+        removed => {}
+    },
+    '5.022002c' => {
+        delta_from => '5.022001c',
+        changed => {},
+        removed => {}
+    },
+    5.023001 => {
+        delta_from => 5.023000,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.023002 => {
+        delta_from => 5.023001,
         changed => {
         },
         removed => {
