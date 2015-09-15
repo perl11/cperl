@@ -15,10 +15,10 @@ os:
   - osx
 
 branches:
-  except:
-    - branch-point
-    - /^type(sd)/
-    - /-v5.22.0$/
+  only:
+    - master
+    - /bugfix/
+    - /smoke/
 
 env:
   matrix:
