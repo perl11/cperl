@@ -24,6 +24,11 @@ INST_DRV	= c:
 INST_TOP	= $(INST_DRV)\perl
 
 #
+# Comment this out if you don't want cperl enhanced features.
+#
+USE_CPERL	= define
+
+#
 # Uncomment if you want to build a 32-bit Perl using a 32-bit compiler
 # on a 64-bit version of Windows.
 #
@@ -268,6 +273,10 @@ DEBUG_MSTATS	= undef
 
 !IF "$(DEBUG_MSTATS)" == "define"
 BUILDOPT	= $(BUILDOPT) -DPERL_DEBUGGING_MSTATS
+!ENDIF
+
+!IF "$(USE_CPERL)" == ""
+USE_CPERL	= undef
 !ENDIF
 
 !IF "$(USE_SITECUST)" == ""
@@ -852,6 +861,7 @@ CFG_VARS	=					\
 		"libc=$(LIBC)"				\
 		"make=$(MAKE_BARE)"				\
 		"static_ext=$(STATIC_EXT)"		\
+		"usecperl=$(USE_CPERL)"			\
 		"usethreads=$(USE_ITHREADS)"		\
 		"useithreads=$(USE_ITHREADS)"		\
 		"usemultiplicity=$(USE_MULTI)"		\
@@ -1353,6 +1363,7 @@ minitest : .\config.h $(MINIPERL) ..\git_version.h $(GLOBEXE) $(CONFIGPM) $(UNID
 
 test-prep : all utils ../pod/perltoc.pod
 	$(XCOPY) $(PERLEXE) ..\t\$(NULL)
+	copy     $(PERLEXE) ..\t\perl.exe
 	$(XCOPY) $(PERLDLL) ..\t\$(NULL)
 	$(XCOPY) $(GLOBEXE) ..\t\$(NULL)
 	set PERL_STATIC_EXT=$(STATIC_EXT)
@@ -1369,6 +1380,7 @@ test_porting : test-prep
 
 test-reonly : reonly utils
 	$(XCOPY) $(PERLEXE) ..\t\$(NULL)
+	copy     $(PERLEXE) ..\t\perl.exe
 	$(XCOPY) $(PERLDLL) ..\t\$(NULL)
 	$(XCOPY) $(GLOBEXE) ..\t\$(NULL)
 	cd ..\t
@@ -1388,6 +1400,7 @@ test-notty : test-prep
 
 _test : 
        $(XCOPY) $(PERLEXE) ..\t\$(NULL)
+       copy     $(PERLEXE) ..\t\perl.exe
        $(XCOPY) $(PERLDLL) ..\t\$(NULL)
        $(XCOPY) $(GLOBEXE) ..\t\$(NULL)
        cd ..\t
