@@ -1015,7 +1015,7 @@ preplibrary: $(MINIPERL_EXE) $(CONFIGPM) $(PREPLIBRARY_LIBPERL)
 
 $(CONFIGPM_FROM_CONFIG_SH): $(CONFIGPOD)
 
-# we have too many circular dependencies. do mini_boot in the MINIPERL target
+# we have too many circular dependencies.
 
 $(CONFIGPOD): config.sh $(MINIPERL_EXE) configpm Porting/Glossary lib/Config_git.pl
 	$(MINIPERL) configpm
@@ -1240,18 +1240,6 @@ $(DYNALOADER) $(DL_SRC): preplibrary FORCE $(nonxs_ext)
 
 $(boot_ext): $(DYNALOADER)
 
-.PHONY: mini_boot mini_post Config_boot Config_post
-
-mini_boot : Config_boot
-mini_post : Config_post
-
-Config_boot : lib/Config_heavy.pl
-	$(CPS) lib/Config_mini.pl lib/Config.pm
-
-Config_post:
-	$(RMS) lib/Config.pm
-	$(CPS) ext/Config/Config.pm lib/Config.pm
-
 d_dummy $(dynamic_ext):	preplibrary makeppport $(DYNALOADER) FORCE $(PERLEXPORT) $(LIBPERL)
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=dynamic
 
@@ -1261,38 +1249,6 @@ s_dummy $(static_ext):  preplibrary makeppport $(DYNALOADER) FORCE
 n_dummy $(nonxs_ext):	preplibrary FORCE
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL)
 !NO!SUBS!
-
-# in case static_ext contain Config, skip their special Makefile rules
-case $static_ext in
-    *Config*) ;;
-    *)
-        version=$(printf %03d $PERL_VERSION)$(printf %03d $PERL_SUBVERSION)
-        $spitshell >>$Makefile <<EOF
-
-CONFIG_VERSION = 5.$version
-EOF
-        $spitshell >>$Makefile <<'EOF'
-
-ext/Config/Config.xs : ext/Config/Config_xs.PL ext/Config/Config_xs.in \
-			   $(MINIPERL_EXE)
-	$(MINIPERL) ext/Config/Config_xs.PL
-ext/Config/Config.c : ext/Config/Config.xs $(MINIPERL_EXE) dist/ExtUtils-ParseXS/pm_to_blib
-	cd ext/Config && $(LDLIBPTH) ../../$(MINIPERL_EXE) -I../../lib ../../lib/ExtUtils/xsubpp -noprototypes \
-		-typemap ../../lib/ExtUtils/typemap Config.xs > Config.c
-ext/Config/Config.i : ext/Config/Config.c $(h)
-	@echo `$(CCCMDSRC)` -I. -E ext/Config/Config.c \> $@
-	@`$(CCCMDSRC)` -I. -E ext/Config/Config.c > $@
-ext/Config/Config$(OBJ_EXT) : ext/Config/Config.c $(h)
-	`$(CCCMD)` $(LDDLFLAGS) $(CCCDLFLAGS) -I. ext/Config/Config.c -o $@ \
-	  -DXS_VERSION=\"$(CONFIG_VERSION)\"
-lib/auto/Config/Config$(DLSUFFIX) : ext/Config/Config$(OBJ_EXT)
-	mkdir -p lib/auto/Config
-	$(LD) -o $@ $(LDDLFLAGS) ext/Config/Config$(OBJ_EXT)
-	$(MAKE) Config_post
-
-EOF
-        ;;
-esac
 
 $spitshell >>$Makefile <<EOF
 $extra_dep
@@ -1478,7 +1434,7 @@ test_prep_pre: preplibrary utilities $(nonxs_ext)
 case "$targethost" in
 '') $spitshell >>$Makefile <<'!NO!SUBS!'
 test_prep test-prep: test_prep_pre $(MINIPERL_EXE) $(unidatafiles) $(PERL_EXE) \
-	$(dynamic_ext) mini_post $(TEST_PERL_DLL) runtests $(generated_pods)
+	$(dynamic_ext) $(TEST_PERL_DLL) runtests $(generated_pods)
 	cd t && (rm -f $(PERL_EXE); $(LNS) ../$(PERL_EXE) $(PERL_EXE))
 
 !NO!SUBS!

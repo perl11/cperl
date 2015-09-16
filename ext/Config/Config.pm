@@ -9,7 +9,7 @@ use strict;
 use warnings;
 use vars '%Config', '$VERSION';
 
-$VERSION = "5.022002";
+$VERSION = "5.022002"; # keep that in sync with patchlevel.h manually!
 
 # Skip @Config::EXPORT because it only contains %Config, which we special
 # case below as it's not a function. @Config::EXPORT won't change in the
