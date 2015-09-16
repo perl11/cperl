@@ -1,11 +1,9 @@
 package FindExt;
 
-our $VERSION = '1.03_01c';
+our $VERSION = '1.03_02c';
 
 use strict;
 use warnings;
-my $no_config;
-BEGIN { eval {require Config;}; $no_config = 1 if $@;}
 
 my $no = join('|',qw(GDBM_File ODBM_File NDBM_File DB_File
                      VMS.* Sys-Syslog IPC-SysV I18N-Langinfo));
@@ -27,12 +25,8 @@ sub apply_config {
       unless ($config->{i_dbm} || $config->{i_rpcsvcdbm}) && !$config->{d_cplusplus};
     push @no, "VMS.*" unless $^O eq "VMS";
     push @no, "Win32.*" unless $^O eq "MSWin32" || $^O eq "cygwin";
-    if ($no_config) {
-      push @no, "Config", "warnings";
-    } else {
-      push @no, "Config" unless $Config::Config{static_ext} =~ /Config/;
-      push @no, "warnings" unless $Config::Config{static_ext} =~ /warnings/;
-    }
+    # special-case warnings for cperl, maybe later
+    #push @no, "warnings" unless $config->{static_ext} =~ /warnings/;
 
     $no = join('|', @no);
     $no = qr/^(?:$no)$/i;
@@ -115,7 +109,7 @@ sub scan_ext
     opendir my $dh, "$ext_dir";
     while (defined (my $item = readdir $dh)) {
         next if $item =~ /^\.\.?$/;
-        next if $item =~ /^(?:DynaLoader|warnings|Config)$/;
+        next if $item =~ /^(?:DynaLoader|warnings)$/; # warnings for cperl maybe later
         next unless -d "$ext_dir/$item";
         my $this_ext = $item;
         my $leaf = $item;
