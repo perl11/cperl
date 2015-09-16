@@ -37,11 +37,8 @@ xs_init(pTHX)
     char *file = __FILE__;
     dXSUB_SYS;
     CV * cv = newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, file);
-    {
-        dSP;
-        PUSHMARK(SP);
-        boot_DynaLoader(aTHX_ cv);
-    }
+    boot_DynaLoader(aTHX_ cv);
+
     /* other similar records will be included from "perllibst.h" */
 #define STATIC3
 #include "perllibst.h"
