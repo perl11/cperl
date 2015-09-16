@@ -77,11 +77,11 @@ With 32bit fast-arithmetic optimizations are currently disabled.
 
 OS-specific non-unix Makefiles (e.g. Windows, VMS, os2, Cross, NetWare..)
 cannot generate a dynamic Config yet. You may call it our temp. _"Config hell"_,
-but it's worth it. Patches welcome.
+but it's worth it. Use our **master** branch instead.
 
 Parallel builds sometimes stop at missing `Config.pm`. Redo the make
 then.  Packagers should try a 2nd make if the first stops, sorry. See
-the `.travis.yml` recipe.
+the `.travis.yml` recipe. This is also fixed in **master**.
 
 Without `-Dusecperl`, i.e. building a normal perl5, fails on a few tests.
 You shouldn't do that. See [#34](http://github.com/perl11/cperl/issues/34).
@@ -141,6 +141,7 @@ These are major new features, and have no chance to be merged upstream.
 They also revert some wrong decisions p5p already made.
 
 * [feature/gh14-native-types](http://github.com/perl11/cperl/commits/feature/gh14-native-types)
+
   int, uint, num, str. unboxed data on the stack and pads. some minor compiler fixes needed
 
 * [feature/gh23-inline-subs](http://github.com/perl11/cperl/commits/feature/gh23-inline-subs)
@@ -148,6 +149,7 @@ They also revert some wrong decisions p5p already made.
   some compiler fixes needed
 
 * [feature/CM-712-cperl-types-proto](http://github.com/perl11/cperl/commits/feature/CM-712-cperl-types-proto)
+
   constant fold everything, not only with empty `()` protos
 
 * [feature/gh24-new-hash-table](http://github.com/perl11/cperl/commits/feature/gh24-new-hash-table)
@@ -166,4 +168,4 @@ They also revert some wrong decisions p5p already made.
 
 * builtin ffi
 
-2015-09-15 rurban
+2015-09-16 rurban
