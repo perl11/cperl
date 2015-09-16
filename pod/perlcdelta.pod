@@ -11,11 +11,21 @@ release and the cperl 5.22.2 release.
 
 For B<cperl> see F<Changes> and L<perlcperl>
 
-=head1 Performance Enhancements
+=head1 Core Enhancements
 
 =over 4
 
-=item * XXX
+=item *
+
+Windows support was added. There is also new support for parallel builds.
+
+=item *
+
+Config is now a regular XS module, which could theoretically even be
+uploaded to CPAN. This improves platform support and parallel build
+fragility.
+
+=item *
 
 Creating Perl debugger data structures (see L<perldebguts/"Debugger Internals">)
 for XSUBs and const subs has been removed.  This removed one glob/scalar combo
@@ -24,6 +34,10 @@ for each unique C<.c> file that XSUBs and const subs came from.  On startup
 Loading XS modules created more glob/scalar combos.  These things were created
 regardless if the perl debugger was being used or not, unlike for pure perl
 subs, and ignores that the perl debugger can not debug C code.
+
+=item *
+
+Better DynaLoader support for os2, symbian, Netware.
 
 =back
 
