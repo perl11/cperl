@@ -36,6 +36,9 @@ use strict ;
 ###########################################################################
 
 my $force = @ARGV ? $ARGV[0] eq '--force' : 0;
+shift if $force;
+my $no_gperf = @ARGV ? $ARGV[0] eq '--no-gperf' : 0;
+shift if $no_gperf;
 my $heavy = 'lib/Config_heavy.pl';
 my $git   = 'lib/Config_git.pl';
 my $xsin  = 'ext/Config/Config_xs.in';   # the key-only gperf template with empty values
@@ -101,10 +104,14 @@ for my $k (qw(libdb_needs_pthread malloc_cflags
 }
 
 # Test if gperf works. if not patch xsout instead.
-{
+unless ($no_gperf) {
     local $!;
     $gperf_ok = !(system("gperf --output-file=${xsout}_tmp $xsin") >> 8);
+    if ($gperf_ok and -z $xsout."_tmp") {
+        $gperf_ok = 0;
+    }
     unlink $xsout."_tmp";
+    print STDERR "gperf ",$gperf_ok ? "works ok\n" : "does not work\n";
 }
 my $xsfile = $gperf_ok ? $xsin : $xsout;
 my $xs = open_new($xsfile, '>');
@@ -234,9 +241,6 @@ EOT
     # also c_indent.t
     # XXX add EBCDIC support, bypassing gperf (i.e. pperf)
     s/^#?error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf\@gnu.org>."/#  error "gperf generated tables don't work with this non ISO-646 based character set."/m;
-
-    # skip line directives. would be nice but they are wrong with gperf version 3.0.4
-    # s/^#line .*?\n//gm;
 
     # C++ requires full struct initializers
     s/{-1},/{-1, -1, 0, NULL},/g;

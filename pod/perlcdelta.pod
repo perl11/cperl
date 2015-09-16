@@ -24,6 +24,7 @@ Windows support was added. There is also new support for parallel builds.
 Config is now a regular XS module, which could theoretically even be
 uploaded to CPAN. This improves platform support and parallel build
 fragility.
+The Config tables are now also readonly.
 
 =item *
 
