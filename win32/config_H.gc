@@ -4896,4 +4896,19 @@
 /*#define	USE_SOCKS		/ **/
 #endif
 
+/* USE_CPERL:
+ *	This symbol, if defined, indicates that Perl is the cperl variant.
+ */
+#ifndef USE_CPERL
+#define	USE_CPERL		/**/
+#endif
+
+/* PERL_HASH_FUNC_*:
+ *	This symbol defines the used perl hash function variant.
+ *      It is set in Configure or via -Dhash_func=, but can be left blank.
+ */
+#ifndef	PERL_HASH_FUNC_FNV1A
+#define	PERL_HASH_FUNC_FNV1A	/**/
+#endif
+
 #endif
