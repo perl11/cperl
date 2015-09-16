@@ -80,7 +80,7 @@ CPAN works. 2 modules currently need patches in our distroprefs repo.
 
 =over
 
-=item Illegal prototypes die, are not stored
+=item B<< Illegal prototypes die, are not stored >>
 
 In perl illegal prototypes warn with C<'illegalproto'> and are stored as such.
 
@@ -95,7 +95,7 @@ only thrown within explicit extra C<:prototype()> declarations.
 Technically this is not a incompatible change, as signatures are
 marked as experimental.
 
-=item C<@_> is empty in functions with signatures
+=item B<< C<@_> is empty in functions with signatures >>
 
 We only copy or reference arguments to signature variables, but not to
 C<@_> also.  C<@_> is empty when signatures are declared.
@@ -107,7 +107,7 @@ use no signatures to use C<@_> variables or use sigantures.
 Technically this is not a incompatible change, as signatures are
 marked as experimental.
 
-=item Empty signature variables C<$> die
+=item B<< Empty signature variables C<$> die >>
 
 Using a bare C<$> sigil signature variable is illegal in cperl, but
 legal in perl.
@@ -119,7 +119,7 @@ use this name in the body to get back to the same behaviour.
 Technically this is not a incompatible change, as signatures are
 marked as experimental.
 
-=item negative integer modulo
+=item B<< negative integer modulo >>
 
 With typed integer variables or integer constants the modulo operator
 in cperl works like with use integer, it uses the libc functionality
@@ -185,7 +185,7 @@ constant folder should do the same, but does not currently.  Using
 extra logic to prevent from using the libc implementation also makes perl5
 C<"%"> operator slower.
 
-=item compile-time constant folding overflows with integer literals
+=item B<< compile-time constant folding overflows with integer literals >>
 
 Operations with only literal integers will not overflow to numbers,
 similar to perl5 with use integer.
@@ -234,7 +234,7 @@ improved, and our changes are technically not incompatible.
 
 =over
 
-=item Add optional types in signatures
+=item B<< Add optional types in signatures >>
 
     sub (int $i)   # as in Perl6, or
     sub ($i: int)  # as in the other gradual typed languages
@@ -257,7 +257,7 @@ already as package, otherwise a syntax error is thrown.
 
     $ cperl -e'%Str::; sub x(Str $s){}'  # user-defined type Str
 
-=item Add subroutine return types
+=item B<< Add subroutine return types >>
 
 For easier implementation we support subattributes, C<< :<type> >> only,
 not the other possible syntax variants C<< => type >> or C<< returns type >>.
@@ -277,7 +277,7 @@ return a signed int.  C<:unsigned> could also be no coretype, just a
 hint for C<:int>, and without C<:int> it will just be an attribute,
 not a strictly checked coretype. This decision is still open.
 
-=item Add call by-ref via \$arg
+=item B<< Add call by-ref via \$arg >>
 
 Support scalar lvalue references - sub (\$var)
 
@@ -292,7 +292,7 @@ e.g. C<sub myfunc(int \$i) : int { $i++; }>
 For now scalar lvalue references only, C<\@a> or C<\%h> would be nice with
 type checks for arrayref or hashref.  maybe C<\[$]> also.
 
-=item Improve C<@_> handling
+=item B<< Improve C<@_> handling >>
 
 Remove C<@_> when not needed. Use the mark stack as in the ops.
 
@@ -341,7 +341,7 @@ cperl changes all arity errors to "Wrong number arguments".
         $_[0]++;
     }
 
-=item Support default $self invocant with methods (NY)
+=item B<< Support default $self invocant with methods (NY) >>
 
 If a method is declared as such (via C<method> or C<sub :method>) the C<$self>
 argument is used as default invocant argument name, which can be overridden
@@ -349,7 +349,7 @@ via the C<($class: $args,...)> colon syntax.
 
     sub adder ($a) :method { $self->{add} + $a; }
 
-=item Add :pure attribute for subroutines
+=item B<< Add :pure attribute for subroutines >>
 
 You can flag a function as purely functional, without any
 side-effects, to allow further compiler optimizations.  Note that pure
@@ -360,11 +360,11 @@ return the same value with the same arguments, thus can be safely
 memoized or constant-folded or inlined without having to embed them
 into ENTER/LEAVE blocks.
 
-=item Parse signatures with the parser, not undocumented functions (NY)
+=item B<< Parse signatures with the parser, not undocumented functions (NY) >>
 
 I<We'll see later on this one. Maybe keep it as horrible as it is now.>
 
-=item Improved error reporting
+=item B<< Improved error reporting >>
 
 In violations do not only print the position, also the declaration
 which is violated.  e.g.
@@ -390,7 +390,7 @@ and improve most loops and array accesses. It is also critical to
 implement multi methods (compile-time optimized generics) and
 implement an advanced object system.
 
-=item Support C<...> for efficient varargs passing
+=item B<< Support C<...> for efficient varargs passing >>
 
 C<...> as empty function body already has a special meaning as B<yadayada>
 operator, just croaking, but interestingly not the usual meaning of varargs.
@@ -408,7 +408,7 @@ index, not all the values.
 
     sub foometh($self, ...) { func(...) }
 
-=item strict prototype and signature syntax, no pragmas required.
+=item B<< strict prototype and signature syntax, no pragmas required. >>
 
 Illegal prototype and signature syntax does not just warn, it dies with
 an syntax error as it should be.
@@ -418,7 +418,7 @@ an syntax error as it should be.
 
 C<no warnings "illegalproto";> is a noop.
 
-=item no signatures or lexsubs pragmas required
+=item B<< no signatures or lexsubs pragmas required >>
 
 C<use feature "signatures"> or C<use feature "lexsubs"> is not
 required and is ignored.  All prototypes and signatures are parsed either
@@ -851,11 +851,11 @@ There are several new builtin attributes:
 
 =over
 
-=item :const for all types
+=item B<< :const for all types >>
 
-=item :unsigned for all integer types, sets SvIsUV_on|off
+=item B<< :unsigned for all integer types, sets SvIsUV_on|off >>
 
-=item existing classes as types are recognized
+=item B<< existing classes as types are recognized >>
 
 and stored for lexical types and subroutine return types.
 
@@ -1150,7 +1150,7 @@ all official p5p releases into our development branch monthly.
 
 =over
 
-=item classes (not yet)
+=item B<< classes (not yet) >>
 
 A true perl6-like and efficient object system is in work, but not yet
 enabled.  It supports the perl6-like syntax for class, method, has,
@@ -1167,7 +1167,7 @@ the class and role layout.
 
 See L<perlclass> (NY)
 
-=item types
+=item B<< types >>
 
 cperl includes builtin coretypes, and later native types, user-defined
 types and type dispatch, checks, subtype relationships, inference and
@@ -1175,7 +1175,7 @@ optimizations on user-defined functions and methods, for XS and PP.
 
 See L<perltypes>
 
-=item compilable
+=item B<< compilable >>
 
 perl5 proper started being compiler unfriendly with 5.16, with changed
 security and string handling. It can be compiled but it is not
@@ -1188,7 +1188,7 @@ memory savings.
 
 See L<B::C|http://search.cpan.org/dist/B-C/>
 
-=item company friendly
+=item B<< company friendly >>
 
 The optional types lead to better documentation, earlier compile-time
 type violations, less needed tests and more performance. Managers love
