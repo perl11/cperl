@@ -1,5 +1,4 @@
 use ExtUtils::MakeMaker;
-
 WriteMakefile(
     'NAME'		=> 'Config',
     'VERSION_FROM'	=> 'Config.pm',
