@@ -8772,8 +8772,7 @@ S_reghop3(U8 *s, SSize_t off, const U8* lim)
                 while (s > lim && UTF8_IS_CONTINUATION(*s))
                     s--;
                 if (! UTF8_IS_START(*s)) {
-                    dTHX;
-                    Perl_croak(aTHX_ "Malformed UTF-8 character (fatal)");
+                    Perl_croak_nocontext("Malformed UTF-8 character (fatal)");
                 }
 	    }
             /* XXX could check well-formedness here */
@@ -8800,8 +8799,7 @@ S_reghop4(U8 *s, SSize_t off, const U8* llim, const U8* rlim)
                 while (s > llim && UTF8_IS_CONTINUATION(*s))
                     s--;
                 if (! UTF8_IS_START(*s)) {
-                    dTHX;
-                    Perl_croak(aTHX_ "Malformed UTF-8 character (fatal)");
+                    Perl_croak_nocontext("Malformed UTF-8 character (fatal)");
                 }
             }
             /* XXX could check well-formedness here */
@@ -8833,8 +8831,7 @@ S_reghopmaybe3(U8* s, SSize_t off, const U8* lim)
                 while (s > lim && UTF8_IS_CONTINUATION(*s))
                     s--;
                 if (! UTF8_IS_START(*s)) {
-                    dTHX;
-                    Perl_croak(aTHX_ "Malformed UTF-8 character (fatal)");
+                    Perl_croak_nocontext("Malformed UTF-8 character (fatal)");
                 }
 	    }
             /* XXX could check well-formedness here */
