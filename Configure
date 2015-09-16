@@ -23590,7 +23590,6 @@ find_extensions='
     for xxx in *; do
 	case "$xxx" in
 	    DynaLoader|dynaload) ;;
-	    Config) ;;
 	    *)
 	    this_ext=`echo $xxx | $sed -e s/-/\\\//g`;
 	    case "$this_ext" in

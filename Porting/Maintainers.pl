@@ -227,6 +227,8 @@ use File::Glob qw(:case);
         'FILES'      => q[
                  ext/Config/Config.pm
                  ext/Config/Config_xs.{in,out,PL}
+                 ext/Config/Dummy.c
+                 ext/Config/Makefile.PL
         ],
     },
 
@@ -1259,7 +1261,7 @@ use File::Glob qw(:case);
     },
 
     'Time::HiRes' => {
-        'DISTRIBUTION' => 'ZEFRAM/Time-HiRes-1.9726.tar.gz',
+        'DISTRIBUTION' => 'RJBS/Time-HiRes-1.9727_02.tar.gz',
         'FILES'        => q[cpan/Time-HiRes],
     },
 

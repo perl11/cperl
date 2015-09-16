@@ -1,0 +1,41 @@
+version: 5.22.2.{build}
+skip_tags: true
+#os: MinGW
+os: Visual Studio 2015
+#build:
+#  verbosity: minimal
+platform:
+  - x86
+  - x64
+clone_depth: 1
+init:
+  - git config --global core.autocrlf input
+
+# nope: https://ci.appveyor.com/project/rurban/cperl/build/job/ui7b0dk0gprw1eo2
+#  - cinst ruby.devkit
+#  - cinst make
+#install:
+#  - cinst mingw
+#  - SET PATH=%PATH%;C:\tools\mingw64\bin;C:\tools\mingw64\opt\bin
+#  - mingw-get install mingw-developer-toolkit
+#build_script:
+#  - cd win32
+#  - mingw32-make
+#test_script:
+#  - mingw32-make test
+
+build_script:
+  - cd win32
+  - nmake
+test_script:
+  - nmake test TEST_JOBS=4
+
+
+notifications:
+- provider: Email
+  to:
+  - rurban@cpanel.net
+  subject: cperl windows build
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: false

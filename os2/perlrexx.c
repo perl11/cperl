@@ -38,14 +38,20 @@ ULONG PERLDROPALLEXIT(PCSZ name, LONG rargc, const RXSTRING *rargv, PCSZ queuena
 /* Register any extra external extensions */
 
 /* Do not delete this line--writemain depends on it */
-EXTERN_C void boot_DynaLoader (pTHX_ CV* cv);
+#ifdef PERL_MINIPERL
+static void boot_DynaLoader(pTHX_ CV* cv) { }
+#else
+EXTERN_C void boot_DynaLoader(pTHX_ CV* cv);
+#endif
 
 static void
 xs_init(pTHX)
 {
     char *file = __FILE__;
     dXSUB_SYS;
-        newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, file);
+    CV *cv = newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, file);
+    /* With cperl boot it now immediately */
+    boot_DynaLoader(aTHX_ cv);
 }
 
 int perlos2_is_inited;

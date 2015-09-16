@@ -1,3 +1,4 @@
+appveyor.yml		Windows CI configuration: www.appveyor.com
 Artistic		The "Artistic License"
 asan_ignore		Errors to skip under clang's Addresss Sanitizer
 AUTHORS			Contact info for contributors
@@ -3584,6 +3585,8 @@ ext/Config/Config.pm		XS Config loader variant
 ext/Config/Config_xs.in		gperf template for Config.xs
 ext/Config/Config_xs.out	gperf expanded Config.xs template with empty values
 ext/Config/Config_xs.PL		Update Config.xs and Config_xs.in
+ext/Config/Dummy.c		XS Config empty C file
+ext/Config/Makefile.PL		XS Config extension makefile writer
 ext/Devel-Peek/Changes		Data debugging tool, changelog
 ext/Devel-Peek/Peek.pm		Data debugging tool, module and pod
 ext/Devel-Peek/Peek.xs		Data debugging tool, externals
