@@ -106,7 +106,6 @@ for my $k (qw(libdb_needs_pthread malloc_cflags
     $gperf_ok = !(system("gperf --output-file=${xsout}_tmp $xsin") >> 8);
     unlink $xsout."_tmp";
 }
-$gperf_ok = 0;
 my $xsfile = $gperf_ok ? $xsin : $xsout;
 my $xs = open_new($xsfile, '>');
 open $in, "<", $xsfile or die "Error reading '$xsfile': $!";
