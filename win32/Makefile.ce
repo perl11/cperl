@@ -454,6 +454,10 @@ USE_IMP_SYS	= undef
 USE_PERLCRT	= undef
 !ENDIF
 
+!IF "$(USE_CPERL)" == ""
+USE_CPERL	= undef
+!ENDIF
+
 !IF "$(USE_IMP_SYS)$(USE_MULTI)" == "defineundef"
 USE_MULTI	= define
 !ENDIF
@@ -749,6 +753,7 @@ CFG_VARS = \
  "make=$(MAKE_BARE)" \
  "static_ext=$(STATIC_EXT)" \
  "dynamic_ext=$(DYNAMIC_EXT)" \
+ "usecperl=$(USE_CPERL)" \
  "usethreads=$(USE_ITHREADS)" \
  "useithreads=$(USE_ITHREADS)" \
  "usemultiplicity=$(USE_MULTI)" \
