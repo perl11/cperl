@@ -45,7 +45,6 @@ unless (join (' ', sort split ' ', $Config{extensions})
     # -Uusedl causes Encode to be a static extension, and drops building
     # XS::APItest and XS::Typemap
     # Any use of -Dnoextensions to choose not to build a extension
-    # cperl has now also boot_ext, which is currently only Config, but later warnings
 
     plan(tests => 2);
     note("configured extension list doesn't match, so only minimal testing is possible");

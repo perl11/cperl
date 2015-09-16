@@ -4,8 +4,8 @@ skip_tags: true
 os: Visual Studio 2015
 #build:
 #  verbosity: minimal
+#  - x86
 platform:
-  - x86
   - x64
 clone_depth: 1
 init:
@@ -24,9 +24,13 @@ init:
 #test_script:
 #  - mingw32-make test
 
+# the required amd64 line forbids us to use 32bit
+# see https://github.com/osmcode/libosmium/blob/master/appveyor.yml
+# we could try to make both one after the other
 build_script:
   - cd win32
-  - nmake
+  - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
+  - nmake WIN64=1 CCTYPE=MSVC120
 test_script:
   - nmake test TEST_JOBS=4
 
