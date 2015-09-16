@@ -10,7 +10,7 @@ use vars qw(@ISA @EXPORT $VERSION
 use strict;
 
 # This is not a dual-life module, so no need for development version numbers
-$VERSION = '1.33'; # cperl variant
+$VERSION = '1.34'; # cperl variant, but cannot use a 'c' here
 
 @ISA = qw(Exporter);
 @EXPORT = qw(&xsinit &ldopts 
@@ -113,11 +113,17 @@ EOT
         if ($pname eq 'DynaLoader'){
             # Must NOT install 'DynaLoader::boot_DynaLoader' as 'bootstrap'!
             # boot_DynaLoader is called directly in DynaLoader.pm
-            $retval .= "    /* DynaLoader is a special case */\n";
             $fname = "DynaLoader::boot_DynaLoader";
-            $retval .= "    newXS(\"$fname\", boot_${cname}, file);\n";
-            # with cperl we have no DynaLoader.pm anymore, boot it immediately.
-            $retval .= "    boot_DynaLoader(aTHX_ get_cv(\"$fname\", 0));\n";
+            # and with cperl we have no DynaLoader.pm anymore, boot it immediately.
+            # Beware: Also on all other platforms, which have their own static
+            # perlmain/perllib.c: win32,os2,Netware,symbian
+            $retval .= "
+    /* DynaLoader is a special case */
+    {
+        CV * cv = newXS(\"$fname\", boot_${cname}, file);
+        boot_DynaLoader(aTHX_ cv);
+    }
+";
         } else {
             $fname = "${mname}::bootstrap";
             $retval .= "    newXS(\"$fname\", boot_${cname}, file);\n"
