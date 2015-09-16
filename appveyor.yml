@@ -1,6 +1,9 @@
 version: 5.22.2.{build}
 skip_tags: true
-os: MinGW
+#os: MinGW
+os: Visual Studio 2015
+#build:
+#  verbosity: minimal
 platform:
   - x86
   - x64
@@ -11,18 +14,22 @@ init:
 # nope: https://ci.appveyor.com/project/rurban/cperl/build/job/ui7b0dk0gprw1eo2
 #  - cinst ruby.devkit
 #  - cinst make
-#build:
-#  verbosity: minimal
+#install:
+#  - cinst mingw
+#  - SET PATH=%PATH%;C:\tools\mingw64\bin;C:\tools\mingw64\opt\bin
+#  - mingw-get install mingw-developer-toolkit
+#build_script:
+#  - cd win32
+#  - mingw32-make
+#test_script:
+#  - mingw32-make test
 
-install:
-  - cinst mingw
-  - SET PATH=%PATH%;C:\tools\mingw64\bin;C:\tools\mingw64\opt\bin
-  - mingw-get install mingw-developer-toolkit
 build_script:
   - cd win32
-  - mingw32-make
+  - nmake
 test_script:
-  - mingw32-make test
+  - nmake test TEST_JOBS=4
+
 
 notifications:
 - provider: Email
