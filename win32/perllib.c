@@ -36,7 +36,8 @@ xs_init(pTHX)
 {
     char *file = __FILE__;
     dXSUB_SYS;
-    CV * cv = newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, file);
+    CV *cv = newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, file);
+    /* With cperl boot it now immediately */
     boot_DynaLoader(aTHX_ cv);
 
     /* other similar records will be included from "perllibst.h" */
