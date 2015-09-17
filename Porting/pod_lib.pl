@@ -320,7 +320,7 @@ sub __prime_state {
     my $delta_leaf = join '', 'perl', @want, 'delta';
     $state{delta_target} = "$delta_leaf.pod";
     $state{delta_version} = \@want;
-    print "delta_leaf:  $delta_leaf\n";
+    #print "delta_leaf:  $delta_leaf\n";
 
     # This way round so that keys can act as a MANIFEST skip list
     # Targets will always be in the pod directory. Currently we can only cope
@@ -334,7 +334,7 @@ sub __prime_state {
           $contents =~ /perlcdelta - what is new for cperl v(5)\.(\d+)\.(\d+)\n/;
         $state{cdelta_version} = \@cwant;
         $cdelta_leaf = join '', 'perl', @cwant, 'cdelta';
-        print "cdelta_leaf: $cdelta_leaf\n";
+        #print "cdelta_leaf: $cdelta_leaf\n";
         $state{cdelta_target} = "$cdelta_leaf.pod";
         $state{copies}{"$cdelta_leaf.pod"} = 'perlcdelta.pod';
     }

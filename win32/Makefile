@@ -1205,7 +1205,8 @@ utils: $(PERLEXE) ..\utils\Makefile
 	copy ..\README.tw       ..\pod\perltw.pod
 	copy ..\README.vos      ..\pod\perlvos.pod
 	copy ..\README.win32    ..\pod\perlwin32.pod
-	copy ..\pod\perldelta.pod ..\pod\perl5221delta.pod
+	copy ..\pod\perlcdelta.pod ..\pod\perl5222cdelta.pod
+	copy ..\pod\perldelta.pod ..\pod\perl5230delta.pod
 	cd ..\win32
 	$(PERLEXE) $(PL2BAT) $(UTILS)
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
@@ -1302,16 +1303,16 @@ distclean: realclean
 	-if exist $(LIBDIR)\Win32API rmdir /s /q $(LIBDIR)\Win32API
 	-if exist $(LIBDIR)\XS rmdir /s /q $(LIBDIR)\XS
 	-cd $(PODDIR) && del /f *.html *.bat roffitall \
-	    perl5221delta.pod perlaix.pod perlamiga.pod perlandroid.pod \
-	    perlapi.pod perlbs2000.pod perlce.pod perlcn.pod perlcygwin.pod \
-	    perldos.pod perlfreebsd.pod perlhaiku.pod perlhpux.pod \
-	    perlhurd.pod perlintern.pod perlirix.pod perljp.pod perlko.pod \
-	    perllinux.pod perlmacos.pod perlmacosx.pod perlmodlib.pod \
-	    perlnetware.pod perlopenbsd.pod perlos2.pod perlos390.pod \
-	    perlos400.pod perlplan9.pod perlqnx.pod perlriscos.pod \
-	    perlsolaris.pod perlsymbian.pod perlsynology.pod perltoc.pod \
-	    perltru64.pod perltw.pod perluniprops.pod perlvos.pod \
-	    perlwin32.pod
+	    perl5222cdelta.pod perl5230delta.pod perlaix.pod perlamiga.pod \
+	    perlandroid.pod perlapi.pod perlbs2000.pod perlce.pod \
+	    perlcn.pod perlcygwin.pod perldos.pod perlfreebsd.pod \
+	    perlhaiku.pod perlhpux.pod perlhurd.pod perlintern.pod \
+	    perlirix.pod perljp.pod perlko.pod perllinux.pod perlmacos.pod \
+	    perlmacosx.pod perlmodlib.pod perlnetware.pod perlopenbsd.pod \
+	    perlos2.pod perlos390.pod perlos400.pod perlplan9.pod \
+	    perlqnx.pod perlriscos.pod perlsolaris.pod perlsymbian.pod \
+	    perlsynology.pod perltoc.pod perltru64.pod perltw.pod \
+	    perluniprops.pod perlvos.pod perlwin32.pod
 	-cd ..\utils && del /f h2ph splain cperlbug pl2pm c2ph pstruct h2xs \
 	    cperldoc cperlivp libnetcfg enc2xs encguess piconv cpan *.bat \
 	    xsubpp pod2html instmodsh json_pp prove ptar ptardiff ptargrep shasum corelist zipdetails
