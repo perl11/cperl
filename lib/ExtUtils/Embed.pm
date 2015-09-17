@@ -120,7 +120,9 @@ EOT
             $retval .= "
     /* DynaLoader is a special case */
     {
+        dSP;
         CV * cv = newXS(\"$fname\", boot_${cname}, file);
+        PUSHMARK(SP);
         boot_DynaLoader(aTHX_ cv);
     }
 ";

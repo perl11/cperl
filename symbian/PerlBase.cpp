@@ -174,9 +174,12 @@ EXTERN_C void boot_DynaLoader(pTHX_ CV* cv);
 
 static void xs_init(pTHX)
 {
+    const char *file = __FILE__;
     dXSUB_SYS;
-    CV *cv = newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, __FILE__);
+    dSP;
+    CV *cv = newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, file);
     /* With cperl boot it now immediately */
+    PUSHMARK(SP);
     boot_DynaLoader(aTHX_ cv);
 }
 
