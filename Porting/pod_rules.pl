@@ -18,8 +18,8 @@ if (ord("A") == 193) {
 # --verbose gives slightly more output
 # --build-all tries to build everything
 # --build-foo updates foo as follows
-# --showfiles shows the files to be changed
-# --test exit if perl.pod, MANIFEST are consistent, and regenerated
+# --showfiles shows the files which would be changed, and exits
+# --tap exit if perl.pod, MANIFEST are consistent, and regenerated
 #   files are up to date, die otherwise.
 
 %Targets = (
@@ -41,7 +41,7 @@ sub my_die;
     my $filesopts = join(" | ", map { "--build-$_" } "all", sort @files);
     my $showfiles;
     my %build_these;
-    die "$0: Usage: $0 [--verbose] [--showfiles] [$filesopts]\n"
+    die "$0: Usage: $0 [--verbose] [--showfiles] [--tap] [$filesopts]\n"
         unless GetOptions (verbose => \$Verbose,
                            showfiles => \$showfiles,
                            tap => \$Test,
@@ -64,11 +64,6 @@ sub my_die;
 
 if ($Verbose) {
     print "I will be building $_\n" foreach sort keys %Build;
-}
-# FIXME!
-if ($Config{usecperl}) {
-    print "1..0 # SKIP missing cdelta [cperl #40]\n";
-    exit;
 }
 
 my $test = 1;
@@ -205,23 +200,23 @@ sub do_unix {
                       }mge;
 
     # pod/perl511delta.pod: pod/perldelta.pod
-    #         cd pod && $(LNS) perldelta.pod perl511delta.pod
+    #         cd pod && $(LNS) perldelta.pod $@
 
     # although it seems that HP-UX make gets confused, always tried to
     # regenerate the symlink, and then the ln -s fails, as the target exists.
 
     my $re = qr{(
 pod/perl[a-z0-9_]+\.pod: pod/perl[a-z0-9_]+\.pod
-	\$\(RMS\) pod/perl[a-z0-9_]+\.pod
-	\$\(LNS\) perl[a-z0-9_]+\.pod pod/perl[a-z0-9_]+\.pod
+	\$\(RMS\) \$\@
+	\$\(LNS\) perl[a-z0-9_]+\.pod \$\@
 )+}sm;
     $makefile_SH = verify_contiguous($name, $makefile_SH, $re, 'copy rules');
 
     my @copy_rules = map "
 pod/$_: pod/$state->{copies}{$_}
-	\$(RMS) pod/$_
-	\$(LNS) $state->{copies}{$_} pod/$_
-", keys %{$state->{copies}};
+	\$(RMS) \$\@
+	\$(LNS) $state->{copies}{$_} \$\@
+", sort keys %{$state->{copies}};
 
     $makefile_SH =~ s/\0+/join '', @copy_rules/se;
     $makefile_SH;

@@ -5,7 +5,7 @@ use File::Find;
 
 =head1 NAME
 
-Porting/pod_lib.pl - functions for building and installing POD
+Porting/pod_lib.pl - functions for building, maintaining and installing POD
 
 =head1 SYNOPSIS
 
@@ -37,27 +37,17 @@ rely on XS modules, either directly or indirectly (e.g., C<autodie>).
 
 =head2 C<my_die()>
 
-=over 4
-
-=item * Purpose
-
 Exit from a process with an error code and a message.
 
-=item * Arguments
+Arguments: List with the error message. 
 
-List of arguments to be passed with the error message.  Example:
+Example:
 
     close $fh or my_die("close 'utils.lst': $!");
 
-=item * Return Value
-
-Exit code C<255>.
-
-=item * Comment
+Return Value: Exit code C<255>.
 
 Prints C<ABORTED> to STDERR.
-
-=back
 
 =cut
 
@@ -79,25 +69,15 @@ sub my_die {
     exit 255;
 }
 
-=head2 C<open_or_die()>
-
-=over 4
-
-=item * Purpose
+=head2 C<open_or_die($filename)>
 
 Opens a file or fails if it cannot.
 
-=item * Arguments
-
-String holding filename to be opened.  Example:
+Argument: String holding filename to be opened.  Example:
 
     $fh = open_or_die('utils.lst');
 
-=item * Return Value
-
-Handle to opened file.
-
-=back
+Return Value: Handle to opened file.
 
 =cut
 
@@ -127,26 +107,17 @@ sub slurp_or_die {
     return $contents;
 }
 
-=head2 C<write_or_die()>
-
-=over 4
-
-=item * Purpose
+=head2 C<write_or_die($filename, $content)>
 
 Write out a string to a file.
 
-=item * Arguments
+C<$filename>: String holding name of file to be written to
 
-List of two arguments:  (i) String holding name of file to be written to; (ii)
-String holding contents to be written.
+C<$content>: String holding contents to be written.
 
     write_or_die($olddeltaname, $olddelta);
 
-=item * Return Value
-
 Implicitly returns true value upon success.
-
-=back
 
 =cut
 
@@ -158,35 +129,22 @@ sub write_or_die {
     close $fh or die "Can't close $filename: $!";
 }
 
-=head2 C<verify_contiguous()>
-
-=over 4
-
-=item * Purpose
+=head2 C<verify_contiguous($name, $content, $re, $what)>
 
 Verify that a file contains exactly one contiguous run of lines which matches
 the passed in pattern. C<croak()>s if the pattern is not found, or found in
 more than one place.
 
-=item * Arguments
+C<$name:> Name of file
 
-=over 4
+C<$content:> Contents of file
 
-=item * Name of file
+C<$re>: Pattern of interest
 
-=item * Contents of file
+C<$what>: Name to report on error
 
-=item * Pattern of interest
-
-=item * Name to report on error
-
-=back
-
-=item * Return Value
-
-The contents of the file, with C<qr/\0+/> substituted for the pattern.
-
-=back
+Return Value: The contents of the file, with C<qr/\0+/> substituted
+for the pattern.
 
 =cut
 
@@ -200,11 +158,7 @@ sub verify_contiguous {
     return $content;
 }
 
-=head2 C<process()>
-
-=over 4
-
-=item * Purpose
+=head2 C<process($desc, $filename, $callback, $test, $verbose)>
 
 Read a file from disk, pass the contents to the callback, and either update
 the file on disk (if changed) or generate TAP output to confirm that the
@@ -212,34 +166,17 @@ version on disk is up to date. C<die>s if the file contains any C<NUL> bytes.
 This permits the callback routine to use C<NUL> bytes as placeholders while
 manipulating the file's contents.
 
-=item * Arguments
+C<$desc>: Description for use in error messages
 
-=over 4
+C<$callback>: Passed description and file contents, should return
+updated file contents.
 
-=item * Description for use in error messages
-
-=item * Name of file
-
-=item * Callback
-
-Passed description and file contents, should return updated file contents.
-
-=item * Test number
+C<$test>: Test number
 
 If defined, generate TAP output to C<STDOUT>. If defined and false, generate
 an unnumbered test. Otherwise this is the test number in the I<ok> line.
 
-=item * Verbose flag
-
-If true, generate verbose output.
-
-=back
-
-=item * Return Value
-
 Does not return anything.
-
-=back
 
 =cut
 
@@ -274,17 +211,9 @@ sub process {
 
 =head2 C<pods_to_install()>
 
-=over 4
-
-=item * Purpose
-
 Create a lookup table holding information about PODs to be installed.
 
-=item * Arguments
-
-None.
-
-=item * Return Value
+Return Value:
 
 Reference to a hash with a structure like this:
 
@@ -305,12 +234,8 @@ Reference to a hash with a structure like this:
         # ...
       },
 
-=item * Comment
-
 Broadly speaking, the function assembles a list of all F<.pm> and F<.pod>
 files in the distribution and then excludes certain files from installation.
-
-=back
 
 =cut
 
@@ -321,41 +246,40 @@ sub pods_to_install {
 
     my (%done, %found);
 
-    File::Find::find({no_chdir=>1,
-                      wanted => sub {
-                          if (m!/t\z!) {
-                              ++$File::Find::prune;
-                              return;
-                          }
+    File::Find::find(
+        {no_chdir => 1,
+         wanted => sub {
+             if (m!/t\z!) {
+                 ++$File::Find::prune;
+                 return;
+             }
 
-                          # $_ is $File::Find::name when using no_chdir
-                          return unless m!\.p(?:m|od)\z! && -f $_;
-                          return if m!lib/Net/FTP/.+\.pm\z!; # Hi, Graham! :-)
-                          # Skip .pm files that have corresponding .pod files
-                          return if s!\.pm\z!.pod! && -e $_;
-                          s!\.pod\z!!;
-                          s!\Alib/!!;
-                          s!/!::!g;
+             # $_ is $File::Find::name when using no_chdir
+             return unless m!\.p(?:m|od)\z! && -f $_;
+             return if m!lib/Net/FTP/.+\.pm\z!; # Hi, Graham! :-)
+             # Skip .pm files that have corresponding .pod files
+             return if s!\.pm\z!.pod! && -e $_;
+             s!\.pod\z!!;
+             s!\Alib/!!;
+             s!/!::!g;
 
-                          my_die("Duplicate files for $_, '$done{$_}' and '$File::Find::name'")
-                              if exists $done{$_};
-                          $done{$_} = $File::Find::name;
+             my_die("Duplicate files for $_, '$done{$_}' and '$File::Find::name'")
+               if exists $done{$_};
+             $done{$_} = $File::Find::name;
 
-                          return if $do_not_install{$_};
-                          return if is_duplicate_pod($File::Find::name);
-                          $found{/\A[a-z]/ ? 'PRAGMA' : 'MODULE'}{$_}
-                              = $File::Find::name;
-                      }}, 'lib');
+             return if $do_not_install{$_};
+             return if is_duplicate_pod($File::Find::name);
+             $found{/\A[a-z]/ ? 'PRAGMA' : 'MODULE'}{$_}
+             = $File::Find::name;
+         }}, 'lib');
     return \%found;
 }
 
-my %state = (
-             # Don't copy these top level READMEs
+my %state = (# Don't copy these top level READMEs
              ignore => {
                         micro => 1,
                         # vms => 1,
-                       },
-            );
+                       });
 
 {
     my (%Lengths, %MD5s);
@@ -396,20 +320,21 @@ sub __prime_state {
     my $delta_leaf = join '', 'perl', @want, 'delta';
     $state{delta_target} = "$delta_leaf.pod";
     $state{delta_version} = \@want;
-    my $cdelta_leaf;
+    print "delta_leaf:  $delta_leaf\n";
 
     # This way round so that keys can act as a MANIFEST skip list
     # Targets will always be in the pod directory. Currently we can only cope
     # with sources being in the same directory.
     $state{copies}{$state{delta_target}} = $source;
 
+    my $cdelta_leaf;
     if (-e 'pod/perlcdelta.pod') {
         $contents = slurp_or_die('pod/perlcdelta.pod');
-        my @cwant = # (5, 22, 2, 'c');
+        my @cwant =
           $contents =~ /perlcdelta - what is new for cperl v(5)\.(\d+)\.(\d+)\n/;
-        push @cwant, 'c';
         $state{cdelta_version} = \@cwant;
         $cdelta_leaf = join '', 'perl', @cwant, 'cdelta';
+        print "cdelta_leaf: $cdelta_leaf\n";
         $state{cdelta_target} = "$cdelta_leaf.pod";
         $state{copies}{"$cdelta_leaf.pod"} = 'perlcdelta.pod';
     }
@@ -521,12 +446,6 @@ sub __prime_state {
 
 =head2 C<get_pod_metadata()>
 
-=over 4
-
-=item * Purpose
-
-=item * Arguments
-
 List of one or more arguments.
 
 =over 4
@@ -547,7 +466,7 @@ Example:
     get_pod_metadata(
         1, sub { warn @_ if @_ }, values %Build);
 
-=item * Return Value
+Return Value:
 
 Hash reference; each element provides either a list or a lookup table for
 information about various types of POD files.
@@ -568,8 +487,6 @@ information about various types of POD files.
                         by 'perldoc' ]
   'copies'          => { # patch version perldelta =>
                         minor version perldelta }
-
-=back
 
 =cut
 
