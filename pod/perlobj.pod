@@ -685,8 +685,8 @@ thing as well:
 =head3 Indirect Object Syntax
 X<indirect object>
 
-B<Outside of the file handle case, use of this syntax is discouraged as
-it can confuse the Perl interpreter. See below for more details.>
+B<Indirect Object Syntax resolves the syntax dynamically, which used to confuse
+the perl5 porters. See below for more details.>
 
 Perl supports another method invocation syntax called "indirect object"
 notation. This syntax is called "indirect" because the method comes
@@ -697,26 +697,23 @@ This syntax can be used with any class or object method:
     my $file = new File $path, $data;
     save $file;
 
-We recommend that you avoid this syntax, for several reasons.
+Beware that this syntax is dynamically typed and thereby fragile.
 
-First, it can be confusing to read. In the above example, it's not
-clear if C<save> is a method provided by the C<File> class or simply a
+C<save $file> is better to read but can be confusing. It's not clear
+if C<save> is a method provided by the C<File> class or simply a
 subroutine that expects a file object as its first argument.
 
 When used with class methods, the problem is even worse. Because Perl
-allows subroutine names to be written as barewords, Perl has to guess
+allows subroutine names to be written as barewords, Perl has to check
 whether the bareword after the method is a class name or subroutine
 name. In other words, Perl can resolve the syntax as either C<<
 File->new( $path, $data ) >> B<or> C<< new( File( $path, $data ) ) >>.
 
-To parse this code, Perl uses a heuristic based on what package names
-it has seen, what subroutines exist in the current package, what
-barewords it has previously seen, and other input. Needless to say,
-heuristics can produce very surprising results!
-
-Older documentation (and some CPAN modules) encouraged this syntax,
-particularly for constructors, so you may still find it in the wild.
-However, we encourage you to avoid using it in new code.
+To parse this code, Perl uses the dynamic approach based on what
+package names it has seen, what subroutines exist in the current
+package, what barewords it has previously seen, and other
+input. Dynamic types can produce very surprising results if the load
+order changes.
 
 You can force Perl to interpret the bareword as a class name by
 appending "::" to it, like we saw earlier:
