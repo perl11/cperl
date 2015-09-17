@@ -222,7 +222,10 @@ aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
     perl5004delta	Perl changes in version 5.004
 
     perlexperiment	A listing of experimental features in Perl
+
     perlcperl		Perl notes for cperl (variant)
+    perlcdelta		cperl changes since previous version
+    perl5221cdelta	cperl changes in version 5.22.1c
 
     perlartistic	Perl Artistic License
     perlgpl		GNU General Public License
