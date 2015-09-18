@@ -1,4 +1,7 @@
 #!./perl -w
+# perl comes with a perlmain.c. This is to build a changed perlmain.c,
+# if static_ext are defined.
+
 package ExtUtils::Miniperl;
 use strict;
 require Exporter;
@@ -8,7 +11,7 @@ our @ISA = qw(Exporter);
 our @EXPORT = qw(writemain);
 our $VERSION = '1.09';
 
-# blead will run this with miniperl, hence we can't use autodie or File::Temp
+# We can't use autodie or File::Temp
 my $temp;
 
 END {
@@ -52,7 +55,8 @@ sub writemain{
  *     [Frodo on p.73 of _The Lord of the Rings_, I/iii: "Three Is Company"]
  */
 
-/* This file contains the main() function for the perl interpreter.
+/* This file contains the main() function for the perl interpreter
+ * and xs_init() to boot the static extensions.
  * Note that miniperlmain.c contains main() for the 'miniperl' binary,
  * while perlmain.c contains main() for the 'perl' binary. The typical
  * difference being that the latter includes Dynaloader.
@@ -67,7 +71,6 @@ sub writemain{
  * perlmain.c is built automatically by Makefile (so the former is
  * included in the tarball while the latter isn't).
  *
- * It loads all predefined static extensions.
  */
 
 #ifdef OEMVS

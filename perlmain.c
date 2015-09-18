@@ -22,7 +22,8 @@
  *     [Frodo on p.73 of _The Lord of the Rings_, I/iii: "Three Is Company"]
  */
 
-/* This file contains the main() function for the perl interpreter.
+/* This file contains the main() function for the perl interpreter,
+ * and xs_init() to boot the static extensions.
  * Note that miniperlmain.c contains main() for the 'miniperl' binary,
  * while perlmain.c contains main() for the 'perl' binary. The typical
  * difference being that the latter includes Dynaloader.
@@ -195,10 +196,13 @@ static void
 xs_init(pTHX)
 {
     static const char file[] = __FILE__;
+    dSP;
+    CV *cv;
     dXSUB_SYS;
     PERL_UNUSED_CONTEXT;
 
     /* DynaLoader is a special case */
-    newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, file);
-    boot_DynaLoader(aTHX_ get_cv("DynaLoader::boot_DynaLoader", 0));
+    cv = newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, file);
+    PUSHMARK(SP);
+    boot_DynaLoader(aTHX_ cv);
 }
