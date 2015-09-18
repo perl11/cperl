@@ -5702,6 +5702,8 @@ PP(pp_push)
     else {
 	if (SvREADONLY(ary) && MARK < SP) Perl_croak_no_modify();
         if (AvSHAPED(ary)) Perl_croak_shaped_array("push");
+        ENTER;
+        SAVEI16(PL_delaymagic);
 	PL_delaymagic = DM_DELAY;
 	for (++MARK; MARK <= SP; MARK++) {
 	    SV *sv;
@@ -5713,8 +5715,7 @@ PP(pp_push)
 	}
 	if (PL_delaymagic & DM_ARRAY_ISA)
 	    mg_set(MUTABLE_SV(ary));
-
-	PL_delaymagic = 0;
+        LEAVE;
     }
     SP = ORIGMARK;
     if (OP_GIMME(PL_op, 0) != G_VOID) {
@@ -5756,10 +5757,16 @@ PP(pp_unshift)
     else {
 	SSize_t i = 0;
 	av_unshift(ary, SP - MARK);
+        ENTER;
+        SAVEI16(PL_delaymagic);
+        PL_delaymagic = DM_DELAY;
 	while (MARK < SP) {
 	    SV * const sv = newSVsv(*++MARK);
 	    (void)av_store(ary, i++, sv);
 	}
+        if (PL_delaymagic & DM_ARRAY_ISA)
+            mg_set(MUTABLE_SV(ary));
+        LEAVE;
     }
     SP = ORIGMARK;
     if (OP_GIMME(PL_op, 0) != G_VOID) {
