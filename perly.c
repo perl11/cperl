@@ -93,6 +93,7 @@ yysymprint(pTHX_ PerlIO * const yyoutput, int yytype, const YYSTYPE * const yyva
     if (yytype < YYNTOKENS) {
 	YYFPRINTF (yyoutput, "token %s (", yytname[yytype]);
 #   ifdef YYPRINT
+        /* i.e. yy_symbol_value_print */
 	YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
 #   else
 	YYFPRINTF (yyoutput, "0x%"UVxf, (UV)yyvaluep->ival);
@@ -228,7 +229,6 @@ S_clear_yystack(pTHX_  const yy_parser *parser)
     Safefree(parser->stack);
 }
 
-
 /*----------.
 | yyparse.  |
 `----------*/
@@ -283,8 +283,8 @@ Perl_yyparse (pTHX_ int gramtype)
 
     yystate = ps->state;
 
-    YYDPRINTF ((Perl_debug_log, "Entering state %d\n", yystate));
-
+    YYDPRINTF ((Perl_debug_log, "Entering state %d %s\n", yystate,
+                yytname[yystos[yystate]]));
     parser->yylen = 0;
 
     {

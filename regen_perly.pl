@@ -73,14 +73,28 @@ unless ($version) { die <<EOF; }
 Could not find a version of bison in your path. Please install bison.
 EOF
 
+my $proper_version = qr/\b(1\.875[a-z]?|2\.[0134567])\b/;
+# see if we have a proper old bison-2.7.1 or bison-2.5.1 around
+unless ($version =~ $proper_version) {
+    $bison = "bison-2.7.1";
+    $version = `$bison -V`;
+    unless ($version =~ $proper_version) {
+        $bison = "bison-2.5.1";
+        $version = `$bison -V`;
+    }
+}
 # Don't change this to add new bison versions without testing that the generated
 # files actually work :-) Win32 in particular may not like them. :-(
-unless ($version =~ /\b(1\.875[a-z]?|2\.[0134567])\b/) { die <<EOF; }
+unless ($version =~ $proper_version) { die <<EOF; }
 
 You have the wrong version of bison in your path; currently 1.875
 2.0, 2.1, 2.3, 2.4, 2.5, 2.6 or 2.7 is required.  Try installing
-    http://ftp.gnu.org/gnu/bison/bison-2.5.1.tar.gz
-or similar.  Your bison identifies itself as:
+    http://ftp.gnu.org/gnu/bison/bison-2.7.1.tar.gz
+or  http://ftp.gnu.org/gnu/bison/bison-2.5.1.tar.gz
+or similar:
+    ./configure --program-suffix=-2.5.1; make; make check; sudo make install
+
+Your bison identifies itself as:
 
 $version
 EOF
@@ -89,7 +103,8 @@ EOF
 $version = $1;
 
 # creates $tmpc_file and $tmph_file
-my_system("$bison -d -o $tmpc_file $y_file");
+# with -v also perlytmp.output
+my_system("$bison -v -r states -d -o $tmpc_file $y_file");
 
 open my $ctmp_fh, '<', $tmpc_file or die "Can't open $tmpc_file: $!\n";
 my $clines;
@@ -108,10 +123,8 @@ my ($act_fh, $tab_fh, $h_fh) = map {
 } $act_file, $tab_file, $h_file;
 
 print $act_fh $actlines;
-
 print $tab_fh $tablines;
-
-unlink $tmpc_file;
+#unlink $tmpc_file;
 
 # Wrap PERL_CORE round the symbol definitions. Also,  the
 # C<#line 30 "perly.y"> confuses the Win32 resource compiler and the
@@ -120,8 +133,8 @@ unlink $tmpc_file;
 open my $tmph_fh, '<', $tmph_file or die "Can't open $tmph_file: $!\n";
 
 my $endcore_done = 0;
-# Token macros need to be generated manually from bison 2.4 on
-my $gather_tokens = $version >= 2.4 ? undef : 0;
+# Token macros need to be generated manually for bison 2.4
+my $gather_tokens = $version >= 2.4 && $version < 2.5 ? undef : 0;
 my $tokens;
 while (<$tmph_fh>) {
     # bison 2.6 adds header guards, which break things because of where we
@@ -165,8 +178,13 @@ j
     }
     print $h_fh $_;
 }
+print $h_fh "
+#if YYDEBUG
+#define YYPRINT
+#endif
+";
 close $tmph_fh;
-unlink $tmph_file;
+#unlink $tmph_file;
 
 foreach ($act_fh, $tab_fh, $h_fh) {
     read_only_bottom_close_and_rename($_, ['regen_perly.pl', $y_file]);
@@ -300,6 +318,7 @@ sub make_type_tab {
     die "$y_file: no __DEFAULT__ token defined\n" unless $default_token;
     $types{$default_token} = 1;
 
+    # Convert yytname to enum toketypes
     $tablines =~ /^\Qstatic const char *const yytname[] =\E\n
 	    \{\n
 	    (.*?)
