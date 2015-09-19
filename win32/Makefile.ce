@@ -569,12 +569,12 @@ $(o).dll:
 	$(RSC) -i.. $<
 
 # This must be relative to ../lib/CORE, else the ext dll build fails...
-PERLIMPLIB_EXP	= perl$(PV).lib
-PERLIMPLIB	= $(PERLCEDIR)\$(MACHINE)\perl$(PV).lib
-PERLDLL		= $(MACHINE)\perl$(PV).dll
+PERLIMPLIB_EXP	= cperl$(PV).lib
+PERLIMPLIB	= $(PERLCEDIR)\$(MACHINE)\cperl$(PV).lib
+PERLDLL		= $(MACHINE)\cperl$(PV).dll
 
 DLLDIR          = $(MACHINE)\dll
-PERLEXE		= $(MACHINE)\perl.exe
+PERLEXE		= $(MACHINE)\cperl.exe
 
 CONFIGPM	= ..\lib\Config.pm ..\lib\Config_heavy.pl
 GENUUDMAP	= ..\generate_uudmap.exe

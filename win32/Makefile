@@ -616,13 +616,13 @@ $(o).dll:
 
 # makedef.pl must be updated if this changes, and this should normally
 # only change when there is an incompatible revision of the public API.
-PERLIMPLIB	= ..\perl522.lib
-PERLSTATICLIB	= ..\perl522s.lib
-PERLDLL		= ..\perl522.dll
+PERLIMPLIB	= ..\cperl522.lib
+PERLSTATICLIB	= ..\cperl522s.lib
+PERLDLL		= ..\cperl522.dll
 
 MINIPERL	= ..\miniperl.exe
 MINIDIR		= .\mini
-PERLEXE		= ..\perl.exe
+PERLEXE		= ..\cperl.exe
 WPERLEXE	= ..\wperl.exe
 PERLEXESTATIC	= ..\perl-static.exe
 GLOBEXE		= ..\perlglob.exe
