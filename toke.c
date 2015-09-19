@@ -8246,18 +8246,22 @@ Perl_yylex(pTHX)
 #endif
                     ) {
                     char *olds = s;
-                    DEBUG_T( { printbuf("### Looks like prototype? %s\n", s); } );
-		    s = scan_str(s,FALSE,FALSE,FALSE,NULL);
-		    COPLINE_SET_FROM_MULTI_END;
-		    if (!s)
-			Perl_croak(aTHX_ "Prototype not terminated");
-		    have_proto = validate_proto(PL_subname, PL_lex_stuff,
-                                                ckWARN(WARN_ILLEGALPROTO));
+                    DEBUG_T(printbuf("### Looks like prototype? %s\n", s));
+                    if (strchr(s, 10))
+                        have_proto = FALSE;
+                    else {
+                        s = scan_str(s,FALSE,FALSE,FALSE,NULL);
+                        COPLINE_SET_FROM_MULTI_END;
+                        if (!s)
+                            Perl_croak(aTHX_ "Prototype not terminated");
+                        have_proto = validate_proto(PL_subname, PL_lex_stuff,
+                                                    ckWARN(WARN_ILLEGALPROTO));
+                    }
                     if (have_proto) {
-                        DEBUG_T( { printbuf("### Is prototype %s\n", olds); } );
+                        DEBUG_T(printbuf("### Is prototype %s\n", olds));
                         s = skipspace(s);
                     } else {
-                        DEBUG_T( { printbuf("### No prototype %s, signature probably\n", olds); } );
+                        DEBUG_T(printbuf("### No prototype %s, signature probably\n", olds));
                         s = PL_bufptr = olds;
                         PL_lex_stuff = NULL;
                     }
