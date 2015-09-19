@@ -524,6 +524,16 @@ S_printbuf(pTHX_ const char *const fmt, const char *const s)
 
 #endif
 
+static void
+S_no_such_class(pTHX_ char *s) {
+    char tmpbuf[1024];
+    int len;
+    PL_bufptr = s;
+    len = my_snprintf(tmpbuf, sizeof(tmpbuf), "No such class %.1000s", PL_tokenbuf);
+    PERL_MY_SNPRINTF_POST_GUARD(len, sizeof(tmpbuf));
+    yyerror_pv(tmpbuf, UTF ? SVf_UTF8 : 0);
+}
+
 static int
 S_deprecate_commaless_var_list(pTHX) {
     PL_expect = XTERM;
@@ -7783,14 +7793,8 @@ Perl_yylex(pTHX)
 		    goto really_sub;
 		}
 		PL_in_my_stash = find_in_my_stash(PL_tokenbuf, len);
-		if (!PL_in_my_stash) {
-		    char tmpbuf[1024];
-                    int len;
-		    PL_bufptr = s;
-		    len = my_snprintf(tmpbuf, sizeof(tmpbuf), "No such class %.1000s", PL_tokenbuf);
-                    PERL_MY_SNPRINTF_POST_GUARD(len, sizeof(tmpbuf));
-		    yyerror_pv(tmpbuf, UTF ? SVf_UTF8 : 0);
-		}
+		if (!PL_in_my_stash)
+                    S_no_such_class(aTHX_ s);
 	    }
 	    pl_yylval.ival = 1;
 	    OPERATOR(MY);
