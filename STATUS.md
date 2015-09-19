@@ -115,13 +115,14 @@ are limited. So they are based on master.
 
   much faster and much less memory, but 3 minor scope test fails.
 
-* [feature/gh7-signatures3](http://github.com/perl11/cperl/commits/feature/gh7-signatures3)
+* [feature/gh7-signatures](http://github.com/perl11/cperl/commits/feature/gh7-signatures)
 
   proper sigs on top of davem's OP_SIGNATURE, 2x faster
 
-* [feature/gh7-signatures3-gh25-nl](http://github.com/perl11/cperl/commits/feature/gh7-signatures3-gh25-nl)
+* [feature/gh7-signatures-old](http://github.com/perl11/cperl/commits/feature/gh7-signatures-old)
 
-  newlines in sigs broken, adjusted the tests.
+  better sigs on top of zefram's old and slow purple signatures which
+  are in blead. defunct.
 
 * [feature/gh6-no-miniperl](http://github.com/perl11/cperl/commits/feature/gh6-no-miniperl)
 
@@ -142,7 +143,7 @@ They also revert some wrong decisions p5p already made.
 
 * [feature/gh14-native-types](http://github.com/perl11/cperl/commits/feature/gh14-native-types)
 
-  int, uint, num, str. unboxed data on the stack and pads. some minor compiler fixes needed
+  int, uint, num, str. unboxed data on the stack and pads. some minor compiler fixes needed, esp. for typed pads. boxed or unboxed, that's the question.
 
 * [feature/gh23-inline-subs](http://github.com/perl11/cperl/commits/feature/gh23-inline-subs)
 
