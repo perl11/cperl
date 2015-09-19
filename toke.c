@@ -182,6 +182,11 @@ U8 UNIsuperscript(const char *t) {
 #define LEX_FORMLINE		 1 /* expecting a format line               */
 #define LEX_KNOWNEXT		 0 /* next token known; just return it      */
 
+#define LEX_TYPE_BRACKETS_ON     (1<<24)
+#define LEX_TYPE_ALLBRACKETS_ON  (2<<24)
+#define LEX_TYPE_BRACKETS_OFF    (3<<24)
+#define LEX_TYPE_ALLBRACKETS_OFF (4<<24)
+#define LEX_TYPE_BRACKETS_ALL    (7<<24)
 
 #ifdef DEBUGGING
 static const char* const lex_state_names[] = {
@@ -453,6 +458,10 @@ S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
         int itype = (int)type;
 	const char *name = S_toke_name(rv, &itype);
 	SV* const report = newSVpvs("<== ");
+        if (((U32)rv) & 0xff000000) { /* <<24 */
+	    Perl_sv_catpvf(aTHX_ report, "%c|", (char)(((U32)rv & 0xff000000) >> 24));
+            rv &= 0xffffff;
+        }
 	if (name)
 	    Perl_sv_catpv(aTHX_ report, name);
 	else if (!rv)
@@ -2014,10 +2023,10 @@ Perl_yyunlex(pTHX)
 	    if (yyc == '{'/*}*/ || yyc == HASHBRACK || yyc == '['/*]*/) {
 		PL_lex_allbrackets--;
 		PL_lex_brackets--;
-		yyc |= (3<<24) | (PL_lex_brackstack[PL_lex_brackets] << 16);
+		yyc |= LEX_TYPE_BRACKETS_OFF | (PL_lex_brackstack[PL_lex_brackets] << 16);
 	    } else if (yyc == '('/*)*/) {
 		PL_lex_allbrackets--;
-		yyc |= (2<<24);
+		yyc |= LEX_TYPE_ALLBRACKETS_ON;
 	    }
 	    force_next(yyc);
 	}
@@ -4384,16 +4393,16 @@ Perl_yylex(pTHX)
 	{
 	    I32 next_type;
 	    next_type = PL_nexttype[PL_nexttoke];
-	    if (next_type & (7<<24)) {
-		if (next_type & (1<<24)) {
+	    if (next_type & LEX_TYPE_BRACKETS_ALL) {
+		if (next_type & LEX_TYPE_BRACKETS_ON) {
 		    if (PL_lex_brackets > 100)
 			Renew(PL_lex_brackstack, PL_lex_brackets + 10, char);
 		    PL_lex_brackstack[PL_lex_brackets++] =
 			(char) ((next_type >> 16) & 0xff);
 		}
-		if (next_type & (2<<24))
+		if (next_type & LEX_TYPE_ALLBRACKETS_ON)
 		    PL_lex_allbrackets++;
-		if (next_type & (4<<24))
+		if (next_type & LEX_TYPE_ALLBRACKETS_OFF)
 		    PL_lex_allbrackets--;
 		next_type &= 0xffff;
 	    }
@@ -4468,7 +4477,7 @@ Perl_yylex(pTHX)
 		PL_lex_casestack[PL_lex_casemods] = '\0';
 		PL_lex_state = LEX_INTERPCONCAT;
 		NEXTVAL_NEXTTOKE.ival = 0;
-		force_next((2<<24)|'(');
+		force_next(LEX_TYPE_ALLBRACKETS_ON | '(');
 		if (*s == 'l')
 		    NEXTVAL_NEXTTOKE.ival = OP_LCFIRST;
 		else if (*s == 'u')
@@ -4521,7 +4530,7 @@ Perl_yylex(pTHX)
 	    NEXTVAL_NEXTTOKE.ival = 0;
 	    force_next('$');
 	    NEXTVAL_NEXTTOKE.ival = 0;
-	    force_next((2<<24)|'(');
+	    force_next(LEX_TYPE_ALLBRACKETS_ON | '(');
 	    NEXTVAL_NEXTTOKE.ival = OP_JOIN;	/* emulate join($", ...) */
 	    force_next(FUNC);
 	}
