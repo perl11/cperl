@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..173\n";
+print "1..177\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -336,12 +336,14 @@ like($@, qr/BEGIN failed--compilation aborted/, 'BEGIN 7' );
   eval qq[ for $xFC ];
   like($@, qr/Missing \$ on loop variable/,
        "252 char id ok, but a different error");
-  eval qq[ for $xFD; ];
+  eval qq[ for my $xFD; ];
+  like($@, qr/Identifier too long/, "too long type in for ctx");
+  eval qq[ for my \$$xFD; ];
   like($@, qr/Identifier too long/, "too long id in for ctx");
 
   # the specific case from the ticket
   my $x = "x" x 257;
-  eval qq[ for $x ];
+  eval qq[ for my $x ];
   like($@, qr/Identifier too long/, "too long id ticket case");
 }
 
@@ -497,7 +499,16 @@ like $@, "^Identifier too long at ", 'ident buffer overflow';
 
 eval 'for my a1b $i (1) {}';
 # ng: 'Missing $ on loop variable'
-like $@, "^No such class a1b at ", 'TYPE of my of for statement';
+like $@, "^No such class a1b at ", 'Wrong TYPE of my of for statement';
+
+{
+    eval q[ %MyType::; for my MyType $x (1){}; ];
+    is($@, '', "Known TYPE in for statement");
+    eval q[ for state $x (1){}; ];
+    like($@, qr/Missing \$ on loop variable/, "no state var in for statement");
+    eval q[ for our $x (1){}; ];
+    is($@, '', "our var in for statement");
+}
 
 eval 'method {} {$_,undef}';
 like $@, qq/^Can't call method "method" on unblessed reference at /,
@@ -512,7 +523,7 @@ is $@, "Illegal division by zero at maggapom line 2.\n",
 # parentheses needed for this to fail an assertion in S_maybe_multideref
 is +(${[{a=>214}]}[0])->{a}, 214, '($array[...])->{...}';
 
-# This used to fail an assertion because of the OPf_SPECIAL flag on an
+# This used to fail an assertion because of the OPf_SPECIAL flag on anb
 # OP_GV that started out as an OP_CONST.  No test output is necessary, as
 # successful parsing is sufficient.
 sub FILE1 () { 1 }

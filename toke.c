@@ -7530,24 +7530,23 @@ Perl_yylex(pTHX)
 	    pl_yylval.ival = CopLINE(PL_curcop);
 	    s = skipspace(s);
 	    if (PL_expect == XSTATE && isIDFIRST_lazy_if(s,UTF)) {
-		char *p = s;
-                int l = PL_bufend - p;
+                int l = PL_bufend - s;
+		d = s;
 
-		if (l >= 3 && strnEQ(p, "my", 2) && isSPACE(*(p + 2))) {
-		    p += 2;
-                    p = skipspace(p);
+		if (l >= 3 && strnEQ(d, "my", 2) && isSPACE(*(d + 2))) {
+		    d += 2;
+                    d = skipspace(d);
                 }
-                else if (l >= 4 && strnEQ(p, "our", 3) && isSPACE(*(p + 3))) {
-		    p += 3;
-                    p = skipspace(p);
+                else if (l >= 4 && strnEQ(d, "our", 3) && isSPACE(*(d + 3))) {
+		    d += 3;
+                    d = skipspace(d);
                 }
-                /* honor optional type, as in "for my Int $x (..)" */
-                if (p != s && isIDFIRST_lazy_if(p,UTF)) {
-                    p = scan_word(p, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
-                    PL_in_my_stash = find_in_my_stash(PL_tokenbuf, len);
-                    p = skipspace(p);
+                /* honor optional type, as in "for my Int $x {}" */
+                if (d != s && isIDFIRST_lazy_if(d, UTF)) {
+                    d = scan_word(d, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
+                    d = skipspace(d);
                 }
-                if (*p != '$')
+                if (*d != '$')
                     Perl_croak(aTHX_ "Missing $ on loop variable");
 	    }
 	    OPERATOR(FOR);

@@ -1091,8 +1091,8 @@ optrepl:	/* NULL */
 			{ $$ = $2; }
 	;
 
-/* A little bit of trickery to make "for my $foo (@bar)" actually be
-   lexical */
+/* A little bit of trickery to make "for my $foo" or "for my Int $i"
+   actually be lexical */
 my_scalar:	scalar
 			{ parser->in_my = 0; $$ = my($1); }
 	;
