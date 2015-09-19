@@ -425,9 +425,12 @@ static struct debug_tokens {
 const char*
 S_toke_name(I32 state, int* ltype)
 {
-    const char *name = "";
+    const char *name = NULL;
     if (DEBUG_T_TEST) {
         const struct debug_tokens *p;
+        state &= 0xffffff; /* filter out 2<<24, 4<<24 */
+        if (state > (I32)(sizeof debug_tokens/sizeof debug_tokens[0]))
+            return NULL;
         for (p = debug_tokens; p->token; p++) {
             if (p->token == (int)state) {
                 name = p->name;
@@ -452,15 +455,14 @@ S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
 	SV* const report = newSVpvs("<== ");
 	if (name)
 	    Perl_sv_catpv(aTHX_ report, name);
-	else if (isGRAPH(rv))
-	{
+	else if (!rv)
+	    sv_catpvs(report, "EOF");
+	else if (isPRINT(rv) || isGRAPH(rv)) {
 	    Perl_sv_catpvf(aTHX_ report, "'%c'", (char)rv);
 	    if ((char)rv == 'p') {
 		sv_catpvf(report, " (Pending identifier '%c')", (U8)lvalp->ival);
             }
 	}
-	else if (!rv)
-	    sv_catpvs(report, "EOF");
 	else
 	    Perl_sv_catpvf(aTHX_ report, "?? %"IVdf, (IV)rv);
 	switch (type) {
