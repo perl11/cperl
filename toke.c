@@ -422,6 +422,23 @@ static struct debug_tokens {
 };
 
 /* dump the returned token in rv, plus any optional arg in pl_yylval */
+const char*
+S_toke_name(I32 state, int* ltype)
+{
+    const char *name = "";
+    if (DEBUG_T_TEST) {
+        const struct debug_tokens *p;
+        for (p = debug_tokens; p->token; p++) {
+            if (p->token == (int)state) {
+                name = p->name;
+                if (ltype)
+                    *ltype = p->type;
+                break;
+            }
+        }
+    }
+    return name;
+}
 
 STATIC int
 S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
@@ -429,18 +446,10 @@ S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
     PERL_ARGS_ASSERT_TOKEREPORT;
 
     if (DEBUG_T_TEST) {
-	const char *name = NULL;
 	enum token_type type = TOKENTYPE_NONE;
-	const struct debug_tokens *p;
+        int itype = (int)type;
+	const char *name = S_toke_name(rv, &itype);
 	SV* const report = newSVpvs("<== ");
-
-	for (p = debug_tokens; p->token; p++) {
-	    if (p->token == (int)rv) {
-		name = p->name;
-		type = p->type;
-		break;
-	    }
-	}
 	if (name)
 	    Perl_sv_catpv(aTHX_ report, name);
 	else if (isGRAPH(rv))
@@ -1946,12 +1955,10 @@ S_lop(pTHX_ I32 f, int x, char *s)
 STATIC void
 S_force_next(pTHX_ I32 type)
 {
-#ifdef DEBUGGING
-    if (DEBUG_T_TEST) {
-        PerlIO_printf(Perl_debug_log, "### forced token:\n");
-	tokereport(type, &NEXTVAL_NEXTTOKE);
-    }
-#endif
+    DEBUG_T( {
+            PerlIO_printf(Perl_debug_log, "### forced token:\n");
+            tokereport(type, &NEXTVAL_NEXTTOKE);
+        });
     assert(PL_nexttoke < (I32)C_ARRAY_LENGTH(PL_nexttype));
     PL_nexttype[PL_nexttoke] = type;
     PL_nexttoke++;
@@ -4434,8 +4441,7 @@ Perl_yylex(pTHX)
 	    return yylex();
 	}
 	else {
-	    DEBUG_T({ PerlIO_printf(Perl_debug_log,
-              "### Saw case modifier\n"); });
+	    DEBUG_T(PerlIO_printf(Perl_debug_log, "### Saw case modifier\n"));
 	    s = PL_bufptr + 1;
 	    if (s[1] == '\\' && s[2] == 'E') {
 	        PL_bufptr = s + 3;
@@ -4497,8 +4503,9 @@ Perl_yylex(pTHX)
     case LEX_INTERPSTART:
 	if (PL_bufptr == PL_bufend)
 	    return REPORT(sublex_done());
-	DEBUG_T({ if(*PL_bufptr != '(') PerlIO_printf(Perl_debug_log,
-              "### Interpolated variable\n"); });
+	DEBUG_T({
+                if(*PL_bufptr != '(') PerlIO_printf(Perl_debug_log,
+                    "### Interpolated variable\n"); });
 	PL_expect = XTERM;
         /* for /@a/, we leave the joining for the regex engine to do
          * (unless we're within \Q etc) */
@@ -4703,9 +4710,7 @@ Perl_yylex(pTHX)
 			 ? "Format not terminated"
 			 : "Missing right curly or square bracket"));
 	    }
-            DEBUG_T( { PerlIO_printf(Perl_debug_log,
-                        "### Tokener got EOF\n");
-            } );
+            DEBUG_T(PerlIO_printf(Perl_debug_log, "### Tokener got EOF\n"));
 	    TOKEN(0);
 	}
 	if (s++ < PL_bufend)
@@ -5229,7 +5234,7 @@ Perl_yylex(pTHX)
 
 	    if (isFATARROW(s)) {
 		s = force_word(PL_bufptr,WORD,FALSE,FALSE);
-		DEBUG_T( { printbuf("### Saw unary minus before =>, forcing word %s\n", s); } );
+		DEBUG_T(printbuf("### Saw unary minus before =>, forcing word %s\n", s));
 		OPERATOR('-');		/* unary minus */
 	    }
 	    switch (tmp) {
@@ -5272,18 +5277,15 @@ Perl_yylex(pTHX)
 	    if (ftst) {
                 PL_last_uni = PL_oldbufptr;
 		PL_last_lop_op = (OPCODE)ftst;
-		DEBUG_T( { PerlIO_printf(Perl_debug_log,
-                        "### Saw file test %c\n", (int)tmp);
-		} );
+		DEBUG_T(PerlIO_printf(Perl_debug_log, "### Saw file test %c\n", (int)tmp));
 		FTST(ftst);
 	    }
 	    else {
 		/* Assume it was a minus followed by a one-letter named
 		 * subroutine call (or a -bareword), then. */
-		DEBUG_T( { PerlIO_printf(Perl_debug_log,
+		DEBUG_T(PerlIO_printf(Perl_debug_log,
 			"### '-%c' looked like a file test but was not\n",
-			(int) tmp);
-		} );
+			(int) tmp));
 		s = --PL_bufptr;
 	    }
 	}
@@ -6463,7 +6465,7 @@ Perl_yylex(pTHX)
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
 	s = scan_num(s, &pl_yylval);
-	DEBUG_T( { printbuf("### Saw number in %s\n", s); } );
+	DEBUG_T(printbuf("### Saw number in %s\n", s));
 	if (PL_expect == XOPERATOR)
 	    no_op("Number",s);
 	TERM(THING);
@@ -6473,7 +6475,7 @@ Perl_yylex(pTHX)
 	if (!s)
 	    missingterm(NULL);
 	COPLINE_SET_FROM_MULTI_END;
-	DEBUG_T( { printbuf("### Saw string before %s\n", s); } );
+	DEBUG_T(printbuf("### Saw string before %s\n", s));
 	if (PL_expect == XOPERATOR) {
 	    if (PL_lex_formbrack && PL_lex_brackets == PL_lex_formbrack) {
 		return deprecate_commaless_var_list();
@@ -6517,7 +6519,7 @@ Perl_yylex(pTHX)
 
     case '`':
 	s = scan_str(s,FALSE,FALSE,FALSE,NULL);
-	DEBUG_T( { printbuf("### Saw backtick string before %s\n", s); } );
+	DEBUG_T(printbuf("### Saw backtick string before %s\n", s));
 	if (PL_expect == XOPERATOR)
 	    no_op("Backticks",s);
 	if (!s)
@@ -7508,21 +7510,24 @@ Perl_yylex(pTHX)
 	    s = skipspace(s);
 	    if (PL_expect == XSTATE && isIDFIRST_lazy_if(s,UTF)) {
 		char *p = s;
+                int l = PL_bufend - p;
 
-		if ((PL_bufend - p) >= 3 &&
-		    strnEQ(p, "my", 2) && isSPACE(*(p + 2)))
+		if (l >= 3 && strnEQ(p, "my", 2) && isSPACE(*(p + 2))) {
 		    p += 2;
-		else if ((PL_bufend - p) >= 4 &&
-		    strnEQ(p, "our", 3) && isSPACE(*(p + 3)))
+                    p = skipspace(p);
+                }
+                else if (l >= 4 && strnEQ(p, "our", 3) && isSPACE(*(p + 3))) {
 		    p += 3;
-		p = skipspace(p);
-                /* skip optional package name, as in "for my abc $x (..)" */
-		if (isIDFIRST_lazy_if(p,UTF)) {
-		    p = scan_word(p, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
-		    p = skipspace(p);
-		}
-		if (*p != '$')
-		    Perl_croak(aTHX_ "Missing $ on loop variable");
+                    p = skipspace(p);
+                }
+                /* honor optional type, as in "for my Int $x (..)" */
+                if (p != s && isIDFIRST_lazy_if(p,UTF)) {
+                    p = scan_word(p, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
+                    PL_in_my_stash = find_in_my_stash(PL_tokenbuf, len);
+                    p = skipspace(p);
+                }
+                if (*p != '$')
+                    Perl_croak(aTHX_ "Missing $ on loop variable");
 	    }
 	    OPERATOR(FOR);
 
@@ -8442,8 +8447,7 @@ S_pending_ident(pTHX)
     /* All routes through this function want to know if there is a colon.  */
     const char *const has_colon = (const char*) memchr (PL_tokenbuf, ':', tokenbuf_len);
 
-    DEBUG_T({ PerlIO_printf(Perl_debug_log,
-          "### Pending identifier '%s'\n", PL_tokenbuf); });
+    DEBUG_T(PerlIO_printf(Perl_debug_log, "### Pending identifier '%s'\n", PL_tokenbuf));
 
     /* if we're in a my(), we can't allow dynamics here.
        $foo'bar has already been turned into $foo::bar, so
@@ -11015,7 +11019,9 @@ S_swallow_bom(pTHX_ U8 *s)
 		/* diag_listed_as: Unsupported script encoding %s */
 		Perl_croak(aTHX_ "Unsupported script encoding UTF-32LE");
 #ifndef PERL_NO_UTF16_FILTER
+#  ifdef DEBUGGING
 	    if (DEBUG_p_TEST || DEBUG_T_TEST) PerlIO_printf(Perl_debug_log, "UTF-16LE script encoding (BOM)\n");
+#  endif
 	    s += 2;
 	    if (PL_bufend > (char*)s) {
 		s = add_utf16_textfilter(s, TRUE);
@@ -11029,7 +11035,9 @@ S_swallow_bom(pTHX_ U8 *s)
     case 0xFE:
 	if (s[1] == 0xFF) {   /* UTF-16 big-endian? */
 #ifndef PERL_NO_UTF16_FILTER
+#  ifdef DEBUGGING
 	    if (DEBUG_p_TEST || DEBUG_T_TEST) PerlIO_printf(Perl_debug_log, "UTF-16BE script encoding (BOM)\n");
+#  endif
 	    s += 2;
 	    if (PL_bufend > (char *)s) {
 		s = add_utf16_textfilter(s, FALSE);
@@ -11043,7 +11051,9 @@ S_swallow_bom(pTHX_ U8 *s)
     case BOM_UTF8_FIRST_BYTE: {
         const STRLEN len = sizeof(BOM_UTF8_TAIL) - 1; /* Exclude trailing NUL */
         if (slen > len && memEQ(s+1, BOM_UTF8_TAIL, len)) {
+#ifdef DEBUGGING
             if (DEBUG_p_TEST || DEBUG_T_TEST) PerlIO_printf(Perl_debug_log, "UTF-8 script encoding (BOM)\n");
+#endif
             s += len + 1;                      /* UTF-8 */
         }
         break;
@@ -11062,7 +11072,9 @@ S_swallow_bom(pTHX_ U8 *s)
 		   * 00 xx 00 xx
 		   * are a good indicator of UTF-16BE. */
 #ifndef PERL_NO_UTF16_FILTER
+#  ifdef DEBUGGING
 		  if (DEBUG_p_TEST || DEBUG_T_TEST) PerlIO_printf(Perl_debug_log, "UTF-16BE script encoding (no BOM)\n");
+#  endif
 		  s = add_utf16_textfilter(s, FALSE);
 #else
 		  /* diag_listed_as: Unsupported script encoding %s */
@@ -11078,7 +11090,9 @@ S_swallow_bom(pTHX_ U8 *s)
 		   * xx 00 xx 00
 		   * are a good indicator of UTF-16LE. */
 #ifndef PERL_NO_UTF16_FILTER
+#  ifdef DEBUGGING
 	      if (DEBUG_p_TEST || DEBUG_T_TEST) PerlIO_printf(Perl_debug_log, "UTF-16LE script encoding (no BOM)\n");
+#  endif
 	      s = add_utf16_textfilter(s, TRUE);
 #else
 	      /* diag_listed_as: Unsupported script encoding %s */
