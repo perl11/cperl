@@ -104,7 +104,7 @@ were rejected and 2 were butchered, i.e. rewritten in a worse way.
 Those branches could theoretically be merged upstream, but the chances
 are limited. So they are based on master.
 
-* [feature/gh8-cowrefcnt](http://github.com/perl11/cperl/commits/feature/gh8-cowrefcnt)
+* [bugfix/gh8-cowrefcnt](http://github.com/perl11/cperl/commits/bugfix/gh8-cowrefcnt)
 
   works for the compiler, but does not do COW yet, i.e. slower for
   uncompiled perls, faster for compiled.
