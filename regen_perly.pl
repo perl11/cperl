@@ -133,8 +133,11 @@ print $tab_fh $tablines;
 open my $tmph_fh, '<', $tmph_file or die "Can't open $tmph_file: $!\n";
 
 my $endcore_done = 0;
-# Token macros need to be generated manually for bison 2.4
-my $gather_tokens = $version >= 2.4 && $version < 2.5 ? undef : 0;
+# Token as macros need to be generated manually since bison 2.4, when
+# bison switched to enums
+# Win32 defines it's own WORD which clashes with our enum WORD, so we need
+# a define WORD 264
+my $gather_tokens = $version >= 2.4 ? undef : 0;
 my $tokens;
 while (<$tmph_fh>) {
     # bison 2.6 adds header guards, which break things because of where we
