@@ -305,15 +305,17 @@ explicitly.  See L<perlmod/"BEGIN, UNITCHECK, CHECK, INIT and END">
 
 =head2 Signatures
 
-B<WARNING>: Subroutine signatures are experimental.  The feature may be
-modified or removed in future versions of Perl.
+B<WARNING>: Subroutine signatures are experimental in Perl5, not in
+cperl.  The feature may be modified or removed in future versions of
+Perl.
 
 Perl has an experimental facility to allow a subroutine's formal
 parameters to be introduced by special syntax, separate from the
-procedural code of the subroutine body.  The formal parameter list
-is known as a I<signature>.  The facility must be enabled first by a
-pragmatic declaration, C<use feature 'signatures'>, and might produce
-a warning unless the "experimental::signatures" warnings category is
+procedural code of the subroutine body.  The formal parameter list is
+known as a I<signature>.
+In cperl signatures are enabled by default, in Perl 5 the feature must
+be enabled first by C<use feature 'signatures'>, and might produce a
+warning unless the "experimental::signatures" warnings category is
 disabled.
 
 The signature is part of a subroutine's body.  Normally the body of a
@@ -341,18 +343,21 @@ equivalent to
 
     sub foo {
 	die "Too many arguments for subroutine" unless @_ <= 2;
-	die "Too few arguments for subroutine" unless @_ >= 2;
+	die "Not enough arguments for subroutine" unless @_ >= 2;
 	my $left = $_[0];
 	my $right = $_[1];
 	return $left + $right;
     }
 
-An argument can be ignored by omitting the main part of the name from
-a parameter declaration, leaving just a bare C<$> sigil.  For example,
+In Perl5 an argument can be ignored by omitting the main part of the
+name from a parameter declaration, leaving just a bare C<$> sigil.
+For example,
 
     sub foo ($first, $, $third) {
 	return "first=$first, third=$third";
     }
+
+In cperl this clashes with the protoype syntax and is illegal.
 
 Although the ignored argument doesn't go into a variable, it is still
 mandatory for the caller to pass it.
@@ -361,6 +366,13 @@ A positional parameter is made optional by giving a default value,
 separated from the parameter name by C<=>:
 
     sub foo ($left, $right = 0) {
+	return $left + $right;
+    }
+
+In cperl optional paramaters can also be declared as in Perl 6 with a C<'?'>
+suffix, which will default to undef.
+
+    sub foo ($left, $right?) {
 	return $left + $right;
     }
 
@@ -384,8 +396,8 @@ one parameter vary according to the earlier parameters.  For example,
 	print "$first_name $surname is known as \"$nickname\"";
     }
 
-An optional parameter can be nameless just like a mandatory parameter.
-For example,
+In Perl5 only an optional parameter can be nameless just like a mandatory
+parameter. For example,
 
     sub foo ($thing, $ = 1) {
 	print $thing;
@@ -418,9 +430,11 @@ slurpy parameter.  The simplest form of this is just an array variable:
     }
 
 With a slurpy parameter in the signature, there is no upper limit on how
-many arguments may be passed.  A slurpy array parameter may be nameless
-just like a positional parameter, in which case its only effect is to
-turn off the argument limit that would otherwise apply:
+many arguments may be passed.
+
+In Perl5 a slurpy array parameter may be nameless just like a
+positional parameter, in which case its only effect is to turn off the
+argument limit that would otherwise apply:
 
     sub foo ($thing, @) {
 	print $thing;
@@ -437,7 +451,7 @@ as with standard hash construction.
 	print $filter->($_, $inputs{$_}) foreach sort keys %inputs;
     }
 
-A slurpy hash parameter may be nameless just like other kinds of
+In Perl5 a slurpy hash parameter may be nameless just like other kinds of
 parameter.  It still insists that the number of arguments available to
 it be even, even though they're not being put into a variable.
 
@@ -455,8 +469,14 @@ A signature may be entirely empty, in which case all it does is check
 that the caller passed no arguments:
 
     sub foo () {
-	return 123;
+	123;
     }
+
+In Perl5 the empty C<()> prototype is used to denote constant foldable
+functions, and signatures can only be declared in the C<use feature
+'signatures'> scope.  In cperl the empty C<()> list denotes always
+an empty signature, and all functions which can be constant-folded are
+constant folded. No C<()> is needed.
 
 A parameter by reference does not copy the variable into the body, it
 allows destructive modification of the variable. This is the same as
@@ -488,13 +508,19 @@ as prototypes in those circumstances, but won't be valid prototypes.
 (A valid prototype cannot contain any alphabetic character.)  This will
 lead to somewhat confusing error messages.
 
-To avoid ambiguity, when signatures are enabled the special syntax
+In Perl5 to avoid ambiguity, when signatures are enabled the special syntax
 for prototypes is disabled.  There is no attempt to guess whether a
 parenthesised group was intended to be a prototype or a signature.
 To give a subroutine a prototype under these circumstances, use a
 L<prototype attribute|attributes/Built-in Attributes>.  For example,
 
     sub foo :prototype($) { $_[0] }
+
+In cperl you can declare deviating C<:prototype($)> strings, but the
+default is the prototype which matches the signature types. Prototypes
+were initially designed in 2001 to allow future signatures, but the
+problem is that p5p forgot about that, and forces users to write a lot
+more useless boilerplate declarations.
 
 It is entirely possible for a subroutine to have both a prototype and
 a signature.  They do different jobs: the prototype affects compilation

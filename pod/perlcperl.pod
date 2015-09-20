@@ -308,8 +308,10 @@ signatures are declared with a slurpy ending C<@> or C<%> arg, and
 C<@_> is not referenced in the immediate function body, visible to
 the compiler, i.e. not hidden by a string eval.
 
-We want to use the mark stack for signature calls, same as with OPS, we don't
-need to copy to @_.
+We want to use the mark stack for signature calls, same as with OPs
+and XS calls. We don't need to copy to C<@_>.
+
+Notes on improving the current old zefram purple signatures:
 
 Internally the elements of C<@_> are currently accessed via aelem, not
 aelemfast.  But this is moot with the introduction of the new OP_SIGNATURE
@@ -329,23 +331,7 @@ big and needs two checks and big strings with fixed arity subs.
         $a++;
     }
 
-cperl changes all arity errors to "Wrong number arguments".
-
-    cperl -MO=Deparse -e'sub x($a){$a++}'
-    sub x {
-        die sprintf("Wrong number arguments for subroutine %s at %s line %d.\n",
-          (caller(0))[3, 1, 2]) if @_ != 1;
-        my $a = $_[0];
-        ();
-        $a++;
-    }
-
-    cperl -MO=Deparse -e'sub x(\$a){$a++}'
-    sub x {
-        die sprintf("Wrong number arguments for subroutine %s at %s line %d.\n",
-          (caller(0))[3, 1, 2]) if @_ != 1;
-        $_[0]++;
-    }
+which violated the existing error message: "Not enough arguments for "
 
 =item B<< Support default $self invocant with methods (NY) >>
 

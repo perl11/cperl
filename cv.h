@@ -94,6 +94,9 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvOUTSIDE(sv)	  ((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_outside
 #define CvOUTSIDE_SEQ(sv) ((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_outside_seq
 #define CvFLAGS(sv)	  ((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_flags
+/* experimental: print the type of a cv in %s%s%s style */
+#define CvDESC3(cv)       CvISXSUB(cv) ? "XS " : "", CvMULTI(cv) ? "multi ": "", \
+                          CvMETHOD(cv) ? "method" : "subroutine"
 
 /* These two are sometimes called on non-CVs */
 #define CvPROTO(sv)                               \
@@ -245,6 +248,8 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvPURE(cv)		(CvFLAGS(cv) & CVf_PURE)
 #define CvPURE_on(cv)		(CvFLAGS(cv) |= CVf_PURE)
 #define CvSTATIC(cv)		(CvFLAGS(cv) & CVf_STATIC)
+
+#define CvMULTI(cv)             0
 
 /* Flags for newXS_flags  */
 #define XS_DYNAMIC_FILENAME	0x01	/* The filename isn't static  */

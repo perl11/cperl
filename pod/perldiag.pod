@@ -4138,6 +4138,8 @@ also L<perlref>.
 (F) An attempt was made to specify an entry in an overloading table that
 doesn't somehow point to a valid subroutine.  See L<overload>.
 
+=item Not enough arguments for %s%s%s
+
 =item Not enough arguments for %s
 
 (F) The function requires more arguments than you specified.
@@ -6099,12 +6101,6 @@ uc(), or ucfirst() (or their string-inlined versions), but you
 specified an illegal mapping.
 See L<perlunicode/"User-Defined Character Properties">.
 
-=item Too %s arguments for subroutine
-
-(F) A subroutine using a signature received too few or too many arguments
-than required by the signature.  The caller of the subroutine is
-presumably at fault.
-
 =item Too deeply nested ()-groups
 
 (F) Your template contains ()-groups with a ridiculously deep nesting level.
@@ -6139,6 +6135,8 @@ BEGIN block.
 =item Too many args to syscall
 
 (F) Perl supports a maximum of only 14 args to syscall().
+
+=item Too many arguments for %s%s%s
 
 =item Too many arguments for %s
 

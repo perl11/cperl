@@ -4316,7 +4316,7 @@ PP(pp_signature)
         bool slurpy;      /* has a @ or % */
         AV  *defav;       /* @_ */
         UV   params = items[0].uv;
-        const CV * cv = cx->blk_sub.cv;
+        const CV *cv = cx->blk_sub.cv;
         const bool hassig = CvHASSIG(cv);
 
         /* split on bits [31..16], [15..15], [14..0] */
@@ -4335,10 +4335,14 @@ PP(pp_signature)
             argp = AvARRAY(defav);
         }
 
-        if (UNLIKELY(   argc < mand_params
-                     || (!slurpy && argc > mand_params + opt_params)))
-            S_croak_caller("Too %s arguments for subroutine",
-                                argc < mand_params ? "few" : "many");
+        if (UNLIKELY(argc < mand_params)) {
+            S_croak_caller("Not enough arguments for %s%s%s %s", CvDESC3(cv),
+                           SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)));
+        }
+        if (UNLIKELY(!slurpy && argc > mand_params + opt_params)) {
+            S_croak_caller("Too many arguments for %s%s%s %s", CvDESC3(cv),
+                           SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)));
+        }
 
         /* For an empty signature, our only task was to check that the caller
          * didn't provide any args */

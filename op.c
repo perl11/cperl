@@ -582,7 +582,7 @@ S_bad_type_pv(pTHX_ I32 n, const char *t, const OP *o, const OP *kid)
 STATIC void
 S_bad_type_gv(pTHX_ I32 n, GV *gv, const OP *kid, const char *t)
 {
-    SV * const namesv = cv_name((CV *)gv, NULL, 0);
+    SV * const namesv = cv_name((CV *)gv, NULL, CV_NAME_NOMAIN);
     PERL_ARGS_ASSERT_BAD_TYPE_GV;
  
     yyerror_pv(Perl_form(aTHX_ "Type of arg %d to %"SVf" must be %s (not %s)",
@@ -9104,7 +9104,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 
     if (block && has_name) {
 	if (PERLDB_SUBLINE && PL_curstash != PL_debstash) {
-	    SV * const tmpstr = cv_name(cv,NULL,0);
+	    SV * const tmpstr = cv_name(cv, NULL, CV_NAME_NOMAIN);
 	    GV * const db_postponed = gv_fetchpvs("DB::postponed",
 						  GV_ADDMULTI, SVt_PVHV);
 	    HV *hv;
@@ -11784,12 +11784,14 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
     while (aop != cvop) {
 	OP* o3 = aop;
 
-	if (proto >= proto_end)
-	{
-	    SV * const namesv = cv_name((CV *)namegv, NULL, 0);
-	    yyerror_pv(Perl_form(aTHX_ "Too many arguments for %"SVf,
-					SVfARG(namesv)), SvUTF8(namesv));
-	    return entersubop;
+	if (proto >= proto_end) {
+            /* we really want the sub name here, and maybe decide between subroutine, method and multi */
+            SV * const namesv = cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN);
+            SV* tmpbuf = newSVpvn_flags(OP_DESC(entersubop), strlen(OP_DESC(entersubop)),
+                                        SVs_TEMP|SvUTF8(namesv));
+            sv_catpvs(tmpbuf, " ");
+            sv_catsv(tmpbuf, namesv);
+            return too_many_arguments_pv(entersubop, SvPVX_const(tmpbuf), SvUTF8(namesv));
 	}
 
 	switch (*proto) {
@@ -11950,7 +11952,7 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 	    default:
 	    oops: {
 		Perl_croak(aTHX_ "Malformed prototype for %"SVf": %"SVf,
-				  SVfARG(cv_name((CV *)namegv, NULL, 0)),
+				  SVfARG(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)),
 				  SVfARG(protosv));
             }
 	}
@@ -11966,9 +11968,12 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
     if (!optional && proto_end > proto &&
 	(*proto != '@' && *proto != '%' && *proto != ';' && *proto != '_'))
     {
-	SV * const namesv = cv_name((CV *)namegv, NULL, 0);
-	yyerror_pv(Perl_form(aTHX_ "Not enough arguments for %"SVf,
-				    SVfARG(namesv)), SvUTF8(namesv));
+	SV * const namesv = cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN);
+        SV* tmpbuf = newSVpvn_flags(OP_DESC(entersubop), strlen(OP_DESC(entersubop)),
+                                    SVs_TEMP|SvUTF8(namesv));
+        sv_catpvs(tmpbuf, " ");
+        sv_catsv(tmpbuf, namesv);
+        return too_few_arguments_pv(entersubop, SvPVX_const(tmpbuf), SvUTF8(namesv));
     }
     return entersubop;
 }

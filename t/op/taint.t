@@ -2402,7 +2402,8 @@ is eval { eval $::x.1 }, 1, 'reset does not taint undef';
     # first a non-signature sub for comparison
 
     sub sig0 {
-        my ($t1, $u1, $t2, $u2, $t3, $u3, $t4, $u4, $t5, $u5, $t6, $u6) = @_;
+        my $t1 = shift; # defeat PERL_FAKE_SIGNATURES
+        my ($u1, $t2, $u2, $t3, $u3, $t4, $u4, $t5, $u5, $t6, $u6) = @_;
 
         $t3 //= $TAINT;       $u3 //= $x;
         $t4 //= $t3;          $u4 //= 1;
