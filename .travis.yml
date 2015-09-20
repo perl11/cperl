@@ -8,7 +8,7 @@ addons:
 cache:
   apt: true
 
-#-m32 misses gdbm for 32bit. wrong probe, would need to download it from somewhere
+#-m32 mis-probes gdbm for 32bit. wrong probe, would need to download it from somewhere
 
 os:
   - linux
@@ -36,7 +36,8 @@ matrix:
 matrix:
   fast_finish: true
 
-#- CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native"'
+#osx:   - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=corei7 -DPERL_FAKE_SIGNATURE"'
+#linux: - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=native -msse4.2 -DPERL_FAKE_SIGNATURE"'
 
 script:
   - ./Configure -des -Dusedevel -Dusecperl -Uversiononly -Dcc=$CC $CONFIGURE_OPTION -Dprefix=$HOME/perl-blead && (make -j4 -s || true)
