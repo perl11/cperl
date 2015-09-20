@@ -37,7 +37,7 @@ my %feature = (
     unicode_strings => 'unicode',
     fc              => 'fc',
     signatures      => 'signatures',
-    shaped_arrays    => 'shaped_arrays'
+    shaped_arrays   => 'shaped_arrays'
 );
 
 # NOTE: If a feature is ever enabled in a non-contiguous range of Perl
@@ -278,7 +278,22 @@ for (
 	map { (my $__ = uc) =~ y/.//d; $__ } @{$BundleRanges{$_}};
     my $name = $feature{$_};
     my $NAME = uc $name;
-    if ($last && $first eq 'DEFAULT') { #  '>= DEFAULT' warns
+
+    if ($name =~ /^signatures|lexsubs|shaped_arrays$/) {
+	print $h <<EOH5;
+#ifdef USE_CPERL
+#define FEATURE_$NAME\_IS_ENABLED 1
+#else
+#define FEATURE_$NAME\_IS_ENABLED \\
+    ( \\
+	CURRENT_FEATURE_BUNDLE == FEATURE_BUNDLE_CUSTOM && \\
+	 FEATURE_IS_ENABLED("$name") \\
+    )
+#endif
+
+EOH5
+    }
+    elsif ($last && $first eq 'DEFAULT') { #  ‘>= DEFAULT’ warns
 	print $h <<EOI;
 #define FEATURE_$NAME\_IS_ENABLED \\
     ( \\
@@ -311,20 +326,6 @@ EOH3
     )
 
 EOH4
-    }
-    elsif ($name =~ /^signatures|lexsubs$/) {
-	print $h <<EOH5;
-#ifdef USE_CPERL
-#define FEATURE_$NAME\_IS_ENABLED 1
-#else
-#define FEATURE_$NAME\_IS_ENABLED \\
-    ( \\
-	CURRENT_FEATURE_BUNDLE == FEATURE_BUNDLE_CUSTOM && \\
-	 FEATURE_IS_ENABLED("$name") \\
-    )
-#endif
-
-EOH5
     }
     else {
 	print $h <<EOH5;
