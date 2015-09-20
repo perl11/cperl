@@ -688,11 +688,10 @@ The only significant values for C<flags> are C<GV_SUPER> and C<SVf_UTF8>.
 C<GV_SUPER> indicates that we want to look up the method in the superclasses
 of the C<stash>.
 
-The
-GV returned from C<gv_fetchmeth> may be a method cache entry, which is not
-visible to Perl code.  So when calling C<call_sv>, you should not use
-the GV directly; instead, you should use the method's CV, which can be
-obtained from the GV with the C<GvCV> macro.
+The GV returned from C<gv_fetchmeth> may be a method cache entry,
+which is not visible to Perl code.  So when calling C<call_sv>, you
+should not use the GV directly; instead, you should use the method's
+CV, which can be obtained from the GV with the C<GvCV> macro.
 
 =cut
 */
