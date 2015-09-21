@@ -1405,8 +1405,10 @@ aux_list(o)
                 bool last = 0;
                 bool is_hash = FALSE;
 
-                EXTEND(SP, len);
-                mPUSHu(actions);
+                /* len should never be big enough to truncate or wrap */
+                assert(len <= SSize_t_MAX);
+                EXTEND(SP, (SSize_t)len);
+                PUSHs(sv_2mortal(newSViv(actions)));
 
                 while (!last) {
                     switch (actions & MDEREF_ACTION_MASK) {
@@ -2213,8 +2215,12 @@ HvARRAY(hv)
     PPCODE:
 	if (HvUSEDKEYS(hv) > 0) {
 	    HE *he;
+            SSize_t extend_size;
 	    (void)hv_iterinit(hv);
-	    EXTEND(sp, HvUSEDKEYS(hv) * 2);
+            /* 2*HvUSEDKEYS() should never be big enough to truncate or wrap */
+	    assert(HvUSEDKEYS(hv) <= (SSize_t_MAX >> 1));
+            extend_size = (SSize_t)HvUSEDKEYS(hv) * 2;
+	    EXTEND(sp, extend_size);
 	    while ((he = hv_iternext(hv))) {
                 if (HeSVKEY(he)) {
                     mPUSHs(HeSVKEY(he));
