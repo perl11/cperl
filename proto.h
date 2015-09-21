@@ -7218,6 +7218,12 @@ STATIC void	S_set_ANYOF_arg(pTHX_ RExC_state_t* const pRExC_state, regnode* cons
 #define PERL_ARGS_ASSERT_SET_ANYOF_ARG	\
 	assert(pRExC_state); assert(node)
 
+STATIC void	S_skip_to_be_ignored_text(pTHX_ RExC_state_t *pRExC_state, char ** p, const bool force_to_xmod)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_SKIP_TO_BE_IGNORED_TEXT	\
+	assert(pRExC_state); assert(p)
+
 PERL_STATIC_INLINE void	S_ssc_add_range(pTHX_ regnode_ssc *ssc, UV const start, UV const end)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SSC_ADD_RANGE	\
