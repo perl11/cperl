@@ -144,8 +144,10 @@ S_prune_chain_head(OP** op_p)
         && (   (*op_p)->op_type == OP_NULL
             || (*op_p)->op_type == OP_SCOPE
             || (*op_p)->op_type == OP_SCALAR
-            || (*op_p)->op_type == OP_LINESEQ)
-    )
+            || (*op_p)->op_type == OP_LINESEQ))
+        *op_p = (*op_p)->op_next;
+    if (OP_TYPE_IS(*op_p, OP_NEXTSTATE)
+        && OP_TYPE_IS((*op_p)->op_next, OP_SIGNATURE))
         *op_p = (*op_p)->op_next;
 }
 
@@ -2636,9 +2638,7 @@ S_maybe_op_signature(pTHX_ CV *cv, OP *o)
     }
 
     /* We have a match! Create an OP_SIGNATURE op */
-
     /* calculate size of items array */
-
     size =
             1    /* size field */
           + 1    /* numbers of args field */
@@ -7097,6 +7097,7 @@ S_search_const(pTHX_ OP *o)
 		    case OP_ENTER:
 		    case OP_NULL:
 		    case OP_NEXTSTATE:
+		    case OP_SIGNATURE:
 			kid = OpSIBLING(kid);
 			break;
 		    default:
