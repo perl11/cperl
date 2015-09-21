@@ -4002,7 +4002,7 @@ PP(pp_entersub)
          * in the caller's tmps frame, so they won't be freed until after
          * we return from the sub.
          */
-	{
+        {
             SV **svp = MARK;
             while (svp < SP) {
                 SV *sv = *++svp;
@@ -4011,7 +4011,7 @@ PP(pp_entersub)
                 if (SvPADTMP(sv))
                     *svp = sv = sv_mortalcopy(sv);
                 SvTEMP_off(sv);
-	    }
+            }
         }
 
         gimme = GIMME_V;
@@ -4024,24 +4024,22 @@ PP(pp_entersub)
 	    pad_push(padlist, depth);
 	PAD_SET_CUR_NOSAVE(padlist, depth);
 	if (LIKELY(hasargs)) {
-	    AV *const av = MUTABLE_AV(PAD_SVl(0));
-            SSize_t items;
-            AV **defavp;
-
-	    defavp = &GvAV(PL_defgv);
-	    cx->blk_sub.savearray = *defavp;
-	    *defavp = MUTABLE_AV(SvREFCNT_inc_simple_NN(av));
-
             if (CvHASSIG(cv)) { /* and no @_, same call abi as with ops */
                 /* the start of the args on the stack, pp_signature does the rest */
                 cx->blk_sub.argarray = MARK+1;
             } else {
+                AV *const av = MUTABLE_AV(PAD_SVl(0));
+                SSize_t items = SP - MARK;
+                AV **defavp;
+
                 /* it's the responsibility of whoever leaves a sub to ensure
                  * that a clean, empty AV is left in pad[0]. This is normally
                  * done by cx_popsub() */
                 assert(!AvREAL(av) && AvFILLp(av) == -1);
 
-                items = SP - MARK;
+                defavp = &GvAV(PL_defgv);
+                cx->blk_sub.savearray = *defavp;
+                *defavp = MUTABLE_AV(SvREFCNT_inc_simple_NN(av));
                 if (UNLIKELY(items - 1 > AvMAX(av))) {
                     SV **ary = AvALLOC(av);
                     AvMAX(av) = items - 1;
