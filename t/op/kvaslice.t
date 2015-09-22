@@ -196,6 +196,6 @@ plan tests => 39;
 # \% prototype expects hash deref
 sub nowt_but_hash(\%) {}
 eval 'nowt_but_hash %_[0]';
-like $@, qr`^Type of arg 1 to main::nowt_but_hash must be hash \(not(?x:
+like $@, qr`^Type of arg 1 to nowt_but_hash must be hash \(not(?x:
            ) index/value array slice\) at `,
     '\% prototype';

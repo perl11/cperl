@@ -691,23 +691,23 @@ for my $p ( "", qw{ () ($) ($@) ($%) ($;$) (&) (&\@) (&@) (%) (\%) (\@) } ) {
 
     eval q/sub multi1 (\[%@]) { $x } multi1 $myvar;/;
     print "not "
-	unless $@ =~ /Type of arg 1 to main::multi1 must be one of \[%\@\] /;
-    print "ok ", $i++, "\n";
+	unless $@ =~ /Type of arg 1 to multi1 must be one of \[%\@\] /;
+    print "ok ", $i++, " - Type of arg 1 to multi1\n";
     eval q/sub multi2 (\[$*&]) { $x } multi2 @myarray;/;
     print "not "
-	unless $@ =~ /Type of arg 1 to main::multi2 must be one of \[\$\*&\] /;
-    print "ok ", $i++, "\n";
+	unless $@ =~ /Type of arg 1 to multi2 must be one of \[\$\*&\] /;
+    print "ok ", $i++, " - Type of arg 1 to multi2\n";
     eval q/sub multi3 (\[$@]) { $x } multi3 %myhash;/;
     print "not "
-	unless $@ =~ /Type of arg 1 to main::multi3 must be one of \[\$\@\] /;
+	unless $@ =~ /Type of arg 1 to multi3 must be one of \[\$\@\] /;
     print "ok ", $i++, "\n";
     eval q/sub multi4 ($\[%]) { $x } multi4 1, &mysub;/;
     print "not "
-	unless $@ =~ /Type of arg 2 to main::multi4 must be one of \[%\] /;
+	unless $@ =~ /Type of arg 2 to multi4 must be one of \[%\] /;
     print "ok ", $i++, "\n";
     eval q/sub multi5 (\[$@]$) { $x } multi5 *myglob;/;
     print "not "
-	unless $@ =~ /Type of arg 1 to main::multi5 must be one of \[\$\@\] /
+	unless $@ =~ /Type of arg 1 to multi5 must be one of \[\$\@\] /
 	    && $@ =~ /Not enough arguments/;
     print "ok ", $i++, "\n";
 }
@@ -718,62 +718,62 @@ for my $p ( "", qw{ () ($) ($@) ($%) ($;$) (&) (&\@) (&@) (%) (\%) (\@) } ) {
   my $warn = "";
   local $SIG{__WARN__} = sub { $warn .= join("",@_) };
   
-  eval 'sub badproto (@bar) { 1; }';
-  print "not " unless $warn =~ /Illegal character in prototype for main::badproto : \@bar/;
+  eval 'sub badproto (@bar) :prototype(@bar) { 1; }';
+  print "not " unless $warn =~ /Illegal character in prototype for badproto : \@bar/;
   print "ok ", $i++, " checking badproto - (\@bar)\n";
 
-  eval 'sub badproto2 (bar) { 1; }';
-  print "not " unless $warn =~ /Illegal character in prototype for main::badproto2 : bar/;
+  eval 'sub badproto2 () :prototype(bar) { 1; }';
+  print "not " unless $warn =~ /Illegal character in prototype for badproto2 : bar/;
   print "ok ", $i++, " checking badproto2 - (bar)\n";
   
-  eval 'sub badproto3 (&$bar$@) { 1; }';
-  print "not " unless $warn =~ /Illegal character in prototype for main::badproto3 : &\$bar\$\@/;
+  eval 'sub badproto3 () :prototype(&$bar$@) { 1; }';
+  print "not " unless $warn =~ /Illegal character in prototype for badproto3 : &\$bar\$\@/;
   print "ok ", $i++, " checking badproto3 - (&\$bar\$\@)\n";
   
-  eval 'sub badproto4 (@ $b ar) { 1; }';
+  eval 'sub badproto4 () :prototype(@ $b ar) { 1; }';
   # This one emits two warnings
-  print "not " unless $warn =~ /Illegal character in prototype for main::badproto4 : \@ \$b ar/;
+  print "not " unless $warn =~ /Illegal character in prototype for badproto4 : \@ \$b ar/;
   print "ok ", $i++, " checking badproto4 - (\@ \$b ar) - illegal character\n";
-  print "not " unless $warn =~ /Prototype after '\@' for main::badproto4 : \@ \$b ar/;
+  print "not " unless $warn =~ /Prototype after '\@' for badproto4 : \@ \$b ar/;
   print "ok ", $i++, " checking badproto4 - (\@ \$b ar) - prototype after '\@'\n";
 
-  eval 'sub badproto5 ($_$) { 1; }';
-  print "not " unless $warn =~ /Illegal character after '_' in prototype for main::badproto5 : \$_\$/;
+  eval 'sub badproto5 () :prototype($_$) { 1; }';
+  print "not " unless $warn =~ /Illegal character after '_' in prototype for badproto5 : \$_\$/;
   print "ok ", $i++, " checking badproto5 - (\$_\$) - illegal character after '_'\n";
-  print "not " if $warn =~ /Illegal character in prototype for main::badproto5 : \$_\$/;
+  print "not " if $warn =~ /Illegal character in prototype for badproto5 : \$_\$/;
   print "ok ", $i++, " checking badproto5 - (\$_\$) - but not just illegal character\n";
 
-  eval 'sub badproto6 (bar_) { 1; }';
-  print "not " unless $warn =~ /Illegal character in prototype for main::badproto6 : bar_/;
+  eval 'sub badproto6 () :prototype(bar_) { 1; }';
+  print "not " unless $warn =~ /Illegal character in prototype for badproto6 : bar_/;
   print "ok ", $i++, " checking badproto6 - (bar_) - illegal character\n";
-  print "not " if $warn =~ /Illegal character after '_' in prototype for main::badproto6 : bar_/;
+  print "not " if $warn =~ /Illegal character after '_' in prototype for badproto6 : bar_/;
   print "ok ", $i++, " checking badproto6 - (bar_) - shouldn't add \"after '_'\"\n";
 
-  eval 'sub badproto7 (_;bar) { 1; }';
-  print "not " unless $warn =~ /Illegal character in prototype for main::badproto7 : _;bar/;
+  eval 'sub badproto7 () :prototype(_;bar) { 1; }';
+  print "not " unless $warn =~ /Illegal character in prototype for badproto7 : _;bar/;
   print "ok ", $i++, " checking badproto7 - (_;bar) - illegal character\n";
-  print "not " if $warn =~ /Illegal character after '_' in prototype for main::badproto7 : _;bar/;
+  print "not " if $warn =~ /Illegal character after '_' in prototype for badproto7 : _;bar/;
   print "ok ", $i++, " checking badproto7 - (_;bar) - shouldn't add \"after '_'\"\n";
 
-  eval 'sub badproto8 (_b) { 1; }';
-  print "not " unless $warn =~ /Illegal character after '_' in prototype for main::badproto8 : _b/;
+  eval 'sub badproto8 () :prototype(_b) { 1; }';
+  print "not " unless $warn =~ /Illegal character after '_' in prototype for badproto8 : _b/;
   print "ok ", $i++, " checking badproto8 - (_b) - illegal character after '_'\n";
-  print "not " unless $warn =~ /Illegal character in prototype for main::badproto8 : _b/;
+  print "not " unless $warn =~ /Illegal character in prototype for badproto8 : _b/;
   print "ok ", $i++, " checking badproto8 - (_b) - just illegal character\n";
 
-  eval 'sub badproto9 ([) { 1; }';
-  print "not " unless $warn =~ /Missing '\]' in prototype for main::badproto9 : \[/;
+  eval 'sub badproto9 () :prototype([) { 1; }';
+  print "not " unless $warn =~ /Missing '\]' in prototype for badproto9 : \[/;
   print "ok ", $i++, " checking for matching bracket\n";
 
-  eval 'sub badproto10 ([_]) { 1; }';
-  print "not " if $warn =~ /Missing '\]' in prototype for main::badproto10 : \[/;
+  eval 'sub badproto10 () :prototype([_]) { 1; }';
+  print "not " if $warn =~ /Missing '\]' in prototype for badproto10 : \[/;
   print "ok ", $i++, " checking badproto10 - ([_]) - shouldn't trigger matching bracket\n";
-  print "not " unless $warn =~ /Illegal character after '_' in prototype for main::badproto10 : \[_\]/;
+  print "not " unless $warn =~ /Illegal character after '_' in prototype for badproto10 : \[_\]/;
   print "ok ", $i++, " checking badproto10 - ([_]) - should trigger after '_' warnings\n";
 }
 
 # make sure whitespace in prototypes works
-eval "sub good (\$\t\$\n\$) { 1; }";
+eval "sub good () :prototype(\$\t\$\n\$) { 1; }";
 print "not " if $@;
 print "ok ", $i++, "\n";
 # [perl #118629]
@@ -787,7 +787,7 @@ print "ok ", $i++, "\n";
 }
 
 # Ought to fail, doesn't in 5.8.1.
-eval 'sub bug (\[%@]) {  } my $array = [0 .. 1]; bug %$array;';
+eval 'sub bug () :prototype(\[%@]) {  } my $array = [0 .. 1]; bug %$array;';
 print "not " unless $@ =~ /Not a HASH reference/;
 print "ok ", $i++, "\n";
 

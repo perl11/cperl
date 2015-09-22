@@ -2176,13 +2176,12 @@ use constant UNDEF => undef;
 
 my $x;
 
-sub f($a, $ = $x + 1, $b = $x - 1, $c = UNDEF) {
+sub f($a, $y = $x + 1, $b = $x - 1, $c = UNDEF) {
     return "[$a:$b:$c]\n";
 }
 
 f(1);
 EXPECT
-Useless use of addition (+) in void context at - line 9.
 Use of uninitialized value $x in addition (+) at - line 9.
 Use of uninitialized value $x in subtraction (-) at - line 9.
 Use of uninitialized value $c in concatenation (.) or string at - line 10.
@@ -2195,7 +2194,7 @@ no warnings 'experimental::signatures';
 my $x;
 
 sub f($a,
-      $  = $x + 1,
+      $y = $x + 1,
       $b = $x - 1,
       $c = $x * 2,
       $d = $x / 2,
@@ -2206,7 +2205,6 @@ sub f($a,
 
 f(1);
 EXPECT
-Useless use of addition (+) in void context at - line 9.
 Use of uninitialized value $x in addition (+) at - line 9.
 Use of uninitialized value $x in subtraction (-) at - line 10.
 Use of uninitialized value $x in multiplication (*) at - line 11.

@@ -92,7 +92,7 @@ is grep({ $_ eq "\345\216\237" } keys %::), 0;
 
 #These should probably go elsewhere.
 eval q{ sub wròng1 (_$); wròng1(1,2) };
-like( $@, qr/Malformed prototype for main::wròng1/, 'Malformed prototype croak is clean.' );
+like( $@, qr/Malformed prototype for wròng1/, 'Malformed prototype croak is clean.' );
 
 eval q{ sub ча::ики ($__); ча::ики(1,2) };
 like( $@, qr/Malformed prototype for ча::ики/ );

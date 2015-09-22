@@ -17,13 +17,13 @@ use warnings;
 plan( tests => 5 );
 
 eval qq!sub \x{30cb} (\$) {} \x{30cb}()!;
-like $@, qr/Not enough arguments for main::\x{30cb}/u, "Not enough arguments croak is UTF-8 clean";
+like $@, qr/Not enough arguments for subroutine entry \x{30cb}/u, "Not enough arguments croak is UTF-8 clean";
 
 eval qq!sub \x{30cc} (\$) {} \x{30cc}(1, 2)!;
-like $@, qr/Too many arguments for main::\x{30cc}/u, "Too many arguments croak is UTF-8 clean";
+like $@, qr/Too many arguments for subroutine entry \x{30cc}/u, "Too many arguments croak is UTF-8 clean";
 
 eval qq!sub \x{30cd} (\Q\%\E) { 1 } \x{30cd}(1);!;
-like $@, qr/Type of arg 1 to main::\x{30cd} must be/u, "bad type croak is UTF-8 clean";
+like $@, qr/Type of arg 1 to \x{30cd} must be/u, "bad type croak is UTF-8 clean";
 
     eval <<'END_FIELDS';
     {

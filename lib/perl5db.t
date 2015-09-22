@@ -897,9 +897,9 @@ sub _calc_trace_wrapper
             )
         }
         (
-            ['.', 'main::baz', 14,],
-            ['.', 'main::bar', 9,],
-            ['.', 'main::foo', 6],
+            ['.', 'baz', 14,],
+            ['.', 'bar', 9,],
+            ['.', 'foo', 6],
         )
     );
     $wrapper->contents_like(
@@ -969,7 +969,7 @@ sub _calc_trace_wrapper
 
     $wrapper->contents_like(
         qr/
-        ^main::foo\([^\)\n]*\brt-104168:9\):[\ \t]*\n
+        ^foo\([^\)\n]*\brt-104168:9\):[\ \t]*\n
         ^9:\s*bar\(\);
         /msx,
         'Test for the s command.',
@@ -1434,9 +1434,8 @@ DebugWrap->new({
 
     $wrapper->contents_like(
         qr#
-        ^main::bar\n
-        main::baz\n
-        main::foo\n
+        ^bar\n
+        baz\n
         #msx,
         "S command - 1",
     );
@@ -1456,8 +1455,8 @@ DebugWrap->new({
 
     $wrapper->contents_like(
         qr#
-        ^main::bar\n
-        main::baz\n
+        ^bar\n
+        baz\n
         auto\(
         #msx,
         "S command with regex",
@@ -1469,7 +1468,7 @@ DebugWrap->new({
         {
             cmds =>
             [
-                'S !^main::ba',
+                'S !^ba',
                 'q',
             ],
             prog =>  '../lib/perl5db/t/rt-104168',
@@ -1478,14 +1477,14 @@ DebugWrap->new({
 
     $wrapper->contents_unlike(
         qr#
-        ^main::ba
+        ^ba
         #msx,
         "S command with negative regex",
     );
 
     $wrapper->contents_like(
         qr#
-        ^main::foo\n
+        ^foo\n
         #msx,
         "S command with negative regex - what it still matches",
     );
