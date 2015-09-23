@@ -130,6 +130,8 @@ like("B", qr/(?[ [B] | ! ( [^B] ) ])/, "[perl #125892]");
                     'qr/(?[ ! ( ! (\w)])/ neither');
 }
 
+like("a", qr/(?[ (?#comment) [a]])/, "Can have (?#comments)");
+
 if (! is_miniperl() && locales_enabled('LC_CTYPE')) {
     my $utf8_locale = find_utf8_ctype_locale;
     SKIP: {
