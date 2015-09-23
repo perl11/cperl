@@ -139,7 +139,7 @@ PPt(pp_sassign, "(:Scalar,:Scalar):Scalar")
     if (UNLIKELY(TAINT_get) && !SvTAINTED(right))
 	TAINT_NOT;
     if (UNLIKELY(PL_op->op_private & OPpASSIGN_CV_TO_GV)) {
-        /* *foo =\&bar */
+        /* *foo = \&bar */
 	SV * const cv = SvRV(right);
 	const U32 cv_type = SvTYPE(cv);
 	const bool is_gv = isGV_with_GP(left);
@@ -217,6 +217,7 @@ PPt(pp_sassign, "(:Scalar,:Scalar):Scalar")
 	}
 
     }
+    /* XXX do this in the compiler, not here! */
     if (
       UNLIKELY(SvTEMP(left)) && !SvSMAGICAL(left) && SvREFCNT(left) == 1 &&
       (!isGV_with_GP(left) || SvFAKE(left)) && ckWARN(WARN_MISC)

@@ -422,7 +422,7 @@ struct cop {
 				    ? alloccopstash(hv)			\
 				    : 0)
 #  ifdef NETWARE
-#    define CopFILE_free(c) SAVECOPFILE_FREE(c)
+#    define CopFILE_free(c)     SAVECOPFILE_FREE(c)
 #  else
 #    define CopFILE_free(c)	(PerlMemShared_free(CopFILE(c)),(CopFILE(c) = NULL))
 #  endif
