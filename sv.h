@@ -202,7 +202,7 @@ typedef struct hek HEK;
 	union {			\
 	    XPVIV * _1_5iv;	\
 	    XPVNV * _2_6nv;	\
-	    XPV * _3pv;		\
+	    XPV   * _3pv;	\
 	    XINVLIST * _4invl;	\
 	    XPVMG * _7mg;	\
 	    struct regexp *_8rx;\
