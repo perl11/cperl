@@ -1,8 +1,10 @@
 #!perl -w
 
-use Test::More tests => 19;
+use Test::More tests => 20;
 
 use XS::APItest;
+
+ok(XS::APItest::test_sv_debug_members(), "debugging SV union members work");
 
 for my $func ('SvPVbyte', 'SvPVutf8') {
  $g = *glob;
