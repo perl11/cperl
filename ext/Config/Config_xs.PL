@@ -269,6 +269,8 @@ __inline
 
     # There should be at least one space between a C keyword and any subsequent open parenthesis
     s/sizeof\(/sizeof (/g;
+    # don't delete line numbers, pointing to Config_xs.in
+    # s/^#line \d+ .+$//gm;
 
     print $OUT $_;
   }
