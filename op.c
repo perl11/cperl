@@ -8320,8 +8320,12 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
     CvSTASH_set(cv, PL_curstash);
 
     if (ps) {
-	sv_setpvn(MUTABLE_SV(cv), ps, ps_len);
-        if ( ps_utf8 ) SvUTF8_on(MUTABLE_SV(cv));
+        SV* const sv = MUTABLE_SV(cv);
+	sv_setpvn(sv, ps, ps_len);
+        if ( ps_utf8 && !SvUTF8(sv)) {
+            if (SvIsCOW(sv)) sv_uncow(sv, 0);
+            SvUTF8_on(sv);
+        }
     }
 
     if (!block)
@@ -8551,12 +8555,16 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 				 ps_len, ps_utf8);
 	}
 	if (!SvROK(gv)) {
+          SV* const sv = MUTABLE_SV(gv);
 	  if (ps) {
-	    sv_setpvn(MUTABLE_SV(gv), ps, ps_len);
-            if ( ps_utf8 ) SvUTF8_on(MUTABLE_SV(gv));
+	    sv_setpvn(sv, ps, ps_len);
+            if ( ps_utf8 && !SvUTF8(sv)) {
+                if (SvIsCOW(sv)) sv_uncow(sv, 0);
+                SvUTF8_on(sv);
+            }
           }
 	  else
-	    sv_setiv(MUTABLE_SV(gv), -1);
+	    sv_setiv(sv, -1);
 	}
 
 	SvREFCNT_dec(PL_compcv);
@@ -8809,8 +8817,12 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
     }
 
     if (ps) {
-	sv_setpvn(MUTABLE_SV(cv), ps, ps_len);
-        if ( ps_utf8 ) SvUTF8_on(MUTABLE_SV(cv));
+        SV* const sv = MUTABLE_SV(cv);
+	sv_setpvn(sv, ps, ps_len);
+        if ( ps_utf8 && !SvUTF8(sv) ) {
+            if (SvIsCOW(sv)) sv_uncow(sv, 0);
+            SvUTF8_on(sv);
+        }
     }
 
     if (!block)

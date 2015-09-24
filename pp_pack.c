@@ -1968,6 +1968,7 @@ marked_upgrade(pTHX_ SV *sv, tempsym_t *sym_ptr) {
     char *to_start, *to_ptr;
 
     if (SvUTF8(sv)) return;
+    if (SvIsCOW(sv)) sv_uncow(sv, 0);
 
     from_start = SvPVX_const(sv);
     from_end = from_start + SvCUR(sv);

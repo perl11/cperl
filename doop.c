@@ -84,12 +84,12 @@ S_do_trans_simple(pTHX_ SV * const sv)
 	if (grows) {
 	    sv_setpvn(sv, (char*)dstart, d - dstart);
 	    Safefree(dstart);
+            SvUTF8_on(sv);
 	}
 	else {
 	    *d = '\0';
 	    SvCUR_set(sv, d - dstart);
 	}
-	SvUTF8_on(sv);
 	SvSETMAGIC(sv);
     }
     return matches;
@@ -284,12 +284,12 @@ S_do_trans_complex(pTHX_ SV * const sv)
 	if (grows) {
 	    sv_setpvn(sv, (char*)dstart, d - dstart);
 	    Safefree(dstart);
+            SvUTF8_on(sv);
 	}
 	else {
 	    *d = '\0';
 	    SvCUR_set(sv, d - dstart);
 	}
-	SvUTF8_on(sv);
     }
     SvSETMAGIC(sv);
     return matches;
@@ -385,6 +385,7 @@ S_do_trans_simple_utf8(pTHX_ SV * const sv)
     }
     if (grows || hibit) {
 	sv_setpvn(sv, (char*)dstart, d - dstart);
+        SvUTF8_on(sv);
 	Safefree(dstart);
 	if (grows && hibit)
 	    Safefree(start);
@@ -394,7 +395,6 @@ S_do_trans_simple_utf8(pTHX_ SV * const sv)
 	SvCUR_set(sv, d - dstart);
     }
     SvSETMAGIC(sv);
-    SvUTF8_on(sv);
 
     return matches;
 }
@@ -459,9 +459,9 @@ S_do_trans_complex_utf8(pTHX_ SV * const sv)
     const I32 grows    = PL_op->op_private & OPpTRANS_GROWS;
     SV* const  rv =
 #ifdef USE_ITHREADS
-		    PAD_SVl(cPADOP->op_padix);
+        PAD_SVl(cPADOP->op_padix);
 #else
-		    MUTABLE_SV(cSVOP->op_sv);
+        MUTABLE_SV(cSVOP->op_sv);
 #endif
     HV * const hv = MUTABLE_HV(SvRV(rv));
     SV * const *svp = hv_fetchs(hv, "NONE", FALSE);
@@ -601,6 +601,7 @@ S_do_trans_complex_utf8(pTHX_ SV * const sv)
     }
     if (grows || hibit) {
 	sv_setpvn(sv, (char*)dstart, d - dstart);
+        SvUTF8_on(sv);
 	Safefree(dstart);
 	if (grows && hibit)
 	    Safefree(start);
@@ -609,7 +610,6 @@ S_do_trans_complex_utf8(pTHX_ SV * const sv)
 	*d = '\0';
 	SvCUR_set(sv, d - dstart);
     }
-    SvUTF8_on(sv);
     SvSETMAGIC(sv);
 
     return matches;
@@ -681,6 +681,7 @@ Perl_do_join(pTHX_ SV *sv, SV *delim, SV **mark, SV **sp)
     }
 
     sv_setpvs(sv, "");
+    if (SvIsCOW(sv)) sv_uncow(sv, 0);
     /* sv_setpv retains old UTF8ness [perl #24846] */
     SvUTF8_off(sv);
 
@@ -733,6 +734,7 @@ Perl_do_sprintf(pTHX_ SV *sv, I32 len, SV **sarg)
 			: PL_op_name[PL_op->op_type]
 		    : "(unknown)"
 	);
+    if (SvIsCOW(sv)) sv_uncow(sv, 0);
     SvUTF8_off(sv);
     if (DO_UTF8(*sarg))
         SvUTF8_on(sv);
@@ -920,7 +922,7 @@ Perl_do_vecset(pTHX_ SV *sv)
 	if (!Perl_sv_utf8_downgrade(aTHX_ targ, TRUE))
 	    SvUTF8_off(targ);
 	 */
-	(void) Perl_sv_utf8_downgrade(aTHX_ targ, TRUE);
+	(void) sv_utf8_downgrade(targ, TRUE);
     }
 
     (void)SvPOK_only(targ);
@@ -1132,6 +1134,7 @@ Perl_do_vop(pTHX_ I32 optype, SV *sv, SV *left, SV *right)
 	    Perl_croak(aTHX_ "panic: do_vop called for op %u (%s)",
 			(unsigned)optype, PL_op_name[optype]);
 	}
+        if (SvIsCOW(sv)) sv_uncow(sv, 0);
 	SvUTF8_on(sv);
 	goto finish;
     }

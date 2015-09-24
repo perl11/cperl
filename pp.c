@@ -4386,6 +4386,7 @@ PP(pp_quotemeta)
 	SvGROW(TARG, (len * 2) + 1);
 	d = SvPVX(TARG);
 	if (DO_UTF8(sv)) {
+            /*DEBUG_v(deb("\Q utf8 \"%s\"\n", s));*/
 	    while (len) {
 		STRLEN ulen = UTF8SKIP(s);
 		bool to_quote = FALSE;

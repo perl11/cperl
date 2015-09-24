@@ -1566,8 +1566,6 @@ Use the C<SvGROW> wrapper instead.
 =cut
 */
 
-static void S_sv_uncow(pTHX_ SV * const sv, const U32 flags);
-
 char *
 Perl_sv_grow(pTHX_ SV *const sv, STRLEN newlen)
 {
@@ -1588,7 +1586,7 @@ Perl_sv_grow(pTHX_ SV *const sv, STRLEN newlen)
 	    newlen += 8 * (newlen - SvCUR(sv)); /* avoid copy each time */
     }
     else {
-	if (SvIsCOW(sv)) S_sv_uncow(aTHX_ sv, 0);
+	if (SvIsCOW(sv)) sv_uncow(sv, 0);
 	s = SvPVX_mutable(sv);
     }
 
@@ -3493,9 +3491,8 @@ Perl_sv_utf8_upgrade_flags_grow(pTHX_ SV *const sv, const I32 flags, STRLEN extr
 	return SvCUR(sv);
     }
 
-    if (SvIsCOW(sv)) {
-        S_sv_uncow(aTHX_ sv, 0);
-    }
+    if (SvIsCOW(sv))
+        sv_uncow(sv, 0);
 
     if (IN_ENCODING && !(flags & SV_UTF8_NO_ENCODING)) {
         sv_recode_to_utf8(sv, _get_encoding());
@@ -3737,9 +3734,8 @@ Perl_sv_utf8_downgrade(pTHX_ SV *const sv, const bool fail_ok)
 	    STRLEN len;
 	    int mg_flags = SV_GMAGIC;
 
-            if (SvIsCOW(sv)) {
-                S_sv_uncow(aTHX_ sv, 0);
-            }
+            if (SvIsCOW(sv))
+                sv_uncow(sv, 0);
 	    if (SvTYPE(sv) >= SVt_PVMG && SvMAGIC(sv)) {
 		/* update pos */
 		MAGIC * mg = mg_find(sv, PERL_MAGIC_regex_global);
@@ -3790,7 +3786,7 @@ Perl_sv_utf8_encode(pTHX_ SV *const sv)
 	sv_force_normal_flags(sv, 0);
     }
     if (SvIsCOW(sv))
-        S_sv_uncow(aTHX_ sv, 0);
+        sv_uncow(sv, 0);
     (void) sv_utf8_upgrade(sv);
     SvUTF8_off(sv);
 }
@@ -5179,32 +5175,22 @@ S_sv_release_COW(pTHX_ SV *sv, const char *pvx, SV *after)
     }
 }
 #endif
+
 /*
-=for apidoc sv_force_normal_flags
+=for apidoc sv_uncow
 
-Undo various types of fakery on an SV, where fakery means
-"more than" a string: if the PV is a shared string, make
-a private copy; if we're a ref, stop refing; if we're a glob, downgrade to
-an xpvmg; if we're a copy-on-write scalar, this is the on-write time when
-we do the copy, and is also used locally; if this is a
-vstring, drop the vstring magic.  If C<SV_COW_DROP_PV> is set
-then a copy-on-write scalar drops its PV buffer (if any) and becomes
-SvPOK_off rather than making a copy.  (Used where this
-scalar is about to be set to some other value.)  In addition,
-the C<flags> parameter gets passed to C<sv_unref_flags()>
-when unreffing.  C<sv_force_normal> calls this function
-with flags set to 0.
-
-This function is expected to be used to signal to perl that this SV is
-about to be written to, and any extra book-keeping needs to be taken care
-of.  Hence, it croaks on read-only values.
+If you change any flag of a COW string, you need to uncow it to ensure
+that all other refereneces to this string are not affected by this
+change also.
+This is less expensive and special as C<sv_force_normal_flags>.
 
 =cut
 */
 
-static void
-S_sv_uncow(pTHX_ SV * const sv, const U32 flags)
+void
+Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
 {
+    PERL_ARGS_ASSERT_SV_UNCOW;
     assert(SvIsCOW(sv));
     {
 #ifdef PERL_ANY_COW
@@ -5289,6 +5275,29 @@ S_sv_uncow(pTHX_ SV * const sv, const U32 flags)
     }
 }
 
+/*
+=for apidoc sv_force_normal_flags
+
+Undo various types of fakery on an SV, where fakery means
+"more than" a string: if the PV is a shared string, make
+a private copy; if we're a ref, stop refing; if we're a glob, downgrade to
+an xpvmg; if we're a copy-on-write scalar, this is the on-write time when
+we do the copy, and is also used locally; if this is a
+vstring, drop the vstring magic.  If C<SV_COW_DROP_PV> is set
+then a copy-on-write scalar drops its PV buffer (if any) and becomes
+SvPOK_off rather than making a copy.  (Used where this
+scalar is about to be set to some other value.)  In addition,
+the C<flags> parameter gets passed to C<sv_unref_flags()>
+when unreffing.  C<sv_force_normal> calls this function
+with flags set to 0.
+
+This function is expected to be used to signal to perl that this SV is
+about to be written to, and any extra book-keeping needs to be taken care
+of.  Hence, it croaks on read-only values.
+
+=cut
+*/
+
 void
 Perl_sv_force_normal_flags(pTHX_ SV *const sv, const U32 flags)
 {
@@ -5297,7 +5306,7 @@ Perl_sv_force_normal_flags(pTHX_ SV *const sv, const U32 flags)
     if (SvREADONLY(sv))
 	Perl_croak_no_modify();
     else if (SvIsCOW(sv) && LIKELY(SvTYPE(sv) != SVt_PVHV))
-	S_sv_uncow(aTHX_ sv, flags);
+	sv_uncow(sv, flags);
     if (SvROK(sv))
 	sv_unref_flags(sv, flags);
     else if (SvFAKE(sv) && isGV_with_GP(sv))

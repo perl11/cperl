@@ -2282,12 +2282,15 @@ S_cv_clone(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned)
     CvROOT(cv)		= OpREFCNT_inc(CvROOT(proto));
     OP_REFCNT_UNLOCK;
     CvSTART(cv)		= CvSTART(proto);
-    CvOUTSIDE_SEQ(cv) = CvOUTSIDE_SEQ(proto);
+    CvOUTSIDE_SEQ(cv)   = CvOUTSIDE_SEQ(proto);
 
     if (SvPOK(proto)) {
-	sv_setpvn(MUTABLE_SV(cv), SvPVX_const(proto), SvCUR(proto));
-        if (SvUTF8(proto))
-           SvUTF8_on(MUTABLE_SV(cv));
+        SV* const sv = MUTABLE_SV(cv);
+	sv_setpvn(sv, SvPVX_const(proto), SvCUR(proto));
+        if (SvUTF8(proto) && !SvUTF8(sv)) {
+            if (SvIsCOW(sv)) sv_uncow(sv, 0);
+            SvUTF8_on(sv);
+        }
     }
     if (SvMAGIC(proto))
 	mg_copy((SV *)proto, (SV *)cv, 0, 0);

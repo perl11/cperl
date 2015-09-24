@@ -4748,6 +4748,11 @@ PERL_CALLCONV bool	Perl_sv_tainted(pTHX_ SV *const sv)
 	assert(sv)
 
 PERL_CALLCONV I32	Perl_sv_true(pTHX_ SV *const sv);
+PERL_CALLCONV void	Perl_sv_uncow(pTHX_ SV *const sv, const U32 flags)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_SV_UNCOW	\
+	assert(sv)
+
 PERL_CALLCONV char*	Perl_sv_uni_display(pTHX_ SV *dsv, SV *ssv, STRLEN pvlim, UV flags)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1)

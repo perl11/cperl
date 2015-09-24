@@ -452,7 +452,11 @@ Perl_gv_init_pvn(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len, U32 flag
 	if (proto) {
 	    sv_usepvn_flags(MUTABLE_SV(cv), proto, protolen,
 			    SV_HAS_TRAILING_NUL);
-            if ( proto_utf8 ) SvUTF8_on(MUTABLE_SV(cv));
+            if ( proto_utf8 ) {
+                SV* sv = MUTABLE_SV(cv);
+                if (SvIsCOW(sv)) sv_uncow(sv, 0);
+                SvUTF8_on(sv);
+            }
 	}
     }
 }
@@ -1256,8 +1260,7 @@ Perl_gv_autoload_pvn(pTHX_ HV *stash, const char *name, STRLEN len, U32 flags)
 	else {
 	  sv_setpvn((SV *)cv, name, len);
 	  SvPOK_off(cv);
-	  if (is_utf8)
-            SvUTF8_on(cv);
+	  if (is_utf8) SvUTF8_on(cv);
 	  else SvUTF8_off(cv);
 	}
 	CvAUTOLOAD_on(cv);
