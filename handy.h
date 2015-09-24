@@ -2148,6 +2148,15 @@ void Perl_mem_log_del_sv(const SV *sv, const char *filename, const int linenumbe
 
 #endif
 
+/* useful inside another macro */
+#ifdef USE_CPERL
+#  define USE_CPERL_EXPR(a) a
+#  define USE_NO_CPERL_EXPR(a)
+#else
+#  define USE_CPERL_EXPR(a)
+#  define USE_NO_CPERL_EXPR(a) a
+#endif
+
 #endif  /* HANDY_H */
 
 /*

@@ -189,10 +189,69 @@ typedef struct hek HEK;
 /* Using C's structural equivalence to help emulate C++ inheritance here... */
 
 /* start with 2 sv-head building blocks */
-#define _SV_HEAD(ptrtype) \
+#ifndef HAS_ANONFIELDS
+# define _SV_HEAD(ptrtype) \
     ptrtype	sv_any;		/* pointer to body */	\
     U32		sv_refcnt;	/* how many references to us */	\
     U32		sv_flags	/* what we are */
+#else
+# define _SV_HEAD(ptrtype) \
+    union { \
+	ptrtype	sv_any;		/* pointer to body */	\
+	/* for use with a C debugger, numbers correspond to svtype */	\
+	union {			\
+	    XPVIV * _1_5iv;	\
+	    XPVNV * _2_6nv;	\
+	    XPV * _3pv;		\
+	    XINVLIST * _4invl;	\
+	    XPVMG * _7mg;	\
+	    struct regexp *_8rx;\
+	    XPVGV * _9gv;	\
+	    XPVLV * _10lv;	\
+	    XPVAV * _11av;	\
+	    XPVHV * _12hv;	\
+	    XPVCV * _13cv;	\
+	    XPVFM * _14fm;	\
+	    XPVIO * _15io;	\
+	} sv_any_dbg;		\
+    }; \
+    U32		sv_refcnt;	/* how many references to us */	\
+    union {\
+	U32	sv_flags;	/* what we are */	\
+	/* NEVER USE THE BITFIELD, its strictly for C debugger tools */	\
+	struct { \
+	    unsigned long type : 8; \
+	    unsigned long f_IOK : 1; \
+	    unsigned long f_NOK : 1; \
+	    unsigned long f_POK : 1; \
+	    unsigned long f_ROK : 1; \
+	    unsigned long p_IOK: 1; \
+	    unsigned long p_NOK: 1; \
+	    unsigned long p_POK : 1; \
+	    unsigned long p_SCREAM_phv_CLONEABLE_pgv_GP_prv_PCS_IMPORTED : 1; \
+	    USE_CPERL_EXPR(unsigned long f_NATIVE: 1;) \
+	    USE_NO_CPERL_EXPR(unsigned long f_PROTECT: 1;) \
+	    unsigned long s_PADTMP : 1; \
+	    unsigned long s_PADSTALE : 1; \
+	    unsigned long s_TEMP : 1; \
+	    unsigned long s_OBJECT : 1; \
+	    unsigned long s_GMG : 1; \
+	    unsigned long s_SMG : 1; \
+	    unsigned long s_RMG : 1; \
+	    unsigned long f_FAKE : 1; \
+	    unsigned long f_OOK : 1; \
+	    unsigned long f_BREAK: 1; \
+	    unsigned long f_READONLY : 1; \
+	    USE_CPERL_EXPR(unsigned long f_READONLY_f_PROTECT: 1;) \
+	    USE_NO_CPERL_EXPR(unsigned long f_READONLY: 1;) \
+	    unsigned long f_AMAGIC_f_IsCOW : 1; \
+	    unsigned long f_UTF8_phv_SHAREKEYS_pav_SHAPED : 1; \
+	    unsigned long pav_REAL_phv_LAZYDEL_pbm_VALID_repl_EVAL : 1; \
+	    unsigned long f_IVisUV_pav_REIFY_phv_HASKFLAGS_pbm_TAIL_prv_WEAKREF : 1; \
+	} sv_flags_dbg; \
+	/* NEVER USE THE BITFIELD, its strictly for C debugger tools */	\
+    }
+#endif
 
 #if NVSIZE <= IVSIZE
 #  define _NV_BODYLESS_UNION NV svu_nv;
@@ -355,6 +414,9 @@ perform the upgrade if necessary.  See C<svtype>.
  * See the <20121213131428.GD1842@iabyn.com> thread in p5p */
 #define SvUPGRADE(sv, mt) \
     ((void)(SvTYPE(sv) >= (mt) || (sv_upgrade(sv, mt),1)))
+
+
+/* *** If you edit any flags remember to update the bitfield above *** */
 
 #define SVf_IOK		0x00000100  /* has valid public integer value */
 #define SVf_NOK		0x00000200  /* has valid public numeric value */
