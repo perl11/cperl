@@ -1354,8 +1354,8 @@ PPCODE:
                          SVs_TEMP);
     return; /* skip implicit PUTBACK, it was done earlier */
 
-#1st arg could be self in the future
-#KEYS doesnt exist in tied hash API
+# 1st arg could be self in the future
+# Note: KEYS doesnt exist in tied hash API, only FIRSTKEY/NEXTKEY
 void
 KEYS(...)
 PREINIT:
