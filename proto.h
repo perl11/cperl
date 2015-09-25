@@ -4193,7 +4193,7 @@ PERL_CALLCONV UV	Perl_sv_2uv_flags(pTHX_ SV *const sv, const I32 flags)
 #define PERL_ARGS_ASSERT_SV_2UV_FLAGS	\
 	assert(sv)
 
-PERL_CALLCONV int	Perl_sv_backoff(SV *const sv)
+PERL_CALLCONV void	Perl_sv_backoff(SV *const sv)
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_SV_BACKOFF	\
 	assert(sv)
