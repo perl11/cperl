@@ -95,6 +95,10 @@ Add support for additional F<pod/perlcdelta.pod> in F<Porting/pod_rules.pl>.
 
 =item *
 
+Improved performance of index() by 50-70%.
+
+=item *
+
 Creating *{"_<$filename"} Perl debugger data structures (see
 L<perldebguts/"Debugger Internals">) for XSUBs and const subs has been
 removed.  This removed one glob/scalar combo for each unique C<.c>
