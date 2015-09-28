@@ -2,12 +2,12 @@
 
 use strict;
 use warnings;
+BEGIN {
+  chdir 'cpan/Test-Harness' unless -e 't/sample-tests/simple';
+}
 use lib 't/lib';
 
 use Config ();
-if ($Config::Config{usecperl}) {
-    use Test::More 'skip_all' => 'cperl bug CM-834';
-}
 use Test::More qw( no_plan );
 
 use File::Spec;

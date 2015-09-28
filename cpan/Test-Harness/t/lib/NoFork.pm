@@ -4,7 +4,21 @@ BEGIN {
     *CORE::GLOBAL::fork = sub { die "you should not fork" };
 }
 use Config;
-tied(%Config)->{d_fork} = 0;    # blatant lie
+if ($Config::Config{d_fork}) {
+  if (exists &Config::KEYS) {     # compiled Config
+    *Config_FETCHorig = \&Config::FETCH;
+    no warnings 'redefine';
+    *Config::FETCH = sub {
+      if ($_[0] and $_[1] eq 'd_fork') {
+        return 0;
+      } else {
+        return Config_FETCHorig(@_);
+      }
+    }
+  } else {
+    tied(%Config)->{d_fork} = 0;    # uncompiled Config
+  }
+}
 
 =begin TEST
 

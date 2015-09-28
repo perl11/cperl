@@ -4,6 +4,7 @@
 # NOTE maybe a good candidate for xt/author or something.
 
 BEGIN {
+    chdir 'cpan/Test-Harness' unless -e 't/lib/NoFork.pm';
     use lib 't/lib';
 }
 
@@ -11,9 +12,6 @@ use strict;
 use warnings;
 
 use Config;
-if ($Config::Config{usecperl}) {
-    use Test::More 'skip_all' => 'cperl bug CM-834';
-}
 use Test::More (
     $Config{d_fork}
     ? 'no_plan'

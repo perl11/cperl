@@ -1130,12 +1130,13 @@ use File::Glob qw(:case);
                 t/lib/if.pm
                 ),
         ],
-        # TODO skipped on cperl: bug CM-834
+        # with compiled Config
         'CUSTOMIZED'   => [
             qw( t/multiplexer.t
                 t/nofork.t
                 t/regression.t
                 t/sample-tests/switches
+		t/lib/NoFork.pm
               )],
     },
 
