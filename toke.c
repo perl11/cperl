@@ -428,7 +428,7 @@ static struct debug_tokens {
 
 /* dump the returned token in rv, plus any optional arg in pl_yylval */
 const char*
-S_toke_name(I32 state, int* ltype)
+S_toke_name(pTHX_ I32 state, int* ltype)
 {
     const char *name = NULL;
     if (DEBUG_T_TEST) {
@@ -456,7 +456,7 @@ S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
     if (DEBUG_T_TEST) {
 	enum token_type type = TOKENTYPE_NONE;
         int itype = (int)type;
-	const char *name = S_toke_name(rv, &itype);
+	const char *name = S_toke_name(aTHX_ rv, &itype);
 	SV* const report = newSVpvs("<== ");
         if (((U32)rv) & 0xff000000) { /* <<24 */
 	    Perl_sv_catpvf(aTHX_ report, "%c|", (char)(((U32)rv & 0xff000000) >> 24));
@@ -469,7 +469,7 @@ S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
 	else if (isPRINT(rv) || isGRAPH(rv)) {
 	    Perl_sv_catpvf(aTHX_ report, "'%c'", (char)rv);
 	    if ((char)rv == 'p') {
-		sv_catpvf(report, " (Pending identifier '%c')", (U8)lvalp->ival);
+		Perl_sv_catpvf(aTHX_ report, " (Pending identifier '%c')", (U8)lvalp->ival);
             }
 	}
 	else
