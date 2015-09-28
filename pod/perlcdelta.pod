@@ -40,6 +40,13 @@ subs, and ignores that the perl debugger can not debug C code.
 
 Better DynaLoader support for os2, symbian, Netware.
 
+=item *
+
+Re-added the PL_sv_objcount interpreter-global variable used to track the total
+number of Perl objects in the interpreter, which was removed in Perl 5.20.
+It is beneficial for all scripts which do not create objects in global scope,
+so we dont have to check all remaining SV's to call a potential DESTROY method.
+
 =back
 
 =head1 Modules and Pragmata

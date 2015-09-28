@@ -10327,9 +10327,13 @@ Perl_sv_bless(pTHX_ SV *const sv, HV *const stash)
 	if (SvREADONLY(tmpRef))
 	    Perl_croak_no_modify();
 	if (SvOBJECT(tmpRef)) {
+	    if (SvTYPE(tmpRef) != SVt_PVIO)
+		--PL_sv_objcount;
 	    oldstash = SvSTASH(tmpRef);
 	}
     }
+    if (SvTYPE(tmpRef) != SVt_PVIO)
+        ++PL_sv_objcount;
     SvOBJECT_on(tmpRef);
     SvUPGRADE(tmpRef, SVt_PVMG);
     SvSTASH_set(tmpRef, MUTABLE_HV(SvREFCNT_inc_simple(stash)));
@@ -10338,8 +10342,6 @@ Perl_sv_bless(pTHX_ SV *const sv, HV *const stash)
     if(SvSMAGICAL(tmpRef))
         if(mg_find(tmpRef, PERL_MAGIC_ext) || mg_find(tmpRef, PERL_MAGIC_uvar))
             mg_set(tmpRef);
-
-
 
     return sv;
 }

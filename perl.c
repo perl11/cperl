@@ -793,12 +793,15 @@ perl_destruct(pTHXx)
 
     PerlIO_destruct(aTHX);
 
-    /*
-     * Try to destruct global references.  We do this first so that the
-     * destructors and destructees still exist.  Some sv's might remain.
-     * Non-referenced objects are on their own.
-     */
-    sv_clean_objs();
+    if (PL_sv_objcount) {
+	/*
+	 * Try to destruct global references.  We do this first so that the
+	 * destructors and destructees still exist.  Some sv's might remain.
+	 * Non-referenced objects are on their own.
+	 */
+	sv_clean_objs();
+	PL_sv_objcount = 0;
+    }
 
     /* unhook hooks which will soon be, or use, destroyed data */
     SvREFCNT_dec(PL_warnhook);
