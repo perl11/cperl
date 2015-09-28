@@ -72,5 +72,7 @@ lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
 libnet cpan/libnet/lib/Net/Domain.pm 1c8c8a02490c8209ce23a193dcd2c8e6d936dd92
 podlators cpan/podlators/scripts/pod2man.PL 8483f756edeb6b5f7bf74a8a436c4b4d6387adf0
 podlators cpan/podlators/scripts/pod2text.PL 19d478eb7cd00141a8dc4f738725e3baf1cf0f6c
+threads dist/threads/lib/threads.pm f8f5f2c4527aba54ef53a5846e3fad728b24eeea
+threads dist/threads/threads.xs 86191214f193293053d11ca82a8960e4ed7a74a7
 version cpan/version/lib/version.pm d0923b895d57f1d669ae36fcf85c87b16db341d1
 version vutil.c 89ab2adc8ccedcf53e2ce1aab79912dae4aa73ed

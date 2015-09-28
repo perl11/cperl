@@ -257,7 +257,13 @@ S_ithread_free(pTHX_ ithread *thread)
 #ifdef WIN32
     HANDLE handle;
 #endif
-    dMY_POOL;
+    SV *my_pool_sv = Nullsv;
+    my_pool_t *my_poolp = NULL;
+
+    if (PL_modglobal) {
+        my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY, sizeof(MY_POOL_KEY)-1, TRUE);
+        my_poolp = INT2PTR(my_pool_t*, SvUV(my_pool_sv));
+    }
 
     if (! (thread->state & PERL_ITHR_NONVIABLE)) {
         assert(thread->count > 0);
@@ -274,13 +280,15 @@ S_ithread_free(pTHX_ ithread *thread)
     assert(thread->tid != 0);
 
     /* Remove from circular list of threads */
-    MUTEX_LOCK(&MY_POOL.create_destruct_mutex);
+    if (my_poolp)
+        MUTEX_LOCK(&MY_POOL.create_destruct_mutex);
     assert(thread->prev && thread->next);
     thread->next->prev = thread->prev;
     thread->prev->next = thread->next;
     thread->next = NULL;
     thread->prev = NULL;
-    MUTEX_UNLOCK(&MY_POOL.create_destruct_mutex);
+    if (my_poolp)
+        MUTEX_UNLOCK(&MY_POOL.create_destruct_mutex);
 
     /* Thread is now disowned */
     MUTEX_LOCK(&thread->mutex);
@@ -307,9 +315,11 @@ S_ithread_free(pTHX_ ithread *thread)
      * Otherwise, MY_POOL and global state such as PL_op_mutex may get
      * freed while we're still using it.
      */
-    MUTEX_LOCK(&MY_POOL.create_destruct_mutex);
-    MY_POOL.total_threads--;
-    MUTEX_UNLOCK(&MY_POOL.create_destruct_mutex);
+    if (my_poolp) {
+        MUTEX_LOCK(&MY_POOL.create_destruct_mutex);
+        MY_POOL.total_threads--;
+        MUTEX_UNLOCK(&MY_POOL.create_destruct_mutex);
+    }
 }
 
 

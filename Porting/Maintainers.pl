@@ -1236,6 +1236,12 @@ use File::Glob qw(:case);
                 t/test.pl
                 threads.h
                 ),
+          ],
+        # protect ithread_free from deleted PL_modglobal
+        'CUSTOMIZED'   => [
+            qw( threads.xs
+		lib/threads.pm
+                ),
         ],
     },
 
