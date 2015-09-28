@@ -103,8 +103,8 @@ like( runperl( switches => [ "-DX" ], stderr => 1,
       qr/^Pad 0x[0-9a-f]+\[0x[0-9a-f]+\] new:/,
       "-DX Scratchpad allocation" );
 like( runperl( switches => [ "-DD" ], stderr => 1,
-               prog => '1' ),
-      qr/\nCleaning named glob IO object:\n/,
+               prog => '$sv = bless {}, q(Internals);' ),
+      qr/\nCleaning object ref:\n/m,
       "-DD Cleaning up" );
 like( runperl( switches => [ "-DS" ], stderr => 1,
                prog => '1' ),
