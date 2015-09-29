@@ -82,11 +82,11 @@ API function to access the generated hash.
 
 /* Inside of tied XS object is a SVUV which is the iterator for the tied hash.
    The iterator is the offset of next stringpool string to read, unless the
-   iterating is done, then offset is beyond the end of stringpool and should
+   iterating is finished, then offset is beyond the end of stringpool and should
    not be used to deref (read) the string pool, until the next FIRSTKEY which
    resets the offset back to 0 or offset of 2nd string in string pool */
 
-typedef UV CFGSELF;
+typedef UV CFGSELF; /* for typemap */
 
 enum Config_types {
     T_EMP, /* "" */
@@ -6802,38 +6802,48 @@ PPCODE:
      *SP = RETVAL;
      return; /* skip implicit PUTBACK, it was done earlier */
 
-#1st argument is SV* self, but unused
-IV
-SCALAR(...)
-CODE:
-    /* This isn't accurate except for a bool test.
-       Should this actually be returning "1234/1234" where 1234 is
-       TOTAL_KEYWORDS? */
-    /* Note: This is highly gperf dependent */
-    RETVAL = TOTAL_KEYWORDS;
-OUTPUT:
-    RETVAL
+#you would think the prototype croak can be removed and replaced with ...
+#but the check actually makes sure there is 1 SP slot available since the retval
+#SV* winds up ontop of the incoming self arg
+void
+SCALAR(self)
+    SV *self
+PPCODE:
+    SP++; /* make space for 1 returned SV* */
+    PUTBACK; /* let some vars go out of liveness */
+    /* perfect hash is perfect */
+    *SP = newSVpvn_flags(STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(TOTAL_KEYWORDS),
+                         sizeof (STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(TOTAL_KEYWORDS))-1,
+                         SVs_TEMP);
+    return; /* skip implicit PUTBACK, it was done earlier */
 
 # 1st arg could be self in the future
 # Note: KEYS doesnt exist in tied hash API, only FIRSTKEY/NEXTKEY
 void
 KEYS(...)
 PREINIT:
-    int i = 0;
     /* Note: This is highly gperf dependent */
     const int size = TOTAL_KEYWORDS;
     const char *s = (const char *)stringpool;
     const char * const end = (char *)stringpool+sizeof (stringpool_contents);
 PPCODE:
-    EXTEND(sp, size);
-    while (s < end) {
-        int l = strlen(s);
-        const char * const current_s = s; /* reduce liveness of var l */
-        s += l+1; /* set string up for next read */
-        i++; /* sanity test */
-        mPUSHp(current_s, l);
-    }
-    assert(i == size);
+    const I32 gimme = GIMME_V;
+    if(gimme != G_VOID) {
+        EXTEND(sp,  gimme == G_SCALAR ? 1 : size);
+        if(gimme == G_SCALAR) {
+            mPUSHu(size); /* return just length */
+        } else {
+            int i = 0; /* optimized away */
+            while (s < end) {
+                int l = strlen(s);
+                const char * const current_s = s; /* reduce liveness of var l */
+                s += l+1; /* set string up for next read */
+                i++; /* sanity test */
+                mPUSHp(current_s, l);
+            }
+            assert(i == size);
+        }
+    } /* return nothing for void */
 
 void
 FIRSTKEY(self)
