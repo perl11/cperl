@@ -1914,6 +1914,30 @@ xop_from_custom_op ()
     OUTPUT:
         RETVAL
 
+bool
+test_sv_debug_members()
+CODE:
+#ifdef HAS_ANONFIELDS
+    if(STRUCT_OFFSET(SV,sv_any) == STRUCT_OFFSET(SV,sv_any_dbg._1_5iv)) {
+        SV * sv =  newSV(0);
+        if(!cBOOL(SvTEMP(sv)) && !sv->sv_flags_dbg.s_TEMP) {
+            sv_2mortal(sv);
+            if(cBOOL(SvTEMP(sv)) && sv->sv_flags_dbg.s_TEMP){
+                RETVAL = TRUE;
+                goto end;
+            }
+        } else { /* has to be freed even if failed */
+            sv_2mortal(sv);
+        }
+    }
+    RETVAL = FALSE;
+#else
+    RETVAL = TRUE; /* nothing to test, members don't exist */
+#endif
+    end:
+OUTPUT:
+    RETVAL
+
 BOOT:
 {
     MY_CXT_INIT;

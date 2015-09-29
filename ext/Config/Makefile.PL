@@ -3,6 +3,11 @@ WriteMakefile(
     'NAME'		=> 'Config',
     'VERSION_FROM'	=> 'Config.pm',
     'PL_FILES'		=> {'Config_xs.PL' => 'Config.xs'},
+    #TODO backdate the modify timestamp on Config.pm to old Config.pm
+    #'PM' => {
+    #    'Config.pm'      => '$(INST_LIBDIR)/Config.pm'
+    #},
+    #XSOPT  => ' -nolinenumbers ',
 );
 
 package MY;

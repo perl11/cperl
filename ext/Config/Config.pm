@@ -56,8 +56,7 @@ sub import {
 }
 
 sub TIEHASH {
-    $_[1] = {} unless $_[1];
-    bless $_[1], $_[0];
+    bless \do{my $uv = 0;}, $_[0]; #XS Config Obj constructor
 }
 sub DESTROY { }
 sub STORE  { die "\%Config::Config is read-only\n" }

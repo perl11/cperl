@@ -45,6 +45,14 @@ API function to access the generated hash.
 #include "perl.h"
 #include "XSUB.h"
 
+/* Inside of tied XS object is a SVUV which is the iterator for the tied hash.
+   The iterator is the offset of next stringpool string to read, unless the
+   iterating is finished, then offset is beyond the end of stringpool and should
+   not be used to deref (read) the string pool, until the next FIRSTKEY which
+   resets the offset back to 0 or offset of 2nd string in string pool */
+
+typedef UV CFGSELF; /* for typemap */
+
 enum Config_types {
     T_EMP, /* "" */
     T_BOO,  /* "0" for undef or "1" for define */
@@ -52,8 +60,8 @@ enum Config_types {
     T_INT,
 };
 
-struct Perl_Config { int name; signed char type; size_t len; const char *value; };
-const struct Perl_Config *
+struct Perl_Config { U16 name; signed char type; size_t len; const char *value; };
+static const struct Perl_Config *
 Config_lookup (register const char *str, register unsigned int len);
 
 %}
@@ -1290,99 +1298,135 @@ zcat,			T_STR,	0,"@@zcat@@"
 zip,			T_STR,	0,"@@zip@@"
 %%
 
-int g_iterpos = 0;
-
 MODULE = Config		PACKAGE = Config
 PROTOTYPES: DISABLE
 
-SV*
+BOOT:
+{
+    STATIC_ASSERT_STMT(sizeof(stringpool_contents) <= U16_MAX);
+}
+
+void
 FETCH(self, key)
      SV* self
      SV* key
-CODE:
-     const struct Perl_Config *c = Config_lookup(SvPVX_const(key), SvCUR(key));
+PREINIT:
+     const struct Perl_Config *c;
+     SV * RETVAL;
+PPCODE:
+     SP++; /* make space for 1 returned SV* */
+     PUTBACK; /* let some vars go out of liveness */
+
+     c = Config_lookup(SvPVX_const(key), SvCUR(key));
      PERL_UNUSED_VAR(self);
      if (!c)
-         XSRETURN_UNDEF;
+         goto return_undef;
      if (c->type == T_EMP)
-         RETVAL = newSVpv_share("", 0);
-     else if (c->type == T_BOO)
-         RETVAL = *(c->value) == '0' ? &PL_sv_undef
-                                     : SvREFCNT_inc_NN(SV_CONST(define));
-     else if (c->type == T_INT)
+         RETVAL = &PL_sv_no;
+     else if (c->type == T_BOO) {
+         if(*(c->value) == '0')
+              return_undef:
+              RETVAL = &PL_sv_undef;
+         else
+              RETVAL = SV_CONST(define); /* this SV * never goes away once vivified */
+     }
+     else if (c->type == T_INT) {
 #ifdef HAS_STRTOL
          RETVAL = newSViv(strtol(c->value,NULL,10));
 #else
          RETVAL = newSViv(atoi(c->value));
 #endif
+         RETVAL = sv_2mortal(RETVAL);
+     }
      else
          /* TODO: store len also in struct */
-         RETVAL = newSVpvn(c->value, c->len);
-OUTPUT:
-    RETVAL
+         RETVAL = newSVpvn_flags(c->value, c->len, SVs_TEMP);
+     *SP = RETVAL;
+     return; /* skip implicit PUTBACK, it was done earlier */
 
-IV
-SCALAR(self = NULL)
-         SV *self
-CODE:
-    PERL_UNUSED_VAR(self);
+#you would think the prototype croak can be removed and replaced with ...
+#but the check actually makes sure there is 1 SP slot available since the retval
+#SV* winds up ontop of the incoming self arg
+void
+SCALAR(self)
+    SV *self
+PPCODE:
+    SP++; /* make space for 1 returned SV* */
+    PUTBACK; /* let some vars go out of liveness */
+    /* perfect hash is perfect */
+    *SP = newSVpvn_flags(STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(TOTAL_KEYWORDS),
+                         sizeof(STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(TOTAL_KEYWORDS))-1,
+                         SVs_TEMP);
+    return; /* skip implicit PUTBACK, it was done earlier */
+
+# 1st arg could be self in the future
+# Note: KEYS doesnt exist in tied hash API, only FIRSTKEY/NEXTKEY
+void
+KEYS(...)
+PREINIT:
     /* Note: This is highly gperf dependent */
-    RETVAL = TOTAL_KEYWORDS;
-OUTPUT:
-    RETVAL
+    const int size = TOTAL_KEYWORDS;
+    const char *s = (const char *)stringpool;
+    const char * const end = (char *)stringpool+sizeof(stringpool_contents);
+PPCODE:
+    const I32 gimme = GIMME_V;
+    if(gimme != G_VOID) {
+        EXTEND(sp,  gimme == G_SCALAR ? 1 : size);
+        if(gimme == G_SCALAR) {
+            mPUSHu(size); /* return just length */
+        } else {
+            int i = 0; /* optimized away */
+            while (s < end) {
+                int l = strlen(s);
+                const char * const current_s = s; /* reduce liveness of var l */
+                s += l+1; /* set string up for next read */
+                i++; /* sanity test */
+                mPUSHp(current_s, l);
+            }
+            assert(i == size);
+        }
+    } /* return nothing for void */
 
 void
-KEYS(self = NULL)
-         SV *self
+FIRSTKEY(self)
+         CFGSELF *self
 PREINIT:
-    int i;
     /* Note: This is highly gperf dependent */
-    const int size = TOTAL_KEYWORDS;
-    char *s = (char *)stringpool;
+    const char *s = (const char *)stringpool;
+    size_t len;
 PPCODE:
-    PERL_UNUSED_VAR(self);
-    EXTEND(sp, size);
-    for (i=0; i<size; i++) {
-        int l = strlen(s);
-        mPUSHp(s, l);
-        s += l+1;
-    }
+    STATIC_ASSERT_STMT(sizeof(stringpool_contents) > 1); /* atleast 1 string */
+    SP++; /* make space for 1 returned SV* */
+    PUTBACK; /* let some vars go out of liveness */
 
-SV*
-FIRSTKEY(self = NULL)
-         SV *self
-PREINIT:
-    /* Note: This is highly gperf dependent */
-    char *s = (char *)stringpool;
-CODE:
-    PERL_UNUSED_VAR(self);
-    g_iterpos = 0; /* self is a singleton */
-    RETVAL = newSVpvn(s, strlen(s));
-OUTPUT:
-    RETVAL
+    len = strlen(s);
+    /* self is SVIV with offset (aka iterator) into stringpool */
+    *self = len + 1; /* set to next string to read */
+    *SP = newSVpvn_flags(s, len, SVs_TEMP);
+    return; /* skip implicit PUTBACK, it was done earlier */
 
-SV*
-NEXTKEY(self = NULL, lastkey = NULL)
-         SV *self
+void
+NEXTKEY(self, lastkey)
+         CFGSELF *self
          SV *lastkey
 PREINIT:
-    int i;
-    /* Note: This is highly gperf dependent */
-    const int size = TOTAL_KEYWORDS;
-    char *s = (char *)stringpool;
-CODE:
-    PERL_UNUSED_VAR(self);
+    SV * RETVAL;
+PPCODE:
     PERL_UNUSED_VAR(lastkey);
-    g_iterpos++;
-    if (g_iterpos >= size)
-        XSRETURN_UNDEF;
-    for (i=0; i<g_iterpos; i++) {
-        int l = strlen(s);
-        s += l+1;
+    SP++; /* make space for 1 returned SV* */
+    PUTBACK; /* let some vars go out of liveness */
+
+    /* bounds check to avoid running off the end of stringpool */
+    if (*self < sizeof(stringpool_contents)) {
+        const char * key = (const char*)stringpool+*self;
+        size_t len = strlen(key);
+        *self += len + 1;
+        RETVAL = newSVpvn_flags(key, len, SVs_TEMP);
     }
-    RETVAL = newSVpvn(s, strlen(s));
-OUTPUT:
-    RETVAL
+    else
+        RETVAL = &PL_sv_undef;
+    *SP = RETVAL;
+    return; /* skip implicit PUTBACK, it was done earlier */
 
 void
 EXISTS(self, key)

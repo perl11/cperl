@@ -257,6 +257,8 @@ typedef unsigned short	mode_t;
 #  pragma intrinsic(_rotl64,_rotr64)
 #endif
 
+#define HAS_ANONFIELDS
+
 #  pragma warning(push)
 #  pragma warning(disable:4756;disable:4056)
 PERL_STATIC_INLINE
