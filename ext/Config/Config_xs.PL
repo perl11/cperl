@@ -228,6 +228,7 @@ sub post_process_gperf {
   my $in = shift;
   my $tmp = $in.".tmp";
   open my $OUT, '>', $tmp or die "Can't write '$tmp': $!";
+  binmode $OUT;
   local $/ = "\n\n";
   print $OUT <<'EOT';
 /* ex: set ro ft=c: -*- buffer-read-only: t; mode: c; c-basic-offset: 4; -*-
