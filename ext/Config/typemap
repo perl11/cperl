@@ -1,0 +1,10 @@
+CFGSELF *   T_XSCFGSELF
+
+INPUT
+
+#internals of object is private so skip SV checks
+T_XSCFGSELF
+	{SV * TmpSVRV = $arg;
+	assert(SvROK(TmpSVRV) && SvIOK(SvRV(TmpSVRV)));
+	/* compute UV * once, no multiple ptr derefs on each r/w */
+	$var = &SvUVX(SvRV(TmpSVRV));};

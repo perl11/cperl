@@ -54,6 +54,8 @@
 
 # generated
 /perl5222delta.pod
+/perl5222cdelta.pod
+/perl5230delta.pod
 /perlapi.pod
 /perlintern.pod
 *.html

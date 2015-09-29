@@ -229,6 +229,7 @@ use File::Glob qw(:case);
                  ext/Config/Config_xs.{in,out,PL}
                  ext/Config/Dummy.c
                  ext/Config/Makefile.PL
+                 ext/Config/typemap
         ],
     },
 
