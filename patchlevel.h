@@ -36,7 +36,7 @@
 */
 #define PERL_API_REVISION	5
 #define PERL_API_VERSION	22
-#define PERL_API_SUBVERSION	0
+#define PERL_API_SUBVERSION	2
 /*
    XXX Note:  The selection of non-default Configure options, such
    as -Duselonglong may invalidate these settings.  Currently, Configure

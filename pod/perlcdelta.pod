@@ -17,35 +17,33 @@ For B<cperl> see F<Changes> and L<perlcperl>
 
 =item *
 
-Windows support was added. There is also new support for parallel builds.
+Creating *{"_<$filename"} Perl debugger data structures (see
+L<perldebguts/"Debugger Internals">) for XSUBs and const subs has been
+removed.  This removed one glob/scalar combo for each unique C<.c>
+file that XSUBs and const subs came from.  On startup (C<perl -e"0">)
+about half a dozen glob/scalar debugger combos were created.  Loading
+XS modules created more glob/scalar combos.  These things were created
+regardless if the perl debugger was being used or not, unlike for pure
+perl subs, and ignores that the perl debugger can not debug C code.
 
 =item *
 
-Config is now a regular XS module, which could theoretically even be
-uploaded to CPAN. This improves platform support and parallel build
-fragility.
-The Config tables are now also readonly.
-
-=item *
-
-Creating Perl debugger data structures (see L<perldebguts/"Debugger Internals">)
-for XSUBs and const subs has been removed.  This removed one glob/scalar combo
-for each unique C<.c> file that XSUBs and const subs came from.  On startup
-(C<perl -e"0">) about half a dozen glob/scalar debugger combos were created.
-Loading XS modules created more glob/scalar combos.  These things were created
-regardless if the perl debugger was being used or not, unlike for pure perl
-subs, and ignores that the perl debugger can not debug C code.
-
-=item *
-
-Better DynaLoader support for os2, symbian, Netware.
-
-=item *
-
-Re-added the PL_sv_objcount interpreter-global variable used to track the total
+Re-added the C<PL_sv_objcount> interpreter-global variable used to track the total
 number of Perl objects in the interpreter, which was removed in Perl 5.20.
 It is beneficial for all scripts which do not create objects in global scope,
 so we dont have to check all remaining SV's to call a potential DESTROY method.
+
+This broke binary back-compatibility on MULTIPLICITY and ITHREAD builds with 5.22.1.
+
+=item *
+
+Minor improvements in the lexer code (F<toke.c>). Added helper
+functions, LEX_TYPE_*BRACKETS_ON|OFF macros, better DEBUGGING support.
+regen_perly keeps now useful temp. files.
+
+=item *
+
+Add support for additional F<pod/perlcdelta.pod> in F<Porting/pod_rules.pl>.
 
 =back
 
@@ -55,7 +53,28 @@ so we dont have to check all remaining SV's to call a potential DESTROY method.
 
 =over 4
 
-=item * XXX
+=item Config 5.022002
+
+Config is now a regular XS module, which could theoretically even be
+uploaded to CPAN. This improves platform support and parallel build
+fragility.
+The Config tables are now also readonly.
+
+=item threads 2.02_01
+
+Protect C<ithread_free> from deleted C<PL_modglobal> during global destruction.
+
+=item ExtUtils-Embed 1.34c
+
+Optimize C<boot_DynaLoader>, fix a couple of stack errors.
+
+=item Test::Harness
+
+Fix 2 tests broken with readonly Config.
+
+=item Time::HiRes 1.9727_02
+
+To improve parallel builds on Windows.
 
 =back
 
@@ -65,7 +84,17 @@ so we dont have to check all remaining SV's to call a potential DESTROY method.
 
 =over 4
 
-=item * XXX
+=item *
+
+Improved support for threaded builds.
+
+=item *
+
+Windows support was added. There is also new support for parallel builds.
+
+=item *
+
+Better DynaLoader support for os2, symbian, Netware.
 
 =back
 
@@ -73,7 +102,7 @@ so we dont have to check all remaining SV's to call a potential DESTROY method.
 
 =over 4
 
-=item * XXX
+=item * uncow on utf8::encode [cperl #50]
 
 =back
 
