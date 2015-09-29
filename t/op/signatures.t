@@ -1305,7 +1305,7 @@ while(<$kh>) {
         # differ if this is __END__ or s or some other special keyword.
         eval 'sub ($x = ' . $word . ', $y) {}';
         local $::TODO = 'does not work yet'
-          if $word =~ /^(?:chmod|chown|die|exec|glob|kill|mkdir|msgrcv|print
+          if $word =~ /^(?:chmod|chown|die|exec|glob|kill|mkdir|print
                           |printf|return|reverse|select|setpgrp|sort|split
                           |system|unlink|utime|warn)\z/x;
         isnt $@, "", "$word does not swallow trailing comma";
