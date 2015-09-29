@@ -60,7 +60,7 @@ enum Config_types {
     T_INT,
 };
 
-struct Perl_Config { int name; signed char type; size_t len; const char *value; };
+struct Perl_Config { U16 name; signed char type; size_t len; const char *value; };
 static const struct Perl_Config *
 Config_lookup (register const char *str, register unsigned int len);
 
@@ -1300,6 +1300,11 @@ zip,			T_STR,	0,"@@zip@@"
 
 MODULE = Config		PACKAGE = Config
 PROTOTYPES: DISABLE
+
+BOOT:
+{
+    STATIC_ASSERT_STMT(sizeof(stringpool_contents) <= U16_MAX);
+}
 
 void
 FETCH(self, key)
