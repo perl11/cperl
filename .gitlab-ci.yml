@@ -1,0 +1,7 @@
+gcc:
+  script:
+    - ./Configure -des -Dusedevel && make -j4 -s && TEST_JOBS=4 make -j4 -s test
+  only:
+    - master
+    - /gitlab/
+    - /smoke/
