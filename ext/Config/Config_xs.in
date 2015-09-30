@@ -1306,6 +1306,7 @@ BOOT:
     STATIC_ASSERT_STMT(sizeof(stringpool_contents) <= U16_MAX);
 }
 
+#line 1309 "Config_xs.in"
 void
 FETCH(self, key)
      SV* self
