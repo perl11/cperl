@@ -1351,6 +1351,7 @@ void
 SCALAR(self)
     SV *self
 PPCODE:
+    PERL_UNUSED_VAR(self);
     SP++; /* make space for 1 returned SV* */
     PUTBACK; /* let some vars go out of liveness */
     /* perfect hash is perfect */
