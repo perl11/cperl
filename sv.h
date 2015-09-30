@@ -189,7 +189,7 @@ typedef struct hek HEK;
 /* Using C's structural equivalence to help emulate C++ inheritance here... */
 
 /* start with 2 sv-head building blocks */
-#if defined(DEBUGGING) && defined(HAS_ANONFIELDS)
+#if defined(DEBUGGING) && !defined(PERL_EXT_RE_DEBUG)
 # define _SV_ANY_PTR(ptrtype)                           \
     union {                                             \
 	ptrtype	sv_any;		/* pointer to body */	\
@@ -209,41 +209,41 @@ typedef struct hek HEK;
 	    XPVFM * _14fm;	\
 	    XPVIO * _15io;	\
 	} sv_any_dbg;		\
-    }
+    } sva_u
 # define _SV_FLAGS_FIELD                                \
     union {                                             \
 	U32	sv_flags;	/* what we are */	\
 	/* NEVER USE THE BITFIELD, its strictly for C debugger tools */	\
 	struct {                     \
-	    unsigned long type : 8;  \
-	    unsigned long f_IOK : 1; \
-	    unsigned long f_NOK : 1; \
-	    unsigned long f_POK : 1; \
-	    unsigned long f_ROK : 1; \
-	    unsigned long p_IOK: 1;  \
-	    unsigned long p_NOK: 1;  \
-	    unsigned long p_POK : 1; \
-	    unsigned long p_SCREAM_phv_CLONEABLE_pgv_GP_prv_PCS_IMPORTED : 1; \
-	    USE_CPERL_EXPR(unsigned long f_NATIVE: 1;) \
-	    USE_NO_CPERL_EXPR(unsigned long f_PROTECT: 1;) \
-	    unsigned long s_PADTMP : 1;   \
-	    unsigned long s_PADSTALE : 1; \
-	    unsigned long s_TEMP : 1;     \
-	    unsigned long s_OBJECT : 1;   \
-	    unsigned long s_GMG : 1;      \
-	    unsigned long s_SMG : 1;      \
-	    unsigned long s_RMG : 1;      \
-	    unsigned long f_FAKE : 1;     \
-	    unsigned long f_OOK : 1;      \
-	    unsigned long f_BREAK: 1;     \
-	    USE_CPERL_EXPR(unsigned long f_READONLY_f_PROTECT: 1;) \
-	    USE_NO_CPERL_EXPR(unsigned long f_READONLY: 1;) \
-	    unsigned long f_AMAGIC_f_IsCOW : 1; \
-	    unsigned long f_UTF8_phv_SHAREKEYS_pav_SHAPED : 1; \
-	    unsigned long pav_REAL_phv_LAZYDEL_pbm_VALID_repl_EVAL : 1; \
-	    unsigned long f_IVisUV_pav_REIFY_phv_HASKFLAGS_pbm_TAIL_prv_WEAKREF : 1; \
+	    PERL_BITFIELD32 type : 8;  \
+	    PERL_BITFIELD32 f_IOK : 1; \
+	    PERL_BITFIELD32 f_NOK : 1; \
+	    PERL_BITFIELD32 f_POK : 1; \
+	    PERL_BITFIELD32 f_ROK : 1; \
+	    PERL_BITFIELD32 p_IOK: 1;  \
+	    PERL_BITFIELD32 p_NOK: 1;  \
+	    PERL_BITFIELD32 p_POK : 1; \
+	    PERL_BITFIELD32 p_SCREAM_phv_CLONEABLE_pgv_GP_prv_PCS_IMPORTED : 1; \
+	    USE_CPERL_EXPR(PERL_BITFIELD32 f_NATIVE: 1;) \
+	    USE_NO_CPERL_EXPR(PERL_BITFIELD32 f_PROTECT: 1;) \
+	    PERL_BITFIELD32 s_PADTMP : 1;   \
+	    PERL_BITFIELD32 s_PADSTALE : 1; \
+	    PERL_BITFIELD32 s_TEMP : 1;     \
+	    PERL_BITFIELD32 s_OBJECT : 1;   \
+	    PERL_BITFIELD32 s_GMG : 1;      \
+	    PERL_BITFIELD32 s_SMG : 1;      \
+	    PERL_BITFIELD32 s_RMG : 1;      \
+	    PERL_BITFIELD32 f_FAKE : 1;     \
+	    PERL_BITFIELD32 f_OOK : 1;      \
+	    PERL_BITFIELD32 f_BREAK: 1;     \
+	    USE_CPERL_EXPR(PERL_BITFIELD32 f_READONLY_f_PROTECT: 1;) \
+	    USE_NO_CPERL_EXPR(PERL_BITFIELD32 f_READONLY: 1;) \
+	    PERL_BITFIELD32 f_AMAGIC_f_IsCOW : 1; \
+	    PERL_BITFIELD32 f_UTF8_phv_SHAREKEYS_pav_SHAPED : 1; \
+	    PERL_BITFIELD32 pav_REAL_phv_LAZYDEL_pbm_VALID_repl_EVAL : 1; \
+	    PERL_BITFIELD32 f_IVisUV_pav_REIFY_phv_HASKFLAGS_pbm_TAIL_prv_WEAKREF : 1; \
 	} sv_flags_dbg; \
-    }
+    } svf_u
 #else
 # define _SV_ANY_PTR(ptrtype)   ptrtype	sv_any
 # define _SV_FLAGS_FIELD 	U32     sv_flags
@@ -388,9 +388,15 @@ perform the upgrade if necessary.  See C<svtype>.
 =cut
 */
 
+#if defined(DEBUGGING) && !defined(PERL_EXT_RE_DEBUG)
+#define SvANY(sv)	((sv)->sva_u.sv_any)
+#define SvFLAGS(sv)	((sv)->svf_u.sv_flags)
+#define SvREFCNT(sv)	(sv)->sv_refcnt
+#else
 #define SvANY(sv)	(sv)->sv_any
 #define SvFLAGS(sv)	(sv)->sv_flags
 #define SvREFCNT(sv)	(sv)->sv_refcnt
+#endif
 
 #define SvREFCNT_inc(sv)		S_SvREFCNT_inc(MUTABLE_SV(sv))
 #define SvREFCNT_inc_simple(sv)		SvREFCNT_inc(sv)
@@ -407,14 +413,14 @@ perform the upgrade if necessary.  See C<svtype>.
 #define SvREFCNT_dec_NN(sv)	S_SvREFCNT_dec_NN(aTHX_ MUTABLE_SV(sv))
 
 #define SVTYPEMASK	0xff
-#define SvTYPE(sv)	((svtype)((sv)->sv_flags & SVTYPEMASK))
+#define SvTYPE(sv)	((svtype)(SvFLAGS(sv) & SVTYPEMASK))
 
 /* Sadly there are some parts of the core that have pointers to already-freed
    SV heads, and rely on being able to tell that they are now free. So mark
    them all by using a consistent macro.  */
-#define SvIS_FREED(sv)	UNLIKELY(((sv)->sv_flags == SVTYPEMASK))
+#define SvIS_FREED(sv)	UNLIKELY((SvFLAGS(sv) == SVTYPEMASK))
 
-/* this is defined in this peculiar way to avoid compiler warnings.
+/* This is defined in this peculiar way to avoid compiler warnings.
  * See the <20121213131428.GD1842@iabyn.com> thread in p5p */
 #define SvUPGRADE(sv, mt) \
     ((void)(SvTYPE(sv) >= (mt) || (sv_upgrade(sv, mt),1)))

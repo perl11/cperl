@@ -1917,12 +1917,12 @@ xop_from_custom_op ()
 bool
 test_sv_debug_members()
 CODE:
-#if defined(HAS_ANONFIELDS) && defined(DEBUGGING)
-    if(STRUCT_OFFSET(SV,sv_any) == STRUCT_OFFSET(SV,sv_any_dbg._1_5iv)) {
+#if defined(DEBUGGING)
+    if(STRUCT_OFFSET(SV,sva_u.sv_any) == STRUCT_OFFSET(SV,sva_u.sv_any_dbg._1_5iv)) {
         SV * sv =  newSV(0);
-        if(!cBOOL(SvTEMP(sv)) && !sv->sv_flags_dbg.s_TEMP) {
+        if(!cBOOL(SvTEMP(sv)) && !sv->svf_u.sv_flags_dbg.s_TEMP) {
             sv_2mortal(sv);
-            if(cBOOL(SvTEMP(sv)) && sv->sv_flags_dbg.s_TEMP){
+            if(cBOOL(SvTEMP(sv)) && sv->svf_u.sv_flags_dbg.s_TEMP){
                 RETVAL = TRUE;
                 goto end;
             }

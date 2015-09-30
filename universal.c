@@ -304,7 +304,7 @@ void
 Perl_croak_xs_usage(const CV *const cv, const char *const params)
 {
     /* Avoid CvGV as it requires aTHX.  */
-    const GV *gv = CvNAMED(cv) ? NULL : cv->sv_any->xcv_gv_u.xcv_gv;
+    const GV *gv = CvNAMED(cv) ? NULL : SvANY(cv)->xcv_gv_u.xcv_gv;
 
     PERL_ARGS_ASSERT_CROAK_XS_USAGE;
 

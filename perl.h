@@ -37,7 +37,6 @@
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || \
      defined(_STDC_C99)
 #  define HAS_C99 1
-#  define HAS_ANONFIELDS
 #endif
 
 /* See L<perlguts/"The Perl API"> for detailed notes on

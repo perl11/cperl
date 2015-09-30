@@ -1242,7 +1242,7 @@ perl_destruct(pTHXx)
 			" refcnt=%"UVuf pTHX__FORMAT "\n"
 			"\tallocated at %s:%d %s %s (parent 0x%"UVxf");"
 			"serial %"UVuf"\n",
-			(void*)sv, (UV)sv->sv_flags, (UV)sv->sv_refcnt
+                        (void*)sv, (UV)SvFLAGS(sv), (UV)SvREFCNT(sv)
 			pTHX__VALUE,
 			sv->sv_debug_file ? sv->sv_debug_file : "(unknown)",
 			sv->sv_debug_line,

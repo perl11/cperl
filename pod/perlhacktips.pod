@@ -1460,6 +1460,44 @@ no extra SV allocations are introduced by enabling the logging.  If
 compiled with C<-DDEBUG_LEAKING_SCALARS>, the serial number for each SV
 allocation is also logged.
 
+=head2 gdb macros
+
+Useful C<.gdbinit> settings and macros are:
+
+    set breakpoint pending on
+    set confirm off
+    set print pretty on
+    set print array off
+    set print array-indexes on
+
+    define odump
+      p *$arg0
+      if my_perl
+        call Perl_op_dump(my_perl, $arg0)
+      else
+        call Perl_op_dump($arg0)
+      end
+    end
+    document odump
+    odump op => p/x *op; Perl_op_dump(op)
+    see `help op_dump` for PL_op
+    end
+
+    define sdump
+      p *$arg0
+      if my_perl
+        call Perl_sv_dump(my_perl, $arg0)
+      else
+        call Perl_sv_dump($arg0)
+      end
+    end
+    document sdump
+    sdump sv => p *sv; Perl_sv_dump(sv)
+    see `help sv_dump`
+    end
+
+Now the abbrevations C<od> and C<sd> can be used, like C<od PL_op> or C<sd sv>.
+
 =head2 DDD over gdb
 
 Those debugging perl with the DDD frontend over gdb may find the
@@ -1467,7 +1505,7 @@ following useful:
 
 You can extend the data conversion shortcuts menu, so for example you
 can display an SV's IV value with one click, without doing any typing.
-To do that simply edit ~/.ddd/init file and add after:
+To do that simply edit F<~/.ddd/init> file and add after:
 
   ! Display shortcuts.
   Ddd*gdbDisplayShortcuts: \
@@ -1481,13 +1519,13 @@ the following two lines:
   ((XPV*) (())->sv_any )->xpv_pv  // 2pvx\n\
   ((XPVIV*) (())->sv_any )->xiv_iv // 2ivx
 
-so now you can do ivx and pvx lookups or you can plug there the sv_peek
+so now you can do C<ivx> and C<pvx> lookups or you can plug there the C<sv_peek>
 "conversion":
 
   Perl_sv_peek(my_perl, (SV*)()) // sv_peek
 
-(The my_perl is for threaded builds.)  Just remember that every line,
-but the last one, should end with \n\
+(The C<my_perl> is for threaded builds.)  Just remember that every line,
+but the last one, should end with C<\n\>
 
 Alternatively edit the init file interactively via: 3rd mouse button ->
 New Display -> Edit Menu
@@ -1503,8 +1541,8 @@ The backtrace returns the stack trace of the C call frames,
 with the symbol names (function names), the object names (like "perl"),
 and if it can, also the source code locations (file:line).
 
-The supported platforms are Linux, and OS X (some *BSD might
-work at least partly, but they have not yet been tested).
+The supported platforms are Linux, and OS X. Some *BSD might
+work at least partly, but they have not yet been tested.
 
 This feature hasn't been tested with multiple threads, but it will
 only show the backtrace of the thread doing the backtracing.
@@ -1577,8 +1615,8 @@ The C API for the backtrace is as follows:
 
 =head2 Poison
 
-If you see in a debugger a memory area mysteriously full of 0xABABABAB
-or 0xEFEFEFEF, you may be seeing the effect of the Poison() macros, see
+If you see in a debugger a memory area mysteriously full of C<0xABABABAB>
+or C<0xEFEFEFEF>, you may be seeing the effect of the C<Poison()> macros, see
 L<perlclib>.
 
 =head2 Read-only optrees

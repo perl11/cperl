@@ -505,8 +505,8 @@ S_visit(pTHX_ SVFUNC_t f, const U32 flags, const U32 mask)
 	SV* sv;
 	for (sv = sva + 1; sv < svend; ++sv) {
 	    if (SvTYPE(sv) != (svtype)SVTYPEMASK
-		    && (sv->sv_flags & mask) == flags
-		    && SvREFCNT(sv))
+                && (SvFLAGS(sv) & mask) == flags
+                && SvREFCNT(sv))
 	    {
 		(*f)(aTHX_ sv);
 		++visited;
@@ -6459,9 +6459,9 @@ Perl_sv_replace(pTHX_ SV *const sv, SV *const nsv)
     sv_clear(sv);
     assert(!SvREFCNT(sv));
 #ifdef DEBUG_LEAKING_SCALARS
-    sv->sv_flags  = nsv->sv_flags;
-    sv->sv_any    = nsv->sv_any;
-    sv->sv_refcnt = nsv->sv_refcnt;
+    SvFLAGS(sv)   = SvFLAGS(nsv);
+    SvANY(sv)     = SvANY(nsv);
+    SvREFCNT(sv)  = SvREFCNT(nsv);
     sv->sv_u      = nsv->sv_u;
 #else
     StructCopy(nsv,sv,SV);
@@ -13624,7 +13624,7 @@ S_sv_dup_common(pTHX_ const SV *const sstr, CLONE_PARAMS *const param)
 	    case SVt_REGEXP:
 	      duprex:
 		/* FIXME for plugins */
-		dstr->sv_u.svu_rx = ((REGEXP *)dstr)->sv_any;
+		dstr->sv_u.svu_rx = SvANY(dstr);
 		re_dup_guts((REGEXP*) sstr, (REGEXP*) dstr, param);
 		break;
 	    case SVt_PVLV:

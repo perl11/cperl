@@ -17246,8 +17246,8 @@ Perl_reg_temp_copy (pTHX_ REGEXP *ret_x, REGEXP *rx)
 	       made both spots point to the same regexp body.) */
 	    REGEXP *temp = (REGEXP *)newSV_type(SVt_REGEXP);
 	    assert(!SvPVX(ret_x));
-	    ret_x->sv_u.svu_rx = temp->sv_any;
-	    temp->sv_any = NULL;
+	    ret_x->sv_u.svu_rx = SvANY(temp);
+	    SvANY(temp) = NULL;
 	    SvFLAGS(temp) = (SvFLAGS(temp) & ~SVTYPEMASK) | SVt_NULL;
 	    SvREFCNT_dec_NN(temp);
 	    /* SvCUR still resides in the xpvlv struct, so the regexp copy-
