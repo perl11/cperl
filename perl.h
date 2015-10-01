@@ -1286,7 +1286,7 @@ EXTERN_C char *crypt(const char *, const char *);
 # define DEFSV GvSVn(PL_defgv)
 # define DEFSV_set(sv) (GvSV(PL_defgv) = (sv))
 # define SAVE_DEFSV SAVESPTR(GvSV(PL_defgv))
-#endif
+#endif /* !PERL_CORE */
 
 #ifndef errno
 	extern int errno;     /* ANSI allows errno to be an lvalue expr.
@@ -1680,13 +1680,13 @@ typedef UVTYPE UV;
 #  else
 #    undef IV_IS_QUAD
 #    undef UV_IS_QUAD
-#if !defined(PERL_CORE) || defined(USING_MSVC6)
+#    if !defined(PERL_CORE) || defined(USING_MSVC6)
 /* We think that removing this decade-old undef this will cause too much
    breakage on CPAN for too little gain. (See RT #119753)
    However, we do need HAS_QUAD in the core for use by the drand48 code,
    but not for Win32 VC6 because it has poor __int64 support. */
-#    undef HAS_QUAD
-#endif
+#      undef HAS_QUAD
+#    endif
 #  endif
 #endif
 
@@ -5415,7 +5415,7 @@ EXT
 struct perl_vars *PL_VarsPtr;
 #      define PL_Vars (*((PL_VarsPtr) \
 		       ? PL_VarsPtr : (PL_VarsPtr = Perl_GetVars(aTHX))))
-#    endif /* PERL_CORE */
+#    endif /* !PERL_CORE */
 #  endif /* PERL_GLOBAL_STRUCT */
 
 /* Done with PERLVAR macros for now ... */
@@ -7011,6 +7011,17 @@ extern void moncontrol(int);
 #    error "Unexpected double format"
 #  endif
 #endif
+
+/* Use SV_HEAD debugging unions to help interactive debuggers */
+/* Allow overrides with -Accflags='-DPERL_SV_DEBUG_FIELDS=0' */
+#if defined(PERL_SV_DEBUG_FIELDS) && !PERL_SV_DEBUG_FIELDS
+#  undef PERL_SV_DEBUG_FIELDS
+#else
+#  ifdef DEBUGGING
+#    define PERL_SV_DEBUG_FIELDS
+#  endif
+#endif
+
 /*
 
    (KEEP THIS LAST IN perl.h!)

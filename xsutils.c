@@ -223,6 +223,7 @@ boot_strict(pTHX_ SV *xsfile)
 static void
 boot_attributes(pTHX_ SV *xsfile)
 {
+    PERL_UNUSED_VAR(xsfile);
     Perl_set_version(aTHX_ STR_WITH_LEN("attributes::VERSION"), STR_WITH_LEN("1.10c"), 1.10);
 
     newXS("attributes::bootstrap",     	   XS_attributes_bootstrap,file);

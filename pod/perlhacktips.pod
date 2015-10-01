@@ -1498,6 +1498,15 @@ Useful C<.gdbinit> settings and macros are:
 
 Now the abbrevations C<od> and C<sd> can be used, like C<od PL_op> or C<sd sv>.
 
+=head2 PERL_SV_DEBUG_FIELDS
+
+With C<-DEBUGGING> several SV_HEAD fields are also available as unions
+of XPV* pointers and bitfields, to easily see the SvANY values and type
+and flags in an interactive debugging session.
+
+Without C<-DEBUGGING> you may enable it with C<-Accflags=-DPERL_SV_DEBUG_FIELDS>
+or you may disable it with C<-Accflags=-DPERL_SV_DEBUG_FIELDS=0>.
+
 =head2 DDD over gdb
 
 Those debugging perl with the DDD frontend over gdb may find the
