@@ -10853,6 +10853,7 @@ Perl_ck_require(pTHX_ OP *o)
 	  if (kid->op_private & OPpCONST_BARE) {
             dVAR;
 	    const char *end;
+            bool disallowed = FALSE;
 
 	    if (was_readonly)
                 SvREADONLY_off(sv);
@@ -10862,17 +10863,10 @@ Perl_ck_require(pTHX_ OP *o)
 	    s = SvPVX(sv);
 	    len = SvCUR(sv);
 	    end = s + len;
-            /* Either treat ::foo::bar as foo::bar, or throw an error */
-            if (len >= 2 && s[0] == ':' && s[1] == ':') {
-#if 1
-                Move(s+2, s, len - 2, char);
-                end -= 2;
-#else
-                Perl_die(aTHX_ "Bareword in require maps to disallowed filename \"%s\"", s);
-#endif
-            }
             if (s == end)
                 DIE(aTHX_ "Bareword in require maps to empty filename");
+            if (len >= 2 && s[0] == ':' && s[1] == ':')
+                disallowed = TRUE;
 
 	    for (; s < end; s++) {
 		if (*s == ':' && s[1] == ':') {
@@ -10883,6 +10877,11 @@ Perl_ck_require(pTHX_ OP *o)
 	    }
 	    SvEND_set(sv, end);
 	    sv_catpvs(sv, ".pm");
+
+            if (disallowed) {
+                Perl_croak(aTHX_ "Bareword in require maps to disallowed filename \"%s\"",
+                           SvPVX(sv));
+            }
 	    PERL_HASH(hash, SvPVX(sv), SvCUR(sv));
 	    hek = share_hek(SvPVX(sv),
 			    (SSize_t)SvCUR(sv) * (SvUTF8(sv) ? -1 : 1),

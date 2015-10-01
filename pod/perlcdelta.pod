@@ -107,6 +107,18 @@ Better DynaLoader support for os2, symbian, Netware.
 
 =over 4
 
+=item * Fix fixes RT#776270 and CVE-2012-3878 module loading security weakness
+
+Treat invalid names to require, such as ::foo as error.
+New errors:
+
+Bareword in require contains "%s", with "\0", "./" or "../" as invalid substrings.
+
+Bareword in require maps to empty filename
+
+Bareword in require maps to disallowed filename "%s", with absolute
+filenames, filenames starting with "." or not ending with ".pm".
+
 =item * uncow on utf8::encode [cperl #50]
 
 =back

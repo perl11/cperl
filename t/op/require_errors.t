@@ -26,10 +26,10 @@ for my $file ($nonfile, ' ') {
 	"correct error message for require '$file'";
 }
 
-for my $file ($nonfile, "::$nonfile") {
+for my $file ("::$nonfile", "::$nonfile\::bar") {
     eval "require $file";
 
-    like $@, qr/^Can't locate $nonfile\.pm in \@INC \(you may need to install the $nonfile module\) \(\@INC contains: @INC\) at/,
+    like $@, qr/^Bareword in require maps to disallowed filename/,
     "correct error message for require $file";
 }
 

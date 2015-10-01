@@ -22,31 +22,33 @@ like($@, qr/less version 1 required--this is only version 0\./,
 is(eval { load_module(PERL_LOADMOD_NOIMPORT, 'less', 0.03); 1}, 1,
    "expect load_module() not to fail");
 
-for (["", qr!\ABareword in require maps to empty filename!],
-     ["::", qr!\ABareword in require maps to empty filename!],
-     ["::::", qr!\ABareword in require maps to disallowed filename "/\.pm"!],
-     ["::/", qr!\ABareword in require maps to disallowed filename "/\.pm"!],
-     ["::/WOOSH", qr!\ABareword in require maps to disallowed filename "/WOOSH\.pm"!],
+for (
+     ["", qr!\ABareword in require maps to empty filename!],
+     ["::", qr!\ABareword in require maps to disallowed filename "/\.pm!],
+     ["::::", qr!\ABareword in require maps to disallowed filename "//\.pm"!],
+     ["::/", qr!\ABareword in require maps to disallowed filename "//\.pm"!],
+     ["::/WOOSH", qr!\ABareword in require maps to disallowed filename "//WOOSH\.pm"!],
      [".WOOSH", qr!\ABareword in require maps to disallowed filename "\.WOOSH\.pm"!],
-     ["::.WOOSH", qr!\ABareword in require maps to disallowed filename "\.WOOSH\.pm"!],
+     ["::.WOOSH", qr!\ABareword in require maps to disallowed filename "/\.WOOSH\.pm"!],
      ["WOOSH::.sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH::.sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH/.sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH/..sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH/../sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH::..::sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH::.::sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH::./sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH/./sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH/.::sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH/..::sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH::../sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH::../..::sock", qr!\ABareword in require contains "/\."!],
-     ["::WOOSH\0sock", qr!\ABareword in require contains "\\0"!],
+     ["::WOOSH::.sock", qr!\ABareword in require maps to disallowed filename "/WOOSH/\.sock\.pm"!],
+     ["::WOOSH/.sock", qr!\ABareword in require maps to disallowed filename "/WOOSH/\.sock\.pm"!],
+     ["WOOSH/..sock", qr!\ABareword in require contains "/\."!],
+     ["WOOSH/../sock", qr!\ABareword in require contains "/\."!],
+     ["WOOSH::..::sock", qr!\ABareword in require contains "/\."!],
+     ["WOOSH::.::sock", qr!\ABareword in require contains "/\."!],
+     ["WOOSH::./sock", qr!\ABareword in require contains "/\."!],
+     ["WOOSH/./sock", qr!\ABareword in require contains "/\."!],
+     ["WOOSH/.::sock", qr!\ABareword in require contains "/\."!],
+     ["WOOSH/..::sock", qr!\ABareword in require contains "/\."!],
+     ["WOOSH::../sock", qr!\ABareword in require contains "/\."!],
+     ["WOOSH::../..::sock", qr!\ABareword in require contains "/\."!],
+     ["WOOSH\0sock", qr!Can't locate WOOSH\\0sock.pm:!],
     ) {
     my ($module, $error) = @$_;
     my $module2 = $module; # load_module mangles its first argument
-    is(eval { load_module(PERL_LOADMOD_NOIMPORT, $module); 1}, undef,
+    no warnings "syscalls";
+    is (eval { load_module(PERL_LOADMOD_NOIMPORT, $module); 1}, undef,
        "expect load_module() for '$module2' to fail");
     like($@, $error);
 }
