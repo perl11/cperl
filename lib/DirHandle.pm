@@ -70,8 +70,7 @@ sub open {
 
 sub close {
     @_ == 1 or croak 'usage: $dh->close()';
-    my ($dh) = @_;
-    closedir($dh);
+    closedir $_[0];
 }
 
 sub read {

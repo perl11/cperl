@@ -59,6 +59,7 @@ static HV*  S_guess_stash(pTHX_ SV*);
 static void S_attributes__push_fetch(pTHX_ SV *sv);
 #define _guess_stash(sv) S_guess_stash(aTHX_ sv)
 #define _attributes__push_fetch(sv) S_attributes__push_fetch(aTHX_ sv)
+static void boot_coretypes(pTHX_ SV *xsfile);
 
 /*
  * Note that only ${pkg}::bootstrap definitions should go here.
@@ -135,27 +136,34 @@ Perl_set_version(pTHX_ const char *name, STRLEN nlen, const char *strval, STRLEN
  * but the inferencer, yes.
  */
 
-static void boot_core_cperl(pTHX) {
+static void boot_core_cperl(pTHX_ SV *xsfile) {
+#if 0
     /* enable some features
-       use feature "signatures";
-       i.e. $^H{$feature{signatures}} = 1; */
-    const char const *he_names[] =
-        { "feature_signatures", "feature_lexsubs", "experimental::const_attr", NULL };
+       use feature "lexical_subs";
+       i.e. $^H{$feature{lexsubs}} = 1; */
+    const char const *he_names[] = {
+            /* "feature_signatures", */
+            "feature_lexsubs",
+            "experimental::const_attr",
+            NULL };
+    char** he = (char**)he_names;
     SV* on = newSViv(1);
 
     /* This broke CM-364 by nasty side-effect. HINT_LOCALIZE_HH was added to fix
        strtable global destruction issues with wrong refcounts.
-       So we get now only signatures and lexsubs for free.
-    PL_hints |= HINT_LOCALIZE_HH | (FEATURE_BUNDLE_515 << HINT_FEATURE_SHIFT);
-    */
-    char** he = (char**)he_names;
+       So we get now only signatures and lexsubs for free. */
+    /* compile-time hints: */
+    PL_hints |= (HINT_LOCALIZE_HH | (FEATURE_BUNDLE_521 << HINT_FEATURE_SHIFT));
     while (*he) {
         CopHINTHASH_set(&PL_compiling,
             cophh_store_pvn(CopHINTHASH_get(&PL_compiling),
                             *he, sizeof(*he)-1, 0, on, 0));
-        he++;
         SvREFCNT(on)++;
+        he++;
     }
+#endif
+    PERL_UNUSED_VAR(xsfile);
+    boot_coretypes(aTHX_ xsfile);
 }
 
 #define DEF_CORETYPE(s) \
@@ -292,8 +300,7 @@ Perl_boot_core_xsutils(pTHX)
 #endif
 
 #ifdef USE_CPERL
-    boot_coretypes(aTHX_ xsfile);
-    boot_core_cperl(aTHX);
+    boot_core_cperl(aTHX_ xsfile);
 #endif
 }
 

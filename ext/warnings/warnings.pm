@@ -12,7 +12,7 @@ unless ( __FILE__ =~ /(^|[\/\\])\Q${\__PACKAGE__}\E\.pmc?$/ ) {
 if (defined &XSLoader::load) {
   XSLoader::load(__PACKAGE__, $VERSION);
 } else { # for bootstrapping with miniperl
-  eval 'sub register_categories {} sub warnif {}';
+  eval 'sub register_categories {} sub _chk {0}';
 }
 
 sub Croaker {

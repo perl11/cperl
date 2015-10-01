@@ -24251,7 +24251,7 @@ xs_extensions=''
 : some additional extensions into the source tree and expect them
 : to be built.
 
-: Function to recursively find available extensions, ignoring DynaLoader and warnings
+: Function to recursively find available extensions, ignoring DynaLoader
 : NOTE: recursion limit of 10 to prevent runaway in case of symlink madness
 : In 5.10.1 and later, extensions are stored in directories
 : like File-Glob instead of the older File/Glob/.
@@ -24259,7 +24259,6 @@ find_extensions='
     for xxx in *; do
 	case "$xxx" in
 	    DynaLoader|dynaload) ;;
-	    warnings) ;;
 	    *)
 	    this_ext=`echo "$xxx" | $sed -e s/-/\\\//g`;
 	    case "$this_ext" in
@@ -24290,6 +24289,8 @@ find_extensions='
 		xs_extensions="$xs_extensions $this_ext";
 	    elif $contains "\.c$"  "$tdir/$$.tmp" > /dev/null 2>&1; then
 		xs_extensions="$xs_extensions $this_ext";
+	    elif $contains "_xs\.PL$"  "$tdir/$$.tmp" > /dev/null 2>&1; then
+		xs_extensions="$this_ext $xs_extensions";
 	    elif $test -d "$xxx"; then
 		nonxs_extensions="$nonxs_extensions $this_ext";
 	    fi;
