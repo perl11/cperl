@@ -189,7 +189,7 @@ typedef struct hek HEK;
 /* Using C's structural equivalence to help emulate C++ inheritance here... */
 
 /* start with 2 sv-head building blocks */
-#if defined(DEBUGGING) && !defined(PERL_EXT_RE_DEBUG)
+#ifndef PERL_EXT_RE_DEBUG
 # define _SV_ANY_PTR(ptrtype)                           \
     union {                                             \
 	ptrtype	sv_any;		/* pointer to body */	\
@@ -255,7 +255,7 @@ typedef struct hek HEK;
 #define _SV_HEAD(ptrtype) \
     _SV_ANY_PTR(ptrtype);		/* pointer to body */     \
     _SV_REFCNT_FIELD;			/* how many references */ \
-    _SV_FLAGS_FIELD;
+    _SV_FLAGS_FIELD
 
 #if NVSIZE <= IVSIZE
 #  define _NV_BODYLESS_UNION NV svu_nv;
@@ -388,7 +388,7 @@ perform the upgrade if necessary.  See C<svtype>.
 =cut
 */
 
-#if defined(DEBUGGING) && !defined(PERL_EXT_RE_DEBUG)
+#ifndef PERL_EXT_RE_DEBUG
 #define SvANY(sv)	((sv)->sva_u.sv_any)
 #define SvFLAGS(sv)	((sv)->svf_u.sv_flags)
 #define SvREFCNT(sv)	(sv)->sv_refcnt
