@@ -255,7 +255,7 @@ typedef struct hek HEK;
 #define _SV_HEAD(ptrtype) \
     _SV_ANY_PTR(ptrtype);		/* pointer to body */     \
     _SV_REFCNT_FIELD;			/* how many references */ \
-    _SV_FLAGS_FIELD;
+    _SV_FLAGS_FIELD
 
 #if NVSIZE <= IVSIZE
 #  define _NV_BODYLESS_UNION NV svu_nv;
