@@ -43,7 +43,7 @@ for (
      ["WOOSH/..::sock", qr!\ABareword in require contains "/\."!],
      ["WOOSH::../sock", qr!\ABareword in require contains "/\."!],
      ["WOOSH::../..::sock", qr!\ABareword in require contains "/\."!],
-     ["WOOSH\0sock", qr!Can't locate WOOSH\\0sock.pm:!],
+     ["WOOSH\0sock", qr!\ABareword in require contains "\\0"!],
     ) {
     my ($module, $error) = @$_;
     my $module2 = $module; # load_module mangles its first argument

@@ -10865,6 +10865,9 @@ Perl_ck_require(pTHX_ OP *o)
 	    end = s + len;
             if (s == end)
                 DIE(aTHX_ "Bareword in require maps to empty filename");
+            if (len >= 1 && memchr(s, 0, len-1))
+                /* diag_listed_as: Bareword in require contains "%s" */
+                DIE(aTHX_ "Bareword in require contains \"\\0\"");
             if (len >= 2 && s[0] == ':' && s[1] == ':')
                 disallowed = TRUE;
 

@@ -3753,9 +3753,13 @@ PP(pp_require)
                 /* Disallow *purported* barewords that map to absolute
                    filenames, filenames relative to the current or parent
                    directory, or (*nix) hidden filenames.  Also sanity check
-                   that the generated filename ends .pm  */
+                   that the generated filename ends with .pm or .pmc  */
                 if (!path_searchable || len < 3 || name[0] == '.'
-                    || !memEQ(name + package_len, ".pm", 3))
+                    || !(memEQ(name + package_len, ".pm", 3)
+#ifndef PERL_DISABLE_PMC
+                         || memEQ(name + package_len, ".pmc", 4)
+#endif
+                         ))
                     DIE(aTHX_ "Bareword in require maps to disallowed filename \"%"SVf"\"", sv);
                 if (memchr(name, 0, package_len)) {
                     /* diag_listed_as: Bareword in require contains "%s" */
