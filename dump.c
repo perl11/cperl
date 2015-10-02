@@ -1664,10 +1664,19 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
     }
 
     if (type >= SVt_PVMG) {
+        HV* stash = SvSTASH(sv);
+
 	if (SvMAGIC(sv))
 		do_magic_dump(level, file, SvMAGIC(sv), nest+1, maxnest, dumpops, pvlim);
-	if (SvSTASH(sv))
-	    do_hv_dump(level, file, "  STASH", SvSTASH(sv));
+	if (stash) {
+            if (SvOBJECT(sv))
+                do_hv_dump(level, file, "  STASH", stash);
+            else if (stash == ((HV *)0)+1)
+                Perl_dump_indent(aTHX_ level, file, "  DESTROY (empty)\n");
+            else
+                Perl_dump_indent(aTHX_ level, file, "  DESTROY = 0x%"UVxf"\n",
+                                 PTR2UV(stash));
+        }
 
 	if ((type == SVt_PVMG || type == SVt_PVLV) && SvVALID(sv)) {
 	    Perl_dump_indent(aTHX_ level, file, "  USEFUL = %"IVdf"\n", (IV)BmUSEFUL(sv));
