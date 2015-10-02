@@ -1544,6 +1544,12 @@ Perl_dounwind(pTHX_ I32 cxix)
 	case CXt_LOOP_PLAIN:
 	    POPLOOP(cx);
 	    break;
+	case CXt_WHEN:
+	    POPWHEN(cx);
+	    break;
+	case CXt_GIVEN:
+	    POPGIVEN(cx);
+	    break;
 	case CXt_NULL:
 	    break;
 	case CXt_FORMAT:
@@ -4467,6 +4473,8 @@ PP(pp_entergiven)
     dSP;
     PERL_CONTEXT *cx;
     const I32 gimme = GIMME_V;
+    SV *origsv = DEFSV;
+    SV *newsv = POPs;
     
     ENTER_with_name("given");
     SAVETMPS;
@@ -4474,15 +4482,15 @@ PP(pp_entergiven)
     if (PL_op->op_targ) {
 	SAVEPADSVANDMORTALIZE(PL_op->op_targ);
 	SvREFCNT_dec(PAD_SVl(PL_op->op_targ));
-	PAD_SVl(PL_op->op_targ) = SvREFCNT_inc_NN(POPs);
+        origsv = newsv;
+	PAD_SVl(PL_op->op_targ) = SvREFCNT_inc_NN(newsv);
     }
     else {
-	SAVE_DEFSV;
-	DEFSV_set(POPs);
+	GvSV(PL_defgv) = SvREFCNT_inc(newsv);
     }
 
     PUSHBLOCK(cx, CXt_GIVEN, SP);
-    PUSHGIVEN(cx);
+    PUSHGIVEN(cx, origsv);
 
     RETURN;
 }
@@ -4497,6 +4505,7 @@ PP(pp_leavegiven)
     PERL_UNUSED_CONTEXT;
 
     POPBLOCK(cx,newpm);
+    POPGIVEN(cx);
     assert(CxTYPE(cx) == CXt_GIVEN);
 
     SP = (gimme == G_VOID)
@@ -5084,6 +5093,7 @@ PP(pp_leavewhen)
 
     POPBLOCK(cx,newpm);
     assert(CxTYPE(cx) == CXt_WHEN);
+    POPWHEN(cx);
 
     SP = (gimme == G_VOID)
         ? newsp
