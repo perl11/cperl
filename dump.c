@@ -1265,7 +1265,7 @@ Perl_do_hv_dump(pTHX_ I32 level, PerlIO *file, const char *name, HV *sv)
     PERL_ARGS_ASSERT_DO_HV_DUMP;
 
     Perl_dump_indent(aTHX_ level, file, "%s = 0x%"UVxf, name, PTR2UV(sv));
-    if (sv && (hvname = HvNAME_get(sv)))
+    if (sv && sv>0x100 && (hvname = HvNAME_get(sv)))
     {
 	/* we have to use pv_display and HvNAMELEN_get() so that we display the real package
            name which quite legally could contain insane things like tabs, newlines, nulls or
