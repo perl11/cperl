@@ -1552,4 +1552,13 @@ $dump = _dump(\%version::);
 ok( $dump =~ /\(OOK,SHAREKEYS,OVERLOAD\)\n\s+AUX_FLAGS = 0/ms,
     'No %version:: SEGV') or diag $dump;
 
+# We cannot access sv_dump via do_dump_pad, only Internals::DumpArenas does
+#like(
+#    _dump(\&eq_hash),
+#    qr/"\@Data_Stack"/, # crashes with FAKE,SCREAM,POK,VALID,OUR FLAGS=0x4104c407
+#    # broken with threaded, DEBUGGING builds
+#    "survives SvTAIL without crashing [cperl #59]"
+#);
+#diag _dump(\&eq_hash),
+
 done_testing();

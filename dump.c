@@ -1287,7 +1287,7 @@ Perl_do_gv_dump(pTHX_ I32 level, PerlIO *file, const char *name, GV *sv)
     if (sv && GvNAME(sv)) {
         SV * const tmpsv = newSVpvs("");
         PerlIO_printf(file, "\t\"%s\"\n",
-                              generic_pv_escape( tmpsv, GvNAME(sv), GvNAMELEN(sv), GvNAMEUTF8(sv) ));
+            generic_pv_escape( tmpsv, GvNAME(sv), GvNAMELEN(sv), GvNAMEUTF8(sv) ));
     }
     else
 	PerlIO_putc(file, '\n');
@@ -1304,14 +1304,14 @@ Perl_do_gvgv_dump(pTHX_ I32 level, PerlIO *file, const char *name, GV *sv)
 	const char *hvname;
         HV * const stash = GvSTASH(sv);
 	PerlIO_printf(file, "\t");
-   /* TODO might have an extra \" here */
+        /* TODO might have an extra \" here */
 	if (stash && (hvname = HvNAME_get(stash))) {
             PerlIO_printf(file, "\"%s\" :: \"",
-                                  generic_pv_escape(tmp, hvname,
-                                      HvNAMELEN(stash), HvNAMEUTF8(stash)));
+              generic_pv_escape(tmp, hvname,
+                                HvNAMELEN(stash), HvNAMEUTF8(stash)));
         }
         PerlIO_printf(file, "%s\"\n",
-                              generic_pv_escape( tmp, GvNAME(sv), GvNAMELEN(sv), GvNAMEUTF8(sv)));
+          generic_pv_escape( tmp, GvNAME(sv), GvNAMELEN(sv), GvNAMEUTF8(sv)));
     }
     else
 	PerlIO_putc(file, '\n');
@@ -1456,13 +1456,13 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
     /* process general SV flags */
 
     d = Perl_newSVpvf(aTHX_
-		   "(0x%"UVxf") at 0x%"UVxf"\n%*s  REFCNT = %"IVdf"\n%*s  FLAGS = 0x%"UVxf" (",
-		   PTR2UV(SvANY(sv)), PTR2UV(sv),
-		   (int)(PL_dumpindent*level), "", (IV)SvREFCNT(sv),
+                   "(0x%"UVxf") at 0x%"UVxf"\n%*s  REFCNT = %"IVdf"\n%*s  FLAGS = 0x%"UVxf" (",
+                      PTR2UV(SvANY(sv)), PTR2UV(sv),
+                      (int)(PL_dumpindent*level), "", (IV)SvREFCNT(sv),
                       (int)(PL_dumpindent*level), "", (UV)flags);
 
     if ((flags & SVs_PADSTALE))
-	    sv_catpv(d, "PADSTALE,");
+        sv_catpv(d, "PADSTALE,");
     if ((flags & SVs_PADTMP))
 	    sv_catpv(d, "PADTMP,");
     append_flags(d, flags, first_sv_flags_names);
@@ -1512,8 +1512,10 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	if (SvIsUV(sv) && !(flags & SVf_ROK))	sv_catpv(d, "IsUV,");
 	break;
     case SVt_PVMG:
-	if (SvTAIL(sv))		sv_catpv(d, "TAIL,");
-	if (SvVALID(sv))	sv_catpv(d, "VALID,");
+        if (!SvSCREAM(sv)) {
+            if (SvTAIL(sv))	sv_catpv(d, "TAIL,");
+	    if (SvVALID(sv))	sv_catpv(d, "VALID,");
+        }
 	/* FALLTHROUGH */
 	goto evaled_or_uv;
     case SVt_PVAV:
