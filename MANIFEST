@@ -3582,6 +3582,7 @@ ext/B/t/walkoptree.t	See if B::walkoptree (and friends) work
 ext/B/t/xref.t		See if B::Xref works
 ext/B/typemap			Compiler backend interface types
 ext/Config/Config.pm		XS Config loader variant
+ext/Config/Config.t		Test Config
 ext/Config/Config_xs.in		gperf template for Config.xs
 ext/Config/Config_xs.out	gperf expanded Config.xs template with empty values
 ext/Config/Config_xs.PL		Update Config.xs and Config_xs.in
@@ -4149,7 +4150,6 @@ lib/Class/Struct.pm		Declare struct-like datatypes as Perl classes
 lib/Class/Struct.t		See if Class::Struct works
 lib/Config/Extensions.pm	Convenient hash lookup for built extensions
 lib/Config/Extensions.t		See if Config::Extensions works
-lib/Config.t			Test Config
 lib/CORE.pod			document the CORE namespace
 lib/cperl.pm			Pragma to protect from incompatible cperl syntax
 lib/DBM_Filter/compress.pm	DBM Filter to compress keys/values

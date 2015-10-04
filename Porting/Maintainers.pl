@@ -225,7 +225,7 @@ use File::Glob qw(:case);
         # maintained by cPanel, with cperl only
 
         'FILES'      => q[
-                 ext/Config/Config.pm
+                 ext/Config/Config.{pm,t}
                  ext/Config/Config_xs.{in,out,PL}
                  ext/Config/Dummy.c
                  ext/Config/Makefile.PL
@@ -1443,7 +1443,6 @@ use File::Glob qw(:case);
                 lib/B/Op_private.pm
                 lib/CORE.pod
                 lib/Class/Struct.{pm,t}
-                lib/Config.t
                 lib/Config/Extensions.{pm,t}
                 lib/DB.{pm,t}
                 lib/DBM_Filter.pm

@@ -285,4 +285,18 @@ foreach my $lib (qw(applibexp archlibexp privlibexp sitearchexp sitelibexp
       or $failed++;
   }
 }
+
+{   # check wrong length with quoted " [cperl #61]
+    for my $k (keys %Config) {
+        my $v = $Config{$k};
+        if (defined $v and length $v
+            and $v =~ /^".*?"(.*)/
+            and $k ne 'sig_name_init')
+        {
+            ok !length $1, "$k => $v";
+        }
+    }
+}
+
+
 _diag ('@INC is:', @orig_inc) if $failed;
