@@ -200,7 +200,9 @@ while (<$in>) {
     if (/0,"@@(\w+)@@"/) {
         my $k = $1;
         my $v = $h{$k};
-        my $l = length $v;
+        my $qv = $v; # calculate the correct C-style length [cperl #61]
+        $qv =~ s/\\//g;
+        my $l = length $qv;
         $l = 0 unless $l;
         my $qr = "0,\"@@".$k."@@\"";
         $v =~ s/\\([^"])/\\\\$1/g;
