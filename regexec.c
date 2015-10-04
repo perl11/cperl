@@ -6551,7 +6551,9 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 	    break;
 
         case ACCEPT:  /*  (*ACCEPT)  */
-            if (ARG(scan)){
+            if (scan->flags)
+                sv_yes_mark = MUTABLE_SV(rexi->data->data[ ARG( scan ) ]);
+            if (ARG2L(scan)){
                 regnode *cursor;
                 for (cursor=scan;
                      cursor && OP(cursor)!=END; 
@@ -7023,8 +7025,9 @@ NULL
 	    NOT_REACHED; /* NOTREACHED */
 
         case CUTGROUP:  /*  /(*THEN)/  */
-            sv_yes_mark = st->u.mark.mark_name = scan->flags ? NULL :
-                MUTABLE_SV(rexi->data->data[ ARG( scan ) ]);
+            sv_yes_mark = st->u.mark.mark_name = scan->flags
+                ? MUTABLE_SV(rexi->data->data[ ARG( scan ) ])
+                : NULL;
             PUSH_STATE_GOTO(CUTGROUP_next, next, locinput);
             /* NOTREACHED */
             NOT_REACHED; /* NOTREACHED */
@@ -7721,7 +7724,7 @@ NULL
 	    /* FALLTHROUGH */
 
 	case PRUNE:   /*  (*PRUNE)   */
-	    if (!scan->flags)
+            if (scan->flags)
 	        sv_yes_mark = sv_commit = MUTABLE_SV(rexi->data->data[ ARG( scan ) ]);
 	    PUSH_STATE_GOTO(COMMIT_next, next, locinput);
             /* NOTREACHED */
@@ -7730,8 +7733,12 @@ NULL
 	case COMMIT_next_fail:
 	    no_final = 1;    
 	    /* FALLTHROUGH */	    
+            sayNO;
+            NOT_REACHED; /* NOTREACHED */
 
 	case OPFAIL:   /* (*FAIL)  */
+            if (scan->flags)
+                sv_commit = MUTABLE_SV(rexi->data->data[ ARG( scan ) ]);
             if (logical) {
                 /* deal with (?(?!)X|Y) properly,
                  * make sure we trigger the no branch
@@ -7784,7 +7791,7 @@ NULL
             NOT_REACHED; /* NOTREACHED */
 
         case SKIP:  /*  (*SKIP)  */
-            if (scan->flags) {
+            if (!scan->flags) {
                 /* (*SKIP) : if we fail we cut here*/
                 ST.mark_name = NULL;
                 ST.mark_loc = locinput;
