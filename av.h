@@ -78,6 +78,8 @@ Same as C<av_top_index()>.
 #define AvSHAPED(av)	(SvFLAGS(av) & SVpav_SHAPED)
 #define AvSHAPED_on(av)	(SvFLAGS(av) |= SVpav_SHAPED)
 
+#define AvSTATIC(av)	(!AvREAL(av) & !AvREIFY(av))
+
 #define AvREALISH(av)	(SvFLAGS(av) & (SVpav_REAL|SVpav_REIFY))
                                           
 #define AvFILL(av)	((SvRMAGICAL((const SV *) (av))) \

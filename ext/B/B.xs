@@ -2070,6 +2070,10 @@ SSize_t
 AvFILL(av)
 	B::AV	av
 
+IV
+AvSTATIC(av)
+	B::AV	av
+
 void
 AvARRAY(av)
 	B::AV	av

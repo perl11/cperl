@@ -23,6 +23,22 @@
 #define PERL_IN_AV_C
 #include "perl.h"
 
+/*
+=for apidoc av_reify
+
+The elements of the @_ argarray, marked as !AvREAL && AvREIFY, become
+real refcounted SVs.
+
+Bumps the refcount for every non-empty value, and clears all the
+invalid values.
+
+Sets AvREIFY_off and AvREAL_on.
+
+AvREAL arrays handle refcounts of the elements, !AvREAL arrays ignore them.
+
+=cut
+*/
+
 void
 Perl_av_reify(pTHX_ AV *av)
 {
@@ -153,7 +169,8 @@ Perl_av_extend_guts(pTHX_ AV *av, SSize_t key, SSize_t *maxp, SV ***allocp,
 		    SV ** const old_alloc = *allocp;
 		    Newx(*allocp, newmax+1, SV*);
 		    Copy(old_alloc, *allocp, *maxp + 1, SV*);
-		    Safefree(old_alloc);
+                    if (!AvSTATIC(av))
+                        Safefree(old_alloc);
 		}
 #else
 		Renew(*allocp,newmax+1, SV*);
@@ -607,7 +624,8 @@ Perl_av_undef(pTHX_ AV *av)
 	    SvREFCNT_dec(AvARRAY(av)[--key]);
     }
 
-    Safefree(AvALLOC(av));
+    if (!AvSTATIC(av))
+        Safefree(AvALLOC(av));
     AvALLOC(av) = NULL;
     AvARRAY(av) = NULL;
     AvMAX(av) = AvFILLp(av) = -1;

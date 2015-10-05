@@ -525,7 +525,7 @@ perform the upgrade if necessary.  See C<svtype>.
    0x00008800   RV with PCS imported
 */
 /* PVAV */
-#define SVpav_REAL	0x40000000  /* free old entries */
+#define SVpav_REAL	0x40000000  /* free old entries. handle refcounts of array elements */
 /* PVHV */
 #define SVphv_LAZYDEL	0x40000000  /* entry in xhv_eiter must be deleted */
 /* This is only set true on a PVGV when it's playing "PVBM", but is tested for
@@ -537,7 +537,7 @@ perform the upgrade if necessary.  See C<svtype>.
 /* IV, PVIV, PVNV, PVMG, PVGV and (I assume) PVLV  */
 #define SVf_IVisUV	0x80000000  /* use XPVUV instead of XPVIV */
 /* PVAV */
-#define SVpav_REIFY 	0x80000000  /* can become real */
+#define SVpav_REIFY 	0x80000000  /* elements can become real ($_[] => SV) */
 /* PVHV */
 #define SVphv_HASKFLAGS	0x80000000  /* keys have flag byte after hash */
 /* PVGV when SVpbm_VALID is true */
