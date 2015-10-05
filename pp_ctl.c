@@ -1468,8 +1468,10 @@ S_dopoptoloop(pTHX_ I32 startingblock)
     return i;
 }
 
+/* find the next GIVEN or FOR loop context block */
+
 STATIC I32
-S_dopoptogiven(pTHX_ I32 startingblock)
+S_dopoptogivenfor(pTHX_ I32 startingblock)
 {
     I32 i;
     for (i = startingblock; i >= 0; i--) {
@@ -1478,7 +1480,7 @@ S_dopoptogiven(pTHX_ I32 startingblock)
 	default:
 	    continue;
 	case CXt_GIVEN:
-	    DEBUG_l( Perl_deb(aTHX_ "(dopoptogiven(): found given at cx=%ld)\n", (long)i));
+	    DEBUG_l( Perl_deb(aTHX_ "(dopoptogivenfor(): found given at cx=%ld)\n", (long)i));
 	    return i;
 	case CXt_LOOP_PLAIN:
 	    assert(!CxFOREACHDEF(cx));
@@ -1487,7 +1489,7 @@ S_dopoptogiven(pTHX_ I32 startingblock)
 	case CXt_LOOP_LAZYSV:
 	case CXt_LOOP_FOR:
 	    if (CxFOREACHDEF(cx)) {
-		DEBUG_l( Perl_deb(aTHX_ "(dopoptogiven(): found foreach at cx=%ld)\n", (long)i));
+		DEBUG_l( Perl_deb(aTHX_ "(dopoptogivenfor(): found foreach at cx=%ld)\n", (long)i));
 		return i;
 	    }
 	}
@@ -5064,7 +5066,7 @@ PP(pp_leavewhen)
     SV **newsp;
     PMOP *newpm;
 
-    cxix = dopoptogiven(cxstack_ix);
+    cxix = dopoptogivenfor(cxstack_ix);
     if (cxix < 0)
 	/* diag_listed_as: Can't "when" outside a topicalizer */
 	DIE(aTHX_ "Can't \"%s\" outside a topicalizer",
@@ -5136,7 +5138,7 @@ PP(pp_break)
     I32 cxix;
     PERL_CONTEXT *cx;
 
-    cxix = dopoptogiven(cxstack_ix); 
+    cxix = dopoptogivenfor(cxstack_ix);
     if (cxix < 0)
 	DIE(aTHX_ "Can't \"break\" outside a given block");
 
