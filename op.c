@@ -2855,6 +2855,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 		OP *kid = cUNOPo->op_first;
 		CV *cv;
 		GV *gv;
+                SV *namesv;
 
 		if (kid->op_type != OP_PUSHMARK) {
 		    if (kid->op_type != OP_NULL || kid->op_targ != OP_LIST)
@@ -2892,6 +2893,15 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 		    break;
 		if (CvLVALUE(cv))
 		    break;
+                if (flags & OP_LVALUE_NO_CROAK)
+                    return NULL;
+
+                namesv = cv_name(cv, NULL, 0);
+                yyerror_pv(Perl_form(aTHX_ "Can't modify non-lvalue "
+                                     "subroutine call of &%"SVf" in %s",
+                                     SVfARG(namesv), PL_op_desc[type]),
+                           SvUTF8(namesv));
+                return o;
 	    }
 	}
 	/* FALLTHROUGH */
