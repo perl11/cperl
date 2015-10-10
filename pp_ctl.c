@@ -1675,7 +1675,7 @@ Perl_die_unwind(pTHX_ SV *msv)
 	    }
 
 	    POPBLOCK(cx,PL_curpm);
-            LEAVE_SCOPE(cx->cx_u.cx_blk.blku_old_savestack_ix);
+            CX_LEAVE_SCOPE(cx);
 	    POPEVAL(cx);
 	    namesv = cx->blk_eval.old_namesv;
 #ifdef DEBUGGING
@@ -2631,7 +2631,7 @@ PP(pp_redo)
     }
 
     TOPBLOCK(cx);
-    LEAVE_SCOPE(cx->cx_u.cx_blk.blku_old_savestack_ix);
+    CX_LEAVE_SCOPE(cx);
     FREETMPS;
     PL_curcop = cx->blk_oldcop;
     PERL_ASYNC_CHECK();
@@ -2786,7 +2786,7 @@ PP(pp_goto)
                 SvREFCNT_inc_NN(sv_2mortal(MUTABLE_SV(arg)));
 
 	    assert(PL_scopestack_ix == cx->blk_oldscopesp);
-            LEAVE_SCOPE(cx->cx_u.cx_blk.blku_old_savestack_ix);
+            CX_LEAVE_SCOPE(cx);
 
 	    if (CxTYPE(cx) == CXt_SUB && CxHASARGS(cx)) {
 		AV* av = MUTABLE_AV(PAD_SVl(0));
@@ -3460,7 +3460,7 @@ S_doeval(pTHX_ int gimme, CV* outside, U32 seq, HV *hh)
 	    }
 	    SP = PL_stack_base + POPMARK;	/* pop original mark */
 	    POPBLOCK(cx,PL_curpm);
-            LEAVE_SCOPE(cx->cx_u.cx_blk.blku_old_savestack_ix);
+            CX_LEAVE_SCOPE(cx);
 	    POPEVAL(cx);
 	    namesv = cx->blk_eval.old_namesv;
 	    /* POPBLOCK has rendered LEAVE_with_name("evalcomp") unnecessary */
@@ -4341,7 +4341,7 @@ PP(pp_leaveeval)
     if (gimme != G_VOID)
         SP = leave_common(newsp, SP, newsp, gimme, SVs_TEMP, FALSE);
     POPBLOCK(cx,newpm);
-    LEAVE_SCOPE(cx->cx_u.cx_blk.blku_old_savestack_ix);
+    CX_LEAVE_SCOPE(cx);
     POPEVAL(cx);
     namesv = cx->blk_eval.old_namesv;
     retop = cx->blk_eval.retop;
@@ -4386,7 +4386,7 @@ Perl_delete_eval_scope(pTHX)
     I32 optype;
 	
     POPBLOCK(cx,newpm);
-    LEAVE_SCOPE(cx->cx_u.cx_blk.blku_old_savestack_ix);
+    CX_LEAVE_SCOPE(cx);
     POPEVAL(cx);
     PL_curpm = newpm;
     PL_tmps_floor = cx->cx_u.cx_blk.blku_old_tmpsfloor;
@@ -4446,7 +4446,7 @@ PP(pp_leavetry)
 			       SVs_PADTMP|SVs_TEMP, FALSE);
     POPBLOCK(cx,newpm);
     retop = cx->blk_eval.retop;
-    LEAVE_SCOPE(cx->cx_u.cx_blk.blku_old_savestack_ix);
+    CX_LEAVE_SCOPE(cx);
     POPEVAL(cx);
     PERL_UNUSED_VAR(optype);
 
