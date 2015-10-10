@@ -3394,7 +3394,6 @@ PP(pp_leavesub)
     PMOP *newpm;
     I32 gimme;
     PERL_CONTEXT *cx;
-    SV *sv;
 
     cx = &cxstack[cxstack_ix];
     assert(CxTYPE(cx) == CXt_SUB);
@@ -3428,7 +3427,7 @@ PP(pp_leavesub)
 		    sv_2mortal(*MARK);
 		}
 		else {
-		    sv = SvREFCNT_inc(TOPs);	/* FREETMPS could clobber it */
+                    SV *sv = SvREFCNT_inc(TOPs); /* FREETMPS could clobber it */
 		    FREETMPS;
 		    *MARK = sv_mortalcopy(sv);
 		    SvREFCNT_dec_NN(sv);
@@ -3460,8 +3459,7 @@ PP(pp_leavesub)
 
     POPBLOCK(cx,newpm);
     cxstack_ix++; /* temporarily protect top context */
-    POPSUB(cx,sv);	/* Stack values are safe: release CV and @_ ... */
-    LEAVESUB(sv);
+    POPSUB(cx);	/* Stack values are safe: release CV and @_ ... */
     cxstack_ix--;
     PL_curpm = newpm;	/* ... and pop $1 et al */
 
