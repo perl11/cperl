@@ -1438,8 +1438,6 @@ PP(pp_leavewrite)
     IO * const io = GvIOp(gv);
     PerlIO *ofp;
     PerlIO *fp;
-    SV **newsp;
-    I32 gimme;
     PERL_CONTEXT *cx;
     OP *retop;
     bool is_return = cBOOL(PL_op->op_type == OP_RETURN);
@@ -1519,7 +1517,7 @@ PP(pp_leavewrite)
     POPBLOCK(cx,PL_curpm);
     retop = cx->blk_sub.retop;
     POPFORMAT(cx);
-    SP = newsp; /* ignore retval of formline */
+    SP = PL_stack_base + cx->blk_oldsp; /* ignore retval of formline */
 
     if (is_return)
         /* XXX the semantics of doing 'return' in a format aren't documented.
@@ -1550,7 +1548,6 @@ PP(pp_leavewrite)
 	}
     }
     PL_formtarget = PL_bodytarget;
-    PERL_UNUSED_VAR(gimme);
     RETURNOP(retop);
 }
 
