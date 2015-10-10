@@ -33,9 +33,16 @@
         open(G, '>', 'ppcfg.txt');
         print G Data::Dumper::Dumper({%Config});
         close G;
-        system('diff -u ppcfg.txt xscfg.txt');
+        system('diff -u ppcfg.txt xscfg.txt > cfg.diff');
         unlink('xscfg.txt');
         unlink('ppcfg.txt');
+        {   open H , '<','cfg.diff';
+            $/ = undef;
+            my $file = <H>;
+            die "bad" if ! length $file;
+            diag($file);
+        }
+        
     }
 
 
