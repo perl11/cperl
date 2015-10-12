@@ -1672,8 +1672,9 @@ Perl_die_unwind(pTHX_ SV *msv)
 		my_exit(1);
 	    }
 
-	    POPBLOCK(cx,PL_curpm);
 	    POPEVAL(cx);
+	    POPBLOCK(cx,PL_curpm);
+            cxstack_ix--;
 	    namesv = cx->blk_eval.old_namesv;
 #ifdef DEBUGGING
 	    oldcop = cx->blk_oldcop;
@@ -2092,13 +2093,12 @@ PP(pp_leave)
     PMOP *newpm;
     I32 gimme;
 
-    if (PL_op->op_flags & OPf_SPECIAL) {
-	cx = &cxstack[cxstack_ix];
-	cx->blk_oldpm = PL_curpm;	/* fake block should preserve $1 et al */
-    }
-
     cx = &cxstack[cxstack_ix];
     assert(CxTYPE(cx) == CXt_BLOCK);
+
+    if (PL_op->op_flags & OPf_SPECIAL)
+	cx->blk_oldpm = PL_curpm; /* fake block should preserve $1 et al */
+
     newsp = PL_stack_base + cx->blk_oldsp;
     gimme = cx->blk_gimme;
 
@@ -2108,10 +2108,10 @@ PP(pp_leave)
         leave_common(newsp, newsp, gimme, SVs_PADTMP|SVs_TEMP,
                                PL_op->op_private & OPpLVALUE);
 
-    POPBLOCK(cx,newpm);
     POPBASICBLK(cx);
-
+    POPBLOCK(cx,newpm);
     PL_curpm = newpm;	/* Don't pop $1 et al till now */
+    cxstack_ix--;
 
     return NORMAL;
 }
@@ -2286,9 +2286,10 @@ PP(pp_leaveloop)
         leave_common(newsp, MARK, gimme, SVs_PADTMP|SVs_TEMP,
 			       PL_op->op_private & OPpLVALUE);
 
-    POPBLOCK(cx,newpm);
     POPLOOP(cx);	/* Stack values are safe: release loop vars ... */
+    POPBLOCK(cx,newpm);
     PL_curpm = newpm;	/* ... and pop $1 et al */
+    cxstack_ix--;
 
     return NORMAL;
 }
@@ -2415,11 +2416,10 @@ PP(pp_leavesublv)
     }
     PUTBACK;
 
-    POPBLOCK(cx,newpm);
-    cxstack_ix++; /* preserve cx entry on stack for use by POPSUB */
     POPSUB(cx);	/* Stack values are safe: release CV and @_ ... */
-    cxstack_ix--;
+    POPBLOCK(cx,newpm);
     PL_curpm = newpm;	/* ... and pop $1 et al */
+    cxstack_ix--;
 
     return cx->blk_sub.retop;
 }
@@ -2567,13 +2567,12 @@ S_unwind_loop(pTHX_ const char * const opname)
 PP(pp_last)
 {
     PERL_CONTEXT *cx;
-    OP *nextop = NULL;
     PMOP *newpm;
 
     S_unwind_loop(aTHX_ "last");
 
-    POPBLOCK(cx,newpm);
-    cxstack_ix++; /* temporarily protect top context */
+    cx = &cxstack[cxstack_ix];
+
     assert(
            CxTYPE(cx) == CXt_LOOP_LAZYIV
         || CxTYPE(cx) == CXt_LOOP_LAZYSV
@@ -2581,16 +2580,16 @@ PP(pp_last)
         || CxTYPE(cx) == CXt_LOOP_PLAIN
     );
     PL_stack_sp = PL_stack_base + cx->blk_loop.resetsp;
-    nextop = cx->blk_loop.my_op->op_lastop->op_next;
 
     TAINT_NOT;
 
-    cxstack_ix--;
     /* Stack values are safe: */
     POPLOOP(cx);	/* release loop vars ... */
+    POPBLOCK(cx,newpm);
     PL_curpm = newpm;	/* ... and pop $1 et al */
+    cxstack_ix--;
 
-    return nextop;
+    return cx->blk_loop.my_op->op_lastop->op_next;
 }
 
 PP(pp_next)
@@ -3447,8 +3446,10 @@ S_doeval(pTHX_ int gimme, CV* outside, U32 seq, HV *hh)
 		PL_eval_root = NULL;
 	    }
 	    SP = PL_stack_base + POPMARK;	/* pop original mark */
-	    POPBLOCK(cx,PL_curpm);
+            cx = &cxstack[cxstack_ix];
 	    POPEVAL(cx);
+	    POPBLOCK(cx,PL_curpm);
+            cxstack_ix--;
 	    namesv = cx->blk_eval.old_namesv;
 	}
 
@@ -4328,13 +4329,21 @@ PP(pp_leaveeval)
         leave_common(newsp, newsp, gimme, SVs_TEMP, FALSE);
         SPAGAIN;
     }
-    POPBLOCK(cx,newpm);
+    /* the POPEVAL does a leavescope, which frees the optree associated
+     * with eval, which if it frees the nextstate associated with
+     * PL_curcop, sets PL_curcop to NULL. Which can mess up freeing a
+     * regex when running under 'use re Debug' because it needs PL_curcop
+     * to get the current hints. So restore it early.
+     */
+    PL_curcop = cx->blk_oldcop;
     POPEVAL(cx);
+    POPBLOCK(cx,newpm);
+    PL_curpm = newpm;	/* Don't pop $1 et al till now */
+    cxstack_ix--;
     namesv = cx->blk_eval.old_namesv;
     retop = cx->blk_eval.retop;
     evalcv = cx->blk_eval.cv;
 
-    PL_curpm = newpm;	/* Don't pop $1 et al till now */
 
 #ifdef DEBUGGING
     assert(CvDEPTH(evalcv) == 1);
@@ -4370,9 +4379,11 @@ Perl_delete_eval_scope(pTHX)
     PERL_CONTEXT *cx;
     I32 optype;
 	
-    POPBLOCK(cx,newpm);
+    cx = &cxstack[cxstack_ix];
     POPEVAL(cx);
+    POPBLOCK(cx,newpm);
     PL_curpm = newpm;
+    cxstack_ix--;
     PERL_UNUSED_VAR(optype);
 }
 
@@ -4426,9 +4437,10 @@ PP(pp_leavetry)
         PL_stack_sp = newsp;
     else
         leave_common(newsp, newsp, gimme, SVs_PADTMP|SVs_TEMP, FALSE);
-    POPBLOCK(cx,newpm);
-    retop = cx->blk_eval.retop;
     POPEVAL(cx);
+    POPBLOCK(cx,newpm);
+    cxstack_ix--;
+    retop = cx->blk_eval.retop;
     PERL_UNUSED_VAR(optype);
 
     PL_curpm = newpm;	/* Don't pop $1 et al till now */
@@ -4485,11 +4497,10 @@ PP(pp_leavegiven)
         PL_stack_sp = newsp;
     else
         leave_common(newsp, newsp, gimme, SVs_PADTMP|SVs_TEMP, FALSE);
-    POPBLOCK(cx,newpm);
     POPGIVEN(cx);
-    assert(CxTYPE(cx) == CXt_GIVEN);
-
+    POPBLOCK(cx,newpm);
     PL_curpm = newpm;	/* Don't pop $1 et al till now */
+    cxstack_ix--;
 
     return NORMAL;
 }
@@ -5093,7 +5104,6 @@ PP(pp_leavewhen)
 
 PP(pp_continue)
 {
-    dSP;
     I32 cxix;
     PERL_CONTEXT *cx;
     PMOP *newpm;
@@ -5106,14 +5116,15 @@ PP(pp_continue)
     if (cxix < cxstack_ix)
         dounwind(cxix);
     
-    POPBLOCK(cx,newpm);
+    cx = &cxstack[cxstack_ix];
     assert(CxTYPE(cx) == CXt_WHEN);
+    PL_stack_sp = PL_stack_base + cx->blk_oldsp;
     POPWHEN(cx);
-
-    SP = PL_stack_base + cx->blk_oldsp;
+    POPBLOCK(cx,newpm);
     PL_curpm = newpm;   /* pop $1 et al */
+    cxstack_ix--;
 
-    RETURNOP(cx->blk_givwhen.leave_op->op_next);
+    return cx->blk_givwhen.leave_op->op_next;
 }
 
 PP(pp_break)
