@@ -2601,6 +2601,15 @@ following switches: B<-[CDIMUdmtw]>.
 
 (F) The :pure attribute cannot be negated, impure functions are the default.
 
+=item Illegal user-defined property name
+
+(F) You specified a Unicode-like property name in a regular expression
+pattern (using C<\p{}> or C<\P{}>) that Perl knows isn't an official
+Unicode property, and was likely meant to be a user-defined property
+name, but it can't be one of those, as they must begin with either C<In>
+or C<Is>.  Check the spelling.  See also
+L</Can't find Unicode property definition "%s">.
+
 =item Ill-formed CRTL environ value "%s"
 
 (W internal) A warning peculiar to VMS.  Perl tried to read the CRTL's

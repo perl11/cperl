@@ -521,6 +521,10 @@ General cleanup: there's more consistency now (in POD usage, grammar, code
 examples), better practices in code examples (use of C<my>, removal of bareword
 filehandles, dropped usage of C<&> when calling subroutines, ...), etc.
 
+=item *
+
+L<perldiag/"Illegal user-defined property name">
+
 =back
 
 =head3 L<perlguts>
