@@ -5700,10 +5700,12 @@ PP(pp_push)
 	/* SPAGAIN; not needed: SP is assigned to immediately below */
     }
     else {
+        /* PL_delaymagic is restored by JUMPENV_POP on dieing, so we
+         * only need to save locally, not on the save stack */
+        U16 old_delaymagic = PL_delaymagic;
+
 	if (SvREADONLY(ary) && MARK < SP) Perl_croak_no_modify();
         if (AvSHAPED(ary)) Perl_croak_shaped_array("push");
-        ENTER;
-        SAVEI16(PL_delaymagic);
 	PL_delaymagic = DM_DELAY;
 	for (++MARK; MARK <= SP; MARK++) {
 	    SV *sv;
@@ -5715,7 +5717,7 @@ PP(pp_push)
 	}
 	if (PL_delaymagic & DM_ARRAY_ISA)
 	    mg_set(MUTABLE_SV(ary));
-        LEAVE;
+        PL_delaymagic = old_delaymagic;
     }
     SP = ORIGMARK;
     if (OP_GIMME(PL_op, 0) != G_VOID) {
@@ -5755,10 +5757,12 @@ PP(pp_unshift)
 	/* SPAGAIN; not needed: SP is assigned to immediately below */
     }
     else {
+        /* PL_delaymagic is restored by JUMPENV_POP on dieing, so we
+         * only need to save locally, not on the save stack */
+        U16 old_delaymagic = PL_delaymagic;
 	SSize_t i = 0;
+
 	av_unshift(ary, SP - MARK);
-        ENTER;
-        SAVEI16(PL_delaymagic);
         PL_delaymagic = DM_DELAY;
 	while (MARK < SP) {
 	    SV * const sv = newSVsv(*++MARK);
@@ -5766,7 +5770,7 @@ PP(pp_unshift)
 	}
         if (PL_delaymagic & DM_ARRAY_ISA)
             mg_set(MUTABLE_SV(ary));
-        LEAVE;
+        PL_delaymagic = old_delaymagic;
     }
     SP = ORIGMARK;
     if (OP_GIMME(PL_op, 0) != G_VOID) {
