@@ -3,7 +3,7 @@ package Safe;
 use 5.003_11;
 use Scalar::Util qw(reftype refaddr);
 
-$Safe::VERSION = "2.39_01c";
+$Safe::VERSION = "2.39_02c";
 
 # *** Don't declare any lexicals above this point ***
 #
@@ -44,7 +44,7 @@ BEGIN {
     }
 }
 
-use Opcode 1.01, qw(
+use Opcode qw(
     opset opset_to_ops opmask_add
     empty_opset full_opset invert_opset verify_opset
     opdesc opcodes opmask define_optag opset_to_hex
