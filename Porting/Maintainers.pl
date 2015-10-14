@@ -1022,7 +1022,7 @@ use File::Glob qw(:case);
     'Safe' => {
         'DISTRIBUTION' => 'RGARCIA/Safe-2.39.tar.gz',
         'FILES'        => q[dist/Safe],
-        # improved 2.39_01c on cperl
+        # improved 2.39_02c on cperl
         'CUSTOMIZED'   => [ qw( Safe.pm
 				t/safeops.t ) ],
     },
