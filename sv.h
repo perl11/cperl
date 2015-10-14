@@ -549,7 +549,7 @@ perform the upgrade if necessary.  See C<svtype>.
 #define _XPV_HEAD							\
     HV*		xmg_stash;	/* class package */			\
     union _xmgu	xmg_u;							\
-    STRLEN	xpv_cur;	/* length of svu_pv as a C string */    \
+    STRLEN	xpv_cur;	/* length of svu_pv, or GvFLAGS */	\
     union {								\
 	STRLEN	xpvlenu_len; 	/* allocated size */			\
 	char *	xpvlenu_pv;	/* regexp string */			\

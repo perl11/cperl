@@ -159,7 +159,7 @@ Return the CV from the GV.
 #define GVf_INTRO	0x01
 #define GVf_MULTI	0x02
 #define GVf_ASSUMECV	0x04
-/*	UNUSED		0x08 */
+#define GVf_STATIC	0x08
 #define GVf_IMPORTED	0xF0
 #define GVf_IMPORTED_SV	  0x10
 #define GVf_IMPORTED_AV	  0x20
@@ -177,6 +177,8 @@ Return the CV from the GV.
 #define GvASSUMECV(gv)		(GvFLAGS(gv) & GVf_ASSUMECV)
 #define GvASSUMECV_on(gv)	(GvFLAGS(gv) |= GVf_ASSUMECV)
 #define GvASSUMECV_off(gv)	(GvFLAGS(gv) &= ~GVf_ASSUMECV)
+
+#define GvSTATIC(gv)		(GvFLAGS(gv) & GVf_STATIC)
 
 #define GvIMPORTED(gv)		(GvFLAGS(gv) & GVf_IMPORTED)
 #define GvIMPORTED_on(gv)	(GvFLAGS(gv) |= GVf_IMPORTED)

@@ -404,8 +404,9 @@ Perl_gv_init_pvn(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len, U32 flag
 	    SvPV_set(gv, NULL);
 	    SvLEN_set(gv, 0);
 	    SvPOK_off(gv);
-	} else
+	} else if (!GvSTATIC(gv)) {
 	    Safefree(SvPVX_mutable(gv));
+        }
     }
     SvIOK_off(gv);
     isGV_with_GP_on(gv);
@@ -1599,7 +1600,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                     else
                         GvMULTI_on(*gv);
                 }
-                if (key != *name)
+                if (key != *name /*&& (!*gv || !GvSTATIC(*gv)) */)
                     Safefree(key);
                 if (!*gv || *gv == (const GV *)&PL_sv_undef)
                     return FALSE;
@@ -2512,6 +2513,7 @@ Perl_gp_free(pTHX_ GV *gv)
 {
     GP* gp;
     int attempts = 100;
+    int staticgv = GvSTATIC(gv);
 
     if (!gv || !isGV_with_GP(gv) || !(gp = GvGP(gv)))
 	return;
@@ -2549,7 +2551,7 @@ Perl_gp_free(pTHX_ GV *gv)
       gp->gp_cv       = NULL;
       gp->gp_form     = NULL;
 
-      if (file_hek)
+      if (file_hek && !staticgv)
 	unshare_hek(file_hek);
 
       SvREFCNT_dec(sv);
@@ -2601,7 +2603,7 @@ Perl_gp_free(pTHX_ GV *gv)
 
     /* Possibly incremented by a destructor doing glob assignment */
     if (gp->gp_refcnt > 1) goto borrowed;
-    Safefree(gp);
+    if (!staticgv) Safefree(gp);
     GvGP_set(gv, NULL);
 }
 
