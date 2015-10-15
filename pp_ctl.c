@@ -1520,8 +1520,6 @@ S_dopoptowhen(pTHX_ I32 startingblock)
 void
 Perl_dounwind(pTHX_ I32 cxix)
 {
-    I32 optype;
-
     if (!PL_curstackinfo) /* can happen if die during thread cloning */
 	return;
 
@@ -1566,7 +1564,6 @@ Perl_dounwind(pTHX_ I32 cxix)
 	}
 	cxstack_ix--;
     }
-    PERL_UNUSED_VAR(optype);
 }
 
 void
@@ -1688,6 +1685,7 @@ Perl_die_unwind(pTHX_ SV *msv)
 #endif
 	    restartjmpenv = cx->blk_eval.cur_top_env;
 	    restartop = cx->blk_eval.retop;
+            optype = CxOLD_OP_TYPE(cx);
             CX_POP(cx);
 
 	    if (optype == OP_REQUIRE) {
@@ -3442,12 +3440,8 @@ S_doeval(pTHX_ int gimme, CV* outside, U32 seq, HV *hh)
 
     if (yystatus || PL_parser->error_count || !PL_eval_root) {
 	PERL_CONTEXT *cx;
-	I32 optype;			/* Used by POPEVAL. */
-	SV *namesv;
+	SV *namesv = NULL;
         SV *errsv = NULL;
-
-	namesv = NULL;
-	PERL_UNUSED_VAR(optype);
 
 	/* note that if yystatus == 3, then the EVAL CX block has already
 	 * been popped, and various vars restored */
@@ -4353,6 +4347,7 @@ PP(pp_leaveeval)
     namesv = cx->blk_eval.old_namesv;
     retop = cx->blk_eval.retop;
     evalcv = cx->blk_eval.cv;
+    optype = CxOLD_OP_TYPE(cx);
     CX_POP(cx);
 
 
@@ -4387,14 +4382,12 @@ void
 Perl_delete_eval_scope(pTHX)
 {
     PERL_CONTEXT *cx;
-    I32 optype;
 	
     cx = &cxstack[cxstack_ix];
     CX_LEAVE_SCOPE(cx);
     POPEVAL(cx);
     POPBLOCK(cx);
     CX_POP(cx);
-    PERL_UNUSED_VAR(optype);
 }
 
 /* Common-ish code salvaged from Perl_call_sv and pp_entertry, because it was
@@ -4432,7 +4425,6 @@ PP(pp_leavetry)
     SV **newsp;
     I32 gimme;
     PERL_CONTEXT *cx;
-    I32 optype;
     OP *retop;
 
     PERL_ASYNC_CHECK();
@@ -4451,7 +4443,6 @@ PP(pp_leavetry)
     POPBLOCK(cx);
     retop = cx->blk_eval.retop;
     CX_POP(cx);
-    PERL_UNUSED_VAR(optype);
 
     CLEAR_ERRSV();
     return retop;
