@@ -18,9 +18,11 @@ XS(XS_XSLoader_load) {
     CV *bootc;
     AV *modparts;
     SV *modfname, *modpname, *boots;
+    int modlibutf8 = 0;
 
     if (items < 1) {
-        module = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash), HvNAMEUTF8(stash));
+        modlibutf8 = HvNAMEUTF8(stash);
+        module = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash), modlibutf8);
         modlibname = OutCopFILE(PL_curcop);
         DLDEBUG(2,PerlIO_printf(Perl_debug_log, "XSLoader::load from caller '%s', '%s'\n",
                 HvNAME(stash), modlibname));
@@ -33,6 +35,7 @@ XS(XS_XSLoader_load) {
                                 SvPVX(module), (int)items));
         if (!SvPOK(module))
             Perl_die(aTHX_ "Usage: XSLoader::load([ $packagename [,$VERSION]])\n");
+        modlibutf8 = SvUTF8(module);
     }
 
     boots = pv_copy(module);
@@ -57,13 +60,14 @@ XS(XS_XSLoader_load) {
     modpname = dl_construct_modpname(aTHX_ modparts);
     DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  modpname (%s) => '%s'\n",
             av_tostr(aTHX_ modparts), modlibname));
-    file = modlibname ? newSVpvn(modlibname, strlen(modlibname)) : newSVpvs("");
+    file = modlibname ? newSVpvn_flags(modlibname, strlen(modlibname), modlibutf8)
+                      : newSVpvs("");
 
     /* now step back @modparts+1 times: .../lib/Fcntl.pm => .../
        my $c = () = split(/::/,$caller,-1);
        $modlibname =~ s,[\\/][^\\/]+$,, while $c--;    # Q&D basename */
     if (items >= 1) {
-        SV *caller = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash), HvNAMEUTF8(stash));
+        SV *caller = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash), modlibutf8);
         modparts = dl_split_modparts(aTHX_ caller);
     }
     {
