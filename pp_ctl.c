@@ -288,7 +288,7 @@ PP(pp_substcont)
 
 	    CX_LEAVE_SCOPE(cx);
 	    POPSUBST(cx);
-            cxstack_ix--;
+            CX_POP(cx);
 
 	    PERL_ASYNC_CHECK();
 	    RETURNOP(pm->op_next);
@@ -1682,13 +1682,13 @@ Perl_die_unwind(pTHX_ SV *msv)
             CX_LEAVE_SCOPE(cx);
 	    POPEVAL(cx);
 	    POPBLOCK(cx);
-            cxstack_ix--;
 	    namesv = cx->blk_eval.old_namesv;
 #ifdef DEBUGGING
 	    oldcop = cx->blk_oldcop;
 #endif
 	    restartjmpenv = cx->blk_eval.cur_top_env;
 	    restartop = cx->blk_eval.retop;
+            CX_POP(cx);
 
 	    if (optype == OP_REQUIRE) {
                 assert (PL_curcop == oldcop);
@@ -2118,7 +2118,7 @@ PP(pp_leave)
     CX_LEAVE_SCOPE(cx);
     POPBASICBLK(cx);
     POPBLOCK(cx);
-    cxstack_ix--;
+    CX_POP(cx);
 
     return NORMAL;
 }
@@ -2295,7 +2295,7 @@ PP(pp_leaveloop)
     CX_LEAVE_SCOPE(cx);
     POPLOOP(cx);	/* Stack values are safe: release loop vars ... */
     POPBLOCK(cx);
-    cxstack_ix--;
+    CX_POP(cx);
 
     return NORMAL;
 }
@@ -2318,6 +2318,7 @@ PP(pp_leavesublv)
     PERL_CONTEXT *cx;
     bool ref;
     const char *what = NULL;
+    OP *retop;
 
     cx = &cxstack[cxstack_ix];
     assert(CxTYPE(cx) == CXt_SUB);
@@ -2421,9 +2422,10 @@ PP(pp_leavesublv)
     CX_LEAVE_SCOPE(cx);
     POPSUB(cx);	/* Stack values are safe: release CV and @_ ... */
     POPBLOCK(cx);
-    cxstack_ix--;
+    retop =  cx->blk_sub.retop;
+    CX_POP(cx);
 
-    return cx->blk_sub.retop;
+    return retop;
 }
 
 
@@ -2578,6 +2580,7 @@ S_unwind_loop(pTHX_ const char * const opname)
 PP(pp_last)
 {
     PERL_CONTEXT *cx;
+    OP* nextop;
 
     S_unwind_loop(aTHX_ "last");
 
@@ -2597,9 +2600,10 @@ PP(pp_last)
     CX_LEAVE_SCOPE(cx);
     POPLOOP(cx);	/* release loop vars ... */
     POPBLOCK(cx);
-    cxstack_ix--;
+    nextop = cx->blk_loop.my_op->op_lastop->op_next;
+    CX_POP(cx);
 
-    return cx->blk_loop.my_op->op_lastop->op_next;
+    return nextop;
 }
 
 PP(pp_next)
@@ -2870,7 +2874,7 @@ PP(pp_goto)
                  * this is a POPBLOCK(), less all the stuff we already did
                  * for TOPBLOCK() earlier */
                 PL_curcop = cx->blk_oldcop;
-		cxstack_ix--;
+                CX_POP(cx);
 
 		/* Push a mark for the start of arglist */
 		PUSHMARK(mark);
@@ -3442,7 +3446,6 @@ S_doeval(pTHX_ int gimme, CV* outside, U32 seq, HV *hh)
 	SV *namesv;
         SV *errsv = NULL;
 
-	cx = NULL;
 	namesv = NULL;
 	PERL_UNUSED_VAR(optype);
 
@@ -3459,15 +3462,14 @@ S_doeval(pTHX_ int gimme, CV* outside, U32 seq, HV *hh)
             CX_LEAVE_SCOPE(cx);
 	    POPEVAL(cx);
 	    POPBLOCK(cx);
-            cxstack_ix--;
 	    namesv = cx->blk_eval.old_namesv;
+            CX_POP(cx);
 	}
 
 	errsv = ERRSV;
 	if (in_require) {
-	    if (!cx) {
-		/* If cx is still NULL, it means that we didn't go in the
-		 * POPEVAL branch. */
+            if (yystatus == 3) {
+		/* we didn't go in the POPEVAL branch. */
 		cx = &cxstack[cxstack_ix];
 		assert(CxTYPE(cx) == CXt_EVAL);
 		namesv = cx->blk_eval.old_namesv;
@@ -4348,10 +4350,10 @@ PP(pp_leaveeval)
     CX_LEAVE_SCOPE(cx);
     POPEVAL(cx);
     POPBLOCK(cx);
-    cxstack_ix--;
     namesv = cx->blk_eval.old_namesv;
     retop = cx->blk_eval.retop;
     evalcv = cx->blk_eval.cv;
+    CX_POP(cx);
 
 
 #ifdef DEBUGGING
@@ -4391,7 +4393,7 @@ Perl_delete_eval_scope(pTHX)
     CX_LEAVE_SCOPE(cx);
     POPEVAL(cx);
     POPBLOCK(cx);
-    cxstack_ix--;
+    CX_POP(cx);
     PERL_UNUSED_VAR(optype);
 }
 
@@ -4447,8 +4449,8 @@ PP(pp_leavetry)
     CX_LEAVE_SCOPE(cx);
     POPEVAL(cx);
     POPBLOCK(cx);
-    cxstack_ix--;
     retop = cx->blk_eval.retop;
+    CX_POP(cx);
     PERL_UNUSED_VAR(optype);
 
     CLEAR_ERRSV();
@@ -4506,7 +4508,7 @@ PP(pp_leavegiven)
     CX_LEAVE_SCOPE(cx);
     POPGIVEN(cx);
     POPBLOCK(cx);
-    cxstack_ix--;
+    CX_POP(cx);
 
     return NORMAL;
 }
@@ -5112,6 +5114,7 @@ PP(pp_continue)
 {
     I32 cxix;
     PERL_CONTEXT *cx;
+    OP *nextop;
     
     cxix = dopoptowhen(cxstack_ix); 
     if (cxix < 0)   
@@ -5126,9 +5129,10 @@ PP(pp_continue)
     CX_LEAVE_SCOPE(cx);
     POPWHEN(cx);
     POPBLOCK(cx);
-    cxstack_ix--;
+    nextop = cx->blk_givwhen.leave_op->op_next;
+    CX_POP(cx);
 
-    return cx->blk_givwhen.leave_op->op_next;
+    return nextop;
 }
 
 PP(pp_break)
