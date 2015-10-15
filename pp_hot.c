@@ -3456,6 +3456,7 @@ PP(pp_leavesub)
     }
     PUTBACK;
 
+    CX_LEAVE_SCOPE(cx);
     POPSUB(cx);	/* Stack values are safe: release CV and @_ ... */
     POPBLOCK(cx);
     cxstack_ix--;
