@@ -75,7 +75,7 @@ Refetch the stack pointer.  Used after a callback.  See L<perlcall>.
     ({                                                                \
         DEBUG_s(PerlIO_printf(Perl_debug_log, "MARK pop  %p %"IVdf"\n", \
                 (PL_markstack_ptr-1), (IV)*(PL_markstack_ptr-1))); \
-        assert((PL_markstack_ptr > PL_markstack) || "MARK underflow");\
+        assert((PL_markstack_ptr > PL_markstack) || !"MARK underflow");\
         *PL_markstack_ptr--;                                          \
     })
 #define INCMARK                                                       \
