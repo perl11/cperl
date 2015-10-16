@@ -3585,6 +3585,7 @@ END_EXTERN_C
 #define OPpFT_ACCESS            0x02
 #define OPpGREP_LEX             0x02
 #define OPpHINT_STRICT_REFS     0x02
+#define OPpITER_REVERSED        0x02
 #define OPpSORT_INTEGER         0x02
 #define OPpTRANS_TO_UTF         0x02
 #define OPpARG2_MASK            0x03
@@ -3593,7 +3594,6 @@ END_EXTERN_C
 #define OPpENTERSUB_HASTARG     0x04
 #define OPpEVAL_UNICODE         0x04
 #define OPpFT_STACKED           0x04
-#define OPpITER_REVERSED        0x04
 #define OPpLVREF_ELEM           0x04
 #define OPpSLICEWARNING         0x04
 #define OPpSORT_REVERSE         0x04
@@ -4283,8 +4283,8 @@ EXTCONST U16  PL_op_private_bitdefs[] = {
     0x00bc, 0x012f, /* caller */
     0x22f5, /* nextstate, dbstate */
     0x2afc, 0x34d9, /* leave */
-    0x2c5c, 0x3178, 0x0e8c, 0x37e9, /* enteriter */
-    0x37e9, /* iter */
+    0x2c5c, 0x3178, 0x0e8c, 0x37e5, /* enteriter */
+    0x37e5, /* iter */
     0x2afc, 0x0067, /* leaveloop */
     0x42dc, 0x0003, /* last, next, redo, dump, goto */
     0x335c, 0x3278, 0x2734, 0x2670, 0x012f, /* open */
