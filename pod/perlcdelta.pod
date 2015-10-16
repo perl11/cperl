@@ -161,6 +161,19 @@ Windows support was added. There is also new support for parallel builds.
 The windows smokes are done via appveyor, on MSVC 10 and MSVC 12, on 32bit and 64bit,
 in optimized Release mode only. No mingw/gcc builds yet.
 
+=item *
+
+One glob fetch was removed for each C<-X> or C<stat> call whether done from
+Perl code or internally from Perl's C code. The glob being looked up was
+C<${^WIN32_SLOPPY_STAT}> which is a special variable. This makes C<-X> and
+C<stat> slightly faster.
+
+=item *
+
+During Miniperl's process startup, during the build process, 4 to 8 IO calls
+related to the process starting C<.pl> and the C<buildcustomize.pl> file were
+removed from the code opening and executing the first 1 or 2 C<.pl> files.
+
 =back
 
 =item Other
