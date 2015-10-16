@@ -6,7 +6,7 @@ use XSLoader ();
 use strict;
 use warnings;
 
-our $VERSION = "1.35";
+our $VERSION = "1.36";
 XSLoader::load 'IO', $VERSION;
 
 sub import {
