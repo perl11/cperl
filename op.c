@@ -12395,7 +12395,7 @@ int S_sigtype_args(const char* sig, int *i)
 PERL_STATIC_INLINE
 int S_match_type1(const U32 sig, core_types_t arg1)
 {
-    return sig == ((arg1 << 24) | 0xffff00);
+    return sig == (((U32)arg1 << 24) | 0xffff00);
 }
 
 /* match an BINOP type with the given args. */
@@ -12403,7 +12403,7 @@ int S_match_type1(const U32 sig, core_types_t arg1)
 PERL_STATIC_INLINE
 int S_match_type2(const U32 sig, core_types_t arg1, core_types_t arg2)
 {
-    return sig == ((arg1 << 24) | (arg2 << 16) | 0xff00);
+    return sig == (((U32)arg1 << 24) | ((U32)arg2 << 16) | 0xff00);
 }
 
 /* ck_type: check unop and binops for typed args, find spezialed match and promote.
