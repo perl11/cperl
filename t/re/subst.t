@@ -6,6 +6,7 @@ BEGIN {
     set_up_inc('../lib');
     require Config; import Config;
     require './charset_tools.pl';
+    require './loc_tools.pl';
 }
 
 plan( tests => 268 );
@@ -1054,8 +1055,7 @@ SKIP: {
     );
 
 SKIP: {
-    eval { require POSIX; POSIX->import("locale_h"); };
-    if ($@ || !eval { &POSIX::LC_ALL; 1 }) {
+    if (! locales_enabled('LC_ALL')) {
         skip "Can't test locale (maybe you are missing POSIX)", 6;
     }
 
