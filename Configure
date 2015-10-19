@@ -16948,7 +16948,7 @@ case "$i64type" in
 	;;
 esac
 
-: Look for GCC-5, clang-3.5 style __builtin_saddl_overflow
+: Look for GCC-5, clang-3.4 style __builtin_saddl_overflow
 : requires ivsize
 case "$d_builtin_arith_overflow" in
 '')

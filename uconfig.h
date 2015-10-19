@@ -3441,7 +3441,7 @@
 /* HAS_BUILTIN_ARITH_OVERFLOW:
  *	This symbol is defined if the compiler supports the intrinsics
  *	__builtin_saddl_overflow() for signed and unsigned IV sizes.
- *      GCC since 5.0, clang since 3.6
+ *      GCC since 5.0, clang since 3.4, Apple Xcode since 7.0
  */
 /*#define HAS_BUILTIN_ARITH_OVERFLOW	/ **/
 
@@ -5283,6 +5283,6 @@
 #endif
 
 /* Generated from:
- * bab58d17bab0ec697840e6568e88a3b0d52225d31bf9a100b995430e1bbdef53 config_h.SH
+ * 58954654bc9728f87f3635d248a7d0a1b1b234eb9276fb3b5867b433fb25cc3a config_h.SH
  * 88fd2318549ba59a2c8131ab26d07b4a0bf20351e2f0266a2ee50d8d0ba40b98 uconfig.sh
  * ex: set ro: */

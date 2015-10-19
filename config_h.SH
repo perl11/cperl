@@ -3476,7 +3476,7 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 /* HAS_BUILTIN_ARITH_OVERFLOW:
  *	This symbol is defined if the compiler supports the intrinsics
  *	__builtin_saddl_overflow() for signed and unsigned IV sizes.
- *      GCC since 5.0, clang since 3.6
+ *      GCC since 5.0, clang since 3.4, Apple Xcode since 7.0
  */
 #$d_builtin_arith_overflow HAS_BUILTIN_ARITH_OVERFLOW	/**/
 
