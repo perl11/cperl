@@ -165,7 +165,7 @@ foreach my $k (sort { $a cmp $b } keys %h) {
     } else {
         $v =~ s/"/\\"/g;
         # $v =~ s/\\!/!/;
-        $v =~ s/\\ / /g;
+        # $v =~ s/\\ / /g;
     }
     $h{$k} = $v;
     $v = "@@".$k."@@";
@@ -200,13 +200,16 @@ while (<$in>) {
     if (/0,"@@(\w+)@@"/) {
         my $k = $1;
         my $v = $h{$k};
-        my $qv = $v; # calculate the correct C-style length [cperl #61]
-        $qv =~ s/\\//g;
-        my $l = length $qv;
-        $l = 0 unless $l;
+        my $qv = $v;
+        $qv =~ s/(\\[nrftacx ])/\\$1/g; # \n => \\n
+        my $l = length $v;
+        if ($v =~ m/["'\\]/) {
+          # don't calculate C-style length [cperl #61], let C do it for us
+          # and don't count the ending \0
+          $l = 'sizeof ("' . $qv . '")-1';
+        }
         my $qr = "0,\"@@".$k."@@\"";
-        $v =~ s/\\([^"])/\\\\$1/g;
-        my $new = "$l,\"$v\"";
+        my $new = $l . ', "' . $qv . '"';
         s/$qr/$new/; # we have one line per key only
         # check correct type
         my $type = t_type($v);

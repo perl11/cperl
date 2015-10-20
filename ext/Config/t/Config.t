@@ -57,12 +57,12 @@ if ($klenPP != $klenXS) {
               git_ancestor git_remote_branch git_unpushed)) {
     $Config_copy{$k} = '' unless exists $Config{$k};
   }
-  is ($klenXS, scalar keys %Config_copy, 'same adjusted key count');
+  is (scalar keys %Config_copy, $klenXS, 'same adjusted key count');
 } else {
-  is ($klenXS, $klenPP, 'same key count');
+  is ($klenPP, $klenXS, 'same key count');
 }
 
-is_deeply (\%XSConfig, $copy ? \%Config_copy : \%Config, "cmp hashes");
+is_deeply ($copy ? \%Config_copy : \%Config, \%XSConfig, "cmp PP to XS hashes");
 
 if ( !Test::More->builder->is_passing() ) {
   open my $f, '>','xscfg.txt';
@@ -74,7 +74,7 @@ if ( !Test::More->builder->is_passing() ) {
             ? Data::Dumper::Dumper({%Config_copy})
             : Data::Dumper::Dumper({%Config}));
   close $g;
-  system('diff -u ppcfg.txt xscfg.txt > cfg.diff');
+  system('diff -U 0 ppcfg.txt xscfg.txt > cfg.diff');
   unlink('xscfg.txt');
   unlink('ppcfg.txt');
   if (-s 'cfg.diff') {
