@@ -6934,17 +6934,20 @@ S_curse(pTHX_ SV * const sv, const bool check_refcnt) {
 	    if (!destructor || HvMROMETA(stash)->destroy_gen
 				!= PL_sub_generation)
 	    {
-		GV * const gv =
-		    gv_fetchmeth_autoload(stash, "DESTROY", 7, 0);
-		if (gv) destructor = GvCV(gv);
-		if (!SvOBJECT(stash))
-		{
-		    SvSTASH(stash) =
-			destructor ? (HV *)destructor : ((HV *)0)+1;
-		    HvAUX(stash)->xhv_mro_meta->destroy_gen =
-			PL_sub_generation;
-		}
-	    }
+			GV * const gv =
+			    gv_fetchmeth_autoload(stash, "DESTROY", 7, 0);
+			if (gv)
+			{
+				destructor = GvCV(gv);
+				if (!SvOBJECT(stash))
+				{
+				    SvSTASH(stash) =
+					destructor ? (HV *)destructor : ((HV *)0)+1;
+				    HvAUX(stash)->xhv_mro_meta->destroy_gen =
+					PL_sub_generation;
+				}
+			}
+        }
 	    assert(!destructor || destructor == ((CV *)0)+1
 		|| SvTYPE(destructor) == SVt_PVCV);
 	    if (destructor && destructor != ((CV *)0)+1
