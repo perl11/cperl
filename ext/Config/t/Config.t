@@ -22,8 +22,10 @@ tie(%XSConfig, 'XSConfig');
 # delete package
 undef( *main::Config:: );
 require Data::Dumper;
+$Data::Dumper::Useperl = 1;
 $Data::Dumper::Sortkeys = 1;
-$Data::Dumper::Useqq = 1;
+$Data::Dumper::Useqq = 0;
+$Data::Dumper::Quotekeys = 0;
 
 # full perl is now miniperl
 undef( *main::XSLoader::);
@@ -63,27 +65,3 @@ if ($klenPP != $klenXS) {
 }
 
 is_deeply ($copy ? \%Config_copy : \%Config, \%XSConfig, "cmp PP to XS hashes");
-
-if ( !Test::More->builder->is_passing() ) {
-  open my $f, '>','xscfg.txt';
-  print $f Data::Dumper::Dumper({%XSConfig});
-  close $f;
-  open my $g, '>', 'ppcfg.txt';
-  
-  print $g ($copy
-            ? Data::Dumper::Dumper({%Config_copy})
-            : Data::Dumper::Dumper({%Config}));
-  close $g;
-  system('diff -U 0 ppcfg.txt xscfg.txt > cfg.diff');
-  unlink('xscfg.txt');
-  unlink('ppcfg.txt');
-  if (-s 'cfg.diff') {
-    open my $h , '<','cfg.diff';
-    local $/;
-    my $file = <$h>;
-    close $h;
-    diag($file);
-  } else {
-    unlink('cfg.diff');
-  }
-}
