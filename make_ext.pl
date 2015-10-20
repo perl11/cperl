@@ -510,30 +510,25 @@ EOM
         # We are going to have to use Makefile.PL:
 	print "\nRunning Makefile.PL in $ext_dir\n" if $verbose;
 
-	my $err;
-	{
-	    local @ARGV = (); #fake a system($^X) for perf
-	    if (IS_VMS) {
-		my $libd = VMS::Filespec::vmspath($lib_dir);
-		push @ARGV, "INST_LIB=$libd", "INST_ARCHLIB=$libd";
-	    } else {
-		push @ARGV, 'INSTALLDIRS=perl', 'INSTALLMAN1DIR=none',
-		    'INSTALLMAN3DIR=none';
-	    }
-	    push @ARGV, @$pass_through;
-	    print join(' ', @ARGV), "\n" if $verbose;
-	    local $ENV{PERL_MM_USE_DEFAULT} = 1;
-	    $del_makefile_on_exit = 1;
-	    #last statement not guaranteed to be true, see XSLoader Makefile.PL
-	    do './Makefile.PL';
-	    $del_makefile_on_exit = 0;
-	}
-	if ($@) {
-	    my $err = $@;
+	my @args = ("-I$lib_dir", 'Makefile.PL');
+        if (IS_VMS) {
+          my $libd = VMS::Filespec::vmspath($lib_dir);
+          push @ARGV, "INST_LIB=$libd", "INST_ARCHLIB=$libd";
+        } else {
+          push @ARGV, 'INSTALLDIRS=perl', 'INSTALLMAN1DIR=none',
+          'INSTALLMAN3DIR=none';
+        }
+	push @args, @$pass_through;
+	_quote_args(\@args) if IS_VMS;
+	print join(' ', $perl, @args), "\n" if $verbose;
+	my $code = do {
+	   local $ENV{PERL_MM_USE_DEFAULT} = 1;
+	    system $perl, @args;
+	};
+	if($code != 0){
 	    #make sure next build attempt/run of make_ext.pl doesn't succeed
-	    #even though Makefile.PL failed
 	    _unlink($makefile);
-	    die "Unsuccessful Makefile.PL($ext_dir): error=$err";
+	    die "Unsuccessful Makefile.PL($ext_dir): code=$code";
 	}
 
 	# Right. The reason for this little hack is that we're sitting inside
