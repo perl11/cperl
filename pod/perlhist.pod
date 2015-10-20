@@ -574,7 +574,6 @@ the strings?).
  Abigail   5.23.5       2015-Nov-20
 
  Ricardo   5.23.0       2015-Jun-20     The 5.23 development track
-
  rurban    5.22.1c      2015-Sep-14     cperl 5.22.1
 
 =head2 SELECTED RELEASE MEMORY USAGE
