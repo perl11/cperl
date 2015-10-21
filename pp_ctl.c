@@ -190,7 +190,7 @@ PP(pp_regcomp)
 PP(pp_substcont)
 {
     dSP;
-    PERL_CONTEXT *cx = &cxstack[cxstack_ix];
+    PERL_CONTEXT *cx = CX_CUR();
     PMOP * const pm = (PMOP*) cLOGOP->op_other;
     SV * const dstr = cx->sb_dstr;
     char *s = cx->sb_s;
@@ -1528,8 +1528,8 @@ Perl_dounwind(pTHX_ I32 cxix)
 	return;
 
     while (cxstack_ix > cxix) {
-        PERL_CONTEXT *cx = &cxstack[cxstack_ix];
-	DEBUG_CX("UNWIND");						\
+        PERL_CONTEXT *cx = CX_CUR();
+	DEBUG_CX("UNWIND");
 	/* Note: we don't need to restore the base context info till the end. */
 
         CX_LEAVE_SCOPE(cx);
@@ -1687,7 +1687,7 @@ Perl_die_unwind(pTHX_ SV *msv)
 	    if (cxix < cxstack_ix)
 		dounwind(cxix);
 
-            cx = &cxstack[cxstack_ix];
+            cx = CX_CUR();
             assert(CxTYPE(cx) == CXt_EVAL);
 
             /* return false to the caller of eval */
@@ -1980,7 +1980,7 @@ PP(pp_dbstate)
 {
     PL_curcop = (COP*)PL_op;
     TAINT_NOT;		/* Each statement is presumed innocent */
-    PL_stack_sp = PL_stack_base + cxstack[cxstack_ix].blk_oldsp;
+    PL_stack_sp = PL_stack_base + CX_CUR()->blk_oldsp;
     FREETMPS;
 
     PERL_ASYNC_CHECK();
@@ -2111,7 +2111,7 @@ PP(pp_leave)
     SV **newsp;
     I32 gimme;
 
-    cx = &cxstack[cxstack_ix];
+    cx = CX_CUR();
     assert(CxTYPE(cx) == CXt_BLOCK);
 
     if (PL_op->op_flags & OPf_SPECIAL)
@@ -2284,7 +2284,7 @@ PP(pp_leaveloop)
     SV **newsp;
     SV **mark;
 
-    cx = &cxstack[cxstack_ix];
+    cx = CX_CUR();
     assert(CxTYPE_is_LOOP(cx));
     mark = PL_stack_base + cx->blk_oldsp;
     newsp = CxTYPE(cx) == CXt_LOOP_LIST
@@ -2326,7 +2326,7 @@ PP(pp_leavesublv)
     const char *what = NULL;
     OP *retop;
 
-    cx = &cxstack[cxstack_ix];
+    cx = CX_CUR();
     assert(CxTYPE(cx) == CXt_SUB);
 
     if (CxMULTICALL(cx)) {
@@ -2591,7 +2591,7 @@ PP(pp_last)
 
     S_unwind_loop(aTHX_ "last");
 
-    cx = &cxstack[cxstack_ix];
+    cx = CX_CUR();
 
     assert(CxTYPE_is_LOOP(cx));
     PL_stack_sp = PL_stack_base
@@ -2633,7 +2633,7 @@ PP(pp_redo)
     if (redo_op->op_type == OP_ENTER) {
 	/* pop one less context to avoid $x being freed in while (my $x..) */
 	cxstack_ix++;
-	assert(CxTYPE(&cxstack[cxstack_ix]) == CXt_BLOCK);
+	assert(CxTYPE(CX_CUR()) == CXt_BLOCK);
 	redo_op = redo_op->op_next;
     }
 
@@ -3188,8 +3188,8 @@ S_docatch(pTHX_ OP *o)
     switch (ret) {
     case 0:
 	assert(cxstack_ix >= 0);
-	assert(CxTYPE(&cxstack[cxstack_ix]) == CXt_EVAL);
-	cxstack[cxstack_ix].blk_eval.cur_top_env = PL_top_env;
+	assert(CxTYPE(CX_CUR()) == CXt_EVAL);
+        CX_CUR()->blk_eval.cur_top_env = PL_top_env;
  redo_body:
 	CALLRUNOPS(aTHX);
 	break;
@@ -3293,7 +3293,7 @@ S_try_yyparse(pTHX_ int gramtype)
     int ret;
     dJMPENV;
 
-    assert(CxTYPE(&cxstack[cxstack_ix]) == CXt_EVAL);
+    assert(CxTYPE(CX_CUR()) == CXt_EVAL);
     JMPENV_PUSH(ret);
     switch (ret) {
     case 0:
@@ -3346,9 +3346,9 @@ S_doeval_compile(pTHX_ int gimme, CV* outside, U32 seq, HV *hh)
 
     evalcv = MUTABLE_CV(newSV_type(SVt_PVCV));
     CvEVAL_on(evalcv);
-    assert(CxTYPE(&cxstack[cxstack_ix]) == CXt_EVAL);
-    cxstack[cxstack_ix].blk_eval.cv = evalcv;
-    cxstack[cxstack_ix].blk_gimme = gimme;
+    assert(CxTYPE(CX_CUR()) == CXt_EVAL);
+    CX_CUR()->blk_eval.cv = evalcv;
+    CX_CUR()->blk_gimme = gimme;
 
     CvOUTSIDE_SEQ(evalcv) = seq;
     CvOUTSIDE(evalcv) = MUTABLE_CV(SvREFCNT_inc_simple(outside));
@@ -3464,7 +3464,7 @@ S_doeval_compile(pTHX_ int gimme, CV* outside, U32 seq, HV *hh)
 		PL_eval_root = NULL;
 	    }
 	    SP = PL_stack_base + POPMARK;	/* pop original mark */
-            cx = &cxstack[cxstack_ix];
+            cx = CX_CUR();
             CX_LEAVE_SCOPE(cx);
 	    POPEVAL(cx);
 	    POPBLOCK(cx);
@@ -3476,7 +3476,7 @@ S_doeval_compile(pTHX_ int gimme, CV* outside, U32 seq, HV *hh)
 	errsv = ERRSV;
 	if (in_require) {
             if (yystatus == 3) {
-                cx = &cxstack[cxstack_ix];
+                cx = CX_CUR();
                 assert(CxTYPE(cx) == CXt_EVAL);
                 namesv = cx->blk_eval.old_namesv;
             }
@@ -4328,7 +4328,7 @@ PP(pp_leaveeval)
 
     PERL_ASYNC_CHECK();
 
-    cx = &cxstack[cxstack_ix];
+    cx = CX_CUR();
     assert(CxTYPE(cx) == CXt_EVAL);
 
     newsp = PL_stack_base + cx->blk_oldsp;
@@ -4386,7 +4386,7 @@ Perl_delete_eval_scope(pTHX)
 {
     PERL_CONTEXT *cx;
 	
-    cx = &cxstack[cxstack_ix];
+    cx = CX_CUR();
     CX_LEAVE_SCOPE(cx);
     POPEVAL(cx);
     POPBLOCK(cx);
@@ -4432,7 +4432,7 @@ PP(pp_leavetry)
 
     PERL_ASYNC_CHECK();
 
-    cx = &cxstack[cxstack_ix];
+    cx = CX_CUR();
     assert(CxTYPE(cx) == CXt_EVAL);
     newsp = PL_stack_base + cx->blk_oldsp;
     gimme = cx->blk_gimme;
@@ -4489,7 +4489,7 @@ PP(pp_leavegiven)
     SV **newsp;
     PERL_UNUSED_CONTEXT;
 
-    cx = &cxstack[cxstack_ix];
+    cx = CX_CUR();
     assert(CxTYPE(cx) == CXt_GIVEN);
     newsp = PL_stack_base + cx->blk_oldsp;
     gimme = cx->blk_gimme;
@@ -5069,7 +5069,7 @@ PP(pp_leavewhen)
     I32 gimme;
     SV **newsp;
 
-    cx = &cxstack[cxstack_ix];
+    cx = CX_CUR();
     assert(CxTYPE(cx) == CXt_WHEN);
     gimme = cx->blk_gimme;
 
@@ -5117,7 +5117,7 @@ PP(pp_continue)
     if (cxix < cxstack_ix)
         dounwind(cxix);
     
-    cx = &cxstack[cxstack_ix];
+    cx = CX_CUR();
     assert(CxTYPE(cx) == CXt_WHEN);
     PL_stack_sp = PL_stack_base + cx->blk_oldsp;
     CX_LEAVE_SCOPE(cx);
