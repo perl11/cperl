@@ -2619,6 +2619,7 @@ PP(pp_next)
 
     S_unwind_loop(aTHX_ "next");
 
+    cx = CX_CUR();
     TOPBLOCK(cx);
     PL_curcop = cx->blk_oldcop;
     PERL_ASYNC_CHECK();
@@ -2638,6 +2639,7 @@ PP(pp_redo)
 	redo_op = redo_op->op_next;
     }
 
+    cx = CX_CUR();
     TOPBLOCK(cx);
     CX_LEAVE_SCOPE(cx);
     FREETMPS;
@@ -2784,6 +2786,7 @@ PP(pp_goto)
 	    if (cxix < cxstack_ix) {
 		dounwind(cxix);
             }
+            cx = CX_CUR();
 	    TOPBLOCK(cx);
 	    SPAGAIN;
 
@@ -3066,6 +3069,7 @@ PP(pp_goto)
 	    if (ix < 0)
 		DIE(aTHX_ "panic: docatch: illegal ix=%ld", (long)ix);
 	    dounwind(ix);
+            cx = CX_CUR();
 	    TOPBLOCK(cx);
 	}
 
@@ -5094,6 +5098,7 @@ PP(pp_leavewhen)
     if (CxFOREACH(cx)) {
         /* emulate pp_next. Note that any stack(s) cleanup will be
          * done by the pp_unstack which op_nextop should point to */
+        cx = CX_CUR();
 	TOPBLOCK(cx);
 	PL_curcop = cx->blk_oldcop;
 	return cx->blk_loop.my_op->op_nextop;
@@ -5147,6 +5152,7 @@ PP(pp_break)
         dounwind(cxix);
 
     /* Restore the sp at the time we entered the given block */
+    cx = CX_CUR();
     TOPBLOCK(cx);
 
     return cx->blk_givwhen.leave_op;
