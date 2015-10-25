@@ -496,6 +496,7 @@ use File::Glob qw(:case);
             qr{^\.perlcriticrc},
             'PATCHING',
             'README.packaging',
+            'lib/ExtUtils/MakeMaker/version/vpp.pm',
         ],
         # Applied upstream remove customisation when updating EUMM
         # cperl skips the ending 'c'
@@ -1314,7 +1315,9 @@ use File::Glob qw(:case);
             'vutil/Makefile.PL',
             'vutil/ppport.h',
             'vutil/vxs.xs',
+            't/00impl-pp.t',
             't/survey_locales',
+            'lib/version/vpp.pm',
         ],
 
         # When adding the CPAN-distributed files for version.pm, it is necessary
