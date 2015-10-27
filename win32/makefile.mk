@@ -1104,6 +1104,10 @@ $(GLOBEXE) : perlglob.c
 	$(LIBFILES) && $(EMBED_EXE_MANI)
 .ENDIF
 
+perlglob$(o)  : perlglob.c
+
+config.w32 : $(CFGSH_TMPL)
+	copy $(CFGSH_TMPL) config.w32
 
 ..\git_version.h : $(HAVEMINIPERL) ..\make_patchnum.pl
 	cd .. && miniperl -Ilib make_patchnum.pl
