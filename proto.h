@@ -7126,7 +7126,7 @@ STATIC regnode*	S_reg_node(pTHX_ RExC_state_t *pRExC_state, U8 op)
 #define PERL_ARGS_ASSERT_REG_NODE	\
 	assert(pRExC_state)
 
-STATIC UV	S_reg_recode(pTHX_ const char value, SV **encp)
+STATIC UV	S_reg_recode(pTHX_ const U8 value, SV **encp)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_REG_RECODE	\
 	assert(encp)
