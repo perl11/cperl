@@ -243,13 +243,6 @@ L<[perl #126178]|https://rt.perl.org/Ticket/Display.html?id=126178>
 
 =item *
 
-Regular expression possessive quantifier v5.20 regression now fixed.
-C<qr/>I<PAT>C<{>I<min>,I<max>C<}+>C</> is supposed to behave identically
-to C<qr/(?E<gt>>I<PAT>C<{>I<min>,I<max>C<})/>.  Since v5.20, this didn't
-work if I<min> and I<max> were equal.  [perl #125825]
-
-=item *
-
 A bug in hexadecimal floating point literal support meant that high-order bits
 could be lost in cases where mantissa overflow was caused by too many trailing
 zeros in the fractional part.  This has been fixed.
