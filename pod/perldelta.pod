@@ -132,6 +132,13 @@ C<< -Accflags='-DAPPLLIB_EXP=\"/usr/libperl\"' >>) was broken in Perl 5.22.0
 but has now been fixed again.
 L<[perl #125314]|https://rt.perl.org/Ticket/Display.html?id=125314>
 
+=item *
+
+C<Configure> now acts as if the C<-O> option is always passed, allowing command
+line options to override saved configuration.  This should eliminate confusion
+when command line options are ignored for no obvious reason.  C<-O> is now
+permitted, but ignored.
+
 =back
 
 =head1 Platform Support
