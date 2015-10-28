@@ -39,6 +39,7 @@ my @toolchain = qw(cpan/AutoLoader/lib
                    ext/File-Find/lib
                    cpan/Text-Tabs/lib
 		   dist/constant/lib
+		   cpan/version/lib
 		   );
 
 # Text-ParseWords used only in ExtUtils::Liblist::Kid::_win32_ext()
