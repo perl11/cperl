@@ -250,6 +250,22 @@ L<[perl #126582]|https://rt.perl.org/Ticket/Display.html?id=126582>
 
 =item *
 
+C<\b{sb}> works much better.  In Perl v5.22.0, this new construct didn't
+seem to give the expected results, yet passed all the tests in the
+extensive suite furnished by Unicode.  It turns out that it was because
+these were short input strings, and the failures had to do with longer
+inputs.  This was fixed in Perl 5.23.4, but the improvement was not
+noticed until after that was released, so is included here now.
+
+=item *
+
+Certain syntax errors in
+L<perlrecharclass/Extended Bracketed Character Classes> caused panics
+instead of the proper error message.  This has now been fixed. [perl
+#126481]
+
+=item *
+
 Another hexadecimal floating point bug, causing low-order bits to be lost in
 cases where the last hexadecimal digit of the mantissa has bits straddling the
 limit of the number of bits allowed for the mantissa, has also been fixed.
