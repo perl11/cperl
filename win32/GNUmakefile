@@ -763,9 +763,6 @@ $(GLOBEXE) : perlglob$(o)
 
 perlglob$(o)  : perlglob.c
 
-config.w32 : $(CFGSH_TMPL)
-	copy $(CFGSH_TMPL) config.w32
-
 #
 # Copy the template config.h and set configurables at the end of it
 # as per the options chosen and compiler used.
@@ -931,8 +928,8 @@ endif
 # make sure that we recompile perl.c if the git version changes
 ..\perl$(o) : ..\git_version.h
 
-..\config.sh : config.w32 $(MINIPERL) config_sh.PL FindExt.pm
-	$(MINIPERL) -I..\lib config_sh.PL $(CFG_VARS) config.w32 > ..\config.sh
+..\config.sh : $(CFGSH_TMPL) config_sh.PL FindExt.pm $(MINIPERL)
+	$(MINIPERL) -I..\lib config_sh.PL $(CFG_VARS) $(CFGSH_TMPL) > ..\config.sh
 
 # This target is for when changes to the main config.sh happen.
 # Edit config.gc, then make perl using GCC in a minimal configuration (i.e.
@@ -1347,7 +1344,6 @@ _clean :
 	-@erase perlglob$(o)
 	-@erase perlmain$(o)
 	-@erase perlmainst$(o)
-	-@erase config.w32
 	-@erase /f config.h
 	-@erase /f ..\git_version.h
 	-@erase $(GLOBEXE)
