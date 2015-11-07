@@ -31,7 +31,7 @@ ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 3548b0bb262b8d3a5
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t c01ba6e7a872c8a7fc26e277e0dea109616a5e56
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm ee0d36d1a3d0cc3e4201766fff6519edf7e99d1a
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 313ac548f069f321c940085bfea7e3abcfbe1c06
-ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm ac22b20036c5ad98510b98a2d1223cf119ef796a
+ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm d79b98465a632dc3bde76a0210d01014d2257dc6
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm 96ef2f03620f8b1a878cea552e75dbf579d5330a
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm 46dad3f6a0f55384a8e4bfa6e60c3e473f643265
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/basic.t 6cdc7701b50e586bc9c4cfb1616de8eb0b1baf34
@@ -78,7 +78,7 @@ YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 37441ba0eff59df1e75d7c2db64d9b478a
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm b9846cabfa2ede801c6df9357a97f8ccdc207119
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
-threads dist/threads/lib/threads.pm f8f5f2c4527aba54ef53a5846e3fad728b24eeea
-threads dist/threads/threads.xs ca89ce7d9abf4079b293f1d70930844df28b03a5
+threads dist/threads/lib/threads.pm 290888dc0b74bfb5583417304dacf4c5606ad041
+threads dist/threads/threads.xs 6ec469a6cba2899bf0d79520fc99c3f11209cca2
 version cpan/version/lib/version.pm d0923b895d57f1d669ae36fcf85c87b16db341d1
 version vutil.c a8b145c60cc6df6aec94dbdeff643cd1f32368cd
