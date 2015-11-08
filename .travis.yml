@@ -5,6 +5,15 @@ addons:
     packages:
     - build-essential
     - libtool
+  coverity_scan:
+    project:
+      name: "perl11/cperl"
+      description: "a perl5 with classes, types, compilable, company friendly"
+    notification_email: rurban@cpan.org
+    build_command_prepend: "./Configure -des -Dusedevel -Dusecperl -Uversiononly -Dprefix=$HOME/perl-blead"
+    build_command: "make -s -j4 ECHO=true"
+    branch_pattern: coverity
+
 cache:
   apt: true
 
@@ -19,8 +28,13 @@ branches:
     - master
     - /bugfix/
     - /smoke/
+    - /coverity/
 
 env:
+  global:
+    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+    #   via the "travis encrypt" command using the project repo's public key
+    - secure: "PVpGzgkK+HYoVUE4LGE+uYs8G7q+xSIBfWnt+qVU7+5wx7WZX/ICEhyw2MId3UcRsATAKun92fJVPod8yJHF9NdnZ9ifUbzdimB1b46pAws+oqqWjyqfb59oT7ams6mXpd0+yXkH3PmJDUhM9L6K85uidzeJtYYH/4cKDqEMlLaI9eeOX28WySco0+ZRNHIwXIdluQeY2FOirSbTiqMGdKh3/k+dYrZwPkketcnkC6w1CYIVqD1StPjTzjkFkYGV7T6Yl63P8Oq9a1EPOL7NyycWc2uabuaiwaco30FmcW360al3SYgU07n1SKO854LeP239jexYhvTK7BEazVp+NCqHgSl9hzMkOaZ1ACP68jkq2EoNa/dltbSBc2VouvCTNYNWf8idqNvhmHdX3uP9S1Su3HbCThh2sb+IFQQCTqMZQOamQ2jcAW3EAgelV+2xbaFUPo3o6gIZnkwVaEwkWg1C+boX42gD3xWp4fU9SOqrsq/DOygBzkWNw0Z2JFK9mviLmnDDj0bil09PiNTOKc4MZMejgPo2iEUEXklbfwUOA3vHv3s0B+25WMiicM4UhRl1Jo/o3vkv79KSrms3ph0pEfnWYJ7vWz2i7YmBHwO7DHhVioSs30DVtVuAc4JE24mqRgk2Hhh1dsaEG80YBx/KkwLKXzKVmdjjjUJoEmI="
   matrix:
     - CONFIGURE_OPTION='' CC='gcc'
     - CONFIGURE_OPTION='-DDEBUGGING' CC='clang'
