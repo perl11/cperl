@@ -560,6 +560,8 @@ struct loop {
 						   gle op tree, not a
 						   list of SVs */
 
+#define PERL_SUPPORT_STATIC_COP			/* for perlcc */
+
 #if defined(PERL_IN_PERLY_C) || defined(PERL_IN_OP_C) || defined(PERL_IN_TOKE_C)
 #define ref(o, type) doref(o, type, TRUE)
 #endif

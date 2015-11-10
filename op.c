@@ -1096,10 +1096,13 @@ S_cop_free(pTHX_ COP* cop)
 {
     PERL_ARGS_ASSERT_COP_FREE;
 
+    if (cop->op_static)
+        goto curcop;
     CopFILE_free(cop);
     if (! specialWARN(cop->cop_warnings))
 	PerlMemShared_free(cop->cop_warnings);
     cophh_free(CopHINTHASH_get(cop));
+ curcop:
     if (PL_curcop == cop)
        PL_curcop = NULL;
 }
