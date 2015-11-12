@@ -834,7 +834,7 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
                                 modulename, xs));
     }
     {
-        AV *dl_shared_objects = get_av("DynaLoader::shared_objects", GV_ADDMULTI);
+        AV *dl_shared_objects = get_av("DynaLoader::dl_shared_objects", GV_ADDMULTI);
         AV_PUSH(dl_shared_objects, SvREFCNT_inc_simple_NN(file)); /* record loaded files */
     }
 
