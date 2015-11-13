@@ -2241,6 +2241,10 @@ U32
 HeHASH(he)
 	B::HE he
 
+U32
+HeSTATIC(he)
+	B::HE he
+
 MODULE = B	PACKAGE = B::RHE
 
 SV*

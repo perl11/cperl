@@ -195,6 +195,7 @@ S_hv_notallowed(pTHX_ int flags, const char *key, I32 klen,
 
     PERL_ARGS_ASSERT_HV_NOTALLOWED;
 
+    /* XXX HEK_STATIC? */
     if (!(flags & HVhek_FREEKEY)) {
 	sv_setpvn(sv, key, klen);
     }
@@ -455,7 +456,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 			/* Note that this fetch is for nkey (the uppercased
 			   key) whereas the store is for key (the original)  */
 			void *result = hv_common(hv, NULL, nkey, klen,
-						 HVhek_FREEKEY, /* free nkey */
+						 HVhek_FREEKEY, /* free nkey, dynamic */
 						 0 /* non-LVAL fetch */
 						 | HV_DISABLE_UVAR_XKEY
 						 | return_svp,
@@ -519,7 +520,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 		if (flags & HVhek_FREEKEY) {
 		    Safefree(keysave);
 		}
-		flags |= HVhek_FREEKEY;
+                flags |= HVhek_FREEKEY;
 	    }
 #endif
 	} /* ISEXISTS */
@@ -561,10 +562,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 		    hash = 0;
 		    keysv = 0;
 
-		    if (flags & HVhek_FREEKEY) {
+		    if (flags & HVhek_FREEKEY)
 			Safefree(keysave);
-		    }
-		    flags |= HVhek_FREEKEY;
+                    flags |= HVhek_FREEKEY;
 		}
 #endif
 	    }
@@ -1084,7 +1084,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 		   but strictly the API allows it.  */
 		Safefree(keysave);
 	    }
-	    k_flags |= HVhek_WASUTF8 | HVhek_FREEKEY;
+            k_flags |= HVhek_WASUTF8 | HVhek_FREEKEY;
 	}
         HvHASKFLAGS_on(MUTABLE_SV(hv));
     }
