@@ -358,6 +358,29 @@ use File::Glob qw(:case);
         ],
     },
 
+    'Devel::NYTProf' => {
+        'DISTRIBUTION' => 'TIMB/Devel-NYTProf-6.02.tar.gz',
+        'FILES'        => q[cpan/Devel-NYTProf],
+        'EXCLUDED'     => [
+            qr{^t/9*.t},
+            qr{^xt/},
+            qr{^demo/},
+            qw( Changes
+                HACKING
+                INSTALL
+                MANIFEST
+                .gdbinit
+                .gitignore
+                .indent.pro
+                .perltidyrc
+                .travis.yml
+                ppport.h
+                META.json
+                META.yml
+                )
+        ],
+    },
+
     'Devel::PPPort' => {
         'DISTRIBUTION' => 'WOLFSAGE/Devel-PPPort-3.31.tar.gz',
         # RJBS has asked MHX to have UPSTREAM be 'blead'

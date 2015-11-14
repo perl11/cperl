@@ -1,0 +1,11 @@
+const char * T_PV
+NYTP_file T_NYTPROF_FILE
+
+INPUT
+T_NYTPROF_FILE
+	if (sv_isa($arg, \"Devel::NYTProf::FileHandle\"))
+	    $var = (NYTP_file)SvPVX(SvRV($arg));
+	else
+	    Perl_croak(aTHX_ \"%s: %s is not of type Devel::NYTProf::FileHandle\",
+			${$ALIAS?\q[GvNAME(CvGV(cv))]:\qq[\"$pname\"]},
+			\"$var\")

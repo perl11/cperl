@@ -1,0 +1,2 @@
+main::foo 4
+main::foo;main::CORE:print 4

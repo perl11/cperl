@@ -1,0 +1,6 @@
+main::__ANON__[(eval 0)[test22-strevala.p:6]:2] 1
+main::__ANON__[(eval 0)[test22-strevala.p:6]:2];main::CORE:print 1
+main::__ANON__[(eval 0)[test22-strevala.p:9]:2] 2
+main::__ANON__[(eval 0)[test22-strevala.p:9]:2];main::CORE:print 2
+main::__ANON__[(eval 0)[(eval 0)[test22-strevala.p:12]:2]:2] 2
+main::__ANON__[(eval 0)[(eval 0)[test22-strevala.p:12]:2]:2];main::CORE:print 2

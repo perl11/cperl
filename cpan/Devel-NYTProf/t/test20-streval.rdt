@@ -1,0 +1,71 @@
+attribute	application	test20-streval.p
+attribute	basetime	0
+attribute	clock_id	0
+attribute	complete	1
+attribute	nv_size	0
+attribute	perl_version	0
+attribute	profiler_active	0
+attribute	profiler_duration	0
+attribute	profiler_end_time	0
+attribute	profiler_start_time	0
+attribute	ticks_per_sec	0
+attribute	total_stmts_discounted	0
+attribute	total_stmts_duration	0
+attribute	total_stmts_measured	0
+attribute	total_sub_calls	0
+attribute	xs_version	0
+fid_block_time	1	3	[ 0 4 ]
+fid_block_time	1	5	[ 0 1 ]
+fid_block_time	1	8	[ 0 1 ]
+fid_block_time	1	11	[ 0 2 ]
+fid_block_time	1	14	[ 0 1 ]
+fid_block_time	2	1	[ 0 1 ]
+fid_block_time	3	1	[ 0 1 ]
+fid_block_time	5	1	[ 0 1 ]
+fid_block_time	6	1	[ 0 1 ]
+fid_fileinfo	1	[ test20-streval.p   1 2 0 0 ]
+fid_fileinfo	1	sub	main::BEGIN	0-0
+fid_fileinfo	1	sub	main::CORE:print	0-0
+fid_fileinfo	1	sub	main::RUNTIME	1-1
+fid_fileinfo	1	sub	main::foo	3-3
+fid_fileinfo	1	call	3	main::CORE:print	[ 4 0 0 0 0 0 0 main::foo ]
+fid_fileinfo	1	eval	8	[ count 1 nested 0 merged 0 ]
+fid_fileinfo	1	eval	11	[ count 1 nested 0 merged 1 ]
+fid_fileinfo	1	eval	14	[ count 1 nested 1 merged 0 ]
+fid_fileinfo	2	[ (eval 0)[test20-streval.p:8] 1 8 2 2 0 0 ]
+fid_fileinfo	2	call	1	main::foo	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+fid_fileinfo	3	[ (eval 0)[test20-streval.p:11] 1 11 3 2 0 0 ]
+fid_fileinfo	3	call	1	main::foo	[ 2 0 0 0 0 0 0 main::RUNTIME ]
+fid_fileinfo	5	[ (eval 0)[test20-streval.p:14] 1 14 5 2 0 0 ]
+fid_fileinfo	5	eval	1	[ count 1 nested 0 merged 0 ]
+fid_fileinfo	6	[ (eval 0)[(eval 0)[test20-streval.p:14]:1] 5 1 6 2 0 0 ]
+fid_fileinfo	6	call	1	main::foo	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+fid_line_time	1	3	[ 0 4 ]
+fid_line_time	1	5	[ 0 1 ]
+fid_line_time	1	8	[ 0 1 ]
+fid_line_time	1	11	[ 0 2 ]
+fid_line_time	1	14	[ 0 1 ]
+fid_line_time	2	1	[ 0 1 ]
+fid_line_time	3	1	[ 0 2 ]
+fid_line_time	5	1	[ 0 1 ]
+fid_line_time	6	1	[ 0 1 ]
+fid_sub_time	1	3	[ 0 4 ]
+fid_sub_time	1	5	[ 0 1 ]
+fid_sub_time	1	8	[ 0 1 ]
+fid_sub_time	1	11	[ 0 2 ]
+fid_sub_time	1	14	[ 0 1 ]
+fid_sub_time	2	1	[ 0 1 ]
+fid_sub_time	3	1	[ 0 1 ]
+fid_sub_time	5	1	[ 0 1 ]
+fid_sub_time	6	1	[ 0 1 ]
+profile_modes	fid_block_time	block
+profile_modes	fid_line_time	line
+profile_modes	fid_sub_time	sub
+sub_subinfo	main::BEGIN	[ 1:0-0 calls 0 times 0 0 0 0 ]
+sub_subinfo	main::CORE:print	[ 1:0-0 calls 4 times 0 0 0 0 ]
+sub_subinfo	main::CORE:print	called_by	1:3	[ 4 0 0 0 0 0 0 main::foo ]
+sub_subinfo	main::RUNTIME	[ 1:1-1 calls 0 times 0 0 0 0 ]
+sub_subinfo	main::foo	[ 1:3-3 calls 4 times 0 0 0 0 ]
+sub_subinfo	main::foo	called_by	2:1	[ 1 0 0 0 0 0 0 main::RUNTIME ]
+sub_subinfo	main::foo	called_by	3:1	[ 2 0 0 0 0 0 0 main::RUNTIME ]
+sub_subinfo	main::foo	called_by	6:1	[ 1 0 0 0 0 0 0 main::RUNTIME ]

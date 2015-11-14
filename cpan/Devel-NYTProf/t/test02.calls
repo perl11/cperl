@@ -1,0 +1,14 @@
+main::bar 2
+main::bar;main::CORE:print 2
+main::foo 1
+main::foo;main::CORE:print 1
+main::foo;main::bar 1
+main::foo;main::bar;main::CORE:print 1
+main::baz 1
+main::baz;main::CORE:print 1
+main::baz;main::bar 3
+main::baz;main::bar;main::CORE:print 3
+main::baz;main::foo 1
+main::baz;main::foo;main::CORE:print 1
+main::baz;main::foo;main::bar 1
+main::baz;main::foo;main::bar;main::CORE:print 1

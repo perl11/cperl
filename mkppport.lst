@@ -5,6 +5,7 @@
 # This file is read by mkppport at build time.
 #
 
+cpan/Devel-NYTProf
 cpan/DB_File
 cpan/IPC-SysV
 cpan/Scalar-List-Utils

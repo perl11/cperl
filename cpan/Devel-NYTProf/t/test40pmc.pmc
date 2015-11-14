@@ -1,0 +1,9 @@
+# this is test14.pmc which perl will load in preference to test14.pmc
+# (if it's newer than test14.pm)
+package test40pmc;
+
+sub foo {
+  1;
+}
+
+1;

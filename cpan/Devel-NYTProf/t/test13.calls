@@ -1,0 +1,9 @@
+main::foo 1
+main::foo;main::CORE:print 1
+main::bar 1
+main::bar;main::CORE:print 1
+main::baz 1
+main::baz;main::CORE:print 1
+main::baz;main::foo 2
+main::baz;main::foo;main::CORE:print 2
+main::baz;main::x 1
