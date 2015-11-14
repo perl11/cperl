@@ -493,12 +493,11 @@ use File::Glob qw(:case);
     },
 
     'ExtUtils::Constant' => {
-
         # Nick has confirmed that while we have diverged from CPAN,
         # this package isn't primarily maintained in core
         # Another release will happen "Sometime"
         'DISTRIBUTION' => '',    #'NWCLARK/ExtUtils-Constant-0.16.tar.gz',
-        'FILES'    => q[cpan/ExtUtils-Constant],
+        'FILES'    => q[dist/ExtUtils-Constant],
         'EXCLUDED' => [
             qw( lib/ExtUtils/Constant/Aaargh56Hash.pm
                 examples/perl_keyword.pl

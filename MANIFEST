@@ -1229,12 +1229,6 @@ cpan/ExtUtils-Command/lib/ExtUtils/Command.pm	Utilities for Make on non-UNIX pla
 cpan/ExtUtils-Command/t/cp.t			See if ExtUtils::Command works
 cpan/ExtUtils-Command/t/eu_command.t		See if ExtUtils::Command works
 cpan/ExtUtils-Command/t/lib/TieOut.pm		Testing library to capture prints
-cpan/ExtUtils-Constant/lib/ExtUtils/Constant/Base.pm		generate XS code to import C header constants
-cpan/ExtUtils-Constant/lib/ExtUtils/Constant.pm			generate XS code to import C header constants
-cpan/ExtUtils-Constant/lib/ExtUtils/Constant/ProxySubs.pm	generate XS code for proxy constants
-cpan/ExtUtils-Constant/lib/ExtUtils/Constant/Utils.pm		generate XS code to import C header constants
-cpan/ExtUtils-Constant/lib/ExtUtils/Constant/XS.pm		generate XS code to import C header constants
-cpan/ExtUtils-Constant/t/Constant.t				See if ExtUtils::Constant works
 cpan/ExtUtils-Install/lib/ExtUtils/Installed.pm		Information on installed extensions
 cpan/ExtUtils-Install/lib/ExtUtils/Install.pm		Handles 'make install' on extensions
 cpan/ExtUtils-Install/lib/ExtUtils/Packlist.pm		Manipulates .packlist files
@@ -3245,6 +3239,12 @@ dist/ExtUtils-CBuilder/t/01-basic.t				tests for ExtUtils::CBuilder
 dist/ExtUtils-CBuilder/t/02-link.t				tests for ExtUtils::CBuilder
 dist/ExtUtils-CBuilder/t/03-cplusplus.t				tests for ExtUtils::CBuilder
 dist/ExtUtils-CBuilder/t/04-base.t				tests for ExtUtils::CBuilder
+dist/ExtUtils-Constant/lib/ExtUtils/Constant/Base.pm		generate XS code to import C header constants
+dist/ExtUtils-Constant/lib/ExtUtils/Constant.pm			generate XS code to import C header constants
+dist/ExtUtils-Constant/lib/ExtUtils/Constant/ProxySubs.pm	generate XS code for proxy constants
+dist/ExtUtils-Constant/lib/ExtUtils/Constant/Utils.pm		generate XS code to import C header constants
+dist/ExtUtils-Constant/lib/ExtUtils/Constant/XS.pm		generate XS code to import C header constants
+dist/ExtUtils-Constant/t/Constant.t				See if ExtUtils::Constant works
 dist/ExtUtils-ParseXS/Changes					ExtUtils::ParseXS change log
 dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS/Constants.pm		ExtUtils::ParseXS guts
 dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS/CountLines.pm	ExtUtils::ParseXS guts
