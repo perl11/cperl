@@ -10,7 +10,7 @@ require ExtUtils::Constant::Base;
 @ISA = qw(ExtUtils::Constant::Base Exporter);
 @EXPORT_OK = qw(%XS_Constant %XS_TypeSet);
 
-$VERSION = '0.03';
+$VERSION = '0.23_01';
 
 $is_perl56 = ($] < 5.007 && $] > 5.005_50);
 
@@ -174,7 +174,7 @@ sub C_constant_prefix_param {
   "aTHX_ ";
 }
 
-sub C_constant_prefix_param_defintion {
+sub C_constant_prefix_param_definition {
   "pTHX_ ";
 }
 

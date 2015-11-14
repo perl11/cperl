@@ -9,7 +9,7 @@ require ExtUtils::Constant::XS;
 use ExtUtils::Constant::Utils qw(C_stringify);
 use ExtUtils::Constant::XS qw(%XS_TypeSet);
 
-$VERSION = '0.08';
+$VERSION = '0.23_01';
 @ISA = 'ExtUtils::Constant::XS';
 
 %type_to_struct =
@@ -229,7 +229,7 @@ sub WriteConstants {
     my ($found, $notfound, $trouble)
 	= $self->partition_names($default_type, @items);
 
-    my $pthx = $self->C_constant_prefix_param_defintion();
+    my $pthx = $self->C_constant_prefix_param_definition();
     my $athx = $self->C_constant_prefix_param();
     my $symbol_table = C_stringify($package) . '::';
     $push = C_stringify($package . '::' . $push) if $push;
@@ -268,8 +268,8 @@ EO_NOPCS
     SV *sv;
 
     if (!he) {
-        Perl_croak($athx "Couldn't add key '%s' to %%$package_sprintf_safe\::",
-		   name);
+        croak("Couldn't add key '%s' to %%$package_sprintf_safe\::",
+	      name);
     }
     sv = HeVAL(he);
     if (SvOK(sv) || SvTYPE(sv) == SVt_PVGV) {
@@ -306,9 +306,8 @@ static int
 Im_sorry_Dave(pTHX_ SV *sv, MAGIC *mg)
 {
     PERL_UNUSED_ARG(mg);
-    Perl_croak(aTHX_
-	       "Your vendor has not defined $package_sprintf_safe macro %"SVf
-	       " used", sv);
+    croak("Your vendor has not defined $package_sprintf_safe macro %"SVf
+          " used", sv);
     NORETURN_FUNCTION_END;
 }
 
@@ -491,9 +490,8 @@ EXPLODE
 		HEK *hek;
 #endif
 		if (!he) {
-		    Perl_croak($athx
-			       "Couldn't add key '%s' to %%$package_sprintf_safe\::",
-			       value_for_notfound->name);
+		    croak("Couldn't add key '%s' to %%$package_sprintf_safe\::",
+			  value_for_notfound->name);
 		}
 		sv = HeVAL(he);
 		if (!SvOK(sv) && SvTYPE(sv) != SVt_PVGV) {
@@ -521,8 +519,8 @@ EXPLODE
 		if (!hv_common(${c_subname}_missing, NULL, HEK_KEY(hek),
  			       HEK_LEN(hek), HEK_FLAGS(hek), HV_FETCH_ISSTORE,
 			       &PL_sv_yes, HEK_HASH(hek)))
-		    Perl_croak($athx "Couldn't add key '%s' to missing_hash",
-			       value_for_notfound->name);
+		    croak("Couldn't add key '%s' to missing_hash",
+			  value_for_notfound->name);
 #endif
 DONT
 
@@ -597,6 +595,10 @@ EOBOOT
     return if !defined $xs_subname;
 
     if ($croak_on_error || $autoload) {
+        my $newSVpvtemp = $] >= 5010001
+          ? "newSVpvn_flags(SvPVX(cv), SvCUR(cv), SVs_TEMP | SvUTF8(cv))"
+          # no UTF-8 subnames < 5.10.1
+          : "sv_2mortal(newSVpvn(SvPVX(cv), SvCUR(cv)))";
         print $xs_fh $croak_on_error ? <<"EOC" : <<'EOA';
 
 void
@@ -614,7 +616,7 @@ void
 AUTOLOAD()
     PROTOTYPE: DISABLE
     PREINIT:
-	SV *sv = newSVpvn_flags(SvPVX(cv), SvCUR(cv), SVs_TEMP | SvUTF8(cv));
+	SV *sv = $newSVpvtemp;
 	const COP *cop = PL_curcop;
 EOA
         print $xs_fh <<"EOC";
@@ -629,16 +631,19 @@ EOA
 	if ((C_ARRAY_LENGTH(values_for_notfound) > 1)
 	    ? hv_exists_ent(${c_subname}_missing, sv, 0) : 0) {
 	    sv = newSVpvf("Your vendor has not defined $package_sprintf_safe macro %" SVf
-			  ", used at %" COP_FILE_F " line %d\\n", sv,
-			  COP_FILE(cop), CopLINE(cop));
+			  ", used at %" COP_FILE_F " line %" UVuf "\\n", 
+			  sv, COP_FILE(cop), (UV)CopLINE(cop));
 	} else
 #endif
 	{
 	    sv = newSVpvf("%"SVf" is not a valid $package_sprintf_safe macro at %"
-			  COP_FILE_F " line %d\\n", sv, COP_FILE(cop), CopLINE(cop));
+			  COP_FILE_F " line %" UVuf "\\n",
+			  sv, COP_FILE(cop), (UV)CopLINE(cop));
 	}
-	croak_sv(sv_2mortal(sv));
 EOC
+        print $xs_fh $] >= 5.013001
+          ? "\tcroak_sv(sv_2mortal(sv));\n"
+          : "\tcroak(SvPV_nolen(sv_2mortal(sv)));\n";
     } else {
         print $xs_fh $explosives ? <<"EXPLODE" : <<"DONT";
 

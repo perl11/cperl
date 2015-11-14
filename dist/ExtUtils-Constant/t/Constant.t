@@ -1,8 +1,17 @@
 #!/usr/bin/perl -w
 
 use Config;
+use IPC::Cmd qw(can_run);
+
 unless ($Config{usedl}) {
-    print "1..0 # no usedl, skipping\n";
+    print "1..0 # SKIP no usedl\n";
+    exit 0;
+}
+my $make = $Config{make};
+$make = $ENV{MAKE} if exists $ENV{MAKE};
+if ($^O eq 'MSWin32' && $make eq 'nmake') { $make .= " -nologo"; }
+unless ( can_run($make) ) {
+    print "1..0 # SKIP make not available\n";
     exit 0;
 }
 
@@ -33,10 +42,6 @@ $^X = $perl;
 # 5.005 doesn't have rel2abs, but also doesn't need to load an uninstalled
 # module from blib
 @INC = map {File::Spec->rel2abs($_)} @INC if $] < 5.007 && $] >= 5.006;
-
-my $make = $Config{make};
-$make = $ENV{MAKE} if exists $ENV{MAKE};
-if ($^O eq 'MSWin32' && $make eq 'nmake') { $make .= " -nologo"; }
 
 # VMS may be using something other than MMS/MMK
 my $mms_or_mmk = ($make =~ m/^MM(S|K)/i) ? 1 : 0;
@@ -124,6 +129,7 @@ sub check_for_bonus_files {
 sub build_and_run {
   my ($tests, $expect, $files) = @_;
   my $core = $ENV{PERL_CORE} ? ' PERL_CORE=1' : '';
+  sleep 1; # [RT #78188]
   my @perlout = `$perl Makefile.PL $core`;
   if ($?) {
     print "not ok $realtest # $perl Makefile.PL failed: $?\n";

@@ -1,6 +1,7 @@
 package ExtUtils::Constant;
 use vars qw (@ISA $VERSION @EXPORT_OK %EXPORT_TAGS);
-$VERSION = 0.23;
+$VERSION = '0.23_01';
+$VERSION = eval $VERSION;
 
 =head1 NAME
 
@@ -198,17 +199,17 @@ $XS_subname(sv)
 EOT
 
   if ($params->{IV}) {
-    $xs .= "	IV		iv;\n";
+    $xs .= "	IV		iv = 0; /* avoid uninit var warning */\n";
   } else {
     $xs .= "	/* IV\t\tiv;\tUncomment this if you need to return IVs */\n";
   }
   if ($params->{NV}) {
-    $xs .= "	NV		nv;\n";
+    $xs .= "	NV		nv = 0.0; /* avoid uninit var warning */\n";
   } else {
     $xs .= "	/* NV\t\tnv;\tUncomment this if you need to return NVs */\n";
   }
   if ($params->{PV}) {
-    $xs .= "	const char	*pv;\n";
+    $xs .= "	const char	*pv = NULL; /* avoid uninit var warning */\n";
   } else {
     $xs .=
       "	/* const char\t*pv;\tUncomment this if you need to return PVs */\n";
