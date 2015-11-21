@@ -46,7 +46,7 @@ use B qw(class main_root main_start main_cv svref_2object opnumber perlstring
         MDEREF_SHIFT
     );
 
-$VERSION = '1.35_01c';
+$VERSION = '1.36_01c';
 $VERSION =~ s/c$//;
 use strict;
 use vars qw/$AUTOLOAD/;
@@ -2651,10 +2651,11 @@ sub pp_readline {
     my $self = shift;
     my($op, $cx) = @_;
     my $kid = $op->first;
-    if (is_scalar($kid)) {
-        my $kid_deparsed = $self->deparse($kid, 1);
-        return '<<>>' if $op->flags & OPf_SPECIAL and $kid_deparsed eq 'ARGV';
-        return "<$kid_deparsed>";
+    if (is_scalar($kid)
+        and $op->flags & OPf_SPECIAL
+        and $self->deparse($kid, 1) eq 'ARGV')
+    {
+        return '<<>>';
     }
     return $self->unop($op, $cx, "readline");
 }
@@ -3230,19 +3231,10 @@ sub pp_glob {
     my $kid = $op->first->sibling;  # skip pushmark
     my $keyword =
 	$op->flags & OPf_SPECIAL ? 'glob' : $self->keyword('glob');
-    my $text;
-    if ($keyword =~ /^CORE::/
-	or $kid->name ne 'const'
-	or ($text = $self->dq($kid))
-	     =~ /^\$?(\w|::|\`)+$/ # could look like a readline
-        or $text =~ /[<>]/) {
-	$text = $self->deparse($kid);
-	return $cx >= 5 || $self->{'parens'}
-	    ? "$keyword($text)"
-	    : "$keyword $text";
-    } else {
-	return '<' . $text . '>';
-    }
+    my $text = $self->deparse($kid);
+    return $cx >= 5 || $self->{'parens'}
+	? "$keyword($text)"
+	: "$keyword $text";
 }
 
 # Truncate is special because OPf_SPECIAL makes a bareword first arg
