@@ -1235,7 +1235,7 @@ use File::Glob qw(:case);
     },
 
     'Test' => {
-        'DISTRIBUTION' => 'JESSE/Test-1.26.tar.gz',
+        'DISTRIBUTION' => 'JESSE/Test-1.28.tar.gz',
         'FILES'        => q[dist/Test],
     },
 
