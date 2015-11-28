@@ -4090,7 +4090,8 @@ Perl_newPROG(pTHX_ OP *o)
 	PL_savestack_ix = i;
     }
     else {
-	if (o->op_type == OP_STUB) {
+	if (o->op_type == OP_LINESEQ && OP_TYPE_IS(cUNOPo->op_first, OP_STUB))
+        {
             /* This block is entered if nothing is compiled for the main
                program. This will be the case for an genuinely empty main
                program, or one which only has BEGIN blocks etc, so already
@@ -4100,10 +4101,10 @@ Perl_newPROG(pTHX_ OP *o)
                f8a08f7b8bd67b28 (Jun 2001), integrated to blead as
                c71fccf11fde0068, changed perly.y so that newPROG() is now
                called with the output of block_end(), which returns a new
-               OP_STUB for the case of an empty optree. ByteLoader (and
+               LINESEQ - STUB for the case of an empty optree. ByteLoader (and
                maybe other things) also take this path, because they set up
-               PL_main_start and PL_main_root directly, without generating an
-               optree.
+               PL_main_start and PL_main_root directly which should not be
+               overwritten by this empty PL_compcv.
 
                If the parsing the main program aborts (due to parse errors,
                or due to BEGIN or similar calling exit), then newPROG()
