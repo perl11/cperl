@@ -38,13 +38,29 @@ number of Perl objects in the interpreter, which was removed in Perl 5.20.
 It is beneficial for all scripts which do not create objects in global scope,
 so we dont have to check all remaining SV's to call a potential DESTROY method.
 
-This broke binary back-compatibility on MULTIPLICITY and ITHREAD builds with 5.22.1.
+This broke binary back-compatibility on MULTIPLICITY and ITHREAD builds with
+cperl-5.22.1.
 
 =item *
 
 Minor improvements in the lexer code (F<toke.c>). Added helper
 functions, LEX_TYPE_*BRACKETS_ON|OFF macros, better DEBUGGING support.
 regen_perly keeps now useful temp. files.
+
+=item *
+
+Support static lexical warnings. Honor op_static with COPs. This helps
+producing better compiled perlcc code. (#70)
+
+=item *
+
+Support new ccflags -DPERL_SV_DEBUG_FIELDS for easier flags bitfields
+debugging, even without -DDEBUGGING.
+
+=item *
+
+Add support for CowREFCNT assertions and statistics and with -Dv,
+seperated from -DC.
 
 =item *
 
@@ -80,6 +96,27 @@ Fix 2 tests broken with readonly Config.
 =item Time::HiRes 1.9727_02
 
 To improve parallel builds on Windows.
+
+=item XSLoader 1.01c
+
+Support utf8-encoded XS modulenames.
+Beware: untested and platform incompatible.
+
+=item DynaLoader 2.01c
+
+Fixed typo @shared_objects. It is named @dl_shared_objects.
+This broke C<perlcc --staticxs> (#71)
+
+=item B 1.58_02
+
+Fix B::UNOP_AUX::aux_list design with threads.
+No 2nd cv arg, return the PADOFFSET not the SV. (#76)
+
+=item Safe 2.39_02c
+
+Fixed Safe version 'c' problem. Do not check the XS_VERSION of
+Opcode, because it has a cperl 'c' suffix, which is not yet fully
+supported in the version check code.
 
 =back
 
@@ -120,6 +157,14 @@ Bareword in require maps to disallowed filename "%s", with absolute
 filenames, filenames starting with "." or not ending with ".pm".
 
 =item * uncow on utf8::encode [cperl #50]
+
+=item * Fixed compilation with -DDEBUGGING and usethreads
+
+In the new loop bounds check elimination code.
+
+=item * Fixed ByteLoader [cperl #75]
+
+Fixed breakage from perl5.22.0 in op.c:newPROG()
 
 =back
 
