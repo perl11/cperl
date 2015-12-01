@@ -46,7 +46,7 @@ use B qw(class main_root main_start main_cv svref_2object opnumber perlstring
         MDEREF_SHIFT
     );
 
-$VERSION = '1.35c';
+$VERSION = '1.35_01c';
 use strict;
 use vars qw/$AUTOLOAD/;
 use warnings ();
@@ -1689,7 +1689,7 @@ sub gv_name {
     my $self = shift;
     my $gv = shift;
     my $raw = shift;
-#Carp::confess() unless ref($gv) eq "B::GV";
+#Carp::confess() unless ref($gv) eq "B::GV"; # padoffset
     my $cv = $gv->FLAGS & SVf_ROK ? $gv->RV : 0;
     my $stash = ($cv || $gv)->STASH->NAME;
     my $name = $raw
@@ -4009,6 +4009,8 @@ sub multideref_var_name {
     my $self = shift;
     my ($gv, $is_hash) = @_;
 
+    # threaded padoffset
+    $gv = $self->padval($gv) unless ref $gv;
     my ($name, $quoted) =
         $self->stash_variable_name( $is_hash  ? '%' : '@', $gv);
     return $quoted ? "$name->"
@@ -4038,7 +4040,7 @@ sub pp_multideref {
         $text .=  $self->deparse($op->first, 24);
     }
 
-    my @items = $op->aux_list($self->{curcv});
+    my @items = $op->aux_list;
     my $actions = shift @items;
 
     my $is_hash;
@@ -4116,6 +4118,7 @@ sub pp_multideref {
         if (($actions & MDEREF_INDEX_MASK) == MDEREF_INDEX_const) {
             my $key = shift @items;
             if ($is_hash) {
+                $key = $self->padval($key) unless ref $key; # threaded padoffset
                 $text .= $self->const($key, $cx);
             }
             else {
@@ -4126,7 +4129,9 @@ sub pp_multideref {
             $text .= $self->padname(shift @items);
         }
         elsif (($actions & MDEREF_INDEX_MASK) == MDEREF_INDEX_gvsv) {
-            $text .= '$' .  ($self->stash_variable_name('$', shift @items))[0];
+            my $gv = shift @items;
+            $gv = $self->padval($gv) unless ref $gv; # threaded padoffset
+            $text .= '$' .  ($self->stash_variable_name('$', $gv))[0];
         }
 
         $text .= $is_hash ? '}' : ']';
@@ -6301,3 +6306,11 @@ Hugo van der Sanden, Gurusamy Sarathy, Nick Ing-Simmons, and Rafael
 Garcia-Suarez.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 100
+# End:
+# vim: expandtab shiftwidth=4:
+

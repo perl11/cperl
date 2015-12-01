@@ -1378,16 +1378,14 @@ string(o, cv)
 	ST(0) = ret;
 	XSRETURN(1);
 
-
-# Return the contents of the op_aux array as a list of IV/GV/etc objects.
-# How to interpret each array element is op-dependent. The op's CV is
-# needed as an extra arg to allow GVs and SVs which have been moved into
-# the pad to be accessed okay.
+# Return the contents of the op_aux array as a list of IV/SV/GV/PADOFFSET objects.
+# This cperl version does not need the 2nd cv argument and returns the padoffset
+# of SV/GV under ithreads, and not the SV/GV itself. It also uses simplified mPUSH macros.
+# The design of the upstream aux_list method deviates significantly from proper B design.
 
 void
-aux_list(o, cv)
+aux_list(o)
 	B::OP  o
-	B::CV  cv
     PPCODE:
         PERL_UNUSED_VAR(cv); /* not needed on unthreaded builds */
         switch (o->op_type) {
@@ -1396,31 +1394,26 @@ aux_list(o, cv)
 
         case OP_MULTIDEREF:
 #ifdef USE_ITHREADS
-#  define ITEM_SV(item) *av_fetch(comppad, (item)->pad_offset, FALSE);
+#  define PUSH_SV(item) mPUSHu((item)->pad_offset)
 #else
-#  define ITEM_SV(item) UNOP_AUX_item_sv(item)
+#  define PUSH_SV(item) PUSHs(make_sv_object(aTHX_ (item)->sv))
 #endif
             {
                 UNOP_AUX_item *items = cUNOP_AUXo->op_aux;
                 UV actions = items->uv;
                 UV len = items[-1].uv;
-                SV *sv;
                 bool last = 0;
                 bool is_hash = FALSE;
-#ifdef USE_ITHREADS
-                PADLIST * const padlist = CvPADLIST(cv);
-                PAD *comppad = PadlistARRAY(padlist)[1];
-#endif
 
                 EXTEND(SP, len);
-                PUSHs(sv_2mortal(newSViv(actions)));
+                mPUSHu(actions);
 
                 while (!last) {
                     switch (actions & MDEREF_ACTION_MASK) {
 
                     case MDEREF_reload:
                         actions = (++items)->uv;
-                        PUSHs(sv_2mortal(newSVuv(actions)));
+                        mPUSHu(actions);
                         continue;
                         NOT_REACHED; /* NOTREACHED */
 
@@ -1428,7 +1421,7 @@ aux_list(o, cv)
                         is_hash = TRUE;
                         /* FALLTHROUGH */
                     case MDEREF_AV_padav_aelem:
-                        PUSHs(sv_2mortal(newSVuv((++items)->pad_offset)));
+                        mPUSHu((++items)->pad_offset);
                         goto do_elem;
                         NOT_REACHED; /* NOTREACHED */
 
@@ -1436,8 +1429,7 @@ aux_list(o, cv)
                         is_hash = TRUE;
                         /* FALLTHROUGH */
                     case MDEREF_AV_gvav_aelem:
-                        sv = ITEM_SV(++items);
-                        PUSHs(make_sv_object(aTHX_ sv));
+                        PUSH_SV(++items);
                         goto do_elem;
                         NOT_REACHED; /* NOTREACHED */
 
@@ -1445,8 +1437,7 @@ aux_list(o, cv)
                         is_hash = TRUE;
                         /* FALLTHROUGH */
                     case MDEREF_AV_gvsv_vivify_rv2av_aelem:
-                        sv = ITEM_SV(++items);
-                        PUSHs(make_sv_object(aTHX_ sv));
+                        PUSH_SV(++items);
                         goto do_vivify_rv2xv_elem;
                         NOT_REACHED; /* NOTREACHED */
 
@@ -1454,7 +1445,7 @@ aux_list(o, cv)
                         is_hash = TRUE;
                         /* FALLTHROUGH */
                     case MDEREF_AV_padsv_vivify_rv2av_aelem:
-                        PUSHs(sv_2mortal(newSVuv((++items)->pad_offset)));
+                        mPUSHu((++items)->pad_offset);
                         goto do_vivify_rv2xv_elem;
                         NOT_REACHED; /* NOTREACHED */
 
@@ -1471,19 +1462,16 @@ aux_list(o, cv)
                             last = 1;
                             break;
                         case MDEREF_INDEX_const:
-                            if (is_hash) {
-                                sv = ITEM_SV(++items);
-                                PUSHs(make_sv_object(aTHX_ sv));
-                            }
+                            if (is_hash)
+                              PUSH_SV(++items);
                             else
-                                PUSHs(sv_2mortal(newSViv((++items)->iv)));
+                              mPUSHi((++items)->iv);
                             break;
                         case MDEREF_INDEX_padsv:
-                            PUSHs(sv_2mortal(newSVuv((++items)->pad_offset)));
+                            mPUSHu((++items)->pad_offset);
                             break;
                         case MDEREF_INDEX_gvsv:
-                            sv = ITEM_SV(++items);
-                            PUSHs(make_sv_object(aTHX_ sv));
+                            PUSH_SV(++items);
                             break;
                         }
                         if (actions & MDEREF_FLAG_last)
@@ -1499,7 +1487,6 @@ aux_list(o, cv)
 
             } /* OP_MULTIDEREF */
         } /* switch */
-
 
 
 MODULE = B	PACKAGE = B::SV
