@@ -41,15 +41,13 @@ env:
     - CONFIGURE_OPTION='-Duselongdouble' CC='clang'
     - CONFIGURE_OPTION='-Duselongdouble -DDEBUGGING' CC='gcc'
     - CONFIGURE_OPTION='-Duse64bitall -Dusethreads' CC='gcc'
-    - CONFIGURE_OPTION='-Uusecperl' CC='gcc'
     - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall' CC='clang'
+    - CONFIGURE_OPTION='-Uusecperl' CC='gcc'
 
 matrix:
   allow_failures:
-    - CONFIGURE_OPTION='-Uusecperl' CC='gcc'
-    - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall' CC='clang'
-
-matrix:
+    - env: CONFIGURE_OPTION='-Uusecperl' CC='gcc'
+    - env: CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall' CC='clang'
   fast_finish: true
 
 #osx:   - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=corei7 -DPERL_FAKE_SIGNATURE"'

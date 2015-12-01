@@ -13672,9 +13672,13 @@ Perl_rpeep(pTHX_ OP *o)
                         if (rv2gv->op_type == OP_RV2GV) {
                             kid = cUNOPx(rv2gv)->op_first;
                             if (kid->op_type == OP_GV) {
-                                idx = kSVOP_sv; /* PVGV */
-#ifdef DEBUGGING
+                                idx = kSVOP_sv; /* PVGV or PADOFFSET */
+#if defined(DEBUGGING)
+#  ifdef USE_ITHREADS
+                                iname = GvNAME_get(PAD_SV((PADOFFSET)idx));
+#  else
                                 iname = GvNAME_get(idx);
+#  endif
 #endif
                             }
                         }
