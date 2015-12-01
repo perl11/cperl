@@ -137,7 +137,7 @@ S_ReANY(const REGEXP * const re)
 /* ------------------------------- sv.h ------------------------------- */
 
 PERL_STATIC_INLINE SV *
-S_SvREFCNT_inc(SV *sv)
+S_SvREFCNT_inc(pTHX_ SV *sv)
 {
     if (LIKELY(sv != NULL)) {
         /* We don't inc above MAX, but we keep silent, and leave potential leaks.
@@ -146,7 +146,7 @@ S_SvREFCNT_inc(SV *sv)
             SvREFCNT(sv)++;
 #if defined(DEBUGGING) && !defined(PERL_EXT_RE_DEBUG)
         else
-            warn("refcnt of %s (%p) too high. skipped\n", sv_peek(sv), sv);
+            Perl_warn(aTHX_ "refcnt of %s (%p) too high. skipped\n", sv_peek(sv), sv);
         if (SvREFCNT(sv) > PL_max_refcnt) {
             PL_max_refcnt++;
             PL_max_refcnt_sv = sv;
@@ -156,13 +156,13 @@ S_SvREFCNT_inc(SV *sv)
     return sv;
 }
 PERL_STATIC_INLINE SV *
-S_SvREFCNT_inc_NN(SV *sv)
+S_SvREFCNT_inc_NN(pTHX_ SV *sv)
 {
     if (SvREFCNT(sv) < SV_REFCNT_MAX)
         SvREFCNT(sv)++;
 #if defined(DEBUGGING) && !defined(PERL_EXT_RE_DEBUG)
     else
-        warn("refcnt of %s (%p) too high. skipped\n", sv_peek(sv), sv);
+        Perl_warn(aTHX_ "refcnt of %s (%p) too high. skipped\n", sv_peek(sv), sv);
     if (SvREFCNT(sv) > PL_max_refcnt) {
         PL_max_refcnt++;
         PL_max_refcnt_sv = sv;
@@ -171,14 +171,14 @@ S_SvREFCNT_inc_NN(SV *sv)
     return sv;
 }
 PERL_STATIC_INLINE void
-S_SvREFCNT_inc_void(SV *sv)
+S_SvREFCNT_inc_void(pTHX_ SV *sv)
 {
     if (LIKELY(sv != NULL)) {
         if (SvREFCNT(sv) < SV_REFCNT_MAX)
             SvREFCNT(sv)++;
 #if defined(DEBUGGING) && !defined(PERL_EXT_RE_DEBUG)
         else
-            warn("refcnt of %s (%p) too high. skipped\n", sv_peek(sv), sv);
+            Perl_warn(aTHX_ "refcnt of %s (%p) too high. skipped\n", sv_peek(sv), sv);
         if (SvREFCNT(sv) > PL_max_refcnt) {
             PL_max_refcnt++;
             PL_max_refcnt_sv = sv;

@@ -399,10 +399,10 @@ perform the upgrade if necessary.  See C<svtype>.
 #define SvREFCNT(sv)	(sv)->sv_refcnt
 #endif
 
-#define SvREFCNT_inc(sv)		S_SvREFCNT_inc(MUTABLE_SV(sv))
+#define SvREFCNT_inc(sv)		S_SvREFCNT_inc(aTHX_ MUTABLE_SV(sv))
 #define SvREFCNT_inc_simple(sv)		SvREFCNT_inc(sv)
-#define SvREFCNT_inc_NN(sv)		S_SvREFCNT_inc_NN(MUTABLE_SV(sv))
-#define SvREFCNT_inc_void(sv)		S_SvREFCNT_inc_void(MUTABLE_SV(sv))
+#define SvREFCNT_inc_NN(sv)		S_SvREFCNT_inc_NN(aTHX_ MUTABLE_SV(sv))
+#define SvREFCNT_inc_void(sv)		S_SvREFCNT_inc_void(aTHX_ MUTABLE_SV(sv))
 
 /* These guys don't need the curly blocks */
 #define SvREFCNT_inc_simple_void(sv)	STMT_START { if (sv) SvREFCNT(sv)++; } STMT_END
