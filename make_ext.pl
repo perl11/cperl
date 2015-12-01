@@ -258,8 +258,12 @@ foreach my $spec (@extspec)  {
 		    [@pass_through, @{$extra_passthrough{$spec} || []}]);
 }
 
-sub build_extension {
-    my ($ext_dir, $perl, $mname, $target, $pass_through) = @_;
+{
+    my($del_makefile_on_exit, $ext_dir, $makefile);
+
+sub build_extension { #build_extensions is not recursion safe
+    $ext_dir = shift;
+    my ($perl, $mname, $target, $pass_through) = @_;
 
     unless (chdir "$ext_dir") {
 	warn "Cannot cd to $ext_dir: $!";
@@ -274,7 +278,7 @@ sub build_extension {
     my $lib_dir = "$up/lib";
     $ENV{PERL_CORE} = 1;
 
-    my ($makefile, $makefile_no_minus_f);
+    my ($makefile_no_minus_f);
     if (IS_VMS) {
 	$makefile = 'descrip.mms';
 	if ($target =~ /clean$/
@@ -506,22 +510,31 @@ EOM
         # We are going to have to use Makefile.PL:
 	print "\nRunning Makefile.PL in $ext_dir\n" if $verbose;
 
-	my @args = ("-I$lib_dir", 'Makefile.PL');
-	if (IS_VMS) {
-	    my $libd = VMS::Filespec::vmspath($lib_dir);
-	    push @args, "INST_LIB=$libd", "INST_ARCHLIB=$libd";
-	} else {
-	    push @args, 'INSTALLDIRS=perl', 'INSTALLMAN1DIR=none',
-		'INSTALLMAN3DIR=none';
+	my $err;
+	{
+	    local @ARGV = (); #fake a system($^X) for perf
+	    if (IS_VMS) {
+		my $libd = VMS::Filespec::vmspath($lib_dir);
+		push @ARGV, "INST_LIB=$libd", "INST_ARCHLIB=$libd";
+	    } else {
+		push @ARGV, 'INSTALLDIRS=perl', 'INSTALLMAN1DIR=none',
+		    'INSTALLMAN3DIR=none';
+	    }
+	    push @ARGV, @$pass_through;
+	    print join(' ', @ARGV), "\n" if $verbose;
+	    local $ENV{PERL_MM_USE_DEFAULT} = 1;
+	    $del_makefile_on_exit = 1;
+	    #last statement not guaranteed to be true, see XSLoader Makefile.PL
+	    do './Makefile.PL';
+	    $del_makefile_on_exit = 0;
 	}
-	push @args, @$pass_through;
-	_quote_args(\@args) if IS_VMS;
-	print join(' ', $perl, @args), "\n" if $verbose;
-	my $code = do {
-	   local $ENV{PERL_MM_USE_DEFAULT} = 1;
-	    system $perl, @args;
-	};
-	warn "Error $code from $ext_dir\'s Makefile.PL" if $code;
+	if ($@) {
+	    my $err = $@;
+	    #make sure next build attempt/run of make_ext.pl doesn't succeed
+	    #even though Makefile.PL failed
+	    _unlink($makefile);
+	    die "Unsuccessful Makefile.PL($ext_dir): error=$err";
+	}
 
 	# Right. The reason for this little hack is that we're sitting inside
 	# a program run by ./miniperl, but there are tasks we need to perform
@@ -575,6 +588,15 @@ EOS
     die "Unsuccessful make($ext_dir): code=$code" if $code != 0;
 
     chdir $return_dir || die "Cannot cd to $return_dir: $!";
+}
+
+    END {
+	if($del_makefile_on_exit) { #exit() called, probably non-zero, delete
+	    #makefile so next run of make_ext.pl doesn't succeed
+	    _unlink($makefile);
+	    die "Unsuccessful Makefile.PL($ext_dir): error=exit($?) ";
+	}
+    }
 }
 
 sub _quote_args {
