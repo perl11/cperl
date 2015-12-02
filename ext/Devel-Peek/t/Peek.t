@@ -1031,9 +1031,9 @@ SUBSTR
 
 # Dump with no arguments
 eval 'Dump';
-like $@, qr/^Not enough arguments for Devel::Peek::Dump/, 'Dump;';
+like $@, qr/^Not enough arguments for subroutine entry Devel::Peek::Dump/, 'Dump;';
 eval 'Dump()';
-like $@, qr/^Not enough arguments for Devel::Peek::Dump/, 'Dump()';
+like $@, qr/^Not enough arguments for subroutine entry Devel::Peek::Dump/, 'Dump()';
 
 SKIP: {
     skip "Not built with usemymalloc", 2
