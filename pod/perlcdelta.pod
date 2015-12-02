@@ -112,6 +112,8 @@ This broke C<perlcc --staticxs> (#71)
 Fix B::UNOP_AUX::aux_list design with threads.
 No 2nd cv arg, return the PADOFFSET not the SV. (#76)
 
+Export SVt_ types. (#80)
+
 =item Safe 2.39_02c
 
 Fixed Safe version 'c' problem. Do not check the XS_VERSION of

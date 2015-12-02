@@ -32,7 +32,7 @@ foreach my $tuple (['cop.h'],
                    ['op_reg_common.h','(?:(?:RXf_)?PMf_)'],
                    ['pad.h','PADNAMEt_'],
                    ['regexp.h','RXf_'],
-                   ['sv.h', 'SV(?:[fps]|pad)_'],
+                   ['sv.h', 'SV(?:[fpst]|pad)_'],
                   ) {
     my $file = $tuple->[0];
     my $pfx = $tuple->[1] || '';
