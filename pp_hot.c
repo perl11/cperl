@@ -4404,8 +4404,16 @@ PP(pp_signature)
             SV *argsv;
             SV *varsv = (actions & SIGNATURE_FLAG_skip) ?  NULL : *padp++;
 
-            if ((actions & SIGNATURE_FLAG_ref) && (action != SIGNATURE_arg))
-                S_croak_caller("Reference parameter cannot take default value");
+            if (actions & SIGNATURE_FLAG_ref) {
+                if (UNLIKELY(action != SIGNATURE_arg))
+                    S_croak_caller("Reference parameter cannot take default value");
+                assert(argc);
+                argc--;
+                *(padp-1) = varsv = *argp++;
+                if (UNLIKELY(!varsv))
+                    S_croak_caller("Reference parameter may not be undef");
+                break;
+            }
             if (argc) {
                 argc--;
                 if (!varsv) {
