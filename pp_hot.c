@@ -4356,6 +4356,20 @@ PP(pp_signature)
     while (1) {
         UV action = (actions & SIGNATURE_ACTION_MASK); /* current action */
 
+        if (actions & SIGNATURE_FLAG_ref) {
+            if (UNLIKELY(action != SIGNATURE_arg
+                      && action != SIGNATURE_array
+                      && action != SIGNATURE_hash))
+                S_croak_caller("Reference parameter cannot take default value");
+            assert(argc);
+            argc--;
+            *padp = *argp++;
+            /*if (UNLIKELY(!*padp))
+              S_croak_caller("Reference parameter may not be undef");*/
+            actions >>= SIGNATURE_SHIFT;
+            continue;
+        }
+
         switch (action) {
         case SIGNATURE_reload:
             actions = (++items)->uv;
@@ -4402,18 +4416,9 @@ PP(pp_signature)
         {
             IV i;
             SV *argsv;
-            SV *varsv = (actions & SIGNATURE_FLAG_skip) ?  NULL : *padp++;
+            SV *varsv;
 
-            if (actions & SIGNATURE_FLAG_ref) {
-                if (UNLIKELY(action != SIGNATURE_arg))
-                    S_croak_caller("Reference parameter cannot take default value");
-                assert(argc);
-                argc--;
-                *(padp-1) = varsv = *argp++;
-                if (UNLIKELY(!varsv))
-                    S_croak_caller("Reference parameter may not be undef");
-                break;
-            }
+            varsv = (actions & SIGNATURE_FLAG_skip) ?  NULL : *padp++;
             if (argc) {
                 argc--;
                 if (!varsv) {
