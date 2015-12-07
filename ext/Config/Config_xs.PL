@@ -201,7 +201,8 @@ while (<$in>) {
         my $k = $1;
         my $v = $h{$k};
         my $qv = $v;
-        $qv =~ s/(\\[nrftacx ])/\\$1/g; # \n => \\n
+        $qv =~ s/(\\[^nrftacx"' ])/\\$1/g; # windows paths: \\ => \\\\
+        $qv =~ s/(\\[nrftacx ])/\\$1/g;  # \n => \\n, allowed escape chars
         my $l =  $v =~ m/["'\\]/ ?
           # don't calculate C-style length [cperl #61], let C do it for us
           # and don't count the ending \0
