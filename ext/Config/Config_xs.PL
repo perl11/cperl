@@ -202,12 +202,11 @@ while (<$in>) {
         my $v = $h{$k};
         my $qv = $v;
         $qv =~ s/(\\[nrftacx ])/\\$1/g; # \n => \\n
-        my $l = length $v;
-        if ($v =~ m/["'\\]/) {
+        my $l =  $v =~ m/["'\\]/ ?
           # don't calculate C-style length [cperl #61], let C do it for us
           # and don't count the ending \0
-          $l = 'sizeof ("' . $qv . '")-1';
-        }
+            'sizeof ("' . $qv . '")-1'
+          : length($v)+0;
         my $qr = "0,\"@@".$k."@@\"";
         my $new = $l . ', "' . $qv . '"';
         s/$qr/$new/; # we have one line per key only
