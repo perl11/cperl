@@ -1318,6 +1318,11 @@ PP(pp_multiply)
 
 #ifdef PERL_PRESERVE_IVUV
 
+#ifndef HAS_BUILTIN_ARITH_OVERFLOW
+    /* These "improvements" add a lot of superflouos checks, which are unneeded
+       with the fast overflow builtins. Benchmarked to be 48% slower than with
+       BUILTIN_ARITH_OVERFLOW. So only use this with older compilers. [cperl #83] */
+
     /* special-case some simple common cases */
     if (!((svl->sv_flags|svr->sv_flags) & (SVf_IVisUV|SVs_GMG))) {
         IV il, ir;
@@ -1374,6 +1379,7 @@ PP(pp_multiply)
     }
 
   generic:
+#endif
 
     if (SvIV_please_nomg(svr)) {
 	/* Unless the left argument is integer in range we are going to have to

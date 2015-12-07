@@ -597,7 +597,12 @@ PPt(pp_add, "(:Number,:Number):Number")
 
 #ifdef PERL_PRESERVE_IVUV
  
-     /* special-case some simple common cases */
+#ifndef HAS_BUILTIN_ARITH_OVERFLOW
+    /* These "improvements" add a lot of superflouos checks, which are unneeded
+       with the fast overflow builtins. Benchmarked to be 48% slower than with
+       BUILTIN_ARITH_OVERFLOW. So only use this with older compilers. [cperl #83] */
+
+    /* special-case some simple common cases */
      if (!((svl->sv_flags|svr->sv_flags) & (SVf_IVisUV|SVs_GMG))) {
          IV il, ir;
          U32 flags = (svl->sv_flags & svr->sv_flags);
@@ -639,7 +644,8 @@ PPt(pp_add, "(:Number,:Number):Number")
      }
  
    generic:
- 
+#endif
+
      useleft = USE_LEFT(svl);
     /* We must see if we can perform the addition with integers if possible,
        as the integer code detects overflow while the NV code doesn't.
