@@ -133,6 +133,8 @@ Improved support for threaded builds.
 =item *
 
 Windows support was added. There is also new support for parallel builds.
+The windows smokes are done via appveyor, on MSVC 10 and MSVC 12, on 32bit and 64bit,
+in optimized Release mode only. No mingw/gcc builds yet.
 
 =item *
 
