@@ -350,7 +350,7 @@ sub check_graph_consistency {
           print STDERR "# slowfast $slowfast\n";
           $all_passed = 0;
         }
-        unless (ok ($fastslow > 0, "fastslow should be > 0")) {
+        unless (ok ($fastslow >= 0, "fastslow should be >= 0")) {
           print STDERR "# fastslow $fastslow\n";
           $all_passed = 0;
         }
