@@ -2899,7 +2899,8 @@ PPt(pp_u_add, "(:Int,:Int):Numeric")
       dPOPTOPiirl_ul_nomg;
       SETi( left + right );
       if (SvIVX(TARG) < 0 && left>=0 && right>=0)
-          SETu( TARG );
+          /* IV and UV share the same field */
+          SvIsUV_on(TARG);
       RETURN;
     }
 }
@@ -2912,7 +2913,7 @@ PPt(pp_u_multiply, "(:Int,:Int):Numeric")
       dPOPTOPiirl_ul_nomg;
       SETi( left * right );
       if (SvIVX(TARG) < 0 && left>=0 && right>=0)
-          SETu( TARG );
+          SvIsUV_on(TARG);
       RETURN;
     }
 }
@@ -2924,8 +2925,8 @@ PPt(pp_u_subtract, "(:Int,:Int):Numeric")
     {
       dPOPTOPiirl_ul_nomg;
       SETi( left - right );
-      if (SvIVX(TARG) < 0 && left>right)
-          SETu( TARG );
+      if (SvIVX(TARG) < 0 && left > right)
+          SvIsUV_on(TARG);
       RETURN;
     }
 }

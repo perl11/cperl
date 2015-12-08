@@ -9,7 +9,7 @@ BEGIN {
 # functions imported from t/test.pl or Test::More, as those programs/libraries
 # use operators which are what is being tested in this file.
 
-print "1..190\n";
+print "1..192\n";
 
 sub try ($$$) {
    print +($_[1] ? "ok" : "not ok"), " $_[0] - $_[2]\n";
@@ -97,7 +97,7 @@ tryeq $T++, 2031664238 % 4063328477, 2031664238,
 
 tryeq $T++, 2147483647 + 0, 2147483647,
     'trigger wrapping on 32 bit IVs and UVs';
-
+# 32bit only:
 tryeq $T++, 2147483647 + 1, 2147483648, 'IV + IV promotes to UV';
 tryeq $T++, 2147483640 + 10, 2147483650, 'IV + IV promotes to UV';
 tryeq $T++, 2147483647 + 2147483647, 4294967294, 'IV + IV promotes to UV';
@@ -111,6 +111,9 @@ tryeq $T++, -1 + 2147483648, 2147483647, 'IV + UV promotes to IV';
 tryeq $T++, -10 + 4294967294, 4294967284, 'IV + UV promotes to IV';
 tryeq $T++, -2147483648 + -2147483648, -4294967296, 'IV + IV promotes to NV';
 tryeq $T++, -2147483640 + -10, -2147483650, 'IV + IV promotes to NV';
+
+tryeq $T++, 9223372036854775806 + 9223372036854775806, 18446744073709551612, 'IV64 + IV64 promotes to UV';
+tryeq_sloppy $T++, 9223372036854775806 + 18446744073709551614, 2.76701161105643e+19, 'IV64 + UV64 promotes to NV';
 
 # Hmm. Do not forget the simple stuff
 # addition
@@ -478,13 +481,15 @@ else {
 
 # [perl #120426]
 # small numbers shouldn't round to zero if they have extra floating digits
-
 try $T++,  0.153e-305 != 0.0,              '0.153e-305';
+
+# the next 5 need v5.20
 try $T++,  0.1530e-305 != 0.0,             '0.1530e-305';
 try $T++,  0.15300e-305 != 0.0,            '0.15300e-305';
 try $T++,  0.153000e-305 != 0.0,           '0.153000e-305';
 try $T++,  0.1530000e-305 != 0.0,          '0.1530000e-305';
 try $T++,  0.1530001e-305 != 0.0,          '0.1530001e-305';
+
 try $T++,  1.17549435100e-38 != 0.0,       'min single';
 # For flush-to-zero systems this may flush-to-zero, see PERL_SYS_FPU_INIT
 try $T++,  2.2250738585072014e-308 != 0.0, 'min double';
