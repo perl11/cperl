@@ -7,6 +7,10 @@ if (scalar keys %Config:: > 2) {
 
 require Config; #this is supposed to be XS config
 require B;
+#is_deeply->overload.pm wants these 2 XS modules
+#can't be required once DynaLoader is removed later on
+require Scalar::Util;
+require mro;
 my $cv = B::svref_2object(*{'Config::FETCH'}{CODE});
 unless ($cv->CvFLAGS & B::CVf_ISXSUB()) {
   print "0..1 #SKIP Config:: is not XS Config, miniperl?\n";
@@ -65,3 +69,30 @@ if ($klenPP != $klenXS) {
 }
 
 is_deeply ($copy ? \%Config_copy : \%Config, \%XSConfig, "cmp PP to XS hashes");
+
+if (!Test::More->builder->is_passing()) {
+  if (index(`diff --help`, 'Usage: diff') != -1) {
+    open my $f, '>','xscfg.txt';
+    print $f Data::Dumper::Dumper({%XSConfig});
+    close $f;
+    open my $g, '>', 'ppcfg.txt';
+  
+    print $g ($copy
+              ? Data::Dumper::Dumper({%Config_copy})
+              : Data::Dumper::Dumper({%Config}));
+    close $g;
+    system('diff -U 0 ppcfg.txt xscfg.txt > cfg.diff');
+    unlink('xscfg.txt');
+    unlink('ppcfg.txt');
+    if (-s 'cfg.diff') {
+      open my $h , '<','cfg.diff';
+      local $/;
+      my $file = <$h>;
+      close $h;
+      diag($file);
+    }
+    unlink('cfg.diff');
+  } else {
+    diag('diff not available, can\'t output config delta');
+  }
+}
