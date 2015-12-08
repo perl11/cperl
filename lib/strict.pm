@@ -1,6 +1,6 @@
 package strict;
 
-our $VERSION = "1.10c";
+$strict::VERSION = "1.10c";
 
 # Verify that we're called correctly so that strictures will work.
 unless ( __FILE__ =~ /(^|[\/\\])\Q${\__PACKAGE__}\E\.pmc?$/ ) {
@@ -28,6 +28,10 @@ strict - Perl pragma to restrict unsafe constructs
     no strict "vars";
 
 =head1 DESCRIPTION
+
+The C<strict> pragma disables certain Perl expressions that could behave
+unexpectedly or are difficult to debug, turning them into errors. The
+effect of this pragma is limited to the current file or scope block.
 
 If no import list is supplied, all possible restrictions are assumed.
 (This is the safest mode to operate in, but is sometimes too strict for
