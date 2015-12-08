@@ -61,8 +61,7 @@ while (<$in>) { # as in config.sh
     last if $_ eq '!END!';
     next if /^perl_(version|subversion|revision)=/;
     my ($k,$v) = split(/=/,$_,2);
-    $v =~ s/^'//;
-    $v =~ s/'$//;
+    $v = substr($v, 1, length($v)-2);#strip start/end quotes, ' or "
     #$v =~ s/\\/\\\\/g;
     $h{$k} = $v;
 } 
@@ -73,8 +72,7 @@ while (<$in>) {
     chomp;
     last if $_ eq 'EOVIRTUAL';
     my ($k,$v) = split(/=/,$_,2);
-    $v =~ s/^'//;
-    $v =~ s/'$//;
+    $v = substr($v, 1, length($v)-2);#strip start/end quotes, ' or "
     #$v =~ s/\\/\\\\/g;
     $h{$k} = $v;
 }
@@ -87,8 +85,7 @@ while (<$in>) {
     chomp;
     last if $_ eq 'ENDOFGIT';
     my ($k,$v) = split(/=/,$_,2);
-    $v =~ s/^'//;
-    $v =~ s/'$//;
+    $v = substr($v, 1, length($v)-2);#strip start/end quotes, ' or "
     $h{$k} = $v;
 }
 
