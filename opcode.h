@@ -24,15 +24,6 @@
 #define Perl_pp_i_predec Perl_pp_predec
 #define Perl_pp_i_postinc Perl_pp_postinc
 #define Perl_pp_i_postdec Perl_pp_postdec
-#if IVSIZE<=4
-#define Perl_pp_u_multiply Perl_pp_multiply
-#endif
-#if IVSIZE<=4
-#define Perl_pp_u_add Perl_pp_add
-#endif
-#if IVSIZE<=4
-#define Perl_pp_u_subtract Perl_pp_subtract
-#endif
 #define Perl_pp_s_lt Perl_pp_s_le
 #define Perl_pp_s_gt Perl_pp_s_le
 #define Perl_pp_s_ge Perl_pp_s_le
@@ -1086,10 +1077,10 @@ PL_op_type_str[] = {
 	"(:List,:Int):List",	/* 40: repeat */
 	"(:Numeric,:Numeric):Numeric",	/* 41: add */
 	"(:Int,:Int):Int",	/* 42: i_add */
-	"(:Int,:Int):UInt",	/* 43: u_add */
+	"(:Int,:Int):Numeric",	/* 43: u_add */
 	"(:Numeric,:Numeric):Numeric",	/* 44: subtract */
 	"(:Int,:Int):Int",	/* 45: i_subtract */
-	"(:Int,:Int):UInt",	/* 46: u_subtract */
+	"(:Int,:Int):Numeric",	/* 46: u_subtract */
 	"(:Any,:Any):Str",	/* 47: concat */
 	"(:Scalar):Str",	/* 48: stringify */
 	"(:Int,:UInt):UInt",	/* 49: left_shift */
@@ -1509,10 +1500,10 @@ EXTCONST U32 PL_op_type[] = {
 	0x1005ff10,	/* 40: repeat "(:List,:Int):List" */
 	0x0a0aff0a,	/* 41: add "(:Numeric,:Numeric):Numeric" */
 	0x0505ff05,	/* 42: i_add "(:Int,:Int):Int" */
-	0x0505ff06,	/* 43: u_add "(:Int,:Int):UInt" */
+	0x0505ff0a,	/* 43: u_add "(:Int,:Int):Numeric" */
 	0x0a0aff0a,	/* 44: subtract "(:Numeric,:Numeric):Numeric" */
 	0x0505ff05,	/* 45: i_subtract "(:Int,:Int):Int" */
-	0x0505ff06,	/* 46: u_subtract "(:Int,:Int):UInt" */
+	0x0505ff0a,	/* 46: u_subtract "(:Int,:Int):Numeric" */
 	0x1111ff08,	/* 47: concat "(:Any,:Any):Str" */
 	0x0bffff08,	/* 48: stringify "(:Scalar):Str" */
 	0x0506ff06,	/* 49: left_shift "(:Int,:UInt):UInt" */
@@ -2372,7 +2363,7 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_pow,
 	Perl_pp_multiply,
 	Perl_pp_i_multiply,
-	Perl_pp_u_multiply,	/* on 32bit IV implemented by Perl_pp_multiply */
+	Perl_pp_u_multiply,
 	Perl_pp_divide,
 	Perl_pp_i_divide,
 	Perl_pp_modulo,
@@ -2380,10 +2371,10 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_repeat,
 	Perl_pp_add,
 	Perl_pp_i_add,
-	Perl_pp_u_add,	/* on 32bit IV implemented by Perl_pp_add */
+	Perl_pp_u_add,
 	Perl_pp_subtract,
 	Perl_pp_i_subtract,
-	Perl_pp_u_subtract,	/* on 32bit IV implemented by Perl_pp_subtract */
+	Perl_pp_u_subtract,
 	Perl_pp_concat,
 	Perl_pp_stringify,
 	Perl_pp_left_shift,

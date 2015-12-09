@@ -2894,8 +2894,8 @@ PPt(pp_i_add, "(:Int,:Int):Int")
     }
 }
 
-#if IVSIZE>4
-/* disabled: broke 32bit overflow rules */
+/*#if IVSIZE>4*/
+/* disabled: broke 32bit overflow rules. I32 need to overflow to NV */
 
 /* Nearer to add and multiply. Handle results which could be interpreted as UV,
  * but does not promote to NV. Works fine for IV_MAX .. UV_MAX, but
@@ -2906,11 +2906,33 @@ PPt(pp_u_add, "(:Int,:Int):Numeric")
     dSP; dATARGET;
     tryAMAGICbin_MG(add_amg, AMGf_assign);
     {
+      IV iv;
       dPOPTOPiirl_ul_nomg;
-      SETi( left + right );
-      if (SvIVX(TARG) < 0 && left>=0 && right>=0)
+#ifdef HAS_BUILTIN_ARITH_OVERFLOW
+      if (BUILTIN_SADD_OVERFLOW(left, right, &iv)) {
+          if (left>=0 && right>=0) {
+              UV uv;
+              if (BUILTIN_UADD_OVERFLOW(left, right, &uv))
+                  SETn( (NV)left + (NV)right );
+              else
+                  SETu( uv );
+          } else {
+              SETn( (NV)left + (NV)right );
+          }
+      }
+      else
+          SETi( iv );
+#else
+          SETi( left + right );
+      if (SvIVX(TARG) < 0 && left>=0 && right>=0) {
           /* IV and UV share the same field */
-          SvIsUV_on(TARG);
+          NV num = (NV)left + (NV)right;
+          if (num <= UV_MAX)
+              SvIsUV_on(TARG);
+          else
+              SETn(num);
+      }
+#endif
       RETURN;
     }
 }
@@ -2920,10 +2942,32 @@ PPt(pp_u_multiply, "(:Int,:Int):Numeric")
     dSP; dATARGET;
     tryAMAGICbin_MG(add_amg, AMGf_assign);
     {
+      IV iv;
       dPOPTOPiirl_ul_nomg;
-      SETi( left * right );
-      if (SvIVX(TARG) < 0 && left>=0 && right>=0)
-          SvIsUV_on(TARG);
+#ifdef HAS_BUILTIN_ARITH_OVERFLOW
+      if (BUILTIN_SMUL_OVERFLOW(left, right, &iv)) {
+          if ((left>0 && right>0) || (left<0 && right<0)) {
+              UV uv;
+              if (BUILTIN_UMUL_OVERFLOW(left, right, &uv))
+                  SETn( (NV)left * (NV)right );
+              else
+                  SETu( uv );
+          } else {
+              SETn( (NV)left * (NV)right );
+          }
+      }
+      else
+          SETi( iv );
+#else
+          SETi( left * right );
+      if (SvIVX(TARG) < 0 && left>=0 && right>=0) {
+          NV num = (NV)left * (NV)right;
+          if (num <= UV_MAX)
+              SvIsUV_on(TARG);
+          else
+              SETn(num);
+      }
+#endif
       RETURN;
     }
 }
@@ -2933,14 +2977,21 @@ PPt(pp_u_subtract, "(:Int,:Int):Numeric")
     dSP; dATARGET;
     tryAMAGICbin_MG(subtr_amg, AMGf_assign);
     {
+      NV num;
       dPOPTOPiirl_ul_nomg;
-      SETi( left - right );
-      if (SvIVX(TARG) < 0 && left > right)
-          SvIsUV_on(TARG);
+      num = (NV)left - (NV)right;
+      if (UNLIKELY(num > IV_MAX || num < IV_MIN)) {
+          if (num > 0 && num < UV_MAX)
+              SETu( (UV)num );
+          else
+              SETn( num );
+      } else {
+          SETi( (IV)num );
+      }
       RETURN;
     }
 }
-#endif
+/*#endif*/
 
 PPt(pp_i_subtract, "(:Int,:Int):Int")
 {

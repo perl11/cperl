@@ -582,6 +582,39 @@ PP(pp_defined)
     RETPUSHNO;
 }
 
+PERL_STATIC_INLINE void
+S_bigint_arith(pTHX_ const char *op, SV* left, SV* right) {
+    dSP;
+    SV* sv;
+    bool useleft = USE_LEFT(left);
+    PUSHSTACKi(PERLSI_REQUIRE);
+    sv = Perl_newSVpvf(aTHX_ "require Math::BigInt; Math::BigInt->%s(", op);
+    if (SvIOK(left)) {
+        if (SvUOK(left))
+            Perl_sv_catpvf(aTHX_ sv, "%"UVuf", ", SvUVX(left));
+        else
+            Perl_sv_catpvf(aTHX_ sv, "%"IVdf", ", SvIVX(left));
+    } else {
+	STORE_LC_NUMERIC_UNDERLYING_SET_STANDARD();
+	/* full precision, not just %g. TODO long double */
+	Perl_sv_catpvf(aTHX_ sv, "%.15g, ", SvNVX(left));
+	RESTORE_LC_NUMERIC_UNDERLYING();
+    }
+    if (SvIOK(right)) {
+        if (SvUOK(right))
+            Perl_sv_catpvf(aTHX_ sv, "%"UVuf");", SvUVX(right));
+        else
+            Perl_sv_catpvf(aTHX_ sv, "%"IVdf");", SvIVX(right));
+    } else {
+	STORE_LC_NUMERIC_UNDERLYING_SET_STANDARD();
+	Perl_sv_catpvf(aTHX_ sv, "%.15g);", SvNVX(right));
+	RESTORE_LC_NUMERIC_UNDERLYING();
+    }
+    eval_sv(sv_2mortal(sv), G_SCALAR);
+    POPSTACK;
+    PUTBACK;
+}
+
 PPt(pp_add, "(:Number,:Number):Number")
 {
     dSP; dATARGET; bool useleft; SV *svl, *svr;
@@ -640,7 +673,95 @@ PPt(pp_add, "(:Number,:Number):Number")
    generic:
 #endif
 
-     useleft = USE_LEFT(svl);
+    useleft = USE_LEFT(svl);
+
+#ifdef HAS_BUILTIN_ARITH_OVERFLOW
+    if (SvIOK(svl) && SvIOK(svr)) {
+        /* Use fast overflow intrinsics
+           Usable since gcc-5 and clang-3.6.
+
+           Perform the native math, check the CPU hardware overflow (carry) flag,
+           and promote to next if set.
+           First sadd (signed add) for both IV, then double add for a NV result,
+           then check the range. if < UV_MAX, downgrade to UV.
+           With PRESERVE_IVUV and both were UV, and the result is IV, we don't need
+           to check the range to set the UV flag.
+           Optionally we want to support a new arith exact pragma for perl6
+           semantics, to promote IV/UV to bigint and NV to bignum. [cperl #21]
+           TODO: new PL_hints bit, not slow %^H hash entry.
+        */
+        const bool auvok = useleft ? SvUOK(svl) : FALSE;
+        const bool buvok = SvUOK(svr);
+        IV iv; UV uv;
+        SP--;
+        if (UNLIKELY(auvok && buvok)) {
+            uadd_overflow:
+            if (UNLIKELY(BUILTIN_UADD_OVERFLOW(useleft ? SvUVX(svl) : 0,
+                                               SvUVX(svr), &uv))) {
+#if 0
+                if (UNLIKELY(SvTRUE(cop_hints_fetch_pvs(PL_curcop, "exactarith", 0)))) {
+                    S_bigint_arith("badd", svl, svr);
+                    RETURN;
+                }
+                else
+#endif
+                    SETn( (useleft ? (NV)SvUVX(svl) : 0)
+                          + (NV)SvUVX(svr) );
+            }
+            else
+                SETu( uv );
+            RETURN;
+        } else if (UNLIKELY(auvok || buvok)) {
+            const IV aiv = useleft ? SvIVX(svl) : 0;
+            const IV biv = SvIVX(svr);
+            if ((auvok && aiv < 0) && biv > 0) /* left is overlarge uv > IV_MAX */
+                goto uadd_overflow;
+            else if ((buvok && biv < 0) && aiv > 0) /* right is overlarge */
+                goto uadd_overflow;
+            else { /* only one is overlarge, do NV math and downgrade */
+                const NV nv = (auvok ? (NV)SvUVX(svl) : (NV)aiv)
+                            + (buvok ? (NV)SvUVX(svr) : biv);
+                if (nv < UV_MAX)
+                    SETu( (UV)nv );
+#if 0
+                else if (UNLIKELY(SvTRUE(cop_hints_fetch_pvs(PL_curcop, "exactarith", 0)))) {
+                    S_bigint_arith("badd", svl, svr);
+                    RETURN;
+                }
+#endif
+                else {
+                    SETn( nv );
+                }
+            }
+            RETURN;
+        }
+        /* none of them is an UV */
+        else {
+            const IV aiv = useleft ? SvIVX(svl) : 0;
+            const IV biv = SvIVX(svr);
+            if (UNLIKELY(BUILTIN_SADD_OVERFLOW(aiv, biv, &iv))) {
+                const NV nv = (NV)aiv + (NV)biv;
+                /* if one is negative we cannot use UV, hence we need NV */
+                if (aiv>=0 && biv>=0) {
+                    if (nv < UV_MAX) {
+                        SETu( (UV)nv );
+                    }
+                }
+#if 0
+                if (UNLIKELY(SvTRUE(cop_hints_fetch_pvs(PL_curcop, "exactarith", 0)))) {
+                    S_bigint_arith("badd", svl, svr);
+                    RETURN;
+                } else
+#endif
+                SETn( nv );
+            } else { /* the common case */
+                SETi( iv );
+            }
+        }
+        RETURN;
+    }
+#else
+
     /* We must see if we can perform the addition with integers if possible,
        as the integer code detects overflow while the NV code doesn't.
        If either argument hasn't had a numeric conversion yet attempt to get
@@ -687,15 +808,14 @@ PPt(pp_add, "(:Number,:Number):Number")
        unsigned code below is actually shorter than the old code. :-)
     */
 
+    /* Unless the left argument is integer in range we are going to have to
+       use NV maths. Hence only attempt to coerce the right argument if
+       we know the left is integer.  */
+
     if (SvIV_please_nomg(svr)) {
-	/* Unless the left argument is integer in range we are going to have to
-	   use NV maths. Hence only attempt to coerce the right argument if
-	   we know the left is integer.  */
-#ifndef HAS_BUILTIN_ARITH_OVERFLOW
-	UV auv = 0;
-#endif
-	bool auvok = FALSE;
-	bool a_valid = 0;
+        UV auv = 0;
+        bool auvok = FALSE;
+        bool a_valid = 0;
 
 	if (!useleft) {
 	    a_valid = auvok = 1;
@@ -706,7 +826,6 @@ PPt(pp_add, "(:Number,:Number):Number")
 	    /* Left operand is defined, so is it IV? */
 	    if (SvIV_please_nomg(svl)) {
                 auvok = SvUOK(svl);
-#ifndef HAS_BUILTIN_ARITH_OVERFLOW
 		if (auvok)
 		    auv = SvUVX(svl);
 		else {
@@ -718,44 +837,11 @@ PPt(pp_add, "(:Number,:Number):Number")
 			auv = (aiv == IV_MIN) ? (UV)aiv : (UV)(-aiv);
 		    }
 		}
-#endif
 		a_valid = 1;
 	    }
 	}
 	if (a_valid) {
 	    UV result;
-
-#ifdef HAS_BUILTIN_ARITH_OVERFLOW
-            /* Use fast overflow intrinsics */
-            const IV biv = SvIVX(svr);
-            const IV aiv = useleft ? SvIVX(svl) : 0;
-	    const bool buvok = SvUOK(svr);
-            SP--;
-            /* Use unsigned calc if both are unsigned or >= 0 */
-            if ((auvok || aiv >= 0) & (buvok || biv >= 0)) {
-		const UV auv = (UV)aiv;
-		const UV buv = (UV)biv;
-                if (BUILTIN_UADD_OVERFLOW(auv, buv, &result)) {
-                    SETn( (NV)auv + (NV)buv );
-                } else {
-                    if ((auvok & buvok) || result > IV_MAX)
-                        /* Preserve UV result only if both are UV or
-                           result does not fit into IV */
-                        SETu( result );
-                    else
-                        SETi( result );
-                }
-            } else {
-                IV value;
-                if (BUILTIN_SADD_OVERFLOW(aiv, biv, &value)) {
-                    /*SETn( (NV)(auvok?SvUVX(svl):aiv) + (NV)(buvok?SvUVX(svr):biv) );*/
-                    SETn( (NV)aiv + (NV)biv );
-                } else {
-                    SETi( value );
-                }
-            }
-            RETURN;
-#else
 	    UV buv;
 	    bool result_good = 0;
 	    bool buvok = SvUOK(svr);
@@ -817,11 +903,10 @@ PPt(pp_add, "(:Number,:Number):Number")
 		}
 		RETURN;
 	    } /* Overflow, drop through to NVs.  */
-#endif
 	}
     }
-
-#else
+#endif /* slow HAS_BUILTIN_ARITH_OVERFLOW */
+#else /* fast !PERL_PRESERVE_IVUV */
     useleft = USE_LEFT(svl);
 #endif
 
