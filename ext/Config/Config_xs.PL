@@ -91,7 +91,7 @@ while (<$in>) {
 
 # postprocess the values a bit:
 # reserve up to 20 config_args
-for (1..20) {
+for (0..20) {
     my $k = "config_arg".$_;
     $h{$k} = '' unless exists $h{$k};
 }
@@ -144,10 +144,8 @@ foreach my $k (sort { $a cmp $b } keys %h) {
     my $type = 'T_STR';
     if ($v eq 'define') {
         $type = 'T_BOO';
-        $v = '1';
     } elsif ($v eq 'undef') {
         $type = 'T_BOO';
-        $v = '0';
     } elsif ($v eq '') {
         $type = $gperf_ok ? 'T_STR' : 'T_EMP';
         # deprecated, always empty
@@ -197,6 +195,10 @@ while (<$in>) {
     if (/0,"@@(\w+)@@"/) {
         my $k = $1;
         my $v = $h{$k};
+        my $type = t_type($v);
+        if($type eq 'T_BOO'){
+            $v = $v eq 'define' ? 1 : 0;
+        }
         my $qv = $v;
         $qv =~ s/(\\[^nrftacx"' ])/\\$1/g; # windows paths: \\ => \\\\
         $qv =~ s/(\\[nrftacx ])/\\$1/g;  # \n => \\n, allowed escape chars
@@ -205,17 +207,11 @@ while (<$in>) {
           # and don't count the ending \0
             'sizeof ("' . $qv . '")-1'
           : length($v)+0;
-        my $qr = "0,\"@@".$k."@@\"";
-        my $new = $l . ', "' . $qv . '"';
-        s/$qr/$new/; # we have one line per key only
-        # check correct type
-        my $type = t_type($v);
-        # T_INT is returned for bool, skip it.
-        unless (/\t$type,/) {
-            unless ($type eq 'T_INT' and /\tT_BOO,/) {
-                s/\tT_...,/\t$type,/;
-            }
-        }
+        #type in gperf-less build might be different from type in canned
+        #Config_xs.in due to platform differences, so dont use existing type
+        #from Config_xs.in and always use recomputed one
+        my $new = $type.', '. $l . ', "' . $qv . '"';
+        s/T_\w+,	0,"\@\@$k\@\@"/$new/; # we have one line per key only
         chomp;
         print $xs $_, " /* $k */\n";
     } else {

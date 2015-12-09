@@ -55,7 +55,7 @@ if ($klenPP != $klenXS) {
   # See Config_xs.PL:
   # postprocess the values a bit:
   # reserve up to 20 config_args
-  for (1..20) {
+  for (0..20) {
     my $k = "config_arg".$_;
     $Config_copy{$k} = '' unless exists $Config{$k};
   }
