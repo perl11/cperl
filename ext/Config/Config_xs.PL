@@ -31,9 +31,12 @@ BEGIN {
     }
     require 'regen/regen_lib.pl';
     my $ptrsize = length(pack('P',""));
+    my $ivsize =  length(pack('j',0));
     die "unknown pointer size" if $ptrsize != 4 && $ptrsize != 8; #POSIX.pm not available
     eval 'sub SPTR_MIN () { '.($ptrsize == 8 ? '-9223372036854775808' : '-2147483648').' } '.
-    'sub SPTR_MAX () { '.($ptrsize == 8 ? '0x7FFFFFFFFFFFFFFF' : '0x7FFFFFFF').' }';
+    'sub SPTR_MAX () { '.($ptrsize == 8 ? '0x7FFFFFFFFFFFFFFF' : '0x7FFFFFFF').' } '.
+    'sub IV_MIN () { '.($ivsize == 8 ? '-9223372036854775808' : '-2147483648').' } '.
+    'sub IV_MAX () { '.($ivsize == 8 ? '0x7FFFFFFFFFFFFFFF' : '0x7FFFFFFF').' } ';
 }
 use strict ;
 
@@ -131,8 +134,8 @@ sub t_type ($) {
     } elsif ($v eq 'undef') {
         return 'T_BOO';
     } elsif ($v eq '') {
-        return 'T_EMP';
-    } elsif ($v =~ /^-?\d+$/) {
+        return 'T_EMP';       #out of range integers (think NV) become strings
+    } elsif ($v =~ /^-?\d+$/ && $v >= IV_MIN && $v <= IV_MAX) {
         return 'T_INT';
     } else {
         return 'T_STR';
