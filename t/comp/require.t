@@ -1,13 +1,15 @@
 #!./perl
 
+my %origINC;
 BEGIN {
     chdir 't' if -d 't';
     @INC = '.';
     push @INC, '../lib', '../ext/re';
+    %origINC = %INC;
 }
 
 sub do_require {
-    %INC = ();
+    %INC = %origINC;
     write_file('bleah.pm',@_);
     eval { require "bleah.pm" };
     my @a; # magic guard for scope violations (must be first lexical in file)
@@ -332,7 +334,7 @@ if (defined &DynaLoader::boot_DynaLoader) {
 
 {
     BEGIN { ${^OPEN} = ":utf8\0"; }
-    %INC = ();
+    %INC = %origINC;
     write_file('bleah.pm',"package F; \$x = '\xD1\x9E';\n");
     eval { require "bleah.pm" };
     $i++;
@@ -342,7 +344,7 @@ if (defined &DynaLoader::boot_DynaLoader) {
 
 {
     BEGIN { ${^OPEN} = ":utf8\0"; }
-    %INC = ();
+    %INC = %origINC;
     write_file('bleah.pm',"require re; re->import('/x'); 1;\n");
     my $not = eval 'use bleah; "ab" =~ /a b/' ? "" : "not ";
     $i++;
