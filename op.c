@@ -14453,6 +14453,11 @@ Perl_rpeep(pTHX_ OP *o)
 	    op_null(o);
 	    enter->op_private |= OPpITER_REVERSED;
 	    iter->op_private |= OPpITER_REVERSED;
+
+            oldoldop = NULL;
+            oldop    = ourlast;
+            o        = oldop->op_next;
+            goto redo;
 	    
 	    break;
 	}
