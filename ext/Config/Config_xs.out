@@ -90,9 +90,10 @@ typedef UV CFGSELF; /* for typemap */
 
 enum Config_types {
     T_EMP, /* "" */
-    T_BOO,  /* "0" for undef or "1" for define */
+    T_BOO,  /* (char *)0 for undef or (char *)1 for define */
     T_STR,
-    T_INT,
+    T_INT, /* if the number fits in a ptr, stored directly with len == 0,
+              otherwise an ascii string with len != 0 */
 };
 
 struct Perl_Config { U16 name; signed char type; size_t len; const char *value; };
@@ -6792,15 +6793,24 @@ PPCODE:
          if(c->value == (char *)0)
               return_undef:
               RETVAL = &PL_sv_undef;
-         else
+         else /* (c->value == (char *)1) */
               RETVAL = SV_CONST(define); /* this SV * never goes away once vivified */
      }
      else if (c->type == T_INT) {
+         IV iv;
+         if(c->len)
 #ifdef HAS_STRTOL
-         RETVAL = newSViv(strtol(c->value,NULL,10));
+              iv = strtol(c->value,NULL,10);
 #else
-         RETVAL = newSViv(atoi(c->value));
+              iv = atoi(c->value);
 #endif
+         else
+#if PTRSIZE == 8
+              iv = (I64TYPE)c->value;
+#else
+              iv = (I32)c->value;
+#endif
+         RETVAL = newSViv(iv);
          RETVAL = sv_2mortal(RETVAL);
      }
      else

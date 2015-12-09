@@ -30,6 +30,10 @@ BEGIN {
         chdir '../..';
     }
     require 'regen/regen_lib.pl';
+    my $ptrsize = length(pack('P',""));
+    die "unknown pointer size" if $ptrsize != 4 && $ptrsize != 8; #POSIX.pm not available
+    eval 'sub SPTR_MIN () { '.($ptrsize == 8 ? '-9223372036854775808' : '-2147483648').' } '.
+    'sub SPTR_MAX () { '.($ptrsize == 8 ? '0x7FFFFFFFFFFFFFFF' : '0x7FFFFFFF').' }';
 }
 use strict ;
 
@@ -203,6 +207,14 @@ while (<$in>) {
         } elsif ($type eq 'T_EMP') {
           $l = 0;
           $qv = 'NULL';
+        } elsif ($type eq 'T_INT') {
+          if ($v >= SPTR_MIN && $v <= SPTR_MAX) { #can fit in a ptr
+            $l = 0;
+            $qv = '(char *)'.$v;
+          } else {#str in C, IV in perl, will be atoi-ed, 64b IV on 32b perl
+            $l = length($v);
+            $qv = '"'.$v.'"';
+          }
         } else {
           $qv = $v;
           $qv =~ s/(\\[^nrftacx"' ])/\\$1/g; # windows paths: \\ => \\\\
