@@ -6,6 +6,7 @@ BEGIN {
     chdir 't' if -d 't';
     @INC = '../lib';
     require "./test.pl";
+    skip_if_miniperl("under miniperl", 1);
     require Config;
     skip_all('no DEBUGGING') if $Config::Config{ccflags} !~ /DDEBUGGING/;
 }
@@ -56,7 +57,7 @@ like( runperl( switches => [ "-Do" ], stderr => 1,
       "-Do Method and overloading resolution" );
 like( runperl( switches => [ "-Dc" ], stderr => 1,
                prog => '1+20.0' ),
-      qr/^0x[0-9a-f]+ iv\(20 => 20\) \(precise\)\n0x[0-9a-f]+ 2iv\(20\)\n/m,
+      qr/^0x[0-9a-f]+ num\(/,
       "-Dc String/numeric conversions" );
 like( runperl( switches => [ "-DP" ], stderr => 1,
                prog => '1' ),
