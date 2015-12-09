@@ -196,21 +196,28 @@ while (<$in>) {
         my $k = $1;
         my $v = $h{$k};
         my $type = t_type($v);
-        if($type eq 'T_BOO'){
-            $v = $v eq 'define' ? 1 : 0;
-        }
-        my $qv = $v;
-        $qv =~ s/(\\[^nrftacx"' ])/\\$1/g; # windows paths: \\ => \\\\
-        $qv =~ s/(\\[nrftacx ])/\\$1/g;  # \n => \\n, allowed escape chars
-        my $l =  $v =~ m/["'\\]/ ?
+        my ($qv, $l);
+        if ($type eq 'T_BOO') {
+          $l = 0; #special constants
+          $qv = $v eq 'define' ? '(char *)1':'(char *)0';
+        } elsif ($type eq 'T_EMP') {
+          $l = 0;
+          $qv = 'NULL';
+        } else {
+          $qv = $v;
+          $qv =~ s/(\\[^nrftacx"' ])/\\$1/g; # windows paths: \\ => \\\\
+          $qv =~ s/(\\[nrftacx ])/\\$1/g;  # \n => \\n, allowed escape chars
+          $qv = '"'.$qv.'"';
+          $l = $v =~ m/["'\\]/ ?
           # don't calculate C-style length [cperl #61], let C do it for us
           # and don't count the ending \0
-            'sizeof ("' . $qv . '")-1'
-          : length($v)+0;
+            'sizeof (' . $qv . ')-1'
+            : length($v)+0;
+        }
         #type in gperf-less build might be different from type in canned
         #Config_xs.in due to platform differences, so dont use existing type
         #from Config_xs.in and always use recomputed one
-        my $new = $type.', '. $l . ', "' . $qv . '"';
+        my $new = $type.', '. $l . ', ' . $qv ;
         s/T_\w+,	0,"\@\@$k\@\@"/$new/; # we have one line per key only
         chomp;
         print $xs $_, " /* $k */\n";

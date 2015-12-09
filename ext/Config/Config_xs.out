@@ -6789,7 +6789,7 @@ PPCODE:
      if (c->type == T_EMP)
          RETVAL = &PL_sv_no;
      else if (c->type == T_BOO) {
-         if(*(c->value) == '0')
+         if(c->value == (char *)0)
               return_undef:
               RETVAL = &PL_sv_undef;
          else
