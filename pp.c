@@ -501,11 +501,14 @@ PP(pp_prototype)
 	    goto set;
 	}
     }
-    cv = sv_2cv(TOPs, &stash, &gv, 0);
-    if (cv && SvPOK(cv))
-	ret = newSVpvn_flags(
-	    CvPROTO(cv), CvPROTOLEN(cv), SVs_TEMP | SvUTF8(cv)
-	);
+    if ((cv = sv_2cv(TOPs, &stash, &gv, 0))) {
+        if (SvPOK(cv))
+            ret = newSVpvn_flags(
+	      CvPROTO(cv), CvPROTOLEN(cv), SVs_TEMP | SvUTF8(cv));
+        else if (CvHASSIG(cv)) {
+            ret = signature_stringify((OP*)CvSIGOP(cv), cv);
+        }
+    }
   set:
     SETs(ret);
     RETURN;

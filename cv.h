@@ -115,6 +115,8 @@ See L<perlguts/Autoloading with XSUBs>.
 	  : 0                                           \
 	)
 
+#define CvSIGOP(cv)	SvANY(cv)->xcv_sigop
+
 /* Stashname of the return type at index 0 in the padnames */
 #define CvTYPE(cv)            PadnameTYPE(PadlistNAMESARRAY(CvPADLIST(cv))[0])
 #define CvTYPE_set(cv, stash) PadnameTYPE_set(PadlistNAMESARRAY(CvPADLIST(cv))[0], stash)

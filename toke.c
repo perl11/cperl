@@ -12727,6 +12727,7 @@ Perl_parse_subsignature(pTHX)
     }
 
     CvHASSIG_on(PL_compcv);
+    CvSIGOP(PL_compcv) = (UNOP_AUX*)st.sig_op;
     return initops;
 }
 

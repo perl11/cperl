@@ -18,6 +18,18 @@ release and the cperl 5.24.0 release.
 Undo the removal of lexical topic. We fixed that in 5.22.2c already, and
 it is critically needed for given/when, smartmatch.
 
+=item * proper signatures
+
+Support builtin and efficient signatures, with types and references (call-by-ref).
+See L<perlsub/Signatures> and L<perlfunc/prototype>.
+The C<prototype> function returns the parsed string of a declared
+signature if no prototype attribute overrides it.
+
+The C<@_> array inside a function body with a signature is empty. With
+default parameters there's is currently no way to find out how many
+actual arguments were provided, and how many were filled out with
+defaults.
+
 =item * Less experimental needed
 
 Remove the previously required use experimental for

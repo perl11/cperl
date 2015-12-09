@@ -5729,11 +5729,11 @@ X<prototype>
 
 =for Pod::Functions +5.002 get the prototype (if any) of a subroutine
 
-Returns the prototype of a function as a string (or
-L<C<undef>|/undef EXPR> if the
-function has no prototype).  FUNCTION is a reference to, or the name of,
-the function whose prototype you want to retrieve.  If FUNCTION is omitted,
-L<C<$_>|perlvar/$_> is used.
+Returns the prototype or signature of a function as a string (or
+L<C<undef>|/undef EXPR> if the function has no prototype).  FUNCTION
+is a reference to, or the name of, the function whose prototype you
+want to retrieve.  If FUNCTION is omitted, L<C<$_>|perlvar/$_> is
+used.
 
 If FUNCTION is a string starting with C<CORE::>, the rest is taken as a
 name for a Perl builtin.  If the builtin's arguments
@@ -5742,6 +5742,27 @@ cannot be adequately expressed by a prototype
 returns L<C<undef>|/undef EXPR>, because the builtin
 does not really behave like a Perl function.  Otherwise, the string
 describing the equivalent prototype is returned.
+
+Signatures are not returned as declared, rather as parsed, without whitespace.
+Default expressions are denoted as "<expr>", constants as such.
+
+    sub empty { }
+    prototype(\&empty) == undef;
+
+    sub const () { }
+    prototype(\&const) eq '';
+
+    sub func0 ($) { }
+    prototype(\&func0) eq '$';
+
+    sub func1 ($a = 222) { }
+    prototype(\&func1) eq '$a=222';
+
+    sub func2 ($a = $x, $b = $x++) { }
+    prototype(\&func2) eq '$a=$x, $b=<expr>';
+
+    sub func3 ($a?) { }
+    prototype(\&func1) eq '$a=';
 
 =item push ARRAY,LIST
 X<push> X<stack>

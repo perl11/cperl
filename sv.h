@@ -677,7 +677,8 @@ typedef U32 cv_flags_t;
 				  * compilation) in the lexically enclosing	\
 				  * sub */					\
     cv_flags_t	xcv_flags;						\
-    I32	xcv_depth	/* >= 2 indicates recursive call */
+    I32	        xcv_depth;	/* >= 2 indicates recursive call */             \
+    UNOP_AUX *	xcv_sigop
 
 /* This structure must match XPVCV in cv.h */
 

@@ -342,22 +342,19 @@ not permitted to pass more arguments than expected.  So the above is
 equivalent to
 
     sub foo {
-	die "Too many arguments for subroutine" unless @_ <= 2;
-	die "Not enough arguments for subroutine" unless @_ >= 2;
+	die "Wrong number of arguments for subroutine" unless @_ != 2;
 	my $left = $_[0];
 	my $right = $_[1];
 	return $left + $right;
     }
 
-In Perl5 an argument can be ignored by omitting the main part of the
+An argument can be ignored by omitting the main part of the
 name from a parameter declaration, leaving just a bare C<$> sigil.
 For example,
 
     sub foo ($first, $, $third) {
 	return "first=$first, third=$third";
     }
-
-In cperl this clashes with the protoype syntax and is illegal.
 
 Although the ignored argument doesn't go into a variable, it is still
 mandatory for the caller to pass it.
@@ -532,7 +529,7 @@ lexical variables at runtime.  You can therefore write
     }
 
 The prototype attribute, and any other attributes, come after 
-the signature.
+the signature. With cperl this is optional.
 
 As with lexical variable declarations you may declare the types of
 parameters, and you may declare the return type of the subroutine with
@@ -1450,13 +1447,10 @@ If you declare either of
 
 then C<mypush()> takes arguments exactly like C<push()> does.
 
-If subroutine signatures are enabled (see L</Signatures>), then
-the shorter PROTO syntax is unavailable, because it would clash with
-signatures.  In that case, a prototype can only be declared in the form
-of an attribute.
+With subroutine signatures prototypes are automatically extracted from the
+signature declaration.
 
-The
-function declaration must be visible at compile time.  The prototype
+The function declaration must be visible at compile time.  The prototype
 affects only interpretation of new-style calls to the function,
 where new-style is defined as not using the C<&> character.  In
 other words, if you call it like a built-in function, then it behaves
