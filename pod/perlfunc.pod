@@ -5744,7 +5744,11 @@ does not really behave like a Perl function.  Otherwise, the string
 describing the equivalent prototype is returned.
 
 Signatures are not returned as declared, rather as parsed, without whitespace.
+Signatures are embedded in C<"("> and C<")">, so you can easily seperate them from
+signature-less prototypes.
 Default expressions are denoted as "<expr>", constants as such.
+L<:prototype|perlsub/Prototypes> attributes override signatures as result of the
+C<prototype> function.
 
     sub empty { }
     prototype(\&empty) == undef;
@@ -5756,13 +5760,16 @@ Default expressions are denoted as "<expr>", constants as such.
     prototype(\&func0) eq '$';
 
     sub func1 ($a = 222) { }
-    prototype(\&func1) eq '$a=222';
+    prototype(\&func1) eq '($a=222)';
 
     sub func2 ($a = $x, $b = $x++) { }
-    prototype(\&func2) eq '$a=$x, $b=<expr>';
+    prototype(\&func2) eq '($a=$x, $b=<expr>)';
 
     sub func3 ($a?) { }
-    prototype(\&func1) eq '$a=';
+    prototype(\&func1) eq '($a=)';
+
+    sub func4 ($a) : prototype($) { }
+    prototype(\&func0) eq '$';
 
 =item push ARRAY,LIST
 X<push> X<stack>

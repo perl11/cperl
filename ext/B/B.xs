@@ -1601,6 +1601,7 @@ MODULE = B	PACKAGE = B::IV
 #define sv_SSize_tp	0x90000
 #define sv_I32p		0xA0000
 #define sv_U16p		0xB0000
+#define sv_OPp		0xC0000
 
 #define IV_ivx_ix	sv_IVp | STRUCT_OFFSET(struct xpviv, xiv_iv)
 #define IV_uvx_ix	sv_UVp | STRUCT_OFFSET(struct xpvuv, xuv_uv)
@@ -1651,6 +1652,7 @@ MODULE = B	PACKAGE = B::IV
 #define PVCV_file_ix	sv_char_pp | STRUCT_OFFSET(struct xpvcv, xcv_file)
 #define PVCV_outside_ix	sv_SVp | STRUCT_OFFSET(struct xpvcv, xcv_outside)
 #define PVCV_outside_seq_ix sv_U32p | STRUCT_OFFSET(struct xpvcv, xcv_outside_seq)
+#define PVCV_sigop_ix	sv_OPp  | STRUCT_OFFSET(struct xpvcv, xcv_sigop)
 #define PVCV_flags_ix	sv_U32p | STRUCT_OFFSET(struct xpvcv, xcv_flags)
 
 #define PVHV_max_ix	sv_STRLENp | STRUCT_OFFSET(struct xpvhv, xhv_max)
@@ -1699,6 +1701,7 @@ IVX(sv)
 	B::CV::OUTSIDE = PVCV_outside_ix
 	B::CV::OUTSIDE_SEQ = PVCV_outside_seq_ix
 	B::CV::CvFLAGS = PVCV_flags_ix
+	B::CV::SIGOP = PVCV_sigop_ix
 	B::HV::MAX = PVHV_max_ix
 	B::HV::KEYS = PVHV_keys_ix
     PREINIT:
@@ -1742,6 +1745,9 @@ IVX(sv)
 	    break;
 	case (U8)(sv_U16p >> 16):
 	    ret = sv_2mortal(newSVuv(*((U16 *)ptr)));
+	    break;
+	case (U8)(sv_OPp >> 16):
+	    ret = make_op_object(aTHX_ *((OP **)ptr));
 	    break;
 	default:
 	    croak("Illegal alias 0x%08x for B::*IVX", (unsigned)ix);

@@ -94,6 +94,8 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvOUTSIDE(sv)	  ((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_outside
 #define CvOUTSIDE_SEQ(sv) ((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_outside_seq
 #define CvFLAGS(sv)	  ((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_flags
+#define CvSIGOP(sv)	  ((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_sigop
+
 /* experimental: print the type of a cv in %s%s%s style */
 #define CvDESC3(cv)       CvISXSUB(cv) ? "XS " : "", CvMULTI(cv) ? "multi ": "", \
                           CvMETHOD(cv) ? "method" : "subroutine"
@@ -114,8 +116,6 @@ See L<perlguts/Autoloading with XSUBs>.
 	     : SvCUR(sv)                               \
 	  : 0                                           \
 	)
-
-#define CvSIGOP(cv)	SvANY(cv)->xcv_sigop
 
 /* Stashname of the return type at index 0 in the padnames */
 #define CvTYPE(cv)            PadnameTYPE(PadlistNAMESARRAY(CvPADLIST(cv))[0])

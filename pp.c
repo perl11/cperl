@@ -505,8 +505,10 @@ PP(pp_prototype)
         if (SvPOK(cv))
             ret = newSVpvn_flags(
 	      CvPROTO(cv), CvPROTOLEN(cv), SVs_TEMP | SvUTF8(cv));
-        else if (CvHASSIG(cv)) {
-            ret = signature_stringify((OP*)CvSIGOP(cv), cv);
+        else if (CvHASSIG(cv) && CvSIGOP(cv)) { /* catch illegal prototype */
+            ret = newSVpvn_flags("(", 1, SVs_TEMP);
+            sv_catsv(ret, signature_stringify((OP*)CvSIGOP(cv), cv));
+            sv_catpvs(ret, ")");
         }
     }
   set:

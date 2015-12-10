@@ -7,7 +7,7 @@
 #
 package B;
 
-$B::VERSION = '1.62_01';
+$B::VERSION = '1.62_02';
 
 require XSLoader;
 require Exporter;
@@ -1001,6 +1001,10 @@ For constant subroutines, returns the constant SV returned by the subroutine.
 =item NAME_HEK
 
 Returns the name of a lexical sub, otherwise C<undef>.
+
+=item SIGOP
+
+Returns the signature op, otherwise C<B::NULL>.
 
 =back
 
