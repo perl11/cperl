@@ -25,7 +25,7 @@ BEGIN {
     push @INC, 'lib', 'ext/Config';
     # fix this for non-core: close_and_rename, read_only_bottom_close_and_rename
     # for now do this only from root.
-    # TODO from ext/Config
+    # TODO from ext/Config to be able to put it onto CPAN
     if (! -d 'ext/Config' and -f 'Config_xs.PL') {
         chdir '../..';
     }
@@ -129,13 +129,7 @@ while (<$in>) {
 
 sub t_type ($) {
     my $v = shift;
-    if ($v eq 'define') {
-        return 'T_BOO';
-    } elsif ($v eq 'undef') {
-        return 'T_BOO';
-    } elsif ($v eq '') {
-        return 'T_EMP';       #out of range integers (think NV) become strings
-    } elsif ($v =~ /^-?\d+$/ && $v >= IV_MIN && $v <= IV_MAX) {
+    if ($v =~ /^-?\d+$/ && $v >= IV_MIN && $v <= IV_MAX) {
         return 'T_INT';
     } else {
         return 'T_STR';
@@ -204,13 +198,30 @@ while (<$in>) {
         my $v = $h{$k};
         my $type = t_type($v);
         my ($qv, $l);
-        if ($type eq 'T_BOO') {
-          $l = 0; #special constants
-          $qv = $v eq 'define' ? '(char *)1':'(char *)0';
-        } elsif ($type eq 'T_EMP') {
-          $l = 0;
-          $qv = 'NULL';
-        } elsif ($type eq 'T_INT') {
+        if ($type eq 'T_STR') {
+          if ($v eq 'define') {
+            $l  = 0;
+            $qv = 'VDEFINE'
+          } elsif ($v eq 'undef') {
+            $l  = 0;
+            $qv = 'VUNDEF'
+          } elsif ($v eq '') {
+            $l  = 0;
+            $qv = 'VEMPTY'
+          } else { # a regular C string
+            die "the value of Config key $k is over permitted length"
+              unless length($v) <= 1<<16;
+            $qv = $v;
+            $qv =~ s/(\\[^nrftacx"' ])/\\$1/g; # windows paths: \\ => \\\\
+            $qv =~ s/(\\[nrftacx ])/\\$1/g;  # \n => \\n, allowed escape chars
+            $qv = '"'.$qv.'"';
+            $l = $v =~ m/["'\\]/ ?
+            # don't calculate C-style length [cperl #61], let C do it for us
+            # and don't count the ending \0
+              'sizeof (' . $qv . ')-1'
+              : length($v)+0;
+          }
+        } else { # $type eq 'T_INT'
           if ($v >= SPTR_MIN && $v <= SPTR_MAX) { #can fit in a ptr
             $l = 0;
             $qv = '(char *)'.$v;
@@ -218,16 +229,6 @@ while (<$in>) {
             $l = length($v);
             $qv = '"'.$v.'"';
           }
-        } else {
-          $qv = $v;
-          $qv =~ s/(\\[^nrftacx"' ])/\\$1/g; # windows paths: \\ => \\\\
-          $qv =~ s/(\\[nrftacx ])/\\$1/g;  # \n => \\n, allowed escape chars
-          $qv = '"'.$qv.'"';
-          $l = $v =~ m/["'\\]/ ?
-          # don't calculate C-style length [cperl #61], let C do it for us
-          # and don't count the ending \0
-            'sizeof (' . $qv . ')-1'
-            : length($v)+0;
         }
         #type in gperf-less build might be different from type in canned
         #Config_xs.in due to platform differences, so dont use existing type
@@ -265,8 +266,7 @@ EOT
     s/^#?error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf\@gnu.org>."/#  error "gperf generated tables don't work with this non ISO-646 based character set."/m;
 
     # C++ requires full struct initializers
-    # and we changed our key to U16: -1 becomes 65535
-    s/{-1},/{U16_MAX, -1, 0, NULL},/g;
+    s/{-1},/{XCNAME_MAX, 1, 0, NULL},/g;
 
     # skip inline
     s/\Q#ifdef __GNUC__
@@ -296,7 +296,7 @@ __inline
     # fixup U16
     s/\(int\)\(long\)\&/(U16)(long)&/g;
     s/\Qregister int o = wordlist[key].name\E/register U16 o = wordlist[key].name/;
-    s/\Qif (o >= 0)\E\n/if (o != U16_MAX)\n/;
+    s/\Qif (o >= 0)\E\n/if (o != XCNAME_MAX)\n/;
 
     # don't delete line numbers, pointing to Config_xs.in
     # s/^#line \d+ .+$//gm;

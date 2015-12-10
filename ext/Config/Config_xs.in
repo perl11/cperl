@@ -52,16 +52,22 @@ API function to access the generated hash.
    resets the offset back to 0 or offset of 2nd string in string pool */
 
 typedef UV CFGSELF; /* for typemap */
+#define XCNAME_MAX 32767 /* NAME_MAX used in /usr/include/linux/limits.h */
+
+/* special constants for T_STR when len == 0 */
+#define VUNDEF  ((char *)0) /* undef */
+#define VEMPTY  ((char *)1) /* empty string */
+#define VDEFINE ((char *)2) /* define */
 
 enum Config_types {
-    T_EMP, /* "" */
-    T_BOO,  /* (char *)0 for undef or (char *)1 for define */
-    T_STR,
+    T_STR, /* a low constant, or a string pointer */
     T_INT, /* if the number fits in a ptr, stored directly with len == 0,
-              otherwise an ascii string with len != 0 */
+              otherwise an ascii string with len != 0, which is runtime
+              converted to IV */
 };
 
-struct Perl_Config { U16 name; signed char type; size_t len; const char *value; };
+/* update BOOT's assert if you change Perl_Config */
+struct Perl_Config { U16 name : 15; U16 type : 1; U16 len; const char *value; };
 static const struct Perl_Config *
 Config_lookup (register const char *str, register unsigned int len);
 
@@ -1304,7 +1310,7 @@ PROTOTYPES: DISABLE
 
 BOOT:
 {
-    STATIC_ASSERT_STMT(sizeof(stringpool_contents) <= U16_MAX);
+    STATIC_ASSERT_STMT(sizeof(stringpool_contents) <= 1 << 15);
 }
 
 #line 1309 "Config_xs.in"
@@ -1323,16 +1329,7 @@ PPCODE:
      PERL_UNUSED_VAR(self);
      if (!c)
          goto return_undef;
-     if (c->type == T_EMP)
-         RETVAL = &PL_sv_no;
-     else if (c->type == T_BOO) {
-         if(c->value == (char *)0)
-              return_undef:
-              RETVAL = &PL_sv_undef;
-         else /* (c->value == (char *)1) */
-              RETVAL = SV_CONST(define); /* this SV * never goes away once vivified */
-     }
-     else if (c->type == T_INT) {
+     if (c->type == T_INT) {
          IV iv;
          if(c->len)
 #ifdef HAS_STRTOL
@@ -1349,9 +1346,27 @@ PPCODE:
          RETVAL = newSViv(iv);
          RETVAL = sv_2mortal(RETVAL);
      }
-     else
-         /* TODO: store len also in struct */
-         RETVAL = newSVpvn_flags(c->value, c->len, SVs_TEMP);
+     else { /* c->type == T_STR */
+         if (c->len)
+              RETVAL = newSVpvn_flags(c->value, c->len, SVs_TEMP);
+         else {
+              switch((size_t)c->value) {
+                   case (size_t)VUNDEF:
+                   return_undef:
+                        RETVAL = &PL_sv_undef;
+                        break;
+                   case (size_t)VEMPTY:
+                        RETVAL = &PL_sv_no;
+                        break;
+                   case (size_t)VDEFINE: /* this SV * never goes away once vivified */
+                        RETVAL = SV_CONST(define);
+                        break;
+                   default:
+                        NOT_REACHED; /* NOTREACHED */
+              }
+         }
+     }
+
      *SP = RETVAL;
      return; /* skip implicit PUTBACK, it was done earlier */
 
