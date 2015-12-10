@@ -6788,8 +6788,11 @@ PREINIT:
 PPCODE:
      SP++; /* make space for 1 returned SV* */
      PUTBACK; /* let some vars go out of liveness */
-
-     c = Config_lookup(SvPVX_const(key), SvCUR(key));
+#if Size_t_size > INTSIZE
+     if(SvCUR(key) > UINT_MAX)
+         goto return_undef;
+#endif
+     c = Config_lookup(SvPVX_const(key), (unsigned int)SvCUR(key));
      PERL_UNUSED_VAR(self);
      if (!c)
          goto return_undef;
@@ -6868,7 +6871,7 @@ PPCODE:
         } else {
             int i = 0; /* optimized away */
             while (s < end) {
-                int l = strlen(s);
+                size_t l = strlen(s);
                 const char * const current_s = s; /* reduce liveness of var l */
                 s += l+1; /* set string up for next read */
                 i++; /* sanity test */
@@ -6925,7 +6928,13 @@ EXISTS(self, key)
          SV *key
 PPCODE:
     PERL_UNUSED_VAR(self);
-    if (Config_lookup(SvPVX_const(key), SvCUR(key)))
+#if Size_t_size > INTSIZE
+     if(SvCUR(key) > UINT_MAX)
+         goto return_undef;
+#endif
+    if (Config_lookup(SvPVX_const(key), (unsigned int)SvCUR(key)))
         XSRETURN_YES;
-    else
+    else {
+        return_undef:
         XSRETURN_UNDEF;
+    }

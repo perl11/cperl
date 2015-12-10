@@ -39,6 +39,7 @@ BEGIN {
     'sub IV_MAX () { '.($ivsize == 8 ? '0x7FFFFFFFFFFFFFFF' : '0x7FFFFFFF').' } ';
 }
 use strict ;
+use Config ;
 
 ###########################################################################
 
@@ -136,9 +137,11 @@ sub t_type ($) {
     }
 }
 
-my $i = ord(8);
-foreach my $c (7,6,5,4,3,2,1) { $i <<= 8; $i |= ord($c); }
-$h{byteorder} = join('', unpack('aaaaaaaa', pack('L!', $i)));
+#code in Config_heavy.pl to compute byteorder is customized/interpolated
+#for each build permutation of perl by configpm, the byteorder in the
+#Config_heavy.pl database is ignored, just use Config_heavy.pl to get byteorder
+#instead of copying the complicated code in configpm to here
+$h{byteorder} = $Config{byteorder};
 
 foreach my $k (sort { $a cmp $b } keys %h) {
     my $v = $h{$k};
