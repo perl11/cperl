@@ -11691,6 +11691,75 @@ Perl_rv2cv_op_cv(pTHX_ OP *cvop, U32 flags)
 }
 
 /*
+Convert a signature to a simple prototype string.
+*/
+
+char *
+S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
+{
+    const UNOP_AUX* o = CvSIGOP(cv);
+    UNOP_AUX_item *items = o->op_aux;
+    UV actions = (++items)->uv;
+    UV action;
+    bool first = TRUE;
+    SV *out = newSVpvn_flags("", 0, 0);
+
+    while (1) {
+        if (actions & SIGNATURE_FLAG_ref)
+            sv_catpvs_nomg(out, "\\");
+        switch (action = (actions & SIGNATURE_ACTION_MASK)) {
+        case SIGNATURE_reload:
+            actions = (++items)->uv;
+            continue;
+        case SIGNATURE_end:
+            goto finish;
+        case SIGNATURE_padintro:
+            break;
+        case SIGNATURE_arg:
+            sv_catpvs_nomg(out, "$");
+            break;
+        case SIGNATURE_arg_default_none:
+        case SIGNATURE_arg_default_undef:
+        case SIGNATURE_arg_default_0:
+        case SIGNATURE_arg_default_1:
+        case SIGNATURE_arg_default_iv:
+        case SIGNATURE_arg_default_const:
+        case SIGNATURE_arg_default_padsv:
+        case SIGNATURE_arg_default_gvsv:
+        case SIGNATURE_arg_default_op:
+            if (first) {
+                sv_catpvs_nomg(out, ";");
+                first = FALSE;
+            }
+            sv_catpvs_nomg(out, "$");
+            break;
+        case SIGNATURE_array:
+        case SIGNATURE_hash:
+            sv_catpvn_nomg(out, action == SIGNATURE_array ? "@": "%", 1);
+            break;
+        default:
+            SvREFCNT_dec(out);
+            return NULL;
+            /*sv_catpvs_nomg(out, "_");
+              goto finish;*/
+        }
+        actions >>= SIGNATURE_SHIFT;
+    }
+  finish:
+    *protolen = SvCUR(out);
+    if (SvCUR(out)) {
+#if 0
+        sv_usepvn_flags(MUTABLE_SV(cv), SvPVX(out), SvCUR(out),
+                        SV_HAS_TRAILING_NUL);
+#endif
+        return SvPVX(out);
+    } else {
+        SvREFCNT_dec(out);
+        return NULL;
+    }
+}
+
+/*
 =for apidoc Am|OP *|ck_entersub_args_list|OP *entersubop
 
 Performs the default fixup of the arguments part of an C<entersub>
@@ -11738,19 +11807,25 @@ the prototype.  This is the standard treatment used on a subroutine call,
 not marked with C<&>, where the callee can be identified at compile time
 and has a prototype.
 
-C<protosv> supplies the subroutine prototype to be applied to the call.
-It may be a normal defined scalar, of which the string value will be used.
-Alternatively, for convenience, it may be a subroutine object (a C<CV*>
-that has been cast to C<SV*>) which has a prototype.  The prototype
-supplied, in whichever form, does not need to match the actual callee
-referenced by the op tree.
+I<protosv> supplies the subroutine prototype or signature to be
+applied to the call, or indicates that there is no prototype.  It may
+be a normal scalar, in which case if it is defined then the string
+value will be used as a prototype, and if it is undefined then there
+is no prototype.  Alternatively, for convenience, it may be a
+subroutine object (a C<CV*> that has been cast to C<SV*>), of which
+the prototype or signature will be used if it has one.  The prototype
+(or lack thereof) supplied, in whichever form, does not need to match
+the actual callee referenced by the op tree.
+If the protosv has no prototype but a signature, the prototype is automatically
+created from the signature.
 
 If the argument ops disagree with the prototype, for example by having
-an unacceptable number of arguments, a valid op tree is returned anyway.
-The error is reflected in the parser state, normally resulting in a single
-exception at the top level of parsing which covers all the compilation
-errors that occurred.  In the error message, the callee is referred to
-by the name defined by the C<namegv> parameter.
+an unacceptable number of arguments or a wrong argument type, a valid
+op tree is returned anyway.  The error is reflected in the parser
+state, normally resulting in a single exception at the top level of
+parsing which covers all the compilation errors that occurred.  In the
+error message, the callee is referred to by the name defined by the
+I<namegv> parameter.
 
 =cut
 */
@@ -11766,12 +11841,19 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
     I32 contextclass = 0;
     const char *e = NULL;
     PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_PROTO;
-    if (SvTYPE(protosv) == SVt_PVCV ? !SvPOK(protosv) : !SvOK(protosv))
+    if (SvTYPE(protosv) == SVt_PVCV ? (!SvPOK(protosv) && !CvHASSIG((CV*)protosv))
+                                    : !SvOK(protosv))
 	Perl_croak(aTHX_ "panic: ck_entersub_args_proto CV with no proto, "
 		   "flags=%lx", (unsigned long) SvFLAGS(protosv));
     if (SvTYPE(protosv) == SVt_PVCV)
 	 proto = CvPROTO(protosv), proto_len = CvPROTOLEN(protosv);
-    else proto = SvPV(protosv, proto_len);
+    else
+        proto = SvPV(protosv, proto_len);
+    if (!proto && CvHASSIG(protosv) && CvSIGOP(protosv)) {
+        proto = S_signature_proto(aTHX_ (CV*)protosv, &proto_len);
+    }
+    if (!proto)
+        return entersubop;
     proto = S_strip_spaces(aTHX_ proto, &proto_len);
     proto_end = proto + proto_len;
     parent = entersubop;
@@ -11983,26 +12065,14 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 /*
 =for apidoc Am|OP *|ck_entersub_args_proto_or_list|OP *entersubop|GV *namegv|SV *protosv
 
-Performs the fixup of the arguments part of an C<entersub> op tree either
-based on a subroutine prototype or using default list-context processing.
-This is the standard treatment used on a subroutine call, not marked
-with C<&>, where the callee can be identified at compile time.
+Performs the fixup of the arguments part of an C<entersub> op tree
+either based on a subroutine signature, prototype or using default
+list-context processing.  This is the standard treatment used on a
+subroutine call, not marked with C<&>, where the callee can be
+identified at compile time.
 
-C<protosv> supplies the subroutine prototype to be applied to the call,
-or indicates that there is no prototype.  It may be a normal scalar,
-in which case if it is defined then the string value will be used
-as a prototype, and if it is undefined then there is no prototype.
-Alternatively, for convenience, it may be a subroutine object (a C<CV*>
-that has been cast to C<SV*>), of which the prototype will be used if it
-has one.  The prototype (or lack thereof) supplied, in whichever form,
-does not need to match the actual callee referenced by the op tree.
-
-If the argument ops disagree with the prototype, for example by having
-an unacceptable number of arguments, a valid op tree is returned anyway.
-The error is reflected in the parser state, normally resulting in a single
-exception at the top level of parsing which covers all the compilation
-errors that occurred.  In the error message, the callee is referred to
-by the name defined by the C<namegv> parameter.
+See L<perlapi/ck_entersub_args_proto> for the handling with a defined
+C<protosv> argument.
 
 =cut
 */
@@ -12012,7 +12082,8 @@ Perl_ck_entersub_args_proto_or_list(pTHX_ OP *entersubop,
 	GV *namegv, SV *protosv)
 {
     PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_PROTO_OR_LIST;
-    if (SvTYPE(protosv) == SVt_PVCV ? SvPOK(protosv) : SvOK(protosv))
+    if (SvTYPE(protosv) == SVt_PVCV ? (SvPOK(protosv) || CvHASSIG((CV*)protosv))
+                                    : SvOK(protosv))
 	return ck_entersub_args_proto(entersubop, namegv, protosv);
     else
 	return ck_entersub_args_list(entersubop);
@@ -12343,7 +12414,6 @@ Perl_ck_subr(pTHX_ OP *o)
 	    /* After a syntax error in a lexical sub, the cv that
 	       rv2cv_op_cv returns may be a nameless stub. */
 	    if (!namegv) return ck_entersub_args_list(o);
-
 	}
 	return ckfun(aTHX_ o, namegv, ckobj);
     }
