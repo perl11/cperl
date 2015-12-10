@@ -537,7 +537,7 @@ Perl_save_sptr(pTHX_ SV **sptr)
     PERL_ARGS_ASSERT_SAVE_SPTR;
 
     save_pushptrptr(*sptr, sptr, SAVEt_SPTR);
-    DEBUG_lv(Perl_deb(aTHX_ "save SPTR\n"));
+    DEBUG_lv(Perl_deb(aTHX_ "save SPTRsv=0x%"UVxf"\n", PTR2UV(*sptr)));
 }
 
 void
@@ -1210,7 +1210,7 @@ Perl_leave_scope(pTHX_ I32 base)
                            adding a ; after them would be wrong. */
                         assert_not_ROK(sv)
                         assert_not_glob(sv)
-                        SvFLAGS(sv) &=~ (SVf_OK|SVf_IVisUV|SVf_UTF8);
+                        SvFLAGS(sv) &= ~(SVf_OK|SVf_IVisUV|SVf_UTF8);
                         break;
                     }
                     SvPADTMP_off(sv);

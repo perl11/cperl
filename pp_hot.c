@@ -405,6 +405,8 @@ PPt(pp_padsv, "(:Any):Any")
 	{
 	    dTARG;
 	    TARG = *padentry;
+            DEBUG_Xv(Perl_deb(aTHX_ "padsv padp %p [%lu] => tops %p\n",
+                              TARG, op->op_targ, TOPs));
 	    PUSHs(TARG);
 	    PUTBACK; /* no pop/push after this, TOPs ok */
 	}
@@ -480,10 +482,13 @@ PPt(pp_preinc, "(:Scalar):Scalar")
                 == SVf_IOK))
         && SvIVX(sv) != IV_MAX)
     {
+        DEBUG_Xv(Perl_deb(aTHX_ "preinc fast tops %p\n", sv));
 	SvIV_set(sv, SvIVX(sv) + 1);
     }
-    else /* Do all the PERL_PRESERVE_IVUV and hard cases in sv_inc */
+    else { /* Do all the PERL_PRESERVE_IVUV and hard cases in sv_inc */
+        DEBUG_Xv(Perl_deb(aTHX_ "preinc slow tops %p\n", sv));
 	sv_inc(sv);
+    }
     SvSETMAGIC(sv);
     return NORMAL;
 }
@@ -4361,11 +4366,19 @@ PP(pp_signature)
                       && action != SIGNATURE_array
                       && action != SIGNATURE_hash))
                 S_croak_caller("Reference parameter cannot take default value");
+#if 0
+        handle_ref:
+#endif
+            /* use caller pad as new pad, and restore it at leavesub */
             assert(argc);
             argc--;
-            *padp = *argp++;
-            /*if (UNLIKELY(!*padp))
-              S_croak_caller("Reference parameter may not be undef");*/
+            DEBUG_Xv(Perl_deb(aTHX_ "sigref padp %p = argp %p\n", *argp, *padp));
+            /* copy back temp pad to old sv at leavesub */
+            save_pushptrptr(argp, padp, SAVEt_SPTR);
+            /*if (UNLIKELY(!*argp))
+              S_croak_caller("Reference parameter may not be empty");*/
+            SvPADSTALE_on(*padp); /* mark our pad as inactive */
+            *padp++ = *argp++;    /* and overwrite new pad with old sv */
             actions >>= SIGNATURE_SHIFT;
             continue;
         }
@@ -4377,11 +4390,13 @@ PP(pp_signature)
 
         case SIGNATURE_padintro:
         {
-            /* Introduce the vars. Stripped-down pp_padrange() */
+            /* Introduce the vars. Stripped-down pp_padrange().
+               These vars are unused for ref args */
             UV data     = (++items)->uv;
             UV varcount = data & OPpPADRANGE_COUNTMASK;
             PADOFFSET pad_ix = data >> OPpPADRANGE_COUNTSHIFT;
             SV **svp = padp = &(PAD_SVl(pad_ix));
+            DEBUG_Xv(Perl_deb(aTHX_ "sigpad padp %p [%lu]\n", *padp, pad_ix));
             while (varcount--)
                 SvPADSTALE_off(*svp++); /* mark lexical as active */
 
@@ -4418,6 +4433,13 @@ PP(pp_signature)
             SV *argsv;
             SV *varsv;
 
+            /* Do not copy constants, ref them */
+            if (action == SIGNATURE_arg && argc && *argp && SvREADONLY(*argp)) {
+              DEBUG_Xv(Perl_deb(aTHX_ "sigconst argp %p\n", *argp));
+#if 0
+              goto handle_ref;
+#endif
+            }
             varsv = (actions & SIGNATURE_FLAG_skip) ?  NULL : *padp++;
             if (argc) {
                 argc--;
@@ -4426,6 +4448,7 @@ PP(pp_signature)
                     break;
                 }
                 argsv = *argp++;
+                DEBUG_Xv(Perl_deb(aTHX_ "sigcopy padp %p = argp %p\n", *argp, *padp));
                 if (UNLIKELY(!argsv))
                     argsv = &PL_sv_undef;
                 goto setsv;

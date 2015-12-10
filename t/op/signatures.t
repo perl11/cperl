@@ -1310,16 +1310,16 @@ sub t118 (\$a) { ++$a }
     is prototype(\&t118), '(\$a)';
     my $a = 222;
     is scalar(@{[ t118($a) ]}), 1;
-    is scalar(t118($a)), 224; # TODO: bind arg byref
-    is $a, 225;
+    is scalar(t118($a)), 224;
+    is $a, 224;
 }
 
 sub t119(int $a) :int { $a || 0 }
 {
     is prototype(\&t119), '(int $a)', 'int $a';
-    is scalar(@{[ t119(222) ]}), 0;
+    is scalar(@{[ t119(222) ]}), 1;
     is scalar(t119(222)), 222;
-    # todo: compile-time error checking
+    # TODO: compile-time error checking
     eval "$a = t119('a');";
     #like $@, qr/\AIllegal type /;
 }
