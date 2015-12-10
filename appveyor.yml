@@ -16,7 +16,6 @@ clone_depth: 1
 branches:
   only:
     - master
-    - /bugfix/
     - /smoke/
 init:
   - git config --global core.autocrlf input
