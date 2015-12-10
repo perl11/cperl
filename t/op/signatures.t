@@ -1316,7 +1316,7 @@ sub t118 (\$a) { ++$a }
 
 sub t119(int $a) :int { $a || 0 }
 {
-    is prototype(\&t119), '(int $a)';
+    is prototype(\&t119), '(int $a)', 'int $a';
     is scalar(@{[ t119(222) ]}), 0;
     is scalar(t119(222)), 222;
     # todo: compile-time error checking

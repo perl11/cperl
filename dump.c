@@ -2317,7 +2317,6 @@ static void
 S_append_padvar(pTHX_ PADOFFSET off, CV *cv, SV *out, int n,
         bool paren, bool is_scalar)
 {
-    PADNAME *sv;
     PADNAMELIST *namepad = NULL;
     int i;
 
@@ -2329,12 +2328,24 @@ S_append_padvar(pTHX_ PADOFFSET off, CV *cv, SV *out, int n,
     if (paren)
         sv_catpvs_nomg(out, "(");
     for (i = 0; i < n; i++) {
-        if (namepad && (sv = padnamelist_fetch(namepad, off + i)))
+        PADNAME *pn;
+        if (namepad && (pn = padnamelist_fetch(namepad, off + i)))
         {
-            STRLEN cur = SvCUR(out);
+            HV *typ;
+            STRLEN cur;
+            if ((typ = PadnameTYPE(pn))) {
+                char *typname = HvNAME(typ);
+                STRLEN typlen = HvNAMELEN(typ);
+                if (typlen > 6 && strnEQ(typname, "main::", 6)) {
+                    typname += 6;
+                    typlen -= 6;
+                }
+                Perl_sv_catpvf(aTHX_ out, "%"UTF8f" ",
+                               UTF8fARG(HvNAMEUTF8(typ), typlen, typname));
+            }
+            cur = SvCUR(out);
             Perl_sv_catpvf(aTHX_ out, "%"UTF8f,
-                                 UTF8fARG(1, PadnameLEN(sv),
-                                          PadnamePV(sv)));
+                           UTF8fARG(1, PadnameLEN(pn), PadnamePV(pn)));
             if (is_scalar)
                 SvPVX(out)[cur] = '$';
         }
@@ -2370,9 +2381,14 @@ S_append_gv_name(pTHX_ GV *gv, SV *out)
 #endif
 
 
-/* return a temporary SV containing a stringified representation of
- * the op_aux field of a MULTIDEREF op, associated with CV cv
- */
+/*
+=for apidoc multideref_stringify
+
+Return a temporary SV containing a stringified representation of
+the op_aux field of a MULTIDEREF op, associated with CV cv
+
+=cut
+*/
 
 SV*
 Perl_multideref_stringify(pTHX_ const OP *o, CV *cv)
@@ -2512,9 +2528,14 @@ Perl_multideref_stringify(pTHX_ const OP *o, CV *cv)
 }
 
 
-/* return a temporary SV containing a stringified representation of
- * the op_aux field of a SIGNATURE op, associated with CV cv
- */
+/*
+=for apidoc signature_stringify
+
+Return a temporary SV containing a stringified representation of
+the op_aux field of a SIGNATURE op, associated with CV cv.
+
+=cut
+*/
 
 SV*
 Perl_signature_stringify(pTHX_ const OP *o, CV *cv)
@@ -2643,6 +2664,14 @@ Perl_signature_stringify(pTHX_ const OP *o, CV *cv)
     return out;
 }
 
+
+/*
+=for apidoc debop
+
+Print the name of the op to stderr.
+
+=cut
+*/
 
 I32
 Perl_debop(pTHX_ const OP *o)
