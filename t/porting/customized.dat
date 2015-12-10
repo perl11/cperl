@@ -35,9 +35,11 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm d79b9846
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm 96ef2f03620f8b1a878cea552e75dbf579d5330a
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm 46dad3f6a0f55384a8e4bfa6e60c3e473f643265
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/basic.t 6cdc7701b50e586bc9c4cfb1616de8eb0b1baf34
+ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/NoXS.pm 371cdff1b2375017907cfbc9c8f4a31f5ad10582
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/Mkbootstrap.t 2f88adc65c55c7bd2e23a4c808edcdf4b6134240
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fcad251b12d8b2412462b3
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
+ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/vstrings.t c60ad8cfd3496f136aeb71008f51d2db0a34eb5f
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm cb6b569b668a2485397d7ff33058f4abdcc731d8
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 7c0b8960822b1a585e374d3d1a0e4e1e5d652caa

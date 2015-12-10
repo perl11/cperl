@@ -632,16 +632,20 @@ use File::Glob qw(:case);
         ],
         # Applied upstream remove customisation when updating EUMM
         # cperl skips the ending 'c'
-        'CUSTOMIZED'   => [ qw[ lib/ExtUtils/MM_Any.pm
-                                lib/ExtUtils/MM_Unix.pm
-                                lib/ExtUtils/Command/MM.pm
-                                lib/ExtUtils/MakeMaker.pm
-                                lib/ExtUtils/Mkbootstrap.pm
-                                t/basic.t
-                                t/Mkbootstrap.t
-                                t/pm_to_blib.t
-                                t/prereq.t
-                              ] ],
+        'CUSTOMIZED'   => 
+          [ qw[ lib/ExtUtils/MM_Any.pm
+                lib/ExtUtils/MM_Unix.pm
+                lib/ExtUtils/Command/MM.pm
+                lib/ExtUtils/MakeMaker.pm
+                lib/ExtUtils/Mkbootstrap.pm
+                t/basic.t
+                t/Mkbootstrap.t
+                t/pm_to_blib.t
+                t/prereq.t
+                t/vstrings.t ],
+            # Not yet submitted
+            qq[t/lib/MakeMaker/Test/NoXS.pm],
+          ],
     },
 
     'ExtUtils::Manifest' => {
