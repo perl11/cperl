@@ -11705,8 +11705,6 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
     SV *out = newSVpvn_flags("", 0, 0);
 
     while (1) {
-        if (actions & SIGNATURE_FLAG_ref)
-            sv_catpvs_nomg(out, "\\");
         switch (action = (actions & SIGNATURE_ACTION_MASK)) {
         case SIGNATURE_reload:
             actions = (++items)->uv;
@@ -11716,6 +11714,7 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
         case SIGNATURE_padintro:
             break;
         case SIGNATURE_arg:
+            /* Do NOT add a \ to a SCALAR! */
             sv_catpvs_nomg(out, "$");
             break;
         case SIGNATURE_arg_default_none:
@@ -11735,6 +11734,8 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
             break;
         case SIGNATURE_array:
         case SIGNATURE_hash:
+            if (actions & SIGNATURE_FLAG_ref)
+                sv_catpvs_nomg(out, "\\");
             sv_catpvn_nomg(out, action == SIGNATURE_array ? "@": "%", 1);
             break;
         default:
