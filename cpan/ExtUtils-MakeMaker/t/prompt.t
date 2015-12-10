@@ -13,7 +13,7 @@ use TieIn;
 eval q{
     prompt();
 };
-like( $@, qr/^Not enough arguments for ExtUtils::MakeMaker::prompt/,
+like( $@, qr/^Not enough arguments for subroutine entry ExtUtils::MakeMaker::prompt/,
                                             'no args' );
 
 eval {
