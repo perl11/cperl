@@ -2431,8 +2431,8 @@ is eval { eval $::x.1 }, 1, 'reset does not taint undef';
 
     # then signature sub
 
-    no warnings 'experimental::signatures';
-    use feature 'signatures';
+    #no warnings 'experimental::signatures';
+    #use feature 'signatures';
 
     sub sig1 (  $t1,                $u1,
                 $t2,                $u2,

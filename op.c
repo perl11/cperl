@@ -10865,6 +10865,7 @@ Perl_ck_match(pTHX_ OP *o)
     return o;
 }
 
+/* Create one of the 4 METHOP ops. */
 OP *
 Perl_ck_method(pTHX_ OP *o)
 {
@@ -11691,7 +11692,9 @@ Perl_rv2cv_op_cv(pTHX_ OP *cvop, U32 flags)
 }
 
 /*
-Convert a signature to a simple prototype string.
+Returns the prototype string of a signature.
+
+TODO: use _ when preferred.
 */
 
 char *
@@ -11702,7 +11705,7 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
     UV actions = (++items)->uv;
     UV action;
     bool first = TRUE;
-    SV *out = newSVpvn_flags("", 0, 0);
+    SV *out = newSVpvn_flags("", 0, SVs_TEMP);
 
     while (1) {
         switch (action = (actions & SIGNATURE_ACTION_MASK)) {
@@ -11712,20 +11715,22 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
         case SIGNATURE_end:
             goto finish;
         case SIGNATURE_padintro:
+            items++;
             break;
         case SIGNATURE_arg:
             /* Do NOT add a \ to a SCALAR! */
             sv_catpvs_nomg(out, "$");
             break;
-        case SIGNATURE_arg_default_none:
-        case SIGNATURE_arg_default_undef:
-        case SIGNATURE_arg_default_0:
-        case SIGNATURE_arg_default_1:
         case SIGNATURE_arg_default_iv:
         case SIGNATURE_arg_default_const:
         case SIGNATURE_arg_default_padsv:
         case SIGNATURE_arg_default_gvsv:
         case SIGNATURE_arg_default_op:
+            items++; /* fall thru */
+        case SIGNATURE_arg_default_none:
+        case SIGNATURE_arg_default_undef:
+        case SIGNATURE_arg_default_0:
+        case SIGNATURE_arg_default_1:
             if (first) {
                 sv_catpvs_nomg(out, ";");
                 first = FALSE;
@@ -11739,7 +11744,6 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
             sv_catpvn_nomg(out, action == SIGNATURE_array ? "@": "%", 1);
             break;
         default:
-            SvREFCNT_dec(out);
             return NULL;
             /*sv_catpvs_nomg(out, "_");
               goto finish;*/
@@ -11749,13 +11753,11 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
   finish:
     *protolen = SvCUR(out);
     if (SvCUR(out)) {
-#if 0
-        sv_usepvn_flags(MUTABLE_SV(cv), SvPVX(out), SvCUR(out),
-                        SV_HAS_TRAILING_NUL);
-#endif
+        DEBUG_kv(PerlIO_printf(Perl_debug_log,
+                    "signature (%s) => proto \"%s\"\n",
+                    SvPVX_const(signature_stringify((OP*)o, cv)), SvPVX_const(out)));
         return SvPVX(out);
     } else {
-        SvREFCNT_dec(out);
         return NULL;
     }
 }
@@ -11852,6 +11854,15 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
         proto = SvPV(protosv, proto_len);
     if (!proto && CvHASSIG(protosv) && CvSIGOP(protosv)) {
         proto = S_signature_proto(aTHX_ (CV*)protosv, &proto_len);
+/* #define PERL_SET_SIGNATURE_PROTOTYPE
+   if we convert sigs to protos we'll need a new signature() keyword
+   to get the stringification as with prototype() or even list of args,
+   as with @_, inside the body. @_ should rather go to @ARGS, and be lazily
+   evaluated from the padrange.
+*/
+#ifdef PERL_SET_SIGNATURE_PROTOTYPE
+        sv_usepvn_flags(protosv, proto, proto_len, SV_HAS_TRAILING_NUL);
+#endif
     }
     if (!proto)
         return entersubop;
