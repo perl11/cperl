@@ -2904,6 +2904,7 @@ S_postprocess_optree(pTHX_ CV *cv, OP *root, OP **startp)
 Does fake_signatures.
 If the sub starts with 'my (...) = @_',
 replace those ops with an OP_SIGNATURE.
+Here we don't have to add the default $self invocant.
 
 Cannot handle shift as this leaves leftover args.
 
@@ -13927,6 +13928,8 @@ TODO: use _ when preferred.
 use a better sig-based checker (see below).
 protos cannot check types, insert type-casts, handle native types
 and cannot report the name.
+
+check if method and add default invocant?
 */
 
 static char *

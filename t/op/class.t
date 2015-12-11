@@ -11,13 +11,19 @@ my $test = 1;
 class Foo {
   # no 'has' syntax yet
   #has $.a = 0;
-  my $a = 0;
+  my $a = 0; # not auto-created yet
   method a($v?)              { defined $v ? $a = $v : $a }
   sub new                    { bless [], 'Foo' }
 
-  method meth1               { print "ok $test\n"; $test++; $self->a + 1 }
+  method meth1 {
+    print "ok $test\n"; $test++; 
+    $self->a + 1
+  }
   # quirks: just multi, not perl6-style multi method yet
-  multi mul1 (Int $a):method { print "ok $test\n"; $test++; $self->a * $a }
+  multi mul1 (Int $a):method {
+    print "ok $test\n"; $test++;
+    $self->a * $a
+  }
   # no multi decl and dispatch yet
   #multi method mul1 (Int $a) { print "ok $test\n"; $test++; $self->a * $a }
   #multi method mul1 (Num $a) { $!a * $a; $test\n"; $test++ }
