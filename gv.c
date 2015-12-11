@@ -1416,7 +1416,6 @@ S_gv_stashpvn_internal(pTHX_ const char *name, U32 namelen, I32 flags)
     Copy(name, tmpbuf, namelen, char);
     tmpbuf[namelen]   = ':';
     tmpbuf[namelen+1] = ':';
-    tmpbuf[namelen+2] = '\0';
     tmpgv = gv_fetchpvn_flags(tmpbuf, tmplen, flags, SVt_PVHV);
     if (tmpbuf != smallbuf)
 	Safefree(tmpbuf);
