@@ -2203,6 +2203,10 @@ I32
 HvRITER(hv)
 	B::HV	hv
 
+I32
+HvSTATIC(hv)
+	B::HV	hv
+
 void
 HvARRAY(hv)
 	B::HV	hv

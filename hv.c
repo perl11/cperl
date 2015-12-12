@@ -1898,6 +1898,9 @@ Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
         }
 	hv_name_set(hv, NULL, 0, 0);
     }
+    if (HvSTATIC_get(hv))
+        return;
+
     if (save) {
 	ENTER;
 	SAVEFREESV(SvREFCNT_inc_simple_NN(hv));
