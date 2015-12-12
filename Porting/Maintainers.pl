@@ -759,6 +759,11 @@ use File::Glob qw(:case);
         'FILES'        => q[dist/I18N-LangTags],
     },
 
+    'Internals::DumpArenas' => {
+        'DISTRIBUTION' => 'RURBAN/Internals-DumpArenas-0.12_01.tar.gz',
+        'FILES'        => q[cpan/Internals-DumpArenas],
+    },
+
     'if' => {
         'DISTRIBUTION' => 'ILYAZ/modules/if-0.0601.tar.gz',
         'FILES'        => q[dist/if],

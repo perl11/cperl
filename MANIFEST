@@ -1680,6 +1680,9 @@ cpan/HTTP-Tiny/t/170_keepalive.t
 cpan/HTTP-Tiny/t/BrokenCookieJar.pm
 cpan/HTTP-Tiny/t/SimpleCookieJar.pm
 cpan/HTTP-Tiny/t/Util.pm
+cpan/Internals-DumpArenas/DumpArenas.xs
+cpan/Internals-DumpArenas/lib/Internals/DumpArenas.pm
+cpan/Internals-DumpArenas/t/10-use.t
 cpan/IO-Compress/bin/zipdetails				IO::Compress
 cpan/IO-Compress/lib/Compress/Zlib.pm			IO::Compress
 cpan/IO-Compress/lib/File/GlobMapper.pm			IO::Compress
