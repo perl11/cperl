@@ -13266,6 +13266,7 @@ Perl_rpeep(pTHX_ OP *o)
     ENTER;
     SAVEOP();
     SAVEVPTR(PL_curcop);
+    DEBUG_kv(Perl_deb(aTHX_ "rpeep 0x%p\n", o));
     for (;; o = o->op_next) {
 	if (o && o->op_opt)
 	    o = NULL;
@@ -13340,6 +13341,7 @@ Perl_rpeep(pTHX_ OP *o)
                 ASSUME(!(o2->op_private & ~OPpEARLY_CV));
 
                 o2 = o2->op_next;
+                DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p\n", o2));
 
                 if (o2->op_type == OP_RV2AV) {
                     action = MDEREF_AV_gvav_aelem;
@@ -13494,13 +13496,15 @@ Perl_rpeep(pTHX_ OP *o)
                 o2 = o2->op_next;
 
                 S_maybe_multideref(aTHX_ o, o2, action, hints);
+                DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p mderef\n", o));
                 break;
 
             default:
                 break;
             }
         }
-
+        DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p oldop->op_next=0x%p break\n",
+                          o, oldop ? oldop->op_next : NULL));
 
 	switch (o->op_type) {
 	case OP_DBSTATE:
@@ -13576,7 +13580,8 @@ Perl_rpeep(pTHX_ OP *o)
 		 || o->op_next->op_next->op_next->op_type == OP_PADHV
 		)
 		&& !(o->op_next->op_next->op_next->op_private & ~OPpLVAL_INTRO)
-		&& o->op_next->op_next->op_next->op_next && o->op_next->op_next->op_next->op_next->op_type == OP_NEXTSTATE
+		&& o->op_next->op_next->op_next->op_next
+                && o->op_next->op_next->op_next->op_next->op_type == OP_NEXTSTATE
 		&& (!CopLABEL((COP*)o)) /* Don't mess with labels */
 		&& (!CopLABEL((COP*)o->op_next->op_next)) /* ... */
 	    ) {
@@ -13640,6 +13645,8 @@ Perl_rpeep(pTHX_ OP *o)
                 OP *to   = OpSIBLING(from);
                 SV *fromsv, *tosv;
                 o->op_opt = 0;
+                if (next != o && oldop)
+                    oldop->op_next = o;
 
                 if (!to)
                     break;
@@ -13654,7 +13661,7 @@ Perl_rpeep(pTHX_ OP *o)
 
                 if (OP_TYPE_IS(to, OP_AV2ARYLEN)) {
                     OP *kid = cUNOPx(to)->op_first;
-                    OP *loop, *iter, *body;
+                    OP *loop, *iter, *body, *o2;
                     SV *idx = MUTABLE_SV(PL_defgv);
                     const char *aname = kid->op_type == OP_GV ? GvNAME_get(kSVOP_sv)
                         :  kid->op_type == OP_PADAV ? PAD_COMPNAME_PV(kid->op_targ)
@@ -13694,29 +13701,32 @@ Perl_rpeep(pTHX_ OP *o)
                     body = cLOGOPx(iter->op_next)->op_other;
                     /* replace all aelem with aelem_u for this exact array in
                        this loop body, if the index is the loop counter */
-                    for (o=body; o!=iter; o=o->op_next) {
-                        const OPCODE type = o->op_type;
+                    for (o2=body; o2!=iter; o2=o2->op_next) {
+                        const OPCODE type = o2->op_type;
                         /* here aelem might not be already optimized to multideref.
                            aelem_u is faster. */
-                        if (type == OP_AELEM && OP_TYPE_IS(cUNOPo->op_first, OP_PADAV)
-                            && strEQ(aname, PAD_COMPNAME_PV(cUNOPo->op_first->op_targ))
-                            && !(o->op_private & (OPpLVAL_DEFER|OPpLVAL_INTRO|OPpDEREF))) {
+                        if (type == OP_AELEM && OP_TYPE_IS(cUNOPx(o2)->op_first, OP_PADAV)
+                            && strEQ(aname, PAD_COMPNAME_PV(cUNOPx(o2)->op_first->op_targ))
+                            && !(o2->op_private & (OPpLVAL_DEFER|OPpLVAL_INTRO|OPpDEREF))) {
                             /* check index */
-                            if (o->op_targ && o->op_targ == loop->op_targ) {
-                                DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[my %s] => aelem_u\n", aname, iname));
-                                OpTYPE_set(o, OP_AELEM_U);
-                            } else if (!o->op_targ && idx) {
-                                OP* ixop = cBINOPx(o)->op_last;
+                            if (o2->op_targ && o2->op_targ == loop->op_targ) {
+                                DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[my %s] => aelem_u\n",
+                                                 aname, iname));
+                                OpTYPE_set(o2, OP_AELEM_U);
+                            } else if (!o2->op_targ && idx) {
+                                OP* ixop = cBINOPx(o2)->op_last;
                                 if ((OP_TYPE_IS(ixop, OP_RV2SV)
                                   && idx == cSVOPx(cUNOPx(ixop)->op_first)->op_sv)) {
-                                    DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[$%s] => aelem_u\n", aname, iname));
-                                    OpTYPE_set(o, OP_AELEM_U);
+                                    DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[$%s] => aelem_u\n",
+                                                     aname, iname));
+                                    OpTYPE_set(o2, OP_AELEM_U);
                                 }
                             }
 #ifdef DEBUGGING
-                        } else if (type == OP_MULTIDEREF && o->op_targ
-                                   && strEQ(aname, PAD_COMPNAME_PV(o->op_targ))) {
-                            DEBUG_k(Perl_deb(aTHX_ "nyi multideref[%s] => MDEREF_AV_*_aelem_u\n", aname));
+                        } else if (type == OP_MULTIDEREF && o2->op_targ
+                                   && strEQ(aname, PAD_COMPNAME_PV(o2->op_targ))) {
+                            DEBUG_k(Perl_deb(aTHX_ "nyi multideref[%s] => MDEREF_AV_*_aelem_u\n",
+                                             aname));
                         } else if (type == OP_AELEMFAST
                                    && strEQ(aname, SvPVX(kSVOP_sv))) {
                             DEBUG_k(Perl_deb(aTHX_ "nyi aelemfast[%s] => aelemfast_u\n", aname));
@@ -13740,6 +13750,7 @@ Perl_rpeep(pTHX_ OP *o)
 		    if (oldop)
 			oldop->op_next = nextop;
                     o = nextop;
+                    DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p\n", o));
 		    /* Skip (old)oldop assignment since the current oldop's
 		       op_next already points to the next op.  */
 		    goto redo;
@@ -13832,6 +13843,7 @@ Perl_rpeep(pTHX_ OP *o)
                     STATIC_ASSERT_STMT(sizeof(OP) <= sizeof(BINOP));
                     OpTYPE_set(o, OP_STUB);
                     o->op_private = 0;
+                    DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p repeat\n", o));
                     break;
                 }
             }
@@ -14055,6 +14067,7 @@ Perl_rpeep(pTHX_ OP *o)
                 o = oldoldop;
                 oldop = NULL;
                 oldoldop = NULL;
+                DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p = oldoldop (padrange)\n", o));
             }
             else {
                 /* Convert the pushmark into a padrange.
@@ -14081,6 +14094,7 @@ Perl_rpeep(pTHX_ OP *o)
 	 && (o->op_flags & OPf_WANT) == OPf_WANT_VOID)
 	{
 	    oldop->op_next = o->op_next;
+            DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p oldop->op_next=0x%p (Skip over state($x) in void context)\n", o, oldop->op_next));
 	    goto redo_nextstate;
 	}
 	if (o->op_type != OP_PADAV)
