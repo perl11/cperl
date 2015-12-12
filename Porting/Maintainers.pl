@@ -1483,6 +1483,9 @@ use File::Glob qw(:case);
     'YAML::LibYAML' => {
         'DISTRIBUTION' => "INGY/YAML-LibYAML-0.59.tar.gz",
         'FILES'        => q[cpan/YAML-LibYAML],
+        'CUSTOMIZED'   => [
+          qw( cpan/YAML-LibYAML/LibYAML/Makefile.PL )
+          ],
     },
 
     #'XSLoader' => {
