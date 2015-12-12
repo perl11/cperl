@@ -641,7 +641,6 @@ cpan/Devel-NYTProf/lib/Devel/NYTProf/SubCallInfo.pm
 cpan/Devel-NYTProf/lib/Devel/NYTProf/SubInfo.pm
 cpan/Devel-NYTProf/lib/Devel/NYTProf/Test.pm
 cpan/Devel-NYTProf/lib/Devel/NYTProf/Util.pm
-cpan/Devel-NYTProf/Makefile.PL
 cpan/Devel-NYTProf/MemoryProfiling.pod
 cpan/Devel-NYTProf/NYTProf.h
 cpan/Devel-NYTProf/NYTProf.xs
@@ -3285,7 +3284,6 @@ cpan/YAML-LibYAML/LibYAML/Makefile.PL
 cpan/YAML-LibYAML/LibYAML/parser.c
 cpan/YAML-LibYAML/LibYAML/perl_libyaml.c
 cpan/YAML-LibYAML/LibYAML/perl_libyaml.h
-cpan/YAML-LibYAML/LibYAML/ppport.h
 cpan/YAML-LibYAML/LibYAML/ppport_sort.h
 cpan/YAML-LibYAML/LibYAML/reader.c
 cpan/YAML-LibYAML/LibYAML/scanner.c

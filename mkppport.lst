@@ -5,10 +5,15 @@
 # This file is read by mkppport at build time.
 #
 
+cpan/B-C
+cpan/B-C/ByteLoader
+cpan/Cpanel-JSON-XS
 cpan/Devel-NYTProf
 cpan/DB_File
+cpan/Internals-DumpArenas
 cpan/IPC-SysV
 cpan/Scalar-List-Utils
 cpan/Time-HiRes
 cpan/Win32API-File
+cpan/YAML-LibYAML/LibYAML
 dist/PathTools
