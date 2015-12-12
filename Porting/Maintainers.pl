@@ -172,6 +172,53 @@ use File::Glob qw(:case);
         'EXCLUDED'     => [qr{^t/release-.*\.t}],
     },
 
+    'B::C' => {
+        'DISTRIBUTION' => 'RURBAN/B-C-1.53.tar.gz',
+        'FILES'        => q[cpan/B-C],
+        'EXCLUDED'     => [
+            qr{^.gdb},
+            qr{^t/z_pod\.t/},
+            qr{^ByteLoader/BcVersions/},
+            qr{^log\..*/},
+            qr{^ramblings/},
+            qr{^t/.*sh/},
+            qw( Artistic
+                Changes
+                Copying
+                INSTALL
+                NOTES
+                MANIFEST
+                README
+                README.alpha
+                STATUS
+                TESTS
+                Todo
+                .gitignore
+                .travis.yml
+		regen_lib.pl
+		status_upd
+		store_rpt
+		lib/B/Bytecode56.pm
+		ByteLoader/ppport.h
+		ByteLoader/BcVersions.pod
+		Stash/Makefile.PL
+                t/download-reports
+		t/manifest.t
+		t/moose-test.pl
+		t/mymodules
+		t/nowarn.pl
+		t/pg.pl
+		t/regex-dna.pl
+		t/todomod.pl
+		t/top100
+		t/z_pod.t
+                ppport.h
+                META.json
+                META.yml
+                )
+        ],
+    },
+  
     'B::Debug' => {
         'DISTRIBUTION' => 'RURBAN/B-Debug-1.23.tar.gz',
         'FILES'        => q[cpan/B-Debug],

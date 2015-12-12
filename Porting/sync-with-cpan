@@ -295,8 +295,10 @@ for my $file (find_type_f($new_dir)) {
     utime($t,$t,$file);
 };
 
-say "Renaming directories";
-rename $pkg_dir => $old_dir;
+if (-d $pkg_dir) {
+  say "Renaming directories";
+  rename $pkg_dir => $old_dir;
+}
 
 say "Creating new package directory";
 mkdir $pkg_dir;

@@ -1,0 +1,10 @@
+Attribute::Handlers
+B::Hooks::EndOfScope
+DateTime
+DateTime::Locale
+Devel::GlobalDestruction
+ExtUtils::Install
+Module::Build
+Moose
+MooseX::Types
+Test::Tester

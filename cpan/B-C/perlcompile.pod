@@ -1,0 +1,706 @@
+=head1 NAME
+
+perlcompile - Introduction to the Perl Compiler-Translator 
+
+=head1 DESCRIPTION
+
+Perl has always had a compiler: your source is compiled into an
+internal form (a parse tree, "optree") which is then optimized before
+being run.  Since version 5.005, Perl has shipped with a module
+capable of inspecting the optimized optree (L<B>), and this has been
+used to write many useful utilities, including the L<B::C> and
+L<B::CC> modules that lets you turn your Perl into C source code that
+can be compiled into a native executable.
+
+The C<B> module provides access to the optree, and other modules
+("backends") do things with the tree.  Some write it out as bytecode
+L<B::Bytecode>, C source code L<B::C>, or a semi-human-readable text.
+Another L<B::Xref> traverses the parse tree to build a cross-reference
+of which subroutines, formats, and variables are used where.  Another
+L<B::Lint> checks your code for dubious constructs. L<B::Deparse>
+dumps the parse tree back out as Perl source, acting as a source code
+beautifier or deobfuscator.
+
+Because its original purpose was to be a way to produce C code
+corresponding to a Perl program, and in turn a native executable, the
+C<B> module and its associated backends, mainly L<B::C>, L<B::CC> and
+L<B::Bytecode> are known as "the compiler", even though they don't
+really compile anything.
+
+This document covers the use of the Perl compiler: which modules
+it comprises, how to use the most important of the backend modules,
+what problems there are, and how to work around them.
+
+=head2 Layout
+
+The compiler backends are in the C<B::> hierarchy, and the front-end
+(the module that you, the user of the compiler, will sometimes
+interact with) is the O module.  Some backends (e.g., C<B::C>) have
+programs (e.g., I<perlcc>) to hide the modules' complexity.
+
+Since Perl 5.10 the three code-producing backends (C<B::C>, C<B::CC> 
+and C<B::Bytecode>), aka the compiler, have been removed from 
+CORE Perl and are available as seperate CPAN module 
+L<http://search.cpan.org/dist/B-C/>.
+
+Here are the important backends to know about, with their status
+expressed as a number from 0 (outline for later implementation) to
+10:
+
+=over 4
+
+=item The B::Bytecode backend
+
+Stores the parse tree in a machine-independent format, suitable
+for later reloading through the L</"ByteLoader"> module.  
+
+Status: 7 (5.18 and higher is broken).
+
+=item The B::C backend
+
+Creates a C source file containing code to rebuild the parse tree
+and resume the interpreter.
+
+Status: 9 (most applications work out of the box, some need cmdline flags)
+
+5.14 works best. See L<STATUS>
+
+B::C is stable and used in production for -O0 and -O3. For some programs
+not all methods in certain packages or eval strings might be detected,
+you'd need to add them manually via -u<packagename>.
+
+Still missing in general are:
+
+  - attribute handlers (i.e. run-time attributes)
+  - compile-time perlio layers
+  - re-eval groups (?{})
+  - smartmatch subrefs
+  - compile-time stash-magic delete renames to ANON
+
+=item The B::CC backend
+
+Creates a C source file corresponding to the run time code path in
+the parse tree.  This is the closest to a Perl-to-C translator there
+is, but the code it generates is almost incomprehensible because it
+translates the parse tree into a giant switch structure that
+manipulates Perl structures.  Eventual goal is to reduce (given
+sufficient type information in the Perl program) some of the
+Perl data structure manipulations into manipulations of C-level
+ints, floats, etc.  
+
+Status: 5 (some applications work).
+
+=item B::Lint
+
+Complains if it finds dubious constructs in your source code.  Status:
+6 (it works adequately, but only has a very limited number of areas
+that it checks).
+
+=item B::Deparse
+
+Recreates the Perl source, making an attempt to format it coherently.
+Status: 8 (it works nicely, but a few obscure things are missing).
+
+=item B::Xref
+
+Reports on the declaration and use of subroutines and variables.
+Status: 8 (it works nicely, but still has a few lingering bugs).
+
+=back
+
+=head1 Using The Backends
+
+The following sections describe how to use the various compiler back
+ends.  They're presented roughly in order of maturity, so that the
+most stable and proven backends are described first, and the most
+experimental and incomplete backends are described last.
+
+The C<O> module automatically enabled the B<-c> flag to Perl, which
+prevents Perl from executing your code once it has been compiled.
+This is why all the backends print:
+
+  myperlprogram syntax OK
+
+before producing any other output.
+
+=head2 The Cross Referencing Backend
+
+The cross referencing backend (C<B::Xref>) produces a report on your program,
+breaking down declarations and uses of subroutines and variables (and
+formats) by file and subroutine.  For instance, here's part of the
+report from the I<pod2man> program that comes with Perl:
+
+  Subroutine clear_noremap
+    Package (lexical)
+      $ready_to_print   i1069, 1079
+    Package main
+      $&                1086
+      $.                1086
+      $0                1086
+      $1                1087
+      $2                1085, 1085
+      $3                1085, 1085
+      $ARGV             1086
+      %HTML_Escapes     1085, 1085
+
+This shows the variables used in the subroutine C<clear_noremap>.  The
+variable C<$ready_to_print> is a my() (lexical) variable,
+B<i>ntroduced (first declared with my()) on line 1069, and used on
+line 1079.  The variable C<$&> from the main package is used on 1086,
+and so on.
+
+A line number may be prefixed by a single letter:
+
+=over 4
+
+=item i
+
+Lexical variable introduced (declared with my()) for the first time.
+
+=item &
+
+Subroutine or method call.
+
+=item s
+
+Subroutine defined.
+
+=item r
+
+Format defined.
+
+=back
+
+The most useful option the cross referencer has is to save the report
+to a separate file.  For instance, to save the report on
+I<myperlprogram> to the file I<report>:
+
+  $ perl -MO=Xref,-oreport myperlprogram
+
+=head2 The Decompiling Backend
+
+The Deparse backend turns your Perl source back into Perl source.  It
+can reformat along the way, making it useful as a de-obfuscator.  The
+most basic way to use it is:
+
+  $ perl -MO=Deparse myperlprogram
+
+You'll notice immediately that Perl has no idea of how to paragraph
+your code.  You'll have to separate chunks of code from each other
+with newlines by hand.  However, watch what it will do with
+one-liners:
+
+  $ perl -MO=Deparse -e '$op=shift||die "usage: $0
+  code [...]";chomp(@ARGV=<>)unless@ARGV; for(@ARGV){$was=$_;eval$op;
+  die$@ if$@; rename$was,$_ unless$was eq $_}'
+  -e syntax OK
+  $op = shift @ARGV || die("usage: $0 code [...]");
+  chomp(@ARGV = <ARGV>) unless @ARGV;
+  foreach $_ (@ARGV) {
+      $was = $_;
+      eval $op;
+      die $@ if $@;
+      rename $was, $_ unless $was eq $_;
+  }
+
+The decompiler has several options for the code it generates.  For
+instance, you can set the size of each indent from 4 (as above) to
+2 with:
+
+  $ perl -MO=Deparse,-si2 myperlprogram
+
+The B<-p> option adds parentheses where normally they are omitted:
+
+  $ perl -MO=Deparse -e 'print "Hello, world\n"'
+  -e syntax OK
+  print "Hello, world\n";
+  $ perl -MO=Deparse,-p -e 'print "Hello, world\n"'
+  -e syntax OK
+  print("Hello, world\n");
+
+See L<B::Deparse> for more information on the formatting options.
+
+=head2 The Lint Backend
+
+The lint backend C<B::Lint> inspects programs for poor style.  One
+programmer's bad style is another programmer's useful tool, so options
+let you select what is complained about.
+
+To run the style checker across your source code:
+
+  $ perl -MO=Lint myperlprogram
+
+To disable context checks and undefined subroutines:
+
+  $ perl -MO=Lint,-context,-undefined-subs myperlprogram
+
+See L<B::Lint> for information on the options.
+
+=head2 The Simple C Backend
+
+The C<B::C> module saves the internal compiled state of your Perl program
+to a C source file, which can be turned into a native executable
+for that particular platform using a C compiler.  The resulting
+program links against the Perl interpreter library, so it
+will not save you disk space (unless you build Perl with a shared
+library) or program size. It may, however, save you startup time.
+
+The C<perlcc> tool generates such executables by default.
+
+  perlcc myperlprogram.pl
+
+=head3 C Backend Invocation
+
+If there are any non-option arguments, they are taken to be
+names of objects to be saved (probably doesn't work properly yet).
+Without extra arguments, it saves the main program.
+
+        -q 		Be quiet. STDOUT goes to $O::BEGIN_output
+        -qq		Be very quiet. Also suppress "Syntax OK"
+	-o<filename>	Output to filename instead of STDOUT
+	-v		Be verbose. Currently gives a few compilation statistics.
+	--		Force end of options
+	-u<package>	use package or filename. Force apparently unused subs from
+                        package to be compiled. This allows programs to use run-time
+                        eval "foo()" even when sub foo is never seen to be used at compile
+			time. The down side is that any subs which really are
+			never used also have code generated. This option is
+			necessary, for example, if you have a signal handler
+			foo which you initialise with $SIG{BAR} = "foo".
+			A better fix, though, is just to change it to
+			$SIG{BAR} = \&foo. You can have multiple -u or -U options.
+        -U<package>     Unuse package or filename. Ignore all subs from package to be compiled.
+                        Certain packages might not be needed at run-time, even if the
+                        pessimistic walker detects it. If required those packages will be
+                        run-time loaded then.
+	-e ARG		Eval ARG at startup
+        -c              Check and abort (used to print warnings)
+NYI	-w		Warn on undefined SYMs
+	-l LIMIT	Force max linelength to LIMIT (e.g. MSVC to 2048)
+	-D		Debug options (concat or separate flags like perl -D)
+		o	Print walkoptree OPs
+		O	Prints more OP information
+		c	COPs, prints COPs as processed (incl. file & line num)
+		S	prints SV/RE information on saving
+		A	prints AV information on saving
+		C	prints CV information on saving
+		M	prints MAGIC information on saving
+		G	prints GV information on saving
+		u       Do not print -D information when parsing unused subs.
+	-f		Force optimisations on or off one at a time.
+		cog		Copy-on-grow: PVs declared and initialised statically
+		no-cog		No copy-on-grow
+		save-data	Save package::DATA filehandles ( only available with PerlIO::scalar )
+		ppaddr		Optimize the initialization of op_ppaddr.
+		warn-sv		Optimize the initialization of cop_warnings.
+		av-init		Faster initialization of AVs.
+		av-init2	Initialization of AVs via ptmalloc3 independent_comalloc().
+		use-script-name	Use the script name instead of the program name as $0.
+                ro-inc          Readonly @INC and %INC pathnames.
+                const-strings   Declares static readonly strings as const.
+		save-sig-hash	Save compile-time modifications to the %SIG hash.
+                no-destruct     Faster destruction.
+                no-fold         Do not compile unicode foldings tables, needed for m//i
+                no-warnings     Do not compile warnings hashes.
+                stash           Add all stash hashes even if not used.
+                no-delete-pkg   Do not delete compiler-internal and dependent packages.
+                no-dyn-padlist  Disable dynamic padlists (5.18). This is faster but might cause
+                                die and exit to crash.
+		cop		Omit COP, no file+line info for warnings
+	-On		Optimisation level (n = 0, 1, 2, ...). -O means -O1.
+	  	-O1	-fcog -fav-init2/-fav-init -fppaddr -fwarn-sv
+		-O2	-O1 -fro-inc -fsave-data
+		-O3     -O2 -fsave-sig-hash -fno-destruct fconst-strings
+		-O4     -O3 -fcop -fno-dyn-padlist
+
+=head3 C Examples
+	perl -MO=C foo.pl > foo.c
+	perl cc_harness -o foo foo.c
+
+	perl -MO=C,-v,-DcA bar.pl > /dev/null
+
+For more information, see L<perlcc> and L<B::C>.
+
+=head2 The Bytecode Backend
+
+This backend is only useful if you also have a way to load and execute the
+bytecode that it produces. The L</ByteLoader> module provides this
+functionality.
+
+To turn a Perl program into executable byte code, you can use C<perlcc>
+with the C<-B> switch:
+
+  perlcc -B myperlprogram.pl
+
+The byte code is machine independent, so once you have a compiled
+module or program, it is as portable as Perl source (assuming that
+the user of the module or program has a modern-enough Perl interpreter
+to decode the byte code).
+
+=head3 Bytecode Backend Invocation
+
+If there are any non-option arguments, they are taken to be
+names of objects to be saved (probably doesn't work properly yet).
+Without extra arguments, it saves the main program.
+
+        -q 		Be quiet. STDOUT goes to $O::BEGIN_output
+        -qq		Be very quiet. Also suppress "Syntax OK"
+	-ofilename	Output to filename instead of STDOUT.
+NYI	-v              Be verbose.
+	--		Force end of options.
+NYI	-f		Force optimisations on or off one at a time.
+			Each can be preceded by no- to turn the option off.
+		compress-nullops
+			Only fills in the necessary fields of ops which have
+			been optimised away by perl's internal compiler.
+		omit-sequence-numbers
+			Leaves out code to fill in the op_seq field of all ops
+			which is only used by perl's internal compiler.
+		bypass-nullops
+			If op->op_next ever points to a NULLOP, replaces the
+			op_next field with the first non-NULLOP in the path
+			of execution.
+	-s              strip-syntax-tree
+			Leaves out code to fill in the pointers which link the
+			internal syntax tree together. They're not needed at
+			run-time but leaving them out will make it impossible
+			to recompile or disassemble the resulting program.
+			It will also stop "goto label" statements from working.
+NYI	-On		Optimisation level (n = 0, 1, 2, ...). -O means -O1.
+			-O1 sets -fcompress-nullops -fomit-sequence numbers.
+			-O6 adds -fstrip-syntax-tree.
+NYI	-D		Debug options (concat or separate flags like perl -D)
+		O	OPs, prints each OP as it's processed.
+		b	print debugging information about bytecompiler progress
+		a	tells the assembler to include source assembler lines
+			in its output as bytecode comments.
+		C	prints each CV taken from the final symbol tree walk.
+	-S		Output assembler source rather than piping it
+			through the assembler and outputting bytecode.
+	-H		add #! perl shebang header
+	-s		scan and keep keep syntax tree if goto op found.
+			scan the script for C<# line ..> directives and for <goto LABEL>
+			expressions. When gotos are found keep the syntax tree.
+	-b		Save all the BEGIN blocks. Normally only BEGIN blocks that require
+			other files (ex. use Foo;) are saved.
+	-k		keep syntax tree to disassemble the plc.
+			it is stripped by default.
+	-TI		testing, dump the @INC av
+	-TF     file	testing, sets COP::file	
+   	-m		Compile as a module rather than a standalone program.
+			Currently this just means that the bytecodes for
+			initialising main_start, main_root and curpad are
+			omitted.
+
+=head3 Bytecode Invocation Examples
+
+	perl -MO=Bytecode,-O6,-H,-ofoo.plc foo.pl
+	./foo.plc
+
+	perl -MO=Bytecode,-S foo.pl > foo.S
+	assemble foo.S > foo.plc
+	perl -MByteLoader foo.plc
+
+	perl -MO=Bytecode,-m,-oFoo.pmc Foo.pm
+
+=head2 The Optimized C Backend
+
+The C<B::CC> optimized C backend will turn your Perl program's run time
+code-path into an equivalent (but optimized) C program that manipulates
+the Perl data structures directly.  The program will still link against
+the Perl interpreter library, to allow for eval(), C<s///e>,
+C<require>, etc.
+
+The C<perlcc> tool generates such executables when using the C<-O>
+switch.  To compile a Perl program (ending in C<.pl> or C<.p>):
+
+  perlcc -O myperlprogram.pl
+
+To produce a shared library from a Perl module (ending in C<.pm>):
+
+  perlcc -O Myperlmodule.pm
+
+=head3 CC Backend Invocation
+
+If there are any non-option arguments, they are taken to be names of
+subs to be saved. Without extra arguments, it saves the main program.
+B::C takes all B::C options plus a few new ones:
+
+	-D		Debug options (concat or separate flags like perl -D)
+		o	Enable B debugging
+		r	Writes debugging output to STDERR just as it's about
+			to write to the program's runtime. Otherwise writes
+			debugging info as comments in its C output.
+		O	Outputs each OP as it's compiled
+		s	Outputs the contents of the shadow stack at each OP
+		p	Outputs the contents of the shadow pad of lexicals as
+			it's loaded for each sub or the main program.
+		q	Outputs the name of each fake PP function in the queue
+			as it's about to processes.
+		l	Output the filename and line number of each original
+			line of Perl code as it's processed (pp_nextstate).
+		t	Outputs timing information of compilation stages
+	-f		Force optimisations on or off one at a time.
+		cog	Copy-on-grow: PVs declared and initialised statically
+                freetmps-each-bblock   Delays FREETMPS from the end of each
+                                       statement to the end of the each basic
+                                       block.
+                freetmps-each-loop     Delays FREETMPS from the end of each
+                                       statement to the end of the group of
+                                       basic blocks forming a loop. At most
+                                       one of the freetmps-each-* options can
+                                       be used.
+                no-inline-ops          Turn off aggressive inlining of ops
+                omit-taint             Omits generating code for handling
+                                       perl's tainting mechanism.
+	-On		Optimisation level (n = 0, 1, 2, ...). -O means -O1.
+	  	-O1	-ffreetmps-each-bblock
+		-O2	-O1 -ffreetmps-each-loop
+
+All B::C -O3 optimisations are automatically used.
+
+=head3 CC Invocation Example
+
+	perl -MO=CC,-O2,-ofoo.c foo.pl
+	perl cc_harness -o foo foo.c
+
+	perl -MO=CC,-mFoo,-oFoo.c Foo.pm
+	perl cc_harness -shared -c -o Foo.so Foo.c
+
+	perlcc -O myperlprogram.pl
+	perlcc -O MyperlModule.pm
+
+See also L<perlcc> and L<B::CC>.
+
+=head2 Backends For Debugging
+
+	perl -MO=Terse,exec foo.pl
+	perl -MO=Debug bar.pl
+
+=head1 Module List for the Compiler Suite
+
+=over 4
+
+=item B
+
+This module is the introspective ("reflective" in Java terms)
+module, which allows a Perl program to inspect its innards.  The
+backend modules all use this module to gain access to the compiled
+parse tree.  You, the user of a backend module, will not need to
+interact with B.
+
+=item O
+
+This module is the front-end to the compiler's backends.  Normally
+called something like this:
+
+  $ perl -MO=Deparse,-q myperlprogram
+
+This is like saying C<use O 'Deparse' qw(-q)> in your Perl program.
+
+Used with "perl -MO=Backend,-foo,-obar prog.pl" to invoke the backend
+B::Backend with options -foo and -obar. O invokes the sub
+B::Backend::compile() with arguments -foo and -obar at BEGIN time.
+That compile() sub must do any inital argument processing replied.
+If unsuccessful, it should return a string which O arranges to be
+printed as an error message followed by a clean error exit. In the
+normal case where any option processing in compile() is successful,
+it should return a sub ref (usually a closure) to perform the
+actual compilation. When O regains control, it ensures that the
+"-c" option is forced (so that the program being compiled doesn't
+end up running) and registers a CHECK block to call back the sub ref
+returned from the backend's compile(). Perl then continues by
+parsing prog.pl (just as it would with "perl -c prog.pl") and after
+doing so, assuming there are no parse-time errors, the CHECK block
+of O gets called and the actual backend compilation happens. Phew.
+
+=item ByteLoader
+
+This run-time module parses and executes the binary bytecode 
+produced by L</"B::Bytecode">. These are normally C<.plc> for 
+scripts and C<.pmc> files for modules. 
+
+Note that Perl CORE favors C<.pmc> over C<.pm> files, so it would 
+be wise to add the ByteLoader module in advance.
+Either statically linked into your perl (see C<Config{static_ext}>)
+or with C<-MByteLoader> on the command line.
+
+=item B::Asmdata
+
+This module is used by the B::Assembler module, which is in turn used
+by the B::Bytecode module, which stores a parse-tree as
+bytecode for later loading.  It's not a backend itself, but rather a
+component of a backend.
+
+=item B::Assembler
+
+This module turns a parse-tree into data suitable for storing
+and later decoding back into a parse-tree.  It's not a backend
+itself, but rather a component of a backend.  It's used by the
+I<assemble> program that produces C<.plc> bytecode.
+
+=item B::Bblock
+
+This module is used by the B::CC backend.  It walks "basic blocks".
+A basic block is a series of operations which is known to execute from
+start to finish, with no possibility of branching or halting or 
+jumps into inner ops.
+
+=item B::Bytecode
+
+This module is a backend that generates bytecode from a program's parse tree.
+This bytecode is written to a C<.plc> file, from where it can later be
+reconstructed back into a parse tree.  The goal is to do the expensive program
+compilation once, save the interpreter's state into a file, and then restore the
+state from the file when the program is to be executed.  See L</"The Bytecode
+Backend"> for details about usage.
+
+With the -M switch you can also produce bytecode compiled modules as 
+C<.pmc> files, which if pesent in the @INC patch are favored over 
+normal C<.pm> files. You need to load the L</ByteLoader> module then also, 
+which is a problem, because it is not in CORE anymore.
+
+=item B::C
+
+This module writes out C code corresponding to the parse tree and
+other interpreter internal structures.  You compile the corresponding
+C file, and get an executable file that will restore the internal
+structures and the Perl interpreter will begin running the
+program.  See L</"The Simple C Backend"> for details about usage.
+
+=item B::CC
+
+This module writes out C code corresponding to your program's
+operations.  Unlike the C<B::C> module, which merely stores the
+interpreter and its state in a C program, the C<B::CC> module makes a
+C program that does not involve the interpreter.  As a consequence,
+programs translated into C by C<B::CC> can execute faster than normal
+interpreted programs.  See L</"The Optimized C Backend"> for
+details about usage.
+
+=item B::Concise
+
+This module prints a concise (but complete) version of the Perl parse
+tree.  Its output is more customizable than the one of B::Terse or
+B::Debug (and it can emulate them). This module useful for people who
+are writing their own backend, or who are learning about the Perl
+internals.  It's not useful to the average programmer.
+
+=item B::Debug
+
+This module dumps the Perl parse tree in verbose detail to STDOUT.
+It's useful for people who are writing their own backend, or who
+are learning about the Perl internals.  It's not useful to the
+average programmer.
+
+=item B::Deparse
+
+This module produces Perl source code from the compiled parse tree.
+It is useful in debugging and deconstructing other people's code,
+also as a pretty-printer for your own source.  See
+L</"The Decompiling Backend"> for details about usage.
+
+=item B::Disassembler
+
+This module decodes C<.plc> bytecode back into a readable parse-tree, 
+the reverse of the L</"B::Assembler">.
+It's not a backend itself, but rather a component of a backend. 
+It's used by the I<disassemble> program that produces bytecode.
+
+=item B::Lint
+
+This module inspects the compiled form of your source code for things
+which, while some people frown on them, aren't necessarily bad enough
+to justify a warning.  For instance, use of an array in scalar context
+without explicitly saying C<scalar(@array)> is something that Lint
+can identify.  See L</"The Lint Backend"> for details about usage.
+
+=item B::Showlex
+
+This module prints out the my() variables used in a function or a
+file.  To get a list of the my() variables used in the subroutine
+mysub() defined in the file myperlprogram:
+
+  $ perl -MO=Showlex,mysub myperlprogram
+
+To get a list of the my() variables used in the file myperlprogram:
+
+  $ perl -MO=Showlex myperlprogram
+
+[BROKEN]
+
+=item B::Terse
+
+This module prints the contents of the parse tree, but without as much
+information as L</"B::Debug">.  For comparison, C<print "Hello, world.">
+produced 96 lines of output from B::Debug, but only 6 from B::Terse.
+
+This module is useful for people who are writing their own backend,
+or who are learning about the Perl internals.  It's not useful to the
+average programmer.
+
+=item B::Xref
+
+This module prints a report on where the variables, subroutines, and
+formats are defined and used within a program and the modules it
+loads.  See L</"The Cross Referencing Backend"> for details about
+usage.
+
+=back
+
+=head1 KNOWN PROBLEMS
+
+BEGIN{} blocks are executed before compiling your code.  Any external
+state that is initialized in BEGIN{}, such as main code in use'd
+modules, opening files, initiating database connections etc., do not
+behave properly.  To work around this, Perl has an INIT{} block that
+corresponds to code being executed before your program begins running
+but after your program has finished being compiled.  Execution order:
+BEGIN{}, (possible save of state through compiler back-end), INIT{},
+program runs, END{}.
+
+Yet unsupported:
+
+  - attribute handlers (i.e. run-time attributes)
+  - compile-time perlio layers
+  - re-eval groups (?{})
+  - smartmatch subrefs
+  - compile-time stash-magic delete renames to ANON
+
+CC backend: goto, sort with non-default comparison. last for non-loop blocks.
+
+See F<STATUS>
+
+=head2 Other perl to exe compilers
+
+Maybe you want to look for the free L<PAR> module or some commercial 
+products, like C<perl2exe> at L<http://www.indigostar.com/perl2exe.htm> 
+and C<perlapp> as C<PerlDevKit> from ActiveState at 
+L<http://www.activestate.com/Products/perl_dev_kit/>
+
+These are technically no compilers, just B<source packagers> with a
+simple native code unpacker. Run-time behaviour is actually slower
+than with a normal perl source or real compiler, because of the
+additional unpacking and check steps. It's just convenient to have
+single file applications.
+
+The simpliest windows I<"compiler"> would be then F<pl2exe.pl> 
+in L<C::DynaLib>.
+
+Several years ago the C<undump> functionality used to work on several 
+platforms. See L<perlrun> for C<-u>. Work is planned to revive C<undump>.
+
+=head1 AUTHOR
+
+This document was originally written by Nathan Torkington, and was
+maintained by the perl5-porters mailing list I<perl5-porters@perl.org> 
+up to Perl version 5.8.
+
+This version with all the compiler options is now part of the C<B::C> 
+compiler module, maintained by Reini Urban I<rurban@cpan.org>.
+
+=head1 SEE ALSO
+
+L<perlguts>, L<illguts>, L<perloptree>
+
+=cut

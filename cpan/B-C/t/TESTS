@@ -1,0 +1,222 @@
+print 'hi'
+>>>>
+hi
+######################### ^ 1 ################################
+for (1,2,3) { print if /\d/ }
+>>>>
+123
+#########################  2 ################################
+$_ = "xyxyx"; %j=(1,2); s/x/$j{print("z")}/ge; print $_
+>>>>
+zzz2y2y2
+#########################  3 ################################
+$_ = "xyxyx"; %j=(1,2); s/x/$j{print("z")}/g; print $_
+>>>>
+z2y2y2
+#########################  4 ################################
+print split /a/,"bananarama"
+>>>>
+bnnrm
+#########################  5 ################################
+{ package P; sub x { print 'ya' } x }
+>>>>
+ya
+#########################  6 ################################
+@z = split /:/,"b:r:n:f:g"; print @z
+>>>>
+brnfg
+#########################  7 ################################
+sub AUTOLOAD { print 1 } &{"a"}()
+>>>>
+1
+#########################  8 ################################
+my $l_i = 3; $x = sub { print $l_i }; &$x
+>>>>
+3
+#########################  9 ################################
+my $i_i = 1;
+my $foo = sub {$i_i = shift if @_};
+print $i_i;
+print &$foo(3),$i_i;
+>>>>
+133
+######################### 10 ################################
+$x="Cannot use"; print index $x, "Can"
+>>>>
+0
+######################### 11 ################################
+my $i_i=6; eval "print \$i_i\n"
+>>>>
+6
+######################### 12 ################################
+BEGIN { %h=(1=>2,3=>4) } print $h{3}
+>>>>
+4
+######################### 13 ################################
+open our $T,"a"; print 'ok';
+>>>>
+ok
+######################### 14 ################################
+print <DATA>
+__DATA__
+a
+b
+>>>>
+a
+b
+######################### 15 __DATA__ TODO ##################
+BEGIN { tie @a, __PACKAGE__; sub TIEARRAY { bless{} } sub FETCH{1} }
+print $a[1]
+>>>>
+1
+######################### 16 ################################
+my $i_ir=3; print 1 .. $i_ir
+>>>>
+123
+######################### 17 custom sortcv ##################
+my $h = { a=>3, b=>1 }; print sort {$h->{$a} <=> $h->{$b}} keys %$h
+>>>>
+ba
+######################### 18 ################################
+print sort { my $p; $b <=> $a } 1,4,3
+>>>>
+431
+######################### 19 ################################
+$a="abcd123";my $r=qr/\d/;print $a=~$r;
+>>>>
+1
+######################### 20 ################################
+sub skip_on_odd{next NUMBER if $_[0]% 2}NUMBER:for($i=0;$i<5;$i++){skip_on_odd($i);print $i;}
+>>>>
+024
+######################### 21 ################################
+my $fh; BEGIN { open($fh,"<","/dev/null"); } print "ok";
+>>>>
+ok
+######################### 22 ################################
+package MyMod; our $VERSION = 1.3; print "ok"
+>>>>
+ok
+######################### 23 ################################
+sub level1 {return (level2()?"fail":"ok")} sub level2{0} print level1();
+>>>>
+ok
+######################### 24 ################################
+print sort { print $i++," "; $b <=> $a } 1..4
+>>>>
+0 1 2 3 .*4321
+######################### 25 ################################
+sub a:lvalue{my $a=26; ${\(bless \$a)}}sub b:lvalue{${\shift}}; print ${a(b)};
+>>>>
+26
+######################### 26 ################################
+# newlib: 0x200, glibc: 0x100
+use Fcntl (); print "ok" if ( Fcntl::O_CREAT() >= 64 && &Fcntl::O_CREAT >= 64 ); 
+>>>>
+ok
+######################### 27 ################################
+my($fname,$tmp_fh);while(!open($tmp_fh,">",($fname=q{ccode28_} . rand(999999999999)))){$bail++;die "Failed to create a tmp file after 500 tries" if $bail>500;}print {$tmp_fh} q{$x="ok";1;};close($tmp_fh);sleep 1;require $fname;unlink($fname);print $x;
+>>>>
+ok
+######################### 28 ################################
+my (%b,%h); BEGIN { %b=(1..8);@a=(1,2,3,4); %h=(1=>2,3=>4) } $i=0; my $l=-1; print $h->{$b->{3}},$h->{$a[-1]},$a[$i],$a[$l],$h{3}
+>>>>
+144
+######################### 29 ################################
+@a=(4,6,1,0,0,1);sub range{(shift @a)..(shift @a)}print range();while(@a){print scalar(range())}
+>>>>
+456123E0
+######################### 30 ################################
+package MockShell;sub AUTOLOAD{my $p=$AUTOLOAD;$p=~s/.*:://;print(join(" ",$p,@_),";");} 
+package main; MockShell::date();MockShell::who("am","i");MockShell::ls("-l");
+>>>>
+date;who am i;ls -l;
+######################### 31 ################################
+eval{print "1"};eval{die 1};print "2";
+>>>>
+12
+######################### 32 CC entertry/jmpenv_jump/leavetry ####
+BEGIN{unshift @INC,("t");} use qr_loaded_module; print "ok";
+>>>>
+ok
+######################### 33 the real qr bug from 5.6.2, see 20 #####
+# init of magic hashes. %ENV has e magic since 5.8.9
+my $x=$ENV{TMPDIR};print "ok"
+>>>>
+ok
+######################### 34 does init of magic hashes work in 5.10? #####
+package dummy;my $i=0;sub meth{print $i++};package main;dummy->meth(1);my dummy $o=bless {},"dummy";$o->meth("const");my $meth="meth";$o->$meth("const");dummy->$meth("const");dummy::meth("dummy","const")
+>>>>
+01234
+######################### 35 method calls #####
+my ($rv,%hv);%hv=(key=>\$rv);$rv=\%hv;print "ok";
+>>>>
+ok
+######################### 36 HV self-refs ###################
+my ($rv, @av); @av = ( \$rv ); $rv = \@av; print "ok";
+>>>>
+ok
+######################### 37 AV self-refs ###################
+for(1 .. 1024) { if (open(my $null_fh,"<","/dev/null")) { seek($null_fh,0,SEEK_SET); close($null_fh); $ok++; }} if ($ok == 1024) {print "ok";}
+>>>>
+ok
+############## 38 constant autoload loop crash test #########
+{$a=qr/x/;print($] < 5.010 ? 1 : re::is_regexp($a))}
+>>>>
+1
+############## 39 non-regexps being upgraded to SVt_REGEXP #####
+my $var="this string has a null \\000 byte in it";print "ok";
+>>>>
+ok
+#### 40 used to generate broken .c on 5.6.2 with static pvs ####
+# Shared scalar, n magic. => Don't know how to handle magic of type \156.
+# ;threads->create(sub{$s="ok"})->join;
+# not yet testing n, only P
+use threads::shared;{my $s="ok";share($s);print $s}
+>>>
+ok
+#### 41 n-magic ####
+# Shared aggregate, P magic
+use threads::shared;my %h : shared; print "ok"
+>>>
+ok
+#### 42 P-magic ####
+# Aggregate element, n + p magic
+use threads::shared;my @a : shared; $a[0]="ok"; print $a[0]
+>>>
+ok
+#### 43 n+p magic ####
+# perl #72922 (5.11.4 fails with magic_killbackrefs)
+use Scalar::Util "weaken";my $re1=qr/foo/;my $re2=$re1;weaken($re2);print "ok" if $re3=qr/$re1/;
+>>>
+ok
+#### 44 weaken not imported ####
+use Data::Dumper ();Data::Dumper::Dumpxs({});print "ok";
+>>>
+ok
+#### 45 test dynamic loading ####
+use Exporter; print q(ok) if %main::Exporter::
+>>>
+ok
+#### 46 Exporter:: store stashes only with -fstash. issue 79.  ####
+@ISA=(q(ok));print $ISA[0];
+>>>
+ok
+#### 47 non-tied av->MAGICAL ####
+my $s=q{ok};END{print $s}
+>>>>
+ok
+#### 48 END block destruction ####
+print q(ok) if "test" =~ /es/i;
+>>>>
+ok
+#### 49 no-fold ####
+package Top;
+sub top{q(ok)};
+package Next;
+our @ISA=qw(Top);
+package main;
+print Next->top();
+>>>>
+ok
+#### 50 @ISA issue 64 #####
