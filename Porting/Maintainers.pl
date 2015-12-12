@@ -220,7 +220,7 @@ use File::Glob qw(:case);
         # B-C-1.53_01
         'CUSTOMIZED'   => [ qw[ C.xs ] ],
     },
-  
+
     'B::Debug' => {
         'DISTRIBUTION' => 'RURBAN/B-Debug-1.23.tar.gz',
         'FILES'        => q[cpan/B-Debug],
@@ -387,6 +387,17 @@ use File::Glob qw(:case);
             't/00-report-prereqs.t',
             't/00-report-prereqs.dd',
             qr{^xt},
+        ],
+    },
+
+    'Cpanel::JSON::XS' => {
+        'DISTRIBUTION' => 'RURBAN/Cpanel-JSON-XS-3.0210.tar.gz',
+        'FILES'        => q[cpan/Cpanel-JSON-XS],
+        'EXCLUDED'     => [
+            '.travis.yml',
+            'ppport.h',
+            'eg/bench',
+            qr{^t/z_},
         ],
     },
 

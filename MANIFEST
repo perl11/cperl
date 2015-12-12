@@ -347,6 +347,63 @@ cpan/Config-Perl-V/t/26_plv5182.t		Config::Perl::V
 cpan/Config-Perl-V/t/26_plv518.t		Config::Perl::V
 cpan/Config-Perl-V/t/27_plv5200.t		Config::Perl::V
 cpan/Config-Perl-V/V.pm				Config::Perl::V
+cpan/Cpanel-JSON-XS/bin/cpanel_json_xs
+cpan/Cpanel-JSON-XS/t/00_load.t
+cpan/Cpanel-JSON-XS/t/01_utf8.t
+cpan/Cpanel-JSON-XS/t/02_error.t
+cpan/Cpanel-JSON-XS/t/03_types.t
+cpan/Cpanel-JSON-XS/t/04_dwiw_encode.t
+cpan/Cpanel-JSON-XS/t/05_dwiw_decode.t
+cpan/Cpanel-JSON-XS/t/06_pc_pretty.t
+cpan/Cpanel-JSON-XS/t/07_pc_esc.t
+cpan/Cpanel-JSON-XS/t/08_pc_base_nv.t
+cpan/Cpanel-JSON-XS/t/08_pc_base.t
+cpan/Cpanel-JSON-XS/t/09_pc_extra_number.t
+cpan/Cpanel-JSON-XS/t/104_sortby.t
+cpan/Cpanel-JSON-XS/t/105_esc_slash.t
+cpan/Cpanel-JSON-XS/t/106_allow_barekey.t
+cpan/Cpanel-JSON-XS/t/107_allow_singlequote.t
+cpan/Cpanel-JSON-XS/t/108_decode.t
+cpan/Cpanel-JSON-XS/t/109_encode.t
+cpan/Cpanel-JSON-XS/t/10_pc_keysort.t
+cpan/Cpanel-JSON-XS/t/110_bignum.t
+cpan/Cpanel-JSON-XS/t/112_upgrade.t
+cpan/Cpanel-JSON-XS/t/113_overloaded_eq.t
+cpan/Cpanel-JSON-XS/t/114_decode_prefix.t
+cpan/Cpanel-JSON-XS/t/115_tie_ixhash.t
+cpan/Cpanel-JSON-XS/t/116_incr_parse_fixed.t
+cpan/Cpanel-JSON-XS/t/117_numbers.t
+cpan/Cpanel-JSON-XS/t/11_pc_expo.t
+cpan/Cpanel-JSON-XS/t/12_blessed.t
+cpan/Cpanel-JSON-XS/t/13_limit.t
+cpan/Cpanel-JSON-XS/t/14_latin1.t
+cpan/Cpanel-JSON-XS/t/15_prefix.t
+cpan/Cpanel-JSON-XS/t/16_tied.t
+cpan/Cpanel-JSON-XS/t/17_relaxed.t
+cpan/Cpanel-JSON-XS/t/18_json_checker.t
+cpan/Cpanel-JSON-XS/t/19_incr.t
+cpan/Cpanel-JSON-XS/t/20_faihu.t
+cpan/Cpanel-JSON-XS/t/20_unknown.t
+cpan/Cpanel-JSON-XS/t/21_evans.t
+cpan/Cpanel-JSON-XS/t/22_comment_at_eof.t
+cpan/Cpanel-JSON-XS/t/23_array_ctx.t
+cpan/Cpanel-JSON-XS/t/24_freeze_recursion.t
+cpan/Cpanel-JSON-XS/t/25_boolean.t
+cpan/Cpanel-JSON-XS/t/52_object.t
+cpan/Cpanel-JSON-XS/t/53_readonly.t
+cpan/Cpanel-JSON-XS/t/54_stringify.t
+cpan/Cpanel-JSON-XS/t/55_modifiable.t
+cpan/Cpanel-JSON-XS/t/96_interop.t
+cpan/Cpanel-JSON-XS/t/96_mojo.t
+cpan/Cpanel-JSON-XS/t/97_unshare_hek.t
+cpan/Cpanel-JSON-XS/t/98_56only.t
+cpan/Cpanel-JSON-XS/t/99_binary.t
+cpan/Cpanel-JSON-XS/t/_unicode_handling.pm
+cpan/Cpanel-JSON-XS/typemap
+cpan/Cpanel-JSON-XS/t/zero-mojibake.t
+cpan/Cpanel-JSON-XS/XS/Boolean.pm
+cpan/Cpanel-JSON-XS/XS.pm
+cpan/Cpanel-JSON-XS/XS.xs
 cpan/CPAN/lib/App/Cpan.pm		helper package for CPAN.pm
 cpan/CPAN/lib/CPAN/API/HOWTO.pod		recipe book for programming with CPAN.pm
 cpan/CPAN/lib/CPAN/Author.pm		helper package for CPAN.pm
