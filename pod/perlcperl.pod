@@ -748,7 +748,8 @@ and checks at compile-time, optionally verbose together with C<-Dkv>.
 
 When the method is defined directly in the package, it is not possible
 to inject another package at run-time into the method search, thus the
-method call is optimized to a normal functions call.
+method call is optimized from a dynamic method dispatch to a normal
+static functions call.
 
 =head2 Typed and shaped arrays
 
