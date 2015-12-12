@@ -3266,6 +3266,71 @@ cpan/Win32/t/Names.t			See if Win32 extension works
 cpan/Win32/t/Unicode.t			See if Win32 extension works
 cpan/Win32/Win32.pm			Win32 extension Perl module
 cpan/Win32/Win32.xs			Win32 extension external subroutines
+cpan/YAML-LibYAML/inc/Spiffy.pm
+cpan/YAML-LibYAML/inc/Test/Base/Filter.pm
+cpan/YAML-LibYAML/inc/Test/Base.pm
+cpan/YAML-LibYAML/LibYAML/api.c
+cpan/YAML-LibYAML/LibYAML/config.h
+cpan/YAML-LibYAML/LibYAML/dumper.c
+cpan/YAML-LibYAML/LibYAML/emitter.c
+cpan/YAML-LibYAML/lib/YAML/LibYAML.pm
+cpan/YAML-LibYAML/lib/YAML/LibYAML.pod
+cpan/YAML-LibYAML/LibYAML/LibYAML.xs
+cpan/YAML-LibYAML/LibYAML/lib/YAML/XS/LibYAML.pm
+cpan/YAML-LibYAML/LibYAML/loader.c
+cpan/YAML-LibYAML/LibYAML/Makefile.PL
+cpan/YAML-LibYAML/LibYAML/parser.c
+cpan/YAML-LibYAML/LibYAML/perl_libyaml.c
+cpan/YAML-LibYAML/LibYAML/perl_libyaml.h
+cpan/YAML-LibYAML/LibYAML/ppport.h
+cpan/YAML-LibYAML/LibYAML/ppport_sort.h
+cpan/YAML-LibYAML/LibYAML/reader.c
+cpan/YAML-LibYAML/LibYAML/scanner.c
+cpan/YAML-LibYAML/LibYAML/test.pl
+cpan/YAML-LibYAML/LibYAML/update.sh
+cpan/YAML-LibYAML/LibYAML/writer.c
+cpan/YAML-LibYAML/lib/YAML/XS.pm
+cpan/YAML-LibYAML/lib/YAML/XS.pod
+cpan/YAML-LibYAML/LibYAML/yaml.h
+cpan/YAML-LibYAML/LibYAML/yaml_private.h
+cpan/YAML-LibYAML/t/000-require-modules.t
+cpan/YAML-LibYAML/t/alias.t
+cpan/YAML-LibYAML/t/api.t
+cpan/YAML-LibYAML/t/ascii.t
+cpan/YAML-LibYAML/t/blessed.t
+cpan/YAML-LibYAML/t/boolean.t
+cpan/YAML-LibYAML/t/bug-pvf.t
+cpan/YAML-LibYAML/t/bug-stack.t
+cpan/YAML-LibYAML/t/code.t
+cpan/YAML-LibYAML/t/data/basic.yml
+cpan/YAML-LibYAML/t/dump-heuristics.t
+cpan/YAML-LibYAML/t/dump.t
+cpan/YAML-LibYAML/t/empty.t
+cpan/YAML-LibYAML/t/empty.yaml
+cpan/YAML-LibYAML/t/error.t
+cpan/YAML-LibYAML/t/file.t
+cpan/YAML-LibYAML/t/glob.t
+cpan/YAML-LibYAML/t/leak.t
+cpan/YAML-LibYAML/t/loadfile-empty.t
+cpan/YAML-LibYAML/t/load.t
+cpan/YAML-LibYAML/t/long_plain_wrap.t
+cpan/YAML-LibYAML/t/magic.t
+cpan/YAML-LibYAML/t/native.t
+cpan/YAML-LibYAML/t/null.t
+cpan/YAML-LibYAML/t/numbers.t
+cpan/YAML-LibYAML/t/pl_sv_undef.t
+cpan/YAML-LibYAML/t/private.t
+cpan/YAML-LibYAML/t/quote.t
+cpan/YAML-LibYAML/t/ref-scalar.t
+cpan/YAML-LibYAML/t/regexp.t
+cpan/YAML-LibYAML/t/release-pod-syntax.t
+cpan/YAML-LibYAML/t/string_nulls.t
+cpan/YAML-LibYAML/t/tags.t
+cpan/YAML-LibYAML/t/TestYAML.pm
+cpan/YAML-LibYAML/t/TestYAMLTests.pm
+cpan/YAML-LibYAML/t/tied.t
+cpan/YAML-LibYAML/t/utf8.t
+cpan/YAML-LibYAML/t/yaml_tests.yaml
 Cross/build-arm-n770-sh		Cross-compilation
 Cross/cflags-cross-arm		Cross-compilation
 Cross/config			Cross-compilation
