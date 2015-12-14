@@ -599,7 +599,7 @@ EOBOOT
           ? "newSVpvn_flags(SvPVX(cv), SvCUR(cv), SVs_TEMP | SvUTF8(cv))"
           # no UTF-8 subnames < 5.10.1
           : "sv_2mortal(newSVpvn(SvPVX(cv), SvCUR(cv)))";
-        print $xs_fh $croak_on_error ? <<"EOC" : <<'EOA';
+        print $xs_fh $croak_on_error ? <<"EOC" : <<"EOA";
 
 void
 $xs_subname(sv)

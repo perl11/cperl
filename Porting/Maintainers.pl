@@ -559,7 +559,7 @@ use File::Glob qw(:case);
         # cperl: This module could eventually be used to maintain warnings as XS and Config as XS,
         # but unfortunately not with the current maintainership. So we would need to add
         # Perfect::Hash into core also.
-        'DISTRIBUTION' => 'RURBAN/ExtUtils-Constant-0.23_01.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/ExtUtils-Constant-0.23_02.tar.gz',
         'FILES'    => q[dist/ExtUtils-Constant],
         'EXCLUDED' => [
             qw( lib/ExtUtils/Constant/Aaargh56Hash.pm
