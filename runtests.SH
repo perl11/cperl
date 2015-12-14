@@ -37,7 +37,7 @@ export PATH || (echo "OOPS, this isn't sh.  Desperation time.  I will feed mysel
 # those fd's aren't kept open.
 # In the case where one does 'make -j 16 test_harness', this script is
 # called with MAKEFLAGS set, but fd's 3 and 4 closed. Later when
-# descendents of this script run cpan/ExtUtils-Constant/t/Constant.t
+# descendents of this script run dist/ExtUtils-Constant/t/Constant.t
 # which itelf invokes make, the warnings ensue.
 
 unset MAKEFLAGS
