@@ -1,6 +1,7 @@
 # -*- cperl-indent-level:4 -*-
 BEGIN {		
     push @INC, '.', 'lib';
+    push @INC, '../../regen' if $ENV{PERL_CORE};
     require 'regen_lib.pl';
 }
 use strict;
@@ -23,17 +24,31 @@ while (($from, $tos) = each %alias_to) {
     map { $alias_from{$_} = $from } @$tos;
 }
 my (@optype, @specialsv_name);
-require B;
-# @optype was in B::Asmdata, and is since 5.10 in B
-if ($] < 5.009) {
-    require B::Asmdata;
-    @optype = @{*B::Asmdata::optype{ARRAY}};
-    @specialsv_name = @{*B::Asmdata::specialsv_name{ARRAY}};
-    # B::Asmdata->import qw(@optype @specialsv_name);
+if ($ENV{PERL_CORE}) {
+    if ($] < 5.009) {
+      @optype = @{*B::Asmdata::optype{ARRAY}};
+      @specialsv_name = @{*B::Asmdata::specialsv_name{ARRAY}};
+    } else {
+        @optype = qw(OP UNOP BINOP LOGOP LISTOP PMOP SVOP PADOP PVOP LOOP
+                     COP METHOP UNOP_AUX);
+        @specialsv_name = 
+          qw(Nullsv &PL_sv_undef &PL_sv_yes &PL_sv_no
+             (SV*)pWARN_ALL (SV*)pWARN_NONE (SV*)pWARN_STD);
+    }
 } else {
-    @optype = @{*B::optype{ARRAY}};
-    @specialsv_name = @{*B::specialsv_name{ARRAY}};
-    # B->import qw(@optype @specialsv_name);
+    # @optype was in B::Asmdata, and is since 5.10 in B
+    # B cannot be loaded from miniperl
+    if ($] < 5.009) {
+        require B::Asmdata;
+        @optype = @{*B::Asmdata::optype{ARRAY}};
+        @specialsv_name = @{*B::Asmdata::specialsv_name{ARRAY}};
+        # B::Asmdata->import qw(@optype @specialsv_name);
+    } else {
+        require B;
+        @optype = @{*B::optype{ARRAY}};
+        @specialsv_name = @{*B::specialsv_name{ARRAY}};
+        # B->import qw(@optype @specialsv_name);
+    }
 }
 
 

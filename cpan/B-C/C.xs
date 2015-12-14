@@ -22,6 +22,11 @@
 # define RX_EXTFLAGS(prog) ((prog)->extflags)
 #endif
 
+#if PERL_VERSION < 10
+#undef  MY_CXT_INIT
+#define MY_CXT_INIT
+#endif
+
 #if PERL_VERSION > 17 && (PERL_VERSION < 19 || (PERL_VERSION == 19 && PERL_SUBVERSION < 4))
 #define need_op_slabbed
 #endif
@@ -302,19 +307,6 @@ PPCODE:
 
 #endif
 
-#if PERL_VERSION > 17
-
-SV*
-SvSTASH_not(hv)
-          B::HV hv
-PPCODE:
-    HV* stash = SvSTASH(MUTABLE_SV(hv)); /* [perl #126410] */
-    ST(0) = (char*)stash < (char*)PL_sv_arenaroot
-             ? &PL_sv_undef : make_sv_object(aTHX_ MUTABLE_SV(stash));
-    XSRETURN(1);
-
-#endif
-
 MODULE = B	PACKAGE = B::UNOP_AUX
 
 #if PERL_VERSION > 21
@@ -323,9 +315,11 @@ SV*
 aux(o)
           B::OP o
 CODE:
+  {
     UNOP_AUX_item *items = cUNOP_AUXo->op_aux;
     UV len = items[-1].uv;
     RETVAL = newSVpvn_flags((char*)&items[-1], (1+len) * sizeof(UNOP_AUX_item), 0);
+  }
 OUTPUT:
     RETVAL
 
@@ -610,44 +604,6 @@ HvARRAY_utf8(hv)
 
 #endif
 
-MODULE = B__C	PACKAGE = B::C
-
-PROTOTYPES: DISABLE
-
-#if PERL_VERSION >= 11
-
-CV*
-method_cv(meth, packname)
-        SV* meth;
-	char *packname;
-   CODE:
-	U32 hash;
-    	HV* stash; /* XXX from op before, also on the run-time stack */
-        GV* gv;
-	hash = SvSHARED_HASH(meth);
-        stash = gv_stashpv(packname, TRUE);
-	if (hash) {
-          const HE* const he = hv_fetch_ent(stash, meth, 0, hash);
-          if (he) {
-	    gv = MUTABLE_GV(HeVAL(he));
-	    if (isGV(gv) && GvCV(gv) &&
-		(!GvCVGEN(gv) || GvCVGEN(gv)
-                 == (PL_sub_generation + HvMROMETA(stash)->cache_gen)))
-              RETVAL = (CV*)MUTABLE_SV(GvCV(gv));
-              return;
-          }
-        }
-        /* public API since 5.11 */
-	gv = gv_fetchmethod_flags(stash,
-			      SvPV_nolen_const(meth),
-			      GV_AUTOLOAD | GV_CROAK);
-    	assert(gv);
-    	RETVAL = isGV(gv) ? (CV*)MUTABLE_SV(GvCV(gv)) : (CV*)MUTABLE_SV(gv);
-    OUTPUT:
-        RETVAL
-
-#endif
-
 MODULE = B__C		PACKAGE = B::C
 
 #if PERL_VERSION >= 10
@@ -655,7 +611,8 @@ MODULE = B__C		PACKAGE = B::C
 SV*
 get_linear_isa(classname)
     SV* classname;
-CODE:
+  CODE:
+  {
     HV *class_stash = gv_stashsv(classname, 0);
 
     if (!class_stash) {
@@ -667,7 +624,8 @@ CODE:
     else { /* just dfs */
       RETVAL = newRV(MUTABLE_SV(Perl_mro_get_linear_isa(aTHX_ class_stash)));
     }
-OUTPUT:
+  }
+  OUTPUT:
     RETVAL
 
 #endif

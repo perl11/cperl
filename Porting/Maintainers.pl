@@ -217,6 +217,8 @@ use File::Glob qw(:case);
                 META.yml
                 )
         ],
+        # B-C-1.53_01
+        'CUSTOMIZED'   => [ qw[ C.xs ] ],
     },
   
     'B::Debug' => {
