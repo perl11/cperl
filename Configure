@@ -23642,7 +23642,9 @@ find_extensions='
 		echo "Ok.  You will need to correct config.sh before running make." >&4;
 	    fi;
 	    $ls -1 $xxx > $tdir/$$.tmp;
-	    if   $contains "\.xs$" $tdir/$$.tmp > /dev/null 2>&1; then
+	    if $test $this_ext = YAML/LibYAML; then
+		xs_extensions="$xs_extensions $this_ext";
+	    elif $contains "\.xs$" $tdir/$$.tmp > /dev/null 2>&1; then
 		xs_extensions="$xs_extensions $this_ext";
 	    elif $contains "\.c$"  $tdir/$$.tmp > /dev/null 2>&1; then
 		xs_extensions="$xs_extensions $this_ext";
