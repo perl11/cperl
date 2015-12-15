@@ -4,8 +4,8 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.42';
-
+our $VERSION = '0.42c';
+$VERSION =~ s/c$//;
 use Exporter;
 our @ISA            = qw( Exporter );
 our @EXPORT_OK      = qw( PI e bpi bexp hex oct );
@@ -49,11 +49,11 @@ sub upgrade {
     $Math::BigInt::upgrade;
 }
 
-sub _binary_constant {
-    # this takes a binary/hexadecimal/octal constant string and returns it
-    # as string suitable for new. Basically it converts octal to decimal, and
-    # passes every thing else unmodified back.
-    my $string = shift;
+sub _binary_constant (str $string)
+{
+  # this takes a binary/hexadecimal/octal constant string and returns it
+  # as string suitable for new. Basically it converts octal to decimal, and
+  # passes every thing else unmodified back.
 
     return Math::BigInt->new($string) if $string =~ /^0[bx]/;
 
@@ -61,10 +61,10 @@ sub _binary_constant {
     Math::BigInt->from_oct($string);
 }
 
-sub _float_constant {
+sub _float_constant (str $float)
+{
     # this takes a floating point constant string and returns it truncated to
     # integer. For instance, '4.5' => '4', '1.234e2' => '123' etc
-    my $float = shift;
 
     # some simple cases first
     return $float if ($float =~ /^[+-]?[0-9]+$/);       # '+123','-1','0' etc
@@ -102,10 +102,11 @@ sub unimport {
     overload::remove_constant('binary', '', 'float', '', 'integer');
 }
 
-sub in_effect {
-    my $level = shift || 0;
-    my $hinthash = (caller($level))[10];
-    $hinthash->{bigint};
+sub in_effect (int $level = 0)
+{
+  #my $level = shift || 0;
+  my $hinthash = (caller($level))[10];
+  $hinthash->{bigint};
 }
 
 #############################################################################
@@ -251,7 +252,8 @@ sub _override {
     $overridden++;
 }
 
-sub import {
+sub import () :method
+{
     my $self = shift;
 
     $^H{bigint} = 1;                            # we are in effect
