@@ -26,7 +26,6 @@ os:
 branches:
   only:
     - master
-    - /bugfix/
     - /smoke/
     - /coverity/
 
