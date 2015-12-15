@@ -446,6 +446,12 @@ C<IPC::Open3> threw to the callers of C<open3> would have an irrelevant
 message derived from C<$!> which was in an undefined state, instead of the
 C<$@> message which triggers the failure path inside C<open3>.
 
+=item *
+
+The modules L<sigtrap>, L<DB>, and the perl debugger could have under
+rare circumstances, without you expecting it, output containing raw
+control characters.  This has been fixed.
+
 =back
 
 =head1 Documentation
