@@ -25,8 +25,7 @@ BEGIN {
     }
 }
 
-sub _fetch_sub { # fetch sub without autovivifying
-    my($pack, $sub) = @_;
+sub _fetch_sub ($pack, $sub) { # fetch sub without autovivifying
     $pack .= '::';
     # only works with top-level packages
     return unless exists($::{$pack});
@@ -87,8 +86,9 @@ BEGIN {
     }
 }
 
-our $VERSION = '1.40';
+our $VERSION = '1.40c';
 $VERSION =~ tr/_//d;
+$VERSION =~ tr/_c//d;
 
 our $MaxEvalLen = 0;
 our $Verbose    = 0;
@@ -128,7 +128,7 @@ $Internal{'Exporter::Heavy'}++;
 
 sub export_fail { shift; $Verbose = shift if $_[0] eq 'verbose'; @_ }
 
-sub _cgc {
+sub _cgc () {
     no strict 'refs';
     return \&{"CORE::GLOBAL::caller"} if defined &{"CORE::GLOBAL::caller"};
     return;
@@ -178,8 +178,8 @@ BEGIN {
     }
 }
 
-sub caller_info {
-    my $i = shift(@_) + 1;
+sub caller_info (int $i) {
+    $i++;
     my %call_info;
     my $cgc = _cgc();
     {
@@ -250,9 +250,7 @@ sub caller_info {
 
 # Transform an argument to a function into a string.
 our $in_recurse;
-sub format_arg {
-    my $arg = shift;
-
+sub format_arg ($arg) {
     if ( ref($arg) ) {
          # legitimate, let's not leak it.
         if (!$in_recurse &&
@@ -374,17 +372,14 @@ sub Regexp::CARP_TRACE {
 # an anon hash of known inheritances and anon array of
 # inheritances which consequences have not been figured
 # for.
-sub get_status {
-    my $cache = shift;
-    my $pkg   = shift;
+sub get_status ($cache, str $pkg) {
     $cache->{$pkg} ||= [ { $pkg => $pkg }, [ trusts_directly($pkg) ] ];
     return @{ $cache->{$pkg} };
 }
 
 # Takes the info from caller() and figures out the name of
 # the sub/require/eval
-sub get_subname {
-    my $info = shift;
+sub get_subname ($info) {
     if ( defined( $info->{evaltext} ) ) {
         my $eval = $info->{evaltext};
         if ( $info->{is_require} ) {
@@ -454,8 +449,7 @@ sub longmess_heavy {
 
 # Returns a full stack backtrace starting from where it is
 # told.
-sub ret_backtrace {
-    my ( $i, @error ) = @_;
+sub ret_backtrace (int $i, @error) {
     my $mess;
     my $err = join '', @error;
     $i++;
@@ -487,8 +481,7 @@ sub ret_backtrace {
     return $mess;
 }
 
-sub ret_summary {
-    my ( $i, @error ) = @_;
+sub ret_summary (int $i, @error) {
     my $err = join '', @error;
     $i++;
 
@@ -552,9 +545,7 @@ sub shortmess_heavy {
 }
 
 # If a string is too long, trims it with ...
-sub str_len_trim {
-    my $str = shift;
-    my $max = shift || 0;
+sub str_len_trim (str $str, int $max = 0) {
     if ( 2 < $max and $max < length($str) ) {
         substr( $str, $max - 3 ) = '...';
     }
@@ -567,10 +558,7 @@ sub str_len_trim {
 # Recursive versions of this have to work to avoid certain
 # possible endless loops, and when following long chains of
 # inheritance are less efficient.
-sub trusts {
-    my $child  = shift;
-    my $parent = shift;
-    my $cache  = shift;
+sub trusts ($child, $parent, $cache) {
     my ( $known, $partial ) = get_status( $cache, $child );
 
     # Figure out consequences until we have an answer
@@ -587,8 +575,7 @@ sub trusts {
 }
 
 # Takes a package and gives a list of those trusted directly
-sub trusts_directly {
-    my $class = shift;
+sub trusts_directly ($class) {
     no strict 'refs';
     my $stash = \%{"$class\::"};
     for my $var (qw/ CARP_NOT ISA /) {
