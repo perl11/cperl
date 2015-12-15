@@ -3,8 +3,7 @@ use Config; # To prevent conflict with some strawberry-portable versions
 
 BEGIN {
     if( $ENV{PERL_CORE} ) {
-        chdir 't';
-        @INC = '../lib';
+        @INC = '../../lib';
     }
 }
 

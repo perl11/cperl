@@ -7,8 +7,8 @@ use Test::Builder;
 require Exporter;
 our @ISA = qw(Exporter);
 
-our $VERSION = '1.302075';
-
+our $VERSION = '1.402075c';
+$VERSION =~ s/c$//;
 
 =head1 NAME
 
@@ -24,9 +24,9 @@ Test::Builder::Module - Base class for test modules
   use parent 'Test::Builder::Module';
   @EXPORT = qw(ok);
 
-  sub ok ($;$) {
+  sub ok ($test, $name?) {
       my $tb = $CLASS->builder;
-      return $tb->ok(@_);
+      return $tb->ok($test, $name);
   }
   
   1;
@@ -72,9 +72,10 @@ C<import_extra()>.
 
 =cut
 
+#sub import ($class, @args) {
 sub import {
-    my($class) = shift;
-
+    my $class = shift;
+    my @args = @_;
     # Don't run all this when loading ourself.
     return 1 if $class eq 'Test::Builder::Module';
 
@@ -84,18 +85,21 @@ sub import {
 
     $test->exported_to($caller);
 
-    $class->import_extra( \@_ );
-    my(@imports) = $class->_strip_imports( \@_ );
+    # if called with arrayref
+    #if (@args and scalar(@args) == 1 and ref($args[0]) eq 'ARRAY') {
+    #    @args = ($args[0]);
+    #    warn @args;
+    #}
+    $class->import_extra( \@args );
+    my(@imports) = $class->_strip_imports( \@args );
 
-    $test->plan(@_);
+    $test->plan(@args);
 
     local $Exporter::ExportLevel = $Exporter::ExportLevel + 1;
     $class->Exporter::import(@imports);
 }
 
-sub _strip_imports {
-    my $class = shift;
-    my $list  = shift;
+sub _strip_imports ($class, $list) {
 
     my @imports = ();
     my @other   = ();
@@ -159,14 +163,13 @@ call C<builder()> inside each function rather than store it in a global.
 
   sub ok {
       my $builder = Your::Class->builder;
-
       return $builder->ok(@_);
   }
 
 
 =cut
 
-sub builder {
+sub builder () {
     return Test::Builder->new;
 }
 

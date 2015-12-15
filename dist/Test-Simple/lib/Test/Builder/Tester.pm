@@ -1,7 +1,8 @@
 package Test::Builder::Tester;
 
 use strict;
-our $VERSION = '1.302075';
+our $VERSION = '1.402075c';
+$VERSION = s/c$//;
 
 use Test::Builder;
 use Symbol;
@@ -509,16 +510,14 @@ sub expect {
     }
 }
 
-sub _account_for_subtest {
-    my( $self, $check ) = @_;
+sub _account_for_subtest ( $self, $check ) {
 
     my $hub = $t->{Stack}->top;
     my $nesting = $hub->isa('Test2::Hub::Subtest') ? $hub->nested : 0;
     return ref($check) ? $check : ('    ' x $nesting) . $check;
 }
 
-sub _translate_Failed_check {
-    my( $self, $check ) = @_;
+sub _translate_Failed_check ( $self, $check ) {
 
     if( $check =~ /\A(.*)#     (Failed .*test) \((.*?) at line (\d+)\)\Z(?!\n)/ ) {
         $check = "/\Q$1\E#\\s+\Q$2\E.*?\\n?.*?\Qat $3\E line \Q$4\E.*\\n?/";
@@ -530,8 +529,7 @@ sub _translate_Failed_check {
 ##
 # return true iff the expected data matches the got data
 
-sub check {
-    my $self = shift;
+sub check ($self) {
 
     # turn off warnings as these might be undef
     local $^W = 0;
@@ -550,8 +548,7 @@ sub check {
 # a complaint message about the inputs not matching (to be
 # used for debugging messages)
 
-sub complaint {
-    my $self   = shift;
+sub complaint ($self) {
     my $type   = $self->type;
     my $got    = $self->got;
     my $wanted = join '', @{ $self->wanted };
@@ -624,8 +621,7 @@ sub complaint {
 ##
 # forget all expected and got data
 
-sub reset {
-    my $self = shift;
+sub reset ($self) {
     %$self = (
         type   => $self->{type},
         got    => '',
@@ -633,18 +629,15 @@ sub reset {
     );
 }
 
-sub got {
-    my $self = shift;
+sub got ($self) {
     return $self->{got};
 }
 
-sub wanted {
-    my $self = shift;
+sub wanted ($self) {
     return $self->{wanted};
 }
 
-sub type {
-    my $self = shift;
+sub type ($self) {
     return $self->{type};
 }
 
@@ -657,13 +650,10 @@ sub PRINT {
     $self->{got} .= join '', @_;
 }
 
-sub TIEHANDLE {
-    my( $class, $type ) = @_;
+sub TIEHANDLE ( $class, $type ) {
 
     my $self = bless { type => $type }, $class;
-
     $self->reset;
-
     return $self;
 }
 

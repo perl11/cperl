@@ -2,8 +2,7 @@
 
 BEGIN {
     if( $ENV{PERL_CORE} ) {
-        chdir 't';
-        @INC = ('../lib', 'lib');
+        @INC = ('../../lib', 't/lib');
     }
     else {
         unshift @INC, 't/lib';
@@ -24,7 +23,7 @@ package My::Test;
 # Test::Builder's own and the ending diagnostics don't come out right.
 require Test::Builder;
 my $TB = Test::Builder->create;
-$TB->plan(tests => 80);
+$TB->plan(tests => 78);
 
 sub like ($$;$) {
     $TB->like(@_);
@@ -131,15 +130,15 @@ OUT
 ERR
 
 #line 132
-isn't("foo", "foo",'foo isn\'t foo?' );
-out_ok( <<OUT, <<ERR );
-not ok - foo isn't foo?
-OUT
+#isnt("foo", "foo",'foo isn\'t foo?' );
+#out_ok( <<OUT, <<ERR );
+#not ok - foo isn't foo?
+#OUT
 #   Failed test 'foo isn\'t foo?'
 #   at $0 line 132.
 #          got: 'foo'
 #     expected: anything else
-ERR
+#ERR
 
 #line 143
 isnt(undef, undef, 'undef isnt undef?');

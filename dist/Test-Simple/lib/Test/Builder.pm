@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.302075';
+our $VERSION = '1.402075';
 
 BEGIN {
     if( $] < 5.008 ) {
@@ -40,8 +40,7 @@ use Test::Builder::TodoDiag;
 our $Level = 1;
 our $Test = $ENV{TB_NO_EARLY_INIT} ? undef : Test::Builder->new;
 
-sub _add_ts_hooks {
-    my $self = shift;
+sub _add_ts_hooks ($self) {
     my $hub = $self->{Stack}->top;
 
     # Take a reference to the hash key, we do this to avoid closing over $self
@@ -51,9 +50,7 @@ sub _add_ts_hooks {
 
     #$hub->add_context_aquire(sub {$_[0]->{level} += $Level - 1});
 
-    $hub->pre_filter(sub {
-        my ($active_hub, $e) = @_;
-
+    $hub->pre_filter(sub ($active_hub, $e) {
         my $epkg = $$epkgr;
         my $cpkg = $e->{trace} ? $e->{trace}->{frame}->[0] : undef;
 
@@ -84,8 +81,7 @@ sub _add_ts_hooks {
     }, inherit => 1);
 }
 
-sub new {
-    my($class) = shift;
+sub new ($class, @args) {
     unless($Test) {
         my $ctx = context();
         $Test = $class->create(singleton => 1);
@@ -96,17 +92,14 @@ sub new {
         # TB->ctx compensates for this later.
         Test2::API::test2_add_callback_context_aquire(sub { $_[0]->{level} += $Level - 1 });
 
-        Test2::API::test2_add_callback_exit(sub { $Test->_ending(@_) });
+        Test2::API::test2_add_callback_exit(sub { $Test->_ending(@args) });
 
         Test2::API::test2_ipc()->set_no_fatal(1) if USE_THREADS;
     }
     return $Test;
 }
 
-sub create {
-    my $class = shift;
-    my %params = @_;
-
+sub create ($class, %params) {
     my $self = bless {}, $class;
     if ($params{singleton}) {
         $self->{Stack} = Test2::API::test2_stack();
@@ -137,8 +130,7 @@ sub ctx {
     );
 }
 
-sub parent {
-    my $self = shift;
+sub parent ($self) {
     my $ctx = $self->ctx;
     my $chub = $self->{Hub} || $ctx->hub;
     $ctx->release;
@@ -154,8 +146,7 @@ sub parent {
     }, blessed($self);
 }
 
-sub child {
-    my( $self, $name ) = @_;
+sub child ( $self, $name? ) {
 
     $name ||= "Child of " . $self->name;
     my $ctx = $self->ctx;
@@ -176,9 +167,7 @@ sub child {
         class => 'Test2::Hub::Subtest',
     );
 
-    $hub->pre_filter(sub {
-        my ($active_hub, $e) = @_;
-
+    $hub->pre_filter(sub ($active_hub, $e) {
         # Turn a diag into a todo diag
         return Test::Builder::TodoDiag->new(%$e) if ref($e) eq 'Test2::Event::Diag';
 
@@ -187,7 +176,8 @@ sub child {
 
     $hub->listen(sub { push @$subevents => $_[1] });
 
-    $hub->set_nested( $parent->isa('Test2::Hub::Subtest') ? $parent->nested + 1 : 1 );
+    $hub->set_nested( $parent->isa('Test2::Hub::Subtest')
+                      ? $parent->nested + 1 : 1 );
 
     my $meta = $hub->meta(__PACKAGE__, {});
     $meta->{Name} = $name;
@@ -202,13 +192,11 @@ sub child {
     $self->_add_ts_hooks;
 
     $ctx->release;
-    return bless { Original_Pid => $$, Stack => $self->{Stack}, Hub => $hub }, blessed($self);
+    return bless { Original_Pid => $$, Stack => $self->{Stack}, Hub => $hub },
+           blessed($self);
 }
 
-sub finalize {
-    my $self = shift;
-    my $ok = 1;
-    ($ok) = @_ if @_;
+sub finalize ($self, $ok=1) {
 
     my $st_ctx = $self->ctx;
     my $chub = $self->{Hub} || return $st_ctx->release;
@@ -286,9 +274,10 @@ FAIL
     return $chub->is_passing;
 }
 
-sub subtest {
-    my $self = shift;
-    my ($name, $code, @args) = @_;
+#sub subtest {
+#    my $self = shift;
+#    my ($name, $code, @args) = @_;
+sub subtest ($self, str $name, $code, @args) :prototype($*&@) {
     my $ctx = $self->ctx;
     $ctx->throw("subtest()'s second argument must be a code ref")
         unless $code && reftype($code) eq 'CODE';
@@ -310,7 +299,8 @@ sub subtest {
         ($err, $child_error) = ($@, $?);
 
         # They might have done 'BEGIN { skip_all => "whatever" }'
-        if (!$ok && $err =~ m/Label not found for "last T2_SUBTEST_WRAPPER"/ || (blessed($err) && blessed($err) eq 'Test::Builder::Exception')) {
+        if (!$ok && $err =~ m/Label not found for "last T2_SUBTEST_WRAPPER"/
+            || (blessed($err) && blessed($err) eq 'Test::Builder::Exception')) {
             $ok  = undef;
             $err = undef;
         }
@@ -337,7 +327,7 @@ sub subtest {
         $err = "Subtest ended with exit code $code" if $code;
     }
 
-    my $st_hub  = $st_ctx->hub;
+    my $st_hub = $st_ctx->hub;
     my $plan  = $st_hub->plan;
     my $count = $st_hub->count;
 
@@ -357,14 +347,12 @@ sub subtest {
     return $st_hub->is_passing;
 }
 
-sub name {
-    my $self = shift;
+sub name ($self) {
     my $ctx = $self->ctx;
     release $ctx, $ctx->hub->meta(__PACKAGE__, {})->{Name};
 }
 
-sub reset {    ## no critic (Subroutines::ProhibitBuiltinHomonyms)
-    my ($self, %params) = @_;
+sub reset ($self, %params) {    ## no critic (Subroutines::ProhibitBuiltinHomonyms)
 
     Test2::API::test2_set_is_end(0);
 
@@ -418,8 +406,7 @@ my %plan_cmds = (
     tests    => \&_plan_tests,
 );
 
-sub plan {
-    my( $self, $cmd, $arg ) = @_;
+sub plan ( $self, $cmd?, $arg? ) {
 
     return unless $cmd;
 
@@ -443,12 +430,11 @@ sub plan {
 }
 
 
-sub _plan_tests {
-    my($self, $arg) = @_;
+sub _plan_tests ($self, $arg?) {
 
     my $ctx = $self->ctx;
 
-    if($arg) {
+    if (defined $arg and $arg) {
         local $Level = $Level + 1;
         $self->expected_tests($arg);
     }
@@ -463,15 +449,13 @@ sub _plan_tests {
 }
 
 
-sub expected_tests {
-    my $self = shift;
-    my($max) = @_;
+sub expected_tests ($self, int $max=0) {
 
     my $ctx = $self->ctx;
 
-    if(@_) {
+    if ($max) {
         $self->croak("Number of tests must be a positive integer.  You gave it '$max'")
-          unless $max =~ /^\+?\d+$/;
+            unless $max =~ /^\+?\d+$/;
 
         $ctx->plan($max);
     }
@@ -487,8 +471,7 @@ sub expected_tests {
 }
 
 
-sub no_plan {
-    my($self, $arg) = @_;
+sub no_plan ($self, $arg?) {
 
     my $ctx = $self->ctx;
 
@@ -506,8 +489,7 @@ sub no_plan {
 }
 
 
-sub done_testing {
-    my($self, $num_tests) = @_;
+sub done_testing ($self, int $num_tests=0) {
 
     my $ctx = $self->ctx;
 
@@ -549,8 +531,7 @@ sub done_testing {
 }
 
 
-sub has_plan {
-    my $self = shift;
+sub has_plan ($self) {
 
     my $ctx = $self->ctx;
     my $plan = $ctx->hub->plan;
@@ -562,8 +543,7 @@ sub has_plan {
 }
 
 
-sub skip_all {
-    my( $self, $reason ) = @_;
+sub skip_all ( $self, str $reason='' ) {
 
     my $ctx = $self->ctx;
 
@@ -587,8 +567,7 @@ sub skip_all {
 }
 
 
-sub exported_to {
-    my( $self, $pack ) = @_;
+sub exported_to ($self, $pack?) {
 
     if( defined $pack ) {
         $self->{Exported_To} = $pack;
@@ -597,8 +576,7 @@ sub exported_to {
 }
 
 
-sub ok {
-    my( $self, $test, $name ) = @_;
+sub ok ($self, $test, $name?) {
 
     my $ctx = $self->ctx;
 
@@ -626,7 +604,7 @@ sub ok {
         actual_ok => $test,
         reason => '',
         type => '',
-        (name => defined($name) ? $name : ''),
+        name => $name,
     };
 
     $hub->{_meta}->{+__PACKAGE__}->{Test_Results}[ $hub->{count} ] = $result;
@@ -659,9 +637,7 @@ sub ok {
     return $test;
 }
 
-sub _ok_debug {
-    my $self = shift;
-    my ($trace, $orig_name) = @_;
+sub _ok_debug ($self, $trace, str $orig_name) {
 
     my $is_todo = defined($self->todo);
 
@@ -680,14 +656,12 @@ sub _ok_debug {
     }
 }
 
-sub _diag_fh {
-    my $self = shift;
+sub _diag_fh ($self) {
     local $Level = $Level + 1;
     return $self->in_todo ? $self->todo_output : $self->failure_output;
 }
 
-sub _unoverload {
-    my ($self, $type, $thing) = @_;
+sub _unoverload ($self, $type, $thing) {
 
     return unless ref $$thing;
     return unless blessed($$thing) || scalar $self->_try(sub{ $$thing->isa('UNIVERSAL') });
@@ -699,27 +673,21 @@ sub _unoverload {
     $$thing = $$thing->$string_meth();
 }
 
-sub _unoverload_str {
-    my $self = shift;
-
-    $self->_unoverload( q[""], $_ ) for @_;
+sub _unoverload_str ($self, @args) {
+    $self->_unoverload( q[""], $_ ) for @args;
 }
 
-sub _unoverload_num {
-    my $self = shift;
+sub _unoverload_num ($self, @args) {
+    $self->_unoverload( '0+', $_ ) for @args;
 
-    $self->_unoverload( '0+', $_ ) for @_;
-
-    for my $val (@_) {
+    for my $val (@args) {
         next unless $self->_is_dualvar($$val);
         $$val = $$val + 0;
     }
 }
 
 # This is a hack to detect a dualvar such as $!
-sub _is_dualvar {
-    my( $self, $val ) = @_;
-
+sub _is_dualvar ($self, $val) {
     # Objects are not dualvars.
     return 0 if ref $val;
 
@@ -729,11 +697,8 @@ sub _is_dualvar {
 }
 
 
-sub is_eq {
-    my( $self, $got, $expect, $name ) = @_;
-
+sub is_eq ( $self, $got?, $expect?, $name?) {
     my $ctx = $self->ctx;
-
     local $Level = $Level + 1;
 
     if( !defined $got || !defined $expect ) {
@@ -750,8 +715,7 @@ sub is_eq {
 }
 
 
-sub is_num {
-    my( $self, $got, $expect, $name ) = @_;
+sub is_num ($self, $got, $expect, $name?) {
     my $ctx = $self->ctx;
     local $Level = $Level + 1;
 
@@ -768,9 +732,7 @@ sub is_num {
     release $ctx, $self->cmp_ok( $got, '==', $expect, $name );
 }
 
-
-sub _diag_fmt {
-    my( $self, $type, $val ) = @_;
+sub _diag_fmt ($self, $type, $val) {
 
     if( defined $$val ) {
         if( $type eq 'eq' or $type eq 'ne' ) {
@@ -789,9 +751,7 @@ sub _diag_fmt {
     return;
 }
 
-
-sub _is_diag {
-    my( $self, $got, $type, $expect ) = @_;
+sub _is_diag ( $self, $got, $type, $expect ) {
 
     $self->_diag_fmt( $type, $_ ) for \$got, \$expect;
 
@@ -803,8 +763,7 @@ DIAGNOSTIC
 
 }
 
-sub _isnt_diag {
-    my( $self, $got, $type ) = @_;
+sub _isnt_diag ( $self, $got, $type ) {
 
     $self->_diag_fmt( $type, \$got );
 
@@ -816,8 +775,7 @@ DIAGNOSTIC
 }
 
 
-sub isnt_eq {
-    my( $self, $got, $dont_expect, $name ) = @_;
+sub isnt_eq ( $self, $got?, $dont_expect?, $name?) {
     my $ctx = $self->ctx;
     local $Level = $Level + 1;
 
@@ -834,8 +792,7 @@ sub isnt_eq {
     release $ctx, $self->cmp_ok( $got, 'ne', $dont_expect, $name );
 }
 
-sub isnt_num {
-    my( $self, $got, $dont_expect, $name ) = @_;
+sub isnt_num ( $self, $got, $dont_expect, $name?) {
     my $ctx = $self->ctx;
     local $Level = $Level + 1;
 
@@ -853,19 +810,15 @@ sub isnt_num {
 }
 
 
-sub like {
-    my( $self, $thing, $regex, $name ) = @_;
+sub like ( $self, $thing, $regex, $name?) {
     my $ctx = $self->ctx;
-
     local $Level = $Level + 1;
 
     release $ctx, $self->_regex_ok( $thing, $regex, '=~', $name );
 }
 
-sub unlike {
-    my( $self, $thing, $regex, $name ) = @_;
+sub unlike ( $self, $thing, $regex, $name?) {
     my $ctx = $self->ctx;
-
     local $Level = $Level + 1;
 
     release $ctx, $self->_regex_ok( $thing, $regex, '!~', $name );
@@ -877,8 +830,7 @@ my %numeric_cmps = map { ( $_, 1 ) } ( "<", "<=", ">", ">=", "==", "!=", "<=>" )
 # Bad, these are not comparison operators. Should we include more?
 my %cmp_ok_bl = map { ( $_, 1 ) } ( "=", "+=", ".=", "x=", "^=", "|=", "||=", "&&=", "...");
 
-sub cmp_ok {
-    my( $self, $got, $type, $expect, $name ) = @_;
+sub cmp_ok ($self, $got, $type, $expect, $name?) {
     my $ctx = $self->ctx;
 
     if ($cmp_ok_bl{$type}) {
@@ -948,8 +900,7 @@ END
     return release $ctx, $ok;
 }
 
-sub _cmp_diag {
-    my( $self, $got, $type, $expect ) = @_;
+sub _cmp_diag ($self, $got, $type, $expect) {
 
     $got    = defined $got    ? "'$got'"    : 'undef';
     $expect = defined $expect ? "'$expect'" : 'undef';
@@ -962,20 +913,15 @@ sub _cmp_diag {
 DIAGNOSTIC
 }
 
-sub _caller_context {
-    my $self = shift;
-
+sub _caller_context ($self) {
     my( $pack, $file, $line ) = $self->caller(1);
-
     my $code = '';
     $code .= "#line $line $file\n" if defined $file and defined $line;
-
     return $code;
 }
 
 
-sub BAIL_OUT {
-    my( $self, $reason ) = @_;
+sub BAIL_OUT ( $self, str $reason ) {
 
     my $ctx = $self->ctx;
 
@@ -990,10 +936,7 @@ sub BAIL_OUT {
     *BAILOUT = \&BAIL_OUT;
 }
 
-sub skip {
-    my( $self, $why, $name ) = @_;
-    $why ||= '';
-    $name = '' unless defined $name;
+sub skip ( $self, str $why='', str $name='' ) {
     $self->_unoverload_str( \$why );
 
     my $ctx = $self->ctx;
@@ -1017,9 +960,7 @@ sub skip {
 }
 
 
-sub todo_skip {
-    my( $self, $why ) = @_;
-    $why ||= '';
+sub todo_skip ( $self, str $why='') {
 
     my $ctx = $self->ctx;
 
@@ -1039,8 +980,7 @@ sub todo_skip {
 }
 
 
-sub maybe_regex {
-    my( $self, $regex ) = @_;
+sub maybe_regex ( $self, $regex ) {
     my $usable_regex = undef;
 
     return $usable_regex unless defined $regex;
@@ -1062,17 +1002,14 @@ sub maybe_regex {
     return $usable_regex;
 }
 
-sub _is_qr {
-    my $regex = shift;
-
+sub _is_qr ($regex) {
     # is_regexp() checks for regexes in a robust manner, say if they're
     # blessed.
     return re::is_regexp($regex) if defined &re::is_regexp;
     return ref $regex eq 'Regexp';
 }
 
-sub _regex_ok {
-    my( $self, $thing, $regex, $cmp, $name ) = @_;
+sub _regex_ok ( $self, $thing, $regex, $cmp, $name) {
 
     my $ok           = 0;
     my $usable_regex = $self->maybe_regex($regex);
@@ -1120,9 +1057,7 @@ DIAGNOSTIC
 }
 
 
-sub is_fh {
-    my $self     = shift;
-    my $maybe_fh = shift;
+sub is_fh ($self, $maybe_fh?) {
     return 0 unless defined $maybe_fh;
 
     return 1 if ref $maybe_fh  eq 'GLOB';    # its a glob ref
@@ -1132,19 +1067,15 @@ sub is_fh {
            eval { tied($maybe_fh)->can('TIEHANDLE') };
 }
 
-
-sub level {
-    my( $self, $level ) = @_;
-
-    if( defined $level ) {
+sub level ($self, $level?) {
+    if ( defined $level ) {
         $Level = $level;
     }
     return $Level;
 }
 
 
-sub use_numbers {
-    my( $self, $use_nums ) = @_;
+sub use_numbers ( $self, $use_nums? ) {
 
     my $ctx = $self->ctx;
     my $format = $ctx->hub->format;
@@ -1159,11 +1090,9 @@ sub use_numbers {
 }
 
 BEGIN {
-    for my $method (qw(no_header no_diag)) {
-        my $set = "set_$method";
-        my $code = sub {
-            my( $self, $no ) = @_;
-
+    for my str $method (qw(no_header no_diag)) {
+        my str $set = "set_$method";
+        my $code = sub ($self, $no?) {
             my $ctx = $self->ctx;
             my $format = $ctx->hub->format;
             unless ($format && $format->can($set)) {
@@ -1182,9 +1111,7 @@ BEGIN {
     }
 }
 
-sub no_ending {
-    my( $self, $no ) = @_;
-
+sub no_ending ($self, $no?) {
     my $ctx = $self->ctx;
 
     $ctx->hub->set_no_ending($no) if defined $no;
@@ -1192,31 +1119,27 @@ sub no_ending {
     return release $ctx, $ctx->hub->no_ending;
 }
 
-sub diag {
-    my $self = shift;
-    return unless @_;
+sub diag ($self, @args) {
+    return unless @args;
 
     my $ctx = $self->ctx;
-    $ctx->diag(join '' => map {defined($_) ? $_ : 'undef'} @_);
+    $ctx->diag(join '' => map {defined($_) ? $_ : 'undef'} @args);
     $ctx->release;
     return 0;
 }
 
 
-sub note {
-    my $self = shift;
-    return unless @_;
+sub note ($self, @args) {
+    return unless @args;
 
     my $ctx = $self->ctx;
-    $ctx->note(join '' => map {defined($_) ? $_ : 'undef'} @_);
+    $ctx->note(join '' => map {defined($_) ? $_ : 'undef'} @args);
     $ctx->release;
     return 0;
 }
 
 
-sub explain {
-    my $self = shift;
-
+sub explain ($self, @args) {
     local ($@, $!);
     require Data::Dumper;
 
@@ -1229,13 +1152,11 @@ sub explain {
             $dumper->Dump;
           }
           : $_
-    } @_;
+    } @args;
 }
 
 
-sub output {
-    my( $self, $fh ) = @_;
-
+sub output ($self, $fh?) {
     my $ctx = $self->ctx;
     my $format = $ctx->hub->format;
     $ctx->release;
@@ -1247,9 +1168,7 @@ sub output {
     return $format->handles->[Test2::Formatter::TAP::OUT_STD()];
 }
 
-sub failure_output {
-    my( $self, $fh ) = @_;
-
+sub failure_output ($self, $fh?) {
     my $ctx = $self->ctx;
     my $format = $ctx->hub->format;
     $ctx->release;
@@ -1261,9 +1180,7 @@ sub failure_output {
     return $format->handles->[Test2::Formatter::TAP::OUT_ERR()];
 }
 
-sub todo_output {
-    my( $self, $fh ) = @_;
-
+sub todo_output ($self, $fh?) {
     my $ctx = $self->ctx;
     my $format = $ctx->hub->format;
     $ctx->release;
@@ -1275,10 +1192,7 @@ sub todo_output {
     return $format->handles->[Test::Builder::Formatter::OUT_TODO()];
 }
 
-sub _new_fh {
-    my $self = shift;
-    my($file_or_fh) = shift;
-
+sub _new_fh ($self, $file_or_fh) {
     my $fh;
     if( $self->is_fh($file_or_fh) ) {
         $fh = $file_or_fh;
@@ -1304,8 +1218,7 @@ sub _new_fh {
     return $fh;
 }
 
-sub _autoflush {
-    my($fh) = shift;
+sub _autoflush ($fh) {
     my $old_fh = select $fh;
     $| = 1;
     select $old_fh;
@@ -1314,9 +1227,7 @@ sub _autoflush {
 }
 
 
-sub reset_outputs {
-    my $self = shift;
-
+sub reset_outputs ($self) {
     my $ctx = $self->ctx;
     my $format = $ctx->hub->format;
     $ctx->release;
@@ -1326,24 +1237,20 @@ sub reset_outputs {
     return;
 }
 
-
-sub carp {
-    my $self = shift;
+sub carp ($self, @args) {
     my $ctx = $self->ctx;
-    $ctx->alert(join "", @_);
+    $ctx->alert(join "", @args);
     $ctx->release;
 }
 
-sub croak {
-    my $self = shift;
+sub croak ($self, @args) {
     my $ctx = $self->ctx;
-    $ctx->throw(join "", @_);
+    $ctx->throw(join "", @args);
     $ctx->release;
 }
 
 
-sub current_test {
-    my( $self, $num ) = @_;
+sub current_test ( $self, $num? ) {
 
     my $ctx = $self->ctx;
     my $hub = $ctx->hub;
@@ -1374,14 +1281,11 @@ sub current_test {
 }
 
 
-sub is_passing {
-    my $self = shift;
-
+sub is_passing ($self, $bool?) {
     my $ctx = $self->ctx;
     my $hub = $ctx->hub;
 
-    if( @_ ) {
-        my ($bool) = @_;
+    if (defined $bool) {
         $hub->set_failed(0) if $bool;
         $hub->is_passing($bool);
     }
@@ -1390,9 +1294,7 @@ sub is_passing {
 }
 
 
-sub summary {
-    my($self) = shift;
-
+sub summary ($self) {
     my $ctx = $self->ctx;
     my $data = $ctx->hub->meta(__PACKAGE__, {})->{Test_Results};
     $ctx->release;
@@ -1400,8 +1302,7 @@ sub summary {
 }
 
 
-sub details {
-    my $self = shift;
+sub details ($self) {
     my $ctx = $self->ctx;
     my $data = $ctx->hub->meta(__PACKAGE__, {})->{Test_Results};
     $ctx->release;
@@ -1409,8 +1310,7 @@ sub details {
 }
 
 
-sub find_TODO {
-    my( $self, $pack, $set, $new_value ) = @_;
+sub find_TODO ($self, $pack, $set, $new_value) {
 
     my $ctx = $self->ctx;
 
@@ -1426,9 +1326,7 @@ sub find_TODO {
     return $old_value;
 }
 
-sub todo {
-    my( $self, $pack ) = @_;
-
+sub todo ($self, $pack?) {
     local $Level = $Level + 1;
     my $ctx = $self->ctx;
     $ctx->release;
@@ -1445,9 +1343,7 @@ sub todo {
     return ${ $pack . '::TODO' };
 }
 
-sub in_todo {
-    my $self = shift;
-
+sub in_todo ($self) {
     local $Level = $Level + 1;
     my $ctx = $self->ctx;
     $ctx->release;
@@ -1466,16 +1362,11 @@ sub in_todo {
     return 1;
 }
 
-sub todo_start {
-    my $self = shift;
-    my $message = @_ ? shift : '';
-
+sub todo_start ($self, str $message='') {
     my $ctx = $self->ctx;
 
     my $hub = $ctx->hub;
-    my $filter = $hub->pre_filter(sub {
-        my ($active_hub, $e) = @_;
-
+    my $filter = $hub->pre_filter(sub ($active_hub, $e) {
         # Turn a diag into a todo diag
         return Test::Builder::TodoDiag->new(%$e) if ref($e) eq 'Test2::Event::Diag';
 
@@ -1501,9 +1392,7 @@ sub todo_start {
     return;
 }
 
-sub todo_end {
-    my $self = shift;
-
+sub todo_end ($self) {
     my $ctx = $self->ctx;
 
     my $set = pop @{$ctx->hub->meta(__PACKAGE__, {todo => []})->{todo}};
@@ -1517,10 +1406,9 @@ sub todo_end {
     return;
 }
 
-
-sub caller {    ## no critic (Subroutines::ProhibitBuiltinHomonyms)
-    my( $self ) = @_;
-
+# XXX height is ignored
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
+sub caller ($self, int $height = 0) {
     my $ctx = $self->ctx;
 
     my $trace = $ctx->trace;
@@ -1528,9 +1416,8 @@ sub caller {    ## no critic (Subroutines::ProhibitBuiltinHomonyms)
     return wantarray ? $trace->call : $trace->package;
 }
 
-
-sub _try {
-    my( $self, $code, %opts ) = @_;
+# %opts is ignored
+sub _try ($self, $code, %opts) {
 
     my $error;
     my $return;
@@ -1550,7 +1437,6 @@ sub _try {
 sub _ending {
     my $self = shift;
     my ($ctx, $real_exit_code, $new) = @_;
-
     unless ($ctx) {
         my $octx = $self->ctx;
         $ctx = $octx->snapshot;
@@ -1666,9 +1552,7 @@ FAIL
 
 # Some things used this even though it was private... I am looking at you
 # Test::Builder::Prefix...
-sub _print_comment {
-    my( $self, $fh, @msgs ) = @_;
-
+sub _print_comment ($self, $fh, @msgs) {
     return if $self->no_diag;
     return unless @msgs;
 
@@ -1693,9 +1577,7 @@ sub _print_comment {
 # Test::Builder 2
 # Once Test2 stuff goes stable this method will be removed and Test::SharedFork
 # will be made smarter.
-sub coordinate_forks {
-    my $self = shift;
-
+sub coordinate_forks ($self) {
     {
         local ($@, $!);
         require Test2::IPC;
@@ -1723,10 +1605,8 @@ Test::Builder - Backend for building test libraries
 
   my $CLASS = __PACKAGE__;
 
-  sub ok {
-      my($test, $name) = @_;
+  sub ok ($test, $name) {
       my $tb = $CLASS->builder;
-
       $tb->ok($test, $name);
   }
 
@@ -2047,8 +1927,7 @@ regular expression, or C<undef> if its argument is not recognized.
 For example, a version of C<like()>, sans the useful diagnostic messages,
 could be written as:
 
-  sub laconic_like {
-      my ($self, $thing, $regex, $name) = @_;
+  sub laconic_like ($self, $thing, $regex, $name) {
       my $usable_regex = $self->maybe_regex($regex);
       die "expecting regex, found '$regex'\n"
           unless $usable_regex;
@@ -2075,24 +1954,24 @@ Determines if the given C<$thing> can be used as a filehandle.
 
 =item B<level>
 
-    $Test->level($how_high);
+    $Test->level( [$Test::Builder::Level] );
 
+Gets or sets $Test::Builder::Level.
 How far up the call stack should C<$Test> look when reporting where the
 test failed.
 
-Defaults to 1.
+The default $Test::Builder::Level is 1.
 
-Setting L<$Test::Builder::Level> overrides.  This is typically useful
+Setting L<$Test::Builder::Level> is typically useful
 localized:
 
-    sub my_ok {
-        my $test = shift;
-
+    sub my_ok ($test) {
         local $Test::Builder::Level = $Test::Builder::Level + 1;
         $TB->ok($test);
     }
 
-To be polite to other functions wrapping your own you usually want to increment C<$Level> rather than set it to a constant.
+To be polite to other functions wrapping your own you usually want to
+increment C<$Level> rather than set it to a constant.
 
 =item B<use_numbers>
 
@@ -2500,6 +2379,8 @@ L<Test::Simple>, L<Test::More>, L<Test::Harness>
 
 Original code by chromatic, maintained by Michael G Schwern
 E<lt>schwern@pobox.comE<gt>
+
+Modernized by Reini Urban for cperl signatures.
 
 =head1 MAINTAINERS
 

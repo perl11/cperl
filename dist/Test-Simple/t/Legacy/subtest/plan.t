@@ -15,14 +15,13 @@ use warnings;
 
 use Test::Builder::NoOutput;
 
-use Test::More tests => 6;
+use Test::More tests => 5;
 
 # Formatting may change if we're running under Test::Harness.
 $ENV{HARNESS_ACTIVE} = 0;
 
 {
     ok defined &subtest, 'subtest() should be exported to our namespace';
-    is prototype('subtest'), undef, '... has no prototype';
 
     subtest 'subtest with plan', sub {
         plan tests => 2;

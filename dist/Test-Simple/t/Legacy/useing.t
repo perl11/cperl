@@ -1,7 +1,6 @@
 BEGIN {
     if( $ENV{PERL_CORE} ) {
-        chdir 't';
-        @INC = '../lib';
+        @INC = '../../lib';
     }
 }
 

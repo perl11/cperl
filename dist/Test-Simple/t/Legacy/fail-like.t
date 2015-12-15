@@ -2,8 +2,7 @@
 
 BEGIN {
     if( $ENV{PERL_CORE} ) {
-        chdir 't';
-        @INC = ('../lib', 'lib');
+        @INC = ('../../lib', 't/lib');
     }
     else {
         unshift @INC, 't/lib';
@@ -58,14 +57,14 @@ ERR
 }
 
 {
-    # line 62
+    # line 61
     like("foo", "not a regex");
     $TB->is_eq($out->read, <<OUT);
 not ok 2
 OUT
 
     $TB->is_eq($err->read, <<OUT);
-#   Failed test at $0 line 62.
+#   Failed test at $0 line 61.
 #     'not a regex' doesn't look much like a regex to me.
 OUT
 

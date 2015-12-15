@@ -13,24 +13,29 @@ BEGIN {
 use IO::Pipe;
 use Test::Builder;
 use Test::More;
+use Config;
 
 plan 'tests' => 1;
 
 subtest 'fork within subtest' => sub {
-    plan tests => 2;
+  plan tests => 2;
+
+  TODO: {
+    local $TODO = "random fork problem with MSVC"
+      if ($^O eq 'MSWin32' and $Config{cc} eq 'cl');
 
     my $pipe = IO::Pipe->new;
     my $pid = fork;
     defined $pid or plan skip_all => "Fork not working";
 
     if ($pid) {
-        $pipe->reader;
-        my $child_output = do { local $/ ; <$pipe> };
-        waitpid $pid, 0;
+      $pipe->reader;
+      my $child_output = do { local $/ ; <$pipe> };
+      waitpid $pid, 0;
 
-        is $?, 0, 'child exit status';
-        like $child_output, qr/^[\s#]+Child Done\s*\z/, 'child output';
-    } 
+      is $?, 0, 'child exit status';
+      like $child_output, qr/^[\s#]+Child Done\s*\z/, 'child output';
+    }
     else {
         $pipe->writer;
 
@@ -44,5 +49,6 @@ subtest 'fork within subtest' => sub {
         diag 'Child Done';
         exit 0;
     }
+  }
 };
 
