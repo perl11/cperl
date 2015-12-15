@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 our $VERSION = '0.42';
+$VERSION =~ s/c$//;
 
 use Exporter;
 our @ISA            = qw( bigint );
@@ -55,20 +56,19 @@ sub AUTOLOAD {
     Carp::croak ("Can't call bigrat\-\>$name, not a valid method");
 }
 
-sub unimport {
+sub unimport () {
     $^H{bigrat} = undef;        # no longer in effect
     overload::remove_constant('binary', '', 'float', '', 'integer');
 }
 
-sub in_effect {
-    my $level = shift || 0;
+sub in_effect (int $level = 0) {
     my $hinthash = (caller($level))[10];
     $hinthash->{bigrat};
 }
 
 #############################################################################
 
-sub import {
+sub import :method {
     my $self = shift;
 
     # see also bignum->import() for additional comments
