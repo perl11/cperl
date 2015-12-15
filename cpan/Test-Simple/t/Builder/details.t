@@ -40,7 +40,7 @@ SKIP: {
 }
 push @Expected_Details, { 'ok'      => 1,
                           actual_ok => 1,
-                          name      => '',
+                          name      => undef,
                           type      => 'skip',
                           reason    => 'just testing skip',
                         };

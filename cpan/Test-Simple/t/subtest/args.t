@@ -17,9 +17,10 @@ use Test::Builder::NoOutput;
 my $tb = Test::Builder->new;
 
 $tb->ok( !eval { $tb->subtest() } );
-$tb->like( $@, qr/^\Qsubtest()'s second argument must be a code ref/ );
+#old error: subtest()'s second argument must be a code ref
+#new better error: Not enough arguments for subroutine Test::Builder::subtest. Want: 3, but got: 0
 
-$tb->ok( !eval { $tb->subtest("foo") } );
+$tb->ok( !eval { $tb->subtest("foo", undef) } );
 $tb->like( $@, qr/^\Qsubtest()'s second argument must be a code ref/ );
 
 $tb->subtest('Arg passing', sub {

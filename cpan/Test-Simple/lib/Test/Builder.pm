@@ -4,8 +4,8 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.001014';
-$VERSION = eval $VERSION;    ## no critic (BuiltinFunctions::ProhibitStringyEval)
+our $VERSION = '1.001014c'; # modernized
+$VERSION = 1.001014;
 
 BEGIN {
     if( $] < 5.008 ) {
@@ -26,7 +26,7 @@ BEGIN {
         # occasionally forget the contents of the variable when sharing it.
         # So we first copy the data, then share, then put our copy back.
         *share = sub (\[$@%]) {
-            my $type = ref $_[0];
+            my str $type = ref $_[0];
             my $data;
 
             if( $type eq 'HASH' ) {
@@ -118,8 +118,7 @@ singleton, use C<create>.
 
 our $Test = Test::Builder->new;
 
-sub new {
-    my($class) = shift;
+sub new ($class) {
     $Test ||= $class->create;
     return $Test;
 }
@@ -138,12 +137,9 @@ this method.  Also, the method name may change in the future.
 
 =cut
 
-sub create {
-    my $class = shift;
-
+sub create ($class) {
     my $self = bless {}, $class;
     $self->reset;
-
     return $self;
 }
 
@@ -151,12 +147,10 @@ sub create {
 # Copy an object, currently a shallow.
 # This does *not* bless the destination.  This keeps the destructor from
 # firing when we're just storing a copy of the object to restore later.
-sub _copy {
-    my($src, $dest) = @_;
 
+sub _copy ($src, $dest) {
     %$dest = %$src;
     _share_keys($dest);
-
     return;
 }
 
@@ -181,8 +175,7 @@ the test suite to fail.
 
 =cut
 
-sub child {
-    my( $self, $name ) = @_;
+sub child ( $self, $name? ) {
 
     if( $self->{Child_Name} ) {
         $self->croak("You already have a child named ($self->{Child_Name}) running");
@@ -193,14 +186,14 @@ sub child {
     # Clear $TODO for the child.
     my $orig_TODO = $self->find_TODO(undef, 1, undef);
 
-    my $class = ref $self;
+    my str $class = ref $self;
     my $child = $class->create;
 
     # Add to our indentation
     $child->_indent( $self->_indent . '    ' );
 
     # Make the child use the same outputs as the parent
-    for my $method (qw(output failure_output todo_output)) {
+    for my str $method (qw(output failure_output todo_output)) {
         $child->$method( $self->$method );
     }
 
@@ -232,10 +225,11 @@ subtests reference.
 
 =cut
 
-sub subtest {
+#sub subtest ($self, $name, $subtests, @args) :prototype($*&@)
+sub subtest
+{
     my $self = shift;
     my($name, $subtests, @args) = @_;
-
     if ('CODE' ne ref $subtests) {
         $self->croak("subtest()'s second argument must be a code ref");
     }
@@ -311,8 +305,7 @@ if the developer has not set a plan.
 
 =cut
 
-sub _plan_handled {
-    my $self = shift;
+sub _plan_handled ($self) { # TODO () :method
     return $self->{Have_Plan} || $self->{No_Plan} || $self->{Skip_All};
 }
 
@@ -336,8 +329,7 @@ Calling this on the root builder is a no-op.
 
 =cut
 
-sub finalize {
-    my $self = shift;
+sub finalize ($self) { # TODO () :method
 
     return unless $self->parent;
     if( $self->{Child_Name} ) {
@@ -351,7 +343,7 @@ sub finalize {
     #$self->_print( $self->is_passing ? "PASS\n" : "FAIL\n" );
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    my $ok = 1;
+    my $ok = 1; # XXX maybe referenced in a child?
     $self->parent->{Child_Name} = undef;
     unless ($self->{Bailed_Out}) {
         if ( $self->{Skip_All} ) {
@@ -370,13 +362,10 @@ sub finalize {
     return $self->is_passing;
 }
 
-sub _indent      {
-    my $self = shift;
-
-    if( @_ ) {
-        $self->{Indent} = shift;
+sub _indent ($self, @args) {
+    if( @args) {
+        $self->{Indent} = shift @args;
     }
-
     return $self->{Indent};
 }
 
@@ -391,7 +380,7 @@ builders for nested TAP.
 
 =cut
 
-sub parent { shift->{Parent} }
+sub parent ($self) { $self->{Parent} }
 
 =item B<name>
 
@@ -403,10 +392,9 @@ method.  If no name is supplied, will be named "Child of $parent->name".
 
 =cut
 
-sub name { shift->{Name} }
+sub name ($self) { $self->{Name} }
 
-sub DESTROY {
-    my $self = shift;
+sub DESTROY ($self) {
     if ( $self->parent and $$ == $self->{Original_Pid} ) {
         my $name = $self->name;
         $self->diag(<<"FAIL");
@@ -429,8 +417,7 @@ test might be run multiple times in the same process.
 
 our $Level;
 
-sub reset {    ## no critic (Subroutines::ProhibitBuiltinHomonyms)
-    my($self) = @_;
+sub reset ($self) {    ## no critic (Subroutines::ProhibitBuiltinHomonyms)
 
     # We leave this a global because it has to be localized and localizing
     # hash keys is just asking for pain.  Also, it was documented.
@@ -476,11 +463,9 @@ sub reset {    ## no critic (Subroutines::ProhibitBuiltinHomonyms)
 # Shared scalar values are lost when a hash is copied, so we have
 # a separate method to restore them.
 # Shared references are retained across copies.
-sub _share_keys {
-    my $self = shift;
 
+sub _share_keys ($self) {
     share( $self->{Curr_Test} );
-
     return;
 }
 
@@ -525,8 +510,7 @@ my %plan_cmds = (
     tests       => \&_plan_tests,
 );
 
-sub plan {
-    my( $self, $cmd, $arg ) = @_;
+sub plan ( $self, $cmd?, $arg? ) {
 
     return unless $cmd;
 
@@ -547,10 +531,9 @@ sub plan {
 }
 
 
-sub _plan_tests {
-    my($self, $arg) = @_;
+sub _plan_tests ($self, $arg?) {
 
-    if($arg) {
+    if (defined $arg and $arg) {
         local $Level = $Level + 1;
         return $self->expected_tests($arg);
     }
@@ -574,11 +557,8 @@ the appropriate headers.
 
 =cut
 
-sub expected_tests {
-    my $self = shift;
-    my($max) = @_;
-
-    if(@_) {
+sub expected_tests ($self, int $max=0) {
+    if ($max) {
         $self->croak("Number of tests must be a positive integer.  You gave it '$max'")
           unless $max =~ /^\+?\d+$/;
 
@@ -598,14 +578,10 @@ Declares that this test will run an indeterminate number of tests.
 
 =cut
 
-sub no_plan {
-    my($self, $arg) = @_;
-
+sub no_plan ($self, $arg?) {
     $self->carp("no_plan takes no arguments") if $arg;
-
     $self->{No_Plan}   = 1;
     $self->{Have_Plan} = 1;
-
     return 1;
 }
 
@@ -631,14 +607,13 @@ output.
 
 =cut
 
-sub _output_plan {
-    my($self, $max, $directive, $reason) = @_;
+sub _output_plan ($self, int $max, str $directive='', str $reason='') {
 
     $self->carp("The plan was already output") if $self->{Have_Output_Plan};
 
-    my $plan = "1..$max";
-    $plan .= " # $directive" if defined $directive;
-    $plan .= " $reason"      if defined $reason;
+    my str $plan = "1..$max";
+    $plan .= " # $directive" if $directive;
+    $plan .= " $reason"      if $reason;
 
     $self->_print("$plan\n");
 
@@ -683,11 +658,10 @@ Or to plan a variable number of tests:
 
 =cut
 
-sub done_testing {
-    my($self, $num_tests) = @_;
+sub done_testing ($self, $num_tests=0) {
 
     # If done_testing() specified the number of tests, shut off no_plan.
-    if( defined $num_tests ) {
+    if( $num_tests ) {
         $self->{No_Plan} = 0;
     }
     else {
@@ -734,8 +708,7 @@ of expected tests).
 
 =cut
 
-sub has_plan {
-    my $self = shift;
+sub has_plan ($self) {
 
     return( $self->{Expected_Tests} ) if $self->{Expected_Tests};
     return('no_plan') if $self->{No_Plan};
@@ -751,8 +724,7 @@ Skips all the tests, using the given C<$reason>.  Exits immediately with 0.
 
 =cut
 
-sub skip_all {
-    my( $self, $reason ) = @_;
+sub skip_all ( $self, str $reason='' ) {
 
     $self->{Skip_All} = $self->parent ? $reason : 1;
 
@@ -776,8 +748,7 @@ the last one will be honored.
 
 =cut
 
-sub exported_to {
-    my( $self, $pack ) = @_;
+sub exported_to ($self, $pack?) {
 
     if( defined $pack ) {
         $self->{Exported_To} = $pack;
@@ -806,8 +777,7 @@ like Test::Simple's C<ok()>.
 
 =cut
 
-sub ok {
-    my( $self, $test, $name ) = @_;
+sub ok ( $self, $test, $name? ) {
 
     if ( $self->{Child_Name} and not $self->{In_Destroy} ) {
         $name = 'unnamed test' unless defined $name;
@@ -900,9 +870,7 @@ ERR
 
 # Check that we haven't yet violated the plan and set
 # is_passing() accordingly
-sub _check_is_passing_plan {
-    my $self = shift;
-
+sub _check_is_passing_plan ($self) {
     my $plan = $self->has_plan;
     return unless defined $plan;        # no plan yet defined
     return unless $plan !~ /\D/;        # no numeric plan
@@ -927,9 +895,7 @@ sub _unoverload {
     return;
 }
 
-sub _is_object {
-    my( $self, $thing ) = @_;
-
+sub _is_object ( $self, $thing ) {
     return $self->_try( sub { ref $thing && $thing->isa('UNIVERSAL') } ) ? 1 : 0;
 }
 
@@ -953,9 +919,7 @@ sub _unoverload_num {
 }
 
 # This is a hack to detect a dualvar such as $!
-sub _is_dualvar {
-    my( $self, $val ) = @_;
-
+sub _is_dualvar ($self, $val) {
     # Objects are not dualvars.
     return 0 if ref $val;
 
@@ -984,8 +948,7 @@ C<undef> only ever matches another C<undef>.
 
 =cut
 
-sub is_eq {
-    my( $self, $got, $expect, $name ) = @_;
+sub is_eq ( $self, $got?, $expect?, $name?) {
     local $Level = $Level + 1;
 
     if( !defined $got || !defined $expect ) {
@@ -1000,8 +963,7 @@ sub is_eq {
     return $self->cmp_ok( $got, 'eq', $expect, $name );
 }
 
-sub is_num {
-    my( $self, $got, $expect, $name ) = @_;
+sub is_num ($self, $got, $expect, $name?) {
     local $Level = $Level + 1;
 
     if( !defined $got || !defined $expect ) {
@@ -1016,8 +978,7 @@ sub is_num {
     return $self->cmp_ok( $got, '==', $expect, $name );
 }
 
-sub _diag_fmt {
-    my( $self, $type, $val ) = @_;
+sub _diag_fmt ($self, $type, $val?) {
 
     if( defined $$val ) {
         if( $type eq 'eq' or $type eq 'ne' ) {
@@ -1036,8 +997,7 @@ sub _diag_fmt {
     return;
 }
 
-sub _is_diag {
-    my( $self, $got, $type, $expect ) = @_;
+sub _is_diag ( $self, $got, $type, $expect ) {
 
     $self->_diag_fmt( $type, $_ ) for \$got, \$expect;
 
@@ -1049,8 +1009,7 @@ DIAGNOSTIC
 
 }
 
-sub _isnt_diag {
-    my( $self, $got, $type ) = @_;
+sub _isnt_diag ( $self, $got, $type ) {
 
     $self->_diag_fmt( $type, \$got );
 
@@ -1077,8 +1036,7 @@ the numeric version.
 
 =cut
 
-sub isnt_eq {
-    my( $self, $got, $dont_expect, $name ) = @_;
+sub isnt_eq ( $self, $got?, $dont_expect?, $name?) {
     local $Level = $Level + 1;
 
     if( !defined $got || !defined $dont_expect ) {
@@ -1093,8 +1051,7 @@ sub isnt_eq {
     return $self->cmp_ok( $got, 'ne', $dont_expect, $name );
 }
 
-sub isnt_num {
-    my( $self, $got, $dont_expect, $name ) = @_;
+sub isnt_num ( $self, $got, $dont_expect, str $name) {
     local $Level = $Level + 1;
 
     if( !defined $got || !defined $dont_expect ) {
@@ -1126,15 +1083,13 @@ given C<$regex>.
 
 =cut
 
-sub like {
-    my( $self, $thing, $regex, $name ) = @_;
+sub like ( $self, $thing, $regex, $name?) {
 
     local $Level = $Level + 1;
     return $self->_regex_ok( $thing, $regex, '=~', $name );
 }
 
-sub unlike {
-    my( $self, $thing, $regex, $name ) = @_;
+sub unlike ( $self, $thing, $regex, $name?) {
 
     local $Level = $Level + 1;
     return $self->_regex_ok( $thing, $regex, '!~', $name );
@@ -1155,8 +1110,7 @@ my %numeric_cmps = map { ( $_, 1 ) } ( "<", "<=", ">", ">=", "==", "!=", "<=>" )
 # Bad, these are not comparison operators. Should we include more?
 my %cmp_ok_bl = map { ( $_, 1 ) } ( "=", "+=", ".=", "x=", "^=", "|=", "||=", "&&=", "...");
 
-sub cmp_ok {
-    my( $self, $got, $type, $expect, $name ) = @_;
+sub cmp_ok ( $self, $got, $type, $expect, $name? ) {
 
     if ($cmp_ok_bl{$type}) {
         $self->croak("$type is not a valid comparison operator in cmp_ok()");
@@ -1226,14 +1180,10 @@ sub _cmp_diag {
 DIAGNOSTIC
 }
 
-sub _caller_context {
-    my $self = shift;
-
+sub _caller_context ($self) {
     my( $pack, $file, $line ) = $self->caller(1);
-
     my $code = '';
     $code .= "#line $line $file\n" if defined $file and defined $line;
-
     return $code;
 }
 
@@ -1258,8 +1208,7 @@ It will exit with 255.
 
 =cut
 
-sub BAIL_OUT {
-    my( $self, $reason ) = @_;
+sub BAIL_OUT ( $self, str $reason ) {
 
     $self->{Bailed_Out} = 1;
 
@@ -1292,10 +1241,7 @@ Skips the current test, reporting C<$why>.
 
 =cut
 
-sub skip {
-    my( $self, $why, $name ) = @_;
-    $why ||= '';
-    $name = '' unless defined $name;
+sub skip ( $self, str $why='', $name? ) {
     $self->_unoverload_str( \$why );
 
     lock( $self->{Curr_Test} );
@@ -1334,9 +1280,7 @@ to
 
 =cut
 
-sub todo_skip {
-    my( $self, $why ) = @_;
-    $why ||= '';
+sub todo_skip ( $self, str $why='') {
 
     lock( $self->{Curr_Test} );
     $self->{Curr_Test}++;
@@ -1414,8 +1358,7 @@ could be written as:
 
 =cut
 
-sub maybe_regex {
-    my( $self, $regex ) = @_;
+sub maybe_regex ( $self, $regex ) {
     my $usable_regex = undef;
 
     return $usable_regex unless defined $regex;
@@ -1437,17 +1380,14 @@ sub maybe_regex {
     return $usable_regex;
 }
 
-sub _is_qr {
-    my $regex = shift;
-
+sub _is_qr ($regex) {
     # is_regexp() checks for regexes in a robust manner, say if they're
     # blessed.
     return re::is_regexp($regex) if defined &re::is_regexp;
     return ref $regex eq 'Regexp';
 }
 
-sub _regex_ok {
-    my( $self, $thing, $regex, $cmp, $name ) = @_;
+sub _regex_ok ( $self, $thing, $regex, $cmp, $name) {
 
     my $ok           = 0;
     my $usable_regex = $self->maybe_regex($regex);
@@ -1515,9 +1455,7 @@ It is suggested you use this in place of eval BLOCK.
 
 =cut
 
-sub _try {
-    my( $self, $code, %opts ) = @_;
-
+sub _try ( $self, $code, %opts ) {
     my $error;
     my $return;
     {
@@ -1544,9 +1482,7 @@ Determines if the given C<$thing> can be used as a filehandle.
 
 =cut
 
-sub is_fh {
-    my $self     = shift;
-    my $maybe_fh = shift;
+sub is_fh ($self, $maybe_fh?) {
     return 0 unless defined $maybe_fh;
 
     return 1 if ref $maybe_fh  eq 'GLOB';    # its a glob ref
@@ -1587,10 +1523,8 @@ To be polite to other functions wrapping your own you usually want to increment 
 
 =cut
 
-sub level {
-    my( $self, $level ) = @_;
-
-    if( defined $level ) {
+sub level ($self, int $level=0) {
+    if ( $level ) {
         $Level = $level;
     }
     return $Level;
@@ -1619,8 +1553,7 @@ Defaults to on.
 
 =cut
 
-sub use_numbers {
-    my( $self, $use_nums ) = @_;
+sub use_numbers ( $self, $use_nums? ) {
 
     if( defined $use_nums ) {
         $self->{Use_Nums} = $use_nums;
@@ -1655,8 +1588,7 @@ If set to true, no "1..N" header will be printed.
 foreach my $attribute (qw(No_Header No_Ending No_Diag)) {
     my $method = lc $attribute;
 
-    my $code = sub {
-        my( $self, $no ) = @_;
+    my $code = sub ($self, $no?) {
 
         if( defined $no ) {
             $self->{$attribute} = $no;
@@ -1726,15 +1658,12 @@ sub note {
     $self->_print_comment( $self->output, @_ );
 }
 
-sub _diag_fh {
-    my $self = shift;
-
+sub _diag_fh ($self) {
     local $Level = $Level + 1;
     return $self->in_todo ? $self->todo_output : $self->failure_output;
 }
 
-sub _print_comment {
-    my( $self, $fh, @msgs ) = @_;
+sub _print_comment ( $self, $fh, @msgs ) {
 
     return if $self->no_diag;
     return unless @msgs;
@@ -1804,8 +1733,7 @@ sub _print {
     return $self->_print_to_fh( $self->output, @_ );
 }
 
-sub _print_to_fh {
-    my( $self, $fh, @msgs ) = @_;
+sub _print_to_fh ( $self, $fh, @msgs ) {
 
     # Prevent printing headers when only compiling.  Mostly for when
     # tests are deparsed with B::Deparse
@@ -1859,8 +1787,7 @@ Defaults to STDOUT.
 
 =cut
 
-sub output {
-    my( $self, $fh ) = @_;
+sub output ( $self, $fh? ) {
 
     if( defined $fh ) {
         $self->{Out_FH} = $self->_new_fh($fh);
@@ -1868,8 +1795,7 @@ sub output {
     return $self->{Out_FH};
 }
 
-sub failure_output {
-    my( $self, $fh ) = @_;
+sub failure_output ( $self, $fh? ) {
 
     if( defined $fh ) {
         $self->{Fail_FH} = $self->_new_fh($fh);
@@ -1877,19 +1803,14 @@ sub failure_output {
     return $self->{Fail_FH};
 }
 
-sub todo_output {
-    my( $self, $fh ) = @_;
-
+sub todo_output ( $self, $fh? ) {
     if( defined $fh ) {
         $self->{Todo_FH} = $self->_new_fh($fh);
     }
     return $self->{Todo_FH};
 }
 
-sub _new_fh {
-    my $self = shift;
-    my($file_or_fh) = shift;
-
+sub _new_fh ($self, $file_or_fh) {
     my $fh;
     if( $self->is_fh($file_or_fh) ) {
         $fh = $file_or_fh;
@@ -1915,8 +1836,7 @@ sub _new_fh {
     return $fh;
 }
 
-sub _autoflush {
-    my($fh) = shift;
+sub _autoflush ($fh) {
     my $old_fh = select $fh;
     $| = 1;
     select $old_fh;
@@ -1926,8 +1846,7 @@ sub _autoflush {
 
 my( $Testout, $Testerr );
 
-sub _dup_stdhandles {
-    my $self = shift;
+sub _dup_stdhandles ($self) {
 
     $self->_open_testhandles;
 
@@ -1943,8 +1862,7 @@ sub _dup_stdhandles {
     return;
 }
 
-sub _open_testhandles {
-    my $self = shift;
+sub _open_testhandles ($self) {
 
     return if $self->{Opened_Testhandles};
 
@@ -1961,8 +1879,7 @@ sub _open_testhandles {
     return;
 }
 
-sub _copy_io_layers {
-    my( $self, $src, $dst ) = @_;
+sub _copy_io_layers ( $self, $src, $dst ) {
 
     $self->_try(
         sub {
@@ -1976,8 +1893,7 @@ sub _copy_io_layers {
     return;
 }
 
-sub _apply_layers {
-    my ($fh, @layers) = @_;
+sub _apply_layers ($fh, @layers) {
     my %seen;
     my @unique = grep { $_ ne 'unix' and !$seen{$_}++ } @layers;
     binmode($fh, join(":", "", "raw", @unique));
@@ -1992,8 +1908,7 @@ Resets all the output filehandles back to their defaults.
 
 =cut
 
-sub reset_outputs {
-    my $self = shift;
+sub reset_outputs ($self) {
 
     $self->output        ($Testout);
     $self->failure_output($Testerr);
@@ -2058,8 +1973,7 @@ can erase history if you really want to.
 
 =cut
 
-sub current_test {
-    my( $self, $num ) = @_;
+sub current_test ( $self, $num? ) {
 
     lock( $self->{Curr_Test} );
     if( defined $num ) {

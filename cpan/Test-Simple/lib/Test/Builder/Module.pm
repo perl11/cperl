@@ -7,8 +7,8 @@ use Test::Builder 1.00;
 require Exporter;
 our @ISA = qw(Exporter);
 
-our $VERSION = '1.001014';
-$VERSION = eval $VERSION;      ## no critic (BuiltinFunctions::ProhibitStringyEval)
+our $VERSION = '1.001014c';
+$VERSION = 1.001014;      ## no critic (BuiltinFunctions::ProhibitStringyEval)
 
 
 =head1 NAME
@@ -73,8 +73,7 @@ C<import_extra()>.
 
 =cut
 
-sub import {
-    my($class) = shift;
+sub import ($class, @args) {
 
     # Don't run all this when loading ourself.
     return 1 if $class eq 'Test::Builder::Module';
@@ -85,17 +84,15 @@ sub import {
 
     $test->exported_to($caller);
 
-    $class->import_extra( \@_ );
-    my(@imports) = $class->_strip_imports( \@_ );
+    $class->import_extra( \@args );
+    my(@imports) = $class->_strip_imports( \@args );
 
-    $test->plan(@_);
+    $test->plan(@args);
 
     $class->export_to_level( 1, $class, @imports );
 }
 
-sub _strip_imports {
-    my $class = shift;
-    my $list  = shift;
+sub _strip_imports ($class, $list) {
 
     my @imports = ();
     my @other   = ();
@@ -166,7 +163,7 @@ call C<builder()> inside each function rather than store it in a global.
 
 =cut
 
-sub builder {
+sub builder () {
     return Test::Builder->new;
 }
 
