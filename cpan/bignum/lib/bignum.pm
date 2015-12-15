@@ -4,7 +4,8 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.42';
+our $VERSION = '0.42c';
+$VERSION =~ s/c$//;
 
 use Exporter;
 our @ISA            = qw( bigint );
@@ -59,15 +60,16 @@ sub unimport {
     overload::remove_constant('binary', '', 'float', '', 'integer');
 }
 
-sub in_effect {
-    my $level = shift || 0;
+sub in_effect (int $level = 0)
+{
     my $hinthash = (caller($level))[10];
     $hinthash->{bignum};
 }
 
 #############################################################################
 
-sub import {
+sub import :method
+{
     my $self = shift;
 
     $^H{bignum} = 1;                                    # we are in effect
