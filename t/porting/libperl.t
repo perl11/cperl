@@ -452,6 +452,13 @@ if ($Config{usedl} ) {
     $expected{dlopen} = 'd_dlopen';
 }
 
+# darwin 32bit cross does not use chmod in doio.c, skip it
+if ($^O eq 'darwin' and
+    ($Config{cc} =~ /m32/ or $Config{ccflags} =~ /m32/))
+{
+    $expected{chmod} = 'define';
+}
+
 for my $symbol (sort keys %expected) {
     if (defined $expected{$symbol} && !$Config{$expected{$symbol}}) {
       SKIP: {

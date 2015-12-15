@@ -5,12 +5,14 @@ addons:
     packages:
     - build-essential
     - libtool
+    - gcc-multilib
+    - libgdbm-dev:i386
   coverity_scan:
     project:
       name: "perl11/cperl"
       description: "a perl5 with classes, types, compilable, company friendly"
-    notification_email: rurban@cpan.org
-    build_command_prepend: "./Configure -des -Dusedevel -Dusecperl -Uversiononly -Dprefix=$HOME/perl-blead"
+    notification_email: rurban@cpanel.net
+    build_command_prepend: "./Configure -des -Dusedevel -Uversiononly -Dprefix=$HOME/perl-blead"
     build_command: "make -s -j4 ECHO=true"
     branch_pattern: coverity
 
@@ -41,9 +43,6 @@ env:
     - CONFIGURE_OPTION='-Duse64bitall -Dusethreads' XCC='gcc'
     - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall' XCC='clang'
     - CONFIGURE_OPTION='-Ui_gdbm -Ut_gdbm' XCC="'gcc\ -m32'"
-
-#-m32 mis-probes gdbm for 32bit. wrong probe, would need to download it from somewhere
-# and of course Configure/metaconfig need to fix their library probes finally
 
 matrix:
   allow_failures:
