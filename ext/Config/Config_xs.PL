@@ -49,11 +49,16 @@ my $no_gperf = @ARGV ? $ARGV[0] eq '--no-gperf' : 0;
 shift if $no_gperf;
 my $heavy = 'lib/Config_heavy.pl';
 my $git   = 'lib/Config_git.pl';
-my $xsin  = 'ext/Config/Config_xs.in';   # the key-only gperf template with empty values
-my $xsout = 'ext/Config/Config_xs.out';  # gperf expanded with empty values
-my $xstarg= 'ext/Config/Config.xs';      # patched with our values
+# the key-only gperf syntax template with empty values, this is where to fix XSUBs
+my $xsin  = 'ext/Config/Config_xs.in';
+# gperf expanded canned template with empty values, a generated file
+my $xsout = 'ext/Config/Config_xs.out';
+# gperf expanded build specific template with empty values, a generated file
+my $xsoutcustm = 'ext/Config/Config_xs.tmp.out';
+# patched with our values, a generated file
+my $xstarg= 'ext/Config/Config.xs';
 
-my ($in, %h, $gperf_ok);
+my ($in, $xs, %h, $gperf_ok);
 
 # collect all the values.
 # and check if any keys had changed. need to update the gperf then.
@@ -97,18 +102,7 @@ while (<$in>) {
     $h{$k} = $v;
 }
 
-# postprocess the values a bit:
-# reserve up to 20 config_args
-for (0..20) {
-    my $k = "config_arg".$_;
-    $h{$k} = '' unless exists $h{$k};
-}
-for my $k (qw(libdb_needs_pthread malloc_cflags
-              git_ancestor git_remote_branch git_unpushed)) {
-    $h{$k} = '' unless exists $h{$k};
-}
-
-# Test if gperf works. if not patch xsout instead.
+# Test if gperf works. if not patch canned xsout instead.
 unless ($no_gperf) {
     local $!;
     $gperf_ok = !(system("gperf --output-file=${xsout}_tmp $xsin") >> 8);
@@ -118,23 +112,28 @@ unless ($no_gperf) {
     unlink $xsout."_tmp";
     print STDERR "gperf ",$gperf_ok ? "works ok\n" : "does not work\n";
 }
-my $xsfile = $gperf_ok ? $xsin : $xsout;
-my $xs = open_new($xsfile, '>');
-open $in, "<", $xsfile or die "Error reading '$xsfile': $!";
 
-# expand only keys within %%
-while (<$in>) {
-    print $xs $_;
-    last if /^%%$/;
-}
-
-sub t_type ($) {
-    my $v = shift;
-    if ($v =~ /^-?\d+$/ && $v >= IV_MIN && $v <= IV_MAX) {
-        return 'T_INT';
-    } else {
-        return 'T_STR';
+if ($gperf_ok) {
+    #make a customized .xs, not git tracked, smaller Config shared lib since
+    #we dont need a "universal" set of keys for all build configs of perl
+    gen_gperf_Config($xsin, $xsoutcustm, \%h);
+    # postprocess the values a bit to generate a canned Config for CI/no gperf
+    # reserve up to 20 config_args
+    for (0..20) {
+        my $k = "config_arg".$_;
+        $h{$k} = '' unless exists $h{$k};
     }
+    for my $k (qw(  bin_ELF bootstrap_charset canned_gperf ccstdflags ccwarnflags
+                    charsize config_argc config_args d_re_comp d_regcmp git_ancestor
+                    git_remote_branch git_unpushed hostgenerate hostosname hostperl
+                    incpth installhtmldir installhtmlhelpdir ld_can_script
+                    libdb_needs_pthread mad malloc_cflags sysroot targetdir
+                    targetenv targethost targetmkdir targetport
+                    useversionedarchname)) {
+        $h{$k} = '' unless exists $h{$k};
+    }
+    gen_gperf_Config($xsin, $xsout, \%h); #generate git tracked
+    $xsout = $xsoutcustm; #use smaller build specific .xs
 }
 
 #code in Config_heavy.pl to compute byteorder is customized/interpolated
@@ -143,56 +142,7 @@ sub t_type ($) {
 #instead of copying the complicated code in configpm to here
 $h{byteorder} = $Config{byteorder};
 
-foreach my $k (sort { $a cmp $b } keys %h) {
-    my $v = $h{$k};
-    my $type = 'T_STR';
-    if ($v eq 'define') {
-        $type = 'T_BOO';
-    } elsif ($v eq 'undef') {
-        $type = 'T_BOO';
-    } elsif ($v eq '') {
-        $type = $gperf_ok ? 'T_STR' : 'T_EMP';
-        # deprecated, always empty
-        # Author is set for Netware to 'Guruprasad'
-        if ($k =~ /^(Author|Date|Header|Id
-		|Locker|Log|RCSfile|Revision
-		|Source|State|submit|d_voidtty)$/x) {
-            $type = 'T_EMP';
-        }
-    } elsif ($v =~ /^-?\d+$/) {
-        $type = $k eq 'inc_version_list_init' ? 'T_STR' : 'T_INT';
-    } else {
-        $v =~ s/"/\\"/g;
-        # $v =~ s/\\!/!/;
-        # $v =~ s/\\ / /g;
-    }
-    $h{$k} = $v;
-    $v = "@@".$k."@@";
-    my $tabs = "\t" x (3-((2+length($k))/8));
-    printf $xs "%s,\t%s%s,\t0,\"%s\"\n", $k, $tabs, $type, $v;
-}
-print $xs "%%\n";
-
-while (<$in>) {
-    last if /^%%$/;
-}
-# and the rest after the keys
-while (<$in>) {
-    print $xs $_;
-}
-close $in;
-$xs->flush if $xs->can('flush');
-
-if ($gperf_ok and
-    (close_and_rename($xs) or $force or -M $xsin < -M $xsout or !(-f $xsout)))
-{
-    print STDERR "gperf $xsout\n";
-    system("gperf --output-file=$xsout $xsin");
-    post_process_gperf($xsout);
-}
-
 # and now patch the values into Config.xs
-# TODO: check for keys mismatch, missing or too many.
 open $in, '<', $xsout  or die "Error reading '$xsout': $!";
 open $xs, '>', $xstarg or die "Error writing '$xstarg': $!";
 while (<$in>) {
@@ -214,6 +164,9 @@ while (<$in>) {
           } else { # a regular C string
             die "the value of Config key $k is over permitted length"
               unless length($v) <= 1<<16;
+            $v =~ s/"/\\"/g;
+            # $v =~ s/\\!/!/;
+            # $v =~ s/\\ / /g;
             $qv = $v;
             $qv =~ s/(\\[^nrftacx"' ])/\\$1/g; # windows paths: \\ => \\\\
             $qv =~ s/(\\[nrftacx ])/\\$1/g;  # \n => \\n, allowed escape chars
@@ -233,9 +186,6 @@ while (<$in>) {
             $qv = '"'.$v.'"';
           }
         }
-        #type in gperf-less build might be different from type in canned
-        #Config_xs.in due to platform differences, so dont use existing type
-        #from Config_xs.in and always use recomputed one
         my $new = $type.', '. $l . ', ' . $qv ;
         s/T_\w+,	0,"\@\@$k\@\@"/$new/; # we have one line per key only
         chomp;
@@ -247,6 +197,46 @@ while (<$in>) {
 close $in;
 close $xs;
 rename $xsout."_tmp", $xsout;
+
+#creates a not-valid-C/XS template for gperf, then runs it through gperf, then
+#fixes misc flaws in the C code gen of gperf in the C/XS file, the final
+#C/XS file has all the Config keys, but no Config values
+sub gen_gperf_Config {
+    my $in;
+    my ($xsin, $xsout, $h) = @_;
+    my $xs = open_new($xsin, '>');
+    open $in, "<", $xsin or die "Error reading '$xsin': $!";
+
+    # expand only keys within %%
+    while (<$in>) {
+        print $xs $_;
+        last if /^%%$/;
+    }
+
+    foreach my $k (sort { $a cmp $b } keys %$h) {
+        my $tabs = "\t" x (3-((2+length($k))/8));
+        #generate gperf syntax section of Config_xs.in
+        printf $xs "%s,\t%s%s,\t0,\"@@%s@@\"\n", $k, $tabs, 'T_INV', $k;
+    }
+    print $xs "%%\n";
+
+    while (<$in>) {
+        last if /^%%$/;
+    }
+    # and the rest after the keys
+    while (<$in>) {
+        print $xs $_;
+    }
+    close $in;
+    $xs->flush if $xs->can('flush');
+
+    if (close_and_rename($xs) or $force or -M $xsin < -M $xsout or !(-f $xsout))
+    {
+        print STDERR "gperf $xsout\n";
+        system("gperf --output-file=$xsout $xsin");
+        post_process_gperf($xsout);
+    }
+}
 
 sub post_process_gperf {
   my $in = shift;
@@ -314,4 +304,13 @@ __inline
   close $IN;
   close $OUT;
   rename $tmp, $in;
+}
+
+sub t_type ($) {
+    my $v = shift;
+    if ($v =~ /^-?\d+$/ && $v >= IV_MIN && $v <= IV_MAX) {
+        return 'T_INT';
+    } else {
+        return 'T_STR';
+    }
 }

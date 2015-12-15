@@ -44,10 +44,10 @@ ok($cv->CvFLAGS & B::CVf_ISXSUB(), 'XS Config:: is XS');
 $cv = B::svref_2object(*{'Config::FETCH'}{CODE});
 ok(!($cv->CvFLAGS & B::CVf_ISXSUB()), 'PP Config:: is PP');
 
-my ($klenPP, $klenXS) = (scalar(keys %Config), scalar(keys %XSConfig));
+my $klenXS = scalar(keys %XSConfig);
 my $copy = 0;
 my %Config_copy;
-if ($klenPP != $klenXS) {
+if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
   $copy = 1;
   for (keys %Config) {
     $Config_copy{$_} = $Config{$_};
@@ -59,13 +59,18 @@ if ($klenPP != $klenXS) {
     my $k = "config_arg".$_;
     $Config_copy{$k} = '' unless exists $Config{$k};
   }
-  for my $k (qw(libdb_needs_pthread malloc_cflags
-              git_ancestor git_remote_branch git_unpushed)) {
+  for my $k (qw(bin_ELF bootstrap_charset canned_gperf ccstdflags ccwarnflags
+                charsize config_argc config_args d_re_comp d_regcmp git_ancestor
+                git_remote_branch git_unpushed hostgenerate hostosname hostperl
+                incpth installhtmldir installhtmlhelpdir ld_can_script
+                libdb_needs_pthread mad malloc_cflags sysroot targetdir
+                targetenv targethost targetmkdir targetport
+                useversionedarchname)) {
     $Config_copy{$k} = '' unless exists $Config{$k};
   }
   is (scalar keys %Config_copy, $klenXS, 'same adjusted key count');
 } else {
-  is ($klenPP, $klenXS, 'same key count');
+  is (scalar(keys %Config), $klenXS, 'same key count');
 }
 
 is_deeply ($copy ? \%Config_copy : \%Config, \%XSConfig, "cmp PP to XS hashes");

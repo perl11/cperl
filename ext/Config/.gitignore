@@ -1,5 +1,8 @@
 ppcfg.txt
 xscfg.txt
 cfg.diff
+Config_pm_mtime
 Config_xs.out-new
+Config_xs.tmp.out
+Config_xs.tmp.in-new
 Config.xs
