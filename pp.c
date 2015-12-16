@@ -2688,6 +2688,8 @@ S_s_complement(pTHX_ SV *targ, SV *sv)
 	      U8 *result;
 	      U8 *p;
 
+              Perl_ck_warner_d(aTHX_ packWARN(WARN_DEPRECATED),
+                        deprecated_above_ff_msg, PL_op_desc[PL_op->op_type]);
 	      Newx(result, targlen + 1, U8);
 	      p = result;
 	      while (tmps < send) {
