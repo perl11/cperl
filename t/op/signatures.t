@@ -160,7 +160,7 @@ like $@, qr/\AToo many arguments for subroutine entry t014 at \(eval \d+\) line 
 is $a, 123;
 
 sub t015 ($a = undef) { $a // "z" }
-is prototype(\&t015), '($a=undef)';
+is prototype(\&t015), '($a?)';
 is eval("t015()"), "z";
 is eval("t015(0)"), 0;
 is eval("t015(undef)"), "z";
@@ -421,7 +421,7 @@ eval "#line 8 foo\n".'sub t024 (\$a =) { }';
 like $@, qr/^Reference parameter cannot take default value at foo line 8\.\n/;
 
 sub t025 ($ = undef) { $a // "z" }
-is prototype(\&t025), '($=undef)';
+is prototype(\&t025), '($?)';
 is eval("t025()"), 123;
 is eval("t025(0)"), 123;
 is eval("t025(456)"), 123;
@@ -436,8 +436,11 @@ is $a, 123;
 sub t026 ($ = 222) { $a // "z" }
 is prototype(\&t026), '($=222)';
 is eval("t026()"), 123;
+is $@, '';
 is eval("t026(0)"), 123;
+is $@, '';
 is eval("t026(456)"), 123;
+is $@, '';
 is eval("t026(456, 789)"), undef;
 like $@, qr/\AToo many arguments for subroutine entry t026 at \(eval \d+\) line 1, near/;
 is eval("t026(456, 789, 987)"), undef;
@@ -463,20 +466,34 @@ is $z, 1;
 is $a, 123;
 
 sub t027 ($x?) { $x // "z" }
-is prototype(\&t027), '($x=)';
+is prototype(\&t027), '($x?)';
 is eval("t027()"), "z";
-is eval("t027(0)"), undef;
-is eval("t027(456)"), undef;
+is $@, '';
+is eval("t027(0)"), 0;
+is $@, '';
+is eval("t027(456)"), 456;
+is $@, '';
 is eval("t027(456, 789)"), undef;
 like $@, qr/\AToo many arguments for subroutine entry t027 at \(eval \d+\) line 1, near/;
 is eval("t027(456, 789, 987)"), undef;
 like $@, qr/\AToo many arguments for subroutine entry t027 at \(eval \d+\) line 1, near/;
 is eval("t027(456, 789, 987, 654)"), undef;
 like $@, qr/\AToo many arguments for subroutine entry t027 at \(eval \d+\) line 1, near/;
-is $a, 123;
+
+sub t027b ($self, $x ?) { $x // "z" }
+is prototype(\&t027b), '($self, $x?)';
+is t027b(0), "z";
+is t027b(0, 0), "0";
+is t027b(0, 456), 456;
+is eval("t027b(0, 456, 789)"), undef;
+like $@, qr/\AToo many arguments for subroutine entry t027b at \(eval \d+\) line 1, near/;
+is eval("t027b(456, 789, 987)"), undef;
+like $@, qr/\AToo many arguments for subroutine entry t027b at \(eval \d+\) line 1, near/;
+is eval("t027b(456, 789, 987, 654)"), undef;
+like $@, qr/\AToo many arguments for subroutine entry t027b at \(eval \d+\) line 1, near/;
 
 sub t027a ($x=undef, $a = 333) { $a // "z" }
-is prototype(\&t027a), '($x=undef, $a=333)';
+is prototype(\&t027a), '($x?, $a=333)';
 is eval("t027a()"), 333;
 is eval("t027a(0)"), 333;
 is eval("t027a(456)"), 333;
@@ -1268,7 +1285,7 @@ is scalar(@{[ t112(222) ]}), 0;
 is scalar(t112(222)), undef;
 
 sub t114 ($a = undef) { }
-is prototype(\&t114), '($a=undef)';
+is prototype(\&t114), '($a?)';
 is scalar(@{[ t114() ]}), 0;
 is scalar(t114()), undef;
 is scalar(@{[ t114(333) ]}), 0;

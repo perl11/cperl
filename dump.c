@@ -2594,10 +2594,11 @@ Perl_signature_stringify(pTHX_ const OP *o, CV *cv)
             case SIGNATURE_arg:
                 break;
             case SIGNATURE_arg_default_none:
+                /*if (actions & SIGNATURE_FLAG_skip)*/
                 sv_catpvs_nomg(out, "=");
                 break;
             case SIGNATURE_arg_default_undef:
-                sv_catpvs_nomg(out, "=undef");
+                sv_catpvs_nomg(out, "?");
                 break;
             case SIGNATURE_arg_default_op:
                 sv_catpvs_nomg(out, "=<expr>");

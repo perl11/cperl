@@ -12275,8 +12275,8 @@ S_sig_push_action(pTHX_ struct parse_subsignature_state *stp, UV action)
 =for apidoc pR|OP *|parse_subsignature|
 
 Parse a sequence of zero or more Perl signature arguments, everything between
-the C<()> parentheses, seperated by ',', with optional '=' default values and
-ending slurpy params ('@' or '%').
+the C<()> parentheses, seperated by ',', with optional '=' or '?' default values
+and ending slurpy params ('@' or '%').
 
     sub f ($a, $b = 1) {...}
 
@@ -12295,6 +12295,7 @@ directly attaching it to the CV, so that it doesn't need copying
 each time a new thread is cloned.
 
 Done:
+- perl6-like optional args: ($opt?) i.e. ($opt=undef)
 - types in leading position (int $i)
 - attributes (:const, types), ($i :int :const)
 - no double copies into @_
@@ -12302,7 +12303,6 @@ Done:
   (\$a) => my $a = $_[0].
 Todo:
 - error in ck_subr when @_/$_[] in signatured bodies is used
-- copy to pad on call by value (currently all by ref)
 
 =cut
 */
