@@ -13,6 +13,10 @@ BEGIN {
         Test::skip_all(q/Perl not compiled with 'useithreads'/);
     }
 
+    if ($^O eq 'MSWin32' and $ENV{APPVEYOR}) {
+        Test::skip_all('watchdog unusable on APPVEYOR with untainted member in PATH');
+    }
+
     if (! eval 'use Time::HiRes "time"; 1') {
         Test::skip_all('Time::HiRes not available');
     }
