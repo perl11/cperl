@@ -16,10 +16,10 @@ WriteMakefile(
 
 package MY;
 sub postamble {
-    #Config.xs is a psuedotarget in nmake, not a disk file, in nmake
-    #inference rules are triggered only by disk files with the same base name,
-    #not psuedotargets with the same base name, so specify the dependency
-    #explicitly, dmake doesn't need this
+    # Config.xs is a pseudotarget in nmake, not a disk file, in nmake
+    # inference rules are triggered only by disk files with the same base name,
+    # not psuedotargets with the same base name, so specify the dependency
+    # explicitly, dmake doesn't need this
     return $_[0]->is_make_type('nmake')
         ? '$(OBJECT) : Config.c'."\n\n".'Config.c : Config.xs'
         : '';
@@ -38,9 +38,8 @@ sub pm_to_blib {
 '	$(NOECHO) $(EQUALIZE_TIMESTAMP) $(PERL_ARCHLIBDEP)$(DFSEP)Config.pm Config_pm_mtime
 ');
     return $blib
-.'	$(NOECHO) $(CHMOD) 777 $(INST_LIB)\Config.pm
-	$(NOECHO) $(EQUALIZE_TIMESTAMP) Config_pm_mtime $(INST_LIB)\Config.pm
-	$(NOECHO) $(CHMOD) $(PERM_DIR) $(INST_LIB)\Config.pm';
+.'	$(NOECHO) $(CHMOD) $(PERM_RW) $(INST_LIB)/Config.pm
+	$(NOECHO) $(EQUALIZE_TIMESTAMP) Config_pm_mtime $(INST_LIB)/Config.pm';
 }
 
 package main;
