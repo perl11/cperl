@@ -1483,6 +1483,40 @@ is $@, "Subroutine signature has more than 32767 parameters at foo line 2\.\n",
     ::is $destroyed, 1, "non-consec params: destroyed now"
 }
 
+# handle goto from @_ to sig
+sub test_goto_pp2sig {
+  # ($, $=0, $=1, $=2, $="foo", $a="bar", $b="zoot")
+  local @_ = (1);
+  my $r = goto &t147;
+  is $r, "bar:zoot";
+  @_ = (1,2,3,4);
+  $r = goto &t147;
+  is $r, "bar:zoot";
+  @_ = (1,2,3,4,5);
+  $r = goto &t147;
+  is $r, "bar:zoot";
+  @_ = (1,2,3,4,5,"baz");
+  $r = goto &t147;
+  is $r, "baz:zoot";
+  @_ = (1,2,3,4,5,"baz",7);
+  $r = goto &t147;
+  is $r, "baz:7";
+}
+sub test_goto_sig2sig ($, $=0, $=1, $=2, $="foo", $a="bar", $b="zoot") {
+  local @_ = (1,2,3,4,5,"baz",7); # ignored
+  my $r = goto &t147;
+  is $r, "bar:zoot";
+}
+
+sub test_goto_sig2pp ($, $=0, $=1, $=2, $="foo", $a="bar", $b="zoot") {
+  local @_ = (1,2,3,4,5,"baz",7); # ignored
+  my $r = goto &t147;
+  is $r, "bar:zoot";
+}
+
+test_goto_pp2sig();
+test_goto_sig2sig(0);
+test_goto_sig2pp(0);
 
 done_testing;
 

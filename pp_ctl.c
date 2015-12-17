@@ -2682,8 +2682,12 @@ PP(pp_goto)
 	SV * const sv = POPs;
 	SvGETMAGIC(sv);
 
+	/* This egregious kludge implements goto &subroutine,
+           aka tail calls.
+           cv is the sub we are jumping to.
+           cx->blk_sub is the context of the sub we are coming from.
+        */
 	if (SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVCV) {
-            /* This egregious kludge implements goto &subroutine */
 	    I32 cxix;
 	    PERL_CONTEXT *cx;
 	    CV *cv = MUTABLE_CV(SvRV(sv));
@@ -2751,15 +2755,34 @@ PP(pp_goto)
                     PadlistARRAY(CvPADLIST(cx->blk_sub.cv))[
                             CvDEPTH(cx->blk_sub.cv)])) == PL_curpad);
 
+                if (CvHASSIG(cv)) { /* @_ -> SP */
+                    CV* cursub = cx->blk_sub.cv;
+                    cx->blk_sub.cv = cv; /* adjust context */
+                    if (CvHASSIG(cursub)) { /* sig2sig. no @_, just SP-MARK */
+                        arg = av; /* mark */
+                        DEBUG_kv(PerlIO_printf(Perl_debug_log,
+                             "goto %s from sig with sig: keep %ld args\n",
+                             SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                             cx->blk_sub.savearray - av + 1)); /* sp-mark+1 */
+                        /*PUSHMARK((SV**)cx->blk_sub.savearray);*/
+                        goto call_pp_sub;
+                    } /* pp2sig */
+                    DEBUG_kv(PerlIO_printf(Perl_debug_log,
+                        "goto %s with sig: keep %ld args\n",
+                        SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                        AvFILLp(arg)+1)); /* sig arg has no fill */
+                    /*PAD_SVl(0) = MUTABLE_SV(cx->blk_sub.argarray = arg);*/
+                    /*cx->blk_sub.savearray = av - AvFILLp(arg);*/
+                    /*goto call_pp_sub;*/
+                }
                 /* we are going to donate the current @_ from the old sub
                  * to the new sub. This first part of the donation puts a
                  * new empty AV in the pad[0] slot of the old sub,
                  * unless pad[0] and @_ differ (e.g. if the old sub did
                  * local *_ = []); in which case clear the old pad[0]
                  * array in the usual way */
-		if (av == arg || AvREAL(av))
+		else if (av == arg || AvREAL(av))
                     clear_defarray(av, av == arg);
-		else CLEAR_ARGARRAY(av);
 	    }
 
             /* don't restore PL_comppad here. It won't be needed if the
@@ -2787,9 +2810,9 @@ PP(pp_goto)
             }
 
 	    /* Now do some callish stuff. */
-	    if (CvISXSUB(cv)) {
+	    if (CvISXSUB(cv) || CvHASSIG(cv)) {
 		const SSize_t items = arg ? AvFILL(arg) + 1 : 0;
-		const bool m = arg ? cBOOL(SvRMAGICAL(arg)) : 0;
+		const bool magical = arg ? cBOOL(SvRMAGICAL(arg)) : 0;
 		SV** mark;
 
                 ENTER;
@@ -2807,7 +2830,7 @@ PP(pp_goto)
 		    for (index=0; index<items; index++)
 		    {
 			SV *sv;
-			if (m) {
+			if (magical) {
 			    SV ** const svp = av_fetch(arg, index, 0);
 			    sv = svp ? *svp : NULL;
 			}
@@ -2818,11 +2841,31 @@ PP(pp_goto)
 		    }
 		}
 		SP += items;
+		/*SvREFCNT_dec(arg);*/
+                if (CvHASSIG(cv)) {
+                    PADLIST * const padlist = CvPADLIST(cv);
+                    cx->blk_sub.argarray = (SV**)cx->blk_sub.savearray = MARK;
+                    cx->blk_sub.savearray += (items-1);
+                    /*cx->blk_sub.cv = cv; already done above */
+                    cx->blk_sub.olddepth = CvDEPTH(cv);
+
+                    CvDEPTH(cv)++;
+                    if (CvDEPTH(cv) < 2)
+                        SvREFCNT_inc_simple_void_NN(cv);
+                    else {
+                        if (CvDEPTH(cv) == PERL_SUB_DEPTH_WARN && ckWARN(WARN_RECURSION))
+                            sub_crush_depth(cv);
+                        pad_push(padlist, CvDEPTH(cv));
+                    }
+                    PL_curcop = cx->blk_oldcop;
+                    SAVECOMPPAD();
+                    PAD_SET_CUR_NOSAVE(padlist, CvDEPTH(cv));
+                    goto call_pp_sub;
+                }
 		if (CxTYPE(cx) == CXt_SUB && CxHASARGS(cx)) {
 		    /* Restore old @_ */
                     CX_POP_SAVEARRAY(cx);
 		}
-
 		retop = cx->blk_sub.retop;
                 PL_comppad = cx->blk_sub.prevcomppad;
                 PL_curpad = LIKELY(PL_comppad) ? AvARRAY(PL_comppad) : NULL;
@@ -2836,7 +2879,7 @@ PP(pp_goto)
 		/* Push a mark for the start of arglist */
 		PUSHMARK(mark);
 		PUTBACK;
-		(void)(*CvXSUB(cv))(aTHX_ cv);
+                (void)(*CvXSUB(cv))(aTHX_ cv);
 		LEAVE;
 		goto _return;
 	    }
@@ -2880,7 +2923,7 @@ PP(pp_goto)
 			SvREFCNT_dec(av);
 		    }
 		}
-
+            call_pp_sub:
 		if (PERLDB_SUB) {	/* Checking curstash breaks DProf. */
 		    get_db_sub(NULL, cv);
 		    if (PERLDB_GOTO) {

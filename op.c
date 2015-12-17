@@ -560,7 +560,7 @@ S_too_few_arguments_pv(pTHX_ OP *o, const char* name, U32 flags)
     yyerror_pv(Perl_form(aTHX_ "Not enough arguments for %s", name), flags);
     return o;
 }
- 
+
 STATIC OP *
 S_too_many_arguments_pv(pTHX_ OP *o, const char *name, U32 flags)
 {
@@ -11849,21 +11849,32 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 	Perl_croak(aTHX_ "panic: ck_entersub_args_proto CV with no proto, "
 		   "flags=%lx", (unsigned long) SvFLAGS(protosv));
     if (SvTYPE(protosv) == SVt_PVCV)
-	 proto = CvPROTO(protosv), proto_len = CvPROTOLEN(protosv);
+        proto = CvPROTO(protosv), proto_len = CvPROTOLEN(protosv);
     else
         proto = SvPV(protosv, proto_len);
+#define PERL_AUTO_PROTOTYPE
+/*#define PERL_SET_SIGNATURE_PROTOTYPE*/
+#ifdef PERL_AUTO_PROTOTYPE
+    /* PERL_AUTO_PROTOTYPE adds compile-time arity + simple type checks to
+       all signatures via old-style prototypes. See below.
+     */
     if (!proto && CvHASSIG(protosv) && CvSIGOP(protosv)) {
+#ifdef PERL_SET_SIGNATURE_PROTOTYPE
+        char* ptr;
+#endif
         proto = S_signature_proto(aTHX_ (CV*)protosv, &proto_len);
-/* #define PERL_SET_SIGNATURE_PROTOTYPE
-   if we convert sigs to protos we'll need a new signature() keyword
+/* If we convert sigs to protos we'll need a new signature() keyword
    to get the stringification as with prototype() or even list of args,
    as with @_, inside the body. @_ should rather go to @ARGS, and be lazily
    evaluated from the padrange.
 */
 #ifdef PERL_SET_SIGNATURE_PROTOTYPE
-        sv_usepvn_flags(protosv, proto, proto_len, SV_HAS_TRAILING_NUL);
+        ptr = (char*)safemalloc(proto_len + 1);
+        Copy(proto, ptr, proto_len + 1, char);
+        sv_usepvn_flags(protosv, ptr, proto_len, SV_HAS_TRAILING_NUL);
 #endif
     }
+#endif
     if (!proto)
         return entersubop;
     proto = S_strip_spaces(aTHX_ proto, &proto_len);
@@ -14048,7 +14059,7 @@ Perl_rpeep(pTHX_ OP *o)
     ENTER;
     SAVEOP();
     SAVEVPTR(PL_curcop);
-    DEBUG_kv(Perl_deb(aTHX_ "rpeep 0x%p\n", o));
+    /*DEBUG_kv(Perl_deb(aTHX_ "rpeep 0x%p\n", o));*/
     for (;; o = o->op_next) {
 	if (o && o->op_opt)
 	    o = NULL;
@@ -14123,7 +14134,7 @@ Perl_rpeep(pTHX_ OP *o)
                 ASSUME(!(o2->op_private & ~OPpEARLY_CV));
 
                 o2 = o2->op_next;
-                DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p\n", o2));
+                /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p\n", o2));*/
 
                 if (o2->op_type == OP_RV2AV) {
                     action = MDEREF_AV_gvav_aelem;
@@ -14278,15 +14289,15 @@ Perl_rpeep(pTHX_ OP *o)
                 o2 = o2->op_next;
 
                 S_maybe_multideref(aTHX_ o, o2, action, hints);
-                DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p mderef\n", o));
+                /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p mderef\n", o));*/
                 break;
 
             default:
                 break;
             }
         }
-        DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p oldop->op_next=0x%p break\n",
-                          o, oldop ? oldop->op_next : NULL));
+        /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p oldop->op_next=0x%p break\n",
+          o, oldop ? oldop->op_next : NULL));*/
 
 	switch (o->op_type) {
 	case OP_DBSTATE:
@@ -14532,7 +14543,7 @@ Perl_rpeep(pTHX_ OP *o)
 		    if (oldop)
 			oldop->op_next = nextop;
                     o = nextop;
-                    DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p\n", o));
+                    /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p\n", o));*/
 		    /* Skip (old)oldop assignment since the current oldop's
 		       op_next already points to the next op.  */
 		    goto redo;
@@ -14861,7 +14872,7 @@ Perl_rpeep(pTHX_ OP *o)
                 o = oldoldop;
                 oldop = NULL;
                 oldoldop = NULL;
-                DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p = oldoldop (padrange)\n", o));
+                /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p = oldoldop (padrange)\n", o));*/
             }
             else {
                 /* Convert the pushmark into a padrange.
@@ -14888,7 +14899,7 @@ Perl_rpeep(pTHX_ OP *o)
 	 && (o->op_flags & OPf_WANT) == OPf_WANT_VOID)
 	{
 	    oldop->op_next = o->op_next;
-            DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p oldop->op_next=0x%p (Skip over state($x) in void context)\n", o, oldop->op_next));
+            /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p oldop->op_next=0x%p (Skip over state($x) in void context)\n", o, oldop->op_next));*/
 	    goto redo_nextstate;
 	}
 	if (o->op_type != OP_PADAV)

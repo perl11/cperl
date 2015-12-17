@@ -4340,12 +4340,37 @@ PP(pp_signature)
         }
 
         if (UNLIKELY(argc < mand_params)) {
-            S_croak_caller("Not enough arguments for %s%s%s %s", CvDESC3(cv),
-                           SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)));
+#if 0
+            /* TODO evtl print the name of the first missing arg.
+               But in most cases these errors are already thrown at compile-time. */
+            if (1 == argc - mand_params && items->uv == SIGNATURE_padintro) {
+                PADNAME * const pn = PadlistNAMESARRAY(CvPADLIST(cv))[argc+1];
+                S_croak_caller("Not enough arguments for %s%s%s %s. Want: %"UVuf
+                               ", but got: %"UVuf". Missing %s",
+                               CvDESC3(cv),
+                               SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
+                               mand_params, argc, PadnamePV(pn));
+            } else
+#endif
+                S_croak_caller("Not enough arguments for %s%s%s %s. Want: %"UVuf
+                               ", but got: %"UVuf"",
+                               CvDESC3(cv),
+                               SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
+                               mand_params, argc);
         }
         if (UNLIKELY(!slurpy && argc > mand_params + opt_params)) {
-            S_croak_caller("Too many arguments for %s%s%s %s", CvDESC3(cv),
-                           SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)));
+            if (opt_params)
+                S_croak_caller("Too many arguments for %s%s%s %s. Want: %"UVuf"-%"UVuf
+                               ", but got: %"UVuf"",
+                               CvDESC3(cv),
+                               SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
+                               mand_params, mand_params + opt_params, argc);
+            else
+                S_croak_caller("Too many arguments for %s%s%s %s. Want: %"UVuf
+                               ", but got: %"UVuf"",
+                               CvDESC3(cv),
+                               SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
+                               mand_params, argc);
         }
 
         /* For an empty signature, our only task was to check that the caller
@@ -4434,12 +4459,14 @@ PP(pp_signature)
             SV *varsv;
 
             /* Do not copy constants, ref them */
+#ifdef DEBUGGING
             if (action == SIGNATURE_arg && argc && *argp && SvREADONLY(*argp)) {
               DEBUG_Xv(Perl_deb(aTHX_ "sigconst argp %p\n", *argp));
 #if 0
               goto handle_ref;
 #endif
             }
+#endif
             varsv = (actions & SIGNATURE_FLAG_skip) ?  NULL : *padp++;
             if (argc) {
                 argc--;
@@ -4559,6 +4586,7 @@ PP(pp_signature)
              * We know, because all the usual tricks like 'my @a if 0',
              * 'foo: my @a = ...; goto foo' can't be done with signatures.
              */
+            assert(padp);
             varsv = *padp++;
             assert(!SvMAGICAL(varsv));
             assert(AvFILLp(varsv) == -1); /* can skip av_clear() */
@@ -4571,6 +4599,7 @@ PP(pp_signature)
                 SV *tmpsv;
                 SV *arg = *argp++;
 
+                assert(arg);
                 tmpsv = newSV(0);
                 sv_setsv(tmpsv, arg);
                 av_store((AV*)varsv, i++, tmpsv);
