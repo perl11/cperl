@@ -6708,12 +6708,6 @@ STATIC I32	S_dopoptosub_at(pTHX_ const PERL_CONTEXT* cxstk, I32 startingblock)
 STATIC I32	S_dopoptowhen(pTHX_ I32 startingblock)
 			__attribute__warn_unused_result__;
 
-STATIC void	S_leave_common(pTHX_ SV **newsp, SV **mark, I32 gimme, U32 flags, bool lvalue)
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
-#define PERL_ARGS_ASSERT_LEAVE_COMMON	\
-	assert(newsp); assert(mark)
-
 STATIC PMOP*	S_make_matcher(pTHX_ REGEXP* re)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
