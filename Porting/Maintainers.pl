@@ -225,11 +225,12 @@ use File::Glob qw(:case);
         # maintained by cPanel, with cperl only
 
         'FILES'      => q[
-                 ext/Config/Config.{pm,t}
+                 ext/Config/Config.pm
                  ext/Config/Config_xs.{in,out,PL}
                  ext/Config/Dummy.c
                  ext/Config/Makefile.PL
                  ext/Config/t/Config.t
+                 ext/Config/t/XSConfig.t
                  ext/Config/typemap
         ],
     },
