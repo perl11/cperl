@@ -12271,7 +12271,13 @@ Perl_ck_aelem(pTHX_ OP *o)
         AV* av = MUTABLE_AV(PAD_SV(avop->op_targ));
         if (idx && SvIOK(idx) && AvSHAPED(av)) {
             IV ix = SvIVX(idx);
-            if (abs(ix) > AvFILL(av))
+#if IVSIZE == 4
+#  define ABS(ix) abs(ix)
+#else
+#  define ABS(ix) labs(ix)
+#endif
+            if (ABS(ix) > AvFILL(av))
+#undef ABS
                 Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
                     PadnamePV(PAD_COMPNAME(avop->op_targ)), ix);
         }

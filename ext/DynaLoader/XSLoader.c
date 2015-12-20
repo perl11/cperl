@@ -75,7 +75,7 @@ XS(XS_XSLoader_load) {
         STRLEN  i = SvCUR(file);
         char   *s = SvPVX_mutable(file);
         s += i-1;
-        for (; c>0 && *s; s--, i--) { /* XXX valgrind unitialized read by 1 */
+        for (; c>0 && i>=0 && *s; s--, i--) {
             if (*s == '/' || *s == '\\') {
                 c--;
                 if (c==0) {
