@@ -379,7 +379,7 @@ C<SV*>.
 #define HeUTF8(he)		((HeKLEN(he) == HEf_SVKEY) ?		\
 				 SvUTF8(HeKEY_sv(he)) :			\
 				 (U32)HeKUTF8(he))
-#define HeSTATIC(hek)		(HEK_FLAGS(hek) & HVhek_STATIC)
+#define HeSTATIC(he)		(HEK_FLAGS(HeKEY_hek(he)) & HVhek_STATIC)
 
 #define HeSVKEY(he)		((HeKEY(he) && 				\
 				  HeKLEN(he) == HEf_SVKEY) ?		\
