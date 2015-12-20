@@ -58,12 +58,14 @@ foreach my $file (@ext) {
                 $path = "$extname/$path";
             }
         }
-    } elsif ($extname eq 'Unicode-Collate'  # Trust the package lines
-             || $extname eq 'Encode'        # Trust the package lines
-             || $path eq 'win32/Win32.pm'   # Trust the package line
-             || ($path !~ tr!/!!            # No path
+    } elsif (
+             $extname ne 'Config'               # package fakery
+             && ($extname eq 'Unicode-Collate'  # Trust the package lines
+              || $extname eq 'Encode'           # Trust the package lines
+              || $path eq 'win32/Win32.pm'      # Trust the package line
+              || ($path !~ tr!/!!               # No path
                  && $path ne 'DB_File.pm'   # ... but has multiple package lines
-                )) {
+            ))) {
         # Too many special cases to encode, so just open the file and figure it
         # out:
         my $package;

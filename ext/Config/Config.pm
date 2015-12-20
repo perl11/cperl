@@ -4,12 +4,14 @@
 # Porting/Glossary file, or use the url:
 # http://perl5.git.perl.org/perl.git/blob/HEAD:/Porting/Glossary
 
-package Config;
+package XSConfig;
+package
+    Config;
 use strict;
 use warnings;
 use vars '%Config', '$VERSION';
 
-$VERSION = "5.022002"; # keep that in sync with patchlevel.h manually!
+$VERSION = '6.00';
 
 # Skip @Config::EXPORT because it only contains %Config, which we special
 # case below as it's not a function. @Config::EXPORT won't change in the
@@ -62,7 +64,8 @@ sub DESTROY { }
 sub STORE  { die "\%Config::Config is read-only\n" }
 *DELETE = *CLEAR = \*STORE; # Typeglob aliasing uses less space
 
-if (defined &XSLoader::load) {
+if (defined &DynaLoader::boot_DynaLoader) {
+    require XSLoader;
     XSLoader::load(__PACKAGE__, $VERSION);
     %Config = ();
     tie %Config, 'Config';
@@ -74,7 +77,7 @@ if (defined &XSLoader::load) {
 }
 
 sub AUTOLOAD {
-    if (defined &XSLoader::load) {
+    if (defined &DynaLoader::boot_DynaLoader) {
         require 'Config_xs_heavy.pl';
     }
     goto \&launcher unless $Config::AUTOLOAD =~ /launcher$/;

@@ -45,6 +45,64 @@ API function to access the generated hash.
 #include "perl.h"
 #include "XSUB.h"
 
+/* back compat with old perls, none of this is in ppport.h */
+#ifndef SvREFCNT_dec_NN
+#  define SvREFCNT_dec_NN(sv) SvREFCNT_dec (sv)
+#endif
+
+#ifndef STATIC_ASSERT_STMT
+#  if (defined(static_assert) || (defined(__cplusplus) && __cplusplus >= 201103L)) && (!defined(__IBMC__) || __IBMC__ >= 1210)
+#    define XSCSTATIC_ASSERT_GLOBAL(COND) static_assert(COND, #COND)
+#  else
+#    define XSCSTATIC_ASSERT_2(COND, SUFFIX) \
+      typedef struct { \
+          unsigned int _static_assertion_failed_##SUFFIX : (COND) ? 1 : -1; \
+      } _static_assertion_failed_##SUFFIX PERL_UNUSED_DECL
+#    define XSCSTATIC_ASSERT_1(COND, SUFFIX) XSCSTATIC_ASSERT_2(COND, SUFFIX)
+#    define XSCSTATIC_ASSERT_GLOBAL(COND)    XSCSTATIC_ASSERT_1(COND, __LINE__)
+#  endif
+#  define XSCSTATIC_ASSERT_STMT(COND)      do { XSCSTATIC_ASSERT_GLOBAL(COND); } while (0)
+#  define STATIC_ASSERT_STMT(COND)         XSCSTATIC_ASSERT_STMT(COND)
+#endif
+
+#ifndef NOT_REACHED
+#  define XSCassert(c,text) if (!(c)) { croak("XSConfig internal error: " text); }
+
+/* The ASSUME bits are from perl 5.19.6 perl.h */
+
+#  ifndef __has_builtin
+#    define __has_builtin(x) 0 /* not a clang style compiler */
+#  endif
+
+#  ifndef DEBUGGING
+#    if (__GNUC__ == 4 && __GNUC_MINOR__ >= 5 || __GNUC__ > 5) || __has_builtin(__builtin_unreachable)
+#      define XSCASSUME(x) ((x) ? (void) 0 : __builtin_unreachable())
+#    elif defined(_MSC_VER)
+#      define XSCASSUME(x) __assume(x)
+#    elif defined(__ARMCC_VERSION) /* untested */
+#      define XSCASSUME(x) __promise(x)
+#    else
+/* a random compiler might define assert to its own special optimization token
+   so pass it through to C lib as a last resort */
+#      define XSCASSUME(x) assert(x)
+#    endif
+#  else
+#    define XSCASSUME(x) assert(x)
+#  endif
+
+#  define XSCNOT_REACHED XSCASSUME(0)
+#  define NOT_REACHED XSCNOT_REACHED
+#endif
+
+#ifndef USE_CPERL
+#  define MY_CXT_KEY "Config::API_guts"
+typedef struct {
+  SV* defineSV;
+} my_cxt_t;
+
+START_MY_CXT
+#endif
+
 /* Inside of tied XS object is a SVUV which is the iterator for the tied hash.
    The iterator is the offset of next stringpool string to read, unless the
    iterating is finished, then offset is beyond the end of stringpool and should
@@ -1316,7 +1374,40 @@ PROTOTYPES: DISABLE
 BOOT:
 {
     STATIC_ASSERT_STMT(sizeof(stringpool_contents) <= 1 << 15);
+#ifndef USE_CPERL
+    {
+      MY_CXT_INIT;
+      MY_CXT.defineSV = newSVpvs("define");
+    }
+#endif
 }
+
+
+#ifndef USE_CPERL
+#  if defined(USE_ITHREADS) && defined(MY_CXT_KEY)
+
+void
+CLONE(...)
+PPCODE:
+  {
+    MY_CXT_CLONE; /* possible declaration */
+    MY_CXT.defineSV = newSVpvs("define");
+  }
+  return; /* skip implicit PUTBACK, returning @_ to caller, more efficient*/
+
+#  endif
+
+void
+END(...)
+PREINIT:
+  dMY_CXT;
+PPCODE:
+  SV * const sv = MY_CXT.defineSV;
+  MY_CXT.defineSV = NULL;
+  SvREFCNT_dec_NN(sv);
+  return; /* skip implicit PUTBACK, returning @_ to caller, more efficient*/
+
+#endif
 
 #line 1309 "Config_xs.in"
 void
@@ -1366,8 +1457,14 @@ PPCODE:
                    case (size_t)VEMPTY:
                         RETVAL = &PL_sv_no;
                         break;
-                   case (size_t)VDEFINE: /* this SV * never goes away once vivified */
+                   case (size_t)VDEFINE: {/* this SV * never goes away once vivified */
+#ifdef USE_CPERL
                         RETVAL = SV_CONST(define);
+#else
+                        dMY_CXT;
+                        RETVAL = MY_CXT.defineSV;
+#endif
+                   }
                         break;
                    default:
                         NOT_REACHED; /* NOTREACHED */

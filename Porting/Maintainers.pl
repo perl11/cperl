@@ -233,6 +233,13 @@ use File::Glob qw(:case);
                  ext/Config/t/XSConfig.t
                  ext/Config/typemap
         ],
+        'EXCLUDED' => [
+            qw(  Config_mini.pl.PL
+                 Config_xs_heavy.pl.PL
+                 regen/regen_lib.pl
+                 test.pl
+                )
+        ],
     },
 
     'Config::Perl::V' => {
