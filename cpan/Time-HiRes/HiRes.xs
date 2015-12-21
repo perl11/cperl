@@ -1178,6 +1178,7 @@ NV
 clock_gettime(clock_id = 0)
 	int clock_id
     CODE:
+        PERL_UNUSED_VAR(clock_id);
         croak("Time::HiRes::clock_gettime(): unimplemented in this platform");
         RETVAL = 0.0;
     OUTPUT:
