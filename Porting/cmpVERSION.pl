@@ -88,6 +88,7 @@ my %skip;
     'lib/Carp/Heavy.pm',
     'lib/Config.pm',		# no version number but contents will vary
     'win32/FindExt.pm',
+    'ext/POSIX/lib/POSIX.pm',
 } = ();
 # cperl exceptions
 @skip{qw(cpan/Digest-MD5/MD5.xs 

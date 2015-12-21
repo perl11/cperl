@@ -117,3 +117,4 @@ $r = runperl ( switches => [ '-C00' ],
                stderr   => 1, );
 like($r, qr/^Invalid number '00' for -C option\.$/s,
      "perl -C00 [perl #123991]");
+
