@@ -1474,7 +1474,7 @@ S_dopoptoloop(pTHX_ I32 startingblock)
     return i;
 }
 
-/* find the next GIVEN or FOR loop context block */
+/* find the next GIVEN or FOR (with implicit $_) loop context block */
 
 STATIC I32
 S_dopoptogivenfor(pTHX_ I32 startingblock)
@@ -2142,6 +2142,8 @@ PP(pp_enteriter)
             itersave = GvSV(sv);
             SvREFCNT_inc_simple_void(itersave);
             cxflags = CXp_FOR_GV;
+            if (PL_op->op_private & OPpITER_DEF)
+                cxflags |= CXp_FOR_DEF;
         }
         else {                          /* LV ref: for \$foo (...) */
             assert(SvTYPE(sv) == SVt_PVMG);
@@ -2151,9 +2153,9 @@ PP(pp_enteriter)
             cxflags = CXp_FOR_LVREF;
         }
     }
-
-    if (PL_op->op_private & OPpITER_DEF)
-	cxflags |= CXp_FOR_DEF;
+    /* OPpITER_DEF (implicit $_) should only occur with a GV iter var */
+    assert((cxflags & (CXp_FOR_GV|CXp_FOR_PAD))
+           || !(PL_op->op_private & OPpITER_DEF));
 
     PUSHBLOCK(cx, cxflags, MARK);
     PUSHLOOP_FOR(cx, itervarp, itersave);
