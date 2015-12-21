@@ -72,7 +72,7 @@ XS(XS_XSLoader_load) {
     }
     {
         SSize_t c = AvFILL(modparts) + 1;
-        STRLEN  i = SvCUR(file);
+        SSize_t i = SvCUR(file);
         char   *s = SvPVX_mutable(file);
         s += i-1;
         for (; c>0 && i>=0 && *s; s--, i--) {
