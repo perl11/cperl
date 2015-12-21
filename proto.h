@@ -7192,7 +7192,7 @@ PERL_STATIC_INLINE I32	S_regpposixcc(pTHX_ RExC_state_t *pRExC_state, I32 value,
 #define PERL_ARGS_ASSERT_REGPPOSIXCC	\
 	assert(pRExC_state)
 
-STATIC void	S_regtail(pTHX_ RExC_state_t *pRExC_state, regnode *p, const regnode *val, U32 depth)
+STATIC void	S_regtail(pTHX_ RExC_state_t * pRExC_state, const regnode * const p, const regnode * const val, const U32 depth)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3);
