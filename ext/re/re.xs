@@ -1,4 +1,4 @@
-#if defined(PERL_EXT_RE_DEBUG) && !defined(PERL_SV_DEBUG_FIELDS)
+#if defined(PERL_EXT_RE_DEBUG) && !defined(PERL_SV_DEBUG_FIELDS) && !defined(DEBUGGING)
 #  define DEBUGGING
 #endif
 
