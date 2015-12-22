@@ -43,3 +43,19 @@ eval {/$_/}, print "$_ ==> ", $@ || "OK!\n" for "]]]]]]]]][\\", "]]]]][\\"
 EXPECT
 ]]]]]]]]][\ ==> Unmatched [ in regex; marked by <-- HERE in m/]]]]]]]]][\ <-- HERE / at - line 2.
 ]]]]][\ ==> Unmatched [ in regex; marked by <-- HERE in m/]]]]][\ <-- HERE / at - line 2.
+########
+# This is because currently a different error is output under
+# use re 'strict', so can't go in reg_mesg.t
+# NAME perl #126261, error message causes segfault
+# OPTION fatal
+ qr/abc[\x{df}[.00./i
+EXPECT
+Unmatched [ in regex; marked by <-- HERE in m/abc[ <-- HERE \x{df}[.00./ at - line 4.
+########
+# NAME perl #126261, with 'use utf8'
+# OPTION fatal
+use utf8;
+no warnings 'utf8';
+qr/abc[ﬁ[.00./i;
+EXPECT
+Unmatched [ in regex; marked by <-- HERE in m/abc[ <-- HERE ﬁ[.00./ at - line 4.
