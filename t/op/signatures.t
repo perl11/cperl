@@ -1144,27 +1144,27 @@ like $@, qr/\ACan't use global \%_ in "my" at foo line 8/;
 
 my $t103 = sub ($a) { $a || "z" };
 is prototype($t103), '($a)';
-is eval("\$t103->()"), undef;
+is eval("\$t103->()"), undef; # run-time arity checks
 # TODO: print the name of the lexvar $t103
-like $@, qr/\ANot enough arguments for subroutine __ANON__ at \(eval \d+\) line 1\./;
+like $@, qr/\ANot enough arguments for subroutine __ANON__. Want: 1, but got: 0 at \(eval \d+\) line 1\./;
 is eval("\$t103->(0)"), "z";
 is eval("\$t103->(456)"), 456;
 is eval("\$t103->(456, 789)"), undef;
-like $@, qr/\AToo many arguments for subroutine __ANON__ at \(eval \d+\) line 1\./;
+like $@, qr/\AToo many arguments for subroutine __ANON__. Want: 1, but got: 2 at \(eval \d+\) line 1\./;
 is eval("\$t103->(456, 789, 987)"), undef;
-like $@, qr/\AToo many arguments for subroutine __ANON__ at \(eval \d+\) line 1\./;
+like $@, qr/\AToo many arguments for subroutine __ANON__. Want: 1, but got: 3 at \(eval \d+\) line 1\./;
 is $a, 123;
 
 my $t118 = sub ($a) :prototype($) { $a || "z" };
 is prototype($t118), '$';
 is eval("\$t118->()"), undef;
-like $@, qr/\ANot enough arguments for subroutine __ANON__ at \(eval \d+\) line 1\./;
+like $@, qr/\ANot enough arguments for subroutine __ANON__. Want: 1, but got: 0 at \(eval \d+\) line 1\./;
 is eval("\$t118->(0)"), "z";
 is eval("\$t118->(456)"), 456;
 is eval("\$t118->(456, 789)"), undef;
-like $@, qr/\AToo many arguments for subroutine __ANON__ at \(eval \d+\) line 1\./;
+like $@, qr/\AToo many arguments for subroutine __ANON__. Want: 1, but got: 2 at \(eval \d+\) line 1\./;
 is eval("\$t118->(456, 789, 987)"), undef;
-like $@, qr/\AToo many arguments for subroutine __ANON__ at \(eval \d+\) line 1\./;
+like $@, qr/\AToo many arguments for subroutine __ANON__. Want: 1, but got: 3 at \(eval \d+\) line 1\./;
 is $a, 123;
 
 sub t033 ($a = sub ($a) { $a."z" }) { $a->("a")."y" }
@@ -1249,13 +1249,13 @@ is $a, 123;
 sub t106($a) :prototype(@) { $a || "z" }
 is prototype(\&t106), '@';
 is eval("t106()"), undef;
-like $@, qr/\ANot enough arguments for subroutine t\d\d\d at \(eval \d+\) line 1\./;
+like $@, qr/\ANot enough arguments for subroutine t\d\d\d. Want: 1, but got: 0 at \(eval \d+\) line 1\./;
 is eval("t106(0)"), "z";
 is eval("t106(456)"), 456;
 is eval("t106(456, 789)"), undef;
-like $@, qr/\AToo many arguments for subroutine t\d\d\d at \(eval \d+\) line 1\./;
+like $@, qr/\AToo many arguments for subroutine t\d\d\d. Want: 1, but got: 2 at \(eval \d+\) line 1\./;
 is eval("t106(456, 789, 987)"), undef;
-like $@, qr/\AToo many arguments for subroutine t\d\d\d at \(eval \d+\) line 1\./;
+like $@, qr/\AToo many arguments for subroutine t\d\d\d. Want: 1, but got: 3 at \(eval \d+\) line 1\./;
 is $a, 123;
 
 eval "#line 8 foo\n".'sub t107 :method ($a) { }';
@@ -1484,39 +1484,55 @@ is $@, "Subroutine signature has more than 32767 parameters at foo line 2\.\n",
 }
 
 # handle goto from @_ to sig
-sub test_goto_pp2sig {
-  # ($, $=0, $=1, $=2, $="foo", $a="bar", $b="zoot")
-  local @_ = (1);
-  my $r = goto &t147;
-  is $r, "bar:zoot";
-  @_ = (1,2,3,4);
-  $r = goto &t147;
-  is $r, "bar:zoot";
-  @_ = (1,2,3,4,5);
-  $r = goto &t147;
-  is $r, "bar:zoot";
-  @_ = (1,2,3,4,5,"baz");
-  $r = goto &t147;
-  is $r, "baz:zoot";
-  @_ = (1,2,3,4,5,"baz",7);
-  $r = goto &t147;
-  is $r, "baz:7";
+sub t147a ($, $=0, $a="bar", $b="zoot") {
+  print "# t147: $a:$b\n";
+  is "$a:$b", "bar:zoot";
 }
-sub test_goto_sig2sig ($, $=0, $=1, $=2, $="foo", $a="bar", $b="zoot") {
-  local @_ = (1,2,3,4,5,"baz",7); # ignored
-  my $r = goto &t147;
-  is $r, "bar:zoot";
+sub t147_7 ($, $=0, $a="bar", $b="zoot") {
+  print "# t147_7: $a:$b\n";
+  is "$a:$b", "baz:7";
+}
+sub t147_pp {
+  my ($x, $y, $a, $b) = @_;
+  $a //= "bar";
+  $b //= "zoot";
+  print "# t147_pp: $a:$b\n";
+  is "$a:$b", "baz:7";
 }
 
-sub test_goto_sig2pp ($, $=0, $=1, $=2, $="foo", $a="bar", $b="zoot") {
-  local @_ = (1,2,3,4,5,"baz",7); # ignored
-  my $r = goto &t147;
-  is $r, "bar:zoot";
+sub goto1_pp2pp {
+  @_ = (1,2,"baz",7);
+  goto &t147_pp;
+}
+# handle goto with @_ as XSUB, not PP
+sub goto1_pp2sig {
+  @_ = (1);
+  goto &t147a;
+}
+sub goto2_pp2sig {
+  @_ = (1,2,"baz");
+  goto &t147a;
+}  
+sub goto3_pp2sig {
+  @_ = (1,2,"baz",7);
+  goto &t147_7;
+}
+sub goto1_sig2sig ($, $=0, $a="bar", $b="zoot") {
+  local @_ = (1,2,"baz",7); # ignored
+  goto &t147a;
 }
 
-test_goto_pp2sig();
-test_goto_sig2sig(0);
-test_goto_sig2pp(0);
+sub goto1_sig2pp ($, $=0, $a="baz", $b="7") {
+  local @_ = (1,2,"baz",7); # ignored
+  goto &t147_pp;
+}
+
+goto1_pp2pp();
+goto1_pp2sig();
+goto2_pp2sig();
+goto3_pp2sig();
+goto1_sig2sig(0);
+goto1_sig2pp(0);
 
 done_testing;
 
