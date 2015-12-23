@@ -2698,24 +2698,32 @@ Perl_debop(pTHX_ const OP *o)
 	    PerlIO_printf(Perl_debug_log, "(%s)", SvPEEK(cSVOPo_sv));
 	break;
     case OP_GVSV:
-    case OP_GV:
-	if (cGVOPo_gv && isGV(cGVOPo_gv)) {
-	    SV * const sv = newSV(0);
-	    gv_fullname3(sv, cGVOPo_gv, NULL);
-	    PerlIO_printf(Perl_debug_log, "(%s)", SvPV_nolen_const(sv));
-	    SvREFCNT_dec_NN(sv);
+    case OP_GV: {
+        SV *gv = (SV*)cGVOPo_gv;
+	if (gv && isGV(gv)) {
+	    SV * const out = newSV(0);
+	    gv_fullname3(out, (GV*)gv, NULL);
+	    PerlIO_printf(Perl_debug_log, "(%s)", SvPV_nolen_const(out));
+	    SvREFCNT_dec_NN(out);
 	}
-	else if (cGVOPo_gv) {
-	    SV * const sv = newSV(0);
-	    assert(SvROK(cGVOPo_gv));
-	    assert(SvTYPE(SvRV(cGVOPo_gv)) == SVt_PVCV);
-	    PerlIO_printf(Perl_debug_log, "(cv ref: %s)",
-		    SvPV_nolen_const(cv_name((CV *)SvRV(cGVOPo_gv),sv,0)));
-	    SvREFCNT_dec_NN(sv);
+	else if (gv && SvROK(gv)) {
+	    SV * const out = newSV(0);
+            SV * const rv = SvRV(gv);
+            if (SvTYPE(rv) == SVt_PVCV) {
+                PerlIO_printf(Perl_debug_log, "(cvref: %s)",
+                              SvPV_nolen_const(cv_name((CV *)rv,out,0)));
+            }
+#if 0
+            else if (SvPOK(rv)) {
+                PerlIO_printf(Perl_debug_log, "(%s)", SvPV_nolen_const(rv));
+            }
+#endif
+	    SvREFCNT_dec_NN(out);
 	}
 	else
 	    PerlIO_printf(Perl_debug_log, "(NULL)");
 	break;
+    }
 
     case OP_PADSV:
     case OP_PADAV:
