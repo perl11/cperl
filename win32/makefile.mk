@@ -910,7 +910,6 @@ MICROCORE_SRC	=		\
 		..\deb.c	\
 		..\doio.c	\
 		..\doop.c	\
-		..\dump.c	\
 		..\globals.c	\
 		..\mro_core.c	\
 		..\locale.c	\
@@ -922,15 +921,12 @@ MICROCORE_SRC	=		\
 		..\perlapi.c	\
 		..\perly.c	\
 		..\pp_sort.c	\
-		..\pp_sys.c	\
 		..\pp_type.c	\
 		..\reentr.c	\
 		..\run.c	\
 		..\scope.c	\
 		..\taint.c	\
-		..\toke.c	\
 		..\universal.c	\
-		..\utf8.c	\
 		..\util.c	\
 		..\xsutils.c
 
