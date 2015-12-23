@@ -18,8 +18,10 @@ BEGIN {
 
 use Exporter ();
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
-$VERSION   = '2.12_01';
-$VERSION   = eval $VERSION;
+use cperl;
+$VERSION   = '3.12_01c';
+$VERSION   =~ tr/_//d;
+$VERSION   =~ s/c$//;
 @ISA       = qw(Exporter);
 @EXPORT    = qw(mkpath rmtree);
 @EXPORT_OK = qw(make_path remove_tree);
@@ -51,12 +53,8 @@ sub _croak {
     goto &Carp::croak;
 }
 
-sub _error {
-    my $arg     = shift;
-    my $message = shift;
-    my $object  = shift;
-
-    if ( $arg->{error} ) {
+sub _error ($arg, str $message, $object?) {
+    if ($arg->{error}) {
         $object = '' unless defined $object;
         $message .= ": $!" if $!;
         push @{ ${ $arg->{error} } }, { $object => $message };
@@ -154,9 +152,7 @@ sub mkpath {
     return _mkpath( $arg, $paths );
 }
 
-sub _mkpath {
-    my $arg   = shift;
-    my $paths = shift;
+sub _mkpath ($arg, $paths) {
 
     my ( @created );
     foreach my $path ( @{$paths} ) {
@@ -217,8 +213,7 @@ sub remove_tree {
     goto &rmtree;
 }
 
-sub _is_subdir {
-    my ( $dir, $test ) = @_;
+sub _is_subdir (str $dir, str $test) {
 
     my ( $dv, $dd ) = File::Spec->splitpath( $dir,  1 );
     my ( $tv, $td ) = File::Spec->splitpath( $test, 1 );
@@ -320,9 +315,7 @@ sub rmtree {
     return _rmtree( $arg, \@clean_path );
 }
 
-sub _rmtree {
-    my $arg   = shift;
-    my $paths = shift;
+sub _rmtree  ($arg, $paths) {
 
     my $count  = 0;
     my $curdir = File::Spec->curdir();
@@ -557,11 +550,9 @@ sub _rmtree {
     return $count;
 }
 
-sub _slash_lc {
-
+sub _slash_lc (str $path) {
     # fix up slashes and case on MSWin32 so that we can determine that
     # c:\path\to\dir is underneath C:/Path/To
-    my $path = shift;
     $path =~ tr{\\}{/};
     return lc($path);
 }
