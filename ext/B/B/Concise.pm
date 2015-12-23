@@ -14,7 +14,7 @@ use warnings; # uses #3 and #4, since warnings uses Carp
 
 use Exporter (); # use #5
 
-our $VERSION   = "0.997c";
+our $VERSION   = "0.998c";
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw( set_style set_style_standard add_callback
 		     concise_subref concise_cv concise_main
@@ -706,6 +706,11 @@ sub concise_sv {
 	$hr->{svval} = "*$stash" . $gv->SAFENAME;
 	return "*$stash" . $gv->SAFENAME;
     } else {
+        if ($hr->{name} eq 'gv' and $sv->FLAGS & SVf_ROK
+            and $sv->RV->can("NAME_HEK"))
+        {
+              return "*" . $sv->RV->NAME_HEK;
+        }
 	if ($] >= 5.011) {
 	    while (class($sv) eq "IV" && $sv->FLAGS & SVf_ROK) {
 		$hr->{svval} .= "\\";
@@ -894,10 +899,10 @@ sub concise_op {
 	unless ($h{name} eq 'aelemfast' and $op->flags & OPf_SPECIAL) {
 	    my $idx = ($h{class} eq "SVOP") ? $op->targ : $op->padix;
 	    if ($h{class} eq "PADOP" or !${$op->sv}) {
-		my $sv = (($curcv->PADLIST->ARRAY)[1]->ARRAY)[$idx];
-		$h{arg} = "[" . concise_sv($sv, \%h, 0) . "]";
+                my $sv = (($curcv->PADLIST->ARRAY)[1]->ARRAY)[$idx];
+                $h{arg} = "[" . concise_sv($sv, \%h, 0) . "]";
 		$h{targarglife} = $h{targarg} = "";
-	    } else {
+            } else {
 		$h{arg} = "(" . concise_sv($op->sv, \%h, 0) . ")";
 	    }
 	}

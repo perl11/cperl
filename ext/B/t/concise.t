@@ -10,7 +10,7 @@ BEGIN {
     require 'test.pl';		# we use runperl from 'test.pl', so can't use Test::More
 }
 
-plan tests => 163;
+plan tests => 164;
 
 require_ok("B::Concise");
 
@@ -504,5 +504,15 @@ EOF
 $end =~ s/<NEXT>/$next/;
 
 like $out, qr/$end/, 'OP_AND->op_other points correctly';
+
+# test GV->cvref
+$out = runperl(
+    switches => ["-MO=Concise,x"],
+    prog => q{sub is($){$a} sub x{is 1}},
+    stderr => 1,
+);
+#diag($out);
+like($out, qr/> gv[\(\[]\*is[\)\]]/, "GV->cvref prints the name not the prototype");
+
 
 __END__
