@@ -9,6 +9,7 @@ Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Zlib.xs 9b79d2a71b2d65282a9af4190d2e0
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522.t c0270a7a27f10e924883108e16eabeba052302a9
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t 251d6e11164a6538e5f9765fed9cf66bd8cee9ec
 Config::Perl::V cpan/Config-Perl-V/V.pm 7273b140cc6dfd1575cfc0cca3d5366a5aadad0f
+Devel::NYTProf cpan/Devel-NYTProf/bin/nytprofhtml cb7f653bf226563a86eac52d404170dbe1a510c8
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
 Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL 7f81aa41bdf306a943ffa17d5b1dbf6717151ccf
 Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod 197e08c2c2cc300d8166da35738a1a51ebdb960a

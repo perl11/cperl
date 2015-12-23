@@ -1,6 +1,6 @@
 
 require 5;
-# Time-stamp: "2004-05-23 19:48:32 ADT"
+# Time-stamp: "2015-12-23 19:59:52 rurban"
 
 # Summary of, well, things.
 
@@ -19,7 +19,7 @@ BEGIN {
 
 Pod::Escapes
 
-Pod::Simple	
+Pod::Simple
 Pod::Simple::BlackBox	Pod::Simple::Checker	Pod::Simple::DumpAsText
 Pod::Simple::DumpAsXML	Pod::Simple::HTML	Pod::Simple::HTMLBatch
 Pod::Simple::HTMLLegacy	Pod::Simple::LinkSection	Pod::Simple::Methody
@@ -88,7 +88,7 @@ foreach my $m (@modules) {
       # It's probably an unpopulated package.
       ## $v{$this} = '...';
     }
-    
+
     $pref = length($this) ? "$this\::" : '';
     push @stack, map m/^(.+)::$/ ? "$pref$1" : (),
         do { no strict 'refs'; keys %{$this . '::'} };
