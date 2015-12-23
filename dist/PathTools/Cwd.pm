@@ -3,9 +3,10 @@ use strict;
 use Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
 
-$VERSION = '3.63';
-my $xs_version = $VERSION;
-$VERSION =~ tr/_//d;
+$VERSION = '4.63c'; # modernized
+our $XS_VERSION = $VERSION;
+$VERSION =~ tr/_//;
+$VERSION =~ s/c$//;
 
 @ISA = qw/ Exporter /;
 @EXPORT = qw(cwd getcwd fastcwd fastgetcwd);
@@ -48,7 +49,7 @@ BEGIN {
 
 # Need to look up the UNIX report mode.  This may become a dynamic mode
 # in the future.
-sub _vms_unix_rpt {
+sub _vms_unix_rpt () {
     my $unix_rpt;
     if ($use_vms_feature) {
         $unix_rpt = VMS::Feature::current("filename_unix_report");
@@ -61,7 +62,7 @@ sub _vms_unix_rpt {
 
 # Need to look up the EFS character set mode.  This may become a dynamic
 # mode in the future.
-sub _vms_efs {
+sub _vms_efs () {
     my $efs;
     if ($use_vms_feature) {
         $efs = VMS::Feature::current("efs_charset");
@@ -80,11 +81,11 @@ if(! defined &getcwd && defined &DynaLoader::boot_DynaLoader) {
         #at lib/DynaLoader.pm line 216." by having this eval
     if ( $] >= 5.006 ) {
       require XSLoader;
-      XSLoader::load( __PACKAGE__, $xs_version);
+      XSLoader::load( __PACKAGE__, $XS_VERSION);
     } else {
       require DynaLoader;
       push @ISA, 'DynaLoader';
-      __PACKAGE__->bootstrap( $xs_version );
+      __PACKAGE__->bootstrap( $XS_VERSION );
     }
   };
 }
@@ -217,7 +218,7 @@ sub _carp  { require Carp; Carp::carp(@_)  }
 sub _croak { require Carp; Carp::croak(@_) }
 
 # The 'natural and safe form' for UNIX (pwd may be setuid root)
-sub _backtick_pwd {
+sub _backtick_pwd () {
 
     # Localize %ENV entries in a way that won't create new hash keys.
     # Under AmigaOS we don't want to localize as it stops perl from
@@ -276,8 +277,7 @@ if ($^O eq 'cygwin') {
 
 # A non-XS version of getcwd() - also used to bootstrap the perl build
 # process, when miniperl is running and no XS loading happens.
-sub _perl_getcwd
-{
+sub _perl_getcwd () {
     abs_path('.');
 }
 
@@ -288,7 +288,7 @@ sub _perl_getcwd
 # This is a faster version of getcwd.  It's also more dangerous because
 # you might chdir out of a directory that you can't chdir back into.
     
-sub fastcwd_ {
+sub fastcwd_ () {
     my($odev, $oino, $cdev, $cino, $tdev, $tino);
     my(@path, $path);
     local(*DIR);
@@ -336,7 +336,7 @@ if (not defined &fastcwd) { *fastcwd = \&fastcwd_ }
 
 my $chdir_init = 0;
 
-sub chdir_init {
+sub chdir_init () {
     if ($ENV{'PWD'} and $^O ne 'os2' and $^O ne 'dos' and $^O ne 'MSWin32') {
 	my($dd,$di) = stat('.');
 	my($pd,$pi) = stat($ENV{'PWD'});
@@ -360,8 +360,8 @@ sub chdir_init {
     $chdir_init = 1;
 }
 
-sub chdir {
-    my $newdir = @_ ? shift : '';	# allow for no arg (chdir to HOME dir)
+sub chdir (str $newdir='') {
+    #my $newdir = @_ ? shift : '';	# allow for no arg (chdir to HOME dir)
     if ($^O eq "cygwin") {
       $newdir =~ s|\A///+|//|;
       $newdir =~ s|(?<=[^/])//+|/|g;
@@ -408,9 +408,9 @@ sub chdir {
 }
 
 
-sub _perl_abs_path
+sub _perl_abs_path (str $start='.')
 {
-    my $start = @_ ? shift : '.';
+    #my $start = @_ ? shift : '.';
     my($dotdots, $cwd, @pst, @cst, $dir, @tst);
 
     unless (@cst = stat( $start ))
@@ -488,11 +488,13 @@ sub _perl_abs_path
 
 
 my $Curdir;
-sub fast_abs_path {
+sub fast_abs_path ($path?) {
     local $ENV{PWD} = $ENV{PWD} || ''; # Guard against clobberage
     my $cwd = getcwd();
     require File::Spec;
-    my $path = @_ ? shift : ($Curdir ||= File::Spec->curdir);
+    unless ($path) {
+      $path = ($Curdir ||= File::Spec->curdir);
+    }
 
     # Detaint else we'll explode in taint mode.  This is safe because
     # we're not doing anything dangerous with it.
@@ -549,13 +551,12 @@ sub fast_abs_path {
 #   and directory seen by DCL after Perl exits, since the effects
 #   the CRTL chdir() function persist only until Perl exits.
 
-sub _vms_cwd {
+sub _vms_cwd () {
     return $ENV{'DEFAULT'};
 }
 
-sub _vms_abs_path {
-    return $ENV{'DEFAULT'} unless @_;
-    my $path = shift;
+sub _vms_abs_path ($path?) {
+    return $ENV{'DEFAULT'} unless defined $path;
 
     my $efs = _vms_efs;
     my $unix_rpt = _vms_unix_rpt;
@@ -610,7 +611,7 @@ sub _vms_abs_path {
     return VMS::Filespec::rmsexpand($path);
 }
 
-sub _os2_cwd {
+sub _os2_cwd () {
     my $pwd = `cmd /c cd`;
     chomp $pwd;
     $pwd =~ s:\\:/:g ;
@@ -618,7 +619,7 @@ sub _os2_cwd {
     return $pwd;
 }
 
-sub _win32_cwd_simple {
+sub _win32_cwd_simple () {
     my $pwd = `cd`;
     chomp $pwd;
     $pwd =~ s:\\:/:g ;
@@ -626,7 +627,7 @@ sub _win32_cwd_simple {
     return $pwd;
 }
 
-sub _win32_cwd {
+sub _win32_cwd () {
     my $pwd;
     $pwd = Win32::GetCwd();
     $pwd =~ s:\\:/:g ;
@@ -636,7 +637,7 @@ sub _win32_cwd {
 
 *_NT_cwd = defined &Win32::GetCwd ? \&_win32_cwd : \&_win32_cwd_simple;
 
-sub _dos_cwd {
+sub _dos_cwd () {
     my $pwd;
     if (!defined &Dos::GetCwd) {
         chomp($pwd = `command /c cd`);
@@ -648,7 +649,7 @@ sub _dos_cwd {
     return $pwd;
 }
 
-sub _qnx_cwd {
+sub _qnx_cwd () {
 	local $ENV{PATH} = '';
 	local $ENV{CDPATH} = '';
 	local $ENV{ENV} = '';
@@ -658,11 +659,10 @@ sub _qnx_cwd {
     return $pwd;
 }
 
-sub _qnx_abs_path {
-	local $ENV{PATH} = '';
-	local $ENV{CDPATH} = '';
-	local $ENV{ENV} = '';
-    my $path = @_ ? shift : '.';
+sub _qnx_abs_path (str $path='.') {
+    local $ENV{PATH} = '';
+    local $ENV{CDPATH} = '';
+    local $ENV{ENV} = '';
     local *REALPATH;
 
     defined( open(REALPATH, '-|') || exec '/usr/bin/fullpath', '-t', $path ) or
@@ -673,8 +673,9 @@ sub _qnx_abs_path {
     return $realpath;
 }
 
-sub _epoc_cwd {
-    return $ENV{'PWD'} = EPOC::getcwd();
+sub _epoc_cwd () {
+    $ENV{'PWD'} = EPOC::getcwd();
+    return $ENV{'PWD'};
 }
 
 

@@ -4,7 +4,7 @@ use strict;
 use vars qw(@ISA $VERSION);
 require File::Spec::Unix;
 
-$VERSION = '3.63';
+$VERSION = '4.63';
 $VERSION =~ tr/_//d;
 
 @ISA = qw(File::Spec::Unix);
@@ -435,9 +435,9 @@ Attempt to convert an absolute file specification to a relative specification.
 
 =cut
 
-sub abs2rel {
-    my $self = shift;
-    my($path,$base) = @_;
+sub abs2rel ($self, str $path, $base?) {
+    return vmspath(File::Spec::Unix::abs2rel( $self, $path, $base ))
+        if ((grep m{/}, $path, $base) && !(grep m{(?<!\^)[\[<:]}, $path, $base));
 
     $base = $self->_cwd() unless defined $base and length $base;
 

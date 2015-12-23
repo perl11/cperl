@@ -40,7 +40,7 @@ if ($IsVMS) {
 my $tests = 31;
 # _perl_abs_path() currently only works when the directory separator
 # is '/', so don't test it when it won't work.
-my $EXTRA_ABSPATH_TESTS = ($Config{prefix} =~ m/\//) && $^O ne 'cygwin';
+my int $EXTRA_ABSPATH_TESTS = ($Config{prefix} =~ m/\//) && $^O ne 'cygwin';
 $tests += 4 if $EXTRA_ABSPATH_TESTS;
 plan tests => $tests;
 
@@ -184,7 +184,7 @@ rmtree($test_dirs[0], 0, 0);
 }
 
 SKIP: {
-    skip "no symlinks on this platform", 2+$EXTRA_ABSPATH_TESTS unless $Config{d_symlink} && $^O !~ m!^(qnx|nto)!;
+    skip "no symlinks on this platform", int(2+$EXTRA_ABSPATH_TESTS) unless $Config{d_symlink} && $^O !~ m!^(qnx|nto)!;
 
     my $file = "linktest";
     mkpath([$Test_Dir], 0, 0777);
@@ -233,11 +233,11 @@ SKIP: {
   {
     my $root = Cwd::abs_path(File::Spec->rootdir);	# Add drive letter?
     local *FH;
-    opendir FH, $root or skip("Can't opendir($root): $!", 2+$EXTRA_ABSPATH_TESTS);
+    opendir FH, $root or skip("Can't opendir($root): $!", int(2+$EXTRA_ABSPATH_TESTS));
     ($file) = grep {-f $_ and not -l $_} map File::Spec->catfile($root, $_), readdir FH;
     closedir FH;
   }
-  skip "No plain file in root directory to test with", 2+$EXTRA_ABSPATH_TESTS unless $file;
+  skip "No plain file in root directory to test with", int(2+$EXTRA_ABSPATH_TESTS) unless $file;
   
   $file = VMS::Filespec::rmsexpand($file) if $^O eq 'VMS';
   is Cwd::abs_path($file), $file, 'abs_path() works on files in the root directory';

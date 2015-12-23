@@ -5,8 +5,9 @@ use strict;
 use vars qw(@ISA $VERSION);
 require File::Spec::Unix;
 
-$VERSION = '3.63';
-$VERSION =~ tr/_//d;
+$VERSION = '4.63c'; # modernized
+$VERSION =~ tr/_//;
+$VERSION =~ s/c$//;
 
 @ISA = qw(File::Spec::Unix);
 
@@ -38,11 +39,8 @@ Returns a string representation of the null device.
 
 =cut
 
-sub devnull {
-    return "nul";
-}
-
-sub rootdir { '\\' }
+sub devnull () { "nul" }
+sub rootdir () { '\\' }
 
 
 =item tmpdir
@@ -67,37 +65,38 @@ variables are tainted, they are not used.
 
 =cut
 
-sub tmpdir {
-    my $tmpdir = $_[0]->_cached_tmpdir(qw(TMPDIR TEMP TMP));
+sub tmpdir ($self) {
+    my $tmpdir = $self->_cached_tmpdir(qw(TMPDIR TEMP TMP));
     return $tmpdir if defined $tmpdir;
-    $tmpdir = $_[0]->_tmpdir( map( $ENV{$_}, qw(TMPDIR TEMP TMP) ),
+    $tmpdir = $self->_tmpdir( map( $ENV{$_}, qw(TMPDIR TEMP TMP) ),
 			      'SYS:/temp',
 			      'C:\system\temp',
 			      'C:/temp',
 			      '/tmp',
 			      '/'  );
-    $_[0]->_cache_tmpdir($tmpdir, qw(TMPDIR TEMP TMP));
+    $self->_cache_tmpdir($tmpdir, qw(TMPDIR TEMP TMP));
 }
 
 =item case_tolerant
 
-MSWin32 case-tolerance depends on GetVolumeInformation() $ouFsFlags == FS_CASE_SENSITIVE,
-indicating the case significance when comparing file specifications.
+Now independent on GetVolumeInformation() $ouFsFlags == FS_CASE_SENSITIVE,
 Since XP FS_CASE_SENSITIVE is effectively disabled for the NT subsubsystem.
 See http://cygwin.com/ml/cygwin/2007-07/msg00891.html
-Default: 1
+GetVolumeInformation() is a major performance hog.
+
+Returns: 1
 
 =cut
 
-sub case_tolerant {
-  eval { require Win32API::File; } or return 1;
-  my $drive = shift || "C:";
-  my $osFsType = "\0"x256;
-  my $osVolName = "\0"x256;
-  my $ouFsFlags = 0;
-  Win32API::File::GetVolumeInformation($drive, $osVolName, 256, [], [], $ouFsFlags, $osFsType, 256 );
-  if ($ouFsFlags & Win32API::File::FS_CASE_SENSITIVE()) { return 0; }
-  else { return 1; }
+sub case_tolerant () {
+  #eval { require Win32API::File; } or return 1;
+  #my $osFsType = "\0"x256;
+  #my $osVolName = "\0"x256;
+  #my $ouFsFlags = 0;
+  #Win32API::File::GetVolumeInformation($drive, $osVolName, 256, [], [], $ouFsFlags, $osFsType, 256 );
+  #if ($ouFsFlags & Win32API::File::FS_CASE_SENSITIVE()) { return 0; }
+  #else { return 1; }
+  1;
 }
 
 =item file_name_is_absolute
@@ -107,9 +106,7 @@ volume, 1 if it's absolute with no volume, 0 otherwise.
 
 =cut
 
-sub file_name_is_absolute {
-
-    my ($self,$file) = @_;
+sub file_name_is_absolute ($self, str $file) {
 
     if ($file =~ m{^($VOL_RX)}o) {
       my $vol = $1;
@@ -127,41 +124,40 @@ complete path ending with a filename
 
 =cut
 
-sub catfile {
-    shift;
+sub catfile ($self, str @p) {
 
     # Legacy / compatibility support
     #
-    shift, return _canon_cat( "/", @_ )
-	if $_[0] eq "";
+    my str $drive = $p[0];
+    shift @p, return _canon_cat( "/", @p )
+	if $drive eq "";
 
     # Compatibility with File::Spec <= 3.26:
     #     catfile('A:', 'foo') should return 'A:\foo'.
-    return _canon_cat( ($_[0].'\\'), @_[1..$#_] )
-        if $_[0] =~ m{^$DRIVE_RX\z}o;
+    return _canon_cat( "$drive\\", @p[1..$#p] )
+        if $drive =~ m{^$DRIVE_RX\z}o;
 
-    return _canon_cat( @_ );
+    return _canon_cat( @p );
 }
 
-sub catdir {
-    shift;
+sub catdir ($self, str @p) {
 
     # Legacy / compatibility support
     #
-    return ""
-    	unless @_;
-    shift, return _canon_cat( "/", @_ )
-	if $_[0] eq "";
+    return "" unless @p;
+    my str $drive = $p[0];
+    shift @p, return _canon_cat( "/", @p )
+	if $drive eq "";
 
     # Compatibility with File::Spec <= 3.26:
     #     catdir('A:', 'foo') should return 'A:\foo'.
-    return _canon_cat( ($_[0].'\\'), @_[1..$#_] )
-        if $_[0] =~ m{^$DRIVE_RX\z}o;
+    return _canon_cat( "$drive\\", @p[1..$#p] )
+        if $drive =~ m{^$DRIVE_RX\z}o;
 
-    return _canon_cat( @_ );
+    return _canon_cat( @p );
 }
 
-sub path {
+sub path () {
     my @path = split(';', $ENV{PATH});
     s/"//g for @path;
     @path = grep length, @path;
@@ -180,11 +176,11 @@ On Win32 makes
 
 =cut
 
-sub canonpath {
+sub canonpath ($, $path?) {
     # Legacy / compatibility support
     #
-    return $_[1] if !defined($_[1]) or $_[1] eq '';
-    return _canon_cat( $_[1] );
+    return $path if !defined($path) or $path eq '';
+    return _canon_cat( $path );
 }
 
 =item splitpath
@@ -207,8 +203,7 @@ The results can be passed to L</catpath> to get back a path equivalent to
 
 =cut
 
-sub splitpath {
-    my ($self,$path, $nofile) = @_;
+sub splitpath ($self, str $path, $nofile?) {
     my ($volume,$directory,$file) = ('','','');
     if ( $nofile ) {
         $path =~ 
@@ -253,8 +248,7 @@ Yields:
 
 =cut
 
-sub splitdir {
-    my ($self,$directories) = @_ ;
+sub splitdir ($self, str $directories) {
     #
     # split() likes to forget about trailing null fields, so here we
     # check to be sure that there will not be any before handling the
@@ -277,14 +271,12 @@ sub splitdir {
 
 =item catpath
 
-Takes volume, directory and file portions and returns an entire path. Under
-Unix, $volume is ignored, and this is just like catfile(). On other OSs,
-the $volume become significant.
+Takes volume, directory and file portions and returns an entire path. 
+$volume is significant on MSWin32.
 
 =cut
 
-sub catpath {
-    my ($self,$volume,$directory,$file) = @_;
+sub catpath ($self, str $volume, str $directory, str $file) {
 
     # If it's UNC, make sure the glue separator is there, reusing
     # whatever separator is first in the $volume
@@ -292,9 +284,9 @@ sub catpath {
     $volume .= $v
         if ( (($v) = $volume =~ m@^([\\/])[\\/][^\\/]+[\\/][^\\/]+\Z(?!\n)@s) &&
              $directory =~ m@^[^\\/]@s
-           ) ;
+           );
 
-    $volume .= $directory ;
+    $volume .= $directory;
 
     # If the volume is not just A:, make sure the glue separator is 
     # there, reusing whatever separator is first in the $volume if possible.
@@ -303,21 +295,20 @@ sub catpath {
          $file   =~ m@[^\\/]@
        ) {
         $volume =~ m@([\\/])@ ;
-        my $sep = $1 ? $1 : '\\' ;
-        $volume .= $sep ;
+        my $sep = $1 ? $1 : '\\';
+        $volume .= $sep;
     }
 
-    $volume .= $file ;
+    $volume .= $file;
 
-    return $volume ;
+    return $volume;
 }
 
-sub _same {
-  lc($_[1]) eq lc($_[2]);
+sub _same ($, str $a, str $b) {
+  lc($a) eq lc($b);
 }
 
-sub rel2abs {
-    my ($self,$path,$base ) = @_;
+sub rel2abs ($self, str $path, $base?) {
 
     my $is_abs = $self->file_name_is_absolute($path);
 
@@ -378,10 +369,9 @@ implementation of these methods, not the semantics.
 =cut
 
 
-sub _canon_cat				# @path -> path
+sub _canon_cat (str $first, str @rest)				# @path -> path
 {
-    my ($first, @rest) = @_;
-
+    #print "# ",$first, ", ", @rest, "\n";
     my $volume = $first =~ s{ \A ([A-Za-z]:) ([\\/]?) }{}x	# drive letter
     	       ? ucfirst( $1 ).( $2 ? "\\" : "" )
 	       : $first =~ s{ \A (?:\\\\|//) ([^\\/]+)

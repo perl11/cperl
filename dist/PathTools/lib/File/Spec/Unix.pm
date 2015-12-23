@@ -3,9 +3,10 @@ package File::Spec::Unix;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '3.63';
-my $xs_version = $VERSION;
-$VERSION =~ tr/_//d;
+$VERSION = '4.63c'; # modernized
+our $XS_VERSION = $VERSION;
+$VERSION =~ tr/_//;
+$VERSION =~ s/c$//;
 
 #dont try to load XSLoader and DynaLoader only to ultimately fail on miniperl
 if(!defined &canonpath && defined &DynaLoader::boot_DynaLoader) {
@@ -14,7 +15,7 @@ if(!defined &canonpath && defined &DynaLoader::boot_DynaLoader) {
         #at lib/DynaLoader.pm line 216." by having this eval
     if ( $] >= 5.006 ) {
 	require XSLoader;
-	XSLoader::load("Cwd", $xs_version);
+	XSLoader::load("Cwd", $XS_VERSION);
     } else {
 	require Cwd;
     }
@@ -55,8 +56,7 @@ actually traverse the filesystem cleaning up paths like this.
 
 =cut
 
-sub _pp_canonpath {
-    my ($self,$path) = @_;
+sub _pp_canonpath ($self, $path?) {
     return unless defined $path;
     
     # Handle POSIX-style node names beginning with double slash (qnx, nto)
@@ -96,10 +96,8 @@ trailing slash :-)
 
 =cut
 
-sub _pp_catdir {
-    my $self = shift;
-
-    $self->canonpath(join('/', @_, '')); # '' because need a trailing '/'
+sub _pp_catdir ($self, str @p) {
+    $self->canonpath(join('/', @p, '')); # '' because need a trailing '/'
 }
 *catdir = \&_pp_catdir unless defined &catdir;
 
@@ -110,11 +108,10 @@ complete path ending with a filename
 
 =cut
 
-sub _pp_catfile {
-    my $self = shift;
-    my $file = $self->canonpath(pop @_);
-    return $file unless @_;
-    my $dir = $self->catdir(@_);
+sub _pp_catfile ($self, str @p) {
+    my $file = $self->canonpath(pop @p);
+    return $file unless @p;
+    my $dir = $self->catdir(@p);
     $dir .= "/" unless substr($dir,-1) eq "/";
     return $dir.$file;
 }
@@ -126,7 +123,7 @@ Returns a string representation of the current directory.  "." on UNIX.
 
 =cut
 
-sub curdir { '.' }
+sub curdir () { '.' }
 use constant _fn_curdir => ".";
 
 =item devnull
@@ -135,7 +132,7 @@ Returns a string representation of the null device. "/dev/null" on UNIX.
 
 =cut
 
-sub devnull { '/dev/null' }
+sub devnull () { '/dev/null' }
 use constant _fn_devnull => "/dev/null";
 
 =item rootdir
@@ -144,7 +141,7 @@ Returns a string representation of the root directory.  "/" on UNIX.
 
 =cut
 
-sub rootdir { '/' }
+sub rootdir () { '/' }
 use constant _fn_rootdir => "/";
 
 =item tmpdir
@@ -176,9 +173,7 @@ sub _cached_tmpdir {
     return if grep $ENV{$_} ne $tmpenv{$_}, @_;
     return $tmpdir;
 }
-sub _tmpdir {
-    my $self = shift;
-    my @dirlist = @_;
+sub _tmpdir ($self, @dirlist) {
     my $taint = do { no strict 'refs'; ${"\cTAINT"} };
     if ($taint) { # Check for taint mode on perl >= 5.8.0
 	require Scalar::Util;
@@ -207,10 +202,10 @@ sub _tmpdir {
     return $tmpdir;
 }
 
-sub tmpdir {
-    my $cached = $_[0]->_cached_tmpdir('TMPDIR');
+sub tmpdir ($self) {
+    my $cached = $self->_cached_tmpdir('TMPDIR');
     return $cached if defined $cached;
-    $_[0]->_cache_tmpdir($_[0]->_tmpdir( $ENV{TMPDIR}, "/tmp" ), 'TMPDIR');
+    $self->_cache_tmpdir($self->_tmpdir( $ENV{TMPDIR}, "/tmp" ), 'TMPDIR');
 }
 
 =item updir
@@ -219,7 +214,7 @@ Returns a string representation of the parent directory.  ".." on UNIX.
 
 =cut
 
-sub updir { '..' }
+sub updir () { '..' }
 use constant _fn_updir => "..";
 
 =item no_upwards
@@ -229,9 +224,8 @@ directory. (Does not strip symlinks, only '.', '..', and equivalents.)
 
 =cut
 
-sub no_upwards {
-    my $self = shift;
-    return grep(!/^\.{1,2}\z/s, @_);
+sub no_upwards ($self, str @files) {
+    return grep(!/^\.{1,2}\z/s, @files);
 }
 
 =item case_tolerant
@@ -241,7 +235,7 @@ is not or is significant when comparing file specifications.
 
 =cut
 
-sub case_tolerant { 0 }
+sub case_tolerant () { 0 }
 use constant _fn_case_tolerant => 0;
 
 =item file_name_is_absolute
@@ -254,8 +248,7 @@ L<File::Spec::VMS/file_name_is_absolute>).
 
 =cut
 
-sub file_name_is_absolute {
-    my ($self,$file) = @_;
+sub file_name_is_absolute ($self, str $file) {
     return scalar($file =~ m:^/:s);
 }
 
@@ -265,7 +258,7 @@ Takes no argument, returns the environment variable PATH as an array.
 
 =cut
 
-sub path {
+sub path () {
     return () unless exists $ENV{PATH};
     my @path = split(':', $ENV{PATH});
     foreach (@path) { $_ = '.' if $_ eq '' }
@@ -278,9 +271,8 @@ join is the same as catfile.
 
 =cut
 
-sub join {
-    my $self = shift;
-    return $self->catfile(@_);
+sub join ($self, str @p) {
+    return $self->catfile(@p);
 }
 
 =item splitpath
@@ -304,8 +296,7 @@ The results can be passed to L</catpath()> to get back a path equivalent to
 
 =cut
 
-sub splitpath {
-    my ($self,$path, $nofile) = @_;
+sub splitpath ($self, $path, $nofile?) {
 
     my ($volume,$directory,$file) = ('','','');
 
@@ -346,8 +337,8 @@ Yields:
 
 =cut
 
-sub splitdir {
-    return split m|/|, $_[1], -1;  # Preserve trailing fields
+sub splitdir ($, $dir) {
+    return split m|/|, $dir, -1;  # Preserve trailing fields
 }
 
 
@@ -360,8 +351,7 @@ inserted if needed (though if the directory portion doesn't start with
 
 =cut
 
-sub catpath {
-    my ($self,$volume,$directory,$file) = @_;
+sub catpath ($self, $volume, str $directory='', str $file='') {
 
     if ( $directory ne ''                && 
          $file ne ''                     && 
@@ -407,8 +397,7 @@ Based on code written by Shigio Yamaguchi.
 
 =cut
 
-sub abs2rel {
-    my($self,$path,$base) = @_;
+sub abs2rel ($self, str $path, $base?) {
     $base = $self->_cwd() unless defined $base and length $base;
 
     ($path, $base) = map $self->canonpath($_), $path, $base;
@@ -482,8 +471,8 @@ sub abs2rel {
     return $self->canonpath( $self->catpath('', $result_dirs, '') );
 }
 
-sub _same {
-  $_[1] eq $_[2];
+sub _same ($, str $a, str $b) {
+  $a eq $b;
 }
 
 =item rel2abs()
@@ -512,8 +501,7 @@ Based on code written by Shigio Yamaguchi.
 
 =cut
 
-sub rel2abs {
-    my ($self,$path,$base ) = @_;
+sub rel2abs ($self, str $path, $base? ) {
 
     # Clean up $path
     if ( ! $self->file_name_is_absolute( $path ) ) {
@@ -562,8 +550,7 @@ sub _cwd {
 
 
 # Internal method to reduce xx\..\yy -> yy
-sub _collapse {
-    my($fs, $path) = @_;
+sub _collapse ($fs, str $path) {
 
     my $updir  = $fs->updir;
     my $curdir = $fs->curdir;
