@@ -103,6 +103,7 @@ my %skip;
          ext/Devel-Peek/Peek.xs
          dist/lib/lib_pm.PL ext/B/t/OptreeCheck.pm lib/B/Op_private.pm
          lib/feature.pm lib/vars.pm lib/strict.pm lib/warnings.pm
+	 lib/perl5db.pl
          cpan/Devel-PPPort/PPPort_pm.PL
 	 cpan/Scalar-List-Utils/ListUtil.xs
 	 cpan/IPC-SysV/SysV.xs

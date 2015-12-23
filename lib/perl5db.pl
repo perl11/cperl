@@ -2023,7 +2023,7 @@ sub _DB__handle_c_command {
             # Qualify it to the current package unless it's
             # already qualified.
             $subname = $package . "::" . $subname
-            unless $subname =~ /::/;
+              if $subname !~ /::/ and $package ne 'main';
 
             # find_sub will return "file:line_number" corresponding
             # to where the subroutine is defined; we call find_sub,
@@ -8847,8 +8847,11 @@ sub _find_sub_helper {
     my $subr = shift;
 
     return unless defined &$subr;
-    my $name = CvGV_name_or_bust($subr);
+    $subr =~ s/^main:://;
+    my $name = CvGV_name_or_bust($subr); # skip main:: with cperl
     my $data;
+    #{ my ($n) = $subr =~ /^.+::(.*)$/;
+    #  warn "name=$name, subr=$subr, sub=".join(" ", grep /$n/, keys %sub); }
     $data = $sub{$name} if defined $name;
     return $data if defined $data;
 

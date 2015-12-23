@@ -762,8 +762,8 @@ sub _calc_trace_wrapper
 
     $wrapper->contents_like(
         qr/
-        ^main::back\([^\)\n]*\bwith-subroutine:15\):[\ \t]*\n
-        ^15:\s*print\ "hello\ back\\n";
+        ^main::back\([^\)\n]*\bwith-subroutine:12\):[\ \t]*\n
+        ^12:\s*print\ "hello\ back\\n";
         /msx,
         "Prompt should display the line of code inside a subroutine.");
 }
@@ -897,9 +897,9 @@ sub _calc_trace_wrapper
             )
         }
         (
-            ['.', 'baz', 14,],
-            ['.', 'bar', 9,],
-            ['.', 'foo', 6],
+            ['.', 'main::baz', 14,],
+            ['.', 'main::bar', 9,],
+            ['.', 'main::foo', 6],
         )
     );
     $wrapper->contents_like(
@@ -969,7 +969,7 @@ sub _calc_trace_wrapper
 
     $wrapper->contents_like(
         qr/
-        ^foo\([^\)\n]*\brt-104168:9\):[\ \t]*\n
+        ^main::foo\([^\)\n]*\brt-104168:9\):[\ \t]*\n
         ^9:\s*bar\(\);
         /msx,
         'Test for the s command.',
@@ -1446,7 +1446,7 @@ DebugWrap->new({
         {
             cmds =>
             [
-                'S ^main::ba',
+                'S ^ba',
                 'q',
             ],
             prog =>  '../lib/perl5db/t/rt-104168',
