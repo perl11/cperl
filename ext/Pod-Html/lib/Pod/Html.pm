@@ -3,7 +3,8 @@ use strict;
 require Exporter;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
-$VERSION = 1.22;
+our $VERSION = '2.22c';
+$VERSION   = 2.22;
 @ISA = qw(Exporter);
 @EXPORT = qw(pod2html htmlify);
 @EXPORT_OK = qw(anchorify);
@@ -244,9 +245,7 @@ my %Pages = ();                 # associative array used to find the location
 
 my $Curdir = File::Spec->curdir;
 
-init_globals();
-
-sub init_globals {
+sub init_globals () {
     $Cachedir = ".";            # The directory to which directory caches
                                 #   will be written.
 
@@ -276,6 +275,8 @@ sub init_globals {
     $Header = 0;                # produce block header/footer
     $Title = '';                # title to give the pod(s)
 }
+
+init_globals();
 
 sub pod2html {
     local(@ARGV) = @_;
@@ -437,9 +438,9 @@ HTMLFOOT
 
 ##############################################################################
 
-sub usage {
-    my $podfile = shift;
-    warn "$0: $podfile: @_\n" if @_;
+sub usage (str $podfile, str $msg?) {
+    #my $podfile = shift;
+    warn "$0: $podfile: $msg\n" if $msg;
     die <<END_OF_USAGE;
 Usage:  $0 --help --htmldir=<name> --htmlroot=<URL>
            --infile=<name> --outfile=<name>
@@ -482,7 +483,7 @@ END_OF_USAGE
 
 }
 
-sub parse_command_line {
+sub parse_command_line () {
     my ($opt_backlink,$opt_cachedir,$opt_css,$opt_flush,$opt_header,
         $opt_help,$opt_htmldir,$opt_htmlroot,$opt_index,$opt_infile,
         $opt_outfile,$opt_poderrors,$opt_podpath,$opt_podroot,
@@ -544,15 +545,13 @@ sub parse_command_line {
 
 my $Saved_Cache_Key;
 
-sub get_cache {
-    my($dircache, $podpath, $podroot, $recurse) = @_;
-    my @cache_key_args = @_;
+sub get_cache ($dircache, $podpath, $podroot, $recurse) {
 
     # A first-level cache:
     # Don't bother reading the cache files if they still apply
     # and haven't changed since we last read them.
 
-    my $this_cache_key = cache_key(@cache_key_args);
+    my $this_cache_key = cache_key($dircache, $podpath, $podroot, $recurse);
     return 1 if $Saved_Cache_Key and $this_cache_key eq $Saved_Cache_Key;
     $Saved_Cache_Key = $this_cache_key;
 
@@ -567,17 +566,15 @@ sub get_cache {
     return $tests;
 }
 
-sub cache_key {
-    my($dircache, $podpath, $podroot, $recurse) = @_;
-    return join('!',$dircache,$recurse,@$podpath,$podroot,stat($dircache));
+sub cache_key ($dircache, $podpath, $podroot, $recurse) {
+  return join('!',$dircache,$recurse,@$podpath,$podroot,stat($dircache));
 }
 
 #
 # load_cache - tries to find if the cache stored in $dircache is a valid
 #  cache of %Pages.  if so, it loads them and returns a non-zero value.
 #
-sub load_cache {
-    my($dircache, $podpath, $podroot) = @_;
+sub load_cache ($dircache, $podpath, $podroot) {
     my $tests = 0;
     local $_;
 
@@ -616,8 +613,8 @@ sub load_cache {
 #
 # html_escape: make text safe for HTML
 #
-sub html_escape {
-    my $rest = $_[0];
+sub html_escape (str \$rest) {
+    #my $rest = $_[0];
     $rest   =~ s/&/&amp;/g;
     $rest   =~ s/</&lt;/g;
     $rest   =~ s/>/&gt;/g;
@@ -632,8 +629,7 @@ sub html_escape {
 # specification for HTML. Note that we keep spaces and special characters
 # except ", ? (Netscape problem) and the hyphen (writer's problem...).
 #
-sub htmlify {
-    my( $heading) = @_;
+sub htmlify ( str $heading ) {
     $heading =~ s/(\s+)/ /g;
     $heading =~ s/\s+\Z//;
     $heading =~ s/\A\s+//;
@@ -647,8 +643,7 @@ sub htmlify {
 #
 # similar to htmlify, but turns non-alphanumerics into underscores
 #
-sub anchorify {
-    my ($anchor) = @_;
+sub anchorify ( str $anchor ) {
     $anchor = htmlify($anchor);
     $anchor =~ s/\W/_/g;
     return $anchor;
@@ -657,8 +652,7 @@ sub anchorify {
 #
 # store POD files in %Pages
 #
-sub _save_page {
-    my ($modspec, $modname) = @_;
+sub _save_page ($modspec, $modname) {
 
     # Remove Podroot from path
     $modspec = $Podroot eq File::Spec->curdir
@@ -673,8 +667,7 @@ sub _save_page {
     $Pages{$modname} = $dir.$file;
 }
 
-sub _unixify {
-    my $full_path = shift;
+sub _unixify ( str $full_path ) {
     return '' unless $full_path;
     return $full_path if $full_path eq '/';
 
@@ -719,8 +712,7 @@ __PACKAGE__->_accessorize(
  'verbose',
 );
 
-sub resolve_pod_page_link {
-    my ($self, $to, $section) = @_;
+sub resolve_pod_page_link ($self, $to?, $section?) {
 
     return undef unless defined $to || defined $section;
     if (defined $section) {
@@ -782,8 +774,7 @@ sub resolve_pod_page_link {
 # relativize_url - convert an absolute URL to one relative to a base URL.
 # Assumes both end in a filename.
 #
-sub relativize_url {
-    my ($dest, $source) = @_;
+sub relativize_url ($dest, $source) {
 
     # Remove each file from its path
     my ($dest_volume, $dest_directory, $dest_file) =

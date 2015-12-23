@@ -20,7 +20,7 @@ for ($i = 0, $j = -1; $i <= $#filedata; $i++) {
 
 my %heads = ();
 foreach $i (0..$#poddata) {
-    $heads{anchorify($1)} = 1 if $poddata[$i] =~ /=head[1-6]\s+(.*)/;
+    $heads{anchorify("$1")} = 1 if $poddata[$i] =~ /=head[1-6]\s+(.*)/;
 }
 my %expected = map { $_ => 1 } qw(
     name
