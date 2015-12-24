@@ -1522,12 +1522,10 @@ S_dopoptowhen(pTHX_ I32 startingblock)
 }
 
 /* dounwind(): pop all contexts above (but not including) cxix.
- * Leaves cxstack_ix equal to cxix. Note that for efficiency, it doesn't
- * call POPBLOCK at all; the caller should do
- *     CX_LEAVE_SCOPE; POPFOO; POPBLOCK
- * or
- *     TOPBLOCK
- * as appropriate.
+ * Note that it clears the savestack frame associated with each popped
+ * context entry, but doesn't free any temps.
+ * It does a POPBLOCK of the last frame that it pops, and leaves
+ * cxstack_ix equal to cxix.
  */
 
 void
@@ -1577,8 +1575,12 @@ Perl_dounwind(pTHX_ I32 cxix)
 	    POPFORMAT(cx);
 	    break;
 	}
+        if (cxstack_ix == cxix + 1) {
+            POPBLOCK(cx);
+        }
 	cxstack_ix--;
     }
+
 }
 
 void
@@ -2436,7 +2438,9 @@ PP(pp_return)
         PUTBACK;
         if (cx->blk_gimme != G_VOID)
             leave_adjust_stacks(MARK, PL_stack_base + cx->blk_oldsp,
-                                cx->blk_gimme, 3);
+                    cx->blk_gimme,
+                    CxTYPE(cx) == CXt_SUB && CvLVALUE(cx->blk_sub.cv)
+                        ? 3 : 0);
         SPAGAIN;
 	dounwind(cxix);
         cx = &cxstack[cxix]; /* CX stack may have been realloced */
@@ -2488,6 +2492,8 @@ PP(pp_return)
     }
 }
 
+/* find the enclosing loop or labelled loop and dounwind() back to it.
+ * opname is for errors */
 
 static I32
 S_unwind_loop(pTHX_ const char * const opname)
