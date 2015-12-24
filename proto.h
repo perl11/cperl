@@ -463,6 +463,13 @@ PERL_CALLCONV OP*	Perl_ck_entersub_args_proto_or_list(pTHX_ OP *entersubop, GV *
 #define PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_PROTO_OR_LIST	\
 	assert(entersubop); assert(namegv); assert(protosv)
 
+PERL_CALLCONV OP*	Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_SIGNATURE	\
+	assert(entersubop); assert(namegv); assert(cv)
+
 PERL_CALLCONV OP *	Perl_ck_eof(pTHX_ OP *o)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);

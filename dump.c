@@ -2375,7 +2375,7 @@ S_append_gv_name(pTHX_ GV *gv, SV *out)
 
 #ifdef USE_ITHREADS
 #  define ITEM_SV(item) (comppad ? \
-    *av_fetch(comppad, (item)->pad_offset, FALSE) : NULL);
+    *av_fetch(comppad, (item)->pad_offset, FALSE) : NULL)
 #else
 #  define ITEM_SV(item) UNOP_AUX_item_sv(item)
 #endif
@@ -2623,7 +2623,7 @@ Perl_signature_stringify(pTHX_ const OP *o, CV *cv)
             case SIGNATURE_arg_default_const:
                 {
                     STRLEN cur;
-                    SV *sv  = ITEM_SV(++items);
+                    SV  *sv = ITEM_SV(++items);
                     char *s = SvPV(sv, cur);
 
                     sv_catpvs_nomg(out, "=");

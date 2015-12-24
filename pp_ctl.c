@@ -2844,7 +2844,8 @@ PP(pp_goto)
 		/*SvREFCNT_dec(arg);*/
                 if (CvHASSIG(cv)) {
                     PADLIST * const padlist = CvPADLIST(cv);
-                    cx->blk_sub.argarray = (SV**)cx->blk_sub.savearray = MARK;
+                    cx->blk_sub.savearray = (AV*)MARK;
+                    cx->blk_sub.argarray = (SV**)cx->blk_sub.savearray;
                     cx->blk_sub.savearray += (items-1);
                     /*cx->blk_sub.cv = cv; already done above */
                     cx->blk_sub.olddepth = CvDEPTH(cv);

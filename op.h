@@ -1058,9 +1058,9 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
 #define SIGNATURE_end                 1 /* finish */
 #define SIGNATURE_padintro            2 /* set new pad base index and range */
 #define SIGNATURE_arg                 3 /* mandatory arg */
-#define SIGNATURE_arg_default_none    4 /*  $=  */
-#define SIGNATURE_arg_default_undef   5 /* arg with default of undef */
-#define SIGNATURE_arg_default_0       6 /* arg with default of 0 */
+#define SIGNATURE_arg_default_none    4 /* $=  */
+#define SIGNATURE_arg_default_undef   5 /* $arg?,  arg with default of undef */
+#define SIGNATURE_arg_default_0       6 /* $arg=0, arg with default of 0 */
 #define SIGNATURE_arg_default_1       7 /* arg with default of 1 */
 #define SIGNATURE_arg_default_iv      8 /* arg with default of an IV */
 #define SIGNATURE_arg_default_const   9 /* arg with default of a const */

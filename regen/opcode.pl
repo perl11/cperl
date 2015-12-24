@@ -1095,7 +1095,8 @@ $i = 0;
 my @coretypes =
   ("", qw( int uint num str Int UInt Num Str
            Bool Numeric Scalar
-           Ref Sub Array Hash List Any Void ));
+           Ref Sub Regexp Object Array Hash List
+           Any Void ));
 my %coretype = map { $_ => $i++ } @coretypes;
 $coretype{Void} = 0xff;
 

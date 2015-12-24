@@ -1057,8 +1057,8 @@ Apd	|CV*	|rv2cv_op_cv	|NN OP *cvop|U32 flags
 Apd	|OP*	|ck_entersub_args_list|NN OP *entersubop
 Apd	|OP*	|ck_entersub_args_proto|NN OP *entersubop|NN GV *namegv|NN SV *protosv
 Apd	|OP*	|ck_entersub_args_proto_or_list|NN OP *entersubop|NN GV *namegv|NN SV *protosv
-po	|OP*	|ck_entersub_args_core|NN OP *entersubop|NN GV *namegv \
-				      |NN SV *protosv
+Apd	|OP*	|ck_entersub_args_signature|NN OP *entersubop|NN GV *namegv|NN CV *cv
+po	|OP*	|ck_entersub_args_core|NN OP *entersubop|NN GV *namegv|NN SV *protosv
 Apd	|void	|cv_get_call_checker|NN CV *cv|NN Perl_call_checker *ckfun_p|NN SV **ckobj_p
 Apd	|void	|cv_set_call_checker|NN CV *cv|NN Perl_call_checker ckfun|NN SV *ckobj
 Apd	|void	|cv_set_call_checker_flags|NN CV *cv \

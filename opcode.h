@@ -1003,10 +1003,12 @@ typedef enum {
     type_Scalar = 11,
     type_Ref = 12,
     type_Sub = 13,
-    type_Array = 14,
-    type_Hash = 15,
-    type_List = 16,
-    type_Any = 17,
+    type_Regexp = 14,
+    type_Object = 15,
+    type_Array = 16,
+    type_Hash = 17,
+    type_List = 18,
+    type_Any = 19,
     type_Void = 255
 } core_types_t;
 
@@ -1027,6 +1029,8 @@ core_types_n[] = {
     "Scalar",
     "Ref",
     "Sub",
+    "Regexp",
+    "Object",
     "Array",
     "Hash",
     "List",
@@ -1468,12 +1472,12 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffff0b,	/* 7: gv "():Scalar" */
 	0xffffffff,	/* 8: gelem "" */
 	0xffffff0b,	/* 9: padsv "():Scalar" */
-	0xffffff0e,	/* 10: padav "():Array" */
-	0xffffff0f,	/* 11: padhv "():Hash" */
+	0xffffff10,	/* 10: padav "():Array" */
+	0xffffff11,	/* 11: padhv "():Hash" */
 	0xffffffff,	/* 12: padany "():Void" */
 	0xffffffff,	/* 13: pushre "" */
 	0x0b0bff0b,	/* 14: sassign "(:Scalar,:Scalar):Scalar" */
-	0x1010ff10,	/* 15: aassign "(:List,:List):List" */
+	0x1212ff12,	/* 15: aassign "(:List,:List):List" */
 	0xa8ffff0b,	/* 16: chop "(:List(:Str)):Scalar" */
 	0x08ffff05,	/* 17: schop "(:Str):Int" */
 	0xa8ffff0b,	/* 18: chomp "(:List(:Str)):Scalar" */
@@ -1498,14 +1502,14 @@ EXTCONST U32 PL_op_type[] = {
 	0x0505ff05,	/* 37: i_divide "(:Int,:Int):Int" */
 	0x0a0aff0a,	/* 38: modulo "(:Numeric,:Numeric):Numeric" */
 	0x0505ff05,	/* 39: i_modulo "(:Int,:Int):Int" */
-	0x1005ff10,	/* 40: repeat "(:List,:Int):List" */
+	0x1205ff12,	/* 40: repeat "(:List,:Int):List" */
 	0x0a0aff0a,	/* 41: add "(:Numeric,:Numeric):Numeric" */
 	0x0505ff05,	/* 42: i_add "(:Int,:Int):Int" */
 	0x0505ff06,	/* 43: u_add "(:Int,:Int):UInt" */
 	0x0a0aff0a,	/* 44: subtract "(:Numeric,:Numeric):Numeric" */
 	0x0505ff05,	/* 45: i_subtract "(:Int,:Int):Int" */
 	0x0505ff06,	/* 46: u_subtract "(:Int,:Int):UInt" */
-	0x1111ff08,	/* 47: concat "(:Any,:Any):Str" */
+	0x1313ff08,	/* 47: concat "(:Any,:Any):Str" */
 	0x0bffff08,	/* 48: stringify "(:Scalar):Str" */
 	0x0506ff06,	/* 49: left_shift "(:Int,:UInt):UInt" */
 	0x0506ff06,	/* 50: right_shift "(:Int,:UInt):UInt" */
@@ -1560,7 +1564,7 @@ EXTCONST U32 PL_op_type[] = {
 	0x0affff0a,	/* 99: abs "(:Numeric):Numeric" */
 	0x0cffff0b,	/* 100: rv2gv "(:Ref):Scalar" */
 	0x0cffff0b,	/* 101: rv2sv "(:Ref):Scalar" */
-	0x0effff05,	/* 102: av2arylen "(:Array):Int" */
+	0x10ffff05,	/* 102: av2arylen "(:Array):Int" */
 	0x0cffff0d,	/* 103: rv2cv "(:Ref):Sub" */
 	0xffffffff,	/* 104: anoncode "" */
 	0xffffffff,	/* 105: prototype "" */
@@ -1570,7 +1574,7 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffffff,	/* 109: bless "" */
 	0xffffffff,	/* 110: backtick "" */
 	0xffffffff,	/* 111: glob "" */
-	0x0bffff11,	/* 112: readline "(:Scalar):Any" */
+	0x0bffff13,	/* 112: readline "(:Scalar):Any" */
 	0xffffffff,	/* 113: rcatline "" */
 	0xffffffff,	/* 114: regcmaybe "():Void" */
 	0xffffffff,	/* 115: regcreset "" */
@@ -1596,7 +1600,7 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffffff,	/* 135: uc "" */
 	0xffffffff,	/* 136: lc "" */
 	0xffffffff,	/* 137: quotemeta "" */
-	0x0cffff0f,	/* 138: rv2av "(:Ref):Hash" */
+	0x0cffff11,	/* 138: rv2av "(:Ref):Hash" */
 	0xffffff0b,	/* 139: aelemfast "():Scalar" */
 	0xffffff0b,	/* 140: aelemfast_lex "():Scalar" */
 	0x2b05ff0b,	/* 141: aelem "(:Array(:Scalar),:Int):Scalar" */
@@ -1618,7 +1622,7 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffffff,	/* 157: keys "" */
 	0x08ffffff,	/* 158: delete "(:Str):Void" */
 	0x08ffff09,	/* 159: exists "(:Str):Bool" */
-	0x0cffff0f,	/* 160: rv2hv "(:Ref):Hash" */
+	0x0cffff11,	/* 160: rv2hv "(:Ref):Hash" */
 	0xcbffff0b,	/* 161: helem "(:Hash(:Scalar)):Scalar" */
 	0xffffffff,	/* 162: hslice "" */
 	0xffffffff,	/* 163: kvhslice "" */

@@ -1628,7 +1628,7 @@ EOM
 my $v;
 $v = 1 + ($nan <=> 1);
 EXPECT
-Use of uninitialized value in addition (+) at - line 11.
+Use of uninitialized value in iv+uv addition (+) at - line 11.
 ########
 use warnings 'uninitialized';
 if ($^O eq 'MSWin32') {

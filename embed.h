@@ -84,6 +84,7 @@
 #define ck_entersub_args_list(a)	Perl_ck_entersub_args_list(aTHX_ a)
 #define ck_entersub_args_proto(a,b,c)	Perl_ck_entersub_args_proto(aTHX_ a,b,c)
 #define ck_entersub_args_proto_or_list(a,b,c)	Perl_ck_entersub_args_proto_or_list(aTHX_ a,b,c)
+#define ck_entersub_args_signature(a,b,c)	Perl_ck_entersub_args_signature(aTHX_ a,b,c)
 #ifndef PERL_IMPLICIT_CONTEXT
 #define ck_warner		Perl_ck_warner
 #define ck_warner_d		Perl_ck_warner_d

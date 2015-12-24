@@ -108,12 +108,50 @@ recursive, but it's recursive on basic blocks, not on tree nodes.
 #define CALL_PEEP(o) PL_peepp(aTHX_ o)
 #define CALL_RPEEP(o) PL_rpeepp(aTHX_ o)
 #define CALL_OPFREEHOOK(o) if (PL_opfreehook) PL_opfreehook(aTHX_ o)
+#define op_lvalue_flags(o,type,flags) Perl_op_lvalue_flags(aTHX_ o,type,flags)
 #define op_typed(a) S_op_typed(aTHX_ a)
+#define op_typed_user(a,b) S_op_typed_user(aTHX_ a, b)
 #define core_type_name(t) S_core_type_name(aTHX_ t)
+#define bad_type_core(arg,gv,got,gotname,wanted) S_bad_type_core(aTHX_ arg,gv,got,gotname,wanted)
+#define typename(stash) S_typename(aTHX_ stash)
+#define stash_to_coretype(stash) S_stash_to_coretype(aTHX_ stash)
+#define match_type(stash, coretype, typename) S_match_type(aTHX_ stash, coretype,typename)
 #define match_type1(sig, arg) S_match_type1(sig, arg)
 #define match_type2(sig, arg1, arg2) S_match_type2(sig, arg1, arg2)
 
 static char array_passed_to_stat[] = "Array passed to stat will be coerced to a scalar";
+
+/* typename(HV* stash) returns the sanitized name of the padname type
+   without the main:: prefix
+
+   Note that types are corrupted upstream somehow.
+*/
+
+#if PTRSIZE == 8
+#define VALIDTYPE(stash) (stash && PTR2IV(stash) > 0x1000 \
+                          && PTR2IV(stash) < 0x1000000000000  \
+                          && SvTYPE(stash) == SVt_PVHV)
+#else
+#define VALIDTYPE(stash) (stash && PTR2IV(stash) > 0x1000 \
+                          && SvTYPE(stash) == SVt_PVHV)
+#endif
+
+PERL_STATIC_INLINE
+const char * S_typename(pTHX_ const HV* stash)
+{
+    if (!(UNLIKELY(VALIDTYPE(stash))))
+        return NULL;
+    {
+        const char *name = HvNAME(stash);
+        int l = HvNAMELEN(stash);
+        if (!name)
+            return NULL;
+        if (l > 6 && memEQs(name, 6, "main::"))
+            return name+6;
+        else
+            return name; /* dist/Attribute-Handlers/t/multi.t: custom types */
+    }
+}
 
 /* Used to avoid recursion through the op tree in scalarvoid() and
    op_free()
@@ -589,6 +627,35 @@ S_bad_type_gv(pTHX_ I32 n, GV *gv, const OP *kid, const char *t)
  
     yyerror_pv(Perl_form(aTHX_ "Type of arg %d to %"SVf" must be %s (not %s)",
 		 (int)n, SVfARG(namesv), t, OP_DESC(kid)), SvUTF8(namesv));
+}
+
+/* so far for scalars only */
+PERL_STATIC_INLINE const char *
+S_core_type_name(pTHX_ core_types_t t)
+{
+    if (t == type_Void)
+        return "Void";
+    else if (t > type_Any)
+        Perl_die(aTHX_ "Invalid coretype index %d\n", t);
+    return core_types_n[t];
+}
+
+STATIC void
+S_bad_type_core(pTHX_ const char *argname, GV *gv,
+                core_types_t got, const char* gotname,
+                const char *wanted)
+{
+    SV * const namesv = cv_name((CV *)gv, NULL, CV_NAME_NOMAIN);
+    const char *name = got == type_Object ? gotname : S_core_type_name(aTHX_ got);
+
+    assert(gv);
+    assert(argname);
+    assert(wanted);
+    assert(namesv);
+
+    yyerror_pv(Perl_form(aTHX_ "Type of arg %s to %"SVf" must be %s (not %s)",
+                         argname, SVfARG(namesv), wanted, name),
+               SvUTF8(namesv));
 }
 
 STATIC void
@@ -1826,8 +1893,7 @@ Perl_scalar(pTHX_ OP *o)
 	Perl_ck_warner(aTHX_ packWARN(WARN_VOID), "Useless use of sort in scalar context");
 	break;
     case OP_KVHSLICE:
-    case OP_KVASLICE:
-    {
+    case OP_KVASLICE: {
 	/* Warn about scalar context */
 	const char lbrack = o->op_type == OP_KVHSLICE ? '{' : '[';
 	const char rbrack = o->op_type == OP_KVHSLICE ? '}' : ']';
@@ -1864,7 +1930,7 @@ Perl_scalar(pTHX_ OP *o)
 		       "written as $%"SVf"%c%"SVf"%c",
 			SVfARG(name), lbrack, SVfARG(keysv), rbrack,
 			SVfARG(name), lbrack, SVfARG(keysv), rbrack);
-    }
+      }
     }
     return o;
 }
@@ -3054,7 +3120,7 @@ S_lvref(pTHX_ OP *o, I32 type)
 	o->op_flags |= OPf_STACKED;
 	if (o->op_flags & OPf_PARENS) {
 	    if (o->op_private & OPpLVAL_INTRO) {
-		 yyerror(Perl_form(aTHX_ "Can't modify reference to "
+                yyerror(Perl_form(aTHX_ "Can't modify reference to "
 		      "localized parenthesized array in list assignment"));
 		return;
 	    }
@@ -3088,7 +3154,7 @@ S_lvref(pTHX_ OP *o, I32 type)
 	  parenhash:
 	    yyerror(Perl_form(aTHX_ "Can't modify reference to "
 				 "parenthesized hash in list assignment"));
-		return;
+            return;
 	}
 	o->op_private |= OPpLVREF_HV;
 	/* FALLTHROUGH */
@@ -3354,7 +3420,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
     case OP_RV2AV:
     case OP_RV2HV:
 	if (type == OP_REFGEN && o->op_flags & OPf_PARENS) {
-           PL_modcount = RETURN_UNLIMITED_NUMBER;
+            PL_modcount = RETURN_UNLIMITED_NUMBER;
 	    return o;		/* Treat \(@foo) like ordinary list. */
 	}
 	/* FALLTHROUGH */
@@ -3377,7 +3443,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	/* FALLTHROUGH */
     case OP_NEXTSTATE:
     case OP_DBSTATE:
-       PL_modcount = RETURN_UNLIMITED_NUMBER;
+        PL_modcount = RETURN_UNLIMITED_NUMBER;
 	break;
     case OP_KVHSLICE:
     case OP_KVASLICE:
@@ -8679,7 +8745,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 /* _x = extended */
 CV *
 Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
-			    OP *block, bool o_is_gv)
+                  OP *block, bool o_is_gv)
 {
     GV *gv;
     const char *ps;
@@ -11691,10 +11757,222 @@ Perl_rv2cv_op_cv(pTHX_ OP *cvop, U32 flags)
     }
 }
 
+/* stash_to_coretype(HV* stash) converts the name of the padname type
+   to the core_types_t enum.
+
+   For native types we still return the non-native counterpart.
+   PERL_NATIVE_TYPES is implemented in the native type branch,
+   with escape analysis, upgrading long-enough sequences to native ops
+   in rpeep */
+PERL_STATIC_INLINE
+core_types_t S_stash_to_coretype(pTHX_ const HV* stash)
+{
+    if (!(UNLIKELY(VALIDTYPE(stash))))
+        return type_none;
+    {
+        const char *name = HvNAME(stash);
+        int l = HvNAMELEN(stash);
+        if (!name)
+            return type_none;
+        if (l>6 && memEQs(name, 6, "main::")) {
+            name += 6;
+            l -= 6;
+        }
+        /* At first a very naive string check.
+           we should really use a PL_coretypes array with stash ptrs */
+        if (memEQs(name, l, "int"))
+#ifdef PERL_NATIVE_TYPES
+            return type_int;
+#else
+            return type_Int;
+#endif
+        if (memEQs(name, l, "Int"))
+            return type_Int;
+        if (memEQs(name, l, "num"))
+#ifdef PERL_NATIVE_TYPES
+            return type_num;
+#else
+            return type_Num;
+#endif
+        if (memEQs(name, l, "Num"))
+            return type_Num;
+        if (memEQs(name, l, "uint"))
+#ifdef PERL_NATIVE_TYPES
+            return type_uint;
+#else
+            return type_UInt;
+#endif
+        if (memEQs(name, l, "UInt"))
+            return type_UInt;
+        if (memEQs(name, l, "str"))
+#ifdef PERL_NATIVE_TYPES
+            return type_str;
+#else
+            return type_Str;
+#endif
+        if (memEQs(name, l, "Str"))
+            return type_Str;
+        if (memEQs(name, l, "Numeric"))
+            return type_Numeric;
+        if (memEQs(name, l, "Scalar"))
+            return type_Scalar;
+        return type_Object;
+    }
+}
+
+
+/* Return the type as core_types_t enum of the op.
+   User-defined types are only returned as type_Object,
+   get the name of those with S_typename.
+
+   TODO: add defined return types of all ops, and user-defined CV types for entersub.
+   */
+STATIC core_types_t
+S_op_typed_user(pTHX_ OP* o, char** usertype)
+{
+    core_types_t t;
+    switch (o->op_type) {
+    case OP_PADSV: {
+        /*SV* c = PAD_SV(o->op_targ);*/
+        PADNAME * const pn = PAD_COMPNAME(ck_pad(o)->op_targ);
+        t = stash_to_coretype(PadnameTYPE(pn));
+        if (usertype && t == type_Object)
+            *usertype = (char*)typename(PadnameTYPE(pn));
+        return t;
+    }
+    case OP_CONST: {
+        SV *sv = cSVOPx(o)->op_sv;
+        switch (SvTYPE(sv)) {
+        case SVt_IV:
+            if (!SvROK(sv)) return SvUOK(sv) ? type_UInt : type_Int;
+            else            return type_Scalar; /* or Ref */
+        case SVt_NULL:   return type_none;
+        case SVt_PV:     return type_Str;
+        case SVt_NV:     return type_Num;
+            /* numified strings as const, stay conservative */
+        case SVt_PVIV:   return type_Scalar; /* no POK check */
+        case SVt_PVNV:   return type_Scalar; /* no POK check */
+        case SVt_PVAV:   return type_Array;
+        case SVt_PVHV:   return type_Hash;
+        case SVt_PVCV:   return type_Sub;
+        case SVt_REGEXP: return type_Regexp;
+        default: {
+            HV* stash = SvSTASH(sv);
+            if (usertype && stash)
+                *usertype = (char*)typename(stash);
+            return stash ? type_Object : type_Scalar; }
+        }
+        break;
+    }
+    case OP_RV2CV:
+    case OP_ENTERSUB: {
+        /*PADNAME * const pn = PAD_COMPNAME(o->op_targ);
+          return stash_to_coretype(PadnameTYPE(pn));*/
+        return type_none; }
+    } /* switch */
+    /* else */
+    t = (core_types_t)(PL_op_type[o->op_type] & 0xff);
+    return t == type_Void ? type_none : t;
+}
+
+PERL_STATIC_INLINE
+core_types_t S_op_typed(pTHX_ OP* o)
+{
+    return S_op_typed_user(aTHX_ o, NULL);
+}
+
+/* match a return usertype from arg to
+   the declared usertype name of a variable (dname).
+*/
+PERL_STATIC_INLINE
+int S_match_user_type(pTHX_ const char *dname, const char* aname)
+{
+    /* TODO: ISA check */
+    return strEQ(dname, aname);
+}
+ 
+/* match a return coretype from arg or op (atyp) to
+   the declared stash of a variable (dtyp).
+   TODO: on atyp == type_Object check the name and its ISA instead.
+*/
+PERL_STATIC_INLINE
+int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname)
+{
+    core_types_t dtyp = stash_to_coretype(stash);
+    if (LIKELY(dtyp == type_none || (dtyp == atyp && dtyp != type_Object)))
+        return 1;
+    /* and now check the allowed variants */
+    switch (dtyp) {
+    case type_int:
+        return atyp == type_Int  || atyp == type_UInt || atyp == type_uint;
+    case type_Int:
+        return atyp == type_int  || atyp == type_UInt || atyp == type_uint;
+    case type_uint:
+        return atyp == type_UInt || atyp == type_Int  || atyp == type_int;
+    case type_UInt:
+        return atyp == type_uint || atyp == type_Int  || atyp == type_int;
+    case type_num:
+        return atyp == type_Num;
+    case type_Num:
+        return atyp == type_num;
+    case type_Str:
+        return atyp == type_str;
+    case type_str:
+        return atyp == type_Str;
+    case type_Numeric:
+        return atyp == type_Int
+            || atyp == type_int
+            || atyp == type_Num
+            || atyp == type_num
+            || atyp == type_uint
+            || atyp == type_UInt;
+    case type_Scalar:
+        return atyp <= type_Scalar;
+    case type_Object:
+        return S_match_user_type(aTHX_ typename(stash), aname);
+    case type_Any:
+    case type_Void:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+STATIC void
+S_sig_check_type(pTHX_ const PADNAME* pn, OP* o, GV *namegv)
+{
+    const HV *type = pn ? PadnameTYPE(pn) : NULL;
+    if (UNLIKELY(VALIDTYPE(type))) {
+        /* check type with arg (through aop),
+           currently no entersub args and user types */
+        char *usertype = NULL;
+        const char *name = typename(type);
+        const core_types_t argtype = op_typed_user(o, &usertype);
+        const char *argname = usertype ? usertype : S_core_type_name(aTHX_ argtype);
+        DEBUG_k(Perl_deb(aTHX_ "ck sigtype %s against arg: %s\n",
+                         name?name:"none", argname));
+        if (argtype > type_none && argtype < type_Void
+            && name && strNE(argname, name)) {
+            /* TODO check aggregate type: Array(int), Hash(str), ... */
+            /* TODO on type_Object recurse into all ISA parents */
+            if (!match_type(type, argtype, argname)) {
+                bad_type_core(PadnamePV(pn), namegv, argtype, argname, name);
+            } else {
+                /* mark argument as already typechecked, to avoid it at run-time.
+                   but only when we start typechecking run-time. */
+            }
+        }
+    }
+}
+
 /*
 Returns the prototype string of a signature.
 
 TODO: use _ when preferred.
+
+use a better sig-based checker (see below).
+protos cannot check types, insert type-casts, handle native types
+and cannot report the name.
 */
 
 char *
@@ -11706,20 +11984,25 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
     UV action;
     bool first = TRUE;
     SV *out = newSVpvn_flags("", 0, SVs_TEMP);
+    DEBUG_kv(Perl_deb(aTHX_ "sig_proto: items=0x%lx\n", items->uv));
 
     while (1) {
         switch (action = (actions & SIGNATURE_ACTION_MASK)) {
         case SIGNATURE_reload:
             actions = (++items)->uv;
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: reload actions=0x%lx items=0x%lx\n", actions, items->uv));
             continue;
         case SIGNATURE_end:
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: end actions=0x%lx items=0x%lx\n", actions, items->uv));
             goto finish;
         case SIGNATURE_padintro:
             items++;
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: padintro actions=0x%lx items=0x%lx\n", actions, items->uv));
             break;
         case SIGNATURE_arg:
             /* Do NOT add a \ to a SCALAR! */
             sv_catpvs_nomg(out, "$");
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: arg actions=0x%lx items=0x%lx\n", actions, items->uv));
             break;
         case SIGNATURE_arg_default_iv:
         case SIGNATURE_arg_default_const:
@@ -11727,10 +12010,12 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
         case SIGNATURE_arg_default_gvsv:
         case SIGNATURE_arg_default_op:
             items++; /* fall thru */
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: argdef actions=0x%lx items=0x%lx\n", actions, items->uv));
         case SIGNATURE_arg_default_none:
         case SIGNATURE_arg_default_undef:
         case SIGNATURE_arg_default_0:
         case SIGNATURE_arg_default_1:
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: argdef-static actions=0x%lx items=0x%lx\n", actions, items->uv));
             if (first) {
                 sv_catpvs_nomg(out, ";");
                 first = FALSE;
@@ -11739,16 +12024,19 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
             break;
         case SIGNATURE_array:
         case SIGNATURE_hash:
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: arr/hash actions=0x%lx items=0x%lx\n", actions, items->uv));
             if (actions & SIGNATURE_FLAG_ref)
                 sv_catpvs_nomg(out, "\\");
             sv_catpvn_nomg(out, action == SIGNATURE_array ? "@": "%", 1);
             break;
         default:
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: default actions=0x%lx items=0x%lx\n", actions, items->uv));
             return NULL;
             /*sv_catpvs_nomg(out, "_");
               goto finish;*/
         }
         actions >>= SIGNATURE_SHIFT;
+        /*DEBUG_kv(Perl_deb(aTHX_ "sig_proto: loop actions=0x%lx items=0x%lx\n", actions, items->uv));*/
     }
   finish:
     *protolen = SvCUR(out);
@@ -11796,6 +12084,210 @@ Perl_ck_entersub_args_list(pTHX_ OP *entersubop)
         list(aop);
         op_lvalue(aop, OP_ENTERSUB);
     }
+    return entersubop;
+}
+
+/*
+=for apidoc Am|OP *|ck_entersub_args_signature|OP *entersubop|GV *namegv|CV *protosv
+
+Performs the fixup and compile-time checks of the arguments part of an
+C<entersub> op tree based on a subroutine signature.  This makes
+various modifications to the argument ops, from applying context up to
+inserting C<refgen> ops, checking the number and types of arguments,
+and adding run-time type casts as directed by the signature.  This is
+the standard treatment used on a signatured non-method call, not
+marked with C<&>, where the callee can be identified at compile time
+and has a signature.
+
+If the argument ops, the args, disagree with the signature, for
+example by having an unacceptable number of arguments or a wrong
+argument type, a valid op tree is returned anyway.  The error is
+reflected in the parser state, normally resulting in a single
+exception at the top level of parsing which covers all the compilation
+errors that occurred.  In the error message, the callee is referred to
+by the name defined by the I<namegv> parameter.
+
+=cut
+*/
+
+OP *
+Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
+{
+    OP *aop, *cvop;
+    UNOP_AUX_item *items;
+    const UNOP_AUX* o = CvSIGOP(cv);
+    HV* type;
+    PADNAMELIST *namepad = PadlistNAMES(CvPADLIST(cv));
+    UV actions, params, mand_params, opt_params;
+#ifdef DEBUGGING
+    UV varcount;
+#endif
+    PADOFFSET pad_ix = 0;
+    I32 arg = 0;
+    bool optional = FALSE;
+    bool slurpy = FALSE;
+#define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
+#undef SIG_DEBUG
+    PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_SIGNATURE;
+
+    assert(SvTYPE(cv) == SVt_PVCV);
+    assert(CvHASSIG(cv));
+    assert(o);
+
+#ifdef SIG_DEBUG
+    (void)S_signature_proto(aTHX_ cv, &actions);
+#endif
+    
+    items   = o->op_aux;
+    params  = items->uv;
+    mand_params = params >> 16;
+    opt_params  = params & ((1<<15)-1);
+    actions = (++items)->uv;
+    DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arity=%d/%d actions=0x%lx\n",
+                      (int)mand_params, (int)opt_params, actions));
+
+    aop = cUNOPx(entersubop)->op_first;
+    if (!OpHAS_SIBLING(aop))
+	aop = cUNOPx(aop)->op_first;
+    aop = OpSIBLING(aop);
+    for (cvop = aop; OpHAS_SIBLING(cvop); cvop = OpSIBLING(cvop)) ;
+
+    while (aop != cvop) {
+	OP* o3 = aop;
+        UV action = actions & SIGNATURE_ACTION_MASK;
+        switch (action) {
+        case SIGNATURE_reload:
+            actions = (++items)->uv;
+            DEBUG_kv(Perl_deb(aTHX_ "ck_sig: reload action=%d items=0x%lx with %d %s op arg\n",
+                              (int)action, items->uv, (int)arg, OP_NAME(o3)));
+            continue; /* no shift, no arg advance */
+        case SIGNATURE_end:
+            if (!optional || (!slurpy && ((UV)arg >= mand_params + opt_params))) {
+                /* args but not in sig */
+                SV * const namesv = cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN);
+                SV* tmpbuf = newSVpvn_flags(OP_DESC(entersubop), strlen(OP_DESC(entersubop)),
+                                            SVs_TEMP|SvUTF8(namesv));
+                sv_catpvs(tmpbuf, " ");
+                sv_catsv(tmpbuf, namesv);
+                Perl_sv_catpvf(aTHX_ tmpbuf, " exceeding max %d args", (int)arg);
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: end action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
+                                  (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
+                return too_many_arguments_pv(entersubop, SvPVX_const(tmpbuf), SvUTF8(namesv));
+            }
+            return entersubop;
+        case SIGNATURE_padintro:
+            pad_ix = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
+#ifdef DEBUGGING
+            varcount = items->uv & OPpPADRANGE_COUNTMASK;
+#endif
+            DEBUG_kv(Perl_deb(aTHX_ "ck_sig: padintro action=%d pad_ix=%d varcount=%d %s "
+                              "items=0x%lx with %d %s op arg\n",
+                              (int)action, (int)pad_ix, (int)varcount,
+                              PAD_NAME(pad_ix) ? PadnamePV(PAD_NAME(pad_ix)) : "",
+                              items->uv, (int)arg, OP_NAME(o3)));
+            actions >>= SIGNATURE_SHIFT;
+            continue; /* no arg advance */
+        case SIGNATURE_arg:
+            if (UNLIKELY(actions & SIGNATURE_FLAG_ref)) {
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg ref action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
+                                  (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
+                /* \$ accepts any scalar lvalue */
+                if (!op_lvalue_flags(scalar(o3), OP_READ, OP_LVALUE_NO_CROAK)) {
+                    type = PAD_NAME(pad_ix) ? PadnameTYPE(PAD_NAME(pad_ix)) : NULL;
+                    bad_type_gv(arg, namegv, o3, VALIDTYPE(type) ? typename(type) : "scalar");
+                }
+                pad_ix++;
+                arg++;
+                scalar(aop);
+                break;
+            } /* fall through */
+            items--;
+        case SIGNATURE_arg_default_iv:
+        case SIGNATURE_arg_default_const:
+        case SIGNATURE_arg_default_padsv:
+        case SIGNATURE_arg_default_gvsv:
+        case SIGNATURE_arg_default_op:
+            items++; /* the default sv/gv */
+        case SIGNATURE_arg_default_none:
+        case SIGNATURE_arg_default_undef:
+        case SIGNATURE_arg_default_0:
+        case SIGNATURE_arg_default_1:
+            if (UNLIKELY(actions & SIGNATURE_FLAG_skip)) {
+                items--;
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: skip action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
+                                  (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
+                arg++;
+                scalar(aop);
+                break;
+            }
+            if (UNLIKELY(action != SIGNATURE_arg)) {
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: default action=%d (default ignored)\n", (int)action));
+                optional = TRUE;
+                if (actions & SIGNATURE_FLAG_ref) {
+                    yyerror(Perl_form(aTHX_ "Reference parameter cannot take default value"));
+                    return entersubop;
+                }
+            }
+#ifdef DEBUGGING
+            else {
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
+                                  (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
+            }
+#endif
+            S_sig_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
+            pad_ix++;
+            arg++;
+            scalar(aop);
+            break;
+        case SIGNATURE_array:
+        case SIGNATURE_hash:
+            S_sig_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
+            if (actions & SIGNATURE_FLAG_ref)
+                scalar(aop);
+            else {
+                list(aop);
+                optional = TRUE;
+                slurpy = TRUE;
+            }
+            arg++;
+            pad_ix++;
+            items++;
+            break;
+        }
+        actions >>= SIGNATURE_SHIFT;
+
+        op_lvalue(aop, OP_ENTERSUB);
+        aop = OpSIBLING(aop);
+    }
+
+    if (!optional && aop == cvop) {
+        UV action = actions & SIGNATURE_ACTION_MASK;
+        /* We ran out of args, but maybe the next action is the first optional */
+        if (action == SIGNATURE_padintro) {
+            actions >>= SIGNATURE_SHIFT;
+            pad_ix = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
+            action = actions & SIGNATURE_ACTION_MASK;
+        }
+        if (action > SIGNATURE_arg || action ==  SIGNATURE_end)
+            return entersubop;
+        else {
+            SV * const namesv = cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN);
+            SV* tmpbuf = newSVpvn_flags(OP_DESC(entersubop), strlen(OP_DESC(entersubop)),
+                                    SVs_TEMP|SvUTF8(namesv));
+            sv_catpvs(tmpbuf, " ");
+            sv_catsv(tmpbuf, namesv);
+            /* with no args provided we haven't seen padintro yet */
+            if (pad_ix > 0 && PAD_NAME(pad_ix)) {
+                yyerror_pv(Perl_form(aTHX_ "Not enough arguments for %s. Missing %s",
+                                     SvPVX_const(tmpbuf), PadnamePV(PAD_NAME(pad_ix))),
+                           SvUTF8(namesv));
+            } else {
+                return too_few_arguments_pv(entersubop, SvPVX_const(tmpbuf), SvUTF8(namesv));
+            }
+        }
+    }
+#undef PAD_NAME
+
     return entersubop;
 }
 
@@ -11852,29 +12344,6 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
         proto = CvPROTO(protosv), proto_len = CvPROTOLEN(protosv);
     else
         proto = SvPV(protosv, proto_len);
-#define PERL_AUTO_PROTOTYPE
-/*#define PERL_SET_SIGNATURE_PROTOTYPE*/
-#ifdef PERL_AUTO_PROTOTYPE
-    /* PERL_AUTO_PROTOTYPE adds compile-time arity + simple type checks to
-       all signatures via old-style prototypes. See below.
-     */
-    if (!proto && CvHASSIG(protosv) && CvSIGOP(protosv)) {
-#ifdef PERL_SET_SIGNATURE_PROTOTYPE
-        char* ptr;
-#endif
-        proto = S_signature_proto(aTHX_ (CV*)protosv, &proto_len);
-/* If we convert sigs to protos we'll need a new signature() keyword
-   to get the stringification as with prototype() or even list of args,
-   as with @_, inside the body. @_ should rather go to @ARGS, and be lazily
-   evaluated from the padrange.
-*/
-#ifdef PERL_SET_SIGNATURE_PROTOTYPE
-        ptr = (char*)safemalloc(proto_len + 1);
-        Copy(proto, ptr, proto_len + 1, char);
-        sv_usepvn_flags(protosv, ptr, proto_len, SV_HAS_TRAILING_NUL);
-#endif
-    }
-#endif
     if (!proto)
         return entersubop;
     proto = S_strip_spaces(aTHX_ proto, &proto_len);
@@ -12022,7 +12491,7 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 			break;
 		    case '@':
 			if (o3->op_type == OP_RV2AV ||
-				o3->op_type == OP_PADAV)
+                            o3->op_type == OP_PADAV)
 			{
 			    o3->op_flags &=~ OPf_PARENS;
 			    goto wrapref;
@@ -12032,7 +12501,7 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 			break;
 		    case '%':
 			if (o3->op_type == OP_RV2HV ||
-				o3->op_type == OP_PADHV)
+                            o3->op_type == OP_PADHV)
 			{
 			    o3->op_flags &=~ OPf_PARENS;
 			    goto wrapref;
@@ -12041,8 +12510,8 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 			    bad_type_gv(arg, namegv, o3, "hash");
 			break;
 		    wrapref:
-                            aop = S_op_sibling_newUNOP(aTHX_ parent, prev,
-                                                OP_REFGEN, 0);
+                        aop = S_op_sibling_newUNOP(aTHX_ parent, prev,
+                                                   OP_REFGEN, 0);
 			if (contextclass && e) {
 			    proto = e + 1;
 			    contextclass = 0;
@@ -12094,8 +12563,11 @@ list-context processing.  This is the standard treatment used on a
 subroutine call, not marked with C<&>, where the callee can be
 identified at compile time.
 
-See L<perlapi/ck_entersub_args_proto> for the handling with a defined
-C<protosv> argument.
+Note: Methods or computed functions need to do this run-time.
+
+See L<perlapi/ck_entersub_args_signature> for the handling with a
+defined C<protosv> signature, and L<perlapi/ck_entersub_args_proto>
+with an old-style prototype.
 
 =cut
 */
@@ -12105,11 +12577,16 @@ Perl_ck_entersub_args_proto_or_list(pTHX_ OP *entersubop,
 	GV *namegv, SV *protosv)
 {
     PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_PROTO_OR_LIST;
-    if (SvTYPE(protosv) == SVt_PVCV ? (SvPOK(protosv) || CvHASSIG((CV*)protosv))
-                                    : SvOK(protosv))
-	return ck_entersub_args_proto(entersubop, namegv, protosv);
-    else
-	return ck_entersub_args_list(entersubop);
+    if (SvTYPE(protosv) == SVt_PVCV) {
+        if (CvHASSIG((CV*)protosv) && CvSIGOP((CV*)protosv))
+            return ck_entersub_args_signature(entersubop, namegv, (CV*)protosv);
+        else if (SvPOK(protosv))
+            return ck_entersub_args_proto(entersubop, namegv, protosv);
+    }
+    else if (SvOK(protosv))
+        return ck_entersub_args_proto(entersubop, namegv, protosv);
+
+    return ck_entersub_args_list(entersubop);
 }
 
 OP *
@@ -12689,68 +13166,6 @@ Perl_ck_pad(pTHX_ OP *o)
     return o;
 }
 
-/* so far for scalars only */
-PERL_STATIC_INLINE
-core_types_t S_op_typed(pTHX_ OP* o)
-{
-    core_types_t t = type_none;
-    if (o->op_type == OP_PADSV)
-        o = ck_pad(o);
-    if (o->op_type == OP_CONST) {
-        SV* c = cSVOPx(o)->op_sv;
-        switch (SvTYPE(c)) {
-        case SVt_IV: if(!SvROK(c)) t = SvUOK(c) ? type_UInt : type_Int; break;
-        case SVt_PV: t = type_Str; break;
-        case SVt_NV: t = type_Num; break;
-        case SVt_PVIV: t = type_Scalar; break;
-        default: t = type_Scalar;
-        }
-    }
-    else if (o->op_type == OP_PADSV) {
-        /*SV* c = PAD_SV(o->op_targ);*/
-        PADNAME * const pn = PAD_COMPNAME(o->op_targ);
-        HV *typ = PadnameTYPE(pn);
-        /* at first a very naive string check.
-           we should really use a PL_coretypes array with stash ptrs */
-        if (typ && HvNAME(typ)) {
-            const char *name = HvNAME(typ);
-            int l = HvNAMELEN(typ);
-            if      (memEQs(name, l, "main::int")
-                  || memEQs(name, l, "main::Int"))
-                t = type_Int;
-            else if (memEQs(name, l, "main::num")
-                  || memEQs(name, l, "main::Num"))
-                t = type_Num;
-            else if (memEQs(name, l, "main::uint")
-                  || memEQs(name, l, "main::UInt"))
-                t = type_UInt;
-            else if (memEQs(name, l, "main::str")
-                  || memEQs(name, l, "main::Str"))
-                t = type_Str;
-            else if (memEQs(name, l, "main::Numeric"))
-                t = type_Numeric;
-            else
-                t = type_Scalar;
-        } else {
-            t = type_Scalar;
-        }
-    }
-    return t;
-}
-
-#ifdef DEBUGGING
-/* so far for scalars only */
-PERL_STATIC_INLINE
-const char * S_core_type_name(pTHX_ core_types_t t)
-{
-    if (t == type_Void)
-        return "Void";
-    else if (t > type_Any)
-        Perl_die(aTHX_ "Invalid coretype index %d\n", t);
-    return core_types_n[t];
-}
-#endif
-
 #if 0
 /* index for the ")"
    Not used for our simple coretypes yet, needed later for Array()
@@ -12782,8 +13197,8 @@ int S_match_type2(const U32 sig, core_types_t arg1, core_types_t arg2)
     return sig == (((U32)arg1 << 24) | ((U32)arg2 << 16) | 0xff00);
 }
 
-/* ck_type: check unop and binops for typed args, find spezialed match and promote.
- * forget about native types here, use the boxed variants.
+/* ck_type: check unop and binops for typed args, find specialized match and promote.
+ * forget about native types (escape analysis) here, use the boxed variants.
  * we can only unbox them later in rpeep sequences, by adding unbox...box ops.
  */
 OP *
@@ -12811,13 +13226,15 @@ Perl_ck_type(pTHX_ OP *o)
                 int v = OP_TYPE_VARIANT(typ, i);
                 if (v) {
                     const U32 n2 = PL_op_type[v];
-                    DEBUG_k(Perl_deb(aTHX_ "match: %s %s <=> %s %s\n", PL_op_name[typ], PL_op_type_str[typ],
-                                PL_op_name[v], PL_op_type_str[v]));
+                    DEBUG_k(Perl_deb(aTHX_ "match: %s %s <=> %s %s\n", PL_op_name[typ],
+                                     PL_op_type_str[typ],
+                                     PL_op_name[v], PL_op_type_str[v]));
                     if ((PL_hints & HINT_INTEGER) && ((n2 & 0xff) != type_Int)) /* need an Int result, no u_ */
                         continue;
                     if (match_type1(n2 & 0xffffff00, type1)) {
-                        DEBUG_kv(Perl_deb(aTHX_ "%s (:%s) => %s %s\n", PL_op_name[typ], core_type_name(type1),
-                                     PL_op_name[v], PL_op_type_str[v]));
+                        DEBUG_kv(Perl_deb(aTHX_ "%s (:%s) => %s %s\n", PL_op_name[typ],
+                                          core_type_name(type1),
+                                          PL_op_name[v], PL_op_type_str[v]));
                         OpTYPE_set(o, v);
                         DEBUG_kv(op_dump(o));
                         return o;
@@ -12830,8 +13247,8 @@ Perl_ck_type(pTHX_ OP *o)
         OP* b = cBINOPx(o)->op_last;
         core_types_t type2 = op_typed(b);
         const int n = NUM_OP_TYPE_VARIANTS(typ);
-        /* XXX for entersub/enterxssub we should inspect the return type of the
-           function */
+        /* TODO for entersub/enterxssub we should inspect the return type of the
+           function, PadnameTYPE of pad[0] */
         DEBUG_k(Perl_deb(aTHX_ "ck_type: %s(%s:%s, %s:%s)\n", PL_op_name[typ],
                     OP_NAME(a), core_type_name(type1),
                     OP_NAME(b), core_type_name(type2)));
@@ -12849,8 +13266,9 @@ Perl_ck_type(pTHX_ OP *o)
                 int v = OP_TYPE_VARIANT(typ, i);
                 if (v) {
                     const U32 n2 = PL_op_type[v];
-                    DEBUG_k(Perl_deb(aTHX_ "match: %s %s <=> %s %s\n", PL_op_name[typ], PL_op_type_str[typ],
-                                PL_op_name[v], PL_op_type_str[v]));
+                    DEBUG_k(Perl_deb(aTHX_ "match: %s %s <=> %s %s\n", PL_op_name[typ],
+                                     PL_op_type_str[typ],
+                                     PL_op_name[v], PL_op_type_str[v]));
                     if ((PL_hints & HINT_INTEGER) && ((n2 & 0xff) != type_Int)) /* need an Int result, no u_ */
                         continue;
                     if (match_type2(n2 & 0xffffff00, type1, type2)) {
