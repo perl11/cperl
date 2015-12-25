@@ -5217,7 +5217,7 @@ S_my_exit_jump(pTHX)
     POPSTACK_TO(PL_mainstack);
     if (cxstack_ix >= 0) {
         dounwind(-1);
-        POPBLOCK(cxstack);
+        CX_POPBLOCK(cxstack);
     }
     LEAVE_SCOPE(0);
 
