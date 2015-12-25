@@ -222,8 +222,7 @@ use File::Glob qw(:case);
     },
 
     'Config' => {
-        # maintained by cPanel, with cperl only
-
+        'DISTRIBUTION' => 'BULKDD/other/XSConfig-6.05.tar.gz',
         'FILES'      => q[
                  ext/Config/Config.pm
                  ext/Config/Config_xs.{in,out,PL}
@@ -236,8 +235,10 @@ use File::Glob qw(:case);
         'EXCLUDED' => [
             qw(  Config_mini.pl.PL
                  Config_xs_heavy.pl.PL
+                 XSConfig.pod
+                 genkeys.PL
                  regen/regen_lib.pl
-                 test.pl
+                 xsc_test.pl
                 )
         ],
     },

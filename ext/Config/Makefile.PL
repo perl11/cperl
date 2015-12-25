@@ -15,6 +15,9 @@ WriteMakefile(
             repository => 'https://github.com/perl11/p5-Config',
         },
     },
+#Config_heavy.pl didn't exist before 5.8.7, it was part of a huge Config.pm
+#not worth the time to modify Config_xs.PL and Config_xs_heavy.pl.PL
+    'MIN_PERL_VERSION'  => '5.8.7',
     'VERSION_FROM'	=> 'Config.pm',
     'PL_FILES'		=> {'Config_xs.PL' => 'Config.xs',
                             ($in_core ?
@@ -29,7 +32,8 @@ WriteMakefile(
     'PM' => {
         'Config.pm'      => '$(INST_LIBDIR)/Config.pm',
         ($in_core ? () : ('Config_mini.pl'     => '$(INST_LIBDIR)/Config_mini.pl',
-                          'Config_xs_heavy.pl' => '$(INST_LIBDIR)/Config_xs_heavy.pl')),
+                          'Config_xs_heavy.pl' => '$(INST_LIBDIR)/Config_xs_heavy.pl',
+                          'XSConfig.pod'       => '$(INST_LIBDIR)/XSConfig.pod')),
     },
     #XS Config can not be loaded by P5P DynaLoader, only by XSLoader WITHOUT
     #XSLoader passing the "complicated" loading scenario to DynaLoader.
@@ -47,7 +51,8 @@ sub postamble {
     # inference rules are triggered only by disk files with the same base name,
     # not psuedotargets with the same base name, so specify the dependency
     # explicitly, dmake doesn't need this
-    return $_[0]->is_make_type('nmake')
+    # is_make_type meth existed only in EUMM on Win32 until EUMM 7.02
+    return $_[0]->can('is_make_type') && $_[0]->is_make_type('nmake')
         ? '$(OBJECT) : Config.c'."\n\n".'Config.c : Config.xs'
         : '';
 }

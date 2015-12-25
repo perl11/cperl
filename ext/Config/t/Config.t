@@ -1,7 +1,8 @@
 #!./perl -w
 
 BEGIN {
-    require "test.pl";
+    eval {require 'xsc_test.pl'};#CPAN
+    require 'test.pl' if $@;#cperl
 
     plan ('no_plan');
 

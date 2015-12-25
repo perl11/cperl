@@ -26,6 +26,8 @@ unless (isXSUB($cv)) {
   }
 }
 
+my $in_core = ! -d "regen";
+
 # change the class name of XS Config so there can be XS and PP Config at same time
 foreach (qw( TIEHASH DESTROY DELETE CLEAR EXISTS NEXTKEY FIRSTKEY KEYS SCALAR FETCH)) {
   *{'XSConfig::'.$_} = *{'Config::'.$_}{CODE};
@@ -57,6 +59,8 @@ my $klenXS = scalar(keys %XSConfig);
 my $copy = 0;
 my %Config_copy;
 if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
+  #to see in CPAN Testers reports if the builder had gperf or not
+  warn "This XS Config was built with the canned XS file\n";
   $copy = 1;
   for (keys %Config) {
     $Config_copy{$_} = $Config{$_};
@@ -68,13 +72,50 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
     my $k = "config_arg".$_;
     $Config_copy{$k} = '' unless exists $Config{$k};
   }
-  for my $k (qw(bin_ELF bootstrap_charset canned_gperf ccstdflags ccwarnflags
+  my @cannedkeys =
+            qw( bin_ELF bootstrap_charset canned_gperf ccstdflags ccwarnflags
                 charsize config_argc config_args d_re_comp d_regcmp git_ancestor
                 git_remote_branch git_unpushed hostgenerate hostosname hostperl
                 incpth installhtmldir installhtmlhelpdir ld_can_script
                 libdb_needs_pthread mad malloc_cflags sysroot targetdir
                 targetenv targethost targetmkdir targetport
-                useversionedarchname)) {
+                useversionedarchname);
+  unless($in_core) { #cperl doesn't need these, CPAN does
+      push @cannedkeys , qw(
+Mcc PERL_PATCHLEVEL charbits    d_acosh d_asctime64 d_asinh d_atanh
+d_attribute_deprecated  d_backtrace d_builtin_arith_overflow    d_cbrt
+d_copysign  d_ctime64   d_difftime64    d_dladdr    d_erf   d_erfc  d_exp2
+d_expm1 d_fdim  d_fegetround    d_fma   d_fmax  d_fmin  d_fp_classify
+d_fp_classl d_fpgetround    d_fs_data_s d_fstatfs   d_fstatvfs
+d_gdbm_ndbm_h_uses_prototypes   d_gdbmndbm_h_uses_prototypes    d_getaddrinfo
+d_getfsstat d_getmnt    d_getmntent d_getnameinfo   d_gmtime64  d_hasmntopt
+d_hypot d_ilogb d_inetntop  d_inetpton  d_ip_mreq   d_ip_mreq_source
+d_ipv6_mreq d_ipv6_mreq_source  d_isblank   d_isfinitel d_isinfl    d_isless
+d_isnormal  d_j0    d_j0l   d_lc_monetary_2008  d_ldexpl    d_lgamma
+d_lgamma_r  d_libname_unique    d_llrint    d_llrintl   d_llround   d_llroundl
+d_localtime64   d_log1p d_log2  d_logb  d_lrint d_lrintl    d_lround
+d_lroundl   d_mktime64  d_nan   d_ndbm  d_ndbm_h_uses_prototypes    d_nearbyint
+d_nextafter d_nexttoward    d_prctl d_prctl_set_name    d_ptrdiff_t d_regcomp
+d_remainder d_remquo    d_rint  d_round d_scalbn    d_sfio  d_sin6_scope_id
+d_sockaddr_in6  d_sockaddr_sa_len   d_stat  d_statfs_f_flags    d_statfs_s
+d_static_inline d_statvfs   d_tgamma    d_timegm    d_trunc d_truncl    d_ustat
+d_vms_case_sensitive_symbols    d_wcscmp    d_wcsxfrm   defvoidused
+dl_so_eq_ext    dlltool doop_cflags doubleinfbytes  doublekind  doublemantbits
+doublenanbytes  dtrace  extern_C    found_libucb    git_branch  git_commit_date
+git_commit_id   git_commit_id_title git_describe    git_uncommitted_changes
+hash_func   i_assert    i_bfd   i_dld   i_execinfo  i_fenv  i_gdbm_ndbm
+i_gdbmndbm  i_mallocmalloc  i_mntent    i_quadmath  i_sfio  i_stdbool
+i_stdint    i_sysmount  i_syspoll   i_sysstatfs i_sysstatvfs    i_sysvfs
+i_ustat ieeefp_h    longdblinfbytes longdblkind longdblmantbits longdblnanbytes
+madlyh  madlyobj    madlysrc    nv_overflows_integers_at    nvmantbits
+op_cflags   perl_revision   perl_static_inline  perl_subversion perl_version
+pthread_h_first regexec_cflags  rm_try  sGMTIME_max sGMTIME_min sLOCALTIME_max
+sLOCALTIME_min  st_ino_sign st_ino_size targetsh    toke_cflags usecbacktrace
+usecperl    usedevel    usedtrace   usekernprocpathname usensgetexecutablepath
+usequadmath usesfio vaproto voidflags
+      );
+  }
+  for my $k (@cannedkeys) {
     $Config_copy{$k} = '' unless exists $Config{$k};
   }
   is (scalar keys %Config_copy, $klenXS, 'same adjusted key count');
@@ -85,7 +126,11 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
 is_deeply ($copy ? \%Config_copy : \%Config, \%XSConfig, "cmp PP to XS hashes");
 
 if (!Test::More->builder->is_passing()) {
-  if (index(`diff --help`, 'Usage: diff') != -1) {
+# 2>&1 because output string not captured on solaris
+# http://cpantesters.org/cpan/report/fa1f8f72-a7c8-11e5-9426-d789aef69d38
+  my $diffout = `diff --help 2>&1`;
+  if (index($diffout, 'Usage: diff') != -1 #GNU
+      || index($diffout, 'usage: diff') != -1) { #Solaris
     open my $f, '>','xscfg.txt';
     print $f Data::Dumper::Dumper({%XSConfig});
     close $f;
