@@ -23,6 +23,9 @@ $VERSION = '6.05';
 my $in_core;
 
 BEGIN {
+    if (-d 'ext/Config') {
+        chdir 'ext/Config';
+    }
     unless(-d 'regen') {
         require '../../regen/regen_lib.pl';
         $in_core = 1;
