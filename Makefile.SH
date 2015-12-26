@@ -1203,7 +1203,7 @@ AUTOGEN_FILES = opcode.h opnames.h pp_proto.h proto.h embed.h embedvar.h \
 regen:	FORCE
 	-perl regen.pl
 	-perl regen/uconfig_h.pl
-	-perl ext/Config/Config_xs.PL --force
+	-$(RUN_PERL) ext/Config/Config_xs.PL --force
 
 regen_headers regen-headers:	FORCE
 	-perl regen.pl -v

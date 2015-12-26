@@ -19,7 +19,7 @@
 #    lib/Config_git.pl
 #
 
-$VERSION = '6.05';
+$VERSION = '6.05_01';
 my $in_core;
 
 BEGIN {
@@ -27,10 +27,8 @@ BEGIN {
         chdir 'ext/Config';
     }
     unless(-d 'regen') {
-        require '../../regen/regen_lib.pl';
+        unshift @INC, '../../lib', '../../lib/auto';
         $in_core = 1;
-    } else {
-        require 'regen/regen_lib.pl';
     }
     my $ptrsize = length(pack('P',""));
     my $ivsize =  length(pack('j',0));
@@ -45,6 +43,11 @@ BEGIN {
 }
 use strict ;
 use Config ;
+if ($in_core) {
+  require '../../regen/regen_lib.pl';
+} else {
+  require 'regen/regen_lib.pl';
+}
 
 ###########################################################################
 
