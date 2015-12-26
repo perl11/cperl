@@ -2030,7 +2030,7 @@ PP(pp_dbstate)
 	}
 	else {
             U8 hasargs = 0;
-	    PUSHBLOCK(cx, CXt_SUB, SP, PL_savestack_ix);
+	    PUSHBLOCK(cx, CXt_SUB, gimme, SP, PL_savestack_ix);
 	    PUSHSUB_DB(cx);
 	    cx->blk_sub.retop = PL_op->op_next;
 
@@ -2055,7 +2055,7 @@ PP(pp_enter)
     PERL_CONTEXT *cx;
     I32 gimme = GIMME_V;
 
-    PUSHBLOCK(cx, CXt_BLOCK, SP, PL_savestack_ix);
+    PUSHBLOCK(cx, CXt_BLOCK, gimme, SP, PL_savestack_ix);
     PUSHBASICBLK(cx);
 
     RETURN;
@@ -2158,7 +2158,7 @@ PP(pp_enteriter)
     assert((cxflags & (CXp_FOR_GV|CXp_FOR_PAD))
            || !(PL_op->op_private & OPpITER_DEF));
 
-    PUSHBLOCK(cx, cxflags, MARK, PL_savestack_ix);
+    PUSHBLOCK(cx, cxflags, gimme, MARK, PL_savestack_ix);
     PUSHLOOP_FOR(cx, itervarp, itersave);
 
     if (PL_op->op_flags & OPf_STACKED) {
@@ -2233,7 +2233,7 @@ PP(pp_enterloop)
     PERL_CONTEXT *cx;
     const I32 gimme = GIMME_V;
 
-    PUSHBLOCK(cx, CXt_LOOP_PLAIN, SP, PL_savestack_ix);
+    PUSHBLOCK(cx, CXt_LOOP_PLAIN, gimme, SP, PL_savestack_ix);
     PUSHLOOP_PLAIN(cx);
 
     RETURN;
@@ -4104,7 +4104,7 @@ PP(pp_require)
     }
 
     /* switch to eval mode */
-    PUSHBLOCK(cx, CXt_EVAL, SP, old_savestack_ix);
+    PUSHBLOCK(cx, CXt_EVAL, gimme, SP, old_savestack_ix);
     PUSHEVAL(cx, name);
     cx->blk_eval.retop = PL_op->op_next;
 
@@ -4219,7 +4219,7 @@ PP(pp_entereval)
      * to do the dirty work for us */
     runcv = find_runcv(&seq);
 
-    PUSHBLOCK(cx, (CXt_EVAL|CXp_REAL), SP, old_savestack_ix);
+    PUSHBLOCK(cx, (CXt_EVAL|CXp_REAL), gimme, SP, old_savestack_ix);
     PUSHEVAL(cx, 0);
     cx->blk_eval.retop = PL_op->op_next;
 
@@ -4350,7 +4350,7 @@ Perl_create_eval_scope(pTHX_ U32 flags)
     PERL_CONTEXT *cx;
     const I32 gimme = GIMME_V;
 	
-    PUSHBLOCK(cx, (CXt_EVAL|CXp_TRYBLOCK), PL_stack_sp, PL_savestack_ix);
+    PUSHBLOCK(cx, (CXt_EVAL|CXp_TRYBLOCK), gimme, PL_stack_sp, PL_savestack_ix);
     PUSHEVAL(cx, 0);
 
     PL_in_eval = EVAL_INEVAL;
@@ -4424,7 +4424,7 @@ PP(pp_entergiven)
         origsv = DEFSV;
     }
 
-    PUSHBLOCK(cx, CXt_GIVEN, SP, PL_savestack_ix);
+    PUSHBLOCK(cx, CXt_GIVEN, gimme, SP, PL_savestack_ix);
     PUSHGIVEN(cx, origsv);
 
     RETURN;
@@ -5004,7 +5004,7 @@ PP(pp_enterwhen)
     if ((0 == (PL_op->op_flags & OPf_SPECIAL)) && !SvTRUEx(POPs))
 	RETURNOP(cLOGOP->op_other->op_next);
 
-    PUSHBLOCK(cx, CXt_WHEN, SP, PL_savestack_ix);
+    PUSHBLOCK(cx, CXt_WHEN, gimme, SP, PL_savestack_ix);
     PUSHWHEN(cx);
 
     RETURN;
