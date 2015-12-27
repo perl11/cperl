@@ -7105,6 +7105,13 @@ STATIC bool	S_grok_bslash_N(pTHX_ RExC_state_t *pRExC_state, regnode** nodep, UV
 #define PERL_ARGS_ASSERT_GROK_BSLASH_N	\
 	assert(pRExC_state); assert(flagp)
 
+PERL_STATIC_INLINE regnode*	S_handle_named_backref(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, char * parse_start, char ch)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_HANDLE_NAMED_BACKREF	\
+	assert(pRExC_state); assert(flagp); assert(parse_start)
+
 STATIC int	S_handle_possible_posix(pTHX_ RExC_state_t *pRExC_state, const char* const s, char ** updated_parse_ptr, AV** posix_warnings)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
