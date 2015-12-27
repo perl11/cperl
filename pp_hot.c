@@ -60,7 +60,14 @@ PPt(pp_gvsv, "():Scalar")
 {
     dSP;
     EXTEND(SP,1);
-    if (UNLIKELY(PL_op->op_private & OPpLVAL_INTRO))
+    if (UNLIKELY(PL_op->op_private & OPpDONT_INIT_GV)) {
+        SV* sv;
+        if ((sv = GvSV(cGVOP_gv)))
+            PUSHs(sv);
+        else
+            PUSHs(&PL_sv_undef);
+    }
+    else if (UNLIKELY(PL_op->op_private & OPpLVAL_INTRO))
 	PUSHs(save_scalar(cGVOP_gv));
     else
 	PUSHs(GvSVn(cGVOP_gv));

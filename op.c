@@ -2638,9 +2638,9 @@ S_vivifies(const OPCODE type)
     case OP_AELEMFAST: case OP_KVHSLICE:
     case OP_HELEM:
     case OP_AELEM:
-	return 1;
+	return TRUE;
     }
-    return 0;
+    return FALSE;
 }
 
 static void
@@ -12423,7 +12423,7 @@ int S_match_type2(const U32 sig, core_types_t arg1, core_types_t arg2)
     return sig == (((U32)arg1 << 24) | ((U32)arg2 << 16) | 0xff00);
 }
 
-/* ck_type: check unop and binops for typed args, find spezialed match and promote.
+/* ck_type: check unop and binops for typed args, find specialized match and promote.
  * forget about native types here, use the boxed variants.
  * we can only unbox them later in rpeep sequences, by adding unbox...box ops.
  */
@@ -13396,6 +13396,11 @@ Perl_rpeep(pTHX_ OP *o)
                 }
                 break;
 
+            case OP_GVSV:
+                if (o2->op_next && looks_like_bool(o2->op_next))
+                    o2->op_private |= OPpDONT_INIT_GV;
+                break;
+
             case OP_PADSV:
                 /* $lex->[...]: padsv[$lex] sM/DREFAV */
 
@@ -14196,7 +14201,10 @@ Perl_rpeep(pTHX_ OP *o)
 		    o->op_private |= o->op_next->op_private & (OPpLVAL_INTRO
 							       | OPpOUR_INTRO);
 		    o->op_next = o->op_next->op_next;
+                    DEBUG_kv(Perl_deb(aTHX_ "rpeep: RV2SV -> GVSV\n"));
                     OpTYPE_set(o, OP_GVSV);
+                    if (looks_like_bool(o->op_next))
+                        o->op_private |= OPpDONT_INIT_GV;
 		}
 	    }
 	    else if (o->op_next->op_type == OP_READLINE

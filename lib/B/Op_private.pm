@@ -120,6 +120,7 @@ our %bits;
 
 our $VERSION = "5.022002";
 
+$bits{$_}{2} = 'OPpDONT_INIT_GV' for qw(gvsv rv2gv);
 $bits{$_}{3} = 'OPpENTERSUB_AMPER' for qw(entersub enterxssub rv2cv);
 $bits{$_}{6} = 'OPpENTERSUB_DB' for qw(entersub enterxssub rv2cv);
 $bits{$_}{2} = 'OPpENTERSUB_HASTARG' for qw(entersub enterxssub rv2cv);
@@ -485,7 +486,7 @@ $bits{rkeys}{0} = $bf[0];
 $bits{rmdir}{0} = $bf[0];
 $bits{rv2av}{0} = $bf[0];
 @{$bits{rv2cv}}{7,5,0} = ('OPpENTERSUB_NOPAREN', 'OPpMAY_RETURN_CONSTANT', $bf[0]);
-@{$bits{rv2gv}}{6,5,4,2,0} = ('OPpALLOW_FAKE', $bf[6], $bf[6], 'OPpDONT_INIT_GV', $bf[0]);
+@{$bits{rv2gv}}{6,5,4,0} = ('OPpALLOW_FAKE', $bf[6], $bf[6], $bf[0]);
 $bits{rv2hv}{0} = $bf[0];
 @{$bits{rv2sv}}{5,4,0} = ($bf[6], $bf[6], $bf[0]);
 $bits{rvalues}{0} = $bf[0];
@@ -769,6 +770,7 @@ our %ops_using = (
     OPpASSIGN_COMMON         => [qw(aassign)],
     OPpCONST_BARE            => [qw(const)],
     OPpCOREARGS_DEREF1       => [qw(coreargs)],
+    OPpDONT_INIT_GV          => [qw(gvsv rv2gv)],
     OPpEARLY_CV              => [qw(gv)],
     OPpENTERSUB_AMPER        => [qw(entersub enterxssub rv2cv)],
     OPpENTERSUB_INARGS       => [qw(entersub enterxssub)],
@@ -817,7 +819,6 @@ $ops_using{OPpCONST_STRICT} = $ops_using{OPpCONST_BARE};
 $ops_using{OPpCOREARGS_DEREF2} = $ops_using{OPpCOREARGS_DEREF1};
 $ops_using{OPpCOREARGS_PUSHMARK} = $ops_using{OPpCOREARGS_DEREF1};
 $ops_using{OPpCOREARGS_SCALARMOD} = $ops_using{OPpCOREARGS_DEREF1};
-$ops_using{OPpDONT_INIT_GV} = $ops_using{OPpALLOW_FAKE};
 $ops_using{OPpENTERSUB_DB} = $ops_using{OPpENTERSUB_AMPER};
 $ops_using{OPpENTERSUB_HASTARG} = $ops_using{OPpENTERSUB_AMPER};
 $ops_using{OPpEVAL_COPHH} = $ops_using{OPpEVAL_BYTES};

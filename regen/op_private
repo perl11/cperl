@@ -488,8 +488,6 @@ addbits($_, 7 => qw(OPpPV_IS_UTF8 UTF)) for qw(last redo next goto dump);
 # where FOO is typically the name of an op, and the flag is used by a
 # single op (or maybe by a few closely related ops).
 
-
-
 addbits($_, 6 => qw(OPpPAD_STATE STATE))  for qw(padav padhv padsv lvavref
                                                  lvref refassign pushmark);
 #addbits($_, 6 => qw(OPpPAD_NATIVE NATIVE)) 
@@ -582,8 +580,6 @@ addbits('rv2cv',
 #foo() called before sub foo was parsed */
 addbits('gv', 5 => qw(OPpEARLY_CV EARLYCV));
 
-
-
 # 1st arg is replacement string */
 addbits('substr', 4 => qw(OPpSUBSTR_REPL_FIRST REPL1ST));
 
@@ -612,13 +608,14 @@ for (qw(aelemfast aelemfast_lex aelemfast_lex_u)) {
 
 
 addbits('rv2gv',
-    2 => qw(OPpDONT_INIT_GV NOINIT), # Call gv_fetchpv with GV_NOINIT
-                            # (Therefore will return whatever is currently in
-                            # the symbol table, not guaranteed to be a PVGV)
     6 => qw(OPpALLOW_FAKE   FAKE),   # OK to return fake glob
 );
-
-
+addbits($_,
+    2 => qw(OPpDONT_INIT_GV NOINIT)) # Call gv_fetchpv with GV_NOINIT
+  # Therefore will return whatever is currently in
+  # the symbol table, not guaranteed to be a PVGV.
+  # Used in defined.
+  for qw(gvsv rv2gv rv2cv);
 
 addbits('enteriter',
                     2 => qw(OPpITER_REVERSED REVERSED),# for (reverse ...)
