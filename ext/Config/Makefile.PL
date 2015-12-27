@@ -35,13 +35,7 @@ WriteMakefile(
                           'Config_xs_heavy.pl' => '$(INST_LIBDIR)/Config_xs_heavy.pl',
                           'XSConfig.pod'       => '$(INST_LIBDIR)/XSConfig.pod')),
     },
-    #XS Config can not be loaded by P5P DynaLoader, only by XSLoader WITHOUT
-    #XSLoader passing the "complicated" loading scenario to DynaLoader.
-    #P5P DL use'es Config, to get $Config{dlext}, a bootstraping problem for XS
-    #Config, XSLoader passes onto DynaLoader if the auto/Config/Config.dll is
-    #not in the same @INC dir as Config.pm, so put Config.pm in /arch.
-    ($in_core ? () : (INST_LIB => '$(INST_ARCHLIB)')),
-
+    INSTALLDIRS => 'perl',
     #XSOPT  => ' -nolinenumbers ',
 );
 
