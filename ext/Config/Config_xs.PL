@@ -19,7 +19,7 @@
 #    lib/Config_git.pl
 #
 
-$VERSION = '6.05_01';
+$VERSION = '6.05_03';
 my $in_core;
 
 BEGIN {
@@ -143,41 +143,41 @@ if ($gperf_ok) {
         my $k = "config_arg".$_;
         $h{$k} = '' unless exists $h{$k};
     }
-    my @cannedkeys =
-               qw(  bin_ELF bootstrap_charset canned_gperf ccstdflags ccwarnflags
-                    charsize config_argc config_args d_re_comp d_regcmp git_ancestor
-                    git_remote_branch git_unpushed hostgenerate hostosname hostperl
-                    incpth installhtmldir installhtmlhelpdir ld_can_script
-                    libdb_needs_pthread mad malloc_cflags sysroot targetdir
-                    targetenv targethost targetmkdir targetport
-                    useversionedarchname);
+    my @cannedkeys = qw(
+bin_ELF bootstrap_charset   canned_gperf    ccstdflags  ccwarnflags charsize
+config_argc config_args d_re_comp   d_regcmp    dlltool git_ancestor
+git_remote_branch   git_unpushed    hostgenerate    hostosname  hostperl
+incpth  installhtmldir  installhtmlhelpdir  ld_can_script   libdb_needs_pthread
+mad malloc_cflags   sysroot targetdir   targetenv   targethost  targetmkdir
+targetport  useversionedarchname
+        );
     unless ($in_core) { #cperl doesn't need these, CPAN does
         push @cannedkeys , qw(
-Mcc PERL_PATCHLEVEL ccflags_nolargefiles    charbits    d_acosh d_asctime64
-d_asinh d_atanh d_attribute_deprecated  d_backtrace d_builtin_arith_overflow
-d_cbrt  d_copysign  d_ctime64   d_difftime64    d_dladdr    d_erf   d_erfc
-d_exp2  d_expm1 d_fdim  d_fegetround    d_fma   d_fmax  d_fmin  d_fp_classify
-d_fp_classl d_fpgetround    d_fs_data_s d_fstatfs   d_fstatvfs
-d_gdbm_ndbm_h_uses_prototypes   d_gdbmndbm_h_uses_prototypes    d_getaddrinfo
-d_getfsstat d_getmnt    d_getmntent d_getnameinfo   d_gmtime64  d_hasmntopt
-d_hypot d_ilogb d_inetntop  d_inetpton  d_ip_mreq   d_ip_mreq_source
-d_ipv6_mreq d_ipv6_mreq_source  d_isblank   d_isfinitel d_isinfl    d_isless
-d_isnormal  d_j0    d_j0l   d_lc_monetary_2008  d_ldexpl    d_lgamma
-d_lgamma_r  d_libname_unique    d_llrint    d_llrintl   d_llround   d_llroundl
-d_localtime64   d_log1p d_log2  d_logb  d_lrint d_lrintl    d_lround
-d_lroundl   d_mktime64  d_nan   d_ndbm  d_ndbm_h_uses_prototypes    d_nearbyint
-d_nextafter d_nexttoward    d_prctl d_prctl_set_name    d_ptrdiff_t d_regcomp
-d_remainder d_remquo    d_rint  d_round d_scalbn    d_sfio  d_sin6_scope_id
-d_sockaddr_in6  d_sockaddr_sa_len   d_stat  d_statfs_f_flags    d_statfs_s
-d_static_inline d_statvfs   d_tgamma    d_timegm    d_trunc d_truncl    d_ustat
-d_vms_case_sensitive_symbols    d_wcscmp    d_wcsxfrm   defvoidused
-dl_so_eq_ext    dlltool doop_cflags doubleinfbytes  doublekind  doublemantbits
-doublenanbytes  dtrace  extern_C    found_libucb    git_branch  git_commit_date
-git_commit_id   git_commit_id_title git_describe    git_uncommitted_changes
-hash_func   i_assert    i_bfd   i_dld   i_execinfo  i_fenv  i_gdbm_ndbm
-i_gdbmndbm  i_mallocmalloc  i_mntent    i_quadmath  i_sfio  i_stdbool
-i_stdint    i_sysmount  i_syspoll   i_sysstatfs i_sysstatvfs    i_sysvfs
-i_ustat ieeefp_h    ldflags_nolargefiles    libs_nolargefiles
+BuiltWithPatchPerl  Mcc PERL_PATCHLEVEL ccflags_nolargefiles    charbits
+d_acosh d_asctime64 d_asinh d_atanh d_attribute_deprecated  d_backtrace
+d_builtin_arith_overflow    d_cbrt  d_copysign  d_ctime64   d_difftime64
+d_dladdr    d_erf   d_erfc  d_exp2  d_expm1 d_fdim  d_fegetround    d_fma
+d_fmax  d_fmin  d_fp_classify   d_fp_classl d_fpgetround    d_fs_data_s
+d_fstatfs   d_fstatvfs  d_gdbm_ndbm_h_uses_prototypes
+d_gdbmndbm_h_uses_prototypes    d_getaddrinfo   d_getfsstat d_getmnt
+d_getmntent d_getnameinfo   d_gmtime64  d_hasmntopt d_hypot d_ilogb d_inetntop
+d_inetpton  d_ip_mreq   d_ip_mreq_source    d_ipv6_mreq d_ipv6_mreq_source
+d_isblank   d_isfinitel d_isinfl    d_isless    d_isnormal  d_j0    d_j0l
+d_lc_monetary_2008  d_ldexpl    d_lgamma    d_lgamma_r  d_libname_unique
+d_llrint    d_llrintl   d_llround   d_llroundl  d_localtime64   d_log1p d_log2
+d_logb  d_lrint d_lrintl    d_lround    d_lroundl   d_mktime64  d_nan   d_ndbm
+d_ndbm_h_uses_prototypes    d_nearbyint d_nextafter d_nexttoward    d_prctl
+d_prctl_set_name    d_ptrdiff_t d_regcomp   d_remainder d_remquo    d_rint
+d_round d_scalbn    d_sfio  d_sin6_scope_id d_sockaddr_in6  d_sockaddr_sa_len
+d_stat  d_statfs_f_flags    d_statfs_s  d_static_inline d_statvfs   d_tgamma
+d_timegm    d_trunc d_truncl    d_ustat d_vms_case_sensitive_symbols
+d_wcscmp    d_wcsxfrm   defvoidused dl_so_eq_ext    doop_cflags doubleinfbytes
+doublekind  doublemantbits  doublenanbytes  dtrace  extern_C    found_libucb
+git_branch  git_commit_date git_commit_id   git_commit_id_title git_describe
+git_uncommitted_changes hash_func   i_assert    i_bfd   i_dld   i_execinfo
+i_fenv  i_gdbm_ndbm i_gdbmndbm  i_mallocmalloc  i_mntent    i_quadmath  i_sfio
+i_stdbool   i_stdint    i_sysmount  i_syspoll   i_sysstatfs i_sysstatvfs
+i_sysvfs    i_ustat ieeefp_h    ldflags_nolargefiles    libs_nolargefiles
 libswanted_nolargefiles longdblinfbytes longdblkind longdblmantbits
 longdblnanbytes madlyh  madlyobj    madlysrc    nv_overflows_integers_at
 nvmantbits  op_cflags   perl_revision   perl_static_inline  perl_subversion
@@ -365,7 +365,7 @@ __inline
     s/sizeof\(/sizeof (/g;
 
     # fixup U16
-    s/\(int\)\(long\)\&/(U16)&/g;
+    s/\(int\)\(long\)\&/(U16)(long)&/g;
     s/\Qregister int o = wordlist[key].name\E/register U16 o = wordlist[key].name/;
     s/\Qif (o >= 0)\E\n/if (o != XCNAME_MAX)\n/;
 

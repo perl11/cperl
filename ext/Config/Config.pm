@@ -11,7 +11,7 @@ use strict;
 use warnings;
 use vars '%Config', '$VERSION';
 
-$VERSION = '6.05';
+$VERSION = '6.05_03';
 
 # Skip @Config::EXPORT because it only contains %Config, which we special
 # case below as it's not a function. @Config::EXPORT won't change in the
