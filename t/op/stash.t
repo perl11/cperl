@@ -56,7 +56,7 @@ package main;
     # a420522db95b7762
     fresh_perl_is(
       'use Exporter; package A; sub a { // };'
-      .'for (keys %::) {delete $::{$_} if !/^(\!|Internals)$/ and !Internals::SvREADONLY(%{$_})}',
+      .'for (sort keys %::) {delete $::{$_} if !/^(\!|Internals)$/ and !Internals::SvREADONLY(%{$_})}',
       '',
       {},
       );
