@@ -2902,4 +2902,10 @@ AMp	|void	|set_version   |NN const char *name  |STRLEN nlen \
                                |NN const char *strval|STRLEN plen \
                                |NV nvval
 
+#ifndef PERL_NO_INLINE_FUNCTIONS
+AiM	|PERL_CONTEXT *	|cx_pushblock|U8 type|U8 gimme|NN SV** sp|I32 saveix
+AiM	|void	|cx_popblock|NN PERL_CONTEXT *cx
+AiM	|void	|cx_topblock|NN PERL_CONTEXT *cx
+#endif
+
 : ex: set ts=8 sts=4 sw=4 noet:

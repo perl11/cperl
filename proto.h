@@ -5507,6 +5507,21 @@ PERL_STATIC_INLINE SSize_t	S_av_top_index(pTHX_ AV *av)
 #define PERL_ARGS_ASSERT_AV_TOP_INDEX	\
 	assert(av)
 
+PERL_STATIC_INLINE void	S_cx_popblock(pTHX_ PERL_CONTEXT *cx)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CX_POPBLOCK	\
+	assert(cx)
+
+PERL_STATIC_INLINE PERL_CONTEXT *	S_cx_pushblock(pTHX_ U8 type, U8 gimme, SV** sp, I32 saveix)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_CX_PUSHBLOCK	\
+	assert(sp)
+
+PERL_STATIC_INLINE void	S_cx_topblock(pTHX_ PERL_CONTEXT *cx)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CX_TOPBLOCK	\
+	assert(cx)
+
 PERL_STATIC_INLINE bool	S_is_safe_syscall(pTHX_ const char *pv, STRLEN len, const char *what, const char *op_name)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1)
