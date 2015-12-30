@@ -3550,6 +3550,13 @@
  */
 /*#define FCNTL_CAN_LOCK		/ **/
 
+/* HAS_FDCLOSE:
+ *	This symbol, if defined, indicates that the fdclose routine is
+ *	available to free a FILE structure without closing the underlying
+ *	file descriptor.  This function appeared in FreeBSD 10.2.
+ */
+/*#define HAS_FDCLOSE		/ **/
+
 /* HAS_FDIM:
  *	This symbol, if defined, indicates that the fdim routine is
  *	available to do the positive difference function.
@@ -5266,6 +5273,6 @@
 #endif
 
 /* Generated from:
- * 40b842655a3f49185ff09764d371eabf23e27ec1e66e4c7960259baaef1b51b4 config_h.SH
- * e7992a2ac7d2e90569c600f7f04de4d4fe33fb69ea36fbcd93c8d46eaaa8045a uconfig.sh
+ * 15a3a7cbf0fef1e255c94c39a5839185ae0c97d0cc2c609b44a6e64f7edda61c config_h.SH
+ * eaecd269816fa49e75e0e567ac5dba180fb0d991c33d3fc2859b87f1123e2ca2 uconfig.sh
  * ex: set ro: */
