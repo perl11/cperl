@@ -5512,10 +5512,31 @@ PERL_STATIC_INLINE void	S_cx_popblock(pTHX_ PERL_CONTEXT *cx)
 #define PERL_ARGS_ASSERT_CX_POPBLOCK	\
 	assert(cx)
 
+PERL_STATIC_INLINE void	S_cx_popsub(pTHX_ PERL_CONTEXT *cx)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CX_POPSUB	\
+	assert(cx)
+
+PERL_STATIC_INLINE void	S_cx_popsub_args(pTHX_ PERL_CONTEXT *cx)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CX_POPSUB_ARGS	\
+	assert(cx)
+
+PERL_STATIC_INLINE void	S_cx_popsub_common(pTHX_ PERL_CONTEXT *cx)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CX_POPSUB_COMMON	\
+	assert(cx)
+
 PERL_STATIC_INLINE PERL_CONTEXT *	S_cx_pushblock(pTHX_ U8 type, U8 gimme, SV** sp, I32 saveix)
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_CX_PUSHBLOCK	\
 	assert(sp)
+
+PERL_STATIC_INLINE void	S_cx_pushsub(pTHX_ PERL_CONTEXT *cx, CV *cv, OP *retop, bool hasargs)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CX_PUSHSUB	\
+	assert(cx); assert(cv)
 
 PERL_STATIC_INLINE void	S_cx_topblock(pTHX_ PERL_CONTEXT *cx)
 			__attribute__nonnull__(pTHX_1);
