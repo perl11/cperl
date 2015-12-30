@@ -1560,10 +1560,10 @@ Perl_dounwind(pTHX_ I32 cxix)
 	    cx_poploop(cx);
 	    break;
 	case CXt_WHEN:
-	    CX_POPWHEN(cx);
+	    cx_popwhen(cx);
 	    break;
 	case CXt_GIVEN:
-	    CX_POPGIVEN(cx);
+	    cx_popgiven(cx);
 	    break;
 	case CXt_BLOCK:
 	case CXt_NULL:
@@ -4424,7 +4424,7 @@ PP(pp_entergiven)
     }
 
     cx = cx_pushblock(CXt_GIVEN, gimme, SP, PL_savestack_ix);
-    CX_PUSHGIVEN(cx, origsv);
+    cx_pushgiven(cx, origsv);
 
     RETURN;
 }
@@ -4447,7 +4447,7 @@ PP(pp_leavegiven)
         leave_adjust_stacks(oldsp, oldsp, gimme, 1);
 
     CX_LEAVE_SCOPE(cx);
-    CX_POPGIVEN(cx);
+    cx_popgiven(cx);
     cx_popblock(cx);
     CX_POP(cx);
 
@@ -5004,7 +5004,7 @@ PP(pp_enterwhen)
 	RETURNOP(cLOGOP->op_other->op_next);
 
     cx = cx_pushblock(CXt_WHEN, gimme, SP, PL_savestack_ix);
-    CX_PUSHWHEN(cx);
+    cx_pushwhen(cx);
 
     RETURN;
 }
@@ -5070,7 +5070,7 @@ PP(pp_continue)
     assert(CxTYPE(cx) == CXt_WHEN);
     PL_stack_sp = PL_stack_base + cx->blk_oldsp;
     CX_LEAVE_SCOPE(cx);
-    CX_POPWHEN(cx);
+    cx_popwhen(cx);
     cx_popblock(cx);
     nextop = cx->blk_givwhen.leave_op->op_next;
     CX_POP(cx);
