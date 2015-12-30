@@ -244,7 +244,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1237
+#define TOTAL_KEYWORDS 1238
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 30
 #define MIN_HASH_VALUE 3
@@ -758,6 +758,7 @@ struct stringpool_t
     char stringpool_str1416[sizeof ("d_difftime")];
     char stringpool_str1417[sizeof ("endprotoent_r_proto")];
     char stringpool_str1418[sizeof ("sPRIeldbl")];
+    char stringpool_str1420[sizeof ("d_fdclose")];
     char stringpool_str1421[sizeof ("Author")];
     char stringpool_str1422[sizeof ("d_sysernlst")];
     char stringpool_str1426[sizeof ("d_semget")];
@@ -1998,6 +1999,7 @@ static const struct stringpool_t stringpool_contents =
     "d_difftime",
     "endprotoent_r_proto",
     "sPRIeldbl",
+    "d_fdclose",
     "Author",
     "d_sysernlst",
     "d_semget",
@@ -3948,7 +3950,9 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1417,	T_INV,0,ALN64I"@@endprotoent_r_proto@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1418,		T_INV,0,ALN64I"@@sPRIeldbl@@"},
-      {XSCNO}, {XSCNO},
+      {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1420,		T_INV,0,ALN64I"@@d_fdclose@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1421,			T_INV,0,ALN64I"@@Author@@"},
 
@@ -6604,7 +6608,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str7919,	T_INV,0,ALN64I"@@d_libm_lib_version@@"}
     };
 
-#line 6607 "Config.xs"
+#line 6611 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);
