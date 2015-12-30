@@ -5522,6 +5522,11 @@ PERL_STATIC_INLINE void	S_cx_popformat(pTHX_ PERL_CONTEXT *cx)
 #define PERL_ARGS_ASSERT_CX_POPFORMAT	\
 	assert(cx)
 
+PERL_STATIC_INLINE void	S_cx_poploop(pTHX_ PERL_CONTEXT *cx)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CX_POPLOOP	\
+	assert(cx)
+
 PERL_STATIC_INLINE void	S_cx_popsub(pTHX_ PERL_CONTEXT *cx)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CX_POPSUB	\
@@ -5552,6 +5557,17 @@ PERL_STATIC_INLINE void	S_cx_pushformat(pTHX_ PERL_CONTEXT *cx, CV *cv, OP *reto
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_CX_PUSHFORMAT	\
 	assert(cx); assert(cv)
+
+PERL_STATIC_INLINE void	S_cx_pushloop_for(pTHX_ PERL_CONTEXT *cx, void *itervarp, SV *itersave)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CX_PUSHLOOP_FOR	\
+	assert(cx); assert(itervarp)
+
+PERL_STATIC_INLINE void	S_cx_pushloop_plain(pTHX_ PERL_CONTEXT *cx)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CX_PUSHLOOP_PLAIN	\
+	assert(cx)
 
 PERL_STATIC_INLINE void	S_cx_pushsub(pTHX_ PERL_CONTEXT *cx, CV *cv, OP *retop, bool hasargs)
 			__attribute__nonnull__(pTHX_1)
