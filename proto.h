@@ -5512,6 +5512,11 @@ PERL_STATIC_INLINE void	S_cx_popblock(pTHX_ PERL_CONTEXT *cx)
 #define PERL_ARGS_ASSERT_CX_POPBLOCK	\
 	assert(cx)
 
+PERL_STATIC_INLINE void	S_cx_popeval(pTHX_ PERL_CONTEXT *cx)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CX_POPEVAL	\
+	assert(cx)
+
 PERL_STATIC_INLINE void	S_cx_popformat(pTHX_ PERL_CONTEXT *cx)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CX_POPFORMAT	\
@@ -5536,6 +5541,11 @@ PERL_STATIC_INLINE PERL_CONTEXT *	S_cx_pushblock(pTHX_ U8 type, U8 gimme, SV** s
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_CX_PUSHBLOCK	\
 	assert(sp)
+
+PERL_STATIC_INLINE void	S_cx_pusheval(pTHX_ PERL_CONTEXT *cx, OP *retop, SV *namesv)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CX_PUSHEVAL	\
+	assert(cx)
 
 PERL_STATIC_INLINE void	S_cx_pushformat(pTHX_ PERL_CONTEXT *cx, CV *cv, OP *retop, GV *gv)
 			__attribute__nonnull__(pTHX_1)
