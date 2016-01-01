@@ -15,7 +15,7 @@ BEGIN {
 
 use Config;
 
-plan tests => 131;
+plan tests => 133;
 
 # run some code N times. If the number of SVs at the end of loop N is
 # greater than (N-1)*delta at the end of loop 1, we've got a leak
@@ -540,9 +540,9 @@ EOF
 
 # check that OP_SIGNATURE doesn't leak
 
-eleak(2, 0, <<'EOF', 'OP_SIGNATURE');
-use feature 'signatures';
-no warnings 'experimental::signatures';
+eleak(1, 0, <<'EOF', 'OP_SIGNATURE');
+#use feature 'signatures';
+#no warnings 'experimental::signatures';
 sub Foo::f1 ($a, $b = undef, $c = 0, $d = 1, $e = -2, $f = "boo",
      $g = $Foo::bar1, $h = $g + 1) {
 }
@@ -551,10 +551,10 @@ EOF
 
 # check that OP_SIGNATURE with syntax error doesn't leak
 
-eleak(2, 0, <<'EOF', 'OP_SIGNATURE err');
-use feature 'signatures';
-no warnings 'experimental::signatures';
+eleak(1, 0, <<'EOF', 'OP_SIGNATURE err');
+#use feature 'signatures';
+#no warnings 'experimental::signatures';
 sub Foo::f1 ($a, $b = undef, $c = 0, $d = 1, $e = -2, $f = "boo",
-     $g = $Foo::bar2, $h = $g + 1, BAD) {
-}
+     $g = $Foo::bar2, $h = $g + 1, BAD) {}
 EOF
+
