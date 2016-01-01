@@ -1328,7 +1328,7 @@ sub t118 (\$a) { ++$a }
     is prototype(\&t118), '(\$a)';
     my $a = 222;
     is scalar(@{[ t118($a) ]}), 1;
-    is scalar(t118($a)), 224; # todo ref
+    is scalar(t118($a)), 224;
     is $a, 224;
 }
 
@@ -1337,9 +1337,8 @@ sub t119(int $a) :int { $a || 0 }
     is prototype(\&t119), '(int $a)', 'int $a';
     is scalar(@{[ t119(222) ]}), 1;
     is scalar(t119(222)), 222;
-    # TODO: compile-time error checking
-    #eval { eval "\$a = t119('a');"; };
-    #like $@, qr/\AIllegal type /;
+    eval "\$a = t119('a');";
+    like $@, qr/\AType of arg \$a to t119 must be int \(not Str\) at \(eval \d+\) line 1, near "/;
 }
 
 use File::Spec::Functions;
@@ -1398,6 +1397,34 @@ is scalar(t147(1,2,3,4)),           "bar:zoot";
 is scalar(t147(1,2,3,4,5)),         "bar:zoot";
 is scalar(t147(1,2,3,4,5,"baz")),   "baz:zoot";
 is scalar(t147(1,2,3,4,5,"baz",7)), "baz:7";
+
+# check untyped array and hash refs
+
+sub t148 (\@a) { $a->[0] = 1 }
+{
+    is prototype(\&t148), '(\@a)';
+    my $a = [222];
+    is scalar(@{[ t148($a) ]}), 1;
+    is scalar(t148($a)), 1;
+    is $a->[0], 1;
+    eval "t148('a');";
+    like $@, qr/\AType of arg \$a to t148 must be ARRAY reference \(not PV\) at \(eval \d+\) line 1, near "/;
+    eval "t148({});";
+    like $@, qr/\AType of arg \$a to t148 must be ARRAY reference \(not HASH reference\) at \(eval \d+\) line 1, near "/;
+}
+
+sub t149 (\%a) { $a->{0} = 1 }
+{
+    is prototype(\&t149), '(\%a)';
+    my $a = {0 => 222};
+    is scalar(@{[ t149($a) ]}), 1;
+    is scalar(t149($a)), 1;
+    is $a->{0}, 1;
+    eval "t149('a');";
+    like $@, qr/\AType of arg \$a to t149 must be HASH reference \(not PV\) at \(eval \d+\) line 1, near "/;
+    eval "t149([]);";
+    like $@, qr/\AType of arg \$a to t149 must be HASH reference \(not ARRAY reference\) at \(eval \d+\) line 1, near "/;
+}
 
 # check that a sub can have 32767 parameters ...
 
@@ -1529,10 +1556,10 @@ sub goto1_sig2pp ($, $=0, $a="baz", $b="7") {
 
 goto1_pp2pp();
 goto1_pp2sig();
-#goto2_pp2sig();
-#goto3_pp2sig();
-#goto1_sig2sig(0);
-#goto1_sig2pp(0);
+#goto2_pp2sig(); #todo
+#goto3_pp2sig(); #todo
+#goto1_sig2sig(0); #todo
+#goto1_sig2pp(0); # corrupts caller
 
 done_testing;
 

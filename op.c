@@ -12110,6 +12110,25 @@ by the name defined by the I<namegv> parameter.
 =cut
 */
 
+static const char* const svshorttypenames[SVt_LAST] = {
+    "UNDEF",
+    "IV",
+    "NV",
+    "PV",
+    "INVLST",
+    "PVIV",
+    "PVNV",
+    "PVMG",
+    "REGEXP",
+    "GV",
+    "PVLV",
+    "AV",
+    "HV",
+    "CV",
+    "FM",
+    "IO"
+};
+
 OP *
 Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
 {
@@ -12234,6 +12253,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
             }
 #endif
+            /* TODO: o3 needs to return a scalar */
             S_sig_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
             pad_ix++;
             scalar(aop);
@@ -12243,6 +12263,28 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             S_sig_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
             arg++;
             if (actions & SIGNATURE_FLAG_ref) {
+                const PADNAME* pn = PAD_NAME(pad_ix);
+                /* o3 needs to be a aref or href. we can typecheck a CONST,
+                   but not much else */
+                if (o3->op_type == OP_CONST) {
+                    const SV* sv = cSVOPx_sv(o3);
+                    const svtype t = SvTYPE(sv);
+                    if (!(t == SVt_NULL || t == SVt_IV))
+                        bad_type_core(PadnamePV(pn), namegv, type_Object, svshorttypenames[t],
+                                      action == SIGNATURE_hash ? "HASH reference"
+                                                               : "ARRAY reference");
+                    if (SvROK(sv) && SvTYPE(SvRV(sv)) !=
+                                       (action == SIGNATURE_hash ? SVt_PVHV : SVt_PVAV))
+                        bad_type_core(PadnamePV(pn), namegv, type_Object, svshorttypenames[t],
+                                      action == SIGNATURE_hash ? "HASH reference"
+                                                               : "ARRAY reference");
+                } else if (o3->op_type == OP_ANONHASH && action == SIGNATURE_array) {
+                    bad_type_core(PadnamePV(pn), namegv, type_Object, "HASH reference",
+                                  "ARRAY reference");
+                } else if (o3->op_type == OP_ANONLIST && action == SIGNATURE_hash) {
+                    bad_type_core(PadnamePV(pn), namegv, type_Object, "ARRAY reference",
+                                  "HASH reference");
+                }
                 scalar(aop);
                 DEBUG_kv(Perl_deb(aTHX_ "ck_sig: ref action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));

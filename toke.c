@@ -8827,7 +8827,8 @@ S_pending_ident(pTHX)
 		HEK * const stashname = HvNAME_HEK(stash);
 		SV *  const sym = newSVhek(stashname);
                 sv_catpvs(sym, "::");
-                sv_catpvn_flags(sym, PL_tokenbuf+1, tokenbuf_len - 1, (UTF ? SV_CATUTF8 : SV_CATBYTES ));
+                sv_catpvn_flags(sym, PL_tokenbuf+1, tokenbuf_len - 1,
+                                (UTF ? SV_CATUTF8 : SV_CATBYTES ));
                 pl_yylval.opval = (OP*)newSVOP(OP_CONST, 0, sym);
                 pl_yylval.opval->op_private = OPpCONST_ENTERED;
                 if (pit != '&')
@@ -12183,7 +12184,7 @@ S_lex_token_boundary(pTHX)
  */
 
 static PADOFFSET
-S_parse_opt_lexvar(pTHX)
+S_parse_opt_lexvar(pTHX_ bool is_ref)
 {
     I32 sigil, c;
     char *s, *d;
@@ -12204,6 +12205,9 @@ S_parse_opt_lexvar(pTHX)
     PL_bufptr = s;
     if (d == PL_tokenbuf+1)
 	return NOT_IN_PAD;
+    if (is_ref && (sigil == '@' || sigil == '%')) {
+        PL_tokenbuf[0] = '$';
+    }
     return allocmy(PL_tokenbuf, d - PL_tokenbuf, UTF ? SVf_UTF8 : 0);
 }
 
@@ -12416,7 +12420,7 @@ Perl_parse_subsignature(pTHX)
                 is_ref = FALSE;
             }
 
-            pad_offset = S_parse_opt_lexvar(aTHX);
+            pad_offset = S_parse_opt_lexvar(aTHX_ is_ref);
             is_var = (pad_offset != NOT_IN_PAD);
 
             if (is_var) {
@@ -12476,7 +12480,7 @@ Perl_parse_subsignature(pTHX)
                     if (is_ref) {
                         if (sigil == '@')      action = SIGNATURE_array;
                         else if (sigil == '%') action = SIGNATURE_hash;
-                        action |= SIGNATURE_FLAG_ref;
+                        /*action |= SIGNATURE_FLAG_ref;*/
                     }
                     prev_type = 0;
                     mand_args++;

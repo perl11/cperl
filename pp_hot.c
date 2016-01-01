@@ -4342,7 +4342,7 @@ PP(pp_signature)
         if (UNLIKELY(argc < mand_params)) {
 #if 0
             /* TODO evtl print the name of the first missing arg.
-               But in most cases these errors are already thrown at compile-time. */
+               These errors are already thrown at compile-time. */
             if (1 == argc - mand_params && items->uv == SIGNATURE_padintro) {
                 PADNAME * const pn = PadlistNAMESARRAY(CvPADLIST(cv))[argc+1];
                 S_croak_caller("Not enough arguments for %s%s%s %s. Want: %"UVuf
@@ -4400,8 +4400,6 @@ PP(pp_signature)
             DEBUG_Xv(Perl_deb(aTHX_ "sigref padp %p = argp %p\n", *argp, *padp));
             /* copy back temp pad to old sv at leavesub */
             save_pushptrptr(argp, padp, SAVEt_SPTR);
-            /*if (UNLIKELY(!*argp))
-              S_croak_caller("Reference parameter may not be empty");*/
             SvPADSTALE_on(*padp); /* mark our pad as inactive */
             *padp++ = *argp++;    /* and overwrite new pad with old sv */
             actions >>= SIGNATURE_SHIFT;
@@ -4458,7 +4456,7 @@ PP(pp_signature)
             SV *argsv;
             SV *varsv;
 
-            /* Do not copy constants, ref them */
+            /* When refs are faster by inlining, do not copy constants, ref them */
 #ifdef DEBUGGING
             if (action == SIGNATURE_arg && argc && *argp && SvREADONLY(*argp)) {
               DEBUG_Xv(Perl_deb(aTHX_ "sigconst argp %p\n", *argp));
