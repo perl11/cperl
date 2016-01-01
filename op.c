@@ -12268,7 +12268,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             pad_ix = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
             action = actions & SIGNATURE_ACTION_MASK;
         }
-        if (action > SIGNATURE_arg || action ==  SIGNATURE_end)
+        if (action > SIGNATURE_arg || action ==  SIGNATURE_end || action == SIGNATURE_reload)
             return entersubop;
         else {
             SV * const namesv = cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN);
