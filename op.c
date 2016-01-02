@@ -11901,7 +11901,11 @@ PERL_STATIC_INLINE
 int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname)
 {
     core_types_t dtyp = stash_to_coretype(stash);
-    if (LIKELY(dtyp == type_none || (dtyp == atyp && dtyp != type_Object)))
+    if (LIKELY(dtyp == type_none /* no declared type */
+               /* or same coretype */
+               || (dtyp == atyp && dtyp != type_Object)
+               /* or Scalar arg, matches any decl */
+               || (atyp == type_Scalar && dtyp <= type_Object)))
         return 1;
     /* and now check the allowed variants */
     switch (dtyp) {
@@ -11927,7 +11931,8 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname)
             || atyp == type_Num
             || atyp == type_num
             || atyp == type_uint
-            || atyp == type_UInt;
+            || atyp == type_UInt
+            || atyp == type_Scalar;
     case type_Scalar:
         return atyp <= type_Scalar;
     case type_Object:
