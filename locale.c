@@ -904,19 +904,15 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
 #ifdef LC_ALL
         sl_result = my_setlocale(LC_ALL, trial_locale);
         DEBUG_LOCALE_INIT(LC_ALL, trial_locale, sl_result);
-        if (! sl_result) {
+        if (sl_result)
+	    done = TRUE;
+	else
+        /* On darwin/osx we might want to free this return value or
+           suppress the valgrind warning, but not elsewhere. POSIX
+           standard forbids it, valgrind detects this upstream
+           problem.  See
+           e.g. https://stackoverflow.com/questions/29116354/should-i-free-the-pointer-returned-by-setlocale */
             setlocale_failure = TRUE;
-        }
-        else {
-            /* Since LC_ALL succeeded, it should have changed all the other
-             * categories it can to its value; so we massage things so that the
-             * setlocales below just return their category's current values.
-             * This adequately handles the case in NetBSD where LC_COLLATE may
-             * not be defined for a locale, and setting it individually will
-             * fail, whereas setting LC_ALL suceeds, leaving LC_COLLATE set to
-             * the POSIX locale. */
-            trial_locale = NULL;
-        }
 #endif /* LC_ALL */
 
         if (!setlocale_failure) {
