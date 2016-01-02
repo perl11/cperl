@@ -12164,7 +12164,8 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
     mand_params = params >> 16;
     opt_params  = params & ((1<<15)-1);
     actions = (++items)->uv;
-    DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arity=%d/%d actions=0x%lx\n",
+    DEBUG_kv(Perl_deb(aTHX_ "ck_sig: %s arity=%d/%d actions=0x%lx\n",
+                      SvPVX_const(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)),
                       (int)mand_params, (int)opt_params, actions));
 
     aop = cUNOPx(entersubop)->op_first;

@@ -1426,6 +1426,12 @@ sub t149 (\%a) { $a->{0} = 1 }
     like $@, qr/\AType of arg \$a to t149 must be HASH reference \(not ARRAY reference\) at \(eval \d+\) line 1, near "/;
 }
 
+# int should not bleed into @error
+sub t150 (int $i, @error) { 1 }
+{
+    is scalar(t150(1, "")), 1, "reset tyepstash";
+}
+
 # check that a sub can have 32767 parameters ...
 
 my $code = "#line 2 foo\nsub t148 ("
