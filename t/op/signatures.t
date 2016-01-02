@@ -734,7 +734,7 @@ is eval("t049(222, 456, 789, 987, 654, 321, 111)"),
     "222;321=111/456=789/987=654";
 is $a, 123;
 
-sub t051 ($a, $b, $c, @d) { "$a;$b;$c;".join("/", @d).";".scalar(@d) }
+sub t051 ($a, $b, $c, @d) { "$a;$b;$c;(".join(",", @d).")".scalar(@d) }
 is prototype(\&t051), '($a, $b, $c, @d)';
 is eval("t051()"), undef;
 like $@, qr/\ANot enough arguments for subroutine entry t051/;
@@ -742,13 +742,13 @@ is eval("t051(456)"), undef;
 like $@, qr/\ANot enough arguments for subroutine entry t051/;
 is eval("t051(456, 789)"), undef;
 like $@, qr/\ANot enough arguments for subroutine entry t051/;
-is eval("t051(456, 789, 987)"), "456;789;987;;0";
-is eval("t051(456, 789, 987, 654)"), "456;789;987;654;1";
-is eval("t051(456, 789, 987, 654, 321)"), "456;789;987;654/321;2";
-is eval("t051(456, 789, 987, 654, 321, 111)"), "456;789;987;654/321/111;3";
+is eval("t051(456, 789, 987)"), "456;789;987;()0";
+is eval("t051(456, 789, 987, 654)"), "456;789;987;(654)1";
+is eval("t051(456, 789, 987, 654, 321)"), "456;789;987;(654,321)2";
+is eval("t051(456, 789, 987, 654, 321, 111)"), "456;789;987;(654,321,111)3";
 is $a, 123;
 
-sub t052 ($a, $b, %c) { "$a;$b;".join("/", map { $_."=".$c{$_} } sort keys %c) }
+sub t052 ($a, $b, %c) { "$a;$b;".join(";", map { $_."=>".$c{$_} } sort keys %c) }
 is prototype(\&t052), '($a, $b, %c)';
 is eval("t052()"), undef;
 like $@, qr/\ANot enough arguments for subroutine entry t052/;
@@ -757,18 +757,18 @@ like $@, qr/\ANot enough arguments for subroutine entry t052/;
 is eval("t052(222, 333)"), "222;333;";
 is eval("t052(222, 333, 456)"), undef;
 like $@, qr#\AOdd name/value argument for subroutine t052 at \(eval \d+\) line 1\.\n\z#;
-is eval("t052(222, 333, 456, 789)"), "222;333;456=789";
+is eval("t052(222, 333, 456, 789)"), "222;333;456=>789";
 is eval("t052(222, 333, 456, 789, 987)"), undef;
 like $@, qr#\AOdd name/value argument for subroutine t052 at \(eval \d+\) line 1\.\n\z#;
-is eval("t052(222, 333, 456, 789, 987, 654)"), "222;333;456=789/987=654";
+is eval("t052(222, 333, 456, 789, 987, 654)"), "222;333;456=>789;987=>654";
 is eval("t052(222, 333, 456, 789, 987, 654, 321)"), undef;
 like $@, qr#\AOdd name/value argument for subroutine t052 at \(eval \d+\) line 1\.\n\z#;
 is eval("t052(222, 333, 456, 789, 987, 654, 321, 111)"),
-    "222;333;321=111/456=789/987=654";
+    "222;333;321=>111;456=>789;987=>654";
 is $a, 123;
 
 sub t053 ($a, $b, $c, %d) {
-    "$a;$b;$c;".join("/", map { $_."=".$d{$_} } sort keys %d)
+    "$a;$b;$c;".join(";", map { $_."=>".$d{$_} } sort keys %d)
 }
 is prototype(\&t053), '($a, $b, $c, %d)';
 is eval("t053()"), undef;
@@ -780,15 +780,15 @@ like $@, qr/\ANot enough arguments for subroutine entry t053/;
 is eval("t053(222, 333, 444)"), "222;333;444;";
 is eval("t053(222, 333, 444, 456)"), undef;
 like $@, qr#\AOdd name/value argument for subroutine t053 at \(eval \d+\) line 1\.\n\z#;
-is eval("t053(222, 333, 444, 456, 789)"), "222;333;444;456=789";
+is eval("t053(222, 333, 444, 456, 789)"), "222;333;444;456=>789";
 is eval("t053(222, 333, 444, 456, 789, 987)"), undef;
 like $@, qr#\AOdd name/value argument for subroutine t053 at \(eval \d+\) line 1\.\n\z#;
 is eval("t053(222, 333, 444, 456, 789, 987, 654)"),
-    "222;333;444;456=789/987=654";
+    "222;333;444;456=>789;987=>654";
 is eval("t053(222, 333, 444, 456, 789, 987, 654, 321)"), undef;
 like $@, qr#\AOdd name/value argument for subroutine t053 at \(eval \d+\) line 1\.\n\z#;
 is eval("t053(222, 333, 444, 456, 789, 987, 654, 321, 111)"),
-    "222;333;444;321=111/456=789/987=654";
+    "222;333;444;321=>111;456=>789;987=>654";
 is $a, 123;
 
 sub t048 ($a = 222, @b) { $a.";".join("/", @b).";".scalar(@b) }

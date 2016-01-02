@@ -12189,6 +12189,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             continue; /* no arg advance */
         case SIGNATURE_arg:
             if (UNLIKELY(actions & SIGNATURE_FLAG_ref)) {
+                arg++;
                 DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg ref action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
                 /* \$ accepts any scalar lvalue */
@@ -12197,7 +12198,6 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
                     bad_type_gv(arg, namegv, o3, VALIDTYPE(type) ? typename(type) : "scalar");
                 }
                 pad_ix++;
-                arg++;
                 scalar(aop);
                 break;
             } /* fall through */
@@ -12212,11 +12212,11 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
         case SIGNATURE_arg_default_undef:
         case SIGNATURE_arg_default_0:
         case SIGNATURE_arg_default_1:
+            arg++;
             if (UNLIKELY(actions & SIGNATURE_FLAG_skip)) {
                 items--;
                 DEBUG_kv(Perl_deb(aTHX_ "ck_sig: skip action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
-                arg++;
                 scalar(aop);
                 break;
             }
@@ -12236,22 +12236,24 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
 #endif
             S_sig_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
             pad_ix++;
-            arg++;
             scalar(aop);
             break;
         case SIGNATURE_array:
         case SIGNATURE_hash:
             S_sig_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
-            if (actions & SIGNATURE_FLAG_ref)
+            arg++;
+            if (actions & SIGNATURE_FLAG_ref) {
                 scalar(aop);
-            else {
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: ref action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
+                                  (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
+            } else {
                 list(aop);
                 optional = TRUE;
                 slurpy = TRUE;
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: slurpy action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
+                                  (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
             }
-            arg++;
             pad_ix++;
-            items++;
             break;
         }
         actions >>= SIGNATURE_SHIFT;
