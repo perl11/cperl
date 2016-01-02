@@ -1543,7 +1543,7 @@ sub goto1_pp2sig {
   goto &t147a;
 }
 sub goto2_pp2sig {
-  @_ = (1,2,"baz");
+  @_ = (1,2,"bar");
   goto &t147a;
 }  
 sub goto3_pp2sig {
@@ -1562,8 +1562,8 @@ sub goto1_sig2pp ($, $=0, $a="baz", $b="7") {
 
 goto1_pp2pp();
 goto1_pp2sig();
-#goto2_pp2sig(); #todo
-#goto3_pp2sig(); #todo
+goto2_pp2sig();
+goto3_pp2sig();
 #goto1_sig2sig(0); #todo
 #goto1_sig2pp(0); # corrupts caller
 

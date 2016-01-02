@@ -2767,6 +2767,7 @@ PP(pp_goto)
                         /*PUSHMARK((SV**)cx->blk_sub.savearray);*/
                         goto call_pp_sub;
                     } /* pp2sig */
+                    SvREFCNT_inc_simple_void(cv); /* dec below */
                     DEBUG_kv(PerlIO_printf(Perl_debug_log,
                         "goto %s with sig: keep %ld args\n",
                         SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
@@ -2844,13 +2845,12 @@ PP(pp_goto)
 		/*SvREFCNT_dec(arg);*/
                 if (CvHASSIG(cv)) {
                     PADLIST * const padlist = CvPADLIST(cv);
-                    cx->blk_sub.savearray = (AV*)MARK;
-                    cx->blk_sub.argarray = (SV**)cx->blk_sub.savearray;
-                    cx->blk_sub.savearray += (items-1);
+                    cx->blk_sub.argarray = (AV*)(MARK+1);
+                    cx->blk_sub.savearray = (AV*)SP;
                     /*cx->blk_sub.cv = cv; already done above */
                     cx->blk_sub.olddepth = CvDEPTH(cv);
 
-                    CvDEPTH(cv)++;
+                    CvDEPTH(cv)++; /* not really a tailcall. new stackframe */
                     if (CvDEPTH(cv) < 2)
                         SvREFCNT_inc_simple_void_NN(cv);
                     else {

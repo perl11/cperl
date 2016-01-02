@@ -4343,8 +4343,9 @@ PP(pp_signature)
 #if 0
             /* TODO evtl print the name of the first missing arg.
                These errors are already thrown at compile-time. */
-            if (1 == argc - mand_params && items->uv == SIGNATURE_padintro) {
-                PADNAME * const pn = PadlistNAMESARRAY(CvPADLIST(cv))[argc+1];
+            if ((1 == argc - mand_params) && (items->uv & 0xf) == SIGNATURE_padintro) {
+                PADOFFSET pad_ix = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
+                PADNAME * const pn = PadlistNAMESARRAY(CvPADLIST(cv))[pad_ix];
                 S_croak_caller("Not enough arguments for %s%s%s %s. Want: %"UVuf
                                ", but got: %"UVuf". Missing %s",
                                CvDESC3(cv),
