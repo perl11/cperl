@@ -4133,10 +4133,12 @@ S_my_kid(pTHX_ OP *o, OP *attrs, OP **imopsp)
 	    S_cant_declare(aTHX_ o);
 	} else if (attrs) {
 	    GV * const gv = cGVOPx_gv(cUNOPo->op_first);
+            HV *stash = GvSTASH(gv);
+            if (!stash) stash = (HV*)&PL_sv_no;
 	    assert(PL_parser);
 	    PL_parser->in_my = FALSE;
 	    PL_parser->in_my_stash = NULL;
-	    apply_attrs(GvSTASH(gv),
+	    apply_attrs(stash,
 			(type == OP_RV2SV ? GvSV(gv) :
 			 type == OP_RV2AV ? MUTABLE_SV(GvAV(gv)) :
 			 type == OP_RV2HV ? MUTABLE_SV(GvHV(gv)) : MUTABLE_SV(gv)),
@@ -12273,7 +12275,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
                         bad_type_core(PadnamePV(pn), namegv, type_Object, svshorttypenames[t],
                                       action == SIGNATURE_hash ? "HASH reference"
                                                                : "ARRAY reference");
-                    if (SvROK(sv) && SvTYPE(SvRV(sv)) !=
+                    if (SvROK(sv) && SvTYPE(SvRV_const(sv)) !=
                                        (action == SIGNATURE_hash ? SVt_PVHV : SVt_PVAV))
                         bad_type_core(PadnamePV(pn), namegv, type_Object, svshorttypenames[t],
                                       action == SIGNATURE_hash ? "HASH reference"
