@@ -98,15 +98,18 @@ my %skip;
 } = ();
 # cperl exceptions
 @skip{qw(cpan/Digest-MD5/MD5.xs 
-         cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm
-         cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm
-         ext/Devel-Peek/Peek.xs
-         dist/lib/lib_pm.PL ext/B/t/OptreeCheck.pm lib/B/Op_private.pm
-         lib/feature.pm lib/vars.pm lib/strict.pm lib/warnings.pm
-	 lib/perl5db.pl
-         cpan/Devel-PPPort/PPPort_pm.PL
-	 cpan/Scalar-List-Utils/ListUtil.xs
-	 cpan/IPC-SysV/SysV.xs
+	cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm
+	cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm
+	ext/Devel-Peek/Peek.xs
+	dist/lib/lib_pm.PL ext/B/t/OptreeCheck.pm lib/B/Op_private.pm
+	lib/feature.pm lib/vars.pm lib/strict.pm lib/warnings.pm
+	lib/perl5db.pl
+	cpan/Devel-PPPort/PPPort_pm.PL
+	cpan/Scalar-List-Utils/ListUtil.xs
+	cpan/IPC-SysV/SysV.xs
+	cpan/Test-Simple/lib/Test/Builder/Tester.pm
+	cpan/Pod-Simple/lib/Pod/Simple/LinkSection.pm
+	cpan/Pod-Simple/lib/Pod/Simple/Debug.pm
         )} = ();
 
 # Files to skip just for particular version(s),
