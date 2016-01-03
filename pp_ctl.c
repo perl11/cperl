@@ -2844,24 +2844,41 @@ PP(pp_goto)
 		SP += items;
 		/*SvREFCNT_dec(arg);*/
                 if (CvHASSIG(cv)) {
+                    /* with signatures we do a real tailcall, not as in perl5 pp or python.
+                       without new cx and padframe, reusing the old pads. retop is CvSTART */
                     PADLIST * const padlist = CvPADLIST(cv);
-                    cx->blk_sub.argarray = (AV*)(MARK+1);
+                    I32 depth = CvDEPTH(cv);
+                    cx->blk_sub.argarray  = MARK+1;
                     cx->blk_sub.savearray = (AV*)SP;
-                    /*cx->blk_sub.cv = cv; already done above */
-                    cx->blk_sub.olddepth = CvDEPTH(cv);
-
+                    cx->blk_sub.olddepth = depth;
+#ifndef PERL_GOTOSIG_TAILCALL
                     CvDEPTH(cv)++; /* not really a tailcall. new stackframe */
-                    if (CvDEPTH(cv) < 2)
+                    depth++;
+                    if (depth < 2)
                         SvREFCNT_inc_simple_void_NN(cv);
                     else {
-                        if (CvDEPTH(cv) == PERL_SUB_DEPTH_WARN && ckWARN(WARN_RECURSION))
+                        if (depth == PERL_SUB_DEPTH_WARN && ckWARN(WARN_RECURSION))
                             sub_crush_depth(cv);
-                        pad_push(padlist, CvDEPTH(cv));
+                        if (!CvISXSUB(cv))
+                            pad_push(padlist, CvDEPTH(cv));
                     }
+#else
+                    SvREFCNT_inc_simple_void_NN(cv);
+#endif
                     PL_curcop = cx->blk_oldcop;
-                    SAVECOMPPAD();
-                    PAD_SET_CUR_NOSAVE(padlist, CvDEPTH(cv));
-                    goto call_pp_sub;
+                    if (!CvISXSUB(cv)) {
+#ifdef PERL_GOTOSIG_TAILCALL
+                        /*SAVECOMPPAD();*/
+                        PL_comppad = (PAD*)(PadlistARRAY(padlist)[depth ? depth : 1]);
+                        PL_curpad = AvARRAY(PL_comppad);
+                        DEBUG_Xv(PerlIO_printf(Perl_debug_log,
+                                               "Pad 0x%" UVxf "[0x%" UVxf "] set_cur    depth=%d\n",
+                                               PTR2UV(PL_comppad), PTR2UV(PL_curpad), (int)(depth)));
+#else
+                        PAD_SET_CUR(padlist, depth);
+#endif
+                        goto call_pp_sub;
+                    }
                 }
 		if (CxTYPE(cx) == CXt_SUB && CxHASARGS(cx)) {
 		    /* Restore old @_ */

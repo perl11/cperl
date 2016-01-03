@@ -7309,6 +7309,12 @@ extern void moncontrol(int);
 #  endif
 #endif
 
+/* If defined goto to a signature subroutine is handled as a true tailcall,
+   not as in perl5 pp or python.
+   Without new cx (stack trace) and recursion padframe (CvDEPTH padlist copy),
+   reusing the old pads. */
+#define PERL_GOTOSIG_TAILCALL
+
 /*
 
    (KEEP THIS LAST IN perl.h!)

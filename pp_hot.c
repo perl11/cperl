@@ -4313,6 +4313,10 @@ PP(pp_signature)
     int  defop_skips; /* how many default op statements to skip */
     SV **padp;        /* pad slot for current var */
     UNOP_AUX_item *items = cUNOP_AUXx(PL_op)->op_aux;
+#ifdef DEBUGGING
+    PADNAME** padnl;
+    PADOFFSET po;
+#endif
 
     /* check arity (process arg count limits) */
     {
@@ -4325,6 +4329,9 @@ PP(pp_signature)
         UV   params = items[0].uv;
         const CV *cv = cx->blk_sub.cv;
         const bool hassig = CvHASSIG(cv);
+#ifdef DEBUGGING
+        padnl = PadlistNAMESARRAY(CvPADLIST(cv));
+#endif
 
         /* split on bits [31..16], [15..15], [14..0] */
         mand_params = params >> 16;
@@ -4332,7 +4339,8 @@ PP(pp_signature)
         opt_params  = params & ((1<<15)-1);
 
         if (hassig) {
-            SV **MARK = cx->blk_sub.argarray;
+            SV **MARK = cx->blk_sub.argarray; /* really -1 */
+            SP = (SV**)cx->blk_sub.savearray;
             argc = SP - MARK + 1;
             argp = MARK;
         } else {
@@ -4348,7 +4356,7 @@ PP(pp_signature)
                These errors are already thrown at compile-time. */
             if ((1 == argc - mand_params) && (items->uv & 0xf) == SIGNATURE_padintro) {
                 PADOFFSET pad_ix = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
-                PADNAME * const pn = PadlistNAMESARRAY(CvPADLIST(cv))[pad_ix];
+                PADNAME * const pn = padnl[pad_ix];
                 S_croak_caller("Not enough arguments for %s%s%s %s. Want: %"UVuf
                                ", but got: %"UVuf". Missing %s",
                                CvDESC3(cv),
@@ -4401,7 +4409,7 @@ PP(pp_signature)
             /* use caller pad as new pad, and restore it at leavesub */
             assert(argc);
             argc--;
-            DEBUG_Xv(Perl_deb(aTHX_ "sigref padp %p = argp %p\n", *argp, *padp));
+            DEBUG_Xv(Perl_deb(aTHX_ "sigref padp %p = argp %p\n", *padp, *argp));
             /* copy back temp pad to old sv at leavesub */
             save_pushptrptr(argp, padp, SAVEt_SPTR);
             SvPADSTALE_on(*padp); /* mark our pad as inactive */
@@ -4423,17 +4431,23 @@ PP(pp_signature)
             UV varcount = data & OPpPADRANGE_COUNTMASK;
             PADOFFSET pad_ix = data >> OPpPADRANGE_COUNTSHIFT;
             SV **svp = padp = &(PAD_SVl(pad_ix));
-            DEBUG_Xv(Perl_deb(aTHX_ "sigpad padp %p [%lu]\n", *padp, pad_ix));
-            while (varcount--)
-                SvPADSTALE_off(*svp++); /* mark lexical as active */
-
+#ifdef DEBUGGING
+            po = pad_ix;
+#endif
+            DEBUG_Xv(Perl_deb(aTHX_ "sigpad padp %p curpad[%lu] %s\n", *padp, po,
+                              PadnamePV(padnl[po])));
+            while (varcount--) {
+                if (*svp)
+                    SvPADSTALE_off(*svp); /* mark lexical as active */
+                svp++;
+            }
             {
                 dSS_ADD;
                 const UV save =   (data << SAVE_TIGHT_SHIFT)
-                                | SAVEt_CLEARPADRANGE;
+                    | SAVEt_CLEARPADRANGE;
 
                 assert((save >> (OPpPADRANGE_COUNTSHIFT+SAVE_TIGHT_SHIFT))
-                           == pad_ix);
+                       == pad_ix);
                 SS_ADD_UV(save);
                 SS_ADD_END(1);
             }
@@ -4473,11 +4487,15 @@ PP(pp_signature)
             if (argc) {
                 argc--;
                 if (!varsv) {
+#ifdef DEBUGGING
+                    po++;
+#endif
                     argp++;
                     break;
                 }
                 argsv = *argp++;
-                DEBUG_Xv(Perl_deb(aTHX_ "sigcopy padp %p = argp %p\n", *argp, *padp));
+                DEBUG_Xv(Perl_deb(aTHX_ "sigcopy padp %p %s = argp %p\n", varsv,
+                                  PadnamePV(padnl[po++]), argsv));
                 if (UNLIKELY(!argsv))
                     argsv = &PL_sv_undef;
                 goto setsv;
@@ -4568,6 +4586,7 @@ PP(pp_signature)
                         break;
                     }
                 }
+                /*SvREFCNT_inc(varsv); / * ?? */
                 sv_setsv(varsv, argsv);
             } /* inner switch */
             break;

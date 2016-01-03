@@ -1390,6 +1390,7 @@ is scalar(t144("defg")), "defg";
 
 
 # check that unused default args are skipped
+# the first $ param is ignored, but still mandatory
 
 sub t147 ($, $=0, $=1, $=2, $="foo", $a="bar", $b="zoot") { "$a:$b" }
 is scalar(t147(1)),                 "bar:zoot";
