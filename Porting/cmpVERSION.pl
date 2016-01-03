@@ -99,6 +99,7 @@ my %skip;
          lib/feature.pm lib/vars.pm lib/strict.pm lib/warnings.pm
          cpan/Devel-PPPort/PPPort_pm.PL
 	 cpan/Scalar-List-Utils/ListUtil.xs
+	 cpan/IPC-SysV/SysV.xs
         )} = ();
 
 # Files to skip just for particular version(s),
