@@ -211,7 +211,9 @@ CODE:
             }
             break;
         case ACC_IV:
-            if(is_product) {
+            if (!retiv)
+                ;
+            else if (is_product) {
                 if(!SvNOK(sv) && SvIOK(sv) && (SvIV(sv) < IV_MAX / retiv)) {
                     retiv *= SvIV(sv);
                     break;
