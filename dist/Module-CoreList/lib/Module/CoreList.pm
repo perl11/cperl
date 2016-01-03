@@ -5,6 +5,7 @@ use vars qw/$VERSION %released %version %families %upstream
 use Module::CoreList::TieHashDelta;
 use version;
 $VERSION = '5.20160225c';
+$VERSION =~ s/c$//;
 
 sub _released_order {   # Sort helper, to make '?' sort after everything else
     (substr($released{$a}, 0, 1) eq "?")

@@ -47,6 +47,7 @@ use B qw(class main_root main_start main_cv svref_2object opnumber perlstring
     );
 
 $VERSION = '1.35_01c';
+$VERSION =~ s/c$//;
 use strict;
 use vars qw/$AUTOLOAD/;
 use warnings ();

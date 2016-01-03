@@ -7,6 +7,7 @@ use Module::CoreList;
 use Module::CoreList::TieHashDelta;
 
 $VERSION = '5.20160225c';
+$VERSION =~ s/c$//;
 
 sub utilities {
     my $perl = shift;
