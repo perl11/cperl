@@ -6,6 +6,7 @@ use warnings;
 
 our $VERSION = '0.42c';
 $VERSION =~ s/c$//;
+
 use Exporter;
 our @ISA            = qw( Exporter );
 our @EXPORT_OK      = qw( PI e bpi bexp hex oct );

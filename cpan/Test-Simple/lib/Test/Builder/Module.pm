@@ -8,8 +8,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 
 our $VERSION = '1.001014c';
-$VERSION = 1.001014;      ## no critic (BuiltinFunctions::ProhibitStringyEval)
-
+$VERSION =~ s/c$//;
 
 =head1 NAME
 

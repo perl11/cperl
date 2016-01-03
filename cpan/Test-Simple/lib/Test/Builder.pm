@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 our $VERSION = '1.001014c'; # modernized
-$VERSION = 1.001014;
+$VERSION =~ s/c$//;
 
 BEGIN {
     if( $] < 5.008 ) {

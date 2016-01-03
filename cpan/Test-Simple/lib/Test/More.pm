@@ -18,7 +18,7 @@ sub _carp {
 }
 
 our $VERSION = '1.001014c';
-$VERSION = 1.001014;    ## no critic (BuiltinFunctions::ProhibitStringyEval)
+$VERSION =~ s/c$//;
 
 use Test::Builder::Module 0.99;
 our @ISA    = qw(Test::Builder::Module);

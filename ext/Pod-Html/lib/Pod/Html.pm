@@ -4,7 +4,7 @@ require Exporter;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
 our $VERSION = '2.22c';
-$VERSION   = 2.22;
+$VERSION =~ s/c$//;
 @ISA = qw(Exporter);
 @EXPORT = qw(pod2html htmlify);
 @EXPORT_OK = qw(anchorify);
