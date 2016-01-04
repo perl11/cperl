@@ -66,7 +66,7 @@ PP(pp_stub)
 PP(pp_padav)
 {
     dSP; dTARGET;
-    I32 gimme;
+    U8 gimme;
     assert(SvTYPE(TARG) == SVt_PVAV);
     if (UNLIKELY( PL_op->op_private & OPpLVAL_INTRO ))
 	if (LIKELY( !(PL_op->op_private & OPpPAD_STATE) ))
@@ -121,7 +121,7 @@ PP(pp_padav)
 PP(pp_padhv)
 {
     dSP; dTARGET;
-    I32 gimme;
+    U8 gimme;
 
     assert(SvTYPE(TARG) == SVt_PVHV);
     XPUSHs(TARG);
@@ -4948,7 +4948,7 @@ PP(pp_aeach)
 {
     dSP;
     AV *array = MUTABLE_AV(POPs);
-    const I32 gimme = GIMME_V;
+    const U8 gimme = GIMME_V;
     IV *iterp = Perl_av_iter_p(aTHX_ array);
     const IV current = (*iterp)++;
 
@@ -4974,7 +4974,7 @@ PP(pp_akeys)
 {
     dSP;
     AV *array = MUTABLE_AV(POPs);
-    const I32 gimme = GIMME_V;
+    const U8 gimme = GIMME_V;
 
     *Perl_av_iter_p(aTHX_ array) = 0;
 
@@ -5010,7 +5010,7 @@ PP(pp_each)
     dSP;
     HV * hash = MUTABLE_HV(POPs);
     HE *entry;
-    const I32 gimme = GIMME_V;
+    const U8 gimme = GIMME_V;
 
     entry = hv_iternext(hash);
 
@@ -5034,7 +5034,7 @@ STATIC OP *
 S_do_delete_local(pTHX)
 {
     dSP;
-    const I32 gimme = GIMME_V;
+    const U8 gimme = GIMME_V;
     const MAGIC *mg;
     HV *stash;
     const bool sliced = !!(PL_op->op_private & OPpSLICE);
@@ -5144,7 +5144,7 @@ S_do_delete_local(pTHX)
 PP(pp_delete)
 {
     dSP;
-    I32 gimme;
+    U8 gimme;
     I32 discard;
 
     if (PL_op->op_private & OPpLVAL_INTRO)
@@ -5951,7 +5951,7 @@ PP(pp_split)
     const IV origlimit = limit;
     I32 realarray = 0;
     I32 base;
-    const I32 gimme = GIMME_V;
+    const U8 gimme = GIMME_V;
     bool gimme_scalar;
     const I32 oldsave = PL_savestack_ix;
     U32 make_mortal = SVs_TEMP;
