@@ -1729,6 +1729,7 @@ $[ = 1;
 use warnings 'deprecated';
 $[ = 2;
 ($[) = 2;
+$[ = 0;
 no warnings 'deprecated';
 $[ = 3;
 ($[) = 3;
