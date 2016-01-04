@@ -19,12 +19,12 @@ i.e. the C<type>, is stored in the stash part of the C<comppad_name>
 slot for each pad. Perl itself does not use these types for checks and
 optimizations, only external modules or cperl do.
 
-Remember: A type is implemented as package. A valid type must be an
-existing and loaded package. Type expressions, like parametric types
-or unions cannot be stored in pad stashes yet.
+Remember: A type is implemented as package, later also as class. A
+valid type must be an existing and loaded package. Type expressions,
+like parametric types or unions cannot be stored in pad stashes yet.
 
-Global variables can not store types, ony lexicals. Constants are
-implicitly typed.
+Global variables can not declare types, only lexicals and
+signatures. Constants are implicitly typed.
 
 B<cperl> adds support for builtin coretypes, has type declarations for
 most internal ops, and can optimize based in type inference or
@@ -35,14 +35,14 @@ declared types.
 
 No, they are not. Types for lexical variables are permitted since 2001
 and used in a few CPAN modules, i.e. Net::DNS.  Perl6 uses types all
-over.  Every perl5 value is typed. Just all the normal ops are generic
-and are allowed to change the type of its arguments and its result at
-will.
+over.  Every perl5 value is typed at run-time. Just all the normal ops
+are generic and are allowed to change the type of its arguments and
+its result at will.
 
-Types allow dramatic performance and size optimizations, lead to
-better documented code and lead to earlier compile-time errors, which
-less need to test all possible run-time types with extensive test
-suites, which rarely cover all type cases.
+Checking types already at compile-time allows dramatic performance and
+size optimizations, lead to better documented code and lead to earlier
+compile-time errors, which less need to test all possible run-time
+types with extensive test suites, which rarely cover all type cases.
 
 Natively types arrays are 4x smaller and faster, typed loops can lead
 to static loop optimizations, array elements do not need to be checked
@@ -143,7 +143,8 @@ ops.
 
 =head2 type checker
 
-Compile-time type checks need to be enabled with C<use types>.
+Compile-time type checks for user-defined types need to be enabled with
+C<use types>. Type warnings are enabled with C<use warnings 'types'>.
 
 =head2 type inference
 
@@ -197,13 +198,117 @@ L<Scalar::Util/reftype>.
 
 =head2 nominal type system
 
-cperl implements a simple nominal type as in perl6 and most
-dynamic languages, in contrast to a structural type system such as in
-static languages as C or C++. The name of the class or type and its
-subtypes specify correctness, not the list of object fields and
-methods.
+cperl implements a simple nominal type as in perl6 and most dynamic
+languages, in contrast to a structural type system such as in static
+languages as C or C++. The name of the class or type and its subtypes
+specify correctness, not the list of object fields and methods.
 
-TODO: B<co-variant> vs B<contra-variant>
+The author has to check proper subtyping rules manually, which are not
+enforced by type syntax.
+
+=head2 subtyping vs subclassing
+
+Linear inheritance and even more multiple inheritance as implemented
+with perl5 does not necessarily guarantee proper subtyping. But cperl
+assumes proper subtyping of all subclasses in the type checker.
+
+This is done with the following restrictions to satisfy the
+"Liskov substitution principle" (I<LSP>):
+
+Any subclass, a class which is derived from one or more parent classes
+and is used as type parameter, must guarantee the following restrictions,
+design by contract.
+
+For B<method signatures>:
+
+=over
+
+=item Contravariance of method arguments in the subtype
+
+Typed arguments accept the same type or more generic arguments.
+Int as accepted as Numeric, but Numeric is not accepted as Int.
+
+=item Covariance of return types in the subtype.
+
+Typed return values accept the same type or more specific types.
+Numeric is accepted as Int, but Int is not accepted as Numeric.
+
+=item No new exceptions should be thrown by methods of the subtype
+
+Except where those exceptions are themselves subtypes of exceptions
+thrown by the methods of the supertype. E.g. it is required to throw a
+read-only exception of the subtype restricted an attribute to be
+readonly.
+
+=back
+
+For the B<subclass/subtype definition>:
+
+=over
+
+=item Preconditions cannot be strengthened in a subtype.
+
+=item Postconditions cannot be weakened in a subtype.
+
+=item Invariants of the supertype must be preserved in a subtype.
+
+=item History constraint (the "history rule").
+
+Objects are regarded as being modifiable only through their methods
+(encapsulation). Since subtypes may introduce methods that are not
+present in the supertype, the introduction of these methods may allow
+state changes in the subtype that are not permissible in the
+supertype. The history constraint prohibits this.
+
+A violation of this constraint can be exemplified by defining a
+mutable point as a subtype of an immutable point. This is a violation
+of the history constraint, because in the history of the immutable
+point, the state is always the same after creation, so it cannot
+include the history of a mutable point in general. Fields added to the
+subtype may however be safely modified because they are not observable
+through the supertype methods. Thus, one can derive a circle with
+fixed center but mutable radius from immutable point without violating
+LSP.
+
+For example when you change the type of an attribute in the subclass
+from writable to read-only you need to change the setter method in the
+subclass to throw an error, and you are disallowed to use the supertype
+as valid type in an argument declaration.
+
+=back
+
+B<Avoiding the diamond problem>:
+
+subtypes need proper linearization of the inheritance tree.
+
+Therefore subtypes are required to use the B<c3> inheritance, with
+C<use mro "c3">.  subclasses defined with the new C<class> keyword use
+the c3 inheritance already.
+
+
+B<A typical violation>:
+
+A typical example that violates the Liskov substitution principle is a
+Square class that derives from a Rectangle class, assuming getter and
+setter methods exist for both width and height. The Square class
+always assumes that the width is equal with the height. If a Square
+object is used in a context where a Rectangle is expected, unexpected
+behavior may occur because the dimensions of a Square cannot (or
+rather should not) be modified independently. This problem cannot be
+easily fixed: if we can modify the setter methods in the Square class
+so that they preserve the Square invariant (i.e., keep the dimensions
+equal), then these methods will weaken (violate) the postconditions
+for the Rectangle setters, which state that dimensions can be modified
+independently. Violations of LSP, like this one, may or may not be a
+problem in practice, depending on the postconditions or invariants
+that are actually expected by the code that uses classes violating
+LSP. Mutability is a key issue here. If Square and Rectangle had only
+getter methods (i.e., they were immutable objects), then no violation
+of LSP could occur.
+
+For more see
+L<https://en.wikipedia.org/wiki/Liskov_substitution_principle> and
+L<https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)>
 
 =head2 Compile-time type optimizations
 
@@ -227,8 +332,10 @@ packages to static function calls.  Thus the dynamic method search, in
 which object this method is implemented is avoided. This is about ~10%
 faster.
 
-X<http://www.perl.com/pub/2000/06/p5pdigest/THISWEEK-20000625.html#Method_Lookup_Speedup_>
-X<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
+Read also
+L<http://www.perl.com/pub/2000/06/p5pdigest/THISWEEK-20000625.html#Method_Lookup_Speedup_>
+or
+L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
 
 =head3 Constant folding
 

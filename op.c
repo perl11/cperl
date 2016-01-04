@@ -112,10 +112,12 @@ recursive, but it's recursive on basic blocks, not on tree nodes.
 #define op_typed(a) S_op_typed(aTHX_ a)
 #define op_typed_user(a,b) S_op_typed_user(aTHX_ a, b)
 #define core_type_name(t) S_core_type_name(aTHX_ t)
-#define bad_type_core(arg,gv,got,gotname,wanted) S_bad_type_core(aTHX_ arg,gv,got,gotname,wanted)
+#define bad_type_core(arg,gv,got,gotname,wanted) \
+    S_bad_type_core(aTHX_ arg,gv,got,gotname,wanted)
 #define typename(stash) S_typename(aTHX_ stash)
 #define stash_to_coretype(stash) S_stash_to_coretype(aTHX_ stash)
-#define match_type(stash, coretype, typename) S_match_type(aTHX_ stash, coretype,typename)
+#define match_type(stash, coretype, typename, castable) \
+    S_match_type(aTHX_ stash, coretype,typename, castable)
 #define match_type1(sig, arg) S_match_type1(sig, arg)
 #define match_type2(sig, arg1, arg2) S_match_type2(sig, arg1, arg2)
 
@@ -11895,22 +11897,31 @@ int S_match_user_type(pTHX_ const char *dname, const char* aname)
  
 /* match a return coretype from arg or op (atyp) to
    the declared stash of a variable (dtyp).
-   TODO: on atyp == type_Object check the name and its ISA instead.
+
+   Added a 4th parameter if to allow inserting a type cast: 
+   numify. Scalar => Bool/Numeric
+
+   on atyp == type_Object check the name and its ISA instead.
 */
 PERL_STATIC_INLINE
-int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname)
+int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
+                int *castable)
 {
     core_types_t dtyp = stash_to_coretype(stash);
     if (LIKELY(dtyp == type_none /* no declared type */
                /* or same coretype */
                || (dtyp == atyp && dtyp != type_Object)
                /* or Scalar arg, matches any decl */
-               || (atyp == type_Scalar && dtyp <= type_Object)))
+               /*|| (atyp == type_Scalar && dtyp <= type_Object)))*/
+               ))
         return 1;
+    /* we can cast any coretype to another: numify, stringify, but not user-objects.
+       but if someone declared a coretype, like int and gets a Str do not cast. */
+    *castable = (dtyp > type_Str && dtyp < type_Object);
     /* and now check the allowed variants */
     switch (dtyp) {
     case type_int:
-        return atyp == type_Int  || atyp == type_UInt || atyp == type_uint;
+        return atyp != type_str  && atyp <= type_UInt;
     case type_Int:
         return atyp == type_int  || atyp == type_UInt || atyp == type_uint;
     case type_uint:
@@ -11926,13 +11937,7 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname)
     case type_str:
         return atyp == type_Str;
     case type_Numeric:
-        return atyp == type_Int
-            || atyp == type_int
-            || atyp == type_Num
-            || atyp == type_num
-            || atyp == type_uint
-            || atyp == type_UInt
-            || atyp == type_Scalar;
+        return atyp != type_str && atyp <= type_Num;
     case type_Scalar:
         return atyp <= type_Scalar;
     case type_Object:
@@ -11945,8 +11950,12 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname)
     }
 }
 
-STATIC void
-S_sig_check_type(pTHX_ const PADNAME* pn, OP* o, GV *namegv)
+/* Check if the declared static type of the argument from pn can be
+   fullfilled by the dynamic type of the arg in OP* o (padsv, const,
+   any return type). If possible add a typecast to o to fullfill it. */
+
+STATIC OP*
+S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
 {
     const HV *type = pn ? PadnameTYPE(pn) : NULL;
     if (UNLIKELY(VALIDTYPE(type))) {
@@ -11956,20 +11965,41 @@ S_sig_check_type(pTHX_ const PADNAME* pn, OP* o, GV *namegv)
         const char *name = typename(type);
         const core_types_t argtype = op_typed_user(o, &usertype);
         const char *argname = usertype ? usertype : S_core_type_name(aTHX_ argtype);
-        DEBUG_k(Perl_deb(aTHX_ "ck sigtype %s against arg: %s\n",
+        DEBUG_k(Perl_deb(aTHX_ "ck argtype %s against arg: %s\n",
                          name?name:"none", argname));
+        o->op_typechecked = 1;
         if (argtype > type_none && argtype < type_Void
             && name && strNE(argname, name)) {
+            int castable = 0;
             /* TODO check aggregate type: Array(int), Hash(str), ... */
             /* TODO on type_Object recurse into all ISA parents */
-            if (!match_type(type, argtype, argname)) {
-                bad_type_core(PadnamePV(pn), namegv, argtype, argname, name);
-            } else {
+            /* TODO: add numeric type casts */
+            if (!match_type(type, argtype, argname, &castable)) {
+                if (!castable) {
+                    bad_type_core(PadnamePV(pn), cvname, argtype, argname, name);
+                } else {
+                    if (ckWARN(WARN_TYPES) || DEBUG_k_TEST_)
+                        Perl_warner(aTHX_  packWARN(WARN_TYPES),
+                                    "Inserting type cast %s to %s\n", name, argname);
+                    /* currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric */
+                    switch (argtype) {
+                    case type_Bool:
+                    case type_Numeric:
+                    case type_Scalar:
+                        scalar(o);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            /*} else {*/
                 /* mark argument as already typechecked, to avoid it at run-time.
                    but only when we start typechecking run-time. */
+                /*o->op_typechecked = 1;*/
             }
         }
     }
+    return o;
 }
 
 /*
@@ -12262,13 +12292,14 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             }
 #endif
             /* TODO: o3 needs to return a scalar */
-            S_sig_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
+            /* TODO: o3 can be modified, with added type cast, similar to scalar */
+            aop = S_arg_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
             pad_ix++;
             scalar(aop);
             break;
         case SIGNATURE_array:
         case SIGNATURE_hash:
-            S_sig_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
+            aop = S_arg_check_type(aTHX_ PAD_NAME(pad_ix), o3, namegv);
             arg++;
             if (actions & SIGNATURE_FLAG_ref) {
                 const PADNAME* pn = PAD_NAME(pad_ix);

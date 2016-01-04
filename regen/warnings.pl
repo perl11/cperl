@@ -36,7 +36,7 @@ my $tree = {
                                 'newline'       => [ 5.008, DEFAULT_OFF],
                                 'exec'          => [ 5.008, DEFAULT_OFF],
                                 'layer'         => [ 5.008, DEFAULT_OFF],
-                                'syscalls'      => [ 5.019, DEFAULT_OFF],
+                                'syscalls'      => [ 5.019, DEFAULT_ON],
                            }],
         'syntax'        => [ 5.008, {
                                 'ambiguous'     => [ 5.008, DEFAULT_OFF],
@@ -112,6 +112,7 @@ my $tree = {
         'missing'       => [ 5.021, DEFAULT_OFF],
         'redundant'     => [ 5.021, DEFAULT_OFF],
         'locale'        => [ 5.021, DEFAULT_ON],
+        'types'         => [ 5.024, DEFAULT_OFF],
 
          #'default'     => [ 5.008, DEFAULT_ON ],
 }]};

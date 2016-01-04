@@ -25,7 +25,7 @@
  *	op_savefree	on savestack via SAVEFREEOP
  *	op_folded	Result/remainder of a constant fold operation.
  *	op_moresib	this op is is not the last sibling
- *	op_spare	One spare bit
+ *	op_typechecked	Avoid type checking at run-time, already done by the compiler.
  *	op_flags	Flags common to all operations.  See OPf_* below.
  *	op_private	Flags peculiar to a particular operation (BUT,
  *			by default, set to the number of children until
@@ -63,7 +63,7 @@ typedef PERL_BITFIELD16 Optype;
     PERL_BITFIELD16 op_static:1;	\
     PERL_BITFIELD16 op_folded:1;	\
     PERL_BITFIELD16 op_moresib:1;       \
-    PERL_BITFIELD16 op_spare:1;		\
+    PERL_BITFIELD16 op_typechecked:1;	\
     U8		op_flags;		\
     U8		op_private;
 #endif
@@ -966,6 +966,7 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
 #define OP_TYPE_ISNT_AND_WASNT(o, type) \
     ( (o) && OP_TYPE_ISNT_AND_WASNT_NN(o, type) )
 
+#define OpTYPECHECKED(o)	(0 + (o)->op_typechecked)
 
 #ifdef PERL_OP_PARENT
 #  define OpHAS_SIBLING(o)	(cBOOL((o)->op_moresib))

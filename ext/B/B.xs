@@ -739,7 +739,7 @@ static const struct OP_methods {
   { STR_WITH_LEN("ppaddr"),  op_offset_special, 0,                     },/*29*/
   { STR_WITH_LEN("type"),    op_offset_special, 0,                     },/*30*/
   { STR_WITH_LEN("opt"),     op_offset_special, 0,                     },/*31*/
-  { STR_WITH_LEN("spare"),   op_offset_special, 0,                     },/*32*/
+  { STR_WITH_LEN("typechecked"), op_offset_special, 0,                 },/*32*/
   { STR_WITH_LEN("children"),op_offset_special, 0,                     },/*33*/
   { STR_WITH_LEN("pmreplroot"), op_offset_special, 0,                  },/*34*/
   { STR_WITH_LEN("pmstashpv"), op_offset_special, 0,                   },/*35*/
@@ -1041,7 +1041,7 @@ next(o)
 	B::OP::ppaddr        = 29
 	B::OP::type          = 30
 	B::OP::opt           = 31
-	B::OP::spare         = 32
+	B::OP::typechecked   = 32
 	B::LISTOP::children  = 33
 	B::PMOP::pmreplroot  = 34
 	B::PMOP::pmstashpv   = 35
@@ -1139,7 +1139,7 @@ next(o)
 		break;
 	    case 30: /* B::OP::type  */
 	    case 31: /* B::OP::opt   */
-	    case 32: /* B::OP::spare */
+	    case 32: /* B::OP::typechecked */
 #if PERL_VERSION >= 17
 	    case 47: /* B::OP::slabbed  */
 	    case 48: /* B::OP::savefree */
@@ -1158,7 +1158,7 @@ next(o)
 		                    : ix == 49 ? o->op_static
 		                    : ix == 50 ? o->op_folded
 		                    : ix == 51 ? o->op_moresib
-		                    :            o->op_spare)));
+		                    :            o->op_typechecked)));
 		break;
 	    case 33: /* B::LISTOP::children */
 		{
