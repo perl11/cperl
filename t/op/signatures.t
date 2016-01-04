@@ -1432,6 +1432,27 @@ sub t150 (int $i, @error) { 1 }
     is scalar(t150(1, "")), 1, "reset tyepstash";
 }
 
+# user-type checks
+sub t119a (Int $a) :int { ++$a }
+{
+    my int $b = 0;
+    is t119a($b), 1;
+    eval "t119a('a')"; # ck error (fast direct violation)
+    like $@, qr/\AType of arg \$a to t119a must be Int \(not Str\) at \(eval \d+\) line 1, near "/, "Int not Str";
+
+    @MyInt::ISA=('Int');
+    my MyInt $i = 1;   # but MyInt is not a int, only a Int
+    eval 't119a($i);'; # slow isa check with type_Object
+    is $@, "", "Int isa MyInt, slow isa check with type_Object";
+    eval 't119($i);'; # Int !isa int
+    like $@, qr/\AType of arg \$a to t119 must be int \(not MyInt\) at \(eval \d+\) line 1, near "/, "int not MyInt";
+
+    @MyStr::ISA=('Str');
+    my MyStr $s;
+    eval 't119a($s);'; # ck error (slow isa check with type_Object)
+    like $@, qr/\AType of arg \$a to t119a must be Int \(not MyStr\) at \(eval \d+\) line 1, near "/, "Int not MyStr";
+}
+
 # check that a sub can have 32767 parameters ...
 
 my $code = "#line 2 foo\nsub t148 ("

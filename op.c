@@ -110,14 +110,14 @@ recursive, but it's recursive on basic blocks, not on tree nodes.
 #define CALL_OPFREEHOOK(o) if (PL_opfreehook) PL_opfreehook(aTHX_ o)
 #define op_lvalue_flags(o,type,flags) Perl_op_lvalue_flags(aTHX_ o,type,flags)
 #define op_typed(a) S_op_typed(aTHX_ a)
-#define op_typed_user(a,b) S_op_typed_user(aTHX_ a, b)
+#define op_typed_user(a,b,b8) S_op_typed_user(aTHX_ a, b, b8)
 #define core_type_name(t) S_core_type_name(aTHX_ t)
-#define bad_type_core(arg,gv,got,gotname,wanted) \
-    S_bad_type_core(aTHX_ arg,gv,got,gotname,wanted)
+#define bad_type_core(arg,gv,got,gotname,gotu8,wanted,wu8)         \
+    S_bad_type_core(aTHX_ arg,gv,got,gotname,gotu8,wanted,wu8)
 #define typename(stash) S_typename(aTHX_ stash)
 #define stash_to_coretype(stash) S_stash_to_coretype(aTHX_ stash)
-#define match_type(stash, coretype, typename, castable) \
-    S_match_type(aTHX_ stash, coretype,typename, castable)
+#define match_type(stash, coretype, aname, au8, castable)        \
+    S_match_type(aTHX_ stash, coretype, aname, (bool)au8, castable)
 #define match_type1(sig, arg) S_match_type1(sig, arg)
 #define match_type2(sig, arg1, arg2) S_match_type2(sig, arg1, arg2)
 
@@ -644,17 +644,20 @@ S_core_type_name(pTHX_ core_types_t t)
 
 STATIC void
 S_bad_type_core(pTHX_ const char *argname, GV *gv,
-                core_types_t got, const char* gotname,
-                const char *wanted)
+                core_types_t got, const char* gotname, bool gotu8,
+                const char *wanted, bool wu8)
 {
     SV * const namesv = cv_name((CV *)gv, NULL, CV_NAME_NOMAIN);
     const char *name = got == type_Object ? gotname : S_core_type_name(aTHX_ got);
+    PERL_UNUSED_ARG(gotu8);
+    PERL_UNUSED_ARG(wu8);
 
     assert(gv);
     assert(argname);
     assert(wanted);
     assert(namesv);
 
+    /* TODO utf8 for got and wanted */
     yyerror_pv(Perl_form(aTHX_ "Type of arg %s to %"SVf" must be %s (not %s)",
                          argname, SVfARG(namesv), wanted, name),
                SvUTF8(namesv));
@@ -11832,7 +11835,7 @@ core_types_t S_stash_to_coretype(pTHX_ const HV* stash)
    TODO: add defined return types of all ops, and user-defined CV types for entersub.
    */
 STATIC core_types_t
-S_op_typed_user(pTHX_ OP* o, char** usertype)
+S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
 {
     core_types_t t;
     switch (o->op_type) {
@@ -11840,8 +11843,10 @@ S_op_typed_user(pTHX_ OP* o, char** usertype)
         /*SV* c = PAD_SV(o->op_targ);*/
         PADNAME * const pn = PAD_COMPNAME(ck_pad(o)->op_targ);
         t = stash_to_coretype(PadnameTYPE(pn));
-        if (usertype && t == type_Object)
+        if (usertype && t == type_Object) {
             *usertype = (char*)typename(PadnameTYPE(pn));
+            *u8 = HvNAMEUTF8(PadnameTYPE(pn));
+        }
         return t;
     }
     case OP_CONST: {
@@ -11862,8 +11867,10 @@ S_op_typed_user(pTHX_ OP* o, char** usertype)
         case SVt_REGEXP: return type_Regexp;
         default: {
             HV* stash = SvSTASH(sv);
-            if (usertype && stash)
+            if (usertype && stash) {
                 *usertype = (char*)typename(stash);
+                *u8 = HvNAMEUTF8(stash);
+            }
             return stash ? type_Object : type_Scalar; }
         }
         break;
@@ -11882,17 +11889,35 @@ S_op_typed_user(pTHX_ OP* o, char** usertype)
 PERL_STATIC_INLINE
 core_types_t S_op_typed(pTHX_ OP* o)
 {
-    return S_op_typed_user(aTHX_ o, NULL);
+    return S_op_typed_user(aTHX_ o, NULL, 0);
 }
 
 /* match a return usertype from arg to
    the declared usertype name of a variable (dname).
 */
 PERL_STATIC_INLINE
-int S_match_user_type(pTHX_ const char *dname, const char* aname)
+int S_match_user_type(pTHX_ const char *dname, bool du8, const char* aname, bool au8)
 {
-    /* TODO: ISA check */
-    return strEQ(dname, aname);
+    /* search dname in @aname::ISA (contra-variance) */
+    const HV* astash = gv_stashpvn(aname, strlen(aname), au8 ? SVf_UTF8 : 0);
+    const HV* dstash = gv_stashpvn(dname, strlen(dname), du8 ? SVf_UTF8 : 0);
+    const AV* isa    = mro_get_linear_isa((HV*)astash);
+    const SV * const namesv = newSVhek(HvENAME_HEK(dstash)
+                                       ? HvENAME_HEK(dstash)
+                                       : HvNAME_HEK(dstash));
+    int i;
+
+    if (UNLIKELY(strEQ(dname, aname))) return 1;
+
+    for (i=0; i<=AvFILLp(isa); i++) {
+        SV* ele = AvARRAY(isa)[i]; /* array of shared class name HEKs */
+        DEBUG_kv(Perl_deb(aTHX_ "typecheck %s in %s\n", dname, SvPVX_const(ele)));
+        if (sv_eq(ele, (SV*)namesv)) return 1;
+    }
+    if (ckWARN(WARN_TYPES))
+        Perl_warner(aTHX_ packWARN(WARN_TYPES),
+                    "Wrong type %s, expected %s", aname, dname);
+    return 0;
 }
  
 /* match a return coretype from arg or op (atyp) to
@@ -11905,7 +11930,7 @@ int S_match_user_type(pTHX_ const char *dname, const char* aname)
 */
 PERL_STATIC_INLINE
 int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
-                int *castable)
+                 bool au8, int *castable)
 {
     core_types_t dtyp = stash_to_coretype(stash);
     if (LIKELY(dtyp == type_none /* no declared type */
@@ -11918,6 +11943,9 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
     /* we can cast any coretype to another: numify, stringify, but not user-objects.
        but if someone declared a coretype, like int and gets a Str do not cast. */
     *castable = (dtyp > type_Str && dtyp < type_Object);
+    /* we allow MyInt (isa Int) for int args */
+    if (atyp == type_Object)
+        return S_match_user_type(aTHX_ typename(stash), HvNAMEUTF8(stash), aname, au8);
     /* and now check the allowed variants */
     switch (dtyp) {
     case type_int:
@@ -11941,7 +11969,8 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
     case type_Scalar:
         return atyp <= type_Scalar;
     case type_Object:
-        return S_match_user_type(aTHX_ typename(stash), aname);
+        *castable = 1; /* XXX for now just warn, no error */
+        return S_match_user_type(aTHX_ typename(stash), HvNAMEUTF8(stash), aname, au8);
     case type_Any:
     case type_Void:
         return 1;
@@ -11962,8 +11991,9 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
         /* check type with arg (through aop),
            currently no entersub args and user types */
         char *usertype = NULL;
+        int argu8 = 0;
         const char *name = typename(type);
-        const core_types_t argtype = op_typed_user(o, &usertype);
+        const core_types_t argtype = op_typed_user(o, &usertype, &argu8);
         const char *argname = usertype ? usertype : S_core_type_name(aTHX_ argtype);
         DEBUG_k(Perl_deb(aTHX_ "ck argtype %s against arg: %s\n",
                          name?name:"none", argname));
@@ -11972,11 +12002,11 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
             && name && strNE(argname, name)) {
             int castable = 0;
             /* TODO check aggregate type: Array(int), Hash(str), ... */
-            /* TODO on type_Object recurse into all ISA parents */
             /* TODO: add numeric type casts */
-            if (!match_type(type, argtype, argname, &castable)) {
+            if (!match_type(type, argtype, argname, argu8, &castable)) {
                 if (!castable) {
-                    bad_type_core(PadnamePV(pn), cvname, argtype, argname, name);
+                    bad_type_core(PadnamePV(pn), cvname, argtype, argname, argu8,
+                                  name, HvNAMEUTF8(type));
                 } else {
                     if (ckWARN(WARN_TYPES) || DEBUG_k_TEST_)
                         Perl_warner(aTHX_  packWARN(WARN_TYPES),
@@ -12309,20 +12339,20 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
                     const SV* sv = cSVOPx_sv(o3);
                     const svtype t = SvTYPE(sv);
                     if (!(t == SVt_NULL || t == SVt_IV))
-                        bad_type_core(PadnamePV(pn), namegv, type_Object, svshorttypenames[t],
+                        bad_type_core(PadnamePV(pn), namegv, type_Object, svshorttypenames[t], 0,
                                       action == SIGNATURE_hash ? "HASH reference"
-                                                               : "ARRAY reference");
+                                      : "ARRAY reference", 0);
                     if (SvROK(sv) && SvTYPE(SvRV_const(sv)) !=
                                        (action == SIGNATURE_hash ? SVt_PVHV : SVt_PVAV))
-                        bad_type_core(PadnamePV(pn), namegv, type_Object, svshorttypenames[t],
+                        bad_type_core(PadnamePV(pn), namegv, type_Object, svshorttypenames[t], 0,
                                       action == SIGNATURE_hash ? "HASH reference"
-                                                               : "ARRAY reference");
+                                      : "ARRAY reference", 0);
                 } else if (o3->op_type == OP_ANONHASH && action == SIGNATURE_array) {
-                    bad_type_core(PadnamePV(pn), namegv, type_Object, "HASH reference",
-                                  "ARRAY reference");
+                    bad_type_core(PadnamePV(pn), namegv, type_Object, "HASH reference", 0,
+                                  "ARRAY reference", 0);
                 } else if (o3->op_type == OP_ANONLIST && action == SIGNATURE_hash) {
-                    bad_type_core(PadnamePV(pn), namegv, type_Object, "ARRAY reference",
-                                  "HASH reference");
+                    bad_type_core(PadnamePV(pn), namegv, type_Object, "ARRAY reference", 0,
+                                  "HASH reference", 0);
                 }
                 scalar(aop);
                 DEBUG_kv(Perl_deb(aTHX_ "ck_sig: ref action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",

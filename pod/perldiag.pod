@@ -7334,6 +7334,11 @@ Warning is given and the operation is not done.
 (W closed) The filehandle you're writing to got itself closed sometime
 before now.  Check your control flow.
 
+=item Wrong type %s, expected %s
+
+(W types) The type of the argument does not match the user-defined type of
+the function declaration.
+
 =item %s "\x%X" does not map to Unicode
 
 (S utf8) When reading in different encodings, Perl tries to
