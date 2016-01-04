@@ -217,7 +217,7 @@ This is done with the following restrictions to satisfy the
 
 Any subclass, a class which is derived from one or more parent classes
 and is used as type parameter, must guarantee the following restrictions,
-design by contract.
+a cperl design by contract.
 
 For B<method signatures>:
 
@@ -308,7 +308,34 @@ of LSP could occur.
 
 For more see
 L<https://en.wikipedia.org/wiki/Liskov_substitution_principle> and
-L<https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)>
+L<https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)>.
+
+B<Perl6 subset>:
+
+In Perl6 you don't have these type checking guarantees, and therefore
+no proper type optimizations and no type checking soundness. Using
+subtypes only makes run-time slower, while only in very few cases helps
+improving the compilation.
+
+In Perl6 a subtype is not a subclass. Subclasses add capabilities,
+whereas a subtype adds constraints (takes away capabilities). A perl6
+subtype is primarily a handy way of sneaking smartmatching into
+multiple dispatch. Just as a role allows you to specify something more
+general than a class, a subtype allows you to specify something more
+specific than a class. A perl6 subtype specifies a subset of the
+values that the original type specified, which is why perl6 uses the
+C<subset> keyword for it.
+
+While subsets are primarily intended for restricting parameter types
+for multiple dispatch, they also let you impose preconditions on
+assignment. If you declare any container with a subset, Perl will
+check the constraint against any value you might try to bind or assign
+to the container.
+
+Perl6-like subsets require type-objects instead of type-classes.
+Perl6 subclasses don't guarantee subtyping.
+
+See L<https://design.perl6.org/S12.html#Types_and_Subtypes>
 
 =head2 Compile-time type optimizations
 
