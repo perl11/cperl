@@ -14,7 +14,7 @@ for my $name (@names) {
         $e = encode($name, $str);
     };
   SKIP: {
-      skip $@, 1 if $@;
+      skip "$@", 1 if $@;
       ok tainted($e), "encode $name";
     }
     $bin = $e.$taint if $e;
@@ -22,7 +22,7 @@ for my $name (@names) {
         $d = decode($name, $bin);
     };
   SKIP: {
-      skip $@, 1 if $@;
+      skip "$@", 1 if $@;
       ok tainted($d), "decode $name";
     }
 }

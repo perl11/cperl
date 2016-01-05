@@ -110,6 +110,10 @@ my %skip;
 	cpan/Test-Simple/lib/Test/Builder/Tester.pm
 	cpan/Pod-Simple/lib/Pod/Simple/LinkSection.pm
 	cpan/Pod-Simple/lib/Pod/Simple/Debug.pm
+	cpan/CPAN/lib/CPAN.pm
+	cpan/CPAN/lib/CPAN/Distribution.pm
+	cpan/CPAN/lib/CPAN/Shell.pm
+        dist/PathTools/lib/File/Spec/VMS.pm
         )} = ();
 
 # Files to skip just for particular version(s),
