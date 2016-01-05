@@ -225,7 +225,7 @@ sub eval_in_subdirs {
     use Cwd qw(cwd abs_path);
     my $pwd = cwd() || die "Can't figure out your cwd!";
 
-    local @INC = map eval {abs_path($_) if -e} || $_, @INC;
+    local @INC = map eval {abs_path("$_") if -e} || $_, @INC;
     push @INC, '.';     # '.' has to always be at the end of @INC
 
     foreach my $dir (@{$self->{DIR}}){
