@@ -673,7 +673,7 @@ sub _calc_trace_wrapper
     );
 
     $wrapper->contents_like(qr/
-        ^main::\([^\)]*\bdisable-breakpoints-1:2\):\n
+        ^(main::)?\([^\)]*\bdisable-breakpoints-1:2\):\n
         2:\s+my\ \$x\ =\ "One";\n
         /msx,
         "Prompt should display the first line of code.");
@@ -762,7 +762,7 @@ sub _calc_trace_wrapper
 
     $wrapper->contents_like(
         qr/
-        ^main::back\([^\)\n]*\bwith-subroutine:12\):[\ \t]*\n
+        ^(main::)?back\([^\)\n]*\bwith-subroutine:12\):[\ \t]*\n
         ^12:\s*print\ "hello\ back\\n";
         /msx,
         "Prompt should display the line of code inside a subroutine.");
@@ -969,7 +969,7 @@ sub _calc_trace_wrapper
 
     $wrapper->contents_like(
         qr/
-        ^main::foo\([^\)\n]*\brt-104168:9\):[\ \t]*\n
+        ^(main::)?foo\([^\)\n]*\brt-104168:9\):[\ \t]*\n
         ^9:\s*bar\(\);
         /msx,
         'Test for the s command.',
@@ -1228,7 +1228,7 @@ DebugWrap->new({
     );
 
     my $line_out = qr /
-        ^main::fact\([^\n]*?:7\):\n
+        ^(main::)?fact\([^\n]*?:7\):\n
         ^7:\s+my\ \$n\ =\ shift;\n
     /msx;
 
@@ -2278,12 +2278,11 @@ DebugWrap->new({
     $wrapper->output_like(qr#
         ^This\ program\ dies\.\ at\ \S+\ line\ 18\N*\.\n
         .*?
-        ^\s+main::baz\(\)\ called\ at\ \S+\ line\ 13\n
-        \s+main::bar\(\)\ called\ at\ \S+\ line\ 7\n
-        \s+main::foo\(\)\ called\ at\ \S+\ line\ 21\n
+        ^\s+(main::)?baz\(\)\ called\ at\ \S+\ line\ 13\n
+        \s+(main::)?bar\(\)\ called\ at\ \S+\ line\ 7\n
+        \s+(main::)?foo\(\)\ called\ at\ \S+\ line\ 21\n
         #msx,
-        'Test the o dieLevel option',
-    );
+        'Test the o dieLevel option');
 }
 
 # Test the warnLevel option
@@ -2303,12 +2302,11 @@ DebugWrap->new({
     $wrapper->contents_like(qr#
         ^This\ is\ not\ a\ warning\.\ at\ \S+\ line\ 18\N*\.\n
         .*?
-        ^\s+main::baz\(\)\ called\ at\ \S+\ line\ 13\n
-        \s+main::bar\(\)\ called\ at\ \S+\ line\ 25\n
-        \s+main::myfunc\(\)\ called\ at\ \S+\ line\ 28\n
+        ^\s+(main::)?baz\(\)\ called\ at\ \S+\ line\ 13\n
+        \s+(main::)?bar\(\)\ called\ at\ \S+\ line\ 25\n
+        \s+(main::)?myfunc\(\)\ called\ at\ \S+\ line\ 28\n
         #msx,
-        'Test the o warnLevel option',
-    );
+        'Test the o warnLevel option');
 }
 
 # Test the t command
@@ -2326,9 +2324,9 @@ DebugWrap->new({
     );
 
     $wrapper->contents_like(qr/
-        ^main::\([^:]+:15\):\n
+        ^(main::)?\([^:]+:15\):\n
         15:\s+\$dummy\+\+;\n
-        main::\([^:]+:17\):\n
+        (main::)?\([^:]+:17\):\n
         17:\s+\$x\ =\ "FourthVal";\n
         /msx,
         'Test the t command (without a number.)',
@@ -2350,9 +2348,9 @@ DebugWrap->new({
     );
 
     $wrapper->contents_like(qr/
-        ^main::\([^:]+:15\):\n
+        ^(main::)?\([^:]+:15\):\n
         15:\s+\$dummy\+\+;\n
-        main::\([^:]+:17\):\n
+        (main::)?\([^:]+:17\):\n
         17:\s+\$x\ =\ "FourthVal";\n
         /msx,
         'Test the o AutoTrace command',
@@ -2377,13 +2375,13 @@ DebugWrap->new({
     );
 
     $wrapper->contents_like(qr/
-        ^main::\([^:]+:28\):\n
+        ^(main::)?\([^:]+:28\):\n
         28:\s+myfunc\(\);\n
         auto\(-\d+\)\s+DB<1>\s+t\n
         Trace\ =\ on\n
         auto\(-\d+\)\s+DB<1>\s+b\ 18\n
         auto\(-\d+\)\s+DB<2>\s+c\n
-        main::myfunc\([^:]+:25\):\n
+        (main::)?myfunc\([^:]+:25\):\n
         25:\s+bar\(\);\n
         /msx,
         'Test the t command with function calls.',
@@ -2408,13 +2406,13 @@ DebugWrap->new({
     );
 
     $wrapper->contents_like(qr/
-        ^main::\([^:]+:28\):\n
+        ^(main::)?\([^:]+:28\):\n
         28:\s+myfunc\(\);\n
         auto\(-\d+\)\s+DB<1>\s+o\ AutoTrace\n
         \s+AutoTrace\s+=\s+'1'\n
         auto\(-\d+\)\s+DB<2>\s+b\ 18\n
         auto\(-\d+\)\s+DB<3>\s+c\n
-        main::myfunc\([^:]+:25\):\n
+        (main::)?myfunc\([^:]+:25\):\n
         25:\s+bar\(\);\n
         /msx,
         'Test the o AutoTrace command with function calls.',
@@ -2485,7 +2483,7 @@ DebugWrap->new({
     );
 
     $wrapper->contents_like(
-        qr/scalar context return from main::return_scalar: 20024/,
+        qr/scalar context return from (main::)?return_scalar: 20024/,
         "Test o PrintRet=1",
     );
 }
@@ -2535,7 +2533,7 @@ DebugWrap->new({
     );
 
     $wrapper->contents_like(
-        qr/list context return from main::return_list:\n0\s*'Foo'\n1\s*'Bar'\n2\s*'Baz'\n/,
+        qr/list context return from (main::)?return_list:\n0\s*'Foo'\n1\s*'Bar'\n2\s*'Baz'\n/,
         "Test o PrintRet=1 in list context",
     );
 }
@@ -2585,7 +2583,7 @@ DebugWrap->new({
     );
 
     $wrapper->contents_like(
-        qr/void context return from main::return_void/,
+        qr/void context return from (main::)?return_void/,
         "Test o PrintRet=1 in void context",
     );
 }
@@ -2636,8 +2634,8 @@ DebugWrap->new({
 
     $wrapper->contents_like(
         qr/
-            in\s*\.=main::my_other_func\(3,\ 1200\)\ from.*?
-            out\s*\.=main::my_other_func\(3,\ 1200\)\ from
+            in\s*\.=(main::)?my_other_func\(3,\ 1200\)\ from.*?
+            out\s*\.=(main::)?my_other_func\(3,\ 1200\)\ from
         /msx,
         "Test o PrintRet=0 in void context",
     );
@@ -2660,7 +2658,7 @@ DebugWrap->new({
 
     $wrapper->contents_like(
         qr/
-	    (?:^main::fact.*return\ \$n\ \*\ fact\(\$n\ -\ 1\);.*)
+	    (?:^(main::)?fact.*return\ \$n\ \*\ fact\(\$n\ -\ 1\);.*)
         /msx,
         "Test t expr",
     );
