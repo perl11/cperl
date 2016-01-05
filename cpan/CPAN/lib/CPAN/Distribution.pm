@@ -3749,7 +3749,7 @@ sub clean {
             push @e, "make clean already called once";
         $CPAN::Frontend->myprint(join "", map {"  $_\n"} @e) and return if @e;
     }
-    chdir $self->{build_dir} or
+    chdir "$self->{build_dir}" or
         Carp::confess("Couldn't chdir to $self->{build_dir}: $!");
     $self->debug("Changed directory to $self->{build_dir}") if $CPAN::DEBUG;
 

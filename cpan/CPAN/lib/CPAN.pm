@@ -490,7 +490,7 @@ Trying '$root' as temporary haven.
         push @$cwd, $root;
     }
     while () {
-        if (chdir $cwd->[0]) {
+        if (chdir "$cwd->[0]") {
             return;
         } else {
             if (@$cwd>1) {
