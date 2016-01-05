@@ -449,9 +449,11 @@ sub longmess_heavy {
 
 # Returns a full stack backtrace starting from where it is
 # told.
-sub ret_backtrace (int $i, @error) {
+#sub ret_backtrace (int $i, @error) # hangs in lib/perl5db.t
+sub ret_backtrace {
+    my int $i = shift;
     my $mess;
-    my $err = join '', @error;
+    my $err = join '', @_;
     $i++;
 
     my $tid_msg = '';
@@ -481,8 +483,9 @@ sub ret_backtrace (int $i, @error) {
     return $mess;
 }
 
-sub ret_summary (int $i, @error) {
-    my $err = join '', @error;
+sub ret_summary {
+    my int $i = shift;
+    my $err = join '', @_;
     $i++;
 
     my $tid_msg = '';
