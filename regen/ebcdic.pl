@@ -1,6 +1,9 @@
 use v5.16.0;
 use strict;
 use warnings;
+
+BEGIN { unshift @INC, '.' }
+
 require 'regen/regen_lib.pl';
 require 'regen/charset_translations.pl';
 

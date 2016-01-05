@@ -1239,8 +1239,8 @@ sub run_multiple_progs {
 	close $fh or die "Cannot close $tmpfile: $!";
 	my $results = runperl( stderr => 1, progfile => $tmpfile,
 			       stdin => undef, $up
-			       ? (switches => ["-I$up/lib", $switch], nolib => 1)
-			       : (switches => [$switch])
+			       ? (switches => [ "-I.", "-I$up/lib", $switch], nolib => 1)
+			       : (switches => [ "-I.", $switch])
 			        );
 	my $status = $?;
 	$results =~ s/\n+$//;
