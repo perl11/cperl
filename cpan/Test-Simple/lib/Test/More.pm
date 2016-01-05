@@ -658,9 +658,9 @@ just a single object which isa C<$class>.
 
 =cut
 
-sub new_ok ($class?, $args?, $object_name?) {
+sub new_ok ($class, $args?, $object_name?) {
     my $tb = Test::More->builder;
-    #$tb->croak("new_ok() must be given at least a class") unless @_;
+    # $tb->croak("new_ok() must be given at least a class") unless defined $class;
 
     $args ||= [];
 
@@ -671,7 +671,7 @@ sub new_ok ($class?, $args?, $object_name?) {
         isa_ok($obj, $class, $object_name);
     }
     else {
-        $class = 'undef' if !defined $class;
+        $class = 'undef' if !length $class;
         $tb->ok( 0, "$class->new() died" );
         $tb->diag("    Error was:  $error");
     }

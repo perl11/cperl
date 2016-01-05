@@ -355,9 +355,9 @@ sub test_handler {
 
         SKIP:
         {
-            my $planned = 1;
+            my int $planned = 1;
             $planned += 1 + scalar @{ $test->{output} } if $test->{output};
-            skip $test->{skip_reason}, $planned if $test->{skip};
+            skip "$test->{skip_reason}", $planned if $test->{skip};
 
             my $source = TAP::Parser::Source->new;
             $source->raw( $test->{raw} )             if $test->{raw};

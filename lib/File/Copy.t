@@ -444,7 +444,8 @@ my %subs = (
 );
 
 SKIP: {
-    skip( "Test can't run with $NO_SUCH_FILE existing", 2 * keys %subs)
+    my int $how_many = 2 * keys %subs;
+    skip( "Test can't run with $NO_SUCH_FILE existing", $how_many)
         if (-e $NO_SUCH_FILE);
 
     foreach my $name (keys %subs) {

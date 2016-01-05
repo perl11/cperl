@@ -5,9 +5,7 @@ use Test::Tester;
 my $Test = Test::Builder->new;
 $Test->plan(tests => 3);
 
-my $cap;
-
-$cap = Test::Tester->capture;
+my $cap = Test::Tester->capture;
 
 {
 	no warnings 'redefine';

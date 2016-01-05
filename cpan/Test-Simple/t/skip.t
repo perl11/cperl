@@ -7,7 +7,7 @@ BEGIN {
     }
 }
 
-use Test::More tests => 17;
+use Test::More tests => 15;
 
 # If we skip with the same name, Test::Harness will report it back and
 # we won't get lots of false bug reports.
@@ -84,15 +84,16 @@ SKIP: {
     pass("This is supposed to run, too");
 }
 
-{
-    my $warning = '';
-    local $SIG{__WARN__} = sub { $warning .= join "", @_ };
-
-    SKIP: {
-        skip 1, "This is backwards" if 1;
-
-        pass "This does not run";
-    }
-
-    like $warning, qr/^skip\(\) was passed a non-numeric number of tests/;
-}
+# with cperl types this is a compile-time error
+#{
+#    my $warning = '';
+#    local $SIG{__WARN__} = sub { $warning .= join "", @_ };
+#
+#    SKIP: {
+#        skip 1, "This is backwards" if 1;
+#
+#        pass "This does not run";
+#    }
+#
+#    like $warning, qr/^skip\(\) was passed a non-numeric number of tests/;
+#}

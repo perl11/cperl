@@ -36,7 +36,6 @@ use Test::More tests => 13;
 }
 
 # And what if we give it nothing?
-eval {
-    new_ok();
-};
-is $@, sprintf "new_ok() must be given at least a class at %s line %d.\n", $0, __LINE__ - 2;
+eval q(new_ok(););
+is $@, 'Not enough arguments for subroutine entry Test::More::new_ok. Missing $class at (eval 3) line 1, near "()"'."\n";
+#is $@, sprintf "new_ok() must be given at least a class at %s line %d.\n", $0, __LINE__ - 2;

@@ -40,7 +40,7 @@ my $ob_reg = Hash::Util::FieldHash::_ob_reg;
 
     SKIP: {
         require Config;
-        skip "No thread support", 3*$n_basic unless
+        skip "No thread support", int(3*$n_basic) unless
             $Config::Config{ usethreads};
         require threads;
         my ( $t) = threads->create( \ &basic_func, "thread 1");
