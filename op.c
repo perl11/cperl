@@ -172,6 +172,13 @@ const char * S_typename(pTHX_ const HV* stash)
 
 #define POP_DEFERRED_OP() (defer_ix >= 0 ? defer_stack[defer_ix--] : (OP *)NULL)
 
+PERL_STATIC_INLINE OP*
+S_op_next_nn(OP* o) {
+    while(o->op_next && OP_TYPE_IS(o->op_next, OP_NULL))
+        o = o->op_next;
+    return o->op_next;
+}
+
 /* remove any leading "empty" ops from the op_next chain whose first
  * node's address is stored in op_p. Store the updated address of the
  * first node in op_p.
@@ -11877,6 +11884,16 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
         }
         break;
     }
+    case OP_RV2SV: {
+        OP* kid = OpSIBLING(o);
+        if (OP_TYPE_IS(kid, OP_NULL))
+            kid = S_op_next_nn(kid);
+        /* check types of some special constants: $^O => Str */
+        if (OP_TYPE_IS(OpSIBLING(o), OP_GV)) {
+            if (cGVOPx_gv(kid) == gv_fetchpvs("^O", 0, SVt_PV))
+                return type_Str;
+        }
+    }
     case OP_RV2CV:
     case OP_ENTERSUB: {
         /*PADNAME * const pn = PAD_COMPNAME(o->op_targ);
@@ -14576,13 +14593,6 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 }
 
 /* returns the next non-null op */
-
-PERL_STATIC_INLINE OP*
-S_op_next_nn(OP* o) {
-    while(o->op_next && OP_TYPE_IS(o->op_next, OP_NULL))
-        o = o->op_next;
-    return o->op_next;
-}
 
 /* mechanism for deferring recursion in rpeep() */
 
