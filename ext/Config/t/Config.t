@@ -290,7 +290,7 @@ foreach my $lib (qw(applibexp archlibexp privlibexp sitearchexp sitelibexp
         my $v = $Config{$k};
         if (defined $v and length $v
             and $v =~ /^".*?"(.*)/
-            and $k ne 'sig_name_init')
+            and $k !~ /(sig_name|list)_init$/)
         {
             ok !length $1, "$k => $v";
         }
