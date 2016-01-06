@@ -1371,7 +1371,12 @@ sub is_pod_file {
             # Otherwise fail it here and no reason to process it further.
             # (But the test count will be off too)
             ok(0, "Can't open '$filename': $!")
-                                            if -r $filename && ! -l $filename;
+              if -r $filename && ! -l $filename;
+            return;
+        }
+        if (-s $filename > 1_000_000_000) {
+            # don't slurp >1MB logfiles
+            ok(0, "Skip overlarge '$filename': size=".(-s $filename));
             return;
         }
         <$candidate>;
