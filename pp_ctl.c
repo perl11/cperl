@@ -1921,7 +1921,7 @@ PP(pp_caller)
 	PUSHs(&PL_sv_undef);
 	PUSHs(&PL_sv_undef);
     }
-    if (CxTYPE(cx) == CXt_SUB && CxHASARGS(cx)
+    if (CxTYPE(cx) == CXt_SUB && CxHASARGS(cx) && !CvHASSIG(cx->blk_sub.cv)
 	&& CopSTASH_eq(PL_curcop, PL_debstash))
     {
         /* slot 0 of the pad contains the original @_ */
