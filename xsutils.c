@@ -179,6 +179,10 @@ boot_coretypes(pTHX_ SV *xsfile)
     DEF_CORETYPE_1("str");
     DEF_CORETYPE("uint");
     TYPE_EXTENDS_1("uint", "int");
+
+    DEF_CORETYPE("Scalar"); /* not readonly */
+    DEF_CORETYPE("Numeric");
+    TYPE_EXTENDS_1("Numeric", "Scalar");
 #if 0
     /* Extended versions, needed only for user types, not core types */
     DEF_CORETYPE_1("Undef");
@@ -191,8 +195,6 @@ boot_coretypes(pTHX_ SV *xsfile)
     DEF_CORETYPE("?Str");
     TYPE_EXTENDS_2("?Str", "Str", "Undef");
     DEF_CORETYPE_1("Bool");
-    DEF_CORETYPE_1("Numeric");
-    DEF_CORETYPE_1("Scalar");
     DEF_CORETYPE_1("Ref");
     DEF_CORETYPE_1("Sub"); /* Callable */
     DEF_CORETYPE_1("Array");
