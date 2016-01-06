@@ -2335,7 +2335,8 @@ EsR	|bool	|isWB		|WB_enum previous				\
 				|const bool utf8_target
 EsR	|WB_enum|advance_one_WB |NN U8 ** curpos				\
 				|NN const U8 * const strend			\
-				|const bool utf8_target
+				|const bool utf8_target				\
+				|const bool skip_Extend_Format
 EsR	|WB_enum|backup_one_WB  |NN WB_enum * previous			\
 				|NN const U8 * const strbeg			\
 				|NN U8 ** curpos				\
