@@ -1473,3 +1473,13 @@ print "b is $b\n";
 EXPECT
 a is 3
 b is 7
+########
+
+# Invalid tie of a coretype
+
+sub TieScalar::TIESCALAR ($class, $instance?) { bless \$instance => $class }
+my Int $i = 1;
+eval 'tie $i, "TieScalar"';
+print $@;
+EXPECT
+Invalid type Int for tie $i at (eval 1) line 1.

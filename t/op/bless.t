@@ -6,7 +6,7 @@ BEGIN {
     require './test.pl';
 }
 
-plan (114);
+plan (115);
 # Please do not eliminate the plan.  We have tests in DESTROY blocks.
 
 sub expected {
@@ -178,3 +178,9 @@ undef *Food::;
     is $w, undef,
        'no warnings when reblessing inside DESTROY triggered by reblessing'
 }
+
+# coretypes cannot be casted to another type
+my Int $i = 1;
+eval 'bless \$i, "MyInt"';
+like $@, qr/Invalid type Int for bless \$i at \(eval \d+\) line 1./, "Invalid bless to a coretype";
+

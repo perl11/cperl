@@ -11856,7 +11856,9 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
             if (!SvROK(sv)) return SvUOK(sv) ? type_UInt : type_Int;
             else            return type_Scalar; /* or Ref */
         case SVt_NULL:   return type_none;
-        case SVt_PV:     return type_Str;
+        case SVt_PV:
+            return (o->op_private & OPpCONST_BARE) /* typeglob (filehandle) */
+                   ? type_Scalar : type_Str;
         case SVt_NV:     return type_Num;
             /* numified strings as const, stay conservative */
         case SVt_PVIV:   return type_Scalar; /* no POK check */
@@ -13412,6 +13414,46 @@ Perl_ck_type(pTHX_ OP *o)
     return o;
 }
 
+/* for tie and bless:
+   check if the first argument is not a typed coretype.
+   We guarantee coretyped variables to have no magic.
+   TODO: For bless we also require a ref.
+ */
+
+OP *
+Perl_ck_nomg(pTHX_ OP *o)
+{
+    OP* a = cLISTOPx(o)->op_first;
+    core_types_t argtype;
+    PADOFFSET po;
+
+    PERL_ARGS_ASSERT_CK_NOMG;
+
+    if (OP_TYPE_IS_OR_WAS(a, OP_PUSHMARK)) {
+        if (a->op_next && a->op_next != a)
+            a = a->op_next;
+        else
+            a = OpSIBLING(a->op_next);
+    }
+    /* e.g. bless \$, $class */
+    if (OP_TYPE_IS(a, OP_SREFGEN)) {
+        a = cUNOPx(a)->op_first;
+        if (OP_TYPE_IS_OR_WAS(a, OP_LIST))
+            a = cUNOPx(a)->op_first;
+    }
+    if (!a) return ck_fun(o);
+
+    argtype = op_typed(a);
+    po = a->op_targ;
+    DEBUG_kv(Perl_deb(aTHX_ "%s(%s :%s)\n", OP_NAME(o),
+                      PAD_COMPNAME(po) ? PAD_COMPNAME_PV(po) : "",
+                      core_type_name(argtype)));
+    if (argtype > type_none && argtype <= type_Str) {
+        Perl_die(aTHX_ "Invalid type %s for %s %s", core_type_name(argtype), OP_NAME(o),
+                 PAD_COMPNAME(po) ? PAD_COMPNAME_PV(po) : "");
+    }
+    return ck_fun(o);
+}
 
 
 /* 

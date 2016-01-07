@@ -2862,7 +2862,7 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_spair,		/* refgen */
 	Perl_ck_null,		/* srefgen */
 	Perl_ck_fun,		/* ref */
-	Perl_ck_fun,		/* bless */
+	Perl_ck_nomg,		/* bless */
 	Perl_ck_backtick,	/* backtick */
 	Perl_ck_glob,		/* glob */
 	Perl_ck_readline,	/* readline */
@@ -2992,7 +2992,7 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_fun,		/* fileno */
 	Perl_ck_fun,		/* umask */
 	Perl_ck_fun,		/* binmode */
-	Perl_ck_fun,		/* tie */
+	Perl_ck_nomg,		/* tie */
 	Perl_ck_fun,		/* untie */
 	Perl_ck_fun,		/* tied */
 	Perl_ck_fun,		/* dbmopen */
