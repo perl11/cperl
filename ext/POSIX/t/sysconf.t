@@ -83,7 +83,7 @@ sub _check_and_report {
 SKIP: {
     my $fd = POSIX::open($testdir, O_RDONLY)
         or skip "could not open test directory '$testdir' ($!)",
-	  2 * @path_consts;
+	  int(2 * @path_consts);
 
     for my $constant (@path_consts) {
         SKIP: {
@@ -106,7 +106,7 @@ for my $constant (@path_consts) {
 }
 
 SKIP: {
-    my $n = 2 * 2 * @path_consts_terminal;
+    my int $n = 2 * 2 * @path_consts_terminal;
 
     -c $TTY
 	or skip("$TTY not a character file", $n);
@@ -135,11 +135,11 @@ my $fifo = "fifo$$";
 
 SKIP: {
     eval { mkfifo($fifo, 0666) }
-	or skip("could not create fifo $fifo ($!)", 2 * 2 * @path_consts_fifo);
+	or skip("could not create fifo $fifo ($!)", int(2 * 2 * @path_consts_fifo));
 
   SKIP: {
       my $fd = POSIX::open($fifo, O_RDONLY | O_NONBLOCK)
-	  or skip("could not open $fifo ($!)", 2 * @path_consts_fifo);
+	  or skip("could not open $fifo ($!)", int(2 * @path_consts_fifo));
 
       for my $constant (@path_consts_fifo) {
 	  _check_and_report(sub { fpathconf($fd, shift) }, $constant,
