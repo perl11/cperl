@@ -12849,7 +12849,8 @@ S_aassign_scan(pTHX_ OP* o, bool rhs, bool top, int *scalars_p)
     default:
         if (PL_opargs[o->op_type] & OA_DANGEROUS) {
             (*scalars_p) += 2;
-            return AAS_DANGEROUS;
+            flags = AAS_DANGEROUS;
+            break;
         }
 
         if (   OP_HAS_TARGLEX(o->op_type)
