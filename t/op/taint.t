@@ -2293,7 +2293,8 @@ ok !("M$TAINT" ~~ ['m', undef]), '$tainted ~~ ["whatever", undef]';
 
 # Tainted values and ref()
 for(1,2) {
-  my $x = bless \"M$TAINT", ref(bless[], "main");
+  my $t = "M$TAINT";
+  my $x = bless \$t, ref(bless[], "main");
 }
 pass("no death when TARG of ref is tainted");
 
