@@ -3253,7 +3253,7 @@ PPt(pp_srand, "(:Num?):Num")
     RETURN;
 }
 
-PPt(pp_int, "(:Scalar):Int")
+PPt(pp_int, "(:Numeric):Int")
 {
     dSP; dTARGET;
     tryAMAGICun_MG(int_amg, AMGf_numeric);

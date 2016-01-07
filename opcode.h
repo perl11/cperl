@@ -1137,7 +1137,7 @@ PL_op_type_str[] = {
 	"(:Num):Num",	/* 93: exp */
 	"(:Num):Num",	/* 94: log */
 	"(:Num):Num",	/* 95: sqrt */
-	"(:Numeric):Numeric",	/* 96: int */
+	"(:Numeric):Int",	/* 96: int */
 	"(:Numeric):UInt",	/* 97: hex */
 	"(:Numeric):UInt",	/* 98: oct */
 	"(:Numeric):Numeric",	/* 99: abs */
@@ -1558,7 +1558,7 @@ EXTCONST U32 PL_op_type[] = {
 	0x07ffff07,	/* 93: exp "(:Num):Num" */
 	0x07ffff07,	/* 94: log "(:Num):Num" */
 	0x07ffff07,	/* 95: sqrt "(:Num):Num" */
-	0x0affff0a,	/* 96: int "(:Numeric):Numeric" */
+	0x0affff05,	/* 96: int "(:Numeric):Int" */
 	0x0affff06,	/* 97: hex "(:Numeric):UInt" */
 	0x0affff06,	/* 98: oct "(:Numeric):UInt" */
 	0x0affff0a,	/* 99: abs "(:Numeric):Numeric" */

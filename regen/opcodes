@@ -169,7 +169,7 @@ sqrt		sqrt			ck_fun		pfsTu%	S?	"(:Num):Num"
 
 # Lowbrow math.
 
-int		int			ck_fun		pfsTu%	S?	"(:Numeric):Numeric"
+int		int			ck_fun		pfsTu%	S?	"(:Numeric):Int"
 hex		hex			ck_fun		pfsTu%	S?	"(:Numeric):UInt"
 oct		oct			ck_fun		pfsTu%	S?	"(:Numeric):UInt"
 abs		abs			ck_fun		pfsTu%	S?	"(:Numeric):Numeric"

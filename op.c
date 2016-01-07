@@ -11944,6 +11944,9 @@ int S_match_user_type(pTHX_ const char *dname, bool du8, const char* aname, bool
 
    Added a 4th parameter if to allow inserting a type cast: 
    numify. Scalar => Bool/Numeric
+   Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric
+   Maybe allow casting from Scalar/Numeric to Int => int()
+   and Scalar to Str => stringify()
 
    on atyp == type_Object check the name and its ISA instead.
 */
@@ -12030,7 +12033,9 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
                     if (ckWARN(WARN_TYPES) || DEBUG_k_TEST_)
                         Perl_warner(aTHX_  packWARN(WARN_TYPES),
                                     "Inserting type cast %s to %s\n", name, argname);
-                    /* currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric */
+                    /* Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric */
+                    /* Maybe allow casting from Scalar/Numeric to Int => int()
+                       and Scalar to Str => stringify() */
                     switch (argtype) {
                     case type_Bool:
                     case type_Numeric:
