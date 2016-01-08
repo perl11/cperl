@@ -570,7 +570,7 @@ sub numbers_with_total {
         if is_valid_error($@);
 
       is($@, '', "no error");
-      ok(defined $sum, "sum bits $_, format $format defined");
+      ok(defined $sum, "sum bits $_, format $format defined: $sum");
 
       my $len = $_; # Copy, so that we can reassign ''
       $len = 16 unless length $len;
@@ -587,11 +587,22 @@ sub numbers_with_total {
         # This is why we need to supply the totals for 'Q' as there's no way in
         # perl to calculate them, short of unpack '%0Q' (is that documented?)
         # ** returns NVs; make sure it's IV.
-        my $max = 1 + 2 * (int (2 ** ($len-1))-1); # The max possible checksum
+        # With cperl we need to cast int() to Scalar to avoid i_arith overflow
+        my $m = int(2 ** ($len-1));   # avoid u_multiply, Int=> Scalar 
+        my $max = 1 + 2 * ($m - 1);   # avoid u_subtract
         my $max_p1 = $max + 1;
         my ($max_is_integer, $max_p1_is_integer);
         $max_p1_is_integer = 1 unless $max_p1 + 1 == $max_p1;
         $max_is_integer = 1 if $max - 1 < ~0;
+
+        if ($max_is_integer and "$max" =~ /e\+/) {
+          warn "# max=$max => ",int($max),", is_integer=$max_is_integer\n";
+          $max = int($max);
+        }
+        if ($max_p1_is_integer and "$max_p1" =~ /e\+/) {
+          warn "# max_p1=$max_p1 => ",int($max_p1),", is_integer=$max_p1_is_integer\n";
+          $max_p1 = int($max_p1);
+        }
 
         my $calc_sum;
         if (ref $total) {
@@ -674,11 +685,12 @@ numbers_with_total ('q', -1,
 numbers_with_total ('Q', sub {
                       my $len = shift;
                       $len = 65 if $len > 65; # unmasked total is 2**65-1 here
-                      my $total = 1 + 2 * (int (2**($len - 1)) - 1);
+                      my $m = int (2**($len - 1)); # cast Int back to Scalar
+                      my $total = 1 + 2 * ($m - 1);
                       return 0 if $total == $total - 1; # Overflowed integers
                       return $total; # NVs still accurate to nearest integer
                     },
-                    0, 1,9223372036854775807, 9223372036854775808,
+                    0, 1, 9223372036854775807, 9223372036854775808,
                     18446744073709551615);
 
 print "# pack nvNV byteorders\n";
