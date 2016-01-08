@@ -3369,6 +3369,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
     case OP_I_MODULO:
     case OP_I_ADD:
     case OP_I_SUBTRACT:
+    case OP_I_POW:
 #ifdef PERL_NATIVE_TYPES
     case OP_UINT_LEFT_SHIFT:
     case OP_UINT_RIGHT_SHIFT:
@@ -3701,6 +3702,7 @@ S_scalar_mod_type(const OP *o, I32 type)
     case OP_I_MODULO:
     case OP_I_ADD:
     case OP_I_SUBTRACT:
+    case OP_I_POW:
     case OP_LEFT_SHIFT:
     case OP_RIGHT_SHIFT:
     case OP_BIT_AND:
@@ -13340,7 +13342,10 @@ int S_sigtype_args(const char* sig, int *i)
 PERL_STATIC_INLINE
 int S_match_type1(const U32 sig, core_types_t arg1)
 {
-    return sig == (((U32)arg1 << 24) | 0xffff00);
+    /* also accept Int as UInt */
+    return sig == (((U32)arg1 << 24) | 0xffff00)
+        || (arg1 == type_Int
+            ? sig == (((U32)type_UInt << 24) | 0xffff00) : 0);
 }
 
 /* match an BINOP type with the given args. */
@@ -13348,7 +13353,10 @@ int S_match_type1(const U32 sig, core_types_t arg1)
 PERL_STATIC_INLINE
 int S_match_type2(const U32 sig, core_types_t arg1, core_types_t arg2)
 {
-    return sig == (((U32)arg1 << 24) | ((U32)arg2 << 16) | 0xff00);
+    /* also accept Int as UInt */
+    return sig == (((U32)arg1 << 24) | ((U32)arg2 << 16) | 0xff00)
+        || (arg2 == type_Int
+            ? sig == (((U32)arg1 << 24) | ((U32)type_UInt << 16) | 0xff00) : 0);
 }
 
 /* ck_type: check unop and binops for typed args, find specialized match and promote.
@@ -13410,10 +13418,11 @@ Perl_ck_type(pTHX_ OP *o)
         /* Note that this shortcut below is not correct, only tuned
            to our current ops */
         if (n && (type1 == type2
-             || (type1 == type_int && type2 == type_Int)
+             || (type1 == type_int  && type2 == type_Int)
              || (type1 == type_uint && type2 == type_int)
-             || (type1 == type_UInt && type2 == type_Int))
-            )
+             || (type1 == type_UInt && type2 == type_Int)
+             || (type1 == type_Int  && type2 == type_UInt)
+            ))
         {
             int i;
             for (i=1; i<=n; i++) {
@@ -13437,7 +13446,8 @@ Perl_ck_type(pTHX_ OP *o)
                         OpTYPE_set(o, v);
                         /* XXX upstream hack:
                            newBINOP skips this if type changed in ck */
-                        o = fold_constants(op_integerize(op_std_init(o)));
+                        /*if (v != OP_I_POW)*/
+                            o = fold_constants(op_integerize(op_std_init(o)));
                         DEBUG_kv(op_dump(o));
                         return o;
                     }

@@ -317,8 +317,8 @@ invert_opset function.
     aeach akeys avalues multideref signature
 
     preinc i_preinc predec i_predec postinc i_postinc
-    postdec i_postdec int hex oct abs pow multiply i_multiply u_multiply
-    divide i_divide modulo i_modulo
+    postdec i_postdec int hex oct abs pow i_pow
+    multiply i_multiply u_multiply divide i_divide modulo i_modulo
     add i_add u_add subtract i_subtract u_subtract
 
     left_shift right_shift bit_and bit_xor bit_or i_bit_and

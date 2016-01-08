@@ -125,6 +125,7 @@ PERL_CALLCONV OP *Perl_pp_i_modulo(pTHX);
 PERL_CALLCONV OP *Perl_pp_i_multiply(pTHX);
 PERL_CALLCONV OP *Perl_pp_i_ne(pTHX);
 PERL_CALLCONV OP *Perl_pp_i_negate(pTHX);
+PERL_CALLCONV OP *Perl_pp_i_pow(pTHX);
 PERL_CALLCONV OP *Perl_pp_i_subtract(pTHX);
 PERL_CALLCONV OP *Perl_pp_index(pTHX);
 PERL_CALLCONV OP *Perl_pp_int(pTHX);

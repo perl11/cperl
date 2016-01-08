@@ -28,6 +28,7 @@
 #   uses $_ if no argument given        - u  (OA_DEFGV)
 #   is pure                             - p  (OA_PURE)
 #   has a private boxret bit            - b  (OA_BOXRET)
+#   always produces integer (unused)    - i
 
 # Values for the operands are:
 # scalar      - S            list     - L            array     - A
@@ -87,8 +88,6 @@ i_postdec	integer postdecrement (--) ck_lfun	ist1	S	"(:Int):Int"
 
 # Ordinary operators.
 
-pow		exponentiation (**)	ck_null		pfsT2	S S	"(:Numeric,:Numeric):Numeric"
-
 multiply	multiplication (*)	ck_type		pIfsT2	S S	"(:Numeric,:Numeric):Numeric"
 i_multiply	integer multiplication (*) ck_null	pifsT2	S S	"(:Int,:Int):Int"
 u_multiply	iv+uv multiplication (+) ck_type	pifsT2	S S	"(:Int,:Int):UInt"
@@ -107,6 +106,8 @@ u_subtract	iv+uv subtraction (-)	ck_type		pifsT2	S S	"(:Int,:Int):UInt"
 concat		concatenation (.) or string ck_concat	pfsT2	S S	"(:Any,:Any):Str"
 stringify	string			ck_stringify	fsT@	S	"(:Scalar):Str"
 
+pow		exponentiation (**)	ck_type		pIfsT2	S S	"(:Numeric,:Numeric):Numeric"
+i_pow		unsigned int exp (**)	ck_null		pifsT2	S S	"(:Int,:UInt):UInt"
 left_shift	left bitshift (<<)	ck_bitop	pfsT2	S S	"(:Int,:UInt):UInt"
 right_shift	right bitshift (>>)	ck_bitop	pfsT2	S S	"(:Int,:UInt):UInt"
 

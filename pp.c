@@ -1158,6 +1158,114 @@ PP(pp_postdec)
 
 /* Ordinary operators. */
 
+PPt(pp_i_pow, "(:Int,:UInt):Uint")
+{
+    dSP; dATARGET; SV *svl, *svr;
+    UV power;
+    bool baseuok;
+    UV baseuv;
+    tryAMAGICbin_MG(pow_amg, AMGf_assign|AMGf_numeric);
+    svr = TOPs;
+    svl = TOPm1s;
+    if (SvUOK(svr)) {
+        power = SvUVX(svr);
+    } else {
+        IV iv;
+        if (!SvIOK(svr)) /* forced int (via use integer e.g.) */
+            SvIV_please_nomg(svr);
+        iv = SvIVX(svr);
+        if (iv >= 0) {
+            power = iv;
+        } else {
+            goto float_ipow; /* Can't do negative powers this way.  */
+        }
+    }
+    
+    baseuok = SvUOK(svl);
+    if (baseuok) {
+        baseuv = SvUVX(svl);
+    } else {
+        const IV iv = SvIVX(svl);
+        if (iv >= 0) {
+            baseuv = iv;
+            baseuok = TRUE; /* effectively it's a UV now */
+        } else {
+            baseuv = -iv; /* abs, baseuok == false records sign */
+        }
+    }
+    /* now we have integer ** positive integer. */
+        
+    /* foo & (foo - 1) is zero only for a power of 2.  */
+    if (!(baseuv & (baseuv - 1))) {
+        /* We are raising power-of-2 to a positive integer.
+           The logic here will work for any base (even non-integer
+           bases) but it can be less accurate than
+           pow (base,power) or exp (power * log (base)) when the
+           intermediate values start to spill out of the mantissa.
+           With powers of 2 we know this can't happen.
+           And powers of 2 are the favourite thing for perl
+           programmers to notice ** not doing what they mean. */
+        NV result = 1.0;
+        NV base = baseuok ? baseuv : -(NV)baseuv;
+        
+        if (power & 1)
+            result *= base;
+        while (power >>= 1) {
+            base *= base;
+            if (power & 1)
+                result *= base;
+        }
+        SP--;
+        SETn( result );
+        SvIV_please_nomg(svr);
+    } else {
+        unsigned int highbit = 8 * sizeof(UV);
+        unsigned int diff = 8 * sizeof(UV);
+        while (diff >>= 1) {
+            highbit -= diff;
+            if (baseuv >> highbit)
+                highbit += diff;
+        }
+        /* we now have baseuv < 2 ** highbit */
+        if (power * highbit <= 8 * sizeof(UV)) {
+            /* result will definitely fit in UV, so use UV math
+               on same algorithm as above */
+            UV result = 1;
+            UV base = baseuv;
+            const bool odd_power = cBOOL(power & 1);
+            if (odd_power)
+                result *= base;
+            while (power >>= 1) {
+                base *= base;
+                if (power & 1)
+                    result *= base;
+            }
+            SP--;
+            if (baseuok || !odd_power)
+                /* answer is positive */
+                SETu( result );
+            else if (result <= (UV)IV_MAX)
+                /* answer negative, fits in IV */
+                SETi( -(IV)result );
+            else if (result == (UV)IV_MIN) 
+                /* 2's complement assumption: special case IV_MIN */
+                SETi( IV_MIN );
+            else {
+                /* answer negative, doesn't fit */
+                SETn( -(NV)result );
+                SvIV_please_nomg(svr);
+            }
+        } else
+        float_ipow:
+        {
+            SP--;
+            SETn( Perl_pow( SvNV_nomg(svl), SvNV_nomg(svr)) );
+	    SvIV_please_nomg(svr);
+        }
+    }
+    RETURN;
+}
+
 PP(pp_pow)
 {
     dSP; dATARGET; SV *svl, *svr;
@@ -1183,7 +1291,7 @@ PP(pp_pow)
             if (iv >= 0) {
                 power = iv;
             } else {
-                goto float_it; /* Can't do negative powers this way.  */
+                goto float_pow; /* Can't do negative powers this way.  */
             }
         }
 
@@ -1265,12 +1373,12 @@ PP(pp_pow)
             } 
         }
     }
-  float_it:
+  float_pow:
 #endif    
     {
 	NV right = SvNV_nomg(svr);
 	NV left  = SvNV_nomg(svl);
-	(void)POPs;
+        SP--;
 
 #if defined(USE_LONG_DOUBLE) && defined(HAS_AIX_POWL_NEG_BASE_BUG)
     /*
