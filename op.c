@@ -13418,6 +13418,8 @@ Perl_ck_type(pTHX_ OP *o)
                     if ((PL_hints & HINT_INTEGER) && ((n2 & 0xff) != type_Int)) /* need an Int result, no u_ */
                         continue;
                     if (match_type1(n2 & 0xffffff00, type1)) {
+                        if (typ == OP_NEGATE && v == OP_I_NEGATE)
+                            return o;
                         DEBUG_kv(Perl_deb(aTHX_ "%s (:%s) => %s %s\n", PL_op_name[typ],
                                           core_type_name(type1),
                                           PL_op_name[v], PL_op_type_str[v]));

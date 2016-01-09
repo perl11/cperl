@@ -1125,8 +1125,8 @@ PL_op_type_str[] = {
 	"(:Str,:Str):Str",	/* 79: s_bit_and */
 	"(:Str,:Str):Str",	/* 80: s_bit_xor */
 	"(:Str,:Str):Str",	/* 81: s_bit_or */
-	"(:Numeric):Numeric",	/* 82: negate */
-	"(:Int):Int",	/* 83: i_negate */
+	"(:Scalar):Numeric",	/* 82: negate */
+	"(:Scalar):Int",	/* 83: i_negate */
 	"(:Scalar):Bool",	/* 84: not */
 	"(:Scalar):Scalar",	/* 85: complement */
 	"(:UInt):UInt",	/* 86: i_complement */
@@ -1547,8 +1547,8 @@ EXTCONST U32 PL_op_type[] = {
 	0x0808ff08,	/* 79: s_bit_and "(:Str,:Str):Str" */
 	0x0808ff08,	/* 80: s_bit_xor "(:Str,:Str):Str" */
 	0x0808ff08,	/* 81: s_bit_or "(:Str,:Str):Str" */
-	0x0affff0a,	/* 82: negate "(:Numeric):Numeric" */
-	0x05ffff05,	/* 83: i_negate "(:Int):Int" */
+	0x0bffff0a,	/* 82: negate "(:Scalar):Numeric" */
+	0x0bffff05,	/* 83: i_negate "(:Scalar):Int" */
 	0x0bffff09,	/* 84: not "(:Scalar):Bool" */
 	0x0bffff0b,	/* 85: complement "(:Scalar):Scalar" */
 	0x06ffff06,	/* 86: i_complement "(:UInt):UInt" */
