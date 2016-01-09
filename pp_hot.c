@@ -4057,7 +4057,10 @@ PP(pp_entersub)
                 Copy(MARK+1,AvARRAY(av),items,SV*);
                 AvFILLp(av) = items - 1;
             }
-	}
+	} else if (CvHASSIG(cv)) { /* mark argc==0 */
+            cx->blk_sub.argarray  = MARK+1;
+            cx->blk_sub.savearray = (AV*)SP;
+        }
 	if (UNLIKELY((cx->blk_u16 & OPpENTERSUB_LVAL_MASK) == OPpLVAL_INTRO &&
 	    !CvLVALUE(cv)))
             DIE(aTHX_ "Can't modify non-lvalue subroutine call of &%"SVf,
