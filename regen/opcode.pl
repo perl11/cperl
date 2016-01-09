@@ -1183,12 +1183,12 @@ sub type_encode ($) {
 # "(:Int,:Int):Int" => 0x0505ff05
 sub sig_encode ($) {
     my $s = shift;
-    my $i = 0xffffffff;
+    my $i = 0xffffff00;
     if ($s) {
         my ($args, $ret) = ($s =~ /^\(:?(.*)\):(.*)/);
         my $retenc = type_encode $ret;
         die "Invalid return type declaration $ret" unless defined $retenc;
-        $i = (0xffffff00 | $retenc);
+        $i |= $retenc;
         my $j = 0;
         if ($args) {
             use integer;
@@ -1337,6 +1337,10 @@ print $oc <<'END';
   (PL_op_type_variants[(op)][(_j)] && PL_op_type_variants[(op)][(_j)]<0 \
     ? (op) + PL_op_type_variants[(op)][(_j)] \
     : 0)
+
+#define OP_TYPE_RET(op)   (PL_op_type[(op)->op_type] & 0xff)
+#define OpTYPE_RET(type)  (PL_op_type[(type)] & 0xff)
+#define OpTYPE_ARG(type)  (PL_op_type[(type)] & 0xffffff00)
 
 /* The ppcode switch array */
 

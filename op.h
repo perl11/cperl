@@ -65,7 +65,8 @@ typedef PERL_BITFIELD16 Optype;
     PERL_BITFIELD16 op_moresib:1;       \
     PERL_BITFIELD16 op_typechecked:1;	\
     U8		op_flags;		\
-    U8		op_private;
+    U8		op_private;             \
+    U8		op_rettype;
 #endif
 
 /* If op_type:9 is changed to :10, also change cx_pusheval()
@@ -967,6 +968,8 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
     ( (o) && OP_TYPE_ISNT_AND_WASNT_NN(o, type) )
 
 #define OpTYPECHECKED(o)	(0 + (o)->op_typechecked)
+#define OpRETTYPE(o)		(0 + (o)->op_rettype)
+#define OpRETTYPE_set(o, type)	(o)->op_rettype = (type)
 
 #ifdef PERL_OP_PARENT
 #  define OpHAS_SIBLING(o)	(cBOOL((o)->op_moresib))

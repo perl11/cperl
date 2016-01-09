@@ -368,6 +368,7 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
                   (void*)o, (void*)slab, space, sz));
 
   gotit:
+    assert(!o->op_rettype);
 #ifdef PERL_OP_PARENT
     /* moresib == 0, op_sibling == 0 implies a solitary unattached op */
     assert(!o->op_moresib);
@@ -5134,6 +5135,8 @@ Perl_op_convert_list(pTHX_ I32 type, I32 flags, OP *o)
 	o->op_folded = 1;
 
     o = CHECKOP(type, o);
+    if (!OpRETTYPE(o))
+        OpRETTYPE_set(o, OpTYPE_RET(type));
     if (o->op_type != (unsigned)type)
 	return o;
 
@@ -5246,7 +5249,10 @@ Perl_newLISTOP(pTHX_ I32 type, I32 flags, OP *first, OP *last)
     if (listop->op_last)
         OpLASTSIB_set(listop->op_last, (OP*)listop);
 
-    return CHECKOP(type, listop);
+    listop = (LISTOP *)CHECKOP(type, listop);
+    if (!OpRETTYPE((OP*)listop))
+        OpRETTYPE_set((OP*)listop, OpTYPE_RET(type));
+    return (OP*)listop;
 }
 
 /*
@@ -5290,7 +5296,10 @@ Perl_newOP(pTHX_ I32 type, I32 flags)
 	scalar(o);
     if (PL_opargs[type] & OA_TARGET)
 	o->op_targ = pad_alloc(type, SVs_PADTMP);
-    return CHECKOP(type, o);
+    o = CHECKOP(type, o);
+    if (!OpRETTYPE(o))
+        OpRETTYPE_set(o, OpTYPE_RET(type));
+    return o;
 }
 
 /*
@@ -5342,6 +5351,8 @@ Perl_newUNOP(pTHX_ I32 type, I32 flags, OP *first)
         OpLASTSIB_set(first, (OP*)unop);
 
     unop = (UNOP*) CHECKOP(type, unop);
+    if (!OpRETTYPE(unop))
+        OpRETTYPE_set(unop, OpTYPE_RET(type));
     if (unop->op_next)
 	return (OP*)unop;
 
@@ -5378,6 +5389,8 @@ Perl_newUNOP_AUX(pTHX_ I32 type, I32 flags, OP *first, UNOP_AUX_item *aux)
         OpLASTSIB_set(first, (OP*)unop);
 
     unop = (UNOP_AUX*) CHECKOP(type, unop);
+    if (!OpRETTYPE(unop))
+        OpRETTYPE_set(unop, OpTYPE_RET(type));
 
     return op_std_init((OP *) unop);
 }
@@ -5506,6 +5519,8 @@ Perl_newBINOP(pTHX_ I32 type, I32 flags, OP *first, OP *last)
         OpLASTSIB_set(binop->op_last, (OP*)binop);
 
     binop = (BINOP*)CHECKOP(type, binop);
+    if (!OpRETTYPE(binop))
+        OpRETTYPE_set(binop, OpTYPE_RET(type));
     if (binop->op_next || binop->op_type != (OPCODE)type)
 	return (OP*)binop;
 
@@ -6338,7 +6353,10 @@ Perl_newSVOP(pTHX_ I32 type, I32 flags, SV *sv)
 	scalar((OP*)svop);
     if (PL_opargs[type] & OA_TARGET)
 	svop->op_targ = pad_alloc(type, SVs_PADTMP);
-    return CHECKOP(type, svop);
+    svop = (SVOP*)CHECKOP(type, svop);
+    if (!OpRETTYPE((OP*)svop))
+        OpRETTYPE_set((OP*)svop, OpTYPE_RET(type));
+    return (OP*)svop;
 }
 
 /*
@@ -13362,6 +13380,7 @@ int S_match_type2(const U32 sig, core_types_t arg1, core_types_t arg2)
 /* ck_type: check unop and binops for typed args, find specialized match and promote.
  * forget about native types (escape analysis) here, use the boxed variants.
  * we can only unbox them later in rpeep sequences, by adding unbox...box ops.
+ * set the OpRETTYPE of unops and binops.
  */
 OP *
 Perl_ck_type(pTHX_ OP *o)
@@ -13398,6 +13417,7 @@ Perl_ck_type(pTHX_ OP *o)
                                           core_type_name(type1),
                                           PL_op_name[v], PL_op_type_str[v]));
                         OpTYPE_set(o, v);
+                        OpRETTYPE_set(o, n2 & 0xff);
                         DEBUG_kv(op_dump(o));
                         return o;
                     }
@@ -13444,10 +13464,10 @@ Perl_ck_type(pTHX_ OP *o)
                                           core_type_name(type1), core_type_name(type2),
                                           PL_op_name[v], PL_op_type_str[v]));
                         OpTYPE_set(o, v);
+                        OpRETTYPE_set(o, n2 & 0xff);
                         /* XXX upstream hack:
                            newBINOP skips this if type changed in ck */
-                        /*if (v != OP_I_POW)*/
-                            o = fold_constants(op_integerize(op_std_init(o)));
+                        o = fold_constants(op_integerize(op_std_init(o)));
                         DEBUG_kv(op_dump(o));
                         return o;
                     }
@@ -13460,6 +13480,7 @@ Perl_ck_type(pTHX_ OP *o)
     else {
         Perl_die(aTHX_ "Invalid op %s for ck_type", OP_NAME(o));
     }
+    OpRETTYPE_set(o, OpTYPE_RET(typ));
     return o;
 }
 

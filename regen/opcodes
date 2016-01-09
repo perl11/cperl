@@ -72,7 +72,7 @@ chop		chop			ck_spair	mts%	L	"(:List(:Str)):Scalar"
 schop		scalar chop		ck_null		stu%	S?	"(:Str):Int"
 chomp		chomp			ck_spair	mTs%	L	"(:List(:Str)):Scalar"
 schomp		scalar chomp		ck_null		sTu%	S?	"(:Str):Int"
-defined		defined operator	ck_defined	isu%	S?
+defined		defined operator	ck_defined	isu%	S?	"(:Scalar):Bool"
 undef		undef operator		ck_fun		s%	R?
 study		study			ck_fun		su%	S?
 pos		match position		ck_fun		stu%	R?
