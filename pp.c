@@ -3057,7 +3057,7 @@ PPt(pp_i_add, "(:Int,:Int):Int")
 /* disabled: broke 32bit overflow rules */
 
 /* Nearer to add and multiply. Handle results which could be interpreted as UV,
- * but does not promote to NV. Works fine for IV_MAX .. UV_MAX, but
+ * does also promote to NV. Works fine for IV_MAX .. UV_MAX, but
  * not in the negative range. Is mostly used for constant folding. */
 
 PPt(pp_u_add, "(:Int,:Int):Numeric")
@@ -3066,7 +3066,35 @@ PPt(pp_u_add, "(:Int,:Int):Numeric")
     tryAMAGICbin_MG(add_amg, AMGf_assign);
     {
       dPOPTOPiirl_ul_nomg;
+#ifdef HAS_BUILTIN_ARITH_OVERFLOW
+      IV value;
+      if (BUILTIN_SADD_OVERFLOW(left, right, &value)) {
+          NV nv = (NV)left + (NV)right;
+          if (nv < UV_MAX && nv > 0.0)
+              SETu( (UV)nv );
+          else
+              SETn( nv );
+          RETURN;
+      }
+      else {
+          if (SvIsUV(TOPp1s) && right < 0 && left > 0) {
+              UV r = SvUVX(TOPp1s);
+              if (BUILTIN_UADD_OVERFLOW(left, r, (UV*)&value)) {
+                  NV nv = (NV)left + (NV)r;
+                  if (nv < UV_MAX && nv > 0.0)
+                      SETu( (UV)nv );
+                  else
+                      SETn( nv );
+              } else {
+                  SETu( (UV)value );
+              }
+              RETURN;
+          }
+          SETi( value );
+      }
+#else
       SETi( left + right );
+#endif
       if (SvIVX(TARG) < 0 && left>=0 && right>=0)
           /* IV and UV share the same field */
           SvIsUV_on(TARG);
@@ -3080,7 +3108,36 @@ PPt(pp_u_multiply, "(:Int,:Int):Numeric")
     tryAMAGICbin_MG(add_amg, AMGf_assign);
     {
       dPOPTOPiirl_ul_nomg;
+#ifdef HAS_BUILTIN_ARITH_OVERFLOW
+      IV value;
+      if (BUILTIN_SMUL_OVERFLOW(left, right, &value)) {
+          NV nv = (NV)left * (NV)right;
+          if (nv < UV_MAX && nv > 0.0)
+              SETu( (UV)nv );
+          else
+              SETn( nv );
+          RETURN;
+      }
+      else {
+          if (SvIsUV(TOPp1s) && right < 0 && left > 0) {
+              UV r = SvUVX(TOPp1s);
+              UV value;
+              if (BUILTIN_UMUL_OVERFLOW(left, r, &value)) {
+                  NV nv = (NV)left * (NV)r;
+                  if (nv < UV_MAX && nv > 0.0)
+                      SETu( (UV)nv );
+                  else
+                      SETn( nv );
+              } else {
+                  SETu( value );
+              }
+              RETURN;
+          }
+          SETi( value );
+      }
+#else
       SETi( left * right );
+#endif
       if (SvIVX(TARG) < 0 && left>=0 && right>=0)
           SvIsUV_on(TARG);
       RETURN;
