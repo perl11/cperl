@@ -13360,10 +13360,13 @@ int S_sigtype_args(const char* sig, int *i)
 PERL_STATIC_INLINE
 int S_match_type1(const U32 sig, core_types_t arg1)
 {
-    /* also accept Int as UInt */
+    /* also accept Int as UInt, and UInt as Int */
     return sig == (((U32)arg1 << 24) | 0xffff00)
         || (arg1 == type_Int
-            ? sig == (((U32)type_UInt << 24) | 0xffff00) : 0);
+            ? sig == (((U32)type_UInt << 24) | 0xffff00)
+            : (arg1 == type_UInt
+               ? sig == (((U32)type_Int << 24) | 0xffff00) : 0));
+
 }
 
 /* match an BINOP type with the given args. */
@@ -13371,10 +13374,12 @@ int S_match_type1(const U32 sig, core_types_t arg1)
 PERL_STATIC_INLINE
 int S_match_type2(const U32 sig, core_types_t arg1, core_types_t arg2)
 {
-    /* also accept Int as UInt */
+    /* also accept Int as UInt, and UInt as Int */
     return sig == (((U32)arg1 << 24) | ((U32)arg2 << 16) | 0xff00)
         || (arg2 == type_Int
-            ? sig == (((U32)arg1 << 24) | ((U32)type_UInt << 16) | 0xff00) : 0);
+            ? sig == (((U32)arg1 << 24) | ((U32)type_UInt << 16) | 0xff00)
+            : (arg2 == type_UInt
+               ? sig == (((U32)arg1 << 24) | ((U32)type_Int << 16) | 0xff00) : 0));
 }
 
 /* ck_type: check unop and binops for typed args, find specialized match and promote.
