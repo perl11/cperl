@@ -198,3 +198,12 @@ GTAGS
 
 .git-rr-cache/DUMMY
 log.test-*
+
+# debugging helpers
+/.gdb
+/.gdbinit
+/.perldb
+/.valgrindrc
+/valgrind.supp
+/do-*.sh
+/cov-int
