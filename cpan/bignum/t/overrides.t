@@ -7,6 +7,7 @@ use warnings;
 # modules interact.
 
 use Test::More tests => 35;
+my int $skip = 2; # do not upgrade to bigint
 
 my $hex_called;
 my $oct_called;
@@ -33,11 +34,11 @@ BEGIN {
     is oct(@_), "16", 'bigint oct override provides scalar context';
   SKIP:
     {
-        skip "no lexical hex/oct", 2 unless $] > do { no bigint; 5.009004 };
+        skip "no lexical hex/oct", $skip unless $] > do { no bigint; 5.009004};
         is ref hex(1), 'Math::BigInt',
-          'bigint hex() works when bignum and bigrat are loaded';
+            'bigint hex() works when bignum and bigrat are loaded';
         is ref oct(1), 'Math::BigInt',
-          'bigint oct() works when bignum and bigrat are loaded';
+            'bigint oct() works when bignum and bigrat are loaded';
     }
 }
 {
@@ -50,11 +51,11 @@ BEGIN {
     is oct(@_), "16", 'bignum oct override provides scalar context';
   SKIP:
     {
-        skip "no lexical hex/oct", 2 unless $] > 5.009004;
+        skip "no lexical hex/oct", $skip unless $] > 5.009004;
         is ref hex(1), 'Math::BigInt',
-          'bignum hex() works when bigint and bigrat are loaded';
+            'bignum hex() works when bigint and bigrat are loaded';
         is ref oct(1), 'Math::BigInt',
-          'bignum oct() works when bigint and bigrat are loaded';
+            'bignum oct() works when bigint and bigrat are loaded';
     }
 }
 {
@@ -67,11 +68,11 @@ BEGIN {
     is oct(@_), "16", 'bigrat oct override provides scalar context';
   SKIP:
     {
-        skip "no lexical hex/oct", 2 unless $] > 5.009004;
+        skip "no lexical hex/oct", $skip unless $] > 5.009004;
         is ref hex(1), 'Math::BigInt',
-          'bigrat hex() works when bignum and bigint are loaded';
+            'bigrat hex() works when bignum and bigint are loaded';
         is ref oct(1), 'Math::BigInt',
-          'bigrat oct() works when bignum and bigint are loaded';
+            'bigrat oct() works when bignum and bigint are loaded';
     }
 }
 

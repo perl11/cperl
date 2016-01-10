@@ -7,6 +7,7 @@ use strict;
 use warnings;
 
 use Test::More tests => 9;
+my int $skip = 3; # do not upgrade to bigint
 
 use bigint;
 use bignum;
@@ -17,7 +18,7 @@ can_ok('bignum', qw/in_effect/);
 can_ok('bigrat', qw/in_effect/);
 
 SKIP: {
-    skip('Need at least Perl v5.9.4', 3) if $] lt "5.009005";
+    skip ('Need at least Perl v5.9.4', $skip) if $] < 5.009005;
 
     is(bigint::in_effect(), 1, 'bigint in effect');
     is(bignum::in_effect(), 1, 'bignum in effect');
