@@ -151,7 +151,7 @@ const char * S_typename(pTHX_ const HV* stash)
         if (l > 6 && memEQs(name, 6, "main::"))
             return name+6;
         else
-            return name; /* dist/Attribute-Handlers/t/multi.t: custom types */
+            return name; /* custom blessed type */
     }
 }
 
@@ -11861,7 +11861,18 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
         switch (SvTYPE(sv)) {
         case SVt_IV:
             if (!SvROK(sv)) return SvUOK(sv) ? type_UInt : type_Int;
-            else            return type_Scalar; /* or Ref */
+            else {
+                SV* rv = SvRV(sv); 
+                if (SvTYPE(rv) >= SVt_PVMG && SvOBJECT(rv) && VALIDTYPE(SvSTASH(rv))) {
+                    if (usertype) {
+                        HV *stash = SvSTASH(rv);
+                        *usertype = (char*)typename(stash);
+                        *u8 = HvNAMEUTF8(stash);
+                    }
+                    return type_Object;
+                }
+                return type_Scalar; /* or Ref, but we don't do Ref isa Scalar yet  */
+            }
         case SVt_NULL:   return type_none;
         case SVt_PV:
             return (o->op_private & OPpCONST_BARE) /* typeglob (filehandle) */
