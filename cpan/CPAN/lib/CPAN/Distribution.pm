@@ -3661,8 +3661,7 @@ sub test {
     return $self->{force_update} ? 1 : !! $tests_ok;
 }
 
-sub _make_test_illuminate_prereqs {
-    my $self = shift;
+sub _make_test_illuminate_prereqs ($self) {
     my @prereq;
 
     # local $CPAN::DEBUG = 16; # Distribution
