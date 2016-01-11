@@ -2,7 +2,8 @@ package CPAN::Version;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = "5.5003";
+$VERSION = "5.5003c"; # strip cperl c suffices
+$VERSION =~ s/c$//;
 
 # CPAN::Version::vcmp courtesy Jost Krieger
 sub vcmp {
@@ -18,6 +19,7 @@ sub vcmp {
 
     for ($l,$r) {
         s/_//g;
+        s/c$//;
     }
     CPAN->debug("l[$l] r[$r]") if $CPAN::DEBUG;
     for ($l,$r) {
