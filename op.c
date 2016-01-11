@@ -13740,7 +13740,7 @@ Perl_rpeep(pTHX_ OP *o)
                                    && strEQ(aname, PAD_COMPNAME_PV(o2->op_targ))) {
                             DEBUG_k(Perl_deb(aTHX_ "nyi multideref[%s] => MDEREF_AV_*_aelem_u\n",
                                              aname));
-                        } else if (type == OP_AELEMFAST
+                        } else if (type == OP_AELEMFAST && SvPOK(kSVOP_sv)
                                    && strEQ(aname, SvPVX(kSVOP_sv))) {
                             DEBUG_k(Perl_deb(aTHX_ "nyi aelemfast[%s] => aelemfast_u\n", aname));
 #endif
