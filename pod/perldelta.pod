@@ -6,11 +6,35 @@ perldelta - what is new for perl v5.22.1
 
 =head1 DESCRIPTION
 
-This document describes differences between the 5.22.0 release and the 5.22.1
+This document describes differences between the 5.22.1 release and the 5.22.2
 release.
 
-If you are upgrading from an earlier release such as 5.20.0, first read
-L<perl5220delta>, which describes differences between 5.20.0 and 5.22.0.
+If you are upgrading from an earlier release such as 5.22.1, first read
+L<perl5221delta>, which describes differences between 5.22.1 and 5.22.2.
+
+=head1 Notice
+
+XXX Any important notices here
+
+=head1 Core Enhancements
+
+XXX New core language features go here.  Summarize user-visible core language
+enhancements.  Particularly prominent performance optimisations could go
+here, but most should go in the L</Performance Enhancements> section.
+
+[ List each enhancement as a =head2 entry ]
+
+=head1 Security
+
+=head2 fix out of boundary access in Win32 path handling
+
+This is CVE-2015-8608.  For more information see
+L<[perl #126755]|https://rt.perl.org/Ticket/Display.html?id=126755>
+
+=head2 fix loss of taint in canonpath
+
+This is CVE-2015-8607.  For more information see
+L<[perl #126862]|https://rt.perl.org/Ticket/Display.html?id=126862>
 
 =head1 Incompatible Changes
 
