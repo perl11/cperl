@@ -15,6 +15,7 @@ use warnings; # uses #3 and #4, since warnings uses Carp
 use Exporter (); # use #5
 
 our $VERSION   = "0.998c";
+$VERSION =~ s/c$//;
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw( set_style set_style_standard add_callback
 		     concise_subref concise_cv concise_main
@@ -706,8 +707,9 @@ sub concise_sv {
 	$hr->{svval} = "*$stash" . $gv->SAFENAME;
 	return "*$stash" . $gv->SAFENAME;
     } else {
-        if ($hr->{name} eq 'gv' and $sv->FLAGS & SVf_ROK
-            and $sv->RV->can("NAME_HEK"))
+        #warn "# ",join(",",map{"$_=>".$hr->{$_}} keys %$hr) unless $hr->{name};
+        if ($hr->{name} and $hr->{name} eq 'gv'
+            and $sv->FLAGS & SVf_ROK and $sv->RV->can("NAME_HEK"))
         {
               return "*" . $sv->RV->NAME_HEK;
         }
