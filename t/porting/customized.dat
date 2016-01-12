@@ -1,4 +1,4 @@
-CPAN cpan/CPAN/lib/CPAN.pm ce62c43d72f101c011184dbbc59e21c2790826f0
+CPAN cpan/CPAN/lib/CPAN.pm 1498af11e3528547357c8645ab23a97a5c847346
 Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL e5b06df14ab4162956415f4208fe209d01b7c000
 Devel::PPPort cpan/Devel-PPPort/PPPort_xs.PL f03c10f3a2e58312ee632771400a9a26ade7af45
 Digest::MD5 cpan/Digest-MD5/MD5.xs c92dd84381f7ca0425284eabdb7b5dad9682164b
