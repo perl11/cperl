@@ -2757,6 +2757,15 @@ sub parse_version {
 
     local $/ = "\n";
     local $_;
+    if (!-e $parsefile and $Config::Config{usecperl}) { # builtins not parsable
+      no strict 'refs';
+      my ($prereq) = $parsefile =~ /\.c:(.*)$/;
+      my $normal;
+      $normal = ${$prereq."::VERSION"} if $prereq;
+      $result = $normal if defined $normal;
+      $result = "undef" unless defined $result;
+      return $result;
+    }
     open(my $fh, '<', $parsefile) or die "Could not open '$parsefile': $!";
     my $inpod = 0;
     while (<$fh>) {

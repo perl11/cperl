@@ -516,27 +516,26 @@ END
         }
         else {
           $installed_file = MM->_installed_file_for_module($prereq);
-          $pr_version = MM->parse_version($installed_file) if $installed_file;
+          $pr_version = $installed_file ? MM->parse_version($installed_file) : 'undef';
           $pr_version = 0 if $pr_version eq 'undef';
         }
 
         # convert X.Y_Z alpha version #s to X.YZ for easier comparisons
-        $pr_version =~ s/(\d+)\.(\d+)_(\d+)c?/$1.$2$3/;
+        if ($pr_version) {
+          $pr_version =~ s/c$//;
+          $pr_version =~ s/(\d+)\.(\d+)_(\d+)/$1.$2$3/;
+        }
 
         if (!$installed_file) {
             warn sprintf "Warning: prerequisite %s %s not found.\n",
               $prereq, $required_version
-                   unless $self->{PREREQ_FATAL}
-                       or $ENV{PERL_CORE};
-
+                   unless $self->{PREREQ_FATAL} or $ENV{PERL_CORE};
             $unsatisfied{$prereq} = 'not installed';
         }
         elsif ($pr_version < $required_version ){
             warn sprintf "Warning: prerequisite %s %s not found. We have %s.\n",
               $prereq, $required_version, ($pr_version || 'unknown version')
-                  unless $self->{PREREQ_FATAL}
-                       or $ENV{PERL_CORE};
-
+                  unless $self->{PREREQ_FATAL} or $ENV{PERL_CORE};
             $unsatisfied{$prereq} = $required_version ? $required_version : 'unknown version' ;
         }
     }
@@ -815,6 +814,11 @@ sub _installed_file_for_module {
             $path = $tmp;
             last;
         }
+    }
+    if ($Config::Config{usecperl} # builtins
+        and $prereq =~ /^(DynaLoader|XSLoader|strict|attributes)$/)
+    {
+      $path = $INC{$file} . ":$prereq";
     }
 
     return $path;

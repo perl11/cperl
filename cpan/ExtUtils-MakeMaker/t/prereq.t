@@ -96,13 +96,11 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
         NAME            => 'Big::Dummy',
         PREREQ_PM       => {
             "I::Do::Not::Exist" => 0,
-            "vars"            => 99999,
+            "strict"            => 1,
         }
     );
     is $warnings,
-    "Warning: prerequisite I::Do::Not::Exist 0 not found.\n".
-    sprintf("Warning: prerequisite vars 99999 not found. We have %s.\n",
-            $ver);
+    "Warning: prerequisite I::Do::Not::Exist 0 not found.\n";
 
     $warnings = '';
     eval {
@@ -111,7 +109,7 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
             PREREQ_PM       => {
                 "I::Do::Not::Exist" => 0,
                 "Nor::Do::I"        => 0,
-                "vars"            => 99999,
+                "strict"            => 1,
             },
             PREREQ_FATAL    => 1,
         );
@@ -122,7 +120,6 @@ ok( chdir 'Big-Dummy', "chdir'd to Big-Dummy" ) ||
 MakeMaker FATAL: prerequisites not found.
     I::Do::Not::Exist not installed
     Nor::Do::I not installed
-    vars 99999
 
 Please install these modules first and rerun 'perl Makefile.PL'.
 END
