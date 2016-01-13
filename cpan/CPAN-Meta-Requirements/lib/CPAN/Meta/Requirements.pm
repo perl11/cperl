@@ -3,7 +3,7 @@ use warnings;
 package CPAN::Meta::Requirements;
 # ABSTRACT: a set of version requirements for a CPAN dist
 
-our $VERSION = '2.133';
+our $VERSION = '2.133c';
 
 #pod =head1 SYNOPSIS
 #pod
@@ -16,6 +16,8 @@ our $VERSION = '2.133';
 #pod   $build_requires->add_minimum('Library::Foo' => 2.602);
 #pod
 #pod   $build_requires->add_minimum('Module::Bar'  => 'v1.2.3');
+#pod
+#pod   $build_requires->add_minimum('Some::Typed' => '2.60c');
 #pod
 #pod   $METAyml->{build_requires} = $build_requires->as_string_hash;
 #pod
@@ -107,6 +109,7 @@ sub _isa_version {
   UNIVERSAL::isa( $_[0], 'UNIVERSAL' ) && $_[0]->isa('version')
 }
 
+# version also accepts now a 'c' suffix for cperl, with sigs and types
 sub _version_object {
   my ($self, $module, $version) = @_;
 
@@ -211,11 +214,8 @@ BEGIN {
 
     my $code = sub {
       my ($self, $name, $version) = @_;
-
       $version = $self->_version_object( $name, $version );
-
       $self->__modify_entry_for($name, $method, $version);
-
       return $self;
     };
     
@@ -241,7 +241,6 @@ sub add_minimum {
   }
   else {
     $version = $self->_version_object( $name, $version );
-
     $self->__modify_entry_for($name, 'with_minimum', $version);
   }
   return $self;
@@ -384,6 +383,20 @@ sub __modify_entry_for {
     if $fin and $old->as_string ne $new->as_string;
 
   $self->{requirements}{ $name } = $new;
+}
+
+#pod =method has_cperl
+#pod
+#pod This method returns true if one of the reqirements includes a cperl version.
+#pod
+#pod =cut
+
+sub has_cperl {
+  my ($self) = @_;
+  for my $module ($self->required_modules) {
+    return 1 if $self->__entry_for($module)->as_string =~ /c$/;
+  }
+  return;
 }
 
 #pod =method is_simple
@@ -591,15 +604,15 @@ sub from_string_hash {
 
   sub as_modifiers { return [ [ exact_version => $_[0]{version} ] ] }
 
+  sub has_cperl { $_[0]{version}->{original} =~ /c$/ }
+
   sub _clone {
     (ref $_[0])->_new( version->new( $_[0]{version} ) )
   }
 
   sub with_exact_version {
     my ($self, $version) = @_;
-
     return $self->_clone if $self->_accepts($version);
-
     Carp::confess("illegal requirements: unequal exact version specified");
   }
 
@@ -637,6 +650,7 @@ sub from_string_hash {
     my %guts = (
       (exists $s->{minimum} ? (minimum => version->new($s->{minimum})) : ()),
       (exists $s->{maximum} ? (maximum => version->new($s->{maximum})) : ()),
+      (exists $s->{cperl}   ? (cperl => 1) : ()),
 
       (exists $s->{exclusions}
         ? (exclusions => [ map { version->new($_) } @{ $s->{exclusions} } ])
@@ -646,11 +660,14 @@ sub from_string_hash {
     bless \%guts => ref($s);
   }
 
+  sub has_cperl { $_[0]{version}->{original} =~ /c$/ }
+
   sub as_modifiers {
     my ($self) = @_;
     my @mods;
     push @mods, [ add_minimum => $self->{minimum} ] if exists $self->{minimum};
     push @mods, [ add_maximum => $self->{maximum} ] if exists $self->{maximum};
+    push @mods, [ with_cperl  => 1 ] if exists $self->{cperl};
     push @mods, map {; [ add_exclusion => $_ ] } @{$self->{exclusions} || []};
     return \@mods;
   }
@@ -736,6 +753,9 @@ sub from_string_hash {
     } else {
       $self->{minimum} = $minimum;
     }
+    if ($minimum =~ /c$/) {
+      $self->{cperl} = 1;
+    }
 
     return $self->_simplify;
   }
@@ -767,6 +787,7 @@ sub from_string_hash {
 
     return if defined $self->{minimum} and $version < $self->{minimum};
     return if defined $self->{maximum} and $version > $self->{maximum};
+    return if defined $self->{cperl}   and $version !~ /c$/;
     return if defined $self->{exclusions}
           and grep { $version == $_ } @{ $self->{exclusions} };
 
@@ -976,6 +997,8 @@ For example after the following program:
 
   $req->add_minimum('Module::Bar'  => 'v1.2.3');
 
+  $req->add_minimum('Some::Typed' => '2.60c');
+
   $req->add_exclusion('Module::Bar'  => 'v1.2.8');
 
   $req->exact_version('Xyzzy'  => '6.01');
@@ -986,6 +1009,7 @@ C<$hashref> would contain:
 
   {
     'CPAN::Meta::Requirements' => '0.102',
+    'Some::Typed'  => '2.60c',
     'Library::Foo' => '>= 1.208, <= 2.206',
     'Module::Bar'  => '>= v1.2.3, != v1.2.8',
     'Xyzzy'        => '== 6.01',
@@ -1014,6 +1038,8 @@ example:
 =item != 1.3
 
 =item > 1.3
+
+=item > 1.3c
 
 =item < 1.3
 
@@ -1090,6 +1116,10 @@ Leon Timmermans <fawaka@gmail.com>
 =item *
 
 robario <webmaster@robario.com>
+
+=item *
+
+Reini Urban <rurban@cpanel.net>
 
 =back
 

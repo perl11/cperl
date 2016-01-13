@@ -75,4 +75,27 @@ dies_ok { $req->add_string_requirement('Foo::Bar', "not really a version") }
   qr/Can't convert/,
   "conversion failure caught";
 
+# Test cperl c suffic versions
+# accept a c version
+{
+  my $req = CPAN::Meta::Requirements->new;
+
+  $req->add_string_requirement('Foo::Gorch', '>= 1.3');
+  ok( $req->accepts_module('Foo::Gorch' => '1.3c'), 'same but c version');
+  ok(!$req->accepts_module('Foo::Gorch' => '1.2'),  '!lower version (>=)');
+  ok( $req->accepts_module('Foo::Gorch' => '1.4c'), 'higher c version');
+}
+
+# if c is a req check it
+{
+  my $req = CPAN::Meta::Requirements->new;
+  $req->add_string_requirement('Foo::Gorch', '>= 1.3c'); # requires the cperl variant
+  ok( $req->accepts_module('Foo::Gorch' => '1.3c'), 'exact version (>=)');
+  ok(!$req->accepts_module('Foo::Gorch' => '1.2c'), 'lower version (>=)');
+  ok(!$req->accepts_module('Foo::Gorch' => '1.3'),  'no cperl');
+  ok(!$req->accepts_module('Foo::Gorch' => '1.4'),  'higher version (>=)');
+  ok( $req->accepts_module('Foo::Gorch' => '1.3_01c'), 'higher version (>=)');
+  ok( $req->accepts_module('Foo::Gorch' => '1.4c'),  'higher version (>=)');
+}
+
 done_testing;

@@ -36,4 +36,25 @@ use Test::More 0.88;
   ok(! $req->accepts_module(Foo => 1));
 }
 
+# Test cperl c suffic versions
+# 1. accept it
+{
+  my $req = CPAN::Meta::Requirements->new->add_minimum(Foo => "1.0");
+
+  ok(  $req->accepts_module(Foo => "2.1_01c"), "accept c");
+  ok(  $req->accepts_module(Foo => "1.01c"));
+  ok(! $req->accepts_module(Foo => "0.01c"));
+}
+
+# 2. if c is a req check it
+{
+  my $req = CPAN::Meta::Requirements->new->add_minimum(Foo => "1.0c");
+
+  ok(! $req->accepts_module(Foo => 1), "should reject !c");
+  ok(! $req->accepts_module(Foo => 0));
+  ok(  $req->accepts_module(Foo => "2.1_01c"));
+  ok(  $req->accepts_module(Foo => "1.01c"));
+  ok(! $req->accepts_module(Foo => "0.01c"));
+}
+
 done_testing;

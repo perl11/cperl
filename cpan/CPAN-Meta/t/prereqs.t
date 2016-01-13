@@ -20,6 +20,9 @@ my $prereq_struct = {
       'File::Path' => 0,
       'File::Spec' => 0,
       'IO::File'   => 0,
+      'strict'     => 0,
+      'XSLoader'   => 0,
+      'attributes' => 0,
       'perl'       => '5.005_03',
     },
     recommends => {
@@ -47,10 +50,12 @@ is_deeply($prereq->as_string_hash, $prereq_struct, "round-trip okay");
   my $req = $prereq->requirements_for(qw(runtime requires));
   my @req_mod = $req->required_modules;
 
-  ok(
-    (grep { 'Cwd' eq $_ } @req_mod),
-    "we got the runtime requirements",
-  );
+  for my $m (qw(Cwd strict XSLoader attributes)) {
+    ok(
+       (grep { $m eq $_ } @req_mod),
+       "got the $m runtime requires",
+      );
+  }
 
   ok(
     (! grep { 'YAML' eq $_ } @req_mod),
@@ -71,10 +76,12 @@ is_deeply($prereq->as_string_hash, $prereq_struct, "round-trip okay");
 
   my @req_mod = $merged->required_modules;
 
-  ok(
-    (grep { 'Cwd' eq $_ } @req_mod),
-    "we got the runtime requirements",
-  );
+  for my $m (qw(Cwd strict XSLoader attributes)) {
+    ok(
+       (grep { $m eq $_ } @req_mod),
+       "got the $m runtime requires",
+      );
+  }
 
   ok(
     (grep { 'YAML' eq $_ } @req_mod),

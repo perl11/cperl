@@ -8,7 +8,7 @@ use strict;
 use warnings;
 package CPAN::Meta::Spec;
 
-our $VERSION = '2.150005';
+our $VERSION = '2.150005c';
 
 1;
 
@@ -847,14 +847,18 @@ formats:
 Decimal versions are regular "decimal numbers", with some limitations.
 They B<must> be non-negative and B<must> begin and end with a digit.  A
 single underscore B<may> be included, but B<must> be between two digits.
+A final single 'c' character is permitted to denote a typed perl11/cperl
+variant, which is not yet parsable by perl5.
 They B<must not> use exponential notation ("1.23e-2").
 
    version => '1.234'       # OK
    version => '1.23_04'     # OK
+   version => '1.23_04c'    # OK
 
    version => '1.23_04_05'  # Illegal
    version => '1.'          # Illegal
    version => '.1'          # Illegal
+   version => '1.c2'        # Illegal
 
 =item Dotted-integer versions
 
@@ -867,6 +871,7 @@ three integer components.  To retain a one-to-one mapping with decimal
 versions, all components after the first B<should> be restricted to the
 range 0 to 999.  The final component B<may> be separated by an
 underscore character instead of a period.
+A final single 'c' character is not permitted here yet.
 
    version => 'v1.2.3'      # OK
    version => 'v1.2_3'      # OK
@@ -1210,6 +1215,11 @@ In late 2009, David Golden organized the version 2 proposal review
 process.  David and Ricardo Signes drafted the final version 2 spec
 in April 2010 based on the version 1.4 spec and patches contributed
 during the proposal process.
+
+In 2016 cperl added the final 'c' character as perl5-incompatible
+feature to denote modernized modules with signatures and types. 'c'
+modules are accepted by cperl, but not by perl5. non-'c' modules are
+accepted by cperl and perl5.
 
 =head1 AUTHORS
 
