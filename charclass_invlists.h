@@ -74615,7 +74615,7 @@ static const UV XPosixXDigit_invlist[] = { /* for EBCDIC 037 */
  * 1a0687fb9c6c4567e853913549df0944fe40821279a3e9cdaa6ab8679bc286fd lib/unicore/extracted/DLineBreak.txt
  * 40bcfed3ca727c19e1331f6c33806231d5f7eeeabd2e6a9e06a3740c85d0c250 lib/unicore/extracted/DNumType.txt
  * a18d502bad39d527ac5586d7bc93e29f565859e3bcc24ada627eff606d6f5fed lib/unicore/extracted/DNumValues.txt
- * a1a8347e467b7cba400cfd74498eda83b9dd6743eccac792cdf445f8a8f4d9d9 lib/unicore/mktables
+ * 8a8c9ebdc3b58227e5b1ccd43c203a849cfdee8afd70ad07245842d2c2051878 lib/unicore/mktables
  * 462c9aaa608fb2014cd9649af1c5c009485c60b9c8b15b89401fdc10cf6161c6 lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
  * 71cc17b1385a43b270cd152c8abd935da30165011887665111674a36ff385922 regen/mk_invlists.pl
