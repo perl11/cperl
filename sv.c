@@ -13649,7 +13649,7 @@ S_sv_dup_common(pTHX_ const SV *const sstr, CLONE_PARAMS *const param)
 	    case SVt_REGEXP:
 	      duprex:
 		/* FIXME for plugins */
-		dstr->sv_u.svu_rx = SvANY(dstr);
+		dstr->sv_u.svu_rx = (regexp*)SvANY(dstr);
 		re_dup_guts((REGEXP*) sstr, (REGEXP*) dstr, param);
 		break;
 	    case SVt_PVLV:
