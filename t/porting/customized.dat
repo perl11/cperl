@@ -75,4 +75,4 @@ podlators cpan/podlators/scripts/pod2text.PL 19d478eb7cd00141a8dc4f738725e3baf1c
 threads dist/threads/lib/threads.pm f8f5f2c4527aba54ef53a5846e3fad728b24eeea
 threads dist/threads/threads.xs 86191214f193293053d11ca82a8960e4ed7a74a7
 version cpan/version/lib/version.pm d0923b895d57f1d669ae36fcf85c87b16db341d1
-version vutil.c 89ab2adc8ccedcf53e2ce1aab79912dae4aa73ed
+version vutil.c a8b145c60cc6df6aec94dbdeff643cd1f32368cd
