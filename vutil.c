@@ -161,7 +161,11 @@ dotted_decimal_version:
 	    goto version_prescan_finish;
 	}
 #ifdef USE_CPERL
-	else if ( *d == 'c' && !*(d+1)) { goto version_prescan_finish; }
+	else if ( *d == 'c' && !*(d+1)) {
+            if (saw_decimal && isDIGIT(*(d-1)))
+              qv = TRUE;
+            goto version_prescan_finish;
+        }
 #endif
 	else if ( d == s ) {
 	    /* didn't find either integer or period */
@@ -202,6 +206,7 @@ dotted_decimal_version:
 		}
 		d = (char *)s; 		/* start all over again */
 		qv = TRUE;
+                saw_decimal++;
 		goto dotted_decimal_version;
 	    }
 	    if (*d == '_') {
@@ -225,10 +230,12 @@ version_prescan_finish:
     while (isSPACE(*d))
 	d++;
 
-    if (!isDIGIT(*d) && (! (!*d || *d == ';' || *d == '{' || *d == '}') )) {
+    if (!isDIGIT(*d) && (! (!*d || *d == ';' || *d == '{' || *d == '}') )
 #ifdef USE_CPERL
-	if ( *d != 'c' )
+	&& (*d != 'c'|| *(d+1))
 #endif
+       )
+    {
 	/* trailing non-numeric data */
 	BADVERSION(s,errstr,"Invalid version format (non-numeric data)");
     }
@@ -399,6 +406,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
 #ifdef USE_CPERL
 	    else if ( *pos == 'c' && !*(pos+1) ) {
 		s = ++pos;
+                (void)hv_stores(MUTABLE_HV(hv), "cperl", newSViv(1));
 		break;
             }
 #endif
@@ -737,17 +745,17 @@ VER_PV:
     s = SCAN_VERSION(version, ver, qv);
 #ifdef USE_CPERL
     if ( *s == 'c' && !*(s+1) )
-        return ver;
+        goto leave;
 #endif
     if ( *s != '\0' ) 
 	Perl_ck_warner(aTHX_ packWARN(WARN_MISC), 
 		       "Version string '%s' contains invalid data; "
 		       "ignoring: '%s'", version, s);
 
+ leave:
 #if PERL_VERSION_LT(5,19,8) && defined(USE_ITHREADS)
     LEAVE;
 #endif
-
     return ver;
 }
 
@@ -975,6 +983,8 @@ Perl_vnormal(pTHX_ SV *vs)
 	for ( len = 2 - len; len != 0; len-- )
 	    sv_catpvs(sv,".0");
     }
+    if ( hv_exists(MUTABLE_HV(vs), "cperl", 5) )
+        sv_catpvs(sv,"c");
     return sv;
 }
 
