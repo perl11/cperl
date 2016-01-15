@@ -461,6 +461,13 @@ The modules L<sigtrap>, L<DB>, and the perl debugger could have under
 rare circumstances, without you expecting it, output containing raw
 control characters.  This has been fixed.
 
+=item *
+
+L<POSIX> has been upgraded from version 1.59 to 1.60.
+
+It can now export constants for the C<code> value in the hash passed to the
+L<sigaction|POSIX/sigaction> handler when using the C<SA_SIGINFO> flag.
+
 =back
 
 =head1 Documentation
