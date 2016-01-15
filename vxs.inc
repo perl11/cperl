@@ -41,7 +41,7 @@
     {VXS_CLASS "::(0+", VXSp(version_numify), VXSXSDP(NULL)},
     {VXS_CLASS "::numify", VXSp(version_numify), VXSXSDP(NULL)},
     {VXS_CLASS "::normal", VXSp(version_normal), VXSXSDP(NULL)},
-    {VXS_CLASS "::(cmp", VXSp(version_vcmp), VXSXSDP(NULL)},
+    {VXS_CLASS "::(cmp", VXSp(version_scmp), VXSXSDP(NULL)},
     {VXS_CLASS "::(<=>", VXSp(version_vcmp), VXSXSDP(NULL)},
 #  ifdef PERL_CORE
     {VXS_CLASS "::vcmp", XS_version_vcmp, VXSXSDP(NULL)},
@@ -314,7 +314,7 @@ VXS(version_vcmp)
      dVAR;
      dXSARGS;
      if (items < 1)
-	 croak_xs_usage(cv, "lobj, ...");
+	 croak_xs_usage(cv, "lversion, rversion, swap");
      SP -= items;
      {
 	  SV *	lobj;
@@ -339,6 +339,44 @@ VXS(version_vcmp)
 	       {
 		    rs = newSViv(VCMP(lobj,rvs));
 	       }
+
+	       VXS_RETURN_M_SV(rs);
+	  }
+     }
+}
+
+VXS(version_scmp)
+{
+     dVAR;
+     dXSARGS;
+     if (items < 1)
+	 croak_xs_usage(cv, "lversion, rversion, swap");
+     SP -= items;
+     {
+	  SV *lobj;
+	  VTYPECHECK(lobj, ST(0), "lobj");
+	  {
+	       SV *rs;
+	       SV *rvs;
+	       SV *robj       = ST(1);
+	       const IV	 swap = SvIV(ST(2));
+               const int lc   = hv_exists(MUTABLE_HV(SvRV(ST(0))), "cperl", 5);
+               int ri;
+               int rc;
+
+	       if ( !ISA_VERSION_OBJ(robj) )
+	       {
+		   robj = sv_2mortal(NEW_VERSION(SvOK(robj) ? robj
+                                                 : newSVpvs_flags("0", SVs_TEMP)));
+	       }
+               rc  = (SvTYPE(robj) >= SVt_PVHV) && hv_exists(MUTABLE_HV(robj), "cperl", 5);
+	       rvs = SvRV(robj);
+
+	       ri = swap ? VCMP(rvs,lobj) : VCMP(lobj,rvs);
+               if (ri == 0 && lc != rc)
+                   rs = newSViv(swap && rc ? 1 : -1);
+               else
+                   rs = newSViv(ri);
 
 	       VXS_RETURN_M_SV(rs);
 	  }
