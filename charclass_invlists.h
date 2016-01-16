@@ -13595,8 +13595,8 @@ typedef enum {
 	WB_Perl_Tailored_HSpace = 15,
 	WB_Regional_Indicator = 16,
 	WB_Single_Quote = 17,
-	WB_UNKNOWN = 18,
-	WB_EDGE = 19
+	WB_EDGE = 18,
+	WB_UNKNOWN = 19
 } WB_enum;
 
 static const WB_enum _Perl_WB_invmap[] = { /* for ASCII/Latin1 */
@@ -38410,8 +38410,8 @@ typedef enum {
 	WB_Perl_Tailored_HSpace = 15,
 	WB_Regional_Indicator = 16,
 	WB_Single_Quote = 17,
-	WB_UNKNOWN = 18,
-	WB_EDGE = 19
+	WB_EDGE = 18,
+	WB_UNKNOWN = 19
 } WB_enum;
 
 static const WB_enum _Perl_WB_invmap[] = { /* for EBCDIC 1047 */
@@ -63386,8 +63386,8 @@ typedef enum {
 	WB_Perl_Tailored_HSpace = 15,
 	WB_Regional_Indicator = 16,
 	WB_Single_Quote = 17,
-	WB_UNKNOWN = 18,
-	WB_EDGE = 19
+	WB_EDGE = 18,
+	WB_UNKNOWN = 19
 } WB_enum;
 
 static const WB_enum _Perl_WB_invmap[] = { /* for EBCDIC 037 */
@@ -74618,5 +74618,5 @@ static const UV XPosixXDigit_invlist[] = { /* for EBCDIC 037 */
  * 8a8c9ebdc3b58227e5b1ccd43c203a849cfdee8afd70ad07245842d2c2051878 lib/unicore/mktables
  * 462c9aaa608fb2014cd9649af1c5c009485c60b9c8b15b89401fdc10cf6161c6 lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
- * ac0bf6db435185d116280feff020a17708028c12bc95b162d86698c4c8bc831b regen/mk_invlists.pl
+ * f88d17574a5e914bc2e2a50b9f47b2b182d50b207f8a7f27e54e91480590db35 regen/mk_invlists.pl
  * ex: set ro: */
