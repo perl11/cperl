@@ -410,6 +410,7 @@ perl_construct(pTHXx)
     PL_GCB_invlist = _new_invlist_C_array(_Perl_GCB_invlist);
     PL_SB_invlist = _new_invlist_C_array(_Perl_SB_invlist);
     PL_WB_invlist = _new_invlist_C_array(_Perl_WB_invlist);
+    PL_LB_invlist = _new_invlist_C_array(_Perl_LB_invlist);
 
     ENTER;
 }
@@ -1099,6 +1100,7 @@ perl_destruct(pTHXx)
         PL_XPosix_ptrs[i] = NULL;
     }
     PL_GCB_invlist = NULL;
+    PL_LB_invlist = NULL;
     PL_SB_invlist = NULL;
     PL_WB_invlist = NULL;
 

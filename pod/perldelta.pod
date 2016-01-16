@@ -116,6 +116,15 @@ UTF-8 one, a warning is raised and standard Unicode rules are used
 anyway.  No tainting is done since the outcome does not actually depend
 on the locale.
 
+=head2 New C<\b{lb}> boundary in regular expressions
+
+C<lb> stands for Line Break.  It is a Unicode property
+that determines where a line of text is suitable to break (typically so
+that it can be output without overflowing the available horizontal
+space).  This capability has long been furnished by the
+L<Unicode::LineBreak> module, but now a light-weight, non-customizable
+version that is suitable for many purposes is in core Perl.
+
 =head1 Security
 
 =head2 Set proper umask before calling C<mkstemp(3)>
