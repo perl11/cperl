@@ -68,7 +68,7 @@ use B qw(main_root main_start main_cv svref_2object opnumber perlstring
         SIGNATURE_SHIFT
     );
 
-$VERSION = '1.40_04c';
+$VERSION = '1.41_04c';
 $VERSION =~ s/c$//;
 use strict;
 use vars qw/$AUTOLOAD/;
@@ -1395,7 +1395,6 @@ Carp::confess("SPECIAL in deparse_sub") if $cv->isa("B::SPECIAL");
     }
     if ($cv->CvFLAGS & (CVf_METHOD|CVf_LOCKED|CVf_LVALUE|CVf_ANONCONST)) {
         push @attrs, "lvalue" if $cv->CvFLAGS & CVf_LVALUE;
-        push @attrs, "locked" if $cv->CvFLAGS & CVf_LOCKED;
         push @attrs, "method" if $cv->CvFLAGS & CVf_METHOD;
         push @attrs, "const"  if $cv->CvFLAGS & CVf_ANONCONST;
     }

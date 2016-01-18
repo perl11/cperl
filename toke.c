@@ -6213,11 +6213,6 @@ Perl_yylex(pTHX)
                                     CvMETHOD_on(PL_compcv);
                                     /*cv_method_on(PL_compcv);*/
                                 }
-                                else if (memEQc(pv, "locked")) {
-                                    sv_free(sv);
-                                    deprecate_disappears_in("5.28",
-                                        "Attribute \"locked\" is deprecated");
-                                }
                                 /* Scalar */
                                 else if (!find_in_coretypes(pv, len))
                                     goto load_attributes;
