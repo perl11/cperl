@@ -43,6 +43,10 @@ L<[cperl #137]|https://github.com/perl11/cperl/issues/137>
 
 =item * ~20% performance improvements with a CX context system rewrite
 
+=item * DESTROY cache moved back from the stash to mro_meta
+
+So we don't need our special B::SvSTASH fixes anymore.
+
 =back
 
 =head1 Modules and Pragmata
