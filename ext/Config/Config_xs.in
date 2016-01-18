@@ -1479,6 +1479,8 @@ void
 FETCH(self, key)
      SV* self
      SV* key
+ALIAS:
+     EXISTS = 1
 PREINIT:
      const struct Perl_Config *c;
      SV * RETVAL;
@@ -1493,70 +1495,73 @@ PPCODE:
      PERL_UNUSED_VAR(self);
      if (!c)
          goto return_undef;
-     if (c->type == T_INT) {
-         IV iv;
+     if(ix == 0) { /* is FETCH */
+      if (c->type == T_INT) {
+          IV iv;
 #if PTRSIZE != IVSIZE
-         if(c->len)
+           if(c->len)
 #  ifdef HAS_STRTOL
-              iv = strtol(c->value,NULL,10);
+                iv = strtol(c->value,NULL,10);
 #  else
-              iv = atoi(c->value);
+                iv = atoi(c->value);
 #  endif
-         else
+           else
 #endif
 #if PTRSIZE == 8
-              iv = (I64TYPE)c->value;
+                iv = (I64TYPE)c->value;
 #else
-              iv = (I32)c->value;
+                iv = (I32)c->value;
 #endif
-         RETVAL = newSViv(iv);
-         RETVAL = sv_2mortal(RETVAL);
-     }
-     else { /* c->type == T_STR */
-        if (c->len) {
+           RETVAL = newSViv(iv);
+           RETVAL = sv_2mortal(RETVAL);
+       }
+       else { /* c->type == T_STR */
+          if (c->len) {
 /* C bitfield endianness is UB, so pack our own bits */
 #if BYTEORDER == 0x4321 || BYTEORDER == 0x87654321  /* big-endian */
-            I16 len = (I16)c->len;
-            if (len < 0)
-              RETVAL = newSVpvn_flags((char*)(&(c->len))+1, (len >> 8) & 0x7F, SVs_TEMP);
+              I16 len = (I16)c->len;
+              if (len < 0)
+                RETVAL = newSVpvn_flags((char*)(&(c->len))+1, (len >> 8) & 0x7F, SVs_TEMP);
 #else /* little-endian */
             /* if we had access to x86 carry flag or very smart CC, the
              * "len >> 1" and "if (c->len & 0x1)" would be one shr op, then a
              * jump carry flag op, not 4 ops (mov, shr, test, jz) */
-            unsigned int len = c->len >> 1;
-            if (c->len & 0x1)
+              unsigned int len = c->len >> 1;
+              if (c->len & 0x1)
                 /*  &0x7F is effectivly a casting of len to U8 before shift,
                  *  otherwise lowest bit from 1st string char (high byte of U16
                  *  len) becomes part of len, aka a gibberish bit and a
                  *  SEGV/overflow inside memcpy inside newSVpvn_flags */
-              RETVAL = newSVpvn_flags((char*)(&(c->len))+1, len & 0x7F, SVs_TEMP);
+                RETVAL = newSVpvn_flags((char*)(&(c->len))+1, len & 0x7F, SVs_TEMP);
 #endif
-            else
-              RETVAL = newSVpvn_flags(c->value, len, SVs_TEMP);
-        } else {
-              switch((size_t)c->value) {
-                   case (size_t)VUNDEF:
-                   return_undef:
-                        RETVAL = &PL_sv_undef;
-                        break;
-                   case (size_t)VEMPTY:
-                        RETVAL = &PL_sv_no;
-                        break;
-                   case (size_t)VDEFINE: {/* this SV * never goes away once vivified */
+              else
+                RETVAL = newSVpvn_flags(c->value, len, SVs_TEMP);
+          } else {
+                switch((size_t)c->value) {
+                     case (size_t)VUNDEF:
+                     return_undef:
+                          RETVAL = &PL_sv_undef;
+                          break;
+                     case (size_t)VEMPTY:
+                          RETVAL = &PL_sv_no;
+                          break;
+                     case (size_t)VDEFINE: {/* this SV * never goes away once vivified */
 #ifdef USE_CPERL
-                        RETVAL = SV_CONST(define);
+                          RETVAL = SV_CONST(define);
 #else
-                        dMY_CXT;
-                        RETVAL = MY_CXT.defineSV;
+                          dMY_CXT;
+                          RETVAL = MY_CXT.defineSV;
 #endif
-                   }
-                        break;
-                   default:
-                        NOT_REACHED; /* NOTREACHED */
-              }
-         }
-     }
-
+                    }
+                         break;
+                    default:
+                         NOT_REACHED; /* NOTREACHED */
+               }
+          }
+      }
+     } /* is FETCH */
+     else /* is EXISTS */
+        RETVAL = &PL_sv_yes;
      *SP = RETVAL;
      return; /* skip implicit PUTBACK, it was done earlier */
 
@@ -1566,15 +1571,13 @@ PPCODE:
 void
 SCALAR(self)
     SV *self
-PPCODE:
+CODE:
     PERL_UNUSED_VAR(self);
-    SP++; /* make space for 1 returned SV* */
-    PUTBACK; /* let some vars go out of liveness */
     /* perfect hash is perfect */
     *SP = newSVpvn_flags(STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(TOTAL_KEYWORDS),
                          sizeof(STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(TOTAL_KEYWORDS))-1,
                          SVs_TEMP);
-    return; /* skip implicit PUTBACK, it was done earlier */
+    return; /* skip implicit PUTBACK, SP didnt move, 1 arg in means 1 arg out */
 
 # 1st arg could be self in the future
 # Note: KEYS doesnt exist in tied hash API, only FIRSTKEY/NEXTKEY
@@ -1611,16 +1614,15 @@ PREINIT:
     /* Note: This is highly gperf dependent */
     const char *s = (const char *)stringpool;
     size_t len;
-PPCODE:
+CODE:
     STATIC_ASSERT_STMT(sizeof(stringpool_contents) > 1); /* atleast 1 string */
-    SP++; /* make space for 1 returned SV* */
-    PUTBACK; /* let some vars go out of liveness */
 
     len = strlen(s);
     /* self is SVIV with offset (aka iterator) into stringpool */
     *self = len + 1; /* set to next string to read */
+    /* overwrite CFGSELF *self slot on stack */
     *SP = newSVpvn_flags(s, len, SVs_TEMP);
-    return; /* skip implicit PUTBACK, it was done earlier */
+    return; /* skip implicit PUTBACK, 1 arg in, means 1 arg out, SP not moved*/
 
 void
 NEXTKEY(self, lastkey)
@@ -1644,22 +1646,3 @@ PPCODE:
         RETVAL = &PL_sv_undef;
     *SP = RETVAL;
     return; /* skip implicit PUTBACK, it was done earlier */
-
-void
-EXISTS(self, key)
-         SV *self
-         SV *key
-PPCODE:
-    PERL_UNUSED_VAR(self);
-#if Size_t_size > INTSIZE
-     if(SvCUR(key) > UINT_MAX)
-         goto return_undef;
-#endif
-    if (Config_lookup(SvPVX_const(key), (unsigned int)SvCUR(key)))
-        XSRETURN_YES;
-    else {
-#if Size_t_size > INTSIZE
-        return_undef:
-#endif
-        XSRETURN_UNDEF;
-    }

@@ -559,6 +559,9 @@ EOT
 my $heavy_xs_txt = $heavy_txt;
 
 $heavy_xs_txt .= <<'EOT';
+sub STORE  { die "\%Config::Config is read-only\n" }
+*DELETE = *CLEAR = \*STORE; # Typeglob aliasing uses less space
+
 sub config_sh {
     my $s = ' ' x 32000; # prealloc 32.000 byte, I got 33568
     $s = '';

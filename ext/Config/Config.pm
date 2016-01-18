@@ -11,7 +11,7 @@ use strict;
 use warnings;
 use vars '%Config', '$VERSION';
 
-$VERSION = '6.06';
+$VERSION = '6.10';
 
 # Skip @Config::EXPORT because it only contains %Config, which we special
 # case below as it's not a function. @Config::EXPORT won't change in the
@@ -61,8 +61,6 @@ sub TIEHASH {
     bless \do{my $uv = 0;}, $_[0]; #XS Config Obj constructor
 }
 sub DESTROY { }
-sub STORE  { die "\%Config::Config is read-only\n" }
-*DELETE = *CLEAR = \*STORE; # Typeglob aliasing uses less space
 
 if (defined &DynaLoader::boot_DynaLoader) {
     require XSLoader;

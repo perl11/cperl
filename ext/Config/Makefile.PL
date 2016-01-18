@@ -25,13 +25,13 @@ WriteMakefile(
                                 () : ('Config_mini.pl.PL'     => 'Config_mini.pl',
                                       'Config_xs_heavy.pl.PL' => 'Config_xs_heavy.pl')
                             )},
-    'clean'		=> {FILES => 'Config.xs            Config_xs.out-new
-                                      Config_xs.tmp.in-new Config_xs.tmp.out
+    'clean'		=> {FILES =>  oldclean('Config.xs  Config_xs.out-new
+                                      Config_xs.tmp.in-new Config_xs_tmp.out
                                       Config.c             Config_pm_mtime
                                       Config_mini.pl       Config_xs_heavy.pl
                                       Config_def.old       UNINST_0
                                       UNINST_1
-                                      '},
+                                      ')},
     'PM' => {
         'Config.pm'      => '$(INST_LIBDIR)/Config.pm',
         ($in_core ? () : ('Config_mini.pl'     => '$(INST_LIBDIR)/Config_mini.pl',
@@ -69,14 +69,40 @@ use ExtUtils::Command ();
     ExtUtils::Command::touch();
 }
 
+sub oldclean {
+    #EUMM before ~6.25_02 did not add tabs and '\'s to the clean line, the list
+    #of files would be tried to excuted if they had newlines in them from
+    #the WriteMakefile hash
+    if($ExtUtils::MM_Unix::VERSION lt '1.46_02') {
+        my $clean = $_[0];
+        $clean =~ y/\n//d;
+        return $clean;
+    } else {
+        return $_[0];
+    }
+}
 
 package MY;
 
 # feat req https://rt.cpan.org/Public/Bug/Display.html?id=110631
 sub post_initialize { # post_initialize() runs before constants()
-    $_[0]->{INSTALLDIRS} =  'perl'
-        if $_[0]->{UNINST}; # UNINST could be from @ARGV or %ENV or anywhere
-    $main::uninst = (!! $_[0]->{UNINST})+0;
+# see if it is in CPAN's configs, this is for CPANTesters/automated installs
+    if ($in_core) {
+        $main::uninst = 0;
+    } else {
+        require CPAN;
+        CPAN::HandleConfig->can('load') ?
+            CPAN::HandleConfig->load()
+            : CPAN::Config->load(); #old CPAN.pms
+        if ($CPAN::Config->{make_install_arg} =~ /\QUNINST=1\E/) {
+            $_[0]->{UNINST} = $main::uninst = 1;
+        } else {
+        # from EUMM, UNINST could be from @ARGV or %ENV or anywhere
+            $main::uninst = (!! $_[0]->{UNINST})+0;
+        }
+    }
+
+    $_[0]->{INSTALLDIRS} =  'perl' if $main::uninst;
     # regen run of Makefile.PL gets UNINST val from maketool run
     push @ARGV, 'UNINST=$(UNINST)';
     '';
@@ -88,9 +114,12 @@ sub postamble {
     # not psuedotargets with the same base name, so specify the dependency
     # explicitly, dmake doesn't need this
     # is_make_type meth existed only in EUMM on Win32 until EUMM 7.02
-    return $_[0]->can('is_make_type') &&
+    # extremely old Win32 EUMMs dont even have is_make_type meth so always
+    # assume nmake on Win32 then
+    return ($_[0]->can('is_make_type') ?
                 (  $_[0]->is_make_type('nmake')
                 || $_[0]->is_make_type('gmake'))
+            : $^O eq 'MSWin32')
         ? '$(OBJECT) : Config.c'."\n\n".'Config.c : Config.xs'
         : '';
 }
@@ -107,8 +136,9 @@ sub pm_to_blib {
     substr($blib, $pos+1, 0,
 '	$(NOECHO) $(EQUALIZE_TIMESTAMP) $(PERL_ARCHLIBDEP)$(DFSEP)Config.pm Config_pm_mtime
 ');
-    return $blib
-.'	$(NOECHO) $(CHMOD) $(PERM_RW) $(INST_LIB)/Config.pm
+    chomp($blib); #old EUMMs dont have a newline at the end, new ones do
+    return $blib.'
+	$(NOECHO) $(CHMOD) $(PERM_RW) $(INST_LIB)/Config.pm
 	$(NOECHO) $(EQUALIZE_TIMESTAMP) Config_pm_mtime $(INST_LIB)/Config.pm';
 }
 
@@ -119,7 +149,7 @@ sub processPL {
     #for XS Config wasn't even built yet when Config_xs.PL runs, Config.xs is
     #not a .pm, so it can't be listed in EUMM's PM key which would otherwise
     #cause blib to NOT be -I'ed, so de-"-I" it manually
-    $processPL =~ s/ pm_to_blib//g;
+    $processPL =~ s/pm_to_blib/Config_xs.out Config_xs.in/g;
     $processPL =~ s/PERLRUNINST/PERLRUN/g;
     return $processPL;
 }
