@@ -1,7 +1,7 @@
 package attributes;
 
 # TODO: convert import also to XS
-our $VERSION = '1.12c';
+our $VERSION = '1.13c';
 $VERSION =~ s/c$//;
 #@EXPORT_OK = qw(get reftype);
 @EXPORT = ();
@@ -21,8 +21,6 @@ sub carp {
  
 my %deprecated;
 $deprecated{CODE} = qr/\A-?(locked)\z/;
-$deprecated{ARRAY} = $deprecated{HASH} = $deprecated{SCALAR}
-    = qr/\A-?(unique)\z/;
 
 my %msg = (
     lvalue => 'lvalue attribute applied to already-defined subroutine',
@@ -318,14 +316,6 @@ The following are the built-in attributes for variables:
 
 Indicates that the referenced variable can be shared across different threads
 when used in conjunction with the L<threads> and L<threads::shared> modules.
-
-=item unique
-
-The "unique" attribute is deprecated, and has no effect in 5.10.0 and later.
-It used to indicate that a single copy of an C<our> variable was to be used by
-all interpreters should the program happen to be running in a
-multi-interpreter environment. It will disappear in 5.28, after which its
-use will be fatal.
 
 =item const
 
