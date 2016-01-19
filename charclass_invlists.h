@@ -87735,6 +87735,24 @@ static const UV XPosixXDigit_invlist[] = { /* for EBCDIC 037 */
 
 #if defined(PERL_IN_REGEXEC_C)
 
+static const bool GCB_table[14][14] = {
+/*          XX   CR   CN   EX    L   LF   LV  LVT   PP   RI   SM    T    V edge */
+/*   XX */   1,   1,   1,   0,   1,   1,   1,   1,   1,   1,   0,   1,   1,   1,
+/*   CR */   1,   1,   1,   1,   1,   0,   1,   1,   1,   1,   1,   1,   1,   1,
+/*   CN */   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+/*   EX */   1,   1,   1,   0,   1,   1,   1,   1,   1,   1,   0,   1,   1,   1,
+/*    L */   1,   1,   1,   0,   0,   1,   0,   0,   1,   1,   0,   1,   0,   1,
+/*   LF */   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+/*   LV */   1,   1,   1,   0,   1,   1,   1,   1,   1,   1,   0,   0,   0,   1,
+/*  LVT */   1,   1,   1,   0,   1,   1,   1,   1,   1,   1,   0,   0,   1,   1,
+/*   PP */   0,   1,   1,   0,   0,   1,   0,   0,   0,   0,   0,   0,   0,   1,
+/*   RI */   1,   1,   1,   0,   1,   1,   1,   1,   1,   0,   0,   1,   1,   1,
+/*   SM */   1,   1,   1,   0,   1,   1,   1,   1,   1,   1,   0,   1,   1,   1,
+/*    T */   1,   1,   1,   0,   1,   1,   1,   1,   1,   1,   0,   0,   1,   1,
+/*    V */   1,   1,   1,   0,   1,   1,   1,   1,   1,   1,   0,   0,   0,   1,
+/* edge */   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   0
+};
+
 #define LB_NOBREAK	0
 #define LB_BREAKABLE	1
 #define LB_NOBREAK_EVEN_WITH_SP_BETWEEN	2
@@ -87836,5 +87854,5 @@ static const U8 LB_table[36][36] = {
  * 6688a8e89af0291d18c479916976e3723162eb2010e21c6dd611bad579e9e824 lib/unicore/mktables
  * 462c9aaa608fb2014cd9649af1c5c009485c60b9c8b15b89401fdc10cf6161c6 lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
- * 6031c7abedfaf2d775be30cad6f1184c504678620bd0098673544c0463bb876f regen/mk_invlists.pl
+ * 22f349b8ba97ee12d173146d7ec07d7d48fda1e921c3338044fd30c211b2647d regen/mk_invlists.pl
  * ex: set ro: */
