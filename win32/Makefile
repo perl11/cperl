@@ -580,7 +580,7 @@ EXEOUT_FLAG	= -Fe
 CFLAGS_O	= $(CFLAGS) $(BUILDOPT)
 
 !IF "$(PREMSVC80)" == "undef"
-LINK_FLAGS	= $(LINK_FLAGS) "/manifestdependency:type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'"
+PRIV_LINK_FLAGS	= $(PRIV_LINK_FLAGS) "/manifestdependency:type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'"
 !ELSE
 RSC_FLAGS	= -DINCLUDE_MANIFEST
 !ENDIF
@@ -596,10 +596,9 @@ LINK_FLAGS	= $(LINK_FLAGS) -subsystem:console,"5.02"
 !  ELSE
 LINK_FLAGS	= $(LINK_FLAGS) -subsystem:console,"5.01"
 !  ENDIF
-PRIV_LINK_FLAGS	=
 
 !ELSE
-PRIV_LINK_FLAGS	= -subsystem:console
+PRIV_LINK_FLAGS	= $(PRIV_LINK_FLAGS) -subsystem:console
 !ENDIF
 
 BLINK_FLAGS	= $(PRIV_LINK_FLAGS) $(LINK_FLAGS)
