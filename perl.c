@@ -4513,12 +4513,12 @@ S_init_perllib(pTHX)
 	 */
 	char buf[256];
 	int idx = 0;
-	if (my_trnlnm("PERL5LIB",buf,0))
+	if (vmstrnenv("PERL5LIB",buf,0,NULL,0))
 	    do {
 		incpush_use_sep(buf, 0, INCPUSH_ADD_SUB_DIRS);
-	    } while (my_trnlnm("PERL5LIB",buf,++idx));
+	    } while (vmstrnenv("PERL5LIB",buf,++idx,NULL,0));
 	else {
-	    while (my_trnlnm("PERLLIB",buf,idx++))
+	    while (vmstrnenv("PERLLIB",buf,idx++,NULL,0))
 		incpush_use_sep(buf, 0, 0);
 	}
 #endif /* VMS */
@@ -4624,11 +4624,11 @@ S_init_perllib(pTHX)
 	 */
 	char buf[256];
 	int idx = 0;
-	if (my_trnlnm("PERL5LIB",buf,0))
+	if (vmstrnenv("PERL5LIB",buf,0,NULL,0))
 	    do {
 		incpush_use_sep(buf, 0,
 				INCPUSH_ADD_OLD_VERS|INCPUSH_NOT_BASEDIR);
-	    } while (my_trnlnm("PERL5LIB",buf,++idx));
+	    } while (vmstrnenv("PERL5LIB",buf,++idx,NULL,0));
 #endif /* VMS */
     }
 
