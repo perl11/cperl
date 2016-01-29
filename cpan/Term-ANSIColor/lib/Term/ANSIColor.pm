@@ -23,7 +23,6 @@ use 5.006;
 use strict;
 use warnings;
 
-use Carp qw(croak);
 use Exporter ();
 
 # use Exporter plus @ISA instead of use base for 5.6 compatibility.
@@ -202,6 +201,12 @@ if (exists $ENV{ANSI_COLORS_ALIASES}) {
     }
 }
 
+
+sub croak {
+    require Carp;
+    return Carp::croak( @_ );
+}
+
 # Stores the current color stack maintained by PUSHCOLOR and POPCOLOR.  This
 # is global and therefore not threadsafe.
 our @COLORSTACK;
@@ -236,7 +241,9 @@ our @COLORSTACK;
 ## no critic (ClassHierarchies::ProhibitAutoloading)
 ## no critic (Subroutines::RequireArgUnpacking)
 sub AUTOLOAD {
-    my ($sub, $attr) = $AUTOLOAD =~ m{ \A ([\w:]*::([[:upper:]\d_]+)) \z }xms;
+    my ( $sub ) = $AUTOLOAD =~ /^([a-zA-Z0-9:_]+)$/; # untaint
+    my $attr = ( split('::', $sub ) )[-1];
+    undef $attr if ( $attr && $attr !~ qr{^[A-Z0-9_]+$} ) || $sub !~ qr{::};
 
     # Check if we were called with something that doesn't look like an
     # attribute.
@@ -501,7 +508,7 @@ sub coloralias {
             return $ATTRIBUTES_R{ $ALIASES{$alias} };
         }
     }
-    if ($alias !~ m{ \A [\w._-]+ \z }xms) {
+    if ( $alias !~ m{ \A [a-zA-Z0-9._-]+ \z }xms ) {
         croak(qq{Invalid alias name "$alias"});
     } elsif ($ATTRIBUTES{$alias}) {
         croak(qq{Cannot alias standard color "$alias"});
