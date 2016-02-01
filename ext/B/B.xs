@@ -773,6 +773,9 @@ static const struct OP_methods {
 #  else
   { STR_WITH_LEN("rclass"),  op_offset_special, 0,                     },/*56*/
 #  endif
+#  if PERL_VERSION >= 22 && defined(OpRETTYPE)
+  { STR_WITH_LEN("rettype"), U8p, STRUCT_OFFSET(struct op, op_rettype),},/*57*/
+#  endif
 #endif
 };
 
@@ -1066,6 +1069,7 @@ next(o)
 	B::METHOP::meth_sv   = 54
 	B::PMOP::pmregexp    = 55
 	B::METHOP::rclass    = 56
+	B::OP::rettype       = 57
     PREINIT:
 	SV *ret;
     PPCODE:
