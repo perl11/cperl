@@ -1699,10 +1699,12 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	Perl_dump_indent(aTHX_ level, file, "  ARYLEN = 0x%"UVxf"\n",
 				   SvMAGIC(sv) ? PTR2UV(AvARYLEN(sv)) : 0);
 	sv_setpvs(d, "");
-	if (AvREAL(sv))	sv_catpv(d, ",REAL");
-	if (AvREIFY(sv))	sv_catpv(d, ",REIFY");
+	if (AvREAL(sv))	  sv_catpv(d, ",REAL");
+	if (AvREIFY(sv))  sv_catpv(d, ",REIFY");
+	if (AvSTATIC(sv)) sv_catpv(d, ",STATIC");
+	if (AvIsCOW(sv))  sv_catpv(d, ",IsCOW");
 	Perl_dump_indent(aTHX_ level, file, "  FLAGS = 0x%"UVxf" (%s)\n",
-			 (UV)SvFLAGS(sv), SvCUR(d) ? SvPVX_const(d) + 1 : "");
+                        (UV)SvFLAGS(sv), SvCUR(d) ? SvPVX_const(d) + 1 : "");
 	if (nest < maxnest && av_tindex(MUTABLE_AV(sv)) >= 0) {
 	    SSize_t count;
 	    for (count = 0; count <=  av_tindex(MUTABLE_AV(sv)) && count < maxnest; count++) {

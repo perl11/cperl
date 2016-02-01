@@ -111,9 +111,16 @@ Perl_av_extend_guts(pTHX_ AV *av, SSize_t key, SSize_t *maxp, SV ***allocp,
 	if (av && *allocp != *arrayp) {
 	    ary = *allocp + AvFILLp(av) + 1;
 	    tmp = *arrayp - *allocp;
-	    Move(*arrayp, *allocp, AvFILLp(av)+1, SV*);
-	    *maxp += tmp;
-	    *arrayp = *allocp;
+            if (UNLIKELY(AvSTATIC(av))) { /* copy on grow */
+                SV ** const old_alloc = *allocp;
+                Newx(*allocp, AvFILLp(av)+1, SV*);
+                Copy(old_alloc, *allocp, *maxp + 1, SV*);
+                AvSTATIC_off(av);
+            } else {
+                Move(*arrayp, *allocp, AvFILLp(av)+1, SV*);
+            }
+            *maxp += tmp;
+            *arrayp = *allocp;
 	    if (AvREAL(av)) {
 		while (tmp)
 		    ary[--tmp] = NULL;
@@ -171,9 +178,18 @@ Perl_av_extend_guts(pTHX_ AV *av, SSize_t key, SSize_t *maxp, SV ***allocp,
 		    Copy(old_alloc, *allocp, *maxp + 1, SV*);
                     if (!AvSTATIC(av))
                         Safefree(old_alloc);
+                    else
+                        AvSTATIC_off(av);
 		}
 #else
+            if (UNLIKELY(av && AvSTATIC(av))) { /* copy on grow */
+                SV ** const old_alloc = *allocp;
+                Newx(*allocp, newmax+1, SV*);
+                Copy(old_alloc, *allocp, *maxp + 1, SV*);
+                AvSTATIC_off(av);
+            } else {
 		Renew(*allocp,newmax+1, SV*);
+            }
 #endif
 #ifdef Perl_safesysmalloc_size
 	      resized:

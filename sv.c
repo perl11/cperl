@@ -6856,7 +6856,8 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 		    type = SvTYPE(sv);
 		    /* restore previous value, squirrelled away */
 		    iter_sv = AvARRAY(av)[AvMAX(av)];
-		    Safefree(AvALLOC(av));
+                    if (LIKELY(!AvSTATIC(av)))
+                        Safefree(AvALLOC(av));
 		    goto free_body;
 		}
 	    } else if (SvTYPE(iter_sv) == SVt_PVHV) {

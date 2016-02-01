@@ -77,8 +77,12 @@ Same as C<av_top_index()>.
 /* native shaped arrays also set AvREAL_off */
 #define AvSHAPED(av)	(SvFLAGS(av) & SVpav_SHAPED)
 #define AvSHAPED_on(av)	(SvFLAGS(av) |= SVpav_SHAPED)
-
-#define AvSTATIC(av)	(!AvREAL(av) && !AvREIFY(av))
+/* STATIC: simple COG (copy-on-grow) or COW (copy-on-write) .rodata */
+#define AvSTATIC(av)	SvIsCOW(av)
+#define AvSTATIC_off(av) (SvFLAGS(av) &= ~SVf_IsCOW)
+/* COW: cannot be written to */
+#define AvIsCOW(av)	(SvIsCOW(av) && SvREADONLY(av))
+#define AvIsCOW_off(av)	(SvFLAGS(av) &= ~(SVf_IsCOW|SVf_READONLY))
 
 #define AvREALISH(av)	(SvFLAGS(av) & (SVpav_REAL|SVpav_REIFY))
                                           
