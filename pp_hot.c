@@ -2735,6 +2735,7 @@ PP(pp_iter)
 
     cx = CX_CUR();
     itersvp = CxITERVAR(cx);
+    assert(itersvp);
 
     switch (CxTYPE(cx)) {
 
