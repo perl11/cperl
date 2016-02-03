@@ -291,7 +291,7 @@ pod/perldelta.pod	Apparent broken link	5
 pod/perldtrace.pod	Verbatim line length including indents exceeds 79 by	7
 pod/perlgit.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlguts.pod	? Should you be using L<...> instead of	1
-pod/perlguts.pod	Verbatim line length including indents exceeds 79 by	3
+pod/perlguts.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlhack.pod	? Should you be using L<...> instead of	1
 pod/perlhist.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlhpux.pod	Verbatim line length including indents exceeds 79 by	7
