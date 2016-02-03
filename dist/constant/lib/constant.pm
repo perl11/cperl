@@ -3,7 +3,7 @@ use 5.008;
 use strict;
 use warnings::register;
 
-our $VERSION = '1.33';
+our $VERSION = '1.34';
 our %declared;
 
 #=======================================================================
@@ -17,7 +17,7 @@ my %forced_into_main = map +($_, 1),
 
 my %forbidden = (%keywords, %forced_into_main);
 
-my $normal_constant_name = qr/^_?[^\W_0-9]\w*\z/;
+my $uncompiled_normal_constant_name = '^_?[^\W_0-9]\w*\z';
 my $tolerable = qr/^[A-Za-z_]\w*\z/;
 my $boolean = qr/^[01]?\z/;
 
@@ -95,8 +95,15 @@ sub import {
 	    $pkg = $caller;
 	}
 
-	# Normal constant name
-	if ($name =~ $normal_constant_name and !$forbidden{$name}) {
+	# Normal constant name.  Perl 5.20 and 5.22 consumed too much memory
+        # when compiling '$uncompiled_normal_constant_name'.  But this can
+        # mostly be avoided by using /a, which we can do if the constant name
+        # is ASCII-only.  (/a is available starting in 5.14.)
+	if (($] lt 5.014 || $name =~ /[[:^ascii:]]/)
+             ? $name =~ /$uncompiled_normal_constant_name/
+             : eval "$name =~ /$uncompiled_normal_constant_name/a"
+            and !$forbidden{$name})
+        {
 	    # Everything is okay
 
 	# Name forced into main, but we're not in main. Fatal.
