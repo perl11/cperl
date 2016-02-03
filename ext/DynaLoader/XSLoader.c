@@ -119,15 +119,16 @@ XS(XS_XSLoader_load_file) {
     SV *file, *module;
 
     if (items < 2)
-        die("Usage: XSLoader::load_file($module, $file)\n");
+        die("Usage: XSLoader::load_file($module, $sofile)\n");
     module = ST(0);
     file = ST(1);
 
     if (fn_exists(SvPVX(file))) {
         DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  found %s\n", SvPVX(file)));
     } else {
-        die("Error: load_file $file not found\n");
+        die("Error: load_file $sofile not found\n");
     }
+    PL_stack_sp--;
     if ((items = dl_load_file(aTHX_ ax, file, module, GIMME))) {
         XSRETURN(items);
     } else {
