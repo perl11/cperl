@@ -3317,7 +3317,7 @@ PPt(pp_abs, "(:Numeric):Numeric")
 	    } else {
 	      /* 2s complement assumption. Also, not really needed as
 		 IV_MIN and -IV_MIN should both be %100...00 and NV-able  */
-	      SETu(IV_MIN);
+	      SETu((UV)IV_MIN);
 	    }
 	  }
 	}
