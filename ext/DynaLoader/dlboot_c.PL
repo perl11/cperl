@@ -121,6 +121,7 @@ dl_boot (pTHX) {
     do_expand = get_sv("DynaLoader::dl_expand", GV_ADDMULTI);
     if (SvTYPE(do_expand) < SVt_IV || !SvIOK(do_expand)) {
         sv_upgrade(do_expand, SVt_IV);
+        SvIOK_on(do_expand);
         SvIV_set(do_expand, DL_DO_EXPAND);
     }
     dl_library_path = get_av("DynaLoader::dl_library_path", GV_ADDMULTI);
