@@ -317,6 +317,14 @@ Perl_av_fetch(pTHX_ AV *av, SSize_t key, I32 lval)
     return &AvARRAY(av)[key];
 }
 
+PERL_STATIC_INLINE void
+av_uncow(AV* av) {
+    SV ** allocp;
+    Newx(allocp, AvFILLp(av), SV*);
+    Copy(AvALLOC(av), allocp, AvFILLp(av), SV*);
+    AvIsCOW_off(av);
+}
+
 /*
 =for apidoc av_store
 
@@ -372,6 +380,8 @@ Perl_av_store(pTHX_ AV *av, SSize_t key, SV *val)
 	    return NULL;
     }
 
+    if (UNLIKELY(AvIsCOW(av)))
+        av_uncow(av);
     if (UNLIKELY(SvREADONLY(av) && key >= AvFILL(av)))
 	Perl_croak_no_modify();
 
@@ -577,6 +587,8 @@ Perl_av_clear(pTHX_ AV *av)
     }
 #endif
 
+    if (UNLIKELY(AvIsCOW(av)))
+        av_uncow(av);
     if (UNLIKELY(SvREADONLY(av)))
 	Perl_croak_no_modify();
 
