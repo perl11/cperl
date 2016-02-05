@@ -2909,8 +2909,6 @@ PP(pp_iter)
     *++PL_stack_sp =retsv;
 
     return PL_op->op_next;
-
-
 }
 
 /*
