@@ -126,7 +126,7 @@ XS(XS_XSLoader_load_file) {
     if (fn_exists(SvPVX(file))) {
         DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  found %s\n", SvPVX(file)));
     } else {
-        die("Error: load_file $sofile not found\n");
+        Perl_die(aTHX_ "Error: load_file %s not found\n", SvPVX(file));
     }
     PL_stack_sp--;
     if ((items = dl_load_file(aTHX_ ax, file, module, GIMME))) {
