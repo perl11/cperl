@@ -2865,7 +2865,8 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
     if (entry) {
         if (--entry->he_valu.hent_refcount == 0) {
             *oentry = HeNEXT(entry);
-            Safefree(entry);
+            if (UNLIKELY(!HEK_STATIC(HeKEY_hek(entry))))
+                Safefree(entry);
             xhv->xhv_keys--; /* HvTOTALKEYS(hv)-- */
         }
     }
@@ -2876,7 +2877,7 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
 			 pTHX__FORMAT,
 			 hek ? HEK_KEY(hek) : str,
 			 ((k_flags & HVhek_UTF8) ? " (utf8)" : "") pTHX__VALUE);
-    if (k_flags & HVhek_FREEKEY)
+    if (k_flags & HVhek_FREEKEY && !(k_flags & HVhek_STATIC))
 	Safefree(str);
 }
 
@@ -2994,7 +2995,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 
     ++entry->he_valu.hent_refcount;
 
-    if (flags & HVhek_FREEKEY)
+    if (flags & HVhek_FREEKEY && !(flags & HVhek_STATIC))
 	Safefree(str);
 
     return HeKEY_hek(entry);
