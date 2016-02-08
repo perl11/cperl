@@ -14,7 +14,7 @@ cpan/Internals-DumpArenas
 cpan/IPC-SysV
 cpan/Scalar-List-Utils
 cpan/Term-ReadKey
-cpan/Time-HiRes
 cpan/Win32API-File
 cpan/YAML-LibYAML/LibYAML
 dist/PathTools
+dist/Time-HiRes
