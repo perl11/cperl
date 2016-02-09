@@ -7085,6 +7085,13 @@ STATIC bool	S_could_it_be_a_POSIX_class(RExC_state_t *pRExC_state)
 #define PERL_ARGS_ASSERT_COULD_IT_BE_A_POSIX_CLASS	\
 	assert(pRExC_state)
 
+STATIC int	S_edit_distance(const UV *src, const UV *tgt, const STRLEN x, const STRLEN y, const SSize_t maxDistance)
+			__attribute__pure__
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(2);
+#define PERL_ARGS_ASSERT_EDIT_DISTANCE	\
+	assert(src); assert(tgt)
+
 STATIC SV*	S_get_ANYOF_cp_list_for_ssc(pTHX_ const RExC_state_t *pRExC_state, const regnode_charclass* const node)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
