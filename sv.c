@@ -5198,7 +5198,7 @@ S_sv_release_COW(pTHX_ SV *sv, const char *pvx, SV *after)
 =for apidoc sv_uncow
 
 If you change any flag of a COW string, you need to uncow it to ensure
-that all other refereneces to this string are not affected by this
+that all other references to this string are not affected by this
 change also.
 This is less expensive and special as C<sv_force_normal_flags>.
 
@@ -5286,7 +5286,7 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
 		Move(pvx,SvPVX(sv),len,char);
 		*SvEND(sv) = '\0';
 	    }
-	    unshare_hek(SvSHARED_HEK_FROM_PV(pvx));
+            unshare_hek(SvSHARED_HEK_FROM_PV(pvx));
 #endif
     }
 }

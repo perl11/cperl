@@ -2806,11 +2806,12 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
     struct shared_he *he = NULL;
 
     if (hek) {
+        if (HEK_STATIC(hek))
+            return;
 	/* Find the shared he which is just before us in memory.  */
 	he = (struct shared_he *)(((char *)hek)
 				  - STRUCT_OFFSET(struct shared_he,
 						  shared_he_hek));
-
 	/* Assert that the caller passed us a genuine (or at least consistent)
 	   shared hek  */
 	assert (he->shared_he_he.hent_hek == hek);
