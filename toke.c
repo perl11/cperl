@@ -1760,7 +1760,7 @@ S_incline(pTHX_ const char *s)
     }
     else {
 	t = s;
-	while (!isSPACE(*t))
+	while (*t && !isSPACE(*t))
 	    t++;
 	e = t;
     }
