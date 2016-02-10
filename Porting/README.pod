@@ -305,6 +305,11 @@ L<http://y2038.googlecode.com/>.
 
 Release announcement for minor releasements of the 5.19 development series.
 
+=head2 F<release_cperl.pod>
+
+Releasing a new version of cperl 5.x. Creating the native packages and
+publishing them.
+
 =head2 F<release_managers_guide.pod>
 
 Releasing a new version of perl 5.x. Note that things change at each release,

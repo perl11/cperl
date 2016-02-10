@@ -1,0 +1,106 @@
+=encoding utf8
+
+=head1 NAME
+
+release_cperl - Releasing a new version of cperl 5.x
+
+Note that things change at each release, so there may be new things not
+covered here, or tools may need updating.
+
+=head1 SYNOPSIS
+
+There's no C<make release> target yet.
+
+    less Porting/release_manager_guide.pod
+    perl Porting/makerel -bx
+    for t in deb rpm osxpkg solaris pkgin; do
+      fpm -s tar -t $t -C cperl -p . --name cperl -m rurban@cpanel.net--version 5.22.1 \
+        --url http://perl11.org/cperl/$t/ \
+        --deb-config Porting/debian --deb-changelog pod/perl5222cdelta.pod
+    done
+    cd ../perl11.github.com
+    aptly repo add cperl cperl-*.deb
+
+So far we have no upstream accepted C<cperl> packages yet, so we publish it by our own.
+It's trivial.
+
+=head1 DETAILS
+
+=head2 makerel the tarball
+
+Look into the F<Porting/release_manager_guide.pod> document how to make a normal
+C<.tar.gz> release.
+
+In short:
+
+    perl Porting/makerel -bx               # for the release itself
+
+=head2 create the packages
+
+Easiest is to use the ruby package fpm. C<gem install fpm> to create packages
+for debian .deb, redhat/centos/fedora .rpm, osx .pkg, but not yet windows .msi
+
+    for t in deb rpm osxpkg solaris pkgin; do
+      fpm -s dir -t $t -C cperl -p ... --version 5.22.1
+    done
+
+=head2 prepare the repos on perl11.org
+
+You need write permissions to the C<perl11/perl11.github.com> repo on github,
+i.e. member of the C<perl11/mongers> group.
+Releases are just static files on the web somewhere, for .deb, .rpm and the others.
+We use our static L<http://perl11.org/cperl/> website on github for now.
+
+    cd ..
+    git clone git@github.com:perl11/perl11.github.com.git
+    cd perl11.github.com
+
+=head2 index the debian apt repo
+
+You need one of the debian repo tools to update the index for the new .deb
+See e.g. L<https://wiki.debian.org/HowToSetupADebianRepository>
+
+I use L<http://www.aptly.info/tutorial/repo/>
+
+    aptly repo create -distribution=squeeze -component=main cperl
+    aptly repo add cperl cperl-*.deb
+
+=head2 setup the yum rpm repos
+
+See e.g. L<https://wiki.centos.org/HowTos/CreateLocalRepos>
+yum just needs some static files with a certain layout.
+We provide a native package only for the latest CentOS version,
+because our room is limited for now.
+
+    yum install createrepo
+    cd perl11.github.com/rpm
+
+    for p in Centos7; do
+      for a in i386 x86_64; do
+        mkdir -p $p/$a; pushd $p/$a
+        createrepo
+        gpg --detach-sign --armor repodata/repomd.xml
+        popd
+      done
+    done
+
+copy the rpms over to the target dirs.
+evtl. rebuild them with
+
+    rpmbuild --rebuild SRPMS/cperl-5.22.1-1.el7.src.rpm
+    =>
+    rpmbuild/RPMS/cperl-5.22.1-1.el7.i386.rpm
+
+=head2 update the static website
+
+perl11.org/cperl/STATUS.html, perl11.org/cperl/Changes.html and the pods.
+
+(from markdown and pod) TODO...
+
+=head2 publish the website
+
+    git push
+
+Check it and announce it on twitter and your blog.
+
+=cut
