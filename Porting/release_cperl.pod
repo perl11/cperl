@@ -88,33 +88,30 @@ create packages for debian/ubuntu/mint .deb, redhat/centos/fedora
 .rpm, osx .pkg, bsd and solaris packages, but not yet windows .msi
 
     # on i386 and amd64 debian machines. needs the -1 suffix
-    fpm -s dir -t deb -n cperl -v 5.22.2-1 -m rurban@cpanel.net \
-        -d 'zlib1g (>= 1:1.2.2.3)' -d libbz2-1.0 -d 'libgdbm3 (>= 1.8.3)' \
-        -d 'libdb-5.1' \
+    fpm -s dir -t deb -n cperl -v 5.22.2-1 -m 'rurban@cpanel.net' \
+        -d 'zlib1g (>= 1:1.2.2.3)' -d libbz2-1.0 -d 'libgdbm3 (>= 1.8.3)' -d 'libdb-5.1' \
         --url http://perl11.org/cperl/deb/ \
         --deb-changelog pod/perl5222cdelta.pod \
         -C ../cperl-5.22.2-inst .
 
-    # on i386 and amd64 centos machines. no -1 suffix
-    fpm -s dir -t rpm -n cperl -v 5.22.2 -m rurban@cpanel.net \
-        -d 'zlib1g (>= 1:1.2.2.3)' -d libbz2-1.0 -d 'libgdbm3 (>= 1.8.3)' \
-        -d 'libdb-5.1' \
+    # on i386 and x86_64 centos6 and a centos7 machine. no -1 suffix
+    fpm -s dir -t rpm -n cperl -v 5.22.2 -m 'rurban@cpanel.net' \
+        -d 'zlib' -d bzip2-libs -d 'gdbm' -d 'db4' \
         --url http://perl11.org/cperl/rpm/ \
-        --deb-changelog pod/perl5222cdelta.pod \
         -C ../cperl-5.22.2-inst .
 
     # on an amd64 osx machine
-    fpm -s dir -t osxpkg -n cperl -v 5.22.2 -m rurban@cpanel.net \
+    fpm -s dir -t osxpkg -n cperl -v 5.22.2 -m 'rurban@cpanel.net' \
         --url http://perl11.org/cperl/osxpkg/ \
         -C ../cperl-5.22.2-inst .
 
     # on i386 and amd64 solaris machines
-    fpm -s dir -t solaris -n cperl -v 5.22.2 -m rurban@cpanel.net \
+    fpm -s dir -t solaris -n cperl -v 5.22.2 -m 'rurban@cpanel.net' \
         --url http://perl11.org/cperl/solaris/ \
         -C ../cperl-5.22.2-inst .
 
     # on i386 and amd64 bsd machines
-    fpm -s dir -t pkgin -n cperl -v 5.22.2 -m rurban@cpanel.net \
+    fpm -s dir -t pkgin -n cperl -v 5.22.2 -m 'rurban@cpanel.net' \
         --url http://perl11.org/cperl/pkgin/ \
         -C ../cperl-5.22.2-inst .
 
@@ -130,7 +127,6 @@ We use our static L<http://perl11.org/cperl/> website on github for now.
 
     cd ..
     git clone git@github.com:perl11/perl11.github.com.git
-    cd perl11.github.com
 
 =head2 setup the debian apt repo
 
@@ -140,42 +136,33 @@ See e.g. L<https://wiki.debian.org/HowToSetupADebianRepository>
 
 I use L<http://www.aptly.info/tutorial/repo/>
 
-    cd deb
     aptly repo create -distribution=squeeze -component=main cperl
 
-Copy the debs over to the target dirs
+Add the debs to the pool:
 
-    cp ../../cperl-5.22.2-1-*.deb .
-    aptly repo add cperl cperl-5.22.2-1-*.deb
+    aptly repo add cperl ../../cperl_5.22.2-1_{i386,amd64}.deb
+    aptly publish repo cperl
+    rsync -av ~/.aptly/public/* perl11.github.com/deb/
 
 =head2 setup the yum rpm repos
 
 See e.g. L<https://wiki.centos.org/HowTos/CreateLocalRepos>
 yum just needs some static files with a certain layout.
-We provide a native package only for the latest CentOS version,
-because our room is limited for now.
+We provide native packages for el6 and el7, i.e. RHEL6/Centos6.7
+and RHEL7/Centos7.2
+Copy the created rpms into the rpm dest dirs.
 
     yum install createrepo
     cd perl11.github.com/rpm
 
-    for p in Centos7; do
-      for a in i386 x86_64; do
-        mkdir -p $p/$a; pushd $p/$a
-        createrepo
-        gpg --detach-sign --armor repodata/repomd.xml
-        popd
-      done
+    for dir in el6/i386 el6/x86_64 el7/i686 el7/x86_64; do
+      mkdir -p $dir 2>/dev/null
+      d=`echo $dir|sed 's,/*,,'`
+      a=`echo $dir|sed 's,*/,,'`
+      cp ../../cperl-5.22.2-1.$d.$a.rpm $dir/ 2>/dev/null
+      createrepo $dir
+      gpg --detach-sign --armor repodata/repomd.xml
     done
-
-Copy the rpms over to the target dirs
-
-    cp ../../cperl/cperl-5.22.2-1*.rpm .
-
-evtl. rebuild them with
-
-    rpmbuild --rebuild SRPMS/cperl-5.22.2-1.el7.src.rpm
-    =>
-    rpmbuild/RPMS/cperl-5.22.2-1.el7.i386.rpm
 
 =head2 update the static website
 
