@@ -7135,6 +7135,8 @@ $define) usecperl='define'
          echo "cperl variant selected." >&4
          package='cperl'
          spackage='cPerl'
+         perlpath=`echo $perlpath | $sed 's,bin/perl,bin/cperl,'`
+         startperl=`echo $startperl | $sed 's,bin/perl,bin/cperl,'`
          set usecperl
 	;;
 '')     if test -f ../pod/perlcperl.pod; then
@@ -7142,6 +7144,8 @@ $define) usecperl='define'
             echo "cperl variant assumed."
             package='cperl'
             spackage='cPerl'
+            perlpath=`echo $perlpath | $sed 's,bin/perl,bin/cperl,'`
+            startperl=`echo $startperl | $sed 's,bin/perl,bin/cperl,'`
         else
             usecperl='undef'
         fi
