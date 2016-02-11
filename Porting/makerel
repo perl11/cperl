@@ -66,8 +66,9 @@ my (@local_patches, @lpatch_tags, $lpatch_tags);
                  @patchlevel_h;
 @lpatch_tags   = map  {  /^\s*,"(\w+)/ } @local_patches;
 $lpatch_tags   = join "-", @lpatch_tags;
+my $usecperl   = -f "pod/perlcperl.pod";
 
-$perl = "perl-$vers";
+$perl = $usecperl ? "cperl-$vers" : "perl-$vers";
 $reldir = "$perl";
 
 $lpatch_tags = $opts{s} if defined $opts{s};
@@ -218,7 +219,7 @@ if ($opts{b}) {
 }
 
 if ($opts{x}) {
-    print "Creating and compressing the tar.gz file with 7z...\n";
+    print "Creating and compressing the tar.xz file with xz...\n";
     $cmd = "tar cf - $reldir | xz -z -c > $reldir.tar.xz";
     system($cmd) == 0 or die "$cmd failed";
 }
