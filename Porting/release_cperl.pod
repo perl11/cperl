@@ -12,37 +12,114 @@ covered here, or tools may need updating.
 There's no C<make release> target yet.
 
     less Porting/release_manager_guide.pod
-    perl Porting/makerel -bx
+
+    ../do-conf-cperl-release
+    make -s -j4 test && make -s install DESTDIR=`pwd`/../cperl-5.22.2-inst
+
+    mkdir ../cperl-5.22.2
+    cp -rp .git ../cperl-5.22.2/
+    cd ../cperl-5.22.2
+    git reset --hard
+    git clean -dxf
+    perl Porting/makerel -bx  # src tarball
+
     for t in deb rpm osxpkg solaris pkgin; do
-      fpm -s tar -t $t -C cperl -p . --name cperl -m rurban@cpanel.net--version 5.22.1 \
+      fpm -s dir -t $t -C cperl -p ../cperl-5.22.2-inst/ \
+        --version 5.22.2 \
+        -m rurban@cpanel.net \
         --url http://perl11.org/cperl/$t/ \
         --deb-config Porting/debian --deb-changelog pod/perl5222cdelta.pod
     done
-    cd ../perl11.github.com
-    aptly repo add cperl cperl-*.deb
 
-So far we have no upstream accepted C<cperl> packages yet, so we publish it by our own.
-It's trivial.
+So far we have no upstream accepted C<cperl> packages yet, so we
+publish it by our own.  It's trivial.
 
 =head1 DETAILS
 
-=head2 makerel the tarball
+=head2 makerel the src tarball
 
 Look into the F<Porting/release_manager_guide.pod> document how to make a normal
 C<.tar.gz> release.
 
-In short:
+In short: Start in a fresh dir, because we don't want to loose our
+internal test files.
 
-    perl Porting/makerel -bx               # for the release itself
+    mkdir ../cperl-5.22.2-build
+    cp -rp .git ../cperl-5.22.2-build/
+    cd ../cperl-5.22.2-build
+    git reset --hard
+    git clean -dxf
+    perl Porting/makerel -bx
 
-=head2 create the packages
+=head2 make the native binaries
 
-Easiest is to use the ruby package fpm. C<gem install fpm> to create packages
-for debian .deb, redhat/centos/fedora .rpm, osx .pkg, but not yet windows .msi
+My C<../do-conf-cperl-release> contains this.
+ccflags is architecture specific.
 
-    for t in deb rpm osxpkg solaris pkgin; do
-      fpm -s dir -t $t -C cperl -p ... --version 5.22.1
+    ver=5.22.2
+    # we put our clashing utils into scriptdir
+    ./Configure -sder -Dcc=gcc -Dprefix=/usr \
+                -Accflags="-msse4.2" \
+                -Dsitebin=/usr/lib/cperl/site_cperl/$ver/bin \
+                -Dscriptdir=/usr/lib/cperl/$ver/bin \
+                -Dcf_email='rurban@cpanel.net' \
+                -Uusethreads -Doptimize='-O3 -g'
+    
+    sed -i -e's,-fstack-protector-strong,-fstack-protector,' config.sh Makefile cflags
+    touch config.h
+    make -s git_version.h ECHO=true
+    make -s -j4 ECHO=true
+    
+    destdir=`dirname $0`/cperl-$ver-inst
+    rm -rf $destdir
+    make -s test && make install DESTDIR=$destdir
+
+    for f in perldoc perlivp; do
+      rm usr/bin/c$f 2>/dev/null
+      rm usr/lib/cperl/$ver/bin/$f 2>/dev/null
+      ln -s /usr/lib/cperl/$ver/bin/c$f usr/bin/c$f
+      ln -s c$f usr/lib/cperl/$ver/bin/$f
     done
+
+=head2 create the native packages
+
+Easiest is to use the ruby package B<fpm>. C<gem install fpm> to
+create packages for debian/ubuntu/mint .deb, redhat/centos/fedora
+.rpm, osx .pkg, bsd and solaris packages, but not yet windows .msi
+
+    # on i386 and amd64 debian machines. needs the -1 suffix
+    fpm -s dir -t deb -n cperl -v 5.22.2-1 -m rurban@cpanel.net \
+        -d 'zlib1g (>= 1:1.2.2.3)' -d libbz2-1.0 -d 'libgdbm3 (>= 1.8.3)' \
+        -d 'libdb-5.1' \
+        --url http://perl11.org/cperl/deb/ \
+        --deb-changelog pod/perl5222cdelta.pod \
+        -C ../cperl-5.22.2-inst .
+
+    # on i386 and amd64 centos machines. no -1 suffix
+    fpm -s dir -t rpm -n cperl -v 5.22.2 -m rurban@cpanel.net \
+        -d 'zlib1g (>= 1:1.2.2.3)' -d libbz2-1.0 -d 'libgdbm3 (>= 1.8.3)' \
+        -d 'libdb-5.1' \
+        --url http://perl11.org/cperl/rpm/ \
+        --deb-changelog pod/perl5222cdelta.pod \
+        -C ../cperl-5.22.2-inst .
+
+    # on an amd64 osx machine
+    fpm -s dir -t osxpkg -n cperl -v 5.22.2 -m rurban@cpanel.net \
+        --url http://perl11.org/cperl/osxpkg/ \
+        -C ../cperl-5.22.2-inst .
+
+    # on i386 and amd64 solaris machines
+    fpm -s dir -t solaris -n cperl -v 5.22.2 -m rurban@cpanel.net \
+        --url http://perl11.org/cperl/solaris/ \
+        -C ../cperl-5.22.2-inst .
+
+    # on i386 and amd64 bsd machines
+    fpm -s dir -t pkgin -n cperl -v 5.22.2 -m rurban@cpanel.net \
+        --url http://perl11.org/cperl/pkgin/ \
+        -C ../cperl-5.22.2-inst .
+
+    # on i386 and amd64 windows machines
+    # TODO (see strawberry for .msi)
 
 =head2 prepare the repos on perl11.org
 
@@ -55,15 +132,21 @@ We use our static L<http://perl11.org/cperl/> website on github for now.
     git clone git@github.com:perl11/perl11.github.com.git
     cd perl11.github.com
 
-=head2 index the debian apt repo
+=head2 setup the debian apt repo
 
-You need one of the debian repo tools to update the index for the new .deb
+You need one of the debian repo tools to update the index for the new
+.deb once.
 See e.g. L<https://wiki.debian.org/HowToSetupADebianRepository>
 
 I use L<http://www.aptly.info/tutorial/repo/>
 
+    cd deb
     aptly repo create -distribution=squeeze -component=main cperl
-    aptly repo add cperl cperl-*.deb
+
+Copy the debs over to the target dirs
+
+    cp ../../cperl-5.22.2-1-*.deb .
+    aptly repo add cperl cperl-5.22.2-1-*.deb
 
 =head2 setup the yum rpm repos
 
@@ -84,12 +167,15 @@ because our room is limited for now.
       done
     done
 
-copy the rpms over to the target dirs.
+Copy the rpms over to the target dirs
+
+    cp ../../cperl/cperl-5.22.2-1*.rpm .
+
 evtl. rebuild them with
 
-    rpmbuild --rebuild SRPMS/cperl-5.22.1-1.el7.src.rpm
+    rpmbuild --rebuild SRPMS/cperl-5.22.2-1.el7.src.rpm
     =>
-    rpmbuild/RPMS/cperl-5.22.1-1.el7.i386.rpm
+    rpmbuild/RPMS/cperl-5.22.2-1.el7.i386.rpm
 
 =head2 update the static website
 
