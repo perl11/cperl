@@ -424,7 +424,8 @@ C<SV*>.
 #define HVhek_UNSHARED	0x08 /* This key isn't a shared hash key. */
 #define HVhek_TAINTED	0x10 /* This key is tainted */
 #define HVhek_STATIC	0x80 /* This key was statically allocated */
-#define HVhek_FREEKEY	0x100 /* Internal flag to say key is malloc()ed.  */
+/* the following flags are options for functions, they are not stored in heks */
+#define HVhek_FREEKEY	0x100 /* Internal flag to say key is Newx()ed.  */
 #define HVhek_PLACEHOLD	0x200 /* Internal flag to create placeholder.
                                * (may change, but Storable is a core module) */
 #define HVhek_KEYCANONICAL 0x400 /* Internal flag - key is in canonical form.
