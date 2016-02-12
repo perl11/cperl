@@ -148,7 +148,7 @@ elsif (-d "$srcdir/.git") {
         $remote = "" unless $? == 0;
     }
     $commit_id = backtick("git rev-parse HEAD");
-    $describe = backtick("git describe");
+    $describe = backtick("git describe --always");
     my $commit_created = backtick(qq{git log -1 --pretty="format:%ci"});
     $extra_info = "git_commit_date='$commit_created'";
     backtick("git diff --no-ext-diff --quiet --exit-code");
