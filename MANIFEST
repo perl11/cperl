@@ -4860,6 +4860,7 @@ run.c				The interpreter loop
 runtests.SH			A script that generates runtests
 scope.c				Scope entry and exit code
 scope.h				Scope entry and exit header
+SHORT_DESC			cperl specific description for packaging
 STATUS.md			cperl specific development status overview
 sv.c				Scalar value code
 sv.h				Scalar value header
