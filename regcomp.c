@@ -11529,6 +11529,7 @@ S_grok_bslash_N(pTHX_ RExC_state_t *pRExC_state,
                 UV * code_point_p,
                 int * cp_count,
                 I32 * flagp,
+                const bool strict,
                 const U32 depth
     )
 {
@@ -11678,6 +11679,10 @@ S_grok_bslash_N(pTHX_ RExC_state_t *pRExC_state,
                                         semantics */
 
     if (endbrace == RExC_parse) {   /* empty: \N{} */
+        if (strict) {
+            RExC_parse++;   /* Position after the "}" */
+            vFAIL("Zero length \\N{}");
+        }
         if (cp_count) {
             *cp_count = 0;
         }
@@ -12557,6 +12562,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                               NULL,     /* Don't need a count of how many code
                                            points */
                               flagp,
+                              RExC_strict,
                               depth)
             ) {
                 break;
@@ -12883,6 +12889,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                                             NULL,   /* Don't need a count of
                                                        how many code points */
                                             flagp,
+                                            RExC_strict,
                                             depth)
                         ) {
                             if (*flagp & NEED_UTF8)
@@ -15669,6 +15676,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                                         &value,    /* Yes single value */
                                         &cp_count, /* Multiple code pt count */
                                         flagp,
+                                        strict,
                                         depth)
                     ) {
 
@@ -15681,11 +15689,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                             vFAIL("\\N in a character class must be a named character: \\N{...}");
                         }
                         else if (cp_count == 0) {
-                            if (strict) {
-                                RExC_parse++;   /* Position after the "}" */
-                                vFAIL("Zero length \\N{}");
-                            }
-                            else if (PASS2) {
+                            if (PASS2) {
                                 ckWARNreg(RExC_parse,
                                         "Ignoring zero length \\N{} in character class");
                             }
