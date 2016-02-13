@@ -153,15 +153,19 @@ and RHEL7/Centos7.2
 Copy the created rpms into the rpm dest dirs.
 
     yum install createrepo
+    pre=`pwd`
+    ver=5.22.2
+    rev=1
     cd perl11.github.com/rpm
 
-    for dir in el6/i386 el6/x86_64 el7/i686 el7/x86_64; do
-      mkdir -p $dir 2>/dev/null
-      d=`echo $dir|sed 's,/*,,'`
-      a=`echo $dir|sed 's,*/,,'`
-      cp ../../cperl-5.22.2-1.$d.$a.rpm $dir/ 2>/dev/null
-      createrepo $dir
-      gpg --detach-sign --armor repodata/repomd.xml
+    for d in el6 el7; do
+        for a in i686 x86_64; do
+            dir=$d/$a
+            mkdir -p $dir 2>/dev/null
+            cp $pre/cperl-${ver}-${rev}.$d.$a.rpm $dir/ && \
+                createrepo $dir && \
+                gpg --detach-sign --armor $dir/repodata/repomd.xml
+        done
     done
 
 =head2 update the static website

@@ -8240,15 +8240,15 @@ $test X"$html3dir" = "X" && html3dir=' '
 echo " "
 if $test -d /usr/bin -a "X$installbin" != X/usr/bin; then
 	$cat <<EOM
-Many scripts expect perl to be installed as /usr/bin/perl.
+Many scripts expect $package to be installed as /usr/bin/$package.
 
-If you want to, I can install the perl you are about to compile
-as /usr/bin/perl (in addition to $bin/perl).
+If you want to, I can install the $package you are about to compile
+as /usr/bin/$package (in addition to $bin/$package).
 EOM
-	if test -f /usr/bin/perl; then
+	if test -f /usr/bin/$package; then
 	    $cat <<EOM
 
-However, please note that because you already have a /usr/bin/perl,
+However, please note that because you already have a /usr/bin/$package,
 overwriting that with a new Perl would very probably cause problems.
 Therefore I'm assuming you don't want to do that (unless you insist).
 
@@ -8260,7 +8260,7 @@ EOM
 	else
 	    $cat <<EOM
 
-Since you don't have a /usr/bin/perl I'm assuming creating one is okay.
+Since you don't have a /usr/bin/$package I'm assuming creating one is okay.
 
 EOM
 	    case "$installusrbinperl" in
@@ -8268,7 +8268,7 @@ EOM
 	    *)			dflt='y';;
 	    esac
 	fi
-	rp="Do you want to install perl as /usr/bin/perl?"
+	rp="Do you want to install $package as /usr/bin/$package?"
 	. ./myread
 	case "$ans" in
 	[yY]*)	val="$define";;
@@ -9382,10 +9382,10 @@ is to force a shell by starting the script with a single ':' character.
 
 EOH
 		case "$versiononly" in
-		"$define")      dflt="$initialinstalllocation/perl$version";;
-		*)              dflt="$initialinstalllocation/perl";;
+		"$define")      dflt="$initialinstalllocation/$package$version";;
+		*)              dflt="$initialinstalllocation/$package";;
 		esac
-		rp='What shall I put after the #! to start up perl ("none" to not use #!)?'
+		rp='What shall I put after the #! to start up $package ("none" to not use #!)?'
 		. ./myread
 		case "$ans" in
 		none)	startperl=": # use perl";;
@@ -9412,8 +9412,8 @@ echo "I'll use $startperl to start perl scripts."
 case "$perlpath" in
 '')
 	case "$versiononly" in
-	"$define")	perlpath="$initialinstalllocation/perl$version";;
-	*)		perlpath="$initialinstalllocation/perl";;
+	"$define")	perlpath="$initialinstalllocation/$package$version";;
+	*)		perlpath="$initialinstalllocation/$package";;
 	esac
 	case "$startperl" in
 	*!*) ;;
@@ -9423,10 +9423,10 @@ case "$perlpath" in
 I will use the "eval 'exec'" idiom to start Perl on your system.
 I can use the full path of your Perl binary for this purpose, but
 doing so may cause problems if you want to share those scripts and
-Perl is not always in a standard place ($initialinstalllocation/perl).
+Perl is not always in a standard place ($initialinstalllocation/$package).
 
 EOH
-		dflt="$initialinstalllocation/perl"
+		dflt="$initialinstalllocation/$package"
 		rp="What path shall I use in \"eval 'exec'\"?"
 		. ./myread
 		perlpath="$ans"
