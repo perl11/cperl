@@ -3688,7 +3688,8 @@ sub _make_test_illuminate_prereqs {
             # lex Class::Accessor::Chained::Fast which has no $VERSION
             CPAN->debug("m[$m] have available_file[$available_file]")
               if $CPAN::DEBUG;
-        } elsif ($Config::Config{usecperl} and $m =~ /^(DynaLoader|XSLoader|strict|attributes)$/) {
+        } elsif ($Config::Config{usecperl}
+                 and $m =~ /^(DynaLoader|XSLoader|strict|coretypes)$/) {
             CPAN->debug("m[$m] builtin available_version[$available_version]")
                 if $CPAN::DEBUG;
         } else {
