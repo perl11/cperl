@@ -815,10 +815,12 @@ sub _installed_file_for_module {
             last;
         }
     }
-    if ($Config::Config{usecperl} # builtins
-        and $prereq =~ /^(DynaLoader|XSLoader|strict|attributes)$/)
+    if (!$path
+        and $Config::Config{usecperl} # builtins
+        and $prereq =~ /^(DynaLoader|XSLoader|strict|coretypes)$/)
     {
-      $path = $INC{$file} . ":$prereq";
+      $INC{$file} = $prereq unless exists $INC{$file};
+      $path = $prereq;
     }
 
     return $path;
