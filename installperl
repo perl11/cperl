@@ -238,10 +238,10 @@ if ($Is_VMS) {  # Hang in there until File::Spec hits the big time
 
 if (!$Is_NetWare) {
 if (!$Is_VMS) {
--x 'perl' . $exe_ext	|| die "perl isn't executable!\n";
+    -x 'perl' . $exe_ext	|| die "perl isn't executable!\n";
 }
 else {
--x $ndbg . 'perl' . $exe_ext	|| die "${ndbg}perl$exe_ext isn't executable!\n";
+    -x $ndbg . 'perl' . $exe_ext	|| die "${ndbg}perl$exe_ext isn't executable!\n";
     if ($dbg) {
         -x $dbg . 'perl' . $exe_ext	|| die "${dbg}perl$exe_ext isn't executable!\n";
     }
@@ -296,6 +296,7 @@ if ($Is_VMS) {
 elsif ($^O ne 'dos') {
     if (!$Is_NetWare) {
 	safe_unlink("$installbin/$perl_verbase$ver$exe_ext");
+	chmod(0755, "perl$exe_ext");
 	copy("perl$exe_ext", "$installbin/$perl_verbase$ver$exe_ext");
 	strip("$installbin/$perl_verbase$ver$exe_ext");
 	chmod(0755, "$installbin/$perl_verbase$ver$exe_ext");
@@ -317,6 +318,7 @@ elsif ($^O ne 'dos') {
 else {
     safe_unlink("$installbin/$perl.exe");
     copy("perl.exe", "$installbin/$perl.exe");
+    chmod(0755, "$installbin/$perl.exe");
 }
 
 # Install library files.
@@ -400,10 +402,14 @@ if (!$versiononly && ! samepath($installbin, '.') && ($^O ne 'dos') && ! $Is_VMS
         if (!$opts{destdir} && $Config{perlpath} ne "$installbin/$perl_verbase$ver$exe_ext") {
             safe_unlink($Config{perlpath});
             File::Copy::move("$installbin/$perl_verbase$ver$exe_ext", $Config{perlpath});
+            chmod(0755, $Config{perlpath});
             link($Config{perlpath}, "$installbin/$perl_verbase$ver$exe_ext");
+            chmod(0755, $Config{perlpath});
         }
-	link("$installbin/$perl_verbase$ver$exe_ext",
-             "$installbin/$perl$exe_ext");
+        if (!-e "$installbin/$perl$exe_ext") {
+          link("$installbin/$perl_verbase$ver$exe_ext", "$installbin/$perl$exe_ext");
+          chmod(0755, "$installbin/$perl$exe_ext");
+        }
     }
 }
 
@@ -419,16 +425,6 @@ if ($opts{archname} && ! samepath($installbin, '.') && ($^O ne 'dos') && ! $Is_V
     } else {
 	link("$installbin/$perl_verbase$ver$exe_ext", "$installbin/$archperl");
     }
-}
-
-# on -Dperlpath provide that as main executable, and link the main exe to it
-if (!$opts{destdir}
-    and $Config{perlpath}
-    and $Config{perlpath} ne "$installbin/$perl_verbase$ver$exe_ext") {
-    safe_unlink($Config{perlpath});
-    safe_rename("$installbin/$perl_verbase$ver$exe_ext", $Config{perlpath});
-    print "  $Config{perlpath}\n" unless $opts{silent};
-    link($Config{perlpath}, "$installbin/$perl_verbase$ver$exe_ext");
 }
 
 # Offer to install perl in a "standard" location
@@ -460,6 +456,7 @@ if (!$opts{destdir} && $Config{installusrbinperl} && $Config{installusrbinperl} 
 	  eval { CORE::link $instperl, $usrbinperl } )	||
 	eval { symlink $expinstperl, $usrbinperl }	||
 	copy($instperl, $usrbinperl);
+	chmod(0755, $usrbinperl);
 
 	$mainperl_is_instperl = 1;
     }
