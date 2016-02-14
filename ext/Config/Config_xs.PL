@@ -143,8 +143,8 @@ if ($gperf_ok) {
     # we dont need a "universal" set of keys for all build configs of perl
     gen_gperf_Config($xsin, $xsoutcustm, \%h);
     # postprocess the values a bit to generate a canned Config for CI/no gperf
-    # reserve up to 20 config_args
-    for (0..20) {
+    # reserve up to 24 config_args
+    for (0..24) {
         my $k = "config_arg".$_;
         $h{$k} = '' unless exists $h{$k};
     }
@@ -159,8 +159,7 @@ targetport  useversionedarchname
     unless ($in_core) { # cperl doesn't need these, CPAN does
         push @cannedkeys , qw(
 ARCH    BuiltWithPatchPerl  Mcc PERL_PATCHLEVEL ccflags_nolargefiles
-charbits    config_arg21    config_arg22    config_arg23    config_arg24
-config_heavy    d_acosh d_asctime64 d_asinh d_atanh d_attribut
+charbits    config_heavy    d_acosh d_asctime64 d_asinh d_atanh d_attribut
 d_attribute_deprecated  d_attribute_format  d_attribute_malloc
 d_attribute_nonnull d_attribute_noreturn    d_attribute_pure
 d_attribute_unused  d_attribute_warn_unused_result  d_backtrace
