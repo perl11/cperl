@@ -163,7 +163,7 @@ sub pretty {
     my ($self, $v) = @_;
     my $enable = defined $v ? $v : 1;
 
-    if ($enable) { # indent_length(3) for JSON::XS compatibility
+    if ($enable) { # indent_length(3) for Cpanel::JSON::XS compatibility
         $self->indent(1)->indent_length(3)->space_before(1)->space_after(1);
     }
     else {
@@ -291,7 +291,7 @@ sub allow_bigint {
 
         my $str  = $self->object_to_json($obj);
 
-        $str .= "\n" if ( $indent ); # JSON::XS 2.26 compatible
+        $str .= "\n" if ( $indent ); # Cpanel::JSON::XS 2.26 compatible
 
         unless ($ascii or $latin1 or $utf8) {
             utf8::upgrade($str);
@@ -1387,10 +1387,15 @@ BEGIN {
 
 # shamely copied and modified from JSON::XS code.
 
-$JSON::PP::true  = do { bless \(my $dummy = 1), "JSON::PP::Boolean" };
-$JSON::PP::false = do { bless \(my $dummy = 0), "JSON::PP::Boolean" };
+$JSON::PP::true  = do { bless \(my $dummy = 1), 'JSON::PP::Boolean' };
+$JSON::PP::false = do { bless \(my $dummy = 0), 'JSON::PP::Boolean' };
 
-sub is_bool { defined $_[0] and UNIVERSAL::isa($_[0], "JSON::PP::Boolean"); }
+sub is_bool($) {
+  shift if @_ == 2; # as method call
+  (ref($_[0]) and UNIVERSAL::isa( $_[0], 'JSON::PP::Boolean'))
+  or (exists $INC{'Types/Serializer.pm'} and Types::Serialiser::is_bool($_[0]))
+}
+
 
 sub true  { $JSON::PP::true  }
 sub false { $JSON::PP::false }
@@ -1404,6 +1409,16 @@ use overload (
    "0+"     => sub { ${$_[0]} },
    "++"     => sub { $_[0] = ${$_[0]} + 1 },
    "--"     => sub { $_[0] = ${$_[0]} - 1 },
+   '""'     => sub { ${$_[0]} == 1 ? 'true' : '0' },
+   'eq'     => sub {
+     my ($obj, $op) = ref ($_[0]) ? ($_[0], $_[1]) : ($_[1], $_[0]);
+     if ($op eq 'true' or $op eq 'false') {
+       return "$obj" eq 'true' ? 'true' eq $op : 'false' eq $op;
+     }
+     else {
+       return $obj ? 1 == $op : 0 == $op;
+     }
+   },
    fallback => 1,
 );
 
@@ -1597,7 +1612,7 @@ __END__
 
 =head1 NAME
 
-JSON::PP - JSON::XS compatible pure-Perl module.
+JSON::PP - Cpanel::JSON::XS compatible pure-Perl module.
 
 =head1 SYNOPSIS
 
@@ -1619,7 +1634,7 @@ JSON::PP - JSON::XS compatible pure-Perl module.
  $pretty_printed = $json->pretty->encode( $perl_scalar ); # pretty-printing
  
  # Note that JSON version 2.0 and above will automatically use
- # JSON::XS or JSON::PP, so you should be able to just:
+ # Cpanel::JSON::XS or JSON::PP, so you should be able to just:
  
  use JSON;
 
@@ -1628,7 +1643,7 @@ JSON::PP - JSON::XS compatible pure-Perl module.
 
     2.27300
 
-L<JSON::XS> 2.27 (~2.30) compatible.
+L<Cpanel::JSON::XS> 2.27 (~2.30) compatible.
 
 =head1 NOTE
 
@@ -1637,14 +1652,14 @@ It was a perl core module in Perl 5.14.
 
 =head1 DESCRIPTION
 
-This module is L<JSON::XS> compatible pure Perl module.
+This module is a L<Cpanel::JSON::XS> compatible pure Perl module.
 (Perl 5.8 or later is recommended)
 
-JSON::XS is the fastest and most proper JSON module on CPAN.
-It is written by Marc Lehmann in C, so must be compiled and
-installed in the used environment.
+Cpanel::JSON::XS is the fastest and most proper JSON module on CPAN.
+It is written in XS, so must be compiled and installed in the used
+environment.
 
-JSON::PP is a pure-Perl module and has compatibility to JSON::XS.
+JSON::PP is a pure-Perl module and has compatibility to Cpanel::JSON::XS.
 
 
 =head2 FEATURES
@@ -1655,7 +1670,7 @@ JSON::PP is a pure-Perl module and has compatibility to JSON::XS.
 
 This module knows how to handle Unicode (depending on Perl version).
 
-See to L<JSON::XS/A FEW NOTES ON UNICODE AND PERL> and L<UNICODE HANDLING ON PERLS>.
+See to L<Cpanel::JSON::XS/A FEW NOTES ON UNICODE AND PERL> and L<UNICODE HANDLING ON PERLS>.
 
 
 =item * round-trip integrity
@@ -1677,7 +1692,7 @@ But when some options are set, loose chcking features are available.
 
 =head1 FUNCTIONAL INTERFACE
 
-Some documents are copied and modified from L<JSON::XS/FUNCTIONAL INTERFACE>.
+Some documents are copied and modified from L<Cpanel::JSON::XS/FUNCTIONAL INTERFACE>.
 
 =head2 encode_json
 
@@ -1805,7 +1820,7 @@ See to L<Encode>, L<perluniintro>.
 
 =head1 METHODS
 
-Basically, check to L<JSON> or L<JSON::XS>.
+Basically, check to L<JSON> or L<Cpanel::JSON::XS>.
 
 =head2 new
 
@@ -1831,7 +1846,7 @@ be chained:
 If $enable is true (or missing), then the encode method will not generate characters outside
 the code range 0..127. Any Unicode characters outside that range will be escaped using either
 a single \uXXXX or a double \uHHHH\uLLLLL escape sequence, as per RFC4627.
-(See to L<JSON::XS/OBJECT-ORIENTED INTERFACE>).
+(See to L<Cpanel::JSON::XS/OBJECT-ORIENTED INTERFACE>).
 
 In Perl 5.005, there is no character having high value (more than 255).
 See to L<UNICODE HANDLING ON PERLS>.
@@ -1854,7 +1869,7 @@ text as latin1 (or iso-8859-1), escaping any characters outside the code range 0
 If $enable is false, then the encode method will not escape Unicode characters
 unless required by the JSON syntax or other flags.
 
-  JSON::XS->new->latin1->encode (["\x{89}\x{abc}"]
+  Cpanel::JSON::XS->new->latin1->encode (["\x{89}\x{abc}"]
   => ["\x{89}\\u0abc"]    # (perl syntax, U+abc escaped, U+89 not)
 
 See to L<UNICODE HANDLING ON PERLS>.
@@ -2188,7 +2203,7 @@ into the corresponding C<< $WIDGET{<id>} >> object:
     
     $enabled = $json->get_shrink
 
-In JSON::XS, this flag resizes strings generated by either
+In Cpanel::JSON::XS, this flag resizes strings generated by either
 C<encode> or C<decode> to their minimum size possible.
 It will also try to downgrade any strings to octet-form if possible.
 
@@ -2196,7 +2211,7 @@ In JSON::PP, it is noop about resizing strings but tries
 C<utf8::downgrade> to the returned string by C<encode>.
 See to L<utf8>.
 
-See to L<JSON::XS/OBJECT-ORIENTED INTERFACE>
+See to L<Cpanel::JSON::XS/OBJECT-ORIENTED INTERFACE>
 
 =head2 max_depth
 
@@ -2217,7 +2232,7 @@ given character in a string.
 If no argument is given, the highest possible setting will be used, which
 is rarely useful.
 
-See L<JSON::XS/SSECURITY CONSIDERATIONS> for more info on why this is useful.
+See L<Cpanel::JSON::XS/SSECURITY CONSIDERATIONS> for more info on why this is useful.
 
 When a large value (100 or more) was set and it de/encodes a deep nested object/text,
 it may raise a warning 'Deep recursion on subroutin' at the perl runtime phase.
@@ -2237,7 +2252,7 @@ effect on C<encode> (yet).
 If no argument is given, the limit check will be deactivated (same as when
 C<0> is specified).
 
-See L<JSON::XS/SSECURITY CONSIDERATIONS> for more info on why this is useful.
+See L<Cpanel::JSON::XS/SSECURITY CONSIDERATIONS> for more info on why this is useful.
 
 =head2 encode
 
@@ -2276,7 +2291,7 @@ so far.
 
 =head1 INCREMENTAL PARSING
 
-Most of this section are copied and modified from L<JSON::XS/INCREMENTAL PARSING>.
+Most of this section are copied and modified from L<Cpanel::JSON::XS/INCREMENTAL PARSING>.
 
 In some cases, there is the need for incremental parsing of JSON texts.
 This module does allow you to parse a JSON stream incrementally.
@@ -2379,7 +2394,7 @@ This is useful if you want ot repeatedly parse JSON objects and want to
 ignore any trailing data, which means you have to reset the parser after
 each successful decode.
 
-See to L<JSON::XS/INCREMENTAL PARSING> for examples.
+See to L<Cpanel::JSON::XS/INCREMENTAL PARSING> for examples.
 
 
 =head1 JSON::PP OWN METHODS
@@ -2428,7 +2443,7 @@ objects into JSON numbers with C<allow_blessed> enable.
    print $json->encode($bigfloat);
    # => 2.000000000000000000000000001
 
-See to L<JSON::XS/MAPPING> aboout the normal conversion of JSON number.
+See to L<Cpanel::JSON::XS/MAPPING> aboout the normal conversion of JSON number.
 
 =head2 loose
 
@@ -2442,14 +2457,14 @@ unescaped strings.
     $json->loose->decode(qq|["abc
                                    def"]|);
 
-See L<JSON::XS/SSECURITY CONSIDERATIONS>.
+See L<Cpanel::JSON::XS/SSECURITY CONSIDERATIONS>.
 
 =head2 escape_slash
 
     $json = $json->escape_slash([$enable])
 
 According to JSON Grammar, I<slash> (U+002F) is escaped. But default
-JSON::PP (as same as JSON::XS) encodes strings without escaping slash.
+JSON::PP (as same as Cpanel::JSON::XS) encodes strings without escaping slash.
 
 If C<$enable> is true (or missing), then C<encode> will escape slashes.
 
@@ -2457,7 +2472,7 @@ If C<$enable> is true (or missing), then C<encode> will escape slashes.
 
     $json = $json->indent_length($length)
 
-JSON::XS indent space length is 3 and cannot be changed.
+Cpanel::JSON::XS indent space length is 3 and cannot be changed.
 JSON::PP set the indent space length with the given $length.
 The default is 3. The acceptable range is 0 to 15.
 
@@ -2517,10 +2532,10 @@ Returns
 
 =head1 MAPPING
 
-This section is copied from JSON::XS and modified to C<JSON::PP>.
-JSON::XS and JSON::PP mapping mechanisms are almost equivalent.
+This section is copied from Cpanel::JSON::XS and modified to C<JSON::PP>.
+Cpanel::JSON::XS and JSON::PP mapping mechanisms are almost equivalent.
 
-See to L<JSON::XS/MAPPING>.
+See to L<Cpanel::JSON::XS/MAPPING>.
 
 =head2 JSON -> PERL
 
@@ -2613,7 +2628,7 @@ pseudo-random order that can change between runs of the same program but
 stays generally the same within a single run of a program. C<JSON>
 optionally sort the hash keys (determined by the I<canonical> flag), so
 the same datastructure will serialise to the same JSON text (given same
-settings and version of JSON::XS), but this incurs a runtime overhead
+settings and version of Cpanel::JSON::XS), but this incurs a runtime overhead
 and is only rarely useful, e.g. when you want to compare some JSON text
 against another for equality.
 
@@ -2651,7 +2666,7 @@ See to L<convert_blessed>.
 =item simple scalars
 
 Simple Perl scalars (any scalar that is not a reference) are the most
-difficult objects to encode: JSON::XS and JSON::PP will encode undefined scalars as
+difficult objects to encode: Cpanel::JSON::XS and JSON::PP will encode undefined scalars as
 JSON C<null> values, scalars that have last been used in a string context
 before encoding as JSON strings, and anything else as number value:
 
@@ -2701,7 +2716,7 @@ objects into JSON numbers.
 =head1 UNICODE HANDLING ON PERLS
 
 If you do not know about Unicode on Perl well,
-please check L<JSON::XS/A FEW NOTES ON UNICODE AND PERL>.
+please check L<Cpanel::JSON::XS/A FEW NOTES ON UNICODE AND PERL>.
 
 =head2 Perl 5.8 and later
 
@@ -2774,16 +2789,15 @@ This is not a character C<U+12345> but bytes - C<0xf0 0x92 0x8d 0x85>.
 
 =head1 SEE ALSO
 
-Most of the document are copied and modified from JSON::XS doc.
+Most of the document are copied and modified from Cpanel::JSON::XS doc.
 
-L<JSON::XS>
+L<Cpanel::JSON::XS>
 
 RFC4627 (L<http://www.ietf.org/rfc/rfc4627.txt>)
 
 =head1 AUTHOR
 
 Makamaka Hannyaharamitu, E<lt>makamaka[at]cpan.orgE<gt>
-
 
 =head1 COPYRIGHT AND LICENSE
 
