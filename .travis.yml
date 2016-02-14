@@ -5,6 +5,7 @@ addons:
     packages:
     - build-essential
     - libtool
+    - gperf
     - gcc-multilib
     - libgdbm-dev:i386
   coverity_scan:
@@ -38,9 +39,9 @@ env:
     - CONFIGURE_OPTION='' XCC='gcc'
     - CONFIGURE_OPTION='' XCC="'gcc\ -m32'"
     - CONFIGURE_OPTION='-DDEBUGGING' XCC='clang'
+    - CONFIGURE_OPTION='-Duse64bitall -Dusethreads' XCC='gcc'
     - CONFIGURE_OPTION='-Duselongdouble' XCC='clang'
     - CONFIGURE_OPTION='-Duselongdouble -DDEBUGGING' XCC='gcc'
-    - CONFIGURE_OPTION='-Duse64bitall -Dusethreads' XCC='gcc'
     - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall' XCC='clang'
 
 matrix:
