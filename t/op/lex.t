@@ -7,7 +7,7 @@ use warnings;
 
 BEGIN { chdir 't' if -d 't'; require './test.pl'; }
 
-plan(tests => 25);
+plan(tests => 27);
 
 {
     no warnings 'deprecated';
@@ -208,4 +208,25 @@ fresh_perl_is(
   "Can't find string terminator \"a\" anywhere before EOF at - line 1.\n",
    { stderr => 1 },
   's;@{<<a; [perl #123995]'
+);
+
+# cperl #108, not enough room for padsv => const optimization in ck_pad
+fresh_perl_is(
+  'eval q{
+    my $x;
+    BEGIN{ $x=1; Internals::SvREADONLY($x,1); }
+    local $@ if $x;        # padsv => const
+    do {-f $x // 1} for (0..400); # force slab alloc/free for new BASEOP
+  };',
+  "",
+  { stderr => 1 },
+  'no slab error: padsv => const [cperl #108]'
+);
+
+fresh_perl_is(
+  'my $x; BEGIN{ $x=1; Internals::SvREADONLY($x,1); } local $@ if $x; $x++',
+  "Can't modify constant item in postincrement (++) at - line 1, near \"\$x++\"\n"
+    . "Execution of - aborted due to compilation errors.",
+   { stderr => 1 },
+  'allow padsv => const [cperl #108]'
 );

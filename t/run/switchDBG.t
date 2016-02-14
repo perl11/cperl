@@ -108,7 +108,7 @@ like( runperl( switches => [ "-DD" ], stderr => 1,
       "-DD Cleaning up" );
 like( runperl( switches => [ "-DS" ], stderr => 1,
                prog => '1' ),
-      qr/^allocating op at [0-9a-f]+, slab [0-9a-f]+ at -e line 1\.\n/,
+      qr/^allocating op at [0-9a-f]+, slab [0-9a-f]+, in space \d+ >= \d+ at -e line 1\.\n/,
       "-DS Op slab allocation" );
 like( runperl( switches => [ "-DT" ], stderr => 1,
                prog => '1' ),

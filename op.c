@@ -243,12 +243,25 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
     if (slab->opslab_freed) {
 	OP **too = &slab->opslab_freed;
 	o = *too;
-	DEBUG_S_warn((aTHX_ "found free op at %p, slab %p", (void*)o, (void*)slab));
-	while (o && DIFF(OpSLOT(o), OpSLOT(o)->opslot_next) < sz) {
-	    DEBUG_S_warn((aTHX_ "Alas! too small"));
+        space = o ? DIFF(OpSLOT(o), OpSLOT(o)->opslot_next) : 0;
+	DEBUG_S_warn((aTHX_ "found free op at %p, slab %p, size %lu for %lu",
+                      (void*)o, (void*)slab, space, sz));
+        assert(space < INT_MAX);
+	while (o && (space = DIFF(OpSLOT(o), OpSLOT(o)->opslot_next)) < sz) {
+	    DEBUG_S_warn((aTHX_ "Alas! too small %lu < %lu", space, sz));
 	    o = *(too = &o->op_next);
-	    if (o) { DEBUG_S_warn((aTHX_ "found another free op at %p", (void*)o)); }
+	    if (o) {
+                DEBUG_S_warn((aTHX_ "found another free op at %p", (void*)o));
+                if (!o->op_slabbed) {
+                    /* this op was not added by core. the slot became corrupt */
+                    DEBUG_S_warn((aTHX_ "but it is not slabbed %p (not added by core)",
+                                  (void*)o));
+                    o = NULL;
+                    OpSLOT(o)->opslot_next = NULL;
+                }
+            }
 	}
+        assert(space < 1000); /* detect opslot corruption (Variable::Magic) */
 	if (o) {
 	    *too = o->op_next;
 	    Zero(o, opsz, I32 *);
@@ -267,8 +280,8 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
     /* The partially-filled slab is next in the chain. */
     slab2 = slab->opslab_next ? slab->opslab_next : slab;
     if ((space = DIFF(&slab2->opslab_slots, slab2->opslab_first)) < sz) {
-	/* Remaining space is too small. */
-
+        DEBUG_S_warn((aTHX_ "remaining slab space is too small %lu < %lu",
+                      space, sz));
 	/* If we can fit a BASEOP, add it to the free chain, so as not
 	   to waste it. */
 	if (space >= SIZE_TO_PSIZE(sizeof(OP)) + OPSLOT_HEADER_P) {
@@ -288,8 +301,10 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
 					: (DIFF(slab2, slot)+1)*2);
 	slab2->opslab_next = slab->opslab_next;
 	slab->opslab_next = slab2;
+        DEBUG_S_warn((aTHX_ "created new slab space twice as large %lu",
+                      DIFF(&slab2->opslab_slots, slab2->opslab_first)));
     }
-    assert(DIFF(&slab2->opslab_slots, slab2->opslab_first) >= sz);
+    assert((space = DIFF(&slab2->opslab_slots, slab2->opslab_first)) >= sz);
 
     /* Create a new op slot */
     slot = (OPSLOT *)((I32 **)slab2->opslab_first - sz);
@@ -298,7 +313,8 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
 	 < SIZE_TO_PSIZE(sizeof(OP)) + OPSLOT_HEADER_P)
 	slot = &slab2->opslab_slots;
     INIT_OPSLOT;
-    DEBUG_S_warn((aTHX_ "allocating op at %p, slab %p", (void*)o, (void*)slab));
+    DEBUG_S_warn((aTHX_ "allocating op at %p, slab %p, in space %lu >= %lu",
+                  (void*)o, (void*)slab, space, sz));
 
   gotit:
 #ifdef PERL_OP_PARENT
@@ -366,6 +382,9 @@ Perl_Slab_Free(pTHX_ void *op)
 {
     OP * const o = (OP *)op;
     OPSLAB *slab;
+#ifdef DEBUGGING
+    size_t space;
+#endif
 
     PERL_ARGS_ASSERT_SLAB_FREE;
 
@@ -381,7 +400,12 @@ Perl_Slab_Free(pTHX_ void *op)
     o->op_type = OP_FREED;
     o->op_next = slab->opslab_freed;
     slab->opslab_freed = o;
-    DEBUG_S_warn((aTHX_ "free op at %p, recorded in slab %p", (void*)o, (void*)slab));
+#ifdef DEBUGGING
+    space = OpSLOT(o)->opslot_next ? DIFF(OpSLOT(o), OpSLOT(o)->opslot_next) : 0;
+#endif
+    DEBUG_S_warn((aTHX_ "free op at %p, recorded in slab %p, size %lu", (void*)o,
+                  (void*)slab, space));
+    assert(space < 1000); /* maxop size, catch slab corruption by external modules (Variable::Magic) */
     OpslabREFCNT_dec_padok(slab);
 }
 
@@ -434,6 +458,7 @@ Perl_opslab_force_free(pTHX_ OPSLAB *slab)
     size_t savestack_count = 0;
 #endif
     PERL_ARGS_ASSERT_OPSLAB_FORCE_FREE;
+    DEBUG_S_warn((aTHX_ "forced freeing slab %p", (void*)slab));
     slab2 = slab;
     do {
 	for (slot = slab2->opslab_first;
@@ -4793,7 +4818,11 @@ Perl_newOP(pTHX_ I32 type, I32 flags)
 	|| (PL_opargs[type] & OA_CLASS_MASK) == OA_FILESTATOP
 	|| (PL_opargs[type] & OA_CLASS_MASK) == OA_LOOPEXOP);
 
-    NewOp(1101, o, 1, OP);
+    /* A const PADSV maybe upgraded to a CONST in ck_pad: reserve a sv slot */
+    if (type == OP_PADSV || type == OP_PADANY)
+        NewOpSz(1101, o, sizeof(SVOP));
+    else
+        NewOp(1101, o, 1, OP);
     OpTYPE_set(o, type);
     o->op_flags = (U8)flags;
 
@@ -6833,8 +6862,10 @@ S_search_const(pTHX_ OP *o)
 	    break;
         case OP_PADSV: /* search_const is called immed. from newLOGOP/CONDOP.
                           there was no time to constant fold it yet. */
-            if (o->op_targ && SvREADONLY(PAD_SV(o->op_targ)))
-                return ck_pad(o);
+            if (o->op_targ && SvREADONLY(PAD_SVl(o->op_targ))) {
+		o = ck_pad(o);
+                return o->op_type == OP_CONST ? o : NULL;
+            }
             break;
 	case OP_LEAVE:
 	case OP_SCOPE:
@@ -10589,7 +10620,7 @@ Perl_ck_sassign(pTHX_ OP *o)
 	    OP *const first = newOP(OP_NULL, 0);
 	    OP *const nullop =
 		newCONDOP(0, first, o, other);
-	    /* XXX targlex disabled for now; see ticket #124160
+	    /* XXX targlex disabled for now; see ticket #124160 and esp. #101640
 		newCONDOP(0, first, S_maybe_targlex(aTHX_ o), other);
 	     */
 	    OP *const condop = first->op_next;
@@ -12298,7 +12329,9 @@ Perl_ck_aelem(pTHX_ OP *o)
 
 /* Check for const and types.
    Called from newOP/newPADOP this is too early,
-   the target is attached later. But we also call it from constant folding */
+   the target is attached later. But we also call it from constant folding.
+   Having an explicit CONST op allows constant optimizations on it.
+ */
 OP *
 Perl_ck_pad(pTHX_ OP *o)
 {
@@ -12306,10 +12339,18 @@ Perl_ck_pad(pTHX_ OP *o)
     if (o->op_targ) { /* newPADOP sets it, newOP only with OA_TARGET */
         SV* sv = PAD_SV(o->op_targ);
         if (OP_TYPE_IS(o, OP_PADSV) && SvREADONLY(sv)) {
+#ifdef DEBUGGING
+            /* ensure we allocated enough room to upgrade it */
+            size_t space = DIFF(OpSLOT(o), OpSLOT(o)->opslot_next);
+            assert(space*sizeof(OP*) >= sizeof(SVOP));
+#endif
             OpTYPE_set(o, OP_CONST);
-            cSVOPx(o)->op_sv = sv;
-            pad_swipe(o->op_targ, 0);
+            DEBUG_k(Perl_deb(aTHX_ "ck_pad: %s[%s]\n", PL_op_name[o->op_type],
+                             PadnamePV(PAD_COMPNAME(o->op_targ))));
+            cSVOPx(o)->op_sv = SvREFCNT_inc_NN(sv);
             o->op_targ = 0;
+            /* no n-children privates. OPpDEREF|OPpPAD_STATE|OPpLVAL_INTRO are invalid */
+            assert(!o->op_private);
         }
         /* compile-time check invalid ops on shaped av's. duplicate in rpeep
            when the targ is filled in, or op_next is setup */
@@ -12322,12 +12363,14 @@ Perl_ck_pad(pTHX_ OP *o)
                 Perl_die(aTHX_ "Invalid modification of shaped array: %s %s",
                     OP_NAME(o->op_next->op_next),
                     PAD_COMPNAME_PV(o->op_targ));
-        }
-        /* maybe check typeinfo also, and set some
-           SVf_TYPED flag if we still had one. This const
-           looses all type info, and is either int|num|str. */
-        DEBUG_k(Perl_deb(aTHX_ "ck_pad: %s[%s]\n", PL_op_name[o->op_type],
-                    PadnamePV(PAD_COMPNAME(o->op_targ))));
+            DEBUG_k(Perl_deb(aTHX_ "ck_pad: %s[%s] AvSHAPED\n", PL_op_name[o->op_type],
+                             PadnamePV(PAD_COMPNAME(o->op_targ))));
+        } else
+            /* maybe check typeinfo also, and set some
+               SVf_TYPED flag if we still had one. This const
+               looses all type info, and is either int|num|str. */
+            DEBUG_k(Perl_deb(aTHX_ "ck_pad: %s[%s]\n", PL_op_name[o->op_type],
+                             PadnamePV(PAD_COMPNAME(o->op_targ))));
     }
     return o;
 }
