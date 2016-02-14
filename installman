@@ -84,14 +84,19 @@ while (<$fh>) {
     chomp;
     my ($path, $leaf) = m|^(\S*/(\S+))|;
     # Have we already installed the manpage for this? (eg perldoc)
-    next if $man1{$leaf};
-    pod2man({$leaf, $path}, $opts{man1dir}, $opts{man1ext});
+    if (!$man1{$leaf}) {
+      pod2man({$leaf, $path}, $opts{man1dir}, $opts{man1ext});
+    }
     if ($has_man1dir) {
         if (my ($link) = m|#.*link\s*=\s*\S+/(\S+)|) {
             my $old = "$opts{man1dir}/$leaf.$opts{man1ext}";
             my $new = "$opts{man1dir}/$link.$opts{man1ext}";
-	    unlink($new);
-	    link($old, $new);
+            if (-f $old) {
+              unlink($new);
+              link($old, $new);
+            } else {
+              link($new, $old);
+            }
             $old =~ s/^\Q$opts{destdir}\E// if $opts{destdir};
             $new =~ s/^\Q$opts{destdir}\E// if $opts{destdir};
             $packlist->{$new} = { from => $old, type => 'link' };
