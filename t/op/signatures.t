@@ -1572,12 +1572,12 @@ sub goto3_pp2sig {
   goto &t147_7;
 }
 sub goto1_sig2sig ($, $=0, $a="bar", $b="zoot") {
-  local @_ = (1,2,"baz",7); # ignored
+  local @_ = (1,2,"baz",7); # ignored, should warn
   goto &t147a;
 }
 
 sub goto1_sig2pp ($, $=0, $a="baz", $b="7") {
-  local @_ = (1,2,"baz",7); # ignored
+  local @_ = (1,2,"baz",7); # ignored, should warn
   goto &t147_pp;
 }
 
@@ -1585,8 +1585,9 @@ goto1_pp2pp();
 goto1_pp2sig();
 goto2_pp2sig();
 goto3_pp2sig();
-#goto1_sig2sig(0); #todo
-#goto1_sig2pp(0); # corrupts caller
+
+goto1_sig2sig(0); # todo
+goto1_sig2pp(0);  # corrupts caller
 
 done_testing;
 
