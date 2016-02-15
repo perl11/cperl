@@ -3905,7 +3905,7 @@ PP(pp_entersub)
 #ifdef DEBUGGING
         if (DEBUG_t_TEST_) debop(PL_op);
 #else
-        OP_ENTRY_PROBE(OP_NAME(PL_op));
+        PERL_DTRACE_PROBE_OP(PL_op);
 #endif
         return PL_op->op_ppaddr(aTHX);
     }
@@ -3991,7 +3991,7 @@ PP(pp_entersub)
             if (DEBUG_v_TEST_) Perl_deb(aTHX_ "\nXS->PP %s\n", GvNAME(CvGV(cv)));
             if (DEBUG_t_TEST_) debop(PL_op);
 #else
-            OP_ENTRY_PROBE(OP_NAME(PL_op));
+            PERL_DTRACE_PROBE_OP(PL_op);
 #endif
         }
 
@@ -4067,7 +4067,7 @@ PP(pp_entersub)
 #ifdef DEBUGGING
         if (DEBUG_t_TEST_) debop(PL_op);
 #else
-        OP_ENTRY_PROBE(OP_NAME(PL_op));
+        PERL_DTRACE_PROBE_OP(PL_op);
 #endif
         return PL_op->op_ppaddr(aTHX);
     }
@@ -4164,7 +4164,7 @@ PP(pp_enterxssub)
 #ifdef DEBUGGING
         if (DEBUG_t_TEST_) debop(PL_op);
 #else
-        OP_ENTRY_PROBE(OP_NAME(PL_op));
+        PERL_DTRACE_PROBE_OP(PL_op);
 #endif
         return PL_op->op_ppaddr(aTHX);
     }
