@@ -8,12 +8,14 @@ package IO::Socket::UNIX;
 
 use strict;
 our(@ISA, $VERSION);
-use IO::Socket;
-use Carp;
+use Socket;
+use IO::Socket ();
 
 @ISA = qw(IO::Socket);
 $VERSION = "1.26";
 $VERSION = eval $VERSION;
+
+BEGIN { sub croak($) { require Carp; Carp::croak(@_) } }
 
 IO::Socket::UNIX->register_domain( AF_UNIX );
 

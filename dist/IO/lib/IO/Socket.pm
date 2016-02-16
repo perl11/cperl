@@ -9,13 +9,14 @@ package IO::Socket;
 
 require 5.006;
 
-use IO::Handle;
+use IO::Handle ();
 use Socket 1.3;
-use Carp;
 use strict;
 our(@ISA, $VERSION, @EXPORT_OK);
-use Exporter;
-use Errno;
+use Exporter ();
+use Errno ();
+
+BEGIN { sub croak($) { require Carp; Carp::croak(@_) } }
 
 # legacy
 
@@ -127,7 +128,7 @@ sub connect {
 		# Using the exception
 		# set we now emulate the behavior in Linux
 		#    - Karthik Rajagopalan
-		$err = $sock->getsockopt(SOL_SOCKET,SO_ERROR);
+		$err = $sock->getsockopt(Socket::SOL_SOCKET, Socket::SO_ERROR);
 		$@ = "connect: $err";
 	    }
 	    elsif(!@$w[0]) {
@@ -329,8 +330,8 @@ sub getsockopt {
 
 sub sockopt {
     my $sock = shift;
-    @_ == 1 ? $sock->getsockopt(SOL_SOCKET,@_)
-	    : $sock->setsockopt(SOL_SOCKET,@_);
+    @_ == 1 ? $sock->getsockopt(Socket::SOL_SOCKET,@_)
+	    : $sock->setsockopt(Socket::SOL_SOCKET,@_);
 }
 
 sub atmark {

@@ -23,6 +23,7 @@ can_ok('HTTP::Tiny', @methods, @accessors);
 my @extra =
   grep {! $api{$_} }
   grep { $_ !~ /\A_/ }
+  grep { $_ ne 'croak' }
   grep {; no strict 'refs'; *{"HTTP::Tiny::$_"}{CODE} }
   sort keys %HTTP::Tiny::;
 

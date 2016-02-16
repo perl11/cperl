@@ -6,7 +6,6 @@ use warnings;
 
 our $VERSION = '0.056';
 
-use Carp ();
 
 #pod =method new
 #pod
@@ -61,6 +60,11 @@ use Carp ();
 #pod See L</SSL SUPPORT> for more on the C<verify_SSL> and C<SSL_options> attributes.
 #pod
 #pod =cut
+
+sub croak {
+    require Carp;
+    Carp::croak(@_);
+}
 
 my @attributes;
 BEGIN {
@@ -197,7 +201,7 @@ for my $sub_name ( qw/get head put post delete/ ) {
     sub $sub_name {
         my (\$self, \$url, \$args) = \@_;
         \@_ == 2 || (\@_ == 3 && ref \$args eq 'HASH')
-        or Carp::croak(q/Usage: \$http->$sub_name(URL, [HASHREF])/ . "\n");
+        or croak(q/Usage: \$http->$sub_name(URL, [HASHREF])/ . "\n");
         return \$self->request('$req_method', \$url, \$args || {});
     }
 HERE
@@ -226,7 +230,7 @@ HERE
 sub post_form {
     my ($self, $url, $data, $args) = @_;
     (@_ == 3 || @_ == 4 && ref $args eq 'HASH')
-        or Carp::croak(q/Usage: $http->post_form(URL, DATAREF, [HASHREF])/ . "\n");
+        or croak(q/Usage: $http->post_form(URL, DATAREF, [HASHREF])/ . "\n");
 
     my $headers = {};
     while ( my ($key, $value) = each %{$args->{headers} || {}} ) {
@@ -271,7 +275,7 @@ sub post_form {
 sub mirror {
     my ($self, $url, $file, $args) = @_;
     @_ == 3 || (@_ == 4 && ref $args eq 'HASH')
-      or Carp::croak(q/Usage: $http->mirror(URL, FILE, [HASHREF])/ . "\n");
+      or croak(q/Usage: $http->mirror(URL, FILE, [HASHREF])/ . "\n");
     if ( -e $file and my $mtime = (stat($file))[9] ) {
         $args->{headers}{'if-modified-since'} ||= $self->_http_date($mtime);
     }
@@ -279,16 +283,16 @@ sub mirror {
 
     require Fcntl;
     sysopen my $fh, $tempfile, Fcntl::O_CREAT()|Fcntl::O_EXCL()|Fcntl::O_WRONLY()
-       or Carp::croak(qq/Error: Could not create temporary file $tempfile for downloading: $!\n/);
+       or croak(qq/Error: Could not create temporary file $tempfile for downloading: $!\n/);
     binmode $fh;
     $args->{data_callback} = sub { print {$fh} $_[0] };
     my $response = $self->request('GET', $url, $args);
     close $fh
-        or Carp::croak(qq/Error: Caught error closing temporary file $tempfile: $!\n/);
+        or croak(qq/Error: Caught error closing temporary file $tempfile: $!\n/);
 
     if ( $response->{success} ) {
         rename $tempfile, $file
-            or Carp::croak(qq/Error replacing $file with $tempfile: $!\n/);
+            or croak(qq/Error replacing $file with $tempfile: $!\n/);
         my $lm = $response->{headers}{'last-modified'};
         if ( $lm and my $mtime = $self->_parse_http_date($lm) ) {
             utime $mtime, $mtime, $file;
@@ -389,7 +393,7 @@ my %idempotent = map { $_ => 1 } qw/GET HEAD PUT DELETE OPTIONS TRACE/;
 sub request {
     my ($self, $method, $url, $args) = @_;
     @_ == 3 || (@_ == 4 && ref $args eq 'HASH')
-      or Carp::croak(q/Usage: $http->request(METHOD, URL, [HASHREF])/ . "\n");
+      or croak(q/Usage: $http->request(METHOD, URL, [HASHREF])/ . "\n");
     $args ||= {}; # we keep some state in this during _request
 
     # RFC 2616 Section 8.1.4 mandates a single retry on broken socket
@@ -440,13 +444,13 @@ sub request {
 sub www_form_urlencode {
     my ($self, $data) = @_;
     (@_ == 2 && ref $data)
-        or Carp::croak(q/Usage: $http->www_form_urlencode(DATAREF)/ . "\n");
+        or croak(q/Usage: $http->www_form_urlencode(DATAREF)/ . "\n");
     (ref $data eq 'HASH' || ref $data eq 'ARRAY')
-        or Carp::croak("form data must be a hash or array reference\n");
+        or croak("form data must be a hash or array reference\n");
 
     my @params = ref $data eq 'HASH' ? %$data : @$data;
     @params % 2 == 0
-        or Carp::croak("form data reference must have an even number of terms\n");
+        or croak("form data reference must have an even number of terms\n");
 
     my @terms;
     while( @params ) {
@@ -617,14 +621,14 @@ sub _proxy_connect {
 
     my @proxy_vars;
     if ( $request->{scheme} eq 'https' ) {
-        Carp::croak(qq{No https_proxy defined}) unless $self->{https_proxy};
+        croak(qq{No https_proxy defined}) unless $self->{https_proxy};
         @proxy_vars = $self->_split_proxy( https_proxy => $self->{https_proxy} );
         if ( $proxy_vars[0] eq 'https' ) {
-            Carp::croak(qq{Can't proxy https over https: $request->{uri} via $self->{https_proxy}});
+            croak(qq{Can't proxy https over https: $request->{uri} via $self->{https_proxy}});
         }
     }
     else {
-        Carp::croak(qq{No http_proxy defined}) unless $self->{http_proxy};
+        croak(qq{No http_proxy defined}) unless $self->{http_proxy};
         @proxy_vars = $self->_split_proxy( http_proxy => $self->{http_proxy} );
     }
 
@@ -656,7 +660,7 @@ sub _split_proxy {
         defined($scheme) && length($scheme) && length($host) && length($port)
         && $path_query eq '/'
     ) {
-        Carp::croak(qq{$type URL must be in format http[s]://[auth@]<host>:<port>/\n});
+        croak(qq{$type URL must be in format http[s]://[auth@]<host>:<port>/\n});
     }
 
     return ($scheme, $host, $port, $auth);
@@ -804,7 +808,7 @@ sub _validate_cookie_jar {
 
     # duck typing
     for my $method ( qw/add cookie_header/ ) {
-        Carp::croak(qq/Cookie jar must provide the '$method' method\n/)
+        croak(qq/Cookie jar must provide the '$method' method\n/)
             unless ref($jar) && ref($jar)->can($method);
     }
 
@@ -917,10 +921,13 @@ use IO::Socket qw[SOCK_STREAM];
 # PERL_HTTP_TINY_IPV4_ONLY is a private environment variable to force old
 # behavior if someone is unable to boostrap CPAN from a new perl install; it is
 # not intended for general, per-client use and may be removed in the future
-my $SOCKET_CLASS =
-    $ENV{PERL_HTTP_TINY_IPV4_ONLY} ? 'IO::Socket::INET' :
-    eval { require IO::Socket::IP; IO::Socket::IP->VERSION(0.25) } ? 'IO::Socket::IP' :
-    'IO::Socket::INET';
+my $SOCKET_CLASS = 'IO::Socket::IP';
+if ( $] < 5.022 ) {
+    $SOCKET_CLASS = $ENV{PERL_HTTP_TINY_IPV4_ONLY} ? 'IO::Socket::INET'
+      : eval { require IO::Socket::IP; IO::Socket::IP->VERSION(0.25) }
+        ? 'IO::Socket::IP'
+        : 'IO::Socket::INET';
+}
 
 sub BUFSIZE () { 32768 } ## no critic
 
@@ -958,6 +965,7 @@ sub connect {
     elsif ( $scheme ne 'http' ) {
       die(qq/Unsupported URL scheme '$scheme'\n/);
     }
+    eval qq{ require $SOCKET_CLASS; 1 } or die $@;
     $self->{fh} = $SOCKET_CLASS->new(
         PeerHost  => $host,
         PeerPort  => $port,

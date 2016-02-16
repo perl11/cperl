@@ -8,14 +8,15 @@ package IO::Socket::INET;
 
 use strict;
 our(@ISA, $VERSION);
-use IO::Socket;
+use IO::Socket ();
 use Socket;
-use Carp;
-use Exporter;
-use Errno;
+use Exporter   ();
+use Errno      ();
 
 @ISA = qw(IO::Socket);
 $VERSION = "1.35";
+
+BEGIN { sub croak($) { require Carp; Carp::croak(@_) } } 
 
 my $EINVAL = exists(&Errno::EINVAL) ? Errno::EINVAL() : 1;
 
@@ -26,9 +27,9 @@ my %socket_type = ( tcp  => SOCK_STREAM,
 		    icmp => SOCK_RAW
 		  );
 my %proto_number;
-$proto_number{tcp}  = Socket::IPPROTO_TCP()  if defined &Socket::IPPROTO_TCP;
-$proto_number{udp}  = Socket::IPPROTO_UDP()  if defined &Socket::IPPROTO_UDP;
-$proto_number{icmp} = Socket::IPPROTO_ICMP() if defined &Socket::IPPROTO_ICMP;
+$proto_number{tcp}  = IPPROTO_TCP()  if defined &IPPROTO_TCP;
+$proto_number{udp}  = IPPROTO_UDP()  if defined &IPPROTO_UDP;
+$proto_number{icmp} = IPPROTO_ICMP() if defined &IPPROTO_ICMP;
 my %proto_name = reverse %proto_number;
 
 sub new {

@@ -263,7 +263,6 @@ Derived from FileHandle.pm by Graham Barr E<lt>F<gbarr@pobox.com>E<gt>
 use 5.006_001;
 use strict;
 our($VERSION, @EXPORT_OK, @ISA);
-use Carp;
 use Symbol;
 use SelectSaver;
 use IO ();	# Load the XS module
@@ -305,6 +304,11 @@ $VERSION = eval $VERSION;
     _IOLBF
     _IONBF
 );
+
+BEGIN {
+    sub croak($) { require Carp; Carp::croak(@_) }
+    sub carp($) { require Carp; Carp::carp(@_) }
+}
 
 ################################################
 ## Constructors, destructors.
