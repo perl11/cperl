@@ -136,7 +136,9 @@ See e.g. L<https://wiki.debian.org/HowToSetupADebianRepository>
 
 I use L<http://www.aptly.info/tutorial/repo/>
 
-    aptly repo create -distribution=squeeze -component=main cperl
+    aptly repo create -distribution=wheezy -component=main cperl
+    sudo apt-get install ruby-dev rubygems
+    sudo gem install fpm
 
 Add the debs to the pool:
 

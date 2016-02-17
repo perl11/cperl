@@ -12,7 +12,8 @@ REALPERL = ..\perl.exe
 
 ICWD = -I..\dist\Cwd
 
-POD = perl.pod	\
+POD = cperl.pod	\
+	perl.pod	\
 	perl5004delta.pod	\
 	perl5005delta.pod	\
 	perl5100delta.pod	\
@@ -153,7 +154,8 @@ POD = perl.pod	\
 	perlvar.pod	\
 	perlvms.pod
 
-MAN = perl.man	\
+MAN = cperl.man	\
+	perl.man	\
 	perl5004delta.man	\
 	perl5005delta.man	\
 	perl5100delta.man	\
@@ -294,7 +296,8 @@ MAN = perl.man	\
 	perlvar.man	\
 	perlvms.man
 
-HTML = perl.html	\
+HTML = cperl.html	\
+	perl.html	\
 	perl5004delta.html	\
 	perl5005delta.html	\
 	perl5100delta.html	\
@@ -435,7 +438,8 @@ HTML = perl.html	\
 	perlvms.html
 # not perltoc.html
 
-TEX = perl.tex	\
+TEX = cperl.tex	\
+	perl.tex	\
 	perl5004delta.tex	\
 	perl5005delta.tex	\
 	perl5100delta.tex	\

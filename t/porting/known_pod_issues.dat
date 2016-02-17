@@ -270,6 +270,9 @@ os2/os2/os2-extattr/extattr.pm	? Should you be using F<...> or maybe L<...> inst
 os2/os2/os2-process/process.pm	Verbatim line length including indents exceeds 79 by	27
 os2/os2/os2-rexx/dll/dll.pm	Verbatim line length including indents exceeds 79 by	2
 os2/os2/os2-rexx/rexx.pm	Verbatim line length including indents exceeds 79 by	1
+pod/cperl.pod	Apparent broken link	2
+pod/cperl.pod	Pod NAME already used	1
+pod/cperl.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perl.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perlaix.pod	Verbatim line length including indents exceeds 79 by	11
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	2
@@ -331,6 +334,8 @@ pod/perlwin32.pod	Verbatim line length including indents exceeds 79 by	12
 porting/bisect-runner.pl	Verbatim line length including indents exceeds 79 by	1
 porting/epigraphs.pod	Verbatim line length including indents exceeds 79 by	16
 porting/expand-macro.pl	Verbatim line length including indents exceeds 79 by	2
+porting/release_cperl.pod	? Should you be using F<...> or maybe L<...> instead of	1
+porting/release_cperl.pod	Verbatim line length including indents exceeds 79 by	4
 porting/release_managers_guide.pod	Verbatim line length including indents exceeds 79 by	1
 porting/todo.pod	Verbatim line length including indents exceeds 79 by	7
 utils/c2ph	Verbatim line length including indents exceeds 79 by	44
@@ -338,6 +343,7 @@ utils/encguess	Apparent broken link	1
 utils/encguess	There is no NAME	1
 lib/benchmark.pm	Verbatim line length including indents exceeds 79 by	2
 lib/config.pod	? Should you be using L<...> instead of	-1
+lib/cperl.pm	Pod NAME already used	1
 lib/extutils/embed.pm	Verbatim line length including indents exceeds 79 by	2
 lib/perl5db.pl	? Should you be using L<...> instead of	1
 lib/pod/text/overstrike.pm	Verbatim line length including indents exceeds 79 by	1

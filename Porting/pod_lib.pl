@@ -343,7 +343,8 @@ sub __prime_state {
     my $current_flags = '';
     my (%flag_set, @paths);
 
-    my $master = open_or_die('pod/perl.pod');
+    my $perlpod = 'pod/perl.pod';
+    my $master = open_or_die($perlpod);
 
     while (<$master>) {
         last if /^=begin buildtoc$/;
@@ -426,7 +427,7 @@ sub __prime_state {
                     [$delta_leaf, "pod/$state{delta_target}"];
                 $state{pods}{$delta_leaf} = "Perl changes in version @want";
             }
-            if ($podname eq 'perlcdelta') {
+            if ($podname eq 'perlcdelta') { # cperl only
                 local $" = '.';
                 push @{$state{master}},
                     [$cdelta_leaf, "pod/$state{cdelta_target}"];
@@ -437,11 +438,15 @@ sub __prime_state {
             my_die("Malformed line: $_");
         }
     }
-    close $master or my_die("close pod/perl.pod: $!");
+    close $master or my_die("close $perlpod: $!");
 
-    my_die("perl.pod sets flags for unknown pods: "
+    # the cperl.1 manpage
+    push @{$state{master}}, ['cperl', 'pod/cperl.pod']; # cperl only
+    $state{pods}{'cperl'} = 'A Perl 5 variant with classes';
+
+    my_die("$perlpod sets flags for unknown pods: "
            . join ' ', sort keys %flag_set)
-        if keys %flag_set;
+      if keys %flag_set;
 }
 
 =head2 C<get_pod_metadata()>
