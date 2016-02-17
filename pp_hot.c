@@ -4356,11 +4356,11 @@ PP(pp_signature)
                                mand_params, argc, PadnamePV(pn));
             } else
 #endif
-                S_croak_caller("Not enough arguments for %s%s%s %s. Want: %"UVuf
-                               ", but got: %"UVuf"",
-                               CvDESC3(cv),
-                               SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
-                               mand_params, argc);
+            S_croak_caller("Not enough arguments for %s%s%s %s. Want: %"UVuf
+                           ", but got: %"UVuf"",
+                           CvDESC3(cv),
+                           SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
+                           mand_params, argc);
         }
         if (UNLIKELY(!slurpy && argc > mand_params + opt_params)) {
             if (opt_params)
