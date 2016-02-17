@@ -3784,6 +3784,7 @@ dist/Time-HiRes/hints/linux.pl		Hints for Time::HiRes for named architecture
 dist/Time-HiRes/hints/sco.pl		Hints for Time::HiRes for named architecture
 dist/Time-HiRes/hints/solaris.pl	Hints for Time::HiRes for named architecture
 dist/Time-HiRes/hints/svr4.pl		Hints for Time::HiRes for named architecture
+dist/Time-HiRes/Changes			Time::HiRes extension
 dist/Time-HiRes/HiRes.pm		Time::HiRes extension
 dist/Time-HiRes/HiRes.xs		Time::HiRes extension
 dist/Time-HiRes/Makefile.PL		Time::HiRes extension
