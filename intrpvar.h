@@ -814,6 +814,8 @@ PERLVARI(I, max_cowrefcnt, UV, 0)	/* Highest CowREFCNT */
 PERLVARI(I, max_refcnt_sv, SV*, NULL)	/* SV with highest SvREFCNT */
 #endif
 
+PERLVARI(I, dump_re_max_len, STRLEN, 0)
+
 /* If you are adding a U8 or U16, check to see if there are 'Space' comments
  * above on where there are gaps which currently will be structure padding.  */
 
