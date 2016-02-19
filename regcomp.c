@@ -6712,6 +6712,10 @@ Perl_re_op_compile(pTHX_ SV ** const patternp, int pat_count,
     /* Initialize these here instead of as-needed, as is quick and avoids
      * having to test them each time otherwise */
     if (! PL_AboveLatin1) {
+#ifdef DEBUGGING
+        char * dump_len_string;
+#endif
+
 	PL_AboveLatin1 = _new_invlist_C_array(AboveLatin1_invlist);
 	PL_Latin1 = _new_invlist_C_array(Latin1_invlist);
 	PL_UpperLatin1 = _new_invlist_C_array(UpperLatin1_invlist);
@@ -6725,6 +6729,14 @@ Perl_re_op_compile(pTHX_ SV ** const patternp, int pat_count,
 	PL_InBitmap = _new_invlist(2);
 	PL_InBitmap = _add_range_to_invlist(PL_InBitmap, 0,
                                                     NUM_ANYOF_CODE_POINTS - 1);
+#ifdef DEBUGGING
+        dump_len_string = PerlEnv_getenv("PERL_DUMP_RE_MAX_LEN");
+        if (   ! dump_len_string
+            || ! grok_atoUV(dump_len_string, &PL_dump_re_max_len, NULL))
+        {
+            PL_dump_re_max_len = 0;
+        }
+#endif
     }
 
     pRExC_state->code_blocks = NULL;
@@ -18601,6 +18613,9 @@ Perl_regprop(pTHX_ const regexp *prog, SV *sv, const regnode *o, const regmatch_
                     char *s = savesvpv(lv);
                     const char * const orig_s = s;  /* Save the beginning of
                                                        's', so can be freed */
+                    const STRLEN dump_len = (PL_dump_re_max_len)
+                                            ? PL_dump_re_max_len
+                                            : 256;
 
                     /* Ignore anything before the first \n */
                     while (*s && *s != '\n')
@@ -18629,7 +18644,7 @@ Perl_regprop(pTHX_ const regexp *prog, SV *sv, const regnode *o, const regmatch_
                             if (*s == '\n') {
 
                                 /* Truncate very long output */
-                                if ((UV) (s - t) > 256) {
+                                if ((UV) (s - t) > dump_len) {
                                     Perl_sv_catpvf(aTHX_ sv,
                                                 "%.*s...",
                                                 (int) (s - t),
