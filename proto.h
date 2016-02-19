@@ -5420,12 +5420,6 @@ PERL_STATIC_INLINE IV*	S_get_invlist_previous_index_addr(SV* invlist)
 #define PERL_ARGS_ASSERT_GET_INVLIST_PREVIOUS_INDEX_ADDR	\
 	assert(invlist)
 
-PERL_STATIC_INLINE bool	S_invlist_is_iterating(SV* const invlist)
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(1);
-#define PERL_ARGS_ASSERT_INVLIST_IS_ITERATING	\
-	assert(invlist)
-
 PERL_STATIC_INLINE IV	S_invlist_previous_index(SV* const invlist)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1);
@@ -7118,6 +7112,12 @@ PERL_STATIC_INLINE SV*	S_invlist_clone(pTHX_ SV* const invlist)
 #define PERL_ARGS_ASSERT_INVLIST_CLONE	\
 	assert(invlist)
 
+STATIC SV*	S_invlist_contents(pTHX_ SV* const invlist)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_INVLIST_CONTENTS	\
+	assert(invlist)
+
 STATIC void	S_invlist_extend(pTHX_ SV* const invlist, const UV len)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_INVLIST_EXTEND	\
@@ -7127,6 +7127,12 @@ PERL_STATIC_INLINE UV	S_invlist_highest(SV* const invlist)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_INVLIST_HIGHEST	\
+	assert(invlist)
+
+PERL_STATIC_INLINE bool	S_invlist_is_iterating(SV* const invlist)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_INVLIST_IS_ITERATING	\
 	assert(invlist)
 
 PERL_STATIC_INLINE void	S_invlist_iterfinish(SV* invlist)
@@ -7435,12 +7441,6 @@ PERL_STATIC_INLINE bool	S__invlist_contains_cp(SV* const invlist, const UV cp)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT__INVLIST_CONTAINS_CP	\
-	assert(invlist)
-
-PERL_CALLCONV SV*	Perl__invlist_contents(pTHX_ SV* const invlist)
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT__INVLIST_CONTENTS	\
 	assert(invlist)
 
 PERL_STATIC_INLINE UV	S__invlist_len(SV* const invlist)
