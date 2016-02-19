@@ -1,17 +1,16 @@
-# XSLoader for perl, not miniperl
+# This is XSConfig from CPAN that uses XSLoader
 
 # for a description of the variables, please have a look at the
 # Porting/Glossary file, or use the url:
 # http://perl5.git.perl.org/perl.git/blob/HEAD:/Porting/Glossary
 
-package XSConfig;
 package
     Config;
 use strict;
 use warnings;
-use vars '%Config', '$VERSION';
+our (%Config, $VERSION);
 
-$VERSION = '6.10';
+$VERSION = '6.18';
 
 # Skip @Config::EXPORT because it only contains %Config, which we special
 # case below as it's not a function. @Config::EXPORT won't change in the
@@ -57,27 +56,22 @@ sub import {
     return;
 }
 
-sub TIEHASH {
-    bless \do{my $uv = 0;}, $_[0]; #XS Config Obj constructor
-}
 sub DESTROY { }
 
 if (defined &DynaLoader::boot_DynaLoader) {
     require XSLoader;
     XSLoader::load(__PACKAGE__, $VERSION);
-    %Config = ();
     tie %Config, 'Config';
 } else {
     no warnings 'redefine';
     %Config:: = ();
-    undef &{$_} for qw(import TIEHASH DESTROY AUTOLOAD STORE);
+    undef &{$_} for qw(import DESTROY AUTOLOAD);
     require 'Config_mini.pl';
 }
 
 sub AUTOLOAD {
-    if (defined &DynaLoader::boot_DynaLoader) {
-        require 'Config_xs_heavy.pl';
-    }
+    require 'Config_xs_heavy.pl' if defined &DynaLoader::boot_DynaLoader;
+
     goto \&launcher unless $Config::AUTOLOAD =~ /launcher$/;
     die "&Config::AUTOLOAD failed on $Config::AUTOLOAD";
 }

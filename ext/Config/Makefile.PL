@@ -3,6 +3,8 @@ use ExtUtils::MakeMaker;
 push(@ExtUtils::MakeMaker::Overridable, qw(pm_to_blib));
 my $in_core = ! -d "regen";
 our $uninst;
+my $version = MM->parse_version('Config.pm');
+
 WriteMakefile(
     'ABSTRACT'		=> 'Fast XS drop-in replacement for Config.pm with perfect hashing',
     'AUTHOR'		=> ($ExtUtils::MakeMaker::VERSION >= '6.58'
@@ -15,11 +17,14 @@ WriteMakefile(
         resources => {
             repository => 'https://github.com/perl11/p5-Config',
         },
+        provides => {
+            XSConfig => { file => 'Config.pm', version => $version },
+        },
     },
 #Config_heavy.pl didn't exist before 5.8.7, it was part of a huge Config.pm
 #not worth the time to modify Config_xs.PL and Config_xs_heavy.pl.PL
     'MIN_PERL_VERSION'  => '5.8.7',
-    'VERSION_FROM'	=> 'Config.pm',
+    'VERSION'		=> $version,
     'PL_FILES'		=> {'Config_xs.PL' => 'Config.xs',
                             ($in_core ?
                                 () : ('Config_mini.pl.PL'     => 'Config_mini.pl',
@@ -60,6 +65,8 @@ use ExtUtils::Command ();
     # now touch Makefile.PL so the above doesn't trigger a rebuild
     @ARGV = 'Makefile.PL';
     ExtUtils::Command::touch();
+    @ARGV = 'Makefile'; #we aren't inside WriteMakefile with open FH anymore
+    ExtUtils::Command::touch();
     # if Makefile.PL and poison target are the same second, no rebuild happens
     sleep 1;
     # Touch opposite of what we think UNINST will be in the makefile
@@ -95,6 +102,7 @@ sub post_initialize { # post_initialize() runs before constants()
             CPAN::HandleConfig->load()
             : CPAN::Config->load(); #old CPAN.pms
         if ($CPAN::Config->{make_install_arg} =~ /\QUNINST=1\E/) {
+            warn "found UNINST=1 in CPAN::Config";
             $_[0]->{UNINST} = $main::uninst = 1;
         } else {
         # from EUMM, UNINST could be from @ARGV or %ENV or anywhere

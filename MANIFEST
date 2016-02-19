@@ -3584,6 +3584,7 @@ ext/Config/Config_xs.in		gperf template for Config.xs
 ext/Config/Config_xs.out	gperf expanded Config.xs template with empty values
 ext/Config/Config_xs.PL		Update Config.xs and Config_xs.in
 ext/Config/Dummy.c		XS Config empty C file
+ext/Config/gperftest.in		syntax test gperf template
 ext/Config/Makefile.PL		XS Config extension makefile writer
 ext/Config/t/Config.t		Test Config
 ext/Config/t/XSConfig.t		XS Config extension tests

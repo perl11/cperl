@@ -222,12 +222,13 @@ use File::Glob qw(:case);
     },
 
     'Config' => {
-        'DISTRIBUTION' => 'BULKDD/other/XSConfig-6.06.tar.gz',
+        'DISTRIBUTION' => 'BULKDD/other/XSConfig-6.18.tar.gz',
         'FILES'      => q[
                  ext/Config/Config.pm
                  ext/Config/Config_xs.{in,out,PL}
                  ext/Config/Dummy.c
                  ext/Config/Makefile.PL
+                 ext/Config/gperftest.in
                  ext/Config/t/Config.t
                  ext/Config/t/XSConfig.t
                  ext/Config/typemap

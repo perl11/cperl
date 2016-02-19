@@ -117,6 +117,28 @@ my_newSVpvn_flags(pTHX_ const char *s, STRLEN len, U32 flags)
 #  define NOT_REACHED XSCNOT_REACHED
 #endif
 
+
+/* returns a mortal SV*, empty string is forbidden */
+static SV *
+my_newSVstaticpvn(pTHX_ const char *s, STRLEN len)
+{
+  SV * sv;
+  if(!len)
+    len = strlen(s);
+#if (PERL_BCDVERSION < 0x5008009) && ! defined(newSV_type)
+  sv = sv_newmortal();
+  sv_upgrade(sv, SVt_PV);
+#else
+  sv = sv_2mortal(newSV_type(SVt_PV));
+#endif
+  SvPVX(sv) = (char *)s;
+  SvCUR_set(sv, len);
+  SvLEN_set(sv, 0);
+  SvREADONLY_on(sv);
+  SvPOK_only(sv);
+  return sv;
+}
+
 #ifndef USE_CPERL
 #  define MY_CXT_KEY "Config::API_guts"
 typedef struct {
@@ -1479,6 +1501,21 @@ PPCODE:
 #endif
 
 #line 1309 "Config_xs.in"
+
+void
+TIEHASH(classname)
+# not used, here for the prototype croak only refetched below for var liveness reasons
+  SV * classname
+PREINIT:
+  SV * rv;
+  SV * classnameSV;
+CODE:
+  rv = sv_newmortal();
+  classnameSV = *SP;
+  *SP = rv; /*since TIEHASH is somewhat private API use SvPVX, no func call */
+  sv_setref_uv(rv, SvPVX(classnameSV), 0);
+  return; /* skip implicit PUTBACK, SP didnt move, 1 arg in means 1 arg out */
+
 void
 FETCH(self, key)
      SV* self
@@ -1525,7 +1562,7 @@ PPCODE:
 #if BYTEORDER == 0x4321 || BYTEORDER == 0x87654321  /* big-endian */
               I16 len = (I16)c->len;
               if (len < 0)
-                RETVAL = newSVpvn_flags((char*)(&(c->len))+1, (len >> 8) & 0x7F, SVs_TEMP);
+                RETVAL = my_newSVstaticpvn(aTHX_ (char*)(&(c->len))+1, (len >> 8) & 0x7F);
 #else /* little-endian */
             /* if we had access to x86 carry flag or very smart CC, the
              * "len >> 1" and "if (c->len & 0x1)" would be one shr op, then a
@@ -1536,10 +1573,10 @@ PPCODE:
                  *  otherwise lowest bit from 1st string char (high byte of U16
                  *  len) becomes part of len, aka a gibberish bit and a
                  *  SEGV/overflow inside memcpy inside newSVpvn_flags */
-                RETVAL = newSVpvn_flags((char*)(&(c->len))+1, len & 0x7F, SVs_TEMP);
+                RETVAL = my_newSVstaticpvn(aTHX_ (char*)(&(c->len))+1, len & 0x7F);
 #endif
               else
-                RETVAL = newSVpvn_flags(c->value, len, SVs_TEMP);
+                RETVAL = my_newSVstaticpvn(aTHX_ c->value, len);
           } else {
                 switch((size_t)c->value) {
                      case (size_t)VUNDEF:
@@ -1577,10 +1614,9 @@ SCALAR(self)
     SV *self
 CODE:
     PERL_UNUSED_VAR(self);
-    /* perfect hash is perfect */
-    *SP = newSVpvn_flags(STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(TOTAL_KEYWORDS),
-                         sizeof(STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(TOTAL_KEYWORDS))-1,
-                         SVs_TEMP);
+    /* MAX_HASH_VALUE is technically wrong, real array size is MAX_HASH_VALUE +1 */
+    *SP = my_newSVstaticpvn(aTHX_ STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(MAX_HASH_VALUE),
+                                  sizeof(STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(MAX_HASH_VALUE))-1);
     return; /* skip implicit PUTBACK, SP didnt move, 1 arg in means 1 arg out */
 
 # 1st arg could be self in the future
@@ -1605,7 +1641,7 @@ PPCODE:
                 const char * const current_s = s; /* reduce liveness of var l */
                 s += l+1; /* set string up for next read */
                 i++; /* sanity test */
-                mPUSHp(current_s, l);
+                PUSHs(my_newSVstaticpvn(aTHX_ current_s, l));
             }
             assert(i == size);
         }
@@ -1625,7 +1661,7 @@ CODE:
     /* self is SVIV with offset (aka iterator) into stringpool */
     *self = len + 1; /* set to next string to read */
     /* overwrite CFGSELF *self slot on stack */
-    *SP = newSVpvn_flags(s, len, SVs_TEMP);
+    *SP = my_newSVstaticpvn(aTHX_ s, len);
     return; /* skip implicit PUTBACK, 1 arg in, means 1 arg out, SP not moved*/
 
 void
@@ -1644,7 +1680,7 @@ PPCODE:
         const char * key = (const char*)stringpool+*self;
         size_t len = strlen(key);
         *self += len + 1;
-        RETVAL = newSVpvn_flags(key, len, SVs_TEMP);
+        RETVAL = my_newSVstaticpvn(aTHX_ key, len);
     }
     else
         RETVAL = &PL_sv_undef;

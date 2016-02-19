@@ -1,0 +1,18 @@
+%{/* -*- mode: c; c-basic-offset: 4; -*-
+   * This is a test file for gperf, uses modern (2000s, not 1980s) gperf syntax
+   * */
+%}
+%language=ANSI-C
+%struct-type
+%define hash-function-name   Config_hash
+%define lookup-function-name Config_lookup
+%pic
+%readonly-tables
+
+struct Perl_Config;
+%%
+ARCH,			T_INV,0,ALN64I"@@ARCH@@"
+Author,			T_INV,0,ALN64I"@@Author@@"
+BuiltWithPatchPerl,	T_INV,0,ALN64I"@@BuiltWithPatchPerl@@"
+CONFIG,			T_INV,0,ALN64I"@@CONFIG@@"
+%%

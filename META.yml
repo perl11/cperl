@@ -102,6 +102,7 @@ no_index:
     - ext/Config/Config_xs.out
     - ext/Config/Config_xs.PL
     - ext/Config/Dummy.c
+    - ext/Config/gperftest.in
     - ext/Config/Makefile.PL
     - ext/Config/t/Config.t
     - ext/Config/t/XSConfig.t

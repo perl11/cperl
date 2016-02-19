@@ -67,8 +67,8 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
   }
   # See Config_xs.PL:
   # postprocess the values a bit:
-  # reserve up to 20 config_args
-  for (0..20) {
+  # reserve up to 24 config_args
+  for (0..24) {
     my $k = "config_arg".$_;
     $Config_copy{$k} = '' unless exists $Config{$k};
   }
@@ -83,16 +83,18 @@ targetport  useversionedarchname
   unless($in_core) { #cperl doesn't need these, CPAN does
       push @cannedkeys , qw(
 ARCH    BuiltWithPatchPerl  Mcc PERL_PATCHLEVEL ccflags_nolargefiles
-charbits    config_arg21    config_arg22    config_arg23    config_arg24
-config_heavy    d_acosh d_asctime64 d_asinh d_atanh d_attribut
-d_attribute_deprecated  d_attribute_format  d_attribute_malloc
-d_attribute_nonnull d_attribute_noreturn    d_attribute_pure
-d_attribute_unused  d_attribute_warn_unused_result  d_backtrace
-d_builtin_arith_overflow    d_builtin_choose_expr   d_builtin_expect
-d_c99_variadic_macros   d_cbrt  d_clearenv  d_copysign  d_cplusplus d_ctermid
-d_ctime64   d_difftime64    d_dir_dd_fd d_dladdr    d_erf   d_erfc  d_exp2
-d_expm1 d_fdim  d_fegetround    d_fma   d_fmax  d_fmin  d_fp_classify
-d_fp_classl d_fpgetround    d_fs_data_s d_fstatfs   d_fstatvfs  d_futimes
+charbits    config_arg25    config_arg26    config_arg27    config_arg28
+config_arg29    config_arg30    config_arg31    config_arg32    config_arg33
+config_arg34    config_arg35    config_arg36    config_heavy    d_acosh
+d_asctime64 d_asinh d_atanh d_attribut  d_attribute_deprecated
+d_attribute_format  d_attribute_malloc  d_attribute_nonnull
+d_attribute_noreturn    d_attribute_pure    d_attribute_unused
+d_attribute_warn_unused_result  d_backtrace d_builtin_arith_overflow
+d_builtin_choose_expr   d_builtin_expect    d_c99_variadic_macros   d_cbrt
+d_clearenv  d_copysign  d_cplusplus d_ctermid   d_ctime64   d_difftime64
+d_dir_dd_fd d_dladdr    d_erf   d_erfc  d_exp2  d_expm1 d_fdclose   d_fdim
+d_fegetround    d_fma   d_fmax  d_fmin  d_fp_classify   d_fp_classl
+d_fpgetround    d_fs_data_s d_fstatfs   d_fstatvfs  d_futimes
 d_gdbm_ndbm_h_uses_prototypes   d_gdbmndbm_h_uses_prototypes    d_getaddrinfo
 d_getfsstat d_getmnt    d_getmntent d_getnameinfo   d_gmtime64  d_hasmntopt
 d_hypot d_ilogb d_inc_version_list  d_inetntop  d_inetpton  d_ip_mreq
@@ -105,17 +107,19 @@ d_malloc_size   d_mktime64  d_modflproto    d_nan   d_ndbm
 d_ndbm_h_uses_prototypes    d_nearbyint d_nextafter d_nexttoward
 d_nv_zero_is_allbits_zero   d_prctl d_prctl_set_name    d_printf_format_null
 d_pseudofork    d_ptrdiff_t d_regcomp   d_remainder d_remquo    d_rint  d_round
-d_scalbn    d_sfio  d_signbit   d_sin6_scope_id d_sitearch  d_snprintf
-d_sockaddr_in6  d_sockaddr_sa_len   d_sprintf_returns_strlen    d_stat
-d_statfs_f_flags    d_statfs_s  d_static_inline d_statvfs   d_strlcat
-d_strlcpy   d_tgamma    d_timegm    d_trunc d_truncl    d_unsetenv  d_ustat
-d_vendorscript  d_vms_case_sensitive_symbols    d_vsnprintf d_wcscmp
-d_wcsxfrm   defvoidused dl_so_eq_ext    doop_cflags doubleinfbytes  doublekind
-doublemantbits  doublenanbytes  dtrace  extern_C    found_libucb    from
-gccansipedantic git_branch  git_commit_date git_commit_id   git_commit_id_title
-git_describe    git_uncommitted_changes gnulibc_version hash_func   html1dir
-html1direxp html3dir    html3direxp i_assert    i_bfd   i_dld   i_execinfo
-i_fenv  i_gdbm_ndbm i_gdbmndbm  i_mallocmalloc  i_mntent    i_quadmath  i_sfio
+d_scalbn    d_sfio  d_siginfo_si_addr   d_siginfo_si_band   d_siginfo_si_errno
+d_siginfo_si_pid    d_siginfo_si_status d_siginfo_si_uid    d_siginfo_si_value
+d_signbit   d_sin6_scope_id d_sitearch  d_snprintf  d_sockaddr_in6
+d_sockaddr_sa_len   d_sprintf_returns_strlen    d_stat  d_statfs_f_flags
+d_statfs_s  d_static_inline d_statvfs   d_strlcat   d_strlcpy   d_tgamma
+d_timegm    d_trunc d_truncl    d_unsetenv  d_ustat d_vendorscript
+d_vms_case_sensitive_symbols    d_vsnprintf d_wcscmp    d_wcsxfrm   defvoidused
+dl_so_eq_ext    doop_cflags doubleinfbytes  doublekind  doublemantbits
+doublenanbytes  dtrace  extern_C    found_libucb    from    gccansipedantic
+git_branch  git_commit_date git_commit_id   git_commit_id_title git_describe
+git_uncommitted_changes gnulibc_version hash_func   html1dir    html1direxp
+html3dir    html3direxp i_assert    i_bfd   i_dld   i_execinfo  i_fenv
+i_gdbm_ndbm i_gdbmndbm  i_mallocmalloc  i_mntent    i_quadmath  i_sfio
 i_stdbool   i_stdint    i_sysmount  i_syspoll   i_sysstatfs i_sysstatvfs
 i_sysvfs    i_ustat ieeefp_h    initialinstalllocation  installhtml1dir
 installhtml3dir installsitehtml1dir installsitehtml3dir installsiteman1dir
@@ -125,7 +129,7 @@ installvendorscript ldflags_nolargefiles    libs_nolargefiles
 libswanted_nolargefiles longdblinfbytes longdblkind longdblmantbits
 longdblnanbytes madlyh  madlyobj    madlysrc    mistrustnm
 nv_overflows_integers_at    nvmantbits  op_cflags   perl_patchlevel
-perl_revision   perl_static_inline  perl_subversion perl_version
+perl_revision   perl_static_inline  perl_subversion perl_version    ppmarch
 pthread_h_first regexec_cflags  rm_try  run sGMTIME_max sGMTIME_min
 sLOCALTIME_max  sLOCALTIME_min  sitehtml1dir    sitehtml1direxp sitehtml3dir
 sitehtml3direxp siteman1dir siteman1direxp  siteman3dir siteman3direxp
