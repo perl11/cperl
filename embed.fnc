@@ -1526,6 +1526,7 @@ EsM	|void	|invlist_extend    |NN SV* const invlist|const UV len
 EiMRn	|UV	|invlist_max	|NN SV* const invlist
 EiM	|void	|invlist_set_len|NN SV* const invlist|const UV len|const bool offset
 #ifndef PERL_EXT_RE_BUILD
+EsM	|void	|invlist_replace_list|NN SV *dest|NN SV *src
 EiMRn	|IV*	|get_invlist_previous_index_addr|NN SV* invlist
 EiMRn	|bool	|invlist_is_iterating|NN SV* const invlist
 EiMn	|void	|invlist_set_previous_index|NN SV* const invlist|const IV index

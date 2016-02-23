@@ -5455,6 +5455,12 @@ PERL_STATIC_INLINE IV	S_invlist_previous_index(SV* const invlist)
 #define PERL_ARGS_ASSERT_INVLIST_PREVIOUS_INDEX	\
 	assert(invlist)
 
+STATIC void	S_invlist_replace_list(pTHX_ SV *dest, SV *src)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_INVLIST_REPLACE_LIST	\
+	assert(dest); assert(src)
+
 PERL_STATIC_INLINE void	S_invlist_set_previous_index(SV* const invlist, const IV index)
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_INVLIST_SET_PREVIOUS_INDEX	\
