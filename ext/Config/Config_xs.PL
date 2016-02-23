@@ -399,8 +399,7 @@ inline
 inline
 #elif defined(__GNUC__)
 __inline
-#endif
-\E//;
+#endif\E//;
 
     # There should be at least one space between a C keyword and any subsequent
     # open parenthesis
