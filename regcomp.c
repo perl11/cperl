@@ -8440,7 +8440,7 @@ S_invlist_set_previous_index(SV* const invlist, const IV index)
 }
 
 PERL_STATIC_INLINE void
-S_invlist_trim(SV* const invlist)
+S_invlist_trim(SV* invlist)
 {
     /* Free the not currently-being-used space in an inversion list */
 
