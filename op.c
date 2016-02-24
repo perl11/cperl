@@ -193,7 +193,7 @@ S_prune_chain_head(OP** op_p)
             || (*op_p)->op_type == OP_SCALAR
             || (*op_p)->op_type == OP_LINESEQ))
         *op_p = (*op_p)->op_next;
-    if (OP_TYPE_IS(*op_p, OP_NEXTSTATE)
+    if ((OP_TYPE_IS(*op_p, OP_NEXTSTATE) || OP_TYPE_IS(*op_p, OP_DBSTATE))
         && OP_TYPE_IS((*op_p)->op_next, OP_SIGNATURE))
         *op_p = (*op_p)->op_next;
 }

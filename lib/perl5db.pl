@@ -513,10 +513,7 @@ package DB;
 use strict;
 
 use Cwd ();
-
 my $_initial_cwd;
-
-BEGIN {eval 'use IO::Handle'}; # Needed for flush only? breaks under miniperl
 
 BEGIN {
     require feature;
@@ -528,7 +525,7 @@ BEGIN {
 # Debugger for Perl 5.00x; perl5db.pl patch level:
 use vars qw($VERSION $header);
 
-$VERSION = '1.49_03';
+$VERSION = '1.49_04c';
 
 $header = "perl5db.pl version $VERSION";
 
@@ -3134,6 +3131,7 @@ any variables we might want to address in the C<DB> package.
             }
             elsif ( $term_pid == $$ ) {
                 eval { # May run under miniperl, when not available...
+                    require IO::Handle;
                     STDOUT->flush();
                     STDERR->flush();
                 };

@@ -2041,6 +2041,11 @@ PP(pp_dbstate)
 	    if (CvDEPTH(cv) >= 2)
 		pad_push(CvPADLIST(cv), CvDEPTH(cv));
 	    PAD_SET_CUR_NOSAVE(CvPADLIST(cv), CvDEPTH(cv));
+            if (CvHASSIG(cv)) {
+                dMARK;
+                cx->blk_sub.argarray  = MARK+1;
+                cx->blk_sub.savearray = (AV*)SP;
+            }
 	    RETURNOP(CvSTART(cv));
 	}
     }

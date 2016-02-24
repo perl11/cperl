@@ -12367,7 +12367,10 @@ Perl_parse_subsignature(pTHX)
     st.items[2].uv = SIGNATURE_end; /* actions */
 
     st.sig_op = newUNOP_AUX(OP_SIGNATURE, 0, NULL, st.items+1);
-    initops = newSTATEOP(0, NULL, st.sig_op);
+    initops = st.sig_op;
+    /* Note that this is illegal, but skipped in prune_chain_head().
+       A cop before a sig resets SP which resets argc to 0. */
+    /*initops = newSTATEOP(0, NULL, st.sig_op);*/
 
     lex_read_space(0);
     c = lex_peek_unichar(0);
