@@ -12836,7 +12836,9 @@ Perl_ck_entersub_args_core(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 /*
 =for apidoc Am|void|cv_get_call_checker|CV *cv|Perl_call_checker *ckfun_p|SV **ckobj_p
 
-Retrieves the function that will be used to fix up a call to C<cv>.
+Retrieves the function that will be used to fix up a call to the C<cv>
+to override the default signature handling or suppress evaluation of the
+args (i.e. macros).
 Specifically, the function is applied to an C<entersub> op tree for a
 subroutine call, not marked with C<&>, where the callee can be identified
 at compile time as C<cv>.
