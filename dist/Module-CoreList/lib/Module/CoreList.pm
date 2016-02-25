@@ -297,7 +297,11 @@ sub version_sort {
   my ($a, $b) = @_;
   $a =~ s/c$//;
   $b =~ s/c$//;
-  $a <=> $b
+  if ($a =~ /^[+-]?[\d\.]+$/ and $b =~ /^[+-]?[\d\.]+$/) {
+    return $a <=> $b;
+  } else {
+    return $a cmp $b;
+  }
 }
 sub version_strip {
   my $a = shift;
@@ -11632,9 +11636,15 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
     '5.022002c' => {
         delta_from => '5.022001c',
         changed => {
+            'B::C'                    => '1.54',
             'Config'                  => '6.19',
+            'Cpanel::JSON::XS'        => '3.0211',
+            'Devel::NYTProf'          => '6.02',
+            'ExtUtils::Constant'      => '0.23_02',
+            'Internals::DumpArenas'   => '0.12_01',
             'Module::CoreList'        => '5.20160225c',
             'Module::CoreList::Utils' => '5.20160225c',
+            'YAML::LibYAML'           => '0.62',
         },
         removed => {
         }
@@ -12709,7 +12719,9 @@ for my $version (sort { version_sort($a, $b) } keys %deprecated) {
     'Archive::Tar::File'    => 'cpan',
     'AutoLoader'            => 'cpan',
     'AutoSplit'             => 'cpan',
+    'B::C'                  => 'cpan',
     'B::Debug'              => 'cpan',
+    'Cpanel::JSON::XS'      => 'cpan',
     'CPAN'                  => 'cpan',
     'CPAN::Author'          => 'cpan',
     'CPAN::Bundle'          => 'cpan',
@@ -12762,6 +12774,7 @@ for my $version (sort { version_sort($a, $b) } keys %deprecated) {
     'Config::Perl::V'       => 'cpan',
     'DB_File'               => 'cpan',
     'Devel::PPPort'         => 'cpan',
+    'Devel::NYTProf'        => 'cpan',
     'Digest'                => 'cpan',
     'Digest::MD5'           => 'cpan',
     'Digest::SHA'           => 'cpan',
@@ -12839,6 +12852,7 @@ for my $version (sort { version_sort($a, $b) } keys %deprecated) {
     'Filter::Util::Call'    => 'cpan',
     'Getopt::Long'          => 'cpan',
     'HTTP::Tiny'            => 'cpan',
+    'Internals::DumpArenas' => 'cpan',
     'IO::Compress::Adapter::Bzip2'=> 'cpan',
     'IO::Compress::Adapter::Deflate'=> 'cpan',
     'IO::Compress::Adapter::Identity'=> 'cpan',
@@ -13083,6 +13097,7 @@ for my $version (sort { version_sort($a, $b) } keys %deprecated) {
     'Win32'                 => 'cpan',
     'Win32API::File'        => 'cpan',
     'Win32API::File::ExtUtils::Myconst2perl'=> 'cpan',
+    'YAML::LibYAML'         => 'cpan',
     'autodie'               => 'cpan',
     'autodie::Scope::Guard' => 'cpan',
     'autodie::Scope::GuardStack'=> 'cpan',
@@ -13111,8 +13126,10 @@ for my $version (sort { version_sort($a, $b) } keys %deprecated) {
     'Archive::Tar'          => undef,
     'Archive::Tar::Constant'=> undef,
     'Archive::Tar::File'    => undef,
+    'B::C'                  => 'https://github.com/rurban/perl-compiler/issues',
     'B::Debug'              => undef,
     'Config'                => 'https://github.com/perl11/p5-Config/issues',
+    'Cpanel::JSON::XS'      => 'https://github.com/rurban/Cpanel-JSON-XS/issues',
     'CPAN'                  => undef,
     'CPAN::Author'          => undef,
     'CPAN::Bundle'          => undef,
@@ -13163,6 +13180,7 @@ for my $version (sort { version_sort($a, $b) } keys %deprecated) {
     'Compress::Zlib'        => undef,
     'Config::Perl::V'       => undef,
     'DB_File'               => undef,
+    'Devel::NYTProf'        => 'https://github.com/timbunce/devel-nytprof/issues',
     'Devel::PPPort'         => 'https://github.com/mhx/Devel-PPPort/issues/',
     'Digest'                => undef,
     'Digest::MD5'           => undef,
@@ -13273,6 +13291,7 @@ for my $version (sort { version_sort($a, $b) } keys %deprecated) {
     'IPC::Semaphore'        => undef,
     'IPC::SharedMem'        => undef,
     'IPC::SysV'             => undef,
+    'Internals::DumpArenas' => undef,
     'JSON::PP'              => undef,
     'JSON::PP::Boolean'     => undef,
     'List::Util'            => undef,
@@ -13485,6 +13504,7 @@ for my $version (sort { version_sort($a, $b) } keys %deprecated) {
     'Win32'                 => undef,
     'Win32API::File'        => undef,
     'Win32API::File::ExtUtils::Myconst2perl'=> undef,
+    'YAML::LibYAML'         => 'https://github.com/ingydotnet/yaml-libyaml-pm/issues',
     'autodie'               => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=autodie',
     'autodie::Scope::Guard' => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=autodie',
     'autodie::Scope::GuardStack'=> 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=autodie',
