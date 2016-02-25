@@ -5,7 +5,7 @@ use vars qw($VERSION);
 use Carp;
 use Text::Wrap;
 use ExtUtils::Constant::Utils qw(C_stringify perl_stringify);
-$VERSION = '0.05';
+$VERSION = '0.23_03';
 
 use constant is_perl56 => ($] < 5.007 && $] > 5.005_50);
 
@@ -331,8 +331,8 @@ of C code to proceed and follow the assignment. I<pre> will be at the start
 of a block, so variables may be defined in it.
 
 =cut
-# Hmm. value undef to to NOTDEF? value () to do NOTFOUND?
 
+# Hmm. value undef to to NOTDEF? value () to do NOTFOUND?
 sub assign {
   my $self = shift;
   my $args = shift;
@@ -614,7 +614,7 @@ sub C_constant_prefix_param {
   '';
 }
 
-sub C_constant_prefix_param_defintion {
+sub C_constant_prefix_param_definition {
   '';
 }
 
@@ -634,7 +634,7 @@ sub C_constant_other_params {
   '';
 }
 
-sub C_constant_other_params_defintion {
+sub C_constant_other_params_definition {
   '';
 }
 
@@ -920,13 +920,13 @@ sub C_constant {
   my ($body, @subs);
   $body = $self->C_constant_return_type($params) . "\n$subname ("
     # Eg "pTHX_ "
-    . $self->C_constant_prefix_param_defintion($params)
+    . $self->C_constant_prefix_param_definition($params)
       # Probably "const char *name"
       . $self->name_param_definition($params);
   # Something like ", STRLEN len"
   $body .= ", " . $self->namelen_param_definition($params)
     unless defined $namelen;
-  $body .= $self->C_constant_other_params_defintion($params);
+  $body .= $self->C_constant_other_params_definition($params);
   $body .= ") {\n";
 
   if (defined $namelen) {

@@ -1,6 +1,6 @@
 package ExtUtils::Constant;
 use vars qw (@ISA $VERSION @EXPORT_OK %EXPORT_TAGS);
-$VERSION = '0.23_02';
+$VERSION = '0.23_03';
 $VERSION = eval $VERSION;
 
 =head1 NAME
@@ -141,6 +141,20 @@ sub switch_clause {
 					@_);
 }
 
+=item C_constant
+
+A function to generate the C code in F<const-c.inc> to implement the
+perl subroutine I<PACKAGE>::constant.
+
+The C<$what> paramater should be given either as a comma separated
+list of types that the C subroutine C<constant> will generate or as a
+reference to a hash. It should be the same list of types as
+C<XS_constant> was given. Otherwise C<XS_constant> and C<C_constant>
+may have different ideas about the number of parameters passed to the
+C function C<constant>.
+
+=cut
+
 sub C_constant {
   my ($package, $subname, $default_type, $what, $indent, $breakout, @items)
     = @_;
@@ -160,8 +174,8 @@ C<C_constant>, and usually named C<constant>.
 I<TYPES> should be given either as a comma separated list of types that the
 C subroutine C<constant> will generate or as a reference to a hash. It should
 be the same list of types as C<C_constant> was given.
-[Otherwise C<XS_constant> and C<C_constant> may have different ideas about
-the number of parameters passed to the C function C<constant>]
+Otherwise C<XS_constant> and C<C_constant> may have different ideas about
+the number of parameters passed to the C function C<constant>.
 
 You can call the perl visible subroutine something other than C<constant> if
 you give the parameter I<XS_SUBNAME>. The C subroutine it calls defaults to

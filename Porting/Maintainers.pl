@@ -557,9 +557,8 @@ use File::Glob qw(:case);
         # this package isn't primarily maintained in core
         # Another release will happen "Sometime" 'NWCLARK/ExtUtils-Constant-0.16.tar.gz'
         # cperl: This module could eventually be used to maintain warnings as XS and Config as XS,
-        # but unfortunately not with the current maintainership. So we would need to add
-        # Perfect::Hash into core also.
-        'DISTRIBUTION' => 'RURBAN/ExtUtils-Constant-0.23_02.tar.gz',
+        # but unfortunately not with the current maintainership.
+        'DISTRIBUTION' => 'RURBAN/ExtUtils-Constant-0.23_03.tar.gz',
         'FILES'    => q[dist/ExtUtils-Constant],
         'EXCLUDED' => [
             qw( lib/ExtUtils/Constant/Aaargh56Hash.pm
