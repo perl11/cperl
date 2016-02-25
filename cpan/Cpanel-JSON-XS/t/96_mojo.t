@@ -35,8 +35,12 @@ ok( !$js->{is_false}, 'ok !false');
 my $mj = Mojo::JSON::encode_json( $yesno );
 $js = $cjson->decode( $mj );
 
-is( $js->[0], '', 'can decode Mojo false' );
+# fragile
+ok( $js->[0] eq '' or $js->[0] == 0 or !$js->[0], 'can decode Mojo false' );
 is( $js->[1], 1,  'can decode Mojo true' );
-# Note this is fragile. it depends on the internal representation of booleans.
-is_deeply( $js, ['', 1], 'can decode Mojo booleans (fragile)' )
-  or diag( $mj, $js );
+TODO: {
+  # Note this is fragile. it depends on the internal representation of booleans.
+  # It can also be ['0', '1']
+  is_deeply( $js, ['', 1], 'can decode Mojo booleans (fragile)' )
+    or diag( $mj, $js );
+}

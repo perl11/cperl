@@ -29,7 +29,9 @@
 #define HAVE_BAD_POWL
 #endif
 
-#if defined(_WIN32)
+/* strawberry 5.22 with USE_MINGW_ANSI_STDIO and USE_LONG_DOUBLE have now 
+   a proper inf/nan */
+#if defined(_WIN32) && !defined(__USE_MINGW_ANSI_STDIO) && !defined(USE_LONG_DOUBLE)
 #define STR_INF "1.#INF"
 #define STR_NAN "1.#IND"
 #define STR_QNAN "1.#QNAN"
@@ -40,6 +42,7 @@
 #else
 #define STR_INF "inf"
 #define STR_NAN "nan"
+#define STR_QNAN "1.#QNAN"
 #endif
 #endif
 

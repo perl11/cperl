@@ -16,6 +16,12 @@ my ($inf, $nan) =
   ($^O eq 'solaris') ? ('Infinity','NaN') :
                        ('inf','nan');
 my $neg_nan = ($^O eq 'MSWin32') ? "-1.#IND" : "-".$nan;
+if ($^O eq 'MSWin32'
+    and $Config{ccflags} =~ /-D__USE_MINGW_ANSI_STDIO/
+    and $Config{uselongdouble})
+{
+  ($inf, $nan, $neg_nan) = ('inf','nan','-nan');
+}
 # newlib and glibc 2.5 have no -nan support, just nan. The BSD's neither, but they might
 # come up with it lateron, as darwin did.
 #if ($^O eq 'cygwin' or ($Config{glibc_version} && $Config{glibc_version} < 2.6)) {
