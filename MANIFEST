@@ -141,6 +141,7 @@ cpan/B-C/cc_runtime.h
 cpan/B-C/C.xs
 cpan/B-C/hints/darwin.pl
 cpan/B-C/hints/openbsd.pl
+cpan/B-C/lib/B/Asmdata.pm
 cpan/B-C/lib/B/Assembler.pm
 cpan/B-C/lib/B/Bblock.pm
 cpan/B-C/lib/B/Bytecode.pm
@@ -148,6 +149,7 @@ cpan/B-C/lib/B/CC.pm
 cpan/B-C/lib/B/C.pm
 cpan/B-C/lib/B/Disassembler.pm
 cpan/B-C/lib/B/Stackobj.pm
+cpan/B-C/Makefile.PL
 cpan/B-C/perlcompile.pod
 cpan/B-C/perloptree.pod
 cpan/B-C/script/assemble

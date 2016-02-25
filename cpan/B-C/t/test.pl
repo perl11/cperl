@@ -3,7 +3,7 @@
 
 use Test::More;
 use File::Spec;
-use B::C::Flags;
+use B::C::Config;
 
 sub curr_test {
     $test = shift if @_;
@@ -578,7 +578,11 @@ sub run_cmd {
 }
 
 sub Mblib {
-   $^O eq 'MSWin32' ? '-Iblib\arch -Iblib\lib' : "-Iblib/arch -Iblib/lib";
+    if ($ENV{PERL_CORE}) {
+        $^O eq 'MSWin32' ? '-I..\..\lib -I..\..\lib\auto' : "-I../../lib -I../../lib/auto";
+    } else {
+        $^O eq 'MSWin32' ? '-Iblib\arch -Iblib\lib' : "-Iblib/arch -Iblib/lib";
+    }
 }
 
 sub tests {
@@ -605,7 +609,7 @@ sub run_cc_test {
     $opt = '' unless $opt;
     #if ($] > 5.021006 and $fnbackend eq 'cc') { print "ok $cnt # skip CC for 5.22 WIP\n"; return 1; }
     use Config;
-    require B::C::Flags;
+    require B::C::Config;
     # note that the smokers run the c.t and c_o3.t tests in parallel, with possible
     # interleaving file writes even for the .pl.
     my $test = $fnbackend."code".$cnt.$opt.".pl";
@@ -640,10 +644,13 @@ sub run_cc_test {
                     progfile => $test);
     if (! $? and -s $cfile) {
 	use ExtUtils::Embed ();
+	my $coredir = $ENV{PERL_CORE} ? File::Spec->catdir('..', '..')
+                         : File::Spec->catdir($Config{installarchlib}, "CORE");
 	my $command = ExtUtils::Embed::ccopts;
+        $command .= " -I".$coredir if $ENV{PERL_CORE};
 	$command .= " -DHAVE_INDEPENDENT_COMALLOC "
-	  if $B::C::Flags::have_independent_comalloc;
-	$command .= " -o $exe $cfile ".$B::C::Flags::extra_cflags . " ";
+	  if $B::C::Config::have_independent_comalloc;
+	$command .= " -o $exe $cfile ".$B::C::Config::extra_cflags . " ";
         if ($Config{cc} eq 'cl') {
             if ($^O eq 'MSWin32' and $Config{ccversion} eq '12.0.8804' and $Config{cc} eq 'cl') {
                 $command =~ s/ -opt:ref,icf//;
@@ -655,10 +662,10 @@ sub run_cc_test {
             run_cmd($cmdline, 20);
             $command = '';
         }
-	my $coredir = $ENV{PERL_SRC} || File::Spec->catdir($Config{installarchlib}, "CORE");
 	my $libdir  = File::Spec->catdir($Config{prefix}, "lib");
         my $so = $Config{so};
         my $linkargs = ExtUtils::Embed::ldopts('-std');
+        $linkargs .= " -L".$coredir if $ENV{PERL_CORE};
         # At least cygwin gcc-4.3 crashes with 2x -fstack-protector
         $linkargs =~ s/-fstack-protector\b//
           if $linkargs !~ /-fstack-protector-strong\b/
@@ -677,7 +684,7 @@ sub run_cc_test {
 	    $command .= $linkargs;
 	    $command .= " -lperl" if $command !~ /(-lperl|CORE\/libperl5)/ and $^O ne 'MSWin32';
 	}
-	$command .= $B::C::Flags::extra_libs;
+	$command .= $B::C::Config::extra_libs;
         my $NULL = $^O eq 'MSWin32' ? '' : '2>/dev/null';
         my $cmdline = "$Config{cc} $command $NULL";
         if ($Config{cc} eq 'cl') {
@@ -851,7 +858,7 @@ sub plctestok {
 sub plctest {
     my ($num, $expected, $base, $script, $todo) =  @_;
 
-    if ($] > 5.021006 and !$B::C::Flags::have_byteloader) {
+    if ($] > 5.021006 and !$B::C::Config::have_byteloader) {
         ok(1, "SKIP perl5.22 broke ByteLoader");
         return 1;
     }
@@ -927,12 +934,14 @@ sub ctest {
       if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} > 1;
     system "$runperl ".Mblib." -MO=$b,-o$name.c $post $name.pl";
     unless (-e "$name.c") {
-        ok (undef, "#B::$backend failed");
+        ok (undef, "$todo B::$backend failed to compile");
         return 1;
     }
-    diag("$runperl ".Mblib." blib/script/cc_harness -q -o $name $name.c")
+    my $cc_harness = $ENV{PERL_CORE} ? "script/cc_harness -I../../lib"
+                                     : "blib/script/cc_harness";
+    diag("$runperl ".Mblib." $cc_harness -q -o $name $name.c")
       if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} > 1;
-    system "$runperl ".Mblib." blib/script/cc_harness -q -o $name $name.c";
+    system "$runperl ".Mblib." $cc_harness -q -o $name $name.c";
     my $exe = $name.$Config{exe_ext};
     unless (-e $exe) {
 	if ($todo and $todo =~ /TODO/) {
@@ -1005,12 +1014,14 @@ sub ccompileok {
     my $runperl = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
     my $b = $] > 5.008 ? "-qq,$backend" : "$backend";
     my $Mblib = Mblib;
+    my $cc_harness = $ENV{PERL_CORE} ? "script/cc_harness -I../../lib"
+                                     : "blib/script/cc_harness";
     system "$runperl $Mblib -MO=$b,-o$name.c $name.pl";
     unless (-e "$name.c") {
         ok (undef, "#B::$backend failed");
         return 1;
     }
-    system "$runperl $Mblib blib/script/cc_harness -q -o $name $name.c";
+    system "$runperl $Mblib $cc_harness -q -o $name $name.c";
     my $ok = -e $name or -e "$name.exe";
     if ($todo and $todo =~ /TODO/) {
       TODO: {

@@ -3,7 +3,7 @@
 use strict;
 use Test::More tests => 3;
 use Config;
-use B::C::Flags;
+use B::C::Config;
 
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
 my $ITHREADS  = ($Config{useithreads});
@@ -31,7 +31,7 @@ SKIP: {
     local $TODO = "Bytecode issue 24 dbm (still original compiler)"
       if $] < 5.008001 or $result =~ /No dbm on this machine/;
     skip "perl5.22 broke ByteLoader", 1
-      if $] > 5.021006 and !$B::C::Flags::have_byteloader;
+      if $] > 5.021006 and !$B::C::Config::have_byteloader;
     is($result, $expected, "Bytecode dbm fixed with r882, 1.30");
 }}
 unlink("$name.db*");

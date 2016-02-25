@@ -3,8 +3,8 @@
 # newPMOP assertion >=5.10 threaded
 use strict;
 use Test::More;
-use B::C::Flags;
-Test::More->import($] <= 5.021006 || $B::C::Flags::have_byteloader
+use B::C::Config;
+Test::More->import($] <= 5.021006 || $B::C::Config::have_byteloader
                    ? (tests => 1) : (skip_all => 'perl5.22 broke ByteLoader'));
 use Config;
 

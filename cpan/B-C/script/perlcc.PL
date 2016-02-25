@@ -75,7 +75,7 @@ use Pod::Usage;
 # use Time::HiRes qw(gettimeofday tv_interval);
 our $VERSION = 2.20;
 $| = 1;
-eval { require B::C::Flags; };
+eval { require B::C::Config; };
 
 $SIG{INT} = sub { exit(); } if exists $SIG{INT}; # exit gracefully and clean up after ourselves.
 
@@ -578,8 +578,8 @@ sub cc_harness_msvc {
     my $obj = "${Output}.obj";
     my $compile = ExtUtils::Embed::ccopts." -c -Fo$obj $cfile ";
     my $link = "-out:$Output $obj";
-    $compile .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Flags::have_independent_comalloc;
-    $compile .= $B::C::Flags::extra_cflags;
+    $compile .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
+    $compile .= $B::C::Config::extra_cflags;
     $compile .= " -I".$_ for split /\s+/, opt('I');
     $compile .= " -DSTATICXS" if opt('staticxs');
     $compile .= " ".opt('Wc') if opt('Wc');
@@ -613,7 +613,7 @@ sub cc_harness_msvc {
         $link .= $extra_libs;
     }
     $link .= " perl5$Config{PERL_VERSION}.lib kernel32.lib msvcrt.lib";
-    $link .= $B::C::Flags::extra_libs;
+    $link .= $B::C::Config::extra_libs;
     vprint 3, "Calling $Config{cc} $compile";
     vsystem("$Config{cc} $compile");
     vprint 3, "Calling $Config{ld} $link";
@@ -624,8 +624,8 @@ sub cc_harness {
     my ($cfile, $stash, $extra_libs) = @_;
     use ExtUtils::Embed ();
     my $command = ExtUtils::Embed::ccopts." -o $Output $cfile ";
-    $command .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Flags::have_independent_comalloc;
-    $command .= $B::C::Flags::extra_cflags if $B::C::Flags::extra_cflags;
+    $command .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
+    $command .= $B::C::Config::extra_cflags if $B::C::Config::extra_cflags;
     $command .= " -I".$_ for split /\s+/, opt('I');
     $command .= " -L".$_ for split /\s+/, opt('L');
     $command .= " -DSTATICXS" if opt('staticxs');
@@ -703,7 +703,7 @@ sub cc_harness {
     }
     $ldopts .= " -lperl" unless $command =~ /perl/;
     $command .= " ".$ldopts;
-    $command .= $B::C::Flags::extra_libs if $B::C::Flags::extra_libs;
+    $command .= $B::C::Config::extra_libs if $B::C::Config::extra_libs;
     vprint 3, "Calling $Config{cc} $command";
     vsystem("$Config{cc} $command");
 }
@@ -887,9 +887,9 @@ sub spawnit {
 }
 
 sub version {
-    require B::C::Flags;
+    require B::C::Config;
     no warnings 'once';
-    my $BC_VERSION = $B::C::Flags::VERSION . $B::C::REVISION;
+    my $BC_VERSION = $B::C::Config::VERSION . $B::C::REVISION;
     return "perlcc $VERSION, B-C-${BC_VERSION} built for $Config{perlpath} $Config{archname}\n";
 }
 

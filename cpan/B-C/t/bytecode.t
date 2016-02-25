@@ -23,8 +23,8 @@ BEGIN {
     print "1..0 # Skip -- Perl configured without B module\n";
     exit 0;
   }
-  require B::C::Flags;
-  if ($] > 5.021006 and !$B::C::Flags::have_byteloader) {
+  require B::C::Config;
+  if ($] > 5.021006 and !$B::C::Config::have_byteloader) {
     print "1..0 # Skip -- perl5.22 broke ByteLoader\n";
     exit 0;
   }

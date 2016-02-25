@@ -273,6 +273,7 @@ ENAMES(hv)
 PPCODE:
     if (SvOOK(hv)) {
       if (HvENAME_HEK(hv)) {
+        I32 i = 0;
         const I32 count = HvAUX(hv)->xhv_name_count;
         if (count) {
           HEK** names = HvAUX(hv)->xhv_name_u.xhvnameu_names;
@@ -283,8 +284,9 @@ PPCODE:
             PUSHs(newSVpvn_flags(HEK_KEY(*hekp), HEK_LEN(*hekp),
                                  HEK_UTF8(*hekp) ? SVf_UTF8|SVs_TEMP : SVs_TEMP));
             ++hekp;
+            i++;
           }
-          XSRETURN(count < 0 ? -count : count);
+          XSRETURN(i);
         }
         else {
           HEK *const hek = HvENAME_HEK_NN(hv);

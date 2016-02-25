@@ -21,9 +21,9 @@ sub todofaster {
     ok(1, $cmt);
   } else {
   TODO: {
-    # esp. with $ENV{HARNESS_ACTIVE}
-    local $TODO = " (unreliable timings with parallel testing)";
-    ok(0, $cmt);
+      # esp. with $ENV{HARNESS_ACTIVE}
+      local $TODO = " (unreliable timings with parallel testing)";
+      ok(0, $cmt);
     }
   }
 }
@@ -35,6 +35,7 @@ my $perlcc = "$X $Mblib blib/script/perlcc";
 $perlcc .= " -Wb=-fno-fold,-fno-warnings" if $] > 5.013;
 $perlcc .= " -UB -uFile::Spec -uCwd";
 $perlcc .= " -uPod::Perldoc::ToText" if $] >= 5.023004;
+#$perlcc .= " -uFile::Temp" if $] > 5.015;
 $perlcc .= " -uExporter" if $] < 5.010;
 my $exe = $Config{exe_ext};
 my $perldocexe = $^O eq 'MSWin32' ? "perldoc$exe" : "./perldoc$exe";
@@ -43,28 +44,27 @@ die "1..1 # $perldoc not found\n" unless -f $perldoc;
 plan tests => 7;
 
 # XXX interestingly 5.8 perlcc cannot compile perldoc because Cwd disturbs the method finding
-# vice versa 5.14 cannot be compile perldoc manually because File::Temp is not included
+# vice versa 5.14 cannot compile perldoc manually because File::Temp is not included
 my $compile = "$perlcc -o $perldocexe $perldoc";
 diagv $compile;
 my $res = `$compile`;
 ok(-s $perldocexe, "$perldocexe compiled"); #1
 
 diagv "see if $perldoc -T works";
-my $T_opt = "-- -T -f wait";
-my $ori;
+my $T_opt = "-T -f wait";
 my $PAGER = '';
-my ($result, $out, $err);
+my ($result, $ori, $out, $err);
 my $t0 = [gettimeofday];
 if ($^O eq 'MSWin32') {
-  $T_opt = "-- -t -f wait";
+  $T_opt = "-t -f wait";
   $PAGER = "PERLDOC_PAGER=type ";
   ($result, $ori, $err) = run_cmd("$PAGER$X -S $perldoc $T_opt", 20);
 } else {
-  ($result, $ori, $err) = run_cmd("$X -S $perldoc $T_opt 2>&1", 20);
+  ($result, $ori, $err) = run_cmd("$X -S $perldoc $T_opt", 20);
 }
 my $t1 = tv_interval( $t0 );
 if ($ori =~ /Unknown option/) {
-  $T_opt = "-- -t -f wait";
+  $T_opt = "-t -f wait";
   $PAGER = "PERLDOC_PAGER=cat " if $^O ne 'MSWin32';
   diagv "No, use $PAGER instead";
   $t0 = [gettimeofday];
@@ -73,6 +73,19 @@ if ($ori =~ /Unknown option/) {
 } else {
   diagv "it does";
 }
+my $strip_banner = 0;
+# check if we need to strip 1st and last line. Needed for 5.18-5.20
+sub strip_banner($) {
+  my $s = shift;
+  $s =~ s/^.* User Contributed Perl Documentation (.*?)$//m;
+  $s =~ s/^perl v.*$//m;
+  return $s;
+}
+if ($ori =~ / User Contributed Perl Documentation /) {
+  $strip_banner++;
+  $ori = strip_banner $ori;
+}
+
 $t0 = [gettimeofday];
 ($result, $out, $err) = run_cmd("$PAGER $perldocexe $T_opt", 20);
 my $t2 = tv_interval( $t0 );
@@ -80,6 +93,7 @@ my $t2 = tv_interval( $t0 );
 # dev perldoc 3.15_13: Can't locate object method "_is_mandoc" via package "Pod::Perldoc::ToMan"
 $ori =~ s{ /\S*perldoc }{ perldoc };
 $out =~ s{ ./perldoc }{ perldoc };
+$out = strip_banner $out if $strip_banner;
 is($out, $ori, "same result"); #2
 
 SKIP: {
@@ -100,6 +114,7 @@ $t0 = [gettimeofday];
 ($result, $out, $err) = run_cmd("$PAGER $perldocexe $T_opt", 20);
 my $t3 = tv_interval( $t0 );
 $out =~ s{ ./perldoc_O3 }{ perldoc };
+$out = strip_banner $out if $strip_banner;
 is($out, $ori, "same result"); #5
 
 SKIP: {

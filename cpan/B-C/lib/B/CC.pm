@@ -298,8 +298,8 @@ our $VERSION = '1.16_01';
 use strict;
 our %Config;
 BEGIN {
-  require B::C::Flags;
-  *Config = \%B::C::Flags::Config;
+  require B::C::Config;
+  *Config = \%B::C::Config::Config;
   # make it a restricted hash
   Internals::SvREADONLY(%Config, 1) if $] >= 5.008004;
 }
@@ -320,7 +320,7 @@ use B::C qw(save_unused_subs objsym init_sections mark_unused mark_skip
   svop_or_padop_pv inc_cleanup curcv set_curcv);
 use B::Bblock qw(find_leaders);
 use B::Stackobj qw(:types :flags);
-use B::C::Flags;
+use B::C::Config;
 # use attributes qw(get reftype);
 
 @B::OP::ISA = qw(B);                    # support -Do
@@ -3495,7 +3495,7 @@ OPTION:
   #  warn "no_stack: ",join(" ",sort keys %no_stack),"\n";
   #}
 
-  mark_skip(qw(B::C B::C::Flags B::CC B::Asmdata B::FAKEOP
+  mark_skip(qw(B::C B::C::Config B::CC B::Asmdata B::FAKEOP
                B::Pseudoreg B::Shadow B::C::InitSection
                O B::Stackobj B::Stackobj::Bool B::Stackobj::Padsv
                B::Stackobj::Const B::Stackobj::Aelem B::Bblock));
@@ -3510,7 +3510,7 @@ OPTION:
   }
   $B::C::destruct = 0 unless $c_optimise{destruct} and $] > 5.008;
   $B::C::stash = 0 unless $c_optimise{stash};
-  if (!$B::C::Flags::have_independent_comalloc) {
+  if (!$B::C::Config::have_independent_comalloc) {
     $B::C::av_init = 1 unless $c_optimise{av_init};
     $B::C::av_init2 = 0 unless $c_optimise{av_init2};
   } else {

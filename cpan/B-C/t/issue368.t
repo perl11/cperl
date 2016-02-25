@@ -19,6 +19,7 @@ use B::C ();
 my $cmt = '#368 boot EV';
 my $todo = $B::C::VERSION ge '1.51' ? "" : "TODO ";
 $todo = "TODO 5.10thr " if $] =~ /^5\.010001/ and $Config{useithreads};
+$todo = "TODO cperl " if $Config{usecperl} or $] >= 5.022;
 my $script = 'use EV; print q(ok)';
 
 ctestok(1, 'C,-O3', 'ccode368i', $script, $todo.'C '.$cmt);

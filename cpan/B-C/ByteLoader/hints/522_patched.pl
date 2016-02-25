@@ -1,13 +1,13 @@
 #!/usr/bin/perl
-# run with >=5.22 to check if $have_byteloader is already probed in B::C::Flags
+# run with >=5.22 to check if $have_byteloader is already probed in B::C::Config
 # and probe if not.
 # we need to run this after make to be able to use ByteLoader already
 
 my ($fr, $fw, $s);
-open $fr, "<", "lib/B/C/Flags.pm" or die "lib/B/C/Flags.pm does not exist $!";
+open $fr, "<", "lib/B/C/Config.pm" or die "lib/B/C/Config.pm does not exist $!";
 while (<$fr>) {
   if (/\$have_byteloader = undef;/) { # not yet probed
-    open $fw, ">", "lib/B/C/Flags.tmp" or die "cannot write lib/B/C/Flags.tmp $!";
+    open $fw, ">", "lib/B/C/Config.tmp" or die "cannot write lib/B/C/Config.tmp $!";
     my $check = probe_byteloader(); # returns 1 or 0
     s/\$have_byteloader = undef;/\$have_byteloader = $check;/;
     print $fw $s; # write what we read until now
@@ -21,9 +21,9 @@ while (<$fr>) {
 close $fr;
 if ($fw) {
   close $fw;
-  unlink "lib/B/C/Flags.bak" if -e "lib/B/C/Flags.bak";
-  rename "lib/B/C/Flags.pm", "lib/B/C/Flags.bak";
-  rename "lib/B/C/Flags.tmp", "lib/B/C/Flags.pm";
+  unlink "lib/B/C/Config.bak" if -e "lib/B/C/Config.bak";
+  rename "lib/B/C/Config.pm", "lib/B/C/Config.bak";
+  rename "lib/B/C/Config.tmp", "lib/B/C/Config.pm";
 }
 
 sub probe_byteloader {

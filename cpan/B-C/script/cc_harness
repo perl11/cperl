@@ -2,7 +2,7 @@
 use Config;
 use ExtUtils::Embed;
 
-my $coredir = $ENV{PERL_SRC} || "$Config{archlib}/CORE"; # XXX was installarchlib
+my $coredir = $ENV{PERL_CORE} ? '../..' : "$Config{archlib}/CORE";
 my $libdir  = "$Config{prefix}/lib";
 my $useshrplib = $Config{useshrplib} eq 'true';
 my $libs = $Config{libs};
@@ -20,7 +20,7 @@ if (grep {$_ eq '-A'} @ARGV) {
   @ARGV = grep {$_ ne '-A'} @ARGV;
   push @ARGV, '-DALLOW_PERL_OPTIONS';
 }
-eval { require B::C::Flags; };
+eval { require B::C::Config; };
 
 if (grep(/^-[cES]$/, @ARGV)) { # compile-only with -c -E or -S
     ;
@@ -53,7 +53,8 @@ if (grep(/^-[cES]$/, @ARGV)) { # compile-only with -c -E or -S
     $linkargs = ldopts('-std');
 }
 # Note (probably harmless): No library found for -lnsl
-$linkargs = $B::C::Flags::extra_libs . " " . $linkargs;
+$linkargs .= " -L:".$coredir if $ENV{PERL_CORE};
+$linkargs = $B::C::Config::extra_libs . " " . $linkargs;
 $linkargs .= " $libs" if index($linkargs,$libs) == -1;
 
 sub cc_harness_msvc {
@@ -68,12 +69,14 @@ sub cc_harness_msvc {
       $compile =~ s/ -O.? / -Od /;
       $compile =~ s/ -DNDEBUG / -DDEBUG /;
     }
-    $compile .= "-DHAVE_INDEPENDENT_COMALLOC " if $B::C::Flags::have_independent_comalloc;
-    $compile .= $B::C::Flags::extra_cflags;
+    $compile .= "-DHAVE_INDEPENDENT_COMALLOC " if $B::C::Config::have_independent_comalloc;
+    $compile .= $B::C::Config::extra_cflags;
     $compile .= " -I".$_ for split /\s+/, opt(I);
+    $compile .= " -I".$coredir if $ENV{PERL_CORE};
+    $link .= " -libpath:".$coredir if $ENV{PERL_CORE};
     $link .= " -libpath:".$_ for split /\s+/, opt(L);
     # TODO: -shared,-static,-sharedxs,-staticxs
-    $link .= (" ".$B::C::Flags::extra_libs);
+    $link .= (" ".$B::C::Config::extra_libs);
     if ($stash) {
         my @mods = split /-?u /, $stash;
         $link .= " ".ldopts("-std", \@mods);
@@ -117,8 +120,8 @@ if ($debug and $Config{cc} =~ /gcc/) {
 
 $ccflags .= " --no-warn -Wl,--warn-once"
   if $Config{cc} =~ /gcc/ and $quiet and $^O ne 'darwin';
-$ccflags .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Flags::have_independent_comalloc;
-$ccflags .= $B::C::Flags::extra_cflags;
+$ccflags .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
+$ccflags .= $B::C::Config::extra_cflags;
 
 my $cccmd = "$Config{cc} $ccflags -I$coredir @ARGV $linkargs";
 print "$cccmd\n" unless $quiet;

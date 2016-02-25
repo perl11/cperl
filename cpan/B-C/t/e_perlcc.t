@@ -18,6 +18,7 @@ my $devnull = $^O eq 'MSWin32' ? '' : '2>/dev/null';
 #$o = "-Wb=-fno-warnings" if $] >= 5.013005;
 #$o = "-Wb=-fno-fold,-fno-warnings" if $] >= 5.013009;
 my $perlcc = "$X -Iblib/arch -Iblib/lib blib/script/perlcc";
+$perlcc = "$X -I../../lib -I../../lib/auto script/perlcc -I../.. -L../.." if $ENV{PERL_CORE};
 sub cleanup { unlink ('pcc.c','pcc.c.lst','a.out.c', "a.c", $exe, $a, "a.out.c.lst", "a.c.lst"); }
 my $e = q("print q(ok)");
 
@@ -152,11 +153,11 @@ cleanup;
 isnt(`$perlcc --Wb=-fno-fold,-v -o pcc $f $redir`, '/Writing output/m',
      "--Wb=-fno-fold,-v -o file");
 TODO: {
-  require B::C::Flags if $] > 5.021006;
+  require B::C::Config if $] > 5.021006;
   local $TODO = "catch STDERR not STDOUT" if $^O =~ /bsd$/i; # fails freebsd only
   local $TODO = "5.6 BC does not understand -DG yet" if $] < 5.007;
   local $TODO = "perl5.22 broke ByteLoader"
-    if $] > 5.021006 and !$B::C::Flags::have_byteloader;
+    if $] > 5.021006 and !$B::C::Config::have_byteloader;
   like(`$perlcc -B --Wb=-DG,-v -o pcc $f $redir`, "/-PV-/m",
        "-B -v5 --Wb=-DG -o file"); #51
 }
@@ -206,7 +207,7 @@ cleanup;
 
 TODO: {
   local $TODO = "perl5.22 broke ByteLoader"
-    if $] > 5.021006 and !$B::C::Flags::have_byteloader;
+    if $] > 5.021006 and !$B::C::Config::have_byteloader;
   is(`$perlcc -Br -opcc.plc $f $devnull`, "ok", "-Br -o file");
 }
 ok(-e 'pcc.plc', "pcc.plc file");
