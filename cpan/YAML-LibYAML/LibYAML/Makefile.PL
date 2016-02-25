@@ -7,14 +7,11 @@ if (-d '../.git') {
         or die "update.sh failed";
 }
 
-my @c_files = glob("*.c");
-push @c_files, 'LibYAML.c' unless grep { $_ eq 'LibYAML.c' } @c_files;
 my $obj_files = join ' ', map {
     my $c = $_;
     $c =~ s/\.c$/$Config::Config{_o}/;
     $c;
-} @c_files;
-
+} glob("*.c"), 'LibYAML.c';
 
 my $DEFINE = $^O eq 'MSWin32'
 ? '-DHAVE_CONFIG_H -DYAML_DECLARE_EXPORT'

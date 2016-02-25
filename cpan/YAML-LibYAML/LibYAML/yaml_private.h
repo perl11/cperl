@@ -10,7 +10,12 @@
 #include <stddef.h>
 
 #ifndef _MSC_VER
-#include <stdint.h>
+# if defined(__sun) || defined(__sun__)
+#  include <sys/inttypes.h>
+#  define PTRDIFF_MAX INT_MAX
+# else
+#  include <stdint.h>
+# endif
 #else
 #ifdef _WIN64
 #define PTRDIFF_MAX _I64_MAX
