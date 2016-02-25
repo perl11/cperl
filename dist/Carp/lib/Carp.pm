@@ -25,7 +25,9 @@ BEGIN {
     }
 }
 
-sub _fetch_sub ($pack, $sub) { # fetch sub without autovivifying
+# no signature! it is called without fixing up OP_SIGNATURE.
+sub _fetch_sub { # fetch sub without autovivifying
+    my ($pack, $sub) = @_;
     $pack .= '::';
     # only works with top-level packages
     return unless exists($::{$pack});
@@ -58,8 +60,8 @@ BEGIN {
 # internally).  As utf8::is_utf8() is only available from Perl 5.8
 # onwards, extra effort is required here to make it work on Perl 5.6.
 BEGIN {
-    if(defined(my $sub = _fetch_sub utf8 => 'is_utf8')) {
-	*is_utf8 = $sub;
+    if ($] >= 5.008) {
+	*is_utf8 = \&utf8::is_utf8;;
     } else {
 	# black magic for perl 5.6
 	*is_utf8 = sub { unpack("C", "\xaa".$_[0]) != 170 };
@@ -70,8 +72,8 @@ BEGIN {
 # downgrade where it is acceptable to fail.  It must be called with a
 # second argument that is a true value.
 BEGIN {
-    if(defined(my $sub = _fetch_sub utf8 => 'downgrade')) {
-	*downgrade = \&{"utf8::downgrade"};
+    if ($] >= 5.008) {
+	*downgrade = \&utf8::downgrade;
     } else {
 	*downgrade = sub {
 	    my $r = "";
@@ -178,7 +180,8 @@ BEGIN {
     }
 }
 
-sub caller_info (int $i) {
+sub caller_info {
+    my $i = shift;
     $i++;
     my %call_info;
     my $cgc = _cgc();
@@ -212,7 +215,7 @@ sub caller_info (int $i) {
             my $where = eval {
                 my $func    = $cgc or return '';
                 my $gv      =
-                    (_fetch_sub B => 'svref_2object' or return '')
+                    (_fetch_sub(B => 'svref_2object') or return '')
                         ->($func)->GV;
                 my $package = $gv->STASH->NAME;
                 my $subname = $gv->NAME;
@@ -250,7 +253,9 @@ sub caller_info (int $i) {
 
 # Transform an argument to a function into a string.
 our $in_recurse;
-sub format_arg ($arg) {
+sub format_arg {
+    my $arg = shift;
+
     if ( ref($arg) ) {
          # legitimate, let's not leak it.
         if (!$in_recurse &&
@@ -372,14 +377,16 @@ sub Regexp::CARP_TRACE {
 # an anon hash of known inheritances and anon array of
 # inheritances which consequences have not been figured
 # for.
-sub get_status ($cache, str $pkg) {
+sub get_status {
+    my ($cache, $pkg) = @_;
     $cache->{$pkg} ||= [ { $pkg => $pkg }, [ trusts_directly($pkg) ] ];
     return @{ $cache->{$pkg} };
 }
 
 # Takes the info from caller() and figures out the name of
 # the sub/require/eval
-sub get_subname ($info) {
+sub get_subname {
+    my $info = shift;
     if ( defined( $info->{evaltext} ) ) {
         my $eval = $info->{evaltext};
         if ( $info->{is_require} ) {
@@ -548,7 +555,9 @@ sub shortmess_heavy {
 }
 
 # If a string is too long, trims it with ...
-sub str_len_trim (str $str, int $max = 0) {
+sub str_len_trim {
+    my $str = shift;
+    my $max = shift || 0;
     if ( 2 < $max and $max < length($str) ) {
         substr( $str, $max - 3 ) = '...';
     }
@@ -561,7 +570,8 @@ sub str_len_trim (str $str, int $max = 0) {
 # Recursive versions of this have to work to avoid certain
 # possible endless loops, and when following long chains of
 # inheritance are less efficient.
-sub trusts ($child, $parent, $cache) {
+sub trusts {
+    my ($child, $parent, $cache) = @_;
     my ( $known, $partial ) = get_status( $cache, $child );
 
     # Figure out consequences until we have an answer
@@ -578,7 +588,8 @@ sub trusts ($child, $parent, $cache) {
 }
 
 # Takes a package and gives a list of those trusted directly
-sub trusts_directly ($class) {
+sub trusts_directly {
+    my $class = shift;
     no strict 'refs';
     my $stash = \%{"$class\::"};
     for my $var (qw/ CARP_NOT ISA /) {
