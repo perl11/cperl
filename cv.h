@@ -272,6 +272,9 @@ CvNAME_HEK(CV *sv)
 	((XPVCV*)MUTABLE_PTR(SvANY(cv)))->xcv_gv_u.xcv_hek = (hek), \
 	CvNAMED_on(cv)						     \
     )
+#define CvNAMEPV(cv) \
+    (CvNAME_HEK(cv) ? HEK_KEY(CvNAME_HEK(cv)) : "")
+
 
 /*
 =head1 CV reference counts and CvOUTSIDE

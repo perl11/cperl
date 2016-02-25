@@ -100,7 +100,7 @@ like( runperl( switches => [ "-DI" ], stderr => 1,
       "-DI PerlIO, as previously with env PERLIO_DEBUG" );
 like( runperl( switches => [ "-DX" ], stderr => 1,
                prog => '1' ),
-      qr/^Pad 0x[0-9a-f]+\[0x[0-9a-f]+\] new:/,
+      qr/^Pad 0x[0-9a-f]+\[\d+\] 0x[0-9a-f]+ new:/,
       "-DX Scratchpad allocation" );
 like( runperl( switches => [ "-DD" ], stderr => 1,
                prog => '$sv = bless {}, q(Internals);' ),

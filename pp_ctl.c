@@ -2873,12 +2873,12 @@ PP(pp_goto)
                     PL_curcop = cx->blk_oldcop;
                     if (!CvISXSUB(cv)) {
 #ifdef PERL_GOTOSIG_TAILCALL
-                        /*SAVECOMPPAD();*/
+                        SAVECOMPPAD();
                         PL_comppad = (PAD*)(PadlistARRAY(padlist)[depth ? depth : 1]);
                         PL_curpad = AvARRAY(PL_comppad);
                         DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-                                               "Pad 0x%" UVxf "[0x%" UVxf "] set_cur    depth=%d\n",
-                                               PTR2UV(PL_comppad), PTR2UV(PL_curpad), (int)(depth)));
+                            "Pad 0x%" UVxf "[%ld] 0x%" UVxf " set_cur    depth=%d\n",
+                            PTR2UV(PL_comppad), (long)AvFILLp(PL_comppad), PTR2UV(PL_curpad), (int)(depth)));
 #else
                         PAD_SET_CUR(padlist, depth);
 #endif

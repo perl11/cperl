@@ -271,12 +271,10 @@ Perl_pad_new(pTHX_ int flags)
     }
 
     DEBUG_X(PerlIO_printf(Perl_debug_log,
-	  "Pad 0x%"UVxf"[0x%"UVxf"] new:       compcv=0x%"UVxf
-	      " name=0x%"UVxf" flags=0x%"UVxf"\n",
-	  PTR2UV(PL_comppad), PTR2UV(PL_curpad), PTR2UV(PL_compcv),
-	      PTR2UV(padname), (UV)flags
-	)
-    );
+	  "Pad 0x%"UVxf"[%ld] 0x%"UVxf" new:       compcv=0x%"UVxf
+	  " name=0x%"UVxf" flags=0x%"UVxf" %s\n",
+	  PTR2UV(PL_comppad), (long)AvFILLp(PL_comppad), PTR2UV(PL_curpad), PTR2UV(PL_compcv),
+          PTR2UV(padname), (UV)flags, CvNAMEPV(PL_compcv)));
 
     return (PADLIST*)padlist;
 }
@@ -313,8 +311,8 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
     PERL_ARGS_ASSERT_CV_UNDEF_FLAGS;
 
     DEBUG_X(PerlIO_printf(Perl_debug_log,
-	  "CV undef: cv=0x%"UVxf" comppad=0x%"UVxf"\n",
-	    PTR2UV(cv), PTR2UV(PL_comppad))
+	  "CV undef:  cv=0x%"UVxf" comppad=0x%"UVxf" %s\n",
+          PTR2UV(cv), PTR2UV(PL_comppad), CvNAMEPV(cv))
     );
 
     if (CvFILE(&cvbody)) {
@@ -388,9 +386,8 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
 	   subs to the outer of this cv.  */
 
 	DEBUG_X(PerlIO_printf(Perl_debug_log,
-			      "Pad undef: cv=0x%"UVxf" padlist=0x%"UVxf" comppad=0x%"UVxf"\n",
-			      PTR2UV(cv), PTR2UV(padlist), PTR2UV(PL_comppad))
-		);
+	    "Pad undef: cv=0x%"UVxf" comppad=0x%"UVxf" padlist=0x%"UVxf"\n",
+            PTR2UV(cv), PTR2UV(PL_comppad), PTR2UV(padlist)));
 
 	/* detach any '&' anon children in the pad; if afterwards they
 	 * are still live, fix up their CvOUTSIDEs to point to our outside,
@@ -640,9 +637,8 @@ Perl_pad_add_name_pvn(pTHX_ const char *namepv, STRLEN namelen,
 	sv_upgrade(PL_curpad[offset], SVt_PVCV);
     assert(SvPADMY(PL_curpad[offset]));
     DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-			   "Pad addname: %ld \"%s\" new lex=0x%"UVxf"\n",
-			   (long)offset, PadnamePV(name),
-			   PTR2UV(PL_curpad[offset])));
+	  "Pad addname: %ld \"%s\" new lex=0x%"UVxf"\n",
+	  (long)offset, PadnamePV(name), PTR2UV(PL_curpad[offset])));
 
     return offset;
 }
@@ -776,9 +772,9 @@ Perl_pad_alloc(pTHX_ I32 optype, U32 tmptype)
     PL_curpad = AvARRAY(PL_comppad);
 
     DEBUG_X(PerlIO_printf(Perl_debug_log,
-	  "Pad 0x%"UVxf"[0x%"UVxf"] alloc:   %ld for %s\n",
-	  PTR2UV(PL_comppad), PTR2UV(PL_curpad), (long) retval,
-	  PL_op_name[optype]));
+	  "Pad 0x%"UVxf"[%ld] 0x%"UVxf" alloc:   %ld for %s\n",
+          PTR2UV(PL_comppad), (long)AvFILLp(PL_comppad), PTR2UV(PL_curpad),
+          (long)retval, PL_op_name[optype]));
 #ifdef DEBUG_LEAKING_SCALARS
     sv->sv_debug_optype = optype;
     sv->sv_debug_inpad = 1;
@@ -1399,9 +1395,10 @@ Perl_pad_sv(pTHX_ PADOFFSET po)
     if (!po)
 	Perl_croak(aTHX_ "panic: pad_sv po");
     DEBUG_X(PerlIO_printf(Perl_debug_log,
-	"Pad 0x%"UVxf"[0x%"UVxf"] sv:      %ld sv=0x%"UVxf"\n",
-	PTR2UV(PL_comppad), PTR2UV(PL_curpad), (long)po, PTR2UV(PL_curpad[po]))
-    );
+	"Pad 0x%"UVxf"[%ld] 0x%"UVxf" sv: %ld sv=0x%"UVxf"\n",
+        PTR2UV(PL_comppad), (long)AvFILLp(PL_comppad), PTR2UV(PL_curpad),
+        (long)po, PTR2UV(PL_curpad[po])));
+    assert(PL_comppad ? po <= (PADOFFSET)AvFILLp(PL_comppad) : 1);
     return PL_curpad[po];
 }
 
@@ -1422,9 +1419,9 @@ Perl_pad_setsv(pTHX_ PADOFFSET po, SV* sv)
     ASSERT_CURPAD_ACTIVE("pad_setsv");
 
     DEBUG_X(PerlIO_printf(Perl_debug_log,
-	"Pad 0x%"UVxf"[0x%"UVxf"] setsv:   %ld sv=0x%"UVxf"\n",
-	PTR2UV(PL_comppad), PTR2UV(PL_curpad), (long)po, PTR2UV(sv))
-    );
+	"Pad 0x%"UVxf"[%ld] 0x%"UVxf" setsv:   %ld sv=0x%"UVxf"\n",
+        PTR2UV(PL_comppad), (long)AvFILLp(PL_comppad), PTR2UV(PL_curpad),
+        (long)po, PTR2UV(sv)));
     PL_curpad[po] = sv;
 }
 
@@ -1601,8 +1598,8 @@ Perl_pad_swipe(pTHX_ PADOFFSET po, bool refadjust)
 		   (long)po, (long)AvFILLp(PL_comppad));
 
     DEBUG_X(PerlIO_printf(Perl_debug_log,
-		"Pad 0x%"UVxf"[0x%"UVxf"] swipe:   %ld\n",
-		PTR2UV(PL_comppad), PTR2UV(PL_curpad), (long)po));
+          "Pad 0x%"UVxf"[%ld] 0x%"UVxf" swipe:   %ld\n",
+	  PTR2UV(PL_comppad), (long)AvFILLp(PL_comppad), PTR2UV(PL_curpad), (long)po));
 
     if (refadjust)
 	SvREFCNT_dec(PL_curpad[po]);
@@ -1654,11 +1651,9 @@ S_pad_reset(pTHX)
 		   AvARRAY(PL_comppad), PL_curpad);
 
     DEBUG_X(PerlIO_printf(Perl_debug_log,
-	    "Pad 0x%"UVxf"[0x%"UVxf"] reset:     padix %ld -> %ld",
-	    PTR2UV(PL_comppad), PTR2UV(PL_curpad),
-		(long)PL_padix, (long)PL_padix_floor
-	    )
-    );
+	    "Pad 0x%"UVxf"[%ld] 0x%"UVxf" reset:     padix %ld -> %ld",
+	    PTR2UV(PL_comppad), (long)AvFILLp(PL_comppad), PTR2UV(PL_curpad),
+            (long)PL_padix, (long)PL_padix_floor));
 
     if (!TAINTING_get) {	/* Can't mix tainted and non-tainted temporaries. */
 	PL_padix = PL_padix_floor;
@@ -1816,9 +1811,8 @@ Perl_pad_free(pTHX_ PADOFFSET po)
 	Perl_croak(aTHX_ "panic: pad_free po");
 
     DEBUG_X(PerlIO_printf(Perl_debug_log,
-	    "Pad 0x%"UVxf"[0x%"UVxf"] free:    %ld\n",
-	    PTR2UV(PL_comppad), PTR2UV(PL_curpad), (long)po)
-    );
+	    "Pad 0x%"UVxf"[%ld] 0x%"UVxf" free:    %ld\n",
+	    PTR2UV(PL_comppad), (long)AvFILLp(PL_comppad), PTR2UV(PL_curpad), (long)po));
 
 #ifndef USE_PAD_RESET
     sv = PL_curpad[po];
