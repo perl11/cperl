@@ -1,3 +1,4 @@
+B::C cpan/B-C/C.xs e9c59d1ae8ec4864934abe89d6698cf97e2d6289
 CPAN cpan/CPAN/lib/CPAN.pm 1498af11e3528547357c8645ab23a97a5c847346
 Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL e5b06df14ab4162956415f4208fe209d01b7c000
 Devel::PPPort cpan/Devel-PPPort/PPPort_xs.PL f03c10f3a2e58312ee632771400a9a26ade7af45
@@ -39,7 +40,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MY.pm 22fe9596a0237252f
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/testlib.pm 7fbc42ca2ebc6c677b79ae5fd5647243cf069463
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/basic.t 6cdc7701b50e586bc9c4cfb1616de8eb0b1baf34
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fcad251b12d8b2412462b3
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm eb073fe121f0a5299161eb9f55c8698c12367ccd
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 67402433f9a8759da7180998c73b6c76b29263de
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 3a69337bc251a81bbddb93057ebabd5f24594907
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 99fe178fa11ef47b51df3795073318cd8f2faf5b
 Pod::Simple cpan/Pod-Simple/lib/Pod/Simple/BlackBox.pm 4108633c4f40f7f63c5a0245df2b07a4a2f22fec
