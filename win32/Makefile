@@ -1267,10 +1267,12 @@ distclean: realclean
 	-if exist $(LIBDIR)\Archive rmdir /s /q $(LIBDIR)\Archive
 	-if exist $(LIBDIR)\Attribute rmdir /s /q $(LIBDIR)\Attribute
 	-if exist $(LIBDIR)\autodie rmdir /s /q $(LIBDIR)\autodie
+	-if exist $(LIBDIR)\ByteLoader rmdir /s /q $(LIBDIR)\ByteLoader
 	-if exist $(LIBDIR)\Carp rmdir /s /q $(LIBDIR)\Carp
 	-if exist $(LIBDIR)\Compress rmdir /s /q $(LIBDIR)\Compress
 	-if exist $(LIBDIR)\Config\Perl rmdir /s /q $(LIBDIR)\Config\Perl
 	-if exist $(LIBDIR)\CPAN rmdir /s /q $(LIBDIR)\CPAN
+	-if exist $(LIBDIR)\Cpanel rmdir /s /q $(LIBDIR)\Cpanel
 	-if exist $(LIBDIR)\Data rmdir /s /q $(LIBDIR)\Data
 	-if exist $(LIBDIR)\Devel rmdir /s /q $(LIBDIR)\Devel
 	-if exist $(LIBDIR)\Digest rmdir /s /q $(LIBDIR)\Digest
@@ -1289,9 +1291,12 @@ distclean: realclean
 	-if exist $(LIBDIR)\Hash rmdir /s /q $(LIBDIR)\Hash
 	-if exist $(LIBDIR)\HTTP rmdir /s /q $(LIBDIR)\HTTP
 	-if exist $(LIBDIR)\I18N rmdir /s /q $(LIBDIR)\I18N
+	-if exist $(LIBDIR)\inc rmdir /s /q $(LIBDIR)\inc
+	-if exist $(LIBDIR)\Internals rmdir /s /q $(LIBDIR)\Internals
 	-if exist $(LIBDIR)\IO rmdir /s /q $(LIBDIR)\IO
 	-if exist $(LIBDIR)\IPC rmdir /s /q $(LIBDIR)\IPC
 	-if exist $(LIBDIR)\JSON rmdir /s /q $(LIBDIR)\JSON
+	-if exist $(LIBDIR)\LibYAML rmdir /s /q $(LIBDIR)\LibYAML
 	-if exist $(LIBDIR)\List rmdir /s /q $(LIBDIR)\List
 	-if exist $(LIBDIR)\Locale rmdir /s /q $(LIBDIR)\Locale
 	-if exist $(LIBDIR)\Math rmdir /s /q $(LIBDIR)\Math
@@ -1308,6 +1313,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\Pod\Text rmdir /s /q $(LIBDIR)\Pod\Text
 	-if exist $(LIBDIR)\Scalar rmdir /s /q $(LIBDIR)\Scalar
 	-if exist $(LIBDIR)\Search rmdir /s /q $(LIBDIR)\Search
+	-if exist $(LIBDIR)\Stash rmdir /s /q $(LIBDIR)\Stash
 	-if exist $(LIBDIR)\Sub rmdir /s /q $(LIBDIR)\Sub
 	-if exist $(LIBDIR)\Sys rmdir /s /q $(LIBDIR)\Sys
 	-if exist $(LIBDIR)\TAP rmdir /s /q $(LIBDIR)\TAP
@@ -1323,6 +1329,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\VMS rmdir /s /q $(LIBDIR)\VMS
 	-if exist $(LIBDIR)\Win32API rmdir /s /q $(LIBDIR)\Win32API
 	-if exist $(LIBDIR)\XS rmdir /s /q $(LIBDIR)\XS
+	-if exist $(LIBDIR)\YAML rmdir /s /q $(LIBDIR)\YAML
 	-cd $(PODDIR) && del /f *.html *.bat roffitall \
 	    perl5221delta.pod perl5222cdelta.pod perlaix.pod perlamiga.pod \
 	    perlandroid.pod perlapi.pod perlbs2000.pod perlce.pod \

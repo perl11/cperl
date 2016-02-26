@@ -14,11 +14,22 @@
 /AutoLoader.pm
 /AutoSplit.pm
 /B.pm
+/B/Asmdata.pm
+/B/Assembler.pm
+/B/Bblock.pm
+/B/Bytecode.pm
+/B/C.pm
+/B/CC.pm
 /B/Concise.pm
 /B/Debug.pm
+/B/Disassembler.pm
 /B/Showlex.pm
+/B/Stackobj.pm
 /B/Terse.pm
 /B/Xref.pm
+/B/perlcompile.pod
+/B/perloptree.pod
+/ByteLoader/
 /CPAN.pm
 /CPAN/
 /Carp.pm
@@ -26,6 +37,7 @@
 /Compress/
 /Config.pm
 /Config/Perl/
+/Cpanel/
 /Cwd.pm
 /DB_File.pm
 /Data/
@@ -103,7 +115,9 @@
 /IO.pm
 /IO/
 /IPC/
+/Internals/
 /JSON/
+/LibYAML/
 /List/
 /Locale/
 /MIME/
@@ -161,6 +175,7 @@
 /Search/
 /SelfLoader.pm
 /Socket.pm
+/Stash/
 /Storable.pm
 /Sub/
 /Sys/
@@ -187,6 +202,7 @@
 /Win32CORE.pm
 /XS/
 /XSLoader.pod
+/YAML/
 /arybase.pm
 /autodie.pm
 /autodie/
@@ -201,6 +217,7 @@
 /experimental.pm
 /fields.pm
 /if.pm
+/inc/
 /lib.pm
 /mro.pm
 /ok.pm
