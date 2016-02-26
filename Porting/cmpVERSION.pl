@@ -133,6 +133,9 @@ sub pm_file_from_xs {
 			 my ($path) = $xs =~ m!^(.*)/!;
 			 my ($last) = $path =~ m!([^/]+)\z!;
 			 $last = 'List-Util' if $last eq 'Scalar-List-Utils';
+                         if ($xs eq 'cpan/YAML-LibYAML/LibYAML/LibYAML.xs') {
+                           return 'cpan/YAML-LibYAML/lib/YAML/XS';
+                         }
 			 $last =~ tr !-!/!;
 			 return "$path/lib/$last";
 		     }) {
