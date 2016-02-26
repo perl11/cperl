@@ -4,7 +4,7 @@ use Test::More tests => 6;
 use strict;
 BEGIN {
   unshift @INC, 't';
-  require "test.pl";
+  require "Test.pm";
 }
 my $i=0;
 #use B::C ();

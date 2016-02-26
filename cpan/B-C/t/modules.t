@@ -30,6 +30,7 @@
 use strict;
 use Test::More;
 use File::Temp;
+require 't/Test.pm';
 
 # Try some simple XS module which exists in 5.6.2 and blead
 # otherwise we'll get a bogus 40% failure rate
@@ -42,11 +43,11 @@ BEGIN {
   my $X = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
   my $tmp = File::Temp->new(TEMPLATE => 'pccXXXXX');
   my $out = $tmp->filename;
-  my $Mblib = $^O eq 'MSWin32' ? '-Iblib\arch -Iblib\lib' : "-Iblib/arch -Iblib/lib";
-  my $result = `$X $Mblib blib/script/perlcc -O3 --staticxs -o$out -e"use Data::Dumper;"`;
+  my $Mblib = Mblib();
+  my $result = `$X $Mblib script/perlcc -O3 --staticxs -o$out -e"use Data::Dumper;"`;
   my $exe = $^O eq 'MSWin32' ? "$out.exe" : $out;
   unless (-e $exe or -e 'a.out') {
-    my $cmd = qq($X $Mblib blib/script/perlcc -O3 -o$out -e"use Data::Dumper;");
+    my $cmd = qq($X $Mblib script/perlcc -O3 -o$out -e"use Data::Dumper;");
     warn $cmd."\n" if $ENV{TEST_VERBOSE};
     my $result = `$cmd`;
     unless (-e $out or -e 'a.out') {
@@ -66,7 +67,6 @@ BEGIN {
 our %modules;
 our $log = 0;
 use modules;
-require "test.pl";
 
 my $opts_to_test = 1;
 my $do_test;
@@ -115,14 +115,14 @@ unless (is_subset) {
     $svnrev = `svn info|grep Revision:`;
     chomp $svnrev;
     $svnrev =~ s/Revision:\s+/r/;
-    my $svnstat = `svn status lib/B/C.pm t/test.pl t/*.t`;
+    my $svnstat = `svn status lib/B/C.pm t/Test.pm t/*.t`;
     chomp $svnstat;
     $svnrev .= " M" if $svnstat;
   } elsif (-d '.git') {
     local $ENV{LC_MESSAGES} = "C";
     $svnrev = `git log -1 --pretty=format:"%h %ad | %s" --date=short`;
     chomp $svnrev;
-    my $gitdiff = `git diff lib/B/C.pm t/test.pl t/*.t`;
+    my $gitdiff = `git diff lib/B/C.pm t/Test.pm t/*.t`;
     chomp $gitdiff;
     $svnrev .= " M" if $gitdiff;
   }
@@ -139,7 +139,7 @@ unless (is_subset) {
 
 my $module_count = 0;
 my ($skip, $pass, $fail, $todo) = (0,0,0,0);
-my $Mblib = $^O eq 'MSWin32' ? '-Iblib\arch -Iblib\lib' : "-Iblib/arch -Iblib/lib";
+my $Mblib = Mblib();
 
 MODULE:
 for my $module (@modules) {
@@ -193,7 +193,7 @@ for my $module (@modules) {
         $opt .= " -S" if $keep and $opt !~ / -S\b/;
         # TODO ./a often hangs but perlcc not
         my @cmd = grep {!/^$/}
-	  $runperl,split(/ /,$Mblib),"blib/script/perlcc",split(/ /,$opt),$staticxs,"-o$out","-r",$out_pl;
+	  $runperl,split(/ /,$Mblib),"script/perlcc",split(/ /,$opt),$staticxs,"-o$out","-r",$out_pl;
         my $cmd = join(" ", @cmd);
         #warn $cmd."\n" if $ENV{TEST_VERBOSE};
 	# Esp. darwin-2level has insane link times

@@ -10,7 +10,7 @@ BEGIN {
   } else {
     unshift @INC, 't';
   }
-  require 'test.pl';
+  require 'Test.pm';
 }
 use strict;
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);

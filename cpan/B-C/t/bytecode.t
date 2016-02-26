@@ -28,7 +28,7 @@ BEGIN {
     print "1..0 # Skip -- perl5.22 broke ByteLoader\n";
     exit 0;
   }
-  require 'test.pl'; # for run_perl()
+  require 'Test.pm'; # for run_perl()
 }
 use strict;
 my $PERL56  = ( $] <  5.008001 );

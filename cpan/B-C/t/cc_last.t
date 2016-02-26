@@ -9,7 +9,7 @@ BEGIN {
   } else {
     unshift @INC, 't';
   }
-  require "test.pl";
+  require "Test.pm";
 }
 my $base = "ccode_last";
 

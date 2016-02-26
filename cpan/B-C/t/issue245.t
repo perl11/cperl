@@ -5,7 +5,7 @@
 use strict;
 BEGIN {
   unshift @INC, 't';
-  require "test.pl";
+  require "Test.pm";
 }
 use Test::More tests => 1;
 

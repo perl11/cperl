@@ -181,7 +181,7 @@ use File::Glob qw(:case);
             qr{^ByteLoader/BcVersions/},
             qr{^log\..*/},
             qr{^ramblings/},
-            qr{^t/.*sh/},
+            qr{^t/.*\.sh},
             qw( Artistic
                 Changes
                 Copying
@@ -209,6 +209,7 @@ use File::Glob qw(:case);
 		t/nowarn.pl
 		t/pg.pl
 		t/regex-dna.pl
+		t/testcore.pl
 		t/todomod.pl
 		t/top100
 		t/z_pod.t
@@ -217,8 +218,7 @@ use File::Glob qw(:case);
                 META.yml
                 )
         ],
-        # B-C-1.53_01
-        'CUSTOMIZED'   => [ qw[ C.xs ] ],
+        'CUSTOMIZED'   => [ qw[ t/Test.pm t/test10 ] ],
     },
 
     'B::Debug' => {

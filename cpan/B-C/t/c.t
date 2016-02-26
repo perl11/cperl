@@ -7,7 +7,7 @@ BEGIN {
     unshift @INC, 't';
     #push @INC, "blib/arch", "blib/lib";
   }
-  require 'test.pl';
+  require 'Test.pm';
 }
 use strict;
 #my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);

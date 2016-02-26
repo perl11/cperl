@@ -4,7 +4,7 @@ BEGIN {
   unshift @INC, 't';
 }
 
-require "test.pl";
+require "Test.pm";
 use Test::More;
 use Config;
 use Cwd;
