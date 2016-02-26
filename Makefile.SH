@@ -189,6 +189,8 @@ for f in $dynamic_ext; do
 
     : Parallel makes reveal that we have some interdependencies
     case $f in
+	B/C) extra_dep="$extra_dep
+$this_target: $dynamic_ext_re" ;;
 	Math/BigInt/FastCalc|Devel/NYTProf) extra_dep="$extra_dep
 $this_target: $list_util_dep" ;;
 	Unicode/Normalize) extra_dep="$extra_dep
@@ -203,6 +205,8 @@ for f in $static_ext; do
     : Parallel makes reveal that we have some interdependencies
     this_target="lib/auto/$f/$base\$(LIB_EXT)"
     case $f in
+	B/C) extra_dep="$extra_dep
+$this_target: lib/auto/re/re\$(LIB_EXT)" ;;
 	Math/BigInt/FastCalc|Devel/NYTProf) extra_dep="$extra_dep
 $this_target: lib/auto/List/Util/Util\$(LIB_EXT)" ;;
 	Unicode/Normalize) extra_dep="$extra_dep
