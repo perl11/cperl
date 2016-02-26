@@ -437,8 +437,15 @@ use File::Glob qw(:case);
                 ppport.h
                 META.json
                 META.yml
+                t/42-global.t
                 )
         ],
+        # cperl fixes for PERL_CORE
+        'CUSTOMIZED'   => [ qw( Makefile.PL
+                                MemoryProfiling.pod
+                                lib/Devel/NYTProf/FileInfo.pm
+                                t/lib/NYTProfTest.pm
+                              )],
     },
 
     'Devel::PPPort' => {

@@ -71,10 +71,10 @@ my $text_extn_info = {
 
 chdir('t') if -d 't';
 
-if (-d '../blib') {
+if ($ENV{PERL_CORE}) {
+    @INC = ('../../../lib/auto', '../../../lib', 'lib');
+} elsif (-d '../blib') {
     unshift @INC, '../blib/arch', '../blib/lib';
-} elsif ($ENV{PERL_CORE}) {
-    unshift @INC, '../../lib/auto', '../../lib';
 }
 my $bindir = (grep {-d} qw(./blib/script ../blib/script))[0] || do {
     my $bin = (grep {-d} qw(./bin ../bin))[0]

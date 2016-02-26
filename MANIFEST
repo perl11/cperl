@@ -549,6 +549,7 @@ cpan/Devel-NYTProf/lib/Devel/NYTProf/SubCallInfo.pm
 cpan/Devel-NYTProf/lib/Devel/NYTProf/SubInfo.pm
 cpan/Devel-NYTProf/lib/Devel/NYTProf/Test.pm
 cpan/Devel-NYTProf/lib/Devel/NYTProf/Util.pm
+cpan/Devel-NYTProf/Makefile.PL
 cpan/Devel-NYTProf/MemoryProfiling.pod
 cpan/Devel-NYTProf/NYTProf.h
 cpan/Devel-NYTProf/NYTProf.xs
@@ -560,7 +561,6 @@ cpan/Devel-NYTProf/t/22-readstream.t
 cpan/Devel-NYTProf/t/30-util.t
 cpan/Devel-NYTProf/t/31-env.t
 cpan/Devel-NYTProf/t/40-savesrc.t
-cpan/Devel-NYTProf/t/42-global.t
 cpan/Devel-NYTProf/t/44-model.t
 cpan/Devel-NYTProf/t/50-errno.t
 cpan/Devel-NYTProf/t/60-forkdepth.t
