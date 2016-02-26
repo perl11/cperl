@@ -157,6 +157,7 @@ cpan/B-C/script/cc_harness
 cpan/B-C/script/disassemble
 cpan/B-C/script/perlcc.PL
 cpan/B-C/script/pl2exe.pl
+cpan/B-C/Stash/Makefile.PL
 cpan/B-C/Stash/Stash.pm
 cpan/B-C/Stash/Stash.xs
 cpan/B-C/t/asmdata.t

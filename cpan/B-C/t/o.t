@@ -1,8 +1,7 @@
 #! /usr/bin/env perl -w
 BEGIN {
   if ($ENV{PERL_CORE}){
-    chdir('t') if -d 't';
-    @INC = ('.', 'lib', '../lib');
+    @INC = ('t', '../../lib', '../../lib/auto');
   } else {
     unshift @INC, 't';
   }
