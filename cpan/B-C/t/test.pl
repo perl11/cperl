@@ -937,7 +937,7 @@ sub ctest {
         ok (undef, "$todo B::$backend failed to compile");
         return 1;
     }
-    my $cc_harness = $ENV{PERL_CORE} ? "script/cc_harness -I../../lib"
+    my $cc_harness = $ENV{PERL_CORE} ? "script/cc_harness -I../.. -L../.."
                                      : "blib/script/cc_harness";
     diag("$runperl ".Mblib." $cc_harness -q -o $name $name.c")
       if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} > 1;
@@ -1014,7 +1014,7 @@ sub ccompileok {
     my $runperl = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
     my $b = $] > 5.008 ? "-qq,$backend" : "$backend";
     my $Mblib = Mblib;
-    my $cc_harness = $ENV{PERL_CORE} ? "script/cc_harness -I../../lib"
+    my $cc_harness = $ENV{PERL_CORE} ? "script/cc_harness -I../.. -L../.."
                                      : "blib/script/cc_harness";
     system "$runperl $Mblib -MO=$b,-o$name.c $name.pl";
     unless (-e "$name.c") {

@@ -5,13 +5,12 @@ BEGIN {
   #  print "1..0 #SKIP Only if -d .git\n";
   #  exit;
   #}
-  if ($ENV{PERL_CORE}){
-    chdir('t') if -d 't';
-    @INC = ('.', '../lib');
+  if ($ENV{PERL_CORE}) {
+    unshift @INC, ('t', '../../lib');
   } else {
     unshift @INC, 't';
   }
-  require 'test.pl'; # for run_perl()
+  require 'test.pl';
 }
 use strict;
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);

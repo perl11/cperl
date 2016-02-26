@@ -164,7 +164,7 @@ BEGIN {
     print "1..0 # Skip -- Perl configured without B module\n";
     exit 0;
   }
-  if ($ENV{PERL_CORE} and ($Config{'extensions'} !~ /\bByteLoader\b/) ){
+  if ($ENV{PERL_CORE} and ($Config{'extensions'} !~ m{\bB/C\b}) ){
     print "1..0 # Skip -- Perl configured without ByteLoader module\n";
     exit 0;
   }

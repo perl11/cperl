@@ -2,9 +2,8 @@
 # blead cannot run -T
 
 BEGIN {
-    if ($ENV{PERL_CORE}){
-	chdir('t') if -d 't';
-	@INC = ('.', '../lib');
+    if ($ENV{PERL_CORE}) {
+	push @INC, ('.', '../../lib');
     }
     require Config;
     if ($ENV{PERL_CORE} and ($Config::Config{'extensions'} !~ /\bB\b/) ){

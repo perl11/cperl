@@ -53,7 +53,7 @@ if (grep(/^-[cES]$/, @ARGV)) { # compile-only with -c -E or -S
     $linkargs = ldopts('-std');
 }
 # Note (probably harmless): No library found for -lnsl
-$linkargs .= " -L:".$coredir if $ENV{PERL_CORE};
+$linkargs .= " -L".$coredir if $ENV{PERL_CORE};
 $linkargs = $B::C::Config::extra_libs . " " . $linkargs;
 $linkargs .= " $libs" if index($linkargs,$libs) == -1;
 

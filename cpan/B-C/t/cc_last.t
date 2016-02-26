@@ -4,8 +4,12 @@
 use Test::More tests => 4;
 use strict;
 BEGIN {
+  if ($ENV{PERL_CORE}) {
+    unshift @INC, ('t', '../../lib');
+  } else {
     unshift @INC, 't';
-    require "test.pl";
+  }
+  require "test.pl";
 }
 my $base = "ccode_last";
 

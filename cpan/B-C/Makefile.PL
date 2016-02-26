@@ -53,7 +53,7 @@ my $have_byteloader = $] < 5.022 ? 1 : check_byteloader();
 sub b_c_deps {
     my $X = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
     my $runperl = $X . ($CORE ? " -I../../lib/auto -I../../lib" : "");
-    return "" if $CORE;
+    return "AnyDBM_File AutoLoader B B::AV B::Asmdata B::BINOP B::BM B::C B::C::Config B::C::InitSection B::C::Section B::CC B::COP B::CV B::FAKEOP B::FM B::GV B::HE B::HV B::INVLIST B::IO B::IV B::LEXWARN B::LISTOP B::LOGOP B::LOOP B::MAGIC B::METHOP B::NULL B::NV B::OBJECT B::OP B::PADLIST B::PADNAME B::PADNAMELIST B::PADOP B::PMOP B::PV B::PVIV B::PVLV B::PVMG B::PVNV B::PVOP B::REGEXP B::RHE B::RV B::SPECIAL B::STASHGV B::SV B::SVOP B::Section B::UNOP B::UNOP_AUX B::UV CORE CORE::GLOBAL Carp Config DB DynaLoader EV Encode Errno Exporter Exporter::Heavy ExtUtils ExtUtils::Constant ExtUtils::Constant::ProxySubs Fcntl FileHandle IO IO::File IO::Handle IO::Poll IO::Seekable IO::Socket IO::Socket::SSL Int Internals Net Net::DNS Num O POSIX PerlIO PerlIO::Layer PerlIO::scalar Regexp SelectSaver Str Symbol UInt UNIVERSAL XSConfig XSLoader __ANON__ arybase arybase::mg attributes constant coretypes int main mro num re str strict threads uint utf8 vars version warnings warnings::register Socket" if $CORE and $] > 5.020;
     return `$runperl -Ilib -mB::C -mO -MB -e'B::C::collect_deps()'`;
 }
 
@@ -99,8 +99,8 @@ sub write_b_c_flags {
         $Data::Dumper::Sortkeys=1;
     }
     my %cfg;
-    my $conf = "{\n";
-    # Ensure to add all used Config keys in B::C here, otherwise they will be silently empty!
+    my $conf = "(\n";
+    # Ensure to add all used Config keys in B::C here, otherwise they will be silently empty.
     # easier hash key/value slices only came with 5.22
     for my $s (qw(archname cc ccflags d_c99_variadic_macros d_dlopen d_isinf d_isnan d_longdbl
                   dlext i_dlfcn
@@ -123,7 +123,7 @@ sub write_b_c_flags {
         }
     }
     if ($CORE) {
-        $conf .= "};";
+        $conf .= ");";
     } else {
         $conf = Data::Dumper::Dumper(\%cfg);
         $conf =~ s/^\s*{/(/;
