@@ -1,5 +1,11 @@
 package Devel::NYTProf::FileInfo;    # fid_fileinfo
 
+=head1 NAME
+
+Devel::NYTProf::FileInfo
+
+=cut
+
 use strict;
 
 use Carp;
@@ -122,6 +128,7 @@ sub _add_new_sub_defined {
     $subs_defined->{$subname} = $subinfo;
 }
 
+=head1 METHODS
 
 =head2 sub_call_lines
 

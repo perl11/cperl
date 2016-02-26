@@ -1,3 +1,7 @@
+=head1 NAME
+
+MemoryProfiling
+
 =head1 Ideas and Plans for Memory Profiling with NYTProf
 
 XXX I<This mostly a dumping ground for thoughts, and links at the moment>.
@@ -38,16 +42,16 @@ subroutine profilers.
 =head1 Email threads
 
 "Memory profiling in Devel::NYTProf?: - June 2009
-http://groups.google.com/group/develnytprof-dev/browse_frm/thread/1df4cba3001cd4e4/136812b44e9f7631
+L<http://groups.google.com/group/develnytprof-dev/browse_frm/thread/1df4cba3001cd4e4/136812b44e9f7631>
 Talking about the problems of measuring memory usage of the whole process re:
-http://blog.robin.smidsrod.no/index.php/2009/05/26/memory-footprint-of-popular-cpan-modules
+L<http://blog.robin.smidsrod.no/index.php/2009/05/26/memory-footprint-of-popular-cpan-modules>
 
 "Memory profiling possibilities in NYTProf" - September 2009
-http://groups.google.com/group/develnytprof-dev/browse_frm/thread/c711c132216a3cea/035012e3dc2971ec
+L<http://groups.google.com/group/develnytprof-dev/browse_frm/thread/c711c132216a3cea/035012e3dc2971ec>
 This includes a detailed overview of the issues.
 
 "profiling memory" - Dec 2009
-http://groups.google.com/group/develnytprof-dev/browse_frm/thread/5ffd24200866b0c1/201b58c18d826aaa
+L<http://groups.google.com/group/develnytprof-dev/browse_frm/thread/5ffd24200866b0c1/201b58c18d826aaa>
 Nicholas Clark offers an experimental patch that intercepts malloc and free
 and makes NYTProf measure memory usage.
 
@@ -55,40 +59,76 @@ and makes NYTProf measure memory usage.
 
 Per-process memory information:
 
-    http://metacpan.org/pod/Devel::Mallinfo
+=over
+
+=item L<http://metacpan.org/pod/Devel::Mallinfo>
+
+=back
 
 Arena, stash, and pad based memory reporters:
 
-    http://metacpan.org/pod/Devel::Gladiator
-    http://metacpan.org/release/Internals-DumpArenas/
-    http://metacpan.org/release/Internals-GraphArenas/
-    http://metacpan.org/pod/Devel::DumpSizes
-    http://metacpan.org/pod/Devel::Arena
+=over
+
+=item L<http://metacpan.org/pod/Devel::Gladiator>
+
+=item L<http://metacpan.org/release/Internals-DumpArenas/>
+
+=item L<http://metacpan.org/release/Internals-GraphArenas/>
+
+=item L<http://metacpan.org/pod/Devel::DumpSizes>
+
+=item L<http://metacpan.org/pod/Devel::Arena>
+
+=back
 
 Per-object memory size reporters:
 
-    http://metacpan.org/pod/Devel::Size
-    http://metacpan.org/pod/Devel::Size::Report
+=over
+
+=item L<http://metacpan.org/pod/Devel::Size>
+
+=item L<http://metacpan.org/pod/Devel::Size::Report>
+
+=back
 
 Others:
 
-    http://metacpan.org/release/Devel-Memalyzer/
-    http://metacpan.org/pod/Devel::Memalyzer::Plugin::ProcSmaps
+=over
+
+=item L<http://metacpan.org/release/Devel-Memalyzer/>
+
+=item L<http://metacpan.org/pod/Devel::Memalyzer::Plugin::ProcSmaps>
+
+=item L<http://metacpan.org/release/B-Stats/>
+
+=item L<http://metacpan.org/release/B-C/>
+
+=back
 
 =head1 Other Items of Interest
 
 "Memory Efficient Perl" slides by jjore
 
-    http://docs.google.com/present/view?id=dg7kgpct_24cjs3c9fv
-    http://diotalevi.isa-geek.net/~josh/090402/frontend.png
+=over
+
+=item L<http://docs.google.com/present/view?id=dg7kgpct_24cjs3c9fv>
+
+=over L<http://diotalevi.isa-geek.net/~josh/090402/frontend.png>
+
+=back
 
 Other profile/memory visualization tools
 
-    http://netjam.org/spoon/viz/
-    http://java.dzone.com/announcements/visualvm-12-great-java
+=over
 
-http://blogs.perl.org/users/alex_balhatchet/2012/01/debugging-memory-use-in-perl---help.html
+=item L<http://netjam.org/spoon/viz/>
 
-http://stackoverflow.com/questions/8715611/can-i-use-dtrace-on-os-x-10-5-to-determine-which-of-my-perl-subs-is-causing-the
+=item L<http://java.dzone.com/announcements/visualvm-12-great-java>
+
+=back
+
+L<http://blogs.perl.org/users/alex_balhatchet/2012/01/debugging-memory-use-in-perl---help.html>
+
+L<http://stackoverflow.com/questions/8715611/can-i-use-dtrace-on-os-x-10-5-to-determine-which-of-my-perl-subs-is-causing-the>
 
 =cut
