@@ -3,7 +3,7 @@ package Internals::DumpArenas;
 
 use 5.006_000;
 
-$VERSION = '0.12_01';
+$VERSION = '0.12_03';
 
 use DynaLoader ();
 sub dl_load_flags { return 0x01 }
@@ -231,7 +231,8 @@ it under the same terms as Perl itself.
 
 =head1 SOURCE AVAILABILITY
 
-This source is in Github: L<git://github.com/jbenjore/internals-dumparenas.git>
+This source is in Github: L<http://github.com/jbenjore/internals-dumparenas.git>
+and the most recent version at L<http://github.com/rurban/internals-dumparenas.git>
 
 =head1 AUTHOR
 

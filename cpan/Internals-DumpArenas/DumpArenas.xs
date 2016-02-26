@@ -14,6 +14,12 @@
 #include "XSUB.h"
 #include "ppport.h"
 
+/* need workaround broken dump of !SvOBJECT with SvSTASH in dump.c */
+/* fixed in cperl5.22.2 and perl5.23.8  */
+#if PERL_VERSION >= 18 && (!defined(USE_CPERL) && PERL_VERSION < 24)
+#define NEED_SAFE_SVSTASH
+#endif
+
 void DumpPointer( pTHX_ PerlIO *f, SV *sv ) {
   if ( &PL_sv_undef == sv ) {
     PerlIO_puts(f, "sv_undef");
@@ -67,7 +73,7 @@ DumpAvARRAY( pTHX_ PerlIO *f, SV *sv) {
 
 void
 DumpHvARRAY( pTHX_ PerlIO *f, SV *sv) {
-  I32 key = 0;
+  STRLEN key = 0;
   HE *entry;
   SV *tmp = newSVpv("",0);
 
@@ -80,7 +86,7 @@ DumpHvARRAY( pTHX_ PerlIO *f, SV *sv) {
         PerlIO_printf(
           f, "  [SV 0x%"UVxf"] => ",
           PTR2UV(HeKEY(entry)));
-        DumpPointer(aTHX_ f, MUTABLE_SV(HeKEY(entry)));
+        DumpPointer(aTHX_ f, (SV*)(HeKEY(entry)));
       }
       else {
         PerlIO_printf(
@@ -114,7 +120,7 @@ DumpHashKeys( pTHX_ PerlIO *f, SV *sv) {
     for ( entry = HvARRAY(sv)[key]; entry; entry = HeNEXT(entry) ) {
       if ( HEf_SVKEY == HeKLEN(entry) ) {
         PerlIO_printf(f, "    SV 0x%"UVxf"\n", PTR2UV(HeKEY(entry)) );
-        DumpPointer(aTHX_ f, MUTABLE_SV(HeKEY(entry)));
+        DumpPointer(aTHX_ f, (SV*)(HeKEY(entry)));
       }
       else {
         PerlIO_printf(f, "    0x%"UVxf" %s\n", PTR2UV(HeKEY(entry)),
@@ -132,16 +138,6 @@ DumpHashKeys( pTHX_ PerlIO *f, SV *sv) {
 void
 DumpArenasPerlIO( pTHX_ PerlIO *f) {
   SV *arena;
-  SV *broken_verstash = NULL;
-
-  /* Workaround core bug in the version module
-   * https://rt.cpan.org/Ticket/Display.html?id=81635
-   * %version:: has a broken SvSTASH */
-#if PERL_VERSION >= 18
-  broken_verstash = MUTABLE_SV(get_hv("version::", 0));
-  if (PTR2IV(((XPVHV*)SvANY(broken_verstash))->xmg_stash) > 0x100)
-    broken_verstash = NULL;
-#endif
 
   for (arena = PL_sv_arenaroot; arena; arena = (SV*)SvANY(arena)) {
     const SV *const arena_end = &arena[SvREFCNT(arena)];
@@ -152,22 +148,35 @@ DumpArenasPerlIO( pTHX_ PerlIO *f) {
      */
     PerlIO_printf(f,"START ARENA = (0x%"UVxf"-0x%"UVxf")\n\n",PTR2UV(arena),PTR2UV(arena_end));
     for (sv = arena + 1; sv < arena_end; ++sv) {
-      if (SvTYPE(sv) != SVTYPEMASK && SvREFCNT(sv)) {
+      /* not freed */
+      if ((SvFLAGS(sv) != SVTYPEMASK) && SvREFCNT(sv)) {
 
-        /* Dump the plain SV */
-        if (sv != broken_verstash) { /* workaround broken %version:: */
+        /* workaround broken dump of !SvOBJECT with SvSTASH in dump.c */
+        /* only fixed in cperl so far */
+#ifdef NEED_SAFE_SVSTASH
+        HV* savestash = NULL;
+        if (!SvOBJECT(sv) && SvTYPE(sv) >= SVt_PVMG && SvSTASH(sv)) {
+          savestash = SvSTASH(sv);
+          SvSTASH(sv) = NULL;
+        }
+#endif
 #if defined(USE_ITHREADS) && defined(DEBUGGING) && defined(SVpbm_VALID)
-          /* workaround broken SvTAIL() in dump.c */
-          if (SvTYPE(sv) != SVt_PVMG ||
-              (!(SvFLAGS(sv) & SVpbm_VALID) &&
-               (SvFLAGS(sv) & SVpbm_TAIL)))
+        /* workaround broken SvTAIL() in dump.c */
+        if (SvTYPE(sv) != SVt_PVMG ||
+            (!(SvFLAGS(sv) & SVpbm_VALID) &&
+             (SvFLAGS(sv) & SVpbm_TAIL)))
 #endif
 #if PERL_VERSION < 8 && defined(DEBUGGING) && defined(SVpbm_VALID)
-            /* workaround broken CvANON() in 5.6 dump.c */
-            if (SvTYPE(sv) != SVt_PVCV || !(SvFLAGS(sv) & 0x500))
+          /* workaround broken CvANON() in 5.6 dump.c */
+          if (SvTYPE(sv) != SVt_PVCV || !(SvFLAGS(sv) & 0x500))
 #endif
+            /* Dump the plain SV */
             do_sv_dump(0,f,sv,0,0,0,0);
-        }
+
+#ifdef NEED_SAFE_SVSTASH
+        if (savestash)
+          SvSTASH(sv) = savestash;
+#endif
         PerlIO_puts(f,"\n");
         
         /* Dump AvARRAY(0x...) = {{0x...,0x...}{0x...}} */
@@ -178,7 +187,7 @@ DumpArenasPerlIO( pTHX_ PerlIO *f) {
           }
           break;
         case SVt_PVHV:
-          if ( HvARRAY(sv) && HvMAX(sv) != -1 ) {
+          if ( HvARRAY(sv) && HvMAX(sv) != (STRLEN)-1 ) {
             DumpHvARRAY( aTHX_ f,sv);
           }
 #if 0
@@ -186,6 +195,7 @@ DumpArenasPerlIO( pTHX_ PerlIO *f) {
             DumpHashKeys( aTHX_ f,sv);
           }
 #endif
+        default:
           break;
         }
       }
