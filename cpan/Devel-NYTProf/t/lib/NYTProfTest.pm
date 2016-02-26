@@ -73,8 +73,10 @@ chdir('t') if -d 't';
 
 if (-d '../blib') {
     unshift @INC, '../blib/arch', '../blib/lib';
+} elsif ($ENV{PERL_CORE}) {
+    unshift @INC, '../../lib/auto', '../../lib';
 }
-my $bindir      = (grep {-d} qw(./blib/script ../blib/script))[0] || do {
+my $bindir = (grep {-d} qw(./blib/script ../blib/script))[0] || do {
     my $bin = (grep {-d} qw(./bin ../bin))[0]
         or die "Can't find scripts";
     warn "Couldn't find blib/script directory, so using $bin";
