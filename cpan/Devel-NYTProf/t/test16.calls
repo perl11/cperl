@@ -1,6 +1,0 @@
-main::foo 2
-main::foo;main::CORE:match 3
-main::foo;main::CORE:say 2
-main::bar 2
-main::bar;main::CORE:match 3
-main::bar;main::CORE:print 2

@@ -1,5 +1,0 @@
-Name, File location, Time, Avg. Time, Own Time, Invocation Count, Level
-main::bar, /Users/timbo/repos/nytprof/master/t/test02.p, 0.117, 0.000, 0.067, 7, 0
-main::CORE:print, /Users/timbo/repos/nytprof/master/t/test02.p, 0.052, 0.000, 0.052, 10, 0
-main::baz, /Users/timbo/repos/nytprof/master/t/test02.p, 0.057, 0.000, 0.026, 1, 0
-main::foo, /Users/timbo/repos/nytprof/master/t/test02.p, 0.031, 0.000, 0.019, 2, 0

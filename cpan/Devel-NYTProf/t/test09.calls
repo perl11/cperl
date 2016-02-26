@@ -1,3 +1,0 @@
-main::bar 1
-main::foo 2
-main::foo;main::bar 2

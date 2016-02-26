@@ -1,6 +1,0 @@
-main::recurs 1
-main::recurs;main::CORE:sselect 1
-main::recurs;main::recurs 1
-main::recurs;main::recurs;main::CORE:sselect 1
-main::recurs;main::recurs;main::recurs 1
-main::recurs;main::recurs;main::recurs;main::CORE:sselect 1

@@ -1,6 +1,0 @@
-main::D 1
-main::D;main::C 2
-main::D;main::C;main::B 2
-main::D;main::C;main::B;main::CORE:sselect 2
-main::D;main::C;main::B;main::A 2
-main::D;main::C;main::B;main::A;main::CORE:sselect 2

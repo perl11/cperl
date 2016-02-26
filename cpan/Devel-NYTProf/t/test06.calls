@@ -1,9 +1,0 @@
-main::foo 1
-main::foo;main::CORE:print 1
-main::foo;main::noop 110
-main::bar 1
-main::bar;main::CORE:print 1
-main::bar;main::noop 100
-main::baz 1
-main::baz;main::CORE:print 1
-main::baz;main::noop 200

@@ -422,7 +422,8 @@ use File::Glob qw(:case);
         'DISTRIBUTION' => 'TIMB/Devel-NYTProf-6.02.tar.gz',
         'FILES'        => q[cpan/Devel-NYTProf],
         'EXCLUDED'     => [
-            qr{^t/9*.t},
+            qr{^t/[79]*.t},
+            qr{^t/test([0-7]|80)*.t},
             qr{^xt/},
             qr{^demo/},
             qw( Changes
@@ -438,6 +439,7 @@ use File::Glob qw(:case);
                 META.json
                 META.yml
                 t/42-global.t
+                t/68-hashline.t
                 )
         ],
         # cperl fixes for PERL_CORE
@@ -1489,9 +1491,10 @@ use File::Glob qw(:case);
     'YAML::LibYAML' => {
         'DISTRIBUTION' => "INGY/YAML-LibYAML-0.62.tar.gz",
         'FILES'        => q[cpan/YAML-LibYAML],
-        #'CUSTOMIZED'   => [
-        #  qw( cpan/YAML-LibYAML/LibYAML/Makefile.PL )
-        #  ],
+        'CUSTOMIZED'   => [
+          # allow PERL_CORE tests
+          qw( LibYAML/Makefile.PL t/TestYAMLTests.pm t/TestYAML.pm )
+          ],
     },
 
     #'XSLoader' => {

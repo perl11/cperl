@@ -1,3 +1,0 @@
-main::CORE:unlink 1
-main::sub1 1
-DB::disable_profile 1
