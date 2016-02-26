@@ -23,7 +23,11 @@ my $yaml_module;
 BEGIN {
     my $config = load_config('t/yaml_tests.yaml');
     if ($config->{use_blib}) {
+      if ($ENV{PERL_CORE}) {
+        @INC = ('../../lib', '../../lib/auto', 'inc'); 
+      } else {
         eval "use blib; 1" or die $@;
+      }
     }
     $yaml_module = $ENV{PERL_YAML_TESTS_MODULE} || $config->{yaml_module}
       or die "Can't determine which YAML module to use for this test.";
