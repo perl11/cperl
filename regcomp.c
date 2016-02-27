@@ -8469,16 +8469,6 @@ S_invlist_trim(SV* invlist)
     SvPV_renew(invlist, MAX(min_size, SvCUR(invlist) + 1));
 }
 
-#endif /* ifndef PERL_IN_XSUB_RE */
-
-PERL_STATIC_INLINE bool
-S_invlist_is_iterating(SV* const invlist)
-{
-    PERL_ARGS_ASSERT_INVLIST_IS_ITERATING;
-
-    return *(get_invlist_iter_addr(invlist)) < (STRLEN) UV_MAX;
-}
-
 PERL_STATIC_INLINE void
 S_invlist_clear(pTHX_ SV* invlist)    /* Empty the inversion list */
 {
@@ -8488,6 +8478,16 @@ S_invlist_clear(pTHX_ SV* invlist)    /* Empty the inversion list */
 
     invlist_set_len(invlist, 0, 0);
     invlist_trim(invlist);
+}
+
+#endif /* ifndef PERL_IN_XSUB_RE */
+
+PERL_STATIC_INLINE bool
+S_invlist_is_iterating(SV* const invlist)
+{
+    PERL_ARGS_ASSERT_INVLIST_IS_ITERATING;
+
+    return *(get_invlist_iter_addr(invlist)) < (STRLEN) UV_MAX;
 }
 
 PERL_STATIC_INLINE UV
