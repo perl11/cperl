@@ -3,7 +3,11 @@
 use Test::More;
 use strict;
 BEGIN {
-  unshift @INC, 't';
+  if ($ENV{PERL_CORE}) {
+    unshift @INC, ('t', '../../lib');
+  } else {
+    unshift @INC, 't';
+  }
   require TestBC;
 }
 
@@ -31,6 +35,9 @@ sub todofaster {
 my $X = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
 my $Mblib = Mblib();
 my $perldoc = File::Spec->catfile($Config{installbin}, 'perldoc');
+$perldoc = File::Spec->catfile(
+  '..','..','utils', ($Config{usecperl} ? 'cperldoc' : 'perldoc'))
+  if $ENV{PERL_CORE};
 my $perlcc = "$X $Mblib script/perlcc";
 $perlcc .= " -Wb=-fno-fold,-fno-warnings" if $] > 5.013;
 $perlcc .= " -UB -uFile::Spec -uCwd";

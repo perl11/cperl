@@ -26,11 +26,17 @@
 # How to installed skip modules:
 # grep ^skip log.modules-bla|perl -lane'print $F[1]'| xargs perlbla -S cpan
 # or t/testm.sh -s
-
+BEGIN {
+  if ($ENV{PERL_CORE}) {
+    unshift @INC, ('t', '../../lib');
+  } else {
+    unshift @INC, 't';
+  }
+  require TestBC;
+}
 use strict;
 use Test::More;
 use File::Temp;
-require 't/TestBC.pm';
 
 # Try some simple XS module which exists in 5.6.2 and blead
 # otherwise we'll get a bogus 40% failure rate
