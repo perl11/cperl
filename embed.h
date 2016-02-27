@@ -929,7 +929,7 @@
 #define get_invlist_previous_index_addr	S_get_invlist_previous_index_addr
 #define invlist_is_iterating	S_invlist_is_iterating
 #define invlist_previous_index	S_invlist_previous_index
-#define invlist_replace_list(a,b)	S_invlist_replace_list(aTHX_ a,b)
+#define invlist_replace_list_destroys_src(a,b)	S_invlist_replace_list_destroys_src(aTHX_ a,b)
 #define invlist_set_previous_index	S_invlist_set_previous_index
 #define invlist_trim		S_invlist_trim
 #    endif
