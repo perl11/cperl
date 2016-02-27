@@ -975,6 +975,7 @@
 #define get_invlist_iter_addr	S_get_invlist_iter_addr
 #define grok_bslash_N(a,b,c,d,e,f)	S_grok_bslash_N(aTHX_ a,b,c,d,e,f)
 #define handle_regex_sets(a,b,c,d,e)	S_handle_regex_sets(aTHX_ a,b,c,d,e)
+#define invlist_clear(a)	S_invlist_clear(aTHX_ a)
 #define invlist_clone(a)	S_invlist_clone(aTHX_ a)
 #define invlist_extend(a,b)	S_invlist_extend(aTHX_ a,b)
 #define invlist_highest		S_invlist_highest
