@@ -1126,12 +1126,12 @@ sizearydecl :	'@' PRIVATEREF '[' THING ']'
                           assert($2->op_targ);
                           if (SvTYPE(constsv) != SVt_IV)
                             Perl_croak(aTHX_ "Invalid array size %s[%s]",
-                                  PadnamePV(PAD_COMPNAME($2->op_targ)),
+                                  PAD_COMPNAME_PV($2->op_targ),
                                   SvPOK(constsv) ? SvPVX(constsv) : "");
                           /* - is not a THING, syntax error near "[-"
                           if (size <= 0)
                             Perl_croak(aTHX_ "Invalid array size %s[%d]",
-                                  PadnamePV(PAD_COMPNAME($2->op_targ)), size);
+                                  PAD_COMPNAME_PV($2->op_targ), size);
                           */
 			  if (!FEATURE_SHAPED_ARRAYS_IS_ENABLED)
                               Perl_croak(aTHX_ "Experimental "

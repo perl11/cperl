@@ -12317,12 +12317,12 @@ Perl_ck_aelem(pTHX_ OP *o)
             if (ABS(ix) > AvFILL(av))
 #undef ABS
                 Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
-                    PadnamePV(PAD_COMPNAME(avop->op_targ)), ix);
+                    PAD_COMPNAME_PV(avop->op_targ), ix);
         }
         /* TODO specialize to typed ops */
     }
     DEBUG_k(Perl_deb(aTHX_ "ck_%s %s[%"IVdf"]\n", PL_op_name[o->op_type],
-                targ ? PadnamePV(PAD_COMPNAME(targ)) : "?",
+                targ ? PAD_COMPNAME_PV(targ) : "?",
                 idx ? SvIV(idx) : -99));
     return o;
 }
@@ -12346,7 +12346,7 @@ Perl_ck_pad(pTHX_ OP *o)
 #endif
             OpTYPE_set(o, OP_CONST);
             DEBUG_k(Perl_deb(aTHX_ "ck_pad: %s[%s]\n", PL_op_name[o->op_type],
-                             PadnamePV(PAD_COMPNAME(o->op_targ))));
+                             PAD_COMPNAME_PV(o->op_targ)));
             cSVOPx(o)->op_sv = SvREFCNT_inc_NN(sv);
             o->op_targ = 0;
             /* no n-children privates. OPpDEREF|OPpPAD_STATE|OPpLVAL_INTRO are invalid */
@@ -12364,13 +12364,14 @@ Perl_ck_pad(pTHX_ OP *o)
                     OP_NAME(o->op_next->op_next),
                     PAD_COMPNAME_PV(o->op_targ));
             DEBUG_k(Perl_deb(aTHX_ "ck_pad: %s[%s] AvSHAPED\n", PL_op_name[o->op_type],
-                             PadnamePV(PAD_COMPNAME(o->op_targ))));
-        } else
+                             PAD_COMPNAME_PV(o->op_targ)));
+        } else {
             /* maybe check typeinfo also, and set some
                SVf_TYPED flag if we still had one. This const
                looses all type info, and is either int|num|str. */
             DEBUG_k(Perl_deb(aTHX_ "ck_pad: %s[%s]\n", PL_op_name[o->op_type],
-                             PadnamePV(PAD_COMPNAME(o->op_targ))));
+                             PAD_COMPNAME_PV(o->op_targ)));
+        }
     }
     return o;
 }
