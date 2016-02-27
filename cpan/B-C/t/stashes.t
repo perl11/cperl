@@ -3,8 +3,12 @@
 use Test::More tests => 6;
 use strict;
 BEGIN {
-  unshift @INC, 't';
-  require "Test.pm";
+  if ($ENV{PERL_CORE}) {
+    unshift @INC, ('t', '../../lib');
+  } else {
+    unshift @INC, 't', "blib/arch", "blib/lib";
+  }
+  require TestBC;
 }
 my $i=0;
 #use B::C ();

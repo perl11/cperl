@@ -579,9 +579,21 @@ sub run_cmd {
 
 sub Mblib {
     if ($ENV{PERL_CORE}) {
-        $^O eq 'MSWin32' ? '-I..\..\lib -I..\..\lib\auto' : "-I../../lib -I../../lib/auto";
+        $^O eq 'MSWin32' ? '-I..\..\lib -I..\..\lib\auto'
+                         : '-I../../lib -I../../lib/auto';
     } else {
-        $^O eq 'MSWin32' ? '-Iblib\arch -Iblib\lib' : "-Iblib/arch -Iblib/lib";
+        $^O eq 'MSWin32' ? '-Iblib\arch -Iblib\lib'
+                         : '-Iblib/arch -Iblib/lib';
+    }
+}
+
+sub perlcc {
+    if ($ENV{PERL_CORE}) {
+        $^O eq 'MSWin32' ? 'script\perlcc -I..\.. -L..\..'
+                         : 'script/perlcc -I../.. -L../..';
+    } else {
+        $^O eq 'MSWin32' ? 'blib\script\perlcc'
+                         : 'blib/script/perlcc';
     }
 }
 
@@ -926,22 +938,23 @@ sub ctest {
     # we don't want to change STDOUT/STDERR on STDOUT/STDERR tests, so no -qq
     my $nostdoutclobber = $base !~ /^ccode93i/;
     my $post = '';
+    my $Mblib = Mblib;
     $b = ($] > 5.008 and $nostdoutclobber) ? "-qq,$backend" : "$backend";
     ($b, $post) = split(" ", $b);
     $post = '' unless $post;
     $b .= q(,-fno-fold,-fno-warnings) if $] >= 5.013005 and $b !~ /-(O3|ffold|fwarnings)/;
-    diag("$runperl ".Mblib." -MO=$b,-o$name.c $post $name.pl")
+    diag("$runperl $Mblib -MO=$b,-o$name.c $post $name.pl")
       if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} > 1;
-    system "$runperl ".Mblib." -MO=$b,-o$name.c $post $name.pl";
+    system "$runperl $Mblib -MO=$b,-o$name.c $post $name.pl";
     unless (-e "$name.c") {
         ok (undef, "$todo B::$backend failed to compile");
         return 1;
     }
     my $cc_harness = $ENV{PERL_CORE} ? "script/cc_harness -I../.. -L../.."
                                      : "blib/script/cc_harness";
-    diag("$runperl ".Mblib." $cc_harness -q -o $name $name.c")
+    diag("$runperl $Mblib $cc_harness -q -o $name $name.c")
       if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} > 1;
-    system "$runperl ".Mblib." $cc_harness -q -o $name $name.c";
+    system "$runperl $Mblib $cc_harness -q -o $name $name.c";
     my $exe = $name.$Config{exe_ext};
     unless (-e $exe) {
 	if ($todo and $todo =~ /TODO/) {
@@ -1013,7 +1026,7 @@ sub ccompileok {
 
     my $runperl = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
     my $b = $] > 5.008 ? "-qq,$backend" : "$backend";
-    my $Mblib = Mblib;
+    my $Mblib = Mblib();
     my $cc_harness = $ENV{PERL_CORE} ? "script/cc_harness -I../.. -L../.."
                                      : "blib/script/cc_harness";
     system "$runperl $Mblib -MO=$b,-o$name.c $name.pl";

@@ -1,7 +1,7 @@
 #! /usr/bin/env perl -w
 BEGIN {
-  if ($ENV{PERL_CORE}){
-    @INC = ('t', '../../lib', '../../lib/auto');
+  if ($ENV{PERL_CORE}) {
+    @INC = ('t', '../../lib');
   } else {
     unshift @INC, 't';
   }
@@ -10,7 +10,7 @@ BEGIN {
     print "1..0 # Skip -- Perl configured without B module\n";
     exit 0;
   }
-  require 'Test.pm';
+  require TestBC;
 }
 
 use strict;

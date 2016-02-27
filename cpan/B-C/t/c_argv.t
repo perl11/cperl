@@ -1,11 +1,14 @@
 #! /usr/bin/env perl
 use strict;
 use Test::More tests => 4;
+BEGIN {
+  unshift @INC, 't';
+  require TestBC;
+}
+
 my $runperl = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
-my $Mblib = $^O eq 'MSWin32' ? '-Iblib\arch -Iblib\lib' : "-Iblib/arch -Iblib/lib";
-$Mblib = '-I../../lib -I../../lib/auto' if $ENV{PERL_CORE};
-my $perlcc = $^O eq 'MSWin32' ? "blib\\script\\perlcc" : 'blib/script/perlcc';
-$perlcc = "script/perlcc -I../.. -L../.." if $ENV{PERL_CORE};
+my $Mblib = Mblib();
+my $perlcc = perlcc();
 my $exe = $^O eq 'MSWin32' ? 'ccode_argv.exe' : './ccode_argv';
 my $pl = $^O eq 'MSWin32' ? "t\\c_argv.pl" : "t/c_argv.pl";
 my $plc = $pl . "c";

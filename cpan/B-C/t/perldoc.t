@@ -4,7 +4,7 @@ use Test::More;
 use strict;
 BEGIN {
   unshift @INC, 't';
-  require "Test.pm";
+  require TestBC;
 }
 
 use Config;
@@ -31,7 +31,7 @@ sub todofaster {
 my $X = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
 my $Mblib = Mblib();
 my $perldoc = File::Spec->catfile($Config{installbin}, 'perldoc');
-my $perlcc = "$X $Mblib blib/script/perlcc";
+my $perlcc = "$X $Mblib script/perlcc";
 $perlcc .= " -Wb=-fno-fold,-fno-warnings" if $] > 5.013;
 $perlcc .= " -UB -uFile::Spec -uCwd";
 $perlcc .= " -uPod::Perldoc::ToText" if $] >= 5.023004;

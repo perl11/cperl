@@ -4,8 +4,12 @@
 # lc("\x{1E9E}") and "\x{df}" were hashed as the same string in const %strtable
 use strict;
 BEGIN {
-  unshift @INC, 't';
-  require "Test.pm";
+  if ($ENV{PERL_CORE}) {
+    unshift @INC, ('t', '../../lib');
+  } else {
+    unshift @INC, 't', "blib/arch", "blib/lib";
+  }
+  require TestBC;
 }
 use Test::More tests => 1;
 

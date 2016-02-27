@@ -12,12 +12,10 @@ BEGIN {
     print "1..0 # skip - Bytecode/ByteLoader doesn't work on VMS\n";
     exit 0;
   }
-  if ($ENV{PERL_CORE}){
-    chdir('t') if -d 't';
-    @INC = ('.', '../lib');
+  if ($ENV{PERL_CORE}) {
+    @INC = ('t', '../../lib');
   } else {
-    unshift @INC, 't';
-    push @INC, "blib/arch", "blib/lib";
+    unshift @INC, 't', "blib/arch", "blib/lib";
   }
   if (($Config{'extensions'} !~ /\bB\b/) ){
     print "1..0 # Skip -- Perl configured without B module\n";
@@ -28,7 +26,7 @@ BEGIN {
     print "1..0 # Skip -- perl5.22 broke ByteLoader\n";
     exit 0;
   }
-  require 'Test.pm'; # for run_perl()
+  require TestBC; # for run_perl()
 }
 use strict;
 my $PERL56  = ( $] <  5.008001 );

@@ -180,7 +180,7 @@ cpan/B-C/t/qr_loaded_module.pm
 cpan/B-C/t/stashes.t
 cpan/B-C/t/stash.t
 cpan/B-C/t/test10
-cpan/B-C/t/Test.pm
+cpan/B-C/t/TestBC.pm
 cpan/B-C/t/TESTS
 cpan/B-C/typemap
 cpan/B-Debug/Debug.pm	Compiler Debug backend

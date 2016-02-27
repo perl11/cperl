@@ -5,9 +5,8 @@ BEGIN {
     unshift @INC, ('t', '../../lib');
   } else {
     unshift @INC, 't';
-    #push @INC, "blib/arch", "blib/lib";
   }
-  require 'Test.pm';
+  require TestBC;
 }
 use strict;
 #my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);

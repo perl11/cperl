@@ -3,8 +3,7 @@ use strict;
 BEGIN {
   unshift @INC, 't';
 }
-
-require "Test.pm";
+require TestBC;
 use Test::More;
 use Config;
 use Cwd;
@@ -190,6 +189,7 @@ sub testcc   {
     my $cwd = Cwd::getcwd();
     # posix shell only, but we are using a posix shell here. XXX -Wb=-uTest::Builder
     my $X = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
+    # we cannot use that in PERL_CORE, only as module
     $self->prefs->{test}->{commandline} =
       "for t in t/*.t; do "
 	. "echo \"# \$t\"; $X -Iblib/arch -Iblib/lib -I\"$cwd/blib/arch\" -I\"$cwd/blib/lib\" \"$cwd/blib/script/perlcc\" -T -r \$t;"

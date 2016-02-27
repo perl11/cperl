@@ -30,7 +30,7 @@
 use strict;
 use Test::More;
 use File::Temp;
-require 't/Test.pm';
+require 't/TestBC.pm';
 
 # Try some simple XS module which exists in 5.6.2 and blead
 # otherwise we'll get a bogus 40% failure rate
@@ -115,14 +115,14 @@ unless (is_subset) {
     $svnrev = `svn info|grep Revision:`;
     chomp $svnrev;
     $svnrev =~ s/Revision:\s+/r/;
-    my $svnstat = `svn status lib/B/C.pm t/Test.pm t/*.t`;
+    my $svnstat = `svn status lib/B/C.pm t/TestBC.pm t/*.t`;
     chomp $svnstat;
     $svnrev .= " M" if $svnstat;
   } elsif (-d '.git') {
     local $ENV{LC_MESSAGES} = "C";
     $svnrev = `git log -1 --pretty=format:"%h %ad | %s" --date=short`;
     chomp $svnrev;
-    my $gitdiff = `git diff lib/B/C.pm t/Test.pm t/*.t`;
+    my $gitdiff = `git diff lib/B/C.pm t/TestBC.pm t/*.t`;
     chomp $gitdiff;
     $svnrev .= " M" if $gitdiff;
   }

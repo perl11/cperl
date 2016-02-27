@@ -3,8 +3,12 @@
 # See also t/issue172.t
 use strict;
 BEGIN {
-  unshift @INC, 't';
-  require "Test.pm";
+  if ($ENV{PERL_CORE}) {
+    unshift @INC, ('t', '../../lib');
+  } else {
+    unshift @INC, 't', "blib/arch", "blib/lib";
+  }
+  require TestBC;
 }
 use Test::More tests => 3;
 use B::C ();

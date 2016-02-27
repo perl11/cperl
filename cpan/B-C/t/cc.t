@@ -4,10 +4,9 @@ BEGIN {
   if ($ENV{PERL_CORE}) {
     unshift @INC, ('t', '../../lib');
   } else {
-    unshift @INC, 't';
-    #push @INC, "blib/arch", "blib/lib";
+    unshift @INC, 't', "blib/arch", "blib/lib";
   }
-  require 'Test.pm'; # for run_perl()
+  require TestBC; # for run_perl()
 }
 use strict;
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
