@@ -51,10 +51,16 @@ if (not defined $opt_assert) {
     $opt_assert = 1 if $ENV{AUTOMATED_TESTING}; # enable assert()s for cpan-testers
 }
 
-# --- make sure t/test40pmc.pmc is newer than t/test40pmc.pmc
+# The -m32 cross-compiler traditionally gets this wrong
+if ($ENV{PERL_CORE} and ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/)) {
+  $opt_zlib = 0;
+}
 
-utime time(), time(), "t/test40pmc.pmc"
+# --- make sure t/test40pmc.pmc is newer than t/test40pmc.pmc (??)
+if (-f "t/test40pmc.pmc") {
+  utime time(), time(), "t/test40pmc.pmc"
     or die "Can't update mod time of t/test40pmc.pmc";
+}
 
 
 # --- Discover how much of stdio is implemented
@@ -193,7 +199,7 @@ WriteMakefile(
     %mm_opts,
 );
 
-exit 0;
+# exit 0;
 
 # --- Utility functions ---
 
