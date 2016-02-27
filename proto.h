@@ -5420,6 +5420,11 @@ PERL_STATIC_INLINE IV*	S_get_invlist_previous_index_addr(SV* invlist)
 #define PERL_ARGS_ASSERT_GET_INVLIST_PREVIOUS_INDEX_ADDR	\
 	assert(invlist)
 
+PERL_STATIC_INLINE void	S_invlist_clear(pTHX_ SV* invlist)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_INVLIST_CLEAR	\
+	assert(invlist)
+
 PERL_STATIC_INLINE IV	S_invlist_previous_index(SV* const invlist)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1);
@@ -7111,11 +7116,6 @@ STATIC regnode*	S_handle_regex_sets(pTHX_ RExC_state_t *pRExC_state, SV ** retur
 			__attribute__nonnull__(pTHX_5);
 #define PERL_ARGS_ASSERT_HANDLE_REGEX_SETS	\
 	assert(pRExC_state); assert(flagp); assert(oregcomp_parse)
-
-STATIC void	S_invlist_clear(pTHX_ SV* invlist)
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_INVLIST_CLEAR	\
-	assert(invlist)
 
 PERL_STATIC_INLINE SV*	S_invlist_clone(pTHX_ SV* const invlist)
 			__attribute__warn_unused_result__

@@ -1533,8 +1533,8 @@ EiMRn	|IV*	|get_invlist_previous_index_addr|NN SV* invlist
 EiMn	|void	|invlist_set_previous_index|NN SV* const invlist|const IV index
 EiMRn	|IV	|invlist_previous_index|NN SV* const invlist
 EiMn	|void	|invlist_trim	|NN SV* invlist
+EiM	|void	|invlist_clear	|NN SV* invlist
 #endif
-EsM	|void	|invlist_clear	|NN SV* invlist
 EiMR	|SV*	|invlist_clone	|NN SV* const invlist
 EiMRn	|STRLEN*|get_invlist_iter_addr	|NN SV* invlist
 EiMn	|void	|invlist_iterinit|NN SV* invlist
