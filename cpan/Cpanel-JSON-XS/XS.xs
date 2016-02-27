@@ -449,6 +449,57 @@ json_atof (const char *s)
 
   return neg ? -accum : accum;
 }
+
+
+/* target of scalar reference is bool?  -1 == nope, 0 == false, 1 == true */
+static int
+ref_bool_type (pTHX_ SV *sv)
+{
+  svtype svt = SvTYPE (sv);
+
+  if (svt < SVt_PVAV)
+    {
+      STRLEN len = 0;
+      char *pv = svt ? SvPV (sv, len) : 0;
+
+      if (len == 1) {
+        if (*pv == '1')
+          return 1;
+        else if (*pv == '0')
+          return 0;
+      }
+
+    }
+
+  return -1;
+}
+
+/* returns whether scalar is not a reference in the sense of allow_nonref */
+static int
+json_nonref (pTHX_ SV *scalar)
+{
+  if (!SvROK (scalar))
+    return 1;
+
+  scalar = SvRV (scalar);
+
+  if (!SvOBJECT (scalar) && ref_bool_type (aTHX_ scalar) >= 0)
+    return 1;
+
+  if (SvOBJECT (scalar)) {
+    dMY_CXT;
+    HV *bstash   = MY_CXT.json_boolean_stash;
+    HV *oldstash = MY_CXT.jsonold_boolean_stash;
+    HV *mstash   = MY_CXT.mojo_boolean_stash;
+    HV *stash    = SvSTASH (scalar);
+
+    if (stash == bstash || stash == mstash || stash == oldstash)
+      return 1;
+  }
+  
+  return 0;
+}
+
 /*/////////////////////////////////////////////////////////////////////////// */
 /* encoder */
 
@@ -876,7 +927,6 @@ encode_stringify(pTHX_ enc_t *enc, SV *sv, int isref)
   STRLEN len;
   SV *pv = NULL;
   svtype type = SvTYPE(sv);
-  int amg = 0;
 #if PERL_VERSION <= 8
   MAGIC *mg;
 #endif
@@ -1008,7 +1058,7 @@ encode_rv (pTHX_ enc_t *enc, SV *rv)
           dSP;
           int count, items;
 
-          ENTER; SAVETMPS; PUSHMARK (SP);
+          ENTER; SAVETMPS; SAVESTACK_POS (); PUSHMARK (SP);
           EXTEND (SP, 2);
           PUSHs (rv);
           PUSHs (MY_CXT.sv_json);
@@ -1090,12 +1140,11 @@ encode_rv (pTHX_ enc_t *enc, SV *rv)
     encode_av (aTHX_ enc, (AV *)sv);
   else if (svt < SVt_PVAV && svt != SVt_PVGV)
     {
-      STRLEN len = 0;
-      char *pv = svt ? SvPV (sv, len) : 0;
+      int bool_type = ref_bool_type (aTHX_ sv);
 
-      if (len == 1 && *pv == '1')
+      if (bool_type == 1)
         encode_str (aTHX_ enc, "true", 4, 0);
-      else if (len == 1 && *pv == '0')
+      else if (bool_type == 0)
         encode_str (aTHX_ enc, "false", 5, 0);
       else if (enc->json.flags & F_ALLOW_STRINGIFY)
         encode_stringify(aTHX_ enc, sv, SvROK(sv));
@@ -1255,7 +1304,7 @@ encode_json (pTHX_ SV *scalar, JSON *json)
 {
   enc_t enc;
 
-  if (!(json->flags & F_ALLOW_NONREF) && !SvROK (scalar))
+  if (!(json->flags & F_ALLOW_NONREF) && json_nonref (aTHX_ scalar))
     croak ("hash- or arrayref expected (not a simple scalar, use allow_nonref to allow this)");
 
   enc.json      = *json;
@@ -1355,7 +1404,7 @@ print
 ";
 }
 */
-const static signed char decode_hexdigit[256] = {
+static const signed char decode_hexdigit[256] = {
     0 >= '0' && 0 <= '9' ? 0 - '0' : 0 >= 'a' && 0 <= 'f' ? 0 - 'a' + 10
     : 0 >= 'A' && 0 <= 'F' ? 0 - 'A' + 10 : -1 ,
     1 >= '0' && 1 <= '9' ? 1 - '0' : 1 >= 'a' && 1 <= 'f' ? 1 - 'a' + 10
@@ -2466,7 +2515,7 @@ decode_hv (pTHX_ dec_t *dec)
           he = hv_iternext (hv);
           hv_iterinit (hv);
 
-          /* the next line creates a mortal sv each time its called. */
+          /* the next line creates a mortal sv each time it's called. */
           /* might want to optimise this for common cases. */
           cb = hv_fetch_ent (dec->json.cb_sk_object, hv_iterkeysv (he), 0, 0);
 
@@ -2475,7 +2524,7 @@ decode_hv (pTHX_ dec_t *dec)
               dSP;
               int count;
 
-              ENTER; SAVETMPS; PUSHMARK (SP);
+              ENTER; SAVETMPS; SAVESTACK_POS (); PUSHMARK (SP);
               XPUSHs (HeVAL (he));
               sv_2mortal (sv);
 
@@ -2499,7 +2548,7 @@ decode_hv (pTHX_ dec_t *dec)
           dSP;
           int count;
 
-          ENTER; SAVETMPS; PUSHMARK (SP);
+          ENTER; SAVETMPS; SAVESTACK_POS (); PUSHMARK (SP);
           XPUSHs (sv_2mortal (sv));
 
           PUTBACK; count = call_sv (dec->json.cb_object, G_ARRAY); SPAGAIN;
@@ -2578,7 +2627,7 @@ decode_tag (pTHX_ dec_t *dec)
     if (!method)
       ERR ("cannot decode perl-object (package does not have a THAW method)");
 
-    ENTER; SAVETMPS; PUSHMARK (SP);
+    ENTER; SAVETMPS; SAVESTACK_POS (); PUSHMARK (SP);
     EXTEND (SP, len + 2);
     /* we re-bless the reference to get overload and other niceties right */
     PUSHs (tag);
@@ -2774,10 +2823,7 @@ decode_json (pTHX_ SV *string, JSON *json, U8 **offset_return)
              dec.cur != dec.end ? SvPV_nolen (uni) : "(end of string)");
     }
 
-  if (!(dec.json.flags & F_ALLOW_NONREF) &&
-       (!SvROK (sv)
-        || SvRV(sv) == SvRV(MY_CXT.json_true)
-        || SvRV(sv) == SvRV(MY_CXT.json_false)))
+  if (!(dec.json.flags & F_ALLOW_NONREF) && json_nonref(aTHX_ sv))
     croak ("JSON text must be an object or array (but found number, string, true, false or null, use allow_nonref to allow this)");
 
   return sv_2mortal (sv);
@@ -2910,7 +2956,7 @@ incr_parse (JSON *self)
                     case '[':
                     case '{':
                     case '(':
-                      if (++self->incr_nest > self->max_depth)
+                      if (++self->incr_nest > (int)self->max_depth)
                         croak (ERR_NESTING_EXCEEDED);
                       break;
 
@@ -2930,9 +2976,6 @@ incr_parse (JSON *self)
                   }
               }
         }
-
-      modechange:
-        ;
     }
 
 interrupt:
@@ -3079,7 +3122,7 @@ int get_max_size (JSON *self)
 void stringify_infnan (JSON *self, IV infnan_mode = 1)
 	PPCODE:
         self->infnan_mode = (unsigned char)infnan_mode;
-        if (self->infnan_mode < 0 || self->infnan_mode > 2) {
+        if (self->infnan_mode > 2) {
           croak ("invalid stringify_infnan mode %c. Must be 0, 1 or 2", self->infnan_mode);
         }
         XPUSHs (ST (0));

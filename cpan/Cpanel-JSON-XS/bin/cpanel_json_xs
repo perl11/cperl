@@ -50,7 +50,13 @@ C<fromformat> can be one of:
 
 =item eval - evaluate the given code as (non-utf-8) Perl, basically the reverse of "-t dump"
 
-=item yaml - YAML (avoid at all costs, requires the YAML module :)
+=item yaml - YAML (requires the YAML module)
+
+=item yaml-xs - YAML (requires the YAML::XS module)
+
+=item yaml-syck - YAML (requires the YAML::Syck module)
+
+=item cbor - CBOR (via CBOR::XS)
 
 =item string - do not attempt to decode the file data
 
@@ -90,6 +96,10 @@ C<toformat> can be one of:
 =item clzf - Compress::LZF format
 
 =item yaml - YAML
+
+=item yaml-xs - YAML::XS
+
+=item yaml-syck - YAML::Syck
 
 =item dump - Data::Dump
 
@@ -205,6 +215,9 @@ my %F = (
    "bencode"       => sub { require Convert::Bencode; Convert::Bencode::bdecode ($_) },
    "clzf"          => sub { require Compress::LZF; Compress::LZF::sthaw ($_) },
    "yaml"          => sub { require YAML; YAML::Load ($_) },
+   "yaml-xs"       => sub { require YAML::XS; YAML::XS::Load ($_) },
+   "yaml-syck"     => sub { require YAML::Syck; YAML::Syck::Load ($_) },
+   "cbor"          => sub { require CBOR::XS; CBOR::XS::decode_cbor ($_) },
    "eval"          => sub { my $v = eval "no strict; no warnings; no utf8;\n#line 1 \"input\"\n$_"; die "$@" if $@; $v },
 );
 
@@ -230,6 +243,8 @@ my %T = (
    "bencode"       => sub { require Convert::Bencode; Convert::Bencode::bencode ($_) },
    "clzf"          => sub { require Compress::LZF; Compress::LZF::sfreeze_cr ($_) },
    "yaml"          => sub { require YAML; YAML::Dump ($_) },
+   "yaml-xs"       => sub { require YAML::XS; YAML::XS::Dump ($_) },
+   "yaml-syck"     => sub { require YAML::Syck; YAML::Syck::Dump ($_) },
    "dumper"        => sub {
       require Data::Dumper;
       #local $Data::Dumper::Purity    = 1; # hopeless case
