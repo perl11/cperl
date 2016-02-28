@@ -6773,6 +6773,7 @@ CODE:
 
 # 1st arg could be self in the future
 # Note: KEYS doesnt exist in tied hash API, only FIRSTKEY/NEXTKEY
+# exists &Config::KEYS is currently used to detect compiled XSConfig in mockers
 void
 KEYS(...)
 PREINIT:
