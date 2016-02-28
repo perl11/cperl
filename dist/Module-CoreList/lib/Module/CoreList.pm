@@ -4,7 +4,7 @@ use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use Module::CoreList::TieHashDelta;
 use version;
-$VERSION = '5.20151213c';
+$VERSION = '5.20160225c';
 
 sub _released_order {   # Sort helper, to make '?' sort after everything else
     (substr($released{$a}, 0, 1) eq "?")
@@ -13,7 +13,7 @@ sub _released_order {   # Sort helper, to make '?' sort after everything else
         : 1)
     : ((substr($released{$b}, 0, 1) eq "?")
         ? -1
-        : $released{$a} cmp $released{$b} )
+        : version_sort($released{$a}, $released{$b} ))
 }
 
 my $dumpinc = 0;
@@ -54,7 +54,7 @@ sub first_release_by_date {
 sub first_release {
     my @perls = &first_release_raw;
     return unless @perls;
-    return (sort { $a cmp $b } @perls)[0];
+    return (sort { version_sort($a, $b) } @perls)[0];
 }
 
 sub find_modules {
@@ -117,9 +117,10 @@ sub removed_raw {
   my $mod = shift;
   $mod = shift if eval { $mod->isa(__PACKAGE__) }
       and scalar @_ and $_[0] =~ m#\A[a-zA-Z_][0-9a-zA-Z_]*(?:(::|')[0-9a-zA-Z_]+)*\z#;
-  return unless my @perls = sort { $a cmp $b } first_release_raw($mod);
+  return unless my @perls = sort { version_sort($a, $b) } first_release_raw($mod);
   my $last = version_strip(pop @perls);
-  my @removed = grep { $_ > $last } sort { $a cmp $b } keys %version;
+  my @removed = grep { version_sort($_, $last) > 0 }
+                     sort { version_sort($a, $b) } keys %version;
   return @removed;
 }
 
@@ -288,7 +289,7 @@ sub changes_between {
     5.023004 => '2015-10-20',
     5.023005 => '2015-11-20',
     5.022001 => '2015-12-13',
-    '5.022002c' => '2015-12-??',
+    '5.022002c' => '2016-03-??',
   );
 
 sub version_sort {
@@ -11630,9 +11631,9 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
     '5.022002c' => {
         delta_from => '5.022001c',
         changed => {
-            'Config'                  => '5.022002',
-            'Module::CoreList'        => '5.20150820c',
-            'Module::CoreList::Utils' => '5.20150820c',
+            'Config'                  => '6.19',
+            'Module::CoreList'        => '5.20160225c',
+            'Module::CoreList::Utils' => '5.20160225c',
         },
         removed => {
         }
@@ -12756,6 +12757,7 @@ for my $version (sort { version_sort($a, $b) } keys %deprecated) {
     'Compress::Raw::Bzip2'  => 'cpan',
     'Compress::Raw::Zlib'   => 'cpan',
     'Compress::Zlib'        => 'cpan',
+    'Config'                => 'cpan',
     'Config::Perl::V'       => 'cpan',
     'DB_File'               => 'cpan',
     'Devel::PPPort'         => 'cpan',
@@ -13109,6 +13111,7 @@ for my $version (sort { version_sort($a, $b) } keys %deprecated) {
     'Archive::Tar::Constant'=> undef,
     'Archive::Tar::File'    => undef,
     'B::Debug'              => undef,
+    'Config'                => 'https://github.com/perl11/p5-Config/issues',
     'CPAN'                  => undef,
     'CPAN::Author'          => undef,
     'CPAN::Bundle'          => undef,
