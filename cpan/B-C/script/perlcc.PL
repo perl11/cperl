@@ -624,6 +624,9 @@ sub cc_harness {
     my ($cfile, $stash, $extra_libs) = @_;
     use ExtUtils::Embed ();
     my $command = ExtUtils::Embed::ccopts." -o $Output $cfile ";
+    if ($ENV{PERL_CORE}) {
+      $command = "$Config{ccflags} -I../.. -L../.. -o $Output $cfile ";
+    }
     $command .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
     $command .= $B::C::Config::extra_cflags if $B::C::Config::extra_cflags;
     $command .= " -I".$_ for split /\s+/, opt('I');
@@ -645,13 +648,19 @@ sub cc_harness {
 
     # gcc crashes with this duplicate -fstack-protector arg
     my $ldflags = $Config{ldflags};
-    if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector\b/ and $ldopts =~ /-fstack-protector\b/) {
+    if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector\b/
+                        and $ldopts =~ /-fstack-protector\b/)
+    {
         $ldopts =~ s/-fstack-protector\b//;
         $ldflags =~ s/-fstack-protector\b// if $extra_libs;
     }
-    my $libperl = $Config{libperl};
-    my $libdir  = $Config{prefix} . "/lib";
-    my $coredir = $ENV{PERL_SRC} || $Config{archlib}."/CORE";
+    my ($libperl, $libdir, $coredir) = ($Config{libperl});
+    if ($ENV{PERL_CORE}) {
+        $libdir = $coredir = "../..";
+    } else {
+        $libdir  = $Config{prefix} . "/lib";
+        $coredir = $ENV{PERL_SRC} || $Config{archlib}."/CORE";
+    }
     if ($extra_libs) {
         # splice extra_libs after $Config{ldopts} before @archives
         my $i_ldopts = index($ldopts, $ldflags);
@@ -701,7 +710,7 @@ sub cc_harness {
 	    $ldopts =~ s|-lperl |$coredir/$Config{libperl} |;
         }
     }
-    $ldopts .= " -lperl" unless $command =~ /perl/;
+    $ldopts .= " -lperl" unless $command =~ m{( -lperl|/CORE\/libperl)};
     $command .= " ".$ldopts;
     $command .= $B::C::Config::extra_libs if $B::C::Config::extra_libs;
     vprint 3, "Calling $Config{cc} $command";

@@ -9,7 +9,7 @@ BEGIN {
 my $runperl = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
 my $Mblib = Mblib();
 my $perlcc = perlcc();
-my $exe = $^O eq 'MSWin32' ? 'ccode_argv.exe' : './ccode_argv';
+my $exe = $^O eq 'MSWin32' ? 'ccode_argv.exe' : 'ccode_argv';
 my $pl = $^O eq 'MSWin32' ? "t\\c_argv.pl" : "t/c_argv.pl";
 my $plc = $pl . "c";
 my $d = <DATA>;
@@ -66,7 +66,9 @@ print "@ARGV\n";';
 open F, ">", $pl;
 print F $d;
 close F;
+
 `$runperl $Mblib $perlcc -o $exe $pl`;
+$exe = "./$exe" unless $^O eq 'MSWin32';
 is (`$exe a b c`, "a b c\n",
    "issue 30: perlcc -o $exe; $exe args"); #4
 

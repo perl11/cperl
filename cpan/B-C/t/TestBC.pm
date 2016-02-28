@@ -535,10 +535,10 @@ sub run_cmd {
             $cmd = join " ", @$cmd;
         }
 	# No real way to trap STDERR?
-        $cmd .= " 2>&1" if ($^O !~ /^MSWin32|VMS/);
+        $cmd .= " 2>&1" if $^O !~ /^MSWin32|VMS/;
         warn $cmd."\n" if $ENV{TEST_VERBOSE};
 	$out = `$cmd`;
-        warn $out."\n" if $ENV{TEST_VERBOSE};
+        warn "# $out\n" if $ENV{TEST_VERBOSE};
 	$result = $?;
     }
     else {
@@ -579,8 +579,8 @@ sub run_cmd {
 
 sub Mblib {
     if ($ENV{PERL_CORE}) {
-        $^O eq 'MSWin32' ? '-I..\..\lib -I..\..\lib\auto'
-                         : '-I../../lib -I../../lib/auto';
+        $^O eq 'MSWin32' ? '-I..\..\lib'
+                         : '-I../../lib';
     } else {
         $^O eq 'MSWin32' ? '-Iblib\arch -Iblib\lib'
                          : '-Iblib/arch -Iblib/lib';
@@ -594,6 +594,16 @@ sub perlcc {
     } else {
         $^O eq 'MSWin32' ? 'blib\script\perlcc'
                          : 'blib/script/perlcc';
+    }
+}
+
+sub cc_harness {
+    if ($ENV{PERL_CORE} ) {
+        $^O eq 'MSWin32' ? 'script\cc_harness'
+                         : 'script/cc_harness';
+    } else {
+        $^O eq 'MSWin32' ? 'blib\script\cc_harness'
+                         : 'blib/script/cc_harness';
     }
 }
 
@@ -659,7 +669,7 @@ sub run_cc_test {
 	my $coredir = $ENV{PERL_CORE} ? File::Spec->catdir('..', '..')
                          : File::Spec->catdir($Config{installarchlib}, "CORE");
 	my $command = ExtUtils::Embed::ccopts;
-        $command .= " -I".$coredir if $ENV{PERL_CORE};
+        $command = $Config{ccflags}." -I".$coredir if $ENV{PERL_CORE};
 	$command .= " -DHAVE_INDEPENDENT_COMALLOC "
 	  if $B::C::Config::have_independent_comalloc;
 	$command .= " -o $exe $cfile ".$B::C::Config::extra_cflags . " ";
@@ -676,8 +686,10 @@ sub run_cc_test {
         }
 	my $libdir  = File::Spec->catdir($Config{prefix}, "lib");
         my $so = $Config{so};
-        my $linkargs = ExtUtils::Embed::ldopts('-std');
-        $linkargs .= " -L".$coredir if $ENV{PERL_CORE};
+        my $linkargs = $ENV{PERL_CORE}
+          ? ExtUtils::Embed::_ccdlflags." ".ExtUtils::Embed::_ldflags()
+           ." -L../.. -lperl ".$Config{libs}
+          : ExtUtils::Embed::ldopts('-std');
         # At least cygwin gcc-4.3 crashes with 2x -fstack-protector
         $linkargs =~ s/-fstack-protector\b//
           if $linkargs !~ /-fstack-protector-strong\b/
@@ -938,7 +950,7 @@ sub ctest {
     # we don't want to change STDOUT/STDERR on STDOUT/STDERR tests, so no -qq
     my $nostdoutclobber = $base !~ /^ccode93i/;
     my $post = '';
-    my $Mblib = Mblib;
+    my $Mblib = Mblib();
     $b = ($] > 5.008 and $nostdoutclobber) ? "-qq,$backend" : "$backend";
     ($b, $post) = split(" ", $b);
     $post = '' unless $post;
@@ -950,11 +962,13 @@ sub ctest {
         ok (undef, "$todo B::$backend failed to compile");
         return 1;
     }
-    my $cc_harness = $ENV{PERL_CORE} ? "script/cc_harness -I../.. -L../.."
-                                     : "blib/script/cc_harness";
-    diag("$runperl $Mblib $cc_harness -q -o $name $name.c")
-      if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} > 1;
-    system "$runperl $Mblib $cc_harness -q -o $name $name.c";
+    my $cc_harness = cc_harness();
+    my $cmd = "$runperl $Mblib $cc_harness -q -o $name $name.c";
+    if ($ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} > 1) {
+        $cmd =~ s/ -q / /;
+        diag("$cmd");
+    }
+    system "$cmd";
     my $exe = $name.$Config{exe_ext};
     unless (-e $exe) {
 	if ($todo and $todo =~ /TODO/) {
@@ -1027,13 +1041,12 @@ sub ccompileok {
     my $runperl = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
     my $b = $] > 5.008 ? "-qq,$backend" : "$backend";
     my $Mblib = Mblib();
-    my $cc_harness = $ENV{PERL_CORE} ? "script/cc_harness -I../.. -L../.."
-                                     : "blib/script/cc_harness";
     system "$runperl $Mblib -MO=$b,-o$name.c $name.pl";
     unless (-e "$name.c") {
         ok (undef, "#B::$backend failed");
         return 1;
     }
+    my $cc_harness = cc_harness();
     system "$runperl $Mblib $cc_harness -q -o $name $name.c";
     my $ok = -e $name or -e "$name.exe";
     if ($todo and $todo =~ /TODO/) {

@@ -2,11 +2,17 @@
 use Config;
 use ExtUtils::Embed;
 
-my $coredir = $ENV{PERL_CORE} ? '../..' : "$Config{archlib}/CORE";
-my $libdir  = "$Config{prefix}/lib";
+my ($coredir, $libdir);
+if ($ENV{PERL_CORE}) {
+  $libdir = $coredir = "../..";
+} else {
+  $libdir  = $Config{prefix} . "/lib";
+  $coredir = $ENV{PERL_SRC} || $Config{archlib}."/CORE";
+}
 my $useshrplib = $Config{useshrplib} eq 'true';
 my $libs = $Config{libs};
 my $so = $Config{so};
+my $libperl = $Config{libperl};
 my ($linkargs, $quiet, $debug);
 if (grep {$_ eq '-q' or $_ eq '--quiet'} @ARGV) {
   $quiet++;
@@ -38,22 +44,23 @@ if (grep(/^-[cES]$/, @ARGV)) { # compile-only with -c -E or -S
 	last;
       }
     }
-} elsif (-e "$coredir/$Config{libperl}" and $Config{libperl} !~ /\.$so$/) {
+} elsif (-e "$coredir/$libperl" and $libperl !~ /\.$so$/) {
     $linkargs = ldopts("-std"); # importlib or static
-} elsif ( $useshrplib and -e "$libdir/$Config{libperl}") {
+} elsif ( $useshrplib and -e "$libdir/$libperl") {
     # debian: /usr/lib/libperl.so.5.10.1 and broken ExtUtils::Embed::ldopts
     $linkargs = ldopts('-std');
-    $linkargs =~ s|-lperl |$libdir/$Config{libperl} |;
-} elsif ( $useshrplib and -e "$coredir/$Config{libperl}") {
+    $linkargs =~ s|-lperl |$libdir/$libperl |;
+} elsif ( $useshrplib and -e "$coredir/$libperl") {
     # just help cygwin debugging
     $linkargs = ldopts('-std');
-    $linkargs =~ s|-lperl |$coredir/$Config{libperl} |;
+    $linkargs =~ s|-lperl |$coredir/$libperl |;
 } else { # try dynamic lib if no static lib exists
     @ARGV = grep{ !/^-Bdynamic$/o } @ARGV;
     $linkargs = ldopts('-std');
 }
 # Note (probably harmless): No library found for -lnsl
 $linkargs .= " -L".$coredir if $ENV{PERL_CORE};
+$linkargs .= " -lperl" unless $linkargs =~ /( -lperl|CORE\/libperl)/;
 $linkargs = $B::C::Config::extra_libs . " " . $linkargs;
 $linkargs .= " $libs" if index($linkargs,$libs) == -1;
 
@@ -105,7 +112,9 @@ if ($^O =~ m/^MSWin/ && $Config{cc} =~ m/^cl/i) {
 
 my $ccflags = $Config{ccflags};
 # crashes on cygwin
-if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector\b/ and $linkargs =~ /-fstack-protector\b/) {
+if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector\b/
+                    and $linkargs =~ /-fstack-protector\b/)
+{
   $linkargs =~ s/-fstack-protector\b//;
 }
 #-pedantic -Wextra -Wconversion

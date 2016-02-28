@@ -50,10 +50,11 @@ BEGIN {
   my $tmp = File::Temp->new(TEMPLATE => 'pccXXXXX');
   my $out = $tmp->filename;
   my $Mblib = Mblib();
-  my $result = `$X $Mblib script/perlcc -O3 --staticxs -o$out -e"use Data::Dumper;"`;
+  my $perlcc = perlcc();
+  my $result = `$X $Mblib $perlcc -O3 --staticxs -o$out -e"use Data::Dumper;"`;
   my $exe = $^O eq 'MSWin32' ? "$out.exe" : $out;
   unless (-e $exe or -e 'a.out') {
-    my $cmd = qq($X $Mblib script/perlcc -O3 -o$out -e"use Data::Dumper;");
+    my $cmd = qq($X $Mblib $perlcc -O3 -o$out -e"use Data::Dumper;");
     warn $cmd."\n" if $ENV{TEST_VERBOSE};
     my $result = `$cmd`;
     unless (-e $out or -e 'a.out') {
@@ -146,6 +147,7 @@ unless (is_subset) {
 my $module_count = 0;
 my ($skip, $pass, $fail, $todo) = (0,0,0,0);
 my $Mblib = Mblib();
+my $perlcc = perlcc();
 
 MODULE:
 for my $module (@modules) {
@@ -199,7 +201,7 @@ for my $module (@modules) {
         $opt .= " -S" if $keep and $opt !~ / -S\b/;
         # TODO ./a often hangs but perlcc not
         my @cmd = grep {!/^$/}
-	  $runperl,split(/ /,$Mblib),"script/perlcc",split(/ /,$opt),$staticxs,"-o$out","-r",$out_pl;
+	  $runperl,split(/ /,$Mblib),split(/ /,$perlcc),split(/ /,$opt),$staticxs,"-o$out","-r",$out_pl;
         my $cmd = join(" ", @cmd);
         #warn $cmd."\n" if $ENV{TEST_VERBOSE};
 	# Esp. darwin-2level has insane link times
@@ -221,7 +223,8 @@ for my $module (@modules) {
           @cmd = ($runperl,split(/ /,$Mblib),"-MO=C,$c_opt,-o$out_c",$out_pl);
           #warn join(" ",@cmd."\n") if $ENV{TEST_VERBOSE};
           ($r, $stdout, $err1) = run_cmd(\@cmd, 60); # in secs
-          @cmd = ($runperl,split(/ /,$Mblib),"script/cc_harness","-o$out",$out_c);
+          my $cc_harness = cc_harness();
+          @cmd = ($runperl,split(/ /,$Mblib." ".$cc_harness),,"-o$out",$out_c);
           #warn join(" ",@cmd."\n") if $ENV{TEST_VERBOSE};
           ($r, $stdout, $err1) = run_cmd(\@cmd, 360); # in secs
           @cmd = ($^O eq 'MSWin32' ? "$out" : "./$out");
