@@ -1430,7 +1430,14 @@ libnames=''
 : change the next line if compiling for Xenix/286 on Xenix/386
 xlibpth='/usr/lib/386 /lib/386'
 : Possible local library directories to search.
-loclibpth="/usr/local/lib /opt/local/lib /usr/gnu/lib"
+case $cc in
+    *-m32*) ;;
+    *) loclibpth="/usr/local/lib /opt/local/lib /usr/gnu/lib" ;;
+esac
+case $ccflags in
+    *-m32*) loclibpath='' ;;
+    *)
+esac
 loclibpth="$loclibpth /opt/gnu/lib /usr/GNU/lib /opt/GNU/lib"
 
 : general looking path for locating libraries
@@ -1438,7 +1445,14 @@ glibpth="/lib /usr/lib $xlibpth"
 glibpth="$glibpth /usr/ccs/lib /usr/ucblib /usr/local/lib"
 test -f /usr/shlib/libc.so && glibpth="/usr/shlib $glibpth"
 test -f /shlib/libc.so     && glibpth="/shlib $glibpth"
-test -d /usr/lib64         && glibpth="$glibpth /lib64 /usr/lib64 /usr/local/lib64"
+case $cc in
+    *-m32*) ;;
+    *) case $ccflags in
+           *-m32*) ;;
+           *) test -d /usr/lib64 && \
+                    glibpth="$glibpth /lib64 /usr/lib64 /usr/local/lib64" ;;
+       esac ;;
+esac
 
 : Private path used by Configure to find libraries.  Its value
 : is prepended to libpth. This variable takes care of special
