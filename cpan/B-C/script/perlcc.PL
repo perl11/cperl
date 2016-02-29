@@ -407,12 +407,12 @@ sub compile_cstyle {
     $stash .= "-u$_," for @{$Options->{u}};
     $stash .= "-U$_," for @{$Options->{U}};
 
-    if ($ENV{PERL_CORE} and ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/)) {
-        die "perlcc with -m32 cross compilation is not supported\n";
-    }
+    #if ($ENV{PERL_CORE} and ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/)) {
+    #    die "perlcc with -m32 cross compilation is not supported\n";
+    #}
 
     my $taint = opt('T') ? ' -T' :
-                       opt('t') ? ' -t' : '';
+                opt('t') ? ' -t' : '';
 
     # What are we going to call our output C file?
     my $lose = 0;
@@ -714,7 +714,10 @@ sub cc_harness {
 	    $ldopts =~ s|-lperl |$coredir/$Config{libperl} |;
         }
     }
-    $ldopts .= " -lperl" unless $command =~ m{( -lperl|/CORE\/libperl)};
+    unless ( $command =~ m{( -lperl|/CORE\/libperl)} ) {
+        $ldopts .= " -lperl";
+        $ldopts .= " $Config{libs}" if $ENV{PERL_CORE}; # no -L found at all
+    }
     $command .= " ".$ldopts;
     $command .= $B::C::Config::extra_libs if $B::C::Config::extra_libs;
     vprint 3, "Calling $Config{cc} $command";
