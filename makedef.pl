@@ -289,7 +289,8 @@ else {
 }
 
 unless ($define{'PERL_OLD_COPY_ON_WRITE'}
-     || $define{'PERL_NEW_COPY_ON_WRITE'}) {
+        || $define{'PERL_NEW_COPY_ON_WRITE'}
+        || $define{'PERL_NO_COW'}) {
     ++$skip{Perl_sv_setsv_cow};
 }
 
