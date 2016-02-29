@@ -145,6 +145,7 @@ cpan/B-C/lib/B/Asmdata.pm
 cpan/B-C/lib/B/Assembler.pm
 cpan/B-C/lib/B/Bblock.pm
 cpan/B-C/lib/B/Bytecode.pm
+cpan/B-C/lib/B/C/Config_pm.PL
 cpan/B-C/lib/B/CC.pm
 cpan/B-C/lib/B/C.pm
 cpan/B-C/lib/B/Disassembler.pm

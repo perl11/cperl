@@ -58,7 +58,7 @@ sub b_c_deps {
 }
 
 # does not work with miniperl
-sub write_b_c_flags {
+sub write_b_c_config {
     my $version = shift;
     mkdir "lib/B/C" unless -d "lib/B/C";
     my $b_c_deps = b_c_deps();
@@ -400,7 +400,7 @@ sub const_config {
 
 sub post_constants {
     my $mm = shift;
-    main::write_b_c_flags($mm->{VERSION});
+    main::write_b_c_config($mm->{VERSION});
     my $libs = "\nLIBS = $Config::Config{libs}";
     $libs .= $extra_libs if $extra_libs;
     #XXX PERL_MALLOC_DEF = -DPERL_EXTMALLOC_DEF -Dmalloc=Perl_malloc -Dfree=Perl_mfree -Drealloc=Perl_realloc -Dcalloc=Perl_calloc

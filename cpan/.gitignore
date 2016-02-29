@@ -10,3 +10,9 @@ Time-HiRes/*.inc
 Time-HiRes/xdefine
 Win32API-File/cFile_pc_to_blib
 AutoLoader/t/auto-*
+B-C/ByteLoader/byterun.h
+B-C/ccode*
+B-C/lib/B/C/
+B-C/script/perlcc
+DB_File/dbr*
+Devel-NYTProf/t/nytprof_readstream.out
