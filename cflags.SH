@@ -186,10 +186,14 @@ Intel*) ;; # # Is that you, Intel C++?
 # -std=c89 before -ansi
 # -pedantic* before -Werror=d-a-s
 #
+# -Wno-discarded-qualifiers and its longer clang variant are for
+# passing const char* "" to funcs with char *
+#
 *)  for opt in -std=c89 -ansi $pedantic \
-		-Werror=declaration-after-statement \
-		-Wextra -W \
-		-Wc++-compat -Wwrite-strings
+	       -Werror=declaration-after-statement \
+	       -Wextra -W \
+	       -Wc++-compat -Wwrite-strings \
+               -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers
     do
        case " $ccflags " in
        *" $opt "*) ;; # Skip if already there.
