@@ -7,6 +7,7 @@ if (-d '../.git') {
         or die "update.sh failed";
 }
 
+unlink 'LibYAML.c'; # avoid duplicate
 my $obj_files = join ' ', map {
     my $c = $_;
     $c =~ s/\.c$/$Config::Config{_o}/;
@@ -14,8 +15,9 @@ my $obj_files = join ' ', map {
 } glob("*.c"), 'LibYAML.c';
 
 my $DEFINE = $^O eq 'MSWin32'
-? '-DHAVE_CONFIG_H -DYAML_DECLARE_EXPORT'
-: '-DHAVE_CONFIG_H';
+  ? '-DHAVE_CONFIG_H -DYAML_DECLARE_EXPORT'
+  : '-DHAVE_CONFIG_H';
+
 WriteMakefile(
     NAME => 'YAML::XS::LibYAML',
     PREREQ_PM => {},
