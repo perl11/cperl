@@ -1380,9 +1380,9 @@ _cleaner2:
 	-rmdir lib/Compress lib/Carp lib/CPAN/Plugin lib/CPAN/Meta/History
 	-rmdir lib/CPAN/Meta lib/CPAN/LWP lib/CPAN/Kwalify lib/CPAN/HTTP
 	-rmdir lib/CPAN/FTP lib/CPAN/Exception lib/CPAN/API lib/CPAN
-	-rmdir lib/ByteLoader lib/Attribute lib/Archive/Tar lib/Archive
-	-rmdir lib/App/Prove/State/Result lib/App/Prove/State lib/App/Prove
-	-rmdir lib/App
+	-rmdir lib/ByteLoader lib/B/C lib/Attribute lib/Archive/Tar
+	-rmdir lib/Archive lib/App/Prove/State/Result lib/App/Prove/State
+	-rmdir lib/App/Prove lib/App
 
 _realcleaner:
 	@$(LDLIBPTH) $(MAKE) _cleaner1 CLEAN=distclean

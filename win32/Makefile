@@ -1267,6 +1267,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\Archive rmdir /s /q $(LIBDIR)\Archive
 	-if exist $(LIBDIR)\Attribute rmdir /s /q $(LIBDIR)\Attribute
 	-if exist $(LIBDIR)\autodie rmdir /s /q $(LIBDIR)\autodie
+	-if exist $(LIBDIR)\B\C rmdir /s /q $(LIBDIR)\B\C
 	-if exist $(LIBDIR)\ByteLoader rmdir /s /q $(LIBDIR)\ByteLoader
 	-if exist $(LIBDIR)\Carp rmdir /s /q $(LIBDIR)\Carp
 	-if exist $(LIBDIR)\Compress rmdir /s /q $(LIBDIR)\Compress
