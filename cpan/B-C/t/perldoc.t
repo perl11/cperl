@@ -47,7 +47,12 @@ $perlcc .= " -uExporter" if $] < 5.010;
 my $exe = $Config{exe_ext};
 my $perldocexe = $^O eq 'MSWin32' ? "perldoc$exe" : "./perldoc$exe";
 # XXX bother File::Which?
-die "1..1 # $perldoc not found\n" unless -f $perldoc;
+unless (-f $perldoc) {
+  plan skip_all => "$perldoc not found";
+}
+if ($ENV{PERL_CORE} and ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/)) {
+  plan skip_all => "cc -m32 is not supported with PERL_CORE";
+}
 plan tests => 7;
 
 # XXX interestingly 5.8 perlcc cannot compile perldoc because Cwd disturbs the method finding

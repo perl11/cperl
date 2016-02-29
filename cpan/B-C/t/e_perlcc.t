@@ -3,8 +3,11 @@
 # test most perlcc options
 
 use strict;
-use Test::More tests => 79;
 use Config;
+use Test::More ($ENV{PERL_CORE}
+                and ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/))
+  ? (skip_all => "cc -m32 is not supported with PERL_CORE")
+  : (tests => 79);
 
 my $usedl = $Config{usedl} eq 'define';
 my $X = $^X =~ m/\s/ ? qq{"$^X"} : $^X;

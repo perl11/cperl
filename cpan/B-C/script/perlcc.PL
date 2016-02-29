@@ -407,6 +407,10 @@ sub compile_cstyle {
     $stash .= "-u$_," for @{$Options->{u}};
     $stash .= "-U$_," for @{$Options->{U}};
 
+    if ($ENV{PERL_CORE} and ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/)) {
+        die "perlcc with -m32 cross compilation is not supported\n";
+    }
+
     my $taint = opt('T') ? ' -T' :
                        opt('t') ? ' -t' : '';
 
