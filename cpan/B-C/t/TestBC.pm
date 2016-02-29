@@ -1079,7 +1079,8 @@ sub todo_tests_default {
 	push @todo, (41)  if $] < 5.007; #regressions
         push @todo, (12)  if $what eq 'c_o3' and !$ITHREADS and $] >= 5.008009 and $] < 5.010;
 
-        push @todo, (48)  if $what eq 'c_o4' and $] < 5.021 and $ITHREADS;
+        push @todo, (48) if $] >= 5.018; # opfree
+        push @todo, (48) if $what eq 'c_o4' and $] < 5.021 and $ITHREADS;
         push @todo, (8,18,19,25,26,28)  if $what eq 'c_o4' and !$ITHREADS;
         push @todo, (13,18,29,34) if $] >= 5.021006 and $ITHREADS;
         push @todo, (10,15,27,41,42,43,44,45,49,50)
@@ -1092,7 +1093,7 @@ sub todo_tests_default {
 	push @todo, (21,30,105,106);
 	push @todo, (22,41,45,103) if $] < 5.007; #regressions
 	push @todo, (104,105) if $] < 5.007; # leaveloop, no cxstack
-        push @todo, (42,43) if $] > 5.008 and $] <= 5.008005 and !$ITHREADS;
+        push @todo, (42,43)   if $] > 5.008 and $] <= 5.008005 and !$ITHREADS;
 
 	#push @todo, (33,45) if $] >= 5.010 and $] < 5.012;
 	push @todo, (10,16,50) if $what eq 'cc_o2';
