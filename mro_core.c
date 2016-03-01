@@ -450,7 +450,7 @@ Perl_mro_get_linear_isa(pTHX_ HV *stash)
 	    (void)hv_common(isa_hash, NULL, HEK_KEY(canon_name),
 			     HEK_LEN(canon_name), HEK_FLAGS(canon_name),
 			     HV_FETCH_ISSTORE, UNDEF,
-			     HEK_HASH(canon_name));
+			     0/*HEK_HASH(canon_name)*/);
 	    (void)hv_store(isa_hash, "UNIVERSAL", 9, UNDEF, 0);
 
 	    SvREADONLY_on(isa_hash);
@@ -636,7 +636,7 @@ Perl_mro_isa_changed_in(pTHX_ HV* stash)
                     assert(namehek);
                     mro_clean_isarev(
                      isa, HEK_KEY(namehek), HEK_LEN(namehek),
-                     HvMROMETA(revstash)->isa, HEK_HASH(namehek),
+                     HvMROMETA(revstash)->isa, 0/*HEK_HASH(namehek)*/,
                      HEK_UTF8(namehek)
                     );
                 }
@@ -678,7 +678,7 @@ Perl_mro_isa_changed_in(pTHX_ HV* stash)
     /* Delete our name from our former parents' isarevs. */
     if (isa && HvARRAY(isa))
         mro_clean_isarev(isa, stashname, stashname_len, meta->isa,
-                         HEK_HASH(stashhek), HEK_UTF8(stashhek));
+                         0/*HEK_HASH(stashhek)*/, HEK_UTF8(stashhek));
 }
 
 /* Deletes name from all the isarev entries listed in isa */

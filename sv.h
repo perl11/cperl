@@ -1976,7 +1976,15 @@ Like C<sv_catsv> but doesn't process magic.
 
 #define SvSHARED_HEK_FROM_PV(pvx) \
 	((struct hek*)(pvx - STRUCT_OFFSET(struct hek, hek_key)))
-#define SvSHARED_HASH(sv) (0 + SvSHARED_HEK_FROM_PV(SvPVX_const(sv))->hek_hash)
+/* This is gone. You can compute it with he _calc macros, but is mostly
+   not needed. */
+#ifdef PERL_CORE
+#define SvSHARED_HASH(sv)        assert(0 && "no hek_hash")
+#else
+#define SvSHARED_HASH(sv)        0
+#endif
+#define SvSHARED_HASH_calc(sv)   \
+        HEK_HASH_calc(SvSHARED_HEK_FROM_PV(SvPVX_const(sv)))
 
 /* flag values for sv_*_flags functions */
 #define SV_IMMEDIATE_UNREF	1

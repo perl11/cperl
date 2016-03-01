@@ -69,7 +69,7 @@ S_isa_lookup(pTHX_ HV *stash, const char * const name, STRLEN len, U32 flags)
 	assert(canon_name);
 	if (hv_common(isa, NULL, HEK_KEY(canon_name), HEK_LEN(canon_name),
 		      HEK_FLAGS(canon_name),
-		      HV_FETCH_ISEXISTS, NULL, HEK_HASH(canon_name))) {
+		      HV_FETCH_ISEXISTS, NULL, 0/*HEK_HASH(canon_name)*/)) {
 	    return TRUE;
 	}
     }

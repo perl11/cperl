@@ -2709,7 +2709,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
                         }
                         count++;
 
-			hash = HeHASH(he);
+			/*hash = HeHASH(he);*/
 			keysv = hv_iterkeysv(he);
 			keypv = SvPV_const(keysv, len);
 			elt = HeVAL(he);
@@ -2722,7 +2722,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
                                                          UNI_DISPLAY_QQ));
 			if (HvEITER_get(hv) == he)
 			    PerlIO_printf(file, "[CURRENT] ");
-                        PerlIO_printf(file, "HASH = 0x%" UVxf "\n", (UV) hash);
+                        /*PerlIO_printf(file, "HASH = 0x%" UVxf "\n", (UV) hash);*/
                         do_sv_dump(level+1, file, elt, nest+1, maxnest, dumpops, pvlim);
                     }
 		}
@@ -3268,11 +3268,13 @@ Perl_deb_hek(pTHX_ HEK* hek, SV* val)
     else if (HEK_IS_SVKEY(hek)) {
         SV * const tmp = newSVpvs_flags("", SVs_TEMP);
         SV* sv = *(SV**)HEK_KEY(hek);
-        PerlIO_printf(Perl_debug_log, " [0x%08x SV:\"%s\" ", (unsigned)HEK_HASH(hek),
+        U32 hash = HEK_HASH_calc(hek);
+        PerlIO_printf(Perl_debug_log, " [0x%08x SV:\"%s\" ", (unsigned)hash,
                       pretty_pv_escape( tmp, SvPVX_const(sv), SvCUR(sv), SvUTF8(sv)));
     } else {
         SV * const tmp = newSVpvs_flags("", SVs_TEMP);
-        PerlIO_printf(Perl_debug_log, " [0x%08x \"%s\" ", (unsigned)HEK_HASH(hek),
+        U32 hash = HEK_HASH_calc(hek);
+        PerlIO_printf(Perl_debug_log, " [0x%08x \"%s\" ", (unsigned)hash,
                       pretty_pv_escape( tmp, HEK_KEY(hek), HEK_LEN(hek), HEK_UTF8(hek)));
         if (HEK_FLAGS(hek) > 1)
             PerlIO_printf(Perl_debug_log, "0x%x ", HEK_FLAGS(hek));

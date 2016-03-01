@@ -577,10 +577,15 @@ L<perlapi> for detailed descriptions of these macros.
 
     HePV(HE* he, STRLEN len)
     HeVAL(HE* he)
-    HeHASH(HE* he)
     HeSVKEY(HE* he)
     HeSVKEY_force(HE* he)
     HeSVKEY_set(HE* he, SV* sv)
+
+C<HeHASH(HE* he)> is not supported anymore, as the hash is now
+computed and not stored in the HE. Ditto for C<SvSHARED_HASH(sv)>.
+Both return 0.
+C<HEK_HASH(hek)> is now undefined.
+C<HEK_HASH_calc(hek)> can be used to calculate the hash value from a HEK.
 
 These two lower level macros are defined, but must only be used when
 dealing with keys that are not C<SV*>s:
