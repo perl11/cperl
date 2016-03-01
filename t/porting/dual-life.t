@@ -56,6 +56,7 @@ find(
     my $name = $File::Find::name;
     return if $name =~ /blib/;
     return unless $name =~ m{/(?:bin|scripts?)/\S+\z} && $name !~ m{/t/};
+    return if $name =~ /(~|\.bak|\.orig)$/;
 
     push @programs, $name;
   }},
