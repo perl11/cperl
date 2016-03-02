@@ -58,50 +58,58 @@ my $bad_yaml_meta = catfile( test_data_directory(), 'BadMETA.yml' );
 
 ### YAML tests
 {
-  local $ENV{PERL_YAML_BACKEND}; # ensure we get CPAN::META::YAML
+  local $ENV{PERL_YAML_BACKEND}; # ensure we get YAML::XS
 
-  is(Parse::CPAN::Meta->yaml_backend(), 'CPAN::Meta::YAML', 'yaml_backend(): CPAN::Meta::YAML');
+  is(Parse::CPAN::Meta->yaml_backend(), 'YAML::XS', 'yaml_backend(): YAML::XS');
   my $from_yaml = Parse::CPAN::Meta->load_file( $meta_yaml );
   is_deeply($from_yaml, $want, "load from YAML file results in expected data");
 }
 
 {
-  local $ENV{PERL_YAML_BACKEND}; # ensure we get CPAN::META::YAML
+  local $ENV{PERL_YAML_BACKEND}; # ensure we get YAML::XS
 
   note '';
-  is(Parse::CPAN::Meta->yaml_backend(), 'CPAN::Meta::YAML', 'yaml_backend(): CPAN::Meta::YAML');
+  is(Parse::CPAN::Meta->yaml_backend(), 'YAML::XS', 'yaml_backend(): YAML::XS');
   my $from_yaml = Parse::CPAN::Meta->load_file( $yaml_meta );
   is_deeply($from_yaml, $want, "load from YAML .meta file results in expected data");
 }
 
 {
-  local $ENV{PERL_YAML_BACKEND}; # ensure we get CPAN::META::YAML
+  local $ENV{PERL_YAML_BACKEND}; # ensure we get YAML::XS
 
   note '';
-  is(Parse::CPAN::Meta->yaml_backend(), 'CPAN::Meta::YAML', 'yaml_backend(): CPAN::Meta::YAML');
+  is(Parse::CPAN::Meta->yaml_backend(), 'YAML::XS', 'yaml_backend(): YAML::XS');
   my $from_yaml = Parse::CPAN::Meta->load_file( $bare_yaml_meta );
   is_deeply($from_yaml, $want, "load from bare YAML .meta file results in expected data");
 }
 
 {
-  local $ENV{PERL_YAML_BACKEND}; # ensure we get CPAN::META::YAML
+  local $ENV{PERL_YAML_BACKEND}; # ensure we get YAML::XS
 
   note '';
-  is(Parse::CPAN::Meta->yaml_backend(), 'CPAN::Meta::YAML', 'yaml_backend(): CPAN::Meta::YAML');
+  is(Parse::CPAN::Meta->yaml_backend(), 'YAML::XS', 'yaml_backend(): YAML::XS');
   my $yaml   = load_ok( 'META-VR.yml', $meta_yaml, 100);
   my $from_yaml = Parse::CPAN::Meta->load_yaml_string( $yaml );
   is_deeply($from_yaml, $want, "load from YAML str results in expected data");
 }
 
 {
-  local $ENV{PERL_YAML_BACKEND}; # ensure we get CPAN::META::YAML
+  local $ENV{PERL_YAML_BACKEND}; # ensure we get YAML::XS
 
   note '';
-  is(Parse::CPAN::Meta->yaml_backend(), 'CPAN::Meta::YAML', 'yaml_backend(): CPAN::Meta::YAML');
+  is(Parse::CPAN::Meta->yaml_backend(), 'YAML::XS', 'yaml_backend(): YAML::XS');
   my @yaml   = Parse::CPAN::Meta::LoadFile( $bad_yaml_meta );
   is($yaml[0]{author}[0], 'Olivier Mengu\xE9', "Bad UTF-8 is replaced");
 }
 
+{
+  local $ENV{PERL_YAML_BACKEND} = 'CPAN::Meta::YAML';
+
+  is(Parse::CPAN::Meta->yaml_backend(), 'CPAN::Meta::YAML', 'yaml_backend(): CPAN::Meta::YAML');
+  my $yaml   = load_ok( 'META-VR.yml', $meta_yaml, 100);
+  my $from_yaml = Parse::CPAN::Meta->load_yaml_string( $yaml );
+  is_deeply($from_yaml, $want, "load_yaml_string using PERL_YAML_BACKEND");
+}
 
 SKIP: {
   note '';
@@ -117,50 +125,61 @@ SKIP: {
 
 ### JSON tests
 {
-  # JSON tests with JSON::PP
-  local $ENV{PERL_JSON_BACKEND}; # ensure we get JSON::PP
+  # JSON tests with Cpanel::JSON::XS
+  local $ENV{PERL_JSON_BACKEND}; # ensure we get Cpanel::JSON::XS
 
   note '';
-  is(Parse::CPAN::Meta->json_backend(), 'JSON::PP', 'json_backend(): JSON::PP');
+  is(Parse::CPAN::Meta->json_backend(), 'Cpanel::JSON::XS', 'json_backend(): Cpanel::JSON::XS');
   my $from_json = Parse::CPAN::Meta->load_file( $meta_json );
   is_deeply($from_json, $want, "load from JSON file results in expected data");
 }
 
 {
-  # JSON tests with JSON::PP
-  local $ENV{PERL_JSON_BACKEND}; # ensure we get JSON::PP
+  # JSON tests with Cpanel::JSON::XS
+  local $ENV{PERL_JSON_BACKEND}; # ensure we get Cpanel::JSON::XS
 
   note '';
-  is(Parse::CPAN::Meta->json_backend(), 'JSON::PP', 'json_backend(): JSON::PP');
+  is(Parse::CPAN::Meta->json_backend(), 'Cpanel::JSON::XS', 'json_backend(): Cpanel::JSON::XS');
   my $from_json = Parse::CPAN::Meta->load_file( $json_meta );
   is_deeply($from_json, $want, "load from JSON .meta file results in expected data");
 }
 
 {
-  # JSON tests with JSON::PP
-  local $ENV{PERL_JSON_BACKEND}; # ensure we get JSON::PP
+  # JSON tests with Cpanel::JSON::XS
+  local $ENV{PERL_JSON_BACKEND}; # ensure we get Cpanel::JSON::XS
 
   note '';
-  is(Parse::CPAN::Meta->json_backend(), 'JSON::PP', 'json_backend(): JSON::PP');
+  is(Parse::CPAN::Meta->json_backend(), 'Cpanel::JSON::XS', 'json_backend(): Cpanel::JSON::XS');
   my $json   = load_ok( 'META-VR.json', $meta_json, 100);
   my $from_json = Parse::CPAN::Meta->load_json_string( $json );
   is_deeply($from_json, $want, "load from JSON str results in expected data");
 }
 
 {
-  # JSON tests with JSON::PP, take 2
-  local $ENV{PERL_JSON_BACKEND} = 0; # request JSON::PP
+  # JSON tests with Cpanel::JSON::XS, take 2
+  local $ENV{PERL_JSON_BACKEND} = 0; # request Cpanel::JSON::XS
 
   note '';
-  is(Parse::CPAN::Meta->json_backend(), 'JSON::PP', 'json_backend(): JSON::PP');
+  is(Parse::CPAN::Meta->json_backend(), 'Cpanel::JSON::XS', 'json_backend(): Cpanel::JSON::XS');
   my $json   = load_ok( 'META-VR.json', $meta_json, 100);
   my $from_json = Parse::CPAN::Meta->load_json_string( $json );
   is_deeply($from_json, $want, "load_json_string with PERL_JSON_BACKEND = 0");
 }
 
 {
-  # JSON tests with JSON::PP, take 3
-  local $ENV{PERL_JSON_BACKEND} = 'JSON::PP'; # request JSON::PP
+  # JSON tests with Cpanel::JSON::XS, take 3
+  local $ENV{PERL_JSON_BACKEND} = 'Cpanel::JSON::XS'; # request Cpanel::JSON::XS
+
+  note '';
+  is(Parse::CPAN::Meta->json_backend(), 'Cpanel::JSON::XS', 'json_backend(): Cpanel::JSON::XS');
+  my $json   = load_ok( 'META-VR.json', $meta_json, 100);
+  my $from_json = Parse::CPAN::Meta->load_json_string( $json );
+  is_deeply($from_json, $want, "load_json_string with PERL_JSON_BACKEND = 'Cpanel::JSON::XS'");
+}
+
+{
+  # JSON tests with JSON::PP
+  local $ENV{PERL_JSON_BACKEND} = 'JSON::PP';
 
   note '';
   is(Parse::CPAN::Meta->json_backend(), 'JSON::PP', 'json_backend(): JSON::PP');
@@ -181,3 +200,14 @@ SKIP: {
   is_deeply($from_json, $want, "load_json_string with PERL_JSON_BACKEND = 1");
 }
 
+SKIP: {
+  note '';
+  skip "JSON::XS module not installed", 2
+    unless eval "require JSON::XS; JSON::XS->VERSION(2.5); 1";
+  local $ENV{PERL_JSON_BACKEND} = 'JSON::XS';
+
+  is(Parse::CPAN::Meta->json_backend(), 'JSON::XS', 'json_backend(): JSON::XS');
+  my $json   = load_ok( 'META-VR.json', $meta_json, 100);
+  my $from_json = Parse::CPAN::Meta->load_json_string( $json );
+  is_deeply($from_json, $want, "load_json_string with PERL_JSON_BACKEND = JSON::XS");
+}

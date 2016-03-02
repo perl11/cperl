@@ -3,13 +3,14 @@ use strict;
 package Parse::CPAN::Meta;
 # ABSTRACT: Parse META.yml and META.json CPAN metadata files
 
-our $VERSION = '1.4417';
+our $VERSION = '1.5000c';
 
 use Exporter;
 use Carp 'croak';
 
 our @ISA = qw/Exporter/;
 our @EXPORT_OK = qw/Load LoadFile/;
+our $permit_xs_err = qr/(control characters are not allowed|invalid trailing UTF-8 octet)/m;
 
 sub load_file {
   my ($class, $filename) = @_;
@@ -43,8 +44,21 @@ sub load_string {
 sub load_yaml_string {
   my ($class, $string) = @_;
   my $backend = $class->yaml_backend();
+  # set YAML::Tiny compatible options:
+  #local $YAML::XS::LoadCode = 0; # so far ignored
+  #local $YAML::XS::QuoteNumericStrings = 0;
   my $data = eval { no strict 'refs'; &{"$backend\::Load"}($string) };
-  croak $@ if $@;
+  # Make some parse errors are non-fatal.
+  # match YAML::Tiny and CPAN::Meta::YAML behavior, which accepts broken YAML
+  if ($@) {
+    my $err = $@;
+    if ($backend eq 'YAML::XS'
+        and $err =~ $permit_xs_err) {
+      warn $err;
+    } else {
+      croak $err;
+    }
+  }
   return $data || {}; # in case document was valid but empty
 }
 
@@ -57,9 +71,9 @@ sub load_json_string {
 
 sub yaml_backend {
   if (! defined $ENV{PERL_YAML_BACKEND} ) {
-    _can_load( 'CPAN::Meta::YAML', 0.011 )
-      or croak "CPAN::Meta::YAML 0.011 is not available\n";
-    return "CPAN::Meta::YAML";
+    _can_load( 'YAML::XS', 0.011 )
+      or croak "YAML::XS 0.011 is not available\n";
+    return "YAML::XS";
   }
   else {
     my $backend = $ENV{PERL_YAML_BACKEND};
@@ -72,16 +86,30 @@ sub yaml_backend {
 }
 
 sub json_backend {
-  if (! $ENV{PERL_JSON_BACKEND} or $ENV{PERL_JSON_BACKEND} eq 'JSON::PP') {
-    _can_load( 'JSON::PP' => 2.27103 )
-      or croak "JSON::PP 2.27103 is not available\n";
-    return 'JSON::PP';
+  my $backend = $ENV{PERL_JSON_BACKEND};
+  if (! $backend or $backend eq 'Cpanel::JSON::XS') {
+    _can_load( 'Cpanel::JSON::XS' => 3.0212 )
+      or croak "Cpanel::JSON::XS 3.0212 is not available\n";
+    return 'Cpanel::JSON::XS';
   }
-  else {
+  elsif ($backend eq "1") { # oh my
     _can_load( 'JSON' => 2.5 )
       or croak  "JSON 2.5 is required for " .
-                "\$ENV{PERL_JSON_BACKEND} = '$ENV{PERL_JSON_BACKEND}'\n";
+                "\$ENV{PERL_JSON_BACKEND} = '$backend'\n";
     return "JSON";
+  }
+  elsif ($backend) {
+    _can_load( $backend )
+      or croak "Could not load PERL_JSON_BACKEND '$backend'\n";
+    $backend->can("decode")
+      or croak "PERL_JSON_BACKEND '$backend' does not implement decode()\n";
+    return $backend;
+  }
+  else {
+    _can_load( 'JSON::PP' => 2.27300 )
+      or croak  "JSON:PP 2.27300 is required for " .
+                "\$ENV{PERL_JSON_BACKEND} = '$backend'\n";
+    return "JSON::PP";
   }
 }
 
@@ -117,9 +145,29 @@ sub LoadFile ($) { ## no critic
 
 # Parse a document from a string.
 sub Load ($) { ## no critic
-  require CPAN::Meta::YAML;
-  my $object = eval { CPAN::Meta::YAML::Load(shift) };
-  croak $@ if $@;
+  my $backend = __PACKAGE__->yaml_backend();
+  my $object;
+  eval { require $backend; };
+  if ($backend eq 'YAML::XS') {
+    # set YAML::Tiny compatible options:
+    #local $YAML::XS::LoadCode = 0; # so far ignored
+    #local $YAML::XS::QuoteNumericStrings = 0;
+    $object = eval { no strict 'refs'; &{"$backend\::Load"}(shift) };
+    # Make some parse errors are non-fatal.
+    # Match YAML::Tiny and CPAN::Meta::YAML behavior, which accepts broken YAML
+    if ($@) {
+      my $err = $@;
+      if ($err =~ $permit_xs_err) {
+        warn $err;
+      } else {
+        croak $err;
+      }
+    }
+    return $object || {};
+  } else {
+    $object = eval { no strict 'refs'; &{"$backend\::Load"}(shift) };
+    croak $@ if $@;
+  }
   return $object;
 }
 
@@ -137,7 +185,7 @@ Parse::CPAN::Meta - Parse META.yml and META.json CPAN metadata files
 
 =head1 VERSION
 
-version 1.4417
+version 1.4418c
 
 =head1 SYNOPSIS
 
@@ -166,7 +214,7 @@ version 1.4417
 =head1 DESCRIPTION
 
 B<Parse::CPAN::Meta> is a parser for F<META.json> and F<META.yml> files, using
-L<JSON::PP> and/or L<CPAN::Meta::YAML>.
+L<Cpanel::JSON::XS> and/or L<YAML::XS>.
 
 B<Parse::CPAN::Meta> provides three methods: C<load_file>, C<load_json_string>,
 and C<load_yaml_string>.  These will read and deserialize CPAN metafiles, and
@@ -236,7 +284,7 @@ for details.
   my $backend = Parse::CPAN::Meta->json_backend;
 
 Returns the module name of the JSON serializer.  This will either
-be L<JSON::PP> or L<JSON>.  Even if C<PERL_JSON_BACKEND> is set,
+be L<Cpanel::JSON::XS> or L<JSON::PP>.  Even if C<PERL_JSON_BACKEND> is set,
 this will return L<JSON> as further delegation is handled by
 the L<JSON> module.  See L</ENVIRONMENT> for details.
 
@@ -263,19 +311,25 @@ Reads the YAML stream from a file instead of a string.
 
 =head2 PERL_JSON_BACKEND
 
-By default, L<JSON::PP> will be used for deserializing JSON data. If the
-C<PERL_JSON_BACKEND> environment variable exists, is true and is not
-"JSON::PP", then the L<JSON> module (version 2.5 or greater) will be loaded and
-used to interpret C<PERL_JSON_BACKEND>.  If L<JSON> is not installed or is too
-old, an exception will be thrown.
+By default, L<Cpanel::JSON::XS> will be used for deserializing JSON
+data. If the C<PERL_JSON_BACKEND> environment variable exists, is true
+and is not "Cpanel::JSON::XS", then the L<JSON::PP> module (version
+2.27300 or greater) will be loaded and used to interpret
+C<PERL_JSON_BACKEND>.  If L<JSON::PP> is not installed or is too old, an
+exception will be thrown.
 
 =head2 PERL_YAML_BACKEND
 
-By default, L<CPAN::Meta::YAML> will be used for deserializing YAML data. If
-the C<PERL_YAML_BACKEND> environment variable is defined, then it is interpreted
-as a module to use for deserialization.  The given module must be installed,
-must load correctly and must implement the C<Load()> function or an exception
-will be thrown.
+By default, L<YAML:XS> will be used for deserializing YAML data. If
+the C<PERL_YAML_BACKEND> environment variable is defined, then it is
+interpreted as a module to use for deserialization.  The given module
+must be installed, must load correctly and must implement the
+C<Load()> function or an exception will be thrown.
+
+C<YAML::XS> is much stricter than the previous default YAML parser
+L<CPAN::Meta::YAML> (i.e. based on C<YAML::Tiny>), so the following
+fatal YAML::XS errors are unfatalized:
+"control characters are not allowed", "invalid trailing UTF-8 octet"
 
 =for :stopwords cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders metacpan
 
@@ -339,6 +393,10 @@ Ricardo Signes <rjbs@cpan.org>
 =item *
 
 Steffen Mueller <smueller@cpan.org>
+
+=item *
+
+Reini Urban <rurban@cpan.org>
 
 =back
 
