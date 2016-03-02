@@ -214,7 +214,7 @@ boot_coretypes(pTHX_ SV *xsfile)
 static void
 boot_strict(pTHX_ SV *xsfile)
 {
-    Perl_set_version(aTHX_ STR_WITH_LEN("strict::VERSION"), STR_WITH_LEN("1.10c"), 1.10);
+    Perl_set_version(aTHX_ STR_WITH_LEN("strict::VERSION"), STR_WITH_LEN("1.11c"), 1.11);
 
     newXS("strict::bits",	XS_strict_bits,		file);
     newXS("strict::import",	XS_strict_import,	file);
