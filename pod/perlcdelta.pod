@@ -196,7 +196,16 @@ Better DynaLoader support for os2, symbian, Netware.
 
 =over 4
 
-=item * Fix fixes RT#776270 and CVE-2012-3878 module loading security weakness
+=item * Fix CVE-2016-2381 sanitize duplicate environ entries
+
+Make sure we use the same value in %ENV that getenv() returns.
+Remove duplicate entries from environ.
+
+Previously if there was a duplicate definition for a name in environ[]
+setting that name in %ENV could result in an unsafe value being passed
+to a child process.
+
+=item * Fix CVE-2012-3878 [RT#776270] module loading security weakness
 
 Treat invalid names to require, such as ::foo as error.
 New errors:
