@@ -80,22 +80,21 @@ loader_error_msg(perl_yaml_loader_t *loader, char *problem)
     char *msg;
     if (!problem)
         problem = (char *)loader->parser.problem;
-    msg = form(
-        LOADERRMSG
-        "%swas found at "
-        "document: %d",
-        (problem ? form("The problem:\n\n    %s\n\n", problem) : "A problem "),
-        loader->document
-    );
-    if (
-        loader->parser.problem_mark.line ||
-        loader->parser.problem_mark.column
-    )
+    msg = form("%s%swas found at document: %d",
+               (loader->parser.input.file ? LOADFILEERRMSG : LOADERRMSG),
+               (problem ? form("The problem\n\n    %s\n\n", problem) : "A problem "),
+               loader->parser.input.file ? loader->parser.input.file->_file
+                                         : loader->document
+               );
+    if (loader->parser.problem_mark.line ||
+        loader->parser.problem_mark.column)
         msg = form("%s, line: %ld, column: %ld\n",
                    msg,
                    (long)loader->parser.problem_mark.line + 1,
                    (long)loader->parser.problem_mark.column + 1
-        );
+                   );
+    else if (loader->parser.problem_offset)
+        msg = form("%s, offset: %ld\n", msg, loader->parser.problem_offset);
     else
         msg = form("%s\n", msg);
     if (loader->parser.context)
@@ -107,6 +106,94 @@ loader_error_msg(perl_yaml_loader_t *loader, char *problem)
         );
 
     return msg;
+}
+
+/*
+ * It takes a yaml filename and turns it into 0 or more Perl objects.
+ */
+void
+LoadFile(SV *filename)
+{
+    dXSARGS;
+    perl_yaml_loader_t loader;
+    FILE *file;
+    SV *node;
+    const char *yaml_str;
+    STRLEN yaml_len;
+
+    yaml_str = (const char *)SvPV_const(filename, yaml_len);
+
+#if 0
+    if (DO_UTF8(yaml_sv)) {
+        yaml_sv = sv_mortalcopy(yaml_sv);
+        if (!sv_utf8_downgrade(yaml_sv, TRUE))
+            croak("%s", "Wide character in YAML::XS::Load()");
+        yaml_str = (const char *)SvPV_const(yaml_sv, yaml_len);
+    }
+#endif
+
+    sp = mark;
+    if (0 && (items || ax)) {} /* XXX Quiet the -Wall warnings for now. */
+
+    yaml_parser_initialize(&loader.parser);
+    {
+      GV *gv = gv_fetchpv("YAML::XS::NonStrict", TRUE, SVt_PV);
+      /* As with YAML::Tiny. Default: strict Load */
+      loader.parser.problem_nonstrict = gv && SvTRUE(GvSV(gv)) ? 1 : 0;
+    }
+
+    file = fopen(yaml_str, "rb");
+    if (!file)
+      croak("Can't open '%s' for input", yaml_str);
+    yaml_parser_set_input_file(&loader.parser, file);
+
+    /* Get the first event. Must be a STREAM_START */
+    if (!yaml_parser_parse(&loader.parser, &loader.event))
+        goto load_error;
+    if (loader.event.type != YAML_STREAM_START_EVENT)
+        croak("%sExpected STREAM_START_EVENT; Got: %d != %d",
+            ERRMSG,
+            loader.event.type,
+            YAML_STREAM_START_EVENT
+         );
+
+    loader.anchors = newHV();
+    sv_2mortal((SV *)loader.anchors);
+
+    /* Keep calling load_node until end of stream */
+    while (1) {
+        loader.document++;
+        /* We are through with the previous event - delete it! */
+        yaml_event_delete(&loader.event);
+        if (!yaml_parser_parse(&loader.parser, &loader.event))
+            goto load_error;
+        if (loader.event.type == YAML_STREAM_END_EVENT)
+            break;
+        node = load_node(&loader);
+        /* We are through with the previous event - delete it! */
+        yaml_event_delete(&loader.event);
+        hv_clear(loader.anchors);
+        if (! node) break;
+        XPUSHs(sv_2mortal(node));
+        if (!yaml_parser_parse(&loader.parser, &loader.event))
+            goto load_error;
+        if (loader.event.type != YAML_DOCUMENT_END_EVENT)
+            croak("%sExpected DOCUMENT_END_EVENT", ERRMSG);
+    }
+
+    /* Make sure the last event is a STREAM_END */
+    if (loader.event.type != YAML_STREAM_END_EVENT)
+        croak("%sExpected STREAM_END_EVENT; Got: %d != %d",
+            ERRMSG,
+            loader.event.type,
+            YAML_STREAM_END_EVENT
+         );
+    yaml_parser_delete(&loader.parser);
+    PUTBACK;
+    return;
+
+load_error:
+    croak("%s", loader_error_msg(&loader, NULL));
 }
 
 /*
@@ -135,6 +222,11 @@ Load(SV *yaml_sv)
     if (0 && (items || ax)) {} /* XXX Quiet the -Wall warnings for now. */
 
     yaml_parser_initialize(&loader.parser);
+    {
+      GV *gv = gv_fetchpv("YAML::XS::NonStrict", TRUE, SVt_PV);
+      /* As with YAML::Tiny. Default: strict Load */
+      loader.parser.problem_nonstrict = gv && SvTRUE(GvSV(gv)) ? 1 : 0;
+    }
     loader.document = 0;
     yaml_parser_set_input_string(
         &loader.parser,

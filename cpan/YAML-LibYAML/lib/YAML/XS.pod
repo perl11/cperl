@@ -33,18 +33,38 @@ This module exports the functions C<Dump>, C<Load>, C<DumpFile> and
 C<LoadFile>. These functions are intended to work exactly like C<YAML.pm>'s
 corresponding functions.
 
+However the loader is stricter than C<YAML>, C<YAML::Syck> and
+C<CPAN::Meta::YAML> i.e. C<YAML::Tiny> as used in core.  Set the
+variable C<$YAML::XS::NonStrict> to allow certain reader errors.
+
 =head1 CONFIGURATION
 
 =over
 
+=item C<$YAML::XS::NonStrict>
+
+Permit certain reader errors to loosely match other YAML module
+semantics.  In detail: Allow B<"control characters are not allowed">.
+Note that any error is stored and returned, just not immediately.
+
+However the reader error B<"invalid trailing UTF-8 octet"> and all other utf8
+strictness violations are still fatal.
+
+And if the structure of the YAML document cannot be parsed, i.e. a
+required value consists only of invalid control characters, the loader
+returns an error, unlike with non-strict YAML modules.
+
 =item C<$YAML::XS::UseCode>
 
+If enabled supports Dump of CV code blocks via C<YAML::XS::coderef2text()>.
 
 =item C<$YAML::XS::DumpCode>
 
+If enabled supports Dump of CV code blocks via C<YAML::XS::coderef2text()>.
 
 =item C<$YAML::XS::LoadCode>
 
+Ignored.
 If enabled supports deparsing and evaling of code blocks.
 
 =item C<$YAML::XS::QuoteNumericStrings>

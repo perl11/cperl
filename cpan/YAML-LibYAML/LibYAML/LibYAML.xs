@@ -17,6 +17,14 @@ Load (yaml_sv)
         return;
 
 void
+LoadFile (yaml_fname)
+        SV *yaml_fname
+        PPCODE:
+        PL_markstack_ptr++;
+        LoadFile(yaml_fname);
+        return;
+
+void
 Dump (...)
         PPCODE:
         SV *dummy = NULL;

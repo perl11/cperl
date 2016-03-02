@@ -1,7 +1,7 @@
 use strict; use warnings;
 
 package YAML::XS;
-our $VERSION = '0.62';
+our $VERSION = '0.63';
 
 use base 'Exporter';
 
@@ -10,9 +10,10 @@ use base 'Exporter';
 %YAML::XS::EXPORT_TAGS = (
     all => [qw(Dump Load LoadFile DumpFile)],
 );
-# $YAML::XS::UseCode = 0;
-# $YAML::XS::DumpCode = 0;
-# $YAML::XS::LoadCode = 0;
+# $YAML::XS::NonStrict = 1; # for Load
+# $YAML::XS::UseCode = 0;   # for Dump
+# $YAML::XS::DumpCode = 0;  # for Dump
+# $YAML::XS::LoadCode = 0;  # for Load. ignored
 
 $YAML::XS::QuoteNumericStrings = 1;
 
@@ -38,16 +39,9 @@ sub DumpFile {
 }
 
 sub LoadFile {
-    my $IN;
     my $filename = shift;
-    if (openhandle $filename) {
-        $IN = $filename;
-    }
-    else {
-        open $IN, $filename
-          or die "Can't open '$filename' for input:\n$!";
-    }
-    return YAML::XS::LibYAML::Load(do { local $/; local $_ = <$IN> });
+    -e $filename or die "Can't open '$filename' for input:\n$!";
+    return YAML::XS::LibYAML::LoadFile($filename);
 }
 
 # XXX Figure out how to lazily load this module.

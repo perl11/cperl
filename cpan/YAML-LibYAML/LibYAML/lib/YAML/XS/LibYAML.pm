@@ -7,12 +7,12 @@ use XSLoader;
 XSLoader::load 'YAML::XS::LibYAML';
 use base 'Exporter';
 
-our @EXPORT_OK = qw(Load Dump);
+our @EXPORT_OK = qw(Load Dump LoadFile);
 
 1;
 
 =head1 NAME
 
-YAML::XS::LibYAML - An XS Wrapper Module of libyaml
+YAML::XS::LibYAML - A XS Wrapper Module of libyaml
 
 =cut

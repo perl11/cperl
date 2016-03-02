@@ -1296,6 +1296,11 @@ typedef struct yaml_parser_s {
     /** The currently parsed document. */
     yaml_document_t *document;
 
+    /** Forgive some reader errors:
+     *   - control characters are not allowed
+     * Make them non-fatal. */
+    int problem_nonstrict;
+
     /**
      * @}
      */
