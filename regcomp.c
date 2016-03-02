@@ -19992,7 +19992,11 @@ S_put_charclass_bitmap_innards(pTHX_ SV *sv,
     /* Accumulate the bit map into the unconditional match list */
     for (i = 0; i < NUM_ANYOF_CODE_POINTS; i++) {
         if (BITMAP_TEST(bitmap, i)) {
-            invlist = add_cp_to_invlist(invlist, i);
+            int start = i++;
+            for (; i < NUM_ANYOF_CODE_POINTS && BITMAP_TEST(bitmap, i); i++) {
+                /* empty */
+            }
+            invlist = _add_range_to_invlist(invlist, start, i-1);
         }
     }
 
