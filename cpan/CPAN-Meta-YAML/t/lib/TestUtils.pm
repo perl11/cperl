@@ -28,6 +28,7 @@ sub find_tml_files {
 
 sub json_class {
     return eval { require JSON::MaybeXS; JSON::MaybeXS->VERSION('1.001000'); $JSON::MaybeXS::JSON_Class }
+        || do { require Cpanel::JSON::XS; 'Cpanel::JSON::XS' }
         || do { require JSON::PP; 'JSON::PP' };
 }
 
