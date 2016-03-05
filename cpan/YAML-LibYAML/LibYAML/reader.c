@@ -412,7 +412,7 @@ yaml_parser_update_buffer(yaml_parser_t *parser, size_t length)
                         || (value >= 0x20 && value <= 0x7E)
                         || (value == 0x85) || (value >= 0xA0 && value <= 0xD7FF)
                         || (value >= 0xE000 && value <= 0xFFFD)
-                   || (value >= 0x10000 && value <= 0x10FFFF))) {
+                       || (value >= 0x10000 && value <= 0x10FFFF))) {
                 int err = yaml_parser_set_reader_error(parser,
                               "control characters are not allowed",
                               parser->offset, value);

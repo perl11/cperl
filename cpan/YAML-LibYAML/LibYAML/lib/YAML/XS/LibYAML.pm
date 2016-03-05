@@ -13,6 +13,6 @@ our @EXPORT_OK = qw(Load Dump DumpFile LoadFile);
 
 =head1 NAME
 
-YAML::XS::LibYAML - A XS Wrapper Module of libyaml
+YAML::XS::LibYAML - An XS Wrapper Module of libyaml
 
 =cut

@@ -1,12 +1,6 @@
 
 #include "yaml_private.h"
 
-#ifdef DEBUGGING_YAML
-#define DEBUG1(s,a) printf(s,a)
-#else
-#define DEBUG1(s,a) 1
-#endif
-
 /*
  * Flush the buffer if needed.
  */
@@ -20,8 +14,7 @@
  */
 
 #define PUT(emitter,value)                                                      \
-  (DEBUG1("PUT '%c'\n", value) &&                                           \
-    FLUSH(emitter)                                                             \
+    (FLUSH(emitter)                                                             \
      && (*(emitter->buffer.pointer++) = (yaml_char_t)(value),                   \
          emitter->column ++,                                                    \
          1))
@@ -31,8 +24,7 @@
  */
 
 #define PUT_BREAK(emitter)                                                      \
-  (DEBUG1("PUT '\\n'\n", "") &&                                           \
-    FLUSH(emitter)                                                             \
+    (FLUSH(emitter)                                                             \
      && ((emitter->line_break == YAML_CR_BREAK ?                                \
              (*(emitter->buffer.pointer++) = (yaml_char_t) '\r') :              \
           emitter->line_break == YAML_LN_BREAK ?                                \
@@ -49,8 +41,7 @@
  */
 
 #define WRITE(emitter,string)                                                   \
-  (DEBUG1("WRITE %s\n", string.pointer) &&                                     \
-    FLUSH(emitter)                                                             \
+    (FLUSH(emitter)                                                             \
      && (COPY(emitter->buffer,string),                                          \
          emitter->column ++,                                                    \
          1))
@@ -60,8 +51,7 @@
  */
 
 #define WRITE_BREAK(emitter,string)                                             \
-  (DEBUG1("WB '\\n'\n", "") &&                                           \
-    FLUSH(emitter)                                                             \
+    (FLUSH(emitter)                                                             \
      && (CHECK(string,'\n') ?                                                   \
          (PUT_BREAK(emitter),                                                   \
           string.pointer ++,                                                    \
@@ -327,15 +317,12 @@ yaml_emitter_need_more_events(yaml_emitter_t *emitter)
 
     switch (emitter->events.head->type) {
         case YAML_DOCUMENT_START_EVENT:
-          DEBUG1("doc: accu=1\n", level);
             accumulate = 1;
             break;
         case YAML_SEQUENCE_START_EVENT:
-          DEBUG1("seq: accu=2\n", level);
             accumulate = 2;
             break;
         case YAML_MAPPING_START_EVENT:
-          DEBUG1("map: accu=3\n", level);
             accumulate = 3;
             break;
         default:
@@ -351,14 +338,12 @@ yaml_emitter_need_more_events(yaml_emitter_t *emitter)
             case YAML_DOCUMENT_START_EVENT:
             case YAML_SEQUENCE_START_EVENT:
             case YAML_MAPPING_START_EVENT:
-              DEBUG1("level++ %d\n", level);
                 level += 1;
                 break;
             case YAML_STREAM_END_EVENT:
             case YAML_DOCUMENT_END_EVENT:
             case YAML_SEQUENCE_END_EVENT:
             case YAML_MAPPING_END_EVENT:
-              DEBUG1("level-- %d\n", level);
                 level -= 1;
                 break;
             default:
@@ -421,15 +406,11 @@ yaml_emitter_increase_indent(yaml_emitter_t *emitter,
     if (!PUSH(emitter, emitter->indents, emitter->indent))
         return 0;
 
-    DEBUG1("indent++ flow=%d", flow);
-    DEBUG1(" indentless=%d\n", indentless);
     if (emitter->indent < 0) {
         emitter->indent = flow ? emitter->best_indent : 0;
-        DEBUG1("indent = %d\n", emitter->indent);
     }
     else if (!indentless) {
         emitter->indent += emitter->best_indent;
-        DEBUG1("indent = %d\n", emitter->indent);
     }
 
     return 1;
@@ -442,7 +423,6 @@ yaml_emitter_increase_indent(yaml_emitter_t *emitter,
 static int
 yaml_emitter_state_machine(yaml_emitter_t *emitter, yaml_event_t *event)
 {
-    DEBUG1("state %d\n", emitter->state);
     switch (emitter->state)
     {
         case YAML_EMIT_STREAM_START_STATE:
@@ -530,7 +510,7 @@ yaml_emitter_emit_stream_start(yaml_emitter_t *emitter,
         }
 
         if (emitter->best_width >= 0
-            && emitter->best_width <= emitter->best_indent*2) {
+                && emitter->best_width <= emitter->best_indent*2) {
             emitter->best_width = 80;
         }
 
@@ -888,7 +868,6 @@ yaml_emitter_emit_block_sequence_item(yaml_emitter_t *emitter,
 {
     if (first)
     {
-        DEBUG1("indentless_map=%d\n", emitter->indentless_map);
         if (!yaml_emitter_increase_indent(emitter, 0,
             emitter->indentless_map && (emitter->mapping_context && !emitter->indention)))
             return 0;
@@ -1536,11 +1515,11 @@ yaml_emitter_analyze_scalar(yaml_emitter_t *emitter,
     }
 
     if ((CHECK_AT(string, '-', 0)
-         && CHECK_AT(string, '-', 1)
-         && CHECK_AT(string, '-', 2))
-        || (CHECK_AT(string, '.', 0)
-            && CHECK_AT(string, '.', 1)
-            && CHECK_AT(string, '.', 2))) {
+                && CHECK_AT(string, '-', 1)
+                && CHECK_AT(string, '-', 2))
+            || (CHECK_AT(string, '.', 0)
+                && CHECK_AT(string, '.', 1)
+                && CHECK_AT(string, '.', 2))) {
         block_indicators = 1;
         flow_indicators = 1;
     }
@@ -1553,13 +1532,13 @@ yaml_emitter_analyze_scalar(yaml_emitter_t *emitter,
         if (string.start == string.pointer)
         {
             if (CHECK(string, '#') || CHECK(string, ',')
-                || CHECK(string, '[') || CHECK(string, ']')
-                || CHECK(string, '{') || CHECK(string, '}')
-                || CHECK(string, '&') || CHECK(string, '*')
-                || CHECK(string, '!') || CHECK(string, '|')
-                || CHECK(string, '>') || CHECK(string, '\'')
-                || CHECK(string, '"') || CHECK(string, '%')
-                || CHECK(string, '@') || CHECK(string, '`')) {
+                    || CHECK(string, '[') || CHECK(string, ']')
+                    || CHECK(string, '{') || CHECK(string, '}')
+                    || CHECK(string, '&') || CHECK(string, '*')
+                    || CHECK(string, '!') || CHECK(string, '|')
+                    || CHECK(string, '>') || CHECK(string, '\'')
+                    || CHECK(string, '"') || CHECK(string, '%')
+                    || CHECK(string, '@') || CHECK(string, '`')) {
                 flow_indicators = 1;
                 block_indicators = 1;
             }
@@ -1579,8 +1558,8 @@ yaml_emitter_analyze_scalar(yaml_emitter_t *emitter,
         else
         {
             if (CHECK(string, ',') || CHECK(string, '?')
-                || CHECK(string, '[') || CHECK(string, ']')
-                || CHECK(string, '{') || CHECK(string, '}')) {
+                    || CHECK(string, '[') || CHECK(string, ']')
+                    || CHECK(string, '{') || CHECK(string, '}')) {
                 flow_indicators = 1;
             }
 
@@ -1598,7 +1577,7 @@ yaml_emitter_analyze_scalar(yaml_emitter_t *emitter,
         }
 
         if (!IS_PRINTABLE(string)
-            || (!IS_ASCII(string) && !emitter->unicode)) {
+                || (!IS_ASCII(string) && !emitter->unicode)) {
             special_characters = 1;
         }
 
@@ -1881,16 +1860,16 @@ yaml_emitter_write_tag_content(yaml_emitter_t *emitter,
 
     while (string.pointer != string.end) {
         if (IS_ALPHA(string)
-            || CHECK(string, ';') || CHECK(string, '/')
-            || CHECK(string, '?') || CHECK(string, ':')
-            || CHECK(string, '@') || CHECK(string, '&')
-            || CHECK(string, '=') || CHECK(string, '+')
-            || CHECK(string, '$') || CHECK(string, ',')
-            || CHECK(string, '_') || CHECK(string, '.')
-            || CHECK(string, '~') || CHECK(string, '*')
-            || CHECK(string, '\'') || CHECK(string, '(')
-            || CHECK(string, ')') || CHECK(string, '[')
-            || CHECK(string, ']')) {
+                || CHECK(string, ';') || CHECK(string, '/')
+                || CHECK(string, '?') || CHECK(string, ':')
+                || CHECK(string, '@') || CHECK(string, '&')
+                || CHECK(string, '=') || CHECK(string, '+')
+                || CHECK(string, '$') || CHECK(string, ',')
+                || CHECK(string, '_') || CHECK(string, '.')
+                || CHECK(string, '~') || CHECK(string, '*')
+                || CHECK(string, '\'') || CHECK(string, '(')
+                || CHECK(string, ')') || CHECK(string, '[')
+                || CHECK(string, ']')) {
             if (!WRITE(emitter, string)) return 0;
         }
         else {
@@ -2169,10 +2148,9 @@ yaml_emitter_write_double_quoted_scalar(yaml_emitter_t *emitter,
         else if (IS_SPACE(string))
         {
             if (allow_breaks && !spaces
-                && emitter->column > emitter->best_width
-                && string.pointer != string.start
-                && string.pointer != string.end - 1)
-            {
+                    && emitter->column > emitter->best_width
+                    && string.pointer != string.start
+                    && string.pointer != string.end - 1) {
                 if (!yaml_emitter_write_indent(emitter)) return 0;
                 if (IS_SPACE_AT(string, 1)) {
                     if (!PUT(emitter, '\\')) return 0;
