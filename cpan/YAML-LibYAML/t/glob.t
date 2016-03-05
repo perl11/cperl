@@ -1,4 +1,5 @@
-use t::TestYAMLTests tests => 2;
+# YAML 1.2 only
+use t::TestYAMLTests tests => 4;
 no warnings 'once';
 
 $main::G1 = "Hello";
@@ -11,6 +12,7 @@ SCALAR: Hello
 ...
 
 eval '@main::G1 = (1..3)';
+local $YAML::XS::IndentlessMap = 1;
 
 is Dump(*G1), <<'...', "Add an array to the glob";
 --- !!perl/glob
@@ -23,27 +25,23 @@ PACKAGE: main
 SCALAR: Hello
 ...
 
-exit;
+#exit;
 
 eval '@main::G1 = (1..3)';
 
 my $g = *G1;
 
 is Dump(\$g), <<'...', "Ref to glob";
---- !!perl/ref
-=: !!perl/glob
+--- &1 !!perl/ref
+=: *1
 ...
 
 my $array = [\$g, \$g, \*G1];
 is Dump($array), <<'...', "Globs and aliases";
 ---
-- &1 !!perl/glob
-  ARRAY:
-  - 1
-  - 2
-  - 3
-  NAME: G1
-  PACKAGE: main
-  SCALAR: Hello
+- &1 !!perl/ref
+  =: *1
 - *1
+- &2 !!perl/ref
+  =: *2
 ...

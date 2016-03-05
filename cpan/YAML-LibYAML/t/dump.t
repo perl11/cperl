@@ -10,4 +10,3 @@ run_is perl => 'libyaml_emit';
 sub test_dump {
     Dump(@_) || "Dump failed";
 }
-

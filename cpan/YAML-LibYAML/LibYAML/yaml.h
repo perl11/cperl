@@ -1687,6 +1687,8 @@ typedef struct yaml_emitter_s {
     int indention;
     /** If an explicit document end is required? */
     int open_ended;
+    /** If a map requires a new indent (backcompat, unreadable by YAML.pm) */
+    int indentless_map;
 
     /** Anchor analysis. */
     struct {

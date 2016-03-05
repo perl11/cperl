@@ -7,7 +7,7 @@ use XSLoader;
 XSLoader::load 'YAML::XS::LibYAML';
 use base 'Exporter';
 
-our @EXPORT_OK = qw(Load Dump LoadFile);
+our @EXPORT_OK = qw(Load Dump DumpFile LoadFile);
 
 1;
 

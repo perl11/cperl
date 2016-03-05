@@ -8,27 +8,34 @@ MODULE = YAML::XS::LibYAML		PACKAGE = YAML::XS::LibYAML
 
 PROTOTYPES: DISABLE
 
-void
+SV*
 Load (yaml_sv)
         SV *yaml_sv
-        PPCODE:
+  PPCODE:
         PL_markstack_ptr++;
-        Load(yaml_sv);
-        return;
+        if (!Load(yaml_sv))
+          XSRETURN_UNDEF;
 
-void
+SV*
 LoadFile (yaml_fname)
         SV *yaml_fname
-        PPCODE:
+  PPCODE:
         PL_markstack_ptr++;
-        LoadFile(yaml_fname);
-        return;
+        if (!LoadFile(yaml_fname))
+          XSRETURN_UNDEF;
 
-void
+SV*
 Dump (...)
-        PPCODE:
+  PPCODE:
         SV *dummy = NULL;
         PL_markstack_ptr++;
-        Dump(dummy);
-        return;
+        if (!Dump(dummy))
+          XSRETURN_UNDEF;
 
+SV*
+DumpFile (yaml_fname)
+        SV *yaml_fname
+  PPCODE:
+        PL_markstack_ptr++;
+        if (!DumpFile(yaml_fname))
+          XSRETURN_UNDEF;
