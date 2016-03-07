@@ -21,6 +21,10 @@ sub test_files {
   }
 }
 
+# test potential other candidates
+if ($ENV{PERL_JSON_BACKEND} || $ENV{PERL_YAML_BACKEND}) {
+  test_files(@files);
+}
 delete $ENV{$_} for qw/PERL_JSON_BACKEND PERL_YAML_BACKEND/; # use defaults
 test_files(@files);
 

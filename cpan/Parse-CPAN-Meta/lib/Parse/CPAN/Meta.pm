@@ -10,20 +10,35 @@ use Carp 'croak';
 
 our @ISA = qw/Exporter/;
 our @EXPORT_OK = qw/Load LoadFile/;
-our $permit_xs_err = qr/(control characters are not allowed|invalid trailing UTF-8 octet)/m;
+our $permit_yaml_err = qr/(control characters are not allowed|invalid trailing UTF-8 octet)/m;
 
 sub load_file {
   my ($class, $filename) = @_;
 
-  my $meta = _slurp($filename);
-
   if ($filename =~ /\.ya?ml$/) {
-    return $class->load_yaml_string($meta);
+    my $backend = $class->yaml_backend();
+    {
+      no strict 'refs'; 
+      if (exists &{"$backend\::LoadFile"} ) {
+        local $YAML::XS::NonStrict = 1;
+        return &{"$backend\::LoadFile"}($filename);
+      } else {
+        my $meta = _slurp($filename);
+        return $class->load_yaml_string($meta);
+      }
+    }
   }
   elsif ($filename =~ /\.json$/) {
-    return $class->load_json_string($meta);
+    my $backend = $class->json_backend();
+    if (exists &{"$backend\::LoadFile"} ) {
+      return &{"$backend\::LoadFile"}($filename);
+    } else {
+      my $meta = _slurp($filename);
+      return $class->load_json_string($meta);
+    }
   }
   else {
+    my $meta = _slurp($filename);
     $class->load_string($meta); # try to detect yaml/json
   }
 }
@@ -44,16 +59,15 @@ sub load_string {
 sub load_yaml_string {
   my ($class, $string) = @_;
   my $backend = $class->yaml_backend();
-  # set YAML::Tiny compatible options:
-  #local $YAML::XS::LoadCode = 0; # so far ignored
-  #local $YAML::XS::QuoteNumericStrings = 0;
+  # set YAML::Tiny compatible options
+  local $YAML::XS::NonStrict = 1;
   my $data = eval { no strict 'refs'; &{"$backend\::Load"}($string) };
   # Make some parse errors are non-fatal.
   # match YAML::Tiny and CPAN::Meta::YAML behavior, which accepts broken YAML
   if ($@) {
     my $err = $@;
-    if ($backend eq 'YAML::XS'
-        and $err =~ $permit_xs_err) {
+    if ($backend =~ /^YAML(::XS)?$/
+        and $err =~ $permit_yaml_err) {
       warn $err;
     } else {
       croak $err;
@@ -71,8 +85,8 @@ sub load_json_string {
 
 sub yaml_backend {
   if (! defined $ENV{PERL_YAML_BACKEND} ) {
-    _can_load( 'YAML::XS', 0.011 )
-      or croak "YAML::XS 0.011 is not available\n";
+    _can_load( 'YAML::XS', 0.70 )
+      or croak "YAML::XS 0.70 is not available\n";
     return "YAML::XS";
   }
   else {
@@ -88,8 +102,8 @@ sub yaml_backend {
 sub json_backend {
   my $backend = $ENV{PERL_JSON_BACKEND};
   if (! $backend or $backend eq 'Cpanel::JSON::XS') {
-    _can_load( 'Cpanel::JSON::XS' => 3.0212 )
-      or croak "Cpanel::JSON::XS 3.0212 is not available\n";
+    _can_load( 'Cpanel::JSON::XS' => 3.0213 )
+      or croak "Cpanel::JSON::XS 3.0213 is not available\n";
     return 'Cpanel::JSON::XS';
   }
   elsif ($backend eq "1") { # oh my
@@ -148,16 +162,17 @@ sub Load ($) { ## no critic
   my $backend = __PACKAGE__->yaml_backend();
   my $object;
   eval { require $backend; };
-  if ($backend eq 'YAML::XS') {
+  if ($backend =~ /^YAML(::XS)?$/) {
     # set YAML::Tiny compatible options:
     #local $YAML::XS::LoadCode = 0; # so far ignored
     #local $YAML::XS::QuoteNumericStrings = 0;
+    local $YAML::XS::NonStrict = 1;
     $object = eval { no strict 'refs'; &{"$backend\::Load"}(shift) };
     # Make some parse errors are non-fatal.
     # Match YAML::Tiny and CPAN::Meta::YAML behavior, which accepts broken YAML
     if ($@) {
       my $err = $@;
-      if ($err =~ $permit_xs_err) {
+      if ($err =~ $permit_yaml_err) {
         warn $err;
       } else {
         croak $err;
