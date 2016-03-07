@@ -390,7 +390,8 @@ yaml_parser_parse_document_start(yaml_parser_t *parser, yaml_event_t *event,
                     &tag_directives.start, &tag_directives.end))
             return 0;
         token = PEEK_TOKEN(parser);
-        if (!token) goto error;
+        if (!token)
+            goto error;
         if (token->type != YAML_DOCUMENT_START_TOKEN) {
             yaml_parser_set_parser_error(parser,
                     "did not find expected <document start>", token->start_mark);
@@ -560,7 +561,8 @@ yaml_parser_parse_node(yaml_parser_t *parser, yaml_event_t *event,
             end_mark = token->end_mark;
             SKIP_TOKEN(parser);
             token = PEEK_TOKEN(parser);
-            if (!token) goto error;
+            if (!token)
+                goto error;
             if (token->type == YAML_TAG_TOKEN)
             {
                 tag_handle = token->data.tag.handle;
@@ -569,7 +571,8 @@ yaml_parser_parse_node(yaml_parser_t *parser, yaml_event_t *event,
                 end_mark = token->end_mark;
                 SKIP_TOKEN(parser);
                 token = PEEK_TOKEN(parser);
-                if (!token) goto error;
+                if (!token)
+                    goto error;
             }
         }
         else if (token->type == YAML_TAG_TOKEN)
@@ -580,14 +583,16 @@ yaml_parser_parse_node(yaml_parser_t *parser, yaml_event_t *event,
             end_mark = token->end_mark;
             SKIP_TOKEN(parser);
             token = PEEK_TOKEN(parser);
-            if (!token) goto error;
+            if (!token)
+                goto error;
             if (token->type == YAML_ANCHOR_TOKEN)
             {
                 anchor = token->data.anchor.value;
                 end_mark = token->end_mark;
                 SKIP_TOKEN(parser);
                 token = PEEK_TOKEN(parser);
-                if (!token) goto error;
+                if (!token)
+                    goto error;
             }
         }
 
@@ -1249,7 +1254,8 @@ yaml_parser_process_directives(yaml_parser_t *parser,
         goto error;
 
     token = PEEK_TOKEN(parser);
-    if (!token) goto error;
+    if (!token)
+        goto error;
 
     while (token->type == YAML_VERSION_DIRECTIVE_TOKEN ||
             token->type == YAML_TAG_DIRECTIVE_TOKEN)
@@ -1289,7 +1295,8 @@ yaml_parser_process_directives(yaml_parser_t *parser,
 
         SKIP_TOKEN(parser);
         token = PEEK_TOKEN(parser);
-        if (!token) goto error;
+        if (!token)
+            goto error;
     }
     
     for (default_tag_directive = default_tag_directives;
