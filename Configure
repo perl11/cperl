@@ -23325,24 +23325,47 @@ else
 	fi
 fi
 
-: add -D_FORTIFY_SOURCE with -O and not already there
+: add -D_FORTIFY_SOURCE on gcc with -O and not already there
 case "$gccversion" in
-4.*)	case "$optimize$ccflags" in
+[4-9].*)
+    case "$optimize$ccflags" in
 	*-O*)	case "$ccflags$cppsymbols" in
-		*_FORTIFY_SOURCE=*) # Don't add it again.
+		    *_FORTIFY_SOURCE=*) # Don't add it again.
 			echo "You seem to have -D_FORTIFY_SOURCE already, not adding it." >&4
 			;;
-		*)	echo "Adding -D_FORTIFY_SOURCE=2 to ccflags..." >&4
+		    *)	echo "Adding -D_FORTIFY_SOURCE=2 to ccflags..." >&4
 			ccflags="$ccflags -D_FORTIFY_SOURCE=2"
 			;;
 		esac
 		;;
 	*)	echo "You have gcc >=4.* but not optimizing, not adding -D_FORTIFY_SOURCE." >&4
 		;;
-	esac
-	;;
-*)	echo "You seem not to have gcc >=4.*, not adding -D_FORTIFY_SOURCE." >&4
-	;;
+    esac
+    ;;
+[3-9].*) # or clang-3.* even if it is already defined in cppflags there
+    case "$cc" in
+        *clang*)
+            case "$optimize$ccflags" in
+	        *-O*)
+                    case "$ccflags$cppsymbols" in
+		        *_FORTIFY_SOURCE=*) # Don't add it again.
+			    echo "You seem to have -D_FORTIFY_SOURCE already, not adding it." >&4
+			    ;;
+		        *)  echo "Adding -D_FORTIFY_SOURCE=2 to ccflags..." >&4
+			    ccflags="$ccflags -D_FORTIFY_SOURCE=2"
+			    ;;
+		    esac
+		    ;;
+	        *)  echo "You have clang >=3.* but not optimizing, not adding -D_FORTIFY_SOURCE." >&4
+		    ;;
+	    esac
+	    ;;
+        *)  echo "You seem not to have gcc >=4.*, not adding -D_FORTIFY_SOURCE." >&4
+            ;;
+    esac
+    ;;
+*)  echo "You seem not to have gcc >=4.*/clang >= 3.*, not adding -D_FORTIFY_SOURCE." >&4
+    ;;
 esac
 
 : see if this is a termio system
