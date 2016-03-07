@@ -132,13 +132,15 @@ loader_error_msg(perl_yaml_loader_t *loader, char *problem)
     if (loader->filename)
       msg = form("%s%swas found at document: %s",
                  LOADFILEERRMSG,
-                 (problem ? form("The problem\n\n    %s\n\n", problem) : "A problem "),
+                 (problem ? form("The problem\n\n    %s\n\n", problem)
+                          : "A problem "),
                  loader->filename
                  );
     else
       msg = form("%s%swas found at document: %d",
                  LOADERRMSG,
-                 (problem ? form("The problem\n\n    %s\n\n", problem) : "A problem "),
+                 (problem ? form("The problem\n\n    %s\n\n", problem)
+                          : "A problem "),
                  loader->document
                  );
     if (loader->parser.problem_mark.line ||
@@ -183,13 +185,16 @@ set_loader_options(perl_yaml_loader_t *loader)
     {
         const char *enc = SvPVX_const(GvSV(gv));
         if (strncmp(enc, "any", 3))
-            yaml_parser_set_encoding(&loader->parser, (result = YAML_ANY_ENCODING));
+            yaml_parser_set_encoding(&loader->parser,
+                                     (result = YAML_ANY_ENCODING));
         else if (strncmp(enc, "utf8", 4))
             yaml_parser_set_encoding(&loader->parser, YAML_UTF8_ENCODING);
         else if (strncmp(enc, "utf16le", 7))
-            yaml_parser_set_encoding(&loader->parser, (result = YAML_UTF16LE_ENCODING));
+            yaml_parser_set_encoding(&loader->parser,
+                                     (result = YAML_UTF16LE_ENCODING));
         else if (strncmp(enc, "utf16be", 7))
-            yaml_parser_set_encoding(&loader->parser, (result = YAML_UTF16BE_ENCODING));
+            yaml_parser_set_encoding(&loader->parser,
+                                     (result = YAML_UTF16BE_ENCODING));
         else
             croak("Invalid $YAML::XS::Encoding %s. Valid: any, utf8, utf16le, utf16be", enc);
     }
