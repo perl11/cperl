@@ -23341,8 +23341,7 @@ fi
 
 : add -D_FORTIFY_SOURCE on gcc with -O and not already there
 case "$gccversion" in
-[4-9].*)
-    case "$optimize$ccflags" in
+[4-9].*) case "$optimize$ccflags" in
 	*-O*)	case "$ccflags$cppsymbols" in
 		    *_FORTIFY_SOURCE=*) # Don't add it again.
 			echo "You seem to have -D_FORTIFY_SOURCE already, not adding it." >&4
@@ -23356,7 +23355,7 @@ case "$gccversion" in
 		;;
     esac
     ;;
-[3-9].*) # or clang-3.* even if it is already defined in cppflags there
+3.*) # or clang-3.* even if it is already defined in cppflags there
     case "$cc" in
         *clang*)
             case "$optimize$ccflags" in
