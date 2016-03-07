@@ -73,8 +73,8 @@ Win32API::File cpan/Win32API-File/t/file.t 124e64aa77e755235eb297644a87fac5388d3
 Win32API::File cpan/Win32API-File/t/tie.t 712ea7edd0cc805ce1c0b8172c01b03dd19b583d
 Win32API::File cpan/Win32API-File/typemap 24bff088babeadac0873e8df390d1666d9d9db4a
 YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL 550381eb761feb6c5f0af4ec72dd4e3da97a55c0
-YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm e73056ad8a2903e7dd77ff95b9357adac9833d22
-YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm 4ed84592cea05b411ee3d4f6289ae33cef539e30
+YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 37441ba0eff59df1e75d7c2db64d9b478a8ffc60
+YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm b9846cabfa2ede801c6df9357a97f8ccdc207119
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
 libnet cpan/libnet/lib/Net/Domain.pm 1c8c8a02490c8209ce23a193dcd2c8e6d936dd92
