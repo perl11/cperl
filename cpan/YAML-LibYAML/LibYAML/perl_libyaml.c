@@ -108,7 +108,7 @@ call_coderef(SV *code, AV *args)
 }
 
 static SV *
-find_coderef(char *perl_var)
+find_coderef(const char const *perl_var)
 {
     SV *coderef;
 
@@ -762,7 +762,7 @@ Dump()
     encoding = set_dumper_options(&dumper);
     yaml_emitter_set_output(&dumper.emitter,
         &append_output,
-        (void *) yaml
+        (void *)yaml
     );
 
     yaml_stream_start_event_initialize(&event_stream_start, encoding);

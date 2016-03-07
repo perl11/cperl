@@ -993,8 +993,6 @@ yaml_emitter_emit_node(yaml_emitter_t *emitter, yaml_event_t *event,
             return yaml_emitter_set_emitter_error(emitter,
                     "expected SCALAR, SEQUENCE-START, MAPPING-START, or ALIAS");
     }
-
-    return 0;
 }
 
 /*
@@ -1884,16 +1882,16 @@ yaml_emitter_write_tag_content(yaml_emitter_t *emitter,
         }
         else {
             int width = WIDTH(string);
-            unsigned int value;
+            unsigned int v;
             while (width --) {
-                value = *(string.pointer++);
+                v = *(string.pointer++);
                 if (!PUT(emitter, '%'))
                     return 0;
-                if (!PUT(emitter, (value >> 4)
-                            + ((value >> 4) < 10 ? '0' : 'A' - 10)))
+                if (!PUT(emitter, (v >> 4)
+                               + ((v >> 4) < 10 ? '0' : 'A' - 10)))
                     return 0;
-                if (!PUT(emitter, (value & 0x0F)
-                            + ((value & 0x0F) < 10 ? '0' : 'A' - 10)))
+                if (!PUT(emitter, (v & 0x0F)
+                               + ((v & 0x0F) < 10 ? '0' : 'A' - 10)))
                     return 0;
             }
         }
@@ -2062,7 +2060,7 @@ yaml_emitter_write_double_quoted_scalar(yaml_emitter_t *emitter,
         {
             unsigned char octet;
             unsigned int width;
-            unsigned int value;
+            unsigned int v;
             int k;
 
             octet = string.pointer[0];
@@ -2070,20 +2068,20 @@ yaml_emitter_write_double_quoted_scalar(yaml_emitter_t *emitter,
                     (octet & 0xE0) == 0xC0 ? 2 :
                     (octet & 0xF0) == 0xE0 ? 3 :
                     (octet & 0xF8) == 0xF0 ? 4 : 0;
-            value = (octet & 0x80) == 0x00 ? octet & 0x7F :
+            v     = (octet & 0x80) == 0x00 ? octet & 0x7F :
                     (octet & 0xE0) == 0xC0 ? octet & 0x1F :
                     (octet & 0xF0) == 0xE0 ? octet & 0x0F :
                     (octet & 0xF8) == 0xF0 ? octet & 0x07 : 0;
             for (k = 1; k < (int)width; k ++) {
                 octet = string.pointer[k];
-                value = (value << 6) + (octet & 0x3F);
+                v     = (v << 6) + (octet & 0x3F);
             }
             string.pointer += width;
 
             if (!PUT(emitter, '\\'))
                 return 0;
 
-            switch (value)
+            switch (v)
             {
                 case 0x00:
                     if (!PUT(emitter, '0'))
@@ -2161,12 +2159,12 @@ yaml_emitter_write_double_quoted_scalar(yaml_emitter_t *emitter,
                     break;
 
                 default:
-                    if (value <= 0xFF) {
+                    if (v <= 0xFF) {
                         if (!PUT(emitter, 'x'))
                             return 0;
                         width = 2;
                     }
-                    else if (value <= 0xFFFF) {
+                    else if (v <= 0xFFFF) {
                         if (!PUT(emitter, 'u'))
                             return 0;
                         width = 4;
@@ -2177,7 +2175,7 @@ yaml_emitter_write_double_quoted_scalar(yaml_emitter_t *emitter,
                         width = 8;
                     }
                     for (k = (width-1)*4; k >= 0; k -= 4) {
-                        int digit = (value >> k) & 0x0F;
+                        int digit = (v >> k) & 0x0F;
                         if (!PUT(emitter, digit + (digit < 10 ? '0' : 'A'-10)))
                             return 0;
                     }
