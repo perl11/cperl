@@ -1637,6 +1637,9 @@ distcheck: FORCE
 TAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
 	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
 
+FULLTAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
+	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h) `find cpan dist ext -type f -name \*.[ch]`
+
 ctags:
 	ctags -f Tags -N --totals --languages=c --langmap=c:+.h --exclude=opmini.c --exclude=perlmini.c *.c *.h
 
