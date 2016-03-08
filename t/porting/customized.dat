@@ -41,6 +41,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fca
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/vstrings.t c60ad8cfd3496f136aeb71008f51d2db0a34eb5f
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
+IPC::SysV cpan/IPC-SysV/t/ipcsysv.t ee2c95e846ea201afe13c9ec53b09cef62c8ac68
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm cb6b569b668a2485397d7ff33058f4abdcc731d8
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 7c0b8960822b1a585e374d3d1a0e4e1e5d652caa
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
