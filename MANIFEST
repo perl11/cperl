@@ -3068,6 +3068,7 @@ cpan/YAML-LibYAML/t/load.t
 cpan/YAML-LibYAML/t/long_plain_wrap.t
 cpan/YAML-LibYAML/t/magic.t
 cpan/YAML-LibYAML/t/native.t
+cpan/YAML-LibYAML/t/nonstrict.t
 cpan/YAML-LibYAML/t/null.t
 cpan/YAML-LibYAML/t/numbers.t
 cpan/YAML-LibYAML/t/path-class.t

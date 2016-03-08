@@ -108,7 +108,7 @@ call_coderef(SV *code, AV *args)
 }
 
 static SV *
-find_coderef(const char const *perl_var)
+find_coderef(const char *perl_var)
 {
     SV *coderef;
 
@@ -389,10 +389,11 @@ load_node(perl_yaml_loader_t *loader)
     /* Return NULL when we hit the end of a scope */
     if (loader->event.type == YAML_DOCUMENT_END_EVENT ||
         loader->event.type == YAML_MAPPING_END_EVENT ||
-        loader->event.type == YAML_SEQUENCE_END_EVENT) {
-            /* restore the uplevel event, so it can be properly deleted */
-            loader->event = uplevel_event;
-            return return_sv;
+        loader->event.type == YAML_SEQUENCE_END_EVENT)
+    {
+        /* restore the uplevel event, so it can be properly deleted */
+        loader->event = uplevel_event;
+        return return_sv;
     }
 
     /* The rest all need cleanup */
