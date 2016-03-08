@@ -8,7 +8,7 @@ requires:
     Apache::Constants:             1.09
     Apache::File:                  1.01
     Apache::Request:               1.1
-    Class::Date:                   0
+    Class::Date:                   
     HTML::Template::Set:           1.01
     MIME::Entity:                  5.404
 
