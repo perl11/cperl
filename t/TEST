@@ -367,6 +367,7 @@ sub _run_test {
     _before_fork($options);
 
     my $cmd = _cmd($options, $type);
+    local $ENV{PERL_DESTRUCT_LEVEL} if $options->{run_dir} eq 'cpan/B-C';
 
     open(my $results, "$cmd |") or print "can't run '$cmd': $!.\n";
 

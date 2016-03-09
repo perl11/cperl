@@ -1161,8 +1161,15 @@ sub save_hek {
     #   user-input (object fields) does not affect strtab, it is pretty safe.
     # But we need to randomize them to avoid run-time conflicts
     #   e.g. "Prototype mismatch: sub bytes::length (_) vs (_)"
-    $init->add(sprintf("%s = share_hek(%s, %d, %s);",
-                       $sym, $cstr, $cur, '0'));
+    if ($PERL510 and 0) { # no refcount
+      $init->add(sprintf("%s = my_share_hek_0(%s, %d);",
+                         $sym, $cstr, $cur));
+    } else { # vs. bump the refcount
+      $init->add(sprintf("%s = share_hek(%s, %d);",
+                         $sym, $cstr, $cur));
+    }
+    # protect against Unbalanced string table refcount warning with PERL_DESTRUCT_LEVEL=2
+    # $free->add("    $sym = NULL;");
     return $sym;
   }
 }
@@ -2362,6 +2369,13 @@ sub B::COP::save {
           } else {
             $init->add(sprintf("%s = cophh_store_pvs(%s, %s, %s, 0);",
                                $cophh, $i ? $cophh : 'NULL', $ck, $val));
+          }
+          #$init->add(sprintf("%s->refcounted_he_refcnt--;", $cophh));
+          #if (!$ITHREADS) {
+          #  $init->add(sprintf("HEK_FLAGS(%s->refcounted_he_hek) |= HVhek_STATIC;", $cophh));
+          #}
+          if ($PERL522 and !$ITHREADS) {
+            $init->add(sprintf("unshare_hek_hek(%s->refcounted_he_hek);", $cophh));
           }
           $i++;
         }
@@ -4470,7 +4484,7 @@ sub B::CV::save {
           $cur = -$cur;
         }
         $init->add( "{ /* need a dynamic name hek */",
-                    sprintf("  HEK *lexhek = share_hek(savepvn(%s, %d), %d, 0);",
+                    sprintf("  HEK *lexhek = share_hek(savepvn(%s, %d), %d);",
                             $cstring, abs($cur), $cur),
                     sprintf("  CvNAME_HEK_set(s\\_%x, lexhek);", $$cv),
                     "}");
@@ -5636,7 +5650,7 @@ sub B::HV::save {
       while (@enames) {
         my ($cstring, $cur, $utf8) = strlen_flags(shift @enames);
         $init->add(
-         sprintf( "  aux->xhv_name_u.xhvnameu_names[%u] = share_hek(%s, %d, 0);",
+         sprintf( "  aux->xhv_name_u.xhvnameu_names[%u] = share_hek(%s, %d);",
                   $i++, $cstring, $utf8 ? -$cur : $cur));
       }
       $init->add( "}" );
@@ -6261,15 +6275,35 @@ sub output_declarations {
   print <<'EOT';
 #define UNUSED 0
 #define sym_0 0
+
 EOT
 
   # Need fresh re-hash of strtab. share_hek does not allow hash = 0
   if ( $PERL510 ) {
     print <<'_EOT0';
 PERL_STATIC_INLINE HEK *
-my_share_hek( pTHX_ const char *str, I32 len, register U32 hash );
+my_share_hek( pTHX_ const char *str, I32 len );
 #undef share_hek
-#define share_hek(str, len, hash) my_share_hek( aTHX_ str, len, hash );
+#define share_hek(str, len) my_share_hek( aTHX_ str, len );
+
+PERL_STATIC_INLINE HEK *
+my_share_hek_0( pTHX_ const char *str, I32 len);
+
+#define HEK_HE(hek)							\
+    ((struct shared_he *)(((char *)(hek))				\
+			      - STRUCT_OFFSET(struct shared_he,		\
+					      shared_he_hek)))
+#define HEK_shared_he(hek)						\
+    ((struct shared_he *)(((char *)(hek))				\
+			      - STRUCT_OFFSET(struct shared_he,		\
+					      shared_he_hek)))		\
+	->shared_he_he
+
+#define hek_hek_refcount(hek)						\
+    HEK_shared_he(hek).he_valu.hent_refcount
+
+#define unshare_hek_hek(hek)   --(hek_hek_refcount(hek))
+
 _EOT0
 
   }
@@ -6540,11 +6574,21 @@ sub output_main_rest {
     print <<'_EOT7';
 /* The first assignment got already refcount bumped */
 PERL_STATIC_INLINE HEK *
-my_share_hek( pTHX_ const char *str, I32 len, register U32 hash ) {
-    if (!hash) {
-      PERL_HASH(hash, str, abs(len));
-    }
+my_share_hek( pTHX_ const char *str, I32 len) {
+    U32 hash;
+    PERL_HASH(hash, str, abs(len));
     return share_hek_hek(Perl_share_hek(aTHX_ str, len, hash));
+}
+
+_EOT7
+  }
+  if ( $PERL510 ) {
+    print <<'_EOT7';
+PERL_STATIC_INLINE HEK *
+my_share_hek_0( pTHX_ const char *str, I32 len) {
+    U32 hash;
+    PERL_HASH(hash, str, abs(len));
+    return Perl_share_hek(aTHX_ str, len, hash);
 }
 
 _EOT7
@@ -6811,9 +6855,16 @@ _EOT9
   else {
     print <<'_EOT7';
 int my_perl_destruct( PerlInterpreter *my_perl ) {
+    VOL signed char destruct_level = PL_perl_destruct_level;
+    const char * const s = PerlEnv_getenv("PERL_DESTRUCT_LEVEL");
+
     /* set all our static pv and hek to &PL_sv_undef for perl_destruct() */
 _EOT7
 
+    #for (0 .. $hek_index-1) {
+    #  # TODO: non-static only, seperate data structures please
+    #  printf "    memset(HEK_HE(hek%d), 0, sizeof(struct shared_he));\n", $_;
+    #}
     for (0 .. $#B::C::static_free) {
       # set the sv/xpv to &PL_sv_undef, not the pv itself.
       # If set to NULL pad_undef will fail in SvPVX_const(namesv) == '&'
@@ -6864,6 +6915,43 @@ _EOT7
     }
     $free->output( \*STDOUT, "%s\n" );
     print <<'_EOT7a';
+
+    /* Avoid Unbalanced string table refcount warning with PERL_DESTRUCT_LEVEL=2 */
+    if (s) {
+        const int i = atoi(s);
+        if (destruct_level < i) destruct_level = i;
+    }
+    if (destruct_level >= 1) {
+        const I32 max = HvMAX(PL_strtab);
+#if 0
+        Zero(HvARRAY(PL_strtab), max, HE*);
+        /*memset(HvARRAY(PL_strtab), 0, max * sizeof(HE*));*/
+#else
+	HE * const * const array = HvARRAY(PL_strtab);
+	I32 riter = 0;
+	HE *hent = array[0];
+	for (;;) {
+	    if (hent) {
+		HE * const next = HeNEXT(hent);
+#ifdef USE_CPERL
+                if (!HEK_STATIC(&((struct shared_he*)hent)->shared_he_hek))
+#endif
+                Safefree(hent);
+		hent = next;
+	    }
+	    if (!hent) {
+		if (++riter > max)
+		    break;
+		hent = array[riter];
+	    }
+        }
+#endif
+        Zero(HvARRAY(PL_strtab), max, HE*);
+        /* NULL the HEK "dfs" */
+        PL_registered_mros = (HV*)&PL_sv_undef;
+        PL_stashcache = (HV*)&PL_sv_undef;
+        CopHINTHASH_set(&PL_compiling, NULL);
+    }
 
     /* B::C specific: prepend static svs to arena for sv_clean_objs */
     SvANY(&sv_list[0]) = (void *)PL_sv_arenaroot;
