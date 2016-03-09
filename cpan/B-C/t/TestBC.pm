@@ -1079,7 +1079,7 @@ sub todo_tests_default {
 	push @todo, (41)  if $] < 5.007; #regressions
         push @todo, (12)  if $what eq 'c_o3' and !$ITHREADS and $] >= 5.008009 and $] < 5.010;
 
-        push @todo, (48) if $] >= 5.018; # opfree
+        #push @todo, (48) if $] >= 5.018; # opfree
         push @todo, (48) if $what eq 'c_o4' and $] < 5.021 and $ITHREADS;
         push @todo, (8,18,19,25,26,28)  if $what eq 'c_o4' and !$ITHREADS;
         push @todo, (13,18,29,34) if $] >= 5.021006 and $ITHREADS;
