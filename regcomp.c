@@ -2233,8 +2233,8 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
 
     for ( cur = first ; cur < last ; cur = regnext( cur ) ) {
         regnode *noper = NEXTOPER( cur );
-        const U8 *uc = (U8*)STRING( noper );
-        const U8 *e  = uc + STR_LEN( noper );
+        const U8 *uc;
+        const U8 *e;
         int foldlen = 0;
         U32 wordlen      = 0;         /* required init */
         STRLEN minchars = 0;
@@ -2244,16 +2244,18 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
 
         if (OP(noper) == NOTHING) {
             regnode *noper_next= regnext(noper);
-            if (noper_next != tail && OP(noper_next) == flags) {
-                noper = noper_next;
-                uc= (U8*)STRING(noper);
-                e= uc + STR_LEN(noper);
-		trie->minlen= STR_LEN(noper);
-            } else {
-		trie->minlen= 0;
-		continue;
-	    }
+            if (noper_next < tail)
+                noper= noper_next;
         }
+
+        if ( noper < tail && ( OP(noper) == flags || ( flags == EXACTFU && OP(noper) == EXACTFU_SS ) ) ) {
+            uc= (U8*)STRING(noper);
+            e= uc + STR_LEN(noper);
+        } else {
+            trie->minlen= 0;
+            continue;
+        }
+
 
         if ( set_bit ) { /* bitmap only alloced when !(UTF&&Folding) */
             TRIE_BITMAP_SET(trie,*uc); /* store the raw first byte
@@ -2460,22 +2462,20 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
         for ( cur = first ; cur < last ; cur = regnext( cur ) ) {
 
             regnode *noper   = NEXTOPER( cur );
-	    U8 *uc           = (U8*)STRING( noper );
-            const U8 *e      = uc + STR_LEN( noper );
 	    U32 state        = 1;         /* required init */
 	    U16 charid       = 0;         /* sanity init */
             U32 wordlen      = 0;         /* required init */
 
             if (OP(noper) == NOTHING) {
                 regnode *noper_next= regnext(noper);
-                if (noper_next != tail && OP(noper_next) == flags) {
-                    noper = noper_next;
-                    uc= (U8*)STRING(noper);
-                    e= uc + STR_LEN(noper);
-                }
+                if (noper_next < tail)
+                    noper= noper_next;
             }
 
-            if (OP(noper) != NOTHING) {
+            if ( noper < tail && ( OP(noper) == flags || ( flags == EXACTFU && OP(noper) == EXACTFU_SS ) ) ) {
+                const U8 *uc= (U8*)STRING(noper);
+                const U8 *e= uc + STR_LEN(noper);
+
                 for ( ; uc < e ; uc += len ) {
 
                     TRIE_READ_CHAR;
@@ -2679,8 +2679,6 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
         for ( cur = first ; cur < last ; cur = regnext( cur ) ) {
 
             regnode *noper   = NEXTOPER( cur );
-	    const U8 *uc     = (U8*)STRING( noper );
-            const U8 *e      = uc + STR_LEN( noper );
 
             U32 state        = 1;         /* required init */
 
@@ -2691,14 +2689,14 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
 
             if (OP(noper) == NOTHING) {
                 regnode *noper_next= regnext(noper);
-                if (noper_next != tail && OP(noper_next) == flags) {
-                    noper = noper_next;
-                    uc= (U8*)STRING(noper);
-                    e= uc + STR_LEN(noper);
-                }
+                if (noper_next < tail)
+                    noper= noper_next;
             }
 
-            if ( OP(noper) != NOTHING ) {
+            if ( noper < tail && ( OP(noper) == flags || ( flags == EXACTFU && OP(noper) == EXACTFU_SS ) ) ) {
+                const U8 *uc= (U8*)STRING(noper);
+                const U8 *e= uc + STR_LEN(noper);
+
                 for ( ; uc < e ; uc += len ) {
 
                     TRIE_READ_CHAR;
