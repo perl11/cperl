@@ -4525,7 +4525,7 @@ S_study_chunk(pTHX_ RExC_state_t *pRExC_state, regnode **scanp,
                                         || ( trietype == noper_trietype )
                                   )
 #ifdef NOJUMPTRIE
-                                  && noper_next == tail
+                                  && noper_next >= tail
 #endif
                                   && count < U16_MAX)
                             {
@@ -4585,7 +4585,7 @@ S_study_chunk(pTHX_ RExC_state_t *pRExC_state, regnode **scanp,
                                 }
                                 if ( noper_trietype
 #ifdef NOJUMPTRIE
-                                     && noper_next == tail
+                                     && noper_next >= tail
 #endif
                                 ){
                                     /* noper is triable, so we can start a new
@@ -4630,7 +4630,7 @@ S_study_chunk(pTHX_ RExC_state_t *pRExC_state, regnode **scanp,
                                      depth==0 ) {
                                     flags |= SCF_TRIE_RESTUDY;
                                     if ( startbranch == first
-                                         && scan == tail )
+                                         && scan >= tail )
                                     {
                                         RExC_seen &=~REG_TOP_LEVEL_BRANCHES_SEEN;
                                     }
