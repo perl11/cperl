@@ -582,7 +582,7 @@ op_folded(op)
 
 MODULE = B	PACKAGE = B::HV		PREFIX = Hv
 
-#if PERL_VERSION >= 10
+#if PERL_VERSION >= 10 && PERL_VERSION < 20
 
 void
 HvARRAY_utf8(hv)
@@ -598,7 +598,7 @@ HvARRAY_utf8(hv)
                 } else if (HeKUTF8(he)) {
                     PUSHs(newSVpvn_flags(HeKEY(he), HeKLEN(he), SVf_UTF8|SVs_TEMP));
                 } else {
-                    PUSHs(newSVpvn_flags(HeKEY(he), HeKLEN(he), SVs_TEMP));
+                    mPUSHp(HeKEY(he), HeKLEN(he));
                 }
 		PUSHs(make_sv_object(aTHX_ HeVAL(he)));
 	    }

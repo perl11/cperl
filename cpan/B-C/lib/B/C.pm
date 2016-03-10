@@ -5724,7 +5724,8 @@ sub B::HV::save {
                 "%".$fullname, $sv_list_index, $$hv, $hv->MAX, $hv->KEYS ) if $debug{hv};
   # XXX B does not keep the UTF8 flag [RT 120535] #200
   # shared heks only since 5.10, our fixed C.xs variant
-  my @contents = ($PERL510 && $hv->can('ARRAY_utf8')) ? $hv->ARRAY_utf8 : $hv->ARRAY;    # protect against recursive self-reference
+  my @contents = ($PERL510 && $hv->can('ARRAY_utf8')) ? $hv->ARRAY_utf8 : $hv->ARRAY;
+  # protect against recursive self-reference
   # i.e. with use Moose at stash Class::MOP::Class::Immutable::Trait
   # value => rv => cv => ... => rv => same hash
   $sym = savesym( $hv, "(HV*)&sv_list[$sv_list_index]" ) unless $is_stash;
