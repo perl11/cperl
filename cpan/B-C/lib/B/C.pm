@@ -4409,6 +4409,7 @@ sub B::CV::save {
     # my $ourstash = "0";  # TODO stash name to bless it (test 16: "main::")
     if ($PERL522) {
       $CvFLAGS &= ~0x1000; # CVf_DYNFILE off
+      $CvFLAGS |= 0x200000 if $CPERL52; # CVf_STATIC on
       my $xpvc = sprintf
 	# stash magic cur {len} cvstash {start} {root} {cvgv} cvfile {cvpadlist}     outside outside_seq cvflags cvdepth
 	("Nullhv, {0}, %u, {%u}, %s, {%s}, {s\\_%x}, {%s}, %s, {%s}, (CV*)%s, %s, 0x%x, %d",
@@ -4432,8 +4433,9 @@ sub B::CV::save {
       } else {
 	$xpvcvsect->comment('STASH mg_u cur len CV_STASH START_U ROOT_U GV file PADLIST OUTSIDE outside_seq flags depth');
 	$xpvcvsect->add($xpvc);
-	$svsect->add(sprintf("&xpvcv_list[%d], $u32fmt, 0x%x, {0}",
-			     $xpvcvsect->index, $cv->REFCNT, $cv->FLAGS));
+	$svsect->add(sprintf("&xpvcv_list[%d], $u32fmt, 0x%x, {%s}",
+			     $xpvcvsect->index, $cv->REFCNT, $cv->FLAGS,
+                             $CPERL52 ? $proto : "0"));
 	$svsect->debug( $fullname, $cv->flagspv ) if $debug{flags};
       }
     } elsif ($PERL514) {
@@ -4669,7 +4671,7 @@ sub B::CV::save {
   }
   # issue 84: empty prototypes sub xx(){} vs sub xx{}
   if (defined $pv) {
-    if ($PERL510 and  $cur) {
+    if ($PERL510 and $cur) {
       $init->add( sprintf("SvPVX(&sv_list[%d]) = HEK_KEY(%s);", $sv_ix, $pvsym));
     } elsif (!$B::C::const_strings) { # not static, they are freed when redefined
       $init->add( sprintf("SvPVX(&sv_list[%d]) = savepvn(%s, %u);",
