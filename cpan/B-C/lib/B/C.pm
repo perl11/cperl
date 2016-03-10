@@ -4407,7 +4407,36 @@ sub B::CV::save {
     $len = $cur ? $cur+1 : 0;
     # TODO:
     # my $ourstash = "0";  # TODO stash name to bless it (test 16: "main::")
-    if ($PERL514) {
+    if ($PERL522) {
+      $CvFLAGS &= ~0x1000; # CVf_DYNFILE off
+      my $xpvc = sprintf
+	# stash magic cur {len} cvstash {start} {root} {cvgv} cvfile {cvpadlist}     outside outside_seq cvflags cvdepth
+	("Nullhv, {0}, %u, {%u}, %s, {%s}, {s\\_%x}, {%s}, %s, {%s}, (CV*)%s, %s, 0x%x, %d",
+	 $cur, $len, "Nullhv",#CvSTASH later
+	 $startfield, $$root,
+	 "0",    #GV later
+	 "NULL", #cvfile later (now a HEK)
+	 $padlistsym,
+	 $xcv_outside, #if main_cv set later
+	 ivx($cv->OUTSIDE_SEQ),
+	 $CvFLAGS,
+	 $cv->DEPTH);
+      # repro only with 5.15.* threaded -q (70c0620) Encode::Alias::define_alias
+      warn "lexwarnsym in XPVCV OUTSIDE: $xpvc" if $xpvc =~ /, \(CV\*\)iv\d/; # t/testc.sh -q -O3 227
+      if (!$new_cv_fw) {
+	$symsect->add("XPVCVIX$xpvcv_ix\t$xpvc");
+	#$symsect->add
+	#  (sprintf("CVIX%d\t(XPVCV*)&xpvcv_list[%u], $u32fmt, 0x%x, {0}"),
+	#	   $sv_ix, $xpvcv_ix, $cv->REFCNT, $cv->FLAGS
+	#	  ));
+      } else {
+	$xpvcvsect->comment('STASH mg_u cur len CV_STASH START_U ROOT_U GV file PADLIST OUTSIDE outside_seq flags depth');
+	$xpvcvsect->add($xpvc);
+	$svsect->add(sprintf("&xpvcv_list[%d], $u32fmt, 0x%x, {0}",
+			     $xpvcvsect->index, $cv->REFCNT, $cv->FLAGS));
+	$svsect->debug( $fullname, $cv->flagspv ) if $debug{flags};
+      }
+    } elsif ($PERL514) {
       # cv_undef wants to free it when CvDYNFILE(cv) is true.
       # E.g. DateTime: boot_POSIX. newXS reuses cv if autoloaded. So turn it off globally.
       $CvFLAGS &= ~0x1000; # CVf_DYNFILE off
@@ -4423,8 +4452,7 @@ sub B::CV::save {
 	 ivx($cv->OUTSIDE_SEQ),
 	 $CvFLAGS,
 	 $cv->DEPTH);
-      # repro only with 5.15.* threaded -q (70c0620) Encode::Alias::define_alias
-      warn "lexwarnsym in XPVCV OUTSIDE: $xpvc" if $xpvc =~ /, \(CV\*\)iv\d/; # t/testc.sh -q -O3 227
+      #warn "lexwarnsym in XPVCV OUTSIDE: $xpvc" if $xpvc =~ /, \(CV\*\)iv\d/; # t/testc.sh -q -O3 227
       if (!$new_cv_fw) {
 	$symsect->add("XPVCVIX$xpvcv_ix\t$xpvc");
 	#$symsect->add
@@ -4540,6 +4568,13 @@ sub B::CV::save {
     } else {
       $symsect->add("XPVCVIX$xpvcv_ix\t$xpvc");
     }
+  }
+
+  if ($CPERL52 and $Config{uselongdouble}) {
+    # some very odd static struct init bug: CvOUTSIDE is pointing to CvROOT, CvROOT is corrupt.
+    # CvPADLIST also pointing somewhere else. with gcc-5 and 4.8.
+    $init->add(sprintf("xpvcv_list[$xpvcv_ix].xcv_root_u.xcv_root = s\\_%x;", $$root));
+    $init->add("xpvcv_list[$xpvcv_ix].xcv_padlist_u.xcv_padlist = $padlistsym;");
   }
 
   $xcv_outside = ${ $cv->OUTSIDE };
