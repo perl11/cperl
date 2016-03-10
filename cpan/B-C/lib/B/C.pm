@@ -5754,7 +5754,7 @@ sub B::HV::save {
 	  # warn "(length=$length)\n" if $debug{hv};
 	}
       } else {
-	warn "saving HV \$".$fullname.'{'.$key."}\n" if $debug{hv};
+	warn "saving HV \$".$fullname.'{'.$key."} $sv\n" if $debug{hv};
 	$contents[$i] = $sv->save($fullname.'{'.$key.'}');
 	#if ($key eq "" and $] >= 5.010) {
 	#  warn "  turn off HvSHAREKEYS with empty keysv\n" if $debug{hv};
@@ -8081,8 +8081,7 @@ sub inc_cleanup {
   if ($CPERL51) {
     for (qw(strict coretypes DynaLoader XSLoader)) {
       $dumped_package{$_}++;
-      $curINC{$_.".pm"}++;
-      $INC{$_.".pm"}++;
+      $curINC{$_.".pm"} = $INC{$_.".pm"};
     }
   }
   for my $package (sort keys %INC) {
