@@ -807,7 +807,8 @@ Perl_op_free(pTHX_ OP *o)
         }
 
         op_clear(o);
-        FreeOp(o);
+        if (!o->op_static)
+            FreeOp(o);
 #ifdef DEBUG_LEAKING_SCALARS
         if (PL_op == o)
             PL_op = NULL;
