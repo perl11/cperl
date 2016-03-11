@@ -84,29 +84,31 @@ sub load_json_string {
 }
 
 sub yaml_backend {
-  if (! defined $ENV{PERL_YAML_BACKEND} ) {
-    _can_load( 'YAML::XS', 0.70 )
-      or croak "YAML::XS 0.70 is not available\n";
-    return "YAML::XS";
+  my $backend = $ENV{PERL_YAML_BACKEND};
+  if (! defined $backend ) {
+    if (_can_load( 'YAML::XS', 0.70 )) {
+      return "YAML::XS";
+    } else {
+      $backend = 'CPAN::Meta::YAML';
+    }
   }
-  else {
-    my $backend = $ENV{PERL_YAML_BACKEND};
-    _can_load( $backend )
-      or croak "Could not load PERL_YAML_BACKEND '$backend'\n";
-    $backend->can("Load")
-      or croak "PERL_YAML_BACKEND '$backend' does not implement Load()\n";
-    return $backend;
-  }
+  _can_load( $backend )
+    or croak "Could not load PERL_YAML_BACKEND '$backend'\n";
+  $backend->can("Load")
+    or croak "PERL_YAML_BACKEND '$backend' does not implement Load()\n";
+  return $backend;
 }
 
 sub json_backend {
   my $backend = $ENV{PERL_JSON_BACKEND};
   if (! $backend or $backend eq 'Cpanel::JSON::XS') {
-    _can_load( 'Cpanel::JSON::XS' => 3.0213 )
-      or croak "Cpanel::JSON::XS 3.0213 is not available\n";
-    return 'Cpanel::JSON::XS';
+    if (_can_load( 'Cpanel::JSON::XS' => 3.0213 )) {
+      return 'Cpanel::JSON::XS';
+    } else {
+      $backend = 'JSON::PP';
+    }
   }
-  elsif ($backend eq "1") { # oh my
+  if ($backend eq "1") { # oh my
     _can_load( 'JSON' => 2.5 )
       or croak  "JSON 2.5 is required for " .
                 "\$ENV{PERL_JSON_BACKEND} = '$backend'\n";
