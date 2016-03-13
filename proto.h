@@ -5731,8 +5731,8 @@ STATIC void	S_put_range(pTHX_ SV* sv, UV start, const UV end, const bool allow_l
 #define PERL_ARGS_ASSERT_PUT_RANGE	\
 	assert(sv)
 
-PERL_CALLCONV int	Perl_re_indentf(const char *fmt, U32 depth, ...)
-			__attribute__nonnull__(1);
+PERL_CALLCONV int	Perl_re_indentf(pTHX_ const char *fmt, U32 depth, ...)
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_RE_INDENTF	\
 	assert(fmt)
 
@@ -5764,9 +5764,9 @@ STATIC void	S_dump_exec_pos(pTHX_ const char *locinput, const regnode *scan, con
 #define PERL_ARGS_ASSERT_DUMP_EXEC_POS	\
 	assert(locinput); assert(scan); assert(loc_regeol); assert(loc_bostr); assert(loc_reg_starttry)
 
-PERL_CALLCONV int	Perl_re_indentfo(const char *fmt, U32 depth, ...)
-			__attribute__nonnull__(1);
-#define PERL_ARGS_ASSERT_RE_INDENTFO	\
+PERL_CALLCONV int	Perl_re_exec_indentf(pTHX_ const char *fmt, U32 depth, ...)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_RE_EXEC_INDENTF	\
 	assert(fmt)
 
 #  endif
@@ -7450,8 +7450,8 @@ PERL_CALLCONV SV*	Perl__get_regclass_nonbitmap_data(pTHX_ const regexp *prog, co
 	assert(node)
 
 PERL_CALLCONV void	Perl__load_PL_utf8_foldclosures(pTHX);
-PERL_CALLCONV int	Perl_re_printf(const char *fmt, ...)
-			__attribute__nonnull__(1);
+PERL_CALLCONV int	Perl_re_printf(pTHX_ const char *fmt, ...)
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_RE_PRINTF	\
 	assert(fmt)
 
