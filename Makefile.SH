@@ -780,7 +780,7 @@ MINIPERL_NONSHR		= miniperl_nonshr$(EXE_EXT)
 
 $(LIBPERL_NONSHR): $(obj)
 	$(RMS) $(LIBPERL_NONSHR)
-	$(AR) rcu $(LIBPERL_NONSHR) $(obj)
+	$(AR) rc $(LIBPERL_NONSHR) $(obj)
 
 $(MINIPERL_NONSHR): $(LIBPERL_NONSHR) miniperlmain$(OBJ_EXT) opmini$(OBJ_EXT)  perlmini$(OBJ_EXT)
 	$(LD) $(LDFLAGS) -o $(MINIPERL_NONSHR) miniperlmain$(OBJ_EXT) \
@@ -826,7 +826,7 @@ LIBPERL_NONSHR		= libperl$(LIB_EXT)
 
 $(LIBPERL_NONSHR): $(obj)
 	$(RMS) $(LIBPERL_NONSHR)
-	$(AR) rcu $(LIBPERL_NONSHR) $(obj)
+	$(AR) rc $(LIBPERL_NONSHR) $(obj)
 	touch $(LIBPERL_NONSHR)
 
 !NO!SUBS!
@@ -889,7 +889,7 @@ $(LIBPERL): $& $(obj) $(DYNALOADER) $(LIBPERLEXPORT)
 	*)
 		$spitshell >>$Makefile <<'!NO!SUBS!'
 	rm -f $(LIBPERL)
-	$(AR) rcu $(LIBPERL) $(obj) $(DYNALOADER)
+	$(AR) rc $(LIBPERL) $(obj) $(DYNALOADER)
 	@$(ranlib) $(LIBPERL)
 !NO!SUBS!
 		;;
