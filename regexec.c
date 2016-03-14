@@ -7981,6 +7981,8 @@ NULL
 		SET_reg_curpm(rex_sv);
 		rex = ReANY(rex_sv);
 		rexi = RXi_GET(rex);
+
+                st->u.eval.prev_curlyx = cur_curlyx;
                 cur_curlyx = CUR_EVAL.prev_curlyx;
 
 		REGCP_SET(st->u.eval.lastcp);
