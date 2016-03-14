@@ -5755,7 +5755,7 @@ STATIC void	S_debug_start_match(pTHX_ const REGEXP *prog, const bool do_utf8, co
 #define PERL_ARGS_ASSERT_DEBUG_START_MATCH	\
 	assert(prog); assert(start); assert(end); assert(blurb)
 
-STATIC void	S_dump_exec_pos(pTHX_ const char *locinput, const regnode *scan, const char *loc_regeol, const char *loc_bostr, const char *loc_reg_starttry, const bool do_utf8, U32 depth)
+STATIC void	S_dump_exec_pos(pTHX_ const char *locinput, const regnode *scan, const char *loc_regeol, const char *loc_bostr, const char *loc_reg_starttry, const bool do_utf8, const U32 depth)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3)
