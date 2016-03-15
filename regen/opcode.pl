@@ -98,9 +98,9 @@ while (<OPS>) {
     $type{$key} = $type;
 }
 
-# Set up aliases
+# Set up aliases, and alternative funcs
 
-my %alias;
+my (%alias, %alts);
 
 # Format is "this function" => "does these op names"
 my @raw_alias = (
@@ -166,6 +166,7 @@ my @raw_alias = (
 		 Perl_pp_shostent => [qw(snetent sprotoent sservent)],
 		 Perl_pp_aelemfast => ['aelemfast_lex'],
 		 Perl_pp_grepstart => ['mapstart'],
+
 		 Perl_pp_int_aelem  => ['num_aelem', 'str_aelem'],
 		 Perl_pp_i_aelem    => ['n_aelem', 's_aelem'],
 		 Perl_pp_aelem_u    => ['i_aelem_u', 'n_aelem_u', 's_aelem_u'],
@@ -173,7 +174,14 @@ my @raw_alias = (
 		 Perl_pp_const       => ['int_const', 'uint_const', 'str_const', 'num_const'],
 		 Perl_pp_int_padsv   => ['uint_padsv', 'str_padsv', 'num_padsv'],
 		 Perl_pp_int_sassign => ['uint_sassign', 'str_sassign', 'num_sassign'],
-                );
+
+		 # 2 i_modulo mappings: 2nd is alt, needs 1st (explicit default) to not override the default
+		 Perl_pp_i_modulo  => ['i_modulo'],
+		 Perl_pp_i_modulo_glibc_bugfix => {
+                     'i_modulo' =>
+                         '#if defined(__GLIBC__) && IVSIZE == 8 '.
+                         ' && ( __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 8))' },
+		 );
 # see exceptions for those below:
 #push @raw_alias, (
 #		 Perl_pp_add         => ['u_add'],
@@ -208,11 +216,13 @@ my @cperl_changes =
 while (my ($func, $names) = splice @raw_alias, 0, 2) {
     if (ref $names eq 'ARRAY') {
 	foreach (@$names) {
-	    $alias{$_} = [$func, ''];
+            defined $alias{$_}
+            ? $alts{$_} : $alias{$_} = [$func, ''];
 	}
     } else {
 	while (my ($opname, $cond) = each %$names) {
-	    $alias{$opname} = [$func, $cond];
+            defined $alias{$opname}
+            ? $alts{$opname} : $alias{$opname} = [$func, $cond];
 	}
     }
 }
@@ -1701,6 +1711,14 @@ my $pp = open_new('pp_proto.h', '>',
 	++$funcs{$name};
     }
     print $pp "PERL_CALLCONV OP *$_(pTHX);\n" foreach sort keys %funcs;
+
+    print $pp "\n/* alternative functions */\n" if keys %alts;
+    for my $fn (sort keys %alts) {
+        my ($x, $cond) = @{$alts{$fn}};
+        print $pp "$cond\n" if $cond;
+        print $pp "PERL_CALLCONV OP *$x(pTHX);\n";
+        print $pp "#endif\n" if $cond;
+    }
 }
 
 print $oc "\n\n";
