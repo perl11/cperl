@@ -4738,7 +4738,13 @@ sub B::GV::save {
     $filter = Save_CV;
   }
   # no need to assign any SV/AV/HV to them (172)
-  if ($PERL518 and $fullname =~ /^DynaLoader::dl_(require_symbols|resolve_using|librefs)/) {
+  if ($PERL518 and $fullname =~ /^DynaLoader::dl_(
+                                   require_symbols|
+                                   modules|
+                                   shared_objects|
+                                   resolve_using|
+                                   librefs)/x)
+  {
     $filter = Save_SV + Save_AV + Save_HV;
   }
   # skip static %Encode::Encoding since 5.20. GH #200.
