@@ -914,7 +914,7 @@ Set the current length of the string which is in the SV.  See C<SvCUR>
 and C<SvIV_set>.
 
 =for apidoc Am|void|SvLEN_set|SV* sv|STRLEN len
-Set the actual length of the string which is in the SV.  See C<SvIV_set>.
+Set the size of the string buffer for the SV. See C</SvLEN>.
 
 =cut
 */
