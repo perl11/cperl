@@ -132,32 +132,32 @@ cpan/AutoLoader/t/01AutoLoader.t	See if AutoLoader works
 cpan/AutoLoader/t/02AutoSplit.t		See if AutoSplit works
 cpan/B-C/bytecode.pl
 cpan/B-C/ByteLoader/bytecode.h
-cpan/B-C/ByteLoader/ByteLoader.pm
+cpan/B-C/ByteLoader/ByteLoader.pm	ByteLoader - interpret bytecode
 cpan/B-C/ByteLoader/ByteLoader.xs
 cpan/B-C/ByteLoader/hints/522_patched.pl
 cpan/B-C/ByteLoader/hints/sunos.pl
 cpan/B-C/ByteLoader/Makefile.PL
 cpan/B-C/cc_runtime.h
-cpan/B-C/C.xs
+cpan/B-C/C.xs				B::C XS - workaround various B limitations and bugs
 cpan/B-C/hints/darwin.pl
 cpan/B-C/hints/openbsd.pl
-cpan/B-C/lib/B/Asmdata.pm
-cpan/B-C/lib/B/Assembler.pm
-cpan/B-C/lib/B/Bblock.pm
-cpan/B-C/lib/B/Bytecode.pm
-cpan/B-C/lib/B/C/Config_pm.PL
-cpan/B-C/lib/B/CC.pm
-cpan/B-C/lib/B/C.pm
-cpan/B-C/lib/B/Disassembler.pm
-cpan/B-C/lib/B/Stackobj.pm
+cpan/B-C/lib/B/Asmdata.pm		B::Bytecode - assembler ops
+cpan/B-C/lib/B/Assembler.pm		B::Bytecode - assemble to bytecode
+cpan/B-C/lib/B/Bblock.pm		B::CC - basic blocks
+cpan/B-C/lib/B/Bytecode.pm		B::Bytecode - the bytecode compiler
+cpan/B-C/lib/B/C/Config_pm.PL		B::C::Config - generate short %Config
+cpan/B-C/lib/B/CC.pm			B::CC - the optimizing compiler to C
+cpan/B-C/lib/B/C.pm			B::C - the perl compiler to C
+cpan/B-C/lib/B/Disassembler.pm		B::Bytecode - disassemble bytecode
+cpan/B-C/lib/B/Stackobj.pm		B::CC - type inference representation
 cpan/B-C/Makefile.PL
 cpan/B-C/perlcompile.pod
 cpan/B-C/perloptree.pod
-cpan/B-C/script/assemble
-cpan/B-C/script/cc_harness
-cpan/B-C/script/disassemble
-cpan/B-C/script/perlcc.PL
-cpan/B-C/script/pl2exe.pl
+cpan/B-C/script/assemble		assemble to bytecode
+cpan/B-C/script/cc_harness		compile and link generated C files
+cpan/B-C/script/disassemble		disassemble from bytecode
+cpan/B-C/script/perlcc.PL		perlcc compiler frontend
+cpan/B-C/script/pl2exe.pl		pack script to be executable under windows
 cpan/B-C/Stash/Makefile.PL
 cpan/B-C/Stash/Stash.pm
 cpan/B-C/Stash/Stash.xs

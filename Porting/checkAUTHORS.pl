@@ -123,9 +123,9 @@ sub parse_commits_from_stdin_authors {
 	$patchers{$author}++;
     }
     if ($ENV{TRAVIS}) {
-        # allow Travis to change ext/Config/Config_xs.{in,out}
+        # allow Travis to change cpan/B-C/lib/B/Asmdata.pm with threads
         $author = _raw_address('Travis CI <noreply@travis-ci.com>');
-        $patchers{$author}++;
+        $authors{$author}++;
     }
 }
 
