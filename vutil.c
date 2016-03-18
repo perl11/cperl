@@ -44,6 +44,7 @@ Perl_prescan_version(pTHX_ const char *s, bool strict,
     const char *d = s;
 
     PERL_ARGS_ASSERT_PRESCAN_VERSION;
+    PERL_UNUSED_CONTEXT;
 
     if (qv && isDIGIT(*d))
 	goto dotted_decimal_version;

@@ -7,7 +7,7 @@
 use File::Basename;
 use File::Temp qw/tempfile/;
 use POSIX qw/locale_h/;
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Config;
 
 BEGIN {
@@ -15,8 +15,8 @@ BEGIN {
 }
 
 SKIP: {
-	skip 'No locale testing for Perl < 5.6.0', 6 if $] < 5.006;
-	skip 'No locale testing without d_setlocale', 6
+	skip 'No locale testing for Perl < 5.6.0', 7 if $] < 5.006;
+	skip 'No locale testing without d_setlocale', 7
 	    if(!$Config{d_setlocale});
 
 	# test locale handling
@@ -38,7 +38,7 @@ SKIP: {
 	    $loc = setlocale( LC_ALL, $_);
 	    last if $loc && localeconv()->{decimal_point} eq ',';
 	}
-	skip 'Cannot test locale handling without a comma locale', 5
+	skip 'Cannot test locale handling without a comma locale', 6
 	    unless $loc and localeconv()->{decimal_point} eq ',';
 
 	setlocale(LC_NUMERIC, $loc);
@@ -50,6 +50,12 @@ SKIP: {
 	ok ($v eq "1.23", "Locale doesn't apply to version objects");
 	ok ($v == $ver, "Comparison to locale floating point");
 
+        TODO: { # Resolve https://rt.cpan.org/Ticket/Display.html?id=102272
+            local $TODO = 'Fails for Perl < 5.19' if $] < 5.019000;
+            local $TODO = 'Fails for cperl' if $Config{usecperl};
+            $ver = version->new($]);
+            is "$ver", "$]", "Use PV for dualvars for locale $loc";
+        }
 	setlocale( LC_ALL, $orig_loc); # reset this before possible skip
 	skip 'Cannot test RT#46921 with Perl < 5.008', 1
 	    if ($] < 5.008);
