@@ -81,6 +81,26 @@ Add support for additional F<pod/perlcdelta.pod> in F<Porting/pod_rules.pl>.
 
 Make Configure -O behaviour the default
 
+=item *
+
+Support reproducible builds via PERL_BUILD_DATE
+
+=item *
+
+Fixed umask for mkstemp(3) calls for older glibc versions
+
+With v5.21.0-67-g60f7fc1, perl started setting umask to 0600
+before calling mkstemp(3), and then restoring it afterwards. This is
+wrong as it tells open(2) to strip the owner read and write bits from
+the given mode before applying it, rather than the intended negation of
+leaving only those bits in place.
+
+On modern systems which call open(2) with mode 0600 in mkstemp(3),
+this clears all the created temporary file permissions. However,
+any systems that use mode 0666 in mkstemp(3) (like ancient versions
+of glibc) now create a file with permissions 0066, leaving world
+read and write permission regardless of current umask.
+
 =back
 
 =head1 Modules and Pragmata
@@ -89,11 +109,12 @@ Make Configure -O behaviour the default
 
 =over 4
 
-=item B-C 1.54
+=item B-C 1.54_01
 
-With many cperl-specific improvements and PERL_CORE specific test changes.
+With many cperl-specific improvements, global destruction fixes
+and PERL_CORE specific test changes.
 
-=item Cpanel-JSON-XS 3.0212
+=item Cpanel-JSON-XS 3.0213
 
 A fast and standard JSON en-/decoder. You should not use PP.
 
@@ -106,16 +127,27 @@ With PERL_CORE specific test and build changes.
 
 The only way to test sv_dump properly.
 
-=item YAML-LibYAML 0.62
+=item YAML-LibYAML 0.70c
 
 A fast and standard YAML en-/decoder. You should not use PP.
-With most compiler warnings fixed and PERL_CORE specific test changes.
+With most compiler warnings fixed, PERL_CORE specific test changes
+and new options IndentlessMap for YAML.pm compatibility and StrictMode
+to pass the validator tests.
 
 =back
 
 =head2 Updated Modules and Pragmata
 
 =over 4
+
+=item CPAN::Meta
+
+Favour the new builtin XS YAML and JSON variants over PP.
+Improve the validator tests.
+
+=item Parse::CPAN::Meta
+
+Favour the new builtin XS YAML and JSON variants over PP.
 
 =item ExtUtils::Constant 0.23_03
 
@@ -299,6 +331,10 @@ and second characters of the salt, even if the salt was zero length
 =item Other
 
 =over
+
+=item *
+
+Fixed global destruction with threads on darwin.
 
 =item *
 
