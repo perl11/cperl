@@ -3093,6 +3093,10 @@ an arbitrary reference was blessed into the "version" class.
 (W locale) You passed a module name with a non-word character other than ':'
 to DynaLoader, which was replaced by '_' to look up the boot name.
 
+=item alpha->numify() is lossy
+
+(W numeric) An alpha version can not be numified without losing information.
+
 =item In '(*VERB...)', the '(' and '*' must be adjacent in regex;
 marked by S<<-- HERE> in m/%s/
 
