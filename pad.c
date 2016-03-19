@@ -456,8 +456,10 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
 		PL_comppad_name = NULL;
 	    PadnamelistREFCNT_dec(names);
 	}
-	if (PadlistARRAY(padlist)) Safefree(PadlistARRAY(padlist));
-	Safefree(padlist);
+        if (LIKELY(PadlistARRAY(padlist)))
+            Safefree(PadlistARRAY(padlist));
+        if (LIKELY(!CvSTATIC(&cvbody)))
+            Safefree(padlist);
 	CvPADLIST_set(&cvbody, NULL);
     }
     else if (CvISXSUB(&cvbody))

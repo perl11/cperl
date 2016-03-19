@@ -1,3 +1,15 @@
+cpan/B-C/blib/script/assemble
+cpan/B-C/blib/script/cc_harness
+cpan/B-C/blib/script/disassemble
+cpan/B-C/blib/script/perlcc
+cpan/Cpanel-JSON-XS/bin/cpanel_json_xs
+cpan/Devel-NYTProf/blib/script/flamegraph.pl
+cpan/Devel-NYTProf/blib/script/nytprofcalls
+cpan/Devel-NYTProf/blib/script/nytprofcg
+cpan/Devel-NYTProf/blib/script/nytprofcsv
+cpan/Devel-NYTProf/blib/script/nytprofhtml
+cpan/Devel-NYTProf/blib/script/nytprofmerge
+cpan/Devel-NYTProf/blib/script/nytprofpf
 cpan/podlators/blib/script/pod2man
 cpan/podlators/blib/script/pod2text
 cpan/Pod-Usage/blib/script/pod2usage

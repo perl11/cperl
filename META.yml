@@ -1,14 +1,14 @@
 ---
-abstract: 'The Perl 5 language interpreter'
+abstract: The Perl 5 language interpreter
 author:
   - perl5-porters@perl.org
 build_requires: {}
 dynamic_config: 1
-generated_by: 'CPAN::Meta version 2.150005, CPAN::Meta::Converter version 2.150005'
+generated_by: CPAN::Meta version 2.150005, CPAN::Meta::Converter version 2.150005
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: '1.4'
+  version: 1.4
 name: perl
 no_index:
   directory:
@@ -25,6 +25,7 @@ no_index:
     - dist/Env
     - dist/Exporter
     - dist/ExtUtils-CBuilder
+    - dist/ExtUtils-Constant
     - dist/ExtUtils-ParseXS
     - dist/Filter-Simple
     - dist/I18N-Collate
@@ -122,4 +123,4 @@ resources:
   license: http://dev.perl.org/licenses/
   repository: http://perl5.git.perl.org/
 version: '5.022002'
-x_serialization_backend: 'CPAN::Meta::YAML version 0.016'
+x_serialization_backend: YAML::XS version 0.70

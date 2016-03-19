@@ -39,6 +39,15 @@ foreach (qw (pod2man pod2text)) {
     $dist_dir_exe{lc "$_.PL"} = "../cpan/podlators/$_";
 };
 $dist_dir_exe{'pod2html.pl'} = '../ext/Pod-Html';
+foreach (qw (cc_harness perlcc assemble disassemble pl2exe.pl)) {
+    $dist_dir_exe{$_} = "../cpan/B-C/script/$_";
+};
+$dist_dir_exe{lc 'perlcc.PL'} = "../cpan/B-C/script/perlcc";
+foreach (qw (flamegraph.pl nytprofcalls nytprofcg nytprofcsv nytprofhtml
+             nytprofmerge nytprofpf)) {
+    $dist_dir_exe{$_} = "../cpan/Devel-NYTProf/bin/$_";
+};
+$dist_dir_exe{'cpanel_json_xs'} = '../cpan/Cpanel-JSON-XS/bin/cpanel_json_xs';
 
 my @programs;
 
@@ -47,6 +56,7 @@ find(
     my $name = $File::Find::name;
     return if $name =~ /blib/;
     return unless $name =~ m{/(?:bin|scripts?)/\S+\z} && $name !~ m{/t/};
+    return if $name =~ /(~|\.bak|\.orig)$/;
 
     push @programs, $name;
   }},

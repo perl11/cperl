@@ -1,0 +1,16 @@
+JSON *		T_JSON
+
+INPUT
+
+T_JSON
+        dMY_CXT;
+	if (!(
+           SvROK ($arg)
+           && SvOBJECT (SvRV ($arg))
+           && (SvSTASH (SvRV ($arg)) == JSON_STASH || sv_derived_from ($arg, \"Cpanel::JSON::XS\"))
+        ))
+          croak (\"object is not of type Cpanel::JSON::XS\");
+        /**/
+        $var = (JSON *)SvPVX (SvRV ($arg));
+
+

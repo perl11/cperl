@@ -27,6 +27,7 @@
          "dist/Env",
          "dist/Exporter",
          "dist/ExtUtils-CBuilder",
+         "dist/ExtUtils-Constant",
          "dist/ExtUtils-ParseXS",
          "dist/Filter-Simple",
          "dist/I18N-Collate",
@@ -135,5 +136,5 @@
       }
    },
    "version" : "5.022002",
-   "x_serialization_backend" : "JSON::PP version 2.27300"
+   "x_serialization_backend" : "Cpanel::JSON::XS version 3.0213"
 }

@@ -1,0 +1,89 @@
+
+/* style for the visualization container */
+#infovis {
+    width:96%;
+    height:600px;
+    margin:auto;
+    background-color: white;
+
+    color:black;
+    text-align:center;
+    overflow:hidden;
+    font-size:10px;
+    font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
+#infovis1 { position:relative; width:96%; height:600px; }
+#infovis2 { position:relative; width:96%; height:600px; }
+
+#infovis div {
+    position:absolute;
+    overflow:hidden;
+    background-color: #666666;
+}
+
+#infovis1 div {
+    position:absolute;
+    overflow:hidden;
+    background-color: #666666;
+}
+
+#infovis2 div {
+    position:absolute;
+    overflow:hidden;
+    background-color: #666666;
+}
+
+/*
+ * #666666 - dark grey for line
+ * #dddddd - mid grey for header backgrounds
+ * #cccccc - light grey for inter-sub borders
+ */
+
+#infovis .content {
+}
+#infovis .over-content {
+}
+
+#infovis .head {
+    height:12px;
+    color:black;
+    font-weight:bold;
+    background-color:#dddddd;
+}
+#infovis .over-head {
+    background-color:#FFFF00;
+}
+#infovis .head.in-path {
+    background-color:#FFFF00;
+}
+
+
+#infovis .leaf {
+    display:table-cell;
+    vertical-align:middle;
+    background-color:white;
+    border:solid 1px transparent;
+}
+#infovis .over-leaf {
+    /* border:1px solid red; */
+    outline: 2px solid red; outline-offset: -2px;
+}
+
+
+/* tooltips style */
+.tip {
+    z-index: 13000;
+    position:absolute;
+    font-size:12px;
+    font-family:Monaco, Andale Mono, monospace;
+    color: white;
+    background-color: black;
+    opacity: 0.8;
+    padding: 15px;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+       -moz-border-radius: 5px;
+    -webkit-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+       -moz-box-shadow: black 5px 5px 5px;
+}
+

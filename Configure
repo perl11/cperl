@@ -1430,7 +1430,14 @@ libnames=''
 : change the next line if compiling for Xenix/286 on Xenix/386
 xlibpth='/usr/lib/386 /lib/386'
 : Possible local library directories to search.
-loclibpth="/usr/local/lib /opt/local/lib /usr/gnu/lib"
+case $cc in
+    *-m32*) ;;
+    *) loclibpth="/usr/local/lib /opt/local/lib /usr/gnu/lib" ;;
+esac
+case $ccflags in
+    *-m32*) loclibpath='' ;;
+    *)
+esac
 loclibpth="$loclibpth /opt/gnu/lib /usr/GNU/lib /opt/GNU/lib"
 
 : general looking path for locating libraries
@@ -1438,7 +1445,14 @@ glibpth="/lib /usr/lib $xlibpth"
 glibpth="$glibpth /usr/ccs/lib /usr/ucblib /usr/local/lib"
 test -f /usr/shlib/libc.so && glibpth="/usr/shlib $glibpth"
 test -f /shlib/libc.so     && glibpth="/shlib $glibpth"
-test -d /usr/lib64         && glibpth="$glibpth /lib64 /usr/lib64 /usr/local/lib64"
+case $cc in
+    *-m32*) ;;
+    *) case $ccflags in
+           *-m32*) ;;
+           *) test -d /usr/lib64 && \
+                    glibpth="$glibpth /lib64 /usr/lib64 /usr/local/lib64" ;;
+       esac ;;
+esac
 
 : Private path used by Configure to find libraries.  Its value
 : is prepended to libpth. This variable takes care of special
@@ -23327,8 +23341,7 @@ fi
 
 : add -D_FORTIFY_SOURCE on gcc with -O and not already there
 case "$gccversion" in
-[4-9].*)
-    case "$optimize$ccflags" in
+[4-9].*) case "$optimize$ccflags" in
 	*-O*)	case "$ccflags$cppsymbols" in
 		    *_FORTIFY_SOURCE=*) # Don't add it again.
 			echo "You seem to have -D_FORTIFY_SOURCE already, not adding it." >&4
@@ -23342,7 +23355,7 @@ case "$gccversion" in
 		;;
     esac
     ;;
-[3-9].*) # or clang-3.* even if it is already defined in cppflags there
+3.*) # or clang-3.* even if it is already defined in cppflags there
     case "$cc" in
         *clang*)
             case "$optimize$ccflags" in
@@ -23642,7 +23655,9 @@ find_extensions='
 		echo "Ok.  You will need to correct config.sh before running make." >&4;
 	    fi;
 	    $ls -1 $xxx > $tdir/$$.tmp;
-	    if   $contains "\.xs$" $tdir/$$.tmp > /dev/null 2>&1; then
+	    if $test $this_ext = YAML/LibYAML; then
+		xs_extensions="$xs_extensions $this_ext";
+	    elif $contains "\.xs$" $tdir/$$.tmp > /dev/null 2>&1; then
 		xs_extensions="$xs_extensions $this_ext";
 	    elif $contains "\.c$"  $tdir/$$.tmp > /dev/null 2>&1; then
 		xs_extensions="$xs_extensions $this_ext";

@@ -127,7 +127,7 @@ dl_boot (pTHX) {
     dl_library_path = get_av("DynaLoader::dl_library_path", GV_ADDMULTI);
     inc_hv = GvHVn(PL_incgv);
     (void)hv_store(inc_hv, "DynaLoader.pm", sizeof("DynaLoader.pm")-1,
-                   SvREFCNT_inc_simple_NN(newSVpv_share(__FILE__, 0)), 0);
+                   SvREFCNT_inc_simple_NN(newSVpvs(__FILE__)), 0);
 EOT
 my $NUMVER = 0+$VERSION;
 print OUT line_prefix(__LINE__, <<"EOT");
@@ -151,7 +151,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
     /* TODO CM-604: broke t/comp/require.t test 53: require does not localise %^H at run time */
     Perl_set_version(aTHX_ STR_WITH_LEN("XSLoader::VERSION"), STR_WITH_LEN("1.01c"), 1.01);
     (void)hv_store(inc_hv, "XSLoader.pm", sizeof("XSLoader.pm")-1,
-                   newSVpvs("XSLoader.c"), 0);
+                   SvREFCNT_inc_simple_NN(newSVpvs("XSLoader.c")), 0);
 
     /* with duplicates removed and symlinks resolved from $Config{libpth} */
 EOT

@@ -239,7 +239,11 @@ boot_attributes(pTHX_ SV *xsfile)
 void
 Perl_boot_core_xsutils(pTHX)
 {
+#if 0
     SV* xsfile = newSVpv_share(__FILE__, 0);
+#else
+    SV* xsfile = newSVpvs(__FILE__);
+#endif
 
     /* static internal builtins */
     boot_strict(aTHX_ xsfile);

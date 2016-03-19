@@ -3,7 +3,6 @@ use strict;
 use vars qw($Needs_Write $Verbose @Changed $TAP);
 use File::Compare;
 use Symbol;
-use Text::Wrap();
 
 # Common functions needed by the regen scripts
 
@@ -227,6 +226,7 @@ sub digest {
 
 sub wrap {
     local $Text::Wrap::columns = shift;
+    require Text::Wrap or return @_;
     Text::Wrap::wrap(@_);
 }
 

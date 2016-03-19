@@ -189,6 +189,8 @@ for f in $dynamic_ext; do
 
     : Parallel makes reveal that we have some interdependencies
     case $f in
+	B/C) extra_dep="$extra_dep
+$this_target: $dynamic_ext_re" ;;
 	Math/BigInt/FastCalc|Devel/NYTProf) extra_dep="$extra_dep
 $this_target: $list_util_dep" ;;
 	Unicode/Normalize) extra_dep="$extra_dep
@@ -203,6 +205,8 @@ for f in $static_ext; do
     : Parallel makes reveal that we have some interdependencies
     this_target="lib/auto/$f/$base\$(LIB_EXT)"
     case $f in
+	B/C) extra_dep="$extra_dep
+$this_target: lib/auto/re/re\$(LIB_EXT)" ;;
 	Math/BigInt/FastCalc|Devel/NYTProf) extra_dep="$extra_dep
 $this_target: lib/auto/List/Util/Util\$(LIB_EXT)" ;;
 	Unicode/Normalize) extra_dep="$extra_dep
@@ -1338,8 +1342,9 @@ _cleaner2:
 	rm -f lib/Config_mini.pl lib/Config_xs_heavy.pl ext/Config/Config.xs
 	-rmdir ext/B/lib
 	rm -f so_locations $(LIBPERL_NONSHR) $(MINIPERL_NONSHR)
-	-rmdir lib/version lib/threads lib/encoding lib/autodie/exception
-	-rmdir lib/autodie/Scope lib/autodie lib/XS lib/Win32API lib/VMS
+	-rmdir lib/version lib/threads lib/inc/Test/Base lib/inc/Test
+	-rmdir lib/inc lib/encoding lib/autodie/exception lib/autodie/Scope
+	-rmdir lib/autodie lib/YAML lib/XS lib/Win32API lib/VMS
 	-rmdir lib/Unicode/Collate/Locale lib/Unicode/Collate/CJK
 	-rmdir lib/Unicode/Collate lib/Tie/Hash lib/Thread lib/Text
 	-rmdir lib/Test/use lib/Test/Tester lib/Test/Builder/Tester
@@ -1349,32 +1354,35 @@ _cleaner2:
 	-rmdir lib/TAP/Parser/Iterator lib/TAP/Parser lib/TAP/Harness
 	-rmdir lib/TAP/Formatter/File lib/TAP/Formatter/Console
 	-rmdir lib/TAP/Formatter lib/TAP lib/Sys/Syslog lib/Sys lib/Sub
-	-rmdir lib/Search lib/Scalar lib/Pod/Text lib/Pod/Simple
+	-rmdir lib/Stash lib/Search lib/Scalar lib/Pod/Text lib/Pod/Simple
 	-rmdir lib/Pod/Perldoc lib/PerlIO/via lib/PerlIO lib/Perl
-	-rmdir lib/Parse/CPAN lib/Parse lib/Params lib/Net/FTP lib/Module/Load
-	-rmdir lib/Module/CoreList lib/Module lib/Memoize lib/Math/BigInt
-	-rmdir lib/Math/BigFloat lib/Math lib/MIME lib/Locale/Maketext
-	-rmdir lib/Locale/Codes lib/Locale lib/List/Util lib/List lib/JSON/PP
-	-rmdir lib/JSON lib/IPC lib/IO/Uncompress/Adapter lib/IO/Uncompress
-	-rmdir lib/IO/Socket lib/IO/Compress/Zlib lib/IO/Compress/Zip
-	-rmdir lib/IO/Compress/Gzip lib/IO/Compress/Base
-	-rmdir lib/IO/Compress/Adapter lib/IO/Compress lib/IO
-	-rmdir lib/I18N/LangTags lib/I18N lib/Hash/Util lib/Hash lib/HTTP
-	-rmdir lib/Filter/Util lib/Filter lib/File/Spec lib/ExtUtils/Typemaps
-	-rmdir lib/ExtUtils/ParseXS lib/ExtUtils/MakeMaker/version
-	-rmdir lib/ExtUtils/MakeMaker lib/ExtUtils/Liblist
-	-rmdir lib/ExtUtils/Constant lib/ExtUtils/Command
-	-rmdir lib/ExtUtils/CBuilder/Platform/Windows
+	-rmdir lib/Parse/CPAN lib/Parse lib/Params lib/Net/FTP
+	-rmdir lib/Module/Load lib/Module/CoreList lib/Module lib/Memoize
+	-rmdir lib/Math/BigInt lib/Math/BigFloat lib/Math lib/MIME
+	-rmdir lib/Locale/Maketext lib/Locale/Codes lib/Locale
+	-rmdir lib/List/Util lib/List lib/LibYAML/lib/YAML/XS
+	-rmdir lib/LibYAML/lib/YAML lib/LibYAML/lib lib/LibYAML lib/JSON/PP
+	-rmdir lib/JSON lib/Internals lib/IPC lib/IO/Uncompress/Adapter
+	-rmdir lib/IO/Uncompress lib/IO/Socket lib/IO/Compress/Zlib
+	-rmdir lib/IO/Compress/Zip lib/IO/Compress/Gzip
+	-rmdir lib/IO/Compress/Base lib/IO/Compress/Adapter lib/IO/Compress
+	-rmdir lib/IO lib/I18N/LangTags lib/I18N lib/Hash/Util lib/Hash
+	-rmdir lib/HTTP lib/Filter/Util lib/Filter lib/File/Spec
+	-rmdir lib/ExtUtils/Typemaps lib/ExtUtils/ParseXS
+	-rmdir lib/ExtUtils/MakeMaker/version lib/ExtUtils/MakeMaker
+	-rmdir lib/ExtUtils/Liblist lib/ExtUtils/Constant
+	-rmdir lib/ExtUtils/Command lib/ExtUtils/CBuilder/Platform/Windows
 	-rmdir lib/ExtUtils/CBuilder/Platform lib/ExtUtils/CBuilder
 	-rmdir lib/Exporter lib/Encode/Unicode lib/Encode/MIME/Header
 	-rmdir lib/Encode/MIME lib/Encode/KR lib/Encode/JP lib/Encode/CN
-	-rmdir lib/Encode lib/Digest lib/Devel lib/Data lib/Config/Perl
-	-rmdir lib/Compress/Raw lib/Compress lib/Carp lib/CPAN/Plugin
-	-rmdir lib/CPAN/Meta/History lib/CPAN/Meta lib/CPAN/LWP
-	-rmdir lib/CPAN/Kwalify lib/CPAN/HTTP lib/CPAN/FTP lib/CPAN/Exception
-	-rmdir lib/CPAN/API lib/CPAN lib/Attribute lib/Archive/Tar lib/Archive
-	-rmdir lib/App/Prove/State/Result lib/App/Prove/State lib/App/Prove
-	-rmdir lib/App
+	-rmdir lib/Encode lib/Digest lib/Devel/NYTProf lib/Devel lib/Data
+	-rmdir lib/Cpanel/JSON lib/Cpanel lib/Config/Perl lib/Compress/Raw
+	-rmdir lib/Compress lib/Carp lib/CPAN/Plugin lib/CPAN/Meta/History
+	-rmdir lib/CPAN/Meta lib/CPAN/LWP lib/CPAN/Kwalify lib/CPAN/HTTP
+	-rmdir lib/CPAN/FTP lib/CPAN/Exception lib/CPAN/API lib/CPAN
+	-rmdir lib/ByteLoader lib/B/C lib/Attribute lib/Archive/Tar
+	-rmdir lib/Archive lib/App/Prove/State/Result lib/App/Prove/State
+	-rmdir lib/App/Prove lib/App
 
 _realcleaner:
 	@$(LDLIBPTH) $(MAKE) _cleaner1 CLEAN=distclean
@@ -1628,6 +1636,9 @@ distcheck: FORCE
 
 TAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
 	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
+
+FULLTAGS: $(c1) $(c2) $(c3) $(c4) $(c5) $(h)
+	etags $(c1) $(c2) $(c3) $(c4) $(c5) $(h) `find cpan dist ext -type f -name \*.[ch]`
 
 ctags:
 	ctags -f Tags -N --totals --languages=c --langmap=c:+.h --exclude=opmini.c --exclude=perlmini.c *.c *.h

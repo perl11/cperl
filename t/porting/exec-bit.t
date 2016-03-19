@@ -2,6 +2,10 @@
 use 5.010;
 use strict;
 use Config;
+BEGIN {
+    push @INC, '..' if -f '../TestInit.pm';
+}
+use TestInit qw(T A); # T is chdir to the top level, A makes paths absolute
 
 # This test checks that anything with an executable bit is
 # identified in Porting/exec-bit.txt to makerel will set
@@ -17,7 +21,7 @@ sub has_shebang {
   return $line =~ /^\#!\s*([A-Za-z0-9_\-\/\.])+\s?/ ? 1 : 0;
 }
 
-require './test.pl';
+require 't/test.pl';
 if ( $^O eq "MSWin32" ) {
   skip_all( "-x on MSWin32 only indicates file has executable suffix. Try Cygwin?" );
 }
@@ -42,17 +46,17 @@ use ExtUtils::Manifest qw(maniread);
 # XXX refactor? -- dagolden, 2010-07-23
 my %exe_list =
   map   { $_ => 1 }
-  map   { my ($f) = split; glob("../$f") }
+  map   { my ($f) = split; glob("$f") }
   grep  { $_ !~ /\A#/ && $_ !~ /\A\s*\z/ }
   map   { split "\n" }
-  do    { local (@ARGV, $/) = '../Porting/exec-bit.txt'; <> };
+  do    { local (@ARGV, $/) = 'Porting/exec-bit.txt'; <> };
 
 # Get MANIFEST
 $ExtUtils::Manifest::Quiet = 1;
-my @manifest = sort keys %{ maniread("../MANIFEST") };
+my @manifest = sort keys %{ maniread("MANIFEST") };
 
 # Check that +x files in repo get +x from makerel
-for my $f ( map { "../$_" } @manifest ) {
+for my $f ( @manifest ) {
   next unless -x $f;
 
   ok( has_shebang($f), "File $f has shebang" );

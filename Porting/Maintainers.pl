@@ -172,6 +172,55 @@ use File::Glob qw(:case);
         'EXCLUDED'     => [qr{^t/release-.*\.t}],
     },
 
+    'B::C' => {
+        'DISTRIBUTION' => 'RURBAN/B-C-1.54.tar.gz',
+        'FILES'        => q[cpan/B-C],
+        'EXCLUDED'     => [
+            qr{^.gdb},
+            qr{^t/z_pod\.t/},
+            qr{^ByteLoader/BcVersions/},
+            qr{^log\..*/},
+            qr{^ramblings/},
+            qr{^t/.*\.sh},
+            qw( Artistic
+                Changes
+                Copying
+                INSTALL
+                NOTES
+                MANIFEST
+                README
+                README.alpha
+                STATUS
+                TESTS
+                Todo
+                .gitignore
+                .travis.yml
+		regen_lib.pl
+		status_upd
+		store_rpt
+		lib/B/Bytecode56.pm
+		ByteLoader/ppport.h
+		ByteLoader/BcVersions.pod
+		Stash/Makefile.PL
+                t/download-reports
+		t/manifest.t
+		t/moose-test.pl
+		t/mymodules
+		t/nowarn.pl
+		t/pg.pl
+		t/regex-dna.pl
+		t/testcore.pl
+		t/todomod.pl
+		t/top100
+		t/z_pod.t
+                ppport.h
+                META.json
+                META.yml
+                )
+        ],
+        'CUSTOMIZED'   => [ qw[ t/Test.pm t/test10 ] ],
+    },
+
     'B::Debug' => {
         'DISTRIBUTION' => 'RURBAN/B-Debug-1.23.tar.gz',
         'FILES'        => q[cpan/B-Debug],
@@ -341,6 +390,17 @@ use File::Glob qw(:case);
         ],
     },
 
+    'Cpanel::JSON::XS' => {
+        'DISTRIBUTION' => 'RURBAN/Cpanel-JSON-XS-3.0210.tar.gz',
+        'FILES'        => q[cpan/Cpanel-JSON-XS],
+        'EXCLUDED'     => [
+            '.travis.yml',
+            'ppport.h',
+            'eg/bench',
+            qr{^t/z_},
+        ],
+    },
+
     'Data::Dumper' => {
         'DISTRIBUTION' => 'SMUELLER/Data-Dumper-2.154.tar.gz',
         'FILES'        => q[dist/Data-Dumper],
@@ -356,6 +416,39 @@ use File::Glob qw(:case);
                 fallback.xs
                 ),
         ],
+    },
+
+    'Devel::NYTProf' => {
+        'DISTRIBUTION' => 'TIMB/Devel-NYTProf-6.02.tar.gz',
+        'FILES'        => q[cpan/Devel-NYTProf],
+        'EXCLUDED'     => [
+            qr{^t/[79]*.t},
+            qr{^t/test([0-7]|80)*.t},
+            qr{^xt/},
+            qr{^demo/},
+            qw( Changes
+                HACKING
+                INSTALL
+                MANIFEST
+                .gdbinit
+                .gitignore
+                .indent.pro
+                .perltidyrc
+                .travis.yml
+                ppport.h
+                META.json
+                META.yml
+                t/42-global.t
+                t/68-hashline.t
+                )
+        ],
+        # cperl fixes for PERL_CORE
+        'CUSTOMIZED'   => [ qw( Makefile.PL
+                                MemoryProfiling.pod
+                                lib/Devel/NYTProf/FileInfo.pm
+                                t/lib/NYTProfTest.pm
+                                bin/nytprofhtml
+                              )],
     },
 
     'Devel::PPPort' => {
@@ -470,12 +563,13 @@ use File::Glob qw(:case);
     },
 
     'ExtUtils::Constant' => {
-
         # Nick has confirmed that while we have diverged from CPAN,
         # this package isn't primarily maintained in core
-        # Another release will happen "Sometime"
-        'DISTRIBUTION' => '',    #'NWCLARK/ExtUtils-Constant-0.16.tar.gz',
-        'FILES'    => q[cpan/ExtUtils-Constant],
+        # Another release will happen "Sometime" 'NWCLARK/ExtUtils-Constant-0.16.tar.gz'
+        # cperl: This module could eventually be used to maintain warnings as XS and Config as XS,
+        # but unfortunately not with the current maintainership.
+        'DISTRIBUTION' => 'RURBAN/ExtUtils-Constant-0.23_03.tar.gz',
+        'FILES'    => q[dist/ExtUtils-Constant],
         'EXCLUDED' => [
             qw( lib/ExtUtils/Constant/Aaargh56Hash.pm
                 examples/perl_keyword.pl
@@ -672,6 +766,11 @@ use File::Glob qw(:case);
 
     'I18N::LangTags' => {
         'FILES'        => q[dist/I18N-LangTags],
+    },
+
+    'Internals::DumpArenas' => {
+        'DISTRIBUTION' => 'RURBAN/Internals-DumpArenas-0.12_01.tar.gz',
+        'FILES'        => q[cpan/Internals-DumpArenas],
     },
 
     'if' => {
@@ -1388,6 +1487,15 @@ use File::Glob qw(:case);
                 typemap
                 ),
         ],
+    },
+
+    'YAML::LibYAML' => {
+        'DISTRIBUTION' => "INGY/YAML-LibYAML-0.62.tar.gz",
+        'FILES'        => q[cpan/YAML-LibYAML],
+        'CUSTOMIZED'   => [
+          # allow PERL_CORE tests
+          qw( LibYAML/Makefile.PL t/TestYAMLTests.pm t/TestYAML.pm )
+          ],
     },
 
     #'XSLoader' => {

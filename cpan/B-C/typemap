@@ -1,0 +1,45 @@
+B::MAGIC	T_MG_OBJ
+B::REGEXP	T_RX_OBJ
+B::COP		T_OP_OBJ
+B::OP		T_OP_OBJ
+B::HV		T_SV_OBJ
+B::PADNAME	T_SV_OBJ
+B::PADLIST	T_SV_OBJ
+B::PADNAMELIST	T_SV_OBJ
+
+INPUT
+T_RX_OBJ
+        if (SvROK($arg)) {
+	    int type = SvTYPE(SvRV($arg));
+	    if (type == SVt_REGEXP || type == SVt_PVMG) {
+                IV tmp = SvIV((SV*)SvRV($arg));
+                $var = INT2PTR($type,tmp);
+	    }
+            else
+                croak(\"ref to $var is of type %d, not a reference to REGEXP\", type);
+        }
+        else
+              croak(\"$var is of type %d, not a reference to REGEXP\", SvTYPE($arg));
+T_MG_OBJ
+	if (SvROK($arg)) {
+	    IV tmp = SvIV((SV*)SvRV($arg));
+	    $var = INT2PTR($type,tmp);
+	}
+	else
+	    croak(\"$var is not a reference\")
+
+T_OP_OBJ
+	if (SvROK($arg)) {
+	    IV tmp = SvIV((SV*)SvRV($arg));
+	    $var = INT2PTR($type,tmp);
+	}
+	else
+	    croak(\"$var is not a reference\")
+
+T_SV_OBJ
+	if (SvROK($arg)) {
+	    IV tmp = SvIV((SV*)SvRV($arg));
+	    $var = INT2PTR($type,tmp);
+	}
+	else
+	    croak(\"$var is not a reference\")

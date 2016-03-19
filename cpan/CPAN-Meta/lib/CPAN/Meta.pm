@@ -380,17 +380,20 @@ sub load_string {
 #pod option is C<version>, which defaults to '2'. On Perl 5.8.1 or later, the file
 #pod is saved with UTF-8 encoding.
 #pod
-#pod For C<version> 2 (or higher), the filename should end in '.json'.  L<JSON::PP>
+#pod For C<version> 2 (or higher), the filename should end in '.json'.  L<Cpanel::JSON::XS>
 #pod is the default JSON backend. Using another JSON backend requires L<JSON> 2.5 or
 #pod later and you must set the C<$ENV{PERL_JSON_BACKEND}> to a supported alternate
-#pod backend like L<JSON::XS>.
+#pod backend like L<JSON>, L<JSON::MaybeXS>, L<JSON::Any>, L<JSON::XS>.
 #pod
 #pod For C<version> less than 2, the filename should end in '.yml'.
 #pod L<CPAN::Meta::Converter> is used to generate an older metadata structure, which
-#pod is serialized to YAML.  CPAN::Meta::YAML is the default YAML backend.  You may
-#pod set the C<$ENV{PERL_YAML_BACKEND}> to a supported alternative backend, though
-#pod this is not recommended due to subtle incompatibilities between YAML parsers on
-#pod CPAN.
+#pod is serialized to YAML.  L<YAML::XS> is the default YAML backend.  You may
+#pod set the C<$ENV{PERL_YAML_BACKEND}> to a supported alternative backend. YAML has
+#pod severe limitations, L<YAML::XS> is as strict as L<YAML>, which makes it failing fixable
+#pod yaml data tests.
+#pod L<YAML::Syck> is fast and passes all the tests, but doesn't implement the latest
+#pod YAML 1.2 specification. L<YAML::Tiny> passes all tests, but is slow. L<CPAN::Meta::YAML>
+#pod the default parser in perl5 core is based on YAML::Tiny.
 #pod
 #pod =cut
 
@@ -443,7 +446,7 @@ sub meta_spec_version {
 #pod This method returns a L<CPAN::Meta::Prereqs> object describing all the
 #pod prereqs for the distribution.  If an arrayref of feature identifiers is given,
 #pod the prereqs for the identified features are merged together with the
-#pod distribution's core prereqs before the CPAN::Meta::Prereqs object is returned.
+#pod distribution's core prereqs before the C<CPAN::Meta::Prereqs> object is returned.
 #pod
 #pod =cut
 
@@ -631,7 +634,7 @@ sub as_string {
   return $data;
 }
 
-# Used by JSON::PP, etc. for "convert_blessed"
+# Used by JSON, etc. for "convert_blessed"
 sub TO_JSON {
   return { %{ $_[0] } };
 }
@@ -772,17 +775,21 @@ Serializes the object as JSON and writes it to the given file.  The only valid
 option is C<version>, which defaults to '2'. On Perl 5.8.1 or later, the file
 is saved with UTF-8 encoding.
 
-For C<version> 2 (or higher), the filename should end in '.json'.  L<JSON::PP>
-is the default JSON backend. Using another JSON backend requires L<JSON> 2.5 or
-later and you must set the C<$ENV{PERL_JSON_BACKEND}> to a supported alternate
-backend like L<JSON::XS>.
+For C<version> 2 (or higher), the filename should end in '.json'.
+L<Cpanel::JSON::XS> is the default JSON backend. Using another JSON backend
+requires L<JSON> 2.5 or later and you must set the C<$ENV{PERL_JSON_BACKEND}> to
+a supported alternate backend like L<JSON>, L<JSON::MaybeXS>, L<JSON::Any>,
+L<JSON::XS>.
 
 For C<version> less than 2, the filename should end in '.yml'.
 L<CPAN::Meta::Converter> is used to generate an older metadata structure, which
-is serialized to YAML.  CPAN::Meta::YAML is the default YAML backend.  You may
-set the C<$ENV{PERL_YAML_BACKEND}> to a supported alternative backend, though
-this is not recommended due to subtle incompatibilities between YAML parsers on
-CPAN.
+is serialized to YAML.  L<YAML::XS> is the default YAML backend.  You may set
+the C<$ENV{PERL_YAML_BACKEND}> to a supported alternative backend. L<YAML> has
+severe limitations, L<YAML::XS> is as strict as L<YAML>, which makes it failing
+fixable yaml data tests.  L<YAML::Syck> is fast and passes all the tests, but
+doesn't implement the latest YAML 1.2 specification. L<YAML::Tiny> passes all
+tests, but is slow. L<CPAN::Meta::YAML> the default parser in perl5 core is
+based on YAML::Tiny.
 
 =head2 meta_spec_version
 
@@ -800,7 +807,7 @@ structure.  It is equivalent to:
 This method returns a L<CPAN::Meta::Prereqs> object describing all the
 prereqs for the distribution.  If an arrayref of feature identifiers is given,
 the prereqs for the identified features are merged together with the
-distribution's core prereqs before the CPAN::Meta::Prereqs object is returned.
+distribution's core prereqs before the C<CPAN::Meta::Prereqs> object is returned.
 
 =head2 should_index_file
 

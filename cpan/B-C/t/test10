@@ -1,0 +1,10 @@
+ExtUtils::Install
+Test::Harness
+autodie
+IO::Socket
+Scalar::Util
+Pod::Perldoc
+Pod::Usage
+Pod::Simple
+parent
+Locale::Maketext

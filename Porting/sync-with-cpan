@@ -226,7 +226,7 @@ chdir "cpan";
 my  $pkg_dir      = $files[0];
     $pkg_dir      =~ s!.*/!!;
 
-my ($old_version) = $distribution =~ /-([0-9.]+(?:-TRIAL[0-9]*)?)\.tar\.gz/;
+my ($old_version) = $distribution =~ /-([0-9.]+(?:(-TRIAL|_)[0-9]*)?)\.tar\.gz/;
 
 my  $o_module     = $module;
 if ($cpan_mod =~ /-/ && $cpan_mod !~ /::/) {
@@ -295,8 +295,10 @@ for my $file (find_type_f($new_dir)) {
     utime($t,$t,$file);
 };
 
-say "Renaming directories";
-rename $pkg_dir => $old_dir;
+if (-d $pkg_dir) {
+  say "Renaming directories";
+  rename $pkg_dir => $old_dir;
+}
 
 say "Creating new package directory";
 mkdir $pkg_dir;

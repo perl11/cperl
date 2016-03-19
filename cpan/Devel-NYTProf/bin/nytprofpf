@@ -1,0 +1,165 @@
+#!/usr/bin/perl
+##########################################################
+## This script is part of the Devel::NYTProf distribution
+##
+## Copyright, contact and other information can be found
+## at the bottom of this file, or by going to:
+## https://metacpan.org/pod/Devel::NYTProf
+##
+###########################################################
+
+=head1 NAME
+
+nytprofpf - Generate a report for plat_forms (L<http://www.plat-forms.org/>) from Devel::NYTProf data
+
+=head1 SYNOPSIS
+
+Typical usage:
+
+ $ perl -d:NYTProf some_perl_app.pl
+ $ nytprofpf
+
+Options synopsis:
+
+ --file <file>, -f <file>  Read profile data from the specified file [default: nytprof.out]
+ --delete,      -d         Delete any old report files first
+ --lib <lib>,   -l <lib>   Add <lib> to the beginning of \@INC
+ --no-mergeevals           Disable merging of string evals
+ --help,        -h         Print this message
+
+This script of part of the Devel::NYTProf distribution. Generate a report for plat_forms (L<http://www.plat-forms.org/>) from Devel::NYTProf data.
+See http://metacpan.org/release/Devel-NYTProf/ for details and copyright.
+
+=encoding ISO8859-1
+
+=cut
+
+use warnings;
+use strict;
+
+use Carp;
+use Config qw(%Config);
+use Getopt::Long;
+use List::Util qw(sum max);
+use File::Copy;
+use File::Path qw(rmtree);
+
+use Devel::NYTProf::Reader;
+use Devel::NYTProf::Core;
+use Devel::NYTProf::Util qw(
+    fmt_float fmt_time fmt_incl_excl_time
+    calculate_median_absolute_deviation
+    get_abs_paths_alternation_regex
+    html_safe_filename
+);
+use Devel::NYTProf::Constants qw(NYTP_SCi_CALLING_SUB);
+
+our $VERSION = '6.02';
+
+if ($VERSION != $Devel::NYTProf::Core::VERSION) {
+    die "$0 version '$VERSION' doesn't match version '$Devel::NYTProf::Core::VERSION' of $INC{'Devel/NYTProf/Core.pm'}\n";
+}
+
+GetOptions(
+    'file|f=s'   => \(my $opt_file = 'nytprof.out'),
+    'lib|l=s'   => \my $opt_lib,
+    'out|o=s'   => \(my $opt_out = 'nytprof'),
+    'delete|d!' => \my $opt_delete,
+    'help|h'    => sub { exit usage() },
+    'mergeevals!'=> \(my $opt_mergeevals = 1),
+) or do { exit usage(); };
+
+sub usage {
+    print <<END;
+
+usage: [perl] nytprofpf [opts]
+ --file <file>, -f <file>  Read profile data from the specified file [default: nytprof.out]
+ --delete,      -d         Delete any old report files first
+ --lib <lib>,   -l <lib>   Add <lib> to the beginning of \@INC
+ --no-mergeevals           Disable merging of string evals
+ --help,        -h         Print this message
+
+This script of part of the Devel::NYTProf distribution.
+See http://metacpan.org/release/Devel-NYTProf/ for details and copyright.
+END
+    return 0;
+}
+
+use constant NUMERIC_PRECISION => 7;
+
+
+# handle output location
+if (!-e $opt_out) {
+    # everything is fine
+}
+elsif (!-f $opt_out) {
+    die "$0: Specified output file '$opt_out' already exists as a directory!\n";
+}
+elsif (!-w $opt_out) {
+    die "$0: Unable to write to output directory '$opt_out'\n";
+}
+else {
+    if (defined($opt_delete)) {
+        print "Deleting existing $opt_out file\n";
+        rm($opt_out);
+    }
+}
+
+# handle custom lib path
+if (defined($opt_lib)) {
+    warn "$0: Specified lib directory '$opt_lib' does not exist.\n"
+        unless -d $opt_lib;
+    require lib;
+    lib->import($opt_lib);
+}
+
+eval { $SIG{USR2} = \&Carp::cluck }; # some platforms don't have SIGUSR2 (Windows)
+
+my $reporter = new Devel::NYTProf::Reader($opt_file, {
+    quiet => 0,
+    skip_collapse_evals => !$opt_mergeevals,
+});
+
+my $profile = $reporter->{profile};
+open my $fh, '>', $opt_out
+	or croak "Unable to open file $opt_out: $!";
+print $fh subroutine_table($profile, undef, 0, 'excl_time');
+close $fh;
+
+sub subroutine_table {
+    my ($profile, $fi, $max_subs, $sortby) = @_;
+    $sortby ||= 'excl_time';
+
+    my $subs_unsorted = $profile->subname_subinfo_map;
+
+    my $inc_path_regex = get_abs_paths_alternation_regex([$profile->inc], qr/^|\[/);
+
+    my @all_subs =
+        sort { $b->$sortby <=> $a->$sortby or $a->subname cmp $b->subname }
+        values %$subs_unsorted;
+
+    #don't show subs that were never called
+    my @subs = grep { $_->calls > 0 } @all_subs if !$fi;
+
+    my $max_pkg_name_len = max(map { length($_->package) } @subs);
+
+    my $output;
+
+    $output .= "Name, File location, Time, Avg. Time, Own Time, Invocation Count, Level\n";
+
+    my $profiler_active = $profile->{attribute}{profiler_active};
+
+    for my $sub (@subs) {
+		$output .= sprintf ("%s, %s, %.3f, %.3f, %.3f, %d, %d\n",
+                      $sub->subname, 
+                      $sub->fileinfo->filename,                  
+                      $sub->incl_time * 1000,                   
+                      0,
+                      $sub->excl_time * 1000,                    
+                      $sub->calls,                       
+                      0);
+    }
+
+    return $output;
+}
+exit 0;

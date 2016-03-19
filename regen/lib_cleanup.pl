@@ -38,7 +38,7 @@ close $fh
 
 # Lines we need in lib/.gitignore
 my %ignore;
-# Directories that the Makfiles should remove
+# Directories that the Makefiles should remove
 # With a special case already :-(
 my %rmdir_s = my %rmdir = ('Unicode/Collate/Locale' => 1);
 

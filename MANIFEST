@@ -130,6 +130,60 @@ cpan/AutoLoader/lib/AutoLoader.pm	Autoloader base class
 cpan/AutoLoader/lib/AutoSplit.pm	Split up autoload functions
 cpan/AutoLoader/t/01AutoLoader.t	See if AutoLoader works
 cpan/AutoLoader/t/02AutoSplit.t		See if AutoSplit works
+cpan/B-C/bytecode.pl
+cpan/B-C/ByteLoader/bytecode.h
+cpan/B-C/ByteLoader/ByteLoader.pm	ByteLoader - interpret bytecode
+cpan/B-C/ByteLoader/ByteLoader.xs
+cpan/B-C/ByteLoader/hints/522_patched.pl
+cpan/B-C/ByteLoader/hints/sunos.pl
+cpan/B-C/ByteLoader/Makefile.PL
+cpan/B-C/cc_runtime.h
+cpan/B-C/C.xs				B::C XS - workaround various B limitations and bugs
+cpan/B-C/hints/darwin.pl
+cpan/B-C/hints/openbsd.pl
+cpan/B-C/lib/B/Asmdata.pm		B::Bytecode - assembler ops
+cpan/B-C/lib/B/Assembler.pm		B::Bytecode - assemble to bytecode
+cpan/B-C/lib/B/Bblock.pm		B::CC - basic blocks
+cpan/B-C/lib/B/Bytecode.pm		B::Bytecode - the bytecode compiler
+cpan/B-C/lib/B/C/Config_pm.PL		B::C::Config - generate short %Config
+cpan/B-C/lib/B/CC.pm			B::CC - the optimizing compiler to C
+cpan/B-C/lib/B/C.pm			B::C - the perl compiler to C
+cpan/B-C/lib/B/Disassembler.pm		B::Bytecode - disassemble bytecode
+cpan/B-C/lib/B/Stackobj.pm		B::CC - type inference representation
+cpan/B-C/Makefile.PL
+cpan/B-C/perlcompile.pod
+cpan/B-C/perloptree.pod
+cpan/B-C/script/assemble		assemble to bytecode
+cpan/B-C/script/cc_harness		compile and link generated C files
+cpan/B-C/script/disassemble		disassemble from bytecode
+cpan/B-C/script/perlcc.PL		perlcc compiler frontend
+cpan/B-C/script/pl2exe.pl		pack script to be executable under windows
+cpan/B-C/Stash/Makefile.PL
+cpan/B-C/Stash/Stash.pm
+cpan/B-C/Stash/Stash.xs
+cpan/B-C/t/asmdata.t
+cpan/B-C/t/assembler.t
+cpan/B-C/t/bblock.t
+cpan/B-C/t/bytecode.t
+cpan/B-C/t/c_argv.t
+cpan/B-C/t/cc_last.t
+cpan/B-C/t/cc.t
+cpan/B-C/t/c_o3.t
+cpan/B-C/t/c.t
+cpan/B-C/t/e_perlcc.t
+cpan/B-C/t/issue219.t
+cpan/B-C/t/issue245.t
+cpan/B-C/t/modules.pm
+cpan/B-C/t/modules.t
+cpan/B-C/t/o.t
+cpan/B-C/t/perldoc.t
+cpan/B-C/t/qr_loaded_module.pm
+cpan/B-C/t/stashes.t
+cpan/B-C/t/stash.t
+cpan/B-C/t/test10
+cpan/B-C/t/TestBC.pm
+cpan/B-C/t/TESTS
+cpan/B-C/typemap
 cpan/B-Debug/Debug.pm	Compiler Debug backend
 cpan/B-Debug/t/debug.t	See if B::Debug works
 cpan/Compress-Raw-Bzip2/bzip2-src/blocksort.c
@@ -203,6 +257,63 @@ cpan/Config-Perl-V/t/26_plv5182.t		Config::Perl::V
 cpan/Config-Perl-V/t/26_plv518.t		Config::Perl::V
 cpan/Config-Perl-V/t/27_plv5200.t		Config::Perl::V
 cpan/Config-Perl-V/V.pm				Config::Perl::V
+cpan/Cpanel-JSON-XS/bin/cpanel_json_xs
+cpan/Cpanel-JSON-XS/t/00_load.t
+cpan/Cpanel-JSON-XS/t/01_utf8.t
+cpan/Cpanel-JSON-XS/t/02_error.t
+cpan/Cpanel-JSON-XS/t/03_types.t
+cpan/Cpanel-JSON-XS/t/04_dwiw_encode.t
+cpan/Cpanel-JSON-XS/t/05_dwiw_decode.t
+cpan/Cpanel-JSON-XS/t/06_pc_pretty.t
+cpan/Cpanel-JSON-XS/t/07_pc_esc.t
+cpan/Cpanel-JSON-XS/t/08_pc_base_nv.t
+cpan/Cpanel-JSON-XS/t/08_pc_base.t
+cpan/Cpanel-JSON-XS/t/09_pc_extra_number.t
+cpan/Cpanel-JSON-XS/t/104_sortby.t
+cpan/Cpanel-JSON-XS/t/105_esc_slash.t
+cpan/Cpanel-JSON-XS/t/106_allow_barekey.t
+cpan/Cpanel-JSON-XS/t/107_allow_singlequote.t
+cpan/Cpanel-JSON-XS/t/108_decode.t
+cpan/Cpanel-JSON-XS/t/109_encode.t
+cpan/Cpanel-JSON-XS/t/10_pc_keysort.t
+cpan/Cpanel-JSON-XS/t/110_bignum.t
+cpan/Cpanel-JSON-XS/t/112_upgrade.t
+cpan/Cpanel-JSON-XS/t/113_overloaded_eq.t
+cpan/Cpanel-JSON-XS/t/114_decode_prefix.t
+cpan/Cpanel-JSON-XS/t/115_tie_ixhash.t
+cpan/Cpanel-JSON-XS/t/116_incr_parse_fixed.t
+cpan/Cpanel-JSON-XS/t/117_numbers.t
+cpan/Cpanel-JSON-XS/t/11_pc_expo.t
+cpan/Cpanel-JSON-XS/t/12_blessed.t
+cpan/Cpanel-JSON-XS/t/13_limit.t
+cpan/Cpanel-JSON-XS/t/14_latin1.t
+cpan/Cpanel-JSON-XS/t/15_prefix.t
+cpan/Cpanel-JSON-XS/t/16_tied.t
+cpan/Cpanel-JSON-XS/t/17_relaxed.t
+cpan/Cpanel-JSON-XS/t/18_json_checker.t
+cpan/Cpanel-JSON-XS/t/19_incr.t
+cpan/Cpanel-JSON-XS/t/20_faihu.t
+cpan/Cpanel-JSON-XS/t/20_unknown.t
+cpan/Cpanel-JSON-XS/t/21_evans.t
+cpan/Cpanel-JSON-XS/t/22_comment_at_eof.t
+cpan/Cpanel-JSON-XS/t/23_array_ctx.t
+cpan/Cpanel-JSON-XS/t/24_freeze_recursion.t
+cpan/Cpanel-JSON-XS/t/25_boolean.t
+cpan/Cpanel-JSON-XS/t/52_object.t
+cpan/Cpanel-JSON-XS/t/53_readonly.t
+cpan/Cpanel-JSON-XS/t/54_stringify.t
+cpan/Cpanel-JSON-XS/t/55_modifiable.t
+cpan/Cpanel-JSON-XS/t/96_interop.t
+cpan/Cpanel-JSON-XS/t/96_mojo.t
+cpan/Cpanel-JSON-XS/t/97_unshare_hek.t
+cpan/Cpanel-JSON-XS/t/98_56only.t
+cpan/Cpanel-JSON-XS/t/99_binary.t
+cpan/Cpanel-JSON-XS/t/_unicode_handling.pm
+cpan/Cpanel-JSON-XS/typemap
+cpan/Cpanel-JSON-XS/t/zero-mojibake.t
+cpan/Cpanel-JSON-XS/XS/Boolean.pm
+cpan/Cpanel-JSON-XS/XS.pm
+cpan/Cpanel-JSON-XS/XS.xs
 cpan/CPAN/lib/App/Cpan.pm		helper package for CPAN.pm
 cpan/CPAN/lib/CPAN/API/HOWTO.pod		recipe book for programming with CPAN.pm
 cpan/CPAN/lib/CPAN/Author.pm		helper package for CPAN.pm
@@ -402,6 +513,66 @@ cpan/DB_File/t/db-hash.t	See if DB_File works
 cpan/DB_File/t/db-recno.t	See if DB_File works
 cpan/DB_File/typemap		Berkeley DB extension interface types
 cpan/DB_File/version.c		Berkeley DB extension interface version check
+cpan/Devel-NYTProf/bin/flamegraph.pl
+cpan/Devel-NYTProf/bin/nytprofcalls
+cpan/Devel-NYTProf/bin/nytprofcg
+cpan/Devel-NYTProf/bin/nytprofcsv
+cpan/Devel-NYTProf/bin/nytprofhtml
+cpan/Devel-NYTProf/bin/nytprofmerge
+cpan/Devel-NYTProf/bin/nytprofpf
+cpan/Devel-NYTProf/FileHandle.h
+cpan/Devel-NYTProf/FileHandle.xs
+cpan/Devel-NYTProf/lib/Devel/NYTProf/Apache.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/Constants.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/Core.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/Data.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/FileHandle.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/asc.png
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/bg.png
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/desc.png
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/gradient20.png
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/gradient30.png
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/gradient40.png
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/gradient50.png
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/gradient-cushion1.png
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/gradient.png
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/jit.js
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/jit-yc.js
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jit/Treemap.css
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jquery-min.js
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/jquery-tablesorter-min.js
+cpan/Devel-NYTProf/lib/Devel/NYTProf/js/style-tablesorter.css
+cpan/Devel-NYTProf/lib/Devel/NYTProf.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/Reader.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/ReadStream.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/Run.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/SubCallInfo.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/SubInfo.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/Test.pm
+cpan/Devel-NYTProf/lib/Devel/NYTProf/Util.pm
+cpan/Devel-NYTProf/Makefile.PL
+cpan/Devel-NYTProf/MemoryProfiling.pod
+cpan/Devel-NYTProf/NYTProf.h
+cpan/Devel-NYTProf/NYTProf.xs
+cpan/Devel-NYTProf/README.md
+cpan/Devel-NYTProf/slowops.h
+cpan/Devel-NYTProf/t/00-load.t
+cpan/Devel-NYTProf/t/10-run.t
+cpan/Devel-NYTProf/t/22-readstream.t
+cpan/Devel-NYTProf/t/30-util.t
+cpan/Devel-NYTProf/t/31-env.t
+cpan/Devel-NYTProf/t/40-savesrc.t
+cpan/Devel-NYTProf/t/44-model.t
+cpan/Devel-NYTProf/t/50-errno.t
+cpan/Devel-NYTProf/t/60-forkdepth.t
+cpan/Devel-NYTProf/t/80-version.t
+cpan/Devel-NYTProf/t/lib/NYTProfTest.pm
+cpan/Devel-NYTProf/t/test81-swash.t
+cpan/Devel-NYTProf/t/test82-version.t
+cpan/Devel-NYTProf/t/test90-strsubref.t
+cpan/Devel-NYTProf/typemap
+cpan/Devel-NYTProf/t/zzz.t
 cpan/Devel-PPPort/apicheck_c.PL		Devel::PPPort apicheck generator
 cpan/Devel-PPPort/devel/buildperl.pl	Devel::PPPort perl version builder
 cpan/Devel-PPPort/devel/devtools.pl	Devel::PPPort development utilities
@@ -1007,12 +1178,6 @@ cpan/ExtUtils-Command/lib/ExtUtils/Command.pm	Utilities for Make on non-UNIX pla
 cpan/ExtUtils-Command/t/cp.t			See if ExtUtils::Command works
 cpan/ExtUtils-Command/t/eu_command.t		See if ExtUtils::Command works
 cpan/ExtUtils-Command/t/lib/TieOut.pm		Testing library to capture prints
-cpan/ExtUtils-Constant/lib/ExtUtils/Constant/Base.pm		generate XS code to import C header constants
-cpan/ExtUtils-Constant/lib/ExtUtils/Constant.pm			generate XS code to import C header constants
-cpan/ExtUtils-Constant/lib/ExtUtils/Constant/ProxySubs.pm	generate XS code for proxy constants
-cpan/ExtUtils-Constant/lib/ExtUtils/Constant/Utils.pm		generate XS code to import C header constants
-cpan/ExtUtils-Constant/lib/ExtUtils/Constant/XS.pm		generate XS code to import C header constants
-cpan/ExtUtils-Constant/t/Constant.t				See if ExtUtils::Constant works
 cpan/ExtUtils-Install/lib/ExtUtils/Installed.pm		Information on installed extensions
 cpan/ExtUtils-Install/lib/ExtUtils/Install.pm		Handles 'make install' on extensions
 cpan/ExtUtils-Install/lib/ExtUtils/Packlist.pm		Manipulates .packlist files
@@ -1263,6 +1428,9 @@ cpan/HTTP-Tiny/t/170_keepalive.t
 cpan/HTTP-Tiny/t/BrokenCookieJar.pm
 cpan/HTTP-Tiny/t/SimpleCookieJar.pm
 cpan/HTTP-Tiny/t/Util.pm
+cpan/Internals-DumpArenas/DumpArenas.xs
+cpan/Internals-DumpArenas/lib/Internals/DumpArenas.pm
+cpan/Internals-DumpArenas/t/10-use.t
 cpan/IO-Compress/bin/zipdetails				IO::Compress
 cpan/IO-Compress/lib/Compress/Zlib.pm			IO::Compress
 cpan/IO-Compress/lib/File/GlobMapper.pm			IO::Compress
@@ -2849,6 +3017,73 @@ cpan/Win32/t/Names.t			See if Win32 extension works
 cpan/Win32/t/Unicode.t			See if Win32 extension works
 cpan/Win32/Win32.pm			Win32 extension Perl module
 cpan/Win32/Win32.xs			Win32 extension external subroutines
+cpan/YAML-LibYAML/inc/Spiffy.pm
+cpan/YAML-LibYAML/inc/Test/Base/Filter.pm
+cpan/YAML-LibYAML/inc/Test/Base.pm
+cpan/YAML-LibYAML/LibYAML/api.c
+cpan/YAML-LibYAML/LibYAML/config.h
+cpan/YAML-LibYAML/LibYAML/dumper.c
+cpan/YAML-LibYAML/LibYAML/emitter.c
+cpan/YAML-LibYAML/lib/YAML/LibYAML.pm
+cpan/YAML-LibYAML/lib/YAML/LibYAML.pod
+cpan/YAML-LibYAML/LibYAML/LibYAML.xs
+cpan/YAML-LibYAML/LibYAML/lib/YAML/XS/LibYAML.pm
+cpan/YAML-LibYAML/LibYAML/loader.c
+cpan/YAML-LibYAML/LibYAML/Makefile.PL
+cpan/YAML-LibYAML/LibYAML/parser.c
+cpan/YAML-LibYAML/LibYAML/perl_libyaml.c
+cpan/YAML-LibYAML/LibYAML/perl_libyaml.h
+cpan/YAML-LibYAML/LibYAML/ppport_sort.h
+cpan/YAML-LibYAML/LibYAML/reader.c
+cpan/YAML-LibYAML/LibYAML/scanner.c
+cpan/YAML-LibYAML/LibYAML/test.pl
+cpan/YAML-LibYAML/LibYAML/update.sh
+cpan/YAML-LibYAML/LibYAML/writer.c
+cpan/YAML-LibYAML/lib/YAML/XS.pm
+cpan/YAML-LibYAML/lib/YAML/XS.pod
+cpan/YAML-LibYAML/LibYAML/yaml.h
+cpan/YAML-LibYAML/LibYAML/yaml_private.h
+cpan/YAML-LibYAML/t/000-require-modules.t
+cpan/YAML-LibYAML/t/alias.t
+cpan/YAML-LibYAML/t/api.t
+cpan/YAML-LibYAML/t/ascii.t
+cpan/YAML-LibYAML/t/author-pod-syntax.t
+cpan/YAML-LibYAML/t/blessed.t
+cpan/YAML-LibYAML/t/boolean.t
+cpan/YAML-LibYAML/t/bug-pvf.t
+cpan/YAML-LibYAML/t/bug-stack.t
+cpan/YAML-LibYAML/t/code.t
+cpan/YAML-LibYAML/t/data/basic.yml
+cpan/YAML-LibYAML/t/dump-heuristics.t
+cpan/YAML-LibYAML/t/dump.t
+cpan/YAML-LibYAML/t/empty.t
+cpan/YAML-LibYAML/t/empty.yaml
+cpan/YAML-LibYAML/t/error.t
+cpan/YAML-LibYAML/t/file.t
+cpan/YAML-LibYAML/t/glob.t
+cpan/YAML-LibYAML/t/io-handle.t
+cpan/YAML-LibYAML/t/leak.t
+cpan/YAML-LibYAML/t/loadfile-empty.t
+cpan/YAML-LibYAML/t/load.t
+cpan/YAML-LibYAML/t/long_plain_wrap.t
+cpan/YAML-LibYAML/t/magic.t
+cpan/YAML-LibYAML/t/native.t
+cpan/YAML-LibYAML/t/nonstrict.t
+cpan/YAML-LibYAML/t/null.t
+cpan/YAML-LibYAML/t/numbers.t
+cpan/YAML-LibYAML/t/path-class.t
+cpan/YAML-LibYAML/t/pl_sv_undef.t
+cpan/YAML-LibYAML/t/private.t
+cpan/YAML-LibYAML/t/quote.t
+cpan/YAML-LibYAML/t/ref-scalar.t
+cpan/YAML-LibYAML/t/regexp.t
+cpan/YAML-LibYAML/t/string_nulls.t
+cpan/YAML-LibYAML/t/tags.t
+cpan/YAML-LibYAML/t/TestYAML.pm
+cpan/YAML-LibYAML/t/TestYAMLTests.pm
+cpan/YAML-LibYAML/t/tied.t
+cpan/YAML-LibYAML/t/utf8.t
+cpan/YAML-LibYAML/t/yaml_tests.yaml
 Cross/build-arm-n770-sh		Cross-compilation
 Cross/cflags-cross-arm		Cross-compilation
 Cross/config			Cross-compilation
@@ -3023,6 +3258,12 @@ dist/ExtUtils-CBuilder/t/01-basic.t				tests for ExtUtils::CBuilder
 dist/ExtUtils-CBuilder/t/02-link.t				tests for ExtUtils::CBuilder
 dist/ExtUtils-CBuilder/t/03-cplusplus.t				tests for ExtUtils::CBuilder
 dist/ExtUtils-CBuilder/t/04-base.t				tests for ExtUtils::CBuilder
+dist/ExtUtils-Constant/lib/ExtUtils/Constant/Base.pm		generate XS code to import C header constants
+dist/ExtUtils-Constant/lib/ExtUtils/Constant.pm			generate XS code to import C header constants
+dist/ExtUtils-Constant/lib/ExtUtils/Constant/ProxySubs.pm	generate XS code for proxy constants
+dist/ExtUtils-Constant/lib/ExtUtils/Constant/Utils.pm		generate XS code to import C header constants
+dist/ExtUtils-Constant/lib/ExtUtils/Constant/XS.pm		generate XS code to import C header constants
+dist/ExtUtils-Constant/t/Constant.t				See if ExtUtils::Constant works
 dist/ExtUtils-ParseXS/Changes					ExtUtils::ParseXS change log
 dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS/Constants.pm		ExtUtils::ParseXS guts
 dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS/CountLines.pm	ExtUtils::ParseXS guts
