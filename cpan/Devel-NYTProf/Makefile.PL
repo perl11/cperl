@@ -169,7 +169,7 @@ WriteMakefile(
         'Test::Differences' => '0.60',
         'XSLoader'     => 0,
         'Getopt::Long' => 0,
-        'JSON::MaybeXS' => 0,
+        'Cpanel::JSON::XS' => 0,
     },
     INST_LIB  => ($ENV{PERL_CORE} ? '../../lib' : 'blib/lib'),
     INST_ARCHLIB => ($ENV{PERL_CORE} ? '../../lib' : 'blib/arch'),

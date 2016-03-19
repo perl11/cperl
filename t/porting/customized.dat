@@ -1,7 +1,8 @@
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
 CPAN cpan/CPAN/lib/CPAN.pm 1498af11e3528547357c8645ab23a97a5c847346
+Devel::NYTProf cpan/Devel-NYTProf/bin/nytprofhtml 0e7a6c1ed8b0497d01e6da2ba5bd5265d004393e
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
-Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL 044b0ca5bbbd6623c0b48fd2f7b9f137c1880da0
+Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL 1bd828484a7513b636446fc9f24353f3f058d71d
 Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod 197e08c2c2cc300d8166da35738a1a51ebdb960a
 Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm bc6efbd91bce9b1eae3c341c482dde0ac4c990c5
 Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL e5b06df14ab4162956415f4208fe209d01b7c000
