@@ -24,7 +24,7 @@ use Exporter ();
 );
 
 use strict;
-use B qw(class SVf_IOK SVf_NOK SVf_IVisUV SVf_ROK SVf_POK);
+use B qw(SVf_IOK SVf_NOK SVf_IVisUV SVf_ROK SVf_POK);
 use B::C qw(ivx nvx);
 use Config;
 
@@ -178,7 +178,7 @@ sub peek {
   push( @flags, "TEMPORARY" )    if $flags & TEMPORARY;
   @flags = ("none") unless @flags;
   return sprintf( "%s type=$type flags=%s sv=$obj->{sv} iv=$obj->{iv} nv=$obj->{nv}",
-    class($obj), join( "|", @flags ) );
+    B::class($obj), join( "|", @flags ) );
 }
 
 sub minipeek {

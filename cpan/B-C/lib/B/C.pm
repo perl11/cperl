@@ -297,7 +297,7 @@ our @EXPORT_OK =
 # but 5.6.2 works fine
 use B
   qw(minus_c sv_undef walkoptree walkoptree_slow main_root main_start peekop
-     class cchar svref_2object compile_stats comppadlist hash
+     cchar svref_2object compile_stats comppadlist hash
      threadsv_names main_cv init_av end_av opnumber cstring
      HEf_SVKEY SVf_POK SVp_POK SVf_ROK SVf_IOK SVf_NOK SVf_IVisUV SVf_READONLY);
 
@@ -3501,7 +3501,7 @@ sub B::PVMG::save_magic {
     $fullname = '' unless $fullname;
     $flagspv = $sv->flagspv if $debug{flags} and $PERL510 and !$sv->MAGICAL;
     warn sprintf( "saving magic for %s %s (0x%x) flags=0x%x%s  - called from %s:%s\n",
-		class($sv), $fullname, $$sv, $sv_flags, $debug{flags} ? "(".$flagspv.")" : "",
+		B::class($sv), $fullname, $$sv, $sv_flags, $debug{flags} ? "(".$flagspv.")" : "",
 		@{[(caller(1))[3]]}, @{[(caller(1))[2]]});
   }
 
@@ -3585,7 +3585,7 @@ sub B::PVMG::save_magic {
       warn sprintf( "%s %s magic\n", $fullname, cchar($type) );
       #eval {
       #  warn sprintf( "magic %s (0x%x), obj %s (0x%x), type %s, ptr %s\n",
-      #                class($sv), $$sv, class($obj), $$obj, cchar($type),
+      #                B::class($sv), $$sv, B::class($obj), $$obj, cchar($type),
       #		      cstring($ptr) );
       #};
     }
@@ -3704,7 +3704,7 @@ sub B::RV::save {
   my $sym = objsym($sv);
   return $sym if defined $sym;
   warn sprintf( "Saving RV %s (0x%x) - called from %s:%s\n",
-		class($sv), $$sv, @{[(caller(1))[3]]}, @{[(caller(1))[2]]})
+		B::class($sv), $$sv, @{[(caller(1))[3]]}, @{[(caller(1))[2]]})
     if $debug{sv};
 
   my $rv = save_rv($sv, $fullname);
@@ -5443,7 +5443,7 @@ sub B::AV::save {
   }
 
   if ( $debug{av} ) {
-    my $line = sprintf( "saving AV %s 0x%x [%s] FILL=%d", $fullname, $$av, class($av), $fill);
+    my $line = sprintf( "saving AV %s 0x%x [%s] FILL=%d", $fullname, $$av, B::class($av), $fill);
     $line .= sprintf( " AvFLAGS=0x%x", $av->AvFLAGS ) if $] < 5.009;
     warn "$line\n";
   }
@@ -5460,7 +5460,7 @@ sub B::AV::save {
 	  $val = $el->IVX if $el->FLAGS & SVf_IOK;
 	  $val = cstring($el->PV) if $el->FLAGS & SVf_POK;
 	}
-        warn sprintf( "AV $av \[%d] = %s $val\n", $i++, class($el) );
+        warn sprintf( "AV $av \[%d] = %s $val\n", $i++, B::class($el) );
       }
     }
 
@@ -6088,7 +6088,7 @@ sub B::SV::save {
   # This is where we catch an honest-to-goodness Nullsv (which gets
   # blessed into B::SV explicitly) and any stray erroneous SVs.
   return 0 unless $$sv;
-  warn sprintf( "cannot save that type of SV: %s (0x%x)\n", class($sv), $$sv );
+  warn sprintf( "cannot save that type of SV: %s (0x%x)\n", B::class($sv), $$sv );
 }
 
 sub output_all {

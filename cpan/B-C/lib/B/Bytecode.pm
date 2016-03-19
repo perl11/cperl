@@ -16,7 +16,7 @@ package B::Bytecode;
 our $VERSION = '1.17';
 
 use 5.008;
-use B qw( class main_cv main_root main_start
+use B qw( main_cv main_root main_start
 	  begin_av init_av end_av cstring comppadlist
 	  OPf_SPECIAL OPf_STACKED OPf_MOD
 	  OPpLVAL_INTRO SVf_READONLY SVf_ROK );
@@ -217,7 +217,7 @@ sub B::OP::ix($) {
     # Note: This left-shift 7 encoding of the optype has nothing to do with OCSHIFT
     # in opcode.pl
     # The counterpart is hardcoded in Byteloader/bytecode.h: BSET_newopx
-    my $arg = $PERL56 ? $optype_enum{class($op)} : $op->size | $op->type << 7;
+    my $arg = $PERL56 ? $optype_enum{B::class($op)} : $op->size | $op->type << 7;
     my $opsize = $PERL56 ? '?' : $op->size;
     if (ref($op) eq 'B::OP') { # check wrong BASEOPs
       # [perl #80622] Introducing the entrytry hack, needed since 5.12,
@@ -278,7 +278,7 @@ sub B::SV::ix($) {
   my $sv = shift;
   my $ix = $svtab{$$sv};
   defined($ix) ? $ix : do {
-    nice '[' . class($sv) . " $tix]";
+    nice '[' . B::class($sv) . " $tix]";
     B::Assembler::maxsvix($tix) if $debug{A};
     my $flags = $sv->FLAGS;
     my $type = $flags & 0xff; # SVTYPEMASK
@@ -302,7 +302,7 @@ sub B::SV::ix($) {
 #  #if ($PERL522) {
 #  #  my $ix = $svtab{$$sv};
 #  #  defined($ix) ? $ix : do {
-#  #    nice '[' . class($sv) . " $tix]";
+#  #    nice '[' . B::class($sv) . " $tix]";
 #  #    B::Assembler::maxsvix($tix) if $debug{A};
 #  #    asm "newpadx", 0,
 #  #      $debug{Comment} ? sprintf("pad_new(flags=0x%x)", 0) : '';
@@ -324,7 +324,7 @@ sub B::PADLIST::ix($) {
   my $padl = shift;
   my $ix = $svtab{$$padl};
   defined($ix) ? $ix : do {
-    nice '[' . class($padl) . " $tix]";
+    nice '[' . B::class($padl) . " $tix]";
     B::Assembler::maxsvix($tix) if $debug{A};
     asm "newpadlx", 0,
      $debug{Comment} ? sprintf("pad_new(flags=0x%x)", 0) : '';
@@ -338,7 +338,7 @@ sub B::PADNAME::ix {
   my $pn = shift;
   my $ix = $svtab{$$pn};
   defined($ix) ? $ix : do {
-    nice '[' . class($pn) . " $tix]";
+    nice '[' . B::class($pn) . " $tix]";
     B::Assembler::maxsvix($tix) if $debug{A};
     my $pv = $pn->PVX;
     asm "newpadnx", $pv ? cstring $pv : "";
@@ -355,7 +355,7 @@ sub B::PADNAMELIST::ix {
   } else {
     my $ix = $svtab{$$padnl};
     defined($ix) ? $ix : do {
-      nice '[' . class($padnl) . " $tix]";
+      nice '[' . B::class($padnl) . " $tix]";
       B::Assembler::maxsvix($tix) if $debug{A};
       my $max = $padnl->MAX;
       asm "newpadnlx", $max,
@@ -392,7 +392,7 @@ sub B::GV::ix {
       }
       else {
         $name = $gv->STASH->NAME . "::"
-          . ( class($gv) eq 'B::SPECIAL' ? '_' : $gv->NAME );
+          . ( B::class($gv) eq 'B::SPECIAL' ? '_' : $gv->NAME );
       }
       nice "[GV $tix]";
       B::Assembler::maxsvix($tix) if $debug{A};
@@ -517,7 +517,7 @@ sub B::NULL::opwalk { 0 }
 sub B::NULL::bsave {
   my ( $sv, $ix ) = @_;
 
-  nice '-' . class($sv) . '-', asm "ldsv", $varix = $ix, sv_flags($sv)
+  nice '-' . B::class($sv) . '-', asm "ldsv", $varix = $ix, sv_flags($sv)
     unless $ix == $varix;
   if ($PERL56) {
     asm "stsv", $ix;
@@ -604,7 +604,7 @@ sub B::PVIV::bsave($$) {
     return if $sv->isa('B::IO');
     return if $sv->isa('B::FM');
   }
-  bwarn( sprintf( "PVIV sv:%s flags:0x%x", class($sv), $sv->FLAGS ) )
+  bwarn( sprintf( "PVIV sv:%s flags:0x%x", B::class($sv), $sv->FLAGS ) )
     if $debug{M};
 
   if ($PERL56) {
@@ -652,7 +652,7 @@ sub B::PVMG::domagic($$) {
     $_ = $mg;
   }
 
-  nice1 '-' . class($sv) . '-', asm "ldsv", $varix = $ix unless $ix == $varix;
+  nice1 '-' . B::class($sv) . '-', asm "ldsv", $varix = $ix unless $ix == $varix;
   for (@mglist) {
     next unless ord($_->TYPE);
     asm "sv_magic", ord($_->TYPE), cstring $_->TYPE;
@@ -1347,7 +1347,7 @@ sub save_begin {
         for ( my $op = $_->START ; $$op ; $op = $op->next ) {
 	  # 1. push|unshift @INC, "libpath"
 	  if ($op->name eq 'gv') {
-            my $gv = class($op) eq 'SVOP'
+            my $gv = B::class($op) eq 'SVOP'
                   ? $op->gv
                   : ( ( $_->PADLIST->ARRAY )[1]->ARRAY )[ $op->padix ];
 	    nice1 '<gv '.$gv->NAME.'>' if $$gv;
@@ -1358,7 +1358,7 @@ sub save_begin {
 	    next unless $op->name eq 'require' ||
               # this kludge needed for tests
               $op->name eq 'gv' && do {
-                my $gv = class($op) eq 'SVOP'
+                my $gv = B::class($op) eq 'SVOP'
                   ? $op->gv
                   : ( ( $_->PADLIST->ARRAY )[1]->ARRAY )[ $op->padix ];
                 $$gv && $gv->NAME =~ /use_ok|plan/;

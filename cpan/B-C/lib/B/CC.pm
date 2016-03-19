@@ -308,7 +308,7 @@ unless ($Config{usecperl}) {
 }
 
 #use 5.008;
-use B qw(main_start main_root class comppadlist peekop svref_2object
+use B qw(main_start main_root comppadlist peekop svref_2object
   timing_info init_av end_av sv_undef
   OPf_WANT_VOID OPf_WANT_SCALAR OPf_WANT_LIST OPf_WANT
   OPf_MOD OPf_STACKED OPf_SPECIAL OPpLVAL_DEFER OPpLVAL_INTRO
@@ -1090,7 +1090,7 @@ sub load_pad {
     my $type   = T_UNKNOWN;
     my $flags  = 0;
     my $name   = "tmp";
-    my $class  = class($namesv);
+    my $class  = B::class($namesv);
     if ( !defined($namesv) || $class eq "SPECIAL" ) {
       # temporaries have &PL_sv_undef instead of a PVNV for a name
       $flags = VALID_SV | TEMPORARY | REGISTER;
@@ -1809,7 +1809,7 @@ sub pp_gvsv {
   my $op = shift;
   my $gvsym;
   if ($ITHREADS) {
-    #debug(sprintf("OP name=%s, class=%s\n",$op->name,class($op))) if $debug{pad};
+    #debug(sprintf("OP name=%s, class=%s\n",$op->name,B::class($op))) if $debug{pad};
     debug( sprintf( "GVSV->padix = %d\n", $op->padix ) ) if $debug{pad};
     $gvsym = $pad[ $op->padix ]->as_sv;
     debug( sprintf( "GVSV->private = 0x%x\n", $op->private ) ) if $debug{pad};
