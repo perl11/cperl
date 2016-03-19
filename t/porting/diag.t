@@ -496,7 +496,6 @@ sub check_message {
 __DATA__
 Malformed UTF-8 character (unexpected non-continuation byte 0x%x, immediately after start byte 0x%x)
 
-alpha->numify() is lossy
 Cannot apply "%s" in non-PerlIO perl
 Cannot set timer
 Can't find DLL name for the module `%s' by the handle %d, rc=%u=%x
