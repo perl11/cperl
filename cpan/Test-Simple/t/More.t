@@ -2,8 +2,7 @@
 
 BEGIN {
     if( $ENV{PERL_CORE} ) {
-        chdir 't';
-        @INC = qw(../lib ../lib/Test/Simple/t/lib);
+        @INC = qw(../../lib t/lib);
     }
 }
 
