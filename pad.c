@@ -274,7 +274,7 @@ Perl_pad_new(pTHX_ int flags)
 	  "Pad 0x%"UVxf"[%ld] 0x%"UVxf" new:       compcv=0x%"UVxf
 	  " name=0x%"UVxf" flags=0x%"UVxf" %s\n",
 	  PTR2UV(PL_comppad), (long)AvFILLp(PL_comppad), PTR2UV(PL_curpad), PTR2UV(PL_compcv),
-          PTR2UV(padname), (UV)flags, CvNAMEPV(PL_compcv)));
+          PTR2UV(padname), (UV)flags, PL_compcv ? CvNAMEPV(PL_compcv) :""));
 
     return (PADLIST*)padlist;
 }
