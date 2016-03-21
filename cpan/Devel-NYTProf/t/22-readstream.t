@@ -80,9 +80,8 @@ cmp_ok $attr{basetime}, '>=', $^T, 'basetime';
 
 my @sub_info_sorted = sort { $a->[3] cmp $b->[3] } @{$prof{SUB_INFO}};
 is_deeply \@sub_info_sorted, [
-    [1, 1, 1, "main::A"],
-    [1, 0, 0, "main::BEGIN"],
-    [1, 1, 1, "main::RUNTIME"],
+    [1, 1, 1, "A"],
+    [1, 0, 0, "BEGIN"],
 ];
 
 $prof{SUB_CALLERS}[0][$_] = 0 for (3,4);
