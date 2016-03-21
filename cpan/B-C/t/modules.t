@@ -170,7 +170,7 @@ for my $module (@modules) {
       $skip++;
       log_pass("skip", "$module", 0);
 
-      skip("$module not installed", 4 * scalar @opts);
+      skip("$module not installed", int(4 * scalar @opts));
       next MODULE;
     }
     if (is_skip($module)) { # !$have_IPC_Run is not really helpful here
@@ -178,7 +178,7 @@ for my $module (@modules) {
       $skip++;
       log_pass("skip", "$module #$why", 0);
 
-      skip("$module $why", 4 * scalar @opts);
+      skip("$module $why", int(4 * scalar @opts));
       next MODULE;
     }
     $module = 'if(1) => "Sys::Hostname"' if $module eq 'if';
