@@ -69,7 +69,7 @@ Test::Harness cpan/Test-Harness/t/sample-tests/switches 350f7e96e4bfb8dbac352200
 Test::Harness cpan/Test-Harness/t/source_handler.t 54464b3f4c563f35e598d5f573942bf7dd78c799
 YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL 337cdac5c5fb344a651546e856f9c9a2a7dc706a
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 37441ba0eff59df1e75d7c2db64d9b478a8ffc60
-YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm b9846cabfa2ede801c6df9357a97f8ccdc207119
+YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm c18836415c5d185eae1cb829e0f0b3c18135d2a0
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
 threads dist/threads/lib/threads.pm 823801460379df234e54e35e1a40017d84160e6e
