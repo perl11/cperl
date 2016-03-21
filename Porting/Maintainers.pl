@@ -469,8 +469,8 @@ use File::Glob qw(:case);
                                 lib/Devel/NYTProf/FileInfo.pm
                                 t/lib/NYTProfTest.pm
                                 t/00-load.t
-                              ),
-                          ],
+                                t/22-readstream.t
+                              )],
     },
 
     'Devel::PPPort' => {

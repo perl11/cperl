@@ -13,6 +13,7 @@ Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415
 Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL 7f81aa41bdf306a943ffa17d5b1dbf6717151ccf
 Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod 197e08c2c2cc300d8166da35738a1a51ebdb960a
 Devel::NYTProf cpan/Devel-NYTProf/t/00-load.t e7821564000c7227a0b7deafdad0740b8327b39f
+Devel::NYTProf cpan/Devel-NYTProf/t/22-readstream.t 58f166ae768877e8f2ec4a6149b6ba35faa11ead
 Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm bc6efbd91bce9b1eae3c341c482dde0ac4c990c5
 Devel::PPPort cpan/Devel-PPPort/parts/apidoc.fnc 3faecacac4bb093ca066af2b892aaa56fc4d31b9
 Devel::PPPort cpan/Devel-PPPort/parts/inc/gv 54a8bc4263e46774bbec94486f90f6be220ee9bb
