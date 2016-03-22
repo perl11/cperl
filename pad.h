@@ -374,7 +374,7 @@ Restore the old pad saved into the local variable C<opad> by C<PAD_SAVE_LOCAL()>
 
 
 #define PAD_SET_CUR_NOSAVE(padlist,nth) \
-	PL_comppad = (PAD*) (PadlistARRAY(padlist)[nth]);	\
+	PL_comppad = PadlistARRAY(padlist)[nth];	\
 	PL_curpad = AvARRAY(PL_comppad);			\
 	DEBUG_Xv(PerlIO_printf(Perl_debug_log,			\
 	      "Pad 0x%" UVxf "[%ld] 0x%" UVxf " set_cur    depth=%d\n",	\

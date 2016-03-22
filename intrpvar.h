@@ -142,7 +142,7 @@ PERLVARI(I, reg_curpm, PMOP*, NULL)
 PERLVARI(I, regmatch_slab, regmatch_slab *,	NULL)
 PERLVAR(I, regmatch_state, regmatch_state *)
 
-PERLVAR(I, comppad,	PAD *)		/* storage for lexically scoped temporaries */
+PERLVAR(I, comppad,	AV *)		/* AV for lexically scoped temporaries */
 
 /*
 =for apidoc Amn|SV|PL_sv_undef

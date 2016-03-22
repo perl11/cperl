@@ -405,7 +405,7 @@ PPt(pp_padsv, "(:Any):Any")
 	{
 	    dTARG;
 	    TARG = *padentry;
-            DEBUG_Xv(Perl_deb(aTHX_ "padsv padp %p [%lu] => tops %p\n",
+            DEBUG_Xv(Perl_deb(aTHX_ "  padsv padp %p [%lu] => tops %p\n",
                               TARG, op->op_targ, TOPs));
 	    PUSHs(TARG);
 	    PUTBACK; /* no pop/push after this, TOPs ok */
@@ -482,11 +482,11 @@ PPt(pp_preinc, "(:Scalar):Scalar")
                 == SVf_IOK))
         && SvIVX(sv) != IV_MAX)
     {
-        DEBUG_Xv(Perl_deb(aTHX_ "preinc fast tops %p\n", sv));
+        DEBUG_Xv(Perl_deb(aTHX_ "  preinc fast tops %p\n", sv));
 	SvIV_set(sv, SvIVX(sv) + 1);
     }
     else { /* Do all the PERL_PRESERVE_IVUV and hard cases in sv_inc */
-        DEBUG_Xv(Perl_deb(aTHX_ "preinc slow tops %p\n", sv));
+        DEBUG_Xv(Perl_deb(aTHX_ "  preinc slow tops %p\n", sv));
 	sv_inc(sv);
     }
     SvSETMAGIC(sv);
@@ -4409,7 +4409,7 @@ PP(pp_signature)
             /* use caller pad as new pad, and restore it at leavesub */
             assert(argc);
             argc--;
-            DEBUG_Xv(Perl_deb(aTHX_ "sigref padp %p = argp %p\n", *padp, *argp));
+            DEBUG_Xv(Perl_deb(aTHX_ "  sigref padp %p = argp %p\n", *padp, *argp));
             /* copy back temp pad to old sv at leavesub */
             save_pushptrptr(argp, padp, SAVEt_SPTR);
             SvPADSTALE_on(*padp); /* mark our pad as inactive */
@@ -4434,7 +4434,7 @@ PP(pp_signature)
 #ifdef DEBUGGING
             po = pad_ix;
 #endif
-            DEBUG_Xv(Perl_deb(aTHX_ "sigpad padp %p curpad[%lu] %s\n", *padp, po,
+            DEBUG_Xv(Perl_deb(aTHX_ "  sigpad padp %p curpad[%lu] %s\n", *padp, po,
                               PadnamePV(padnl[po])));
             while (varcount--) {
                 if (*svp)
@@ -4477,7 +4477,7 @@ PP(pp_signature)
             /* When refs are faster by inlining, do not copy constants, ref them */
 #ifdef DEBUGGING
             if (action == SIGNATURE_arg && argc && *argp && SvREADONLY(*argp)) {
-              DEBUG_Xv(Perl_deb(aTHX_ "sigconst argp %p\n", *argp));
+              DEBUG_Xv(Perl_deb(aTHX_ "  sigconst argp %p\n", *argp));
 #if 0
               goto handle_ref;
 #endif
@@ -4494,7 +4494,7 @@ PP(pp_signature)
                     break;
                 }
                 argsv = *argp++;
-                DEBUG_Xv(Perl_deb(aTHX_ "sigcopy padp %p %s = argp %p\n", varsv,
+                DEBUG_Xv(Perl_deb(aTHX_ "  sigcopy padp %p %s = argp %p\n", varsv,
                                   PadnamePV(padnl[po++]), argsv));
                 if (UNLIKELY(!argsv))
                     argsv = &PL_sv_undef;
