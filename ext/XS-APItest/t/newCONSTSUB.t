@@ -14,7 +14,7 @@ use XS::APItest;
  local $SIG{__WARN__} = sub { $w .= shift };
  sub frimple() { 78 }
  newCONSTSUB_flags(\%::, "frimple", 0, undef);
- like $w, qr/Constant subroutine frimple redefined at /,
+ like $w, qr/Constant subroutine frimple redefined/,
    'newCONSTSUB constant redefinition warning is unaffected by $^W=0';
  undef $w;
  newCONSTSUB_flags(\%::, "frimple", 0, undef);
@@ -62,11 +62,11 @@ eval q{
  my $w;
  local $SIG{__WARN__} = sub { $w .= shift };
  newCONSTSUB_flags(\%foo::, "\x{100}", 0, undef);
- like $w, qr/Subroutine \x{100} redefined at /,
+ like $w, qr/Subroutine \x{100} redefined/,
    'newCONSTSUB redefinition warning + utf8';
  undef $w;
  newCONSTSUB_flags(\%foo::, "\x{100}", 0, 54);
- like $w, qr/Constant subroutine \x{100} redefined at /,
+ like $w, qr/Constant subroutine \x{100} redefined/,
    'newCONSTSUB constant redefinition warning + utf8';
 }
 

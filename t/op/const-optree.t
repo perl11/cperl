@@ -456,7 +456,7 @@ for \%_ (@tests) {
         *temp_inlinability_test = sub (){};
 	my $S = $_{inlinable} ? "Constant s" : "S";
         my $not = " not" x! $_{inlinable};
-        like $w, qr/^${S}ubroutine .* redefined at /,
+        like $w, qr/^${S}ubroutine .* redefined/,
                 "$nickname is$not inlinable";
     }
     if (exists $_{method}) {

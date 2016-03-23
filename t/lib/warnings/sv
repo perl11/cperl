@@ -282,7 +282,7 @@ no warnings 'redefine' ;
 sub jim {} 
 *jim = \&joe ;
 EXPECT
-Subroutine main::fred redefined at - line 5.
+Subroutine main::fred redefined, called by -:0 at - line 5.
 ########
 # sv.c
 use warnings 'printf' ;
@@ -373,7 +373,7 @@ no warnings 'redefine' ;
 sub jìm {} 
 *jìm = \&jòè ;
 EXPECT
-Subroutine main::frèd redefined at - line 7.
+Subroutine main::frèd redefined, called by -:0 at - line 7.
 ########
 # sv.c
 use warnings 'redefine' ;
@@ -386,7 +386,7 @@ no warnings 'redefine' ;
 sub 짐 {} 
 *짐 = \&조Ȩ ;
 EXPECT
-Subroutine main::ｆ렏 redefined at - line 7.
+Subroutine main::ｆ렏 redefined, called by -:0 at - line 7.
 ########
 # sv.c
 sprintf "%vd", new version v1.1_0;

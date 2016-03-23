@@ -52,7 +52,13 @@ foreach my $prog (@prgs) {
 
     $expected =~ s/\n+$//;
 
-    fresh_perl_is($prog, $expected, { switches => [$switch || ''] }, $name);
+    # expand temp filename to a regex
+    if ($expected =~ m/^(.*)tmpXXXXXX(.*)$/s) {
+        $expected = qr/\Q$1\Etmp\w+\Q$2\E/;
+        fresh_perl_like($prog, $expected, { switches => [$switch || ''] }, $name);
+    } else {
+        fresh_perl_is($prog, $expected, { switches => [$switch || ''] }, $name);
+    }
 }
 
 __END__
@@ -336,7 +342,7 @@ foo;
 foo;
 EXPECT
 In foo1
-Subroutine foo redefined at (eval 1) line 1.
+Subroutine foo redefined, called by tmpXXXXXX:4 at (eval 1) line 1.
 Exiting foo1
 In foo2
 ########

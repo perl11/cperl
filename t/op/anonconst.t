@@ -41,7 +41,7 @@ is &{sub () : const { 42 }}, 42, ':const with truly constant sub';
     my $w;
     local $SIG{__WARN__} = sub { $w .= shift };
     *foo = sub (){};
-    like $w, qr/^Constant subroutine main::foo redefined at /,
+    like $w, qr/^Constant subroutine main::foo redefined/,
         ':const subs are constant';
 }
 
