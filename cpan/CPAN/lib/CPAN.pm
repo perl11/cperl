@@ -517,9 +517,9 @@ sub _flock {
 }
 
 sub _yaml_module () {
-    my $yaml_module = $CPAN::Config->{yaml_module} || "YAML";
+    my $yaml_module = $CPAN::Config->{yaml_module} || "YAML::XS";
     if (
-        $yaml_module ne "YAML"
+        $yaml_module ne "YAML::XS"
         &&
         !$CPAN::META->has_inst($yaml_module)
        ) {
@@ -556,7 +556,13 @@ sub _yaml_loadfile {
         ${ "$yaml_module\::LoadCode" } = $CPAN::Config->{yaml_load_code} || 0;
 
         my ($code, @yaml);
-        if ($code = UNIVERSAL::can($yaml_module, "LoadFile")) {
+        if ($code = UNIVERSAL::can($yaml_module, "SafeLoadFile")) {
+            eval { @yaml = $code->($local_file); };
+            if ($@) {
+                # this shall not be done by the frontend
+                die CPAN::Exception::yaml_process_error->new($yaml_module,$local_file,"parse",$@);
+            }
+        } elsif ($code = UNIVERSAL::can($yaml_module, "LoadFile")) {
             eval { @yaml = $code->($local_file); };
             if ($@) {
                 # this shall not be done by the frontend
@@ -591,6 +597,8 @@ sub _yaml_dumpfile {
         if (UNIVERSAL::isa($local_file, "FileHandle")) {
             $code = UNIVERSAL::can($yaml_module, "Dump");
             eval { print $local_file $code->(@what) };
+        } elsif ($code = UNIVERSAL::can($yaml_module, "SafeDumpFile")) {
+            eval { $code->($local_file,@what); };
         } elsif ($code = UNIVERSAL::can($yaml_module, "DumpFile")) {
             eval { $code->($local_file,@what); };
         } elsif ($code = UNIVERSAL::can($yaml_module, "Dump")) {
