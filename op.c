@@ -15007,12 +15007,29 @@ Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_cv,
 	 && ckWARN_d(WARN_REDEFINE)
 	 && (!new_const_svp || sv_cmp(old_const_sv, *new_const_svp))
 	)
-    )
-	Perl_warner(aTHX_ packWARN(WARN_REDEFINE),
+      ) {
+        /* which module/srcline caused this forced require/do/eval redefinition */
+        if (cxstack_ix >= 0) {
+            const COP* const  cop  = cxstack[cxstack_ix].blk_oldcop;
+            const char* const file = cop ? OutCopFILE(cop) : "";
+            const char* const display_file = file ? file : "";
+            const long line = cop ? (long)CopLINE(cop) : 0;
+
+            if (!*file && !line) goto no_caller;
+            Perl_warner(aTHX_ packWARN(WARN_REDEFINE),
+			  is_const
+			    ? "Constant subroutine %"SVf" redefined, called by %s:%ld"
+			    : "Subroutine %"SVf" redefined, called by %s:%ld",
+                          SVfARG(name), display_file, line);
+        } else {
+        no_caller:
+            Perl_warner(aTHX_ packWARN(WARN_REDEFINE),
 			  is_const
 			    ? "Constant subroutine %"SVf" redefined"
 			    : "Subroutine %"SVf" redefined",
-			  SVfARG(name));
+                          SVfARG(name));
+        }
+    }
 }
 
 /*

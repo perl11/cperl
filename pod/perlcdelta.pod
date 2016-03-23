@@ -75,6 +75,13 @@ with embedders and the compiler.
 
 =item *
 
+Enhanced the warnings message for warnings 'redefine' to print the caller
+location also. (# 113)
+Note that this did not violate the documented diagnostics in perldiag.pod,
+but the tests for Sub::Install and Test::Trap still need to be patched.
+
+=item *
+
 Add support for additional F<pod/perlcdelta.pod> in F<Porting/pod_rules.pl>.
 
 =item *

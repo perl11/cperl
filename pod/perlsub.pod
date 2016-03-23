@@ -1792,6 +1792,15 @@ different than the warning for overriding non-inlined subroutines:
     $ perl -we 'sub one {1} sub one {2}'
     Subroutine one redefined at -e line 1.
 
+When the redefinition is caused by a wrong action in an upper scope,
+this location is printed also. E.g. by a C<require> and after messing
+with C<%INC>, a C<do FILE> statement, or an C<eval>. You generally
+want to know who caused this error, not where the function is defined.
+
+    $ perl -we 'do "utf8.pm";
+    do "utf8.pm";'
+    Subroutine import redefined, called by -e:2 at lib/utf8.pm line 7.
+
 The warning is considered severe enough not to be affected by the
 B<-w> switch (or its absence) because previously compiled invocations
 of the function will still be using the old value of the function.  If
@@ -1802,6 +1811,14 @@ mechanism in some other way, e.g. by adding an explicit C<return>, as
 mentioned above:
 
     sub not_inlined () { return 23 }
+
+Note that with B<cperl> this C<return> statement or the C<()> prototype does
+not prevent the function from being inlined if it's otherwise inlinable.
+You will be able to use the C<:-inline> attribute there (I<NYI>).
+
+    sub not_inlined () :-inline { 23 }
+    sub not_inlined :-inline { return 23 }
+    sub not_inlined :-inline { 23 }
 
 =head2 Pure Functions
 X<:pure>
