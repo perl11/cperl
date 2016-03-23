@@ -3053,7 +3053,9 @@ cpan/YAML-LibYAML/t/boolean.t
 cpan/YAML-LibYAML/t/bug-pvf.t
 cpan/YAML-LibYAML/t/bug-stack.t
 cpan/YAML-LibYAML/t/code.t
+cpan/YAML-LibYAML/t/cpan.t
 cpan/YAML-LibYAML/t/data/basic.yml
+cpan/YAML-LibYAML/t/data/cpan.yml
 cpan/YAML-LibYAML/t/dump-heuristics.t
 cpan/YAML-LibYAML/t/dump.t
 cpan/YAML-LibYAML/t/empty.t

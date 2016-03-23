@@ -1,0 +1,40 @@
+# CPAN::Meta non-strict variant
+#
+__DATA__
+=== Very Simple List
++++ yaml
+---
+- one
+- two
++++ perl
+[
+"one",
+"two"
+]
++++ libyaml_emit
+---
+- one
+- two
+
+=== Embedded control chars in strings (regex)
++++ yaml
+---
+comment: "wrong return or precedence [cpan #87202]"
+match:
+  distribution: "Alien-wxWidgets-0\.64"
+patches:
+  - "RURBAN/patches/Alien-wxWidgets-0.64-returnor.patch"
++++ perl
+{
+  comment => "wrong return or precedence [cpan #87202]",
+  match   => { distribution => "Alien-wxWidgets-0\\.64" },
+  patches => ["RURBAN/patches/Alien-wxWidgets-0.64-returnor.patch"],
+}
++++ libyaml_emit
+---
+comment: "wrong return or precedence [cpan #87202]"
+match:
+  distribution: "Alien-wxWidgets-0\.64"
+patches:
+  - "RURBAN/patches/Alien-wxWidgets-0.64-returnor.patch"
+
