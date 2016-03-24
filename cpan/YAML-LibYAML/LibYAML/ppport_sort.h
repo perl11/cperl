@@ -11,13 +11,13 @@
         PerlInterpreter *orig_perl = PERL_GET_CONTEXT; \
         SAVESPTR(orig_perl); \
         PERL_SET_CONTEXT(aTHX); \
-        qsort((char *) AvARRAY(av), len, sizeof(SV *), sortcmp); \
+        qsort((char *) AvARRAY(av), AvFILLp(av), sizeof(SV *), sortcmp); \
         } LEAVE;
 
 #else /* ! USE_ITHREADS */
 
 #define STORE_HASH_SORT \
-        qsort((char *) AvARRAY(av), len, sizeof(SV *), sortcmp);
+        qsort((char *) AvARRAY(av), AvFILLp(av), sizeof(SV *), sortcmp);
 
 #endif  /* USE_ITHREADS */
 
