@@ -17,6 +17,10 @@ For B<cperl> see F<Changes> and L<perlcperl>
 
 =item *
 
+Hash security: Disable PERL_HASH_SEED_DEBUG with -t or -T (#114)
+
+=item *
+
 Added support for static HEK and AV with B::C, with 6-10% memory
 improvements for compiled code.
 
@@ -90,6 +94,12 @@ but the tests for Sub::Install and Test::Trap still need to be patched.
 
 Add support for additional F<pod/perlcdelta.pod> in F<Porting/pod_rules.pl>.
 
+=back
+
+=head1 Core Enhancements from Perl5
+
+=over 4
+
 =item *
 
 Make Configure -O behaviour the default
@@ -144,8 +154,8 @@ The only way to test sv_dump properly.
 
 A fast and standard YAML en-/decoder. You should not use PP.
 With most compiler warnings fixed, PERL_CORE specific test changes
-and new options IndentlessMap for YAML.pm compatibility and StrictMode
-to pass the validator tests.
+and new options C<IndentlessMap> for C<YAML.pm> compatibility and C<NonStrict>
+mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =back
 

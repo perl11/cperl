@@ -12,7 +12,7 @@ BEGIN {
     skip_all_without_config('d_fork');
 }
 
-plan tests => 104;
+plan tests => 106;
 
 my $STDOUT = tempfile();
 my $STDERR = tempfile();
@@ -216,6 +216,12 @@ try({PERL_HASH_SEED_DEBUG => 1},
 
 my $usecperl = $Config::Config{usecperl}; # also with PERL_PERTURB_KEYS_DISABLED
 my $perturb = $usecperl ? "0" : "2";
+
+# security, disable with -t
+try({PERL_HASH_SEED_DEBUG => 1, PERL_HASH_SEED => "0"},
+    ['-t', '-e','1'],
+    '',
+    '');
 
 # special case, seed "0" implies disabled hash key traversal randomization
 try({PERL_HASH_SEED_DEBUG => 1, PERL_HASH_SEED => "0"},
