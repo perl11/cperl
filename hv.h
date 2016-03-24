@@ -13,8 +13,9 @@
  * See perlrun for more details. */
 
 #if defined(USE_CPERL)
-/* performance. a random seed is enough for us */
-/* move found bucket to the top for best performance */
+/* Performance. A random seed with a zero-invariant hash-function is good enough for us,
+   and if they want to DDOS there are much easier ways. */
+/*# define PERL_PERTURB_KEYS_DISABLED*/
 # define PERL_PERTURB_KEYS_TOP
 #endif
 

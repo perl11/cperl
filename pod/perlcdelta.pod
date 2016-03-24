@@ -22,6 +22,12 @@ improvements for compiled code.
 
 =item *
 
+Better hash table collision resolution strategy: PERL_PERTURB_KEYS_TOP
+Still a linked list, but move the found element to the top. This disables
+PERL_HASH_RANDOMIZE_KEYS.
+
+=item *
+
 Better support for -DC and -DCv debugging, with new REFCNT statistics.
 Added CowREFCNT_inc,dec and overflow assertions.
 

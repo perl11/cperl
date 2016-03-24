@@ -761,21 +761,25 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	    Safefree(key);
 
 #ifdef PERL_PERTURB_KEYS_TOP
-        /* move found bucket to the top
-           oe -> e -> B      => e -> oe -> B
-           oe -> A -> e -> B => e -> oe -> A -> B */
+        /* move found bucket to the front
+           oe -> e -> A           => e -> oe -> A
+           oe -> A .. X -> e -> B => e -> oe -> A .. X -> B */
         if (!HvEITER_get(hv) && entry != *oentry) {
             if (HeNEXT(*oentry) == entry) {
                 DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH move up %d\t%s{%s}\n",
                                       1, HvNAME_get(hv)?HvNAME_get(hv):"", key));
                 HeNEXT(*oentry) = HeNEXT(entry);
             } else {
+                HE* x;
                 DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH move up %d\t%s{%s}\n",
                                       2, HvNAME_get(hv)?HvNAME_get(hv):"", key));
-                HeNEXT(HeNEXT(*oentry)) = HeNEXT(entry);
+                /* find X, the one before e */
+                for (x = HeNEXT(*oentry); HeNEXT(x) != entry; x = HeNEXT(x));
+                HeNEXT(x) = HeNEXT(entry);
             }
             HeNEXT(entry) = *oentry;
             *oentry = entry;
+            /*DEBUG_H(HvTOTALKEYS(hv) < 11 ? Perl_hv_dump(hv, 0) : "");*/
         }
 #endif
 
@@ -970,8 +974,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
             clear_placeholders(hv, items);
             if (DO_HSPLIT(xhv))
                 hsplit(hv, oldsize, oldsize * 2);
-        } else
+        } else {
             hsplit(hv, oldsize, oldsize * 2);
+        }
     }
 
     if (return_svp) {
@@ -1437,7 +1442,7 @@ void
 Perl_hv_ksplit(pTHX_ HV *hv, IV newmax)
 {
     XPVHV* xhv = (XPVHV*)SvANY(hv);
-    const I32 oldsize = (I32) xhv->xhv_max+1; /* HvMAX(hv)+1 (sick) */
+    const I32 oldsize = (I32) xhv->xhv_max+1; /* HvMAX(hv)+1 */
     I32 newsize;
     char *a;
 
@@ -2261,7 +2266,7 @@ Perl_hv_rand_set(pTHX_ HV *hv, U32 new_xhv_rand) {
     }
     iter->xhv_rand = new_xhv_rand;
 #else
-    croak("This Perl has not been built with support for randomized hash key traversal but something called Perl_hv_rand_set.");
+    Perl_croak_nocontext("This Perl has not been built with support for randomized hash key traversal but something called Perl_hv_rand_set().");
 #endif
 }
 

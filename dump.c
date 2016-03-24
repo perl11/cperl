@@ -2628,6 +2628,36 @@ Perl_debprofdump(pTHX)
     }
 }
 
+#ifdef DEBUGGING
+
+/* dump the hv keys and optionally values */
+void
+Perl_hv_dump(pTHX_ SV* sv, bool with_values)
+{
+    PerlIO* file = Perl_debug_log;
+    HE **ents = HvARRAY(sv);
+    int level = 0;
+    int i;
+    Perl_dump_indent(aTHX_ level, file, "KEYS = %"IVdf"\n", (IV)HvUSEDKEYS(sv));
+    Perl_dump_indent(aTHX_ level, file, "ARRAY = 0x%"UVxf"\n", PTR2UV(ents));
+    if (ents && HvUSEDKEYS(sv)) {
+        for (i = 0; (STRLEN)i <= HvMAX(sv); i++) {
+            HE* h;
+	    PerlIO_printf(file, "[%d]: ", i);
+            for (h = ents[i]; h; h = HeNEXT(h)) {
+                if (with_values)
+                    PerlIO_printf(file, "\"%s\" => %s", HeKEY(h), sv_peek(HeVAL(h)));
+                else
+                    PerlIO_printf(file, "\"%s\"", HeKEY(h));
+                if (HeNEXT(h))
+                    PerlIO_printf(file, ", ");
+            }
+            PerlIO_printf(file, "\n");
+        }
+    }
+}
+
+#endif
 
 /*
  * ex: set ts=8 sts=4 sw=4 et:
