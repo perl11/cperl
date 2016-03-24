@@ -332,7 +332,7 @@ SKIP: {
     $c = ($a = "\x89\x8a\x8b\x8c\x8d\x8f\x90\x91") =~ tr/i-j/X/;
     is($c, 2);
     is($a, "X\x8a\x8b\x8c\x8d\x8f\x90X");
-   
+
     $c = ($a = "\xc9\xca\xcb\xcc\xcd\xcf\xd0\xd1") =~ tr/I-J/X/;
     is($c, 2);
     is($a, "X\xca\xcb\xcc\xcd\xcf\xd0X");

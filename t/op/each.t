@@ -5,6 +5,7 @@ BEGIN {
     @INC = '../lib';
     require './test.pl';
 }
+use Config ();
 
 plan tests => 59;
 
@@ -250,8 +251,12 @@ for my $k (qw(each keys values)) {
     is join ("-", each %h), '1-2',
 	'each on apparently empty hash does not leave RITER set';
 }
-{
+
+my $PERL_HASH_RANDOMIZE_KEYS = !$Config::Config{usecperl};
+SKIP: {
     my $warned= 0;
+    skip "each() after iteration is safe without PERL_HASH_RANDOMIZE_KEYS", 2
+         if !$PERL_HASH_RANDOMIZE_KEYS;
     local $SIG{__WARN__}= sub {
         /\QUse of each() on hash after insertion without resetting hash iterator results in undefined behavior\E/
             and $warned++ for @_;

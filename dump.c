@@ -1813,8 +1813,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
             if (HvRAND_get(sv) != HvLASTRAND_get(sv) && HvRITER_get(sv) != -1 ) {
                 PerlIO_printf(file, " (LAST = 0x%"UVxf")", (UV)HvLASTRAND_get(sv));
             }
-#endif
             PerlIO_putc(file, '\n');
+#endif
         }
 	{
 	    MAGIC * const mg = mg_find(sv, PERL_MAGIC_symtab);

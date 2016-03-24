@@ -203,7 +203,8 @@ END
 # can we slice ENV?
 @val1 = @ENV{keys(%ENV)};
 @val2 = values(%ENV);
-is join(':',@val1), join(':',@val2);
+# PERL_PERTURB_KEYS_TOP changes the order, so sort it
+is join(':',sort @val1), join(':',sort @val2);
 cmp_ok @val1, '>', 1;
 
 # deleting $::{ENV}

@@ -1310,6 +1310,15 @@ B<NOTE:> Use of this option is considered insecure, and is intended only
 for debugging non-deterministic behavior in Perl's hash function. Do
 not use it in production.
 
+With B<cperl> C<PERL_PERTURB_KEYS> is hardcoded by default to C<"0">
+and B<"TOP">, which disables the default perl5 traversal
+randomization. On each lookup the key is moved to the front of the
+collison chain, for subsequent faster lookups of the same key.
+
+With C<PERL_PERTURB_KEYS_DISABLED> being defined C<PERL_PERTURB_KEYS>
+is hardcoded to C<"0"> and B<"DISABLED">, which also disables the
+default perl5 traversal randomization.
+
 See L<perlsec/"Algorithmic Complexity Attacks"> and L</PERL_HASH_SEED>
 and L</PERL_HASH_SEED_DEBUG> for more information. You can get and set the
 key traversal mask for a specific hash by using the C<hash_traversal_mask()>

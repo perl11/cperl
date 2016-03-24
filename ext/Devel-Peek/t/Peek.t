@@ -31,6 +31,7 @@ $::mmmm
 .
 
 use constant thr => $Config{useithreads};
+use constant cperl => $Config{usecperl};
 
 sub do_test {
     my $todo = $_[3];
@@ -59,6 +60,7 @@ sub do_test {
 	if (open(IN, "peek$$")) {
 	    local $/;
 	    $pattern =~ s/FLAGS = \\/FLAGS = \$ADDR \\/g if $] >= 5.021011;
+	    $pattern =~ s/\n    RAND = \$ADDR//mg if cperl and $] >= 5.022002;
 	    $pattern =~ s/\$ADDR/0x[[:xdigit:]]+/g;
 	    $pattern =~ s/\$FLOAT/(?:\\d*\\.\\d+(?:e[-+]\\d+)?|\\d+)/g;
 	    # handle DEBUG_LEAKING_SCALARS prefix

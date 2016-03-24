@@ -1502,11 +1502,18 @@ perl_parse(pTHXx_ XSINIT_t xsinit, int argc, char **argv, char **env)
             while (seed < seed_end) {
                 PerlIO_printf(Perl_debug_log, "%02x", *seed++);
             }
-#ifdef PERL_HASH_RANDOMIZE_KEYS
             PerlIO_printf(Perl_debug_log, " PERTURB_KEYS = %d (%s)",
                     PL_HASH_RAND_BITS_ENABLED,
-                    PL_HASH_RAND_BITS_ENABLED == 0 ? "NO" : PL_HASH_RAND_BITS_ENABLED == 1 ? "RANDOM" : "DETERMINISTIC");
+                    PL_HASH_RAND_BITS_ENABLED == 0 ?
+#ifdef PERL_HASH_RANDOMIZE_KEYS
+                          "NO"
+#elif defined(PERL_PERTURB_KEYS_DISABLED)
+                          "DISABLED"
+#elif defined(PERL_PERTURB_KEYS_TOP)
+                          "TOP"
 #endif
+                    : PL_HASH_RAND_BITS_ENABLED == 1 ? "RANDOM"
+                    : PL_HASH_RAND_BITS_ENABLED == 2 ? "DETERMINISTIC" : "?");
             PerlIO_printf(Perl_debug_log, "\n");
         }
     }
