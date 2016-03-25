@@ -410,7 +410,14 @@ sub save {
   else {
     carp "'$file' should end in '.yml'"
       unless $file =~ m{\.yml$};
+
+    # https://github.com/ingydotnet/yaml-libyaml-pm/issues/46
+    if (($Config{usecperl} and !$ENV{PERL_YAML_BACKEND})
+        or $ENV{PERL_YAML_BACKEND} eq 'YAML::XS') {
+      $layer = '';
+    }
   }
+  #TODO: use Parse::CPAN::Meta->*_backend DumpFile, not as_string
 
   my $data = $self->as_string( $options );
   open my $fh, ">$layer", $file
