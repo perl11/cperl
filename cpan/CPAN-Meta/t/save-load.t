@@ -18,6 +18,7 @@ my $distmeta = {
   author   => [
     'Ken Williams <kwilliams@cpan.org>',
     'Module-Build List <module-build@perl.org>', # additional contact
+    "יובל קוג'מן (Yuval Kogman) <nothingmuch\@woobling.org>",
   ],
   release_status => 'stable',
   license  => [ 'perl_5' ],
@@ -73,7 +74,8 @@ my $distmeta = {
 };
 
 my $meta = CPAN::Meta->new( $distmeta );
-
+my $jbackend = Parse::CPAN::Meta->json_backend();
+my $ybackend = Parse::CPAN::Meta->yaml_backend();
 my $tmpdir = File::Temp->newdir();
 my $metafile = File::Spec->catfile( $tmpdir, 'META.json' );
 
@@ -85,8 +87,8 @@ is($loaded->{name},     'Module-Build', 'name correct');
 
 like(
   $loaded->{x_serialization_backend},
-  qr/\ACpanel::JSON::XS version [0-9]/,
-  "x_serialization_backend",
+  qr/\A$jbackend version [0-9]/,
+  "x_serialization_backend $jbackend",
 );
 
 ok(
@@ -110,8 +112,8 @@ is( $loaded->{requires}{perl}, "5.006", 'prereq correct' );
 
 like(
   $loaded->{x_serialization_backend},
-  qr/\AYAML::XS version [0-9]/,
-  "x_serialization_backend",
+  qr/\A$ybackend version [0-9]/,
+  "x_serialization_backend $ybackend",
 );
 
 ok(

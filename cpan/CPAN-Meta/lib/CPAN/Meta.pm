@@ -415,7 +415,10 @@ sub save {
 
     # https://github.com/ingydotnet/yaml-libyaml-pm/issues/46
     my $backend = Parse::CPAN::Meta->yaml_backend();
-    if ($backend =~ /^YAML::(Syck|XS)$/) {
+    $layer = '' if $backend =~ /^YAML::(Syck|XS)$/;
+
+    # TODO: fix utf8 for DumpFile
+    if (0 and $backend =~ /^YAML::(Syck|XS)$/) {
       # rather dump directly to a file
       my $version = $options->{version} || '2';
       my $struct;
