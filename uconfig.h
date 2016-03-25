@@ -4088,6 +4088,13 @@
  */
 /*#define HAS_MALLOC_GOOD_SIZE	/ **/
 
+/* HAS_MEMMEM:
+ *	This symbol, if defined, indicates that the memmem routine is
+ *	available to return a pointer to the start of the first occurance
+ *	of a substring in a memory area (or NULL if not found).
+ */
+/*#define HAS_MEMMEM		/ **/
+
 /* HAS_MKDTEMP:
  *	This symbol, if defined, indicates that the mkdtemp routine is
  *	available to exclusively create a uniquely named temporary directory.
@@ -5332,6 +5339,6 @@
 #endif
 
 /* Generated from:
- * 5ea71c7d4f97f1f6a11d9774dce23afb11da76ff52313187bff3fa54cd9d7184 config_h.SH
- * 4de4cf70aeb3bb7022bf26da6be9e89d061f2cb1c0a81407bb1abb22b2de5500 uconfig.sh
+ * f619e73f1f8fb837073498a5f73d0f4606fa96cdae46e05cf104cc8d3f3af1ec config_h.SH
+ * 54142cfeff9798152ddd02eb918f7ea727c0894e9ad03d4212d5d3c1a177fa9d uconfig.sh
  * ex: set ro: */
