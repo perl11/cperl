@@ -3,7 +3,8 @@ use strict;
 use warnings;
 package CPAN::Meta;
 
-our $VERSION = '2.150005';
+our $VERSION = '2.150006c';
+$VERSION =~ s/c$//;
 
 #pod =head1 SYNOPSIS
 #pod
@@ -387,13 +388,14 @@ sub load_string {
 #pod
 #pod For C<version> less than 2, the filename should end in '.yml'.
 #pod L<CPAN::Meta::Converter> is used to generate an older metadata structure, which
-#pod is serialized to YAML.  L<YAML::XS> is the default YAML backend.  You may
+#pod is serialized to YAML.  L<YAML::XS> is now the default YAML backend.  You may
 #pod set the C<$ENV{PERL_YAML_BACKEND}> to a supported alternative backend. YAML has
 #pod severe limitations, L<YAML::XS> is as strict as L<YAML>, which makes it failing fixable
 #pod yaml data tests.
 #pod L<YAML::Syck> is fast and passes all the tests, but doesn't implement the latest
-#pod YAML 1.2 specification. L<YAML::Tiny> passes all tests, but is slow. L<CPAN::Meta::YAML>
-#pod the default parser in perl5 core is based on YAML::Tiny.
+#pod YAML 1.2 specification, which is not for CPAN::Meta. L<YAML::Tiny> passes all
+#pod tests, but is slow. L<CPAN::Meta::YAML> the default parser in perl5 core is
+#pod based on YAML::Tiny.
 #pod
 #pod =cut
 
@@ -412,12 +414,26 @@ sub save {
       unless $file =~ m{\.yml$};
 
     # https://github.com/ingydotnet/yaml-libyaml-pm/issues/46
-    if (($Config{usecperl} and !$ENV{PERL_YAML_BACKEND})
-        or $ENV{PERL_YAML_BACKEND} eq 'YAML::XS') {
-      $layer = '';
+    my $backend = Parse::CPAN::Meta->yaml_backend();
+    if ($backend =~ /^YAML::(Syck|XS)$/) {
+      # rather dump directly to a file
+      my $version = $options->{version} || '2';
+      my $struct;
+      if ( $self->meta_spec_version ne $version ) {
+        $struct = $self->as_struct( {version => $version} );
+      }
+      else {
+        $struct = $self->as_struct;
+      }
+      $struct->{x_serialization_backend} = sprintf '%s version %s',
+         $backend, $backend->VERSION;
+      {
+        no strict 'refs';
+        &{"$backend\::DumpFile"}($file, $struct);
+      }
+      return 1;
     }
   }
-  #TODO: use Parse::CPAN::Meta->*_backend DumpFile, not as_string
 
   my $data = $self->as_string( $options );
   open my $fh, ">$layer", $file
