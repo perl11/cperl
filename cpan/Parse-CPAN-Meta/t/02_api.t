@@ -120,7 +120,19 @@ SKIP: {
   is(Parse::CPAN::Meta->yaml_backend(), 'YAML', 'yaml_backend(): YAML');
   my $yaml   = load_ok( 'META-VR.yml', $meta_yaml, 100);
   my $from_yaml = Parse::CPAN::Meta->load_yaml_string( $yaml );
-  is_deeply($from_yaml, $want, "load_yaml_string using PERL_YAML_BACKEND");
+  is_deeply($from_yaml, $want, "load_yaml_string using YAML");
+}
+
+SKIP: {
+  note '';
+  skip "YAML::Syck module not installed", 2
+    unless eval "require YAML::Syck; 1";
+  local $ENV{PERL_YAML_BACKEND} = 'YAML::Syck';
+
+  is(Parse::CPAN::Meta->yaml_backend(), 'YAML::Syck', 'yaml_backend(): YAML::Syck');
+  my $yaml   = load_ok( 'META-VR.yml', $meta_yaml, 100);
+  my $from_yaml = Parse::CPAN::Meta->load_yaml_string( $yaml );
+  is_deeply($from_yaml, $want, "load_yaml_string using YAML::Syck");
 }
 
 ### JSON tests
@@ -182,7 +194,10 @@ SKIP: {
   local $ENV{PERL_JSON_BACKEND} = 'JSON::PP';
 
   note '';
-  is(Parse::CPAN::Meta->json_backend(), 'JSON::PP', 'json_backend(): JSON::PP');
+  {
+    local $^W;  # silence redefine warnings
+    is(Parse::CPAN::Meta->json_backend(), 'JSON::PP', 'json_backend(): JSON::PP');
+  }
   my $json   = load_ok( 'META-VR.json', $meta_json, 100);
   my $from_json = Parse::CPAN::Meta->load_json_string( $json );
   is_deeply($from_json, $want, "load_json_string with PERL_JSON_BACKEND = 'JSON::PP'");
@@ -210,4 +225,16 @@ SKIP: {
   my $json   = load_ok( 'META-VR.json', $meta_json, 100);
   my $from_json = Parse::CPAN::Meta->load_json_string( $json );
   is_deeply($from_json, $want, "load_json_string with PERL_JSON_BACKEND = JSON::XS");
+}
+
+SKIP: {
+  note '';
+  skip "JSON::Syck module not installed", 2
+    unless eval "require JSON::Syck; 1";
+  local $ENV{PERL_JSON_BACKEND} = 'JSON::Syck';
+
+  is(Parse::CPAN::Meta->json_backend(), 'JSON::Syck', 'json_backend(): JSON::Syck');
+  my $json   = load_ok( 'META-VR.json', $meta_json, 100);
+  my $from_json = Parse::CPAN::Meta->load_json_string( $json );
+  is_deeply($from_json, $want, "load_json_string with PERL_JSON_BACKEND = JSON::Syck");
 }
