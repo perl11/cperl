@@ -329,7 +329,8 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
             assert(SvTYPE(cv) == SVt_PVCV || SvTYPE(cv) == SVt_PVFM); /*unsafe is safe */
             if (CvDEPTHunsafe(&cvbody)) {
                 assert(SvTYPE(cv) == SVt_PVCV);
-                Perl_croak_nocontext("Can't undef active subroutine");
+                if (PL_phase != PERL_PHASE_DESTRUCT) /* TODO tailcalls */
+                    Perl_croak_nocontext("Can't undef active subroutine");
             }
             ENTER;
 
