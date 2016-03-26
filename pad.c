@@ -1395,9 +1395,9 @@ Perl_pad_sv(pTHX_ PADOFFSET po)
     if (!po)
 	Perl_croak(aTHX_ "panic: pad_sv po");
     DEBUG_X(PerlIO_printf(Perl_debug_log,
-	"Pad 0x%"UVxf"[%ld] 0x%"UVxf" sv: %ld sv=0x%"UVxf"\n",
-        PTR2UV(PL_comppad), (long)AvFILLp(PL_comppad), PTR2UV(PL_curpad),
-        (long)po, PTR2UV(PL_curpad[po])));
+	"Pad 0x%"UVxf" 0x%"UVxf"[%ld] [%d] sv=0x%"UVxf"\n",
+        PTR2UV(PL_comppad), PTR2UV(PL_curpad), (long)AvFILLp(PL_comppad),
+        (int)po, PTR2UV(PL_curpad[po])));
     assert(PL_comppad ? po <= (PADOFFSET)AvFILLp(PL_comppad) : 1);
     return PL_curpad[po];
 }

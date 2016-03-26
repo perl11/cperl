@@ -2762,6 +2762,7 @@ PP(pp_goto)
 
                 if (CvHASSIG(cv)) { /* @_ -> SP */
                     CV* cursub = cx->blk_sub.cv;
+                    PADLIST * const padlist = CvPADLIST(cv);
                     cx->blk_sub.cv = cv; /* adjust context */
                     if (CvHASSIG(cursub)) { /* sig2sig. no @_, just SP-MARK */
                         arg = av; /* mark */
@@ -2770,6 +2771,7 @@ PP(pp_goto)
                              SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
                              cx->blk_sub.savearray - av + 1)); /* sp-mark+1 */
                         /*PUSHMARK((SV**)cx->blk_sub.savearray);*/
+                        PAD_SET_CUR(padlist, PadlistMAX(padlist));
                         goto call_pp_sub;
                     } /* pp2sig */
                     SvREFCNT_inc_simple_void(cv); /* dec below */
