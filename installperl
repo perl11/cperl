@@ -392,23 +392,27 @@ foreach my $file (@corefiles) {
 # Install main perl executables
 # Make links to ordinary names if installbin directory isn't current directory.
 
-if (!$versiononly && ! samepath($installbin, '.') && ($^O ne 'dos') && ! $Is_VMS && ! $Is_NetWare) {
-    safe_unlink("$installbin/$perl$exe_ext", "$installbin/suid$perl$exe_ext");
+if (! samepath($installbin, '.') && ($^O ne 'dos') && ! $Is_VMS && ! $Is_NetWare) {
+    safe_unlink("$installbin/suid$perl$exe_ext");
     if ($^O eq 'vos') {
+        safe_unlink("$installbin/$perl$exe_ext");
 	# VOS doesn't support hard links, so use a symlink.
 	symlink("$installbin/$perl_verbase$ver$exe_ext",
 		"$installbin/$perl$exe_ext");
     } else {
-        if (!$opts{destdir} && $Config{perlpath} ne "$installbin/$perl_verbase$ver$exe_ext") {
-            safe_unlink($Config{perlpath});
-            File::Copy::move("$installbin/$perl_verbase$ver$exe_ext", $Config{perlpath});
-            chmod(0755, $Config{perlpath});
-            link($Config{perlpath}, "$installbin/$perl_verbase$ver$exe_ext");
-            chmod(0755, $Config{perlpath});
+        my $perlpath = $Config{perlpath};
+        if (!$opts{destdir} && $perlpath ne "$installbin/$perl_verbase$ver$exe_ext") {
+            safe_unlink($perlpath);
+            print "  $perlpath\n" unless $opts{silent};
+            File::Copy::move("$installbin/$perl_verbase$ver$exe_ext", $perlpath);
+            chmod(0755, $perlpath);
+            link($perlpath, "$installbin/$perl_verbase$ver$exe_ext");
+            chmod(0755, $perlpath);
         }
-        if (!-e "$installbin/$perl$exe_ext") {
-          link("$installbin/$perl_verbase$ver$exe_ext", "$installbin/$perl$exe_ext");
-          chmod(0755, "$installbin/$perl$exe_ext");
+        if (!$versiononly && !-e "$installbin/$perl$exe_ext") {
+            print "  $installbin/$perl$exe_ext\n" unless $opts{silent};
+            link("$installbin/$perl_verbase$ver$exe_ext", "$installbin/$perl$exe_ext");
+            chmod(0755, "$installbin/$perl$exe_ext");
         }
     }
 }
