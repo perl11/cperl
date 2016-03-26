@@ -2764,16 +2764,20 @@ PP(pp_goto)
                     CV* cursub = cx->blk_sub.cv;
                     PADLIST * const padlist = CvPADLIST(cv);
                     cx->blk_sub.cv = cv; /* adjust context */
-                    if (CvHASSIG(cursub)) { /* sig2sig. no @_, just SP-MARK */
+                    if (CvHASSIG(cursub)) { /* sig2sig: no @_, just SP-MARK */
                         arg = av; /* mark */
                         DEBUG_kv(PerlIO_printf(Perl_debug_log,
                              "goto %s from sig with sig: keep %ld args\n",
                              SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
                              cx->blk_sub.savearray - av + 1)); /* sp-mark+1 */
                         /*PUSHMARK((SV**)cx->blk_sub.savearray);*/
+                        DEBUG_kv(PerlIO_printf(Perl_debug_log,
+                            "  padlist max=%d, CvDEPTH=%d\n",
+                            (int)PadlistMAX(padlist), (int)CvDEPTH(cv)));
                         PAD_SET_CUR(padlist, PadlistMAX(padlist));
                         goto call_pp_sub;
-                    } /* pp2sig */
+                    }
+                    /* pp2sig: */
                     SvREFCNT_inc_simple_void(cv); /* dec below */
                     DEBUG_kv(PerlIO_printf(Perl_debug_log,
                         "goto %s with sig: keep %ld args\n",
@@ -2878,6 +2882,9 @@ PP(pp_goto)
                         depth = PadlistMAX(padlist);
 #endif
                         PAD_SET_CUR(padlist, depth);
+                        DEBUG_kv(PerlIO_printf(Perl_debug_log,
+                            "  padlist max=%d, depth=%d\n",
+                            (int)PadlistMAX(padlist), depth));
                         goto call_pp_sub;
                     }
                 }
