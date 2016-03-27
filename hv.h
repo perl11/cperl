@@ -130,6 +130,8 @@ struct xpvhv_aux {
     U32         xhv_last_rand;  /* last random value for hash traversal,
                                    used to detect each() after insert for warnings */
 #endif
+    U32         xhv_timestamp;  /* inc on every hv change: store, delete */
+    U32         xhv_savedstamp; /* timestamp state at hv_iterinit */
     U32         xhv_aux_flags;  /* assorted extra flags */
     char *      xhv_aux_fields; /* buffer of class field "name\0"pad entries */
 };
@@ -385,6 +387,8 @@ C<SV*>.
 #define HvFLAGS(hv)      (SvOOK(hv) ? HvAUX(hv)->xhv_aux_flags : 0)
 #define HvSTATIC_get(hv) (SvOOK(hv) ? HvAUX(hv)->xhv_aux_flags & HvAUXf_STATIC : 0)
 #define HvSTATIC(hv)     HvSTATIC_get(hv)
+/* Only valid with SvOOK */
+#define HvTIMESTAMP(hv)  (HvAUX(hv)->xhv_timestamp)
 
 #define HvNAME(hv)	HvNAME_get(hv)
 #define HvNAMELEN(hv)   HvNAMELEN_get(hv)
