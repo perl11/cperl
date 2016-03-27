@@ -190,6 +190,7 @@ esac
 
 # Perl bundles do not expect two-level namespace, added in Darwin 1.4.
 # But starting from perl 5.8.1/Darwin 7 the default is the two-level.
+# And starting with 11.0 the default is flat again
 case "$osvers" in
 1.[0-3].*)
    lddlflags="${ldflags} -bundle -undefined suppress"
@@ -202,7 +203,13 @@ case "$osvers" in
    ldflags="${ldflags} -flat_namespace"
    lddlflags="${ldflags} -bundle -undefined suppress"
    ;;
-*) 
+1[1-8].*)
+   # Lion, no PPC support anymore
+   ldflags="${ldflags} -flat_namespace"
+   lddlflags="${ldflags} -bundle -undefined dynamic_lookup"
+   ;;
+# for 10.*
+*)
    # MACOSX_DEPLOYMENT_TARGET selects the minimum OS level we want to support
    # https://developer.apple.com/library/mac/documentation/DeveloperTools/Conceptual/cross_development/Configuring/configuring.html
    lddlflags="${ldflags} -bundle -undefined dynamic_lookup"
@@ -227,7 +234,7 @@ case "$ldflags" in
 esac
 EOCBU
 
-# 64-bit addressing support. Currently strictly experimental. DFD 2005-06-06
+# 64-bit addressing support
 case "$use64bitall" in
 $define|true|[yY]*)
 case "$osvers" in

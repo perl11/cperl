@@ -20038,9 +20038,12 @@ set d_tzname
 eval $setvar
 
 : Check if is a multiplatform env
-case "$osname" in
-darwin) multiarch="$define" ;;
-esac
+if $test x$osname = xdarwin; then
+    case "$osvers" in
+        [5-9].*)   multiarch="$define" ;;
+        10.[0-8]*) multiarch="$define" ;;
+    esac
+fi
 case "$multiarch" in
 ''|[nN]*) multiarch="$undef" ;;
 esac
@@ -20296,7 +20299,7 @@ echo " "
 : Checking 32bit alignedness
 $cat <<EOM
 
-Checking to see whether you can access character data unalignedly...
+Checking to see whether you can access unaligned words...
 EOM
 case "$d_u32align" in
 '')   $cat >try.c <<EOCP
@@ -20313,7 +20316,7 @@ case "$d_u32align" in
 $signal_t bletch(int s) { exit(4); }
 #endif
 int main() {
-#if BYTEORDER == 0x1234 || BYTEORDER == 0x4321 || BYTEORDER == 0x87654321 || BYTEORDER == 0x12345678
+#if BYTEORDER == 0x1234 || BYTEORDER == 0x4321 || BYTEORDER == 0x87654321 || BYTEORDER == 0x12345678 || (BYTEORDER == 0xffff && defined(__APPLE__))
     volatile U8 buf[8];
     volatile U32 *up;
     int i;
@@ -20371,22 +20374,22 @@ int main() {
 EOCP
 set try
 if eval $compile_ok; then
-	echo "(Testing for character data alignment may crash the test.  That's okay.)" >&4
-	$run ./try 2>&1 >/dev/null
+	echo "(Testing for strict word alignment may crash the test.  That's okay.)" >&4
+	$run ./try 2>&1    # >/dev/null
 	case "$?" in
 	0)	cat >&4 <<EOM
-You can access character data pretty unalignedly.
+You can access unaligned words without SIGBUS.
 EOM
 		d_u32align="$undef"
 		;;
 	*)	cat >&4 <<EOM
-It seems that you must access character data in an aligned manner. $?
+It seems that you must access word in an aligned manner. ($?)
 EOM
 		d_u32align="$define"
 		;;
 	esac
 else
-	rp='Can you access character data at unaligned addresses?'
+	rp='Can you access character data at unaligned words?'
 	dflt='n'
 	. ./myread
 	case "$ans" in
@@ -20399,7 +20402,7 @@ $rm_try
 esac
 
 case "$alignbytes" in
-    '') echo "Checking alignment constraints..." >&4
+    '') echo "Checking double alignment constraints..." >&4
 	if $test "X$uselongdouble" = Xdefine -a "X$d_longdbl" = Xdefine; then
 	    $cat >try.c <<'EOCP'
 typedef long double NV;
@@ -20435,7 +20438,7 @@ EOCP
 		: Configure to pick a larger value if needed.
 		if $test "$dflt" -lt 8; then
 		    dflt='8'
-		    echo "Setting alignment to 8 for multiarch support.">&4
+		    echo "Setting double alignment to 8 for multiarch support.">&4
 		fi
 		;;
 	esac
