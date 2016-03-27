@@ -7,8 +7,10 @@ Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod 197e08c2c2cc300d8166da3573
 Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm bc6efbd91bce9b1eae3c341c482dde0ac4c990c5
 Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL e5b06df14ab4162956415f4208fe209d01b7c000
 Devel::PPPort cpan/Devel-PPPort/PPPort_xs.PL f03c10f3a2e58312ee632771400a9a26ade7af45
-Digest::MD5 cpan/Digest-MD5/MD5.xs c92dd84381f7ca0425284eabdb7b5dad9682164b
-Digest::MD5 cpan/Digest-MD5/t/files.t 1e20dca0b51806fc72cd26b8cc5409179ecbee9d
+Digest::MD5 cpan/Digest-MD5/Makefile.PL f5c4fdf76d0b054fc6a9396c143311474e9e3db3
+Digest::MD5 cpan/Digest-MD5/MD5.pm 637a647acbbe2562bf03099a651535f3da506827
+Digest::MD5 cpan/Digest-MD5/MD5.xs 9b47158166b1162f11169f9766eddb75046e7917
+Digest::MD5 cpan/Digest-MD5/t/files.t caf2cbcf24c2b378ebd8c573d8a4615d08c4f960
 Encode cpan/Encode/bin/enc2xs 2cd5b224f58d3959148911e5a03986f959be92cb
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 3548b0bb262b8d3a5345549ae5e43d1b3c4fb8e4
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t c01ba6e7a872c8a7fc26e277e0dea109616a5e56

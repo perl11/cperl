@@ -480,9 +480,9 @@ use File::Glob qw(:case);
         'DISTRIBUTION' => 'GAAS/Digest-MD5-2.54.tar.gz',
         'FILES'        => q[cpan/Digest-MD5],
         'EXCLUDED'     => ['rfc1321.txt'],
-        # cperl fix for static is not at beginning of declaration
+        # cperl fix for static is not at beginning of declaration, amd64 align.
         # Note that ebcdic needs to regenerate the md5sum in t/files.t
-        'CUSTOMIZED'   => [ qw( MD5.xs t/files.t )],
+        'CUSTOMIZED'   => [ qw( MD5.xs MD5.pm Makefile.PL t/files.t )],
     },
 
     'Digest::SHA' => {
