@@ -27,7 +27,6 @@ WriteMakefile(
     'MIN_PERL_VERSION' => 5.006,
     'PREREQ_PM'    => {
 			'Digest::base' => '1.00',
-			'XSLoader' => 0,
 		      },
     'META_MERGE'   => {
         resources  => {
@@ -49,6 +48,7 @@ sub free_u32_alignment
        return !$Config{d_u32align};
     }
     
+    # TODO: only true on intel, not arm/sparc/mips/ppc
     if ($^O eq 'VMS' || $^O eq 'MSWin32') {
        print "Assumes that $^O implies free alignment for U32 access.\n";
        return 1;
@@ -66,7 +66,10 @@ sub free_u32_alignment
 /*  This program allocates a buffer of U8 (char) and then tries */
 /*  to access it through a U32 pointer at every offset.  The    */
 /*  program  is expected to die with a bus error/seg fault for  */
-/*  machines that do not support unaligned integer read/write   */
+/*  machines that do not support unaligned integer read/write.   */
+/*  Note that on Intel it is dependend on the value of the AC bit */
+/*  (alignment check) in EFLAGS. Default off. Even if off, the code */
+/*  for unaligned access is slower. See http://orchistro.tistory.com/206 */
 /*--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -79,7 +82,7 @@ sub free_u32_alignment
 
 int main(int argc, char** argv, char** env)
 {
-#if BYTEORDER == 0x1234 || BYTEORDER == 0x4321
+#if BYTEORDER == 0x1234 || BYTEORDER == 0x4321 || BYTEORDER == 0x87654321 || BYTEORDER == 0x12345678
     volatile U8 buf[] = "\0\0\0\1\0\0\0\0";
     volatile U32 *up;
     int i;
@@ -126,10 +129,10 @@ EOT
 
     my $cc_cmd = "$Config{cc} $Config{ccflags} -I$Config{archlibexp}/CORE";
     my $exe = "u32align$Config{exe_ext}";
-    $cc_cmd .= " -o $exe";
-    my $rc;
-    $rc = system("$cc_cmd $Config{ldflags} u32align.c $Config{libs}");
+    $cc_cmd .= " -o $exe $Config{ldflags} u32align.c $Config{libs} -L$Config{archlibexp}/CORE -lperl";
+    my  $rc = system($cc_cmd);
     if ($rc) {
+        print "$cc_cmd\n";
 	print "Can't compile test program.  Will ensure alignment to play safe.\n\n";
 	unlink("u32align.c", $exe, "u32align$Config{obj_ext}");
 	return 0;

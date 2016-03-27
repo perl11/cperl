@@ -788,7 +788,7 @@ md5(...)
     PPCODE:
 	MD5Init(&ctx);
 
-	if (PL_dowarn & G_WARN_ON) {
+	if ((PL_dowarn & G_WARN_ON) || ckWARN(WARN_SYNTAX)) {
             const char *msg = 0;
 	    if (items == 1) {
 		if (SvROK(ST(0))) {
@@ -830,3 +830,21 @@ md5(...)
 	MD5Final(digeststr, &ctx);
         ST(0) = make_mortal_sv(aTHX_ digeststr, ix);
         XSRETURN(1);
+
+BOOT:
+#if defined(U32_ALIGNMENT_REQUIRED) && defined(__GNUC__) && (defined(__x86_64__) || defined(__i386))
+        /* Generate SIGBUS on unaligned access even on x86:
+           Set AC in EFLAGS. See http://orchistro.tistory.com/206
+           Also see https://sourceforge.net/p/predef/wiki/Architectures/
+           for possible other compilers. Here only GNU C: gcc, clang, icc.
+           MSVC would be nice also. */
+#ifdef __x86_64__
+        __asm__("pushf\n"
+                "orl $0x40000, (%rsp)\n"
+                "popf");
+#else
+        __asm__("pushf\n"
+                "orl $0x40000, (%esp)\n"
+                "popf");
+#endif
+#endif
