@@ -42,6 +42,15 @@ XXX For a release on a stable branch, this section aspires to be:
 
 [ List each incompatible change as a =head2 entry ]
 
+=head2
+
+=head2 Protected hash iterators
+
+Iterating over a hash may now by default not change any key. Allow the
+previous destructive behavior of changing a hash while iterating over
+it with C<use hashiter;>
+See L<[cperl #117]|https://github.com/perl11/cperl/issues/117>, cperl-only.
+
 =head1 Deprecations
 
 XXX Any deprecated features, syntax, modules etc. should be listed here.

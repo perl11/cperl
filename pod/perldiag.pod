@@ -345,6 +345,11 @@ Freed values are not supposed to be visible to Perl code.  This
 can also happen if XS code calls C<av_clear> from a custom magic
 callback on the array.
 
+=item Attempt to change hash while iterating over it
+
+(F) Either C<use hashiter> to continue using destructive hash
+iterators with unexpected consequences, or change your code to avoid it.
+
 =item Attempt to delete disallowed key '%s' from a restricted hash
 
 (F) The failing code attempted to delete from a restricted hash a key

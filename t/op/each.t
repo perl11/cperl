@@ -7,7 +7,7 @@ BEGIN {
 }
 use Config ();
 
-plan tests => 59;
+plan tests => 60;
 
 $h{'abc'} = 'ABC';
 $h{'def'} = 'DEF';
@@ -255,6 +255,7 @@ for my $k (qw(each keys values)) {
     # Make sure each() does not leave the iterator in an inconsistent state
     # (RITER set to >= 0, with EITER null) if the active iterator is
     # deleted, leaving the hash apparently empty.
+    use hashiter;
     my %h;
     $h{1} = 2;
     each %h;
@@ -263,6 +264,16 @@ for my $k (qw(each keys values)) {
     $h{1}=2;
     is join ("-", each %h), '1-2',
 	'each on apparently empty hash does not leave RITER set';
+}
+
+{
+    my %h;
+    $h{1} = 2;
+    each %h;
+    delete $h{1};
+    eval { each %h; };
+    like $@, qr/Attempt to change hash while iterating over it/,
+         "no hashiter error";
 }
 
 my $PERL_HASH_RANDOMIZE_KEYS = !$Config::Config{usecperl};
