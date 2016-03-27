@@ -127,7 +127,9 @@ struct xpvhv_aux {
                                    used to detect each() after insert for warnings */
 #endif
     U32         xhv_fill_lazy;
-    U32         xhv_aux_flags;      /* assorted extra flags */
+    U32         xhv_timestamp;  /* inc on every hv change: store, delete */
+    U32         xhv_savedstamp; /* timestamp state at hv_iterinit */
+    U32         xhv_aux_flags;  /* assorted extra flags */
 };
 
 #define HvAUXf_SCAN_STASH   0x1   /* stash is being scanned by gv_check */
@@ -283,6 +285,8 @@ C<SV*>.
 /* HvSTATIC must be combined with SvREADONLY! */
 #define HvSTATIC_get(hv) (SvOOK(hv) ? HvAUX(hv)->xhv_aux_flags & HvAUXf_STATIC : 0)
 #define HvSTATIC(hv)     HvSTATIC_get(hv)
+/* Only valid with SvOOK */
+#define HvTIMESTAMP(hv)  (HvAUX(hv)->xhv_timestamp)
 
 #define HvNAME(hv)	HvNAME_get(hv)
 #define HvNAMELEN(hv)   HvNAMELEN_get(hv)
