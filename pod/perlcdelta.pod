@@ -291,6 +291,10 @@ Coverity CWE-687
 Avoid div by zero [coverity]
 Note: fixed differently upstream, with much more branches than here.
 
+=item IO-Compress, Compress-Raw-{Zlib,Bzip2} 2.069
+
+static const some local tables.
+
 =back
 
 =head1 Platform Support
