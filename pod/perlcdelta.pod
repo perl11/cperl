@@ -21,11 +21,6 @@ Hash security: Disable PERL_HASH_SEED_DEBUG with -t or -T (#114)
 
 =item *
 
-Added support for static HEK and AV with B::C, with 6-10% memory
-improvements for compiled code.
-
-=item *
-
 Better hash table collision resolution strategy: PERL_PERTURB_KEYS_TOP
 Still a linked list, but move the found element to the top. This disables
 PERL_HASH_RANDOMIZE_KEYS.
@@ -34,17 +29,6 @@ PERL_HASH_RANDOMIZE_KEYS.
 
 Better support for -DC and -DCv debugging, with new REFCNT statistics.
 Added CowREFCNT_inc,dec and overflow assertions.
-
-=item *
-
-Creating *{"_<$filename"} Perl debugger data structures (see
-L<perldebguts/"Debugger Internals">) for XSUBs and const subs has been
-removed.  This removed one glob/scalar combo for each unique C<.c>
-file that XSUBs and const subs came from.  On startup (C<perl -e"0">)
-about half a dozen glob/scalar debugger combos were created.  Loading
-XS modules created more glob/scalar combos.  These things were created
-regardless if the perl debugger was being used or not, unlike for pure
-perl subs, and ignores that the perl debugger can not debug C code.
 
 =item *
 
@@ -64,6 +48,15 @@ regen_perly keeps now useful temp. files.
 
 =item *
 
+Added support for static HEK and AV with B::C, with 6-10% memory
+improvements for compiled code.
+
+Add HEK_STATIC, AvSTATIC, and av_uncow.
+Allows COW (copy on write) and COG (copy on grow) for strings and arrays
+with embedders and the compiler.
+
+=item *
+
 Support static lexical warnings. Honor op_static with COPs. This helps
 producing better compiled perlcc code. (#70)
 
@@ -76,12 +69,6 @@ debugging, even without -DDEBUGGING.
 
 Add support for CowREFCNT assertions and statistics and with -Dv,
 seperated from -DC.
-
-=item *
-
-Add support for HEK_STATIC, AvSTATIC, and av_uncow.
-Allows COW (copy on write) and COG (copy on grow) for strings and arrays
-with embedders and the compiler.
 
 =item *
 
@@ -99,6 +86,17 @@ Add support for additional F<pod/perlcdelta.pod> in F<Porting/pod_rules.pl>.
 =head1 Core Enhancements from Perl5
 
 =over 4
+
+=item *
+
+Creating *{"_<$filename"} Perl debugger data structures (see
+L<perldebguts/"Debugger Internals">) for XSUBs and const subs has been
+removed.  This removed one glob/scalar combo for each unique C<.c>
+file that XSUBs and const subs came from.  On startup (C<perl -e0>)
+about half a dozen glob/scalar debugger combos were created.  Loading
+XS modules created more glob/scalar combos.  These things were created
+regardless if the perl debugger was being used or not, unlike for pure
+perl subs, and ignores that the perl debugger can not debug C code.
 
 =item *
 
@@ -162,6 +160,11 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 =head2 Updated Modules and Pragmata
 
 =over 4
+
+=item Storable 2.53_02
+
+Broke support for restoring restricted hashes [perl #73972] with the new
+default PERL_PERTURB_KEYS_TOP strategy.
 
 =item CPAN::Meta
 
@@ -351,13 +354,37 @@ and second characters of the salt, even if the salt was zero length
 
 =back
 
-=item Other
+=item Darwin
 
 =over
 
 =item *
 
 Fixed global destruction with threads on darwin.
+
+=item *
+
+Darwin 11.0 (Lion, July 2011) and newer is no multiarch.
+There's no PPC support anymore. Use -flat-namespace,
+no C<env MACOSX_DEPLOYMENT_TARGET=10.6> (Snow Leopard) for ld.
+
+This fixes the darwin byteorder to be probed at compile-time, and
+the d_u32align probe on newer x86_64 darwins.
+
+=back
+
+=item Other
+
+=over
+
+=item *
+
+Enforce SIGBUS when accessing unaligned words with d_u32align /
+U32_ALIGNMENT_REQUIRED even on Intel CPUs by setting the AC (alignment
+check) EFLAGS.
+
+Fixed the broken d_u32align probe in Configure and Digest::MD5, broken for
+darwin and Intel 64bit.
 
 =item *
 
