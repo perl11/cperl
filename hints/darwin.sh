@@ -205,7 +205,7 @@ case "$osvers" in
    ;;
 1[1-8].*)
    # Lion, no PPC support anymore
-   ldflags="${ldflags} -flat_namespace"
+   # ldflags="${ldflags} -flat_namespace"
    lddlflags="${ldflags} -bundle -undefined dynamic_lookup"
    ;;
 # for 10.*
