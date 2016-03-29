@@ -17,6 +17,11 @@ For B<cperl> see F<Changes> and L<perlcperl>
 
 =item *
 
+Safer INC path. It does not include "." anymore, unless you set the env
+C<PERL_USE_UNSAFE_INC=1>.
+
+=item *
+
 Hash security: Disable PERL_HASH_SEED_DEBUG with -t or -T (#114)
 
 =item *

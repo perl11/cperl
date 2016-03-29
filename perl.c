@@ -4646,8 +4646,16 @@ S_init_perllib(pTHX)
 #endif
 #endif /* !PERL_IS_MINIPERL */
 
-    if (!TAINTING_get)
-	S_incpush(aTHX_ STR_WITH_LEN("."), 0);
+    if (!TAINTING_get) {
+        /* cperl and cpanel perl proper does not add . to @INC */
+        const char * const unsafe = PerlEnv_getenv("PERL_USE_UNSAFE_INC");
+        if (unsafe && strEQ(unsafe, "1"))
+            S_incpush(aTHX_ STR_WITH_LEN("."), 0);
+#ifdef PERL_IS_MINIPERL
+        else
+            S_incpush(aTHX_ STR_WITH_LEN("."), 0);
+#endif
+    }
 }
 
 #if defined(DOSISH) || defined(__SYMBIAN32__)
