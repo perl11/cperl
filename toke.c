@@ -9384,21 +9384,12 @@ S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package,
  *
  *      Because all ASCII characters have the same representation whether
  *      encoded in UTF-8 or not, we can use the foo_A macros below and '\0' and
- *      '{' without knowing if is UTF-8 or not.
- * EBCDIC already uses the rules that ASCII platforms will use after the
- * deprecation cycle; see comment below about the deprecation. */
-#ifdef EBCDIC
-#   define VALID_LEN_ONE_IDENT(s, is_utf8)                                    \
+ *      '{' without knowing if is UTF-8 or not. */
+#define VALID_LEN_ONE_IDENT(s, is_utf8)                                       \
     (isGRAPH_A(*(s)) || ((is_utf8)                                            \
                          ? isIDFIRST_utf8((U8*) (s))                          \
                          : (isGRAPH_L1(*s)                                    \
                             && LIKELY((U8) *(s) != LATIN1_TO_NATIVE(0xAD)))))
-#else
-#   define VALID_LEN_ONE_IDENT(s, is_utf8)                                    \
-    (isGRAPH_A(*(s)) || ((is_utf8)                                            \
-                         ? isIDFIRST_utf8((U8*) (s))                          \
-                         : ! isASCII_utf8((U8*) (s))))
-#endif
 
 STATIC char *
 S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni, int *normalize)
@@ -9463,6 +9454,7 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni, int *normali
                           : 1)
         && VALID_LEN_ONE_IDENT(s, is_utf8))
     {
+#if PERL_VERSION >= 20 && PERL_VERSION < 25
         /* Deprecate all non-graphic characters.  Include SHY as a non-graphic,
          * because often it has no graphic representation.  (We can't get to
          * here with SHY when 'is_utf8' is true, so no need to include a UTF-8
@@ -9480,7 +9472,7 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni, int *normali
                 deprecate("literal non-graphic characters in variable names");
             }
         }
-
+#endif
         if (is_utf8) {
             const STRLEN skip = UTF8SKIP(s);
             STRLEN i;
