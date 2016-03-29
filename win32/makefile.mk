@@ -1462,13 +1462,13 @@ $(PERLEXESTATIC): $(PERLSTATICLIB) $(CONFIGPM) $(PERLEXEST_OBJ) $(PERLEXE_RES)
 # DynaLoader.pm, so this will have to do
 
 #most of deps of this target are in DYNALOADER and therefore omitted here
-Extensions : $(PERLDEP) $(DYNALOADER) $(GLOBEXE)
+Extensions : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) makeppport
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic
 
-Extensions_reonly : $(PERLDEP) $(DYNALOADER)
+Extensions_reonly : $(PERLDEP) $(DYNALOADER) makeppport
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic +re
 
-Extensions_static : ..\make_ext.pl list_static_libs.pl $(CONFIGPM) $(GLOBEXE) $(HAVE_COREDIR)
+Extensions_static : ..\make_ext.pl list_static_libs.pl $(CONFIGPM) $(GLOBEXE) $(HAVE_COREDIR) makeppport
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --static
 	$(MINIPERL) -I..\lib list_static_libs.pl > Extensions_static
 
@@ -1494,6 +1494,9 @@ rebasePE : Extensions $(PERLDLL) $(PERLEXE) $(GLOBEXE) $(PERLEXESTATIC)
 rebasePE : Extensions $(PERLDLL) $(PERLEXE) $(GLOBEXE)
 .ENDIF
 	$(NOOP)
+
+makeppport: $(MINIPERL) $(CONFIGPM) $(Extensions_nonxs)
+	$(MINIPERL) -I..\lib ..\mkppport
 
 #-------------------------------------------------------------------------------
 

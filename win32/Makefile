@@ -1149,11 +1149,11 @@ MakePPPort: $(MINIPERL) $(CONFIGPM) Extensions_nonxs
 #-------------------------------------------------------------------------------
 # There's no direct way to mark a dependency on
 # DynaLoader.pm, so this will have to do
-Extensions: ..\make_ext.pl ..\lib\buildcustomize.pl $(PERLDEP) $(CONFIGPM) $(DYNALOADER)
+Extensions: ..\make_ext.pl ..\lib\buildcustomize.pl $(PERLDEP) $(CONFIGPM) $(DYNALOADER) makeppport
 	$(XCOPY) ..\*.h $(COREDIR)\*.*
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(MAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic
 
-Extensions_reonly: ..\make_ext.pl ..\lib\buildcustomize.pl $(PERLDEP) $(CONFIGPM) $(DYNALOADER)
+Extensions_reonly: ..\make_ext.pl ..\lib\buildcustomize.pl $(PERLDEP) $(CONFIGPM) $(DYNALOADER) makeppport
 	$(XCOPY) ..\*.h $(COREDIR)\*.*
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(MAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic +re
 
@@ -1175,6 +1175,9 @@ Extensions_clean:
 
 Extensions_realclean: 
 	-if exist $(MINIPERL) $(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(MAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --all --target=realclean
+
+makeppport: $(MINIPERL) $(CONFIGPM) $(Extensions_nonxs)
+	$(MINIPERL) -I..\lib ..\mkppport
 
 #-------------------------------------------------------------------------------
 

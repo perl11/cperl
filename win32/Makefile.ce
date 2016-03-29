@@ -839,7 +839,7 @@ NOT_COMPILE_EXT = $(NOT_COMPILE_EXT) !XS/Typemap
 NOT_COMPILE_EXT = $(NOT_COMPILE_EXT) !XS/Typemap
 !endif
 
-Extensions: ..\make_ext.pl $(CONFIGPM)
+Extensions: ..\make_ext.pl $(CONFIGPM) makeppport
 	$(HPERL) -I..\lib -I. ..\make_ext.pl "MAKE=$(MAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR)  --all \
 	!POSIX !Win32 !Win32API/File !Time/HiRes !Time/Piece !re !SDBM_File $(NOT_COMPILE_EXT)
 
@@ -850,6 +850,9 @@ Extensions_nonxs: ..\make_ext.pl ..\lib\buildcustomize.pl $(CONFIGPM) ..\pod\per
 
 Extensions_clean:
 	-if exist $(HPERL) $(HPERL) -I..\lib ..\make_ext.pl "MAKE=$(MAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR)  --all --target=clean 
+
+makeppport: $(HPERL) $(CONFIGPM) $(Extensions_nonxs)
+	$(HPERL) -I..\lib ..\mkppport
 
 #----------------------------------------------------------------------------------
 
