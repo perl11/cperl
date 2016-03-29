@@ -269,16 +269,10 @@ my @death =
  '/(?[\ |!])/' => 'Incomplete expression within \'(?[ ])\' {#} m/(?[\ |!{#}])/',    # [perl #126180]
  '/(?[()-!])/' => 'Incomplete expression within \'(?[ ])\' {#} m/(?[()-!{#}])/',    # [perl #126204]
  '/(?[!()])/' => 'Incomplete expression within \'(?[ ])\' {#} m/(?[!(){#}])/',      # [perl #126404]
- #'/\w{/' => 'Unescaped left brace in regex is illegal here {#} m/\w{{#}/',
- #'/\q{/' => 'Unescaped left brace in regex is illegal here {#} m/\q{{#}/',
- #'/\A{/' => 'Unescaped left brace in regex is illegal here {#} m/\A{{#}/',
- #'/:{4,a}/' => 'Unescaped left brace in regex is illegal here {#} m/:{{#}4,a}/',
- #'/xa{3\,4}y/' => 'Unescaped left brace in regex is illegal here {#} m/xa{{#}3\,4}y/',
- #'/abc/xix' => 'Only one /x regex modifier is allowed',
- #'/(?xmsixp:abc)/' => 'Only one /x regex modifier is allowed {#} m/(?xmsixp{#}:abc)/',
- #'/(?xmsixp)abc/' => 'Only one /x regex modifier is allowed {#} m/(?xmsixp{#})abc/',
- #'/(?xxxx:abc)/' => 'Only one /x regex modifier is allowed {#} m/(?xxxx{#}:abc)/',
- '/(?<=/' => 'Sequence (?... not terminated {#} m/(?<={#}/',                        # [perl #128170]
+ '/abc/xix' => 'Only one /x regex modifier is allowed',
+ '/(?xmsixp:abc)/' => 'Only one /x regex modifier is allowed {#} m/(?xmsixp{#}:abc)/',
+ '/(?xmsixp)abc/' => 'Only one /x regex modifier is allowed {#} m/(?xmsixp{#})abc/',
+ '/(?xxxx:abc)/' => 'Only one /x regex modifier is allowed {#} m/(?xxxx{#}:abc)/',
 
 );
 
@@ -630,10 +624,6 @@ my @deprecated = (
                  'Unescaped left brace in regex is deprecated, passed through {#} m/\q{{#}/'
                ],
     '/:{4,a}/' => 'Unescaped left brace in regex is deprecated, passed through {#} m/:{{#}4,a}/',
-    '/abc/xix' => 'Having more than one /x regexp modifier is deprecated',
-    '/(?xmsixp:abc)/' => 'Having more than one /x regexp modifier is deprecated',
-    '/(?xmsixp)abc/' => 'Having more than one /x regexp modifier is deprecated',
-    '/(?xxxx:abc)/' => 'Having more than one /x regexp modifier is deprecated',
 );
 
 for my $strict ("", "use re 'strict';") {
