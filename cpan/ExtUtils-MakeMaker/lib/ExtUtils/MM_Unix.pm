@@ -15,7 +15,7 @@ use ExtUtils::MakeMaker qw($Verbose neatvalue);
 
 # If we make $VERSION an our variable parse_version() breaks
 use vars qw($VERSION);
-$VERSION = '7.04_02';
+$VERSION = '7.04_03';
 $VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
 
 require ExtUtils::MM_Any;
@@ -3556,23 +3556,24 @@ END
 
 For some reason which I forget, Unix machines like to have
 PERL_DL_NONLAZY set for tests.
+PERL_USE_UNSAFE_INC=1 is set to re-add the unsafe . to @INC
 
 =cut
 
 sub test_via_harness {
     my($self, $perl, $tests) = @_;
-    return $self->SUPER::test_via_harness("PERL_DL_NONLAZY=1 $perl", $tests);
+    return $self->SUPER::test_via_harness("PERL_DL_NONLAZY=1 PERL_USE_UNSAFE_INC=1 $perl", $tests);
 }
 
 =item test_via_script (override)
 
-Again, the PERL_DL_NONLAZY thing.
+Again, the PERL_DL_NONLAZY and PERL_USE_UNSAFE_INC thing.
 
 =cut
 
 sub test_via_script {
     my($self, $perl, $script) = @_;
-    return $self->SUPER::test_via_script("PERL_DL_NONLAZY=1 $perl", $script);
+    return $self->SUPER::test_via_script("PERL_DL_NONLAZY=1 PERL_USE_UNSAFE_INC=1 $perl", $script);
 }
 
 

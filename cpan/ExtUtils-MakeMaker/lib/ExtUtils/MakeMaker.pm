@@ -5,6 +5,9 @@ use strict;
 
 BEGIN {require 5.006;}
 
+# Assure anything called from Makefile.PL is allowed to have . in @INC.
+BEGIN { $ENV{PERL_USE_UNSAFE_INC} = 1; }
+
 require Exporter;
 use ExtUtils::MakeMaker::Config;
 use ExtUtils::MakeMaker::version; # ensure we always have our fake version.pm
@@ -26,7 +29,7 @@ our %macro_dep; # whether a macro is a dependency
 use constant SILENT => (defined $ENV{MAKEFLAGS}
                         and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
 
-our $VERSION = '7.04_02';
+our $VERSION = '7.04_03';
 $VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
 
 # Emulate something resembling CVS $Revision$
