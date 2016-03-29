@@ -15,6 +15,8 @@ BEGIN {
             $inc = File::Spec->rel2abs($inc) unless ref $inc;
         }
     }
+    # make sure we can install any modules from CPAN without patching them
+    $ENV{PERL_USE_UNSAFE_INC} = 1;
 }
 use CPAN::Author;
 use CPAN::HandleConfig;

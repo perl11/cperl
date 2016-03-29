@@ -1,5 +1,5 @@
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
-CPAN cpan/CPAN/lib/CPAN.pm 57318a697efec2ef40835b0b3015285d2fecb806
+CPAN cpan/CPAN/lib/CPAN.pm c1e6ea96ad32428244cbcefed7590da6ec0b318e
 Devel::NYTProf cpan/Devel-NYTProf/bin/nytprofhtml 0e7a6c1ed8b0497d01e6da2ba5bd5265d004393e
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
 Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL 1bd828484a7513b636446fc9f24353f3f058d71d
