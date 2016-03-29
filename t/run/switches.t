@@ -205,11 +205,11 @@ SWTESTPM
 	prog	    => '1',
     );
     is( $r, "<$package><foo>", '-M with import parameter' );
+
     $r = runperl(
-	switches    => [ "-m$package" ],
+	switches    => [ "-I.", "-m$package" ],
 	prog	    => '1',
     );
-
     {
         local $TODO = '';  # this one works on VMS
         is( $r, '', '-m' );

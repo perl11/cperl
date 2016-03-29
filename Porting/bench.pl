@@ -1201,7 +1201,7 @@ EOF
         },
     );
 
-    for ('t', '.') {
+    for ('./t', '.') {
         last if require "$_/test.pl";
     }
     plan(@tests / 3 * keys %VALID_FIELDS);

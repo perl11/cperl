@@ -9,7 +9,7 @@ perlcdelta - what is new for cperl v5.22.2
 This document describes perl-only differences between the cperl 5.22.1
 release and the cperl 5.22.2 release.
 
-For B<cperl> see F<Changes> and L<perlcperl>
+For B<cperl> also see F<Changes> and L<perlcperl>
 
 =head1 Core Enhancements
 
@@ -18,7 +18,8 @@ For B<cperl> see F<Changes> and L<perlcperl>
 =item *
 
 Safer INC path. It does not include "." anymore, unless you set the env
-C<PERL_USE_UNSAFE_INC=1>.
+C<PERL_USE_UNSAFE_INC=1>. (#118)
+CVSSv2 Severity: 8.5 (AV:N/AC:M/Au:S/C:C/I:C/A:C)
 
 =item *
 
@@ -374,8 +375,8 @@ Fixed global destruction with threads on darwin.
 =item *
 
 Darwin 11.0 (Lion, July 2011) and newer is no multiarch.
-There's no PPC support anymore. Use -flat-namespace,
-no C<env MACOSX_DEPLOYMENT_TARGET=10.6> (Snow Leopard) for ld.
+There's no PPC support anymore. Use no
+C<env MACOSX_DEPLOYMENT_TARGET=10.6> (Snow Leopard) for ld.
 
 This fixes the darwin byteorder to be probed at compile-time, and
 the d_u32align probe on newer x86_64 darwins.
@@ -509,7 +510,7 @@ Config entries for cperl.
 
 Daniel Dragan took over XSConfig development on CPAN.
 
-Dave Mitchell started to work on some tasks mentioned in cperl.
+Dave Mitchell started to work on some tasks proposed in cperl.
 
 =head1 Reporting Bugs
 
