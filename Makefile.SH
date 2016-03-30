@@ -1206,12 +1206,9 @@ AUTOGEN_FILES = opcode.h opnames.h pp_proto.h proto.h embed.h embedvar.h \
 
 regen:	FORCE
 	-perl regen.pl
-	-perl regen/uconfig_h.pl
-	-$(RUN_PERL) ext/Config/Config_xs.PL --force
 
 regen_headers regen-headers:	FORCE
 	-perl regen.pl -v
-	-perl regen/uconfig_h.pl -v
 
 regen_meta regen-meta:  META.yml META.json
 

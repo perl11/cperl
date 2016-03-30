@@ -18,7 +18,15 @@ foreach my $pl (map {chomp; "regen/$_"} <DATA>) {
   my @command =  ($^X, '-I.', $pl, @ARGV);
   print "$tap@command\n";
   system @command
-    and die "@command failed: $?" 
+    and die "@command failed: $?";
+}
+if (!$tap) {
+  my $perl = ($^O =~ /^(MSWin32|symbian|os2|cygwin|dos)$/) ? 'perl.exe' : "perl";
+  my @command = (($perl eq 'perl' ? './perl' : $perl), '-I.',
+                 'ext/Config/Config_xs.PL', '--force', @ARGV);
+  print "$tap@command\n";
+  system @command
+    and die "@command failed: $?";
 }
 
 __END__
@@ -30,3 +38,4 @@ regcomp.pl
 warnings.pl
 embed.pl
 feature.pl
+uconfig_h.pl

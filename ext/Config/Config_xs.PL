@@ -53,6 +53,7 @@ if ($in_core) {
 
 my $force = @ARGV ? $ARGV[0] eq '--force' : 0;
 shift if $force;
+exit if $ARGV[0] eq '--tap';
 my $no_gperf = @ARGV ? $ARGV[0] eq '--no-gperf' : 0;
 shift if $no_gperf;
 my $pathsep = $^O =~ /^(MSWin32|dos|NetWare|OS2|symbian)$/ ? "\\" : '/';
