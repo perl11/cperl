@@ -1461,6 +1461,11 @@
 #define sv_buf_to_rw(a)		S_sv_buf_to_rw(aTHX_ a)
 #    endif
 #  endif
+#  if defined(PERL_HASH_RANDOMIZE_KEYS)
+#    if defined(PERL_IN_HV_C)
+#define ptr_hash		S_ptr_hash
+#    endif
+#  endif
 #  if defined(PERL_IN_AV_C)
 #define get_aux_mg(a)		S_get_aux_mg(aTHX_ a)
 #  endif
@@ -1511,7 +1516,6 @@
 #define hv_magic_check		S_hv_magic_check
 #define hv_notallowed(a,b,c,d)	S_hv_notallowed(aTHX_ a,b,c,d)
 #define new_he()		S_new_he(aTHX)
-#define ptr_hash		S_ptr_hash
 #define refcounted_he_value(a)	S_refcounted_he_value(aTHX_ a)
 #define save_hek_flags		S_save_hek_flags
 #define share_hek_flags(a,b,c,d)	S_share_hek_flags(aTHX_ a,b,c,d)

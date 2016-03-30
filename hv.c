@@ -1768,15 +1768,14 @@ static void
 S_clear_placeholders(pTHX_ HV *hv, U32 items)
 {
     dVAR;
-    I32 i;
+    STRLEN i;
 
     PERL_ARGS_ASSERT_CLEAR_PLACEHOLDERS;
 
     if (items == 0)
 	return;
 
-    i = HvMAX(hv);
-    do {
+    for (i = 0; i <= HvMAX(hv); i++) {
 	/* Loop down the linked list heads  */
 	HE **oentry = &(HvARRAY(hv))[i];
 	HE *entry;
@@ -1807,7 +1806,7 @@ S_clear_placeholders(pTHX_ HV *hv, U32 items)
 		oentry = &HeNEXT(entry);
 	    }
 	}
-    } while (--i >= 0);
+    }
     /* You can't get here, hence assertion should always fail.  */
     assert (items == 0);
     NOT_REACHED; /* NOTREACHED */
@@ -2092,6 +2091,7 @@ Perl_hv_fill(pTHX_ HV *const hv)
  *
  * this code was derived from Sereal, which was derived from autobox.
  */
+#ifdef PERL_HASH_RANDOMIZE_KEYS
 
 PERL_STATIC_INLINE U32 S_ptr_hash(PTRV u) {
 #if PTRSIZE == 8
@@ -2119,6 +2119,8 @@ PERL_STATIC_INLINE U32 S_ptr_hash(PTRV u) {
 #endif
     return (U32)u;
 }
+
+#endif
 
 static struct xpvhv_aux*
 S_hv_auxinit_internal(struct xpvhv_aux *iter) {

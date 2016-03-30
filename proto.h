@@ -5868,6 +5868,11 @@ PERL_CALLCONV void*	Perl_my_cxt_init(pTHX_ const char *my_cxt_key, size_t size)
 
 #  endif
 #endif
+#if defined(PERL_HASH_RANDOMIZE_KEYS)
+#  if defined(PERL_IN_HV_C)
+PERL_STATIC_INLINE U32	S_ptr_hash(PTRV u);
+#  endif
+#endif
 #if defined(PERL_IMPLICIT_CONTEXT)
 PERL_CALLCONV_NO_RET void	Perl_croak_nocontext(const char* pat, ...)
 			__attribute__noreturn__
@@ -6211,7 +6216,6 @@ STATIC HE*	S_new_he(pTHX)
 			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
-PERL_STATIC_INLINE U32	S_ptr_hash(PTRV u);
 STATIC SV *	S_refcounted_he_value(pTHX_ const struct refcounted_he *he)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_REFCOUNTED_HE_VALUE	\

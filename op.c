@@ -3432,7 +3432,7 @@ S_dup_attrlist(pTHX_ OP *o)
 STATIC void
 S_apply_attrs(pTHX_ HV *stash, SV *target, OP *attrs)
 {
-    SV * const stashsv = stash ? newSVhek(HvNAME_HEK(stash)) : &PL_sv_no;
+    SV * const stashsv = newSVhek(HvNAME_HEK(stash));
 
     PERL_ARGS_ASSERT_APPLY_ATTRS;
 
@@ -3480,7 +3480,7 @@ S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp)
     pack = newSVOP(OP_CONST, 0, newSVpvs(ATTRSMODULE));
 
     /* Build up the real arg-list. */
-    stashsv = stash ? newSVhek(HvNAME_HEK(stash)) : &PL_sv_no;
+    stashsv = newSVhek(HvNAME_HEK(stash));
 
     arg = newOP(OP_PADSV, 0);
     arg->op_targ = target->op_targ;
@@ -9017,7 +9017,7 @@ Perl_newXS_deffile(pTHX_ const char *name, XSUBADDR_t subaddr)
 {
     PERL_ARGS_ASSERT_NEWXS_DEFFILE;
     return newXS_len_flags(
-	name, name ? strlen(name) : 0, subaddr, NULL, NULL, NULL, 0
+	name, strlen(name), subaddr, NULL, NULL, NULL, 0
     );
 }
 
@@ -12268,6 +12268,7 @@ core_types_t S_op_typed(pTHX_ OP* o)
     return t;
 }
 
+#ifdef DEBUGGING
 /* so far for scalars only */
 PERL_STATIC_INLINE
 const char * S_core_type_name(pTHX_ core_types_t t)
@@ -12278,6 +12279,7 @@ const char * S_core_type_name(pTHX_ core_types_t t)
         Perl_die(aTHX_ "Invalid coretype index %d\n", t);
     return core_types_n[t];
 }
+#endif
 
 #if 0
 /* index for the ")"
