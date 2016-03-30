@@ -38,6 +38,7 @@ BEGIN {
                    grep( $^O eq $_, qw(bsdos interix dragonfly) )
                   );
     $Is{Android} = $^O =~ /android/;
+    $Is{Darwin}  = $^O eq 'darwin';
 }
 
 BEGIN {
@@ -923,6 +924,7 @@ sub dynamic_lib {
     my(@m);
     my $ld_opt = $Is{OS2} ? '$(OPTIMIZE) ' : '';	# Useful on other systems too?
     my $ld_fix = $Is{OS2} ? '|| ( $(RM_F) $@ && sh -c false )' : '';
+    $ld_fix = '&& dsymutil "$@"' if $Is{Darwin} and $Config{ccflags} =~ /-DDEBUGGING/;
     push(@m,'
 # This section creates the dynamically loadable $(INST_DYNAMIC)
 # from $(OBJECT) and possibly $(MYEXTLIB).
