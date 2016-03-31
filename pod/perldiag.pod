@@ -225,7 +225,7 @@ indices at run-time. For example
     my @a[5];
     $a[5];
 
-=item Array passed to stat will be coerced to a scalar (did you want stat $_[0]?)
+=item Array passed to stat will be coerced to a scalar%s
 
 (W syntax) You called stat() on an array, but the array will be
 coerced to a scalar - the number of elements in the array.
