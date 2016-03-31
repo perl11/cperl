@@ -113,6 +113,8 @@ recursive, but it's recursive on basic blocks, not on tree nodes.
 #define match_type1(sig, arg) S_match_type1(sig, arg)
 #define match_type2(sig, arg1, arg2) S_match_type2(sig, arg1, arg2)
 
+static char array_passed_to_stat[] = "Array passed to stat will be coerced to a scalar";
+
 /* Used to avoid recursion through the op tree in scalarvoid() and
    op_free()
 */
@@ -1582,7 +1584,7 @@ S_scalarboolean(pTHX_ OP *o)
 }
 
 static SV *
-S_op_varname(pTHX_ const OP *o)
+S_op_varname_subscript(pTHX_ const OP *o, int subscript_type)
 {
     assert(o);
     assert(o->op_type == OP_PADAV || o->op_type == OP_RV2AV ||
@@ -1595,11 +1597,17 @@ S_op_varname(pTHX_ const OP *o)
 	    if (cUNOPo->op_first->op_type != OP_GV
 	     || !(gv = cGVOPx_gv(cUNOPo->op_first)))
 		return NULL;
-	    return varname(gv, funny, 0, NULL, 0, 1);
+	    return varname(gv, funny, 0, NULL, 0, subscript_type);
 	}
 	return
-	    varname(MUTABLE_GV(PL_compcv), funny, o->op_targ, NULL, 0, 1);
+	    varname(MUTABLE_GV(PL_compcv), funny, o->op_targ, NULL, 0, subscript_type);
     }
+}
+
+static SV *
+S_op_varname(pTHX_ const OP *o)
+{
+    return S_op_varname_subscript(aTHX_ o, 1);
 }
 
 static void
@@ -9892,8 +9900,17 @@ Perl_ck_ftst(pTHX_ OP *o)
 	    return newop;
 	}
 
-       if (kidtype == OP_RV2AV) {
-           Perl_warner(aTHX_ packWARN(WARN_SYNTAX), "Array passed to stat will be coerced to a scalar (did you want stat $_[0]?)");
+        if ((kidtype == OP_RV2AV || kidtype == OP_PADAV) && ckWARN(WARN_SYNTAX)) {
+            SV *name = S_op_varname_subscript(aTHX_ (OP*)kid, 2);
+            if (name) {
+                /* diag_listed_as: Array passed to stat will be coerced to a scalar%s */
+                Perl_warner(aTHX_ packWARN(WARN_SYNTAX), "%s (did you want stat %" SVf "?)",
+                            array_passed_to_stat, name);
+            }
+            else {
+                /* diag_listed_as: Array passed to stat will be coerced to a scalar%s */
+                Perl_warner(aTHX_ packWARN(WARN_SYNTAX), array_passed_to_stat);
+            }
        }
 	scalar((OP *) kid);
 	if ((PL_hints & HINT_FILETEST_ACCESS) && OP_IS_FILETEST_ACCESS(o->op_type))
