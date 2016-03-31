@@ -122,9 +122,9 @@ S_openn_setup(pTHX_ GV *gv, char *mode, PerlIO **saveifp, PerlIO **saveofp,
 }
 
 bool
-Perl_do_openn(pTHX_ GV *gv, const char *oname, I32 len, int as_raw,
+Perl_do_openn(pTHX_ GV *gv, const char *oname, STRLEN len, int as_raw,
 	      int rawmode, int rawperm, PerlIO *supplied_fp, SV **svp,
-	      I32 num_svs)
+	      U32 num_svs)
 {
     PERL_ARGS_ASSERT_DO_OPENN;
 

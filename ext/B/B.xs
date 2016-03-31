@@ -2195,11 +2195,11 @@ NAME_HEK(cv)
 
 MODULE = B	PACKAGE = B::HV		PREFIX = Hv
 
-STRLEN
+SSize_t
 HvFILL(hv)
 	B::HV	hv
 
-I32
+SSize_t
 HvRITER(hv)
 	B::HV	hv
 

@@ -45,7 +45,7 @@ holds the key and hash value.
 #if HV_FILL_RATE == 100
 # define DO_HSPLIT(xhv) ((xhv)->xhv_keys >= (xhv)->xhv_max)
 #else
-# define DO_HSPLIT(xhv) !(xhv)->xhv_max || ((STRLEN)(((xhv)->xhv_keys * 100) / (xhv)->xhv_max) >= HV_FILL_RATE)
+# define DO_HSPLIT(xhv) !(xhv)->xhv_max || ((Size_t)(((xhv)->xhv_keys * 100) / (xhv)->xhv_max) >= HV_FILL_RATE)
 #endif
 
 static const char S_strtab_error[]
@@ -325,28 +325,25 @@ information on how to use this function on tied hashes.
 =cut
 */
 
-/* Common code for hv_delete()/hv_exists()/hv_fetch()/hv_store()  */
+/* Common code for hv_delete()/hv_exists()/hv_fetch()/hv_store().
+   klen may be negative */
 void *
-Perl_hv_common_key_len(pTHX_ HV *hv, const char *key, I32 klen_i32,
+Perl_hv_common_key_len(pTHX_ HV *hv, const char *key, I32 klen,
 		       const int action, SV *val, const U32 hash)
 {
-    STRLEN klen;
-    int flags;
-
     PERL_ARGS_ASSERT_HV_COMMON_KEY_LEN;
 
-    if (klen_i32 < 0) {
-	klen = -klen_i32;
-	flags = HVhek_UTF8;
-    } else {
-	klen = klen_i32;
-	flags = 0;
-    }
-    return hv_common(hv, NULL, key, klen, flags, action, val, hash);
+    if (klen < 0)
+        return hv_common(hv, NULL, key, -klen, HVhek_UTF8,
+                         action, val, hash);
+    else
+        return hv_common(hv, NULL, key, klen, 0,
+                         action, val, hash);
 }
 
+/* here klen must be positive */
 void *
-Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
+Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	       int flags, int action, SV *val, U32 hash)
 {
     dVAR;
@@ -360,6 +357,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
     HEK *keysv_hek = NULL;
 #ifdef DEBUGGING
     unsigned int linear = 0;
+    assert(klen >= 0);
 #endif
 
     if (!hv)
@@ -395,9 +393,12 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	}
     }
     if (keysv) {
+        STRLEN len;
 	if (flags & HVhek_FREEKEY)
 	    Safefree(key);
-	key = SvPV_const(keysv, klen);
+	key = SvPV_const(keysv, len);
+        assert(len <= I32_MAX);
+        klen = (I32)len; /* silent truncation */
 	is_utf8 = (SvUTF8(keysv) != 0);
 	if (SvIsCOW_shared_hash(keysv)) {
 	    flags = HVhek_KEYCANONICAL | (is_utf8 ? HVhek_UTF8 : 0);
@@ -591,7 +592,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 								  ) {
 	    char *array;
 	    Newxz(array,
-		 PERL_HV_ARRAY_ALLOC_BYTES(xhv->xhv_max+1 /* HvMAX(hv)+1 */),
+		 PERL_HV_ARRAY_ALLOC_BYTES(xhv->xhv_max+1),
 		 char);
 	    HvARRAY(hv) = (HE**)array;
 	}
@@ -612,7 +613,10 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 
     if (is_utf8 && !(flags & HVhek_KEYCANONICAL)) {
 	char * const keysave = (char *)key;
-	key = (char*)bytes_from_utf8((U8*)key, &klen, &is_utf8);
+        STRLEN len = klen;
+	key = (char*)bytes_from_utf8((U8*)key, &len, &is_utf8);
+        assert(len <= I32_MAX);
+        klen = (I32)len;
         if (is_utf8)
 	    flags |= HVhek_UTF8;
 	else
@@ -646,10 +650,10 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 #endif
     {
 #ifdef PERL_PERTURB_KEYS_TOP
-	oentry = &(HvARRAY(hv))[hash & (I32) HvMAX(hv)];
+	oentry = &(HvARRAY(hv))[hash & (U32) HvMAX(hv)];
         entry = *oentry;
 #else
-	entry = (HvARRAY(hv))[hash & (I32) HvMAX(hv)];
+	entry = (HvARRAY(hv))[hash & (U32) HvMAX(hv)];
 #endif
     }
 
@@ -688,7 +692,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
         DEBUG_H(linear++);
 	if (HeHASH(entry) != hash)		/* strings can't be equal */
 	    continue;
-	if (HeKLEN(entry) != (I32)klen)
+	if (HeKLEN(entry) != klen)
 	    continue;
 	if (memNE(HeKEY(entry),key,klen))	/* is this it? */
 	    continue;
@@ -866,7 +870,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	   with magic in the previous code.  */
 	char *array;
 	Newxz(array,
-	     PERL_HV_ARRAY_ALLOC_BYTES(xhv->xhv_max+1 /* HvMAX(hv)+1 */),
+	     PERL_HV_ARRAY_ALLOC_BYTES(xhv->xhv_max+1),
 	     char);
 	HvARRAY(hv) = (HE**)array;
     }
@@ -932,7 +936,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
     if (SvOOK(hv)) {
         /* Currently this makes various tests warn in annoying ways.
          * So Silenced for now. - Yves | bogus end of comment =>* /
-        if (HvAUX(hv)->xhv_riter != -1) {
+        if (HvAUX(hv)->xhv_riter != HV_NO_RITER) {
             Perl_ck_warner_d(aTHX_ packWARN(WARN_INTERNAL),
                              "[TESTING] Inserting into a hash during each() traversal results in undefined behavior"
                              pTHX__FORMAT
@@ -942,9 +946,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
         if (PL_HASH_RAND_BITS_ENABLED) {
             if (PL_HASH_RAND_BITS_ENABLED == 1)
                 PL_hash_rand_bits += (PTRV)entry + 1;  /* we don't bother to use ptr_hash here */
-            PL_hash_rand_bits= ROTL_UV(PL_hash_rand_bits,1);
+            PL_hash_rand_bits = ROTL_UV(PL_hash_rand_bits,1);
         }
-        HvAUX(hv)->xhv_rand= (U32)PL_hash_rand_bits;
+        HvAUX(hv)->xhv_rand = (U32)PL_hash_rand_bits;
     }
 #endif
 
@@ -953,10 +957,10 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
     if (masked_flags & HVhek_ENABLEHVKFLAGS)
 	HvHASKFLAGS_on(hv);
 
-    xhv->xhv_keys++; /* HvTOTALKEYS(hv)++ */
+    xhv->xhv_keys++;
     if ( DO_HSPLIT(xhv) ) {
-        const STRLEN oldsize = xhv->xhv_max + 1;
-        const U32 items = (U32)HvPLACEHOLDERS_get(hv);
+        const SSize_t oldsize = xhv->xhv_max + 1;
+        const SSize_t items = HvPLACEHOLDERS_get(hv);
         DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH split %6lu\t%6lu\n", HvKEYS(hv), HvMAX(hv)));
 
         if (items /* hash has placeholders  */
@@ -1060,7 +1064,7 @@ value, or 0 to ask for it to be computed.
 */
 
 STATIC SV *
-S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
+S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		   int k_flags, I32 d_flags, U32 hash)
 {
     dVAR;
@@ -1125,8 +1129,10 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 
     if (is_utf8 && !(k_flags & HVhek_KEYCANONICAL)) {
 	const char * const keysave = key;
-	key = (char*)bytes_from_utf8((U8*)key, &klen, &is_utf8);
-
+        STRLEN len = klen;
+	key = (char*)bytes_from_utf8((U8*)key, &len, &is_utf8);
+        assert(len <= I32_MAX);
+        klen = (I32)len;
         if (is_utf8)
             k_flags |= HVhek_UTF8;
 	else
@@ -1152,7 +1158,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 
     masked_flags = (k_flags & HVhek_MASK);
 
-    first_entry = oentry = &(HvARRAY(hv))[hash & (I32) HvMAX(hv)];
+    first_entry = oentry = &(HvARRAY(hv))[hash & (U32) HvMAX(hv)];
     entry = *oentry;
 
     if (!entry)
@@ -1190,7 +1196,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
         DEBUG_H(linear++);
 	if (HeHASH(entry) != hash)		/* strings can't be equal */
 	    continue;
-	if (HeKLEN(entry) != (I32)klen)
+	if (HeKLEN(entry) != klen)
 	    continue;
 	if (memNE(HeKEY(entry),key,klen))	/* is this it? */
 	    continue;
@@ -1224,13 +1230,17 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 	 */
 	if (HeVAL(entry) && HvENAME_get(hv)) {
             gv = (GV *)HeVAL(entry);
-            if (keysv) key = SvPV(keysv, klen);
+            if (keysv) {
+                STRLEN len;
+                key = SvPV(keysv, len);
+                klen = len;
+            }
             if ((
                  (klen > 1 && key[klen-2] == ':' && key[klen-1] == ':')
                  ||
                  (klen == 1 && key[0] == ':')
                  )
-                && (klen != 6 || hv!=PL_defstash || memNE(key,"main::",6))
+                && (klen != 6 || hv != PL_defstash || memNE(key,"main::",6))
                 && SvTYPE(gv) == SVt_PVGV && (stash = GvHV((GV *)gv))
                 && HvENAME_get(stash)) {
                 /* A previous version of this code checked that the
@@ -1273,7 +1283,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
                 if (aux->xhv_fill_lazy)
                     --aux->xhv_fill_lazy;
             }
-	    if (SvOOK(hv) && entry == HvAUX(hv)->xhv_eiter /* HvEITER(hv) */)
+	    if (SvOOK(hv) && entry == HvAUX(hv)->xhv_eiter)
 		HvLAZYDEL_on(hv);
 	    else {
 		if (SvOOK(hv) && HvLAZYDEL(hv) &&
@@ -1281,7 +1291,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 		    HeNEXT(HvAUX(hv)->xhv_eiter) = HeNEXT(entry);
 		hv_free_ent(hv, entry);
 	    }
-	    xhv->xhv_keys--; /* HvTOTALKEYS(hv)-- */
+	    xhv->xhv_keys--;
 	    if (xhv->xhv_keys == 0)
 	        HvHASKFLAGS_off(hv);
 	}
@@ -1316,9 +1326,9 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, STRLEN klen,
 
 
 STATIC void
-S_hsplit(pTHX_ HV *hv, STRLEN const oldsize, STRLEN newsize)
+S_hsplit(pTHX_ HV *hv, SSize_t const oldsize, SSize_t newsize)
 {
-    STRLEN i = 0;
+    SSize_t i = 0;
     char *a = (char*) HvARRAY(hv);
     HE **aep;
 
@@ -1442,13 +1452,13 @@ void
 Perl_hv_ksplit(pTHX_ HV *hv, IV newmax)
 {
     XPVHV* xhv = (XPVHV*)SvANY(hv);
-    const I32 oldsize = (I32) xhv->xhv_max+1; /* HvMAX(hv)+1 */
-    I32 newsize;
+    const SSize_t oldsize = xhv->xhv_max + 1;
+    SSize_t newsize;
     char *a;
 
     PERL_ARGS_ASSERT_HV_KSPLIT;
 
-    newsize = (I32) newmax;			/* possible truncation here */
+    newsize = (Size_t)newmax;
     if (newsize != newmax || newmax <= oldsize)
 	return;
     while ((newsize & (1 + ~newsize)) != newsize) {
@@ -1489,7 +1499,7 @@ Perl_newHVhv(pTHX_ HV *ohv)
 {
     dVAR;
     HV * const hv = newHV();
-    STRLEN hv_max;
+    SSize_t hv_max;
 
     if (!ohv || (!HvTOTALKEYS(ohv) && !SvMAGICAL((const SV *)ohv)))
 	return hv;
@@ -1497,7 +1507,7 @@ Perl_newHVhv(pTHX_ HV *ohv)
 
     if (!SvMAGICAL((const SV *)ohv)) {
 	/* It's an ordinary hash, so copy it fast. AMS 20010804 */
-	STRLEN i;
+	SSize_t i;
 	const bool shared = !!HvSHAREKEYS(ohv);
 	HE **ents, ** const oents = (HE **)HvARRAY(ohv);
 	char *a;
@@ -1518,7 +1528,7 @@ Perl_newHVhv(pTHX_ HV *ohv)
 	    for (; oent; oent = HeNEXT(oent)) {
 		const U32 hash   = HeHASH(oent);
 		const char * const key = HeKEY(oent);
-		const STRLEN len = HeKLEN(oent);
+		const I32 len    = HeKLEN(oent);
 		const int flags  = HeKFLAGS(oent);
 		HE * const ent   = new_HE();
 		SV *const val    = HeVAL(oent);
@@ -1543,13 +1553,13 @@ Perl_newHVhv(pTHX_ HV *ohv)
     else {
 	/* Iterate over ohv, copying keys and values one at a time. */
 	HE *entry;
-	const I32 riter = HvRITER_get(ohv);
+	const SSize_t riter = HvRITER_get(ohv);
 	HE * const eiter = HvEITER_get(ohv);
-        STRLEN hv_keys = HvTOTALKEYS(ohv);
+        SSize_t hv_keys = HvTOTALKEYS(ohv);
 
         HV_SET_MAX_ADJUSTED_FOR_KEYS(hv,hv_max,hv_keys);
 
-	hv_iterinit(ohv);
+	(void)hv_iterinit(ohv);
 	while ((entry = hv_iternext_flags(ohv, 0))) {
 	    SV *val = hv_iterval(ohv,entry);
 	    SV * const keysv = HeSVKEY(entry);
@@ -1585,10 +1595,10 @@ Perl_hv_copy_hints_hv(pTHX_ HV *const ohv)
     HV * const hv = newHV();
 
     if (ohv) {
-	STRLEN hv_max = HvMAX(ohv);
-        STRLEN hv_keys = HvTOTALKEYS(ohv);
+	SSize_t hv_max = HvMAX(ohv);
+        SSize_t hv_keys = HvTOTALKEYS(ohv);
 	HE *entry;
-	const I32 riter = HvRITER_get(ohv);
+	const SSize_t riter = HvRITER_get(ohv);
 	HE * const eiter = HvEITER_get(ohv);
 
 	ENTER;
@@ -1596,7 +1606,7 @@ Perl_hv_copy_hints_hv(pTHX_ HV *const ohv)
 
         HV_SET_MAX_ADJUSTED_FOR_KEYS(hv,hv_max,hv_keys);
 
-	hv_iterinit(ohv);
+	(void)hv_iterinit(ohv);
 	while ((entry = hv_iternext_flags(ohv, 0))) {
 	    SV *const sv = newSVsv(hv_iterval(ohv,entry));
 	    SV *heksv = HeSVKEY(entry);
@@ -1701,7 +1711,7 @@ Perl_hv_clear(pTHX_ HV *hv)
     SAVEFREESV(SvREFCNT_inc_simple_NN(hv));
     if (SvREADONLY(hv) && HvARRAY(hv) != NULL) {
 	/* restricted hash: convert all keys to placeholders */
-	STRLEN i;
+	SSize_t i;
 	for (i = 0; i <= xhv->xhv_max; i++) {
 	    HE *entry = (HvARRAY(hv))[i];
 	    for (; entry; entry = HeNEXT(entry)) {
@@ -1756,7 +1766,7 @@ See Hash::Util::lock_keys() for an example of its use.
 void
 Perl_hv_clear_placeholders(pTHX_ HV *hv)
 {
-    const U32 items = (U32)HvPLACEHOLDERS_get(hv);
+    const SSize_t items = HvPLACEHOLDERS_get(hv);
 
     PERL_ARGS_ASSERT_HV_CLEAR_PLACEHOLDERS;
 
@@ -1765,10 +1775,10 @@ Perl_hv_clear_placeholders(pTHX_ HV *hv)
 }
 
 static void
-S_clear_placeholders(pTHX_ HV *hv, U32 items)
+S_clear_placeholders(pTHX_ HV *hv, SSize_t items)
 {
     dVAR;
-    STRLEN i;
+    SSize_t i;
 
     PERL_ARGS_ASSERT_CLEAR_PLACEHOLDERS;
 
@@ -1794,7 +1804,7 @@ S_clear_placeholders(pTHX_ HV *hv, U32 items)
 
 		if (--items == 0) {
 		    /* Finished.  */
-		    I32 placeholders = HvPLACEHOLDERS_get(hv);
+		    SSize_t placeholders = HvPLACEHOLDERS_get(hv);
 		    HvTOTALKEYS(hv) -= (IV)placeholders;
 		    /* HvUSEDKEYS expanded */
 		    if ((HvTOTALKEYS(hv) - placeholders) == 0)
@@ -1815,7 +1825,7 @@ S_clear_placeholders(pTHX_ HV *hv, U32 items)
 STATIC void
 S_hfreeentries(pTHX_ HV *hv)
 {
-    STRLEN index = 0;
+    SSize_t index = 0;
     XPVHV * const xhv = (XPVHV*)SvANY(hv);
     SV *sv;
 
@@ -1837,12 +1847,12 @@ S_hfreeentries(pTHX_ HV *hv)
  * initially be set to 0. hfree_next_entry() may update it.  */
 
 SV*
-Perl_hfree_next_entry(pTHX_ HV *hv, STRLEN *indexp)
+Perl_hfree_next_entry(pTHX_ HV *hv, SSize_t *indexp)
 {
     struct xpvhv_aux *iter;
     HE *entry;
     HE ** array;
-    STRLEN orig_index = *indexp;
+    SSize_t orig_index = *indexp;
 
     PERL_ARGS_ASSERT_HFREE_NEXT_ENTRY;
 
@@ -1859,8 +1869,8 @@ Perl_hfree_next_entry(pTHX_ HV *hv, STRLEN *indexp)
                  * re-allocated, HvMAX changed etc */
             }
             iter = HvAUX(hv); /* may have been realloced */
-            iter->xhv_riter = -1; 	/* HvRITER(hv) = -1 */
-            iter->xhv_eiter = NULL;	/* HvEITER(hv) = NULL */
+            iter->xhv_riter = HV_NO_RITER;
+            iter->xhv_eiter = NULL;
 #ifdef PERL_HASH_RANDOMIZE_KEYS
             iter->xhv_last_rand = iter->xhv_rand;
 #endif
@@ -2014,7 +2024,7 @@ Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
     }
     if (!SvOOK(hv)) {
 	Safefree(HvARRAY(hv));
-        xhv->xhv_max = PERL_HASH_DEFAULT_HvMAX;        /* HvMAX(hv) = 7 (it's a normal hash) */
+        xhv->xhv_max = PERL_HASH_DEFAULT_HvMAX; /* 7 (it's a normal hash) */
 	HvARRAY(hv) = 0;
     }
     /* if we're freeing the HV, the SvMAGIC field has been reused for
@@ -2045,10 +2055,10 @@ the hash is split.
 =cut
 */
 
-STRLEN
+SSize_t
 Perl_hv_fill(pTHX_ HV *const hv)
 {
-    STRLEN count = 0;
+    SSize_t count = 0;
     HE **ents = HvARRAY(hv);
     struct xpvhv_aux *aux = SvOOK(hv) ? HvAUX(hv) : NULL;
 
@@ -2125,8 +2135,8 @@ PERL_STATIC_INLINE U32 S_ptr_hash(PTRV u) {
 static struct xpvhv_aux*
 S_hv_auxinit_internal(struct xpvhv_aux *iter) {
     PERL_ARGS_ASSERT_HV_AUXINIT_INTERNAL;
-    iter->xhv_riter = -1; 	/* HvRITER(hv) = -1 */
-    iter->xhv_eiter = NULL;	/* HvEITER(hv) = NULL */
+    iter->xhv_riter = HV_NO_RITER;
+    iter->xhv_eiter = NULL;
 #ifdef PERL_HASH_RANDOMIZE_KEYS
     iter->xhv_last_rand = iter->xhv_rand;
 #endif
@@ -2190,21 +2200,21 @@ value, you can get it through the macro C<HvFILL(hv)>.
 =cut
 */
 
-I32
+SSize_t
 Perl_hv_iterinit(pTHX_ HV *hv)
 {
     PERL_ARGS_ASSERT_HV_ITERINIT;
 
     if (SvOOK(hv)) {
 	struct xpvhv_aux * iter = HvAUX(hv);
-	HE * const entry = iter->xhv_eiter; /* HvEITER(hv) */
+	HE * const entry = iter->xhv_eiter;
 	if (entry && HvLAZYDEL(hv)) {	/* was deleted earlier? */
 	    HvLAZYDEL_off(hv);
 	    hv_free_ent(hv, entry);
 	}
 	iter = HvAUX(hv); /* may have been reallocated */
-	iter->xhv_riter = -1; 	/* HvRITER(hv) = -1 */
-	iter->xhv_eiter = NULL; /* HvEITER(hv) = NULL */
+	iter->xhv_riter = HV_NO_RITER;
+	iter->xhv_eiter = NULL;
 #ifdef PERL_HASH_RANDOMIZE_KEYS
         iter->xhv_last_rand = iter->xhv_rand;
 #endif
@@ -2216,7 +2226,7 @@ Perl_hv_iterinit(pTHX_ HV *hv)
     return HvTOTALKEYS(hv);
 }
 
-I32 *
+SSize_t *
 Perl_hv_riter_p(pTHX_ HV *hv) {
     struct xpvhv_aux *iter;
 
@@ -2237,7 +2247,7 @@ Perl_hv_eiter_p(pTHX_ HV *hv) {
 }
 
 void
-Perl_hv_riter_set(pTHX_ HV *hv, I32 riter) {
+Perl_hv_riter_set(pTHX_ HV *hv, SSize_t riter) {
     struct xpvhv_aux *iter;
 
     PERL_ARGS_ASSERT_HV_RITER_SET;
@@ -2245,9 +2255,11 @@ Perl_hv_riter_set(pTHX_ HV *hv, I32 riter) {
     if (SvOOK(hv)) {
 	iter = HvAUX(hv);
     } else {
-	if (riter == -1)
-	    return;
-
+        if (riter < 0) {
+            if (riter == HV_NO_RITER)
+                return;
+            Perl_croak(aTHX_ "panic: hv_riter_set riter %d must be >= -1", (int)riter);
+        }
 	iter = hv_auxinit(hv);
     }
     iter->xhv_riter = riter;
@@ -2606,11 +2618,11 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 	/* Too many things (well, pp_each at least) merrily assume that you can
 	   call hv_iternext without calling hv_iterinit, so we'll have to deal
 	   with it.  */
-	hv_iterinit(hv);
+	(void)hv_iterinit(hv);
     }
     iter = HvAUX(hv);
 
-    oldentry = entry = iter->xhv_eiter; /* HvEITER(hv) */
+    oldentry = entry = iter->xhv_eiter;
     if (SvMAGICAL(hv) && SvRMAGICAL(hv)) {
 	if ( ( mg = mg_find((const SV *)hv, PERL_MAGIC_tied) ) ) {
             SV * const key = sv_newmortal();
@@ -2624,7 +2636,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
                 HEK *hek;
 
                 /* one HE per MAGICAL hash */
-                iter->xhv_eiter = entry = new_HE(); /* HvEITER(hv) = new_HE() */
+                iter->xhv_eiter = entry = new_HE();
 		HvLAZYDEL_on(hv); /* make sure entry gets freed */
                 Zero(entry, 1, HE);
                 Newxz(k, HEK_BASESIZE + sizeof(const SV *), char);
@@ -2642,7 +2654,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
             Safefree(HeKEY_hek(entry));
             del_HE(entry);
             iter = HvAUX(hv); /* may been realloced */
-            iter->xhv_eiter = NULL; /* HvEITER(hv) = NULL */
+            iter->xhv_eiter = NULL;
 	    HvLAZYDEL_off(hv);
             return NULL;
         }
@@ -2655,9 +2667,9 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 	/* The prime_env_iter() on VMS just loaded up new hash values
 	 * so the iteration count needs to be reset back to the beginning
 	 */
-	hv_iterinit(hv);
+	(void)hv_iterinit(hv);
 	iter = HvAUX(hv);
-	oldentry = entry = iter->xhv_eiter; /* HvEITER(hv) */
+	oldentry = entry = iter->xhv_eiter;
 #endif
     }
 #endif
@@ -2682,7 +2694,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 
 #ifdef PERL_HASH_RANDOMIZE_KEYS
     if (iter->xhv_last_rand != iter->xhv_rand) {
-        if (iter->xhv_riter != -1) {
+        if (iter->xhv_riter != HV_NO_RITER) {
             Perl_ck_warner_d(aTHX_ packWARN(WARN_INTERNAL),
                              "Use of each() on hash after insertion without resetting hash iterator results in undefined behavior"
                              pTHX__FORMAT
@@ -2699,10 +2711,10 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 	while (!entry) {
 	    /* OK. Come to the end of the current list.  Grab the next one.  */
 
-	    iter->xhv_riter++; /* HvRITER(hv)++ */
-	    if (iter->xhv_riter > (I32)xhv->xhv_max /* HvRITER(hv) > HvMAX(hv) */) {
+	    iter->xhv_riter++;
+	    if (iter->xhv_riter > xhv->xhv_max) {
 		/* There is no next one.  End of the hash.  */
-		iter->xhv_riter = -1; /* HvRITER(hv) = -1 */
+		iter->xhv_riter = HV_NO_RITER;
 #ifdef PERL_HASH_RANDOMIZE_KEYS
                 iter->xhv_last_rand = iter->xhv_rand; /* reset xhv_last_rand so we can detect inserts during traversal */
 #endif
@@ -2722,7 +2734,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 	}
     }
     else {
-        iter->xhv_riter = -1;
+        iter->xhv_riter = HV_NO_RITER;
 #ifdef PERL_HASH_RANDOMIZE_KEYS
         iter->xhv_last_rand = iter->xhv_rand;
 #endif
@@ -2734,7 +2746,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
     }
 
     iter = HvAUX(hv); /* may been realloced */
-    iter->xhv_eiter = entry; /* HvEITER(hv) = entry */
+    iter->xhv_eiter = entry;
     return entry;
 }
 
@@ -2938,7 +2950,7 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
             *oentry = HeNEXT(entry);
             if (UNLIKELY(!HEK_STATIC(HeKEY_hek(entry))))
                 Safefree(entry);
-            xhv->xhv_keys--; /* HvTOTALKEYS(hv)-- */
+            xhv->xhv_keys--;
         }
     }
 
@@ -3056,7 +3068,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 	HeNEXT(entry) = next;
 	*head = entry;
 
-	xhv->xhv_keys++; /* HvTOTALKEYS(hv)++ */
+	xhv->xhv_keys++;
 	if (!next) {			/* initial entry? */
 	} else if ( DO_HSPLIT(xhv) ) {
             const STRLEN oldsize = xhv->xhv_max + 1;
@@ -3091,7 +3103,7 @@ Perl_hv_placeholders_p(pTHX_ HV *hv)
 }
 
 
-I32
+SSize_t
 Perl_hv_placeholders_get(pTHX_ const HV *hv)
 {
     MAGIC * const mg = mg_find((const SV *)hv, PERL_MAGIC_rhash);
@@ -3103,7 +3115,7 @@ Perl_hv_placeholders_get(pTHX_ const HV *hv)
 }
 
 void
-Perl_hv_placeholders_set(pTHX_ HV *hv, I32 ph)
+Perl_hv_placeholders_set(pTHX_ HV *hv, SSize_t ph)
 {
     MAGIC * const mg = mg_find((const SV *)hv, PERL_MAGIC_rhash);
 
@@ -3208,7 +3220,7 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
 		   than the key we've already put in the hash, so if they are
 		   the same, skip adding entry.  */
 #ifdef USE_ITHREADS
-		const STRLEN klen = HeKLEN(entry);
+		const U32 klen = HeKLEN_UTF8(entry);
 		const char *const key = HeKEY(entry);
 		if (klen == chain->refcounted_he_keylen
 		    && (!!HeKUTF8(entry)
@@ -3290,6 +3302,7 @@ Perl_refcounted_he_fetch_pvn(pTHX_ const struct refcounted_he *chain,
     U8 utf8_flag;
     PERL_ARGS_ASSERT_REFCOUNTED_HE_FETCH_PVN;
 
+    assert(keylen <= I32_MAX);
     if (flags & ~(REFCOUNTED_HE_KEY_UTF8|REFCOUNTED_HE_EXISTS))
 	Perl_croak(aTHX_ "panic: refcounted_he_fetch_pvn bad flags %"UVxf,
 	    (UV)flags);
@@ -3747,7 +3760,7 @@ Perl_hv_assert(pTHX_ HV *hv)
     int placeholders = 0;
     int real = 0;
     int bad = 0;
-    const I32 riter = HvRITER_get(hv);
+    const SSize_t riter = HvRITER_get(hv);
     HE *eiter = HvEITER_get(hv);
 
     PERL_ARGS_ASSERT_HV_ASSERT;

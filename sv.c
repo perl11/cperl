@@ -492,11 +492,11 @@ S_sv_add_arena(pTHX_ char *const ptr, const U32 size, const U32 flags)
 /* visit(): call the named function for each non-free SV in the arenas
  * whose flags field matches the flags/mask args. */
 
-STATIC I32
+STATIC Size_t
 S_visit(pTHX_ SVFUNC_t f, const U32 flags, const U32 mask)
 {
     SV* sva;
-    I32 visited = 0;
+    Size_t visited = 0;
 
     PERL_ARGS_ASSERT_VISIT;
 
@@ -704,10 +704,10 @@ SVs which are in complex self-referential hierarchies.
 =cut
 */
 
-I32
+Size_t
 Perl_sv_clean_all(pTHX)
 {
-    I32 cleaned;
+    Size_t cleaned;
     PL_in_clean_all = TRUE;
     cleaned = visit(do_clean_all, 0,0);
     return cleaned;
@@ -3839,7 +3839,7 @@ Perl_sv_utf8_decode(pTHX_ SV *const sv)
 	    /* adjust pos to the start of a UTF8 char sequence */
 	    MAGIC * mg = mg_find(sv, PERL_MAGIC_regex_global);
 	    if (mg) {
-		I32 pos = mg->mg_len;
+		SSize_t pos = mg->mg_len;
 		if (pos > 0) {
 		    for (c = start + pos; c > start; c--) {
 			if (UTF8_IS_START(*c))
@@ -4185,7 +4185,7 @@ Perl_gv_setref(pTHX_ SV *const dstr, SV *const sstr)
 		if (omg) {
 		    if (SvTYPE(omg->mg_obj) == SVt_PVAV) {
 			SV **svp = AvARRAY((AV *)omg->mg_obj);
-			I32 items = AvFILLp((AV *)omg->mg_obj) + 1;
+			SSize_t items = AvFILLp((AV *)omg->mg_obj) + 1;
 			while (items--)
 			    av_push(
 			     (AV *)mg->mg_obj,
@@ -6553,7 +6553,7 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
     SV* iter_sv = NULL;
     SV* next_sv = NULL;
     SV *sv = orig_sv;
-    STRLEN hash_index = 0; /* initialise to make Coverity et al happy.
+    SSize_t hash_index = 0; /* initialise to make Coverity et al happy.
                               Not strictly necessary */
 
     PERL_ARGS_ASSERT_SV_CLEAR;
@@ -7437,7 +7437,7 @@ Perl_sv_pos_u2b_flags(pTHX_ SV *const sv, STRLEN uoffset, STRLEN *const lenp,
 }
 
 /*
-=for apidoc sv_pos_u2b
+=for apidoc ApdD|void|sv_pos_u2b
 
 Converts the value pointed to by offsetp from a count of UTF-8 chars from
 the start of the string, to a count of the equivalent number of bytes; if
@@ -7445,8 +7445,8 @@ lenp is non-zero, it does the same to lenp, but this time starting from
 the offset, rather than from the start of the string.  Handles magic and
 type coercion.
 
-Use C<sv_pos_u2b_flags> in preference, which correctly handles strings longer
-than 2Gb.
+Deprecated, use C<sv_pos_u2b_flags> in preference, which correctly
+handles strings longer than 2Gb.
 
 =cut
 */
@@ -7466,13 +7466,13 @@ Perl_sv_pos_u2b(pTHX_ SV *const sv, I32 *const offsetp, I32 *const lenp)
     PERL_ARGS_ASSERT_SV_POS_U2B;
 
     if (lenp) {
-	STRLEN ulen = (STRLEN)*lenp;
-	*offsetp = (I32)sv_pos_u2b_flags(sv, (STRLEN)*offsetp, &ulen,
-					 SV_GMAGIC|SV_CONST_RETURN);
-	*lenp = (I32)ulen;
+       STRLEN ulen = (STRLEN)*lenp;
+       *offsetp = (I32)sv_pos_u2b_flags(sv, (STRLEN)*offsetp, &ulen,
+                                        SV_GMAGIC|SV_CONST_RETURN);
+       *lenp = (I32)ulen;
     } else {
-	*offsetp = (I32)sv_pos_u2b_flags(sv, (STRLEN)*offsetp, NULL,
-					 SV_GMAGIC|SV_CONST_RETURN);
+       *offsetp = (I32)sv_pos_u2b_flags(sv, (STRLEN)*offsetp, NULL,
+                                        SV_GMAGIC|SV_CONST_RETURN);
     }
 }
 
@@ -7764,14 +7764,14 @@ Perl_sv_pos_b2u_flags(pTHX_ SV *const sv, STRLEN const offset, U32 flags)
 }
 
 /*
-=for apidoc sv_pos_b2u
+=for apidoc ApdD|void|sv_pos_b2u
 
 Converts the value pointed to by offsetp from a count of bytes from the
 start of the string, to a count of the equivalent number of UTF-8 chars.
 Handles magic and type coercion.
 
-Use C<sv_pos_b2u_flags> in preference, which correctly handles strings
-longer than 2Gb.
+Deprecated, use C<sv_pos_b2u_flags> in preference, which correctly
+handles strings longer than 2Gb.
 
 =cut
 */
@@ -7790,8 +7790,8 @@ Perl_sv_pos_b2u(pTHX_ SV *const sv, I32 *const offsetp)
     if (!sv)
 	return;
 
-    *offsetp = (I32)sv_pos_b2u_flags(sv, (STRLEN)*offsetp,
-				     SV_GMAGIC|SV_CONST_RETURN);
+    *offsetp = sv_pos_b2u_flags(sv, (STRLEN)*offsetp,
+                                SV_GMAGIC|SV_CONST_RETURN);
 }
 
 static void
@@ -8288,7 +8288,7 @@ in the SV (typically, C<SvCUR(sv)> is a suitable choice).
 */
 
 char *
-Perl_sv_gets(pTHX_ SV *const sv, PerlIO *const fp, I32 append)
+Perl_sv_gets(pTHX_ SV *const sv, PerlIO *const fp, STRLEN append)
 {
     const char *rsptr;
     STRLEN rslen;
@@ -8314,7 +8314,7 @@ Perl_sv_gets(pTHX_ SV *const sv, PerlIO *const fp, I32 append)
 	if (PerlIO_isutf8(fp)) {
 	    if (!SvUTF8(sv)) {
 		sv_utf8_upgrade_nomg(sv);
-		sv_pos_u2b(sv,&append,0);
+		append = sv_pos_u2b_flags(sv,append,0,SV_GMAGIC|SV_CONST_RETURN);
 	    }
 	} else if (SvUTF8(sv)) {
 	    return S_sv_gets_append_to_utf8(aTHX_ sv, fp, append);
@@ -8344,7 +8344,7 @@ Perl_sv_gets(pTHX_ SV *const sv, PerlIO *const fp, I32 append)
 	Stat_t st;
 	if (!PerlLIO_fstat(PerlIO_fileno(fp), &st) && S_ISREG(st.st_mode))  {
 	    const Off_t offset = PerlIO_tell(fp);
-	    if (offset != (Off_t) -1 && st.st_size + append > offset) {
+	    if (offset != (Off_t) -1 && (Off_t)(st.st_size + append) > offset) {
 #ifdef PERL_NEW_COPY_ON_WRITE
                 /* Add an extra byte for the sake of copy-on-write's
                  * buffer reference count. */
@@ -8426,7 +8426,7 @@ Perl_sv_gets(pTHX_ SV *const sv, PerlIO *const fp, I32 append)
     STDCHAR *ptr;       /* pointer into fp's read-ahead buffer */
     STRLEN bpx;         /* length of the data in the target sv
                            used to fix pointers after a SvGROW */
-    I32 shortbuffered;  /* If the pv buffer is shorter than the amount
+    STRLEN shortbuffered;  /* If the pv buffer is shorter than the amount
                            of data left in the read-ahead buffer.
                            If 0 then the pv buffer can hold the full
                            amount left, otherwise this is the amount it
@@ -8503,11 +8503,11 @@ Perl_sv_gets(pTHX_ SV *const sv, PerlIO *const fp, I32 append)
     cnt = PerlIO_get_cnt(fp);
 
     /* make sure we have the room */
-    if ((I32)(SvLEN(sv) - append) <= cnt + 1) {
+    if (SvLEN(sv) - append <= (STRLEN)(cnt + 1)) {
     	/* Not room for all of it
 	   if we are looking for a separator and room for some
 	 */
-	if (rslen && cnt > 80 && (I32)SvLEN(sv) > append) {
+	if (rslen && cnt > 80 && SvLEN(sv) > append) {
 	    /* just process what we have room for */
 	    shortbuffered = cnt - SvLEN(sv) + append + 1;
 	    cnt -= shortbuffered;
@@ -13738,7 +13738,7 @@ S_sv_dup_common(pTHX_ const SV *const sstr, CLONE_PARAMS *const param)
 		break;
 	    case SVt_PVHV:
 		if (HvARRAY((const HV *)sstr)) {
-		    STRLEN i = 0;
+		    SSize_t i = 0;
 		    const bool sharekeys = !!HvSHAREKEYS(sstr);
 		    XPVHV * const dxhv = (XPVHV*)SvANY(dstr);
 		    XPVHV * const sxhv = (XPVHV*)SvANY(sstr);
@@ -15527,7 +15527,7 @@ S_find_hash_subscript(pTHX_ const HV *const hv, const SV *const val)
 /* Look for an entry in the array whose value has the same SV as val;
  * If so, return the index, otherwise return -1. */
 
-STATIC I32
+STATIC SSize_t
 S_find_array_subscript(pTHX_ const AV *const av, const SV *const val)
 {
     PERL_ARGS_ASSERT_FIND_ARRAY_SUBSCRIPT;
@@ -15538,7 +15538,7 @@ S_find_array_subscript(pTHX_ const AV *const av, const SV *const val)
 
     if (val != &PL_sv_undef) {
 	SV ** const svp = AvARRAY(av);
-	I32 i;
+	SSize_t i;
 
 	for (i=AvFILLp(av); i>=0; i--)
 	    if (svp[i] == val)

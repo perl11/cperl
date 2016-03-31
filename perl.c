@@ -4434,7 +4434,7 @@ S_init_postdump_symbols(pTHX_ int argc, char **argv, char **env)
                   const char *name = HePV(entry, nlen);
                   IV count = SvIV(HeVAL(entry));
                   IV i;
-                  SV **valp = hv_fetch(hv, name, nlen, 0);
+                  SV **valp = hv_fetch(hv, name, (I32)nlen, 0);
 
                   assert(valp);
 

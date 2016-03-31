@@ -1011,7 +1011,8 @@ shared by multiple SVs.
 
 You can test whether an SV is using copy-on-write with C<SvIsCOW(sv)>.
 
-You can force an SV to make its own copy of its string buffer by calling C<sv_force_normal(sv)> or SvPV_force_nolen(sv).
+You can force an SV to make its own copy of its string buffer by
+calling C<sv_force_normal(sv)> or SvPV_force_nolen(sv).
 
 If you want to make the SV drop its string buffer, use
 C<sv_force_normal_flags(sv, SV_COW_DROP_PV)> or simply
@@ -3005,6 +3006,20 @@ To compare two strings case-insensitively, use
 L<C<foldEQ_utf8()>|perlapi/foldEQ_utf8> (the strings don't have to have
 the same UTF-8ness).
 
+=head2 Various lengths and index types
+
+Internally perl uses various different lengths for different data
+types, which will vary for 32bit and 64bit systems, but are only
+dependent on the architecture, not customziable by changing the C<IV>
+and C<UV> types.
+
+A PV string has C<STRLEN> (i.e. max 32/64bit), a hash key only C<I32>.
+Names are usually stored as hash key, hence max C<I32_MAX> (31bit).
+Arrays and hashes allow C<SSize_t> indices, which is 31/63bit.
+
+A refcounted_he (used to store hints for lexical pragmas) has the length
+C<U32> with threads and C<STRLEN> without.
+
 =head2 Is there anything else I need to know?
 
 Not really.  Just remember these things:
@@ -3160,7 +3175,7 @@ itself by the Perl 5 Porters E<lt>perl5-porters@perl.orgE<gt>.
 With lots of help and suggestions from Dean Roehrich, Malcolm Beattie,
 Andreas Koenig, Paul Hudson, Ilya Zakharevich, Paul Marquess, Neil
 Bowers, Matthew Green, Tim Bunce, Spider Boardman, Ulrich Pfeifer,
-Stephen McCamant, and Gurusamy Sarathy.
+Stephen McCamant, Reini Urban and Gurusamy Sarathy.
 
 =head1 SEE ALSO
 

@@ -576,7 +576,7 @@ union _xivu {
 
 union _xmgu {
     MAGIC*  xmg_magic;		/* linked list of magicalness */
-    STRLEN  xmg_hash_index;	/* used while freeing hash entries */
+    SSize_t xmg_hash_index;	/* used while freeing hash entries */
 };
 
 struct xpv {
@@ -1749,9 +1749,9 @@ Like sv_utf8_upgrade, but doesn't do magic on C<sv>.
 
 /* ----*/
 
-#define SvPV(sv, lp)         SvPV_flags(sv, lp, SV_GMAGIC)
-#define SvPV_const(sv, lp)   SvPV_flags_const(sv, lp, SV_GMAGIC)
-#define SvPV_mutable(sv, lp) SvPV_flags_mutable(sv, lp, SV_GMAGIC)
+#define SvPV(sv, lp)         SvPV_flags(sv, (lp), SV_GMAGIC)
+#define SvPV_const(sv, lp)   SvPV_flags_const(sv, (lp), SV_GMAGIC)
+#define SvPV_mutable(sv, lp) SvPV_flags_mutable(sv, (lp), SV_GMAGIC)
 
 #define SvPV_flags(sv, lp, flags) \
     (SvPOK_nog(sv) \
@@ -1769,11 +1769,11 @@ Like sv_utf8_upgrade, but doesn't do magic on C<sv>.
      ? ((lp = SvCUR(sv)), SvPVX_mutable(sv)) : \
      sv_2pv_flags(sv, &lp, (flags|SV_MUTABLE_RETURN)))
 
-#define SvPV_force(sv, lp) SvPV_force_flags(sv, lp, SV_GMAGIC)
+#define SvPV_force(sv, lp) SvPV_force_flags(sv, (lp), SV_GMAGIC)
 #define SvPV_force_nolen(sv) SvPV_force_flags_nolen(sv, SV_GMAGIC)
-#define SvPV_force_mutable(sv, lp) SvPV_force_flags_mutable(sv, lp, SV_GMAGIC)
+#define SvPV_force_mutable(sv, lp) SvPV_force_flags_mutable(sv, (lp), SV_GMAGIC)
 
-#define SvPV_force_nomg(sv, lp) SvPV_force_flags(sv, lp, 0)
+#define SvPV_force_nomg(sv, lp) SvPV_force_flags(sv, (lp), 0)
 #define SvPV_force_nomg_nolen(sv) SvPV_force_flags_nolen(sv, 0)
 
 #define SvPV_force_flags(sv, lp, flags) \
@@ -1787,7 +1787,7 @@ Like sv_utf8_upgrade, but doesn't do magic on C<sv>.
 #define SvPV_force_flags_mutable(sv, lp, flags) \
     (SvPOK_pure_nogthink(sv) \
      ? ((lp = SvCUR(sv)), SvPVX_mutable(sv)) \
-     : sv_pvn_force_flags(sv, &lp, flags|SV_MUTABLE_RETURN))
+     : sv_pvn_force_flags(sv, &(lp), flags|SV_MUTABLE_RETURN))
 
 #define SvPV_nolen(sv) \
     (SvPOK_nog(sv) \
@@ -1802,19 +1802,19 @@ Like sv_utf8_upgrade, but doesn't do magic on C<sv>.
     (SvPOK_nog(sv) \
      ? SvPVX_const(sv) : sv_2pv_flags(sv, 0, SV_GMAGIC|SV_CONST_RETURN))
 
-#define SvPV_nomg(sv, lp) SvPV_flags(sv, lp, 0)
-#define SvPV_nomg_const(sv, lp) SvPV_flags_const(sv, lp, 0)
+#define SvPV_nomg(sv, lp) SvPV_flags(sv, (lp), 0)
+#define SvPV_nomg_const(sv, lp) SvPV_flags_const(sv, (lp), 0)
 #define SvPV_nomg_const_nolen(sv) SvPV_flags_const_nolen(sv, 0)
 
 /* ----*/
 
 #define SvPVutf8(sv, lp) \
     (SvPOK_utf8_nog(sv) \
-     ? ((lp = SvCUR(sv)), SvPVX(sv)) : sv_2pvutf8(sv, &lp))
+     ? ((lp = SvCUR(sv)), SvPVX(sv)) : sv_2pvutf8(sv, &(lp)))
 
 #define SvPVutf8_force(sv, lp) \
     (SvPOK_utf8_pure_nogthink(sv) \
-     ? ((lp = SvCUR(sv)), SvPVX(sv)) : sv_pvutf8n_force(sv, &lp))
+     ? ((lp = SvCUR(sv)), SvPVX(sv)) : sv_pvutf8n_force(sv, &(lp)))
 
 #define SvPVutf8_nolen(sv) \
     (SvPOK_utf8_nog(sv) \
@@ -1824,11 +1824,11 @@ Like sv_utf8_upgrade, but doesn't do magic on C<sv>.
 
 #define SvPVbyte(sv, lp) \
     (SvPOK_byte_nog(sv) \
-     ? ((lp = SvCUR(sv)), SvPVX(sv)) : sv_2pvbyte(sv, &lp))
+     ? ((lp = SvCUR(sv)), SvPVX(sv)) : sv_2pvbyte(sv, &(lp)))
 
 #define SvPVbyte_force(sv, lp) \
     (SvPOK_byte_pure_nogthink(sv) \
-     ? ((lp = SvCUR(sv)), SvPVX(sv)) : sv_pvbyten_force(sv, &lp))
+     ? ((lp = SvCUR(sv)), SvPVX(sv)) : sv_pvbyten_force(sv, &(lp)))
 
 #define SvPVbyte_nolen(sv) \
     (SvPOK_byte_nog(sv) \
@@ -1840,9 +1840,9 @@ Like sv_utf8_upgrade, but doesn't do magic on C<sv>.
  * failing that, call a function to do the work
  */
 
-#define SvPVx_force(sv, lp) sv_pvn_force(sv, &lp)
-#define SvPVutf8x_force(sv, lp) sv_pvutf8n_force(sv, &lp)
-#define SvPVbytex_force(sv, lp) sv_pvbyten_force(sv, &lp)
+#define SvPVx_force(sv, lp) sv_pvn_force(sv, &(lp))
+#define SvPVutf8x_force(sv, lp) sv_pvutf8n_force(sv, &(lp))
+#define SvPVbytex_force(sv, lp) sv_pvbyten_force(sv, &(lp))
 
 #define SvTRUE(sv)        (LIKELY(sv) && (UNLIKELY(SvGMAGICAL(sv)) ? sv_2bool(sv) : SvTRUE_common(sv, sv_2bool_nomg(sv))))
 #define SvTRUE_nomg(sv)   (LIKELY(sv) && (                                SvTRUE_common(sv, sv_2bool_nomg(sv))))

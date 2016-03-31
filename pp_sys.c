@@ -2048,20 +2048,17 @@ PP(pp_syswrite)
 	    } else {
 		/* It's a real UTF-8 SV, and it's not going to change under
 		   us.  Take advantage of any cache.  */
-		I32 start = offset;
-		I32 len_I32 = length;
 
 		/* Convert the start and end character positions to bytes.
 		   Remember that the second argument to sv_pos_u2b is relative
-		   to the first.  */
-		sv_pos_u2b(bufsv, &start, &len_I32);
-
-		buffer += start;
-		length = len_I32;
+		   to the first. */
+		offset = sv_pos_u2b_flags(bufsv, (STRLEN)offset, &length,
+                                          SV_GMAGIC|SV_CONST_RETURN);
+		buffer += offset;
 	    }
 	}
 	else {
-	    buffer = buffer+offset;
+	    buffer = buffer + offset;
 	}
 #ifdef PERL_SOCK_SYSWRITE_IS_SEND
 	if (IoTYPE(io) == IoTYPE_SOCKET) {

@@ -17,6 +17,25 @@ For B<cperl> also see F<Changes> and L<perlcperl>
 
 =item *
 
+Harmonize the lengths, counts and sizes for hash and array indices
+from a broken mix of int/I32 to SSize_t (31/63bit) with silent
+truncation overflows and unreachable elements.  Changed many wrong API
+sizes.
+
+STRLEN (i.e.  Size_t) for string lengths, and I32 for HEK lengths,
+also used by names.
+
+Array and hash indices and lengths are now SSize_t (signed 31/63
+bits), but really should be UV or Size_t. Esp. the hash riter is not
+I32 anymore, so you can now iterate over all hash keys, but there were
+many other silent truncations in helper functions.
+
+This allows on 64bit systems 64bit string lengths, and 63bit array and
+hash sizes, but limits on 32bit systems the max. hash size from 32 to
+31bit.
+
+=item *
+
 Safer INC path. It does not include "." anymore, unless you set the env
 C<PERL_USE_UNSAFE_INC=1>. (#118)
 CVSSv2 Severity: 8.5 (AV:N/AC:M/Au:S/C:C/I:C/A:C)

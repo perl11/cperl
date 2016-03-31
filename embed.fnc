@@ -412,10 +412,10 @@ s	|bool	|openn_cleanup	|NN GV *gv|NN IO *io|NULLOK PerlIO *fp \
                                 |int savefd|char savetype|int writing \
                                 |bool was_fdopen|NULLOK const char *type
 #endif
-Ap	|bool	|do_openn	|NN GV *gv|NN const char *oname|I32 len \
+Ap	|bool	|do_openn	|NN GV *gv|NN const char *oname|STRLEN len \
 				|int as_raw|int rawmode|int rawperm \
 				|NULLOK PerlIO *supplied_fp|NULLOK SV **svp \
-				|I32 num
+				|U32 num
 Mp	|bool	|do_open_raw	|NN GV *gv|NN const char *oname|STRLEN len \
 				|int rawmode|int rawperm
 Mp	|bool	|do_open6	|NN GV *gv|NN const char *oname|STRLEN len \
@@ -572,14 +572,14 @@ Abmd	|SV**	|hv_fetch	|NULLOK HV *hv|NN const char *key|I32 klen \
 				|I32 lval
 Abmd	|HE*	|hv_fetch_ent	|NULLOK HV *hv|NN SV *keysv|I32 lval|U32 hash
 Ap	|void*	|hv_common	|NULLOK HV *hv|NULLOK SV *keysv \
-				|NULLOK const char* key|STRLEN klen|int flags \
+				|NULLOK const char* key|I32 klen|int flags \
 				|int action|NULLOK SV *val|U32 hash
 Ap	|void*	|hv_common_key_len|NULLOK HV *hv|NN const char *key \
-				|I32 klen_i32|const int action|NULLOK SV *val \
+				|I32 klen|const int action|NULLOK SV *val \
 				|const U32 hash
-Apod	|STRLEN	|hv_fill	|NN HV *const hv
+Apod	|SSize_t|hv_fill	|NN HV *const hv
 Ap	|void	|hv_free_ent	|NN HV *hv|NULLOK HE *entry
-Apd	|I32	|hv_iterinit	|NN HV *hv
+Apd	|SSize_t|hv_iterinit	|NN HV *hv
 ApdR	|char*	|hv_iterkey	|NN HE* entry|NN I32* retlen
 ApdR	|SV*	|hv_iterkeysv	|NN HE* entry
 ApdRbm	|HE*	|hv_iternext	|NN HV *hv
@@ -1391,7 +1391,7 @@ Amdb	|void	|sv_catpvn	|NN SV *dsv|NN const char *sstr|STRLEN len
 Amdb	|void	|sv_catsv	|NN SV *dstr|NULLOK SV *sstr
 Apd	|void	|sv_chop	|NN SV *const sv|NULLOK const char *const ptr
 : Used only in perl.c
-pd	|I32	|sv_clean_all
+pd	|Size_t	|sv_clean_all
 : Used only in perl.c
 pd	|void	|sv_clean_objs
 Apd	|void	|sv_clear	|NN SV *const orig_sv
@@ -1428,7 +1428,7 @@ Apd	|void	|sv_free	|NULLOK SV *const sv
 poMX	|void	|sv_free2	|NN SV *const sv|const U32 refcnt
 : Used only in perl.c
 pd	|void	|sv_free_arenas
-Apd	|char*	|sv_gets	|NN SV *const sv|NN PerlIO *const fp|I32 append
+Apd	|char*	|sv_gets	|NN SV *const sv|NN PerlIO *const fp|STRLEN append
 Apd	|char*	|sv_grow	|NN SV *const sv|STRLEN newlen
 Apd	|void	|sv_inc		|NULLOK SV *const sv
 Apd	|void	|sv_inc_nomg	|NULLOK SV *const sv
@@ -1455,10 +1455,10 @@ XpaR	|SV*	|sv_mortalcopy_flags|NULLOK SV *const oldsv|U32 flags
 ApdR	|SV*	|sv_newmortal
 Apd	|SV*	|sv_newref	|NULLOK SV *const sv
 Ap	|char*	|sv_peek	|NULLOK SV* sv
-Apd	|void	|sv_pos_u2b	|NULLOK SV *const sv|NN I32 *const offsetp|NULLOK I32 *const lenp
+ApdD	|void	|sv_pos_u2b	|NULLOK SV *const sv|NN I32 *const offsetp|NULLOK I32 *const lenp
 Apd	|STRLEN	|sv_pos_u2b_flags|NN SV *const sv|STRLEN uoffset \
 				|NULLOK STRLEN *const lenp|U32 flags
-Apd	|void	|sv_pos_b2u	|NULLOK SV *const sv|NN I32 *const offsetp
+ApdD	|void	|sv_pos_b2u	|NULLOK SV *const sv|NN I32 *const offsetp
 Apd	|STRLEN	|sv_pos_b2u_flags|NN SV *const sv|STRLEN const offset \
 				 |U32 flags
 Amdb	|char*	|sv_pvn_force	|NN SV* sv|NULLOK STRLEN* lp
@@ -1899,11 +1899,11 @@ s	|HV*	|require_tie_mod|NN GV *gv|NN const char *varpv|NN SV* namesv \
 #endif
 
 #if defined(PERL_IN_HV_C) || defined(PERL_IN_SV_C)
-po	|SV*	|hfree_next_entry	|NN HV *hv|NN STRLEN *indexp
+po	|SV*	|hfree_next_entry	|NN HV *hv|NN SSize_t *indexp
 #endif
 
 #if defined(PERL_IN_HV_C)
-s	|void	|hsplit		|NN HV *hv|STRLEN const oldsize|STRLEN newsize
+s	|void	|hsplit		|NN HV *hv|SSize_t const oldsize|SSize_t newsize
 s	|void	|hfreeentries	|NN HV *hv
 s	|SV*	|hv_free_ent_ret|NN HV *hv|NN HE *entry
 sa	|HE*	|new_he
@@ -1918,9 +1918,9 @@ in	|U32|ptr_hash|PTRV u
 s	|struct xpvhv_aux*|hv_auxinit|NN HV *hv
 sn	|struct xpvhv_aux*|hv_auxinit_internal|NN struct xpvhv_aux *iter
 sM	|SV*	|hv_delete_common|NULLOK HV *hv|NULLOK SV *keysv \
-		|NULLOK const char *key|STRLEN klen|int k_flags|I32 d_flags \
+		|NULLOK const char *key|I32 klen|int k_flags|I32 d_flags \
 		|U32 hash
-sM	|void	|clear_placeholders	|NN HV *hv|U32 items
+sM	|void	|clear_placeholders	|NN HV *hv|SSize_t items
 #endif
 
 #if defined(PERL_IN_MG_C)
@@ -2357,7 +2357,7 @@ i	|void	|sv_unglob	|NN SV *const sv|U32 flags
 s	|const char *|sv_display	|NN SV *const sv|NN char *tmpbuf|STRLEN tmpbuf_size
 s	|void	|not_a_number	|NN SV *const sv
 s	|void	|not_incrementable	|NN SV *const sv
-s	|I32	|visit		|NN SVFUNC_t f|const U32 flags|const U32 mask
+s	|Size_t	|visit		|NN SVFUNC_t f|const U32 flags|const U32 mask
 #  ifdef DEBUGGING
 s	|void	|del_sv	|NN SV *p
 #  endif
@@ -2673,9 +2673,9 @@ Apod	|void	|hv_assert	|NN HV *hv
 #endif
 
 ApdR	|SV*	|hv_scalar	|NN HV *hv
-ApoR	|I32*	|hv_riter_p	|NN HV *hv
+ApoR	|SSize_t*|hv_riter_p	|NN HV *hv
 ApoR	|HE**	|hv_eiter_p	|NN HV *hv
-Apo	|void	|hv_riter_set	|NN HV *hv|I32 riter
+Apo	|void	|hv_riter_set	|NN HV *hv|SSize_t riter
 Apo	|void	|hv_eiter_set	|NN HV *hv|NULLOK HE *eiter
 Ap      |void   |hv_rand_set    |NN HV *hv|U32 new_xhv_rand
 Ap	|void	|hv_name_set	|NN HV *hv|NULLOK const char *name|U32 len|U32 flags
@@ -2690,8 +2690,8 @@ poM	|void	|hv_kill_backrefs	|NN HV *hv
 #endif
 Apd	|void	|hv_clear_placeholders	|NN HV *hv
 XpoR	|SSize_t*|hv_placeholders_p	|NN HV *hv
-ApoR	|I32	|hv_placeholders_get	|NN const HV *hv
-Apo	|void	|hv_placeholders_set	|NN HV *hv|I32 ph
+ApoR	|SSize_t|hv_placeholders_get	|NN const HV *hv
+Apo	|void	|hv_placeholders_set	|NN HV *hv|SSize_t ph
 
 : This is indirectly referenced by globals.c. This is somewhat annoying.
 p	|SV*	|magic_scalarpack|NN HV *hv|NN MAGIC *mg
@@ -2699,7 +2699,7 @@ p	|SV*	|magic_scalarpack|NN HV *hv|NN MAGIC *mg
 #if defined(PERL_IN_SV_C)
 s	|SV *	|find_hash_subscript|NULLOK const HV *const hv \
 		|NN const SV *const val
-s	|I32	|find_array_subscript|NULLOK const AV *const av \
+s	|SSize_t|find_array_subscript|NULLOK const AV *const av \
 		|NN const SV *const val
 sMd	|SV*	|find_uninit_var|NULLOK const OP *const obase \
 		|NULLOK const SV *const uninit_sv|bool match \

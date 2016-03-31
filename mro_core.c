@@ -268,14 +268,14 @@ S_mro_get_linear_isa_dfs(pTHX_ HV *stash, U32 level)
     if(av && AvFILLp(av) >= 0) {
 
         SV **svp = AvARRAY(av);
-        I32 items = AvFILLp(av) + 1;
+        SSize_t items = AvFILLp(av) + 1;
 
         /* foreach(@ISA) */
         while (items--) {
             SV* const sv = *svp ? *svp : &PL_sv_undef;
             HV* const basestash = gv_stashsv(sv, 0);
 	    SV *const *subrv_p;
-	    I32 subrv_items;
+	    SSize_t subrv_items;
 	    svp++;
 
             if (!basestash) {
@@ -487,7 +487,7 @@ Perl_mro_isa_changed_in(pTHX_ HV* stash)
     AV* linear_mro;
     HE* iter;
     SV** svp;
-    I32 items;
+    SSize_t items;
     bool is_universal;
     struct mro_meta * meta;
     HV *isa = NULL;
@@ -590,7 +590,7 @@ Perl_mro_isa_changed_in(pTHX_ HV* stash)
         SvREFCNT_inc_simple_void_NN(sv_2mortal((SV *)isarev));
 
         if(isa_hashes) {
-            hv_iterinit(isa_hashes);
+            (void)hv_iterinit(isa_hashes);
             while((iter = hv_iternext(isa_hashes))) {
                 HV* const revstash = *(HV **)HEK_KEY(HeKEY_hek(iter));
                 HV * const isa = (HV *)HeVAL(iter);
@@ -851,7 +851,7 @@ Perl_mro_package_moved(pTHX_ HV * const stash, HV * const oldstash,
 
     /* Once the caches have been wiped on all the classes, call
        mro_isa_changed_in on each. */
-    hv_iterinit(stashes);
+    (void)hv_iterinit(stashes);
     while((iter = hv_iternext(stashes))) {
 	HV * const stash = *(HV **)HEK_KEY(HeKEY_hek(iter));
 	if(HvENAME(stash)) {
@@ -881,8 +881,8 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 {
     XPVHV* xhv;
     HE *entry;
-    I32 riter = -1;
-    I32 items = 0;
+    SSize_t riter = HV_NO_RITER;
+    SSize_t items = 0;
     const bool stash_had_name = stash && HvENAME(stash);
     bool fetched_isarev = FALSE;
     HV *seen = NULL;
@@ -1080,7 +1080,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 	    if (!he || !(isarev = MUTABLE_HV(HeVAL(he)))) continue;
 	}
 
-	hv_iterinit(isarev);
+	(void)hv_iterinit(isarev);
 	while((iter = hv_iternext(isarev))) {
 	    HV* revstash = gv_stashsv(hv_iterkeysv(iter), 0);
 	    struct mro_meta * meta;
@@ -1114,7 +1114,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 	   list, meanwhile doing the equivalent of $seen{$key} = 1.
 	 */
 
-	while (++riter <= (I32)xhv->xhv_max) {
+	while (++riter <= xhv->xhv_max) {
 	    entry = (HvARRAY(oldstash))[riter];
 
 	    /* Iterate through the entries in this list */
@@ -1198,7 +1198,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 
 	/* Iterate through the new stash, skipping $seen{$key} items,
 	   calling mro_gather_and_rename(stashes,seen,entry,NULL, ...). */
-	while (++riter <= (I32)xhv->xhv_max) {
+	while (++riter <= xhv->xhv_max) {
 	    entry = (HvARRAY(stash))[riter];
 
 	    /* Iterate through the entries in this list */
@@ -1307,7 +1307,7 @@ void
 Perl_mro_method_changed_in(pTHX_ HV *stash)
 {
     const char * const stashname = HvENAME_get(stash);
-    const STRLEN stashname_len = HvENAMELEN_get(stash);
+    const I32 stashname_len = HvENAMELEN_get(stash);
 
     SV ** const svp = hv_fetchhek(PL_isarev, HvENAME_HEK(stash), 0);
     HV * const isarev = svp ? MUTABLE_HV(*svp) : NULL;
@@ -1336,7 +1336,7 @@ Perl_mro_method_changed_in(pTHX_ HV *stash)
     if(isarev) {
 	HE* iter;
 
-        hv_iterinit(isarev);
+        (void)hv_iterinit(isarev);
         while((iter = hv_iternext(isarev))) {
             HV* const revstash = gv_stashsv(hv_iterkeysv(iter), 0);
             struct mro_meta* mrometa;

@@ -563,13 +563,13 @@ Perl_dump_packsubs(pTHX_ const HV *stash)
 void
 Perl_dump_packsubs_perl(pTHX_ const HV *stash, bool justperl)
 {
-    I32	i;
+    SSize_t i;
 
     PERL_ARGS_ASSERT_DUMP_PACKSUBS_PERL;
 
     if (!HvARRAY(stash))
 	return;
-    for (i = 0; i <= (I32) HvMAX(stash); i++) {
+    for (i = 0; i <= HvMAX(stash); i++) {
         const HE *entry;
 	for (entry = HvARRAY(stash)[i]; entry; entry = HeNEXT(entry)) {
 	    GV * gv = (GV *)HeVAL(entry);
@@ -1729,16 +1729,16 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	    /* Show distribution of HEs in the ARRAY */
 	    int freq[200];
 #define FREQ_MAX ((int)(C_ARRAY_LENGTH(freq) - 1))
-	    int i;
+	    SSize_t i;
 	    int max = 0;
 	    U32 pow2 = 2, keys = usedkeys;
 	    NV theoret, sum = 0;
 
 	    PerlIO_printf(file, "  (");
 	    Zero(freq, FREQ_MAX + 1, int);
-	    for (i = 0; (STRLEN)i <= HvMAX(sv); i++) {
+	    for (i = 0; i <= HvMAX(sv); i++) {
 		HE* h;
-		int count = 0;
+		SSize_t count = 0;
                 for (h = HvARRAY(sv)[i]; h; h = HeNEXT(h))
 		    count++;
 		if (count > FREQ_MAX)
@@ -1749,7 +1749,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	    }
 	    for (i = 0; i <= max; i++) {
 		if (freq[i]) {
-		    PerlIO_printf(file, "%d%s:%d", i,
+		    PerlIO_printf(file, "%d%s:%d", (int)i,
 				  (i == FREQ_MAX) ? "+" : "",
 				  freq[i]);
 		    if (i != max)
@@ -1781,7 +1781,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	PerlIO_putc(file, '\n');
 	Perl_dump_indent(aTHX_ level, file, "  KEYS = %"IVdf"\n", (IV)usedkeys);
         {
-            STRLEN count = 0;
+            SSize_t count = 0;
             HE **ents = HvARRAY(sv);
 
             if (ents) {
@@ -1810,7 +1810,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	    Perl_dump_indent(aTHX_ level, file, "  EITER = 0x%"UVxf"\n", PTR2UV(HvEITER_get(sv)));
 #ifdef PERL_HASH_RANDOMIZE_KEYS
 	    Perl_dump_indent(aTHX_ level, file, "  RAND = 0x%"UVxf, (UV)HvRAND_get(sv));
-            if (HvRAND_get(sv) != HvLASTRAND_get(sv) && HvRITER_get(sv) != -1 ) {
+            if (HvRAND_get(sv) != HvLASTRAND_get(sv) && HvRITER_get(sv) != HV_NO_RITER ) {
                 PerlIO_printf(file, " (LAST = 0x%"UVxf")", (UV)HvLASTRAND_get(sv));
             }
             PerlIO_putc(file, '\n');
@@ -1919,7 +1919,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	}
 	if (nest < maxnest) {
 	    HV * const hv = MUTABLE_HV(sv);
-	    STRLEN i;
+	    SSize_t i;
 	    HE *he;
 
 	    if (HvARRAY(hv)) {
@@ -2637,13 +2637,13 @@ Perl_hv_dump(pTHX_ SV* sv, bool with_values)
     PerlIO* file = Perl_debug_log;
     HE **ents = HvARRAY(sv);
     int level = 0;
-    int i;
+    SSize_t i;
     Perl_dump_indent(aTHX_ level, file, "KEYS = %"IVdf"\n", (IV)HvUSEDKEYS(sv));
     Perl_dump_indent(aTHX_ level, file, "ARRAY = 0x%"UVxf"\n", PTR2UV(ents));
     if (ents && HvUSEDKEYS(sv)) {
-        for (i = 0; (STRLEN)i <= HvMAX(sv); i++) {
+        for (i = 0; i <= HvMAX(sv); i++) {
             HE* h;
-	    PerlIO_printf(file, "[%d]: ", i);
+	    PerlIO_printf(file, "[%d]: ", (int)i);
             for (h = ents[i]; h; h = HeNEXT(h)) {
                 if (with_values)
                     PerlIO_printf(file, "\"%s\" => %s", HeKEY(h), sv_peek(HeVAL(h)));

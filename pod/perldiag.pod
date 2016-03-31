@@ -4386,6 +4386,10 @@ repeatedly, but each time something re-created entries in the glob.
 Most likely the glob contains an object with a reference back to
 the glob and a destructor that adds a new object to the glob.
 
+=item panic: hv_riter_set riter %d must be >= -1
+
+(P) Invalid API call to hv_iter_set/HvRITER_set().
+
 =item panic: INTERPCASEMOD, %s
 
 (P) The lexer got into a bad state at a case modifier.

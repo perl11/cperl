@@ -1300,7 +1300,7 @@ Perl_magic_set_all_env(pTHX_ SV *sv, MAGIC *mg)
     if (PL_localizing) {
 	HE* entry;
 	my_clearenv();
-	hv_iterinit(MUTABLE_HV(sv));
+	(void)hv_iterinit(MUTABLE_HV(sv));
 	while ((entry = hv_iternext(MUTABLE_HV(sv)))) {
 	    I32 keylen;
 	    my_setenv(hv_iterkey(entry, &keylen),

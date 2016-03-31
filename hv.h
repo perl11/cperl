@@ -111,7 +111,7 @@ struct xpvhv_aux {
     union _xhvnameu xhv_name_u;	/* name, if a symbol table */
     AV		*xhv_backreferences; /* back references for weak references */
     HE		*xhv_eiter;	/* current entry of iterator */
-    I32		xhv_riter;	/* current root of iterator */
+    SSize_t	xhv_riter;	/* current root of iterator */
 
 /* Concerning xhv_name_count: When non-zero, xhv_name_u contains a pointer 
  * to an array of HEK pointers, this being the length. The first element is
@@ -139,9 +139,11 @@ struct xpvhv_aux {
 struct xpvhv {
     HV*		xmg_stash;	/* class package */
     union _xmgu	xmg_u;
-    STRLEN      xhv_keys;       /* total keys, including placeholders */
-    STRLEN      xhv_max;        /* subscript of last element of xhv_array */
+    SSize_t     xhv_keys;       /* total keys, including placeholders */
+    SSize_t     xhv_max;        /* subscript of last element of xhv_array */
 };
+
+#define HV_NO_RITER -1
 
 /*
 =head1 Hash Manipulation Functions
@@ -164,7 +166,7 @@ Null HV pointer.
 Returns the package name of a stash, or NULL if C<stash> isn't a stash.
 See C<SvSTASH>, C<CvSTASH>.
 
-=for apidoc Am|STRLEN|HvNAMELEN|HV *stash
+=for apidoc Am|I32|HvNAMELEN|HV *stash
 Returns the length of the stash's name.
 
 =for apidoc Am|unsigned char|HvNAMEUTF8|HV *stash
@@ -178,7 +180,7 @@ A stash that is no longer in the symbol table has no effective name.  This
 name is preferable to C<HvNAME> for use in MRO linearisations and isa
 caches.
 
-=for apidoc Am|STRLEN|HvENAMELEN|HV *stash
+=for apidoc Am|I32|HvENAMELEN|HV *stash
 Returns the length of the stash's effective name.
 
 =for apidoc Am|unsigned char|HvENAMEUTF8|HV *stash
@@ -190,7 +192,7 @@ pointer may be either C<char*> or C<SV*>, depending on the value of
 C<HeKLEN()>.  Can be assigned to.  The C<HePV()> or C<HeSVKEY()> macros are
 usually preferable for finding the value of a key.
 
-=for apidoc Am|STRLEN|HeKLEN|HE* he
+=for apidoc Am|I32|HeKLEN|HE* he
 If this is negative, and amounts to C<HEf_SVKEY>, it indicates the entry
 holds an C<SV*> key.  Otherwise, holds the actual length of the key.  Can
 be assigned to.  The C<HePV()> macro is usually preferable for finding key
@@ -209,15 +211,18 @@ to.
 Returns the computed hash stored in the hash entry.
 
 =for apidoc Am|char*|HePV|HE* he|STRLEN len
+
 Returns the key slot of the hash entry as a C<char*> value, doing any
-necessary dereferencing of possibly C<SV*> keys.  The length of the string
-is placed in C<len> (this is a macro, so do I<not> use C<&len>).  If you do
-not care about what the length of the key is, you may use the global
-variable C<PL_na>, though this is rather less efficient than using a local
-variable.  Remember though, that hash keys in perl are free to contain
-embedded nulls, so using C<strlen()> or similar is not a good way to find
-the length of hash keys.  This is very similar to the C<SvPV()> macro
-described elsewhere in this document.  See also C<HeUTF8>.
+necessary dereferencing of possibly C<SV*> keys.  The length of the
+string is placed in C<len> (this is a macro, so do I<not> use
+C<&len>).  If you do not care about what the length of the key is, you
+may use the global variable C<PL_na>, though this is rather less
+efficient than using a local variable.  Remember though, that hash
+keys in perl are free to contain embedded nulls, so using C<strlen()>
+or similar is not a good way to find the length of hash keys.  This is
+very similar to the C<SvPV()> macro described elsewhere in this
+document.  See also C<HeUTF8>.  Note also that the hash key
+length cannot be longer than 31bit, even if it is a HEf_SVKEY.
 
 If you are using C<HePV> to get values to pass to C<newSVpvn()> to create a
 new SV, you should consider using C<newSVhek(HeKEY_hek(he))> as it is more
@@ -276,7 +281,7 @@ C<SV*>.
 #define HvEITER(hv)	(*Perl_hv_eiter_p(aTHX_ MUTABLE_HV(hv)))
 #define HvRITER_set(hv,r)	Perl_hv_riter_set(aTHX_ MUTABLE_HV(hv), r)
 #define HvEITER_set(hv,e)	Perl_hv_eiter_set(aTHX_ MUTABLE_HV(hv), e)
-#define HvRITER_get(hv)	(SvOOK(hv) ? HvAUX(hv)->xhv_riter : -1)
+#define HvRITER_get(hv)	(SvOOK(hv) ? HvAUX(hv)->xhv_riter : HV_NO_RITER)
 #define HvEITER_get(hv)	(SvOOK(hv) ? HvAUX(hv)->xhv_eiter : NULL)
 #define HvRAND_get(hv)	(SvOOK(hv) ? HvAUX(hv)->xhv_rand : 0)
 #define HvLASTRAND_get(hv)	(SvOOK(hv) ? HvAUX(hv)->xhv_last_rand : 0)
@@ -381,8 +386,9 @@ C<SV*>.
 #define HeKFLAGS(he)  		HEK_FLAGS(HeKEY_hek(he))
 #define HeVAL(he)		(he)->he_valu.hent_val
 #define HeHASH(he)		HEK_HASH(HeKEY_hek(he))
+/* Here we require a STRLEN lp */
 #define HePV(he,lp)		((HeKLEN(he) == HEf_SVKEY) ?		\
-				 SvPV(HeKEY_sv(he),lp) :		\
+				 SvPV(HeKEY_sv(he),lp) :                \
 				 ((lp = HeKLEN(he)), HeKEY(he)))
 #define HeUTF8(he)		((HeKLEN(he) == HEf_SVKEY) ?		\
 				 SvUTF8(HeKEY_sv(he)) :			\
