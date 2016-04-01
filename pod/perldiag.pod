@@ -2470,10 +2470,10 @@ L<perlport> for more on portability concerns.
 
 =item Identifier too long
 
-(F) Perl limits identifiers (names for variables, functions, etc.) to
-about 250 characters for simple names, and somewhat more for compound
-names (like C<$A::B>).  You've exceeded Perl's limits.  Future versions
-of Perl are likely to eliminate these arbitrary limitations.
+(F) cperl limits identifiers (names for variables, functions, etc.) to
+about 1024 characters for simple names, and somewhat more for compound
+names (like C<$A::B>).  You've exceeded Perl's limits.  perl5 has the
+limit at 256 characters.
 
 =item Ignoring zero length \N{} in character class in regex; marked by
 S<<-- HERE> in m/%s/

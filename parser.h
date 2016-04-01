@@ -103,7 +103,7 @@ typedef struct yy_parser {
     U32		nexttoke;
 
     COP		*saved_curcop;	/* the previous PL_curcop */
-    char	tokenbuf[256];
+    char	tokenbuf[1024];
     line_t	herelines;	/* number of lines in here-doc */
     line_t	preambling;	/* line # when processing $ENV{PERL5DB} */
     U8		lex_fakeeof;	/* precedence at which to fake EOF */

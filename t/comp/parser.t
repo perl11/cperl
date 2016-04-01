@@ -302,11 +302,11 @@ like($@, qr/BEGIN failed--compilation aborted/, 'BEGIN 7' );
   # check both the specific case in the ticket, and a few other paths into
   # S_scan_ident()
   # simplify long ids
-  my $x100 = "x" x 256;
-  my $xFE = "x" x 254;
-  my $xFD = "x" x 253;
-  my $xFC = "x" x 252;
-  my $xFB = "x" x 251;
+  my $x100 = "x" x 1024;
+  my $xFE = "x" x 1022;
+  my $xFD = "x" x 1021;
+  my $xFC = "x" x 1020;
+  my $xFB = "x" x 1019;
 
   eval qq[ \$#$xFB ];
   is($@, "", "251 character \$# sigil ident ok");
@@ -342,7 +342,7 @@ like($@, qr/BEGIN failed--compilation aborted/, 'BEGIN 7' );
   like($@, qr/Identifier too long/, "too long id in for ctx");
 
   # the specific case from the ticket
-  my $x = "x" x 257;
+  my $x = "x" x 1025;
   eval qq[ for my $x ];
   like($@, qr/Identifier too long/, "too long id ticket case");
 }
@@ -490,6 +490,18 @@ is __FILE__, $file,
     'no __FILE__ corruption when setting CopFILESV to a ref';
 
 eval 'Fooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+    .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+    .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+    .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+    .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+    .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+    .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+    .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+    .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+    .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+    .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+    .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+    .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
     .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
     .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
     .'oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
