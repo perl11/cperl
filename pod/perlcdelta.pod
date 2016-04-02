@@ -36,6 +36,12 @@ hash sizes, but limits on 32bit systems the max. hash size from 32 to
 
 =item *
 
+Increased the parser tokenbuffer from 256 to 1024 characters, thus bumping
+the maximal length of identifiers and parsed names from 251-255 chars to
+1200-1023 characters.
+
+=item *
+
 Safer INC path. It does not include "." anymore, unless you set the env
 C<PERL_USE_UNSAFE_INC=1>. (#118)
 CVSSv2 Severity: 8.5 (AV:N/AC:M/Au:S/C:C/I:C/A:C)
@@ -48,7 +54,8 @@ Hash security: Disable PERL_HASH_SEED_DEBUG with -t or -T (#114)
 
 Better hash table collision resolution strategy: PERL_PERTURB_KEYS_TOP
 Still a linked list, but move the found element to the top. This disables
-PERL_HASH_RANDOMIZE_KEYS.
+PERL_HASH_RANDOMIZE_KEYS. It's still a very primitive and slow hash table,
+but we wait for a complete rewrite until the next major release.
 
 =item *
 
@@ -92,11 +99,6 @@ debugging, even without -DDEBUGGING.
 
 =item *
 
-Add support for CowREFCNT assertions and statistics and with -Dv,
-seperated from -DC.
-
-=item *
-
 Enhanced the warnings message for warnings 'redefine' to print the caller
 location also. (# 113)
 Note that this did not violate the documented diagnostics in perldiag.pod,
@@ -109,6 +111,8 @@ Add support for additional F<pod/perlcdelta.pod> in F<Porting/pod_rules.pl>.
 =back
 
 =head1 Core Enhancements from Perl5
+
+Backported some fixes from p5p:
 
 =over 4
 
