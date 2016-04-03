@@ -412,7 +412,7 @@ __inline
     s/\Qif (o >= 0)\E\n/if (o != XCNAME_MAX)\n/;
 
     # don't delete line numbers, pointing to Config_xs.in
-    # s/^#line \d+ .+$//gm;
+    s/^#line \d+ .+$//gm; # do it to catch a bug
     # but insert a #line after the wordlist in Config_lookup
     $lnr += tr/\n/\n/;
     if (/if \(len <= MAX_WORD_LENGTH/) {
