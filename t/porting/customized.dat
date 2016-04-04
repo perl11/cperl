@@ -40,6 +40,8 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/Mkbootstrap.t 2f88adc65c55c7bd2e23
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fcad251b12d8b2412462b3
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/vstrings.t c60ad8cfd3496f136aeb71008f51d2db0a34eb5f
+File::Path cpan/File-Path/lib/File/Path.pm fd8ce4420a0c113d3f47dd3223859743655c1da8
+File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 IPC::SysV cpan/IPC-SysV/t/ipcsysv.t ee2c95e846ea201afe13c9ec53b09cef62c8ac68
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm cb6b569b668a2485397d7ff33058f4abdcc731d8
@@ -67,14 +69,6 @@ Test::Harness cpan/Test-Harness/t/nofork.t 17a1bde6de588ca647cd89d3786e84a68164a
 Test::Harness cpan/Test-Harness/t/regression.t 4b6448b3d3bae1f406e25c8f61d2656a2338d639
 Test::Harness cpan/Test-Harness/t/sample-tests/switches 350f7e96e4bfb8dbac352200d656e8f52a76ab7e
 Test::Harness cpan/Test-Harness/t/source_handler.t 1b8bb1ea600742236de79c586f18dd37ee1c732a
-Win32API::File cpan/Win32API-File/buffers.h 02d230ac9ac7091365128161a0ed671898baefae
-Win32API::File cpan/Win32API-File/cFile.h fca7e383e76979c3ac3adf12d11d1bcd2618e489
-Win32API::File cpan/Win32API-File/cFile.pc 992421eea7782a5957b64f66764f6ffb5093bee4
-Win32API::File cpan/Win32API-File/const2perl.h 521a12d359f5efb68cf8abe1977689b640bc8b7d
-Win32API::File cpan/Win32API-File/Makefile.PL 179d64a532f27293e4dfa5f50da2c51524070589
-Win32API::File cpan/Win32API-File/t/file.t 124e64aa77e755235eb297644a87fac5388d3d78
-Win32API::File cpan/Win32API-File/t/tie.t 712ea7edd0cc805ce1c0b8172c01b03dd19b583d
-Win32API::File cpan/Win32API-File/typemap 24bff088babeadac0873e8df390d1666d9d9db4a
 YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL 337cdac5c5fb344a651546e856f9c9a2a7dc706a
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 37441ba0eff59df1e75d7c2db64d9b478a8ffc60
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm b9846cabfa2ede801c6df9357a97f8ccdc207119

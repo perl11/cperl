@@ -675,6 +675,8 @@ use File::Glob qw(:case);
             qw( eg/setup-extra-tests ),
             qr{^xt},
         ],
+        # https://github.com/rpcme/File-Path/pull/34
+        'CUSTOMIZED' => [ qw( lib/File/Path.pm t/Path_win32.t ) ],
     },
 
     'File::Temp' => {
