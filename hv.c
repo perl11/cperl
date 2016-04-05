@@ -2266,6 +2266,8 @@ Perl_hv_rand_set(pTHX_ HV *hv, U32 new_xhv_rand) {
     }
     iter->xhv_rand = new_xhv_rand;
 #else
+    PERL_UNUSED_ARG(hv);
+    PERL_UNUSED_ARG(new_xhv_rand);
     Perl_croak_nocontext("This Perl has not been built with support for randomized hash key traversal but something called Perl_hv_rand_set().");
 #endif
 }
