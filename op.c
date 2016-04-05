@@ -14885,7 +14885,7 @@ Perl_rpeep(pTHX_ OP *o)
                    This needs to be done at run-time. We also need to search to find
                    the last pushmark arg. shift and push can have multiple args. 
                    1-arg push is also not caught here.
-                   We also have no MDEREF_AV_padav_aelem_u yet. */
+                   We also have no MDEREF_AV_padav_aelem_u, only a MDEREF_INDEX_uoob */
                 if (o2->op_next && o2->op_targ && AvSHAPED(PAD_SV(o2->op_targ))) {
                     /* 1 arg case */
                     OPCODE type = o2->op_next->op_type;
@@ -15194,11 +15194,28 @@ Perl_rpeep(pTHX_ OP *o)
 #ifdef DEBUGGING
                         } else if (type == OP_MULTIDEREF && o2->op_targ
                                    && strEQ(aname, PAD_COMPNAME_PV(o2->op_targ))) {
-                            DEBUG_k(Perl_deb(aTHX_ "nyi multideref[%s] => MDEREF_AV_*_aelem_u\n",
+                            DEBUG_k(Perl_deb(aTHX_ "nyi multideref[%s] => MDEREF_INDEX_uoob\n",
                                              aname));
+                            /* TODO: find this padsv item and set MDEREF_INDEX_uoob */
                         } else if (type == OP_AELEMFAST && SvPOK(kSVOP_sv)
                                    && strEQ(aname, SvPVX(kSVOP_sv))) {
-                            DEBUG_k(Perl_deb(aTHX_ "nyi aelemfast[%s] => aelemfast_u\n", aname));
+                            /* TODO no magic in array allowed, array must be typed */
+                            if (o2->op_targ && o2->op_targ == loop->op_targ) {
+                                DEBUG_k(Perl_deb(aTHX_ "loop oob: aelemfast %s[my %s] => aelemfast_u\n",
+                                                 aname, iname));
+                                OpTYPE_set(o2, OP_AELEMFAST_LEX_U);
+                            }
+#if 0
+                            else if (!o2->op_targ && idx) {
+                                OP* ixop = cBINOPx(o2)->op_last;
+                                if ((OP_TYPE_IS(ixop, OP_RV2SV)
+                                  && idx == cSVOPx(cUNOPx(ixop)->op_first)->op_sv)) {
+                                    DEBUG_k(Perl_deb(aTHX_ "loop oob: aelemfast %s[$%s] => aelemfast_u\n",
+                                                     aname, iname));
+                                    OpTYPE_set(o2, OP_AELEMFAST_U);
+                                }
+                            }
+#endif
 #endif
                         }
                     }

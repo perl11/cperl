@@ -1174,13 +1174,13 @@ PL_op_type_str[] = {
 	"",	/* 137: lc */
 	"",	/* 138: quotemeta */
 	"(:Ref):Hash",	/* 139: rv2av */
-	"():Scalar",	/* 140: aelemfast */
-	"():Scalar",	/* 141: aelemfast_lex */
+	"(:Array(:Scalar),:Int):Scalar",	/* 140: aelemfast */
+	"(:Array(:Scalar),:Int):Scalar",	/* 141: aelemfast_lex */
 	"(:Array(:Scalar),:Int):Scalar",	/* 142: aelem */
 	"(:Array(:Int),:Int):Int",	/* 143: i_aelem */
 	"(:Array(:Num),:Int):Num",	/* 144: n_aelem */
 	"(:Array(:Str),:Int):Str",	/* 145: s_aelem */
-	"():Scalar",	/* 146: aelemfast_lex_u */
+	"(:Array(:Scalar),:Int):Scalar",	/* 146: aelemfast_lex_u */
 	"(:Array(:Scalar),:Int):Scalar",	/* 147: aelem_u */
 	"(:Array(:Int),:Int):Int",	/* 148: i_aelem_u */
 	"(:Array(:Num),:Int):Num",	/* 149: n_aelem_u */
@@ -1596,13 +1596,13 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffff00,	/* 137: lc "" */
 	0xffffff00,	/* 138: quotemeta "" */
 	0x0cffff11,	/* 139: rv2av "(:Ref):Hash" */
-	0xffffff0b,	/* 140: aelemfast "():Scalar" */
-	0xffffff0b,	/* 141: aelemfast_lex "():Scalar" */
+	0x2b05ff0b,	/* 140: aelemfast "(:Array(:Scalar),:Int):Scalar" */
+	0x2b05ff0b,	/* 141: aelemfast_lex "(:Array(:Scalar),:Int):Scalar" */
 	0x2b05ff0b,	/* 142: aelem "(:Array(:Scalar),:Int):Scalar" */
 	0x2505ff05,	/* 143: i_aelem "(:Array(:Int),:Int):Int" */
 	0x2705ff07,	/* 144: n_aelem "(:Array(:Num),:Int):Num" */
 	0x2805ff08,	/* 145: s_aelem "(:Array(:Str),:Int):Str" */
-	0xffffff0b,	/* 146: aelemfast_lex_u "():Scalar" */
+	0x2b05ff0b,	/* 146: aelemfast_lex_u "(:Array(:Scalar),:Int):Scalar" */
 	0x2b05ff0b,	/* 147: aelem_u "(:Array(:Scalar),:Int):Scalar" */
 	0x2505ff05,	/* 148: i_aelem_u "(:Array(:Int),:Int):Int" */
 	0x2705ff07,	/* 149: n_aelem_u "(:Array(:Num),:Int):Num" */

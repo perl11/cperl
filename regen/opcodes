@@ -295,13 +295,13 @@ quotemeta	quotemeta		ck_fun		fstu%	S?
 # Arrays.
 
 rv2av		array dereference	ck_rvconst	dt1	R	"(:Ref):Hash"
-aelemfast	constant array element	ck_aelem	ds$	A S	"():Scalar"
-aelemfast_lex	constant lexical array element	ck_aelem d0	A S	"():Scalar"
+aelemfast	constant array element	ck_aelem	ds$	A S	"(:Array(:Scalar),:Int):Scalar"
+aelemfast_lex	constant lexical array element	ck_aelem d0	A S	"(:Array(:Scalar),:Int):Scalar"
 aelem		array element		ck_aelem	s2	A S	"(:Array(:Scalar),:Int):Scalar"
 i_aelem		int array element	ck_null		s2	A S	"(:Array(:Int),:Int):Int"
 n_aelem		num array element	ck_null		s2	A S	"(:Array(:Num),:Int):Num"
 s_aelem		str array element	ck_null		s2	A S	"(:Array(:Str),:Int):Str"
-aelemfast_lex_u	unchecked constant aelem ck_null	d0	A S	"():Scalar"
+aelemfast_lex_u	unchecked constant aelem ck_null	d0	A S	"(:Array(:Scalar),:Int):Scalar"
 aelem_u		unchecked aelem		ck_null		s2	A S	"(:Array(:Scalar),:Int):Scalar"
 i_aelem_u	unchecked int aelem 	ck_null		s2	A S	"(:Array(:Int),:Int):Int"
 n_aelem_u	unchecked num aelem 	ck_null		s2	A S	"(:Array(:Num),:Int):Num"

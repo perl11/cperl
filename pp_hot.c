@@ -2449,9 +2449,13 @@ PP(pp_multideref)
                 /* this is basically a copy of pp_aelem with OPpDEREF skipped */
 
                 if (!(actions & MDEREF_FLAG_last)) {
-                    SV** svp = av_fetch((AV*)sv, elem, 1);
-                    if (!svp || ! (sv=*svp))
-                        DIE(aTHX_ PL_no_aelem, elem);
+                    if (UNLIKELY((actions & MDEREF_INDEX_uoob) && !SvRMAGICAL(sv))) {
+                        sv  = AvARRAY(sv)[elem];
+                    } else {
+                        SV** svp = av_fetch((AV*)sv, elem, 1);
+                        if (!svp || ! (sv=*svp))
+                            DIE(aTHX_ PL_no_aelem, elem);
+                    }
                     break;
                 }
 

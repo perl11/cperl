@@ -67,3 +67,10 @@ for (0..$#b) { $b[$_+1] };     # wrong index: expr
   for $k (0..$#b) { $b[$k] };    # _u
   for $k (0..$#b) { $b[$j] };    # wrong index: glob
 }
+
+# TODO mderef_u
+
+# $a[0][1]; # set MDEREF_INDEX_noob to first index
+
+#eval '$a[5][1];'
+#like ($@, qr/^Array index out of bounds \@a\[5\]/, "compile-time mderef oob");
