@@ -463,7 +463,7 @@ sub run_preps_on_packagedir {
     return if $self->is_dot_dist;
 
     $CPAN::META->{cachemgr} ||= CPAN::CacheMgr->new(); # unsafe meta access, ok
-    my $builddir = $CPAN::META->{cachemgr}->dir; # unsafe meta access, ok
+    my str $builddir = $CPAN::META->{cachemgr}->dir; # unsafe meta access, ok
     $self->safe_chdir($builddir);
     $self->debug("Removing tmp-$$") if $CPAN::DEBUG;
     File::Path::rmtree("tmp-$$");
