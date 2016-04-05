@@ -12797,7 +12797,7 @@ S_aassign_scan(pTHX_ OP* o, bool rhs, bool top, int *scalars_p)
             return AAS_DANGEROUS;
         }
 
-        if (   (PL_opargs[o->op_type] & OA_TARGLEX)
+        if (   OP_HAS_TARGLEX(o->op_type)
             && (o->op_private & OPpTARGET_MY))
         {
             (*scalars_p)++;

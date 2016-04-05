@@ -95,6 +95,10 @@ Add support for additional F<pod/perlcdelta.pod> in F<Porting/pod_rules.pl>.
 
 =item *
 
+Improved performance of aassign: my (...) = (... , ...); by 10-40%.
+
+=item *
+
 Improved performance of index() by 50-70%.
 
 =item *

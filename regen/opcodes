@@ -49,10 +49,10 @@ scalar		scalar			ck_fun		ps%	S	"():Void"
 pushmark	pushmark		ck_null		ps0		"():Void"
 wantarray	wantarray		ck_null		is0		""
 
-const		constant item		ck_svconst	ps$	S	"():Scalar"
+const		constant item		ck_svconst	ps$		"():Scalar"
 
-gvsv		scalar variable		ck_null		ds$	S	"():Scalar"
-gv		glob value		ck_null		ds$	S	"():Scalar"
+gvsv		scalar variable		ck_null		ds$		"():Scalar"
+gv		glob value		ck_null		ds$		"():Scalar"
 gelem		glob elem		ck_null		ds2	S S
 padsv		private variable	ck_pad		ds0		"():Scalar"
 padav		private array		ck_null		d0		"():Array"

@@ -3188,9 +3188,9 @@ EXTCONST U32 PL_opargs[] = {
 	0x00006d04,	/* scalar */
 	0x00000104,	/* pushmark */
 	0x00000004,	/* wantarray */
-	0x00005904,	/* const */
-	0x00005844,	/* gvsv */
-	0x00005844,	/* gv */
+	0x00001904,	/* const */
+	0x00001844,	/* gvsv */
+	0x00001844,	/* gv */
 	0x00044844,	/* gelem */
 	0x00000044,	/* padsv */
 	0x00000040,	/* padav */
