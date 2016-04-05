@@ -1106,7 +1106,7 @@ sub todo_tests_default {
         push @todo, (27)    if $] > 5.008008 and $] < 5.009;
 	#push @todo, (27)    if $] > 5.008008 and $] < 5.009 and $what eq 'cc_o2';
         push @todo, (103)   if ($] >= 5.012 and $] < 5.014 and !$ITHREADS);
-        push @todo, (12,19,25) if $] >= 5.019;
+        push @todo, (12,19) if $] >= 5.019; # XXX had 25 also
         push @todo, (25)    if $] >= 5.021006 and !$Config{usecperl};
 	push @todo, (29)    if $] >= 5.021006 and $what eq 'cc_o1';
 	push @todo, (24,29) if $] >= 5.021006 and $what eq 'cc_o2';

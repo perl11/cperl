@@ -60,7 +60,7 @@ SKIP: {
   #skip "--staticxs hangs on darwin", 10 if $^O eq 'darwin';
  TODO: {
     # fails 5.8 and sometimes on darwin, msvc also
-    local $TODO = '--staticxs is experimental' if $^O eq 'darwin' or $] < 5.010;
+    local $TODO = '--staticxs is experimental' if $] < 5.010 or $^O eq 'darwin';
     is(`$perlcc --staticxs -r -e $e $devnull`, "ok", "-r --staticxs xs"); #13
     ok(-e $a_exe, "keep default executable"); #14
   }
@@ -69,7 +69,7 @@ SKIP: {
   cleanup;
 
  TODO: {
-    local $TODO = '--staticxs is experimental' if $^O eq 'darwin' or $] < 5.010;
+    local $TODO = '--staticxs is experimental' if $] < 5.010 or $^O eq 'darwin';
     is(`$perlcc --staticxs -S -o pcc -r -e $e  $devnull`, "ok",
        "-S -o -r --staticxs xs"); #17
     ok(-e $a, "keep executable"); #18
@@ -80,14 +80,11 @@ SKIP: {
 
  TODO: {
     # since 5.18 IO is re-added
-    local $TODO = '5.18 added IO (darwin)' if $] >= 5.018 and $^O eq 'darwin';
+    local $TODO = '5.18 added IO (darwin only)' if $] >= 5.018 and $^O eq 'darwin';
     is(`$perlcc --staticxs -S -o pcc -O3 -r -e "print q(ok)"  $devnull`, "ok", #21
        "-S -o -r --staticxs without xs");
   }
- TODO: {
-    local $TODO = '5.18 added IO' if $] >= 5.018;
-    ok(! -e 'pcc.c.lst', "no pcc.c.lst without xs"); #22
-  }
+  ok(! -e 'pcc.c.lst', "no pcc.c.lst without xs"); #22
   cleanup;
 }
 
@@ -156,13 +153,15 @@ cleanup;
 isnt(`$perlcc --Wb=-fno-fold,-v -o pcc $f $redir`, '/Writing output/m',
      "--Wb=-fno-fold,-v -o file");
 TODO: {
+ SKIP: {
   require B::C::Config if $] > 5.021006;
   local $TODO = "catch STDERR not STDOUT" if $^O =~ /bsd$/i; # fails freebsd only
   local $TODO = "5.6 BC does not understand -DG yet" if $] < 5.007;
-  local $TODO = "perl5.22 broke ByteLoader"
+  skip "perl5.22 broke ByteLoader", 1
     if $] > 5.021006 and !$B::C::Config::have_byteloader;
   like(`$perlcc -B --Wb=-DG,-v -o pcc $f $redir`, "/-PV-/m",
        "-B -v5 --Wb=-DG -o file"); #51
+  }
 }
 cleanup;
 is(`$perlcc -Wb=-O1 -r $f $devnull`, "ok", "old-style -Wb=-O1");
@@ -208,8 +207,8 @@ like(`$perlcc -BSr -opcc.plc -e $e $redir`, '/-S ignored/', "-BSr -o -e");
 ok(-e 'pcc.plc', "pcc.plc file");
 cleanup;
 
-TODO: {
-  local $TODO = "perl5.22 broke ByteLoader"
+SKIP: {
+  skip "perl5.22 broke ByteLoader", 1
     if $] > 5.021006 and !$B::C::Config::have_byteloader;
   is(`$perlcc -Br -opcc.plc $f $devnull`, "ok", "-Br -o file");
 }
