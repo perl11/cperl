@@ -1540,6 +1540,7 @@ my %OP_IS_FT_ACCESS;	# /F-+/
 my %OP_IS_NUMCOMPARE;	# /S</
 my %OP_IS_DIRHOP;	# /Fd/
 my %OP_IS_INFIX_BIT;	# /S\|/
+my %OP_IS_PADVAR;	# /^pad/
 
 for my $op (@ops) {
     my $argsum = 0;
@@ -1556,6 +1557,9 @@ for my $op (@ops) {
     }
     die qq[Opcode '$op' has no class indicator ($flags{$op} => $flags)\n]
 	unless exists $opclass{$flags};
+    if ($op =~ /^pad(av|hv|sv|any)$/) { # but NOT padcv
+        $OP_IS_PADVAR{$op} = $opnum{$op};
+    }
     $argsum |= $opclass{$flags} << $OCSHIFT;
     my $argshift = $OASHIFT;
     for my $arg (split(' ',$args{$op})) {
@@ -1603,21 +1607,21 @@ END
 
 print $on <<'EO_OP_IS_COMMENT';
 
-#define OP_HAS_TARGLEX(oc) ((PL_opargs[oc] & OA_TARGLEX) == OA_TARGLEX)
+#define OP_HAS_TARGLEX(ot) ((PL_opargs[ot] & OA_TARGLEX) == OA_TARGLEX)
 
-#define OpCLASS(oc)      (PL_opargs[(oc)] & OA_CLASS_MASK)
-#define OP_IS_BASEOP(oc) (OpCLASS(oc) == OA_BASEOP || OpCLASS(oc) == OA_BASEOP_OR_UNOP)
-#define OP_IS_UNOP(oc)   (OpCLASS(oc) == OA_UNOP || OpCLASS(oc) == OA_BASEOP_OR_UNOP)
-#define OP_IS_BINOP(oc)  OpCLASS(oc) == OA_BINOP
-#define OP_IS_LOGOP(oc)  OpCLASS(oc) == OA_LOGOP
-#define OP_IS_LISTOP(oc) OpCLASS(oc) == OA_LISTOP
-#define OP_IS_PMOP(oc)   OpCLASS(oc) == OA_PMOP
-#define OP_IS_SVOP(oc)   (OpCLASS(oc) == OA_SVOP || OpCLASS(oc) == OA_PVOP_OR_SVOP)
-#define OP_IS_PADOP(oc)  OpCLASS(oc) == OA_PADOP
-#define OP_IS_LOOP(oc)   OpCLASS(oc) == OA_LOOP
-#define OP_IS_COP(oc)    OpCLASS(oc) == OA_COP
-#define OP_IS_FILESTATOP(oc) OpCLASS(oc) == OA_FILESTATOP
-#define OP_IS_METHOP(oc) OpCLASS(oc) == OA_METHOP
+#define OpCLASS(ot)      (PL_opargs[(ot)] & OA_CLASS_MASK)
+#define OP_IS_BASEOP(ot) (OpCLASS(ot) == OA_BASEOP || OpCLASS(ot) == OA_BASEOP_OR_UNOP)
+#define OP_IS_UNOP(ot)   (OpCLASS(ot) == OA_UNOP || OpCLASS(ot) == OA_BASEOP_OR_UNOP)
+#define OP_IS_BINOP(ot)  OpCLASS(ot) == OA_BINOP
+#define OP_IS_LOGOP(ot)  OpCLASS(ot) == OA_LOGOP
+#define OP_IS_LISTOP(ot) OpCLASS(ot) == OA_LISTOP
+#define OP_IS_PMOP(ot)   OpCLASS(ot) == OA_PMOP
+#define OP_IS_SVOP(ot)   (OpCLASS(ot) == OA_SVOP || OpCLASS(ot) == OA_PVOP_OR_SVOP)
+#define OP_IS_PADOP(ot)  OpCLASS(ot) == OA_PADOP
+#define OP_IS_LOOP(ot)   OpCLASS(ot) == OA_LOOP
+#define OP_IS_COP(ot)    OpCLASS(ot) == OA_COP
+#define OP_IS_FILESTATOP(ot) OpCLASS(ot) == OA_FILESTATOP
+#define OP_IS_METHOP(ot) OpCLASS(ot) == OA_METHOP
 
 /* The other OP_IS_* macros are optimized to a simple range check because
    all the member OPs are contiguous in regen/opcodes table.
@@ -1634,6 +1638,7 @@ gen_op_is_macro( \%OP_IS_FT_ACCESS, 'OP_IS_FILETEST_ACCESS');
 gen_op_is_macro( \%OP_IS_NUMCOMPARE, 'OP_IS_NUMCOMPARE');
 gen_op_is_macro( \%OP_IS_DIRHOP, 'OP_IS_DIRHOP');
 gen_op_is_macro( \%OP_IS_INFIX_BIT, 'OP_IS_INFIX_BIT');
+gen_op_is_macro( \%OP_IS_PADVAR, 'OP_IS_PADVAR');
 
 sub gen_op_is_macro {
     my ($op_is, $macname) = @_;
@@ -1647,18 +1652,18 @@ sub gen_op_is_macro {
 	my $last = pop @rest;	# @rest slurped, get its last
 	die "Invalid range of ops: $first .. $last\n" unless $last;
 
-	print $on "\n#define $macname(oc)	\\\n\t(";
+	print $on "\n#define $macname(ot)	\\\n\t(";
 
 	# verify that op-ct matches 1st..last range (and fencepost)
 	# (we know there are no dups)
 	if ( $op_is->{$last} - $op_is->{$first} == scalar @rest + 1) {
 	    # contiguous ops -> optimized version
-	    print $on "(oc) >= OP_" . uc($first)
-		. " && (oc) <= OP_" . uc($last);
+	    print $on "(ot) >= OP_" . uc($first)
+		. " && (ot) <= OP_" . uc($last);
 	}
 	else {
 	    print $on join(" || \\\n\t ",
-			   map { "(oc) == OP_" . uc() } sort keys %$op_is);
+			   map { "(ot) == OP_" . uc() } sort keys %$op_is);
 	}
 	print $on ")\n";
     }

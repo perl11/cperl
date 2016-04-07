@@ -13441,7 +13441,8 @@ Perl_ck_nomg(pTHX_ OP *o)
         if (OP_TYPE_IS_OR_WAS(a, OP_LIST))
             a = cUNOPx(a)->op_first;
     }
-    if (!a) return ck_fun(o);
+    if (!a || !OP_IS_PADVAR(a->op_type))
+        return ck_fun(o);
 
     argtype = op_typed(a);
     po = a->op_targ;

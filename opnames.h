@@ -478,88 +478,91 @@ typedef enum opcode {
 #define OA_UNOP_AUX 	(15 << OCSHIFT)
 
 
-#define OP_HAS_TARGLEX(oc) ((PL_opargs[oc] & OA_TARGLEX) == OA_TARGLEX)
+#define OP_HAS_TARGLEX(ot) ((PL_opargs[ot] & OA_TARGLEX) == OA_TARGLEX)
 
-#define OpCLASS(oc)      (PL_opargs[(oc)] & OA_CLASS_MASK)
-#define OP_IS_BASEOP(oc) (OpCLASS(oc) == OA_BASEOP || OpCLASS(oc) == OA_BASEOP_OR_UNOP)
-#define OP_IS_UNOP(oc)   (OpCLASS(oc) == OA_UNOP || OpCLASS(oc) == OA_BASEOP_OR_UNOP)
-#define OP_IS_BINOP(oc)  OpCLASS(oc) == OA_BINOP
-#define OP_IS_LOGOP(oc)  OpCLASS(oc) == OA_LOGOP
-#define OP_IS_LISTOP(oc) OpCLASS(oc) == OA_LISTOP
-#define OP_IS_PMOP(oc)   OpCLASS(oc) == OA_PMOP
-#define OP_IS_SVOP(oc)   (OpCLASS(oc) == OA_SVOP || OpCLASS(oc) == OA_PVOP_OR_SVOP)
-#define OP_IS_PADOP(oc)  OpCLASS(oc) == OA_PADOP
-#define OP_IS_LOOP(oc)   OpCLASS(oc) == OA_LOOP
-#define OP_IS_COP(oc)    OpCLASS(oc) == OA_COP
-#define OP_IS_FILESTATOP(oc) OpCLASS(oc) == OA_FILESTATOP
-#define OP_IS_METHOP(oc) OpCLASS(oc) == OA_METHOP
+#define OpCLASS(ot)      (PL_opargs[(ot)] & OA_CLASS_MASK)
+#define OP_IS_BASEOP(ot) (OpCLASS(ot) == OA_BASEOP || OpCLASS(ot) == OA_BASEOP_OR_UNOP)
+#define OP_IS_UNOP(ot)   (OpCLASS(ot) == OA_UNOP || OpCLASS(ot) == OA_BASEOP_OR_UNOP)
+#define OP_IS_BINOP(ot)  OpCLASS(ot) == OA_BINOP
+#define OP_IS_LOGOP(ot)  OpCLASS(ot) == OA_LOGOP
+#define OP_IS_LISTOP(ot) OpCLASS(ot) == OA_LISTOP
+#define OP_IS_PMOP(ot)   OpCLASS(ot) == OA_PMOP
+#define OP_IS_SVOP(ot)   (OpCLASS(ot) == OA_SVOP || OpCLASS(ot) == OA_PVOP_OR_SVOP)
+#define OP_IS_PADOP(ot)  OpCLASS(ot) == OA_PADOP
+#define OP_IS_LOOP(ot)   OpCLASS(ot) == OA_LOOP
+#define OP_IS_COP(ot)    OpCLASS(ot) == OA_COP
+#define OP_IS_FILESTATOP(ot) OpCLASS(ot) == OA_FILESTATOP
+#define OP_IS_METHOP(ot) OpCLASS(ot) == OA_METHOP
 
 /* The other OP_IS_* macros are optimized to a simple range check because
    all the member OPs are contiguous in regen/opcodes table.
    regen/opcode.pl verifies the range contiguity, or generates an OR-equals
    expression */
 
-#define OP_HAS_LIST(oc)	\
-	((oc) == OP_AASSIGN || \
-	 (oc) == OP_ANONHASH || \
-	 (oc) == OP_ANONLIST || \
-	 (oc) == OP_ASLICE || \
-	 (oc) == OP_CHMOD || \
-	 (oc) == OP_CHOMP || \
-	 (oc) == OP_CHOP || \
-	 (oc) == OP_CHOWN || \
-	 (oc) == OP_DIE || \
-	 (oc) == OP_ENTERSUB || \
-	 (oc) == OP_ENTERXSSUB || \
-	 (oc) == OP_EXEC || \
-	 (oc) == OP_FORMLINE || \
-	 (oc) == OP_GREPSTART || \
-	 (oc) == OP_HSLICE || \
-	 (oc) == OP_JOIN || \
-	 (oc) == OP_KILL || \
-	 (oc) == OP_KVASLICE || \
-	 (oc) == OP_KVHSLICE || \
-	 (oc) == OP_LIST || \
-	 (oc) == OP_LSLICE || \
-	 (oc) == OP_MAPSTART || \
-	 (oc) == OP_OPEN || \
-	 (oc) == OP_PACK || \
-	 (oc) == OP_PRINT || \
-	 (oc) == OP_PRTF || \
-	 (oc) == OP_PUSH || \
-	 (oc) == OP_REFGEN || \
-	 (oc) == OP_REPEAT || \
-	 (oc) == OP_RETURN || \
-	 (oc) == OP_REVERSE || \
-	 (oc) == OP_SAY || \
-	 (oc) == OP_SORT || \
-	 (oc) == OP_SPLICE || \
-	 (oc) == OP_SPRINTF || \
-	 (oc) == OP_SYSCALL || \
-	 (oc) == OP_SYSTEM || \
-	 (oc) == OP_TIE || \
-	 (oc) == OP_UNLINK || \
-	 (oc) == OP_UNSHIFT || \
-	 (oc) == OP_UTIME || \
-	 (oc) == OP_WARN)
+#define OP_HAS_LIST(ot)	\
+	((ot) == OP_AASSIGN || \
+	 (ot) == OP_ANONHASH || \
+	 (ot) == OP_ANONLIST || \
+	 (ot) == OP_ASLICE || \
+	 (ot) == OP_CHMOD || \
+	 (ot) == OP_CHOMP || \
+	 (ot) == OP_CHOP || \
+	 (ot) == OP_CHOWN || \
+	 (ot) == OP_DIE || \
+	 (ot) == OP_ENTERSUB || \
+	 (ot) == OP_ENTERXSSUB || \
+	 (ot) == OP_EXEC || \
+	 (ot) == OP_FORMLINE || \
+	 (ot) == OP_GREPSTART || \
+	 (ot) == OP_HSLICE || \
+	 (ot) == OP_JOIN || \
+	 (ot) == OP_KILL || \
+	 (ot) == OP_KVASLICE || \
+	 (ot) == OP_KVHSLICE || \
+	 (ot) == OP_LIST || \
+	 (ot) == OP_LSLICE || \
+	 (ot) == OP_MAPSTART || \
+	 (ot) == OP_OPEN || \
+	 (ot) == OP_PACK || \
+	 (ot) == OP_PRINT || \
+	 (ot) == OP_PRTF || \
+	 (ot) == OP_PUSH || \
+	 (ot) == OP_REFGEN || \
+	 (ot) == OP_REPEAT || \
+	 (ot) == OP_RETURN || \
+	 (ot) == OP_REVERSE || \
+	 (ot) == OP_SAY || \
+	 (ot) == OP_SORT || \
+	 (ot) == OP_SPLICE || \
+	 (ot) == OP_SPRINTF || \
+	 (ot) == OP_SYSCALL || \
+	 (ot) == OP_SYSTEM || \
+	 (ot) == OP_TIE || \
+	 (ot) == OP_UNLINK || \
+	 (ot) == OP_UNSHIFT || \
+	 (ot) == OP_UTIME || \
+	 (ot) == OP_WARN)
 
-#define OP_IS_SOCKET(oc)	\
-	((oc) >= OP_SEND && (oc) <= OP_GETPEERNAME)
+#define OP_IS_SOCKET(ot)	\
+	((ot) >= OP_SEND && (ot) <= OP_GETPEERNAME)
 
-#define OP_IS_FILETEST(oc)	\
-	((oc) >= OP_FTRREAD && (oc) <= OP_FTBINARY)
+#define OP_IS_FILETEST(ot)	\
+	((ot) >= OP_FTRREAD && (ot) <= OP_FTBINARY)
 
-#define OP_IS_FILETEST_ACCESS(oc)	\
-	((oc) >= OP_FTRREAD && (oc) <= OP_FTEEXEC)
+#define OP_IS_FILETEST_ACCESS(ot)	\
+	((ot) >= OP_FTRREAD && (ot) <= OP_FTEEXEC)
 
-#define OP_IS_NUMCOMPARE(oc)	\
-	((oc) >= OP_LT && (oc) <= OP_I_CMP)
+#define OP_IS_NUMCOMPARE(ot)	\
+	((ot) >= OP_LT && (ot) <= OP_I_CMP)
 
-#define OP_IS_DIRHOP(oc)	\
-	((oc) >= OP_READDIR && (oc) <= OP_CLOSEDIR)
+#define OP_IS_DIRHOP(ot)	\
+	((ot) >= OP_READDIR && (ot) <= OP_CLOSEDIR)
 
-#define OP_IS_INFIX_BIT(oc)	\
-	((oc) >= OP_BIT_AND && (oc) <= OP_S_BIT_OR)
+#define OP_IS_INFIX_BIT(ot)	\
+	((ot) >= OP_BIT_AND && (ot) <= OP_S_BIT_OR)
+
+#define OP_IS_PADVAR(ot)	\
+	((ot) >= OP_PADSV && (ot) <= OP_PADANY)
 
 /* backcompat old Perl 5 names: */
 #if 1
