@@ -1164,6 +1164,7 @@ sub indent {
 sub pad_subs {
     my ($self, $cv) = @_;
     my $padlist = $cv->PADLIST;
+    return if null $padlist;
     my @names = $padlist->ARRAYelt(0)->ARRAY;
     my @values = $padlist->ARRAYelt(1)->ARRAY;
     my @todo;
@@ -1193,6 +1194,7 @@ sub pad_subs {
 		    $cv = $cv->OUTSIDE;
 		    next PADENTRY if class($cv) eq 'SPECIAL'; # XXX freed?
 		    my $padlist = $cv->PADLIST;
+		    next PADENTRY if ref $padlist eq 'B::NULL';
 		    my $ix = $name->PARENT_PAD_INDEX;
 		    $name = $padlist->NAMES->ARRAYelt($ix);
 		    $flags = $name->FLAGS;
@@ -1253,7 +1255,7 @@ Carp::confess("SPECIAL in deparse_sub") if $cv->isa("B::SPECIAL");
     my $body;
     my $root = $cv->ROOT;
     local $B::overlay = {};
-    if (not null $root) {
+    if (not null $root) { # skip const_sv_xsub
 	$self->pad_subs($cv);
 	$self->pessimise($root, $cv->START);
 	my $lineseq = $root->first;
