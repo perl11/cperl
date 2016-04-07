@@ -101,12 +101,15 @@ PERL_MATHOM_CALLCONV I32 Perl_my_lstat(pTHX);
 PERL_MATHOM_CALLCONV I32 Perl_sv_eq(pTHX_ SV *sv1, SV *sv2);
 PERL_MATHOM_CALLCONV char * Perl_sv_collxfrm(pTHX_ SV *const sv, STRLEN *const nxp);
 PERL_MATHOM_CALLCONV bool Perl_sv_2bool(pTHX_ SV *const sv);
-PERL_MATHOM_CALLCONV CV * Perl_newSUB(pTHX_ I32 floor, OP* o, OP* proto, OP* block);
+PERL_MATHOM_CALLCONV CV * Perl_newSUB(pTHX_ I32 floor, OP* o, OP* proto, OP *block);
 PERL_MATHOM_CALLCONV UV Perl_to_utf8_lower(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp);
 PERL_MATHOM_CALLCONV UV Perl_to_utf8_title(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp);
 PERL_MATHOM_CALLCONV UV Perl_to_utf8_upper(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp);
 PERL_MATHOM_CALLCONV UV Perl_to_utf8_fold(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp);
 PERL_MATHOM_CALLCONV SV *Perl_sv_mortalcopy(pTHX_ SV *const oldstr);
+PERL_MATHOM_CALLCONV char*	Perl_instr(const char* big, const char* little)
+			__attribute__warn_unused_result__
+			__attribute__pure__;
 
 /* Ignore 'always_inline function might not be inlinable' */
 GCC_DIAG_IGNORE(-Wattributes)
@@ -1816,6 +1819,24 @@ Perl_pad_compname_type(pTHX_ const PADOFFSET po)
 }
 
 GCC_DIAG_RESTORE
+
+/* now a macro */
+/* return ptr to little string in big string, NULL if not found */
+/* This routine was donated by Corey Satten. */
+
+char *
+Perl_instr(const char *big, const char *little)
+{
+    /* Porting tests require this macro to be used even though it doesn't exist
+     * (except for the commented-out version in proto.h).  So provide a commented-out
+     * "use" of the prototype and supply a real version of what it expanded to.
+    PERL_ARGS_ASSERT_INSTR;
+    */
+    assert(big);
+    assert(little);
+
+    return strstr((char*)big, (char*)little);
+}
 
 END_EXTERN_C
 
