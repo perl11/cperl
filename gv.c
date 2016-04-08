@@ -101,7 +101,7 @@ GV *
 Perl_gv_fetchfile_flags(pTHX_ const char *const name, const STRLEN namelen,
 			const U32 flags)
 {
-    char smallbuf[128];
+    char smallbuf[160];
     char *tmpbuf;
     const STRLEN tmplen = namelen + 2;
     GV *gv;
@@ -130,8 +130,8 @@ Perl_gv_fetchfile_flags(pTHX_ const char *const name, const STRLEN namelen,
 #endif
     }
     if (PERLDB_LINE_OR_SAVESRC && !GvAV(gv))
-	    hv_magic(GvHVn(gv), GvAVn(gv), PERL_MAGIC_dbfile);
-    if (tmpbuf != smallbuf)
+        hv_magic(GvHVn(gv), GvAVn(gv), PERL_MAGIC_dbfile);
+    if (tmpbuf != smallbuf && tmplen > sizeof smallbuf)
 	Safefree(tmpbuf);
     return gv;
 }

@@ -1783,7 +1783,7 @@ S_incline(pTHX_ const char *s)
 	       debugger - usually they're "(eval %lu)" */
 	    GV * const cfgv = CopFILEGV(PL_curcop);
 	    if (cfgv) {
-		char smallbuf[128];
+		char smallbuf[160];
 		STRLEN tmplen2 = len;
 		char *tmpbuf2;
 		GV *gv2;
@@ -1825,11 +1825,24 @@ S_incline(pTHX_ const char *s)
 		    }
 		}
 
-		if (tmpbuf2 != smallbuf) Safefree(tmpbuf2);
-	    }
-	}
-	CopFILE_free(PL_curcop);
-	CopFILE_setn(PL_curcop, s, len);
+		if (tmpbuf2 != smallbuf && tmplen2 > sizeof(smallbuf)-2)
+                    Safefree(tmpbuf2);
+                if (CopFILEGV(PL_curcop) != gv2) {
+                    CopFILE_free(PL_curcop);
+#ifndef USE_ITHREADS
+                    PL_curcop->cop_filegv = MUTABLE_GV(SvREFCNT_inc(gv2));
+#else
+                    CopFILE_setn(PL_curcop, s, len);
+#endif
+                }
+	    } else {
+                goto set_copfile;
+            }
+	} else {
+        set_copfile:
+            CopFILE_free(PL_curcop);
+            CopFILE_setn(PL_curcop, s, len);
+        }
     }
     CopLINE_set(PL_curcop, line_num);
 }

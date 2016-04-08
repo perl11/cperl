@@ -477,6 +477,12 @@ filenames, filenames starting with "." or not ending with ".pm".
 
 =item * uncow on utf8::encode [cperl #50]
 
+=item * Fixed double-free with overlong names, esp. Moose [cperl #128]
+
+Improve and fix CopFILE_set in S_incline. Don't call gv_fetchfile_flags 2x
+with unthreaded perls. Enlarge the temp. buffer on the stack from 128 to
+160.
+
 =item * Fixed compilation with -DDEBUGGING and usethreads
 
 In the new loop bounds check elimination code.
