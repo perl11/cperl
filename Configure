@@ -7539,16 +7539,17 @@ rp='Pathname for the site-specific library files?'
 . ./getfile
 prefixvar=sitelib
 . ./setprefixvar
-sitelib_stem=`echo "$sitelibexp" | sed "s,/$version$,,"`
+sitelib_stem=`echo "$sitelibexp" | $sed "s,/$version$,,"`
 
 : Determine list of previous versions to include in @INC
+qarchname=`echo "$archname" | $sed 's,@,\\\\@,g'`
 $cat > getverlist <<EOPL
 #!$perl5 -w
 use File::Basename;
-\$api_versionstring = "$api_versionstring";
-\$version = "$version";
-\$stem = "$sitelib_stem";
-\$archname = "$archname";
+my \$api_versionstring = "$api_versionstring";
+my \$version = "$version";
+my \$stem = "$sitelib_stem";
+my \$archname = "$qarchname";
 EOPL
 	$cat >> getverlist <<'EOPL'
 # The list found is store twice for each entry: the original name, and
@@ -7558,11 +7559,11 @@ EOPL
 # ".0.0" to ensure at least three elements for the pack.
 #					-- H.Merijn Brand (m)'06 23-10-2006
 
-# Can't have leading @ because metaconfig interprets it as a command!
-;@inc_version_list=();
+my @inc_version_list=();
 # XXX Redo to do opendir/readdir?
 if (-d $stem) {
     chdir($stem);
+    # Can't have leading @ because metaconfig interprets it as a command!
     ;@candidates = map {
 	[ $_, pack "sss", split m/[._]/, "$_.0.0" ] } glob("5.*");
     ;@candidates = sort { $a->[1] cmp $b->[1]} @candidates;
@@ -7597,6 +7598,7 @@ else {
 }
 EOPL
 chmod +x getverlist
+qarchname=
 case "$inc_version_list" in
 '')	if test -x "$perl5$exe_ext"; then
 		dflt=`$perl5 getverlist`
