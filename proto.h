@@ -10052,11 +10052,11 @@ PERL_CALLCONV int	Perl_magic_setcollxfrm(pTHX_ SV* sv, MAGIC* mg)
 #define PERL_ARGS_ASSERT_MAGIC_SETCOLLXFRM	\
 	assert(sv); assert(mg)
 
-PERL_CALLCONV char*	Perl_mem_collxfrm(pTHX_ const char* s, STRLEN len, STRLEN* xlen)
+PERL_CALLCONV char*	Perl_mem_collxfrm(pTHX_ const char* input_string, STRLEN len, STRLEN* xlen)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_MEM_COLLXFRM	\
-	assert(s); assert(xlen)
+	assert(input_string); assert(xlen)
 
 /* PERL_CALLCONV char*	sv_collxfrm(pTHX_ SV *const sv, STRLEN *const nxp)
 			__attribute__global__

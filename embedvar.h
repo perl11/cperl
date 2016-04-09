@@ -313,6 +313,7 @@
 #define PL_stderrgv		(vTHX->Istderrgv)
 #define PL_stdingv		(vTHX->Istdingv)
 #define PL_strtab		(vTHX->Istrtab)
+#define PL_strxfrm_min_char	(vTHX->Istrxfrm_min_char)
 #define PL_sub_generation	(vTHX->Isub_generation)
 #define PL_subline		(vTHX->Isubline)
 #define PL_subname		(vTHX->Isubname)
