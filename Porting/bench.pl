@@ -946,7 +946,7 @@ sub grind_process {
     my %counts;
     my %data;
 
-    my $perl_norm = $perls->[$OPTS{norm}][0]; # the name of the reference perl
+    my $perl_norm = $perls->[$OPTS{norm}][1]; # the label of the reference perl
 
     for my $test_name (keys %$res) {
         my $res1 = $res->{$test_name};
@@ -1102,6 +1102,7 @@ sub grind_print {
     my ($results, $averages, $perls, $tests, $order) = @_;
 
     my @perl_names = map $_->[0], @$perls;
+    my @perl_labels = map $_->[1], @$perls;
     my %perl_labels;
     $perl_labels{$_->[0]} = $_->[1] for @$perls;
 
@@ -1109,7 +1110,7 @@ sub grind_print {
     # Calculate the width to display for each column.
     my $min_width = $OPTS{raw} ? 8 : 6;
     my @widths = map { length($_) < $min_width ? $min_width : length($_) }
-                            @perl_labels{@perl_names};
+    			@perl_labels;
 
     # Print standard header.
     grind_blurb($perls);
@@ -1139,7 +1140,7 @@ sub grind_print {
             print " " x $field_label_width;
             for (0..$#widths) {
                 printf " %*s", $widths[$_],
-                    $i ? ('-' x$widths[$_]) :  $perl_labels{$perl_names[$_]};
+                    $i ? ('-' x$widths[$_]) :  $perl_labels[$_];
             }
             print "\n";
         }
@@ -1161,7 +1162,7 @@ sub grind_print {
                 print " " x $field_label_width;
                 for (0..$#widths) {
                     printf " %*s", $widths[$_],
-                        $i ? ('-' x$widths[$_]) :  $perl_labels{$perl_names[$_]};
+                        $i ? ('-' x$widths[$_]) :  $perl_labels[$_];
                 }
                 print "\n";
             }
@@ -1191,7 +1192,7 @@ sub grind_print {
             }
 
             for my $i (0..$#widths) {
-                my $res2 = $res1->{$perl_names[$i]};
+                my $res2 = $res1->{$perl_labels[$i]};
                 my $p = $res2->{$field};
                 if (!defined $p) {
                     printf " %*s", $widths[$i], '-';
