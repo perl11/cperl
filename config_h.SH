@@ -5,6 +5,13 @@
 #
 # See Porting/config_h.pl
 
+#!/bin/sh
+#
+# THIS IS A GENERATED FILE
+# DO NOT HAND-EDIT
+#
+# See Porting/config_h.pl
+
 : Set up for generating config_h.SH
 case "$CONFIG_SH" in
 '') CONFIG_SH=config.sh;;
@@ -28,6 +35,9 @@ esac
 case "$0" in
 */*) cd `expr X$0 : 'X\(.*\)/'` ;;
 esac
+case "$CONFIG_H" in
+already-done) echo "Not re-extracting config.h" ;;
+*)
 case "$CONFIG_H" in
 already-done) echo "Not re-extracting config.h" ;;
 *)
@@ -5448,6 +5458,15 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$sanitize_address	USE_SANITIZE_ADDRESS		/**/
 #endif
 
+/* USE_SAFE_HASHITER:
+ *	This symbol, if defined, indicates that Perl disallows changes of
+ *      hash keys during iteration. You need to permit it with use hashiter,
+ *      or set the key "unsafe_hashiter" in the current cop hints hash.
+ */
+#ifndef USE_SAFE_HASHITER
+#$usesafehashiter	USE_SAFE_HASHITER		/**/
+#endif
+
 /* PERL_HASH_FUNC_*:
  *	This symbol defines the used perl hash function variant.
  *      It is set in Configure or via -Dhash_func=, but can be left blank.
@@ -5466,5 +5485,7 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 
 #endif
 !GROK!THIS!
+;;
+esac
 ;;
 esac

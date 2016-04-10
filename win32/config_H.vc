@@ -5195,6 +5195,15 @@
 #define	USE_CPERL		/**/
 #endif
 
+/* USE_SAFE_HASHITER:
+ *	This symbol, if defined, indicates that Perl disallows changes of
+ *      hash keys during iteration. You need to permit it with use hashiter,
+ *      or set the key "unsafe_hashiter" in the current cop hints hash.
+ */
+#ifndef USE_SAFE_HASHITER
+#define	USE_SAFE_HASHITER		/**/
+#endif
+
 /* PERL_HASH_FUNC_*:
  *	This symbol defines the used perl hash function variant.
  *      It is set in Configure or via -Dhash_func=, but can be left blank.

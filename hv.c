@@ -722,13 +722,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 			HvPLACEHOLDERS(hv)--;
 		}
 		HeVAL(entry) = val;
-                /*if (SvOOK(hv))
-                  HvTIMESTAMP(hv)++; */
 	    } else if (action & HV_FETCH_ISSTORE) {
 		SvREFCNT_dec(HeVAL(entry));
 		HeVAL(entry) = val;
-                /*if (SvOOK(hv))
-                  HvTIMESTAMP(hv)++; */
 	    }
 	} else if (HeVAL(entry) == PLACEHOLDER) {
 	    /* A deleted slot. If we find a placeholder, we pretend we
@@ -902,8 +898,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     HeVAL(entry) = val;
 
     if (SvOOK(hv)) { /* aux struct present */
-        struct xpvhv_aux *const aux = HvAUX(hv);
-        ++aux->xhv_timestamp;
+#ifdef USE_SAFE_HASHITER
+        HvAUX(hv)->xhv_timestamp++;
+#endif
     }
 #ifdef PERL_HASH_RANDOMIZE_KEYS
     /* This logic semi-randomizes the insert order in a bucket.
@@ -1710,7 +1707,9 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	    *oentry = HeNEXT(entry);
             if (SvOOK(hv)) {
                 struct xpvhv_aux *const aux = HvAUX(hv);
+#ifdef USE_SAFE_HASHITER
                 aux->xhv_timestamp++;
+#endif
                 if (entry == aux->xhv_eiter)
                     HvLAZYDEL_on(hv);
                 else {
@@ -1780,7 +1779,9 @@ S_hsplit_move_aux(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 #ifdef PERL_HASH_RANDOMIZE_KEYS
         dest->xhv_rand = (U32)PL_hash_rand_bits;
 #endif
-        dest->xhv_timestamp++;
+#ifdef USE_SAFE_HASHITER
+            dest->xhv_timestamp++;
+#endif
     } else {
         /* no existing aux structure, but we allocated space for one
          * so initialize it properly. This unrolls hv_auxinit() a bit,
@@ -1791,7 +1792,9 @@ S_hsplit_move_aux(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 #endif
         /* this is the "non realloc" part of the hv_auxinit() */
         (void)hv_auxinit_internal(dest);
-        dest->xhv_timestamp++;
+#ifdef USE_SAFE_HASHITER
+            dest->xhv_timestamp++;
+#endif
         /* Turn on the OOK flag */
         SvOOK_on(hv);
     }
@@ -2762,7 +2765,9 @@ Perl_hv_iterinit(pTHX_ HV *hv)
 #ifdef PERL_HASH_RANDOMIZE_KEYS
         iter->xhv_last_rand = iter->xhv_rand;
 #endif
+#ifdef USE_SAFE_HASHITER
         iter->xhv_savedstamp = iter->xhv_timestamp;
+#endif
     } else {
 	hv_auxinit(hv);
     }
@@ -3199,7 +3204,9 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 
                 /* one HE per MAGICAL hash */
                 iter->xhv_eiter = entry = new_HE();
+#ifdef USE_SAFE_HASHITER
                 iter->xhv_savedstamp = iter->xhv_timestamp;
+#endif
 		HvLAZYDEL_on(hv); /* make sure entry gets freed */
                 Zero(entry, 1, HE);
                 Newxz(k, HEK_BASESIZE + sizeof(const SV *), char);
@@ -3218,10 +3225,15 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
             del_HE(entry);
             iter = HvAUX(hv); /* may been realloced */
             iter->xhv_eiter = NULL;
+#ifdef USE_SAFE_HASHITER
             if (iter->xhv_timestamp != iter->xhv_savedstamp) {
-                if (!cophh_fetch_pvs(CopHINTHASH_get(PL_curcop), "hashiter", REFCOUNTED_HE_EXISTS))
+                DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hashiter %u\t%u\n",
+                                      iter->xhv_timestamp, iter->xhv_savedstamp));
+                if (!cophh_fetch_pvs(CopHINTHASH_get(PL_curcop), "unsafe_hashiter",
+                                     REFCOUNTED_HE_EXISTS))
                     Perl_croak(aTHX_ "Attempt to change hash while iterating over it");
             }
+#endif
 	    HvLAZYDEL_off(hv);
             return NULL;
         }
@@ -3239,7 +3251,9 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 	iter = HvAUX(hv);
 	oldentry = entry = iter->xhv_eiter;
 #endif
+#ifdef USE_SAFE_HASHITER
         iter->xhv_savedstamp = iter->xhv_timestamp;
+#endif
     }
 #endif
 
@@ -3258,9 +3272,12 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
                 entry = HeNEXT(entry);
             }
 	}
-    } else {
+    }
+#ifdef USE_SAFE_HASHITER
+    else {
         iter->xhv_savedstamp = iter->xhv_timestamp;
     }
+#endif
 
 #ifdef PERL_HASH_RANDOMIZE_KEYS
     if (iter->xhv_last_rand != iter->xhv_rand) {
@@ -3272,7 +3289,9 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
         }
         iter = HvAUX(hv); /* may been realloced */
         iter->xhv_last_rand = iter->xhv_rand;
+#ifdef USE_SAFE_HASHITER
         iter->xhv_savedstamp = iter->xhv_timestamp;
+#endif
     }
 #endif
 
@@ -3319,10 +3338,13 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
     }
 
     iter = HvAUX(hv); /* may been realloced */
+#ifdef USE_SAFE_HASHITER
     if (iter->xhv_timestamp != iter->xhv_savedstamp) {
-        if (!cophh_fetch_pvs(CopHINTHASH_get(PL_curcop), "hashiter", REFCOUNTED_HE_EXISTS))
+        if (!cophh_fetch_pvs(CopHINTHASH_get(PL_curcop), "unsafe_hashiter",
+                             REFCOUNTED_HE_EXISTS))
             Perl_croak(aTHX_ "Attempt to change hash while iterating over it");
     }
+#endif
     iter->xhv_eiter = entry;
     return entry;
 }

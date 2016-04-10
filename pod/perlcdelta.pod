@@ -42,8 +42,6 @@ XXX For a release on a stable branch, this section aspires to be:
 
 [ List each incompatible change as a =head2 entry ]
 
-=head2
-
 =head2 Protected hash iterators
 
 Iterating over a hash may now by default not change any key. Allow the
@@ -119,9 +117,10 @@ release manager will have to investigate the situation carefully.)
 
 =over 4
 
-=item *
+=item L<hashiter>
 
-XXX
+Allow hash iterators changing keys for back-compat.
+See L</Protected hash iterators>.
 
 =back
 

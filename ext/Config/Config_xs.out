@@ -266,7 +266,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1284
+#define TOTAL_KEYWORDS 1285
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -1564,6 +1564,7 @@ struct stringpool_t
     char stringpool_str5534[sizeof ("d_attribute_unused")];
     char stringpool_str5571[sizeof ("d_attribute_format")];
     char stringpool_str5574[sizeof ("d_frexpl")];
+    char stringpool_str5578[sizeof ("usesafehashiter")];
     char stringpool_str5590[sizeof ("firstmakefile")];
     char stringpool_str5614[sizeof ("d_gdbmndbm_h_uses_prototypes")];
     char stringpool_str5622[sizeof ("d_killpg")];
@@ -2851,6 +2852,7 @@ static const struct stringpool_t stringpool_contents =
     "d_attribute_unused",
     "d_attribute_format",
     "d_frexpl",
+    "usesafehashiter",
     "firstmakefile",
     "d_gdbmndbm_h_uses_prototypes",
     "d_killpg",
@@ -6356,8 +6358,11 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO},
 
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str5574,		T_INV,0,ALN64I"@@d_frexpl@@"},
+      {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str5578,	T_INV,0,ALN64I"@@usesafehashiter@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO},
 
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str5590,		T_INV,0,ALN64I"@@firstmakefile@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -6950,7 +6955,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(size_t)&((struct stringpool_t *)0)->stringpool_str9071,	T_INV,0,ALN64I"@@known_extensions@@"}
     };
 
-#line 6953 "Config.xs"
+#line 6958 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register unsigned int key = Config_hash (str, len);
