@@ -3820,6 +3820,7 @@ ext/B/t/o.t		See if O works
 ext/B/t/pollute.t	constants may not pollute the compiler
 ext/B/t/pragma.t	See if user pragmas work.
 ext/B/t/showlex.t	See if B::ShowLex works
+ext/B/t/sv_stash.t	See if SvSTASH() works
 ext/B/t/terse.t		See if B::Terse works
 ext/B/t/walkoptree.t	See if B::walkoptree (and friends) work
 ext/B/t/xref.t		See if B::Xref works
@@ -4234,6 +4235,7 @@ ext/XS-APItest/t/utf16_to_utf8.t	Test behaviour of utf16_to_utf8{,reversed}
 ext/XS-APItest/t/utf8.t		Tests for code in utf8.c
 ext/XS-APItest/t/weaken.t	XS::APItest: tests for sv_rvweaken() and sv_get_backrefs()
 ext/XS-APItest/t/whichsig.t	XS::APItest: tests for whichsig() and variants
+ext/XS-APItest/t/win32.t	Test Win32 specific APIs
 ext/XS-APItest/t/xs_special_subs_require.t	for require too
 ext/XS-APItest/t/xs_special_subs.t	Test that XS BEGIN/CHECK/INIT/END work
 ext/XS-APItest/t/xsub_h.t	Tests for XSUB.h
@@ -4840,6 +4842,7 @@ pod/perl5202delta.pod		Perl changes in version 5.20.2
 pod/perl5203delta.pod		Perl changes in version 5.20.3
 pod/perl5220delta.pod		Perl changes in version 5.22.0
 pod/perl5221cdelta.pod		cperl changes in version 5.22.1c
+pod/perl5221delta.pod		Perl changes in version 5.22.1
 pod/perl561delta.pod		Perl changes in version 5.6.1
 pod/perl56delta.pod		Perl changes in version 5.6
 pod/perl581delta.pod		Perl changes in version 5.8.1
@@ -5265,6 +5268,7 @@ t/lib/croak/op			Test croak calls from op.c
 t/lib/croak/pp			Test croak calls from pp.c
 t/lib/croak/pp_ctl		Test croak calls from pp_ctl.c
 t/lib/croak/pp_hot		Test croak calls from pp_hot.c
+t/lib/croak/pp_sys		Test croak calls from pp_sys.c
 t/lib/croak.t			Test calls to Perl_croak() in the C source.
 t/lib/croak/toke		Test croak calls from toke.c
 t/lib/cygwin.t			Builtin cygwin function tests

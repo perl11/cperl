@@ -742,10 +742,23 @@ Perl_op_free(pTHX_ OP *o)
         type = o->op_type;
 
         /* an op should only ever acquire op_private flags that we know about.
-         * If this fails, you may need to fix something in regen/op_private */
-        if (o->op_ppaddr == PL_ppaddr[o->op_type]) {
+         * If this fails, you may need to fix something in regen/op_private.
+         * Don't bother testing if:
+         *   * the op_ppaddr doesn't match the op; someone may have
+         *     overridden the op and be doing strange things with it;
+         *   * we've errored, as op flags are often left in an
+         *     inconsistent state then. Note that an error when
+         *     compiling the main program leaves PL_parser NULL, so
+         *     we can't spot faults in the main code, onoly
+         *     evaled/required code */
+#ifdef DEBUGGING
+        if (   o->op_ppaddr == PL_ppaddr[o->op_type]
+            && PL_parser
+            && !PL_parser->error_count)
+        {
             assert(!(o->op_private & ~PL_op_private_valid[type]));
         }
+#endif
 
         if (o->op_private & OPpREFCOUNTED) {
             switch (type) {
@@ -2645,7 +2658,13 @@ S_mark_padname_lvalue(pTHX_ PADNAME *pn)
     PadnameLVALUE_on(pn);
     while (PadnameOUTER(pn) && PARENT_PAD_INDEX(pn)) {
 	cv = CvOUTSIDE(cv);
-	assert(cv);
+        /* RT #127786: cv can be NULL due to an eval within the DB package
+         * called from an anon sub - anon subs don't have CvOUTSIDE() set
+         * unless they contain an eval, but calling eval within DB
+         * pretends the eval was done in the caller's scope.
+         */
+	if (!cv)
+            break;
 	assert(CvPADLIST(cv));
 	pn =
 	   PadlistNAMESARRAY(CvPADLIST(cv))[PARENT_PAD_INDEX(pn)];
@@ -8509,7 +8528,6 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	    S_op_const_sv(aTHX_ start, PL_compcv, cBOOL(CvCLONE(PL_compcv)));
 
     if (SvPOK(gv) || (SvROK(gv) && SvTYPE(SvRV(gv)) != SVt_PVCV)) {
-	assert (block);
 	cv_ckproto_len_flags((const CV *)gv,
 			     o ? (const GV *)cSVOPo->op_sv : NULL, ps,
 			     ps_len, ps_utf8|CV_CKPROTO_CURSTASH);
@@ -11335,11 +11353,20 @@ OP *
 Perl_ck_entersub_args_list(pTHX_ OP *entersubop)
 {
     OP *aop;
+
     PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_LIST;
+
     aop = cUNOPx(entersubop)->op_first;
     if (!OpHAS_SIBLING(aop))
 	aop = cUNOPx(aop)->op_first;
     for (aop = OpSIBLING(aop); OpHAS_SIBLING(aop); aop = OpSIBLING(aop)) {
+        /* skip the extra attributes->import() call implicitly added in
+         * something like foo(my $x : bar)
+         */
+        if (   aop->op_type == OP_ENTERSUB
+            && (aop->op_flags & OPf_WANT) == OPf_WANT_VOID
+        )
+            continue;
         list(aop);
         op_lvalue(aop, OP_ENTERSUB);
     }

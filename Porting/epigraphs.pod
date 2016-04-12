@@ -17,6 +17,102 @@ Consult your favorite dictionary for details.
 
 =head1 EPIGRAPHS
 
+=head2 v5.23.9 - Tom Kitchin, "from nature to plate"
+
+L<Announced on 2016-03-20 by Abigail|http://www.nntp.perl.org/group/perl.perl5.porters/2016/03/msg235251.html>
+
+Spring
+
+Spring is the proper beginning of my kitchen and a season that I
+look forward to with great anticipation. By the time spring arrives
+I am desperate to welcome all the spring produce into my kitchen
+and I long to work with fresh green vegetables again. As much as I
+love root vegetables, such as celeriac and parsnips, and the heaver
+meat and game dishes, I'm ready to leave those behind with winter
+and begin a new adventure.
+
+Somehow spring always gives me a little bit of bounce in my feet
+-- I feel like I want to kick off my shoes and dance around in my
+kitchen. Not that I do, of course, but I feel lighter somehow. My
+adrenalin kicks in with spring and so does the level of excitement,
+as I think about all the produce that is about to come in.
+
+The moment spring arrives I'm eager to cook peas, broad beans, green
+asparagus and other fresh vegetables! I want to create lighter,
+brighter dishes and I can't wait to get my hands on the first greens
+and the first morels, not to mention the first wild Scottish salmon.
+Thanks to my network of trusted suppliers, I always get to first
+produce of the season delivered to my restaurant as soon as it is
+possible. I want my customers to experience and understand the
+beauty of locally grown produce and to try things the minute they
+are available so they can taste how incredibly fresh the ingredients
+are. I also want them to understand the relationship between
+seasonality and flavours. One of the most important things to
+remember is to allow the seasons to inspire your dishes and help
+you make natural matches. Wild spring herbs, such as sorrel, sweet
+cicely and wild garlic, as well as spring salad leaves and green
+lettuce served with wild salmon, wild sea trout, lamb or rabbit are
+marriages made in heaven.
+
+
+=head2 v5.23.8 - Patrick Rothfuss, "The Wise Man's Fear (The Kingkiller's Chronicle: Day Two)"
+
+L<Announced on 2016-02-20 by Sawyer X|http://www.nntp.perl.org/group/perl.perl5.porters/2016/02/msg234535.html>
+
+Denna, on the other hand, had never been trained. She knew nothing
+of shortcuts. You'd think she'd be forced to wander the city, lost and
+helpless, trapped in a twisting maze of mortared stone.
+
+But instead, she simply walked throught the walls. She didn't know
+any better. Nobody had ever told her she couldn't. Because of this,
+she moved through the city like some faerie creature. She walked roads
+no one else could see, and it made her music wild and strange and
+free.
+
+=head2 v5.23.7 - William Gibson, "Neuromancer"
+
+L<Announced on 2016-01-20 by Stevan Little|http://www.nntp.perl.org/group/perl.perl5.porters/2016/01/msg233856.html>
+
+A year here and he still dreamed of cyberspace, hope fading
+nightly. All the speed he took, all the turns he'd taken and
+the corners he cut in Night City, and he'd still see the matrix
+in his dreams, bright lattices of logic unfolding across that
+colourless void...The Sprawl was a long, strange way home now
+over the Pacific, and he was no Console Man, no cyberspace
+cowboy. Just another hustler, trying to make it through. But
+the dreams came on in the Japanese night like livewire voodoo,
+and he'd cry for it, cry in his sleep, and wake alone in the
+dark, curled in his capsule in some coffin hotel, hands clawed
+into the bedslab, temper foam bunched between his fingers,
+trying to reach the console that wasn't there.
+
+=head2 v5.23.6 - 5.23 Episode VII
+
+L<Announced on 2015-12-21 by David Golden|http://www.nntp.perl.org/group/perl.perl5.porters/2015/12/msg233475.html>
+
+  A long time ago in microseconds, in a galaxy not very far away...
+
+                   5.23 Episode VII
+                   THE FUZZ AWAKENS
+
+                  It is a period of
+                unrest as separatists
+               announce their intentions
+              to fork PERL and return the
+             galaxy to speed and stability.
+
+            Chancellor Rik Hoolian struggles
+          to hold together the remains of the
+         once mighty Republic against a tide of
+        incivility and the depredations of a new
+       foe, the FUZZ RAIDERS.
+
+      Meanwhile, after 15 years of preparation and
+     high expectations, Supreme Leader Toady prepares
+    to unleash a devastating new weapon, PERL SIXDOTOH,
+   that could splinter the Republic forever and usher in
+  a new Empire of gradual typing....
+
 =head2 v5.23.5 - utastro!nather (Ed Nather), "The Story of Mel", in net.jokes, May 21, 1983.
 
 L<Announced on 2015-11-20 by Abigail|http://www.nntp.perl.org/group/perl.perl5.porters/2015/11/msg232758.html>
@@ -190,7 +286,7 @@ L<Announced on 2015-07-20 by Matthew Horsfall|http://www.nntp.perl.org/group/per
   Will chase the sun into the morning
   Beyond the sky, beyond the sea.
 
-=head2 v5.23.0 - Bob Dylan, Maggie's Farm
+=head2 v5.23.0 - Bob Dylan, "Maggie's Farm"
 
 L<Announced on 2015-06-20 by Ricardo Signes|http://www.nntp.perl.org/group/perl.perl5.porters/2015/06/msg228807.html>
 
@@ -202,6 +298,59 @@ L<Announced on 2015-06-20 by Ricardo Signes|http://www.nntp.perl.org/group/perl.
   To be just like them
   They sing while you slave and I just get bored
   I ain't gonna work on Maggie's farm no more
+
+=head2 v5.22.2-RC1 - Gaston Leroux, trans. Mireille Ribière, "The Phantom of the Opera"
+
+L<Announced on 2016-04-10 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2016/04/msg235732.html>
+
+This annual ball was quite a magnificent affair.  It was given some time
+before Shrovetide to celebrate the birthday of a famous illustrator
+whose pencil had immortalized, in the style of Gavarni, the extravagant
+carnival parade down La Courtille.  As such, the ball was an altogether
+merrier, noisier and more Bohemian occasion than was usual for a masked
+ball.  Many artists had arranged to meet there; they arrived with an
+entourage of models and pupils, who, by midnight, had become quite
+boisterous.
+Raoul climbed the grand staircase at five minutes to midnight.  He did
+not linger to admire the many-coloured costumes on display all the way
+up the marble steps of one of the most luxurious settings in the world;
+nor did he allow himself to be drawn into the facetious conversation of
+masked guests.  He simply ignored all the jesting remarks, and shook off
+the attentions of several all too merry couples.
+Crossing the big crush-room and escaping from the dancers' farandole
+that had encircled him awhile, he at last entered the salon mentioned by
+Christine in her letter.  The small room was crammed with people either
+on their way to supper at the restaurant in the Rotunda or back from
+raising a glass of champagne.
+In the midst of the gay and lively hubbub, Raoul thought that, for their
+mysterious assignation, Christine must have preferred this crowd to some
+lonely corner.
+He leaned against a door-jamb and waited.  He did not have to wait long;
+a black domino passed him and deftly touched his hand.  He understood
+that it was Christine and followed her.
+'Is that you, Christine?' he murmured, barely moving his slips.
+The black domino promptly looked back and raised her finger to her lips,
+no doubt to caution him against uttering her name again.  Raoul followed
+on in silence.
+
+=head2 v5.22.1 - Wilhelm Müller, trans. Anon., "Courage" (No. 22 in Schubert's song-cycle, "Winterreise")
+
+L<Announced on 2015-12-13 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2015/12/msg233318.html>
+
+  If the snow flies in my face,
+  Let me shake it off me!
+  If my heart within me speaks,
+  I'll sing bright and gaily!
+
+  Will not listen what it says,
+  Have no ears for moaning.
+  Do not feel what it complains,--
+  Only fools like groaning!
+
+  Jolly brave into the world,
+  'Gainst all wind and weather,--
+  If there is no God on earth,
+  Let 's be gods down nether!
 
 =head2 v5.22.1-RC4 - Wilhelm Müller, trans. Anon., "The Signpost" (No. 20 in Schubert's song-cycle, "Winterreise")
 
