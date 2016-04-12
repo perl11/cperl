@@ -47,8 +47,8 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MY.pm 22fe9596a0237252f
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/testlib.pm 7fbc42ca2ebc6c677b79ae5fd5647243cf069463
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/basic.t 6cdc7701b50e586bc9c4cfb1616de8eb0b1baf34
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fcad251b12d8b2412462b3
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 12e39ffbab1c9a6b2185e6abfc1c1f4bb2c11980
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 3a69337bc251a81bbddb93057ebabd5f24594907
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm c99ef9e936a476a02a62191a3b0b6e20ed12c5ae
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm d965ac6c3091bde55450683b959771dbd100583a
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 99fe178fa11ef47b51df3795073318cd8f2faf5b
 Pod::Simple cpan/Pod-Simple/lib/Pod/Simple/BlackBox.pm 4108633c4f40f7f63c5a0245df2b07a4a2f22fec
 Pod::Simple cpan/Pod-Simple/lib/Pod/Simple/Search.pm 7a48823f9faec6d6bbef08060e679e46ccf60bc8
