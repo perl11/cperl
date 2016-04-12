@@ -244,7 +244,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1232
+#define TOTAL_KEYWORDS 1233
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 30
 #define MIN_HASH_VALUE 3
@@ -1509,6 +1509,7 @@ struct stringpool_t
     char stringpool_str4959[sizeof ("crypt_r_proto")];
     char stringpool_str4978[sizeof ("d_pwquota")];
     char stringpool_str4992[sizeof ("siteprefix")];
+    char stringpool_str5021[sizeof ("dtraceobject")];
     char stringpool_str5028[sizeof ("uquadtype")];
     char stringpool_str5062[sizeof ("i_sysfilio")];
     char stringpool_str5099[sizeof ("getgrgid_r_proto")];
@@ -2744,6 +2745,7 @@ static const struct stringpool_t stringpool_contents =
     "crypt_r_proto",
     "d_pwquota",
     "siteprefix",
+    "dtraceobject",
     "uquadtype",
     "i_sysfilio",
     "getgrgid_r_proto",
@@ -6095,7 +6097,10 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str5021,		T_INV,0,ALN64I"@@dtraceobject@@"},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str5028,		T_INV,0,ALN64I"@@uquadtype@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -6580,7 +6585,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str7919,	T_INV,0,ALN64I"@@d_libm_lib_version@@"}
     };
 
-#line 6583 "Config.xs"
+#line 6588 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);
