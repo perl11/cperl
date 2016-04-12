@@ -1599,7 +1599,7 @@
 #  if defined(PERL_IN_HV_C) && defined(DEBUGGING)
 #define action_name(a)		S_action_name(aTHX_ a)
 #  endif
-#  if defined(PERL_IN_LOCALE_C) || defined(PERL_IN_SV_C)
+#  if defined(PERL_IN_LOCALE_C) || defined(PERL_IN_SV_C) || defined(PERL_IN_MATHOMS_C)
 #    if defined(USE_LOCALE_COLLATE)
 #define _mem_collxfrm(a,b,c,d)	Perl__mem_collxfrm(aTHX_ a,b,c,d)
 #    endif
@@ -1891,7 +1891,9 @@
 #  endif
 #  if defined(USE_LOCALE_COLLATE)
 #define magic_setcollxfrm(a,b)	Perl_magic_setcollxfrm(aTHX_ a,b)
+#ifndef NO_MATHOMS
 #define mem_collxfrm(a,b,c)	Perl_mem_collxfrm(aTHX_ a,b,c)
+#endif
 #  endif
 #  if defined(USE_PERLIO)
 #define PerlIO_restore_errno(a)	Perl_PerlIO_restore_errno(aTHX_ a)
