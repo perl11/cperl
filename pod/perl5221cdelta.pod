@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-perl5221delta - what is new for perl v5.22.1
+perl5221cdelta - what is new for cperl v5.22.1
 
 =head1 DESCRIPTION
 
