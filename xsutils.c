@@ -167,22 +167,22 @@ static void boot_core_cperl(pTHX) {
 static void
 boot_coretypes(pTHX_ SV *xsfile)
 {
-    AV *isa; HV *stash;
+ /* AV *isa; HV *stash;
     DEF_CORETYPE_1("Int");
     DEF_CORETYPE_1("Num");
     DEF_CORETYPE_1("Str");
     DEF_CORETYPE("UInt");
-    TYPE_EXTENDS_1("UInt", "Int");
+    TYPE_EXTENDS_1("UInt", "Int"); */
     /* native types */
-    DEF_CORETYPE_1("int");
+ /* DEF_CORETYPE_1("int");
     DEF_CORETYPE_1("num");
     DEF_CORETYPE_1("str");
     DEF_CORETYPE("uint");
     TYPE_EXTENDS_1("uint", "int");
 
-    DEF_CORETYPE("Scalar"); /* not readonly */
+    DEF_CORETYPE("Scalar");
     DEF_CORETYPE("Numeric");
-    TYPE_EXTENDS_1("Numeric", "Scalar");
+    TYPE_EXTENDS_1("Numeric", "Scalar"); */
 #if 0
     /* Extended versions, needed only for user types, not core types */
     DEF_CORETYPE_1("Undef");

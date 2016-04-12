@@ -1736,7 +1736,7 @@ case 2:
 			  if (!FEATURE_SHAPED_ARRAYS_IS_ENABLED)
                               Perl_croak(aTHX_ "Experimental "
                                     "shaped_arrays not enabled");
-#if 0
+#ifndef USE_CPERL
                           /* Policies... Either provide a stable feature or not.
                              No need to be defensive about every single new feature */
 			  ck_warner_d(
@@ -1824,6 +1824,6 @@ case 2:
     
 
 /* Generated from:
- * 59f2753b1c95c92cdc6916bb70ccae3dd1dbeb33e1456376123af5b74cd7e609 perly.y
+ * 9448e731e74bffb5e4c4d5c1e75f767e007cc8143a3a5731e1138f1d7a31459c perly.y
  * d75acf04e5e050e9d0de13999b5b46a13f176dcf9f75c07acf51e913fc41db9a regen_perly.pl
  * ex: set ro: */

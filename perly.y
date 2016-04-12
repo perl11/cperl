@@ -1142,7 +1142,7 @@ sizearydecl :	'@' PRIVATEREF '[' THING ']'
 			  if (!FEATURE_SHAPED_ARRAYS_IS_ENABLED)
                               Perl_croak(aTHX_ "Experimental "
                                     "shaped_arrays not enabled");
-#if 0
+#ifndef USE_CPERL
                           /* Policies... Either provide a stable feature or not.
                              No need to be defensive about every single new feature */
 			  ck_warner_d(

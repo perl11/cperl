@@ -42,6 +42,12 @@ Individual members of C<PL_parser> have their own documentation.
 
 #define new_constant(a,b,c,d,e,f,g)	\
 	S_new_constant(aTHX_ a,b,STR_WITH_LEN(c),d,e,f, g)
+#define def_coretype_1(sv) \
+    S_def_coretype(aTHX_ sv, NULL, 0)
+#define def_coretype_2(sv, t1, len) \
+    S_def_coretype(aTHX_ sv, t1, len)
+#define CORETYPE_VERSION_STR "0.02c"
+#define CORETYPE_VERSION_NV   0.02
 
 #define pl_yylval	(PL_parser->yylval)
 
@@ -523,6 +529,27 @@ S_printbuf(pTHX_ const char *const fmt, const char *const s)
 }
 
 #endif
+
+static HV*
+S_def_coretype(pTHX_ SV *sv, const char *t1, int len)
+{
+    HV* stash; AV* isa; SV* svisa; SV* version;
+    sv_catpvs(sv, "::");
+    version = newSVpvn(SvPVX(sv), SvCUR(sv));
+    sv_catpvs(version, "VERSION");
+    svisa = newSVpvn(SvPVX(sv), SvCUR(sv));
+    sv_catpvs(svisa, "ISA");
+    stash = GvHV(gv_HVadd(gv_fetchsv(sv, GV_ADD, SVt_PVHV)));
+    Perl_set_version(aTHX_ SvPVX(version), SvCUR(version),
+                     STR_WITH_LEN(CORETYPE_VERSION_STR), CORETYPE_VERSION_NV);
+    isa = GvAV(gv_AVadd(gv_fetchsv(svisa, GV_ADD, SVt_PVAV)));
+    if (t1)
+        av_push(isa, newSVpvn(t1, len));
+    mg_set(MUTABLE_SV(isa));
+    SvREADONLY_on(MUTABLE_SV(isa));
+    SvREADONLY_on(MUTABLE_SV(stash));
+    return stash;
+}
 
 static void
 S_no_such_class(pTHX_ char *s) {
@@ -4442,12 +4469,14 @@ STATIC HV *
 S_find_in_my_stash(pTHX_ const char *pkgname, STRLEN len)
 {
     GV *gv;
+    HV *stash;
 
     PERL_ARGS_ASSERT_FIND_IN_MY_STASH;
 
     if (len == 11 && *pkgname == '_' && strEQ(pkgname, "__PACKAGE__"))
         return PL_curstash;
 
+    /* stash already */
     if (len > 2
         && (pkgname[len - 2] == ':' && pkgname[len - 1] == ':')
         && (gv = gv_fetchpvn_flags(pkgname,
@@ -4457,6 +4486,11 @@ S_find_in_my_stash(pTHX_ const char *pkgname, STRLEN len)
         return GvHV(gv);			/* Foo:: */
     }
 
+    /* does class exist? does not create it. */
+    stash = gv_stashpvn(pkgname, len, UTF ? SVf_UTF8 : 0);
+    if (stash)
+        return stash;
+
     /* use constant CLASS => 'MyClass' */
     gv = gv_fetchpvn_flags(pkgname, len, UTF ? SVf_UTF8 : 0, SVt_PVCV);
     if (gv && GvCV(gv)) {
@@ -4465,7 +4499,28 @@ S_find_in_my_stash(pTHX_ const char *pkgname, STRLEN len)
 	    return gv_stashsv(sv, 0);
     }
 
-    return gv_stashpvn(pkgname, len, UTF ? SVf_UTF8 : 0);
+    /* autocreate coretypes. some of them inherited (set the ISA) */
+    if (len == 3
+        && (strnEQ(pkgname, "int", 3) || strnEQ(pkgname, "Int", 3)
+         || strnEQ(pkgname, "str", 3) || strnEQ(pkgname, "Str", 3)
+         || strnEQ(pkgname, "num", 3) || strnEQ(pkgname, "Num", 3)
+         )) {
+        SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
+        return def_coretype_1(sv);
+    } else if (len == 4
+               && (strnEQ(pkgname, "uint", 4)
+                   || strnEQ(pkgname, "UInt", 4))) {
+        SV *sv = newSVpvn_flags(pkgname, 4, SVs_TEMP);
+        return def_coretype_2(sv, pkgname+1, 3);
+    } else if (len == 6 && strnEQ(pkgname, "Scalar", 6)) {
+        SV *sv = newSVpvn_flags(pkgname, 6, SVs_TEMP);
+        return def_coretype_1(sv);
+    } else if (len == 7 && strnEQ(pkgname, "Numeric", 7)) {
+        SV *sv = newSVpvn_flags(pkgname, 7, SVs_TEMP);
+        return def_coretype_2(sv, "Scalar", 6);
+    }
+
+    return NULL;
 }
 
 
@@ -5844,18 +5899,9 @@ Perl_yylex(pTHX)
 			sv_free(sv);
 			CvPURE_on(PL_compcv);
 		    }
-                    /* handle coretypes here, so we can pass an empty attrs
-                       to newATTRSUB */
-		    else if (len == 3
-                             && (strnEQ(pv, "int", len) || strnEQ(pv, "num", len)
-                                 || strnEQ(pv, "str", len)
-                                 || strnEQ(pv, "Int", len) || strnEQ(pv, "Num", len)
-                                 || strnEQ(pv, "Str", len))) {
-                        sv_free(sv);
-                        CvTYPED_on(PL_compcv);
-		    }
-		    else if (len == 4
-                             && (strnEQ(pv, "uint", len) || strnEQ(pv, "UInt", len))) {
+                    /* Check types here, so we can pass an empty attrs
+                       to newATTRSUB. This allows any known type to be used. */
+		    else if (find_in_my_stash(pv, len)) {
                         sv_free(sv);
                         CvTYPED_on(PL_compcv);
 		    }
