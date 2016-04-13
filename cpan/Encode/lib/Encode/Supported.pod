@@ -367,7 +367,7 @@ Unicode character should belong).
 
 Not very popular.  Needs CNS 11643-1 and -2 which are not available in
 this module.  CNS 11643 is supported (via euc-tw) in Encode::HanExtra.
-Autrijus Tang may add support for this encoding in his module in future.
+Audrey Tang may add support for this encoding in her module in future.
 
 =item Various HP-UX encodings
 
@@ -603,7 +603,7 @@ you're doing and unless you really benefit from using C<UTF-16>.
   ISO-IR-165    [RFC1345]
   VISCII
   GB 12345
-  GB 18030 (**)  (see links bellow)
+  GB 18030 (**)  (see links below)
   EUC-TW   (**)
 
 are totally valid encodings but not registered at IANA.

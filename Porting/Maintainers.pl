@@ -503,7 +503,7 @@ use File::Glob qw(:case);
     },
 
     'Encode' => {
-        'DISTRIBUTION' => 'DANKOGAI/Encode-2.73.tar.gz',
+        'DISTRIBUTION' => 'DANKOGAI/Encode-2.84.tar.gz',
         'FILES'        => q[cpan/Encode],
         # cperl fix to support make -s
         'CUSTOMIZED'   => [ qw( bin/enc2xs )],

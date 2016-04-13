@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.PL,v 2.13 2015/02/05 10:53:00 dankogai Exp $
+# $Id: Makefile.PL,v 2.16 2015/09/24 02:19:21 dankogai Exp $
 #
 use 5.007003;
 use strict;
@@ -9,13 +9,15 @@ use File::Spec;
 
 # Just for sure :)
 my %ARGV = map { my @r = split /=/,$_; defined $r[1] or $r[1]=1; @r } @ARGV;
-$ARGV{DEBUG} and warn "$_ => $ARGV{$_}\n" for keys  %ARGV;
+$ARGV{DEBUG} and warn "$_ => $ARGV{$_}\n" for sort keys  %ARGV;
 $ENV{PERL_CORE} ||= $ARGV{PERL_CORE} if $ARGV{PERL_CORE};
 
 my %tables = 
     (
-     def_t => ['ascii.ucm',
+     def_t => [
+           'ascii.ucm',
            '8859-1.ucm',
+           'cp1252.ucm',
            'null.ucm',
            'ctrl.ucm',
            ]
@@ -82,7 +84,7 @@ sub post_initialize
     # Reset the variable
     $self->{'O_FILES'} = [sort keys %o];
     my @files;
-    foreach my $table (keys %tables)
+    foreach my $table (sort keys %tables)
     {
     foreach my $ext (qw($(OBJ_EXT) .c .h .exh .fnm))
     {
@@ -103,12 +105,12 @@ sub postamble
     $str  .= "# (except Encode.c), but on .h and .exh files written by enc2xs\n";
     $str  .= $^O eq 'MacOS' ? 'Encode.c.{$(MACPERL_BUILD_EXT_STATIC)}.o :' : 'Encode$(OBJ_EXT) :';
     $str  .= ' Encode.c';
-    foreach my $table (keys %tables)
+    foreach my $table (sort keys %tables)
     {
     $str .= " $table.c";
     }
     $str .= "\n\n";
-    foreach my $table (keys %tables)
+    foreach my $table (sort keys %tables)
     {
     my $numlines = 1;
     my $lengthsofar = length($str);

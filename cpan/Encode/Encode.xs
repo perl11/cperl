@@ -1,5 +1,5 @@
 /*
- $Id: Encode.xs,v 2.33 2015/01/22 10:17:32 dankogai Exp $
+ $Id: Encode.xs,v 2.35 2016/01/22 06:33:07 dankogai Exp $
  */
 
 #define PERL_NO_GET_CONTEXT
@@ -20,7 +20,7 @@
    encode_method().  1 is recommended. 2 restores NI-S original */
 #define ENCODE_XS_USEFP   1
 
-#define UNIMPLEMENTED(x,y) y x (SV *sv, char *encoding) {		\
+#define UNIMPLEMENTED(x,y) static y x (SV *sv, char *encoding) {	\
 			Perl_croak_nocontext("panic_unimplemented");	\
                         PERL_UNUSED_VAR(sv); \
                         PERL_UNUSED_VAR(encoding); \
@@ -42,7 +42,7 @@ UNIMPLEMENTED(_encoded_bytes_to_utf8, I32)
                                 UTF8_ALLOW_NON_CONTINUATION |     \
                                 UTF8_ALLOW_LONG))
 
-void
+static void
 Encode_XSEncoding(pTHX_ encode_t * enc)
 {
     dSP;
@@ -66,7 +66,7 @@ Encode_XSEncoding(pTHX_ encode_t * enc)
     SvREFCNT_dec(sv);
 }
 
-void
+static void
 call_failure(SV * routine, U8 * done, U8 * dest, U8 * orig)
 {
     /* Exists for breakpointing */
@@ -534,20 +534,25 @@ CODE:
         }
     }
     else {
-    	/* Native bytes - can always encode */
-    U8 *d = (U8 *) SvGROW(dst, 2*slen+1); /* +1 or assertion will botch */
-    	while (s < e) {
-    	    UV uv = NATIVE_TO_UNI((UV) *s);
-	    s++; /* Above expansion of NATIVE_TO_UNI() is safer this way. */
+        /* Native bytes - can always encode */
+        U8 *d = (U8 *) SvGROW(dst, 2*slen+1); /* +1 or assertion will botch */
+        while (s < e) {
+#ifdef append_utf8_from_native_byte
+            append_utf8_from_native_byte(*s, &d);
+            s++;
+#else
+            UV uv = NATIVE_TO_UNI((UV) *s);
+            s++; /* Above expansion of NATIVE_TO_UNI() is safer this way. */
             if (UNI_IS_INVARIANT(uv))
-            	*d++ = (U8)UTF_TO_NATIVE(uv);
+                *d++ = (U8)UTF_TO_NATIVE(uv);
             else {
-    	        *d++ = (U8)UTF8_EIGHT_BIT_HI(uv);
+                *d++ = (U8)UTF8_EIGHT_BIT_HI(uv);
                 *d++ = (U8)UTF8_EIGHT_BIT_LO(uv);
             }
-    }
+#endif
+        }
         SvCUR_set(dst, d- (U8 *)SvPVX(dst));
-    	*SvEND(dst) = '\0';
+        *SvEND(dst) = '\0';
     }
 
     /* Clear out translated part of source unless asked not to */
