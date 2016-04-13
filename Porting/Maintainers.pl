@@ -1141,11 +1141,10 @@ use File::Glob qw(:case);
 				t/safeops.t ) ],
     },
 
-    'Scalar-List-Utils' => {
-        'DISTRIBUTION' => 'PEVANS/Scalar-List-Utils-1.42.tar.gz',
+    'Scalar::Util' => {
+        'DISTRIBUTION' => 'PEVANS/Scalar-List-Utils-1.45.tar.gz',
         'FILES'        => q[cpan/Scalar-List-Utils],
-        # Waiting to be merged upstream:
-        # https://github.com/Scalar-List-Utils/Scalar-List-Utils/pull/24
+        # Bump version, make blead compile: RT #113180
         'CUSTOMIZED'   => [
             qw( ListUtil.xs
                 lib/List/Util.pm

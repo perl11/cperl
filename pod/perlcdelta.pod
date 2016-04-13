@@ -198,6 +198,24 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Scalar-List-Utils 1.45
+
+Renamed existing uniq() to uniqstr()
+Canonicalise undef to {empty string,zero} in uniq{str,num}()
+Add a new uniq() with more DWIMish semantics around undef
+
+Fix uses of GET magic by the uniq*() family of functions. GET magic is
+now always invoked exactly once if it exists.
+
+Added List::Util::uniq() and uniqnum()
+
+Fix build on non-C99 compilers
+
+* Avoid divide-by-zero exception if product()'s accumulator is IV zero
+  (RT105415)
+* Possible fix for SvTEMP issues in first and any/all/none/notall
+  (RT96343)
+
 =item Encode 2.84
 
 Encode::MIME::Header
