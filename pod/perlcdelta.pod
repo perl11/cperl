@@ -198,6 +198,11 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Filter::Util::Call 1.55
+
+Improved Filter documentation, esp. document that __DATA__ is not
+filtered.
+
 =item Scalar-List-Utils 1.45
 
 Renamed existing uniq() to uniqstr()
