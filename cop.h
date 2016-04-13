@@ -611,7 +611,10 @@ struct block_format {
 #define CX_POP_SAVEARRAY(cx)						\
     STMT_START {							\
         AV *av = GvAV(PL_defgv);                                        \
-	GvAV(PL_defgv) = cx->blk_sub.savearray;				\
+        if (SvTYPE(cx->blk_sub.savearray) == SVt_PVAV)                  \
+            GvAV(PL_defgv) = cx->blk_sub.savearray;                     \
+        else                                                            \
+            GvAV(PL_defgv) = NULL;                                      \
         cx->blk_sub.savearray = NULL;                                   \
         SvREFCNT_dec(av);	        				\
     } STMT_END

@@ -2946,7 +2946,7 @@ PP(pp_goto)
 		    if (arg != GvAV(PL_defgv)) {
 			AV * const av = GvAV(PL_defgv);
 			GvAV(PL_defgv) = (AV *)SvREFCNT_inc_simple(arg);
-			SvREFCNT_dec(av);
+                        SvREFCNT_dec(av);
 		    }
 		}
             call_pp_sub:

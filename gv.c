@@ -2558,7 +2558,9 @@ Perl_gp_free(pTHX_ GV *gv)
 	unshare_hek(file_hek);
 
       SvREFCNT_dec(sv);
-      SvREFCNT_dec(av);
+      /* @_ may be some random SP* already freed. [cperl #134] */
+      if (av && SvTYPE(av) == SVt_PVAV)
+          SvREFCNT_dec(av);
       /* FIXME - another reference loop GV -> symtab -> GV ?
          Somehow gp->gp_hv can end up pointing at freed garbage.  */
       if (hv && SvTYPE(hv) == SVt_PVHV) {

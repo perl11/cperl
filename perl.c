@@ -981,6 +981,8 @@ perl_destruct(pTHXx)
     PL_statgv = NULL;
 
     /* defgv, aka *_ should be taken care of elsewhere */
+    SvREFCNT_dec(GvAV(PL_defgv));
+    GvAV(PL_defgv) = NULL;
 
     /* float buffer */
     Safefree(PL_efloatbuf);
