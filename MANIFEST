@@ -2477,7 +2477,6 @@ cpan/Test-Harness/t/source_tests/harness_badtap		Test data for Test::Harness
 cpan/Test-Harness/t/source_tests/harness_complain	Test data for Test::Harness
 cpan/Test-Harness/t/source_tests/harness_directives	Test data for Test::Harness
 cpan/Test-Harness/t/source_tests/harness_failure	Test data for Test::Harness
-cpan/Test-Harness/t/source_tests/psql.bat				Test::Harness test
 cpan/Test-Harness/t/source_tests/source			Test data for Test::Harness
 cpan/Test-Harness/t/source_tests/source.1				Test::Harness test
 cpan/Test-Harness/t/source_tests/source_args.sh				Test::Harness test

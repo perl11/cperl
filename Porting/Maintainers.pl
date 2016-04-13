@@ -1228,7 +1228,7 @@ use File::Glob qw(:case);
     },
 
     'Test::Harness' => {
-        'DISTRIBUTION' => 'LEONT/Test-Harness-3.35.tar.gz',
+        'DISTRIBUTION' => 'LEONT/Test-Harness-3.36.tar.gz',
         'FILES'        => q[cpan/Test-Harness],
         'EXCLUDED'     => [
             qr{^examples/},
@@ -1242,6 +1242,7 @@ use File::Glob qw(:case);
                 perlcriticrc
                 t/000-load.t
                 t/lib/if.pm
+                t/source_tests/psql.bat
                 ),
         ],
         # with compiled Config
@@ -1250,6 +1251,7 @@ use File::Glob qw(:case);
                 t/nofork.t
                 t/regression.t
                 t/sample-tests/switches
+		t/source_handler.t
 		t/lib/NoFork.pm
               )],
     },

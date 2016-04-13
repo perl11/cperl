@@ -198,6 +198,10 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Test::Harness 3.36
+
+Accept YAML with trailing whitespace in header (Maik Hentsche)
+
 =item Filter::Util::Call 1.55
 
 Improved Filter documentation, esp. document that __DATA__ is not

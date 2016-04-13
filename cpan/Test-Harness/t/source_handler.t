@@ -87,7 +87,7 @@ my %file = map { $_ => File::Spec->catfile( $dir, $_ ) }
         make_iterator => [
             {   name => "valid executable",
                 raw  => [
-                    $perl, ( $ENV{PERL_CORE} ? '-I../../lib' : () ),
+                    $perl, ( $ENV{PERL_CORE} ? '-I../../lib -I.' : () ),
                     (map { "-I$_" } split /$Config{path_sep}/, $ENV{PERL5LIB} || ''),
                     '-It/lib', '-T', $file{source}
                 ],
@@ -96,7 +96,7 @@ my %file = map { $_ => File::Spec->catfile( $dir, $_ ) }
                 assemble_meta => 1,
             },
             {   name  => "invalid source->raw",
-                raw   => "$perl -It/lib $file{source}",
+                raw   => "$perl -I. -It/lib $file{source}",
                 error => qr/^No command found/,
             },
             {   name  => "non-existent source->raw",
