@@ -397,6 +397,7 @@ d_bcopy=''
 d_builtin_arith_overflow=''
 d_builtin_choose_expr=''
 d_builtin_expect=''
+d_builtin_prefetch=''
 d_bzero=''
 d_c99_variadic_macros=''
 d_casti32=''
@@ -11627,6 +11628,35 @@ EOCP
 esac
 
 set d_builtin_expect
+eval $setvar
+$rm_try
+
+: Look for GCC-style __builtin_prefetch
+case "$d_builtin_prefetch" in
+'')
+    echo " "
+    echo "Checking whether your compiler can handle __builtin_prefetch ..." >&4
+    $cat >try.c <<'EOCP'
+int main(void) {
+    char *s = "teststring";
+    __builtin_prefetch(s, 0, 1);
+    /* Remember shell exit code truth is 0, C truth is non-zero */
+    return (n == 1);
+}
+EOCP
+    set try
+    if eval $compile && $run ./try; then
+	echo "Your C compiler supports __builtin_prefetch."
+	val="$define"
+    else
+	echo "Your C compiler doesn't seem to understand __builtin_prefetch."
+	val="$undef"
+    fi
+    ;;
+*) val="$d_builtin_prefetch" ;;
+esac
+
+set d_builtin_prefetch
 eval $setvar
 $rm_try
 
@@ -24299,6 +24329,7 @@ d_bsdsetpgrp='$d_bsdsetpgrp'
 d_builtin_arith_overflow='$d_builtin_arith_overflow'
 d_builtin_choose_expr='$d_builtin_choose_expr'
 d_builtin_expect='$d_builtin_expect'
+d_builtin_prefetch='$d_builtin_prefetch'
 d_bzero='$d_bzero'
 d_c99_variadic_macros='$d_c99_variadic_macros'
 d_casti32='$d_casti32'

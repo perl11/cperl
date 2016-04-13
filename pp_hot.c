@@ -1399,7 +1399,7 @@ PP(pp_aassign)
 
             if (   (PL_op->op_private & OPpASSIGN_COMMON_AGG)
                 && (relem <= lastrelem)
-                && (magic || AvFILL(ary) != -1))
+                && (UNLIKELY(magic) || AvFILL(ary) != -1))
             {
                 SV **svp;
                 EXTEND_MORTAL(lastrelem - relem + 1);

@@ -3442,8 +3442,12 @@
  *	Can we handle GCC builtin for telling that certain values are more
  *	likely
  */
+/* HAS_BUILTIN_PREFETCH:
+ *	Can we handle GCC builtin for filling the cache line with a buffer
+ */
 /*#define HAS_BUILTIN_EXPECT	/ **/
 /*#define HAS_BUILTIN_CHOOSE_EXPR	/ **/
+/*#define HAS_BUILTIN_PREFETCH	/ **/
 
 /* HAS_BUILTIN_ARITH_OVERFLOW:
  *	This symbol is defined if the compiler supports the intrinsics
@@ -5290,6 +5294,6 @@
 #endif
 
 /* Generated from:
- * b2812bd73c63c147d6e9e207e25a1d619c34a5128d4a3377165375423615ff76 config_h.SH
- * 88fd2318549ba59a2c8131ab26d07b4a0bf20351e2f0266a2ee50d8d0ba40b98 uconfig.sh
+ * ad7844b6a2c7f7f84047b0fa02f781104fc59d783b9a857c5f97595624c21211 config_h.SH
+ * 72882a5bee56b6556d9e34e62773f5d2816d2870159b651a86b6881872bd6c16 uconfig.sh
  * ex: set ro: */

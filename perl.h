@@ -3543,6 +3543,12 @@ typedef pthread_key_t	perl_key;
 /* placeholder */
 #endif
 
+#ifdef HAS_BUILTIN_PREFETCH
+#  define CACHE_PREFETCH(ptr,rw,locality)	__builtin_prefetch(ptr,rw,locality)
+#else
+#  define CACHE_PREFETCH(ptr,rw,locality)
+#endif
+
 /* STATIC_ASSERT_GLOBAL/STATIC_ASSERT_STMT are like assert(), but for compile
    time invariants. That is, their argument must be a constant expression that
    can be verified by the compiler. This expression can contain anything that's

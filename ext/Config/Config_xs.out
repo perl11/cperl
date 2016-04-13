@@ -244,7 +244,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1233
+#define TOTAL_KEYWORDS 1234
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 30
 #define MIN_HASH_VALUE 3
@@ -1205,6 +1205,7 @@ struct stringpool_t
     char stringpool_str3112[sizeof ("d_sigprocmask")];
     char stringpool_str3134[sizeof ("package")];
     char stringpool_str3135[sizeof ("db_version_minor")];
+    char stringpool_str3136[sizeof ("d_builtin_prefetch")];
     char stringpool_str3138[sizeof ("d_wctomb")];
     char stringpool_str3139[sizeof ("mips_type")];
     char stringpool_str3147[sizeof ("getnetbyaddr_r_proto")];
@@ -2441,6 +2442,7 @@ static const struct stringpool_t stringpool_contents =
     "d_sigprocmask",
     "package",
     "db_version_minor",
+    "d_builtin_prefetch",
     "d_wctomb",
     "mips_type",
     "getnetbyaddr_r_proto",
@@ -5173,7 +5175,9 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3134,		T_INV,0,ALN64I"@@package@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3135,	T_INV,0,ALN64I"@@db_version_minor@@"},
-      {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3136,	T_INV,0,ALN64I"@@d_builtin_prefetch@@"},
+      {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3138,		T_INV,0,ALN64I"@@d_wctomb@@"},
 
@@ -6585,7 +6589,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str7919,	T_INV,0,ALN64I"@@d_libm_lib_version@@"}
     };
 
-#line 6588 "Config.xs"
+#line 6592 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

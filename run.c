@@ -38,7 +38,7 @@ Perl_runops_standard(pTHX)
 {
     OP *op = PL_op;
     OP_ENTRY_PROBE(OP_NAME(op));
-    while ((PL_op = op = op->op_ppaddr(aTHX))) {
+    while (LIKELY((PL_op = op = op->op_ppaddr(aTHX)))) {
         OP_ENTRY_PROBE(OP_NAME(op));
     }
     PERL_ASYNC_CHECK();

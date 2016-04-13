@@ -4705,6 +4705,7 @@ Perl_yylex(pTHX)
     PL_oldoldbufptr = PL_oldbufptr;
     PL_oldbufptr = s;
     PL_parser->saw_infix_sigil = 0;
+    CACHE_PREFETCH(s, 0, 1);
 
   retry:
     switch (*s) {
@@ -6971,7 +6972,7 @@ Perl_yylex(pTHX)
 		    /* Two barewords in a row may indicate method call. */
 
 		    if ((isIDFIRST_lazy_if(s,UTF) || *s == '$') &&
-			(tmp = intuit_method(s, lex ? NULL : sv, cv))) {
+			UNLIKELY(tmp = intuit_method(s, lex ? NULL : sv, cv))) {
 			goto method;
 		    }
 

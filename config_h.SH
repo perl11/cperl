@@ -3477,8 +3477,12 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *	Can we handle GCC builtin for telling that certain values are more
  *	likely
  */
+/* HAS_BUILTIN_PREFETCH:
+ *	Can we handle GCC builtin for filling the cache line with a buffer
+ */
 #$d_builtin_expect HAS_BUILTIN_EXPECT	/**/
 #$d_builtin_choose_expr HAS_BUILTIN_CHOOSE_EXPR	/**/
+#$d_builtin_prefetch HAS_BUILTIN_PREFETCH	/**/
 
 /* HAS_BUILTIN_ARITH_OVERFLOW:
  *	This symbol is defined if the compiler supports the intrinsics
