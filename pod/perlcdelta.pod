@@ -198,6 +198,15 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Pod::Usage 1.68
+
+CPAN#110443: [PATCH] fix -perldoc option in pod2usage() method.
+added missing '-'
+
+CPAN#110446: [feature request] -perldocopt for supplying perldoc options
+added this option; split of string on whitespace is not optimal, but
+should do the job
+
 =item Test::Harness 3.36
 
 Accept YAML with trailing whitespace in header (Maik Hentsche)

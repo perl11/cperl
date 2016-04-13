@@ -1104,7 +1104,7 @@ use File::Glob qw(:case);
     },
 
     'Pod::Usage' => {
-        'DISTRIBUTION' => 'MAREKR/Pod-Usage-1.67.tar.gz',
+        'DISTRIBUTION' => 'MAREKR/Pod-Usage-1.68.tar.gz',
         'FILES'        => q[cpan/Pod-Usage],
         # cperl fix to support make -s
         'CUSTOMIZED'   => [ qw( scripts/pod2usage.PL )],

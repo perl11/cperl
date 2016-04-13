@@ -18,7 +18,7 @@ chdir(dirname($0));
 $file = basename($0, '.PL');
 $file .= '.com' if $^O eq 'VMS';
 
-open OUT,">$file" or die "Can't create $file: $!";
+open OUT,">", $file or die "Can't create $file: $!";
 
 print "Extracting $file (with variable substitutions)\n"
   unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
@@ -40,7 +40,8 @@ print OUT <<'!NO!SUBS!';
 # pod2usage -- command to print usage messages from embedded pod docs
 #
 # Copyright (c) 1996-2000 by Bradford Appleton. All rights reserved.
-# This file is part of "PodParser". PodParser is free software;
+# Copyright (c) 2001-2016 by Marek Rouchal.
+# This file is part of "Pod-Usage". Pod-Usage is free software;
 # you can redistribute it and/or modify it under the same terms
 # as Perl itself.
 #############################################################################
