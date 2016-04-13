@@ -992,6 +992,42 @@ microperl:
 
 fi
 
+if test x$osname = xlinux -a -n "$gccversion"
+then
+    $spitshell >>$Makefile <<'!NO!SUBS!'
+# Special Perl targets: profiled guided https://gcc.gnu.org/wiki/AutoFDO
+
+miniperl.autofdo:	miniperl
+	@echo "Creating minibench.sh ..."
+	@echo '#!/bin/sh' > minibench.sh
+	@echo 'for t in t/opbasic/*.t t/op/[bd-lnoqt-z]*.t; do ./miniperl -Ilib $$t >/dev/null 2>&1; done' >> minibench.sh
+	@chmod +x minibench.sh
+	perf stat -r2 ./minibench.sh
+	@echo "Creating autofdo branch profile perl.gcov ..."
+	perf record -b -e cpu/event=0xc4,umask=0x20,name=br_inst_retired_near_taken,period=400009/pp -- ./minibench.sh || exit 1
+	create_gcov --binary=./miniperl --profile=perf.data --gcov=perl.gcov -gcov_version=1
+	sed -i.bak 's,extra="",extra="-fauto-profile=perl.gcov",' cflags
+	@echo "Recompile with -fauto-profile=perl.gcov ..."
+	@rm *.o
+	$(MAKE) -s miniperl ECHO=true
+	@echo "Optimized minibench.sh ..."
+	perf stat -r2 ./minibench.sh
+	mv cflags.bak cflags
+
+perl.autofdo:	test_prep
+	@echo "Creating autofdo branch profile perl.gcov ..."
+	perf record -b -e cpu/event=0xc4,umask=0x20,name=br_inst_retired_near_taken,period=400009/pp -- ./perl -Ilib t/harness t/op/*.t || exit 1
+	create_gcov --binary=./perl --profile=perf.data --gcov=perl.gcov -gcov_version=1
+	sed -i.bak 's,extra="",extra="-fauto-profile=perl.gcov",' cflags
+	@echo "Recompile with -fauto-profile=perl.gcov ..."
+	@rm *.o
+	$(MAKE) test_prep
+	@echo perf stat ./perl -Ilib t/harness t/op/*.t
+	@echo mv cflags.bak cflags
+
+!NO!SUBS!
+fi
+
 # Some environment have no system(), which mkpport uses.
 # Let's try running the commands with shell.
 case "${osname}" in
