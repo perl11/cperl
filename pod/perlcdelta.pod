@@ -198,6 +198,18 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Time::HiRes 1.9732
+
+Compilation cleanup, remove hrt_ualarm, hrt_ualarm_itimer
+
+new constants: CLOCK_BOOTTIME CLOCK_HIGHRES CLOCK_MONOTONIC_COARSE
+CLOCK_MONOTONIC_PRECISE CLOCK_MONOTONIC_RAW CLOCK_REALTIME_COARSE
+CLOCK_REALTIME_FAST CLOCK_REALTIME_PRECISE CLOCK_SECOND
+L<[RT #111170]|https://rt.cpan.org/Public/Bug/Display.html?id=111170>
+
+clock_getres(), clock_gettime(), clock_nanosleep() emulation for OS X
+L<[RT #78566]|https://rt.cpan.org/Public/Bug/Display.html?id=78566>
+
 =item Storable 2.53_03
 
 Add new optional flags argument to retrieve()/thaw() for flags, or set new
