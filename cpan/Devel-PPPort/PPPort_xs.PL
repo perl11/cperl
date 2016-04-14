@@ -15,7 +15,7 @@
 
 use strict;
 $^W = 1;
-require "parts/ppptools.pl";
+require "./parts/ppptools.pl";
 
 my %SECTION = (
   xshead => { code => '', header => "/* ---- code from __FILE__ ---- */" },
@@ -46,7 +46,7 @@ for $file (all_files_in_dir('parts/inc')) {
     if (exists $spec->{$sec}) {
       unless (defined $ENV{MAKEFLAGS}
               and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) {
-          $msg++ or print "adding XS code from $file\n";
+        $msg++ or print "adding XS code from $file\n";
       }
       if (exists $SECTION{$sec}{header}) {
         my $header = $SECTION{$sec}{header};
@@ -69,6 +69,7 @@ for $sec (keys %SECTION) {
   $data =~ s/^__\U$sec\E__$/$code/m;
 }
 
+# backcompat
 open FH, ">RealPPPort.xs" or die "RealPPPort.xs: $!\n";
 print FH $data;
 close FH;

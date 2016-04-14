@@ -122,6 +122,7 @@ $data =~ s{^__UNSUPPORTED_API__(\s*?)^}
 $data =~ s{__MIN_PERL__}{5.003}g;
 $data =~ s{__MAX_PERL__}{5.20}g;
 
+# backcompat
 open FH, ">PPPort.pm" or die "PPPort.pm: $!\n";
 print FH $data;
 close FH;
@@ -133,7 +134,7 @@ sub include
   my($file, $opt) = @_;
 
   print "including $file\n" unless defined $ENV{MAKEFLAGS}
-             and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+        and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
 
   my $data = parse_partspec("$INCLUDE/$file");
 
@@ -540,7 +541,7 @@ package Devel::PPPort;
 use strict;
 use vars qw($VERSION $data);
 
-$VERSION = '3.32';
+$VERSION = '3.32_02';
 
 sub _init_data
 {
