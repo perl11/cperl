@@ -14,11 +14,11 @@ use MakeMaker::Test::Utils;
 use File::Temp;
 use Cwd 'abs_path';
 
-use Test::More;
 use ExtUtils::MM;
-plan !MM->can_run(make()) && $ENV{PERL_CORE} && $Config{'usecrosscompile'}
+use Test::More
+    !MM->can_run(make()) && $ENV{PERL_CORE} && $Config{'usecrosscompile'}
     ? (skip_all => "cross-compiling and make not available")
-    : ();
+    : (tests => 18);
 
 #--------------------- Setup
 
@@ -32,6 +32,9 @@ $mm->init_tools;  # need ECHO
 
 # Run Perl with the currently installing MakeMaker
 $mm->{$_} .= q[ "-I$(INST_ARCHLIB)" "-I$(INST_LIB)"] for qw( PERLRUN FULLPERLRUN ABSPERLRUN );
+
+#see sub specify_shell
+my $shell = $^O eq 'MSWin32' && $mm->is_make_type('gmake') ? $ENV{COMSPEC} : undef;
 
 #------------------- Testing functions
 
@@ -53,6 +56,7 @@ sub test_for_echo {
         for my $key (qw(INST_ARCHLIB INST_LIB PERL ABSPERL ABSPERLRUN ECHO)) {
             print $makefh "$key=$mm->{$key}\n";
         }
+        print $makefh "SHELL=$shell\n" if defined $shell;
 
         print $makefh "all :\n";
         for my $args (@$calls) {
@@ -113,5 +117,3 @@ test_for_echo(
     "Foo\nBar\nBaz\n",
     "append"
 );
-
-done_testing;
