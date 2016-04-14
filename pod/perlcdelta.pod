@@ -198,6 +198,22 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item CPAN-Meta-YAML 0.018
+
+Removed F<t/00-report-prereqs.dd> template.
+
+Generated from C<ETHER/YAML-Tiny-1.69>
+
+Tests no longer print to stderr unnecessarily. This makes core perl
+builds a little quieter.
+ 
+The Test::More dependency has been reduced to 0.88 by emulating
+'subtest' for those tests that need it.
+
+Instead of erroring on duplicate keys found in a hash (introduced in
+version 1.63), now we only warn. This fixes an issue in Strawberry Perl
+(via CPAN::Meta::YAML) when parsing a configuration file.
+
 =item CPAN-Meta-Requirements 3.140c
 
 Handle cperl-specific 'c' version suffices.

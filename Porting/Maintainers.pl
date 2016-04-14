@@ -387,13 +387,16 @@ use File::Glob qw(:case);
     },
 
     'CPAN::Meta::YAML' => {
-        'DISTRIBUTION' => 'DAGOLDEN/CPAN-Meta-YAML-0.016.tar.gz',
+        'DISTRIBUTION' => 'DAGOLDEN/CPAN-Meta-YAML-0.018.tar.gz',
         'FILES'        => q[cpan/CPAN-Meta-YAML],
         'EXCLUDED'     => [
             't/00-report-prereqs.t',
             't/00-report-prereqs.dd',
             qr{^xt},
-        ],
+          ],
+          'CUSTOMIZED'   => [
+            qw( t/lib/TestUtils.pm )
+          ],
     },
 
     'Cpanel::JSON::XS' => {
