@@ -20,9 +20,9 @@ Devel::PPPort cpan/Devel-PPPort/ppport_h.PL 3aa0b958adf67a9b9385bf2b5b89ecf8cdd3
 Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL 967796c2471473a14441503ad722d6367bb3ebf2
 Devel::PPPort cpan/Devel-PPPort/PPPort_xs.PL 034cce281a0017fe0ba05d9060f34a8c65781553
 Digest::MD5 cpan/Digest-MD5/Makefile.PL f5c4fdf76d0b054fc6a9396c143311474e9e3db3
-Digest::MD5 cpan/Digest-MD5/MD5.pm 637a647acbbe2562bf03099a651535f3da506827
+Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
 Digest::MD5 cpan/Digest-MD5/MD5.xs 9b47158166b1162f11169f9766eddb75046e7917
-Digest::MD5 cpan/Digest-MD5/t/files.t caf2cbcf24c2b378ebd8c573d8a4615d08c4f960
+Digest::MD5 cpan/Digest-MD5/t/files.t c38f1ab8150ad688de807d140fd410d7cd9410de
 Encode cpan/Encode/bin/enc2xs 5c0458d8fcafdefd71b8e813623ff343d5fb2bce
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 3548b0bb262b8d3a5345549ae5e43d1b3c4fb8e4
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t c01ba6e7a872c8a7fc26e277e0dea109616a5e56
