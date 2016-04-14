@@ -198,6 +198,10 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Carp 1.38
+
+C<$Carp::MaxArgNums> is no longer treated as if it was one larger.
+
 =item CPAN-Meta-YAML 0.018
 
 Removed F<t/00-report-prereqs.dd> template.

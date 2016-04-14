@@ -244,7 +244,7 @@ use File::Glob qw(:case);
     },
 
     'Carp' => {
-        'DISTRIBUTION' => 'RJBS/Carp-1.36.tar.gz',
+        'DISTRIBUTION' => 'RJBS/Carp-1.38.tar.gz',
         'FILES'        => q[dist/Carp],
     },
 
