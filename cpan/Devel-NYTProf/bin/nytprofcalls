@@ -14,7 +14,7 @@ use strict;
 use Devel::NYTProf::Core;
 require Devel::NYTProf::Data;
 
-our $VERSION = '6.02';
+our $VERSION = '6.03';
     
 use Data::Dumper;
 use Getopt::Long;

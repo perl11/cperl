@@ -430,11 +430,11 @@ use File::Glob qw(:case);
     },
 
     'Devel::NYTProf' => {
-        'DISTRIBUTION' => 'TIMB/Devel-NYTProf-6.02.tar.gz',
+        'DISTRIBUTION' => 'TIMB/Devel-NYTProf-6.03.tar.gz',
         'FILES'        => q[cpan/Devel-NYTProf],
         'EXCLUDED'     => [
-            qr{^t/[79]*.t},
-            qr{^t/test([0-7]|80)*.t},
+            qr{^t/[79].*\.t},
+            qr{^t/test([0-7]|80)},
             qr{^xt/},
             qr{^demo/},
             qw( Changes
@@ -458,7 +458,6 @@ use File::Glob qw(:case);
                                 MemoryProfiling.pod
                                 lib/Devel/NYTProf/FileInfo.pm
                                 t/lib/NYTProfTest.pm
-                                bin/nytprofhtml
                               )],
     },
 

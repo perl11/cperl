@@ -176,7 +176,7 @@ and PERL_CORE specific test changes.
 
 A fast and standard JSON en-/decoder. You should not use PP.
 
-=item Devel-NYTProf 6.02
+=item Devel-NYTProf 6.03
 
 A fast and standard profiler.
 With PERL_CORE specific test and build changes.
