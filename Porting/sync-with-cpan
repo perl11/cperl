@@ -260,7 +260,7 @@ for my $module (@modules) {
   my  $pkg_dir      = $files[0];
       $pkg_dir      =~ s!.*/!!;
 
-  my ($old_version) = $distribution =~ /-([0-9.]+(?:(-TRIAL|_)[0-9]*)?)\.tar\.gz/;
+  my ($old_version) = $distribution =~ /-([0-9.]+(?:(-TRIAL|_)[0-9]*)?)\.(tar\.gz|tgz)$/;
 
   my  $o_module     = $module;
   if ($cpan_mod =~ /-/ && $cpan_mod !~ /::/) {
@@ -323,7 +323,7 @@ for my $module (@modules) {
   }
   else {
     $new_file     = $tarball;
-    $new_version  = $version // ($new_file =~ /-([0-9._]+(?:-TRIAL[0-9]*)?)\.tar\.gz/) [0];
+    $new_version  = $version // ($new_file =~ /-([0-9._]+(?:-TRIAL[0-9]*)?)\.(tar\.gz|tgz)/) [0];
   }
 
   my  $old_dir      = "$pkg_dir-$old_version";
