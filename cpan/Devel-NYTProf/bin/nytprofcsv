@@ -142,19 +142,6 @@ nytprofcsv - (DEPRECATED) L<Devel::NYTProf::Reader> CSV format implementation
 
 B<nytprofcsv is deprecated and will be removed in a future release.>
 
-=head1 HISTORY
-
-A bit of history and a shameless plug...
-
-NYTProf stands for 'New York Times Profiler'. Indeed, the original version of this
-module was developed by The New York Times Co. to help our developers quickly
-identify bottlenecks in large Perl applications.  The NY Times loves Perl and
-we hope the community will benefit from our work as much as we have from theirs.
-
-Please visit L<http://open.nytimes.com>, our open source blog to see what we are
-up to, L<http://code.nytimes.com> to see some of our open projects and then 
-check out L<htt://nytimes.com> for the latest news!
-
 =head1 DESCRIPTION
 
 C<nytprofcsv> is a script that implements L<Devel::NYTProf::Reader> to

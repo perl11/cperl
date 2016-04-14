@@ -54,7 +54,7 @@ use Devel::NYTProf::Util qw(
 );
 use Devel::NYTProf::Constants qw(NYTP_SCi_CALLING_SUB);
 
-our $VERSION = '6.02';
+our $VERSION = '6.03';
 
 if ($VERSION != $Devel::NYTProf::Core::VERSION) {
     die "$0 version '$VERSION' doesn't match version '$Devel::NYTProf::Core::VERSION' of $INC{'Devel/NYTProf/Core.pm'}\n";
@@ -113,7 +113,8 @@ if (defined($opt_lib)) {
     lib->import($opt_lib);
 }
 
-eval { $SIG{USR2} = \&Carp::cluck }; # some platforms don't have SIGUSR2 (Windows)
+$SIG{USR2} = \&Carp::cluck
+    if exists $SIG{USR2}; # some platforms don't have SIGUSR2 (Windows)
 
 my $reporter = new Devel::NYTProf::Reader($opt_file, {
     quiet => 0,

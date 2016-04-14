@@ -56,6 +56,10 @@
 #  define FILE_STATE(f)         NYTP_FILE_STDIO
 #endif
 
+#if defined(PERL_IMPLICIT_CONTEXT) && ! defined(tTHX)
+#  define tTHX PerlInterpreter*
+#endif
+
 struct NYTP_file_t {
     FILE *file;
 #ifdef PERL_IMPLICIT_CONTEXT
@@ -351,7 +355,7 @@ size_t
 NYTP_read(NYTP_file ifile, void *buffer, size_t len, const char *what) {
     size_t got = NYTP_read_unchecked(ifile, buffer, len);
     if (got != len) {
-        croak("Profile format error whilst reading %s at %ld%s: expected %ld got %ld, %s",
+        croak("Profile format error whilst reading %s at %ld%s: expected %ld got %ld, %s (see TROUBLESHOOTING in docs)",
               what, NYTP_tell(ifile), NYTP_type_of_offset(ifile), (long)len, (long)got,
                 (NYTP_eof(ifile)) ? "end of file" : NYTP_fstrerror(ifile));
     }

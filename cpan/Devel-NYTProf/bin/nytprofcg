@@ -134,6 +134,6 @@ subroutine call graph information it contains in Callgrind format.
 The output Callgrind file can be loaded into the C<kcachegrind> GUI for
 interactive exploration. 
 
-For more information see L<http://kcachegrind.sourceforge.net/html/Home.html>
+For more information see L<http://kcachegrind.github.io/html/Home.html>
 
 =cut

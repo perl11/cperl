@@ -222,12 +222,12 @@ typedef struct {
     /* update autosplit logic in get_file_id if fields are added or changed */
 } fid_hash_entry;
 
-static Hash_table fidhash = { NULL, (char*)"fid", MAX_HASH_SIZE, sizeof(fid_hash_entry), NULL, NULL, NULL, 1 };
+static Hash_table fidhash = { NULL, "fid", MAX_HASH_SIZE, sizeof(fid_hash_entry), NULL, NULL, NULL, 1 };
 
 typedef struct {
     Hash_entry he;
 } str_hash_entry;
-static Hash_table strhash = { NULL, (char*)"str", MAX_HASH_SIZE, sizeof(str_hash_entry), NULL, NULL, NULL, 1 };
+static Hash_table strhash = { NULL, "str", MAX_HASH_SIZE, sizeof(str_hash_entry), NULL, NULL, NULL, 1 };
 /* END Hash table definitions */
 
 
@@ -239,7 +239,7 @@ static char PROF_output_file[MAXPATHLEN+1] = "nytprof.out";
 static unsigned int profile_opts = NYTP_OPTf_OPTIMIZE | NYTP_OPTf_SAVESRC;
 static int profile_start = NYTP_START_BEGIN;      /* when to start profiling */
 
-static const char *nytp_panic_overflow_msg_fmt = "panic: buffer overflow of %s on '%s' (see TROUBLESHOOTING section of the documentation)";
+static char *nytp_panic_overflow_msg_fmt = "panic: buffer overflow of %s on '%s' (see TROUBLESHOOTING section of the documentation)";
 
 struct NYTP_options_t {
     const char *option_name;
@@ -629,7 +629,7 @@ read_str(pTHX_ NYTP_file ifile, SV *sv) {
     NYTP_read(ifile, &tag, sizeof(tag), "string prefix");
 
     if (NYTP_TAG_STRING != tag && NYTP_TAG_STRING_UTF8 != tag)
-        croak("File format error at offset %ld%s, expected string tag but found %d ('%c')",
+        croak("Profile format error at offset %ld%s, expected string tag but found %d ('%c') (see TROUBLESHOOTING in docs)",
               NYTP_tell(ifile)-1, NYTP_type_of_offset(ifile), tag, tag);
 
     len = read_u32(ifile);
@@ -1215,7 +1215,6 @@ get_file_id(pTHX_ char* file_name, STRLEN file_name_len, int created_via)
  * XXX Currently not used, so may trigger compiler warnings, but is intended to be
  * used to assign ids to strings like subroutine names like we do for file ids.
  */
-#if 0
 static unsigned int
 get_str_id(pTHX_ char* str, STRLEN len)
 {
@@ -1223,7 +1222,6 @@ get_str_id(pTHX_ char* str, STRLEN len)
     hash_op(&strhash, str, len, (Hash_entry**)&found, 1);
     return found->he.id;
 }
-#endif
 
 static UV
 uv_from_av(pTHX_ AV *av, int idx, UV default_uv)
@@ -1272,6 +1270,12 @@ cx_block_type(PERL_CONTEXT *cx) {
 #endif
 #ifdef CXt_LOOP_LAZYIV
     case CXt_LOOP_LAZYIV:       return "CXt_LOOP_LAZYIV";
+#endif
+#ifdef CXt_LOOP_ARY
+    case CXt_LOOP_ARY:          return "CXt_LOOP_ARY";
+#endif
+#ifdef CXt_LOOP_LIST
+    case CXt_LOOP_LIST:         return "CXt_LOOP_LIST";
 #endif
     }
     /* short-lived and not thread safe but we only use this for tracing
@@ -1325,12 +1329,17 @@ start_cop_of_context(pTHX_ PERL_CONTEXT *cx)
 #  endif
             break;
 #else
-#  if defined (CXt_LOOP_PLAIN) && defined (CXt_LOOP_FOR) && defined(CXt_LOOP_LAZYIV) && defined (CXt_LOOP_LAZYSV)
+#  if defined (CXt_LOOP_PLAIN) && defined(CXt_LOOP_LAZYIV) && defined (CXt_LOOP_LAZYSV)
             /* This is Perl 5.11.0 or later */
         case CXt_LOOP_LAZYIV:
         case CXt_LOOP_LAZYSV:
         case CXt_LOOP_PLAIN:
+#    if defined (CXt_LOOP_FOR)
         case CXt_LOOP_FOR:
+#    else
+        case CXt_LOOP_ARY:
+        case CXt_LOOP_LIST:
+#    endif
             start_op = cx->blk_loop.my_op->op_redoop;
             break;
 #  else
@@ -1989,9 +1998,9 @@ struct subr_entry_st {
 };
 
 /* save stack index to the current subroutine entry structure */
-static I32 subr_entry_ix = 0;
+static I32 subr_entry_ix = -1;
 
-#define subr_entry_ix_ptr(ix) ((ix) ? SSPTR(ix, subr_entry_t *) : NULL)
+#define subr_entry_ix_ptr(ix) ((ix != -1) ? SSPTR(ix, subr_entry_t *) : NULL)
 
 
 static void
@@ -2149,7 +2158,7 @@ incr_sub_inclusive_time(pTHX_ subr_entry_t *subr_entry)
         (subr_entry->caller_subnam_sv) ? SvPV_nolen(subr_entry->caller_subnam_sv) : "(null)",
         subr_entry->caller_fid, subr_entry->caller_line);
     if (subr_call_key_len >= sizeof(subr_call_key))
-      croak((char *)nytp_panic_overflow_msg_fmt, "subr_call_key", subr_call_key);
+        croak(nytp_panic_overflow_msg_fmt, "subr_call_key", subr_call_key);
 
     /* compose called_subname_pv as "${pkg}::${sub}" avoiding sprintf */
     STMT_START {
@@ -2173,7 +2182,7 @@ incr_sub_inclusive_time(pTHX_ subr_entry_t *subr_entry)
         memcpy(called_subname_pv_end, p, len + 1);
         called_subname_pv_end += len;
         if (called_subname_pv_end >= called_subname_pv+sizeof(called_subname_pv))
-          croak((char *)nytp_panic_overflow_msg_fmt, "called_subname_pv", called_subname_pv);
+            croak(nytp_panic_overflow_msg_fmt, "called_subname_pv", called_subname_pv);
     } STMT_END;
 
     /* { called_subname => { "caller_subname[fid:line]" => [ count, incl_time, ... ] } } */
@@ -2406,7 +2415,7 @@ subr_entry_setup(pTHX_ COP *prev_cop, subr_entry_t *clone_subr_entry, OPCODE op_
 
     if (subr_entry_ix <= prev_subr_entry_ix) {
         /* one cause of this is running NYTProf with threads */
-        logwarn("NYTProf panic: stack is confused, giving up! (Try running with subs=0)\n");
+        logwarn("NYTProf panic: stack is confused, giving up! (Try running with subs=0) ix=%"IVdf" prev_ix=%"IVdf"\n", (IV)subr_entry_ix, (IV)prev_subr_entry_ix);
         /* limit the damage */
         disable_profile(aTHX);
         return prev_subr_entry_ix;
@@ -2655,7 +2664,7 @@ pp_subcall_profiler(pTHX_ int is_slowop)
     CV *called_cv;
     dSP;
     SV *sub_sv = *SP;
-    I32 this_subr_entry_ix = 0; /* local copy (needed for goto) */
+    I32 this_subr_entry_ix; /* local copy (needed for goto) */
 
     subr_entry_t *subr_entry;
 
@@ -2670,7 +2679,7 @@ pp_subcall_profiler(pTHX_ int is_slowop)
         /* don't profile other kinds of goto */
     || (op_type==OP_GOTO &&
         (  !(SvROK(sub_sv) && SvTYPE(SvRV(sub_sv)) == SVt_PVCV)
-        || !subr_entry_ix ) /* goto out of sub whose entry wasn't profiled */
+        || subr_entry_ix == -1) /* goto out of sub whose entry wasn't profiled */
        )
 #ifdef MULTIPLICITY
     || (orig_my_perl && my_perl != orig_my_perl)
@@ -2772,6 +2781,7 @@ pp_subcall_profiler(pTHX_ int is_slowop)
     subr_entry = subr_entry_ix_ptr(this_subr_entry_ix);
 
     /* detect wierdness/corruption */
+    assert(subr_entry);
     assert(subr_entry->caller_fid < fidhash.next_id);
 
     /* Check if this call has already been counted because the op performed
@@ -4734,7 +4744,7 @@ load_profile_data_from_stream(pTHX_ loader_callback *callbacks,
         if (NYTP_read_unchecked(in, &c, sizeof(c)) != sizeof(c)) {
           if (NYTP_eof(in))
             break;
-          croak("Profile format error '%s' whilst reading tag at %ld",
+          croak("Profile format error '%s' whilst reading tag at %ld (see TROUBLESHOOTING in docs)",
                 NYTP_fstrerror(in), NYTP_tell(in));
         }
 
@@ -4884,7 +4894,7 @@ load_profile_data_from_stream(pTHX_ loader_callback *callbacks,
                 char *end = NYTP_gets(in, &buffer, &buffer_len);
                 if (NULL == end)
                     /* probably EOF */
-                    croak("Profile format error reading attribute");
+                    croak("Profile format error reading attribute (see TROUBLESHOOTING in docs)");
                 --end; /* End, as returned, points 1 after the \n  */
                 if ((NULL == (value = (char *)memchr(buffer, '=', end - buffer)))) {
                     logwarn("attribute malformed '%s'\n", buffer);
@@ -4915,7 +4925,7 @@ load_profile_data_from_stream(pTHX_ loader_callback *callbacks,
                 char *end = NYTP_gets(in, &buffer, &buffer_len);
                 if (NULL == end)
                     /* probably EOF */
-                    croak("Profile format error reading attribute");
+                    croak("Profile format error reading attribute (see TROUBLESHOOTING in docs)");
                 --end; /* end, as returned, points 1 after the \n  */
                 if ((NULL == (value = (char *)memchr(buffer, '=', end - buffer)))) {
                     logwarn("option malformed '%s'\n", buffer);
@@ -4935,7 +4945,7 @@ load_profile_data_from_stream(pTHX_ loader_callback *callbacks,
                 char *end = NYTP_gets(in, &buffer, &buffer_len);
                 if (!end)
                     /* probably EOF */
-                    croak("Profile format error reading comment");
+                    croak("Profile format error reading comment (see TROUBLESHOOTING in docs)");
 
                 if (callbacks[nytp_comment])
                     callbacks[nytp_comment](state, nytp_comment, buffer,
@@ -4960,7 +4970,7 @@ load_profile_data_from_stream(pTHX_ loader_callback *callbacks,
             }
 
             default:
-                croak("File format error: token %d ('%c'), chunk %lu, pos %ld%s",
+                croak("Profile format error: token %d ('%c'), chunk %lu, pos %ld%s (see TROUBLESHOOTING in docs)",
                       c, c, state->input_chunk_seqn, NYTP_tell(in)-1,
                       NYTP_type_of_offset(in));
         }

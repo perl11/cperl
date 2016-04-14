@@ -9,7 +9,7 @@
 ###########################################################
 package Devel::NYTProf;
 
-our $VERSION = '6.02'; # also change in Devel::NYTProf::Core
+our $VERSION = '6.03'; # also change in Devel::NYTProf::Core
 
 package    # hide the package from the PAUSE indexer
     DB;
@@ -332,13 +332,16 @@ Specify the name of the file that L</trace=N> output should be written to.
 Specify at which phase of program execution the profiler should be enabled:
 
   start=begin - start immediately (the default)
-  start=init  - start at beginning of INIT phase (after compilation)
+  start=init  - start at beginning of INIT phase (after compilation/use/BEGIN)
   start=end   - start at beginning of END phase
   start=no    - don't automatically start
 
 The start=no option is handy if you want to explicitly control profiling
 by calling DB::enable_profile() and DB::disable_profile() yourself.
 See L</RUN-TIME CONTROL OF PROFILING>.
+
+The start=init option is handy if you want to avoid profiling the loading and
+initialization of modules.
 
 =head2 optimize=0
 
@@ -853,7 +856,7 @@ This is the main report generation tool for NYTProf.
 =head2 nytprofcg
 
 Translates a profile into a format that can be loaded into KCachegrind
-L<http://kcachegrind.sourceforge.net>
+L<http://kcachegrind.github.io/>
 
 =head2 nytprofcalls
 
@@ -1158,9 +1161,10 @@ DTrace L<https://speakerdeck.com/mrallen1/perl-dtrace-and-you>
 
 =head1 TROUBLESHOOTING
 
-=head2 "Profile data incomplete, ..." or "File format error: ..."
+=head2 "Profile data incomplete, ..." or "Profile format error: ..."
 
-This error message means the file doesn't contain all the expected data.
+This error message means the file doesn't contain all the expected data
+or the data has been corrupted in some way.
 That may be because it was truncated (perhaps the filesystem was full) or,
 more commonly, because the all the expected data hasn't been written.
 
@@ -1171,14 +1175,21 @@ If the process being profiled is still running you'll need to wait until it
 exits cleanly (runs C<END> blocks or L</finish_profile> is called explicitly).
 
 If the process being profiled has exited then it's likely that it met with a
-sudden and unnatural death that didn't give NYTProf a chance to finish the profile.
-If the sudden death was due to a signal then L</sigexit=1> may help.
+sudden and unnatural death that didn't give NYTProf a chance to finish the
+profile.  If the sudden death was due to a signal, like SIGTERM, or a SIGINT
+from pressing Ctrl-C, then the L</sigexit=1> option may help.
+
 If the sudden death was due to calling C<POSIX::_exit($status)> then you'll
 need to call L</finish_profile> before calling C<POSIX::_exit>.
 
 You'll also get this error if the code trying to read the profile is itself
 being profiled. That's most likely to happen if you enable profiling via the
 C<PERL5OPT> environment variable and have forgotten to unset it.
+
+If you've encountered this error message, and you're sure you've understood the
+concerns described above, and you're sure they don't apply in your case, then
+please open an issue.  Be sure to include sufficient information so I can see
+how you've addressed these likely causes.
 
 =head2 Some source files don't have profile information
 
@@ -1256,25 +1267,11 @@ For more details see L</HISTORY> below.
 =head1 COPYRIGHT AND LICENSE
 
   Copyright (C) 2008 by Adam Kaplan and The New York Times Company.
-  Copyright (C) 2008-2013 by Tim Bunce, Ireland.
+  Copyright (C) 2008-2016 by Tim Bunce, Ireland.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.8 or,
 at your option, any later version of Perl 5 you may have available.
-
-=head1 HISTORY
-
-A bit of history (and a shameless plug from Adam)...
-
-NYTProf stands for 'New York Times Profiler'. Indeed, this module was initially
-developed from Devel::FastProf by The New York Times Co. to help our developers
-quickly identify bottlenecks in large Perl applications.  The NY Times loves
-Perl and we hope the community will benefit from our work as much as we have
-from theirs.
-
-Please visit L<http://open.nytimes.com>, our open source blog to see what we
-are up to, L<http://code.nytimes.com> to see some of our open projects and then
-check out L<http://nytimes.com> for the latest news!
 
 =head2 Background
 
