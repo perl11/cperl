@@ -13,7 +13,7 @@ BEGIN {
     1 while unlink $Testfile, 'newfile';
     # forcibly remove ecmddir/temp2, but don't import mkpath
     use File::Path ();
-    File::Path::rmtree( 'ecmddir' );
+    File::Path::rmtree( 'ecmddir' ) if -e 'ecmddir';
 }
 
 use Test::More tests => 40;
@@ -279,6 +279,6 @@ BEGIN {
 
 END {
     1 while unlink $Testfile, 'newfile';
-    File::Path::rmtree( 'ecmddir' );
-    File::Path::rmtree( 'd2utest' );
+    File::Path::rmtree( 'ecmddir' ) if -e 'ecmddir';
+    File::Path::rmtree( 'd2utest' ) if -e 'd2utest';
 }

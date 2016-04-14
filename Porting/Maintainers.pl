@@ -576,12 +576,6 @@ use File::Glob qw(:case);
 	                      )],
     },
 
-    'ExtUtils::Command' => {
-        'DISTRIBUTION' => 'BINGOS/ExtUtils-Command-1.20.tar.gz',
-        'FILES'        => q[cpan/ExtUtils-Command],
-        'EXCLUDED'     => [qr{^xt/}],
-    },
-
     'ExtUtils::Constant' => {
         # Nick has confirmed that while we have diverged from CPAN,
         # this package isn't primarily maintained in core
