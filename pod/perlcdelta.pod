@@ -198,6 +198,8 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Devel-PPPort 3.32
+
 =item Config-Perl-V 0.25_01
 
 Added v5.24 and cperl support.

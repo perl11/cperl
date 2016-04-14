@@ -462,7 +462,7 @@ use File::Glob qw(:case);
     },
 
     'Devel::PPPort' => {
-        'DISTRIBUTION' => 'WOLFSAGE/Devel-PPPort-3.31.tar.gz',
+        'DISTRIBUTION' => 'WOLFSAGE/Devel-PPPort-3.32.tar.gz',
         # RJBS has asked MHX to have UPSTREAM be 'blead'
         # (i.e. move this from cpan/ to dist/)
         'FILES'        => q[cpan/Devel-PPPort],
@@ -471,7 +471,8 @@ use File::Glob qw(:case);
             'README.md',
         ],
         # cperl fix to support make -s
-        'CUSTOMIZED'   => [ qw( PPPort_pm.PL PPPort_xs.PL )],
+        'CUSTOMIZED'   => [ qw( PPPort_pm.PL
+				PPPort_xs.PL )],
     },
 
     'Devel::SelfStubber' => {
