@@ -8,7 +8,7 @@ use warnings;
 use Config;
 use Exporter;
 use vars qw($VERSION @ISA @EXPORT_OK %EXPORT_TAGS);
-$VERSION     = "0.25";
+$VERSION     = "0.25_01";
 @ISA         = ("Exporter");
 @EXPORT_OK   = qw( plv2hash summary myconfig signature );
 %EXPORT_TAGS = (
@@ -37,13 +37,19 @@ my %BTD = map { $_ => 0 } qw(
     PERL_DISABLE_PMC
     PERL_DONT_CREATE_GVSV
     PERL_EXTERNAL_GLOB
+    PERL_HASH_FUNC_CRC32
     PERL_HASH_FUNC_DJB2
+    PERL_HASH_FUNC_FNV1A
+    PERL_HASH_FUNC_FNV1A_YOSHIMITSUTRIAD
+    PERL_HASH_FUNC_METRO64
+    PERL_HASH_FUNC_METRO64CRC
     PERL_HASH_FUNC_MURMUR3
     PERL_HASH_FUNC_ONE_AT_A_TIME
     PERL_HASH_FUNC_ONE_AT_A_TIME_HARD
     PERL_HASH_FUNC_ONE_AT_A_TIME_OLD
     PERL_HASH_FUNC_SDBM
     PERL_HASH_FUNC_SIPHASH
+    PERL_HASH_FUNC_SPOOKY32
     PERL_HASH_FUNC_SUPERFAST
     PERL_IS_MINIPERL
     PERL_MALLOC_WRAP
@@ -53,16 +59,19 @@ my %BTD = map { $_ => 0 } qw(
     PERL_MEM_LOG_NOIMPL
     PERL_MEM_LOG_STDERR
     PERL_MEM_LOG_TIMESTAMP
+    PERL_NATIVE_TYPES
     PERL_NEW_COPY_ON_WRITE
     PERL_PERTURB_KEYS_DETERMINISTIC
     PERL_PERTURB_KEYS_DISABLED
     PERL_PERTURB_KEYS_RANDOM
+    PERL_PERTURB_KEYS_TOP
     PERL_PRESERVE_IVUV
     PERL_RELOCATABLE_INCPUSH
     PERL_USE_DEVEL
     PERL_USE_SAFE_PUTENV
     UNLINK_ALL_VERSIONS
     USE_ATTRIBUTES_FOR_PERLIO
+    USE_CPERL
     USE_FAST_STDIO
     USE_HASH_SEED_EXPLICIT
     USE_LOCALE
@@ -240,12 +249,13 @@ sub plv2hash
     if ($pv =~ m/^Summary of my\s+(\S+)\s+\(\s*(.*?)\s*\)/m) {
 	$config{"package"} = $1;
 	my $rev = $2;
+	my ($rel) = $config{"package"} =~ m{perl(\d)};
+        unless ($rel) { ($rel) = $rev =~ m{revision\s+(\d+)}; }
 	$rev =~ s/^ revision \s+ (\S+) \s*//x and $config{revision} = $1;
 	$rev and $config{version_patchlevel_string} = $rev;
-	my ($rel) = $config{"package"} =~ m{perl(\d)};
 	my ($vers, $subvers) = $rev =~ m{version\s+(\d+)\s+subversion\s+(\d+)};
 	defined $vers && defined $subvers && defined $rel and
-	    $config{version} = "$rel.$vers.$subvers";
+            $config{version} = "$rel.$vers.$subvers";
 	}
 
     if ($pv =~ m/^\s+(Snapshot of:)\s+(\S+)/) {

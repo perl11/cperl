@@ -299,6 +299,8 @@ use File::Glob qw(:case);
         'EXCLUDED'     => [qw(
 		examples/show-v.pl
 		)],
+        # added cperl support and 5.22 tests
+        'CUSTOMIZED'   => [ qw[ V.pm t/28_plv522.t t/28_plv522c.t ] ],
     },
 
     'constant' => {
