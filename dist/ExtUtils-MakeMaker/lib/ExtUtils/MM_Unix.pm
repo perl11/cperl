@@ -15,7 +15,7 @@ use ExtUtils::MakeMaker qw($Verbose neatvalue);
 
 # If we make $VERSION an our variable parse_version() breaks
 use vars qw($VERSION);
-$VERSION = '8.04_05';
+$VERSION = '8.11_06';
 $VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
 
 require ExtUtils::MM_Any;
@@ -467,7 +467,7 @@ MAN3PODS = ".$self->wraplist(sort keys %{$self->{MAN3PODS}})."
     push @m, q{
 # Where is the Config information that we are using/depend on
 CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)Config_heavy.pl $(PERL_INCDEP)$(DFSEP)config.h
-} if -e File::Spec->catfile( $self->{PERL_INC}, 'config.h' );
+} if -e $self->catfile( $self->{PERL_INC}, 'config.h' );
 
 
     push @m, qq{
@@ -896,7 +896,7 @@ BOOTSTRAP = $(BASEEXT).bs
 # As Mkbootstrap might not write a file (if none is required)
 # we use touch to prevent make continually trying to remake it.
 # The DynaLoader only reads a non-empty file.
-$(BOOTSTRAP) : $(FIRST_MAKEFILE) $(BOOTDEP) $(INST_ARCHAUTODIR)$(DFSEP).exists
+%1$s.bs : $(FIRST_MAKEFILE) $(BOOTDEP)
 	$(NOECHO) $(PERLRUN) \
 		"-MExtUtils::Mkbootstrap" \
 		-e "Mkbootstrap('$(BASEEXT)','$(BSLOADLIBS)');"
@@ -917,26 +917,35 @@ sub dynamic_lib {
 
     return '' unless $self->has_link_code;
 
-    my($otherldflags) = $attribs{OTHERLDFLAGS} || "";
-    my($inst_dynamic_dep) = $attribs{INST_DYNAMIC_DEP} || "";
-    my($armaybe) = $attribs{ARMAYBE} || $self->{ARMAYBE} || ":";
-    my($ldfrom) = '$(LDFROM)';
-    $armaybe = 'ar' if ($Is{OSF} and $armaybe eq ':');
-    my(@m);
-    my $ld_opt = $Is{OS2} ? '$(OPTIMIZE) ' : '';	# Useful on other systems too?
+sub xs_dynamic_lib_macros {
+    my ($self, $attribs) = @_;
+    my $otherldflags = $attribs->{OTHERLDFLAGS} || "";
+    my $inst_dynamic_dep = $attribs->{INST_DYNAMIC_DEP} || "";
+    my $armaybe = $self->_xs_armaybe($attribs);
+    my $ld_opt = $Is{OS2} ? '$(OPTIMIZE) ' : ''; # Useful on other systems too?
     my $ld_fix = $Is{OS2} ? '|| ( $(RM_F) $@ && sh -c false )' : '';
     $ld_fix = '&& dsymutil "$@"' if $Is{Darwin} and $Config{ccflags} =~ /-DDEBUGGING/;
-    push(@m,'
-# This section creates the dynamically loadable $(INST_DYNAMIC)
-# from $(OBJECT) and possibly $(MYEXTLIB).
-ARMAYBE = '.$armaybe.'
-OTHERLDFLAGS = '.$ld_opt.$otherldflags.'
-INST_DYNAMIC_DEP = '.$inst_dynamic_dep.'
-INST_DYNAMIC_FIX = '.$ld_fix.'
+    sprintf <<'EOF', $armaybe, $ld_opt.$otherldflags, $inst_dynamic_dep, $ld_fix;
+# This section creates the dynamically loadable objects from relevant
+# objects and possibly $(MYEXTLIB).
+ARMAYBE = %s
+OTHERLDFLAGS = %s
+INST_DYNAMIC_DEP = %s
+INST_DYNAMIC_FIX = %s
+EOF
+}
+
+sub _xs_armaybe {
+    my ($self, $attribs) = @_;
+    my $armaybe = $attribs->{ARMAYBE} || $self->{ARMAYBE} || ":";
+    $armaybe = 'ar' if ($Is{OSF} and $armaybe eq ':');
+    my (@m, $ldfrom);
+    push(@m, $self->xs_dynamic_lib_macros($attribs), 
+'
 
 $(INST_DYNAMIC): $(OBJECT) $(MYEXTLIB) $(INST_ARCHAUTODIR)$(DFSEP).exists $(EXPORT_LIST) $(PERL_ARCHIVEDEP) $(PERL_ARCHIVE_AFTER) $(INST_DYNAMIC_DEP)
 ');
-    if ($armaybe ne ':'){
+    if ($armaybe ne ':') {
 	$ldfrom = 'tmp$(LIB_EXT)';
 	push(@m,'	$(ARMAYBE) cr '.$ldfrom.' $(OBJECT)'."\n");
 	push(@m,'	$(RANLIB) '."$ldfrom\n");

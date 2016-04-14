@@ -3062,6 +3062,8 @@ dist/ExtUtils-MakeMaker/lib/ExtUtils/MY.pm			MakeMaker user override class
 dist/ExtUtils-MakeMaker/lib/ExtUtils/testlib.pm			Fixes up @INC to use just-built extension
 dist/ExtUtils-MakeMaker/t/00compile.t				See if MakeMaker modules compile
 dist/ExtUtils-MakeMaker/t/01perl_bugs.t
+dist/ExtUtils-MakeMaker/t/02-xsdynamic.t
+dist/ExtUtils-MakeMaker/t/03-xsstatic.t
 dist/ExtUtils-MakeMaker/t/arch_check.t				Test MakeMaker's arch_check()
 dist/ExtUtils-MakeMaker/t/backwards.t				Check MakeMaker's backwards compatibility
 dist/ExtUtils-MakeMaker/t/basic.t				See if MakeMaker can build a module

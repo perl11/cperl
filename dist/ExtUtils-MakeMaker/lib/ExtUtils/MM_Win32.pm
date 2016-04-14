@@ -26,7 +26,8 @@ use ExtUtils::MakeMaker qw( neatvalue );
 
 require ExtUtils::MM_Unix;
 our @ISA = qw( ExtUtils::MM_Any ExtUtils::MM_Unix );
-our $VERSION = '8.04_05';
+our $VERSION = '8.11_06';
+$VERSION = eval $VERSION;
 
 $ENV{EMXSHELL} = 'sh'; # to run `commands`
 

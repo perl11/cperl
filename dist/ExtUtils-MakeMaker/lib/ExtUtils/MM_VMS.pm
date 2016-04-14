@@ -15,7 +15,8 @@ BEGIN {
 
 use File::Basename;
 
-our $VERSION = '8.04_04';
+our $VERSION = '8.11_06';
+$VERSION = eval $VERSION;
 
 require ExtUtils::MM_Unix;
 our @ISA = qw( ExtUtils::MM_Any ExtUtils::MM_Unix );

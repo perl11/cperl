@@ -2,7 +2,8 @@ package ExtUtils::MM_Win95;
 
 use strict;
 
-our $VERSION = '8.04_04';
+our $VERSION = '8.11_06';
+$VERSION = eval $VERSION;
 
 require ExtUtils::MM_Win32;
 our @ISA = qw(ExtUtils::MM_Win32);

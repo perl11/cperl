@@ -10,7 +10,8 @@ our @ISA = qw(Exporter);
 
 our @EXPORT  = qw(test_harness pod2man perllocal_install uninstall
                   warn_if_old_packlist test_s cp_nonempty);
-our $VERSION = '8.04_04';
+our $VERSION = '8.11_06';
+$VERSION = eval $VERSION;
 
 my $Is_VMS = $^O eq 'VMS';
 
@@ -215,8 +216,8 @@ sub perllocal_install {
                            : @ARGV;
 
     my $pod;
-    $pod = sprintf <<POD, scalar localtime;
- =head2 %s: C<$type> L<$name|$name>
+    $pod = sprintf <<'POD', scalar(localtime), $type, $name;
+ =head2 %s: C<%s> L<%3$s|%3$s>
 
  =over 4
 

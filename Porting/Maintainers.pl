@@ -662,11 +662,11 @@ use File::Glob qw(:case);
     },
 
     'ExtUtils::MakeMaker' => {
-        'DISTRIBUTION' => 'BINGOS/ExtUtils-MakeMaker-7.04.tar.gz',
+        'DISTRIBUTION' => 'BINGOS/ExtUtils-MakeMaker-7.11_06.tar.gz',
         'FILES'        => q[dist/ExtUtils-MakeMaker],
         'EXCLUDED'     => [
             qr{^t/lib/Test/},
-            qr{^(bundled|my)/},
+            qr{^(admin|bundled|my)/},
             qr{^t/Liblist_Kid.t},
             qr{^t/liblist/},
             qr{^\.perlcriticrc},
