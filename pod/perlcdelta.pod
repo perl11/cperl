@@ -198,6 +198,18 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item CPAN-Meta-Requirements 3.140c
+
+Handle cperl-specific 'c' version suffices.
+
+Protect internal _isa_version from non-refs that pass
+->isa(version)
+
+Added method for getting structured requirements
+
+In fixing preservation of "0.00", some Module => 0 optimizations were
+lost; this restores those optimizations
+
 =item Pod::Usage 1.68
 
 CPAN#110443: [PATCH] fix -perldoc option in pod2usage() method.
