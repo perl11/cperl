@@ -112,7 +112,7 @@ Add support for additional F<pod/perlcdelta.pod> in F<Porting/pod_rules.pl>.
 
 =head1 Core Enhancements from Perl5
 
-Backported some fixes from p5p:
+Backported some fixes from p5p, merged with perl-5.22.2.
 
 =over 4
 
@@ -616,6 +616,22 @@ allowing barewords when they should not be
 =item * Configure: fix startperl and perlpath
 
 Config entries for cperl.
+
+=back
+
+=head1 Other
+
+=over 4
+
+=item *
+
+Enhanced Porting/sync-with-cpan
+
+Support C<--all> updating all cpan/dist modules
+
+Add options C<-n|--dryrun>, C<-m|--make-c>
+
+Handle dist also.
 
 =back
 
