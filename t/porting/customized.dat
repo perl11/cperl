@@ -1,5 +1,8 @@
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
 CPAN cpan/CPAN/lib/CPAN.pm c1e6ea96ad32428244cbcefed7590da6ec0b318e
+CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.pm 486e732a515c6f3f1682f19a95a2eb2420040ac7
+CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f89aec2164476eb98e93f05a5e
+CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf0eb5e96a544eba22bbdef9365
 Devel::NYTProf cpan/Devel-NYTProf/bin/nytprofhtml 0e7a6c1ed8b0497d01e6da2ba5bd5265d004393e
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
 Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL 1bd828484a7513b636446fc9f24353f3f058d71d
