@@ -1689,11 +1689,11 @@ S_Internals_V(pTHX_ CV *cv)
 #  ifdef DEBUGGING
 			     " DEBUGGING"
 #  endif
-#  ifdef NO_MATHOMS
-			     " NO_MATHOMS"
-#  endif
 #  ifdef NO_HASH_SEED
 			     " NO_HASH_SEED"
+#  endif
+#  ifdef NO_MATHOMS
+			     " NO_MATHOMS"
 #  endif
 #  ifdef NO_TAINT_SUPPORT
 			     " NO_TAINT_SUPPORT"
