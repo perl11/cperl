@@ -470,9 +470,17 @@ use File::Glob qw(:case);
             'PPPort.pm',    # we use PPPort_pm.PL instead
             'README.md',
         ],
-        # cperl fix to support make -s
+        # cperl fix to support make -s.
+        # 5.16 binary support: https://github.com/rurban/Devel-PPPort/tree/516gvhv
         'CUSTOMIZED'   => [ qw( PPPort_pm.PL
-				PPPort_xs.PL )],
+				PPPort_xs.PL
+				ppport_h.PL
+				parts/apidoc.fnc
+				parts/inc/HvNAME
+				parts/inc/gv
+				parts/todo/5013007
+				parts/todo/5015004
+			      )],
     },
 
     'Devel::SelfStubber' => {
