@@ -37,6 +37,7 @@ BEGIN {
                    grep( $^O eq $_, qw(bsdos interix dragonfly) )
                   );
     $Is{Android} = $^O =~ /android/;
+    $Is{Darwin}  = $^O eq 'darwin';
 }
 
 BEGIN {
@@ -464,7 +465,7 @@ MAN3PODS = ".$self->wraplist(sort keys %{$self->{MAN3PODS}})."
 
     push @m, q{
 # Where is the Config information that we are using/depend on
-CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)Config.pm $(PERL_INCDEP)$(DFSEP)config.h
+CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)Config_heavy.pl $(PERL_INCDEP)$(DFSEP)config.h
 } if -e $self->catfile( $self->{PERL_INC}, 'config.h' );
 
 
@@ -907,7 +908,6 @@ sub _xs_make_bs {
 # we use touch to prevent make continually trying to remake it.
 # The DynaLoader only reads a non-empty file.
 %1$s.bs : $(FIRST_MAKEFILE) $(BOOTDEP)
-	$(NOECHO) $(ECHO) "Running Mkbootstrap for %1$s ($(BSLOADLIBS))"
 	$(NOECHO) $(PERLRUN) \
 		"-MExtUtils::Mkbootstrap" \
 		-e "Mkbootstrap('%1$s','$(BSLOADLIBS)');"
@@ -975,6 +975,7 @@ sub xs_dynamic_lib_macros {
     my $armaybe = $self->_xs_armaybe($attribs);
     my $ld_opt = $Is{OS2} ? '$(OPTIMIZE) ' : ''; # Useful on other systems too?
     my $ld_fix = $Is{OS2} ? '|| ( $(RM_F) $@ && sh -c false )' : '';
+    $ld_fix = '&& dsymutil "$@"' if $Is{Darwin} and $Config{ccflags} =~ /-DDEBUGGING/;
     sprintf <<'EOF', $armaybe, $ld_opt.$otherldflags, $inst_dynamic_dep, $ld_fix;
 # This section creates the dynamically loadable objects from relevant
 # objects and possibly $(MYEXTLIB).
@@ -2874,6 +2875,15 @@ sub parse_version {
 
     local $/ = "\n";
     local $_;
+    if (!-e $parsefile and $Config::Config{usecperl}) { # builtins not parsable
+      no strict 'refs';
+      my ($prereq) = $parsefile =~ /\.c:(.*)$/;
+      my $normal;
+      $normal = ${$prereq."::VERSION"} if $prereq;
+      $result = $normal if defined $normal;
+      $result = "undef" unless defined $result;
+      return $result;
+    }
     open(my $fh, '<', $parsefile) or die "Could not open '$parsefile': $!";
     my $inpod = 0;
     while (<$fh>) {
@@ -2895,7 +2905,7 @@ sub parse_version {
     }
     close $fh;
 
-    if ( defined $result && $result !~ /^v?[\d_\.]+$/ ) {
+    if ( defined $result && $result !~ /^v?[\d_\.]+c?$/ ) {
       require version;
       my $normal = eval { version->new( $result ) };
       $result = $normal if defined $normal;
@@ -3004,8 +3014,8 @@ sub perldepend {
 $(PERL_INCDEP)/config.h: $(PERL_SRC)/config.sh
 	-$(NOECHO) $(ECHO) "Warning: $(PERL_INC)/config.h out of date with $(PERL_SRC)/config.sh"; $(FALSE)
 
-$(PERL_ARCHLIB)/Config.pm: $(PERL_SRC)/config.sh
-	$(NOECHO) $(ECHO) "Warning: $(PERL_ARCHLIB)/Config.pm may be out of date with $(PERL_SRC)/config.sh"
+$(PERL_ARCHLIB)/Config_heavy.pl: $(PERL_SRC)/config.sh
+	$(NOECHO) $(ECHO) "Warning: $(PERL_ARCHLIB)/Config_heavy.pl may be out of date with $(PERL_SRC)/config.sh"
 	%s
 MAKE_FRAG
 
@@ -3706,23 +3716,24 @@ EOF
 
 For some reason which I forget, Unix machines like to have
 PERL_DL_NONLAZY set for tests.
+PERL_USE_UNSAFE_INC=1 is set to re-add the unsafe . to @INC
 
 =cut
 
 sub test_via_harness {
     my($self, $perl, $tests) = @_;
-    return $self->SUPER::test_via_harness("PERL_DL_NONLAZY=1 $perl", $tests);
+    return $self->SUPER::test_via_harness("PERL_DL_NONLAZY=1 PERL_USE_UNSAFE_INC=1 $perl", $tests);
 }
 
 =item test_via_script (override)
 
-Again, the PERL_DL_NONLAZY thing.
+Again, the PERL_DL_NONLAZY and PERL_USE_UNSAFE_INC thing.
 
 =cut
 
 sub test_via_script {
     my($self, $perl, $script) = @_;
-    return $self->SUPER::test_via_script("PERL_DL_NONLAZY=1 $perl", $script);
+    return $self->SUPER::test_via_script("PERL_DL_NONLAZY=1 PERL_USE_UNSAFE_INC=1 $perl", $script);
 }
 
 

@@ -772,7 +772,7 @@ clean :: clean_subdirs
 
     # Leave Makefile.old around for realclean
     push @m, <<'MAKE';
-	  $(NOECHO) $(RM_F) $(MAKEFILE_OLD)
+	$(NOECHO) $(RM_F) $(MAKEFILE_OLD)
 	- $(MV) $(FIRST_MAKEFILE) $(MAKEFILE_OLD) $(DEV_NULL)
 MAKE
 

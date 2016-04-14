@@ -19,13 +19,15 @@ sub Mkbootstrap {
     my($baseext, @bsloadlibs)=@_;
     @bsloadlibs = grep($_, @bsloadlibs); # strip empty libs
 
+    print "Running Mkbootstrap for $baseext (@bsloadlibs)\n"
+         if !defined $ENV{MAKEFLAGS} or $ENV{MAKEFLAGS} !~ /\b(s|silent|quiet)\b/;
     print "	bsloadlibs=@bsloadlibs\n" if $Verbose;
 
     # We need DynaLoader here because we and/or the *_BS file may
     # call dl_findfile(). We don't say `use' here because when
     # first building perl extensions the DynaLoader will not have
     # been built when MakeMaker gets first used.
-    require DynaLoader;
+    eval "require DynaLoader;";
 
     rename "$baseext.bs", "$baseext.bso"
       if -s "$baseext.bs";

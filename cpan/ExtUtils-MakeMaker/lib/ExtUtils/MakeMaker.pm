@@ -5,6 +5,9 @@ use strict;
 
 BEGIN {require 5.006;}
 
+# Assure anything called from Makefile.PL is allowed to have . in @INC.
+BEGIN { $ENV{PERL_USE_UNSAFE_INC} = 1; }
+
 require Exporter;
 use ExtUtils::MakeMaker::Config;
 use ExtUtils::MakeMaker::version; # ensure we always have our fake version.pm
@@ -23,6 +26,8 @@ my @Prepend_parent;
 my %Recognized_Att_Keys;
 our %macro_fsentity; # whether a macro is a filesystem name
 our %macro_dep; # whether a macro is a dependency
+use constant SILENT => (defined $ENV{MAKEFLAGS}
+                        and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
 
 our $VERSION = '7.11_06';
 $VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
@@ -581,7 +586,7 @@ END
         }
         else {
           $installed_file = MM->_installed_file_for_module($prereq);
-          $pr_version = MM->parse_version($installed_file) if $installed_file;
+          $pr_version = $installed_file ? MM->parse_version($installed_file) : 'undef';
           $pr_version = 0 if $pr_version eq 'undef';
           if ( !eval { version->new( $pr_version ); 1 } ) {
             #no warnings 'numeric'; # module doesn't use warnings
@@ -593,7 +598,10 @@ END
         }
 
         # convert X.Y_Z alpha version #s to X.YZ for easier comparisons
-        $pr_version =~ s/(\d+)\.(\d+)_(\d+)/$1.$2$3/;
+        if ($pr_version) {
+          $pr_version =~ s/c$//;
+          $pr_version =~ s/(\d+)\.(\d+)_(\d+)/$1.$2$3/;
+        }
 
         if (!$installed_file) {
             warn sprintf "Warning: prerequisite %s %s not found.\n",
@@ -907,6 +915,13 @@ sub _installed_file_for_module {
             last;
         }
     }
+    if (!$path
+        and $Config::Config{usecperl} # builtins
+        and $prereq =~ /^(DynaLoader|XSLoader|strict|coretypes)$/)
+    {
+      $INC{$file} = $prereq unless exists $INC{$file};
+      $path = $prereq;
+    }
 
     return $path;
 }
@@ -1023,7 +1038,7 @@ sub _parse_line {
 }
 
 sub check_manifest {
-    print "Checking if your kit is complete...\n";
+    print "Checking if your kit is complete...\n" unless SILENT;
     require ExtUtils::Manifest;
     # avoid warning
     $ExtUtils::Manifest::Quiet = $ExtUtils::Manifest::Quiet = 1;
@@ -1034,7 +1049,7 @@ sub check_manifest {
         print "\n";
         print "Please inform the author.\n";
     } else {
-        print "Looks good\n";
+        print "Looks good\n" unless SILENT;
     }
 }
 
@@ -1231,7 +1246,7 @@ sub flush {
 
     # Write MYMETA.yml to communicate metadata up to the CPAN clients
     print "Writing MYMETA.yml and MYMETA.json\n"
-      if !$self->{NO_MYMETA} and $self->write_mymeta( $self->mymeta );
+      if !$self->{NO_MYMETA} and $self->write_mymeta( $self->mymeta ) and $Verbose;
 
     # save memory
     if ($self->{PARENT} && !$self->{_KEEP_AFTER_FLUSH}) {
