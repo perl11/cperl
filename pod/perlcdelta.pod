@@ -198,6 +198,23 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Digest-MD5 2.55_01
+
+cperl only:
+Fix alignment probe for 64bit
+and enforce a SIGBUS on intel also (at least with
+gnu c compatible compilers: gcc, clang, icc) to
+mimic errors on other strict platforms: sparc, mips, ppc
+
+Allows now 64bit and darwin multiarch to be probed.
+
+Adds now coverage for the previously never tested branch
+for -UU32_ALIGNMENT_REQUIRED.
+
+Fixes RT #77919
+
+See https://github.com/rurban/digest-md5/tree/intel-align-rt77919
+
 =item Devel-PPPort 3.32_02
 
 cperl added support for 5.16 binary names

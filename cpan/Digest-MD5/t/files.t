@@ -14,7 +14,7 @@ my $EXPECT;
 if (ord "A" == 193) { # EBCDIC
     $EXPECT = <<EOT;
 0956ffb4f6416082b27d6680b4cf73fc  README
-60a80f534f0017745eb755f36a946fe7  MD5.xs
+903cb60d7e2c2df48cd999a78b1dbf3d  MD5.xs
 276da0aa4e9a08b7fe09430c9c5690aa  rfc1321.txt
 EOT
 } else {

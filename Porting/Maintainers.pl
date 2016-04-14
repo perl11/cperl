@@ -496,11 +496,12 @@ use File::Glob qw(:case);
     },
 
     'Digest::MD5' => {
-        'DISTRIBUTION' => 'GAAS/Digest-MD5-2.54.tar.gz',
+        'DISTRIBUTION' => 'GAAS/Digest-MD5-2.55.tar.gz',
         'FILES'        => q[cpan/Digest-MD5],
         'EXCLUDED'     => ['rfc1321.txt'],
         # cperl fix for static is not at beginning of declaration, amd64 align.
         # Note that ebcdic needs to regenerate the md5sum in t/files.t
+        # https://github.com/rurban/digest-md5/tree/intel-align-rt77919
         'CUSTOMIZED'   => [ qw( MD5.xs MD5.pm Makefile.PL t/files.t )],
     },
 
