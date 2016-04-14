@@ -198,9 +198,9 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
-=item Config-Perl-V 0.25
+=item Config-Perl-V 0.25_01
 
-Added v5.24 support: PERL_COPY_ON_WRITE, USE_NO_REGISTRY
+Added v5.24 and cperl support.
 
 =item Carp 1.38
 

@@ -256,6 +256,8 @@ cpan/Config-Perl-V/t/25_plv516.t		Config::Perl::V
 cpan/Config-Perl-V/t/26_plv5182.t		Config::Perl::V
 cpan/Config-Perl-V/t/26_plv518.t		Config::Perl::V
 cpan/Config-Perl-V/t/27_plv5200.t		Config::Perl::V
+cpan/Config-Perl-V/t/28_plv522c.t		Config::Perl::V
+cpan/Config-Perl-V/t/28_plv522.t		Config::Perl::V
 cpan/Config-Perl-V/V.pm				Config::Perl::V
 cpan/Cpanel-JSON-XS/bin/cpanel_json_xs
 cpan/Cpanel-JSON-XS/t/00_load.t
