@@ -198,6 +198,16 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item IPC::Cmd 0.94
+
+* move __END__ above POD in documentation (plicease)
+
+* Don't clobber $SIG{__DIE__} and $SIG{__WARN__} in open3_run() (avar)
+
+* Fix 'terminate_on_signal' segfaulting (Petya Kohts)
+
+* Fix usage of fcntl(..., F_GETFL, ...) (tonyc)
+ 
 =item Getopt::Long 2.48
 
 Fixed gnu_getopt option not 100% identical to GNU getopt
