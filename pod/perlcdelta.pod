@@ -198,6 +198,11 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Math::BigInt 1.999716
+
+Tons of changes from 1.999701
+See L<https://metacpan.org/changes/distribution/Math-BigInt>
+
 =item Locale::Codes 3.38
 
 But kept the deprecated C<Locale::Codes::Country::alias_code> function.

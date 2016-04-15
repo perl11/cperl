@@ -3446,6 +3446,7 @@ dist/Math-BigInt/t/constant.t		Test Math::BigInt/BigFloat under :constant
 dist/Math-BigInt/t/const_mbf.t		Test Math::BigInt
 dist/Math-BigInt/t/downgrade.t		Test if use Math::BigInt(); under downgrade works
 dist/Math-BigInt/t/_e_math.t		Helper routine in BigFloat for _e math
+dist/Math-BigInt/t/from_hex-mbf.t	Test Math::BigInt
 dist/Math-BigInt/t/inf_nan.t		Special tests for inf and *NaN* handling
 dist/Math-BigInt/t/isa.t		Test for Math::BigInt inheritance
 dist/Math-BigInt/t/lib_load.t		Test sane lib names
@@ -3460,6 +3461,8 @@ dist/Math-BigInt/t/mbimbf.t		BigInt/BigFloat accuracy, precision and fallback, r
 dist/Math-BigInt/t/mbi_rand.t		Test Math::BigInt randomly
 dist/Math-BigInt/t/nan_cmp.t		overloaded comparison involving *NaN*
 dist/Math-BigInt/t/new_overloaded.t	test overloaded numbers in BigFloat's new()
+dist/Math-BigInt/t/objectify_mbf.t	Test Math::BigInt
+dist/Math-BigInt/t/objectify_mbi.t	Test Math::BigInt
 dist/Math-BigInt/t/req_mbf0.t		test: require Math::BigFloat; ->bzero();
 dist/Math-BigInt/t/req_mbf1.t		test: require Math::BigFloat; ->bone();
 dist/Math-BigInt/t/req_mbfa.t		test: require Math::BigFloat; ->bnan();

@@ -884,7 +884,7 @@ use File::Glob qw(:case);
     },
 
     'Math::BigInt' => {
-        'DISTRIBUTION' => 'PJACKLAM/Math-BigInt-1.9993.tar.gz',
+        'DISTRIBUTION' => 'PJACKLAM/Math-BigInt-1.999716.tar.gz',
         'FILES'        => q[dist/Math-BigInt],
         'EXCLUDED'     => [
             qr{^inc/},
