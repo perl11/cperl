@@ -6,10 +6,14 @@ Porting/sync-with-cpan - Synchronize with CPAN distributions
 
 =head1 SYNOPSIS
 
-  perl Porting/sync-with-cpan [OPTIONS] <module> [cpan-name]
+    perl Porting/sync-with-cpan [OPTIONS] <module>
 
-where <module> is the name it appears in the C<%Modules> hash
-of F<Porting/Maintainers.pl>
+where <module> is the name which appears in the C<%Modules> hash
+of F<Porting/Maintainers.pl>.
+
+    perl Porting/sync-with-cpan -n --all | tee sync.log
+
+lists all modules which need to be updated.
 
 =head1 DESCRIPTION
 
@@ -96,7 +100,8 @@ from the filename -- but can be overwritten by the C<--version> option.
 
 =item C<--all>
 
-Check all cpan and dist modules from Maintainers.pl
+Check all cpan and dist modules from Maintainers.pl, not just
+the module given on the command line.
 
 =item C<-n> or C--dryrun>
 
@@ -140,10 +145,10 @@ Handle complicated C<FILES>
 
 =back
 
-This is a crude early version; no attempt has been made yet to make this
-portable. It shells out instead of trying to find a Perl solution.
-In particular, it assumes C<git>, C<perl>, C<make> and an internet connection
-to be available.
+This is a crude early version; no attempt has been made yet to make
+this portable. It shells out instead of trying to find a Perl
+solution.  In particular, it assumes C<git>, C<perl>, C<grep>, C<make>
+and an internet connection to be available.
 
 =cut
 
@@ -195,7 +200,7 @@ GetOptions ('tarball=s'  =>  \my $tarball,
              help        =>  sub { usage 0; },
              ) or  die "Failed to parse arguments";
 
-usage 1 unless $all || @ARGV == 1 || @ARGV == 2;
+usage 1 unless $all || @ARGV;
 
 sub find_type_f {
     my @res;
@@ -234,7 +239,7 @@ my @modules  = $all ? sort keys %Modules : (shift);
 
 for my $module (@modules) {
 
-  my $cpan_mod     = @ARGV ? shift : $module;
+  my $cpan_mod     = $module;
   my $info         = $Modules{$module} or die "Cannot find module $module";
   my $distribution = $$info{DISTRIBUTION};
   next if $$info{FILES} !~ m{^(cpan|dist)/};

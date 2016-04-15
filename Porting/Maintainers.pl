@@ -29,12 +29,13 @@ use File::Glob qw(:case);
 # except when DISTRIBUTION is set, where it *exactly* represents a single
 # CPAN distribution.
 
-# The keys of %Modules are human descriptions of the distributions, and
-# may not exactly match a module or distribution name. Distributions
-# which have an obvious top-level module associated with them will usually
-# have a key named for that module, e.g. 'Archive::Extract' for
-# Archive-Extract-N.NN.tar.gz; the remaining keys are likely to be based
-# on the name of the distribution, e.g. 'Locale-Codes' for
+# The keys of %Modules are human descriptions of the distributions,
+# and need to match a module or distribution name, so that cpan name
+# will install this module.  Distributions which have an obvious
+# top-level module associated with them will usually have a key named
+# for that module, e.g. 'Archive::Extract' for
+# Archive-Extract-N.NN.tar.gz; the remaining keys are likely to be
+# based on the name of the distribution, e.g. 'Locale-Codes' for
 # Locale-Codes-N.NN.tar.gz'.
 
 # UPSTREAM indicates where patches should go.  This is generally now
@@ -128,7 +129,7 @@ use File::Glob qw(:case);
     },
 
     'Attribute::Handlers' => {
-        'DISTRIBUTION' => 'SMUELLER/Attribute-Handlers-0.99.tar.gz',
+        'DISTRIBUTION' => 'RJBS/Attribute-Handlers-0.99.tar.gz',
         'FILES'        => q[dist/Attribute-Handlers],
     },
 
@@ -655,7 +656,7 @@ use File::Glob qw(:case);
     },
 
     'File::Path' => {
-        'DISTRIBUTION' => 'DLAND/File-Path-2.12.tar.gz',
+        'DISTRIBUTION' => 'RICHE/File-Path-2.12.tar.gz',
         'FILES'        => q[cpan/File-Path],
         'EXCLUDED'     => [
             qw( eg/setup-extra-tests
@@ -684,7 +685,7 @@ use File::Glob qw(:case);
     },
 
     'Filter::Simple' => {
-        'DISTRIBUTION' => 'SMUELLER/Filter-Simple-0.91.tar.gz',
+        'DISTRIBUTION' => 'SMUELLER/Filter-Simple-0.92.tar.gz',
         'FILES'        => q[dist/Filter-Simple],
         'EXCLUDED'     => [
             qr{^demo/}
@@ -764,12 +765,12 @@ use File::Glob qw(:case);
     },
 
     'Internals::DumpArenas' => {
-        'DISTRIBUTION' => 'RURBAN/Internals-DumpArenas-0.12_01.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Internals-DumpArenas-0.12_03.tar.gz',
         'FILES'        => q[cpan/Internals-DumpArenas],
     },
 
     'if' => {
-        'DISTRIBUTION' => 'ILYAZ/modules/if-0.0601.tar.gz',
+        'DISTRIBUTION' => 'ILYAZ/if-0.0604.tar.gz',
         'FILES'        => q[dist/if],
     },
 
@@ -779,7 +780,7 @@ use File::Glob qw(:case);
         'EXCLUDED'     => ['t/test.pl'],
     },
 
-    'IO::Compress' => {
+    'IO::Compress::Base' => {
         'DISTRIBUTION' => 'PMQS/IO-Compress-2.069.tar.gz',
         'FILES'        => q[cpan/IO-Compress],
         'EXCLUDED'     => [
@@ -854,7 +855,7 @@ use File::Glob qw(:case);
     },
 
     'Locale::Codes' => {
-        'DISTRIBUTION' => 'SBECK/Locale-Codes-3.35.tar.gz',
+        'DISTRIBUTION' => 'SBECK/Locale-Codes-3.38.tar.gz',
         'FILES'        => q[cpan/Locale-Codes],
         'EXCLUDED'     => [
             qw( README.first
@@ -1000,7 +1001,7 @@ use File::Glob qw(:case);
         ],
     },
 
-    'NEXT' => {
+    'NEXT::DISTINCT' => {
         'DISTRIBUTION' => 'FLORA/NEXT-0.65.tar.gz',
         'FILES'        => q[cpan/NEXT],
         'EXCLUDED'     => [qr{^demo/}],
@@ -1025,7 +1026,8 @@ use File::Glob qw(:case);
         ],
     },
 
-    'PathTools' => {
+    # PathTools cannot be cpan'd by sync-with-cpan
+    'File::Spec' => {
         'DISTRIBUTION' => 'SMUELLER/PathTools-3.47.tar.gz',
         'FILES'        => q[dist/PathTools],
         'EXCLUDED'     => [qr{^t/lib/Test/}],
@@ -1486,7 +1488,7 @@ use File::Glob qw(:case);
     },
 
     'YAML::LibYAML' => {
-        'DISTRIBUTION' => "INGY/YAML-LibYAML-0.62.tar.gz",
+        'DISTRIBUTION' => "TINITA/YAML-LibYAML-0.62.tar.gz",
         'FILES'        => q[cpan/YAML-LibYAML],
         'CUSTOMIZED'   => [
           # allow PERL_CORE tests
