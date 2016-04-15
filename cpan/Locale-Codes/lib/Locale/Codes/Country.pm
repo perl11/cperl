@@ -1,7 +1,7 @@
 package Locale::Codes::Country;
 # Copyright (C) 2001      Canon Research Centre Europe (CRE).
 # Copyright (C) 2002-2009 Neil Bowers
-# Copyright (c) 2010-2015 Sullivan Beck
+# Copyright (c) 2010-2016 Sullivan Beck
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
@@ -22,7 +22,7 @@ use Locale::Codes::Country_Retired;
 
 our($VERSION,@ISA,@EXPORT,@EXPORT_OK);
 
-$VERSION='3.35';
+$VERSION='3.38';
 @ISA       = qw(Exporter);
 @EXPORT    = qw(code2country
                 country2code
@@ -89,7 +89,8 @@ sub delete_country_code_alias {
 
 #=======================================================================
 #
-# Old function for backward compatibility
+# Deprecated function for backward compatibility
+# Will be removed in cperl-5.24, already gone upstream.
 #
 #=======================================================================
 
@@ -109,5 +110,5 @@ sub alias_code {
 # cperl-continued-brace-offset: 0
 # cperl-brace-offset: 0
 # cperl-brace-imaginary-offset: 0
-# cperl-label-offset: -2
+# cperl-label-offset: 0
 # End:

@@ -15,7 +15,6 @@ Locale::Codes::Country - standard codes for country identification
    @names   = all_country_names();
 
    # semi-private routines
-   Locale::Codes::Country::alias_code('uk' => 'gb');
    Locale::Codes::Country::rename_country('gb' => 'Great Britain');
 
 =head1 DESCRIPTION
@@ -108,29 +107,6 @@ Locale::Codes::Changes document for details.
 
 These routines are all documented in the L<Locale::Codes::API> man page.
 
-=item B<alias_code ( ALIAS, CODE [,CODESET] )>
-
-Version 2.07 included 2 functions for modifying the internal data:
-rename_country and alias_code. Both of these could be used only to
-modify the internal data for country codes.
-
-As of 3.10, the internal data for all types of codes can be modified.
-
-The alias_code function is preserved for backwards compatibility, but
-the following two are identical:
-
-   alias_code(ALIAS,CODE [,CODESET]);
-   rename_country_code(CODE,ALIAS [,CODESET]);
-
-and the latter should be used for consistency.
-
-The alias_code function is deprecated and will be removed in the December
-2014 release.
-
-B<Note:> this function was previously called _alias_code, but the
-leading underscore has been dropped. The old name was supported for
-all 2.X releases, but has been dropped as of 3.00.
-
 =back
 
 =head1 SEE ALSO
@@ -198,7 +174,7 @@ Currently maintained by Sullivan Beck (sbeck@cpan.org).
 
    Copyright (c) 1997-2001 Canon Research Centre Europe (CRE).
    Copyright (c) 2001-2010 Neil Bowers
-   Copyright (c) 2010-2015 Sullivan Beck
+   Copyright (c) 2010-2016 Sullivan Beck
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

@@ -198,6 +198,14 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Locale::Codes 3.38
+
+But kept the deprecated C<Locale::Codes::Country::alias_code> function.
+
+Improved test suite (and made some changes to Codes.pm) based on
+Devel::Cover.
+Test suite now has 100% coverage.
+
 =item IPC::SysV 2.06
 
 shmat() with illegal id fails and sets errno

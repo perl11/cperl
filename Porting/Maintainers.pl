@@ -851,7 +851,7 @@ use File::Glob qw(:case);
         'CUSTOMIZED'   => [ qw( lib/Net/Domain.pm )],
     },
 
-    'Locale-Codes' => {
+    'Locale::Codes' => {
         'DISTRIBUTION' => 'SBECK/Locale-Codes-3.35.tar.gz',
         'FILES'        => q[cpan/Locale-Codes],
         'EXCLUDED'     => [
