@@ -5124,11 +5124,11 @@ Completely rewritten by Tels L<http://bloodgate.com> in 2001-2008.
 
 =item *
 
-Florian Ragwitz L<flora@cpan.org>, 2010.
+Florian Ragwitz C<flora@cpan.org>, 2010.
 
 =item *
 
-Peter John Acklam, L<pjacklam@online.no>, 2011-.
+Peter John Acklam, C<pjacklam@online.no>, 2011-.
 
 =back
 
