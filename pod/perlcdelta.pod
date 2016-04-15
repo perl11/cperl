@@ -202,6 +202,11 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 Only minor changes
 
+=item Math::BigRat 0.260802
+
+Fix blog() for inf/nan, and more.
+See L<https://metacpan.org/changes/distribution/Math-BigRat>
+
 =item Math::BigInt 1.999716
 
 Tons of changes from 1.999701
