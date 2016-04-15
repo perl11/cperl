@@ -164,10 +164,7 @@ $| = 1;
 die "This does not look like a top level directory"
      unless -d "cpan" && -d "Porting";
 
-our @IGNORABLE;
-our %Modules;
-
-use autodie;
+our (@IGNORABLE, %Modules);
 
 require "./Porting/Maintainers.pl";
 
@@ -282,12 +279,19 @@ for my $module (@modules) {
             my $http= HTTP::Tiny->new();
             $http->mirror( $package_url => $package_file );
             1
-        } or system(wget => $package_url, '-qO', $package_file);
+        } or system('wget', $package_url, '-qO', $package_file);
     }
 
-    open my $fh, '<', $package_file;
-    (my $new_line) = grep {/^$cpan_mod/} <$fh> # Yes, this needs a lot of memory
-                     or die "Cannot find $cpan_mod on CPAN\n";
+    my $new_line;
+    if ($^O eq 'MSWin32') {
+      open my $fh, '<', $package_file;
+      ($new_line) = grep {/^$cpan_mod/} <$fh> # Yes, this needs a lot of memory
+        or die "Cannot find $cpan_mod on CPAN\n";
+    } else {
+      $new_line = `grep '^$cpan_mod ' $package_file`
+        or die "Cannot find $cpan_mod on CPAN\n";
+      chomp $new_line;
+    }
     (undef, $new_version, my $new_path) = split ' ', $new_line;
     if (defined $version) {
         $new_path =~ s/-$new_version\./-$version\./;
@@ -313,7 +317,7 @@ for my $module (@modules) {
           my $http= HTTP::Tiny->new();
           $http->mirror( $url => $new_file );
           1
-        } or system(wget => $url, '-qO', $new_file);
+        } or system('wget', $url, '-qO', $new_file);
       }
     } else {
       say "Already have latest $new_path";
@@ -328,8 +332,8 @@ for my $module (@modules) {
 
   my  $old_dir      = "$pkg_dir-$old_version";
 
-  say "Cleaning out old directory";
-  system(git => 'clean', '-dfxq', $pkg_dir) unless $dryrun;
+  say "Cleaning out old directory $prefix/$pkg_dir";
+  system('git', 'clean', '-dfxq', $pkg_dir) unless $dryrun;
 
   say "Unpacking $new_file";
   Archive::Tar->extract_archive( $new_file ) unless $dryrun;
@@ -348,7 +352,6 @@ for my $module (@modules) {
     my $t = time;
   FILE:
     for my $file (find_type_f($new_dir)) {
-      no autodie;
       my ($base) = $file =~ m{$new_dir/(.*)$};
       next if $EXCLUDED_QQ{$base} or $IGNORABLE{$base};
       for my $qr (@EXCLUDED_QR) {
@@ -362,12 +365,12 @@ for my $module (@modules) {
     };
 
     if (-d $pkg_dir) {
-      say "Renaming directories";
+      say "Renaming directory $prefix/$pkg_dir => $prefix/$old_dir";
       rename $pkg_dir => $old_dir;
     }
   }
 
-  say "Creating new package directory $pkg_dir";
+  say "Creating new package directory $prefix/$pkg_dir";
   mkdir $pkg_dir unless $dryrun;
 
   say "Populating new package directory";
@@ -418,7 +421,7 @@ for my $module (@modules) {
 
   if (-f "$old_dir/.gitignore") {
     say "Restoring .gitignore";
-    system(git => 'checkout', "$pkg_dir/.gitignore");
+    system('git', 'checkout', "$pkg_dir/.gitignore");
   }
 
   my @new_files = find_type_f( $pkg_dir );
@@ -485,8 +488,9 @@ for my $module (@modules) {
     print "Hit return to continue; ^C to abort "; <STDIN>;
 
     unlink "$pkg_dir/$_"                     for @delete;
-    system('git' => 'add', "$pkg_dir/$_")      for @commit;
-    system('git' => 'rm', '-f', "$pkg_dir/$_") for @gone;
+    say "git add $pkg_dir/$_" 		     for @commit;
+    system('git', 'add', "$pkg_dir/$_") for @commit;
+    system('git', 'rm', '-f', "$pkg_dir/$_") for @gone;
     de_exec( "$pkg_dir/$_" )                 for @de_exec;
   }
 
@@ -498,7 +502,7 @@ for my $module (@modules) {
   if (!$dryrun and $$info {CUSTOMIZED}) {
     say "Restoring customized files";
     foreach my $file (@{$$info {CUSTOMIZED}}) {
-        system('git' => "checkout", "$pkg_dir/$file");
+        system('git', "checkout", "$pkg_dir/$file");
     }
   }
 
@@ -510,7 +514,7 @@ for my $module (@modules) {
     open my $fh, ">>", $MANIFEST;
     say $fh "$prefix/$pkg_dir/$_" for @commit;
     close $fh;
-    system(perl => "Porting/manisort", '--output', $MANIFEST_SORT);
+    system('perl', "Porting/manisort", '--output', $MANIFEST_SORT);
     rename $MANIFEST_SORT => $MANIFEST;
   }
 
@@ -529,6 +533,8 @@ for my $module (@modules) {
   # Note that we can always retrieve the original directory with a git checkout.
   #
   if (!$dryrun) {
+    system('git','diff', $prefix);
+    system('git','status', "$prefix/$pkg_dir");
     print "About to clean up; hit return or abort (^C) "; <STDIN>;
 
     remove_tree( "$prefix/$old_dir" );
