@@ -198,6 +198,16 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Getopt::Long 2.48
+
+Fixed gnu_getopt option not 100% identical to GNU getopt
+L<[RT #12675]|https://rt.cpan.org/Ticket/Display.html?id=39052>
+
+Fixed parsing valid real numeric values, e.g. --num=.1
+L<[RT #89513]|https://rt.cpan.org/Ticket/Display.html?id=89513>
+
+PAT_FLOAT => "[-+]?(?=[0-9.])[0-9_]*(\.[0-9_]+)?([eE][-+]?[0-9_]+)?";
+
 =item File::Path 2.12
 
 Tons of fixes from 2.09
