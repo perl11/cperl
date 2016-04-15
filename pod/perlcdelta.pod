@@ -198,6 +198,10 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item ExtUtils::ParseXS 3.30
+
+Fix quoting if $^X has spaces
+
 =item ExtUtils::Command removed
 
 Now merged into ExtUtils-MakeMaker-7.10
