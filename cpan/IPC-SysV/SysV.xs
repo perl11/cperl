@@ -392,14 +392,14 @@ shmat(id, addr, flag)
     int flag
   CODE:
 #ifdef HAS_SHM
-    void *caddr = SvOK(addr) ? sv2addr(addr) : NULL;
-    if (id < 0)
-        ST(0) = &PL_sv_undef;
-    else {
-        void *shm = (void *) shmat(id, caddr, flag);
-        ST(0) = shm == (void *) -1
-                  ? &PL_sv_undef
-                  : sv_2mortal(newSVpvn((char *) &shm, sizeof(void *)));
+    if (id >= 0) {
+      void *caddr = SvOK(addr) ? sv2addr(addr) : NULL;
+      void *shm = (void *) shmat(id, caddr, flag);
+      ST(0) = shm == (void *) -1 ? &PL_sv_undef
+                                 : sv_2mortal(newSVpvn((char *) &shm, sizeof(void *)));
+    } else {
+      SETERRNO(EINVAL,LIB_INVARG);
+      ST(0) = &PL_sv_undef;
     }
     XSRETURN(1);
 #else

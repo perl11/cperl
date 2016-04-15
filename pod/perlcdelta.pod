@@ -198,6 +198,10 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item IPC::SysV 2.06
+
+shmat() with illegal id fails and sets errno
+
 =item IPC::Cmd 0.94
 
 * move __END__ above POD in documentation (plicease)

@@ -808,7 +808,7 @@ use File::Glob qw(:case);
     },
 
     'IPC::SysV' => {
-        'DISTRIBUTION' => 'MHX/IPC-SysV-2.04.tar.gz',
+        'DISTRIBUTION' => 'MHX/IPC-SysV-2.06.tar.gz',
         'FILES'        => q[cpan/IPC-SysV],
         'EXCLUDED'     => [
             qw( const-c.inc
