@@ -349,12 +349,12 @@ Compute CAN_FLOCK at compile-time, to avoid Config in perlcc compiled binaries.
 Broke support for restoring restricted hashes [perl #73972] with the new
 default PERL_PERTURB_KEYS_TOP strategy.
 
-=item CPAN::Meta
+=item CPAN::Meta (private)
 
 Favour the new builtin XS YAML and JSON variants over PP.
 Improve the validator tests.
 
-=item Parse::CPAN::Meta
+=item Parse::CPAN::Meta (private)
 
 Favour the new builtin XS YAML and JSON variants over PP.
 
@@ -366,7 +366,7 @@ Fixed fatal typos, moved from cpan to dist.
 
 Fixed all 'c' suffix version checks.
 
-=item CPAN::Meta::Requirements
+=item CPAN::Meta::Requirements (private)
 
 Handle 'c' suffix version checks.
 
@@ -378,14 +378,21 @@ unparsable versions. [cperl #104]
 * perl5 should fail with a c version.
 * A requirement of a c version can only be fulfilled by cperl (currently).
 
-=item CPAN
+=item CPAN (private)
 
 Fix prerequisite and version checks,
 Allow cperl c suffices, Honor cperl builtin modules
 
-=item ExtUtils::MakeMaker
+=item ExtUtils::MakeMaker 8.04_03 (private)
 
-Fixed prereq check for cperl builtins
+Protect our cperl changes and non-upstream improvements:
+
+Fixed prereq check for cperl builtins,
+'c' version suffix support,
+make -s silencing,
+fixed wrong Config dependencies,
+PERL_USE_UNSAFE_INC=1,
+call darwin dsymutil
 
 =item Config 6.19
 
