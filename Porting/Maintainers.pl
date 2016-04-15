@@ -898,7 +898,7 @@ use File::Glob qw(:case);
     },
 
     'Math::BigInt::FastCalc' => {
-        'DISTRIBUTION' => 'PJACKLAM/Math-BigInt-FastCalc-0.31.tar.gz',
+        'DISTRIBUTION' => 'PJACKLAM/Math-BigInt-FastCalc-0.40.tar.gz',
         'FILES'        => q[dist/Math-BigInt-FastCalc],
         'EXCLUDED'     => [
             qr{^inc/},

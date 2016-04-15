@@ -198,6 +198,10 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Math::BigInt::FastCalc 0.40
+
+Only minor changes
+
 =item Math::BigInt 1.999716
 
 Tons of changes from 1.999701
