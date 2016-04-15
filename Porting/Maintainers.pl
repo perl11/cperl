@@ -653,17 +653,20 @@ use File::Glob qw(:case);
     },
 
     'File::Path' => {
-        'DISTRIBUTION' => 'DLAND/File-Path-2.09.tar.gz',
+        'DISTRIBUTION' => 'DLAND/File-Path-2.12.tar.gz',
         'FILES'        => q[cpan/File-Path],
         'EXCLUDED'     => [
             qw( eg/setup-extra-tests
                 t/pod.t
-                )
+                ),
+            qr{^xt},
         ],
-        'MAP' => {
-            ''   => 'cpan/File-Path/lib/File/',
-            't/' => 'cpan/File-Path/t/',
-        },
+        # Beware: sync-with-cpan deletes cpan/File-Path/lib/File/Path.pm
+        # and adds +cpan/File-Path/lib/File/lib/File/Path.pm
+        #'MAP' => {
+        #    ''   => 'cpan/File-Path/lib/File/',
+        #    't/' => 'cpan/File-Path/t/',
+        #},
     },
 
     'File::Temp' => {

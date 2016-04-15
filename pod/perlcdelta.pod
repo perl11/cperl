@@ -198,6 +198,10 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item File::Path 2.12
+
+Tons of fixes from 2.09
+
 =item ExtUtils::ParseXS 3.30
 
 Fix quoting if $^X has spaces
