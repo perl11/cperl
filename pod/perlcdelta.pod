@@ -198,6 +198,11 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item bignum 0.42
+
+uses new Math::Big*, fixing inf/nan.
+fix bignum::bpi, use bpi() as a class method, not a function.
+
 =item Math::BigInt::FastCalc 0.40
 
 Only minor changes
