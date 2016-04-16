@@ -210,6 +210,10 @@ Needed for the perl debugger with readline.
 
 =over 4
 
+=item Thread::Queue 3.07
+
+Added limit to set or return the max. size for a queue
+
 =item Term::Cap 1.17
 
 =item Term::ANSIColor 4.05
