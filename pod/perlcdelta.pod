@@ -210,6 +210,10 @@ Needed for the perl debugger with readline.
 
 =over 4
 
+=item Unicode::Normalize 1.25
+
+Added Normalize.xs
+
 =item Unicode::Collate 1.14
 
 Update Unicode::Collate::CJK::Korean
