@@ -210,6 +210,11 @@ Needed for the perl debugger with readline.
 
 =over 4
 
+=item experimental 0.016
+
+Added bitwise
+Removed lexical_topic, new max_version check
+
 =item base 2.23
 
 =item autouse 1.11
