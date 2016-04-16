@@ -1062,7 +1062,7 @@ use File::Glob qw(:case);
     },
 
     'Pod::Checker' => {
-        'DISTRIBUTION' => 'MAREKR/Pod-Checker-1.60.tar.gz',
+        'DISTRIBUTION' => 'MAREKR/Pod-Checker-1.71.tar.gz',
         'FILES'        => q[cpan/Pod-Checker],
         # cperl fix to support make -s + dos2unix
         'CUSTOMIZED'   => [ qw( scripts/podchecker.PL

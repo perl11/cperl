@@ -17,6 +17,7 @@ use File::Find;
 use File::Spec;
 use Scalar::Util;
 use Text::Tabs;
+use Pod::ParseUtils;
 
 BEGIN {
     if ( $Config{usecrosscompile} ) {
@@ -582,7 +583,7 @@ while (@ARGV && substr($ARGV[0], 0, 1) eq '-') {
         die <<EOF;
 Unknown option '$arg'
 
-Usage: $0 [ --regen | --cpan | --show_all | FILE ... | --add_link MODULE ... ]\n"
+Usage: $0 [ --regen | --cpan | --show_all | FILE ... | --add_link MODULE ... ]
     --add_link -> Add the MODULE and man page references to the database
     --regen    -> Regenerate the data file for $0
     --cpan     -> Include files in the cpan subdirectory.
