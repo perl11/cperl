@@ -1496,7 +1496,7 @@ use File::Glob qw(:case);
         # Currently all EOL differences. Waiting for a new upstream release:
         # All the files in the GitHub repo have UNIX EOLs already.
         'CUSTOMIZED'   => [
-            qw( ExtUtils/Myconst2perl.pm
+            qw(
                 Makefile.PL
                 buffers.h
                 cFile.h

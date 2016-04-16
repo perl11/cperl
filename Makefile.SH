@@ -1379,9 +1379,9 @@ _cleaner2:
 	-rmdir ext/B/lib
 	rm -f so_locations $(LIBPERL_NONSHR) $(MINIPERL_NONSHR)
 	-rmdir lib/version lib/threads lib/inc/Test/Base lib/inc/Test
-	-rmdir lib/inc lib/encoding lib/autodie/exception lib/autodie/Scope
-	-rmdir lib/autodie lib/YAML lib/XS lib/Win32API lib/VMS
-	-rmdir lib/Unicode/Collate/Locale lib/Unicode/Collate/CJK
+	-rmdir lib/inc/ExtUtils lib/inc lib/encoding lib/autodie/exception
+	-rmdir lib/autodie/Scope lib/autodie lib/YAML lib/XS lib/Win32API
+	-rmdir lib/VMS lib/Unicode/Collate/Locale lib/Unicode/Collate/CJK
 	-rmdir lib/Unicode/Collate lib/Tie/Hash lib/Thread lib/Text
 	-rmdir lib/Test/use lib/Test/Tester lib/Test/Builder/Tester
 	-rmdir lib/Test/Builder/IO lib/Test/Builder lib/Test lib/Term

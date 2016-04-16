@@ -88,7 +88,6 @@
 /ExtUtils/Miniperl.pm
 /ExtUtils/Mkbootstrap.pm
 /ExtUtils/Mksymlists.pm
-/ExtUtils/Myconst2perl.pm
 /ExtUtils/Packlist.pm
 /ExtUtils/ParseXS.pm
 /ExtUtils/ParseXS.pod
