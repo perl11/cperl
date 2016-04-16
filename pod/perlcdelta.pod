@@ -210,6 +210,10 @@ Needed for the perl debugger with readline.
 
 =over 4
 
+=item Perl::OSTyp 1.009
+
+Handle $^O sco
+
 =item PathTools 3.62
 
 Added AmigaOS support.
