@@ -2290,6 +2290,13 @@ cpan/Term-ANSIColor/t/module/stringify.t
 cpan/Term-ANSIColor/t/taint/basic.t
 cpan/Term-Cap/Cap.pm			Perl module supporting termcap usage
 cpan/Term-Cap/test.pl			See if Term::Cap works
+cpan/Term-ReadKey/Configure.pm
+cpan/Term-ReadKey/genchars.pl
+cpan/Term-ReadKey/Makefile.PL
+cpan/Term-ReadKey/ReadKey.pm
+cpan/Term-ReadKey/ReadKey.xs
+cpan/Term-ReadKey/t/01_basic.t
+cpan/Term-ReadKey/t/02_terminal_functions.t
 cpan/Test-Harness/bin/prove				The prove harness utility
 cpan/Test-Harness/lib/App/Prove.pm			Gubbins for the prove utility
 cpan/Test-Harness/lib/App/Prove/State.pm		Gubbins for the prove utility

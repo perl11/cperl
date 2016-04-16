@@ -1219,6 +1219,15 @@ use File::Glob qw(:case);
         'EXCLUDED'     => [qr{^t/release-.*\.t}],
     },
 
+    'Term::ReadKey' => {
+        'DISTRIBUTION' => 'JSTOWE/TermReadKey-2.33.tar.gz',
+        'FILES'        => q[cpan/Term-ReadKey],
+        'EXCLUDED'     => [qr{^example}],
+        'CUSTOMIZED'   => [
+           qw( Makefile.PL genchars.pl )
+         ],
+    },
+
     'Test' => {
         'DISTRIBUTION' => 'JESSE/Test-1.26.tar.gz',
         'FILES'        => q[cpan/Test],

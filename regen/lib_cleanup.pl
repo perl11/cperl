@@ -1,7 +1,7 @@
 #!perl -w
 use strict;
-require 'regen/regen_lib.pl';
-require 'Porting/pod_lib.pl';
+require './regen/regen_lib.pl';
+require './Porting/pod_lib.pl';
 use vars qw($TAP $Verbose);
 
 # For processing later
@@ -60,6 +60,7 @@ foreach my $file (@ext) {
         }
     } elsif (
              $extname ne 'Config'               # package fakery
+             && $file ne 'cpan/Term-ReadKey/Configure.pm' # hidden package
              && ($extname eq 'Unicode-Collate'  # Trust the package lines
               || $extname eq 'Encode'           # Trust the package lines
               || $path eq 'win32/Win32.pm'      # Trust the package line

@@ -200,6 +200,10 @@ With most compiler warnings fixed, PERL_CORE specific test changes
 and new options C<IndentlessMap> for C<YAML.pm> compatibility and C<NonStrict>
 mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
+=item Term::ReadKey 2.33
+
+Needed for the perl debugger with readline.
+
 =back
 
 =head2 Updated Modules and Pragmata

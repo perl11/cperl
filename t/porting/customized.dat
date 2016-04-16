@@ -47,6 +47,8 @@ Scalar::Util cpan/Scalar-List-Utils/lib/List/Util/XS.pm cbc38838d32fd213ae7b37ac
 Scalar::Util cpan/Scalar-List-Utils/lib/Scalar/Util.pm 14a20075dfb9a4ef33b99115ed6f43e6d1a15f9b
 Scalar::Util cpan/Scalar-List-Utils/lib/Sub/Util.pm b984c0a2935bd5f5cf1733df846c8a8c0661ef32
 Scalar::Util cpan/Scalar-List-Utils/ListUtil.xs ae9bcae9639efa48dfb1691e8d76c34782c25ea0
+Term::ReadKey cpan/Term-ReadKey/genchars.pl bb25c74979c6139c3413d97df497329e5775cb19
+Term::ReadKey cpan/Term-ReadKey/Makefile.PL 6bf8420432bd6de3395fa818bd860e8665e5db29
 Test::Harness cpan/Test-Harness/t/lib/NoFork.pm e96d39d98c176745a317e2d178713708f03e8cae
 Test::Harness cpan/Test-Harness/t/multiplexer.t 059fbbd8529bf73ba0615272ee85f1706cae734d
 Test::Harness cpan/Test-Harness/t/nofork.t 17a1bde6de588ca647cd89d3786e84a68164a45c
