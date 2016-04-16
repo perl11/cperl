@@ -210,6 +210,11 @@ Needed for the perl debugger with readline.
 
 =over 4
 
+=item podlators 4.0.7
+
+Remove unneeded pod2*.PL customizations
+Fix VERSION_FROM in make_ext.pl
+
 =item perlfaq 5.021011
 
 =item if 0.0604

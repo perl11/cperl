@@ -361,7 +361,7 @@ sub build_extension { #build_extensions is not recursion safe
 		# We need to special case this somewhere, and this is fewer
 		# lines of code than a core-only Makefile.PL, and no more
 		# complex
-		$fromname = 'VERSION';
+		$fromname = 'lib/Pod/Man.pm';
 		$key = 'DISTNAME';
 		$value = 'podlators';
 		$mname = 'Pod';

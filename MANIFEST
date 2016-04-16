@@ -1910,35 +1910,50 @@ cpan/podlators/lib/Pod/Text.pm			Pod-Parser - convert POD data to formatted ASCI
 cpan/podlators/lib/Pod/Text/Termcap.pm		Convert POD data to ASCII text with format escapes
 cpan/podlators/scripts/pod2man.PL	Precursor for translator to turn pod into manpage
 cpan/podlators/scripts/pod2text.PL	Precursor for translator to turn pod into text
-cpan/podlators/t/basic.cap			podlators test
-cpan/podlators/t/basic.clr			podlators test
-cpan/podlators/t/basic.man			podlators test
-cpan/podlators/t/basic.ovr			podlators test
-cpan/podlators/t/basic.pod			podlators test
-cpan/podlators/t/basic.t			podlators test
-cpan/podlators/t/basic.txt			podlators test
-cpan/podlators/t/color.t			podlators test
-cpan/podlators/t/devise-date.t			podlators test
-cpan/podlators/t/filehandle.t			podlators test
-cpan/podlators/t/man-empty.t			podlators test
-cpan/podlators/t/man-heading.t			podlators test
-cpan/podlators/t/man-options.t			podlators test
-cpan/podlators/t/man-perlio.t				podlators test
-cpan/podlators/t/man.t				podlators test
-cpan/podlators/t/man-utf8.t			podlators test
-cpan/podlators/t/overstrike.t			podlators test
-cpan/podlators/t/parselink.t			podlators test
-cpan/podlators/t/pod-parser.t			podlators test
-cpan/podlators/t/pod-spelling.t			podlators test
-cpan/podlators/t/pod.t				podlators test
-cpan/podlators/t/termcap.t			podlators test
-cpan/podlators/t/text-empty.t			podlators test
-cpan/podlators/t/text-encoding.t		podlators test
-cpan/podlators/t/text-options.t			podlators test
-cpan/podlators/t/text-perlio.t			podlators test
-cpan/podlators/t/text.t				podlators test
-cpan/podlators/t/text-utf8.t			podlators test
-cpan/podlators/VERSION				podlators distribution version
+cpan/podlators/t/data/basic.cap
+cpan/podlators/t/data/basic.clr
+cpan/podlators/t/data/basic.man
+cpan/podlators/t/data/basic.ovr
+cpan/podlators/t/data/basic.pod
+cpan/podlators/t/data/basic.txt
+cpan/podlators/t/data/perl.conf
+cpan/podlators/t/data/snippets/man/cpp
+cpan/podlators/t/data/snippets/man/utf8-nonbreaking
+cpan/podlators/t/data/snippets/man/utf8-verbatim
+cpan/podlators/t/data/snippets/README
+cpan/podlators/t/data/snippets/text/cpp
+cpan/podlators/t/data/termcap
+cpan/podlators/t/docs/pod-spelling.t
+cpan/podlators/t/docs/pod.t
+cpan/podlators/t/docs/synopsis.t
+cpan/podlators/t/general/basic.t
+cpan/podlators/t/general/filehandle.t
+cpan/podlators/t/general/pod-parser.t
+cpan/podlators/t/lib/Test/Podlators.pm
+cpan/podlators/t/lib/Test/RRA/Config.pm
+cpan/podlators/t/lib/Test/RRA/ModuleVersion.pm
+cpan/podlators/t/lib/Test/RRA.pm
+cpan/podlators/t/man/basic.t
+cpan/podlators/t/man/devise-date.t
+cpan/podlators/t/man/devise-title.t
+cpan/podlators/t/man/empty.t
+cpan/podlators/t/man/heading.t
+cpan/podlators/t/man/no-encode.t
+cpan/podlators/t/man/options.t
+cpan/podlators/t/man/utf8-io.t
+cpan/podlators/t/parselink/basic.t
+cpan/podlators/t/style/minimum-version.t
+cpan/podlators/t/style/module-version.t
+cpan/podlators/t/style/strict.t
+cpan/podlators/t/text/basic.t
+cpan/podlators/t/text/color.t
+cpan/podlators/t/text/empty.t
+cpan/podlators/t/text/encoding.t
+cpan/podlators/t/text/options.t
+cpan/podlators/t/text/overstrike.t
+cpan/podlators/t/text/perlio.t
+cpan/podlators/t/text/termcap.t
+cpan/podlators/t/text/utf8.t
 cpan/Pod-Parser/lib/Pod/Find.pm			find POD documents in directory trees
 cpan/Pod-Parser/lib/Pod/InputObjects.pm		Pod-Parser - define objects for input streams
 cpan/Pod-Parser/lib/Pod/Parser.pm		Pod-Parser - define base class for parsing POD

@@ -1113,24 +1113,18 @@ use File::Glob qw(:case);
         'CUSTOMIZED'   => [ qw( scripts/pod2usage.PL )],
     },
 
-    'podlators' => {
-        'DISTRIBUTION' => 'RRA/podlators-2.5.3.tar.gz',
+    'Pod::Man' => {
+        'DISTRIBUTION' => 'RRA/podlators-4.0.7.tar.gz',
         'FILES'        => q[cpan/podlators pod/perlpodstyle.pod],
 
-        # The perl distribution has pod2man.PL and pod2text.PL,  which are
-        # run to create pod2man and pod2text, while the CPAN distribution
-        # just has the post-generated pod2man and pod2text files.
-        # Also: cperl fix to support make -s
-        'CUSTOMIZED' => [
-            qw( scripts/pod2man.PL
-                scripts/pod2text.PL
-                ),
-        ],
+        # cperl fix to support make -s
+        #'CUSTOMIZED' => [
+        #    qw( scripts/pod2man.PL
+        #        scripts/pod2text.PL
+        #        ),
+        #],
         'MAP' => {
-            ''                 => 'cpan/podlators/',
-            'scripts/pod2man'  => 'cpan/podlators/scripts/pod2man.PL',
-            'scripts/pod2text' => 'cpan/podlators/scripts/pod2text.PL',
-
+            #''                 => 'cpan/podlators/',
             # this file lives outside the cpan/ directory
             'pod/perlpodstyle.pod' => 'pod/perlpodstyle.pod',
         },
