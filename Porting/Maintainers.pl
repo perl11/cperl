@@ -837,7 +837,7 @@ use File::Glob qw(:case);
         'CUSTOMIZED'   => [ qw( lib_pm.PL )],
     },
 
-    'libnet' => {
+    'Net::Domain' => {
         'DISTRIBUTION' => 'SHAY/libnet-3.06.tar.gz',
         'FILES'        => q[cpan/libnet],
         'EXCLUDED'     => [
@@ -1028,9 +1028,11 @@ use File::Glob qw(:case);
 
     # PathTools cannot be cpan'd by sync-with-cpan
     'File::Spec' => {
-        'DISTRIBUTION' => 'SMUELLER/PathTools-3.47.tar.gz',
+        'DISTRIBUTION' => 'SMUELLER/PathTools-3.62.tar.gz',
         'FILES'        => q[dist/PathTools],
         'EXCLUDED'     => [qr{^t/lib/Test/}],
+        # core needs to update @INC in a chdir
+        'CUSTOMIZED'   => [ qw( t/rel2abs_vs_symlink.t ) ],
     },
 
     'Perl::OSType' => {
@@ -1307,7 +1309,7 @@ use File::Glob qw(:case);
         ],
     },
 
-    'Text-Tabs+Wrap' => {
+    'Text::Tabs' => {
         'DISTRIBUTION' => 'MUIR/modules/Text-Tabs+Wrap-2013.0523.tar.gz',
         'FILES'        => q[cpan/Text-Tabs],
         'EXCLUDED'   => [

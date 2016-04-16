@@ -3552,6 +3552,7 @@ dist/Net-Ping/t/520_icmp_ttl.t		Ping Net::Ping
 dist/Net-Ping/t/600_pod.t		Ping Net::Ping
 dist/PathTools/Cwd.pm				Various cwd routines (getcwd, fastcwd, chdir)
 dist/PathTools/Cwd.xs				Cwd extension external subroutines
+dist/PathTools/lib/File/Spec/AmigaOS.pm
 dist/PathTools/lib/File/Spec/Cygwin.pm	portable operations on Cygwin file names
 dist/PathTools/lib/File/Spec/Epoc.pm		portable operations on EPOC file names
 dist/PathTools/lib/File/Spec/Functions.pm	Function interface to File::Spec object methods
@@ -3567,6 +3568,7 @@ dist/PathTools/t/crossplatform.t		See if File::Spec works crossplatform
 dist/PathTools/t/cwd.t			See if Cwd works
 dist/PathTools/t/Functions.t			See if File::Spec::Functions works
 dist/PathTools/t/rel2abs2rel.t		See if File::Spec->rel2abs/abs2rel works
+dist/PathTools/t/rel2abs_vs_symlink.t
 dist/PathTools/t/Spec.t			See if File::Spec works
 dist/PathTools/t/Spec-taint.t			See if File::Spec works with taint
 dist/PathTools/t/taint.t			See if Cwd works with taint

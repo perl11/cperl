@@ -210,6 +210,10 @@ Needed for the perl debugger with readline.
 
 =over 4
 
+=item PathTools 3.62
+
+Added AmigaOS support.
+
 =item Socket 2.020 (private)
 
 Added the IPV6_UNICAST_HOPS constant.

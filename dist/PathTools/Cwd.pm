@@ -3,9 +3,9 @@ use strict;
 use Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
 
-$VERSION = '3.56_01';
+$VERSION = '3.62';
 my $xs_version = $VERSION;
-$VERSION =~ tr/_//;
+$VERSION =~ tr/_//d;
 
 @ISA = qw/ Exporter /;
 @EXPORT = qw(cwd getcwd fastcwd fastgetcwd);
@@ -158,6 +158,14 @@ my %METHOD_MAP =
     fastcwd		=> 'cwd',
     abs_path		=> 'fast_abs_path',
    },
+
+   amigaos =>
+   {
+    getcwd              => '_backtick_pwd',
+    fastgetcwd          => '_backtick_pwd',
+    fastcwd             => '_backtick_pwd',
+    abs_path            => 'fast_abs_path',
+   }
   );
 
 $METHOD_MAP{NT} = $METHOD_MAP{MSWin32};
@@ -210,9 +218,12 @@ sub _croak { require Carp; Carp::croak(@_) }
 
 # The 'natural and safe form' for UNIX (pwd may be setuid root)
 sub _backtick_pwd {
-    # Localize %ENV entries in a way that won't create new hash keys
-    my @localize = grep exists $ENV{$_}, qw(PATH IFS CDPATH ENV BASH_ENV);
-    local @ENV{@localize};
+
+    # Localize %ENV entries in a way that won't create new hash keys.
+    # Under AmigaOS we don't want to localize as it stops perl from
+    # finding 'sh' in the PATH.
+    my @localize = grep exists $ENV{$_}, qw(PATH IFS CDPATH ENV BASH_ENV) if $^O ne "amigaos";
+    local @ENV{@localize} if @localize;
     
     my $cwd = `$pwd_cmd`;
     # Belt-and-suspenders in case someone said "undef $/".
@@ -600,57 +611,51 @@ sub _vms_abs_path {
 }
 
 sub _os2_cwd {
-    $ENV{'PWD'} = `cmd /c cd`;
-    chomp $ENV{'PWD'};
-    $ENV{'PWD'} =~ s:\\:/:g ;
-    return $ENV{'PWD'};
+    my $pwd = `cmd /c cd`;
+    chomp $pwd;
+    $pwd =~ s:\\:/:g ;
+    $ENV{'PWD'} = $pwd;
+    return $pwd;
 }
 
 sub _win32_cwd_simple {
-    $ENV{'PWD'} = `cd`;
-    chomp $ENV{'PWD'};
-    $ENV{'PWD'} =~ s:\\:/:g ;
-    return $ENV{'PWD'};
+    my $pwd = `cd`;
+    chomp $pwd;
+    $pwd =~ s:\\:/:g ;
+    $ENV{'PWD'} = $pwd;
+    return $pwd;
 }
 
 sub _win32_cwd {
-    # Need to avoid taking any sort of reference to the typeglob or the code in
-    # the optree, so that this tests the runtime state of things, as the
-    # ExtUtils::MakeMaker tests for "miniperl" need to be able to fake things at
-    # runtime by deleting the subroutine. *foo{THING} syntax on a symbol table
-    # lookup avoids needing a string eval, which has been reported to cause
-    # problems (for reasons that we haven't been able to get to the bottom of -
-    # rt.cpan.org #56225)
-    if (*{$DynaLoader::{boot_DynaLoader}}{CODE}) {
-	$ENV{'PWD'} = Win32::GetCwd();
-    }
-    else { # miniperl
-	chomp($ENV{'PWD'} = `cd`);
-    }
-    $ENV{'PWD'} =~ s:\\:/:g ;
-    return $ENV{'PWD'};
+    my $pwd;
+    $pwd = Win32::GetCwd();
+    $pwd =~ s:\\:/:g ;
+    $ENV{'PWD'} = $pwd;
+    return $pwd;
 }
 
 *_NT_cwd = defined &Win32::GetCwd ? \&_win32_cwd : \&_win32_cwd_simple;
 
 sub _dos_cwd {
+    my $pwd;
     if (!defined &Dos::GetCwd) {
-        $ENV{'PWD'} = `command /c cd`;
-        chomp $ENV{'PWD'};
-        $ENV{'PWD'} =~ s:\\:/:g ;
+        chomp($pwd = `command /c cd`);
+        $pwd =~ s:\\:/:g ;
     } else {
-        $ENV{'PWD'} = Dos::GetCwd();
+        $pwd = Dos::GetCwd();
     }
-    return $ENV{'PWD'};
+    $ENV{'PWD'} = $pwd;
+    return $pwd;
 }
 
 sub _qnx_cwd {
 	local $ENV{PATH} = '';
 	local $ENV{CDPATH} = '';
 	local $ENV{ENV} = '';
-    $ENV{'PWD'} = `/usr/bin/fullpath -t`;
-    chomp $ENV{'PWD'};
-    return $ENV{'PWD'};
+    my $pwd = `/usr/bin/fullpath -t`;
+    chomp $pwd;
+    $ENV{'PWD'} = $pwd;
+    return $pwd;
 }
 
 sub _qnx_abs_path {
@@ -669,8 +674,7 @@ sub _qnx_abs_path {
 }
 
 sub _epoc_cwd {
-    $ENV{'PWD'} = EPOC::getcwd();
-    return $ENV{'PWD'};
+    return $ENV{'PWD'} = EPOC::getcwd();
 }
 
 
