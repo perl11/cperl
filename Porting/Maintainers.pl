@@ -168,9 +168,12 @@ use File::Glob qw(:case);
     },
 
     'autouse' => {
-        'DISTRIBUTION' => 'WOLFSAGE/autouse-1.08.tar.gz',
+        'DISTRIBUTION' => 'RJBS/autouse-1.11.tar.gz',
         'FILES'        => q[dist/autouse],
-        'EXCLUDED'     => [qr{^t/release-.*\.t}],
+        'EXCLUDED'     => [
+            qr{^t/release-.*\.t},
+            qr{^t/author-.*\.t}
+          ],
     },
 
     'B::C' => {
