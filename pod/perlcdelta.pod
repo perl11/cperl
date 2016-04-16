@@ -210,6 +210,8 @@ Needed for the perl debugger with readline.
 
 =over 4
 
+=item base 2.23
+
 =item autouse 1.11
 
 =item autodie 2.29
