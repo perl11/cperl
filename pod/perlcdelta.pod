@@ -220,9 +220,9 @@ Handle $^O sco
 
 Added AmigaOS support.
 
-=item Socket 2.020 (private)
+=item Socket 2.021_01 (private)
 
-Added the IPV6_UNICAST_HOPS constant.
+Added the IPV6_* constants needed for Net::Ping.
 Include netinet/ip.h, netinet/ip6.h, netinet6/in6.h if valid.
 
 =item Net-Ping 2.50 (private)

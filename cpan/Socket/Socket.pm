@@ -3,7 +3,9 @@ package Socket;
 use strict;
 { use 5.006001; }
 
-our $VERSION = '2.020';
+our $VERSION = '2.021_01';
+my $XS_VERSION = $VERSION;
+$VERSION = eval $VERSION;
 
 =head1 NAME
 
@@ -384,7 +386,7 @@ Restrict to only generating addresses for this protocol
 The return value will be a list; the first value being an error indication,
 followed by a list of address structures (if no error occurred).
 
-The error value will be a dualvar; comparable to the C<EI_*> error constants,
+The error value will be a dualvar; comparable to the C<EAI_*> error constants,
 or printable as a human-readable error message string. If no error occurred it
 will be zero numerically and an empty string.
 
@@ -452,7 +454,7 @@ constants, or defaults to 0 if unspecified.
 The return value will be a list; the first value being an error condition,
 followed by the hostname and service name.
 
-The error value will be a dualvar; comparable to the C<EI_*> error constants,
+The error value will be a dualvar; comparable to the C<EAI_*> error constants,
 or printable as a human-readable error message string. The host and service
 names will be plain strings.
 
@@ -684,6 +686,7 @@ Paul Evans <leonerd@leonerd.org.uk>
 
 =cut
 
+use Carp;
 use warnings::register;
 
 require Exporter;
@@ -725,7 +728,7 @@ our @EXPORT = qw(
 	IP_RETOPTS
 
 	MSG_BCAST MSG_BTAG MSG_CTLFLAGS MSG_CTLIGNORE MSG_CTRUNC MSG_DONTROUTE
-	MSG_DONTWAIT MSG_EOF MSG_EOR MSG_ERRQUEUE MSG_ETAG MSG_FIN
+	MSG_DONTWAIT MSG_EOF MSG_EOR MSG_ERRQUEUE MSG_ETAG MSG_FASTOPEN MSG_FIN
 	MSG_MAXIOVLEN MSG_MCAST MSG_NOSIGNAL MSG_OOB MSG_PEEK MSG_PROXY MSG_RST
 	MSG_SYN MSG_TRUNC MSG_URG MSG_WAITALL MSG_WIRE
 
@@ -759,16 +762,17 @@ our @EXPORT_OK = qw(
 	IP_DROP_SOURCE_MEMBERSHIP IP_MULTICAST_IF IP_MULTICAST_LOOP
 	IP_MULTICAST_TTL
 
-	IPPROTO_IP IPPROTO_IPV6 IPPROTO_RAW IPPROTO_ICMP IPPROTO_TCP
-	IPPROTO_UDP
+	IPPROTO_IP IPPROTO_IPV6 IPPROTO_RAW IPPROTO_ICMP IPPROTO_IGMP
+	IPPROTO_TCP IPPROTO_UDP IPPROTO_GRE IPPROTO_ESP IPPROTO_AH
+	IPPROTO_SCTP
 
 	IPTOS_LOWDELAY IPTOS_THROUGHPUT IPTOS_RELIABILITY IPTOS_MINCOST
 
-	TCP_CONGESTION TCP_CONNECTIONTIMEOUT TCP_CORK TCP_DEFER_ACCEPT TCP_INFO
-	TCP_INIT_CWND TCP_KEEPALIVE TCP_KEEPCNT TCP_KEEPIDLE TCP_KEEPINTVL
-	TCP_LINGER2 TCP_MAXRT TCP_MAXSEG TCP_MD5SIG TCP_NODELAY TCP_NOOPT
-	TCP_NOPUSH TCP_QUICKACK TCP_SACK_ENABLE TCP_STDURG TCP_SYNCNT
-	TCP_WINDOW_CLAMP
+	TCP_CONGESTION TCP_CONNECTIONTIMEOUT TCP_CORK TCP_DEFER_ACCEPT
+	TCP_FASTOPEN TCP_INFO TCP_INIT_CWND TCP_KEEPALIVE TCP_KEEPCNT
+	TCP_KEEPIDLE TCP_KEEPINTVL TCP_LINGER2 TCP_MAXRT TCP_MAXSEG
+	TCP_MD5SIG TCP_NODELAY TCP_NOOPT TCP_NOPUSH TCP_QUICKACK
+	TCP_SACK_ENABLE TCP_STDURG TCP_SYNCNT TCP_WINDOW_CLAMP
 
 	IN6ADDR_ANY IN6ADDR_LOOPBACK
 
@@ -812,8 +816,6 @@ BEGIN {
     # The definitions in Socket.pm and Socket.xs must match
     sub NIx_NOHOST() {1 << 0}
     sub NIx_NOSERV() {1 << 1}
-
-    sub croak($) { require Carp; Carp::croak(@_) }
 }
 
 *CR   = \CR();
@@ -856,7 +858,7 @@ sub sockaddr_un {
     }
 }
 
-XSLoader::load(__PACKAGE__, $VERSION);
+XSLoader::load(__PACKAGE__, $XS_VERSION);
 
 my %errstr;
 

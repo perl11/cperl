@@ -58,18 +58,40 @@
 #endif
 
 #ifdef WIN32
-int inet_pton(int af, const char *src, void *dst)
+
+/* VC 6 with its original headers doesn't know about sockaddr_storage, VC 2003 does*/
+#ifndef _SS_MAXSIZE
+
+#  define _SS_MAXSIZE 128
+#  define _SS_ALIGNSIZE (sizeof(__int64))
+
+#  define _SS_PAD1SIZE (_SS_ALIGNSIZE - sizeof (short))
+#  define _SS_PAD2SIZE (_SS_MAXSIZE - (sizeof (short) + _SS_PAD1SIZE \
+                                                    + _SS_ALIGNSIZE))
+
+struct sockaddr_storage {
+    short ss_family;
+    char __ss_pad1[_SS_PAD1SIZE];
+    __int64 __ss_align;
+    char __ss_pad2[_SS_PAD2SIZE];
+};
+
+typedef int socklen_t;
+
+#define in6_addr in_addr6
+
+#define INET_ADDRSTRLEN  22
+#define INET6_ADDRSTRLEN 65
+
+#endif
+
+static int inet_pton(int af, const char *src, void *dst)
 {
   struct sockaddr_storage ss;
   int size = sizeof(ss);
-  char src_copy[INET6_ADDRSTRLEN+1];
+  ss.ss_family = af; /* per MSDN */
 
-  ZeroMemory(&ss, sizeof(ss));
-  /* stupid non-const API */
-  strncpy(src_copy, src, INET6_ADDRSTRLEN+1);
-  src_copy[INET6_ADDRSTRLEN] = 0;
-
-  if (WSAStringToAddress(src_copy, af, NULL, (struct sockaddr *)&ss, &size) != 0)
+  if (WSAStringToAddress((char*)src, af, NULL, (struct sockaddr *)&ss, &size) != 0)
     return 0;
 
   switch(af) {
@@ -79,10 +101,13 @@ int inet_pton(int af, const char *src, void *dst)
     case AF_INET6:
       *(struct in6_addr *)dst = ((struct sockaddr_in6 *)&ss)->sin6_addr;
       return 1;
+    default:
+      WSASetLastError(WSAEAFNOSUPPORT);
+      return -1;
   }
 }
 
-const char *inet_ntop(int af, const void *src, char *dst, socklen_t size)
+static const char *inet_ntop(int af, const void *src, char *dst, socklen_t size)
 {
   struct sockaddr_storage ss;
   unsigned long s = size;
@@ -139,6 +164,10 @@ NETINET_DEFINE_CONTEXT
 # define INADDR_LOOPBACK	 0x7F000001
 #endif /* INADDR_LOOPBACK */
 
+#ifndef INET_ADDRSTRLEN
+#define INET_ADDRSTRLEN 16
+#endif
+
 #ifndef C_ARRAY_LENGTH
 #define C_ARRAY_LENGTH(arr) (sizeof(arr) / sizeof(*(arr)))
 #endif /* !C_ARRAY_LENGTH */
@@ -154,6 +183,14 @@ NETINET_DEFINE_CONTEXT
 #ifndef Newx
 # define Newx(v,n,t) New(0,v,n,t)
 #endif /* !Newx */
+
+#ifndef SvPVx_nolen
+#if defined(__GNUC__) && !defined(PERL_GCC_BRACE_GROUPS_FORBIDDEN)
+#  define SvPVx_nolen(sv) ({SV *_sv = (sv); SvPV_nolen(_sv); })
+#else /* __GNUC__ */
+#  define SvPVx_nolen(sv) ((PL_Sv = (sv)), SvPV_nolen(PL_Sv))
+#endif /* __GNU__ */
+#endif /* !SvPVx_nolen */
 
 #ifndef croak_sv
 # define croak_sv(sv)	croak(SvPVx_nolen(sv))
@@ -442,6 +479,65 @@ not_here(const char *s)
 
 #include "const-c.inc"
 
+#if defined(HAS_GETADDRINFO) && !defined(I_NETDB)
+static const char *gai_strerror(int err)
+{
+  switch (err)
+  {
+#ifdef EAI_ADDRFAMILY
+  case EAI_ADDRFAMILY:
+    return "Address family for hostname is not supported.";
+#endif
+#ifdef EAI_AGAIN
+  case EAI_AGAIN:
+    return "The name could not be resolved at this time.";
+#endif
+#ifdef EAI_BADFLAGS
+  case EAI_BADFLAGS:
+    return "The flags parameter has an invalid value.";
+#endif
+#ifdef EAI_FAIL
+  case EAI_FAIL:
+    return "A non-recoverable error occurred while resolving the name.";
+#endif
+#ifdef EAI_FAMILY
+  case EAI_FAMILY:
+    return "The address family was not recognized or length is invalid.";
+#endif
+#ifdef EAI_MEMORY
+  case EAI_MEMORY:
+    return "A memory allocation failure occurred.";
+#endif
+#ifdef EAI_NODATA
+  case EAI_NODATA:
+    return "No address is associated with the hostname.";
+#endif
+#ifdef EAI_NONAME
+  case EAI_NONAME:
+    return "The name does not resolve for the supplied parameters.";
+#endif
+#ifdef EAI_OVERFLOW
+  case EAI_OVERFLOW:
+    return "An argument buffer overflowed.";
+#endif
+#ifdef EAI_SERVICE
+  case EAI_SERVICE:
+    return "The service parameter was not recognized for the specified socket type.";
+#endif
+#ifdef EAI_SOCKTYPE
+  case EAI_SOCKTYPE:
+    return "The specified socket type was not recognized.";
+#endif
+#ifdef EAI_SYSTEM
+  case EAI_SYSTEM:
+    return "A system error occurred - see errno.";
+#endif
+  default:
+    return "Unknown error in getaddrinfo().";
+  }
+}
+#endif
+
 #ifdef HAS_GETADDRINFO
 static SV *err_to_SV(pTHX_ int err)
 {
@@ -662,13 +758,13 @@ inet_aton(host)
 		ST(0) = sv_2mortal(newSVpvn((char *)&ip_address, sizeof(ip_address)));
 		XSRETURN(1);
 	}
-
+#ifdef HAS_GETHOSTBYNAME
 	phe = gethostbyname(host);
 	if (phe && phe->h_addrtype == AF_INET && phe->h_length == 4) {
 		ST(0) = sv_2mortal(newSVpvn((char *)phe->h_addr, phe->h_length));
 		XSRETURN(1);
 	}
-
+#endif
 	XSRETURN_UNDEF;
 	}
 

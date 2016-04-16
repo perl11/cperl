@@ -1166,8 +1166,11 @@ use File::Glob qw(:case);
     },
 
     'Socket' => {
-        'DISTRIBUTION' => 'PEVANS/Socket-2.019.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Socket-2.021_01.tar.gz',
         'FILES'        => q[cpan/Socket],
+        'CUSTOMIZED'   => [
+            qw( Makefile.PL Socket.xs )
+        ]
     },
 
     'Storable' => {
