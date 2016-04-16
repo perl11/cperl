@@ -210,6 +210,10 @@ Needed for the perl debugger with readline.
 
 =over 4
 
+=item if 0.0604
+
+Improved error message for no if.
+
 =item experimental 0.016
 
 Added bitwise

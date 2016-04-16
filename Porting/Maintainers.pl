@@ -774,7 +774,7 @@ use File::Glob qw(:case);
     },
 
     'if' => {
-        'DISTRIBUTION' => 'ILYAZ/if-0.0604.tar.gz',
+        'DISTRIBUTION' => 'RJBS/if-0.0606.tar.gz',
         'FILES'        => q[dist/if],
     },
 
