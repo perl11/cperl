@@ -210,6 +210,8 @@ Needed for the perl debugger with readline.
 
 =over 4
 
+=item Term::Cap 1.17
+
 =item Term::ANSIColor 4.05
 
 =item Pod::Simple 3.32
