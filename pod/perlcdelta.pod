@@ -198,6 +198,30 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 
 =over 4
 
+=item Net-Ping 2.50 (private)
+
+Upstream development stalled at both cpan and p5p.
+Now also at https://github.com/rurban/net-ping
+
+New Features:
+
+- Handle IPv6 addresses and the AF_INET6 family.
+
+- Added the optional family argument to most methods.
+  valid values: 6, "v6", "ip6", "ipv6", AF_INET6
+
+- new can take now named arguments, a hashref.
+
+- Added the following named arguments to new:
+  gateway host bind retrans pingstring source_verify econnrefused
+  IPV6_USE_MIN_MTU IPV6_RECVPATHMTU IPV6_HOPLIMIT
+
+- Added the wakeonlan method
+
+- Improve argument default handling
+
+- Added missing documentation
+
 =item bignum 0.42
 
 uses new Math::Big*, fixing inf/nan.

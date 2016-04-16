@@ -994,10 +994,10 @@ use File::Glob qw(:case);
     },
 
     'Net::Ping' => {
-        'DISTRIBUTION' => 'SMPETERS/Net-Ping-2.41.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Net-Ping-2.50.tar.gz',
         'FILES'        => q[dist/Net-Ping],
         'EXCLUDED'     => [
-            qr{^README.md},
+            qw{README.md t/600_pod.t t/601_pod-coverage.t},
         ],
     },
 
