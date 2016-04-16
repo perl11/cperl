@@ -35,6 +35,12 @@
 #if defined(I_NETINET_IP)
 #  include <netinet/ip.h>
 #endif
+#if defined(I_NETINET_IP6)
+#  include <netinet/ip6.h>
+#endif
+#if defined(I_NETINET6_IN6)
+#  include <netinet6/in6.h>
+#endif
 #ifdef I_NETDB
 #  if !defined(ultrix)	/* Avoid double definition. */
 #   include <netdb.h>

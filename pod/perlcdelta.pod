@@ -108,6 +108,14 @@ but the tests for Sub::Install and Test::Trap still need to be patched.
 
 Add support for additional F<pod/perlcdelta.pod> in F<Porting/pod_rules.pl>.
 
+=item *
+
+Better IPv6 Support:
+
+Probe for I_NETINET6_IN6, I_NETINET_IP, I_NETINET_IP6 defines.
+Added the i_netinet_ip, i_netinet_ip6, i_netinet6_in6 Config keys.
+Added IPv6 to Net::Ping.
+
 =back
 
 =head1 Core Enhancements from Perl5
@@ -197,6 +205,11 @@ mode to pass the validator tests and make it usable for C<CPAN.pm>.
 =head2 Updated Modules and Pragmata
 
 =over 4
+
+=item Socket 2.020 (private)
+
+Added the IPV6_UNICAST_HOPS constant.
+Include netinet/ip.h, netinet/ip6.h, netinet6/in6.h if valid.
 
 =item Net-Ping 2.50 (private)
 

@@ -764,6 +764,12 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$i_niin I_NETINET_IN	/**/
 
+/* I_NETINET6_IN6:
+ *     This symbol, if defined, indicates to the C program that it can
+ *     include <netinet6/in6.h>.
+ */
+#$i_netinet6_in6   I_NETINET6_I6                /**/
+
 /* I_STDDEF:
  *	This symbol, if defined, indicates that <stddef.h> exists and should
  *	be included.
@@ -4728,6 +4734,18 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *     include <netinet/tcp.h>.
  */
 #$i_netinettcp   I_NETINET_TCP                /**/
+
+/* I_NETINET_IP:
+ *     This symbol, if defined, indicates to the C program that it can
+ *     include <netinet/ip.h>.
+ */
+#$i_netinet_ip   I_NETINET_IP                /**/
+
+/* I_NETINET_IP6:
+ *     This symbol, if defined, indicates to the C program that it can
+ *     include <netinet/ip6.h>.
+ */
+#$i_netinet_ip6   I_NETINET_IP6                /**/
 
 /* I_POLL:
  *	This symbol, if defined, indicates that <poll.h> exists and

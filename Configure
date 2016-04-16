@@ -998,6 +998,9 @@ i_ndbm=''
 i_netdb=''
 i_neterrno=''
 i_netinettcp=''
+i_netinet_ip=''
+i_netinet_ip6=''
+i_netinet6_in6=''
 i_niin=''
 i_sysin=''
 i_poll=''
@@ -23195,6 +23198,18 @@ eval $setvar
 set netinet/tcp.h i_netinettcp
 eval $inhdr
 
+: see if netinet/tcp.h is available
+set netinet/ip.h i_netinet_ip
+eval $inhdr
+
+: see if netinet/ip6.h is available
+set netinet/ip6.h i_netinet_ip6
+eval $inhdr
+
+: see if netinet6/in6.h is available
+set netinet6/in6.h i_netinet6_in6
+eval $inhdr
+
 : see if this is a poll.h system
 set poll.h i_poll
 eval $inhdr
@@ -24945,6 +24960,9 @@ i_ndbm='$i_ndbm'
 i_netdb='$i_netdb'
 i_neterrno='$i_neterrno'
 i_netinettcp='$i_netinettcp'
+i_netinet_ip='$i_netinet_ip'
+i_netinet_ip6='$i_netinet_ip6'
+i_netinet6_in6='$i_netinet6_in6'
 i_niin='$i_niin'
 i_poll='$i_poll'
 i_prot='$i_prot'
