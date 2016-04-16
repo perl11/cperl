@@ -1,7 +1,7 @@
-# Term::ANSIColor -- Color screen output using ANSI escape sequences.
+# Color screen output using ANSI escape sequences.
 #
 # Copyright 1996, 1997, 1998, 2000, 2001, 2002, 2005, 2006, 2008, 2009, 2010,
-#     2011, 2012, 2013, 2014 Russ Allbery <rra@cpan.org>
+#     2011, 2012, 2013, 2014, 2015, 2016 Russ Allbery <rra@cpan.org>
 # Copyright 1996 Zenin
 # Copyright 2012 Kurt Starsinic <kstarsinic@gmail.com>
 #
@@ -23,6 +23,8 @@ use 5.006;
 use strict;
 use warnings;
 
+# Also uses Carp but loads it on demand to reduce memory usage.
+
 use Exporter ();
 
 # use Exporter plus @ISA instead of use base for 5.6 compatibility.
@@ -39,7 +41,7 @@ our $AUTOLOAD;
 # against circular module loading (not that we load any modules, but
 # consistency is good).
 BEGIN {
-    $VERSION = '4.03';
+    $VERSION = '4.05';
 
     # All of the basic supported constants, used in %EXPORT_TAGS.
     my @colorlist = qw(
@@ -201,15 +203,20 @@ if (exists $ENV{ANSI_COLORS_ALIASES}) {
     }
 }
 
-
-sub croak {
-    require Carp;
-    return Carp::croak( @_ );
-}
-
 # Stores the current color stack maintained by PUSHCOLOR and POPCOLOR.  This
 # is global and therefore not threadsafe.
 our @COLORSTACK;
+
+##############################################################################
+# Helper functions
+##############################################################################
+
+# Stub to load the Carp module on demand.
+sub croak {
+    my (@args) = @_;
+    require Carp;
+    Carp::croak(@args);
+}
 
 ##############################################################################
 # Implementation (constant form)
@@ -238,12 +245,17 @@ our @COLORSTACK;
 # make it easier to write scripts that also work on systems without any ANSI
 # support, like Windows consoles.
 #
+# Avoid using character classes like [:upper:] and \w here, since they load
+# Unicode character tables and consume a ton of memory.  All of our constants
+# only use ASCII characters.
+#
 ## no critic (ClassHierarchies::ProhibitAutoloading)
 ## no critic (Subroutines::RequireArgUnpacking)
+## no critic (RegularExpressions::ProhibitEnumeratedClasses)
 sub AUTOLOAD {
-    my ( $sub ) = $AUTOLOAD =~ /^([a-zA-Z0-9:_]+)$/; # untaint
-    my $attr = ( split('::', $sub ) )[-1];
-    undef $attr if ( $attr && $attr !~ qr{^[A-Z0-9_]+$} ) || $sub !~ qr{::};
+    my ($sub, $attr) = $AUTOLOAD =~ m{
+        \A ( [a-zA-Z0-9:]* :: ([A-Z0-9_]+) ) \z
+    }xms;
 
     # Check if we were called with something that doesn't look like an
     # attribute.
@@ -302,7 +314,7 @@ sub AUTOLOAD {
     ## no critic (References::ProhibitDoubleSigils)
     goto &$AUTOLOAD;
 }
-## use critic (Subroutines::RequireArgUnpacking)
+## use critic
 
 # Append a new color to the top of the color stack and return the top of
 # the stack.
@@ -482,7 +494,7 @@ sub colored {
     # empty segments, and then colorize each of the line sections.
     if (defined($EACHLINE)) {
         my @text = map { ($_ ne $EACHLINE) ? $attr . $_ . "\e[0m" : $_ }
-          grep { length($_) > 0 }
+          grep { length > 0 }
           split(m{ (\Q$EACHLINE\E) }xms, $string);
         return join(q{}, @text);
     } else {
@@ -508,13 +520,21 @@ sub coloralias {
             return $ATTRIBUTES_R{ $ALIASES{$alias} };
         }
     }
-    if ( $alias !~ m{ \A [a-zA-Z0-9._-]+ \z }xms ) {
+
+    # Avoid \w here to not load Unicode character tables, which increases the
+    # memory footprint of this module considerably.
+    #
+    ## no critic (RegularExpressions::ProhibitEnumeratedClasses)
+    if ($alias !~ m{ \A [a-zA-Z0-9._-]+ \z }xms) {
         croak(qq{Invalid alias name "$alias"});
     } elsif ($ATTRIBUTES{$alias}) {
         croak(qq{Cannot alias standard color "$alias"});
     } elsif (!exists $ATTRIBUTES{$color}) {
         croak(qq{Invalid attribute name "$color"});
     }
+    ## use critic
+
+    # Set the alias and return.
     $ALIASES{$alias} = $ATTRIBUTES{$color};
     return $color;
 }
@@ -543,9 +563,9 @@ sub colorstrip {
 # Returns: True if all the attributes are valid, false otherwise.
 sub colorvalid {
     my (@codes) = @_;
-    @codes = map { split(q{ }, lc($_)) } @codes;
+    @codes = map { split(q{ }, lc) } @codes;
     for my $code (@codes) {
-        if (!defined($ATTRIBUTES{$code}) && !defined($ALIASES{$code})) {
+        if (!(defined($ATTRIBUTES{$code}) || defined($ALIASES{$code}))) {
             return;
         }
     }
@@ -642,9 +662,9 @@ particular features and the versions of Perl that included them.
 
 =head2 Supported Colors
 
-Terminal emulators that support color divide into two types: ones that
+Terminal emulators that support color divide into three types: ones that
 support only eight colors, ones that support sixteen, and ones that
-support 256.  This module provides the ANSI escape codes all of them.
+support 256.  This module provides the ANSI escape codes for all of them.
 These colors are referred to as ANSI colors 0 through 7 (normal), 8
 through 15 (16-color), and 16 through 255 (256-color).
 
@@ -800,8 +820,8 @@ If ATTR is specified, coloralias() sets up an alias of ALIAS for the
 standard color ATTR.  From that point forward, ALIAS can be passed into
 color(), colored(), and colorvalid() and will have the same meaning as
 ATTR.  One possible use of this facility is to give more meaningful names
-to the 256-color RGB colors.  Only alphanumerics, C<.>, C<_>, and C<-> are
-allowed in alias names.
+to the 256-color RGB colors.  Only ASCII alphanumerics, C<.>, C<_>, and
+C<-> are allowed in alias names.
 
 If ATTR is not specified, coloralias() returns the standard color name to
 which ALIAS is aliased, if any, or undef if ALIAS does not exist.
@@ -1197,9 +1217,13 @@ voice solutions.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 1996 Zenin.  Copyright 1996, 1997, 1998, 2000, 2001, 2002, 2005,
-2006, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Russ Allbery
-<rra@cpan.org>.  Copyright 2012 Kurt Starsinic <kstarsinic@gmail.com>.
+Copyright 1996 Zenin
+
+Copyright 1996, 1997, 1998, 2000, 2001, 2002, 2005, 2006, 2008, 2009, 2010,
+2011, 2012, 2013, 2014, 2015, 2016 Russ Allbery <rra@cpan.org>
+
+Copyright 2012 Kurt Starsinic <kstarsinic@gmail.com>
+
 This program is free software; you may redistribute it and/or modify it
 under the same terms as Perl itself.
 

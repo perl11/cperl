@@ -1196,7 +1196,7 @@ use File::Glob qw(:case);
     },
 
     'Term::ANSIColor' => {
-        'DISTRIBUTION' => 'RRA/Term-ANSIColor-4.03.tar.gz',
+        'DISTRIBUTION' => 'RRA/Term-ANSIColor-4.05.tar.gz',
         'FILES'        => q[cpan/Term-ANSIColor],
         'EXCLUDED'     => [
             qr{^examples/},
