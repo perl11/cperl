@@ -210,6 +210,8 @@ Needed for the perl debugger with readline.
 
 =over 4
 
+=item autodie 2.29
+
 =item Win32API::File 0.1203
 
 Numify $fd in OsFHandleOpen()
