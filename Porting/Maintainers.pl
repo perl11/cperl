@@ -1454,7 +1454,7 @@ use File::Glob qw(:case);
         # to delete an entire block out of lib/version.pm, since that code is
         # only necessary with the CPAN release.
         'CUSTOMIZED'   => [
-            qw( lib/version.pm
+            qw( lib/version.pm t/10cperl.t
                 ),
 
             # Merged upstream, waiting for new CPAN release: see CPAN RT#92721

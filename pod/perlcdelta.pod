@@ -605,13 +605,13 @@ Fixed Safe version 'c' problem. Do not check the XS_VERSION of
 Opcode, because it has a cperl 'c' suffix, which is not yet fully
 supported in the version check code.
 
-=item version
+=item version 0.9916
 
 Add a scmp method for string comparison, needed to destinguish between
 0.2 and 0.2c but only enforced if the version object is stringified.
 Using eq is not enough.
 
-fix c suffix comparisons: stringify v0.2c to v0.2c, 0.2c to 0.2c
+Fix c suffix comparisons: stringify v0.2c to v0.2c, 0.2c to 0.2c
 numify 0.2c to 0.002 [0 200], same as 0.2
 
 =item constant 1.34
