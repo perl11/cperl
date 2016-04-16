@@ -1091,15 +1091,15 @@ use File::Glob qw(:case);
     },
 
     'Pod::Simple' => {
-        'DISTRIBUTION' => 'DWHEELER/Pod-Simple-3.30.tar.gz',
+        'DISTRIBUTION' => 'DWHEELER/Pod-Simple-3.32.tar.gz',
         'FILES'        => q[cpan/Pod-Simple],
         # https://rt.cpan.org/Public/Bug/Display.html?id=103439
         # https://rt.cpan.org/Public/Bug/Display.html?id=105192
-        'CUSTOMIZED'   => [
-            qw( cpan/Pod-Simple/lib/Pod/Simple/Search.pm
-                cpan/Pod-Simple/lib/Pod/Simple/BlackBox.pm
-            ),
-        ],
+        #'CUSTOMIZED'   => [
+        #    qw( cpan/Pod-Simple/lib/Pod/Simple/Search.pm
+        #        cpan/Pod-Simple/lib/Pod/Simple/BlackBox.pm
+        #    ),
+        #],
     },
 
     'Pod::Usage' => {

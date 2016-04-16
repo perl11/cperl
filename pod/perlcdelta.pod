@@ -210,6 +210,8 @@ Needed for the perl debugger with readline.
 
 =over 4
 
+=item Pod::Simple 3.32
+
 =item Perl::OSTyp 1.009
 
 Handle $^O sco
