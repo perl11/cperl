@@ -37,6 +37,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee806
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm c99ef9e936a476a02a62191a3b0b6e20ed12c5ae
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm d965ac6c3091bde55450683b959771dbd100583a
+Net::Domain cpan/libnet/lib/Net/Domain.pm 1c8c8a02490c8209ce23a193dcd2c8e6d936dd92
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 99fe178fa11ef47b51df3795073318cd8f2faf5b
 Pod::Simple cpan/Pod-Simple/lib/Pod/Simple/BlackBox.pm 4108633c4f40f7f63c5a0245df2b07a4a2f22fec
 Pod::Simple cpan/Pod-Simple/lib/Pod/Simple/Search.pm 7a48823f9faec6d6bbef08060e679e46ccf60bc8
@@ -71,7 +72,6 @@ YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 37441ba0eff59df1e75d7c2db64d9b478a
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm b9846cabfa2ede801c6df9357a97f8ccdc207119
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
-libnet cpan/libnet/lib/Net/Domain.pm 1c8c8a02490c8209ce23a193dcd2c8e6d936dd92
 podlators cpan/podlators/scripts/pod2man.PL 8483f756edeb6b5f7bf74a8a436c4b4d6387adf0
 podlators cpan/podlators/scripts/pod2text.PL 19d478eb7cd00141a8dc4f738725e3baf1cf0f6c
 threads dist/threads/lib/threads.pm f8f5f2c4527aba54ef53a5846e3fad728b24eeea
