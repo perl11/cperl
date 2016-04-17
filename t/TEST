@@ -160,7 +160,7 @@ if (-f 'TEST' && -f 'harness' && -d '../lib') {
     @INC = '../lib';
 }
 
-die "You need to run \"make test\" first to set things up.\n"
+die "You need to run \"make test-prep\" first to set things up.\n"
   unless -e 'perl' or -e 'perl.exe' or -e 'perl.pm';
 
 # check leakage for embedders
@@ -367,7 +367,9 @@ sub _run_test {
     _before_fork($options);
 
     my $cmd = _cmd($options, $type);
-    local $ENV{PERL_DESTRUCT_LEVEL} if $options->{run_dir} eq 'cpan/B-C';
+    # B-C omits most of global destruction, signatures SEGV is a TODO [cperl #134]
+    local $ENV{PERL_DESTRUCT_LEVEL} if $options->{run_dir} eq 'cpan/B-C'
+                                    or $options->{test} eq 'op/signatures.t';
 
     open(my $results, "$cmd |") or print "can't run '$cmd': $!.\n";
 
