@@ -164,7 +164,7 @@ column I<perl>. The I<perl> value is as per C<--norm>. For example
 
 Read in saved data from a previous C<--write> run from the specified file.
 
-Requires C<JSON::PP> to be available.
+Requires C<Cpanel::JSON::XS> to be available.
 
 =item *
 
@@ -191,7 +191,7 @@ Display progress information.
 Save the raw data to the specified file. It can be read back later with
 C<--read>.
 
-Requires C<JSON::PP> to be available.
+Requires C<Cpanel::JSON::XS> to be available.
 
 =back
 
@@ -312,7 +312,8 @@ my %OPTS = (
 
     if (defined $OPTS{read} or defined $OPTS{write}) {
         # fail early if it's not present
-        require JSON::PP;
+        require Cpanel::JSON::XS;
+        Cpanel::JSON::XS->import;
     }
 
     if (defined $OPTS{fields}) {
@@ -571,7 +572,7 @@ sub do_grind {
         my $data = do { local $/; <$in> };
         close $in;
 
-        my $hash = JSON::PP::decode_json($data);
+        my $hash = decode_json($data);
         if (int($FORMAT_VERSION) < int($hash->{version})) {
             die "Error: unsupported version $hash->{version} in file"
               . "'$OPTS{read}' (too new)\n";
@@ -609,7 +610,7 @@ sub do_grind {
     }
 
     if (defined $OPTS{write}) {
-        my $json = JSON::PP::encode_json({
+        my $json = encode_json({
                     version      => $FORMAT_VERSION,
                     loop_counts  => $loop_counts,
                     perls        => $perls,
