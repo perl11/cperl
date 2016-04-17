@@ -403,7 +403,9 @@ int setnodelay _((PerlIO * file, int mode));
 
 int selectfile _((PerlIO * file, double delay));
 
+#ifdef WIN32
 int Win32PeekChar _((PerlIO * file, double delay, char * key));
+#endif
 
 int getspeed _((PerlIO * file, I32 *in, I32 * out ));
 
@@ -422,6 +424,7 @@ int GetTermSizeVIO(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix
         *retheight = modeinfo->row ?: 25;
         *retwidth = modeinfo->col ?: 80;*/
 	int buf[2];
+	PERL_UNUSED_ARG(file);
 
 	_scrsize(&buf[0]);
 
@@ -433,6 +436,11 @@ int GetTermSizeVIO(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix
 #else
 int GetTermSizeVIO(PerlIO *file,int * retwidth,int *retheight, int *xpix,int *ypix)
 {
+	PERL_UNUSED_ARG(file);
+	PERL_UNUSED_ARG(retwidth);
+	PERL_UNUSED_ARG(retheight);
+	PERL_UNUSED_ARG(xpix);
+	PERL_UNUSED_ARG(ypix);
 	croak("TermSizeVIO is not implemented on this architecture");
         return 0;
 }
@@ -457,6 +465,11 @@ int GetTermSizeGWINSZ(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *y
 #else
 int GetTermSizeGWINSZ(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
+	PERL_UNUSED_ARG(file);
+	PERL_UNUSED_ARG(retwidth);
+	PERL_UNUSED_ARG(retheight);
+	PERL_UNUSED_ARG(xpix);
+	PERL_UNUSED_ARG(ypix);
 	croak("TermSizeGWINSZ is not implemented on this architecture");
         return 0;
 }
@@ -480,6 +493,11 @@ int GetTermSizeGSIZE(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *yp
 #else
 int GetTermSizeGSIZE(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
+	PERL_UNUSED_ARG(file);
+	PERL_UNUSED_ARG(retwidth);
+	PERL_UNUSED_ARG(retheight);
+	PERL_UNUSED_ARG(xpix);
+	PERL_UNUSED_ARG(ypix);
 	croak("TermSizeGSIZE is not implemented on this architecture");
         return 0;
 }
@@ -511,6 +529,11 @@ int GetTermSizeWin32(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *yp
 #else
 int GetTermSizeWin32(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
+	PERL_UNUSED_ARG(file);
+	PERL_UNUSED_ARG(retwidth);
+	PERL_UNUSED_ARG(retheight);
+	PERL_UNUSED_ARG(xpix);
+	PERL_UNUSED_ARG(ypix);
 	croak("TermSizeWin32 is not implemented on this architecture");
         return 0;
 }
@@ -1524,6 +1547,8 @@ int pollfile(PerlIO *file,double delay)
 #else
 int pollfile(PerlIO *file,double delay) 
 {
+	PERL_UNUSED_ARG(file);
+	PERL_UNUSED_ARG(delay);
 	croak("pollfile is not supported on this architecture");
 	return 0;
 }
@@ -1703,11 +1728,16 @@ again:
 
 } 
 #else
+/*
 int Win32PeekChar(PerlIO *file, double delay,char *key) 
 {
+	PERL_UNUSED_ARG(file);
+	PERL_UNUSED_ARG(delay);
+	PERL_UNUSED_ARG(key);
 	croak("Win32PeekChar is not supported on this architecture");
 	return 0;
 }
+*/
 #endif
 
 
@@ -1777,6 +1807,8 @@ pollfile(file,delay)
 	InputStream	file
 	double	delay
 
+#ifdef WIN32
+
 SV *
 Win32PeekChar(file, delay)
 	InputStream	file
@@ -1791,6 +1823,8 @@ Win32PeekChar(file, delay)
 	}
 	OUTPUT:
 	RETVAL
+
+#endif
 
 int
 blockoptions()
