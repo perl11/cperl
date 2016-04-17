@@ -17,7 +17,7 @@ use File::Find;
 use File::Spec;
 use Scalar::Util;
 use Text::Tabs;
-use Pod::ParseUtils;
+#BEGIN { @Pod::Checker::ISA = ('Pod::Parser','Pod::Simple'); }
 
 BEGIN {
     if ( $Config{usecrosscompile} ) {
@@ -31,7 +31,7 @@ BEGIN {
     require '../regen/regen_lib.pl';
 }
 
-sub DEBUG { 0 };
+sub DEBUG () { 0 };
 
 =pod
 
@@ -624,7 +624,17 @@ elsif ($has_input_files) {
 our %problems;  # potential problems found in this run
 
 package My::Pod::Checker {      # Extend Pod::Checker
-    use parent 'Pod::Checker';
+  use parent 'Pod::Checker';
+  use Pod::ParseUtils;
+  #use Pod::Checker;
+  use Pod::Parser;
+  #use Pod::Simple;
+  use vars qw( @ISA );
+  push @ISA, ('Pod::ParseUtils', 'Pod::Parser', 'Pod::Simple', 'main');
+  File::Find->import;
+  File::Spec->import;
+  #use Scalar::Util;
+  #use Text::Tabs;
 
     # Uses inside out hash to protect from typos
     # For new fields, remember to add to destructor DESTROY()
@@ -1098,7 +1108,7 @@ package My::Pod::Checker {      # Extend Pod::Checker
         # ignores 2nd param, which is output file.  Always uses undef
 
         if (open my $in_fh, '<:bytes', $filename) {
-            $self->SUPER::parse_from_filehandle($in_fh, undef);
+            $self->parse_from_filehandle($in_fh, undef);
             close $in_fh;
             return 1;
         }
@@ -1131,6 +1141,7 @@ package Tie_Array_to_FH {  # So printing actually goes to an array
     }
 }
 
+package main;
 
 my %filename_to_checker; # Map a filename to it's pod checker object
 my %id_to_checker;      # Map a checksum to it's pod checker object
@@ -1349,16 +1360,16 @@ sub is_pod_file {
     my ($leaf) = m!([^/]+)\z!;
     if (m!/\.!                 # No hidden Unix files
         || $leaf =~ $non_pods) {
-        note("Not considering $_") if DEBUG;
+        #note("Not considering $_") if DEBUG;
         return;
     }
-               
+
     my $filename = $File::Find::name;
 
     # $filename is relative, like './path'.  Strip that initial part away.
     $filename =~ s!^\./!! or die 'Unexpected pathname "$filename"';
 
-    return if $excluded_files{canonicalize($filename)};
+    return if $excluded_files{main::canonicalize($filename)};
 
     my $contents = do {
         local $/;
@@ -1534,7 +1545,7 @@ plan (tests => scalar @files) if ! $regen;
 FILE:
 foreach my $filename (@files) {
     my $parsed = 0;
-    note("parsing $filename") if DEBUG;
+    #note("parsing $filename") if DEBUG;
 
     # We may have already figured out some things in the process of generating
     # the file list.  If so, we have a $checker object already.  But if not,
