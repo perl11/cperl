@@ -4,7 +4,7 @@ use strict;
 { use 5.006001; }
 
 our $VERSION = '2.021_01';
-my $XS_VERSION = $VERSION;
+our $XS_VERSION = $VERSION;   # A dev xs version needs to be global, not my
 $VERSION = eval $VERSION;
 
 =head1 NAME

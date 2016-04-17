@@ -7258,6 +7258,16 @@ _EOT9
               printf "\tmXPUSHp(\"%s\", %d);\n", $stashfile, length($stashfile);
             }
 	  }
+          # TODO Google #364: If a VERSION was provided need to add it here.
+          # Only fails with dev versions, like Socket 2.021_01 now.
+          # The best fix is to make XS_VERSION visible, via use vars (global),
+          # or our (in stash), but not via my. Fixing it up in the compiler is too hard,
+          # We would need to search for XS_VERSION in the main_cv padnames, check
+          # for _ and push it.
+          # E.g.
+          #   our $VERSION = '2.021_01';
+          #   our $XS_VERSION = $VERSION;   # A dev xs version needs to be global, not my
+          #   $VERSION = eval $VERSION;
 	  print "\tPUTBACK;\n";
 	  warn "bootstrapping $stashname added to XSLoader dl_init\n" if $verbose;
 	  # XSLoader has the 2nd insanest API in whole Perl, right after make_warnings_object()
@@ -7269,12 +7279,10 @@ _EOT9
 	      svref_2object( \@{$stashname."::ISA"} ) ->save;
 	    }
 	    warn '@',$stashname,"::ISA=(",join(",",@{$stashname."::ISA"}),")\n" if $debug{gv};
-            # TODO #364: if a VERSION was provided need to add it here
 	    print qq/\tcall_pv("XSLoader::load_file", G_VOID|G_DISCARD);\n/;
 	  } else {
 	    printf qq/\tCopFILE_set(cxstack[cxstack_ix].blk_oldcop, "%s");\n/,
 	      $stashfile if $stashfile;
-            # TODO #364: if a VERSION was provided need to add it here
 	    print qq/\tcall_pv("XSLoader::load", G_VOID|G_DISCARD);\n/;
 	  }
         }

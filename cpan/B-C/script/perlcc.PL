@@ -15,12 +15,16 @@ use Cwd;
 
 # This forces PL files to create target in same directory as PL file.
 # This is so that make depend always knows where to find PL derivatives.
-$origdir = cwd;
-chdir dirname($0);
-$file = basename($0, '.PL');
+my $origdir = cwd;
+my $dir = dirname($0);
+# This is expanded below for PERL_CORE tests
+my $srcdir = Cwd::abs_path(File::Spec->catdir(
+                  Cwd::abs_path($dir), "..", "..", ".."));
+chdir $dir;
+my $file = basename($0, '.PL');
 $file .= '.com' if $^O eq 'VMS';
 
-open OUT,">$file" or die "Can't create $file: $!";
+open OUT,">", $file or die "Can't create $file: $!";
 
 print "Extracting $file (with variable substitutions)\n";
 
@@ -69,7 +73,7 @@ use Config;
 use Fcntl qw(:DEFAULT :flock);
 use File::Temp qw(tempfile);
 use File::Basename qw(basename dirname);
-# use Cwd;
+use Cwd ();
 use Pod::Usage;
 # Time::HiRes does not work with 5.6
 # use Time::HiRes qw(gettimeofday tv_interval);
@@ -629,7 +633,11 @@ sub cc_harness {
     use ExtUtils::Embed ();
     my $command = ExtUtils::Embed::ccopts." -o $Output $cfile ";
     if ($ENV{PERL_CORE}) {
-      $command = "$Config{ccflags} -I../.. -L../.. -o $Output $cfile ";
+!NO!SUBS!
+print OUT <<"!EXPANDED!";
+      \$command = "\$Config{ccflags} -I$srcdir -L$srcdir -o \$Output \$cfile ";
+!EXPANDED!
+print OUT <<'!NO!SUBS!';
     }
     $command .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
     $command .= $B::C::Config::extra_cflags if $B::C::Config::extra_cflags;
