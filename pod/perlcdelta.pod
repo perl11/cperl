@@ -635,6 +635,27 @@ static const some local tables.
 
 =back
 
+=head2 Not Updated Modules and Pragmata
+
+This modules are currently not ready to be updated.
+
+=over 4
+
+=item Pod::Checker 1.71
+
+1.71 breaks t/porting/podcheck.t
+L<[RT #113846]|https://rt.cpan.org/Ticket/Display.html?id=113846>
+
+=item MakeUtils::MakeMaker 7.11_06
+
+broken for -Dfortify_inc, no "." in @INC
+
+=item version 0.9916
+
+Broken new "_" logic when merged with our 'c' suffix logic.
+
+=back
+
 =head1 Platform Support
 
 =head2 Platform-Specific Notes
