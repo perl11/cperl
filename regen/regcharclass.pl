@@ -11,9 +11,9 @@ our $hex_fmt= "0x%02X";
 sub DEBUG () { 0 }
 $|=1 if DEBUG;
 
-require 'regen/regen_lib.pl';
-require 'regen/charset_translations.pl';
-require "regen/regcharclass_multi_char_folds.pl";
+require './regen/regen_lib.pl';
+require './regen/charset_translations.pl';
+require "./regen/regcharclass_multi_char_folds.pl";
 
 =head1 NAME
 
@@ -872,7 +872,7 @@ sub calculate_mask(@) {
     my @final_results;
     foreach my $count (reverse sort { $a <=> $b } keys %hash) {
         my $need = 2 ** $count;     # Need 8 values for 3 differing bits, etc
-        foreach my $bits (sort keys $hash{$count}->%*) {
+        foreach my $bits (sort keys %{$hash{$count}}) {
 
             print STDERR __LINE__, ": For $count bit(s) difference ($bits), need $need; have ", scalar @{$hash{$count}{$bits}}, "\n" if DEBUG;
 
@@ -960,7 +960,7 @@ sub calculate_mask(@) {
     # individually.
     my @individuals;
     foreach my $count (reverse sort { $a <=> $b } keys %hash) {
-        foreach my $bits (sort keys $hash{$count}->%*) {
+        foreach my $bits (sort keys %{$hash{$count}}) {
             foreach my $remaining (@{$hash{$count}{$bits}}) {
 
                 # If we already know about this value, just ignore it.
