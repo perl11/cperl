@@ -239,6 +239,54 @@ L<[perl #126240]|https://rt.perl.org/Ticket/Display.html?id=126240>
 
 A test failure in F<t/porting/extrefs.t> has been fixed.
 
+=item VMS
+
+=over
+
+=item *
+
+On VMS, the math function prototypes in C<math.h> are now visible under C++.
+Now building the POSIX extension with C++ will no longer crash.
+
+=item *
+
+VMS has had C<setenv>/C<unsetenv> since v7.0 (released in 1996),
+C<Perl_vmssetenv> now always uses C<setenv>/C<unsetenv>.
+
+=item *
+
+Perl now implements its own C<killpg> by scanning for processes in the
+specified process group, which may not mean exactly the same thing as a Unix
+process group, but allows us to send a signal to a parent (or master) process
+and all of its sub-processes.  At the perl level, this means we can now send a
+negative pid like so:
+
+    kill SIGKILL, -$pid;
+
+to signal all processes in the same group as C<$pid>.
+
+=item *
+
+For those C<%ENV> elements based on the CRTL environ array, we've always
+preserved case when setting them but did look-ups only after upcasing the
+key first, which made lower- or mixed-case entries go missing. This problem
+has been corrected by making C<%ENV> elements derived from the environ array
+case-sensitive on look-up as well as case-preserving on store.
+
+=item *
+
+Environment look-ups for C<PERL5LIB> and C<PERLLIB> previously only
+considered logical names, but now consider all sources of C<%ENV> as
+determined by C<PERL_ENV_TABLES> and as documented in L<perlvms/%ENV>.
+
+=item *
+
+The minimum supported version of VMS is now v7.3-2, released in 2003.  As a
+side effect of this change, VAX is no longer supported as the terminal
+release of OpenVMS VAX was v7.3 in 2001.
+
+=back
+
 =back
 
 =head1 Selected Bug Fixes
