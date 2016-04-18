@@ -19,7 +19,7 @@
 $VERSION = '1.34';
 
 BEGIN {
-    require 'regen/regen_lib.pl';
+    require './regen/regen_lib.pl';
     push @INC, './lib';
 }
 use strict ;
@@ -227,7 +227,7 @@ sub warningsTree
 
         my $offset ;
 	if ($tre ne $tree) {
-	    $rv .= $prefix . "|\n" ;
+	    # $rv .= $prefix . "|\n" ;
 	    $rv .= $prefix . "+- $k" ;
 	    $offset = ' ' x ($max + 4) ;
 	}
