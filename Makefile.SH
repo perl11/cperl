@@ -508,7 +508,7 @@ mini_obj = $(minindt_obj) $(MINIDTRACE_O)
 ndt_obj = $(obj0) $(obj1) $(obj2) $(obj3) $(ARCHOBJS)
 obj = $(ndt_obj) $(DTRACE_O)
 
-perltoc_pod_prereqs = extra.pods pod/perl5222cdelta.pod pod/perl5222delta.pod pod/perlapi.pod pod/perlintern.pod pod/perlmodlib.pod pod/perluniprops.pod
+perltoc_pod_prereqs = extra.pods pod/perl5222cdelta.pod pod/perl5240delta.pod pod/perlapi.pod pod/perlintern.pod pod/perlmodlib.pod pod/perluniprops.pod
 generated_pods = pod/perltoc.pod $(perltoc_pod_prereqs)
 generated_headers = uudmap.h bitcount.h mg_data.h
 
@@ -1089,7 +1089,7 @@ pod/perl5222cdelta.pod: pod/perlcdelta.pod
 	$(RMS) $@
 	$(LNS) perlcdelta.pod $@
 
-pod/perl5222delta.pod: pod/perldelta.pod
+pod/perl5240delta.pod: pod/perldelta.pod
 	$(RMS) $@
 	$(LNS) perldelta.pod $@
 
