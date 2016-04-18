@@ -1182,8 +1182,6 @@ PowerPC) is now detected correctly.
 
 =back
 
-=back
-
 
 =head1 Internal Changes
 
@@ -1809,14 +1807,14 @@ cperl instead.
 
 CVSSv2 Severity: 8.5 (AV:N/AC:M/Au:S/C:C/I:C/A:C)
 
--item *
+=item *
 
 Hash security: PERL_HASH_SEED_DEBUG can trivially expose the hash
 seed and function. Use cperl instead.
 
 =item *
 
-Hash keys are never tainted
+Hash keys are never tainted. Use cperl instead.
 
 =item *
 
