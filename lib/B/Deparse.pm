@@ -503,7 +503,7 @@ sub next_todo {
 	# hints and deparse them.
 	# When lex subs cease being experimental, we should be able to
 	# remove this code.
-        if (0) # cperl
+        #if (0) # cperl
         {
 	    local $^H = $self->{'hints'};
 	    local %^H = %{ $self->{'hinthash'} || {} };
