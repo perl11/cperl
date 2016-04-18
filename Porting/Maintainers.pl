@@ -22,7 +22,7 @@ use File::Glob qw(:case);
     COPYING Copying cpanfile CREDITS dist.ini GOALS HISTORY INSTALL INSTALL.SKIP
     LICENCE LICENSE Makefile.PL MANIFEST MANIFEST.SKIP META.json META.yml
     MYMETA.json MYMETA.yml NEW NEWS NOTES perlcritic.rc ppport.h README
-    README.md README.PATCHING SIGNATURE THANKS TODO Todo VERSION WHATSNEW
+    README.md README.pod README.PATCHING SIGNATURE THANKS TODO Todo VERSION WHATSNEW
 );
 
 # Each entry in the  %Modules hash roughly represents a distribution,
