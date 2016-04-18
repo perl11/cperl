@@ -80,22 +80,21 @@ sub testit {
 	$desc .= " (lex sub)" if $lexsub;
 
 
-	my $code_ref;
+	my ($code, $code_ref);
 	if ($lexsub) {
 	    package lexsubtest;
 	    no warnings 'experimental::lexical_subs';
 	    use feature 'lexical_subs';
 	    no strict 'vars';
-	    $code_ref =
-		eval "sub { state sub $keyword; ${vars}() = $expr }"
-			    || die "$@ in $expr";
+	    $code = "sub { state sub $keyword; ${vars}() = $expr }";
+	    $code_ref = eval $code || die "$@ in $expr";
 	}
 	else {
 	    package test;
 	    use subs ();
 	    import subs $keyword;
-	    $code_ref = eval "no strict 'vars'; sub { ${vars}() = $expr }"
-			    or die "$@ in $expr";
+	    $code = "no strict 'vars'; sub { ${vars}() = $expr }";
+	    $code_ref = eval $code || die "$@ in $expr";
 	}
 
 	my $got_text = $deparse->coderef2text($code_ref);
@@ -108,6 +107,8 @@ sub testit {
 }/s) {
 	    ::fail($desc);
 	    ::diag("couldn't extract line from boilerplate\n");
+	    ::diag($code);
+	    ::diag("=>");
 	    ::diag($got_text);
 	    return;
 	}
