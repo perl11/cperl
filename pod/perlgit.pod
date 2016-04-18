@@ -913,3 +913,25 @@ blocked. The quickest way to get unblocked is to notify the admins.
 These two boxes are owned, hosted, and operated by booking.com. You can
 reach the sysadmins in #p5p on irc.perl.org or via mail to
 C<perl5-porters@perl.org>.
+
+=head2 Using rerere for simplier rebasing
+
+cperl uses C<git rerere> to automatically fix most rebasing conflicts.
+This is the cperl setup:
+
+    git remote add cp git://github.com/perl11/cperl.git
+    git fetch cp
+    git checkout -t cp master
+    git config rerere enable
+    git config rerere.autoupdate true
+    ln -s ../.git-rr-cache .git/rr-cache
+
+This sets up a shared rerere cache to be able to continously merge and rebase with perl5
+upstream and the branch progress.
+See L<https://medium.com/@porteneuve/fix-conflicts-only-once-with-git-rerere-7d116b2cec67>
+
+So if you work on a deviating branch, which required solving a rebase
+conflict, this conflict will now be stored in the rerere cache. And
+the next time you rebase over that same file(s), the cache will be
+consulted to fix the conflict based on the cached resolution automatically.
+This way it's much easier to maintain certain patchsets in your branches.
