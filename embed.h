@@ -979,7 +979,6 @@
 #define get_invlist_iter_addr	S_get_invlist_iter_addr
 #define grok_bslash_N(a,b,c,d,e,f)	S_grok_bslash_N(aTHX_ a,b,c,d,e,f)
 #define handle_regex_sets(a,b,c,d,e)	S_handle_regex_sets(aTHX_ a,b,c,d,e)
-#define invlist_clear(a)	S_invlist_clear(aTHX_ a)
 #define invlist_clone(a)	S_invlist_clone(aTHX_ a)
 #define invlist_extend(a,b)	S_invlist_extend(aTHX_ a,b)
 #define invlist_highest		S_invlist_highest
@@ -1683,6 +1682,9 @@
 #  if defined(PERL_IN_PP_SYS_C)
 #define doform(a,b,c)		S_doform(aTHX_ a,b,c)
 #define space_join_names_mortal(a)	S_space_join_names_mortal(aTHX_ a)
+#  endif
+#  if defined(PERL_IN_REGCOMP_C)
+#define invlist_clear(a)	S_invlist_clear(aTHX_ a)
 #  endif
 #  if defined(PERL_IN_SCOPE_C)
 #define save_pushptri32ptr(a,b,c,d)	S_save_pushptri32ptr(aTHX_ a,b,c,d)
