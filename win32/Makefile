@@ -4,8 +4,8 @@
 #	Microsoft Visual C++ 6.0 or later
 #	Windows SDK 64-bit compiler and tools
 #
-# This is set up to build a cperl.exe that runs off a shared library
-# (cperl523.dll).  Also makes individual DLLs for the XS extensions.
+# This is set up to build a perl.exe that runs off a shared library
+# (cperl524.dll).  Also makes individual DLLs for the XS extensions.
 #
 
 ##
@@ -43,7 +43,7 @@ USE_CPERL	= define
 # versioned installation can be obtained by setting INST_TOP above to a
 # path that includes an arbitrary version string.
 #
-#INST_VER	= \5.23.1
+#INST_VER	= \5.24.0
 
 #
 # Comment this out if you DON'T want your perl installation to have
@@ -197,7 +197,7 @@ CCTYPE		= MSVC90FREE
 # set this to additionally provide a statically linked perl-static.exe.
 # Note that dynamic loading will not work with this perl, so you must
 # include required modules statically using the STATIC_EXT or ALL_STATIC
-# variables below. A static library perl523s.lib will also be created.
+# variables below. A static library perl524s.lib will also be created.
 # Ordinary perl.exe is not affected by this option.
 #
 #BUILD_STATIC	= define
