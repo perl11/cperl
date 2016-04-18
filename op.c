@@ -10692,6 +10692,8 @@ Perl_ck_refassign(pTHX_ OP *o)
 	kid->op_targ = 0;
 	break;
     }
+    /* Note: The typed and unchecked variants cannot handle LVAL_INTRO
+       nor LVREF, so they'l error. */
     case OP_AELEM:
     case OP_HELEM:
         o->op_private |= (varop->op_private & OPpLVAL_INTRO);
