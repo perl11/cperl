@@ -40,13 +40,12 @@ podcheck.t - Look for possible problems in the Perl pods
 
 =head1 SYNOPSIS
 
- cd t
- ./perl -I../lib porting/podcheck.t [--show_all] [--cpan] [--deltas]
+ ./perl -Ilib t/porting/podcheck.t [--show_all] [--cpan] [--deltas]
                                     [--counts] [--pedantic] [FILE ...]
 
- ./perl -I../lib porting/podcheck.t --add_link MODULE ...
+ ./perl -Ilib t/porting/podcheck.t --add_link MODULE ...
 
- ./perl -I../lib porting/podcheck.t --regen
+ ./perl -Ilib t/porting/podcheck.t --regen
 
 =head1 DESCRIPTION
 
@@ -1928,7 +1927,7 @@ if (! $regen
     note("The following files were not found: "
          . join ", ", keys %known_problems);
     note("They will automatically be removed from the db the next time");
-    note("  cd t; ./perl -I../lib porting/podcheck.t --regen");
+    note("  ./perl -Ilib t/porting/podcheck.t --regen");
     note("is run");
 }
 
@@ -1936,7 +1935,7 @@ my $how_to = <<EOF;
    run this test script by hand, using the following formula (on
    Un*x-like machines):
         cd t
-        ./perl -I../lib porting/podcheck.t --regen
+        ./perl -Ilib t/porting/podcheck.t --regen
 EOF
 
 if (%files_with_unknown_issues) {
@@ -1956,7 +1955,7 @@ following:
 
 1) If a problem is about a link to an unknown module or man page that
    you know exists, re-run the command something like:
-      ./perl -I../lib porting/podcheck.t --add_link MODULE man_page ...
+      ./perl -Ilib t/porting/podcheck.t --add_link MODULE man_page ...
    (MODULEs should look like Foo::Bar, and man_pages should look like
    bar(3c); don't do this for a module or man page that you aren't sure
    about; instead treat as another type of issue and follow the
