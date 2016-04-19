@@ -94,6 +94,6 @@ for my $sym (sort keys %SYM) {
     my @found = keys %{$found{$sym}};
     print "$sym\t", join(" ", sort @found), "\n";
   } else {
-    print "$sym\n";
+    print "$sym\t__NONE__\n";
   }
 }
