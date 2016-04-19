@@ -5266,6 +5266,6 @@
 #endif
 
 /* Generated from:
- * a70c375f5899f9c1fd4f1bee78021b4d88451c53113c0dead996e368b561da3e config_h.SH
+ * 40b842655a3f49185ff09764d371eabf23e27ec1e66e4c7960259baaef1b51b4 config_h.SH
  * e7992a2ac7d2e90569c600f7f04de4d4fe33fb69ea36fbcd93c8d46eaaa8045a uconfig.sh
  * ex: set ro: */
