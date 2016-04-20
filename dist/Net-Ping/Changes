@@ -28,6 +28,7 @@ CHANGES
        - added _resolv replacing inet_aton,
          _pack_sockaddr_in and _unpack_sockaddr_in replacing sockaddr_in,
          _inet_ntoa replacing inet_ntoa
+       - Use _isroot helper, with Win32 _IsAdminUser helper.
        - added several new tests (Steve Peters)
 
 2.43  Mon Apr 29 00:23:56 2013 -0300

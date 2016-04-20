@@ -116,7 +116,7 @@ sub new
       if (exists $proto->{$k}) {
         $self->{$k} = $proto->{$k};
         # some are still globals
-        if ($k eq 'pingstring')    { $pingstring    = $proto->{$k} }
+        if ($k eq 'pingstring') { $pingstring = $proto->{$k} }
         if ($k eq 'source_verify') { $source_verify = $proto->{$k} }
         delete $proto->{$k};
       }
@@ -404,10 +404,17 @@ sub retrans
   $self->{"retrans"} = shift;
 }
 
+sub _IsAdminUser {
+  return unless $^O eq 'MSWin32' or $^O eq "cygwin";
+  return unless eval { require Win32 };
+  return unless defined &Win32::IsAdminUser;
+  return Win32::IsAdminUser();
+}
+
 sub _isroot {
   if (($> and $^O ne 'VMS' and $^O ne 'cygwin')
     or (($^O eq 'MSWin32' or $^O eq 'cygwin')
-        and !IsAdminUser())
+        and !_IsAdminUser())
     or ($^O eq 'VMS'
         and (`write sys\$output f\$privilege("SYSPRV")` =~ m/FALSE/))) {
       return 0;
@@ -1139,16 +1146,16 @@ sub _dontfrag {
     my $i = 1;
     setsockopt($self->{"fh"}, IPPROTO_IP, $IP_DONTFRAG, pack("I*", $i))
       or croak "error configuring IP_DONTFRAG $!";
-  }
-  # With Linux like this: Path MTU Discovery as defined in RFC 1191.
-  # For non SOCK_STREAM sockets it is the user's responsibility to packetize
-  # the data in MTU sized chunks and to do the retransmits if necessary.
-  # The kernel will reject packets that are bigger than the known path
-  # MTU if this flag is set (with EMSGSIZE).
-  elsif ($^O eq 'linux') {
-    my $i = 2; # IP_PMTUDISC_DO
-    setsockopt($self->{"fh"}, IPPROTO_IP, IP_MTU_DISCOVER, pack("I*", $i))
-      or croak "error configuring IP_MTU_DISCOVER $!";
+    # Linux needs more: Path MTU Discovery as defined in RFC 1191
+    # For non SOCK_STREAM sockets it is the user's responsibility to packetize
+    # the data in MTU sized chunks and to do the retransmits if necessary.
+    # The kernel will reject packets that are bigger than the known path
+    # MTU if this flag is set (with EMSGSIZE).
+    if ($^O eq 'linux') {
+      my $i = 2; # IP_PMTUDISC_DO
+      setsockopt($self->{"fh"}, IPPROTO_IP, IP_MTU_DISCOVER, pack("I*", $i))
+        or croak "error configuring IP_MTU_DISCOVER $!";
+    }
   }
 }
 
