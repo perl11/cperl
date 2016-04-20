@@ -20501,20 +20501,11 @@ esac
 
 case "$alignbytes" in
     '') echo "Checking double alignment constraints..." >&4
-	if $test "X$uselongdouble" = Xdefine -a "X$d_longdbl" = Xdefine; then
-	    $cat >try.c <<'EOCP'
-typedef long double NV;
-EOCP
-	else
-	    $cat >try.c <<'EOCP'
-typedef double NV;
-EOCP
-	fi
-	$cat >>try.c <<'EOCP'
+	$cat >>try.c <<EOCP
 #include <stdio.h>
 struct foobar {
     char foo;
-    NV bar;
+    $nvtype bar;
 } try_algn;
 int main()
 {
