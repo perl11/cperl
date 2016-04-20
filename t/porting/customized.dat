@@ -39,6 +39,7 @@ Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm c99ef9e936a476a02a6
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm d965ac6c3091bde55450683b959771dbd100583a
 Net::Domain cpan/libnet/lib/Net/Domain.pm 1c8c8a02490c8209ce23a193dcd2c8e6d936dd92
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 99fe178fa11ef47b51df3795073318cd8f2faf5b
+Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL cba470b9a4db137597cf837808e8859b283f4c16
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
 Safe dist/Safe/Safe.pm fb1cf6efdfcd1d2dac2aca90bccd05cb8d1ac1c4
 Safe dist/Safe/t/safeops.t 2254dd5654230a6de6082510fe766ef7cbb6e7e7
@@ -71,8 +72,6 @@ YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 37441ba0eff59df1e75d7c2db64d9b478a
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm b9846cabfa2ede801c6df9357a97f8ccdc207119
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
-podlators cpan/podlators/scripts/pod2man.PL 8483f756edeb6b5f7bf74a8a436c4b4d6387adf0
-podlators cpan/podlators/scripts/pod2text.PL 19d478eb7cd00141a8dc4f738725e3baf1cf0f6c
 threads dist/threads/lib/threads.pm f8f5f2c4527aba54ef53a5846e3fad728b24eeea
 threads dist/threads/threads.xs 86191214f193293053d11ca82a8960e4ed7a74a7
 version cpan/version/lib/version.pm d0923b895d57f1d669ae36fcf85c87b16db341d1

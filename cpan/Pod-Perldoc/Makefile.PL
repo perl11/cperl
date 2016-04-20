@@ -44,8 +44,9 @@ WriteMakefile(
         },
     },
 
-    ($ENV{PERL_CORE} ? () :
-        ('MAN1PODS' => { 'perldoc.pod' => 'blib/man1/perldoc.1' })),
+    ($ENV{PERL_CORE}
+     ? ('MAN1PODS' => { 'perldoc.pod' => '../../lib/perldoc.1' })
+     : ('MAN1PODS' => { 'perldoc.pod' => 'blib/man1/perldoc.1' })),
 
     ($^V >= 5.008001 && $^V < 5.012 ? ( 'INSTALLDIRS'  => 'perl' ) : ()),
 
@@ -60,7 +61,7 @@ package MY;
 
 sub libscan
 { # Determine things that should *not* be installed
-    my($self, $path) = @_;
+   my($self, $path) = @_;
     return '' if $path =~ m/~/;
     $path;
 }
@@ -71,6 +72,16 @@ sub init_dirscan
     $self->SUPER::init_dirscan;
     # Need to force perldoc.pod to install at the top level of the lib dir:
     $self->{PM}{'perldoc.pod'} = $self->catfile($self->{INST_LIB}, 'perldoc.pod');
+    return;
+}
+
+sub init_MANPODS
+{
+    my($self) = shift;
+    $self->SUPER::init_MANPODS;
+    # Need to remove perldoc.pod from MAN3PODS.
+    # duplicate and case conflict
+    delete $self->{MAN3PODS}->{'perldoc.pod'};
     return;
 }
 
