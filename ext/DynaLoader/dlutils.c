@@ -48,9 +48,9 @@ typedef struct {
 
 
 /* DynaLoader globals */
-AV *dl_require_symbols;      /* names of symbols we need */
-AV *dl_resolve_using;        /* names of files to link with */
-AV *dl_library_path;         /* path to look for files */
+AV *dl_require_symbols;      /* names of symbols we need, only FREEMINT|VMS */
+AV *dl_resolve_using;        /* names of files to link with. only FREEMINT|HPUX */
+AV *dl_library_path;         /* path to look for files. */
 
 EXTERN_C void dl_boot (pTHX);
 static AV*    dl_split_modparts (pTHX_ SV* module);
@@ -773,6 +773,7 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
         AV *dl_librefs = get_av("DynaLoader::dl_librefs", GV_ADDMULTI);
         AV_PUSH(dl_librefs, SvREFCNT_inc_simple_NN(libref)); /* record loaded object */
     }
+#if defined(PERL_IN_DL_FREEMINT_XS)
     {
         PUSHMARK(SP);
         PUTBACK;
@@ -789,6 +790,7 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
             Perl_die(aTHX_ dl_last_error);
         }
     }
+#endif
     {
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_find_symbol with %p '%s'\n",
                                 libref, SvPVX(bootname)));
