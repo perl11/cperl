@@ -1723,7 +1723,8 @@ sub wakeonlan {
   if (! defined $host) { $host = '255.255.255.255' }
   if (! defined $port || $port !~ /^\d+$/ ) { $port = 9 }
 
-  my $sock = new IO::Socket::INET(Proto=>'udp') || return undef;
+  require IO::Socket::INET;
+  my $sock = IO::Socket::INET->new(Proto=>'udp') || return undef;
 
   my $ip_addr = inet_aton($host);
   my $sock_addr = sockaddr_in($port, $ip_addr);
@@ -1732,7 +1733,7 @@ sub wakeonlan {
 
   setsockopt($sock, SOL_SOCKET, SO_BROADCAST, 1);
   send($sock, $packet, 0, $sock_addr);
-  close ($sock);
+  $sock->close;
 
   return 1;
 }
