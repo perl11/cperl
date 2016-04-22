@@ -66,8 +66,8 @@ With 5.22.2c and 5.24.0c there are no CPAN patches needed so far.
 * hash keys keep the tainted info. see [perlsec](http://perldoc.perl.org/perlsec.html#Taint-mode)
 * fix ops using lexical `$_`
 * readonly packages can be cloned with threads
-* Security and overlarge data fixes for Storable
-* Include B-C, Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
+* security and overlarge data fixes for Storable
+* include B-C, Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
 
 Most of them only would have a chance to be merged upstream if a
 p5p committer would have written it.
@@ -127,7 +127,7 @@ are limited. So they are based on master.
 
   much faster and much less memory, but 3 minor scope test fails.
 
-* [feature/gh7-signatures]](https://github.com/perl11/cperl/issues/7)
+* [feature/gh7-signatures](https://github.com/perl11/cperl/issues/7)
 
   [code](http://github.com/perl11/cperl/commits/feature/gh7-signatures)
 
