@@ -464,6 +464,7 @@ use File::Glob qw(:case);
                                 MemoryProfiling.pod
                                 lib/Devel/NYTProf/FileInfo.pm
                                 t/lib/NYTProfTest.pm
+                                t/00-load.t
                               )],
     },
 
