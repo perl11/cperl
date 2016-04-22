@@ -1340,6 +1340,10 @@ PerlIO_apply_layers(pTHX_ PerlIO *f, const char *mode, const char *names)
 int
 PerlIO_binmode(pTHX_ PerlIO *f, int iotype, int mode, const char *names)
 {
+#ifndef DEBUGGING
+    PERL_UNUSED_ARG(iotype);
+    PERL_UNUSED_ARG(mode);
+#endif
     DEBUG_I(PerlIO_debug("PerlIO_binmode f=%p %s %c %x %s\n", (void*)f,
                          (PerlIOBase(f) && PerlIOBase(f)->tab) ?
                          PerlIOBase(f)->tab->name : "(Null)",
