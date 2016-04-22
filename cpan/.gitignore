@@ -16,3 +16,4 @@ B-C/lib/B/C/
 B-C/script/perlcc
 DB_File/dbr*
 Devel-NYTProf/t/nytprof_readstream.out
+Term-ReadKey/cchars.h
