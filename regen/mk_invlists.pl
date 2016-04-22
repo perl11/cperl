@@ -983,20 +983,20 @@ sub output_LB_table() {
 
     print $out_fh "\nstatic const U8 LB_table[$table_size][$table_size] = {\n";
     print $out_fh "\n/* 'ed' stands for 'edge' */\n";
-    print $out_fh "/*      ";
+    print $out_fh "/*        ";
     for my $i (0 .. @lb_table - 1) {
         print $out_fh "  $lb_short_enums[$i]";
     }
     print $out_fh " */\n";
 
     for my $i (0 .. @lb_table - 1) {
-        print $out_fh "/* $lb_short_enums[$i] */ ";
+        print $out_fh "/* $lb_short_enums[$i] */ { ";
         for my $j (0 .. @lb_table - 1) {
             printf $out_fh "%2d", $lb_table[$i][$j];
             print $out_fh "," if $i < @lb_table - 1 || $j < @lb_table - 1;
             print $out_fh " " if $j < @lb_table - 1;
         }
-        print $out_fh "\n";
+        print $out_fh " },\n";
     }
 
     print $out_fh "};\n";
