@@ -528,7 +528,7 @@ Does not use C<TARG>.  See also C<XPUSHu>, C<mPUSHu> and C<PUSHu>.
     STMT_START {						\
 	dSP;							\
 	SV *tmpsv;						\
-	SV *arg= *sp;						\
+	SV *arg = *SP;						\
         int gimme = GIMME_V;                                    \
 	if (UNLIKELY(SvAMAGIC(arg) &&				\
 	    (tmpsv = amagic_call(arg, &PL_sv_undef, meth,	\
@@ -540,8 +540,7 @@ Does not use C<TARG>.  See also C<XPUSHu>, C<mPUSHu> and C<PUSHu>.
                 NOOP;                                           \
             }                                                   \
             else if (gimme == G_ARRAY) {			\
-                SSize_t i;                                      \
-                SSize_t len;                                    \
+                SSize_t i, len;                                 \
                 assert(SvTYPE(tmpsv) == SVt_PVAV);              \
                 len = av_tindex((AV *)tmpsv) + 1;               \
                 (void)POPs; /* get rid of the arg */            \
@@ -562,7 +561,7 @@ Does not use C<TARG>.  See also C<XPUSHu>, C<mPUSHu> and C<PUSHu>.
 		while (jump_o->op_type == OP_NULL)		\
 		    jump_o = jump_o->op_next;			\
 		assert(jump_o->op_type == OP_ENTERSUB);		\
-		POPMARK;                                        \
+		(void)POPMARK;                                  \
 		return jump_o->op_next;				\
 	    }							\
 	    return NORMAL;					\
