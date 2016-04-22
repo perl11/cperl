@@ -150,11 +150,11 @@ checkOptree ( name	=> 'fixup nextstate (in reftext)',
 	      strip_open_hints => 1,
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
 # 1  <;> nextstate( NOTE THAT THIS CAN BE ANYTHING ) v:>,<,%
-# 2  <0> padsv[$a 1629,1630] sM/LVINTRO
+# 2  <0> padsv[$a 1631,1632] sM/LVINTRO
 # 3  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
-# 1  <;> nextstate(main 1632 optree_concise.t:84) v:>,<,%
-# 2  <0> padsv[$a 1629,1630] sM/LVINTRO
+# 1  <;> nextstate(main 1631 optree_concise.t:84) v:>,<,%
+# 2  <0> padsv[$a 1631,1632] sM/LVINTRO
 # 3  <1> leavesub[1 ref] K/REFC,1
 EONT_EONT
 
@@ -164,12 +164,12 @@ checkOptree ( name	=> 'fixup opcode args',
 	      code	=> sub {my $a},
 	      strip_open_hints => 1,
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
-# 1  <;> nextstate(main 1632 optree_check.t:96) v:>,<,%
-# 2  <0> padsv[$a 1632,1633] sM/LVINTRO
+# 1  <;> nextstate(main 1634 optree_check.t:96) v:>,<,%
+# 2  <0> padsv[$a 1634,1635] sM/LVINTRO
 # 3  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
-# 1  <;> nextstate(main 1632 optree_check.t:96) v:>,<,%
-# 2  <0> padsv[$a 1632,1633] sM/LVINTRO
+# 1  <;> nextstate(main 1634 optree_check.t:96) v:>,<,%
+# 2  <0> padsv[$a 1634,1635] sM/LVINTRO
 # 3  <1> leavesub[1 ref] K/REFC,1
 EONT_EONT
 
@@ -233,10 +233,10 @@ checkOptree ( code	=> 'my int $a=0; $b=$a+42',
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
 # 1  <;> nextstate(main 1679 (eval 13):1) v
 # 2  <$> const[IV 0] s
-# 3  <0> padsv[$a:int 1679,1680] sRM*/LVINTRO
+# 3  <0> padsv[$a:int 1681,1682] sRM*/LVINTRO
 # 4  <2> sassign vKS/2
 # 5  <;> nextstate(main 1680 (eval 13):1) v:{
-# 6  <0> padsv[$a:int 1679,1680] s
+# 6  <0> padsv[$a:int 1681,1682] s
 # 7  <$> const[IV 42] s
 # 8  <2> u_add[t3] sK/2
 # 9  <#> gvsv[*b] s
@@ -245,10 +245,10 @@ checkOptree ( code	=> 'my int $a=0; $b=$a+42',
 EOT_EOT
 # 1  <;> nextstate(main 1679 (eval 13):1) v
 # 2  <$> const(IV 0) s
-# 3  <0> padsv[$a:int 1679,1680] sRM*/LVINTRO
+# 3  <0> padsv[$a:int 1681,1682] sRM*/LVINTRO
 # 4  <2> sassign vKS/2
 # 5  <;> nextstate(main 1680 (eval 13):1) v:{
-# 6  <0> padsv[$a:int 1679,1680] s
+# 6  <0> padsv[$a:int 1681,1682] s
 # 7  <$> const(IV 42) s
 # 8  <2> u_add[t2] sK/2
 # 9  <$> gvsv(*b) s

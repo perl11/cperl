@@ -29,15 +29,15 @@ checkOptree ( name	=> 'OP_AELEMFAST opclass',
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
 # 7  <1> leavesub[1 ref] K/REFC,1 ->(end)
 # -     <@> lineseq KP ->7
-# 1        <;> nextstate(main 1607 optree_misc.t:25) v:>,<,% ->2
-# 2        <0> padav[@x 1607,1609] vM/LVINTRO ->3
-# -        <;> ex-nextstate(main 1594 optree_misc.t:27) v:>,<,% ->3
+# 1        <;> nextstate(main 1609 optree_misc.t:25) v:>,<,% ->2
+# 2        <0> padav[@x 1609,1611] vM/LVINTRO ->3
+# -        <;> ex-nextstate(main 1609 optree_misc.t:27) v:>,<,% ->3
 # -        <1> rv2av[t4] vK/OURINTR,1 ->3
 # -           <#> gv[*y] s ->-
 # 3        <;> nextstate(main 1609 optree_misc.t:25) v:>,<,%,{ ->4
 # 6        <2> add[t6] sK/2 ->7
 # -           <1> ex-aelem sK/2 ->5
-# 4              <0> aelemfast_lex[@x 1607,1609] sR/127 ->5
+# 4              <0> aelemfast_lex[@x 1609,16011] sR/127 ->5
 # -              <0> ex-const s ->-
 # -           <1> ex-aelem sK/2 ->6
 # -              <1> ex-rv2av sKR/1 ->-
@@ -46,15 +46,15 @@ checkOptree ( name	=> 'OP_AELEMFAST opclass',
 EOT_EOT
 # 7  <1> leavesub[1 ref] K/REFC,1 ->(end)
 # -     <@> lineseq KP ->7
-# 1        <;> nextstate(main 1607 optree_misc.t:27) v:>,<,% ->2
-# 2        <0> padav[@x 1607,1609] vM/LVINTRO ->3
-# -        <;> ex-nextstate(main 1594 optree_misc.t:27) v:>,<,% ->3
+# 1        <;> nextstate(main 1609 optree_misc.t:27) v:>,<,% ->2
+# 2        <0> padav[@x 1609,1611] vM/LVINTRO ->3
+# -        <;> ex-nextstate(main 1609 optree_misc.t:27) v:>,<,% ->3
 # -        <1> rv2av[t3] vK/OURINTR,1 ->3
 # -           <$> gv(*y) s ->-
 # 3        <;> nextstate(main 1609 optree_misc.t:27) v:>,<,%,{ ->4
 # 6        <2> add[t4] sK/2 ->7
 # -           <1> ex-aelem sK/2 ->5
-# 4              <0> aelemfast_lex[@x 1607,1609] sR/127 ->5
+# 4              <0> aelemfast_lex[@x 1609,1611] sR/127 ->5
 # -              <0> ex-const s ->-
 # -           <1> ex-aelem sK/2 ->6
 # -              <1> ex-rv2av sKR/1 ->-
