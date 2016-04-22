@@ -427,7 +427,7 @@ static struct debug_tokens {
 };
 
 /* dump the returned token in rv, plus any optional arg in pl_yylval */
-const char*
+STATIC const char*
 S_toke_name(pTHX_ I32 state, int* ltype)
 {
     const char *name = NULL;
