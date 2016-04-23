@@ -2862,7 +2862,14 @@ PP(pp_iter)
 
         oldsv = *itersvp;
         *itersvp = sv;
-        SvREFCNT_dec(oldsv);
+#if 1
+        /* RT #94682 op/switch.t reappeared. $_ has wrong refcnt */
+        if ((UNLIKELY(oldsv && SvIS_FREED(oldsv) && SvREFCNT(oldsv)==1))) {
+            DEBUG_v(deb("iter: wrong refcount of freed itervar"));
+            oldsv = NULL;
+        } else
+#endif
+            SvREFCNT_dec(oldsv);
         break;
     }
 
