@@ -1,5 +1,5 @@
 package experimental;
-$experimental::VERSION = '0.016';
+$experimental::VERSION = '0.016_01c'; #cperl fixed lexical_topic
 use strict;
 use warnings;
 use version ();
@@ -24,7 +24,7 @@ my %min_version = (
 	current_sub     => '5.16.0',
 	evalbytes       => '5.16.0',
 	fc              => '5.16.0',
-	lexical_topic   => '5.10.0',
+	#lexical_topic   => '5.10.0',
 	lexical_subs    => '5.18.0',
 	postderef       => '5.20.0',
 	postderef_qq    => '5.20.0',
@@ -39,7 +39,7 @@ my %min_version = (
 	unicode_strings => '5.12.0',
 );
 my %max_version = (
-	lexical_topic   => '5.23.4',
+	#lexical_topic   => '5.23.4',
 );
 
 $_ = version->new($_) for values %min_version;
@@ -161,7 +161,6 @@ The supported features, documented further below, are:
 
 	array_base    - allow the use of $[ to change the starting index of @array
 	autoderef     - allow push, each, keys, and other built-ins on references
-	lexical_topic - allow the use of lexical $_ via "my $_"
 	postderef     - allow the use of postfix dereferencing expressions, including
 	                in interpolating strings
 	refaliasing   - allow aliasing via \$x = \$y

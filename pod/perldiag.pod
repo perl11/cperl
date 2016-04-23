@@ -1443,6 +1443,18 @@ is not allowed, because the magic can be tied to only one location
 have variables in your program that looked like magical variables but
 weren't.
 
+In perl5 lexical C<$_> was an experimental feature, which was removed
+with perl 5.24.0. The previous warning message C<Use of my $_ is
+experimental> causes now the error C<Can't use global $_ in "my">.
+
+In cperl C<my $_> is considered natural syntax and works as expected.
+And is of course faster than global or localized C<$_>.
+There's C<no warnings 'experimental::lexical_topic'> needed.
+
+L<perlfunc/given> expressions are now safe to use in cperl and match
+will capture C<$_> properly. There will be no such warning or error for
+C<$_>.
+
 =item Can't use '%c' in a group with different byte-order in %s
 
 (F) You attempted to force a different byte-order on a type
@@ -6905,12 +6917,6 @@ for historical reasons.
 (W io) A filehandle represents an opened file, and when you opened the file
 it already went past any symlink you are presumably trying to look for.
 The operation returned C<undef>.  Use a filename instead.
-
-=item Use of my $_ is experimental
-
-(S experimental::lexical_topic) Lexical $_ is an experimental feature and
-its behavior may change or even be removed in any future release of perl.
-See the explanation under L<perlvar/$_>.
 
 =item Use of %s on a handle without * is deprecated
 

@@ -630,13 +630,13 @@ Perl_allocmy(pTHX_ const char *const name, const STRLEN len, const U32 flags)
 			      PL_parser->in_my == KEY_state ? "state" : "my"), flags & SVf_UTF8);
 	}
     }
+#ifndef USE_CPERL
     else if (len == 2 && name[1] == '_' && !is_our)
-	/* diag_listed_as: Use of my $_ is experimental */
-	Perl_ck_warner_d(aTHX_ packWARN(WARN_EXPERIMENTAL__LEXICAL_TOPIC),
-			      "Use of %s $_ is experimental",
-			       PL_parser->in_my == KEY_state
-				 ? "state"
-				 : "my");
+	Perl_croak(aTHX_ "Can't use global %s in \"%s\"",
+                   "$_", PL_parser->in_my == KEY_state
+                         ? "state"
+                         : "my");
+#endif
 
     /* allocate a spare slot and store the name in that slot */
 
