@@ -435,14 +435,11 @@ CODE:
     HV *stash;
     SV **args = &PL_stack_base[ax];
     CV *cv    = sv_2cv(block, &stash, &gv, 0);
-
+    PADOFFSET targlex;
     if(cv == Nullcv)
         croak("Not a subroutine reference");
-
     if(items <= 1)
         XSRETURN_UNDEF;
-
-    SAVESPTR(GvSV(PL_defgv));
 #ifdef dMULTICALL
     if(!CvISXSUB(cv)) {
         dMULTICALL;
@@ -451,11 +448,16 @@ CODE:
         UNUSED_VAR_newsp;
         PUSH_MULTICALL(cv);
 
+        targlex = find_rundefsvoffset();
+        if (targlex == NOT_IN_PAD)
+            SAVESPTR(GvSV(PL_defgv));
         for(index = 1 ; index < items ; index++) {
-            SV *def_sv = GvSV(PL_defgv) = args[index];
-#  ifdef SvTEMP_off
-            SvTEMP_off(def_sv);
-#  endif
+            if (targlex != NOT_IN_PAD) {
+                PAD_SVl(targlex) = args[index];
+                SvREFCNT_inc_NN(PAD_SVl(targlex));
+            }
+            else
+                GvSV(PL_defgv) = args[index];
             MULTICALL;
             if(SvTRUEx(*PL_stack_sp)) {
 #  ifdef PERL_HAS_BAD_MULTICALL_REFCOUNT
@@ -476,6 +478,7 @@ CODE:
     else
 #endif
     {
+        SAVESPTR(GvSV(PL_defgv));
         for(index = 1 ; index < items ; index++) {
             dSP;
             GvSV(PL_defgv) = args[index];
@@ -512,21 +515,32 @@ PPCODE:
 
     if(cv == Nullcv)
         croak("Not a subroutine reference");
-
-    SAVESPTR(GvSV(PL_defgv));
 #ifdef dMULTICALL
     if(!CvISXSUB(cv)) {
         dMULTICALL;
         I32 gimme = G_SCALAR;
         int index;
+        PADOFFSET targlex;
 
         UNUSED_VAR_newsp;
         PUSH_MULTICALL(cv);
+
+        targlex = find_rundefsvoffset();
+        if (targlex == NOT_IN_PAD)
+            SAVESPTR(GvSV(PL_defgv));
         for(index = 1; index < items; index++) {
-            SV *def_sv = GvSV(PL_defgv) = args[index];
+            if (targlex != NOT_IN_PAD) {
+                PAD_SVl(targlex) = args[index];
+                SvREFCNT_inc_NN(PAD_SVl(targlex));
+            } else {
 #  ifdef SvTEMP_off
-            SvTEMP_off(def_sv);
+                SV *def_sv =
 #  endif
+                    GvSV(PL_defgv) = args[index];
+#  ifdef SvTEMP_off
+                SvTEMP_off(def_sv);
+#  endif
+            }
 
             MULTICALL;
             if(SvTRUEx(*PL_stack_sp) ^ invert) {
@@ -541,6 +555,7 @@ PPCODE:
 #endif
     {
         int index;
+        SAVESPTR(GvSV(PL_defgv));
         for(index = 1; index < items; index++) {
             dSP;
             GvSV(PL_defgv) = args[index];

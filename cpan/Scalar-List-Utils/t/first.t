@@ -5,7 +5,7 @@ use warnings;
 
 use List::Util qw(first);
 use Test::More;
-plan tests => 22 + ($::PERL_ONLY ? 0 : 2);
+plan tests => 23 + ($::PERL_ONLY ? 0 : 2);
 my $v;
 
 ok(defined &first,	'defined');
@@ -126,3 +126,9 @@ ok($@ =~ /^Not a subroutine reference/, 'check for code reference');
 eval { &first(+{},1,2,3) };
 ok($@ =~ /^Not a subroutine reference/, 'check for code reference');
 
+{
+    no warnings 'experimental::lexical_topic';
+    my $_ = 1;
+    $v = first { $_ > 6 } 2,4,6,12;
+    is($v, 12, 'first with lexical my');
+}
