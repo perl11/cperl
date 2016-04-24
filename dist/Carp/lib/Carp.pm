@@ -88,7 +88,7 @@ BEGIN {
     }
 }
 
-our $VERSION = '1.40c';
+our $VERSION = '1.41c';
 $VERSION =~ tr/_//d;
 $VERSION =~ tr/_c//d;
 
@@ -477,7 +477,7 @@ sub ret_backtrace {
         eval {
             CORE::die;
         };
-        if($@ =~ /^Died at .*(, <.*?> line \d+).$/ ) {
+        if($@ =~ /^Died at .*(, <.*?> (?:line|chunk) \d+).$/ ) {
             $mess .= $1;
         }
     }
