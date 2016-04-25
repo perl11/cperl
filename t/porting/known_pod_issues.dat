@@ -247,9 +247,10 @@ dist/math-bigrat/lib/math/bigrat.pm	Verbatim line length including indents excee
 dist/module-corelist/lib/module/corelist.pod	Verbatim line length including indents exceeds 79 by	4
 dist/module-corelist/lib/module/corelist/utils.pm	Verbatim line length including indents exceeds 79 by	2
 dist/net-ping/lib/net/ping.pm	Apparent broken link	1
+dist/pathtools/lib/file/spec/amigaos.pm	Verbatim line length including indents exceeds 79 by	1
 dist/selfloader/lib/selfloader.pm	Verbatim line length including indents exceeds 79 by	13
 dist/storable/storable.pm	Verbatim line length including indents exceeds 79 by	4
-dist/thread-queue/lib/thread/queue.pm	Verbatim line length including indents exceeds 79 by	4
+dist/thread-queue/lib/thread/queue.pm	Verbatim line length including indents exceeds 79 by	6
 dist/threads/lib/threads.pm	Verbatim line length including indents exceeds 79 by	3
 dist/tie-file/lib/tie/file.pm	Verbatim line length including indents exceeds 79 by	3
 ext/devel-peek/peek.pm	? Should you be using L<...> instead of	2
@@ -286,8 +287,8 @@ pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlcall.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perlce.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlcperl.pod	? Should you be using F<...> or maybe L<...> instead of	2
-pod/perlcperl.pod	Apparent broken link	1
-pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	12
+pod/perlcperl.pod	Apparent broken link	2
+pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	13
 pod/perlcygwin.pod	Verbatim line length including indents exceeds 79 by	24
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	34
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	22

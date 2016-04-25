@@ -102,7 +102,7 @@ C<@_> also.  C<@_> is empty when signatures are declared.
 
 B<Rationale:> With signatures copying all values to C<@_> also leads to
 double copying which is 2x slower. C<@_> is not needed anymore. Either
-use no signatures to use C<@_> variables or use sigantures.
+use no signatures to use C<@_> variables or use signatures.
 
 Technically this is not a incompatible change, as signatures are
 marked as experimental.
@@ -170,10 +170,11 @@ quotient C<<a/b>> is representable, the expression C<<(a/b)*b + a%b>> shall equa
 Perl does not obey this, only with use integer.
 
     use integer; my ($a,$b)=(13,-4); print int(($a/$b)*$b) + $a % $b => 13
+
     my ($a,$b)=(13,-4); print int(($a/$b)*$b) + $a % $b => 10
 
 We found only once place in a module using constant negative integers
-with %. It is a core module, and is therefore fixed. Testing many other
+with C<%>. It is a core module, and is therefore fixed. Testing many other
 CPAN modules found no further problems, but watch out our distroprefs repo
 for future patches.
 
@@ -189,6 +190,7 @@ C<"%"> operator slower.
 
 Operations with only literal integers will not overflow to numbers,
 similar to perl5 with use integer.
+
 Only C<"+"> and C<"*"> will try to use UV (an unsigned value) as result, but not
 NV (an inexact number). All other ops besides divide and shift return
 IV (signed integers). Note that even comparison operators are integerized.
@@ -255,7 +257,7 @@ already as package, otherwise a syntax error is thrown.
 
     $ cperl -e'sub x(str $s){}'          # coretypes implicitly loaded
 
-    $ cperl -e'%Str::; sub x(Str $s){}'  # user-defined type Str
+    $ cperl -e'%MyStr::; sub x(MyStr $s){}'  # user-defined type MyStr
 
 =item B<< Add subroutine return types >>
 
@@ -287,7 +289,11 @@ the otherwise unneeded C<@_> array around.
 
 cperl uses C<\$name> to denote references to scalar lvalues, which change the
 calling variable.
-e.g. C<sub myfunc(int \$i) : int { $i++; }>
+
+    sub myfunc(int \$i) : int { $i++; }
+    my $i;
+    print myfunc($i); => 1
+    print $i;         => 1
 
 For now scalar lvalue references only, C<\@a> or C<\%h> would be nice with
 type checks for arrayref or hashref.  maybe C<\[$]> also.
@@ -376,7 +382,7 @@ line 1, near "\$a)">
 
 C<< => >>
 
-C<Type of arg 1 \@b to main::x must be arrayref (not a scalar ref) at
+C<Type of arg 1 \@b to x must be arrayref (not a scalar ref) at
 -e line 1, near "\$a)">
 
 Proper signature types are not only a great help for catching errors
@@ -390,7 +396,10 @@ and improve most loops and array accesses. It is also critical to
 implement multi methods (compile-time optimized generics) and
 implement an advanced object system.
 
-=item B<< Support C<...> for efficient varargs passing >>
+Note that the reported main subroutines are listed without the
+C<main::> prefix.
+
+=item B<< Support C<...> for efficient varargs passing (NY) >>
 
 C<...> as empty function body already has a special meaning as B<yadayada>
 operator, just croaking, but interestingly not the usual meaning of varargs.
@@ -418,12 +427,15 @@ an syntax error as it should be.
 
 C<no warnings "illegalproto";> is a noop.
 
-=item B<< no signatures or lexsubs pragmas required >>
+=item B<< no feature signatures or lexsubs or lexical_topical pragmas required >>
 
 C<use feature "signatures"> or C<use feature "lexsubs"> is not
 required and is ignored.  All prototypes and signatures are parsed either
 as prototypes or signature, regardless of the scope of a C<use feature
 "signatures"> pragma. C<my sub> is parsed without previous activation.
+
+C<my $_> does not require C<use experimental::lexical_topic>.
+C<use cperl> can be used, if incompatible features are used, but it is optional.
 
 =back
 
@@ -434,7 +446,7 @@ of the SASSIGN optimization via OA_TARGLEX and OPpTARGET_MY in 2002.
 
 cperl fixed this (it was using a wrong bit-testing, using AND as OR)
 and work is ongoing to harmonize further internal code exceptions and
-code-smell, e.g. SASSIGN and the match functions.
+code-smell, e.g. SASSIGN, given/when and the match functions.
 
 =head2 Undo B bootstrap breakage
 
@@ -443,8 +455,8 @@ which broke the L<B::Bytecode> compiler performance advantage, adding
 all compiler internal constants to the emitted bytecode.  Reverting
 this breakage was denied because this developer did not understand the
 code.  It is too bothersome in the long run to maintain our reversion
-of this breakage.  It easier to check for I<usecperl> in the compiler
-to be able to compile to bytecode properly again.
+of this breakage over years.  It easier to check for I<usecperl> in
+the compiler to be able to compile to bytecode properly again.
 
 =head2 Undo constant folding i_opt de-optimization
 
@@ -476,26 +488,29 @@ constant in the general case. (i.e. without the C<()> prototype)
 
 By announcing unicode support for names p5p silently allowed C<\0>
 inside names, which they called an advantage by supporting now binary
-safe names.  In reality unicode names were already supported since
-5.8.4 and the whole 5.16 unicode name theatre was only about binary
-names.  They didn't support binary names in all other code parts which
-had to deal with names, and thus enabled a huge attack vector to hide
-arbitrary user strings behind C<\0> names, which was silently stripped
-before and when used in syscalls.  They moved resonsibility to the
-user, as previously for input strings only, now also for input names,
-e.g. for package names which search the filesystem directly without
-sanitation or proper checks.
+safe names and "harmonization".  In reality unicode names were already
+supported since 5.8.4 and the whole 5.16 unicode name theatre was only
+about binary names.  They didn't support binary names in all other
+code parts which had to deal with names, and thus enabled a huge
+attack vector to hide arbitrary user strings behind C<\0> names, which
+was silently stripped before and when used in syscalls.  They moved
+resonsibility to the user, as previously for input strings only, now
+also for input names, e.g. for package names which search the
+filesystem directly without sanitation or proper checks. Support for
+those binary names is still not complete with 5.24 in core, even if
+p5p pushed so strong for it against my protest.
 
 We have to keep the new GV API - accepting the string length - but
 even without C<strict names> we strip everything behind the C<\0> as
 before 5.16.
 
 For a more efficient dynamic namespace implementation we might be
-switching from chained hash tables to a single ternary trie, radix tree or
-DAFSA, without support for C<\0> and maybe even without support for
-unicode names.
+switching from chained hash tables to a single ternary trie, radix
+tree or DAFSA, without support for C<\0> and maybe even without
+optional support for unicode names. Only with C<use utf8> we might
+need to fallback to the old slow method then.
 
-=head2 Warn on \0shellcode attempts for names (NY)
+=head2 Warn on \0shellcode attempts for names
 
 Make our C<use warnings "syscalls"> the default.
 
@@ -548,7 +563,7 @@ were added for the two usecases when the readonly bit is unset.  We
 need the C<SVf_PROTECT> bit to mark native SV's in pad's, and even
 reserved it in 2012.
 
-=head2 Fix the hashes (NY)
+=head2 Fix the hashes
 
 Provide proper hash table abstractions. We don't need 5 times the same
 bad code copied along for all different kind of HEK (hash key) types.
@@ -558,7 +573,8 @@ in the hot hash loop, use one instead.
 
 For the old hash tables use the new default strategy
 PERL_PERTURB_KEYS_TOP to move each found bucket to the top of the
-chain.
+chain. This is how you usually implement a hash table with linked
+lists.
 
 Use fast hash functions, not secure slow ones. We get security by
 fixing the algorithmic problem, not by obscuring the users and fellow
@@ -570,6 +586,7 @@ Provide a Configure argument to define the hash function: -Dhash_func=FNV1A
 
 Make the load factor definable, and change the default from 100% to
 90%, which was tested as superior.
+Use C<-Accflags='-DHV_FILL_RATE=100'> for the old behavior.
 
 B<Further plans:>
 
@@ -597,7 +614,8 @@ L</"Rewrite critical core modules in C as builtins"> below.
 =head2 coretypes: Int, UInt, Num, Str
 
 coretypes can only be built-in. Provide the 4 basic ones, and the
-combinations with C<Undef>. Type combination are done via C<@ISA>, i.e.
+combinations with C<Undef>, and the lowercase native types.
+Type combination are done via C<@ISA>, i.e.
 
     class ?Int :const { our @ISA :const = qw(Int Undef); }
 
@@ -650,7 +668,7 @@ to give up on magic, dualvars, and C<no strict 'refs'>. With the help
 of declarations and type checks, as e.g. in C<smartmatch> or
 C<given>/C<when> with type support it can infer much more.
 
-    if (type $a == "int") {  => $a is an int in this scope }
+    if (type $a eq "int") {  => $a is an int in this scope }
     $str =~ /(\d+)/; => $1 is a typed Int
 
 Compile-time type checks need to be enabled with C<use types;> though.
@@ -791,8 +809,10 @@ Negative constant indices are converted to positive at compile-time.
 
 No sparse arrays (i.e. hash with int keys) yet. but this would need a
 different declaration syntax if to be supported natively.
+
 e.g. C<my int %a{int};> - sparse array with int keys and int values.
 or C<my %a : hash(int);>
+
 variant 2: C<my IntSparseHash %a>, which can go with a user class
 and methods, but this will be slow, without native ops.
 
@@ -802,17 +822,18 @@ If a function body is inlinable, i.e. simple, with no control ops like
 return, goto caller, warn, die, reset, runcv, padrange, adds no
 seperate lexicals and has less than 10 ops, they are inlined.  Static
 methods are converted to functions before and then possibly inlined.
+This is the most important optimization, even more important then a jit.
 
 =head2 Rewrite critical core modules in C as builtins
 
-Builtins: C<strict>, C<Carp>, C<attributes>, C<DynaLoader>, C<XSLoader>,
-C<Exporter>.
+Builtins: C<strict>, C<attributes>, C<DynaLoader>, C<XSLoader>.
+NY: C<Carp>, C<Exporter>.
 
-As shared lib: C<warnings>, C<Config> and I<unicode folding tables> to save
+As shared lib: C<Config>, C<warnings> and I<unicode folding tables> to save
 memory, startup time and reduce bloat.
 
 Big constant hashes and tables need to be in a shared memory segment,
-not recompiled for every fork or thread, similar to the L<Encode> tables,
+not recompiled for every fork or thread, similar to the L<Encode> tables
 which are implemented properly. The risc to introduce even more performance
 regressions by keeping some critical core modules as F<.pm> is too high
 and broke the compiler too often. Most developers have no idea of the
@@ -884,6 +905,13 @@ The C<XSLoader::load_file($module, $modlibname, ...)> function is new,
 L<XSLoader> is a builtin also. C<...> is passed to the loaded XS function
 as with C<XSLoader::load($module, ...)>.
 
+=head3 Config as XS extension
+
+It is compiled as shared library, with all keys as readonly perfect
+hash.  Some internal variables are not accessible anymore, the API is
+via the documented functions. See our L<Mock::Config> module if you need
+to change a Config value for tests.
+
 =head3 warnings as XS extension (NY)
 
 It is compiled as shared library, the builtin categories are
@@ -893,12 +921,30 @@ documented functions.
 
 B<Status:> 1 scope bug with Carp. Not yet enabled.
 
-=head3 Config as XS extension
 
-It is compiled as shared library, with all keys as readonly perfect
-hash.  Some internal variables are not accessible anymore, the API is
-via the documented functions.
+=head2 Added the compiler back to core
 
+The L<B::C|http://search.cpan.org/dist/B-C/> testsuite runs too long
+for cpan users, and it needs to be developed in sync to avoid typical
+6 months wait-time after a core change.  Maybe provide python-like
+precompiled C<ByteCache> F<.pmc> as default. You could pre-compile
+then modules with higher optimization levels, esp. the type
+inferencer.
+
+Maybe include a C<Data::Compile> module to dump only data without all
+the code to a shared library, and possibly
+L<Perfect::Hash|https://github.com/rurban/Perfect-Hash> and a new
+F<ph.c> to create and optimize readonly hashes, which is needed for
+the shared XS hashes of Config, warnings and unicode tables.
+
+=head2 Backport core testsuite fixes for the compiler
+
+Honor differences between compile-time und run-time, when run
+compiled.  Other than a few wrong testcases, the compilers does pass
+the core testsuite.
+
+See L<https://github.com/perl11/p5-coretests> for a generally improved
+testsuite for perl5, cperl and B::C.
 
 =head1 Plans for further core features
 
@@ -951,27 +997,6 @@ properties.
 
 This evals all attributes at compile-time. Discourage its usage.
 
-=head2 Add the compiler back to core
-
-The L<B::C|http://search.cpan.org/dist/B-C/> testsuite runs too long
-for cpan users, and it needs to be developed in sync to avoid typical
-6 months wait-time after a core change.  Maybe provide python-like
-precompiled C<ByteCache> F<.pmc> as default. You could pre-compile
-then modules with higher optimization levels, esp. the type
-inferencer.
-
-Maybe include a C<Data::Compile> module to dump only data without all
-the code to a shared library, and possibly
-L<Perfect::Hash|https://github.com/rurban/Perfect-Hash> and a new
-F<ph.c> to create and optimize readonly hashes, which is needed for
-the shared XS hashes of Config, warnings and unicode tables.
-
-=head2 Backport core testsuite fixes for the compiler
-
-Honor differences between compile-time und run-time, when run
-compiled.  Other than a few wrong testcases, the compilers does pass
-the core testsuite.
-
 =head1 Longer term goals
 
 =head2 Faster functions calls
@@ -982,8 +1007,11 @@ detect it or the right compiler hint is given.
 
 =head2 tailcall optimization
 
-Detect tail positions and replace the call with a fast goto. This needs
-to be in core, not as external module.
+Detect tail positions and replace the call with a fast goto. This
+needs to be in core, not as external module. Without tailcall
+elimination handling longer lists leads to stack exhaustion. python
+did the same mistake as p5p by enforcing a new context for every goto.
+goto to signatures are now real fast tailcalls.
 
 =head2 Proper object system
 
@@ -997,10 +1025,11 @@ bless). Lexical methods are private, optimize dispatch for single
 inheritance. i.e the convenient class syntax extends on a single class
 only, classes are finalizable by the calling application.
 
-Eventually prepare multi-dispatch and optimize for early-bound method
-calls with typed arguments and closed classes.
+Support multi-dispatch in perl6 syntax and optimize for early-bound
+method calls with typed arguments and closed classes.
 
-Dispatch is via C3, not the old depth-first left-to-right mro implementation.
+Dispatch is via C3, not the old depth-first left-to-right mro
+implementation.
 
 For type inference we will need to make C<new> a special keyword,
 which is a shortcut for C<bless>, with a fixed classname. C<bless> can
@@ -1017,6 +1046,9 @@ integrated with gcc for java jni support.
    extern sub atoi(str $s):int;
    extern sub itoa(int $s):str;
    extern sub printf(str $s, ...):void;
+
+Note that this deviates from perl6 synatx with C<is native>, but perl6
+uses the C<is> traits for all function attributes, which we do not.
 
 =head2 Editor integration
 
@@ -1037,6 +1069,9 @@ and optimizing compiler, see luajit2,
 L<http://www.emulators.com/docs/nx25_nostradamus.htm> or
 L<http://nominolo.blogspot.de/2012/07/implementing-fast-interpreters.html>
 
+A tracing jit, and not a method jit sounds best, together with the inliner,
+native op sequences and loop optimizations.
+
 =head2 Optimize the vm, the runloop
 
 We carry around way too much bloat in the ops and the data, which is
@@ -1044,6 +1079,9 @@ not needed at run-time. e.g. the compiler throws away the nested
 symbol table stashes if not needed, which frees 20% memory.
 But think of a lua/p2-like redesign of tagged values and slimmer ops,
 and eventually put the stack onto the CPU stack.
+
+Note that p5p argues the opposite way. They want to add even more
+run-time branches to the ops, without any justification.
 
 Optimize special arithmetic op sequences to use unboxed integers and
 strings on the stack.  We experiment in allowing unboxed values on the
@@ -1062,7 +1100,7 @@ global stack to the local stack.  Probably no SSA (three arguments),
 just a cpu friendly two argument form as in p2/lua 5.1.
 
 Allow faster XS calls, user-provided function calls and method calls.
-provide support for named arguments in the vm, fast not via hashes.
+Provide support for named arguments in the vm, fast not via hashes.
 Many of the current io+sys ops are better implemented as library
 methods.  With ~50ops instead of >300 the runloop might fit into the
 L1 cache again.  Seperate calling of fixed arity methods from varargs.
@@ -1121,6 +1159,9 @@ C<:lvalue>.
     say fact(7);     # => 5040
     fact($_) = 5040; # solve it!
     say $_;          # => 7
+
+The type optimizer with advanced types might eventually benefit from
+its native performance.
 
 =head1 Development policies
 
@@ -1184,7 +1225,7 @@ recommended, as it features only about 5% memory savings. B::C can
 still strip the nested stashes (namespaces), but needs to keep all COW
 strings dynamic.
 
-With cperl we can again compile to more efficient code, with >35%
+With cperl we can again compile to more efficient code, with > 35%
 memory savings.
 
 See L<B::C|http://search.cpan.org/dist/B-C/>
