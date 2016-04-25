@@ -169,7 +169,8 @@ $ENV{PERL_DESTRUCT_LEVEL} = 2 unless exists $ENV{PERL_DESTRUCT_LEVEL};
 # check existence of all symbols
 $ENV{PERL_DL_NONLAZY} = 1 unless exists $ENV{PERL_DL_NONLAZY};
 
-$ENV{EMXSHELL} = 'sh';        # For OS/2
+# added with 4633a7c4bad06b471d9310620b7fe8ddd15 5.002 beta 1
+$ENV{EMXSHELL} = 'sh' if $^O eq 'os2'; # also done in Test::Harness
 
 if ($show_elapsed_time) { require Time::HiRes }
 my %timings = (); # testname => [@et] pairs if $show_elapsed_time.
