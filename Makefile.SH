@@ -62,8 +62,8 @@ true)
 			     -install_name \$(shrpdir)/\$@"
 		;;
 	cygwin*)
-		shrpldflags="$shrpldflags -Wl,--out-implib=libperl.dll.a -Wl,--image-base,0x52000000"
-		linklibperl="-L. -lperl"
+		shrpldflags="$shrpldflags -Wl,--out-implib=libcperl.dll.a -Wl,--image-base,0x52000000"
+		linklibperl="-L. -lcperl"
 		;;
 	sunos*)
 		linklibperl="-lperl"
@@ -1335,9 +1335,9 @@ _mopup:
 	-@test -f extra.pods && rm -f `cat extra.pods`
 	-@test -f vms/README_vms.pod && rm -f vms/README_vms.pod
 	-rm -f perl.exp ext.libs $(generated_pods) uni.data opmini.o perlmini.o pod/roffitall
-	-rm -f perl.export perl.dll perl.libexp perl.map perl.def
+	-rm -f perl.export cperl.dll perl.libexp perl.map perl.def
 	-rm -f *perl.xok
-	-rm -f cygwin.c libperl*.def libperl*.dll cygperl*.dll *.exe.stackdump
+	-rm -f cygwin.c libperl*.def libcperl*.dll cygcperl*.dll *.exe.stackdump
 	-rm -f $(PERL_EXE) $(MINIPERL_EXE) $(LIBPERL) libperl.* microperl
 	-rm -f config.arch config.over $(DTRACE_H)
 

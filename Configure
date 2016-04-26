@@ -8743,29 +8743,29 @@ true)
 		# number isn't really that important, except for making cc/ld happy.
 		#
 		# A name such as libperl.so.10.1
-		majmin="libperl.$so.$patchlevel.$subversion"
+		majmin="lib${package}.$so.$patchlevel.$subversion"
 		# A name such as libperl.so.100
 		majonly=`echo $patchlevel $subversion |
 			$awk '{printf "%d%02d", $1, $2}'`
-		majonly=libperl.$so.$majonly
+		majonly=lib${package}.$so.$majonly
 		# I'd prefer to keep the os-specific stuff here to a minimum, and
 		# rely on figuring it out from the naming of libc.
 		case "${osname}${osvers}" in
 		*linux*|gnu*)  # ld won't link with a bare -lperl otherwise.
-			dflt=libperl.$so
+			dflt=lib${package}.$so
 			;;
 		cygwin*) # ld links now against the dll directly
-			majmin="cygperl5_${patchlevel}_${subversion}.${so}"
+			majmin="cyg${package}5_${patchlevel}_${subversion}.${so}"
 			majonly=`echo $patchlevel $subversion |
 				$awk '{printf "%03d%03d", $1, $2}'`
-			majonly=cygperl5.$majonly.$so
+			majonly=cyg${package}5.$majonly.$so
 			dflt=$majmin
 			;;
 		*)	# Try to guess based on whether libc has major.minor.
 			case "$libc" in
 			*libc.$so.[0-9]*.[0-9]*) dflt=$majmin ;;
 			*libc.$so.[0-9]*) dflt=$majonly ;;
-			*)	dflt=libperl.$so ;;
+			*)	dflt=lib${package}.$so ;;
 			esac
 			;;
 		esac
