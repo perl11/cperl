@@ -85,10 +85,21 @@ EOS
 
 sub list_authors {
     my ($patchers, $authors) = @_;
+    my (@sorted, @ranked, $total);
+    while ( my ( $name, $count ) = each %$patchers ) {
+        push @{ $sorted[$count] }, $name;
+        $total += $count;
+    }
+    my $i = @sorted;
+    return unless @sorted;
+    my $sum = 0;
+    foreach my $i ( reverse 0 .. $#sorted ) {
+        next unless $sorted[$i];
+        push @ranked, map { $authors->{$_} } @{ $sorted[$i] };
+    }
+
     binmode(STDOUT, ":utf8");
-    print wrap '', '', join(', ', Unicode::Collate->new(level => 1)->sort(
-                      map { $authors->{$_} }
-                      keys %$patchers)) . ".\n";
+    print wrap '', '', join(', ', @ranked) . ".\n";
 }
 
 sub parse_commits_from_stdin {
@@ -221,7 +232,7 @@ sub read_authors_files {
     return unless (@authors);
     my (%count, %raw);
     foreach my $filename (@authors) {
-        open FH, "<$filename" or die "Can't open $filename: $!";
+        open FH, "<", $filename or die "Can't open $filename: $!";
         binmode FH, ':encoding(UTF-8)';
         while (<FH>) {
             next if /^\#/;
@@ -233,7 +244,6 @@ sub read_authors_files {
                 $raw{$email} = $name;
                 $count{$email}++;
             } elsif (/^([-A-Za-z0-9 .\'À-ÖØöø-ÿ]+)[\t\n]/) {
-
                 # Name only
                 $untraced{$1}++;
             } elsif ( length $_ ) {
@@ -862,8 +872,8 @@ roderick\100argon.org                   roderick\100gate.net
 argrath\100ub32.org                     root\100ub32.org
 rootbeer\100teleport.com                rootbeer\100redcat.com
 +                                       tomphoenix\100unknown
-rurban\100x-ray.at                      rurban\100cpan.org
-+                                       rurban\100cpanel.net
+rurban\100cpanel.net                    rurban\100cpan.org
++                                       rurban\100x-ray.at
 sartak\100bestpractical.com             sartak\100gmail.com
 +                                       code\100sartak.org
 sadinoff\100olf.com                     danny-cpan\100sadinoff.com

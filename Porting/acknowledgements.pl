@@ -33,7 +33,7 @@ my $since_until = shift;
 my ( $since, $until ) = split '\.\.', $since_until;
 
 die "Usage: perl Porting/acknowledgements.pl v5.15.0..HEAD [-c]"
-    unless $since_until && $since && $until;
+  unless $since_until && $since && $until;
 
 my $previous_version = previous_version();
 my $next_version     = next_version();
@@ -76,8 +76,8 @@ For a more complete list of all of Perl's historical contributors,
 please see the F<AUTHORS> file in the Perl source distribution.";
 
 if ($Config{usecperl} and @ARGV and $ARGV[0] eq '-c') {
-  my $text
-    = "cperl $next_version represents approximately $development_time of development
+  $text = 
+"cperl $next_version represents approximately $development_time of development
 since cperl $previous_version and contains approximately $formatted_changes
 lines of changes across $formatted_files files from $nauthors authors.
 
@@ -108,14 +108,18 @@ print "$wrapped\n";
 
 # return the previous Perl version, eg 5.15.0
 sub previous_version {
-    my $version = version->new($since);
+    my $from = $since;
+    $from =~ s/^cperl-(.*)/$1c/;
+    my $version = version->new($from);
     $version =~ s/^v//;
     return $version;
 }
 
 # returns the upcoming release Perl version, eg 5.15.1
 sub next_version {
-    my $version = version->new($since);
+    my $from = $since;
+    $from =~ s/^cperl-(.*)/$1c/;
+    my $version = version->new($from);
     ( $version->{version}->[-1] )++;
     return version->new( join( '.', @{ $version->{version} } ) );
 }
@@ -192,5 +196,5 @@ sub commify {
 # returns a list of the authors
 sub authors {
     return
-        qx(git log --pretty=fuller $since_until | $^X Porting/checkAUTHORS.pl --who -);
+        qx(git log --pretty=fuller $since_until | $^X -I. -Ilib Porting/checkAUTHORS.pl --who -);
 }
