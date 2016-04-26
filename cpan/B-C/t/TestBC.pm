@@ -686,15 +686,31 @@ sub run_cc_test {
         }
 	my $libdir  = File::Spec->catdir($Config{prefix}, "lib");
         my $so = $Config{so};
+        my $pkg = ($Config{usecperl} and $libperl =~ /libcperl/) ? "cperl" : "perl";
         my $linkargs = $ENV{PERL_CORE}
           ? ExtUtils::Embed::_ccdlflags." ".ExtUtils::Embed::_ldflags()
-           ." -L../.. -lperl ".$Config{libs}
+           ." -L../.. -l$pkg ".$Config{libs}
           : ExtUtils::Embed::ldopts('-std');
         # At least cygwin gcc-4.3 crashes with 2x -fstack-protector
         $linkargs =~ s/-fstack-protector\b//
           if $linkargs !~ /-fstack-protector-strong\b/
           and $command =~ /-fstack-protector\b/
           and $linkargs =~ /-fstack-protector\b/;
+
+        if ($^O =~ /^(cygwin|MSWin32|msys)/) {
+            if (index($command, "Win32CORE") < 0) {
+                my $archdir = $ENV{PERL_CORE} ? "../.." : $Config{archlib};
+                my $win32core = "-L$archdir/lib/auto/Win32CORE -lWin32CORE";
+                if (-e "$archdir/lib/auto/Win32CORE/Win32CORE.a") {
+                    $win32core = "$archdir/lib/auto/Win32CORE/Win32CORE.a";
+                }
+                if ($linkargs =~ / (-lc?perl)/) {
+                    $linkargs =~ s{ (-lc?perl)}{ $win32core $1};
+                } else {
+                    $linkargs .= " $win32core";
+                }
+            }
+        }
 	if ( -e "$coredir/$Config{libperl}" and $Config{libperl} !~ /\.$so$/) {
 	    $command .= $linkargs;
 	} elsif ( $useshrplib and (-e "$libdir/$Config{libperl}" or -e "/usr/lib/$Config{libperl}")) {

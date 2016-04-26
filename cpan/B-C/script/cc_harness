@@ -14,6 +14,7 @@ my $libs = $Config{libs};
 my $so = $Config{so};
 my $libperl = $Config{libperl};
 my ($linkargs, $quiet, $debug);
+my $pkg = ($Config{usecperl} and $libperl =~ /libcperl/) ? "cperl" : "perl";
 if (grep {$_ eq '-q' or $_ eq '--quiet'} @ARGV) {
   $quiet++;
   @ARGV = grep {$_ ne '-q' and $_ ne '--quiet'} @ARGV;
@@ -36,9 +37,9 @@ if (grep(/^-[cES]$/, @ARGV)) { # compile-only with -c -E or -S
 } elsif (grep(/^-Bstatic$/, @ARGV)) { # force static linking with -Bstatic
     @ARGV = grep{ !/^-Bstatic$/o } @ARGV;
     $linkargs = ldopts("-std");
-    for my $lib ("$libdir/libperl.a", "$coredir/libperl.a") {
+    for my $lib ("$libdir/lib$pkg.a", "$coredir/lib$pkg.a") {
       if (-e $lib) {
-	$linkargs =~ s|-lperl |$lib |;
+	$linkargs =~ s|-l$pkg |$lib |;
 	push @ARGV, ("$coredir/DynaLoader.o") if -e "$coredir/DynaLoader.o";
 	#$linkargs .= " $coredir/Win32CORE.o" if $^O eq 'cygwin' and -e "$coredir/Win32CORE.o";
 	last;
@@ -49,18 +50,33 @@ if (grep(/^-[cES]$/, @ARGV)) { # compile-only with -c -E or -S
 } elsif ( $useshrplib and -e "$libdir/$libperl") {
     # debian: /usr/lib/libperl.so.5.10.1 and broken ExtUtils::Embed::ldopts
     $linkargs = ldopts('-std');
-    $linkargs =~ s|-lperl |$libdir/$libperl |;
+    $linkargs =~ s|-lc?perl |$libdir/$libperl |;
 } elsif ( $useshrplib and -e "$coredir/$libperl") {
     # just help cygwin debugging
     $linkargs = ldopts('-std');
-    $linkargs =~ s|-lperl |$coredir/$libperl |;
+    $linkargs =~ s|-lc?perl |$coredir/$libperl |;
 } else { # try dynamic lib if no static lib exists
     @ARGV = grep{ !/^-Bdynamic$/o } @ARGV;
     $linkargs = ldopts('-std');
 }
 # Note (probably harmless): No library found for -lnsl
+# another ldopts bug: ensure Win32CORE gets added.
+if ($^O =~ /^(cygwin|MSWin32|msys)/) {
+    if (index($linkargs, "Win32CORE") < 0) {
+        my $archdir = $ENV{PERL_CORE} ? "../.." : $Config{archlib};
+        my $win32core = "-L$archdir/lib/auto/Win32CORE -lWin32CORE";
+        if (-e "$archdir/lib/auto/Win32CORE/Win32CORE.a") {
+            $win32core = "$archdir/lib/auto/Win32CORE/Win32CORE.a";
+        }
+        if ($linkargs =~ m{ (-lc?perl|\S*/$libperl)}) {
+            $linkargs =~ s{ (-lc?perl|\S*/$libperl)}{ $win32core $1};
+        } else {
+            $linkargs .= " $win32core";
+        }
+    }
+}
 $linkargs .= " -L".$coredir if $ENV{PERL_CORE};
-$linkargs .= " -lperl" unless $linkargs =~ /( -lperl|CORE\/libperl)/;
+$linkargs .= " -l$pkg" unless $linkargs =~ /( -lc?perl|CORE\/libc?perl)/;
 $linkargs = $B::C::Config::extra_libs . " " . $linkargs;
 $linkargs .= " $libs" if index($linkargs,$libs) == -1;
 
@@ -93,7 +109,20 @@ sub cc_harness_msvc {
     if ($debug) {
         $link .= " /DEBUG";
     }
-    $link .= " perl5$Config{PERL_VERSION}.lib kernel32.lib msvcrt.lib";
+    if (index($link, "Win32CORE") < 0) {
+        my $archdir = $ENV{PERL_CORE} ? "../.." : $Config{archlib};
+        my $win32core = "-L$archdir/lib/auto/Win32CORE -lWin32CORE";
+        if (-e "$archdir/lib/auto/Win32CORE/Win32CORE.lib") {
+            $win32core = "$archdir/lib/auto/Win32CORE/Win32CORE.lib";
+        }
+        $link .= " $win32core";
+    }
+    if ($Config{usecperl}) {
+        $link .= " cperl5$Config{PERL_VERSION}.lib";
+    } else {
+        $link .= " perl5$Config{PERL_VERSION}.lib";
+    }
+    $link .= " kernel32.lib msvcrt.lib";
     print "running $Config{cc} $compile" unless $quiet;
     system("$Config{cc} $compile");
     print "running $Config{ld} $link" unless $quiet;

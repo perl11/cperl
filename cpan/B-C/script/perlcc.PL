@@ -620,7 +620,22 @@ sub cc_harness_msvc {
     } else {
         $link .= $extra_libs;
     }
-    $link .= " perl5$Config{PERL_VERSION}.lib kernel32.lib msvcrt.lib";
+
+    # another ldopts bug: ensure Win32CORE gets added.
+    if (index($link, "Win32CORE") < 0) {
+        my $archdir = $ENV{PERL_CORE} ? "../.." : $Config{archlib};
+        my $win32core = "-L$archdir/lib/auto/Win32CORE -lWin32CORE";
+        if (-e "$archdir/lib/auto/Win32CORE/Win32CORE.a") {
+            $win32core = "$archdir/lib/auto/Win32CORE/Win32CORE.a";
+        }
+        $link .= " $win32core";
+    }
+    if ($Config{usecperl}) {
+        $link .= " cperl5$Config{PERL_VERSION}.lib";
+    } else {
+        $link .= " perl5$Config{PERL_VERSION}.lib";
+    }
+    $link .= " kernel32.lib msvcrt.lib";
     $link .= $B::C::Config::extra_libs;
     vprint 3, "Calling $Config{cc} $compile";
     vsystem("$Config{cc} $compile");
@@ -666,6 +681,21 @@ print OUT <<'!NO!SUBS!';
         $ldopts =~ s/-fstack-protector\b//;
         $ldflags =~ s/-fstack-protector\b// if $extra_libs;
     }
+    # another ldopts bug: ensure Win32CORE gets added, before -lperl
+    if (is_win32() or $^O eq 'cygwin') {
+        if (index($ldopts, "Win32CORE") < 0) {
+           my $archdir = $ENV{PERL_CORE} ? "../.." : $Config{archlib};
+           my $win32core = "-L$archdir/lib/auto/Win32CORE -lWin32CORE";
+           if (-e "$archdir/lib/auto/Win32CORE/Win32CORE.a") {
+               $win32core = "$archdir/lib/auto/Win32CORE/Win32CORE.a";
+           }
+           if ($ldopts =~ m{ (-lc?perl)}) {
+               $ldopts =~ s{ (-lc?perl)}{ $win32core $1};
+           } else {
+               $ldopts .= " $win32core";
+           }
+        }
+    }
     my ($libperl, $libdir, $coredir) = ($Config{libperl});
     if ($ENV{PERL_CORE}) {
         $libdir = $coredir = "../..";
@@ -697,17 +727,17 @@ print OUT <<'!NO!SUBS!';
         }
         for my $lib (@plibs) {
             if (-e $lib) {
-	        $ldopts =~ s|-lperl |$lib |;
-	        $ldopts =~ s|\s+\S+libperl\w+\.a | $lib |;
+	        $ldopts =~ s|-lc?perl |$lib |;
+	        $ldopts =~ s|\s+\S+libc?perl\w+\.a | $lib |;
 	        $ldopts = "$coredir/DynaLoader.o $ldopts" if -e "$coredir/DynaLoader.o";
 	        last;
             }
         }
     } elsif (opt('static')) {
         for my $lib ($libperl, "$coredir/$libperl", "$coredir/$libperl",
-                   "$coredir/libperl.a", "$libdir/libperl.a") {
+                   "$coredir/libperl.a", "$libdir/libperl.a", "$coredir/libcperl.a", "$libdir/libcperl.a") {
             if (-e $lib) {
-	        $ldopts =~ s|-lperl |$lib |;
+	        $ldopts =~ s|-lc?perl |$lib |;
 	        $ldopts = "$coredir/DynaLoader.o $ldopts" if -e "$coredir/DynaLoader.o";
 	        last;
             }
@@ -722,8 +752,12 @@ print OUT <<'!NO!SUBS!';
 	    $ldopts =~ s|-lperl |$coredir/$Config{libperl} |;
         }
     }
-    unless ( $command =~ m{( -lperl|/CORE\/libperl)} ) {
-        $ldopts .= " -lperl";
+    unless ( $command =~ m{( -lc?perl|/CORE\/libperl)} ) {
+        if ($Config{usecperl} and $libperl =~ /libcperl/) {
+            $ldopts .= " -lcperl";
+        } else {
+            $ldopts .= " -lperl";
+        }
         $ldopts .= " $Config{libs}" if $ENV{PERL_CORE}; # no -L found at all
     }
     $command .= " ".$ldopts;
