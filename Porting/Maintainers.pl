@@ -631,6 +631,7 @@ use File::Glob qw(:case);
         # cperl skips the ending 'c'
         'CUSTOMIZED'   => [ qw[ lib/ExtUtils/MM_Any.pm
                                 lib/ExtUtils/MM_Unix.pm
+                                lib/ExtUtils/Command/MM.pm
                                 lib/ExtUtils/MakeMaker.pm
                                 lib/ExtUtils/Mkbootstrap.pm
                                 t/basic.t

@@ -1680,10 +1680,11 @@ below the perl source tree. The support for extensions below the ext
 directory of the perl distribution is only good for the standard
 extensions that come with perl.
 
-If an extension is being built below the C<ext/> directory of the perl
-source then MakeMaker will set PERL_SRC automatically (e.g.,
-C<../..>).  If PERL_SRC is defined and the extension is recognized as
-a standard extension, then other variables default to the following:
+If an extension is being built below the C<ext/> C<cpan/> or C<dist/>
+directory of the perl source and PERL_CORE=1 is defined then MakeMaker
+will set PERL_SRC automatically (e.g., C<../..>).  If PERL_SRC is
+defined and the extension is recognized as a standard extension, then
+other variables default to the following:
 
   PERL_INC     = PERL_SRC
   PERL_LIB     = PERL_SRC/lib

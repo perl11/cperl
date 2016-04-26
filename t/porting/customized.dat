@@ -1,4 +1,5 @@
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
+B::C cpan/B-C/t/TestBC.pm 8919283e5ab09558885b3c44453b3da623b35e44
 CPAN cpan/CPAN/lib/CPAN.pm c1e6ea96ad32428244cbcefed7590da6ec0b318e
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.pm 486e732a515c6f3f1682f19a95a2eb2420040ac7
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f89aec2164476eb98e93f05a5e
@@ -27,7 +28,8 @@ Digest::MD5 cpan/Digest-MD5/t/files.t c38f1ab8150ad688de807d140fd410d7cd9410de
 Encode cpan/Encode/bin/enc2xs 5c0458d8fcafdefd71b8e813623ff343d5fb2bce
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 3548b0bb262b8d3a5345549ae5e43d1b3c4fb8e4
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t c01ba6e7a872c8a7fc26e277e0dea109616a5e56
-ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 95ba9d5f9a6667e874a5ce05893c4d5f9cdf6d00
+ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm ee0d36d1a3d0cc3e4201766fff6519edf7e99d1a
+ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 313ac548f069f321c940085bfea7e3abcfbe1c06
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm ac22b20036c5ad98510b98a2d1223cf119ef796a
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm 96ef2f03620f8b1a878cea552e75dbf579d5330a
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm 46dad3f6a0f55384a8e4bfa6e60c3e473f643265
@@ -40,7 +42,7 @@ Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm c99ef9e936a476a02a6
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm d965ac6c3091bde55450683b959771dbd100583a
 Net::Domain cpan/libnet/lib/Net/Domain.pm 1c8c8a02490c8209ce23a193dcd2c8e6d936dd92
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 99fe178fa11ef47b51df3795073318cd8f2faf5b
-Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL 7320ffd5e515f5e0401f59a66d26843fb8bf86af
+Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL d1473c88b8cc5543d174966096b95f2d84a7fdcc
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
 Safe dist/Safe/Safe.pm fb1cf6efdfcd1d2dac2aca90bccd05cb8d1ac1c4
 Safe dist/Safe/t/safeops.t 2254dd5654230a6de6082510fe766ef7cbb6e7e7

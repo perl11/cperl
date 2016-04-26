@@ -133,7 +133,8 @@ sub pod2man {
     delete $options{lax};
     my $count = scalar @ARGV / 2;
     my $plural = $count == 1 ? 'document' : 'documents';
-    print "Manifying $count pod $plural\n";
+    print "Manifying $count pod $plural\n"
+      unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
 
     do {{  # so 'next' works
         my ($pod, $man) = splice(@ARGV, 0, 2);
