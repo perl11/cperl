@@ -45,7 +45,7 @@ WriteMakefile(
     },
 
     ($ENV{PERL_CORE}
-     ? ('MAN1PODS' => { 'perldoc.pod' => '' })
+     ? ('MAN1PODS' => { })
      : ('MAN1PODS' => { 'perldoc.pod' => 'blib/man1/perldoc.1' })),
 
     ($^V >= 5.008001 && $^V < 5.012 ? ( 'INSTALLDIRS'  => 'perl' ) : ()),
