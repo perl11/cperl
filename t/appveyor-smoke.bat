@@ -13,6 +13,9 @@ rem many dozens of dirs when loading DLLs and starting processes.
 if "%PLATFORM%" == "X64" ( set "PATH=C:\windows\system32;C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\BIN\amd64;C:\Program Files (x86)\Windows Kits\8.1\bin\x64;C:\Program Files (x86)\Windows Kits\8.1\bin\x86;C:\windows;C:\Program Files\Git\cmd;C:\Program Files\Git\usr\bin" ) ELSE ( set "PATH=C:\windows\system32;C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\BIN;C:\Program Files (x86)\Windows Kits\8.1\bin\x86;C:\windows;C:\Program Files\Git\cmd;C:\Program Files\Git\usr\bin" )
 
 cd win32
+nmake CCTYPE=MSVC120 USE_NO_REGISTRY=define miniperl
+nmake CCTYPE=MSVC120 USE_NO_REGISTRY=define makeppport
+nmake CCTYPE=MSVC120 USE_NO_REGISTRY=define
 nmake test CCTYPE=MSVC120 USE_NO_REGISTRY=define TEST_JOBS=4 || exit /b
 exit /b
 
@@ -21,5 +24,8 @@ call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /%PLATFORM%
 if "%PLATFORM%" == "x64" ( set "PATH=C:\windows\system32;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\Bin\amd64;C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\x64;C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin;C:\windows;C:\Program Files\Git\cmd;C:\Program Files\Git\usr\bin" ) ELSE ( set "PATH=C:\windows\system32;c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\Bin;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE;C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin;C:\windows;C:\Program Files\Git\cmd;C:\Program Files\Git\usr\bin" )
 
 cd win32
+nmake CCTYPE=MSVC100 USE_NO_REGISTRY=define miniperl
+nmake CCTYPE=MSVC100 USE_NO_REGISTRY=define makeppport
+nmake CCTYPE=MSVC100 USE_NO_REGISTRY=define
 nmake test CCTYPE=MSVC100 USE_NO_REGISTRY=define TEST_JOBS=4 || exit /b
 exit /b
