@@ -177,7 +177,7 @@ use File::Glob qw(:case);
     },
 
     'B::C' => {
-        'DISTRIBUTION' => 'RURBAN/B-C-1.54.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/B-C-1.54_02.tar.gz',
         'FILES'        => q[cpan/B-C],
         'EXCLUDED'     => [
             qr{^.gdb},
@@ -222,7 +222,7 @@ use File::Glob qw(:case);
                 META.yml
                 )
         ],
-        'CUSTOMIZED'   => [ qw[ t/Test.pm t/test10 ] ],
+        'CUSTOMIZED'   => [ qw[ t/TestBC.pm t/test10 ] ],
     },
 
     'B::Debug' => {

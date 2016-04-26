@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_01';
+our $VERSION = '1.54_02';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -1852,10 +1852,10 @@ sub B::LISTOP::save {
     my $fop = $op;
     my $svop = $op->first;
     while ($svop != $op and ref($svop) ne 'B::NULL') {
-      if ($svop->name == 'const' and $svop->can('sv')) {
+      if ($svop->name eq 'const' and $svop->can('sv')) {
         $sv = $svop->sv;
       }
-      if ($sv and $sv->can("PV") and $sv->PV =~ /~/m) {
+      if ($sv and $sv->can("PV") and $sv->PV and $sv->PV =~ /~/m) {
         local $B::C::const_strings;
         warn "force non-static formline arg ",cstring($sv->PV),"\n" if $debug{pv};
         $svop->save($level, "svop const");
@@ -3283,7 +3283,9 @@ sub patch_dlsym {
     $pkg = $stash->can('NAME') ? $stash->NAME : '';
   }
   my $name = $sv->FLAGS & SVp_POK ? $sv->PVX : "";
-  my $ivxhex = sprintf("0x%x", $ivx);
+  my $ivx_s = $ivx;
+  $ivx_s =~ s/U?L?$//g;
+  my $ivxhex = sprintf("0x%x", $ivx_s);
   # Encode RT #94221
   if ($name =~ /encoding$/ and $name =~ /^(ascii|ascii_ctrl|iso8859_1|null)/ and $Encode::VERSION eq '2.58') {
     $name =~ s/-/_/g;
@@ -3411,7 +3413,7 @@ sub B::PVMG::save {
           and $fullname
           and $fullname =~ /^svop const|^padop|^Encode::Encoding| :pad\[1\]/)
          or $ITHREADS)
-        and $ivx > LOWEST_IMAGEBASE # some crazy heuristic for a sharedlibrary ptr in .data (> image_base)
+        and $sv->IVX > LOWEST_IMAGEBASE # some crazy heuristic for a sharedlibrary ptr in .data (> image_base)
         and ref($sv->SvSTASH) ne 'B::SPECIAL')
     {
       $ivx = patch_dlsym($sv, $fullname, $ivx);
@@ -6873,11 +6875,14 @@ _EOT8
     }
 #endif
 
+    PL_stashcache = (HV*)&PL_sv_undef; /* sometimes corrupted */
     if (PL_sv_objcount) {
+        PL_stashcache = newHV(); /* Hack: sometimes corrupted, holding a GV */
 	PL_in_clean_all = 1;
-	sv_clean_objs(); /* and now curse the rest */
+	sv_clean_objs();         /* and now curse the rest */
 	PL_sv_objcount = 0;
     }
+
     PL_warnhook = NULL;
     PL_diehook = NULL;
     /* call exit list functions */
@@ -6888,6 +6893,14 @@ _EOT8
 #if defined(PERLIO_LAYERS)
     PerlIO_cleanup(aTHX);
 #endif
+
+    PL_stashcache = (HV*)&PL_sv_undef;
+    /* Silence strtab refcnt warnings during global destruction */
+    Zero(HvARRAY(PL_strtab), HvMAX(PL_strtab), HE*);
+    /* NULL the HEK "dfs" */
+    PL_registered_mros = (HV*)&PL_sv_undef;
+    CopHINTHASH_set(&PL_compiling, NULL);
+
     return 0;
 }
 _EOT9
@@ -6967,10 +6980,6 @@ _EOT7
     }
     if (destruct_level >= 1) {
         const I32 max = HvMAX(PL_strtab);
-#if 0
-        Zero(HvARRAY(PL_strtab), max, HE*);
-        /*memset(HvARRAY(PL_strtab), 0, max * sizeof(HE*));*/
-#else
 	HE * const * const array = HvARRAY(PL_strtab);
 	I32 riter = 0;
 	HE *hent = array[0];
@@ -6989,11 +6998,10 @@ _EOT7
 		hent = array[riter];
 	    }
         }
-#endif
+        /* Silence strtab refcnt warnings during global destruction */
         Zero(HvARRAY(PL_strtab), max, HE*);
         /* NULL the HEK "dfs" */
         PL_registered_mros = (HV*)&PL_sv_undef;
-        PL_stashcache = (HV*)&PL_sv_undef;
         CopHINTHASH_set(&PL_compiling, NULL);
     }
 
@@ -7009,6 +7017,7 @@ _EOT7
               sva, sva+SvREFCNT(sva), (long)SvREFCNT(sva));
         }
     }
+
     return perl_destruct( my_perl );
 #else
     perl_destruct( my_perl );
@@ -7258,16 +7267,6 @@ _EOT9
               printf "\tmXPUSHp(\"%s\", %d);\n", $stashfile, length($stashfile);
             }
 	  }
-          # TODO Google #364: If a VERSION was provided need to add it here.
-          # Only fails with dev versions, like Socket 2.021_01 now.
-          # The best fix is to make XS_VERSION visible, via use vars (global),
-          # or our (in stash), but not via my. Fixing it up in the compiler is too hard,
-          # We would need to search for XS_VERSION in the main_cv padnames, check
-          # for _ and push it.
-          # E.g.
-          #   our $VERSION = '2.021_01';
-          #   our $XS_VERSION = $VERSION;   # A dev xs version needs to be global, not my
-          #   $VERSION = eval $VERSION;
 	  print "\tPUTBACK;\n";
 	  warn "bootstrapping $stashname added to XSLoader dl_init\n" if $verbose;
 	  # XSLoader has the 2nd insanest API in whole Perl, right after make_warnings_object()
@@ -7279,10 +7278,12 @@ _EOT9
 	      svref_2object( \@{$stashname."::ISA"} ) ->save;
 	    }
 	    warn '@',$stashname,"::ISA=(",join(",",@{$stashname."::ISA"}),")\n" if $debug{gv};
+            # TODO #364: if a VERSION was provided need to add it here
 	    print qq/\tcall_pv("XSLoader::load_file", G_VOID|G_DISCARD);\n/;
 	  } else {
 	    printf qq/\tCopFILE_set(cxstack[cxstack_ix].blk_oldcop, "%s");\n/,
 	      $stashfile if $stashfile;
+            # TODO #364: if a VERSION was provided need to add it here
 	    print qq/\tcall_pv("XSLoader::load", G_VOID|G_DISCARD);\n/;
 	  }
         }
@@ -7648,8 +7649,20 @@ sub walksymtable {
   my ($symref, $method, $recurse, $prefix) = @_;
   my ($sym, $ref, $fullname);
   $prefix = '' unless defined $prefix;
-  # reverse is to defer + - to fix Tie::Hash::NamedCapturespecial cases. GH #247
-  foreach my $sym ( reverse sort keys %$symref ) {
+
+  my @list = sort {
+    # we want these symbols to be saved last to avoid incomplete saves
+    # +/- reverse is to defer + - to fix Tie::Hash::NamedCapturespecial cases. GH #247
+    # _loose_name redefined from utf8_heavy.pl GH #364
+    foreach my $v (qw{- + utf8:: bytes::}) {
+        $a eq $v and return 1;
+        $b eq $v and return -1;
+    }
+    # reverse order for now to preserve original behavior before improved patch
+    $b cmp $a
+  } keys %$symref;
+
+  foreach my $sym ( @list ) {
     no strict 'refs';
     $ref = $symref->{$sym};
     $fullname = "*main::".$prefix.$sym;
