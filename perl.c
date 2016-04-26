@@ -3594,10 +3594,10 @@ S_minus_v(pTHX)
 #endif
 
 	PerlIO_printf(PIO_stdout,
-		      "\n\nCopyright 1987-2015, Larry Wall\n");
+		      "\n\nCopyright 1987-2016, Larry Wall\n");
 #ifdef USE_CPERL
 	PerlIO_printf(PIO_stdout,
-		      "cperl Copyright (c) 2012,2014,2015, cPanel Inc\n");
+		      "cperl Copyright (c) 2012,2014-2016, cPanel Inc\n");
 #endif
 #ifdef MSDOS
 	PerlIO_printf(PIO_stdout,

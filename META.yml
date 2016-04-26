@@ -1,7 +1,7 @@
 ---
-abstract: The Perl 5 language interpreter
+abstract: The cperl language interpreter
 author:
-  - perl5-porters@perl.org
+  - rurban@cpanel.net
 build_requires: {}
 dynamic_config: 1
 generated_by: CPAN::Meta version 2.150006, CPAN::Meta::Converter version 2.150005
@@ -9,7 +9,7 @@ license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-name: perl
+name: cperl
 no_index:
   directory:
     - cpan
@@ -118,9 +118,9 @@ no_index:
     - vutil.h
     - vxs.inc
 resources:
-  bugtracker: https://rt.perl.org/
-  homepage: http://www.perl.org/
+  bugtracker: http://github.com/perl11/cperl/issues
+  homepage: http://perl11.org/cperl/
   license: http://dev.perl.org/licenses/
-  repository: http://perl5.git.perl.org/
+  repository: http://github.com/perl11/cperl/
 version: '5.022002'
 x_serialization_backend: YAML::XS version 0.70

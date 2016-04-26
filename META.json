@@ -1,7 +1,7 @@
 {
-   "abstract" : "The Perl 5 language interpreter",
+   "abstract" : "The cperl language interpreter",
    "author" : [
-      "perl5-porters@perl.org"
+      "rurban@cpanel.net"
    ],
    "dynamic_config" : 1,
    "generated_by" : "CPAN::Meta version 2.150006",
@@ -11,7 +11,7 @@
    "meta-spec" : {
       "version" : 2
    },
-   "name" : "perl",
+   "name" : "cperl",
    "no_index" : {
       "directory" : [
          "cpan",
@@ -122,17 +122,17 @@
          "vxs.inc"
       ]
    },
-   "release_status" : "stable",
+   "release_status" : "testing",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://rt.perl.org/"
+         "web" : "http://github.com/perl11/cperl/issues"
       },
-      "homepage" : "http://www.perl.org/",
+      "homepage" : "http://perl11.org/cperl/",
       "license" : [
          "http://dev.perl.org/licenses/"
       ],
       "repository" : {
-         "url" : "http://perl5.git.perl.org/"
+         "url" : "http://github.com/perl11/cperl/"
       }
    },
    "version" : "5.022002",

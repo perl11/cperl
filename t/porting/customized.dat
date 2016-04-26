@@ -38,7 +38,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/Mkbootstrap.t 2f88adc65c55c7bd2e23
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fcad251b12d8b2412462b3
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm c99ef9e936a476a02a62191a3b0b6e20ed12c5ae
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 43a10d4f17eebcd894d4895b479f8c8926cc572e
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm d965ac6c3091bde55450683b959771dbd100583a
 Net::Domain cpan/libnet/lib/Net/Domain.pm 1c8c8a02490c8209ce23a193dcd2c8e6d936dd92
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 99fe178fa11ef47b51df3795073318cd8f2faf5b

@@ -22,7 +22,7 @@ the "pod" directory inside the release and on the web.
 [ACKNOWLEDGEMENTS SECTION FROM PERLDELTA]
 
 We expect to release version [NEXT BLEAD VERSION.SUBVERSION] on [FUTURE
-DATE].  The next major stable release of Perl 5, version 22.0, should
-appear in May 2015.
+DATE].  The next major stable release of Perl 5, version 24.0, should
+appear in May 2016.
 
 [YOUR SALUTATION HERE]

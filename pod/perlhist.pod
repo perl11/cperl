@@ -578,8 +578,8 @@ the strings?).
  Sawyer X  5.23.8       2016-Feb-20
  Abigail   5.23.9       2016-Mar-20
 
- Ricardo   5.23.0       2015-Jun-20     The 5.23 development track
- rurban    5.22.1c      2015-Sep-14     cperl 5.22.1
+ rurban    5.22.1c      2015-Sep-14     cperl 5.22
+ rurban    5.22.2c-RC1  2016-May-01
 
 =head2 SELECTED RELEASE MEMORY USAGE
 
@@ -588,16 +588,19 @@ releases, non-threaded.
 
   release       memory usage
   ==========================
-  perl5.6.2 	 60405
-  perl5.8.5	 77991
-  perl5.8.9	107468
-  perl5.10.1	114810
-  perl5.12.5	112494
-  perl5.14.4	115511
-  perl5.16.3	118067
-  perl5.18.4	122128
-  perl5.20.2	127253
-  perl5.22.0	127970
+  5.6.2 	 60405
+  5.8.5	         77991
+  5.8.9		107468
+  5.10.1	114810
+  5.12.5	112494
+  5.14.4	115511
+  5.16.3	118067
+  5.18.4	122128
+  5.20.2	127253
+  5.22.1	127970
+  5.22.1c	118640
+  5.22.2c	115015
+  5.24.0	127363
 
 For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags>:
 
@@ -618,7 +621,9 @@ For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags>:
   5.21.10	918720
   5.21.11	888951
   5.22.0	888978
-  cperl-5.22.1	595302
+  5.22.1c	595302
+  5.22.2c	641251
+  5.24.0	825211
 
 With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'>:
 
@@ -635,7 +640,9 @@ With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'>:
   5.18.2	2338119
   5.20.2	2451474
   5.22.0	2616925
-  cperl-5.22.1	2616792
+  5.22.1c	2616792
+  5.22.2c	1643170
+  5.24.0	2563329
 
     valgrind --tool=massif --massif-out-file=massif.$r ...
     grep -h mem_heap_B= massif.$r |cut -c12-|sort -rn|head -n1

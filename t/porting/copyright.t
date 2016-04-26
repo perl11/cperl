@@ -19,6 +19,7 @@ working on older releases. It should be run before making a new release.
 =cut
 
 
+BEGIN { push @INC, '.' }
 use TestInit;
 use strict;
 use Config;
