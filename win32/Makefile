@@ -4,8 +4,8 @@
 #	Microsoft Visual C++ 6.0 or later
 #	Windows SDK 64-bit compiler and tools
 #
-# This is set up to build a perl.exe that runs off a shared library
-# (perl522.dll).  Also makes individual DLLs for the XS extensions.
+# This is set up to build a cperl.exe that runs off a shared library
+# (cperl522.dll).  Also makes individual DLLs for the XS extensions.
 #
 
 ##
@@ -105,13 +105,13 @@ USE_LARGE_FILES	= define
 # HKEY_CURRENT_USER\Software\Perl and HKEY_LOCAL_MACHINE\Software\Perl in
 # the Registry.
 #
-#USE_NO_REGISTRY = define
+USE_NO_REGISTRY = define
 
 #
 # uncomment exactly one of the following
 #
 # Visual C++ 6.x (aka Visual C++ 98)
-CCTYPE		= MSVC60
+#CCTYPE		= MSVC60
 # Visual C++ .NET 2002/2003 (aka Visual C++ 7.x) (full version)
 #CCTYPE		= MSVC70
 # Visual C++ Toolkit 2003 (aka Visual C++ 7.x) (free command-line tools)
@@ -125,7 +125,7 @@ CCTYPE		= MSVC60
 # Visual C++ 2008 (aka Visual C++ 9.x) (full version)
 #CCTYPE		= MSVC90
 # Visual C++ 2008 Express Edition (aka Visual C++ 9.x) (free version)
-#CCTYPE		= MSVC90FREE
+CCTYPE		= MSVC90FREE
 # Visual C++ 2010 (aka Visual C++ 10.x) (full version)
 #CCTYPE		= MSVC100
 # Visual C++ 2010 Express Edition (aka Visual C++ 10.x) (free version)
@@ -696,7 +696,7 @@ UTILS		=			\
 		..\utils\cperlivp	\
 		..\utils\libnetcfg	\
 		..\utils\enc2xs		\
-		..\utils\encguess		\
+		..\utils\encguess	\
 		..\utils\piconv		\
 		..\utils\corelist	\
 		..\utils\cpan		\
@@ -832,6 +832,7 @@ UUDMAP_H	= ..\uudmap.h
 BITCOUNT_H	= ..\bitcount.h
 MG_DATA_H	= ..\mg_data.h
 GENERATED_HEADERS = $(UUDMAP_H) $(BITCOUNT_H) $(MG_DATA_H)
+MKPPPORTDEP     = ..\dist\PathTools\ppport.h
 
 MICROCORE_OBJ	= $(MICROCORE_SRC:.c=.obj)
 CORE_OBJ	= $(MICROCORE_OBJ) $(EXTRACORE_SRC:.c=.obj)
@@ -1096,6 +1097,10 @@ $(PERLDLL): perldll.def $(PERLDLL_OBJ) $(PERLDLL_RES) Extensions_static
 	$(EMBED_DLL_MANI)
 	$(XCOPY) $(PERLIMPLIB) $(COREDIR)
 
+$(COREDIR)\$(PERLIMPLIB:..\=.\): $(PERLDLL)
+
+$(COREDIR)\$(PERLSTATICLIB:..\=.\): $(PERLSTATICLIB)
+
 $(PERLSTATICLIB): Extensions_static
 	$(LIB32) $(LIB_FLAGS) -out:$@ @Extensions_static @<<
 		$(PERLDLL_OBJ)
@@ -1143,17 +1148,19 @@ $(PERLEXESTATIC): $(PERLSTATICLIB) $(CONFIGPM) $(PERLEXEST_OBJ) $(PERLEXE_RES)
 	    $(PERLEXEST_OBJ) $(PERLEXE_RES) $(PERLSTATICLIB) $(LIBFILES) $(SETARGV_OBJ)
 	$(EMBED_EXE_MANI)
 
-MakePPPort: $(MINIPERL) $(CONFIGPM) Extensions_nonxs
+MakePPPort: $(MINIPERL) $(CONFIGPM) $(MKPPPORTDEP)
+
+$(MKPPPORTDEP): $(MINIPERL) $(CONFIGPM) ..\mkppport ..\mkppport.lst
 	$(MINIPERL) -I..\lib ..\mkppport
 
 #-------------------------------------------------------------------------------
 # There's no direct way to mark a dependency on
 # DynaLoader.pm, so this will have to do
-Extensions: ..\make_ext.pl ..\lib\buildcustomize.pl $(PERLDEP) $(CONFIGPM) $(DYNALOADER) makeppport
+Extensions: ..\make_ext.pl ..\lib\buildcustomize.pl $(PERLDEP) $(CONFIGPM) $(DYNALOADER) $(MKPPPORTDEP) $(PERLDLL)
 	$(XCOPY) ..\*.h $(COREDIR)\*.*
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(MAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic
 
-Extensions_reonly: ..\make_ext.pl ..\lib\buildcustomize.pl $(PERLDEP) $(CONFIGPM) $(DYNALOADER) makeppport
+Extensions_reonly: ..\make_ext.pl ..\lib\buildcustomize.pl $(PERLDEP) $(CONFIGPM) $(DYNALOADER) $(MKPPPORTDEP)
 	$(XCOPY) ..\*.h $(COREDIR)\*.*
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(MAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic +re
 
@@ -1162,7 +1169,7 @@ Extensions_static : ..\make_ext.pl ..\lib\buildcustomize.pl list_static_libs.pl 
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(MAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --static
 	$(MINIPERL) -I..\lib list_static_libs.pl > Extensions_static
 
-Extensions_nonxs: ..\make_ext.pl ..\lib\buildcustomize.pl $(PERLDEP) $(CONFIGPM) ..\pod\perlfunc.pod
+Extensions_nonxs: ..\make_ext.pl ..\lib\buildcustomize.pl $(PERLDEP)
 	$(XCOPY) ..\*.h $(COREDIR)\*.*
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(MAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --nonxs
 
@@ -1175,9 +1182,6 @@ Extensions_clean:
 
 Extensions_realclean: 
 	-if exist $(MINIPERL) $(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(MAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --all --target=realclean
-
-makeppport: $(MINIPERL) $(CONFIGPM) $(Extensions_nonxs)
-	$(MINIPERL) -I..\lib ..\mkppport
 
 #-------------------------------------------------------------------------------
 
@@ -1300,7 +1304,8 @@ distclean: realclean
 	-if exist $(LIBDIR)\IO rmdir /s /q $(LIBDIR)\IO
 	-if exist $(LIBDIR)\IPC rmdir /s /q $(LIBDIR)\IPC
 	-if exist $(LIBDIR)\JSON rmdir /s /q $(LIBDIR)\JSON
-	-if exist $(LIBDIR)\LibYAML rmdir /s /q $(LIBDIR)\LibYAML
+	-if exist $(LIBDIR)\YAML\XS rmdir /s /q $(LIBDIR)\YAML\XS
+	-if exist $(LIBDIR)\YAML rmdir /s /q $(LIBDIR)\YAML
 	-if exist $(LIBDIR)\List rmdir /s /q $(LIBDIR)\List
 	-if exist $(LIBDIR)\Locale rmdir /s /q $(LIBDIR)\Locale
 	-if exist $(LIBDIR)\Math rmdir /s /q $(LIBDIR)\Math

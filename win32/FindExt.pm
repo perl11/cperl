@@ -100,7 +100,7 @@ sub has_xs_or_c {
         return 1 if $item =~ /\.c$/;
     }
     # LibYAML has the .xs and .c in a subdir
-    return 1 if $dir eq '../cpan/YAML-LibYAML';
+    return 1 if $dir =~ m{cpan/YAML-LibYAML};
     return 0;
 }
 
