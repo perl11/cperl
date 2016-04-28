@@ -328,6 +328,10 @@ Keeping our darwin performance fix for hostname
 
 Now based on Pod::Simple, not on Pod::Parser anymore.
 
+=item Pod-Functions 1.11
+
+Whitespace only to please the new Pod::Checker
+
 =back
 
 =head2 Not Updated Modules and Pragmata
