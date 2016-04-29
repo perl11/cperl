@@ -727,10 +727,16 @@ sub run_cc_test {
 	$command .= $B::C::Config::extra_libs;
         my $NULL = $^O eq 'MSWin32' ? '' : '2>/dev/null';
         my $cmdline = "$Config{cc} $command $NULL";
-        if ($Config{cc} eq 'cl') {
+        if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
             $cmdline = "$Config{ld} $linkargs -out:$exe $obj[0] $command";
         }
 	diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
+        if ($^O =~ /^(MSWin32|hpux)/ and $ENV{PERL_CORE}) {
+            # mingw with gcc and cygwin should work, but not tested.
+            # TODO: msvc throws linker errors. need to use link, not cl.
+            print "ok $cnt # skip $^O not yet ready\n";
+            return 1;
+        }
         run_cmd($cmdline, 20);
         unless (-e $exe) {
             print "not ok $cnt $todo failed $cmdline\n";
@@ -784,6 +790,10 @@ sub prepare_c_tests {
         }
         if (($Config{'extensions'} !~ /\bB\b/) ) {
             print "1..0 # Skip -- Perl configured without B module\n";
+            exit 0;
+        }
+        if ($^O eq 'MSWin32' and $ENV{PERL_CORE}) {
+            print "1..0 # Skip -- MSWin not yet ready\n";
             exit 0;
         }
         # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
@@ -900,6 +910,10 @@ sub plctest {
 
     if ($] > 5.021006 and !$B::C::Config::have_byteloader) {
         ok(1, "SKIP perl5.22 broke ByteLoader");
+        return 1;
+    }
+    if ($^O eq 'MSWin32' and $ENV{PERL_CORE}) {
+        ok(1, "SKIP MSWin not yet ready");
         return 1;
     }
     my $name = $base."_$num";

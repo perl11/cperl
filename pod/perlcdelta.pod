@@ -175,10 +175,12 @@ read and write permission regardless of current umask.
 
 =over 4
 
-=item B-C 1.54_01
+=item B-C 1.54_02
 
 With many cperl-specific improvements, global destruction fixes
 and PERL_CORE specific test changes.
+
+MS Windows with MSVC is not yet ready, sorry.
 
 =item Cpanel-JSON-XS 3.0213
 
