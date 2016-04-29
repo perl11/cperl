@@ -532,7 +532,7 @@ use File::Glob qw(:case);
     'Encode' => {
         'DISTRIBUTION' => 'DANKOGAI/Encode-2.84.tar.gz',
         'FILES'        => q[cpan/Encode],
-        # cperl fix to support make -s
+        # cperl fix to support make -s, formatting, enc2xs #114065 for win32
         'CUSTOMIZED'   => [ qw( bin/enc2xs )],
     },
 

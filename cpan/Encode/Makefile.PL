@@ -70,13 +70,13 @@ sub post_initialize
     # Find existing O_FILES
     foreach my $f (@{$self->{'O_FILES'}})
     {
-    $o{$f} = 1;
+        $o{$f} = 1;
     }
     my $x = $self->{'OBJ_EXT'};
     # Add the table O_FILES
     foreach my $e (keys %tables)
     {
-    $o{$e.$x} = 1;
+        $o{$e.$x} = 1;
     }
     # Trick case-blind filesystems.
     delete $o{'encode'.$x};
@@ -86,15 +86,15 @@ sub post_initialize
     my @files;
     foreach my $table (sort keys %tables)
     {
-    foreach my $ext (qw($(OBJ_EXT) .c .h .exh .fnm))
-    {
-    push (@files,$table.$ext);
+        foreach my $ext (qw($(OBJ_EXT) .c .h .exh .fnm))
+        {
+            push (@files,$table.$ext);
+        }
+        $self->{SOURCE} .= " $table.c"
+          if $^O eq 'MacOS' && $self->{SOURCE} !~ /\b$table\.c\b/;
     }
-    $self->{SOURCE} .= " $table.c"
-    if $^O eq 'MacOS' && $self->{SOURCE} !~ /\b$table\.c\b/;
-}
-$self->{'clean'}{'FILES'} .= join(' ',@files);
-return '';
+    $self->{'clean'}{'FILES'} .= join(' ',@files);
+    return '';
 }
 
 sub postamble
@@ -107,39 +107,37 @@ sub postamble
     $str  .= ' Encode.c';
     foreach my $table (sort keys %tables)
     {
-    $str .= " $table.c";
+        $str .= " $table.c";
     }
     $str .= "\n\n";
     foreach my $table (sort keys %tables)
     {
-    my $numlines = 1;
-    my $lengthsofar = length($str);
-    my $continuator = '';
-    my $enc2xs = $self->catfile('bin', 'enc2xs');
-    $str .= "$table.c : $enc2xs Makefile.PL";
-    foreach my $file (@{$tables{$table}})
-    {
-        $str .= $continuator.' '.$self->catfile($dir,$file);
-        if ( length($str)-$lengthsofar > 128*$numlines )
+        my $numlines = 1;
+        my $lengthsofar = length($str);
+        my $continuator = '';
+        my $enc2xs = $self->catfile('bin', 'enc2xs');
+        $str .= "$table.c : $enc2xs Makefile.PL";
+        foreach my $file (@{$tables{$table}})
         {
-        $continuator .= " \\\n\t";
-        $numlines++;
-        } else {
-        $continuator = '';
+            $str .= $continuator.' '.$self->catfile($dir,$file);
+            if ( length($str)-$lengthsofar > 128*$numlines )
+            {
+                $continuator .= " \\\n\t";
+                $numlines++;
+            } else {
+                $continuator = '';
+            }
         }
-    }
-    my $plib   = $self->{PERL_CORE} ? '"-I$(PERL_LIB)"' : '';
-    $plib .= " -MCross=$::Cross::platform" if defined $::Cross::platform;
-    my $ucopts = '-"Q" -"O"';
-    $str .=
-        qq{\n\t\$(PERL) $plib $enc2xs $ucopts -o \$\@ -f $table.fnm\n\n};
-    open (FILELIST, ">$table.fnm")
-        || die "Could not open $table.fnm: $!";
-    foreach my $file (@{$tables{$table}})
-    {
-        print FILELIST $self->catfile($dir,$file) . "\n";
-    }
-    close(FILELIST);
+        my $plib   = $self->{PERL_CORE} ? '"-I$(PERL_LIB)"' : '';
+        $plib .= " -MCross=$::Cross::platform" if defined $::Cross::platform;
+        $str .= qq{\n\t\$(PERL) $plib $enc2xs -QO -o \$\@ -f $table.fnm\n\n};
+        open (FILELIST, ">$table.fnm")
+          || die "Could not open $table.fnm: $!";
+        foreach my $file (@{$tables{$table}})
+        {
+            print FILELIST $self->catfile($dir,$file) . "\n";
+        }
+        close(FILELIST);
     }
     return $str;
 }

@@ -54,14 +54,14 @@ while (defined(my $file = readdir(ENC)))
 closedir(ENC);
 
 WriteMakefile(
-              INC		=> "-I../Encode",
+          INC		=> "-I../Encode",
           NAME		=> 'Encode::'.$name,
           VERSION_FROM	=> "$name.pm",
-          OBJECT		=> '$(O_FILES)',
-          'dist'		=> {
-          COMPRESS	=> 'gzip -9f',
-          SUFFIX	=> 'gz',
-          DIST_DEFAULT => 'all tardist',
+          OBJECT	=> '$(O_FILES)',
+          'dist'	=> {
+              COMPRESS	=> 'gzip -9f',
+              SUFFIX	=> 'gz',
+              DIST_DEFAULT => 'all tardist',
           },
           MAN3PODS	=> {},
           # OS 390 winges about line numbers > 64K ???
@@ -78,7 +78,7 @@ sub post_initialize
     # Add the table O_FILES
     foreach my $e (keys %tables)
     {
-    $o{$e.$x} = 1;
+        $o{$e.$x} = 1;
     }
     $o{"$name$x"} = 1;
     $self->{'O_FILES'} = [sort keys %o];
@@ -109,33 +109,33 @@ sub post_initialize
 #include "encode.h"
 END
     foreach my $table (sort keys %tables) {
-    print XS qq[#include "${table}.h"\n];
+        print XS qq[#include "${table}.h"\n];
     }
     print XS <<"END";
 
 static void
 Encode_XSEncoding(pTHX_ encode_t *enc)
 {
- dSP;
- HV *stash = gv_stashpv("Encode::XS", TRUE);
- SV *iv    = newSViv(PTR2IV(enc));
- SV *sv    = sv_bless(newRV_noinc(iv),stash);
- int i = 0;
- /* with the SvLEN() == 0 hack, PVX won't be freed. We cast away name's
- constness, in the hope that perl won't mess with it. */
- assert(SvTYPE(iv) >= SVt_PV); assert(SvLEN(iv) == 0);
- SvFLAGS(iv) |= SVp_POK;
- SvPVX(iv) = (char*) enc->name[0];
- PUSHMARK(sp);
- XPUSHs(sv);
- while (enc->name[i])
-  {
-   const char *name = enc->name[i++];
-   XPUSHs(sv_2mortal(newSVpvn(name,strlen(name))));
-  }
- PUTBACK;
- call_pv("Encode::define_encoding",G_DISCARD);
- SvREFCNT_dec(sv);
+  dSP;
+  HV *stash = gv_stashpv("Encode::XS", TRUE);
+  SV *iv    = newSViv(PTR2IV(enc));
+  SV *sv    = sv_bless(newRV_noinc(iv),stash);
+  int i = 0;
+  /* with the SvLEN() == 0 hack, PVX won't be freed. We cast away name's
+  constness, in the hope that perl won't mess with it. */
+  assert(SvTYPE(iv) >= SVt_PV); assert(SvLEN(iv) == 0);
+  SvFLAGS(iv) |= SVp_POK;
+  SvPVX(iv) = (char*) enc->name[0];
+  PUSHMARK(sp);
+  XPUSHs(sv);
+  while (enc->name[i])
+   {
+    const char *name = enc->name[i++];
+    XPUSHs(sv_2mortal(newSVpvn(name,strlen(name))));
+   }
+  PUTBACK;
+  call_pv("Encode::define_encoding",G_DISCARD);
+  SvREFCNT_dec(sv);
 }
 
 MODULE = Encode::$name	PACKAGE = Encode::$name
@@ -144,7 +144,7 @@ BOOT:
 {
 END
     foreach my $table (sort keys %tables) {
-    print XS qq[#include "${table}.exh"\n];
+        print XS qq[#include "${table}.exh"\n];
     }
     print XS "}\n";
     close(XS);
@@ -159,41 +159,39 @@ sub postamble
     $str    .= "$name.c : $name.xs ";
     foreach my $table (sort keys %tables)
     {
-    $str .= " $table.c";
+        $str .= " $table.c";
     }
     $str .= "\n\n";
     $str .= "$name\$(OBJ_EXT) : $name.c\n\n";
 
-    my $enc2xs = $self->catfile($self->updir,'bin', 'enc2xs');
+    my $enc2xs = $self->catfile($self->updir, 'bin', 'enc2xs');
     foreach my $table (sort keys %tables)
     {
-    my $numlines = 1;
-    my $lengthsofar = length($str);
-    my $continuator = '';
-    $str .= "$table.c : $enc2xs Makefile.PL";
-    foreach my $file (@{$tables{$table}})
-    {
-        $str .= $continuator.' '.$self->catfile($dir,$file);
-        if ( length($str)-$lengthsofar > 128*$numlines )
+        my $numlines = 1;
+        my $lengthsofar = length($str);
+        my $continuator = '';
+        $str .= "$table.c : $enc2xs Makefile.PL";
+        foreach my $file (@{$tables{$table}})
         {
-        $continuator .= " \\\n\t";
-        $numlines++;
-        } else {
-        $continuator = '';
+            $str .= $continuator.' '.$self->catfile($dir,$file);
+            if ( length($str)-$lengthsofar > 128*$numlines )
+            {
+                $continuator .= " \\\n\t";
+                $numlines++;
+            } else {
+                $continuator = '';
+            }
         }
-    }
-    my $plib   = $self->{PERL_CORE} ? '"-I$(PERL_LIB)"' : '';
-    $plib .= " -MCross=$::Cross::platform" if defined $::Cross::platform;
-    my $ucopts = '-"Q" -"O"';
-    $str .=  
-        qq{\n\t\$(PERL) $plib $enc2xs $ucopts -o \$\@ -f $table.fnm\n\n};
-    open (FILELIST, ">$table.fnm")
-        || die "Could not open $table.fnm: $!";
-    foreach my $file (@{$tables{$table}})
-    {
-        print FILELIST $self->catfile($dir,$file) . "\n";
-    }
-    close(FILELIST);
+        my $plib = $self->{PERL_CORE} ? '"-I$(PERL_LIB)"' : '';
+        $plib .= " -MCross=$::Cross::platform" if defined $::Cross::platform;
+        $str .= qq{\n\t\$(PERL) $plib $enc2xs -QO -o \$\@ -f $table.fnm\n\n};
+        open (FILELIST, ">$table.fnm")
+          || die "Could not open $table.fnm: $!";
+        foreach my $file (@{$tables{$table}})
+        {
+            print FILELIST $self->catfile($dir,$file) . "\n";
+        }
+        close(FILELIST);
     }
     return $str;
 }

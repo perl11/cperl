@@ -15,6 +15,7 @@ use strict;
 use ExtUtils::MakeMaker;
 use Getopt::Long;
 use Config;
+use File::Spec;
 
 my $is_developer = (-d '.git');
 
@@ -171,8 +172,8 @@ WriteMakefile(
         'Getopt::Long' => 0,
         'Cpanel::JSON::XS' => 0,
     },
-    INST_LIB  => ($ENV{PERL_CORE} ? '../../lib' : 'blib/lib'),
-    INST_ARCHLIB => ($ENV{PERL_CORE} ? '../../lib' : 'blib/arch'),
+    INST_LIB  => ($ENV{PERL_CORE} ? File::Spec->catfile(qw(.. .. lib)) : 'blib/lib'),
+    INST_ARCHLIB => ($ENV{PERL_CORE} ? File::Spec->catfile(qw(.. .. lib)) : 'blib/arch'),
     LIBS      => [join ' ', @libs],
     OBJECT    => q/$(O_FILES)/,
     EXE_FILES => ['bin/nytprofhtml', 'bin/flamegraph.pl', 'bin/nytprofcsv', 'bin/nytprofcalls', 'bin/nytprofcg', 'bin/nytprofmerge', 'bin/nytprofpf'],
@@ -290,8 +291,8 @@ sub dynamic {
     my $make = shift->SUPER::dynamic(@_);
     return $make if $Config::Config{usecperl}; # cperl has no broken XSLoader
 
-    my $xsl_dest_dir = '$(INST_LIB)/auto/$(FULLEXT)/$(PARENT_NAME)';
-    my $xsl_dest     = '$(XSL_DEST_DIR)/$(DLBASE).$(DLEXT)';
+    my $xsl_dest_dir = File::Spec->catdir('$(INST_LIB)','auto','$(FULLEXT)'.'$(PARENT_NAME)');
+    my $xsl_dest     = File::Spec->catdir('$(XSL_DEST_DIR)','$(DLBASE).$(DLEXT)');
 
     if($^O eq 'VMS'){
         $xsl_dest_dir = File::Spec->catdir('blib','lib','Devel','auto','Devel','NYTProf');
