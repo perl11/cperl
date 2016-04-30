@@ -19,7 +19,7 @@ BEGIN {use_ok('Net::Ping')};
 
 SKIP: {
   skip "icmp ping requires root privileges.", 1
-    unless &Net::Ping::_isroot;
+    if !Net::Ping::_isroot() or $^O eq 'MSWin32';
   my $p = new Net::Ping ("icmp",undef,undef,undef,undef,undef);
   isa_ok($p, 'Net::Ping');
   ok $p->ping("127.0.0.1");
