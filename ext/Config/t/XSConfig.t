@@ -1,8 +1,14 @@
 #!/usr/bin/perl
-
-if (scalar keys %Config:: > 2) {
-  print "0..1 #SKIP Cannot test with static or builtin Config\n";
-  exit;
+BEGIN {
+    $| = 1;
+    if (scalar keys %Config:: > 2) {
+        print "1..0 #SKIP Cannot test with static or builtin Config\n";
+        exit(0);
+    }
+    if ($ENV{PERL_CORE} and $^O eq 'MSWin32') {
+        print "1..0 #SKIP broken win32 CORE test\n";
+        exit(0);
+    }
 }
 
 require Config; #this is supposed to be XS config
@@ -21,8 +27,8 @@ unless (isXSUB($cv)) {
   if (-d 'regen') { #on CPAN
     warn "Config:: is not XS Config";
   } else {
-    print "0..1 #SKIP Config:: is not XS Config, miniperl?\n";
-    exit;
+    print "1..0 #SKIP Config:: is not XS Config, miniperl?\n";
+    exit(0);
   }
 }
 
