@@ -21,6 +21,8 @@ BEGIN {
 }
 use TestInit qw(T); # T is chdir to the top level
 use strict;
+use Config;
+use File::Spec;
 
 require 't/test.pl';
 
@@ -76,14 +78,27 @@ foreach (@maybe) {
 
 printf "1..%d\n", scalar @victims;
 
-foreach my $victim (@victims) {
- SKIP: {
-        skip ("$victim uses $excuses{$victim}, so can't test with just core modules")
-            if $excuses{$victim};
+# A previous CPAN installation will cause XS conflicts
+my ($have_sitearch, $site_excuse);
+if (-d $Config{installsitearch}
+    and -e File::Spec->catfile($Config{installsitearch}, "HTML", "Parser.pm"))
+{
+    $have_sitearch = 1;
+    $site_excuse = { 'utils/pod2html' => "HTML/Parser.pm" };
+}
 
-        my $got = runperl(switches => ['-c'], progfile => $victim, stderr => 1, nolib => 1);
-        is($got, "$victim syntax OK\n", "$victim compiles")
-            or diag("when executing perl with '-c $victim'");
+foreach my $victim (@victims) {
+  SKIP: {
+    local $::TODO;  
+    skip ("$victim uses $excuses{$victim}, so can't test with just core modules")
+      if $excuses{$victim};
+    if ($have_sitearch and $site_excuse->{$victim}) {
+        $::TODO = "$site_excuse->{$victim} already installed in sitearch, with possible XS binary incompatibility";
+    }
+
+    my $got = runperl(switches => ['-c'], progfile => $victim, stderr => 1, nolib => 1);
+    is($got, "$victim syntax OK\n", "$victim compiles")
+      or diag("when executing perl with '-c $victim'");
     }
 }
 
