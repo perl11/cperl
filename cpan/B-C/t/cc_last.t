@@ -1,7 +1,6 @@
 #! /usr/bin/env perl
 # B::CC limitations with last/next/continue. See README.
 # See also issue36.t
-use Test::More tests => 4;
 use strict;
 BEGIN {
   if ($ENV{PERL_CORE}) {
@@ -11,6 +10,7 @@ BEGIN {
   }
   require TestBC;
 }
+use Test::More tests => 4;
 my $base = "ccode_last";
 
 # XXX Bogus. This is not the real 'last' failure as described in the README

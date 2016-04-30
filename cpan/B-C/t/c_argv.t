@@ -1,14 +1,14 @@
 #! /usr/bin/env perl
 use strict;
 use Config;
-use Test::More ($ENV{PERL_CORE}
-                and ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/))
-  ? (skip_all => "cc -m32 is not supported with PERL_CORE")
-  : (tests => 4);
 BEGIN {
   unshift @INC, 't';
   require TestBC;
 }
+use Test::More ($ENV{PERL_CORE}
+                and ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/))
+  ? (skip_all => "cc -m32 is not supported with PERL_CORE")
+  : (tests => 4);
 
 my $runperl = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
 my $Mblib = Mblib();

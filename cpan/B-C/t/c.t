@@ -1,5 +1,7 @@
 #! /usr/bin/env perl
 # better use testc.sh for debugging
+use Config;
+use File::Spec;
 BEGIN {
   if ($ENV{PERL_CORE}) {
     unshift @INC, ('t', '../../lib');

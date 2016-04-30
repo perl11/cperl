@@ -798,7 +798,13 @@ sub prepare_c_tests {
         }
         # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
         if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
-            print "1..0 # skip - no OLD COW for now\n";
+            print "1..0 # Skip -- no OLD COW for now\n";
+            exit 0;
+        }
+        if ($ENV{PERL_CORE}
+            and -f File::Spec->catfile($Config::Config{'sitearch'}, "Opcodes.pm"))
+        {
+            print "1..0 # Skip -- <sitearch>/Opcodes.pm installed. Possible XS conflict\n";
             exit 0;
         }
     }

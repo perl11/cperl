@@ -4,10 +4,34 @@
 
 use strict;
 use Config;
-use Test::More ($ENV{PERL_CORE}
-                and ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/))
-  ? (skip_all => "cc -m32 is not supported with PERL_CORE")
-  : (tests => 79);
+my @plan;
+use File::Spec;
+BEGIN {
+  @plan = (tests => 79);
+  if ($ENV{PERL_CORE}) {
+    if ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/) {
+      @plan = (skip_all => "cc -m32 is not supported with PERL_CORE");
+    }
+    if (-f File::Spec->catfile($Config::Config{'sitearch'}, "Opcodes.pm")) {
+      @plan = (skip_all => '<sitearch>/Opcodes.pm installed. Possible XS conflict');
+    }
+    if ($^O eq 'MSWin32') {
+      @plan = (skip_all => 'B::C linkage not yet ready on MSWin32 MSVC');
+    }
+  }
+  if ($^O eq 'VMS') {
+    @plan = (skip_all => "B::C doesn't work on VMS");
+  }
+  if (($Config{'extensions'} !~ /\bB\b/) ) {
+    @plan = (skip_all => "Perl configured without B module");
+  }
+  # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
+  if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
+    @plan = (skip_all => "no OLD COW for now");
+  }
+}
+
+use Test::More @plan;
 
 my $usedl = $Config{usedl} eq 'define';
 my $X = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
