@@ -206,7 +206,11 @@ is ($err, '', 'No errors when determining @INC');
 
 my @default_inc = split /\n/, $out;
 
-is ($default_inc[-1], '.', '. is last in @INC');
+if ($Config{usecperl} or $Config{ccflags} =~ /Dfortify_inc/) {
+  isnt ($default_inc[-1], '.', '. not last in @INC');
+} else {
+  is ($default_inc[-1], '.', '. is last in @INC');
+}
 
 my $sep = $Config{path_sep};
 my @test_cases = (
