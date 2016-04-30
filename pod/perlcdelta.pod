@@ -212,6 +212,10 @@ Needed for the perl debugger with readline.
 
 =over 4
 
+=item B::Debug 1.23_01
+
+Skip CORE test with B::Flags XS installed in sitearch.
+
 =item podlators 4.0.7
 
 Remove unneeded pod2*.PL customizations

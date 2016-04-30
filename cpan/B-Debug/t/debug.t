@@ -1,33 +1,34 @@
 #!./perl
 
+use Config;
+use File::Spec;
 BEGIN {
     delete $ENV{PERL_DL_NONLAZY} if $] < 5.005_58; #Perl_byterun problem
-    if ($ENV{PERL_CORE}){
-	chdir('t') if -d 't';
+    if ($ENV{PERL_CORE}) {
 	if ($^O eq 'MacOS') {
 	    @INC = qw(: ::lib ::macos:lib);
 	} else {
-	    @INC = '.';
-	    push @INC, '../lib';
+	    @INC = ('.', '../../lib');
 	}
+        if (-f File::Spec->catfile($Config{'sitearch'}, "B", "Flags.pm")) {
+            print "1..0 # Skip -- <sitearch>/B/Flags.pm installed. Possible XS conflict\n";
+            exit 0;
+        }
     } else {
 	unshift @INC, 't';
     }
-    require Config;
-    if (($Config::Config{'extensions'} !~ /\bB\b/) ){
+    unless ($Config{'extensions'} =~ /\bB\b/) {
         print "1..0 # Skip -- Perl configured without B module\n";
         exit 0;
     }
 }
 
-$|  = 1;
+$| = 1;
 use warnings;
 use strict;
-use Config;
 use Test::More tests => 11;
 use B;
 use B::Debug;
-use File::Spec;
 
 my $a;
 my $X = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
