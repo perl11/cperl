@@ -43,7 +43,7 @@ deploy_script:
 - cmd: >-
     if "%MSVC_VERSION%" == "10" exit /b
     nmake install CCTYPE=MSVC120 USE_NO_REGISTRY=define
-    C:\cperl\usr\bin\cperlivp
+    C:\cperl\bin\cperlivp
     7z a -y -sfx cperl-%APPVEYOR_REPO_TAG_NAME%-win%PLATFORM%.exe c:\cperl\
     del /s /f /q C:\cperl
 

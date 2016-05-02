@@ -1185,7 +1185,8 @@ Extensions_realclean:
 
 #-------------------------------------------------------------------------------
 
-doc: $(PERLEXE) ..\pod\perltoc.pod
+doc:
+	$(PERLEXE) -f ..\pod\buildtoc -q
 	$(PERLEXE) ..\installhtml --podroot=.. --htmldir=$(HTMLDIR) \
 	    --podpath=pod:lib:utils --htmlroot="file://$(INST_HTML::=|)" \
 	    --recurse
