@@ -26,14 +26,12 @@ maintenance than the upstream p5p perl5. See [README.cperl](perlcperl.html).
 Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 
-The first release
-[5.22.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.1)
-was at Sep. 14, 2015.  The next release 5.22.2c is somewhen planned
-close to the perl5.22.2 release date and cperl-5.24.0 close to
-perl-5.24.0.
+The current release [5.22.2c-RC1](https://github.com/perl11/cperl/releases/)
+is stable but marked as RC1. 5.22.2c final is planned close to the perl5.22.2
+release date and cperl-5.24.0 close to perl-5.24.0.
 
-All tests pass, most of CPAN works, for 5.22.1c 3 fixes in my
-`rurban/distroprefs` repo for `Variable::Magic` and
+All tests pass. CPAN works.
+For 5.22.1c 3 fixes in my `rurban/distroprefs` repo for `Variable::Magic` and
 `CPAN::Meta::Requirements` and `version` are needed.  This is much
 less than with a typical major perl5 release.
 With 5.22.2c and 5.24.0c there are no CPAN patches needed so far.
@@ -77,24 +75,51 @@ When in doubt I went with the decisions and policies perl5 made
 before 2001. It is very unlikely that p5p will revert their own design
 mistakes. It never happened so far.
 
+# Installation
+
+From source:
+
+Download the latest .tar.gz or .tar.bz2 from [github.com/perl11/cperl/releases/](https://github.com/perl11/cperl/releases/)
+
+    tar xfz cperl-5.VER
+    cd cperl-5.VER
+    ./Configure -sde
+    make -s -j4 test
+    sudo make install
+
+rpm:
+
+add this file to `/etc/yum.repos.d/perl11.repo`, with either `el6` or `el7`.
+`el6` for Centos6 and older Fedora and RHEL, `el7` for Centos7 and newer variants.
+
+    [perl11]
+    name=perl11
+    baseurl=https://perl11.org/rpm/el7/$basearch
+    enabled=1
+
+  run: `yum update; yum install cperl`
+
+debian:
+
+in work
+
+osx:
+
+download the pkg installer from [https://perl11.org/osx/](https://perl11.org/osx/)
+
+windows:
+
+download the self-extracting zip from [https://perl11.org/win/](https://perl11.org/win/)
+and install it into drive and directory `C:\cperl`.
+
+
 # Known bugs
 
 See the github issues: [github.com/perl11/cperl/issues](http://github.com/perl11/cperl/issues)
 
+The perlcc compiler cannot yet link on windows with MSVC.
+
 With 32bit fast-arithmetic optimizations are currently disabled.
-
-OS-specific non-unix Makefiles (e.g. Windows, VMS, os2, Cross, NetWare..)
-cannot generate a dynamic Config yet. You may call it our temp. _"Config hell"_,
-but it's worth it. Use our **master** branch instead.
-
-Parallel builds sometimes stop at missing `Config.pm`. Redo the make
-then.  Packagers should try a 2nd make if the first stops, sorry. See
-the `.travis.yml` recipe. This is also fixed in **master**.
-
-Without `-Dusecperl`, i.e. building a normal perl5, fails on a few tests.
-You shouldn't do that. See [#34](http://github.com/perl11/cperl/issues/34).
-USE_CPERL only makes it easier to take patches to upstream, but not all
-cornercases are adjusted.
 
 # Branch overview
 
@@ -195,4 +220,4 @@ They also revert some wrong decisions p5p already made.
 
 * builtin ffi
 
-2015-09-16 rurban
+2016-05-02 rurban
