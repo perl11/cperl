@@ -96,6 +96,8 @@ add this file to `/etc/yum.repos.d/perl11.repo`, with either `el6` or `el7`.
     name=perl11
     baseurl=http://perl11.org/rpm/el7/$basearch
     enabled=1
+    gpgkey==http://perl11.org/rpm/RPM-GPG-KEY-rurban
+    gpgcheck=1
 
 run: `yum update; yum install cperl`
 
