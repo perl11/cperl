@@ -94,10 +94,10 @@ add this file to `/etc/yum.repos.d/perl11.repo`, with either `el6` or `el7`.
 
     [perl11]
     name=perl11
-    baseurl=https://perl11.org/rpm/el7/$basearch
+    baseurl=http://perl11.org/rpm/el7/$basearch
     enabled=1
 
-  run: `yum update; yum install cperl`
+run: `yum update; yum install cperl`
 
 debian:
 
