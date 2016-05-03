@@ -276,8 +276,7 @@ pod/cperl.pod	Pod NAME already used	1
 pod/cperl.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perl.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perl5222cdelta.pod	? Should you be using F<...> or maybe L<...> instead of	1
-pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	1
-pod/perlapi.pod	? Should you be using L<...> instead of	80
+pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlcall.pod	Verbatim line length including indents exceeds 79 by	2
@@ -288,16 +287,15 @@ pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	13
 pod/perlcygwin.pod	Verbatim line length including indents exceeds 79 by	20
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	27
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perldelta.pod	Apparent broken link	7
+pod/perldelta.pod	Apparent broken link	5
 pod/perldtrace.pod	Verbatim line length including indents exceeds 79 by	7
 pod/perlgit.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlguts.pod	? Should you be using L<...> instead of	1
-pod/perlguts.pod	Verbatim line length including indents exceeds 79 by	1
+pod/perlguts.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlhack.pod	? Should you be using L<...> instead of	1
 pod/perlhist.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlhpux.pod	Verbatim line length including indents exceeds 79 by	7
 pod/perlhurd.pod	Verbatim line length including indents exceeds 79 by	2
-pod/perlintern.pod	? Should you be using L<...> instead of	5
 pod/perlinterp.pod	? Should you be using L<...> instead of	1
 pod/perliol.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perlipc.pod	Verbatim line length including indents exceeds 79 by	19
