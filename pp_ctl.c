@@ -1489,7 +1489,7 @@ S_dopoptogivenfor(pTHX_ I32 startingblock)
 	    DEBUG_l( Perl_deb(aTHX_ "(dopoptogivenfor(): found given at cx=%ld)\n", (long)i));
 	    return i;
 	case CXt_LOOP_PLAIN:
-            assert(!(cx->cx_type & CXp_FOR_DEF));
+	    assert(!CxFOREACHDEF(cx));
 	    break;
 	case CXt_LOOP_LAZYIV:
 	case CXt_LOOP_LAZYSV:
