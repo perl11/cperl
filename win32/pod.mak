@@ -45,6 +45,7 @@ POD = cperl.pod	\
 	perl5221cdelta.pod	\
 	perl5221delta.pod	\
 	perl5222cdelta.pod	\
+	perl5240cdelta.pod	\
 	perl5240delta.pod	\
 	perl561delta.pod	\
 	perl56delta.pod	\
@@ -188,6 +189,7 @@ MAN = cperl.man	\
 	perl5221cdelta.man	\
 	perl5221delta.man	\
 	perl5222cdelta.man	\
+	perl5240cdelta.man	\
 	perl5240delta.man	\
 	perl561delta.man	\
 	perl56delta.man	\
@@ -331,6 +333,7 @@ HTML = cperl.html	\
 	perl5221cdelta.html	\
 	perl5221delta.html	\
 	perl5222cdelta.html	\
+	perl5240cdelta.html	\
 	perl5240delta.html	\
 	perl561delta.html	\
 	perl56delta.html	\
@@ -474,6 +477,7 @@ TEX = cperl.tex	\
 	perl5221cdelta.tex	\
 	perl5221delta.tex	\
 	perl5222cdelta.tex	\
+	perl5240cdelta.tex	\
 	perl5240delta.tex	\
 	perl561delta.tex	\
 	perl56delta.tex	\

@@ -110,6 +110,7 @@ print "$wrapped\n";
 sub previous_version {
     my $from = $since;
     $from =~ s/^cperl-(.*)/$1c/;
+    $from =~ s/-RC\dc$/c/;
     my $version = version->new($from);
     $version =~ s/^v//;
     return $version;
@@ -119,6 +120,7 @@ sub previous_version {
 sub next_version {
     my $from = $since;
     $from =~ s/^cperl-(.*)/$1c/;
+    $from =~ s/-RC\dc$/c/;
     my $version = version->new($from);
     ( $version->{version}->[-1] )++;
     return version->new( join( '.', @{ $version->{version} } ) );

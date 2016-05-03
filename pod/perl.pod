@@ -227,6 +227,7 @@ aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
 
     perlcperl		Perl notes for cperl (variant)
     perlcdelta		cperl changes since previous version
+    perl5222cdelta	cperl changes in version 5.22.2c
     perl5221cdelta	cperl changes in version 5.22.1c
 
     perlartistic	Perl Artistic License
