@@ -2133,7 +2133,9 @@ PP(pp_enteriter)
 	    SvPADSTALE_on(itersave);
 	}
         SvREFCNT_inc_simple_void_NN(itersave);
-	cxflags = CXp_FOR_PAD;
+	cxflags = (PL_op->op_private & OPpITER_DEF)
+            ? CXp_FOR_PAD|CXp_FOR_DEF
+            : CXp_FOR_PAD;
     }
     else {
 	SV * const sv = POPs;
@@ -2153,7 +2155,7 @@ PP(pp_enteriter)
             cxflags = CXp_FOR_LVREF;
         }
     }
-    /* OPpITER_DEF (implicit $_) should only occur with a GV iter var */
+    /* OPpITER_DEF (implicit $_) should only occur with a GV or PAD iter var */
     assert((cxflags & (CXp_FOR_GV|CXp_FOR_PAD))
            || !(PL_op->op_private & OPpITER_DEF));
 
