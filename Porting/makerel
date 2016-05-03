@@ -150,6 +150,7 @@ my @writables = qw(
     cpan/Devel-PPPort/module2.c
     cpan/Devel-PPPort/module3.c
     cpan/autodie/t/touch_me
+    ext/Config/Makefile.PL
     ext/Config/Config_xs.in
     ext/Config/Config_xs.out
     reentr.c

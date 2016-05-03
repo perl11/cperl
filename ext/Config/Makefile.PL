@@ -62,9 +62,12 @@ use ExtUtils::Command ();
     # touch what we plan for UNINST to be in the makefile
     @ARGV  = 'UNINST_'.($uninst ? '1' : '0');
     ExtUtils::Command::touch();
-    # now touch Makefile.PL so the above doesn't trigger a rebuild
-    @ARGV = 'Makefile.PL';
-    ExtUtils::Command::touch();
+    # now touch Makefile.PL so the above doesn't trigger a rebuild.
+    # note that with a src tarball, Makefile.PL is readonly
+    if (-w 'Makefile.PL') {
+        @ARGV = 'Makefile.PL';
+        ExtUtils::Command::touch();
+    }
     @ARGV = 'Makefile'; #we aren't inside WriteMakefile with open FH anymore
     ExtUtils::Command::touch();
     # if Makefile.PL and poison target are the same second, no rebuild happens
