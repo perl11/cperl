@@ -4408,11 +4408,10 @@ PP(pp_entergiven)
 #if 0   /* old */
         SAVECLEARSV(PAD_SVl(PL_op->op_targ));
         /*SAVESPTR(PAD_SVl(PL_op->op_targ));*/ /* dont mortalize old my $_ */
-	SvREFCNT_dec(PAD_SVl(PL_op->op_targ));
 #else
 	SAVEPADSVANDMORTALIZE(PL_op->op_targ);
-	SvREFCNT_dec(PAD_SVl(PL_op->op_targ));
 #endif
+	SvREFCNT_dec(PAD_SVl(PL_op->op_targ));
         origsv = newsv;
 	PAD_SVl(PL_op->op_targ) = SvREFCNT_inc_NN(newsv);
     }
