@@ -321,7 +321,6 @@ dist/thread-queue/lib/thread/queue.pm	Verbatim line length including indents exc
 dist/threads/lib/threads.pm	Verbatim line length including indents exceeds 79 by	3
 dist/tie-file/lib/tie/file.pm	Verbatim line length including indents exceeds 79 by	3
 dist/time-hires/hires.pm	Apparent broken link	2
-dist/time-hires/hires.pm	Verbatim line length including indents exceeds 79 by	1
 ext/amiga-arexx/arexx.pm	Verbatim line length including indents exceeds 79 by	2
 ext/amiga-exec/exec.pm	Verbatim line length including indents exceeds 79 by	2
 ext/devel-peek/peek.pm	? Should you be using L<...> instead of	2
@@ -355,8 +354,9 @@ pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	13
 pod/perlcygwin.pod	Verbatim line length including indents exceeds 79 by	20
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	27
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perldelta.pod	Apparent broken link	5
+pod/perldelta.pod	Apparent broken link	1
 pod/perldtrace.pod	Verbatim line length including indents exceeds 79 by	7
+pod/perlfunc.pod	Verbatim line length including indents exceeds 79 by	12
 pod/perlgit.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlguts.pod	? Should you be using L<...> instead of	1
 pod/perlguts.pod	Verbatim line length including indents exceeds 79 by	1
@@ -395,7 +395,6 @@ porting/release_cperl.pod	Verbatim line length including indents exceeds 79 by	4
 porting/release_managers_guide.pod	Verbatim line length including indents exceeds 79 by	1
 porting/todo.pod	Verbatim line length including indents exceeds 79 by	1
 utils/c2ph	Verbatim line length including indents exceeds 79 by	44
-utils/encguess	Apparent broken link	1
 utils/encguess	There is no NAME	1
 lib/benchmark.pm	Verbatim line length including indents exceeds 79 by	2
 lib/config.pod	? Should you be using L<...> instead of	-1
