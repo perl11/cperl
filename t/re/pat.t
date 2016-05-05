@@ -1747,7 +1747,7 @@ EOP
                 my ($expr, $expect, $test_name, $cap1)= @$tuple;
                 # avoid quotes in this code!
                 my $code='
-                    BEGIN{require q(test.pl);}
+                    BEGIN{require q(./test.pl);}
                     watchdog(3);
                     my $status= eval(q{ !(' . $expr . ') ? q(failed) : ' .
                         ($cap1 ? '($1 ne q['.$cap1.']) ? qq(badmatch:$1) : ' : '') .
