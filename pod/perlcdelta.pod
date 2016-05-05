@@ -59,6 +59,11 @@ So we don't need our special B::SvSTASH fixes anymore.
 
 Fixed 5.24 specific assertions, with shared xpviv/xpvuv
 
+=item B::Deparse 1.37_02c
+
+Add more cperl-specific ops: aelem*_u, u_{add,subtract,multiply},
+{i,n,s}_aelem{,_u}
+
 =back
 
 =head2 Not Updated Modules and Pragmata
