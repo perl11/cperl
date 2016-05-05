@@ -46,7 +46,7 @@ use B qw(class main_root main_start main_cv svref_2object opnumber perlstring
         MDEREF_SHIFT
     );
 
-$VERSION = '1.37_01c';
+$VERSION = '1.37_02c';
 $VERSION =~ s/c$//;
 use strict;
 use vars qw/$AUTOLOAD/;
@@ -171,6 +171,7 @@ BEGIN {
 # Todo:
 #  (See also BUGS section at the end of this file)
 #
+# - cperl: AELEM_U, AELEMFAST_LEX_U, PERL_FAKE_SIGNATURE
 # - finish tr/// changes
 # - add option for even more parens (generalize \&foo change)
 # - left/right context
@@ -187,7 +188,7 @@ BEGIN {
 # - avoid string copies (pass arrays, one big join?)
 # - here-docs?
 
-# Current test.deparse failures
+# Current test.deparse failures: See Porting/deparse-skips.txt
 # comp/hints 6 - location of BEGIN blocks wrt. block openings
 # run/switchI 1 - missing -I switches entirely
 #    perl -Ifoo -e 'print @INC'
@@ -361,10 +362,23 @@ BEGIN {
 #  - indent() removes semicolons wherever it sees \cK.
 
 
-BEGIN { for (qw[ const stringify rv2sv list glob pushmark null aelem
-		 nextstate dbstate rv2av rv2hv helem custom ]) {
-    eval "sub OP_\U$_ () { " . opnumber($_) . "}"
-}}
+BEGIN {
+    for (qw[ const stringify rv2sv list glob pushmark null aelem aelemfast
+             nextstate dbstate rv2av rv2hv helem custom ]) {
+        eval "sub OP_\U$_ () { " . opnumber($_) . "}"
+    }
+    # cperl only:
+    for (qw[ aelem_u aelemfast_lex_u s_aelem_u ]) {
+        eval "sub OP_\U$_ () { " . opnumber($_) . "}"
+    }
+}
+
+# excluding aelemfast, aelemfast_lex, aelemfast_lex_u
+sub is_aelem {
+    my $opnum = shift;
+    return ($opnum >= OP_AELEM && $opnum <= OP_S_AELEM_U) ?
+      $opnum != OP_AELEMFAST_LEX_U : 0;
+}
 
 # _pessimise_walk(): recursively walk the optree of a sub,
 # possibly undoing optimisations along the way.
@@ -604,7 +618,7 @@ sub next_todo {
         }
 	my $ret = $self->keyword("sub") . " ".$name." "
           . $self->deparse_sub($cv);
-        if (1 # cperl ony. cannot load $Config::Config{usecperl}
+        if (1 # cperl only. cannot load $Config::Config{usecperl}
         and $name eq "DynaLoader::dl_load_flags"
         and $ret eq "sub DynaLoader::dl_load_flags () { 0 }\n") {
             $ret = "";
@@ -3360,9 +3374,9 @@ sub mapop {
 				    $code . join(", ", @exprs), $cx, 5);
 }
 
-sub pp_mapwhile { mapop(@_, "map") }
+sub pp_mapwhile  { mapop(@_, "map") }
 sub pp_grepwhile { mapop(@_, "grep") }
-sub pp_mapstart { baseop(@_, "map") }
+sub pp_mapstart  { baseop(@_, "map") }
 sub pp_grepstart { baseop(@_, "grep") }
 
 my %uses_intro;
@@ -3371,7 +3385,7 @@ BEGIN {
 	eval { require B::Op_private }
 	  ? @{$B::Op_private::ops_using{OPpLVAL_INTRO}}
 	  : qw(gvsv rv2sv rv2hv rv2gv rv2av aelem helem aslice
-	       hslice delete padsv padav padhv enteriter entersub enterxssub 
+	       hslice delete padsv padav padhv enteriter entersub enterxssub
                padrange pushmark cond_expr refassign list)
     } = ();
     delete @uses_intro{qw( lvref lvrefslice lvavref entersub enterxssub)};
@@ -3785,6 +3799,17 @@ sub pp_aelemfast_lex {
     $i -= 256 if $i > 127;
     return $name . "[" .  ($i + $self->{'arybase'}) . "]";
 }
+
+sub pp_aelemfast_lex_u { pp_aelemfast_lex(@_) }
+sub pp_aelem_u         { pp_aelem(@_) }
+sub pp_i_aelem         { pp_aelem(@_) }
+sub pp_n_aelem         { pp_aelem(@_) }
+sub pp_s_aelem         { pp_aelem(@_) }
+sub pp_i_aelem_u       { pp_aelem(@_) }
+sub pp_n_aelem_u       { pp_aelem(@_) }
+sub pp_u_add           { pp_add(@_) }
+sub pp_u_multiply      { pp_multiply(@_) }
+sub pp_u_subtract      { pp_subtract(@_) }
 
 sub pp_aelemfast {
     my $self = shift;
@@ -4397,8 +4422,8 @@ sub retscalar {
                  |divide|i_divide|modulo|i_modulo|add|i_add|subtract
                  |i_subtract|concat|stringify|left_shift|right_shift|lt
                  |i_lt|gt|i_gt|le|i_le|ge|i_ge|eq|i_eq|ne|i_ne|n_cmp|i_cmp
-                 |s_lt|s_gt|s_le|s_ge|s_eq|s_ne|s_cmp|([sn]_)?bit_(?:and|x?or)|negate
-                 |i_negate|not|([sn]_)?complement|smartmatch|atan2|sin|cos
+                 |s_lt|s_gt|s_le|s_ge|s_eq|s_ne|s_cmp|([isn]_)?bit_(?:and|x?or)|negate
+                 |i_negate|not|([isn]_)?complement|smartmatch|atan2|sin|cos
                  |rand|srand|exp|log|sqrt|int|hex|oct|abs|length|substr
                  |vec|index|rindex|sprintf|formline|ord|chr|crypt|ucfirst
                  |lcfirst|uc|lc|quotemeta|aelemfast|aelem|exists|helem
@@ -4422,6 +4447,8 @@ sub retscalar {
                  |msgrcv|semop|semget|semctl|hintseval|shostent|snetent
                  |sprotoent|sservent|ehostent|enetent|eprotoent|eservent
                  |spwent|epwent|sgrent|egrent|getlogin|syscall|lock|runcv
+                 |i_aelem|n_aelem|s_aelem|aelem_u|i_aelem_u|n_aelem_u|s_aelem_u
+                 |u_add|u_multiply|u_subtract
                  |fc)\z/x
 }
 
@@ -4856,7 +4883,7 @@ sub const {
 		}
 	    }
 	}
-	
+
 	my $const = $self->const($ref, 20);
 	if ($self->{in_subst_repl} && $const =~ /^[0-9]/) {
 	    $const = "($const)";
@@ -4996,7 +5023,7 @@ sub pp_stringify {
 	$kid = $kid->first;
     }
     if ($kid->name =~ /^(?:const|padsv|rv2sv|av2arylen|gvsv|multideref
-			  |aelemfast(?:_lex)?|[ah]elem|join|concat)\z/x) {
+			  |aelemfast(?:_lex.*)?|[ah]elem(?:_u)?|join|concat)\z/x) {
 	maybe_targmy(@_, \&dquote);
     }
     else {
@@ -5747,7 +5774,7 @@ sub pp_refassign {
     if ($op->private & OPpLVREF_ELEM) {
 	$left = $op->first->sibling;
 	$left = maybe_local(@_, elem($self, $left, undef,
-				     $left->targ == OP_AELEM
+				     is_aelem($left->targ)
 					? qw([ ] padav)
 					: qw({ } padhv)));
     } elsif ($op->flags & OPf_STACKED) {
@@ -6296,8 +6323,8 @@ Lexical C<state> subroutines were not deparsed at all.
 Stephen McCamant <smcc@CSUA.Berkeley.EDU>, based on an earlier version
 by Malcolm Beattie <mbeattie@sable.ox.ac.uk>, with contributions from
 Gisle Aas, James Duncan, Albert Dvornik, Robin Houston, Dave Mitchell,
-Hugo van der Sanden, Gurusamy Sarathy, Nick Ing-Simmons, and Rafael
-Garcia-Suarez.
+Hugo van der Sanden, Gurusamy Sarathy, Nick Ing-Simmons, Rafael
+Garcia-Suarez and Reini Urban.
 
 =cut
 
