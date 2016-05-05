@@ -63,8 +63,7 @@ sub MY::postamble
     return   unless  %attribs;
 
     # Don't require these here if we just C<return> above:
-    unshift @INC, 'inc';
-    eval "use ExtUtils::Myconst2perl qw(ParseAttribs); 1"   or  die "$@";
+    eval "use lib 'inc'; use ExtUtils::Myconst2perl qw(ParseAttribs); 1"   or  die "$@";
     eval "use ExtUtils::MakeMaker qw(neatvalue); 1"   or  die "$@";
 
     # If only one module, can skip one level of indirection:
@@ -90,7 +89,7 @@ sub MY::postamble
 	# How to create F<$outfile> via ExtUtils::Myconst2perl::Myconst2perl:
 	push @m, "
 $outfile:	@perlfiles  @cfiles  Makefile" . '
-	$(PERL) "-I$(PERL_ARCHLIB)" "-I$(PERL_LIB)" -Iinc -MExtUtils::Myconst2perl \\
+	$(PERL) "-I$(PERL_ARCHLIB)" "-I$(PERL_LIB)" -MExtUtils::Myconst2perl \\
 	  -e "my %attribs;" \\
 	  ';
 	$m[-1] =~ s/^/##/gm   if  $noreb;
