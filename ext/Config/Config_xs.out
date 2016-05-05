@@ -244,7 +244,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1248
+#define TOTAL_KEYWORDS 1249
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 30
 #define MIN_HASH_VALUE 5
@@ -661,6 +661,7 @@ struct stringpool_t
     char stringpool_str1060[sizeof ("d_readv")];
     char stringpool_str1061[sizeof ("d_wait4")];
     char stringpool_str1062[sizeof ("d_endsent")];
+    char stringpool_str1063[sizeof ("d_memmem")];
     char stringpool_str1064[sizeof ("d_setnent")];
     char stringpool_str1065[sizeof ("archname")];
     char stringpool_str1066[sizeof ("sig_num")];
@@ -1912,6 +1913,7 @@ static const struct stringpool_t stringpool_contents =
     "d_readv",
     "d_wait4",
     "d_endsent",
+    "d_memmem",
     "d_setnent",
     "archname",
     "sig_num",
@@ -3703,7 +3705,8 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1061,		T_INV,0,ALN64I"@@d_wait4@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1062,		T_INV,0,ALN64I"@@d_endsent@@"},
-      {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1063,		T_INV,0,ALN64I"@@d_memmem@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1064,		T_INV,0,ALN64I"@@d_setnent@@"},
 
@@ -6729,7 +6732,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str8588,	T_INV,0,ALN64I"@@vendorprefixexp@@"}
     };
 
-#line 6732 "Config.xs"
+#line 6735 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);
