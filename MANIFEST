@@ -3088,17 +3088,17 @@ cpan/version/t/08_corelist.t		Tests for version objects
 cpan/version/t/09_list_util.t		Tests for version objects
 cpan/version/t/10cperl.t		Tests for version objects
 cpan/version/t/coretests.pm		Tests for version objects
-cpan/Win32API-File/buffers.h	Win32API::File extension
-cpan/Win32API-File/cFile.h	Win32API::File extension
-cpan/Win32API-File/cFile.pc	Win32API::File extension
-cpan/Win32API-File/const2perl.h	Win32API::File extension
-cpan/Win32API-File/File.pm	Win32API::File extension
-cpan/Win32API-File/File.xs	Win32API::File extension
+cpan/Win32API-File/buffers.h		Win32API::File extension
+cpan/Win32API-File/cFile.h		Win32API::File extension
+cpan/Win32API-File/cFile.pc		Win32API::File extension
+cpan/Win32API-File/const2perl.h		Win32API::File extension
+cpan/Win32API-File/File.pm		Win32API::File extension
+cpan/Win32API-File/File.xs		Win32API::File extension
 cpan/Win32API-File/inc/ExtUtils/Myconst2perl.pm
-cpan/Win32API-File/Makefile.PL	Win32API::File extension makefile write
-cpan/Win32API-File/t/file.t	See if Win32API::File extension works
-cpan/Win32API-File/t/tie.t	See if Win32API::File extension works
-cpan/Win32API-File/typemap	Win32API::File extension interface types
+cpan/Win32API-File/Makefile.PL		Win32API::File extension makefile write
+cpan/Win32API-File/t/file.t		See if Win32API::File extension works
+cpan/Win32API-File/t/tie.t		See if Win32API::File extension works
+cpan/Win32API-File/typemap		Win32API::File extension interface types
 cpan/Win32/longpath.inc			Win32 extension long path support
 cpan/Win32/Makefile.PL			Win32 extension makefile writer
 cpan/Win32/t/CodePage.t			See if Win32 extension works
