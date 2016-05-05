@@ -4139,6 +4139,23 @@
  */
 /*#define HAS_NEARBYINT		/ **/
 
+/* HAS_NEWLOCALE:
+ *	This symbol, if defined, indicates that the newlocale routine is
+ *	available to return a new locale object or modify an existing
+ *	locale object.
+ */
+/* HAS_FREELOCALE:
+ *	This symbol, if defined, indicates that the freelocale routine is
+ *	available to deallocates the resources associated with a locale object.
+ */
+/* HAS_USELOCALE:
+ *	This symbol, if defined, indicates that the uselocale routine is
+ *	available to set the current locale for the calling thread.
+ */
+/*#define	HAS_NEWLOCALE	/ **/
+/*#define	HAS_FREELOCALE	/ **/
+/*#define	HAS_USELOCALE	/ **/
+
 /* HAS_NEXTAFTER:
  *	This symbol, if defined, indicates that the nextafter routine is
  *	available to return the next machine representable double from
@@ -5315,6 +5332,6 @@
 #endif
 
 /* Generated from:
- * e530c59a74de872b4194e47aa014c01ebb82c7fc05f3232171402de267baab76 config_h.SH
- * 543accebf6606ad0abdf60592d4b31d7d593d570600f2f355651d858abec4768 uconfig.sh
+ * 5ea71c7d4f97f1f6a11d9774dce23afb11da76ff52313187bff3fa54cd9d7184 config_h.SH
+ * 4de4cf70aeb3bb7022bf26da6be9e89d061f2cb1c0a81407bb1abb22b2de5500 uconfig.sh
  * ex: set ro: */
