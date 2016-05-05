@@ -409,11 +409,13 @@ Restore the old pad saved into the local variable C<opad> by C<PAD_SAVE_LOCAL()>
 
 /*
 =for apidoc m|void|CX_CURPAD_SAVE|struct context
-Save the current pad in the given context block structure.
+Save the current pad in the given context block_loop structure.
+With threads only.
 
 =for apidoc m|SV *|CX_CURPAD_SV|struct context|PADOFFSET po
 Access the SV at offset C<po> in the saved current pad in the given
-context block structure (can be used as an lvalue).
+context block_loop structure (can be used as an lvalue).
+With threads only.
 
 =cut
 */
