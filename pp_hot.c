@@ -4033,6 +4033,7 @@ PP(pp_entersub)
             if (CvHASSIG(cv)) { /* and no @_, same call abi as with ops */
                 /* the start of the args on the stack, pp_signature does the rest */
                 cx->blk_sub.argarray = MARK+1;
+                cx->blk_sub.savearray = (AV*)SP;
             } else {
                 AV *const av = MUTABLE_AV(PAD_SVl(0));
                 SSize_t items = SP - MARK;
@@ -4045,6 +4046,7 @@ PP(pp_entersub)
 
                 defavp = &GvAV(PL_defgv);
                 cx->blk_sub.savearray = *defavp;
+                cx->blk_sub.argarray = NULL;
                 *defavp = MUTABLE_AV(SvREFCNT_inc_simple_NN(av));
                 if (UNLIKELY(items - 1 > AvMAX(av))) {
                     SV **ary = AvALLOC(av);

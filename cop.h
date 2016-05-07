@@ -608,16 +608,26 @@ struct block_format {
 	)
 
 /* Restore old @_ */
+#ifdef DEBUGGING
 #define CX_POP_SAVEARRAY(cx)						\
     STMT_START {							\
         AV *av = GvAV(PL_defgv);                                        \
-        if (SvTYPE(cx->blk_sub.savearray) == SVt_PVAV)                  \
+        if (cx->blk_sub.savearray && SvTYPE(cx->blk_sub.savearray) == SVt_PVAV) \
             GvAV(PL_defgv) = cx->blk_sub.savearray;                     \
         else                                                            \
             GvAV(PL_defgv) = NULL;                                      \
         cx->blk_sub.savearray = NULL;                                   \
         SvREFCNT_dec(av);	        				\
     } STMT_END
+#else
+#define CX_POP_SAVEARRAY(cx)						\
+    STMT_START {							\
+        AV *av = GvAV(PL_defgv);                                        \
+        GvAV(PL_defgv) = cx->blk_sub.savearray;                         \
+        cx->blk_sub.savearray = NULL;                                   \
+        SvREFCNT_dec(av);	        				\
+    } STMT_END
+#endif
 
 /* junk in @_ spells trouble when cloning CVs and in pp_caller(), so don't
  * leave any (a fast av_clear(ary), basically) */
