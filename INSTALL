@@ -355,9 +355,10 @@ but Perl source knows it as NV.  (This is not "long doubles".)
 =head3 Algorithmic Complexity Attacks on Hashes
 
 Perl 5.18 reworked the measures used to secure its hash function
-from algorithmic complexity attacks.  By default it will build with
+from algorithmic complexity attacks.  By default perl5 will build with
 all of these measures enabled along with support for controlling and
-disabling them via environment variables.
+disabling them via environment variables. cperl defaults to faster hash
+tables and relies so far on a proper random seed.
 
 You can override various aspects of this feature by defining various
 symbols during configure. An example might be:
@@ -383,8 +384,24 @@ purposes only.
     PERL_HASH_FUNC_ONE_AT_A_TIME_HARD
     PERL_HASH_FUNC_ONE_AT_A_TIME_OLD
 
+With cperl these additional hash functions can be used, here listed without the
+C<PERL_HASH_FUNC_> prefix:
+
+    FNV1A (default)
+    FNV1A_YOSHIMITSUTRIAD
+    MURMUR_HASH_64
+    MURMUR_HASH_64A
+    MURMUR_HASH_64b
+    CRC32
+    METRO64CRC
+    METRO64
+    SPOOKY32
+
+See F<hv_func.h> and L<https://github.com/rurban/smhasher#smhasher>
+for an overview of the various qualities and problems.
+
 Perl 5.18 randomizes the order returned by keys(), values(), and each(),
-and allows controlling this behavior by using of the PERL_PERTURB_KEYS
+and allows controlling this behavior by using of the C<PERL_PERTURB_KEYS>
 option. You can disable this option entirely with the define:
 
     PERL_PERTURB_KEYS_DISABLED
@@ -392,6 +409,7 @@ option. You can disable this option entirely with the define:
 You can disable the environment variable checks and specify the type of
 key traversal randomization to be used by defining one of these:
 
+    PERL_PERTURB_KEYS_TOP (cperl only, default)
     PERL_PERTURB_KEYS_RANDOM
     PERL_PERTURB_KEYS_DETERMINISTIC
 

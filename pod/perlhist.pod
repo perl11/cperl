@@ -581,6 +581,7 @@ the strings?).
  rurban    5.22.1c      2015-Sep-14     cperl 5.22
  rurban    5.22.2c-RC1  2016-May-01
  rurban    5.22.2c-RC2  2016-May-03
+ rurban    5.22.2c      2016-May-09
 
 =head2 SELECTED RELEASE MEMORY USAGE
 
