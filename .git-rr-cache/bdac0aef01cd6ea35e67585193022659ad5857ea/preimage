@@ -1,0 +1,270 @@
+=encoding utf8
+
+=head1 NAME
+
+perlcdelta - what is new for cperl v5.24.0
+
+=head1 DESCRIPTION
+
+This document describes perl-only differences between the cperl 5.22.2
+release and the cperl 5.24.0 release.
+
+=head1 Core Enhancements
+
+=over 4
+
+<<<<<<<
+=item *
+
+Harmonize the lengths, counts and sizes for hash and array indices
+from a broken mix of int/I32 to SSize_t (31/63bit) with silent
+truncation overflows and unreachable elements.  Changed many wrong API
+sizes.
+
+STRLEN (i.e.  Size_t) for string lengths, and I32 for HEK lengths,
+also used by names.
+
+Array and hash indices and lengths are now SSize_t (signed 31/63
+bits), but really should be UV or Size_t. Esp. the hash riter is not
+I32 anymore, so you can now iterate over all hash keys, but there were
+many other silent truncations in helper functions.
+
+This allows on 64bit systems 64bit string lengths, and 63bit array and
+hash sizes, but limits on 32bit systems the max. hash size from 32 to
+31bit.
+
+CVSSv2 Severity: 7.3  (AV:N/AC:L/Au:N/C:P/I:P/A:P/E:U/RL:OF/RC:C/CDP:MH/TD:H/CR:M/IR:M/AR:M)
+
+=item *
+
+Increased the parser tokenbuffer from 256 to 1024 characters, thus bumping
+the maximal length of identifiers and parsed names from 251-255 chars to
+1200-1023 characters.
+
+=item *
+
+Safer INC path. It does not include "." anymore, unless you set the env
+C<PERL_USE_UNSAFE_INC=1>. (#118)
+
+CVSSv2 Severity: 8.5 (AV:N/AC:M/Au:S/C:C/I:C/A:C)
+
+=item *
+
+Hash security: Disable PERL_HASH_SEED_DEBUG with -t or -T (#114)
+
+=item *
+
+Better hash table collision resolution strategy: PERL_PERTURB_KEYS_TOP
+Still a linked list, but move the found element to the top. This disables
+PERL_HASH_RANDOMIZE_KEYS. It's still a very primitive and slow hash table,
+but we wait for a complete rewrite until the next major release.
+
+=item *
+
+Support for builtin and efficient signatures. See L<perlsub/Signatures> and
+L<perlfunc/prototype>.
+The C<prototype> function returns the parsed string of a declared
+signature if no prototype attribute overrides it.
+
+The C<@_> array inside a function body with a signature is empty. With
+default parameters there's is currently no way to find out how many
+actual arguments were provided, and how many were filled out with
+defaults.
+
+=item *
+
+Better support for -DC and -DCv debugging, with new REFCNT statistics.
+Added CowREFCNT_inc,dec and overflow assertions.
+
+=item *
+
+Re-added the C<PL_sv_objcount> interpreter-global variable used to track the total
+number of Perl objects in the interpreter, which was removed in Perl 5.20.
+It is beneficial for all scripts which do not create objects in global scope,
+so we dont have to check all remaining SV's to call a potential DESTROY method.
+
+This broke binary back-compatibility on MULTIPLICITY and ITHREAD builds with
+cperl-5.22.1.
+=======
+=item * Keep the lexical topic feature
+>>>>>>>
+
+Undo the removal of lexical topic. We fixed that in 5.22.2c already, and
+it is critically needed for given/when, smartmatch.
+
+=item * Less experimental needed
+
+Remove the previously required use experimental for
+C<lexical_topic>, C<smartmatch>.
+given/when is now standard cperl syntax.
+
+Note that C<postderef> and C<autoderef> were removed by perl5.
+
+=item * keep CxFOREACHDEF removed with perl-5.24.0
+
+API macro to check for a loop with default var (gv or pad $_).
+Added with 5.9.3 by Robin Houston when he added given/when.
+Deleted with 5.24.0, without any deprecation or mention.
+
+=back
+
+=head1 Core Enhancements from Perl5
+
+Backported some fixes from p5p, merged with perl-5.24.0.
+L<[cperl #137]|https://github.com/perl11/cperl/issues/137>
+
+=over 4
+
+=item * ~20% performance improvements with a CX context system rewrite
+
+=item * DESTROY cache moved back from the stash to mro_meta
+
+So we don't need our special B::SvSTASH fixes anymore.
+
+=back
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item B::C 1.54_03
+
+Fixed 5.24 specific assertions, with shared xpviv/xpvuv
+
+=item B::Deparse 1.37_02c
+
+Add more cperl-specific ops: aelem*_u, u_{add,subtract,multiply},
+{i,n,s}_aelem{,_u}
+
+=back
+
+=head2 Not Updated Modules and Pragmata
+
+This modules are currently not ready to be updated.
+
+=over 4
+
+=item Pod::Checker 1.71
+
+1.71 breaks t/porting/podcheck.t
+L<[RT #113846]|https://rt.cpan.org/Ticket/Display.html?id=113846>
+
+=item MakeUtils::MakeMaker 7.11_06
+
+broken for -Dfortify_inc, no "." in @INC
+
+=item version 0.9916
+
+Broken new "_" logic when merged with our 'c' suffix logic.
+
+=back
+
+=head1 Platform Support
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item Win32
+
+=item Darwin
+
+=item Other
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item * XXX
+
+=back
+
+=head1 Other
+
+=over 4
+
+=item * XXX
+
+=back
+
+=head1 Acknowledgements
+
+cperl 5.24.0 represents approximately 2 weeks of development since cperl
+5.22.2c and contains approximately 32,000,000 lines of changes across 4,900
+files from 53 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 140,000 lines of changes to 600 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that became
+cperl 5.24.0:
+
+Karl Williamson, David Mitchell, Jarkko Hietaniemi, Andy Broad, Reini Urban,
+Tony Cook, Craig A. Berry, Lukas Mai, Aaron Crane, Daniel Dragan, Dagfinn
+Ilmari Mannsåker, Steve Hay, Ricardo Signes, James E Keenan, H.Merijn Brand,
+Yves Orton, Matthew Horsfall, Aristotle Pagaltzis, Father Chrysostomos, Karen
+Etheridge, Abigail, Doug Bell, Chris 'BinGOs' Williams, Stevan Little, Rafael
+Garcia-Suarez, Andy Dougherty, Vincent Pit, Todd Rinaldo, Tom Hukins, Thomas
+Sibley, Nicholas Clark, Ed J, Mohammed El-Afifi, Mattia Barbon, Shlomi Fish, Ed
+Avis, Stanislaw Pusep, Alexander D'Archangel, Ludovic E. R. Tolhurst-Cleaver,
+Chas. Owens, Victor Adam, Herbert Breunung, Sisyphus, Achim Gratz, Leon
+Timmermans, Aaron Priven, Max Maischein, Dan Collins, Ivan Pozdeev, Peter
+Martini, Zachary Storer, Dr.Ruud, John SJ Anderson.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history including the perl and cperl repos. In particular,
+it does not include the names of the (very much appreciated) contributors who
+reported issues to the Perl bug tracker and the cperl github issues.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the C<perlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to C<perlbug@perl.org> to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications, which make it
+inappropriate to send to a publicly archived mailing list, then please send it
+to C<perl5-security-report@perl.org>.  This points to a closed subscription
+unarchived mailing list, which includes all the p5p core committers, who will be
+able to help assess the impact of issues, figure out a resolution, and help
+co-ordinate the release of patches to mitigate or fix the problem across all
+platforms on which Perl is supported.  Please only use this address for
+security issues in the Perl core, not for modules independently distributed on
+CPAN.
+
+If you trust the cperl developers more, please send an email to
+them. The p5p security teams skips many security issues, or are
+unwilling to fix them.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
