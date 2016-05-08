@@ -286,8 +286,10 @@ PPt(pp_concat, "(:Any,:Any):Str")
     }
     else { /* $l .= $r   and   left == TARG */
 	if (!SvOK(left)) {
-	    if (left == right && ckWARN(WARN_UNINITIALIZED)) /* $l .= $l */
-		report_uninit(right);
+            if ((left == right                          /* $l .= $l */
+                 || (PL_op->op_private & OPpTARGET_MY)) /* $l = $l . $r */
+                && ckWARN(WARN_UNINITIALIZED))
+                report_uninit(left);
             if (SvIS_FREED(left))
                 left = newSVpvs("");
             else
