@@ -20,6 +20,7 @@ my $TODO = "TODO " if $B::C::VERSION lt $fixed_with;
 $TODO = "" if $Config{useithreads};
 $TODO = "" if $] < 5.010;
 my $todomsg = '#245 2nd static unicode char';
+# this is now with 5.24.0.c also a test for FAKE_SIGNATURES
 ctest(1,"b: 223", 'C,-O3','ccode245i', <<'EOF', $TODO.$todomsg);
 sub foo {
     my ( $a, $b ) = @_;

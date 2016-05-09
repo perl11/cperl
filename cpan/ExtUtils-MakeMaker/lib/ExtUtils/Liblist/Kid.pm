@@ -11,7 +11,7 @@ use 5.006;
 
 use strict;
 use warnings;
-our $VERSION = '8.04_03';
+our $VERSION = '8.04_04';
 
 use ExtUtils::MakeMaker::Config;
 use Cwd 'cwd';
@@ -252,7 +252,7 @@ sub _unix_os2_ext {
             last;    # found one here so don't bother looking further
         }
         warn "Warning (mostly harmless): " . "No library found for -l$thislib\n"
-          unless $found_lib > 0;
+          if !$found_lib and !$ENV{PERL_CORE};
     }
 
     unless ( $found ) {
@@ -327,7 +327,8 @@ sub _win32_ext {
         my ( $fullname, $path ) = _win32_search_file( $thislib, $libext, \@paths, $verbose, $GC );
 
         if ( !$fullname ) {
-            warn "Warning (mostly harmless): No library found for $thislib\n";
+            warn "Warning (mostly harmless): No library found for $thislib\n"
+                if !$ENV{PERL_CORE};
             next;
         }
 
@@ -626,7 +627,8 @@ sub _vms_ext {
                 next LIB;
             }
         }
-        warn "Warning (mostly harmless): " . "No library found for $lib\n";
+        warn "Warning (mostly harmless): " . "No library found for $lib\n"
+          if !$ENV{PERL_CORE};
     }
 
     push @fndlibs, @{ $found{OBJ} } if exists $found{OBJ};

@@ -639,7 +639,9 @@ use File::Glob qw(:case);
                 lib/ExtUtils/Command/MM.pm
                 lib/ExtUtils/MakeMaker.pm
                 lib/ExtUtils/Mkbootstrap.pm
+                lib/ExtUtils/Liblist/Kid.pm
                 t/basic.t
+                t/Liblist.t
                 t/Mkbootstrap.t
                 t/pm_to_blib.t
                 t/prereq.t
