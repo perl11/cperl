@@ -2644,6 +2644,9 @@ S_maybe_op_signature(pTHX_ CV *cv, OP *o)
         return;
     if (cGVOPx_gv(kid)!= PL_defgv)
         return;
+    if (cophh_fetch_pvs(CopHINTHASH_get(PL_curcop), "no_fake_signatures",
+                        REFCOUNTED_HE_EXISTS))
+        return;
 
     /* at this point the RHS of the aassign is definitely @_ */
 

@@ -4488,6 +4488,8 @@ lib/ExtUtils/Embed.pm		Utilities for embedding Perl in C programs
 lib/ExtUtils/t/Embed.t		See if ExtUtils::Embed and embedding works
 lib/ExtUtils/typemap		Extension interface types
 lib/ExtUtils/XSSymSet.pm	on VMS, manage linker symbols when building extensions
+lib/fake_signatures.pm		Pragma to disable fake signature optimizations
+lib/fake_signatures.t		See if no fake_signatures works
 lib/feature.pm			Pragma to enable new syntax
 lib/feature.t			See if features work
 lib/feature/unicode_strings.t	See if feature "unicode_strings" work

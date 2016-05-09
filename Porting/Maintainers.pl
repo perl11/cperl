@@ -1607,6 +1607,7 @@ use File::Glob qw(:case);
                 lib/ExtUtils/XSSymSet.pm
                 lib/ExtUtils/t/Embed.t
                 lib/ExtUtils/typemap
+                lib/fake_signatures.{pm,t}
                 lib/File/Basename.{pm,t}
                 lib/File/Compare.{pm,t}
                 lib/File/Copy.{pm,t}
