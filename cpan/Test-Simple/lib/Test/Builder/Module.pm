@@ -72,8 +72,10 @@ C<import_extra()>.
 
 =cut
 
-sub import ($class, @args) {
-
+#sub import ($class, @args) {
+sub import {
+    my $class = shift;
+    my @args = @_;
     # Don't run all this when loading ourself.
     return 1 if $class eq 'Test::Builder::Module';
 
@@ -83,6 +85,11 @@ sub import ($class, @args) {
 
     $test->exported_to($caller);
 
+    # if called with arrayref
+    #if (@args and scalar(@args) == 1 and ref($args[0]) eq 'ARRAY') {
+    #    @args = ($args[0]);
+    #    warn @args;
+    #}
     $class->import_extra( \@args );
     my(@imports) = $class->_strip_imports( \@args );
 
