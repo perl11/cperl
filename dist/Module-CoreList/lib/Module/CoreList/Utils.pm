@@ -1177,6 +1177,13 @@ my %delta = (
         removed => {
         }
     },
+    '5.024000c' => {
+        delta_from => '5.024002c',
+        changed => {
+            #
+        },
+        removed => {}
+    },
 );
 
 for my $version (sort { version_sort($a, $b) } keys %delta) {

@@ -297,6 +297,7 @@ sub changes_between {
     5.023010 => '2016-04-20',
     '5.022002c' => '2016-05-09',
     '5.022003c' => '2016-06-03',
+    '5.024000c' => '2016-06-??',
   );
 
 sub version_sort {
@@ -12435,6 +12436,18 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         changed => {
             'B::C'                    => '1.54_06',
             'DynaLoader'              => '2.03c',
+        },
+        removed => {
+        }
+    },
+    '5.024000c' => {
+        delta_from => '5.022002c',
+        changed => {
+            'B::Op_private'         => '5.024000',
+            'Config'                => '5.024',
+            'Module::CoreList'      => '5.20160418c',
+            'Module::CoreList::TieHashDelta'=> '5.20160418c',
+            'Module::CoreList::Utils'=> '5.20160418c',
         },
         removed => {
         }
