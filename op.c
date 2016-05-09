@@ -2556,7 +2556,7 @@ S_check_hash_fields_and_hekify(pTHX_ UNOP *rop, SVOP *key_op)
  *   * tidy pad
  */
 
-void
+STATIC void
 S_postprocess_optree(pTHX_ CV *cv, OP *root, OP **startp)
 {
     bool is_format = root->op_type == OP_LEAVEWRITE;
@@ -12067,6 +12067,8 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
     return o;
 }
 
+#ifdef SIG_DEBUG
+
 /*
 Returns the prototype string of a signature.
 
@@ -12077,7 +12079,7 @@ protos cannot check types, insert type-casts, handle native types
 and cannot report the name.
 */
 
-char *
+STATIC char *
 S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
 {
     const UNOP_AUX* o = CvSIGOP(cv);
@@ -12151,6 +12153,8 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
         return NULL;
     }
 }
+
+#endif
 
 /*
 =for apidoc Am|OP *|ck_entersub_args_list|OP *entersubop
