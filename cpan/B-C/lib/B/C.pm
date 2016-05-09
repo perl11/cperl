@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_02';
+our $VERSION = '1.54_05';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -527,6 +527,7 @@ my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
 my $DEBUG_LEAKING_SCALARS = $Config{ccflags} =~ m/-DDEBUG_LEAKING_SCALARS/;
 my $CPERL52  = ( $Config{usecperl} and $] >= 5.022002 ); #sv_objcount, AvSTATIC, sigs
 my $CPERL51  = ( $Config{usecperl} );
+my $PERL524  = ( $] >= 5.023005 ); #xpviv sharing assertion
 my $PERL522  = ( $] >= 5.021006 ); #PADNAMELIST, IsCOW, padname_with_str
 my $PERL518  = ( $] >= 5.017010 );
 my $PERL514  = ( $] >= 5.013002 );
@@ -1656,7 +1657,9 @@ sub B::UNOP_AUX::save {
   my $sym = objsym($op);
   return $sym if defined $sym;
   $level = 0 unless $level;
-  my @aux_list = $op->aux_list_thr; # GH#283, GH#341
+  my @aux_list = $op->name eq 'multideref'
+    ? $op->aux_list_thr # GH#283, GH#341
+    : $op->aux_list;
   my $auxlen = scalar @aux_list;
   $unopauxsect->comment("$opsect_common, first, aux");
   my $ix = $unopauxsect->index + 1;
@@ -1666,14 +1669,14 @@ sub B::UNOP_AUX::save {
   $unopauxsect->debug( $op->name, $op->flagspv ) if $debug{flags};
   # This cannot be a section, as the number of elements is variable
   my $i = 1;
-  my $s = "Static UNOP_AUX_item unopaux_item".$ix."[] = {\n\t"
+  my $s = "Static UNOP_AUX_item unopaux_item".$ix."[] = { /* ".$op->name." */\n\t"
     .($C99?"{.uv=$auxlen}":$auxlen). " \t/* length prefix */\n";
   my $action = 0;
   for my $item (@aux_list) {
     unless (ref $item) {
-      # symbolize MDEREF action
+      # symbolize MDEREF action. TODO: SIGNATURE
       my $cmt = 'action';
-      if ($verbose) {
+      if ($verbose and $op->name eq 'multideref') {
         my $act = $item & 0xf;  # MDEREF_ACTION_MASK
         $cmt = 'AV_pop_rv2av_aelem' 		if $act == 1;
         $cmt = 'AV_gvsv_vivify_rv2av_aelem' 	if $act == 2;
@@ -2374,9 +2377,9 @@ sub B::COP::save {
           #if (!$ITHREADS) {
           #  $init->add(sprintf("HEK_FLAGS(%s->refcounted_he_hek) |= HVhek_STATIC;", $cophh));
           #}
-          if ($PERL522 and !$ITHREADS) {
-            $init->add(sprintf("unshare_hek_hek(%s->refcounted_he_hek);", $cophh));
-          }
+          #if ($PERL522 and !$ITHREADS) { # breaks issue220
+          #  $init->add(sprintf("unshare_hek_hek(%s->refcounted_he_hek);", $cophh));
+          #}
           $i++;
         }
         $init->add(sprintf("CopHINTHASH_set(&cop_list[%d], %s);", $ix, $cophh));
@@ -2682,27 +2685,39 @@ sub B::UV::save {
   my $uvuformat = $Config{uvuformat};
   $uvuformat =~ s/["\0]//g; #" poor editor
   $uvuformat =~ s/".$/"/;  # cperl bug 5.22.2 #61
-  if ($PERL514) {
+  my $uvx = $sv->UVX;
+  my $suff = 'U';
+  $suff .= 'L' if $uvx > 2147483647;
+  my $i = $svsect->index + 1;
+  if ($PERL524) {
+    # since 5.24 we need to point the xpvuv to the head
+  } elsif ($PERL514) {
     # issue 145 warn $sv->UVX, " ", sprintf($u32fmt, $sv->UVX);
-    $xpvivsect->comment( "stash, magic, cur, len, xiv_u" );
-    $xpvuvsect->add( sprintf( "Nullhv, {0}, 0, 0, {%".$uvuformat."U}", $sv->UVX ) );
+    $xpvuvsect->comment( "stash, magic, cur, len, xuv_u" );
+    $xpvuvsect->add( sprintf( "Nullhv, {0}, 0, 0, {%".$uvuformat."$suff}", $uvx ) );
   } elsif ($PERL510) {
-    $xpvivsect->comment( "stash, magic, cur, len, xiv_u" );
-    $xpvuvsect->add( sprintf( "{0}, 0, 0, {%".$uvuformat."U}", $sv->UVX ) );
+    $xpvuvsect->comment( "stash, magic, cur, len, xuv_u" );
+    $xpvuvsect->add( sprintf( "{0}, 0, 0, {%".$uvuformat."$suff}", $uvx ) );
   } else {
-    $xpvivsect->comment( "pv, cur, len, uv" );
-    $xpvuvsect->add( sprintf( "0, 0, 0, %".$uvuformat."U", $sv->UVX ) );
+    $xpvuvsect->comment( "pv, cur, len, uv" );
+    $xpvuvsect->add( sprintf( "0, 0, 0, %".$uvuformat.$suff, $uvx ) );
   }
-  $svsect->add(
-    sprintf( "&xpvuv_list[%d], $u32fmt, 0x%x".($PERL510?', {'.($C99?".svu_pv=":"").'NULL}':''),
-             $xpvuvsect->index, $sv->REFCNT, $sv->FLAGS
-    )
-  );
+  if ($PERL524) {
+    $svsect->add(sprintf( "NULL, $u32fmt, 0x%x".
+                          ($PERL510?', {'.($C99?".svu_uv=":"").$uvx."$suff}":''),
+                          $sv->REFCNT, $sv->FLAGS));
+    $init->add(sprintf( "sv_list[%d].sv_any = (char*)&sv_list[%d] - %d;", $i, $i,
+                        2*$Config{ptrsize}));
+  } else {
+    $svsect->add(sprintf( "&xpvuv_list[%d], $u32fmt, 0x%x".
+                          ($PERL510?', {'.($C99?".svu_uv=":"").$uvx."$suff}":''),
+             $xpvuvsect->index, $sv->REFCNT, $sv->FLAGS));
+  }
   $svsect->debug( $fullname, $sv->flagspv ) if $debug{flags};
   warn sprintf( "Saving IV(UV) 0x%x to xpvuv_list[%d], sv_list[%d], called from %s:%s\n",
-    $sv->UVX, $xpvuvsect->index, $svsect->index, @{[(caller(1))[3]]}, @{[(caller(0))[2]]} )
+    $sv->UVX, $xpvuvsect->index, $i, @{[(caller(1))[3]]}, @{[(caller(0))[2]]} )
     if $debug{sv};
-  savesym( $sv, sprintf( "&sv_list[%d]", $svsect->index ) );
+  savesym( $sv, sprintf( "&sv_list[%d]", $i ) );
 }
 
 sub B::IV::save {
@@ -2726,7 +2741,9 @@ sub B::IV::save {
       warn sprintf("Internal warning: IV !IOK $fullname sv_list[$i] 0x%x\n",$svflags);
     }
   }
-  if ($PERL514) {
+  if ($PERL524) {
+    # since 5.24 we need to point the xpviv to the head
+  } elsif ($PERL514) {
     $xpvivsect->comment( "stash, magic, cur, len, xiv_u" );
     $xpvivsect->add( sprintf( "Nullhv, {0}, 0, 0, {%s}", $ivx ) );
   } elsif ($PERL510) {
@@ -2736,14 +2753,20 @@ sub B::IV::save {
     $xpvivsect->comment( "pv, cur, len, iv" );
     $xpvivsect->add( sprintf( "0, 0, 0, %s", $ivx ) );
   }
-  $svsect->add(
-    sprintf( "&xpviv_list[%d], $u32fmt, 0x%x".($PERL510?', {'.($C99?".svu_pv=":"").'NULL}':''),
-             $xpvivsect->index, $sv->REFCNT, $svflags ));
+  if ($PERL524) {
+    $svsect->add(sprintf( "NULL, $u32fmt, 0x%x, {".($C99?".svu_iv=":"").$ivx.'}',
+                          $sv->REFCNT, $svflags ));
+    $init->add(sprintf( "sv_list[%d].sv_any = (char*)&sv_list[%d] - %d;", $i, $i,
+                        2*$Config{ptrsize}));
+  } else {
+    $svsect->add(sprintf( "&xpviv_list[%d], $u32fmt, 0x%x".($PERL510?', {'.($C99?".svu_iv=":"").$ivx.'}':''),
+                          $xpvivsect->index, $sv->REFCNT, $svflags ));
+  }
   $svsect->debug( $fullname, $sv->flagspv ) if $debug{flags};
   warn sprintf( "Saving IV 0x%x to xpviv_list[%d], sv_list[%d], called from %s:%s\n",
-    $sv->IVX, $xpvivsect->index, $svsect->index, @{[(caller(1))[3]]}, @{[(caller(0))[2]]} )
+    $sv->IVX, $xpvivsect->index, $i, @{[(caller(1))[3]]}, @{[(caller(0))[2]]} )
     if $debug{sv};
-  savesym( $sv, sprintf( "&sv_list[%d]", $svsect->index ) );
+  savesym( $sv, sprintf( "&sv_list[%d]", $i ) );
 }
 
 sub B::NV::save {
