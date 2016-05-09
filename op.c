@@ -2730,6 +2730,8 @@ S_maybe_op_signature(pTHX_ CV *cv, OP *o)
               - 1 /* 1..N fits in 1 slot rather than 0..N-1 */
             ) / (UVSIZE * 8 / SIGNATURE_SHIFT) + 1;
 
+    DEBUG_k(Perl_deb(aTHX_ "fake_signature: %s\n",
+                     SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN))));
     items = (UNOP_AUX_item*)PerlMemShared_malloc(sizeof(UNOP_AUX_item) * size);
 
     items[0].uv = size - 1;
