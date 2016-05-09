@@ -22,9 +22,9 @@ $VERSION = "1.55" ;
 
 sub filter_read_exact($)
 {
-    my ($size)   = @_ ;
-    my ($left)   = $size ;
-    my ($status) ;
+    my $size   = shift;
+    my $left = $size;
+    my $status;
 
     croak ("filter_read_exact: size parameter must be > 0")
 	unless $size > 0 ;
@@ -42,7 +42,7 @@ sub filter_read_exact($)
 
 sub filter_add($)
 {
-    my($obj) = @_ ;
+    my $obj = shift;
 
     # Did we get a code reference?
     my $coderef = (ref $obj eq 'CODE');
