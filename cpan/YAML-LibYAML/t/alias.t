@@ -1,3 +1,4 @@
+BEGIN { push @INC, '.'; }
 use t::TestYAMLTests tests => 10;
 
 my ($a, $b) = Load(<<'...');

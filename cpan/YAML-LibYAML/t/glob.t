@@ -1,4 +1,5 @@
 # YAML 1.2 only
+BEGIN { push @INC, '.'; }
 use t::TestYAMLTests tests => 4;
 no warnings 'once';
 

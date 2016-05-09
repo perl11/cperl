@@ -17,8 +17,6 @@ bless $sub, "Barry::White";
 $yaml = <<'...';
 --- !!perl/code:Barry::White |-
   {
-      use warnings;
-      use strict;
       print "Bye.\n";
   }
 ...

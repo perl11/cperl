@@ -1,3 +1,4 @@
+BEGIN { push @INC, '.'; }
 use t::TestYAML tests => 20;
 
 package A;
