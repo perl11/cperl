@@ -1,5 +1,5 @@
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
-B::C cpan/B-C/t/TestBC.pm 2d984618fa0290999b7f2801ef1bfddef13eb944
+B::C cpan/B-C/t/TestBC.pm 0046971b8632df4037fb2d5d9b51c1f1630e0947
 CPAN cpan/CPAN/lib/CPAN.pm c1e6ea96ad32428244cbcefed7590da6ec0b318e
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.pm 486e732a515c6f3f1682f19a95a2eb2420040ac7
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f89aec2164476eb98e93f05a5e

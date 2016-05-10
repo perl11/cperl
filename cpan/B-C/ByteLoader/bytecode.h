@@ -13,7 +13,11 @@ typedef U16 pmflags;
 #else
 typedef U32 pmflags;
 #endif
-
+#if PERL_VERSION < 10
+typedef U32 SVTYPE_t;
+#else
+typedef svtype SVTYPE_t;
+#endif
 
 static int force = 0;
 /* need to swab bytes to the target byteorder */
@@ -233,7 +237,7 @@ static int bget_swab = 0;
 	BSET_OBJ_STOREX(sv);			\
     } STMT_END
 #define BSET_gv_fetchpvn_flags(sv, arg) STMT_START {	 \
-        int flags = (arg & 0xff80) >> 7; int type = arg & 0x7f; \
+        int flags = (arg & 0xff80) >> 7; SVTYPE_t type = arg & 0x7f; \
 	sv = (SV*)gv_fetchpv(savepv(bstate->bs_pv.pv), flags, type); \
 	BSET_OBJ_STOREX(sv);				 \
     } STMT_END
@@ -271,7 +275,7 @@ static int bget_swab = 0;
 	(mg->mg_ptr = (char*)SvREFCNT_inc((SV*)arg),	\
 	 mg->mg_len = HEf_SVKEY)
 #define BSET_xmg_stash(sv, arg) *(SV**)&(((XPVMG*)SvANY(sv))->xmg_stash) = (arg)
-#define BSET_sv_upgrade(sv, arg)	(void)SvUPGRADE(sv, arg)
+#define BSET_sv_upgrade(sv, arg)	(void)SvUPGRADE(sv, (SVTYPE_t)arg)
 #define BSET_xrv(sv, arg) SvRV_set(sv, arg)
 #define BSET_xpv(sv)	do {	\
 	SvPV_set(sv, bstate->bs_pv.pv);	\
@@ -426,7 +430,6 @@ static int bget_swab = 0;
         ? CALLREGCOMP(aTHX_ arg, arg + bstate->bs_pv.cur, ((PMOP*)o)) : 0
 #endif
 
-
 #define BSET_newsv(sv, arg)				\
 	    switch(arg) {				\
 	    case SVt_PVAV:				\
@@ -437,7 +440,7 @@ static int bget_swab = 0;
 		break;					\
 	    default:					\
 		sv = newSV(0);				\
-		SvUPGRADE(sv, (arg));			\
+		SvUPGRADE(sv, (SVTYPE_t)(arg));           \
 	    }                                           \
 	    SvREFCNT(sv) = 1
 #define BSET_newsvx(sv, arg) STMT_START {		\

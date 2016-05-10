@@ -352,7 +352,8 @@ aux_list_thr(o)
                 bool last = 0;
                 bool is_hash = FALSE;
 
-                EXTEND(SP, len);
+                assert(len <= SSize_t_MAX);
+                EXTEND(SP, (SSize_t)len);
                 mPUSHu(actions);
 
                 while (!last) {
@@ -433,6 +434,69 @@ aux_list_thr(o)
                 XSRETURN(len);
 
             } /* OP_MULTIDEREF */
+#if PERL_VERSION > 23 && defined(OP_SIGNATURE)
+        case OP_SIGNATURE:
+            {
+                UNOP_AUX_item *items = cUNOP_AUXo->op_aux;
+                UV len = items[-1].uv;
+                UV actions = items[1].uv;
+
+                assert(len <= SSize_t_MAX);
+                EXTEND(SP, (SSize_t)len);
+                mPUSHu(items[0].uv);
+                mPUSHu(actions);
+                items++;
+
+                while (1) {
+                    switch (actions & SIGNATURE_ACTION_MASK) {
+
+                    case SIGNATURE_reload:
+                        actions = (++items)->uv;
+                        mPUSHu(actions);
+                        continue;
+
+                    case SIGNATURE_end:
+                        goto finish;
+
+                    case SIGNATURE_padintro:
+                        mPUSHu((++items)->uv);
+                        break;
+
+                    case SIGNATURE_arg:
+                    case SIGNATURE_arg_default_none:
+                    case SIGNATURE_arg_default_undef:
+                    case SIGNATURE_arg_default_0:
+                    case SIGNATURE_arg_default_1:
+                    case SIGNATURE_arg_default_op:
+                    case SIGNATURE_array:
+                    case SIGNATURE_hash:
+                        break;
+
+                    case SIGNATURE_arg_default_iv:
+                        mPUSHu((++items)->iv);
+                        break;
+
+                    case SIGNATURE_arg_default_const:
+                        PUSH_SV(++items);
+                        break;
+
+                    case SIGNATURE_arg_default_padsv:
+                        mPUSHu((++items)->pad_offset);
+                        break;
+
+                    case SIGNATURE_arg_default_gvsv:
+                        PUSH_SV(++items);
+                        break;
+
+                    } /* switch */
+
+                    actions >>= SIGNATURE_SHIFT;
+                } /* while */
+              finish:
+                XSRETURN(len);
+
+            } /* OP_SIGNATURE */
+#endif
         } /* switch */
 
 #endif

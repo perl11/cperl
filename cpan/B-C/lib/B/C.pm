@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_05';
+our $VERSION = '1.54_06';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -1590,6 +1590,7 @@ sub ppaddr  { $_[0]->{ppaddr}  || 0 }
 sub targ    { $_[0]->{targ}    || 0 }
 sub flags   { $_[0]->{flags}   || 0 }
 sub private { $_[0]->{private} || 0 }
+sub rettype { $_[0]->{rettype} || 0 }
 
 package B::C;
 
@@ -1658,7 +1659,7 @@ sub B::UNOP_AUX::save {
   return $sym if defined $sym;
   $level = 0 unless $level;
   my @aux_list = $op->name eq 'multideref'
-    ? $op->aux_list_thr # GH#283, GH#341
+    ? $op->aux_list_thr # our own version. GH#283, GH#341
     : $op->aux_list;
   my $auxlen = scalar @aux_list;
   $unopauxsect->comment("$opsect_common, first, aux");
@@ -1674,30 +1675,56 @@ sub B::UNOP_AUX::save {
   my $action = 0;
   for my $item (@aux_list) {
     unless (ref $item) {
-      # symbolize MDEREF action. TODO: SIGNATURE
+      # symbolize MDEREF and SIGNATURE actions and flags, just for the comments
       my $cmt = 'action';
-      if ($verbose and $op->name eq 'multideref') {
-        my $act = $item & 0xf;  # MDEREF_ACTION_MASK
-        $cmt = 'AV_pop_rv2av_aelem' 		if $act == 1;
-        $cmt = 'AV_gvsv_vivify_rv2av_aelem' 	if $act == 2;
-        $cmt = 'AV_padsv_vivify_rv2av_aelem' 	if $act == 3;
-        $cmt = 'AV_vivify_rv2av_aelem'  	if $act == 4;
-        $cmt = 'AV_padav_aelem' 		if $act == 5;
-        $cmt = 'AV_gvav_aelem' 			if $act == 6;
-        $cmt = 'HV_pop_rv2hv_helem' 		if $act == 8;
-        $cmt = 'HV_gvsv_vivify_rv2hv_helem' 	if $act == 9;
-        $cmt = 'HV_padsv_vivify_rv2hv_helem' 	if $act == 10;
-        $cmt = 'HV_vivify_rv2hv_helem' 		if $act == 11;
-        $cmt = 'HV_padhv_helem' 		if $act == 12;
-        $cmt = 'HV_gvhv_helem' 			if $act == 13;
-        my $idx = $item & 0x30; # MDEREF_INDEX_MASK
-        $cmt .= '' 		if $idx == 0x0;
-        $cmt .= ' INDEX_const'  if $idx == 0x10;
-        $cmt .= ' INDEX_padsv'  if $idx == 0x20;
-        $cmt .= ' INDEX_gvsv'   if $idx == 0x30;
+      if ($verbose) {
+        if ($op->name eq 'multideref') {
+          my $act = $item & 0xf;  # MDEREF_ACTION_MASK
+          $cmt = 'AV_pop_rv2av_aelem' 		if $act == 1;
+          $cmt = 'AV_gvsv_vivify_rv2av_aelem' 	if $act == 2;
+          $cmt = 'AV_padsv_vivify_rv2av_aelem' 	if $act == 3;
+          $cmt = 'AV_vivify_rv2av_aelem'  	if $act == 4;
+          $cmt = 'AV_padav_aelem' 		if $act == 5;
+          $cmt = 'AV_gvav_aelem' 			if $act == 6;
+          $cmt = 'HV_pop_rv2hv_helem' 		if $act == 8;
+          $cmt = 'HV_gvsv_vivify_rv2hv_helem' 	if $act == 9;
+          $cmt = 'HV_padsv_vivify_rv2hv_helem' 	if $act == 10;
+          $cmt = 'HV_vivify_rv2hv_helem' 		if $act == 11;
+          $cmt = 'HV_padhv_helem' 		if $act == 12;
+          $cmt = 'HV_gvhv_helem' 			if $act == 13;
+          my $idx = $item & 0x30; # MDEREF_INDEX_MASK
+          $cmt .= '' 		if $idx == 0x0;
+          $cmt .= ' INDEX_const'  if $idx == 0x10;
+          $cmt .= ' INDEX_padsv'  if $idx == 0x20;
+          $cmt .= ' INDEX_gvsv'   if $idx == 0x30;
+        }
+        elsif ($op->name eq 'signature') {
+          my $act = $item & 0xf;  # SIGNATURE_ACTION_MASK
+          $cmt = 'reload' 		if $act == 0;
+          $cmt = 'end' 			if $act == 1;
+          $cmt = 'padintro' 		if $act == 2;
+          $cmt = 'arg' 			if $act == 3;
+          $cmt = 'arg_default_none'  	if $act == 4;
+          $cmt = 'arg_default_undef' 	if $act == 5;
+          $cmt = 'arg_default_0' 	if $act == 6;
+          $cmt = 'arg_default_1' 	if $act == 7;
+          $cmt = 'arg_default_iv' 	if $act == 8;
+          $cmt = 'arg_default_const' 	if $act == 9;
+          $cmt = 'arg_default_padsv' 	if $act == 10;
+          $cmt = 'arg_default_gvsv' 	if $act == 11;
+          $cmt = 'arg_default_op' 	if $act == 12;
+          $cmt = 'array' 		if $act == 13;
+          $cmt = 'hash' 		if $act == 14;
+          my $idx = $item & 0x3F; # SIGNATURE_MASK
+          $cmt .= '' 		if $idx == 0x0;
+          $cmt .= ' flag skip'  if $idx == 0x10;
+          $cmt .= ' flag ref'   if $idx == 0x20;
+        } else {
+          die "Unknown UNOP_AUX op {$op->name}";
+        }
       }
       $action = $item;
-      warn "mderef action $action $cmt\n" if $debug{hv};
+      warn "{$op->name} action $action $cmt\n" if $debug{hv};
       $s .= ($C99 ? sprintf("\t,{.uv=0x%x} \t/* %s: %u */\n", $item, $cmt, $item)
                   : sprintf("\t,0x%x \t/* %s: %u */\n", $item, $cmt, $item));
     } else {
@@ -6921,8 +6948,10 @@ _EOT8
     /* Silence strtab refcnt warnings during global destruction */
     Zero(HvARRAY(PL_strtab), HvMAX(PL_strtab), HE*);
     /* NULL the HEK "dfs" */
+#if PERL_VERSION > 10
     PL_registered_mros = (HV*)&PL_sv_undef;
     CopHINTHASH_set(&PL_compiling, NULL);
+#endif
 
     return 0;
 }
@@ -7024,8 +7053,10 @@ _EOT7
         /* Silence strtab refcnt warnings during global destruction */
         Zero(HvARRAY(PL_strtab), max, HE*);
         /* NULL the HEK "dfs" */
+#if PERL_VERSION > 10
         PL_registered_mros = (HV*)&PL_sv_undef;
         CopHINTHASH_set(&PL_compiling, NULL);
+#endif
     }
 
     /* B::C specific: prepend static svs to arena for sv_clean_objs */
