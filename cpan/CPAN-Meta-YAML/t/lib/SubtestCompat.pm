@@ -49,7 +49,7 @@ unless ( Test::More->can("subtest") ) {
         if ( my $err = $@ ) {
             if ( ref($err) eq 'Subtest::SKIP' ) {
                 SKIP: {
-                    skip $err->{reason}, 1;
+                    skip "$err->{reason}", 1;
                 }
             }
             else {
