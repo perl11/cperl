@@ -4,7 +4,7 @@ use warnings;
 
 our ($AUTOLOAD, %SIGRT);
 
-our $VERSION = '1.66_01';
+our $VERSION = '1.67_01';
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -112,6 +112,7 @@ my %replacement = (
     strspn      => undef,
     strtok      => undef,
     tmpfile     => 'IO::File::new_tmpfile',
+    tmpnam      => 'use File::Temp',
     ungetc      => 'IO::Handle::ungetc',
     vfprintf    => undef,
     vprintf     => undef,
@@ -213,6 +214,7 @@ sub AUTOLOAD {
 	croak "Unimplemented: POSIX::$func() is C-specific, stopped"
 	    unless defined $how;
 	croak "Unimplemented: POSIX::$func() is $$how" if ref $how;
+	croak "Unimplemented: $how instead of POSIX::$func()" if $how =~ /^use /;
 	croak "Use method $how() instead of POSIX::$func()" if $how =~ /::/;
 	croak "Unimplemented: POSIX::$func() is C-specific: use $how instead";
     }
