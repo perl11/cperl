@@ -361,7 +361,7 @@ Does not use C<TARG>.  See also C<L</XPUSHu>>, C<L</mPUSHu>> and C<L</PUSHu>>.
  * this just gives a safe false positive
  */
 
-#  define _EXTEND_NEEDS_GROW(p,n) ( (n) < 0 || PL_stack_max - p < (n))
+#  define _EXTEND_NEEDS_GROW(p,n) ( PL_stack_max - p < (n) || (n) < 0)
 
 #  define EXTEND(p,n)   STMT_START {                                    \
                          if (UNLIKELY(_EXTEND_NEEDS_GROW(p,n))) {       \
