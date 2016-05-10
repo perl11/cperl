@@ -75,6 +75,9 @@ my ($embed, $core, $ext, $api) = setup_embed();
 	}
 
 	my ($flags,$retval,$plain_func,@args) = @$_;
+	if ($flags =~ / ( [^AabDdEfiMmnOoPpRrsUXx] ) /x) {
+	    warn "flag $1 is not legal (for function $plain_func)";
+	}
 	my (@nonnull, @unused, @names_of_nn, $func);
 	my $has_context = ( $flags !~ /n/ );
 	my $never_returns = ( $flags =~ /r/ );
