@@ -1503,7 +1503,8 @@ aux_list(o)
                 UV len = items[-1].uv;
                 UV actions = items[1].uv;
 
-                EXTEND(SP, len);
+                assert(len <= SSize_t_MAX);
+                EXTEND(SP, (SSize_t)len);
                 mPUSHu(items[0].uv);
                 mPUSHu(actions);
                 items++;
