@@ -17,11 +17,13 @@
  */
 
 START_EXTERN_C
+#ifndef NO_MATHOMS
 PERL_CALLCONV UV	ASCII_TO_NEED(const UV enc, const UV ch)
 			__attribute__global__
 			__attribute__deprecated__
 			__attribute__warn_unused_result__
 			__attribute__pure__;
+#endif
 
 PERL_CALLCONV int	Perl_Gv_AMupdate(pTHX_ HV* stash, bool destructing)
 			__attribute__global__
@@ -29,11 +31,13 @@ PERL_CALLCONV int	Perl_Gv_AMupdate(pTHX_ HV* stash, bool destructing)
 #define PERL_ARGS_ASSERT_GV_AMUPDATE	\
 	assert(stash)
 
+#ifndef NO_MATHOMS
 PERL_CALLCONV UV	NATIVE_TO_NEED(const UV enc, const UV ch)
 			__attribute__global__
 			__attribute__deprecated__
 			__attribute__warn_unused_result__
 			__attribute__pure__;
+#endif
 
 PERL_CALLCONV const char *	Perl_PerlIO_context_layers(pTHX_ const char *mode)
 			__attribute__global__;
@@ -1098,11 +1102,13 @@ PERL_CALLCONV_NO_RET void	Perl_die_unwind(pTHX_ SV* msv)
 #define PERL_ARGS_ASSERT_DIE_UNWIND	\
 	assert(msv)
 
-/* PERL_CALLCONV bool	Perl_do_aexec(pTHX_ SV* really, SV** mark, SV** sp)
+#ifndef NO_MATHOMS
+PERL_CALLCONV bool	Perl_do_aexec(pTHX_ SV* really, SV** mark, SV** sp)
 			__attribute__nonnull__(pTHX_2)
-			__attribute__nonnull__(pTHX_3); */
+			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_DO_AEXEC	\
 	assert(mark); assert(sp)
+#endif
 
 PERL_CALLCONV bool	Perl_do_aexec5(pTHX_ SV* really, SV** mark, SV** sp, int fd, int do_report)
 			__attribute__nonnull__(pTHX_2)
@@ -1179,12 +1185,14 @@ PERL_CALLCONV void	Perl_do_op_dump(pTHX_ I32 level, PerlIO *file, const OP *o)
 #define PERL_ARGS_ASSERT_DO_OP_DUMP	\
 	assert(file)
 
-/* PERL_CALLCONV bool	Perl_do_open(pTHX_ GV* gv, const char* name, I32 len, int as_raw, int rawmode, int rawperm, PerlIO* supplied_fp)
+#ifndef NO_MATHOMS
+PERL_CALLCONV bool	Perl_do_open(pTHX_ GV* gv, const char* name, I32 len, int as_raw, int rawmode, int rawperm, PerlIO* supplied_fp)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_DO_OPEN	\
 	assert(gv); assert(name)
+#endif
 
 PERL_CALLCONV bool	Perl_do_open6(pTHX_ GV *gv, const char *oname, STRLEN len, PerlIO *supplied_fp, SV **svp, U32 num)
 			__attribute__nonnull__(pTHX_1)
@@ -1668,14 +1676,20 @@ PERL_CALLCONV UV	Perl_grok_oct(pTHX_ const char* start, STRLEN* len_p, I32* flag
 #define PERL_ARGS_ASSERT_GROK_OCT	\
 	assert(start); assert(len_p); assert(flags)
 
-/* PERL_CALLCONV GV*	Perl_gv_AVadd(pTHX_ GV *gv)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV GV*	Perl_gv_AVadd(pTHX_ GV *gv)
+			__attribute__global__;
+#endif
 
-/* PERL_CALLCONV GV*	Perl_gv_HVadd(pTHX_ GV *gv)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV GV*	Perl_gv_HVadd(pTHX_ GV *gv)
+			__attribute__global__;
+#endif
 
-/* PERL_CALLCONV GV*	Perl_gv_IOadd(pTHX_ GV* gv)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV GV*	Perl_gv_IOadd(pTHX_ GV* gv)
+			__attribute__global__;
+#endif
 
 PERL_CALLCONV GV*	Perl_gv_add_by_type(pTHX_ GV *gv, svtype type)
 			__attribute__global__;
@@ -1729,12 +1743,14 @@ PERL_CALLCONV void	Perl_gv_efullname(pTHX_ SV* sv, const GV* gv)
 #define PERL_ARGS_ASSERT_GV_EFULLNAME	\
 	assert(sv); assert(gv)
 
-/* PERL_CALLCONV void	Perl_gv_efullname3(pTHX_ SV* sv, const GV* gv, const char* prefix)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_gv_efullname3(pTHX_ SV* sv, const GV* gv, const char* prefix)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_GV_EFULLNAME3	\
 	assert(sv); assert(gv)
+#endif
 
 PERL_CALLCONV void	Perl_gv_efullname4(pTHX_ SV* sv, const GV* gv, const char* prefix, bool keepmain)
 			__attribute__global__
@@ -1799,12 +1815,14 @@ PERL_CALLCONV GV*	Perl_gv_fetchmeth_sv_autoload(pTHX_ HV* stash, SV* namesv, I32
 #define PERL_ARGS_ASSERT_GV_FETCHMETH_SV_AUTOLOAD	\
 	assert(namesv)
 
-/* PERL_CALLCONV GV*	Perl_gv_fetchmethod(pTHX_ HV* stash, const char* name)
+#ifndef NO_MATHOMS
+PERL_CALLCONV GV*	Perl_gv_fetchmethod(pTHX_ HV* stash, const char* name)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_GV_FETCHMETHOD	\
 	assert(stash); assert(name)
+#endif
 
 PERL_CALLCONV GV*	Perl_gv_fetchmethod_autoload(pTHX_ HV* stash, const char* name, I32 autoload)
 			__attribute__global__
@@ -1859,12 +1877,14 @@ PERL_CALLCONV void	Perl_gv_fullname(pTHX_ SV* sv, const GV* gv)
 #define PERL_ARGS_ASSERT_GV_FULLNAME	\
 	assert(sv); assert(gv)
 
-/* PERL_CALLCONV void	Perl_gv_fullname3(pTHX_ SV* sv, const GV* gv, const char* prefix)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_gv_fullname3(pTHX_ SV* sv, const GV* gv, const char* prefix)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_GV_FULLNAME3	\
 	assert(sv); assert(gv)
+#endif
 
 PERL_CALLCONV void	Perl_gv_fullname4(pTHX_ SV* sv, const GV* gv, const char* prefix, bool keepmain)
 			__attribute__global__
@@ -1978,17 +1998,21 @@ PERL_CALLCONV void	Perl_hv_delayfree_ent(pTHX_ HV *hv, HE *entry)
 #define PERL_ARGS_ASSERT_HV_DELAYFREE_ENT	\
 	assert(hv)
 
-/* PERL_CALLCONV SV*	Perl_hv_delete(pTHX_ HV *hv, const char *key, I32 klen, I32 flags)
+#ifndef NO_MATHOMS
+PERL_CALLCONV SV*	Perl_hv_delete(pTHX_ HV *hv, const char *key, I32 klen, I32 flags)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_HV_DELETE	\
 	assert(key)
+#endif
 
-/* PERL_CALLCONV SV*	Perl_hv_delete_ent(pTHX_ HV *hv, SV *keysv, I32 flags, U32 hash)
+#ifndef NO_MATHOMS
+PERL_CALLCONV SV*	Perl_hv_delete_ent(pTHX_ HV *hv, SV *keysv, I32 flags, U32 hash)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_HV_DELETE_ENT	\
 	assert(keysv)
+#endif
 
 PERL_CALLCONV HE**	Perl_hv_eiter_p(pTHX_ HV *hv)
 			__attribute__global__
@@ -2015,31 +2039,39 @@ PERL_CALLCONV void	Perl_hv_ename_delete(pTHX_ HV *hv, const char *name, U32 len,
 #define PERL_ARGS_ASSERT_HV_ENAME_DELETE	\
 	assert(hv); assert(name)
 
-/* PERL_CALLCONV bool	Perl_hv_exists(pTHX_ HV *hv, const char *key, I32 klen)
+#ifndef NO_MATHOMS
+PERL_CALLCONV bool	Perl_hv_exists(pTHX_ HV *hv, const char *key, I32 klen)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_HV_EXISTS	\
 	assert(key)
+#endif
 
-/* PERL_CALLCONV bool	Perl_hv_exists_ent(pTHX_ HV *hv, SV *keysv, U32 hash)
+#ifndef NO_MATHOMS
+PERL_CALLCONV bool	Perl_hv_exists_ent(pTHX_ HV *hv, SV *keysv, U32 hash)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_HV_EXISTS_ENT	\
 	assert(keysv)
+#endif
 
-/* PERL_CALLCONV SV**	Perl_hv_fetch(pTHX_ HV *hv, const char *key, I32 klen, I32 lval)
+#ifndef NO_MATHOMS
+PERL_CALLCONV SV**	Perl_hv_fetch(pTHX_ HV *hv, const char *key, I32 klen, I32 lval)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_HV_FETCH	\
 	assert(key)
+#endif
 
-/* PERL_CALLCONV HE*	Perl_hv_fetch_ent(pTHX_ HV *hv, SV *keysv, I32 lval, U32 hash)
+#ifndef NO_MATHOMS
+PERL_CALLCONV HE*	Perl_hv_fetch_ent(pTHX_ HV *hv, SV *keysv, I32 lval, U32 hash)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_HV_FETCH_ENT	\
 	assert(keysv)
+#endif
 
 PERL_CALLCONV U32	Perl_hv_fill(pTHX_ HV *const hv)
 			__attribute__global__
@@ -2074,12 +2106,14 @@ PERL_CALLCONV SV*	Perl_hv_iterkeysv(pTHX_ HE* entry)
 #define PERL_ARGS_ASSERT_HV_ITERKEYSV	\
 	assert(entry)
 
-/* PERL_CALLCONV HE*	Perl_hv_iternext(pTHX_ HV *hv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV HE*	Perl_hv_iternext(pTHX_ HV *hv)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_ITERNEXT	\
 	assert(hv)
+#endif
 
 PERL_CALLCONV HE*	Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 			__attribute__global__
@@ -2111,11 +2145,13 @@ PERL_CALLCONV void	Perl_hv_ksplit(pTHX_ HV *hv, U32 newmax)
 #define PERL_ARGS_ASSERT_HV_KSPLIT	\
 	assert(hv)
 
-/* PERL_CALLCONV void	Perl_hv_magic(pTHX_ HV *hv, GV *gv, int how)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_hv_magic(pTHX_ HV *hv, GV *gv, int how)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_MAGIC	\
 	assert(hv)
+#endif
 
 PERL_CALLCONV void	Perl_hv_name_set(pTHX_ HV *hv, const char *name, U32 len, U32 flags)
 			__attribute__global__
@@ -2169,14 +2205,20 @@ PERL_CALLCONV SV*	Perl_hv_scalar(pTHX_ HV *hv)
 #define PERL_ARGS_ASSERT_HV_SCALAR	\
 	assert(hv)
 
-/* PERL_CALLCONV SV**	Perl_hv_store(pTHX_ HV *hv, const char *key, I32 klen, SV *val, U32 hash)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV SV**	Perl_hv_store(pTHX_ HV *hv, const char *key, I32 klen, SV *val, U32 hash)
+			__attribute__global__;
+#endif
 
-/* PERL_CALLCONV HE*	Perl_hv_store_ent(pTHX_ HV *hv, SV *key, SV *val, U32 hash)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV HE*	Perl_hv_store_ent(pTHX_ HV *hv, SV *key, SV *val, U32 hash)
+			__attribute__global__;
+#endif
 
-/* PERL_CALLCONV SV**	Perl_hv_store_flags(pTHX_ HV *hv, const char *key, I32 klen, SV *val, U32 hash, int flags)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV SV**	Perl_hv_store_flags(pTHX_ HV *hv, const char *key, I32 klen, SV *val, U32 hash, int flags)
+			__attribute__global__;
+#endif
 
 /* PERL_CALLCONV void	hv_undef(pTHX_ HV *hv)
 			__attribute__global__; */
@@ -2222,14 +2264,16 @@ PERL_CALLCONV void	Perl_init_tm(pTHX_ struct tm *ptm)
 #define PERL_ARGS_ASSERT_INIT_TM	\
 	assert(ptm)
 
-/* PERL_CALLCONV char*	Perl_instr(const char* big, const char* little)
+#ifndef NO_MATHOMS
+PERL_CALLCONV char*	Perl_instr(const char* big, const char* little)
 			__attribute__global__
 			__attribute__warn_unused_result__
 			__attribute__pure__
 			__attribute__nonnull__(1)
-			__attribute__nonnull__(2); */
+			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_INSTR	\
 	assert(big); assert(little)
+#endif
 
 PERL_CALLCONV U32	Perl_intro_my(pTHX)
 			__attribute__global__;
@@ -2503,12 +2547,14 @@ PERL_CALLCONV STRLEN	Perl_is_utf8_char(const U8 *s)
 #define PERL_ARGS_ASSERT_IS_UTF8_CHAR	\
 	assert(s)
 
-/* PERL_CALLCONV STRLEN	Perl_is_utf8_char_buf(const U8 *buf, const U8 *buf_end)
+#ifndef NO_MATHOMS
+PERL_CALLCONV STRLEN	Perl_is_utf8_char_buf(const U8 *buf, const U8 *buf_end)
 			__attribute__global__
 			__attribute__nonnull__(1)
-			__attribute__nonnull__(2); */
+			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_IS_UTF8_CHAR_BUF	\
 	assert(buf); assert(buf_end)
+#endif
 
 PERL_CALLCONV bool	Perl_is_utf8_cntrl(pTHX_ const U8 *p)
 			__attribute__global__
@@ -2620,11 +2666,13 @@ PERL_CALLCONV bool	Perl_is_utf8_string(const U8 *s, STRLEN len)
 #define PERL_ARGS_ASSERT_IS_UTF8_STRING	\
 	assert(s)
 
-/* PERL_CALLCONV bool	Perl_is_utf8_string_loc(const U8 *s, STRLEN len, const U8 **ep)
+#ifndef NO_MATHOMS
+PERL_CALLCONV bool	Perl_is_utf8_string_loc(const U8 *s, STRLEN len, const U8 **ep)
 			__attribute__global__
-			__attribute__nonnull__(1); */
+			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_IS_UTF8_STRING_LOC	\
 	assert(s)
+#endif
 
 PERL_CALLCONV bool	Perl_is_utf8_string_loclen(const U8 *s, STRLEN len, const U8 **ep, STRLEN *el)
 			__attribute__global__
@@ -3317,8 +3365,10 @@ PERL_CALLCONV I32	Perl_my_fflush_all(pTHX)
 PERL_CALLCONV Pid_t	Perl_my_fork(void)
 			__attribute__global__;
 
-/* PERL_CALLCONV I32	Perl_my_lstat(pTHX)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV I32	Perl_my_lstat(pTHX)
+			__attribute__global__;
+#endif
 
 PERL_CALLCONV I32	Perl_my_lstat_flags(pTHX_ const U32 flags)
 			__attribute__global__;
@@ -3344,8 +3394,10 @@ PERL_CALLCONV int	Perl_my_snprintf(char *buffer, const Size_t len, const char *f
 PERL_CALLCONV int	Perl_my_socketpair(int family, int type, int protocol, int fd[2])
 			__attribute__global__;
 
-/* PERL_CALLCONV I32	Perl_my_stat(pTHX)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV I32	Perl_my_stat(pTHX)
+			__attribute__global__;
+#endif
 
 PERL_CALLCONV I32	Perl_my_stat_flags(pTHX_ const U32 flags)
 			__attribute__global__;
@@ -3395,9 +3447,11 @@ PERL_CALLCONV OP*	Perl_newASSIGNOP(pTHX_ I32 flags, OP* left, I32 optype, OP* ri
 PERL_CALLCONV CV*	Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block, bool o_is_gv)
 			__attribute__global__;
 
-/* PERL_CALLCONV AV*	Perl_newAV(pTHX)
+#ifndef NO_MATHOMS
+PERL_CALLCONV AV*	Perl_newAV(pTHX)
 			__attribute__global__
-			__attribute__warn_unused_result__; */
+			__attribute__warn_unused_result__;
+#endif
 
 PERL_CALLCONV OP*	Perl_newAVREF(pTHX_ OP* o)
 			__attribute__global__
@@ -3485,9 +3539,11 @@ PERL_CALLCONV GV*	Perl_newGVgen_flags(pTHX_ const char* pack, U32 flags)
 #define PERL_ARGS_ASSERT_NEWGVGEN_FLAGS	\
 	assert(pack)
 
-/* PERL_CALLCONV HV*	Perl_newHV(pTHX)
+#ifndef NO_MATHOMS
+PERL_CALLCONV HV*	Perl_newHV(pTHX)
 			__attribute__global__
-			__attribute__warn_unused_result__; */
+			__attribute__warn_unused_result__;
+#endif
 
 PERL_CALLCONV OP*	Perl_newHVREF(pTHX_ OP* o)
 			__attribute__global__
@@ -3502,10 +3558,12 @@ PERL_CALLCONV HV*	Perl_newHVhv(pTHX_ HV *hv)
 			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
-/* PERL_CALLCONV IO*	Perl_newIO(pTHX)
+#ifndef NO_MATHOMS
+PERL_CALLCONV IO*	Perl_newIO(pTHX)
 			__attribute__global__
 			__attribute__malloc__
-			__attribute__warn_unused_result__; */
+			__attribute__warn_unused_result__;
+#endif
 
 PERL_CALLCONV OP*	Perl_newLISTOP(pTHX_ I32 type, I32 flags, OP* first, OP* last)
 			__attribute__global__
@@ -3651,8 +3709,10 @@ PERL_CALLCONV CV*	Perl_newSTUB(pTHX_ GV *gv, bool fake)
 #define PERL_ARGS_ASSERT_NEWSTUB	\
 	assert(gv)
 
-/* PERL_CALLCONV CV*	Perl_newSUB(pTHX_ I32 floor, OP* o, OP* proto, OP* block)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV CV*	Perl_newSUB(pTHX_ I32 floor, OP* o, OP* proto, OP* block)
+			__attribute__global__;
+#endif
 
 PERL_CALLCONV SV*	Perl_newSV(pTHX_ const STRLEN len)
 			__attribute__global__
@@ -3998,9 +4058,11 @@ PERL_CALLCONV PADOFFSET	Perl_pad_alloc(pTHX_ I32 optype, U32 tmptype)
 			__attribute__global__;
 
 PERL_CALLCONV void	Perl_pad_block_start(pTHX_ int full);
+#ifndef NO_MATHOMS
 PERL_CALLCONV HV*	Perl_pad_compname_type(pTHX_ const PADOFFSET po)
 			__attribute__global__
 			__attribute__warn_unused_result__;
+#endif
 
 PERL_CALLCONV PADOFFSET	Perl_pad_findmy_pv(pTHX_ const char* name, U32 flags)
 			__attribute__global__
@@ -4322,8 +4384,10 @@ PERL_CALLCONV void*	Perl_reentrant_retry(const char *f, ...)
 PERL_CALLCONV void	Perl_reentrant_size(pTHX)
 			__attribute__global__;
 
-/* PERL_CALLCONV OP*	Perl_ref(pTHX_ OP* o, I32 type)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV OP*	Perl_ref(pTHX_ OP* o, I32 type)
+			__attribute__global__;
+#endif
 
 PERL_CALLCONV HV *	Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *c, U32 flags)
 			__attribute__global__;
@@ -4642,14 +4706,20 @@ PERL_CALLCONV void	Perl_save_destructor(pTHX_ DESTRUCTORFUNC_NOCONTEXT_t f, void
 PERL_CALLCONV void	Perl_save_destructor_x(pTHX_ DESTRUCTORFUNC_t f, void* p)
 			__attribute__global__;
 
-/* PERL_CALLCONV void	Perl_save_freeop(pTHX_ OP* o)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_save_freeop(pTHX_ OP* o)
+			__attribute__global__;
+#endif
 
-/* PERL_CALLCONV void	Perl_save_freepv(pTHX_ char* pv)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_save_freepv(pTHX_ char* pv)
+			__attribute__global__;
+#endif
 
-/* PERL_CALLCONV void	Perl_save_freesv(pTHX_ SV* sv)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_save_freesv(pTHX_ SV* sv)
+			__attribute__global__;
+#endif
 
 PERL_CALLCONV void	Perl_save_generic_pvref(pTHX_ char** str)
 			__attribute__global__
@@ -4735,11 +4805,13 @@ PERL_CALLCONV void	Perl_save_long(pTHX_ long* longp)
 #define PERL_ARGS_ASSERT_SAVE_LONG	\
 	assert(longp)
 
-/* PERL_CALLCONV void	Perl_save_mortalizesv(pTHX_ SV* sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_save_mortalizesv(pTHX_ SV* sv)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SAVE_MORTALIZESV	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV void	Perl_save_nogv(pTHX_ GV* gv)
 			__attribute__global__
@@ -4747,8 +4819,10 @@ PERL_CALLCONV void	Perl_save_nogv(pTHX_ GV* gv)
 #define PERL_ARGS_ASSERT_SAVE_NOGV	\
 	assert(gv)
 
-/* PERL_CALLCONV void	Perl_save_op(pTHX)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_save_op(pTHX)
+			__attribute__global__;
+#endif
 
 PERL_CALLCONV void	Perl_save_padsv_and_mortalize(pTHX_ PADOFFSET off)
 			__attribute__global__;
@@ -5016,11 +5090,13 @@ PERL_CALLCONV IO*	Perl_sv_2io(pTHX_ SV *const sv)
 #define PERL_ARGS_ASSERT_SV_2IO	\
 	assert(sv)
 
-/* PERL_CALLCONV IV	Perl_sv_2iv(pTHX_ SV *sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV IV	Perl_sv_2iv(pTHX_ SV *sv)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_2IV	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV IV	Perl_sv_2iv_flags(pTHX_ SV *const sv, const I32 flags)
 			__attribute__global__
@@ -5042,11 +5118,13 @@ PERL_CALLCONV NV	Perl_sv_2nv_flags(pTHX_ SV *const sv, const I32 flags)
 #define PERL_ARGS_ASSERT_SV_2NV_FLAGS	\
 	assert(sv)
 
-/* PERL_CALLCONV char*	Perl_sv_2pv(pTHX_ SV *sv, STRLEN *lp)
+#ifndef NO_MATHOMS
+PERL_CALLCONV char*	Perl_sv_2pv(pTHX_ SV *sv, STRLEN *lp)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_2PV	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV char*	Perl_sv_2pv_flags(pTHX_ SV *const sv, STRLEN *const lp, const I32 flags)
 			__attribute__global__
@@ -5054,12 +5132,14 @@ PERL_CALLCONV char*	Perl_sv_2pv_flags(pTHX_ SV *const sv, STRLEN *const lp, cons
 #define PERL_ARGS_ASSERT_SV_2PV_FLAGS	\
 	assert(sv)
 
-/* PERL_CALLCONV char*	Perl_sv_2pv_nolen(pTHX_ SV* sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV char*	Perl_sv_2pv_nolen(pTHX_ SV* sv)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_2PV_NOLEN	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV char*	Perl_sv_2pvbyte(pTHX_ SV *sv, STRLEN *const lp)
 			__attribute__global__
@@ -5067,12 +5147,14 @@ PERL_CALLCONV char*	Perl_sv_2pvbyte(pTHX_ SV *sv, STRLEN *const lp)
 #define PERL_ARGS_ASSERT_SV_2PVBYTE	\
 	assert(sv)
 
-/* PERL_CALLCONV char*	Perl_sv_2pvbyte_nolen(pTHX_ SV* sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV char*	Perl_sv_2pvbyte_nolen(pTHX_ SV* sv)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_2PVBYTE_NOLEN	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV char*	Perl_sv_2pvutf8(pTHX_ SV *sv, STRLEN *const lp)
 			__attribute__global__
@@ -5080,18 +5162,22 @@ PERL_CALLCONV char*	Perl_sv_2pvutf8(pTHX_ SV *sv, STRLEN *const lp)
 #define PERL_ARGS_ASSERT_SV_2PVUTF8	\
 	assert(sv)
 
-/* PERL_CALLCONV char*	Perl_sv_2pvutf8_nolen(pTHX_ SV* sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV char*	Perl_sv_2pvutf8_nolen(pTHX_ SV* sv)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_2PVUTF8_NOLEN	\
 	assert(sv)
+#endif
 
-/* PERL_CALLCONV UV	Perl_sv_2uv(pTHX_ SV *sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV UV	Perl_sv_2uv(pTHX_ SV *sv)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_2UV	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV UV	Perl_sv_2uv_flags(pTHX_ SV *const sv, const I32 flags)
 			__attribute__global__
@@ -5157,12 +5243,14 @@ PERL_CALLCONV void	Perl_sv_catpvf_mg(pTHX_ SV *const sv, const char *const pat, 
 #define PERL_ARGS_ASSERT_SV_CATPVF_MG	\
 	assert(sv); assert(pat)
 
-/* PERL_CALLCONV void	Perl_sv_catpvn(pTHX_ SV *dsv, const char *sstr, STRLEN len)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_catpvn(pTHX_ SV *dsv, const char *sstr, STRLEN len)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_SV_CATPVN	\
 	assert(dsv); assert(sstr)
+#endif
 
 PERL_CALLCONV void	Perl_sv_catpvn_flags(pTHX_ SV *const dstr, const char *sstr, const STRLEN len, const I32 flags)
 			__attribute__global__
@@ -5171,18 +5259,22 @@ PERL_CALLCONV void	Perl_sv_catpvn_flags(pTHX_ SV *const dstr, const char *sstr, 
 #define PERL_ARGS_ASSERT_SV_CATPVN_FLAGS	\
 	assert(dstr); assert(sstr)
 
-/* PERL_CALLCONV void	Perl_sv_catpvn_mg(pTHX_ SV *sv, const char *ptr, STRLEN len)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_catpvn_mg(pTHX_ SV *sv, const char *ptr, STRLEN len)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_SV_CATPVN_MG	\
 	assert(sv); assert(ptr)
+#endif
 
-/* PERL_CALLCONV void	Perl_sv_catsv(pTHX_ SV *dstr, SV *sstr)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_catsv(pTHX_ SV *dstr, SV *sstr)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_CATSV	\
 	assert(dstr)
+#endif
 
 PERL_CALLCONV void	Perl_sv_catsv_flags(pTHX_ SV *const dsv, SV *const ssv, const I32 flags)
 			__attribute__global__
@@ -5190,11 +5282,13 @@ PERL_CALLCONV void	Perl_sv_catsv_flags(pTHX_ SV *const dsv, SV *const ssv, const
 #define PERL_ARGS_ASSERT_SV_CATSV_FLAGS	\
 	assert(dsv)
 
-/* PERL_CALLCONV void	Perl_sv_catsv_mg(pTHX_ SV *dsv, SV *ssv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_catsv_mg(pTHX_ SV *dsv, SV *ssv)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_CATSV_MG	\
 	assert(dsv)
+#endif
 
 PERL_CALLCONV void	Perl_sv_chop(pTHX_ SV *const sv, const char *const ptr)
 			__attribute__global__
@@ -5224,11 +5318,13 @@ PERL_CALLCONV I32	Perl_sv_cmp_locale(pTHX_ SV *const sv1, SV *const sv2)
 PERL_CALLCONV I32	Perl_sv_cmp_locale_flags(pTHX_ SV *const sv1, SV *const sv2, const U32 flags)
 			__attribute__global__;
 
-/* PERL_CALLCONV void	Perl_sv_copypv(pTHX_ SV *const dsv, SV *const ssv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_copypv(pTHX_ SV *const dsv, SV *const ssv)
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_SV_COPYPV	\
 	assert(dsv); assert(ssv)
+#endif
 
 PERL_CALLCONV void	Perl_sv_copypv_flags(pTHX_ SV *const dsv, SV *const ssv, const I32 flags)
 			__attribute__global__
@@ -5334,11 +5430,13 @@ PERL_CALLCONV void	Perl_sv_dump(pTHX_ SV* sv)
 PERL_CALLCONV I32	Perl_sv_eq_flags(pTHX_ SV* sv1, SV* sv2, const U32 flags)
 			__attribute__global__;
 
-/* PERL_CALLCONV void	Perl_sv_force_normal(pTHX_ SV *sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_force_normal(pTHX_ SV *sv)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_FORCE_NORMAL	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV void	Perl_sv_force_normal_flags(pTHX_ SV *const sv, const U32 flags)
 			__attribute__global__
@@ -5382,12 +5480,14 @@ PERL_CALLCONV void	Perl_sv_inc(pTHX_ SV *const sv)
 PERL_CALLCONV void	Perl_sv_inc_nomg(pTHX_ SV *const sv)
 			__attribute__global__;
 
-/* PERL_CALLCONV void	Perl_sv_insert(pTHX_ SV *const bigstr, const STRLEN offset, const STRLEN len, const char *const little, const STRLEN littlelen)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_insert(pTHX_ SV *const bigstr, const STRLEN offset, const STRLEN len, const char *const little, const STRLEN littlelen)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_4); */
+			__attribute__nonnull__(pTHX_4);
 #define PERL_ARGS_ASSERT_SV_INSERT	\
 	assert(bigstr); assert(little)
+#endif
 
 PERL_CALLCONV void	Perl_sv_insert_flags(pTHX_ SV *const bigstr, const STRLEN offset, const STRLEN len, const char *const little, const STRLEN littlelen, const U32 flags)
 			__attribute__global__
@@ -5440,10 +5540,12 @@ PERL_CALLCONV MAGIC *	Perl_sv_magicext_mglob(pTHX_ SV *sv)
 #define PERL_ARGS_ASSERT_SV_MAGICEXT_MGLOB	\
 	assert(sv)
 
-/* PERL_CALLCONV SV*	Perl_sv_mortalcopy(pTHX_ SV *const oldsv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV SV*	Perl_sv_mortalcopy(pTHX_ SV *const oldsv)
 			__attribute__global__
 			__attribute__malloc__
-			__attribute__warn_unused_result__; */
+			__attribute__warn_unused_result__;
+#endif
 
 PERL_CALLCONV SV*	Perl_sv_mortalcopy_flags(pTHX_ SV *const oldsv, U32 flags)
 			__attribute__global__
@@ -5457,11 +5559,18 @@ PERL_CALLCONV SV*	Perl_sv_newmortal(pTHX)
 PERL_CALLCONV SV*	Perl_sv_newref(pTHX_ SV *const sv)
 			__attribute__global__;
 
-/* PERL_CALLCONV void	Perl_sv_nolocking(pTHX_ SV *sv)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_nolocking(pTHX_ SV *sv)
+			__attribute__global__;
+#endif
 
 PERL_CALLCONV void	Perl_sv_nosharing(pTHX_ SV *sv)
 			__attribute__global__;
+
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_nounlocking(pTHX_ SV *sv)
+			__attribute__global__;
+#endif
 
 PERL_CALLCONV NV	Perl_sv_nv(pTHX_ SV* sv)
 			__attribute__global__
@@ -5498,19 +5607,23 @@ PERL_CALLCONV STRLEN	Perl_sv_pos_u2b_flags(pTHX_ SV *const sv, STRLEN uoffset, S
 #define PERL_ARGS_ASSERT_SV_POS_U2B_FLAGS	\
 	assert(sv)
 
-/* PERL_CALLCONV char*	Perl_sv_pv(pTHX_ SV *sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV char*	Perl_sv_pv(pTHX_ SV *sv)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_PV	\
 	assert(sv)
+#endif
 
-/* PERL_CALLCONV char*	Perl_sv_pvbyte(pTHX_ SV *sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV char*	Perl_sv_pvbyte(pTHX_ SV *sv)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_PVBYTE	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV char*	Perl_sv_pvbyten(pTHX_ SV *sv, STRLEN *lp)
 			__attribute__global__
@@ -5532,11 +5645,13 @@ PERL_CALLCONV char*	Perl_sv_pvn(pTHX_ SV *sv, STRLEN *lp)
 #define PERL_ARGS_ASSERT_SV_PVN	\
 	assert(sv); assert(lp)
 
-/* PERL_CALLCONV char*	Perl_sv_pvn_force(pTHX_ SV* sv, STRLEN* lp)
+#ifndef NO_MATHOMS
+PERL_CALLCONV char*	Perl_sv_pvn_force(pTHX_ SV* sv, STRLEN* lp)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_PVN_FORCE	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV char*	Perl_sv_pvn_force_flags(pTHX_ SV *const sv, STRLEN *const lp, const I32 flags)
 			__attribute__global__
@@ -5550,12 +5665,14 @@ PERL_CALLCONV char*	Perl_sv_pvn_nomg(pTHX_ SV* sv, STRLEN* lp)
 #define PERL_ARGS_ASSERT_SV_PVN_NOMG	\
 	assert(sv)
 
-/* PERL_CALLCONV char*	Perl_sv_pvutf8(pTHX_ SV *sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV char*	Perl_sv_pvutf8(pTHX_ SV *sv)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_PVUTF8	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV char*	Perl_sv_pvutf8n(pTHX_ SV *sv, STRLEN *lp)
 			__attribute__global__
@@ -5727,11 +5844,13 @@ PERL_CALLCONV SV*	Perl_sv_setref_uv(pTHX_ SV *const rv, const char *const classn
 #define PERL_ARGS_ASSERT_SV_SETREF_UV	\
 	assert(rv)
 
-/* PERL_CALLCONV void	Perl_sv_setsv(pTHX_ SV *dstr, SV *sstr)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_setsv(pTHX_ SV *dstr, SV *sstr)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_SETSV	\
 	assert(dstr)
+#endif
 
 PERL_CALLCONV void	Perl_sv_setsv_flags(pTHX_ SV *dstr, SV *sstr, const I32 flags)
 			__attribute__global__
@@ -5757,11 +5876,13 @@ PERL_CALLCONV void	Perl_sv_setuv_mg(pTHX_ SV *const sv, const UV u)
 #define PERL_ARGS_ASSERT_SV_SETUV_MG	\
 	assert(sv)
 
-/* PERL_CALLCONV void	Perl_sv_taint(pTHX_ SV* sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_taint(pTHX_ SV* sv)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_TAINT	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV bool	Perl_sv_tainted(pTHX_ SV *const sv)
 			__attribute__global__
@@ -5799,11 +5920,13 @@ PERL_CALLCONV int	Perl_sv_unmagicext(pTHX_ SV *const sv, const int type, MGVTBL 
 #define PERL_ARGS_ASSERT_SV_UNMAGICEXT	\
 	assert(sv)
 
-/* PERL_CALLCONV void	Perl_sv_unref(pTHX_ SV* sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_unref(pTHX_ SV* sv)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_UNREF	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV void	Perl_sv_unref_flags(pTHX_ SV *const ref, const U32 flags)
 			__attribute__global__
@@ -5823,11 +5946,13 @@ PERL_CALLCONV void	Perl_sv_upgrade(pTHX_ SV *const sv, svtype new_type)
 #define PERL_ARGS_ASSERT_SV_UPGRADE	\
 	assert(sv)
 
-/* PERL_CALLCONV void	Perl_sv_usepvn(pTHX_ SV* sv, char* ptr, STRLEN len)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_usepvn(pTHX_ SV* sv, char* ptr, STRLEN len)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_USEPVN	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV void	Perl_sv_usepvn_flags(pTHX_ SV *const sv, char* ptr, const STRLEN len, const U32 flags)
 			__attribute__global__
@@ -5835,11 +5960,13 @@ PERL_CALLCONV void	Perl_sv_usepvn_flags(pTHX_ SV *const sv, char* ptr, const STR
 #define PERL_ARGS_ASSERT_SV_USEPVN_FLAGS	\
 	assert(sv)
 
-/* PERL_CALLCONV void	Perl_sv_usepvn_mg(pTHX_ SV *sv, char *ptr, STRLEN len)
+#ifndef NO_MATHOMS
+PERL_CALLCONV void	Perl_sv_usepvn_mg(pTHX_ SV *sv, char *ptr, STRLEN len)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_USEPVN_MG	\
 	assert(sv)
+#endif
 
 PERL_CALLCONV bool	Perl_sv_utf8_decode(pTHX_ SV *const sv)
 			__attribute__global__
@@ -5859,11 +5986,13 @@ PERL_CALLCONV void	Perl_sv_utf8_encode(pTHX_ SV *const sv)
 #define PERL_ARGS_ASSERT_SV_UTF8_ENCODE	\
 	assert(sv)
 
-/* PERL_CALLCONV STRLEN	Perl_sv_utf8_upgrade(pTHX_ SV *sv)
+#ifndef NO_MATHOMS
+PERL_CALLCONV STRLEN	Perl_sv_utf8_upgrade(pTHX_ SV *sv)
 			__attribute__global__
-			__attribute__nonnull__(pTHX_1); */
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SV_UTF8_UPGRADE	\
 	assert(sv)
+#endif
 
 /* PERL_CALLCONV STRLEN	Perl_sv_utf8_upgrade_flags(pTHX_ SV *const sv, const I32 flags)
 			__attribute__global__
@@ -6045,33 +6174,41 @@ PERL_CALLCONV UV	Perl_to_utf8_case(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp, S
 #define PERL_ARGS_ASSERT_TO_UTF8_CASE	\
 	assert(p); assert(ustrp); assert(swashp); assert(normal)
 
-/* PERL_CALLCONV UV	Perl_to_utf8_fold(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
+#ifndef NO_MATHOMS
+PERL_CALLCONV UV	Perl_to_utf8_fold(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_TO_UTF8_FOLD	\
 	assert(p); assert(ustrp)
+#endif
 
-/* PERL_CALLCONV UV	Perl_to_utf8_lower(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
+#ifndef NO_MATHOMS
+PERL_CALLCONV UV	Perl_to_utf8_lower(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_TO_UTF8_LOWER	\
 	assert(p); assert(ustrp)
+#endif
 
-/* PERL_CALLCONV UV	Perl_to_utf8_title(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
+#ifndef NO_MATHOMS
+PERL_CALLCONV UV	Perl_to_utf8_title(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_TO_UTF8_TITLE	\
 	assert(p); assert(ustrp)
+#endif
 
-/* PERL_CALLCONV UV	Perl_to_utf8_upper(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
+#ifndef NO_MATHOMS
+PERL_CALLCONV UV	Perl_to_utf8_upper(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2); */
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_TO_UTF8_UPPER	\
 	assert(p); assert(ustrp)
+#endif
 
 PERL_CALLCONV bool	Perl_try_amagic_bin(pTHX_ int method, int flags)
 			__attribute__global__;
@@ -6459,11 +6596,6 @@ PERL_CALLCONV Signal_t	Perl_csighandler(int sig)
 			__attribute__global__;
 
 PERL_CALLCONV Signal_t	Perl_sighandler(int sig);
-#endif
-#if !(defined(NO_MATHOMS))
-PERL_CALLCONV void	Perl_sv_nounlocking(pTHX_ SV *sv)
-			__attribute__global__;
-
 #endif
 #if !(defined(PERL_DEFAULT_DO_EXEC3_IMPLEMENTATION))
 PERL_CALLCONV bool	Perl_do_exec(pTHX_ const char* cmd)
@@ -7095,11 +7227,6 @@ PERL_CALLCONV MEM_SIZE	Perl_malloced_size(void *p)
 	assert(p)
 
 #endif
-#if defined(NO_MATHOMS)
-/* PERL_CALLCONV void	Perl_sv_nounlocking(pTHX_ SV *sv)
-			__attribute__global__; */
-
-#endif
 #if defined(PERL_ANY_COW)
 PERL_CALLCONV SV*	Perl_sv_setsv_cow(pTHX_ SV* dstr, SV* sstr)
 			__attribute__global__
@@ -7195,8 +7322,10 @@ PERL_CALLCONV OP *	Perl_op_refcnt_inc(pTHX_ OP *o);
 
 #endif
 #if defined(PERL_DONT_CREATE_GVSV)
-/* PERL_CALLCONV GV*	Perl_gv_SVadd(pTHX_ GV *gv)
-			__attribute__global__; */
+#ifndef NO_MATHOMS
+PERL_CALLCONV GV*	Perl_gv_SVadd(pTHX_ GV *gv)
+			__attribute__global__;
+#endif
 
 #endif
 #if defined(PERL_GLOBAL_STRUCT)
