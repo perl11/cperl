@@ -2879,12 +2879,14 @@ PP(pp_goto)
                     PL_curcop = cx->blk_oldcop;
                     if (!CvISXSUB(cv)) {
 #ifdef PERL_GOTOSIG_TAILCALL
+                        /* cpan/Test-Simple/t/capture.t? */
                         depth = PadlistMAX(padlist);
+                        assert(CvDEPTH(cv) <= PadlistMAX(padlist));
 #endif
                         PAD_SET_CUR(padlist, depth);
-                        DEBUG_kv(PerlIO_printf(Perl_debug_log,
-                            "  padlist max=%d, depth=%d\n",
-                            (int)PadlistMAX(padlist), depth));
+                        DEBUG_Xv(PerlIO_printf(Perl_debug_log,
+                            "  padlist max=%d, CvDEPTH=%d\n",
+                            (int)PadlistMAX(padlist), CvDEPTH(cv)));
                         goto call_pp_sub;
                     }
                 }

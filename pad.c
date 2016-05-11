@@ -2469,6 +2469,7 @@ Perl_pad_push(pTHX_ PADLIST *padlist, int depth)
 {
     PERL_ARGS_ASSERT_PAD_PUSH;
 
+    assert(depth <= PadlistMAX(padlist)+1); /* max push by 1, not 2 */
     if (depth > PadlistMAX(padlist) || !PadlistARRAY(padlist)[depth]) {
 	PAD** const svp = PadlistARRAY(padlist);
 	AV* const newpad = newAV();
@@ -2478,7 +2479,7 @@ Perl_pad_push(pTHX_ PADLIST *padlist, int depth)
 	PADNAME ** const names = PadnamelistARRAY((PADNAMELIST *)svp[0]);
 	AV *av;
 
-	for ( ;ix > 0; ix--) {
+	for (; ix > 0; ix--) {
 	    if (names_fill >= ix && PadnameLEN(names[ix])) {
 		const char sigil = PadnamePV(names[ix])[0];
 		if (PadnameOUTER(names[ix])
