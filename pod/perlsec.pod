@@ -645,8 +645,8 @@ misbehave on any input.
 
 =back
 
-See L<http://www.cs.rice.edu/~scrosby/hash/> and
-L<https://www.eng.tau.ac.il/~yash/C2_039_Wool.pdf> for more
+See L<https://www.usenix.org/legacy/events/sec03/tech/full_papers/crosby/crosby.pdf>
+and L<https://www.eng.tau.ac.il/~yash/C2_039_Wool.pdf> for more
 information, and any computer science textbook on algorithmic
 complexity.
 
