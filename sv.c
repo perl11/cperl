@@ -10665,6 +10665,8 @@ Perl_sv_tainted(pTHX_ SV *const sv)
     return FALSE;
 }
 
+#ifndef NO_MATHOMS
+
 /*
 =for apidoc sv_setpviv
 
@@ -10702,6 +10704,8 @@ Perl_sv_setpviv_mg(pTHX_ SV *const sv, const IV iv)
     sv_setpviv(sv, iv);
     SvSETMAGIC(sv);
 }
+
+#endif  /* NO_MATHOMS */
 
 #if defined(PERL_IMPLICIT_CONTEXT)
 
