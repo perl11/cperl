@@ -585,6 +585,11 @@ char *
 Perl_ninstr(const char *big, const char *bigend, const char *little, const char *lend)
 {
     PERL_ARGS_ASSERT_NINSTR;
+
+#ifdef HAS_MEMMEM
+    return ninstr(big, bigend, little, lend);
+#else
+
     if (little >= lend)
         return (char*)big;
     {
@@ -603,6 +608,9 @@ Perl_ninstr(const char *big, const char *bigend, const char *little, const char 
         }
     }
     return NULL;
+
+#endif
+
 }
 
 /*
