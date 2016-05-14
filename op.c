@@ -7371,7 +7371,7 @@ S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
 	    *otherp = NULL;
 	    if (IS_CONST_OP(cstop))
 		cstop->op_private |= OPpCONST_SHORTCIRCUIT;
-	        op_free(other);
+            op_free(other);
 	    return first;
 	}
     }
