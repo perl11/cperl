@@ -6821,24 +6821,7 @@ S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
 	|| type == OP_CUSTOM);
 
     scalarboolean(first);
-    /* optimize AND and OR ops that have NOTs as children */
-    if (first->op_type == OP_NOT
-	&& (first->op_flags & OPf_KIDS)
-	&& ((first->op_flags & OPf_SPECIAL) /* unless ($x) { } */
-	    || (other->op_type == OP_NOT))  /* if (!$x && !$y) { } */
-	) {
-	if (type == OP_AND || type == OP_OR) {
-	    if (type == OP_AND)
-		type = OP_OR;
-	    else
-		type = OP_AND;
-	    op_null(first);
-	    if (other->op_type == OP_NOT) { /* !a AND|OR !b => !(a OR|AND b) */
-		op_null(other);
-		prepend_not = 1; /* prepend a NOT op later */
-	    }
-	}
-    }
+
     /* search for a constant op that could let us fold the test */
     if ((cstop = search_const(first))) {
 	if (cstop->op_private & OPpCONST_STRICT)
@@ -6934,6 +6917,25 @@ S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
 
     if (!other)
 	return first;
+
+    /* optimize AND and OR ops that have NOTs as children */
+    if (first->op_type == OP_NOT
+        && (first->op_flags & OPf_KIDS)
+        && ((first->op_flags & OPf_SPECIAL) /* unless ($x) { } */
+            || (other->op_type == OP_NOT))  /* if (!$x && !$y) { } */
+        ) {
+        if (type == OP_AND || type == OP_OR) {
+            if (type == OP_AND)
+                type = OP_OR;
+            else
+                type = OP_AND;
+            op_null(first);
+            if (other->op_type == OP_NOT) { /* !a AND|OR !b => !(a OR|AND b) */
+                op_null(other);
+                prepend_not = 1; /* prepend a NOT op later */
+            }
+        }
+    }
 
     logop = S_alloc_LOGOP(aTHX_ type, first, LINKLIST(other));
     logop->op_flags |= (U8)flags;
