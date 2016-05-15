@@ -20,7 +20,7 @@ BEGIN {
 use warnings;
 use strict;
 
-plan 2261;
+plan 2262;
 
 use B ();
 
@@ -265,8 +265,8 @@ test_opcount(0, 'multideref exists',
 # various signature things
 
 {
-    use feature 'signatures';
-    no warnings 'experimental::signatures';
+    #use feature 'signatures';
+    #no warnings 'experimental::signatures';
 
 
     my $lex;
@@ -325,7 +325,7 @@ test_opcount(0, 'multideref exists',
 
 }
 
-# test fake OP_SIGNATURE  optimisation
+# test fake OP_SIGNATURE optimisation
 
 test_opcount(0, 'stuff after slurpy fake sig not optimised',
                 sub { my (@a, $b) = @_; 1; },
@@ -350,7 +350,7 @@ test_opcount(0, 'non-void fake sig not optimised',
 
 SKIP: {
     use Config;
-    unless ($Config{ccflags} =~ /PERL_FAKE_SIGNATURE\b/) {
+    unless ($^V < v5.25.2c and $Config{ccflags} =~ /PERL_FAKE_SIGNATURE\b/) {
         skip "not built with PERL_FAKE_SIGNATURE", 4;
     }
 
@@ -396,3 +396,9 @@ SKIP: {
                 );
 
 }
+
+test_opcount(0, 'barewords can be constant-folded',
+             sub { no strict 'subs'; FOO . BAR },
+             {
+                 concat => 0,
+             });
