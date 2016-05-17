@@ -307,8 +307,8 @@ EXTCONST char* const PL_op_name[] = {
 	"aslice",	/* 151: array slice */
 	"kvaslice",	/* 152: index/value array slice */
 	"aeach",	/* 153: each on array */
-	"akeys",	/* 154: keys on array */
-	"avalues",	/* 155: values on array */
+	"avalues",	/* 154: values on array */
+	"akeys",	/* 155: keys on array */
 	"each",	/* 156: each */
 	"values",	/* 157: values */
 	"keys",	/* 158: keys */
@@ -724,8 +724,8 @@ EXTCONST char* const PL_op_desc[] = {
 	"array slice",	/* 151: aslice */
 	"index/value array slice",	/* 152: kvaslice */
 	"each on array",	/* 153: aeach */
-	"keys on array",	/* 154: akeys */
-	"values on array",	/* 155: avalues */
+	"values on array",	/* 154: avalues */
+	"keys on array",	/* 155: akeys */
 	"each",	/* 156: each */
 	"values",	/* 157: values */
 	"keys",	/* 158: keys */
@@ -1192,8 +1192,8 @@ PL_op_type_str[] = {
 	"",	/* 151: aslice */
 	"",	/* 152: kvaslice */
 	"",	/* 153: aeach */
-	"",	/* 154: akeys */
-	"",	/* 155: avalues */
+	"",	/* 154: avalues */
+	"",	/* 155: akeys */
 	"",	/* 156: each */
 	"",	/* 157: values */
 	"",	/* 158: keys */
@@ -1616,8 +1616,8 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffff00,	/* 151: aslice "" */
 	0xffffff00,	/* 152: kvaslice "" */
 	0xffffff00,	/* 153: aeach "" */
-	0xffffff00,	/* 154: akeys "" */
-	0xffffff00,	/* 155: avalues "" */
+	0xffffff00,	/* 154: avalues "" */
+	0xffffff00,	/* 155: akeys "" */
 	0xffffff00,	/* 156: each "" */
 	0xffffff00,	/* 157: values "" */
 	0xffffff00,	/* 158: keys "" */
@@ -2040,8 +2040,8 @@ EXTCONST signed char PL_op_type_variants[][8] = {
 	/* 151 aslice           */ {0},	/*  */
 	/* 152 kvaslice         */ {0},	/*  */
 	/* 153 aeach            */ {0},	/*  */
-	/* 154 akeys            */ {0},	/*  */
-	/* 155 avalues          */ {0},	/*  */
+	/* 154 avalues          */ {0},	/*  */
+	/* 155 akeys            */ {0},	/*  */
 	/* 156 each             */ {0},	/*  */
 	/* 157 values           */ {0},	/*  */
 	/* 158 keys             */ {0},	/*  */
@@ -2493,8 +2493,8 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_aslice,
 	Perl_pp_kvaslice,
 	Perl_pp_aeach,
-	Perl_pp_akeys,
 	Perl_pp_avalues,	/* implemented by Perl_pp_akeys */
+	Perl_pp_akeys,
 	Perl_pp_each,
 	Perl_pp_values,	/* implemented by Perl_do_kv */
 	Perl_pp_keys,	/* implemented by Perl_do_kv */
@@ -2920,8 +2920,8 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_null,		/* aslice */
 	Perl_ck_null,		/* kvaslice */
 	Perl_ck_each,		/* aeach */
-	Perl_ck_each,		/* akeys */
 	Perl_ck_each,		/* avalues */
+	Perl_ck_each,		/* akeys */
 	Perl_ck_each,		/* each */
 	Perl_ck_each,		/* values */
 	Perl_ck_each,		/* keys */
@@ -3341,8 +3341,8 @@ EXTCONST U32 PL_opargs[] = {
 	0x0008d001,	/* aslice */
 	0x0008d001,	/* kvaslice */
 	0x0000ec40,	/* aeach */
-	0x0000ec08,	/* akeys */
 	0x0000ec48,	/* avalues */
+	0x0000ec08,	/* akeys */
 	0x00012c40,	/* each */
 	0x00012c48,	/* values */
 	0x00012c08,	/* keys */
@@ -3998,8 +3998,8 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
       98, /* aslice */
      101, /* kvaslice */
        0, /* aeach */
-      38, /* akeys */
        0, /* avalues */
+      38, /* akeys */
        0, /* each */
        0, /* values */
       38, /* keys */
@@ -4497,8 +4497,8 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* ASLICE     */ (OPpSLICEWARNING|OPpMAYBE_LVSUB|OPpLVAL_INTRO),
     /* KVASLICE   */ (OPpMAYBE_LVSUB),
     /* AEACH      */ (OPpARG1_MASK),
-    /* AKEYS      */ (OPpARG1_MASK|OPpMAYBE_LVSUB),
     /* AVALUES    */ (OPpARG1_MASK),
+    /* AKEYS      */ (OPpARG1_MASK|OPpMAYBE_LVSUB),
     /* EACH       */ (OPpARG1_MASK),
     /* VALUES     */ (OPpARG1_MASK),
     /* KEYS       */ (OPpARG1_MASK|OPpMAYBE_LVSUB),
