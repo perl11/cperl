@@ -3838,6 +3838,7 @@ EXTCONST char PL_op_private_labels[] = {
 EXTCONST I16 PL_op_private_bitfields[] = {
     0, 8, -1,
     0, 8, -1,
+    0, -1, -1,
     0, 8, -1,
     0, 8, -1,
     0, 8, -1,
@@ -4250,17 +4251,17 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
        0, /* once */
       -1, /* custom */
      187, /* coreargs */
-       0, /* avhvswitch */
+     191, /* avhvswitch */
        3, /* runcv */
        0, /* fc */
       -1, /* padcv */
       -1, /* introcv */
       -1, /* clonecv */
-     191, /* padrange */
-     193, /* refassign */
-     199, /* lvref */
-     205, /* lvrefslice */
-     206, /* lvavref */
+     192, /* padrange */
+     194, /* refassign */
+     200, /* lvref */
+     206, /* lvrefslice */
+     207, /* lvavref */
        0, /* anonconst */
 
 };
@@ -4280,14 +4281,14 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
  */
 
 EXTCONST U16  PL_op_private_bitdefs[] = {
-    0x0003, /* scalar, chop, schop, defined, undef, study, preinc, i_preinc, predec, i_predec, postinc, i_postinc, postdec, i_postdec, negate, i_negate, not, complement, prototype, refgen, srefgen, ref, readline, regcmaybe, regcreset, regcomp, ucfirst, lcfirst, uc, lc, quotemeta, aeach, avalues, each, values, pop, shift, range, and, or, dor, andassign, orassign, dorassign, method, method_named, method_super, method_redir, method_redir_super, entergiven, leavegiven, enterwhen, leavewhen, untie, tied, dbmclose, getsockname, getpeername, lstat, stat, readlink, readdir, telldir, rewinddir, closedir, localtime, alarm, require, dofile, entertry, ghbyname, gnbyname, gpbyname, shostent, snetent, sprotoent, sservent, gpwnam, gpwuid, ggrnam, ggrgid, lock, once, avhvswitch, fc, anonconst */
+    0x0003, /* scalar, chop, schop, defined, undef, study, preinc, i_preinc, predec, i_predec, postinc, i_postinc, postdec, i_postdec, negate, i_negate, not, complement, prototype, refgen, srefgen, ref, readline, regcmaybe, regcreset, regcomp, ucfirst, lcfirst, uc, lc, quotemeta, aeach, avalues, each, values, pop, shift, range, and, or, dor, andassign, orassign, dorassign, method, method_named, method_super, method_redir, method_redir_super, entergiven, leavegiven, enterwhen, leavewhen, untie, tied, dbmclose, getsockname, getpeername, lstat, stat, readlink, readdir, telldir, rewinddir, closedir, localtime, alarm, require, dofile, entertry, ghbyname, gnbyname, gpbyname, shostent, snetent, sprotoent, sservent, gpwnam, gpwuid, ggrnam, ggrgid, lock, once, fc, anonconst */
     0x2c5c, 0x3e59, /* pushmark */
     0x00bd, /* wantarray, runcv */
     0x03b8, 0x17f0, 0x3f0c, 0x39c8, 0x3025, /* const */
     0x2c5c, 0x3179, /* gvsv */
     0x1655, /* gv */
     0x0067, /* gelem, lt, i_lt, gt, i_gt, le, i_le, ge, i_ge, eq, i_eq, ne, i_ne, cmp, i_cmp, s_lt, s_gt, s_le, s_ge, s_eq, s_ne, s_cmp, bit_and, bit_xor, bit_or, s_bit_and, s_bit_xor, s_bit_or, smartmatch, i_aelem, n_aelem, s_aelem, i_aelem_u, n_aelem_u, s_aelem_u, lslice, xor */
-    0x2c5c, 0x3e58, 0x0257, /* padsv */
+    0x2c5c, 0x3e58, 0x02b7, /* padsv */
     0x2c5c, 0x3e58, 0x2d4c, 0x3b49, /* padav */
     0x2c5c, 0x3e58, 0x0534, 0x05d0, 0x2d4c, 0x3b49, /* padhv */
     0x3918, 0x4171, /* pushre, match, qr, subst */
@@ -4297,19 +4298,19 @@ EXTCONST U16  PL_op_private_bitdefs[] = {
     0x2d4c, 0x0003, /* pos, av2arylen, akeys, keys */
     0x4170, 0x0067, /* multiply, i_multiply, u_multiply, divide, i_divide, modulo, i_modulo, add, i_add, u_add, subtract, i_subtract, u_subtract, concat, pow, i_pow, left_shift, right_shift, i_bit_and, i_bit_xor, i_bit_or */
     0x12d8, 0x0067, /* repeat */
-    0x4170, 0x012f, /* stringify, atan2, rand, srand, index, rindex, crypt, push, unshift, flock, chdir, chown, unlink, chmod, utime, rename, link, symlink, mkdir, waitpid, system, exec, kill, getpgrp, setpgrp, getpriority, setpriority, sleep */
-    0x2c5c, 0x19d8, 0x0256, 0x2d4c, 0x2f48, 0x3f04, 0x0003, /* rv2gv */
-    0x2c5c, 0x3178, 0x0256, 0x3f04, 0x0003, /* rv2sv */
+    0x4170, 0x018f, /* stringify, atan2, rand, srand, index, rindex, crypt, push, unshift, flock, chdir, chown, unlink, chmod, utime, rename, link, symlink, mkdir, waitpid, system, exec, kill, getpgrp, setpgrp, getpriority, setpriority, sleep */
+    0x2c5c, 0x19d8, 0x02b6, 0x2d4c, 0x2f48, 0x3f04, 0x0003, /* rv2gv */
+    0x2c5c, 0x3178, 0x02b6, 0x3f04, 0x0003, /* rv2sv */
     0x2ebc, 0x0e18, 0x0b74, 0x028c, 0x40c8, 0x3f04, 0x0003, /* rv2cv */
-    0x012f, /* bless, glob, sprintf, formline, unpack, pack, join, anonlist, anonhash, splice, warn, die, reset, exit, close, pipe_op, fileno, umask, binmode, tie, dbmopen, sselect, select, getc, read, enterwrite, sysopen, sysseek, sysread, syswrite, eof, tell, seek, truncate, fcntl, ioctl, send, recv, socket, sockpair, bind, connect, listen, accept, shutdown, gsockopt, ssockopt, open_dir, seekdir, gmtime, shmget, shmctl, shmread, shmwrite, msgget, msgctl, msgsnd, msgrcv, semop, semget, semctl, ghbyaddr, gnbyaddr, gpbynumber, gsbyname, gsbyport, syscall */
+    0x018f, /* bless, glob, sprintf, formline, unpack, pack, join, anonlist, anonhash, splice, warn, die, reset, exit, close, pipe_op, fileno, umask, binmode, tie, dbmopen, sselect, select, getc, read, enterwrite, sysopen, sysseek, sysread, syswrite, eof, tell, seek, truncate, fcntl, ioctl, send, recv, socket, sockpair, bind, connect, listen, accept, shutdown, gsockopt, ssockopt, open_dir, seekdir, gmtime, shmget, shmctl, shmread, shmwrite, msgget, msgctl, msgsnd, msgrcv, semop, semget, semctl, ghbyaddr, gnbyaddr, gpbynumber, gsbyname, gsbyport, syscall */
     0x335c, 0x3278, 0x2734, 0x2670, 0x0003, /* backtick */
     0x3918, 0x0003, /* substcont */
     0x0f1c, 0x2058, 0x0754, 0x4170, 0x3c8c, 0x23e8, 0x01e4, 0x0141, /* trans, transr */
-    0x3670, 0x2d4c, 0x00cb, /* substr */
+    0x3670, 0x2d4c, 0x012b, /* substr */
     0x2d4c, 0x0067, /* vec, aelem_u */
     0x2c5c, 0x3178, 0x2d4c, 0x3b48, 0x3f04, 0x0003, /* rv2av */
-    0x01ff, /* aelemfast, aelemfast_lex, aelemfast_lex_u */
-    0x2c5c, 0x2b58, 0x0256, 0x2d4c, 0x0067, /* aelem, helem */
+    0x025f, /* aelemfast, aelemfast_lex, aelemfast_lex_u */
+    0x2c5c, 0x2b58, 0x02b6, 0x2d4c, 0x0067, /* aelem, helem */
     0x2c5c, 0x2d4c, 0x3b49, /* aslice, hslice */
     0x2d4d, /* kvaslice, kvhslice */
     0x2c5c, 0x3a98, 0x0003, /* delete */
@@ -4323,25 +4324,26 @@ EXTCONST U16  PL_op_private_bitdefs[] = {
     0x1f44, 0x0003, /* grepstart, grepwhile, mapstart, mapwhile */
     0x29f8, 0x0003, /* flip, flop */
     0x2c5c, 0x0003, /* cond_expr */
-    0x2c5c, 0x0e18, 0x0256, 0x028c, 0x40c8, 0x3f04, 0x2581, /* entersub, enterxssub */
+    0x2c5c, 0x0e18, 0x02b6, 0x028c, 0x40c8, 0x3f04, 0x2581, /* entersub, enterxssub */
     0x34d8, 0x0003, /* leavesub, leavesublv, leavewrite, leaveeval */
     0x19c4, 0x0003, /* signature */
-    0x00bc, 0x012f, /* caller */
+    0x00bc, 0x018f, /* caller */
     0x22f5, /* nextstate, dbstate */
     0x2afc, 0x34d9, /* leave */
     0x2c5c, 0x3178, 0x0e8c, 0x37e5, /* enteriter */
     0x37e5, /* iter */
     0x2afc, 0x0067, /* leaveloop */
     0x42dc, 0x0003, /* last, next, redo, dump, goto */
-    0x335c, 0x3278, 0x2734, 0x2670, 0x012f, /* open */
+    0x335c, 0x3278, 0x2734, 0x2670, 0x018f, /* open */
     0x1b90, 0x1dec, 0x1ca8, 0x1a64, 0x0003, /* ftrread, ftrwrite, ftrexec, fteread, ftewrite, fteexec */
     0x1b90, 0x1dec, 0x1ca8, 0x0003, /* ftis, ftsize, ftmtime, ftatime, ftctime, ftrowned, fteowned, ftzero, ftsock, ftchr, ftblk, ftfile, ftdir, ftpipe, ftsuid, ftsgid, ftsvtx, ftlink, fttty, fttext, ftbinary */
     0x4171, /* wait, getppid, time */
     0x3574, 0x0c30, 0x068c, 0x4248, 0x2204, 0x0003, /* entereval */
     0x2e1c, 0x0018, 0x1144, 0x1061, /* coreargs */
-    0x2c5c, 0x019b, /* padrange */
-    0x2c5c, 0x3e58, 0x0376, 0x294c, 0x1748, 0x0067, /* refassign */
-    0x2c5c, 0x3e58, 0x0376, 0x294c, 0x1748, 0x0003, /* lvref */
+    0x00c7, /* avhvswitch */
+    0x2c5c, 0x01fb, /* padrange */
+    0x2c5c, 0x3e58, 0x03d6, 0x294c, 0x1748, 0x0067, /* refassign */
+    0x2c5c, 0x3e58, 0x03d6, 0x294c, 0x1748, 0x0003, /* lvref */
     0x2c5d, /* lvrefslice */
     0x2c5c, 0x3e58, 0x0003, /* lvavref */
 
@@ -4750,7 +4752,7 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* ONCE       */ (OPpARG1_MASK),
     /* CUSTOM     */ (0xff),
     /* COREARGS   */ (OPpCOREARGS_DEREF1|OPpCOREARGS_DEREF2|OPpCOREARGS_SCALARMOD|OPpCOREARGS_PUSHMARK),
-    /* AVHVSWITCH */ (OPpARG1_MASK),
+    /* AVHVSWITCH */ (3),
     /* RUNCV      */ (OPpOFFBYONE),
     /* FC         */ (OPpARG1_MASK),
     /* PADCV      */ (0),
