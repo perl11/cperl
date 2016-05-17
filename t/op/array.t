@@ -605,4 +605,7 @@ $#a = -1; $#a++;
 $#a = -1; $#a++;
 () = 0+splice @a, 0, 1, 1, 1;
 
+sub { undef *_; shift }->(); # This would crash; no ok() necessary.
+sub { undef *_; pop   }->();
+
 "We're included by lib/Tie/Array/std.t so we need to return something true";
