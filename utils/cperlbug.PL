@@ -96,6 +96,8 @@ my( $file, $usefile, $cc, $address, $issueurl,
     %opt, $have_attachment, $attachments, $has_patch, $mime_boundary
   );
 
+my $running_noninteractively = !-t STDIN;
+
 my $perl_version = $^V ? sprintf("%vd", $^V) : $];
 my $config_tag2 = "$perl_version - $Config{cf_time}";
 
@@ -103,7 +105,7 @@ Init();
 
 if ($opt{h}) { Help(); exit; }
 if ($opt{d}) { Dump(*STDOUT); exit; }
-if (!-t STDIN && !$opt{t} && !($ok and not $opt{n})) {
+if ($running_noninteractively && !$opt{t} && !($ok and not $opt{n})) {
     paraprint <<"EOF";
 Please use $progname interactively. If you want to
 include a file, you can use the -f switch.
@@ -644,7 +646,7 @@ sub Edit {
 	$ed = $entry unless $entry eq '';
     }
 
-    _edit_file($ed);
+    _edit_file($ed) unless $running_noninteractively;
 }
 
 sub _edit_file {
