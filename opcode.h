@@ -551,18 +551,19 @@ EXTCONST char* const PL_op_name[] = {
 	"once",	/* 395: once */
 	"custom",	/* 396: unknown custom operator */
 	"coreargs",	/* 397: CORE:: subroutine */
-	"runcv",	/* 398: __SUB__ */
-	"fc",	/* 399: fc */
-	"padcv",	/* 400: private subroutine */
-	"introcv",	/* 401: private subroutine */
-	"clonecv",	/* 402: private subroutine */
-	"padrange",	/* 403: list of private variables */
-	"refassign",	/* 404: lvalue ref assignment */
-	"lvref",	/* 405: lvalue ref assignment */
-	"lvrefslice",	/* 406: lvalue ref assignment */
-	"lvavref",	/* 407: lvalue array reference */
-	"anonconst",	/* 408: anonymous constant */
-	"freed",	/* 409: freed op */
+	"avhvswitch",	/* 398: Array/hash switch */
+	"runcv",	/* 399: __SUB__ */
+	"fc",	/* 400: fc */
+	"padcv",	/* 401: private subroutine */
+	"introcv",	/* 402: private subroutine */
+	"clonecv",	/* 403: private subroutine */
+	"padrange",	/* 404: list of private variables */
+	"refassign",	/* 405: lvalue ref assignment */
+	"lvref",	/* 406: lvalue ref assignment */
+	"lvrefslice",	/* 407: lvalue ref assignment */
+	"lvavref",	/* 408: lvalue array reference */
+	"anonconst",	/* 409: anonymous constant */
+	"freed",	/* 410: freed op */
 };
 #endif
 
@@ -968,18 +969,19 @@ EXTCONST char* const PL_op_desc[] = {
 	"once",	/* 395: once */
 	"unknown custom operator",	/* 396: custom */
 	"CORE:: subroutine",	/* 397: coreargs */
-	"__SUB__",	/* 398: runcv */
-	"fc",	/* 399: fc */
-	"private subroutine",	/* 400: padcv */
-	"private subroutine",	/* 401: introcv */
-	"private subroutine",	/* 402: clonecv */
-	"list of private variables",	/* 403: padrange */
-	"lvalue ref assignment",	/* 404: refassign */
-	"lvalue ref assignment",	/* 405: lvref */
-	"lvalue ref assignment",	/* 406: lvrefslice */
-	"lvalue array reference",	/* 407: lvavref */
-	"anonymous constant",	/* 408: anonconst */
-	"freed op",	/* 409: freed */
+	"Array/hash switch",	/* 398: avhvswitch */
+	"__SUB__",	/* 399: runcv */
+	"fc",	/* 400: fc */
+	"private subroutine",	/* 401: padcv */
+	"private subroutine",	/* 402: introcv */
+	"private subroutine",	/* 403: clonecv */
+	"list of private variables",	/* 404: padrange */
+	"lvalue ref assignment",	/* 405: refassign */
+	"lvalue ref assignment",	/* 406: lvref */
+	"lvalue ref assignment",	/* 407: lvrefslice */
+	"lvalue array reference",	/* 408: lvavref */
+	"anonymous constant",	/* 409: anonconst */
+	"freed op",	/* 410: freed */
 };
 #endif
 
@@ -1436,18 +1438,19 @@ PL_op_type_str[] = {
 	"",	/* 395: once */
 	"",	/* 396: custom */
 	"",	/* 397: coreargs */
-	"",	/* 398: runcv */
-	"",	/* 399: fc */
-	"",	/* 400: padcv */
-	"",	/* 401: introcv */
-	"",	/* 402: clonecv */
-	"",	/* 403: padrange */
-	"",	/* 404: refassign */
-	"",	/* 405: lvref */
-	"",	/* 406: lvrefslice */
-	"",	/* 407: lvavref */
-	"",	/* 408: anonconst */
-	"",	/* 409: freed */
+	"",	/* 398: avhvswitch */
+	"",	/* 399: runcv */
+	"",	/* 400: fc */
+	"",	/* 401: padcv */
+	"",	/* 402: introcv */
+	"",	/* 403: clonecv */
+	"",	/* 404: padrange */
+	"",	/* 405: refassign */
+	"",	/* 406: lvref */
+	"",	/* 407: lvrefslice */
+	"",	/* 408: lvavref */
+	"",	/* 409: anonconst */
+	"",	/* 410: freed */
 };
 #endif /* !DEBUGGING */
 #endif /* !PERL_IN_OP_C */
@@ -1860,18 +1863,19 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffff00,	/* 395: once "" */
 	0xffffff00,	/* 396: custom "" */
 	0xffffff00,	/* 397: coreargs "" */
-	0xffffff00,	/* 398: runcv "" */
-	0xffffff00,	/* 399: fc "" */
-	0xffffff00,	/* 400: padcv "" */
-	0xffffff00,	/* 401: introcv "" */
-	0xffffff00,	/* 402: clonecv "" */
-	0xffffff00,	/* 403: padrange "" */
-	0xffffff00,	/* 404: refassign "" */
-	0xffffff00,	/* 405: lvref "" */
-	0xffffff00,	/* 406: lvrefslice "" */
-	0xffffff00,	/* 407: lvavref "" */
-	0xffffff00,	/* 408: anonconst "" */
-	0xffffffff,	/* 409: freed "" */
+	0xffffff00,	/* 398: avhvswitch "" */
+	0xffffff00,	/* 399: runcv "" */
+	0xffffff00,	/* 400: fc "" */
+	0xffffff00,	/* 401: padcv "" */
+	0xffffff00,	/* 402: introcv "" */
+	0xffffff00,	/* 403: clonecv "" */
+	0xffffff00,	/* 404: padrange "" */
+	0xffffff00,	/* 405: refassign "" */
+	0xffffff00,	/* 406: lvref "" */
+	0xffffff00,	/* 407: lvrefslice "" */
+	0xffffff00,	/* 408: lvavref "" */
+	0xffffff00,	/* 409: anonconst "" */
+	0xffffffff,	/* 410: freed "" */
 };
 #endif
 
@@ -2284,18 +2288,19 @@ EXTCONST signed char PL_op_type_variants[][8] = {
 	/* 395 once             */ {0},	/*  */
 	/* 396 custom           */ {0},	/*  */
 	/* 397 coreargs         */ {0},	/*  */
-	/* 398 runcv            */ {0},	/*  */
-	/* 399 fc               */ {0},	/*  */
-	/* 400 padcv            */ {0},	/*  */
-	/* 401 introcv          */ {0},	/*  */
-	/* 402 clonecv          */ {0},	/*  */
-	/* 403 padrange         */ {0},	/*  */
-	/* 404 refassign        */ {0},	/*  */
-	/* 405 lvref            */ {0},	/*  */
-	/* 406 lvrefslice       */ {0},	/*  */
-	/* 407 lvavref          */ {0},	/*  */
-	/* 408 anonconst        */ {0},	/*  */
-	/* 409: freed */	{ 0 }
+	/* 398 avhvswitch       */ {0},	/*  */
+	/* 399 runcv            */ {0},	/*  */
+	/* 400 fc               */ {0},	/*  */
+	/* 401 padcv            */ {0},	/*  */
+	/* 402 introcv          */ {0},	/*  */
+	/* 403 clonecv          */ {0},	/*  */
+	/* 404 padrange         */ {0},	/*  */
+	/* 405 refassign        */ {0},	/*  */
+	/* 406 lvref            */ {0},	/*  */
+	/* 407 lvrefslice       */ {0},	/*  */
+	/* 408 lvavref          */ {0},	/*  */
+	/* 409 anonconst        */ {0},	/*  */
+	/* 410: freed */	{ 0 }
 };
 #endif
 
@@ -2737,6 +2742,7 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_once,
 	Perl_pp_custom,	/* implemented by Perl_unimplemented_op */
 	Perl_pp_coreargs,
+	Perl_pp_avhvswitch,
 	Perl_pp_runcv,
 	Perl_pp_fc,
 	Perl_pp_padcv,
@@ -3164,6 +3170,7 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_null,		/* once */
 	Perl_ck_null,		/* custom */
 	Perl_ck_null,		/* coreargs */
+	Perl_ck_null,		/* avhvswitch */
 	Perl_ck_null,		/* runcv */
 	Perl_ck_fun,		/* fc */
 	Perl_ck_null,		/* padcv */
@@ -3585,6 +3592,7 @@ EXTCONST U32 PL_opargs[] = {
 	0x00000c00,	/* once */
 	0x00000000,	/* custom */
 	0x00001800,	/* coreargs */
+	0x00000408,	/* avhvswitch */
 	0x00000004,	/* runcv */
 	0x00026c8e,	/* fc */
 	0x00000040,	/* padcv */
@@ -4242,6 +4250,7 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
        0, /* once */
       -1, /* custom */
      187, /* coreargs */
+       0, /* avhvswitch */
        3, /* runcv */
        0, /* fc */
       -1, /* padcv */
@@ -4271,7 +4280,7 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
  */
 
 EXTCONST U16  PL_op_private_bitdefs[] = {
-    0x0003, /* scalar, chop, schop, defined, undef, study, preinc, i_preinc, predec, i_predec, postinc, i_postinc, postdec, i_postdec, negate, i_negate, not, complement, prototype, refgen, srefgen, ref, readline, regcmaybe, regcreset, regcomp, ucfirst, lcfirst, uc, lc, quotemeta, aeach, avalues, each, values, pop, shift, range, and, or, dor, andassign, orassign, dorassign, method, method_named, method_super, method_redir, method_redir_super, entergiven, leavegiven, enterwhen, leavewhen, untie, tied, dbmclose, getsockname, getpeername, lstat, stat, readlink, readdir, telldir, rewinddir, closedir, localtime, alarm, require, dofile, entertry, ghbyname, gnbyname, gpbyname, shostent, snetent, sprotoent, sservent, gpwnam, gpwuid, ggrnam, ggrgid, lock, once, fc, anonconst */
+    0x0003, /* scalar, chop, schop, defined, undef, study, preinc, i_preinc, predec, i_predec, postinc, i_postinc, postdec, i_postdec, negate, i_negate, not, complement, prototype, refgen, srefgen, ref, readline, regcmaybe, regcreset, regcomp, ucfirst, lcfirst, uc, lc, quotemeta, aeach, avalues, each, values, pop, shift, range, and, or, dor, andassign, orassign, dorassign, method, method_named, method_super, method_redir, method_redir_super, entergiven, leavegiven, enterwhen, leavewhen, untie, tied, dbmclose, getsockname, getpeername, lstat, stat, readlink, readdir, telldir, rewinddir, closedir, localtime, alarm, require, dofile, entertry, ghbyname, gnbyname, gpbyname, shostent, snetent, sprotoent, sservent, gpwnam, gpwuid, ggrnam, ggrgid, lock, once, avhvswitch, fc, anonconst */
     0x2c5c, 0x3e59, /* pushmark */
     0x00bd, /* wantarray, runcv */
     0x03b8, 0x17f0, 0x3f0c, 0x39c8, 0x3025, /* const */
@@ -4741,6 +4750,7 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* ONCE       */ (OPpARG1_MASK),
     /* CUSTOM     */ (0xff),
     /* COREARGS   */ (OPpCOREARGS_DEREF1|OPpCOREARGS_DEREF2|OPpCOREARGS_SCALARMOD|OPpCOREARGS_PUSHMARK),
+    /* AVHVSWITCH */ (OPpARG1_MASK),
     /* RUNCV      */ (OPpOFFBYONE),
     /* FC         */ (OPpARG1_MASK),
     /* PADCV      */ (0),

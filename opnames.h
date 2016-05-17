@@ -412,21 +412,22 @@ typedef enum opcode {
 	OP_ONCE		 = 395,
 	OP_CUSTOM	 = 396,
 	OP_COREARGS	 = 397,
-	OP_RUNCV	 = 398,
-	OP_FC		 = 399,
-	OP_PADCV	 = 400,
-	OP_INTROCV	 = 401,
-	OP_CLONECV	 = 402,
-	OP_PADRANGE	 = 403,
-	OP_REFASSIGN	 = 404,
-	OP_LVREF	 = 405,
-	OP_LVREFSLICE	 = 406,
-	OP_LVAVREF	 = 407,
-	OP_ANONCONST	 = 408,
+	OP_AVHVSWITCH	 = 398,
+	OP_RUNCV	 = 399,
+	OP_FC		 = 400,
+	OP_PADCV	 = 401,
+	OP_INTROCV	 = 402,
+	OP_CLONECV	 = 403,
+	OP_PADRANGE	 = 404,
+	OP_REFASSIGN	 = 405,
+	OP_LVREF	 = 406,
+	OP_LVREFSLICE	 = 407,
+	OP_LVAVREF	 = 408,
+	OP_ANONCONST	 = 409,
 	OP_max		
 } opcode;
 
-#define MAXO 409
+#define MAXO 410
 #define OP_FREED MAXO
 
 /* PL_opargs encoding */

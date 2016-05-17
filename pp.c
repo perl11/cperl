@@ -6724,6 +6724,12 @@ PP(pp_coreargs)
     RETURN;
 }
 
+PP(pp_avhvswitch)
+{
+    dSP;
+    RETURN;
+}
+
 PP(pp_runcv)
 {
     dSP;
