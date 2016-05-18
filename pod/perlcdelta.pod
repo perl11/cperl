@@ -157,6 +157,10 @@ Fixes for PERL_OP_PARENT: moresib, sibling, parent.
 
 Handle chunk errors phrases
 
+=item POSIX 1.69_01
+
+Several defects in making its symbols exportable. [perl #127821]
+
 =back
 
 =head2 Removed Modules and Pragmata
