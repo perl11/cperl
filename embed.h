@@ -1599,6 +1599,11 @@
 #  if defined(PERL_IN_HV_C) && defined(DEBUGGING)
 #define action_name(a)		S_action_name(aTHX_ a)
 #  endif
+#  if defined(PERL_IN_LOCALE_C) || defined(PERL_IN_SV_C)
+#    if defined(USE_LOCALE_COLLATE)
+#define _mem_collxfrm(a,b,c,d)	Perl__mem_collxfrm(aTHX_ a,b,c,d)
+#    endif
+#  endif
 #  if defined(PERL_IN_MALLOC_C)
 #define adjust_size_and_find_bucket	S_adjust_size_and_find_bucket
 #  endif
