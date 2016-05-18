@@ -279,6 +279,8 @@ perl_construct(pTHXx)
 
     init_constants();
 
+    Perl_drand48_init_r(&PL_internal_random_state, seed());
+
     SvREADONLY_on(PLACEHOLDER);
     SvREFCNT(PLACEHOLDER) = SvREFCNT_IMMORTAL;
 
