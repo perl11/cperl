@@ -302,8 +302,8 @@ case "$osvers" in  # Note: osvers is the kernel version, not the 10.x
    # MACOSX_DEPLOYMENT_TARGET selects the minimum OS level we want to support
    # https://developer.apple.com/library/mac/documentation/DeveloperTools/Conceptual/cross_development/Configuring/configuring.html
    case "$ld" in
-       *MACOSX_DEVELOPMENT_TARGET*) ;;
-       *) ld="env MACOSX_DEPLOYMENT_TARGET=10.6 ${ld}" ;;
+       *MACOSX_DEPLOYMENT_TARGET*) ;;
+       *) ld="env MACOSX_DEPLOYMENT_TARGET=10.3 ${ld}" ;;
    esac
    ;;
 *)        # OS X 10.6.x - current
