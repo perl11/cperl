@@ -14,12 +14,10 @@ our %feature = (
     switch          => 'feature_switch',
     bitwise         => 'feature_bitwise',
     evalbytes       => 'feature_evalbytes',
-    postderef       => 'feature_postderef',
     array_base      => 'feature_arybase',
     signatures      => 'feature_signatures',
     current_sub     => 'feature___SUB__',
     refaliasing     => 'feature_refaliasing',
-    lexical_subs    => 'feature_lexsubs',
     postderef_qq    => 'feature_postderef_qq',
     unicode_eval    => 'feature_unieval',
     shaped_arrays   => 'feature_shaped_arrays',
@@ -32,7 +30,7 @@ our %feature_bundle = (
     "5.15"    => [qw(current_sub evalbytes fc say state switch unicode_eval unicode_strings)],
     "5.21"    => [qw(current_sub evalbytes fc say shaped_arrays state switch unicode_eval unicode_strings)],
     "5.23"    => [qw(current_sub evalbytes fc postderef_qq say shaped_arrays state switch unicode_eval unicode_strings)],
-    "all"     => [qw(array_base bitwise current_sub evalbytes fc lexical_subs postderef postderef_qq refaliasing say shaped_arrays signatures state switch unicode_eval unicode_strings)],
+    "all"     => [qw(array_base bitwise current_sub evalbytes fc postderef_qq refaliasing say shaped_arrays signatures state switch unicode_eval unicode_strings)],
     "default" => [qw(array_base)],
 );
 
@@ -49,6 +47,10 @@ $feature_bundle{"5.24"} = $feature_bundle{"5.23"};
 $feature_bundle{"5.25"} = $feature_bundle{"5.23"};
 $feature_bundle{"5.26"} = $feature_bundle{"5.23"};
 $feature_bundle{"5.9.5"} = $feature_bundle{"5.10"};
+my %noops = (
+    postderef => 1,
+    lexical_subs => 1,
+);
 
 our $hint_shift   = 26;
 our $hint_mask    = 0x1c000000;
@@ -538,6 +540,9 @@ sub __common {
             next;
         }
         if (!exists $feature{$name}) {
+            if (exists $noops{$name}) {
+                next;
+            }
             unknown_feature($name);
         }
 	if ($import) {

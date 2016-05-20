@@ -27,11 +27,9 @@ my %feature = (
     switch          => 'switch',
     bitwise         => 'bitwise',
     evalbytes       => 'evalbytes',
-    postderef       => 'postderef',
     array_base      => 'arybase',
     current_sub     => '__SUB__',
     refaliasing     => 'refaliasing',
-    lexical_subs    => 'lexsubs',
     postderef_qq    => 'postderef_qq',
     unicode_eval    => 'unieval',
     unicode_strings => 'unicode',
@@ -67,6 +65,8 @@ my %feature_bundle = (
 		    evalbytes current_sub fc shaped_arrays
                     postderef_qq)],
 );
+
+my @noops = qw( postderef lexical_subs );
 
 
 ###########################################################################
@@ -188,6 +188,10 @@ for (sort keys %Aliases) {
     print $pm
 	qq'\$feature_bundle{"$_"} = \$feature_bundle{"$Aliases{$_}"};\n';
 };
+
+print $pm "my \%noops = (\n";
+print $pm "    $_ => 1,\n", for @noops;
+print $pm ");\n";
 
 print $pm <<EOPM;
 
@@ -835,6 +839,9 @@ sub __common {
             next;
         }
         if (!exists $feature{$name}) {
+            if (exists $noops{$name}) {
+                next;
+            }
             unknown_feature($name);
         }
 	if ($import) {
