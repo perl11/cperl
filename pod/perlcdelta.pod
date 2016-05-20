@@ -161,6 +161,13 @@ Handle chunk errors phrases
 
 Several defects in making its symbols exportable. [perl #127821]
 
+The C<POSIX::tmpnam()> interface has been removed,
+see L<perl5251delta/"POSIX::tmpnam() has been removed">.
+
+Trying to import POSIX subs that have no real implementations
+(like C<POSIX::atend()>) now fails at import time, instead of
+waiting until runtime.
+
 =back
 
 =head2 Removed Modules and Pragmata
