@@ -5165,6 +5165,14 @@ PP(pp_akeys)
 	PUSHi(av_tindex(array) + 1);
     }
     else if (gimme == G_ARRAY) {
+      if (UNLIKELY(PL_op->op_private & OPpMAYBE_LVSUB)) {
+        const I32 flags = is_lvalue_sub();
+        if (flags && !(flags & OPpENTERSUB_INARGS))
+            /* diag_listed_as: Can't modify %s in %s */
+            Perl_croak(aTHX_
+                      "Can't modify keys on array in list assignment");
+      }
+      {
         IV n = Perl_av_len(aTHX_ array);
         IV i;
 
@@ -5181,6 +5189,7 @@ PP(pp_akeys)
 		PUSHs(elem ? *elem : &PL_sv_undef);
 	    }
 	}
+      }
     }
     RETURN;
 }
