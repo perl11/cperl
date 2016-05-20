@@ -8212,14 +8212,6 @@ Perl_yylex(pTHX)
                 int normalize;
 		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
 		if (len == 3 && memEQc(PL_tokenbuf, "sub")) {
-		    if (!FEATURE_LEXSUBS_IS_ENABLED)
-			Perl_croak(aTHX_
-				  "Experimental \"%s\" subs not enabled",
-				   tmp == KEY_my    ? "my"    :
-				   tmp == KEY_state ? "state" : "our");
-		    Perl_ck_warner_d(aTHX_
-			packWARN(WARN_EXPERIMENTAL__LEXICAL_SUBS),
-			"The lexical_subs feature is experimental");
 		    goto really_sub;
 		} else if (UNLIKELY(normalize)) {
                     d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);

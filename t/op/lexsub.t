@@ -33,8 +33,6 @@ if (!$Config::Config{usecperl}) {
 }
 # -------------------- our -------------------- #
 
-no warnings "experimental::lexical_subs";
-use feature 'lexical_subs';
 {
   our sub foo { 42 }
   is foo, 42, 'calling our sub from same package';
