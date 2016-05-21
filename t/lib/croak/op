@@ -70,7 +70,7 @@ use feature 'bitwise';
 @a &= 1;
 EXPECT
 The bitwise feature is experimental at - line 2.
-Can't modify array dereference in numeric bitwise and (&) at - line 2, near "1;"
+Can't modify array dereference in integer bitwise and (&) at - line 2, near "1;"
 Execution of - aborted due to compilation errors.
 ########
 # NAME Num-specific |= on @array
@@ -78,7 +78,7 @@ use feature 'bitwise';
 @a |= 1;
 EXPECT
 The bitwise feature is experimental at - line 2.
-Can't modify array dereference in numeric bitwise or (|) at - line 2, near "1;"
+Can't modify array dereference in integer bitwise or (|) at - line 2, near "1;"
 Execution of - aborted due to compilation errors.
 ########
 # NAME Num-specific ^= on @array
@@ -86,7 +86,7 @@ use feature 'bitwise';
 @a ^= 1;
 EXPECT
 The bitwise feature is experimental at - line 2.
-Can't modify array dereference in numeric bitwise xor (^) at - line 2, near "1;"
+Can't modify array dereference in integer bitwise xor (^) at - line 2, near "1;"
 Execution of - aborted due to compilation errors.
 ########
 # NAME &.= on @array

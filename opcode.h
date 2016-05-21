@@ -232,7 +232,7 @@ EXTCONST char* const PL_op_name[] = {
 	"i_bit_and",	/* 76: integer bitwise and (&) */
 	"i_bit_xor",	/* 77: integer bitwise xor (^) */
 	"i_bit_or",	/* 78: integer bitwise or (|) */
-	"s_bit_and",	/* 79: string bitiwse and (&.) */
+	"s_bit_and",	/* 79: string bitwise and (&.) */
 	"s_bit_xor",	/* 80: string bitwise xor (^.) */
 	"s_bit_or",	/* 81: string bitwise or (|.) */
 	"negate",	/* 82: negation (-) */
@@ -647,7 +647,7 @@ EXTCONST char* const PL_op_desc[] = {
 	"integer bitwise and (&)",	/* 76: i_bit_and */
 	"integer bitwise xor (^)",	/* 77: i_bit_xor */
 	"integer bitwise or (|)",	/* 78: i_bit_or */
-	"string bitiwse and (&.)",	/* 79: s_bit_and */
+	"string bitwise and (&.)",	/* 79: s_bit_and */
 	"string bitwise xor (^.)",	/* 80: s_bit_xor */
 	"string bitwise or (|.)",	/* 81: s_bit_or */
 	"negation (-)",	/* 82: negate */

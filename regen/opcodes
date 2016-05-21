@@ -140,7 +140,7 @@ bit_or		bitwise or (|)		ck_bitop	pfst2	S S|	"(:Scalar,:Scalar):Scalar"
 i_bit_and	integer bitwise and (&)	ck_bitop	pfsT2	S S|	"(:Int,:Int):UInt"
 i_bit_xor	integer bitwise xor (^)	ck_bitop	pfsT2	S S|	"(:Int,:Int):UInt"
 i_bit_or	integer bitwise or (|)	ck_bitop	pfsT2	S S|	"(:Int,:Int):UInt"
-s_bit_and	string bitiwse and (&.)	ck_bitop	fst2	S S|	"(:Str,:Str):Str"
+s_bit_and	string bitwise and (&.)	ck_bitop	fst2	S S|	"(:Str,:Str):Str"
 s_bit_xor	string bitwise xor (^.)	ck_bitop	fst2	S S|	"(:Str,:Str):Str"
 s_bit_or	string bitwise or (|.)	ck_bitop	fst2	S S|	"(:Str,:Str):Str"
 
