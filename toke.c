@@ -8001,7 +8001,7 @@ Perl_yylex(pTHX)
                     }
                     d = skipspace(d);
                 }
-                if (*d != '$')
+                if (*d != '$' && *d != '\\')
                     Perl_croak(aTHX_ "Missing $ on loop variable");
 	    }
 	    OPERATOR(FOR);
