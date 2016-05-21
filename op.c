@@ -3724,6 +3724,12 @@ S_scalar_mod_type(const OP *o, I32 type)
     case OP_BIT_AND:
     case OP_BIT_XOR:
     case OP_BIT_OR:
+    case OP_I_BIT_AND:
+    case OP_I_BIT_XOR:
+    case OP_I_BIT_OR:
+    case OP_S_BIT_AND:
+    case OP_S_BIT_XOR:
+    case OP_S_BIT_OR:
     case OP_CONCAT:
     case OP_SUBST:
     case OP_TRANS:

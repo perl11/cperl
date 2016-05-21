@@ -563,6 +563,10 @@ A related problem on Cygwin platforms involving UTF-8 strings has also
 been fixed.
 See L<RT #127708|https://rt.perl.org/Public/Bug/Display.html?id=127708>
 
+=item Fix crash with @a &.= etc.
+
+See L<RT #128204|https://rt.perl.org/Public/Bug/Display.html?id=128204>
+
 =back
 
 =head1 Acknowledgements
