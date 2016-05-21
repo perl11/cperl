@@ -6357,6 +6357,8 @@ Perl_yylex(pTHX)
 	{
 	    const char tmp = *s++;
 	    if (tmp == '=') {
+	        if ((s == PL_linestart+2 || s[-3] == '\n') && strnEQ(s, "=====", 5))
+	            Perl_croak(aTHX_ "Version control conflict marker '%.*s'", 7, s - 2);
 		if (!PL_lex_allbrackets
                     && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE)
                 {
@@ -6471,8 +6473,11 @@ Perl_yylex(pTHX)
 	if (PL_expect != XOPERATOR) {
 	    if (s[1] != '<' && !strchr(s,'>'))
 		check_uni();
-	    if (s[1] == '<' && s[2] != '>')
+	    if (s[1] == '<' && s[2] != '>') {
+	        if ((s == PL_linestart || s[-1] == '\n') && strnEQ(s+2, "<<<<<", 5))
+	            Perl_croak(aTHX_ "Version control conflict marker '%.*s'", 7, s);
 		s = scan_heredoc(s);
+	    }
 	    else
 		s = scan_inputsymbol(s);
 	    PL_expect = XOPERATOR;
@@ -6482,6 +6487,8 @@ Perl_yylex(pTHX)
 	{
 	    char tmp = *s++;
 	    if (tmp == '<') {
+	        if ((s == PL_linestart+2 || s[-3] == '\n') && strnEQ(s, "<<<<<", 5))
+	            Perl_croak(aTHX_ "Version control conflict marker '%.*s'", 7, s - 2);
 		if (*s == '=' && !PL_lex_allbrackets
                     && PL_lex_fakeeof >= LEX_FAKEEOF_ASSIGN)
                 {
@@ -6523,6 +6530,8 @@ Perl_yylex(pTHX)
 	{
 	    const char tmp = *s++;
 	    if (tmp == '>') {
+	        if ((s == PL_linestart+2 || s[-3] == '\n') && strnEQ(s, ">>>>>", 5))
+	            Perl_croak(aTHX_ "Version control conflict marker '%.*s'", 7, s - 2);
 		if (*s == '=' && !PL_lex_allbrackets
                     && PL_lex_fakeeof >= LEX_FAKEEOF_ASSIGN)
                 {

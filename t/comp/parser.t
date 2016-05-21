@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..198\n";
+print "1..207\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -681,6 +681,25 @@ like($@, qr/^\QUnrecognized character \x{ffa0}; marked by <-- HERE after \E/,
     eval "q" . chr(100000000064);
     like $@, qr/Can't find string terminator "." anywhere before EOF/,
         'RT 128952';
+}
+
+# RT #127993 version control conflict markers
+" this should keep working
+<<<<<<<
+" =~ /
+>>>>>>>
+/;
+for my $marker (qw(
+<<<<<<<
+=======
+>>>>>>>
+)) {
+    eval "$marker";
+    like $@, qr/^Version control conflict marker '$marker' at \(eval \d+\) line 1\./, "VCS marker '$marker' at beginning";
+    eval "\$_\n$marker";
+    like $@, qr/^Version control conflict marker '$marker' at \(eval \d+\) line 2\./, "VCS marker '$marker' after value";
+    eval "\n\$_ =\n$marker";
+    like $@, qr/^Version control conflict marker '$marker' at \(eval \d+\) line 3\./, "VCS marker '$marker' after operator";
 }
 
 # Add new tests HERE (above this line)
