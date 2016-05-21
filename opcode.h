@@ -4257,11 +4257,11 @@ EXTCONST I16  PL_op_private_bitdef_ix[] = {
       -1, /* padcv */
       -1, /* introcv */
       -1, /* clonecv */
-     192, /* padrange */
-     194, /* refassign */
-     200, /* lvref */
-     206, /* lvrefslice */
-     207, /* lvavref */
+     193, /* padrange */
+     195, /* refassign */
+     201, /* lvref */
+     207, /* lvrefslice */
+     208, /* lvavref */
        0, /* anonconst */
 
 };
@@ -4340,7 +4340,7 @@ EXTCONST U16  PL_op_private_bitdefs[] = {
     0x4171, /* wait, getppid, time */
     0x3574, 0x0c30, 0x068c, 0x4248, 0x2204, 0x0003, /* entereval */
     0x2e1c, 0x0018, 0x1144, 0x1061, /* coreargs */
-    0x00c7, /* avhvswitch */
+    0x2d4c, 0x00c7, /* avhvswitch */
     0x2c5c, 0x01fb, /* padrange */
     0x2c5c, 0x3e58, 0x03d6, 0x294c, 0x1748, 0x0067, /* refassign */
     0x2c5c, 0x3e58, 0x03d6, 0x294c, 0x1748, 0x0003, /* lvref */
@@ -4752,7 +4752,7 @@ EXTCONST U8 PL_op_private_valid[] = {
     /* ONCE       */ (OPpARG1_MASK),
     /* CUSTOM     */ (0xff),
     /* COREARGS   */ (OPpCOREARGS_DEREF1|OPpCOREARGS_DEREF2|OPpCOREARGS_SCALARMOD|OPpCOREARGS_PUSHMARK),
-    /* AVHVSWITCH */ (3),
+    /* AVHVSWITCH */ (3|OPpMAYBE_LVSUB),
     /* RUNCV      */ (OPpOFFBYONE),
     /* FC         */ (OPpARG1_MASK),
     /* PADCV      */ (0),

@@ -5180,7 +5180,7 @@ PP(pp_akeys)
 
 	if (  PL_op->op_type == OP_AKEYS
 	   || (  PL_op->op_type == OP_AVHVSWITCH
-	      && PL_op->op_private + OP_AEACH == OP_AKEYS  ))
+	      && (PL_op->op_private & 3) + OP_AEACH == OP_AKEYS  ))
 	{
 	    for (i = 0;  i <= n;  i++) {
 		mPUSHi(i);
@@ -6765,7 +6765,7 @@ PP(pp_avhvswitch)
     dSP;
     return PL_ppaddr[
 		(SvTYPE(TOPs) == SVt_PVAV ? OP_AEACH : OP_EACH)
-		    + PL_op->op_private
+		    + (PL_op->op_private & 3)
 	   ](aTHX);
 }
 
