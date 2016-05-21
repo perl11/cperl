@@ -144,7 +144,11 @@ __attribute__used__
 void
 Perl_savestack_grow(pTHX)
 {
+#ifdef STRESS_REALLOC
+    PL_savestack_max += SS_MAXPUSH;
+#else
     PL_savestack_max = GROW(PL_savestack_max);
+#endif
     /* Note that we allocate SS_MAXPUSH slots higher than ss_max
      * so that SS_ADD_END(), SSGROW() etc can do a simper check */
     Renew(PL_savestack, PL_savestack_max + SS_MAXPUSH, ANY);
