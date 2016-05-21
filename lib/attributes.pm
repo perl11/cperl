@@ -1,7 +1,8 @@
 package attributes;
 
-#our $VERSION = '0.27_01c';
-#@EXPORT_OK = qw(get reftype);
+our $VERSION = '1.10c';
+$VERSION =~ s/c$//;
+@EXPORT_OK = qw(get reftype);
 @EXPORT = ();
 %EXPORT_TAGS = (ALL => [@EXPORT, @EXPORT_OK]);
 
