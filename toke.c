@@ -8136,7 +8136,6 @@ Perl_yylex(pTHX)
 	    UNI(OP_LCFIRST);
 
 	case KEY_local:
-	    pl_yylval.ival = 0;
 	    OPERATOR(LOCAL);
 
 	case KEY_length:
@@ -8220,7 +8219,6 @@ Perl_yylex(pTHX)
 		if (!PL_in_my_stash)
                     S_no_such_class(aTHX_ s);
 	    }
-	    pl_yylval.ival = 1;
 	    OPERATOR(MY);
 
 	case KEY_next:
