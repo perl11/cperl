@@ -5,7 +5,7 @@ BEGIN {
     require "./test.pl";
 }
 
-plan(109);
+plan(111);
 
 # A lot of tests to check that reversed for works.
 
@@ -597,3 +597,9 @@ for my $x (my $y) {
 @_ = (1,2,3,scalar do{for(@_){}} + 1, 4, 5, 6);
 is "@_", "1 2 3 1 4 5 6",
    '[perl #124004] scalar for(@empty_array) stack bug';
+
+my $i=0;
+for my$a(1..2) { $i++ }
+is($i, 2, 'for my$a parses [cperl #145]');
+for our$a(1..2) { $i++ }
+is($i, 4, 'for our$a parses [cperl #145]');

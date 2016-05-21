@@ -7560,11 +7560,13 @@ Perl_yylex(pTHX)
                 int l = PL_bufend - s;
 		d = s;
 
-		if (l >= 3 && strnEQ(d, "my", 2) && isSPACE(*(d + 2))) {
+		if (l >= 3 && strnEQ(d, "my", 2)
+                    && (isSPACE(*(d + 2)) || *(d+2) == '$')) {
 		    d += 2;
                     d = skipspace(d);
                 }
-                else if (l >= 4 && strnEQ(d, "our", 3) && isSPACE(*(d + 3))) {
+                else if (l >= 4 && strnEQ(d, "our", 3)
+                         && (isSPACE(*(d + 3)) || *(d+3) == '$')) {
 		    d += 3;
                     d = skipspace(d);
                 }
