@@ -118,7 +118,8 @@
 
 /* Warnings Categories added in Perl 5.025 */
 
-#define WARN_SECURITY			 68
+#define WARN_EXPERIMENTAL__DECLARED_REFS 68
+#define WARN_SECURITY			 69
 
 #define WARNsize			 18
 #define WARN_ALLstring			 "\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125"
