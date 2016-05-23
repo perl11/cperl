@@ -4400,24 +4400,18 @@ PP(pp_entergiven)
 {
     dSP;
     PERL_CONTEXT *cx;
-    SV *newsv = POPs;
     SV *origsv;
     const U8 gimme = GIMME_V;
     
     if (PL_op->op_targ) {
-#if 0   /* old */
-        SAVECLEARSV(PAD_SVl(PL_op->op_targ));
-        /*SAVESPTR(PAD_SVl(PL_op->op_targ));*/ /* dont mortalize old my $_ */
-#else
-	SAVEPADSVANDMORTALIZE(PL_op->op_targ);
-#endif
+        SAVEPADSVANDMORTALIZE(PL_op->op_targ);
 	SvREFCNT_dec(PAD_SVl(PL_op->op_targ));
-        origsv = newsv;
-	PAD_SVl(PL_op->op_targ) = SvREFCNT_inc_NN(newsv);
+        origsv = POPs;
+	PAD_SVl(PL_op->op_targ) = SvREFCNT_inc_NN(origsv);
     }
     else {
-	GvSV(PL_defgv) = SvREFCNT_inc(newsv);
         origsv = DEFSV;
+	GvSV(PL_defgv) = SvREFCNT_inc(POPs);
     }
 
     cx = cx_pushblock(CXt_GIVEN, gimme, SP, PL_savestack_ix);

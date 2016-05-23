@@ -1257,7 +1257,8 @@ Perl_leave_scope(pTHX_ I32 base)
                    can do it here, save even having to have itersave in
                    the struct.
                    */
-		sv_2mortal(*svp);
+                if (!SvIS_FREED(*svp))
+                    sv_2mortal(*svp);
 		*svp = ARG2_SV;
 	    }
 	    break;
