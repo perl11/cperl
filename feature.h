@@ -123,6 +123,12 @@
 	 FEATURE_IS_ENABLED("unieval")) \
     )
 
+#define FEATURE_MYREF_IS_ENABLED \
+    ( \
+	CURRENT_FEATURE_BUNDLE == FEATURE_BUNDLE_CUSTOM && \
+	 FEATURE_IS_ENABLED("myref") \
+    )
+
 #ifdef USE_CPERL
 #define FEATURE_SHAPED_ARRAYS_IS_ENABLED 1
 #else

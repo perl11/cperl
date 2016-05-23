@@ -20,6 +20,7 @@ our %feature = (
     refaliasing     => 'feature_refaliasing',
     postderef_qq    => 'feature_postderef_qq',
     unicode_eval    => 'feature_unieval',
+    declared_refs   => 'feature_myref',
     shaped_arrays   => 'feature_shaped_arrays',
     unicode_strings => 'feature_unicode',
 );
@@ -30,7 +31,7 @@ our %feature_bundle = (
     "5.15"    => [qw(current_sub evalbytes fc say state switch unicode_eval unicode_strings)],
     "5.21"    => [qw(current_sub evalbytes fc say shaped_arrays state switch unicode_eval unicode_strings)],
     "5.23"    => [qw(current_sub evalbytes fc postderef_qq say shaped_arrays state switch unicode_eval unicode_strings)],
-    "all"     => [qw(array_base bitwise current_sub evalbytes fc postderef_qq refaliasing say shaped_arrays signatures state switch unicode_eval unicode_strings)],
+    "all"     => [qw(array_base bitwise current_sub declared_refs evalbytes fc postderef_qq refaliasing say shaped_arrays signatures state switch unicode_eval unicode_strings)],
     "default" => [qw(array_base)],
 );
 
