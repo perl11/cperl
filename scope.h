@@ -244,7 +244,8 @@ scope has the given name. C<name> must be a C<NUL>-terminated literal string.
 #define SAVEVPTR(s)	save_vptr((void*)&(s))
 #define SAVEPADSVANDMORTALIZE(s)	save_padsv_and_mortalize(s)
 #define SAVEFREESV(s)	save_freesv(MUTABLE_SV(s))
-#define SAVEFREEPADNAME(s) save_pushptr((void *)(s), SAVEt_FREEPADNAME)
+#define SAVEFREEPADNAME(s) save_pushptr((void *)(s), SAVEt_FREEPADNAME); \
+	  DEBUG_lv(Perl_deb(aTHX_ "save FREEPADNAME\n"))
 #define SAVEMORTALIZESV(s)	save_mortalizesv(MUTABLE_SV(s))
 #define SAVEFREEOP(o)	save_freeop((OP*)(o))
 #define SAVEFREEPV(p)	save_freepv((char*)(p))
@@ -253,7 +254,8 @@ scope has the given name. C<name> must be a C<NUL>-terminated literal string.
 #define SAVEGENERICPV(s)	save_generic_pvref((char**)&(s))
 #define SAVESHAREDPV(s)		save_shared_pvref((char**)&(s))
 #define SAVESETSVFLAGS(sv,mask,val)	save_set_svflags(sv,mask,val)
-#define SAVEFREECOPHH(h)	save_pushptr((void *)(h), SAVEt_FREECOPHH)
+#define SAVEFREECOPHH(h)	save_pushptr((void *)(h), SAVEt_FREECOPHH); \
+	  DEBUG_lv(Perl_deb(aTHX_ "save FREECOPHH\n"))
 #define SAVEDELETE(h,k,l) \
 	  save_delete(MUTABLE_HV(h), (char*)(k), (I32)(l))
 #define SAVEHDELETE(h,s) \
@@ -272,13 +274,15 @@ scope has the given name. C<name> must be a C<NUL>-terminated literal string.
         SS_ADD_INT(PL_stack_sp - PL_stack_base);   \
         SS_ADD_UV(SAVEt_STACK_POS);                \
         SS_ADD_END(2);                             \
+        DEBUG_lv(Perl_deb(aTHX_ "save STACK_POS\n")); \
     } STMT_END
 
 #define SAVEOP()	save_op()
 
 #define SAVEHINTS()	save_hints()
 
-#define SAVECOMPPAD() save_pushptr(MUTABLE_SV(PL_comppad), SAVEt_COMPPAD)
+#define SAVECOMPPAD() save_pushptr(MUTABLE_SV(PL_comppad), SAVEt_COMPPAD); \
+	  DEBUG_lv(Perl_deb(aTHX_ "save COMPPAD\n"))
 
 #define SAVESWITCHSTACK(f,t) \
     STMT_START {					\
@@ -292,9 +296,11 @@ scope has the given name. C<name> must be a C<NUL>-terminated literal string.
    could have done savefreesharedpvREF, but this way actually seems cleaner,
    as it simplifies the code that does the saves, and reduces the load on the
    save stack.  */
-#define SAVECOMPILEWARNINGS() save_pushptr(PL_compiling.cop_warnings, SAVEt_COMPILE_WARNINGS)
+#define SAVECOMPILEWARNINGS() save_pushptr(PL_compiling.cop_warnings, SAVEt_COMPILE_WARNINGS); \
+	  DEBUG_lv(Perl_deb(aTHX_ "save COMPILE_WARNINGS\n"))
 
-#define SAVEPARSER(p) save_pushptr((p), SAVEt_PARSER)
+#define SAVEPARSER(p) save_pushptr((p), SAVEt_PARSER); \
+	  DEBUG_lv(Perl_deb(aTHX_ "save PARSER\n"))
 
 #ifdef USE_ITHREADS
 #  define SAVECOPSTASH_FREE(c)	SAVEIV((c)->cop_stashoff)
@@ -329,8 +335,10 @@ scope has the given name. C<name> must be a C<NUL>-terminated literal string.
 #define SSPTR(off,type)         ((type)  ((char*)PL_savestack + off))
 #define SSPTRt(off,type)        ((type*) ((char*)PL_savestack + off))
 
-#define save_freesv(op)		save_pushptr((void *)(op), SAVEt_FREESV)
-#define save_mortalizesv(op)	save_pushptr((void *)(op), SAVEt_MORTALIZESV)
+#define save_freesv(op)		save_pushptr((void *)(op), SAVEt_FREESV); \
+	  DEBUG_lv(Perl_deb(aTHX_ "save FREESV\n"))
+#define save_mortalizesv(op)	save_pushptr((void *)(op), SAVEt_MORTALIZESV); \
+	  DEBUG_lv(Perl_deb(aTHX_ "save MORTALIZESV\n"))
 
 # define save_freeop(op)                    \
 STMT_START {                                 \
@@ -338,9 +346,13 @@ STMT_START {                                 \
       assert(!_o->op_savefree);               \
       _o->op_savefree = 1;                     \
       save_pushptr((void *)(_o), SAVEt_FREEOP); \
+      DEBUG_lv(Perl_deb(aTHX_ "save FREEOP\n")); \
     } STMT_END
-#define save_freepv(pv)		save_pushptr((void *)(pv), SAVEt_FREEPV)
-#define save_op()		save_pushptr((void *)(PL_op), SAVEt_OP)
+#define save_freepv(pv)		save_pushptr((void *)(pv), SAVEt_FREEPV); \
+	  DEBUG_lv(Perl_deb(aTHX_ "save FREEPV\n"))
+#define save_op()		save_pushptr((void *)(PL_op), SAVEt_OP); \
+	  DEBUG_lv(Perl_deb(aTHX_ "save OP %s\n", \
+	               PL_op ? OP_NAME(PL_op) : "(null)"))
 
 /*
  * ex: set ts=8 sts=4 sw=4 et:
