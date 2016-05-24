@@ -7631,6 +7631,7 @@ S_newGIVWHENOP(pTHX_ OP *cond, OP *block,
 
     enterop->op_next = LINKLIST(block);
     block->op_next = enterop->op_other = o;
+    if (enterop->op_targ) o->op_targ = enterop->op_targ;
 
     return o;
 }

@@ -2760,7 +2760,7 @@ PP(pp_iter)
          * least 2 (one extra from blk_loop.itersave), so the GV or pad
          * slot will get localised; on subsequent iterations the RC==1
          * optimisation may kick in and the SV will be reused. */
-         if (oldsv && LIKELY(SvREFCNT(oldsv) == 1 && !SvMAGICAL(oldsv))) {
+        if (oldsv && LIKELY(SvREFCNT(oldsv) == 1 && !SvMAGICAL(oldsv))) {
             /* safe to reuse old SV */
             sv_setsv(oldsv, cur);
         }

@@ -3448,7 +3448,7 @@ S_restore_magic(pTHX_ const void *p)
      * will be satisfied if restore_magic was called explicitly, but *not*
      * if it's being called via leave_scope.)
      * The reason for doing this is that otherwise, things like sv_2cv()
-     * may leave alloc gunk on the savestack, and some code
+     * may leave alloc chunk on the savestack, and some code
      * (e.g. sighandler) doesn't expect that...
      */
     if (PL_savestack_ix == mgs->mgs_ss_ix)

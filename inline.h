@@ -763,15 +763,15 @@ S_cx_pushgiven(pTHX_ PERL_CONTEXT *cx, SV *orig_defsv)
 PERL_STATIC_INLINE void
 S_cx_popgiven(pTHX_ PERL_CONTEXT *cx)
 {
-    SV *sv;
-
     PERL_ARGS_ASSERT_CX_POPGIVEN;
     assert(CxTYPE(cx) == CXt_GIVEN);
 
-    sv = GvSV(PL_defgv);
-    GvSV(PL_defgv) = cx->blk_givwhen.defsv_save;
-    cx->blk_givwhen.defsv_save = NULL;
-    SvREFCNT_dec(sv);
+    if (cx->blk_givwhen.defsv_save) {
+        SV *sv = GvSV(PL_defgv);
+        GvSV(PL_defgv) = cx->blk_givwhen.defsv_save;
+        cx->blk_givwhen.defsv_save = NULL;
+        SvREFCNT_dec(sv);
+    }
 }
 
 

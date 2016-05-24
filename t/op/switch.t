@@ -1380,10 +1380,8 @@ sub f1 {
 }
 is(f1()->(), 3, 'closed over $_');
 
-TODO: SKIP: {
+TODO: {
     local $::TODO = 'cperl with lexical $_' if $Config::Config{usecperl};
-    skip 'cperl with lexical $_ assert', 3
-      if $Config::Config{ccflags} =~ /DDEBUGGING/;
 
     package RT94682;
 

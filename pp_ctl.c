@@ -4410,15 +4410,18 @@ PP(pp_entergiven)
     SV *origsv;
     const U8 gimme = GIMME_V;
     
+    ENTER_with_name("given");
+    SAVETMPS;
+
     if (PL_op->op_targ) {
         SAVEPADSVANDMORTALIZE(PL_op->op_targ);
 	SvREFCNT_dec(PAD_SVl(PL_op->op_targ));
-        origsv = POPs;
-	PAD_SVl(PL_op->op_targ) = SvREFCNT_inc_NN(origsv);
+        origsv = NULL;
+	PAD_SVl(PL_op->op_targ) = SvREFCNT_inc_NN(POPs);
     }
     else {
         origsv = DEFSV;
-	GvSV(PL_defgv) = SvREFCNT_inc(POPs);
+        GvSV(PL_defgv) = SvREFCNT_inc(POPs);
     }
 
     cx = cx_pushblock(CXt_GIVEN, gimme, SP, PL_savestack_ix);
