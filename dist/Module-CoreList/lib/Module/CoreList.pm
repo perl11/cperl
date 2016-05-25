@@ -302,7 +302,7 @@ sub changes_between {
     5.025001 => '2016-05-20',
     5.025002 => '????-??-??',
     '5.022003c' => '2016-06-03',
-    '5.022004c' => '2016-07-05?',
+    '5.022004c' => '2016-07-28',
   );
 
 sub version_sort {
@@ -12642,6 +12642,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Net::POP3'               => '3.08',
             'Net::SMTP'               => '3.08',
             'Net::Domain'             => '3.08_01',
+            'Pod::Checker'            => '1.73',
         },
         removed => {
         }
