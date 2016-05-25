@@ -6762,7 +6762,7 @@ PP(pp_coreargs)
 
 PP(pp_avhvswitch)
 {
-    dSP;
+    dVAR; dSP;
     return PL_ppaddr[
 		(SvTYPE(TOPs) == SVt_PVAV ? OP_AEACH : OP_EACH)
 		    + (PL_op->op_private & 3)
