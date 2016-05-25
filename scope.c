@@ -806,12 +806,18 @@ Perl_save_svref(pTHX_ SV **sptr)
 void
 Perl_savetmps(pTHX)
 {
-    dSS_ADD;
-    SS_ADD_IV(PL_tmps_floor);
-    PL_tmps_floor = PL_tmps_ix;
-    SS_ADD_UV(SAVEt_TMPSFLOOR);
-    SS_ADD_END(2);
-    DEBUG_lv(Perl_deb(aTHX_ "save TMPSFLOOR\n"));
+    if (PL_tmps_floor != PL_tmps_ix) { /* XXX safe with EVAL? */
+        dSS_ADD;
+        SS_ADD_IV(PL_tmps_floor);
+        DEBUG_lv(Perl_deb(aTHX_ "save TMPSFLOOR %ld => %ld\n",
+                          (long)PL_tmps_floor, (long)PL_tmps_ix));
+        PL_tmps_floor = PL_tmps_ix;
+        SS_ADD_UV(SAVEt_TMPSFLOOR);
+        SS_ADD_END(2);
+    } else {
+        DEBUG_lv(Perl_deb(aTHX_ "skip save TMPSFLOOR %ld\n",
+                          (long)PL_tmps_floor));
+    }
 }
 
 
