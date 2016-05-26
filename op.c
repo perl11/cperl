@@ -2621,7 +2621,7 @@ S_finalize_op(pTHX_ OP* o)
 #  else
             /* {and,or,xor}assign use a hackish unop'y sassign without last */
             if (has_last && !OpHAS_SIBLING(kid)
-                && (OP_TYPE_ISNT(o, OP_SASSIGN) || cLISTOPo->op_last))
+                && (OP_TYPE_ISNT_NN(o, OP_SASSIGN) || cLISTOPo->op_last))
                 assert(kid == cLISTOPo->op_last);
 #  endif
         }
@@ -12208,7 +12208,7 @@ Perl_ck_pad(pTHX_ OP *o)
     PERL_ARGS_ASSERT_CK_PAD;
     if (o->op_targ) { /* newPADOP sets it, newOP only with OA_TARGET */
         SV* sv = PAD_SV(o->op_targ);
-        if (OP_TYPE_IS(o, OP_PADSV) && SvREADONLY(sv)) {
+        if (OP_TYPE_IS_NN(o, OP_PADSV) && SvREADONLY(sv)) {
 #ifdef DEBUGGING
             /* ensure we allocated enough room to upgrade it */
             size_t space = DIFF(OpSLOT(o), OpSLOT(o)->opslot_next);
@@ -12224,7 +12224,7 @@ Perl_ck_pad(pTHX_ OP *o)
         }
         /* compile-time check invalid ops on shaped av's. duplicate in rpeep
            when the targ is filled in, or op_next is setup */
-        else if (OP_TYPE_IS(o, OP_PADAV) && AvSHAPED(sv)
+        else if (OP_TYPE_IS_NN(o, OP_PADAV) && AvSHAPED(sv)
                  && o->op_next && o->op_next->op_next) {
             OPCODE type = o->op_next->op_next->op_type;
             /* splice is for now checked at run-time */

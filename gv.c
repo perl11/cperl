@@ -469,7 +469,7 @@ S_gv_init_svtype(pTHX_ GV *gv, const svtype sv_type)
 
     switch (sv_type) {
     case SVt_PVIO:
-	(void)GvIOn(gv);
+	(void)GvIOn_NN(gv);
 	break;
     case SVt_PVAV:
 	(void)GvAVn(gv);
@@ -1877,7 +1877,7 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
 	    switch (*name) {
 	    case 'A':
 		if (strEQ(name2, "RGV")) {
-		    IoFLAGS(GvIOn(gv)) |= IOf_ARGV|IOf_START;
+		    IoFLAGS(GvIOn_NN(gv)) |= IOf_ARGV|IOf_START;
 		}
 		else if (strEQ(name2, "RGVOUT")) {
 		    GvMULTI_on(gv);

@@ -4018,7 +4018,7 @@ S_glob_assign_glob(pTHX_ SV *const dstr, SV *const sstr, const int dtype)
 	    );
     }
     else if(mro_changes) mro_method_changed_in(GvSTASH(dstr));
-    if (GvIO(dstr) && dtype == SVt_PVGV) {
+    if (GvIO_NN(dstr) && dtype == SVt_PVGV) {
 	DEBUG_o(Perl_deb(aTHX_
 			"glob_assign_glob clearing PL_stashcache\n"));
 	/* It's a cache. It will rebuild itself quite happily.

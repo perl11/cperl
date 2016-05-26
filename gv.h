@@ -117,6 +117,19 @@ Return the CV from the GV.
  )
 #define GvIOp(gv)	(GvGP(gv)->gp_io)
 #define GvIOn(gv)	(GvIO(gv) ? GvIOp(gv) : GvIOp(gv_IOadd(gv)))
+#ifdef PERL_CORE
+#define GvIO_NN(gv)                       \
+ (                                         \
+  (                                         \
+   SvTYPE((const SV*)(gv)) == SVt_PVGV       \
+   || SvTYPE((const SV*)(gv)) == SVt_PVLV     \
+  )                                            \
+  && GvGP(gv)                                   \
+   ? GvIOp(gv)                                   \
+   : NULL                                         \
+ )
+#define GvIOn_NN(gv)	(GvIO_NN(gv) ? GvIOp(gv) : GvIOp(gv_IOadd(gv)))
+#endif
 
 #define GvFORM(gv)	(GvGP(gv)->gp_form)
 #define GvAV(gv)	(GvGP(gv)->gp_av)

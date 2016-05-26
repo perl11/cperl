@@ -64,7 +64,7 @@ static IO *
 S_openn_setup(pTHX_ GV *gv, char *mode, PerlIO **saveifp, PerlIO **saveofp,
               int *savefd,  char *savetype)
 {
-    IO * const io = GvIOn(gv);
+    IO * const io = GvIOn_NN(gv);
 
     PERL_ARGS_ASSERT_OPENN_SETUP;
 
@@ -1125,7 +1125,7 @@ Perl_io_close(pTHX_ IO *io, GV *gv, bool not_implicit, bool warn_on_fail)
 bool
 Perl_do_eof(pTHX_ GV *gv)
 {
-    IO * const io = GvIO(gv);
+    IO * const io = GvIO_NN(gv);
 
     PERL_ARGS_ASSERT_DO_EOF;
 
@@ -1169,7 +1169,7 @@ Perl_do_eof(pTHX_ GV *gv)
 Off_t
 Perl_do_tell(pTHX_ GV *gv)
 {
-    IO *const io = GvIO(gv);
+    IO *const io = GvIO_NN(gv);
     PerlIO *fp;
 
     PERL_ARGS_ASSERT_DO_TELL;
@@ -1199,7 +1199,7 @@ Perl_do_seek(pTHX_ GV *gv, Off_t pos, int whence)
 Off_t
 Perl_do_sysseek(pTHX_ GV *gv, Off_t pos, int whence)
 {
-    IO *const io = GvIO(gv);
+    IO *const io = GvIO_NN(gv);
     PerlIO *fp;
 
     PERL_ARGS_ASSERT_DO_SYSSEEK;

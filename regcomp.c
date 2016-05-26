@@ -306,6 +306,7 @@ struct RExC_state_t {
 #define RESTART_UTF8    0x20    /* Restart, need to calcuate sizes as UTF-8 */
 
 #define REG_NODE_NUM(x) ((x) ? (int)((x)-RExC_emit_start) : -1)
+#define REG_NODE_NUM_NN(x) ((int)((x)-RExC_emit_start))
 
 /* whether trie related optimizations are enabled */
 #if PERL_ENABLE_EXTENDED_TRIE_OPTIMISATION
@@ -863,9 +864,12 @@ static const scan_data_t zero_scan_data =
         PerlIO_printf(Perl_debug_log, "%s", close_str);                     \
     }
 
-
 #define DEBUG_STUDYDATA(str,data,depth)                              \
 DEBUG_OPTIMISE_MORE_r(if(data){                                      \
+        DEBUG_STUDYDATA_NN(str,data,depth);})                        \
+        
+#define DEBUG_STUDYDATA_NN(str,data,depth)                           \
+DEBUG_OPTIMISE_MORE_r(if(1){                                         \
     PerlIO_printf(Perl_debug_log,                                    \
         "%*s" str "Pos:%"IVdf"/%"IVdf                                \
         " Flags: 0x%"UVXf,                                           \
@@ -900,7 +904,7 @@ DEBUG_OPTIMISE_MORE_r(if(data){                                      \
             (IV)((data)->offset_float_max)                           \
         );                                                           \
     PerlIO_printf(Perl_debug_log,"\n");                              \
-});
+})
 
 /* is c a control character for which we have a mnemonic? */
 #define isMNEMONIC_CNTRL(c) _IS_MNEMONIC_CNTRL_ONLY_FOR_USE_BY_REGCOMP_DOT_C(c)
@@ -981,7 +985,7 @@ S_scan_commit(pTHX_ const RExC_state_t *pRExC_state, scan_data_t *data,
     }
     data->last_end = -1;
     data->flags &= ~SF_BEFORE_EOL;
-    DEBUG_STUDYDATA("commit: ",data,0);
+    DEBUG_STUDYDATA_NN("commit: ",data,0);
 }
 
 /* An SSC is just a regnode_charclass_posix with an extra field: the inversion
@@ -2204,8 +2208,8 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
         PerlIO_printf( Perl_debug_log,
           "%*smake_trie start==%d, first==%d, last==%d, tail==%d depth=%d\n",
           (int)depth * 2 + 2, "",
-          REG_NODE_NUM(startbranch),REG_NODE_NUM(first),
-          REG_NODE_NUM(last), REG_NODE_NUM(tail), (int)depth);
+          REG_NODE_NUM_NN(startbranch),REG_NODE_NUM_NN(first),
+          REG_NODE_NUM_NN(last), REG_NODE_NUM_NN(tail), (int)depth);
     });
 
    /* Find the node we are going to overwrite */
@@ -3299,16 +3303,26 @@ S_construct_ahocorasick_from_trie(pTHX_ RExC_state_t *pRExC_state, regnode *sour
 }
 
 
-#define DEBUG_PEEP(str,scan,depth) \
-    DEBUG_OPTIMISE_r({if (scan){ \
-       regnode *Next = regnext(scan); \
-       regprop(RExC_rx, RExC_mysv, scan, NULL, pRExC_state); \
+#define DEBUG_PEEP(str,scan,depth)         \
+    DEBUG_OPTIMISE_r({if (scan){           \
+       regnode *Next = regnext(scan);      \
+       regprop(RExC_rx, RExC_mysv, scan, NULL, pRExC_state);\
        PerlIO_printf(Perl_debug_log, "%*s" str ">%3d: %s (%d)", \
            (int)depth*2, "", REG_NODE_NUM(scan), SvPV_nolen_const(RExC_mysv),\
-           Next ? (REG_NODE_NUM(Next)) : 0 ); \
+           Next ? (REG_NODE_NUM(Next)) : 0 );\
        DEBUG_SHOW_STUDY_FLAGS(flags," [ ","]");\
        PerlIO_printf(Perl_debug_log, "\n"); \
    }});
+#define DEBUG_PEEP_NN(str,scan,depth)         \
+    DEBUG_OPTIMISE_r({                        \
+       regnode *Next = regnext(scan);         \
+       regprop(RExC_rx, RExC_mysv, scan, NULL, pRExC_state);\
+       PerlIO_printf(Perl_debug_log, "%*s" str ">%3d: %s (%d)", \
+           (int)depth*2, "", REG_NODE_NUM_NN(scan), SvPV_nolen_const(RExC_mysv),\
+           Next ? (REG_NODE_NUM(Next)) : 0 );  \
+       DEBUG_SHOW_STUDY_FLAGS(flags," [ ","]");\
+       PerlIO_printf(Perl_debug_log, "\n"); \
+   });
 
 /* The below joins as many adjacent EXACTish nodes as possible into a single
  * one.  The regop may be changed if the node(s) contain certain sequences that
@@ -3456,7 +3470,7 @@ S_join_exact(pTHX_ RExC_state_t *pRExC_state, regnode *scan,
     PERL_UNUSED_ARG(flags);
     PERL_UNUSED_ARG(val);
 #endif
-    DEBUG_PEEP("join",scan,depth);
+    DEBUG_PEEP_NN("join",scan,depth);
 
     /* Look through the subsequent nodes in the chain.  Skip NOTHING, merge
      * EXACT ones that are mergeable to the current one. */
@@ -3735,7 +3749,7 @@ S_join_exact(pTHX_ RExC_state_t *pRExC_state, regnode *scan,
         n++;
     }
 #endif
-    DEBUG_OPTIMISE_r(if (merged){DEBUG_PEEP("finl",scan,depth)});
+    DEBUG_OPTIMISE_r(if (merged){DEBUG_PEEP_NN("finl",scan,depth)});
     return stopnow;
 }
 
@@ -16750,7 +16764,7 @@ S_regtail_study(pTHX_ RExC_state_t *pRExC_state, regnode *p,
         PerlIO_printf(Perl_debug_log,
                       "~ attach to %s (%"IVdf") offset to %"IVdf"\n",
 		      SvPV_nolen_const(RExC_mysv),
-		      (IV)REG_NODE_NUM(val),
+		      (IV)REG_NODE_NUM_NN(val),
 		      (IV)(val - scan)
         );
     });

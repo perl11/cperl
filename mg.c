@@ -2040,7 +2040,7 @@ Perl_magic_setdbline(pTHX_ SV *sv, MAGIC *mg)
 	    Slab_to_rw(OpSLAB(o));
 #endif
 	    /* set or clear breakpoint in the relevant control op */
-	    if (SvTRUE(sv))
+	    if (SvTRUE_NN(sv))
 		o->op_flags |= OPf_SPECIAL;
 	    else
 		o->op_flags &= ~OPf_SPECIAL;
