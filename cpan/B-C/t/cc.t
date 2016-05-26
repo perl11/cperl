@@ -23,3 +23,4 @@ my @skip = (14,21,30,
            );
 
 run_c_tests("CC", \@todo, \@skip);
+#run_cc_test(105, 'CC', 'my $s=q{ok};END{print $s}END{$x = 0}', 'ok');

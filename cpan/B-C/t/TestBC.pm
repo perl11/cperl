@@ -731,15 +731,32 @@ sub run_cc_test {
             $cmdline = "$Config{ld} $linkargs -out:$exe $obj[0] $command";
         }
 	diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
-        if ($^O =~ /^(MSWin32|hpux)/ and $ENV{PERL_CORE}) {
-            # mingw with gcc and cygwin should work, but not tested.
-            # TODO: msvc throws linker errors. need to use link, not cl.
-            print "ok $cnt # skip $^O not yet ready\n";
-            return 1;
+        if ($ENV{PERL_CORE}) {
+            if ($^O =~ /^(MSWin32|hpux)/) {
+                # mingw with gcc and cygwin should work, but not tested.
+                # TODO: msvc throws linker errors. need to use link, not cl.
+                ok(1, "skip $^O not yet ready");
+                return 1;
+            }
+            if ( $] > 5.023
+                 and ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/))
+            {
+                ok(1, "skip cc -m32 is not supported with PERL_CORE");
+                return 1;
+            }
         }
         run_cmd($cmdline, 20);
         unless (-e $exe) {
-            print "not ok $cnt $todo failed $cmdline\n";
+            if ($todo and $todo =~ /TODO/) {
+                $todo =~ s/TODO //;
+              TODO:
+                {
+                    local $TODO = $todo;
+                    ok(0, "$todo failed $cmdline");
+                }
+            } else {
+                ok(0, "failed $cmdline");
+            }
             print STDERR "# ",system("$Config{cc} $command"), "\n";
             #unlink ($test, $cfile, $exe, @obj) unless $keep_c_fail;
             return 0;
@@ -749,7 +766,7 @@ sub run_cc_test {
         ($result,$out,$stderr) = run_cmd($exe, 5);
         if (defined($out) and !$result) {
             if ($out =~ /^$expect$/) {
-                print "ok $cnt", $todo eq '#' ? "\n" : " $todo\n";
+                ok(1, $todo eq '#' ? "" : " $todo");
                 unlink ($test, $cfile, $exe, @obj) unless $keep_c;
                 return 1;
             } else {
@@ -760,9 +777,9 @@ sub run_cc_test {
                                 timeout  => 10,
                                 progfile => $test);
                 if (! $? and $got =~ /^$expect$/) {
-                    print "not ok $cnt $todo wanted: \"$expect\", got: \"$out\"\n";
+                    ok(1, "$todo wanted: \"$expect\", got: \"$out\"");
                 } else {
-                    print "ok $cnt # skip also fails uncompiled\n";
+                    ok(1, "skip also fails uncompiled");
                     return 1;
                 }
                 unlink ($test, $cfile, $exe, @obj) unless $keep_c_fail;
@@ -772,7 +789,16 @@ sub run_cc_test {
             $out = '';
         }
     }
-    print "not ok $cnt $todo wanted: \"$expect\", \$\? = $?, got: \"$out\"\n";
+    if ($todo and $todo =~ /TODO/) {
+	$todo =~ s/TODO //;
+      TODO:
+        {
+	    local $TODO = $todo;
+            ok(0, "$todo wanted: \"$expect\", \$\? = $?, got: \"$out\"");
+	}
+    } else {
+        ok(0, "wanted: \"$expect\", \$\? = $?, got: \"$out\"");
+    }
     if ($stderr) {
 	$stderr =~ s/\n./\n# /xmsg;
 	print "# $stderr\n";
@@ -851,7 +877,7 @@ B::PV
 >>>>
 12
 ######### 104 CC reset ###############################
-use blib;use B::CC;my int $r;my $i:int=2;our double $d=3.0; $r=$i*$i; $r*=$d; print $r;
+%int::; %double::; my int $r;my $i:int=2;our double $d=3.0; $r=$i*$i; $r*=$d; print $r;
 >>>>
 12
 ######### 105 CC attrs ###############################
@@ -864,19 +890,23 @@ CCTESTS
         my $i = 100;
         for (split /\n####+.*##\n/, $cctests) {
             next unless $_;
+            if ($ENV{PERL_CORE}) {
+                s/use blib;//; # fixup blib
+            }
             $tests[$i] = $_;
             $i++;
         }
     }
 
-    print "1..".(scalar @tests)."\n";
+    plan tests => scalar @tests;
+    #print "1..".(scalar @tests)."\n";
 
     my $cnt = 1;
     for (@tests) {
         my $todo = $todo{$cnt} ? "#TODO" : "#";
         # skip empty CC holes to have the same test indices in STATUS and t/testcc.sh
         unless ($_) {
-            print sprintf("ok %d # skip hole for CC\n", $cnt);
+            ok(1, "skip hole for CC");
             $cnt++;
             next;
         }
@@ -892,7 +922,7 @@ CCTESTS
              or ($cnt==103 and $backend eq 'CC,-O2') # hanging
             ))
         {
-            print sprintf("ok %d # skip\n", $cnt);
+            ok(1, "skip $cnt");
         } else {
             my ($script, $expect) = split />>>+\n/;
 	    die "Invalid empty t/TESTS" if !$script or $expect eq '';
@@ -996,6 +1026,11 @@ sub ctest {
     system "$runperl $Mblib -MO=$b,-o$name.c $post $name.pl";
     unless (-e "$name.c") {
         ok (undef, "$todo B::$backend failed to compile");
+        return 1;
+    }
+    if ($ENV{PERL_CORE} and $] > 5.023
+        and ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/)) {
+        ok(1, "skip cc -m32 is not supported with PERL_CORE");
         return 1;
     }
     my $cc_harness = cc_harness();
@@ -1110,6 +1145,9 @@ sub todo_tests_default {
     push @todo, (15)  if $] < 5.007;
     # broken by fbb32b8bebe8ad C: revert *-,*+,*! fetch magic, assign all core GVs to their global symbols
     push @todo, (42..43) if $] < 5.012;
+    push @todo, 28 if $] > 5.023 and
+      ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/);
+
     if ($what =~ /^c(|_o[1-4])$/) {
         # a regression
 	push @todo, (41)  if $] < 5.007; #regressions
