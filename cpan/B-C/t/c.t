@@ -19,5 +19,7 @@ prepare_c_tests();
 my @todo  = todo_tests_default("c");
 my @skip = ();
 #push @skip, 29 if $] > 5.015; #hangs at while Perl_hfree_next_entry hv.c:1670
+push @skip, 28 if $] > 5.023 and
+  ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/);
 
 run_c_tests("C", \@todo, \@skip);
