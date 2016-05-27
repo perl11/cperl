@@ -1,0 +1,968 @@
+=encoding utf8
+
+=head1 NAME
+
+perl5222cdelta - what is new for cperl v5.22.2
+
+=head1 DESCRIPTION
+
+This document describes perl-only differences between the cperl 5.22.1
+release and the cperl 5.22.2 release.
+
+For B<cperl> also see F<Changes> and L<perlcperl>
+
+=head1 Core Enhancements
+
+=over 4
+
+=item *
+
+Harmonize the lengths, counts and sizes for hash and array indices
+from a broken mix of int/I32 to SSize_t (31/63bit) with silent
+truncation overflows and unreachable elements.  Changed many wrong API
+sizes.
+
+STRLEN (i.e.  Size_t) for string lengths, and I32 for HEK lengths,
+also used by names.
+
+Array and hash indices and lengths are now SSize_t (signed 31/63
+bits), but really should be UV or Size_t. Esp. the hash riter is not
+I32 anymore, so you can now iterate over all hash keys, but there were
+many other silent truncations in helper functions.
+
+This allows on 64bit systems 64bit string lengths, and 63bit array and
+hash sizes, but limits on 32bit systems the max. hash size from 32 to
+31bit.
+
+CVSSv2 Severity: 7.3  (AV:N/AC:L/Au:N/C:P/I:P/A:P/E:U/RL:OF/RC:C/CDP:MH/TD:H/CR:M/IR:M/AR:M)
+
+=item *
+
+Increased the parser tokenbuffer from 256 to 1024 characters, thus bumping
+the maximal length of identifiers and parsed names from 251-255 chars to
+1200-1023 characters.
+
+=item *
+
+Safer INC path. It does not include "." anymore, unless you set the env
+C<PERL_USE_UNSAFE_INC=1>. (#118)
+
+CVSSv2 Severity: 8.5 (AV:N/AC:M/Au:S/C:C/I:C/A:C)
+
+=item *
+
+Hash security: Disable PERL_HASH_SEED_DEBUG with -t or -T (#114)
+
+=item *
+
+Better hash table collision resolution strategy: PERL_PERTURB_KEYS_TOP
+Still a linked list, but move the found element to the top. This disables
+PERL_HASH_RANDOMIZE_KEYS. It's still a very primitive and slow hash table,
+but we wait for a complete rewrite until the next major release.
+
+=item *
+
+Better support for -DC and -DCv debugging, with new REFCNT statistics.
+Added CowREFCNT_inc,dec and overflow assertions.
+
+=item *
+
+Re-added the C<PL_sv_objcount> interpreter-global variable used to track the total
+number of Perl objects in the interpreter, which was removed in Perl 5.20.
+It is beneficial for all scripts which do not create objects in global scope,
+so we dont have to check all remaining SV's to call a potential DESTROY method.
+
+This broke binary back-compatibility on MULTIPLICITY and ITHREAD builds with
+cperl-5.22.1.
+
+=item *
+
+Minor improvements in the lexer code (F<toke.c>). Added helper
+functions, LEX_TYPE_*BRACKETS_ON|OFF macros, better DEBUGGING support.
+regen_perly keeps now useful temp. files.
+
+=item *
+
+Added support for static HEK and AV with B::C, with 6-10% memory
+improvements for compiled code.
+
+Add HEK_STATIC, AvSTATIC, and av_uncow.
+Allows COW (copy on write) and COG (copy on grow) for strings and arrays
+with embedders and the compiler.
+
+=item *
+
+Support static lexical warnings. Honor op_static with COPs. This helps
+producing better compiled perlcc code. (#70)
+
+=item *
+
+Support new ccflags -DPERL_SV_DEBUG_FIELDS for easier flags bitfields
+debugging, even without -DDEBUGGING.
+
+=item *
+
+Enhanced the warnings message for warnings 'redefine' to print the caller
+location also. (# 113)
+Note that this did not violate the documented diagnostics in perldiag.pod,
+but the tests for Sub::Install and Test::Trap still need to be patched.
+
+=item *
+
+Add support for additional F<pod/perlcdelta.pod> in F<Porting/pod_rules.pl>.
+
+=item *
+
+Better IPv6 Support:
+
+Probe for I_NETINET6_IN6, I_NETINET_IP, I_NETINET_IP6 defines.
+Added the i_netinet_ip, i_netinet_ip6, i_netinet6_in6 Config keys.
+Added IPv6 to Net::Ping.
+
+=back
+
+=head1 Core Enhancements from Perl5
+
+Backported some fixes from p5p, merged with perl-5.22.2.
+
+=over 4
+
+=item *
+
+Improved performance of aassign: my (...) = (... , ...); by 10-40%.
+
+=item *
+
+Improved performance of index() by 50-70%.
+
+=item *
+
+Creating *{"_<$filename"} Perl debugger data structures (see
+L<perldebguts/"Debugger Internals">) for XSUBs and const subs has been
+removed.  This removed one glob/scalar combo for each unique C<.c>
+file that XSUBs and const subs came from.  On startup (C<perl -e0>)
+about half a dozen glob/scalar debugger combos were created.  Loading
+XS modules created more glob/scalar combos.  These things were created
+regardless if the perl debugger was being used or not, unlike for pure
+perl subs, and ignores that the perl debugger can not debug C code.
+
+=item *
+
+Make Configure -O behaviour the default
+
+=item *
+
+Support reproducible builds via PERL_BUILD_DATE
+
+=item *
+
+Fixed umask for mkstemp(3) calls for older glibc versions
+
+With v5.21.0-67-g60f7fc1, perl started setting umask to 0600
+before calling mkstemp(3), and then restoring it afterwards. This is
+wrong as it tells open(2) to strip the owner read and write bits from
+the given mode before applying it, rather than the intended negation of
+leaving only those bits in place.
+
+On modern systems which call open(2) with mode 0600 in mkstemp(3),
+this clears all the created temporary file permissions. However,
+any systems that use mode 0666 in mkstemp(3) (like ancient versions
+of glibc) now create a file with permissions 0066, leaving world
+read and write permission regardless of current umask.
+
+=back
+
+=head1 Modules and Pragmata
+
+=head2 New Modules in Core
+
+=over 4
+
+=item B-C 1.54_02
+
+With many cperl-specific improvements, global destruction fixes
+and PERL_CORE specific test changes.
+
+MS Windows with MSVC is not yet ready, sorry.
+
+=item Cpanel-JSON-XS 3.0213
+
+A fast and standard JSON en-/decoder. You should not use PP.
+
+=item Devel-NYTProf 6.03
+
+A fast and standard profiler.
+With PERL_CORE specific test and build changes.
+
+=item Internals-DumpArenas 0.12_03
+
+The only way to test sv_dump properly.
+
+=item YAML-LibYAML 0.70c
+
+A fast and standard YAML en-/decoder. You should not use PP.
+With most compiler warnings fixed, PERL_CORE specific test changes
+and new options C<IndentlessMap> for C<YAML.pm> compatibility and C<NonStrict>
+mode to pass the validator tests and make it usable for C<CPAN.pm>.
+
+=item Term::ReadKey 2.33
+
+Needed for the perl debugger with readline.
+
+=back
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item B::Debug 1.23_01
+
+Skip CORE test with B::Flags XS installed in sitearch.
+
+=item podlators 4.0.7
+
+Remove unneeded pod2*.PL customizations
+Fix VERSION_FROM in make_ext.pl
+
+=item perlfaq 5.021011
+
+=item if 0.0604
+
+Improved error message for no if.
+
+=item experimental 0.016
+
+Added bitwise
+Removed lexical_topic, new max_version check
+
+=item base 2.23
+
+=item autouse 1.11
+
+=item autodie 2.29
+
+=item Win32API::File 0.1203
+
+Numify $fd in OsFHandleOpen()
+
+=item Unicode::Normalize 1.25
+
+Added Normalize.xs
+
+=item Unicode::Collate 1.14
+
+Update Unicode::Collate::CJK::Korean
+
+=item Thread::Queue 3.07
+
+Added limit to set or return the max. size for a queue
+
+=item Term::Cap 1.17
+
+=item Term::ANSIColor 4.05
+
+=item Pod::Simple 3.32
+
+=item Perl::OSTyp 1.009
+
+Handle $^O sco
+
+=item PathTools 3.62
+
+Added AmigaOS support.
+
+=item Socket 2.021_01 (private)
+
+Added the IPV6_* constants needed for Net::Ping.
+Include netinet/ip.h, netinet/ip6.h, netinet6/in6.h if valid.
+
+=item Net-Ping 2.50 (private)
+
+Upstream development stalled at both cpan and p5p.
+Now also at https://github.com/rurban/net-ping
+
+New Features:
+
+- Handle IPv6 addresses and the AF_INET6 family.
+
+- Added the optional family argument to most methods.
+  valid values: 6, "v6", "ip6", "ipv6", AF_INET6
+
+- new can take now named arguments, a hashref.
+
+- Added the following named arguments to new:
+  gateway host bind retrans pingstring source_verify econnrefused
+  IPV6_USE_MIN_MTU IPV6_RECVPATHMTU IPV6_HOPLIMIT
+
+- Added the wakeonlan method
+
+- Improve argument default handling
+
+- Added missing documentation
+
+=item bignum 0.42
+
+uses new Math::Big*, fixing inf/nan.
+fix bignum::bpi, use bpi() as a class method, not a function.
+
+=item Math::BigInt::FastCalc 0.40
+
+Only minor changes
+
+=item Math::BigRat 0.260802
+
+Fix blog() for inf/nan, and more.
+See L<https://metacpan.org/changes/distribution/Math-BigRat>
+
+=item Math::BigInt 1.999716
+
+Tons of changes from 1.999701
+See L<https://metacpan.org/changes/distribution/Math-BigInt>
+
+=item Locale::Codes 3.38
+
+But kept the deprecated C<Locale::Codes::Country::alias_code> function.
+
+Improved test suite (and made some changes to Codes.pm) based on
+Devel::Cover.
+Test suite now has 100% coverage.
+
+=item IPC::SysV 2.06
+
+shmat() with illegal id fails and sets errno
+
+=item IPC::Cmd 0.94
+
+* move __END__ above POD in documentation (plicease)
+
+* Don't clobber $SIG{__DIE__} and $SIG{__WARN__} in open3_run() (avar)
+
+* Fix 'terminate_on_signal' segfaulting (Petya Kohts)
+
+* Fix usage of fcntl(..., F_GETFL, ...) (tonyc)
+ 
+=item Getopt::Long 2.48
+
+Fixed gnu_getopt option not 100% identical to GNU getopt
+L<[RT #12675]|https://rt.cpan.org/Ticket/Display.html?id=39052>
+
+Fixed parsing valid real numeric values, e.g. --num=.1
+L<[RT #89513]|https://rt.cpan.org/Ticket/Display.html?id=89513>
+
+PAT_FLOAT => "[-+]?(?=[0-9.])[0-9_]*(\.[0-9_]+)?([eE][-+]?[0-9_]+)?";
+
+=item File::Path 2.12
+
+Tons of fixes from 2.09
+
+=item ExtUtils::ParseXS 3.30
+
+Fix quoting if $^X has spaces
+
+=item ExtUtils::Command removed
+
+Now merged into ExtUtils-MakeMaker-7.10
+
+=item ExtUtils::CBuilder 0.280224
+
+Use warnings/strict on all modules
+
+=item Digest-MD5 2.55_01
+
+cperl only:
+Fix alignment probe for 64bit
+and enforce a SIGBUS on intel also (at least with
+gnu c compatible compilers: gcc, clang, icc) to
+mimic errors on other strict platforms: sparc, mips, ppc
+
+Allows now 64bit and darwin multiarch to be probed.
+
+Adds now coverage for the previously never tested branch
+for -UU32_ALIGNMENT_REQUIRED.
+
+Fixes RT #77919
+
+See https://github.com/rurban/digest-md5/tree/intel-align-rt77919
+
+=item Devel-PPPort 3.32_02
+
+cperl added support for 5.16 binary names
+See https://github.com/rurban/Devel-PPPort/tree/516gvhv
+
+=item Config-Perl-V 0.25_01
+
+Added v5.24 and cperl support.
+
+=item Carp 1.38
+
+C<$Carp::MaxArgNums> is no longer treated as if it was one larger.
+
+=item CPAN-Meta-YAML 0.018
+
+Removed F<t/00-report-prereqs.dd> template.
+
+Generated from C<ETHER/YAML-Tiny-1.69>
+
+Tests no longer print to stderr unnecessarily. This makes core perl
+builds a little quieter.
+ 
+The Test::More dependency has been reduced to 0.88 by emulating
+'subtest' for those tests that need it.
+
+Instead of erroring on duplicate keys found in a hash (introduced in
+version 1.63), now we only warn. This fixes an issue in Strawberry Perl
+(via CPAN::Meta::YAML) when parsing a configuration file.
+
+=item CPAN-Meta-Requirements 3.140c
+
+Handle cperl-specific 'c' version suffices.
+
+Protect internal _isa_version from non-refs that pass
+->isa(version)
+
+Added method for getting structured requirements
+
+In fixing preservation of "0.00", some Module => 0 optimizations were
+lost; this restores those optimizations
+
+=item Pod::Usage 1.68
+
+CPAN#110443: [PATCH] fix -perldoc option in pod2usage() method.
+added missing '-'
+
+CPAN#110446: [feature request] -perldocopt for supplying perldoc options
+added this option; split of string on whitespace is not optimal, but
+should do the job
+
+=item Test::Harness 3.36
+
+Accept YAML with trailing whitespace in header (Maik Hentsche)
+
+=item Filter::Util::Call 1.55
+
+Improved Filter documentation, esp. document that __DATA__ is not
+filtered.
+
+=item Scalar-List-Utils 1.45
+
+Renamed existing uniq() to uniqstr()
+Canonicalise undef to {empty string,zero} in uniq{str,num}()
+Add a new uniq() with more DWIMish semantics around undef
+
+Fix uses of GET magic by the uniq*() family of functions. GET magic is
+now always invoked exactly once if it exists.
+
+Added List::Util::uniq() and uniqnum()
+
+Fix build on non-C99 compilers
+
+* Avoid divide-by-zero exception if product()'s accumulator is IV zero
+  (RT105415)
+* Possible fix for SvTEMP issues in first and any/all/none/notall
+  (RT96343)
+
+=item Encode 2.84
+
+Encode::MIME::Header
+
+Both decoder and encoder are rewritten by Pali Rohár.
+Encoder should be now fully compliant of RFC 2047.
+Decoder is less strict to be able to decode
+strings generated by old versions of this module.
+This fixed a couple of related decode('MIME-header') /
+encode('MIME-header') bugs and tickets.
+
+Encode::Unicode
+
+Fix RT#107043: If no BOM is found, the routine dies.
+When you decode from UTF-(16|32) without -BE or LE without BOM,
+Encode now assumes BE accordingly to RFC2781 and the Unicode
+Standard version 8.0
+
+Precompile 1252 table as that is now the Pod::Simple default
+
+Fixed compilation under -pedantic
+
+=item Time::HiRes 1.9732
+
+Compilation cleanup, remove hrt_ualarm, hrt_ualarm_itimer
+
+new constants: CLOCK_BOOTTIME CLOCK_HIGHRES CLOCK_MONOTONIC_COARSE
+CLOCK_MONOTONIC_PRECISE CLOCK_MONOTONIC_RAW CLOCK_REALTIME_COARSE
+CLOCK_REALTIME_FAST CLOCK_REALTIME_PRECISE CLOCK_SECOND
+L<[RT #111170]|https://rt.cpan.org/Public/Bug/Display.html?id=111170>
+
+clock_getres(), clock_gettime(), clock_nanosleep() emulation for OS X
+L<[RT #78566]|https://rt.cpan.org/Public/Bug/Display.html?id=78566>
+
+=item Storable 2.53_03
+
+Add new optional flags argument to retrieve()/thaw() for flags, or set new
+global $Storable::flags: 2 for BLESS_OK | 4 TIE_OK. default 6.
+With 0 disable blessing and tieing of objects for proper security.
+
+Compute CAN_FLOCK at compile-time, to avoid Config in perlcc compiled binaries.
+
+Broke support for restoring restricted hashes [perl #73972] with the new
+default PERL_PERTURB_KEYS_TOP strategy.
+
+=item CPAN::Meta (private)
+
+Favour the new builtin XS YAML and JSON variants over PP.
+Improve the validator tests.
+
+=item Parse::CPAN::Meta (private)
+
+Favour the new builtin XS YAML and JSON variants over PP.
+
+=item ExtUtils::Constant 0.23_03
+
+Fixed fatal typos, moved from cpan to dist.
+
+=item Module::CoreList 5.20160225c
+
+Fixed all 'c' suffix version checks.
+
+=item CPAN::Meta::Requirements (private)
+
+Handle 'c' suffix version checks.
+
+cperl accepts versions with and without c, and should not warn about not
+existing, builtin modules (XSLoader, DynaLoader, strict, attributes) or
+unparsable versions. [cperl #104]
+
+* Accept the c suffix
+* perl5 should fail with a c version.
+* A requirement of a c version can only be fulfilled by cperl (currently).
+
+=item CPAN (private)
+
+Fix prerequisite and version checks,
+Allow cperl c suffices, Honor cperl builtin modules
+
+=item ExtUtils::MakeMaker 8.04_03 (private)
+
+Protect our cperl changes and non-upstream improvements:
+
+Fixed prereq check for cperl builtins,
+'c' version suffix support,
+make -s silencing,
+fixed wrong Config dependencies,
+PERL_USE_UNSAFE_INC=1,
+call darwin dsymutil
+
+=item Config 6.19
+
+Config is now a XS module, synced with CPAN as XSConfig.
+The Config tables are now readonly, and many more memory improvements.
+
+=item B::Concise 0.998c
+
+Support gv(cvname). Do not print gv(IV \"$$"), the prototype as ref,
+rather the name of the cvref. [cperl #96]
+
+Avoid uninit hr->name warning.
+
+=item Pod::Simple
+
+Stabilize broken t/search50.t search test
+
+=item threads 2.02_01
+
+Protect C<ithread_free> from deleted C<PL_modglobal> during global destruction.
+
+=item ExtUtils::Embed 1.34c
+
+Optimize C<boot_DynaLoader>, fix a couple of stack errors.
+
+=item Test::Harness
+
+Fix 2 tests broken with readonly Config.
+
+=item Time::HiRes 1.9727_02
+
+To improve parallel builds on Windows.
+
+=item XSLoader 1.01c
+
+Support utf8-encoded XS modulenames.
+Fixed load_file 2nd arg.
+Improve load_file errmsg, print the missing sofile.
+Protect from underflow: use a signed i counter, which can underflow
+Fixed memory corruption caused by a negative SvCUR. GH #66
+Use labs instead of abs on an 64bit IV value.
+
+Beware: untested and platform incompatible.
+
+=item DynaLoader 2.01c
+
+Fixed typo @shared_objects. It is named @dl_shared_objects.
+This broke C<perlcc --staticxs> (#71)
+
+Set the IOK bit for dl_expand, caught by the compiler.
+
+=item B 1.58_02
+
+Fix B::UNOP_AUX::aux_list design with threads.
+No 2nd cv arg, return the PADOFFSET not the SV. (#76)
+
+Export SVt_ types. (#80)
+
+=item Safe 2.39_02c
+
+Fixed Safe version 'c' problem. Do not check the XS_VERSION of
+Opcode, because it has a cperl 'c' suffix, which is not yet fully
+supported in the version check code.
+
+=item version
+
+Add a scmp method for string comparison, needed to destinguish between
+0.2 and 0.2c but only enforced if the version object is stringified.
+Using eq is not enough.
+
+fix c suffix comparisons: stringify v0.2c to v0.2c, 0.2c to 0.2c
+numify 0.2c to 0.002 [0 200], same as 0.2
+
+=item constant 1.34
+
+Lower memory usage
+
+=item IPC::SysV
+
+Fixed shmat with negative id.
+The negative argument will be interpreted as a very large unsigned value.
+Coverity CWE-687
+
+=item Scalar-List-Utils
+
+Avoid div by zero [coverity]
+Note: fixed differently upstream, with much more branches than here.
+
+=item IO-Compress, Compress-Raw-{Zlib,Bzip2} 2.069
+
+static const some local tables.
+
+=back
+
+=head2 Not Updated Modules and Pragmata
+
+This modules are currently not ready to be updated.
+
+=over 4
+
+=item Pod::Checker 1.71
+
+1.71 breaks t/porting/podcheck.t
+L<[RT #113846]|https://rt.cpan.org/Ticket/Display.html?id=113846>
+
+=item MakeUtils::MakeMaker 7.11_06
+
+broken for -Dfortify_inc, no "." in @INC
+
+=item version 0.9916
+
+Broken new "_" logic when merged with our 'c' suffix logic.
+
+=back
+
+=head1 Platform Support
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item Win32
+
+=over
+
+=item *
+
+A new build option C<USE_NO_REGISTRY> has been added to the makefiles.  This
+option is off by default, meaning the default is to do Windows registry lookups.
+This option stops Perl from looking inside the registry for anything.  For what
+values are looked up in the registry see L<perlwin32>.  Internally, in C, the
+name of this option is C<WIN32_NO_REGISTRY>.
+
+=item *
+
+The behavior of Perl using C<HKEY_CURRENT_USER\Software\Perl> and
+C<HKEY_LOCAL_MACHINE\Software\Perl> to lookup certain values, including
+C<%ENV> vars starting with C<PERL> has changed.  Previously, the 2 keys were
+checked for entries at all times through Perl processes life time even if they
+did not exist.  For performance reasons, now, if the root key (i.e.
+C<HKEY_CURRENT_USER\Software\Perl> or C<HKEY_LOCAL_MACHINE\Software\Perl>) does
+not exist at process start time, it will not be checked again for C<%ENV>
+override entries for the remainder of the Perl processes life.  This more
+closely matches Unix behaviour in that the enviroment is copied or inherited on
+startup and changing the variable in the parent process or another process or
+editing <.bashrc> will not change the enviromental variable in other existing,
+running, processes.
+
+=item *
+
+Windows support was added. There is also new support for parallel builds.
+The windows smokes are done via appveyor, on MSVC 10 and MSVC 12, on 32bit and 64bit,
+in optimized Release mode only. No mingw/gcc builds yet.
+
+=item *
+
+One glob fetch was removed for each C<-X> or C<stat> call whether done from
+Perl code or internally from Perl's C code. The glob being looked up was
+C<${^WIN32_SLOPPY_STAT}> which is a special variable. This makes C<-X> and
+C<stat> slightly faster.
+
+=item *
+
+During Miniperl's process startup, during the build process, 4 to 8 IO calls
+related to the process starting C<.pl> and the C<buildcustomize.pl> file were
+removed from the code opening and executing the first 1 or 2 C<.pl> files.
+
+=item *
+
+Avoid access to uninitialized memory in win32 crypt().
+
+Previously the Win32 crypt implementation() would access the first
+and second characters of the salt, even if the salt was zero length
+
+=back
+
+=item Darwin
+
+=over
+
+=item *
+
+Fixed global destruction with threads on darwin.
+
+=item *
+
+Darwin 11.0 (Lion, July 2011) and newer is no multiarch.
+There's no PPC support anymore. Use no
+C<env MACOSX_DEPLOYMENT_TARGET=10.6> (Snow Leopard) for ld.
+
+This fixes the darwin byteorder to be probed at compile-time, and
+the d_u32align probe on newer x86_64 darwins.
+
+=back
+
+=item Other
+
+=over
+
+=item *
+
+Enforce SIGBUS when accessing unaligned words with d_u32align /
+U32_ALIGNMENT_REQUIRED even on Intel CPUs by setting the AC (alignment
+check) EFLAGS.
+
+Fixed the broken d_u32align probe in Configure and Digest::MD5, broken for
+darwin and Intel 64bit.
+
+=item *
+
+Added a Porting/release_cperl.pod release guide for various platforms,
+debian, rpm, bsd, osx, windows packaging.
+
+=item *
+
+Improved support for threaded builds.
+
+=item *
+
+Better DynaLoader support for os2, symbian, Netware.
+
+=back
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item * Fix CVE-2016-2381 sanitize duplicate environ entries
+
+Make sure we use the same value in %ENV that getenv() returns.
+Remove duplicate entries from environ.
+
+Previously if there was a duplicate definition for a name in environ[]
+setting that name in %ENV could result in an unsafe value being passed
+to a child process.
+
+=item * Fix CVE-2012-3878 [RT#776270] module loading security weakness
+
+Treat invalid names to require, such as ::foo as error.
+New errors:
+
+Bareword in require contains "%s", with "\0", "./" or "../" as invalid substrings.
+
+Bareword in require maps to empty filename
+
+Bareword in require maps to disallowed filename "%s", with absolute
+filenames, filenames starting with "." or not ending with ".pm".
+
+=item * uncow on utf8::encode [cperl #50]
+
+=item * Fixed double-free with overlong names, esp. Moose [cperl #128]
+
+Improve and fix CopFILE_set in S_incline. Don't call gv_fetchfile_flags 2x
+with unthreaded perls. Enlarge the temp. buffer on the stack from 128 to
+160.
+
+=item * Fixed compilation with -DDEBUGGING and usethreads
+
+In the new loop bounds check elimination code.
+
+=item * Fixed ByteLoader [cperl #75]
+
+Fixed breakage from perl5.22.0 in op.c:newPROG()
+
+=item * Fixed ck_pad: PADSV -> CONST corrupts OpSLOT
+
+Wrong optimization of a readonly lexical to a const did corrupt
+memory. [cperl #108]
+
+=item * dump fix SEGV on DESTROY SvSTASH [cperl #59]
+
+We can only access a SvSTASH if it is a SvOBJECT.
+This failed e.g. for %version:: stashes.
+
+Unsure of we should follow p5p recent change to move the DESTROY
+cache back to mro.
+
+=item * dump fix assert on SvTAIL and !SvSCREAM
+
+It failed with DEBUGGING and ITHREADS on an SCREAM,FAKE,OUR padname,
+i.e. our @Data_Stack from Test::More.
+Unfortunately we cannot reproduce this error with core methods, only with
+Internals::DumpArenas, which dumps the PADNAME as full SV.
+[cperl #59] [cpan #81635]
+
+=item * podcheck.t: no memory exhaustion
+
+Skip slurping overlarge logfiles > 1MB,
+e.g. valgrind logfiles, esp. on 32bit.
+podcheck does not look at the filename extension
+if it's a potential podfile.
+
+=item * Fixed out-of-bounds access in dirp_dup()
+
+From perl-5.23.7
+
+=item * S_incline avoid overrunning end of parse buffer
+
+[perl #127334] If the rest of the allocation up to the end addressable
+memory was non-spaces, this loop could cause a segmentation fault.
+
+From perl-5.23.7
+
+=item * [perl #126481] panic for !! with syntax error in /(?[...])/
+
+=item * [perl #126325] don't read past the end of the source for pack [Hh]
+
+With a utf8 target but a non-utf8 source, pack Hh would read past the
+end of the source when given a length, due to an incorrect condition.
+
+=item * Enforce strict 'subs' in multideref optimisation
+
+The code that checks constant keys and turns them into HEKs swallowed
+the OP_CONST before the strictness checker could get to it, thus
+allowing barewords when they should not be
+
+=item * Configure: fix startperl and perlpath
+
+Config entries for cperl.
+
+=back
+
+=head1 Other
+
+=over 4
+
+=item *
+
+Enhanced Porting/sync-with-cpan
+
+Support C<--all> updating all cpan/dist modules
+
+Add options C<-n|--dryrun>, C<-m|--make-c>
+
+Handle dist also.
+
+=back
+
+=head1 Acknowledgements
+
+Daniel Dragan took over XSConfig development on CPAN.
+
+Dave Mitchell started to work on some tasks proposed in cperl.
+
+cperl 5.22.2 represents approximately 7 months of development since cperl
+5.22.1c and contains approximately 260,000 lines of changes across 1,500 files
+from 39 authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 180,000 lines of changes to 1,000 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements that became
+cperl 5.22.2:
+
+Reini Urban, Daniel Dragan, Steve Hay, Jarkko Hietaniemi, Tony Cook, Karl
+Williamson, David Mitchell, Ricardo Signes, Matthew Horsfall, Abigail,
+Aristotle Pagaltzis, Aaron Crane, David Golden, Jan Dubois, Craig A. Berry,
+Nicolas Rochelemagne, Todd Rinaldo, James E Keenan, Peter Martini, Nicholas
+Clark, Niko Tyni, Karen Etheridge, Sisyphus, Victor Adam, Sawyer X, Yves Orton,
+Stevan Little, Vladimir Timofeev, Andreas König, Leon Timmermans, Hugo van der
+Sanden, Andy Broad, Father Chrysostomos, Helmut Wollmersdorfer, Lukas Mai,
+H.Merijn Brand, Herbert Breunung, Ivan Pozdeev, Dagfinn Ilmari Mannsåker.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history including the perl and cperl repos. In particular,
+it does not include the names of the (very much appreciated) contributors who
+reported issues to the Perl bug tracker and the cperl github issues.
+
+Many of the changes included in this version originated in the CPAN
+modules included in Perl's core. We're grateful to the entire CPAN
+community for helping Perl to flourish. Their quality of work succeeds
+the work of the perl5 porters by far.
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the C<perlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to C<perlbug@perl.org> to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications, which make it
+inappropriate to send to a publicly archived mailing list, then please send it
+to C<perl5-security-report@perl.org>.  This points to a closed subscription
+unarchived mailing list, which includes all the p5p core committers, who will be
+able to help assess the impact of issues, figure out a resolution, and help
+co-ordinate the release of patches to mitigate or fix the problem across all
+platforms on which Perl is supported.  Please only use this address for
+security issues in the Perl core, not for modules independently distributed on
+CPAN.
+
+If you trust the cperl developers more, please send an email to
+them. The p5p security teams skips many security issues, or are
+unwilling to fix them.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut

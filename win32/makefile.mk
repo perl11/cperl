@@ -49,7 +49,7 @@ USE_CPERL	*= define
 # versioned installation can be obtained by setting INST_TOP above to a
 # path that includes an arbitrary version string.
 #
-#INST_VER	*= \5.22.2
+#INST_VER	*= \5.22.3
 
 #
 # Comment this out if you DON'T want your perl installation to have
@@ -1546,8 +1546,8 @@ utils: $(HAVEMINIPERL) ..\utils\Makefile
 	copy ..\README.tw       ..\pod\perltw.pod
 	copy ..\README.vos      ..\pod\perlvos.pod
 	copy ..\README.win32    ..\pod\perlwin32.pod
-	copy ..\pod\perlcdelta.pod ..\pod\perl5222cdelta.pod
 	copy ..\pod\perldelta.pod ..\pod\perl5222delta.pod
+	copy ..\pod\perlcdelta.pod ..\pod\perl5223cdelta.pod
 	$(MINIPERL) -I..\lib $(PL2BAT) $(UTILS)
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
 	$(MINIPERL) -I..\lib ..\pod\perlmodlib.PL -q ..
@@ -1651,7 +1651,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\XS rmdir /s /q $(LIBDIR)\XS
 	-if exist $(LIBDIR)\YAML rmdir /s /q $(LIBDIR)\YAML
 	-cd $(PODDIR) && del /f *.html *.bat roffitall \
-	    perl5222cdelta.pod perl5222delta.pod perlaix.pod perlamiga.pod \
+	    perl5222delta.pod perl5223cdelta.pod perlaix.pod perlamiga.pod \
 	    perlandroid.pod perlapi.pod perlbs2000.pod perlce.pod \
 	    perlcn.pod perlcygwin.pod perldos.pod perlfreebsd.pod \
 	    perlhaiku.pod perlhpux.pod perlhurd.pod perlintern.pod \
