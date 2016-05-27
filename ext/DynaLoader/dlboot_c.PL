@@ -1,5 +1,5 @@
 use Config;
-our $VERSION = "2.02c";
+our $VERSION = "2.03c";
 
 sub to_string {
     my ($value) = @_;

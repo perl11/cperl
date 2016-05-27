@@ -220,6 +220,7 @@ XS(XS_DynaLoader_bootstrap_inherit)
         PUSHMARK(MARK);
         PUTBACK;
         items = call_pv("DynaLoader::bootstrap", GIMME);
+        SPAGAIN;
         FREETMPS;
         LEAVE_with_name("bootstrap");
         XSRETURN(items);
@@ -338,6 +339,7 @@ XS(XS_DynaLoader_bootstrap)
         if (SvROK(dirsv)) {
             int count;
             SV *loader = dirsv;
+            SV** oldsp = sp;
 
             if (SvTYPE(SvRV(loader)) == SVt_PVAV && !SvOBJECT(SvRV(loader))) {
                 loader = *av_fetch(MUTABLE_AV(SvRV(loader)), 0, TRUE);
@@ -401,6 +403,8 @@ XS(XS_DynaLoader_bootstrap)
             }
             PUTBACK;
             LEAVE_with_name("call_INC");
+            sp = oldsp;
+            PUTBACK;
         } else {
             dir = pv_copy(dirsv);
         }
@@ -489,6 +493,7 @@ XS(XS_DynaLoader_bootstrap)
     } else {
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Found %s\n", SvPVX(file)));
     }
+    DLDEBUG(3,PerlIO_printf(Perl_debug_log, "calling dl_load_file: ax=%d, items=%d\n", ax, items));
     if ((items = dl_load_file(aTHX_ ax, file, module, GIMME))) {
         XSRETURN(items);
     } else {
@@ -652,8 +657,8 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
     SV **mark = PL_stack_base + ax - 1;
     dITEMS;
 
-    DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_load_file('%s','%s',%d)\n",
-            SvPVX(file), SvPVX(module), gimme));
+    DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_load_file(%d,'%s','%s',%d)\n",
+                            (int)ax, SvPVX(file), SvPVX(module), gimme));
 
     /* utf8 uc slowness only on VMS */
 #if defined(VMS) && defined(HAS_VMS_CASE_SENSITIVE_SYMBOLS)
@@ -840,12 +845,15 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
 
    boot:
     {
+        /* Note: the 1st arg must be the package name,
+           the opt. 2nd arg the VERSION */
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log,
                 "DynaLoader: Enter &%s::bootstrap CV<%p> with %d args\n",
                                 modulename, xs, (int)items));
         PUSHMARK(MARK);
-        sp = MARK + items;
-        PUTBACK;
+        PL_stack_sp = MARK + items;
+        assert(items > 0 ? SvPOK(*(MARK+1)) : 1);
+        assert(items > 1 ? SvOKp(*(MARK+2)) : 1);
         return call_sv(xs, gimme);
     }
     return 0;
