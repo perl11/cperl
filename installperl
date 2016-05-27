@@ -441,6 +441,7 @@ if (!$opts{destdir} && $Config{installusrbinperl} && $Config{installusrbinperl} 
     my($usrbinperl)	= "$mainperldir/$perl$exe_ext";
     my($instperl)	= "$installbin/$perl$exe_ext";
     my($expinstperl)	= "$binexp/$perl$exe_ext";
+    my($instbinperl)	= "$installbin/perl$exe_ext";
 
     # First make sure $usrbinperl is not already the same as the perl we
     # just installed.
@@ -463,6 +464,13 @@ if (!$opts{destdir} && $Config{installusrbinperl} && $Config{installusrbinperl} 
 	chmod(0755, $usrbinperl);
 
 	$mainperl_is_instperl = 1;
+    }
+    if (! -e $instbinperl && -e $instperl) {
+	( $Config{'d_link'} eq 'define' &&
+	  eval { CORE::link $instperl, $instbinperl } )	||
+	eval { symlink $expinstperl, $instbinperl }	||
+	copy($instperl, $instbinperl);
+	chmod(0755, $instbinperl);
     }
 }
 
