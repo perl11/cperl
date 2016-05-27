@@ -691,7 +691,7 @@ XS(XS_attributes_get)
     dVAR;
     dXSARGS;
     dXSTARG;
-    SV *rv, *sv;
+    SV *rv, *sv, *cb;
     HV* stash;
 
     if( items != 1 ) {
@@ -715,23 +715,30 @@ usage:
     SPAGAIN;
     if (stash && HvNAMELEN(stash)) {
         const Size_t len = sizeof("FETCH_svtype_ATTRIBUTES");
-        char name[sizeof("FETCH_svtype_ATTRIBUTES")]; /* max of SCALAR,ARRAY,HASH,CODE */
+        /* max of SCALAR,ARRAY,HASH,CODE */
+        static char name[sizeof("FETCH_svtype_ATTRIBUTES")];
         const char *reftype = sv_reftype(sv, 0);
 
-        /* TODO: check the phase. at compile-time use CHECK instead */
-        my_strlcpy(name, "FETCH_", sizeof("FETCH_"));
+        my_strlcpy(name, PL_phase == PERL_PHASE_CHECK ? "CHECK_" : "FETCH_", 7);
         my_strlcat(name, reftype, len);
         my_strlcat(name, "_ATTRIBUTES", len);
 
+    call_attr:
         {   /* fast variant of UNIVERSAL::can without autoload. */
             GV * const gv = gv_fetchmeth_pv(stash, name, -1, 0);
-            if (gv && isGV(gv) && (rv = MUTABLE_SV(GvCV(gv)))) {
+            if (gv && isGV(gv) && (cb = MUTABLE_SV(GvCV(gv)))) {
+                SV *pkgname = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash),
+                                             HvNAMEUTF8(stash));
                 PUSHMARK(SP);
-                XPUSHs((SV*)stash);
-                XPUSHs(sv);
+                XPUSHs(pkgname);
+                XPUSHs(rv);
                 PUTBACK;
-                call_sv(rv, G_ARRAY);
+                call_sv(cb, G_ARRAY);
                 SPAGAIN;
+            } else if (PL_phase == PERL_PHASE_CHECK && *name == 'C') {
+                /* CHECK failed, try FETCH also. */
+                memcpy(name, "FETCH", 5);
+                goto call_attr;
             }
         }
         PUTBACK;
