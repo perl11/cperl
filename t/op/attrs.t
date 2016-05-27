@@ -457,4 +457,30 @@ package P126257 {
     ::is $@, "", "RT 126257 sub";
 }
 
+{
+  package TestFETCH;
+  my ($class, $code);
+  sub FETCH_CODE_ATTRIBUTES { my ($class, $code) = @_; } #[cperl #147]
+  ($class, $code) = attributes::get( sub {} );
+  ::is($class, 'TestFETCH', 'FETCH_CODE_ATTRIBUTES returns pkgname');
+  ::is(ref $code, 'CODE', 'FETCH_CODE_ATTRIBUTES returns called cv');
+}
+
+CHECK: {
+  package TestFETCH;
+  my ($class, $code);
+  sub CHECK_CODE_ATTRIBUTES { my ($class, $code) = @_; }
+  ($class, $code) = attributes::get( sub {} );
+  ::is($class, 'TestFETCH', 'CHECK_CODE_ATTRIBUTES returns pkgname');
+  ::is(ref $code, 'CODE', 'CHECK_CODE_ATTRIBUTES returns called cv');
+}
+
+CHECK: {
+  package TestFETCH;
+  my ($class, $code);
+  sub FETCH_CODE_ATTRIBUTES { my ($class, $code) = @_; }
+  ($class, $code) = attributes::get( sub {} );
+  ::is($class, 'TestFETCH', 'CHECK_CODE_ATTRIBUTES falls back to FETCH');
+}
+
 done_testing();
