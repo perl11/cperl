@@ -1,6 +1,6 @@
 /* dl_dlopen.xs
  * 
- * Platform:	SunOS/Solaris, possibly others which use dlopen.
+ * Platform:	SunOS/Solaris, darwin and ossibly others which use dlopen.
  * Author:	Paul Marquess (Paul.Marquess@btinternet.com)
  * Created:	10th July 1994
  *
@@ -220,9 +220,9 @@ dl_find_symbol(libhandle, symbolname, ign_err=0)
     void *	libhandle
     char *	symbolname
     int	        ign_err
-    PREINIT:
+  PREINIT:
     void *sym;
-    CODE:
+  CODE:
 #ifdef DLSYM_NEEDS_UNDERSCORE
     symbolname = Perl_form_nocontext("_%s", symbolname);
 #endif
@@ -253,7 +253,7 @@ dl_install_xsub(perl_name, symref, filename="$Package")
     char *		perl_name
     void *		symref 
     const char *	filename
-    CODE:
+  CODE:
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "dl_install_xsub(name=%s, symref=%"UVxf")\n",
 		perl_name, PTR2UV(symref)));
     ST(0) = sv_2mortal(newRV((SV*)newXS_flags(perl_name,
@@ -264,17 +264,17 @@ dl_install_xsub(perl_name, symref, filename="$Package")
 
 SV *
 dl_error()
-    CODE:
+  CODE:
     dMY_CXT;
     RETVAL = newSVsv(MY_CXT.x_dl_last_error);
-    OUTPUT:
+  OUTPUT:
     RETVAL
 
 #if defined(USE_ITHREADS)
 
 void
 CLONE(...)
-    CODE:
+  CODE:
     MY_CXT_CLONE;
 
     PERL_UNUSED_VAR(items);

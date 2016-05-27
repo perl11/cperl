@@ -145,5 +145,8 @@ XS(XS_XSLoader_bootstrap_inherit) {
         Perl_die(aTHX_ "Usage: XSLoader::bootstrap_inherit($packagename [,$VERSION])\n");
     PUSHMARK(MARK);
     PUTBACK;
-    XSRETURN(call_pv("DynaLoader::bootstrap_inherit", GIMME));
+    if ((items = call_pv("DynaLoader::bootstrap_inherit", GIMME)))
+        XSRETURN(items);
+    else
+        XSRETURN_UNDEF;
 }

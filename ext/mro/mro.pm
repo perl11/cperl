@@ -38,6 +38,7 @@ sub method {
 }
 
 require XSLoader;
+#XSLoader::load('mro', $VERSION);
 XSLoader::load('mro');
 
 1;

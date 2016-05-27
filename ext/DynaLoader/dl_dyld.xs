@@ -158,9 +158,9 @@ void *
 dl_load_file(filename, flags=0)
     char *	filename
     int		flags
-    PREINIT:
+  PREINIT:
     int mode = 1;
-    CODE:
+  CODE:
     DLDEBUG(1,PerlIO_printf(Perl_debug_log, "dl_load_file(%s,%x):\n", filename,flags));
     if (flags & 0x01)
 	Perl_warn(aTHX_ "Can't make loaded symbols global on this platform while loading %s",filename);
@@ -178,7 +178,7 @@ dl_find_symbol(libhandle, symbolname, ign_err=0)
     void *		libhandle
     char *		symbolname
     int	        	ign_err
-    CODE:
+  CODE:
     symbolname = Perl_form_nocontext("_%s", symbolname);
     DLDEBUG(2, PerlIO_printf(Perl_debug_log,
 			     "dl_find_symbol(handle=%lx, symbol=%s)\n",
@@ -207,7 +207,7 @@ dl_install_xsub(perl_name, symref, filename="$Package")
     char *	perl_name
     void *	symref
     const char *	filename
-    CODE:
+  CODE:
     DLDEBUG(2,PerlIO_printf(Perl_debug_log, "dl_install_xsub(name=%s, symref=%x)\n",
 	    perl_name, symref));
     ST(0) = sv_2mortal(newRV((SV*)newXS_flags(perl_name,
@@ -218,17 +218,17 @@ dl_install_xsub(perl_name, symref, filename="$Package")
 
 SV *
 dl_error()
-    CODE:
+  CODE:
     dMY_CXT;
     RETVAL = newSVsv(MY_CXT.x_dl_last_error);
-    OUTPUT:
+  OUTPUT:
     RETVAL
 
 #if defined(USE_ITHREADS)
 
 void
 CLONE(...)
-    CODE:
+  CODE:
     MY_CXT_CLONE;
 
     PERL_UNUSED_VAR(items);
