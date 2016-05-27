@@ -228,6 +228,7 @@ aux c2ph h2ph h2xs cperlbug pl2pm pod2html pod2man splain xsubpp
     perlcperl		Perl notes for cperl (variant)
     perlcdelta		cperl changes since previous version
     perl5221cdelta	cperl changes in version 5.22.1c
+    perl5222cdelta	cperl changes in version 5.22.2c
 
     perlartistic	Perl Artistic License
     perlgpl		GNU General Public License
@@ -350,6 +351,8 @@ who wish to advocate the use of Perl in their applications,
 or if you wish to simply express your gratitude to Larry and the 
 Perl developers, please write to perl-thanks@perl.org .
 
+cperl is developed by Reini Urban <rurban@cpanel.net>.
+
 =head1 FILES
 
  "@INC"			locations of perl libraries
@@ -360,6 +363,7 @@ Perl developers, please write to perl-thanks@perl.org .
  http://www.perl.com/       Perl articles (O'Reilly)
  http://www.cpan.org/       the Comprehensive Perl Archive
  http://www.pm.org/         the Perl Mongers
+ http://perl11.org/cperl/   cperl
 
 =head1 DIAGNOSTICS
 
