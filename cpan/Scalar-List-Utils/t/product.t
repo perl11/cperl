@@ -101,6 +101,7 @@ is($v, $v1 * 42 * 2, 'bigint + builtin int');
 
 SKIP: {
   skip "IV is not at least 64bit", 8 unless $Config{ivsize} >= 8;
+  skip "Perl version $] has no proper stringification", 8 if $] < 5.008;
 
   my $t;
   my $min = -(1<<31);

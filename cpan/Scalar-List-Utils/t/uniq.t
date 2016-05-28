@@ -43,7 +43,9 @@ is_deeply( [ uniqstr qw( 1 1.0 1E0 ) ],
                'uniqstr on undef coerces to empty-string' );
 }
 
-{
+SKIP: {
+    skip "Perl version $] has no utf8::encode", 3 if $] < 5.008;
+
     my $warnings = "";
     local $SIG{__WARN__} = sub { $warnings .= join "", @_ };
 
@@ -123,9 +125,11 @@ is_deeply( [ uniq () ],
 
 is( scalar( uniqstr qw( a b c d a b e ) ), 5, 'uniqstr() in scalar context' );
 
-{
-    package Stringify;
+SKIP: {
+    skip "Perl version $] has no proper stringify overload", 1 if $] < 5.008;
 
+    package Stringify;
+  
     use overload '""' => sub { return $_[0]->{str} };
 
     sub new { bless { str => $_[1] }, $_[0] }

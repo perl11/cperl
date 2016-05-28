@@ -15,7 +15,7 @@ our @EXPORT_OK  = qw(
   all any first min max minstr maxstr none notall product reduce sum sum0 shuffle uniq uniqnum uniqstr
   pairs unpairs pairkeys pairvalues pairmap pairgrep pairfirst
 );
-our $VERSION    = "1.45_01";
+our $VERSION    = "1.45_02";
 our $XS_VERSION = $VERSION;
 $VERSION    = eval $VERSION;
 
@@ -162,9 +162,15 @@ returns true.
 
 =head2 none
 
-=head2 notall
-
     my $bool = none { BLOCK } @list;
+
+I<Since version 1.33.>
+
+Similar to L</any> and L</all>, but with the return sense inverted. C<none>
+returns true only if no value in the C<@list> causes the C<BLOCK> to return
+true.
+
+=head2 notall
 
     my $bool = notall { BLOCK } @list;
 
