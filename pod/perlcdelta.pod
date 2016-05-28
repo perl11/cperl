@@ -17,40 +17,46 @@ For B<cperl> also see F<Changes> and L<perlcperl>
 
 =item *
 
-installperl ensures now that $prefix/bin/perl is created. (#144)
+installperl ensures now that F<$prefix/bin/perl> is created. (#144)
+This fixes B<perlbrew> without explicit cperl support, and needs special care
+for packagers not to overwrite an existing F<bin/perl>.
 
 =item *
 
-New reader CHECK_type_ATTRIBUTES callbacks are called within the check
-phase for every attribute, falling back to FETCH_type_ATTRIBUTES.
+New reader C<CHECK_type_ATTRIBUTES> callbacks are called within the check
+phase for every attribute, falling back to C<FETCH_type_ATTRIBUTES>.
 
 =item *
 
-less -Wnonnull-compare compilation warnings, use more _NN macros.
+Less C<-Wnonnull-compare> compilation warnings, use more C<_NN> macros.
 I.e. dont check for arguments which cannot be null.
 
 =back
 
 =head1 Modules and Pragmata
 
-=head2 New Modules in Core
-
-=over 4
-
-=back
-
 =head2 Updated Modules and Pragmata
 
 =over 4
 
-=item B-C 1.54_05
+=item Scalar-List-Utils 1.45_02
+
+Add support for utf8 and binary subroutine names and packages.
+Taken from L<https://github.com/rurban/sub-name/commits/binary>
+
+Various minor fixes.
+See L<https://github.com/Scalar-List-Utils/Scalar-List-Utils/pull/44>
+
+=item B-C 1.54_06
 
 With some cperl-specific improvements.
 
 Handle cperl OP_SIGNATURE, at least the simple variants.
 Fix refcount of cop hints hashes with 5.22-nt (#220)
-Better UVX L and U suffices
+Better UVX L and U suffices,
 Handle shared IV and UV xpv structs.
+
+No strcpy. replace with my_strlcpy in ByteLoader
 
 =item DynaLoader 2.02c
 
@@ -72,7 +78,7 @@ Fixed cperl-5.22.2 regression causing the error
 
 =item Fix FETCH_type_ATTRIBUTES callbacks
 
-Both arguments to FETCH_type_ATTRIBUTES callbacks were wrong. The first was
+Both arguments to C<FETCH_type_ATTRIBUTES> callbacks were wrong. The first was
 an unassignable stash and is now the package name, and the 2nd was a cv and
 is now a cvref. This was broken in cperl5.22.1 and cperl5.22.2 (#147)
 
@@ -85,34 +91,30 @@ with C<!SvPOK retval>, caused by misleading indentation in utf8.c
 
 =head1 Acknowledgements
 
-cperl 5.22.3 represents approximately 7 months of development since cperl
-5.22.2c and contains approximately 260,000 lines of changes across 1,500 files
-from 39 authors.
+cperl 5.22.3 represents approximately 3 weeks of development since Perl 5.22.2c
+and contains approximately 2,800 lines of changes across 72 files from 1
+author.
 
 Excluding auto-generated files, documentation and release tools, there were
-approximately 180,000 lines of changes to 1,000 .pm, .t, .c and .h files.
+approximately 410 lines of changes to 34 .pm, .t, .c and .h files.
 
-The following people are known to have contributed the improvements that became
-cperl 5.22.3:
+Perl continues to flourish into its third decade thanks to a vibrant community
+of users and developers. The following people are known to have contributed the
+improvements that became Perl 5.22.3:
 
-Reini Urban, Daniel Dragan, Steve Hay, Jarkko Hietaniemi, Tony Cook, Karl
-Williamson, David Mitchell, Ricardo Signes, Matthew Horsfall, Abigail,
-Aristotle Pagaltzis, Aaron Crane, David Golden, Jan Dubois, Craig A. Berry,
-Nicolas Rochelemagne, Todd Rinaldo, James E Keenan, Peter Martini, Nicholas
-Clark, Niko Tyni, Karen Etheridge, Sisyphus, Victor Adam, Sawyer X, Yves Orton,
-Stevan Little, Vladimir Timofeev, Andreas König, Leon Timmermans, Hugo van der
-Sanden, Andy Broad, Father Chrysostomos, Helmut Wollmersdorfer, Lukas Mai,
-H.Merijn Brand, Herbert Breunung, Ivan Pozdeev, Dagfinn Ilmari Mannsåker.
+Reini Urban, ribasushi.
 
 The list above is almost certainly incomplete as it is automatically generated
-from version control history including the perl and cperl repos. In particular,
-it does not include the names of the (very much appreciated) contributors who
-reported issues to the Perl bug tracker and the cperl github issues.
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
 
-Many of the changes included in this version originated in the CPAN
-modules included in Perl's core. We're grateful to the entire CPAN
-community for helping Perl to flourish. Their quality of work succeeds
-the work of the perl5 porters by far.
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution
 
 =head1 Reporting Bugs
 

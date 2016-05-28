@@ -177,7 +177,7 @@ use File::Glob qw(:case);
     },
 
     'B::C' => {
-        'DISTRIBUTION' => 'RURBAN/B-C-1.54_02.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/B-C-1.54_06.tar.gz',
         'FILES'        => q[cpan/B-C],
         'EXCLUDED'     => [
             qr{^.gdb},
@@ -465,7 +465,8 @@ use File::Glob qw(:case);
                                 lib/Devel/NYTProf/FileInfo.pm
                                 t/lib/NYTProfTest.pm
                                 t/00-load.t
-                              )],
+                              ),
+                          ],
     },
 
     'Devel::PPPort' => {
@@ -1143,17 +1144,17 @@ use File::Glob qw(:case);
     },
 
     'Scalar::Util' => {
-        'DISTRIBUTION' => 'PEVANS/Scalar-List-Utils-1.45.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Scalar-List-Utils-1.45_02.tar.gz',
         'FILES'        => q[cpan/Scalar-List-Utils],
         # Bump version, make blead compile: RT #113180
-        'CUSTOMIZED'   => [
-            qw( ListUtil.xs
-                lib/List/Util.pm
-                lib/List/Util/XS.pm
-                lib/Scalar/Util.pm
-                lib/Sub/Util.pm
-                )
-        ],
+        #'CUSTOMIZED'   => [
+        #    qw( ListUtil.xs
+        #        lib/List/Util.pm
+        #        lib/List/Util/XS.pm
+        #        lib/Scalar/Util.pm
+        #        lib/Sub/Util.pm
+        #        )
+        #],
     },
 
     'Search::Dict' => {

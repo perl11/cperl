@@ -11,6 +11,7 @@ Config::Perl::V cpan/Config-Perl-V/V.pm 7273b140cc6dfd1575cfc0cca3d5366a5aadad0f
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
 Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL 7f81aa41bdf306a943ffa17d5b1dbf6717151ccf
 Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod 197e08c2c2cc300d8166da35738a1a51ebdb960a
+Devel::NYTProf cpan/Devel-NYTProf/NYTProf.xs ffda3bd642003d80afbd4125d20ea32e16179a24
 Devel::NYTProf cpan/Devel-NYTProf/t/00-load.t e7821564000c7227a0b7deafdad0740b8327b39f
 Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm bc6efbd91bce9b1eae3c341c482dde0ac4c990c5
 Devel::PPPort cpan/Devel-PPPort/parts/apidoc.fnc 3faecacac4bb093ca066af2b892aaa56fc4d31b9
@@ -46,11 +47,6 @@ Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL d1473c88b8cc5543d174966096b95f2d84a7fd
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
 Safe dist/Safe/Safe.pm fb1cf6efdfcd1d2dac2aca90bccd05cb8d1ac1c4
 Safe dist/Safe/t/safeops.t 2254dd5654230a6de6082510fe766ef7cbb6e7e7
-Scalar::Util cpan/Scalar-List-Utils/lib/List/Util.pm e479a29c6b66ac5cbbde4ef2296afaab6c4635a6
-Scalar::Util cpan/Scalar-List-Utils/lib/List/Util/XS.pm cbc38838d32fd213ae7b37ac38e30195355be3b9
-Scalar::Util cpan/Scalar-List-Utils/lib/Scalar/Util.pm 14a20075dfb9a4ef33b99115ed6f43e6d1a15f9b
-Scalar::Util cpan/Scalar-List-Utils/lib/Sub/Util.pm b984c0a2935bd5f5cf1733df846c8a8c0661ef32
-Scalar::Util cpan/Scalar-List-Utils/ListUtil.xs ae9bcae9639efa48dfb1691e8d76c34782c25ea0
 Socket cpan/Socket/Makefile.PL 214589d41e8d3cb6beb580f427db5f5dd44e54b8
 Socket cpan/Socket/Socket.xs 720797e0552c4987c372bf6be69c7b82854406a4
 Term::ReadKey cpan/Term-ReadKey/genchars.pl bb25c74979c6139c3413d97df497329e5775cb19
