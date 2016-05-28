@@ -185,7 +185,7 @@ int bytecode_header_check(pTHX_ struct byteloader_state *bstate, U32 *isjit) {
         }
     }
     BGET_strconst(str,80);	/* archname */
-    strcpy(bl_header.archname, str);
+    my_strlcpy(bl_header.archname, str, 80);
     /* just warn. relaxed strictness, only check for ithread in archflag */
     if (strNE(str, ARCHNAME)) {
 	HEADER_WARN2("Different architecture %s, you have %s", str, ARCHNAME);
@@ -194,7 +194,7 @@ int bytecode_header_check(pTHX_ struct byteloader_state *bstate, U32 *isjit) {
     /* ByteLoader version strategy: Strict for 0.06_ development releases and 0.03-0.04.
        0.07 should be able to load 0.5 (5.8.1 CORE) */
     BGET_strconst(str,16);
-    strcpy(bl_header.version, str);
+    my_strlcpy(bl_header.version, str, 16);
     if (strNE(str, VERSION)) {
         if ((strGT(str, "0.06") && strLT(str, "0.06_06")) /*|| strLT(str, "0.05")*/) {
 	    HEADER_FAIL2("Incompatible bytecode version %s, you have %s",
@@ -228,7 +228,7 @@ int bytecode_header_check(pTHX_ struct byteloader_state *bstate, U32 *isjit) {
 	if (str[0] == 0x30 && str[1] == 0x78) { /* skip '0x' */
 	    str++; str++;
 	}
-	strcpy(bl_header.byteorder, str);
+	my_strlcpy(bl_header.byteorder, str, 16);
 	if (strNE(str, supported)) {
 	    /* swab only if same length. 1234 => 4321, 12345678 => 87654321 */
 	    if (strlen(str) == strlen(supported)) {
@@ -297,7 +297,7 @@ int bytecode_header_check(pTHX_ struct byteloader_state *bstate, U32 *isjit) {
     }
     if (strGE(bl_header.version, "0.06_06")) {
         BGET_strconst(str, 16);
-        strcpy(bl_header.perlversion, str);
+        my_strlcpy(bl_header.perlversion, str, 16);
     } else {
         *bl_header.perlversion = 0;
     }
