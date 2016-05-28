@@ -128,7 +128,8 @@ Examples:
 
     223     # Decimal 223 in native character set
     0223    # Hexadecimal 223, native (= 547 decimal)
-    0xDF    # Hexadecimal DF, native (= 223 decimal
+    0xDF    # Hexadecimal DF, native (= 223 decimal)
+    '0xDF'  # String form of hexadecimal (= 223 decimal)
     'U+DF'  # Hexadecimal DF, in Unicode's character set
                               (= LATIN SMALL LETTER SHARP S)
 
