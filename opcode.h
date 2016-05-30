@@ -1013,7 +1013,7 @@ typedef enum {
     type_Hash = 15,
     type_List = 16,
     type_Any = 17,
-    type_Void = 255,
+    type_Void = 255
 } core_types_t;
 
 #ifdef PERL_IN_OP_C

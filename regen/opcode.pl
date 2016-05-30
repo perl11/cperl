@@ -1101,7 +1101,10 @@ my %coretype = map { $_ => $i++ } @coretypes;
 $coretype{Void} = 0xff;
 
 for (@coretypes) {
-    printf $oc (qq(    type_%s = %d,\n), $_, $coretype{$_}) if $_ ne "";
+    if ($_ ne "") {
+        printf $oc (qq(    type_%s = %d), $_, $coretype{$_});
+        printf $oc ($_ ne "Void" ? ",\n" : "\n");
+    }
 }
 
 print $oc <<"END";
