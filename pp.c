@@ -3053,9 +3053,6 @@ PPt(pp_i_add, "(:Int,:Int):Int")
     }
 }
 
-#if IVSIZE>4
-/* disabled: broke 32bit overflow rules */
-
 /* Nearer to add and multiply. Handle results which could be interpreted as UV,
  * does also promote to NV. Works fine for IV_MAX .. UV_MAX, but
  * not in the negative range. Is mostly used for constant folding. */
@@ -3070,8 +3067,8 @@ PPt(pp_u_add, "(:Int,:Int):Numeric")
       IV value;
       if (BUILTIN_SADD_OVERFLOW(left, right, &value)) {
           NV nv = (NV)left + (NV)right;
-          if (nv < UV_MAX && nv > 0.0)
-              SETu( (UV)nv );
+          if (nv < UV_MAX_P1 && nv > 0.0)
+              SETu( U_V(nv) );
           else
               SETn( nv );
           RETURN;
@@ -3081,24 +3078,40 @@ PPt(pp_u_add, "(:Int,:Int):Numeric")
               UV r = SvUVX(TOPp1s);
               if (BUILTIN_UADD_OVERFLOW(left, r, (UV*)&value)) {
                   NV nv = (NV)left + (NV)r;
-                  if (nv < UV_MAX && nv > 0.0)
-                      SETu( (UV)nv );
+                  if (nv < UV_MAX_P1 && nv > 0.0)
+                      SETu( U_V(nv) );
                   else
                       SETn( nv );
               } else {
-                  SETu( (UV)value );
+                  SETu( U_V(value) );
               }
               RETURN;
           }
           SETi( value );
+          RETURN;
       }
 #else
-      SETi( left + right );
-#endif
-      if (SvIVX(TARG) < 0 && left>=0 && right>=0)
-          /* IV and UV share the same field */
-          SvIsUV_on(TARG);
+      NV nv;
+      if (left < 0 && SvIsUV(TOPs)) {
+          nv = (NV)SvUVX(TOPs) + (right < 0 && SvIsUV(TOPp1s)) ? (NV)SvUVX(TOPp1s) : right;
+      } else if (right < 0 && SvIsUV(TOPp1s)) {
+          nv = left + (NV)SvUVX(TOPp1s);
+      } else {
+          nv = (NV)left + right;
+      }
+      if (nv > IV_MIN) {
+          if (nv < IV_MAX_P1) {
+              SETi( I_V(nv) );
+          } else if (nv < UV_MAX_P1) {
+              SETu( U_V(nv) );
+          } else {
+              SETn( nv );
+          }
+      } else {
+          SETn( nv );
+      }
       RETURN;
+#endif
     }
 }
 
@@ -3112,8 +3125,8 @@ PPt(pp_u_multiply, "(:Int,:Int):Numeric")
       IV value;
       if (BUILTIN_SMUL_OVERFLOW(left, right, &value)) {
           NV nv = (NV)left * (NV)right;
-          if (nv < UV_MAX && nv > 0.0)
-              SETu( (UV)nv );
+          if (nv < UV_MAX_P1 && nv > 0.0)
+              SETu( U_V(nv) );
           else
               SETn( nv );
           RETURN;
@@ -3124,8 +3137,8 @@ PPt(pp_u_multiply, "(:Int,:Int):Numeric")
               UV value;
               if (BUILTIN_UMUL_OVERFLOW(left, r, &value)) {
                   NV nv = (NV)left * (NV)r;
-                  if (nv < UV_MAX && nv > 0.0)
-                      SETu( (UV)nv );
+                  if (nv < UV_MAX_P1 && nv > 0.0)
+                      SETu( U_V(nv) );
                   else
                       SETn( nv );
               } else {
@@ -3135,12 +3148,29 @@ PPt(pp_u_multiply, "(:Int,:Int):Numeric")
           }
           SETi( value );
       }
-#else
-      SETi( left * right );
-#endif
-      if (SvIVX(TARG) < 0 && left>=0 && right>=0)
-          SvIsUV_on(TARG);
       RETURN;
+#else
+      NV nv;
+      if (left < 0 && SvIsUV(TOPs)) {
+          nv = (NV)SvUVX(TOPs) * (right < 0 && SvIsUV(TOPp1s)) ? (NV)SvUVX(TOPp1s) : right;
+      } else if (right < 0 && SvIsUV(TOPp1s)) {
+          nv = left * (NV)SvUVX(TOPp1s);
+      } else {
+          nv = (NV)left * right;
+      }
+      if (nv > IV_MIN) {
+          if (nv < IV_MAX_P1) {
+              SETi( I_V(nv) );
+          } else if (nv < UV_MAX_P1) {
+              SETu( U_V(nv) );
+          } else {
+              SETn( nv );
+          }
+      } else {
+          SETn( nv );
+      }
+      RETURN;
+#endif
     }
 }
 
@@ -3150,13 +3180,29 @@ PPt(pp_u_subtract, "(:Int,:Int):Numeric")
     tryAMAGICbin_MG(subtr_amg, AMGf_assign);
     {
       dPOPTOPiirl_ul_nomg;
-      SETi( left - right );
-      if (SvIVX(TARG) < 0 && left > right)
-          SvIsUV_on(TARG);
+      NV nv;
+      if (left < 0 && SvIsUV(TOPs)) {
+          nv = (NV)SvUVX(TOPs) - (right < 0 && SvIsUV(TOPp1s)) ? (NV)SvUVX(TOPp1s) : right;
+      } else if (right < 0 && SvIsUV(TOPp1s)) {
+          nv = left - (NV)SvUVX(TOPp1s);
+      } else {
+          nv = (NV)left - right;
+      }
+      if (nv > IV_MIN) {
+          if (nv < IV_MAX_P1) {
+              SETi( I_V(nv) );
+          } else if (nv < UV_MAX_P1) {
+              SETu( U_V(nv) );
+          } else {
+              SETn( nv );
+          }
+      } else {
+          SETn( nv );
+      }
       RETURN;
     }
 }
-#endif
+
 
 PPt(pp_i_subtract, "(:Int,:Int):Int")
 {

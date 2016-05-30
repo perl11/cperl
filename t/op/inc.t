@@ -208,13 +208,14 @@ for my $n (47..113) {
     my ($start_p, $start_n);
     if ($h_uv_max > $power_of_2 / 2) {
         # use 2.0 to force NV result
-	my $uv_max = 1 + 2.0 * (~0 >> 1);
-	# UV_MAX is 2**$something - 1, so subtract 1 to get the start value
-	$start_p = $uv_max - 1.0;
+	my $uv_max = 2.0 * (~0 >> 1);
+	# UV_MAX is 1 + 2**$something - 1
+	$start_p = $uv_max;
 	# whereas IV_MIN is -(2**$something), so subtract 2
 	$start_n = -$h_uv_max + 2.0;
-	print "# Mantissa overflows at 2**$n ($power_of_2)\n";
-	print "# But max UV ($uv_max) is greater so testing that\n";
+	printf "# Mantissa overflows at 2**$n (%lu)\n", $power_of_2;
+	printf "# But max UV is greater so testing that (%lu)\n", $start_p;
+        # 18446744073709551614 with 64bit
     } else {
 	print "# Testing 2**$n ($power_of_2) which overflows the mantissa\n";
 	$start_p = int($power_of_2 - 2);

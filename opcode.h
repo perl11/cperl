@@ -24,15 +24,6 @@
 #define Perl_pp_i_predec Perl_pp_predec
 #define Perl_pp_i_postinc Perl_pp_postinc
 #define Perl_pp_i_postdec Perl_pp_postdec
-#if IVSIZE<=4
-#define Perl_pp_u_multiply Perl_pp_multiply
-#endif
-#if IVSIZE<=4
-#define Perl_pp_u_add Perl_pp_add
-#endif
-#if IVSIZE<=4
-#define Perl_pp_u_subtract Perl_pp_subtract
-#endif
 #define Perl_pp_s_lt Perl_pp_s_le
 #define Perl_pp_s_gt Perl_pp_s_le
 #define Perl_pp_s_ge Perl_pp_s_le
@@ -1077,7 +1068,7 @@ PL_op_type_str[] = {
 	"(:Int):Int",	/* 31: i_postdec */
 	"(:Numeric,:Numeric):Numeric",	/* 32: multiply */
 	"(:Int,:Int):Int",	/* 33: i_multiply */
-	"(:Int,:Int):UInt",	/* 34: u_multiply */
+	"(:Int,:Int):Numeric",	/* 34: u_multiply */
 	"(:Numeric,:Numeric):Numeric",	/* 35: divide */
 	"(:Int,:Int):Int",	/* 36: i_divide */
 	"(:Numeric,:Numeric):Numeric",	/* 37: modulo */
@@ -1085,10 +1076,10 @@ PL_op_type_str[] = {
 	"(:List,:Int):List",	/* 39: repeat */
 	"(:Numeric,:Numeric):Numeric",	/* 40: add */
 	"(:Int,:Int):Int",	/* 41: i_add */
-	"(:Int,:Int):UInt",	/* 42: u_add */
+	"(:Int,:Int):Numeric",	/* 42: u_add */
 	"(:Numeric,:Numeric):Numeric",	/* 43: subtract */
 	"(:Int,:Int):Int",	/* 44: i_subtract */
-	"(:Int,:Int):UInt",	/* 45: u_subtract */
+	"(:Int,:Int):Numeric",	/* 45: u_subtract */
 	"(:Any,:Any):Str",	/* 46: concat */
 	"(:Scalar):Str",	/* 47: stringify */
 	"(:Numeric,:Numeric):Numeric",	/* 48: pow */
@@ -1499,7 +1490,7 @@ EXTCONST U32 PL_op_type[] = {
 	0x05ffff05,	/* 31: i_postdec "(:Int):Int" */
 	0x0a0aff0a,	/* 32: multiply "(:Numeric,:Numeric):Numeric" */
 	0x0505ff05,	/* 33: i_multiply "(:Int,:Int):Int" */
-	0x0505ff06,	/* 34: u_multiply "(:Int,:Int):UInt" */
+	0x0505ff0a,	/* 34: u_multiply "(:Int,:Int):Numeric" */
 	0x0a0aff0a,	/* 35: divide "(:Numeric,:Numeric):Numeric" */
 	0x0505ff05,	/* 36: i_divide "(:Int,:Int):Int" */
 	0x0a0aff0a,	/* 37: modulo "(:Numeric,:Numeric):Numeric" */
@@ -1507,10 +1498,10 @@ EXTCONST U32 PL_op_type[] = {
 	0x1205ff12,	/* 39: repeat "(:List,:Int):List" */
 	0x0a0aff0a,	/* 40: add "(:Numeric,:Numeric):Numeric" */
 	0x0505ff05,	/* 41: i_add "(:Int,:Int):Int" */
-	0x0505ff06,	/* 42: u_add "(:Int,:Int):UInt" */
+	0x0505ff0a,	/* 42: u_add "(:Int,:Int):Numeric" */
 	0x0a0aff0a,	/* 43: subtract "(:Numeric,:Numeric):Numeric" */
 	0x0505ff05,	/* 44: i_subtract "(:Int,:Int):Int" */
-	0x0505ff06,	/* 45: u_subtract "(:Int,:Int):UInt" */
+	0x0505ff0a,	/* 45: u_subtract "(:Int,:Int):Numeric" */
 	0x1313ff08,	/* 46: concat "(:Any,:Any):Str" */
 	0x0bffff08,	/* 47: stringify "(:Scalar):Str" */
 	0x0a0aff0a,	/* 48: pow "(:Numeric,:Numeric):Numeric" */
@@ -2372,7 +2363,7 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_i_postdec,	/* implemented by Perl_pp_postdec */
 	Perl_pp_multiply,
 	Perl_pp_i_multiply,
-	Perl_pp_u_multiply,	/* on 32bit IV implemented by Perl_pp_multiply */
+	Perl_pp_u_multiply,
 	Perl_pp_divide,
 	Perl_pp_i_divide,
 	Perl_pp_modulo,
@@ -2380,10 +2371,10 @@ EXT Perl_ppaddr_t PL_ppaddr[] /* or perlvars.h */
 	Perl_pp_repeat,
 	Perl_pp_add,
 	Perl_pp_i_add,
-	Perl_pp_u_add,	/* on 32bit IV implemented by Perl_pp_add */
+	Perl_pp_u_add,
 	Perl_pp_subtract,
 	Perl_pp_i_subtract,
-	Perl_pp_u_subtract,	/* on 32bit IV implemented by Perl_pp_subtract */
+	Perl_pp_u_subtract,
 	Perl_pp_concat,
 	Perl_pp_stringify,
 	Perl_pp_pow,

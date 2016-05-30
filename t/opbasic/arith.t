@@ -92,7 +92,9 @@ try $T++, abs(-13e21 % -4e21 - -1e21) < $limit, 'abs() for floating point';
 tryeq $T++, 4063328477 % 65535, 27407, 'UV behaves properly: modulo';
 tryeq $T++, 4063328477 % 4063328476, 1, 'UV behaves properly: modulo';
 tryeq $T++, 4063328477 % 2031664238, 1, 'UV behaves properly: modulo';
-tryeq $T++, 2031664238 % 4063328477, 2031664238,
+# problematic with 32bit as typed constants. so untype it.
+$a = 2031664238;
+tryeq $T++, $a % 4063328477, 2031664238,
     'UV behaves properly: modulo';
 
 tryeq $T++, 2147483647 + 0, 2147483647,

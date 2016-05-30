@@ -222,11 +222,9 @@ foreach my $sock_func (qw(socket bind listen accept shutdown
     $alias{$sock_func} = ["Perl_pp_$sock_func", '#ifdef HAS_SOCKET'],
 }
 # u_ ops are aliased for 32bit IVSIZE==4 only. on IVSIZE==8 they use the native u_ ops
-foreach my $u_func (qw(add subtract multiply)) {
-    $alias{"u_".$u_func} = ["Perl_pp_$u_func", '#if IVSIZE<=4'],
-}
-
-
+#foreach my $u_func (qw(add subtract multiply)) {
+#    $alias{"u_".$u_func} = ["Perl_pp_$u_func", '#if IVSIZE<=4'],
+#}
 
 # =================================================================
 #

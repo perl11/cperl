@@ -18,10 +18,14 @@ release and the cperl 5.24.0 release.
 Undo the removal of lexical topic. We fixed that in 5.22.2c already, and
 it is critically needed for given/when, smartmatch.
 
-=item * proper signatures
+=item * Proper signatures
 
-Support builtin and efficient signatures, with types and references (call-by-ref).
+Support builtin and efficient signatures, with types and references (call-by-ref),
+goto to a signatured function is now a true tail call, reusing the old padframe
+variables, not using copies.
+
 See L<perlsub/Signatures> and L<perlfunc/prototype>.
+
 The C<prototype> function returns the parsed string of a declared
 signature if no prototype attribute overrides it.
 
@@ -37,6 +41,11 @@ C<lexical_topic>, C<smartmatch>.
 given/when is now standard cperl syntax.
 
 Note that C<postderef> and C<autoderef> were removed by perl5.
+
+=item * Improved fast arithmetic
+
+The compile-time C<u_{add,subtract,multiply}> op variants for constant folding
+have now proper overflowing behaviour, and are now also used with 32bit.
 
 =item * keep CxFOREACHDEF removed with perl-5.24.0
 
