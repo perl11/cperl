@@ -2881,12 +2881,14 @@ PP(pp_goto)
 #ifdef PERL_GOTOSIG_TAILCALL
                         /* cpan/Test-Simple/t/capture.t? */
                         depth = PadlistMAX(padlist);
-                        assert(CvDEPTH(cv) <= PadlistMAX(padlist));
-#endif
-                        PAD_SET_CUR(padlist, depth);
                         DEBUG_Xv(PerlIO_printf(Perl_debug_log,
                             "  padlist max=%d, CvDEPTH=%d\n",
-                            (int)PadlistMAX(padlist), CvDEPTH(cv)));
+                            (int)depth, CvDEPTH(cv)));
+                        if (CvDEPTH(cv) <= depth) {
+                            CvDEPTH(cv) = depth;
+                        }
+#endif
+                        PAD_SET_CUR(padlist, depth);
                         goto call_pp_sub;
                     }
                 }

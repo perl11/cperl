@@ -4026,8 +4026,15 @@ PP(pp_entersub)
 	cx_pushsub(cx, cv, PL_op->op_next, hasargs);
 
 	padlist = CvPADLIST(cv);
-	if (UNLIKELY((depth = ++CvDEPTH(cv)) >= 2))
+	if (UNLIKELY((depth = ++CvDEPTH(cv)) >= 2)) {
+            DEBUG_Xv(PerlIO_printf(Perl_debug_log,
+                                   "  padlist max=%d, CvDEPTH=%d\n",
+                                   (int)PadlistMAX(padlist), CvDEPTH(cv)));
+            if (CvDEPTH(cv) > PadlistMAX(padlist)+1) { /* not with siggoto */
+                depth = PadlistMAX(padlist)+1;
+            }
 	    pad_push(padlist, depth);
+        }
 	PAD_SET_CUR_NOSAVE(padlist, depth);
 	if (LIKELY(hasargs)) {
             if (CvHASSIG(cv)) { /* and no @_, same call abi as with ops */
