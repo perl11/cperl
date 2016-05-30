@@ -17685,7 +17685,7 @@ Perl_re_dup_guts(pTHX_ const REGEXP *sstr, REGEXP *dstr, CLONE_PARAMS *param)
     ret->qr_anoncv = MUTABLE_CV(sv_dup_inc((const SV *)ret->qr_anoncv, param));
 
     if (ret->pprivate)
-	RXi_SET(ret,CALLREGDUPE_PVT(dstr,param));
+	RXi_SET(ret,CALLREGDUPE_PVT_NN(dstr,param));
 
     if (RX_MATCH_COPIED(dstr))
 	ret->subbeg  = SAVEPVN(ret->subbeg, ret->sublen);

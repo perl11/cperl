@@ -282,6 +282,8 @@
 #define CALLREGDUPE_PVT(prog,param) \
     (prog ? RX_ENGINE(prog)->dupe(aTHX_ (prog),(param)) \
           : (REGEXP *)NULL)
+#define CALLREGDUPE_PVT_NN(prog,param) \
+    RX_ENGINE(prog)->dupe(aTHX_ (prog),(param))
 #endif
 
 
