@@ -16392,6 +16392,7 @@ our %delta :const = (
             'Digest::SHA'           => '5.98',
             'DirHandle'             => '1.05',
             'Encode'                => '2.93',
+            'exact_arith'           => '0.01',
             'experimental'          => '0.019_01c',
             'ExtUtils::Constant'    => '0.24_01',
             'ExtUtils::Constant::Base'      => '2.24_01',

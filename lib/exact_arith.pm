@@ -4,8 +4,8 @@ my $HINT_EXACT_ARITH = 0x0000010; # see perl.h
 
 sub import {
   use Math::BigInt try => 'GMP';
-  #$^H{exact_arith} = 1;
   $^H |= $HINT_EXACT_ARITH;
+  # $^H{exact_arith} = 'Math::BigInt';
 }
 sub unimport {
   #delete $^H{exact_arith};

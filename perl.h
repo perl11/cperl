@@ -317,13 +317,6 @@
     RX_ENGINE(rx_sv)->dupe(aTHX_ (rx_sv),(param))
 #endif
 
-#ifdef PERL_EXACT_ARITH
-#define IS_EXACT_ARITH   PL_curcop->cop_hints & HINT_EXACT_ARITH
-/*#define IS_EXACT_ARITH cop_hints_fetch_pvs(PL_curcop, "exact_arith", REFCOUNTED_HE_EXISTS)*/
-#else
-#define IS_EXACT_ARITH   0
-#endif
-
 /*
  * Because of backward compatibility reasons the PERL_UNUSED_DECL
  * cannot be changed from postfix to PERL_UNUSED_DECL(x).  Sigh.
@@ -718,6 +711,17 @@
 #  define SUBST_TAINT_REPL     4	/* replacement tainted */
 #  define SUBST_TAINT_RETAINT  8	/* use re'taint' in scope */
 #  define SUBST_TAINT_BOOLRET 16	/* return is boolean (don't taint) */
+#endif
+
+#ifdef PERL_EXACT_ARITH
+# ifdef USE_EXACT_ARITH
+#  define IS_EXACT_ARITH   1
+# else
+#  define IS_EXACT_ARITH   PL_curcop->cop_hints & HINT_EXACT_ARITH
+/*#define IS_EXACT_ARITH cop_hints_fetch_pvs(PL_curcop, "exact_arith", REFCOUNTED_HE_EXISTS)*/
+# endif
+#else
+# define IS_EXACT_ARITH   0
 #endif
 
 /* XXX All process group stuff is handled in pp_sys.c.  Should these

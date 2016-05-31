@@ -1932,9 +1932,6 @@ S_Internals_V(pTHX_ CV *cv)
 #  ifdef PERL_DONT_CREATE_GVSV
 			     " PERL_DONT_CREATE_GVSV"
 #  endif
-#  ifdef PERL_EXACT_ARITH
-			     " PERL_EXACT_ARITH"
-#  endif
 #  ifdef PERL_EXTERNAL_GLOB
 			     " PERL_EXTERNAL_GLOB"
 #  endif
@@ -2457,6 +2454,11 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
     }
 #endif
 
+#ifdef USE_EXACT_ARITH
+    (void)Perl_av_create_and_unshift_one(aTHX_ &PL_preambleav,
+        newSVpvs("use exact_arith;"));
+#endif
+
     if (!scriptname)
 	scriptname = argv[0];
     if (PL_e_script) {
@@ -2659,8 +2661,11 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
     if (add_read_e_script)
 	filter_add(read_e_script, NULL);
 
-    /* now parse the script */
+#ifdef USE_EXACT_ARITH
+    PL_curcop->cop_hints |= HINT_EXACT_ARITH;
+#endif
 
+    /* now parse the script */
     SETERRNO(0,SS_NORMAL);
     if (yyparse(GRAMPROG) || PL_parser->error_count) {
         abort_execution("", PL_origfilename);
@@ -3432,7 +3437,7 @@ Perl_eval_pv(pTHX_ const char *p, I32 croak_on_error)
     /* just check empty string or undef? */
     if (croak_on_error) {
 	SV * const errsv = ERRSV;
-	if(SvTRUE_NN(errsv))
+	if (SvTRUE_NN(errsv))
 	    /* replace with croak_sv? */
 	    Perl_croak_nocontext("%s", SvPV_nolen_const(errsv));
     }

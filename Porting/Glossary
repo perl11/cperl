@@ -5591,6 +5591,14 @@ usedtrace (usedtrace.U):
 	This variable indicates whether we are compiling with dtrace
 	support. See also dtrace.
 
+useexactarith (useexactarith.U):
+	This variable conditionally defines the USE_EXACT_ARITH symbol,
+	and indicates that Perl should load and enable the exact_arith
+        pragma at startup.
+        It also unconditionally defines the PERL_EXACT_ARITH symbol.
+	Available since cperl 5.27.2.
+	Defaults to undef.
+
 usefaststdio (usefaststdio.U):
 	This variable conditionally defines the USE_FAST_STDIO symbol,
 	and indicates that Perl should be built to use 'fast stdio'.
