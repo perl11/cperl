@@ -1005,7 +1005,7 @@ Constant subroutine fred redefined at - line 3.
 sub fred () { 1 }
 *fred = sub () { 2 };
 EXPECT
-Constant subroutine main::fred redefined, called by -:0 at - line 3.
+Constant subroutine main::fred redefined at - line 3.
 ########
 # op.c
 use feature "lexical_subs", "state";
@@ -1874,7 +1874,7 @@ use open qw( :utf8 :std );
 sub frèd () { 1 }
 *frèd = sub () { 2 };
 EXPECT
-Constant subroutine main::frèd redefined, called by -:0 at - line 5.
+Constant subroutine main::frèd redefined at - line 5.
 ########
 # op.c
 use warnings 'redefine' ;
@@ -1912,7 +1912,7 @@ use open qw( :utf8 :std );
 sub ᚠርƊ () { 1 }
 *ᚠርƊ = sub () { 2 };
 EXPECT
-Constant subroutine main::ᚠርƊ redefined, called by -:0 at - line 5.
+Constant subroutine main::ᚠርƊ redefined at - line 5.
 ########
 # OPTION regex
 sub DynaLoader::dl_error {};

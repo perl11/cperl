@@ -76,6 +76,11 @@ Fixes F<Class-Accessor-Grouped/t/accessors_pp.t>
 Fixed cperl-5.22.2 regression causing the error
 "Missing $ on loop variable". Also with C<for our$> (#145)
 
+=item Fixed warnings redefine regression
+
+Fixed cperl-5.22.2 regression causing Sub::Install to fail. The
+first printed ", called by" location was wrong (#113)
+
 =item Fix FETCH_type_ATTRIBUTES callbacks
 
 Both arguments to C<FETCH_type_ATTRIBUTES> callbacks were wrong. The first was
