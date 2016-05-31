@@ -33,12 +33,14 @@ The C<@_> array inside a function body with a signature is empty. With
 default parameters there's is currently no way to find out how many
 actual arguments were provided, and how many were filled out with
 defaults.
+L<[cperl #7]|https://github.com/perl11/cperl/issues/7>
+L<[cperl #134]|https://github.com/perl11/cperl/issues/134>
 
 =item * Less experimental needed
 
 Remove the previously required use experimental for
 C<lexical_topic>, C<smartmatch>.
-given/when is now standard cperl syntax.
+C<given>/C<when> is now standard cperl syntax.
 
 Note that C<postderef> and C<autoderef> were removed by perl5.
 
@@ -46,12 +48,17 @@ Note that C<postderef> and C<autoderef> were removed by perl5.
 
 The compile-time C<u_{add,subtract,multiply}> op variants for constant folding
 have now proper overflowing behaviour, and are now also used with 32bit.
+L<[cperl #2]|https://github.com/perl11/cperl/issues/2>
 
 =item * keep CxFOREACHDEF removed with perl-5.24.0
 
-API macro to check for a loop with default var (gv or pad $_).
+API macro to check for a loop with default var (gv or pad C<$_>).
 Added with 5.9.3 by Robin Houston when he added given/when.
 Deleted with 5.24.0, without any deprecation or mention.
+
+=item * 2 new OP members
+
+C<op_rettype> was added and C<op_typechecked> taken from a spare bit.
 
 =back
 
@@ -74,16 +81,132 @@ So we don't need our special B::SvSTASH fixes anymore.
 
 =head2 Updated Modules and Pragmata
 
+Many internal core modules are now properly "modernized", i.e.
+use typed signatures, and catch errors at compile-time.
+L<[cperl #97]|https://github.com/perl11/cperl/issues/97>
+
 =over 4
 
-=item B::C 1.54_03
+=item B::C 1.54_06
 
-Fixed 5.24 specific assertions, with shared xpviv/xpvuv
+Handle cperl OP_SIGNATURE.
+
+Fix refcount of cop hints hashes with 5.22-nt (#220)
+
+Better UVX L and U suffices.
+
+Handle shared IV and UV xpv structs,
+  fixed 5.24 specific assertions, with shared xpviv/xpvuv
 
 =item B::Deparse 1.37_02c
 
 Add more cperl-specific ops: aelem*_u, u_{add,subtract,multiply},
 {i,n,s}_aelem{,_u}
+
+=item Test-Simple 1.001014c
+
+Modernized
+
+=item File-Path 3.09c
+
+Modernized. Enforce many str types.
+
+=item PathTools 4.65c
+
+Modernized. Enforce many str types.
+
+=item Pod-Simple 4.30c
+
+Modernized
+
+=item Pod-Html 2.22c
+
+Modernized
+
+=item bignum 0.42c
+
+Modernized
+
+=item bigint 0.42c
+
+Modernized
+
+=item bigrat 0.42c
+
+Modernized
+
+=item CPAN
+
+Fixed tests. Type skip calls and File-Path args.
+
+=item ExtUtils-MakeMaker
+
+Type File-Path args.
+
+=item CPAN-Meta-YAML
+
+Modernized.
+str type for skip
+
+=item CPAN-Meta 2.150005c
+
+fix Encode test for modernized Test-Simple,
+stringify the 1st skip arg
+
+=item Test-Harness
+
+type the skip calls
+
+=item Hash-Util-FieldHash
+
+type the skip calls
+
+=item YAML-LibYAML
+
+Spiffy and Test::Base 0.88c fixes for fake signatures.
+
+Spiffy uses a source filter to expand many methods,
+but this does not work with fake_signatures.
+Expand the compile-time state of Test::Base to avoid
+source filters.
+Also add . to @INC in some tests
+
+=item Filter-Util-Call
+
+Fixed 1 test for signature errmsg
+
+=item IO-Compress
+
+Fixed 1 test for signature errmsg
+
+=item Devel-Peek
+
+Skip tests for changed dynamic prototype() with sigs.
+Fix tests with -DDEBUG_LEAKING_SCALARS
+
+=item B 1.62_02
+
+add B::OP::rettype, B::OP::typechecked,
+B::CV::SIGOP and support for OP_SIGNATURE with B::UNOP_AUX::aux_list
+and B::UNOP_AUX::string.
+
+Note: With threads in B::UNOP_AUX::aux_list the padoffsets are returned as such,
+and not as SV. This is different to upstream perl5, a perl5 bug.
+
+=item Devel-NYTProf
+
+fix test for short CV_NAME_NOMAIN
+
+=item perl5db 1.49_04c
+
+fix test for short CV_NAME_NOMAIN.
+run-time load IO::Handle, broke miniperl.
+
+=item warnings
+
+Add category C<types>.
+
+Disable 3 experimental warnings which are now default with cperl.
 
 =back
 
