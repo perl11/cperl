@@ -5690,6 +5690,8 @@ lib/dumpvar.pl			A variable dumper
 lib/dumpvar.t			A variable dumper tester
 lib/English.pm			Readable aliases for short variables
 lib/English.t			See if English works
+lib/exact_arith.pm		Pragma to set exact arithmetic as in perl6
+lib/exact_arith.t		See if use exact_arith works
 lib/ExtUtils/Embed.pm		Utilities for embedding Perl in C programs
 lib/ExtUtils/t/Embed.t		See if ExtUtils::Embed and embedding works
 lib/ExtUtils/typemap		Extension interface types

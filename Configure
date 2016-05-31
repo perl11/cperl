@@ -1424,6 +1424,7 @@ CONFIG=''
 usecperl=''
 fake_signatures=''
 usenamedanoncv=''
+useexactarith=''
 
 : Detect odd OSs
 define='define'
@@ -7581,6 +7582,32 @@ $define)
 		echo "...setting architecture name to $archname." >&4
 		;;
 	esac
+	;;
+esac
+
+case "$useexactarith" in
+$define|true|[yY]*)	dflt='y' ;;
+*)			dflt='n' ;;
+esac
+cat <<EOM
+
+Would you like to build Perl so that every builtin arithmetic overflow
+does not promote to internal fast double/long double numbers but
+instead to slow and precise bigint? So that exact_arith is enabled by default.
+
+If this doesn't make any sense to you, just accept the default '$dflt'.
+EOM
+rp='Use exact arith, overflow to bigint as in perl6?'
+. ./myread
+case "$ans" in
+y|Y)	val="$define" ;;
+*)	val="$undef"  ;;
+esac
+set useexactarith
+eval $setvar
+case "$useexactarith" in
+$define)
+	echo "exact_arith selected." >&4
 	;;
 esac
 
@@ -25924,6 +25951,7 @@ usecrosscompile='$usecrosscompile'
 usedevel='$usedevel'
 usedl='$usedl'
 usedtrace='$usedtrace'
+useexactarith='$useexactarith'
 usefaststdio='$usefaststdio'
 useffi='$useffi'
 useithreads='$useithreads'

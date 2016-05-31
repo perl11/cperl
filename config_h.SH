@@ -5488,6 +5488,14 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$usesafehashiter	USE_SAFE_HASHITER		/**/
 #endif
 
+/* USE_EXACT_ARITH:
+ *	This symbol, if defined, indicates that Perl uses exact_arith as default.
+ */
+#define PERL_EXACT_ARITH
+#ifndef USE_EXACT_ARITH
+#$useexactarith	USE_EXACT_ARITH		/**/
+#endif
+
 /* PERL_HASH_FUNC_*:
  *	This symbol defines the used perl hash function variant.
  *      It is set in Configure or via -Dhash_func=, but can be left blank.
