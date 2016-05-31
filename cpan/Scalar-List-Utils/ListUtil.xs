@@ -1458,7 +1458,7 @@ PPCODE:
         s = SvPVX(name);
     }
 #if defined(DEBUGGING) && defined(I_ASSERT)
-    assert(len >= 0);
+    assert(len < PERL_INT_MAX);
 #endif
 
     /* under debugger, provide information about sub location */
