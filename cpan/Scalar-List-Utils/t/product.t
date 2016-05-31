@@ -106,15 +106,16 @@ SKIP: {
   my $t;
   my $min = -(1<<31);
   my $max = (1<<31)-1;
+  my $umaxp1 = 1<<62;
 
   $t = product($min, $min);
-  is($t,  1<<62, 'min * min');
+  is($t,  $umaxp1, 'min * min');
   $t = product($min, $max);
-  is($t, (1<<31) - (1<<62), 'min * max');
+  is($t, (1<<31) - $umaxp1, 'min * max');
   $t = product($max, $min);
-  is($t, (1<<31) - (1<<62), 'max * min');
+  is($t, (1<<31) - $umaxp1, 'max * min');
   $t = product($max, $max);
-  is($t,  (1<<62)-(1<<32)+1, 'max * max');
+  is($t,  $umaxp1-(1<<32)+1, 'max * max');
 
   $t = product($min*8, $min);
   cmp_ok($t, '>',  (1<<61), 'min*8*min'); # may be an NV
