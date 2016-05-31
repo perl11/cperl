@@ -1661,6 +1661,13 @@ PPt(pp_add, "(:Number,:Number):Number")
 		const UV auv = (UV)aiv;
 		const UV buv = (UV)biv;
                 if (BUILTIN_UADD_OVERFLOW(auv, buv, &result)) {
+#ifdef PERL_EXACT_ARITH
+                    if (UNLIKELY(IS_EXACT_ARITH)) {
+                        bigint_arith("badd", svl, svr);
+                        RETURN;
+                    }
+                    else
+#endif
                     SETn( (NV)auv + (NV)buv );
                 } else {
                     if ((auvok & buvok) || result > IV_MAX)
@@ -1673,6 +1680,13 @@ PPt(pp_add, "(:Number,:Number):Number")
             } else {
                 IV value;
                 if (BUILTIN_SADD_OVERFLOW(aiv, biv, &value)) {
+#ifdef PERL_EXACT_ARITH
+                    if (UNLIKELY(IS_EXACT_ARITH)) {
+                        bigint_arith("badd", svl, svr);
+                        RETURN;
+                    }
+                    else
+#endif
                     /*SETn( (NV)(auvok?SvUVX(svl):aiv) + (NV)(buvok?SvUVX(svr):biv) );*/
                     SETn( (NV)aiv + (NV)biv );
                 } else {
@@ -1736,12 +1750,25 @@ PPt(pp_add, "(:Number,:Number):Number")
                         SETi(result == (UV)IV_MIN
                                 ? IV_MIN : -(IV)result);
 		    else {
+#ifdef PERL_EXACT_ARITH
+                        if (UNLIKELY(IS_EXACT_ARITH)) {
+                            bigint_arith("badd", svl, svr);
+                            RETURN;
+                        }
+                    else
+#endif
 			/* result valid, but out of range for IV.  */
 			SETn( -(NV)result );
 		    }
 		}
 		RETURN;
 	    } /* Overflow, drop through to NVs.  */
+#ifdef PERL_EXACT_ARITH
+            else if (UNLIKELY(IS_EXACT_ARITH)) {
+                bigint_arith("badd", svl, svr);
+                RETURN;
+            }
+#endif
 #endif
 	}
     }

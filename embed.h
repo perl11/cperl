@@ -67,6 +67,7 @@
 #define av_top_index(a)		S_av_top_index(aTHX_ a)
 #define av_undef(a)		Perl_av_undef(aTHX_ a)
 #define av_unshift(a,b)		Perl_av_unshift(aTHX_ a,b)
+#define bigint_arith(a,b,c)	Perl_bigint_arith(aTHX_ a,b,c)
 #define block_end(a,b)		Perl_block_end(aTHX_ a,b)
 #define block_gimme()		Perl_block_gimme(aTHX)
 #define block_start(a)		Perl_block_start(aTHX_ a)

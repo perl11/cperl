@@ -317,9 +317,11 @@
     RX_ENGINE(rx_sv)->dupe(aTHX_ (rx_sv),(param))
 #endif
 
-
-
-
+#ifdef PERL_EXACT_ARITH
+#define IS_EXACT_ARITH   cop_hints_fetch_pvs(PL_curcop, "exact_arith", REFCOUNTED_HE_EXISTS)
+#else
+#define IS_EXACT_ARITH   0
+#endif
 
 /*
  * Because of backward compatibility reasons the PERL_UNUSED_DECL
