@@ -39,7 +39,7 @@ I.e. dont check for arguments which cannot be null.
 
 =over 4
 
-=item Scalar-List-Utils 1.45_02
+=item Scalar-List-Utils 1.45_03
 
 Add support for utf8 and binary subroutine names and packages.
 Taken from L<https://github.com/rurban/sub-name/commits/binary>
@@ -51,8 +51,9 @@ See L<https://github.com/Scalar-List-Utils/Scalar-List-Utils/pull/44>
 
 With some cperl-specific improvements.
 
-Handle cperl OP_SIGNATURE, at least the simple variants.
-Fix refcount of cop hints hashes with 5.22-nt (#220)
+Handle cperl OP_SIGNATURE, at least the simple variants,
+Fix refcount of cop hints hashes with 5.22-nt
+L<[perl-compiler #220]|https://github.com/rurban/perl-compiler/issues/220>,
 Better UVX L and U suffices,
 Handle shared IV and UV xpv structs.
 
@@ -60,7 +61,8 @@ No strcpy. replace with my_strlcpy in ByteLoader
 
 =item DynaLoader 2.02c
 
-Fixed VERSION check with @INC callbacks (#148).
+Fixed VERSION check with @INC callbacks
+L<[cperl #148]|https://github.com/perl11/cperl/issues/148>.
 Reset stack after INC callbacks.
 
 Fixes F<Class-Accessor-Grouped/t/accessors_pp.t>
@@ -74,18 +76,21 @@ Fixes F<Class-Accessor-Grouped/t/accessors_pp.t>
 =item Fix C<for my$var> regression
 
 Fixed cperl-5.22.2 regression causing the error
-"Missing $ on loop variable". Also with C<for our$> (#145)
+"Missing $ on loop variable". Also with C<for our$>
+L<[cperl #145]|https://github.com/perl11/cperl/issues/145>
 
 =item Fixed warnings redefine regression
 
-Fixed cperl-5.22.2 regression causing Sub::Install to fail. The
-first printed ", called by" location was wrong (#113)
+Fixed cperl-5.22.2 regression causing C<Sub::Install> to fail. The
+first printed ", called by" location was wrong.
+L<[cperl #113]|https://github.com/perl11/cperl/issues/113>
 
 =item Fix FETCH_type_ATTRIBUTES callbacks
 
 Both arguments to C<FETCH_type_ATTRIBUTES> callbacks were wrong. The first was
 an unassignable stash and is now the package name, and the 2nd was a cv and
-is now a cvref. This was broken in cperl5.22.1 and cperl5.22.2 (#147)
+is now a cvref. This was broken in cperl5.22.1 and cperl5.22.2
+L<[cperl #147]|https://github.com/perl11/cperl/issues/147>
 
 =item Wrong "Can't find Unicode property definition" error
 
