@@ -318,7 +318,8 @@
 #endif
 
 #ifdef PERL_EXACT_ARITH
-#define IS_EXACT_ARITH   cop_hints_fetch_pvs(PL_curcop, "exact_arith", REFCOUNTED_HE_EXISTS)
+#define IS_EXACT_ARITH   PL_curcop->cop_hints & HINT_EXACT_ARITH
+/*#define IS_EXACT_ARITH cop_hints_fetch_pvs(PL_curcop, "exact_arith", REFCOUNTED_HE_EXISTS)*/
 #else
 #define IS_EXACT_ARITH   0
 #endif
@@ -5444,6 +5445,7 @@ END_EXTERN_C
 #define HINT_NO_AMAGIC		0x01000000 /* overloading pragma */
 
 #define HINT_RE_FLAGS		0x02000000 /* re '/xism' pragma */
+#define HINT_EXACT_ARITH	0x04000000 /* exact_arith pragma */
 
 #define HINT_FEATURE_MASK	0x1c000000 /* 3 bits for feature bundles */
 
