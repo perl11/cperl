@@ -265,7 +265,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1275
+#define TOTAL_KEYWORDS 1276
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 30
 #define MIN_HASH_VALUE 3
@@ -489,6 +489,7 @@ struct stringpool_t
     char stringpool_str313[sizeof ("d_atoll")];
     char stringpool_str315[sizeof ("d_open3")];
     char stringpool_str318[sizeof ("stdio_base")];
+    char stringpool_str320[sizeof ("d_strerror_l")];
     char stringpool_str322[sizeof ("d_eunice")];
     char stringpool_str326[sizeof ("cp")];
     char stringpool_str330[sizeof ("d_trunc")];
@@ -1767,6 +1768,7 @@ static const struct stringpool_t stringpool_contents =
     "d_atoll",
     "d_open3",
     "stdio_base",
+    "d_strerror_l",
     "d_eunice",
     "cp",
     "d_trunc",
@@ -3245,7 +3247,10 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str318,		T_INV,0,ALN64I"@@stdio_base@@"},
-      {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str320,		T_INV,0,ALN64I"@@d_strerror_l@@"},
+      {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str322,		T_INV,0,ALN64I"@@d_eunice@@"},
       {XSCNO}, {XSCNO}, {XSCNO},
@@ -6950,7 +6955,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str9303,	T_INV,0,ALN64I"@@d_attribute_always_inline@@"}
     };
 
-#line 6953 "Config.xs"
+#line 6958 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);
