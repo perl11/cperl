@@ -50,7 +50,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 69351c5e54
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm d79b98465a632dc3bde76a0210d01014d2257dc6
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm 561661b773f86428be2e87207e33d28eb6ad0547
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm 01638a386424cafbed6a53b0c9b780c4d8637a92
-ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/basic.t 6cdc7701b50e586bc9c4cfb1616de8eb0b1baf34
+ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/basic.t d0f53c2d0b0b7a2ec9949a80519d11ec210892ea
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/NoXS.pm 371cdff1b2375017907cfbc9c8f4a31f5ad10582
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/Liblist.t 9a3baf8a2c2281037f803b909d26e77a1bb099af
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/Mkbootstrap.t 2f88adc65c55c7bd2e23a4c808edcdf4b6134240

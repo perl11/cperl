@@ -249,22 +249,27 @@ SKIP: {
     rmtree('other');
 }
 
+my ($dist_test_out, $distdir, $meta_yml, $mymeta_yml, $meta_json, $mymeta_json);
+SKIP: {
+    skip 'disttest depends on metafile', 1 if $ENV{PERL_CORE} and $^O eq 'MSWin32';
+    $dist_test_out = run("$make disttest");
+    is( $?, 0, 'disttest' ) || diag($dist_test_out);
 
-my $dist_test_out = run("$make disttest");
-is( $?, 0, 'disttest' ) || diag($dist_test_out);
+    # Test META.yml generation
+    use ExtUtils::Manifest qw(maniread);
 
-# Test META.yml generation
-use ExtUtils::Manifest qw(maniread);
+    $distdir  = 'Big-Dummy-0.01';
+    $distdir =~ s/\./_/g if $Is_VMS;
+    $meta_yml = "$distdir/META.yml";
+    $mymeta_yml = "$distdir/MYMETA.yml";
+    $meta_json = "$distdir/META.json";
+    $mymeta_json = "$distdir/MYMETA.json";
+}
 
-my $distdir  = 'Big-Dummy-0.01';
-$distdir =~ s/\./_/g if $Is_VMS;
-my $meta_yml = "$distdir/META.yml";
-my $mymeta_yml = "$distdir/MYMETA.yml";
-my $meta_json = "$distdir/META.json";
-my $mymeta_json = "$distdir/MYMETA.json";
-
-note "META file validity"; {
-    require CPAN::Meta;
+note "META file validity"; SKIP: {
+    skip 'disttest depends on metafile', 104 if $ENV{PERL_CORE} and $^O eq 'MSWin32';
+    eval { require CPAN::Meta; };
+    skip 'Loading CPAN::Meta failed', 104 if $@;
 
     ok( !-f 'META.yml',  'META.yml not written to source dir' );
     ok( -f $meta_yml,    'META.yml written to dist dir' );
