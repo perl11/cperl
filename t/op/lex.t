@@ -7,7 +7,7 @@ use warnings;
 
 BEGIN { chdir 't' if -d 't'; require './test.pl'; }
 
-plan(tests => 28);
+plan(tests => 29);
 
 {
     no warnings 'deprecated';
@@ -236,4 +236,11 @@ fresh_perl_is(
     . "Execution of - aborted due to compilation errors.",
    { stderr => 1 },
   'allow padsv => const [cperl #108]'
+);
+
+fresh_perl_is(
+  '$_ = q-strict.pm-; 1 ? require : die;'
+ .' print qq-ok\n- if $INC{q-strict.pm-}',
+  "ok\n",
+  'foo ? require : bar [perl #128307]'
 );
