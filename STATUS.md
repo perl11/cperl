@@ -14,7 +14,8 @@ someone else to allow it.
 Currently it is about 1.5x faster than perl5.22 overall, >2x faster
 then 5.14 and uses the least amount of memory measured since 5.6,
 i.e. less than 5.10 and 5.6.2, which were the previous leaders. While
-perl5.22 uses the most memory yet measured.
+perl5.22 uses the most memory yet measured. cperl-5.24 is about 2x faster
+than 5.22.
 
 But not all of the wanted features are merged.  The plan is to support
 most perl5-compatible perl6 features (*"do not break CPAN"*), improve
@@ -26,15 +27,14 @@ maintenance than the upstream p5p perl5. See [README.cperl](perlcperl.html).
 Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 
-The current release [5.22.2c-RC1](https://github.com/perl11/cperl/releases/)
-is stable but marked as RC1. 5.22.2c final is planned close to the perl5.22.4
-release date and cperl-5.24.0 close to perl-5.24.0.
+The current release [5.22.3c](https://github.com/perl11/cperl/releases/)
+is stable. cperl-5.24.0 is planned within the next 2 weeks.
 
 All tests pass. CPAN works.
-For 5.22.1c 3 fixes in my `rurban/distroprefs` repo for `Variable::Magic` and
-`CPAN::Meta::Requirements` and `version` are needed.  This is much
-less than with a typical major perl5 release.
-With 5.22.2c and 5.24.0c there are no CPAN patches needed so far.
+
+Some fixes in my `rurban/distroprefs` repo for `Sub::Install`,
+`Variable::Magic`, ...  are needed.  This is much less than with a
+typical major perl5 release.
 
 ![Memory usage: perl -e0](cperl-m0.png)
 
@@ -66,6 +66,10 @@ With 5.22.2c and 5.24.0c there are no CPAN patches needed so far.
 * readonly packages can be cloned with threads
 * security and overlarge data fixes for Storable
 * include B-C, Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
+* better core toolchain: modernized, with cperl support and 10x faster JSON and YAML.
+* proper sigs on top of davem's OP_SIGNATURE, with call-by-ref, optional args,
+  proper stackless tailcalls, 2x faster
+* many modernized core modules (typed sigs)
 
 Most of them only would have a chance to be merged upstream if a
 p5p committer would have written it.
@@ -77,7 +81,7 @@ mistakes. It never happened so far.
 
 # Installation
 
-From source:
+## From source
 
 Download the latest .tar.gz or .tar.bz2 from [github.com/perl11/cperl/releases/](https://github.com/perl11/cperl/releases/)
 
@@ -87,7 +91,7 @@ Download the latest .tar.gz or .tar.bz2 from [github.com/perl11/cperl/releases/]
     make -s -j4 test
     sudo make install
 
-rpm:
+## rpm
 
 add this file to `/etc/yum.repos.d/perl11.repo`, with either `el6` or `el7`.
 `el6` for Centos6 and older Fedora and RHEL, `el7` for Centos7 and newer variants.
@@ -99,17 +103,26 @@ add this file to `/etc/yum.repos.d/perl11.repo`, with either `el6` or `el7`.
     gpgkey==http://perl11.org/rpm/RPM-GPG-KEY-rurban
     gpgcheck=1
 
-run: `yum update; yum install cperl`
+run as root: `yum update; yum install cperl`
 
-debian:
+## debian
 
-in work
+add this file to `/etc/apt/sources.list.d/perl11.list`
 
-osx:
+    deb http://perl11.org/deb/ sid main
+
+run as root:
+
+    apt update
+    wget http://perl11.org/deb/rurban.gpg.key
+    apt-key add rurban.gpg.key
+    apt install cperl
+
+## osx
 
 download the pkg installer from [https://perl11.org/osx/](https://perl11.org/osx/)
 
-windows:
+## windows
 
 download the self-extracting zip from [https://perl11.org/win/](https://perl11.org/win/)
 and install it into drive and directory `C:\cperl`.
@@ -155,17 +168,6 @@ are limited. So they are based on master.
   much faster and much less memory, but 3 minor scope test fails.
 
 * [feature/gh7-signatures](https://github.com/perl11/cperl/issues/7)
-
-  [code](http://github.com/perl11/cperl/commits/feature/gh7-signatures)
-
-  proper sigs on top of davem's OP_SIGNATURE, 2x faster
-
-* [feature/gh7-signatures-old](https://github.com/perl11/cperl/issues/7)
-
-  [code](http://github.com/perl11/cperl/commits/feature/gh7-signatures-old)
-
-  better sigs on top of zefram's old and slow purple signatures which
-  are in blead. defunct.
 
 * [feature/gh6-no-miniperl](https://github.com/perl11/cperl/issues/6)
 
