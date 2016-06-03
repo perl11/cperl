@@ -15363,23 +15363,24 @@ Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_cv,
       ) {
         /* which module/srcline caused this forced require/do/eval redefinition */
         if (cxstack_ix >= 0) {
-            COP *cop = cxstack[cxstack_ix].blk_oldcop;
-            char* file;
-            char* display_file;
-            long line;
+            const COP const *cop = cxstack[cxstack_ix].blk_oldcop;
 
-            cop = cop ? closest_cop(cop, OpSIBLING(cop), PL_op, FALSE) : NULL;
-            file = cop ? OutCopFILE(cop) : "";
-            if (!file || !*file) goto no_caller;
-            display_file = file;
-            line = cop ? (long)CopLINE(cop) : 0;
-            if (!line) goto no_caller;
-
-            Perl_warner(aTHX_ packWARN(WARN_REDEFINE),
-			  is_const
+            if (cop) {
+                const COP const *ccop = closest_cop(cop, OpSIBLING(cop), PL_op, FALSE);
+                const char *file = ccop ? OutCopFILE(ccop) : NULL;
+                long line;
+                if (!file || !*file) goto no_caller;
+                line = (long)CopLINE(ccop);
+                if (!line) goto no_caller;
+                Perl_warner(aTHX_ packWARN(WARN_REDEFINE),
+                            is_const
 			    ? "Constant subroutine %"SVf" redefined, called by %s:%ld"
 			    : "Subroutine %"SVf" redefined, called by %s:%ld",
-                          SVfARG(name), display_file, line);
+                            SVfARG(name), file, line);
+            } else {
+                goto no_caller;
+            }
+
         } else {
         no_caller:
             Perl_warner(aTHX_ packWARN(WARN_REDEFINE),
