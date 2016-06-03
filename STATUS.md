@@ -66,6 +66,7 @@ With 5.22.2c and 5.24.0c there are no CPAN patches needed so far.
 * readonly packages can be cloned with threads
 * security and overlarge data fixes for Storable
 * include B-C, Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
+* improved redefined warnings
 
 Most of them only would have a chance to be merged upstream if a
 p5p committer would have written it.
@@ -121,11 +122,9 @@ See the github issues: [github.com/perl11/cperl/issues](http://github.com/perl11
 
 The perlcc compiler cannot yet link on windows with MSVC.
 
-With 32bit fast-arithmetic optimizations are currently disabled.
-
 # Branch overview
 
-## Bugfixes for perl5 upstream
+## Older bugfixes for perl5 upstream
 
 * [merge-upstream](http://github.com/perl11/cperl/commits/merge-upstream)
 
@@ -136,7 +135,7 @@ were rejected and 2 were butchered, i.e. rewritten in a worse way.
 
 ## Almost ready branches, only minor tests are failing
 
-Those branches could theoretically be merged upstream, but the chances
+Those branches could have theoretically been merged upstream, but the chances
 are limited. So they are based on master.
 
 * [bugfix/gh8-cowrefcnt](https://github.com/perl11/cperl/issues/8)
@@ -158,14 +157,7 @@ are limited. So they are based on master.
 
   [code](http://github.com/perl11/cperl/commits/feature/gh7-signatures)
 
-  proper sigs on top of davem's OP_SIGNATURE, 2x faster
-
-* [feature/gh7-signatures-old](https://github.com/perl11/cperl/issues/7)
-
-  [code](http://github.com/perl11/cperl/commits/feature/gh7-signatures-old)
-
-  better sigs on top of zefram's old and slow purple signatures which
-  are in blead. defunct.
+  proper sigs on top of davem's OP_SIGNATURE, 2x faster. Merged into 5.24.0
 
 * [feature/gh6-no-miniperl](https://github.com/perl11/cperl/issues/6)
 
@@ -179,7 +171,7 @@ are limited. So they are based on master.
   a few method calls and clashes with string concat. A disruptive
   design decision, which probably cannot be backported. Chip has a
   perl6-like patch which changes `.` to `~` for string concat also,
-  but this doesn't accept valid perl5 syntax then. a blocker.
+  but this doesn't accept valid perl5 syntax then. A blocker.
 
 ## A bit more work is needed for
 
@@ -190,7 +182,9 @@ They also revert some wrong decisions p5p already made.
 
   [code](http://github.com/perl11/cperl/commits/feature/gh14-native-types)
 
-  int, uint, num, str. unboxed data on the stack and pads. some minor compiler fixes needed, esp. for typed pads. boxed or unboxed, that's the question.
+  int, uint, num, str. unboxed data on the stack and pads. some minor
+  compiler fixes needed, esp. for typed pads. boxed or unboxed, that's
+  the question.
 
 * [feature/gh23-inline-subs](https://github.com/perl11/cperl/issues/23)
 
@@ -216,10 +210,10 @@ They also revert some wrong decisions p5p already made.
 
 ## Soon
 
-* user facing types and classes, multiple dispatch
+* user facing types and classes, multiple dispatch (fast for binary, slow for mega)
 
 * builtin macros
 
 * builtin ffi
 
-2016-05-02 rurban
+2016-06-03 rurban
