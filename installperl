@@ -211,7 +211,7 @@ foreach my $ext_dir (@ext_dirs) {
 my $ver = $Config{version};
 my $release = substr($],0,3);   # Not used currently.
 my $patchlevel = substr($],3,2);
-die "Patchlevel of perl ($patchlevel)",
+die "Patchlevel of $perl ($patchlevel)",
     "and patchlevel of config.sh ($Config{'PERL_VERSION'}) don't match\n"
 	if $patchlevel != $Config{'PERL_VERSION'};
 
@@ -267,20 +267,20 @@ if ($Is_VMS) {  # Hang in there until File::Spec hits the big time
 	unless $installbin =~ m#^/afs/# || $opts{notify};
 
 if (!$Is_NetWare) {
-if (!$Is_VMS) {
-    -x 'perl' . $exe_ext	|| die "perl isn't executable!\n";
-}
-else {
+  if (!$Is_VMS) {
+    -x $perl . $exe_ext	|| die "$perl isn't executable!\n";
+  }
+  else {
     -x $ndbg . 'perl' . $exe_ext	|| die "${ndbg}perl$exe_ext isn't executable!\n";
     if ($dbg) {
         -x $dbg . 'perl' . $exe_ext	|| die "${dbg}perl$exe_ext isn't executable!\n";
     }
-}
+  }
 
--f 't/rantests'		|| $Is_W32
+  -f 't/rantests'       || $Is_W32
 			|| warn "WARNING: You've never run 'make test' or",
 				" some tests failed! (Installing anyway.)\n";
-} #if (!$Is_NetWare)
+} # !$Is_NetWare
 
 # This will be used to store the packlist
 $packlist = ExtUtils::Packlist->new("$installarchlib/.packlist");
@@ -303,7 +303,7 @@ if (($Is_W32 and ! $Is_NetWare) or $Is_Cygwin) {
     copy("$perldll", "$installbin/$perldll");
     chmod(0755, "$installbin/$perldll");
     $packlist->{"$Config{installbin}/$perldll"} = { type => 'file' };
-} # if (($Is_W32 and ! $Is_NetWare) or $Is_Cygwin)
+} # ($Is_W32 and ! $Is_NetWare) or $Is_Cygwin
 
 # First we install the version-numbered executables.
 
