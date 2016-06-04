@@ -183,7 +183,7 @@ SaveError(pTHX_ const char* pat, ...)
 
     {
 	dMY_CXT;
-        char *end = message;
+        char *end = (char*)message;
         /* printf security: strip % from message */
         while ((end = strchr(end, '%'))) { *end = ' '; }
         /* Copy message into dl_last_error (including terminating null char) */
@@ -750,7 +750,7 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
             boot_symbol_ref ? SvIVX(boot_symbol_ref) : 0));
         if (boot_symbol_ref)
             goto boot;
-        dl_last_error = save_last_error;
+        dl_last_error = (char*)save_last_error;
     }
 
     {
