@@ -1515,6 +1515,7 @@ TIEHASH(classname)
 PREINIT:
   SV * rv;
   SV * classnameSV;
+  PERL_UNUSED_ARG(classname);
 CODE:
   rv = sv_newmortal();
   classnameSV = *SP;
