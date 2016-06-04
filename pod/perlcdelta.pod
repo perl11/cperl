@@ -99,6 +99,10 @@ L<[cperl #97]|https://github.com/perl11/cperl/issues/97>
 
 =over 4
 
+=item DynaLoader 2.04c
+
+See L</DynaLoader format string hardening> above.
+
 =item B::C 1.54_06
 
 Handle cperl OP_SIGNATURE.
@@ -207,7 +211,8 @@ and not as SV. This is different to upstream perl5, a perl5 bug.
 
 =item Devel-NYTProf
 
-fix test for short CV_NAME_NOMAIN
+fix test for short CV_NAME_NOMAIN.
+silence a C compiler warning.
 
 =item perl5db 1.49_04c
 
