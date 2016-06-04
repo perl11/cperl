@@ -92,6 +92,18 @@ XXX
 
 =back
 
+=head1 Security
+
+=head2 DynaLoader format string hardening
+
+Replace all C<%> characters in user-controlled library filenames, passed via
+the system dl_error call verbatim to C<printf>, without any arguments on the stack,
+which could lead to execution of arbitrary stack code. No CVE.
+This affects all systems with dynamic loading where the attacker can cause a
+dynamic loading error.
+
+CVSSv2 Severity: 7.2 (AV:L/AC:L/Au:N/C:C/I:C/A:C/E:U/RL:OF/RC:C/CDP:MH/TD:H/CR:H/IR:H/AR:ND)
+
 =head1 Modules and Pragmata
 
 XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
