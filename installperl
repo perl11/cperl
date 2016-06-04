@@ -268,7 +268,9 @@ if ($Is_VMS) {  # Hang in there until File::Spec hits the big time
 
 if (!$Is_NetWare) {
   if (!$Is_VMS) {
-    -x $perl . $exe_ext	|| die "$perl isn't executable!\n";
+    # Windows compiles directly to cperl.exe, the others not.
+    my $exe =  $Is_W32 ? $perl.$exe_ext : 'perl'.$exe_ext;
+    -x $exe || die "$exe isn't executable!\n";
   }
   else {
     -x $ndbg . 'perl' . $exe_ext	|| die "${ndbg}perl$exe_ext isn't executable!\n";
