@@ -9,9 +9,13 @@ ppport.h
 Win32API-File/cFile_pc_to_blib
 AutoLoader/t/auto-*
 B-C/ByteLoader/byterun.h
+B-C/a.out
 B-C/ccode*
+B-C/cccode*
 B-C/lib/B/C/
+B-C/pcc.plc
 B-C/script/perlcc
 DB_File/dbr*
+Devel-NYTProf/t/nytprof-50-errno.out
 Devel-NYTProf/t/nytprof_readstream.out
 Term-ReadKey/cchars.h
