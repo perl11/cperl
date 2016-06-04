@@ -15363,10 +15363,10 @@ Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_cv,
       ) {
         /* which module/srcline caused this forced require/do/eval redefinition */
         if (cxstack_ix >= 0) {
-            const COP const *cop = cxstack[cxstack_ix].blk_oldcop;
+            const COP * const cop = cxstack[cxstack_ix].blk_oldcop;
 
             if (cop) {
-                const COP const *ccop = closest_cop(cop, OpSIBLING(cop), PL_op, FALSE);
+                const COP * const ccop = closest_cop(cop, OpSIBLING(cop), PL_op, FALSE);
                 const char *file = ccop ? OutCopFILE(ccop) : NULL;
                 long line;
                 if (!file || !*file) goto no_caller;
