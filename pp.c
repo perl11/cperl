@@ -3182,7 +3182,8 @@ PPt(pp_u_subtract, "(:Int,:Int):Numeric")
       dPOPTOPiirl_ul_nomg;
       NV nv;
       if (left < 0 && SvIsUV(TOPs)) {
-          nv = (NV)SvUVX(TOPs) - (right < 0 && SvIsUV(TOPp1s)) ? (NV)SvUVX(TOPp1s) : right;
+          nv = ((NV)SvUVX(TOPs) - (right < 0 && SvIsUV(TOPp1s)))
+              ? (NV)SvUVX(TOPp1s) : right;
       } else if (right < 0 && SvIsUV(TOPp1s)) {
           nv = left - (NV)SvUVX(TOPp1s);
       } else {

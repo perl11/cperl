@@ -121,7 +121,8 @@ recursive, but it's recursive on basic blocks, not on tree nodes.
 #define match_type1(sig, arg) S_match_type1(sig, arg)
 #define match_type2(sig, arg1, arg2) S_match_type2(sig, arg1, arg2)
 
-static char array_passed_to_stat[] = "Array passed to stat will be coerced to a scalar";
+static const char array_passed_to_stat[] =
+    "Array passed to stat will be coerced to a scalar";
 
 /* typename(HV* stash) returns the sanitized name of the padname type
    without the main:: prefix
@@ -16479,10 +16480,10 @@ Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_cv,
       ) {
         /* which module/srcline caused this forced require/do/eval redefinition */
         if (cxstack_ix >= 0) {
-            const COP const *cop = cxstack[cxstack_ix].blk_oldcop;
+            const COP * const cop = cxstack[cxstack_ix].blk_oldcop;
 
             if (cop) {
-                const COP const *ccop = closest_cop(cop, OpSIBLING(cop), PL_op, FALSE);
+                const COP * const ccop = closest_cop(cop, OpSIBLING(cop), PL_op, FALSE);
                 const char *file = ccop ? OutCopFILE(ccop) : NULL;
                 long line;
                 if (!file || !*file) goto no_caller;

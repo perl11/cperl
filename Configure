@@ -20241,7 +20241,7 @@ int main() {
     int i;
 
     if (sizeof(U32) != 4) {
-	printf("sizeof(U32) is not 4, but %d\n", sizeof(U32));
+	printf("sizeof(U32) is not 4, but %d\n", (int)sizeof(U32));
 	exit(5);
     }
 
