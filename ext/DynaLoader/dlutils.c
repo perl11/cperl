@@ -183,9 +183,13 @@ SaveError(pTHX_ const char* pat, ...)
 
     {
 	dMY_CXT;
+        char *end = message;
+        /* printf security: strip % from message */
+        while ((end = strchr(end, '%'))) { *end = ' '; }
         /* Copy message into dl_last_error (including terminating null char) */
-	sv_setpvn(MY_CXT.x_dl_last_error, message, len) ;
-	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: stored error msg '%s'\n",dl_last_error));
+	sv_setpvn(MY_CXT.x_dl_last_error, message, len);
+	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: stored error msg '%s'\n",
+                                dl_last_error));
     }
 }
 #endif
@@ -727,7 +731,7 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
     /* TODO .bs support, call flags method */
     flagsiv = newSViv(flags);
     {
-        char *save_last_error = dl_last_error;
+        const char *save_last_error = dl_last_error;
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter dl_find_symbol with 0, '%s'\n",
                                 SvPVX(bootname)));
         SPAGAIN;
@@ -771,7 +775,10 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
 #ifdef carp_shortmess
         Perl_die(aTHX_ SvPVX_const(carp_shortmess(ax, MY_CXT.x_dl_last_error)));
 #else
+        CLANG_DIAG_IGNORE(-Wformat-security)
+        /* dl_last_error is secured in SaveError */
         Perl_die(aTHX_ dl_last_error);
+        CLANG_DIAG_RESTORE
 #endif
     }
     {
