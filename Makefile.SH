@@ -1306,7 +1306,7 @@ printconfig:
 
 .PHONY: clean _tidy _mopup _cleaner1 _cleaner2 \
 	realclean _realcleaner clobber _clobber \
-	distclean veryclean _verycleaner
+	distclean veryclean _verycleaner archclean
 
 clean:		realclean
 
@@ -1323,6 +1323,11 @@ _clobber:
 clobber:	_realcleaner _mopup _clobber
 
 distclean:	clobber
+
+archclean:
+	-rm $(PERL_EXE) $(MINIPERL_EXE) lib/buildcustomize.pl
+	find . -type f -name \*$(OBJ_EXT) -o -name \*$(LIB_EXT) -o -name \*$(DLSUFFIX) -delete
+	find lib cpan ext dist -type f -name pm_to_blib -delete
 
 # Like distclean but also removes emacs backups and *.orig.
 veryclean:	_verycleaner _mopup _clobber
