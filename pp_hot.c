@@ -4324,7 +4324,7 @@ PP(pp_signature)
     UNOP_AUX_item *items = cUNOP_AUXx(PL_op)->op_aux;
 #ifdef DEBUGGING
     PADNAME** padnl;
-    PADOFFSET po;
+    PADOFFSET po = -1;
 #endif
 
     /* check arity (process arg count limits) */
