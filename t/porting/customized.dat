@@ -22,7 +22,7 @@ Devel::PPPort cpan/Devel-PPPort/parts/todo/5015004 4bdb7b2545380ade42e22dbb097f7
 Devel::PPPort cpan/Devel-PPPort/ppport_h.PL 3aa0b958adf67a9b9385bf2b5b89ecf8cdd391c7
 Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL 967796c2471473a14441503ad722d6367bb3ebf2
 Devel::PPPort cpan/Devel-PPPort/PPPort_xs.PL 034cce281a0017fe0ba05d9060f34a8c65781553
-Digest::MD5 cpan/Digest-MD5/Makefile.PL f5c4fdf76d0b054fc6a9396c143311474e9e3db3
+Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
 Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
 Digest::MD5 cpan/Digest-MD5/MD5.xs 9b47158166b1162f11169f9766eddb75046e7917
 Digest::MD5 cpan/Digest-MD5/t/files.t c38f1ab8150ad688de807d140fd410d7cd9410de
