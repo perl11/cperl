@@ -122,7 +122,7 @@ static int bget_swab = 0;
 	if (BGET_FREAD(&arg, sizeof(type), 1) < 1) {			\
 	    Perl_croak(aTHX_						\
 		       "EOF or error while trying to read %lu bytes for %s", \
-		       sizeof(type), STRINGIFY(type));			\
+		       (unsigned long)sizeof(type), STRINGIFY(type));   \
 	}								\
     } STMT_END
 
@@ -237,7 +237,7 @@ static int bget_swab = 0;
 	BSET_OBJ_STOREX(sv);			\
     } STMT_END
 #define BSET_gv_fetchpvn_flags(sv, arg) STMT_START {	 \
-        int flags = (arg & 0xff80) >> 7; SVTYPE_t type = arg & 0x7f; \
+        int flags = (arg & 0xff80) >> 7; SVTYPE_t type = (SVTYPE_t)(arg & 0x7f); \
 	sv = (SV*)gv_fetchpv(savepv(bstate->bs_pv.pv), flags, type); \
 	BSET_OBJ_STOREX(sv);				 \
     } STMT_END

@@ -199,7 +199,7 @@ my_runops(pTHX)
             sv_setref_iv( rv, "B::PMOP", PTR2IV( op ) );
 #if defined(DEBUGGING) && (PERL_VERSION > 7)
 	    if (DEBUG_D_TEST_) fprintf(stderr, "pmop %p => rx %s %p 0x%x %s\n",
-                                       op, PL_op_name[type], rx, op->op_pmflags,
+                                       op, PL_op_name[type], rx, (unsigned)op->op_pmflags,
                                        RX_WRAPPED(rx));
 #endif
             hv_store_ent( regexp_hv, key, rv, 0 );
