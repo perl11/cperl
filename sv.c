@@ -689,7 +689,13 @@ do_clean_all(pTHX_ SV *const sv)
 	/* don't clean pid table and strtab */
 	return;
     }
-    DEBUG_D((PerlIO_printf(Perl_debug_log, "Cleaning loops: SV at 0x%"UVxf"\n", PTR2UV(sv)) ));
+    DEBUG_D((PerlIO_printf(Perl_debug_log,
+        "Cleaning loops: SV flags=0x%x at 0x%"UVxf"\n",
+        (unsigned int)SvFLAGS(sv), PTR2UV(sv)) ));
+#if defined(DEBUGGING) && defined(DEBUG_LEAKING_SCALARS)
+    if (DEBUG_D_TEST_ && DEBUG_v_TEST_ && (SvFLAGS(sv) == 0x8009))
+        Perl_sv_dump(aTHX_ sv); /* track leftover symbols: @_ $@ ${\x8} */
+#endif
     SvFLAGS(sv) |= SVf_BREAK;
     SvREFCNT_dec_NN(sv);
 }
