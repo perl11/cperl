@@ -2110,9 +2110,8 @@ Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
 /*
 =for apidoc hv_fill
 
-Returns the number of hash buckets that
-happen to be in use.  This function is
-wrapped by the macro C<HvFILL>.
+Returns the number of hash buckets that happen to be in use.  This
+function is wrapped by the macro C<HvFILL>.
 
 Previously this value was always stored in the HV structure, which created an
 overhead on every hash (and pretty much every object) for something that was
@@ -2162,7 +2161,7 @@ Perl_hv_fill(pTHX_ HV *const hv)
     } else if (HvMAX(hv) >= HV_FILL_THRESHOLD) {
         aux = hv_auxinit(hv);
         aux->xhv_fill_lazy = count;
-    }        
+    }
     return count;
 }
 
