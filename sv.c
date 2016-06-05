@@ -661,7 +661,7 @@ do_clean_all(pTHX_ SV *const sv)
     }
     DEBUG_D((PerlIO_printf(Perl_debug_log,
         "Cleaning loops: SV flags=0x%x at 0x%"UVxf"\n",
-        SvFLAGS(sv), PTR2UV(sv)) ));
+        (unsigned int)SvFLAGS(sv), PTR2UV(sv)) ));
 #if defined(DEBUGGING) && defined(DEBUG_LEAKING_SCALARS)
     if (DEBUG_D_TEST_ && DEBUG_v_TEST_ && (SvFLAGS(sv) == 0x8009))
         Perl_sv_dump(aTHX_ sv); /* track leftover symbols: @_ $@ ${\x8} */

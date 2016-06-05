@@ -4029,7 +4029,7 @@ PP(pp_entersub)
 	if (UNLIKELY((depth = ++CvDEPTH(cv)) >= 2)) {
             DEBUG_Xv(PerlIO_printf(Perl_debug_log,
                                    "  padlist max=%d, CvDEPTH=%d\n",
-                                   (int)PadlistMAX(padlist), CvDEPTH(cv)));
+                                   (int)PadlistMAX(padlist), (int)CvDEPTH(cv)));
             if (CvDEPTH(cv) > PadlistMAX(padlist)+1) { /* not with siggoto */
                 depth = PadlistMAX(padlist)+1;
             }

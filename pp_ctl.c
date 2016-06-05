@@ -2769,7 +2769,7 @@ PP(pp_goto)
                         DEBUG_kv(PerlIO_printf(Perl_debug_log,
                              "goto %s from sig with sig: keep %ld args\n",
                              SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
-                             cx->blk_sub.savearray - av + 1)); /* sp-mark+1 */
+                             (long int)(cx->blk_sub.savearray - av + 1))); /* sp-mark+1 */
                         /*PUSHMARK((SV**)cx->blk_sub.savearray);*/
                         DEBUG_kv(PerlIO_printf(Perl_debug_log,
                             "  padlist max=%d, CvDEPTH=%d\n",
@@ -2883,7 +2883,7 @@ PP(pp_goto)
                         depth = PadlistMAX(padlist);
                         DEBUG_Xv(PerlIO_printf(Perl_debug_log,
                             "  padlist max=%d, CvDEPTH=%d\n",
-                            (int)depth, CvDEPTH(cv)));
+                            (int)depth, (int)CvDEPTH(cv)));
                         if (CvDEPTH(cv) <= depth) {
                             CvDEPTH(cv) = depth;
                         }
