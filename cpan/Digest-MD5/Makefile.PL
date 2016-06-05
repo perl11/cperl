@@ -42,8 +42,8 @@ sub free_u32_alignment
 {
     $|=1;
     if (exists $Config{d_u32align}) {
-       print "Perl's config says that U32 access must ";
-       print "not " unless $Config{d_u32align};
+       print "Perl's config says that U32 access ";
+       print $Config{d_u32align} ? "must " : "need not to ";
        print "be aligned.\n";
        return !$Config{d_u32align};
     }
