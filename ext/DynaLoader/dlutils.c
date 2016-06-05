@@ -497,7 +497,7 @@ XS(XS_DynaLoader_bootstrap)
     } else {
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Found %s\n", SvPVX(file)));
     }
-    DLDEBUG(3,PerlIO_printf(Perl_debug_log, "calling dl_load_file: ax=%d, items=%d\n", ax, items));
+    DLDEBUG(3,PerlIO_printf(Perl_debug_log, "calling dl_load_file: ax=%d, items=%d\n", (int)ax, (int)items));
     if ((items = dl_load_file(aTHX_ ax, file, module, GIMME))) {
         XSRETURN(items);
     } else {
