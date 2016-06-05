@@ -118,7 +118,7 @@ static int bget_swab = 0;
 	if (BGET_FREAD(&arg, sizeof(type), 1) < 1) {			\
 	    Perl_croak(aTHX_						\
 		       "EOF or error while trying to read %lu bytes for %s", \
-		       sizeof(type), STRINGIFY(type));			\
+		       (unsigned long)sizeof(type), STRINGIFY(type));   \
 	}								\
     } STMT_END
 
