@@ -874,6 +874,7 @@ struct context {
 /* SUBST doesn't feature in all switch statements.  */
 
 /* private flags for CXt_SUB and CXt_FORMAT */
+/* need to fit into U8 */
 #define CXp_MULTICALL	0x10	/* part of a multicall (so don't tear down
                                    context on exit). (not CXt_FORMAT) */
 #define CXp_HASARGS	0x20

@@ -702,7 +702,7 @@ PP(pp_formline)
 	    }
 
 	case FF_LINESNGL: /* process ^*  */
-	    chopspace = 0;
+	    chopspace = FALSE;
             /* FALLTHROUGH */
 
 	case FF_LINEGLOB: /* process @*  */

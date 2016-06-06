@@ -260,9 +260,9 @@ PPt(pp_concat, "(:Any,:Any):Str")
   dSP; dATARGET; tryAMAGICbin_MG(concat_amg, AMGf_assign);
   {
     dPOPTOPssrl;
-    bool lbyte;
-    STRLEN rlen;
     const char *rpv = NULL;
+    STRLEN rlen;
+    bool lbyte;
     bool rbyte = FALSE;
     bool rcopied = FALSE;
 
@@ -1225,7 +1225,7 @@ S_aassign_copy_common(pTHX_ SV **firstlelem, SV **lastlelem,
     SV **lelem;
     SSize_t lcount = lastlelem - firstlelem + 1;
     bool marked = FALSE; /* have we marked any LHS with SVf_BREAK ? */
-    bool const do_rc1 = cBOOL(PL_op->op_private & OPpASSIGN_COMMON_RC1);
+    bool const do_rc1 = PL_op->op_private & OPpASSIGN_COMMON_RC1;
     bool copy_all = FALSE;
 
     assert(!PL_in_clean_all); /* SVf_BREAK not already in use */
@@ -1369,7 +1369,7 @@ PP(pp_aassign)
      * only need to save locally, not on the save stack */
     U16 old_delaymagic = PL_delaymagic;
 #ifdef DEBUGGING
-    bool fake = 0;
+    bool fake = FALSE;
 #endif
 
     PL_delaymagic = DM_DELAY;		/* catch simultaneous items */
@@ -1418,7 +1418,7 @@ PP(pp_aassign)
          * don't need to, then panic if we find commonality. Note that the
          * scanner assumes at least 2 elements */
         if (firstlelem < lastlelem && firstrelem < lastrelem) {
-            fake = 1;
+            fake = TRUE;
             goto do_scan;
         }
     }
@@ -1819,17 +1819,17 @@ PP(pp_match)
     PMOP *dynpm = pm;
     const char *s;
     const char *strend;
-    SSize_t curpos = 0; /* initial pos() or current $+[0] */
-    I32 global;
-    U8 r_flags = 0;
     const char *truebase;			/* Start of string  */
     REGEXP *rx = PM_GETRE(pm);
-    bool rxtainted;
-    const U8 gimme = GIMME_V;
+    MAGIC *mg = NULL;
+    SSize_t curpos = 0; /* initial pos() or current $+[0] */
     STRLEN len;
+    I32 global;
     const I32 oldsave = PL_savestack_ix;
     I32 had_zerolen = 0;
-    MAGIC *mg = NULL;
+    const U8 gimme = GIMME_V;
+    U8 r_flags = 0;
+    bool rxtainted;
 
     if (PL_op->op_flags & OPf_STACKED)
 	TARG = POPs;
@@ -1849,8 +1849,8 @@ PP(pp_match)
     if (!truebase)
 	DIE(aTHX_ "panic: pp_match");
     strend = truebase + len;
-    rxtainted = (RX_ISTAINTED(rx) ||
-		 (TAINT_get && (pm->op_pmflags & PMf_RETAINT)));
+    rxtainted = cBOOL((RX_ISTAINTED(rx) ||
+                       (TAINT_get && (pm->op_pmflags & PMf_RETAINT))));
     TAINT_NOT;
 
     /* We need to know this in case we fail out early - pos() must be reset */
@@ -4319,24 +4319,24 @@ PP(pp_signature)
     UV   actions;     /* packed word of actions */
     UV   argc;        /* scalar(@_) */
     SV **argp;        /* current position in @_'s AvARRAY */
-    int  defop_skips; /* how many default op statements to skip */
     SV **padp;        /* pad slot for current var */
     UNOP_AUX_item *items = cUNOP_AUXx(PL_op)->op_aux;
 #ifdef DEBUGGING
     PADNAME** padnl;
     PADOFFSET po = -1;
 #endif
+    int  defop_skips; /* how many default op statements to skip */
 
     /* check arity (process arg count limits) */
     {
-	dSP;
+        dSP;
         PERL_CONTEXT *cx = &cxstack[cxstack_ix];
+        AV  *defav;       /* @_ */
+        const CV *cv = cx->blk_sub.cv;
         UV   mand_params; /* number of mandatory parameters */
         UV   opt_params;  /* number of optional parameters */
-        bool slurpy;      /* has a @ or % */
-        AV  *defav;       /* @_ */
         UV   params = items[0].uv;
-        const CV *cv = cx->blk_sub.cv;
+        bool slurpy;      /* has a @ or % */
         const bool hassig = cBOOL(CvHASSIG(cv));
 #ifdef DEBUGGING
         padnl = PadlistNAMESARRAY(CvPADLIST(cv));

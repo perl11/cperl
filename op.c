@@ -8560,7 +8560,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
     }
 
     if (cv) {
-        const bool exists = CvROOT(cv) || CvXSUB(cv);
+        const bool exists = cBOOL(CvROOT(cv) || CvXSUB(cv));
 
         /* if the subroutine doesn't exist and wasn't pre-declared
          * with a prototype, assume it will be AUTOLOADed,
@@ -8793,7 +8793,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
     U32 ps_utf8 = 0;
     CV *cv = NULL;
     SV *const_sv;
-    const bool ec = PL_parser && PL_parser->error_count;
+    const bool ec = cBOOL(PL_parser && PL_parser->error_count);
     /* If the subroutine has no body, no attributes, and no builtin attributes
        then it's just a sub declaration, and we may be able to get away with
        storing with a placeholder scalar in the symbol table, rather than a
@@ -9016,7 +9016,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
     }
 
     if (cv) {
-        const bool exists = CvROOT(cv) || CvXSUB(cv);
+        const bool exists = cBOOL(CvROOT(cv) || CvXSUB(cv));
 
         /* if the subroutine doesn't exist and wasn't pre-declared
          * with a prototype, assume it will be AUTOLOADed,

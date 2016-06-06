@@ -22,7 +22,7 @@
 typedef U32TYPE PADOFFSET;
 #else
 #   if PTRSIZE == 8
-typedef U64TYPE PADOFFSET;
+typedef I64TYPE PADOFFSET;
 #   endif
 #endif
 #define NOT_IN_PAD ((PADOFFSET) -1)

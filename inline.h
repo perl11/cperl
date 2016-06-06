@@ -65,8 +65,8 @@ S_strip_spaces(pTHX_ const char * orig, STRLEN * const len)
 	orig++;
     }
     *tmps = '\0';
-    *len = tmps - SvPVX(tmpsv);
-		return SvPVX(tmpsv);
+    *len = (STRLEN)(tmps - SvPVX(tmpsv)); /* tmps is always >, ignore sign check */
+    return SvPVX(tmpsv);
 }
 #endif
 

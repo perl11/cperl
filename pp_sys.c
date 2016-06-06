@@ -1441,7 +1441,7 @@ PP(pp_leavewrite)
     PerlIO *fp;
     PERL_CONTEXT *cx;
     OP *retop;
-    bool is_return = cBOOL(PL_op->op_type == OP_RETURN);
+    bool is_return = PL_op->op_type == OP_RETURN;
 
     if (is_return || !io || !(ofp = IoOFP(io)))
         goto forget_top;
@@ -1959,7 +1959,7 @@ PP(pp_syswrite)
     /* Do this first to trigger any overloading.  */
     buffer = SvPV_const(bufsv, blen);
     orig_blen_bytes = blen;
-    doing_utf8 = DO_UTF8(bufsv);
+    doing_utf8 = cBOOL(DO_UTF8(bufsv));
 
     if (PerlIO_isutf8(IoIFP(io))) {
         Perl_ck_warner(aTHX_ packWARN(WARN_DEPRECATED),

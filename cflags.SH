@@ -189,11 +189,15 @@ Intel*) ;; # # Is that you, Intel C++?
 # -Wno-discarded-qualifiers and its longer clang variant are for
 # passing const char* "" to funcs with char *
 #
+# Maybe we need -Waggregate-return, used in Xop, some extensions and regex
+# -Winline is also useful for perf. tuning
+#
 *)  for opt in -std=c89 -ansi $pedantic \
 	       -Werror=declaration-after-statement \
 	       -Wextra -W \
 	       -Wc++-compat -Wwrite-strings \
-               -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers
+               -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers \
+               -Wcast-align -Wlogical-op -Wpacked -Wdisabled-optimization
     do
        case " $ccflags " in
        *" $opt "*) ;; # Skip if already there.

@@ -964,8 +964,8 @@ PP(pp_schop)
 PP(pp_chop)
 {
     dSP; dMARK; dTARGET; dORIGMARK;
-    const bool chomping = PL_op->op_type == OP_CHOMP;
     size_t count = 0;
+    const bool chomping = PL_op->op_type == OP_CHOMP;
 
     while (MARK < SP)
 	count += do_chomp(TARG, *++MARK, chomping);
@@ -1232,7 +1232,7 @@ PPt(pp_i_pow, "(:Int,:UInt):Uint")
                on same algorithm as above */
             UV result = 1;
             UV base = baseuv;
-            const bool odd_power = cBOOL(power & 1);
+            const bool odd_power = power & 1;
             if (odd_power)
                 result *= base;
             while (power >>= 1) {
@@ -1270,7 +1270,7 @@ PP(pp_pow)
 {
     dSP; dATARGET; SV *svl, *svr;
 #ifdef PERL_PRESERVE_IVUV
-    bool is_int = 0;
+    bool is_int = FALSE;
 #endif
     tryAMAGICbin_MG(pow_amg, AMGf_assign|AMGf_numeric);
     svr = TOPs;
@@ -1308,7 +1308,7 @@ PP(pp_pow)
             }
         }
         /* now we have integer ** positive integer. */
-        is_int = 1;
+        is_int = TRUE;
         
         /* foo & (foo - 1) is zero only for a power of 2.  */
         if (!(baseuv & (baseuv - 1))) {
@@ -1348,7 +1348,7 @@ PP(pp_pow)
                    on same algorithm as above */
                 UV result = 1;
                 UV base = baseuv;
-                const bool odd_power = cBOOL(power & 1);
+                const bool odd_power = power & 1;
                 if (odd_power)
                     result *= base;
                 while (power >>= 1) {
@@ -2158,7 +2158,7 @@ PP(pp_subtract)
 	if (a_valid) {
 	    UV result;
 	    UV buv;
-	    bool result_good = 0;
+	    bool result_good = FALSE;
 	    bool buvok = SvUOK(svr);
 
             if (buvok)
@@ -2185,21 +2185,21 @@ PP(pp_subtract)
 		/* Signs differ.  */
 		result = auv + buv;
 		if (result >= auv)
-		    result_good = 1;
+		    result_good = TRUE;
 	    } else {
 		/* Signs same */
 		if (auv >= buv) {
 		    result = auv - buv;
 		    /* Must get smaller */
 		    if (result <= auv)
-			result_good = 1;
+			result_good = TRUE;
 		} else {
 		    result = buv - auv;
 		    if (result <= buv) {
 			/* result really should be -(auv-buv). as its negation
 			   of true value, need to swap our result flag  */
 			auvok = !auvok;
-			result_good = 1;
+			result_good = TRUE;
 		    }
 		}
 	    }
@@ -5261,7 +5261,7 @@ S_do_delete_local(pTHX)
     dORIGMARK;
     const bool tied = SvRMAGICAL(osv)
 			    && mg_find((const SV *)osv, PERL_MAGIC_tied);
-    const bool can_preserve = SvCANEXISTDELETE(osv);
+    const bool can_preserve = cBOOL(SvCANEXISTDELETE(osv));
     const U32 type = SvTYPE(osv);
     SV ** const end = sliced ? SP : unsliced_keysv;
 
@@ -6928,7 +6928,7 @@ PP(pp_lvref)
         HV *stash;
         assert(arg);
         {
-            const bool can_preserve = SvCANEXISTDELETE(arg);
+            const bool can_preserve = cBOOL(SvCANEXISTDELETE(arg));
             if (SvTYPE(arg) == SVt_PVAV)
               S_localise_aelem_lval(aTHX_ (AV *)arg, elem, can_preserve);
             else
