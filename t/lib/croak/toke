@@ -338,3 +338,15 @@ EXPECT
 syntax error at - line 4, near "ϡ time"
   (Might be a runaway multi-line ϡϡ string starting on line 3)
 Execution of - aborted due to compilation errors.
+########
+# NAME multiple conflict markers
+<<<<<<< yours:sample.txt
+my $some_code;
+=======
+my $some_other_code;
+>>>>>>> theirs:sample.txt
+EXPECT
+Version control conflict marker at - line 1, near "<<<<<<<"
+Version control conflict marker at - line 3, near "======="
+Version control conflict marker at - line 5, near ">>>>>>>"
+Execution of - aborted due to compilation errors.
