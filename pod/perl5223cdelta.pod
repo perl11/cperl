@@ -59,13 +59,18 @@ Handle shared IV and UV xpv structs.
 
 No strcpy. replace with my_strlcpy in ByteLoader
 
-=item DynaLoader 2.02c
+=item DynaLoader 2.03c
 
 Fixed VERSION check with @INC callbacks
 L<[cperl #148]|https://github.com/perl11/cperl/issues/148>.
 Reset stack after INC callbacks.
 
 Fixes F<Class-Accessor-Grouped/t/accessors_pp.t>
+
+=item attributes 1.10c
+
+Fix FETCH_type_ATTRIBUTES.
+L<[cperl #147]|https://github.com/perl11/cperl/issues/147>
 
 =back
 
