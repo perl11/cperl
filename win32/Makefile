@@ -639,9 +639,9 @@ $(o).dll:
 
 # makedef.pl must be updated if this changes, and this should normally
 # only change when there is an incompatible revision of the public API.
-PERLIMPLIB	= ..\cperl522.lib
-PERLSTATICLIB	= ..\cperl522s.lib
-PERLDLL		= ..\cperl522.dll
+PERLIMPLIB	= ..\cperl524.lib
+PERLSTATICLIB	= ..\cperl524s.lib
+PERLDLL		= ..\cperl524.dll
 
 MINIPERL	= ..\miniperl.exe
 MINIDIR		= .\mini
