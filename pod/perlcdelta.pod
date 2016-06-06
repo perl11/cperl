@@ -138,7 +138,11 @@ Modernized. Enforce many str types.
 =item PathTools 4.63c
 
 Modernized. Enforce many str types.
-Enable XS prototypes. #152
+
+Enable XS prototypes and suppress warnings. #152
+
+Disallow the optional getcwd argument (5.8.5 problem).
+  Cannot be called as method.
 
 =item Pod-Simple 4.30c
 

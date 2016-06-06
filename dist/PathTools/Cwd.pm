@@ -277,7 +277,7 @@ if ($^O eq 'cygwin') {
 
 # A non-XS version of getcwd() - also used to bootstrap the perl build
 # process, when miniperl is running and no XS loading happens.
-sub _perl_getcwd (;$) {
+sub _perl_getcwd () {
     abs_path('.');
 }
 
@@ -551,7 +551,7 @@ sub fast_abs_path ($path?) {
 #   and directory seen by DCL after Perl exits, since the effects
 #   the CRTL chdir() function persist only until Perl exits.
 
-sub _vms_cwd (;$) {
+sub _vms_cwd () {
     return $ENV{'DEFAULT'};
 }
 
@@ -611,7 +611,7 @@ sub _vms_abs_path ($path?) {
     return VMS::Filespec::rmsexpand($path);
 }
 
-sub _os2_cwd (;$) {
+sub _os2_cwd () {
     my $pwd = `cmd /c cd`;
     chomp $pwd;
     $pwd =~ s:\\:/:g ;
@@ -619,7 +619,7 @@ sub _os2_cwd (;$) {
     return $pwd;
 }
 
-sub _win32_cwd_simple (;$) {
+sub _win32_cwd_simple () {
     my $pwd = `cd`;
     chomp $pwd;
     $pwd =~ s:\\:/:g ;
@@ -627,7 +627,7 @@ sub _win32_cwd_simple (;$) {
     return $pwd;
 }
 
-sub _win32_cwd (;$) {
+sub _win32_cwd () {
     my $pwd;
     $pwd = Win32::GetCwd();
     $pwd =~ s:\\:/:g ;
@@ -637,7 +637,7 @@ sub _win32_cwd (;$) {
 
 *_NT_cwd = defined &Win32::GetCwd ? \&_win32_cwd : \&_win32_cwd_simple;
 
-sub _dos_cwd (;$) {
+sub _dos_cwd () {
     my $pwd;
     if (!defined &Dos::GetCwd) {
         chomp($pwd = `command /c cd`);
@@ -649,7 +649,7 @@ sub _dos_cwd (;$) {
     return $pwd;
 }
 
-sub _qnx_cwd (;$) {
+sub _qnx_cwd () {
     local $ENV{PATH} = '';
     local $ENV{CDPATH} = '';
     local $ENV{ENV} = '';
@@ -673,7 +673,7 @@ sub _qnx_abs_path (str $path='.') {
     return $realpath;
 }
 
-sub _epoc_cwd (;$) {
+sub _epoc_cwd () {
     $ENV{'PWD'} = EPOC::getcwd();
     return $ENV{'PWD'};
 }

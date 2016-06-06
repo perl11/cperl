@@ -563,21 +563,14 @@ CODE:
 
 PROTOTYPES: ENABLE
 
-# File::Path in 5.8.5 allowed an arg
+# File::Path in 5.8.5 allowed an arg (as method). This is now deprecated
 void
-getcwd(...)
-PROTOTYPE: ;$
-PPCODE:
-{
-    dXSTARG;
-    getcwd_sv(TARG);
-    XSprePUSH; PUSHTARG;
-    SvTAINTED_on(TARG);
-}
-
-void
-fastcwd()
+getcwd()
 PROTOTYPE:
+ALIAS:
+    fastcwd=1
+PREINIT:
+    PERL_UNUSED_ARG(ix);
 PPCODE:
 {
     dXSTARG;
