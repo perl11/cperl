@@ -15,10 +15,16 @@
 
 
 /* INT_64_T
-   A numeric type to store time and others. 
+   A numeric type to store time and others.
    Must be defined.
 */
-#define INT_64_T                NV
+#if defined(USE_64_BIT_INT) && defined(IV_IS_QUAD)
+# define INT_64_T                IV
+# define TIME64_IS_IV
+#else
+# define INT_64_T                NV
+# define TIME64_IS_NV
+#endif
 
 
 /* USE_TM64

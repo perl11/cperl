@@ -1,14 +1,17 @@
-#include <time.h>
-#include "time64_config.h"
-
 #ifndef PERL_TIME64_H_
 #    define PERL_TIME64_H_
 
+#include <time.h>
+#include "time64_config.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Set our custom types */
 typedef INT_64_T        Int64;
 typedef Int64           Time64_T;
-typedef I32             Year;
+typedef Int64           Year;
 
 
 /* A copy of the tm struct but with a 64 bit year */
@@ -42,9 +45,9 @@ struct TM64 {
 
 /* Decide which tm struct to use */
 #ifdef USE_TM64
-#define TM      TM64
+# define TM      TM64
 #else
-#define TM      tm
+# define TM      tm
 #endif
 
 
@@ -63,6 +66,10 @@ struct TM *Perl_localtime64_r (const Time64_T *, struct TM *);
 #    define GMTIME_R(clock, result)    gmtime_r(clock, result)
 #else
 #    define GMTIME_R(clock, result)    S_gmtime_r(clock, result)
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

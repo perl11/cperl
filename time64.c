@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2007-2008  Michael G Schwern
+Copyright (c) 2007-2010  Michael G Schwern
 Copyright (c) 2018  Reini Urban
 
 This software originally derived from Paul Sheer's pivotal_gmtime_r.c.
@@ -77,8 +77,8 @@ static const short safe_years[SOLAR_CYCLE_LENGTH] = {
 static const char dow_year_start[SOLAR_CYCLE_LENGTH] = {
     5, 0, 1, 2,     /* 0       2016 - 2019 */
     3, 5, 6, 0,     /* 4  */
-    1, 3, 4, 5,     /* 8  */
-    6, 1, 2, 3,     /* 12 */
+    1, 3, 4, 5,     /* 8       1996 - 1998, 1971*/
+    6, 1, 2, 3,     /* 12      1972 - 1975 */
     4, 6, 0, 1,     /* 16 */
     2, 4, 5, 6,     /* 20      2036, 2037, 2010, 2011 */
     0, 2, 3, 4      /* 24      2012, 2013, 2014, 2015 */
@@ -176,7 +176,10 @@ static int S_check_tm(const struct TM *tm)
 {
     /* Don't forget leap seconds */
     assert(tm->tm_sec >= 0);
-    assert(tm->tm_sec <= 61);
+
+    /* Allow for just one positive leap second, which is what the C99 standard says. */
+    /* Two leap seconds in the same minute are not allowed (the C90 range 0..61 was a defect). */
+    assert(tm->tm_sec <= 60);
 
     assert(tm->tm_min >= 0);
     assert(tm->tm_min <= 59);

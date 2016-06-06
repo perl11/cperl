@@ -4174,6 +4174,7 @@ Perl_my_strftime(pTHX_ const char *fmt, int sec, int min, int hour, int mday, in
     return buf;
   }
 #else
+  /* TODO: use time64:asctime64 */
   Perl_croak(aTHX_ "panic: no strftime");
   return NULL;
 #endif

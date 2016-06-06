@@ -4719,11 +4719,15 @@ PP(pp_tms)
    boundaries with a few days wiggle room to account for time zone
    offsets
 */
+#ifdef TIME64_IS_NV
 /* Sat Jan  3 00:00:00 -2147481748 */
-#define TIME_LOWER_BOUND -67768100567755200.0
+# define TIME_LOWER_BOUND -67768100567755200.0
 /* Sun Dec 29 12:00:00  2147483647 */
-#define TIME_UPPER_BOUND  67767976233316800.0
-
+# define TIME_UPPER_BOUND  67767976233316800.0
+#else
+# define TIME_UPPER_BOUND  2147483647
+# define TIME_LOWER_BOUND  -2147483647-1
+#endif
 
 /* also used for: pp_localtime() */
 
@@ -4761,15 +4765,27 @@ PP(pp_gmtime)
     }
 
     if ( TIME_LOWER_BOUND > when ) {
+#ifdef TIME64_IS_NV
 	/* diag_listed_as: gmtime(%f) too small */
 	Perl_ck_warner(aTHX_ packWARN(WARN_OVERFLOW),
 		       "%s(%.0" NVff ") too small", opname, when);
+#else
+	/* diag_listed_as: gmtime(%f) too small */
+	Perl_ck_warner(aTHX_ packWARN(WARN_OVERFLOW),
+		       "%s(%" IVdf ") too small", opname, when);
+#endif
 	err = NULL;
     }
     else if( when > TIME_UPPER_BOUND ) {
-	/* diag_listed_as: gmtime(%f) too small */
+#ifdef TIME64_IS_NV
+	/* diag_listed_as: gmtime(%f) too large */
 	Perl_ck_warner(aTHX_ packWARN(WARN_OVERFLOW),
 		       "%s(%.0" NVff ") too large", opname, when);
+#else
+	/* diag_listed_as: gmtime(%f) too large */
+	Perl_ck_warner(aTHX_ packWARN(WARN_OVERFLOW),
+		       "%s(%" IVdf ") too large", opname, when);
+#endif
 	err = NULL;
     }
     else {
@@ -4780,11 +4796,17 @@ PP(pp_gmtime)
     }
 
     if (err == NULL) {
-	/* diag_listed_as: gmtime(%f) failed */
 	/* XXX %lld broken for quads */
       failed:
+#ifdef TIME64_IS_NV
+	/* diag_listed_as: gmtime(%f) failed */
 	Perl_ck_warner(aTHX_ packWARN(WARN_OVERFLOW),
 		       "%s(%.0" NVff ") failed", opname, when);
+#else
+	/* diag_listed_as: gmtime(%f) failed */
+	Perl_ck_warner(aTHX_ packWARN(WARN_OVERFLOW),
+		       "%s(%" IVdf ") failed", opname, when);
+#endif
     }
 
     if (GIMME_V != G_ARRAY) {	/* scalar context */
