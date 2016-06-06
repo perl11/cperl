@@ -1396,7 +1396,7 @@ PP(pp_aassign)
                     sv = *lelem;
                     if (!sv || SvREFCNT(sv) == 1)
                         continue;
-                    if (SvTYPE(sv) != SVt_PVAV && SvTYPE(sv) != SVt_PVAV)
+                    if (SvTYPE(sv) != SVt_PVAV && SvTYPE(sv) != SVt_PVHV)
                         goto do_scan;
                     break;
                 }
