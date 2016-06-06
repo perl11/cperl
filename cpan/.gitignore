@@ -19,3 +19,4 @@ DB_File/dbr*
 Devel-NYTProf/t/nytprof-50-errno.out
 Devel-NYTProf/t/nytprof_readstream.out
 Term-ReadKey/cchars.h
+YAML-LibYAML/t/output/
