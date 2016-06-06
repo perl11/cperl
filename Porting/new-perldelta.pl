@@ -5,10 +5,17 @@ use strict;
 # perl, which may be too old to have autodie
 
 use Config;
-require 'Porting/pod_lib.pl';
+require './Porting/pod_lib.pl';
 
+my $c = "";
 my $state = get_pod_metadata(1);
 my (undef, $old_major, $old_minor) = @{$state->{delta_version}};
+my $target = $state->{delta_target};
+if ($Config{usecperl}) {
+    (undef, $old_major, $old_minor) = @{$state->{cdelta_version}};
+    $c = "c";
+    $target = $state->{cdelta_target};
+}
 # For now, hard code it for the simple ones...
 my $new_major = $old_major;
 my $new_minor = $old_minor + 1;
@@ -21,9 +28,8 @@ if ($was_minor < 0) {
     $was_minor = 0;
     --$was_major;
 }
-my $newdelta_filename = "perl5$new_major${new_minor}delta.pod";
-my $olddeltasname = $Config{usecperl} ? 'perlcdelta.pod' : 'perldelta.pod';
-$newdelta_filename =~ s/delta/cdelta/ if $Config{usecperl};
+my $newdelta_filename = "perl5$new_major${new_minor}${c}delta.pod";
+my $olddeltasname = "perl${c}delta.pod";
 
 {
     # For now, just tell the user what to add, as it's safer.
@@ -50,22 +56,21 @@ $newdelta_filename =~ s/delta/cdelta/ if $Config{usecperl};
 my $filename = 'pod/.gitignore';
 my $gitignore = slurp_or_die($filename);
 
-$gitignore =~ s{^/$state->{delta_target}$}
+$gitignore =~ s{^/$target$}
                {/$newdelta_filename}m
-    or die "Can't find /$state->{delta_target} in $filename";
+    or die "Can't find /$target/ in $filename";
 
 write_or_die($filename, $gitignore);
 git_add_modified($filename);
 
 my $olddelta = slurp_or_die("pod/$olddeltasname");
+my $perl = ($Config{usecperl} ? "c" : "") . "perl";
 
-$olddelta =~ s{^(perl)(delta - what is new for perl v5.$old_major.$old_minor)$}
+$olddelta =~ s{^(perl)c?(delta - what is new for $perl v5.$old_major.$old_minor)$}
               {$1 . "5$old_major$old_minor" . $2}me
     or die "Can't find expected NAME contents in $olddelta";
-$olddelta =~ s/ perl/ cperl/ if $Config{usecperl};
 
-my $olddeltaname = "pod/perl5$old_major${old_minor}delta.pod";
-$olddeltaname =~ s/delta/cdelta/ if $Config{usecperl};
+my $olddeltaname = "pod/perl5$old_major${old_minor}${c}delta.pod";
 # in a built tree, $olddeltaname is a symlink to perldelta.pod, make sure
 # we don't write through it
 unlink($olddeltaname);
@@ -105,10 +110,10 @@ $pod_master =~ s{^(\s*perl5)($was_major$was_minor)(delta\s+Perl changes in versi
 write_or_die($filename, $pod_master);
 git_add_modified($filename);
 
-my $command = "$^X Porting/pod_rules.pl";
+my $command = "$^X -Ilib -Ilib/auto Porting/pod_rules.pl";
 system $command
     and die "Could not run '$command', \$? = $?";
-git_add_modified(map {chomp $_; $_} `$^X Porting/pod_rules.pl --showfiles`);
+git_add_modified(map {chomp $_; $_} `$^X -Ilib -Ilib/auto Porting/pod_rules.pl --showfiles`);
 
 notify_success();
 
