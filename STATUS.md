@@ -27,7 +27,7 @@ Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 
 The current release [5.22.2c-RC1](https://github.com/perl11/cperl/releases/)
-is stable but marked as RC1. 5.22.2c final is planned close to the perl5.22.3
+is stable but marked as RC1. 5.22.2c final is planned close to the perl5.22.4
 release date and cperl-5.24.0 close to perl-5.24.0.
 
 All tests pass. CPAN works.
