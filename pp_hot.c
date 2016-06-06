@@ -4337,7 +4337,7 @@ PP(pp_signature)
         AV  *defav;       /* @_ */
         UV   params = items[0].uv;
         const CV *cv = cx->blk_sub.cv;
-        const bool hassig = CvHASSIG(cv);
+        const bool hassig = cBOOL(CvHASSIG(cv));
 #ifdef DEBUGGING
         padnl = PadlistNAMESARRAY(CvPADLIST(cv));
 #endif
