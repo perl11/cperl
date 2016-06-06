@@ -2821,7 +2821,7 @@ Perl_prefinalize_optree(pTHX_ CV *cv, OP* o)
 
 #ifdef PERL_FAKE_SIGNATURE
     /* does the sub look like it might start with 'my (...) = @_' ? */
-    if (cv && (o->op_type == OP_LEAVESUB || o->op_type == OP_LEAVESUB)) {
+    if (cv && (o->op_type == OP_LEAVESUB || o->op_type == OP_LEAVESUBLV)) {
         OP *kid = cUNOPo->op_first;
         if (   kid
             && kid->op_type == OP_LINESEQ
