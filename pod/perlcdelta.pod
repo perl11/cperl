@@ -135,9 +135,10 @@ Modernized
 
 Modernized. Enforce many str types.
 
-=item PathTools 4.65c
+=item PathTools 4.63c
 
 Modernized. Enforce many str types.
+Enable XS prototypes. #152
 
 =item Pod-Simple 4.30c
 
