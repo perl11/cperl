@@ -3,7 +3,7 @@
 # bump-perl-version, DAPM 14 Jul 2009
 #
 # A utility to find, and optionally bump, references to the perl version
-# number in various files within the perl source
+# number in various files within the perl source.
 #
 # It's designed to work in two phases. First, when run with -s (scan),
 # it searches all the files in MANIFEST looking for strings that appear to
@@ -11,7 +11,14 @@
 # contain the current version), and produces a list of them to stdout,
 # along with a suggested edit. For example:
 #
-#     $ Porting/bump-perl-version -s 5.10.0 5.10.1 > /tmp/scan
+#     $ Porting/bump-perl-version -i 5.10.0 5.10.1
+#     $ git diff
+#
+# The -i option can be used to combine the two steps below (if you
+# prefer to make all of the changes at once and then edit the results
+# via git).
+#
+#     $ Porting/bump-perl-version -s 5.24.0 5.24.1 > /tmp/scan
 #     $ cat /tmp/scan
 #     Porting/config.sh
 #     
@@ -27,9 +34,6 @@
 #
 # (so line 52 of Porting/config.sh is now updated)
 #
-# The -i option can be used to combine these two steps (if you prefer to make
-# all of the changes at once and then edit the results via git).
-
 # This utility 'knows' about certain files and formats, and so can spot
 # 'hidden' version numbers, like PERL_SUBVERSION=9.
 #
@@ -181,10 +185,10 @@ my @maps =  (
 	undef,
     ],
 
-    # perl511, perl511.dll, perl511.lib, perl511s.lib, libperl511.a
+    # perl511, cperl522.dll, perl522.lib, perl522s.lib, libperl522.a
     [
-	qr{\b ((?:lib)?) perl (\d\d\d) (s?) \b }x,
-	sub {$2, "$1perl$newx$newy$3" },
+	qr{\b ((?:lib)?) (c?perl) (\d\d\d) (s?) \b }x,
+	sub {$3, "$1$2$newx$newy$4" },
 	"$oldx$oldy",
 	qr/win32|hints/,      # README.win32, win32/*, hints/*
     ],
@@ -234,19 +238,19 @@ my @SKIP_DIRS = qw(
 my @mani_files = sort keys %{ExtUtils::Manifest::maniread('MANIFEST')};
 my %mani_files = map { ($_ => 1) } @mani_files;
 die "No entries found in MANIFEST; aborting\n" unless @mani_files;
+my $is_cperl   = -f 'STATUS.md';
 
 if ($opts{c} or $opts{s} or $opts{i}) {
     do_scan();
+    warn "Now run ./perl -Ilib Porting new-perldelta.pl\n" if $opts{i};
 }
 elsif ($opts{u}) {
     do_update();
 }
 else {
-    usage('one of -c, -s or -u must be specified');
+    usage('one of -i, -c, -s or -u must be specified');
 }
 exit 0;
-
-
 
 
 sub do_scan {
