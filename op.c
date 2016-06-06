@@ -139,7 +139,8 @@ static const char array_passed_to_stat[] =
                           && SvTYPE(stash) == SVt_PVHV)
 #endif
 
-PERL_STATIC_INLINE
+/* Too big for gcc to inline */
+STATIC
 const char * S_typename(pTHX_ const HV* stash)
 {
     if (!(UNLIKELY(VALIDTYPE(stash))))
@@ -11950,8 +11951,10 @@ core_types_t S_op_typed(pTHX_ OP* o)
 
 /* match a return usertype from arg to
    the declared usertype name of a variable (dname).
+
+   Too big for gcc to inline.
 */
-PERL_STATIC_INLINE
+STATIC
 int S_match_user_type(pTHX_ const char *dname, bool du8, const char* aname, bool au8)
 {
     /* search dname in @aname::ISA (contra-variance) */
