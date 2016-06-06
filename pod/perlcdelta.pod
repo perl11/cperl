@@ -99,6 +99,14 @@ L<[cperl #97]|https://github.com/perl11/cperl/issues/97>
 
 =over 4
 
+=item Socket 2.021_02
+
+Silence some CC warnings
+
+Fix my to our $XS_VERSION
+
+Check for max length before derefing by length (jhi) RT #111707
+
 =item DynaLoader 2.04c
 
 See L</DynaLoader format string hardening> above.
