@@ -57,6 +57,11 @@
 # include <ws2tcpip.h>
 #endif
 
+#ifndef GCC_DIAG_IGNORE
+#  define GCC_DIAG_IGNORE(w)
+#  define GCC_DIAG_RESTORE
+#endif
+
 #ifdef WIN32
 
 /* VC 6 with its original headers doesn't know about sockaddr_storage, VC 2003 does*/
@@ -779,7 +784,8 @@ inet_ntoa(ip_address_sv)
 	if (DO_UTF8(ip_address_sv) && !sv_utf8_downgrade(ip_address_sv, 1))
 		croak("Wide character in %s", "Socket::inet_ntoa");
 	ip_address = SvPVbyte(ip_address_sv, addrlen);
-	if (addrlen == sizeof(addr) || addrlen == 4)
+        GCC_DIAG_IGNORE(-Wlogical-op)
+        if (addrlen == sizeof(addr) || addrlen == 4)
 		addr.s_addr =
 		    (ip_address[0] & 0xFF) << 24 |
 		    (ip_address[1] & 0xFF) << 16 |
@@ -788,6 +794,7 @@ inet_ntoa(ip_address_sv)
 	else
 		croak("Bad arg length for %s, length is %"UVuf", should be %"UVuf,
 		      "Socket::inet_ntoa", (UV)addrlen, (UV)sizeof(addr));
+        GCC_DIAG_RESTORE
 	/* We could use inet_ntoa() but that is broken
 	 * in HP-UX + GCC + 64bitint (returns "0.0.0.0"),
 	 * so let's use this sprintf() workaround everywhere.
@@ -949,6 +956,7 @@ pack_sockaddr_in(port, ip_address_sv)
 	if (DO_UTF8(ip_address_sv) && !sv_utf8_downgrade(ip_address_sv, 1))
 		croak("Wide character in %s", "Socket::pack_sockaddr_in");
 	ip_address = SvPVbyte(ip_address_sv, addrlen);
+        GCC_DIAG_IGNORE(-Wlogical-op)
 	if (addrlen == sizeof(addr) || addrlen == 4)
 		addr.s_addr =
 		    (unsigned int)(ip_address[0] & 0xFF) << 24 |
@@ -959,6 +967,7 @@ pack_sockaddr_in(port, ip_address_sv)
 		croak("Bad arg length for %s, length is %"UVuf", should be %"UVuf,
 		      "Socket::pack_sockaddr_in",
 		      (UV)addrlen, (UV)sizeof(addr));
+        GCC_DIAG_RESTORE
 	Zero(&sin, sizeof(sin), char);
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(port);

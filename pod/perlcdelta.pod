@@ -118,9 +118,17 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
-=item *
+=item Socket 2.021_02
 
-XXX
+Silence some CC warnings
+
+Fix my to our $XS_VERSION
+
+Check for max length before derefing by length (jhi) RT #111707
+
+=item DynaLoader 2.04c
+
+See L</DynaLoader format string hardening> above.
 
 =back
 
