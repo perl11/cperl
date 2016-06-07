@@ -1046,7 +1046,7 @@ use File::Glob qw(:case);
 
     # PathTools cannot be cpan'd by sync-with-cpan
     'File::Spec' => {
-        'DISTRIBUTION' => 'SMUELLER/PathTools-3.62.tar.gz',
+        'DISTRIBUTION' => 'RJBS/PathTools-3.62.tar.gz',
         'FILES'        => q[dist/PathTools],
         'EXCLUDED'     => [qr{^t/lib/Test/}],
         # core needs to update @INC in a chdir
