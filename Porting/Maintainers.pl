@@ -413,7 +413,7 @@ use File::Glob qw(:case);
     },
 
     'Cpanel::JSON::XS' => {
-        'DISTRIBUTION' => 'RURBAN/Cpanel-JSON-XS-3.0213.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Cpanel-JSON-XS-3.0215.tar.gz',
         'FILES'        => q[cpan/Cpanel-JSON-XS],
         'EXCLUDED'     => [
             '.travis.yml',

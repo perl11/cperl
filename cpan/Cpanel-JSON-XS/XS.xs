@@ -234,7 +234,11 @@ INLINE SV *
 get_bool (pTHX_ const char *name)
 {
   dMY_CXT;
+#if PERL_VERSION > 7
   SV *sv = get_sv (name, 1);
+#else
+  SV *sv = GvSV(gv_fetchpv(name, 1, SVt_PV));
+#endif
   SV* rv = SvRV(sv);
   if (!SvOBJECT(sv) || !SvSTASH(sv)) {
     SvREADONLY_off (sv);
@@ -960,19 +964,28 @@ encode_stringify(pTHX_ enc_t *enc, SV *sv, int isref)
 #if PERL_VERSION > 7
     pv = newSVpvs("");
     sv_copypv(pv, sv);
-#else
-    STRLEN len;
-    char *s;
-    pv = newSVpvs("");
-    s = SvPV(sv,len);
-    sv_setpvn(pv,s,len);
-    if (SvUTF8(sv))
-	SvUTF8_on(pv);
-    else
-	SvUTF8_off(pv);
-#endif
     SvSETMAGIC(pv);
     str = SvPVutf8_force(pv, len);
+#else
+    char *s;
+    if (isref) {
+      pv = AMG_CALLun(sv,string);
+      len = SvCUR(pv);
+      str = SvPVX(pv);
+      SvREFCNT_inc(pv);
+    }
+    else {
+      pv = newSVpvs("");
+      s = SvPV(sv,len);
+      sv_setpvn(pv,s,len);
+      if (SvUTF8(sv))
+	SvUTF8_on(pv);
+      else
+	SvUTF8_off(pv);
+      SvSETMAGIC(pv);
+      str = SvPVutf8_force(pv, len);
+    }
+#endif
     if (!len) {
       encode_str (aTHX_ enc, "null", 4, 0);
       SvREFCNT_dec(pv);
@@ -1177,11 +1190,16 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
   else if (SvNOKp (sv))
     {
       char *savecur, *saveend;
+      char inf_or_nan = 0;
       /* trust that perl will do the right thing w.r.t. JSON syntax. */
       need (aTHX_ enc, NV_DIG + 32);
       savecur = enc->cur;
       saveend = enc->end;
+#ifdef USE_QUADMATH
+      quadmath_snprintf(enc->cur, enc->end - enc->cur, "%.*Qg", (int)NV_DIG, SvNVX(sv));
+#else
       (void)Gconvert (SvNVX (sv), NV_DIG, 0, enc->cur);
+#endif
 
       if (strEQ(enc->cur, STR_INF) || strEQ(enc->cur, STR_NAN)
 #if defined(_WIN32)
@@ -1193,6 +1211,7 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
                || strEQ(enc->cur+1, STR_QNAN)
 #endif
                ))) {
+        inf_or_nan = 1;
         if (enc->json.infnan_mode == 0) {
           strncpy(enc->cur, "null\0", 5);
         }
@@ -1218,6 +1237,19 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
         *enc->cur = 0;
       }
       else {
+        NV intpart;
+        if (!( inf_or_nan || Perl_modf(SvNVX(sv), &intpart) || SvIOK(sv)
+            || strchr(enc->cur,'e') || strchr(enc->cur,'E')
+#if PERL_VERSION < 10
+               /* !!1 with 5.8 */
+               || (SvPOKp(sv) && strEQ(SvPVX(sv), "1")
+                   && SvNVX(sv) == 1.0) /* yes */
+#endif
+               ) )
+          {
+            char *tempend = enc->cur + strlen(enc->cur);
+            strncpy(tempend, ".0\0", 3);
+        }
         enc->cur += strlen (enc->cur);
       }
     }
@@ -2271,7 +2303,7 @@ decode_num (pTHX_ dec_t *dec)
         if (numtype & IS_NUMBER_IN_UV) {
           if (numtype & IS_NUMBER_NEG)
             {
-              if (uv < (UV)IV_MIN)
+              if (uv <= (UV)(IV_MAX) + 1)
                 return newSViv (-(IV)uv);
             }
           else
@@ -2989,12 +3021,19 @@ interrupt:
 
 MODULE = Cpanel::JSON::XS		PACKAGE = Cpanel::JSON::XS
 
+#if PERL_VERSION > 7
+# define NODEBUG_ON \
+        CvNODEBUG_on (get_cv ("Cpanel::JSON::XS::incr_text", 0));
+#else
+# define NODEBUG_ON
+#endif
+
 BOOT:
 {
         MY_CXT_INIT;
         init_MY_CXT(aTHX_ &MY_CXT);
 
-        CvNODEBUG_on (get_cv ("Cpanel::JSON::XS::incr_text", 0)); /* the debugger completely breaks lvalue subs */
+        NODEBUG_ON; /* the debugger completely breaks lvalue subs */
 }
 
 PROTOTYPES: DISABLE
