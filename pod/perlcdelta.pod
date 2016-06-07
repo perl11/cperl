@@ -287,6 +287,11 @@ fix __attribute__((warn_unused_result)) on windows.
 
 Added some methods.
 
+=item IPC::SysV 2.07
+
+Sync with upstream, they fixed
+https://rt.cpan.org/Public/Bug/Display.html?id=112827
+
 =back
 
 =head2 Not Updated Modules and Pragmata
