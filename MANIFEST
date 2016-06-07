@@ -1856,13 +1856,17 @@ cpan/Math-BigInt/t/bigints.t		See if BigInt.pm works
 cpan/Math-BigInt/t/biglog.t		Test the log function
 cpan/Math-BigInt/t/big_pi_e.t		test bpi() and bexp()
 cpan/Math-BigInt/t/bigroot.t		Test the broot function
+cpan/Math-BigInt/t/calling-class-methods.t	Test Math::BigInt
+cpan/Math-BigInt/t/calling-instance-methods.t	Test Math::BigInt
 cpan/Math-BigInt/t/calling.t		Test calling conventions
 cpan/Math-BigInt/t/config.t		Test Math::BigInt->config()
 cpan/Math-BigInt/t/constant.t		Test Math::BigInt/BigFloat under :constant
-cpan/Math-BigInt/t/const_mbf.t		Test Math::BigInt
+cpan/Math-BigInt/t/const_mbf.t		Test Math::BigFloat
 cpan/Math-BigInt/t/downgrade.t		Test if use Math::BigInt(); under downgrade works
 cpan/Math-BigInt/t/_e_math.t		Helper routine in BigFloat for _e math
-cpan/Math-BigInt/t/from_hex-mbf.t
+cpan/Math-BigInt/t/from_bin-mbf.t	Test Math::BigFloat
+cpan/Math-BigInt/t/from_hex-mbf.t	Test Math::BigFloat
+cpan/Math-BigInt/t/from_oct-mbf.t	Test Math::BigFloat
 cpan/Math-BigInt/t/inf_nan.t		Special tests for inf and *NaN* handling
 cpan/Math-BigInt/t/isa.t		Test for Math::BigInt inheritance
 cpan/Math-BigInt/t/lib_load.t		Test sane lib names
@@ -1876,8 +1880,9 @@ cpan/Math-BigInt/t/mbimbf.inc		Actual BigInt/BigFloat accuracy, precision and fa
 cpan/Math-BigInt/t/mbimbf.t		BigInt/BigFloat accuracy, precision and fallback, round_mode
 cpan/Math-BigInt/t/mbi_rand.t		Test Math::BigInt randomly
 cpan/Math-BigInt/t/nan_cmp.t		overloaded comparison involving *NaN*
+cpan/Math-BigInt/t/new-mbf.t
 cpan/Math-BigInt/t/new_overloaded.t	test overloaded numbers in BigFloat's new()
-cpan/Math-BigInt/t/objectify_mbf.t	Test Math::BigInt
+cpan/Math-BigInt/t/objectify_mbf.t	Test Math::BigFloat
 cpan/Math-BigInt/t/objectify_mbi.t	Test Math::BigInt
 cpan/Math-BigInt/t/req_mbf0.t		test: require Math::BigFloat; ->bzero();
 cpan/Math-BigInt/t/req_mbf1.t		test: require Math::BigFloat; ->bone();

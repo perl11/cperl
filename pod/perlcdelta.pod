@@ -303,6 +303,10 @@ Cpanel::JSON::XS and boolean interop.
 Removed the deprecated C<alias_code> subroutine.
 Added some LOCALE_CODE_* UN and GENC constants.
 
+=item Math::BigInt 1.999722
+
+Many changes.
+Fixed a skip count/why mixup in F<t/mbimbf.inc>, detected by cperl.
 
 =back
 
