@@ -308,6 +308,10 @@ Added some LOCALE_CODE_* UN and GENC constants.
 Many changes.
 Fixed a skip count/why mixup in F<t/mbimbf.inc>, detected by cperl.
 
+=item Math::BigInt::FastCalc 0.42
+
+No changes.
+
 =back
 
 =head2 Not Updated Modules and Pragmata
