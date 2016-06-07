@@ -275,6 +275,11 @@ Changed tests to use done_testing().
 
 Skip checking the return status of the api calls.
 
+=item Devel-PPPort 3.33_01
+
+Support the latest versions.
+Minor -Dfortify_inc fixes, kept our Hv macros.
+
 =back
 
 =head2 Not Updated Modules and Pragmata
