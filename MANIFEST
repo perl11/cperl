@@ -1920,7 +1920,6 @@ cpan/Math-BigRat/t/bigrat.t		Math::BigRat test
 cpan/Math-BigRat/t/bigratup.t		test under $Math::BigInt::upgrade
 cpan/Math-BigRat/t/bigroot.t		Math::BigRat test
 cpan/Math-BigRat/t/bitwise.t		Math::BigRat test
-cpan/Math-BigRat/t/blog-mbr.t		Math::BigRat test
 cpan/Math-BigRat/t/hang.t		Math::BigRat test for bug #34584 - hang in exp()
 cpan/Math-BigRat/t/Math/BigRat/Test.pm	Math::BigRat test helper
 cpan/Math-BigRat/t/requirer.t		see if require works properly
