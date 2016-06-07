@@ -38,7 +38,7 @@ BEGIN {
 }
 use File::Find qw(find);
 
-my $V_NUM_REGEXP = qr{v?[0-9._]+};  # crudely, a v-string or decimal
+my $V_NUM_REGEXP = qr{v?[0-9._]+c?};  # crudely, a v-string or decimal
 
 my $PKG_FIRST_WORD_REGEXP = qr{ # the FIRST word in a package name
   [a-zA-Z_]                     # the first word CANNOT start with a digit
