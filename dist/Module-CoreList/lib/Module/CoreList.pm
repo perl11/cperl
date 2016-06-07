@@ -12673,7 +12673,9 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Devel::NYTProf'         => '6.03',
             'perl5db'                => '1.49_04c',
             'warnings'               => '1.35',
-            'Config::Perl::V'        => '0.25_01',
+            'Config::Perl::V'        => '0.26_01',
+            'Cpanel::JSON::XS'       => '3.0215',
+            'DB_File'                => '1.838',
         },
         removed => {
         }
