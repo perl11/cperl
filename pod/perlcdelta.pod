@@ -242,6 +242,10 @@ Add category C<types>.
 
 Disable 3 experimental warnings which are now default with cperl.
 
+=item Archive::Tar 2.08
+
+Added t/09_roundtrip.t
+
 =back
 
 =head2 Not Updated Modules and Pragmata
