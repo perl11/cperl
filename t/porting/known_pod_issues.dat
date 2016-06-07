@@ -317,7 +317,7 @@ dist/storable/storable.pm	Verbatim line length including indents exceeds 79 by	4
 dist/time-hires/hires.pm	Apparent broken link	2
 ext/amiga-exec/exec.pm	Verbatim line length including indents exceeds 79 by	1
 ext/config/config_xs.in	Apparent internal link is missing its forward slash	2
-ext/devel-peek/peek.pm	? Should you be using L<...> instead of	2
+ext/devel-peek/peek.pm	? Should you be using L<...> instead of	1
 ext/dynaloader/dynaloader.pod	Apparent broken link	1
 ext/dynaloader/dynaloader.pod	Verbatim line length including indents exceeds 79 by	1
 ext/hash-util/lib/hash/util.pm	Verbatim line length including indents exceeds 79 by	2
@@ -357,7 +357,6 @@ pod/perlirix.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlmacosx.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlmodlib.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlmroapi.pod	? Should you be using L<...> instead of	1
-pod/perlop.pod	? Should you be using F<...> or maybe L<...> instead of	2
 pod/perlos2.pod	? Should you be using L<...> instead of	2
 pod/perlos2.pod	Verbatim line length including indents exceeds 79 by	5
 pod/perlos390.pod	Verbatim line length including indents exceeds 79 by	2
@@ -383,3 +382,4 @@ lib/cperl.pm	Pod NAME already used	1
 lib/extutils/embed.pm	Verbatim line length including indents exceeds 79 by	2
 lib/fake_signatures.pm	Apparent broken link	2
 lib/perl5db.pl	? Should you be using L<...> instead of	1
+lib/perl5db.pl	Unterminated C<...> sequence	1

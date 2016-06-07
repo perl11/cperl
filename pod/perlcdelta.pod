@@ -260,14 +260,14 @@ Changed tests to use done_testing().
 =item Cpanel::JSON::XS 3.0215
 
 - Fix wrong test 117 (pghmcfc)
- 
+
 - TODO the fragile mojo boolean interop test.
 
 - Improve error message with class based method calls,
   when forgetting ->new. #66
 
 - Fix a off-by-one IV_MIN -> NV overflow in decode_json. #67 (xdg)
- 
+
 - Avoid encode_sv SEGV with -Dusequadmath #62
   Fix quadmath NV stringification.
 

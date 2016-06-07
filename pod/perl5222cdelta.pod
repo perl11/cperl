@@ -340,7 +340,7 @@ shmat() with illegal id fails and sets errno
 * Fix 'terminate_on_signal' segfaulting (Petya Kohts)
 
 * Fix usage of fcntl(..., F_GETFL, ...) (tonyc)
- 
+
 =item Getopt::Long 2.48
 
 Fixed gnu_getopt option not 100% identical to GNU getopt
@@ -405,7 +405,7 @@ Generated from C<ETHER/YAML-Tiny-1.69>
 
 Tests no longer print to stderr unnecessarily. This makes core perl
 builds a little quieter.
- 
+
 The Test::More dependency has been reduced to 0.88 by emulating
 'subtest' for those tests that need it.
 

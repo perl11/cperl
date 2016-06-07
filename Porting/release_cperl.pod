@@ -64,12 +64,12 @@ ccflags is architecture specific.
                 -Dscriptdir=/usr/lib/cperl/$ver/bin \
                 -Dcf_email='rurban@cpanel.net' \
                 -Uusethreads -Doptimize='-O3 -g'
-    
+
     sed -i -e's,-fstack-protector-strong,-fstack-protector,' config.sh Makefile cflags
     touch config.h
     make -s git_version.h ECHO=true
     make -s -j4 ECHO=true
-    
+
     destdir=`dirname $0`/cperl-$ver-inst
     rm -rf $destdir
     make -s test && make install DESTDIR=$destdir
