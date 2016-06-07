@@ -246,6 +246,10 @@ Disable 3 experimental warnings which are now default with cperl.
 
 Added t/09_roundtrip.t
 
+=item Config 6.20
+
+Various minor fixes
+
 =back
 
 =head2 Not Updated Modules and Pragmata

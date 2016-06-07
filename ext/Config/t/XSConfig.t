@@ -91,34 +91,35 @@ targetport  useversionedarchname
 ARCH    BuiltWithPatchPerl  Mcc PERL_PATCHLEVEL ccflags_nolargefiles
 charbits    config_arg25    config_arg26    config_arg27    config_arg28
 config_arg29    config_arg30    config_arg31    config_arg32    config_arg33
-config_arg34    config_arg35    config_arg36    config_heavy    d_acosh
-d_asctime64 d_asinh d_atanh d_attribut  d_attribute_deprecated
-d_attribute_format  d_attribute_malloc  d_attribute_nonnull
-d_attribute_noreturn    d_attribute_pure    d_attribute_unused
-d_attribute_warn_unused_result  d_backtrace d_builtin_arith_overflow
-d_builtin_choose_expr   d_builtin_expect    d_c99_variadic_macros   d_cbrt
-d_clearenv  d_copysign  d_cplusplus d_ctermid   d_ctime64   d_difftime64
-d_dir_dd_fd d_dladdr    d_erf   d_erfc  d_exp2  d_expm1 d_fdclose   d_fdim
-d_fegetround    d_fma   d_fmax  d_fmin  d_fp_classify   d_fp_classl
-d_fpgetround    d_fs_data_s d_fstatfs   d_fstatvfs  d_futimes
-d_gdbm_ndbm_h_uses_prototypes   d_gdbmndbm_h_uses_prototypes    d_getaddrinfo
-d_getfsstat d_getmnt    d_getmntent d_getnameinfo   d_gmtime64  d_hasmntopt
-d_hypot d_ilogb d_inc_version_list  d_inetntop  d_inetpton  d_ip_mreq
-d_ip_mreq_source    d_ipv6_mreq d_ipv6_mreq_source  d_isblank   d_isfinitel
-d_isinfl    d_isless    d_isnormal  d_j0    d_j0l   d_lc_monetary_2008
-d_ldexpl    d_lgamma    d_lgamma_r  d_libname_unique    d_llrint    d_llrintl
-d_llround   d_llroundl  d_localtime64   d_localtime_r_needs_tzset   d_log1p
-d_log2  d_logb  d_lrint d_lrintl    d_lround    d_lroundl   d_malloc_good_size
-d_malloc_size   d_mktime64  d_modflproto    d_nan   d_ndbm
-d_ndbm_h_uses_prototypes    d_nearbyint d_nextafter d_nexttoward
-d_nv_zero_is_allbits_zero   d_prctl d_prctl_set_name    d_printf_format_null
-d_pseudofork    d_ptrdiff_t d_regcomp   d_remainder d_remquo    d_rint  d_round
-d_scalbn    d_sfio  d_siginfo_si_addr   d_siginfo_si_band   d_siginfo_si_errno
-d_siginfo_si_pid    d_siginfo_si_status d_siginfo_si_uid    d_siginfo_si_value
-d_signbit   d_sin6_scope_id d_sitearch  d_snprintf  d_sockaddr_in6
-d_sockaddr_sa_len   d_sprintf_returns_strlen    d_stat  d_statfs_f_flags
-d_statfs_s  d_static_inline d_statvfs   d_strlcat   d_strlcpy   d_tgamma
-d_timegm    d_trunc d_truncl    d_unsetenv  d_ustat d_vendorscript
+config_arg34    config_arg35    config_arg36    config_arg37    config_arg38
+config_arg39    config_heavy    d_acosh d_asctime64 d_asinh d_atanh d_attribut
+d_attribute_deprecated  d_attribute_format  d_attribute_malloc
+d_attribute_nonnull d_attribute_noreturn    d_attribute_pure
+d_attribute_unused  d_attribute_warn_unused_result  d_backtrace
+d_builtin_arith_overflow    d_builtin_choose_expr   d_builtin_expect
+d_c99_variadic_macros   d_cbrt  d_clearenv  d_copysign  d_cplusplus d_ctermid
+d_ctime64   d_difftime64    d_dir_dd_fd d_dladdr    d_erf   d_erfc  d_exp2
+d_expm1 d_fdclose   d_fdim  d_fegetround    d_fma   d_fmax  d_fmin
+d_fp_classify   d_fp_classl d_fpgetround    d_fs_data_s d_fstatfs   d_fstatvfs
+d_futimes   d_gdbm_ndbm_h_uses_prototypes   d_gdbmndbm_h_uses_prototypes
+d_getaddrinfo   d_getfsstat d_getmnt    d_getmntent d_getnameinfo   d_gmtime64
+d_hasmntopt d_hypot d_ilogb d_inc_version_list  d_inetntop  d_inetpton
+d_ip_mreq   d_ip_mreq_source    d_ipv6_mreq d_ipv6_mreq_source  d_isblank
+d_isfinitel d_isinfl    d_isless    d_isnormal  d_j0    d_j0l
+d_lc_monetary_2008  d_ldexpl    d_lgamma    d_lgamma_r  d_libname_unique
+d_llrint    d_llrintl   d_llround   d_llroundl  d_localtime64
+d_localtime_r_needs_tzset   d_log1p d_log2  d_logb  d_lrint d_lrintl
+d_lround    d_lroundl   d_malloc_good_size  d_malloc_size   d_mktime64
+d_modflproto    d_nan   d_ndbm  d_ndbm_h_uses_prototypes    d_nearbyint
+d_nextafter d_nexttoward    d_nv_zero_is_allbits_zero   d_prctl
+d_prctl_set_name    d_printf_format_null    d_pseudofork    d_ptrdiff_t
+d_regcomp   d_remainder d_remquo    d_rint  d_round d_scalbn    d_sfio
+d_siginfo_si_addr   d_siginfo_si_band   d_siginfo_si_errno  d_siginfo_si_pid
+d_siginfo_si_status d_siginfo_si_uid    d_siginfo_si_value  d_signbit
+d_sin6_scope_id d_sitearch  d_snprintf  d_sockaddr_in6  d_sockaddr_sa_len
+d_sprintf_returns_strlen    d_stat  d_statfs_f_flags    d_statfs_s
+d_static_inline d_statvfs   d_strlcat   d_strlcpy   d_tgamma    d_timegm
+d_trunc d_truncl    d_unsetenv  d_ustat d_vendorscript
 d_vms_case_sensitive_symbols    d_vsnprintf d_wcscmp    d_wcsxfrm   defvoidused
 dl_so_eq_ext    doop_cflags doubleinfbytes  doublekind  doublemantbits
 doublenanbytes  dtrace  extern_C    found_libucb    from    gccansipedantic
