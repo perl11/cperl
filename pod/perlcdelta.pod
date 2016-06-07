@@ -283,6 +283,10 @@ cperl specific:
 Minor -Dfortify_inc fixes, kept our Hv macros,
 fix __attribute__((warn_unused_result)) on windows.
 
+=item HTTP::Tiny 0.058
+
+Added some methods.
+
 =back
 
 =head2 Not Updated Modules and Pragmata
