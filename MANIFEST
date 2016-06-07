@@ -1688,8 +1688,6 @@ cpan/IPC-SysV/regen.pl			IPC::SysV file regeneration script
 cpan/IPC-SysV/SysV.xs			IPC::SysV extension Perl module
 cpan/IPC-SysV/t/ipcsysv.t		IPC::SysV test file
 cpan/IPC-SysV/t/msg.t			IPC::SysV test file
-cpan/IPC-SysV/t/podcov.t		IPC::SysV test file
-cpan/IPC-SysV/t/pod.t			IPC::SysV test file
 cpan/IPC-SysV/t/sem.t			IPC::SysV test file
 cpan/IPC-SysV/t/shm.t			IPC::SysV test file
 cpan/IPC-SysV/typemap			IPC::SysV typemap

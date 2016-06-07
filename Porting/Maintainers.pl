@@ -827,6 +827,8 @@ use File::Glob qw(:case);
         'EXCLUDED'     => [
             qw( const-c.inc
                 const-xs.inc
+                t/pod.t
+                t/podcov.t
                 ),
         ],
     },
