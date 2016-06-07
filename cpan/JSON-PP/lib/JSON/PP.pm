@@ -11,7 +11,7 @@ use Carp ();
 use B ();
 #use Devel::Peek;
 
-$JSON::PP::VERSION = '2.27300';
+$JSON::PP::VERSION = '2.27400';
 
 @JSON::PP::EXPORT = qw(encode_json decode_json from_json to_json);
 
@@ -52,7 +52,7 @@ BEGIN {
             allow_barekey escape_slash as_nonblessed
     );
 
-    # Perl version check, Unicode handling is enable?
+    # Perl version check, Unicode handling is enabled?
     # Helper module sets @JSON::PP::_properties.
     if ($] < 5.008 ) {
         my $helper = $] >= 5.006 ? 'JSON::PP::Compat5006' : 'JSON::PP::Compat5005';
@@ -163,7 +163,7 @@ sub pretty {
     my ($self, $v) = @_;
     my $enable = defined $v ? $v : 1;
 
-    if ($enable) { # indent_length(3) for Cpanel::JSON::XS compatibility
+    if ($enable) { # indent_length(3) for JSON::XS compatibility
         $self->indent(1)->indent_length(3)->space_before(1)->space_after(1);
     }
     else {
@@ -291,7 +291,7 @@ sub allow_bigint {
 
         my $str  = $self->object_to_json($obj);
 
-        $str .= "\n" if ( $indent ); # Cpanel::JSON::XS 2.26 compatible
+        $str .= "\n" if ( $indent ); # JSON::XS 2.26 compatible
 
         unless ($ascii or $latin1 or $utf8) {
             utf8::upgrade($str);
@@ -608,7 +608,7 @@ BEGIN {
 
     my $text; # json data
     my $at;   # offset
-    my $ch;   # 1chracter
+    my $ch;   # first character
     my $len;  # text length (changed according to UTF8 or NON UTF8)
     # INTERNAL
     my $depth;          # nest counter
@@ -617,7 +617,7 @@ BEGIN {
     my $utf8_len;       # utf8 byte length
     # FLAGS
     my $utf8;           # must be utf8
-    my $max_depth;      # max nest nubmer of objects and arrays
+    my $max_depth;      # max nest number of objects and arrays
     my $max_size;
     my $relaxed;
     my $cb_object;
@@ -1045,8 +1045,9 @@ BEGIN {
     sub number {
         my $n    = '';
         my $v;
+        my $is_dec;
 
-        # According to RFC4627, hex or oct digts are invalid.
+        # According to RFC4627, hex or oct digits are invalid.
         if($ch eq '0'){
             my $peek = substr($text,$at,1);
             my $hex  = $peek =~ /[xX]/; # 0 or 1
@@ -1087,6 +1088,7 @@ BEGIN {
 
         if(defined $ch and $ch eq '.'){
             $n .= '.';
+            $is_dec = 1;
 
             next_chr;
             if (!defined $ch or $ch !~ /\d/) {
@@ -1142,7 +1144,7 @@ BEGIN {
             return Math::BigFloat->new($v);
         }
 
-        return 0+$v;
+        return $is_dec ? $v/1.0 : 0+$v;
     }
 
 
@@ -1316,7 +1318,7 @@ BEGIN {
             $_[0]->{_incr_parser} ||= JSON::PP::IncrParser->new;
 
             if ( $_[0]->{_incr_parser}->{incr_parsing} ) {
-                Carp::croak("incr_text can not be called when the incremental parser already started parsing");
+                Carp::croak("incr_text cannot be called when the incremental parser already started parsing");
             }
             $_[0]->{_incr_parser}->{incr_text};
         }
@@ -1385,7 +1387,7 @@ BEGIN {
 }
 
 
-# shamely copied and modified from JSON::XS code.
+# shamelessly copied and modified from JSON::XS code.
 
 $JSON::PP::true  = do { bless \(my $dummy = 1), 'JSON::PP::Boolean' };
 $JSON::PP::false = do { bless \(my $dummy = 0), 'JSON::PP::Boolean' };
@@ -1581,7 +1583,7 @@ sub _incr_parse {
 
 sub incr_text {
     if ( $_[0]->{incr_parsing} ) {
-        Carp::croak("incr_text can not be called when the incremental parser already started parsing");
+        Carp::croak("incr_text cannot be called when the incremental parser already started parsing");
     }
     $_[0]->{incr_text};
 }
@@ -1612,7 +1614,7 @@ __END__
 
 =head1 NAME
 
-JSON::PP - Cpanel::JSON::XS compatible pure-Perl module.
+JSON::PP - JSON::XS compatible pure-Perl module.
 
 =head1 SYNOPSIS
 
@@ -1641,18 +1643,18 @@ JSON::PP - Cpanel::JSON::XS compatible pure-Perl module.
 
 =head1 VERSION
 
-    2.27300
+    2.27400
 
-L<Cpanel::JSON::XS> 2.27 (~2.30) compatible.
+L<JSON::XS> 2.27 (~2.30) compatible.
 
 =head1 NOTE
 
-JSON::PP had been inculded in JSON distribution (CPAN module).
+JSON::PP had been included in JSON distribution (CPAN module).
 It was a perl core module in Perl 5.14.
 
 =head1 DESCRIPTION
 
-This module is a L<Cpanel::JSON::XS> compatible pure Perl module.
+This module is L<JSON::XS> compatible pure Perl module.
 (Perl 5.8 or later is recommended)
 
 Cpanel::JSON::XS is the fastest and most proper JSON module on CPAN.
@@ -1686,7 +1688,7 @@ MAPPING section below to learn about those.
 
 There is no guessing, no generating of illegal JSON texts by default,
 and only JSON is accepted as input by default (the latter is a security feature).
-But when some options are set, loose chcking features are available.
+But when some options are set, loose checking features are available.
 
 =back
 
@@ -1744,11 +1746,11 @@ Perl.
 
 =head1 HOW DO I DECODE A DATA FROM OUTER AND ENCODE TO OUTER
 
-This section supposes that your perl vresion is 5.8 or later.
+This section supposes that your perl version is 5.8 or later.
 
 If you know a JSON text from an outer world - a network, a file content, and so on,
 is encoded in UTF-8, you should use C<decode_json> or C<JSON> module object
-with C<utf8> enable. And the decoded result will contain UNICODE characters.
+with C<utf8> enabled. And the decoded result will contain UNICODE characters.
 
   # from network
   my $json        = JSON::PP->new->utf8;
@@ -1775,7 +1777,7 @@ If an outer data is not encoded in UTF-8, firstly you should C<decode> it.
   # $unicode_json_text = <$fh>;
 
 In this case, C<$unicode_json_text> is of course UNICODE string.
-So you B<cannot> use C<decode_json> nor C<JSON> module object with C<utf8> enable.
+So you B<cannot> use C<decode_json> nor C<JSON> module object with C<utf8> enabled.
 Instead of them, you use C<JSON> module object with C<utf8> disable.
 
   $perl_scalar = $json->utf8(0)->decode( $unicode_json_text );
@@ -1789,7 +1791,7 @@ And now, you want to convert your C<$perl_scalar> into JSON data and
 send it to an outer world - a network or a file content, and so on.
 
 Your data usually contains UNICODE strings and you want the converted data to be encoded
-in UTF-8, you should use C<encode_json> or C<JSON> module object with C<utf8> enable.
+in UTF-8, you should use C<encode_json> or C<JSON> module object with C<utf8> enabled.
 
   print encode_json( $perl_scalar ); # to a network? file? or display?
   # or
@@ -1798,7 +1800,7 @@ in UTF-8, you should use C<encode_json> or C<JSON> module object with C<utf8> en
 If C<$perl_scalar> does not contain UNICODE but C<$encoding>-encoded strings
 for some reason, then its characters are regarded as B<latin1> for perl
 (because it does not concern with your $encoding).
-You B<cannot> use C<encode_json> nor C<JSON> module object with C<utf8> enable.
+You B<cannot> use C<encode_json> nor C<JSON> module object with C<utf8> enabled.
 Instead of them, you use C<JSON> module object with C<utf8> disable.
 Note that the resulted text is a UNICODE string but no problem to print it.
 
@@ -1826,7 +1828,7 @@ Basically, check to L<JSON> or L<Cpanel::JSON::XS>.
 
     $json = JSON::PP->new
 
-Rturns a new JSON::PP object that can be used to de/encode JSON
+Returns a new JSON::PP object that can be used to de/encode JSON
 strings.
 
 All boolean flags described below are by default I<disabled>.
@@ -2034,7 +2036,7 @@ as key-value pairs have no inherent ordering in Perl.
 
 This setting has no effect when decoding JSON texts.
 
-If you want your own sorting routine, you can give a code referece
+If you want your own sorting routine, you can give a code reference
 or a subroutine name to C<sort_by>. See to C<JSON::PP OWN METHODS>.
 
 =head2 allow_nonref
@@ -2232,10 +2234,10 @@ given character in a string.
 If no argument is given, the highest possible setting will be used, which
 is rarely useful.
 
-See L<Cpanel::JSON::XS/SSECURITY CONSIDERATIONS> for more info on why this is useful.
+See L<Cpanel::JSON::XS/SECURITY CONSIDERATIONS> for more info on why this is useful.
 
 When a large value (100 or more) was set and it de/encodes a deep nested object/text,
-it may raise a warning 'Deep recursion on subroutin' at the perl runtime phase.
+it may raise a warning 'Deep recursion on subroutine' at the perl runtime phase.
 
 =head2 max_size
 
@@ -2252,7 +2254,7 @@ effect on C<encode> (yet).
 If no argument is given, the limit check will be deactivated (same as when
 C<0> is specified).
 
-See L<Cpanel::JSON::XS/SSECURITY CONSIDERATIONS> for more info on why this is useful.
+See L<Cpanel::JSON::XS/SECURITY CONSIDERATIONS> for more info on why this is useful.
 
 =head2 encode
 
@@ -2303,7 +2305,7 @@ to see if a full JSON object is available, but is much more efficient
 This module will only attempt to parse the JSON text once it is sure it
 has enough text to get a decisive result, using a very simple but
 truly incremental parser. This means that it sometimes won't stop as
-early as the full parser, for example, it doesn't detect parenthese
+early as the full parser, for example, it doesn't detect parentheses
 mismatches. The only thing it guarantees is that it starts decoding as
 soon as a syntactically valid JSON text has been seen. This means you need
 to set resource limits (e.g. C<max_size>) to ensure the parser will stop
@@ -2334,7 +2336,7 @@ If the method is called in scalar context, then it will try to extract
 exactly I<one> JSON object. If that is successful, it will return this
 object, otherwise it will return C<undef>. If there is a parse error,
 this method will croak just as C<decode> would do (one can then use
-C<incr_skip> to skip the errornous part). This is the most common way of
+C<incr_skip> to skip the erroneous part). This is the most common way of
 using the method.
 
 And finally, in list context, it will try to extract as many objects
@@ -2390,7 +2392,7 @@ unchanged, to skip the text parsed so far and to reset the parse state.
 This completely resets the incremental parser, that is, after this call,
 it will be as if the parser had never parsed anything.
 
-This is useful if you want ot repeatedly parse JSON objects and want to
+This is useful if you want to repeatedly parse JSON objects and want to
 ignore any trailing data, which means you have to reset the parser after
 each successful decode.
 
@@ -2435,29 +2437,29 @@ If C<$enable> is true (or missing), then C<decode> will convert
 the big integer Perl cannot handle as integer into a L<Math::BigInt>
 object and convert a floating number (any) into a L<Math::BigFloat>.
 
-On the contary, C<encode> converts C<Math::BigInt> objects and C<Math::BigFloat>
-objects into JSON numbers with C<allow_blessed> enable.
+On the contrary, C<encode> converts C<Math::BigInt> objects and C<Math::BigFloat>
+objects into JSON numbers with C<allow_blessed> enabled.
 
    $json->allow_nonref->allow_blessed->allow_bignum;
    $bigfloat = $json->decode('2.000000000000000000000000001');
    print $json->encode($bigfloat);
    # => 2.000000000000000000000000001
 
-See to L<Cpanel::JSON::XS/MAPPING> aboout the normal conversion of JSON number.
+See to L<JSON::XS/MAPPING> about the normal conversion of JSON number.
 
 =head2 loose
 
     $json = $json->loose([$enable])
 
 The unescaped [\x00-\x1f\x22\x2f\x5c] strings are invalid in JSON strings
-and the module doesn't allow to C<decode> to these (except for \x2f).
+and the module doesn't allow you to C<decode> to these (except for \x2f).
 If C<$enable> is true (or missing), then C<decode>  will accept these
 unescaped strings.
 
     $json->loose->decode(qq|["abc
                                    def"]|);
 
-See L<Cpanel::JSON::XS/SSECURITY CONSIDERATIONS>.
+See L<Cpanel::JSON::XS/SECURITY CONSIDERATIONS>.
 
 =head2 escape_slash
 
@@ -2569,7 +2571,7 @@ it as an integer value. If that fails, it will try to represent it as
 a numeric (floating point) value if that is possible without loss of
 precision. Otherwise it will preserve the number as a string value (in
 which case you lose roundtripping ability, as the JSON number will be
-re-encoded toa JSON string).
+re-encoded to a JSON string).
 
 Numbers containing a fractional or exponential part will always be
 represented as numeric (floating point) values, possibly at a loss of
@@ -2579,9 +2581,9 @@ the JSON number will still be re-encoded as a JSON number).
 Note that precision is not accuracy - binary floating point values cannot
 represent most decimal fractions exactly, and when converting from and to
 floating point, C<JSON> only guarantees precision up to but not including
-the leats significant bit.
+the least significant bit.
 
-When C<allow_bignum> is enable, the big integers 
+When C<allow_bignum> is enabled, the big integers 
 and the numeric can be optionally converted into L<Math::BigInt> and
 L<Math::BigFloat> objects.
 
@@ -2589,7 +2591,7 @@ L<Math::BigFloat> objects.
 
 These JSON atoms become C<JSON::PP::true> and C<JSON::PP::false>,
 respectively. They are overloaded to act almost exactly like the numbers
-C<1> and C<0>. You can check wether a scalar is a JSON boolean by using
+C<1> and C<0>. You can check whether a scalar is a JSON boolean by using
 the C<JSON::is_bool> function.
 
    print JSON::PP::true . "\n";
@@ -2607,7 +2609,7 @@ C<JSON> will install these missing overloading features to the backend modules.
 
 A JSON null atom becomes C<undef> in Perl.
 
-C<JSON::PP::null> returns C<unddef>.
+C<JSON::PP::null> returns C<undef>.
 
 =back
 
@@ -2693,9 +2695,9 @@ You can force the type to be a number by numifying it:
 
    my $x = "3"; # some variable containing a string
    $x += 0;     # numify it, ensuring it will be dumped as a number
-   $x *= 1;     # same thing, the choise is yours.
+   $x *= 1;     # same thing, the choice is yours.
 
-You can not currently force the type in other, less obscure, ways.
+You cannot currently force the type in other, less obscure, ways.
 
 Note that numerical precision has the same meaning as under Perl (so
 binary to decimal conversion follows the same rules as in Perl, which
@@ -2706,7 +2708,7 @@ error to pass those in.
 
 =item Big Number
 
-When C<allow_bignum> is enable, 
+When C<allow_bignum> is enabled, 
 C<encode> converts C<Math::BigInt> objects and C<Math::BigFloat>
 objects into JSON numbers.
 
@@ -2725,7 +2727,7 @@ Perl can handle Unicode and the JSON::PP de/encode methods also work properly.
     $json->allow_nonref->encode(chr hex 3042);
     $json->allow_nonref->encode(chr hex 12345);
 
-Reuturns C<"\u3042"> and C<"\ud808\udf45"> respectively.
+Returns C<"\u3042"> and C<"\ud808\udf45"> respectively.
 
     $json->allow_nonref->decode('"\u3042"');
     $json->allow_nonref->decode('"\ud808\udf45"');
@@ -2742,7 +2744,7 @@ Perl can handle Unicode and the JSON::PP de/encode methods also work.
 
 =head2 Perl 5.005
 
-Perl 5.005 is a byte sementics world -- all strings are sequences of bytes.
+Perl 5.005 is a byte semantics world -- all strings are sequences of bytes.
 That means the unicode handling is not available.
 
 In encoding,
@@ -2761,7 +2763,7 @@ In decoding,
     $json->decode('"\u00e3\u0081\u0082"');
 
 The returned is a byte sequence C<0xE3 0x81 0x82> for UTF-8 encoded
-japanese character (C<HIRAGANA LETTER A>).
+Japanese character (C<HIRAGANA LETTER A>).
 And if it is represented in Unicode code point, C<U+3042>.
 
 Next, 
@@ -2801,7 +2803,7 @@ Makamaka Hannyaharamitu, E<lt>makamaka[at]cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2014 by Makamaka Hannyaharamitu
+Copyright 2007-2016 by Makamaka Hannyaharamitu
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

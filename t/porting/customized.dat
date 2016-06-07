@@ -45,7 +45,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/vstrings.t c60ad8cfd3496f136aeb710
 File::Path cpan/File-Path/lib/File/Path.pm 623799e76e11a756ca5e18749d8bc1bdc3800ecd
 File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
-IPC::SysV cpan/IPC-SysV/t/ipcsysv.t ee2c95e846ea201afe13c9ec53b09cef62c8ac68
+JSON::PP cpan/JSON-PP/lib/JSON/PP.pm ea210ef037088b8ff77db8a0c149e09032a4beab
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 717bab7dc86869319e0f1b1b9cf31d068976e265
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm f0be7387ddddc523a0cf23708e8a00efc527af82
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086

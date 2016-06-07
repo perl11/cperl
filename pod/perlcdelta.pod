@@ -292,6 +292,12 @@ Added some methods.
 Sync with upstream, they fixed
 https://rt.cpan.org/Public/Bug/Display.html?id=112827
 
+=item JSON::PP 2.27400
+
+Some fixes.
+Kept our cperl-specific fallbacks to
+Cpanel::JSON::XS and boolean interop.
+
 =back
 
 =head2 Not Updated Modules and Pragmata
