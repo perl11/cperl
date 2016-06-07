@@ -129,6 +129,11 @@ Improvements from cperl-5.24:
 With our Net::Domain patch for darwin.
 Improved utf8 and ipv6 support.
 
+=item Pod::Checker 1.73
+
+Now based on Pod::Simple, not on Pod::Parser anymore.
+dos2unix
+
 =item Devel-NYTProf
 
 Silence some CC warnings.

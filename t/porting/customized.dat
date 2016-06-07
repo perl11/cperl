@@ -41,7 +41,7 @@ File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e284969
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 33bec4616c3c349b7f8a01cb370fd04d12ea3499
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm fc4d5eea531db805a9ff6a46af3729a2663e61df
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
-Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 99fe178fa11ef47b51df3795073318cd8f2faf5b
+Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
 Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL d1473c88b8cc5543d174966096b95f2d84a7fdcc
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
 Safe dist/Safe/Safe.pm fb1cf6efdfcd1d2dac2aca90bccd05cb8d1ac1c4
