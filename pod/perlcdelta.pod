@@ -316,6 +316,10 @@ No changes.
 
 Many changes.
 
+=item Module-Metadata 1.000031-TRIAL
+
+Fixed the F<t/extract-version.t> TODO tests.
+
 =back
 
 =head2 Not Updated Modules and Pragmata
