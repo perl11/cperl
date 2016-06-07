@@ -197,6 +197,36 @@ eval {
 };
 is($@, '', 'ex-PVBM assert'.$@);
 
+# RT perl #127855
+# Check that stringification and assignment to itself doesn't break
+# anything. This is unlikely to actually fail the tests; its more something
+# for valgrind to spot. It will also only fail if SvGROW or its caller
+# decides to over-allocate (otherwise copying the string will skip the
+# sv_grow(), as the new size is the same as the current size).
+
+{
+    my $s;
+    for my $len (1..40) {
+        $s = 'x' x $len;
+        my $t = $s;
+        $t = "$t";
+        ok($s eq $t, "RT 127855: len=$len");
+    }
+}
+
+# time() can't be tested using the standard framework since two successive
+# calls may return differing values.
+
+{
+    my $a;
+    $a = time;
+    $b = time;
+    my $diff = $b - $a;
+    cmp_ok($diff, '>=', 0,  "time is monotically increasing");
+    cmp_ok($diff, '<',  2,  "time delta is small");
+}
+
+
 done_testing();
 
 __END__
@@ -204,7 +234,7 @@ ref $xref			# ref
 ref $cstr			# ref nonref
 `$runme -e "print qq[1\\n]"`				# backtick skip(MSWin32)
 `$undefed`			# backtick undef skip(MSWin32)
-<*>				# glob
+'???'				# glob  (not currently OA_TARGLEX)
 <OP>				# readline
 'faked'				# rcatline
 (@z = (1 .. 3))			# aassign
@@ -337,7 +367,7 @@ getpgrp				# getpgrp
 setpgrp				# setpgrp
 getpriority $$, $$		# getpriority
 '???'				# setpriority
-time				# time
+'???'				# time
 localtime $^T			# localtime
 gmtime $^T			# gmtime
 '???'				# sleep: can randomly fail
