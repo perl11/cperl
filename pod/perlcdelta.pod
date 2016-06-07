@@ -324,6 +324,10 @@ Fixed the F<t/extract-version.t> TODO tests.
 
 Keeping our darwin performance fix for hostname
 
+=item Pod::Checker 1.73
+
+Now based on Pod::Simple, not on Pod::Parser anymore.
+
 =back
 
 =head2 Not Updated Modules and Pragmata
@@ -331,11 +335,6 @@ Keeping our darwin performance fix for hostname
 This modules are currently not ready to be updated.
 
 =over 4
-
-=item Pod::Checker 1.71
-
-1.71 breaks t/porting/podcheck.t
-L<[RT #113846]|https://rt.cpan.org/Ticket/Display.html?id=113846>
 
 =item MakeUtils::MakeMaker 7.11_06
 
