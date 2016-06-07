@@ -19,7 +19,13 @@ else {
     plan 'tests' => 1;
 }
 
-subtest 'fork within subtest' => sub {
+TODO: {
+  local $TODO = "fork problem with MSVC >= 12"
+    if ($^O eq 'MSWin32'
+        and $Config{cc} =~ /cl\.exe/
+        and $Config{ccversion} ge '15.00.30729.01');
+
+  subtest 'fork within subtest' => sub {
     plan tests => 2;
 
     my $pipe = IO::Pipe->new;
@@ -47,5 +53,6 @@ subtest 'fork within subtest' => sub {
         diag 'Child Done';
         exit 0;
     }
-};
+  };
 
+}
