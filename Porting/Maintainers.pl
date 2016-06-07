@@ -852,23 +852,6 @@ use File::Glob qw(:case);
         'CUSTOMIZED'   => [ qw( lib_pm.PL )],
     },
 
-    'Net::Domain' => {
-        'DISTRIBUTION' => 'SHAY/libnet-3.07.tar.gz',
-        'FILES'        => q[cpan/libnet],
-        'EXCLUDED'     => [
-            qw( Configure
-                t/changes.t
-                t/critic.t
-                t/pod.t
-                t/pod_coverage.t
-                ),
-            qr(^demos/),
-            qr(^t/external/),
-        ],
-        # cperl fix 3.06_01 for darwin to use hostname
-        'CUSTOMIZED'   => [ qw( lib/Net/Domain.pm )],
-    },
-
     'Locale::Codes' => {
         'DISTRIBUTION' => 'SBECK/Locale-Codes-3.39.tar.gz',
         'FILES'        => q[cpan/Locale-Codes],
@@ -1011,6 +994,23 @@ use File::Glob qw(:case);
         # Already merged upstream:
         # https://github.com/Perl-Toolchain-Gang/Module-Metadata/commit/9658697
         'CUSTOMIZED'   => [ qw[ t/lib/GeneratePackage.pm ] ],
+    },
+
+    'Net::Domain' => {
+        'DISTRIBUTION' => 'SHAY/libnet-3.08.tar.gz',
+        'FILES'        => q[cpan/libnet],
+        'EXCLUDED'     => [
+            qw( Configure
+                t/changes.t
+                t/critic.t
+                t/pod.t
+                t/pod_coverage.t
+                ),
+            qr(^demos/),
+            qr(^t/external/),
+        ],
+        # cperl fix 3.06_01 for darwin to use hostname
+        'CUSTOMIZED'   => [ qw( lib/Net/Domain.pm )],
     },
 
     'Net::Ping' => {

@@ -320,6 +320,10 @@ Many changes.
 
 Fixed the F<t/extract-version.t> TODO tests.
 
+=item libnet 3.08
+
+Keeping our darwin performance fix for hostname
+
 =back
 
 =head2 Not Updated Modules and Pragmata

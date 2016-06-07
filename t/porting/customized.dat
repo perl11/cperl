@@ -49,7 +49,7 @@ JSON::PP cpan/JSON-PP/lib/JSON/PP.pm ea210ef037088b8ff77db8a0c149e09032a4beab
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 717bab7dc86869319e0f1b1b9cf31d068976e265
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm f0be7387ddddc523a0cf23708e8a00efc527af82
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
-Net::Domain cpan/libnet/lib/Net/Domain.pm 0fa6d91b3768f3746b4319e97ea7e67b9ff29aac
+Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 99fe178fa11ef47b51df3795073318cd8f2faf5b
 Pod::Perldoc cpan/Pod-Perldoc/lib/Pod/Perldoc.pm fe0bc906fb74b69cfd3fb289316ba669d770d465
 Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL d1473c88b8cc5543d174966096b95f2d84a7fdcc
