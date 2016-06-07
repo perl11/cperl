@@ -47,8 +47,8 @@ File::Path cpan/File-Path/lib/File/Path.pm 623799e76e11a756ca5e18749d8bc1bdc3800
 File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 IPC::SysV cpan/IPC-SysV/t/ipcsysv.t ee2c95e846ea201afe13c9ec53b09cef62c8ac68
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 068ea830aa2b07af8c858f4e433bbeaba6b03c7c
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 6acd9338900d9c106e6641e4ea09db3d00f38d61
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm d445f6aa09e43f4edcd8fd9baffa3a79c62e562a
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm f0be7387ddddc523a0cf23708e8a00efc527af82
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Domain.pm 0fa6d91b3768f3746b4319e97ea7e67b9ff29aac
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 99fe178fa11ef47b51df3795073318cd8f2faf5b
@@ -57,8 +57,6 @@ Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL d1473c88b8cc5543d174966096b95f2d84a7fd
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
 Safe dist/Safe/Safe.pm fb1cf6efdfcd1d2dac2aca90bccd05cb8d1ac1c4
 Safe dist/Safe/t/safeops.t b962ac5a408e7f911cbcd31c06c6f7acb9986ea5
-Socket cpan/Socket/Makefile.PL 214589d41e8d3cb6beb580f427db5f5dd44e54b8
-Socket cpan/Socket/Socket.xs b05b011b2198b1ad40b60c7f76f5aff5d04aa487
 Term::ReadKey cpan/Term-ReadKey/genchars.pl bb25c74979c6139c3413d97df497329e5775cb19
 Term::ReadKey cpan/Term-ReadKey/Makefile.PL 6bf8420432bd6de3395fa818bd860e8665e5db29
 Test::Harness cpan/Test-Harness/t/lib/NoFork.pm e96d39d98c176745a317e2d178713708f03e8cae

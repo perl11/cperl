@@ -13,7 +13,7 @@ use warnings;
 use File::Find;
 use ExtUtils::MM_Unix;
 use version;
-use lib "Porting";
+use lib (".", "./Porting");
 use Maintainers qw(%Modules files_to_modules);
 use File::Spec;
 use Parse::CPAN::Meta;
@@ -353,6 +353,23 @@ sub fetch_url {
     }
 }
 
+sub version_sort {
+  my ($a, $b) = @_;
+  $a =~ s/c$//;
+  $b =~ s/c$//;
+  if ($a =~ /^[+-]?[\d\.]+$/ and $b =~ /^[+-]?[\d\.]+$/) {
+    return $a <=> $b;
+  } else {
+    return $a cmp $b;
+  }
+}
+
+sub version_strip {
+  my $a = shift;
+  $a =~ s/c$//;
+  $a
+}
+
 sub make_corelist_delta {
   my($version, $lines, $existing) = @_;
   # Trust core perl, if someone does use a weird version number the worst that
@@ -365,9 +382,9 @@ sub make_corelist_delta {
   my %deltas;
   # Search for the release with the least amount of changes (this avoids having
   # to ask for where this perl was branched from).
-  for my $previous (reverse sort { $a <=> $b } keys %$existing) {
+  for my $previous (sort { version_sort($b,$a) } keys %$existing) {
     # Shouldn't happen, but ensure we don't load weird data...
-    next if $previous > $version || $previous == $version;
+    next if $previous gt $version || $previous eq $version;
     my $delta = $deltas{$previous} = {};
     ($delta->{changed}, $delta->{removed}) = calculate_delta(
       $existing->{$previous}, \%versions);
@@ -376,7 +393,7 @@ sub make_corelist_delta {
   my $smallest = (sort {
       ((keys($deltas{$a}->{changed}->%*) + keys($deltas{$a}->{removed}->%*)) <=>
        (keys($deltas{$b}->{changed}->%*) + keys($deltas{$b}->{removed}->%*))) ||
-      $b <=> $a
+      $b cmp $a
     } keys %deltas)[0];
 
   return {
@@ -398,7 +415,7 @@ sub make_coreutils_delta {
   my %deltas;
   # Search for the release with the least amount of changes (this avoids having
   # to ask for where this perl was branched from).
-  for my $previous (reverse sort { $a <=> $b } keys %Module::CoreList::Utils::utilities) {
+  for my $previous (sort { version_sort($b, $a) } keys %Module::CoreList::Utils::utilities) {
     # Shouldn't happen, but ensure we don't load weird data...
     next if $previous > $version || $previous == $version;
 
@@ -410,7 +427,7 @@ sub make_coreutils_delta {
   my $smallest = (sort {
       ((keys($deltas{$a}->{changed}->%*) + keys($deltas{$a}->{removed}->%*)) <=>
        (keys($deltas{$b}->{changed}->%*) + keys($deltas{$b}->{removed}->%*))) ||
-      $b <=> $a
+      $b cmp $a
     } keys %deltas)[0];
 
   return {

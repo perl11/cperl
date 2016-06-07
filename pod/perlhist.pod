@@ -583,10 +583,20 @@ the strings?).
  rurban    5.22.2c-RC2  2016-May-03
  rurban    5.22.2c      2016-May-09
  rurban    5.22.3c      2016-Jun-03
+ rurban    5.22.4c      2016-Jul-05?
 
  Ricardo   5.24.0-RC1   2016-Apr-13     The 5.24 maintenance track
+ Ricardo   5.24.0-RC2   2016-Apr-23
+ Ricardo   5.24.0-RC3   2016-Apr-26
+ Ricardo   5.24.0-RC4   2016-May-02
+ Ricardo   5.24.0-RC5   2016-May-04
+ Ricardo   5.24.0       2016-May-09
 
- Ricardo   5.24.0-RC1   2016-Apr-13     The 5.24 maintenance track
+ rurban    5.24.0c-RC1  2016-Jun-07     cperl 5.24
+
+ Ricardo   5.25.0       2016-May-09     The 5.25 development track
+ Sawyer X  5.25.1       2016-May-20
+
 
 =head2 SELECTED RELEASE MEMORY USAGE
 

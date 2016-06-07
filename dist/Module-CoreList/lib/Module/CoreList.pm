@@ -4,17 +4,19 @@ use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use Module::CoreList::TieHashDelta;
 use version;
-$VERSION = '5.20160603c';
+$VERSION = '5.20160607c';
 $VERSION =~ s/c$//;
 
 sub _released_order {   # Sort helper, to make '?' sort after everything else
+    warn "no $a release" if !exists $released{$a};
+    warn "no $b release" if !exists $released{$b};
     (substr($released{$a}, 0, 1) eq "?")
     ? ((substr($released{$b}, 0, 1) eq "?")
         ? 0
         : 1)
     : ((substr($released{$b}, 0, 1) eq "?")
         ? -1
-        : version_sort($released{$a}, $released{$b} ))
+        : version_sort($released{$a}, $released{$b} )) # ie string sort
 }
 
 my $dumpinc = 0;
@@ -286,18 +288,23 @@ sub changes_between {
     5.023002 => '2015-08-20',
     5.020003 => '2015-09-12',
     '5.022001c' => '2015-09-14',
-    5.023003 => '2015-09-20',
-    5.023004 => '2015-10-20',
-    5.023005 => '2015-11-20',
-    5.022001 => '2015-12-13',
-    5.023006 => '2015-12-21',
-    5.023007 => '2016-01-20',
-    5.023008 => '2016-02-20',
-    5.023009 => '2016-03-20',
-    5.023010 => '2016-04-20',
+    5.023003    => '2015-09-20',
+    5.023004    => '2015-10-20',
+    5.023005    => '2015-11-20',
+    5.022001    => '2015-12-13',
+    5.023006    => '2015-12-21',
+    5.023007    => '2016-01-20',
+    5.023008    => '2016-02-20',
+    5.023009    => '2016-03-20',
+    5.022002    => '2016-04-29',
     '5.022002c' => '2016-05-09',
+    5.024000    => '2016-05-09',
+    5.025000    => '2016-05-09',
+    5.025001    => '2016-05-20',
     '5.022003c' => '2016-06-03',
-    '5.024000c' => '2016-06-??',
+    '5.024000c' => '2016-06-07?',
+    5.025002    => '2016-06-??',
+    '5.022004c' => '2016-07-05?',
   );
 
 sub version_sort {
@@ -12419,14 +12426,178 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Win32API::File::ExtUtils::Myconst2perl'=> 1,
         }
     },
-    5.023010 => {
+    5.022002 => {
+        delta_from => 5.022001,
+        changed => {
+            'B::Op_private'         => '5.022002',
+            'Config'                => '5.022002',
+            'Cwd'                   => '3.56_01',
+            'File::Spec'            => '3.56_01',
+            'File::Spec::Cygwin'    => '3.56_01',
+            'File::Spec::Epoc'      => '3.56_01',
+            'File::Spec::Functions' => '3.56_01',
+            'File::Spec::Mac'       => '3.56_01',
+            'File::Spec::OS2'       => '3.56_01',
+            'File::Spec::Unix'      => '3.56_01',
+            'File::Spec::VMS'       => '3.56_01',
+            'File::Spec::Win32'     => '3.56_01',
+            'Module::CoreList'      => '5.20160429',
+            'Module::CoreList::TieHashDelta'=> '5.20160429',
+            'Module::CoreList::Utils'=> '5.20160429',
+            'XS::APItest'           => '0.72_01',
+        },
+        removed => {
+        }
+    },
+    5.024000 => {
         delta_from => 5.023009,
         changed => {
-            'B::Op_private'         => '5.023010',
-            'Config'                => '5.02301',
-            'Module::CoreList'      => '5.20160420',
-            'Module::CoreList::TieHashDelta'=> '5.20160420',
-            'Module::CoreList::Utils'=> '5.20160420',
+            'B::Op_private'         => '5.024000',
+            'Config'                => '5.024',
+            'File::Copy'            => '2.31',
+            'File::Path'            => '2.12_01',
+            'File::Spec::AmigaOS'   => '3.64',
+            'IO::Handle'            => '1.36',
+            'Module::CoreList'      => '5.20160506',
+            'Module::CoreList::TieHashDelta'=> '5.20160506',
+            'Module::CoreList::Utils'=> '5.20160506',
+            'ODBM_File'             => '1.14',
+            'POSIX'                 => '1.65',
+            'Pod::Man'              => '4.07',
+            'Pod::ParseLink'        => '4.07',
+            'Pod::Text'             => '4.07',
+            'Pod::Text::Color'      => '4.07',
+            'Pod::Text::Overstrike' => '4.07',
+            'Pod::Text::Termcap'    => '4.07',
+            'Thread::Queue'         => '3.09',
+            'Time::HiRes'           => '1.9733',
+            'threads'               => '2.07',
+            'threads::shared'       => '1.51',
+            'locale'                => '1.09',
+        },
+        removed => {
+        }
+    },
+    5.025000 => {
+        delta_from => 5.024,
+        changed => {
+            'B::Op_private'         => '5.025000',
+            'Config'                => '5.025',
+            'Module::CoreList'      => '5.20160507',
+            'Module::CoreList::TieHashDelta'=> '5.20160507',
+            'Module::CoreList::Utils'=> '5.20160507',
+            'feature'               => '1.43',
+        },
+        removed => {
+        }
+    },
+    5.025001 => {
+        delta_from => 5.025,
+        changed => {
+            'Archive::Tar'          => '2.08',
+            'Archive::Tar::Constant'=> '2.08',
+            'Archive::Tar::File'    => '2.08',
+            'B::Op_private'         => '5.025001',
+            'Carp'                  => '1.41',
+            'Carp::Heavy'           => '1.41',
+            'Config'                => '5.025001',
+            'Config::Perl::V'       => '0.26',
+            'DB_File'               => '1.838',
+            'Digest::MD5'           => '2.55',
+            'IPC::Cmd'              => '0.94',
+            'IPC::Msg'              => '2.07',
+            'IPC::Semaphore'        => '2.07',
+            'IPC::SharedMem'        => '2.07',
+            'IPC::SysV'             => '2.07',
+            'List::Util'            => '1.45_01',
+            'List::Util::XS'        => '1.45_01',
+            'Locale::Codes'         => '3.38',
+            'Locale::Codes::Constants'=> '3.38',
+            'Locale::Codes::Country'=> '3.38',
+            'Locale::Codes::Country_Codes'=> '3.38',
+            'Locale::Codes::Country_Retired'=> '3.38',
+            'Locale::Codes::Currency'=> '3.38',
+            'Locale::Codes::Currency_Codes'=> '3.38',
+            'Locale::Codes::Currency_Retired'=> '3.38',
+            'Locale::Codes::LangExt'=> '3.38',
+            'Locale::Codes::LangExt_Codes'=> '3.38',
+            'Locale::Codes::LangExt_Retired'=> '3.38',
+            'Locale::Codes::LangFam'=> '3.38',
+            'Locale::Codes::LangFam_Codes'=> '3.38',
+            'Locale::Codes::LangFam_Retired'=> '3.38',
+            'Locale::Codes::LangVar'=> '3.38',
+            'Locale::Codes::LangVar_Codes'=> '3.38',
+            'Locale::Codes::LangVar_Retired'=> '3.38',
+            'Locale::Codes::Language'=> '3.38',
+            'Locale::Codes::Language_Codes'=> '3.38',
+            'Locale::Codes::Language_Retired'=> '3.38',
+            'Locale::Codes::Script' => '3.38',
+            'Locale::Codes::Script_Codes'=> '3.38',
+            'Locale::Codes::Script_Retired'=> '3.38',
+            'Locale::Country'       => '3.38',
+            'Locale::Currency'      => '3.38',
+            'Locale::Language'      => '3.38',
+            'Locale::Maketext'      => '1.27',
+            'Locale::Script'        => '3.38',
+            'Module::CoreList'      => '5.20160520',
+            'Module::CoreList::TieHashDelta'=> '5.20160520',
+            'Module::CoreList::Utils'=> '5.20160520',
+            'Module::Metadata'      => '1.000032',
+            'POSIX'                 => '1.69',
+            'Scalar::Util'          => '1.45_01',
+            'Sub::Util'             => '1.45_01',
+            'Sys::Syslog'           => '0.34',
+            'Term::ANSIColor'       => '4.05',
+            'Test2'                 => '1.302015',
+            'Test2::API'            => '1.302015',
+            'Test2::API::Breakage'  => '1.302015',
+            'Test2::API::Context'   => '1.302015',
+            'Test2::API::Instance'  => '1.302015',
+            'Test2::API::Stack'     => '1.302015',
+            'Test2::Event'          => '1.302015',
+            'Test2::Event::Bail'    => '1.302015',
+            'Test2::Event::Diag'    => '1.302015',
+            'Test2::Event::Exception'=> '1.302015',
+            'Test2::Event::Note'    => '1.302015',
+            'Test2::Event::Ok'      => '1.302015',
+            'Test2::Event::Plan'    => '1.302015',
+            'Test2::Event::Skip'    => '1.302015',
+            'Test2::Event::Subtest' => '1.302015',
+            'Test2::Event::Waiting' => '1.302015',
+            'Test2::Formatter'      => '1.302015',
+            'Test2::Formatter::TAP' => '1.302015',
+            'Test2::Hub'            => '1.302015',
+            'Test2::Hub::Interceptor'=> '1.302015',
+            'Test2::Hub::Interceptor::Terminator'=> '1.302015',
+            'Test2::Hub::Subtest'   => '1.302015',
+            'Test2::IPC'            => '1.302015',
+            'Test2::IPC::Driver'    => '1.302015',
+            'Test2::IPC::Driver::Files'=> '1.302015',
+            'Test2::Util'           => '1.302015',
+            'Test2::Util::ExternalMeta'=> '1.302015',
+            'Test2::Util::HashBase' => '1.302015',
+            'Test2::Util::Trace'    => '1.302015',
+            'Test::Builder'         => '1.302015',
+            'Test::Builder::Formatter'=> '1.302015',
+            'Test::Builder::Module' => '1.302015',
+            'Test::Builder::Tester' => '1.302015',
+            'Test::Builder::Tester::Color'=> '1.302015',
+            'Test::Builder::TodoDiag'=> '1.302015',
+            'Test::More'            => '1.302015',
+            'Test::Simple'          => '1.302015',
+            'Test::Tester'          => '1.302015',
+            'Test::Tester::Capture' => '1.302015',
+            'Test::Tester::CaptureRunner'=> '1.302015',
+            'Test::Tester::Delegate'=> '1.302015',
+            'Test::use::ok'         => '1.302015',
+            'XS::APItest'           => '0.81',
+            '_charnames'            => '1.44',
+            'charnames'             => '1.44',
+            'ok'                    => '1.302015',
+            'perlfaq'               => '5.021011',
+            're'                    => '0.33',
+            'threads'               => '2.08',
+            'threads::shared'       => '1.52',
         },
         removed => {
         }
@@ -12436,18 +12607,80 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         changed => {
             'B::C'                    => '1.54_06',
             'DynaLoader'              => '2.03c',
+            'Scalar::Utils'           => '1.45_03',
+            'attributes'              => '1.10c',
+        },
+        removed => {
+        }
+    },
+    '5.022004c' => {
+        delta_from => '5.022003c',
+        changed => {
+            'B::C'                    => '1.54_07',
+            'DynaLoader'              => '2.04c',
+            'Socket' 		      => '2.021_02',
+            'Config' 		      => '6.18',
+            'Storable' 		      => '3.00c',
+            'Devel::NYTProf' 	      => '6.03',
+            'Digest::MD5' 	      => '2.55_01',
         },
         removed => {
         }
     },
     '5.024000c' => {
-        delta_from => '5.022002c',
+        delta_from => '5.022003c',
         changed => {
             'B::Op_private'         => '5.024000',
             'Config'                => '5.024',
             'Module::CoreList'      => '5.20160418c',
             'Module::CoreList::TieHashDelta'=> '5.20160418c',
             'Module::CoreList::Utils'=> '5.20160418c',
+            'B::C'                   => '1.54_07',
+            'DynaLoader'             => '2.04c',
+            'Socket' 		     => '2.021_02',
+            'Config' 		     => '6.18',
+            'Storable' 		     => '3.00c',
+            'Devel::NYTProf' 	     => '6.03',
+            'Digest::MD5' 	     => '2.55_01',
+            'B::Deparse'             => '1.37_02c',
+            'Test::Simple'           => '1.001014c',
+            'Test::More'             => '1.001014c',
+            'Test::Builder::Module'  => '1.001014c',
+            'File::Path'             => '3.12_01c',
+            'Cwd'                    => '4.63c',
+            'Pod::Simple'            => '4.30c',
+            'Pod::Html'              => '2.22c',
+            'bignum'                 => '0.42c',
+            'bigint'                 => '0.42c',
+            'bigrat'                 => '0.42c',
+            'CPAN'                   => '1.63',
+            'CPAN::Distribution'     => '3.04c',
+            'ExtUtils::MakeMaker'    => '8.04_03',
+            'ExtUtils::Command::MM'  => '8.04_03',
+            'ExtUtils::Liblist'      => '8.04_03',
+            'ExtUtils::Liblist::Kid' => '8.04_04',
+            'ExtUtils::Mkbootstrap'  => '8.04_03c',
+            'ExtUtils::Mksymlists'   => '8.04_03',
+            'Parse::CPAN::Meta'      => '1.5000c',
+            'CPAN::Meta'             => '2.150005c',
+            'CPAN::Meta::Requirements'=> '3.140c',
+            'Test::Harness'          => '3.36',
+            'Hash::Util::FieldHash'  => '',
+            'YAML::LibYAML'          => '0.70',
+            'Filter::Util::Call'     => '0.92',
+            'Devel::Peek'            => '1.23',
+            'B'                      => '1.62_02',
+            'Devel::NYTProf'         => '6.03',
+            'perl5db'                => '1.49_04c',
+            'warnings'               => '1.35',
+            'Config::Perl::V'        => '0.25_01',
+        },
+        removed => {
+        }
+    },
+    5.025002 => {
+        delta_from => 5.025001,
+        changed => {
         },
         removed => {
         }
@@ -13025,6 +13258,16 @@ for my $version (sort { version_sort($a, $b) } keys %delta) {
         changed => {},
         removed => {}
     },
+    '5.022003c' => {
+        delta_from => '5.022002c',
+        changed => {},
+        removed => {}
+    },
+    '5.024000c' => {
+        delta_from => '5.022003c',
+        changed => {},
+        removed => {}
+    },
     5.023001 => {
         delta_from => 5.023000,
         changed => {
@@ -13104,6 +13347,41 @@ for my $version (sort { version_sort($a, $b) } keys %delta) {
     },
     5.023010 => {
         delta_from => 5.023009,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.022002 => {
+        delta_from => 5.022001,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.024000 => {
+        delta_from => 5.023009,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.025000 => {
+        delta_from => 5.024,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.025001 => {
+        delta_from => 5.025,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.025002 => {
+        delta_from => 5.025001,
         changed => {
         },
         removed => {

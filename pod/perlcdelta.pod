@@ -131,7 +131,7 @@ Add more cperl-specific ops: aelem*_u, u_{add,subtract,multiply},
 
 Modernized
 
-=item File-Path 3.09c
+=item File-Path 3.12_01c
 
 Modernized. Enforce many str types.
 
@@ -172,7 +172,7 @@ Fixed tests. Type skip calls and File-Path args.
 
 Type File-Path args.
 
-=item CPAN-Meta-YAML
+=item Parse-CPAN-Meta 1.5000c
 
 Modernized.
 str type for skip
@@ -182,7 +182,9 @@ str type for skip
 fix Encode test for modernized Test-Simple,
 stringify the 1st skip arg
 
-=item Test-Harness
+=item CPAN::Meta::Requirements 3.140c
+
+=item Test-Harness 3.36
 
 type the skip calls
 
@@ -190,7 +192,7 @@ type the skip calls
 
 type the skip calls
 
-=item YAML-LibYAML
+=item YAML-LibYAML 0.70
 
 Spiffy and Test::Base 0.88c fixes for fake signatures.
 
@@ -200,7 +202,7 @@ Expand the compile-time state of Test::Base to avoid
 source filters.
 Also add . to @INC in some tests
 
-=item Filter-Util-Call
+=item Filter-Util-Call 0.92
 
 Fixed 1 test for signature errmsg
 
@@ -208,7 +210,7 @@ Fixed 1 test for signature errmsg
 
 Fixed 1 test for signature errmsg
 
-=item Devel-Peek
+=item Devel-Peek 1.23
 
 Skip tests for changed dynamic prototype() with sigs.
 Fix tests with -DDEBUG_LEAKING_SCALARS
@@ -222,7 +224,7 @@ and B::UNOP_AUX::string.
 Note: With threads in B::UNOP_AUX::aux_list the padoffsets are returned as such,
 and not as SV. This is different to upstream perl5, a perl5 bug.
 
-=item Devel-NYTProf
+=item Devel-NYTProf 6.03
 
 fix test for short CV_NAME_NOMAIN.
 silence a C compiler warning.
@@ -232,7 +234,9 @@ silence a C compiler warning.
 fix test for short CV_NAME_NOMAIN.
 run-time load IO::Handle, broke miniperl.
 
-=item warnings
+=item Digest::MD5 2.55_01
+
+=item warnings 1.35
 
 Add category C<types>.
 
