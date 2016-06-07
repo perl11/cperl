@@ -22,7 +22,7 @@ use Locale::Codes::Country_Retired;
 
 our($VERSION,@ISA,@EXPORT,@EXPORT_OK);
 
-$VERSION='3.38';
+$VERSION='3.39';
 @ISA       = qw(Exporter);
 @EXPORT    = qw(code2country
                 country2code
@@ -85,20 +85,6 @@ sub add_country_code_alias {
 
 sub delete_country_code_alias {
    return Locale::Codes::_delete_code_alias('country',@_);
-}
-
-#=======================================================================
-#
-# Deprecated function for backward compatibility
-# Will be removed in cperl-5.24, already gone upstream.
-#
-#=======================================================================
-
-sub alias_code {
-   my($alias,$code,@args) = @_;
-   my $success = rename_country_code($code,$alias,@args);
-   return 0  if (! $success);
-   return $alias;
 }
 
 1;

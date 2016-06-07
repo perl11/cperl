@@ -1805,8 +1805,15 @@ cpan/Locale-Codes/lib/Locale/Script.pm			Locale::Codes
 cpan/Locale-Codes/lib/Locale/Script.pod			Locale::Codes documentation
 cpan/Locale-Codes/t/country_old.t			Locale::Codes tests
 cpan/Locale-Codes/t/country.t				Locale::Codes tests
+cpan/Locale-Codes/t/currency_old.t			Locale::Codes tests
+cpan/Locale-Codes/t/currency.t				Locale::Codes tests
+cpan/Locale-Codes/t/langext.t				Locale::Codes tests
+cpan/Locale-Codes/t/langfam.t				Locale::Codes tests
 cpan/Locale-Codes/t/language_old.t			Locale::Codes tests
 cpan/Locale-Codes/t/language.t				Locale::Codes tests
+cpan/Locale-Codes/t/langvar.t				Locale::Codes tests
+cpan/Locale-Codes/t/script_old.t			Locale::Codes tests
+cpan/Locale-Codes/t/script.t				Locale::Codes tests
 cpan/Locale-Codes/t/testfunc.pl				Locale::Codes tests
 cpan/Locale-Codes/t/vals_country.pl			Locale::Codes tests
 cpan/Locale-Codes/t/vals_currency.pl			Locale::Codes tests

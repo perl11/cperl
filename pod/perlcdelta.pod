@@ -298,6 +298,12 @@ Some fixes.
 Kept our cperl-specific fallbacks to
 Cpanel::JSON::XS and boolean interop.
 
+=item Locale::Codes 3.39
+
+Removed the deprecated C<alias_code> subroutine.
+Added some LOCALE_CODE_* UN and GENC constants.
+
+
 =back
 
 =head2 Not Updated Modules and Pragmata
