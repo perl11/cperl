@@ -35,7 +35,8 @@
 
 /* -*- mode: c; c-basic-offset: 4; -*-
 
-Copyright (C) 2015, cPanel Inc
+Copyright (C) 2015, 2016 cPanel Inc
+Copyright (C) 2015 Daniel Dragan
 
 =head1 NAME
 
@@ -67,6 +68,17 @@ Structure of generated read-only hash table with name and string value.
 char *str, register unsigned int len)>
 
 API function to access the generated hash.
+
+=back
+
+=head2 Testing
+
+=over 4
+
+=item L<Mock::Config>
+
+C<%Config> is now truly readonly. But some tests require to temporarily
+write a Config value. Use L<Mock::Config> from CPAN to do that.
 
 =back
 
@@ -6778,7 +6790,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str8190,		T_INV,0,ALN64I"@@doubleinfbytes@@"}
     };
 
-#line 6781 "Config.xs"
+#line 6793 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

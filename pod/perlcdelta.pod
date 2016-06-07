@@ -250,6 +250,13 @@ Added t/09_roundtrip.t
 
 Various minor fixes
 
+=item Config::Perl::V 0.26_01
+
+cperl patches.
+Add tests for 5.22 and 5.24.
+Support some multi-line keys: ccflags ldflags lddlflags
+Changed tests to use done_testing().
+
 =back
 
 =head2 Not Updated Modules and Pragmata
