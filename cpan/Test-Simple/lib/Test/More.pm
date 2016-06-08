@@ -1253,7 +1253,7 @@ use TODO.  Read on.
 =cut
 
 ## no critic (Subroutines::RequireFinalReturn)
-sub skip ( str $why?, Int $how_many = 0) {
+sub skip ( str $why = "", Numeric $how_many = 0) {
     my $tb = Test::More->builder;
 
     unless ($how_many) {
@@ -1270,7 +1270,7 @@ sub skip ( str $why?, Int $how_many = 0) {
     #}
 
     for( 1 .. $how_many ) {
-        $tb->skip(defined $why ? $why : "");
+        $tb->skip($why);
     }
 
     no warnings 'exiting';
@@ -1335,7 +1335,7 @@ interpret them as passing.
 
 =cut
 
-sub todo_skip ( str $why, int $how_many = 0) {
+sub todo_skip ( str $why = "", Numeric $how_many = 0) {
     my $tb = Test::More->builder;
 
     unless( $how_many ) {

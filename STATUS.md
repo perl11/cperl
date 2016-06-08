@@ -148,14 +148,23 @@ The perlcc compiler cannot yet link on windows with MSVC.
 
 ## Test::More::skip errors
 
-**skip** has the historical problem of mixed up arguments of `$why` and
-`$count`, so those arguments are now strictly typed.
+**skip** has the historical problem of mixed up arguments of `$why`
+and `$count`, so those arguments are now stricter typed to catch all
+wrong arguments.
 
-When you use one or two args for `Test::More::skip()`, they need to properly typed.
+When you use one or two args for `Test::More::skip()`, they need to
+properly typed.
 
 I.e.
 
+**Mandatory:**
+
     skip $why, 1               => skip "$why", 1
+
+    plan tests => 1;
+    SKIP: { skip }             => SKIP: { skip "", 1; }
+
+**Recommended:**
 
     skip "why", scalar(@skips) => skip "why", int(@skips)
 
@@ -163,11 +172,29 @@ I.e.
 
 **Rationale**:
 
-`skip()` is a special case that the two args are very often mixed up. This error had previously to be detected at run-time with a fragile \d regex check. And in most cases this problem was never fixed, e.g. in `Module::Build`.
-Only with checking for strict types I could detect and fix all of the wrong usages, get rid of the unneeded run-time check, the code is better, all errors are detected at compile time, and not covered at run-time and with the new strict types the code is much more readable, what is the `Str $why` and what the `UInt $count` argument.
+`skip()` is a special case that the two args are very often mixed
+up. This error had previously to be detected at run-time with a
+fragile \d regex check. And in most cases this problem was never
+fixed, e.g. in `Module::Build`.
+
+Only with checking for strict types I could detect and fix all of the
+wrong usages, get rid of the unneeded run-time check, the code is
+better, all errors are detected at compile time, and not covered at
+run-time and with the new strict types the code is much more readable,
+what is the `str $why` and what the `UInt $count` argument.
+
+**When the `$count` can be optional**
+
+The Test::More docs state the following:
+*It's important that $how_many accurately reflects the number of tests
+in the SKIP block so the # of tests run will match up with your plan.
+If your plan is no_plan $how_many is optional and will default to 1.*
+
+I.e. Only with plan tests => 'no_plan' a bare skip is allowed.
 
 `$count` can never be a NV, thus `:Numeric` (which would allow `2*$skip`) is wrong. It needs to be `:UInt`. The used range op (`pp_flip`) would die at run-time with a overflowed number. `die "Range iterator outside integer range"`. `$count := -1` will lead to test timeouts.
 Note that cperl doesn't yet check `UInt` types at run-time for negative values. This might change in later versions with the `use types` pragma.
+For now the `$count` type is relaxed to `:Numeric` to permit simple arithmetic.
 
 `scalar(@array)` for array or hash length is also bad code, it needs to be replaced with `int(@array)`.
 Such a length can never be a NV or PV, it is always a UInt. Using `int()` is clearer, better and faster.
