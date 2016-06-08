@@ -156,9 +156,10 @@ Modernized
 
 Modernized
 
-=item bigint 0.42c
+=item bigint 0.43c
 
-Modernized
+Modernized.
+Fixed deprecated usage of ::binf, ::bnan as function.
 
 =item bigrat 0.42c
 
