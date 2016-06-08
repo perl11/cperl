@@ -4,8 +4,8 @@
 
 The name **cperl** stands for **a perl with classes, types, compiler
 support, continuation of perl5 development or just a company-friendly
-perl**, but currently it's only a better 5.22 based variant without
-classes.
+perl**, but currently it's only a better variant with types and signatures,
+and without classes.
 
 cperl started Feb. 2015 when `:const` was added, parrot was killed and
 it became clear that optimizing for fun is better than waiting for
@@ -44,6 +44,7 @@ sloppy types there neither.
 
 This is still much less than with a typical major perl5 release, and
 the patches are all provided in my distroprefs, so the upgrade is seemless.
+E.g. Test2 (the new Test::Simple) broke >15 modules without any patches.
 
 ![Memory usage: perl -e0](cperl-m0.png)
 

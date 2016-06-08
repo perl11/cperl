@@ -6,7 +6,7 @@ use vars qw[$VERSION %utilities];
 use Module::CoreList;
 use Module::CoreList::TieHashDelta;
 
-$VERSION = '5.20160607c';
+$VERSION = '5.20160608c';
 $VERSION =~ s/c$//;
 
 sub utilities {

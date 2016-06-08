@@ -4,7 +4,7 @@ use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use Module::CoreList::TieHashDelta;
 use version;
-$VERSION = '5.20160607c';
+$VERSION = '5.20160608c';
 $VERSION =~ s/c$//;
 
 sub _released_order {   # Sort helper, to make '?' sort after everything else
@@ -12643,9 +12643,9 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Devel::NYTProf' 	     => '6.03',
             'Digest::MD5' 	     => '2.55_01',
             'B::Deparse'             => '1.37_02c',
-            'Test::Simple'           => '1.001014c',
-            'Test::More'             => '1.001014c',
-            'Test::Builder::Module'  => '1.001014c',
+            'Test::Simple'           => '1.401014c',
+            'Test::More'             => '1.401014c',
+            'Test::Builder::Module'  => '1.401014c',
             'File::Path'             => '3.12_01c',
             'Cwd'                    => '4.63c',
             'Pod::Simple'            => '4.30c',
@@ -12676,6 +12676,24 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Config::Perl::V'        => '0.26_01',
             'Cpanel::JSON::XS'       => '3.0215',
             'DB_File'                => '1.838',
+            'Devel::PPPort'          => '3.33_02',
+            'HTTP::Tiny'             => '0.058',
+            'IPC::SysV'              => '2.07',
+            'JSON::PP'               => '2.27400',
+            'Locale::Codes'          => '3.39',
+            'Math::BigInt'           => '1.999722',
+            'Math::BigInt::FastCalc' => '0.42',
+            'Math::BigRat'           => '0.260804',
+            'Module-Metadata'        => '1.000031-TRIAL',
+            'Net::Domain'            => '3.08',
+            'Pod::Checker'           => '1.73',
+            'Pod::Functions'         => '1.11',
+            'Pod::Usage'             => '1.69_01',
+            'Sys::Syslog'            => '0.34',
+            'Time::HiRes'            => '1.9733',
+            'Thread::Queue'          => '3.11',
+            'threads'                => '2.09',
+            'threads::shared'        => '1.52',
         },
         removed => {
         }
