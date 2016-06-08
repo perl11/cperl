@@ -358,6 +358,10 @@ No changes from 5.22.3c
 
 Replace C<threads::yield> with C<< thread->join >> in F<t/07_lock.t>.
 
+=item threads 2.09
+
+Updated from 2.06. Improve 2 tests
+
 =back
 
 =head2 Not Updated Modules and Pragmata
