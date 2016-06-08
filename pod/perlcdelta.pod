@@ -275,10 +275,13 @@ Changed tests to use done_testing().
 
 Skip checking the return status of the api calls.
 
-=item Devel-PPPort 3.33_01
+=item Devel::PPPort 3.33_02
 
 Support the latest versions.
-Minor -Dfortify_inc fixes, kept our Hv macros.
+
+cperl specific:
+Minor -Dfortify_inc fixes, kept our Hv macros,
+fix __attribute__((warn_unused_result)) on windows.
 
 =back
 

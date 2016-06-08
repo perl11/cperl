@@ -388,7 +388,13 @@ XS(XS_Devel__PPPort_dAXMARK)
 
 #define NEED_SvRX
 
-int returnint(int x) __attribute__((warn_unused_result));
+int returnint(int x)
+#if !defined(PERL_MICRO) && defined __GNUC__ && !defined(__INTEL_COMPILER)
+# if __GNUC__ == 3 && __GNUC_MINOR__ >= 4 || __GNUC__ > 3 /* 3.4 -> */
+  __attribute__((warn_unused_result))
+# endif
+#endif
+  ;
 int returnint(int x) { return x * x; }
 
 =xsboot
