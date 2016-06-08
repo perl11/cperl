@@ -350,6 +350,10 @@ Handle F<fallback/syslog.h> properly. honor HAVE_SETLOCALE
 fix windows fallback.
 Exclude the F<t/facilities-routing.t> test requiring POE.
 
+=item Time::HiRes 1.9733
+
+No changes from 5.22.3c
+
 =back
 
 =head2 Not Updated Modules and Pragmata

@@ -1410,7 +1410,7 @@ use File::Glob qw(:case);
     },
 
     'Time::HiRes' => {
-        'DISTRIBUTION' => 'JHI/Time-HiRes-1.9732.tar.gz',
+        'DISTRIBUTION' => 'JHI/Time-HiRes-1.9733.tar.gz',
         'FILES'        => q[dist/Time-HiRes],
     },
 
