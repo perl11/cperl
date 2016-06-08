@@ -12,7 +12,7 @@ package Pod::Usage;
 use strict;
 
 use vars qw($VERSION @ISA @EXPORT);
-$VERSION = '1.68';  ## Current version of this package
+$VERSION = '1.69_01';  ## minor cperl improvements
 require  5.006;    ## requires this Perl version or later
 
 #use diagnostics;

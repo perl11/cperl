@@ -1113,7 +1113,7 @@ use File::Glob qw(:case);
     },
 
     'Pod::Simple' => {
-        'DISTRIBUTION' => 'DWHEELER/Pod-Simple-3.32.tar.gz',
+        'DISTRIBUTION' => 'MARCGREEN/Pod-Simple-3.32.tar.gz',
         'FILES'        => q[cpan/Pod-Simple],
         # https://rt.cpan.org/Public/Bug/Display.html?id=103439
         # https://rt.cpan.org/Public/Bug/Display.html?id=105192
@@ -1125,14 +1125,15 @@ use File::Glob qw(:case);
     },
 
     'Pod::Usage' => {
-        'DISTRIBUTION' => 'MAREKR/Pod-Usage-1.68.tar.gz',
+        'DISTRIBUTION' => 'MAREKR/Pod-Usage-1.69.tar.gz',
         'FILES'        => q[cpan/Pod-Usage],
         # cperl fix to support make -s
         'CUSTOMIZED'   => [ qw( scripts/pod2usage.PL )],
+        'EXCLUDED' => ['t/pod/testp2pt.pl'],
     },
 
     'Pod::Man' => {
-        'DISTRIBUTION' => 'RRA/podlators-4.0.7.tar.gz',
+        'DISTRIBUTION' => 'RRA/podlators-4.07.tar.gz',
         'FILES'        => q[cpan/podlators pod/perlpodstyle.pod],
 
         # cperl fix to support make -s

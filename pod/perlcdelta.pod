@@ -327,10 +327,16 @@ Keeping our darwin performance fix for hostname
 =item Pod::Checker 1.73
 
 Now based on Pod::Simple, not on Pod::Parser anymore.
+dos2unix
 
-=item Pod-Functions 1.11
+=item Pod::Functions 1.11
 
 Whitespace only to please the new Pod::Checker
+
+=item Pod::Usage 1.69_01
+
+Remove the Pod::Find test, using pod_where.
+dos2unix
 
 =back
 
