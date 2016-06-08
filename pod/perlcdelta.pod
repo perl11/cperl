@@ -567,6 +567,10 @@ See L<RT #127708|https://rt.perl.org/Public/Bug/Display.html?id=127708>
 
 See L<RT #128204|https://rt.perl.org/Public/Bug/Display.html?id=128204>
 
+=item Fix leak in c?perl 5.24.0 with strict and regex posix char classes
+
+See L<RT #128313|https://rt.perl.org/Public/Bug/Display.html?id=128313>
+
 =back
 
 =head1 Acknowledgements
