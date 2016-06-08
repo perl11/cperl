@@ -21,6 +21,7 @@ my @skip = (14,21,30,
             103, # hangs with non-DEBUGGING
 	    ((!$DEBUGGING and $] > 5.010) ? (105) : ()),
            );
+push @skip, 28 if $] > 5.023 and $Config{ptrsize} == 4;
 
 run_c_tests("CC", \@todo, \@skip);
 #run_cc_test(105, 'CC', 'my $s=q{ok};END{print $s}END{$x = 0}', 'ok');
