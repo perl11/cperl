@@ -338,6 +338,12 @@ Whitespace only to please the new Pod::Checker
 Remove the Pod::Find test, using pod_where.
 dos2unix
 
+=item Sys::Syslog 0.34
+
+Handle F<fallback/syslog.h> properly. honor HAVE_SETLOCALE
+fix windows fallback.
+Exclude the F<t/facilities-routing.t> test requiring POE.
+
 =back
 
 =head2 Not Updated Modules and Pragmata

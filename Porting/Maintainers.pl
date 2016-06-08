@@ -1154,7 +1154,7 @@ use File::Glob qw(:case);
         'FILES'        => q[dist/Safe],
         # improved 2.39_02c on cperl
         'CUSTOMIZED'   => [ qw( Safe.pm
-				t/safeops.t ) ],
+        			t/safeops.t ) ],
     },
 
     'Scalar::Util' => {
@@ -1196,7 +1196,7 @@ use File::Glob qw(:case);
     },
 
     'Sys::Syslog' => {
-        'DISTRIBUTION' => 'SAPER/Sys-Syslog-0.33.tar.gz',
+        'DISTRIBUTION' => 'SAPER/Sys-Syslog-0.34.tar.gz',
         'FILES'        => q[cpan/Sys-Syslog],
         'EXCLUDED'     => [
             qr{^eg/},
@@ -1207,6 +1207,7 @@ use File::Glob qw(:case);
                 t/podcover.t
                 t/podspell.t
                 t/portfs.t
+                t/facilities-routing.t
                 win32/PerlLog.RES
                 ),
         ],
