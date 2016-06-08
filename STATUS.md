@@ -155,11 +155,11 @@ When you use one or two args for `Test::More::skip()`, they need to properly typ
 
 I.e.
 
-   skip $why, 1`              => `skip "$why", 1
+    skip $why, 1               => skip "$why", 1
 
-   skip "why", scalar(@skips) => skip "why", int(@skips)
+    skip "why", scalar(@skips) => skip "why", int(@skips)
 
-   skip "why", 2*$skips       => skip "why", int(2*$skips)
+    skip "why", 2*$skips       => skip "why", int(2*$skips)
 
 **Rationale**:
 

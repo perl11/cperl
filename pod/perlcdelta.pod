@@ -357,6 +357,10 @@ This modules are currently not ready to be updated.
 Broken for -Dfortify_inc, no "." in @INC.
 Broken new "_" logic when merged with our 'c' suffix logic.
 
+=item Test2
+
+Need some time to modernize it, as done with the previous version.
+
 =back
 
 =head1 Platform Support
