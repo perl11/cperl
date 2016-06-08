@@ -33,8 +33,17 @@ is stable. cperl-5.24.0 is planned within the next 2 weeks.
 All tests pass. CPAN works.
 
 For 5.22.1c some fixes in my `rurban/distroprefs` repo for
-`Sub::Install`, `Variable::Magic`, ...  are needed.  This is much
-less than with a typical major perl5 release.
+`Sub::Install`, `Variable::Magic`, ...  are needed.
+
+For 5.24.0c with some modernized core modules some signatures are
+pretty strictly typed to catch wrong usages and enforce better code.
+See the `Test::More::skip()` [FAQ](https://github.com/perl11/cperl/issues/153#issuecomment-224515895) or below.
+Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
+`bigint`, `bignum` and `bigrat` are now also stricly typed, you shouldn't mess with
+sloppy types there neither.
+
+This is still much less than with a typical major perl5 release, and
+the patches are all provided in my distroprefs, so the upgrade is seemless.
 
 ![Memory usage: perl -e0](cperl-m0.png)
 
@@ -67,6 +76,10 @@ less than with a typical major perl5 release.
 * security and overlarge data fixes for Storable
 * include B-C, Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
 * improved redefined warnings
+* cperl specific toolchain modules, with support for cperl-only module
+  versions with a 'c' suffix, and 10x faster JSON and YAML usage. (esp. with cpan).
+* many typed and modernized core modules, where signatures and types make
+  sense, and cause not much trouble.
 
 Most of them only would have a chance to be merged upstream if a
 p5p committer would have written it.
@@ -130,6 +143,36 @@ and install it into drive and directory `C:\cperl`.
 See the github issues: [github.com/perl11/cperl/issues](http://github.com/perl11/cperl/issues)
 
 The perlcc compiler cannot yet link on windows with MSVC.
+
+# FAQ
+
+## Test::More::skip errors
+
+**skip** has the historical problem of mixed up arguments of `$why` and
+`$count`, so those arguments are now strictly typed.
+
+When you use one or two args for `Test::More::skip()`, they need to properly typed.
+
+I.e.
+
+   skip $why, 1`              => `skip "$why", 1
+
+   skip "why", scalar(@skips) => skip "why", int(@skips)
+
+   skip "why", 2*$skips       => skip "why", int(2*$skips)
+
+**Rationale**:
+
+`skip()` is a special case that the two args are very often mixed up. This error had previously to be detected at run-time with a fragile \d regex check. And in most cases this problem was never fixed, e.g. in `Module::Build`.
+Only with checking for strict types I could detect and fix all of the wrong usages, get rid of the unneeded run-time check, the code is better, all errors are detected at compile time, and not covered at run-time and with the new strict types the code is much more readable, what is the `Str $why` and what the `UInt $count` argument.
+
+`$count` can never be a NV, thus `:Numeric` (which would allow `2*$skip`) is wrong. It needs to be `:UInt`. The used range op (`pp_flip`) would die at run-time with a overflowed number. `die "Range iterator outside integer range"`. `$count := -1` will lead to test timeouts.
+Note that cperl doesn't yet check `UInt` types at run-time for negative values. This might change in later versions with the `use types` pragma.
+
+`scalar(@array)` for array or hash length is also bad code, it needs to be replaced with `int(@array)`.
+Such a length can never be a NV or PV, it is always a UInt. Using `int()` is clearer, better and faster.
+
+This is also the answer to the question why `scalar(@array)` is considered bad, and why counts and lengths cannot overflow.
 
 # Branch overview
 
@@ -225,4 +268,4 @@ They also revert some wrong decisions p5p already made.
 
 * builtin ffi
 
-2016-06-03 rurban
+2016-06-08 rurban
