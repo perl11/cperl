@@ -1423,7 +1423,7 @@ use File::Glob qw(:case);
     },
 
     'Time::Piece' => {
-        'DISTRIBUTION' => 'RJBS/Time-Piece-1.31.tar.gz',
+        'DISTRIBUTION' => 'ESAYM/Time-Piece-1.31.tar.gz',
         'FILES'        => q[cpan/Time-Piece],
     },
 
