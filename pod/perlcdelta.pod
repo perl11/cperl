@@ -362,6 +362,10 @@ Replace C<threads::yield> with C<< thread->join >> in F<t/07_lock.t>.
 
 Updated from 2.06. Improve 2 tests
 
+=item threads::shared 1.52
+
+No functional changes
+
 =back
 
 =head2 Not Updated Modules and Pragmata
