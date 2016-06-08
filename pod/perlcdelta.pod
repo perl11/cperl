@@ -354,6 +354,10 @@ Exclude the F<t/facilities-routing.t> test requiring POE.
 
 No changes from 5.22.3c
 
+=item Thread::Queue 3.11
+
+Replace C<threads::yield> with C<< thread->join >> in F<t/07_lock.t>.
+
 =back
 
 =head2 Not Updated Modules and Pragmata
