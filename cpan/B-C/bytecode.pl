@@ -581,8 +581,10 @@ print BYTERUN_H $c_header, <<'EOT';
 # endif
 
 # ifdef HAS_QUAD
+#  if PERL_VERSION < 24
 typedef I64TYPE I64;
 typedef U64TYPE U64;
+#  endif
 #  if INTSIZE >= 8
 #   define U64_CONST(x) ((U64)x##U)
 #  elif LONGSIZE >= 8
