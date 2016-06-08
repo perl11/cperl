@@ -127,9 +127,14 @@ Handle shared IV and UV xpv structs,
 Add more cperl-specific ops: aelem*_u, u_{add,subtract,multiply},
 {i,n,s}_aelem{,_u}
 
-=item Test-Simple 1.001014c
+=item Test-Simple 1.401014c
 
-Modernized
+Based on 1.001014, not Test2 as in 1.302022 yet. Test2 breaks too many
+modules still, and I need to time to properly modernize it (as v2.x)
+
+Modernized. B<skip> does the switched argument check at compile-time.
+See the FAQ at L<http://perl11.org/cperl/STATUS.html> why we enforce
+strict types there.
 
 =item File-Path 3.12_01c
 

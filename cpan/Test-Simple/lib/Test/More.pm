@@ -17,7 +17,7 @@ sub _carp {
     return warn @_, " at $file line $line\n";
 }
 
-our $VERSION = '1.001014c';
+our $VERSION = '1.401014c';
 $VERSION =~ s/c$//;
 
 use Test::Builder::Module 0.99;
@@ -1253,7 +1253,7 @@ use TODO.  Read on.
 =cut
 
 ## no critic (Subroutines::RequireFinalReturn)
-sub skip ( str $why, Int $how_many = 0) {
+sub skip ( str $why?, Int $how_many = 0) {
     my $tb = Test::More->builder;
 
     unless ($how_many) {
@@ -1270,7 +1270,7 @@ sub skip ( str $why, Int $how_many = 0) {
     #}
 
     for( 1 .. $how_many ) {
-        $tb->skip($why);
+        $tb->skip(defined $why ? $why : "");
     }
 
     no warnings 'exiting';
