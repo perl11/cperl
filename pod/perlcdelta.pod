@@ -111,7 +111,7 @@ Check for max length before derefing by length (jhi) RT #111707
 
 See L</DynaLoader format string hardening> above.
 
-=item B::C 1.54_06
+=item B::C 1.54_07
 
 Handle cperl OP_SIGNATURE.
 
@@ -120,7 +120,8 @@ Fix refcount of cop hints hashes with 5.22-nt (#220)
 Better UVX L and U suffices.
 
 Handle shared IV and UV xpv structs,
-  fixed 5.24 specific assertions, with shared xpviv/xpvuv
+  fixed 5.24 specific assertions, with shared xpviv/xpvuv.
+  fixed wrong 32 bit ptr offset. re-enabled all 32bit tests.
 
 =item B::Deparse 1.37_02c
 
