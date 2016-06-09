@@ -1109,17 +1109,17 @@ PP(pp_rv2av)
 		sv = is_pp_rv2av ? MUTABLE_SV(save_ary(gv)) : MUTABLE_SV(save_hash(gv));
     }
     if (PL_op->op_flags & OPf_REF) {
-		SETs(sv);
-		RETURN;
+        SETs(sv);
+        RETURN;
     }
     else if (UNLIKELY(PL_op->op_private & OPpMAYBE_LVSUB)) {
-	      const I32 flags = is_lvalue_sub();
-	      if (flags && !(flags & OPpENTERSUB_INARGS)) {
-		if (gimme != G_ARRAY)
-		    goto croak_cant_return;
-		SETs(sv);
-		RETURN;
-	      }
+        const I32 flags = is_lvalue_sub();
+        if (flags && !(flags & OPpENTERSUB_INARGS)) {
+            if (gimme != G_ARRAY)
+                goto croak_cant_return;
+            SETs(sv);
+            RETURN;
+        }
     }
 
     if (is_pp_rv2av) {
