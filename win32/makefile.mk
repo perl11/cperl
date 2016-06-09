@@ -866,10 +866,10 @@ INT64		= __int64
 
 # makedef.pl must be updated if this changes, and this should normally
 # only change when there is an incompatible revision of the public API.
-PERLIMPLIB	*= $(COREDIR)\perl524$(a)
-PERLEXPLIB	*= $(COREDIR)\perl524.exp
-PERLSTATICLIB	*= ..\perl524s$(a)
-PERLDLL		= ..\perl524.dll
+PERLIMPLIB	*= $(COREDIR)\cperl524$(a)
+PERLEXPLIB	*= $(COREDIR)\cperl524.exp
+PERLSTATICLIB	*= ..\cperl524s$(a)
+PERLDLL		= ..\cperl524.dll
 
 #EUMM on Win32 isn't ready for parallel make, so only allow this file to be parallel
 #$(MAKE) will contain the -P that this makefile was called with, which is bad for
@@ -1440,16 +1440,16 @@ $(PERLEXESTATIC): $(PERLSTATICLIB) $(CONFIGPM) $(PERLEXEST_OBJ) $(PERLEXE_RES)
 # DynaLoader.pm, so this will have to do
 
 #most of deps of this target are in DYNALOADER and therefore omitted here
-Extensions : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) makeppport
+Extensions : $(PERLDEP) $(DYNALOADER) $(GLOBEXE)
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic !Unicode/Normalize
 
 Extensions_normalize : $(PERLDEP) $(DYNALOADER) $(GLOBEXE) $(UNIDATAFILES)
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic +Unicode/Normalize
 
-Extensions_reonly : $(PERLDEP) $(DYNALOADER) makeppport
+Extensions_reonly : $(PERLDEP) $(DYNALOADER)
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --dynamic +re
 
-Extensions_static : ..\make_ext.pl list_static_libs.pl $(CONFIGPM) $(GLOBEXE) $(HAVE_COREDIR) makeppport
+Extensions_static : ..\make_ext.pl list_static_libs.pl $(CONFIGPM) $(GLOBEXE) $(HAVE_COREDIR)
 	$(MINIPERL) -I..\lib ..\make_ext.pl "MAKE=$(PLMAKE)" --dir=$(CPANDIR) --dir=$(DISTDIR) --dir=$(EXTDIR) --static
 	$(MINIPERL) -I..\lib list_static_libs.pl > Extensions_static
 
@@ -1475,9 +1475,6 @@ rebasePE : Extensions $(PERLDLL) Extensions_normalize $(PERLEXE) $(PERLEXESTATIC
 rebasePE : Extensions $(PERLDLL) Extensions_normalize $(PERLEXE)
 .ENDIF
 	$(NOOP)
-
-makeppport: $(MINIPERL) $(CONFIGPM) $(Extensions_nonxs)
-	$(MINIPERL) -I..\lib ..\mkppport
 
 #-------------------------------------------------------------------------------
 
