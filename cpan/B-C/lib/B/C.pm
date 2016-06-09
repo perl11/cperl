@@ -2733,8 +2733,13 @@ sub B::UV::save {
     $svsect->add(sprintf( "NULL, $u32fmt, 0x%x".
                           ($PERL510?', {'.($C99?".svu_uv=":"").$uvx."$suff}":''),
                           $sv->REFCNT, $sv->FLAGS));
-    $init->add(sprintf( "sv_list[%d].sv_any = (char*)&sv_list[%d] - %d;", $i, $i,
-                        2*$Config{ptrsize}));
+    #32bit  - sizeof(void*), 64bit: - 2*ptrsize
+    if ($Config{ptrsize} == 4) {
+      $init->add(sprintf( "sv_list[%d].sv_any = (void*)&sv_list[%d] - sizeof(void*);", $i, $i));
+    } else {
+      $init->add(sprintf( "sv_list[%d].sv_any = (char*)&sv_list[%d] - %d;", $i, $i,
+                          2*$Config{ptrsize}));
+    }
   } else {
     $svsect->add(sprintf( "&xpvuv_list[%d], $u32fmt, 0x%x".
                           ($PERL510?', {'.($C99?".svu_uv=":"").$uvx."$suff}":''),
@@ -2783,7 +2788,13 @@ sub B::IV::save {
   if ($PERL524) {
     $svsect->add(sprintf( "NULL, $u32fmt, 0x%x, {".($C99?".svu_iv=":"").$ivx.'}',
                           $sv->REFCNT, $svflags ));
-    $init->add(sprintf( "sv_list[%d].sv_any = (void*)&sv_list[%d] - sizeof(void*);", $i, $i));
+    #32bit  - sizeof(void*), 64bit: - 2*ptrsize
+    if ($Config{ptrsize} == 4) {
+      $init->add(sprintf( "sv_list[%d].sv_any = (void*)&sv_list[%d] - sizeof(void*);", $i, $i));
+    } else {
+      $init->add(sprintf( "sv_list[%d].sv_any = (char*)&sv_list[%d] - %d;", $i, $i,
+                          2*$Config{ptrsize}));
+    }
   } else {
     $svsect->add(sprintf( "&xpviv_list[%d], $u32fmt, 0x%x".($PERL510?', {'.($C99?".svu_iv=":"").$ivx.'}':''),
                           $xpvivsect->index, $sv->REFCNT, $svflags ));
