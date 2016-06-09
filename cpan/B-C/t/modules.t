@@ -380,8 +380,8 @@ sub is_skip {
       }
     }
   }
-  if ($ENV{PERL_CORE} and $] > 5.023
-      and ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/)) {
-    return 'hangs in CORE with -m32' if $module =~ /^Pod::/;
-  }
+  #if ($ENV{PERL_CORE} and $] > 5.023
+  #    and ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/)) {
+  #  return 'hangs in CORE with -m32' if $module =~ /^Pod::/;
+  #}
 }

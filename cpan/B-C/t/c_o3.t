@@ -22,6 +22,5 @@ my @todo  = todo_tests_default("c_o3");
 my @skip = (
 	    $DEBUGGING ? () : 29, # issue 78 if not DEBUGGING > 5.15
 	    );
-push @skip, 28 if $] > 5.023 and $Config{ptrsize} == 4;
 
 run_c_tests("C,-O3", \@todo, \@skip);

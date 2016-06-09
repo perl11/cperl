@@ -9,13 +9,16 @@ use File::Spec;
 BEGIN {
   @plan = (tests => 79);
   if ($ENV{PERL_CORE}) {
-    if ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/) {
-      @plan = (skip_all => "cc -m32 is not supported with PERL_CORE");
-    }
-    if (-f File::Spec->catfile($Config::Config{'sitearch'}, "Opcodes.pm")) {
+    #if ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/) {
+    #  @plan = (skip_all => "cc -m32 is not supported with PERL_CORE");
+    #}
+    if (-f File::Spec->catfile($Config{'sitearch'}, "Opcodes.pm")) {
       @plan = (skip_all => '<sitearch>/Opcodes.pm installed. Possible XS conflict');
     }
-    if ($^O eq 'MSWin32') {
+    if (-f File::Spec->catfile($Config{'sitearch'}, "B", "Flags.pm")) {
+      @plan = (skip_all => '<sitearch>/B/Flags.pm installed. Possible XS conflict');
+    }
+    if ($^O eq 'MSWin32' and $Config{cc} eq 'cl.exe') {
       @plan = (skip_all => 'B::C linkage not yet ready on MSWin32 MSVC');
     }
   }
@@ -27,7 +30,7 @@ BEGIN {
   }
   # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
   if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
-    @plan = (skip_all => "no OLD COW for now");
+    @plan = (skip_all => "no OLD_COPY_ON_WRITE");
   }
 }
 
@@ -108,7 +111,10 @@ SKIP: {
     is(`$perlcc --staticxs -S -o pcc -O3 -r -e "print q(ok)"  $devnull`, "ok", #21
        "-S -o -r --staticxs without xs");
   }
-  ok(! -e 'pcc.c.lst', "no pcc.c.lst without xs"); #22
+ TODO: {
+    local $TODO = '5.18 added IO' if $] >= 5.018;
+    ok(! -e 'pcc.c.lst', "no pcc.c.lst without xs"); #22
+  }
   cleanup;
 }
 

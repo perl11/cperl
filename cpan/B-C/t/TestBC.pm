@@ -1145,8 +1145,8 @@ sub todo_tests_default {
     push @todo, (15)  if $] < 5.007;
     # broken by fbb32b8bebe8ad C: revert *-,*+,*! fetch magic, assign all core GVs to their global symbols
     push @todo, (42..43) if $] < 5.012;
-    # hangs
-    push @todo, 28 if $] > 5.023 and $Config{ptrsize} == 4;
+    push @todo, 28 if $] > 5.023 and
+      ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/);
 
     if ($what =~ /^c(|_o[1-4])$/) {
         # a regression
@@ -1181,7 +1181,7 @@ sub todo_tests_default {
 	#push @todo, (27)    if $] > 5.008008 and $] < 5.009 and $what eq 'cc_o2';
         push @todo, (103)   if ($] >= 5.012 and $] < 5.014 and !$ITHREADS);
         push @todo, (12,19) if $] >= 5.019; # XXX had 25 also
-        push @todo, (25)    if $] >= 5.021006;
+        push @todo, (25)    if $] >= 5.021006 and !$Config{usecperl};
 	push @todo, (29)    if $] >= 5.021006 and $what eq 'cc_o1';
 	push @todo, (24,29) if $] >= 5.021006 and $what eq 'cc_o2';
         push @todo, (103)   if ($Config{usecperl} and $ITHREADS);
