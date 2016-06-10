@@ -10,7 +10,7 @@ use File::Path ();
 use File::Spec ();
 use CPAN::Mirrors ();
 use vars qw($VERSION $auto_config);
-$VERSION = "5.5307";
+$VERSION = "5.5307_01";
 
 =head1 NAME
 
@@ -606,6 +606,9 @@ may be more alternative YAML conforming modules. When I tried two
 other players, YAML::Tiny and YAML::Perl, they seemed not powerful
 enough to work with CPAN.pm. This may have changed in the meantime.
 
+The core module CPAN::Meta::YAML cannot load YAML 1.2 !! features,
+used for C<!!perl/hash:CPAN::Distribution> hashes.
+
 Which YAML implementation would you prefer?
 
 =back
@@ -928,15 +931,24 @@ sub init {
     my_yn_prompt(trust_test_report_history => 0, $matcher);
 
     #
-    #= YAML vs. YAML::Syck
+    #= YAML::Syck, YAML::XS, YAML, YAML::Tiny. CPAN::Meta::YAML not yet
     #
     if (!$matcher or "yaml_module" =~ /$matcher/) {
-        my_dflt_prompt(yaml_module => "YAML", $matcher);
+        while(1) {
+            my_dflt_prompt(yaml_module => "YAML::XS", $matcher);
+            if ($CPAN::Config->{yaml_module} eq 'CPAN::Meta::YAML') {
+                $CPAN::Frontend->mywarn
+                  ("Error: CPAN::Meta::YAML cannot be used yet. Try YAML, YAML::Syck or YAML::XS\n");
+                $CPAN::Frontend->mysleep(3);
+            } else {
+                next;
+            }
+        }
         my $old_v = $CPAN::Config->{load_module_verbosity};
         $CPAN::Config->{load_module_verbosity} = q[none];
         if (!$auto_config && !$CPAN::META->has_inst($CPAN::Config->{yaml_module})) {
             $CPAN::Frontend->mywarn
-                ("Warning (maybe harmless): '$CPAN::Config->{yaml_module}' not installed.\n");
+                ("Warning (maybe harmless): '$CPAN::Config->{yaml_module}' not installed. Try YAML::XS\n");
             $CPAN::Frontend->mysleep(3);
         }
         $CPAN::Config->{load_module_verbosity} = $old_v;

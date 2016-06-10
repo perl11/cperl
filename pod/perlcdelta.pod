@@ -193,6 +193,9 @@ Modernized
 
 Fixed tests. Type skip calls and File-Path args.
 
+Change FirstTime yaml_module default from YAML to YAML::XS
+and prohibit the unsupported CPAN::Meta::YAML.
+
 =item ExtUtils-MakeMaker
 
 Type File-Path args.
