@@ -36,6 +36,10 @@ defaults.
 L<[cperl #7]|https://github.com/perl11/cperl/issues/7>
 L<[cperl #134]|https://github.com/perl11/cperl/issues/134>
 
+Many subroutines of the form C<my ($args...) = @_;>
+are automatically converted via L<fake_signatures>
+to use signatures internally.
+
 =item * Less experimental needed
 
 Remove the previously required use experimental for
@@ -91,11 +95,25 @@ CVSSv2 Severity: 7.2 (AV:L/AC:L/Au:N/C:C/I:C/A:C/E:U/RL:OF/RC:C/CDP:MH/TD:H/CR:H
 
 =head1 Modules and Pragmata
 
+=head2 New Modules and Pragmata
+
+=over 4
+
+=item fake_signatures 0.01
+
+Prohibit the automatic conversion to fake signatures via
+C<no fake_signatures>, and document the new conversion of argument handling
+to fake signatures.  See L<fake_signatures>.
+
+=back
+
 =head2 Updated Modules and Pragmata
 
-Many internal core modules are now properly "modernized", i.e.
+Many internal core modules are now half-way "modernized", i.e.
 use typed signatures, and catch errors at compile-time.
 L<[cperl #97]|https://github.com/perl11/cperl/issues/97>
+
+But no classes, methods and roles yet.
 
 =over 4
 
@@ -382,7 +400,11 @@ Broken new "_" logic when merged with our 'c' suffix logic.
 
 =item Test2
 
-Need some time to modernize it, as done with the previous version.
+We need some time to modernize it, as done with the previous version.
+
+Our Test::Simple and Test::More versions were bumped to 1.4 to prohibit
+automatic installation of Test2 from CPAN, to use our improved versions
+instead.
 
 =item version 0.9917
 
@@ -398,7 +420,7 @@ Broken new "_" logic when merged with our 'c' suffix logic.
 
 =item Win32
 
-=item Darwin
+Work is ongoing for Win32 with MSVC 12 problems. MSVC 10 works fine.
 
 =back
 

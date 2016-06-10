@@ -1590,6 +1590,14 @@ goto3_pp2sig();
 goto1_sig2sig(0); # todo
 goto1_sig2pp(0);  # corrupts caller
 
+
+sub no_fake_sig {
+    my ($self, $extra) = (@_, 1);
+    $extra
+}
+
+is(no_fake_sig(''), 1, "no fake_sigs with extra args [cperl #157]");
+
 done_testing;
 
 1;

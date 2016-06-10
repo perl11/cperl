@@ -2644,8 +2644,16 @@ S_maybe_op_signature(pTHX_ CV *cv, OP *o)
     kid = cUNOPx(kid)->op_first;
     if (!kid || kid->op_type != OP_GV)
         return;
-    if (cGVOPx_gv(kid)!= PL_defgv)
+    if (cGVOPx_gv(kid) != PL_defgv || !OP_TYPE_IS(kid->op_next, OP_RV2AV))
         return;
+    /* we should ignore extra rhs args after = (@_, ...);
+       but for sanity skip with extra rhs args here already [cperl #157]
+       and do not count the lhs vars.
+         my($self,$extra)=(@_,0);
+    */
+    if (!OP_TYPE_IS_OR_WAS(kid->op_next->op_next, OP_LIST)) /* no extra values */
+        return;
+
     if (cophh_fetch_pvs(CopHINTHASH_get(PL_curcop), "no_fake_signatures",
                         REFCOUNTED_HE_EXISTS))
         return;
