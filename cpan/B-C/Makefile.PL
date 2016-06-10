@@ -17,8 +17,8 @@ unless (-e 'lib/B/C/Config.pm') {
 # my $X = $^X =~ / / ? qq("$^X") : $^X;
 if ($CORE) {
     $ENV{PERL_CORE} = 1;
-    system($^X,"-I".File::Spec->catfile(qw(.. .. regen)),
-           "-I".File::Spec->catfile(qw(.. .. lib)),
+    system($^X,"-I".File::Spec->catfile(qw(.. .. lib)),
+           "-I".File::Spec->catfile(qw(.. .. regen)),
            "bytecode.pl");
 } else {
     my $asmdata = File::Spec->catfile('lib', 'B', 'Asmdata.pm');
@@ -432,13 +432,13 @@ sub depend {
     my $byterun_h = File::Spec->catfile('ByteLoader', 'byterun.h');
     my $result = "
 $asmdata : Makefile bytecode.pl @headers
-	\$(PERL) bytecode.pl
+	\$(PERLRUN) bytecode.pl
 
 $byterun_c : Makefile bytecode.pl @headers
-	\$(PERL) bytecode.pl
+	\$(PERLRUN) bytecode.pl
 
 $byterun_h : Makefile bytecode.pl @headers
-	\$(PERL) bytecode.pl
+	\$(PERLRUN) bytecode.pl
 
 TAGS : $asmdata
 	etags --language=perl lib/B/*.pm
