@@ -3288,6 +3288,14 @@ S_lvref(pTHX_ OP *o, I32 type)
 	o->op_private |= OPpLVREF_ITER;
 }
 
+PERL_STATIC_INLINE bool
+S_potential_mod_type(I32 type)
+{
+    /* Types that only potentially result in modification.  */
+    return type == OP_GREPSTART || type == OP_ENTERSUB || type == OP_ENTERXSSUB
+	|| type == OP_REFGEN    || type == OP_LEAVESUBLV;
+}
+
 OP *
 Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 {
@@ -3329,9 +3337,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	else {				/* lvalue subroutine call */
 	    o->op_private |= OPpLVAL_INTRO;
 	    PL_modcount = RETURN_UNLIMITED_NUMBER;
-	    if (type == OP_GREPSTART || type == OP_ENTERSUB || type == OP_ENTERXSSUB
-	     || type == OP_REFGEN    || type == OP_LEAVESUBLV) {
-		/* Potential lvalue context: */
+	    if (S_potential_mod_type(type)) {
 		o->op_private |= OPpENTERSUB_INARGS;
 		break;
 	    }
@@ -3393,8 +3399,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
       nomod:
 	if (flags & OP_LVALUE_NO_CROAK) return NULL;
 	/* grep, foreach, subcalls, refgen */
-	if (type == OP_GREPSTART || type == OP_ENTERSUB || type == OP_ENTERXSSUB
-	 || type == OP_REFGEN    || type == OP_LEAVESUBLV)
+	if (S_potential_mod_type(type))
 	    break;
 	yyerror(Perl_form(aTHX_ "Can't modify %s in %s",
 		     (IS_NULL_OP(o) && OpSPECIAL(o)
