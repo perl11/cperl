@@ -1397,8 +1397,9 @@ Amdb	|void	|sv_catsv	|NN SV *dstr|NULLOK SV *sstr
 Apd	|void	|sv_chop	|NN SV *const sv|NULLOK const char *const ptr
 : Used only in perl.c
 pd	|Size_t	|sv_clean_all
+: Used in perl.c and the compiler
+Apd	|void	|sv_clean_objs
 : Used only in perl.c
-pd	|void	|sv_clean_objs
 Apd	|void	|sv_clear	|NN SV *const orig_sv
 #if defined(PERL_IN_SV_C)
 s	|bool	|curse		|NN SV * const sv|const bool check_refcnt
@@ -1639,7 +1640,7 @@ Apd	|I32	|unpackstring	|NN const char *pat|NN const char *patend|NN const char *
 				|NN const char *strend|U32 flags
 Ap	|void	|unsharepvn	|NULLOK const char* sv|I32 len|U32 hash
 : Used in gv.c, hv.c
-p	|void	|unshare_hek	|NULLOK HEK* hek
+Ap	|void	|unshare_hek	|NULLOK HEK* hek
 : Used in perly.y
 p	|void	|utilize	|int aver|I32 floor|NULLOK OP* version|NN OP* idop|NULLOK OP* arg
 Ap	|U8*	|utf16_to_utf8	|NN U8* p|NN U8 *d|I32 bytelen|NN I32 *newlen
@@ -2655,6 +2656,9 @@ ApR	|PerlIO *|PerlIO_stdin
 ApR	|PerlIO *|PerlIO_stdout
 ApR	|PerlIO *|PerlIO_stderr
 ApR	|PerlIO *|PerlIO_debugio
+: used in perlio.c and the compiler
+AMo	|void|PerlIO_cleanup
+AMo	|void|PerlIO_destruct
 #endif /* USE_PERLIO */
 
 : Only used in dump.c
@@ -2888,7 +2892,7 @@ s	|void	|mro_gather_and_rename|NN HV * const stashes \
 				      |NN SV *namesv
 #endif
 : Used in hv.c, mg.c, pp.c, sv.c
-pd	|void   |mro_isa_changed_in|NN HV* stash
+Apd	|void   |mro_isa_changed_in|NN HV* stash
 Apd	|void	|mro_method_changed_in	|NN HV* stash
 pdx	|void	|mro_package_moved	|NULLOK HV * const stash|NULLOK HV * const oldstash|NN const GV * const gv|U32 flags
 : Only used in perl.c

@@ -1220,7 +1220,9 @@ remove_dead_pseudo_process(long child)
     }
 }
 
-void
+/* used in perl.c and the compiler */
+
+DllExport void
 win32_wait_for_children(pTHX)
 {
     if (w32_pseudo_children && w32_num_pseudo_children) {

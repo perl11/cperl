@@ -341,6 +341,7 @@
 #define mini_mktime		Perl_mini_mktime
 #define moreswitches(a)		Perl_moreswitches(aTHX_ a)
 #define mro_get_linear_isa(a)	Perl_mro_get_linear_isa(aTHX_ a)
+#define mro_isa_changed_in(a)	Perl_mro_isa_changed_in(aTHX_ a)
 #define mro_method_changed_in(a)	Perl_mro_method_changed_in(aTHX_ a)
 #define my_atof(a)		Perl_my_atof(aTHX_ a)
 #define my_atof2(a,b)		Perl_my_atof2(aTHX_ a,b)
@@ -600,6 +601,7 @@
 #define sv_catpvn_flags(a,b,c,d)	Perl_sv_catpvn_flags(aTHX_ a,b,c,d)
 #define sv_catsv_flags(a,b,c)	Perl_sv_catsv_flags(aTHX_ a,b,c)
 #define sv_chop(a,b)		Perl_sv_chop(aTHX_ a,b)
+#define sv_clean_objs()		Perl_sv_clean_objs(aTHX)
 #define sv_clear(a)		Perl_sv_clear(aTHX_ a)
 #define sv_cmp_flags(a,b,c)	Perl_sv_cmp_flags(aTHX_ a,b,c)
 #define sv_cmp_locale_flags(a,b,c)	Perl_sv_cmp_locale_flags(aTHX_ a,b,c)
@@ -714,6 +716,7 @@
 #define to_utf8_case(a,b,c,d,e,f)	Perl_to_utf8_case(aTHX_ a,b,c,d,e,f)
 #define unpack_str(a,b,c,d,e,f,g,h)	Perl_unpack_str(aTHX_ a,b,c,d,e,f,g,h)
 #define unpackstring(a,b,c,d,e)	Perl_unpackstring(aTHX_ a,b,c,d,e)
+#define unshare_hek(a)		Perl_unshare_hek(aTHX_ a)
 #define unsharepvn(a,b,c)	Perl_unsharepvn(aTHX_ a,b,c)
 #define upg_version(a,b)	Perl_upg_version(aTHX_ a,b)
 #define utf16_to_utf8(a,b,c,d)	Perl_utf16_to_utf8(aTHX_ a,b,c,d)
@@ -1318,7 +1321,6 @@
 #define magic_wipepack(a,b)	Perl_magic_wipepack(aTHX_ a,b)
 #define mg_localize(a,b,c)	Perl_mg_localize(aTHX_ a,b,c)
 #define mode_from_discipline(a,b)	Perl_mode_from_discipline(aTHX_ a,b)
-#define mro_isa_changed_in(a)	Perl_mro_isa_changed_in(aTHX_ a)
 #define mro_package_moved(a,b,c,d)	Perl_mro_package_moved(aTHX_ a,b,c,d)
 #define my_attrs(a,b)		Perl_my_attrs(aTHX_ a,b)
 #define my_clearenv()		Perl_my_clearenv(aTHX)
@@ -1375,7 +1377,6 @@
 #define sub_crush_depth(a)	Perl_sub_crush_depth(aTHX_ a)
 #define sv_2num(a)		Perl_sv_2num(aTHX_ a)
 #define sv_clean_all()		Perl_sv_clean_all(aTHX)
-#define sv_clean_objs()		Perl_sv_clean_objs(aTHX)
 #define sv_del_backref(a,b)	Perl_sv_del_backref(aTHX_ a,b)
 #define sv_free_arenas()	Perl_sv_free_arenas(aTHX)
 #define sv_len_utf8_nomg(a)	Perl_sv_len_utf8_nomg(aTHX_ a)
@@ -1386,7 +1387,6 @@
 #define tied_method		Perl_tied_method
 #endif
 #define tmps_grow_p(a)		Perl_tmps_grow_p(aTHX_ a)
-#define unshare_hek(a)		Perl_unshare_hek(aTHX_ a)
 #define utilize(a,b,c,d,e)	Perl_utilize(aTHX_ a,b,c,d,e)
 #define vivify_ref(a,b)		Perl_vivify_ref(aTHX_ a,b)
 #define wait4pid(a,b,c)		Perl_wait4pid(aTHX_ a,b,c)

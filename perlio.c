@@ -227,7 +227,7 @@ PerlIO_apply_layers(pTHX_ PerlIO *f, const char *mode, const char *names)
     return -1;
 }
 
-void
+PERL_CALLCONV void
 PerlIO_destruct(pTHX)
 {
 }
@@ -609,7 +609,7 @@ PerlIO_clone(pTHX_ PerlInterpreter *proto, CLONE_PARAMS *param)
 #endif
 }
 
-void
+PERL_CALLCONV void
 PerlIO_destruct(pTHX)
 {
     PerlIOl **table = &PL_perlio;
@@ -2376,7 +2376,7 @@ PerlIOUnix_refcnt(int fd)
     return cnt;
 }
 
-void
+PERL_CALLCONV void
 PerlIO_cleanup(pTHX)
 {
     int i;

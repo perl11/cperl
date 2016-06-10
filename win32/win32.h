@@ -541,7 +541,7 @@ struct interp_intern {
 #define w32_sloppystat	(PL_sys_intern.sloppystat)
 
 #ifdef USE_ITHREADS
-void win32_wait_for_children(pTHX);
+DllExport void win32_wait_for_children(pTHX);
 #  define PERL_WAIT_FOR_CHILDREN win32_wait_for_children(aTHX)
 #endif
 

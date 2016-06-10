@@ -742,21 +742,61 @@ else {
 # Oddities from PerlIO
 # All have alternate implementations in perlio.c, so always exist.
 # Should they be considered to be part of the API?
+# Some are needed by the compiler.
 try_symbols(qw(
 		    PerlIO_binmode
+                    PerlIO_cleanup
+                    PerlIO_destruct
 		    PerlIO_getpos
 		    PerlIO_init
 		    PerlIO_setpos
 		    PerlIO_tmpfile
 	     ));
 
+# Android only so far
+++$skip{XS_DynaLoader_mod2fname} unless $Config{d_libname_unique};
+++$skip{dl_boot} if $ARGS{PLATFORM} eq 'win32';
+
+# cperl builtins
+if ($Config{usecperl}) {
+    try_symbols(qw(
+		    XS_strict_bits
+		    XS_strict_import
+		    XS_strict_unimport
+		    XS_attributes_reftype
+		    XS_attributes__fetch_attrs
+		    XS_attributes__modify_attrs
+		    XS_attributes__guess_stash
+		    XS_attributes_bootstrap
+		    XS_attributes_import
+		    XS_attributes_get
+		    Perl_set_version
+		    XS_DynaLoader_dl_load_file
+		    XS_DynaLoader_dl_unload_file
+		    XS_DynaLoader_dl_find_symbol
+		    XS_DynaLoader_dl_undef_symbols
+		    XS_DynaLoader_dl_install_xsub
+		    XS_DynaLoader_dl_error
+		    XS_DynaLoader_CLONE
+		    XS_DynaLoader_bootstrap_inherit
+		    XS_DynaLoader_bootstrap
+		    XS_DynaLoader_dl_findfile
+		    XS_DynaLoader_dl_find_symbol_anywhere
+		    XS_DynaLoader_mod2fname
+		    XS_XSLoader_load
+		    XS_XSLoader_load_file
+		    XS_XSLoader_bootstrap_inherit
+
+	     ));
+}
+
 if ($ARGS{PLATFORM} eq 'win32') {
     try_symbols(qw(
-				 win32_free_childdir
-				 win32_free_childenv
-				 win32_get_childdir
-				 win32_get_childenv
-				 win32_spawnvp
+		win32_free_childdir
+		win32_free_childenv
+		win32_get_childdir
+		win32_get_childenv
+		win32_spawnvp
 		 ));
 }
 
@@ -764,161 +804,177 @@ if ($ARGS{PLATFORM} eq 'wince') {
     ++$skip{'win32_isatty'}; # commit 4342f4d6df is win32-only
 }
 
+if (!$define{USE_ITHREADS}) {
+    ++$skip{'win32_wait_for_children'};
+}
+
 if ($ARGS{PLATFORM} =~ /^win(?:32|ce)$/) {
     try_symbols(qw(
-			    Perl_init_os_extras
-			    Perl_thread_create
-			    Perl_win32_init
-			    Perl_win32_term
-			    RunPerl
-			    win32_async_check
-			    win32_errno
-			    win32_environ
-			    win32_abort
-			    win32_fstat
-			    win32_stat
-			    win32_pipe
-			    win32_popen
-			    win32_pclose
-			    win32_rename
-			    win32_setmode
-			    win32_chsize
-			    win32_lseek
-			    win32_tell
-			    win32_dup
-			    win32_dup2
-			    win32_open
-			    win32_close
-			    win32_eof
-			    win32_isatty
-			    win32_read
-			    win32_write
-			    win32_mkdir
-			    win32_rmdir
-			    win32_chdir
-			    win32_flock
-			    win32_execv
-			    win32_execvp
-			    win32_htons
-			    win32_ntohs
-			    win32_htonl
-			    win32_ntohl
-			    win32_inet_addr
-			    win32_inet_ntoa
-			    win32_socket
-			    win32_bind
-			    win32_listen
-			    win32_accept
-			    win32_connect
-			    win32_send
-			    win32_sendto
-			    win32_recv
-			    win32_recvfrom
-			    win32_shutdown
-			    win32_closesocket
-			    win32_ioctlsocket
-			    win32_setsockopt
-			    win32_getsockopt
-			    win32_getpeername
-			    win32_getsockname
-			    win32_gethostname
-			    win32_gethostbyname
-			    win32_gethostbyaddr
-			    win32_getprotobyname
-			    win32_getprotobynumber
-			    win32_getservbyname
-			    win32_getservbyport
-			    win32_select
-			    win32_endhostent
-			    win32_endnetent
-			    win32_endprotoent
-			    win32_endservent
-			    win32_getnetent
-			    win32_getnetbyname
-			    win32_getnetbyaddr
-			    win32_getprotoent
-			    win32_getservent
-			    win32_sethostent
-			    win32_setnetent
-			    win32_setprotoent
-			    win32_setservent
-			    win32_getenv
-			    win32_putenv
-			    win32_perror
-			    win32_malloc
-			    win32_calloc
-			    win32_realloc
-			    win32_free
-			    win32_sleep
-			    win32_times
-			    win32_access
-			    win32_alarm
-			    win32_chmod
-			    win32_open_osfhandle
-			    win32_get_osfhandle
-			    win32_ioctl
-			    win32_link
-			    win32_unlink
-			    win32_utime
-			    win32_gettimeofday
-			    win32_uname
-			    win32_wait
-			    win32_waitpid
-			    win32_kill
-			    win32_str_os_error
-			    win32_opendir
-			    win32_readdir
-			    win32_telldir
-			    win32_seekdir
-			    win32_rewinddir
-			    win32_closedir
-			    win32_longpath
-			    win32_ansipath
-			    win32_os_id
-			    win32_getpid
-			    win32_crypt
-			    win32_dynaload
-			    win32_clearenv
-			    win32_stdin
-			    win32_stdout
-			    win32_stderr
-			    win32_ferror
-			    win32_feof
-			    win32_strerror
-			    win32_fprintf
-			    win32_printf
-			    win32_vfprintf
-			    win32_vprintf
-			    win32_fread
-			    win32_fwrite
-			    win32_fopen
-			    win32_fdopen
-			    win32_freopen
-			    win32_fclose
-			    win32_fputs
-			    win32_fputc
-			    win32_ungetc
-			    win32_getc
-			    win32_fileno
-			    win32_clearerr
-			    win32_fflush
-			    win32_ftell
-			    win32_fseek
-			    win32_fgetpos
-			    win32_fsetpos
-			    win32_rewind
-			    win32_tmpfile
-			    win32_setbuf
-			    win32_setvbuf
-			    win32_flushall
-			    win32_fcloseall
-			    win32_fgets
-			    win32_gets
-			    win32_fgetc
-			    win32_putc
-			    win32_puts
-			    win32_getchar
-			    win32_putchar
+	Perl_init_os_extras
+	Perl_thread_create
+	Perl_win32_init
+	Perl_win32_term
+	RunPerl
+	win32_accept
+	win32_bind
+	win32_closesocket
+	win32_connect
+	win32_endhostent
+	win32_endnetent
+	win32_endprotoent
+	win32_endservent
+	win32_gethostbyaddr
+	win32_gethostbyname
+	win32_gethostname
+	win32_getnetbyaddr
+	win32_getnetbyname
+	win32_getnetent
+	win32_getpeername
+	win32_getprotobyname
+	win32_getprotobynumber
+	win32_getprotoent
+	win32_getservbyname
+	win32_getservbyport
+	win32_getservent
+	win32_getsockname
+	win32_getsockopt
+	win32_htonl
+	win32_htons
+	win32_inet_addr
+	win32_inet_ntoa
+	win32_ioctl
+	win32_ioctlsocket
+	win32_listen
+	win32_ntohl
+	win32_ntohs
+	win32_recv
+	win32_recvfrom
+	win32_select
+	win32_send
+	win32_sendto
+	win32_sethostent
+	win32_setnetent
+	win32_setprotoent
+	win32_setservent
+	win32_setsockopt
+	win32_shutdown
+	win32_socket
+	win32_abort
+	win32_access
+	win32_alarm
+	win32_ansipath
+	win32_async_check
+	win32_calloc
+	win32_chdir
+	win32_chmod
+	win32_chsize
+	win32_clearenv
+	win32_clearerr
+	win32_close
+	win32_closedir
+	win32_crypt
+	win32_dirp_dup
+	win32_dup
+	win32_dup2
+	win32_dynaload
+	win32_environ
+	win32_eof
+	win32_errno
+	win32_execv
+	win32_execvp
+	win32_fclose
+	win32_fcloseall
+	win32_fdopen
+	win32_fdupopen
+	win32_feof
+	win32_ferror
+	win32_fflush
+	win32_fgetc
+	win32_fgetpos
+	win32_fgets
+	win32_fileno
+	win32_flock
+	win32_flushall
+	win32_fopen
+	win32_fprintf
+	win32_fputc
+	win32_fputs
+	win32_fread
+	win32_free
+	win32_free_childdir
+	win32_free_childenv
+	win32_freopen
+	win32_fseek
+	win32_fsetpos
+	win32_fstat
+	win32_ftell
+	win32_fwrite
+	win32_get_childdir
+	win32_get_childenv
+	win32_get_osfhandle
+	win32_getc
+	win32_getchar
+	win32_getenv
+	win32_getenvironmentstrings
+	win32_getpid
+	win32_gets
+	win32_gettimeofday
+	win32_isatty
+	win32_kill
+	win32_link
+	win32_longpath
+	win32_lseek
+	win32_malloc
+	win32_mkdir
+	win32_msgwait
+	win32_open
+	win32_open_osfhandle
+	win32_opendir
+	win32_os_id
+	win32_pclose
+	win32_perror
+	win32_pipe
+	win32_popen
+	win32_popenlist
+	win32_printf
+	win32_putc
+	win32_putchar
+	win32_putenv
+	win32_puts
+	win32_read
+	win32_readdir
+	win32_realloc
+	win32_rename
+	win32_rewind
+	win32_rewinddir
+	win32_rmdir
+	win32_seekdir
+	win32_setbuf
+	win32_setmode
+	win32_setvbuf
+	win32_sleep
+	win32_spawnvp
+	win32_stat
+	win32_stderr
+	win32_stdin
+	win32_stdout
+	win32_str_os_error
+	win32_strerror
+	win32_tell
+	win32_telldir
+	win32_times
+	win32_tmpfd
+	win32_tmpfile
+	win32_uname
+	win32_ungetc
+	win32_unlink
+	win32_utime
+	win32_vfprintf
+	win32_vprintf
+	win32_wait
+	win32_waitpid
+	win32_wait_for_children
+	win32_write
 		 ));
 }
 elsif ($ARGS{PLATFORM} eq 'vms') {
