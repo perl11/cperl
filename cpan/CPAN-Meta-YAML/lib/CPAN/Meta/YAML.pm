@@ -5,7 +5,7 @@ package CPAN::Meta::YAML; # git description: v1.68-2-gcc5324e
 # XXX-INGY is 5.8.1 too old/broken for utf8?
 # XXX-XDG Lancaster consensus was that it was sufficient until
 # proven otherwise
-$CPAN::Meta::YAML::VERSION = '0.018';
+$CPAN::Meta::YAML::VERSION = '0.020_01';
 ; # original $VERSION removed by Doppelgaenger
 
 #####################################################################
@@ -252,8 +252,7 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
                 # Handle scalar documents
                 shift @lines;
                 if ( defined $1 and $1 !~ /^(?:\#.+|\%YAML[: ][\d\.]+)\z/ ) {
-                    push @$self,
-                        $self->_load_scalar( "$1", [ undef ], \@lines );
+                    push @$self, $self->_load_scalar( "$1", [ undef ], \@lines );
                     next;
                 }
                 $in_document = 1;
@@ -280,9 +279,14 @@ Did you decode with lax ":utf8" instead of strict ":encoding(UTF-8)"?
 
             } elsif ( $lines[0] =~ /^(\s*)\S/ ) {
                 # A hash at the root
+                my $ws = $1;
                 my $document = { };
+                if ( $lines[0] =~ m{^(.+:)\s+!!perl/hash:(CPAN::Distr.*)} ) {
+                    $document = bless({}, $2);
+                    $lines[0] = $1;
+                }
                 push @$self, $document;
-                $self->_load_hash( $document, [ length($1) ], \@lines );
+                $self->_load_hash( $document, [ length($ws) ], \@lines );
 
             } else {
                 # Shouldn't get here.  @lines have whitespace-only lines
@@ -337,11 +341,15 @@ sub _load_scalar {
         return $self->_unquote_single($1);
     }
 
-    # Double quote.
+    # Double quote
     if ( $string =~ /^$re_capture_double_quoted$re_trailing_comment\z/ ) {
         return $self->_unquote_double($1);
     }
 
+    # CPAN features
+    if ( $string =~ m{^!!perl/hash:(CPAN::Distr.*)} ) {
+        return ''; # already handled before _load_hash
+    }
     # Special cases
     if ( $string =~ /^[\'\"!&]/ ) {
         die \"CPAN::Meta::YAML does not support a feature in line '$string'";
@@ -405,8 +413,13 @@ sub _load_array {
         if ( $lines->[0] =~ /^(\s*\-\s+)[^\'\"]\S*\s*:(?:\s+|$)/ ) {
             # Inline nested hash
             my $indent2 = length("$1");
+            my $hash = {};
             $lines->[0] =~ s/-/ /;
-            push @$array, { };
+            if ( $lines->[0] =~ m{^(.+:)\s+!!perl/hash:(CPAN::Distr.*)} ) {
+                $hash = bless({}, $2);
+                $lines->[0] = $1;
+            }
+            push @$array, $hash;
             $self->_load_hash( $array->[-1], [ @$indent, $indent2 ], $lines );
 
         } elsif ( $lines->[0] =~ /^\s*\-\s*\z/ ) {
@@ -429,9 +442,15 @@ sub _load_array {
                 }
 
             } elsif ( $lines->[0] =~ /^(\s*)\S/ ) {
-                push @$array, { };
+                my $hash = {};
+                my $indent2 = length("$1");
+                if ( $lines->[0] =~ m{^(.+:)\s+!!perl/hash:(CPAN::Distr.*)} ) {
+                    $hash = bless({}, $2);
+                    $lines->[0] = $1;
+                }
+                push @$array, $hash;
                 $self->_load_hash(
-                    $array->[-1], [ @$indent, length("$1") ], $lines
+                    $array->[-1], [ @$indent, $indent2 ], $lines
                 );
 
             } else {
@@ -538,10 +557,16 @@ sub _load_hash {
                 if ( $indent->[-1] >= $indent2 ) {
                     # Null hash entry
                     $hash->{$key} = undef;
-                } else {
-                    $hash->{$key} = {};
+                } else { # sub hash
+                    my $document = { };
+                    my $indent2 = length($1);
+                    if ( $lines->[0] =~ m{^(.+:)\s+!!perl/hash:(CPAN::Distr.*)} ) {
+                        $document = bless({}, $2);
+                        $lines->[0] = $1;
+                    }
+                    $hash->{$key} = $document;
                     $self->_load_hash(
-                        $hash->{$key}, [ @$indent, length($1) ], $lines
+                        $hash->{$key}, [ @$indent, $indent2 ], $lines
                     );
                 }
             }
@@ -712,6 +737,16 @@ sub _dump_array {
             }
 
         } elsif ( $type eq 'HASH' ) {
+            if ( keys %$el ) {
+                push @lines, $line;
+                push @lines, $self->_dump_hash( $el, $indent + 1, $seen );
+            } else {
+                $line .= ' {}';
+                push @lines, $line;
+            }
+
+        } elsif ( $type =~ /^CPAN::Distr/ ) { # hashes
+            $line =~ s{:$}{: !!perl/hash:$type};
             if ( keys %$el ) {
                 push @lines, $line;
                 push @lines, $self->_dump_hash( $el, $indent + 1, $seen );
