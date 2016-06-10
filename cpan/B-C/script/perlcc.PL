@@ -341,7 +341,7 @@ sub parse_argv {
             if ($Output eq 'a.out') {
                 $Output = 'a.exe';
             } else {
-                $Output .= 'exe';
+                $Output .= '.exe';
             }
         }
     }
@@ -583,12 +583,15 @@ sub compile_cstyle {
 sub cc_harness_msvc {
     my ($cfile, $stash, $extra_libs) = @_;
     use ExtUtils::Embed ();
-    my $obj = "${Output}.obj";
+    my $obj = $Output;
+    $obj =~ s/\.exe$/.obj/;
+    $obj .= ".obj" unless $obj =~ /\.obj$/;
     my $compile = ExtUtils::Embed::ccopts." -c -Fo$obj $cfile ";
     my $link = "-out:$Output $obj";
     $compile .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;
-    $compile .= " -I".$_ for split /\s+/, opt('I');
+    $compile .= " -I".$_ for split /\s+/, opt(I);
+    $compile .= " -I".$coredir if $ENV{PERL_CORE};
     $compile .= " -DSTATICXS" if opt('staticxs');
     $compile .= " ".opt('Wc') if opt('Wc');
 
@@ -646,16 +649,17 @@ sub cc_harness_msvc {
 sub cc_harness {
     my ($cfile, $stash, $extra_libs) = @_;
     use ExtUtils::Embed ();
-    my $command = ExtUtils::Embed::ccopts." -o $Output $cfile ";
+    my $command = ExtUtils::Embed::ccopts." -o \"$Output\" \"$cfile\" ";
     if ($ENV{PERL_CORE}) {
 !NO!SUBS!
 print OUT <<"!EXPANDED!";
-      \$command = "\$Config{ccflags} -I$srcdir -L$srcdir -o \$Output \$cfile ";
+      \$command = "\$Config{ccflags} -I\\\"$srcdir\\\" -L\\\"$srcdir\\\" -o \\\"\$Output\\\" \\\"\$cfile\\\" ";
 !EXPANDED!
 print OUT <<'!NO!SUBS!';
     }
     $command .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
     $command .= $B::C::Config::extra_cflags if $B::C::Config::extra_cflags;
+    # XXX should use mult. I opts for paths with spaces, and \ deps.
     $command .= " -I".$_ for split /\s+/, opt('I');
     $command .= " -L".$_ for split /\s+/, opt('L');
     $command .= " -DSTATICXS" if opt('staticxs');

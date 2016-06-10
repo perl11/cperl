@@ -540,6 +540,7 @@ my $MYMALLOC = $Config{usemymalloc} eq 'define';
 my $HAVE_DLFCN_DLOPEN = $Config{i_dlfcn} && $Config{d_dlopen};
 # %Lu is not supported on older 32bit systems
 my $u32fmt = $Config{ivsize} == 4 ? "%lu" : "%u";
+sub IS_MSVC () { $^O eq 'MSWin32' and $Config{cc} eq 'cl' }
 my @threadsv_names;
 
 BEGIN {
@@ -1972,6 +1973,7 @@ sub B::METHOP::save {
     $init->add( sprintf( "SvREFCNT_inc_simple_NN(%s); /* methop_list[%d].op_meth_sv */",
                          $first, $ix ));
   }
+  $first = 'NULL' if !$C99 and $first eq 'Nullsv';
   $methopsect->add(sprintf($s, $op->_save_common, $first, $rclass));
   $methopsect->debug( $op->name, $op->flagspv ) if $debug{flags};
   $init->add( sprintf( "methop_list[%d].op_ppaddr = %s;", $ix, $op->ppaddr ) )
@@ -2734,7 +2736,7 @@ sub B::UV::save {
                           ($PERL510?', {'.($C99?".svu_uv=":"").$uvx."$suff}":''),
                           $sv->REFCNT, $sv->FLAGS));
     #32bit  - sizeof(void*), 64bit: - 2*ptrsize
-    if ($Config{ptrsize} == 4) {
+    if ($Config{ptrsize} == 4 and !IS_MSVC) {
       $init->add(sprintf( "sv_list[%d].sv_any = (void*)&sv_list[%d] - sizeof(void*);", $i, $i));
     } else {
       $init->add(sprintf( "sv_list[%d].sv_any = (char*)&sv_list[%d] - %d;", $i, $i,
@@ -2789,7 +2791,7 @@ sub B::IV::save {
     $svsect->add(sprintf( "NULL, $u32fmt, 0x%x, {".($C99?".svu_iv=":"").$ivx.'}',
                           $sv->REFCNT, $svflags ));
     #32bit  - sizeof(void*), 64bit: - 2*ptrsize
-    if ($Config{ptrsize} == 4) {
+    if ($Config{ptrsize} == 4 and !IS_MSVC) {
       $init->add(sprintf( "sv_list[%d].sv_any = (void*)&sv_list[%d] - sizeof(void*);", $i, $i));
     } else {
       $init->add(sprintf( "sv_list[%d].sv_any = (char*)&sv_list[%d] - %d;", $i, $i,
@@ -3227,9 +3229,13 @@ sub B::PADNAME::save {
   # 5.22 needs the buffer to be at the end, and the pv pointing to it.
   # We allocate a static buffer of different sizes.
   $pnsect->comment( "pv, ourstash, type, low, high, refcnt, gen, len, flags, str");
+  my $pnstr = "((char*)$s)+STRUCT_OFFSET(struct $struct_name, xpadn_str[0])";
+  if (IS_MSVC) {
+    $pnstr = sprintf("((char*)$s)+%d", $Config{ptrsize} * 3 + 5);
+  }
   $pnsect->add( sprintf
       ( "%s, %s, {%s}, %u, %u, %s, %i, %u, 0x%x, %s",
-        ($ix or $len) ? "((char*)$s)+STRUCT_OFFSET(struct $struct_name, xpadn_str[0])" : 'NULL',
+        ($ix or $len) ? $pnstr : 'NULL',
         is_constant($sn) ? "(HV*)$sn" : 'Nullhv',
         is_constant($tn) ? "(HV*)$tn" : 'Nullhv',
         $pn->COP_SEQ_RANGE_LOW,
@@ -3779,12 +3785,13 @@ sub B::RV::save {
     # 5.10 has no struct xrv anymore, just sv_u.svu_rv. static or dynamic?
     # initializer element is computable at load time
     $svsect->add( sprintf( "ptr_undef, $u32fmt, 0x%x, {%s}", $sv->REFCNT, $flags,
-                           ($C99 and is_constant($rv) ? ".svu_rv=$rv" : "0 /* $rv */")));
+                           (($C99 and is_constant($rv)) ? ".svu_rv=$rv" : "0 /*-> $rv */")));
     $svsect->debug( $fullname, $sv->flagspv ) if $debug{flags};
     my $s = "sv_list[".$svsect->index."]";
     # 354 defined needs SvANY
-    $init->add( "$s.sv_any = (void*)&$s - sizeof(void*);") if $] > 5.019 or $ITHREADS;
-    $init->add( "$s.sv_u.svu_rv = (SV*)$rv;" ) unless $C99 and is_constant($rv);
+    $init->add( sprintf("$s.sv_any = (char*)&$s - %d;", $Config{ptrsize}))
+      if $] > 5.019 or $ITHREADS;
+    $init->add( "$s.sv_u.svu_rv = (SV*)$rv;" ) unless ($C99 and is_constant($rv));
     return savesym( $sv, "&".$s );
   }
   else {
@@ -6603,7 +6610,7 @@ static void xs_init (pTHX);
 static void dl_init (pTHX);
 _EOT4
 
-  print <<'_EOT' if $CPERL51;
+  print <<'_EOT' if $CPERL51 and $^O ne 'MSWin32';
 EXTERN_C void dl_boot (pTHX);
 _EOT
 
@@ -6831,7 +6838,9 @@ static int fast_perl_destruct( PerlInterpreter *my_perl ) {
     assert(PL_scopestack_ix == 1);
 
     /* wait for all pseudo-forked children to finish */
+#if !defined(WIN32) || (defined(USE_CPERL) && PERL_VERSION >= 24)
     PERL_WAIT_FOR_CHILDREN;
+#endif
 
     destruct_level = PL_perl_destruct_level;
 #ifdef DEBUGGING
@@ -6898,7 +6907,11 @@ _EOT8
         return STATUS_NATIVE_EXPORT;
 #endif
     }
+#if defined(PERLIO_LAYERS)
+# if !defined(WIN32) || (defined(USE_CPERL) && PERL_VERSION >= 24)
     PerlIO_destruct(aTHX);
+# endif
+#endif
 
     /* B::C -O3 specific: first curse (i.e. call DESTROY) all our static SVs */
     if (PL_sv_objcount) {
@@ -6936,12 +6949,14 @@ _EOT8
 #endif
 
     PL_stashcache = (HV*)&PL_sv_undef; /* sometimes corrupted */
+#if !defined(WIN32) || (defined(USE_CPERL) && PERL_VERSION >= 24)
     if (PL_sv_objcount) {
         PL_stashcache = newHV(); /* Hack: sometimes corrupted, holding a GV */
 	PL_in_clean_all = 1;
 	sv_clean_objs();         /* and now curse the rest */
 	PL_sv_objcount = 0;
     }
+#endif
 
     PL_warnhook = NULL;
     PL_diehook = NULL;
@@ -6951,7 +6966,9 @@ _EOT8
     PL_exitlist = NULL;
 
 #if defined(PERLIO_LAYERS)
+# if !defined(WIN32) || (defined(USE_CPERL) && PERL_VERSION >= 24)
     PerlIO_cleanup(aTHX);
+# endif
 #endif
 
     PL_stashcache = (HV*)&PL_sv_undef;
@@ -7138,7 +7155,7 @@ _EOT8
     print "\tboot_DynaLoader(aTHX_ NULL);\n";
   }
   print "\tSPAGAIN;\n";
-  if ($CPERL51) {
+  if ($CPERL51 and $^O ne 'MSWin32') {
     print "\tdl_boot(aTHX);\n";
   }
   print "#endif\n";

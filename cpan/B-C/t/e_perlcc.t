@@ -9,18 +9,15 @@ use File::Spec;
 BEGIN {
   @plan = (tests => 79);
   if ($ENV{PERL_CORE}) {
-    #if ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/) {
-    #  @plan = (skip_all => "cc -m32 is not supported with PERL_CORE");
-    #}
     if (-f File::Spec->catfile($Config{'sitearch'}, "Opcodes.pm")) {
       @plan = (skip_all => '<sitearch>/Opcodes.pm installed. Possible XS conflict');
     }
     if (-f File::Spec->catfile($Config{'sitearch'}, "B", "Flags.pm")) {
       @plan = (skip_all => '<sitearch>/B/Flags.pm installed. Possible XS conflict');
     }
-    if ($^O eq 'MSWin32' and $Config{cc} eq 'cl.exe') {
-      @plan = (skip_all => 'B::C linkage not yet ready on MSWin32 MSVC');
-    }
+    #if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
+    #  @plan = (skip_all => 'B::C linkage not yet ready on MSWin32 MSVC');
+    #}
   }
   if ($^O eq 'VMS') {
     @plan = (skip_all => "B::C doesn't work on VMS");

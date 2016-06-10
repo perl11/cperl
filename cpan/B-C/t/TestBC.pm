@@ -579,31 +579,31 @@ sub run_cmd {
 
 sub Mblib {
     if ($ENV{PERL_CORE}) {
-        $^O eq 'MSWin32' ? '-I..\..\lib'
-                         : '-I../../lib';
+        $is_mswin ? '-I..\..\lib'
+                  : '-I../../lib';
     } else {
-        $^O eq 'MSWin32' ? '-Iblib\arch -Iblib\lib'
-                         : '-Iblib/arch -Iblib/lib';
+        $is_mswin ? '-Iblib\arch -Iblib\lib'
+                  : '-Iblib/arch -Iblib/lib';
     }
 }
 
 sub perlcc {
     if ($ENV{PERL_CORE}) {
-        $^O eq 'MSWin32' ? 'script\perlcc -I..\.. -L..\..'
-                         : 'script/perlcc -I../.. -L../..';
+        $is_mswin ? 'script\perlcc -I"..\..\lib\CORE" -L"..\.."'
+                  : 'script/perlcc -I../.. -L../..';
     } else {
-        $^O eq 'MSWin32' ? 'blib\script\perlcc'
-                         : 'blib/script/perlcc';
+        $is_mswin ? 'blib\script\perlcc'
+                  : 'blib/script/perlcc';
     }
 }
 
 sub cc_harness {
     if ($ENV{PERL_CORE} ) {
-        $^O eq 'MSWin32' ? 'script\cc_harness'
-                         : 'script/cc_harness';
+        $is_mswin ? 'script\cc_harness'
+                  : 'script/cc_harness';
     } else {
-        $^O eq 'MSWin32' ? 'blib\script\cc_harness'
-                         : 'blib/script/cc_harness';
+        $is_mswin ? 'blib\script\cc_harness'
+                  : 'blib/script/cc_harness';
     }
 }
 
@@ -674,7 +674,7 @@ sub run_cc_test {
 	  if $B::C::Config::have_independent_comalloc;
 	$command .= " -o $exe $cfile ".$B::C::Config::extra_cflags . " ";
         if ($Config{cc} eq 'cl') {
-            if ($^O eq 'MSWin32' and $Config{ccversion} eq '12.0.8804' and $Config{cc} eq 'cl') {
+            if ($is_mswin and $Config{ccversion} eq '12.0.8804' and $Config{cc} eq 'cl') {
                 $command =~ s/ -opt:ref,icf//;
             }
             my $obj = $obj[0];
@@ -722,12 +722,12 @@ sub run_cc_test {
 	    $command .= $linkargs;
 	} else {
 	    $command .= $linkargs;
-	    $command .= " -lperl" if $command !~ /(-lperl|CORE\/libperl5)/ and $^O ne 'MSWin32';
+	    $command .= " -lperl" if $command !~ /(-lperl|CORE\/libperl5)/ and !$is_mswin;
 	}
 	$command .= $B::C::Config::extra_libs;
-        my $NULL = $^O eq 'MSWin32' ? '' : '2>/dev/null';
+        my $NULL = $is_mswin ? '' : '2>/dev/null';
         my $cmdline = "$Config{cc} $command $NULL";
-        if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
+        if ($is_mswin and $Config{cc} eq 'cl') {
             $cmdline = "$Config{ld} $linkargs -out:$exe $obj[0] $command";
         }
 	diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
@@ -736,12 +736,6 @@ sub run_cc_test {
                 # mingw with gcc and cygwin should work, but not tested.
                 # TODO: msvc throws linker errors. need to use link, not cl.
                 ok(1, "skip $^O not yet ready");
-                return 1;
-            }
-            if ( $] > 5.023
-                 and ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/))
-            {
-                ok(1, "skip cc -m32 is not supported with PERL_CORE");
                 return 1;
             }
         }
@@ -761,7 +755,7 @@ sub run_cc_test {
             #unlink ($test, $cfile, $exe, @obj) unless $keep_c_fail;
             return 0;
         }
-        $exe = "./".$exe unless $^O eq 'MSWin32';
+        $exe = "./".$exe unless $is_mswin;
 	# system("/bin/bash -c ulimit -d 1000000") if -e "/bin/bash";
         ($result,$out,$stderr) = run_cmd($exe, 5);
         if (defined($out) and !$result) {
@@ -818,10 +812,10 @@ sub prepare_c_tests {
             print "1..0 # Skip -- Perl configured without B module\n";
             exit 0;
         }
-        if ($^O eq 'MSWin32' and $ENV{PERL_CORE}) {
-            print "1..0 # Skip -- MSWin not yet ready\n";
-            exit 0;
-        }
+        #if ($^O eq 'MSWin32' and $ENV{PERL_CORE}) {
+        #    print "1..0 # Skip -- MSWin not yet ready\n";
+        #    exit 0;
+        #}
         # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
         if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
             print "1..0 # Skip -- no OLD COW for now\n";
@@ -948,10 +942,10 @@ sub plctest {
         ok(1, "SKIP perl5.22 broke ByteLoader");
         return 1;
     }
-    if ($^O eq 'MSWin32' and $ENV{PERL_CORE}) {
-        ok(1, "SKIP MSWin not yet ready");
-        return 1;
-    }
+    #if ($^O eq 'MSWin32' and $ENV{PERL_CORE}) {
+    #    ok(1, "SKIP MSWin not yet ready");
+    #    return 1;
+    #}
     my $name = $base."_$num";
     unlink($name, "$name.plc", "$name.pl", "$name.exe");
     open F, ">", "$base.pl";
@@ -1053,7 +1047,7 @@ sub ctest {
         }
         return;
     }
-    $exe = "./".$exe unless $^O eq 'MSWin32';
+    $exe = "./".$exe unless $is_mswin;
     ($result,$out,$stderr) = run_cmd($exe, 5);
     my $ok;
     if (defined($out) and !$result) {
@@ -1175,7 +1169,7 @@ sub todo_tests_default {
 	push @todo, (22)    if $] < 5.010 and !$ITHREADS;
 	push @todo, (46); # HvKEYS(%Exporter::) is 0 unless Heavy is included also
 	# solaris also. I suspected nvx<=>cop_seq_*
-	push @todo, (12)    if $^O eq 'MSWin32' and $Config{cc} =~ /^cl/i;
+	push @todo, (12)    if $is_mswin and $Config{cc} =~ /^cl/i;
 	push @todo, (26)    if $what =~ /^cc_o[12]/;
         push @todo, (27)    if $] > 5.008008 and $] < 5.009;
 	#push @todo, (27)    if $] > 5.008008 and $] < 5.009 and $what eq 'cc_o2';
