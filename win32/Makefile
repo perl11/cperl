@@ -1407,6 +1407,7 @@ test-prep : all utils ../pod/perltoc.pod
 	copy     $(PERLEXE) ..\t\perl.exe
 	copy     $(PERLEXE) ..\perl.exe
 	$(XCOPY) $(PERLDLL) ..\t\$(NULL)
+	$(XCOPY) $(PERLDLL) ..\cpan\B-C\$(NULL)
 	$(XCOPY) $(GLOBEXE) ..\t\$(NULL)
 	set PERL_STATIC_EXT=$(STATIC_EXT)
 
