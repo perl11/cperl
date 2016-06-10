@@ -52,10 +52,10 @@ sub MY::top_targets {
 	$_ .= "
 
 sgtty cchars.h: genchars.pl
-	\$(PERL) -I. -I\$(PERL_LIB) genchars.pl
+	\$(PERLRUN) genchars.pl
 
 distcc: genchars.pl
-	\$(PERL) -I. -I\$(PERL_LIB) genchars.pl dist
+	\$(PERLRUN) genchars.pl dist
 
 ReadKey.c: cchars.h
 
