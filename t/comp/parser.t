@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..207\n";
+print "1..210\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -701,6 +701,14 @@ for my $marker (qw(
     eval "\n\$_ =\n$marker";
     like $@, qr/^Version control conflict marker at \(eval \d+\) line 3, near "$marker"/, "VCS marker '$marker' after operator";
 }
+
+# keys assignments in weird contexts (mentioned in perl #128260)
+eval 'keys(%h) .= "00"';
+is $@, "", 'keys .=';
+eval 'sub { read $fh, keys %h, 0 }';
+is $@, "", 'read into keys';
+eval 'substr keys(%h),0,=3';
+is $@, "", 'substr keys assignment';
 
 # Add new tests HERE (above this line)
 
