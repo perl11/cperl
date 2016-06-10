@@ -13216,7 +13216,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 		     * something like "\b" */
 		    if (len || (p > RExC_start && isALPHA_A(*(p -1)))) {
                         RExC_parse = p + 1;
-			vFAIL("Unescaped left brace in regex is illegal");
+			vFAIL("Unescaped left brace in regex is illegal here");
 		    }
 		    /*FALLTHROUGH*/
 		default:    /* A literal character */
@@ -13621,8 +13621,6 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 	    RExC_parse = p - 1;
             Set_Node_Cur_Length(ret, parse_start);
 	    RExC_parse = p;
-            skip_to_be_ignored_text(pRExC_state, &RExC_parse,
-                                    FALSE /* Don't force to /x */ );
 	    {
 		/* len is STRLEN which is unsigned, need to copy to signed */
 		IV iv = len;
@@ -13633,6 +13631,13 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 	} /* End of label 'defchar:' */
 	break;
     } /* End of giant switch on input character */
+
+    /* Position parse to next real character */
+    skip_to_be_ignored_text(pRExC_state, &RExC_parse,
+                                            FALSE /* Don't force to /x */ );
+    if (PASS2 && *RExC_parse == '{' && OP(ret) != SBOL && ! regcurly(RExC_parse)) {
+        ckWARNregdep(RExC_parse + 1, "Unescaped left brace in regex is deprecated here, passed through");
+    }
 
     return(ret);
 }
