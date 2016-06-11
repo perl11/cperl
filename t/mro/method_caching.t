@@ -47,7 +47,7 @@ my @testsubs = (
     sub { sub DDD { $_[1]+8 }; *MCTest::Base::foo = *DDD; is(MCTest::Derived->foo(0), 8); },
     sub { *ASDF::asdf = sub { $_[1]+9 }; *MCTest::Base::foo = \&ASDF::asdf; is(MCTest::Derived->foo(0), 9); },
     sub { undef *MCTest::Base::foo; eval { MCTest::Derived->foo(0) }; like($@, qr/locate object method/); },
-    sub { eval "sub MCTest::Base::foo($);"; *MCTest::Base::foo = \&ASDF::asdf; is(MCTest::Derived->foo(0), 9); },
+    sub { eval 'sub MCTest::Base::foo($);'; *MCTest::Base::foo = \&ASDF::asdf; is(MCTest::Derived->foo(0), 9); },
     sub { *XYZ = sub { $_[1]+10 }; ${MCTest::Base::}{foo} = \&XYZ; is(MCTest::Derived->foo(0), 10); },
     sub { ${MCTest::Base::}{foo} = sub { $_[1]+11 }; is(MCTest::Derived->foo(0), 11); },
 
