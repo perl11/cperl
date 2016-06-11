@@ -378,7 +378,7 @@ eval '@A =~ s/a/b/; # compilation error
       sub rua;
       sub toru ($);
       sub wha :lvalue;
-      sub rima ($%&*$&*\$%\*&$%*&) :method;
+      sub rima ($%&*$&*\$%*&$%*&) :method;
       sub ono :lvalue { die }
       sub whitu (_) { die }
       sub waru ($;) :method { die }
