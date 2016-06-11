@@ -702,7 +702,7 @@ print OUT <<'!NO!SUBS!';
     }
     my ($libperl, $libdir, $coredir) = ($Config{libperl});
     if ($ENV{PERL_CORE}) {
-        $libdir = $coredir = "../..";
+        $libdir = $coredir = "../.."; # not includedir, which is ../../lib/CORE on windows
     } else {
         $libdir  = $Config{prefix} . "/lib";
         $coredir = $ENV{PERL_SRC} || $Config{archlib}."/CORE";

@@ -45,7 +45,7 @@ my $devnull = $^O eq 'MSWin32' ? '' : '2>/dev/null';
 #$o = "-Wb=-fno-warnings" if $] >= 5.013005;
 #$o = "-Wb=-fno-fold,-fno-warnings" if $] >= 5.013009;
 my $perlcc = "$X -Iblib/arch -Iblib/lib blib/script/perlcc";
-$perlcc = "$X -I../../lib -I../../lib/auto script/perlcc -I../.. -L../.." if $ENV{PERL_CORE};
+$perlcc = "$X -I../../lib -I../../lib/auto script/perlcc -L../.." if $ENV{PERL_CORE};
 sub cleanup { unlink ('pcc.c','pcc.c.lst','a.out.c', "a.c", $exe, $a, "a.out.c.lst", "a.c.lst"); }
 my $e = q("print q(ok)");
 

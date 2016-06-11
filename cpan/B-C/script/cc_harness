@@ -104,7 +104,7 @@ sub cc_harness_msvc {
     }
     $compile .= "-DHAVE_INDEPENDENT_COMALLOC " if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;
-    $compile .= " -I".$coredir." " if $ENV{PERL_CORE};
+    $compile .= ' -I"..\..\lib\CORE"' if $ENV{PERL_CORE};
     print "running $Config{cc} $compile" unless $quiet;
     system("$Config{cc} $compile");
     

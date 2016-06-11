@@ -669,7 +669,13 @@ sub run_cc_test {
 	my $coredir = $ENV{PERL_CORE} ? File::Spec->catdir('..', '..')
                          : File::Spec->catdir($Config{installarchlib}, "CORE");
 	my $command = ExtUtils::Embed::ccopts;
-        $command = $Config{ccflags}." -I".$coredir if $ENV{PERL_CORE};
+        if ($ENV{PERL_CORE}) { # ignore ccopts
+            if ($^O eq 'MSWin32') {
+                $command = $Config{ccflags}.' -I"..\..\lib\CORE"';
+            } else {
+                $command = $Config{ccflags}." -I".$coredir;
+            }
+        }
 	$command .= " -DHAVE_INDEPENDENT_COMALLOC "
 	  if $B::C::Config::have_independent_comalloc;
 	$command .= " -o $exe $cfile ".$B::C::Config::extra_cflags . " ";
