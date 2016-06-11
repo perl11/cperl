@@ -433,6 +433,12 @@ XXX
 Scalar C<keys %hash> can now be assigned to consistently in all scalar
 lvalue contexts.  Previously it worked for some contexts but not others.
 
+=item *
+
+C< ${\vec %h, 0, 1} > and C< ${\substr %h, 0} > do not segfault anymore, rather
+the lvalue context is propagated, and list context properly handled.
+L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
+
 =back
 
 =head1 Known Problems
