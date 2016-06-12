@@ -3598,11 +3598,12 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	if (OpKIDS(o) && OpHAS_SIBLING(OpFIRST(o))) {
 	    /* substr and vec */
 	    /* If this op is in merely potential (non-fatal) modifiable
-	       context, then propagate that context to the kid op.  Other-
+	       context, then apply OP_ENTERSUB context to
+	       the kid op (to avoid croaking).  Other-
 	       wise pass this op’s own type so the correct op is mentioned
 	       in error messages.  */
 	    op_lvalue(OpSIBLING(OpFIRST(o)),
-		      S_potential_mod_type(type) ? type : o->op_type);
+		      S_potential_mod_type(type) ? OP_ENTERSUB : o->op_type);
 	}
 	break;
 
