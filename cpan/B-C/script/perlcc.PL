@@ -63,6 +63,7 @@ print OUT <<'!NO!SUBS!';
 # Version 2.18, Reini Urban, 2014-05-28
 # Version 2.19, Reini Urban, 2014-07-09
 # Version 2.20, Reini Urban, 2014-07-23
+# Version 2.21, Reini Urban, 2016-06-12
 
 use strict;
 use warnings;
@@ -77,7 +78,7 @@ use Cwd ();
 use Pod::Usage;
 # Time::HiRes does not work with 5.6
 # use Time::HiRes qw(gettimeofday tv_interval);
-our $VERSION = 2.20;
+our $VERSION = 2.21;
 $| = 1;
 eval { require B::C::Config; };
 
@@ -240,8 +241,8 @@ sub parse_argv {
     }
     $Options->{spawn} = 1 unless $^O eq 'MSWin32';
     Getopt::Long::GetOptions( $Options,
-        'L=s',          # lib directory
-        'I=s',          # include directories (FOR C, NOT FOR PERL)
+        'L=s@',         # lib directories
+        'I=s@',         # include directories (FOR C, NOT FOR PERL)
         'o=s',          # Output executable
         'v:i',          # Verbosity level
         'e=s',          # One-liner
@@ -488,7 +489,7 @@ sub compile_cstyle {
     vprint 3, "Writing C on $cfile" unless opt('check');
 
     my $max_line_len = '';
-    if ($^O eq 'MSWin32' && $Config{cc} =~ /^cl/i) {
+    if (is_msvc) {
         $max_line_len = '-l2000,';
     }
 
@@ -590,12 +591,27 @@ sub cc_harness_msvc {
     my $link = "-out:$Output $obj";
     $compile .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;
-    $compile .= " -I".$_ for split /\s+/, opt(I);
-    $compile .= " -I".$coredir if $ENV{PERL_CORE};
-    $compile .= " -DSTATICXS" if opt('staticxs');
+    $compile .= ' -I"..\..\lib\CORE"' if $ENV{PERL_CORE};
+    my $incdir = opt('I'); # use mult. I opts for paths with spaces, and \ deps.
+    if ($incdir) {
+        if (ref $incdir eq 'ARRAY') { # -I uses now mult.
+            $compile .= ' -I"'.$_.'"' for @$incdir;
+        } else {
+            $compile .= ' -I"'.$incdir.'"';
+        }
+    }
+    $compile .= ' -DSTATICXS' if opt('staticxs');
     $compile .= " ".opt('Wc') if opt('Wc');
 
-    $link .= " -libpath:".$_ for split /\s+/, opt('L');
+    $link .= ' -libpath:"..\.."' if $ENV{PERL_CORE};
+    my $libdir = opt('L');
+    if ($libdir) {
+        if (ref $libdir eq 'ARRAY') {
+            $link .= ' -L"'.$_.'"' for @$libdir;
+        } else {
+            $link .= ' -L"'.$libdir.'"';
+        }
+    }
     # TODO: -shared,-static,-sharedxs
     if ($stash) {
         my @mods = split /,?-?u/, $stash; # XXX -U stashes
@@ -641,9 +657,17 @@ sub cc_harness_msvc {
     $link .= " kernel32.lib msvcrt.lib";
     $link .= $B::C::Config::extra_libs;
     vprint 3, "Calling $Config{cc} $compile";
-    vsystem("$Config{cc} $compile");
+    if (!opt('dryrun')) {
+        my @output = split /\n/, `$Config{cc} $compile`;
+        @output = grep {$_ ne $cfile} @output;
+        print STDERR join("\n", @output);
+    }
     vprint 3, "Calling $Config{ld} $link";
-    vsystem("$Config{ld} $link");
+    if (!opt('dryrun')) {
+        my @output = split /\n/, `$Config{ld} $link`;
+        @output = grep {!/(Creating library|Generating code|Finished generating code)/} @output;
+        print STDERR join("\n", @output);
+    }
 }
 
 sub cc_harness {
@@ -659,9 +683,22 @@ print OUT <<'!NO!SUBS!';
     }
     $command .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
     $command .= $B::C::Config::extra_cflags if $B::C::Config::extra_cflags;
-    # XXX should use mult. I opts for paths with spaces, and \ deps.
-    $command .= " -I".$_ for split /\s+/, opt('I');
-    $command .= " -L".$_ for split /\s+/, opt('L');
+    my $incdir = opt('I'); # use mult. I opts for paths with spaces, and \ deps.
+    if ($incdir) {
+        if (ref $incdir eq 'ARRAY') {
+            $command .= ' -I"'.$_.'"' for @$incdir;
+        } else {
+            $command .= ' -I"'.$incdir.'"';
+        }
+    }
+    my $libopt = opt('L');
+    if ($libopt) {
+        if (ref $libopt eq 'ARRAY') {
+            $command .= ' -L"'.$_.'"' for @$libopt;
+        } else {
+            $command .= ' -L"'.$libopt.'"';
+        }
+    }
     $command .= " -DSTATICXS" if opt('staticxs');
     $command .= " ".opt('Wc') if opt('Wc');
     my $ccflags = $command;
@@ -775,11 +812,17 @@ sub yclept {
     my $command = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
     # DWIM the -I to be Perl, not C, include directories.
     if (opt('I') && $Backend eq "Bytecode") {
-        for (split /\s+/, opt('I')) {
-            if (-d $_) {
-                push @INC, $_;
-            } else {
-                warn "$0: Include directory $_ not found, skipping\n";
+        my $incdir = opt('I');
+        if ($incdir) {
+            if (ref $incdir ne 'ARRAY') {
+                $incdir = ($incdir);
+            }
+            for (@$incdir) {
+                if (-d $_) {
+                    push @INC, $_;
+                } else {
+                    warn "$0: Include directory $_ not found, skipping\n";
+                }
             }
         }
     }
@@ -1115,12 +1158,14 @@ experimental. Use for production purposes is strongly discouraged.
 
 Adds the given directories to the library search path when C code is
 passed to your C compiler.
+For multiple paths use multiple -L options.
 
 =item -II<C include directories>
 
 Adds the given directories to the include file search path when C code is
 passed to your C compiler; when using the Perl bytecode option, adds the
 given directories to Perl's include path.
+For multiple paths use multiple -I options.
 
 =item -o I<output file name>
 

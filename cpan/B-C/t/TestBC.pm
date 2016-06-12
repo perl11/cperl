@@ -589,11 +589,9 @@ sub Mblib {
 
 sub perlcc {
     if ($ENV{PERL_CORE}) {
-        $is_mswin ? 'script\perlcc -I"..\..\lib\CORE" -L"..\.."'
-                  : 'script/perlcc -I../.. -L../..';
+        $is_mswin ? 'script\perlcc' : 'script/perlcc'
     } else {
-        $is_mswin ? 'blib\script\perlcc'
-                  : 'blib/script/perlcc';
+        $is_mswin ? 'blib\script\perlcc' : 'blib/script/perlcc';
     }
 }
 
@@ -666,15 +664,18 @@ sub run_cc_test {
                     progfile => $test);
     if (! $? and -s $cfile) {
 	use ExtUtils::Embed ();
-	my $coredir = $ENV{PERL_CORE} ? File::Spec->catdir('..', '..')
-                         : File::Spec->catdir($Config{installarchlib}, "CORE");
-	my $command = ExtUtils::Embed::ccopts;
+	my $coredir = $ENV{PERL_CORE}
+          ? File::Spec->catdir('..', '..')
+          : File::Spec->catdir($Config{installarchlib}, "CORE");
+	my $command;
         if ($ENV{PERL_CORE}) { # ignore ccopts
             if ($^O eq 'MSWin32') {
                 $command = $Config{ccflags}.' -I"..\..\lib\CORE"';
             } else {
                 $command = $Config{ccflags}." -I".$coredir;
             }
+        } else {
+            $command = ExtUtils::Embed::ccopts;
         }
 	$command .= " -DHAVE_INDEPENDENT_COMALLOC "
 	  if $B::C::Config::have_independent_comalloc;
@@ -685,7 +686,7 @@ sub run_cc_test {
             }
             my $obj = $obj[0];
             $command =~ s/ \Q-o $exe\E / -c -Fo$obj /;
-            my $cmdline = "$Config{cc} $command";
+            my $cmdline = "$Config{cc} $command >NUL"; # need to silence it
             diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
             run_cmd($cmdline, 20);
             $command = '';
@@ -738,7 +739,7 @@ sub run_cc_test {
         }
 	diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
         if ($ENV{PERL_CORE}) {
-            if ($^O =~ /^(MSWin32|hpux)/) {
+            if ($^O =~ /^(hpux)/) {
                 # mingw with gcc and cygwin should work, but not tested.
                 # TODO: msvc throws linker errors. need to use link, not cl.
                 ok(1, "skip $^O not yet ready");

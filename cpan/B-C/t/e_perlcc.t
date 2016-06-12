@@ -7,28 +7,30 @@ use Config;
 my @plan;
 use File::Spec;
 BEGIN {
-  @plan = (tests => 79);
-  if ($ENV{PERL_CORE}) {
-    if (-f File::Spec->catfile($Config{'sitearch'}, "Opcodes.pm")) {
-      @plan = (skip_all => '<sitearch>/Opcodes.pm installed. Possible XS conflict');
+    @plan = (tests => 87);
+    if ($ENV{PERL_CORE}) {
+        if (-f File::Spec->catfile($Config{'sitearch'}, "Opcodes.pm")) {
+            @plan = (skip_all => '<sitearch>/Opcodes.pm installed. Possible XS conflict');
+        }
+        if (-f File::Spec->catfile($Config{'sitearch'}, "B", "Flags.pm")) {
+            @plan = (skip_all => '<sitearch>/B/Flags.pm installed. Possible XS conflict');
+        }
+        #if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
+        #  @plan = (skip_all => 'B::C linkage not yet ready on MSWin32 MSVC');
+        #}
     }
-    if (-f File::Spec->catfile($Config{'sitearch'}, "B", "Flags.pm")) {
-      @plan = (skip_all => '<sitearch>/B/Flags.pm installed. Possible XS conflict');
+    if ($^O eq 'VMS') {
+        @plan = (skip_all => "B::C doesn't work on VMS");
     }
-    #if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
-    #  @plan = (skip_all => 'B::C linkage not yet ready on MSWin32 MSVC');
-    #}
-  }
-  if ($^O eq 'VMS') {
-    @plan = (skip_all => "B::C doesn't work on VMS");
-  }
-  if (($Config{'extensions'} !~ /\bB\b/) ) {
-    @plan = (skip_all => "Perl configured without B module");
-  }
-  # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
-  if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
-    @plan = (skip_all => "no OLD_COPY_ON_WRITE");
-  }
+    if (($Config{'extensions'} !~ /\bB\b/) ) {
+        @plan = (skip_all => "Perl configured without B module");
+    }
+    # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
+    if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
+        @plan = (skip_all => "no OLD_COPY_ON_WRITE");
+    }
+    push @INC, 't';
+    require TestBC;
 }
 
 use Test::More @plan;
@@ -44,8 +46,7 @@ my $devnull = $^O eq 'MSWin32' ? '' : '2>/dev/null';
 #my $o = '';
 #$o = "-Wb=-fno-warnings" if $] >= 5.013005;
 #$o = "-Wb=-fno-fold,-fno-warnings" if $] >= 5.013009;
-my $perlcc = "$X -Iblib/arch -Iblib/lib blib/script/perlcc";
-$perlcc = "$X -I../../lib -I../../lib/auto script/perlcc -L../.." if $ENV{PERL_CORE};
+my $perlcc = "$X ".Mblib." ".perlcc;
 sub cleanup { unlink ('pcc.c','pcc.c.lst','a.out.c', "a.c", $exe, $a, "a.out.c.lst", "a.c.lst"); }
 my $e = q("print q(ok)");
 
@@ -268,6 +269,22 @@ TODO: {
 }
 ok(!-e "pcc.c", "no C file"); #78
 ok(!-e $a, "no executable"); #79
+cleanup;
+
+is(`$perlcc -It -O3 -o pcc $f $devnull`, "", "single -I");
+ok(-e $a, "=> executable");
+cleanup;
+
+is(`$perlcc -It -Iscript -O3 -o pcc $f $devnull`, "", "mult -I");
+ok(-e $a, "=> executable");
+cleanup;
+
+is(`$perlcc -Lt -O3 -o pcc $f $devnull`, "", "single -L");
+ok(-e $a, "=> executable");
+cleanup;
+
+is(`$perlcc -Lt -Lscript -O3 -o pcc $f $devnull`, "", "mult -L");
+ok(-e $a, "=> executable");
 cleanup;
 
 #TODO: -m
