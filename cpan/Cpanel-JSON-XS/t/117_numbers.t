@@ -62,6 +62,6 @@ $str = 'bar';
 { no warnings "numeric"; $num = 23 + $str }
 # 5.6 and >5.10 is also arguably broken:
 # converts $num (IV+PV) to pure NOK+POK, not IOK+POK.
-$resnum = ($] > 5.007 && $] < 5.010) ? '23' : '23.0';
+$resnum = ($] > 5.007 && $] <= 5.010) ? '23' : '23.0';
 is encode_json({test => [$num, $str]}), qq|{"test":[$resnum,"bar"]}|,
   'int/string dualvar';
