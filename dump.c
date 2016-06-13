@@ -2728,6 +2728,16 @@ Perl_debop(pTHX_ const OP *o)
                         o->op_private & OPpPADRANGE_COUNTMASK, 1);
         break;
 
+    case OP_ENTERSUB:
+    case OP_ENTERXSSUB:
+        {
+            CV* cv = deb_curcv(cxstack_ix);
+            if (cv && CvGV(cv))
+                PerlIO_printf(Perl_debug_log, "(%s)",
+                    SvPV_nolen_const(cv_name(cv,NULL,CV_NAME_NOMAIN)));
+            break;
+        }
+
     case OP_MULTIDEREF:
         PerlIO_printf(Perl_debug_log, "(%"SVf")",
             SVfARG(multideref_stringify(o, deb_curcv(cxstack_ix))));
