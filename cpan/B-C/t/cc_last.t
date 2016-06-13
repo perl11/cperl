@@ -63,6 +63,10 @@ ctestok(3, "CC", $base, $script3,
 	  ? "TODO last for non-loop block fixed with B-CC-1.08" 
 	  : "last for non-loop block");
 
+if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
+  ok(1, "skip MSVC");
+  exit;
+}    
 my $script4 = <<'EOF';
 # issue 55 segfault for non local loop exit
 LOOP:

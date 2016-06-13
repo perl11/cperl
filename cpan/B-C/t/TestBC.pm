@@ -175,6 +175,7 @@ sub _where {
 #   verbose  => print the command line
 
 my $is_mswin    = $^O eq 'MSWin32';
+my $is_msvc     = $is_mswin and $Config{cc} eq 'cl' ? 1 : 0;
 my $is_netware  = $^O eq 'NetWare';
 my $is_macos    = $^O eq 'MacOS';
 my $is_vms      = $^O eq 'VMS';
@@ -579,11 +580,9 @@ sub run_cmd {
 
 sub Mblib {
     if ($ENV{PERL_CORE}) {
-        $is_mswin ? '-I..\..\lib'
-                  : '-I../../lib';
+        $is_mswin ? '-I..\..\lib' : '-I../../lib';
     } else {
-        $is_mswin ? '-Iblib\arch -Iblib\lib'
-                  : '-Iblib/arch -Iblib/lib';
+        $is_mswin ? '-Iblib\arch -Iblib\lib' : '-Iblib/arch -Iblib/lib';
     }
 }
 
@@ -597,11 +596,9 @@ sub perlcc {
 
 sub cc_harness {
     if ($ENV{PERL_CORE} ) {
-        $is_mswin ? 'script\cc_harness'
-                  : 'script/cc_harness';
+        $is_mswin ? 'script\cc_harness' : 'script/cc_harness';
     } else {
-        $is_mswin ? 'blib\script\cc_harness'
-                  : 'blib/script/cc_harness';
+        $is_mswin ? 'blib\script\cc_harness' : 'blib/script/cc_harness';
     }
 }
 
@@ -669,7 +666,7 @@ sub run_cc_test {
           : File::Spec->catdir($Config{installarchlib}, "CORE");
 	my $command;
         if ($ENV{PERL_CORE}) { # ignore ccopts
-            if ($^O eq 'MSWin32') {
+            if ($is_mswin) {
                 $command = $Config{ccflags}.' -I"..\..\lib\CORE"';
             } else {
                 $command = $Config{ccflags}." -I".$coredir;
@@ -680,8 +677,8 @@ sub run_cc_test {
 	$command .= " -DHAVE_INDEPENDENT_COMALLOC "
 	  if $B::C::Config::have_independent_comalloc;
 	$command .= " -o $exe $cfile ".$B::C::Config::extra_cflags . " ";
-        if ($Config{cc} eq 'cl') {
-            if ($is_mswin and $Config{ccversion} eq '12.0.8804' and $Config{cc} eq 'cl') {
+        if ($is_msvc) {
+            if ($Config{ccversion} eq '12.0.8804') {
                 $command =~ s/ -opt:ref,icf//;
             }
             my $obj = $obj[0];
@@ -734,20 +731,19 @@ sub run_cc_test {
 	$command .= $B::C::Config::extra_libs;
         my $NULL = $is_mswin ? '' : '2>/dev/null';
         my $cmdline = "$Config{cc} $command $NULL";
-        if ($is_mswin and $Config{cc} eq 'cl') {
+        if ($is_msvc) {
             $cmdline = "$Config{ld} $linkargs -out:$exe $obj[0] $command";
         }
 	diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
-        if ($ENV{PERL_CORE}) {
-            if ($^O =~ /^(hpux)/) {
-                # mingw with gcc and cygwin should work, but not tested.
-                # TODO: msvc throws linker errors. need to use link, not cl.
-                ok(1, "skip $^O not yet ready");
-                return 1;
-            }
-        }
         run_cmd($cmdline, 20);
         unless (-e $exe) {
+            if ($ENV{PERL_CORE}) {
+                if ($^O =~ /^(MSWin32|hpux)/) {
+                    # mingw with gcc and cygwin should work, but not tested.
+                    ok(1, "skip $^O not yet ready");
+                    return 1;
+                }
+            }
             if ($todo and $todo =~ /TODO/) {
                 $todo =~ s/TODO //;
               TODO:
@@ -809,31 +805,29 @@ sub run_cc_test {
 }
 
 sub prepare_c_tests {
-    BEGIN {
-        use Config;
-        if ($^O eq 'VMS') {
-            print "1..0 # skip - B::C doesn't work on VMS\n";
-            exit 0;
-        }
-        if (($Config{'extensions'} !~ /\bB\b/) ) {
-            print "1..0 # Skip -- Perl configured without B module\n";
-            exit 0;
-        }
-        #if ($^O eq 'MSWin32' and $ENV{PERL_CORE}) {
-        #    print "1..0 # Skip -- MSWin not yet ready\n";
-        #    exit 0;
-        #}
-        # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
-        if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
-            print "1..0 # Skip -- no OLD COW for now\n";
-            exit 0;
-        }
-        if ($ENV{PERL_CORE}
-            and -f File::Spec->catfile($Config::Config{'sitearch'}, "Opcodes.pm"))
-        {
-            print "1..0 # Skip -- <sitearch>/Opcodes.pm installed. Possible XS conflict\n";
-            exit 0;
-        }
+    use Config;
+    if ($^O eq 'VMS') {
+        print "1..0 # skip - B::C doesn't work on VMS\n";
+        exit 0;
+    }
+    if (($Config{'extensions'} !~ /\bB\b/) ) {
+        print "1..0 # Skip -- Perl configured without B module\n";
+        exit 0;
+    }
+    if ($is_mswin and $ENV{PERL_CORE}) {
+        print "1..0 # Skip -- MSWin32 tests not yet ready\n";
+        exit 0;
+    }
+    # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
+    if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
+        print "1..0 # Skip -- no OLD COW for now\n";
+        exit 0;
+    }
+    if ($ENV{PERL_CORE}
+        and -f File::Spec->catfile($Config{'sitearch'}, "Opcodes.pm"))
+    {
+        print "1..0 # Skip -- <sitearch>/Opcodes.pm installed. Possible XS conflict\n";
+        exit 0;
     }
 }
 
@@ -949,10 +943,10 @@ sub plctest {
         ok(1, "SKIP perl5.22 broke ByteLoader");
         return 1;
     }
-    #if ($^O eq 'MSWin32' and $ENV{PERL_CORE}) {
-    #    ok(1, "SKIP MSWin not yet ready");
-    #    return 1;
-    #}
+    if ($is_mswin and $ENV{PERL_CORE}) {
+        ok(1, "SKIP MSWin32 tests not yet ready");
+        return 1;
+    }
     my $name = $base."_$num";
     unlink($name, "$name.plc", "$name.pl", "$name.exe");
     open F, ">", "$base.pl";
@@ -1029,13 +1023,8 @@ sub ctest {
         ok (undef, "$todo B::$backend failed to compile");
         return 1;
     }
-    if ($ENV{PERL_CORE} and $] > 5.023
-        and ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/)) {
-        ok(1, "skip cc -m32 is not supported with PERL_CORE");
-        return 1;
-    }
     my $cc_harness = cc_harness();
-    my $cmd = "$runperl $Mblib $cc_harness -q -o $name $name.c";
+    my $cmd = "$runperl $Mblib $cc_harness -q ".($is_msvc ? "" : "-o $name ")."$name.c";
     if ($ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} > 1) {
         $cmd =~ s/ -q / /;
         diag("$cmd");
@@ -1043,6 +1032,9 @@ sub ctest {
     system "$cmd";
     my $exe = $name.$Config{exe_ext};
     unless (-e $exe) {
+        if ($ENV{PERL_CORE} and $is_msvc) {
+            ok(1, "skip MSVC"); return 1;
+        }
 	if ($todo and $todo =~ /TODO/) {
 	    $todo =~ s/TODO //;
           TODO: {

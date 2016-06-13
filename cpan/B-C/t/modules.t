@@ -37,6 +37,9 @@ BEGIN {
 use strict;
 use Test::More;
 use File::Temp;
+use Config;
+
+plan skip_all => "MSVC" if ($^O eq 'MSWin32' and $Config{cc} eq 'cl');
 
 # Try some simple XS module which exists in 5.6.2 and blead
 # otherwise we'll get a bogus 40% failure rate
@@ -86,7 +89,6 @@ my $test_count = scalar @modules * $opts_to_test * ($do_test ? 5 : 4);
 # $test_count -= 4 * $opts_to_test * (scalar @modules - scalar(keys %modules));
 plan tests => $test_count;
 
-use Config;
 use B::C;
 use POSIX qw(strftime);
 

@@ -9,7 +9,9 @@ BEGIN {
   }
   require TestBC;
 }
-use Test::More tests => 6;
+use Test::More;
+plan skip_all => "MSWin32" if $ENV{PERL_CORE} and $^O eq 'MSWin32';
+plan tests => 6;
 my $i=0;
 #use B::C ();
 

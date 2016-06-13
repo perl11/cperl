@@ -15,9 +15,10 @@ BEGIN {
         if (-f File::Spec->catfile($Config{'sitearch'}, "B", "Flags.pm")) {
             @plan = (skip_all => '<sitearch>/B/Flags.pm installed. Possible XS conflict');
         }
-        #if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
-        #  @plan = (skip_all => 'B::C linkage not yet ready on MSWin32 MSVC');
-        #}
+        if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
+            # >= 3 c compiler warnings
+            @plan = (skip_all => 'Tests not yet ready for MSWin32 MSVC');
+        }
     }
     if ($^O eq 'VMS') {
         @plan = (skip_all => "B::C doesn't work on VMS");

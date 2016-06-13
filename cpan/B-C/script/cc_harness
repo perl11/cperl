@@ -83,6 +83,12 @@ $linkargs .= " $libs" if index($linkargs,$libs) == -1;
 sub cc_harness_msvc {
     my @ARGV = @_;
     my $cfile = 'a.c';
+    my $Output;
+    for my $i (0 .. @ARGV) {
+      if ($ARGV[$i] eq '-o') {
+        $Output = $ARGV[$i+1];
+      }
+    }
     my @cfile = grep {!/^-/} @ARGV;
     if (@cfile == 1) {
         $cfile = $cfile[0];
@@ -90,10 +96,11 @@ sub cc_harness_msvc {
         die "too many arguments @cfile";
     }
     my $obj = $cfile;
-    my $Output = $cfile;
     $obj =~ s/\.c$/.obj/;
-    $Output =~ s/\.c$/.exe/;
-
+    unless ($Output) {
+      $Output = $cfile;
+      $Output =~ s/\.c$/.exe/;
+    }
     my $compile = ccopts." -c @ARGV ";
     if ($debug) {
       $compile .= "/Wall " if !$quiet;
