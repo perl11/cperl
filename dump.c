@@ -2733,8 +2733,15 @@ Perl_debop(pTHX_ const OP *o)
         {
             CV* cv = deb_curcv(cxstack_ix);
             if (cv && CvGV(cv))
-                PerlIO_printf(Perl_debug_log, "(%s)",
-                    SvPV_nolen_const(cv_name(cv,NULL,CV_NAME_NOMAIN)));
+                PerlIO_printf(Perl_debug_log, "(%"SVf")",
+                    SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)));
+            break;
+        }
+    case OP_METHOD_NAMED:
+        {
+            SV* const meth = cMETHOPx_meth(PL_op);
+            if (meth && SvPOK(meth))
+                PerlIO_printf(Perl_debug_log, "(->%"SVf")", SVfARG(meth));
             break;
         }
 
@@ -2744,8 +2751,8 @@ Perl_debop(pTHX_ const OP *o)
         break;
 
     case OP_SIGNATURE:
-        PerlIO_printf(Perl_debug_log, "(%-p)",
-            signature_stringify(o, deb_curcv(cxstack_ix)));
+        PerlIO_printf(Perl_debug_log, "(%"SVf")",
+            SVfARG(signature_stringify(o, deb_curcv(cxstack_ix))));
         break;
 
     default:
