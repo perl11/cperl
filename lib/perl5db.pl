@@ -514,6 +514,7 @@ use strict;
 
 use Cwd ();
 my $_initial_cwd;
+no fake_signatures; # [cperl #158]
 
 BEGIN {
     require feature;
@@ -5470,6 +5471,7 @@ Display the (nested) parentage of the module or object given.
 sub cmd_i {
     my $cmd  = shift;
     my $line = shift;
+    return unless defined &mro::get_linear_isa; # miniperl
     foreach my $isa ( split( /\s+/, $line ) ) {
         $evalarg = $isa;
         # The &-call is here to ascertain the mutability of @_.
