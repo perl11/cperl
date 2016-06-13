@@ -29,7 +29,7 @@ BEGIN {
     $ENV{PERL_RL} = 'Perl'; # Suppress system Term::ReadLine::Gnu
 }
 
-plan(123);
+plan(125);
 
 my $rc_filename = '.perldb';
 
@@ -2808,6 +2808,30 @@ SKIP:
         qr/syntax error/,
         'Can quit from the debugger after a wrong RemotePort',
     );
+}
+
+{
+    # [cperl #158] missing signature op
+    my $wrapper = DebugWrap->new(
+        {
+            cmds =>
+            [
+                's',
+                'x $a',
+                'q',
+            ],
+            prog => '../lib/perl5db/t/test-sigs',
+            switches => [ '-d', ],
+            stderr => 1,
+        }
+    );
+
+    $wrapper->output_unlike(
+      qr/^Not enough arguments for subroutine .*/ms,
+      'Step into a signature [cperl #158]');
+    $wrapper->contents_like(
+      qr/^0\s+'ok'$/ms,
+      'Step into a signature, get arg');
 }
 
 END {
