@@ -579,7 +579,7 @@ addbits($_,
     2      => qw(OPpENTERSUB_HASTARG  TARG  ), # Called from OP tree
     3      => qw(OPpENTERSUB_AMPER    AMPER),  # Used & form to call
     # 4..5 => OPpDEREF,      already defined above
-    6      => qw(OPpENTERSUB_DB       DBG   ), # Debug subroutine
+    6      => qw(OPpENTERSUB_DB       DBG   ), # Debug the subroutine
     # 7    => OPpLVAL_INTRO, already defined above
 ) for qw(entersub enterxssub);
 

@@ -2038,8 +2038,11 @@ PP(pp_dbstate)
             PL_debug = 0;
             SAVESTACK_POS();
 	    CvDEPTH(cv)++;
-	    if (CvDEPTH(cv) >= 2)
+	    if (CvDEPTH(cv) >= 2) {
+                if (CvDEPTH(cv) == PERL_SUB_DEPTH_WARN && ckWARN(WARN_RECURSION))
+                    sub_crush_depth(cv);
 		pad_push(CvPADLIST(cv), CvDEPTH(cv));
+            }
 	    PAD_SET_CUR_NOSAVE(CvPADLIST(cv), CvDEPTH(cv));
             if (CvHASSIG(cv)) {
                 dMARK;

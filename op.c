@@ -2835,7 +2835,7 @@ Perl_prefinalize_optree(pTHX_ CV *cv, OP* o)
         if (   kid
             && kid->op_type == OP_LINESEQ
             && (kid = cUNOPx(kid)->op_first)
-            && (kid->op_type == OP_NEXTSTATE || kid->op_type == OP_DBSTATE)
+            && (kid->op_type == OP_NEXTSTATE)
             && (!CopLABEL((COP*)kid))
             && (kid = OpSIBLING(kid))
             && kid->op_type == OP_AASSIGN
@@ -8365,11 +8365,11 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
     for (; o; o = o->op_next) {
 	const OPCODE type = o->op_type;
 
-	if (type == OP_NEXTSTATE || type == OP_LINESEQ
-	     || type == OP_NULL
-	     || type == OP_PUSHMARK)
-		continue;
-	if (type == OP_DBSTATE)
+	if (type == OP_NEXTSTATE
+            || type == OP_LINESEQ
+            || type == OP_NULL
+            || type == OP_PUSHMARK
+            || type == OP_DBSTATE)
 		continue;
 	if (type == OP_LEAVESUB)
 	    break;
