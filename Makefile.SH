@@ -987,6 +987,12 @@ lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
 	  $(MINIPERL) configpm && \
 	  $(MINIPERL) -f write_buildcustomize.pl
 !NO!SUBS!
+                case "$ccflags" in
+                    *-DDEBUGGING*) $spitshell >>$Makefile <<'!NO!SUBS!'
+	dsymutil $(MINIPERL_EXE)
+!NO!SUBS!
+                                   ;;
+                esac
 		;;
 	*)
 		if test "X$hostperl" != X; then
@@ -1030,6 +1036,16 @@ $(PERL_EXE): $& $(perlmain_objs) $(LIBPERL) $(static_ext) ext.libs $(PERLEXPORT)
         os390) $spitshell >>$Makefile <<'!NO!SUBS!'
 	$(SHRPENV) $(LD) -o perl $(CLDFLAGS) $(CCDLFLAGS) $(perlmain_objs) $(LLIBPERL) $(static_ext) `cat ext.libs` $(libs)
 !NO!SUBS!
+        ;;
+        darwin) $spitshell >>$Makefile <<'!NO!SUBS!'
+	$(SHRPENV) $(LD) -o perl $(CLDFLAGS) $(CCDLFLAGS) $(perlmain_objs) $(static_ext) $(LLIBPERL) `cat ext.libs` $(libs)
+!NO!SUBS!
+                case "$ccflags" in
+                    *-DDEBUGGING*) $spitshell >>$Makefile <<'!NO!SUBS!'
+	dsymutil $@
+!NO!SUBS!
+                                   ;;
+                esac
         ;;
         *) $spitshell >>$Makefile <<'!NO!SUBS!'
 	$(SHRPENV) $(LD) -o perl $(CLDFLAGS) $(CCDLFLAGS) $(perlmain_objs) $(static_ext) $(LLIBPERL) `cat ext.libs` $(libs)
