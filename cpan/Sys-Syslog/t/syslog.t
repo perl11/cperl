@@ -127,7 +127,7 @@ BEGIN { $tests += 22 * 8 }
 my @passed = ();
 for my $sock_type (qw(native eventlog unix pipe stream inet tcp udp)) {
     SKIP: {
-        skip "the 'stream' mechanism because a previous mechanism with similar interface succeeded", 22 
+        skip "the 'stream' mechanism because a previous mechanism with similar interface succeeded", 22
             if $sock_type eq 'stream' and grep {/pipe|unix/} @passed;
 
         # setlogsock() called with an arrayref
@@ -176,15 +176,23 @@ for my $sock_type (qw(native eventlog unix pipe stream inet tcp udp)) {
 
         # syslog() with level "info" (as a string), should pass
         $r = eval { syslog('info', "$test_string by connecting to a $sock_type socket") } || 0;
-        is( $@, '', "[$sock_type] syslog() called with level 'info' (string)" );
-        ok( $r, "[$sock_type] syslog() should return true: '$r'" );
+        if ($sock_type eq 'udp' and $@ =~ /^no connection/) {
+            skip "no connection to udp syslog", 2;
+        } else {
+            is( $@, '', "[$sock_type] syslog() called with level 'info' (string)" );
+            ok( $r, "[$sock_type] syslog() should return true: '$r'" );
+        }
 
         # syslog() with level "info" (as a macro), should pass
         { local $! = 1;
           $r = eval { syslog(LOG_INFO(), "$test_string by connecting to a $sock_type socket, setting a fake errno: %m") } || 0;
         }
-        is( $@, '', "[$sock_type] syslog() called with level 'info' (macro)" );
-        ok( $r, "[$sock_type] syslog() should return true: '$r'" );
+        if ($sock_type eq 'udp' and $@ =~ /^no connection/) {
+            skip "no connection to udp syslog", 2;
+        } else {
+            is( $@, '', "[$sock_type] syslog() called with level 'info' (macro)" );
+            ok( $r, "[$sock_type] syslog() should return true: '$r'" );
+        }
 
         push @passed, $sock_type;
 
