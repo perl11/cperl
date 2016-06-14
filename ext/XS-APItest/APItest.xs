@@ -4217,7 +4217,7 @@ CODE:
     } else if (items == 3) {
 	Perl_load_module(aTHX_ flags, SvREFCNT_inc(name), SvREFCNT_inc(ST(2)));
     } else
-        Perl_croak(aTHX_ "load_module can't yet support %d items", (int)items);
+        Perl_croak(aTHX_ "load_module can't yet support %" IVdf " items", (IV)items);
 
 void
 test_sv_catpvf(SV *fmtsv)
