@@ -4156,6 +4156,13 @@ doesn't somehow point to a valid subroutine.  See L<overload>.
 
 (F) The function requires more arguments than you specified.
 
+This error might be detected at compile-time or run-time.
+
+If the called function is declared with a signature, and the error
+message includes "Want: \d, but got: 0", it might be that the call
+C<&$sub> without C<()> needs to be replaced with a C<goto \&sub;>.
+See L<perlcperl/Changed calls to signatures>.
+
 =item Not enough format arguments
 
 (W syntax) A format specified more picture fields than the next line

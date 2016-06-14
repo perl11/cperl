@@ -27,9 +27,10 @@ upstream.
 All branches are frequently rebased. Use the provided helpers
 F<cp-rb>, F<cp-rbi>, F<cp-lb> and F<cp-rh>.
 
-The tip of the best performance branch is currently
-C<feature/CM-712-cperl-types-proto>, and the memory saving branch is
-C<feature/CM-370-cperl-warnings-xs>.
+The fastest performance unstable branches are currently
+C<feature/gh87-types-proto>, C<feature/gh23-inline-subs> and
+C<feature/gh14-native-types>. The branch with the biggest memory
+savings is C<feature/gh9-warnings-xs>.
 
 B<INSTALL:>
 
@@ -76,7 +77,8 @@ incompatibilities, which arise from late perl5 signatures design
 changes and 2002 constant folding changes which we do not
 follow. perl5 signatures are marked as experimental after all.
 
-CPAN works. 2 modules currently need patches in our distroprefs repo.
+CPAN works. Some modules currently need patches in our distroprefs repo,
+see L<https://github.com/rurban/distroprefs>.
 
 =over
 
@@ -425,6 +427,37 @@ C<use cperl> can be used, if incompatible features are used, but it is optional.
 
 =back
 
+=head2 Changed calls to signatures
+
+C<goto> to a signature is now a true tail-call. The stack and pad
+frames (lexical variables) are not duplicated as in a recursive call,
+they are re-used. The call-stack behaves as before and in python, so a
+tail-call (i.e. a goto to a signature) is visible in the call-stack.
+
+But since the args are passed directly on the stack, any old C<&$sub;>
+call without C<()> to a signature will not work, you need to use
+C<goto \&$sub;> instead.  Only tailcalls via goto can translate from
+the old pure-perl stack to the new re-used stack via signatures.
+
+The error message is
+C<"Not enough arguments for subroutine \w+. Want: \d, but got: 0.">.
+
+B<How to detect if a subroutine has a signature?>
+
+prototypes with a signature are always embedded into parentheses, C<"()">.
+
+    sub _hassig {
+        my $sub = shift;
+        substr(prototype $sub,0,1) eq '(';
+    }
+
+    return _hassig($sub) ? goto \&$sub : &$sub;
+
+See e.g. F<perl5db.pl/_hassig()>.
+
+But you can also change all calls via C<&$sub;> to C<goto \&$sub;> to
+avoid the C<_hassig> check.
+
 =head2 Fix my $_ handling
 
 Perl5 had long-standing problems with lexical C<$_> since the introduction
@@ -591,7 +624,8 @@ optimizations on non-const hashes to allow faster key access.
 
 =head2 Compile-time attribute hooks
 
-C<CHECK_SCALAR_ATTRIBUTES> (for C<:const>, C<:int>, C<:num>, C<:str>)
+Added a C<CHECK_SCALAR_ATTRIBUTES> callback. Add native C<:const>,
+C<:int>, C<:num>, C<:str>, ... attributes for all new core types.
 This is basically a read-only C<MODIFY_*_ATTRIBUTES> hook at
 compile-time with a better name to disassociate from the run-time
 check of C<FETCH_*_ATTRIBUTES> with C<my> lexicals.  See also
@@ -657,7 +691,7 @@ C<given>/C<when> with type support it can infer much more.
     if (type $a eq "int") {  => $a is an int in this scope }
     $str =~ /(\d+)/; => $1 is a typed Int
 
-Compile-time type checks need to be enabled with C<use types;> though.
+I<< Compile-time type checks need to be enabled with C<use types;> though. >>
 
 Typed signatures are backwards incompatible to perl5, as the
 trivial 4 line changes are still not yet supported upstream. The
@@ -677,15 +711,15 @@ it might not be worth the trouble. But for hot code and to be precise
 always use types, as compile-time types prevent from costly run-time
 checks for types and magic hooks.
 
-B<Builtin types> are the coretypes Int, Num, Str, UInt, ?Int, ?Num, ?Str
-and for builtin op-dispatch: Void int uint num str Int UInt Num Str
-Bool Numeric Scalar Ref Sub Array Hash List Any, with
+B<Builtin types> are the coretypes C<< Int, Num, Str, UInt, ?Int, ?Num, ?Str >>
+and for builtin op-dispatch: C<< Void int uint num str Int UInt Num Str
+Bool Numeric Scalar Ref Sub Array Hash List Any >>, with
 a C<?> prefix denoting C<| Undef> I<"or undef">, a C<?> suffix
 optional, and for aggregate types using C<()> brackets, like C<:Array(:Int)>.
 
 B<Status>: User code in pure perl or XS is currently not typed-checked
-nor inferred, only internal ops. Wrong type declarations still lead to
-type violation errors.
+nor inferred, only internal ops. But wrong type declarations do lead to
+compile-time type violation errors.
 
 =head2 :const for all
 
@@ -808,6 +842,7 @@ If a function body is inlinable, i.e. simple, with no control ops like
 return, goto caller, warn, die, reset, runcv, padrange, adds no
 seperate lexicals and has less than 10 ops, they are inlined.  Static
 methods are converted to functions before and then possibly inlined.
+
 This is the most important optimization, even more important then a jit.
 
 =head2 Rewrite critical core modules in C as builtins
@@ -898,6 +933,8 @@ hash.  Some internal variables are not accessible anymore, the API is
 via the documented functions. See our L<Mock::Config> module if you need
 to change a Config value for tests.
 
+Also usable for perl5, via C<cpan XSConfig>.
+
 =head3 warnings as XS extension (NY)
 
 It is compiled as shared library, the builtin categories are
@@ -912,10 +949,12 @@ B<Status:> 1 scope bug with Carp. Not yet enabled.
 
 The L<B::C|http://search.cpan.org/dist/B-C/> testsuite runs too long
 for cpan users, and it needs to be developed in sync to avoid typical
-6 months wait-time after a core change.  Maybe provide python-like
-precompiled C<ByteCache> F<.pmc> as default. You could pre-compile
-then modules with higher optimization levels, esp. the type
-inferencer.
+6 months wait-time after a core change. The compiler is smoked on all
+smoker platforms (linux 64bit, linux -m32, darwin, windows 32+64bit).
+
+Maybe provide python-like precompiled C<ByteCache> F<.pmc> as
+default. You could pre-compile then modules with higher optimization
+levels, esp. the type inferencer.
 
 Maybe include a C<Data::Compile> module to dump only data without all
 the code to a shared library, and possibly
@@ -985,13 +1024,13 @@ This evals all attributes at compile-time. Discourage its usage.
 
 =head1 Longer term goals
 
-=head2 Faster functions calls
+=head2 Faster functions and method calls
 
 Optionally omit caller, @_, freetmps, exception handler when possible,
 i.e.  no string eval's are present in the body, the compiler can
 detect it or the right compiler hint is given.
 
-=head2 tailcall optimization
+=head2 tailcall eliminiation
 
 Detect tail positions and replace the call with a fast goto. This
 needs to be in core, not as external module. Without tailcall
@@ -1035,6 +1074,9 @@ integrated with gcc for java jni support.
 
 Note that this deviates from perl6 synatx with C<is native>, but perl6
 uses the C<is> traits for all function attributes, which we do not.
+
+The alternative syntax would be via a C<:native> attribute, which would allow
+options, as in C<sub atoi(str $s):int :native($libc);>.
 
 =head2 Editor integration
 

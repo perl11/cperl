@@ -3967,17 +3967,17 @@ PP(pp_entersub)
     if (UNLIKELY((PL_op->op_private & OPpENTERSUB_DB) && GvCV(PL_DBsub)
             && !CvNODEBUG(cv)))
     {
-	 get_db_sub(sv, cv);
-	 if (CvISXSUB(cv))
-	     PL_curcopdb = PL_curcop;
-         if (CvLVALUE(cv)) {
-             /* check for lsub that handles lvalue subroutines */
-	     cv = GvCV(gv_fetchpvs("DB::lsub", GV_ADDMULTI, SVt_PVCV));
-             /* if lsub not found then fall back to DB::sub */
-	     if (!cv) cv = GvCV(PL_DBsub);
-         } else {
-             cv = GvCV(PL_DBsub);
-         }
+        get_db_sub(sv, cv);
+        if (CvISXSUB(cv))
+            PL_curcopdb = PL_curcop;
+        if (CvLVALUE(cv)) {
+            /* check for lsub that handles lvalue subroutines */
+            cv = GvCV(gv_fetchpvs("DB::lsub", GV_ADDMULTI, SVt_PVCV));
+            /* if lsub not found then fall back to DB::sub */
+            if (!cv) cv = GvCV(PL_DBsub);
+        } else {
+            cv = GvCV(PL_DBsub);
+        }
 
 	if (!cv || (!CvXSUB(cv) && !CvSTART(cv)))
 	    DIE(aTHX_ "No DB::sub routine defined");

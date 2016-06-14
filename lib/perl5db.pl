@@ -3353,12 +3353,11 @@ number information, and print that.
 
     else {
 
-
         # Still somewhere in the midst of execution. Set up the
         #  debugger prompt.
-        $DB::sub =~ s/\'/::/;    # Swap Perl 4 package separators (') to
+        $DB::sub =~ s/\'/::/;# Swap Perl 4 package separators (') to
                              # Perl 5 ones (sorry, we don't print Klingon
-                             #module names)
+                             # module names)
 
         $self->prefix($DB::sub =~ /::/ ? "" : ($DB::package . '::'));
         $self->append_to_prefix( "$DB::sub(${DB::filename}:" );
@@ -4109,6 +4108,13 @@ sub _indent_print_line_info {
     return;
 }
 
+sub _hassig {
+    my $sub = shift;
+    my $p = prototype $sub;
+    return 0 if !$p or length($p) <= 1;
+    substr($p,0,1) eq '(';
+}
+
 sub _print_frame_message {
     my ($al) = @_;
 
@@ -4192,6 +4198,9 @@ sub DB::sub {
         return;
     };
 
+    # Determine if sub has a signature
+    my $hassig = _hassig($sub);
+
     # Determine the sub's return type, and capture appropriately.
     if (wantarray) {
 
@@ -4200,7 +4209,7 @@ sub DB::sub {
         # back here when the sub is finished.
         {
             no strict 'refs';
-            @ret = &$sub;
+            @ret = $hassig ? goto \&$sub : &$sub;
         }
 
         # Pop the single-step value back off the stack.
@@ -4237,12 +4246,17 @@ sub DB::sub {
         if ( defined wantarray ) {
             no strict 'refs';
             # Save the value if it's wanted at all.
-            $ret = &$sub;
+            # XXX if sub HASSIG, we need a goto
+            $ret = $hassig ? goto \&$sub : &$sub;
         }
         else {
             no strict 'refs';
             # Void return, explicitly.
-            &$sub;
+            if ($hassig) {
+                goto \&$sub;
+            } else {
+                &$sub;
+            }
             undef $ret;
         }
 
@@ -4317,7 +4331,8 @@ sub lsub : lvalue {
     _print_frame_message($al);
 
     # call the original lvalue sub.
-    &$sub;
+    my $hassig = _hassig($sub);
+    $hassig ? goto \&$sub : &$sub;
 }
 
 # Abstracting common code from multiple places elsewhere:

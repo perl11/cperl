@@ -2044,7 +2044,7 @@ PP(pp_dbstate)
 		pad_push(CvPADLIST(cv), CvDEPTH(cv));
             }
 	    PAD_SET_CUR_NOSAVE(CvPADLIST(cv), CvDEPTH(cv));
-            if (CvHASSIG(cv)) {
+            if (CvHASSIG(cv)) { /* if DB::DB has sigs */
                 dMARK;
                 cx->blk_sub.argarray  = MARK+1;
                 cx->blk_sub.savearray = (AV*)SP;

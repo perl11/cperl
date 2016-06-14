@@ -12125,7 +12125,7 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
     UV action;
     bool first = TRUE;
     SV *out = newSVpvn_flags("", 0, SVs_TEMP);
-    DEBUG_kv(Perl_deb(aTHX_ "sig_proto: items=0x%lx\n", items->uv));
+    DEBUG_k(Perl_deb(aTHX_ "sig_proto: items=0x%lx\n", items->uv));
 
     while (1) {
         switch (action = (actions & SIGNATURE_ACTION_MASK)) {
@@ -12305,9 +12305,9 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
     mand_params = params >> 16;
     opt_params  = params & ((1<<15)-1);
     actions = (++items)->uv;
-    DEBUG_kv(Perl_deb(aTHX_ "ck_sig: %s arity=%d/%d actions=0x%lx\n",
-                      SvPVX_const(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)),
-                      (int)mand_params, (int)opt_params, actions));
+    DEBUG_k(Perl_deb(aTHX_ "ck_sig: %s arity=%d/%d actions=0x%lx\n",
+                     SvPVX_const(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)),
+                     (int)mand_params, (int)opt_params, actions));
 
     aop = cUNOPx(entersubop)->op_first;
     if (!OpHAS_SIBLING(aop))

@@ -5777,6 +5777,22 @@ S_gv_has_usable_name(pTHX_ GV *gv)
 	&& *gvp == gv;
 }
 
+/*
+=for apidoc get_db_sub
+
+Stores the called C<cv> in $DB::sub, either as name or as
+CV ptr (with NONAME, an anon sub).
+
+C<sv> contains the entersub argument from the stack,
+which is either a CVREF or a GV, or NULL if called via goto.
+It is not really needed.
+
+In the debugger entersub does not call the function, but &DB::sub
+which then calls the cv.
+
+=cut
+*/
+
 void
 Perl_get_db_sub(pTHX_ SV *sv, CV *cv)
 {
