@@ -941,7 +941,7 @@ sub init {
                   ("Error: CPAN::Meta::YAML cannot be used yet. Try YAML, YAML::Syck or YAML::XS\n");
                 $CPAN::Frontend->mysleep(3);
             } else {
-                next;
+                last;
             }
         }
         my $old_v = $CPAN::Config->{load_module_verbosity};
