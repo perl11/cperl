@@ -853,7 +853,9 @@ XS(XS_PerlIO__Layer__NoWarnings)
      */
     dXSARGS;
     PERL_UNUSED_ARG(cv);
+#ifndef DEBUGGING
     PERL_UNUSED_VAR(items);
+#endif
     DEBUG_I(
         if (items)
             PerlIO_debug("warning:%s\n",SvPV_nolen_const(ST(0))) );
