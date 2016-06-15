@@ -587,11 +587,12 @@ sub cc_harness_msvc {
     my $obj = $Output;
     $obj =~ s/\.exe$/.obj/;
     $obj .= ".obj" unless $obj =~ /\.obj$/;
-    my $compile = ExtUtils::Embed::ccopts." -c -Fo$obj $cfile ";
-    my $link = "-out:$Output $obj";
+    my $compile = "";
+    $compile = '-I"..\..\lib\CORE" ' if $ENV{PERL_CORE};
+    $compile .= ExtUtils::Embed::ccopts." -c -Fo$obj $cfile ";
     $compile .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;
-    $compile .= ' -I"..\..\lib\CORE"' if $ENV{PERL_CORE};
+    my $link = "-out:$Output $obj";
     my $incdir = opt('I'); # use mult. I opts for paths with spaces, and \ deps.
     if ($incdir) {
         if (ref $incdir eq 'ARRAY') { # -I uses now mult.
