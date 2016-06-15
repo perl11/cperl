@@ -73,8 +73,8 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
   }
   # See Config_xs.PL:
   # postprocess the values a bit:
-  # reserve up to 24 config_args
-  for (0..24) {
+  # reserve up to 39 config_args
+  for (0..39) {
     my $k = "config_arg".$_;
     $Config_copy{$k} = '' unless exists $Config{$k};
   }
