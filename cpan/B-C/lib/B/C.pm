@@ -43,7 +43,7 @@ sub new {
 
   # if sv add a dummy sv_arenaroot to support global destruction
   if ($section eq 'sv') {
-    $o->add( "0, 0, SVTYPEMASK|0x01000000".($] >= 5.009005?", {0}":'')); # SVf_FAKE
+    $o->add( "NULL, 0, SVTYPEMASK|0x01000000".($] >= 5.009005?", {0}":'')); # SVf_FAKE
     $o->[-1]{dbg}->[0] = "PL_sv_arenaroot";
   }
   return $o;
@@ -2696,7 +2696,7 @@ sub B::NULL::save {
 
   my $i = $svsect->index + 1;
   warn "Saving SVt_NULL sv_list[$i]\n" if $debug{sv};
-  $svsect->add( sprintf( "0, $u32fmt, 0x%x".($PERL510?", {0}":''),
+  $svsect->add( sprintf( "NULL, $u32fmt, 0x%x".($PERL510?", {0}":''),
                          $sv->REFCNT, $sv->FLAGS ) );
   #$svsect->debug( $fullname, $sv->flagspv ) if $debug{flags}; # XXX where is this possible?
   if ($debug{flags} and (!$ITHREADS or $PERL514) and $DEBUG_LEAKING_SCALARS) { # add index to sv_debug_file to easily find the Nullsv
@@ -5812,7 +5812,7 @@ sub B::HV::save {
       $sym = sprintf("&sv_list[%d]", $svsect->index);
       my $hv_max = $hv->MAX + 1;
       # riter required, new _aux struct at the end of the HvARRAY. allocate ARRAY also.
-      $init->add("{\tHE **a; struct xpvhv_aux *aux;",
+      $init->add("{\tHE **a;",
                  "#ifdef PERL_USE_LARGE_HV_ALLOC",
                  sprintf("\tNewxz(a, PERL_HV_ARRAY_ALLOC_BYTES(%d) + sizeof(struct xpvhv_aux), HE*);",
                          $hv_max),
@@ -6302,8 +6302,8 @@ EOT
   }
 
   fixup_ppaddr();
-  print "static void perl_init0(pTHX) /* fixup_ppaddr */
-{\n\tregister int i;\n";
+  print "static void perl_init0(pTHX) /* fixup_ppaddr */\n{\n\t";
+  print "register int i;\n" if @{ $init0->[-1]{values} };
   $init0->output( \*STDOUT, "\t%s\n" );
   print "};\n\n";
 
