@@ -19,40 +19,38 @@ else {
     plan 'tests' => 1;
 }
 
-TODO: {
-  local $TODO = "fork problem with MSVC >= 12"
-    if ($^O eq 'MSWin32'
-        and $Config{cc} =~ /cl\.exe/
-        and $Config{ccversion} ge '15.00.30729.01');
+subtest 'fork within subtest' => sub {
+  plan tests => 2;
 
-  subtest 'fork within subtest' => sub {
-    plan tests => 2;
+  TODO: {
+    local $TODO = "random fork problem with MSVC"
+      if ($^O eq 'MSWin32' and $Config{cc} eq 'cl');
 
     my $pipe = IO::Pipe->new;
     my $pid = fork;
     defined $pid or plan skip_all => "Fork not working";
 
     if ($pid) {
-        $pipe->reader;
-        my $child_output = do { local $/ ; <$pipe> };
-        waitpid $pid, 0;
+      $pipe->reader;
+      my $child_output = do { local $/ ; <$pipe> };
+      waitpid $pid, 0;
 
-        is $?, 0, 'child exit status';
-        like $child_output, qr/^[\s#]+Child Done\s*\z/, 'child output';
-    } 
-    else {
-        $pipe->writer;
-
-        # Force all T::B output into the pipe, for the parent
-        # builder as well as the current subtest builder.
-        no warnings 'redefine';
-        *Test::Builder::output         = sub { $pipe };
-        *Test::Builder::failure_output = sub { $pipe };
-        *Test::Builder::todo_output    = sub { $pipe };
-        
-        diag 'Child Done';
-        exit 0;
+      is $?, 0, 'child exit status';
+      like $child_output, qr/^[\s#]+Child Done\s*\z/, 'child output';
     }
-  };
+    else {
+      $pipe->writer;
 
-}
+      # Force all T::B output into the pipe, for the parent
+      # builder as well as the current subtest builder.
+      no warnings 'redefine';
+      *Test::Builder::output         = sub { $pipe };
+      *Test::Builder::failure_output = sub { $pipe };
+      *Test::Builder::todo_output    = sub { $pipe };
+
+      diag 'Child Done';
+      exit 0;
+    }
+  }
+};
+
