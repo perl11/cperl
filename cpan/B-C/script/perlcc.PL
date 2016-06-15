@@ -604,7 +604,7 @@ sub cc_harness_msvc {
     $compile .= ' -DSTATICXS' if opt('staticxs');
     $compile .= " ".opt('Wc') if opt('Wc');
 
-    $link .= ' -libpath:"..\.."' if $ENV{PERL_CORE};
+    $link .= ' -libpath:"..\..\lib\CORE"' if $ENV{PERL_CORE};
     my $libdir = opt('L');
     if ($libdir) {
         if (ref $libdir eq 'ARRAY') {
