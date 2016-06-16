@@ -2039,9 +2039,16 @@ PP(pp_dbstate)
             SAVESTACK_POS();
 	    CvDEPTH(cv)++;
 	    if (CvDEPTH(cv) >= 2) {
+                PADLIST *padlist = CvPADLIST(cv);
+                DEBUG_Xv(PerlIO_printf(Perl_debug_log,
+                                   "Pad push padlist max=%d, CvDEPTH=%d (dbstate)\n",
+                                   (int)PadlistMAX(padlist), (int)CvDEPTH(cv)));
                 if (CvDEPTH(cv) == PERL_SUB_DEPTH_WARN && ckWARN(WARN_RECURSION))
                     sub_crush_depth(cv);
-		pad_push(CvPADLIST(cv), CvDEPTH(cv));
+                if (CvDEPTH(cv) > PadlistMAX(padlist)+1) { /* adjust siggoto */
+                    CvDEPTH(cv) = PadlistMAX(padlist)+1;
+                }
+		pad_push(padlist, CvDEPTH(cv));
             }
 	    PAD_SET_CUR_NOSAVE(CvPADLIST(cv), CvDEPTH(cv));
             if (CvHASSIG(cv)) { /* if DB::DB has sigs */
@@ -2774,8 +2781,8 @@ PP(pp_goto)
                              SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
                              (long int)(cx->blk_sub.savearray - av + 1))); /* sp-mark+1 */
                         /*PUSHMARK((SV**)cx->blk_sub.savearray);*/
-                        DEBUG_kv(PerlIO_printf(Perl_debug_log,
-                            "  padlist max=%d, CvDEPTH=%d\n",
+                        DEBUG_Xv(PerlIO_printf(Perl_debug_log,
+                            "Pad padlist max=%d, CvDEPTH=%d (goto sig2sig)\n",
                             (int)PadlistMAX(padlist), (int)CvDEPTH(cv)));
                         PAD_SET_CUR(padlist, PadlistMAX(padlist));
                         goto call_pp_sub;
@@ -2885,7 +2892,7 @@ PP(pp_goto)
                         /* cpan/Test-Simple/t/capture.t? */
                         depth = PadlistMAX(padlist);
                         DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-                            "  padlist max=%d, CvDEPTH=%d\n",
+                            "Pad padlist max=%d, CvDEPTH=%d (tailcall)\n",
                             (int)depth, (int)CvDEPTH(cv)));
                         if (CvDEPTH(cv) <= depth) {
                             CvDEPTH(cv) = depth;
@@ -2931,6 +2938,9 @@ PP(pp_goto)
 		if (CvDEPTH(cv) > 1) {
 		    if (CvDEPTH(cv) == PERL_SUB_DEPTH_WARN && ckWARN(WARN_RECURSION))
 			sub_crush_depth(cv);
+                    DEBUG_Xv(PerlIO_printf(Perl_debug_log,
+                                   "Pad push padlist max=%d, CvDEPTH=%d (goto pp)\n",
+                                   (int)PadlistMAX(padlist), (int)CvDEPTH(cv)));
 		    pad_push(padlist, CvDEPTH(cv));
 		}
 		PL_curcop = cx->blk_oldcop;

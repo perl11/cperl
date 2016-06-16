@@ -4028,10 +4028,11 @@ PP(pp_entersub)
 	padlist = CvPADLIST(cv);
 	if (UNLIKELY((depth = ++CvDEPTH(cv)) >= 2)) {
             DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-                                   "  padlist max=%d, CvDEPTH=%d\n",
+                                   "Pad push padlist max=%d, CvDEPTH=%d (entersub)\n",
                                    (int)PadlistMAX(padlist), (int)CvDEPTH(cv)));
             if (CvDEPTH(cv) > PadlistMAX(padlist)+1) { /* not with siggoto */
                 depth = PadlistMAX(padlist)+1;
+                CvDEPTH(cv) = depth;
             }
 	    pad_push(padlist, depth);
         }

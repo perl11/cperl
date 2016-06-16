@@ -1675,8 +1675,12 @@ PP(pp_sort)
 		if (!is_xsub) {
 		    PADLIST * const padlist = CvPADLIST(cv);
 
-		    if (++CvDEPTH(cv) >= 2)
+		    if (++CvDEPTH(cv) >= 2) {
+                        DEBUG_Xv(PerlIO_printf(Perl_debug_log,
+                                   "Pad push padlist max=%d, CvDEPTH=%d (sort)\n",
+                                   (int)PadlistMAX(padlist), (int)CvDEPTH(cv)));
 			pad_push(padlist, CvDEPTH(cv));
+                    }
 		    PAD_SET_CUR_NOSAVE(padlist, CvDEPTH(cv));
 
 		    if (hasargs) {
