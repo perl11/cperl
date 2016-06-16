@@ -20,8 +20,8 @@ Time::HiRes::nanosleep(10_000_000);
 my $two = CORE::time;
 Time::HiRes::nanosleep(10_000_000);
 my $three = CORE::time;
-ok $one == $two || $two == $three
-    or note "slept too long, $one $two $three";
+ok ($one == $two || $two == $three)
+    or diag "slept too long, $one $two $three";
 
 SKIP: {
     skip "no gettimeofday", 1 unless &Time::HiRes::d_gettimeofday;
@@ -29,7 +29,7 @@ SKIP: {
     Time::HiRes::nanosleep(500_000_000);
     my $f2 = Time::HiRes::time();
     my $d = $f2 - $f;
-    ok $d > 0.4 && $d < 0.9 or note "slept $d secs $f to $f2";
+    ok ($d > 0.4 && $d < 0.9) or diag "slept $d secs $f to $f2";
 }
 
 1;
