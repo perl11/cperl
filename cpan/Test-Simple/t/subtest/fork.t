@@ -20,11 +20,7 @@ else {
 }
 
 subtest 'fork within subtest' => sub {
-  plan tests => 2;
-
-  TODO: {
-    local $TODO = "random fork problem with MSVC"
-      if ($^O eq 'MSWin32' and $Config{cc} eq 'cl');
+    plan tests => 2;
 
     my $pipe = IO::Pipe->new;
     my $pid = fork;
@@ -51,6 +47,5 @@ subtest 'fork within subtest' => sub {
       diag 'Child Done';
       exit 0;
     }
-  }
 };
 

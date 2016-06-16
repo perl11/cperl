@@ -555,8 +555,8 @@ struct block_sub {
     CV *	cv;
     /* Above here is the same for sub and format.  */
     I32		olddepth;
-    AV  	*savearray;
-    SV **	argarray; /* for signatures only */
+    AV * 	savearray; /* with signatures just a SV** on the stack */
+    SV **	argarray;  /* for signatures only, the MARK */
 };
 
 

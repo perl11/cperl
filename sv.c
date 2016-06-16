@@ -14075,14 +14075,22 @@ Perl_cx_dup(pTHX_ PERL_CONTEXT *cxs, I32 ix, I32 max, CLONE_PARAMS* param)
 	    ncx->blk_oldcop = (COP*)any_dup(ncx->blk_oldcop, param->proto_perl);
 	    switch (CxTYPE(ncx)) {
 	    case CXt_SUB:
-		ncx->blk_sub.cv		= cv_dup_inc(ncx->blk_sub.cv, param);
-		if(CxHASARGS(ncx)){
-		    ncx->blk_sub.savearray = av_dup_inc(ncx->blk_sub.savearray,param);
-		} else {
-		    ncx->blk_sub.savearray = NULL;
-		}
+		ncx->blk_sub.cv	= cv_dup_inc(ncx->blk_sub.cv, param);
+                if (CvHASSIG(ncx->blk_sub.cv)) { /* SP ptrs */
+                    PerlInterpreter *proto_perl = param->proto_perl;
+                    int oldsave = (SV**)ncx->blk_sub.savearray - proto_perl->Istack_base;
+                    int oldarg  = ncx->blk_sub.argarray - proto_perl->Istack_base;
+                    ncx->blk_sub.savearray = (AV*)(PL_stack_base + oldsave);
+                    ncx->blk_sub.argarray  = PL_stack_base + oldarg;
+                } else {
+                    if (CxHASARGS(ncx)) {
+                        ncx->blk_sub.savearray = av_dup_inc(ncx->blk_sub.savearray, param);
+                    } else {
+                        ncx->blk_sub.savearray = NULL;
+                    }
+                }
 		ncx->blk_sub.prevcomppad = (PAD*)ptr_table_fetch(PL_ptr_table,
-					   ncx->blk_sub.prevcomppad);
+					       ncx->blk_sub.prevcomppad);
 		break;
 	    case CXt_EVAL:
 		ncx->blk_eval.old_namesv = sv_dup_inc(ncx->blk_eval.old_namesv,
