@@ -249,7 +249,11 @@ sub _scan_test {
 		    $testswitch = $testswitch . ',A';
 		}
 		if ($temp_no_core{$run_dir}) {
-		    $testswitch = $testswitch . ',NC';
+                    if ($run_dir ne '../cpan/Test-Simple'
+                        or $test ne 't/is_deeply_with_threads.t')
+                    {
+		        $testswitch = $testswitch . ',NC';
+                    }
 		}
 	    }
 	} elsif ($test =~ m!^\.\./lib!) {
