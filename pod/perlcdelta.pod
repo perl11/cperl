@@ -20,9 +20,9 @@ it is critically needed for given/when, smartmatch.
 
 =item * Proper signatures
 
-Support builtin and efficient signatures, with types and references (call-by-ref),
+Support builtin and efficient signatures, with types and references (call-by-ref).
 goto to a signatured function is now a true tail call, reusing the old padframe
-variables, not using copies.
+variables without copying.
 
 See L<perlsub/Signatures> and L<perlfunc/prototype>.
 
@@ -63,6 +63,18 @@ Deleted with 5.24.0, without any deprecation or mention.
 =item * 2 new OP members
 
 C<op_rettype> was added and C<op_typechecked> taken from a spare bit.
+
+=item * many new public symbols needed for the compiler
+
+unshare_hek, mro_isa_changed_in, sv_clean_objs,
+win32_wait_for_children, PerlIO_cleanup, PerlIO_destruct
+
+Fixed the generated perldll.def (makedef.pl)
+
+=item * better -Dt tracing
+
+Many ops print now their arguments: signature, padrange, entersub,
+enterxssub, method_named
 
 =back
 
@@ -131,6 +143,11 @@ See L</DynaLoader format string hardening> above.
 
 =item B::C 1.54_07
 
+Many Windows fixes, for the old MSVC compiler, and PERL_CORE test
+integration. Use many new core exports needed for windows.
+
+Update perlcc to 2.21, handle multiple -I and -L arguments.
+
 Handle cperl OP_SIGNATURE.
 
 Fix refcount of cop hints hashes with 5.22-nt (#220)
@@ -140,6 +157,8 @@ Better UVX L and U suffices.
 Handle shared IV and UV xpv structs,
   fixed 5.24 specific assertions, with shared xpviv/xpvuv.
   fixed wrong 32 bit ptr offset. re-enabled all 32bit tests.
+
+Handle changed subdirs-test target with newer EUMM.
 
 =item B::Deparse 1.37_02c
 
@@ -151,9 +170,12 @@ Add more cperl-specific ops: aelem*_u, u_{add,subtract,multiply},
 Based on 1.001014, not Test2 as in 1.302022 yet. Test2 breaks too many
 modules still, and I need to time to properly modernize it (as v2.x)
 
-Modernized. B<skip> does the switched argument check at compile-time.
+Modernized and stricter type checks.
+B<skip> does the switched argument check at compile-time.
 See the FAQ at L<http://perl11.org/cperl/STATUS.html> why we enforce
 stricter types there.
+
+Enable t/is_deeply_with_threads.t
 
 =item File-Path 3.12_01c
 
@@ -228,7 +250,9 @@ Spiffy uses a source filter to expand many methods,
 but this does not work with fake_signatures.
 Expand the compile-time state of Test::Base to avoid
 source filters.
-Also add . to @INC in some tests
+Also add . to @INC in some tests.
+
+utf-8 handling stills throws many warnings.
 
 =item Filter-Util-Call 0.92
 
@@ -261,6 +285,7 @@ silence a C compiler warning.
 
 fix test for short CV_NAME_NOMAIN.
 run-time load IO::Handle, broke miniperl.
+handle calls to signatures via goto, and add tests.
 
 =item Digest::MD5 2.55_01
 
@@ -371,10 +396,12 @@ dos2unix
 Handle F<fallback/syslog.h> properly. honor HAVE_SETLOCALE
 fix windows fallback.
 Exclude the F<t/facilities-routing.t> test requiring POE.
+Skip failing udp tests when the server is overloaded.
 
 =item Time::HiRes 1.9733
 
-No changes from 5.22.3c
+Minor changes from 5.22.3c.
+Improve t/nanosleep.t to show smoker errors.
 
 =item Thread::Queue 3.11
 
@@ -387,6 +414,11 @@ Updated from 2.06. Improve 2 tests
 =item threads::shared 1.52
 
 No functional changes
+
+=item Term::ReadKey
+
+Improve Makefile.PL, esp. for Windows.
+See L<https://github.com/jonathanstowe/TermReadKey/pull/15>
 
 =back
 
@@ -423,15 +455,13 @@ Broken new "_" logic when merged with our 'c' suffix logic.
 
 =item Win32
 
-Work is ongoing for Win32 with MSVC 12 problems. MSVC 10 works fine.
+Work is ongoing for perlcc compiler support on Win32. It is now
+usable, but not as good as on other platforms.
 
-=back
+=item Darwin
 
-=head1 Selected Bug Fixes
-
-=over 4
-
-=item * XXX
+With C<-DDEBUGGING> F<dsymutil> is called automatically on all created
+binaries for easier debugging.
 
 =back
 
