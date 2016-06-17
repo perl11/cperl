@@ -131,17 +131,17 @@ run as root:
 
 ## osx
 
-download the pkg installer from [https://perl11.org/osx/](https://perl11.org/osx/)
+download the pkg installer from [http://perl11.org/osx/](http://perl11.org/osx/)
 
 ## windows
 
-download the self-extracting zip from [https://perl11.org/win/](https://perl11.org/win/)
+download the self-extracting zip from [http://perl11.org/win/](http://perl11.org/win/)
 and install it into drive and directory `C:\cperl`.
 
 
 # Known bugs
 
-See the github issues: [github.com/perl11/cperl/issues](http://github.com/perl11/cperl/issues)
+See the github issues: [github.com/perl11/cperl/issues](https://github.com/perl11/cperl/issues)
 
 The perlcc compiler cannot yet link on windows with MSVC.
 
@@ -296,4 +296,4 @@ They also revert some wrong decisions p5p already made.
 
 * builtin ffi
 
-2016-06-08 rurban
+2016-06-17 rurban
