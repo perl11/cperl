@@ -2041,8 +2041,8 @@ PP(pp_dbstate)
 	    if (CvDEPTH(cv) >= 2) {
                 PADLIST *padlist = CvPADLIST(cv);
                 DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-                                   "Pad push padlist max=%d, CvDEPTH=%d (dbstate)\n",
-                                   (int)PadlistMAX(padlist), (int)CvDEPTH(cv)));
+                    "Pad push padlist max=%d, CvDEPTH=%d (dbstate)\n",
+                    (int)PadlistMAX(padlist), (int)CvDEPTH(cv)));
                 if (CvDEPTH(cv) == PERL_SUB_DEPTH_WARN && ckWARN(WARN_RECURSION))
                     sub_crush_depth(cv);
                 if (CvDEPTH(cv) > PadlistMAX(padlist)+1) { /* adjust siggoto */
@@ -2774,6 +2774,7 @@ PP(pp_goto)
                     CV* cursub = cx->blk_sub.cv;
                     PADLIST * const padlist = CvPADLIST(cv);
                     cx->blk_sub.cv = cv; /* adjust context */
+                    cx->blk_sub.olddepth = CvDEPTH(cv);
                     if (CvHASSIG(cursub)) { /* sig2sig: no @_, just SP-MARK */
                         arg = av; /* mark */
                         DEBUG_kv(PerlIO_printf(Perl_debug_log,
@@ -2782,8 +2783,9 @@ PP(pp_goto)
                              (long int)(cx->blk_sub.savearray - av + 1))); /* sp-mark+1 */
                         /*PUSHMARK((SV**)cx->blk_sub.savearray);*/
                         DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-                            "Pad padlist max=%d, CvDEPTH=%d (goto sig2sig)\n",
-                            (int)PadlistMAX(padlist), (int)CvDEPTH(cv)));
+                            "Pad padlist max=%d, CvDEPTH=%d (goto sig2sig %s)\n",
+                            (int)PadlistMAX(padlist), (int)CvDEPTH(cv),
+                            SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN))));
                         PAD_SET_CUR(padlist, PadlistMAX(padlist));
                         goto call_pp_sub;
                     }
@@ -2827,6 +2829,10 @@ PP(pp_goto)
 	    }
 
 	    if (CxTYPE(cx) == CXt_SUB) {
+                DEBUG_Xv(PerlIO_printf(Perl_debug_log,
+                    "Pad CvDEPTH %d => %d (%s)\n",
+                    (int)CvDEPTH(cx->blk_sub.cv), (int) cx->blk_sub.olddepth,
+                    SvPVX_const(cv_name(cx->blk_sub.cv, NULL, CV_NAME_NOMAIN))));
 		CvDEPTH(cx->blk_sub.cv) = cx->blk_sub.olddepth;
                 SvREFCNT_dec_NN(cx->blk_sub.cv);
             }
@@ -2869,6 +2875,7 @@ PP(pp_goto)
                        without new cx and padframe, reusing the old pads. retop is CvSTART */
                     PADLIST * const padlist = CvPADLIST(cv);
                     I32 depth = CvDEPTH(cv);
+                    cx->blk_sub.cv = cv;
                     cx->blk_sub.argarray  = MARK+1;
                     cx->blk_sub.savearray = (AV*)SP;
                     cx->blk_sub.olddepth = depth;
@@ -2892,13 +2899,13 @@ PP(pp_goto)
                         /* cpan/Test-Simple/t/capture.t? */
                         depth = PadlistMAX(padlist);
                         DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-                            "Pad padlist max=%d, CvDEPTH=%d (tailcall)\n",
-                            (int)depth, (int)CvDEPTH(cv)));
-                        if (CvDEPTH(cv) <= depth) {
+                            "Pad padlist max=%d, CvDEPTH=%d (tailcall %s)\n",
+                            (int)depth, (int)CvDEPTH(cv),
+                            SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN))));
+                        if (CvDEPTH(cv) <= depth)
                             CvDEPTH(cv) = depth;
-                        }
 #endif
-                        PAD_SET_CUR(padlist, depth);
+                        PAD_SET_CUR_NOSAVE(padlist, depth);
                         goto call_pp_sub;
                     }
                 }
@@ -2939,8 +2946,9 @@ PP(pp_goto)
 		    if (CvDEPTH(cv) == PERL_SUB_DEPTH_WARN && ckWARN(WARN_RECURSION))
 			sub_crush_depth(cv);
                     DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-                                   "Pad push padlist max=%d, CvDEPTH=%d (goto pp)\n",
-                                   (int)PadlistMAX(padlist), (int)CvDEPTH(cv)));
+                        "Pad push padlist max=%d, CvDEPTH=%d (goto %s)\n",
+                        (int)PadlistMAX(padlist), (int)CvDEPTH(cv),
+                        SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN))));
 		    pad_push(padlist, CvDEPTH(cv));
 		}
 		PL_curcop = cx->blk_oldcop;

@@ -1138,7 +1138,7 @@ Perl_leave_scope(pTHX_ I32 base)
                 sv = *svp;
 
                 DEBUG_Xv(PerlIO_printf(Perl_debug_log,
-             "Pad 0x%"UVxf"[%ld] 0x%"UVxf" clearsv: %ld sv=0x%"UVxf"<%"IVdf"> %s\n",
+                    "Pad 0x%"UVxf"[%ld] 0x%"UVxf" clearsv: %ld sv=0x%"UVxf"<%"IVdf"> %s\n",
                     PTR2UV(PL_comppad), (long)AvFILLp(PL_comppad), PTR2UV(PL_curpad),
                     (long)(svp-PL_curpad), PTR2UV(sv), (IV)SvREFCNT(sv),
                     (SvREFCNT(sv) <= 1 && !SvOBJECT(sv)) ? "clear" : "abandon"));

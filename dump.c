@@ -2731,10 +2731,10 @@ Perl_debop(pTHX_ const OP *o)
     case OP_ENTERSUB:
     case OP_ENTERXSSUB:
         {
-            CV* cv = deb_curcv(cxstack_ix);
-            if (cv && CvGV(cv))
+            SV* const sv = *PL_stack_sp;
+            if (sv && SvTYPE(sv) == SVt_PVCV) /* no GV or PV yet */
                 PerlIO_printf(Perl_debug_log, "(%"SVf")",
-                    SVfARG(cv_name(cv,NULL,CV_NAME_NOMAIN)));
+                    SVfARG(cv_name((CV*)sv, NULL, CV_NAME_NOMAIN)));
             break;
         }
     case OP_METHOD_NAMED:

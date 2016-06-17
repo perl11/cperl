@@ -4033,6 +4033,7 @@ PP(pp_entersub)
             if (CvDEPTH(cv) > PadlistMAX(padlist)+1) { /* not with siggoto */
                 depth = PadlistMAX(padlist)+1;
                 CvDEPTH(cv) = depth;
+                cx->blk_sub.olddepth = depth-1;
             }
 	    pad_push(padlist, depth);
         }
