@@ -191,13 +191,14 @@ Intel*) ;; # # Is that you, Intel C++?
 #
 # Maybe we need -Waggregate-return, used in Xop, some extensions and regex
 # -Winline is also useful for perf. tuning
+# -Wcast-align is helpless, since we need C89 and lots of intermediate char* casts still.
 #
 *)  for opt in -std=c89 -ansi $pedantic \
 	       -Werror=declaration-after-statement \
 	       -Wextra -W \
 	       -Wc++-compat -Wwrite-strings \
                -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers \
-               -Wcast-align -Wlogical-op -Wpacked -Wdisabled-optimization
+               -Wlogical-op -Wpacked -Wdisabled-optimization
     do
        case " $ccflags " in
        *" $opt "*) ;; # Skip if already there.
