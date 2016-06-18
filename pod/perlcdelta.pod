@@ -530,6 +530,16 @@ usable, but not as good as on other platforms.
 With C<-DDEBUGGING> F<dsymutil> is called automatically on all created
 binaries for easier debugging.
 
+=item Cygwin
+
+Several fixes were added: silence time64.h compilation warnings,
+fixup archname for 64bit, set d_eofnblk correctly for non-win95,
+define _GNU_SOURCE to declare memmem.
+
+See L<RT #128358|https://rt.perl.org/Public/Bug/Display.html?id=128358>,
+L<RT #128359|https://rt.perl.org/Public/Bug/Display.html?id=128359> and
+L<RT #127708|https://rt.perl.org/Public/Bug/Display.html?id=127708>.
+
 =back
 
 =head1 Selected Bug Fixes

@@ -30,9 +30,9 @@ struct TM64 {
 #ifdef HAS_TM_TM_ZONE
 /* If glibc is defined or we are on QNX, use const.
  * Otherwise, if we are on android, use const but
- * not with g++.
+ * not with g++. cygwin's newlib also uses const.
  */
-#  if defined(__GLIBC__) || (defined(__ANDROID__) && !defined(__cplusplus)) || defined(__QNX__)
+#  if defined(__GLIBC__) || (defined(__ANDROID__) && !defined(__cplusplus)) || defined(__QNX__) || defined(__CYGWIN__)
         const
 #  endif
         char    *tm_zone;
