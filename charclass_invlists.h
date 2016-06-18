@@ -3734,7 +3734,7 @@ static const GCB_enum _Perl_GCB_invmap[] = { /* for ASCII/Latin1 */
 #if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_IDCont_invlist[] = { /* for ASCII/Latin1 */
-	1317,	/* Number of elements */
+	1321,	/* Number of elements */
 	148565664, /* Version and data structure type */
 	1,	/* 0 if the list starts at 0;
 		   1 if it starts at the element beyond 0 */
@@ -4444,6 +4444,8 @@ static const UV _Perl_IDCont_invlist[] = { /* for ASCII/Latin1 */
 	0x3105,
 	0x312E,
 	0x3131,
+	0x3164,
+	0x3165,
 	0x318F,
 	0x31A0,
 	0x31BB,
@@ -4606,6 +4608,8 @@ static const UV _Perl_IDCont_invlist[] = { /* for ASCII/Latin1 */
 	0xFF41,
 	0xFF5B,
 	0xFF66,
+	0xFFA0,
+	0xFFA1,
 	0xFFBF,
 	0xFFC2,
 	0xFFC8,
@@ -5058,7 +5062,7 @@ static const UV _Perl_IDCont_invlist[] = { /* for ASCII/Latin1 */
 };
 
 static const UV _Perl_IDStart_invlist[] = { /* for ASCII/Latin1 */
-	1129,	/* Number of elements */
+	1131,	/* Number of elements */
 	148565664, /* Version and data structure type */
 	1,	/* 0 if the list starts at 0;
 		   1 if it starts at the element beyond 0 */
@@ -5650,6 +5654,8 @@ static const UV _Perl_IDStart_invlist[] = { /* for ASCII/Latin1 */
 	0x3105,
 	0x312E,
 	0x3131,
+	0x3164,
+	0x3165,
 	0x318F,
 	0x31A0,
 	0x31BB,
@@ -5821,7 +5827,7 @@ static const UV _Perl_IDStart_invlist[] = { /* for ASCII/Latin1 */
 	0xFF5B,
 	0xFF66,
 	0xFF9E,
-	0xFFA0,
+	0xFFA1,
 	0xFFBF,
 	0xFFC2,
 	0xFFC8,
@@ -32799,7 +32805,7 @@ static const GCB_enum _Perl_GCB_invmap[] = { /* for EBCDIC 1047 */
 #if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_IDCont_invlist[] = { /* for EBCDIC 1047 */
-	1341,	/* Number of elements */
+	1345,	/* Number of elements */
 	148565664, /* Version and data structure type */
 	1,	/* 0 if the list starts at 0;
 		   1 if it starts at the element beyond 0 */
@@ -33533,6 +33539,8 @@ static const UV _Perl_IDCont_invlist[] = { /* for EBCDIC 1047 */
 	0x3105,
 	0x312E,
 	0x3131,
+	0x3164,
+	0x3165,
 	0x318F,
 	0x31A0,
 	0x31BB,
@@ -33695,6 +33703,8 @@ static const UV _Perl_IDCont_invlist[] = { /* for EBCDIC 1047 */
 	0xFF41,
 	0xFF5B,
 	0xFF66,
+	0xFFA0,
+	0xFFA1,
 	0xFFBF,
 	0xFFC2,
 	0xFFC8,
@@ -34147,7 +34157,7 @@ static const UV _Perl_IDCont_invlist[] = { /* for EBCDIC 1047 */
 };
 
 static const UV _Perl_IDStart_invlist[] = { /* for EBCDIC 1047 */
-	1155,	/* Number of elements */
+	1157,	/* Number of elements */
 	148565664, /* Version and data structure type */
 	1,	/* 0 if the list starts at 0;
 		   1 if it starts at the element beyond 0 */
@@ -34765,6 +34775,8 @@ static const UV _Perl_IDStart_invlist[] = { /* for EBCDIC 1047 */
 	0x3105,
 	0x312E,
 	0x3131,
+	0x3164,
+	0x3165,
 	0x318F,
 	0x31A0,
 	0x31BB,
@@ -34936,7 +34948,7 @@ static const UV _Perl_IDStart_invlist[] = { /* for EBCDIC 1047 */
 	0xFF5B,
 	0xFF66,
 	0xFF9E,
-	0xFFA0,
+	0xFFA1,
 	0xFFBF,
 	0xFFC2,
 	0xFFC8,
@@ -62190,7 +62202,7 @@ static const GCB_enum _Perl_GCB_invmap[] = { /* for EBCDIC 037 */
 #if defined(PERL_IN_UTF8_C)
 
 static const UV _Perl_IDCont_invlist[] = { /* for EBCDIC 037 */
-	1337,	/* Number of elements */
+	1341,	/* Number of elements */
 	148565664, /* Version and data structure type */
 	1,	/* 0 if the list starts at 0;
 		   1 if it starts at the element beyond 0 */
@@ -62920,6 +62932,8 @@ static const UV _Perl_IDCont_invlist[] = { /* for EBCDIC 037 */
 	0x3105,
 	0x312E,
 	0x3131,
+	0x3164,
+	0x3165,
 	0x318F,
 	0x31A0,
 	0x31BB,
@@ -63082,6 +63096,8 @@ static const UV _Perl_IDCont_invlist[] = { /* for EBCDIC 037 */
 	0xFF41,
 	0xFF5B,
 	0xFF66,
+	0xFFA0,
+	0xFFA1,
 	0xFFBF,
 	0xFFC2,
 	0xFFC8,
@@ -63534,7 +63550,7 @@ static const UV _Perl_IDCont_invlist[] = { /* for EBCDIC 037 */
 };
 
 static const UV _Perl_IDStart_invlist[] = { /* for EBCDIC 037 */
-	1151,	/* Number of elements */
+	1153,	/* Number of elements */
 	148565664, /* Version and data structure type */
 	1,	/* 0 if the list starts at 0;
 		   1 if it starts at the element beyond 0 */
@@ -64148,6 +64164,8 @@ static const UV _Perl_IDStart_invlist[] = { /* for EBCDIC 037 */
 	0x3105,
 	0x312E,
 	0x3131,
+	0x3164,
+	0x3165,
 	0x318F,
 	0x31A0,
 	0x31BB,
@@ -64319,7 +64337,7 @@ static const UV _Perl_IDStart_invlist[] = { /* for EBCDIC 037 */
 	0xFF5B,
 	0xFF66,
 	0xFF9E,
-	0xFFA0,
+	0xFFA1,
 	0xFFBF,
 	0xFFC2,
 	0xFFC8,
@@ -87887,7 +87905,7 @@ static const U8 WB_table[19][19] = {
  * 1a0687fb9c6c4567e853913549df0944fe40821279a3e9cdaa6ab8679bc286fd lib/unicore/extracted/DLineBreak.txt
  * 40bcfed3ca727c19e1331f6c33806231d5f7eeeabd2e6a9e06a3740c85d0c250 lib/unicore/extracted/DNumType.txt
  * a18d502bad39d527ac5586d7bc93e29f565859e3bcc24ada627eff606d6f5fed lib/unicore/extracted/DNumValues.txt
- * ecd14978e766286f9e8fa78564160efa99a31c5d5518d8e42614a2e331787745 lib/unicore/mktables
+ * b21ec58d0bea8b7b31ff5ad948052401c85a61f9b530f872735b5547fae80678 lib/unicore/mktables
  * 462c9aaa608fb2014cd9649af1c5c009485c60b9c8b15b89401fdc10cf6161c6 lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
  * f53faacea77c3b2481826528fa4551703189ea501144c4a397527271218ecbfa regen/mk_invlists.pl

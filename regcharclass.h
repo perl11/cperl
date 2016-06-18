@@ -1895,9 +1895,9 @@
  * 1a0687fb9c6c4567e853913549df0944fe40821279a3e9cdaa6ab8679bc286fd lib/unicore/extracted/DLineBreak.txt
  * 40bcfed3ca727c19e1331f6c33806231d5f7eeeabd2e6a9e06a3740c85d0c250 lib/unicore/extracted/DNumType.txt
  * a18d502bad39d527ac5586d7bc93e29f565859e3bcc24ada627eff606d6f5fed lib/unicore/extracted/DNumValues.txt
- * ecd14978e766286f9e8fa78564160efa99a31c5d5518d8e42614a2e331787745 lib/unicore/mktables
+ * b21ec58d0bea8b7b31ff5ad948052401c85a61f9b530f872735b5547fae80678 lib/unicore/mktables
  * 462c9aaa608fb2014cd9649af1c5c009485c60b9c8b15b89401fdc10cf6161c6 lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
- * 1c80f63db92ede11c1b80c61b7fb063ab6c63b7a8de43f2b3992487cd39a9323 regen/regcharclass.pl
+ * 4363898821f8e95890b54154b7434b960174bc56fce9e017ae1bb0acf1d1b0ce regen/regcharclass.pl
  * 393f8d882713a3ba227351ad0f00ea4839fda74fcf77dcd1cdf31519925adba5 regen/regcharclass_multi_char_folds.pl
  * ex: set ro: */

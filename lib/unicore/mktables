@@ -14729,6 +14729,14 @@ sub compile_perl() {
         }
     }
 
+    # Unicode bug from 1.1 - 8
+    # And we remove 2 HANGUL FILLER useless characters as ignoreable.
+    # See https://github.com/jagracey/Awesome-Unicode#user-content-variable-identifiers-can-effectively-include-whitespace
+    # [cperl #166]
+    foreach my $range ( 0xFFA0, 0x3164 ) {
+      $perl_xids->delete_range($range, $range);
+    }
+
     $perl_xids &= $Word;
 
     my $perl_xidc = $perl->add_match_table('_Perl_IDCont',
@@ -14792,6 +14800,14 @@ sub compile_perl() {
                 $perl_xidc->delete_range($range, $range);
             }
         }
+    }
+
+    # Unicode bug from 1.1 - 8
+    # And we remove 2 HANGUL FILLER useless characters as ignoreable.
+    # See https://github.com/jagracey/Awesome-Unicode#user-content-variable-identifiers-can-effectively-include-whitespace
+    # [cperl #166]
+    foreach my $range ( 0xFFA0, 0x3164 ) {
+      $perl_xidc->delete_range($range, $range);
     }
 
     $perl_xidc &= $Word;

@@ -105,6 +105,38 @@ dynamic loading error.
 
 CVSSv2 Severity: 7.2 (AV:L/AC:L/Au:N/C:C/I:C/A:C/E:U/RL:OF/RC:C/CDP:MH/TD:H/CR:H/IR:H/AR:ND)
 
+=head2 No Unicode confusables +UFFA0, +U3164
+
+In deviation from Unicode 1.1 we treat the two HANGUL FILLER characters +UFFA0 and +U3164
+not as valid ID_Start and ID_Continue characters for perl identifiers.
+Variable and package names may not begin with them and may not contain them.
+
+They are usually rendered as whitespace, and would lead to classic TR39 confusables.
+See L<https://github.com/jagracey/Awesome-Unicode#user-content-variable-identifiers-can-effectively-include-whitespace> and L<http://www.unicode.org/reports/tr39/>.
+
+In a more Korean friendly environment, we could check for a ID_Start Hangul
+filler if the next character is a valid Hangul ID_Continue character,
+and allow it then.  Ditto for a ID_Continue Hangul filler if the
+previous and next character is a valid Hangul ID_Start or ID_Continue
+character, and allow it then.
+But those fillers should be treated as whitespace, and should be ignored.
+
+L<http://www.unicode.org/L2/L2006/06310-hangul-decompose9.pdf> explains:
+
+I<< The two other hangul fillers HANGUL CHOSEONG FILLER (Lf),
+i.e. lead filler, and HANGUL JUNGSEONG FILLER (Vf) are used as
+placeholders for missing letters, where there should be at least one
+letter. >>
+
+I<< ... that leaves the (HALFWIDTH) HANGUL FILLERs useless. Indeed,
+they should not be rendered at all, despite that they have been given
+the property Lo. Note that these FILLERs are also given the property
+of Default_Ignorable_Codepoint. >>
+
+I<< Note that the standard normal forms NFKD and NFKC ... return (in
+all views) incorrect results for strings containing these
+characters. >>
+
 =head1 Modules and Pragmata
 
 =head2 New Modules and Pragmata
