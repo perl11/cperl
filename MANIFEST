@@ -3781,6 +3781,7 @@ dist/threads/t/kill2.t		Tests thread signalling
 dist/threads/t/kill.t		Tests thread signalling
 dist/threads/t/libc.t		testing libc functions for threadsafety
 dist/threads/t/list.t		Test threads->list()
+dist/threads/t/locale.t		Test locale race #127708
 dist/threads/t/no_threads.t	threads test for non-threaded Perls
 dist/threads/t/problems.t	Test various memory problems
 dist/threads/t/stack_env.t	Tests for stack limits
