@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..177\n";
+print "1..189\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -569,6 +569,45 @@ eval "grep+grep";
 eval 'qq{@{0]}${}},{})';
 is(1, 1, "RT #124207");
 
+# TR39 invisible unicode chars should be forbidden in identifiers.
+# Some of them have wrong ID_Continue properties upstream.
+# E.g. https://www.reddit.com/r/ProgrammerHumor/comments/4on81i/til_c_allows_u200b_zero_width_space_in_identifiers/
+
+eval 'no strict "refs"; ${"a\x{200b}b"} = 1;'; # allowed
+is($@, '', "zero width space in no strict refs");
+eval 'no utf8; $a​b == 2;'; # forbidden 200b
+like($@, qr/^Unrecognized character \\xE2; marked by <-- HERE after /,
+     "\\x200b (no utf8) zero width space forbidden in identifiers");
+eval 'use utf8; $a​b == 2;'; # forbidden 200b
+like($@, qr/^Unrecognized character \\x{200b}; marked by <-- HERE after /,
+     "\\x200b zero width space forbidden in identifiers");
+eval 'use utf8; $a‌b == 2;'; # forbidden 200c
+like($@, qr/^Unrecognized character \\x{200c}; marked by <-- HERE after /,
+     "\\x200c zero width non-joiner forbidden in identifiers");
+eval 'use utf8; $a‍b == 2;'; # forbidden 200d
+like($@, qr/^Unrecognized character \\x{200d}; marked by <-- HERE after /,
+     "\\x200d zero width joiner forbidden in identifiers");
+eval 'use utf8; $a﻿b == 2;'; # forbidden feff
+like($@, qr/^Unrecognized character \\x{feff}; marked by <-- HERE after /,
+     "\\xfeff zero width no-break space forbidden in identifiers");
+eval 'use utf8; $a‎b == 2;'; # forbidden 200e
+like($@, qr/^Unrecognized character \\x{200e}; marked by <-- HERE after /,
+     "\\x200e left-to-right mark forbidden in identifiers");
+eval 'use utf8; $a‏b == 2;'; # forbidden 200f
+like($@, qr/^Unrecognized character \\x{200f}; marked by <-- HERE after /,
+     "\\x200f right-to-left mark forbidden in identifiers");
+eval 'use utf8; $a⁠b == 2;'; # forbidden 2060
+like($@, qr/^\QUnrecognized character \x{2060}; marked by <-- HERE after \E/,
+     "\\x2060 word joiner forbidden in identifiers");
+eval 'use utf8; $a⁡b == 2;'; # forbidden 2061
+like($@, qr/^\QUnrecognized character \x{2061}; marked by <-- HERE after \E/,
+     "\\x2061 function application forbidden in identifiers");
+eval 'use utf8; $a⁢b == 2;'; # forbidden 2062
+like($@, qr/^\QUnrecognized character \x{2062}; marked by <-- HERE after \E/,
+     "\\x2062 invisible times forbidden in identifiers");
+eval 'use utf8; $a⁣b == 2;'; # forbidden 2063
+like($@, qr/^\QUnrecognized character \x{2063}; marked by <-- HERE after \E/,
+     "\\x2063 invisible seperator forbidden in identifiers");
 
 # Add new tests HERE (above this line)
 
