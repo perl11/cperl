@@ -895,13 +895,19 @@ $(LIBPERL): $& $(perllib_objs) $(DYNALOADER) $(LIBPERLEXPORT)
 !NO!SUBS!
 		case "$osname" in
 		aix)
-			$spitshell >>$Makefile <<'!NO!SUBS!'
+		    $spitshell >>$Makefile <<'!NO!SUBS!'
 	rm -f libperl$(OBJ_EXT)
 	mv $@ libperl$(OBJ_EXT)
 	$(AR) qv $(LIBPERL) libperl$(OBJ_EXT)
 	touch $(LIBPERL_NONSHR)
 !NO!SUBS!
-			;;
+		    ;;
+	        cygwin) # cperl compat: make -lperl work
+		    $spitshell >>$Makefile <<'!NO!SUBS!'
+	rm -f libperl.dll.a
+	ln -s libcperl.dll.a libperl.dll.a
+!NO!SUBS!
+		    ;;
 		esac
 		;;
 	*)
@@ -1420,6 +1426,7 @@ _mopup:
 	-rm -f cygwin.c libperl*.def libcperl*.dll cygcperl*.dll *.exe.stackdump
 	-rm -f $(PERL_EXE) $(MINIPERL_EXE) $(LIBPERL) libperl.* microperl
 	-rm -f config.arch config.over $(DTRACE_H)
+	-rm -f t/$(LIBPERL) cpan/B-C/$(LIBPERL)
 
 _cleaner1:
 	-cd os2; rm -f Makefile
@@ -1573,9 +1580,8 @@ case "$targethost" in
 test_prep test-prep: test_prep_pre $(MINIPERL_EXE) $(unidatafiles) $(PERL_EXE) \
 	$(dynamic_ext) $(TEST_PERL_DLL) runtests $(generated_pods)
 	cd t && (rm -f $(PERL_EXE); $(LNS) ../$(PERL_EXE) $(PERL_EXE))
-
 !NO!SUBS!
-;;
+    ;;
 *) $spitshell >>$Makefile <<!GROK!THIS!
 test_prep test-prep: test_prep_pre \$(MINIPERL_EXE) \$(unidatafiles) \$(PERL_EXE) \
 	\$(dynamic_ext) \$(TEST_PERL_DLL) runtests \
@@ -1624,12 +1630,22 @@ test_prep test-prep: test_prep_pre \$(MINIPERL_EXE) \$(unidatafiles) \$(PERL_EXE
 	$to \$(PERL_EXE)
 	cd t && (rm -f \$(PERL_EXE); \$(LNS) ../\$(PERL_EXE) \$(PERL_EXE)) && cd ..
 	$to t/\$(PERL_EXE)
-
+	$to t/\$(LIBPERL)
 !GROK!THIS!
 ;;
 esac
 
+# TEST_PERL_DLL:
+case "$osname" in
+cygwin) $spitshell >>$Makefile <<'!NO!SUBS!'
+	cp $(LIBPERL) t/
+	cp $(LIBPERL) cpan/B-C/
+!NO!SUBS!
+        ;;
+esac
+
 $spitshell >>$Makefile <<'!NO!SUBS!'
+
 test_prep_reonly: $(MINIPERL_EXE) $(PERL_EXE) $(dynamic_ext_re) $(TEST_PERL_DLL)
 	$(MINIPERL) make_ext.pl $(dynamic_ext_re) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=dynamic
 	cd t && (rm -f $(PERL_EXE); $(LNS) ../$(PERL_EXE) $(PERL_EXE))

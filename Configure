@@ -8805,7 +8805,8 @@ true)
 			majonly=`echo $patchlevel $subversion |
 				$awk '{printf "%03d%03d", $1, $2}'`
 			majonly=cyg${package}5.$majonly.$so
-			dflt=$majmin
+                        # make minor updates easier, not symlinkable
+			dflt=$majonly
 			;;
 		*)	# Try to guess based on whether libc has major.minor.
 			case "$libc" in
