@@ -4,7 +4,7 @@ use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use Module::CoreList::TieHashDelta;
 use version;
-$VERSION = '5.20160608c';
+$VERSION = '5.20160618c';
 $VERSION =~ s/c$//;
 
 sub _released_order {   # Sort helper, to make '?' sort after everything else
@@ -12631,14 +12631,13 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         delta_from => '5.022003c',
         changed => {
             'B::Op_private'         => '5.024000',
-            'Config'                => '5.024',
-            'Module::CoreList'      => '5.20160418c',
-            'Module::CoreList::TieHashDelta'=> '5.20160418c',
-            'Module::CoreList::Utils'=> '5.20160418c',
+            'Config'                => '6.20',
+            'Module::CoreList'      => '5.20160618c',
+            'Module::CoreList::TieHashDelta'=> '5.20160618',
+            'Module::CoreList::Utils'=> '5.20160618c',
             'B::C'                   => '1.54_07',
             'DynaLoader'             => '2.04c',
             'Socket' 		     => '2.021_02',
-            'Config' 		     => '6.18',
             'Storable' 		     => '3.00c',
             'Devel::NYTProf' 	     => '6.03',
             'Digest::MD5' 	     => '2.55_01',
@@ -12674,7 +12673,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'perl5db'                => '1.49_04c',
             'warnings'               => '1.35',
             'Config::Perl::V'        => '0.26_01',
-            'Cpanel::JSON::XS'       => '3.0215',
+            'Cpanel::JSON::XS'       => '3.0217',
             'DB_File'                => '1.838',
             'Devel::PPPort'          => '3.33_02',
             'HTTP::Tiny'             => '0.058',
