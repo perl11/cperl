@@ -879,7 +879,9 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
  * We might need to use a strict flag.
  */
 static SV * dl_findfile(pTHX_ AV* args, int gimme) {
+#ifdef DEBUGGING
     dMY_CXT;
+#endif
     AV* dirs;   /* which directories to search */
     AV *found;  /* full paths to real files we have found */
     SSize_t i, j;
