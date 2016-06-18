@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..189\n";
+print "1..193\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -576,25 +576,25 @@ is(1, 1, "RT #124207");
 eval 'no strict "refs"; ${"a\x{200b}b"} = 1;'; # allowed
 is($@, '', "zero width space in no strict refs");
 eval 'no utf8; $a​b == 2;'; # forbidden 200b
-like($@, qr/^Unrecognized character \\xE2; marked by <-- HERE after /,
+like($@, qr/^\QUnrecognized character \xE2; marked by <-- HERE after /,
      "\\x200b (no utf8) zero width space forbidden in identifiers");
 eval 'use utf8; $a​b == 2;'; # forbidden 200b
-like($@, qr/^Unrecognized character \\x{200b}; marked by <-- HERE after /,
+like($@, qr/^\QUnrecognized character \x{200b}; marked by <-- HERE after /,
      "\\x200b zero width space forbidden in identifiers");
 eval 'use utf8; $a‌b == 2;'; # forbidden 200c
-like($@, qr/^Unrecognized character \\x{200c}; marked by <-- HERE after /,
+like($@, qr/^\QUnrecognized character \x{200c}; marked by <-- HERE after /,
      "\\x200c zero width non-joiner forbidden in identifiers");
 eval 'use utf8; $a‍b == 2;'; # forbidden 200d
-like($@, qr/^Unrecognized character \\x{200d}; marked by <-- HERE after /,
+like($@, qr/^\QUnrecognized character \x{200d}; marked by <-- HERE after \E/,
      "\\x200d zero width joiner forbidden in identifiers");
 eval 'use utf8; $a﻿b == 2;'; # forbidden feff
-like($@, qr/^Unrecognized character \\x{feff}; marked by <-- HERE after /,
+like($@, qr/^\QUnrecognized character \x{feff}; marked by <-- HERE after \E/,
      "\\xfeff zero width no-break space forbidden in identifiers");
 eval 'use utf8; $a‎b == 2;'; # forbidden 200e
-like($@, qr/^Unrecognized character \\x{200e}; marked by <-- HERE after /,
+like($@, qr/^\QUnrecognized character \x{200e}; marked by <-- HERE after \E/,
      "\\x200e left-to-right mark forbidden in identifiers");
 eval 'use utf8; $a‏b == 2;'; # forbidden 200f
-like($@, qr/^Unrecognized character \\x{200f}; marked by <-- HERE after /,
+like($@, qr/^\QUnrecognized character \x{200f}; marked by <-- HERE after \E/,
      "\\x200f right-to-left mark forbidden in identifiers");
 eval 'use utf8; $a⁠b == 2;'; # forbidden 2060
 like($@, qr/^\QUnrecognized character \x{2060}; marked by <-- HERE after \E/,
@@ -608,6 +608,26 @@ like($@, qr/^\QUnrecognized character \x{2062}; marked by <-- HERE after \E/,
 eval 'use utf8; $a⁣b == 2;'; # forbidden 2063
 like($@, qr/^\QUnrecognized character \x{2063}; marked by <-- HERE after \E/,
      "\\x2063 invisible seperator forbidden in identifiers");
+
+# And now some unicode bugs: https://github.com/jagracey/Awesome-Unicode#user-content-variable-identifiers-can-effectively-include-whitespace
+# Not a space nor whitespace char, but ID_Start + ID_Continue!
+# This fails in perl5 and is a TR39 security problem.
+eval 'use utf8; $aㅤb == 2; # as cont'; # U+3164 HANGUL FILLER
+like($@, qr/^\QUnrecognized character \x{3164}; marked by <-- HERE after \E/,
+     "\\x3164 whitespace confusable as ID_Continue");
+eval 'use utf8; $ㅤab == 2; # as start'; # U+3164 HANGUL FILLER
+like($@, qr/^\QUnrecognized character \x{3164}; marked by <-- HERE after \E/,
+     "\\x3164 whitespace confusable as ID_Start");
+# Not a space nor whitespace char, but ID_Start + ID_Continue!
+eval 'use utf8; $aﾠb == 2; # as cont'; # U+ffa0 HALFWIDTH HANGUL FILLER
+like($@, qr/^\QUnrecognized character \x{ffa0}; marked by <-- HERE after \E/,
+     "\\xffa0 whitespace confusable as ID_Continue");
+eval 'use utf8; $ﾠab == 2; # as start'; # U+ffa0 HALFWIDTH HANGUL FILLER
+like($@, qr/^\QUnrecognized character \x{ffa0}; marked by <-- HERE after \E/,
+     "\\xffa0 whitespace confusable as ID_Start");
+# These are ok in emacs, and those are the ones which should be used instead.
+# according to http://www.unicode.org/L2/L2006/06310-hangul-decompose9.pdf
+# ᅟ..ᅠ HANGUL CHOSEONG FILLER..HANGUL JUNGSEONG FILLER
 
 # Add new tests HERE (above this line)
 
