@@ -41,10 +41,8 @@ env:
     - CONFIGURE_OPTION='' XCC='gcc' XBITS=64
     - CONFIGURE_OPTION='' XCC="'gcc\ -m32'" XBITS=32
     - CONFIGURE_OPTION='-DDEBUGGING' XCC='clang'
-    - CONFIGURE_OPTION='-Duse64bitall -Dusethreads' XCC='gcc'
-    - CONFIGURE_OPTION='-Duselongdouble' XCC='clang'
-    - CONFIGURE_OPTION='-Duselongdouble -DDEBUGGING' XCC='gcc'
-    - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall' XCC='clang'
+    - CONFIGURE_OPTION='-Duse64bitall -Dusethreads -Duselongdouble' XCC='clang'
+    - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall' XCC='gcc'
 
 matrix:
   allow_failures:
