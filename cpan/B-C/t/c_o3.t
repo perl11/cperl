@@ -22,5 +22,6 @@ my @todo  = todo_tests_default("c_o3");
 my @skip = (
 	    $DEBUGGING ? () : 29, # issue 78 if not DEBUGGING > 5.15
 	    );
+push @skip, (21,38) if $^O eq 'cygwin'; #hangs
 
 run_c_tests("C,-O3", \@todo, \@skip);

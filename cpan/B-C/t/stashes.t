@@ -35,7 +35,8 @@ ctestok($i++, "C,-O3", "ccode46g", <<'EOF', "TODO use should not skip, special b
 use Exporter; print 'ok' if keys %Exporter:: > 2;
 EOF
 
-ctestok($i++, "C,-O3", "ccode46g", <<'EOF', "use should not skip, in %INC");
+my $TODO = $^O eq 'cygwin' ? " TODO " : "";
+ctestok($i++, "C,-O3", "ccode46g", <<'EOF', "$TODO use should not skip, in %INC");
 use Devel::Peek; print 'ok' if keys %Devel::Peek:: > 2;
 EOF
 

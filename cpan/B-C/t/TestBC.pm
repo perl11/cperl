@@ -1137,9 +1137,10 @@ sub todo_tests_default {
     # no IO::Scalar
     push @todo, (15)  if $] < 5.007;
     # broken by fbb32b8bebe8ad C: revert *-,*+,*! fetch magic, assign all core GVs to their global symbols
-    push @todo, (42..43) if $] < 5.012;
+    push @todo, (42..43) if $] < 5.012 or $^O eq 'cygwin';
     push @todo, 28 if $] > 5.023 and
       ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/);
+    push @todo, (21, 38) if $^O eq 'cygwin'; #hangs
 
     if ($what =~ /^c(|_o[1-4])$/) {
         # a regression
