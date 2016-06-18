@@ -2,8 +2,9 @@
 use strict;
 use Test::More;
 BEGIN {
-  eval 'require JSON;'
-    or plan skip_all => 'JSON required for cross testing';
+  # allow_unknown method added to JSON::PP in 2.09
+  eval 'use JSON 2.09 (); 1'
+    or plan skip_all => 'JSON 2.09 required for cross testing';
   $ENV{PERL_JSON_BACKEND} = 'JSON::PP';
 }
 plan tests => 32;

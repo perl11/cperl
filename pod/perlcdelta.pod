@@ -310,7 +310,9 @@ Add tests for 5.22 and 5.24.
 Support some multi-line keys: ccflags ldflags lddlflags
 Changed tests to use done_testing().
 
-=item Cpanel::JSON::XS 3.0216
+=item Cpanel::JSON::XS 3.0217
+
+- Improve test 20_unknown for older JSON::PP (madsen)
 
 - Fix wrong test 117 (pghmcfc)
 
