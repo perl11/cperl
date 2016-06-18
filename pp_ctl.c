@@ -2027,6 +2027,7 @@ PP(pp_dbstate)
 	    return NORMAL;
 	}
 	else {
+            PADLIST *padlist;
 	    cx = cx_pushblock(CXt_SUB, gimme, SP, PL_savestack_ix);
 	    cx_pushsub(cx, cv, PL_op->op_next, 0);
             /* OP_DBSTATE's op_private holds hint bits rather than
@@ -2038,8 +2039,8 @@ PP(pp_dbstate)
             PL_debug = 0;
             SAVESTACK_POS();
 	    CvDEPTH(cv)++;
+            padlist = CvPADLIST(cv);
 	    if (CvDEPTH(cv) >= 2) {
-                PADLIST *padlist = CvPADLIST(cv);
                 DEBUG_Xv(PerlIO_printf(Perl_debug_log,
                     "Pad push padlist max=%d, CvDEPTH=%d (dbstate)\n",
                     (int)PadlistMAX(padlist), (int)CvDEPTH(cv)));
@@ -2050,7 +2051,7 @@ PP(pp_dbstate)
                 }
 		pad_push(padlist, CvDEPTH(cv));
             }
-	    PAD_SET_CUR_NOSAVE(CvPADLIST(cv), CvDEPTH(cv));
+	    PAD_SET_CUR_NOSAVE(padlist, CvDEPTH(cv));
             if (CvHASSIG(cv)) { /* if DB::DB has sigs */
                 dMARK;
                 cx->blk_sub.argarray  = MARK+1;
