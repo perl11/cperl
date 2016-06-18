@@ -1,6 +1,5 @@
 #! /bin/sh
-# cygwin.sh - hints for building perl using the Cygwin environment for Win32
-#
+# cygwin.sh - hints for building perl using the Cygwin environment, 32+64bit
 
 # not otherwise settable
 exe_ext='.exe'
@@ -32,6 +31,7 @@ man3ext='3pm'
 test -z "$use64bitint" && use64bitint='define'
 test -z "$useithreads" && useithreads='define'
 ccflags="$ccflags -DPERL_USE_SAFE_PUTENV -U__STRICT_ANSI__ -D_GNU_SOURCE"
+archname="`uname -m`-cygwin"
 
 # dynamic loading
 # - otherwise -fpic
@@ -67,8 +67,8 @@ else
   static_ext="$static_ext Win32CORE"
 fi
 
-# Win9x problem with non-blocking read from a closed pipe
-d_eofnblk='define'
+# windows-specific problem with non-blocking read from a closed pipe.
+d_eofnblk='undef'
 
 # suppress auto-import warnings
 ldflags="$ldflags -Wl,--enable-auto-import -Wl,--export-all-symbols -Wl,--enable-auto-image-base"
