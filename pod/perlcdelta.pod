@@ -465,6 +465,21 @@ binaries for easier debugging.
 
 =back
 
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item RT#128109 Issues with (?0) being wrong in 5.24.0, reginsert recursion
+
+The pattern C</\X*(?0)/> and various flavours thereof did not work
+correctly due to C<RExC_open_paren[0]> being inappropriately adjusted.
+Broken in cperl-5.24.0-RC1-2 and B<perl-5.24.0> upstream.
+
+See L<RT #128109|https://rt.perl.org/Public/Bug/Display.html?id=128109>
+and L<RT #128085|https://rt.perl.org/Public/Bug/Display.html?id=128085>.
+
+=back
+
 =head1 Acknowledgements
 
 cperl 5.24.0 represents approximately 2 weeks of development since cperl
