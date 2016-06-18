@@ -447,6 +447,73 @@ Broken new "_" logic when merged with our 'c' suffix logic.
 
 =back
 
+=head1 Diagnostics
+
+The following additions or changes have been made to diagnostic output,
+including warnings and fatal error messages.  For the complete list of
+diagnostic messages, see L<perldiag>.
+
+=head2 New Diagnostics
+
+=head3 New Errors
+
+=over 4
+
+=item Not enough arguments for %s
+
+(F) The function requires more arguments than you specified.
+
+This error might be detected at compile-time or run-time.
+
+If the called function is declared with a signature, and the error
+message includes "Want: \d, but got: 0", it might be that the call
+C<&$sub> without C<()> needs to be replaced with a C<goto \&sub;>.
+See L<perlcperl/Changed calls to signatures>.
+
+=item Invalid type %s for %s %s
+
+(F) The function cannot handle the declared type of the argument.
+E.g. tie or bless cannot use a typed arg with a coretype, as a
+coretype declaration guarantees no magic.
+
+=item Reference parameter cannot take default value
+
+(F) In a subroutine signature, you put a C<=> after a reference C<\>
+parameter.  A reference parameter cannot be assigned default values on
+subroutine entries.
+
+=item Subroutine signature has more than %d parameters
+
+(F) A subroutine signature had more than 32767 individual parameter
+entries..  In the unlikely event that you need so many parameters,
+use a slurpy array instead.
+
+=back
+
+=head3 New Warnings
+
+=over 4
+
+=item Wrong type %s, expected %s
+
+(W types) The type of the argument does not match the user-defined type of
+the function declaration.
+
+=item Inserting type cast %s to %s
+
+(W types) The compiler found an argument with a declared type, which
+the needs to be converted at run-time. This warning usually points to
+a wrong type usage.
+
+=item Useless use of :caller, did you mean :-caller instead?
+
+(W misc) The ":caller" attribute has no effect in pure perl subroutine
+declarations.  You applied it to a subroutine via
+L<attributes.pm|attributes>.  This is only valid as negated variant
+C<:-caller> on subroutines.
+
+=back
+
 =head1 Platform Support
 
 =head2 Platform-Specific Notes
@@ -469,7 +536,7 @@ binaries for easier debugging.
 
 =over 4
 
-=item RT#128109 Issues with (?0) being wrong in 5.24.0, reginsert recursion
+=item Issues with (?0) being wrong in 5.24.0, reginsert recursion
 
 The pattern C</\X*(?0)/> and various flavours thereof did not work
 correctly due to C<RExC_open_paren[0]> being inappropriately adjusted.
@@ -477,6 +544,14 @@ Broken in cperl-5.24.0-RC1-2 and B<perl-5.24.0> upstream.
 
 See L<RT #128109|https://rt.perl.org/Public/Bug/Display.html?id=128109>
 and L<RT #128085|https://rt.perl.org/Public/Bug/Display.html?id=128085>.
+
+=item locale race condition when switching to C for error messages
+
+A race condition which occurred when computing C<"$!"> with threads
+activated has been fixed.  This showed up only on Darwin platforms.
+A related problem on Cygwin platforms involving UTF-8 strings has also
+been fixed.
+See L<RT #127708|https://rt.perl.org/Public/Bug/Display.html?id=127708>
 
 =back
 
