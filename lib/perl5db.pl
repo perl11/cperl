@@ -4110,7 +4110,7 @@ sub _indent_print_line_info {
 
 sub _hassig {
     my $sub = shift;
-    my $p = prototype $sub;
+    my $p = eval { prototype $sub; };
     return 0 if !$p or length($p) <= 1;
     substr($p,0,1) eq '(';
 }
