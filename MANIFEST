@@ -2091,9 +2091,6 @@ cpan/podlators/t/data/snippets/man/utf8-verbatim
 cpan/podlators/t/data/snippets/README
 cpan/podlators/t/data/snippets/text/cpp
 cpan/podlators/t/data/termcap
-cpan/podlators/t/docs/pod-spelling.t
-cpan/podlators/t/docs/pod.t
-cpan/podlators/t/docs/synopsis.t
 cpan/podlators/t/general/basic.t
 cpan/podlators/t/general/filehandle.t
 cpan/podlators/t/general/pod-parser.t
@@ -2110,9 +2107,6 @@ cpan/podlators/t/man/no-encode.t
 cpan/podlators/t/man/options.t
 cpan/podlators/t/man/utf8-io.t
 cpan/podlators/t/parselink/basic.t
-cpan/podlators/t/style/minimum-version.t
-cpan/podlators/t/style/module-version.t
-cpan/podlators/t/style/strict.t
 cpan/podlators/t/text/basic.t
 cpan/podlators/t/text/color.t
 cpan/podlators/t/text/empty.t

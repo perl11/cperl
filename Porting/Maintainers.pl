@@ -1147,6 +1147,9 @@ use File::Glob qw(:case);
             # this file lives outside the cpan/ directory
             'pod/perlpodstyle.pod' => 'pod/perlpodstyle.pod',
         },
+        'EXCLUDED' => [
+          qr{^t/(style|docs)/},
+        ],
     },
 
     'Safe' => {
