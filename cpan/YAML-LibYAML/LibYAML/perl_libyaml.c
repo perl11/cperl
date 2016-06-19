@@ -91,7 +91,7 @@ call_coderef(SV *code, AV *args)
 {
     dSP;
     SV **svp;
-    I32 count = (args && args != Nullav) ? av_len(args) : -1;
+    I32 count = args ? av_len(args) : -1;
     I32 i;
 
     PUSHMARK(SP);
