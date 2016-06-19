@@ -535,14 +535,14 @@ S_def_coretype(pTHX_ SV *sv, const char *t1, int len)
 {
     HV* stash; AV* isa; SV* svisa; SV* version;
     sv_catpvs(sv, "::");
-    version = newSVpvn(SvPVX(sv), SvCUR(sv));
+    version = newSVpvn(SvPVX(sv), SvCUR(sv)); /* no utf8 */
     sv_catpvs(version, "VERSION");
-    svisa = newSVpvn(SvPVX(sv), SvCUR(sv));
+    svisa = newSVpvn(SvPVX(sv), SvCUR(sv));   /* no utf8 */
     sv_catpvs(svisa, "ISA");
-    stash = GvHV(gv_HVadd(gv_fetchsv(sv, GV_ADD, SVt_PVHV)));
+    stash = GvHV(gv_HVadd(gv_fetchsv(sv, GV_ADD|GV_NO_SVGMAGIC, SVt_PVHV)));
     Perl_set_version(aTHX_ SvPVX(version), SvCUR(version),
                      STR_WITH_LEN(CORETYPE_VERSION_STR), CORETYPE_VERSION_NV);
-    isa = GvAV(gv_AVadd(gv_fetchsv(svisa, GV_ADD, SVt_PVAV)));
+    isa = GvAV(gv_AVadd(gv_fetchsv(svisa, GV_ADD|GV_NO_SVGMAGIC, SVt_PVAV)));
     if (t1)
         av_push(isa, newSVpvn(t1, len));
     mg_set(MUTABLE_SV(isa));

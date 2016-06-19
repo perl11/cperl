@@ -508,10 +508,14 @@ Perl_av_init_shaped(pTHX_ AV* av, const SSize_t size, const HV *type)
     if (UNLIKELY(type)) {
         /* for now dispatch only by name. this is just the initializer */
         char *name = HvNAME(type);
-        int l = HvNAMELEN(type) - 6;
-        assert(memEQs(name, 6, "main::"));
-        assert(l > 0);
-        name += 6;
+        int l      = HvNAMELEN(type);
+        if (*name == 'm' && l > 6) { /* old-style main:: type names */
+            if (memEQs(name, 6, "main::")) {
+                l -= 6;
+                assert(l > 0); /* main and "" are not a valid types */
+                name += 6;
+            }
+        }
         if      (memEQs(name, l, "Int")
               || memEQs(name, l, "Numeric"))
             def = newSViv(0);

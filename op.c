@@ -150,10 +150,10 @@ const char * S_typename(pTHX_ const HV* stash)
         int l = HvNAMELEN(stash);
         if (!name)
             return NULL;
-        if (l > 6 && memEQs(name, 6, "main::"))
+        if (l > 6 && *name == 'm' && memEQs(name, 6, "main::"))
             return name+6;
         else
-            return name; /* custom blessed type */
+            return name; /* custom blessed type or auto-created coretype */
     }
 }
 

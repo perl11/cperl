@@ -669,8 +669,9 @@ S_attributes__push_fetch(pTHX_ SV *sv)
         }
 	if (cvflags & CVf_TYPED) {
             HV *typestash = CvTYPE((CV*)sv);
-            XPUSHs(newSVpvn_flags(HvNAME(typestash), HvNAMELEN(typestash),
-                                  SVs_TEMP|HvNAMEUTF8(typestash)));
+            if (typestash)
+                XPUSHs(newSVpvn_flags(HvNAME(typestash), HvNAMELEN(typestash),
+                                      SVs_TEMP|HvNAMEUTF8(typestash)));
         }
 	break;
     }
