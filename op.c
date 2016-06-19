@@ -15439,7 +15439,7 @@ Perl_rpeep(pTHX_ OP *o)
                 if (   intro
                     && (8*sizeof(base) >
                         8*sizeof(UV)-OPpPADRANGE_COUNTSHIFT-SAVE_TIGHT_SHIFT
-                        ? base
+                        ? (unsigned long)base
                         : (UV_MAX >> (OPpPADRANGE_COUNTSHIFT+SAVE_TIGHT_SHIFT))
                         ) >
                         (UV_MAX >> (OPpPADRANGE_COUNTSHIFT+SAVE_TIGHT_SHIFT))

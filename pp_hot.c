@@ -381,7 +381,7 @@ PP(pp_padrange)
                     | (count << SAVE_TIGHT_SHIFT)
                     | SAVEt_CLEARPADRANGE);
         STATIC_ASSERT_STMT(OPpPADRANGE_COUNTMASK + 1 == (1 << OPpPADRANGE_COUNTSHIFT));
-        assert((payload >> (OPpPADRANGE_COUNTSHIFT+SAVE_TIGHT_SHIFT)) == base);
+        assert((payload >> (OPpPADRANGE_COUNTSHIFT+SAVE_TIGHT_SHIFT)) == (unsigned long)base);
         {
             dSS_ADD;
             SS_ADD_UV(payload);
@@ -4458,7 +4458,7 @@ PP(pp_signature)
                     | SAVEt_CLEARPADRANGE;
 
                 assert((save >> (OPpPADRANGE_COUNTSHIFT+SAVE_TIGHT_SHIFT))
-                       == pad_ix);
+                       == (unsigned long)pad_ix);
                 SS_ADD_UV(save);
                 SS_ADD_END(1);
             }
