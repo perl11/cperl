@@ -3093,7 +3093,8 @@ PPt(pp_u_add, "(:Int,:Int):Numeric")
 #else
       NV nv;
       if (left < 0 && SvIsUV(TOPs)) {
-          nv = (NV)SvUVX(TOPs) + (right < 0 && SvIsUV(TOPp1s)) ? (NV)SvUVX(TOPp1s) : right;
+          nv = (NV)SvUVX(TOPs) + ((right < 0 && SvIsUV(TOPp1s))
+                                  ? (NV)SvUVX(TOPp1s) : right);
       } else if (right < 0 && SvIsUV(TOPp1s)) {
           nv = left + (NV)SvUVX(TOPp1s);
       } else {
@@ -3152,7 +3153,8 @@ PPt(pp_u_multiply, "(:Int,:Int):Numeric")
 #else
       NV nv;
       if (left < 0 && SvIsUV(TOPs)) {
-          nv = (NV)SvUVX(TOPs) * (right < 0 && SvIsUV(TOPp1s)) ? (NV)SvUVX(TOPp1s) : right;
+          nv = (NV)SvUVX(TOPs) * ((right < 0 && SvIsUV(TOPp1s))
+                                  ? (NV)SvUVX(TOPp1s) : right);
       } else if (right < 0 && SvIsUV(TOPp1s)) {
           nv = left * (NV)SvUVX(TOPp1s);
       } else {
