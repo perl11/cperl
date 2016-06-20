@@ -5899,8 +5899,9 @@ Perl_yylex(pTHX)
 			sv_free(sv);
 			CvPURE_on(PL_compcv);
 		    }
-                    /* Check types here, so we can pass an empty attrs
-                       to newATTRSUB. This allows any known type to be used. */
+                    /* Check return type here, so we can pass an empty attrs
+                       to newATTRSUB. This allows any known user or core type
+                       to be used. */
 		    else if (find_in_my_stash(pv, len)) {
                         sv_free(sv);
                         CvTYPED_on(PL_compcv);
