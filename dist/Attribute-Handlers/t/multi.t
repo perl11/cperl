@@ -170,18 +170,18 @@ if($] < 5.008) {
 } else {
   ok( $out eq "begin\nbye\nbye\n", 46);
 }
-# are lexical attributes reapplied correctly?
-sub dummy { my $dummy : Dummy; }
+
+# Are lexical attributes reapplied correctly?
+# Note that the attribute :Dummy alone without parens in cperl denotes a
+# return-type declaration and will not call the attribute handler with cperl.
+# But it does wth perl5.
+sub dummy { my $dummy : Dummy(); }
 $applied = 0;
 dummy(); dummy();
 if($] < 5.008) {
   ok(1, 47, " # skip lexicals are not runtime prior to 5.8");
 } else {
-  if ($applied != 2) {
-    $::count++; push @::results, [47,"not ",'#TODO cperl \#133 ondemand-coretypes'];
-  } else {
-    ok( $applied == 2, 47 );
-  }
+  ok( $applied == 2, 47 );
 }
 # 45-47 again, but for our variables
 $out = "begin\n";
