@@ -1184,19 +1184,40 @@ my %delta = (
         removed => {
         }
     },
-    '5.022004c' => {
-        delta_from => '5.022003c',
-        changed => {
-            'cperlbug'              => 1,
-        },
-        removed => {}
-    },
     '5.024000c' => {
         delta_from => '5.022003c',
         changed => {
             'cperlbug'              => 1,
         },
         removed => {}
+    },
+    5.025000 => {
+        delta_from => 5.024000,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.025001 => {
+        delta_from => 5.025000,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.025002 => {
+        delta_from => 5.025001,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.025003 => {
+        delta_from => 5.025002,
+        changed => {
+        },
+        removed => {
+        }
     },
 );
 

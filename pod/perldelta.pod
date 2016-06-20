@@ -444,7 +444,7 @@ C<canonpath()> now preserves taint.  See L</"Fix loss of taint in C<canonpath()>
 
 =item *
 
-L<Module::CoreList> has been upgraded from version 5.20151213 to 5.20160412c.
+L<Module::CoreList> has been upgraded from version 5.20151213 to 5.20160628c.
 
 =item *
 
