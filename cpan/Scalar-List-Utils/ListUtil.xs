@@ -1,4 +1,5 @@
 /* Copyright (c) 1997-2000 Graham Barr <gbarr@pobox.com>. All rights reserved.
+ * Copyright (C) 2014, cPanel Inc.  All rights reserved.
  * This program is free software; you can redistribute it and/or
  * modify it under the same terms as Perl itself.
  */
@@ -6,6 +7,10 @@
 #include <EXTERN.h>
 #include <perl.h>
 #include <XSUB.h>
+
+/* undef that when perl5 gets rid of the perl4'ism, e.g. main'dump. 
+   see gv.c:S_parse_gv_stash_name */
+#define PERL_HAS_QUOTE_PKGSEPERATOR
 
 #ifdef USE_PPPORT_H
 #  define NEED_sv_2pv_flags 1
@@ -1424,6 +1429,7 @@ PPCODE:
     XSRETURN(1);
 
 # Binary and unicode support from https://github.com/rurban/sub-name/commits/binary
+# refined in https://github.com/Leont/Sub-Name/commits/safe
 
 void
 set_subname(name, sub)
@@ -1433,9 +1439,13 @@ PREINIT:
     CV *cv = NULL;
     GV *gv;
     HV *stash = CopSTASH(PL_curcop);
-    char *s, *last, *end = NULL;
+    const char *s, *end = NULL;
     MAGIC *mg;
-    STRLEN len;
+    STRLEN namelen;
+    const char* nameptr = SvPV(name, namelen);
+    const char *begin = nameptr;
+    int seen_quote = 0;
+    int utf8flag = SvUTF8(name);
 PPCODE:
     if (!SvROK(sub) && SvGMAGICAL(sub))
         mg_get(sub);
@@ -1446,54 +1456,69 @@ PPCODE:
     else if (!SvOK(sub))
         croak(PL_no_usym, "a subroutine");
     else if (PL_op->op_private & HINT_STRICT_REFS)
-        croak("Can't use string (\"%.256s\") as %s ref while \"strict refs\" in use",
-              SvPV_nolen(sub), "a subroutine");
-    else if ((gv = gv_fetchpv(SvPV_nolen(sub), FALSE, SVt_PVCV)))
+        croak("Can't use string (\"%"SVf"\") as %s ref while \"strict refs\" in use",
+              SVfARG(sub), "a subroutine");
+    else if ((gv = gv_fetchsv(sub, FALSE, SVt_PVCV)))
         cv = GvCVu(gv);
     if (!cv)
-        croak("Undefined subroutine %.256s", SvPV_nolen(sub));
+        croak("Undefined subroutine %"SVf, SVfARG(sub));
     if (SvTYPE(cv) != SVt_PVCV && SvTYPE(cv) != SVt_PVFM)
         croak("Not a subroutine reference");
-    last = s = SvPVX(name);
-    last += SvCUR(name);
+
     /* TODO: If there exists a UTF8 codepoint with ending ':' we are screwed.
        But perl5 does not care neither. */
-    for (; s < last; s++) {
-	if (*s == ':' && s[-1] == ':')
-            end = ++s;
+    for (s = nameptr; s <= nameptr + namelen; s++) {
+        if (*s == ':' && s[-1] == ':') {
+            end = s - 1;
+            begin = ++s;
+            if (seen_quote)
+                seen_quote++;
+        }
+#ifdef PERL_HAS_QUOTE_PKGSEPERATOR
         /* "In the year 2525, if man is still alive
            If 4 is finally gone" - gv.c:S_parse_gv_stash_name */
-#if 1
-        else if (*s && s[-1] == '\'')
-            end = s;
+        else if (*s && s[-1] == '\'') {
+            end = s - 1;
+            begin = s;
+            seen_quote++;
+        }
 #endif
     }
+    s--;
     if (end) {
-        int flags = GV_ADD;
-        const int stash_len = end - SvPVX(name);
-#if PERL_VERSION <= 8
-        /* <= 5.8.8 needs a copy */
-        SV *tmpbuf = newSVpvn(SvPVX(name), stash_len);
-#endif
+        SV* tmp;
+        if (seen_quote > 1) {
+            int flags = GV_ADD;
+            const STRLEN stash_len = end - nameptr + seen_quote;
+            char* left;
+            int i, j;
 #if PERL_VERSION >= 10
-        flags |= SvUTF8(name);
+            flags |= utf8flag;
 #endif
-        len = s - end;
-#if PERL_VERSION <= 8
-        stash = GvHV(gv_fetchpv(SvPVX(tmpbuf), flags, SVt_PVHV));
-        SvREFCNT_dec(tmpbuf);
+#ifdef PERL_HAS_QUOTE_PKGSEPERATOR
+            tmp = newSV(stash_len);
+            left = SvPVX(tmp);
+            for (i = 0, j = 0; j <= end - nameptr; ++i, ++j) {
+                if (nameptr[j] == '\'') {
+                    left[i] = ':';
+                    left[++i] = ':';
+                }
+                else {
+                    left[i] = nameptr[j];
+                }
+            }
+            stash = gv_stashpvn(left, i - 2, GV_ADD | utf8flag);
+            SvREFCNT_dec(tmp);
 #else
-        stash = GvHV(gv_fetchpvn_flags(SvPVX(name), stash_len, flags, SVt_PVHV));
+            stash = gv_stashpvn(nameptr, end - nameptr, GV_ADD | utf8flag);
 #endif
-        s = end;
-    } else {
-        len = s - SvPVX(name);
-        s = SvPVX(name);
+        }
+        else
+            stash = gv_stashpvn(nameptr, end - nameptr, GV_ADD | utf8flag);
+        nameptr = begin;
+        namelen -= begin - nameptr;
     }
-#if defined(DEBUGGING) && defined(I_ASSERT)
-    assert(len < PERL_INT_MAX);
-#endif
-
+#if PERL_VERSION < 10
     /* under debugger, provide information about sub location */
     if (PL_DBsub && CvGV(cv)) {
         HV *hv = GvHV(PL_DBsub);
@@ -1512,7 +1537,7 @@ PPCODE:
             full_name = newSVpvn_flags(HvNAME(stash), HvNAMELEN_get(stash),
                                        HvNAMEUTF8(stash) ? SVf_UTF8 : 0);
             sv_catpvs(full_name, "::");
-            sv_catpvn(full_name, s, len);
+            sv_catpvn(full_name, s, namelen);
 
             SvREFCNT_inc(*old_data);
             if (!hv_store(hv, SvPVX(full_name), SvCUR(full_name), *old_data, 0))
@@ -1520,20 +1545,21 @@ PPCODE:
         }
         SvREFCNT_dec(full_name);
     }
-
+#endif
     gv = (GV *) newSV(0);
 #if PERL_VERSION >= 16
-    gv_init_pvn(gv, stash, s, len, SvUTF8(name));
+    gv_init_pvn(gv, stash, nameptr, s - nameptr, GV_ADDMULTI | utf8flag);
 #else
-    gv_init(gv, stash, s, len, GV_ADD);
-    /* Nope. Older B 5.10-5.16 can not handle this negative HEK_LEN. Leave it. */
-#if 0 && PERL_VERSION >= 10 && PERL_VERSION < 16
-    if (SvUTF8(name)) {
+    gv_init(gv, stash, nameptr, s - nameptr, GV_ADD);
+    /* Cannot fake UTF8 symbols. The HEK can, but older B 5.10-5.16 can not
+       handle this negative HEK_LEN. Must leave it ASCII. */
+#  if 0 && PERL_VERSION >= 10 && PERL_VERSION < 16
+    if (utf8flag) {
         HEK *namehek = GvNAME_HEK(gv);
         HEK_LEN(namehek) = -abs(HEK_LEN(namehek));
         SvUTF8_on(gv);
     }
-#endif
+#  endif
 #endif
 
     /*
