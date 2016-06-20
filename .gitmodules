@@ -1,0 +1,3 @@
+[submodule ".git-rr-cache"]
+	path = .git-rr-cache
+	url = git@github.com:perl11/cperl-git-rr-cache.git
