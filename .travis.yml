@@ -16,9 +16,17 @@ addons:
     build_command_prepend: "./Configure -des -Dusedevel -Uversiononly -Dprefix=$HOME/cperl"
     build_command: "make -s -j4 ECHO=true"
     branch_pattern: coverity
-
 cache:
   apt: true
+
+# disable the default submodule logic, no .git-rr-cache
+git:
+  submodules: false
+# the other trick would be this:
+# replace private SSH URL with the public URL
+#before_install:
+#  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+#  - git submodule update --init --recursive
 
 os:
   - linux
