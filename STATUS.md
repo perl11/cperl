@@ -43,8 +43,10 @@ Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
 sloppy types there neither.
 
 This is still much less than with a typical major perl5 release, and
-the patches are all provided in my distroprefs, so the upgrade is seemless.
-E.g. Test2 (the new Test::Simple) broke >15 modules without any patches.
+the patches are all provided in my
+[rurban/distroprefs](https://github.com/rurban/distroprefs/), so the
+upgrade is seemless.  E.g. Test2 (the new Test::Simple) broke >15
+modules without any patches.
 
 ![Memory usage: perl -e0](cperl-m0.png)
 
@@ -63,7 +65,8 @@ E.g. Test2 (the new Test::Simple) broke >15 modules without any patches.
 * fast arithmetic overflow
 * convert static method to subs
 * Config as XS
-* strict, attributes, DynaLoader, XSLoader as builtin packages, rewritten in C
+* strict, attributes, DynaLoader, XSLoader as builtin packages, rewritten in C.
+  Security fixes for DynaLoader
 * changed default hash function to the fastest FNV1A *(as in the stableperl fork)*
 * changed the hash collision strategy from randomize to the usual move-to-front
 * changed the default hash fill rate from 100% to 90%
@@ -80,14 +83,16 @@ E.g. Test2 (the new Test::Simple) broke >15 modules without any patches.
 * cperl specific toolchain modules, with support for cperl-only module
   versions with a 'c' suffix, and 10x faster JSON and YAML usage. (esp. with cpan).
 * many typed and modernized core modules, where signatures and types make
-  sense, and cause not much trouble.
+  sense and cause not much trouble.
+* some security fixes for Unicode confusables, but more are needed (use strict 'names').
 
-Most of them only would have a chance to be merged upstream if a
-p5p committer would have written it.
+Most of them only would have a chance to be merged upstream if a p5p
+committer would have written it.
 
-But some features revert decisions p5p already made. See [README.cperl](perlcperl.html).
-When in doubt I went with the decisions and policies perl5 made
-before 2001. It is very unlikely that p5p will revert their own design
+But some features revert decisions p5p already made. See
+[README.cperl](perlcperl.html).  When in doubt I went with the
+decisions and policies perl5 made before 2001, before p5p went
+downwards. It is very unlikely that p5p will revert their own design
 mistakes. It never happened so far.
 
 # Installation
@@ -143,7 +148,9 @@ and install it into drive and directory `C:\cperl`.
 
 See the github issues: [github.com/perl11/cperl/issues](https://github.com/perl11/cperl/issues)
 
-The perlcc compiler cannot yet link on windows with MSVC.
+The perl debugger is unstable with signatures, and tailcalls (AUTOLOAD).
+
+The CPAN modules Scope::Upper and autovivification have no patches yet.
 
 # FAQ
 
@@ -193,14 +200,24 @@ If your plan is no_plan $how_many is optional and will default to 1.*
 
 I.e. Only with plan tests => 'no_plan' a bare skip is allowed.
 
-`$count` can never be a NV, thus `:Numeric` (which would allow `2*$skip`) is wrong. It needs to be `:UInt`. The used range op (`pp_flip`) would die at run-time with a overflowed number. `die "Range iterator outside integer range"`. `$count := -1` will lead to test timeouts.
-Note that cperl doesn't yet check `UInt` types at run-time for negative values. This might change in later versions with the `use types` pragma.
-For now the `$count` type is relaxed to `:Numeric` to permit simple arithmetic.
+`$count` can never be a NV, thus `:Numeric` (which would allow
+`2*$skip`) is wrong. It needs to be `:UInt`. The used range op
+(`pp_flip`) would die at run-time with a overflowed number. `die
+"Range iterator outside integer range"`. `$count := -1` will lead to
+test timeouts.
 
-`scalar(@array)` for array or hash length is also bad code, it needs to be replaced with `int(@array)`.
-Such a length can never be a NV or PV, it is always a UInt. Using `int()` is clearer, better and faster.
+Note that cperl doesn't yet check `UInt` types at run-time for
+negative values. This might change in later versions with the `use
+types` pragma.  For now the `$count` type is relaxed to `:Numeric` to
+permit simple arithmetic.
 
-This is also the answer to the question why `scalar(@array)` is considered bad, and why counts and lengths cannot overflow.
+`scalar(@array)` for array or hash length is also bad code, it needs
+to be replaced with `int(@array)`.  Such a length can never be a NV or
+PV, it is always a UInt. Using `int()` is clearer and better, at least
+for cperl.
+
+This is also the answer to the question why `scalar(@array)` is
+considered bad, and why counts and lengths cannot overflow.
 
 # Branch overview
 
@@ -232,12 +249,6 @@ are limited. So they are based on master.
   [code](http://github.com/perl11/cperl/commits/feature/gh9-warnings-xs)
 
   much faster and much less memory, but 3 minor scope test fails.
-
-* [feature/gh7-signatures](https://github.com/perl11/cperl/issues/7)
-
-  [code](http://github.com/perl11/cperl/commits/feature/gh7-signatures)
-
-  proper sigs on top of davem's OP_SIGNATURE, 2x faster. Merged into 5.24.0
 
 * [feature/gh6-no-miniperl](https://github.com/perl11/cperl/issues/6)
 
@@ -296,4 +307,4 @@ They also revert some wrong decisions p5p already made.
 
 * builtin ffi
 
-2016-06-17 rurban
+2016-06-20 rurban
