@@ -2855,16 +2855,15 @@ Apod	|void	|hv_assert	|NN HV *hv
 #endif
 
 ApdR	|SV*	|hv_scalar	|NN HV *hv
+ApdRMD	|SV*	|hv_bucket_ratio|NN HV *hv
 ApoR	|U32*	|hv_riter_p	|NN HV *hv
 ApoR	|HE**	|hv_eiter_p	|NN HV *hv
 Apo	|void	|hv_riter_set	|NN HV *hv|U32 riter
 Apo	|void	|hv_eiter_set	|NN HV *hv|NULLOK HE *eiter
 Ap      |void   |hv_rand_set    |NN HV *hv|U32 new_xhv_rand
 Ap	|void	|hv_name_set	|NN HV *hv|NULLOK const char *name|U32 len|U32 flags
-p	|void	|hv_ename_add	|NN HV *hv|NN const char *name|U32 len \
-				|U32 flags
-p	|void	|hv_ename_delete|NN HV *hv|NN const char *name|U32 len \
-				|U32 flags
+p	|void	|hv_ename_add	|NN HV *hv|NN const char *name|U32 len|U32 flags
+p	|void	|hv_ename_delete|NN HV *hv|NN const char *name|U32 len|U32 flags
 : Used in dump.c and hv.c
 poM	|AV**	|hv_backreferences_p	|NN HV *hv
 #if defined(PERL_IN_DUMP_C) || defined(PERL_IN_HV_C) || defined(PERL_IN_SV_C) \

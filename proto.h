@@ -1970,6 +1970,14 @@ PERL_CALLCONV AV**	Perl_hv_backreferences_p(pTHX_ HV *hv)
 #define PERL_ARGS_ASSERT_HV_BACKREFERENCES_P	\
 	assert(hv)
 
+PERL_CALLCONV SV*	Perl_hv_bucket_ratio(pTHX_ HV *hv)
+			__attribute__global__
+			__attribute__deprecated__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_HV_BUCKET_RATIO	\
+	assert(hv)
+
 PERL_CALLCONV void	Perl_hv_clear(pTHX_ HV *hv)
 			__attribute__global__;
 

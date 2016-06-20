@@ -829,7 +829,7 @@ do_test('ENAME on a stash',
     AUX_FLAGS = 0                               # $] > 5.019008
     ARRAY = $ADDR
     KEYS = 0
-    FILL = 0 \(cached = 0\)
+    FILL = 0
     MAX = 7
     RITER = -1
     EITER = 0x0
@@ -852,7 +852,7 @@ do_test('ENAMEs on a stash',
     AUX_FLAGS = 0                               # $] > 5.019008
     ARRAY = $ADDR
     KEYS = 0
-    FILL = 0 \(cached = 0\)
+    FILL = 0
     MAX = 7
     RITER = -1
     EITER = 0x0
@@ -878,7 +878,7 @@ do_test('ENAMEs on a stash with no NAME',
     AUX_FLAGS = 0                               # $] > 5.019008
     ARRAY = $ADDR
     KEYS = 0
-    FILL = 0 \(cached = 0\)
+    FILL = 0
     MAX = 7
     RITER = -1
     EITER = 0x0
@@ -928,7 +928,7 @@ do_test('small hash after keys',
     ARRAY = $ADDR  \\(0:[67],.*\\)
     hash quality = [0-9.]+%
     KEYS = 2
-    FILL = [12] \\(cached = 0\\)
+    FILL = [12]
     MAX = 7
     RITER = -1
     EITER = 0x0
@@ -944,7 +944,6 @@ do_test('small hash after keys',
 ){2}');
 
 $b = %small;
-
 do_test('small hash after keys and scalar',
         \%small,
 'SV = $RV\\($ADDR\\) at $ADDR
@@ -958,7 +957,7 @@ do_test('small hash after keys and scalar',
     ARRAY = $ADDR  \\(0:[67],.*\\)
     hash quality = [0-9.]+%
     KEYS = 2
-    FILL = ([12]) \\(cached = \1\\)
+    FILL = ([12])
     MAX = 7
     RITER = -1
     EITER = 0x0
@@ -989,7 +988,7 @@ do_test('large hash',
     ARRAY = $ADDR  \\(0:\d+,.*\\)
     hash quality = \d+\\.\d+%
     KEYS = 1000
-    FILL = (\d+) \\(cached = \1\\)
+    FILL = (\d+)
     MAX = (1023|2047)
     RITER = -1
     EITER = 0x0

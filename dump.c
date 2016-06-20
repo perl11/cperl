@@ -1805,28 +1805,18 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	(void)PerlIO_putc(file, '\n');
 	Perl_dump_indent(aTHX_ level, file, "  KEYS = %u\n", (unsigned)usedkeys);
         {
-            U32 count = 0;
+            unsigned count = 0;
             HE **ents = HvARRAY(sv);
 
             if (ents) {
                 HE *const *const last = ents + HvMAX(sv);
                 count = last + 1 - ents;
-                
                 do {
                     if (!*ents)
                         --count;
                 } while (++ents <= last);
             }
-
-            if (SvOOK(sv)) {
-                struct xpvhv_aux *const aux = HvAUX(sv);
-                Perl_dump_indent(aTHX_ level, file, "  FILL = %u"
-                                 " (cached = %u)\n",
-                                 (unsigned)count, (unsigned)aux->xhv_fill_lazy);
-            } else {
-                Perl_dump_indent(aTHX_ level, file, "  FILL = %u\n",
-                                 (unsigned)count);
-            }
+            Perl_dump_indent(aTHX_ level, file, "  FILL = %u\n", count);
         }
 	Perl_dump_indent(aTHX_ level, file, "  MAX = %u\n", (unsigned)HvMAX(sv));
         if (SvOOK(sv)) {
