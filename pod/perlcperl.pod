@@ -10,12 +10,19 @@ Description of changes and enhancements of the cperl variant of perl5.
 
 =head1 DEVELOPMENT SETUP
 
+init from a perl5 git dir:
+
     git remote add cp ssh://git@github.com/perl11/cperl.git
     git fetch cp
     git checkout -t cp master
-    git config rerere enable
-    git config rerere.autoupdate true
+
+for rerere:
+
+    git config --add rerere enable
+    git config --add rerere.autoupdate true
+    git submodule update --init
     ln -s ../.git-rr-cache .git/rr-cache
+
     git branch -r | grep cp/
 
 We need a shared rerere cache to be able to continously merge and rebase with perl5
