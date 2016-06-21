@@ -99,6 +99,13 @@ hashbang path unless the path contains "perl" (see L<perlrun>). To improve
 compatability with Perl 6 this behavior has been extended to also redirect
 if "perl" is followed by "6".
 
+=head2 Unicode 9.0 is now supported
+
+A list of changes is at
+L<http://www.unicode.org/versions/Unicode9.0.0/>.  Modules that are
+shipped with core Perl but not maintained by p5p do not necessarily
+support Unicode 9.0.  L<Unicode::Normalize> does work on 9.0.
+
 =head1 Security
 
 =head2 Set proper umask before calling C<mkstemp(3)>
