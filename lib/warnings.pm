@@ -9,7 +9,7 @@ BEGIN {
     keys(%warnings::) = 64; # pre-extend the stash
 }
 
-our $VERSION = "1.35";
+our $VERSION = "1.37";
 
 # Verify that we're called correctly so that warnings will work.
 # Can't use Carp, since Carp uses us!
@@ -252,7 +252,7 @@ our %DeadBits = (
 
 # These are used by various things, including our own tests
 our $NONE				=  "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-our $DEFAULT				=  "\x10\x01\x00\x00\x00\x50\x04\x00\x00\x00\x00\x00\x00\x54\x51\x54\x01\x01", # [2,59,53,56,61,62,54,55,63,4,58,64,68,22,23,25]
+our $DEFAULT				=  "\x10\x01\x00\x00\x00\x50\x04\x00\x00\x00\x00\x00\x00\x54\x51\x54\x01\x01", # [2,4,22,23,25,53..56,58,59,61..64,68]
 our $LAST_BIT				=  138 ;
 our $BYTES				=  18 ;
 
