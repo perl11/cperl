@@ -8,6 +8,7 @@ END {print "not ok 1\n" unless $loaded;}
 use v5.6.0;
 use Attribute::Handlers;
 $loaded = 1;
+my $i;
 
 CHECK { $main::phase++ }
 
@@ -59,15 +60,15 @@ if ($] < 5.011) {
 } else {
   my $c = $::count;
   eval '
-  my Test @x2 :Dokay(1,55);
-  my Test %x2 :Dokay(1,56);
+  my Test @x2 :Dokay(1,56);
+  my Test %x2 :Dokay(1,57);
 ';
   $c = $c + 2 - $::count;
   while ($c > 0) {
-    ::ok(0, 57 - $c);
+    ::ok(0, 58 - $c);
     --$c;
   }
-  ::ok(!$@, 57);
+  ::ok(!$@, 58);
 }
 
 package Test;
@@ -153,6 +154,7 @@ $noisy[0]++;
 my %rowdy : Rowdy(37,'this arg should be ignored');
 $rowdy{key}++;
 
+$i = 45;
 
 # check that applying attributes to lexicals doesn't unduly worry
 # their refcounts
@@ -162,41 +164,50 @@ sub UNIVERSAL::Dummy :ATTR { ++$applied };
 sub Dummy::DESTROY { $out .= "bye\n" }
 
 { my $dummy;          $dummy = bless {}, 'Dummy'; }
-ok( $out eq "begin\nbye\n", 45 );
+ok( $out eq "begin\nbye\n", $i++ );
 
 { my $dummy : Dummy;  $dummy = bless {}, 'Dummy'; }
 if($] < 5.008) {
-  ok( 1, 46, " # skip lexicals are not runtime prior to 5.8");
+  ok( 1, $i++, " # skip lexicals are not runtime prior to 5.8");
 } else {
-  ok( $out eq "begin\nbye\nbye\n", 46);
+  ok( $out eq "begin\nbye\nbye\n", $i++);
 }
 
 # Are lexical attributes reapplied correctly?
 # Note that the attribute :Dummy alone without parens in cperl denotes a
-# return-type declaration and will not call the attribute handler with cperl.
-# But it does wth perl5.
-sub dummy { my $dummy : Dummy(); }
+# return-type declaration. The :Dummy() syntax does call the attribute
+# handler but will not declare the type.
+sub dummy_paren { my $dummy : Dummy(); }
+$applied = 0;
+dummy_paren();
+if($] < 5.008) {
+  ok(1, $i++, " # skip lexicals are not runtime prior to 5.8");
+} else {
+  ok( $applied == 1, $i++ );
+}
+
+sub dummy { my $dummy : Dummy; }
 $applied = 0;
 dummy(); dummy();
 if($] < 5.008) {
-  ok(1, 47, " # skip lexicals are not runtime prior to 5.8");
+  ok(1, $i++, " # skip lexicals are not runtime prior to 5.8");
 } else {
-  ok( $applied == 2, 47 );
+  ok( $applied == 2, $i++ );
 }
-# 45-47 again, but for our variables
+# again, but for our variables
 $out = "begin\n";
 { our $dummy;          $dummy = bless {}, 'Dummy'; }
-ok( $out eq "begin\n", 48 );
+ok( $out eq "begin\n", $i++ );
 { no warnings; our $dummy : Dummy;  $dummy = bless {}, 'Dummy'; }
-ok( $out eq "begin\nbye\n", 49 );
+ok( $out eq "begin\nbye\n", $i++ );
 undef $::dummy;
-ok( $out eq "begin\nbye\nbye\n", 50 );
+ok( $out eq "begin\nbye\nbye\n", $i++ );
 
 # are lexical attributes reapplied correctly?
 sub dummy_our { no warnings; our $banjo : Dummy; }
 $applied = 0;
 dummy_our(); dummy_our();
-ok( $applied == 0, 51 );
+ok( $applied == 0, $i++ );
 
 sub UNIVERSAL::Stooge :ATTR(END) {};
 eval {
@@ -205,9 +216,9 @@ eval {
 };
 my $match = $@ =~ /^Won't be able to apply END handler/; 
 if($] < 5.008) {
-  ok(1,52 ,"# Skip, no difference between lexical handlers and normal handlers prior to 5.8");
+  ok(1, $i++,"# Skip, no difference between lexical handlers and normal handlers prior to 5.8");
 } else {
-  ok( $match, 52 );
+  ok( $match, $i++ );
 }
 
 
@@ -225,5 +236,5 @@ sub Scotty :ATTR(CODE,BEGIN)   { $code_applied = $_[5] }
 sub warp_coil :Scotty {}
 my $photon_torpedo :Scotty;
 
-ok( $code_applied   eq 'BEGIN', 53, "# phase variance" );
-ok( $scalar_applied eq 'CHECK', 54 );
+ok( $code_applied   eq 'BEGIN', $i++, "# BEGIN phase variance" );
+ok( $scalar_applied eq 'CHECK', $i++, '# CHECK' );

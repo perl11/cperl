@@ -4465,6 +4465,35 @@ S_filter_gets(pTHX_ SV *sv, STRLEN append)
         return (sv_gets(sv, PL_rsfp, append));
 }
 
+/* autocreate coretypes. some of them inherited (set the ISA) */
+
+STATIC HV *
+S_find_in_coretypes(pTHX_ const char *pkgname, STRLEN len)
+{
+    PERL_ARGS_ASSERT_FIND_IN_CORETYPES;
+
+    if (len == 3
+        && (strnEQ(pkgname, "int", 3) || strnEQ(pkgname, "Int", 3)
+         || strnEQ(pkgname, "str", 3) || strnEQ(pkgname, "Str", 3)
+         || strnEQ(pkgname, "num", 3) || strnEQ(pkgname, "Num", 3)
+         )) {
+        SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
+        return def_coretype_1(sv);
+    } else if (len == 4
+               && (strnEQ(pkgname, "uint", 4)
+                   || strnEQ(pkgname, "UInt", 4))) {
+        SV *sv = newSVpvn_flags(pkgname, 4, SVs_TEMP);
+        return def_coretype_2(sv, pkgname+1, 3);
+    } else if (len == 6 && strnEQ(pkgname, "Scalar", 6)) {
+        SV *sv = newSVpvn_flags(pkgname, 6, SVs_TEMP);
+        return def_coretype_1(sv);
+    } else if (len == 7 && strnEQ(pkgname, "Numeric", 7)) {
+        SV *sv = newSVpvn_flags(pkgname, 7, SVs_TEMP);
+        return def_coretype_2(sv, "Scalar", 6);
+    }
+    return NULL;
+}
+
 STATIC HV *
 S_find_in_my_stash(pTHX_ const char *pkgname, STRLEN len)
 {
@@ -4497,27 +4526,6 @@ S_find_in_my_stash(pTHX_ const char *pkgname, STRLEN len)
 	SV * const sv = cv_const_sv(GvCV(gv));
 	if (sv)
 	    return gv_stashsv(sv, 0);
-    }
-
-    /* autocreate coretypes. some of them inherited (set the ISA) */
-    if (len == 3
-        && (strnEQ(pkgname, "int", 3) || strnEQ(pkgname, "Int", 3)
-         || strnEQ(pkgname, "str", 3) || strnEQ(pkgname, "Str", 3)
-         || strnEQ(pkgname, "num", 3) || strnEQ(pkgname, "Num", 3)
-         )) {
-        SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
-        return def_coretype_1(sv);
-    } else if (len == 4
-               && (strnEQ(pkgname, "uint", 4)
-                   || strnEQ(pkgname, "UInt", 4))) {
-        SV *sv = newSVpvn_flags(pkgname, 4, SVs_TEMP);
-        return def_coretype_2(sv, pkgname+1, 3);
-    } else if (len == 6 && strnEQ(pkgname, "Scalar", 6)) {
-        SV *sv = newSVpvn_flags(pkgname, 6, SVs_TEMP);
-        return def_coretype_1(sv);
-    } else if (len == 7 && strnEQ(pkgname, "Numeric", 7)) {
-        SV *sv = newSVpvn_flags(pkgname, 7, SVs_TEMP);
-        return def_coretype_2(sv, "Scalar", 6);
     }
 
     return NULL;
@@ -5899,13 +5907,19 @@ Perl_yylex(pTHX)
 			sv_free(sv);
 			CvPURE_on(PL_compcv);
 		    }
-                    /* Check return type here, so we can pass an empty attrs
+                    /* Check sub return type here, so we can pass an empty attrs
                        to newATTRSUB. This allows any known user or core type
                        to be used. */
 		    else if (find_in_my_stash(pv, len)) {
-                        sv_free(sv);
                         CvTYPED_on(PL_compcv);
+                        /* skip attr callback for existing coretypes */
+                        if (!find_in_coretypes(pv, len))
+                            goto load_attributes;
+                        sv_free(sv);
 		    }
+                    /* skip the attr callback for new coretypes */
+                    else if (find_in_coretypes(pv, len))
+                        sv_free(sv);
 #endif
 		    /* After we've set the flags, it could be argued that
 		       we don't need to do the attributes.pm-based setting
@@ -8125,6 +8139,8 @@ Perl_yylex(pTHX)
 		    goto really_sub;
 		}
 		PL_in_my_stash = find_in_my_stash(PL_tokenbuf, len);
+		if (!PL_in_my_stash)
+                    PL_in_my_stash = find_in_coretypes(PL_tokenbuf, len);
 		if (!PL_in_my_stash)
                     S_no_such_class(aTHX_ s);
 	    }
@@ -12435,6 +12451,8 @@ Perl_parse_subsignature(pTHX)
             STRLEN len;
             s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
             typestash = find_in_my_stash(PL_tokenbuf, len);
+            if (!typestash)
+                typestash = find_in_coretypes(PL_tokenbuf, len);
             if (!typestash) {
                 char tmpbuf[1024];
                 int len;

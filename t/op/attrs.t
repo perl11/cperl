@@ -131,7 +131,8 @@ is "@attrs", "method";
 sub Z::MODIFY_CODE_ATTRIBUTES { (); }
 eval 'package Z; sub L { $_[0] } sub L : Z method';
 @attrs = eval 'attributes::get \&Z::L';
-is "@attrs", "method Z";
+# with cperl Z is also stored as return type
+is "@attrs", $Config::Config{usecperl} ? "method Z Z" : "method Z";
 
 # Begin testing attributes that tie
 

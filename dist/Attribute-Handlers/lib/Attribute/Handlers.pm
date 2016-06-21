@@ -324,10 +324,16 @@ This document describes version 0.99 of Attribute::Handlers.
 	# with an :Omni attribute, provided the variable or
 	# subroutine was declared in MyClass (or a derived class)
 	# or the variable was typed to MyClass.
+        # But beware that this syntax is very fragile in cperl, where
+        # it clashes with the declaration of a return type.
 	# Use ref($_[2]) to determine what kind of referent it was.
 	...
     }
 
+    sub Omni : ATTR() {
+	# The preferred syntax over C<: ATTR>
+	...
+    }
 
     use Attribute::Handlers autotie => { Cycle => Tie::Cycle };
 
