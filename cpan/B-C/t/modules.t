@@ -95,7 +95,7 @@ use POSIX qw(strftime);
 eval { require IPC::Run; };
 my $have_IPC_Run = defined $IPC::Run::VERSION;
 log_diag("Warning: IPC::Run is not available. Error trapping will be limited, no timeouts.")
-  unless $have_IPC_Run;
+  if !$have_IPC_Run and !$ENV{PERL_CORE};
 
 my @opts = ("-O3");				  # only B::C
 @opts = ("-O3", "-O", "-B") if grep /-all/, @ARGV;  # all 3 compilers
