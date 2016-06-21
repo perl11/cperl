@@ -497,6 +497,14 @@ Returns zero if non-equal, or non-zero if equal.
 	(sizeof(s2)-1 == l && memEQ(s1, ("" s2 ""), (sizeof(s2)-1)))
 #define memNEs(s1, l, s2) !memEQs(s1, l, s2)
 
+/* cperl only. if the buffer starts with the constant c */
+#define memEQc(s, c) memEQ(s, ("" c ""), (sizeof(c)-1))
+#define memNEc(s, c) memNE(s, ("" c ""), (sizeof(c)-1))
+/* the buffer ends with \0, includes comparison of the \0.
+   better than strEQ as it uses memcmp, word-wise comparison. */
+#define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
+#define strNEc(s, c) memNE(s, ("" c ""), sizeof(c))
+
 /*
  * Character classes.
  *

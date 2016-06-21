@@ -2672,7 +2672,7 @@ S_get_and_check_backslash_N_name(pTHX_ const char* s, const char* const e)
     {
         const char * const name = HvNAME(stash);
         if (HvNAMELEN(stash) == sizeof("_charnames")-1
-         && strEQ(name, "_charnames")) {
+            && memEQc(name, "_charnames")) {
            return res;
        }
     }
@@ -4502,7 +4502,7 @@ S_find_in_my_stash(pTHX_ const char *pkgname, STRLEN len)
 
     PERL_ARGS_ASSERT_FIND_IN_MY_STASH;
 
-    if (len == 11 && *pkgname == '_' && strEQ(pkgname, "__PACKAGE__"))
+    if (len == 11 && *pkgname == '_' && memEQc(pkgname, "__PACKAGE__"))
         return PL_curstash;
 
     /* stash already */
@@ -5418,14 +5418,14 @@ Perl_yylex(pTHX)
         if (!UTF || !FEATURE_UNICODE_IS_ENABLED || PL_expect == XREF) {
             goto switchdefault;
         }
-        else if (strnEQ(s,"\xE2\x87\x92",3)) { /* ⇒ U+021D2 \342\207\222 */
+        else if (memEQc(s,"\xE2\x87\x92")) { /* ⇒ U+021D2 \342\207\222 */
             if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMMA) {
                 TOKEN(0);
             }
             s += 3;
             OPERATOR(',');
         }
-        else if (strnEQ(s,"\xE2\x86\x92",3)) { /* → U+02192 \342\206\222 */
+        else if (memEQc(s,"\xE2\x86\x92")) { /* → U+02192 \342\206\222 */
             s += 3;
             s = skipspace(s);
             if (FEATURE_POSTDEREF_IS_ENABLED &&
@@ -5448,35 +5448,35 @@ Perl_yylex(pTHX)
             else
                 TERM(ARROW);
         }
-        else if (strnEQ(s,"\xE2\x87\x94",3)) { /* ⇔ <=> U+021D4 \342\207\224 */
+        else if (memEQc(s,"\xE2\x87\x94")) { /* ⇔ <=> U+021D4 \342\207\224 */
             if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
                 TOKEN(0);
             }
             s += 3;
             Eop(OP_CMP);
         }
-        else if (strnEQ(s,"\xE2\x89\xA0",3)) { /* ≠ != U+02260 \342\211\240 */
+        else if (memEQc(s,"\xE2\x89\xA0")) { /* ≠ != U+02260 \342\211\240 */
             if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
                 TOKEN(0);
             }
             s += 3;
             Eop(OP_NE);
         }
-        else if (strnEQ(s,"\xE2\x89\xA5",3)) { /* ≥ >= U+02265 \342\211\245 */
+        else if (memEQc(s,"\xE2\x89\xA5")) { /* ≥ >= U+02265 \342\211\245 */
             if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
                 TOKEN(0);
             }
             s += 3;
             Rop(OP_GE);
         }
-        else if (strnEQ(s,"\xE2\x89\xA4",3)) { /* ≤ <= U+02264 \342\211\244 */
+        else if (memEQc(s,"\xE2\x89\xA4")) { /* ≤ <= U+02264 \342\211\244 */
             if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_COMPARE) {
                 TOKEN(0);
             }
             s += 3;
             Rop(OP_LE);
         }
-        else if (strnEQ(s,"\xE2\x8B\x85",3)) { /* ⋅ * U+022C5 \342\200\247 (sdot) */
+        else if (memEQc(s,"\xE2\x8B\x85")) { /* ⋅ * U+022C5 \342\200\247 (sdot) */
             if (*(s+4) == '=' && !PL_lex_allbrackets &&
 		PL_lex_fakeeof >= LEX_FAKEEOF_ASSIGN) {
                 TOKEN(0);
@@ -5853,7 +5853,7 @@ Perl_yylex(pTHX)
 		}
 		else {
                     const char *pv = SvPVX(sv);
-		    if (len == 6 && strnEQ(pv, "unique", len)) {
+		    if (len == 6 && strEQc(pv, "unique")) {
 			sv_free(sv);
 			if (PL_in_my == KEY_our) {
 			    deprecate(":unique");
@@ -5865,15 +5865,15 @@ Perl_yylex(pTHX)
 		    /* NOTE: any CV attrs applied here need to be part of
 		       the CVf_BUILTIN_ATTRS define in cv.h! */
 		    else if (!PL_in_my && len == 6) {
-                        if (strnEQ(pv, "lvalue", len)) {
+                        if (memEQc(pv, "lvalue")) {
                             sv_free(sv);
                             CvLVALUE_on(PL_compcv);
                         }
-                        else if (strnEQ(pv, "locked", len)) {
+                        else if (memEQc(pv, "locked")) {
                             sv_free(sv);
                             deprecate(":locked");
                         }
-                        else if (strnEQ(pv, "method", len)) {
+                        else if (memEQc(pv, "method")) {
                             sv_free(sv);
                             CvMETHOD_on(PL_compcv);
                         }
@@ -5884,7 +5884,7 @@ Perl_yylex(pTHX)
 #ifndef USE_CPERL
                         !PL_in_my &&
 #endif
-                        len == 5 && strnEQ(pv, "const", len))
+                        len == 5 && memEQc(pv, "const"))
                     {
 			sv_free(sv);
 #ifdef USE_CPERL
@@ -5903,7 +5903,7 @@ Perl_yylex(pTHX)
 #endif
 		    }
 #ifdef USE_CPERL
-		    else if (!PL_in_my && len == 4 && strnEQ(pv, "pure", len)) {
+		    else if (!PL_in_my && len == 4 && memEQc(pv, "pure")) {
 			sv_free(sv);
 			CvPURE_on(PL_compcv);
 		    }
@@ -6200,7 +6200,7 @@ Perl_yylex(pTHX)
 			PL_expect = XTERM;
 			break;
 		    }
-		    if (strnEQ(s, "sub", 3)) {
+		    if (memEQc(s, "sub")) {
 			d = s + 3;
 			d = skipspace(d);
 			if (*d == ':') {
@@ -6353,7 +6353,7 @@ Perl_yylex(pTHX)
 	    if (tmp == '~')
 		PMop(OP_MATCH);
 	    if (tmp && isSPACE(*s) && ckWARN(WARN_SYNTAX)
-		&& strchr("+-*/%.^&|<",tmp))
+		&& strchr("+-*/%.^&|<", tmp))
 		Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
 			    "Reversed %c= operator",(int)tmp);
 	    s--;
@@ -6367,8 +6367,8 @@ Perl_yylex(pTHX)
                     while (s < d) {
                         if (*s++ == '\n') {
                             incline(s);
-                            if (strnEQ(s,"=cut",4)) {
-                                s = strchr(s,'\n');
+                            if (memEQc(s, "=cut")) {
+                                s = strchr(s, '\n');
                                 if (s)
                                     s++;
                                 else
@@ -6604,7 +6604,7 @@ Perl_yylex(pTHX)
 		else if (*s == '{') {
 		    char *t;
 		    PL_tokenbuf[0] = '%';
-		    if (strEQ(PL_tokenbuf+1, "SIG")  && ckWARN(WARN_SYNTAX)
+		    if (memEQc(PL_tokenbuf+1, "SIG")  && ckWARN(WARN_SYNTAX)
 			&& (t = strchr(s, '}')) && (t = strchr(t, '=')))
 			{
 			    char tmpbuf[sizeof PL_tokenbuf];
@@ -6737,7 +6737,7 @@ Perl_yylex(pTHX)
 	    /* Disable warning on "study /blah/" */
 	    if (PL_oldoldbufptr == PL_last_uni
 	     && (*PL_last_uni != 's' || s - PL_last_uni < 5
-	         || memNE(PL_last_uni, "study", 5)
+	         || memNEc(PL_last_uni, "study")
 	         || isWORDCHAR_lazy_if(PL_last_uni+5,UTF)
 	     ))
 	        check_uni();
@@ -6972,7 +6972,7 @@ Perl_yylex(pTHX)
 
 	/* x::* is just a word, unless x is "CORE" */
 	if (!anydelim && *s == ':' && s[1] == ':') {
-	    if (strEQ(PL_tokenbuf, "CORE")) goto case_KEY_CORE;
+	    if (memEQc(PL_tokenbuf, "CORE")) goto case_KEY_CORE;
 	    goto just_a_word;
 	}
 
@@ -7752,7 +7752,7 @@ Perl_yylex(pTHX)
 		*PL_tokenbuf = '&';
 		d = scan_word(s, PL_tokenbuf + 1, sizeof PL_tokenbuf - 1,
 			      1, &len);
-		if (len && (len != 4 || strNE(PL_tokenbuf+1, "CORE"))
+		if (len && (len != 4 || memNEc(PL_tokenbuf+1, "CORE"))
 		 && !keyword(PL_tokenbuf + 1, len, 0)) {
 		    d = skipspace(d);
 		    if (*d == '(') {
@@ -7868,12 +7868,12 @@ Perl_yylex(pTHX)
                 int l = PL_bufend - s;
 		d = s;
 
-		if (l >= 3 && strnEQ(d, "my", 2)
+		if (l >= 3 && memEQc(d, "my")
                     && (isSPACE(*(d + 2)) || *(d+2) == '$')) {
 		    d += 2;
                     d = skipspace(d);
                 }
-                else if (l >= 4 && strnEQ(d, "our", 3)
+                else if (l >= 4 && memEQc(d, "our")
                          && (isSPACE(*(d + 3)) || *(d+3) == '$')) {
 		    d += 3;
                     d = skipspace(d);
@@ -8126,7 +8126,7 @@ Perl_yylex(pTHX)
 	    s = skipspace(s);
 	    if (isIDFIRST_lazy_if(s,UTF)) {
 		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
-		if (len == 3 && strnEQ(PL_tokenbuf, "sub", 3))
+		if (len == 3 && memEQc(PL_tokenbuf, "sub"))
 		{
 		    if (!FEATURE_LEXSUBS_IS_ENABLED)
 			Perl_croak(aTHX_
@@ -9033,7 +9033,7 @@ S_new_constant(pTHX_ const char *s, STRLEN len, const char *key, STRLEN keylen,
 
     PERL_ARGS_ASSERT_NEW_CONSTANT;
     /* We assume that this is true: */
-    if (*key == 'c') { assert (strEQ(key, "charnames")); }
+    if (*key == 'c') { assert (memEQc(key, "charnames")); }
     assert(type || s);
 
     /* charnames doesn't work well if there have been errors found */
@@ -9292,7 +9292,7 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni)
             || isDIGIT_A((U8)s[1])
             || s[1] == '$'
             || s[1] == '{'
-            || strnEQ(s+1,"::",2)) )
+            || memEQc(s+1,"::")) )
     {
         /* Dereferencing a value in a scalar variable.
            The alternatives are different syntaxes for a scalar variable.
@@ -9366,7 +9366,7 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni)
             if (s < PL_bufend && isSPACE(*s)) {
                 s = skipspace(s);
             }
-	    if ((*s == '[' || (*s == '{' && strNE(dest, "sub")))) {
+	    if ((*s == '[' || (*s == '{' && memNEc(dest, "sub")))) {
                 /* ${foo[0]} and ${foo{bar}} notation.  */
 		if (ckWARN(WARN_AMBIGUOUS) && keyword(dest, d - dest, 0)) {
 		    const char * const brack =
@@ -11527,7 +11527,7 @@ S_swallow_bom(pTHX_ U8 *s)
 	break;
     case BOM_UTF8_FIRST_BYTE: {
         const STRLEN len = sizeof(BOM_UTF8_TAIL) - 1; /* Exclude trailing NUL */
-        if (slen > len && memEQ(s+1, BOM_UTF8_TAIL, len)) {
+        if (slen > len && memEQc(s+1, BOM_UTF8_TAIL)) {
 #ifdef DEBUGGING
             if (DEBUG_p_TEST || DEBUG_T_TEST) PerlIO_printf(Perl_debug_log, "UTF-8 script encoding (BOM)\n");
 #endif

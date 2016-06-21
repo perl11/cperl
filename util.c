@@ -5815,7 +5815,7 @@ Perl_get_db_sub(pTHX_ SV *sv, CV *cv)
 	    gv_efullname3(dbsv, gv, NULL);
 	}
 	else if ( (CvFLAGS(cv) & (CVf_ANON | CVf_CLONED)) || CvLEXICAL(cv)
-	     || strEQ(GvNAME(gv), "END")
+	     || strEQc(GvNAME(gv), "END")
 	     || ( /* Could be imported, and old sub redefined. */
 		 (GvCV(gv) != cv || !S_gv_has_usable_name(aTHX_ gv))
 		 &&
