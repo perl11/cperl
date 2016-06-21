@@ -704,7 +704,7 @@ sub run_cmd {
 	if (ref($cmd) eq 'ARRAY') {
             $cmd = join " ", @$cmd;
         }
-        watchdog(10*$timeout) if $timeout and $ENV{PERL_CORE};
+        # watchdog(10*$timeout) if $timeout and $ENV{PERL_CORE};
 	# No real way to trap STDERR?
         $cmd .= " 2>&1" if $^O !~ /^MSWin32|VMS/;
         warn $cmd."\n" if $ENV{TEST_VERBOSE};
