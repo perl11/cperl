@@ -6,6 +6,11 @@ BEGIN {
 	print "1..0\n";
 	exit 0;
     }
+    if (-d "ext/POSIX") {
+      chdir "ext/POSIX";
+    } elsif (-d "../ext/POSIX") {
+      chdir "../ext/POSIX";
+    }
     unshift @INC, "../../t";
     require 'loc_tools.pl';
 }
