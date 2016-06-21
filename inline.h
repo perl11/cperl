@@ -550,9 +550,20 @@ S_cx_popsub_args(pTHX_ PERL_CONTEXT *cx)
 
     PERL_ARGS_ASSERT_CX_POPSUB_ARGS;
     assert(CxTYPE(cx) == CXt_SUB);
+#ifdef DEBUGGING
     assert(AvARRAY(MUTABLE_AV(
         PadlistARRAY(CvPADLIST(cx->blk_sub.cv))[
-                CvDEPTH(cx->blk_sub.cv)])) == PL_curpad);
+                CvDEPTH(cx->blk_sub.cv)])) == PL_curpad
+        /* only under -d */
+        || AvARRAY(MUTABLE_AV(
+        PadlistARRAY(CvPADLIST(cx->blk_sub.cv))[
+                CvDEPTH(cx->blk_sub.cv)-1])) == PL_curpad);
+    /* hack pad corruption with -d */
+    if (PL_DBsub && GvCV(PL_DBsub) && AvARRAY(MUTABLE_AV(
+        PadlistARRAY(CvPADLIST(cx->blk_sub.cv))[
+                CvDEPTH(cx->blk_sub.cv)-1])) == PL_curpad)
+        CvDEPTH(cx->blk_sub.cv)--;
+#endif
 
     CX_POP_SAVEARRAY(cx);
     av = MUTABLE_AV(PAD_SVl(0));
