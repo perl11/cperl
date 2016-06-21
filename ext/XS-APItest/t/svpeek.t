@@ -19,10 +19,9 @@ $| = 1;
   is (DPeek ($=),    'PVMG()',			'$=');
   is (DPeek ($-),    'PVMG()',			'$-');
 like (DPeek ($!), qr'^PVMG\("',			'$!');
-if ($^O eq 'VMS') {
-  # VMS defines COMPLEX_STATUS and upgrades $? to PVLV
-  is (DPeek ($?),    'PVLV()',			'$?');
-} else {
+
+{
+  local $?; # Reset anything Test::* has done to it.
   is (DPeek ($?),    'PVMG()',			'$?');
 }
   is (DPeek ($|),    'PVMG(1)',			'$|');
@@ -78,7 +77,7 @@ if ($^O eq 'vos') {
   $VAR = sub { "VAR" };
   is (DPeek ($VAR),	'\CV(__ANON__)',	' $VAR sub { "VAR" }');
   is (DPeek (\$VAR),	'\\\CV(__ANON__)',	'\$VAR sub { "VAR" }');
-  
+
   $VAR = eval qq{sub \x{30cd} { "VAR" } \\&\x{30cd}};
   is (DPeek ($VAR),     '\CV(\x{30cd})',        ' $VAR sub \x{30cd} { "VAR" }');
   is (DPeek (\$VAR),    '\\\\CV(\x{30cd})',      '\$VAR sub \x{30cd} { "VAR" }');
