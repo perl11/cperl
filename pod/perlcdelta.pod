@@ -76,6 +76,14 @@ Fixed the generated perldll.def (makedef.pl)
 Many ops print now their arguments: signature, padrange, entersub,
 enterxssub, method_named
 
+=item * auto-created coretypes on demand
+
+The parser now knows about our coretypes, and auto-creates them on
+demand.  This saves initialization time and memory a bit, and avoids
+regression errors when walking our protected readonly packages, even
+in code which does not use coretypes.
+L<[cperl #133]|https://github.com/perl11/cperl/issues/133>
+
 =back
 
 =head1 Core Enhancements from Perl5
