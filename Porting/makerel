@@ -79,7 +79,7 @@ print "\nMaking a release for $perl in $relroot/$reldir\n\n";
 print "Cross-checking the MANIFEST...\n";
 ($missfile, $missentry) = fullcheck();
 @$missentry
-    = grep {$_ !~ m!^\.git/! and $_ !~ m!(?:/|^)\.gitignore!} @$missentry;
+    = grep {$_ !~ m!^\.git/! and $_ !~ m!(?:/|^)\.git(ignore|modules)!} @$missentry;
 if (@$missfile ) {
     warn "Can't make a release with MANIFEST files missing:\n";
     warn "\t".$_."\n" for (@$missfile);
@@ -87,7 +87,6 @@ if (@$missfile ) {
 if (@$missentry ) {
     warn "Can't make a release with files not listed in MANIFEST\n";
     warn "\t".$_."\n" for (@$missentry);
-
 }
 if ("@$missentry" =~ m/\.orig\b/) {
     # Handy listing of find command and .orig files from patching work.
