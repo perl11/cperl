@@ -14,7 +14,7 @@ someone else to allow it.
 Currently it is about 1.5x faster than perl5.22 overall, >2x faster
 then 5.14 and uses the least amount of memory measured since 5.6,
 i.e. less than 5.10 and 5.6.2, which were the previous leaders. While
-perl5.22 uses the most memory yet measured. cperl-5.24 is about 2x faster
+perl5.22 uses the most memory yet measured. cperl 5.24 is about 2x faster
 than 5.22.
 
 But not all of the wanted features are merged.  The plan is to support
@@ -28,7 +28,7 @@ Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 
 The current release [5.22.3c](https://github.com/perl11/cperl/releases/)
-is stable. cperl-5.24.0 is planned within the next 2 weeks.
+is stable. cperl-5.24.0 is alomst done.
 
 All tests pass. CPAN works.
 
@@ -148,9 +148,9 @@ and install it into drive and directory `C:\cperl`.
 
 See the github issues: [github.com/perl11/cperl/issues](https://github.com/perl11/cperl/issues)
 
-The perl debugger is unstable with signatures, and tailcalls (AUTOLOAD).
+The perl debugger is unstable with signatures and tailcalls (AUTOLOAD).
 
-The CPAN modules Scope::Upper and autovivification have no patches yet.
+The CPAN modules Scope::Upper and autovivification have no patches for 5.24.0c yet.
 
 # FAQ
 
@@ -158,7 +158,7 @@ The CPAN modules Scope::Upper and autovivification have no patches yet.
 
 **skip** has the historical problem of mixed up arguments of `$why`
 and `$count`, so those arguments are now stricter typed to catch all
-wrong arguments.
+wrong arguments. At compile-time.
 
 When you use one or two args for `Test::More::skip()`, they need to
 properly typed.
@@ -291,17 +291,18 @@ They also revert some wrong decisions p5p already made.
 
   [code](http://github.com/perl11/cperl/commits/feature/gh24-new-hash-table)
 
-  lots of small attempts, but still too hairy. needs a complete hash rewrite probably.
+  lots of small attempts, but still too hairy. needs a complete hash table rewrite.
 
 * [feature/gh16-multi](https://github.com/perl11/cperl/issues/16)
 
   [code](http://github.com/perl11/cperl/commits/feature/gh16-multi)
 
-  class, method and multi keywords but no dispatch, subtyping and type checks yet. in work.
+  class, method and multi keywords but no dispatch, subtyping and type checks yet.
+  in work.
 
 ## Soon
 
-* user facing types and classes, multiple dispatch (fast for binary, slow for mega)
+* user facing classes, multiple dispatch (fast for binary, slow for mega)
 
 * builtin macros
 
