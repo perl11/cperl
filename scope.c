@@ -546,9 +546,9 @@ Perl_save_padsv_and_mortalize(pTHX_ PADOFFSET off)
     dSS_ADD;
 
     ASSERT_CURPAD_ACTIVE("save_padsv");
-    SS_ADD_PTR(SvREFCNT_inc_simple_NN(PL_curpad[off]));
-    SS_ADD_PTR(PL_comppad);
-    SS_ADD_UV((UV)off);
+    SS_ADD_PTR(SvREFCNT_inc_simple_NN(PL_curpad[off])); /* arg2 */
+    SS_ADD_PTR(PL_comppad); /* arg1 */
+    SS_ADD_UV((UV)off); /* arg0 */
     SS_ADD_UV(SAVEt_PADSV_AND_MORTALIZE);
     SS_ADD_END(4);
     DEBUG_lv(Perl_deb(aTHX_ "save PADSV_AND_MORTALIZE\n"));

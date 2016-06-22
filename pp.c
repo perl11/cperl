@@ -186,7 +186,7 @@ PP(pp_clonecv)
 	/* If this changes to use SAVECLEARSV, we can move the SAVECLEARSV
 	   to introcv and remove the SvPADSTALE_off. */
 	SAVEPADSVANDMORTALIZE(ARGTARG);
-	PAD_SVl(ARGTARG) = SvREFCNT_inc_simple_NN(protocv);
+	PAD_SETSV(ARGTARG, SvREFCNT_inc_simple_NN(protocv));
     }
     else {
 	if (CvROOT(protocv)) {

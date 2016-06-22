@@ -1389,7 +1389,6 @@ TODO: {
     sub DESTROY { $d++ };
 
     sub f2 {
-	#no warnings 'experimental::lexical_topic';
 	my $_ = 5;
 	given(bless [7]) {
             local $::TODO = '';

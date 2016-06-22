@@ -958,7 +958,7 @@ PP(pp_grepstart)
     }
     SvTEMP_off(src);
     if (PL_op->op_private & OPpGREP_LEX)
-	PAD_SVl(PL_op->op_targ) = src;
+	PAD_SETSV(PL_op->op_targ, src);
     else
 	DEFSV_set(src);
 
@@ -1109,7 +1109,7 @@ PP(pp_mapwhile)
         }
 	SvTEMP_off(src);
 	if (PL_op->op_private & OPpGREP_LEX)
-	    PAD_SVl(PL_op->op_targ) = src;
+	    PAD_SETSV(PL_op->op_targ, src);
 	else
 	    DEFSV_set(src);
 
@@ -2963,8 +2963,7 @@ PP(pp_goto)
                      * we gave arg earlier */
 		    if (arg) {
 			SvREFCNT_dec(PAD_SVl(0));
-			PAD_SVl(0) = (SV *)arg;
-                        SvREFCNT_inc_simple_void_NN(arg);
+			PAD_SETSV(0, SvREFCNT_inc_simple_NN((SV*)arg));
 		    }
 
 		    /* GvAV(PL_defgv) might have been modified on scope
@@ -4509,10 +4508,10 @@ PP(pp_entergiven)
     SAVETMPS;
 
     if (PL_op->op_targ) {
-        SAVEPADSVANDMORTALIZE(PL_op->op_targ);
-	SvREFCNT_dec(PAD_SVl(PL_op->op_targ));
+        SAVEPADSVANDMORTALIZE(PL_op->op_targ); /* bumps the refcnt */
+        SvREFCNT_dec(PAD_SVl(PL_op->op_targ)); /* restore it */
         origsv = NULL;
-	PAD_SVl(PL_op->op_targ) = SvREFCNT_inc_NN(POPs);
+	PAD_SETSV(PL_op->op_targ, SvREFCNT_inc_NN(POPs));
     }
     else {
         origsv = DEFSV;
@@ -4547,6 +4546,8 @@ PP(pp_leavegiven)
     cx_popblock(cx);
     CX_POP(cx);
 
+    /*FREETMPS;
+      LEAVE;*/
     return NORMAL;
 }
 

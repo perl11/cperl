@@ -3418,7 +3418,7 @@ PP(pp_grepwhile)
 	}
 	SvTEMP_off(src);
 	if (PL_op->op_private & OPpGREP_LEX)
-	    PAD_SVl(PL_op->op_targ) = src;
+	    PAD_SETSV(PL_op->op_targ, src);
 	else
 	    DEFSV_set(src);
 
@@ -3804,7 +3804,7 @@ Perl_clear_defarray(pTHX_ AV* av, bool abandon)
         AV *newav = newAV();
         av_extend(newav, fill);
         AvREIFY_only(newav);
-        PAD_SVl(0) = MUTABLE_SV(newav);
+        PAD_SETSV(0, MUTABLE_SV(newav));
         SvREFCNT_dec_NN(av);
     }
 }
