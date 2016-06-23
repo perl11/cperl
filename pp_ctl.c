@@ -4500,25 +4500,21 @@ PP(pp_leavetry)
 PP(pp_entergiven)
 {
     dSP;
-    PERL_CONTEXT *cx;
     SV *origsv;
     const U8 gimme = GIMME_V;
-    
-    ENTER_with_name("given");
-    SAVETMPS;
+    SV* arg = POPs;
+    PERL_CONTEXT *cx = cx_pushblock(CXt_GIVEN, gimme, SP, PL_savestack_ix);
 
     if (PL_op->op_targ) {
         SAVEPADSVANDMORTALIZE(PL_op->op_targ); /* bumps the refcnt */
         SvREFCNT_dec(PAD_SVl(PL_op->op_targ)); /* restore it */
         origsv = NULL;
-	PAD_SETSV(PL_op->op_targ, SvREFCNT_inc_NN(POPs));
+	PAD_SETSV(PL_op->op_targ, SvREFCNT_inc_NN(arg));
     }
     else {
         origsv = DEFSV;
-        GvSV(PL_defgv) = SvREFCNT_inc(POPs);
+        GvSV(PL_defgv) = SvREFCNT_inc(arg);
     }
-
-    cx = cx_pushblock(CXt_GIVEN, gimme, SP, PL_savestack_ix);
     cx_pushgiven(cx, origsv);
 
     RETURN;

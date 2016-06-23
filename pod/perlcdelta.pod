@@ -17,6 +17,10 @@ release and the cperl 5.24.0 release.
 
 Undo the removal of lexical topic. We fixed that in 5.22.2c already, and
 it is critically needed for given/when, smartmatch.
+Had to change pp_entergiven a bit, storing NULL for defgv_save in the givwhen
+block.
+See L<[cperl #168]|https://github.com/perl11/cperl/issues/168> and 
+L<[cperl #137]|https://github.com/perl11/cperl/issues/137>.
 
 =item * Proper signatures
 

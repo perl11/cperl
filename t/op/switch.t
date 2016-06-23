@@ -1380,9 +1380,7 @@ sub f1 {
 }
 is(f1()->(), 3, 'closed over $_');
 
-TODO: {
-    local $::TODO = 'cperl with lexical $_' if $Config::Config{usecperl};
-
+{
     package RT94682;
 
     my $d = 0;
