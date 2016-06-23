@@ -29,7 +29,13 @@ $VERSION =~ s/c$//;
 $VERSION = eval $VERSION;
 
 BEGIN {
-    if (eval { local $SIG{__DIE__}; require Log::Agent; 1 }) {
+    if (eval {
+        local $SIG{__DIE__};
+        local @INC = @INC;
+        pop @INC if $INC[-1] eq '.';
+        require Log::Agent;
+        1;
+    }) {
         Log::Agent->import;
     }
     #

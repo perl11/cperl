@@ -618,7 +618,11 @@ sub ping_external {
     ? ('ip' => $ip->{addr_in})
     : ('host' => $ip->{host});
 
-  eval { require Net::Ping::External; }
+  eval {
+    local @INC = @INC;
+    pop @INC if $INC[-1] eq '.';
+    require Net::Ping::External;
+  }
     or croak('Protocol "external" not supported on your system: Net::Ping::External not found');
   return Net::Ping::External::ping(@addr, timeout => $timeout,
                                    family => $family);
