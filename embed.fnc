@@ -2499,7 +2499,7 @@ poM	|void	|sv_kill_backrefs	|NN SV *const sv|NULLOK AV *const av
 #if defined(PERL_IN_SV_C) || defined (PERL_IN_OP_C)
 pR	|SV *	|varname	|NULLOK const GV *const gv|const char gvtype \
 				|PADOFFSET targ|NULLOK const SV *const keyname \
-				|I32 aindex|int subscript_type
+				|SSize_t aindex|int subscript_type
 #endif
 
 pX	|void	|sv_del_backref	|NN SV *const tsv|NN SV *const sv

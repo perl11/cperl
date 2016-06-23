@@ -15816,7 +15816,7 @@ S_find_array_subscript(pTHX_ const AV *const av, const SV *const val)
 
 SV*
 Perl_varname(pTHX_ const GV *const gv, const char gvtype, PADOFFSET targ,
-	const SV *const keyname, I32 aindex, int subscript_type)
+	const SV *const keyname, SSize_t aindex, int subscript_type)
 {
 
     SV * const name = sv_newmortal();
@@ -15929,7 +15929,7 @@ S_find_uninit_var(pTHX_ const OP *const obase, const SV *const uninit_sv,
                             || (obase->op_type == OP_PADRANGE
                                 && SvTYPE(PAD_SVl(obase->op_targ)) == SVt_PVHV)
                           );
-	I32 index = 0;
+	SSize_t index = 0;
 	SV *keysv = NULL;
 	int subscript_type = FUV_SUBSCRIPT_WITHIN;
 
@@ -16116,7 +16116,7 @@ S_find_uninit_var(pTHX_ const OP *const obase, const SV *const uninit_sv,
 						keysv, 0, FUV_SUBSCRIPT_HASH);
 	    }
 	    else {
-		const I32 index
+		const SSize_t index
 		    = find_array_subscript((const AV *)sv, uninit_sv);
 		if (index >= 0)
 		    return varname(gv, '@', o->op_targ,
@@ -16324,7 +16324,7 @@ S_find_uninit_var(pTHX_ const OP *const obase, const SV *const uninit_sv,
 						keysv, 0, FUV_SUBSCRIPT_HASH);
 	    }
 	    else {
-		const I32 index
+		const SSize_t index
 		    = find_array_subscript((const AV *)sv, uninit_sv);
 		if (index >= 0)
 		    return varname(agg_gv, '@', agg_targ,
