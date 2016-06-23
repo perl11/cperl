@@ -13939,7 +13939,6 @@ sub is_core
 
 for my $version (sort { version_sort($a, $b) } keys %delta) {
     my $data = $delta{$version};
-
     tie %{$version{$version}}, 'Module::CoreList::TieHashDelta',
         $data->{changed}, $data->{removed},
         $data->{delta_from} ? $version{$data->{delta_from}} : undef;
@@ -14648,7 +14647,6 @@ for my $version (sort { version_sort($a, $b) } keys %delta) {
 
 for my $version (sort { version_sort($a, $b) } keys %deprecated) {
     my $data = $deprecated{$version};
-
     tie %{ $deprecated{$version} }, 'Module::CoreList::TieHashDelta',
         $data->{changed}, $data->{removed},
         $data->{delta_from} ? $deprecated{ $data->{delta_from} } : undef;
