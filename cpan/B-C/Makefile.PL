@@ -167,7 +167,7 @@ WriteMakefile(
     NAME	 => "B::C",
     VERSION_FROM => "lib/B/C.pm",
     PL_FILES   => { $perlcc.'.PL'    => $perlcc },
-    EXE_FILES  => [qw(script/perlcc script/cc_harness script/assemble script/disassemble)],
+    EXE_FILES  => [$perlcc, qw(script/cc_harness script/assemble script/disassemble)],
     PREREQ_PM  => {'Opcodes'  => '0',    # optional
 		   'IPC::Run' => '0',    # optional
 		   'B::Flags' => '0.15', # optional
