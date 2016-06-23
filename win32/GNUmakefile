@@ -937,7 +937,8 @@ MICROCORE_SRC	=		\
 		..\taint.c	\
 		..\time64.c	\
 		..\universal.c	\
-		..\util.c
+		..\util.c	\
+		..\xsutils.c
 
 EXTRACORE_SRC	+= perllib.c
 
