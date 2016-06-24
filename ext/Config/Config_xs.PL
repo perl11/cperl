@@ -159,13 +159,13 @@ if ($gperf_ok) {
     my @cannedkeys = # needed for cperl and CPAN
       qw(
 
-      bin_ELF bootstrap_charset canned_gperf ccstdflags ccwarnflags
-      charsize config_argc config_args d_re_comp d_regcmp dlltool
-      git_ancestor git_remote_branch git_unpushed hostgenerate
-      hostosname hostperl incpth installhtmldir installhtmlhelpdir
-      ld_can_script libdb_needs_pthread mad malloc_cflags sysroot
-      targetdir targetenv targethost targetmkdir targetport
-      useversionedarchname
+bin_ELF bootstrap_charset   canned_gperf    ccstdflags  ccwarnflags charsize
+config_argc config_args d_re_comp   d_regcmp    dlltool dtraceobject
+git_ancestor    git_commit_date git_remote_branch   git_unpushed
+hostgenerate    hostosname  hostperl    incpth  installhtmldir
+installhtmlhelpdir  ld_can_script   libdb_needs_pthread mad malloc_cflags
+sysroot targetdir   targetenv   targethost  targetmkdir targetport
+useversionedarchname
 
       );
     unless ($in_core) { # cperl doesn't need these, CPAN does
@@ -209,7 +209,7 @@ if ($gperf_ok) {
         d_vms_case_sensitive_symbols d_vsnprintf d_wcscmp d_wcsxfrm
         defvoidused dl_so_eq_ext doop_cflags doubleinfbytes doublekind
         doublemantbits doublenanbytes dtrace extern_C found_libucb
-        from gccansipedantic git_branch git_commit_date git_commit_id
+        from gccansipedantic git_branch  git_commit_id
         git_commit_id_title git_describe git_uncommitted_changes
         gnulibc_version hash_func html1dir html1direxp html3dir
         html3direxp i_assert i_bfd i_dld i_execinfo i_fenv i_gdbm_ndbm
