@@ -29,7 +29,7 @@ BEGIN {
     $ENV{PERL_RL} = 'Perl'; # Suppress system Term::ReadLine::Gnu
 }
 
-plan(125);
+plan(131);
 
 my $rc_filename = '.perldb';
 
@@ -2832,6 +2832,30 @@ SKIP:
     $wrapper->contents_like(
       qr/^0\s+'ok'$/ms,
       'Step into a signature, get arg');
+}
+
+# Try all basic sig<=>pp directions
+for my $f ('sig2sig', 'sig2pp', 'pp2sig') {
+    my $wrapper = DebugWrap->new(
+        {
+            cmds =>
+            [
+                's', 's', 'n',
+                'x $b',
+                'q',
+            ],
+            prog => '../lib/perl5db/t/test-'.$f,
+            switches => [ '-d', ],
+            stderr => 1,
+        }
+    );
+
+    $wrapper->contents_like(
+      qr{lib/perl5db/t/test-$f:2\)}ms,
+      "Step into a tailcall $f");
+    $wrapper->contents_like(
+      qr/^0\s+'ok'$/ms,
+      "Step into a tailcall $f, get arg");
 }
 
 END {

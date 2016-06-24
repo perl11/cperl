@@ -1,0 +1,6 @@
+sub b {
+    my $b = shift;
+    $b
+}
+sub a ($a) {goto \&b}
+a("ok");

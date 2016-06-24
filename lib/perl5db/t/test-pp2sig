@@ -1,0 +1,6 @@
+sub b ($b) {
+    print "$b"; # dummy line for testing
+    $b
+}
+sub a {goto \&b}
+a("ok");
