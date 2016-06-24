@@ -53,6 +53,7 @@ connect(2)
 Coro
 cpan2dist(1)
 CPAN::Changes::Spec
+CPAN::Uploader
 cpanp(1)
 CPANPLUS
 crypt(3)
@@ -305,6 +306,7 @@ Want
 wget(1)
 Win32::Locale
 write(2)
+WWW::Mechanize
 XML::LibXML
 YAML
 YAML::Syck
