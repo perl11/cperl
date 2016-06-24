@@ -466,6 +466,13 @@ No functional changes
 Improve Makefile.PL, esp. for Windows.
 See L<https://github.com/jonathanstowe/TermReadKey/pull/15>
 
+=item Scalar-List-Utils 1.45_04
+
+Improved C<set_subname> for C<'> package seperators. C<'> is counted
+as seperator only if it appears at first, before any C<::>. If seen,
+do the same magic as C<parse_gv_stash_name>, converting all seperators
+over to C<::>.  Taken with improvements from L<Sub::Name>.
+
 =back
 
 =head2 Not Updated Modules and Pragmata
