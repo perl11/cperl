@@ -29,7 +29,7 @@ BEGIN {
     $ENV{PERL_RL} = 'Perl'; # Suppress system Term::ReadLine::Gnu
 }
 
-plan(131);
+plan(133);
 
 my $rc_filename = '.perldb';
 
@@ -2856,6 +2856,33 @@ for my $f ('sig2sig', 'sig2pp', 'pp2sig') {
     $wrapper->contents_like(
       qr/^0\s+'ok'$/ms,
       "Step into a tailcall $f, get arg");
+}
+
+# [cperl #167] asserts with tailcalls, wrong pad depth.
+# failing with Test::Builder::_try
+{
+    my $wrapper = DebugWrap->new(
+        {
+            cmds =>
+            [
+             's',
+             'x $b',
+             'n',
+             'c',
+             'q',
+            ],
+            prog => '../lib/perl5db/t/test-tailcall',
+            switches => [ '-d', ],
+            stderr => 1,
+        }
+    );
+
+    $wrapper->contents_like(
+      qr{lib/perl5db/t/test-tailcall:2}ms,
+      "Stepped into [cperl #167]");
+    $wrapper->output_unlike(
+      qr/^Not enough arguments for subroutine .*/ms,
+      "No error [cperl #167]");
 }
 
 END {

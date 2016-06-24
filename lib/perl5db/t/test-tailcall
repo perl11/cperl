@@ -1,0 +1,3 @@
+use Test::More; # [cperl #167]
+sub b ($b) {$b}
+ok(b("ok"));
