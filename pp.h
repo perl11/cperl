@@ -692,6 +692,9 @@ True if this op will be the return value of an lvalue subroutine
 #  define FIND_RUNCV_padid_eq	1
 #  define FIND_RUNCV_level_eq	2
 
+#  define bigint_arith(op,svl,svr) exact_arith("Int",op,(svl),(svr))
+#  define bigflt_arith(op,svl,svr) exact_arith("Float",op,(svl),(svr))
+
 /* Declare op types */
 #if 0
 void S_sub_type(Perl_ppaddr_t pp, const char* typ);

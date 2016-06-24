@@ -1789,6 +1789,13 @@ PPt(pp_add, "(:Number,:Number):Number")
 	    SETn(value);
 	    RETURN;
 	}
+#ifdef PERL_EXACT_ARITH
+        if (UNLIKELY(IS_EXACT_ARITH)) {
+            PUTBACK;
+            bigflt_arith("badd", svl, svr);
+            return NORMAL;
+        } else
+#endif
 	SETn( value + SvNV_nomg(svl) );
 	RETURN;
     }

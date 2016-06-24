@@ -434,14 +434,6 @@ PERL_CALLCONV void	Perl_av_unshift(pTHX_ AV *av, SSize_t num)
 #define PERL_ARGS_ASSERT_AV_UNSHIFT	\
 	assert(av)
 
-PERL_CALLCONV void	Perl_bigint_arith(pTHX_ const char *op, SV *const left, SV *const right)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2)
-			__attribute__nonnull__(pTHX_3);
-#define PERL_ARGS_ASSERT_BIGINT_ARITH	\
-	assert(op); assert(left); assert(right)
-
 PERL_CALLCONV OP*	Perl_bind_match(pTHX_ I32 type, OP *left, OP *right)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_2)
@@ -1494,6 +1486,15 @@ PERL_CALLCONV I32	Perl_eval_sv(pTHX_ SV* sv, I32 flags)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_EVAL_SV	\
 	assert(sv)
+
+PERL_CALLCONV void	Perl_exact_arith(pTHX_ const char *pkg, const char *op, SV *const left, SV *const right)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_4);
+#define PERL_ARGS_ASSERT_EXACT_ARITH	\
+	assert(pkg); assert(op); assert(left); assert(right)
 
 PERL_CALLCONV void	Perl_fbm_compile(pTHX_ SV* sv, U32 flags)
 			__attribute__global__

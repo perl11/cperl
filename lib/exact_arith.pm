@@ -4,6 +4,7 @@ my $HINT_EXACT_ARITH = 0x04000000; # see perl.h
 
 sub import {
   use Math::BigInt try => 'GMP';
+  use Math::BigFloat try => 'GMP';
   #$^H{exact_arith} = 1;
   $^H |= $HINT_EXACT_ARITH;
 }
@@ -37,5 +38,6 @@ As in perl6.
 It is of course a bit slower than without, but it's much faster than
 perl6, since it only does use bigint on IV/UV overflows which do
 happen very seldom.
+However all numeric ops for NV are done as in use bignum.
 
 =cut

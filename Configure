@@ -7593,11 +7593,13 @@ cat <<EOM
 
 Would you like to build Perl so that every builtin arithmetic overflow
 does not promote to internal fast double/long double numbers but
-instead to slow and precise bigint? So that exact_arith is enabled by default.
+instead to slow and precise bigint, and that every arithmetic operator on
+floating point values is replaced by bigfloat? So that the exact_arith pragma is
+enabled by default.
 
 If this doesn't make any sense to you, just accept the default '$dflt'.
 EOM
-rp='Use exact arith, overflow to bigint as in perl6?'
+rp='Use exact arith, overflow to bigint and bigfloat as in perl6?'
 . ./myread
 case "$ans" in
 y|Y)	val="$define" ;;

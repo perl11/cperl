@@ -528,7 +528,8 @@ pR	|int	|PerlSock_accept_cloexec|int listenfd \
 pR	|int	|PerlSock_socketpair_cloexec|int domain|int type|int protocol \
 				|NN int *pairfd
 #endif
-AMp	|void	|bigint_arith	|NN const char *op|NN SV *const left|NN SV *const right
+AMp	|void	|exact_arith	|NN const char *pkg|NN const char *op \
+				|NN SV *const left|NN SV *const right
 #if defined(PERL_IN_DOIO_C)
 s	|IO *	|openn_setup    |NN GV *gv|NN char *mode|NN PerlIO **saveifp \
 				|NN PerlIO **saveofp|NN int *savefd \
