@@ -2159,7 +2159,7 @@ S_sv_2iuv_common(pTHX_ SV *const sv)
 #ifndef NV_PRESERVES_UV
                 && SvIVX(sv) != IV_MIN /* avoid negating IV_MIN below */
 		&& (((UV)1 << NV_PRESERVES_UV_BITS) >
-		    (UV)(SvIVX(sv) > 0 ? SvIVX(sv) : -SvIVX(sv)))
+		    (UV)(SvIVX(sv) > 0 ? (UV)SvIVX(sv) : -(UV)SvIVX(sv)))
 		/* Don't flag it as "accurately an integer" if the number
 		   came from a (by definition imprecise) NV operation, and
 		   we're outside the range of NV integer precision */
