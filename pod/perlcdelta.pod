@@ -609,6 +609,44 @@ L<RT #127708|https://rt.perl.org/Public/Bug/Display.html?id=127708>.
 
 =over 4
 
+=item fedora: Do not crash when inserting a non-stash into a stash
+
+L<RT#128238|https://rt.perl.org/Public/Bug/Display.html?id=128238>
+
+Fedora Patch 37
+
+=item fedora: Do not treat %: as a stash
+
+L<RT#128238|https://rt.perl.org/Public/Bug/Display.html?id=128238>
+
+Fedora Patch36
+
+=item fedora: Fix precedence in hv_ename_delete
+
+L<RT#128086|https://rt.perl.org/Public/Bug/Display.html?id=128086>
+
+Fedora Patch35
+
+=item fedora: Do not use unitialized memory in $h{\const} warnings
+
+L<RT#128189|https://rt.perl.org/Public/Bug/Display.html?id=128189>
+
+Fedora Patch34
+
+=item fedora: Do not mangle errno from failed socket calls
+
+L<RT#128316|https://rt.perl.org/Public/Bug/Display.html?id=128316>
+
+Fedora Patch32
+
+=item fedora: Backport memory leak when compiling a regular expression with a POSIX class
+
+E.g. when C<use re 'strict';> is used.
+
+L<RT#128313|https://rt.perl.org/Public/Bug/Display.html?id=128313>
+
+Fedora Patch31
+
 =item suse: perl5.24.0.dif
 
 Many Configure and linux hints enhancements, esp for lib64,
