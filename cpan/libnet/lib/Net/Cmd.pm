@@ -290,6 +290,10 @@ sub command {
     $str = $cmd->toascii($str) if $tr;
     $str .= "\015\012";
 
+    # encode to individual utf8 bytes if
+    # $str is a string (in internal UTF-8)
+    utf8::encode($str) if utf8::is_utf8($str);
+
     $cmd->debug_print(1, $str)
       if ($cmd->debug);
 
@@ -524,6 +528,10 @@ sub rawdatasend {
 
   return 0
     if $cmd->_is_closed;
+
+  # encode to individual utf8 bytes if
+  # $line is a string (in internal UTF-8)
+  utf8::encode($line) if utf8::is_utf8($line);
 
   return 1
     unless length($line);
