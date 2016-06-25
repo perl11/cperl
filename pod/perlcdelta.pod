@@ -173,6 +173,16 @@ But no classes, methods and roles yet.
 
 =over 4
 
+=item Net-Cmd
+
+Fixed utf8 handling, suse L<[bnc#493978]|https://bugzilla.opensuse.org/show_bug.cgi?id=493978>
+
+Note that libnet has hundreds of more L<open tickets|https://rt.cpan.org/Dist/Display.html?Name=libnet>
+
+=item Pod-Perldoc
+
+Favor nroff over groff, suse perl-nroff.diff [bnc#463444]
+
 =item Socket 2.021_02
 
 Silence some CC warnings
@@ -598,6 +608,22 @@ L<RT #127708|https://rt.perl.org/Public/Bug/Display.html?id=127708>.
 =head1 Selected Bug Fixes
 
 =over 4
+
+=item suse: perl5.24.0.dif
+
+Many Configure and linux hints enhancements, esp for lib64,
+probe fixes, gdbm and ODBM fixes, gnu readline integration with the debugger.
+See L<https://build.opensuse.org/package/show/devel:languages:perl/perl>
+
+=item suse: fix regexp backref overflows
+
+With many backref groups (>I32)
+
+=item suse: perl-saverecontext.diff RT#76538
+
+Handle get magic with globs in the regex compiler.
+Correctly restore context, esp. when loading unicode swashes.
+Reported at 5.12, patched for suse 5.14, still ignored with 5.24.
 
 =item Issues with (?0) being wrong in 5.24.0, reginsert recursion
 
