@@ -2354,6 +2354,9 @@ sub _DB__handle_run_command_in_pager_command {
                 open( OUT, ">&STDOUT" )    # XXX: lost message
                 || _db_warn("Can't restore DB::OUT");
             }
+	    # tell readline the new OUT handle
+	    $term->Attribs()->{outstream} = *OUT
+                if defined &Term::ReadLine::Gnu::readline;
             next CMD;
         } ## end unless ($piped = open(OUT,...
 
@@ -2457,6 +2460,10 @@ sub _DB__at_end_of_every_command {
             select($obj->selected);
             $obj->selected("");
         }
+
+	# tell readline the new OUT handle
+	$term->Attribs()->{outstream} = *OUT
+            if defined &Term::ReadLine::Gnu::readline;
 
         # No pipes now.
         $obj->piped("");

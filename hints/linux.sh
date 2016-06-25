@@ -53,7 +53,7 @@ ignore_versioned_solibs='y'
 # BSD compatibility library no longer needed
 # 'kaffe' has a /usr/lib/libnet.so which is not at all relevant for perl.
 # bind causes issues with several reentrant functions
-set `echo X "$libswanted "| sed -e 's/ bsd / /' -e 's/ net / /' -e 's/ bind / /'`
+set `echo X "$libswanted "| sed -e 's/ bsd / /' -e 's/ net / /' -e 's/ bind / /' -e 's/ db / /' -e 's/ gdbm / /' -e 's/ ndbm / /'`
 shift
 libswanted="$*"
 
@@ -62,6 +62,20 @@ echo $libs
 if echo " $libswanted " | grep -q ' gdbm '; then
     # Only add if gdbm is in libswanted.
     libswanted="$libswanted gdbm_compat"
+fi
+
+if test -e /lib64/libc.so.6 ; then
+    libc=`ls -l /lib64/libc.so.6 | awk '{print $NF}'`
+    libc=/lib64/$libc
+    glibpth='/lib64 /usr/lib64 /usr/local/lib64'
+    libspath='/usr/local/lib64 /lib64 /usr/lib64'
+    loclibpth='/usr/local/lib64'
+    lddlflags='-shared -L/usr/local/lib64'
+    ldflags=' -L/usr/local/lib64'
+    libs='-lm -ldl -lcrypt'
+elif test -L /lib/libc.so.6; then
+    libc=`ls -l /lib/libc.so.6 | awk '{print $NF}'`
+    libc=/lib/$libc
 fi
 
 # Configure may fail to find lstat() since it's a static/inline
@@ -147,6 +161,7 @@ case "$optimize" in
             esac
         ;;
     esac
+    optimize="$optimize --pipe"
     ;;
 esac
 
@@ -305,6 +320,10 @@ EOM
 	esac
 fi
 
+case $archname in
+sparc64-linux) glibpth="/lib64 /usr/lib64";;
+esac
+
 rm -f try.c a.out
 
 if ${sh:-/bin/sh} -c exit; then
@@ -354,6 +373,9 @@ else
 	echo "Couldn't find tcsh.  Csh-based globbing might be broken."
     fi
 fi
+csh=''
+d_csh='undef'
+full_csh=''
 
 # Shimpei Yamashita <shimpei@socrates.patnet.caltech.edu>
 # Message-Id: <33EF1634.B36B6500@pobox.com>
@@ -463,6 +485,8 @@ $define|true|[yY]*)
 	d_gmtime_r_proto="$define"
 	d_localtime_r_proto="$define"
 	d_random_r_proto="$define"
+
+	test -e /lib64/libc.so.6 && libs='-lm -ldl -lcrypt -lpthread'
 
 	;;
 esac

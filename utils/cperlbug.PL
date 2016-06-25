@@ -915,6 +915,7 @@ sub _message_headers {
     my %headers = ( To => $address, Subject => $subject );
     $headers{'Cc'}         = $cc        if ($cc);
     $headers{'Reply-To'}   = $from      if ($from);
+    $headers{'X-Webfrontend'} = 'cperlbug';
     $headers{'From'}       = $from      if ($from);
     if ($have_attachment) {
         $headers{'MIME-Version'} = '1.0';
