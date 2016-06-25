@@ -19633,8 +19633,21 @@ Perl_save_re_context(pTHX)
 
         if (gvp) {
             GV * const gv = *gvp;
-            if (SvTYPE(gv) == SVt_PVGV && GvSV(gv))
-                save_scalar(gv);
+	    if (SvTYPE(gv) == SVt_PVGV && GvSV(gv)) {
+		/* this is a copy of save_scalar() without the GETMAGIC call, RT#76538 */
+		SV ** const sptr = &GvSVn(gv);
+		SV * osv = *sptr;
+		SV * nsv = newSV(0);
+		save_pushptrptr(SvREFCNT_inc_simple(gv), SvREFCNT_inc(osv), SAVEt_SV);
+		if (SvTYPE(osv) >= SVt_PVMG && SvMAGIC(osv)) {
+		    if (SvGMAGICAL(osv)) {
+			SvFLAGS(osv) |= (SvFLAGS(osv) &
+			    (SVp_IOK|SVp_NOK|SVp_POK)) >> PRIVSHIFT;
+		    }
+		    mg_localize(osv, nsv, (bool)1);
+		}
+		*sptr = nsv;
+	    }
         }
     }
 }
