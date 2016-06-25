@@ -74,6 +74,22 @@ my $inif = 0;
 my %Is_converted;
 my %bad_file = ();
 
+our %sizeof = (
+	'short'          => length(pack("s!", 0)),
+	'unsigned short' => length(pack("S!", 0)),
+	'int'            => length(pack("i!", 0)),
+	'unsigned int'   => length(pack("I!", 0)),
+	'long'           => length(pack("l!", 0)),
+	'unsigned long'  => length(pack("L!", 0)),
+	'float'          => 4,
+	'double'         => 8,
+	'long double'    => $Config{longdblsize},
+);
+if ($Config{d_quad}) {
+	$sizeof{'long long'}          = 8 if $Config{quadtype} ne 'long';
+	$sizeof{'unsigned long long'} = 8 if $Config{uquadtype} ne 'unsigned long';
+}
+
 @ARGV = ('-') unless @ARGV;
 
 build_preamble_if_necessary();
