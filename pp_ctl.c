@@ -2806,8 +2806,10 @@ PP(pp_goto)
                  * unless pad[0] and @_ differ (e.g. if the old sub did
                  * local *_ = []); in which case clear the old pad[0]
                  * array in the usual way */
-		else if (av == arg || AvREAL(av))
-                    clear_defarray(av, av == arg);
+		else {
+                    if (av == arg || AvREAL(av))
+                        clear_defarray(av, av == arg);
+                }
 	    }
 
             /* don't restore PL_comppad here. It won't be needed if the
@@ -2954,14 +2956,13 @@ PP(pp_goto)
 		}
 		PL_curcop = cx->blk_oldcop;
 		PAD_SET_CUR_NOSAVE(padlist, CvDEPTH(cv));
-		if (CxHASARGS(cx))
-		{
+		if (CxHASARGS(cx)) {
                     /* second half of donating @_ from the old sub to the
                      * new sub: abandon the original pad[0] AV in the
                      * new sub, and replace it with the donated @_.
                      * pad[0] takes ownership of the extra refcount
                      * we gave arg earlier */
-		    if (arg) {
+		    if (arg) { /* cperl #173 */
 			SvREFCNT_dec(PAD_SVl(0));
 			PAD_SETSV(0, SvREFCNT_inc_simple_NN((SV*)arg));
 		    }

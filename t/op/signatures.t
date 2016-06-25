@@ -1576,10 +1576,16 @@ sub goto1_sig2sig ($, $=0, $a="bar", $b="zoot") {
   local @_ = (1,2,"baz",7); # ignored, should warn
   goto &t147a;
 }
+sub goto2_sig2sig ($x, $y, $a, $b) {
+  goto &t147_7;
+}
 
 sub goto1_sig2pp ($, $=0, $a="baz", $b="7") {
   local @_ = (1,2,"baz",7); # ignored, should warn
   goto &t147_pp;
+}
+sub goto2_sig2pp ($x, $y, $a, $b) {
+  goto &t147_pp; # crashes #173
 }
 
 goto1_pp2pp();
@@ -1587,9 +1593,11 @@ goto1_pp2sig();
 goto2_pp2sig();
 goto3_pp2sig();
 
-goto1_sig2sig(0); # todo
-goto1_sig2pp(0);  # corrupts caller
+goto1_sig2sig(0);
+goto2_sig2sig(0,0,"baz",7);
 
+goto1_sig2pp(0);
+goto2_sig2pp(0,0,"baz",7);
 
 sub no_fake_sig {
     my ($self, $extra) = (@_, 1);
