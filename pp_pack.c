@@ -644,7 +644,19 @@ S_next_symbol(pTHX_ tempsym_t* symptr )
         switch (*patptr) {
           case '!':
             modifier = TYPE_IS_SHRIEKING;
+#if defined(HAS_QUAD) && IVSIZE >= 8
+# if defined(HAS_LONG_DOUBLE) && defined(USE_LONG_DOUBLE)
+            allowed = "sSiIlLxXnNvVDqQ@.";
+# else
+            allowed = "sSiIlLxXnNvVqQ@.";
+# endif
+#else
+# if defined(HAS_LONG_DOUBLE) && defined(USE_LONG_DOUBLE)
+            allowed = "sSiIlLxXnNvVD@.";
+# else
             allowed = "sSiIlLxXnNvV@.";
+# endif
+#endif
             break;
           case '>':
             modifier = TYPE_IS_BIG_ENDIAN;
