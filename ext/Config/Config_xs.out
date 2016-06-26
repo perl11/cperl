@@ -164,6 +164,15 @@ my_newSVpvn_flags(pTHX_ const char *s, STRLEN len, U32 flags)
 #  define NOT_REACHED XSCNOT_REACHED
 #endif
 
+/* not available before 5.8.8 */
+#ifndef PERL_UNUSED_ARG
+#  if defined(lint) && defined(S_SPLINT_S) /* www.splint.org */
+#    include <note.h>
+#    define PERL_UNUSED_ARG(x) NOTE(ARGUNUSED(x))
+#  else
+#    define PERL_UNUSED_ARG(x) ((void)sizeof (x))
+#  endif
+#endif
 
 /* returns a mortal SV*, empty string is forbidden */
 static SV *
@@ -6790,7 +6799,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str8190,		T_INV,0,ALN64I"@@doubleinfbytes@@"}
     };
 
-#line 6793 "Config.xs"
+#line 6802 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

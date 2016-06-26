@@ -129,6 +129,15 @@ my_newSVpvn_flags(pTHX_ const char *s, STRLEN len, U32 flags)
 #  define NOT_REACHED XSCNOT_REACHED
 #endif
 
+/* not available before 5.8.8 */
+#ifndef PERL_UNUSED_ARG
+#  if defined(lint) && defined(S_SPLINT_S) /* www.splint.org */
+#    include <note.h>
+#    define PERL_UNUSED_ARG(x) NOTE(ARGUNUSED(x))
+#  else
+#    define PERL_UNUSED_ARG(x) ((void)sizeof(x))
+#  endif
+#endif
 
 /* returns a mortal SV*, empty string is forbidden */
 static SV *
