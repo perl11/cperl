@@ -1509,7 +1509,7 @@ use File::Glob qw(:case);
             'vutil/vxs.xs',
             't/00impl-pp.t',
             't/survey_locales',
-            'lib/version/vpp.pm',
+            'vperl/vpp.pm',
         ],
 
         # When adding the CPAN-distributed files for version.pm, it is necessary
@@ -1526,7 +1526,6 @@ use File::Glob qw(:case);
         ],
 
         'MAP' => {
-            'vperl/'         => 'cpan/version/lib/version/',
             'vutil/'         => '',
             ''               => 'cpan/version/',
         },
