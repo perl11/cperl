@@ -1580,55 +1580,56 @@ ApRM	|SV*	|swash_init	|NN const char* pkg|NN const char* name|NN SV* listsv \
 ApM	|UV	|swash_fetch	|NN SV *swash|NN const U8 *ptr|bool do_utf8
 #ifdef PERL_IN_REGCOMP_C
 EiMR	|SV*	|add_cp_to_invlist	|NULLOK SV* invlist|const UV cp
-EsM	|void	|_append_range_to_invlist   |NN SV* const invlist|const UV start|const UV end
+EsM	|void	|_append_range_to_invlist|NN SV* const invlist|const UV start|const UV end
 EiMRn	|UV*	|_invlist_array_init	|NN SV* const invlist|const bool will_have_0
-EsM	|void	|invlist_extend    |NN SV* const invlist|const UV len
-EiMRn	|UV	|invlist_max	|NN SV* const invlist
-EiM	|void	|invlist_set_len|NN SV* const invlist|const UV len|const bool offset
-EiMRn	|bool	|invlist_is_iterating|NN SV* const invlist
+EsM	|void	|invlist_extend    	|NN SV* const invlist|const UV len
+EiMRn	|UV	|invlist_max		|NN SV* const invlist
+EiM	|void	|invlist_set_len	|NN SV* const invlist|const UV len|const bool offset
+EiMRn	|bool	|invlist_is_iterating	|NN SV* const invlist
 #ifndef PERL_EXT_RE_BUILD
 EsM	|void	|invlist_replace_list_destroys_src|NN SV *dest|NN SV *src
 EiMRn	|IV*	|get_invlist_previous_index_addr|NN SV* invlist
-EiMn	|void	|invlist_set_previous_index|NN SV* const invlist|const IV index
-EiMRn	|IV	|invlist_previous_index|NN SV* const invlist
-EiMn	|void	|invlist_trim	|NN SV* invlist
-EiM	|void	|invlist_clear	|NN SV* invlist
+EiMn	|void	|invlist_set_previous_index	|NN SV* const invlist|const IV index
+EiMRn	|IV	|invlist_previous_index	|NN SV* const invlist
+EiMn	|void	|invlist_trim		|NN SV* invlist
+EiM	|void	|invlist_clear		|NN SV* invlist
 #endif
-EiMR	|SV*	|invlist_clone	|NN SV* const invlist
+EiMR	|SV*	|invlist_clone		|NN SV* const invlist
 EiMRn	|STRLEN*|get_invlist_iter_addr	|NN SV* invlist
-EiMn	|void	|invlist_iterinit|NN SV* invlist
-EsMRn	|bool	|invlist_iternext|NN SV* invlist|NN UV* start|NN UV* end
-EiMn	|void	|invlist_iterfinish|NN SV* invlist
-EiMRn	|UV	|invlist_highest|NN SV* const invlist
+EiMn	|void	|invlist_iterinit	|NN SV* invlist
+EsMRn	|bool	|invlist_iternext	|NN SV* invlist|NN UV* start|NN UV* end
+EiMn	|void	|invlist_iterfinish	|NN SV* invlist
+EiMRn	|UV	|invlist_highest	|NN SV* const invlist
 EMRs	|SV*	|_make_exactf_invlist	|NN RExC_state_t *pRExC_state \
 					|NN regnode *node
-EsMR	|SV*	|invlist_contents|NN SV* const invlist		    \
-				 |const bool traditional_style
+EsMR	|SV*	|invlist_contents	|NN SV* const invlist \
+				 	|const bool traditional_style
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_UTF8_C)
-EXmM	|void	|_invlist_intersection	|NN SV* const a|NN SV* const b|NN SV** i
+EXmM	|void	|_invlist_intersection	|NN SV* const a|NN SV* const b \
+					|NN SV** i
 EXpM	|void	|_invlist_intersection_maybe_complement_2nd \
-		|NULLOK SV* const a|NN SV* const b          \
-		|const bool complement_b|NN SV** i
-EXmM	|void	|_invlist_union	|NULLOK SV* const a|NN SV* const b|NN SV** output
-EXpM	|void	|_invlist_union_maybe_complement_2nd        \
-		|NULLOK SV* const a|NN SV* const b          \
-		|const bool complement_b|NN SV** output
-EXmM	|void	|_invlist_subtract|NN SV* const a|NN SV* const b|NN SV** result
-EXpM	|void	|_invlist_invert|NN SV* const invlist
-EXMpR	|SV*	|_new_invlist	|IV initial_size
+					|NULLOK SV* const a|NN SV* const b \
+					|const bool complement_b|NN SV** i
+EXmM	|void	|_invlist_union		|NULLOK SV* const a|NN SV* const b|NN SV** output
+EXpM	|void	|_invlist_union_maybe_complement_2nd \
+			|NULLOK SV* const a|NN SV* const b \
+			|const bool complement_b|NN SV** output
+EXmM	|void	|_invlist_subtract	|NN SV* const a|NN SV* const b|NN SV** result
+EXpM	|void	|_invlist_invert	|NN SV* const invlist
+EXMpR	|SV*	|_new_invlist		|IV initial_size
 EXMpR	|SV*	|_swash_to_invlist	|NN SV* const swash
-EXMpR	|SV*	|_add_range_to_invlist	|NULLOK SV* invlist|const UV start|const UV end
+EXMpR	|SV*	|_add_range_to_invlist	|NULLOK SV* invlist|UV start|UV end
 EXMpR	|SV*	|_setup_canned_invlist	|const STRLEN size|const UV element0 \
 					|NN UV** other_elements_ptr
-EXMpn	|void	|_invlist_populate_swatch |NN SV* const invlist|const UV start \
+EXMpn	|void	|_invlist_populate_swatch|NN SV* const invlist|const UV start \
 					|const UV end|NN U8* swatch
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C) \
     || defined(PERL_IN_TOKE_C)
 EXp	|SV*	|_core_swash_init|NN const char* pkg|NN const char* name \
-		|NN SV* listsv|I32 minbits|I32 none \
-		|NULLOK SV* invlist|NULLOK U8* const flags_p
+				|NN SV* listsv|I32 minbits|I32 none \
+				|NULLOK SV* invlist|NULLOK U8* const flags_p
 EXMp	|void	|utf8_check_script|NN const U8 *s
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C)

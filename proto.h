@@ -9028,7 +9028,7 @@ PERL_STATIC_INLINE I32	S_regcurly(const char *s)
 
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_UTF8_C)
-PERL_CALLCONV SV*	Perl__add_range_to_invlist(pTHX_ SV* invlist, const UV start, const UV end)
+PERL_CALLCONV SV*	Perl__add_range_to_invlist(pTHX_ SV* invlist, UV start, UV end)
 			__attribute__global__
 			__attribute__warn_unused_result__;
 
