@@ -378,6 +378,13 @@ could cause an assertion in cases where magic is involved, such as
 C<$ISA[0][0]>.
 L<[perl #128253]|https://rt.perl.org/Public/Bug/Display.html?id=128253>
 
+=item *
+
+In Perl 5.18, the parsing of C<"$foo::$bar"> was accidentally changed, such
+that it would be treated as C<$foo."::".$bar>.  The previous behavior, which
+was to parse it as C<$foo:: . $bar>, needs to be restored.
+L<[perl #128478]|https://rt.perl.org/Public/Bug/Display.html?id=128478>
+
 =back
 
 =head1 Known Problems
@@ -412,14 +419,6 @@ argument used to result in crashes or "Can't coerce" error messages at run
 time, unlike scalar assignment, which would give an error at compile time.
 List assignment now gives a compile-time error, too.
 L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
-
-
-=item *
-
-In Perl 5.18, the parsing of C<"$foo::$bar"> was accidentally changed, such
-that it would be treated as C<$foo."::".$bar>.  The previous behavior, which
-was to parse it as C<$foo:: . $bar>, needs to be restored.
-L<[perl #128478]|https://rt.perl.org/Public/Bug/Display.html?id=128478>
 
 =item *
 

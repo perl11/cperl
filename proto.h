@@ -8101,7 +8101,7 @@ STATIC void	S_no_op(pTHX_ const char *const what, char *s)
 #define PERL_ARGS_ASSERT_NO_OP	\
 	assert(what)
 
-STATIC void	S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package, bool is_utf8)
+STATIC void	S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package, bool is_utf8, bool check_dollar)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3);
