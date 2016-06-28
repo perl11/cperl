@@ -353,7 +353,7 @@ Disable 3 experimental warnings which are now default with cperl.
 
 Added t/09_roundtrip.t
 
-=item Config 6.20
+=item Config 6.21
 
 Various minor fixes
 

@@ -19,7 +19,7 @@
 #    lib/Config_git.pl
 #
 
-$VERSION = '6.20';
+$VERSION = '6.21';
 my $in_core;
 
 BEGIN {
@@ -156,6 +156,7 @@ if ($gperf_ok) {
         my $k = "config_arg".$_;
         $h{$k} = '' unless exists $h{$k};
     } # needed for cperl and CPAN
+    #these qw blocks are created with genkeys.PL in the cpan repo
     my @cannedkeys = qw(
 
 bin_ELF bootstrap_charset   canned_gperf    ccstdflags  ccwarnflags charsize
@@ -177,8 +178,8 @@ d_attribute_nonnull d_attribute_noreturn    d_attribute_pure
 d_attribute_unused  d_attribute_warn_unused_result  d_backtrace
 d_builtin_arith_overflow    d_builtin_choose_expr   d_builtin_expect
 d_c99_variadic_macros   d_cbrt  d_clearenv  d_copysign  d_cplusplus d_ctermid
-d_ctime64   d_difftime64    d_dir_dd_fd d_dladdr    d_erf   d_erfc  d_exp2
-d_expm1 d_fdclose   d_fdim  d_fegetround    d_fma   d_fmax  d_fmin
+d_ctime64   d_difftime64    d_dir_dd_fd d_dladdr    d_duplocale d_erf   d_erfc
+d_exp2  d_expm1 d_fdclose   d_fdim  d_fegetround    d_fma   d_fmax  d_fmin
 d_fp_classify   d_fp_classl d_fpgetround    d_freelocale    d_fs_data_s
 d_fstatfs   d_fstatvfs  d_futimes   d_gdbm_ndbm_h_uses_prototypes
 d_gdbmndbm_h_uses_prototypes    d_getaddrinfo   d_getfsstat d_getmnt
@@ -189,31 +190,31 @@ d_isnormal  d_j0    d_j0l   d_lc_monetary_2008  d_ldexpl    d_lgamma
 d_lgamma_r  d_libname_unique    d_llrint    d_llrintl   d_llround   d_llroundl
 d_localtime64   d_localtime_r_needs_tzset   d_log1p d_log2  d_logb  d_lrint
 d_lrintl    d_lround    d_lroundl   d_malloc_good_size  d_malloc_size
-d_memmem    d_mktime64  d_modflproto    d_nan   d_ndbm
+d_memmem    d_mktime64  d_modfl_pow32_bug   d_modflproto    d_nan   d_ndbm
 d_ndbm_h_uses_prototypes    d_nearbyint d_newlocale d_nextafter d_nexttoward
 d_nv_zero_is_allbits_zero   d_prctl d_prctl_set_name    d_printf_format_null
 d_pseudofork    d_ptrdiff_t d_regcomp   d_remainder d_remquo    d_rint  d_round
 d_scalbn    d_sfio  d_siginfo_si_addr   d_siginfo_si_band   d_siginfo_si_errno
-d_siginfo_si_pid    d_siginfo_si_status d_siginfo_si_uid    d_siginfo_si_value
-d_signbit   d_sin6_scope_id d_sitearch  d_snprintf  d_sockaddr_in6
-d_sockaddr_sa_len   d_sprintf_returns_strlen    d_stat  d_statfs_f_flags
-d_statfs_s  d_static_inline d_statvfs   d_strlcat   d_strlcpy   d_tgamma
-d_timegm    d_trunc d_truncl    d_unsetenv  d_uselocale d_ustat d_vendorscript
-d_vms_case_sensitive_symbols    d_vsnprintf d_wcscmp    d_wcsxfrm   defvoidused
-dl_so_eq_ext    doop_cflags doubleinfbytes  doublekind  doublemantbits
-doublenanbytes  dtrace  extern_C    found_libucb    from    gccansipedantic
-git_branch  git_commit_id   git_commit_id_title git_describe
+d_siginfo_si_fd d_siginfo_si_pid    d_siginfo_si_status d_siginfo_si_uid
+d_siginfo_si_value  d_signbit   d_sin6_scope_id d_sitearch  d_snprintf
+d_sockaddr_in6  d_sockaddr_sa_len   d_sprintf_returns_strlen    d_stat
+d_statfs_f_flags    d_statfs_s  d_static_inline d_statvfs   d_strlcat
+d_strlcpy   d_tgamma    d_timegm    d_trunc d_truncl    d_unsetenv  d_uselocale
+d_ustat d_vendorscript  d_vms_case_sensitive_symbols    d_vsnprintf d_wcscmp
+d_wcsxfrm   defvoidused dl_so_eq_ext    doop_cflags doubleinfbytes  doublekind
+doublemantbits  doublenanbytes  dtrace  extern_C    found_libucb    from
+gccansipedantic git_branch  git_commit_id   git_commit_id_title git_describe
 git_uncommitted_changes gnulibc_version hash_func   html1dir    html1direxp
 html3dir    html3direxp i_assert    i_bfd   i_dld   i_execinfo  i_fenv
 i_gdbm_ndbm i_gdbmndbm  i_mallocmalloc  i_mntent    i_quadmath  i_sfio
 i_stdbool   i_stdint    i_sysmount  i_syspoll   i_sysstatfs i_sysstatvfs
-i_sysvfs    i_ustat ieeefp_h    initialinstalllocation  installhtml1dir
-installhtml3dir installsitehtml1dir installsitehtml3dir installsiteman1dir
-installsiteman3dir  installsitescript   installvendorhtml1dir
-installvendorhtml3dir   installvendorman1dir    installvendorman3dir
-installvendorscript ldflags_nolargefiles    libs_nolargefiles
-libswanted_nolargefiles longdblinfbytes longdblkind longdblmantbits
-longdblnanbytes madlyh  madlyobj    madlysrc    mistrustnm
+i_sysvfs    i_ustat i_xlocale   ieeefp_h    initialinstalllocation
+installhtml1dir installhtml3dir installsitehtml1dir installsitehtml3dir
+installsiteman1dir  installsiteman3dir  installsitescript
+installvendorhtml1dir   installvendorhtml3dir   installvendorman1dir
+installvendorman3dir    installvendorscript ldflags_nolargefiles
+libs_nolargefiles   libswanted_nolargefiles longdblinfbytes longdblkind
+longdblmantbits longdblnanbytes madlyh  madlyobj    madlysrc    mistrustnm
 nv_overflows_integers_at    nvmantbits  op_cflags   perl_patchlevel
 perl_revision   perl_static_inline  perl_subversion perl_version    ppmarch
 pthread_h_first regexec_cflags  rm_try  run sGMTIME_max sGMTIME_min
