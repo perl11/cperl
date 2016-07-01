@@ -2778,11 +2778,10 @@ PP(pp_goto)
                     cx->blk_sub.olddepth = CvDEPTH(cv);
                     if (CvHASSIG(cursub)) { /* sig2sig: no @_, just SP-MARK */
                         arg = av; /* mark */
-                        DEBUG_kv(PerlIO_printf(Perl_debug_log,
+                        DEBUG_k(PerlIO_printf(Perl_debug_log,
                              "goto %s from sig with sig: keep %ld args\n",
                              SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
                              (long int)(cx->blk_sub.savearray - av + 1))); /* sp-mark+1 */
-                        /*PUSHMARK((SV**)cx->blk_sub.savearray);*/
                         DEBUG_Xv(PerlIO_printf(Perl_debug_log,
                             "Pad padlist max=%d, CvDEPTH=%d (goto sig2sig %s)\n",
                             (int)PadlistMAX(padlist), (int)CvDEPTH(cv),
@@ -2792,13 +2791,10 @@ PP(pp_goto)
                     }
                     /* pp2sig: */
                     SvREFCNT_inc_simple_void(cv); /* dec below */
-                    DEBUG_kv(PerlIO_printf(Perl_debug_log,
+                    DEBUG_k(PerlIO_printf(Perl_debug_log,
                         "goto %s with sig: keep %ld args\n",
                         SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
                         AvFILLp(arg)+1)); /* sig arg has no fill */
-                    /*PAD_SVl(0) = MUTABLE_SV(cx->blk_sub.argarray = arg);*/
-                    /*cx->blk_sub.savearray = av - AvFILLp(arg);*/
-                    /*goto call_pp_sub;*/
                 }
                 /* we are going to donate the current @_ from the old sub
                  * to the new sub. This first part of the donation puts a
@@ -2806,9 +2802,35 @@ PP(pp_goto)
                  * unless pad[0] and @_ differ (e.g. if the old sub did
                  * local *_ = []); in which case clear the old pad[0]
                  * array in the usual way */
-		else {
-                    if (av == arg || AvREAL(av))
-                        clear_defarray(av, av == arg);
+		else { /* {sig,pp}2pp */
+                    if (!arg || (av == arg) || AvREAL(av))
+                        clear_defarray(av, arg && (av == arg));
+                    /* if sig2pp: SP -> @_ */
+                    if (CvHASSIG(cx->blk_sub.cv)) {
+                        SSize_t index = 0;
+                        SV** mark = sp + 1;
+                        SV** stack = (SV**)cx->blk_sub.savearray;
+                        if (!arg)
+                            arg = GvAV(gv_AVadd(PL_defgv));
+                        else
+                            SvREFCNT_inc_simple_NN(arg);
+                        for (; mark <= stack; mark++) {
+                            av_store(arg, index++,
+                                     SvREFCNT_inc(
+                                         /* skip the first arg if @_ */
+                                         (SvIS_FREED(*mark) || SvTYPE(*mark) >= SVt_PVAV)
+                                         ? &PL_sv_undef : *mark));
+                        }
+                        DEBUG_k(PerlIO_printf(Perl_debug_log,
+                            "goto sig2pp %s: copy %ld args\n",
+                            SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                            AvFILLp(arg)+1));
+                    } else {
+                        DEBUG_k(PerlIO_printf(Perl_debug_log,
+                            "goto pp %s: keep %ld args\n",
+                            SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
+                            AvFILLp(arg)+1));
+                    }
                 }
 	    }
 
@@ -2872,7 +2894,6 @@ PP(pp_goto)
 		    }
 		}
 		SP += items;
-		/*SvREFCNT_dec(arg);*/
                 if (CvHASSIG(cv)) {
                     /* with signatures we do a real tailcall, not as in perl5 pp or python.
                        without new cx and padframe, reusing the old pads. retop is CvSTART */
@@ -2962,10 +2983,13 @@ PP(pp_goto)
                      * new sub, and replace it with the donated @_.
                      * pad[0] takes ownership of the extra refcount
                      * we gave arg earlier */
-		    if (arg) { /* cperl #173 */
-			SvREFCNT_dec(PAD_SVl(0));
-			PAD_SETSV(0, SvREFCNT_inc_simple_NN((SV*)arg));
-		    }
+                    SvREFCNT_dec(PAD_SVl(0));
+                    if (!arg) {
+                        arg = GvAV(PL_defgv);
+                        if (!arg)
+                            arg = GvAV(gv_AVadd(PL_defgv));
+                    }
+                    PAD_SETSV(0, SvREFCNT_inc_simple_NN((SV*)arg));
 
 		    /* GvAV(PL_defgv) might have been modified on scope
 		       exit, so point it at arg again. */

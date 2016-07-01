@@ -1585,7 +1585,7 @@ sub goto1_sig2pp ($, $=0, $a="baz", $b="7") {
   goto &t147_pp;
 }
 sub goto2_sig2pp ($x, $y, $a, $b) {
-  goto &t147_pp; # crashes #173
+  goto &t147_pp; # #173
 }
 
 goto1_pp2pp();
