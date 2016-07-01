@@ -68,6 +68,18 @@ One At A Time Hard, and for longer keys we use Siphash 1-3. For very
 long keys this is a big improvement in performance. For shorter keys
 there is a modest improvement.
 
+=head2 Use of C<\p{I<script>}> uses the improved Script_Extensions
+property
+
+Unicode 6.0 introduced an improved form of the Script (C<sc>) property,
+and called it Script_Extensions (C<scx>).  As of now, Perl uses this
+improved version when a property is specified as just C<\p{I<script>}>.
+The meaning of compound forms, like C<\p{sc=I<script>}> are unchanged.
+This should make programs be more accurate when determining if a
+character is used in a given script, but there is a slight chance of
+breakage for programs that very specifically needed the old behavior.
+See L<perlunicode/Scripts>.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
