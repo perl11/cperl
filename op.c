@@ -3603,7 +3603,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	       wise pass this op’s own type so the correct op is mentioned
 	       in error messages.  */
 	    op_lvalue(OpSIBLING(OpFIRST(o)),
-		      S_potential_mod_type(type) ? OP_ENTERSUB : o->op_type);
+		      S_potential_mod_type(type) ? (I32)OP_ENTERSUB : o->op_type);
 	}
 	break;
 
