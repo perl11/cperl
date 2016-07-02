@@ -2810,26 +2810,27 @@ PP(pp_goto)
                         SSize_t index = 0;
                         SV** mark = sp + 1;
                         SV** stack = (SV**)cx->blk_sub.savearray;
-                        if (!arg)
+                        if (!arg) {
                             arg = GvAV(gv_AVadd(PL_defgv));
+                            AvREIFY_only(arg);
+                        }
                         else
                             SvREFCNT_inc_simple_NN(arg);
                         for (; mark <= stack; mark++) {
                             av_store(arg, index++,
-                                     SvREFCNT_inc(
-                                         /* skip the first arg if @_ */
+                                     SvREFCNT_inc( /* skip the first arg if @_ */
                                          (SvIS_FREED(*mark) || SvTYPE(*mark) >= SVt_PVAV)
                                          ? &PL_sv_undef : *mark));
                         }
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
                             "goto sig2pp %s: copy %ld args\n",
                             SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
-                            AvFILLp(arg)+1));
+                            arg ? AvFILLp(arg)+1 : 0));
                     } else {
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
                             "goto pp %s: keep %ld args\n",
                             SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
-                            AvFILLp(arg)+1));
+                            arg ? AvFILLp(arg)+1 : 0));
                     }
                 }
 	    }
@@ -2984,20 +2985,19 @@ PP(pp_goto)
                      * pad[0] takes ownership of the extra refcount
                      * we gave arg earlier */
                     SvREFCNT_dec(PAD_SVl(0));
-                    if (!arg) {
+                    if (!arg)
                         arg = GvAV(PL_defgv);
-                        if (!arg)
-                            arg = GvAV(gv_AVadd(PL_defgv));
-                    }
-                    PAD_SETSV(0, SvREFCNT_inc_simple_NN((SV*)arg));
+                    if (arg) {
+                        PAD_SETSV(0, SvREFCNT_inc_simple_NN((SV*)arg));
 
-		    /* GvAV(PL_defgv) might have been modified on scope
-		       exit, so point it at arg again. */
-		    if (arg != GvAV(PL_defgv)) {
-			AV * const av = GvAV(PL_defgv);
-			GvAV(PL_defgv) = (AV *)SvREFCNT_inc_simple(arg);
-                        SvREFCNT_dec(av);
-		    }
+                        /* GvAV(PL_defgv) might have been modified on scope
+                           exit, so point it at arg again. */
+                        if (arg != GvAV(PL_defgv)) {
+                            AV * const av = GvAV(PL_defgv);
+                            GvAV(PL_defgv) = (AV *)SvREFCNT_inc_simple(arg);
+                            SvREFCNT_dec(av);
+                        }
+                    }
 		}
             call_pp_sub:
 		if (PERLDB_SUB) {	/* Checking curstash breaks DProf. */

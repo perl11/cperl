@@ -4356,9 +4356,14 @@ PP(pp_signature)
             argp = MARK;
         } else {
             defav = GvAV(PL_defgv);
-            assert(!SvMAGICAL(defav));
-            argc = AvFILLp(defav) + 1;
-            argp = AvARRAY(defav);
+            if (!defav) {
+                argc = 0;
+                argp = NULL;
+            } else {
+                assert(!SvMAGICAL(defav));
+                argc = AvFILLp(defav) + 1;
+                argp = AvARRAY(defav);
+            }
         }
 
         if (UNLIKELY(argc < mand_params)) {
