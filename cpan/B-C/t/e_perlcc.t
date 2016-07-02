@@ -15,10 +15,10 @@ BEGIN {
         if (-f File::Spec->catfile($Config{'sitearch'}, "B", "Flags.pm")) {
             @plan = (skip_all => '<sitearch>/B/Flags.pm installed. Possible XS conflict');
         }
-        if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
-            # >= 3 c compiler warnings
-            @plan = (skip_all => 'Tests not yet ready for MSWin32 MSVC');
-        }
+        #if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
+        #    # >= 3 c compiler warnings
+        #    @plan = (skip_all => 'Tests not yet ready for MSWin32 MSVC');
+        #}
     }
     if ($^O eq 'VMS') {
         @plan = (skip_all => "B::C doesn't work on VMS");
@@ -202,7 +202,7 @@ isnt(`$perlcc -v2 -o pcc $f $devnull`, "", "-v2 -o file");
 isnt(`$perlcc -v3 -o pcc $f $devnull`, "", "-v3 -o file");
 isnt(`$perlcc -v4 -o pcc $f $devnull`, "", "-v4 -o file");
 TODO: {
-  local $TODO = "catch STDERR not STDOUT" if $^O =~ /bsd$/i; # fails freebsd only
+  local $TODO = "catch STDERR not STDOUT" if $^O =~ /(bsd|MSWin32)$/i; # fails freebsd only
   like(`$perlcc -v5 $f $redir`, '/Writing output/m',
        "-v5 turns on -Wb=-v"); #58
   like(`$perlcc -v5 -B $f $redir`, '/-PV-/m',
@@ -228,13 +228,16 @@ cleanup;
 
 is(`$perlcc -Or -opcc $f $devnull`, "ok", "-Or -o file");
 ok(! -e 'pcc.c', "no pcc.c file");
-ok(-e $a, "keep executable");
+ok(-e $a, "keep executable"); #69
 cleanup;
 
 # -BS: ignore -S
-like(`$perlcc -BSr -opcc.plc -e $e $redir`, '/-S ignored/', "-BSr -o -e");
-ok(-e 'pcc.plc', "pcc.plc file");
-cleanup;
+SKIP: {
+  skip "$^O redirection", 2 if $^O eq 'MSWin32';
+  like(`$perlcc -BSr -opcc.plc -e $e $redir`, '/-S ignored/', "-BSr -o -e"); #70
+  ok(-e 'pcc.plc', "pcc.plc file");
+  cleanup;
+}
 
 SKIP: {
   skip "perl5.22 broke ByteLoader", 1

@@ -236,7 +236,7 @@ sub _create_runperl { # Create the string to qx in runperl().
             }
         }
     } elsif (defined $args{progfile}) {
-	$runperl .= qq( "$args{progfile}");
+        $runperl .= " ".($args{progfile} =~ m/\s/ ? qq{"$args{progfile}"} : $args{progfile});
     } else {
 	# You probaby didn't want to be sucking in from the upstream stdin
 	die "test.pl:runperl(): none of prog, progs, progfile, args, "

@@ -91,6 +91,7 @@ use subs qw{
     gettimeofday tv_interval vsystem
 };
 sub opt(*); # imal quoting
+sub is_winlike();
 sub is_win32();
 sub is_msvc();
 
@@ -327,6 +328,9 @@ sub parse_argv {
 
     if (opt('o')) {
         $Output = opt('o');
+        if (!opt('B') and is_winlike() and $Output !~ /\.[A-Za-z0-9]{3}$/) {
+            $Output .= '.exe';
+        }
     } elsif (opt('B')) {
         if (opt('e')) {
             my $suffix = '.plc';
@@ -338,7 +342,7 @@ sub parse_argv {
     } else {
         $Output = opt('e') ? 'a.out' : $Input;
         $Output =~ s/\.(p[lm]|t)$//;
-        if (is_win32() or $^O eq 'cygwin') {
+        if (is_winlike()) {
             if ($Output eq 'a.out') {
                 $Output = 'a.exe';
             } else {
@@ -462,13 +466,13 @@ sub compile_cstyle {
         $staticxs = "";
     } elsif (opt('o')) {
         $cfile = opt('o').".c";
-        if ((is_win32() or $^O eq 'cygwin') and $Output =~ /\.exe.c$/) {
+        if (is_winlike() and $Output =~ /\.exe.c$/) {
           $cfile =~ s/\.exe\.c$/.c/,
         }
     } elsif (opt('S') || opt('c')) { # We need to keep it
         if (opt('e')) {
             $cfile = $Output;
-            if ((is_win32() or $^O eq 'cygwin') and $Output =~ /\.exe$/) {
+            if (is_winlike() and $Output =~ /\.exe$/) {
                 $cfile =~ s/\.exe$//,
             }
             $cfile .= '.c';
@@ -724,7 +728,7 @@ print OUT <<'!NO!SUBS!';
         $ldflags =~ s/-fstack-protector\b// if $extra_libs;
     }
     # another ldopts bug: ensure Win32CORE gets added, before -lperl
-    if (is_win32() or $^O eq 'cygwin') {
+    if (is_winlike()) {
         if (index($ldopts, "Win32CORE") < 0) {
            my $archdir = $ENV{PERL_CORE} ? "../.." : $Config{archlib};
            my $win32core = "-L$archdir/lib/auto/Win32CORE -lWin32CORE";
@@ -909,7 +913,7 @@ sub sanity_check {
             _die("Compiling a.out is probably not what you want to do.\n");
             # You fully deserve what you get now. No you *don't*. typos happen.
         } else {
-            my $suffix = (is_win32() or $^O eq 'cygwin') ? '.exe' : '';
+            my $suffix = is_winlike() ? '.exe' : '';
             (undef, $Output) = tempfile("plcXXXXX", SUFFIX => $suffix);
             warn "$0: Will not write output on top of input file, ",
                 "compiling to $Output instead\n";
@@ -1080,7 +1084,8 @@ sub interruptrun {
     return($text);
 }
 
-sub is_win32() { $^O =~ m/^(MSWin32|msys)/ }
+sub is_winlike() { $^O =~ m/^(MSWin32|msys|cygwin)/ }
+sub is_win32()   { $^O =~ m/^(MSWin32|msys)/ }
 sub is_msvc() { is_win32 && $Config{cc} =~ m/^cl/i }
 
 END {

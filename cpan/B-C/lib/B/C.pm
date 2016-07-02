@@ -2816,6 +2816,7 @@ sub B::NV::save {
   $nv .= '.00' if $nv =~ /^-?\d+$/;
   # IVX is invalid in B.xs and unused
   my $iv = $sv->FLAGS & SVf_IOK ? $sv->IVX : 0;
+  $nv = '0.00' if IS_MSVC and !$nv;
   if ($PERL514) {
     $xpvnvsect->comment('STASH, MAGIC, cur, len, IVX, NVX');
     $xpvnvsect->add( sprintf( "Nullhv, {0}, 0, 0, {%ld}, {%s}", $iv, $nv ) );
@@ -6390,6 +6391,12 @@ sub output_declarations {
 #define sym_0 0
 
 EOT
+  if ($PERL510 and IS_MSVC) {
+    # initializing char * differs in levels of indirection from int
+    print "#pragma warning( disable : 4047 )\n";
+    # targ: unreferenced local variable
+    print "#pragma warning( disable : 4101 )\n";
+  }
 
   # Need fresh re-hash of strtab. share_hek does not allow hash = 0
   if ( $PERL510 ) {
