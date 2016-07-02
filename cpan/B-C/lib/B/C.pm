@@ -2998,7 +2998,7 @@ sub B::PVNV::save {
   }
   my ( $pvsym, $cur, $len, $pv, $static, $flags ) = save_pv_or_rv($sv, $fullname);
   my $tmp_pvsym = $pvsym;
-  my $nvx = '';
+  my $nvx = '0.0';
   my $ivx = ivx($sv->IVX); # here must be IVX!
   if ($flags & (SVf_NOK|SVp_NOK)) {
     # it could be a double, or it could be 2 ints - union xpad_cop_seq
