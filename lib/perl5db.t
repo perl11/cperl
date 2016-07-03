@@ -2851,11 +2851,14 @@ for my $f ('sig2sig', 'sig2pp', 'pp2sig') {
     );
 
     $wrapper->contents_like(
-      qr{lib/perl5db/t/test-$f:2\)}ms,
-      "Step into a tailcall $f");
-    $wrapper->contents_like(
-      qr/^0\s+'ok'$/ms,
-      "Step into a tailcall $f, get arg");
+        qr{lib/perl5db/t/test-$f:2\)}ms,
+        "Step into a tailcall $f");
+    TODO: {
+        local $::TODO = 'cperl #173' unless $f eq 'pp2sig';
+        $wrapper->contents_like(
+            qr/^0\s+'ok'$/ms,
+            "Step into a tailcall $f, get arg");
+    }
 }
 
 # [cperl #167] asserts with tailcalls, wrong pad depth.
@@ -2877,12 +2880,15 @@ for my $f ('sig2sig', 'sig2pp', 'pp2sig') {
         }
     );
 
-    $wrapper->contents_like(
-      qr{lib/perl5db/t/test-tailcall:2}ms,
-      "Stepped into [cperl #167]");
-    $wrapper->output_unlike(
-      qr/^Not enough arguments for subroutine .*/ms,
-      "No error [cperl #167]");
+    TODO: {
+      local $::TODO = 'cperl #167';
+      $wrapper->contents_like(
+          qr{lib/perl5db/t/test-tailcall:2}ms,
+          "Stepped into [cperl #167]");
+      $wrapper->output_unlike(
+          qr/^Not enough arguments for subroutine .*/ms,
+          "No error [cperl #167]");
+    }
 }
 
 END {
