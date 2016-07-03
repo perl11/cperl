@@ -5,10 +5,6 @@ use File::Spec;
 use B::C::Config;
 use Test::More;
 
-BEGIN {
-    eval { require IPC::Run; };
-}
-
 sub curr_test {
     $test = shift if @_;
     return $test;
@@ -722,7 +718,7 @@ sub run_cmd {
             # XXX TODO hanging or stacktrace'd children are not killed on cygwin
 	    my $h = IPC::Run::start(\@cmd, \$in, \$out, \$err);
 	    if ($timeout) {
-		my $secs10 = $timeout/10;
+		my $secs10 = $timeout / 10;
 		for (1..$secs10) {
 		    if(!$h->pumpable) {
 			last;
@@ -741,9 +737,9 @@ sub run_cmd {
 	    $h->finish or die "cmd returned $?";
 	    $result = $h->result(0);
 	};
-        warn $out."\n" if $ENV{TEST_VERBOSE};
-	$err .= "\$\@ = $@" if($@);
-        warn $err."\n" if $ENV{TEST_VERBOSE};
+        warn $out."\n" if $out and $ENV{TEST_VERBOSE};
+	$err .= " \$\@ = $@" if $@;
+        warn $err."\n" if $err and $ENV{TEST_VERBOSE};
     }
     return ($result, $out, $err);
 }
@@ -905,7 +901,7 @@ sub run_cc_test {
             $cmdline = "$Config{ld} $linkargs -out:$exe $obj[0] $command";
         }
 	diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
-        run_cmd($cmdline, 20);
+        run_cmd($cmdline, 30);
         unless (-e $exe) {
             if ($ENV{PERL_CORE}) {
                 if ($^O =~ /^(MSWin32|hpux)/) {
