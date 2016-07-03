@@ -641,7 +641,7 @@ our $to_trace = 0;
 # to compare the two directory structures.  They include only the code points
 # common to both releases, and you can see the changes caused just by the
 # underlying release semantic changes.  For versions earlier than 3.2, you
-# must copy a version of DAge.txt into the directory.
+# must copy a version of DerivedAge.txt into the directory.
 my $string_compare_versions = DEBUG && 0; #  e.g., "2.1";
 my $compare_versions = DEBUG
                        && $string_compare_versions
@@ -9961,7 +9961,7 @@ sub substitute_PropertyAliases($) {
 }
 
 
-sub process_PropertyAliases($) {
+sub process_old_PropertyAliases($) {
     # This reads in the PropertyAliases.txt file, which contains almost all
     # the character properties in Unicode and their equivalent aliases:
     # scf       ; Simple_Case_Folding         ; sfc
@@ -9969,6 +9969,9 @@ sub process_PropertyAliases($) {
     # Field 0 is the preferred short name for the property.
     # Field 1 is the full name.
     # Any succeeding ones are other accepted names.
+    #    
+    # Starting with v9.0 PropertyAliases.txt is merged into PropertyValueAliases.txt
+    # # Simple_Case_Folding (scf)
 
     my $file= shift;
     Carp::carp_extra_args(\@_) if main::DEBUG && @_;
@@ -10265,7 +10268,7 @@ END
     if (-e 'Scripts.txt') {
         push @return, "sc        ; Script\n";
     }
-    if (-e 'DNormalizationProps.txt') {
+    if (-e 'DerivedNormalizationProps.txt') {
         push @return, split /\n/, <<'END';
 Comp_Ex   ; Full_Composition_Exclusion
 FC_NFKC   ; FC_NFKC_Closure
@@ -10293,7 +10296,7 @@ END
                                     unless grep { $_ =~ /^Upper\b/} @return;
     }
 
-    # This flag requires the DAge.txt file to be copied into the directory.
+    # This flag requires the DerivedAge.txt file to be copied into the directory.
     if (DEBUG && $compare_versions) {
         push @return, 'age       ; Age';
     }
@@ -10303,7 +10306,7 @@ END
 
 sub substitute_PropValueAliases($) {
     # Deal with early releases that don't have the crucial
-    # PropValueAliases.txt file.
+    # PropValueAliases.txt/PropertyValueAliases.txt file.
 
     my $file_object = shift;
     $file_object->insert_lines(get_old_property_value_aliases());
@@ -10380,6 +10383,15 @@ END
         s/CCC133/CCC132/g if $v_version eq v6.1.0;
 
         my ($property, @data) = split /\s*;\s*/;
+        
+        if ($v_version ge v9.0.0) {
+            # handle PropertyAliases also, only in comments
+            if (/^# (\w+) \((\w+)\)$/) {
+                $property = $2;
+                @data = ($1);
+            }
+        }
+        
 
         # The ccc property has an extra field at the beginning, which is the
         # numeric value.  Move it to be after the other two, mnemonic, fields,
@@ -10680,7 +10692,7 @@ END
         push @return, @lb;
     }
 
-    if (-e 'DNormalizationProps.txt') {
+    if (-e 'DerivedNormalizationProps.txt') {
         push @return, split /\n/, <<'END';
 qc ; M         ; Maybe
 qc ; N         ; No
@@ -11824,7 +11836,7 @@ END
         # 2)    didn't include ranges, which it should have, and which are now
         #       added in @corrected_lines below.  It was hand populated by
         #       taking the data from Version 2, verified by analyzing
-        #       DAge.txt.
+        #       DerivedAge.txt.
         # 3)    There is a syntax error in the entry for U+09F8 which could
         #       cause problems for utf8_heavy, and so is changed.  It's
         #       numeric value was simply a minus sign, without any number.
@@ -13804,7 +13816,7 @@ sub handle_compare_versions () {
         $delta += $table;
     }
     if ($delta->is_empty) {
-        die ("No changes; perhaps you need a 'DAge.txt' file?");
+        die ("No changes; perhaps you need a 'DerivedAge.txt' file?");
     }
 
     my $unchanged = ~ $delta;
@@ -14967,7 +14979,7 @@ END
     ));
 
     # Construct the Present_In property from the Age property.
-    if (-e 'DAge.txt' && defined $age) {
+    if (-e 'DerivedAge.txt' && defined $age) {
         my $default_map = $age->default_map;
         my $in = Property->new('In',
                                 Default_Map => $default_map,
@@ -18852,7 +18864,8 @@ my $Validation_Documentation = "Documentation of validation Tests";
 # release into an earlier release's directory.
 my @input_file_objects = (
     Input_file->new('PropertyAliases.txt', v3.2,
-                    Handler => \&process_PropertyAliases,
+                    Withdrawn => v9.0,
+                    Handler => \&process_old_PropertyAliases,
                     Early => [ \&substitute_PropertyAliases ],
                     Required_Even_in_Debug_Skip => 1,
                    ),
@@ -18861,10 +18874,19 @@ my @input_file_objects = (
                     Handler => \&finish_property_setup,
                    ),
     Input_file->new('PropValueAliases.txt', v3.2,
+                     Withdrawn => v9.0,
                      Handler => \&process_PropValueAliases,
                      Early => [ \&substitute_PropValueAliases ],
                      Has_Missings_Defaults => $NOT_IGNORED,
                      Required_Even_in_Debug_Skip => 1,
+                    ),
+    Input_file->new('PropertyValueAliases.txt', v9.0,
+                    Handler => \&process_PropValueAliases,
+                    # merged with \&process_PropertyAliases,
+                    Early => [ \&substitute_PropValueAliases ],
+                    # merged with \&substitute_PropertyAliases ],
+                    Has_Missings_Defaults => $NOT_IGNORED,
+                    Required_Even_in_Debug_Skip => 1,
                     ),
     Input_file->new("${EXTRACTED}DGeneralCategory.txt", v3.1.0,
                     Property => 'General_Category',
@@ -19069,10 +19091,15 @@ my @input_file_objects = (
                      Skip => ($make_norm_test_script) ? 0 : $Validation,
                    ),
     Input_file->new('DCoreProperties.txt', v3.1.0,
+                    Withdrawn => v9.0,
                     # 5.2 changed this file
                     Has_Missings_Defaults => (($v_version ge v5.2.0)
                                             ? $NOT_IGNORED
                                             : $NO_DEFAULTS),
+                   ),
+    Input_file->new('DerivedCoreProperties.txt', v9.0.0,
+                    # 9.0 renamed it
+                    Has_Missings_Defaults => $NOT_IGNORED,
                    ),
     Input_file->new('DProperties.html', v3.1.0,
                     Withdrawn => v3.2.0,
@@ -19090,16 +19117,26 @@ my @input_file_objects = (
                     Has_Missings_Defaults => $NOT_IGNORED,
                    ),
     Input_file->new('DNormalizationProps.txt', v3.1.0,
+                    Withdrawn => v9.0,
                     Has_Missings_Defaults => $NOT_IGNORED,
                     Each_Line_Handler => (($v_version lt v4.0.1)
                                       ? \&filter_old_style_normalization_lines
                                       : undef),
+                   ),
+    Input_file->new('DerivedNormalizationProps.txt', v9.0.0,
+                    Has_Missings_Defaults => $NOT_IGNORED,
+                    Each_Line_Handler => undef,
                    ),
     Input_file->new('DerivedProperties.html', v3.1.1,
                     Withdrawn => v5.1,
                     Skip => $Documentation,
                    ),
     Input_file->new('DAge.txt', v3.2.0,
+                    Withdrawn => v9.0,
+                    Has_Missings_Defaults => $NOT_IGNORED,
+                    Property => 'Age'
+                   ),
+    Input_file->new('DerivedAge.txt', v9.0.0,
                     Has_Missings_Defaults => $NOT_IGNORED,
                     Property => 'Age'
                    ),
@@ -19215,6 +19252,12 @@ my @input_file_objects = (
                                        \&filter_later_version_name_alias_line,
                    ),
     Input_file->new('NamedSqProv.txt', v5.0.0,
+                    Skip => 'Named sequences proposed for inclusion in a '
+                          . 'later version of the Unicode Standard; if you '
+                          . 'need them now, you can append this file to '
+                          . 'F<NamedSequences.txt> and recompile perl',
+                   ),
+    Input_file->new('NamedSequencesProv.txt', v9.0.0,
                     Skip => 'Named sequences proposed for inclusion in a '
                           . 'later version of the Unicode Standard; if you '
                           . 'need them now, you can append this file to '
