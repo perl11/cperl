@@ -573,19 +573,22 @@ is *_{ARRAY}, undef, 'goto &xsub when @_ does not exist';
 # goto &perlsub when @_ itself does not exist [perl #119949]
 # This was only crashing when the replaced sub call had an argument list.
 # (I.e., &{ sub { goto ... } } did not crash.)
-sub {
-    undef *_;
-    goto sub {
-	is *_{ARRAY}, undef, 'goto &perlsub when @_ does not exist';
-    }
-}->();
-sub {
-    local *_;
-    goto sub {
-	is *_{ARRAY}, undef, 'goto &sub when @_ does not exist (local *_)';
-    }
-}->();
-
+SKIP: {
+    skip 'cperl #173 regression: restore @_ as undef', 2; # if $Config{usecperl};
+    
+    sub {
+        undef *_;
+        goto sub {
+            is *_{ARRAY}, undef, 'goto &perlsub when @_ does not exist';
+        }
+    }->();
+    sub {
+        local *_;
+        goto sub {
+            is *_{ARRAY}, undef, 'goto &sub when @_ does not exist (local *_)';
+        }
+    }->();
+}
 
 # [perl #36521] goto &foo in warn handler could defeat recursion avoider
 

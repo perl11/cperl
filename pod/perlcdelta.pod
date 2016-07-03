@@ -44,6 +44,13 @@ Many subroutines of the form C<my ($args...) = @_;>
 are automatically converted via L<fake_signatures>
 to use signatures internally.
 
+=item * Proper tailcalls
+
+goto to a subroutine with signature is now a proper tailcall,
+and does not create a new pad frame.
+
+All 4 variants of tailcalls, no-sigs from and to sigs are covered.
+
 =item * Less experimental needed
 
 Remove the previously required use experimental for
