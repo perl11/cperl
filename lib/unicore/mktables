@@ -4864,8 +4864,8 @@ sub trace { return main::trace(@_); }
 } # End closure for _Range_List_Base
 
 package Range_List;
-#use parent '-norequire', '_Range_List_Base';
-our @ISA = ('_Range_List_Base');
+use parent '-norequire', '_Range_List_Base';
+#our @ISA = ('_Range_List_Base');
 
 # A Range_List is a range list for match tables; i.e. the range values are
 # not significant.  Thus a number of operations can be safely added to it,
@@ -6769,8 +6769,8 @@ END
 } # End closure
 
 package Map_Table;
-#use parent '-norequire', '_Base_Table';
-our @ISA = ('_Base_Table');
+use parent '-norequire', '_Base_Table';
+#our @ISA = ('_Base_Table');
 
 # A Map Table is a table that contains the mappings from code points to
 # values.  There are two weird cases:
@@ -7687,8 +7687,8 @@ END
 } # End closure for Map_Table
 
 package Match_Table;
-#use parent '-norequire', '_Base_Table';
-our @ISA = ('_Base_Table');
+use parent '-norequire', '_Base_Table';
+#our @ISA = ('_Base_Table');
 
 # A Match table is one which is a list of all the code points that have
 # the same property and property value, for use in \p{property=value}
