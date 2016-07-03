@@ -6,7 +6,7 @@ BEGIN {
     set_up_inc('../lib');
 }
 
-plan (115);
+plan (119);
 # Please do not eliminate the plan.  We have tests in DESTROY blocks.
 
 sub expected {
@@ -184,3 +184,58 @@ my Int $i = 1;
 eval 'bless \$i, "MyInt"';
 like $@, qr/Invalid type Int for bless \$i at \(eval \d+\) line 1./, "Invalid bless to a coretype";
 
+TODO: {
+    my $ref;
+    sub new {
+        my ($class, $code) = @_;
+        my $ret = ref($code);
+        bless $code => $class;
+        return $ret;
+    }
+    for my $i (1 .. 2) {
+        $ref = main -> new (sub {$i});
+    }
+    is $ref, 'CODE', 'RT #3305: Code ref should not be blessed yet';
+
+    local $TODO = 'RT #3305';
+
+    for my $i (1 .. 2) {
+        $ref = main -> new (sub {});
+    }
+    is $ref, 'CODE', 'RT #3305: Code ref should not be blessed yet';
+}
+
+my $t_3306_c = 0;
+my $t_3306_s = 0;
+
+{
+    sub FooClosure::new {
+        my ($class, $code) = @_;
+        bless $code => $class;
+    }
+    sub FooClosure::DESTROY {
+        $t_3306_c++;
+    }
+
+    sub FooSub::new {
+        my ($class, $code) = @_;
+        bless $code => $class;
+    }
+    sub FooSub::DESTROY {
+        $t_3306_s++;
+    }
+
+    my $i = '';
+    FooClosure -> new (sub {$i});
+    FooSub -> new (sub {});
+}
+
+is $t_3306_c, 1, 'RT #3306: DESTROY should be called on CODE ref (works on closures)';
+
+TODO: {
+    local $TODO = 'RT #3306';
+    is $t_3306_s, 1, 'RT #3306: DESTROY should be called on CODE ref';
+}
+
+undef *FooClosure::;
+undef *FooSub::;
