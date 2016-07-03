@@ -2777,11 +2777,10 @@ PP(pp_goto)
                     cx->blk_sub.cv = cv; /* adjust context */
                     cx->blk_sub.olddepth = CvDEPTH(cv);
                     if (CvHASSIG(cursub)) { /* sig2sig: no @_, just SP-MARK */
-                        arg = av; /* mark */
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
                              "goto %s from sig with sig: keep %ld args\n",
                              SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
-                             (long int)(cx->blk_sub.savearray - av + 1))); /* sp-mark+1 */
+                               (long int)((SV**)cx->blk_sub.savearray - cx->blk_sub.argarray + 1)));
                         DEBUG_Xv(PerlIO_printf(Perl_debug_log,
                             "Pad padlist max=%d, CvDEPTH=%d (goto sig2sig %s)\n",
                             (int)PadlistMAX(padlist), (int)CvDEPTH(cv),
@@ -2805,27 +2804,34 @@ PP(pp_goto)
 		else { /* {sig,pp}2pp */
                     if (!arg || (av == arg) || AvREAL(av))
                         clear_defarray(av, arg && (av == arg));
-                    /* if sig2pp: SP -> @_ */
+                    /* if sig2pp: PAD -> @_ */
                     if (CvHASSIG(cx->blk_sub.cv)) {
                         SSize_t index = 0;
-                        SV** mark = sp + 1;
-                        SV** stack = (SV**)cx->blk_sub.savearray;
-                        if (!arg) {
+                        SSize_t argc = (SV**)cx->blk_sub.savearray
+                                           - cx->blk_sub.argarray + 1;
+                        SV** padp = &PL_curpad[1]; /* 0 has @_ */
+                        /* XXX #173 */
+                        if (!arg || SvTYPE(arg) != SVt_PVAV) {
                             arg = GvAV(gv_AVadd(PL_defgv));
-                            AvREIFY_only(arg);
+                            /* how can this be corrupt? restore stack most likely */
+                            if (SvTYPE(arg) != SVt_PVAV) {
+                                GvAV(PL_defgv) = NULL;
+                                arg = GvAV(gv_AVadd(PL_defgv));
+                            }
                         }
                         else
                             SvREFCNT_inc_simple_NN(arg);
-                        for (; mark <= stack; mark++) {
-                            av_store(arg, index++,
-                                     SvREFCNT_inc( /* skip the first arg if @_ */
-                                         (SvIS_FREED(*mark) || SvTYPE(*mark) >= SVt_PVAV)
-                                         ? &PL_sv_undef : *mark));
-                        }
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
                             "goto sig2pp %s: copy %ld args\n",
                             SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
-                            arg ? AvFILLp(arg)+1 : 0));
+                            argc));
+                        /* Note that this can still leave AvARRAY(@_) at 0x0.
+                           With args this is alloced at av_store. */
+                        for (; index < argc; index++) {
+                            SvPADSTALE_off(*padp); /* but don't bump the refcnt */
+                            av_store(arg, index, *padp++);
+                        }
+                        AvREIFY_only(arg);
                     } else {
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
                             "goto pp %s: keep %ld args\n",
