@@ -195,10 +195,11 @@ Check for max length before derefing by length (jhi) RT #111707
 
 See L</DynaLoader format string hardening> above.
 
-=item B::C 1.54_07
+=item B::C 1.54_08
 
-Many Windows fixes, for the old MSVC compiler, and PERL_CORE test
-integration. Use many new core exports needed for windows.
+Many Windows and cygwin fixes, for the old MSVC compiler, and
+PERL_CORE test integration. Use many new core exports needed for
+windows.
 
 Update perlcc to 2.21, handle multiple -I and -L arguments.
 
