@@ -2811,7 +2811,6 @@ S_dofindlabel(pTHX_ OP *o, const char *label, STRLEN len, U32 flags, OP **opstac
     return 0;
 }
 
-
 static void
 S_check_op_type(pTHX_ OP * const o)
 {
@@ -2831,6 +2830,7 @@ S_check_op_type(pTHX_ OP * const o)
 }
 
 /* also used for: pp_dump() */
+/* To cvref or label. Any expr can be a a cvref or label. */
 
 PP(pp_goto)
 {

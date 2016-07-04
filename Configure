@@ -304,6 +304,7 @@ touch=''
 tr=''
 troff=''
 uname=''
+unexec=''
 uniq=''
 uuname=''
 vi=''
@@ -24239,6 +24240,63 @@ esac
 set usenamedanoncv
 eval $setvar
 
+echo "Check for UNEXEC support..." >&4
+case "${osname}" in
+linux|dragonfly|*bsd)
+    unexec="unexelf"
+    ccflags="$ccflags -DUNEXEC=$unexec"
+    echo "$unexec found." >&4
+    ;;
+darwin)
+    unexec="unexmacosx"
+    ccflags="$ccflags -DUNEXEC=$unexec"
+    echo "$unexec found." >&4
+    ;;
+aix)
+    unexec="unexaix"
+    ccflags="$ccflags -DUNEXEC=$unexec"
+    echo "$unexec found." >&4
+    ;;
+sunos|solaris)
+    unexec="unexsol"
+    ccflags="$ccflags -DUNEXEC=$unexec"
+    echo "$unexec found." >&4
+    ;;
+cygwin)
+    unexec="unexcw"
+    ccflags="$ccflags -DUNEXEC=$unexec"
+    echo "$unexec found." >&4
+    ;;
+win32)
+    unexec="unexw32"
+    ccflags="$ccflags -DUNEXEC=$unexec"
+    echo "$unexec found." >&4
+    ;;
+dos)
+    unexec="unexcoff"
+    ccflags="$ccflags -DUNEXEC=$unexec"
+    echo "$unexec found." >&4
+    ;;
+hpux*)
+    unexec="unexhp9k800"
+    ccflags="$ccflags -DUNEXEC=$unexec"
+    echo "$unexec found." >&4
+    ;;
+dos)
+    unexec="unexcoff"
+    ccflags="$ccflags -DUNEXEC=$unexec"
+    echo "$unexec found." >&4
+    ;;
+*) case "$useshrplib" in
+    false) # via undump
+        echo "no unexec found, but undump possible." >&4
+        ;;
+    *)	echo "no unexec and no undump support found." >&4
+	;;
+    esac
+    ;;
+esac
+
 : Check extensions
 echo " "
 echo "Looking for extensions..." >&4
@@ -25913,6 +25971,7 @@ uidsign='$uidsign'
 uidsize='$uidsize'
 uidtype='$uidtype'
 uname='$uname'
+unexec='$unexec'
 uniq='$uniq'
 uquadtype='$uquadtype'
 use5005threads='$use5005threads'

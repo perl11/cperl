@@ -427,6 +427,12 @@ $make_set_make
 
 !GROK!THIS!
 
+# disabled for now until properly integrated
+case "${unexec}" in
+    #unex*) archobjs="$archobjs ${unexec}${_o}" ;;
+    *) ;;
+esac
+
 case "${osname}" in
 linux*|darwin)
 $spitshell >>$Makefile <<!GROK!THIS!

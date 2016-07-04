@@ -4049,10 +4049,13 @@ Internet, point your browser at http://www.perl.org/, the Perl Home Page.\n\n");
 	my_exit(0);
 }
 
-/* compliments of Tom Christiansen */
+/* compliments of Tom Christiansen and Reini Urban */
 
-/* unexec() can be found in the Gnu emacs distribution */
-/* Known to work with -DUNEXEC and using unexelf.c from GNU emacs-20.2 */
+/* 2 modes: via -u and undump (just dumping core with static libperl only),
+   or via -DUNEXEC, where unexec() can be found in the Gnu emacs distribution.
+   Known to work with -DUNEXEC and using unexelf.c from GNU emacs-20.2
+   There is also support for aix, coff, darwin (mach-o), cygwin, hp9k800,
+   solaris, win32 */
 
 #ifdef VMS
 #include <lib$routines.h>
@@ -4070,14 +4073,16 @@ Perl_my_unexec(pTHX)
     sv_catpvs(prog, "/perl");
     sv_catpvs(file, ".perldump");
 
+    /* unexec, etext defined in unexec.c */
     unexec(SvPVX(file), SvPVX(prog), &etext, sbrk(0), 0);
     /* unexec prints msg to stderr in case of failure */
     PerlProc_exit(status);
 #else
+    /* dump to core */
     PERL_UNUSED_CONTEXT;
 #  ifdef VMS
      lib$signal(SS$_DEBUG);  /* ssdef.h #included from vmsish.h */
-#  elif defined(WIN32) || defined(__CYGWIN__)
+#  elif defined(WIN32)
     Perl_croak_nocontext("dump is not supported");
 #  else
     ABORT();		/* for use with undump */

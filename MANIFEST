@@ -7227,6 +7227,15 @@ toke.c				The tokener, i.e. lexer
 uconfig.h			Configuration header for microperl
 uconfig.sh			Configuration script for microperl
 uconfig64.sh			Configuration script for microperl for LP64
+unexaix.c			unexec from GNU emacs for AIX
+unexcoff.c			unexec from GNU emacs for COFF (DOS only)
+unexcw.c			unexec from GNU emacs for cygwin
+unexec.h			unexec from GNU emacs header
+unexelf.c			unexec from GNU emacs for ELF
+unexhp9k800.c			unexec from GNU emacs for HP9800
+unexmacosx.c			unexec from GNU emacs for darwin
+unexsol.c			unexec from GNU emacs for solaris
+unexw32.c			unexec from GNU emacs for win32
 un8ifcan.h			Unicode::Normalize generated header
 un8ifcmb.h			Unicode::Normalize generated header
 un8ifcmp.h			Unicode::Normalize generated header
