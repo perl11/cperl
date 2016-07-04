@@ -20,11 +20,15 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    Geoff Voelker (voelker@cs.washington.edu)                         8-12-94
 */
 
-#include <config.h>
 #include "unexec.h"
-#include "lisp.h"
-#include "w32common.h"
-#include "w32.h"
+/*
+  #include "w32common.h"
+  #include "w32.h"
+*/
+#define PERLIO_NOT_STDIO 0
+#include "EXTERN.h"
+#define PERL_IN_UNEXEC_C
+#include "perl.h"
 
 #include <stdio.h>
 #include <fcntl.h>

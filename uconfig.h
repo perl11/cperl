@@ -5480,9 +5480,14 @@
  */
 /*#define	USE_FFI		/ **/
 
+/* UNEXEC:
+ *	This symbol defines the used unexec source.
+ *      Defined via ccflags.
+ */
+
 #endif
 
 /* Generated from:
- * d295cb5b21070ab7c5076d71ceaa6fe08b12b02a619a95aba11c443ef7f8600a config_h.SH
+ * 7c910e3df6f8dfb8c2976b0c7b72ec560d55a386fd49b20054b0c3ddb716eae0 config_h.SH
  * 1ad21ed3ecb2fac07b7c4aabef76b2fc7354cc6dee0b561e852a1651f8dd6025 uconfig.sh
  * ex: set ro: */

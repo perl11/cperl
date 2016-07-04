@@ -50,9 +50,11 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
  * of Dell Computer Corporation.  james@bigtex.cactus.org.
  */
 
-#include <config.h>
 #include "unexec.h"
-#include "lisp.h"
+#define PERLIO_NOT_STDIO 0
+#include "EXTERN.h"
+#define PERL_IN_UNEXEC_C
+#include "perl.h"
 
 #define PERROR(file) report_error (file, new)
 
@@ -131,7 +133,7 @@ report_error (const char *file, int fd)
 {
   int err = errno;
   if (fd)
-    emacs_close (fd);
+    close (fd);
   report_file_errno ("Cannot unexec", build_string (file), err);
 }
 
@@ -142,7 +144,7 @@ report_error (const char *file, int fd)
 static void
 report_error_1 (int fd, const char *msg, int a1, int a2)
 {
-  emacs_close (fd);
+  close (fd);
   error (msg, a1, a2);
 }
 
@@ -499,7 +501,7 @@ adjust_lnnoptrs (int writedesc, int readdesc, const char *new_name)
 #ifdef MSDOS
   if ((new = writedesc) < 0)
 #else
-  if ((new = emacs_open (new_name, O_RDWR, 0)) < 0)
+  if ((new = open (new_name, O_RDWR, 0)) < 0)
 #endif
     {
       PERROR (new_name);
@@ -523,7 +525,7 @@ adjust_lnnoptrs (int writedesc, int readdesc, const char *new_name)
 	}
     }
 #ifndef MSDOS
-  emacs_close (new);
+  close (new);
 #endif
   return 0;
 }
@@ -538,11 +540,11 @@ unexec (const char *new_name, const char *a_name)
 {
   int new = -1, a_out = -1;
 
-  if (a_name && (a_out = emacs_open (a_name, O_RDONLY, 0)) < 0)
+  if (a_name && (a_out = open (a_name, O_RDONLY, 0)) < 0)
     {
       PERROR (a_name);
     }
-  if ((new = emacs_open (new_name, O_WRONLY | O_CREAT | O_TRUNC, 0666)) < 0)
+  if ((new = open (new_name, O_WRONLY | O_CREAT | O_TRUNC, 0666)) < 0)
     {
       PERROR (new_name);
     }
@@ -553,13 +555,13 @@ unexec (const char *new_name, const char *a_name)
       || adjust_lnnoptrs (new, a_out, new_name) < 0
       )
     {
-      emacs_close (new);
+      close (new);
       return;
     }
 
-  emacs_close (new);
+  close (new);
   if (a_out >= 0)
-    emacs_close (a_out);
+    close (a_out);
   mark_x (new_name);
 }
 

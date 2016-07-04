@@ -385,9 +385,13 @@ temacs:
 /* We do not use mmap because that fails with NFS.
    Instead we read the whole file, modify it, and write it out.  */
 
-#include <config.h>
 #include "unexec.h"
-#include "lisp.h"
+
+#define PERLIO_NOT_STDIO 0
+#include "EXTERN.h"
+#define PERL_IN_UNEXEC_C
+#include "perl.h"
+#define fatal Perl_croak_nocontext
 
 #include <errno.h>
 #include <fcntl.h>
@@ -520,6 +524,7 @@ typedef struct {
 # define ElfW(type) ElfExpandBitsW (ELFSIZE, type)
 #endif
 
+#if 0
 /* The code often converts ElfW (Half) values like e_shentsize to ptrdiff_t;
    check that this doesn't lose information.  */
 #include <intprops.h>
@@ -527,7 +532,7 @@ typedef struct {
 verify ((! TYPE_SIGNED (ElfW (Half))
 	 || PTRDIFF_MIN <= TYPE_MINIMUM (ElfW (Half)))
 	&& TYPE_MAXIMUM (ElfW (Half)) <= PTRDIFF_MAX);
-
+#endif
 #ifdef UNEXELF_DEBUG
 # define DEBUG_LOG(expr) fprintf (stderr, #expr " 0x%jx\n", (uintmax_t) (expr))
 #endif
@@ -670,7 +675,7 @@ unexec (const char *new_name, const char *old_name)
   /* Open the old file, allocate a buffer of the right size, and read
      in the file contents.  */
 
-  old_file = emacs_open (old_name, O_RDONLY, 0);
+  old_file = open (old_name, O_RDONLY, 0);
 
   if (old_file < 0)
     fatal ("Can't open %s for reading: %s", old_name, strerror (errno));
@@ -679,7 +684,7 @@ unexec (const char *new_name, const char *old_name)
     fatal ("Can't fstat (%s): %s", old_name, strerror (errno));
 
 #if MAP_ANON == 0
-  mmap_fd = emacs_open ("/dev/zero", O_RDONLY, 0);
+  mmap_fd = open ("/dev/zero", O_RDONLY, 0);
   if (mmap_fd < 0)
     fatal ("Can't open /dev/zero for reading: %s", strerror (errno));
 #endif
@@ -799,9 +804,17 @@ unexec (const char *new_name, const char *old_name)
      the image of the new file.  Set pointers to various interesting
      objects.  */
 
-  new_file = emacs_open (new_name, O_RDWR | O_CREAT, 0666);
-  if (new_file < 0)
-    fatal ("Can't creat (%s): %s", new_name, strerror (errno));
+  new_file = open (new_name, O_RDWR | O_CREAT, 0666);
+  if (new_file < 0) {
+    int err = errno;
+    char curdir[MAXPATHLEN];
+    close(old_file);
+    if (getcwd(curdir, sizeof(curdir) - 1))
+      fatal ("Can't creat (%s) pwd=%s: %s\nProbably a BEGIN { chdir ... }",
+             new_name, curdir, strerror (err));
+    else
+      fatal ("Can't creat (%s): %s", new_name, strerror (err));
+  }
 
   new_file_size = old_file_size + old_file_h->e_shentsize + new_data2_incr;
 
@@ -1311,13 +1324,13 @@ temacs:
   /* Close the files and make the new file executable.  */
 
 #if MAP_ANON == 0
-  emacs_close (mmap_fd);
+  close (mmap_fd);
 #endif
 
-  if (emacs_close (old_file) != 0)
+  if (close (old_file) != 0)
     fatal ("Can't close (%s): %s", old_name, strerror (errno));
 
-  if (emacs_close (new_file) != 0)
+  if (close (new_file) != 0)
     fatal ("Can't close (%s): %s", new_name, strerror (errno));
 
   if (stat (new_name, &stat_buf) != 0)

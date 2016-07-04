@@ -49,9 +49,12 @@
   sigsetreturn (_sigreturn);
 */
 
-#include <config.h>
 #include "unexec.h"
-#include "lisp.h"
+#define PERLIO_NOT_STDIO 0
+#include "EXTERN.h"
+#define PERL_IN_UNEXEC_C
+#include "perl.h"
+#define fatal Perl_croak_nocontext
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -243,7 +246,7 @@ copy_rest (int old, int new)
     unexec_error ("Unable to copy the rest of the file");
 }
 
-#ifdef	DEBUG
+#ifdef DEBUGGING
 static void
 display_header (struct header *hdr, struct som_exec_auxhdr *auxhdr)
 {
@@ -283,13 +286,20 @@ unexec (const char *new_name,      /* name of the new a.out file to be created *
      intact.  NOT implemented.  */
 
   /* Open the input and output a.out files.  */
-  old = emacs_open (old_name, O_RDONLY, 0);
+  old = open (old_name, O_RDONLY, 0);
   if (old < 0)
     unexec_error (old_name);
-  new = emacs_open (new_name, O_CREAT | O_RDWR | O_TRUNC, 0777);
-  if (new < 0)
-    unexec_error (new_name);
-
+  new = open (new_name, O_CREAT | O_RDWR | O_TRUNC, 0777);
+  if (new < 0) {
+    int err = errno;
+    char curdir[MAXPATHLEN];
+    close (old);
+    if (getcwd(curdir, sizeof(curdir) - 1))
+      fatal ("Can't creat (%s) pwd=%s: %s\nProbably a BEGIN { chdir ... }",
+             new_name, curdir, strerror (err));
+    else
+      fatal ("Can't creat (%s): %s", new_name, strerror (err));
+  }
   /* Read the old headers.  */
   read_header (old, &hdr, &auxhdr);
 
@@ -320,6 +330,6 @@ unexec (const char *new_name,      /* name of the new a.out file to be created *
   write_header (new, &hdr, &auxhdr);
 
   /* Close the binary file.  */
-  emacs_close (old);
-  emacs_close (new);
+  close (old);
+  close (new);
 }

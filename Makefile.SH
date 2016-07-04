@@ -429,8 +429,7 @@ $make_set_make
 
 # disabled for now until properly integrated
 case "${unexec}" in
-    #unex*) archobjs="$archobjs ${unexec}${_o}" ;;
-    *) ;;
+    unex*) archobjs="$archobjs ${unexec}${_o}" ;;
 esac
 
 case "${osname}" in
@@ -625,9 +624,9 @@ miniperl_dtrace_objs = $(miniperl_objs_nodt:%=mpdtrace/%)
 perllib_dtrace_objs = $(perllib_objs_nodt:%=libpdtrace/%)
 perlmain_dtrace_objs = maindtrace/perlmain$(OBJ_EXT)
 
-miniperl_objs = $(miniperl_dtrace_objs) $(DTRACE_MINI_O)
+miniperl_objs = $(miniperl_dtrace_objs) $(DTRACE_MINI_O) lastfile$(OBJ_EXT)
 perllib_objs  = $(perllib_dtrace_objs) $(DTRACE_PERLLIB_O)
-perlmain_objs = $(perlmain_dtrace_objs) $(DTRACE_MAIN_O)
+perlmain_objs = $(perlmain_dtrace_objs) $(DTRACE_MAIN_O) lastfile$(OBJ_EXT)
 
 miniperl_dep = $(DTRACE_MINI_O)
 perllib_dep = $(DTRACE_PERLLIB_O)
@@ -638,9 +637,9 @@ perlmain_dep = $(DTRACE_MAIN_O)
 *)
     $spitshell >>$Makefile <<'!NO!SUBS!'
 
-miniperl_objs = $(miniperl_objs_nodt) $(DTRACE_MINI_O)
+miniperl_objs = $(miniperl_objs_nodt) $(DTRACE_MINI_O) lastfile$(OBJ_EXT)
 perllib_objs  = $(perllib_objs_nodt) $(DTRACE_PERLLIB_O)
-perlmain_objs = perlmain$(OBJ_EXT) $(DTRACE_MAIN_O)
+perlmain_objs = perlmain$(OBJ_EXT) $(DTRACE_MAIN_O) lastfile$(OBJ_EXT)
 
 miniperl_dep = $(miniperl_objs)
 perllib_dep = $(perllib_objs)

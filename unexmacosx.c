@@ -91,13 +91,11 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
    warnings.  To prevent that, include stdlib.h before config.h.  */
 
 #include <stdlib.h>
-#include <config.h>
 #undef malloc
 #undef realloc
 #undef free
 
 #include "unexec.h"
-#include "lisp.h"
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -110,7 +108,13 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #if defined (__ppc__)
 #include <mach-o/ppc/reloc.h>
 #endif
-#ifdef HAVE_MALLOC_MALLOC_H
+
+#define PERLIO_NOT_STDIO 0
+#include "EXTERN.h"
+#define PERL_IN_UNEXEC_C
+#include "perl.h"
+
+#ifdef I_MALLOCMALLOC
 #include <malloc/malloc.h>
 #else
 #include <objc/malloc.h>
@@ -168,7 +172,7 @@ static struct region_t *region_list_tail = 0;
 static struct load_command **lca;
 
 /* Number of load commands.  */
-static int nlc;
+static uint32_t nlc;
 
 /* The highest VM address of segments loaded by the input file.
    Regions with addresses beyond this are assumed to be allocated
@@ -210,7 +214,7 @@ static struct segment_command *data_segment_scp;
 static int
 unexec_read (void *dest, size_t n)
 {
-  return n == read (infd, dest, n);
+    return n == (size_t)read (infd, dest, n);
 }
 
 /* Write COUNT bytes from memory starting at address SRC to outfd
@@ -222,7 +226,7 @@ unexec_write (off_t dest, const void *src, size_t count)
   if (lseek (outfd, dest, SEEK_SET) != dest)
     return 0;
 
-  return write (outfd, src, count) == count;
+  return (size_t)write (outfd, src, count) == count;
 }
 
 /* Write COUNT bytes of zeros to outfd starting at offset DEST.
@@ -402,7 +406,7 @@ build_region_list (void)
 	}
       else
 	{
-	  r = malloc (sizeof *r);
+          r = (struct region_t *)malloc (sizeof *r);
 
 	  if (!r)
 	    unexec_error ("cannot allocate region structure");
@@ -440,7 +444,7 @@ build_region_list (void)
 
 #define MAX_UNEXEC_REGIONS 400
 
-static int num_unexec_regions;
+static uint32_t num_unexec_regions;
 typedef struct {
   vm_range_t range;
   vm_size_t filesize;
@@ -480,19 +484,20 @@ unexec_reader (task_t task, vm_address_t address, vm_size_t size, void **ptr)
 }
 
 static void
-find_emacs_zone_regions (void)
+find_prog_zone_regions (void)
 {
   num_unexec_regions = 0;
-
+  /* TODO: walk the the perl arenas */
+#if 0
   emacs_zone->introspect->enumerator (mach_task_self (), 0,
 				      MALLOC_PTR_REGION_RANGE_TYPE
 				      | MALLOC_ADMIN_REGION_RANGE_TYPE,
 				      (vm_address_t) emacs_zone,
 				      unexec_reader,
 				      unexec_regions_recorder);
-
+#endif
   if (num_unexec_regions == MAX_UNEXEC_REGIONS)
-    unexec_error ("find_emacs_zone_regions: too many regions");
+    unexec_error ("find_prog_zone_regions: too many regions");
 }
 
 static int
@@ -512,7 +517,7 @@ unexec_regions_sort_compare (const void *a, const void *b)
 static void
 unexec_regions_merge (void)
 {
-  int i, n;
+  uint32_t i, n;
   unexec_region_info r;
   vm_size_t padsize;
 
@@ -650,7 +655,7 @@ print_load_command (struct load_command *lc)
     {
       struct segment_command *scp;
       struct section *sectp;
-      int j;
+      uint32_t j;
 
       scp = (struct segment_command *) lc;
       printf (" %-16.16s %#10lx %#8lx\n",
@@ -674,7 +679,7 @@ print_load_command (struct load_command *lc)
 static void
 read_load_commands (void)
 {
-  int i;
+  uint32_t i;
 
   if (!unexec_read (&mh, sizeof (struct mach_header)))
     unexec_error ("cannot read mach-o header");
@@ -697,7 +702,7 @@ read_load_commands (void)
 #endif
 
   nlc = mh.ncmds;
-  lca = malloc (nlc * sizeof *lca);
+  lca = (struct load_command **)malloc (nlc * sizeof *lca);
 
   for (i = 0; i < nlc; i++)
     {
@@ -706,7 +711,7 @@ read_load_commands (void)
 	 size first and then read the rest.  */
       if (!unexec_read (&lc, sizeof (struct load_command)))
         unexec_error ("cannot read load command");
-      lca[i] = malloc (lc.cmdsize);
+      lca[i] = (struct load_command *)malloc (lc.cmdsize);
       memcpy (lca[i], &lc, sizeof (struct load_command));
       if (!unexec_read (lca[i] + 1, lc.cmdsize - sizeof (struct load_command)))
         unexec_error ("cannot read content of load command");
@@ -720,7 +725,7 @@ read_load_commands (void)
 	  if (strncmp (scp->segname, SEG_TEXT, 16) == 0)
 	    {
 	      struct section *sectp = (struct section *) (scp + 1);
-	      int j;
+	      uint32_t j;
 
 	      for (j = 0; j < scp->nsects; j++)
 		if (sectp->offset < text_seg_lowest_offset)
@@ -754,7 +759,7 @@ copy_segment (struct load_command *lc)
   struct segment_command *scp = (struct segment_command *) lc;
   unsigned long old_fileoff = scp->fileoff;
   struct section *sectp;
-  int j;
+  unsigned int j;
 
   scp->fileoff = curr_file_offset;
 
@@ -796,7 +801,7 @@ copy_data_segment (struct load_command *lc)
 {
   struct segment_command *scp = (struct segment_command *) lc;
   struct section *sectp;
-  int j;
+  uint32_t j;
   unsigned long header_offset, old_file_offset;
 
   /* The new filesize of the segment is set to its vmsize because data
@@ -826,7 +831,7 @@ copy_data_segment (struct load_command *lc)
 	 file.  */
       if (strncmp (sectp->sectname, SECT_DATA, 16) == 0)
 	{
-	  extern char my_edata[];
+          extern char my_edata[]; /* char my_edata[] = "End of Emacs initialized data"; */
 	  unsigned long my_size;
 
 	  /* The __data section is basically dumped from memory.  But
@@ -1255,7 +1260,7 @@ copy_other (struct load_command *lc)
 static void
 dump_it (void)
 {
-  int i;
+  uint32_t i;
   long linkedit_delta = 0;
 
   printf ("--- Load Commands written to Output File ---\n");
@@ -1347,30 +1352,36 @@ unexec (const char *outfile, const char *infile)
     unexec_error ("Unexec from a dumped executable is not supported.");
 
   pagesize = getpagesize ();
-  infd = emacs_open (infile, O_RDONLY, 0);
+  infd = open (infile, O_RDONLY, 0);
   if (infd < 0)
     {
       unexec_error ("cannot open input file `%s'", infile);
     }
 
-  outfd = emacs_open (outfile, O_WRONLY | O_TRUNC | O_CREAT, 0755);
+  outfd = open (outfile, O_WRONLY | O_TRUNC | O_CREAT, 0755);
   if (outfd < 0)
-    {
-      emacs_close (infd);
-      unexec_error ("cannot open output file `%s'", outfile);
-    }
+  {
+      int err = errno;
+      char curdir[MAXPATHLEN];
+      close (infd);
+      if (getcwd(curdir, sizeof(curdir) - 1))
+          unexec_error ("Can't creat (%s) pwd=%s: %s\nProbably a BEGIN { chdir ... }",
+                 outfile, curdir, strerror (err));
+      else
+          unexec_error ("Can't creat (%s): %s", outfile, strerror (err));
+  }
 
   build_region_list ();
   read_load_commands ();
 
-  find_emacs_zone_regions ();
+  find_prog_zone_regions ();
   unexec_regions_merge ();
 
   in_dumped_exec = 1;
 
   dump_it ();
 
-  emacs_close (outfd);
+  close (outfd);
 }
 
 

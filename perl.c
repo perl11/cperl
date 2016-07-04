@@ -46,6 +46,10 @@
 #  include "nwutil.h"
 #endif
 
+#ifdef UNEXEC
+#include "unexec.h"
+#endif
+
 #ifdef DEBUG_LEAKING_SCALARS_FORK_DUMP
 #  ifdef I_SYSUIO
 #    include <sys/uio.h>
@@ -4065,18 +4069,16 @@ void
 Perl_my_unexec(pTHX)
 {
 #ifdef UNEXEC
-    SV *    prog = newSVpv(BIN_EXP, 0);
-    SV *    file = newSVpv(PL_origfilename, 0);
-    int    status = 1;
-    extern int etext;
-
-    sv_catpvs(prog, "/perl");
+    SV * const caret_X = get_sv("\030", 0);
+    SV * const prog = newSVpvn_flags(SvPVX(caret_X), SvCUR(caret_X),
+                                     SvUTF8(caret_X));
+    /* what to do with "-e" ? */
+    SV * file = newSVpv(strEQc(PL_origfilename, "-e") ? "script" : PL_origfilename, 0);
     sv_catpvs(file, ".perldump");
 
-    /* unexec, etext defined in unexec.c */
-    unexec(SvPVX(file), SvPVX(prog), &etext, sbrk(0), 0);
+    unexec(SvPVX(file), SvPVX(prog));
     /* unexec prints msg to stderr in case of failure */
-    PerlProc_exit(status);
+    PerlProc_exit(1);
 #else
     /* dump to core */
     PERL_UNUSED_CONTEXT;
