@@ -266,7 +266,8 @@ for my $module (@modules) {
 }
 
 my $count = scalar @modules - $skip;
-log_diag("$count / $module_count modules tested with B-C-${B::C::VERSION} - perl-$perlversion");
+log_diag("$count / $module_count modules tested with B-C-${B::C::VERSION} - "
+         .$Config{usecperl}?"c":""."perl-$perlversion");
 log_diag(sprintf("pass %3d / %3d (%s)", $pass, $count, percent($pass,$count)));
 log_diag(sprintf("fail %3d / %3d (%s)", $fail, $count, percent($fail,$count)));
 log_diag(sprintf("todo %3d / %3d (%s)", $todo, $fail, percent($todo,$fail)));
