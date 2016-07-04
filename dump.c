@@ -2728,6 +2728,23 @@ Perl_debop(pTHX_ const OP *o)
                         o->op_private & OPpPADRANGE_COUNTMASK, 1);
         break;
 
+    case OP_GOTO:
+        if (PL_op->op_flags & OPf_STACKED) {
+            SV* const sv = *PL_stack_sp;
+            if (SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVCV)
+                /* goto \&subref */
+                PerlIO_printf(Perl_debug_log, "(\\&%"SVf")",
+                              SVfARG(cv_name((CV*)SvRV(sv), NULL, CV_NAME_NOMAIN)));
+            else { /* goto EXPR */
+                PerlIO_printf(Perl_debug_log, "(%"SVf")",
+                              SVfARG(sv));
+            }
+        } else if (!(PL_op->op_flags & OPf_SPECIAL)) {
+            /* goto LABEL */
+            PerlIO_printf(Perl_debug_log, "(%"SVf")",
+                          SVfARG(cPVOP->op_pv));
+        }
+        break;
     case OP_ENTERSUB:
     case OP_ENTERXSSUB:
         {
