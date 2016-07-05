@@ -12388,8 +12388,8 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             arg++;
             if (UNLIKELY(actions & SIGNATURE_FLAG_skip)) {
                 items--;
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: skip action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
-                                  (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: skip action=%d pad_ix=%d with %d %s op arg\n",
+                                  (int)action, (int)pad_ix, (int)arg, OP_NAME(o3)));
                 scalar(aop);
                 break;
             }
