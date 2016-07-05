@@ -1374,7 +1374,7 @@ but want to put tests in your testing script (always a good idea).
 
 =item B<BAIL_OUT>
 
-    BAIL_OUT($reason);
+    BAIL_OUT($reason?);
 
 Indicates to the harness that things are going so badly all testing
 should terminate.  This includes the running of any additional test scripts.
@@ -1389,7 +1389,7 @@ For even better control look at L<Test::Most>.
 
 =cut
 
-sub BAIL_OUT (str $reason) {
+sub BAIL_OUT (str $reason="") {
     Test::More->builder->BAIL_OUT($reason);
 }
 
