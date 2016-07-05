@@ -862,15 +862,9 @@ $config_txt .= sprintf <<'ENDOFTIE', $fast_config;
 sub DESTROY { }
 
 sub AUTOLOAD {
-    if (defined &XSLoader::load) {
-        no warnings 'redefine';
-        XSLoader::load('Config', $VERSION);
-        return Config->FETCH($_[0]);
-    } else {
-        require 'Config_heavy.pl';
-        goto \&launcher unless $Config::AUTOLOAD =~ /launcher$/;
-        die "&Config::AUTOLOAD failed on $Config::AUTOLOAD";
-    }
+    require 'Config_heavy.pl';
+    goto \&launcher unless $Config::AUTOLOAD =~ /launcher$/;
+    die "&Config::AUTOLOAD failed on $Config::AUTOLOAD";
 }
 
 # tie returns the object, so the value returned to require will be true.
