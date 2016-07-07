@@ -385,6 +385,14 @@ that it would be treated as C<$foo."::".$bar>.  The previous behavior, which
 was to parse it as C<$foo:: . $bar>, needs to be restored.
 L<[perl #128478]|https://rt.perl.org/Public/Bug/Display.html?id=128478>
 
+=item *
+
+A crash caused by code generating the warning "Subroutine STASH::NAME
+redefined" in cases such as C<sub P::f{} undef *P::; *P::f =sub{};> needs to be
+fixed.  In these cases, where the STASH is missing, the warning should appear
+as "Subroutine NAME redefined".
+L<[perl #128257]|https://rt.perl.org/Public/Bug/Display.html?id=128257>
+
 =back
 
 =head1 Known Problems
@@ -419,14 +427,6 @@ argument used to result in crashes or "Can't coerce" error messages at run
 time, unlike scalar assignment, which would give an error at compile time.
 List assignment now gives a compile-time error, too.
 L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
-
-=item *
-
-A crash caused by code generating the warning "Subroutine STASH::NAME
-redefined" in cases such as C<sub P::f{} undef *P::; *P::f =sub{};> needs to be
-fixed.  In these cases, where the STASH is missing, the warning should appear
-as "Subroutine NAME redefined".
-L<[perl #128257]|https://rt.perl.org/Public/Bug/Display.html?id=128257>
 
 =item *
 
