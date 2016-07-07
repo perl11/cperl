@@ -371,6 +371,13 @@ now parsed correctly as C<require> with implicit $_, rather than
 C<require "">.
 L<[perl #128307]|https://rt.perl.org/Public/Bug/Display.html?id=128307>
 
+=item *
+
+Code that looks for a variable name associated with an uninitialized value
+could cause an assertion in cases where magic is involved, such as
+C<$ISA[0][0]>.
+L<[perl #128253]|https://rt.perl.org/Public/Bug/Display.html?id=128253>
+
 =back
 
 =head1 Known Problems
@@ -406,13 +413,6 @@ time, unlike scalar assignment, which would give an error at compile time.
 List assignment now gives a compile-time error, too.
 L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
 
-
-=item *
-
-Code that looks for a variable name associated with an uninitialized value
-could cause an assertion in cases where magic is involved, such as
-C<$ISA[0][0]>.
-L<[perl #128253]|https://rt.perl.org/Public/Bug/Display.html?id=128253>
 
 =item *
 
