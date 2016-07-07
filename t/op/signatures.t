@@ -1548,7 +1548,8 @@ sub t147_7 ($, $=0, $a="bar", $b="zoot") {
   is "$a:$b", "baz:7";
 }
 sub t147_pp {
-  my ($x, $y, $a, $b) = @_;
+  my $x = shift; # defeat fake_signatures
+  my ($y, $a, $b) = @_;
   $a //= "bar";
   $b //= "zoot";
   print "# t147_pp: $a:$b\n";

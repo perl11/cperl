@@ -1136,6 +1136,7 @@ Perl_leave_scope(pTHX_ I32 base)
           clearsv:
             for (; i; i--, svp--) {
                 sv = *svp;
+                if (!sv) continue;
 
                 DEBUG_Xv(PerlIO_printf(Perl_debug_log,
                     "Pad 0x%"UVxf"[%ld] 0x%"UVxf" clearsv: %ld sv=0x%"UVxf"<%"IVdf"> %s\n",

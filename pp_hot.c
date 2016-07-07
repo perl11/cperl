@@ -405,8 +405,8 @@ PPt(pp_padsv, "(:Any):Any")
 	{
 	    dTARG;
 	    TARG = *padentry;
-            DEBUG_Xv(Perl_deb(aTHX_ "  padsv padp %p [%lu] => tops %p\n",
-                              TARG, op->op_targ, TOPs));
+            DEBUG_Xv(Perl_deb(aTHX_ "  padsv padp %p [%lu] => tops %p %-4s\n",
+                              TARG, op->op_targ, TOPs, SvPEEK(TOPs)));
 	    PUSHs(TARG);
 	    PUTBACK; /* no pop/push after this, TOPs ok */
 	}
@@ -4510,8 +4510,8 @@ PP(pp_signature)
                     break;
                 }
                 argsv = *argp++;
-                DEBUG_Xv(Perl_deb(aTHX_ "  sigcopy padp %p %s = argp %p\n", varsv,
-                                  PadnamePV(padnl[po++]), argsv));
+                DEBUG_Xv(Perl_deb(aTHX_ "  sigcopy padp %p %s = argp %p %-4s\n", varsv,
+                                  PadnamePV(padnl[po++]), argsv, SvPEEK(argsv)));
                 if (UNLIKELY(!argsv))
                     argsv = &PL_sv_undef;
                 goto setsv;
@@ -4520,6 +4520,7 @@ PP(pp_signature)
                 break;
 
             /* no arg; do the appropriate default instead */
+            SvPADSTALE_off(varsv); /* mark arg as active */
 
             switch (action) {
             case SIGNATURE_arg:
@@ -4627,6 +4628,7 @@ PP(pp_signature)
             varsv = *padp++;
             assert(!SvMAGICAL(varsv));
             assert(AvFILLp(varsv) == -1); /* can skip av_clear() */
+            SvPADSTALE_off(varsv);
 
             TAINT_NOT;
             av_extend((AV*)varsv, argc);
@@ -4729,6 +4731,7 @@ PP(pp_signature)
             varsv = *padp++;
             assert(!SvMAGICAL(varsv));
             assert(!HvTOTALKEYS(varsv)); /* can skip hv_clear() */
+            SvPADSTALE_off(varsv);
 
             TAINT_NOT;
 

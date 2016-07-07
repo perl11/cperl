@@ -2762,7 +2762,6 @@ PP(pp_goto)
                 SvREFCNT_inc_NN(sv_2mortal(MUTABLE_SV(arg)));
 
 	    assert(PL_scopestack_ix == cx->blk_oldscopesp);
-            CX_LEAVE_SCOPE(cx);
 
 	    if (CxTYPE(cx) == CXt_SUB && CxHASARGS(cx)) {
                 /* this is part of cx_popsub_args() */
@@ -2774,6 +2773,7 @@ PP(pp_goto)
                 if (CvHASSIG(cv)) { /* @_ -> SP */
                     CV* cursub = cx->blk_sub.cv;
                     PADLIST * const padlist = CvPADLIST(cv);
+                    CX_LEAVE_SCOPE(cx);
                     cx->blk_sub.cv = cv; /* adjust context */
                     cx->blk_sub.olddepth = CvDEPTH(cv);
                     if (CvHASSIG(cursub)) { /* sig2sig: no @_, just SP-MARK */
@@ -2795,15 +2795,14 @@ PP(pp_goto)
                         SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
                         AvFILLp(arg)+1)); /* sig arg has no fill */
                 }
-                /* we are going to donate the current @_ from the old sub
+                /* We are going to donate the current @_ from the old sub
                  * to the new sub. This first part of the donation puts a
                  * new empty AV in the pad[0] slot of the old sub,
                  * unless pad[0] and @_ differ (e.g. if the old sub did
                  * local *_ = []); in which case clear the old pad[0]
                  * array in the usual way */
+                /* We also need to skip leave_scope, as this clears our pads */
 		else { /* {sig,pp}2pp */
-                    if (!arg || (av == arg) || AvREAL(av))
-                        clear_defarray(av, arg && (av == arg));
                     /* if sig2pp: PAD -> @_ */
                     if (CvHASSIG(cx->blk_sub.cv)) {
                         SSize_t index = 0;
@@ -2811,6 +2810,8 @@ PP(pp_goto)
                                            - cx->blk_sub.argarray + 1;
                         SV** padp = &PL_curpad[1]; /* 0 has @_ */
                         /* XXX #173 */
+                        if (!arg || (av == arg) || AvREAL(av))
+                            clear_defarray(av, arg && (av == arg));
                         if (!arg || SvTYPE(arg) != SVt_PVAV) {
                             arg = GvAV(gv_AVadd(PL_defgv));
                             /* how can this be corrupt? restore stack most likely */
@@ -2819,8 +2820,6 @@ PP(pp_goto)
                                 arg = GvAV(gv_AVadd(PL_defgv));
                             }
                         }
-                        else
-                            SvREFCNT_inc_simple_NN(arg);
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
                             "goto sig2pp %s: copy %ld args\n",
                             SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
@@ -2828,11 +2827,17 @@ PP(pp_goto)
                         /* Note that this can still leave AvARRAY(@_) at 0x0.
                            With args this is alloced at av_store. */
                         for (; index < argc; index++) {
-                            SvPADSTALE_off(*padp); /* but don't bump the refcnt */
-                            av_store(arg, index, *padp++);
+                            /* need to prepare against SAVEt_CLEARSV with
+                               leave_scope below, which sets PADSTALE_on */
+                            av_store(arg, index, SvREFCNT_inc_simple_NN(*padp));
+                            SvPADSTALE_off(*padp++);
                         }
+                        CX_LEAVE_SCOPE(cx);
                         AvREIFY_only(arg);
                     } else {
+                        CX_LEAVE_SCOPE(cx);
+                        if (!arg || (av == arg) || AvREAL(av))
+                            clear_defarray(av, arg && (av == arg));
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
                             "goto pp %s: keep %ld args\n",
                             SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
@@ -2840,6 +2845,9 @@ PP(pp_goto)
                     }
                 }
 	    }
+            else {
+                CX_LEAVE_SCOPE(cx);
+            }
 
             /* don't restore PL_comppad here. It won't be needed if the
              * sub we're going to is non-XS, but restoring it early then
