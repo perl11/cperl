@@ -6825,22 +6825,26 @@ Perl_yylex(pTHX)
 	TERM(THING);
 
     case '\'':
+	if (   PL_expect == XOPERATOR
+	    && (PL_lex_formbrack && PL_lex_brackets == PL_lex_formbrack))
+		return deprecate_commaless_var_list();
+
 	s = scan_str(s,FALSE,FALSE,FALSE,NULL);
 	if (!s)
 	    missingterm(NULL);
 	COPLINE_SET_FROM_MULTI_END;
 	DEBUG_T(printbuf("### Saw string before %s\n", s));
 	if (PL_expect == XOPERATOR) {
-	    if (PL_lex_formbrack && PL_lex_brackets == PL_lex_formbrack) {
-		return deprecate_commaless_var_list();
-	    }
-	    else
-		no_op("String",s);
+            no_op("String",s);
 	}
 	pl_yylval.ival = OP_CONST;
 	TERM(sublex_start());
 
     case '"':
+	if (   PL_expect == XOPERATOR
+	    && (PL_lex_formbrack && PL_lex_brackets == PL_lex_formbrack))
+		return deprecate_commaless_var_list();
+
 	s = scan_str(s,FALSE,FALSE,FALSE,NULL);
 	DEBUG_T( {
 	    if (s)
@@ -6850,10 +6854,6 @@ Perl_yylex(pTHX)
 			     "### Saw unterminated string\n");
 	} );
 	if (PL_expect == XOPERATOR) {
-	    if (PL_lex_formbrack && PL_lex_brackets == PL_lex_formbrack) {
-		return deprecate_commaless_var_list();
-	    }
-	    else
 		no_op("String",s);
 	}
 	if (!s)
