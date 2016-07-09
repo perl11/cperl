@@ -2853,12 +2853,9 @@ for my $f ('sig2sig', 'sig2pp', 'pp2sig') {
     $wrapper->contents_like(
         qr{lib/perl5db/t/test-$f:2\)}ms,
         "Step into a tailcall $f");
-    TODO: {
-        local $::TODO = 'cperl #173' unless $f eq 'pp2sig';
-        $wrapper->contents_like(
-            qr/^0\s+'ok'$/ms,
-            "Step into a tailcall $f, get arg");
-    }
+    $wrapper->contents_like(
+        qr/^0\s+'ok'$/ms,
+        "Step into a tailcall $f, get arg");
 }
 
 # [cperl #167] asserts with tailcalls, wrong pad depth.

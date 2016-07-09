@@ -2702,6 +2702,12 @@ PP(pp_goto)
            aka tail calls.
            cv is the sub we are jumping to.
            cx->blk_sub is the context of the sub we are coming from.
+
+           Since pads are kept in seperate heap arrays, and not as usual in stack
+           slots before or after the args (epb[-n] *locals*), we have to copy them back
+           and forth. e.g. sig2sig: goto pad=>stack, signature stack=>pad.
+           sig2pp: goto pad=>@_, pp2sig: goto @=>stack, signature stack=>pad.
+           BTW: Not using a real stack but a heap array doesn't help neither.
         */
 	if (SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVCV) {
 	    I32 cxix;
@@ -2773,19 +2779,36 @@ PP(pp_goto)
                 if (CvHASSIG(cv)) { /* @_ -> SP */
                     CV* cursub = cx->blk_sub.cv;
                     PADLIST * const padlist = CvPADLIST(cv);
-                    CX_LEAVE_SCOPE(cx);
                     cx->blk_sub.cv = cv; /* adjust context */
                     cx->blk_sub.olddepth = CvDEPTH(cv);
-                    if (CvHASSIG(cursub)) { /* sig2sig: no @_, just SP-MARK */
+                    /* sig2sig: no @_, just copy pads to MARK */
+                    if (CvHASSIG(cursub)) {
+                        SV** stack = (SV**)cx->blk_sub.savearray;
+                        SV** padp;
+#ifdef DEBUGGING
+                        SSize_t argc = stack - cx->blk_sub.argarray + 1;
+#endif
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
                              "goto %s from sig with sig: keep %ld args\n",
                              SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
-                               (long int)((SV**)cx->blk_sub.savearray - cx->blk_sub.argarray + 1)));
+                             argc));
+                        padp = &PL_curpad[1]; /* from old pad. 0 has @_ */
+                        for (; stack <= cx->blk_sub.argarray; ) {
+                            /* against SAVEt_CLEARSV with leave_scope */
+                            SvREFCNT_inc_simple_void_NN(*padp);
+                            SvFLAGS(*padp) &= ~(SVs_PADTMP|SVs_PADSTALE);
+                            /* temp. copy pad back to stack. pointers are enough as
+                             pp_signature does set the value then. */
+                            *stack++ = *padp++;
+                        }
+                        /* this can restore comppad and clear pads. we protected from
+                           clear pads by the loop above. */
+                        CX_LEAVE_SCOPE(cx);
+                        PAD_SET_CUR(padlist, PadlistMAX(padlist));
                         DEBUG_Xv(PerlIO_printf(Perl_debug_log,
                             "Pad padlist max=%d, CvDEPTH=%d (goto sig2sig %s)\n",
                             (int)PadlistMAX(padlist), (int)CvDEPTH(cv),
                             SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN))));
-                        PAD_SET_CUR(padlist, PadlistMAX(padlist));
                         goto call_pp_sub;
                     }
                     /* pp2sig: */
@@ -2794,6 +2817,7 @@ PP(pp_goto)
                         "goto %s with sig: keep %ld args\n",
                         SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
                         AvFILLp(arg)+1)); /* sig arg has no fill */
+                    CX_LEAVE_SCOPE(cx);
                 }
                 /* We are going to donate the current @_ from the old sub
                  * to the new sub. This first part of the donation puts a
