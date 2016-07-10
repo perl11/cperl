@@ -15,8 +15,11 @@ BEGIN {
         if (-f File::Spec->catfile($Config{'sitearch'}, "B", "Flags.pm")) {
             @plan = (skip_all => '<sitearch>/B/Flags.pm installed. Possible XS conflict');
         }
-        if ($^O eq 'MSWin32') { #find perl5**.dll
+        if ($^O eq 'MSWin32') { # find perl5*.dll
             $ENV{PATH} .= ';..\..';
+        }
+        if ($^O eq 'MSWin32' and $ENV{APPVEYOR}) {
+            @plan = (skip_all => 'Overlong tests, timeout on Appveyor CI');
         }
         #if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
         #    # >= 3 c compiler warnings
