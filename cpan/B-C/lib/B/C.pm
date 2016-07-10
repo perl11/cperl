@@ -7344,10 +7344,11 @@ _EOT9
                 $sofile = "$modlibname/auto/$modpname/$modfname.".$Config{dlext};
               }
               #warn "load_file: $stashname, $stashfile, $sofile";
-              printf "\tmXPUSHp(\"%s\", %d);\n", $sofile, length($sofile);
-            } else {
-              printf "\tmXPUSHp(\"%s\", %d);\n", $stashfile, length($stashfile);
+              $stashfile = $sofile;
             }
+            my $stashfile_len = length($stashfile);
+            $stashfile =~ s/(\\[^nrftacx"' ])/\\$1/g; # windows paths: \\ => \\\\
+            printf "\tmXPUSHp(\"%s\", %d);\n", $stashfile, $stashfile_len;
 	  }
 	  print "\tPUTBACK;\n";
 	  warn "bootstrapping $stashname added to XSLoader dl_init\n" if $verbose;
