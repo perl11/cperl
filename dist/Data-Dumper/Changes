@@ -6,6 +6,43 @@ Changes - public release history for Data::Dumper
 
 =over 8
 
+=item NEXT
+
+The XS implementation now handles the C<Deparse> option, so using it no
+longer forces use of the pure-Perl version.
+
+=item 2.161 (Jul 11 2016)
+
+Perl 5.12 fix/workaround until fixed PPPort release.
+
+Pre-5.12 fixes for test dependency.
+
+=item 2.160 (Jul 3 2016)
+
+Now handles huge inputs on 64bit perls.
+
+Add Trailingcomma option. This is as suggested in RT#126813.
+
+Significant refactoring of XS implementation.
+
+Pure Perl implementation fixes in corner cases ("\n" dumped raw").
+
+=item 2.154 (Sep 18 2014)
+
+Most notably, this release fixes CVE-2014-4330:
+
+  Don't recurse infinitely in Data::Dumper
+
+  Add a configuration variable/option to limit recursion when dumping
+  deep data structures.
+  [...]
+  This patch addresses CVE-2014-4330.  This bug was found and
+  reported by: LSE Leading Security Experts GmbH employee Markus
+  Vervier.
+
+On top of that, there are several minor big fixes and improvements,
+see "git log" if the core perl distribution for details.
+
 =item 2.151 (Mar 7 2014)
 
 A "useqq" implementation for the XS version of Data::Dumper.
