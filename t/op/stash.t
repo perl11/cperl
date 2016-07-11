@@ -7,7 +7,7 @@ BEGIN {
 
 BEGIN { require "./test.pl"; }
 
-plan( tests => 54 );
+plan( tests => 55 );
 
 # Used to segfault (bug #15479)
 fresh_perl_like(
@@ -356,3 +356,10 @@ is runperl(
    ),
    "ok\n",
    "[perl #128238] non-stashes in stashes";
+
+is runperl(
+  prog => 'my str $s; print str::->isa(q(str)) ? qq(ok\n) : q()',
+  stderr => 1,
+  ),
+  "ok\n",
+  "[cperl #171] method calls on protected stashes";
