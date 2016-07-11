@@ -85,6 +85,7 @@ modules without any patches.
 * many typed and modernized core modules, where signatures and types make
   sense and cause not much trouble.
 * some security fixes for Unicode confusables, but more are needed (use strict 'names').
+* handle method calls on protected stashes
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.

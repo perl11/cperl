@@ -4994,16 +4994,19 @@ PP(pp_method)
 }
 
 #define METHOD_CHECK_CACHE(stash,cache,meth) 				\
-    const HE* const he = hv_fetch_ent(cache, meth, 0, 0);		\
-    if (he) {								\
-        gv = MUTABLE_GV(HeVAL(he));					\
-        if (isGV(gv) && GvCV(gv) && (!GvCVGEN(gv) || GvCVGEN(gv)	\
-             == (PL_sub_generation + HvMROMETA(stash)->cache_gen)))	\
-        {								\
-            XPUSHs(MUTABLE_SV(GvCV(gv)));				\
-            RETURN;							\
-        }								\
-    }									\
+    if (SvREADONLY(stash) && !hv_exists_ent(stash, meth, 0)) { ;        \
+    } else {                                                            \
+        const HE* const he = hv_fetch_ent(cache, meth, 0, 0);		\
+        if (he) {                                                       \
+            gv = MUTABLE_GV(HeVAL(he));					\
+            if (isGV(gv) && GvCV(gv) && (!GvCVGEN(gv) || GvCVGEN(gv)	\
+                == (PL_sub_generation + HvMROMETA(stash)->cache_gen)))  \
+            {                                                           \
+                XPUSHs(MUTABLE_SV(GvCV(gv)));                           \
+                RETURN;                                                 \
+            }                                                           \
+        }                                                               \
+    }                                                                   \
 
 PP(pp_method_named)
 {

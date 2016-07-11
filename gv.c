@@ -746,10 +746,18 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
     else cachestash = stash;
 
     /* check locally for a real method or a cache entry */
+    if (SvREADONLY(cachestash)) {
+        items = create;
+        create = HV_FETCH_ISEXISTS;
+    }
     he = (HE*)hv_common(
         cachestash, meth, name, len, (flags & SVf_UTF8) ? HVhek_UTF8 : 0, create, NULL, 0
     );
-    if (he) gvp = (GV**)&HeVAL(he);
+    if (he) {
+        gvp = UNLIKELY(create == HV_FETCH_ISEXISTS) ? (GV**)&HeVAL((HE*)hv_common(
+            cachestash, meth, name, len, (flags & SVf_UTF8) ? HVhek_UTF8 : 0,
+            items, NULL, 0)) : (GV**)&HeVAL(he);
+    }
     else gvp = NULL;
 
     if(gvp) {
@@ -1017,7 +1025,7 @@ Perl_gv_fetchmethod_pv_flags(pTHX_ HV *stash, const char *name, U32 flags)
     return gv_fetchmethod_pvn_flags(stash, name, strlen(name), flags);
 }
 
-/* XXX This cannot deal with protected stashes yet. Should not error when the name exists */
+/* Fixed in cperl for protected stashes, #171 */
 GV *
 Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN len, U32 flags)
 {

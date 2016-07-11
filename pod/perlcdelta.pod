@@ -617,6 +617,13 @@ L<RT #127708|https://rt.perl.org/Public/Bug/Display.html?id=127708>.
 
 =over 4
 
+=item handle method calls on protected stashes
+
+L<cperl #171|https://github.com/perl11/cperl/issues/171>
+
+Known bug upstream, not fixed there. This problem appears more often
+with cperl with its protected coretypes than upstream.
+
 =item fedora: Do not crash when inserting a non-stash into a stash
 
 L<RT#128238|https://rt.perl.org/Public/Bug/Display.html?id=128238>
