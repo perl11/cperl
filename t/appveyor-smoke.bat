@@ -14,7 +14,7 @@ if "%PLATFORM%" == "X64" ( set "PATH=C:\windows\system32;C:\Program Files (x86)\
 
 cd win32
 nmake CCTYPE=MSVC120 USE_NO_REGISTRY=define
-nmake test CCTYPE=MSVC120 USE_NO_REGISTRY=define TEST_JOBS=4 || exit /b
+nmake test CCTYPE=MSVC120 USE_NO_REGISTRY=define || exit /b
 exit /b
 
 :msvc_10
@@ -23,5 +23,5 @@ if "%PLATFORM%" == "x64" ( set "PATH=C:\windows\system32;c:\Program Files (x86)\
 
 cd win32
 nmake CCTYPE=MSVC100 USE_NO_REGISTRY=define
-nmake test CCTYPE=MSVC100 USE_NO_REGISTRY=define TEST_JOBS=4 || exit /b
+nmake test CCTYPE=MSVC100 USE_NO_REGISTRY=define || exit /b
 exit /b
