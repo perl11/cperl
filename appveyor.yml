@@ -19,6 +19,7 @@ branches:
     - /smoke/
 init:
   - git config --global core.autocrlf input
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 # from https://github.com/apache/lucy-clownfish/blob/master/appveyor.yml  
 build: off
