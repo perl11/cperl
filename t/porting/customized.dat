@@ -30,7 +30,7 @@ Encode cpan/Encode/bin/enc2xs 5466e0a9ea7cadea5d461a764a4db32330637a1f
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t b65ce65850ad1b887e38d2a081920646f162fbaa
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t c01ba6e7a872c8a7fc26e277e0dea109616a5e56
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm ee0d36d1a3d0cc3e4201766fff6519edf7e99d1a
-ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm 658b428610002cfd97457a4674700461e7ed08e2
+ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm d145d311499bf45cdb39a56b07f77c022e65fcda
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm d88649ead5abb549df286334a035af924cc2befa
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm d79b98465a632dc3bde76a0210d01014d2257dc6
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm 62b0abc38e8c8734fade49c5e63477fe9fc0ea05

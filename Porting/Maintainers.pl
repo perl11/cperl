@@ -634,6 +634,7 @@ use File::Glob qw(:case);
         ],
         # Applied upstream remove customisation when updating EUMM
         # cperl skips the ending 'c'
+        # use -e not -f for solibs  
         'CUSTOMIZED'   => 
           [ qw[ lib/ExtUtils/MM_Any.pm
                 lib/ExtUtils/MM_Unix.pm
