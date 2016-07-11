@@ -7,7 +7,7 @@ BEGIN {
 
 BEGIN { require "./test.pl"; }
 
-plan( tests => 51 );
+plan( tests => 54 );
 
 # Used to segfault (bug #15479)
 fresh_perl_like(
@@ -335,3 +335,31 @@ is runperl(
    ),
    "ok\n",
    '[perl #123847] no crash from *foo::=*bar::=*glob_with_hash';
+
+#is runperl(
+#    prog => '%h; *::::::=*h; delete $::{q|::|}; print qq|ok\n|',
+#    stderr => 1,
+#   ),
+#   "ok\n",
+#   '[perl #128086] no crash from assigning hash to *:::::: & deleting it';
+
+is runperl(
+    prog => 'BEGIN { %: = 0; $^W=1}; print qq|ok\n|',
+    stderr => 1,
+   ),
+   "ok\n",
+   "[perl #128238] don't treat %: as a stash (needs 2 colons)";
+
+is runperl(
+    prog => 'BEGIN { $::{q|foo::|}=*ENV; $^W=1}; print qq|ok\n|',
+    stderr => 1,
+   ),
+   "ok\n",
+   "[perl #128238] non-stashes in stashes";
+
+is runperl(
+  prog => 'my str $s; print str::->isa(q(str)) ? qq(ok\n) : q()',
+  stderr => 1,
+  ),
+  "ok\n",
+  "[cperl #171] method calls on protected stashes";
