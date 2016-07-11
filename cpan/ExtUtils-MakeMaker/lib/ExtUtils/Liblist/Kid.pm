@@ -149,28 +149,28 @@ sub _unix_os2_ext {
                       } @fullname
                 )[0];
             }
-            elsif ( -f ( $fullname = "$thispth/lib$thislib.$so" )
-                && ( ( $Config{'dlsrc'} ne "dl_dld.xs" ) || ( $thislib eq "m" ) ) )
+            elsif ( -e ( $fullname = "$thispth/lib$thislib.$so" )
+                && ( $thislib eq "m" ) )
             {
             }
-            elsif (-f ( $fullname = "$thispth/lib${thislib}_s$Config_libext" )
+            elsif (-e ( $fullname = "$thispth/lib${thislib}_s$Config_libext" )
                 && ( $Config{'archname'} !~ /RM\d\d\d-svr4/ )
                 && ( $thislib .= "_s" ) )
             {    # we must explicitly use _s version
             }
-            elsif ( -f ( $fullname = "$thispth/lib$thislib$Config_libext" ) ) {
+            elsif ( -e ( $fullname = "$thispth/lib$thislib$Config_libext" ) ) {
             }
             elsif ( defined( $Config_dlext )
-                && -f ( $fullname = "$thispth/lib$thislib.$Config_dlext" ) )
+                && -e ( $fullname = "$thispth/lib$thislib.$Config_dlext" ) )
             {
             }
-            elsif ( -f ( $fullname = "$thispth/$thislib$Config_libext" ) ) {
+            elsif ( -e ( $fullname = "$thispth/$thislib$Config_libext" ) ) {
             }
-            elsif ( -f ( $fullname = "$thispth/lib$thislib.dll$Config_libext" ) ) {
+            elsif ( -e ( $fullname = "$thispth/lib$thislib.dll$Config_libext" ) ) {
             }
-            elsif ( $^O eq 'cygwin' && -f ( $fullname = "$thispth/$thislib.dll" ) ) {
+            elsif ( $^O eq 'cygwin' && -e ( $fullname = "$thispth/$thislib.dll" ) ) {
             }
-            elsif ( -f ( $fullname = "$thispth/Slib$thislib$Config_libext" ) ) {
+            elsif ( -e ( $fullname = "$thispth/Slib$thislib$Config_libext" ) ) {
             }
             elsif ($^O eq 'dgux'
                 && -l ( $fullname = "$thispth/lib$thislib$Config_libext" )
@@ -186,7 +186,7 @@ sub _unix_os2_ext {
                 #
                 # , the compilation tools expand the environment variables.)
             }
-            elsif ( $custom_name && -f ( $fullname = "$thispth/$thislib" ) ) {
+            elsif ( $custom_name && -e ( $fullname = "$thispth/$thislib" ) ) {
             }
             else {
                 warn "$thislib not found in $thispth\n" if $verbose;
@@ -398,7 +398,7 @@ sub _win32_search_file {
             my $fullname = $lib_file;
             $fullname = "$path\\$fullname" if $path;
 
-            return ( $fullname, $path ) if -f $fullname;
+            return ( $fullname, $path ) if -e $fullname;
 
             _debug( "'$thislib' not found as '$fullname'\n", $verbose );
         }
@@ -573,7 +573,7 @@ sub _vms_ext {
                 $name = "$dir$variant";
                 warn "\tChecking $name\n" if $verbose > 2;
                 $fullname = VMS::Filespec::rmsexpand( $name );
-                if ( defined $fullname and -f $fullname ) {
+                if ( defined $fullname and -e $fullname ) {
 
                     # It's got its own suffix, so we'll have to figure out the type
                     if    ( $fullname =~ /(?:$so|exe)$/i )      { $type = 'SHR'; }
@@ -587,8 +587,8 @@ sub _vms_ext {
                         $type = 'SHR';
                     }
                 }
-                elsif (-f ( $fullname = VMS::Filespec::rmsexpand( $name, $so ) )
-                    or -f ( $fullname = VMS::Filespec::rmsexpand( $name, '.exe' ) ) )
+                elsif (-e ( $fullname = VMS::Filespec::rmsexpand( $name, $so ) )
+                    or -e ( $fullname = VMS::Filespec::rmsexpand( $name, '.exe' ) ) )
                 {
                     $type = 'SHR';
                     $name = $fullname unless $fullname =~ /exe;?\d*$/i;
@@ -596,7 +596,8 @@ sub _vms_ext {
                 elsif (
                     not length( $ctype ) and    # If we've got a lib already,
                                                 # don't bother
-                    ( -f ( $fullname = VMS::Filespec::rmsexpand( $name, $lib_ext ) ) or -f ( $fullname = VMS::Filespec::rmsexpand( $name, '.olb' ) ) )
+                    ( -e ( $fullname = VMS::Filespec::rmsexpand( $name, $lib_ext ) )
+                   or -e ( $fullname = VMS::Filespec::rmsexpand( $name, '.olb' ) ) )
                   )
                 {
                     $type = 'OLB';
@@ -605,7 +606,8 @@ sub _vms_ext {
                 elsif (
                     not length( $ctype ) and    # If we've got a lib already,
                                                 # don't bother
-                    ( -f ( $fullname = VMS::Filespec::rmsexpand( $name, $obj_ext ) ) or -f ( $fullname = VMS::Filespec::rmsexpand( $name, '.obj' ) ) )
+                    ( -e ( $fullname = VMS::Filespec::rmsexpand( $name, $obj_ext ) )
+                   or -e ( $fullname = VMS::Filespec::rmsexpand( $name, '.obj' ) ) )
                   )
                 {
                     warn "Warning (mostly harmless): " . "Plain object file $fullname found in library list\n";
