@@ -954,6 +954,9 @@ my $tmpfile = tempfile();
 sub _fresh_perl {
     my($prog, $action, $expect, $runperl_args, $name) = @_;
 
+    die sprintf "Third argument to fresh_perl_.* must be hashref of args to fresh_perl (or {})"
+        unless !(defined $runperl_args) || ref($runperl_args) eq 'HASH';
+
     # Given the choice of the mis-parsable {}
     # (we want an anon hash, but a borked lexer might think that it's a block)
     # or relying on taking a reference to a lexical
