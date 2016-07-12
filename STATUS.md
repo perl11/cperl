@@ -26,9 +26,10 @@ maintenance than the upstream p5p perl5. See [README.cperl](perlcperl.html).
 
 Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
+Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 
 The current release [5.22.3c](https://github.com/perl11/cperl/releases/)
-is stable. cperl-5.24.0 is alomst done.
+is stable. cperl-5.24.0 is almost done. See RC4.
 
 All tests pass. CPAN works.
 
@@ -40,7 +41,7 @@ pretty strictly typed to catch wrong usages and enforce better code.
 See the `Test::More::skip()` [FAQ](https://github.com/perl11/cperl/issues/153#issuecomment-224515895) or below.
 Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
 `bigint`, `bignum` and `bigrat` are now also stricly typed, you shouldn't mess with
-sloppy types there neither.
+sloppy types there neither. See below for Known Problems.
 
 This is still much less than with a typical major perl5 release, and
 the patches are all provided in my
@@ -151,7 +152,14 @@ See the github issues: [github.com/perl11/cperl/issues](https://github.com/perl1
 
 The perl debugger is unstable with signatures and tailcalls (AUTOLOAD).
 
-The CPAN modules Scope::Upper and autovivification have no patches for 5.24.0c yet.
+The following CPAN modules have no patches for 5.24.0c yet:
+
+* autovivification (mderef rpeep changes)
+* TryCatch
+* Catalyst::Runtime
+
+Time::Tiny, Date::Tiny, DateTime::Tiny feature DateTime::locale broken since 5.22.
+unrelated to cperl, -f force install.
 
 # FAQ
 
@@ -309,4 +317,4 @@ They also revert some wrong decisions p5p already made.
 
 * builtin ffi
 
-2016-06-20 rurban
+2016-07-12 rurban
