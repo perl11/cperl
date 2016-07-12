@@ -19,6 +19,7 @@ BEGIN {
             $ENV{PATH} .= ';..\..';
         }
         if ($^O eq 'MSWin32' and $ENV{APPVEYOR}) {
+            # can be used with -Od though
             @plan = (skip_all => 'Overlong tests, timeout on Appveyor CI');
         }
         #if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {

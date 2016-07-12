@@ -108,6 +108,9 @@ sub cc_harness_msvc {
       $compile .= "-g ";
       $compile =~ s/ -O.? / -Od /;
       $compile =~ s/ -DNDEBUG / -DDEBUG /;
+    } else {
+      # avoid expensive optimisations with low memory (1-2 hours!)
+      $compile .= " -Od" if $ENV{APPVEYOR};
     }
     $compile .= "-DHAVE_INDEPENDENT_COMALLOC " if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;
@@ -127,6 +130,9 @@ sub cc_harness_msvc {
     }
     if ($debug) {
         $link .= " /DEBUG";
+    } else {
+      # avoid expensive folding with low memory
+      $link .= " /OPT:NOREF" if $ENV{APPVEYOR};
     }
     if (index($link, "Win32CORE") < 0) {
         my $archdir = $ENV{PERL_CORE} ? "../.." : $Config{archlib};
