@@ -284,6 +284,8 @@ and prohibit the unsupported CPAN::Meta::YAML.
 
 Type File-Path args.
 
+Fix ExtUtils::Liblist::Kid for systemlib symlinks, esp. on darwin.
+
 =item Parse-CPAN-Meta 1.5000c
 
 Modernized.

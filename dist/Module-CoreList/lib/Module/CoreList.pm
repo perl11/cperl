@@ -4,7 +4,7 @@ use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use Module::CoreList::TieHashDelta;
 use version;
-$VERSION = '5.20160728c';
+$VERSION = '5.20160712c';
 $VERSION =~ s/c$//;
 
 sub _released_order {   # Sort helper, to make '?' sort after everything else
@@ -12638,7 +12638,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList'      => '5.20160618c',
             'Module::CoreList::TieHashDelta'=> '5.20160618',
             'Module::CoreList::Utils'=> '5.20160618c',
-            'B::C'                   => '1.54_07',
+            'B::C'                   => '1.54_08',
             'DynaLoader'             => '2.04c',
             'Socket' 		     => '2.021_02',
             'Storable' 		     => '3.00c',
@@ -12660,7 +12660,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'ExtUtils::MakeMaker'    => '8.04_03',
             'ExtUtils::Command::MM'  => '8.04_03',
             'ExtUtils::Liblist'      => '8.04_03',
-            'ExtUtils::Liblist::Kid' => '8.04_04',
+            'ExtUtils::Liblist::Kid' => '8.04_05',
             'ExtUtils::Mkbootstrap'  => '8.04_03c',
             'ExtUtils::Mksymlists'   => '8.04_03',
             'Parse::CPAN::Meta'      => '1.5000c',
