@@ -10,6 +10,7 @@ require '../t/test.pl';
 plan(8);
 
 $|=1;
+# XXX 64bit IV only
 my $a = 18446744073709551614;
 
 # test it at compile-time in constant folding
@@ -44,7 +45,7 @@ like(ref $c, qr/^Math::BigInt/,  '+ type (c)');
 my $r = $a + 10000;
 like(ref $r, qr/^Math::BigInt/,  '+ type (r)');
 
-$c = 18446744073709551624 - 2;
+$c = 18446744073709551614 - (- 2);
 like(ref $c, qr/^Math::BigInt/,  '- type (c)');
 $r = $c  - 1;
 like(ref $r, qr/^Math::BigInt/,  '- type (r)');
