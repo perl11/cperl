@@ -4,7 +4,7 @@ use ExtUtils::Embed;
 
 my ($coredir, $libdir);
 if ($ENV{PERL_CORE}) {
-  $libdir = $coredir = "../..";
+  $libdir = $coredir = $^O eq 'MSWin32'? '../../lib/CORE' : '../..';
 } else {
   $libdir  = $Config{prefix} . "/lib";
   $coredir = $ENV{PERL_SRC} || $Config{archlib}."/CORE";
@@ -111,7 +111,7 @@ sub cc_harness_msvc {
     }
     $compile .= "-DHAVE_INDEPENDENT_COMALLOC " if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;
-    $compile .= ' -I"..\..\lib\CORE"' if $ENV{PERL_CORE};
+    $compile = ' -I"..\..\lib\CORE"'.$compile if $ENV{PERL_CORE};
     print "running $Config{cc} $compile" unless $quiet;
     system("$Config{cc} $compile");
     
