@@ -557,10 +557,12 @@ perl_destruct(pTHXx)
 #endif
 
 #ifdef DEBUGGING
-    if (DEBUG_v_TEST) {
+    if (DEBUG_C_TEST) {
         PerlIO_printf(Perl_debug_log, "== max refcnt: %"UVuf" (0x%p), max cowrefcnt: %"UVuf"\n",
                       PL_max_refcnt, PL_max_refcnt_sv, PL_max_cowrefcnt);
-        sv_dump(PL_max_refcnt_sv);
+        if (DEBUG_v_TEST) {
+            sv_dump(PL_max_refcnt_sv);
+        }
     }
 #endif
 

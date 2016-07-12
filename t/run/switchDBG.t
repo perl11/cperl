@@ -132,7 +132,7 @@ like( runperl( switches => [ "-DJP" ], stderr => 1,
       "-DJs Do not s,t,P-debug (Jump over) opcodes within package DB" );
 like( runperl( switches => [ "-Dv" ], stderr => 1,
                prog => '1' ),
-      qr/^\nEXECUTING...\n\n== max refcnt:/,
+      qr/^\nEXECUTING...\n\n/,
       "-Dv Verbose alone" );
 like( runperl( switches => [ "-Dsv" ], stderr => 1,
                prog => '1' ),
