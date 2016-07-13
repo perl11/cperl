@@ -870,8 +870,9 @@ copy_data_segment (struct load_command *lc)
 	  if (!(sectp->addr <= (unsigned long)my_edata
 		&& my_size <= sectp->size)) {
 	    unexec_warn ("my_edata is not in section %s", SECT_DATA);
-            unexec_warn ("sectp->addr %p <= my_edata %p, my_size %ld <= sectp->size %ld\n",
+            unexec_warn ("sectp->addr %p <= my_edata %p, my_size 0x%x <= sectp->size 0x%x\n",
                          sectp->addr, &my_edata, my_size, sectp->size);
+            my_size = sectp->size;
           }
 	  if (!unexec_write (sectp->offset, (void *) sectp->addr, my_size))
 	    unexec_error ("cannot write section %s", SECT_DATA);
