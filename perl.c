@@ -4094,12 +4094,21 @@ Perl_my_unexec(pTHX_ const char *outfile)
     SV * const caret_X = get_sv("\030", 0);
     SV * const prog = newSVpvn_flags(SvPVX(caret_X), SvCUR(caret_X),
                                      SvUTF8(caret_X));
-    /* what to do with "-e" ? */
+    /* what to do with "-e"? we use script instead */
     if (!outfile) {
         SV * file = newSVpv(strEQc(PL_origfilename, "-e") ? "script" : PL_origfilename, 0);
-        sv_catpvs(file, ".perldump");
+        sv_catpvs(file, ".exe"); /* was .perldump before */
         outfile = SvPVX(file);
     }
+#ifdef EXE_EXT
+    /* Add the native exe extension if exe_ext is defined (dosish).
+       Note: on VOS it is .pm so use .exe instead. */
+    else if (!rninstr(outfile, strlen(outfile), EXE_EXT, sizeof(EXE_EXT))) {
+        SV * file = newSVpv(outfile);
+        sv_catpvs(file, ".exe");
+        outfile = SvPVX(file);
+    }
+#endif
 
     unexec(outfile, SvPVX(prog));
     /* unexec prints msg to stderr in case of failure */

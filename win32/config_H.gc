@@ -5240,4 +5240,11 @@
  */
 /*#define	USE_FFI		/ **/
 
+/* EXE_EXT:
+ *	This symbol is either ".exe" on dosish system, ".pm" on Stratus VOS or undefined.
+ */
+#ifndef EXE_EXT
+#define	EXE_EXT ".exe"	/**/
+#endif
+
 #endif

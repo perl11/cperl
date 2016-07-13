@@ -1919,7 +1919,7 @@ same thing.
 The optional EXPR denotes either a computed LABEL or the name of
 resulting executable. If the LABEL exists or no argument is
 provided the name of the executable is created with the same name is
-with C<-u>, i.e. F<scriptname.perldump>.
+with C<-u>, i.e. F<scriptname.exe>.
 
 Without UNEXEC this is so that you can use the B<undump> program (not
 supplied) to turn your core dump into an executable binary after
