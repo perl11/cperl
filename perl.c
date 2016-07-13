@@ -2457,6 +2457,10 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
     }
 #endif
 
+#ifdef USE_EXACT_ARITH
+    (void)Perl_av_create_and_unshift_one(aTHX_ &PL_preambleav, newSVpvs("use exact_arith;"));
+#endif
+
     if (!scriptname)
 	scriptname = argv[0];
     if (PL_e_script) {
@@ -2659,8 +2663,11 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
     if (add_read_e_script)
 	filter_add(read_e_script, NULL);
 
-    /* now parse the script */
+#ifdef USE_EXACT_ARITH
+    PL_curcop->cop_hints |= HINT_EXACT_ARITH;
+#endif
 
+    /* now parse the script */
     SETERRNO(0,SS_NORMAL);
     if (yyparse(GRAMPROG) || PL_parser->error_count) {
         abort_execution("", PL_origfilename);

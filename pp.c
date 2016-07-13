@@ -1897,7 +1897,7 @@ Slow but exact.
 void
 Perl_exact_arith(pTHX_ const char *pkg, const char *op, SV* const left, SV* const right)
 {
-#ifndef USE_EXACT_ARITH
+#ifdef OLD_EXACT_ARITH
     dSP;
 #endif
     SV* sv;
@@ -1907,12 +1907,26 @@ Perl_exact_arith(pTHX_ const char *pkg, const char *op, SV* const left, SV* cons
         pkg, PL_stack_base, PL_stack_sp, PL_markstack_ptr, (int)TOPMARK));
     /* With USE_EXACT_ARITH require Math::BigInt already at startup */
 #ifndef USE_EXACT_ARITH
+#ifndef OLD_EXACT_ARITH
+    sv = newSVpvs("Math::Big");
+    sv_catpv(sv, pkg);
+#if 0
+    Perl_load_module(aTHX_ PERL_LOADMOD_IMPORT_OPS, sv, NULL, NULL, NULL);
+#else
+    /* maybe add try => GMP here. time it, with and without GMP. */
+    Perl_load_module(aTHX_ PERL_LOADMOD_IMPORT_OPS, sv, NULL,
+                     op_prepend_elem(OP_LIST,
+                                     newSVOP(OP_CONST, 0, newSVpvs("try")),
+                                     newSVOP(OP_CONST, 0, newSVpvs("GMP"))));
+#endif
+#else
     /* TODO: check %INC, avoid eval. just see end of pp_require */
     PUSHSTACKi(PERLSI_REQUIRE);
     assert(strEQc(pkg, "Int") || strEQc(pkg, "Float"));
     sv = Perl_newSVpvf(aTHX_ "require \"Math::Big%s\"", pkg);
     eval_sv(sv_2mortal(sv), G_DISCARD);
     POPSTACK;
+#endif
 #endif
     sv = Perl_newSVpvf(aTHX_ "Math::Big%s->%s(", pkg, op);
     if (SvIOK(left)) {
