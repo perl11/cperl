@@ -283,6 +283,17 @@ unexec_copy (off_t dest, off_t src, ssize_t count)
 }
 
 /* Debugging and informational messages routines.  */
+static void
+unexec_warn (const char *format, ...)
+{
+  va_list ap;
+
+  va_start (ap, format);
+  fprintf (stderr, "unexec: ");
+  vfprintf (stderr, format, ap);
+  fprintf (stderr, "\n");
+  va_end (ap);
+}
 
 #if 0
 static _Noreturn void
@@ -394,7 +405,7 @@ build_region_list (void)
       /* Done when we reach addresses of shared libraries, which are
 	 loaded in high memory.  */
       if (address >= VM_DATA_TOP)
-	break;
+        break;
 
       DEBUG_v(print_region (address, size, info.protection, info.max_protection));
 
@@ -670,7 +681,7 @@ print_load_command (struct load_command *lc)
       sectp = (struct section *) (scp + 1);
       for (j = 0; j < scp->nsects; j++)
 	{
-	  printf ("                           %-16.16s %#10lx %#8lx\n",
+	  printf ("                             %-16.16s %#10lx %#8lx\n",
 		  sectp->sectname, (long) (sectp->addr), (long) (sectp->size));
 	  sectp++;
 	}
@@ -752,10 +763,10 @@ read_load_commands (void)
             text_seg_lowest_offset);
 
     printf ("--- List of Load Commands in Input File ---\n");
-    printf ("# cmd              cmdsize name                address     size\n");
+    printf ("#  cmd               cmdsize name                 address     size\n");
 
     for (i = 0; i < nlc; i++) {
-      printf ("%1d ", i);
+      printf ("%2d ", i);
       print_load_command (lca[i]);
     }
   }
@@ -854,8 +865,11 @@ copy_data_segment (struct load_command *lc)
 	     reinitialized when the dumped binary is executed.  */
 	  my_size = (unsigned long)my_edata - sectp->addr;
 	  if (!(sectp->addr <= (unsigned long)my_edata
-		&& my_size <= sectp->size))
-	    unexec_error ("my_edata is not in section %s", SECT_DATA);
+		&& my_size <= sectp->size)) {
+	    unexec_warn ("my_edata is not in section %s", SECT_DATA);
+            unexec_warn ("sectp->addr %p <= my_edata %p, my_size %ld <= sectp->size %ld\n",
+                         sectp->addr, &my_edata, my_size, sectp->size);
+          }
 	  if (!unexec_write (sectp->offset, (void *) sectp->addr, my_size))
 	    unexec_error ("cannot write section %s", SECT_DATA);
 	  if (!unexec_copy (sectp->offset + my_size, old_file_offset + my_size,
