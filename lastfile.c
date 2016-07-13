@@ -19,7 +19,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* How this works:
 
- Fdump_emacs dumps everything up to my_edata as text space (pure).
+ unexec() dumps everything up to my_edata as text space (pure).
 
  The files of Emacs are written so as to have no initialized
  data that can ever need to be altered except at the first startup.
@@ -36,7 +36,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /*#include <config.h>*/
 
-char my_edata[] = "End of Emacs initialized data";
+char my_edata[] = "End of interpreter initialized data";
 
 /* Help unexec locate the end of the .bss area used by Emacs (which
    isn't always a separate section in NT executables).  */

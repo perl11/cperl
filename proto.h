@@ -3734,7 +3734,7 @@ PERL_CALLCONV NV	Perl_my_strtod(const char * const s, char ** e)
 #define PERL_ARGS_ASSERT_MY_STRTOD	\
 	assert(s)
 
-PERL_CALLCONV void	Perl_my_unexec(pTHX);
+PERL_CALLCONV void	Perl_my_unexec(pTHX_ const char *outfile);
 PERL_CALLCONV int	Perl_my_vsnprintf(char *buffer, const Size_t len, const char *format, va_list ap)
 			__attribute__global__
 			__attribute__nonnull__(1)

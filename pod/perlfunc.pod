@@ -1911,26 +1911,37 @@ X<dump> X<core> X<undump>
 
 =for Pod::Functions create an immediate core dump
 
-This function causes an immediate core dump.  See also the B<-u>
-command-line switch in L<perlrun>, which does the same thing.
-Primarily this is so that you can use the B<undump> program (not
+With UNEXEC enabled this dumps the current state of the interpreter to
+a native executable, without UNEXEC it causes an immediate core dump.
+See also the B<-u> command-line switch in L<perlrun>, which does the
+same thing.
+
+The optional EXPR denotes either a computed LABEL or the name of
+resulting executable. If the LABEL exists or no argument is
+provided the name of the executable is created with the same name is
+with C<-u>, i.e. F<scriptname.perldump>.
+
+Without UNEXEC this is so that you can use the B<undump> program (not
 supplied) to turn your core dump into an executable binary after
-having initialized all your variables at the beginning of the
-program.  When the new binary is executed it will begin by executing
-a C<goto LABEL> (with all the restrictions that L<C<goto>|/goto LABEL>
-suffers).
-Think of it as a goto with an intervening core dump and reincarnation.
-If C<LABEL> is omitted, restarts the program from the top.  The
-C<dump EXPR> form, available starting in Perl 5.18.0, allows a name to be
-computed at run time, being otherwise identical to C<dump LABEL>.
+having initialized all your variables at the beginning of the program.
+When the new binary is executed it will begin by executing a C<goto
+LABEL> (with all the restrictions that L<C<goto>|/goto LABEL>
+suffers).  Think of it as a goto with an intervening core dump and
+reincarnation.  If C<LABEL> is omitted, restarts the program from the
+top.  The C<dump EXPR> form, available starting in Perl 5.18.0, allows
+a name to be computed at run time, being otherwise identical to C<dump
+LABEL>.
 
 B<WARNING>: Any files opened at the time of the dump will I<not>
 be open any more when the program is reincarnated, with possible
-resulting confusion by Perl.
+resulting confusion by Perl. Any IO actions at BEGIN, like C<chdir> is also
+very problematic.
 
-This function is now largely obsolete, mostly because it's very hard to
-convert a core file into an executable.  As of Perl 5.30, it must be invoked
-as C<CORE::dump()>.
+This function is largely obsolete in perl5 without UNEXEC, mostly
+because it's very hard to convert a core file into an executable.
+That's why you must now invoke it as C<CORE::dump()>.
+However in B<cperl>, C<dump> and C<-u> are very convenient ways to create
+simple, unoptimized binaries, much faster than with B<perlcc>.
 
 Unlike most named operators, this has the same precedence as assignment.
 It is also exempt from the looks-like-a-function rule, so

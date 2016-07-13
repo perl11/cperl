@@ -617,7 +617,7 @@ find_section (const char *name, const char *section_names, const char *file_name
     }
 
   if (! noerror)
-    fatal ("Can't find %s in %s", name, file_name);
+    fatal ("unexec: Can't find %s in %s", name, file_name);
   return -1;
 }
 
@@ -678,15 +678,15 @@ unexec (const char *new_name, const char *old_name)
   old_file = open (old_name, O_RDONLY, 0);
 
   if (old_file < 0)
-    fatal ("Can't open %s for reading: %s", old_name, strerror (errno));
+    fatal ("unexec: Can't open %s for reading: %s", old_name, strerror (errno));
 
   if (fstat (old_file, &stat_buf) != 0)
-    fatal ("Can't fstat (%s): %s", old_name, strerror (errno));
+    fatal ("unexec: Can't fstat (%s): %s", old_name, strerror (errno));
 
 #if MAP_ANON == 0
   mmap_fd = open ("/dev/zero", O_RDONLY, 0);
   if (mmap_fd < 0)
-    fatal ("Can't open /dev/zero for reading: %s", strerror (errno));
+    fatal ("unexec: Can't open /dev/zero for reading: %s", strerror (errno));
 #endif
 
   /* We cannot use malloc here because that may use sbrk.  If it does,
@@ -695,14 +695,14 @@ unexec (const char *new_name, const char *old_name)
      allocating all buffers in the code below, which we aren't.  */
   old_file_size = stat_buf.st_size;
   if (! (0 <= old_file_size && old_file_size <= SIZE_MAX))
-    fatal ("File size out of range");
+    fatal ("unexec: File size out of range");
   old_base = mmap (NULL, old_file_size, PROT_READ | PROT_WRITE,
 		   MAP_ANON | MAP_PRIVATE, mmap_fd, 0);
   if (old_base == MAP_FAILED)
-    fatal ("Can't allocate buffer for %s: %s", old_name, strerror (errno));
+    fatal ("unexec: Can't allocate buffer for %s: %s", old_name, strerror (errno));
 
   if (read (old_file, old_base, old_file_size) != old_file_size)
-    fatal ("Didn't read all of %s: %s", old_name, strerror (errno));
+    fatal ("unexec: Didn't read all of %s: %s", old_name, strerror (errno));
 
   /* Get pointers to headers & section names */
 
@@ -798,7 +798,7 @@ unexec (const char *new_name, const char *old_name)
 #endif
 
   if (new_bss_addr < old_bss_addr + old_bss_size)
-    fatal (".bss shrank when undumping");
+    fatal ("unexec: .bss shrank when undumping");
 
   /* Set the output file to the right size.  Allocate a buffer to hold
      the image of the new file.  Set pointers to various interesting
@@ -810,21 +810,21 @@ unexec (const char *new_name, const char *old_name)
     char curdir[MAXPATHLEN];
     close(old_file);
     if (getcwd(curdir, sizeof(curdir) - 1))
-      fatal ("Can't creat (%s) pwd=%s: %s\nProbably a BEGIN { chdir ... }",
+      fatal ("unexec: Can't creat (%s) pwd=%s: %s\nProbably a BEGIN { chdir ... }",
              new_name, curdir, strerror (err));
     else
-      fatal ("Can't creat (%s): %s", new_name, strerror (err));
+      fatal ("unexec: Can't creat (%s): %s", new_name, strerror (err));
   }
 
   new_file_size = old_file_size + old_file_h->e_shentsize + new_data2_incr;
 
   if (ftruncate (new_file, new_file_size))
-    fatal ("Can't ftruncate (%s): %s", new_name, strerror (errno));
+    fatal ("unexec: Can't ftruncate (%s): %s", new_name, strerror (errno));
 
   new_base = mmap (NULL, new_file_size, PROT_READ | PROT_WRITE,
 		   MAP_ANON | MAP_PRIVATE, mmap_fd, 0);
   if (new_base == MAP_FAILED)
-    fatal ("Can't allocate buffer for %s: %s", old_name, strerror (errno));
+    fatal ("unexec: Can't allocate buffer for %s: %s", old_name, strerror (errno));
 
   new_file_h = (ElfW (Ehdr) *) new_base;
   new_program_h = (ElfW (Phdr) *) ((byte *) new_base + old_file_h->e_phoff);
@@ -879,7 +879,7 @@ unexec (const char *new_name, const char *old_name)
 	  > (old_sbss_index == -1
 	     ? old_bss_addr
 	     : round_up (old_bss_addr, alignment)))
-	  fatal ("Program segment above .bss in %s", old_name);
+	  fatal ("unexec: Program segment above .bss in %s", old_name);
 
       if (NEW_PROGRAM_H (n).p_type == PT_LOAD
 	  && (round_up ((NEW_PROGRAM_H (n)).p_vaddr
@@ -889,7 +889,7 @@ unexec (const char *new_name, const char *old_name)
 	break;
     }
   if (n < 0)
-    fatal ("Couldn't find segment next to .bss in %s", old_name);
+    fatal ("unexec: Couldn't find segment next to .bss in %s", old_name);
 
   /* Make sure that the size includes any padding before the old .bss
      section.  */
@@ -1316,7 +1316,7 @@ temacs:
   /* Write out new_file, and free the buffers.  */
 
   if (write (new_file, new_base, new_file_size) != new_file_size)
-    fatal ("Didn't write %lu bytes to %s: %s",
+    fatal ("unexec: Didn't write %lu bytes to %s: %s",
 	   (unsigned long) new_file_size, new_name, strerror (errno));
   munmap (old_base, old_file_size);
   munmap (new_base, new_file_size);
@@ -1328,17 +1328,17 @@ temacs:
 #endif
 
   if (close (old_file) != 0)
-    fatal ("Can't close (%s): %s", old_name, strerror (errno));
+    fatal ("unexec: Can't close (%s): %s", old_name, strerror (errno));
 
   if (close (new_file) != 0)
-    fatal ("Can't close (%s): %s", new_name, strerror (errno));
+    fatal ("unexec: Can't close (%s): %s", new_name, strerror (errno));
 
   if (stat (new_name, &stat_buf) != 0)
-    fatal ("Can't stat (%s): %s", new_name, strerror (errno));
+    fatal ("unexec: Can't stat (%s): %s", new_name, strerror (errno));
 
   mask = umask (777);
   umask (mask);
   stat_buf.st_mode |= 0111 & ~mask;
   if (chmod (new_name, stat_buf.st_mode) != 0)
-    fatal ("Can't chmod (%s): %s", new_name, strerror (errno));
+    fatal ("unexec: Can't chmod (%s): %s", new_name, strerror (errno));
 }

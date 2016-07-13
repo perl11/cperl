@@ -49,6 +49,7 @@
 #ifdef UNEXEC
 #include "unexec.h"
 #endif
+static char *PL_undump_file = NULL;
 
 #ifdef DEBUG_LEAKING_SCALARS_FORK_DUMP
 #  ifdef I_SYSUIO
@@ -60,6 +61,14 @@ union control_un {
   char control[CMSG_SPACE(sizeof(int))];
 };
 
+#endif
+
+/* Set after it has started up the first time.
+   Prevents reinitialization of the world and keymaps
+   on subsequent starts. */
+#ifdef PERL_DARWIN
+static bool PL_initialized = FALSE;
+extern void unexec_init_emacs_zone (void);
 #endif
 
 #ifndef HZ
@@ -113,6 +122,13 @@ S_init_tls_and_interp(PerlInterpreter *my_perl)
 #else
     /* This always happens for non-ithreads  */
 #endif
+
+   /* If using unexmacosx.c (set by s/darwin.h), we must do this. */
+#ifdef PERL_DARWIN
+    if (!PL_initialized)
+        unexec_init_emacs_zone();
+#endif
+
     {
 	PERL_SET_THX(my_perl);
     }
@@ -148,6 +164,7 @@ Perl_sys_init(int* argc, char*** argv)
 #  error not __i386 nor __x86_64__
 # endif
 #endif
+
     PERL_SYS_INIT_BODY(argc, argv);
 }
 
@@ -200,6 +217,7 @@ perl_alloc_using(struct IPerlMem* ipM, struct IPerlMem* ipMS,
     PL_Sock = ipS;
     PL_Proc = ipP;
     INIT_TRACK_MEMPOOL(PL_memory_debug_header, my_perl);
+    PL_initialized = TRUE;
 
     return my_perl;
 }
@@ -2671,7 +2689,7 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
     }
 
     if (PL_do_undump)
-	my_unexec();
+	my_unexec(PL_undump_file);
 
     if (isWARN_ONCE) {
 	SAVECOPFILE(PL_curcop);
@@ -3880,6 +3898,10 @@ Perl_moreswitches(pTHX_ const char *s)
     case 'u':
 	PL_do_undump = TRUE;
 	s++;
+        if (*s == '=') {
+            s++;
+            PL_undump_file = (char*)s;
+        }
 	return s;
     case 'U':
 	PL_unsafe = TRUE;
@@ -4066,17 +4088,20 @@ Internet, point your browser at http://www.perl.org/, the Perl Home Page.\n\n");
 #endif
 
 void
-Perl_my_unexec(pTHX)
+Perl_my_unexec(pTHX_ const char *outfile)
 {
 #ifdef UNEXEC
     SV * const caret_X = get_sv("\030", 0);
     SV * const prog = newSVpvn_flags(SvPVX(caret_X), SvCUR(caret_X),
                                      SvUTF8(caret_X));
     /* what to do with "-e" ? */
-    SV * file = newSVpv(strEQc(PL_origfilename, "-e") ? "script" : PL_origfilename, 0);
-    sv_catpvs(file, ".perldump");
+    if (!outfile) {
+        SV * file = newSVpv(strEQc(PL_origfilename, "-e") ? "script" : PL_origfilename, 0);
+        sv_catpvs(file, ".perldump");
+        outfile = SvPVX(file);
+    }
 
-    unexec(SvPVX(file), SvPVX(prog));
+    unexec(outfile, SvPVX(prog));
     /* unexec prints msg to stderr in case of failure */
     PerlProc_exit(1);
 #else

@@ -91,7 +91,12 @@ static int adjust_lnnoptrs (int, int, const char *);
 
 static int pagemask;
 
-#include "lisp.h"
+/*#include "lisp.h"*/
+#define PERLIO_NOT_STDIO 0
+#include "EXTERN.h"
+#define PERL_IN_UNEXEC_C
+#include "perl.h"
+#define report_file_errno Perl_croak_nocontext
 
 static _Noreturn void
 report_error (const char *file, int fd)
@@ -99,7 +104,8 @@ report_error (const char *file, int fd)
   int err = errno;
   if (fd)
     close (fd);
-  report_file_errno ("Cannot unexec", build_string (file), err);
+  report_file_errno("unexec: Failed to dump to %s: %d", file, err);
+  /*report_file_errno ("Cannot unexec", build_string (file), err);*/
 }
 
 #define ERROR0(msg) report_error_1 (new, msg)
@@ -112,7 +118,8 @@ report_error_1 (int fd, const char *msg, ...)
   va_list ap;
   close (fd);
   va_start (ap, msg);
-  verror (msg, ap);
+  vcroak(pat, &ap);
+  NOT_REACHED; /* NOTREACHED */
   va_end (ap);
 }
 

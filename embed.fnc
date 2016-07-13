@@ -1321,7 +1321,7 @@ pX	|I32	|my_stat_flags	|NULLOK const U32 flags
 Afp	|char *	|my_strftime	|NN const char *fmt|int sec|int min|int hour|int mday \
 				|int mon|int year|int wday|int yday|int isdst
 : Used in pp_ctl.c
-p	|void	|my_unexec
+p	|void	|my_unexec      |NULLOK const char *outfile
 AbDMnPR	|UV	|NATIVE_TO_NEED	|const UV enc|const UV ch
 AbDMnPR	|UV	|ASCII_TO_NEED	|const UV enc|const UV ch
 ApR	|OP*	|newANONLIST	|NULLOK OP* o

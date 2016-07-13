@@ -1,7 +1,7 @@
 /* Dump Emacs in Mach-O format for use on Mac OS X.
    Copyright (C) 2001-2015 Free Software Foundation, Inc.
 
-This file is part of GNU Emacs.
+This file is part of GNU Emacs, adapted to perl.
 
 GNU Emacs is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -113,6 +113,7 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "EXTERN.h"
 #define PERL_IN_UNEXEC_C
 #include "perl.h"
+#define unexec_error Perl_croak_nocontext
 
 #ifdef I_MALLOCMALLOC
 #include <malloc/malloc.h>
@@ -143,8 +144,6 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 #undef MH_MAGIC
 #define MH_MAGIC			MH_MAGIC_64
 #endif
-
-#define VERBOSE 1
 
 /* Size of buffer used to copy data from the input file to the output
    file in function unexec_copy.  */
@@ -285,6 +284,7 @@ unexec_copy (off_t dest, off_t src, ssize_t count)
 
 /* Debugging and informational messages routines.  */
 
+#if 0
 static _Noreturn void
 unexec_error (const char *format, ...)
 {
@@ -297,7 +297,9 @@ unexec_error (const char *format, ...)
   va_end (ap);
   exit (1);
 }
+#endif
 
+#ifdef DEBUGGING
 static void
 print_prot (vm_prot_t prot)
 {
@@ -334,6 +336,7 @@ print_region_list (void)
     print_region (r->address, r->size, r->protection, r->max_protection);
 }
 
+#if 0
 static void
 print_regions (void)
 {
@@ -358,6 +361,8 @@ print_regions (void)
       address += size;
     }
 }
+#endif
+#endif
 
 /* Build the list of regions that need to be dumped.  Regions with
    addresses above VM_DATA_TOP are omitted.  Adjacent regions with
@@ -375,9 +380,11 @@ build_region_list (void)
   mach_port_t object_name;
   struct region_t *r;
 
-#if VERBOSE
-  printf ("--- List of All Regions ---\n");
-  printf ("   address     size prot maxp\n");
+#ifdef DEBUGGING
+  if (DEBUG_v_TEST_) {
+    printf ("--- List of All Regions ---\n");
+    printf ("   address     size prot maxp\n");
+  }
 #endif
 
   while (vm_region (target_task, &address, &size, VM_REGION_BASIC_INFO,
@@ -389,9 +396,7 @@ build_region_list (void)
       if (address >= VM_DATA_TOP)
 	break;
 
-#if VERBOSE
-      print_region (address, size, info.protection, info.max_protection);
-#endif
+      DEBUG_v(print_region (address, size, info.protection, info.max_protection));
 
       /* If a region immediately follows the previous one (the one
 	 most recently added to the list) and has identical
@@ -437,8 +442,8 @@ build_region_list (void)
       address += size;
     }
 
-  printf ("--- List of Regions to be Dumped ---\n");
-  print_region_list ();
+  DEBUG_v(printf ("--- List of Regions to be Dumped ---\n"));
+  DEBUG_v(print_region_list ());
 }
 
 
@@ -564,6 +569,7 @@ unexec_regions_merge (void)
 
 /* More informational messages routines.  */
 
+#ifdef DEBUGGING
 static void
 print_load_command_name (int lc)
 {
@@ -672,6 +678,7 @@ print_load_command (struct load_command *lc)
   else
     printf ("\n");
 }
+#endif
 
 /* Read header and load commands from input file.  Store the latter in
    the global array lca.  Store the total number of load commands in
@@ -690,15 +697,17 @@ read_load_commands (void)
   if (mh.filetype != MH_EXECUTE)
     unexec_error ("input Mach-O file is not an executable object file");
 
-#if VERBOSE
-  printf ("--- Header Information ---\n");
-  printf ("Magic = 0x%08x\n", mh.magic);
-  printf ("CPUType = %d\n", mh.cputype);
-  printf ("CPUSubType = %d\n", mh.cpusubtype);
-  printf ("FileType = 0x%x\n", mh.filetype);
-  printf ("NCmds = %d\n", mh.ncmds);
-  printf ("SizeOfCmds = %d\n", mh.sizeofcmds);
-  printf ("Flags = 0x%08x\n", mh.flags);
+#ifdef DEBUGGING
+  if (DEBUG_v_TEST_) {
+    printf ("--- Header Information ---\n");
+    printf ("Magic = 0x%08x\n", mh.magic);
+    printf ("CPUType = %d\n", mh.cputype);
+    printf ("CPUSubType = %d\n", mh.cpusubtype);
+    printf ("FileType = 0x%x\n", mh.filetype);
+    printf ("NCmds = %d\n", mh.ncmds);
+    printf ("SizeOfCmds = %d\n", mh.sizeofcmds);
+    printf ("Flags = 0x%08x\n", mh.flags);
+  }
 #endif
 
   nlc = mh.ncmds;
@@ -734,20 +743,23 @@ read_load_commands (void)
 	}
     }
 
-  printf ("Highest address of load commands in input file: %#8lx\n",
-	  (unsigned long)infile_lc_highest_addr);
+#ifdef DEBUGGING
+  if (DEBUG_v_TEST_) {
+    printf ("Highest address of load commands in input file: %#8lx\n",
+            (unsigned long)infile_lc_highest_addr);
 
-  printf ("Lowest offset of all sections in __TEXT segment: %#8lx\n",
-	  text_seg_lowest_offset);
+    printf ("Lowest offset of all sections in __TEXT segment: %#8lx\n",
+            text_seg_lowest_offset);
 
-  printf ("--- List of Load Commands in Input File ---\n");
-  printf ("# cmd              cmdsize name                address     size\n");
+    printf ("--- List of Load Commands in Input File ---\n");
+    printf ("# cmd              cmdsize name                address     size\n");
 
-  for (i = 0; i < nlc; i++)
-    {
+    for (i = 0; i < nlc; i++) {
       printf ("%1d ", i);
       print_load_command (lca[i]);
     }
+  }
+#endif
 }
 
 /* Copy a LC_SEGMENT load command other than the __DATA segment from
@@ -770,9 +782,9 @@ copy_segment (struct load_command *lc)
       sectp++;
     }
 
-  printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
-	  scp->segname, (long) (scp->fileoff), (long) (scp->filesize),
-	  (long) (scp->vmsize), (long) (scp->vmaddr));
+  DEBUG_v(printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
+                  scp->segname, (long) (scp->fileoff), (long) (scp->filesize),
+                  (long) (scp->vmsize), (long) (scp->vmaddr)));
 
   if (!unexec_copy (scp->fileoff, old_fileoff, scp->filesize))
     unexec_error ("cannot copy segment from input to output file");
@@ -811,9 +823,9 @@ copy_data_segment (struct load_command *lc)
      segment is generally smaller than vmsize.  */
   scp->filesize = scp->vmsize;
 
-  printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
+  DEBUG_v(printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
 	  scp->segname, curr_file_offset, (long)(scp->filesize),
-	  (long)(scp->vmsize), (long) (scp->vmaddr));
+	  (long)(scp->vmsize), (long) (scp->vmaddr)));
 
   /* Offsets in the output file for writing the next section structure
      and segment data block, respectively.  */
@@ -831,7 +843,7 @@ copy_data_segment (struct load_command *lc)
 	 file.  */
       if (strncmp (sectp->sectname, SECT_DATA, 16) == 0)
 	{
-          extern char my_edata[]; /* char my_edata[] = "End of Emacs initialized data"; */
+          extern char my_edata[]; /* char my_edata[] = "End of interpreter initialized data"; */
 	  unsigned long my_size;
 
 	  /* The __data section is basically dumped from memory.  But
@@ -930,10 +942,9 @@ copy_data_segment (struct load_command *lc)
 	unexec_error ("unrecognized section %.16s in __DATA segment",
 		      sectp->sectname);
 
-      printf ("        section %-16.16s at %#8lx - %#8lx (sz: %#8lx)\n",
+      DEBUG_v(printf ("        section %-16.16s at %#8lx - %#8lx (sz: %#8lx)\n",
 	      sectp->sectname, (long) (sectp->offset),
-	      (long) (sectp->offset + sectp->size), (long) (sectp->size));
-
+	      (long) (sectp->offset + sectp->size), (long) (sectp->size)));
       header_offset += sizeof (struct section);
       sectp++;
     }
@@ -964,9 +975,9 @@ copy_data_segment (struct load_command *lc)
       sc.nsects = 0;
       sc.flags = 0;
 
-      printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
-	      sc.segname, (long) (sc.fileoff), (long) (sc.filesize),
-	      (long) (sc.vmsize), (long) (sc.vmaddr));
+      DEBUG_v(printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
+                      sc.segname, (long) (sc.fileoff), (long) (sc.filesize),
+                      (long) (sc.vmsize), (long) (sc.vmaddr)));
 
       if (!unexec_write (sc.fileoff, (void *) sc.vmaddr, sc.filesize))
 	unexec_error ("cannot write new __DATA segment");
@@ -989,7 +1000,7 @@ copy_symtab (struct load_command *lc, long delta)
   stp->symoff += delta;
   stp->stroff += delta;
 
-  printf ("Writing LC_SYMTAB command\n");
+  DEBUG_v(printf ("Writing LC_SYMTAB command\n"));
 
   if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
     unexec_error ("cannot write symtab command to header");
@@ -1053,9 +1064,9 @@ unrelocate (const char *name, off_t reloff, int nrel, vm_address_t base)
 	  }
     }
 
-  if (nrel > 0)
-    printf ("Fixed up %d/%d %s relocation entries in data segment.\n",
-	    unreloc_count, nrel, name);
+    DEBUG_v(if (nrel > 0)
+      printf ("Fixed up %d/%d %s relocation entries in data segment.\n",
+              unreloc_count, nrel, name));
 }
 
 #if __ppc64__
@@ -1137,7 +1148,7 @@ copy_dysymtab (struct load_command *lc, long delta)
   if (dstp->nindirectsyms > 0)
     dstp->indirectsymoff += delta;
 
-  printf ("Writing LC_DYSYMTAB command\n");
+  DEBUG_v(printf ("Writing LC_DYSYMTAB command\n"));
 
   if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
     unexec_error ("cannot write symtab command to header");
@@ -1179,7 +1190,7 @@ copy_twolevelhints (struct load_command *lc, long delta)
     tlhp->offset += delta;
   }
 
-  printf ("Writing LC_TWOLEVEL_HINTS command\n");
+  DEBUG_v(printf ("Writing LC_TWOLEVEL_HINTS command\n"));
 
   if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
     unexec_error ("cannot write two level hint command to header");
@@ -1206,9 +1217,13 @@ copy_dyld_info (struct load_command *lc, long delta)
   if (dip->export_off > 0)
     dip->export_off += delta;
 
-  printf ("Writing ");
-  print_load_command_name (lc->cmd);
-  printf (" command\n");
+#ifdef DEBUGGING
+  if (DEBUG_v_TEST_) {
+    printf ("Writing ");
+    print_load_command_name (lc->cmd);
+    printf (" command\n");
+  }
+#endif
 
   if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
     unexec_error ("cannot write dyld info command to header");
@@ -1229,9 +1244,13 @@ copy_linkedit_data (struct load_command *lc, long delta)
   if (ldp->dataoff > 0)
     ldp->dataoff += delta;
 
-  printf ("Writing ");
-  print_load_command_name (lc->cmd);
-  printf (" command\n");
+#ifdef DEBUGGING
+  if (DEBUG_v_TEST_) {
+    printf ("Writing ");
+    print_load_command_name (lc->cmd);
+    printf (" command\n");
+  }
+#endif
 
   if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
     unexec_error ("cannot write linkedit data command to header");
@@ -1245,10 +1264,14 @@ copy_linkedit_data (struct load_command *lc, long delta)
 static void
 copy_other (struct load_command *lc)
 {
-  printf ("Writing ");
-  print_load_command_name (lc->cmd);
-  printf (" command\n");
-
+#ifdef DEBUGGING
+  if (DEBUG_v_TEST_) {
+    printf ("Writing ");
+    print_load_command_name (lc->cmd);
+    printf (" command\n");
+  }
+#endif
+    
   if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
     unexec_error ("cannot write symtab command to header");
 
@@ -1263,7 +1286,7 @@ dump_it (void)
   uint32_t i;
   long linkedit_delta = 0;
 
-  printf ("--- Load Commands written to Output File ---\n");
+  DEBUG_v(printf ("--- Load Commands written to Output File ---\n"));
 
   for (i = 0; i < nlc; i++)
     switch (lca[i]->cmd)
@@ -1385,6 +1408,7 @@ unexec (const char *outfile, const char *infile)
 }
 
 
+/* public */
 void
 unexec_init_emacs_zone (void)
 {

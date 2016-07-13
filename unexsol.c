@@ -5,6 +5,7 @@
 #include "EXTERN.h"
 #define PERL_IN_UNEXEC_C
 #include "perl.h"
+#define fatal Perl_croak_nocontext
 
 #include <dlfcn.h>
 
@@ -14,5 +15,5 @@ unexec (const char *new_name, const char *old_name)
   if (! dldump (0, new_name, RTLD_MEMORY))
     return;
 
-  Perl_croak_nocontext("Cannot unexec to %s: %s", new_name, dlerror());
+  fatal ("unexec: dldump to %s failed. %s", new_name, dlerror());
 }
