@@ -864,6 +864,7 @@ program (not supplied).
 
 If the optional filename after C<-u=> is omitted the resulting binary file
 is named after the given script file with the F<.exe> extension appended.
+Without script, just C<-e'...'> use F<a.exe> as filename.
 
 B<WARNING>: Any files opened at the time of the dump will I<not>
 be open any more when the program is reincarnated, with possible
