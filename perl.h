@@ -1186,6 +1186,19 @@ EXTERN_C int usleep(unsigned int);
 /* This comes after <stdlib.h> so we don't try to change the standard
  * library prototypes; we'll use our own in proto.h instead. */
 
+#if defined(UNEXEC) && defined(PERL_DARWIN)
+# define Perl_malloc	unexec_malloc
+# define Perl_calloc	unexec_calloc
+# define Perl_realloc	unexec_realloc
+# define Perl_mfree	unexec_free
+# define safemalloc  	Perl_malloc
+# define safecalloc  	Perl_calloc
+# define saferealloc 	Perl_realloc
+# define safefree    	Perl_mfree
+# define CHECK_MALLOC_TOO_LATE_FOR(ch)		((void)0)
+# define CHECK_MALLOC_TAINT(newval)		((void)0)
+# define MALLOC_CHECK_TAINT(argc,argv,env)
+#else
 #ifdef MYMALLOC
 #  ifdef PERL_POLLUTE_MALLOC
 #   ifndef PERL_EXTMALLOC_DEF
@@ -1227,6 +1240,7 @@ EXTERN_C int usleep(unsigned int);
 #  define CHECK_MALLOC_TAINT(newval)		((void)0)
 #  define MALLOC_CHECK_TAINT(argc,argv,env)
 #endif /* MYMALLOC */
+#endif /* UNEXEC */
 
 /* diag_listed_as: "-T" is on the #! line, it must also be used on the command line */
 #define TOO_LATE_FOR_(ch,what)	Perl_croak(aTHX_ "\"-%c\" is on the #! line, it must also be used on the command line%s", (char)(ch), what)

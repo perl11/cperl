@@ -123,7 +123,8 @@ S_maybe_protect_ro(pTHX_ struct perl_memory_debug_header *header)
 # endif
 #endif
 
-/* paranoid version of system's malloc() */
+/* paranoid version of system's malloc()
+   used in my_clearenv() */
 
 Malloc_t
 Perl_safesysmalloc(MEM_SIZE size)
@@ -337,7 +338,8 @@ Perl_safesysrealloc(Malloc_t where,MEM_SIZE size)
     return ptr;
 }
 
-/* safe version of system's free() */
+/* safe version of system's free()
+   used in my_clearenv() */
 
 Free_t
 Perl_safesysfree(Malloc_t where)
@@ -498,7 +500,7 @@ Perl_safesyscalloc(MEM_SIZE count, MEM_SIZE size)
 /* These must be defined when not using Perl's malloc for binary
  * compatibility */
 
-#ifndef MYMALLOC
+#if !defined(MYMALLOC) && !(defined(UNEXEC) && defined(PERL_DARWIN))
 
 Malloc_t Perl_malloc (MEM_SIZE nbytes)
 {

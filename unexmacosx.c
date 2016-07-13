@@ -473,6 +473,9 @@ unexec_regions_recorder (task_t task, void *rr, unsigned type,
 {
   vm_address_t p;
   vm_size_t filesize;
+  PERL_UNUSED_ARG(task);
+  PERL_UNUSED_ARG(rr);
+  PERL_UNUSED_ARG(type);
 
   while (num && num_unexec_regions < MAX_UNEXEC_REGIONS)
     {
@@ -486,8 +489,8 @@ unexec_regions_recorder (task_t task, void *rr, unsigned type,
 
       unexec_regions[num_unexec_regions].filesize = filesize;
       unexec_regions[num_unexec_regions++].range = *ranges;
-      printf ("%#10lx (sz: %#8lx/%#8lx)\n", (long) (ranges->address),
-	      (long) filesize, (long) (ranges->size));
+      DEBUG_v(printf ("%#10lx (sz: %#8lx/%#8lx)\n", (long) (ranges->address),
+                      (long) filesize, (long) (ranges->size)));
       ranges++; num--;
     }
 }
@@ -495,6 +498,8 @@ unexec_regions_recorder (task_t task, void *rr, unsigned type,
 static kern_return_t
 unexec_reader (task_t task, vm_address_t address, vm_size_t size, void **ptr)
 {
+  PERL_UNUSED_ARG(task);
+  PERL_UNUSED_ARG(size);
   *ptr = (void *) address;
   return KERN_SUCCESS;
 }
@@ -503,15 +508,13 @@ static void
 find_prog_zone_regions (void)
 {
   num_unexec_regions = 0;
-  /* TODO: walk the the perl arenas */
-#if 0
+  /* walk the malloc zones, created with malloc_create_zone() */
   emacs_zone->introspect->enumerator (mach_task_self (), 0,
 				      MALLOC_PTR_REGION_RANGE_TYPE
 				      | MALLOC_ADMIN_REGION_RANGE_TYPE,
 				      (vm_address_t) emacs_zone,
 				      unexec_reader,
 				      unexec_regions_recorder);
-#endif
   if (num_unexec_regions == MAX_UNEXEC_REGIONS)
     unexec_error ("find_prog_zone_regions: too many regions");
 }
@@ -1431,6 +1434,7 @@ unexec_init_emacs_zone (void)
 }
 
 #ifndef MACOSX_MALLOC_MULT16
+/* The darwin API, 16byte memory and stack alignment */
 #define MACOSX_MALLOC_MULT16 1
 #endif
 
@@ -1491,6 +1495,35 @@ unexec_malloc (size_t size)
 }
 
 void *
+unexec_calloc (size_t count, size_t size)
+{
+  if (in_dumped_exec)
+    {
+      void *p;
+
+      p = calloc (count, size);
+#if MACOSX_MALLOC_MULT16
+      assert (((vm_address_t) p % 16) == 0);
+#endif
+      return p;
+    }
+  else
+    {
+      unexec_malloc_header_t *ptr;
+      size = size * count;
+
+      ptr = (unexec_malloc_header_t *)
+	malloc_zone_malloc (emacs_zone, size + sizeof (unexec_malloc_header_t));
+      ptr->u.size = size;
+      ptr++;
+#if MACOSX_MALLOC_MULT16
+      assert (((vm_address_t) ptr % 16) == 8);
+#endif
+      return (void *) memset(ptr, 0, size);
+    }
+}
+
+void *
 unexec_realloc (void *old_ptr, size_t new_size)
 {
   if (in_dumped_exec)
@@ -1519,9 +1552,14 @@ unexec_realloc (void *old_ptr, size_t new_size)
     {
       unexec_malloc_header_t *ptr;
 
-      ptr = (unexec_malloc_header_t *)
-	malloc_zone_realloc (emacs_zone, (unexec_malloc_header_t *) old_ptr - 1,
-			     new_size + sizeof (unexec_malloc_header_t));
+      if (old_ptr)
+        ptr = (unexec_malloc_header_t *)
+          malloc_zone_realloc (emacs_zone, (unexec_malloc_header_t *) old_ptr - 1,
+                               new_size + sizeof (unexec_malloc_header_t));
+      else
+        ptr = (unexec_malloc_header_t *)
+          malloc_zone_malloc (emacs_zone, new_size + sizeof (unexec_malloc_header_t));
+
       ptr->u.size = new_size;
       ptr++;
 #if MACOSX_MALLOC_MULT16
