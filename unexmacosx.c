@@ -147,11 +147,11 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* Size of buffer used to copy data from the input file to the output
    file in function unexec_copy.  */
-#define UNEXEC_COPY_BUFSZ 1024
+#define UNEXEC_COPY_BUFSZ 4096
 
 /* Regions with memory addresses above this value are assumed to be
    mapped to dynamically loaded libraries and will not be dumped.  */
-#define VM_DATA_TOP (20 * 1024 * 1024)
+/*#define VM_DATA_TOP (20 * 1024 * 1024)*/
 
 /* Type of an element on the list of regions to be dumped.  */
 struct region_t {
@@ -185,7 +185,7 @@ static vm_address_t infile_lc_highest_addr = 0;
    overwrite any of the sections in the __TEXT segment.  */
 static unsigned long text_seg_lowest_offset = 0x10000000;
 
-/* Mach header.  */
+/* Mach header (defined to 32 or 64bit)  */
 static struct mach_header mh;
 
 /* Offset at which the next load command should be written.  */
@@ -208,6 +208,8 @@ static off_t data_segment_old_fileoff = 0;
 
 static struct segment_command *data_segment_scp;
 
+static void unexec_warn (const char *format, ...);
+
 /* Read N bytes from infd into memory starting at address DEST.
    Return true if successful, false otherwise.  */
 static int
@@ -222,8 +224,10 @@ unexec_read (void *dest, size_t n)
 static int
 unexec_write (off_t dest, const void *src, size_t count)
 {
-  if (lseek (outfd, dest, SEEK_SET) != dest)
+  if (lseek (outfd, dest, SEEK_SET) != dest) {
+    unexec_warn ("invalid seek %ld %s", dest, strerror(errno));
     return 0;
+  }
 
   return (size_t)write (outfd, src, count) == count;
 }
@@ -289,7 +293,7 @@ unexec_warn (const char *format, ...)
   va_list ap;
 
   va_start (ap, format);
-  fprintf (stderr, "unexec: ");
+  fprintf (stderr, "unexec warning: ");
   vfprintf (stderr, format, ap);
   fprintf (stderr, "\n");
   va_end (ap);
@@ -329,7 +333,7 @@ static void
 print_region (vm_address_t address, vm_size_t size, vm_prot_t prot,
 	      vm_prot_t max_prot)
 {
-  printf ("%#10lx %#8lx ", (long) address, (long) size);
+  printf ("%#10lx %#7lx ", (long) address, (long) size);
   print_prot (prot);
   putchar (' ');
   print_prot (max_prot);
@@ -404,7 +408,8 @@ build_region_list (void)
     {
       /* Done when we reach addresses of shared libraries, which are
 	 loaded in high memory.  */
-      if (address >= VM_DATA_TOP)
+      extern char *my_endbss_static;
+      if (address >= (unsigned long)my_endbss_static)
         break;
 
       DEBUG_v(print_region (address, size, info.protection, info.max_protection));
@@ -450,6 +455,8 @@ build_region_list (void)
 	    mach_port_deallocate (target_task, object_name);
 	}
 
+      if (!size)
+        break;
       address += size;
     }
 
@@ -703,7 +710,7 @@ read_load_commands (void)
   uint32_t i;
 
   if (!unexec_read (&mh, sizeof (struct mach_header)))
-    unexec_error ("cannot read mach-o header");
+    unexec_error ("cannot read Mach-O header");
 
   if (mh.magic != MH_MAGIC)
     unexec_error ("input file not in Mach-O format");
@@ -713,14 +720,12 @@ read_load_commands (void)
 
 #ifdef DEBUGGING
   if (DEBUG_v_TEST_) {
-    printf ("--- Header Information ---\n");
-    printf ("Magic = 0x%08x\n", mh.magic);
-    printf ("CPUType = %d\n", mh.cputype);
-    printf ("CPUSubType = %d\n", mh.cpusubtype);
-    printf ("FileType = 0x%x\n", mh.filetype);
-    printf ("NCmds = %d\n", mh.ncmds);
-    printf ("SizeOfCmds = %d\n", mh.sizeofcmds);
-    printf ("Flags = 0x%08x\n", mh.flags);
+    printf ("Mach header\n");
+    printf ("      magic   cputype cpusubtype   filetype  ncmds sizeofcmds      flags\n");
+    printf ("0x%08x 0x%08x 0x%08x 0x%08x %6d   %8d 0x%08x\n",
+            mh.magic, mh.cputype, mh.cpusubtype,
+            mh.filetype, mh.ncmds, mh.sizeofcmds, mh.flags);
+    /* 64bit has an additional reserved field */
   }
 #endif
 
@@ -805,7 +810,7 @@ copy_segment (struct load_command *lc)
   curr_file_offset += ROUNDUP_TO_PAGE_BOUNDARY (scp->filesize);
 
   if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
-    unexec_error ("cannot write load command to header");
+    unexec_error ("cannot write load command to header %s", strerror(errno));
 
   curr_header_offset += lc->cmdsize;
 }
@@ -856,8 +861,10 @@ copy_data_segment (struct load_command *lc)
 	 other three kinds of sections are just copied from the input
 	 file.  */
       if (strncmp (sectp->sectname, SECT_DATA, 16) == 0)
+        /* nm miniperl|grep ' D '|sort */
 	{
-          extern char my_edata[]; /* char my_edata[] = "End of interpreter initialized data"; */
+          extern char my_edata[];
+          extern char *my_endbss_static;
 	  unsigned long my_size;
 
 	  /* The __data section is basically dumped from memory.  But
@@ -869,28 +876,39 @@ copy_data_segment (struct load_command *lc)
 	  my_size = (unsigned long)my_edata - sectp->addr;
 	  if (!(sectp->addr <= (unsigned long)my_edata
 		&& my_size <= sectp->size)) {
+            /* This not critical in perl */
 	    unexec_warn ("my_edata is not in section %s", SECT_DATA);
-            unexec_warn ("sectp->addr %p <= my_edata %p, my_size 0x%x <= sectp->size 0x%x\n",
+            unexec_warn ("sectp->addr %p <= my_edata %p, my_size 0x%x <= sectp->size 0x%x",
                          sectp->addr, &my_edata, my_size, sectp->size);
-            my_size = sectp->size;
+            my_size = (unsigned long)my_endbss_static - sectp->addr;
+            if (!(sectp->addr <= (unsigned long)my_endbss_static
+                  && my_size <= sectp->size)) {
+                unexec_warn ("my_endbss_static is also not in section %s", SECT_DATA);
+                my_size = sectp->size;
+            }
           }
 	  if (!unexec_write (sectp->offset, (void *) sectp->addr, my_size))
-	    unexec_error ("cannot write section %s", SECT_DATA);
+	    unexec_warn ("cannot write section %s (0x%x: %p [0x%x]) %s", SECT_DATA,
+                         sectp->offset, (void *)sectp->addr, my_size, strerror(errno));
 	  if (!unexec_copy (sectp->offset + my_size, old_file_offset + my_size,
 			    sectp->size - my_size))
 	    unexec_error ("cannot copy section %s", SECT_DATA);
 	  if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-	    unexec_error ("cannot write section %s's header", SECT_DATA);
+	    unexec_error ("cannot write section %s's header %s", SECT_DATA, strerror(errno));
 	}
       else if (strncmp (sectp->sectname, SECT_COMMON, 16) == 0)
+        /* nm miniperl|grep ' S '|sort */
 	{
 	  sectp->flags = S_REGULAR;
 	  if (!unexec_write (sectp->offset, (void *) sectp->addr, sectp->size))
-	    unexec_error ("cannot write section %.16s", sectp->sectname);
+	    unexec_warn ("cannot write section %.16s (0x%x: %p [0x%x]) %s", sectp->sectname,
+                         sectp->offset, (void *)sectp->addr, sectp->size, strerror(errno));
 	  if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-	    unexec_error ("cannot write section %.16s's header", sectp->sectname);
+	    unexec_error ("cannot write section %.16s's header %s", sectp->sectname,
+                          strerror(errno));
 	}
       else if (strncmp (sectp->sectname, SECT_BSS, 16) == 0)
+        /* nm miniperl|grep ' b '|sort */
 	{
 	  extern char *my_endbss_static;
 	  unsigned long my_size;
@@ -905,16 +923,21 @@ copy_data_segment (struct load_command *lc)
 	     dumped binary is executed on other versions of OS.  */
 	  my_size = (unsigned long)my_endbss_static - sectp->addr;
 	  if (!(sectp->addr <= (unsigned long)my_endbss_static
-		&& my_size <= sectp->size))
-	    unexec_error ("my_endbss_static is not in section %.16s",
+		&& my_size <= sectp->size)) {
+	    unexec_warn ("my_endbss_static is not in section %.16s",
 			  sectp->sectname);
+            my_size = sectp->size;
+          }
 	  if (!unexec_write (sectp->offset, (void *) sectp->addr, my_size))
-	    unexec_error ("cannot write section %.16s", sectp->sectname);
+	    unexec_warn ("cannot write section %.16s (0x%x: %p [0x%x]) %s", sectp->sectname,
+                         sectp->offset, (void *)sectp->addr, my_size, strerror(errno));
 	  if (!unexec_write_zero (sectp->offset + my_size,
 				  sectp->size - my_size))
-	    unexec_error ("cannot write section %.16s", sectp->sectname);
+	    unexec_error ("cannot write section %.16s %s", sectp->sectname,
+                          strerror(errno));
 	  if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-	    unexec_error ("cannot write section %.16s's header", sectp->sectname);
+	    unexec_error ("cannot write section %.16s's header %s", sectp->sectname,
+                          strerror(errno));
 	}
       else if (strncmp (sectp->sectname, "__bss", 5) == 0
 	       || strncmp (sectp->sectname, "__pu_bss", 8) == 0)
@@ -933,9 +956,11 @@ copy_data_segment (struct load_command *lc)
 	     by log2(alignment) in GCC 4.7. */
 
 	  if (!unexec_write (sectp->offset, (void *) sectp->addr, sectp->size))
-	    unexec_error ("cannot copy section %.16s", sectp->sectname);
+	    unexec_error ("cannot copy section %.16s %s", sectp->sectname,
+                          strerror(errno));
 	  if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-	    unexec_error ("cannot write section %.16s's header", sectp->sectname);
+	    unexec_error ("cannot write section %.16s's header %s", sectp->sectname,
+                          strerror(errno));
 	}
       else if (strncmp (sectp->sectname, "__la_symbol_ptr", 16) == 0
 	       || strncmp (sectp->sectname, "__nl_symbol_ptr", 16) == 0
@@ -954,7 +979,8 @@ copy_data_segment (struct load_command *lc)
 	  if (!unexec_copy (sectp->offset, old_file_offset, sectp->size))
 	    unexec_error ("cannot copy section %.16s", sectp->sectname);
 	  if (!unexec_write (header_offset, sectp, sizeof (struct section)))
-	    unexec_error ("cannot write section %.16s's header", sectp->sectname);
+	    unexec_error ("cannot write section %.16s's header %s",
+                          sectp->sectname, strerror(errno));
 	}
       else
 	unexec_error ("unrecognized section %.16s in __DATA segment",
@@ -1371,11 +1397,11 @@ dump_it (void)
 
   if (curr_header_offset > text_seg_lowest_offset)
     unexec_error ("not enough room for load commands for new __DATA segments"
-		  " (increase headerpad_extra in configure.in to at least %lX)",
+		  " (increase to at least -Wl,-headerpad,%lX in hints/darwin.sh)",
 		  num_unexec_regions * sizeof (struct segment_command));
 
-  printf ("%ld unused bytes follow Mach-O header\n",
-	  text_seg_lowest_offset - curr_header_offset);
+  DEBUG_v(printf ("%ld unused bytes follow Mach-O header\n",
+                  text_seg_lowest_offset - curr_header_offset));
 
   mh.sizeofcmds = curr_header_offset - sizeof (struct mach_header);
   if (!unexec_write (0, &mh, sizeof (struct mach_header)))
@@ -1399,7 +1425,7 @@ unexec (const char *outfile, const char *infile)
       unexec_error ("cannot open input file `%s'", infile);
     }
 
-  outfd = open (outfile, O_WRONLY | O_TRUNC | O_CREAT, 0755);
+  outfd = open (outfile, O_WRONLY|O_TRUNC|O_CREAT, 0755);
   if (outfd < 0)
   {
       int err = errno;

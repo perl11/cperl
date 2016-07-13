@@ -35,15 +35,25 @@ along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.  */
 */
 
 /*#include <config.h>*/
+#define EDATA "End of interpreter initialized data"
 
-char my_edata[] = "End of interpreter initialized data";
+/* nm miniperl|grep ' S '|sort
+   On darwin this is in some other section, not in .data */
+#ifndef PERL_DARWIN
+char my_edata[] = EDATA;
+#else
+int my_edata;
+#endif
 
 /* Help unexec locate the end of the .bss area used by Emacs (which
-   isn't always a separate section in NT executables).  */
+   isn't always a separate section in NT executables). 
+   On darwin this is in some other section, not in .bss.
+ */
 char my_endbss[1];
 
 /* The Alpha MSVC linker globally segregates all static and public bss
    data, so we must take both into account to determine the true extent
    of the bss area used by Emacs.  */
-static char _my_endbss[1];
+static char _my_endbss[1]; /* .bss */
+/* But on darwin this is in .data, not .bss */
 char * my_endbss_static = _my_endbss;
