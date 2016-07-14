@@ -650,10 +650,6 @@
 #define runops_debug()		Perl_runops_debug(aTHX)
 #define runops_standard()	Perl_runops_standard(aTHX)
 #define rv2cv_op_cv(a,b)	Perl_rv2cv_op_cv(aTHX_ a,b)
-#define safesyscalloc		Perl_safesyscalloc
-#define safesysfree		Perl_safesysfree
-#define safesysmalloc		Perl_safesysmalloc
-#define safesysrealloc		Perl_safesysrealloc
 #define save_I16(a)		Perl_save_I16(aTHX_ a)
 #define save_I32(a)		Perl_save_I32(aTHX_ a)
 #define save_I8(a)		Perl_save_I8(aTHX_ a)
@@ -982,6 +978,12 @@
 #define cx_pushsub(a,b,c,d)	S_cx_pushsub(aTHX_ a,b,c,d)
 #define cx_pushwhen(a)		S_cx_pushwhen(aTHX_ a)
 #define cx_topblock(a)		S_cx_topblock(aTHX_ a)
+#endif
+#if !defined(UNEXEC)
+#define safesyscalloc		Perl_safesyscalloc
+#define safesysfree		Perl_safesysfree
+#define safesysmalloc		Perl_safesysmalloc
+#define safesysrealloc		Perl_safesysrealloc
 #endif
 #if defined(DEBUGGING)
 #define pad_setsv(a,b)		Perl_pad_setsv(aTHX_ a,b)
@@ -1543,7 +1545,7 @@
 #define hv_ename_add(a,b,c,d)	Perl_hv_ename_add(aTHX_ a,b,c,d)
 #define hv_ename_delete(a,b,c,d)	Perl_hv_ename_delete(aTHX_ a,b,c,d)
 #define hv_pushkv(a,b)		Perl_hv_pushkv(aTHX_ a,b)
-#define init_argv_symbols(a,b)	Perl_init_argv_symbols(aTHX_ a,b)
+#define init_argv_symbols(a,b,c)	Perl_init_argv_symbols(aTHX_ a,b,c)
 #define init_constants()	Perl_init_constants(aTHX)
 #define init_debugger()		Perl_init_debugger(aTHX)
 #define init_named_cv(a,b)	Perl_init_named_cv(aTHX_ a,b)
@@ -2146,7 +2148,7 @@
 #define init_interp()		S_init_interp(aTHX)
 #define init_main_stash()	S_init_main_stash(aTHX)
 #define init_perllib()		S_init_perllib(aTHX)
-#define init_postdump_symbols(a,b,c)	S_init_postdump_symbols(aTHX_ a,b,c)
+#define init_postdump_symbols(a,b,c,d)	S_init_postdump_symbols(aTHX_ a,b,c,d)
 #define init_predump_symbols()	S_init_predump_symbols(aTHX)
 #define mayberelocate(a,b,c)	S_mayberelocate(aTHX_ a,b,c)
 #define minus_v()		S_minus_v(aTHX)

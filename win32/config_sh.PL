@@ -263,12 +263,17 @@ else {
     $opt{nvgformat} = '"g"';
 }
 
+$opt{unexec} = 'unexw32' unless exists $opt{unexec};
+
 # change some configuration variables based on compiler version
 if ($opt{cc} =~ /\bcl/ and $opt{ccversion} =~ /^(\d+)/) {
     my $ccversion = $1;
     if ($ccversion < 13) { # VC6
 	$opt{ar} ='lib';
     }
+    # change the s{GM|LOCAL}TIME_{min|max} for VS2005 (aka VC 8) and
+    # VS2008 (aka VC 9) or higher (presuming that later versions will have
+    # at least the range of that).
     if ($ccversion >= 14) { # VC8+
 	$opt{sGMTIME_max} = 32535291599;
 	$opt{sLOCALTIME_max} = 32535244799;

@@ -836,7 +836,7 @@ Ainp	|I32	|foldEQ_latin1	|NN const char* a|NN const char* b|I32 len
 sR	|bool	|ingroup	|Gid_t testgid|bool effective
 #endif
 : Used in toke.c
-p	|void	|init_argv_symbols|int argc|NN char **argv
+p	|void	|init_argv_symbols|int argc|NN char **argv|bool dump_init
 : Used in pp_ctl.c
 po	|void	|init_dbargs
 : Used in mg.c
@@ -2295,10 +2295,12 @@ s	|int	|yywarn		|NN const char *const s|U32 flags
 Ap	|void	|dump_mstats	|NN const char* s
 Ap	|int	|get_mstats	|NN perl_mstats_t *buf|int buflen|int level
 #endif
+#if !defined(UNEXEC)
 Anpa	|Malloc_t|safesysmalloc	|MEM_SIZE nbytes
 Anpa	|Malloc_t|safesyscalloc	|MEM_SIZE elements|MEM_SIZE size
 AnpR	|Malloc_t|safesysrealloc|Malloc_t where|MEM_SIZE nbytes
 Anp	|Free_t	|safesysfree	|Malloc_t where
+#endif
 Asrnx	|void	|croak_memory_wrap
 #if defined(PERL_GLOBAL_STRUCT)
 Ap	|struct perl_vars *|GetVars
@@ -2666,7 +2668,8 @@ s	|void	|init_interp
 s	|void	|init_ids
 s	|void	|init_main_stash
 s	|void	|init_perllib
-s	|void	|init_postdump_symbols|int argc|NN char **argv|NULLOK char **env
+s	|void	|init_postdump_symbols|int argc|NN char **argv|NULLOK char **env \
+                                      |bool dump_init
 s	|void	|init_predump_symbols
 rs	|void	|my_exit_jump
 s	|void	|nuke_stacks

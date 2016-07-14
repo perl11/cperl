@@ -217,8 +217,9 @@ perl_alloc_using(struct IPerlMem* ipM, struct IPerlMem* ipMS,
     PL_Sock = ipS;
     PL_Proc = ipP;
     INIT_TRACK_MEMPOOL(PL_memory_debug_header, my_perl);
+#ifdef PERL_DARWIN
     PL_initialized = TRUE;
-
+#endif
     return my_perl;
 }
 #else
@@ -1834,14 +1835,14 @@ perl_parse(pTHXx_ XSINIT_t xsinit, int argc, char **argv, char **env)
 	/* Come here if running an undumped a.out. */
 
 	PL_origfilename = savepv(argv[0]);
-	PL_do_undump = FALSE;
 	cxstack_ix = -1;		/* start label stack again */
 	init_ids();
 	assert (!TAINT_get);
 	TAINT;
 	set_caret_X();
 	TAINT_NOT;
-	init_postdump_symbols(argc,argv,env);
+	init_postdump_symbols(argc,argv,env,TRUE);
+	PL_do_undump = FALSE;
 	return 0;
     }
 
@@ -2602,8 +2603,7 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
     /* init_postdump_symbols not currently designed to be called */
     /* more than once (ENV isn't cleared first, for example)	 */
     /* But running with -u leaves %ENV & @ARGV undefined!    XXX */
-    if (!PL_do_undump)
-	init_postdump_symbols(argc,argv,env);
+    init_postdump_symbols(argc,argv,env,FALSE);
 
     /* PL_unicode is turned on by -C, or by $ENV{PERL_UNICODE},
      * or explicitly in some platforms.
@@ -2688,8 +2688,10 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
 	PL_e_script = NULL;
     }
 
-    if (PL_do_undump)
+    if (PL_do_undump) {
+	init_postdump_symbols(argc,argv,env,TRUE);
 	my_unexec(PL_undump_file);
+    }
 
     if (isWARN_ONCE) {
 	SAVECOPFILE(PL_curcop);
@@ -4734,7 +4736,7 @@ S_init_predump_symbols(pTHX)
 }
 
 void
-Perl_init_argv_symbols(pTHX_ int argc, char **argv)
+Perl_init_argv_symbols(pTHX_ int argc, char **argv, bool dump_init)
 {
     PERL_ARGS_ASSERT_INIT_ARGV_SYMBOLS;
 
@@ -4761,6 +4763,9 @@ Perl_init_argv_symbols(pTHX_ int argc, char **argv)
 	SvREFCNT_inc_simple_void_NN(PL_argvgv);
 	GvMULTI_on(PL_argvgv);
 	av_clear(GvAVn(PL_argvgv));
+        if (PL_do_undump && !dump_init) {
+            return;
+        }
 	for (; argc > 0; argc--,argv++) {
 	    SV * const sv = newSVpv(argv[0], 0);
 	    av_push(GvAV(PL_argvgv),sv);
@@ -4780,7 +4785,7 @@ Perl_init_argv_symbols(pTHX_ int argc, char **argv)
 }
 
 STATIC void
-S_init_postdump_symbols(pTHX_ int argc, char **argv, char **env)
+S_init_postdump_symbols(pTHX_ int argc, char **argv, char **env, bool dump_init)
 {
 #ifdef USE_ITHREADS
     dVAR;
@@ -4797,10 +4802,11 @@ S_init_postdump_symbols(pTHX_ int argc, char **argv, char **env)
 
     TAINT;
 
-    init_argv_symbols(argc,argv);
+    init_argv_symbols(argc,argv,dump_init);
 
     if ((tmpgv = gv_fetchpvs("0", GV_ADD|GV_NOTQUAL, SVt_PV))) {
-	sv_setpv(GvSV(tmpgv),PL_origfilename);
+        if (!PL_do_undump || dump_init)
+            sv_setpv(GvSV(tmpgv),PL_origfilename);
     }
     if ((PL_envgv = gv_fetchpvs("ENV", GV_ADD|GV_NOTQUAL, SVt_PVHV))) {
 	HV *hv;
@@ -4809,6 +4815,8 @@ S_init_postdump_symbols(pTHX_ int argc, char **argv, char **env)
 	GvMULTI_on(PL_envgv);
 	hv = GvHVn(PL_envgv);
 	hv_magic(hv, NULL, PERL_MAGIC_env);
+        if (PL_do_undump && !dump_init)
+            goto post_env;
 #ifndef PERL_MICRO
 #ifdef USE_ENVIRON_ARRAY
 	/* Note that if the supplied env parameter is actually a copy
@@ -4897,6 +4905,7 @@ S_init_postdump_symbols(pTHX_ int argc, char **argv, char **env)
 #endif /* USE_ENVIRON_ARRAY */
 #endif /* !PERL_MICRO */
     }
+ post_env:
     TAINT_NOT;
 
     /* touch @F array to prevent spurious warnings 20020415 MJD */

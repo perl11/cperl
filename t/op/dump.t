@@ -113,7 +113,7 @@ if ($Config{unexec}) {
   unlink 'a.exe';
 }
 
-fresh_perl_like(<<'PROG', qr/A(?!B\z)/, {}, "dump with filename quits");
+fresh_perl_like(<<'PROG', qr/^AB$/, {}, "dump with filename quits");
 ++$|;
 my $pid = fork;
 die "fork: $!\n" unless defined $pid;

@@ -613,7 +613,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
 #ifdef DYNAMIC_ENV_FETCH
     if (!HvARRAY(hv)) {
-        entry = oentry = NULL;
+        entry = NULL; oentry = NULL;
     } else
 #endif
     {

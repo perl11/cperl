@@ -5865,7 +5865,7 @@ Perl_yylex(pTHX)
                             do {
                                 argc--,argv++;
                             } while (argc && argv[0][0] == '-' && argv[0][1]);
-                            init_argv_symbols(argc,argv);
+                            init_argv_symbols(argc,argv,FALSE);
                         }
                         if (   (PERLDB_LINE_OR_SAVESRC && !oldpdb)
                             || ((PL_minus_n || PL_minus_p) && !(oldn || oldp)))

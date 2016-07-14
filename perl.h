@@ -1186,18 +1186,33 @@ EXTERN_C int usleep(unsigned int);
 /* This comes after <stdlib.h> so we don't try to change the standard
  * library prototypes; we'll use our own in proto.h instead. */
 
-#if defined(UNEXEC) && defined(PERL_DARWIN)
-# define Perl_malloc	unexec_malloc
-# define Perl_calloc	unexec_calloc
-# define Perl_realloc	unexec_realloc
-# define Perl_mfree	unexec_free
-# define safemalloc  	Perl_malloc
-# define safecalloc  	Perl_calloc
-# define saferealloc 	Perl_realloc
-# define safefree    	Perl_mfree
+#if defined(UNEXEC)
+# undef MYMALLOC
+# define safemalloc	malloc
+# define safecalloc	calloc
+# define saferealloc	realloc
+# define safefree	free
+# define safesysmalloc  malloc
+# define safesyscalloc  calloc
+# define safesysrealloc realloc
+# define safesysfree    free
 # define CHECK_MALLOC_TOO_LATE_FOR(ch)		((void)0)
 # define CHECK_MALLOC_TAINT(newval)		((void)0)
 # define MALLOC_CHECK_TAINT(argc,argv,env)
+# if defined(PERL_DARWIN)
+#  define Perl_malloc	unexec_malloc
+#  define Perl_calloc	unexec_calloc
+#  define Perl_realloc	unexec_realloc
+#  define Perl_mfree	unexec_free
+#  undef safemalloc
+#  undef safecalloc
+#  undef saferealloc
+#  undef safefree
+#  define safemalloc  	Perl_malloc
+#  define safecalloc  	Perl_calloc
+#  define saferealloc 	Perl_realloc
+#  define safefree    	Perl_mfree
+# endif
 #else
 #ifdef MYMALLOC
 #  ifdef PERL_POLLUTE_MALLOC

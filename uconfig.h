@@ -5480,6 +5480,17 @@
  */
 /*#define	USE_FFI		/ **/
 
+/* EXE_EXT:
+ *	This symbol is either ".exe" on dosish system, ".pm" on Stratus VOS or undefined.
+ */
+#ifndef EXE_EXT
+#if  defined(__HAIKU__) || defined(__VOS__) || defined(__CYGWIN__)
+  || defined(DOSISH) || defined(OS2) || defined(WIN32) || defined(DJGPP)
+  || defined(__SYMBIAN32__)
+#define	EXE_EXT ""	/**/
+#endif
+#endif
+
 /* UNEXEC:
  *	This symbol defines the used unexec source.
  *      Defined via ccflags.
@@ -5488,6 +5499,6 @@
 #endif
 
 /* Generated from:
- * 7c910e3df6f8dfb8c2976b0c7b72ec560d55a386fd49b20054b0c3ddb716eae0 config_h.SH
- * 1ad21ed3ecb2fac07b7c4aabef76b2fc7354cc6dee0b561e852a1651f8dd6025 uconfig.sh
+ * 97f4e6c968df019a93a5bec1e2bb3e31a061710ec96926695f5bf511739157eb config_h.SH
+ * 01c98d3544c6a2117b9a83ad8e8bdcdf423ceccc8b2a55c271b225c70b660667 uconfig.sh
  * ex: set ro: */

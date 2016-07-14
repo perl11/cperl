@@ -2296,7 +2296,7 @@ PERL_CALLCONV SV**	Perl_hv_store_flags(pTHX_ HV *hv, const char *key, I32 klen, 
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_5); */
 
-PERL_CALLCONV void	Perl_init_argv_symbols(pTHX_ int argc, char **argv)
+PERL_CALLCONV void	Perl_init_argv_symbols(pTHX_ int argc, char **argv, bool dump_init)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_INIT_ARGV_SYMBOLS	\
 	assert(argv)
@@ -4837,23 +4837,6 @@ PERL_CALLCONV void	Perl_rxres_save(pTHX_ void **rsp, REGEXP *rx)
 #define PERL_ARGS_ASSERT_RXRES_SAVE	\
 	assert(rsp); assert(rx)
 
-PERL_CALLCONV Malloc_t	Perl_safesyscalloc(MEM_SIZE elements, MEM_SIZE size)
-			__attribute__global__
-			__attribute__malloc__
-			__attribute__warn_unused_result__;
-
-PERL_CALLCONV Free_t	Perl_safesysfree(Malloc_t where)
-			__attribute__global__;
-
-PERL_CALLCONV Malloc_t	Perl_safesysmalloc(MEM_SIZE nbytes)
-			__attribute__global__
-			__attribute__malloc__
-			__attribute__warn_unused_result__;
-
-PERL_CALLCONV Malloc_t	Perl_safesysrealloc(Malloc_t where, MEM_SIZE nbytes)
-			__attribute__global__
-			__attribute__warn_unused_result__;
-
 PERL_CALLCONV void	Perl_save_I16(pTHX_ I16* intp)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
@@ -7310,6 +7293,25 @@ STATIC void	S_validate_suid(pTHX_ PerlIO *rsfp)
 
 #  endif
 #endif
+#if !defined(UNEXEC)
+PERL_CALLCONV Malloc_t	Perl_safesyscalloc(MEM_SIZE elements, MEM_SIZE size)
+			__attribute__global__
+			__attribute__malloc__
+			__attribute__warn_unused_result__;
+
+PERL_CALLCONV Free_t	Perl_safesysfree(Malloc_t where)
+			__attribute__global__;
+
+PERL_CALLCONV Malloc_t	Perl_safesysmalloc(MEM_SIZE nbytes)
+			__attribute__global__
+			__attribute__malloc__
+			__attribute__warn_unused_result__;
+
+PERL_CALLCONV Malloc_t	Perl_safesysrealloc(Malloc_t where, MEM_SIZE nbytes)
+			__attribute__global__
+			__attribute__warn_unused_result__;
+
+#endif
 #if !defined(USE_ITHREADS)
 #  if defined(PERL_IN_OP_C)
 #    if defined(USE_CPERL)
@@ -9057,7 +9059,7 @@ STATIC void	S_init_ids(pTHX);
 STATIC void	S_init_interp(pTHX);
 STATIC void	S_init_main_stash(pTHX);
 STATIC void	S_init_perllib(pTHX);
-STATIC void	S_init_postdump_symbols(pTHX_ int argc, char **argv, char **env)
+STATIC void	S_init_postdump_symbols(pTHX_ int argc, char **argv, char **env, bool dump_init)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_INIT_POSTDUMP_SYMBOLS	\
 	assert(argv)
