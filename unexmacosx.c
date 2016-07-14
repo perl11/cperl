@@ -319,13 +319,13 @@ static void
 print_prot (vm_prot_t prot)
 {
   if (prot == VM_PROT_NONE)
-    printf ("none");
+    fprintf (stderr, "none");
   else
     {
-      putchar (prot & VM_PROT_READ ? 'r' : ' ');
-      putchar (prot & VM_PROT_WRITE ? 'w' : ' ');
-      putchar (prot & VM_PROT_EXECUTE ? 'x' : ' ');
-      putchar (' ');
+      fprintf (stderr, prot & VM_PROT_READ ? "r" : " ");
+      fprintf (stderr, prot & VM_PROT_WRITE ? "w" : " ");
+      fprintf (stderr, prot & VM_PROT_EXECUTE ? "x" : " ");
+      fprintf (stderr, " ");
     }
 }
 
@@ -333,11 +333,11 @@ static void
 print_region (vm_address_t address, vm_size_t size, vm_prot_t prot,
 	      vm_prot_t max_prot)
 {
-  printf ("%#10lx %#7lx ", (long) address, (long) size);
+  fprintf (stderr, "%#10lx %#7lx ", (long) address, (long) size);
   print_prot (prot);
-  putchar (' ');
+  fprintf (stderr, " ");
   print_prot (max_prot);
-  putchar ('\n');
+  fprintf (stderr, "\n");
 }
 
 static void
@@ -345,7 +345,7 @@ print_region_list (void)
 {
   struct region_t *r;
 
-  printf ("   address     size prot maxp\n");
+  fprintf (stderr, "   address     size prot maxp\n");
 
   for (r = region_list_head; r; r = r->next)
     print_region (r->address, r->size, r->protection, r->max_protection);
@@ -362,7 +362,7 @@ print_regions (void)
   mach_msg_type_number_t info_count = VM_REGION_BASIC_INFO_COUNT;
   mach_port_t object_name;
 
-  printf ("   address     size prot maxp\n");
+  fprintf (stderr, "   address     size prot maxp\n");
 
   while (vm_region (target_task, &address, &size, VM_REGION_BASIC_INFO,
 		    (vm_region_info_t) &info, &info_count, &object_name)
@@ -397,8 +397,8 @@ build_region_list (void)
 
 #ifdef DEBUGGING
   if (DEBUG_v_TEST_) {
-    printf ("--- List of All Regions ---\n");
-    printf ("   address     size prot maxp\n");
+    fprintf (stderr, "--- List of All Regions ---\n");
+    fprintf (stderr, "   address     size prot maxp\n");
   }
 #endif
 
@@ -460,7 +460,7 @@ build_region_list (void)
       address += size;
     }
 
-  DEBUG_v(printf ("--- List of Regions to be Dumped ---\n"));
+  DEBUG_v(fprintf (stderr, "--- List of Regions to be Dumped ---\n"));
   DEBUG_v(print_region_list ());
 }
 
@@ -496,7 +496,7 @@ unexec_regions_recorder (task_t task, void *rr, unsigned type,
 
       unexec_regions[num_unexec_regions].filesize = filesize;
       unexec_regions[num_unexec_regions++].range = *ranges;
-      DEBUG_v(printf ("%#10lx (sz: %#8lx/%#8lx)\n", (long) (ranges->address),
+      DEBUG_v(fprintf (stderr, "%#10lx (sz: %#8lx/%#8lx)\n", (long) (ranges->address),
                       (long) filesize, (long) (ranges->size)));
       ranges++; num--;
     }
@@ -598,77 +598,77 @@ print_load_command_name (int lc)
     {
     case LC_SEGMENT:
 #ifndef _LP64
-      printf ("LC_SEGMENT       ");
+      fprintf (stderr, "LC_SEGMENT       ");
 #else
-      printf ("LC_SEGMENT_64    ");
+      fprintf (stderr, "LC_SEGMENT_64    ");
 #endif
       break;
     case LC_LOAD_DYLINKER:
-      printf ("LC_LOAD_DYLINKER ");
+      fprintf (stderr, "LC_LOAD_DYLINKER ");
       break;
     case LC_LOAD_DYLIB:
-      printf ("LC_LOAD_DYLIB    ");
+      fprintf (stderr, "LC_LOAD_DYLIB    ");
       break;
     case LC_SYMTAB:
-      printf ("LC_SYMTAB        ");
+      fprintf (stderr, "LC_SYMTAB        ");
       break;
     case LC_DYSYMTAB:
-      printf ("LC_DYSYMTAB      ");
+      fprintf (stderr, "LC_DYSYMTAB      ");
       break;
     case LC_UNIXTHREAD:
-      printf ("LC_UNIXTHREAD    ");
+      fprintf (stderr, "LC_UNIXTHREAD    ");
       break;
     case LC_PREBOUND_DYLIB:
-      printf ("LC_PREBOUND_DYLIB");
+      fprintf (stderr, "LC_PREBOUND_DYLIB");
       break;
     case LC_TWOLEVEL_HINTS:
-      printf ("LC_TWOLEVEL_HINTS");
+      fprintf (stderr, "LC_TWOLEVEL_HINTS");
       break;
 #ifdef LC_UUID
     case LC_UUID:
-      printf ("LC_UUID          ");
+      fprintf (stderr, "LC_UUID          ");
       break;
 #endif
 #ifdef LC_DYLD_INFO
     case LC_DYLD_INFO:
-      printf ("LC_DYLD_INFO     ");
+      fprintf (stderr, "LC_DYLD_INFO     ");
       break;
     case LC_DYLD_INFO_ONLY:
-      printf ("LC_DYLD_INFO_ONLY");
+      fprintf (stderr, "LC_DYLD_INFO_ONLY");
       break;
 #endif
 #ifdef LC_VERSION_MIN_MACOSX
     case LC_VERSION_MIN_MACOSX:
-      printf ("LC_VERSION_MIN_MACOSX");
+      fprintf (stderr, "LC_VERSION_MIN_MACOSX");
       break;
 #endif
 #ifdef LC_FUNCTION_STARTS
     case LC_FUNCTION_STARTS:
-      printf ("LC_FUNCTION_STARTS");
+      fprintf (stderr, "LC_FUNCTION_STARTS");
       break;
 #endif
 #ifdef LC_MAIN
     case LC_MAIN:
-      printf ("LC_MAIN          ");
+      fprintf (stderr, "LC_MAIN          ");
       break;
 #endif
 #ifdef LC_DATA_IN_CODE
     case LC_DATA_IN_CODE:
-      printf ("LC_DATA_IN_CODE  ");
+      fprintf (stderr, "LC_DATA_IN_CODE  ");
       break;
 #endif
 #ifdef LC_SOURCE_VERSION
     case LC_SOURCE_VERSION:
-      printf ("LC_SOURCE_VERSION");
+      fprintf (stderr, "LC_SOURCE_VERSION");
       break;
 #endif
 #ifdef LC_DYLIB_CODE_SIGN_DRS
     case LC_DYLIB_CODE_SIGN_DRS:
-      printf ("LC_DYLIB_CODE_SIGN_DRS");
+      fprintf (stderr, "LC_DYLIB_CODE_SIGN_DRS");
       break;
 #endif
     default:
-      printf ("unknown          ");
+      fprintf (stderr, "unknown          ");
     }
 }
 
@@ -676,7 +676,7 @@ static void
 print_load_command (struct load_command *lc)
 {
   print_load_command_name (lc->cmd);
-  printf ("%8d", lc->cmdsize);
+  fprintf (stderr, "%8d", lc->cmdsize);
 
   if (lc->cmd == LC_SEGMENT)
     {
@@ -685,19 +685,19 @@ print_load_command (struct load_command *lc)
       uint32_t j;
 
       scp = (struct segment_command *) lc;
-      printf (" %-16.16s %#10lx %#8lx\n",
+      fprintf (stderr, " %-16.16s %#10lx %#8lx\n",
 	      scp->segname, (long) (scp->vmaddr), (long) (scp->vmsize));
 
       sectp = (struct section *) (scp + 1);
       for (j = 0; j < scp->nsects; j++)
 	{
-	  printf ("                             %-16.16s %#10lx %#8lx\n",
+	  fprintf (stderr, "                             %-16.16s %#10lx %#8lx\n",
 		  sectp->sectname, (long) (sectp->addr), (long) (sectp->size));
 	  sectp++;
 	}
     }
   else
-    printf ("\n");
+    fprintf (stderr, "\n");
 }
 #endif
 
@@ -720,9 +720,9 @@ read_load_commands (void)
 
 #ifdef DEBUGGING
   if (DEBUG_v_TEST_) {
-    printf ("Mach header\n");
-    printf ("      magic   cputype cpusubtype   filetype  ncmds sizeofcmds      flags\n");
-    printf ("0x%08x 0x%08x 0x%08x 0x%08x %6d   %8d 0x%08x\n",
+    fprintf (stderr, "Mach header\n");
+    fprintf (stderr, "      magic   cputype cpusubtype   filetype  ncmds sizeofcmds      flags\n");
+    fprintf (stderr, "0x%08x 0x%08x 0x%08x 0x%08x %6d   %8d 0x%08x\n",
             mh.magic, mh.cputype, mh.cpusubtype,
             mh.filetype, mh.ncmds, mh.sizeofcmds, mh.flags);
     /* 64bit has an additional reserved field */
@@ -764,17 +764,17 @@ read_load_commands (void)
 
 #ifdef DEBUGGING
   if (DEBUG_v_TEST_) {
-    printf ("Highest address of load commands in input file: %#8lx\n",
+    fprintf (stderr, "Highest address of load commands in input file: %#8lx\n",
             (unsigned long)infile_lc_highest_addr);
 
-    printf ("Lowest offset of all sections in __TEXT segment: %#8lx\n",
+    fprintf (stderr, "Lowest offset of all sections in __TEXT segment: %#8lx\n",
             text_seg_lowest_offset);
 
-    printf ("--- List of Load Commands in Input File ---\n");
-    printf ("#  cmd               cmdsize name                 address     size\n");
+    fprintf (stderr, "--- List of Load Commands in Input File ---\n");
+    fprintf (stderr, "#  cmd               cmdsize name                 address     size\n");
 
     for (i = 0; i < nlc; i++) {
-      printf ("%2d ", i);
+      fprintf (stderr, "%2d ", i);
       print_load_command (lca[i]);
     }
   }
@@ -801,7 +801,7 @@ copy_segment (struct load_command *lc)
       sectp++;
     }
 
-  DEBUG_v(printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
+  DEBUG_v(fprintf (stderr, "Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
                   scp->segname, (long) (scp->fileoff), (long) (scp->filesize),
                   (long) (scp->vmsize), (long) (scp->vmaddr)));
 
@@ -842,7 +842,7 @@ copy_data_segment (struct load_command *lc)
      segment is generally smaller than vmsize.  */
   scp->filesize = scp->vmsize;
 
-  DEBUG_v(printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
+  DEBUG_v(fprintf (stderr, "Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
 	  scp->segname, curr_file_offset, (long)(scp->filesize),
 	  (long)(scp->vmsize), (long) (scp->vmaddr)));
 
@@ -986,7 +986,7 @@ copy_data_segment (struct load_command *lc)
 	unexec_error ("unrecognized section %.16s in __DATA segment",
 		      sectp->sectname);
 
-      DEBUG_v(printf ("        section %-16.16s at %#8lx - %#8lx (sz: %#8lx)\n",
+      DEBUG_v(fprintf (stderr, "        section %-16.16s at %#8lx - %#8lx (sz: %#8lx)\n",
 	      sectp->sectname, (long) (sectp->offset),
 	      (long) (sectp->offset + sectp->size), (long) (sectp->size)));
       header_offset += sizeof (struct section);
@@ -1019,7 +1019,7 @@ copy_data_segment (struct load_command *lc)
       sc.nsects = 0;
       sc.flags = 0;
 
-      DEBUG_v(printf ("Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
+      DEBUG_v(fprintf (stderr, "Writing segment %-16.16s @ %#8lx (%#8lx/%#8lx @ %#10lx)\n",
                       sc.segname, (long) (sc.fileoff), (long) (sc.filesize),
                       (long) (sc.vmsize), (long) (sc.vmaddr)));
 
@@ -1044,7 +1044,7 @@ copy_symtab (struct load_command *lc, long delta)
   stp->symoff += delta;
   stp->stroff += delta;
 
-  DEBUG_v(printf ("Writing LC_SYMTAB command\n"));
+  DEBUG_v(fprintf (stderr, "Writing LC_SYMTAB command\n"));
 
   if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
     unexec_error ("cannot write symtab command to header");
@@ -1109,7 +1109,7 @@ unrelocate (const char *name, off_t reloff, int nrel, vm_address_t base)
     }
 
     DEBUG_v(if (nrel > 0)
-      printf ("Fixed up %d/%d %s relocation entries in data segment.\n",
+      fprintf (stderr, "Fixed up %d/%d %s relocation entries in data segment.\n",
               unreloc_count, nrel, name));
 }
 
@@ -1192,7 +1192,7 @@ copy_dysymtab (struct load_command *lc, long delta)
   if (dstp->nindirectsyms > 0)
     dstp->indirectsymoff += delta;
 
-  DEBUG_v(printf ("Writing LC_DYSYMTAB command\n"));
+  DEBUG_v(fprintf (stderr, "Writing LC_DYSYMTAB command\n"));
 
   if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
     unexec_error ("cannot write symtab command to header");
@@ -1234,7 +1234,7 @@ copy_twolevelhints (struct load_command *lc, long delta)
     tlhp->offset += delta;
   }
 
-  DEBUG_v(printf ("Writing LC_TWOLEVEL_HINTS command\n"));
+  DEBUG_v(fprintf (stderr, "Writing LC_TWOLEVEL_HINTS command\n"));
 
   if (!unexec_write (curr_header_offset, lc, lc->cmdsize))
     unexec_error ("cannot write two level hint command to header");
@@ -1263,9 +1263,9 @@ copy_dyld_info (struct load_command *lc, long delta)
 
 #ifdef DEBUGGING
   if (DEBUG_v_TEST_) {
-    printf ("Writing ");
+    fprintf (stderr, "Writing ");
     print_load_command_name (lc->cmd);
-    printf (" command\n");
+    fprintf (stderr, " command\n");
   }
 #endif
 
@@ -1290,9 +1290,9 @@ copy_linkedit_data (struct load_command *lc, long delta)
 
 #ifdef DEBUGGING
   if (DEBUG_v_TEST_) {
-    printf ("Writing ");
+    fprintf (stderr, "Writing ");
     print_load_command_name (lc->cmd);
-    printf (" command\n");
+    fprintf (stderr, " command\n");
   }
 #endif
 
@@ -1310,9 +1310,9 @@ copy_other (struct load_command *lc)
 {
 #ifdef DEBUGGING
   if (DEBUG_v_TEST_) {
-    printf ("Writing ");
+    fprintf (stderr, "Writing ");
     print_load_command_name (lc->cmd);
-    printf (" command\n");
+    fprintf (stderr, " command\n");
   }
 #endif
     
@@ -1330,7 +1330,7 @@ dump_it (void)
   uint32_t i;
   long linkedit_delta = 0;
 
-  DEBUG_v(printf ("--- Load Commands written to Output File ---\n"));
+  DEBUG_v(fprintf (stderr, "--- Load Commands written to Output File ---\n"));
 
   for (i = 0; i < nlc; i++)
     switch (lca[i]->cmd)
@@ -1400,7 +1400,7 @@ dump_it (void)
 		  " (increase to at least -Wl,-headerpad,%lX in hints/darwin.sh)",
 		  num_unexec_regions * sizeof (struct segment_command));
 
-  DEBUG_v(printf ("%ld unused bytes follow Mach-O header\n",
+  DEBUG_v(fprintf (stderr, "%ld unused bytes follow Mach-O header\n",
                   text_seg_lowest_offset - curr_header_offset));
 
   mh.sizeofcmds = curr_header_offset - sizeof (struct mach_header);

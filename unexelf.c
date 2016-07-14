@@ -533,7 +533,7 @@ verify ((! TYPE_SIGNED (ElfW (Half))
 	 || PTRDIFF_MIN <= TYPE_MINIMUM (ElfW (Half)))
 	&& TYPE_MAXIMUM (ElfW (Half)) <= PTRDIFF_MAX);
 #endif
-#ifdef UNEXELF_DEBUG
+#ifdef DEBUGGING
 # define DEBUG_LOG(expr) fprintf (stderr, #expr " 0x%jx\n", (uintmax_t) (expr))
 #endif
 
@@ -567,7 +567,7 @@ verify ((! TYPE_SIGNED (ElfW (Half))
 static void *
 entry_address (void *section_h, ptrdiff_t idx, ptrdiff_t entsize)
 {
-  char *h = section_h;
+  char *h = (char*)section_h;
   return h + idx * entsize;
 }
 
@@ -694,10 +694,10 @@ unexec (const char *new_name, const char *old_name)
      extra careful to use the correct value of sbrk(0) after
      allocating all buffers in the code below, which we aren't.  */
   old_file_size = stat_buf.st_size;
-  if (! (0 <= old_file_size && old_file_size <= SIZE_MAX))
-    fatal ("unexec: File size out of range");
-  old_base = mmap (NULL, old_file_size, PROT_READ | PROT_WRITE,
-		   MAP_ANON | MAP_PRIVATE, mmap_fd, 0);
+  if (old_file_size <= 0)
+    fatal ("unexec: File size %ld out of range", old_file_size);
+  old_base = (caddr_t)mmap (NULL, old_file_size, PROT_READ | PROT_WRITE,
+                            MAP_ANON | MAP_PRIVATE, mmap_fd, 0);
   if (old_base == MAP_FAILED)
     fatal ("unexec: Can't allocate buffer for %s: %s", old_name, strerror (errno));
 
@@ -785,16 +785,18 @@ unexec (const char *new_name, const char *old_name)
      section) was unaligned.  */
   new_data2_incr = new_data2_size + (new_data2_offset - old_bss_offset);
 
-#ifdef UNEXELF_DEBUG
-  fprintf (stderr, "old_bss_index %td\n", old_bss_index);
-  DEBUG_LOG (old_bss_addr);
-  DEBUG_LOG (old_bss_size);
-  DEBUG_LOG (old_bss_offset);
-  DEBUG_LOG (new_bss_addr);
-  DEBUG_LOG (new_data2_addr);
-  DEBUG_LOG (new_data2_size);
-  DEBUG_LOG (new_data2_offset);
-  DEBUG_LOG (new_data2_incr);
+#ifdef DEBUGGING
+  if (DEBUG_v_TEST_) {
+    fprintf (stderr, "old_bss_index %td\n", old_bss_index);
+    DEBUG_LOG (old_bss_addr);
+    DEBUG_LOG (old_bss_size);
+    DEBUG_LOG (old_bss_offset);
+    DEBUG_LOG (new_bss_addr);
+    DEBUG_LOG (new_data2_addr);
+    DEBUG_LOG (new_data2_size);
+    DEBUG_LOG (new_data2_offset);
+    DEBUG_LOG (new_data2_incr);
+  }
 #endif
 
   if (new_bss_addr < old_bss_addr + old_bss_size)
@@ -821,8 +823,8 @@ unexec (const char *new_name, const char *old_name)
   if (ftruncate (new_file, new_file_size))
     fatal ("unexec: Can't ftruncate (%s): %s", new_name, strerror (errno));
 
-  new_base = mmap (NULL, new_file_size, PROT_READ | PROT_WRITE,
-		   MAP_ANON | MAP_PRIVATE, mmap_fd, 0);
+  new_base = (caddr_t)mmap (NULL, new_file_size, PROT_READ | PROT_WRITE,
+                            MAP_ANON | MAP_PRIVATE, mmap_fd, 0);
   if (new_base == MAP_FAILED)
     fatal ("unexec: Can't allocate buffer for %s: %s", old_name, strerror (errno));
 
@@ -847,11 +849,13 @@ unexec (const char *new_name, const char *old_name)
   new_file_h->e_shoff += new_data2_incr;
   new_file_h->e_shnum += 1;
 
-#ifdef UNEXELF_DEBUG
-  DEBUG_LOG (old_file_h->e_shoff);
-  fprintf (stderr, "Old section count %td\n", (ptrdiff_t) old_file_h->e_shnum);
-  DEBUG_LOG (new_file_h->e_shoff);
-  fprintf (stderr, "New section count %td\n", (ptrdiff_t) new_file_h->e_shnum);
+#ifdef DEBUGGING
+  if (DEBUG_v_TEST_) {
+    DEBUG_LOG (old_file_h->e_shoff);
+    fprintf (stderr, "Old section count %td\n", (ptrdiff_t) old_file_h->e_shnum);
+    DEBUG_LOG (new_file_h->e_shoff);
+    fprintf (stderr, "New section count %td\n", (ptrdiff_t) new_file_h->e_shnum);
+  }
 #endif
 
   /* Fix up a new program header.  Extend the writable data segment so
