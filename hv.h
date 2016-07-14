@@ -341,9 +341,10 @@ C<SV*>.
 #define PERL_HASH_DEFAULT_HvMAX 7
 
 /* Small hash optimization. https://github.com/perl11/cperl/issues/102
-   If max 7 keys set the HvAUX_SMALL flag and just do a linear scan */
+   If max 6 keys set the HvAUX_SMALL flag and just do a linear scan.
+   The 7th key must be NULL. */
 
-#define PERL_HV_SMALL_MAX     7
+#define PERL_HV_SMALL_MAX     PERL_HASH_DEFAULT_HvMAX
 
 /* During hsplit(), if HvMAX(hv)+1 (the new bucket count) is >= this value,
  * we preallocate the HvAUX() struct.
@@ -465,8 +466,8 @@ C<SV*>.
 #define HvPLACEHOLDERS_set(hv,p)	Perl_hv_placeholders_set(aTHX_ MUTABLE_HV(hv), p)
 
 /* cperl only*/
-#define HvSMALL(hv)		(HvTOTALKEYS(hv) <= PERL_HV_SMALL_MAX)
-#define XHvSMALL(xhv)		(XHvTOTALKEYS(xhv) <= PERL_HV_SMALL_MAX)
+#define HvSMALL(hv)		(HvMAX(hv) < PERL_HV_SMALL_MAX)
+#define XHvSMALL(xhv)		((xhv)->xhv_max < PERL_HV_SMALL_MAX)
 
 #define HvSHAREKEYS(hv)		(SvFLAGS(hv) & SVphv_SHAREKEYS)
 #define HvSHAREKEYS_on(hv)	(SvFLAGS(hv) |= SVphv_SHAREKEYS)
@@ -533,10 +534,10 @@ C<SV*>.
 #ifndef PERL_CORE
 #  define Nullhek Null(HEK*)
 #endif
-#define HEK_BASESIZE		STRUCT_OFFSET(HEK, hek_key[0])
-#define HEK_HASH(hek)		(hek)->hek_hash
-#define HEK_LEN(hek)		(hek)->hek_len
-#define HEK_KEY(hek)		(hek)->hek_key
+#define HEK_BASESIZE	STRUCT_OFFSET(HEK, hek_key[0])
+#define HEK_HASH(hek)	(hek)->hek_hash
+#define HEK_LEN(hek)	(hek)->hek_len
+#define HEK_KEY(hek)	(hek)->hek_key
 #define HEK_FLAGS(hek)	(*((unsigned char *)(HEK_KEY(hek))+HEK_LEN(hek)+1))
 #define HEK_IS_SVKEY(hek) 	HEK_LEN(hek) == HEf_SVKEY
 
