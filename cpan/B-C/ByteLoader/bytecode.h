@@ -306,10 +306,10 @@ static int bget_swab = 0;
     STMT_START {                                                        \
       if (SvREADONLY(sv)) {                                             \
         SvREADONLY_off(sv);                                             \
-	hv_store((HV*)sv, bstate->bs_pv.pv, bstate->bs_pv.cur, arg, 0); \
+	hv_store(MUTABLE_HV(sv), bstate->bs_pv.pv, bstate->bs_pv.cur, arg, 0); \
         SvREADONLY_on(sv);                                              \
       } else {                                                          \
-        hv_store((HV*)sv, bstate->bs_pv.pv, bstate->bs_pv.cur, arg, 0); \
+        hv_store(MUTABLE_HV(sv), bstate->bs_pv.pv, bstate->bs_pv.cur, arg, 0); \
       }                                                                 \
     } STMT_END
 #define BSET_pv_free(sv)	Safefree(sv.pv)

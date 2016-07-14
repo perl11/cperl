@@ -630,9 +630,9 @@ struct byteloader_fdata {
 };
 
 struct byteloader_xpv {
-    char *pv;
-    int   cur;
-    int	  len;
+    char     *pv;
+    STRLEN   cur;
+    STRLEN   len;
 };
 
 struct byteloader_header {
