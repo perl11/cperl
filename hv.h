@@ -134,6 +134,7 @@ struct xpvhv_aux {
 #define HvAUXf_SCAN_STASH   0x1   /* stash is being scanned by gv_check */
 #define HvAUXf_NO_DEREF     0x2   /* @{}, %{} etc (and nomethod) not present */
 #define HvAUXf_STATIC       0x8   /* HvARRAY and xpvhv_aux is statically allocated (embedders) */
+#define HvAUXf_SMALL       0x10  /* Small hash, linear scan */
 
 /* hash structure: */
 /* This structure must match the beginning of struct xpvmg in sv.h. */
@@ -254,6 +255,11 @@ C<SV*>.
 
 #define PERL_HASH_DEFAULT_HvMAX 7
 
+/* Small hash optimization. https://github.com/perl11/cperl/issues/102
+   If max 7 keys set the HvAUX_SMALL flag and just do a linear scan */
+
+#define PERL_HV_SMALL_MAX     7
+
 /* During hsplit(), if HvMAX(hv)+1 (the new bucket count) is >= this value,
  * we preallocate the HvAUX() struct.
  * The assumption being that we are using so much space anyway we might
@@ -352,6 +358,9 @@ C<SV*>.
 #define HvPLACEHOLDERS(hv)	(*Perl_hv_placeholders_p(aTHX_ MUTABLE_HV(hv)))
 #define HvPLACEHOLDERS_get(hv)	(SvMAGIC(hv) ? Perl_hv_placeholders_get(aTHX_ (const HV *)hv) : 0)
 #define HvPLACEHOLDERS_set(hv,p)	Perl_hv_placeholders_set(aTHX_ MUTABLE_HV(hv), p)
+
+#define HvSMALL(hv)		(HvTOTALKEYS(hv) <= PERL_HV_SMALL_MAX)
+#define XHvSMALL(xhv)		(XHvTOTALKEYS(xhv) <= PERL_HV_SMALL_MAX)
 
 #define HvSHAREKEYS(hv)		(SvFLAGS(hv) & SVphv_SHAREKEYS)
 #define HvSHAREKEYS_on(hv)	(SvFLAGS(hv) |= SVphv_SHAREKEYS)
