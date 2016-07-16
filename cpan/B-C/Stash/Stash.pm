@@ -1,7 +1,7 @@
 # Stash.pm -- show what stashes are loaded
 package B::Stash;
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 =pod
 
@@ -72,6 +72,7 @@ sub import {
     eval q[
      CHECK {
       ] . ($debug ? q[print "scanxs main\n"; my $debug=1;] : "") . q[
+#line 2 B/Stash.pm
       require XSLoader;
       XSLoader::load('B::Stash'); # for xs only
       my @arr = scanxs( $main::{"main::"},'',$debug );
