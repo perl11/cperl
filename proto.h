@@ -6750,6 +6750,12 @@ STATIC PerlIO *	S_doopen_pm(pTHX_ SV *name)
 #endif
 #if !defined(PERL_EXT_RE_BUILD)
 #  if defined(PERL_IN_REGCOMP_C)
+STATIC void	S__append_range_to_invlist(pTHX_ SV* const invlist, const UV start, const UV end)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT__APPEND_RANGE_TO_INVLIST	\
+	assert(invlist)
+
 PERL_STATIC_INLINE IV*	S_get_invlist_previous_index_addr(SV* invlist)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1);
@@ -6759,6 +6765,12 @@ PERL_STATIC_INLINE IV*	S_get_invlist_previous_index_addr(SV* invlist)
 PERL_STATIC_INLINE void	S_invlist_clear(pTHX_ SV* invlist)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_INVLIST_CLEAR	\
+	assert(invlist)
+
+STATIC void	S_invlist_extend(pTHX_ SV* const invlist, const UV len)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_INVLIST_EXTEND	\
 	assert(invlist)
 
 PERL_STATIC_INLINE IV	S_invlist_previous_index(SV* const invlist)
@@ -8432,12 +8444,6 @@ STATIC OP*	S_doform(pTHX_ CV *cv, GV *gv, OP *retop)
 STATIC SV *	S_space_join_names_mortal(pTHX_ char *const *array);
 #endif
 #if defined(PERL_IN_REGCOMP_C)
-STATIC void	S__append_range_to_invlist(pTHX_ SV* const invlist, const UV start, const UV end)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT__APPEND_RANGE_TO_INVLIST	\
-	assert(invlist)
-
 PERL_STATIC_INLINE UV*	S__invlist_array_init(SV* const invlist, const bool will_have_0)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1);
@@ -8560,12 +8566,6 @@ STATIC SV*	S_invlist_contents(pTHX_ SV* const invlist, const bool traditional_st
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_INVLIST_CONTENTS	\
-	assert(invlist)
-
-STATIC void	S_invlist_extend(pTHX_ SV* const invlist, const UV len)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_INVLIST_EXTEND	\
 	assert(invlist)
 
 PERL_STATIC_INLINE UV	S_invlist_highest(SV* const invlist)
