@@ -2158,7 +2158,7 @@ not always detected, giving incorrect results.  This is now fixed.
 
 =back
 
-=head1 Known Problems
+=head1 Known Problems fixed elsewhere
 
 Without cperl there are many known remaining security problems.
 
@@ -2166,15 +2166,15 @@ Without cperl there are many known remaining security problems.
 
 =item *
 
-'.' in @INC can lead to easy remote attacks. Use -Dfortify_inc or
+C<'.'> in C<@INC> can lead to easy remote attacks. Use C<-Dfortify_inc> or
 cperl instead.
 
 CVSSv2 Severity: 8.5 (AV:N/AC:M/Au:S/C:C/I:C/A:C)
 
 =item *
 
-Hash security: PERL_HASH_SEED_DEBUG can trivially expose the hash
-seed and function. Use cperl instead.
+Hash security: C<PERL_HASH_SEED_DEBUG> can trivially expose the hash
+seed and function via C<perl -V>. Use cperl instead.
 
 =item *
 
@@ -2193,13 +2193,261 @@ Hashes with more than I32 keys cannot be iterated over.
 
 Array keys are limited to int, not SSize_t.
 
-syswrite cannot write strings >2GB.
+syswrite cannot write strings > 2GB.
 
 See 5484e6b881b0d997d55e in cperl for the fixes, which harmonizes and
 limits array and hash indices to SSize_t (max 2Gb), and string lengths
 to STRLEN (4Gb).
 
 Use cperl instead.
+
+=item *
+
+Unicode TR39 security with the 2 HANGUL FILLER chars usable as perl ids.
+
+cperl removed the perl XIDS and XIDC properties from the two HANGUL FILLER
+characters B<+UFFA0> and B<+U3164>.  This is in deviation from Unicode 1.1.
+
+See L<https://github.com/jagracey/Awesome-Unicode#user-content-variable-identifiers-can-effectively-include-whitespace>,
+L<http://www.unicode.org/reports/tr39/> and esp.
+L<http://www.unicode.org/L2/L2006/06310-hangul-decompose9.pdf>
+
+I<< The two other hangul fillers HANGUL CHOSEONG FILLER (Lf),
+i.e. lead filler, and HANGUL JUNGSEONG FILLER (Vf) are used as
+placeholders for missing letters, where there should be at least one
+letter. >>
+
+I<< ... that leaves the (HALFWIDTH) HANGUL FILLERs useless. Indeed,
+they should not be rendered at all, despite that they have been given
+the property Lo. Note that these FILLERs are also given the property
+of Default_Ignorable_Codepoint". >>
+
+Use cperl instead, see L<[cperl #166]|https://github.com/perl11/cperl/issues/166>
+
+=item *
+
+Methods on readonly packages cannot be called reliably. The method
+cache check fails on them and not existing methods will not fall back
+to the parent or UNIVERSAL or AUTOLOAD methods.  Use cperl instead.
+See L<[cperl #171]|https://github.com/perl11/cperl/issues/171>
+
+Use cperl instead.
+
+=item *
+
+L<[perl #128252]|https://rt.perl.org/Ticket/Display.html?id=125341>,
+Assert fail in op.c with something like C<sub{\@0[0]=0>.
+
+Not fixed in 5.24.1, only in cperl and 5.26.
+
+=item *
+
+L<[perl #128182]|https://rt.perl.org/Ticket/Display.html?id=128182>,
+Crash with C<require $nonstring>
+
+If something other than a plain string (e.g. a reference or typeglob)
+whose stringified form contains a null character is passed to C<require()>
+or C<do()>, it crashes, as of v5.19.3-130-gc8028aa, because the code in
+question that handles the error tries to read fields of the scalar
+that are only valid if it is a string internally.
+
+Not fixed in 5.24.1, only in cperl and 5.26.
+
+=item *
+
+L<[perl #128171]|https://rt.perl.org/Ticket/Display.html?id=128171>, 
+assert fail with C<< /@0{0*->@*/*0 >>
+
+If a syntax error such as C<*> (multiply) followed by an arrow causes the
+parser to pop scopes in trying to recover from the error, it might
+exit the quote-parsing scope (for parsing the regexp) and point the
+lexer’s cursor at the code following the regexp, after the lexer has
+noted to itself that it is expected to parse a postfix dereference.
+
+Not fixed in 5.24.1, only in cperl and 5.26.
+
+=item *
+
+L<[perl #128106]|https://rt.perl.org/Ticket/Display.html?id=128106>
+Crashing reset with non-globs
+
+C<reset> with a string argument assume that anything in a
+stash would be a glob.  It crashed on anything else.
+
+Not fixed in 5.24.1, only in cperl and 5.26.
+
+=item *
+
+L<[perl #127952]|https://rt.perl.org/Ticket/Display.html?id=127952>
+Misoptimization for negated constant-ish on lhs of logop
+
+Negations are being incorrectly deleted from the op tree for an OP_AND or
+OP_OR (corresponding to Perl code with any of `&& || and or`, or postfix
+"if" or "unless") whose left-hand side looks like "!BAREWORD" or "!do {
+'const' }" and whose right-hand side is a non-constant-foldable negation.
+
+This is a very rare situation: it requires the lhs to be an OP_NOT
+that dominates an OP_CONST (possibly with some intervening OP_LINESEQ or
+similar). But OP_NOT is constant-foldable, so that doesn't normally happen.
+The two ways for it to happen are:
+
+- The constant is a bareword (since even though barewords are constants,
+  they don't currently participate in constant folding)
+
+- The constant is hidden inside one or more layers of do{} (since that
+  serves as a barrier to constant folding, but the arm-elision optimisation
+  is smart enough to search recursively through the optree for the real
+  constant)
+
+Not fixed in 5.24.1, only in cperl and 5.26.
+
+=item *
+
+L<[perl #128508]|https://rt.perl.org/Ticket/Display.html?id=128508>
+Wrong line numbers with perl -x
+
+Not fixed in 5.24.1, only in cperl and 5.26.
+
+=item *
+
+h2ph: Missing %sizeof for some primitive types
+
+This bug exists since 5.6.1 (2003), even if the fix is trivial.
+L<https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=190887>
+
+This is a problem e.g. with incorrect ioctl values from ioctl.ph:
+C<TIOCSPTLCK>, C<TIOCGPTN>
+
+Not fixed in 5.24.1, only in cperl.
+
+=item *
+
+
+L<[perl #128238]|https://rt.perl.org/Ticket/Display.html?id=128238>
+Crash with non-stash in stash, e.g. C< %: = 0 >
+
+When searching a stash for substashes, it assumed anything ending in
+C<:> was a substash, whereas substashes end in <::>. So check for a
+double colon before recursing.
+
+But even if the name of the stash entry ends with C<::>, it may not itself
+contain a real stash (though this only happens with code that assigns
+directly to stash entries, which has undefined behaviour according to
+perlmod), so skip hashes that are not stashes.
+
+Not fixed in 5.24.1, only in cperl and 5.26.
+
+=item *
+
+
+L<[perl #128086]|https://rt.perl.org/Ticket/Display.html?id=128086>
+Wrong precedence in C<hv_ename_delete>
+
+A stash’s array of names may have null for the first entry, in which
+case it is not one of the effective names, and the name count will
+be negative.
+
+The ‘count > 0’ is meant to prevent hv_ename_delete from trying to
+read that entry, but a precedence problem introduced in 4643eb699
+stopped it from doing that.
+
+Not fixed in 5.24.1, only in cperl and 5.26.
+
+=item *
+
+uninit warning from C<$h{\const}> crashes
+
+The code that prints the the name and subscript of a hash element
+in an "uninitialized variable" warning assumes that a constant
+hash subscript would be SvPOK. Something like \1 is a constant,
+but is ROK, not POK. SEGVs ensured.
+
+Not fixed in 5.24.1, only in cperl and 5.26.
+
+=item *
+
+
+L<[perl #128316]|https://rt.perl.org/Ticket/Display.html?id=128316>
+Preserve errno from failed system calls
+
+Not fixed in 5.24.1, only in cperl and 5.26.
+
+=item *
+
+Handle get magic with globs in the regex compiler.  Correctly restore
+context, esp. when loading unicode swashes [perl #76538], and
+esp. globs still need to be protected from side-effects, even if
+doesnot crash anymore since 5.14.
+
+The following little test program shows the problem:
+
+    my @x = ("AX=B","AAAAAAX=");
+    utf8::upgrade($x[1]);
+    for (@x) {
+      m{^([^=]+?)X\s*=.+$};
+      print "-> $1\n";
+    }
+
+Only fixed in suse perl and cperl.
+
+=item *
+
+regexp backref overflow crash with many groups (>I32)
+
+Only fixed in suse perl and cperl.
+
+=item *
+
+Undefined overflow in C<S_sv_2iuv_common()>
+
+Only fixed in suse perl since 5.18 and cperl since 5.24.
+
+=item *
+
+
+L<[perl #128313]|https://rt.perl.org/Ticket/Display.html?id=128313>
+Leak in perl 5.24 with strict and regex posix char classes.
+
+Not fixed in 5.24.1, only in cperl and 5.26.
+
+=item *
+
+
+L<[perl #128204]|https://rt.perl.org/Ticket/Display.html?id=128204>
+Crash with C<@a &.=> etc.
+
+The new bitwise operators in their assignment forms are not correctly
+catching things like arrays on the lhs at compile time.
+
+At run time, they would either crash or croak with ‘Can’t coerce
+ARRAY...’.
+
+Not fixed in 5.24.1, only in cperl and 5.26.
+
+=item *
+
+Scalar-List-Utils: set_subname cannot handle utf8 nor binary names.
+
+Only fixed in cperl. And with Sub::Name on cpan with a different signature.
+
+=item *
+
+Wrong utf8 handling in L<Net::Cmd>.
+
+L<https://bugzilla.opensuse.org/show_bug.cgi?id=493978>
+
+OTRS pop3 support chokes when sucking UNICODE mail from a POP3 (Exchange
+2003) server with the following error:
+"Wide character in syswrite at /usr/lib/perl5/5.10.0/Net/Cmd.pm line 232,
+ <PRODUCT> line 4."
+
+See the following OTRS list discussion:
+L<http://lists.otrs.org/pipermail/otrs/2009-April/026146.html>
+
+Only fixed in suse perl and cperl.
+
+Note that libnet has hundreds of more open tickets:
+L<https://rt.cpan.org/Dist/Display.html?Name=libnet>
 
 =back
 
