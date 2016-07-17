@@ -112,7 +112,8 @@ Systems that use mode 0666 in C<mkstemp(3)> (like old versions of
 glibc) create a file with permissions 0066, leaving world read and
 write permissions regardless of current umask.
 
-This has been fixed by using umask 0177 instead. [perl #127322]
+This has been fixed by using umask 0177 instead.
+L<[perl #127322]|https://rt.perl.org/Ticket/Display.html?id=127322>
 
 =head2 Fix out of boundary access in Win32 path handling
 
@@ -1179,11 +1180,13 @@ it saves time during development, and makes the resulting tar ball smaller.
 
 =item *
 
-The GNU Make makefile for Win32 now supports parallel builds.  [perl #126632]
+The GNU Make makefile for Win32 now supports parallel builds.
+L<[perl #126632]|https://rt.perl.org/Ticket/Display.html?id=126632>
 
 =item *
 
-You can now build perl with MSVC++ on Win32 using GNU Make.  [perl #126632]
+You can now build perl with MSVC++ on Win32 using GNU Make.
+L<[perl #126632]|https://rt.perl.org/Ticket/Display.html?id=126632>
 
 =item *
 
@@ -1194,8 +1197,9 @@ resulting in C<getcwd()> being 605x faster in Win32 miniperl.
 
 Configure now takes C<-Dusequadmath> into account when calculating the
 C<alignbytes> configuration variable.  Previously the mis-calculated
-C<alignbytes> could cause alignment errors on debugging builds. [perl
-#127894]
+C<alignbytes> could cause alignment errors on debugging builds.
+
+L<[perl #127894]|https://rt.perl.org/Ticket/Display.html?id=127894>
 
 =back
 
@@ -1205,8 +1209,8 @@ C<alignbytes> could cause alignment errors on debugging builds. [perl
 
 =item *
 
-A new test (F<t/op/aassign.t>) has been added to test the list assignment operator
-C<OP_AASSIGN>.
+A new test (F<t/op/aassign.t>) has been added to test the list assignment
+operator C<OP_AASSIGN>.
 
 =item *
 
@@ -1460,7 +1464,8 @@ removed from the code opening and executing the first 1 or 2 F<.pl> files.
 =item *
 
 Builds using Microsoft Visual C++ 2003 and earlier no longer produce
-an "INTERNAL COMPILER ERROR" message.  [perl #126045]
+an "INTERNAL COMPILER ERROR" message.
+L<[perl #126045]|https://rt.perl.org/Ticket/Display.html?id=126045>
 
 =item *
 
@@ -1469,12 +1474,14 @@ only execute on Vista and higher.
 
 =item *
 
-You can now build perl with GNU Make and GCC.  [perl #123440]
+You can now build perl with GNU Make and GCC.
+L<[perl #123440]|https://rt.perl.org/Ticket/Display.html?id=123440>
 
 =item *
 
 C<truncate($filename, $size)> now works for files over 4GB in size.
-[perl #125347]
+
+L<[perl #125347]|https://rt.perl.org/Ticket/Display.html?id=125347>
 
 =item *
 
@@ -1485,7 +1492,8 @@ Win32 compilers are supported.
 
 Building a 64-bit perl with a 64-bit GCC but a 32-bit gmake would
 result in an invalid C<$Config{archname}> for the resulting perl.
-[perl #127584]
+
+L<[perl #127584]|https://rt.perl.org/Ticket/Display.html?id=127584>
 
 =item *
 
@@ -1733,12 +1741,14 @@ I<IsMyProperty> not defined at the time of the pattern compilation.
 =item *
 
 Perl's C<memcpy()>, C<memmove()>, C<memset()> and C<memcmp()> fallbacks are now
-more compatible with the originals.  [perl #127619]
+more compatible with the originals.
+L<[perl #127619]|https://rt.perl.org/Ticket/Display.html?id=127619>
 
 =item *
 
 Fixed the issue where a C<< s///r >>) with B<< -DPERL_NO_COW >> attempts
-to modify the source SV, resulting in the program dying. [perl #127635]
+to modify the source SV, resulting in the program dying.
+L<[perl #127635]|https://rt.perl.org/Ticket/Display.html?id=127635>
 
 =item *
 
@@ -1751,29 +1761,32 @@ target matched string was in UTF-8.
 Narrow the filename check in F<strict.pm> and F<warnings.pm>. Previously,
 it assumed that if the filename (without the F<.pmc?> extension) differed
 from the package name, if was a misspelled use statement (i.e. C<use Strict>
-instead of C<use strict>). We now check whether there's really a 
+instead of C<use strict>). We now check whether there's really a
 miscapitalization happening, and not some other issue.
 
 =item *
 
 Turn an assertion into a more user friendly failure when parsing
-regexes. [perl #127599]
+regexes.
+L<[perl #127599]|https://rt.perl.org/Ticket/Display.html?id=127599>
 
 =item *
 
-Correctly raise an error when trying to compile patterns with 
+Correctly raise an error when trying to compile patterns with
 unterminated character classes while there are trailing backslashes.
-[perl #126141].
+L<[perl #126141]|https://rt.perl.org/Ticket/Display.html?id=126141>
 
 =item *
 
 Line numbers larger than 2**31-1 but less than 2**32 are no longer
-returned by C<caller()> as negative numbers.  [perl #126991]
+returned by C<caller()> as negative numbers.
+L<[perl #126991]|https://rt.perl.org/Ticket/Display.html?id=126991>
 
 =item *
 
 C<< unless ( I<assignment> ) >> now properly warns when syntax
-warnings are enabled.  [perl #127122]
+warnings are enabled.
+L<[perl #127122]|https://rt.perl.org/Ticket/Display.html?id=127122>
 
 =item *
 
@@ -1782,42 +1795,49 @@ C<isaelem> magic to any existing elements.  Previously modifying such
 an element would not update the ISA cache, so method calls would call
 the wrong function.  Perl would also crash if the C<ISA> glob was
 destroyed, since new code added in 5.23.7 would try to release the
-C<isaelem> magic from the elements.  [perl #127351]
+C<isaelem> magic from the elements.
+L<[perl #127351]|https://rt.perl.org/Ticket/Display.html?id=127351>
 
 =item *
 
 If a here-doc was found while parsing another operator, the parser had
 already read end of file, and the here-doc was not terminated, perl
 could produce an assertion or a segmentation fault.  This now reliably
-complains about the unterminated here-doc.  [perl #125540]
+complains about the unterminated here-doc.
+L<[perl #125540]|https://rt.perl.org/Ticket/Display.html?id=125540>
 
 =item *
 
 C<untie()> would sometimes return the last value returned by the C<UNTIE()>
-handler as well as it's normal value, messing up the stack.  [perl
-#126621]
+handler as well as it's normal value, messing up the stack.
+L<[perl #126621]|https://rt.perl.org/Ticket/Display.html?id=126621>
+
 
 =item *
 
 Fixed an operator precedence problem when C< castflags & 2> is true.
-[perl #127474]
+L<[perl #127474]|https://rt.perl.org/Ticket/Display.html?id=127474>
 
 =item *
 
 Caching of DESTROY methods could result in a non-pointer or a
 non-STASH stored in the C<SvSTASH()> slot of a stash, breaking the B
 C<STASH()> method.  The DESTROY method is now cached in the MRO metadata
-for the stash.  [perl #126410]
+for the stash.
+L<[perl #126410]|https://rt.perl.org/Ticket/Display.html?id=126410>
 
 =item *
 
 The AUTOLOAD method is now called when searching for a DESTROY method,
-and correctly sets C<$AUTOLOAD> too.  [perl #124387]  [perl #127494]
+and correctly sets C<$AUTOLOAD> too.
+L<[perl #124387]|https://rt.perl.org/Ticket/Display.html?id=124387>
+L<[perl #127494]|https://rt.perl.org/Ticket/Display.html?id=127494>
 
 =item *
 
 Avoid parsing beyond the end of the buffer when processing a C<#line>
-directive with no filename.  [perl #127334]
+directive with no filename.
+L<[perl #127334]|https://rt.perl.org/Ticket/Display.html?id=127334>
 
 =item *
 
@@ -1832,7 +1852,7 @@ C<"h">, C<"l">, or C<"p">.   This is unlikely to be the intended
 meaning, and now a warning is raised.  No warning is raised unless the
 specification is very close to one of the 14 legal POSIX classes.  (See
 L<perlrecharclass/POSIX Character Classes>.)
-[perl #8904]
+L<[perl #8904]|https://rt.perl.org/Ticket/Display.html?id=8904>
 
 =item *
 
@@ -1840,13 +1860,14 @@ Certain regex patterns involving a complemented POSIX class in an
 inverted bracketed character class, and matching something else
 optionally would improperly fail to match.  An example of one that could
 fail is C<qr/_?[^\Wbar]\x{100}/>.  This has been fixed.
-[perl #127537]
+L<[perl #127537]|https://rt.perl.org/Ticket/Display.html?id=127537>
+
 
 =item *
 
 Perl 5.22 added support to the C99 hexadecimal floating point notation,
 but sometimes misparses hex floats. This has been fixed.
-[perl #127183]
+L<[perl #127183]|https://rt.perl.org/Ticket/Display.html?id=127183>
 
 =item *
 
@@ -1946,15 +1967,16 @@ inputs.
 
 Certain syntax errors in
 L<perlrecharclass/Extended Bracketed Character Classes> caused panics
-instead of the proper error message.  This has now been fixed. [perl
-#126481]
+instead of the proper error message.  This has now been fixed.
+L<[perl #126481]|https://rt.perl.org/Ticket/Display.html?id=126481>
 
 =item *
 
 Perl 5.20 added a message when a quantifier in a regular
 expression was useless, but then caused the parser to skip it;
 this caused the surplus quantifier to be silently ignored, instead
-of throwing an error. This is now fixed. [perl #126253]
+of throwing an error. This is now fixed.
+L<[perl #126253]|https://rt.perl.org/Ticket/Display.html?id=126253>
 
 =item *
 
@@ -1971,12 +1993,15 @@ Improved parsing of hex float constants.
 
 Fixed an issue with C<< pack >> where C<< pack "H" >> (and C<< pack "h" >>)
 could read past the source when given a non-utf8 source, and a utf8 target.
-[perl #126325]
+L<[perl #126325]|https://rt.perl.org/Ticket/Display.html?id=126325>
 
 =item *
 
 Fixed several cases where perl would abort due to a segmentation fault,
-or a C-level assert. [perl #126615], [perl #126602], [perl #126193].
+or a C-level assert.
+L<[perl #126615]|https://rt.perl.org/Ticket/Display.html?id=126615>,
+L<[perl #126602]|https://rt.perl.org/Ticket/Display.html?id=126602>,
+L<[perl #126193]|https://rt.perl.org/Ticket/Display.html?id=126193>.
 
 =item *
 
@@ -2037,19 +2062,22 @@ L<[perl #126319]|https://rt.perl.org/Ticket/Display.html?id=126319>
 =item *
 
 Duplicating a closed file handle for write no longer creates a
-filename of the form F<GLOB(0xXXXXXXXX)>.  [perl #125115]
+filename of the form F<GLOB(0xXXXXXXXX)>.
+L<[perl #125115]|https://rt.perl.org/Ticket/Display.html?id=125115>
 
 =item *
 
 Warning fatality is now ignored when rewinding the stack.  This
 prevents infinite recursion when the now fatal error also causes
-rewinding of the stack.  [perl #123398]
+rewinding of the stack.
+L<[perl #123398]|https://rt.perl.org/Ticket/Display.html?id=123398>
 
-=item * 
+=item *
 
 In perl v5.22.0, the logic changed when parsing a numeric parameter to the -C
 option, such that the successfully parsed number was not saved as the option
-value if it parsed to the end of the argument.  [perl #125381]
+value if it parsed to the end of the argument.
+L<[perl #125381]|https://rt.perl.org/Ticket/Display.html?id=125381>
 
 =item *
 
@@ -2069,7 +2097,8 @@ clearly a mem-poison value.
 A leak in the XS typemap caused one scalar to be leaked each time a C<FILE *>
 or a C<PerlIO *> was C<OUTPUT:>ed or imported to Perl, since perl 5.000. These
 particular typemap entries are thought to be extremely rarely used by XS
-modules. [perl #124181]
+modules.
+L<[perl #124181]|https://rt.perl.org/Ticket/Display.html?id=124181>
 
 =item *
 
@@ -2106,19 +2135,21 @@ L<[perl #125541]|https://rt.perl.org/Ticket/Display.html?id=125541>
 =item *
 
 C<qr/(?[ () ])/> no longer segfaults, giving a syntax error message instead.
-[perl #125805]
+L<[perl #125805]|https://rt.perl.org/Ticket/Display.html?id=125805>
 
 =item *
 
 Regular expression possessive quantifier v5.20 regression now fixed.
 C<qr/>I<PAT>C<{>I<min>,I<max>C<}+>C</> is supposed to behave identically
 to C<qr/(?E<gt>>I<PAT>C<{>I<min>,I<max>C<})/>.  Since v5.20, this didn't
-work if I<min> and I<max> were equal.  [perl #125825]
+work if I<min> and I<max> were equal.
+L<[perl #125825]|https://rt.perl.org/Ticket/Display.html?id=125825>
 
 =item *
 
 C<< BEGIN <> >> no longer segfaults and properly produces an error
-message.  [perl #125341]
+message.
+L<[perl #125341]|https://rt.perl.org/Ticket/Display.html?id=125341>
 
 =item *
 
@@ -2127,9 +2158,54 @@ not always detected, giving incorrect results.  This is now fixed.
 
 =back
 
+=head1 Known Problems
+
+Without cperl there are many known remaining security problems.
+
+=over
+
+=item *
+
+'.' in @INC can lead to easy remote attacks. Use -Dfortify_inc or
+cperl instead.
+
+CVSSv2 Severity: 8.5 (AV:N/AC:M/Au:S/C:C/I:C/A:C)
+
+=item *
+
+Hash security: PERL_HASH_SEED_DEBUG can trivially expose the hash
+seed and function. Use cperl instead.
+
+=item *
+
+Hash keys are never tainted. Use cperl instead.
+
+=item *
+
+Datastructures bigger than I32 or 2G - strings, hashes and arrays -
+cannot deal with an index > I32 or 2GB, which can be exploited if the
+attacker is able to create such big datastructures.
+
+Hek lengths, used for symbol and package names are internally limited
+to I32, but accept strings which can be up to 2GB (not 4GB) long.
+
+Hashes with more than I32 keys cannot be iterated over.
+
+Array keys are limited to int, not SSize_t.
+
+syswrite cannot write strings >2GB.
+
+See 5484e6b881b0d997d55e in cperl for the fixes, which harmonizes and
+limits array and hash indices to SSize_t (max 2Gb), and string lengths
+to STRLEN (4Gb).
+
+Use cperl instead.
+
+=back
+
 =head1 Acknowledgements
 
-Perl 5.24.0 represents approximately 11 months of development since Perl 5.24.0
+Perl 5.24.0 represents approximately 11 months of development since Perl 5.22.0
 and contains approximately 360,000 lines of changes across 1,800 files from 75
 authors.
 
