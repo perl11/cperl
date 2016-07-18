@@ -105,13 +105,13 @@ static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "GRAMPROG", "GRAMEXPR", "GRAMBLOCK",
   "GRAMBARESTMT", "GRAMFULLSTMT", "GRAMSTMTSEQ", "'{'", "'}'", "'['",
-  "']'", "'-'", "'+'", "'@'", "'%'", "'&'", "'='", "'.'", "WORD", "METHOD",
-  "FUNCMETH", "THING", "PMFUNC", "PRIVATEREF", "QWLIST", "FUNC0OP",
-  "FUNC0SUB", "UNIOPSUB", "LSTOPSUB", "PLUGEXPR", "PLUGSTMT", "LABEL",
-  "FORMAT", "SUB", "ANONSUB", "PACKAGE", "USE", "WHILE", "UNTIL", "IF",
-  "UNLESS", "ELSE", "ELSIF", "CONTINUE", "FOR", "GIVEN", "WHEN", "DEFAULT",
-  "LOOPEX", "DOTDOT", "YADAYADA", "FUNC0", "FUNC1", "FUNC", "UNIOP",
-  "LSTOP", "RELOP", "EQOP", "MULOP", "ADDOP", "DOLSHARP", "DO",
+  "']'", "'-'", "'+'", "'@'", "'%'", "'&'", "'='", "'.'", "BAREWORD",
+  "METHOD", "FUNCMETH", "THING", "PMFUNC", "PRIVATEREF", "QWLIST",
+  "FUNC0OP", "FUNC0SUB", "UNIOPSUB", "LSTOPSUB", "PLUGEXPR", "PLUGSTMT",
+  "LABEL", "FORMAT", "SUB", "ANONSUB", "PACKAGE", "USE", "WHILE", "UNTIL",
+  "IF", "UNLESS", "ELSE", "ELSIF", "CONTINUE", "FOR", "GIVEN", "WHEN",
+  "DEFAULT", "LOOPEX", "DOTDOT", "YADAYADA", "FUNC0", "FUNC1", "FUNC",
+  "UNIOP", "LSTOP", "RELOP", "EQOP", "MULOP", "ADDOP", "DOLSHARP", "DO",
   "HASHBRACK", "NOAMP", "LOCAL", "MY", "REQUIRE", "COLONATTR",
   "FORMLBRACK", "FORMRBRACK", "PREC_LOW", "OROP", "DOROP", "ANDOP",
   "NOTOP", "','", "ASSIGNOP", "'?'", "':'", "OROR", "DORDOR", "ANDAND",
@@ -1084,13 +1084,13 @@ static const toketypes yy_type_tab[] =
 {
   toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival,
   toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival,
-  toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_opval, toketype_opval,
+  toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_opval,
   toketype_opval, toketype_opval, toketype_opval, toketype_opval, toketype_opval, toketype_opval,
-  toketype_opval, toketype_opval, toketype_opval, toketype_opval, toketype_opval, toketype_pval,
-  toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival,
+  toketype_opval, toketype_opval, toketype_opval, toketype_opval, toketype_opval, toketype_opval,
+  toketype_pval, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival,
   toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival,
   toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival,
-  toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival,
+  toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival,
   toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival,
   toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival,
   toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival, toketype_ival,
@@ -1112,6 +1112,6 @@ static const toketypes yy_type_tab[] =
 };
 
 /* Generated from:
- * 4a48dd2b8f99b12859900c073011eecde7077bd8764fcc9fcfd99b7b3376a445 perly.y
+ * 59903180fd822fa4ef8b90aa9fd41c711bcc624fdb52731f1678538f58e6e502 perly.y
  * d75acf04e5e050e9d0de13999b5b46a13f176dcf9f75c07acf51e913fc41db9a regen_perly.pl
  * ex: set ro: */

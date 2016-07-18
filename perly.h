@@ -58,7 +58,7 @@ extern int yydebug;
     GRAMBARESTMT = 261,
     GRAMFULLSTMT = 262,
     GRAMSTMTSEQ = 263,
-    WORD = 264,
+    BAREWORD = 264,
     METHOD = 265,
     FUNCMETH = 266,
     THING = 267,
@@ -143,7 +143,7 @@ extern int yydebug;
 #define GRAMBARESTMT 261
 #define GRAMFULLSTMT 262
 #define GRAMSTMTSEQ 263
-#define WORD 264
+#define BAREWORD 264
 #define METHOD 265
 #define FUNCMETH 266
 #define THING 267
@@ -224,6 +224,7 @@ extern int yydebug;
 static bool
 S_is_opval_token(int type) {
     switch (type) {
+    case BAREWORD:
     case FUNC0OP:
     case FUNC0SUB:
     case FUNCMETH:
@@ -236,7 +237,6 @@ S_is_opval_token(int type) {
     case QWLIST:
     case THING:
     case UNIOPSUB:
-    case WORD:
 	return 1;
     }
     return 0;
@@ -271,6 +271,6 @@ int yyparse (void);
 #endif
 
 /* Generated from:
- * 4a48dd2b8f99b12859900c073011eecde7077bd8764fcc9fcfd99b7b3376a445 perly.y
+ * 59903180fd822fa4ef8b90aa9fd41c711bcc624fdb52731f1678538f58e6e502 perly.y
  * d75acf04e5e050e9d0de13999b5b46a13f176dcf9f75c07acf51e913fc41db9a regen_perly.pl
  * ex: set ro: */
