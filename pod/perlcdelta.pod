@@ -194,13 +194,23 @@ But no classes, methods and roles yet.
 
 =over 4
 
-=item Net-Cmd
+=item XSLoader 1.02c
+
+Fixed the C<#line relativefilename> part of the
+L<[cpan #115808]|https://rt.cpan.org/Ticket/Display.html?id=115808> security
+problem, the C<(eval 1)> part was already fixed in the cperl rewrite as
+XS.
+
+Ensure that the local stash filename part is absolute and ends with C</>,
+the part before "auto/" and before the fallback to the DynaLoader search.
+
+=item Net::Cmd
 
 Fixed utf8 handling, suse L<[bnc#493978]|https://bugzilla.opensuse.org/show_bug.cgi?id=493978>
 
 Note that libnet has hundreds of more L<open tickets|https://rt.cpan.org/Dist/Display.html?Name=libnet>
 
-=item Pod-Perldoc
+=item Pod::Perldoc
 
 Favor nroff over groff, suse perl-nroff.diff [bnc#463444]
 

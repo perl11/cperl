@@ -9,6 +9,12 @@
  * Licensed under the same terms as Perl itself.
  */
 
+#undef WINPATHSEP
+#if defined(WIN32) || defined(OS2) || defined(__CYGWIN__) || defined(DOSISH)
+    || defined(__SYMBIAN32__) || defined(__amigaos4__)
+#  define WINPATHSEP
+#endif
+
 /* A DynaLoader::bootstrap variant which takes the packagename name from caller() */
 XS(XS_XSLoader_load) {
     dVAR; dXSARGS;
@@ -47,7 +53,7 @@ XS(XS_XSLoader_load) {
     }
     if (!modlibname) {
         modlibname = OutCopFILE(PL_curcop);
-        if (memEQ(modlibname, "(eval ", strlen("(eval ")))
+        if (memEQ(modlibname, "(eval ", 6)) /* This catches RT #115808 */
             modlibname = NULL;
     }
     if (!module) {
@@ -69,6 +75,8 @@ XS(XS_XSLoader_load) {
     if (items >= 1) {
         SV *caller = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash), modlibutf8);
         modparts = dl_split_modparts(aTHX_ caller);
+        DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  caller %s => '%s'\n",
+                                SvPVX(caller), av_tostr(aTHX_ modparts)));
     }
     {
         SSize_t c = AvFILL(modparts) + 1;
@@ -76,15 +84,39 @@ XS(XS_XSLoader_load) {
         char   *s = SvPVX_mutable(file);
         s += i-1;
         for (; c>0 && i>=0 && *s; s--, i--) {
-            if (*s == '/' || *s == '\\') {
+            if (*s == '/'
+#ifdef WINPATHSEP
+                || *s == '\\'
+#endif
+                ) {
                 c--;
                 if (c==0) {
                     s[1] = 0;
+                    /* ensures ending / */
                     SvCUR_set(file, i);
                     break;
                 }
             }
         }
+        if (!SvCUR(file))
+            goto not_found;
+        /* must be absolute. see RT #115808 */
+        s = SvPVX_mutable(file);
+        if (*s != '/'
+#ifdef WINPATHSEP
+            && *s != '\\'
+            && !(*(s+1) && (*(s+1) == ':') && (*s >= 'A' && *s >= 'Z'))
+#endif
+            )
+            goto not_found;
+        s = SvPVX_mutable(file) + SvCUR(file) - 1;
+        /* and must end with / */
+        if (*s != '/'
+#ifdef WINPATHSEP
+            && *s != '\\'
+#endif
+            )
+            goto not_found;
     }
     sv_catpv(file, "auto/");
     sv_catsv(file, modpname);
@@ -97,6 +129,7 @@ XS(XS_XSLoader_load) {
     if (fn_exists(SvPVX(file))) {
         DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  found '%s'\n", SvPVX(file)));
     } else {
+    not_found:
         DLDEBUG(3,PerlIO_printf(Perl_debug_log, "  not found '%s'\n", SvPVX(file)));
         if (items < 1) {
             PUSHMARK(SP);
