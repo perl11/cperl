@@ -265,7 +265,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1264
+#define TOTAL_KEYWORDS 1265
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 30
 #define MIN_HASH_VALUE 3
@@ -1531,6 +1531,7 @@ struct stringpool_t
     char stringpool_str4680[sizeof ("d_usleepproto")];
     char stringpool_str4735[sizeof ("d_getpwuid_r")];
     char stringpool_str4741[sizeof ("installhtmlhelpdir")];
+    char stringpool_str4748[sizeof ("d_attribute_used")];
     char stringpool_str4750[sizeof ("version_patchlevel_string")];
     char stringpool_str4753[sizeof ("usekernprocpathname")];
     char stringpool_str4778[sizeof ("api_versionstring")];
@@ -2798,6 +2799,7 @@ static const struct stringpool_t stringpool_contents =
     "d_usleepproto",
     "d_getpwuid_r",
     "installhtmlhelpdir",
+    "d_attribute_used",
     "version_patchlevel_string",
     "usekernprocpathname",
     "api_versionstring",
@@ -6181,7 +6183,10 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4741,	T_INV,0,ALN64I"@@installhtmlhelpdir@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4748,	T_INV,0,ALN64I"@@d_attribute_used@@"},
+      {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4750,	T_INV,0,ALN64I"@@version_patchlevel_string@@"},
       {XSCNO}, {XSCNO},
@@ -6799,7 +6804,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str8190,		T_INV,0,ALN64I"@@doubleinfbytes@@"}
     };
 
-#line 6802 "Config.xs"
+#line 6807 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);
