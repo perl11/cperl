@@ -534,7 +534,11 @@ as seperator only if it appears at first, before any C<::>. If seen,
 do the same magic as C<parse_gv_stash_name>, converting all seperators
 over to C<::>.  Taken with improvements from L<Sub::Name>.
 
-=item Data::Dumper 2.161
+=item Data::Dumper 2.162
+
+Fix high isASCII chars for EBCDIC,
+L<[cpan #12282]|https://rt.cpan.org/Ticket/Display.html?id=12282>,
+on CPAN as 2.161.
 
 Fix L<[perl #128524]|https://rt.perl.org/Public/Bug/Display.html?id=128524>,
 wrong indentation for utf-8 key hash elements.
@@ -661,6 +665,18 @@ L<RT #127708|https://rt.perl.org/Public/Bug/Display.html?id=127708>.
 
 =back
 
+=head1 Internal Changes
+
+=over 4
+
+=item *
+
+The C<git_describe> Config key and C<PERL_PATCHNUM> define was changed
+to use C<git --long --tags>, which leads to more relevant values with cperl.
+I.e. before I<v5.23.0-3113-g43962f1>, now I<cperl-5.24.0-0-g43962f1>.
+
+=back
+
 =head1 Selected Bug Fixes
 
 =over 4
@@ -756,31 +772,48 @@ See L<RT #128313|https://rt.perl.org/Public/Bug/Display.html?id=128313>
 See L<RT #63244|https://rt.perl.org/Public/Bug/Display.html?id=63244>
 or L<http://bugs.debian.org/164615>, crashes from 5.8.8 to blead.
 
+C<env PERLIO=stdio perl -e'open(F, "<&STDOUT")' 1</dev/null>
+
+=item Fix crash from empty curcop in gp_free/ckWARN_d
+
+See L<RT #128597|https://rt.perl.org/Public/Bug/Display.html?id=128597>.
+
+C<< open my $fh, ">", \$buf; my $sub = eval q|sub {die}|; $sub->()' >>
+crashes from 5.22 to 5.24.1.
+
+=item Fix crash when vivifying stub in deleted pkg
+
+See L<RT #128532|https://rt.perl.org/Public/Bug/Display.html?id=128532>.
+
+C<< delete $My::{"Foo::"}; \&My::Foo::foo >>
+crashes from 5.18 to 5.24.1.
+
 =back
 
 =head1 Acknowledgements
 
-cperl 5.24.0 represents approximately 2 weeks of development since cperl
-5.22.2c and contains approximately 32,000,000 lines of changes across 4,900
-files from 53 authors.
+cperl 5.24.0 represents approximately 14 weeks of development since cperl
+5.22.2c and contains approximately 1,100,000 lines of changes across 1,600 files from
+59 authors.
 
 Excluding auto-generated files, documentation and release tools, there were
-approximately 140,000 lines of changes to 600 .pm, .t, .c and .h files.
+approximately 130,000 lines of changes to 700 .pm, .t, .c and .h files.
 
 The following people are known to have contributed the improvements that became
 cperl 5.24.0:
 
-Karl Williamson, David Mitchell, Jarkko Hietaniemi, Andy Broad, Reini Urban,
-Tony Cook, Craig A. Berry, Lukas Mai, Aaron Crane, Daniel Dragan, Dagfinn
-Ilmari Mannsåker, Steve Hay, Ricardo Signes, James E Keenan, H.Merijn Brand,
-Yves Orton, Matthew Horsfall, Aristotle Pagaltzis, Father Chrysostomos, Karen
-Etheridge, Abigail, Doug Bell, Chris 'BinGOs' Williams, Stevan Little, Rafael
-Garcia-Suarez, Andy Dougherty, Vincent Pit, Todd Rinaldo, Tom Hukins, Thomas
-Sibley, Nicholas Clark, Ed J, Mohammed El-Afifi, Mattia Barbon, Shlomi Fish, Ed
-Avis, Stanislaw Pusep, Alexander D'Archangel, Ludovic E. R. Tolhurst-Cleaver,
-Chas. Owens, Victor Adam, Herbert Breunung, Sisyphus, Achim Gratz, Leon
-Timmermans, Aaron Priven, Max Maischein, Dan Collins, Ivan Pozdeev, Peter
-Martini, Zachary Storer, Dr.Ruud, John SJ Anderson.
+Karl Williamson, Reini Urban, David Mitchell, Jarkko Hietaniemi, Andy Broad,
+Tony Cook, Daniel Dragan, Lukas Mai, Craig A. Berry, Yves Orton, Aaron Crane,
+Father Chrysostomos, Ricardo Signes, Dagfinn Ilmari Mannsåker, Steve Hay,
+H.Merijn Brand, James E Keenan, Matthew Horsfall, Aristotle Pagaltzis, Karen
+Etheridge, Abigail, Chris 'BinGOs' Williams, Shlomi Fish, Doug Bell, Dan
+Collins, Stevan Little, Tom Hukins, Rafael Garcia-Suarez, Andy Dougherty, Ed J,
+Vincent Pit, Todd Rinaldo, Nicholas Clark, Leon Timmermans, Thomas Sibley,
+Achim Gratz, Vladimir Timofeev, Stanislaw Pusep, Aaron Priven, Dr.Ruud, Pip
+Cet, Hugo van der Sanden, Mohammed El-Afifi, Mattia Barbon, John SJ Anderson,
+Victor Adam, Alex Vandiver, John Peacock, Niko Tyni, Alexander D'Archangel,
+Ludovic E. R. Tolhurst-Cleaver, Zachary Storer, Herbert Breunung, Ed Avis,
+Sisyphus, Max Maischein, Ivan Pozdeev, Chas. Owens, Peter Martini.
 
 The list above is almost certainly incomplete as it is automatically generated
 from version control history including the perl and cperl repos. In particular,

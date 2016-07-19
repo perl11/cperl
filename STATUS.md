@@ -11,7 +11,7 @@ cperl started Feb. 2015 when `:const` was added, parrot was killed and
 it became clear that optimizing for fun is better than waiting for
 someone else to allow it.
 
-Currently it is about 1.5x faster than perl5.22 overall, >2x faster
+Currently it is about 20% faster than perl5 overall, >2x faster
 then 5.14 and uses the least amount of memory measured since 5.6,
 i.e. less than 5.10 and 5.6.2, which were the previous leaders. While
 perl5.22 uses the most memory yet measured. cperl 5.24 is about 2x faster
@@ -28,20 +28,20 @@ Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 
-The current release [5.22.3c](https://github.com/perl11/cperl/releases/)
-is stable. cperl-5.24.0 is almost done. See [RC5](https://github.com/perl11/cperl/releases/) and [perlcdelta](perlcdelta.html).
+The current stable release is [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4),
+the latest release is [5.24.0c](https://github.com/perl11/cperl/releases/).
+See [perl5224cdelta](perl5224cdelta.html) and the [cperl-5.24.0 delta](perlcdelta.html).
 
 All tests pass. CPAN works.
 
-For 5.22.1c some fixes in my `rurban/distroprefs` repo for
-`Sub::Install`, `Variable::Magic`, ...  are needed.
+Some fixes in my `rurban/distroprefs` repo for certain CPAN modules are needed.
 
 For 5.24.0c with some modernized core modules some signatures are
 pretty strictly typed to catch wrong usages and enforce better code.
 See the `Test::More::skip()` [FAQ](https://github.com/perl11/cperl/issues/153#issuecomment-224515895) or below.
 Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
 `bigint`, `bignum` and `bigrat` are now also stricly typed, you shouldn't mess with
-sloppy types there neither. See below for Known Problems.
+sloppy types there neither. See below for *Known Problems*.
 
 This is still much less than with a typical major perl5 release, and
 the patches are all provided in my
@@ -51,12 +51,16 @@ modules without any patches.
 
 cperl-5.24.0c has [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
 for problems which are not fixed in perl-5.24.1.
+Ditto cperl-5.22.4c has about 20 fixes which are not in the latest
+perl-5.22.3.
 
 ![Memory usage: perl -e0](cperl-m0.png)
 
 ![Memory usage: with Config_heavy](cperl-p0.png)
 
 ![Memory usage with unicode s///i](cperl-p1.png)
+
+![Benchmarks](cperl-bench.png)
 
 # In the stable master branch are the following major features
 
@@ -333,4 +337,4 @@ They also revert some wrong decisions p5p already made.
 
 * builtin ffi
 
-2016-07-19 rurban
+2016-07-25 rurban

@@ -4,7 +4,7 @@ use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use Module::CoreList::TieHashDelta;
 use version;
-$VERSION = '5.20160712c';
+$VERSION = '5.20160728c';
 $VERSION =~ s/c$//;
 
 sub _released_order {   # Sort helper, to make '?' sort after everything else
@@ -303,9 +303,9 @@ sub changes_between {
     5.025001 => '2016-05-20',
     '5.022003c' => '2016-06-03',
     5.025002 => '2016-06-20',
-    '5.024000c' => '????-??-??',
+    '5.022004c' => '2016-07-27',
+    '5.024000c' => '2016-07-28',
     5.025003 => '????-??-??',
-    '5.022004c' => '????-??-??',
   );
 
 sub version_sort {
@@ -12619,13 +12619,27 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
     '5.022004c' => {
         delta_from => '5.022003c',
         changed => {
-            'B::C'                    => '1.54_07',
+            'Cpanel::JSON::XS'        => '3.0217',
+            'Config::Perl::V'         => '0.26_01',
+            'B::C'                    => '1.54_08',
+            'B::Deparse'              => '1.37_01c',
+            'Data::Dumper'            => '2.162',
+            'Devel::PPPort'           => '3.33_02',
             'DynaLoader'              => '2.04c',
             'Socket' 		      => '2.021_02',
-            'Config' 		      => '6.18',
+            'Config' 		      => '6.21',
             'Storable' 		      => '3.00c',
             'Devel::NYTProf' 	      => '6.03',
             'Digest::MD5' 	      => '2.55_01',
+            'Net::Cmd'                => '3.08',
+            'Net::Time'               => '3.08',
+            'Net::FTP'                => '3.08',
+            'Net::NNTP'               => '3.08',
+            'Net::Netrc'              => '3.08',
+            'Net::POP3'               => '3.08',
+            'Net::SMTP'               => '3.08',
+            'Net::Domain'             => '3.08_01',
+            'Pod::Checker'            => '1.73',
         },
         removed => {
         }
@@ -12635,11 +12649,14 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         changed => {
             'B::Op_private'         => '5.024000',
             'Config'                => '6.21',
-            'Module::CoreList'      => '5.20160618c',
+            'Module::CoreList'      => '5.20160728c',
             'Module::CoreList::TieHashDelta'=> '5.20160618',
             'Module::CoreList::Utils'=> '5.20160618c',
+            'Data::Dumper'           => '2.162',
+            'XSLoader'               => '1.02c',
             'B::C'                   => '1.54_08',
             'DynaLoader'             => '2.04c',
+            'Term::ReadKey'          => '2.33',
             'Socket' 		     => '2.021_02',
             'Storable' 		     => '3.00c',
             'Devel::NYTProf' 	     => '6.03',
