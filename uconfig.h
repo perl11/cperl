@@ -1103,6 +1103,9 @@
 /* HASATTRIBUTE_PURE:
  *	Can we handle GCC attribute for pure functions
  */
+/* HASATTRIBUTE_USED:
+ *	Can we handle GCC attribute for used symbols
+ */
 /* HASATTRIBUTE_UNUSED:
  *	Can we handle GCC attribute for unused variables and arguments
  */
@@ -1119,6 +1122,7 @@
 /*#define HASATTRIBUTE_MALLOC	/ **/
 /*#define HASATTRIBUTE_NONNULL	/ **/
 /*#define HASATTRIBUTE_PURE	/ **/
+/*#define HASATTRIBUTE_USED	/ **/
 /*#define HASATTRIBUTE_UNUSED	/ **/
 /*#define HASATTRIBUTE_WARN_UNUSED_RESULT	/ **/
 
@@ -5339,6 +5343,6 @@
 #endif
 
 /* Generated from:
- * f619e73f1f8fb837073498a5f73d0f4606fa96cdae46e05cf104cc8d3f3af1ec config_h.SH
- * 54142cfeff9798152ddd02eb918f7ea727c0894e9ad03d4212d5d3c1a177fa9d uconfig.sh
+ * 622485f7b197b6529c54ce4c35bcbd50c0833a43a7c83894462ff1b04db671a8 config_h.SH
+ * afa296fb88558269acc0785021584cb23173ac1c513d00af1d54415671cde4c2 uconfig.sh
  * ex: set ro: */

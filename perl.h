@@ -3641,6 +3641,9 @@ EXTERN_C int perl_tsa_mutex_unlock(perl_mutex* mutex)
 #ifdef HASATTRIBUTE_PURE
 #  define __attribute__pure__               __attribute__((pure))
 #endif
+#ifdef HASATTRIBUTE_USED
+#  define __attribute__used__             __attribute__((used))
+#endif
 #ifdef HASATTRIBUTE_UNUSED
 #  define __attribute__unused__             __attribute__((unused))
 #endif
@@ -3666,6 +3669,9 @@ EXTERN_C int perl_tsa_mutex_unlock(perl_mutex* mutex)
 #endif
 #ifndef __attribute__pure__
 #  define __attribute__pure__
+#endif
+#ifndef __attribute__used__
+#  define __attribute__used__
 #endif
 #ifndef __attribute__unused__
 #  define __attribute__unused__

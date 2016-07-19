@@ -1138,6 +1138,9 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 /* HASATTRIBUTE_PURE:
  *	Can we handle GCC attribute for pure functions
  */
+/* HASATTRIBUTE_USED:
+ *	Can we handle GCC attribute for used symbols
+ */
 /* HASATTRIBUTE_UNUSED:
  *	Can we handle GCC attribute for unused variables and arguments
  */
@@ -1154,6 +1157,7 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$d_attribute_malloc HASATTRIBUTE_MALLOC	/**/
 #$d_attribute_nonnull HASATTRIBUTE_NONNULL	/**/
 #$d_attribute_pure HASATTRIBUTE_PURE	/**/
+#$d_attribute_used HASATTRIBUTE_USED	/**/
 #$d_attribute_unused HASATTRIBUTE_UNUSED	/**/
 #$d_attribute_warn_unused_result HASATTRIBUTE_WARN_UNUSED_RESULT	/**/
 
