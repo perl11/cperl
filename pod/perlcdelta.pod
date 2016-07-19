@@ -85,7 +85,7 @@ Fixed the generated perldll.def (makedef.pl)
 =item * better -Dt tracing
 
 Many ops print now their arguments: signature, padrange, entersub,
-enterxssub, method_named
+enterxssub, method_named, goto.
 
 =item * auto-created coretypes on demand
 
@@ -94,6 +94,20 @@ demand.  This saves initialization time and memory a bit, and avoids
 regression errors when walking our protected readonly packages, even
 in code which does not use coretypes.
 L<[cperl #133]|https://github.com/perl11/cperl/issues/133>
+
+=item * -flto support with ~10-20% performance win
+
+i.e. C<-Dcc='gcc-6 -O2 -flto'> or even C<clang-3.9 -O2 -flto=thin> is
+38% faster than normal perl5, compared to only 27% without C<-flto>.
+
+Added the C<d_attribute_used> probe from L<[perl #125096]|https://rt.perl.org/Public/Bug/Display.html?id=125096>.
+
+However C<clang-mp-3.9 -fsanitize=cfi -flto=thin -fvisibility=hidden>
+fails in C<setenv()> when linking F<miniperl> still.
+C<gcc-6 -flto=thin -fvisibility=hidden> fails with many hidden symbols.
+And on darwin wrong compiler warnings are thrown, like
+ld: warning: object file (F</var/.../cc-502b6c.o>) was built for newer OSX version
+(10.11) than being linked (0.5.180).
 
 =back
 
