@@ -136,12 +136,12 @@ SKIP: {
   open my $fh,
     ">$name/auto/Foo/Bar/Bar.$Config::Config{'dlext'}";
   close $fh;
-  chmod 0755, $fname;
   my $fell_back;
+  #my $cperl = 1 if $Config{usecperl};
   local *XSLoader::bootstrap_inherit = sub {
     $fell_back++;
     # Break out of the calling subs
-    goto the_test;
+    #goto the_test unless $cperl;
   };
   # https://rt.cpan.org/Ticket/Display.html?id=115808
   eval <<END;
@@ -152,6 +152,5 @@ END
  the_test:
   ok $fell_back,
     'XSLoader will not load relative paths based on (caller)[1]';
-  sleep(0.2);
   File::Path::rmtree($name);
 }
