@@ -170,6 +170,17 @@ I<< Note that the standard normal forms NFKD and NFKC ... return (in
 all views) incorrect results for strings containing these
 characters. >>
 
+=head2 XSLoader relative paths with eval or #line
+
+Upstream XSLoader 0.22 (perl 5.26) fixed a minor security problem with
+XSLoader within eval or with a #line directive, which can load a local
+relative shared library, which is not in C<@INC>.  See
+L<[cpan #115808]|https://rt.cpan.org/Ticket/Display.html?id=115808>.
+
+cperl XSLoader was already protected against the eval case since 5.22,
+when being rewritten in C. cperl-5.24.0 fixed now also ignoring a relative
+filename in a C<#line> directive, when the relative path is not in C<@INC>.
+
 =head1 Modules and Pragmata
 
 =head2 New Modules and Pragmata

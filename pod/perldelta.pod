@@ -2226,6 +2226,13 @@ Use cperl instead, see L<[cperl #166]|https://github.com/perl11/cperl/issues/166
 
 =item *
 
+XSLoader security problem with relative paths with eval/#line.
+See L<[cpan #115808]|https://rt.cpan.org/Ticket/Display.html?id=115808>.
+
+Not fixed in 5.24.1, only in cperl, XSLoader 0.22 on cpan and 5.26.
+
+=item *
+
 Methods on readonly packages cannot be called reliably. The method
 cache check fails on them and not existing methods will not fall back
 to the parent or UNIVERSAL or AUTOLOAD methods.  Use cperl instead.
