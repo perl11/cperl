@@ -34,6 +34,7 @@ plan(133);
 my $rc_filename = '.perldb';
 
 sub rc {
+    rename $rc_filename, $rc_filename.".orig" if -f $rc_filename;
     open my $rc_fh, '>', $rc_filename
         or die $!;
     print {$rc_fh} @_;
@@ -2890,4 +2891,5 @@ for my $f ('sig2sig', 'sig2pp', 'pp2sig') {
 
 END {
     1 while unlink ($rc_filename, $out_fn);
+    rename($rc_filename.".orig",$rc_filename) if -f $rc_filename.".orig";
 }
