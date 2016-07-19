@@ -29,7 +29,7 @@ on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 
 The current release [5.22.3c](https://github.com/perl11/cperl/releases/)
-is stable. cperl-5.24.0 is almost done. See RC4.
+is stable. cperl-5.24.0 is almost done. See [RC5](https://github.com/perl11/cperl/releases/) and [perlcdelta](perlcdelta.html).
 
 All tests pass. CPAN works.
 
@@ -48,6 +48,9 @@ the patches are all provided in my
 [rurban/distroprefs](https://github.com/rurban/distroprefs/), so the
 upgrade is seemless.  E.g. Test2 (the new Test::Simple) broke >15
 modules without any patches.
+
+cperl-5.24.0c has [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
+for problems which are not fixed in perl-5.24.1.
 
 ![Memory usage: perl -e0](cperl-m0.png)
 
@@ -273,6 +276,19 @@ are limited. So they are based on master.
   perl6-like patch which changes `.` to `~` for string concat also,
   but this doesn't accept valid perl5 syntax then. A blocker.
 
+* [feature/gh102-smallhash](https://github.com/perl11/cperl/issues/102)
+
+  [code](http://github.com/perl11/cperl/commits/feature/gh102-smallhash)
+
+  optimize the speed for small hashes.
+
+* [feature/gh176-unexec](https://github.com/perl11/cperl/issues/176)
+
+  [code](http://github.com/perl11/cperl/commits/feature/gh176-unexec)
+
+  compile/dump to native code via emacs unexec, on most platforms.
+
+
 ## A bit more work is needed for
 
 These are major new features, and have no chance to be merged upstream.
@@ -317,4 +333,4 @@ They also revert some wrong decisions p5p already made.
 
 * builtin ffi
 
-2016-07-12 rurban
+2016-07-19 rurban
