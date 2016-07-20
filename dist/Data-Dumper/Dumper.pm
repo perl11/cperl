@@ -10,7 +10,7 @@
 package Data::Dumper;
 
 BEGIN {
-    $VERSION = '2.161'; # Don't forget to set version and release
+    $VERSION = '2.162'; # Don't forget to set version and release
 }               # date in POD below!
 
 #$| = 1;
@@ -1466,13 +1466,13 @@ be to use the C<Sortkeys> filter of Data::Dumper.
 
 Gurusamy Sarathy        gsar@activestate.com
 
-Copyright (c) 1996-2014 Gurusamy Sarathy. All rights reserved.
+Copyright (c) 1996-2016 Gurusamy Sarathy. All rights reserved.
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =head1 VERSION
 
-Version 2.161  (with cperl-5.24.0, not yet on CPAN)
+Version 2.162  (with cperl-5.24.0, not yet on CPAN)
 
 =head1 SEE ALSO
 

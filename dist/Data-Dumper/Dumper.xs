@@ -369,7 +369,7 @@ esc_q_utf8(pTHX_ SV* sv, const char *src, STRLEN slen, I32 do_utf8, I32 useqq)
             UV k;
 
             if (do_utf8
-                && ! isASCII(*s)
+                && ! isASCII(*(U8*)s)
                     /* Exclude non-ASCII low ordinal controls.  This should be
                      * optimized out by the compiler on ASCII platforms; if not
                      * could wrap it in a #ifdef EBCDIC, but better to avoid
