@@ -17,6 +17,7 @@ branches:
   only:
     - master
     - /smoke/
+    - /^maint-/
 init:
   - git config --global core.autocrlf input
 
