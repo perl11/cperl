@@ -10,7 +10,7 @@ $|  = 1;
 use warnings;
 use Config;
 
-plan tests => 156;
+plan tests => 157;
 
 my $Perl = which_perl();
 
@@ -483,6 +483,15 @@ pass("no crash when open autovivifies glob in freed package");
     ok(!open(my $fh2,  ">&", $fh), "should fail to dup the closed handle");
     # clean up if we failed
     unlink "$fh";
+}
+
+# [perl #63244] Survive dup of empty filehandle
+{
+    local $ENV{PERLIO} = 'stdio';
+    my $runperl = _create_runperl(prog => 'open(F, q{<&STDOUT});',
+                                  stdin => undef);
+    $runperl =~ s/ </ 1</;
+    ok(system($runperl)==0, 'stdio dup on empty filehandle [perl #63244]');
 }
 
 package OverloadTest;
