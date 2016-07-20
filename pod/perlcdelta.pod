@@ -751,6 +751,11 @@ See L<RT #128204|https://rt.perl.org/Public/Bug/Display.html?id=128204>
 
 See L<RT #128313|https://rt.perl.org/Public/Bug/Display.html?id=128313>
 
+=item Fix PERLIO=stdio dup on empty filehandle
+
+See L<RT #63244|https://rt.perl.org/Public/Bug/Display.html?id=63244>
+or L<http://bugs.debian.org/164615>, crashes from 5.8.8 to blead.
+
 =back
 
 =head1 Acknowledgements
