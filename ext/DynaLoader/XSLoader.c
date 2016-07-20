@@ -10,8 +10,7 @@
  */
 
 #undef WINPATHSEP
-#if defined(WIN32) || defined(OS2) || defined(__CYGWIN__) || defined(DOSISH)
-    || defined(__SYMBIAN32__) || defined(__amigaos4__)
+#if defined(WIN32) || defined(OS2) || defined(__CYGWIN__) || defined(DOSISH) || defined(__SYMBIAN32__) || defined(__amigaos4__)
 #  define WINPATHSEP
 #endif
 
