@@ -37,6 +37,7 @@ branches:
     - master
     - /smoke/
     - /coverity/
+    - /^maint-/
 
 env:
   global:
