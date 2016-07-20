@@ -12630,7 +12630,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'B::C'                    => '1.54_07',
             'DynaLoader'              => '2.04c',
             'Socket' 		      => '2.021_02',
-            'Config' 		      => '6.18',
+            'Config' 		      => '6.21',
             'Storable' 		      => '3.00c',
             'Devel::NYTProf' 	      => '6.03',
             'Digest::MD5' 	      => '2.55_01',

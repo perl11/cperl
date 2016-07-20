@@ -99,9 +99,30 @@ Silence some CC warnings, esp. on 32bit.
 
 Silence some CC warnings, esp. on 32bit.
 
-=item Config
+=item Config 6.21
 
-Silence some CC warnings.
+Improvements from cperl-5.24:
+
+    -fix for readonly Makefile.PL (in core src tarballs)
+    -fix wrong SKIP headers
+    -skip in core make regen tests (--tap)
+    -more 5.24 and cperl keys
+    -silence unused classname compiler warning
+    -link to Mock::Config in the docs to temp. write to %Config in tests.
+    -Dfortify_inc fixes
+
+-regen the XSConfig.t/Config_xs.PL key lists
+
+-remove now generated/range operator-ed config_arg keys from XSConfig.t
+ they are redundant
+
+-add common keys d_memmem d_uselocale d_freelocale d_newlocale to CPAN
+
+-clean build product Config_xs_tmp.in
+
+-PERL_UNUSED_ARG fix for 5.8.7
+
+-Silence some CC warnings.
 
 =item Devel-NYTProf
 

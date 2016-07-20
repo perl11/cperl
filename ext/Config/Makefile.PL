@@ -21,8 +21,8 @@ WriteMakefile(
             XSConfig => { file => 'Config.pm', version => $version },
         },
     },
-#Config_heavy.pl didn't exist before 5.8.7, it was part of a huge Config.pm
-#not worth the time to modify Config_xs.PL and Config_xs_heavy.pl.PL
+    # Config_heavy.pl didn't exist before 5.8.7, it was part of a huge Config.pm
+    # not worth the time to modify Config_xs.PL and Config_xs_heavy.pl.PL
     'MIN_PERL_VERSION'  => '5.8.7',
     'VERSION'		=> $version,
     'PL_FILES'		=> {'Config_xs.PL' => 'Config.xs',
@@ -31,11 +31,11 @@ WriteMakefile(
                                       'Config_xs_heavy.pl.PL' => 'Config_xs_heavy.pl')
                             )},
     'clean'		=> {FILES =>  oldclean('Config.xs  Config_xs.out-new
-                                      Config_xs.tmp.in-new Config_xs_tmp.out
-                                      Config.c             Config_pm_mtime
-                                      Config_mini.pl       Config_xs_heavy.pl
-                                      Config_def.old       UNINST_0
-                                      UNINST_1
+                                      Config_xs_tmp.in     Config_xs.tmp.in-new
+                                      Config_xs_tmp.out    Config.c
+                                      Config_pm_mtime      Config_mini.pl
+                                      Config_xs_heavy.pl   Config_def.old
+                                      UNINST_0             UNINST_1
                                       ')},
     'PM' => {
         'Config.pm'      => '$(INST_LIBDIR)/Config.pm',
@@ -43,11 +43,11 @@ WriteMakefile(
                           'Config_xs_heavy.pl' => '$(INST_LIBDIR)/Config_xs_heavy.pl',
                           'XSConfig.pod'       => '$(INST_LIBDIR)/XSConfig.pod')),
     },
-    #XS Config can not be loaded by P5P DynaLoader, only by XSLoader WITHOUT
-    #XSLoader passing the "complicated" loading scenario to DynaLoader.
-    #P5P DL use'es Config, to get $Config{dlext}, a bootstraping problem for XS
-    #Config, XSLoader passes onto DynaLoader if the auto/Config/Config.dll is
-    #not in the same @INC dir as Config.pm, so put Config.pm in /arch.
+    # XS Config can not be loaded by P5P DynaLoader, only by XSLoader WITHOUT
+    # XSLoader passing the "complicated" loading scenario to DynaLoader.
+    # P5P DL use'es Config, to get $Config{dlext}, a bootstraping problem for XS
+    # Config, XSLoader passes onto DynaLoader if the auto/Config/Config.dll is
+    # not in the same @INC dir as Config.pm, so put Config.pm in /arch.
     ($in_core ? () : (INST_LIB => '$(INST_ARCHLIB)')),
 
     #XSOPT  => ' -nolinenumbers ',
@@ -80,9 +80,9 @@ use ExtUtils::Command ();
 }
 
 sub oldclean {
-    #EUMM before ~6.25_02 did not add tabs and '\'s to the clean line, the list
-    #of files would be tried to excuted if they had newlines in them from
-    #the WriteMakefile hash
+    # EUMM before ~6.25_02 did not add tabs and '\'s to the clean line, the list
+    # of files would be tried to excuted if they had newlines in them from
+    # the WriteMakefile hash
     if($ExtUtils::MM_Unix::VERSION lt '1.46_02') {
         my $clean = $_[0];
         $clean =~ y/\n//d;
@@ -96,7 +96,7 @@ package MY;
 
 # feat req https://rt.cpan.org/Public/Bug/Display.html?id=110631
 sub post_initialize { # post_initialize() runs before constants()
-# see if it is in CPAN's configs, this is for CPANTesters/automated installs
+    # see if it is in CPAN's configs, this is for CPANTesters/automated installs
     if ($in_core) {
         $main::uninst = 0;
     } else {
@@ -141,9 +141,9 @@ sub pm_to_blib {
 
     my $pos = index($blib, "\n", 1);
     die "bad position in pm_to_blib" if $pos == -1 || $pos == 0;
-    #backdate mtime of XS Config.pm to mtime of old mini/PP Config.pm
-    #this prevents mass rebuilds of modules during perl "make all"
-    #on a non-clean src tree
+    # backdate mtime of XS Config.pm to mtime of old mini/PP Config.pm
+    # this prevents mass rebuilds of modules during perl "make all"
+    # on a non-clean src tree
     substr($blib, $pos+1, 0,
 '	$(NOECHO) $(EQUALIZE_TIMESTAMP) $(PERL_ARCHLIBDEP)$(DFSEP)Config.pm Config_pm_mtime
 ');
@@ -156,10 +156,10 @@ sub pm_to_blib {
 sub processPL {
     my $self = shift;
     my $processPL = $self->SUPER::processPL(@_);
-    #Config_xs.PL can't use the uninstalled, blib's XS Config.pm, and the shlib
-    #for XS Config wasn't even built yet when Config_xs.PL runs, Config.xs is
-    #not a .pm, so it can't be listed in EUMM's PM key which would otherwise
-    #cause blib to NOT be -I'ed, so de-"-I" it manually
+    # Config_xs.PL can't use the uninstalled, blib's XS Config.pm, and the shlib
+    # for XS Config wasn't even built yet when Config_xs.PL runs, Config.xs is
+    # not a .pm, so it can't be listed in EUMM's PM key which would otherwise
+    # cause blib to NOT be -I'ed, so de-"-I" it manually
     $processPL =~ s/pm_to_blib/Config_xs.out Config_xs.in/g;
     $processPL =~ s/PERLRUNINST/PERLRUN/g;
     return $processPL;
