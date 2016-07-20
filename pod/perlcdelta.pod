@@ -534,6 +534,11 @@ as seperator only if it appears at first, before any C<::>. If seen,
 do the same magic as C<parse_gv_stash_name>, converting all seperators
 over to C<::>.  Taken with improvements from L<Sub::Name>.
 
+=item Data::Dumper 2.161
+
+Fix L<[perl #128524]|https://rt.perl.org/Public/Bug/Display.html?id=128524>,
+wrong indentation for utf-8 key hash elements.
+
 =back
 
 =head2 Not Updated Modules and Pragmata
