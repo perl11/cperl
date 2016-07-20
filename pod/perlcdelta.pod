@@ -124,6 +124,11 @@ Improvements from cperl-5.24:
 
 -Silence some CC warnings.
 
+=item libnet 3.08
+
+With our Net::Domain patch for darwin.
+Improved utf8 and ipv6 support.
+
 =item Devel-NYTProf
 
 Silence some CC warnings.

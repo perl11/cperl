@@ -12634,6 +12634,14 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Storable' 		      => '3.00c',
             'Devel::NYTProf' 	      => '6.03',
             'Digest::MD5' 	      => '2.55_01',
+            'Net::Cmd'                => '3.08',
+            'Net::Time'               => '3.08',
+            'Net::FTP'                => '3.08',
+            'Net::NNTP'               => '3.08',
+            'Net::Netrc'              => '3.08',
+            'Net::POP3'               => '3.08',
+            'Net::SMTP'               => '3.08',
+            'Net::Domain'             => '3.08_01',
         },
         removed => {
         }
