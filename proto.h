@@ -6756,6 +6756,12 @@ STATIC void	S__append_range_to_invlist(pTHX_ SV* const invlist, const UV start, 
 #define PERL_ARGS_ASSERT__APPEND_RANGE_TO_INVLIST	\
 	assert(invlist)
 
+PERL_STATIC_INLINE UV*	S__invlist_array_init(SV* const invlist, const bool will_have_0)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT__INVLIST_ARRAY_INIT	\
+	assert(invlist)
+
 PERL_STATIC_INLINE IV*	S_get_invlist_previous_index_addr(SV* invlist)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1);
@@ -6771,6 +6777,12 @@ STATIC void	S_invlist_extend(pTHX_ SV* const invlist, const UV len)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_INVLIST_EXTEND	\
+	assert(invlist)
+
+PERL_STATIC_INLINE UV	S_invlist_max(SV* const invlist)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_INVLIST_MAX	\
 	assert(invlist)
 
 PERL_STATIC_INLINE IV	S_invlist_previous_index(SV* const invlist)
@@ -8444,12 +8456,6 @@ STATIC OP*	S_doform(pTHX_ CV *cv, GV *gv, OP *retop)
 STATIC SV *	S_space_join_names_mortal(pTHX_ char *const *array);
 #endif
 #if defined(PERL_IN_REGCOMP_C)
-PERL_STATIC_INLINE UV*	S__invlist_array_init(SV* const invlist, const bool will_have_0)
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(1);
-#define PERL_ARGS_ASSERT__INVLIST_ARRAY_INIT	\
-	assert(invlist)
-
 STATIC SV*	S__make_exactf_invlist(pTHX_ RExC_state_t *pRExC_state, regnode *node)
 			__attribute__global__
 			__attribute__warn_unused_result__
@@ -8598,12 +8604,6 @@ STATIC bool	S_invlist_iternext(SV* invlist, UV* start, UV* end)
 			__attribute__nonnull__(3);
 #define PERL_ARGS_ASSERT_INVLIST_ITERNEXT	\
 	assert(invlist); assert(start); assert(end)
-
-PERL_STATIC_INLINE UV	S_invlist_max(SV* const invlist)
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(1);
-#define PERL_ARGS_ASSERT_INVLIST_MAX	\
-	assert(invlist)
 
 PERL_STATIC_INLINE void	S_invlist_set_len(pTHX_ SV* const invlist, const UV len, const bool offset)
 			__attribute__nonnull__(pTHX_1);
