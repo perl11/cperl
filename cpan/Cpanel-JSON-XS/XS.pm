@@ -1,5 +1,5 @@
 package Cpanel::JSON::XS;
-our $VERSION = '3.0213';
+our $VERSION = '3.0217';
 
 =pod
 
@@ -114,6 +114,12 @@ B<Changes to JSON::XS>
   are preserved, but numbers with temporary strings which represent the same number
   are here treated as numbers, not strings. Cpanel::JSON::XS is a bit slower, but
   preserves numeric types better.
+
+- numbers ending with .0 stay numbers, are not converted to integers. [#63]
+  dual-vars which are represented as number not integer (42+"bar" != 5.8.9) 
+  are now encoded as number (=> 42.0) because internally it's now a NOK type.
+  However !!1 which is wrongly encoded in 5.8 as "1"/1.0 is still represented
+  as integer.
 
 - different handling of inf/nan. Default now to null, optionally with
   -DSTRINGIFY_INFNAN to "inf"/"nan". [#28, #32]

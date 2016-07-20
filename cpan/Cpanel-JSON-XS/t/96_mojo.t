@@ -41,6 +41,7 @@ is( $js->[1], 1,  'can decode Mojo true' );
 TODO: {
   # Note this is fragile. it depends on the internal representation of booleans.
   # It can also be ['0', '1']
-  is_deeply( $js, ['', 1], 'can decode Mojo booleans (fragile)' )
+  local $TODO = 'fragile';
+  is_deeply( $js, ['', 1], 'can decode Mojo booleans' )
     or diag( $mj, $js );
 }

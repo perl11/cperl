@@ -12626,6 +12626,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
     '5.022004c' => {
         delta_from => '5.022003c',
         changed => {
+            'Cpanel::JSON::XS'        => '3.0217',
             'B::C'                    => '1.54_07',
             'DynaLoader'              => '2.04c',
             'Socket' 		      => '2.021_02',

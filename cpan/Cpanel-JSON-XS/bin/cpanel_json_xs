@@ -50,11 +50,13 @@ C<fromformat> can be one of:
 
 =item eval - evaluate the given code as (non-utf-8) Perl, basically the reverse of "-t dump"
 
-=item yaml - YAML (requires the YAML module)
+=item yaml - loose YAML (requires YAML)
 
-=item yaml-xs - YAML (requires the YAML::XS module)
+=item yaml-tiny - loose YAML (requires YAML::Tiny or CPAN::Meta::YAML)
 
-=item yaml-syck - YAML (requires the YAML::Syck module)
+=item yaml-xs - strict YAML 1.2 (requires YAML::XS)
+
+=item yaml-syck - YAML (requires YAML::Syck)
 
 =item cbor - CBOR (via CBOR::XS)
 
@@ -95,11 +97,13 @@ C<toformat> can be one of:
 
 =item clzf - Compress::LZF format
 
-=item yaml - YAML
+=item yaml - loose YAML (requires YAML)
 
-=item yaml-xs - YAML::XS
+=item yaml-tiny - loose YAML (requires YAML::Tiny or CPAN::Meta::YAML)
 
-=item yaml-syck - YAML::Syck
+=item yaml-xs - strict YAML 1.2 (requires YAML::XS)
+
+=item yaml-syck - YAML (requires YAML::Syck)
 
 =item dump - Data::Dump
 
@@ -155,9 +159,18 @@ Print the tracker list inside a torrent file.
 
 Fetch the cpan-testers result summary C<Cpanel::JSON::XS> and pretty-print it.
 
+    cpanel_json_xs -f yaml-xs -t yaml-tiny <META.yml   >MYMETA.yml
+    cpanel_json_xs -f yaml-tiny -t yaml-xs <MYMETA.yml >XSMETA.yml
+    cpanel_json_xs -f yaml -t yaml <XSMETA.yml #BOOM!
+    Error: YAML_LOAD_ERR_BAD_MAP_ELEMENT
+
+Compare YAML en- and decoders, and see that YAML::XS generates unparsable YAML
+L<https://github.com/ingydotnet/yaml-libyaml-pm/issues/9>
+
 =head1 AUTHOR
 
 Copyright (C) 2008 Marc Lehmann <json@schmorp.de>
+Copyright (C) 2016 Cpanel Inc
 
 =cut
 
@@ -215,6 +228,7 @@ my %F = (
    "bencode"       => sub { require Convert::Bencode; Convert::Bencode::bdecode ($_) },
    "clzf"          => sub { require Compress::LZF; Compress::LZF::sthaw ($_) },
    "yaml"          => sub { require YAML; YAML::Load ($_) },
+   "yaml-tiny"     => sub { require CPAN::Meta::YAML; CPAN::Meta::YAML::Load ($_) },
    "yaml-xs"       => sub { require YAML::XS; YAML::XS::Load ($_) },
    "yaml-syck"     => sub { require YAML::Syck; YAML::Syck::Load ($_) },
    "cbor"          => sub { require CBOR::XS; CBOR::XS::decode_cbor ($_) },
@@ -243,6 +257,7 @@ my %T = (
    "bencode"       => sub { require Convert::Bencode; Convert::Bencode::bencode ($_) },
    "clzf"          => sub { require Compress::LZF; Compress::LZF::sfreeze_cr ($_) },
    "yaml"          => sub { require YAML; YAML::Dump ($_) },
+   "yaml-tiny"     => sub { require CPAN::Meta::YAML; CPAN::Meta::YAML::Dump ($_) },
    "yaml-xs"       => sub { require YAML::XS; YAML::XS::Dump ($_) },
    "yaml-syck"     => sub { require YAML::Syck; YAML::Syck::Dump ($_) },
    "dumper"        => sub {

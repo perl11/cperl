@@ -1,4 +1,4 @@
-BEGIN { $| = 1; print "1..84\n"; }
+BEGIN { $| = 1; print "1..85\n"; }
 use utf8;
 use Cpanel::JSON::XS;
 
@@ -50,7 +50,7 @@ ok ('[1,2,3,4]' eq encode_json decode_json ('[1,2, 3,4]'));
 ok ('[{},[],[],{}]' eq encode_json decode_json ('[{},[], [ ] ,{ }]'));
 ok ('[{"1":[5]}]' eq encode_json [{1 => [5]}]);
 ok ('{"1":2,"3":4}' eq Cpanel::JSON::XS->new->canonical (1)->encode (decode_json '{ "1" : 2, "3" : 4 }'));
-ok ('{"1":2,"3":1.2}' eq Cpanel::JSON::XS->new->canonical (1)->encode (decode_json '{ "1" : 2, "3" : 1.2 }'));
+ok ('{"1":2,"3":1.2}' eq Cpanel::JSON::XS->new->canonical (1)->encode (decode_json '{ "1" : 2, "3" : 1.2 }')); #24
 
 ok ('[true]'  eq encode_json [Cpanel::JSON::XS::true]);
 ok ('[false]' eq encode_json [Cpanel::JSON::XS::false]);
@@ -64,6 +64,8 @@ for $v (1, 2, 3, 5, -1, -2, -3, -4, 100, 1000, 10000, -999, -88, -7, 7, 88, 999,
    ok ($v == ((decode_json "[$v]")->[0]));
    ok ($v == ((decode_json encode_json [$v])->[0]));
 }
+
+ok ('[1.0]' eq encode_json [1.0]);
 
 ok (30123 == ((decode_json encode_json [30123])->[0]));
 ok (32123 == ((decode_json encode_json [32123])->[0]));

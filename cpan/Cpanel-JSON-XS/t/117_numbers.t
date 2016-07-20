@@ -53,8 +53,15 @@ is encode_json({test => [$num, $str]}), '{"test":[3.21,"3.21"]}', 'numeric dualv
 
 $str = '0 but true';
 $num = 1 + $str;
-is encode_json({test => [$num, $str]}), '{"test":[1,"0 but true"]}', 'int/string dualvar';
+# 5.6 is broken, converts $num (IV+PV) to pure NV
+my $resnum = ($] < 5.007) ? '1.0' : '1';
+is encode_json({test => [$num, $str]}), qq|{"test":[$resnum,"0 but true"]}|,
+  'int/string dualvar';
 
 $str = 'bar';
 { no warnings "numeric"; $num = 23 + $str }
-is encode_json({test => [$num, $str]}), '{"test":[23,"bar"]}', , 'int/string dualvar';
+# 5.6 and >5.10 is also arguably broken:
+# converts $num (IV+PV) to pure NOK+POK, not IOK+POK.
+$resnum = ($] > 5.007 && $] <= 5.010) ? '23' : '23.0';
+is encode_json({test => [$num, $str]}), qq|{"test":[$resnum,"bar"]}|,
+  'int/string dualvar';
