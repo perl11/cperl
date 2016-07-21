@@ -86,6 +86,7 @@ Perl_new_stackinfo(pTHX_ I32 stitems, I32 cxitems)
     return si;
 }
 
+__attribute__used__
 I32
 Perl_cxinc(pTHX)
 {
@@ -98,6 +99,7 @@ Perl_cxinc(pTHX)
     return cxstack_ix + 1;
 }
 
+__attribute__used__
 void
 Perl_push_scope(pTHX)
 {
@@ -115,6 +117,7 @@ Perl_push_scope(pTHX)
 
 }
 
+__attribute__used__
 void
 Perl_pop_scope(pTHX)
 {
@@ -122,6 +125,7 @@ Perl_pop_scope(pTHX)
     LEAVE_SCOPE(oldsave);
 }
 
+__attribute__used__
 I32 *
 Perl_markstack_grow(pTHX)
 {
@@ -136,6 +140,7 @@ Perl_markstack_grow(pTHX)
     return PL_markstack_ptr;
 }
 
+__attribute__used__
 void
 Perl_savestack_grow(pTHX)
 {
@@ -145,6 +150,7 @@ Perl_savestack_grow(pTHX)
     Renew(PL_savestack, PL_savestack_max + SS_MAXPUSH, ANY);
 }
 
+__attribute__used__
 void
 Perl_savestack_grow_cnt(pTHX_ I32 need)
 {
@@ -187,6 +193,7 @@ Perl_tmps_grow_p(pTHX_ SSize_t ix)
 }
 
 
+__attribute__used__
 void
 Perl_free_tmps(pTHX)
 {
@@ -224,6 +231,7 @@ S_save_scalar_at(pTHX_ SV **sptr, const U32 flags)
     return sv;
 }
 
+__attribute__used__
 void
 Perl_save_pushptrptr(pTHX_ void *const ptr1, void *const ptr2, const int type)
 {

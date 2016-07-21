@@ -4298,6 +4298,7 @@ Fill C<sv> with current working directory
  *     because you might chdir out of a directory that you can't chdir
  *     back into. */
 
+__attribute__used__
 int
 Perl_getcwd_sv(pTHX_ SV *sv)
 {
@@ -5747,6 +5748,7 @@ Perl_my_cxt_init(pTHX_ const char *my_cxt_key, size_t size)
    'file' is the source filename of the caller.
 */
 
+__attribute__used__
 I32
 Perl_xs_handshake(const U32 key, void * v_my_perl, const char * file, ...)
 {

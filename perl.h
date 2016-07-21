@@ -3907,7 +3907,7 @@ typedef        struct crypt_data {     /* straight from /usr/include/crypt.h */
 #  ifdef __cplusplus
 #    define PERL_CALLCONV extern "C"
 #  else
-#    define PERL_CALLCONV
+#    define PERL_CALLCONV __attribute__used__
 #  endif
 #endif
 #ifndef PERL_CALLCONV_NO_RET
@@ -4978,6 +4978,7 @@ EXTCONST char PL_uudmap[256] =
 #    include "uudmap.h"
 #  endif
 ;
+__attribute__used__
 EXTCONST char PL_bitcount[256] =
 #  ifdef PERL_MICRO
 #    include "ubitcount.h"
