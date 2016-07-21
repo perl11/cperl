@@ -419,8 +419,9 @@ use File::Glob qw(:case);
     },
 
     'Data::Dumper' => {
-        'DISTRIBUTION' => 'SMUELLER/Data-Dumper-2.154.tar.gz',
+        'DISTRIBUTION' => 'SMUELLER/Data-Dumper-2.161.tar.gz',
         'FILES'        => q[dist/Data-Dumper],
+        'CUSTOMIZED'   => [ qw( Dumper.xs ) ],
     },
 
     'DB_File' => {

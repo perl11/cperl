@@ -7,6 +7,7 @@ CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf
 CPAN::Meta::YAML cpan/CPAN-Meta-YAML/t/lib/TestUtils.pm 89535dc9f122a77a8320df27e5929aa574196753
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t aa8d82945028d74b2c0ee8feba7bf127930ffd8a
 Config::Perl::V cpan/Config-Perl-V/V.pm 30d08b7163f6c0ac6cc4e85a687b2186e1e3f277
+Data::Dumper dist/Data-Dumper/Dumper.xs e1dfe5a466942fe345edf46b1bf0a704ea83a569
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
 Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL 7f81aa41bdf306a943ffa17d5b1dbf6717151ccf
 Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod 197e08c2c2cc300d8166da35738a1a51ebdb960a
@@ -28,7 +29,6 @@ Encode cpan/Encode/bin/enc2xs e5d9cb809558bbc579f3c56f86f937bceccf144b
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 3548b0bb262b8d3a5345549ae5e43d1b3c4fb8e4
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t c01ba6e7a872c8a7fc26e277e0dea109616a5e56
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm ee0d36d1a3d0cc3e4201766fff6519edf7e99d1a
-ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm ac30cdbf14849c0b6b7efe0b8dfad80eccc0d44f
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 313ac548f069f321c940085bfea7e3abcfbe1c06
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm ac22b20036c5ad98510b98a2d1223cf119ef796a
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm 96ef2f03620f8b1a878cea552e75dbf579d5330a
@@ -39,7 +39,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fca
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 52f5520bc957c306776810d2c6a771445e396fb1
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 18ccfab2ccecdf5f7da0573e23e80db619d6dc74
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm a2c53b5e8f952d6710dc47ace2348be9526cd34d
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm fc4d5eea531db805a9ff6a46af3729a2663e61df
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938

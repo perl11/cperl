@@ -12629,6 +12629,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Cpanel::JSON::XS'        => '3.0217',
             'Config::Perl::V'         => '0.26_01',
             'B::C'                    => '1.54_07',
+            'Data::Dumper'            => '2.162',
             'Devel::PPPort'           => '3.33_02',
             'DynaLoader'              => '2.04c',
             'Socket' 		      => '2.021_02',
