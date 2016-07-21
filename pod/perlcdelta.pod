@@ -136,10 +136,6 @@ Silence some CC warnings, add changelog.
 
 Silence some CC warnings, esp. on 32bit.
 
-=item B-C 1.54_07
-
-Silence some CC warnings, esp. on 32bit.
-
 =item Config 6.21
 
 Improvements from cperl-5.24:
@@ -187,12 +183,6 @@ Improve C<d_u32align> diagnostic message
 
 =head1 Utility Changes
 
-XXX Changes to installed programs such as F<perlbug> and F<xsubpp> go here.
-Most of these are built within the directory F<utils>.
-
-[ List utility changes as a =head2 entry for each utility and =item
-entries for each change. ]
-
 =head2 F<installperl>
 
 =over 4
@@ -205,13 +195,6 @@ Fixed regression from 5.22.1c for windows.
 
 =head1 Configuration and Compilation
 
-XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
-go here.  Any other changes to the Perl build process should be listed here.
-However, any platform-specific changes should be listed in the
-L</Platform Support> section, instead.
-
-[ List changes as a =item entry ].
-
 =over 4
 
 =item *
@@ -219,106 +202,136 @@ L</Platform Support> section, instead.
 Added a C<make archclean> target for POSIX platforms, which does not require
 a new C<Configure> call.
 
-=back
+=item *
 
-=head1 Platform Support
-
-XXX Any changes to platform support should be listed in the sections below.
-
-[ Within the sections, list each platform as a =item entry with specific
-changes as paragraphs below it. ]
-
-=head2 Platform-Specific Notes
-
-XXX List any changes for specific platforms.  This could include configuration
-and compilation changes or changes in portability/compatibility.  However,
-changes within modules for platforms should generally be listed in the
-L</Modules and Pragmata> section.
-
-=over 4
-
-=item XXX-some-platform
-
-XXX
+Fixed a couple of quadmath detection issues.
 
 =back
 
 =head1 Internal Changes
 
-XXX Changes which affect the interface available to C<XS> code go here.  Other
+Changes which affect the interface available to C<XS> code go here.  Other
 significant internal changes for future core maintainers should be noted as
 well.
-
-[ List each change as a =item entry ]
 
 =over 4
 
 =item *
 
-XXX
+SvREADONLY_off(sv) is only usable as statement, not as expression anymore.
+It broke Sun C 5.12, in ByteLoader.
+See L<[cperl #183]|https://github.com/perl11/cperl/issues/183>.
 
 =back
 
 =head1 Selected Bug Fixes
 
-XXX Important bug fixes in the core language are summarized here.  Bug fixes in
-files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
-
-[ List each fix as a =item entry ]
-
 =over 4
 
-=item *
+=item handle method calls on protected stashes
 
-XXX
+L<[cperl #171]|https://github.com/perl11/cperl/issues/171>
 
-=back
+Known bug upstream, not fixed there. This problem appears more often
+with cperl with its protected coretypes than upstream.
 
-=head1 Known Problems
+=item Do not crash when inserting a non-stash into a stash
 
-XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
-tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
-platform specific bugs also go here.
+Also do not treat C<%:> as a stash.
 
-[ List each fix as a =item entry ]
+L<RT#128238|https://rt.perl.org/Public/Bug/Display.html?id=128238>
 
-=over 4
+Fedora Patches 37, 36.
 
-=item *
+=item fedora: Fix precedence in hv_ename_delete
 
-XXX
+L<RT#128086|https://rt.perl.org/Public/Bug/Display.html?id=128086>
 
-=back
+Fedora Patch35
 
-=head1 Errata From Previous Releases
+=item fedora: Do not use unitialized memory in $h{\const} warnings
 
-=over 4
+L<RT#128189|https://rt.perl.org/Public/Bug/Display.html?id=128189>
 
-=item *
+Fedora Patch34
 
-XXX Add anything here that we forgot to add, or were mistaken about, in
-the perldelta of a previous release.
+=item fedora: Do not mangle errno from failed socket calls
+
+L<RT#128316|https://rt.perl.org/Public/Bug/Display.html?id=128316>
+
+Fedora Patch32
+
+=item fedora: Backport memory leak when compiling a regular expression with a POSIX class
+
+E.g. when C<use re 'strict';> is used.
+
+L<RT#128313|https://rt.perl.org/Public/Bug/Display.html?id=128313>
+
+Fedora Patch31
+
+=item suse: fix regexp backref overflows
+
+With many backref groups (>I32)
+
+=item suse: perl-saverecontext.diff RT#76538
+
+Handle get magic with globs in the regex compiler.
+Correctly restore context, esp. when loading unicode swashes.
+Reported at 5.12, patched for suse 5.14, still ignored with 5.24.
+
+=item locale race condition when switching to C for error messages
+
+A race condition which occurred when computing C<"$!"> with threads
+activated has been fixed.  This showed up only on Darwin platforms.
+A related problem on Cygwin platforms involving UTF-8 strings has also
+been fixed.
+See L<RT #127708|https://rt.perl.org/Public/Bug/Display.html?id=127708>
+
+=item Fix crash with @a &.= etc.
+
+See L<RT #128204|https://rt.perl.org/Public/Bug/Display.html?id=128204>
 
 =item Fix PERLIO=stdio dup on empty filehandle
 
 See L<RT #63244|https://rt.perl.org/Public/Bug/Display.html?id=63244>
 or L<http://bugs.debian.org/164615>, crashes from 5.8.8 to blead.
 
+C<env PERLIO=stdio perl -e'open(F, "<&STDOUT")' 1</dev/null>
+
+=item Fix crash from empty curcop in gp_free/ckWARN_d
+
+See L<RT #128597|https://rt.perl.org/Public/Bug/Display.html?id=128597>.
+
+C<< open my $fh, ">", \$buf; my $sub = eval q|sub {die}|; $sub->()' >>
+crashed in 5.22 to 5.24.1.
+
+=item Fix crash when vivifying stub in deleted pkg
+
+5.18 which added newSTUB, did not take into account
+that a GV may have a null GvSTASH pointer, if its stash has been
+freed, so this crashed.
+See L<RT #128532|https://rt.perl.org/Public/Bug/Display.html?id=128532>.
+
+C<< delete $My::{"Foo::"}; \&My::Foo::foo >>
+crashed from 5.18 to 5.24.1.
+
 =back
 
 =head1 Acknowledgements
 
-cperl 5.22.4 represents approximately 1 week of development since cperl 5.22.3
-and contains approximately 1,300 lines of changes across 55 files from 1
-author.
+cperl 5.22.4 represents approximately 2 months of development since cperl 5.22.3
+and contains approximately 900,000 lines of changes across 570 files from 13
+authors.
 
 Excluding auto-generated files, documentation and release tools, there were
-approximately 86 lines of changes to 12 .pm, .t, .c and .h files.
+approximately 7,900 lines of changes to 120 .pm, .t, .c and .h files.
 
 The following people are known to have contributed the improvements
 that became cperl 5.22.4:
 
-Reini Urban.
+Reini Urban, Father Chrysostomos, Karl Williamson, David Mitchell, Daniel
+Dragan, Tony Cook, Lukas Mai, Niko Tyni, H.Merijn Brand, Hugo van der Sanden,
+Dagfinn Ilmari Mannsåker, Aaron Crane, Dan Collins.
 
 The list above is almost certainly incomplete as it is automatically generated
 from version control history. In particular, it does not include the names of
