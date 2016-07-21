@@ -35,4 +35,4 @@ SKIP: {
     is (Config::compile_date (), undef, "Successfully overriden compile_date");
     is_deeply (Config::Perl::V::myconfig, $conf,
 	"perl -V parsing code produces same result as the Config module");
-    }
+}

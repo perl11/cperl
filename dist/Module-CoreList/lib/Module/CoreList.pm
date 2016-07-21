@@ -302,7 +302,7 @@ sub changes_between {
     5.025001 => '2016-05-20',
     5.025002 => '????-??-??',
     '5.022003c' => '2016-06-03',
-    '5.022004c' => '2016-07-28',
+    '5.022004c' => '2016-07-27',
   );
 
 sub version_sort {
@@ -12627,6 +12627,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         delta_from => '5.022003c',
         changed => {
             'Cpanel::JSON::XS'        => '3.0217',
+            'Config::Perl::V'         => '0.26_01',
             'B::C'                    => '1.54_07',
             'DynaLoader'              => '2.04c',
             'Socket' 		      => '2.021_02',
