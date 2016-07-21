@@ -61,6 +61,32 @@ characters. >>
 
 =over 4
 
+=item B::C 1.54_08
+
+Many Windows and cygwin fixes, for the old MSVC compiler, and
+PERL_CORE test integration. Use many new core exports needed for
+windows.
+
+Update perlcc to 2.21, handle multiple -I and -L arguments.
+
+Handle cperl OP_SIGNATURE.
+
+Fix refcount of cop hints hashes with 5.22-nt
+L<[cperl #220]|https://github.com/perl11/cperl/issues/220>
+
+Better UVX L and U suffices.
+
+Handle shared IV and UV xpv structs,
+  fixed 5.24 specific assertions, with shared xpviv/xpvuv.
+  fixed wrong 32 bit ptr offset. re-enabled all 32bit tests.
+
+Handle changed subdirs-test target with newer EUMM.
+
+=item B::Deparse 1.37_01c
+
+Add more cperl-specific ops:
+C<aelem*_u>, C<u_{add,subtract,multiply}>, C<{i,n,s}_aelem{,_u}>
+
 =item Config::Perl::V 0.26_01
 
 cperl patches.

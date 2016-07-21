@@ -133,7 +133,7 @@ $b = quotemeta <<'EOF';
 BEGIN { $^I = ".bak"; }
 BEGIN { $^W = 1; }
 BEGIN { $/ = "\n"; $\ = "\n"; }
-LINE: while (defined($_ = <ARGV>)) {
+LINE: while (defined($_ = readline ARGV)) {
     chomp $_;
     our(@F) = split(' ', $_, 0);
     '???';
@@ -639,12 +639,27 @@ local our($rhu, $barb);
 ####
 # <>
 my $foo;
-$_ .= <ARGV> . <$foo>;
+$_ .= <> . <ARGV> . <$foo>;
+<$foo>;
+<${foo}>;
+<$ foo>;
+>>>>
+my $foo;
+$_ .= readline(ARGV) . readline(ARGV) . readline($foo);
+readline $foo;
+glob $foo;
+glob $foo;
 ####
 # readline
 readline 'FH';
 readline *$_;
+readline *{$_};
+readline ${"a"};
+>>>>
+readline 'FH';
+readline *$_;
 readline *{$_;};
+readline ${'a';};
 ####
 # <<>>
 $_ = <<>>;
@@ -1318,6 +1333,62 @@ print /a/u, s/b/c/u;
     print /a/d, s/b/c/d;
 }
 ####
+# all the flags (qr//)
+$_ = qr/X/m;
+$_ = qr/X/s;
+$_ = qr/X/i;
+$_ = qr/X/x;
+$_ = qr/X/p;
+$_ = qr/X/o;
+$_ = qr/X/u;
+$_ = qr/X/a;
+$_ = qr/X/l;
+$_ = qr/X/n;
+####
+use feature 'unicode_strings';
+$_ = qr/X/d;
+####
+# all the flags (m//)
+/X/m;
+/X/s;
+/X/i;
+/X/x;
+/X/p;
+/X/o;
+/X/u;
+/X/a;
+/X/l;
+/X/n;
+/X/g;
+/X/cg;
+####
+use feature 'unicode_strings';
+/X/d;
+####
+# all the flags (s///)
+s/X//m;
+s/X//s;
+s/X//i;
+s/X//x;
+s/X//p;
+s/X//o;
+s/X//u;
+s/X//a;
+s/X//l;
+s/X//n;
+s/X//g;
+s/X/'';/e;
+s/X//r;
+####
+use feature 'unicode_strings';
+s/X//d;
+####
+# all the flags (tr///)
+tr/X/Y/c;
+tr/X//d;
+tr/X//s;
+tr/X//r;
+####
 # [perl #119807] s//\(3)/ge should not warn when deparsed (\3 warns)
 s/foo/\(3);/eg;
 ####
@@ -1374,8 +1445,13 @@ tr/a/b/r + $a =~ tr/p/q/r;
 ####
 # [perl #90898]
 <a,>;
+glob 'a,';
+>>>>
+glob 'a,';
+glob 'a,';
 ####
 # [perl #91008]
+# SKIP ?$] >= 5.023 && "autoderef deleted in this Perl version"
 # CONTEXT no warnings 'experimental::autoderef';
 each $@;
 keys $~;
@@ -1882,12 +1958,12 @@ my sub f {}
 print f();
 >>>>
 use feature 'lexical_subs';
-BEGIN {${^WARNING_BITS} = "\x54\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x54\x55\x55\x55\x55\x01"}
+BEGIN {${^WARNING_BITS} = "\x54\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x54\x55\x55\x55\x55"}
 my sub f {
-    BEGIN {${^WARNING_BITS} = "\x54\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x54\x55\x55\x55\x01"}
+    BEGIN {${^WARNING_BITS} = "\x54\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x54\x55\x55\x55"}
     
 }
-BEGIN {${^WARNING_BITS} = "\x54\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x54\x55\x55\x55\x01"}
+BEGIN {${^WARNING_BITS} = "\x54\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x54\x55\x55\x55"}
 print f();
 ####
 # SKIP ?$] < 5.017004 && "lexical subs not implemented on this Perl version"
@@ -1898,13 +1974,13 @@ state sub f {}
 print f();
 >>>>
 use feature 'lexical_subs';
-BEGIN {${^WARNING_BITS} = "\x54\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x54\x55\x55\x55\x55\x01"}
+BEGIN {${^WARNING_BITS} = "\x54\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x54\x55\x55\x55\x55"}
 CORE::state sub f {
-    BEGIN {${^WARNING_BITS} = "\x54\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x54\x55\x55\x55\x01"}
+    BEGIN {${^WARNING_BITS} = "\x54\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x54\x55\x55\x55"}
     use feature 'state';
     
 }
-BEGIN {${^WARNING_BITS} = "\x54\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x54\x55\x55\x55\x01"}
+BEGIN {${^WARNING_BITS} = "\x54\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x55\x54\x55\x55\x55"}
 use feature 'state';
 print f();
 ####
@@ -2423,3 +2499,94 @@ $_ ^= $_;
 $_ |.= $_;
 $_ &.= $_;
 $_ ^.= $_;
+####
+# Should really use 'no warnings "experimental::signatures"',
+# but it doesn't yet deparse correctly.
+# I'm using anon subs because I can't seem to deparse named subs - DAPM
+# Signature
+no warnings;
+use feature 'signatures';
+my $x;
+sub ($a, $, $b = $glo::bal, $c = $a, $d = 'foo', $e = -37, $f = 0, $g = 1, $h = undef, $i = $a + 1, $j = /foo/, @) {
+    $x++;
+}
+;
+$x++;
+####
+# Signature and prototype
+no warnings;
+use feature 'signatures';
+my $x;
+sub ($a, $b) : prototype($$) {
+    $x++;
+}
+;
+$x++;
+####
+# Signature and prototype and attrs
+no warnings;
+use feature 'signatures';
+my $x;
+sub ($a, $b) : prototype($$) lvalue {
+    $x++;
+}
+;
+$x++;
+####
+# Signature and attrs
+no warnings;
+use feature 'signatures';
+my $x;
+sub ($a, $b) : lvalue method {
+    $x++;
+}
+;
+$x++;
+####
+# named array slurp, null body
+no warnings;
+use feature 'signatures';
+sub (@a) {
+    ;
+}
+;
+####
+# named hash slurp
+no warnings;
+use feature 'signatures';
+sub ($key, %h) {
+    $h{$key};
+}
+;
+####
+# anon hash slurp
+no warnings;
+use feature 'signatures';
+sub ($a, %) {
+    $a;
+}
+;
+####
+# parenthesised default arg
+no warnings;
+use feature 'signatures';
+sub ($a, $b = (/foo/), $c = 1) {
+    $a + $b + $c;
+}
+;
+####
+# parenthesised default arg with TARGMY
+no warnings;
+use feature 'signatures';
+sub ($a, $b = ($a + 1), $c = 1) {
+    $a + $b + $c;
+}
+;
+####
+# empty default
+no warnings;
+use feature 'signatures';
+sub ($a, $ = ) {
+    $a;
+}
+;
