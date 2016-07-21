@@ -12,13 +12,13 @@ Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL 7f81aa41bdf306a943ffa17d5b1dbf6717
 Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod 197e08c2c2cc300d8166da35738a1a51ebdb960a
 Devel::NYTProf cpan/Devel-NYTProf/t/00-load.t e7821564000c7227a0b7deafdad0740b8327b39f
 Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm bc6efbd91bce9b1eae3c341c482dde0ac4c990c5
-Devel::PPPort cpan/Devel-PPPort/parts/apidoc.fnc 3faecacac4bb093ca066af2b892aaa56fc4d31b9
-Devel::PPPort cpan/Devel-PPPort/parts/inc/gv 54a8bc4263e46774bbec94486f90f6be220ee9bb
+Devel::PPPort cpan/Devel-PPPort/parts/apidoc.fnc 5bd7e8faec56c6210a21647873eae922c4d48659
+Devel::PPPort cpan/Devel-PPPort/parts/inc/gv 4b6916d3d5c64a605b5b5f1727ac629d14372a05
 Devel::PPPort cpan/Devel-PPPort/parts/inc/HvNAME 5fa336117cbb7f06b8d442ed7bc78ffe34a0ab1f
 Devel::PPPort cpan/Devel-PPPort/parts/todo/5013007 0446df4a31dcd58b8e27ab9e810711f0e4840fee
 Devel::PPPort cpan/Devel-PPPort/parts/todo/5015004 4bdb7b2545380ade42e22dbb097f7fbf07737393
 Devel::PPPort cpan/Devel-PPPort/ppport_h.PL 3aa0b958adf67a9b9385bf2b5b89ecf8cdd391c7
-Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL 967796c2471473a14441503ad722d6367bb3ebf2
+Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL 523917126245baaa78653c5f055c56f4cb298218
 Devel::PPPort cpan/Devel-PPPort/PPPort_xs.PL 034cce281a0017fe0ba05d9060f34a8c65781553
 Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
 Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
@@ -37,7 +37,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/Mkbootstrap.t 2f88adc65c55c7bd2e23
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fcad251b12d8b2412462b3
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm bd0b1dcdfa5290202aa682d3512a22d6e58527ea
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 18ccfab2ccecdf5f7da0573e23e80db619d6dc74
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm fc4d5eea531db805a9ff6a46af3729a2663e61df
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938

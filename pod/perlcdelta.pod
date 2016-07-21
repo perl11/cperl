@@ -84,6 +84,14 @@ Preserve numbers as numbers, enforce an added C<.0> (xdg).
 Also note that 42+"bar" will result >=5.10 in numbers not integers,
 => 42.0
 
+=item Devel::PPPort 3.33_02
+
+Support the latest versions.
+
+cperl specific:
+Minor -Dfortify_inc fixes, kept our Hv macros,
+fix __attribute__((warn_unused_result)) on windows.
+
 =item Socket 2.021_02
 
 Silence some CC warnings
