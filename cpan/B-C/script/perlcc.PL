@@ -63,6 +63,7 @@ print OUT <<'!NO!SUBS!';
 # Version 2.18, Reini Urban, 2014-05-28
 # Version 2.19, Reini Urban, 2014-07-09
 # Version 2.20, Reini Urban, 2014-07-23
+# Version 2.21, Reini Urban, 2016-06-12
 
 use strict;
 use warnings;
@@ -77,7 +78,7 @@ use Cwd ();
 use Pod::Usage;
 # Time::HiRes does not work with 5.6
 # use Time::HiRes qw(gettimeofday tv_interval);
-our $VERSION = 2.20;
+our $VERSION = 2.21;
 $| = 1;
 eval { require B::C::Config; };
 
@@ -90,6 +91,7 @@ use subs qw{
     gettimeofday tv_interval vsystem
 };
 sub opt(*); # imal quoting
+sub is_winlike();
 sub is_win32();
 sub is_msvc();
 
@@ -240,8 +242,8 @@ sub parse_argv {
     }
     $Options->{spawn} = 1 unless $^O eq 'MSWin32';
     Getopt::Long::GetOptions( $Options,
-        'L=s',          # lib directory
-        'I=s',          # include directories (FOR C, NOT FOR PERL)
+        'L=s@',         # lib directories
+        'I=s@',         # include directories (FOR C, NOT FOR PERL)
         'o=s',          # Output executable
         'v:i',          # Verbosity level
         'e=s',          # One-liner
@@ -326,6 +328,9 @@ sub parse_argv {
 
     if (opt('o')) {
         $Output = opt('o');
+        if (!opt('B') and is_winlike() and $Output !~ /\.[A-Za-z0-9]{3}$/) {
+            $Output .= '.exe';
+        }
     } elsif (opt('B')) {
         if (opt('e')) {
             my $suffix = '.plc';
@@ -337,11 +342,11 @@ sub parse_argv {
     } else {
         $Output = opt('e') ? 'a.out' : $Input;
         $Output =~ s/\.(p[lm]|t)$//;
-        if (is_win32() or $^O eq 'cygwin') {
+        if (is_winlike()) {
             if ($Output eq 'a.out') {
                 $Output = 'a.exe';
             } else {
-                $Output .= 'exe';
+                $Output .= '.exe';
             }
         }
     }
@@ -461,13 +466,13 @@ sub compile_cstyle {
         $staticxs = "";
     } elsif (opt('o')) {
         $cfile = opt('o').".c";
-        if ((is_win32() or $^O eq 'cygwin') and $Output =~ /\.exe.c$/) {
+        if (is_winlike() and $Output =~ /\.exe.c$/) {
           $cfile =~ s/\.exe\.c$/.c/,
         }
     } elsif (opt('S') || opt('c')) { # We need to keep it
         if (opt('e')) {
             $cfile = $Output;
-            if ((is_win32() or $^O eq 'cygwin') and $Output =~ /\.exe$/) {
+            if (is_winlike() and $Output =~ /\.exe$/) {
                 $cfile =~ s/\.exe$//,
             }
             $cfile .= '.c';
@@ -488,7 +493,7 @@ sub compile_cstyle {
     vprint 3, "Writing C on $cfile" unless opt('check');
 
     my $max_line_len = '';
-    if ($^O eq 'MSWin32' && $Config{cc} =~ /^cl/i) {
+    if (is_msvc) {
         $max_line_len = '-l2000,';
     }
 
@@ -583,16 +588,35 @@ sub compile_cstyle {
 sub cc_harness_msvc {
     my ($cfile, $stash, $extra_libs) = @_;
     use ExtUtils::Embed ();
-    my $obj = "${Output}.obj";
-    my $compile = ExtUtils::Embed::ccopts." -c -Fo$obj $cfile ";
-    my $link = "-out:$Output $obj";
+    my $obj = $Output;
+    $obj =~ s/\.exe$/.obj/;
+    $obj .= ".obj" unless $obj =~ /\.obj$/;
+    my $compile = "";
+    $compile = '-I"..\..\lib\CORE" ' if $ENV{PERL_CORE};
+    $compile .= ExtUtils::Embed::ccopts." -c -Fo$obj $cfile ";
     $compile .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;
-    $compile .= " -I".$_ for split /\s+/, opt('I');
-    $compile .= " -DSTATICXS" if opt('staticxs');
+    my $link = "-out:$Output $obj";
+    my $incdir = opt('I'); # use mult. I opts for paths with spaces, and \ deps.
+    if ($incdir) {
+        if (ref $incdir eq 'ARRAY') { # -I uses now mult.
+            $compile .= ' -I"'.$_.'"' for @$incdir;
+        } else {
+            $compile .= ' -I"'.$incdir.'"';
+        }
+    }
+    $compile .= ' -DSTATICXS' if opt('staticxs');
     $compile .= " ".opt('Wc') if opt('Wc');
 
-    $link .= " -libpath:".$_ for split /\s+/, opt('L');
+    $link .= ' -libpath:"..\..\lib\CORE"' if $ENV{PERL_CORE};
+    my $libdir = opt('L');
+    if ($libdir) {
+        if (ref $libdir eq 'ARRAY') {
+            $link .= ' -L"'.$_.'"' for @$libdir;
+        } else {
+            $link .= ' -L"'.$libdir.'"';
+        }
+    }
     # TODO: -shared,-static,-sharedxs
     if ($stash) {
         my @mods = split /,?-?u/, $stash; # XXX -U stashes
@@ -638,26 +662,48 @@ sub cc_harness_msvc {
     $link .= " kernel32.lib msvcrt.lib";
     $link .= $B::C::Config::extra_libs;
     vprint 3, "Calling $Config{cc} $compile";
-    vsystem("$Config{cc} $compile");
+    if (!opt('dryrun')) {
+        my @output = split /\n/, `$Config{cc} $compile`;
+        @output = grep {$_ ne $cfile} @output;
+        print STDERR join("\n", @output);
+    }
     vprint 3, "Calling $Config{ld} $link";
-    vsystem("$Config{ld} $link");
+    if (!opt('dryrun')) {
+        my @output = split /\n/, `$Config{ld} $link`;
+        @output = grep {!/(Creating library|Generating code|Finished generating code)/} @output;
+        print STDERR join("\n", @output);
+    }
 }
 
 sub cc_harness {
     my ($cfile, $stash, $extra_libs) = @_;
     use ExtUtils::Embed ();
-    my $command = ExtUtils::Embed::ccopts." -o $Output $cfile ";
+    my $command = ExtUtils::Embed::ccopts." -o \"$Output\" \"$cfile\" ";
     if ($ENV{PERL_CORE}) {
 !NO!SUBS!
 print OUT <<"!EXPANDED!";
-      \$command = "\$Config{ccflags} -I$srcdir -L$srcdir -o \$Output \$cfile ";
+      \$command = "\$Config{ccflags} -I\\\"$srcdir\\\" -L\\\"$srcdir\\\" -o \\\"\$Output\\\" \\\"\$cfile\\\" ";
 !EXPANDED!
 print OUT <<'!NO!SUBS!';
     }
     $command .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
     $command .= $B::C::Config::extra_cflags if $B::C::Config::extra_cflags;
-    $command .= " -I".$_ for split /\s+/, opt('I');
-    $command .= " -L".$_ for split /\s+/, opt('L');
+    my $incdir = opt('I'); # use mult. I opts for paths with spaces, and \ deps.
+    if ($incdir) {
+        if (ref $incdir eq 'ARRAY') {
+            $command .= ' -I"'.$_.'"' for @$incdir;
+        } else {
+            $command .= ' -I"'.$incdir.'"';
+        }
+    }
+    my $libopt = opt('L');
+    if ($libopt) {
+        if (ref $libopt eq 'ARRAY') {
+            $command .= ' -L"'.$_.'"' for @$libopt;
+        } else {
+            $command .= ' -L"'.$libopt.'"';
+        }
+    }
     $command .= " -DSTATICXS" if opt('staticxs');
     $command .= " ".opt('Wc') if opt('Wc');
     my $ccflags = $command;
@@ -682,7 +728,7 @@ print OUT <<'!NO!SUBS!';
         $ldflags =~ s/-fstack-protector\b// if $extra_libs;
     }
     # another ldopts bug: ensure Win32CORE gets added, before -lperl
-    if (is_win32() or $^O eq 'cygwin') {
+    if (is_winlike()) {
         if (index($ldopts, "Win32CORE") < 0) {
            my $archdir = $ENV{PERL_CORE} ? "../.." : $Config{archlib};
            my $win32core = "-L$archdir/lib/auto/Win32CORE -lWin32CORE";
@@ -698,7 +744,7 @@ print OUT <<'!NO!SUBS!';
     }
     my ($libperl, $libdir, $coredir) = ($Config{libperl});
     if ($ENV{PERL_CORE}) {
-        $libdir = $coredir = "../..";
+        $libdir = $coredir = "../.."; # not includedir, which is ../../lib/CORE on windows
     } else {
         $libdir  = $Config{prefix} . "/lib";
         $coredir = $ENV{PERL_SRC} || $Config{archlib}."/CORE";
@@ -771,11 +817,17 @@ sub yclept {
     my $command = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
     # DWIM the -I to be Perl, not C, include directories.
     if (opt('I') && $Backend eq "Bytecode") {
-        for (split /\s+/, opt('I')) {
-            if (-d $_) {
-                push @INC, $_;
-            } else {
-                warn "$0: Include directory $_ not found, skipping\n";
+        my $incdir = opt('I');
+        if ($incdir) {
+            if (ref $incdir ne 'ARRAY') {
+                $incdir = ($incdir);
+            }
+            for (@$incdir) {
+                if (-d $_) {
+                    push @INC, $_;
+                } else {
+                    warn "$0: Include directory $_ not found, skipping\n";
+                }
             }
         }
     }
@@ -861,7 +913,7 @@ sub sanity_check {
             _die("Compiling a.out is probably not what you want to do.\n");
             # You fully deserve what you get now. No you *don't*. typos happen.
         } else {
-            my $suffix = (is_win32() or $^O eq 'cygwin') ? '.exe' : '';
+            my $suffix = is_winlike() ? '.exe' : '';
             (undef, $Output) = tempfile("plcXXXXX", SUFFIX => $suffix);
             warn "$0: Will not write output on top of input file, ",
                 "compiling to $Output instead\n";
@@ -1032,7 +1084,8 @@ sub interruptrun {
     return($text);
 }
 
-sub is_win32() { $^O =~ m/^(MSWin32|msys)/ }
+sub is_winlike() { $^O =~ m/^(MSWin32|msys|cygwin)/ }
+sub is_win32()   { $^O =~ m/^(MSWin32|msys)/ }
 sub is_msvc() { is_win32 && $Config{cc} =~ m/^cl/i }
 
 END {
@@ -1111,12 +1164,14 @@ experimental. Use for production purposes is strongly discouraged.
 
 Adds the given directories to the library search path when C code is
 passed to your C compiler.
+For multiple paths use multiple -L options.
 
 =item -II<C include directories>
 
 Adds the given directories to the include file search path when C code is
 passed to your C compiler; when using the Perl bytecode option, adds the
 given directories to Perl's include path.
+For multiple paths use multiple -I options.
 
 =item -o I<output file name>
 

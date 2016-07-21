@@ -7,28 +7,38 @@ use Config;
 my @plan;
 use File::Spec;
 BEGIN {
-  @plan = (tests => 79);
-  if ($ENV{PERL_CORE}) {
-    if ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/) {
-      @plan = (skip_all => "cc -m32 is not supported with PERL_CORE");
+    @plan = (tests => 87);
+    if ($ENV{PERL_CORE}) {
+        if (-f File::Spec->catfile($Config{'sitearch'}, "Opcodes.pm")) {
+            @plan = (skip_all => '<sitearch>/Opcodes.pm installed. Possible XS conflict');
+        }
+        if (-f File::Spec->catfile($Config{'sitearch'}, "B", "Flags.pm")) {
+            @plan = (skip_all => '<sitearch>/B/Flags.pm installed. Possible XS conflict');
+        }
+        if ($^O eq 'MSWin32') { # find perl5*.dll
+            $ENV{PATH} .= ';..\..';
+        }
+        if ($^O eq 'MSWin32' and $ENV{APPVEYOR}) {
+            # can be used with -Od though
+            @plan = (skip_all => 'Overlong tests, timeout on Appveyor CI');
+        }
+        #if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
+        #    # >= 3 c compiler warnings
+        #    @plan = (skip_all => 'Tests not yet ready for MSWin32 MSVC');
+        #}
     }
-    if (-f File::Spec->catfile($Config::Config{'sitearch'}, "Opcodes.pm")) {
-      @plan = (skip_all => '<sitearch>/Opcodes.pm installed. Possible XS conflict');
+    if ($^O eq 'VMS') {
+        @plan = (skip_all => "B::C doesn't work on VMS");
     }
-    if ($^O eq 'MSWin32') {
-      @plan = (skip_all => 'B::C linkage not yet ready on MSWin32 MSVC');
+    if (($Config{'extensions'} !~ /\bB\b/) ) {
+        @plan = (skip_all => "Perl configured without B module");
     }
-  }
-  if ($^O eq 'VMS') {
-    @plan = (skip_all => "B::C doesn't work on VMS");
-  }
-  if (($Config{'extensions'} !~ /\bB\b/) ) {
-    @plan = (skip_all => "Perl configured without B module");
-  }
-  # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
-  if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
-    @plan = (skip_all => "no OLD COW for now");
-  }
+    # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
+    if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
+        @plan = (skip_all => "no OLD_COPY_ON_WRITE");
+    }
+    push @INC, 't';
+    require TestBC;
 }
 
 use Test::More @plan;
@@ -44,8 +54,7 @@ my $devnull = $^O eq 'MSWin32' ? '' : '2>/dev/null';
 #my $o = '';
 #$o = "-Wb=-fno-warnings" if $] >= 5.013005;
 #$o = "-Wb=-fno-fold,-fno-warnings" if $] >= 5.013009;
-my $perlcc = "$X -Iblib/arch -Iblib/lib blib/script/perlcc";
-$perlcc = "$X -I../../lib -I../../lib/auto script/perlcc -I../.. -L../.." if $ENV{PERL_CORE};
+my $perlcc = "$X ".Mblib." ".perlcc;
 sub cleanup { unlink ('pcc.c','pcc.c.lst','a.out.c', "a.c", $exe, $a, "a.out.c.lst", "a.c.lst"); }
 my $e = q("print q(ok)");
 
@@ -108,7 +117,10 @@ SKIP: {
     is(`$perlcc --staticxs -S -o pcc -O3 -r -e "print q(ok)"  $devnull`, "ok", #21
        "-S -o -r --staticxs without xs");
   }
-  ok(! -e 'pcc.c.lst', "no pcc.c.lst without xs"); #22
+ TODO: {
+    local $TODO = '5.18 added IO' if $] >= 5.018;
+    ok(! -e 'pcc.c.lst', "no pcc.c.lst without xs"); #22
+  }
   cleanup;
 }
 
@@ -197,7 +209,7 @@ isnt(`$perlcc -v2 -o pcc $f $devnull`, "", "-v2 -o file");
 isnt(`$perlcc -v3 -o pcc $f $devnull`, "", "-v3 -o file");
 isnt(`$perlcc -v4 -o pcc $f $devnull`, "", "-v4 -o file");
 TODO: {
-  local $TODO = "catch STDERR not STDOUT" if $^O =~ /bsd$/i; # fails freebsd only
+  local $TODO = "catch STDERR not STDOUT" if $^O =~ /(bsd|MSWin32)$/i; # fails freebsd only
   like(`$perlcc -v5 $f $redir`, '/Writing output/m',
        "-v5 turns on -Wb=-v"); #58
   like(`$perlcc -v5 -B $f $redir`, '/-PV-/m',
@@ -223,13 +235,16 @@ cleanup;
 
 is(`$perlcc -Or -opcc $f $devnull`, "ok", "-Or -o file");
 ok(! -e 'pcc.c', "no pcc.c file");
-ok(-e $a, "keep executable");
+ok(-e $a, "keep executable"); #69
 cleanup;
 
 # -BS: ignore -S
-like(`$perlcc -BSr -opcc.plc -e $e $redir`, '/-S ignored/', "-BSr -o -e");
-ok(-e 'pcc.plc', "pcc.plc file");
-cleanup;
+SKIP: {
+  skip "$^O redirection", 2 if $^O eq 'MSWin32';
+  like(`$perlcc -BSr -opcc.plc -e $e $redir`, '/-S ignored/', "-BSr -o -e"); #70
+  ok(-e 'pcc.plc', "pcc.plc file");
+  cleanup;
+}
 
 SKIP: {
   skip "perl5.22 broke ByteLoader", 1
@@ -265,6 +280,22 @@ TODO: {
 }
 ok(!-e "pcc.c", "no C file"); #78
 ok(!-e $a, "no executable"); #79
+cleanup;
+
+is(`$perlcc -It -O3 -o pcc $f $devnull`, "", "single -I");
+ok(-e $a, "=> executable");
+cleanup;
+
+is(`$perlcc -It -Iscript -O3 -o pcc $f $devnull`, "", "mult -I");
+ok(-e $a, "=> executable");
+cleanup;
+
+is(`$perlcc -Lt -O3 -o pcc $f $devnull`, "", "single -L");
+ok(-e $a, "=> executable");
+cleanup;
+
+is(`$perlcc -Lt -Lscript -O3 -o pcc $f $devnull`, "", "mult -L");
+ok(-e $a, "=> executable");
 cleanup;
 
 #TODO: -m

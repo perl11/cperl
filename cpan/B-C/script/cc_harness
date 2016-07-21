@@ -4,7 +4,7 @@ use ExtUtils::Embed;
 
 my ($coredir, $libdir);
 if ($ENV{PERL_CORE}) {
-  $libdir = $coredir = "../..";
+  $libdir = $coredir = $^O eq 'MSWin32'? '../../lib/CORE' : '../..';
 } else {
   $libdir  = $Config{prefix} . "/lib";
   $coredir = $ENV{PERL_SRC} || $Config{archlib}."/CORE";
@@ -82,22 +82,44 @@ $linkargs .= " $libs" if index($linkargs,$libs) == -1;
 
 sub cc_harness_msvc {
     my @ARGV = @_;
-    my $obj = "${Output}.obj";
-    my $compile = ccopts." -c -Fo$obj @ARGV ";
-    my $link = "-out:$Output $obj ";
+    my $cfile = 'a.c';
+    my $Output;
+    for my $i (0 .. @ARGV) {
+      if ($ARGV[$i] eq '-o') {
+        $Output = $ARGV[$i+1];
+      }
+    }
+    my @cfile = grep {!/^-/} @ARGV;
+    if (@cfile == 1) {
+        $cfile = $cfile[0];
+    } elsif (@cfile > 1) {
+        die "too many arguments @cfile";
+    }
+    my $obj = $cfile;
+    $obj =~ s/\.c$/.obj/;
+    unless ($Output) {
+      $Output = $cfile;
+      $Output =~ s/\.c$/.exe/;
+    }
+    my $compile = ccopts." -c @ARGV ";
     if ($debug) {
       $compile .= "/Wall " if !$quiet;
       # remove conflicting flags
       $compile .= "-g ";
       $compile =~ s/ -O.? / -Od /;
       $compile =~ s/ -DNDEBUG / -DDEBUG /;
+    } else {
+      # avoid expensive optimisations with low memory (1-2 hours!)
+      $compile .= " -Od" if $ENV{APPVEYOR};
     }
     $compile .= "-DHAVE_INDEPENDENT_COMALLOC " if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;
-    $compile .= " -I".$_ for split /\s+/, opt(I);
-    $compile .= " -I".$coredir if $ENV{PERL_CORE};
+    $compile = ' -I"..\..\lib\CORE"'.$compile if $ENV{PERL_CORE};
+    print "running $Config{cc} $compile" unless $quiet;
+    system("$Config{cc} $compile");
+    
+    my $link = "-out:$Output $obj ";
     $link .= " -libpath:".$coredir if $ENV{PERL_CORE};
-    $link .= " -libpath:".$_ for split /\s+/, opt(L);
     # TODO: -shared,-static,-sharedxs,-staticxs
     $link .= (" ".$B::C::Config::extra_libs);
     if ($stash) {
@@ -108,6 +130,9 @@ sub cc_harness_msvc {
     }
     if ($debug) {
         $link .= " /DEBUG";
+    } else {
+      # avoid expensive folding with low memory
+      $link .= " /OPT:NOREF" if $ENV{APPVEYOR};
     }
     if (index($link, "Win32CORE") < 0) {
         my $archdir = $ENV{PERL_CORE} ? "../.." : $Config{archlib};
@@ -117,19 +142,13 @@ sub cc_harness_msvc {
         }
         $link .= " $win32core";
     }
-    if ($Config{usecperl}) {
-        $link .= " cperl5$Config{PERL_VERSION}.lib";
-    } else {
-        $link .= " perl5$Config{PERL_VERSION}.lib";
-    }
+    $link .= " ".($Config{usecperl}?"c":"")."perl5$Config{PERL_VERSION}.lib";
     $link .= " kernel32.lib msvcrt.lib";
-    print "running $Config{cc} $compile" unless $quiet;
-    system("$Config{cc} $compile");
     print "running $Config{ld} $link" unless $quiet;
     system("$Config{ld} $link");
 }
 
-if ($^O =~ m/^MSWin/ && $Config{cc} =~ m/^cl/i) {
+if ($^O eq 'MSWin32' && $Config{cc} =~ 'cl') {
     cc_harness_msvc(@ARGV);
     exit;
 }

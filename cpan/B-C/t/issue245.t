@@ -3,6 +3,7 @@
 # unicode value not preserved when passed to a function with -O3
 # lc("\x{1E9E}") and "\x{df}" were hashed as the same string in const %strtable
 use strict;
+my @plan;
 BEGIN {
   if ($ENV{PERL_CORE}) {
     unshift @INC, ('t', '../../lib');
@@ -10,8 +11,14 @@ BEGIN {
     unshift @INC, 't', "blib/arch", "blib/lib";
   }
   require TestBC;
+
+  if ($^O eq 'MSWin32' and $ENV{APPVEYOR}) {
+    @plan = (skip_all => 'Overlong tests, timeout on Appveyor CI');
+  } else {
+    @plan = (tests => 1);
+  }
 }
-use Test::More tests => 1;
+use Test::More @plan;
 
 use B::C;
 # passes threaded and <5.10
@@ -20,6 +27,7 @@ my $TODO = "TODO " if $B::C::VERSION lt $fixed_with;
 $TODO = "" if $Config{useithreads};
 $TODO = "" if $] < 5.010;
 my $todomsg = '#245 2nd static unicode char';
+# this is now with 5.24.0.c also a test for FAKE_SIGNATURES
 ctest(1,"b: 223", 'C,-O3','ccode245i', <<'EOF', $TODO.$todomsg);
 sub foo {
     my ( $a, $b ) = @_;

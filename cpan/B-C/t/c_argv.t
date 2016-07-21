@@ -5,10 +5,10 @@ BEGIN {
   unshift @INC, 't';
   require TestBC;
 }
-use Test::More ($ENV{PERL_CORE}
-                and ($Config{ccflags} =~ /-m32/ or $Config{cc} =~ / -m32/))
-  ? (skip_all => "cc -m32 is not supported with PERL_CORE")
-  : (tests => 4);
+use Test::More;
+
+plan skip_all => "MSVC" if $^O eq 'MSWin32' and $Config{cc} eq 'cl';
+plan tests => 4;
 
 my $runperl = $^X =~ m/\s/ ? qq{"$^X"} : $^X;
 my $Mblib = Mblib();

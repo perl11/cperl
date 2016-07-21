@@ -149,8 +149,7 @@ MODULE = ByteLoader		PACKAGE = ByteLoader
 PROTOTYPES:	ENABLE
 
 void
-import(package="ByteLoader", ...)
-  char *package
+import(...)
   PREINIT:
     SV *sv = newSVpvn ("", 0);
   PPCODE:

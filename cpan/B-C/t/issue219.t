@@ -2,6 +2,7 @@
 # GH #219 overload stringify failed 5.18-5.22
 # See also t/issue172.t
 use strict;
+my @plan;
 BEGIN {
   if ($ENV{PERL_CORE}) {
     unshift @INC, ('t', '../../lib');
@@ -9,8 +10,14 @@ BEGIN {
     unshift @INC, 't', "blib/arch", "blib/lib";
   }
   require TestBC;
+
+  if ($^O eq 'MSWin32' and $ENV{APPVEYOR}) {
+    @plan = (skip_all => 'Overlong tests, timeout on Appveyor CI');
+  } else {
+    @plan = (tests => 3);
+  }
 }
-use Test::More tests => 3;
+use Test::More @plan;
 use B::C ();
 my $todo = ($] >= 5.018 and $B::C::VERSION lt '1.52_18') ? "TODO 5.18-5.22" : "";
 

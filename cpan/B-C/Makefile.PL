@@ -17,8 +17,8 @@ unless (-e 'lib/B/C/Config.pm') {
 # my $X = $^X =~ / / ? qq("$^X") : $^X;
 if ($CORE) {
     $ENV{PERL_CORE} = 1;
-    system($^X,"-I".File::Spec->catfile(qw(.. .. regen)),
-           "-I".File::Spec->catfile(qw(.. .. lib)),
+    system($^X,"-I".File::Spec->catfile(qw(.. .. lib)),
+           "-I".File::Spec->catfile(qw(.. .. regen)),
            "bytecode.pl");
 } else {
     my $asmdata = File::Spec->catfile('lib', 'B', 'Asmdata.pm');
@@ -167,7 +167,7 @@ WriteMakefile(
     NAME	 => "B::C",
     VERSION_FROM => "lib/B/C.pm",
     PL_FILES   => { $perlcc.'.PL'    => $perlcc },
-    EXE_FILES  => [qw(script/perlcc script/cc_harness script/assemble script/disassemble)],
+    EXE_FILES  => [$perlcc, qw(script/cc_harness script/assemble script/disassemble)],
     PREREQ_PM  => {'Opcodes'  => '0',    # optional
 		   'IPC::Run' => '0',    # optional
 		   'B::Flags' => '0.15', # optional
@@ -432,19 +432,25 @@ sub depend {
     my $byterun_h = File::Spec->catfile('ByteLoader', 'byterun.h');
     my $result = "
 $asmdata : Makefile bytecode.pl @headers
-	\$(PERL) bytecode.pl
+	\$(PERLRUN) bytecode.pl
 
 $byterun_c : Makefile bytecode.pl @headers
-	\$(PERL) bytecode.pl
+	\$(PERLRUN) bytecode.pl
 
 $byterun_h : Makefile bytecode.pl @headers
-	\$(PERL) bytecode.pl
+	\$(PERLRUN) bytecode.pl
 
 TAGS : $asmdata
 	etags --language=perl lib/B/*.pm
 ";
-    if ($] > 5.009) {
-        $result .= "\ntest :: subdirs-test\n\n";
+    if ($] > 5.009 and defined($ExtUtils::MM_Unix::VERSION)) {
+        my $ver = $ExtUtils::MM_Unix::VERSION;
+        # 8.0403 is the cperl 5.24.0 version based on 7.04_03
+        if ($ver eq '8.0403' or $ver lt '7.0509') {
+            $result .= "\ntest :: subdirs-test\n\n";
+        } else {
+            $result .= "\ntest :: subdirs-test_\$(LINKTYPE)\n\n";
+        }
     }
     if ($Config{make} eq 'mingw32-make') { # mingw32 make different to msys make
         $result .= "\n.PHONY : \$(CONFIGDEP)\n\n";

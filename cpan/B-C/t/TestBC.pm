@@ -1,9 +1,9 @@
 #
-# t/test.pl - from CORE
+# was t/test.pl - from CORE
 
-use Test::More;
 use File::Spec;
 use B::C::Config;
+use Test::More;
 
 sub curr_test {
     $test = shift if @_;
@@ -175,6 +175,7 @@ sub _where {
 #   verbose  => print the command line
 
 my $is_mswin    = $^O eq 'MSWin32';
+my $is_msvc     = $is_mswin and $Config{cc} eq 'cl' ? 1 : 0;
 my $is_netware  = $^O eq 'NetWare';
 my $is_macos    = $^O eq 'MacOS';
 my $is_vms      = $^O eq 'VMS';
@@ -231,7 +232,7 @@ sub _create_runperl { # Create the string to qx in runperl().
             }
         }
     } elsif (defined $args{progfile}) {
-	$runperl .= qq( "$args{progfile}");
+        $runperl .= " ".($args{progfile} =~ m/\s/ ? qq{"$args{progfile}"} : $args{progfile});
     } else {
 	# You probaby didn't want to be sucking in from the upstream stdin
 	die "test.pl:runperl(): none of prog, progs, progfile, args, "
@@ -523,6 +524,171 @@ sub fresh_perl_like {
 		$runperl_args, $name);
 }
 
+# Set a watchdog to timeout the entire test file
+# NOTE:  If the test file uses 'threads', then call the watchdog() function
+#        _AFTER_ the 'threads' module is loaded.
+sub watchdog ($;$)
+{
+    my $timeout = shift;
+    my $method  = shift || "";
+    my $timeout_msg = 'Test process timed out - terminating';
+
+    # Valgrind slows perl way down so give it more time before dying.
+    $timeout *= 10 if $ENV{PERL_VALGRIND};
+
+    my $pid_to_kill = $$;   # PID for this process
+
+    if ($method eq "alarm") {
+        goto WATCHDOG_VIA_ALARM;
+    }
+
+    # shut up use only once warning
+    my $threads_on = $threads::threads && $threads::threads;
+
+    # Don't use a watchdog process if 'threads' is loaded -
+    #   use a watchdog thread instead
+    if (!$threads_on || $method eq "process") {
+
+        # On Windows and VMS, try launching a watchdog process
+        #   using system(1, ...) (see perlport.pod)
+        if ($is_mswin || $is_vms) {
+            # On Windows, try to get the 'real' PID
+            if ($is_mswin) {
+                eval { require Win32; };
+                if (defined(&Win32::GetCurrentProcessId)) {
+                    $pid_to_kill = Win32::GetCurrentProcessId();
+                }
+            }
+
+            # If we still have a fake PID, we can't use this method at all
+            return if ($pid_to_kill <= 0);
+
+            # Launch watchdog process
+            my $watchdog;
+            eval {
+                local $SIG{'__WARN__'} = sub {
+                    diag("Watchdog warning: $_[0]");
+                };
+                my $sig = $is_vms ? 'TERM' : 'KILL';
+                my $prog = "sleep($timeout);" .
+                           "warn qq/# $timeout_msg" . '\n/;' .
+                           "kill(q/$sig/, $pid_to_kill);";
+
+                # On Windows use the indirect object plus LIST form to guarantee
+                # that perl is launched directly rather than via the shell (see
+                # perlfunc.pod), and ensure that the LIST has multiple elements
+                # since the indirect object plus COMMANDSTRING form seems to
+                # hang (see perl #121283). Don't do this on VMS, which doesn't
+                # support the LIST form at all.
+                if ($is_mswin) {
+                    my $runperl = which_perl();
+                    if ($runperl =~ m/\s/) {
+                        $runperl = qq{"$runperl"};
+                    }
+                    $watchdog = system({ $runperl } 1, $runperl, '-e', $prog);
+                }
+                else {
+                    my $cmd = _create_runperl(prog => $prog);
+                    $watchdog = system(1, $cmd);
+                }
+            };
+            if ($@ || ($watchdog <= 0)) {
+                diag('Failed to start watchdog');
+                diag($@) if $@;
+                undef($watchdog);
+                return;
+            }
+
+            # Add END block to parent to terminate and
+            #   clean up watchdog process
+            eval("END { local \$! = 0; local \$? = 0;
+                        wait() if kill('KILL', $watchdog); };");
+            return;
+        }
+
+        # Try using fork() to generate a watchdog process
+        my $watchdog;
+        eval { $watchdog = fork() };
+        if (defined($watchdog)) {
+            if ($watchdog) {   # Parent process
+                # Add END block to parent to terminate and
+                #   clean up watchdog process
+                eval "END { local \$! = 0; local \$? = 0;
+                            wait() if kill('KILL', $watchdog); };";
+                return;
+            }
+
+            ### Watchdog process code
+
+            # Load POSIX if available
+            eval { require POSIX; };
+
+            # Execute the timeout
+            sleep($timeout - 2) if ($timeout > 2);   # Workaround for perlbug #49073
+            sleep(2);
+
+            # Kill test process if still running
+            if (kill(0, $pid_to_kill)) {
+                diag($timeout_msg);
+                kill('KILL', $pid_to_kill);
+		if ($is_cygwin) {
+		    # sometimes the above isn't enough on cygwin
+		    sleep 1; # wait a little, it might have worked after all
+		    system("/bin/kill -f $pid_to_kill");
+		}
+            }
+
+            # Don't execute END block (added at beginning of this file)
+            $NO_ENDING = 1;
+
+            # Terminate ourself (i.e., the watchdog)
+            POSIX::_exit(1) if (defined(&POSIX::_exit));
+            exit(1);
+        }
+
+        # fork() failed - fall through and try using a thread
+    }
+
+    # Use a watchdog thread because either 'threads' is loaded,
+    #   or fork() failed
+    if (eval {require threads; 1}) {
+        'threads'->create(sub {
+                # Load POSIX if available
+                eval { require POSIX; };
+
+                # Execute the timeout
+                my $time_left = $timeout;
+                do {
+                    $time_left = $time_left - sleep($time_left);
+                } while ($time_left > 0);
+
+                # Kill the parent (and ourself)
+                select(STDERR); $| = 1;
+                diag($timeout_msg);
+                POSIX::_exit(1) if (defined(&POSIX::_exit));
+                my $sig = $is_vms ? 'TERM' : 'KILL';
+                kill($sig, $pid_to_kill);
+            })->detach();
+        return;
+    }
+
+    # If everything above fails, then just use an alarm timeout
+WATCHDOG_VIA_ALARM:
+    if (eval { alarm($timeout); 1; }) {
+        # Load POSIX if available
+        eval { require POSIX; };
+
+        # Alarm handler will do the actual 'killing'
+        $SIG{'ALRM'} = sub {
+            select(STDERR); $| = 1;
+            diag($timeout_msg);
+            POSIX::_exit(1) if (defined(&POSIX::_exit));
+            my $sig = $is_vms ? 'TERM' : 'KILL';
+            kill($sig, $pid_to_kill);
+        };
+    }
+}
+
 # now my new B::C functions
 
 sub run_cmd {
@@ -534,6 +700,7 @@ sub run_cmd {
 	if (ref($cmd) eq 'ARRAY') {
             $cmd = join " ", @$cmd;
         }
+        # watchdog(10*$timeout) if $timeout and $ENV{PERL_CORE};
 	# No real way to trap STDERR?
         $cmd .= " 2>&1" if $^O !~ /^MSWin32|VMS/;
         warn $cmd."\n" if $ENV{TEST_VERBOSE};
@@ -551,7 +718,7 @@ sub run_cmd {
             # XXX TODO hanging or stacktrace'd children are not killed on cygwin
 	    my $h = IPC::Run::start(\@cmd, \$in, \$out, \$err);
 	    if ($timeout) {
-		my $secs10 = $timeout/10;
+		my $secs10 = $timeout / 10;
 		for (1..$secs10) {
 		    if(!$h->pumpable) {
 			last;
@@ -570,40 +737,34 @@ sub run_cmd {
 	    $h->finish or die "cmd returned $?";
 	    $result = $h->result(0);
 	};
-        warn $out."\n" if $ENV{TEST_VERBOSE};
-	$err .= "\$\@ = $@" if($@);
-        warn $err."\n" if $ENV{TEST_VERBOSE};
+        warn $out."\n" if $out and $ENV{TEST_VERBOSE};
+	$err .= " \$\@ = $@" if $@;
+        warn $err."\n" if $err and $ENV{TEST_VERBOSE};
     }
     return ($result, $out, $err);
 }
 
 sub Mblib {
     if ($ENV{PERL_CORE}) {
-        $^O eq 'MSWin32' ? '-I..\..\lib'
-                         : '-I../../lib';
+        $is_mswin ? '-I..\..\lib' : '-I../../lib';
     } else {
-        $^O eq 'MSWin32' ? '-Iblib\arch -Iblib\lib'
-                         : '-Iblib/arch -Iblib/lib';
+        $is_mswin ? '-Iblib\arch -Iblib\lib' : '-Iblib/arch -Iblib/lib';
     }
 }
 
 sub perlcc {
     if ($ENV{PERL_CORE}) {
-        $^O eq 'MSWin32' ? 'script\perlcc -I..\.. -L..\..'
-                         : 'script/perlcc -I../.. -L../..';
+        $is_mswin ? 'script\perlcc' : 'script/perlcc'
     } else {
-        $^O eq 'MSWin32' ? 'blib\script\perlcc'
-                         : 'blib/script/perlcc';
+        $is_mswin ? 'blib\script\perlcc' : 'blib/script/perlcc';
     }
 }
 
 sub cc_harness {
     if ($ENV{PERL_CORE} ) {
-        $^O eq 'MSWin32' ? 'script\cc_harness'
-                         : 'script/cc_harness';
+        $is_mswin ? 'script\cc_harness' : 'script/cc_harness';
     } else {
-        $^O eq 'MSWin32' ? 'blib\script\cc_harness'
-                         : 'blib/script/cc_harness';
+        $is_mswin ? 'blib\script\cc_harness' : 'blib/script/cc_harness';
     }
 }
 
@@ -666,20 +827,30 @@ sub run_cc_test {
                     progfile => $test);
     if (! $? and -s $cfile) {
 	use ExtUtils::Embed ();
-	my $coredir = $ENV{PERL_CORE} ? File::Spec->catdir('..', '..')
-                         : File::Spec->catdir($Config{installarchlib}, "CORE");
-	my $command = ExtUtils::Embed::ccopts;
-        $command = $Config{ccflags}." -I".$coredir if $ENV{PERL_CORE};
+	my $coredir = $ENV{PERL_CORE}
+          ? File::Spec->catdir('..', '..')
+          : File::Spec->catdir($Config{installarchlib}, "CORE");
+	my $command;
+        if ($ENV{PERL_CORE}) { # ignore ccopts
+            if ($is_mswin) {
+                $command = $Config{ccflags}.' -I"..\..\lib\CORE"';
+            } else {
+                $command = $Config{ccflags}." -I".$coredir;
+            }
+        } else {
+            $command = ExtUtils::Embed::ccopts;
+        }
 	$command .= " -DHAVE_INDEPENDENT_COMALLOC "
 	  if $B::C::Config::have_independent_comalloc;
 	$command .= " -o $exe $cfile ".$B::C::Config::extra_cflags . " ";
-        if ($Config{cc} eq 'cl') {
-            if ($^O eq 'MSWin32' and $Config{ccversion} eq '12.0.8804' and $Config{cc} eq 'cl') {
+        if ($is_msvc) {
+            if ($Config{ccversion} eq '12.0.8804') {
                 $command =~ s/ -opt:ref,icf//;
             }
+            $command .= " -Od" if $ENV{APPVEYOR};
             my $obj = $obj[0];
             $command =~ s/ \Q-o $exe\E / -c -Fo$obj /;
-            my $cmdline = "$Config{cc} $command";
+            my $cmdline = "$Config{cc} $command >NUL"; # need to silence it
             diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
             run_cmd($cmdline, 20);
             $command = '';
@@ -710,6 +881,7 @@ sub run_cc_test {
                     $linkargs .= " $win32core";
                 }
             }
+            $linkargs .= " -Od" if $ENV{APPVEYOR};
         }
 	if ( -e "$coredir/$Config{libperl}" and $Config{libperl} !~ /\.$so$/) {
 	    $command .= $linkargs;
@@ -722,34 +894,44 @@ sub run_cc_test {
 	    $command .= $linkargs;
 	} else {
 	    $command .= $linkargs;
-	    $command .= " -lperl" if $command !~ /(-lperl|CORE\/libperl5)/ and $^O ne 'MSWin32';
+	    $command .= " -lperl" if $command !~ /(-lperl|CORE\/libperl5)/ and !$is_mswin;
 	}
 	$command .= $B::C::Config::extra_libs;
-        my $NULL = $^O eq 'MSWin32' ? '' : '2>/dev/null';
+        my $NULL = $is_mswin ? '' : '2>/dev/null';
         my $cmdline = "$Config{cc} $command $NULL";
-        if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
+        if ($is_msvc) {
             $cmdline = "$Config{ld} $linkargs -out:$exe $obj[0] $command";
         }
 	diag ($cmdline) if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} == 2;
-        if ($^O =~ /^(MSWin32|hpux)/ and $ENV{PERL_CORE}) {
-            # mingw with gcc and cygwin should work, but not tested.
-            # TODO: msvc throws linker errors. need to use link, not cl.
-            print "ok $cnt # skip $^O not yet ready\n";
-            return 1;
-        }
-        run_cmd($cmdline, 20);
+        run_cmd($cmdline, 30);
         unless (-e $exe) {
-            print "not ok $cnt $todo failed $cmdline\n";
+            if ($ENV{PERL_CORE}) {
+                if ($^O =~ /^(MSWin32|hpux)/) {
+                    # mingw with gcc and cygwin should work, but not tested.
+                    ok(1, "skip $^O not yet ready");
+                    return 1;
+                }
+            }
+            if ($todo and $todo =~ /TODO/) {
+                $todo =~ s/TODO //;
+              TODO:
+                {
+                    local $TODO = $todo;
+                    ok(0, "$todo failed $cmdline");
+                }
+            } else {
+                ok(0, "failed $cmdline");
+            }
             print STDERR "# ",system("$Config{cc} $command"), "\n";
             #unlink ($test, $cfile, $exe, @obj) unless $keep_c_fail;
             return 0;
         }
-        $exe = "./".$exe unless $^O eq 'MSWin32';
+        $exe = "./".$exe unless $is_mswin;
 	# system("/bin/bash -c ulimit -d 1000000") if -e "/bin/bash";
         ($result,$out,$stderr) = run_cmd($exe, 5);
         if (defined($out) and !$result) {
             if ($out =~ /^$expect$/) {
-                print "ok $cnt", $todo eq '#' ? "\n" : " $todo\n";
+                ok(1, $todo eq '#' ? "" : " $todo");
                 unlink ($test, $cfile, $exe, @obj) unless $keep_c;
                 return 1;
             } else {
@@ -760,9 +942,9 @@ sub run_cc_test {
                                 timeout  => 10,
                                 progfile => $test);
                 if (! $? and $got =~ /^$expect$/) {
-                    print "not ok $cnt $todo wanted: \"$expect\", got: \"$out\"\n";
+                    ok(1, "$todo wanted: \"$expect\", got: \"$out\"");
                 } else {
-                    print "ok $cnt # skip also fails uncompiled\n";
+                    ok(1, "skip also fails uncompiled");
                     return 1;
                 }
                 unlink ($test, $cfile, $exe, @obj) unless $keep_c_fail;
@@ -772,7 +954,16 @@ sub run_cc_test {
             $out = '';
         }
     }
-    print "not ok $cnt $todo wanted: \"$expect\", \$\? = $?, got: \"$out\"\n";
+    if ($todo and $todo =~ /TODO/) {
+	$todo =~ s/TODO //;
+      TODO:
+        {
+	    local $TODO = $todo;
+            ok(0, "$todo wanted: \"$expect\", \$\? = $?, got: \"$out\"");
+	}
+    } else {
+        ok(0, "wanted: \"$expect\", \$\? = $?, got: \"$out\"");
+    }
     if ($stderr) {
 	$stderr =~ s/\n./\n# /xmsg;
 	print "# $stderr\n";
@@ -782,31 +973,29 @@ sub run_cc_test {
 }
 
 sub prepare_c_tests {
-    BEGIN {
-        use Config;
-        if ($^O eq 'VMS') {
-            print "1..0 # skip - B::C doesn't work on VMS\n";
-            exit 0;
-        }
-        if (($Config{'extensions'} !~ /\bB\b/) ) {
-            print "1..0 # Skip -- Perl configured without B module\n";
-            exit 0;
-        }
-        if ($^O eq 'MSWin32' and $ENV{PERL_CORE}) {
-            print "1..0 # Skip -- MSWin not yet ready\n";
-            exit 0;
-        }
-        # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
-        if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
-            print "1..0 # Skip -- no OLD COW for now\n";
-            exit 0;
-        }
-        if ($ENV{PERL_CORE}
-            and -f File::Spec->catfile($Config::Config{'sitearch'}, "Opcodes.pm"))
-        {
-            print "1..0 # Skip -- <sitearch>/Opcodes.pm installed. Possible XS conflict\n";
-            exit 0;
-        }
+    use Config;
+    if ($^O eq 'VMS') {
+        print "1..0 # skip - B::C doesn't work on VMS\n";
+        exit 0;
+    }
+    if (($Config{'extensions'} !~ /\bB\b/) ) {
+        print "1..0 # Skip -- Perl configured without B module\n";
+        exit 0;
+    }
+    if ($is_mswin and $ENV{PERL_CORE}) {
+        print "1..0 # Skip -- MSWin32 tests not yet ready\n";
+        exit 0;
+    }
+    # with 5.10 and 5.8.9 PERL_COPY_ON_WRITE was renamed to PERL_OLD_COPY_ON_WRITE
+    if ($Config{ccflags} =~ /-DPERL_OLD_COPY_ON_WRITE/) {
+        print "1..0 # Skip -- no OLD COW for now\n";
+        exit 0;
+    }
+    if ($ENV{PERL_CORE}
+        and -f File::Spec->catfile($Config{'sitearch'}, "Opcodes.pm"))
+    {
+        print "1..0 # Skip -- <sitearch>/Opcodes.pm installed. Possible XS conflict\n";
+        exit 0;
     }
 }
 
@@ -851,7 +1040,7 @@ B::PV
 >>>>
 12
 ######### 104 CC reset ###############################
-use blib;use B::CC;my int $r;my $i:int=2;our double $d=3.0; $r=$i*$i; $r*=$d; print $r;
+%int::; %double::; my int $r;my $i:int=2;our double $d=3.0; $r=$i*$i; $r*=$d; print $r;
 >>>>
 12
 ######### 105 CC attrs ###############################
@@ -864,19 +1053,23 @@ CCTESTS
         my $i = 100;
         for (split /\n####+.*##\n/, $cctests) {
             next unless $_;
+            if ($ENV{PERL_CORE}) {
+                s/use blib;//; # fixup blib
+            }
             $tests[$i] = $_;
             $i++;
         }
     }
 
-    print "1..".(scalar @tests)."\n";
+    plan tests => scalar @tests;
+    #print "1..".(scalar @tests)."\n";
 
     my $cnt = 1;
     for (@tests) {
         my $todo = $todo{$cnt} ? "#TODO" : "#";
         # skip empty CC holes to have the same test indices in STATUS and t/testcc.sh
         unless ($_) {
-            print sprintf("ok %d # skip hole for CC\n", $cnt);
+            ok(1, "skip hole for CC");
             $cnt++;
             next;
         }
@@ -892,7 +1085,7 @@ CCTESTS
              or ($cnt==103 and $backend eq 'CC,-O2') # hanging
             ))
         {
-            print sprintf("ok %d # skip\n", $cnt);
+            ok(1, "skip $cnt");
         } else {
             my ($script, $expect) = split />>>+\n/;
 	    die "Invalid empty t/TESTS" if !$script or $expect eq '';
@@ -918,8 +1111,8 @@ sub plctest {
         ok(1, "SKIP perl5.22 broke ByteLoader");
         return 1;
     }
-    if ($^O eq 'MSWin32' and $ENV{PERL_CORE}) {
-        ok(1, "SKIP MSWin not yet ready");
+    if ($is_mswin and $ENV{PERL_CORE}) {
+        ok(1, "SKIP MSWin32 tests not yet ready");
         return 1;
     }
     my $name = $base."_$num";
@@ -999,7 +1192,7 @@ sub ctest {
         return 1;
     }
     my $cc_harness = cc_harness();
-    my $cmd = "$runperl $Mblib $cc_harness -q -o $name $name.c";
+    my $cmd = "$runperl $Mblib $cc_harness -q ".($is_msvc ? "" : "-o $name ")."$name.c";
     if ($ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} > 1) {
         $cmd =~ s/ -q / /;
         diag("$cmd");
@@ -1007,6 +1200,9 @@ sub ctest {
     system "$cmd";
     my $exe = $name.$Config{exe_ext};
     unless (-e $exe) {
+        if ($ENV{PERL_CORE} and $is_msvc) {
+            ok(1, "skip MSVC"); return 1;
+        }
 	if ($todo and $todo =~ /TODO/) {
 	    $todo =~ s/TODO //;
           TODO: {
@@ -1018,7 +1214,7 @@ sub ctest {
         }
         return;
     }
-    $exe = "./".$exe unless $^O eq 'MSWin32';
+    $exe = "./".$exe unless $is_mswin;
     ($result,$out,$stderr) = run_cmd($exe, 5);
     my $ok;
     if (defined($out) and !$result) {
@@ -1109,7 +1305,11 @@ sub todo_tests_default {
     # no IO::Scalar
     push @todo, (15)  if $] < 5.007;
     # broken by fbb32b8bebe8ad C: revert *-,*+,*! fetch magic, assign all core GVs to their global symbols
-    push @todo, (42..43) if $] < 5.012;
+    push @todo, (42..43) if $] < 5.012 or $^O eq 'cygwin';
+    push @todo, 28 if $] > 5.023 and
+      ($Config{cc} =~ / -m32/ or $Config{ccflags} =~ / -m32/);
+    push @todo, (21, 38) if $^O eq 'cygwin'; #hangs
+
     if ($what =~ /^c(|_o[1-4])$/) {
         # a regression
 	push @todo, (41)  if $] < 5.007; #regressions
@@ -1137,7 +1337,7 @@ sub todo_tests_default {
 	push @todo, (22)    if $] < 5.010 and !$ITHREADS;
 	push @todo, (46); # HvKEYS(%Exporter::) is 0 unless Heavy is included also
 	# solaris also. I suspected nvx<=>cop_seq_*
-	push @todo, (12)    if $^O eq 'MSWin32' and $Config{cc} =~ /^cl/i;
+	push @todo, (12)    if $is_mswin and $Config{cc} =~ /^cl/i;
 	push @todo, (26)    if $what =~ /^cc_o[12]/;
         push @todo, (27)    if $] > 5.008008 and $] < 5.009;
 	#push @todo, (27)    if $] > 5.008008 and $] < 5.009 and $what eq 'cc_o2';

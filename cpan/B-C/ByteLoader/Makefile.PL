@@ -34,10 +34,10 @@ sub MY::depend {
 	  ByteLoader.pm \$(INST_LIB)/ByteLoader.pm
 
 byterun.c : $bytecode_pl Makefile bytecode.h
-	cd $up && \$(PERL) bytecode.pl && cd ByteLoader
+	cd $up && \$(MAKE) \$(USEMAKEFILE) \$(FIRST_MAKEFILE) ByteLoader/byterun.c \$(PASTHRU)
 
 byterun.h : $bytecode_pl Makefile
-	cd $up && \$(PERL) bytecode.pl && cd ByteLoader
+	cd $up && \$(MAKE) \$(USEMAKEFILE) \$(FIRST_MAKEFILE) ByteLoader/byterun.h \$(PASTHRU)
 
 ByteLoader.c: byterun.h Makefile
 
