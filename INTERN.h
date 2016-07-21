@@ -32,17 +32,19 @@
 #      define dEXTCONST	const
 #    endif
 #  else
-#    ifdef __cplusplus
-#      define EXT
-#      define dEXT
-#      define EXTCONST EXTERN_C const
-#      define dEXTCONST const
+#    ifdef HASATTRIBUTE_USED
+#      define EXT __attribute__((used))
+#      ifdef __cplusplus
+#        define EXTCONST EXTERN_C const
+#      else
+#        define EXTCONST const __attribute__((used))
+#      endif
 #    else
 #      define EXT
-#      define dEXT
 #      define EXTCONST const
-#      define dEXTCONST const
 #    endif
+#    define dEXT
+#    define dEXTCONST const
 #  endif
 
 #undef INIT

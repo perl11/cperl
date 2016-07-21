@@ -5781,6 +5781,7 @@ struct tempsym; /* defined in pp_pack.c */
 /* Now include all the 'global' variables
  * If we don't have threads or multiple interpreters
  * these include variables that would have been their struct-s
+ * Note: The globals are really defined via globals.c
  */
 
 #define PERLVAR(prefix,var,type) EXT type PL_##var;

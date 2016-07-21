@@ -27,6 +27,7 @@
  *
 */
 
+#include "config.h"
 #include "INTERN.h"
 #define PERL_IN_GLOBALS_C
 #include "perl.h"
