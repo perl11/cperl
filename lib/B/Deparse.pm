@@ -1350,11 +1350,21 @@ sub deparse_sub {
     my $cv = shift;
     my $proto;
     my @attrs;
+    my $protosig; # prototype or signature (what goes in the (....))
+
 Carp::confess("NULL in deparse_sub") if !defined($cv) || $cv->isa("B::NULL");
 Carp::confess("SPECIAL in deparse_sub") if $cv->isa("B::SPECIAL");
     local $self->{'curcop'} = $self->{'curcop'};
+
+    my $has_sig = $self->{hinthash}{feature_signatures};
     if ($cv->FLAGS & SVf_POK) {
 	$proto = $cv->PV;
+	if ($has_sig) {
+            push @attrs, "prototype($proto)";
+        }
+        else {
+            $protosig = $proto;
+        }
     }
     if ($cv->CvFLAGS & (CVf_METHOD|CVf_LOCKED|CVf_LVALUE|CVf_ANONCONST)) {
         push @attrs, "lvalue" if $cv->CvFLAGS & CVf_LVALUE;
@@ -1412,15 +1422,15 @@ Carp::confess("SPECIAL in deparse_sub") if $cv->isa("B::SPECIAL");
 	my $sv = $cv->const_sv;
 	if ($$sv) {
 	    # uh-oh. inlinable sub... format it differently
-	    $body =  "{ " . $self->const($sv, 0) . " }";
+	    $body = "{ " . $self->const($sv, 0) . " }\n";
 	} else { # XSUB? (or just a declaration)
-            $body = ';';
+	    $body = ';'
 	}
     }
-    $proto = defined $proto ? "($proto) "  : "";
+    $protosig = defined $protosig ? "($protosig) " : "";
     my $attrs = '';
-    $attrs = ': ' . join(' ', @attrs) . ' ' if @attrs;
-    return "$proto$attrs$body\n";
+    $attrs = ': ' . join('', map "$_ ", @attrs) if @attrs;
+    return "$protosig$attrs$body\n";
 }
 
 
