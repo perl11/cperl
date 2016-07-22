@@ -46,9 +46,7 @@ __DEPARSE_FAILURES__
 ../cpan/Encode/t/jperl.t
 ../cpan/Encode/t/mime_header_iso2022jp.t
 ../cpan/ExtUtils-Install/t/Install.t
-../cpan/ExtUtils-Install/t/Installapi2.t
 ../cpan/ExtUtils-Install/t/Installed.t
-../cpan/ExtUtils-Install/t/Packlist.t
 ../cpan/ExtUtils-MakeMaker/t/Liblist.t
 ../cpan/ExtUtils-MakeMaker/t/MM_Any.t
 ../cpan/ExtUtils-MakeMaker/t/MM_Unix.t
@@ -58,12 +56,10 @@ __DEPARSE_FAILURES__
 ../cpan/ExtUtils-MakeMaker/t/oneliner.t
 ../cpan/ExtUtils-MakeMaker/t/revision.t
 ../cpan/ExtUtils-MakeMaker/t/xs.t
-../cpan/ExtUtils-Manifest/t/Manifest.t
 ../cpan/File-Path/t/Path.t
 ../cpan/File-Path/t/taint.t
 ../cpan/File-Temp/t/cmp.t
 ../cpan/File-Temp/t/lock.t
-../cpan/File-Temp/t/object.t
 ../cpan/File-Temp/t/seekable.t
 ../cpan/IO-Compress/t/000prereq.t
 ../cpan/IO-Compress/t/002any-transparent.t
@@ -71,13 +67,11 @@ __DEPARSE_FAILURES__
 ../cpan/IO-Compress/t/005defhdr.t
 ../cpan/IO-Compress/t/006zip.t
 ../cpan/IO-Compress/t/01misc.t
-../cpan/IO-Compress/t/050interop-gzip.t
 ../cpan/IO-Compress/t/105oneshot-gzip-only.t
 ../cpan/IO-Compress/t/105oneshot-zip-bzip2-only.t
 ../cpan/IO-Compress/t/105oneshot-zip-only.t
 ../cpan/IO-Compress/t/108anyunc-transparent.t
 ../cpan/IO-Compress/t/cz-03zlib-v1.t
-../cpan/IO-Compress/t/cz-08encoding.t
 ../cpan/IO-Compress/t/cz-14gzopen.t
 ../cpan/IO-Compress/t/globmapper.t
 ../cpan/Math-BigInt-FastCalc/t/bootstrap.t
@@ -206,7 +200,6 @@ __DEPARSE_FAILURES__
 ../dist/I18N-LangTags/t/05_main.t
 ../dist/I18N-LangTags/t/07_listy.t
 ../dist/I18N-LangTags/t/20_locales.t
-../dist/I18N-LangTags/t/50_super.t
 ../dist/I18N-LangTags/t/55_supers_strict.t
 ../dist/IO/t/io_file_export.t
 ../dist/IO/t/io_multihomed.t
@@ -241,9 +234,7 @@ __DEPARSE_FAILURES__
 ../dist/PathTools/t/cwd.t
 ../dist/Storable/t/blessed.t
 ../dist/Storable/t/croak.t
-../dist/Term-ReadLine/t/ReadLine.t
 ../dist/Thread-Queue/t/08_nothreads.t
-../dist/Tie-File/t/42_offset.t
 ../dist/base/t/fields-base.t
 ../dist/base/t/fields.t
 ../dist/bignum/t/big_e_pi.t
@@ -276,7 +267,6 @@ __DEPARSE_FAILURES__
 ../ext/B/t/xref.t
 ../ext/Devel-Peek/t/Peek.t
 ../ext/Errno/t/Errno.t
-../ext/File-Glob/t/basic.t
 ../ext/File-Glob/t/case.t
 ../ext/File-Glob/t/global.t
 ../ext/File-Glob/t/taint.t
@@ -284,8 +274,6 @@ __DEPARSE_FAILURES__
 ../ext/Hash-Util/t/Util.t
 ../ext/IPC-Open3/t/IPC-Open2.t
 ../ext/IPC-Open3/t/IPC-Open3.t
-../ext/Opcode/t/Opcode.t
-../ext/PerlIO-via/t/via.t
 ../ext/Pod-Functions/t/Functions.t
 ../ext/XS-APItest/t/autoload.t
 ../ext/XS-APItest/t/blockhooks.t
@@ -295,24 +283,15 @@ __DEPARSE_FAILURES__
 ../ext/XS-APItest/t/fetch_pad_names.t
 ../ext/XS-APItest/t/hash.t
 ../ext/XS-APItest/t/my_cxt.t
-../ext/XS-APItest/t/overload.t
 ../ext/XS-APItest/t/printf.t
 ../ext/XS-APItest/t/push.t
 ../ext/XS-APItest/t/svpeek.t
 ../ext/XS-APItest/t/svpv_magic.t
 ../ext/XS-APItest/t/svsetsv.t
 ../ext/XS-APItest/t/synthetic_scope.t
-../ext/XS-APItest/t/xsub_h.t
 ../lib/Benchmark.t
 ../lib/Config/Extensions.t
 ../lib/DB.t
-../lib/DBM_Filter/t/01error.t
-../lib/DBM_Filter/t/02core.t
-../lib/DBM_Filter/t/compress.t
-../lib/DBM_Filter/t/encode.t
-../lib/DBM_Filter/t/int32.t
-../lib/DBM_Filter/t/null.t
-../lib/DBM_Filter/t/utf8.t
 ../lib/English.t
 ../lib/File/Basename.t
 ../lib/Net/hostent.t
@@ -322,7 +301,6 @@ __DEPARSE_FAILURES__
 ../lib/User/grent.t
 ../lib/charnames.t
 ../lib/dumpvar.t
-../lib/less.t
 ../lib/overload.t
 ../lib/universal.t
 base/lex.t                # checks regexp stringification
@@ -409,5 +387,4 @@ __DEPARSE_SKIPS__
 
 op/smartkve.t                        # Gobbles up all memory...
 comp/redef.t                         # Redefinition happens at compile time
-lib/Switch/t/                        # B::Deparse doesn't support source filtering
 ../lib/locale.t                      # Memory...
