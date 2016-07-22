@@ -41,9 +41,6 @@ __DEPARSE_FAILURES__
 ../cpan/Compress-Raw-Bzip2/t/09limitoutput.t
 ../cpan/Config-Perl-V/t/10_base.t
 ../cpan/Cpanel-JSON-XS/t/24_freeze_recursion.t
-../cpan/Encode/t/enc_data.t
-../cpan/Encode/t/encoding.t
-../cpan/Encode/t/jperl.t
 ../cpan/Encode/t/mime_header_iso2022jp.t
 ../cpan/ExtUtils-Install/t/Install.t
 ../cpan/ExtUtils-Install/t/Installed.t
@@ -367,11 +364,9 @@ run/switchI.t             # -I on #! line is not deparsed
 run/switchd-78586.t       # -I on #! line is not deparsed
 uni/attrs.t
 uni/bless.t
-uni/greek.t
 uni/gv.t
 uni/keywords.t
 uni/labels.t
-uni/latin2.t
 uni/lex_utf8.t
 uni/method.t
 uni/package.t
