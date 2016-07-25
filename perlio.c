@@ -214,9 +214,9 @@ int
 PerlIO_apply_layers(pTHX_ PerlIO *f, const char *mode, const char *names)
 {
     if (!names || !*names
-        || strEQ(names, ":crlf")
-        || strEQ(names, ":raw")
-        || strEQ(names, ":bytes")
+        || strEQc(names, ":crlf")
+        || strEQc(names, ":raw")
+        || strEQc(names, ":bytes")
        ) {
 	return 0;
     }
@@ -322,8 +322,8 @@ XS(XS_PerlIO__Layer__find)
 	Perl_croak(aTHX_ "Usage class->find(name[,load])");
     else {
 	const char * const name = SvPV_nolen_const(ST(1));
-	ST(0) = (strEQ(name, "crlf")
-		 || strEQ(name, "raw")) ? &PL_sv_yes : &PL_sv_undef;
+	ST(0) = (strEQc(name, "crlf")
+		 || strEQc(name, "raw")) ? &PL_sv_yes : &PL_sv_undef;
 	XSRETURN(1);
     }
 }

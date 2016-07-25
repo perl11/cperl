@@ -143,7 +143,7 @@ Perl_set_numeric_radix(pTHX)
  * http://www.nntp.perl.org/group/perl.perl5.porters/2013/02/msg198753.html */
 #define isNAME_C_OR_POSIX(name) ((name) != NULL                                 \
                                   && ((*(name) == 'C' && (*(name + 1)) == '\0') \
-                                       || strEQ((name), "POSIX")))
+                                       || strEQc((name), "POSIX")))
 
 void
 Perl_new_numeric(pTHX_ const char *newnum)
@@ -520,7 +520,7 @@ Perl_my_setlocale(pTHX_ int category, const char* locale)
     bool override_LC_ALL = FALSE;
     char * result;
 
-    if (locale && strEQ(locale, "")) {
+    if (locale && strEQc(locale, "")) {
 #   ifdef LC_ALL
         locale = PerlEnv_getenv("LC_ALL");
         if (! locale) {
@@ -876,7 +876,7 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
 #  ifdef WIN32
             /* On Windows machines, an entry of "" after the 0th means to use
              * the system default locale, which we now proceed to get. */
-            if (strEQ(trial_locale, "")) {
+            if (strEQc(trial_locale, "")) {
                 unsigned int j;
 
                 /* Note that this may change the locale, but we are going to do
@@ -1082,7 +1082,7 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
 #endif
 
             for (j = 0; j < trial_locales_count; j++) {
-                if (strEQ("C", trial_locales[j])) {
+                if (strEQc(trial_locales[j], "C")) {
                     goto done_C;
                 }
             }
@@ -1132,12 +1132,12 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
         if (locwarn) {
             const char * description;
             const char * name = "";
-            if (strEQ(trial_locales[i], "C")) {
+            if (strEQc(trial_locales[i], "C")) {
                 description = "the standard locale";
                 name = "C";
             }
 #ifdef SYSTEM_DEFAULT_LOCALE
-            else if (strEQ(trial_locales[i], "")) {
+            else if (strEQc(trial_locales[i], "")) {
                 description = "the system default locale";
                 if (system_default_locale) {
                     name = system_default_locale;

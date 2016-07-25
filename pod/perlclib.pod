@@ -122,6 +122,8 @@ There is no equivalent to C<fgets>; one should use C<sv_gets> instead:
  memcmp(p1, p2, n)              memNE(p1, p2, n)
  !memcmp(p1, p2, n)             memEQ(p1, p2, n)
 
+ strEQ(s, "const")             strEQc(s, "const")
+
 Notice the different order of arguments to C<Copy> and C<Move> than used
 in C<memcpy> and C<memmove>.
 

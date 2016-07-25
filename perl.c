@@ -577,7 +577,7 @@ perl_destruct(pTHXx)
 	const char * const s = PerlEnv_getenv("PERL_DESTRUCT_LEVEL");
 	if (s) {
             int i;
-            if (strEQ(s, "-1")) { /* Special case: modperl folklore. */
+            if (strEQc(s, "-1")) { /* Special case: modperl folklore. */
                 i = -1;
             } else {
                 UV uv;
@@ -2067,9 +2067,9 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
 	    }
 	    /* catch use of gnu style long options.
 	       Both of these exit immediately.  */
-	    if (strEQ(s, "version"))
+	    if (strEQc(s, "version"))
 		minus_v();
-	    if (strEQ(s, "help"))
+	    if (strEQc(s, "help"))
 		usage();
 	    s--;
 	    /* FALLTHROUGH */
@@ -2223,7 +2223,7 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
 # ifndef SECURE_INTERNAL_GETENV
             !TAINTING_get &&
 # endif
-            s && strEQ(s, "1")) {
+            s && strEQc(s, "1")) {
             const unsigned char *seed= PERL_HASH_SEED;
             const unsigned char *seed_end= PERL_HASH_SEED + PERL_HASH_SEED_BYTES;
             PerlIO_printf(Perl_debug_log, "HASH_FUNCTION = %s HASH_SEED = 0x", PERL_HASH_FUNC);
@@ -2379,9 +2379,9 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
     {
 	const char *s;
     if ((s = PerlEnv_getenv("PERL_SIGNALS"))) {
-	 if (strEQ(s, "unsafe"))
+	 if (strEQc(s, "unsafe"))
 	      PL_signals |=  PERL_SIGNALS_UNSAFE_FLAG;
-	 else if (strEQ(s, "safe"))
+	 else if (strEQc(s, "safe"))
 	      PL_signals &= ~PERL_SIGNALS_UNSAFE_FLAG;
 	 else
 	      Perl_croak(aTHX_ "PERL_SIGNALS illegal: \"%s\"", s);
@@ -3889,7 +3889,7 @@ S_open_script(pTHX_ const char *scriptname, bool dosearch, bool *suidscript)
 	    FAKE_BIT_BUCKET_TEMPLATE
 	};
 	const char * const err = "Failed to create a fake bit bucket";
-	if (strEQ(scriptname, BIT_BUCKET)) {
+	if (strEQc(scriptname, BIT_BUCKET)) {
 #ifdef HAS_MKSTEMP /* Hopefully mkstemp() is safe here. */
             int old_umask = umask(0177);
 	    int tmpfd = mkstemp(tmpname);
@@ -4693,7 +4693,7 @@ S_init_perllib(pTHX)
     if (!TAINTING_get) {
         /* cperl and cpanel perl proper does not add . to @INC */
         const char * const unsafe = PerlEnv_getenv("PERL_USE_UNSAFE_INC");
-        if (unsafe && strEQ(unsafe, "1"))
+        if (unsafe && strEQc(unsafe, "1"))
             S_incpush(aTHX_ STR_WITH_LEN("."), 0);
 #ifdef PERL_IS_MINIPERL
         else

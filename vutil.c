@@ -305,7 +305,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
     last = PRESCAN_VERSION(s, FALSE, &errstr, &qv, &saw_decimal, &width, &alpha);
     if (errstr) {
 	/* "undef" is a special case and not an error */
-	if ( ! ( *s == 'u' && strEQ(s+1,"ndef")) ) {
+	if ( ! ( *s == 'u' && strEQc(s+1,"ndef")) ) {
 	    Perl_croak(aTHX_ "%s", errstr);
 	}
     }
@@ -466,7 +466,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
     (void)hv_stores(MUTABLE_HV(hv), "version", newRV_noinc(MUTABLE_SV(av)));
 
     /* fix RT#19517 - special case 'undef' as string */
-    if ( *s == 'u' && strEQ(s+1,"ndef") ) {
+    if ( *s == 'u' && strEQc(s+1,"ndef") ) {
 	s += 5;
     }
 
@@ -641,7 +641,7 @@ VER_NV:
          * a standard one, we should be expecting a non-standard one, the same
          * one that we have recorded as the underlying locale.  If not, update
          * our records. */
-        if (strEQ(cur_numeric, "C") || strEQ(cur_numeric, "POSIX")) {
+        if (strEQc(cur_numeric, "C") || strEQc(cur_numeric, "POSIX")) {
             if (! PL_numeric_standard) {
                 new_numeric(cur_numeric);
             }

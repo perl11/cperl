@@ -1001,7 +1001,7 @@ do_spawn_ve(pTHX_ SV *really, U32 flag, U32 execf, char *inicmd, U32 addflag)
 	    really = NULL;
 
       retry:
-	if (strEQ(PL_Argv[0],"/bin/sh")) 
+	if (strEQc(PL_Argv[0],"/bin/sh")) 
 	    PL_Argv[0] = PL_sh_path;
 
 	/* We should check PERL_SH* and PERLLIB_* as well? */
@@ -4103,7 +4103,7 @@ XS(XS_OS2_pipe)
 	if (!pszName || !*pszName)
 	    Perl_croak(aTHX_ "OS2::pipe(): empty pipe name");
 	s = SvPV(OpenMode, len);
-	if (len == 4 && strEQ(s, "wait")) {	/* DosWaitNPipe() */
+	if (len == 4 && strEQc(s, "wait")) {	/* DosWaitNPipe() */
 	    ULONG ms = 0xFFFFFFFF, ret = ERROR_INTERRUPT; /* Indefinite */
 
 	    if (items == 3) {
@@ -4121,7 +4121,7 @@ XS(XS_OS2_pipe)
 	    os2cp_croak(ret, "DosWaitNPipe()");
 	    XSRETURN_YES;
 	}
-	if (len == 4 && strEQ(s, "call")) {	/* DosCallNPipe() */
+	if (len == 4 && strEQc(s, "call")) {	/* DosCallNPipe() */
 	    ULONG ms = 0xFFFFFFFF, got; /* Indefinite */
 	    STRLEN l;
 	    char *s;
@@ -4200,9 +4200,9 @@ XS(XS_OS2_pipe)
 	    connect = -1;			/* no wait */
 	else if (SvTRUE(ST(2))) {
 	    s = SvPV(ST(2), len);
-	    if (len == 6 && strEQ(s, "nowait"))
+	    if (len == 6 && strEQc(s, "nowait"))
 		connect = -1;			/* no wait */
-	    else if (len == 4 && strEQ(s, "wait"))
+	    else if (len == 4 && strEQc(s, "wait"))
 		connect = 1;			/* wait */
 	    else
 		Perl_croak(aTHX_ "OS2::pipe(): unknown connect argument: `%s'", s);
@@ -4290,38 +4290,38 @@ XS(XS_OS2_pipeCntl)
 
 	switch (len) {
 	case 4:
-	    if (strEQ(s, "byte"))
+	    if (strEQc(s, "byte"))
 		message = 0;
-	    else if (strEQ(s, "peek"))
+	    else if (strEQc(s, "peek"))
 		peek = 1;
-	    else if (strEQ(s, "info"))
+	    else if (strEQc(s, "info"))
 		info = 1;
 	    else
 		goto unknown;
 	    break;
 	case 5:
-	    if (strEQ(s, "reset"))
+	    if (strEQc(s, "reset"))
 		disconnect = connect = 1;
-	    else if (strEQ(s, "state"))
+	    else if (strEQc(s, "state"))
 		query = 1;
 	    else
 		goto unknown;
 	    break;
 	case 7:
-	    if (strEQ(s, "connect"))
+	    if (strEQc(s, "connect"))
 		connect = 1;
-	    else if (strEQ(s, "message"))
+	    else if (strEQc(s, "message"))
 		message = 1;
 	    else
 		goto unknown;
 	    break;
 	case 9:
-	    if (!strEQ(s, "readstate"))
+	    if (!strEQc(s, "readstate"))
 		goto unknown;
 	    state = 1;
 	    break;
 	case 10:
-	    if (!strEQ(s, "disconnect"))
+	    if (!strEQc(s, "disconnect"))
 		goto unknown;
 	    disconnect = 1;
 	    break;

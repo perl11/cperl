@@ -8899,7 +8899,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	if (name && block) {
 	    const char *s = strrchr(name, ':');
 	    s = s ? s+1 : name;
-	    if (strEQ(s, "BEGIN")) {
+	    if (strEQc(s, "BEGIN")) {
 		if (PL_in_eval & EVAL_KEEPERR)
 		    Perl_croak_nocontext("BEGIN not safe after errors--compilation aborted");
 		else {
@@ -9289,11 +9289,11 @@ S_clear_special_blocks(pTHX_ const char *const fullname,
     colon = strrchr(fullname,':');
     name = colon ? colon + 1 : fullname;
 
-    if ((*name == 'B' && strEQ(name, "BEGIN"))
-        || (*name == 'E' && strEQ(name, "END"))
-        || (*name == 'U' && strEQ(name, "UNITCHECK"))
-        || (*name == 'C' && strEQ(name, "CHECK"))
-        || (*name == 'I' && strEQ(name, "INIT"))) {
+    if ((*name == 'B' && strEQc(name, "BEGIN"))
+        || (*name == 'E' && strEQc(name, "END"))
+        || (*name == 'U' && strEQc(name, "UNITCHECK"))
+        || (*name == 'C' && strEQc(name, "CHECK"))
+        || (*name == 'I' && strEQc(name, "INIT"))) {
         if (!isGV(gv)) {
             (void)CvGV(cv);
             assert(isGV(gv));
@@ -9315,7 +9315,7 @@ S_process_special_blocks(pTHX_ I32 floor, const char *const fullname,
     PERL_ARGS_ASSERT_PROCESS_SPECIAL_BLOCKS;
 
     if (*name == 'B') {
-	if (strEQ(name, "BEGIN")) {
+	if (strEQc(name, "BEGIN")) {
 	    const I32 oldscope = PL_scopestack_ix;
             dSP;
             (void)CvGV(cv);
@@ -9339,20 +9339,20 @@ S_process_special_blocks(pTHX_ I32 floor, const char *const fullname,
 	    return FALSE;
     } else {
 	if (*name == 'E') {
-	    if strEQ(name, "END") {
+	    if strEQc(name, "END") {
 		DEBUG_x( dump_sub(gv) );
 		Perl_av_create_and_unshift_one(aTHX_ &PL_endav, MUTABLE_SV(cv));
 	    } else
 		return FALSE;
 	} else if (*name == 'U') {
-	    if (strEQ(name, "UNITCHECK")) {
+	    if (strEQc(name, "UNITCHECK")) {
 		/* It's never too late to run a unitcheck block */
 		Perl_av_create_and_unshift_one(aTHX_ &PL_unitcheckav, MUTABLE_SV(cv));
 	    }
 	    else
 		return FALSE;
 	} else if (*name == 'C') {
-	    if (strEQ(name, "CHECK")) {
+	    if (strEQc(name, "CHECK")) {
 		if (PL_main_start)
 		    /* diag_listed_as: Too late to run %s block */
 		    Perl_ck_warner(aTHX_ packWARN(WARN_VOID),
@@ -9362,7 +9362,7 @@ S_process_special_blocks(pTHX_ I32 floor, const char *const fullname,
 	    else
 		return FALSE;
 	} else if (*name == 'I') {
-	    if (strEQ(name, "INIT")) {
+	    if (strEQc(name, "INIT")) {
 		if (PL_main_start)
 		    /* diag_listed_as: Too late to run %s block */
 		    Perl_ck_warner(aTHX_ packWARN(WARN_VOID),
@@ -9952,7 +9952,7 @@ is_dollar_bracket(pTHX_ const OP * const o)
     return o->op_type == OP_RV2SV && o->op_flags & OPf_KIDS
 	&& (kid = cUNOPx(o)->op_first)
 	&& kid->op_type == OP_GV
-	&& strEQ(GvNAME(cGVOPx_gv(kid)), "[");
+	&& strEQc(GvNAME(cGVOPx_gv(kid)), "[");
 }
 
 OP *
@@ -16491,7 +16491,7 @@ Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_cv,
 		CvGV(old_cv) && GvSTASH(CvGV(old_cv))
 	     && HvNAMELEN(GvSTASH(CvGV(old_cv))) == 7
 	     && (hvname = HvNAME(GvSTASH(CvGV(old_cv))),
-		 strEQ(hvname, "autouse"))
+		 strEQc(hvname, "autouse"))
 	     )
 	)
      || (is_const

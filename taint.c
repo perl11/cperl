@@ -101,7 +101,7 @@ Perl_taint_env(pTHX)
 	const bool was_tainted = TAINT_get;
 	const char * const name = GvENAME(PL_envgv);
 	TAINT;
-	if (strEQ(name,"ENV"))
+	if (strEQc(name,"ENV"))
 	    /* hash alias */
 	    taint_proper("%%ENV is aliased to %s%s", "another variable");
 	else

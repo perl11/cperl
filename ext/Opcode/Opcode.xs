@@ -272,7 +272,7 @@ PPCODE:
     hv = gv_stashsv(Package, GV_ADDWARN); /* should exist already	*/
 
     hvname = HvNAME_get(hv);
-    if (!hvname || strNE(hvname, "main")) {
+    if (!hvname || strNEc(hvname, "main")) {
         /* make it think it's in main:: */
 	hv_name_set(hv, "main", 4, 0);
         (void) hv_store(hv,"_",1,(SV *)PL_defgv,0);  /* connect _ to global */

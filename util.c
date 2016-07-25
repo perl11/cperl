@@ -3374,7 +3374,7 @@ Perl_find_script(pTHX_ const char *scriptname, bool dosearch,
 #else  /* !VMS */
 
 #ifdef DOSISH
-    if (strEQ(scriptname, "-"))
+    if (strEQc(scriptname, "-"))
  	dosearch = 0;
     if (dosearch) {		/* Look in '.' first. */
 	const char *cur = scriptname;
@@ -4719,7 +4719,7 @@ Perl_get_hash_seed(pTHX_ unsigned char * const seed_buffer)
             env_pv++;
 #ifdef USE_PERL_PERTURB_KEYS
         /* if they set it to "0" we disable key traversal randomization completely */
-        if (strEQ(env_pv,"0")) {
+        if (strEQc(env_pv,"0")) {
             PL_hash_rand_bits_enabled= 0;
         } else {
             /* otherwise switch to deterministic mode */
@@ -4768,11 +4768,11 @@ Perl_get_hash_seed(pTHX_ unsigned char * const seed_buffer)
     }
     env_pv= PerlEnv_getenv("PERL_PERTURB_KEYS");
     if (env_pv) {
-        if (strEQ(env_pv,"0") || strEQ(env_pv,"NO")) {
+        if (strEQc(env_pv,"0") || strEQc(env_pv,"NO")) {
             PL_hash_rand_bits_enabled= 0;
-        } else if (strEQ(env_pv,"1") || strEQ(env_pv,"RANDOM")) {
+        } else if (strEQc(env_pv,"1") || strEQc(env_pv,"RANDOM")) {
             PL_hash_rand_bits_enabled= 1;
-        } else if (strEQ(env_pv,"2") || strEQ(env_pv,"DETERMINISTIC")) {
+        } else if (strEQc(env_pv,"2") || strEQc(env_pv,"DETERMINISTIC")) {
             PL_hash_rand_bits_enabled= 2;
         } else {
             Perl_warn(aTHX_ "perl: warning: strange setting in '$ENV{PERL_PERTURB_KEYS}': '%s'\n", env_pv);

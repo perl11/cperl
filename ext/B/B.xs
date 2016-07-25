@@ -2126,13 +2126,13 @@ IsSTD(io,name)
     PREINIT:
 	PerlIO* handle = 0;
     CODE:
-	if( strEQ( name, "stdin" ) ) {
+	if( strEQc( name, "stdin" ) ) {
 	    handle = PerlIO_stdin();
 	}
-	else if( strEQ( name, "stdout" ) ) {
+	else if( strEQc( name, "stdout" ) ) {
 	    handle = PerlIO_stdout();
 	}
-	else if( strEQ( name, "stderr" ) ) {
+	else if( strEQc( name, "stderr" ) ) {
 	    handle = PerlIO_stderr();
 	}
 	else {

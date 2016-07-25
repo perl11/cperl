@@ -430,7 +430,7 @@ Perl_DJGPP_init (int *argcp,char ***argvp)
     if ((p=strrchr (perlprefix,'/'))!=NULL)
     {
         *p=0;
-        if (strEQ (p-4,"/bin"))
+        if (strEQc(p-4,"/bin"))
             p[-4]=0;
     }
     else

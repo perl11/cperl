@@ -187,7 +187,7 @@ int bytecode_header_check(pTHX_ struct byteloader_state *bstate, U32 *isjit) {
     BGET_strconst(str,80);	/* archname */
     my_strlcpy(bl_header.archname, str, 80);
     /* just warn. relaxed strictness, only check for ithread in archflag */
-    if (strNE(str, ARCHNAME)) {
+    if (strNEc(str, ARCHNAME)) {
 	HEADER_WARN2("Different architecture %s, you have %s", str, ARCHNAME);
     }
 
@@ -195,7 +195,7 @@ int bytecode_header_check(pTHX_ struct byteloader_state *bstate, U32 *isjit) {
        0.07 should be able to load 0.5 (5.8.1 CORE) */
     BGET_strconst(str,16);
     my_strlcpy(bl_header.version, str, 16);
-    if (strNE(str, VERSION)) {
+    if (strNEc(str, VERSION)) {
         if ((strGT(str, "0.06") && strLT(str, "0.06_06")) /*|| strLT(str, "0.05")*/) {
 	    HEADER_FAIL2("Incompatible bytecode version %s, you have %s",
 		         str, VERSION);
@@ -216,7 +216,7 @@ int bytecode_header_check(pTHX_ struct byteloader_state *bstate, U32 *isjit) {
         bl_header.longsize = LONGSIZE;
     }
 
-    if (strGT(bl_header.version, "0.06") || strEQ(bl_header.version, "0.04"))
+    if (strGT(bl_header.version, "0.06") || strEQc(bl_header.version, "0.04"))
     {   /* added again with 0.06_01 */
 	/* config.h BYTEORDER: 0x1234 of length longsize, not ivsize */
 	char supported[16];

@@ -14,3 +14,9 @@
  * ************************************************************************
  */
 
+/* cperl optims */
+#ifndef strEQc
+/* the buffer ends with \0, includes comparison of the \0.
+   better than strEQ as it uses memcmp, word-wise comparison. */
+#define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
+#endif

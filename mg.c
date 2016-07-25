@@ -740,7 +740,7 @@ S_fixup_errno_string(pTHX_ SV* sv)
 
     assert(SvOK(sv));
 
-    if(strEQ(SvPVX(sv), "")) {
+    if(strEQc(SvPVX(sv), "")) {
 	sv_catpv(sv, UNKNOWN_ERRNO_MSG);
     }
     else {
@@ -845,7 +845,7 @@ Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
 	if (nextchar == '\0') {
 	    sv_setiv(sv, (IV)PL_minus_c);
 	}
-	else if (strEQ(remaining, "HILD_ERROR_NATIVE")) {
+	else if (strEQc(remaining, "HILD_ERROR_NATIVE")) {
 	    sv_setiv(sv, (IV)STATUS_NATIVE);
         }
 	break;
@@ -855,9 +855,9 @@ Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
 	break;
     case '\005':  /* ^E */
 	 if (nextchar != '\0') {
-            if (strEQ(remaining, "NCODING"))
+            if (strEQc(remaining, "NCODING"))
                 sv_setsv(sv, _get_encoding());
-            else if (strEQ(remaining, "_NCODING"))
+            else if (strEQc(remaining, "_NCODING"))
                 sv_setsv(sv, NULL);
             break;
         }
@@ -947,7 +947,7 @@ Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
 	sv_setiv(sv, (IV)PL_maxsysfd);
 	break;
     case '\007':		/* ^GLOBAL_PHASE */
-	if (strEQ(remaining, "LOBAL_PHASE")) {
+	if (strEQc(remaining, "LOBAL_PHASE")) {
 	    sv_setpvn(sv, PL_phase_names[PL_phase],
 		      strlen(PL_phase_names[PL_phase]));
 	}
@@ -959,7 +959,7 @@ Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
 	sv_setpv(sv, PL_inplace); /* Will undefine sv if PL_inplace is NULL */
 	break;
     case '\014':		/* ^LAST_FH */
-	if (strEQ(remaining, "AST_FH")) {
+	if (strEQc(remaining, "AST_FH")) {
 	    if (PL_last_in_gv) {
 		assert(isGV_with_GP(PL_last_in_gv));
 		SV_CHECK_THINKFIRST_COW_DROP(sv);
@@ -977,7 +977,7 @@ Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
 	    sv_setpv(sv, PL_osname);
 	    SvTAINTED_off(sv);
 	}
-	else if (strEQ(remaining, "PEN")) {
+	else if (strEQc(remaining, "PEN")) {
 	    Perl_emulate_cop_io(aTHX_ &PL_compiling, sv);
 	}
 	break;
@@ -1002,23 +1002,23 @@ Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
             sv_setiv(sv, (IV)PL_basetime);
 #endif
         }
-	else if (strEQ(remaining, "AINT"))
+	else if (strEQc(remaining, "AINT"))
             sv_setiv(sv, TAINTING_get
 		    ? (TAINT_WARN_get || PL_unsafe ? -1 : 1)
 		    : 0);
         break;
     case '\025':		/* $^UNICODE, $^UTF8LOCALE, $^UTF8CACHE */
-	if (strEQ(remaining, "NICODE"))
+	if (strEQc(remaining, "NICODE"))
 	    sv_setuv(sv, (UV) PL_unicode);
-	else if (strEQ(remaining, "TF8LOCALE"))
+	else if (strEQc(remaining, "TF8LOCALE"))
 	    sv_setuv(sv, (UV) PL_utf8locale);
-	else if (strEQ(remaining, "TF8CACHE"))
+	else if (strEQc(remaining, "TF8CACHE"))
 	    sv_setiv(sv, (IV) PL_utf8cache);
         break;
     case '\027':		/* ^W  & $^WARNING_BITS */
 	if (nextchar == '\0')
 	    sv_setiv(sv, (IV)((PL_dowarn & G_WARN_ON) ? TRUE : FALSE));
-	else if (strEQ(remaining, "ARNING_BITS")) {
+	else if (strEQc(remaining, "ARNING_BITS")) {
 	    if (PL_compiling.cop_warnings == pWARN_NONE) {
 	        sv_setpvn(sv, WARN_NONEstring, WARNsize) ;
 	    }
@@ -1042,7 +1042,7 @@ Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
 	    }
 	}
 #ifdef WIN32
-	else if (strEQ(remaining, "IN32_SLOPPY_STAT")) {
+	else if (strEQc(remaining, "IN32_SLOPPY_STAT")) {
 	    sv_setiv(sv, w32_sloppystat);
 	}
 #endif
@@ -1221,7 +1221,7 @@ Perl_magic_setenv(pTHX_ SV *sv, MAGIC *mg)
     if (TAINTING_get) {
 	MgTAINTEDDIR_off(mg);
 #ifdef VMS
-	if (s && klen == 8 && strEQ(key, "DCL$PATH")) {
+	if (s && klen == 8 && strEQc(key, "DCL$PATH")) {
 	    char pathbuf[256], eltbuf[256], *cp, *elt;
 	    int i = 0, j = 0;
 
@@ -1247,7 +1247,7 @@ Perl_magic_setenv(pTHX_ SV *sv, MAGIC *mg)
 	    } while (my_trnlnm(s, pathbuf, i++) && (elt = pathbuf));
 	}
 #endif /* VMS */
-	if (s && klen == 4 && strEQ(key,"PATH")) {
+	if (s && klen == 4 && strEQc(key,"PATH")) {
 	    const char * const strend = s + len;
 
 	    while (s < strend) {
@@ -2744,7 +2744,7 @@ Perl_magic_set(pTHX_ SV *sv, MAGIC *mg)
                 lex = TRUE;
                 offset++;
             }
-            if (strEQ(mg->mg_ptr + offset, "NCODING")) {
+            if (strEQc(mg->mg_ptr + offset, "NCODING")) {
                 if (lex) {  /* Use the shadow global */
                     SvREFCNT_dec(PL_lex_encoding);
                     if (SvOK(sv) || SvGMAGICAL(sv)) {
@@ -2793,7 +2793,7 @@ Perl_magic_set(pTHX_ SV *sv, MAGIC *mg)
 		PL_osname = savesvpv(sv);
 	    }
 	}
-	else if (strEQ(mg->mg_ptr, "\017PEN")) {
+	else if (strEQc(mg->mg_ptr, "\017PEN")) {
 	    STRLEN len;
 	    const char *const start = SvPV(sv, len);
 	    const char *out = (const char*)memchr(start, '\0', len);
@@ -2830,7 +2830,7 @@ Perl_magic_set(pTHX_ SV *sv, MAGIC *mg)
 #endif
 	break;
     case '\025':	/* ^UTF8CACHE */
-	 if (strEQ(mg->mg_ptr+1, "TF8CACHE")) {
+	 if (strEQc(mg->mg_ptr+1, "TF8CACHE")) {
 	     PL_utf8cache = (signed char) sv_2iv(sv);
 	 }
 	 break;
@@ -2842,7 +2842,7 @@ Perl_magic_set(pTHX_ SV *sv, MAGIC *mg)
 		    		| (i ? G_WARN_ON : G_WARN_OFF) ;
 	    }
 	}
-	else if (strEQ(mg->mg_ptr+1, "ARNING_BITS")) {
+	else if (strEQc(mg->mg_ptr+1, "ARNING_BITS")) {
 	    if ( ! (PL_dowarn & G_WARN_ALL_MASK)) {
 		if (!SvPOK(sv)) {
 	            PL_compiling.cop_warnings = pWARN_STD;
@@ -2889,7 +2889,7 @@ Perl_magic_set(pTHX_ SV *sv, MAGIC *mg)
 	    }
 	}
 #ifdef WIN32
-	else if (strEQ(mg->mg_ptr+1, "IN32_SLOPPY_STAT")) {
+	else if (strEQc(mg->mg_ptr+1, "IN32_SLOPPY_STAT")) {
 	    w32_sloppystat = (bool)sv_true(sv);
 	}
 #endif

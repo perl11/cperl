@@ -142,7 +142,7 @@ STATIC bool ab_op_is_dollar_bracket(pTHX_ OP *o) {
   && (c = cUNOPx(o)->op_first)
   && c->op_type == OP_GV
   && GvSTASH(cGVOPx_gv(c)) == PL_defstash
-  && strEQ(GvNAME(cGVOPx_gv(c)), "[");
+  && strEQc(GvNAME(cGVOPx_gv(c)), "[");
 }
 
 STATIC void ab_neuter_dollar_bracket(pTHX_ OP *o) {

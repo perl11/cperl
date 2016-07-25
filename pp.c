@@ -666,7 +666,7 @@ PP(pp_gelem)
 	const char * const second_letter = elem + 1;
 	switch (*elem) {
 	case 'A':
-	    if (len == 5 && strEQ(second_letter, "RRAY"))
+	    if (len == 5 && strEQc(second_letter, "RRAY"))
 	    {
 		tmpRef = MUTABLE_SV(GvAV(gv));
 		if (tmpRef && !AvREAL((const AV *)tmpRef)
@@ -675,23 +675,23 @@ PP(pp_gelem)
 	    }
 	    break;
 	case 'C':
-	    if (len == 4 && strEQ(second_letter, "ODE"))
+	    if (len == 4 && strEQc(second_letter, "ODE"))
 		tmpRef = MUTABLE_SV(GvCVu(gv));
 	    break;
 	case 'F':
-	    if (len == 10 && strEQ(second_letter, "ILEHANDLE")) {
+	    if (len == 10 && strEQc(second_letter, "ILEHANDLE")) {
 		tmpRef = MUTABLE_SV(GvIOp(gv));
 	    }
 	    else
-		if (len == 6 && strEQ(second_letter, "ORMAT"))
+		if (len == 6 && strEQc(second_letter, "ORMAT"))
 		    tmpRef = MUTABLE_SV(GvFORM(gv));
 	    break;
 	case 'G':
-	    if (len == 4 && strEQ(second_letter, "LOB"))
+	    if (len == 4 && strEQc(second_letter, "LOB"))
 		tmpRef = MUTABLE_SV(gv);
 	    break;
 	case 'H':
-	    if (len == 4 && strEQ(second_letter, "ASH"))
+	    if (len == 4 && strEQc(second_letter, "ASH"))
 		tmpRef = MUTABLE_SV(GvHV(gv));
 	    break;
 	case 'I':
@@ -699,18 +699,18 @@ PP(pp_gelem)
 		tmpRef = MUTABLE_SV(GvIOp(gv));
 	    break;
 	case 'N':
-	    if (len == 4 && strEQ(second_letter, "AME"))
+	    if (len == 4 && strEQc(second_letter, "AME"))
 		sv = newSVhek(GvNAME_HEK(gv));
 	    break;
 	case 'P':
-	    if (len == 7 && strEQ(second_letter, "ACKAGE")) {
+	    if (len == 7 && strEQc(second_letter, "ACKAGE")) {
 		const HV * const stash = GvSTASH(gv);
 		const HEK * const hek = stash ? HvNAME_HEK(stash) : NULL;
 		sv = hek ? newSVhek(hek) : newSVpvs("__ANON__");
 	    }
 	    break;
 	case 'S':
-	    if (len == 6 && strEQ(second_letter, "CALAR"))
+	    if (len == 6 && strEQc(second_letter, "CALAR"))
 		tmpRef = GvSVn(gv);
 	    break;
 	}
@@ -1055,14 +1055,14 @@ PP(pp_undef)
                 mro_package_moved(NULL, stash, (const GV *)sv, 0);
             stash = NULL;
             /* undef *Foo::ISA */
-            if( strEQ(GvNAME((const GV *)sv), "ISA")
+            if( strEQc(GvNAME((const GV *)sv), "ISA")
              && (stash = GvSTASH((const GV *)sv))
              && (method_changed || HvENAME(stash)) )
                 mro_isa_changed_in(stash);
-            else if(method_changed)
-                mro_method_changed_in(
-                 GvSTASH((const GV *)sv)
-                );
+            else if (method_changed)
+                    mro_method_changed_in(
+                        GvSTASH((const GV *)sv)
+                    );
 
 	    break;
 	}

@@ -12,6 +12,14 @@
 #define NEED_sv_2pv_nolen
 #define NEED_sv_2pvbyte
 #include "ppport.h"
+
+/* cperl optims */
+#ifndef strEQc
+/* the buffer ends with \0, includes comparison of the \0.
+   better than strEQ as it uses memcmp, word-wise comparison. */
+#define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
+#endif
+
 #include <yaml.h>
 #include <ppport_sort.h>
 

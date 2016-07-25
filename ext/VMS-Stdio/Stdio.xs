@@ -17,55 +17,55 @@ constant(char *name, IV *pval)
 {
     if (strnNE(name, "O_", 2)) return FALSE;
 
-    if (strEQ(name, "O_APPEND"))
+    if (strEQc(name, "O_APPEND"))
 #ifdef O_APPEND
 	{ *pval = O_APPEND; return TRUE; }
 #else
 	return FALSE;
 #endif
-    if (strEQ(name, "O_CREAT"))
+    if (strEQc(name, "O_CREAT"))
 #ifdef O_CREAT
 	{ *pval = O_CREAT; return TRUE; }
 #else
 	return FALSE;
 #endif
-    if (strEQ(name, "O_EXCL"))
+    if (strEQc(name, "O_EXCL"))
 #ifdef O_EXCL
 	{ *pval = O_EXCL; return TRUE; }
 #else
 	return FALSE;
 #endif
-    if (strEQ(name, "O_NDELAY"))
+    if (strEQc(name, "O_NDELAY"))
 #ifdef O_NDELAY
 	{ *pval = O_NDELAY; return TRUE; }
 #else
 	return FALSE;
 #endif
-    if (strEQ(name, "O_NOWAIT"))
+    if (strEQc(name, "O_NOWAIT"))
 #ifdef O_NOWAIT
 	{ *pval = O_NOWAIT; return TRUE; }
 #else
 	return FALSE;
 #endif
-    if (strEQ(name, "O_RDONLY"))
+    if (strEQc(name, "O_RDONLY"))
 #ifdef O_RDONLY
 	{ *pval = O_RDONLY; return TRUE; }
 #else
 	return FALSE;
 #endif
-    if (strEQ(name, "O_RDWR"))
+    if (strEQc(name, "O_RDWR"))
 #ifdef O_RDWR
 	{ *pval = O_RDWR; return TRUE; }
 #else
 	return FALSE;
 #endif
-    if (strEQ(name, "O_TRUNC"))
+    if (strEQc(name, "O_TRUNC"))
 #ifdef O_TRUNC
 	{ *pval = O_TRUNC; return TRUE; }
 #else
 	return FALSE;
 #endif
-    if (strEQ(name, "O_WRONLY"))
+    if (strEQc(name, "O_WRONLY"))
 #ifdef O_WRONLY
 	{ *pval = O_WRONLY; return TRUE; }
 #else

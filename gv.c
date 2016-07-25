@@ -1082,7 +1082,7 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 
     gv = gv_fetchmeth_pvn(stash, name, nend - name, 0, flags);
     if (!gv) {
-	if (strEQ(name,"import") || strEQ(name,"unimport"))
+	if (strEQc(name,"import") || strEQc(name,"unimport"))
 	    gv = MUTABLE_GV(&PL_sv_yes);
 	else if (autoload)
 	    gv = gv_autoload_pvn(
@@ -1841,11 +1841,11 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
 		    GvMULTI_on(gv);
 		break;
 	    case 'I':
-		if (strEQ(name2, "SA"))
+		if (strEQc(name2, "SA"))
 		    gv_magicalize_isa(gv);
 		break;
 	    case 'V':
-		if (strEQ(name2, "ERSION"))
+		if (strEQc(name2, "ERSION"))
 		    GvMULTI_on(gv);
 		break;
 	    case 'a':
@@ -1886,10 +1886,10 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
 	    const char * name2 = name + 1;
 	    switch (*name) {
 	    case 'A':
-		if (strEQ(name2, "RGV")) {
+		if (strEQc(name2, "RGV")) {
 		    IoFLAGS(GvIOn_NN(gv)) |= IOf_ARGV|IOf_START;
 		}
-		else if (strEQ(name2, "RGVOUT")) {
+		else if (strEQc(name2, "RGVOUT")) {
 		    GvMULTI_on(gv);
 		}
 		break;
@@ -1898,12 +1898,12 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
 		    GvMULTI_on(gv);
 		break;
 	    case 'I':
-		if (strEQ(name2, "SA")) {
+		if (strEQc(name2, "SA")) {
 		    gv_magicalize_isa(gv);
 		}
 		break;
 	    case 'S':
-		if (strEQ(name2, "IG")) {
+		if (strEQc(name2, "IG")) {
 		    HV *hv;
 		    I32 i;
 		    if (!PL_psig_name) {
@@ -1934,65 +1934,65 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
 		}
 		break;
 	    case 'V':
-		if (strEQ(name2, "ERSION"))
+		if (strEQc(name2, "ERSION"))
 		    GvMULTI_on(gv);
 		break;
             case '\003':        /* $^CHILD_ERROR_NATIVE */
-		if (strEQ(name2, "HILD_ERROR_NATIVE"))
+		if (strEQc(name2, "HILD_ERROR_NATIVE"))
 		    goto magicalize;
 		break;
 	    case '\005':	/* $^ENCODING */
                 if (*name2 == '_') {
                     name2++;
                 }
-		if (strEQ(name2, "NCODING"))
+		if (strEQc(name2, "NCODING"))
 		    goto magicalize;
 		break;
 	    case '\007':	/* $^GLOBAL_PHASE */
-		if (strEQ(name2, "LOBAL_PHASE"))
+		if (strEQc(name2, "LOBAL_PHASE"))
 		    goto ro_magicalize;
 		break;
 	    case '\014':	/* $^LAST_FH */
-		if (strEQ(name2, "AST_FH"))
+		if (strEQc(name2, "AST_FH"))
 		    goto ro_magicalize;
 		break;
             case '\015':        /* $^MATCH */
-                if (strEQ(name2, "ATCH")) {
+                if (strEQc(name2, "ATCH")) {
                     paren = RX_BUFF_IDX_CARET_FULLMATCH;
                     goto storeparen;
                 }
                 break;
 	    case '\017':	/* $^OPEN */
-		if (strEQ(name2, "PEN"))
+		if (strEQc(name2, "PEN"))
 		    goto magicalize;
 		break;
 	    case '\020':        /* $^PREMATCH  $^POSTMATCH */
-                if (strEQ(name2, "REMATCH")) {
+                if (strEQc(name2, "REMATCH")) {
                     paren = RX_BUFF_IDX_CARET_PREMATCH;
                     goto storeparen;
                 }
-	        if (strEQ(name2, "OSTMATCH")) {
+	        if (strEQc(name2, "OSTMATCH")) {
                     paren = RX_BUFF_IDX_CARET_POSTMATCH;
                     goto storeparen;
                 }
 		break;
 	    case '\024':	/* ${^TAINT} */
-		if (strEQ(name2, "AINT"))
+		if (strEQc(name2, "AINT"))
 		    goto ro_magicalize;
 		break;
 	    case '\025':	/* ${^UNICODE}, ${^UTF8LOCALE} */
-		if (strEQ(name2, "NICODE"))
+		if (strEQc(name2, "NICODE"))
 		    goto ro_magicalize;
-		if (strEQ(name2, "TF8LOCALE"))
+		if (strEQc(name2, "TF8LOCALE"))
 		    goto ro_magicalize;
-		if (strEQ(name2, "TF8CACHE"))
+		if (strEQc(name2, "TF8CACHE"))
 		    goto magicalize;
 		break;
 	    case '\027':	/* $^WARNING_BITS */
-		if (strEQ(name2, "ARNING_BITS"))
+		if (strEQc(name2, "ARNING_BITS"))
 		    goto magicalize;
 #ifdef WIN32
-		else if (strEQ(name2, "IN32_SLOPPY_STAT"))
+		else if (strEQc(name2, "IN32_SLOPPY_STAT"))
 		    goto magicalize;
 #endif
 		break;
@@ -2738,9 +2738,9 @@ Perl_Gv_AMupdate(pTHX_ HV *stash, bool destructing)
                 CvNAMED(cv) ? CvNAME_HEK(cv) : GvNAME_HEK(CvGV(cv));
             const HEK * const stashek =
                 HvNAME_HEK(CvNAMED(cv) ? CvSTASH(cv) : GvSTASH(CvGV(cv)));
-            if (HEK_LEN(gvhek) == 3 && strEQ(HEK_KEY(gvhek), "nil")
+            if (HEK_LEN(gvhek) == 3 && strEQc(HEK_KEY(gvhek), "nil")
              && stashek && HEK_LEN(stashek) == 8
-             && strEQ(HEK_KEY(stashek), "overload")) {
+             && strEQc(HEK_KEY(stashek), "overload")) {
 		/* This is a hack to support autoloading..., while
 		   knowing *which* methods were declared as overloaded. */
 		/* GvSV contains the name of the method. */

@@ -524,7 +524,7 @@ Perl_mro_isa_changed_in(pTHX_ HV* stash)
     svp = hv_fetchhek(PL_isarev, stashhek, 0);
     isarev = svp ? MUTABLE_HV(*svp) : NULL;
 
-    if((stashname_len == 9 && strEQ(stashname, "UNIVERSAL"))
+    if((stashname_len == 9 && strEQc(stashname, "UNIVERSAL"))
         || (isarev && hv_exists(isarev, "UNIVERSAL", 9))) {
         PL_sub_generation++;
         is_universal = TRUE;
@@ -1329,7 +1329,7 @@ Perl_mro_method_changed_in(pTHX_ HV *stash)
 
     /* If stash is UNIVERSAL, or one of UNIVERSAL's parents,
        invalidate all method caches globally */
-    if((stashname_len == 9 && strEQ(stashname, "UNIVERSAL"))
+    if((stashname_len == 9 && strEQc(stashname, "UNIVERSAL"))
         || (isarev && hv_exists(isarev, "UNIVERSAL", 9))) {
         PL_sub_generation++;
         return;

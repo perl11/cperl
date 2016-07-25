@@ -1558,13 +1558,13 @@ static const struct lconv_offset lconv_strings[] = {
 
 /* The Linux man pages say these are the field names for the structure
  * components that are LC_NUMERIC; the rest being LC_MONETARY */
-#   define isLC_NUMERIC_STRING(name) (strEQ(name, "decimal_point")     \
-                                      || strEQ(name, "thousands_sep")  \
+#   define isLC_NUMERIC_STRING(name) (strEQc(name, "decimal_point")     \
+                                      || strEQc(name, "thousands_sep")  \
                                                                         \
                                       /* There should be no harm done   \
                                        * checking for this, even if     \
                                        * NO_LOCALECONV_GROUPING */      \
-                                      || strEQ(name, "grouping"))
+                                      || strEQc(name, "grouping"))
 #else
 #   define isLC_NUMERIC_STRING(name) (0)
 #endif
@@ -3046,10 +3046,10 @@ sigaction(sig, optaction, oldaction = 0)
 		/* And here again we duplicate -- DEFAULT/IGNORE checking. */
 		if(SvPOK(*svp)) {
 			const char *s=SvPVX_const(*svp);
-			if(strEQ(s,"IGNORE")) {
+			if(strEQc(s,"IGNORE")) {
 				act.sa_handler = SIG_IGN;
 			}
-			else if(strEQ(s,"DEFAULT")) {
+			else if(strEQc(s,"DEFAULT")) {
 				act.sa_handler = SIG_DFL;
 			}
 		}

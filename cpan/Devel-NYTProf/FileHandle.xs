@@ -880,7 +880,7 @@ NYTP_write_comment(NYTP_file ofile, const char *format, ...) {
 
     va_start(args, format);
 
-    if(strEQ(format, "%s")) {
+    if(strEQc(format, "%s")) {
         const char * const s = va_arg(args, char*);
         STRLEN len = strlen(s);
         retval = NYTP_write(ofile, s, len);

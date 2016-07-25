@@ -8,6 +8,13 @@
 #  include "ppport.h"
 #endif
 
+/* cperl optims */
+#ifndef strEQc
+/* the buffer ends with \0, includes comparison of the \0.
+   better than strEQ as it uses memcmp, word-wise comparison. */
+#define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
+#endif
+
 #if PERL_VERSION < 8
 #  define DD_USE_OLD_ID_FORMAT
 #endif
@@ -661,7 +668,7 @@ DD_dump(pTHX_ SV *val, const char *name, STRLEN namelen, SV *retval, HV *seenhv,
          * they can be blessed into any package. 
          */
 #if PERL_VERSION < 8
-	if (realpack && *realpack == 'R' && strEQ(realpack, "Regexp")) 
+	if (realpack && *realpack == 'R' && strEQc(realpack, "Regexp")) 
 #elif PERL_VERSION < 11
         if (realpack && realtype == SVt_PVMG && mg_find(ival, PERL_MAGIC_qr))
 #else        
@@ -669,7 +676,7 @@ DD_dump(pTHX_ SV *val, const char *name, STRLEN namelen, SV *retval, HV *seenhv,
 #endif
         {
             is_regex = 1;
-            if (strEQ(realpack, "Regexp")) 
+            if (strEQc(realpack, "Regexp")) 
                 no_bless = 1;
             else
                 no_bless = 0;

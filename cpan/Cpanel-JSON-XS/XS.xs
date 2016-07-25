@@ -87,6 +87,11 @@
 #ifndef HvNAMEUTF8
 # define HvNAMEUTF8(hv) 0
 #endif
+#ifndef strEQc
+/* the buffer ends with \0, includes comparison of the \0.
+   better than strEQ as it uses memcmp, word-wise comparison. */
+#define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
+#endif
 
 /* three extra for rounding, sign, and end of string */
 #define IVUV_MAXCHARS (sizeof (UV) * CHAR_BIT * 28 / 93 + 3)
@@ -1201,14 +1206,14 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
       (void)Gconvert (SvNVX (sv), NV_DIG, 0, enc->cur);
 #endif
 
-      if (strEQ(enc->cur, STR_INF) || strEQ(enc->cur, STR_NAN)
+      if (strEQ(enc->cur, STR_INF) || strEQc(enc->cur, STR_NAN)
 #if defined(_WIN32)
-          || strEQ(enc->cur, STR_QNAN)
+          || strEQc(enc->cur, STR_QNAN)
 #endif
           || (*enc->cur == '-' &&
-              (strEQ(enc->cur+1, STR_INF) || strEQ(enc->cur+1, STR_NAN)
+              (strEQc(enc->cur+1, STR_INF) || strEQc(enc->cur+1, STR_NAN)
 #if defined(_WIN32)
-               || strEQ(enc->cur+1, STR_QNAN)
+               || strEQc(enc->cur+1, STR_QNAN)
 #endif
                ))) {
         inf_or_nan = 1;
@@ -1242,7 +1247,7 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
             || strchr(enc->cur,'e') || strchr(enc->cur,'E')
 #if PERL_VERSION < 10
                /* !!1 with 5.8 */
-               || (SvPOKp(sv) && strEQ(SvPVX(sv), "1")
+               || (SvPOKp(sv) && strEQc(SvPVX(sv), "1")
                    && SvNVX(sv) == 1.0) /* yes */
 #endif
                ) )

@@ -310,11 +310,11 @@ XS(XS_strict_bits)
             Perl_croak(aTHX_ "Unknown 'strict' tag(s) ");
         }
         name = SvPVX(pv);
-        if (strEQ(name, "refs"))
+        if (strEQc(name, "refs"))
             bits |= HINT_STRICT_REFS;
-        else if (strEQ(name, "subs"))
+        else if (strEQc(name, "subs"))
             bits |= HINT_STRICT_SUBS;
-        else if (strEQ(name, "vars"))
+        else if (strEQc(name, "vars"))
             bits |= HINT_STRICT_VARS;
         else /* Maybe join all the wrong names. or not */
             Perl_croak(aTHX_ "Unknown 'strict' tag(s) '%s'", name);
@@ -341,11 +341,11 @@ XS(XS_strict_import)
                 Perl_croak(aTHX_ "Unknown 'strict' tag(s) ");
             }
             name = SvPVX(pv);
-            if (strEQ(name, "refs"))
+            if (strEQc(name, "refs"))
                 PL_hints |= HINT_STRICT_REFS | HINT_EXPLICIT_STRICT_REFS;
-            else if (strEQ(name, "subs"))
+            else if (strEQc(name, "subs"))
                 PL_hints |= HINT_STRICT_SUBS | HINT_EXPLICIT_STRICT_SUBS;
-            else if (strEQ(name, "vars"))
+            else if (strEQc(name, "vars"))
                 PL_hints |= HINT_STRICT_VARS | HINT_EXPLICIT_STRICT_VARS;
             else /* Maybe join all the wrong names. or not */
                 Perl_croak(aTHX_ "Unknown 'strict' tag(s) '%s'", name);
@@ -374,11 +374,11 @@ XS(XS_strict_unimport)
                 Perl_croak(aTHX_ "Unknown 'strict' tag(s) ");
             }
             name = SvPVX(pv);
-            if (strEQ(name, "refs"))
+            if (strEQc(name, "refs"))
                 PL_hints &= ~(HINT_STRICT_REFS | HINT_EXPLICIT_STRICT_REFS);
-            else if (strEQ(name, "subs"))
+            else if (strEQc(name, "subs"))
                 PL_hints &= ~(HINT_STRICT_SUBS | HINT_EXPLICIT_STRICT_SUBS);
-            else if (strEQ(name, "vars"))
+            else if (strEQc(name, "vars"))
                 PL_hints &= ~(HINT_STRICT_VARS | HINT_EXPLICIT_STRICT_VARS);
             else /* Maybe join all the wrong names. or not */
                 Perl_croak(aTHX_ "Unknown 'strict' tag(s) '%s'", name);

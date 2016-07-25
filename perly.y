@@ -269,9 +269,9 @@ barestmt:	PLUGSTMT
 			  if ($2->op_type == OP_CONST) {
 			    const char *const name =
 				SvPV_nolen_const(((SVOP*)$2)->op_sv);
-			    if (strEQ(name, "BEGIN") || strEQ(name, "END")
-			      || strEQ(name, "INIT") || strEQ(name, "CHECK")
-			      || strEQ(name, "UNITCHECK"))
+			    if (strEQc(name, "BEGIN") || strEQc(name, "END")
+			      || strEQc(name, "INIT") || strEQc(name, "CHECK")
+			      || strEQc(name, "UNITCHECK"))
 			      CvSPECIAL_on(PL_compcv);
 			  }
 			  else
@@ -302,9 +302,9 @@ barestmt:	PLUGSTMT
 			  if ($2->op_type == OP_CONST) {
 			    const char *const name =
 				SvPV_nolen_const(((SVOP*)$2)->op_sv);
-			    if (strEQ(name, "BEGIN") || strEQ(name, "END")
-			      || strEQ(name, "INIT") || strEQ(name, "CHECK")
-			      || strEQ(name, "UNITCHECK"))
+			    if (strEQc(name, "BEGIN") || strEQc(name, "END")
+			      || strEQc(name, "INIT") || strEQc(name, "CHECK")
+			      || strEQc(name, "UNITCHECK"))
 			      CvSPECIAL_on(PL_compcv);
 			  }
 			  else

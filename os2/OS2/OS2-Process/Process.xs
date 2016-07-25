@@ -20,182 +20,182 @@ constant(char *name, int arg)
 {
     errno = 0;
     if (name[0] == 'P' && name[1] == '_') {
-	if (strEQ(name, "P_BACKGROUND"))
+	if (strEQc(name, "P_BACKGROUND"))
 #ifdef P_BACKGROUND
 	    return P_BACKGROUND;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_DEBUG"))
+	if (strEQc(name, "P_DEBUG"))
 #ifdef P_DEBUG
 	    return P_DEBUG;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_DEFAULT"))
+	if (strEQc(name, "P_DEFAULT"))
 #ifdef P_DEFAULT
 	    return P_DEFAULT;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_DETACH"))
+	if (strEQc(name, "P_DETACH"))
 #ifdef P_DETACH
 	    return P_DETACH;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_FOREGROUND"))
+	if (strEQc(name, "P_FOREGROUND"))
 #ifdef P_FOREGROUND
 	    return P_FOREGROUND;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_FULLSCREEN"))
+	if (strEQc(name, "P_FULLSCREEN"))
 #ifdef P_FULLSCREEN
 	    return P_FULLSCREEN;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_MAXIMIZE"))
+	if (strEQc(name, "P_MAXIMIZE"))
 #ifdef P_MAXIMIZE
 	    return P_MAXIMIZE;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_MINIMIZE"))
+	if (strEQc(name, "P_MINIMIZE"))
 #ifdef P_MINIMIZE
 	    return P_MINIMIZE;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_NOCLOSE"))
+	if (strEQc(name, "P_NOCLOSE"))
 #ifdef P_NOCLOSE
 	    return P_NOCLOSE;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_NOSESSION"))
+	if (strEQc(name, "P_NOSESSION"))
 #ifdef P_NOSESSION
 	    return P_NOSESSION;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_NOWAIT"))
+	if (strEQc(name, "P_NOWAIT"))
 #ifdef P_NOWAIT
 	    return P_NOWAIT;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_OVERLAY"))
+	if (strEQc(name, "P_OVERLAY"))
 #ifdef P_OVERLAY
 	    return P_OVERLAY;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_PM"))
+	if (strEQc(name, "P_PM"))
 #ifdef P_PM
 	    return P_PM;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_QUOTE"))
+	if (strEQc(name, "P_QUOTE"))
 #ifdef P_QUOTE
 	    return P_QUOTE;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_SESSION"))
+	if (strEQc(name, "P_SESSION"))
 #ifdef P_SESSION
 	    return P_SESSION;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_TILDE"))
+	if (strEQc(name, "P_TILDE"))
 #ifdef P_TILDE
 	    return P_TILDE;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_UNRELATED"))
+	if (strEQc(name, "P_UNRELATED"))
 #ifdef P_UNRELATED
 	    return P_UNRELATED;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_WAIT"))
+	if (strEQc(name, "P_WAIT"))
 #ifdef P_WAIT
 	    return P_WAIT;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "P_WINDOWED"))
+	if (strEQc(name, "P_WINDOWED"))
 #ifdef P_WINDOWED
 	    return P_WINDOWED;
 #else
 	    goto not_there;
 #endif
     } else if (name[0] == 'T' && name[1] == '_') {
-	if (strEQ(name, "FAPPTYP_NOTSPEC"))
+	if (strEQc(name, "FAPPTYP_NOTSPEC"))
 #ifdef FAPPTYP_NOTSPEC
 	    return FAPPTYP_NOTSPEC;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "T_NOTWINDOWCOMPAT"))
+	if (strEQc(name, "T_NOTWINDOWCOMPAT"))
 #ifdef FAPPTYP_NOTWINDOWCOMPAT
 	    return FAPPTYP_NOTWINDOWCOMPAT;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "T_WINDOWCOMPAT"))
+	if (strEQc(name, "T_WINDOWCOMPAT"))
 #ifdef FAPPTYP_WINDOWCOMPAT
 	    return FAPPTYP_WINDOWCOMPAT;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "T_WINDOWAPI"))
+	if (strEQc(name, "T_WINDOWAPI"))
 #ifdef FAPPTYP_WINDOWAPI
 	    return FAPPTYP_WINDOWAPI;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "T_BOUND"))
+	if (strEQc(name, "T_BOUND"))
 #ifdef FAPPTYP_BOUND
 	    return FAPPTYP_BOUND;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "T_DLL"))
+	if (strEQc(name, "T_DLL"))
 #ifdef FAPPTYP_DLL
 	    return FAPPTYP_DLL;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "T_DOS"))
+	if (strEQc(name, "T_DOS"))
 #ifdef FAPPTYP_DOS
 	    return FAPPTYP_DOS;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "T_PHYSDRV"))
+	if (strEQc(name, "T_PHYSDRV"))
 #ifdef FAPPTYP_PHYSDRV
 	    return FAPPTYP_PHYSDRV;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "T_VIRTDRV"))
+	if (strEQc(name, "T_VIRTDRV"))
 #ifdef FAPPTYP_VIRTDRV
 	    return FAPPTYP_VIRTDRV;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "T_PROTDLL"))
+	if (strEQc(name, "T_PROTDLL"))
 #ifdef FAPPTYP_PROTDLL
 	    return FAPPTYP_PROTDLL;
 #else
 	    goto not_there;
 #endif
-	if (strEQ(name, "T_32BIT"))
+	if (strEQc(name, "T_32BIT"))
 #ifdef FAPPTYP_32BIT
 	    return FAPPTYP_32BIT;
 #else

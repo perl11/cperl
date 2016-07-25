@@ -1518,7 +1518,7 @@ PP(pp_sort)
 	  check_cv:
 	    if (cv && SvPOK(cv)) {
 		const char * const proto = SvPV_nolen_const(MUTABLE_SV(cv));
-		if (proto && strEQ(proto, "$$")) {
+		if (proto && strEQc(proto, "$$")) {
 		    hasargs = TRUE;
 		}
 	    }

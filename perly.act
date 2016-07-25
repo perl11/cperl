@@ -245,9 +245,9 @@ case 2:
 			  if ((ps[-1].val.opval)->op_type == OP_CONST) {
 			    const char *const name =
 				SvPV_nolen_const(((SVOP*)(ps[-1].val.opval))->op_sv);
-			    if (strEQ(name, "BEGIN") || strEQ(name, "END")
-			      || strEQ(name, "INIT") || strEQ(name, "CHECK")
-			      || strEQ(name, "UNITCHECK"))
+			    if (strEQc(name, "BEGIN") || strEQc(name, "END")
+			      || strEQc(name, "INIT") || strEQc(name, "CHECK")
+			      || strEQc(name, "UNITCHECK"))
 			      CvSPECIAL_on(PL_compcv);
 			  }
 			  else
@@ -286,9 +286,9 @@ case 2:
 			  if ((ps[-1].val.opval)->op_type == OP_CONST) {
 			    const char *const name =
 				SvPV_nolen_const(((SVOP*)(ps[-1].val.opval))->op_sv);
-			    if (strEQ(name, "BEGIN") || strEQ(name, "END")
-			      || strEQ(name, "INIT") || strEQ(name, "CHECK")
-			      || strEQ(name, "UNITCHECK"))
+			    if (strEQc(name, "BEGIN") || strEQc(name, "END")
+			      || strEQc(name, "INIT") || strEQc(name, "CHECK")
+			      || strEQc(name, "UNITCHECK"))
 			      CvSPECIAL_on(PL_compcv);
 			  }
 			  else
@@ -1824,6 +1824,6 @@ case 2:
     
 
 /* Generated from:
- * 9448e731e74bffb5e4c4d5c1e75f767e007cc8143a3a5731e1138f1d7a31459c perly.y
+ * 9c77b1ceb0faa062220e0fa85d52b9add30763197807b93388c3ce6115e48dc7 perly.y
  * d75acf04e5e050e9d0de13999b5b46a13f176dcf9f75c07acf51e913fc41db9a regen_perly.pl
  * ex: set ro: */

@@ -1624,7 +1624,7 @@ DB_stmt(pTHX_ COP *cop, OP *op)
              * treats those as 'line 0', so we try not to warn in those cases.
              */
             char *pkg_name = CopSTASHPV(cop);
-            int is_preamble = (PL_scopestack_ix <= 7 && strEQ(pkg_name,"main"));
+            int is_preamble = (PL_scopestack_ix <= 7 && strEQc(pkg_name,"main"));
 
             /* op is null when called via finish_profile called by END */
             if (!is_preamble && op) {
@@ -1754,10 +1754,10 @@ set_option(pTHX_ const char* option, const char* value)
     if (!value || !*value)
         croak("%s: '%s' has no value", "NYTProf set_option", option);
 
-    if (strEQ(option, "file")) {
+    if (strEQc(option, "file")) {
         strncpy(PROF_output_file, value, MAXPATHLEN);
     }
-    else if (strEQ(option, "log")) {
+    else if (strEQc(option, "log")) {
         FILE *fp = fopen(value, "a");
         if (!fp) {
             logwarn("Can't open log file '%s' for writing: %s\n",
@@ -1766,38 +1766,38 @@ set_option(pTHX_ const char* option, const char* value)
         }
         logfh = fp;
     }
-    else if (strEQ(option, "start")) {
-        if      (strEQ(value,"begin")) profile_start = NYTP_START_BEGIN;
-        else if (strEQ(value,"init"))  profile_start = NYTP_START_INIT;
-        else if (strEQ(value,"end"))   profile_start = NYTP_START_END;
-        else if (strEQ(value,"no"))    profile_start = NYTP_START_NO;
+    else if (strEQc(option, "start")) {
+        if      (strEQc(value,"begin")) profile_start = NYTP_START_BEGIN;
+        else if (strEQc(value,"init"))  profile_start = NYTP_START_INIT;
+        else if (strEQc(value,"end"))   profile_start = NYTP_START_END;
+        else if (strEQc(value,"no"))    profile_start = NYTP_START_NO;
         else croak("NYTProf option 'start' has invalid value '%s'\n", value);
     }
-    else if (strEQ(option, "addpid")) {
+    else if (strEQc(option, "addpid")) {
         profile_opts = (atoi(value))
             ? profile_opts |  NYTP_OPTf_ADDPID
             : profile_opts & ~NYTP_OPTf_ADDPID;
     }
-    else if (strEQ(option, "addtimestamp")) {
+    else if (strEQc(option, "addtimestamp")) {
         profile_opts = (atoi(value))
             ? profile_opts |  NYTP_OPTf_ADDTIMESTAMP
             : profile_opts & ~NYTP_OPTf_ADDTIMESTAMP;
     }
-    else if (strEQ(option, "optimize") || strEQ(option, "optimise")) {
+    else if (strEQc(option, "optimize") || strEQc(option, "optimise")) {
         profile_opts = (atoi(value))
             ? profile_opts |  NYTP_OPTf_OPTIMIZE
             : profile_opts & ~NYTP_OPTf_OPTIMIZE;
     }
-    else if (strEQ(option, "savesrc")) {
+    else if (strEQc(option, "savesrc")) {
         profile_opts = (atoi(value))
             ? profile_opts |  NYTP_OPTf_SAVESRC
             : profile_opts & ~NYTP_OPTf_SAVESRC;
     }
-    else if (strEQ(option, "endatexit")) {
+    else if (strEQc(option, "endatexit")) {
         if (atoi(value))
             PL_exit_flags |= PERL_EXIT_DESTRUCT_END;
     }
-    else if (strEQ(option, "libcexit")) {
+    else if (strEQc(option, "libcexit")) {
         if (atoi(value))
 	    atexit(finish_profile_nocontext);
     }
@@ -2594,7 +2594,7 @@ subr_entry_setup(pTHX_ COP *prev_cop, subr_entry_t *clone_subr_entry, OPCODE op_
     }
     else {
         subr_entry_t *caller_se = caller_subr_entry;
-        int caller_is_op = caller_se->called_is_xs && strEQ(caller_se->called_is_xs,"sop");
+        int caller_is_op = caller_se->called_is_xs && strEQc(caller_se->called_is_xs,"sop");
         /* if the caller is an op then use the caller of that op as our caller.
          * that makes more sense from the users perspective (and is consistent
          * with the findcaller=1 option).
@@ -5276,9 +5276,9 @@ example_xsub(const char *unused="", SV *action=Nullsv, SV *arg=Nullsv)
         PUSHMARK(SP);
         call_sv(action, G_VOID|G_DISCARD);
     }
-    else if (strEQ(SvPV_nolen(action),"eval"))
+    else if (strEQc(SvPV_nolen(action),"eval"))
         eval_pv(SvPV_nolen(arg), TRUE);
-    else if (strEQ(SvPV_nolen(action),"die"))
+    else if (strEQc(SvPV_nolen(action),"die"))
         croak("example_xsub(die)");
     logwarn("example_xsub: unknown action '%s'\n", SvPV_nolen(action));
 
