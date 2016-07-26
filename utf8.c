@@ -2649,7 +2649,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
                     message */
         : -1;   /* Never return just an inversion list */
 
-    assert(listsv != &PL_sv_undef || strNE(name, "") || invlist);
+    assert(listsv != &PL_sv_undef || *name || invlist);
     assert(! invlist || minbits == 1);
 
     PL_curpm= NULL; /* reset PL_curpm so that we dont get confused between the regex
@@ -2658,7 +2658,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
 
     /* If data was passed in to go out to utf8_heavy to find the swash of, do
      * so */
-    if (listsv != &PL_sv_undef || strNE(name, "")) {
+    if (listsv != &PL_sv_undef || *name) {
 	dSP;
 	const size_t pkg_len = strlen(pkg);
 	const size_t name_len = strlen(name);

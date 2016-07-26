@@ -1828,7 +1828,7 @@ Perl_mfree(Malloc_t where)
 		if (bad_free_warn == -1) {
 		    dTHX;
 		    char *pbf = PerlEnv_getenv("PERL_BADFREE");
-		    bad_free_warn = (pbf) ? strNE("0", pbf) : 1;
+		    bad_free_warn = (pbf) ? strNEc(pbf,"0") : 1;
 		}
 		if (!bad_free_warn)
 		    return;
@@ -1926,7 +1926,7 @@ Perl_realloc(void *mp, size_t nbytes)
 		if (bad_free_warn == -1) {
 		    dTHX;
 		    char *pbf = PerlEnv_getenv("PERL_BADFREE");
-		    bad_free_warn = (pbf) ? strNE("0", pbf) : 1;
+		    bad_free_warn = (pbf) ? strNEc(pbf,"0") : 1;
 		}
 		if (!bad_free_warn)
 		    return NULL;

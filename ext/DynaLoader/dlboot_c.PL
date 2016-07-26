@@ -181,7 +181,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
         }
         /* E.g. HP-UX supports both its native SHLIB_PATH *and* LD_LIBRARY_PATH. */
         /* Not so sure about LIBPATH, but just add it. This is the original logic. */
-        if (strNE(ldlibpthname,"LD_LIBRARY_PATH") && (env = getenv("LD_LIBRARY_PATH")) != NULL) {
+        if (strNEc(ldlibpthname,"LD_LIBRARY_PATH") && (env = getenv("LD_LIBRARY_PATH")) != NULL) {
             char *cur = env;
             for (; *env; cur++) {
                 if (*cur == *pthsep || !*cur) {

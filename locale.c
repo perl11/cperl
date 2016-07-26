@@ -369,7 +369,7 @@ Perl_new_ctype(pTHX_ const char *newctype)
                 * these are specially handled to never be considered UTF-8
                 * locales, as long as this is the only problem, everything
                 * should work fine */
-            && strNE(newctype, "C") && strNE(newctype, "POSIX"))
+            && strNEc(newctype, "C") && strNEc(newctype, "POSIX"))
         {
             multi_byte_locale = TRUE;
         }
@@ -592,7 +592,7 @@ Perl_my_setlocale(pTHX_ int category, const char* locale)
      * we just set LC_ALL to, so can skip) */
 #   ifdef USE_LOCALE_TIME
     result = PerlEnv_getenv("LC_TIME");
-    if (result && strNE(result, "")) {
+    if (result && *result) {
         setlocale(LC_TIME, result);
         DEBUG_Lv(PerlIO_printf(Perl_debug_log, "%s:%d: %s\n",
                     __FILE__, __LINE__,
@@ -601,7 +601,7 @@ Perl_my_setlocale(pTHX_ int category, const char* locale)
 #   endif
 #   ifdef USE_LOCALE_CTYPE
     result = PerlEnv_getenv("LC_CTYPE");
-    if (result && strNE(result, "")) {
+    if (result && *result) {
         setlocale(LC_CTYPE, result);
         DEBUG_Lv(PerlIO_printf(Perl_debug_log, "%s:%d: %s\n",
                     __FILE__, __LINE__,
@@ -610,7 +610,7 @@ Perl_my_setlocale(pTHX_ int category, const char* locale)
 #   endif
 #   ifdef USE_LOCALE_COLLATE
     result = PerlEnv_getenv("LC_COLLATE");
-    if (result && strNE(result, "")) {
+    if (result && *result) {
         setlocale(LC_COLLATE, result);
         DEBUG_Lv(PerlIO_printf(Perl_debug_log, "%s:%d: %s\n",
                   __FILE__, __LINE__,
@@ -619,7 +619,7 @@ Perl_my_setlocale(pTHX_ int category, const char* locale)
 #   endif
 #   ifdef USE_LOCALE_MONETARY
     result = PerlEnv_getenv("LC_MONETARY");
-    if (result && strNE(result, "")) {
+    if (result && *result) {
         setlocale(LC_MONETARY, result);
         DEBUG_Lv(PerlIO_printf(Perl_debug_log, "%s:%d: %s\n",
                  __FILE__, __LINE__,
@@ -628,7 +628,7 @@ Perl_my_setlocale(pTHX_ int category, const char* locale)
 #   endif
 #   ifdef USE_LOCALE_NUMERIC
     result = PerlEnv_getenv("LC_NUMERIC");
-    if (result && strNE(result, "")) {
+    if (result && *result) {
         setlocale(LC_NUMERIC, result);
         DEBUG_Lv(PerlIO_printf(Perl_debug_log, "%s:%d: %s\n",
                  __FILE__, __LINE__,
@@ -637,7 +637,7 @@ Perl_my_setlocale(pTHX_ int category, const char* locale)
 #   endif
 #   ifdef USE_LOCALE_MESSAGES
     result = PerlEnv_getenv("LC_MESSAGES");
-    if (result && strNE(result, "")) {
+    if (result && *result) {
         setlocale(LC_MESSAGES, result);
         DEBUG_Lv(PerlIO_printf(Perl_debug_log, "%s:%d: %s\n",
                  __FILE__, __LINE__,
@@ -764,7 +764,7 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
                                   || (
                                     /* disallow with "" or "0" */
                                     *bad_lang_use_once
-                                    && strNE("0", bad_lang_use_once)))));
+                                    && strNEc(bad_lang_use_once, "0")))));
     bool done = FALSE;
     char * sl_result;   /* return from setlocale() */
     char * locale_param;
@@ -1148,7 +1148,7 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
                 description = "a fallback locale";
                 name = trial_locales[i];
             }
-            if (name && strNE(name, "")) {
+            if (name && *name) {
                 PerlIO_printf(Perl_error_log,
                     "perl: warning: %s %s (\"%s\").\n", msg, description, name);
             }
@@ -1360,7 +1360,7 @@ Perl__is_cur_LC_category_utf8(pTHX_ int category)
 #   if defined(HAS_NL_LANGINFO) && defined(CODESET)
         {
             char *codeset = nl_langinfo(CODESET);
-            if (codeset && strNE(codeset, "")) {
+            if (codeset && *codeset) {
                 codeset = savepv(codeset);
 
                 /* If we switched LC_CTYPE, switch back */

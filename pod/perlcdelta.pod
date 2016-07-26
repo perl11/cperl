@@ -26,16 +26,15 @@ L</Selected Bug Fixes> section.
 
 =head1 Performance Enhancements
 
-XXX Changes which enhance performance without changing behaviour go here.
-There may well be none in a stable release.
-
-[ List each enhancement as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+The new C<strQEc>/C<strNEc> macros are used instead of
+C<strEQ(s,"constant")>. This enables word-wise comparison via memcpy,
+in opposite of byte-wise comparisons via strcmp with already known
+sizes. This is a 10% performance improvement under most optimization
+levels.
 
 =back
 
