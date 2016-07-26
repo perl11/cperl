@@ -929,7 +929,6 @@ MICROCORE_SRC	=		\
 		..\perlapi.c	\
 		..\perly.c	\
 		..\pp_sort.c	\
-		..\pp_sys.c	\
 		..\pp_type.c	\
 		..\reentr.c	\
 		..\run.c	\
