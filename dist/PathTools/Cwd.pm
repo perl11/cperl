@@ -3,7 +3,7 @@ use strict;
 use Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
 
-$VERSION = '4.65c'; # modernized
+$VERSION = '4.66c'; # modernized
 our $XS_VERSION = $VERSION;
 $VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
