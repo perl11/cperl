@@ -745,9 +745,9 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
     }
     else cachestash = stash;
 
+    items = create;
     /* check locally for a real method or a cache entry */
     if (SvREADONLY(cachestash)) {
-        items = create;
         create = HV_FETCH_ISEXISTS;
     }
     he = (HE*)hv_common(
