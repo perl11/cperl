@@ -560,6 +560,12 @@ PERL_CALLCONV OP *	Perl_ck_method(pTHX_ OP *o)
 #define PERL_ARGS_ASSERT_CK_METHOD	\
 	assert(o)
 
+PERL_CALLCONV OP *	Perl_ck_negate(pTHX_ OP *o)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CK_NEGATE	\
+	assert(o)
+
 PERL_CALLCONV OP *	Perl_ck_nomg(pTHX_ OP *o)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);

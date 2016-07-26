@@ -2836,7 +2836,7 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_bitop,		/* s_bit_and */
 	Perl_ck_bitop,		/* s_bit_xor */
 	Perl_ck_bitop,		/* s_bit_or */
-	Perl_ck_type,		/* negate */
+	Perl_ck_negate,		/* negate */
 	Perl_ck_null,		/* i_negate */
 	Perl_ck_null,		/* not */
 	Perl_ck_bitop,		/* complement */

@@ -7856,8 +7856,8 @@ Perl_reg_named_buff_fetch(pTHX_ REGEXP * const r, SV * const namesv,
         HE *he_str = hv_fetch_ent( RXp_PAREN_NAMES(rx), namesv, 0, 0 );
         if (he_str) {
             IV i;
-            SV* sv_dat=HeVAL(he_str);
-            I32 *nums=(I32*)SvPVX(sv_dat);
+            SV* sv_dat = HeVAL(he_str);
+            I32 *nums = (I32*)SvPVX(sv_dat);
             for ( i=0; i<SvIVX(sv_dat); i++ ) {
                 if ((I32)(rx->nparens) >= nums[i]
                     && rx->offs[nums[i]].start != -1

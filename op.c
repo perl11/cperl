@@ -4749,20 +4749,13 @@ PERL_STATIC_INLINE OP *
 S_op_integerize(pTHX_ OP *o)
 {
     I32 type = o->op_type;
-
     PERL_ARGS_ASSERT_OP_INTEGERIZE;
 
-    /* integerize op. */
     if ((PL_opargs[type] & OA_OTHERINT) && (PL_hints & HINT_INTEGER))
     {
 	dVAR;
 	o->op_ppaddr = PL_ppaddr[++(o->op_type)];
     }
-
-    if (type == OP_NEGATE)
-	/* XXX might want a ck_negate() for this */
-	cUNOPo->op_first->op_private &= ~OPpCONST_STRICT;
-
     return o;
 }
 
@@ -13316,6 +13309,16 @@ Perl_ck_aelem(pTHX_ OP *o)
                 targ ? PAD_COMPNAME_PV(targ) : "?",
                 idx ? SvIV(idx) : -99));
     return o;
+}
+
+OP *
+Perl_ck_negate(pTHX_ OP *o)
+{
+    PERL_ARGS_ASSERT_CK_NEGATE;
+    if (o->op_type == OP_NEGATE)
+	cUNOPo->op_first->op_private &= ~OPpCONST_STRICT;
+    DEBUG_k(Perl_deb(aTHX_ "ck_negate %s\n", PL_op_name[o->op_type]));
+    return ck_type(o);
 }
 
 /* Check for const and types.
