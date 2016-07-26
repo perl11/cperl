@@ -526,7 +526,8 @@ BEGIN {
 # Debugger for Perl 5.00x; perl5db.pl patch level:
 use vars qw($VERSION $header);
 
-$VERSION = '1.49_04c';
+# bump to X.XX in blead, only use X.XX_XX in maint
+$VERSION = '1.50_01c';
 
 $header = "perl5db.pl version $VERSION";
 
