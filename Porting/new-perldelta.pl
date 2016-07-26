@@ -5,7 +5,7 @@ use strict;
 # perl, which may be too old to have autodie
 
 use Config;
-require 'Porting/pod_lib.pl';
+require './Porting/pod_lib.pl';
 
 my $state = get_pod_metadata(1);
 my (undef, $old_major, $old_minor) = @{$state->{delta_version}};
@@ -61,7 +61,7 @@ my $olddelta = slurp_or_die("pod/$olddeltasname");
 
 $olddelta =~ s{^(perl)(delta - what is new for perl v5.$old_major.$old_minor)$}
               {$1 . "5$old_major$old_minor" . $2}me
-    or die "Can't find expected NAME contents in $olddelta";
+    or warn "Can't find expected NAME contents in $olddelta";
 $olddelta =~ s/ perl/ cperl/ if $Config{usecperl};
 
 my $olddeltaname = "pod/perl5$old_major${old_minor}delta.pod";
