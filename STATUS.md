@@ -30,7 +30,7 @@ Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 
 The current stable release is [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4),
 the latest release is [5.24.0c](https://github.com/perl11/cperl/releases/).
-See [perl5224cdelta](perl5224cdelta.html) and the [cperl-5.24.0 delta](perlcdelta.html).
+See [perl5224cdelta](perl5224cdelta.html) and the [cperl-5.24.1 delta](perlcdelta.html).
 
 All tests pass. CPAN works.
 
