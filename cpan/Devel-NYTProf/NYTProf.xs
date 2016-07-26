@@ -1148,7 +1148,7 @@ get_file_id(pTHX_ char* file_name, STRLEN file_name_len, int created_via)
             }
             if (p[-1] != '/')
 #else
-            if (strNE(file_name_abs, "/"))
+            if (strNEc(file_name_abs, "/"))
 #endif
             {
                 if (strnEQ(file_name, "./", 2)) {
@@ -2018,7 +2018,7 @@ append_linenum_to_begin(pTHX_ subr_entry_t *subr_entry) {
      * so multiple BEGINs (either explicit or implicit, e.g., "use")
      * in the same file/package can be distinguished.
      */
-    if (!subname || *subname != 'B' || strNE(subname,"BEGIN"))
+    if (!subname || *subname != 'B' || strNEc(subname,"BEGIN"))
         return;
 
     /* get, and delete, the entry for this sub in the PL_DBsub hash */

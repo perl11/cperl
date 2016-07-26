@@ -90,7 +90,7 @@ _setsym(name,val,typestr="LOCAL")
     namdsc.dsc$w_length = (unsigned short int) slen;
     valdsc.dsc$a_pointer = SvPV(val,slen);
     valdsc.dsc$w_length = (unsigned short int) slen;
-    type = strNE(typestr,"GLOBAL") ?
+    type = strNEc(typestr,"GLOBAL") ?
               LIB$K_CLI_LOCAL_SYM : LIB$K_CLI_GLOBAL_SYM;
     retsts = lib$set_symbol(&namdsc,&valdsc,&type);
     if (retsts & 1) { XSRETURN_YES; }
@@ -128,7 +128,7 @@ _delsym(name,typestr="LOCAL")
     }
     namdsc.dsc$a_pointer = SvPV(name,slen);
     namdsc.dsc$w_length = (unsigned short int) slen;
-    type = strNE(typestr,"GLOBAL") ?
+    type = strNEc(typestr,"GLOBAL") ?
               LIB$K_CLI_LOCAL_SYM : LIB$K_CLI_GLOBAL_SYM;
     retsts = lib$delete_symbol(&namdsc,&type);
     if (retsts & 1) { XSRETURN_YES; }

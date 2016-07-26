@@ -895,7 +895,7 @@ Perl_nextargv(pTHX_ GV *gv, bool nomagicopen)
 		    do_close(gv,FALSE);
 		    continue;
 		}
-		if (*PL_inplace && strNE(PL_inplace, "*")) {
+		if (*PL_inplace && strNEc(PL_inplace, "*")) {
 		    const char *star = strchr(PL_inplace, '*');
 		    if (star) {
 			const char *begin = PL_inplace;

@@ -16068,7 +16068,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                          * referred to outside it. [perl #121777] */
                         if (! has_pkg && curpkg) {
                             char* pkgname = HvNAME(curpkg);
-                            if (strNE(pkgname, "main")) {
+                            if (strNEc(pkgname, "main")) {
                                 char* full_name = Perl_form(aTHX_
                                                             "%s::%s",
                                                             pkgname,
