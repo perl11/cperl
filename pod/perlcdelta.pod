@@ -14,7 +14,12 @@ L<perl5240cdelta>, which describes differences between 5.22.3 and 5.24.0.
 
 =head1 Notice
 
-XXX Any important notices here
+perl5.24.1 was security update to non-existing problem. cperl added
+PERLIO_DEBUG as optional handle to redirect DEBUGGING outout via -Dx
+switches to. This is only usable with DEBUGGING perls, which are not
+used in production, only during development.
+perl5.24.1 changed PERLIO_DEBUG to only be active for PerlIO debugging
+together with -Di.
 
 =head1 Security
 

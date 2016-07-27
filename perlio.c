@@ -1128,6 +1128,20 @@ PerlIO_stdstreams(pTHX)
 	PerlIO_fdopen(0, "Ir" PERLIO_STDTEXT);
 	PerlIO_fdopen(1, "Iw" PERLIO_STDTEXT);
 	PerlIO_fdopen(2, "Iw" PERLIO_STDTEXT);
+#ifdef DEBUGGING
+        PL_perlio_debug_fd = 2;
+        if (!TAINTING_get &&
+            PerlEnv_getenv("PERLIO_DEBUG") &&
+            PerlProc_getuid() == PerlProc_geteuid() &&
+            PerlProc_getgid() == PerlProc_getegid()) {
+            const char * const s = PerlEnv_getenv("PERLIO_DEBUG");
+            if (s && *s) {
+                PL_perlio_debug_fd
+                    = PerlLIO_open3(s, O_WRONLY | O_CREAT | O_APPEND, 0666);
+                PerlIO_fdopen(PL_perlio_debug_fd, "a" PERLIO_STDTEXT);
+            }
+        }
+#endif
     }
 }
 
