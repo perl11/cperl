@@ -25,8 +25,8 @@ END {
     fresh_perl_is("print qq(hello\n)", "hello\n",
                   { stderr => 1 },
                   "No perlio debug file without -DI...");
-    ok(!-e $perlio_log, "...no perlio.txt found");
-    fresh_perl_is("print qq(hello\n)", "\nEXECUTING...\n\nhello",
+    ok(-e $perlio_log, "... perlio.txt found");
+    fresh_perl_is("print qq(hello\n)", "hello",
                   { stderr => 1, switches => [ "-DI" ] },
                   "Perlio debug file with both -DI and PERLIO_DEBUG...");
     ok(-e $perlio_log, "... perlio debugging file found with -DI and PERLIO_DEBUG");
