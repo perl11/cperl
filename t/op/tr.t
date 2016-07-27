@@ -9,7 +9,7 @@ BEGIN {
     set_up_inc('../lib');
 }
 
-plan tests => 139;
+plan tests => 166;
 
 # Test this first before we extend the stack with other operations.
 # This caused an asan failure due to a bad write past the end of the stack.
@@ -28,10 +28,103 @@ is($_, "abcdefghijklmnopqrstuvwxyz",    'lc');
 tr/b-y/B-Y/;
 is($_, "aBCDEFGHIJKLMNOPQRSTUVWXYz",    'partial uc');
 
+eval 'tr/a/\N{KATAKANA LETTER AINU P}/;';
+like $@,
+     qr/\\N\{KATAKANA LETTER AINU P} must not be a named sequence in transliteration operator/,
+     "Illegal to tr/// named sequence";
+
 eval 'tr/\x{101}-\x{100}//;';
 like $@,
      qr/Invalid range "\\x\{0101}-\\x\{0100}" in transliteration operator/,
      "UTF-8 range with min > max";
+
+SKIP: {   # Test literal range end point special handling
+    unless ($::IS_EBCDIC) {
+        skip "Valid only for EBCDIC", 24;
+    }
+
+    $_ = "\x89";    # is 'i'
+    tr/i-j//d;
+    is($_, "", '"\x89" should match [i-j]');
+    $_ = "\x8A";
+    tr/i-j//d;
+    is($_, "\x8A", '"\x8A" shouldnt match [i-j]');
+    $_ = "\x90";
+    tr/i-j//d;
+    is($_, "\x90", '"\x90" shouldnt match [i-j]');
+    $_ = "\x91";    # is 'j'
+    tr/i-j//d;
+    is($_, "", '"\x91" should match [i-j]');
+
+    $_ = "\x89";
+    tr/i-\N{LATIN SMALL LETTER J}//d;
+    is($_, "", '"\x89" should match [i-\N{LATIN SMALL LETTER J}]');
+    $_ = "\x8A";
+    tr/i-\N{LATIN SMALL LETTER J}//d;
+    is($_, "\x8A", '"\x8A" shouldnt match [i-\N{LATIN SMALL LETTER J}]');
+    $_ = "\x90";
+    tr/i-\N{LATIN SMALL LETTER J}//d;
+    is($_, "\x90", '"\x90" shouldnt match [i-\N{LATIN SMALL LETTER J}]');
+    $_ = "\x91";
+    tr/i-\N{LATIN SMALL LETTER J}//d;
+    is($_, "", '"\x91" should match [i-\N{LATIN SMALL LETTER J}]');
+
+    $_ = "\x89";
+    tr/i-\N{U+6A}//d;
+    is($_, "", '"\x89" should match [i-\N{U+6A}]');
+    $_ = "\x8A";
+    tr/i-\N{U+6A}//d;
+    is($_, "\x8A", '"\x8A" shouldnt match [i-\N{U+6A}]');
+    $_ = "\x90";
+    tr/i-\N{U+6A}//d;
+    is($_, "\x90", '"\x90" shouldnt match [i-\N{U+6A}]');
+    $_ = "\x91";
+    tr/i-\N{U+6A}//d;
+    is($_, "", '"\x91" should match [i-\N{U+6A}]');
+
+    $_ = "\x89";
+    tr/\N{U+69}-\N{U+6A}//d;
+    is($_, "", '"\x89" should match [\N{U+69}-\N{U+6A}]');
+    $_ = "\x8A";
+    tr/\N{U+69}-\N{U+6A}//d;
+    is($_, "\x8A", '"\x8A" shouldnt match [\N{U+69}-\N{U+6A}]');
+    $_ = "\x90";
+    tr/\N{U+69}-\N{U+6A}//d;
+    is($_, "\x90", '"\x90" shouldnt match [\N{U+69}-\N{U+6A}]');
+    $_ = "\x91";
+    tr/\N{U+69}-\N{U+6A}//d;
+    is($_, "", '"\x91" should match [\N{U+69}-\N{U+6A}]');
+
+    $_ = "\x89";
+    tr/i-\x{91}//d;
+    is($_, "", '"\x89" should match [i-\x{91}]');
+    $_ = "\x8A";
+    tr/i-\x{91}//d;
+    is($_, "", '"\x8A" should match [i-\x{91}]');
+    $_ = "\x90";
+    tr/i-\x{91}//d;
+    is($_, "", '"\x90" should match [i-\x{91}]');
+    $_ = "\x91";
+    tr/i-\x{91}//d;
+    is($_, "", '"\x91" should match [i-\x{91}]');
+
+    # Need to use eval, because tries to compile on ASCII platforms even
+    # though the tests are skipped, and fails because 0x89-j is an illegal
+    # range there.
+    $_ = "\x89";
+    eval 'tr/\x{89}-j//d';
+    is($_, "", '"\x89" should match [\x{89}-j]');
+    $_ = "\x8A";
+    eval 'tr/\x{89}-j//d';
+    is($_, "", '"\x8A" should match [\x{89}-j]');
+    $_ = "\x90";
+    eval 'tr/\x{89}-j//d';
+    is($_, "", '"\x90" should match [\x{89}-j]');
+    $_ = "\x91";
+    eval 'tr/\x{89}-j//d';
+    is($_, "", '"\x91" should match [\x{89}-j]');
+}
+
 
 # In EBCDIC 'I' is \xc9 and 'J' is \0xd1, 'i' is \x89 and 'j' is \x91.
 # Yes, discontinuities.  Regardless, the \xca in the below should stay
@@ -73,7 +166,7 @@ like $@, qr\^Using !~ with tr///r doesn't make sense\,
   is $wc, 1, '/r warns just once';
 }
 
-# perlbug [ID 20000511.005]
+# perlbug [ID 20000511.005 (#3237)]
 $_ = 'fred';
 /([a-z]{2})/;
 $1 =~ tr/A-Z//;
@@ -552,6 +645,15 @@ for ("", nullrocow) {
 	ok(1, "tr///s on PL_Yes does not assert");
 	eval q{ *x =~ tr///d };
 	ok(1, "tr///d on glob does not assert");
+}
+
+{ # [perl #128734
+    my $string = "\x{00e0}";
+    $string =~ tr/\N{U+00e0}/A/;
+    is($string, "A", 'tr// of \N{U+...} works for upper-Latin1');
+    $string = "\x{00e1}";
+    $string =~ tr/\N{LATIN SMALL LETTER A WITH ACUTE}/A/;
+    is($string, "A", 'tr// of \N{name} works for upper-Latin1');
 }
 
 1;

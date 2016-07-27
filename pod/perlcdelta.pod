@@ -155,6 +155,12 @@ because in some platforms that is an error.  However, in some other platforms
 that is an acceptable argument.  This change has been reverted.
 L<[perl #128967]|https://rt.perl.org/Public/Bug/Display.html?id=128967>.
 
+=item *
+
+A regression in Perl 5.24 with C<tr/\N{U+...}/foo/> when the code point was
+between 128 and 255 has been fixed.
+L<[perl #128734]|https://rt.perl.org/Public/Bug/Display.html?id=128734>.
+
 =back
 
 =head1 Acknowledgements
