@@ -7124,6 +7124,10 @@ extern void moncontrol(int);
 #    define LONGDOUBLE_DOUBLEDOUBLE
 #  endif
 
+#  if LONG_DOUBLEKIND == LONG_DOUBLE_IS_VAX_H_FLOAT
+#    define LONGDOUBLE_VAX_ENDIAN
+#  endif
+
 #endif /* LONG_DOUBLEKIND */
 
 #ifdef USE_QUADMATH /* assume quadmath endianness == native double endianness */
@@ -7153,6 +7157,12 @@ extern void moncontrol(int);
 #  endif
 #  ifdef LONGDOUBLE_BIG_ENDIAN
 #    define NV_BIG_ENDIAN
+#  endif
+#  ifdef LONGDOUBLE_MIX_ENDIAN
+#    define NV_MIX_ENDIAN
+#  endif
+#  ifdef LONGDOUBLE_VAX_ENDIAN
+#    define NV_VAX_ENDIAN
 #  endif
 #endif
 
