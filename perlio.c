@@ -351,6 +351,10 @@ PerlIO_debug(const char *fmt, ...)
     va_list ap;
     dSYS;
     va_start(ap, fmt);
+
+    if (!DEBUG_I_TEST)
+        return;
+
     if (!PL_perlio_debug_fd) {
         /* with DEBUGGING it would have been initialized already
            in PerlIO_stdstreams(). Here we need it only for one call in 
@@ -849,9 +853,10 @@ XS(XS_PerlIO__Layer__NoWarnings)
      */
     dXSARGS;
     PERL_UNUSED_ARG(cv);
-    if (items) {
-    	DEBUG_I(PerlIO_debug("warning:%s\n",SvPV_nolen_const(ST(0))));
-    }
+    PERL_UNUSED_VAR(items);
+    DEBUG_I(
+        if (items)
+            PerlIO_debug("warning:%s\n",SvPV_nolen_const(ST(0))) );
     XSRETURN(0);
 }
 
@@ -1123,20 +1128,6 @@ PerlIO_stdstreams(pTHX)
 	PerlIO_fdopen(0, "Ir" PERLIO_STDTEXT);
 	PerlIO_fdopen(1, "Iw" PERLIO_STDTEXT);
 	PerlIO_fdopen(2, "Iw" PERLIO_STDTEXT);
-#ifdef DEBUGGING
-        PL_perlio_debug_fd = 2;
-	if (!TAINTING_get &&
-            PerlEnv_getenv("PERLIO_DEBUG") &&
-	    PerlProc_getuid() == PerlProc_geteuid() &&
-	    PerlProc_getgid() == PerlProc_getegid()) {
-	    const char * const s = PerlEnv_getenv("PERLIO_DEBUG");
-	    if (s && *s) {
-		PL_perlio_debug_fd
-		    = PerlLIO_open3(s, O_WRONLY | O_CREAT | O_APPEND, 0666);
-                PerlIO_fdopen(PL_perlio_debug_fd, "a" PERLIO_STDTEXT);
-            }
-        }
-#endif
     }
 }
 
@@ -2317,7 +2308,11 @@ PerlIOUnix_refcnt_dec(int fd)
 {
     int cnt = 0;
     if (fd >= 0) {
+#ifdef DEBUGGING
+        dTHX;
+#else
 	dVAR;
+#endif
 #ifdef USE_ITHREADS
 	MUTEX_LOCK(&PL_perlio_mutex);
 #endif
