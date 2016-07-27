@@ -6885,7 +6885,7 @@ _EOT8
       # set static op members to NULL
       my $s = $B::C::static_free[$_];
       if ($s =~ /\(OP\*\)&unopaux_list/) {
-	print "  ($s)->op_type = OP_NULL;";
+	print "    ($s)->op_type = OP_NULL;\n";
       }
     }
 
@@ -7036,19 +7036,19 @@ _EOT7
         # dead code ---
       } elsif ($s =~ /^cop_list/) {
 	if ($ITHREADS or !$MULTI) {
-	  print "    CopFILE_set(&$s, NULL);";
+	  print "    CopFILE_set(&$s, NULL);\n";
         }
         if ($] >= 5.017) {
-          print " CopSTASH_set(&$s, NULL);\n";
+          print "    CopSTASH_set(&$s, NULL);\n";
         } elsif ($] < 5.016 and $ITHREADS) {
-          print " CopSTASHPV(&$s) = NULL;\n";
+          print "    CopSTASHPV(&$s) = NULL;\n";
         } elsif ($] < 5.016 and !$ITHREADS) {
-          print " CopSTASH(&$s) = NULL;\n";
+          print "    CopSTASH(&$s) = NULL;\n";
         } else { # 5.16 experiment
-          print " CopSTASHPV_set(&$s, NULL, 0);\n";
+          print "    CopSTASHPV_set(&$s, NULL, 0);\n";
         }
       } elsif ($s =~ /\(OP\*\)&unopaux_list/) {
-	print "  ($s)->op_type = OP_NULL;";
+	print "    ($s)->op_type = OP_NULL;\n";
       # end dead code ---
       #} elsif ($s =~ /^pv\d/) {
       #	print "    $s = \"\";\n";
