@@ -24,8 +24,13 @@ END {
     local $ENV{PERLIO_DEBUG} = $perlio_log;
     fresh_perl_is("print qq(hello\n)", "hello\n",
                   { stderr => 1 },
-                  "No perlio debug file without -DI...");
-    ok(-e $perlio_log, "... perlio.txt found");
+                  "No perlio debug output without -DI...");
+    # cperl with PERLIO_DEBUG redirects all DEBUGGING output to the outfile
+    # perl5 with PERLIO_DEBUG needs -Di and just does perlio debug output
+    ok(!-s $perlio_log, "...empty perlio.txt found without -DI");
+    unlink $perlio_log;
+    # cperl with -DI redirects all DEBUGGING output to the outfile
+    # perl5 with -Di just the perlio debug output
     fresh_perl_is("print qq(hello\n)", "hello",
                   { stderr => 1, switches => [ "-DI" ] },
                   "Perlio debug file with both -DI and PERLIO_DEBUG...");
