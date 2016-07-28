@@ -13296,10 +13296,18 @@ Perl_ck_aelem(pTHX_ OP *o)
             if (PERL_IABS(ix) > AvFILL(av))
                 Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
                     PAD_COMPNAME_PV(avop->op_targ), ix);
-            else
+            else {
                 DEBUG_kv(Perl_deb(aTHX_ "ck_%s shape ok %s[%"IVdf"]\n",
                                   PL_op_name[o->op_type],
                                   PAD_COMPNAME_PV(avop->op_targ), ix));
+                if (ix < 0) {
+                    ix = AvFILL(av)+1+ix;
+                    SvIV_set(idx, ix);
+                    DEBUG_kv(Perl_deb(aTHX_ "ck_%s %s[->%"IVdf"]\n",
+                                  PL_op_name[o->op_type],
+                                  PAD_COMPNAME_PV(avop->op_targ), ix));
+                }
+            }
         }
         /* TODO specialize to typed ops */
     }
@@ -14314,9 +14322,16 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                                 if (PERL_IABS(arg->iv) > AvFILL(av))
                                     Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
                                              PAD_COMPNAME_PV(targ), arg->iv);
-                                else
+                                else {
                                     DEBUG_kv(Perl_deb(aTHX_ "mderef %s[%"IVdf"] shape ok -> uoob\n",
                                                       PAD_COMPNAME_PV(targ), arg->iv));
+                                    if (arg->iv < 0) {
+                                        arg->iv = AvFILL(av)+1+arg->iv;
+                                        DEBUG_kv(Perl_deb(aTHX_ "mderef %s[->%"IVdf"]\n",
+                                                          PAD_COMPNAME_PV(targ),
+                                                          arg->iv));
+                                    }
+                                }
                                 index_type |= MDEREF_INDEX_uoob;
                             }
                         }
