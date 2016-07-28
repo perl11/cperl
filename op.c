@@ -13451,7 +13451,8 @@ Perl_ck_type(pTHX_ OP *o)
                     DEBUG_k(Perl_deb(aTHX_ "match: %s %s <=> %s %s\n", PL_op_name[typ],
                                      PL_op_type_str[typ],
                                      PL_op_name[v], PL_op_type_str[v]));
-                    if ((PL_hints & HINT_INTEGER) && ((n2 & 0xff) != type_Int)) /* need an Int result, no u_ */
+                    /* need an Int result, no u_ */
+                    if ((PL_hints & HINT_INTEGER) && ((n2 & 0xff) != type_Int))
                         continue;
                     if (match_type1(n2 & 0xffffff00, type1)) {
                         if (typ == OP_NEGATE && v == OP_I_NEGATE)
@@ -14323,13 +14324,14 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                                     Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
                                              PAD_COMPNAME_PV(targ), arg->iv);
                                 else {
-                                    DEBUG_kv(Perl_deb(aTHX_ "mderef %s[%"IVdf"] shape ok -> uoob\n",
-                                                      PAD_COMPNAME_PV(targ), arg->iv));
+                                    DEBUG_kv(Perl_deb(aTHX_
+                                        "mderef %s[%"IVdf"] shape ok -> uoob\n",
+                                        PAD_COMPNAME_PV(targ), arg->iv));
                                     if (arg->iv < 0) {
                                         arg->iv = AvFILL(av)+1+arg->iv;
-                                        DEBUG_kv(Perl_deb(aTHX_ "mderef %s[->%"IVdf"]\n",
-                                                          PAD_COMPNAME_PV(targ),
-                                                          arg->iv));
+                                        DEBUG_kv(Perl_deb(aTHX_
+                                            "mderef %s[->%"IVdf"]\n",
+                                            PAD_COMPNAME_PV(targ), arg->iv));
                                     }
                                 }
                                 index_type |= MDEREF_INDEX_uoob;
