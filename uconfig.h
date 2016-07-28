@@ -1945,6 +1945,7 @@
  *	LONG_DOUBLE_IS_DOUBLEDOUBLE_128_BIT_BE_BE
  *	LONG_DOUBLE_IS_DOUBLEDOUBLE_128_BIT_LE_BE
  *	LONG_DOUBLE_IS_DOUBLEDOUBLE_128_BIT_BE_LE
+ *	LONG_DOUBLE_IS_VAX_H_FLOAT
  *	LONG_DOUBLE_IS_UNKNOWN_FORMAT
  *	It is only defined if the system supports long doubles.
  */
@@ -5396,6 +5397,6 @@
 #endif
 
 /* Generated from:
- * cad488b2c73579300490b758f610332c405a9d02a9d750da13d8a2ba17283ca3 config_h.SH
+ * e06af40d64281e8dbd06be8342d0e2bd02dc62a734b7aedc8b0d080f2bd05ee0 config_h.SH
  * 81c039d8d31caba5af87490c0bc74e3f9b5e9d8653b017448a2b1fa0fe485f8a uconfig.sh
  * ex: set ro: */

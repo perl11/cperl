@@ -5324,7 +5324,7 @@ define:define)
 *** Please select one or the other.
 EOM
 	exit 1
-        ;;
+	;;
 esac
 
 : Looking for optional libraries

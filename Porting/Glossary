@@ -2501,6 +2501,12 @@ d_strerror (d_strerror.U):
 	This variable conditionally defines HAS_STRERROR if strerror() is
 	available to translate error numbers to strings.
 
+d_strerror_l (d_strerror_l.U):
+	This variable conditionally defines the HAS_STRERROR_L symbol, which
+	indicates to the C program that the strerror_l() routine is available
+	to return the error message for a given errno value in a particular
+	locale (identified by a locale_t object).
+
 d_strerror_r (d_strerror_r.U):
 	This variable conditionally defines the HAS_STRERROR_R symbol,
 	which indicates to the C program that the strerror_r()
@@ -2869,6 +2875,9 @@ doublekind (longdblfio.U):
 	6 = IEEE 754 128-bit big endian,
 	7 = IEEE 754 64-bit mixed endian le-be,
 	8 = IEEE 754 64-bit mixed endian be-le,
+	9 = VAX 32bit little endian F float format
+	10 = VAX 64bit little endian D float format
+	11 = VAX 64bit little endian G float format
 	-1 = unknown format.
 
 doublemantbits (mantbits.U):
@@ -4135,10 +4144,17 @@ longdblinfbytes (infnan.U):
 
 longdblkind (d_longdbl.U):
 	This variable, if defined, encodes the type of a long double:
-	0 = double, 1 = IEEE 754 128-bit little endian,
-	2 = IEEE 754 128-bit big endian, 3 = x86 80-bit little endian,
-	4 = x86 80-bit big endian, 5 = double-double 128-bit little endian,
-	6 = double-double 128-bit big endian, -1 = unknown format.
+	0 = double,
+	1 = IEEE 754 128-bit little endian,
+	2 = IEEE 754 128-bit big endian,
+	3 = x86 80-bit little endian,
+	4 = x86 80-bit big endian,
+	5 = double-double 128-bit little endian,
+	6 = double-double 128-bit big endian,
+	7 = 128-bit mixed-endian double-double (64-bit LEs in BE),
+	8 = 128-bit mixed-endian double-double (64-bit BEs in LE),
+	9 = 128-bit PDP-style mixed-endian long doubles,
+	-1 = unknown format.
 
 longdblmantbits (longdblmant.U):
 	This symbol, if defined, tells how many mantissa bits
