@@ -13293,13 +13293,7 @@ Perl_ck_aelem(pTHX_ OP *o)
         AV* av = MUTABLE_AV(PAD_SV(avop->op_targ));
         if (idx && SvIOK(idx) && AvSHAPED(av)) {
             IV ix = SvIVX(idx);
-#if IVSIZE == 4
-#  define ABS(ix) abs(ix)
-#else
-#  define ABS(ix) labs(ix)
-#endif
-            if (ABS(ix) > AvFILL(av))
-#undef ABS
+            if (PERL_IABS(ix) > AvFILL(av))
                 Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
                     PAD_COMPNAME_PV(avop->op_targ), ix);
             else
@@ -14317,13 +14311,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                             PADOFFSET targ = (((BINOP*)aelem_op)->op_first)->op_targ;
                             SV* av; /* targ may still be empty here */
                             if (targ && (av = PAD_SV(targ)) && AvSHAPED(av)) {
-#if IVSIZE == 4
-#  define ABS(ix) abs(ix)
-#else
-#  define ABS(ix) labs(ix)
-#endif
-                                if (ABS(arg->iv) > AvFILL(av))
-#undef ABS
+                                if (PERL_IABS(arg->iv) > AvFILL(av))
                                     Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
                                              PAD_COMPNAME_PV(targ), arg->iv);
                                 else
