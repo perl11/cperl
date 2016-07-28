@@ -16971,16 +16971,24 @@ eval $inlibc
 set nearbyint d_nearbyint
 eval $inlibc
 
-: see if newlocale exists unused deprecated
+: see if xlocale.h exists
+set xlocale.h i_xlocale
+eval $inhdr
+
+: see if newlocale exists
 set newlocale d_newlocale
 eval $inlibc
 
-: see if freelocale exists unused deprecated
+: see if freelocale exists
 set freelocale d_freelocale
 eval $inlibc
 
-: see if uselocale exists unused deprecated
+: see if uselocale exists
 set uselocale d_uselocale
+eval $inlibc
+
+: see if querylocale exists
+set querylocale d_querylocale
 eval $inlibc
 
 : see if nextafter exists

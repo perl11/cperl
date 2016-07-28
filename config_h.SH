@@ -4194,21 +4194,24 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *	This symbol, if defined, indicates that the newlocale routine is
  *	available to return a new locale object or modify an existing
  *	locale object.
- *      This new v5.24 key was never used and is deprecated.
  */
 /* HAS_FREELOCALE:
  *	This symbol, if defined, indicates that the freelocale routine is
  *	available to deallocates the resources associated with a locale object.
- *      This new v5.24 key was never used and is deprecated.
  */
 /* HAS_USELOCALE:
  *	This symbol, if defined, indicates that the uselocale routine is
  *	available to set the current locale for the calling thread.
- *      This new v5.24 key was never used and is deprecated.
+ */
+/* I_XLOCALE:
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include <xlocale.h> to get uselocale() and its friends.
  */
 #$d_newlocale	HAS_NEWLOCALE	/**/
 #$d_freelocale	HAS_FREELOCALE	/**/
 #$d_uselocale	HAS_USELOCALE	/**/
+#$d_querylocale	HAS_QUERYLOCALE	/**/
+#$i_xlocale	I_XLOCALE               /**/
 
 /* HAS_NEXTAFTER:
  *	This symbol, if defined, indicates that the nextafter routine is

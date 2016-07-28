@@ -938,7 +938,6 @@ d_freelocale (d_newlocale.U):
 	This variable conditionally defines the HAS_FREELOCALE symbol, which
 	indicates to the C program that the freelocale() routine is available
 	to deallocates the resources associated with a locale object.
-        It is unused and deprecated with v5.25.3c
 
 d_frexpl (d_frexpl.U):
 	This variable conditionally defines the HAS_FREXPL symbol, which
@@ -1762,7 +1761,6 @@ d_newlocale (d_newlocale.U):
 	This variable conditionally defines the HAS_NEWLOCALE symbol, which
 	indicates to the C program that the newlocale() routine is available
 	to return a new locale object or modify an existing locale object.
-        It is unused and deprecated with v5.25.3c
 
 d_nextafter (d_nextafter.U):
 	This variable conditionally defines HAS_NEXTAFTER if nextafter()
@@ -1985,6 +1983,11 @@ d_qgcvt (d_qgcvt.U):
 d_quad (quadtype.U):
 	This variable, if defined, tells that there's a 64-bit integer type,
 	quadtype.
+
+d_querylocale (d_newlocale.U):
+	This variable conditionally defines the HAS_QUERYLOCALE symbol, which
+	indicates to the C program that the querylocale() routine is available
+	to return the name of the locale for a category mask.
 
 d_random_r (d_random_r.U):
 	This variable conditionally defines the HAS_RANDOM_R symbol,
@@ -2703,8 +2706,7 @@ d_unsetenv (d_unsetenv.U):
 d_uselocale (d_newlocale.U):
 	This variable conditionally defines the HAS_USELOCALE symbol, which
 	indicates to the C program that the uselocale() routine is available
-	to set the current locale for the calling thread. It is unused and
-        deprecated with v5.25.3c.
+	to set the current locale for the calling thread.
 
 d_usleep (d_usleep.U):
 	This variable conditionally defines HAS_USLEEP if usleep() is
@@ -3740,6 +3742,10 @@ i_varhdr (i_varhdr.U):
 i_vfork (i_vfork.U):
 	This variable conditionally defines the I_VFORK symbol, and indicates
 	whether a C program should include vfork.h.
+
+i_xlocale (d_newlocale.U):
+	This symbol, if defined, indicates to the C program that it should
+	include <xlocale.h> to get uselocale() and its friends
 
 ignore_versioned_solibs (libs.U):
 	This variable should be non-empty if non-versioned shared
