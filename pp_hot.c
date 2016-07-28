@@ -2450,7 +2450,11 @@ PP(pp_multideref)
 
                 if (!(actions & MDEREF_FLAG_last)) {
                     if (UNLIKELY((actions & MDEREF_INDEX_uoob) && !SvRMAGICAL(sv))) {
-                        sv  = AvARRAY(sv)[elem];
+                        sv = AvARRAY(sv)[elem];
+                        if (!sv) {
+                            const U32 lval = (PL_op->op_flags & OPf_MOD) || LVRET;
+                            sv = lval ? newSV(0) : &PL_sv_undef;
+                        }
                     } else {
                         SV** svp = av_fetch((AV*)sv, elem, 1);
                         if (!svp || ! (sv=*svp))
@@ -2459,20 +2463,15 @@ PP(pp_multideref)
                     break;
                 }
 
-                if (PL_op->op_private &
-                    (OPpMULTIDEREF_EXISTS|OPpMULTIDEREF_DELETE))
-                {
-                    if (PL_op->op_private & OPpMULTIDEREF_EXISTS) {
-                        sv = av_exists((AV*)sv, elem) ? &PL_sv_yes : &PL_sv_no;
-                    }
-                    else {
-                        I32 discard = (GIMME_V == G_VOID) ? G_DISCARD : 0;
-                        sv = av_delete((AV*)sv, elem, discard);
-                        if (discard)
-                            return NORMAL;
-                        if (!sv)
-                            sv = &PL_sv_undef;
-                    }
+                if (PL_op->op_private & OPpMULTIDEREF_EXISTS) {
+                    sv = av_exists((AV*)sv, elem) ? &PL_sv_yes : &PL_sv_no;
+                } else if (PL_op->op_private & OPpMULTIDEREF_DELETE) {
+                    I32 discard = (GIMME_V == G_VOID) ? G_DISCARD : 0;
+                    sv = av_delete((AV*)sv, elem, discard);
+                    if (discard)
+                        return NORMAL;
+                    if (!sv)
+                        sv = &PL_sv_undef;
                 }
                 else {
                     const U32 lval = PL_op->op_flags & OPf_MOD || LVRET;
@@ -2503,10 +2502,10 @@ PP(pp_multideref)
                                 DIE(aTHX_ PL_no_aelem, elem);
                             len = av_tindex(av);
                             sv = sv_2mortal(newSVavdefelem(av,
-                            /* Resolve a negative index now, unless it points
-                             * before the beginning of the array, in which
-                             * case record it for error reporting in
-                             * magic_setdefelem. */
+                               /* Resolve a negative index now, unless it points
+                                * before the beginning of the array, in which
+                                * case record it for error reporting in
+                                * magic_setdefelem. */
                                 elem < 0 && len + elem >= 0
                                     ? len + elem : elem, 1));
                         }

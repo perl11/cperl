@@ -13302,6 +13302,10 @@ Perl_ck_aelem(pTHX_ OP *o)
 #undef ABS
                 Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
                     PAD_COMPNAME_PV(avop->op_targ), ix);
+            else
+                DEBUG_kv(Perl_deb(aTHX_ "ck_%s shape ok %s[%"IVdf"]\n",
+                                  PL_op_name[o->op_type],
+                                  PAD_COMPNAME_PV(avop->op_targ), ix));
         }
         /* TODO specialize to typed ops */
     }
@@ -14107,6 +14111,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
      * particular, if it would return early on the second pass, it would
      * already have returned early on the first pass.
      */
+#undef PASS2
 #define PASS2 pass
     for (pass = 0; pass < 2; pass++) {
         OP *o                = orig_o;
@@ -14305,11 +14310,32 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                             SvREFCNT_dec_NN(cSVOPo->op_sv);
                         }
                     }
-                    if (PASS2)
+                    index_type = MDEREF_INDEX_const;
+                    if (PASS2) {
+                        OP *aelem_op = o->op_next;
+                        if (aelem_op->op_type == OP_AELEM) {
+                            PADOFFSET targ = (((BINOP*)aelem_op)->op_first)->op_targ;
+                            SV* av; /* targ may still be empty here */
+                            if (targ && (av = PAD_SV(targ)) && AvSHAPED(av)) {
+#if IVSIZE == 4
+#  define ABS(ix) abs(ix)
+#else
+#  define ABS(ix) labs(ix)
+#endif
+                                if (ABS(arg->iv) > AvFILL(av))
+#undef ABS
+                                    Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
+                                             PAD_COMPNAME_PV(targ), arg->iv);
+                                else
+                                    DEBUG_kv(Perl_deb(aTHX_ "mderef %s[%"IVdf"] shape ok -> uoob\n",
+                                                      PAD_COMPNAME_PV(targ), arg->iv));
+                                index_type |= MDEREF_INDEX_uoob;
+                            }
+                        }
                         /* we've taken ownership of the SV */
                         cSVOPo->op_sv = NULL;
+                    }
                     arg++;
-                    index_type = MDEREF_INDEX_const;
                     o = o->op_next;
                     break;
 
