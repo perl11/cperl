@@ -14107,6 +14107,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
      * particular, if it would return early on the second pass, it would
      * already have returned early on the first pass.
      */
+#define PASS2 pass
     for (pass = 0; pass < 2; pass++) {
         OP *o                = orig_o;
         UV action            = orig_action;
@@ -14120,7 +14121,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
         UNOP_AUX_item *arg     = arg_buf;
         UNOP_AUX_item *action_ptr = arg_buf;
 
-        if (pass)
+        if (PASS2)
             action_ptr->uv = 0;
         arg++;
 
@@ -14131,7 +14132,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
             /* FALLTHROUGH */
         case MDEREF_AV_gvsv_vivify_rv2av_aelem:
         case MDEREF_AV_gvav_aelem:
-            if (pass) {
+            if (PASS2) {
 #ifdef USE_ITHREADS
                 arg->pad_offset = cPADOPx(start)->op_padix;
                 /* stop it being swiped when nulled */
@@ -14150,7 +14151,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
             /* FALLTHROUGH */
         case MDEREF_AV_padav_aelem:
         case MDEREF_AV_padsv_vivify_rv2av_aelem:
-            if (pass) {
+            if (PASS2) {
                 arg->pad_offset = start->op_targ;
                 /* we skip setting op_targ = 0 for now, since the intact
                  * OP_PADXV is needed by S_check_hash_fields_and_hekify */
@@ -14240,7 +14241,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                         && !(o->op_flags & (OPf_REF|OPf_MOD))
                         && o->op_private == 0)
                     {
-                        if (pass)
+                        if (PASS2)
                             arg->pad_offset = o->op_targ;
                         arg++;
                         index_type = MDEREF_INDEX_padsv;
@@ -14258,7 +14259,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                              * the extra hassle for those edge cases */
                             break;
 
-                        if (pass) {
+                        if (PASS2) {
                             UNOP *rop = NULL;
                             OP * helem_op = o->op_next;
 
@@ -14299,12 +14300,12 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                         )
                             maybe_aelemfast = TRUE;
 
-                        if (pass) {
+                        if (PASS2) {
                             arg->iv = iv;
                             SvREFCNT_dec_NN(cSVOPo->op_sv);
                         }
                     }
-                    if (pass)
+                    if (PASS2)
                         /* we've taken ownership of the SV */
                         cSVOPo->op_sv = NULL;
                     arg++;
@@ -14339,7 +14340,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                     )
                         break;
 
-                    if (pass) {
+                    if (PASS2) {
 #ifdef USE_ITHREADS
                         arg->pad_offset = cPADOPx(o)->op_padix;
                         /* stop it being swiped when nulled */
@@ -14475,7 +14476,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                 action |= MDEREF_FLAG_last;
             }
 
-            if (pass)
+            if (PASS2)
                 action_ptr->uv |= (action << (action_ix * MDEREF_SHIFT));
             action_ix++;
             action_count++;
@@ -14483,7 +14484,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
              * for it *before* we start adding args for that action */
             if ((action_ix + 1) * MDEREF_SHIFT > UVSIZE*8) {
                 action_ptr = arg;
-                if (pass)
+                if (PASS2)
                     arg->uv = 0;
                 arg++;
                 action_ix = 0;
@@ -14492,7 +14493,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 
         /* success! */
 
-        if (pass) {
+        if (PASS2) {
             OP *mderef;
             OP *p, *q;
 
@@ -14680,6 +14681,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
             arg_buf++;
         }
     } /* for (pass = ...) */
+#undef PASS2
 }
 
 /* returns the next non-null op */
