@@ -49,7 +49,7 @@ use B ();
     # op counts for the sub.
 
     sub test_opcount {
-        my ($debug, $desc, $coderef, $expected_counts) = @_;
+        my ($debug, $desc, $coderef, $expected_counts, $code) = @_;
 
         %counts = ();
         B::walkoptree(B::svref_2object($coderef)->ROOT,
@@ -68,7 +68,8 @@ use B ();
         }
         ok(!@exp, $desc);
         if (@exp) {
-            diag($_) for @exp;
+            diag($code);
+            diag($_) for @exp; 0
         }
     }    
 }
@@ -182,7 +183,7 @@ test_opcount(0, "basic aelemfast",
                             $c{$top} = 1
                         }
 
-                        ::test_opcount(0, $sub, $coderef, \%c);
+                        ::test_opcount(0, $sub, $coderef, \%c, $sub);
                     }
                 }
             }

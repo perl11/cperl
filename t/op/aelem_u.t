@@ -5,7 +5,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
 }
-plan( tests => 16 );
+plan( tests => 22 );
 use coretypes;
 use cperl;
 use v5.22;
@@ -43,16 +43,36 @@ like ($@, qr/^Invalid modification of shaped array: unshift \@a/, "invalid unshi
 eval { splice @a; };
 like ($@, qr/^Invalid modification of shaped array: splice/, "invalid splice (run-time)");
 
+# aelemfast_lex_u
 $a[0] = 1;
 is($a[0], 1, "set const w/o read-only");
 $a[-1] = 2; # compile-time changed to 4
 is($a[4], 2, "negative constant index");
+
+# mderef_u:
 my $i = 0;
 $a[$i] = 1;
 is($a[$i], 1, "set");
 $i = -1;
 $a[$i] = 2; # run-time logic
 is($a[4], 2, "negative run-time index");
+
+# multi mderef_u
+$a[1]->[5] = 1;
+is($a[1]->[5], 1, "set mderef_u");
+$a[-2]->[0] = 2;
+is($a[3]->[0], 2, "negative mderef_u");
+eval '$a[5]->[1];';
+like ($@, qr/^Array index out of bounds \@a\[5\]/, "compile-time mderef oob");
+
+# multidim mderef_u
+$a[2][5] = 1;
+is($a[2][5], 1, "set multi mderef_u");
+$a[-2][0] = 2;
+is($a[3][0], 2, "negative multi mderef_u");
+
+eval '$a[5][1];';
+like ($@, qr/^Array index out of bounds \@a\[5\]/, "compile-time mderef oob");
 
 # eliminating loop out-of-bounds:
 my @b = (0..4);
@@ -67,10 +87,3 @@ for (0..$#b) { $b[$_+1] };     # wrong index: expr
   for $k (0..$#b) { $b[$k] };    # _u
   for $k (0..$#b) { $b[$j] };    # wrong index: glob
 }
-
-# TODO mderef_u
-
-# $a[0][1]; # set MDEREF_INDEX_noob to first index
-
-#eval '$a[5][1];'
-#like ($@, qr/^Array index out of bounds \@a\[5\]/, "compile-time mderef oob");

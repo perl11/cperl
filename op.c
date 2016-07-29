@@ -14181,7 +14181,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 
         while (!is_last) {
             /* look for another (rv2av/hv; get index;
-             * aelem/helem/exists/delele) sequence */
+             * aelem/helem/exists/delete) sequence */
 
             OP *kid;
             bool is_deref;
@@ -14305,7 +14305,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                             && iv <= 127
                             && (   action == MDEREF_AV_padav_aelem
                                 || action == MDEREF_AV_gvav_aelem)
-                        )
+                           ) /* but still need to check for valid op_private */
                             maybe_aelemfast = TRUE;
 
                         if (PASS2) {
@@ -14393,7 +14393,6 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 
             action |= index_type;
 
-
             /* at this point we have either:
              *   * detected what looks like a simple index expression,
              *     and expect the next op to be an [ah]elem, or
@@ -14415,10 +14414,10 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
             if (  o->op_type == OP_AELEM && PL_check[o->op_type] != Perl_ck_aelem)
                 return;
 
-            if (   o->op_type != OP_AELEM
-                || (o->op_private &
-		      (OPpLVAL_INTRO|OPpLVAL_DEFER|OPpDEREF|OPpMAYBE_LVSUB))
-                )
+            /* skip aelemfast if private cannot hold all bits */
+            if ( o->op_type != OP_AELEM
+                 || (o->op_private &
+                     (OPpLVAL_INTRO|OPpLVAL_DEFER|OPpDEREF|OPpMAYBE_LVSUB)))
                 maybe_aelemfast = FALSE;
 
             /* look for aelem/helem/exists/delete. If it's not the last elem
@@ -15229,7 +15228,8 @@ Perl_rpeep(pTHX_ OP *o)
                                    && strEQ(aname, PAD_COMPNAME_PV(o2->op_targ))) {
                             DEBUG_k(Perl_deb(aTHX_ "nyi multideref[%s] => MDEREF_INDEX_uoob\n",
                                              aname));
-                            /* TODO: find this padsv item and set MDEREF_INDEX_uoob */
+                            /* TODO: find this padsv item (the first)
+                               and set MDEREF_INDEX_uoob */
                         } else if (type == OP_AELEMFAST && SvPOK(kSVOP_sv)
                                    && strEQ(aname, SvPVX(kSVOP_sv))) {
                             /* TODO no magic in array allowed, array must be typed */

@@ -2451,10 +2451,10 @@ PP(pp_multideref)
 
                 if (!(actions & MDEREF_FLAG_last)) {
                     if (UNLIKELY((actions & MDEREF_INDEX_uoob) && !SvRMAGICAL(sv))) {
-                        sv = AvARRAY(sv)[elem];
-                        if (!sv) {
-                            const U32 lval = (PL_op->op_flags & OPf_MOD) || LVRET;
-                            sv = lval ? newSV(0) : &PL_sv_undef;
+                        SV* av = sv;
+                        sv = AvARRAY(av)[elem];
+                        if (!sv) { /* always lval */
+                            AvARRAY(av)[elem] = sv = newSV(0);
                         }
                     } else {
                         SV** svp = av_fetch((AV*)sv, elem, 1);
