@@ -14327,12 +14327,14 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                                     DEBUG_kv(Perl_deb(aTHX_
                                         "mderef %s[%"IVdf"] shape ok -> uoob\n",
                                         PAD_COMPNAME_PV(targ), arg->iv));
+#if 0 /* already done in ck_aelem */
                                     if (arg->iv < 0) {
                                         arg->iv = AvFILLp(av)+1+arg->iv;
                                         DEBUG_kv(Perl_deb(aTHX_
                                             "mderef %s[->%"IVdf"]\n",
                                             PAD_COMPNAME_PV(targ), arg->iv));
                                     }
+#endif
                                 }
                                 index_type |= MDEREF_INDEX_uoob;
                             }

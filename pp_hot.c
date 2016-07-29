@@ -2418,6 +2418,7 @@ PP(pp_multideref)
                 switch (actions & MDEREF_INDEX_MASK) {
                 case MDEREF_INDEX_none:
                     goto finish;
+                case MDEREF_INDEX_const|MDEREF_INDEX_uoob:
                 case MDEREF_INDEX_const:
                     elem  = (++items)->iv;
                     break;
