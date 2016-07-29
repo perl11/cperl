@@ -13293,7 +13293,7 @@ Perl_ck_aelem(pTHX_ OP *o)
         AV* av = MUTABLE_AV(PAD_SV(avop->op_targ));
         if (idx && SvIOK(idx) && AvSHAPED(av)) {
             IV ix = SvIVX(idx);
-            if (PERL_IABS(ix) > AvFILL(av))
+            if (PERL_IABS(ix) > AvFILLp(av))
                 Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
                     PAD_COMPNAME_PV(avop->op_targ), ix);
             else {
@@ -14320,7 +14320,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                             PADOFFSET targ = (((BINOP*)aelem_op)->op_first)->op_targ;
                             SV* av; /* targ may still be empty here */
                             if (targ && (av = PAD_SV(targ)) && AvSHAPED(av)) {
-                                if (PERL_IABS(arg->iv) > AvFILL(av))
+                                if (PERL_IABS(arg->iv) > AvFILLp(av))
                                     Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
                                              PAD_COMPNAME_PV(targ), arg->iv);
                                 else {
@@ -14328,7 +14328,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                                         "mderef %s[%"IVdf"] shape ok -> uoob\n",
                                         PAD_COMPNAME_PV(targ), arg->iv));
                                     if (arg->iv < 0) {
-                                        arg->iv = AvFILL(av)+1+arg->iv;
+                                        arg->iv = AvFILLp(av)+1+arg->iv;
                                         DEBUG_kv(Perl_deb(aTHX_
                                             "mderef %s[->%"IVdf"]\n",
                                             PAD_COMPNAME_PV(targ), arg->iv));
@@ -15232,7 +15232,7 @@ Perl_rpeep(pTHX_ OP *o)
                                    && strEQ(aname, SvPVX(kSVOP_sv))) {
                             /* TODO no magic in array allowed, array must be typed */
                             if (o2->op_targ && o2->op_targ == loop->op_targ) {
-                                DEBUG_k(Perl_deb(aTHX_ "loop oob: aelemfast %s[my %s] => aelemfast_u\n",
+                                DEBUG_k(Perl_deb(aTHX_ "loop oob: aelemfast %s[my %s] => aelemfast_lex_u\n",
                                                  aname, iname));
                                 OpTYPE_set(o2, OP_AELEMFAST_LEX_U);
                             }
@@ -15631,8 +15631,8 @@ Perl_rpeep(pTHX_ OP *o)
 	/* FALLTHROUGH */
 	case OP_GV:
 	    if (o->op_type == OP_PADAV || o->op_next->op_type == OP_RV2AV) {
-		OP* const pop = (o->op_type == OP_PADAV) ?
-			    o->op_next : o->op_next->op_next;
+		OP* const pop = (o->op_type == OP_PADAV)
+                                 ? o->op_next : o->op_next->op_next;
 		IV i;
 		if (pop && pop->op_type == OP_CONST &&
 		    ((PL_op = pop->op_next)) &&
@@ -15662,17 +15662,24 @@ Perl_rpeep(pTHX_ OP *o)
                         if (AvSHAPED(av)) {
 #ifndef AELEMSIZE_RT_NEGATIVE
                             if (i < 0) {
-                                IV ix = AvFILL(av)+1+i;
-                                if (ix <= 255)
+                                IV ix = AvFILLp(av)+1+i;
+                                if (ix <= 255) {
                                     o->op_private = (U8)ix;
+                                    DEBUG_k(Perl_deb(aTHX_ "aelemfast_lex_u %s[->%"IVdf"]\n",
+                                                     PAD_COMPNAME_PV(o->op_targ), ix));
+                                }
                                 else
                                     goto lex;
                             }
 #endif
                             o->op_type = OP_AELEMFAST_LEX_U;
                             o->op_ppaddr = PL_ppaddr[OP_AELEMFAST_LEX_U];
+                            DEBUG_k(Perl_deb(aTHX_ "rpeep: aelemfast %s => aelemfast_lex_u\n",
+                                             PAD_COMPNAME_PV(o->op_targ)));
                         } else {
                           lex:
+                            DEBUG_k(Perl_deb(aTHX_ "rpeep: aelemfast %s => aelemfast_lex\n",
+                                             PAD_COMPNAME_PV(o->op_targ)));
                             o->op_type = OP_AELEMFAST_LEX;
                             o->op_ppaddr = PL_ppaddr[OP_AELEMFAST];
                         }
