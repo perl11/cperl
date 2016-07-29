@@ -926,6 +926,7 @@ PP(pp_formline)
     }
 }
 
+/* also used for: pp_mapstart() */
 PP(pp_grepstart)
 {
     dSP;
