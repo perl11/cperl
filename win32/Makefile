@@ -5,8 +5,9 @@
 #	Windows SDK 64-bit compiler and tools
 #
 # This is set up to build a perl.exe that runs off a shared library
-# (cperl524.dll).  Also makes individual DLLs for the XS extensions.
+# (cperl52x.dll).  Also makes individual DLLs for the XS extensions.
 #
+PV = 525
 
 ##
 ## Make sure you read README.win32 *before* you mess with anything here!
@@ -43,7 +44,7 @@ USE_CPERL	= define
 # versioned installation can be obtained by setting INST_TOP above to a
 # path that includes an arbitrary version string.
 #
-#INST_VER	= \5.24.1
+#INST_VER	= \5.25.0
 
 #
 # Comment this out if you DON'T want your perl installation to have
@@ -197,7 +198,7 @@ CCTYPE		= MSVC90FREE
 # set this to additionally provide a statically linked perl-static.exe.
 # Note that dynamic loading will not work with this perl, so you must
 # include required modules statically using the STATIC_EXT or ALL_STATIC
-# variables below. A static library perl524s.lib will also be created.
+# variables below. A static library perl525s.lib will also be created.
 # Ordinary perl.exe is not affected by this option.
 #
 #BUILD_STATIC	= define
@@ -639,9 +640,9 @@ $(o).dll:
 
 # makedef.pl must be updated if this changes, and this should normally
 # only change when there is an incompatible revision of the public API.
-PERLIMPLIB	= ..\cperl524.lib
-PERLSTATICLIB	= ..\cperl524s.lib
-PERLDLL		= ..\cperl524.dll
+PERLIMPLIB	= ..\cperl$(PV).lib
+PERLSTATICLIB	= ..\cperl$(PV)s.lib
+PERLDLL		= ..\cperl$(PV).dll
 
 MINIPERL	= ..\miniperl.exe
 MINIDIR		= .\mini
@@ -1236,7 +1237,7 @@ utils: $(PERLEXE) ..\utils\Makefile
 	copy ..\README.vos      ..\pod\perlvos.pod
 	copy ..\README.win32    ..\pod\perlwin32.pod
 	copy ..\pod\perldelta.pod ..\pod\perl5240delta.pod
-	copy ..\pod\perlcdelta.pod ..\pod\perl5241cdelta.pod
+	copy ..\pod\perlcdelta.pod ..\pod\perl5250cdelta.pod
 	cd ..\win32
 	$(PERLEXE) $(PL2BAT) $(UTILS)
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
@@ -1343,7 +1344,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\XS rmdir /s /q $(LIBDIR)\XS
 	-if exist $(LIBDIR)\YAML rmdir /s /q $(LIBDIR)\YAML
 	-cd $(PODDIR) && del /f *.html *.bat roffitall \
-	    perl5240delta.pod perl5241cdelta.pod perlaix.pod perlamiga.pod \
+	    perl5240delta.pod perl5250cdelta.pod perlaix.pod perlamiga.pod \
 	    perlandroid.pod perlapi.pod perlbs2000.pod perlce.pod \
 	    perlcn.pod perlcygwin.pod perldos.pod perlfreebsd.pod \
 	    perlhaiku.pod perlhpux.pod perlhurd.pod perlintern.pod \

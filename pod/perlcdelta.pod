@@ -2,12 +2,12 @@
 
 =head1 NAME
 
-perlcdelta - what is new for cperl v5.24.1
+perlcdelta - what is new for cperl v5.25.0
 
 =head1 DESCRIPTION
 
 This document describes perl-only differences between the cperl 5.24.0
-release and the cperl 5.24.1 release.
+release and the cperl 5.25.0 release.
 
 If you are upgrading from an earlier release such as 5.22.3, first read
 L<perl5240cdelta>, which describes differences between 5.22.3 and 5.24.0.
@@ -176,16 +176,12 @@ XXX
 
 =head2 Platform-Specific Notes
 
-XXX List any changes for specific platforms.  This could include configuration
-and compilation changes or changes in portability/compatibility.  However,
-changes within modules for platforms should generally be listed in the
-L</Modules and Pragmata> section.
-
 =over 4
 
-=item XXX-some-platform
+=item mingw
 
-XXX
+Compilation under mingw (32 and/or 64bit) was fixed by removing a
+duplicate F<pp_sys.c> entry in F<win32/GNUMakefile>.
 
 =back
 
@@ -201,7 +197,7 @@ well.
 
 =item *
 
-XXX
+The B<negate> op has now it's own B<ck_negate> callback.
 
 =back
 

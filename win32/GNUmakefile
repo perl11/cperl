@@ -6,8 +6,9 @@
 #	Windows SDK 64-bit compiler and tools
 #
 # This is set up to build a perl.exe that runs off a shared library
-# (cperl524.dll).  Also makes individual DLLs for the XS extensions.
-#
+# (cperl52x.dll).  Also makes individual DLLs for the XS extensions.
+PV := 525
+
 # The easiest way to customize the build process is to use parameters like this:
 #
 # c:\dev\perlsrc\win32> gmake INST_TOP=c:\sw\perl CCHOME=c:\sw\mingw USE_64_BIT_INT=define
@@ -72,7 +73,7 @@ USE_CPERL	:= define
 # versioned installation can be obtained by setting INST_TOP above to a
 # path that includes an arbitrary version string.
 #
-#INST_VER	:= \5.24.1
+#INST_VER	:= \5.25.0
 
 #
 # Comment this out if you DON'T want your perl installation to have
@@ -226,7 +227,7 @@ CCTYPE		:= GCC
 # set this to additionally provide a statically linked perl-static.exe.
 # Note that dynamic loading will not work with this perl, so you must
 # include required modules statically using the STATIC_EXT or ALL_STATIC
-# variables below. A static library cperl524s.lib will also be created.
+# variables below. A static library cperl52xs.lib will also be created.
 # Ordinary cperl.exe is not affected by this option.
 #
 #BUILD_STATIC	:= define
@@ -866,9 +867,9 @@ ifeq ($(CCTYPE),GCC)
 
 CFGSH_TMPL	= config.gc
 CFGH_TMPL	= config_H.gc
-PERLIMPLIB	= $(COREDIR)\libcperl524$(a)
-PERLIMPLIBBASE	= libcperl524$(a)
-PERLSTATICLIB	= ..\libcperl524s$(a)
+PERLIMPLIB	= $(COREDIR)\libcperl$(PV)$(a)
+PERLIMPLIBBASE	= libcperl$(PV)$(a)
+PERLSTATICLIB	= ..\libcperl$(PV)s$(a)
 INT64		= long long
 
 else
@@ -881,11 +882,11 @@ endif
 
 # makedef.pl must be updated if this changes, and this should normally
 # only change when there is an incompatible revision of the public API.
-PERLIMPLIB	?= $(COREDIR)\cperl524$(a)
-PERLIMPLIBBASE	?= cperl524$(a)
-PERLEXPLIB	?= $(COREDIR)\cperl524.exp
-PERLSTATICLIB	?= ..\cperl524s$(a)
-PERLDLL		= ..\cperl524.dll
+PERLIMPLIB	?= $(COREDIR)\cperl$(PV)$(a)
+PERLIMPLIBBASE	?= cperl$(PV)$(a)
+PERLEXPLIB	?= $(COREDIR)\cperl$(PV).exp
+PERLSTATICLIB	?= ..\cperl$(PV)s$(a)
+PERLDLL		= ..\cperl$(PV).dll
 
 # don't let "gmake -n all" try to run "miniperl.exe make_ext.pl"
 PLMAKE		= gmake
@@ -1554,7 +1555,7 @@ utils: $(HAVEMINIPERL) ..\utils\Makefile
 	copy ..\README.vos      ..\pod\perlvos.pod
 	copy ..\README.win32    ..\pod\perlwin32.pod
 	copy ..\pod\perldelta.pod ..\pod\perl5240delta.pod
-	copy ..\pod\perlcdelta.pod ..\pod\perl5241cdelta.pod
+	copy ..\pod\perlcdelta.pod ..\pod\perl5250cdelta.pod
 	$(MINIPERL) -I..\lib $(PL2BAT) $(UTILS)
 	$(MINIPERL) -I..\lib ..\autodoc.pl ..
 	$(MINIPERL) -I..\lib ..\pod\perlmodlib.PL -q ..
@@ -1649,7 +1650,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\Win32API rmdir /s /q $(LIBDIR)\Win32API
 	-if exist $(LIBDIR)\XS rmdir /s /q $(LIBDIR)\XS
 	-cd $(PODDIR) && del /f *.html *.bat roffitall \
-	    perl5241cdelta.pod perl5240delta.pod perlaix.pod perlamiga.pod \
+	    perl5250cdelta.pod perl5240delta.pod perlaix.pod perlamiga.pod \
 	    perlandroid.pod perlapi.pod perlbs2000.pod perlce.pod \
 	    perlcn.pod perlcygwin.pod perldos.pod perlfreebsd.pod \
 	    perlhaiku.pod perlhpux.pod perlhurd.pod perlintern.pod \
