@@ -1470,6 +1470,7 @@ aux_list(o)
                         case MDEREF_INDEX_none:
                             last = 1;
                             break;
+                        case MDEREF_INDEX_const|MDEREF_INDEX_uoob:
                         case MDEREF_INDEX_const:
                             if (is_hash)
                               PUSH_SV(++items);
