@@ -15225,10 +15225,10 @@ Perl_rpeep(pTHX_ OP *o)
                     OP *kid = cUNOPx(to)->op_first;
                     OP *loop, *iter, *body, *o2;
                     SV *idx = MUTABLE_SV(PL_defgv);
+#ifdef DEBUGGING
                     const char *aname = kid->op_type == OP_GV ? GvNAME_get(kSVOP_sv)
                         :  kid->op_type == OP_PADAV ? PAD_COMPNAME_PV(kid->op_targ)
                         :  "";
-#ifdef DEBUGGING
                     char *iname = (char*)"_";
 #endif
                     /* array can be global: gv -> rv2av, or rv2av(?), or lexical: padav */
@@ -15273,11 +15273,13 @@ Perl_rpeep(pTHX_ OP *o)
                         /* here aelem might not be already optimized to multideref.
                            aelem_u is faster, but does no deref so far. */
                         if (type == OP_AELEM
-                            && OP_TYPE_IS(cUNOPx(o2)->op_first, OP_PADAV)
-                            && kid->op_targ == cUNOPx(o2)->op_first->op_targ /* same lex array */
+                            && OP_TYPE_IS(cBINOPx(o2)->op_first, OP_PADAV)
+                            && kid->op_targ == cBINOPx(o2)->op_first->op_targ /* same lex array */
                             && !(o2->op_private & (OPpLVAL_DEFER|OPpLVAL_INTRO|OPpDEREF))) {
                             /* same lex. index */
-                            if (o2->op_targ && o2->op_targ == loop->op_targ) {
+                            if (cBINOPx(o2)->op_last->op_targ
+                                && cBINOPx(o2)->op_last->op_targ == loop->op_targ)
+                            {
                                 DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[my %s] => aelem_u\n",
                                                  aname, iname));
                                 OpTYPE_set(o2, OP_AELEM_U);

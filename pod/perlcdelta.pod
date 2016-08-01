@@ -49,6 +49,10 @@ multideref stringification.
 C<MDEREF_MASK> changed to 0x10F, the C<MDEREF_SHIFT> size from 7 to 8.
 The shift can also use faster intrinsics now.
 
+The loop out-of-bounds elimination was fixed for simple lexical
+indices (e.g. C<for my $i (0..$#a){ $a[$i] }>, which leads now to
+more aelem_u ops and subsequent mderef_u optimizations also.
+
 =item *
 
 The new C<strQEc>/C<strNEc> macros are used instead of
