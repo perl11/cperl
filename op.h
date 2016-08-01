@@ -1044,14 +1044,15 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
 #define MDEREF_INDEX_padsv  0x20 /* index is lexical var */
 #define MDEREF_INDEX_gvsv   0x30 /* index is GV */
 
-#define MDEREF_INDEX_MASK   (MDEREF_INDEX_const|MDEREF_INDEX_padsv|MDEREF_INDEX_gvsv)
+/* (MDEREF_INDEX_const|MDEREF_INDEX_padsv|MDEREF_INDEX_gvsv) */
+#define MDEREF_INDEX_MASK   0x30
 
 /* bit flags */
 
 #define MDEREF_INDEX_uoob   0x40 /* index needs no out-of-bounds check */
 #define MDEREF_FLAG_last    0x80 /* the last [ah]elem; PL_op flags apply */
 
-#define MDEREF_MASK         0x10F
+#define MDEREF_MASK        0x10F
 #define MDEREF_SHIFT           8
 
 /* Stuff for OP_SIGNATURE/pp_signature. */
