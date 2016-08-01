@@ -35,6 +35,17 @@ L</Selected Bug Fixes> section.
 
 =item *
 
+Out-of-bounds check elimination in loops has been fixed for lexical
+counters.  E.g. with C<my @a=(0..4); for my $i (0..$#a) { $a[$i] }> each
+access to C<$a[$i]> in the loop is now really converted to the
+unchecked faster B<aelem_u> op.
+
+Note that multideref ops are not yet converted to omit out-of-bounds
+checks. This is only implemented since cperl-5.25 (released with
+5.26.0c), since it needs to widen the internal mderef structure.
+
+=item *
+
 The new C<strQEc>/C<strNEc> macros are used instead of
 C<strEQ(s,"constant")>. This enables word-wise comparison via memcpy,
 in opposite of byte-wise comparisons via strcmp with already known
