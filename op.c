@@ -14743,7 +14743,12 @@ S_mderef_uoob_targ(OP* o, PADOFFSET targ)
     int action = actions & MDEREF_ACTION_MASK;
     assert(action);
     if ( (action == MDEREF_AV_padav_aelem
-       || action == MDEREF_AV_padsv_vivify_rv2av_aelem)
+       || action == MDEREF_AV_padsv_vivify_rv2av_aelem
+#ifdef USE_ITHREADS
+       || action == MDEREF_AV_gvav_aelem
+       || action == MDEREF_AV_gvsv_vivify_rv2av_aelem
+#endif
+          )
         && ((actions & MDEREF_INDEX_MASK) == MDEREF_INDEX_padsv)
         && items->pad_offset == targ)
     {
@@ -14753,11 +14758,12 @@ S_mderef_uoob_targ(OP* o, PADOFFSET targ)
     return FALSE;
 }
 
+#ifndef USE_ITHREADS
 /* check the key index sv of the first INDEX_gvsv of a MDEREF_AV,
    compare it with the given key,
    and set INDEX_uoob. */
 STATIC bool
-S_mderef_uoob_gv(pTHX_ OP* o, SV* idx)
+S_mderef_uoob_gvsv(pTHX_ OP* o, SV* idx)
 {
     UNOP_AUX_item *items = cUNOP_AUXx(o)->op_aux;
     UV actions = items->uv;
@@ -14774,6 +14780,7 @@ S_mderef_uoob_gv(pTHX_ OP* o, SV* idx)
     }
     return FALSE;
 }
+#endif
 
 
 /* returns the next non-null op */
@@ -15294,13 +15301,16 @@ Perl_rpeep(pTHX_ OP *o)
                             }
                         } else if (type == OP_MULTIDEREF) {
                             /* find this padsv item (the first) and set MDEREF_INDEX_uoob */
+                            /* with threads we also check the targ here and not via gvsv */
                             if (loop->op_targ && S_mderef_uoob_targ(o2, loop->op_targ)) {
                                 DEBUG_k(Perl_deb(aTHX_ "loop oob: multideref %s[my %s] => MDEREF_INDEX_uoob\n",
                                                  aname, iname));
+#ifndef USE_ITHREADS
                             } else if (!loop->op_targ
-                                       && S_mderef_uoob_gv(aTHX_ o2, idx)) {
+                                       && S_mderef_uoob_gvsv(aTHX_ o2, idx)) {
                                 DEBUG_k(Perl_deb(aTHX_ "loop oob: multideref %s[$%s] =>  MDEREF_INDEX_uoob\n",
                                                  aname, iname));
+#endif
                             }
                         }
 #if 0
