@@ -2449,7 +2449,8 @@ PP(pp_multideref)
                 /* this is basically a copy of pp_aelem with OPpDEREF skipped */
 
                 if (!(actions & MDEREF_FLAG_last)) {
-                    if (UNLIKELY((actions & MDEREF_INDEX_uoob) && !SvRMAGICAL(sv))) {
+                    /* loop oob allow magic arrays */
+                    if (UNLIKELY((actions & MDEREF_INDEX_uoob) && !SvMAGICAL(sv))) {
                         SV* av = sv;
                         DEBUG_kv(Perl_deb(aTHX_ "mderef oob [%ld]\n", elem));
                         sv = AvARRAY(av)[elem];
