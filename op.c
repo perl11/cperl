@@ -14249,10 +14249,14 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                         && !(o->op_flags & (OPf_REF|OPf_MOD))
                         && o->op_private == 0)
                     {
-                        if (PASS2)
-                            arg->pad_offset = o->op_targ;
-                        arg++;
                         index_type = MDEREF_INDEX_padsv;
+                        if (PASS2) {
+                            arg->pad_offset = o->op_targ;
+                            /* you can get here via loop oob elimination */
+                            if (o->op_next->op_type == OP_AELEM_U)
+                                index_type |= MDEREF_INDEX_uoob;
+                        }
+                        arg++;
                         o = o->op_next;
                     }
                     break;
@@ -14316,7 +14320,9 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                     index_type = MDEREF_INDEX_const;
                     if (PASS2) {
                         OP *aelem_op = o->op_next;
-                        if (aelem_op->op_type == OP_AELEM) {
+                        if (aelem_op->op_type == OP_AELEM_U) {
+                            index_type |= MDEREF_INDEX_uoob;
+                        } else if (aelem_op->op_type == OP_AELEM) {
                             PADOFFSET targ = (((BINOP*)aelem_op)->op_first)->op_targ;
                             SV* av; /* targ may still be empty here */
                             if (targ && (av = PAD_SV(targ)) && AvSHAPED(av)) {
@@ -14411,11 +14417,11 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 
             /* if something like arybase (a.k.a $[ ) is in scope,
              * abandon optimisation attempt */
-            if (  o->op_type == OP_AELEM && PL_check[o->op_type] != Perl_ck_aelem)
+            if (o->op_type == OP_AELEM && PL_check[o->op_type] != Perl_ck_aelem)
                 return;
 
             /* skip aelemfast if private cannot hold all bits */
-            if ( o->op_type != OP_AELEM
+            if ( (o->op_type != OP_AELEM && o->op_type != OP_AELEM_U)
                  || (o->op_private &
                      (OPpLVAL_INTRO|OPpLVAL_DEFER|OPpDEREF|OPpMAYBE_LVSUB)))
                 maybe_aelemfast = FALSE;
@@ -14428,14 +14434,15 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
              */
 
             if (   index_type == MDEREF_INDEX_none
-                || (   o->op_type != OP_AELEM  && o->op_type != OP_HELEM
+                || (   o->op_type != OP_AELEM  && o->op_type != OP_AELEM_U
+                    && o->op_type != OP_HELEM
                     && o->op_type != OP_EXISTS && o->op_type != OP_DELETE)
             )
                 ok = FALSE;
             else {
                 /* we have aelem/helem/exists/delete with valid simple index */
 
-                is_deref =    (o->op_type == OP_AELEM || o->op_type == OP_HELEM)
+                is_deref =    (o->op_type == OP_AELEM || o->op_type == OP_AELEM_U || o->op_type == OP_HELEM)
                            && (   (o->op_private & OPpDEREF) == OPpDEREF_AV
                                || (o->op_private & OPpDEREF) == OPpDEREF_HV);
 
@@ -14467,12 +14474,14 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                         ok = (ok && cBOOL(o->op_flags & OPf_SPECIAL));
                 }
                 else {
-                    ASSUME(o->op_type == OP_AELEM || o->op_type == OP_HELEM);
+                    ASSUME(o->op_type == OP_AELEM || o->op_type == OP_AELEM_U || o->op_type == OP_HELEM);
                     ASSUME(!(o->op_flags & ~(OPf_WANT|OPf_KIDS|OPf_MOD
                                             |OPf_PARENS|OPf_REF|OPf_SPECIAL)));
                     ASSUME(!(o->op_private & ~(OPpARG2_MASK|OPpMAYBE_LVSUB
                                     |OPpLVAL_DEFER|OPpDEREF|OPpLVAL_INTRO)));
                     ok = (o->op_private & OPpDEREF) != OPpDEREF_SV;
+                    if (PASS2 && o->op_type == OP_AELEM_U)
+                        action |= MDEREF_INDEX_uoob;
                 }
             }
 
@@ -14501,8 +14510,11 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                  * but stop at that point. So $a[0][expr] will do one
                  * av_fetch, vivify and deref, then continue executing at
                  * expr */
-                if (!action_count)
+                if (!action_count) {
+                    DEBUG_kv(Perl_deb(aTHX_ "no multideref: %s %s\n",
+                                      OP_NAME(start), OP_NAME(o)));
                     return;
+                }
                 is_last = TRUE;
                 index_skip = action_count;
                 action |= MDEREF_FLAG_last;
@@ -14524,7 +14536,6 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
         } /* while !is_last */
 
         /* success! */
-
         if (PASS2) {
             OP *mderef;
             OP *p, *q;
@@ -14702,8 +14713,10 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
         else {
             Size_t size = arg - arg_buf;
 
-            if (maybe_aelemfast && action_count == 1)
+            if (maybe_aelemfast && action_count == 1) {
+                DEBUG_kv(Perl_deb(aTHX_ "no multideref %s = > aelemfast\n", OP_NAME(start)));
                 return;
+            }
 
             arg_buf = (UNOP_AUX_item*)PerlMemShared_malloc(
                                 sizeof(UNOP_AUX_item) * (size + 1));
@@ -14713,8 +14726,55 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
             arg_buf++;
         }
     } /* for (pass = ...) */
+    DEBUG_kv(Perl_deb(aTHX_ "=> multideref %s %s\n", PL_op_name[start->op_targ],
+                      SvPVX(multideref_stringify(start->op_next, NULL))));
 #undef PASS2
 }
+
+/* check the targ of the first INDEX_padsv of a MDEREF_AV,
+   compare it with the given targ,
+   and set INDEX_uoob. */
+STATIC bool
+S_mderef_uoob_targ(OP* o, PADOFFSET targ)
+{
+    UNOP_AUX_item *items = cUNOP_AUXx(o)->op_aux;
+    UV actions = items->uv;
+    /* the pad action must be the first */
+    int action = actions & MDEREF_ACTION_MASK;
+    assert(action);
+    if ( (action == MDEREF_AV_padav_aelem
+       || action == MDEREF_AV_padsv_vivify_rv2av_aelem)
+        && ((actions & MDEREF_INDEX_MASK) == MDEREF_INDEX_padsv)
+        && items->pad_offset == targ)
+    {
+        actions |= MDEREF_INDEX_uoob;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* check the key index sv of the first INDEX_gvsv of a MDEREF_AV,
+   compare it with the given key,
+   and set INDEX_uoob. */
+STATIC bool
+S_mderef_uoob_gv(pTHX_ OP* o, SV* idx)
+{
+    UNOP_AUX_item *items = cUNOP_AUXx(o)->op_aux;
+    UV actions = items->uv;
+    /* the gvsv action must be the first */
+    int action = actions & MDEREF_ACTION_MASK;
+    assert(actions);
+    if ( (action == MDEREF_AV_gvav_aelem
+       || action == MDEREF_AV_gvsv_vivify_rv2av_aelem)
+        && ((actions & MDEREF_INDEX_MASK) == MDEREF_INDEX_gvsv)
+        && UNOP_AUX_item_sv(items) == idx)
+    {
+        actions |= MDEREF_INDEX_uoob;
+        return TRUE;
+    }
+    return FALSE;
+}
+
 
 /* returns the next non-null op */
 
@@ -15160,6 +15220,7 @@ Perl_rpeep(pTHX_ OP *o)
                     /* TODO easy with op_clone_oplist from feature/CM-707-cperl-inline-subs */
                 }
 
+                /* for (0..$#a) { ... $a[$_] ...} */
                 if (OP_TYPE_IS(to, OP_AV2ARYLEN)) {
                     OP *kid = cUNOPx(to)->op_first;
                     OP *loop, *iter, *body, *o2;
@@ -15181,11 +15242,11 @@ Perl_rpeep(pTHX_ OP *o)
                         iname = PAD_COMPNAME_PV(loop->op_targ);
 #endif
                     } else {
-                        OP* rv2gv = cLOOPx(loop)->op_last;
-                        if (rv2gv->op_type == OP_RV2GV) {
-                            kid = cUNOPx(rv2gv)->op_first;
-                            if (kid->op_type == OP_GV) {
-                                idx = kSVOP_sv; /* PVGV or PADOFFSET */
+                        o2 = cLOOPx(loop)->op_last;
+                        if (o2->op_type == OP_RV2GV) {
+                            o2 = cUNOPx(o2)->op_first;
+                            if (o2->op_type == OP_GV) {
+                                idx = cSVOPx_sv(o2); /* PVGV or PADOFFSET */
 #if defined(DEBUGGING)
 #  ifdef USE_ITHREADS
                                 iname = GvNAME_get(PAD_SV((PADOFFSET)idx));
@@ -15204,53 +15265,52 @@ Perl_rpeep(pTHX_ OP *o)
                        this loop body, if the index is the loop counter */
                     for (o2=body; o2!=iter; o2=o2->op_next) {
                         const OPCODE type = o2->op_type;
+                        /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: loop oob %s\n", OP_NAME(o2)));*/
+                        DEBUG_kv(
+                            if (type == OP_AELEM && OP_TYPE_IS(cUNOPx(o2)->op_first, OP_PADAV))
+                                Perl_deb(aTHX_ "rpeep: aelem %s vs %s\n",
+                                         aname, PAD_COMPNAME_PV(cUNOPx(o2)->op_first->op_targ)));
                         /* here aelem might not be already optimized to multideref.
-                           aelem_u is faster. */
-                        if (type == OP_AELEM && OP_TYPE_IS(cUNOPx(o2)->op_first, OP_PADAV)
-                            && strEQ(aname, PAD_COMPNAME_PV(cUNOPx(o2)->op_first->op_targ))
+                           aelem_u is faster, but does no deref so far. */
+                        if (type == OP_AELEM
+                            && OP_TYPE_IS(cUNOPx(o2)->op_first, OP_PADAV)
+                            && kid->op_targ == cUNOPx(o2)->op_first->op_targ /* same lex array */
                             && !(o2->op_private & (OPpLVAL_DEFER|OPpLVAL_INTRO|OPpDEREF))) {
-                            /* check index */
+                            /* same lex. index */
                             if (o2->op_targ && o2->op_targ == loop->op_targ) {
                                 DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[my %s] => aelem_u\n",
                                                  aname, iname));
                                 OpTYPE_set(o2, OP_AELEM_U);
-                            } else if (!o2->op_targ && idx) {
+                            } else if (!o2->op_targ && idx) { /* or same gv index */
                                 OP* ixop = cBINOPx(o2)->op_last;
-                                if ((OP_TYPE_IS(ixop, OP_RV2SV)
-                                  && idx == cSVOPx(cUNOPx(ixop)->op_first)->op_sv)) {
+                                if (OP_TYPE_IS(ixop, OP_RV2SV)
+                                    && idx == cSVOPx_sv(cUNOPx(ixop)->op_first)) {
                                     DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[$%s] => aelem_u\n",
                                                      aname, iname));
                                     OpTYPE_set(o2, OP_AELEM_U);
                                 }
                             }
-#ifdef DEBUGGING
-                        } else if (type == OP_MULTIDEREF && o2->op_targ
-                                   && strEQ(aname, PAD_COMPNAME_PV(o2->op_targ))) {
-                            DEBUG_k(Perl_deb(aTHX_ "nyi multideref[%s] => MDEREF_INDEX_uoob\n",
-                                             aname));
-                            /* TODO: find this padsv item (the first)
-                               and set MDEREF_INDEX_uoob */
-                        } else if (type == OP_AELEMFAST && SvPOK(kSVOP_sv)
-                                   && strEQ(aname, SvPVX(kSVOP_sv))) {
-                            /* TODO no magic in array allowed, array must be typed */
-                            if (o2->op_targ && o2->op_targ == loop->op_targ) {
-                                DEBUG_k(Perl_deb(aTHX_ "loop oob: aelemfast %s[my %s] => aelemfast_lex_u\n",
+                        } else if (type == OP_MULTIDEREF) {
+                            /* find this padsv item (the first) and set MDEREF_INDEX_uoob */
+                            if (loop->op_targ && S_mderef_uoob_targ(o2, loop->op_targ)) {
+                                DEBUG_k(Perl_deb(aTHX_ "loop oob: multideref %s[my %s] => MDEREF_INDEX_uoob\n",
                                                  aname, iname));
-                                OpTYPE_set(o2, OP_AELEMFAST_LEX_U);
+                            } else if (!loop->op_targ
+                                       && S_mderef_uoob_gv(aTHX_ o2, idx)) {
+                                DEBUG_k(Perl_deb(aTHX_ "loop oob: multideref %s[$%s] =>  MDEREF_INDEX_uoob\n",
+                                                 aname, iname));
                             }
-#if 0
-                            else if (!o2->op_targ && idx) {
-                                OP* ixop = cBINOPx(o2)->op_last;
-                                if ((OP_TYPE_IS(ixop, OP_RV2SV)
-                                  && idx == cSVOPx(cUNOPx(ixop)->op_first)->op_sv)) {
-                                    DEBUG_k(Perl_deb(aTHX_ "loop oob: aelemfast %s[$%s] => aelemfast_u\n",
-                                                     aname, iname));
-                                    OpTYPE_set(o2, OP_AELEMFAST_U);
-                                }
-                            }
-#endif
-#endif
                         }
+#if 0
+                        else if (type == OP_AELEMFAST_LEX
+                                   /* same array */
+                                   && o2->op_targ && o2->op_targ == loop->op_targ) {
+                            /* constant index cannot exceed shape. */
+                            DEBUG_k(Perl_deb(aTHX_ "loop oob: aelemfast_lex %s[%s] => aelemfast_lex_u\n",
+                                             aname, iname));
+                            OpTYPE_set(o2, OP_AELEMFAST_LEX_U);
+                        }
+#endif
                     }
                     break;
                 }

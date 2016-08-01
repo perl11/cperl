@@ -2418,7 +2418,6 @@ PP(pp_multideref)
                 switch (actions & MDEREF_INDEX_MASK) {
                 case MDEREF_INDEX_none:
                     goto finish;
-                case MDEREF_INDEX_const|MDEREF_INDEX_uoob:
                 case MDEREF_INDEX_const:
                     elem  = (++items)->iv;
                     break;
@@ -2452,6 +2451,7 @@ PP(pp_multideref)
                 if (!(actions & MDEREF_FLAG_last)) {
                     if (UNLIKELY((actions & MDEREF_INDEX_uoob) && !SvRMAGICAL(sv))) {
                         SV* av = sv;
+                        DEBUG_kv(Perl_deb(aTHX_ "mderef oob [%ld]\n", elem));
                         sv = AvARRAY(av)[elem];
                         if (!sv) { /* always lval */
                             AvARRAY(av)[elem] = sv = newSV(0);

@@ -2506,6 +2506,8 @@ Perl_multideref_stringify(pTHX_ const OP *o, CV *cv)
                 S_append_gv_name(aTHX_ (GV*)sv, out);
                 break;
             }
+            if (actions & MDEREF_INDEX_uoob)
+                Perl_sv_catpvf(aTHX_ out, " _u");
             sv_catpvn_nomg(out, (is_hash ? "}" : "]"), 1);
 
             if (actions & MDEREF_FLAG_last)

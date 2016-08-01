@@ -35,17 +35,19 @@ L</Selected Bug Fixes> section.
 
 =item *
 
-The C<multideref> OP has a new C<MDEREF_INDEX_uoob> flag, which can
-only appear together with C<MDEREF_INDEX_const>. This is used for
-unchecked out-of-bounds checks for arrays, to use the previous
-AvSHAPED array optimizations with multideref OPs also.
+The C<multideref> OP has a new C<MDEREF_INDEX_uoob> flag.  This is
+used for unchecked out-of-bounds checks for arrays, to use the
+previous AvSHAPED array optimizations (aelem_u, aelemfast_lex_u) or
+loop out-of-bounds elimination with multideref OPs also. Such
+multideref ops appear pretty often even with single indices.  E.g. in
+C<my @b=(0..4); for (0..$#b) { $b[$_] = 0; }> C<$b[$_]> is converted
+to a multideref, which previously was not optimized.
 
-But multideref ops in loops are not yet compiled to use
-C<MDEREF_INDEX_uoob> when the index is ensured to be inside the
-array. This oob optimization is expected soon.
+Those optimized indices are marked with a new " _u" suffix in the dumped
+multideref stringification.
 
-C<MDEREF_INDEX_MASK> changed to 0x70, C<MDEREF_MASK> to 0x10F, the
-C<MDEREF_SHIFT> size from 7 to 8.
+C<MDEREF_MASK> changed to 0x10F, the C<MDEREF_SHIFT> size from 7 to 8.
+The shift can also use faster intrinsics now.
 
 =item *
 

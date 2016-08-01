@@ -74,16 +74,22 @@ is($a[3][0], 2, "negative multi mderef_u");
 eval '$a[5][1];';
 like ($@, qr/^Array index out of bounds \@a\[5\]/, "compile-time mderef oob");
 
-# eliminating loop out-of-bounds:
+# eliminating loop out-of-bounds checks.
+# how to test this? via dump/-Dt?
 my @b = (0..4);
 for (0..$#b) { $b[$_] };       # _u
 for (0..$#b) { $a[$_] };       # wrong array
 for my $i (0..$#b) { $b[$i] }; # _u
 my $j = 0;
 for my $i (0..$#b) { $b[$j] }; # wrong index: lex
-for my $our (0..$#b) { $b[$i] }; # _u
+for my $our (0..$#b) { $b[$i] }; # wrong index: lex
 for (0..$#b) { $b[$_+1] };     # wrong index: expr
 { no strict;
   for $k (0..$#b) { $b[$k] };    # _u
   for $k (0..$#b) { $b[$j] };    # wrong index: glob
 }
+
+for (0..$#b) { $b[$_] = 0; }       # mderef_u gvsv
+for my $i (0..$#b) { $b[$i] = 0; } # mderef_u padsv
+
+for (0..$#a) { $a[$_] };       # shaped + mderef_u
