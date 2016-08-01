@@ -7031,11 +7031,7 @@ STATIC OP*	S_doform(pTHX_ CV *cv, GV *gv, OP *retop)
 #define PERL_ARGS_ASSERT_DOFORM	\
 	assert(cv); assert(gv)
 
-STATIC SV *	S_space_join_names_mortal(pTHX_ char *const *array)
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_SPACE_JOIN_NAMES_MORTAL	\
-	assert(array)
-
+STATIC SV *	S_space_join_names_mortal(pTHX_ char *const *array);
 #endif
 #if defined(PERL_IN_REGCOMP_C)
 STATIC void	S__append_range_to_invlist(pTHX_ SV* const invlist, const UV start, const UV end)
