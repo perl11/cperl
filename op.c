@@ -7587,7 +7587,8 @@ unused and should always be 1.
 */
 
 OP *
-Perl_newLOOPOP(pTHX_ I32 flags, I32 debuggable, OP *expr, OP *block)
+Perl_newLOOPOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL,
+               OP *expr, OP *block)
 {
     OP* listop;
     OP* o;
@@ -7692,7 +7693,7 @@ loop body to be enclosed in its own scope.
 */
 
 OP *
-Perl_newWHILEOP(pTHX_ I32 flags, I32 debuggable, LOOP *loop,
+Perl_newWHILEOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL, LOOP *loop,
 	OP *expr, OP *block, OP *cont, I32 has_my)
 {
     dVAR;

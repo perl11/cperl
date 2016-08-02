@@ -2186,7 +2186,7 @@ S_ingroup(pTHX_ Gid_t testgid, bool effective)
 #if defined(HAS_MSG) || defined(HAS_SEM) || defined(HAS_SHM)
 
 I32
-Perl_do_ipcget(pTHX_ I32 optype, SV **mark, SV **sp)
+Perl_do_ipcget(pTHX_ I32 optype, SV **mark, SV **sp PERL_UNUSED_DECL)
 {
     const key_t key = (key_t)SvNVx(*++mark);
     SV *nsv = optype == OP_MSGGET ? NULL : *++mark;
@@ -2220,7 +2220,7 @@ Perl_do_ipcget(pTHX_ I32 optype, SV **mark, SV **sp)
 }
 
 I32
-Perl_do_ipcctl(pTHX_ I32 optype, SV **mark, SV **sp)
+Perl_do_ipcctl(pTHX_ I32 optype, SV **mark, SV **sp PERL_UNUSED_DECL)
 {
     char *a;
     I32 ret = -1;
@@ -2353,7 +2353,7 @@ Perl_do_ipcctl(pTHX_ I32 optype, SV **mark, SV **sp)
 }
 
 I32
-Perl_do_msgsnd(pTHX_ SV **mark, SV **sp)
+Perl_do_msgsnd(pTHX_ SV **mark, SV **sp PERL_UNUSED_DECL)
 {
 #ifdef HAS_MSG
     STRLEN len;
@@ -2385,7 +2385,7 @@ Perl_do_msgsnd(pTHX_ SV **mark, SV **sp)
 }
 
 I32
-Perl_do_msgrcv(pTHX_ SV **mark, SV **sp)
+Perl_do_msgrcv(pTHX_ SV **mark, SV **sp PERL_UNUSED_DECL)
 {
 #ifdef HAS_MSG
     char *mbuf;
@@ -2430,7 +2430,7 @@ Perl_do_msgrcv(pTHX_ SV **mark, SV **sp)
 }
 
 I32
-Perl_do_semop(pTHX_ SV **mark, SV **sp)
+Perl_do_semop(pTHX_ SV **mark, SV **sp PERL_UNUSED_DECL)
 {
 #ifdef HAS_SEM
     STRLEN opsize;
@@ -2475,7 +2475,7 @@ Perl_do_semop(pTHX_ SV **mark, SV **sp)
 }
 
 I32
-Perl_do_shmio(pTHX_ I32 optype, SV **mark, SV **sp)
+Perl_do_shmio(pTHX_ I32 optype, SV **mark, SV **sp PERL_UNUSED_DECL)
 {
 #ifdef HAS_SHM
     char *shm;

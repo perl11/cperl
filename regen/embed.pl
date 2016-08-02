@@ -75,15 +75,13 @@ my ($embed, $core, $ext, $api) = setup_embed();
 	}
 
 	my ($flags,$retval,$plain_func,@args) = @$_;
-	my @nonnull;
+	my (@nonnull, @unused, @names_of_nn, $func);
 	my $has_context = ( $flags !~ /n/ );
 	my $never_returns = ( $flags =~ /r/ );
 	my $commented_out = ( $flags =~ /m/ );
 	my $binarycompat = ( $flags =~ /b/ );
 	my $is_malloc = ( $flags =~ /a/ );
 	my $can_ignore = ( $flags !~ /R/ ) && !$is_malloc;
-	my @names_of_nn;
-	my $func;
 
 	if (! $can_ignore && $retval eq 'void') {
 	    warn "It is nonsensical to require the return value of a void function ($plain_func) to be checked";
@@ -134,6 +132,12 @@ my ($embed, $core, $ext, $api) = setup_embed();
 		    warn "$func: $arg needs NN or NULLOK\n";
 		    ++$unflagged_pointers;
 		}
+		my $unused = ($arg =~ s/\s*(\bUNUSED\b)\s+// );
+                if ($unused) {
+                  $arg .= ' PERL_UNUSED_DECL';
+                  push( @unused, $n );
+                }
+
 		my $nn = ( $arg =~ s/\s*\bNN\b\s+// );
 		push( @nonnull, $n ) if $nn;
 
@@ -145,14 +149,15 @@ my ($embed, $core, $ext, $api) = setup_embed();
 		$temp_arg =~ s/\*//g;
 		$temp_arg =~ s/\s*\bstruct\b\s*/ /g;
 		if ( ($temp_arg ne "...")
-		     && ($temp_arg !~ /\w+\s+(\w+)(?:\[\d+\])?\s*$/) ) {
+		     && ($temp_arg !~ /\w+\s+(\w+)(?:\[\d+\])?\s*$/)
+		     && ($temp_arg !~ / PERL_UNUSED_DECL/) ) {
 		    warn "$func: $arg ($n) doesn't have a name\n";
 		}
 		if ( $SPLINT && $nullok && !$commented_out ) {
 		    $arg = '/*@null@*/ ' . $arg;
 		}
 		if (defined $1 && $nn && !($commented_out && !$binarycompat)) {
-		    push @names_of_nn, $1;
+		    push @names_of_nn, $1 if $1 ne 'PERL_UNUSED_DECL';
 		}
 	    }
 	    $ret .= join ", ", @args;
@@ -191,7 +196,7 @@ my ($embed, $core, $ext, $api) = setup_embed();
 		$args = 0;
 		my @fmts = grep $args[$_] =~ /\b(f|pat|fmt)$/, 0..$#args;
 		if (@fmts != 1) {
-		    die "embed.pl: '$plain_func': can't determine pattern arg\n";
+		    die "embed.pl: '$plain_func': can't determine pattern arg @fmts @args\n";
 		}
 		$pat = $fmts[0] + 1;
 	    }

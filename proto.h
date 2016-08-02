@@ -2986,7 +2986,7 @@ PERL_CALLCONV OP*	Perl_newLOOPEX(pTHX_ I32 type, OP* label)
 #define PERL_ARGS_ASSERT_NEWLOOPEX	\
 	assert(label)
 
-PERL_CALLCONV OP*	Perl_newLOOPOP(pTHX_ I32 flags, I32 debuggable, OP* expr, OP* block)
+PERL_CALLCONV OP*	Perl_newLOOPOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL, OP* expr, OP* block)
 			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
@@ -3181,7 +3181,7 @@ PERL_CALLCONV OP*	Perl_newWHENOP(pTHX_ OP* cond, OP* block)
 #define PERL_ARGS_ASSERT_NEWWHENOP	\
 	assert(block)
 
-PERL_CALLCONV OP*	Perl_newWHILEOP(pTHX_ I32 flags, I32 debuggable, LOOP* loop, OP* expr, OP* block, OP* cont, I32 has_my)
+PERL_CALLCONV OP*	Perl_newWHILEOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL, LOOP* loop, OP* expr, OP* block, OP* cont, I32 has_my)
 			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
@@ -5836,45 +5836,39 @@ PERL_CALLCONV void	Perl_dump_sv_child(pTHX_ SV *sv)
 
 #endif
 #if defined(HAS_MSG) || defined(HAS_SEM) || defined(HAS_SHM)
-PERL_CALLCONV I32	Perl_do_ipcctl(pTHX_ I32 optype, SV** mark, SV** sp)
-			__attribute__nonnull__(pTHX_2)
-			__attribute__nonnull__(pTHX_3);
+PERL_CALLCONV I32	Perl_do_ipcctl(pTHX_ I32 optype, SV** mark, SV** sp PERL_UNUSED_DECL)
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_DO_IPCCTL	\
-	assert(mark); assert(sp)
+	assert(mark)
 
-PERL_CALLCONV I32	Perl_do_ipcget(pTHX_ I32 optype, SV** mark, SV** sp)
-			__attribute__nonnull__(pTHX_2)
-			__attribute__nonnull__(pTHX_3);
+PERL_CALLCONV I32	Perl_do_ipcget(pTHX_ I32 optype, SV** mark, SV** sp PERL_UNUSED_DECL)
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_DO_IPCGET	\
-	assert(mark); assert(sp)
+	assert(mark)
 
-PERL_CALLCONV I32	Perl_do_msgrcv(pTHX_ SV** mark, SV** sp)
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
+PERL_CALLCONV I32	Perl_do_msgrcv(pTHX_ SV** mark, SV** sp PERL_UNUSED_DECL)
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DO_MSGRCV	\
-	assert(mark); assert(sp)
+	assert(mark)
 
-PERL_CALLCONV I32	Perl_do_msgsnd(pTHX_ SV** mark, SV** sp)
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
+PERL_CALLCONV I32	Perl_do_msgsnd(pTHX_ SV** mark, SV** sp PERL_UNUSED_DECL)
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DO_MSGSND	\
-	assert(mark); assert(sp)
+	assert(mark)
 
-PERL_CALLCONV I32	Perl_do_semop(pTHX_ SV** mark, SV** sp)
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2);
+PERL_CALLCONV I32	Perl_do_semop(pTHX_ SV** mark, SV** sp PERL_UNUSED_DECL)
+			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DO_SEMOP	\
-	assert(mark); assert(sp)
+	assert(mark)
 
-PERL_CALLCONV I32	Perl_do_shmio(pTHX_ I32 optype, SV** mark, SV** sp)
-			__attribute__nonnull__(pTHX_2)
-			__attribute__nonnull__(pTHX_3);
+PERL_CALLCONV I32	Perl_do_shmio(pTHX_ I32 optype, SV** mark, SV** sp PERL_UNUSED_DECL)
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_DO_SHMIO	\
-	assert(mark); assert(sp)
+	assert(mark)
 
 #endif
 #if defined(HAS_SIGACTION) && defined(SA_SIGINFO)
-PERL_CALLCONV Signal_t	Perl_csighandler(int sig, siginfo_t *info, void *uap);
+PERL_CALLCONV Signal_t	Perl_csighandler(int sig, siginfo_t *info PERL_UNUSED_DECL, void *uap PERL_UNUSED_DECL);
 PERL_CALLCONV Signal_t	Perl_sighandler(int sig, siginfo_t *info, void *uap);
 #endif
 #if defined(HAVE_INTERP_INTERN)
