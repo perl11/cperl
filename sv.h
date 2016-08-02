@@ -1189,7 +1189,21 @@ C<sv_force_normal> does nothing.
 #else
 # define SvREADONLY_on(sv)	(SvFLAGS(sv) |= SVf_READONLY)
 # ifdef USE_CPERL
-#  /* double evaluation! */
+#  if defined(__GNUC__) && !defined(PERL_GCC_BRACE_GROUPS_FORBIDDEN)
+#  /* can avoid double evaluation */
+#  define SvREADONLY_off(sv)                     \
+    ({ SV *const _sv = MUTABLE_SV(sv);           \
+       if ((SV*)(_sv) == &PL_sv_placeholder     \
+        || (SV*)(_sv) == &PL_sv_undef           \
+        || (SV*)(_sv) == &PL_sv_yes             \
+        || (SV*)(_sv) == &PL_sv_no              \
+        || (SV*)(_sv) == (SV*)&PL_padname_const \
+        || (SV*)(_sv) == (SV*)&PL_defstash)     \
+           croak_no_modify();                   \
+       else                                     \
+           SvFLAGS(_sv) &= ~SVf_READONLY;       \
+     })
+#  else
 #  define SvREADONLY_off(sv)                    \
     if ((SV*)(sv) == &PL_sv_placeholder         \
      || (SV*)(sv) == &PL_sv_undef               \
@@ -1200,6 +1214,7 @@ C<sv_force_normal> does nothing.
         croak_no_modify();                      \
     else                                        \
         (SvFLAGS(sv) &= ~SVf_READONLY)
+#  endif
 # else
 #  define SvREADONLY_off(sv) (SvFLAGS(sv) &= ~SVf_READONLY)
 # endif
