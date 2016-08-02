@@ -1189,15 +1189,16 @@ C<sv_force_normal> does nothing.
 #else
 # define SvREADONLY_on(sv)	(SvFLAGS(sv) |= SVf_READONLY)
 # ifdef USE_CPERL
-#  define SvREADONLY_off(sv)               \
-    if (sv == &PL_sv_placeholder           \
-        || sv == &PL_sv_undef              \
-        || sv == &PL_sv_yes                \
-        || sv == &PL_sv_no                 \
-        || sv == (SV*)&PL_padname_const    \
-        || sv == (SV*)&PL_defstash)        \
-        croak_no_modify();                 \
-    else                                   \
+#  /* double evaluation! */
+#  define SvREADONLY_off(sv)                    \
+    if ((SV*)(sv) == &PL_sv_placeholder         \
+     || (SV*)(sv) == &PL_sv_undef               \
+     || (SV*)(sv) == &PL_sv_yes                 \
+     || (SV*)(sv) == &PL_sv_no                  \
+     || (SV*)(sv) == (SV*)&PL_padname_const     \
+     || (SV*)(sv) == (SV*)&PL_defstash)         \
+        croak_no_modify();                      \
+    else                                        \
         (SvFLAGS(sv) &= ~SVf_READONLY)
 # else
 #  define SvREADONLY_off(sv) (SvFLAGS(sv) &= ~SVf_READONLY)
