@@ -12,7 +12,7 @@ BEGIN {
 
 BEGIN { require "./test.pl";  require "./loc_tools.pl"; }
 
-plan(tests => 122);
+plan(tests => 126);
 
 use Config;
 
@@ -81,7 +81,7 @@ my $filename = tempfile();
 SKIP: {
     local $TODO = '';   # this one works on VMS
 
-    open my $f, ">$filename" or skip( "Can't write temp file $filename: $!" );
+    open my $f, ">", $filename or skip( "Can't write temp file $filename: $!" );
     print $f <<'SWTEST';
 BEGIN { print "block 1\n"; }
 CHECK { print "block 2\n"; }
@@ -123,7 +123,7 @@ SWTEST
 	&& $r !~ /\bblock 5\b/,
 	"-c:s"
     );
-    open $f, ">$filename" or skip( "Can't write temp file $filename: $!" );
+    open $f, ">", $filename or skip( "Can't write temp file $filename: $!" );
     print $f <<'SWTEST';
 BEGIN { chdir ".."; }
 SWTEST
@@ -180,7 +180,7 @@ is( $r, '21-', '-s switch parsing' );
 
 $filename = tempfile();
 SKIP: {
-    open my $f, ">$filename" or skip( "Can't write temp file $filename: $!" );
+    open my $f, ">", $filename or skip( "Can't write temp file $filename: $!" );
     print $f <<'SWTEST';
 #!perl -s
 BEGIN { print $x,$y; exit }
@@ -196,7 +196,7 @@ SWTEST
 # Bug ID 20011106.084 (#7876)
 $filename = tempfile();
 SKIP: {
-    open my $f, ">$filename" or skip( "Can't write temp file $filename: $!" );
+    open my $f, ">", $filename or skip( "Can't write temp file $filename: $!" );
     print $f <<'SWTEST';
 #!perl -sn
 BEGIN { print $x; exit }
@@ -214,7 +214,7 @@ SWTEST
 my $package = tempfile();
 $filename = "$package.pm";
 SKIP: {
-    open my $f, ">$filename" or skip( "Can't write temp file $filename: $!",4 );
+    open my $f, ">", $filename or skip( "Can't write temp file $filename: $!",4 );
     print $f <<"SWTESTPM";
 package $package;
 sub import { print map "<\$_>", \@_ }
@@ -383,11 +383,12 @@ for (qw( e f x E S V )) {
     sub do_i_unlink { unlink_all("file", "file.bak") }
 
     open(FILE, ">file") or die "$0: Failed to create 'file': $!";
-    print FILE <<__EOF__;
+    my $yada = <<__EOF__;
 foo yada dada
 bada foo bing
 king kong foo
 __EOF__
+    print FILE $yada;
     close FILE;
 
     END { do_i_unlink() }
@@ -446,11 +447,32 @@ __EOF__
     close $f;
     is(join(":", @out4), "quux:bar", "correct output without backup extension");
 
-    # test that path parsing is correct
     -d "inplacetmp" or mkdir("inplacetmp")
       or die "Cannot mkdir 'inplacetmp': $!";
     require File::Spec;
     my $work = File::Spec->catfile("inplacetmp", "foo");
+
+    # exit or die should leave original content in file
+    for my $inplace (qw/-i -i.bak/) {
+        for my $prog (qw/die exit/) {
+            open my $fh, ">", $work or die "$0: failed to open '$work': $!";
+            print $fh $yada;
+            close $fh or die "Failed to close: $!";
+            my $out = runperl (
+               switches => [ $inplace, '-n' ],
+               prog => "print q(foo\n); $prog",
+               stderr => 1,
+               args => [ $work ],
+            );
+            open my $in, "<", $work or die "$0: failed to open '$work': $!";
+            my $data = do { local $/; <$in> };
+            close $in;
+            is ($data, $yada, "check original content still in file");
+            unlink $work;
+        }
+    }
+
+    # test that path parsing is correct
     open $f, ">", $work or die "Cannot create $work: $!";
     print $f "foo\nbar\n";
     close $f;
@@ -477,6 +499,8 @@ __EOF__
     closedir $d;
     is(scalar(@names), 0, "no extra files")
       or diag "Found @names, expected none";
+
+    rmdir "inplacetmp";
 }
 
 # Tests for -E
@@ -514,7 +538,7 @@ is( $r, "Hello, world!\n", "-E does not enable strictures" );
 
 $filename = tempfile();
 SKIP: {
-    open my $f, ">$filename" or skip( "Can't write temp file $filename: $!" );
+    open my $f, ">", $filename or skip( "Can't write temp file $filename: $!" );
     print $f <<'SWTEST';
 #!perl -w    -iok
 print "$^I\n";
