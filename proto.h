@@ -44,7 +44,6 @@ PERL_CALLCONV const char *	Perl_PerlIO_context_layers(pTHX_ const char *mode)
 
 PERL_CALLCONV void*	Perl_Slab_Alloc(pTHX_ size_t sz)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV void	Perl_Slab_Free(pTHX_ void *op)
@@ -173,6 +172,7 @@ PERL_CALLCONV UV	Perl__to_utf8_upper_flags(pTHX_ const U8 *p, U8* ustrp, STRLEN 
 PERL_CALLCONV void	Perl__warn_problematic_locale(void)
 			__attribute__global__;
 
+PERL_CALLCONV LOGOP*	Perl_alloc_LOGOP(pTHX_ I32 type, OP *first, OP *other);
 PERL_CALLCONV PADOFFSET	Perl_allocmy(pTHX_ const char *const name, const STRLEN len, const U32 flags)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_ALLOCMY	\
@@ -3433,12 +3433,10 @@ PERL_CALLCONV OP*	Perl_newANONATTRSUB(pTHX_ I32 floor, OP *proto, OP *attrs, OP 
 
 PERL_CALLCONV OP*	Perl_newANONHASH(pTHX_ OP* o)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newANONLIST(pTHX_ OP* o)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newANONSUB(pTHX_ I32 floor, OP* proto, OP* block)
@@ -3446,7 +3444,6 @@ PERL_CALLCONV OP*	Perl_newANONSUB(pTHX_ I32 floor, OP* proto, OP* block)
 
 PERL_CALLCONV OP*	Perl_newASSIGNOP(pTHX_ I32 flags, OP* left, I32 optype, OP* right)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 /* PERL_CALLCONV CV*	newATTRSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
@@ -3463,7 +3460,6 @@ PERL_CALLCONV AV*	Perl_newAV(pTHX)
 
 PERL_CALLCONV OP*	Perl_newAVREF(pTHX_ OP* o)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_NEWAVREF	\
@@ -3471,12 +3467,10 @@ PERL_CALLCONV OP*	Perl_newAVREF(pTHX_ OP* o)
 
 PERL_CALLCONV OP*	Perl_newBINOP(pTHX_ I32 type, I32 flags, OP* first, OP* last)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newCONDOP(pTHX_ I32 flags, OP* first, OP* trueop, OP* falseop)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_NEWCONDOP	\
@@ -3490,7 +3484,6 @@ PERL_CALLCONV CV*	Perl_newCONSTSUB_flags(pTHX_ HV* stash, const char* name, STRL
 
 PERL_CALLCONV OP*	Perl_newCVREF(pTHX_ I32 flags, OP* o)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newDEFSVOP(pTHX)
@@ -3502,7 +3495,6 @@ PERL_CALLCONV void	Perl_newFORM(pTHX_ I32 floor, OP* o, OP* block)
 
 PERL_CALLCONV OP*	Perl_newFOROP(pTHX_ I32 flags, OP* sv, OP* expr, OP* block, OP* cont)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_NEWFOROP	\
@@ -3510,7 +3502,6 @@ PERL_CALLCONV OP*	Perl_newFOROP(pTHX_ I32 flags, OP* sv, OP* expr, OP* block, OP
 
 PERL_CALLCONV OP*	Perl_newGIVENOP(pTHX_ OP* cond, OP* block, PADOFFSET defsv_off)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
@@ -3524,7 +3515,6 @@ PERL_CALLCONV GP *	Perl_newGP(pTHX_ GV *const gv)
 
 PERL_CALLCONV OP*	Perl_newGVOP(pTHX_ I32 type, I32 flags, GV* gv)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_NEWGVOP	\
@@ -3532,7 +3522,6 @@ PERL_CALLCONV OP*	Perl_newGVOP(pTHX_ I32 type, I32 flags, GV* gv)
 
 PERL_CALLCONV OP*	Perl_newGVREF(pTHX_ I32 type, OP* o)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 /* PERL_CALLCONV GV*	newGVgen(pTHX_ const char* pack)
@@ -3541,7 +3530,6 @@ PERL_CALLCONV OP*	Perl_newGVREF(pTHX_ I32 type, OP* o)
 
 PERL_CALLCONV GV*	Perl_newGVgen_flags(pTHX_ const char* pack, U32 flags)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_NEWGVGEN_FLAGS	\
@@ -3555,7 +3543,6 @@ PERL_CALLCONV HV*	Perl_newHV(pTHX)
 
 PERL_CALLCONV OP*	Perl_newHVREF(pTHX_ OP* o)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_NEWHVREF	\
@@ -3563,24 +3550,20 @@ PERL_CALLCONV OP*	Perl_newHVREF(pTHX_ OP* o)
 
 PERL_CALLCONV HV*	Perl_newHVhv(pTHX_ HV *hv)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 #ifndef NO_MATHOMS
 PERL_CALLCONV IO*	Perl_newIO(pTHX)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 #endif
 
 PERL_CALLCONV OP*	Perl_newLISTOP(pTHX_ I32 type, I32 flags, OP* first, OP* last)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newLOGOP(pTHX_ I32 optype, I32 flags, OP *first, OP *other)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_3)
 			__attribute__nonnull__(pTHX_4);
@@ -3589,7 +3572,6 @@ PERL_CALLCONV OP*	Perl_newLOGOP(pTHX_ I32 optype, I32 flags, OP *first, OP *othe
 
 PERL_CALLCONV OP*	Perl_newLOOPEX(pTHX_ I32 type, OP* label)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_NEWLOOPEX	\
@@ -3597,12 +3579,10 @@ PERL_CALLCONV OP*	Perl_newLOOPEX(pTHX_ I32 type, OP* label)
 
 PERL_CALLCONV OP*	Perl_newLOOPOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL, OP* expr, OP* block)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newMETHOP(pTHX_ I32 type, I32 flags, OP* dynamic_meth)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_NEWMETHOP	\
@@ -3610,7 +3590,6 @@ PERL_CALLCONV OP*	Perl_newMETHOP(pTHX_ I32 type, I32 flags, OP* dynamic_meth)
 
 PERL_CALLCONV OP*	Perl_newMETHOP_named(pTHX_ I32 type, I32 flags, SV* const_meth)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_NEWMETHOP_NAMED	\
@@ -3624,22 +3603,18 @@ PERL_CALLCONV CV *	Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, O
 
 PERL_CALLCONV OP*	Perl_newNULLLIST(pTHX)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newOP(pTHX_ I32 optype, I32 flags)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV PADNAMELIST *	Perl_newPADNAMELIST(size_t max)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV PADNAME *	Perl_newPADNAMEouter(PADNAME *outer)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_NEWPADNAMEOUTER	\
@@ -3647,7 +3622,6 @@ PERL_CALLCONV PADNAME *	Perl_newPADNAMEouter(PADNAME *outer)
 
 PERL_CALLCONV PADNAME *	Perl_newPADNAMEpvn(const char *s, STRLEN len)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_NEWPADNAMEPVN	\
@@ -3655,7 +3629,6 @@ PERL_CALLCONV PADNAME *	Perl_newPADNAMEpvn(const char *s, STRLEN len)
 
 PERL_CALLCONV PADNAME *	Perl_newPADNAMEpvn_flags(const char *s, STRLEN len, U32 flags)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_NEWPADNAMEPVN_FLAGS	\
@@ -3663,7 +3636,6 @@ PERL_CALLCONV PADNAME *	Perl_newPADNAMEpvn_flags(const char *s, STRLEN len, U32 
 
 PERL_CALLCONV OP*	Perl_newPMOP(pTHX_ I32 type, I32 flags)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV void	Perl_newPROG(pTHX_ OP* o)
@@ -3674,12 +3646,10 @@ PERL_CALLCONV void	Perl_newPROG(pTHX_ OP* o)
 
 PERL_CALLCONV OP*	Perl_newPVOP(pTHX_ I32 type, I32 flags, char* pv)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newRANGE(pTHX_ I32 flags, OP* left, OP* right)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3);
@@ -3688,7 +3658,6 @@ PERL_CALLCONV OP*	Perl_newRANGE(pTHX_ I32 flags, OP* left, OP* right)
 
 PERL_CALLCONV SV*	Perl_newRV(pTHX_ SV *const sv)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_NEWRV	\
@@ -3696,7 +3665,6 @@ PERL_CALLCONV SV*	Perl_newRV(pTHX_ SV *const sv)
 
 PERL_CALLCONV SV*	Perl_newRV_noinc(pTHX_ SV *const tmpRef)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_NEWRV_NOINC	\
@@ -3704,12 +3672,10 @@ PERL_CALLCONV SV*	Perl_newRV_noinc(pTHX_ SV *const tmpRef)
 
 PERL_CALLCONV OP*	Perl_newSLICEOP(pTHX_ I32 flags, OP* subscript, OP* listop)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newSTATEOP(pTHX_ I32 flags, char* label, OP* o)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV CV*	Perl_newSTUB(pTHX_ GV *gv, bool fake)
@@ -3724,12 +3690,10 @@ PERL_CALLCONV CV*	Perl_newSUB(pTHX_ I32 floor, OP* o, OP* proto, OP* block)
 
 PERL_CALLCONV SV*	Perl_newSV(pTHX_ const STRLEN len)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newSVOP(pTHX_ I32 type, I32 flags, SV* sv)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_NEWSVOP	\
@@ -3737,7 +3701,6 @@ PERL_CALLCONV OP*	Perl_newSVOP(pTHX_ I32 type, I32 flags, SV* sv)
 
 PERL_CALLCONV OP*	Perl_newSVREF(pTHX_ OP* o)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_NEWSVREF	\
@@ -3745,11 +3708,9 @@ PERL_CALLCONV OP*	Perl_newSVREF(pTHX_ OP* o)
 
 PERL_CALLCONV SV*	Perl_newSV_type(pTHX_ const svtype type)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_newSVavdefelem(pTHX_ AV *av, SSize_t ix, bool extendible)
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_NEWSVAVDEFELEM	\
@@ -3757,32 +3718,26 @@ PERL_CALLCONV SV*	Perl_newSVavdefelem(pTHX_ AV *av, SSize_t ix, bool extendible)
 
 PERL_CALLCONV SV*	Perl_newSVhek(pTHX_ const HEK *const hek)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_newSViv(pTHX_ const IV i)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_newSVnv(pTHX_ const NV n)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_newSVpv(pTHX_ const char *const s, const STRLEN len)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_newSVpv_share(pTHX_ const char* s, U32 hash)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_newSVpvf(pTHX_ const char *const pat, ...)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__format__(__printf__,pTHX_1,pTHX_2)
 			__attribute__nonnull__(pTHX_1);
@@ -3791,17 +3746,14 @@ PERL_CALLCONV SV*	Perl_newSVpvf(pTHX_ const char *const pat, ...)
 
 PERL_CALLCONV SV*	Perl_newSVpvn(pTHX_ const char *const s, const STRLEN len)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_newSVpvn_flags(pTHX_ const char *const s, const STRLEN len, const U32 flags)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_newSVpvn_share(pTHX_ const char* s, I32 len, U32 hash)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_newSVrv(pTHX_ SV *const rv, const char *const classname)
@@ -3812,27 +3764,22 @@ PERL_CALLCONV SV*	Perl_newSVrv(pTHX_ SV *const rv, const char *const classname)
 
 PERL_CALLCONV SV*	Perl_newSVsv(pTHX_ SV *const old)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_newSVuv(pTHX_ const UV u)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newUNOP(pTHX_ I32 type, I32 flags, OP* first)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newUNOP_AUX(pTHX_ I32 type, I32 flags, OP* first, UNOP_AUX_item *aux)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV OP*	Perl_newWHENOP(pTHX_ OP* cond, OP* block)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_NEWWHENOP	\
@@ -3840,7 +3787,6 @@ PERL_CALLCONV OP*	Perl_newWHENOP(pTHX_ OP* cond, OP* block)
 
 PERL_CALLCONV OP*	Perl_newWHILEOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL, LOOP* loop, OP* expr, OP* block, OP* cont, I32 has_my)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV CV*	Perl_newXS(pTHX_ const char *name, XSUBADDR_t subaddr, const char *filename)
@@ -3883,7 +3829,6 @@ PERL_CALLCONV void	Perl_new_numeric(pTHX_ const char* newcoll)
 
 PERL_CALLCONV PERL_SI*	Perl_new_stackinfo(pTHX_ I32 stitems, I32 cxitems)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_new_version(pTHX_ SV *ver)
@@ -3894,7 +3839,6 @@ PERL_CALLCONV SV*	Perl_new_version(pTHX_ SV *ver)
 
 PERL_CALLCONV STRLEN *	Perl_new_warnings_bitfield(pTHX_ STRLEN *buffer, const char *const bits, STRLEN size)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_NEW_WARNINGS_BITFIELD	\
@@ -4091,7 +4035,6 @@ PERL_CALLCONV void	Perl_pad_free(pTHX_ PADOFFSET po);
 PERL_CALLCONV OP *	Perl_pad_leavemy(pTHX);
 PERL_CALLCONV PADLIST*	Perl_pad_new(pTHX_ int flags)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV void	Perl_pad_push(pTHX_ PADLIST *padlist, int depth)
@@ -4277,7 +4220,6 @@ PERL_CALLCONV void	Perl_ptr_table_free(pTHX_ PTR_TBL_t *const tbl)
 
 PERL_CALLCONV PTR_TBL_t*	Perl_ptr_table_new(pTHX)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV void	Perl_ptr_table_split(pTHX_ PTR_TBL_t *const tbl)
@@ -4364,7 +4306,6 @@ PERL_CALLCONV REGEXP*	Perl_re_op_compile(pTHX_ SV ** const patternp, int pat_cou
 
 PERL_CALLCONV Malloc_t	Perl_realloc(Malloc_t where, MEM_SIZE nbytes)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV void	Perl_reentrant_free(pTHX)
@@ -4622,7 +4563,6 @@ PERL_CALLCONV Malloc_t	Perl_safesysmalloc(MEM_SIZE nbytes)
 
 PERL_CALLCONV Malloc_t	Perl_safesysrealloc(Malloc_t where, MEM_SIZE nbytes)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV void	Perl_save_I16(pTHX_ I16* intp)
@@ -5541,13 +5481,11 @@ PERL_CALLCONV MAGIC *	Perl_sv_magicext_mglob(pTHX_ SV *sv)
 #ifndef NO_MATHOMS
 PERL_CALLCONV SV*	Perl_sv_mortalcopy(pTHX_ SV *const oldsv)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 #endif
 
 PERL_CALLCONV SV*	Perl_sv_mortalcopy_flags(pTHX_ SV *const oldsv, U32 flags)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 PERL_CALLCONV SV*	Perl_sv_newmortal(pTHX)
@@ -6435,7 +6373,6 @@ PERL_CALLCONV SV*	Perl_vmess(pTHX_ const char* pat, va_list* args)
 
 PERL_CALLCONV SV*	Perl_vnewSVpvf(pTHX_ const char *const pat, va_list *const args)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_VNEWSVPVF	\
@@ -7788,7 +7725,6 @@ PERL_STATIC_NO_RET void	S_hv_notallowed(pTHX_ int flags, const char *key, I32 kl
 	assert(key); assert(msg)
 
 STATIC HE*	S_new_he(pTHX)
-			__attribute__malloc__
 			__attribute__warn_unused_result__;
 
 STATIC SV *	S_refcounted_he_value(pTHX_ const struct refcounted_he *he)
@@ -9909,7 +9845,6 @@ PERL_CALLCONV void	Perl_clone_params_del(CLONE_PARAMS *param)
 
 PERL_CALLCONV CLONE_PARAMS *	Perl_clone_params_new(PerlInterpreter *const from, PerlInterpreter *const to)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(2);
@@ -9972,7 +9907,6 @@ PERL_CALLCONV struct mro_meta*	Perl_mro_meta_dup(pTHX_ struct mro_meta* smeta, C
 
 PERL_CALLCONV OP*	Perl_newPADOP(pTHX_ I32 type, I32 flags, SV* sv)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_NEWPADOP	\
@@ -10050,7 +9984,6 @@ PERL_CALLCONV PERL_SI*	Perl_si_dup(pTHX_ PERL_SI* si, CLONE_PARAMS* param)
 
 PERL_CALLCONV ANY*	Perl_ss_dup(pTHX_ PerlInterpreter* proto_perl, CLONE_PARAMS* param)
 			__attribute__global__
-			__attribute__malloc__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
