@@ -7617,7 +7617,7 @@ STATIC bool	S_gv_is_in_main(pTHX_ const char *name, STRLEN len, const U32 is_utf
 #define PERL_ARGS_ASSERT_GV_IS_IN_MAIN	\
 	assert(name)
 
-STATIC bool	S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len, bool addmg, const svtype sv_type)
+STATIC bool	S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len, const svtype sv_type)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3);
