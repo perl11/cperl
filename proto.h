@@ -7650,13 +7650,12 @@ STATIC bool	S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name, 
 #define PERL_ARGS_ASSERT_PARSE_GV_STASH_NAME	\
 	assert(stash); assert(gv); assert(name); assert(len); assert(nambeg)
 
-STATIC HV*	S_require_tie_mod(pTHX_ GV *gv, const char *varpv, SV* namesv, const char *methpv, const U32 flags)
+STATIC void	S_require_tie_mod(pTHX_ GV *gv, const char *varpv, SV* namesv, const U32 flags)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
-			__attribute__nonnull__(pTHX_3)
-			__attribute__nonnull__(pTHX_4);
+			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_REQUIRE_TIE_MOD	\
-	assert(gv); assert(varpv); assert(namesv); assert(methpv)
+	assert(gv); assert(varpv); assert(namesv)
 
 #endif
 #if defined(PERL_IN_GV_C) || defined(PERL_IN_SV_C) || defined(PERL_IN_PAD_C)     || defined(PERL_IN_OP_C)
