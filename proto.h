@@ -7044,6 +7044,11 @@ STATIC int	S_dooneliner(pTHX_ const char *cmd, const char *filename)
 
 #  endif
 #endif
+#if !defined(HAS_MKSTEMP)
+PERL_CALLCONV int	Perl_my_mkstemp(char *templte);
+#define PERL_ARGS_ASSERT_MY_MKSTEMP	\
+	assert(templte)
+#endif
 #if !defined(HAS_RENAME)
 PERL_CALLCONV I32	Perl_same_dirent(pTHX_ const char* a, const char* b)
 			__attribute__nonnull__(pTHX_1)
