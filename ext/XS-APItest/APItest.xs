@@ -4724,6 +4724,20 @@ test_isDIGIT_LC(UV ord)
         RETVAL
 
 bool
+test_isOCTAL_A(UV ord)
+    CODE:
+        RETVAL = isOCTAL_A(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isOCTAL_L1(UV ord)
+    CODE:
+        RETVAL = isOCTAL_L1(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isIDFIRST_uni(UV ord)
     CODE:
         RETVAL = isIDFIRST_uni(ord);
