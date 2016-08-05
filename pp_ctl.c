@@ -2146,7 +2146,7 @@ PP(pp_enteriter)
 	}
         SvREFCNT_inc_simple_void_NN(itersave);
 	cxflags = (PL_op->op_private & OPpITER_DEF)
-            ? CXp_FOR_PAD|CXp_FOR_DEF
+            ? CXp_FOR_PAD|CXp_FOR_DEF 	/* my $_ */
             : CXp_FOR_PAD;
     }
     else {
@@ -2180,9 +2180,9 @@ PP(pp_enteriter)
     cx_pushloop_for(cx, itervarp, itersave);
 
     if (PL_op->op_flags & OPf_STACKED) {
-        /* OPf_STACKED implies either a single array: for(@), with a
+        /* OPf_STACKED implies either a single array: for (@), with a
          * single AV on the stack, or a range: for (1..5), with 1 and 5 on
-         * the stack */
+         * the stack.  */
 	SV *maybe_ary = POPs;
 	if (SvTYPE(maybe_ary) != SVt_PVAV) {
             /* range */

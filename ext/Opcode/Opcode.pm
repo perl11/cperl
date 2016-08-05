@@ -6,7 +6,7 @@ use strict;
 
 our($VERSION, @ISA, @EXPORT_OK);
 
-$VERSION = "1.34c";
+$VERSION = "1.35c";
 
 use Carp;
 use Exporter ();
@@ -374,7 +374,7 @@ used to implement a resource attack (e.g., consume all available CPU time).
 
     grepstart grepwhile
     mapstart mapwhile
-    enteriter iter
+    enteriter iter iter_ary iter_lazyiv
     enterloop leaveloop unstack
     last next redo
     goto
