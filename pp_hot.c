@@ -2737,6 +2737,92 @@ PP(pp_multideref)
 }
 
 
+PP(pp_iter_ary)
+{
+    PERL_CONTEXT *cx;
+    SV *oldsv;
+    SV **itersvp;
+    SV *retsv;
+
+    SV *sv;
+    AV *av;
+    IV ix;
+    IV inc;
+
+    cx = CX_CUR();
+    itersvp = CxITERVAR(cx);
+    assert(itersvp);
+
+    av = cx->blk_loop.state_u.ary.ary;
+    inc = 1 - (PL_op->op_private & OPpITER_REVERSED);
+    ix = (cx->blk_loop.state_u.ary.ix += inc);
+    if (UNLIKELY(inc > 0
+                 ? ix > AvFILL(av)
+                 : ix < 0)
+        ) {
+        retsv = &PL_sv_no;
+        /* pp_enteriter should have pre-extended the stack */
+        assert(PL_stack_sp < PL_stack_max);
+        *++PL_stack_sp =retsv;
+        return PL_op->op_next;
+    }
+
+    if (UNLIKELY(SvRMAGICAL(av))) {
+        SV * const * const svp = av_fetch(av, ix, FALSE);
+        sv = svp ? *svp : NULL;
+    }
+    else {
+        sv = AvARRAY(av)[ix];
+    }
+
+    if (UNLIKELY(cx->cx_type & CXp_FOR_LVREF)) {
+        SvSetMagicSV(*itersvp, sv);
+        goto retyes;
+    }
+
+    if (LIKELY(sv)) {
+        if (UNLIKELY(SvIS_FREED(sv))) {
+            *itersvp = NULL;
+            Perl_croak(aTHX_ "Use of freed value in iteration");
+        }
+        if (SvPADTMP(sv)) {
+            sv = newSVsv(sv);
+        }
+        else {
+            SvTEMP_off(sv);
+            SvREFCNT_inc_simple_void_NN(sv);
+        }
+    }
+    else if (av) {
+        sv = newSVavdefelem(av, ix, 0);
+    }
+    else
+        sv = &PL_sv_undef;
+
+    oldsv = *itersvp;
+    *itersvp = sv;
+#if 1
+    /* RT #94682 op/switch.t reappeared. $_ has wrong refcnt */
+    if ((UNLIKELY(oldsv && SvIS_FREED(oldsv) && SvREFCNT(oldsv)==1))) {
+        DEBUG_v(Perl_deb(aTHX_ "iter: wrong refcount of freed itervar"));
+        oldsv = NULL;
+    } else
+#endif
+        SvREFCNT_dec(oldsv);
+
+ retyes:
+    retsv = &PL_sv_yes;
+    if (0) {
+      retno:
+        retsv = &PL_sv_no;
+    }
+    /* pp_enteriter should have pre-extended the stack */
+    assert(PL_stack_sp < PL_stack_max);
+    *++PL_stack_sp =retsv;
+
+    return PL_op->op_next;
+}
+
 PP(pp_iter)
 {
     PERL_CONTEXT *cx;
@@ -2755,7 +2841,7 @@ PP(pp_iter)
 
     switch (CxTYPE(cx)) {
 
-    case CXt_LOOP_LAZYSV: /* string increment */
+    case CXt_LOOP_LAZYSV: /* string increment for ('a' .. 'z') */
     {
         SV* cur = cx->blk_loop.state_u.lazysv.cur;
         SV *end = cx->blk_loop.state_u.lazysv.end;
@@ -2790,7 +2876,7 @@ PP(pp_iter)
         break;
     }
 
-    case CXt_LOOP_LAZYIV: /* integer increment */
+    case CXt_LOOP_LAZYIV: /* integer increment for (1..9) */
     {
         IV cur = cx->blk_loop.state_u.lazyiv.cur;
 	if (UNLIKELY(cur > cx->blk_loop.state_u.lazyiv.end))

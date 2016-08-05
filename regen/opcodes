@@ -407,8 +407,9 @@ unstack		iteration finalizer	ck_null		s0		"():Void"
 enter		block entry		ck_null		0	
 leave		block exit		ck_null		@	
 scope		block			ck_null		p@		"():Void"
-enteriter	foreach loop entry	ck_null		d{	
-iter		foreach loop iterator	ck_null		0	
+enteriter	for loop entry		ck_null		d{	
+iter		generic for loop iterator ck_null	0	
+iter_ary	for (@ARY) iterator	ck_null		0	
 enterloop	loop entry		ck_null		d{	
 leaveloop	loop exit		ck_null		2	
 return		return			ck_return	m@	L

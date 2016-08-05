@@ -2220,6 +2220,9 @@ PP(pp_enteriter)
 	else /* SvTYPE(maybe_ary) == SVt_PVAV */ {
             /* for (@array) {} */
             cx->cx_type |= CXt_LOOP_ARY;
+            assert(PL_op->op_next->op_type == OP_ITER
+                || PL_op->op_next->op_type == OP_ITER_ARY);
+            OpTYPE_set(PL_op->op_next, OP_ITER_ARY);
 	    cx->blk_loop.state_u.ary.ary = MUTABLE_AV(maybe_ary);
 	    SvREFCNT_inc_simple_void_NN(maybe_ary);
 	    cx->blk_loop.state_u.ary.ix =

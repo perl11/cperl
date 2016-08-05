@@ -132,6 +132,7 @@ PERL_CALLCONV OP *Perl_pp_int(pTHX);
 PERL_CALLCONV OP *Perl_pp_introcv(pTHX);
 PERL_CALLCONV OP *Perl_pp_ioctl(pTHX);
 PERL_CALLCONV OP *Perl_pp_iter(pTHX);
+PERL_CALLCONV OP *Perl_pp_iter_ary(pTHX);
 PERL_CALLCONV OP *Perl_pp_join(pTHX);
 PERL_CALLCONV OP *Perl_pp_kvaslice(pTHX);
 PERL_CALLCONV OP *Perl_pp_kvhslice(pTHX);
