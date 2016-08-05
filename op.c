@@ -1644,8 +1644,17 @@ Perl_op_contextualize(pTHX_ OP *o, I32 context)
 /*
 
 =for apidoc Am|OP*|op_linklist|OP *o
+
 This function is the implementation of the L</LINKLIST> macro.  It should
 not be called directly.
+
+It is responsible to establish postfix order of the subtree, the kids,
+linking recursively the next pointers together, depending on the
+siblings and kids. The head is the exit node, the first kid the start
+node, the siblings following each other.
+
+The head node must have no next pointer, this is the exit condition
+for the recursion.
 
 =cut
 */
@@ -7669,25 +7678,36 @@ Perl_newLOOPOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL,
 }
 
 /*
-=for apidoc Am|OP *|newWHILEOP|I32 flags|I32 debuggable|LOOP *loop|OP *expr|OP *block|OP *cont|I32 has_my
+=for apidoc Am|OP *|newWHILEOP|I32 flags|UNUSED I32 debuggable|LOOP *loop|OP *expr|OP *block|OP *cont|I32 has_my
 
-Constructs, checks, and returns an op tree expressing a C<while> loop.
+Constructs, checks, and returns an op tree expressing a C<while> or
+C<for>/C<foreach> loop or a single C<block> run only once.
 This is a heavyweight loop, with structure that allows exiting the loop
 by C<last> and suchlike.
 
-C<loop> is an optional preconstructed C<enterloop> op to use in the
-loop; if it is null then a suitable op will be constructed automatically.
-C<expr> supplies the loop's controlling expression.  C<block> supplies the
-main body of the loop, and C<cont> optionally supplies a C<continue> block
-that operates as a second half of the body.  All of these optree inputs
-are consumed by this function and become part of the constructed op tree.
+C<loop> is an optional C<enterloop> op to use in the loop, with a
+C<foreach> loop is is an C<enteriter> op. This op contains the five
+main control paths: first, last, redoop, nextop, lastop.  C<first>
+being the list iterator, C<last> being the iteration variable,
+C<redoop> the C<block> plus C<cont>, C<nextop> the C<cont> or an
+C<unstack> op, C<lastop> a C<leaveloop> op, which is also the false
+condition of the C<expr> (i.e. C<< expr->op_next >>).
 
-C<flags> gives the eight bits of C<op_flags> for the C<leaveloop>
-op and, shifted up eight bits, the eight bits of C<op_private> for
-the C<leaveloop> op, except that (in both cases) some bits will be set
-automatically.  C<debuggable> is currently unused and should always be 1.
-C<has_my> can be supplied as true to force the
-loop body to be enclosed in its own scope.
+C<expr> supplies the loop's controlling expression. With a C<foreach>
+loop it is the C<iter> op, with C<while> the while expression, with
+a single block it is NULL.
+
+C<block> supplies the main body of the loop, and C<cont> optionally
+supplies a C<continue> block that operates as a second half of the
+body.  All of these optree inputs are consumed by this function and
+become part of the constructed op tree.
+
+C<flags> gives the eight bits of C<op_flags> for the C<leaveloop> op
+and, shifted up eight bits, the eight bits of C<op_private> for the
+C<leaveloop> op, except that (in both cases) some bits will be set
+automatically.  C<debuggable> is currently unused and should always be
+1.  C<has_my> can be supplied as true to force the loop body to be
+enclosed in its own scope.
 
 =cut
 */
