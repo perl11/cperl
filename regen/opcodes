@@ -409,7 +409,8 @@ leave		block exit		ck_null		@
 scope		block			ck_null		p@		"():Void"
 enteriter	for loop entry		ck_null		d{	
 iter		generic for loop iterator ck_null	0	
-iter_ary	for (@ARY) iterator	ck_null		0	
+iter_ary	for (@ary) iterator	ck_null		0	
+iter_lazyiv	for (0..9) iterator	ck_null		0	
 enterloop	loop entry		ck_null		d{	
 leaveloop	loop exit		ck_null		2	
 return		return			ck_return	m@	L

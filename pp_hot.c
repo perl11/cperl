@@ -2736,34 +2736,86 @@ PP(pp_multideref)
     /* NOTREACHED */
 }
 
+PP(pp_iter_lazyiv)
+{
+    PERL_CONTEXT *cx;
+    SV *oldsv;
+    SV **itersvp;
+    IV cur;
+
+    cx = CX_CUR();
+    itersvp = CxITERVAR(cx);
+    assert(itersvp);
+
+    cur = cx->blk_loop.state_u.lazyiv.cur;
+    if (UNLIKELY(cur > cx->blk_loop.state_u.lazyiv.end)) {
+        assert(PL_stack_sp < PL_stack_max);
+        *++PL_stack_sp = &PL_sv_no;
+        return PL_op->op_next;
+    }
+
+    oldsv = *itersvp;
+    if (oldsv && LIKELY(SvREFCNT(oldsv) == 1 && !SvMAGICAL(oldsv))) {
+        /* safe to reuse old SV */
+        if ((SvFLAGS(oldsv) & (SVTYPEMASK|SVf_THINKFIRST|SVf_IVisUV))
+             == SVt_IV)
+        {
+            /* Cheap SvIOK_only().
+             * Assert that flags which SvIOK_only() would test or
+             * clear can't be set, because we're SVt_IV */
+            assert(!(SvFLAGS(oldsv) &
+                     (SVf_OOK|SVf_UTF8|(SVf_OK & ~(SVf_IOK|SVp_IOK)))));
+            SvFLAGS(oldsv) |= (SVf_IOK|SVp_IOK);
+            /* SvIV_set() where sv_any points to head */
+            oldsv->sv_u.svu_iv = cur;
+        }
+        else
+            sv_setiv(oldsv, cur);
+    }
+    else {
+        /* we need a fresh SV every time so that loop body sees a
+         * completely new SV for closures/references to work as they
+         * used to */
+        *itersvp = newSViv(cur);
+        SvREFCNT_dec(oldsv);
+    }
+
+    if (UNLIKELY(cur == IV_MAX)) {
+        /* Handle end of range at IV_MAX */
+        cx->blk_loop.state_u.lazyiv.end = IV_MIN;
+    } else
+        ++cx->blk_loop.state_u.lazyiv.cur;
+
+    /* pp_enteriter should have pre-extended the stack */
+    assert(PL_stack_sp < PL_stack_max);
+    *++PL_stack_sp = &PL_sv_yes;
+
+    return PL_op->op_next;
+}
 
 PP(pp_iter_ary)
 {
     PERL_CONTEXT *cx;
     SV *oldsv;
     SV **itersvp;
-    SV *retsv;
 
     SV *sv;
     AV *av;
     IV ix;
-    IV inc;
+    IV inc = 1 - (PL_op->op_private & OPpITER_REVERSED);
 
     cx = CX_CUR();
     itersvp = CxITERVAR(cx);
     assert(itersvp);
 
     av = cx->blk_loop.state_u.ary.ary;
-    inc = 1 - (PL_op->op_private & OPpITER_REVERSED);
     ix = (cx->blk_loop.state_u.ary.ix += inc);
     if (UNLIKELY(inc > 0
                  ? ix > AvFILL(av)
-                 : ix < 0)
-        ) {
-        retsv = &PL_sv_no;
-        /* pp_enteriter should have pre-extended the stack */
+                 : ix < 0))
+    {
         assert(PL_stack_sp < PL_stack_max);
-        *++PL_stack_sp =retsv;
+        *++PL_stack_sp = &PL_sv_no;
         return PL_op->op_next;
     }
 
@@ -2811,14 +2863,8 @@ PP(pp_iter_ary)
         SvREFCNT_dec(oldsv);
 
  retyes:
-    retsv = &PL_sv_yes;
-    if (0) {
-      retno:
-        retsv = &PL_sv_no;
-    }
-    /* pp_enteriter should have pre-extended the stack */
     assert(PL_stack_sp < PL_stack_max);
-    *++PL_stack_sp =retsv;
+    *++PL_stack_sp = &PL_sv_yes;
 
     return PL_op->op_next;
 }
@@ -2876,9 +2922,11 @@ PP(pp_iter)
         break;
     }
 
+#if 0
     case CXt_LOOP_LAZYIV: /* integer increment for (1..9) */
     {
         IV cur = cx->blk_loop.state_u.lazyiv.cur;
+        assert(0 && "pp_iter_lazyiv instead");
 	if (UNLIKELY(cur > cx->blk_loop.state_u.lazyiv.end))
 	    goto retno;
 
@@ -2919,7 +2967,7 @@ PP(pp_iter)
 	    ++cx->blk_loop.state_u.lazyiv.cur;
         break;
     }
-
+#endif
     case CXt_LOOP_LIST: /* for (1,2,3) */
 
         assert(OPpITER_REVERSED == 2); /* so inc becomes -1 or 1 */
@@ -2933,10 +2981,12 @@ PP(pp_iter)
 
         sv = PL_stack_base[ix];
         av = NULL;
+#if 0
         goto loop_ary_common;
 
     case CXt_LOOP_ARY: /* for (@ary) */
 
+        assert(0 && "pp_iter_ary instead");
         av = cx->blk_loop.state_u.ary.ary;
         inc = 1 - (PL_op->op_private & OPpITER_REVERSED);
         ix = (cx->blk_loop.state_u.ary.ix += inc);
@@ -2953,8 +3003,8 @@ PP(pp_iter)
         else {
             sv = AvARRAY(av)[ix];
         }
-
       loop_ary_common:
+#endif
 
         if (UNLIKELY(cx->cx_type & CXp_FOR_LVREF)) {
             SvSetMagicSV(*itersvp, sv);

@@ -2194,9 +2194,12 @@ PP(pp_enteriter)
 	    SvGETMAGIC(right);
 	    if (RANGE_IS_NUMERIC(sv,right)) {
 		cx->cx_type |= CXt_LOOP_LAZYIV;
+                assert(PL_op->op_next->op_type == OP_ITER
+                    || PL_op->op_next->op_type == OP_ITER_LAZYIV);
 		if (S_outside_integer(aTHX_ sv) ||
                     S_outside_integer(aTHX_ right))
 		    DIE(aTHX_ "Range iterator outside integer range");
+                OpTYPE_set(PL_op->op_next, OP_ITER_LAZYIV);
 		cx->blk_loop.state_u.lazyiv.cur = SvIV_nomg(sv);
 		cx->blk_loop.state_u.lazyiv.end = SvIV_nomg(right);
 	    }
