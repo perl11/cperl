@@ -9044,8 +9044,8 @@ S_pending_ident(pTHX)
     }
 
     /*
-       Whine if they've said @foo in a doublequoted string,
-       and @foo isn't a variable we can find in the symbol
+       Whine if they've said @foo or @foo{key} in a doublequoted string,
+       and @foo (or %foo) isn't a variable we can find in the symbol
        table.
     */
     if (ckWARN(WARN_AMBIGUOUS)
