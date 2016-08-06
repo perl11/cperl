@@ -1543,6 +1543,7 @@ my %OP_IS_NUMCOMPARE;	# /S</
 my %OP_IS_DIRHOP;	# /Fd/
 my %OP_IS_INFIX_BIT;	# /S\|/
 my %OP_IS_PADVAR;	# /^pad/
+my %OP_IS_ITER;		# /^iter/
 
 for my $op (@ops) {
     my $argsum = 0;
@@ -1561,6 +1562,9 @@ for my $op (@ops) {
 	unless exists $opclass{$flags};
     if ($op =~ /^pad(av|hv|sv|any)$/) { # but NOT padcv
         $OP_IS_PADVAR{$op} = $opnum{$op};
+    }
+    if ($op =~ /^iter/) {
+        $OP_IS_ITER{$op} = $opnum{$op};
     }
     $argsum |= $opclass{$flags} << $OCSHIFT;
     my $argshift = $OASHIFT;
@@ -1641,6 +1645,7 @@ gen_op_is_macro( \%OP_IS_NUMCOMPARE, 'OP_IS_NUMCOMPARE');
 gen_op_is_macro( \%OP_IS_DIRHOP, 'OP_IS_DIRHOP');
 gen_op_is_macro( \%OP_IS_INFIX_BIT, 'OP_IS_INFIX_BIT');
 gen_op_is_macro( \%OP_IS_PADVAR, 'OP_IS_PADVAR');
+gen_op_is_macro( \%OP_IS_ITER, 'OP_IS_ITER');
 
 sub gen_op_is_macro {
     my ($op_is, $macname) = @_;

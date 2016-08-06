@@ -567,6 +567,9 @@ typedef enum opcode {
 #define OP_IS_PADVAR(ot)	\
 	((ot) >= OP_PADSV && (ot) <= OP_PADANY)
 
+#define OP_IS_ITER(ot)	\
+	((ot) >= OP_ITER && (ot) <= OP_ITER_LAZYIV)
+
 /* backcompat old Perl 5 names: */
 #if 1
 #define OP_NCMP		 OP_CMP

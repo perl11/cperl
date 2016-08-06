@@ -166,7 +166,7 @@ checkOptree(note   => q{},
 # d  <#> gv[*_] s
 # e  <1> rv2gv sKRM/1
 # f  <{> enteriter(next->q last->t redo->g) KS/DEF
-# r  <0> iter s
+# r  <0> iter_ary s
 # s  <|> and(other->g) K/1
 # g      <;> nextstate(main 475 (eval 10):1) v:{
 # h      <#> gvsv[*_] s
@@ -199,7 +199,7 @@ EOT_EOT
 # d  <$> gv(*_) s
 # e  <1> rv2gv sKRM/1
 # f  <{> enteriter(next->q last->t redo->g) KS/DEF
-# r  <0> iter s
+# r  <0> iter_ary s
 # s  <|> and(other->g) K/1
 # g      <;> nextstate(main 559 (eval 15):1) v:{
 # h      <$> gvsv(*_) s

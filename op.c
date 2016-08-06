@@ -139,6 +139,18 @@ static const char array_passed_to_stat[] =
                           && SvTYPE(stash) == SVt_PVHV)
 #endif
 
+#define IS_AND_OP(o)   (o->op_type == OP_AND)
+#define IS_OR_OP(o)    (o->op_type == OP_OR)
+#define IS_CONST_OP(o) (o->op_type == OP_CONST)
+
+#ifndef PERL_MAX_UNROLL_LOOP_COUNT
+#  define PERL_MAX_UNROLL_LOOP_COUNT 5
+#else
+# if (PERL_MAX_UNROLL_LOOP_COUNT <= 0) || (PERL_MAX_UNROLL_LOOP_COUNT > 20)
+#  error Invalid PERL_MAX_UNROLL_LOOP_COUNT: max 0..20
+# endif
+#endif
+
 /* Too big for gcc to inline */
 STATIC
 const char * S_typename(pTHX_ const HV* stash)
@@ -5303,7 +5315,8 @@ Perl_newOP(pTHX_ I32 type, I32 flags)
     assert((PL_opargs[type] & OA_CLASS_MASK) == OA_BASEOP
 	|| (PL_opargs[type] & OA_CLASS_MASK) == OA_BASEOP_OR_UNOP
 	|| (PL_opargs[type] & OA_CLASS_MASK) == OA_FILESTATOP
-	|| (PL_opargs[type] & OA_CLASS_MASK) == OA_LOOPEXOP);
+	|| (PL_opargs[type] & OA_CLASS_MASK) == OA_LOOPEXOP
+        || OP_IS_ITER(type));
 
     /* A const PADSV maybe upgraded to a CONST in ck_pad: reserve a sv slot */
     if (type == OP_PADSV || type == OP_PADANY)
@@ -7730,7 +7743,7 @@ Perl_newWHILEOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL, LOOP *loop,
          || expr->op_type == OP_READDIR
          || expr->op_type == OP_GLOB
 	 || expr->op_type == OP_EACH || expr->op_type == OP_AEACH
-		     || (expr->op_type == OP_NULL && expr->op_targ == OP_GLOB)) {
+         || (expr->op_type == OP_NULL && expr->op_targ == OP_GLOB)) {
 	    expr = newUNOP(OP_DEFINED, 0,
 		newASSIGNOP(0, newDEFSVOP(), 0, expr) );
 	} else if (expr->op_flags & OPf_KIDS) {
@@ -7846,6 +7859,7 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
     PADOFFSET padoff = 0;
     I32 iterflags = 0;
     I32 iterpflags = 0;
+    OPCODE optype = OP_ITER;
 
     PERL_ARGS_ASSERT_NEWFOROP;
 
@@ -7897,6 +7911,7 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
 
     if (expr->op_type == OP_RV2AV || expr->op_type == OP_PADAV) {
 	expr = op_lvalue(force_list(scalar(ref(expr, OP_ITER)), 1), OP_GREPSTART);
+        optype = OP_ITER_ARY;
 	iterflags |= OPf_STACKED;
     }
     else if (expr->op_type == OP_NULL &&
@@ -7911,8 +7926,23 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
 	LOGOP* const range = (LOGOP*) flip->op_first;
 	OP* const left  = range->op_first;
 	OP* const right = OpSIBLING(left);
+        SV *leftsv, *rightsv;
 	LISTOP* listop;
 
+        if (IS_CONST_OP(left) && IS_CONST_OP(right)
+            && SvIOK(leftsv = cSVOPx_sv(left))
+            && SvIOK(rightsv = cSVOPx_sv(right)))
+        {
+            if (SvIV(rightsv) - SvIV(leftsv) < 0)
+                DIE("Invalid for range (%"IVdf"..%"IVdf")", SvIV(leftsv), SvIV(rightsv));
+            /* TODO: unroll loop for small constant ranges, if the body is not too big */
+            if (SvIV(rightsv)-SvIV(leftsv) <= PERL_MAX_UNROLL_LOOP_COUNT) {
+                DEBUG_kv(Perl_deb(aTHX_ "TODO unroll loop (%"IVdf"..%"IVdf")\n",
+                                  SvIV(leftsv), SvIV(rightsv)));
+                /* TODO easy with op_clone_oplist from feature/gh23-inline-subs */
+            }
+            optype = OP_ITER_LAZYIV;
+        }
 	range->op_flags &= ~OPf_KIDS;
         /* detach range's children */
         op_sibling_splice((OP*)range, NULL, -1, NULL);
@@ -7961,7 +7991,7 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
 #endif
     }
     loop->op_targ = padoff;
-    wop = newWHILEOP(flags, 1, loop, newOP(OP_ITER, 0), block, cont, 0);
+    wop = newWHILEOP(flags, 1, loop, newOP(optype, 0), block, cont, 0);
     return wop;
 }
 
@@ -14803,6 +14833,147 @@ S_mderef_uoob_gvsv(pTHX_ OP* o, SV* idx)
 }
 #endif
 
+/* check loop bounds:
+   1) if index bound to size/arylen, optimize to unchecked aelem_u variants,
+   even without parametrized typed.
+   need to check the right array, and if the loop index is used as is, or
+   within an expression.
+   2) with static bounds check unrolling.
+   3) with static ranges and shaped arrays, can possibly optimize to aelem_u
+*/
+STATIC bool
+S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
+{
+    SV *fromsv, *tosv;
+    IV maxto = 0;
+
+    if (IS_CONST_OP(from) && IS_CONST_OP(to)
+        && SvIOK(fromsv = cSVOPx_sv(from)) && SvIOK(tosv = cSVOPx_sv(to)))
+    {
+        /* Unrolling is easier in newFOROP? */
+        if (SvIV(tosv)-SvIV(fromsv) <= PERL_MAX_UNROLL_LOOP_COUNT) {
+            DEBUG_kv(Perl_deb(aTHX_ "rpeep: possibly unroll loop (%"IVdf"..%"IVdf")\n",
+                              SvIV(fromsv), SvIV(tosv)));
+            /* TODO op_clone_oplist from feature/gh23-inline-subs */
+        }
+        /* 2. Check all aelem if can aelem_u */
+        maxto = SvIV(tosv);
+    }
+
+    /* for (0..$#a) { ... $a[$_] ...} */
+    if (OP_TYPE_IS(to, OP_AV2ARYLEN) || maxto) {
+        OP *kid = OP_TYPE_IS(to, OP_AV2ARYLEN) ? cUNOPx(to)->op_first : NULL;
+        OP *loop, *iter, *body, *o2;
+        SV *idx = MUTABLE_SV(PL_defgv);
+#ifdef DEBUGGING
+        const char *aname = !kid ? ""
+            : kid->op_type == OP_GV ? GvNAME_get(kSVOP_sv)
+            : kid->op_type == OP_PADAV ? PAD_COMPNAME_PV(kid->op_targ)
+            : "";
+        char *iname = (char*)"_";
+#endif
+        /* array can be global: gv -> rv2av, or rv2av(?), or lexical: padav */
+        assert(!kid || kid->op_type == OP_GV || kid->op_type == OP_PADAV
+               || kid->op_type == OP_RV2AV );
+        /* enteriter->iter->and(other) */
+        loop = cBINOPx(leave)->op_first;
+        if (loop->op_private & (OPpLVAL_INTRO|OPpOUR_INTRO)
+            && loop->op_targ)
+        {
+            idx = PAD_SV(loop->op_targ);
+#ifdef DEBUGGING
+            iname = PAD_COMPNAME_PV(loop->op_targ);
+#endif
+        } else {
+            o2 = cLOOPx(loop)->op_last;
+            if (o2->op_type == OP_RV2GV) {
+                o2 = cUNOPx(o2)->op_first;
+                if (o2->op_type == OP_GV) {
+                    idx = cSVOPx_sv(o2); /* PVGV or PADOFFSET */
+#if defined(DEBUGGING)
+#  ifdef USE_ITHREADS
+                    iname = GvNAME_get(PAD_SV((PADOFFSET)idx));
+#  else
+                    iname = GvNAME_get(idx);
+#  endif
+#endif
+                }
+            }
+        }
+        DEBUG_kv(Perl_deb(aTHX_ "rpeep: omit loop bounds checks (from..arylen) for %s[%s]\n",
+                          aname, iname));
+        iter = loop->op_next;
+        body = cLOGOPx(iter->op_next)->op_other;
+        /* replace all aelem with aelem_u for this exact array in
+           this loop body, if the index is the loop counter */
+        for (o2=body; o2!=iter; o2=o2->op_next) {
+            const OPCODE type = o2->op_type;
+            SV *av;
+            /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: loop oob %s\n", OP_NAME(o2)));*/
+            DEBUG_kv(if (type == OP_AELEM && OP_TYPE_IS(cUNOPx(o2)->op_first, OP_PADAV))
+                         Perl_deb(aTHX_ "rpeep: aelem %s vs %s\n",
+                                  aname, PAD_COMPNAME_PV(cUNOPx(o2)->op_first->op_targ)));
+            /* here aelem might not be already optimized to multideref.
+               aelem_u is faster, but does no deref so far. */
+            if (type == OP_AELEM
+                && OP_TYPE_IS(cBINOPx(o2)->op_first, OP_PADAV)
+                && !(o2->op_private & (OPpLVAL_DEFER|OPpLVAL_INTRO|OPpDEREF)))
+            {
+                if (kid) { /* same lex array */
+                    if (kid->op_targ != cBINOPx(o2)->op_first->op_targ)
+                        continue;
+                } else {
+                    if /* or any shaped array */
+                        (!AvSHAPED(av = PAD_SVl(cBINOPx(o2)->op_first->op_targ))
+                         || (maxto >= AvFILLp(av)))
+                    continue;
+                }
+                if (cBINOPx(o2)->op_last->op_targ
+                    && cBINOPx(o2)->op_last->op_targ == loop->op_targ) {
+                    DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[my %s] => aelem_u\n",
+                        kid ? aname : PAD_COMPNAME_PV(cBINOPx(o2)->op_first->op_targ),
+                        iname));
+                    OpTYPE_set(o2, OP_AELEM_U);
+                } else if (!o2->op_targ && idx) { /* or same gv index */
+                    OP* ixop = cBINOPx(o2)->op_last;
+                    if (OP_TYPE_IS(ixop, OP_RV2SV)
+                        && idx == cSVOPx_sv(cUNOPx(ixop)->op_first)) {
+                        DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[$%s] => aelem_u\n",
+                                         aname, iname));
+                        OpTYPE_set(o2, OP_AELEM_U);
+                    }
+                }
+            } else if (type == OP_MULTIDEREF && !maxto) {
+                /* find this padsv item (the first) and set MDEREF_INDEX_uoob */
+                /* with threads we also check the targ here and not via gvsv */
+                if (loop->op_targ && S_mderef_uoob_targ(o2, loop->op_targ)) {
+                    DEBUG_k(Perl_deb(aTHX_ "loop oob: multideref %s[my %s] => MDEREF_INDEX_uoob\n",
+                                     aname, iname));
+#ifndef USE_ITHREADS
+                } else if (!loop->op_targ
+                           && S_mderef_uoob_gvsv(aTHX_ o2, idx)) {
+                    DEBUG_k(Perl_deb(aTHX_ "loop oob: multideref %s[$%s] =>  MDEREF_INDEX_uoob\n",
+                                     aname, iname));
+#endif
+                }
+            }
+#if 0
+            else if (type == OP_AELEMFAST_LEX
+                     /* same array */
+                     && o2->op_targ && o2->op_targ == loop->op_targ
+                     && (!maxto || (AvSHAPED(kSVOP_sv) && maxto < AvFILLp(kSVOP_sv)))) {
+                /* constant index cannot exceed shape. */
+                DEBUG_k(Perl_deb(aTHX_ "loop oob: aelemfast_lex %s[%s] => aelemfast_lex_u\n",
+                                 aname, iname));
+                OpTYPE_set(o2, OP_AELEMFAST_LEX_U);
+            }
+#endif
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
 
 /* returns the next non-null op */
 
@@ -14821,18 +14992,6 @@ S_mderef_uoob_gvsv(pTHX_ OP* o, SV* idx)
     } \
     defer_queue[(defer_base + ++defer_ix) % MAX_DEFERRED] = &(o); \
   } STMT_END
-
-#define IS_AND_OP(o)   (o->op_type == OP_AND)
-#define IS_OR_OP(o)    (o->op_type == OP_OR)
-#define IS_CONST_OP(o) (o->op_type == OP_CONST)
-
-#ifndef PERL_MAX_UNROLL_LOOP_COUNT
-#  define PERL_MAX_UNROLL_LOOP_COUNT 5
-#else
-# if (PERL_MAX_UNROLL_LOOP_COUNT <= 0) || (PERL_MAX_UNROLL_LOOP_COUNT > 20)
-#  error Invalid PERL_MAX_UNROLL_LOOP_COUNT: max 0..20
-# endif
-#endif
 
 /* A peephole optimizer.  We visit the ops in the order they're to execute.
  * See the comments at the top of this file for more details about when
@@ -15220,133 +15379,19 @@ Perl_rpeep(pTHX_ OP *o)
 		break;
 	    }
 
-            /* check loop bounds:
-               1) if index bound to size/arylen, optimize to unchecked aelem_u variants,
-                  even without parametrized typed.
-                  need to check the right array, and if the loop index is used as is, or
-                  within an expression.
-               2) with static bounds check unrolling.
-            */
 	    if (OpSIBLING(o) && OP_TYPE_IS(OpSIBLING(o), OP_LEAVELOOP)) {
                 OP *leave = OpSIBLING(o);
                 OP *next = S_op_next_nn(o);
-                OP *from = OpSIBLING(next);
+                OP *from = OpSIBLING(next); /* only if STACKED? */
                 OP *to   = OpSIBLING(from);
-                SV *fromsv, *tosv;
                 o->op_opt = 0;
                 if (next != o && oldop)
                     oldop->op_next = o;
 
                 if (!to)
                     break;
-                if (IS_CONST_OP(from) && IS_CONST_OP(to)
-                    && SvIOK(fromsv = cSVOPx(from)->op_sv) && SvIOK(tosv = cSVOPx(to)->op_sv)
-                    && (SvIV(tosv)-SvIV(fromsv) <= PERL_MAX_UNROLL_LOOP_COUNT))
-                {
-                    DEBUG_kv(Perl_deb(aTHX_ "rpeep: possibly unroll loop (%"IVdf"..%"IVdf")\n",
-                                 SvIV(fromsv), SvIV(tosv)));
-                    /* TODO easy with op_clone_oplist from feature/CM-707-cperl-inline-subs */
-                }
-
-                /* for (0..$#a) { ... $a[$_] ...} */
-                if (OP_TYPE_IS(to, OP_AV2ARYLEN)) {
-                    OP *kid = cUNOPx(to)->op_first;
-                    OP *loop, *iter, *body, *o2;
-                    SV *idx = MUTABLE_SV(PL_defgv);
-#ifdef DEBUGGING
-                    const char *aname = kid->op_type == OP_GV ? GvNAME_get(kSVOP_sv)
-                        :  kid->op_type == OP_PADAV ? PAD_COMPNAME_PV(kid->op_targ)
-                        :  "";
-                    char *iname = (char*)"_";
-#endif
-                    /* array can be global: gv -> rv2av, or rv2av(?), or lexical: padav */
-                    assert(kid->op_type == OP_GV || kid->op_type == OP_PADAV
-                        || kid->op_type == OP_RV2AV );
-                    /* enteriter->iter->and(other) */
-                    loop = cBINOPx(leave)->op_first;
-                    if (loop->op_private & (OPpLVAL_INTRO|OPpOUR_INTRO)) {
-                        idx = PAD_SV(loop->op_targ);
-#ifdef DEBUGGING
-                        iname = PAD_COMPNAME_PV(loop->op_targ);
-#endif
-                    } else {
-                        o2 = cLOOPx(loop)->op_last;
-                        if (o2->op_type == OP_RV2GV) {
-                            o2 = cUNOPx(o2)->op_first;
-                            if (o2->op_type == OP_GV) {
-                                idx = cSVOPx_sv(o2); /* PVGV or PADOFFSET */
-#if defined(DEBUGGING)
-#  ifdef USE_ITHREADS
-                                iname = GvNAME_get(PAD_SV((PADOFFSET)idx));
-#  else
-                                iname = GvNAME_get(idx);
-#  endif
-#endif
-                            }
-                        }
-                    }
-                    DEBUG_kv(Perl_deb(aTHX_ "rpeep: omit loop bounds checks (from..arylen) for %s[%s]\n",
-                                 aname, iname));
-                    iter = loop->op_next;
-                    body = cLOGOPx(iter->op_next)->op_other;
-                    /* replace all aelem with aelem_u for this exact array in
-                       this loop body, if the index is the loop counter */
-                    for (o2=body; o2!=iter; o2=o2->op_next) {
-                        const OPCODE type = o2->op_type;
-                        /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: loop oob %s\n", OP_NAME(o2)));*/
-                        DEBUG_kv(
-                            if (type == OP_AELEM && OP_TYPE_IS(cUNOPx(o2)->op_first, OP_PADAV))
-                                Perl_deb(aTHX_ "rpeep: aelem %s vs %s\n",
-                                         aname, PAD_COMPNAME_PV(cUNOPx(o2)->op_first->op_targ)));
-                        /* here aelem might not be already optimized to multideref.
-                           aelem_u is faster, but does no deref so far. */
-                        if (type == OP_AELEM
-                            && OP_TYPE_IS(cBINOPx(o2)->op_first, OP_PADAV)
-                            && kid->op_targ == cBINOPx(o2)->op_first->op_targ /* same lex array */
-                            && !(o2->op_private & (OPpLVAL_DEFER|OPpLVAL_INTRO|OPpDEREF))) {
-                            /* same lex. index */
-                            if (cBINOPx(o2)->op_last->op_targ
-                                && cBINOPx(o2)->op_last->op_targ == loop->op_targ)
-                            {
-                                DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[my %s] => aelem_u\n",
-                                                 aname, iname));
-                                OpTYPE_set(o2, OP_AELEM_U);
-                            } else if (!o2->op_targ && idx) { /* or same gv index */
-                                OP* ixop = cBINOPx(o2)->op_last;
-                                if (OP_TYPE_IS(ixop, OP_RV2SV)
-                                    && idx == cSVOPx_sv(cUNOPx(ixop)->op_first)) {
-                                    DEBUG_k(Perl_deb(aTHX_ "loop oob: aelem %s[$%s] => aelem_u\n",
-                                                     aname, iname));
-                                    OpTYPE_set(o2, OP_AELEM_U);
-                                }
-                            }
-                        } else if (type == OP_MULTIDEREF) {
-                            /* find this padsv item (the first) and set MDEREF_INDEX_uoob */
-                            /* with threads we also check the targ here and not via gvsv */
-                            if (loop->op_targ && S_mderef_uoob_targ(o2, loop->op_targ)) {
-                                DEBUG_k(Perl_deb(aTHX_ "loop oob: multideref %s[my %s] => MDEREF_INDEX_uoob\n",
-                                                 aname, iname));
-#ifndef USE_ITHREADS
-                            } else if (!loop->op_targ
-                                       && S_mderef_uoob_gvsv(aTHX_ o2, idx)) {
-                                DEBUG_k(Perl_deb(aTHX_ "loop oob: multideref %s[$%s] =>  MDEREF_INDEX_uoob\n",
-                                                 aname, iname));
-#endif
-                            }
-                        }
-#if 0
-                        else if (type == OP_AELEMFAST_LEX
-                                   /* same array */
-                                   && o2->op_targ && o2->op_targ == loop->op_targ) {
-                            /* constant index cannot exceed shape. */
-                            DEBUG_k(Perl_deb(aTHX_ "loop oob: aelemfast_lex %s[%s] => aelemfast_lex_u\n",
-                                             aname, iname));
-                            OpTYPE_set(o2, OP_AELEMFAST_LEX_U);
-                        }
-#endif
-                    }
+                if (S_peep_leaveloop(aTHX_ leave, from, to))
                     break;
-                }
             }
 
 	    /* Two NEXTSTATEs in a row serve no purpose. Except if they happen
