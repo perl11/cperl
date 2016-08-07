@@ -30,7 +30,7 @@ Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 
 The current stable release is [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4),
 the latest release is [5.24.0c](https://github.com/perl11/cperl/releases/).
-See [perl5224cdelta](perl5224cdelta.html) and the [cperl-5.25.0 delta](perlcdelta.html).
+See [perl5224cdelta](perl5224cdelta.html) and the [cperl-5.25.1 delta](perlcdelta.html).
 
 All tests pass. CPAN works.
 
@@ -50,7 +50,7 @@ upgrade is seemless.  E.g. Test2 (the new Test::Simple) broke >15
 modules without any patches.
 
 cperl-5.24.0c has [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
-for problems which are not fixed in perl-5.25.0.
+for problems which are not fixed in perl-5.25.1.
 Ditto cperl-5.22.4c has about 20 fixes which are not in the latest
 perl-5.22.3.
 
