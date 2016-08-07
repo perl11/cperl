@@ -2,72 +2,49 @@
 
 =head1 NAME
 
-perlcdelta - what is new for cperl v5.25.0
+perlcdelta - what is new for cperl v5.25.1
 
 =head1 DESCRIPTION
 
-This document describes perl-only differences between the cperl 5.24.0
-release and the cperl 5.25.0 release.
-
-If you are upgrading from an earlier release such as 5.22.3, first read
-L<perl5240cdelta>, which describes differences between 5.22.3 and 5.24.0.
+This document describes perl-only differences between the cperl 5.25.0
+release and the cperl 5.25.1 development releases.
 
 =head1 Notice
 
-perl5.24.1 was security update to a non-existing problem. cperl added
-PERLIO_DEBUG as optional handle to redirect DEBUGGING outout via -Dx
-switches to. This is only usable with DEBUGGING perls, which are not
-used in production, only during development.
-perl5.24.1 changed PERLIO_DEBUG to only be active for PerlIO debugging
-together with -Di.
+XXX Any important notices here
+
+=head1 Security
+
+XXX Any security-related notices go here.  In particular, any security
+vulnerabilities closed should be noted here rather than in the
+L</Selected Bug Fixes> section.
+
+[ List each security issue as a =head2 entry ]
 
 =head1 Performance Enhancements
+
+XXX Changes which enhance performance without changing behaviour go here.
+There may well be none in a stable release.
+
+[ List each enhancement as a =item entry ]
 
 =over 4
 
 =item *
 
-for loops got several enhancements:
-
-new special B<iter_ary> C<for (@ary)> and B<iter_lazyiv> C<for (0..9)>
-ops to avoid a run-time switch in the generic iter op.
-
-more aelem_u optimizations, less run-time out of bounds checks for
-shaped arrays in loops. E.g. in C<my @a[5]; $a[$_] for (0..4);> the
-compilers knows that the max index for C<@a> will be C<4>, which is
-within the allowed shape of C<@a>.
-
-=item *
-
-The C<multideref> OP has a new C<MDEREF_INDEX_uoob> flag.  This is
-used for unchecked out-of-bounds checks for arrays, to use the
-previous AvSHAPED array optimizations (aelem_u, aelemfast_lex_u) or
-loop out-of-bounds elimination with multideref OPs also. Such
-multideref ops appear pretty often even with single indices.  E.g. in
-C<my @b=(0..4); for (0..$#b) { $b[$_] = 0; }> C<$b[$_]> is converted
-to a multideref, which previously was not optimized.
-
-Those optimized indices are marked with a new " _u" suffix in the dumped
-multideref stringification.
-
-C<MDEREF_MASK> changed to 0x10F, the C<MDEREF_SHIFT> size from 7 to 8.
-The shift can also use faster intrinsics now.
-
-The loop out-of-bounds elimination was fixed for simple lexical
-indices (e.g. C<for my $i (0..$#a){ $a[$i] }>, which leads now to
-more aelem_u ops and subsequent mderef_u optimizations also.
-
-=item *
-
-The new C<strQEc>/C<strNEc> macros are used instead of
-C<strEQ(s,"constant")>. This enables word-wise comparison via memcpy,
-in opposite of byte-wise comparisons via strcmp with already known
-sizes. This is a 10% performance improvement under most optimization
-levels.
+XXX
 
 =back
 
 =head1 Modules and Pragmata
+
+XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
+go here.  If Module::CoreList is updated, generate an initial draft of the
+following sections using F<Porting/corelist-perldelta.pl>.  A paragraph summary
+for important changes should then be added by hand.  In an ideal world,
+dual-life modules would have a F<Changes> file that could be cribbed.
+
+[ Within each section, list entries as a =item entry ]
 
 =head2 Updated Modules and Pragmata
 
@@ -75,102 +52,190 @@ levels.
 
 =item *
 
-L<Opcode> has been upgraded from version 1.34c to 1.35c, with the new
-iter_ary and iter_lazyiv ops.
+L<XXX> has been upgraded from version A.xx to B.yy.
 
 =back
 
-=head1 Diagnostics
+=head1 Documentation
 
-The following additions or changes have been made to diagnostic output,
-including warnings and fatal error messages.  For the complete list of
-diagnostic messages, see L<perldiag>.
+XXX Changes to files in F<pod/> go here.  Consider grouping entries by
+file and be sure to link to the appropriate page, e.g. L<perlfunc>.
 
-=head2 New Diagnostics
+=head2 Changes to Existing Documentation
 
-=head3 New Errors
+XXX Changes which significantly change existing files in F<pod/> go here.
+However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
+section.
 
-=over 4
-
-=item Invalid for range iterator (%d .. %d)
-
-(F) A range with constant integers as a for loop cannot be reversed.
-
-We check now at compile-time that a range with C<for> loops with
-constant integers is incremental, the 2nd number must be higher. We
-don't support reverse loops with ranges, i.e. C<for (9..0)> is
-invalid, but C<for (0..$#ary)> with C<$#ary> being C<-1> is valid.
-
-Reverse constant strings ranges are still valid and lead to an empty
-loop.  i.e. C<for ('z'..'a')> is currently valid.
-
-=back
-
-=head1 Platform Support
-
-=head2 Platform-Specific Notes
-
-=over 4
-
-=item mingw
-
-Compilation under mingw (32 and/or 64bit) was fixed by removing a
-duplicate F<pp_sys.c> entry in F<win32/GNUMakefile>.
-
-=item linux
-
-Check for null in pp_ghostent et al.
-
-On some platforms (such as Gentoo Linux with torsocks),
-hent->h_aliases (where hent is a struct hostent *) may be null after a
-gethostent call.
-
-L<RT#128740|https://rt.perl.org/Public/Bug/Display.html?id=128740>
-
-=back
-
-=head1 Internal Changes
+=head3 L<XXX>
 
 =over 4
 
 =item *
 
-The B<negate> op has now it's own B<ck_negate> callback.
+XXX Description of the change here
+
+=back
+
+=head1 Utility Changes
+
+XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
+Most of these are built within the directory F<utils>.
+
+[ List utility changes as a =head2 entry for each utility and =item
+entries for each change
+Use L<XXX> with program names to get proper documentation linking. ]
+
+=head2 L<XXX>
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Configuration and Compilation
+
+XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
+go here.  Any other changes to the Perl build process should be listed here.
+However, any platform-specific changes should be listed in the
+L</Platform Support> section, instead.
+
+[ List changes as a =item entry ].
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Testing
+
+XXX Any significant changes to the testing of a freshly built perl should be
+listed here.  Changes which create B<new> files in F<t/> go here as do any
+large changes to the testing harness (e.g. when parallel testing was added).
+Changes to existing files in F<t/> aren't worth summarizing, although the bugs
+that they represent may be covered elsewhere.
+
+[ List each test improvement as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Platform Support
+
+XXX Any changes to platform support should be listed in the sections below.
+
+[ Within the sections, list each platform as a =item entry with specific
+changes as paragraphs below it. ]
+
+=head2 New Platforms
+
+XXX List any platforms that this version of perl compiles on, that previous
+versions did not.  These will either be enabled by new files in the F<hints/>
+directories, or new subdirectories and F<README> files at the top level of the
+source tree.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
+
+=back
+
+=head2 Platform-Specific Notes
+
+XXX List any changes for specific platforms.  This could include configuration
+and compilation changes or changes in portability/compatibility.  However,
+changes within modules for platforms should generally be listed in the
+L</Modules and Pragmata> section.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
+
+=back
+
+=head1 Internal Changes
+
+XXX Changes which affect the interface available to C<XS> code go here.  Other
+significant internal changes for future core maintainers should be noted as
+well.
+
+[ List each change as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
 
 =back
 
 =head1 Selected Bug Fixes
 
+XXX Important bug fixes in the core language are summarized here.  Bug fixes in
+files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
+
+[ List each fix as a =item entry ]
+
 =over 4
 
-=item SvREADONLY_off: allow calls as argument
+=item *
 
-No multiple evaluation of its argument anymore.
+XXX
 
 =back
 
+=head1 Known Problems
+
+XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
+tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
+platform specific bugs also go here.
+
+[ List each fix as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Errata From Previous Releases
+
+=over 4
+
+=item *
+
+XXX Add anything here that we forgot to add, or were mistaken about, in
+the perldelta of a previous release.
+
+=back
+
+=head1 Obituary
+
+XXX If any significant core contributor has died, we've added a short obituary
+here.
+
 =head1 Acknowledgements
 
-Perl 5.25.0 represents approximately 2 weeks of development since Perl 5.24.0c
-and contains approximately 6,300 lines of changes across 120 files from 4
-authors.
+XXX Generate this with:
 
-Excluding auto-generated files, documentation and release tools, there were
-approximately 3,900 lines of changes to 53 .pm, .t, .c and .h files.
-
-Perl continues to flourish into its third decade thanks to a vibrant community
-of users and developers. The following people are known to have contributed the
-improvements that became Perl 5.25.0:
-
-Reini Urban, Father Chrysostomos, Daniel Dragan, Tony Cook.
-
-The list above is almost certainly incomplete as it is automatically generated
-from version control history. In particular, it does not include the names of
-the (very much appreciated) contributors who reported issues to the Perl bug
-tracker.
-
-For a more complete list of all of Perl's historical contributors, please see
-the F<AUTHORS> file in the Perl source distribution.
+  cperl Porting/acknowledgements.pl v5.25.0..HEAD
 
 =head1 Reporting Bugs
 
