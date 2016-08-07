@@ -2204,11 +2204,12 @@ PP(pp_enteriter)
 		cx->blk_loop.state_u.lazyiv.end = SvIV_nomg(right);
 	    }
 	    else {
+                SV *left =  newSVsv(sv);
 		cx->cx_type |= CXt_LOOP_LAZYSV;
-		cx->blk_loop.state_u.lazysv.cur = newSVsv(sv);
+		cx->blk_loop.state_u.lazysv.cur = left;
 		cx->blk_loop.state_u.lazysv.end = right;
 		SvREFCNT_inc_simple_void_NN(right);
-		(void) SvPV_force_nolen(cx->blk_loop.state_u.lazysv.cur);
+		(void) SvPV_force_nolen(left);
 		/* This will do the upgrade to SVt_PV, and warn if the value
 		   is uninitialised.  */
 		(void) SvPV_nolen_const(right);
@@ -2218,7 +2219,7 @@ PP(pp_enteriter)
 		    SvREFCNT_dec(right);
 		    cx->blk_loop.state_u.lazysv.end = &PL_sv_no;
 		}
-	    }
+            }
 	}
 	else /* SvTYPE(maybe_ary) == SVt_PVAV */ {
             /* for (@array) {} */

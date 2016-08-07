@@ -2939,6 +2939,10 @@ instead, except within S<C<(?[   ])>>, where it is a fatal error.
 The S<<-- HERE> shows whereabouts in the regular expression the
 escape was discovered.
 
+=item Invalid for range iterator (%d .. %d)
+
+(F) A range with constant integers as a for loop cannot be reversed.
+
 =item Invalid function type %s
 
 (F) The declared type for the function must be a coretype or an existing

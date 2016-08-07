@@ -7933,8 +7933,9 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
             && SvIOK(leftsv = cSVOPx_sv(left))
             && SvIOK(rightsv = cSVOPx_sv(right)))
         {
-            if (SvIV(rightsv) - SvIV(leftsv) < 0)
-                DIE("Invalid for range (%"IVdf"..%"IVdf")", SvIV(leftsv), SvIV(rightsv));
+            if (UNLIKELY(SvIV(rightsv) < SvIV(leftsv)))
+                DIE(aTHX_ "Invalid for range iterator (%"IVdf" .. %"IVdf")",
+                    SvIV(leftsv), SvIV(rightsv));
             /* TODO: unroll loop for small constant ranges, if the body is not too big */
             if (SvIV(rightsv)-SvIV(leftsv) <= PERL_MAX_UNROLL_LOOP_COUNT) {
                 DEBUG_kv(Perl_deb(aTHX_ "TODO unroll loop (%"IVdf"..%"IVdf")\n",

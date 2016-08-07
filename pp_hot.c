@@ -2747,6 +2747,7 @@ PP(pp_iter_lazyiv)
     itersvp = CxITERVAR(cx);
     assert(itersvp);
 
+    /* Note: no reverse support. (9..0) */
     cur = cx->blk_loop.state_u.lazyiv.cur;
     if (UNLIKELY(cur > cx->blk_loop.state_u.lazyiv.end)) {
         assert(PL_stack_sp < PL_stack_max);

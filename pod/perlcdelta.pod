@@ -35,6 +35,18 @@ L</Selected Bug Fixes> section.
 
 =item *
 
+for loops got several enhancements:
+
+new special B<iter_ary> C<for (@ary)> and B<iter_lazyiv> C<for (0..9)>
+ops to avoid a run-time switch in the generic iter op.
+
+more aelem_u optimizations, less run-time out of bounds checks for
+shaped arrays in loops. E.g. in C<my @a[5]; $a[$_] for (0..4);> the
+compilers knows that the max index for C<@a> will be C<4>, which is
+within the allowed shape of C<@a>.
+
+=item *
+
 The C<multideref> OP has a new C<MDEREF_INDEX_uoob> flag.  This is
 used for unchecked out-of-bounds checks for arrays, to use the
 previous AvSHAPED array optimizations (aelem_u, aelemfast_lex_u) or
@@ -79,7 +91,34 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =item *
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+L<Opcode> has been upgraded from version 1.34c to 1.35c, with the new
+iter_ary and iter_lazyiv ops.
+
+=back
+
+=head1 Diagnostics
+
+The following additions or changes have been made to diagnostic output,
+including warnings and fatal error messages.  For the complete list of
+diagnostic messages, see L<perldiag>.
+
+=head2 New Diagnostics
+
+=head3 New Errors
+
+=over 4
+
+=item Invalid for range iterator (%d .. %d)
+
+(F) A range with constant integers as a for loop cannot be reversed.
+
+We check now at compile-time that a range with C<for> loops with
+constant integers is incremental, the 2nd number must be higher. We
+don't support reverse loops with ranges, i.e. C<for (9..0)> is
+invalid, but C<for (0..$#ary)> with C<$#ary> being C<-1> is valid.
+
+Reverse constant strings ranges are still valid and lead to an empty
+loop.  i.e. C<for ('z'..'a')> is currently valid.
 
 =back
 
