@@ -604,6 +604,7 @@ the strings?).
  Sawyer X  5.25.1       2016-May-20
  Matthew   5.25.2       2016-Jun-20
 
+ rurban    5.25.0c      2016-Aug-07
 
 =head2 SELECTED RELEASE MEMORY USAGE
 
