@@ -765,82 +765,6 @@ XS(XS_PerlIO_get_layers)
     XSRETURN(0);
 }
 
-XS(XS_Hash_Util_bucket_ratio); /* prototype to pass -Wmissing-prototypes */
-XS(XS_Hash_Util_bucket_ratio)
-{
-    dXSARGS;
-    SV *hv;
-    PERL_UNUSED_VAR(cv);
-
-    if (items != 1)
-        croak_xs_usage(cv, "hv");
-
-    hv = ST(0);
-    if (SvROK(hv)) {
-        hv = SvRV(hv);
-        if ( SvTYPE(hv) == SVt_PVHV ) {
-            /* inlined hv_bucket_ratio, which is deprecated */
-            SV* ret;
-            if (SvRMAGICAL(hv)) {
-                MAGIC * const mg = mg_find((const SV *)hv, PERL_MAGIC_tied);
-                if (mg) {
-                    ST(0) = magic_scalarpack((HV*)hv, mg);
-                    XSRETURN(1);
-                }
-            }
-            ret = sv_newmortal();
-            if (HvUSEDKEYS((const HV *)hv))
-                Perl_sv_setpvf(aTHX_ ret, "%ld/%ld",
-                               (long)HvFILL(hv), (long)HvMAX(hv) + 1);
-            else
-                sv_setiv(ret, 0);
-            ST(0) = ret;
-            XSRETURN(1);
-        }
-    }
-    XSRETURN_UNDEF;
-}
-
-XS(XS_Hash_Util_num_buckets); /* prototype to pass -Wmissing-prototypes */
-XS(XS_Hash_Util_num_buckets)
-{
-    dXSARGS;
-    SV *rhv;
-    PERL_UNUSED_VAR(cv);
-
-    if (items != 1)
-        croak_xs_usage(cv, "hv");
-
-    rhv= ST(0);
-    if (SvROK(rhv)) {
-        rhv= SvRV(rhv);
-        if ( SvTYPE(rhv)==SVt_PVHV ) {
-            XSRETURN_UV(HvMAX((HV*)rhv)+1);
-        }
-    }
-    XSRETURN_UNDEF;
-}
-
-XS(XS_Hash_Util_used_buckets); /* prototype to pass -Wmissing-prototypes */
-XS(XS_Hash_Util_used_buckets)
-{
-    dXSARGS;
-    SV *rhv;
-    PERL_UNUSED_VAR(cv);
-
-    if (items != 1)
-        croak_xs_usage(cv, "hv");
-
-    rhv= ST(0);
-    if (SvROK(rhv)) {
-        rhv= SvRV(rhv);
-        if ( SvTYPE(rhv)==SVt_PVHV ) {
-            XSRETURN_UV(HvFILL((HV*)rhv));
-        }
-    }
-    XSRETURN_UNDEF;
-}
-
 XS(XS_re_is_regexp); /* prototype to pass -Wmissing-prototypes */
 XS(XS_re_is_regexp)
 {
@@ -1093,9 +1017,6 @@ static const struct xsub_details details[] = {
     {"Internals::SvREFCNT", XS_Internals_SvREFCNT, "\\[$%@];$"},
     {"constant::_make_const", XS_constant__make_const, "\\[$@]"},
     {"PerlIO::get_layers", XS_PerlIO_get_layers, "*;@"},
-    {"Hash::Util::bucket_ratio", XS_Hash_Util_bucket_ratio, "\\%"},
-    {"Hash::Util::num_buckets", XS_Hash_Util_num_buckets, "\\%"},
-    {"Hash::Util::used_buckets", XS_Hash_Util_used_buckets, "\\%"},
     {"re::is_regexp", XS_re_is_regexp, "$"},
     {"re::regname", XS_re_regname, ";$$"},
     {"re::regnames", XS_re_regnames, ";$"},

@@ -14,6 +14,7 @@ BEGIN {
     set_up_inc( qw(. ../lib ../dist/if) );
 }
 
+use Hash::Util;
 no warnings 'experimental::smartmatch';
 
 sub lis($$;$) {

@@ -275,7 +275,6 @@ bucket_array(rhv)
     XSRETURN(0);
 }
 
-#if PERL_VERSION < 25
 SV*
 bucket_ratio(rhv)
         SV* rhv
@@ -285,7 +284,11 @@ bucket_ratio(rhv)
     if (SvROK(rhv)) {
         rhv= SvRV(rhv);
         if ( SvTYPE(rhv)==SVt_PVHV ) {
+#if PERL_VERSION < 25
             SV *ret= Perl_hv_scalar(aTHX_ (HV*)rhv);
+#else
+            SV *ret= Perl_hv_bucket_ratio(aTHX_ (HV*)rhv);
+#endif
             ST(0)= ret;
             XSRETURN(1);
         }
@@ -323,4 +326,3 @@ used_buckets(rhv)
     XSRETURN_UNDEF;
 }
 
-#endif

@@ -6,6 +6,7 @@ BEGIN {
     set_up_inc('../lib');
 }
 use Config ();
+use Hash::Util;
 
 plan tests => 59;
 
