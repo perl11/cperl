@@ -574,8 +574,12 @@ S_pad_alloc_name(pTHX_ PADNAME *padname, U32 flags, HV *typestash,
     if (typestash) {
 	SvPAD_TYPED_on(padname); /* unncessary */
         if (HvNAME(typestash)) { /* is a native type? */
-            const char *name = HvNAME(typestash)+6; /* strip off the "main::" */
-            const int l = HvNAMELEN(typestash) - 6;
+            const char *name = HvNAME(typestash); /* strip off the "main::" */
+            int l = HvNAMELEN(typestash);
+            if (l>6 && memEQs(name, 6, "main::")) {
+                l -= 6;
+                name += 6;
+            }
             assert(l>0);
             if (memEQs(name, l, "int")
                 || memEQs(name, l, "num")

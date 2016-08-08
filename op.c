@@ -7485,8 +7485,12 @@ S_op_typed(pTHX_ OP* o, bool with_native)
             /* XXX A very naive string check for the stashnames.
                We should really use a PL_coretypes array with stash ptrs */
             if (typ && HvNAME(typ)) {
-                const char *name = HvNAME(typ)+6;
-                const int l = HvNAMELEN(typ) - 6;
+                const char *name = HvNAME(typ);
+                int l = HvNAMELEN(typ);
+                if (l>6 && memEQs(name, 6, "main::")) {
+                    l -= 6;
+                    name += 6;
+                }
                 assert(l>0);
                 if      (memEQs(name, l, "int")
                          || memEQs(name, l, "Int"))
