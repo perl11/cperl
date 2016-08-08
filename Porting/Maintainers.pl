@@ -1717,6 +1717,7 @@ use File::Glob qw(:case);
                 lib/integer.{pm,t}
                 lib/less.{pm,t}
                 lib/locale.{pm,t}
+                lib/locale_threads.t
                 lib/open.{pm,t}
                 lib/overload/numbers.pm
                 lib/overloading.{pm,t}
