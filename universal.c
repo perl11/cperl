@@ -765,8 +765,8 @@ XS(XS_PerlIO_get_layers)
     XSRETURN(0);
 }
 
-XS(XS_hash_util_bucket_ratio); /* prototype to pass -Wmissing-prototypes */
-XS(XS_hash_util_bucket_ratio)
+XS(XS_Hash_Util_bucket_ratio); /* prototype to pass -Wmissing-prototypes */
+XS(XS_Hash_Util_bucket_ratio)
 {
     dXSARGS;
     SV *hv;
@@ -801,8 +801,8 @@ XS(XS_hash_util_bucket_ratio)
     XSRETURN_UNDEF;
 }
 
-XS(XS_hash_util_num_buckets); /* prototype to pass -Wmissing-prototypes */
-XS(XS_hash_util_num_buckets)
+XS(XS_Hash_Util_num_buckets); /* prototype to pass -Wmissing-prototypes */
+XS(XS_Hash_Util_num_buckets)
 {
     dXSARGS;
     SV *rhv;
@@ -821,8 +821,8 @@ XS(XS_hash_util_num_buckets)
     XSRETURN_UNDEF;
 }
 
-XS(XS_hash_util_used_buckets); /* prototype to pass -Wmissing-prototypes */
-XS(XS_hash_util_used_buckets)
+XS(XS_Hash_Util_used_buckets); /* prototype to pass -Wmissing-prototypes */
+XS(XS_Hash_Util_used_buckets)
 {
     dXSARGS;
     SV *rhv;
@@ -1093,9 +1093,9 @@ static const struct xsub_details details[] = {
     {"Internals::SvREFCNT", XS_Internals_SvREFCNT, "\\[$%@];$"},
     {"constant::_make_const", XS_constant__make_const, "\\[$@]"},
     {"PerlIO::get_layers", XS_PerlIO_get_layers, "*;@"},
-    {"Hash::Util::bucket_ratio", XS_hash_util_bucket_ratio, "\\%"},
-    {"Hash::Util::num_buckets", XS_hash_util_num_buckets, "\\%"},
-    {"Hash::Util::used_buckets", XS_hash_util_used_buckets, "\\%"},
+    {"Hash::Util::bucket_ratio", XS_Hash_Util_bucket_ratio, "\\%"},
+    {"Hash::Util::num_buckets", XS_Hash_Util_num_buckets, "\\%"},
+    {"Hash::Util::used_buckets", XS_Hash_Util_used_buckets, "\\%"},
     {"re::is_regexp", XS_re_is_regexp, "$"},
     {"re::regname", XS_re_regname, ";$$"},
     {"re::regnames", XS_re_regnames, ";$"},
