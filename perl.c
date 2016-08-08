@@ -3014,7 +3014,7 @@ Perl_call_sv(pTHX_ SV *sv, VOL I32 flags)
 	(void)POPMARK;
         old_cxix = cxstack_ix;
 	create_eval_scope(NULL, flags|G_FAKINGEVAL);
-	(void)INCMARK;
+	INCMARK;
 
 	JMPENV_PUSH(ret);
 
