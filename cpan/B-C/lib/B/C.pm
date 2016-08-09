@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_08';
+our $VERSION = '1.54_09';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -43,6 +43,7 @@ sub new {
 
   # if sv add a dummy sv_arenaroot to support global destruction
   if ($section eq 'sv') {
+    # 0 refcnt placeholder for the static arenasize later adjusted
     $o->add( "NULL, 0, SVTYPEMASK|0x01000000".($] >= 5.009005?", {0}":'')); # SVf_FAKE
     $o->[-1]{dbg}->[0] = "PL_sv_arenaroot";
   }
@@ -119,7 +120,7 @@ sub output {
   my $dodbg = 1 if $debug{flags} and $section->[-1]{dbg};
   if ($section->name eq 'sv') { #fixup arenaroot refcnt
     my $len = scalar @{ $section->[-1]{values} };
-    $section->[-1]{values}->[0] =~ s/^0, 0/0, $len/;
+    $section->[-1]{values}->[0] =~ s/^NULL, 0/NULL, $len/;
   }
   foreach ( @{ $section->[-1]{values} } ) {
     my $dbg = "";
@@ -329,6 +330,7 @@ BEGIN {
       sub SVp_NOK() {0}; # unused
       sub SVp_IOK() {0};
       sub CVf_ANON() {4};
+      sub CVf_CONST() {0}; # unused
       sub PMf_ONCE() {0xff}; # unused
       sub SVf_FAKE() {0x00100000}; # unused
       sub SVs_OBJECT() {0x00001000}
@@ -450,7 +452,7 @@ $all_bc_deps{Socket} = 1 if !@B::C::Config::deps and $] > 5.021;
 
 my ($prev_op, $package_pv, @package_pv); # global stash for methods since 5.13
 my (%symtable, %cvforward, %lexwarnsym);
-my (%strtable, %stashtable, %hektable, %statichektable, %gptable, %cophhtable);
+my (%strtable, %stashtable, %hektable, %statichektable, %gptable, %cophhtable, %copgvtable);
 my (%xsub, %init2_remap);
 my ($warn_undefined_syms, $swash_init, $swash_ToCf);
 my ($staticxs, $outfile);
@@ -2464,7 +2466,16 @@ sub B::COP::save {
     $init->add(sprintf( "CopSTASH_set(&cop_list[%d], %s);", $ix, $stash ));
     if (!$ITHREADS) {
       if ($B::C::const_strings) {
-        $init->add(sprintf( "CopFILE_set(&cop_list[%d], %s);", $ix, constpv($file) ));
+        my $constpv = constpv($file);
+        # define CopFILE_set(c,pv)	CopFILEGV_set((c), gv_fetchfile(pv))
+        # cache gv_fetchfile
+        if ( !$copgvtable{$constpv} ) {
+          $copgvtable{$constpv} = $gv_index++;
+          $init->add( sprintf( "gv_list[%d] = gv_fetchfile(%s);", $copgvtable{$constpv}, $constpv ) );
+        }
+        $init->add( sprintf( "CopFILEGV_set(&cop_list[%d], gv_list[%d]); /* %s */",
+                            $ix, $copgvtable{$constpv}, cstring($file) ) );
+        #$init->add(sprintf( "CopFILE_set(&cop_list[%d], %s);", $ix, constpv($file) ));
       } else {
         $init->add(sprintf( "CopFILE_set(&cop_list[%d], %s);", $ix, cstring($file) ));
       }
@@ -3965,7 +3976,7 @@ sub try_autoload {
     unless ($@) {
       # we need just the empty auto GV, $cvname->ROOT and $cvname->XSUB,
       # but not the whole CV optree. XXX This still fails with 5.8
-      my $cv = svref_2object( \&{$cvstashname.'::'.$cvname} );
+      my $cv = svref_2object( \&{$fullname} );
       return $cv;
     }
   }
@@ -7036,16 +7047,16 @@ _EOT7
         # dead code ---
       } elsif ($s =~ /^cop_list/) {
 	if ($ITHREADS or !$MULTI) {
-	  print "    CopFILE_set(&$s, NULL);\n";
+	  print "    CopFILE_set(&$s, NULL);";
         }
         if ($] >= 5.017) {
-          print "    CopSTASH_set(&$s, NULL);\n";
+          print " CopSTASH_set(&$s, NULL);\n";
         } elsif ($] < 5.016 and $ITHREADS) {
-          print "    CopSTASHPV(&$s) = NULL;\n";
+          print " CopSTASHPV(&$s) = NULL;\n";
         } elsif ($] < 5.016 and !$ITHREADS) {
-          print "    CopSTASH(&$s) = NULL;\n";
+          print " CopSTASH(&$s) = NULL;\n";
         } else { # 5.16 experiment
-          print "    CopSTASHPV_set(&$s, NULL, 0);\n";
+          print " CopSTASHPV_set(&$s, NULL, 0);\n";
         }
       } elsif ($s =~ /\(OP\*\)&unopaux_list/) {
 	print "    ($s)->op_type = OP_NULL;\n";
