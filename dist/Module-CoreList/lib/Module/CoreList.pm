@@ -307,7 +307,7 @@ sub changes_between {
     '5.024000c' => '2016-07-28',
     5.025003 => '????-??-??',
     '5.024001c' => '????-??-??', 
-    '5.025000c' => '2016-80-07', 
+    '5.025000c' => '2016-08-07', 
     '5.025001c' => '????-??-??', 
  );
 
@@ -12773,6 +12773,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList'      => '5.20160807c',
             'Module::CoreList::TieHashDelta'=> '5.20160728',
             'Module::CoreList::Utils'=> '5.20160807',
+            'B::C'                  => '1.54_09',
         },
         removed => {
         }
