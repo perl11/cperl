@@ -20,7 +20,7 @@ BEGIN {
 use warnings;
 use strict;
 
-plan 2262;
+plan 2268;
 
 use B ();
 
@@ -350,7 +350,7 @@ test_opcount(0, 'non-void fake sig not optimised',
 
 SKIP: {
     use Config;
-    unless ($^V < v5.25.2c and $Config{ccflags} =~ /PERL_FAKE_SIGNATURE\b/) {
+    if ($^V < v5.25.2c && $Config{ccflags} !~ /PERL_FAKE_SIGNATURE\b/) {
         skip "not built with PERL_FAKE_SIGNATURE", 4;
     }
 
@@ -402,3 +402,62 @@ test_opcount(0, 'barewords can be constant-folded',
              {
                  concat => 0,
              });
+
+{
+    #no warnings 'experimental::signatures';
+    #use feature 'signatures';
+
+    my @a;
+    test_opcount(0, 'signature default expressions get optimised',
+                 sub ($s = $a[0]) {},
+                 {
+                     aelem         => 0,
+                     aelemfast_lex => 1,
+                 });
+}
+
+# in-place sorting
+
+{
+    local our @global = (3,2,1);
+    my @lex = qw(a b c);
+
+    test_opcount(0, 'in-place sort of global',
+                 sub { @global = sort @global; 1 },
+                 {
+                     rv2av   => 1,
+                     aassign => 0,
+                 });
+
+    test_opcount(0, 'in-place sort of lexical',
+                 sub { @lex = sort @lex; 1 },
+                 {
+                     padav   => 1,
+                     aassign => 0,
+                 });
+
+    test_opcount(0, 'in-place reversed sort of global',
+                 sub { @global = sort { $b <=> $a } @global; 1 },
+                 {
+                     rv2av   => 1,
+                     aassign => 0,
+                 });
+
+
+    test_opcount(0, 'in-place custom sort of global',
+                 sub { @global = sort {  $a<$b?1:$a>$b?-1:0 } @global; 1 },
+                 {
+                     rv2av   => 1,
+                     aassign => 0,
+                 });
+
+    sub mysort { $b cmp $a };
+    test_opcount(0, 'in-place sort with function of lexical',
+                 sub { @lex = sort mysort @lex; 1 },
+                 {
+                     padav   => 1,
+                     aassign => 0,
+                 });
+
+
+}
