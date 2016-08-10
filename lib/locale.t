@@ -1999,6 +1999,7 @@ foreach my $Locale (@Locale) {
                         $ok14 = utf8::is_utf8($strerror);
                         no locale;
                         $ok14_5 = "$!" !~ /\P{ASCII}/;
+                        debug(disp_str("non-ASCII \$!=$!")) if ! $ok14_5;
                         last;
                     }
                 }
@@ -2050,8 +2051,9 @@ foreach my $Locale (@Locale) {
                 $! = eval "&Errno::$err";   # Convert to strerror() output
             }
             my $strerror = "$!";
-            if ("$strerror" =~ /\P{ASCII}/) {
+            if ($strerror =~ /\P{ASCII}/) {
                 $ok21 = 0;
+                debug(disp_str("non-ASCII strerror=$strerror"));
                 last;
             }
         }
