@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_09';
+our $VERSION = '1.54_11';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -1265,7 +1265,8 @@ sub nvx ($) {
   my $ll = $Config{d_longdbl} ? "LL" : "L";
   if ($nvgformat eq 'g') { # a very poor choice to keep precision
     # on intel 17-18, on ppc 31, on sparc64/s390 34
-    $nvgformat = $Config{uselongdouble} ? '.17Lg' : '.16g';
+    # TODO: rather use the binary representation of our union
+    $nvgformat = $Config{uselongdouble} ? '.18Lg' : '.17g';
   }
   my $sval = sprintf("%${nvgformat}%s", $nvx, $nvx > $dblmax ? $ll : "");
   if ($nvx < -$dblmax) {
@@ -1476,9 +1477,8 @@ sub B::OP::save {
     if ($] >= 5.013009) {
       warn "enabling -ffold with ucfirst\n" if $verbose;
       require "utf8.pm" unless $savINC{"utf8.pm"};
-      require "utf8_heavy.pl" unless $savINC{"utf8_heavy.pl"}; # bypass AUTOLOAD
       mark_package("utf8");
-      mark_package("utf8_heavy.pl");
+      load_utf8_heavy();
     }
   }
   if (ref($op) eq 'B::OP') { # check wrong BASEOPs
@@ -2604,8 +2604,7 @@ sub B::PMOP::save {
       # Since 5.13.10 with PMf_FOLD (i) we need to swash_init("utf8::Cased").
       if ($] >= 5.013009 and $pmflags & 4) {
         # Note: in CORE utf8::SWASHNEW is demand-loaded from utf8 with Perl_load_module()
-        require "utf8_heavy.pl" unless $savINC{"utf8_heavy.pl"}; # bypass AUTOLOAD
-        svref_2object( \&{"utf8\::SWASHNEW"} )->save; # for swash_init(), defined in lib/utf8_heavy.pl
+        load_utf8_heavy();
         if ($PERL518 and !$swash_init and $swash_ToCf) {
           $init->add("PL_utf8_tofold = $swash_ToCf;");
           $swash_init++;
@@ -3803,7 +3802,13 @@ sub B::RV::save {
     # 354 defined needs SvANY
     $init->add( sprintf("$s.sv_any = (char*)&$s - %d;", $Config{ptrsize}))
       if $] > 5.019 or $ITHREADS;
-    $init->add( "$s.sv_u.svu_rv = (SV*)$rv;" ) unless ($C99 and is_constant($rv));
+    unless ($C99 and is_constant($rv)) {
+      if ( $rv =~ /get_cv/ ) {
+        $init2->add( "$s.sv_u.svu_rv = (SV*)$rv;" ) ;
+      } else {
+        $init->add( "$s.sv_u.svu_rv = (SV*)$rv;" ) ;
+      }
+    }
     return savesym( $sv, "&".$s );
   }
   else {
@@ -3823,7 +3828,7 @@ sub B::RV::save {
     # dynamic; so we need to inc it
     elsif ( $rv =~ /get_cv/ ) {
       $xrvsect->add("Nullsv /* $rv */");
-      $init->add(
+      $init2->add(
         sprintf( "xrv_list[%d].xrv_rv = (SV*)SvREFCNT_inc(%s);", $xrvsect->index, $rv ) );
     }
     else {
@@ -3910,6 +3915,25 @@ sub try_isa {
   return 0; # not found
 }
 
+sub load_utf8_heavy {
+    return if $savINC{"utf8_heavy.pl"};
+
+    require 'utf8_heavy.pl';
+    mark_package('utf8_heavy.pl');
+    $curINC{'utf8_heavy.pl'} = $INC{'utf8_heavy.pl'};
+    $savINC{"utf8_heavy.pl"} = 1;
+    add_hashINC("utf8");
+
+    # FIXME: we want to use add_hashINC for utf8_heavy, inc_packname should return an array
+    # add_hashINC("utf8_heavy.pl");
+
+    # In CORE utf8::SWASHNEW is demand-loaded from utf8 with Perl_load_module()
+    # It adds about 1.6MB exe size 32-bit.
+    svref_2object( \&{"utf8\::SWASHNEW"} )->save;
+
+    return 1;
+}
+
 # If the sub or method is not found:
 # 1. try @ISA, mark_package and return.
 # 2. try UNIVERSAL::method
@@ -3930,7 +3954,8 @@ sub try_autoload {
 		$fullname, $cvstashname ) if $debug{cv};
   if ($fullname eq 'utf8::SWASHNEW') {
     # utf8_heavy was loaded so far, so defer to a demand-loading stub
-    my $stub = sub { require 'utf8_heavy.pl' unless $savINC{"utf8_heavy.pl"}; goto &utf8::SWASHNEW; };
+    # always require utf8_heavy, do not care if it s already in
+    my $stub = sub { require 'utf8_heavy.pl'; goto &utf8::SWASHNEW };
     return svref_2object( $stub );
   }
 
@@ -4220,10 +4245,7 @@ sub B::CV::save {
     push_package($package_pv);
   }
   if ($fullname eq 'utf8::SWASHNEW') { # bypass utf8::AUTOLOAD, a new 5.13.9 mess
-    require "utf8_heavy.pl" unless $savINC{"utf8_heavy.pl"};
-    # sub utf8::AUTOLOAD {}; # How to ignore &utf8::AUTOLOAD with Carp? The symbol table is
-    # already polluted. See issue 61 and force_heavy()
-    svref_2object( \&{"utf8\::SWASHNEW"} )->save;
+    load_utf8_heavy();
   }
 
   if ($fullname eq 'IO::Socket::SSL::SSL_Context::new') {
@@ -4717,10 +4739,13 @@ sub B::CV::save {
 		 $$gv, $$cv) if $debug{cv} and $debug{gv};
   }
   unless ($optimize_cop) {
+    my $file = $cv->FILE();
     if ($MULTI) {
-      $init->add( savepvn( "CvFILE($sym)", $cv->FILE ) );
+      $init->add( savepvn( "CvFILE($sym)", $file ) );
+    } elsif ($B::C::const_strings && length $file) {
+      $init->add( sprintf( "CvFILE(%s) = (char *) %s;", $sym, constpv( $file ) ) );
     } else {
-      $init->add( sprintf( "CvFILE(%s) = %s;", $sym, cstring( $cv->FILE ) ) );
+      $init->add( sprintf( "CvFILE(%s) = %s;", $sym, cstring( $file ) ) );
     }
   }
   my $stash = $cv->STASH;
@@ -5190,6 +5215,7 @@ sub B::GV::save {
         $init2->add(
           sprintf("if ((sv = (SV*)%s))", get_cv($origname, "GV_ADD")),
           sprintf("    GvCV_set(%s, (CV*)SvREFCNT_inc_simple_NN(sv));", $sym));
+          # TODO: add evtl. to SvRV also.
       }
       elsif (!$PERL510 or $gp) {
 	if ($fullname eq 'Internals::V') { # local_patches if $] >= 5.011
@@ -7744,6 +7770,11 @@ sub walksymtable {
   my ($sym, $ref, $fullname);
   $prefix = '' unless defined $prefix;
 
+# If load_utf8_heavy doesn't happen before we walk utf8::
+# (when utf8_heavy has already been called) then the stored CV for utf8::S
+# WASHNEW could be wrong.
+  load_utf8_heavy() if ( $prefix eq 'utf8::' && defined $symref->{'SWASHNEW'} );
+
   my @list = sort {
     # we want these symbols to be saved last to avoid incomplete saves
     # +/- reverse is to defer + - to fix Tie::Hash::NamedCapturespecial cases. GH #247
@@ -8202,12 +8233,7 @@ sub save_unused_subs {
       or ($savINC{'utf8_heavy.pl'} and ($B::C::fold or exists($savINC{'utf8.pm'})))) {
     require "utf8.pm" unless $savINC{"utf8.pm"};
     mark_package('utf8');
-    require "utf8_heavy.pl" unless $savINC{"utf8_heavy.pl"}; # bypass AUTOLOAD
-    mark_package('utf8_heavy.pl');
-    # In CORE utf8::SWASHNEW is demand-loaded from utf8 with Perl_load_module()
-    # It adds about 1.6MB exe size 32-bit.
-    svref_2object( \&{"utf8\::SWASHNEW"} )->save;
-    add_hashINC("utf8");
+    load_utf8_heavy();
   }
   # run-time Carp
   # With -fno-warnings we don't insist on initializing warnings::register_categories and Carp.
