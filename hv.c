@@ -793,7 +793,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
         /* fill, size, found index in collision list */
         DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u * %x\t%s{%s}\n",
-                              HvKEYS(hv), HvMAX(hv), linear, action,
+                              HvTOTALKEYS(hv), HvMAX(hv), linear, action,
                               HvNAME_get(hv)?HvNAME_get(hv):"", key));
 	if (return_svp) {
             return (void *) &HeVAL(entry);
@@ -804,7 +804,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
   not_found:
     /* fill, size, not found, size of collision list */
     DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u - %x\t%s{%s}\n",
-                          HvKEYS(hv), HvMAX(hv), linear, action,
+                          HvTOTALKEYS(hv), HvMAX(hv), linear, action,
                           HvNAME_get(hv)?HvNAME_get(hv):"", key));
 #ifdef DYNAMIC_ENV_FETCH  /* %ENV lookup?  If so, try to fetch the value now */
     if (!(action & HV_FETCH_ISSTORE) 
@@ -965,7 +965,8 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     if ( DO_HSPLIT(xhv) ) {
         const SSize_t oldsize = xhv->xhv_max + 1;
         const SSize_t items = HvPLACEHOLDERS_get(hv);
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH split %6lu\t%6lu\n", HvKEYS(hv), HvMAX(hv)));
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH split %6lu\t%6lu\n",
+                              HvTOTALKEYS(hv), HvMAX(hv)));
 
         if (items /* hash has placeholders  */
             && !SvREADONLY(hv) /* but is not a restricted hash */) {
@@ -1218,7 +1219,8 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	if (HeVAL(entry) == &PL_sv_placeholder) {
 	    if (k_flags & HVhek_FREEKEY)
 		Safefree(key);
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DELpl\n", HvKEYS(hv), HvMAX(hv), linear));
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DELpl\n",
+                                  HvTOTALKEYS(hv), HvMAX(hv), linear));
 	    return NULL;
 	}
 	if (SvREADONLY(hv) && HeVAL(entry) && SvREADONLY(HeVAL(entry))) {
@@ -1375,7 +1377,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	    mro_package_moved(NULL, stash, gv, 1);
 
         DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL+\t{%s}\n",
-                              HvKEYS(hv), HvMAX(hv), linear, key));
+                              HvTOTALKEYS(hv), HvMAX(hv), linear, key));
 	return sv;
     }
 
@@ -1389,7 +1391,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     if (k_flags & HVhek_FREEKEY)
 	Safefree(key);
     DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL-\t{%s}\n",
-                          HvKEYS(hv), HvMAX(hv), linear, key));
+                          HvTOTALKEYS(hv), HvMAX(hv), linear, key));
     return NULL;
 }
 
@@ -1929,7 +1931,7 @@ Perl_hfree_next_entry(pTHX_ HV *hv, SSize_t *indexp)
     if (SvOOK(hv) && ((iter = HvAUX(hv)))) {
 	if ((entry = iter->xhv_eiter)) {
             DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hfree iter [%lu]\t%lu %lu DEL\t%s\n",
-                                  *indexp, HvKEYS(hv), HvMAX(hv), HeKEY(entry)));
+                                  *indexp, HvTOTALKEYS(hv), HvMAX(hv), HeKEY(entry)));
             /* the iterator may get resurrected after each
              * destructor call, so check each time */
             if (entry && HvLAZYDEL(hv)) {	/* was deleted earlier? */
@@ -1964,7 +1966,7 @@ Perl_hfree_next_entry(pTHX_ HV *hv, SSize_t *indexp)
 #ifdef PERL_PERTURB_KEYS_TOP
 	if (*indexp == orig_index) {
             DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hfree leaked key [%lu] == %lu\t%lu %lu\n",
-                          *indexp,  orig_index, HvKEYS(hv), HvMAX(hv)));
+                          *indexp,  orig_index, HvTOTALKEYS(hv), HvMAX(hv)));
             ((XPVHV*)SvANY(hv))->xhv_keys--;
             return NULL;
         }
@@ -3146,7 +3148,8 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 	if (!next) {			/* initial entry? */
 	} else if ( DO_HSPLIT(xhv) ) {
             const STRLEN oldsize = xhv->xhv_max + 1;
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH split %6lu\t%6lu\n", xhv->xhv_keys, oldsize));
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH split %6lu\t%6lu\n",
+                                  XHvTOTALKEYS(xhv), oldsize));
             hsplit(PL_strtab, oldsize, oldsize * 2);
 	}
     }
