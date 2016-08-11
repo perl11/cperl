@@ -1987,18 +1987,17 @@ foreach my $Locale (@Locale) {
                 foreach my $err (keys %!) {
                     use Errno;
                     # under cperl this is now insecure as hash keys stay tainted
-                    if ($Config{usecperl}) {
-                        my ($err1) = $err =~ /^(.+)$/; # untaint
-                        $! = eval "&Errno::$err1";
-                    } else {
-                        $! = eval "&Errno::$err";   # Convert to strerror() output
-                    }
+                    my ($err1) = $err =~ /^(.+)$/; # untaint
+                    $! = eval "&Errno::$err1";
+                    my $errnum = 0+$!;
                     my $strerror = "$!";
                     if ("$strerror" =~ /\P{ASCII}/) {
                         $ok14 = utf8::is_utf8($strerror);
                         no locale;
                         $ok14_5 = "$!" !~ /\P{ASCII}/;
-                        debug(disp_str("non-ASCII \$!=$!")) if ! $ok14_5;
+                        debug( disp_str(
+                        "non-ASCII \$! for error $errnum='$strerror'"))
+                                                                   if ! $ok14_5;
                         last;
                     }
                 }
