@@ -3795,6 +3795,13 @@
  */
 /*#define HAS_FUTIMES		/ **/
 
+/* HAS_GAI_STRERROR:
+ *	This symbol, if defined, indicates that the gai_strerror routine
+ *	is available to translate error codes returned by getaddrinfo()
+ *	into human readable strings.
+ */
+/*#define HAS_GAI_STRERROR	/ **/
+
 /* HAS_GETADDRINFO:
  *	This symbol, if defined, indicates that the getaddrinfo() function
  *	is available for use.
@@ -5404,6 +5411,6 @@
 #endif
 
 /* Generated from:
- * 25cc6958d587101823234c3fe5815e6b4c2414441b3ff1d9935c1d6587586bf5 config_h.SH
- * 40a13e740fb8a968a2ab64f03fb0e6114a62726948001d17299d673eb6287792 uconfig.sh
+ * e7ed12f19587439edd31297708ce777423e43016bd8e2f6371e614a1f47835f9 config_h.SH
+ * ec9ec87692ad4242a4488fcd104d51331ed887cc4279786f4d2390e5b6a578ab uconfig.sh
  * ex: set ro: */

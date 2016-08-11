@@ -265,7 +265,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1276
+#define TOTAL_KEYWORDS 1277
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 30
 #define MIN_HASH_VALUE 3
@@ -714,6 +714,7 @@ struct stringpool_t
     char stringpool_str1178[sizeof ("d_regcmp")];
     char stringpool_str1184[sizeof ("d_readdir64_r")];
     char stringpool_str1204[sizeof ("uidformat")];
+    char stringpool_str1206[sizeof ("d_gai_strerror")];
     char stringpool_str1210[sizeof ("d_inetaton")];
     char stringpool_str1216[sizeof ("uidsign")];
     char stringpool_str1217[sizeof ("d_llabs")];
@@ -1993,6 +1994,7 @@ static const struct stringpool_t stringpool_contents =
     "d_regcmp",
     "d_readdir64_r",
     "uidformat",
+    "d_gai_strerror",
     "d_inetaton",
     "uidsign",
     "d_llabs",
@@ -3870,7 +3872,10 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1204,		T_INV,0,ALN64I"@@uidformat@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1206,		T_INV,0,ALN64I"@@d_gai_strerror@@"},
+      {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1210,		T_INV,0,ALN64I"@@d_inetaton@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -6955,7 +6960,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str9303,	T_INV,0,ALN64I"@@d_attribute_always_inline@@"}
     };
 
-#line 6958 "Config.xs"
+#line 6963 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);
