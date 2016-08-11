@@ -88,7 +88,7 @@ BEGIN {
     }
 }
 
-our $VERSION = '1.41c';
+our $VERSION = '1.42c';
 $VERSION =~ tr/_//d;
 $VERSION =~ tr/_c//d;
 
@@ -637,7 +637,7 @@ Carp - alternative warn and die for modules
 
     # cluck, longmess and shortmess not exported by default
     use Carp qw(cluck longmess shortmess);
-    cluck "This is how we got here!";
+    cluck "This is how we got here!"; # warn with stack backtrace
     $long_message   = longmess( "message from cluck() or confess()" );
     $short_message  = shortmess( "message from carp() or croak()" );
 
