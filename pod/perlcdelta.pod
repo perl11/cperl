@@ -77,9 +77,14 @@ plus fix some problems in their new code.
 
 no mathoms: call_sv instead of call_pv, get_cvs where available.
 
-=item B-C 1.54_09
+=item B-C 1.54_11
 
-better CopFILE_set, fixup arenasize refcnt.
+Better CopFILE_set,
+Fixup arenasize refcnt.
+Delay cvref to init2, properly set a SvRV to a XS sub.
+Optimize constpv for CvFILE (less constants to merge for gcc).
+Improve NV precision by one digit.
+Fix to compile in utf8_heavy.pl, abstract and set %INC.
 
 =back
 

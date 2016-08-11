@@ -12749,7 +12749,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList'      => '5.20160809c',
             'Module::CoreList::TieHashDelta'=> '5.20160618',
             'Module::CoreList::Utils'=> '5.20160729c',
-            'B::C'                  => '1.54_09',
+            'B::C'                  => '1.54_11',
             'DynaLoader'            => '2.05c',
             'Socket'                => '2.024_01',
         },
