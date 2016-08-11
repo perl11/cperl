@@ -1972,8 +1972,6 @@ Perl_hfree_next_entry(pTHX_ HV *hv, SSize_t *indexp)
 	assert(*indexp != orig_index);
 #endif
     }
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hfree [%lu] / %lu\t%lu %lu clear\t{%s}\n",
-                          *indexp,  orig_index, HvKEYS(hv), HvMAX(hv), HeKEY(entry)));
     array[*indexp] = HeNEXT(entry);
     ((XPVHV*) SvANY(hv))->xhv_keys--;
 
@@ -1992,6 +1990,11 @@ Perl_hfree_next_entry(pTHX_ HV *hv, SSize_t *indexp)
 	    );
 	}
     }
+    /* HvKEYS crashes with invalid mg for hv_placeholders_get on a HvREFCNT==0. */
+    /* If we're freeing the HV, the SvMAGIC field has been reused for
+     * other purposes, and so there can't be any placeholder magic */
+    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hfree [%lu] / %lu\t%lu %lu clear\t{%s}\n",
+                          *indexp,  orig_index, HvTOTALKEYS(hv), HvMAX(hv), HeKEY(entry)));
     return hv_free_ent_ret(hv, entry);
 }
 
