@@ -881,9 +881,6 @@ XS(XS_re_regnames_count)
     if (items != 0)
 	croak_xs_usage(cv, "");
 
-    SP -= items;
-    PUTBACK;
-
     if (!rx)
         XSRETURN_UNDEF;
 
