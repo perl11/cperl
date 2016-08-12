@@ -1314,19 +1314,16 @@ Perl_gv_autoload_pvn(pTHX_ HV *stash, const char *name, STRLEN len, U32 flags)
  * with the passed gv as an argument.
  *
  * The "gv" parameter should be the glob.
- * "varpv" holds the name of the var, used for error messages.
+ * "varname" holds the 1-char name of the var, used for error messages.
  * "namesv" holds the module name. Its refcount will be decremented.
  * "flags": if flag & 1 then save the scalar before loading.
  * For the protection of $! to work (it is set by this routine)
  * the sv slot must already be magicalized.
  */
 STATIC void
-S_require_tie_mod(pTHX_ GV *gv, const char *varpv, const char * name,
+S_require_tie_mod(pTHX_ GV *gv, const char varname, const char * name,
                         STRLEN len, const U32 flags)
 {
-    const char varname = *varpv; /* varpv might be clobbered by
-                                    load_module, so save it.  For the
-                                    moment it’s always a single char.  */
     const SV * const target = varname == '[' ? GvSV(gv) : (SV *)GvHV(gv);
 
     PERL_ARGS_ASSERT_REQUIRE_TIE_MOD;
@@ -2106,7 +2103,7 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
 
             /* magicalization must be done before require_tie_mod is called */
 	    if (sv_type == SVt_PVHV || sv_type == SVt_PVGV)
-		require_tie_mod(gv, "!", "Errno", 5, 1);
+		require_tie_mod(gv, '!', "Errno", 5, 1);
 
 	    break;
 	case '-':		/* $- */
@@ -2123,7 +2120,7 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
             SvREADONLY_on(av);
 
             if (sv_type == SVt_PVHV || sv_type == SVt_PVGV)
-                require_tie_mod(gv, name, "Tie::Hash::NamedCapture",23, 0);
+                require_tie_mod(gv, *name, "Tie::Hash::NamedCapture",23,0);
 
             break;
 	}
@@ -2143,7 +2140,7 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
 	case '[':		/* $[ */
 	    if ((sv_type == SVt_PV || sv_type == SVt_PVGV)
 	     && FEATURE_ARYBASE_IS_ENABLED) {
-		require_tie_mod(gv,name,"arybase",7,0);
+		require_tie_mod(gv,'[',"arybase",7,0);
 	    }
 	    else goto magicalize;
             break;
@@ -2237,9 +2234,9 @@ S_maybe_multimagic_gv(pTHX_ GV *gv, const char *name, const svtype sv_type)
 
     if (sv_type == SVt_PVHV || sv_type == SVt_PVGV) {
         if (*name == '!')
-            require_tie_mod(gv, "!", "Errno", 5, 1);
+            require_tie_mod(gv, '!', "Errno", 5, 1);
         else if (*name == '-' || *name == '+')
-            require_tie_mod(gv, name, "Tie::Hash::NamedCapture", 23, 0);
+            require_tie_mod(gv, *name, "Tie::Hash::NamedCapture", 23, 0);
     } else if (sv_type == SVt_PV) {
         if (*name == '*' || *name == '#') {
             /* diag_listed_as: $* is no longer supported */
@@ -2251,7 +2248,7 @@ S_maybe_multimagic_gv(pTHX_ GV *gv, const char *name, const svtype sv_type)
     if (sv_type==SVt_PV || sv_type==SVt_PVGV) {
       switch (*name) {
       case '[':
-          require_tie_mod(gv,name,"arybase",7,0);
+          require_tie_mod(gv,'[',"arybase",7,0);
           break;
 #ifdef PERL_SAWAMPERSAND
       case '`':
