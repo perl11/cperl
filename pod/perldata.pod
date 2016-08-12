@@ -419,6 +419,9 @@ This rounds up the allocated buckets to the next power of two:
 
     keys(%users) = 1000;		# allocate 1024 buckets
 
+But note that this only works for hashes with already existing keys, and
+sizes lower than the existing number of keys are silently ignored.
+
 =head2 Scalar value constructors
 X<scalar, literal> X<scalar, constant>
 
