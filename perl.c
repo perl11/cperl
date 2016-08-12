@@ -389,8 +389,11 @@ perl_construct(pTHXx)
     PL_osname = Perl_savepvn(aTHX_ STR_WITH_LEN(OSNAME));
 
     PL_registered_mros = newHV();
-    /* Start with 1 bucket, for DFS.  It's unlikely we'll need more. */
+    /* Start with 1 bucket, for DFS.  It's unlikely we'll need more.
+       But cperl favors C3 instead. */
+#ifndef USE_CPERL
     HvMAX(PL_registered_mros) = 0;
+#endif
 
     PL_XPosix_ptrs[_CC_ASCII] = _new_invlist_C_array(ASCII_invlist);
     PL_XPosix_ptrs[_CC_ALPHANUMERIC] = _new_invlist_C_array(XPosixAlnum_invlist);
@@ -3766,6 +3769,7 @@ S_init_main_stash(pTHX)
     GV *gv;
 
     PL_curstash = PL_defstash = (HV *)SvREFCNT_inc_simple_NN(newHV());
+    hv_ksplit(PL_defstash, 64); /* Avoid 3 bootup splits */
     /* We know that the string "main" will be in the global shared string
        table, so it's a small saving to use it rather than allocate another
        8 bytes.  */

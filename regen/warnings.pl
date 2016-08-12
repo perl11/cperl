@@ -491,6 +491,10 @@ read_only_bottom_close_and_rename($pm);
 __END__
 package warnings;
 
+BEGIN { 
+    keys(%warnings::) = 64; # pre-extend the stash
+}
+
 VERSION
 
 # Verify that we're called correctly so that warnings will work.

@@ -5,6 +5,10 @@
 
 package warnings;
 
+BEGIN { 
+    keys(%warnings::) = 64; # pre-extend the stash
+}
+
 our $VERSION = "1.35";
 
 # Verify that we're called correctly so that warnings will work.
