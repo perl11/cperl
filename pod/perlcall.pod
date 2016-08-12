@@ -1225,8 +1225,6 @@ I<PrintList>.
     static void
     call_PrintList()
     {
-        dSP;
-
         call_argv("PrintList", G_DISCARD, words);
     }
 
