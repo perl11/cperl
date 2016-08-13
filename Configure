@@ -11655,10 +11655,11 @@ case "$d_builtin_prefetch" in
     echo "Checking whether your compiler can handle __builtin_prefetch ..." >&4
     $cat >try.c <<'EOCP'
 int main(void) {
+    int n = 1;
     char *s = "teststring";
     __builtin_prefetch(s, 0, 1);
     /* Remember shell exit code truth is 0, C truth is non-zero */
-    return (n == 1);
+    return !(n == 1);
 }
 EOCP
     set try
