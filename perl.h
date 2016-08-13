@@ -3714,6 +3714,12 @@ EXTERN_C int perl_tsa_mutex_unlock(perl_mutex* mutex)
 /* placeholder */
 #endif
 
+#ifdef HAS_BUILTIN_CTZ
+#  define CTZ(n)	__builtin_ctz(n)
+#else
+#  define CTZ(n)      S_ctz(n)
+#endif
+
 #ifdef HAS_BUILTIN_PREFETCH
 #  define CACHE_PREFETCH(ptr,rw,locality)	__builtin_prefetch(ptr,rw,locality)
 #else

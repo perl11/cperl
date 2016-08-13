@@ -400,6 +400,7 @@ d_bcmp=''
 d_bcopy=''
 d_builtin_arith_overflow=''
 d_builtin_choose_expr=''
+d_builtin_ctz=''
 d_builtin_expect=''
 d_builtin_prefetch=''
 d_bzero=''
@@ -11605,6 +11606,36 @@ EOCP
 esac
 
 set d_builtin_prefetch
+eval $setvar
+$rm_try
+
+: Look for GCC-style __builtin_ctz
+case "$d_builtin_ctz" in
+'')
+    echo " "
+    echo "Checking whether your compiler can handle __builtin_ctz ..." >&4
+    $cat >try.c <<'EOCP'
+int main(void) {
+    int n = 2;
+    if ( __builtin_ctz(n) == 1)
+       n = 1;
+    /* Remember shell exit code truth is 0, C truth is non-zero */
+    return !(n == 1);
+}
+EOCP
+    set try
+    if eval $compile && $run ./try; then
+	echo "Your C compiler supports __builtin_ctz."
+	val="$define"
+    else
+	echo "Your C compiler doesn't seem to understand __builtin_ctz."
+	val="$undef"
+    fi
+    ;;
+*) val="$d_builtin_ctz" ;;
+esac
+
+set d_builtin_ctz
 eval $setvar
 $rm_try
 
@@ -24544,6 +24575,7 @@ d_bsdgetpgrp='$d_bsdgetpgrp'
 d_bsdsetpgrp='$d_bsdsetpgrp'
 d_builtin_arith_overflow='$d_builtin_arith_overflow'
 d_builtin_choose_expr='$d_builtin_choose_expr'
+d_builtin_ctz='$d_builtin_ctz'
 d_builtin_expect='$d_builtin_expect'
 d_builtin_prefetch='$d_builtin_prefetch'
 d_bzero='$d_bzero'

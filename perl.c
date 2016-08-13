@@ -389,7 +389,7 @@ perl_construct(pTHXx)
     PL_osname = Perl_savepvn(aTHX_ STR_WITH_LEN(OSNAME));
 
     PL_registered_mros = newHV();
-    /* Start with 1 bucket, for DFS.  It's unlikely we'll need more.  */
+    /* Start with 1 bucket, for DFS.  It's unlikely we'll need more. */
     HvMAX(PL_registered_mros) = 0;
 
     PL_XPosix_ptrs[_CC_ASCII] = _new_invlist_C_array(ASCII_invlist);

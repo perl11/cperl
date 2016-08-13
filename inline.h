@@ -785,7 +785,31 @@ S_cx_popgiven(pTHX_ PERL_CONTEXT *cx)
     }
 }
 
+/* Since MSVC 2005 */
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+PERL_STATIC_INLINE U32
+S_ctz(U32 n)
+{
+    U32 tz;
+    assert(n==1 || !(n & 0x1));
+    if (_BitScanForward(&tz, n))
+        return tz;
+    else
+        return 0;
+}
+#else
+PERL_STATIC_INLINE U32
+S_ctz(U32 n)
+{
+    static const U32 S_MultiplyDeBruijnBitPosition[32] = {
+      0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
+      31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
+    };
 
+    assert(n==1 || !(n & 0x1));
+    return S_MultiplyDeBruijnBitPosition[((U32)((n & -n) * 0x077CB531U)) >> 27];
+}
+#endif
 
 
 /*

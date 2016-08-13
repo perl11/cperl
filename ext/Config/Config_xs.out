@@ -265,7 +265,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1265
+#define TOTAL_KEYWORDS 1266
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 30
 #define MIN_HASH_VALUE 3
@@ -1410,6 +1410,7 @@ struct stringpool_t
     char stringpool_str3648[sizeof ("git_commit_date")];
     char stringpool_str3660[sizeof ("canned_gperf")];
     char stringpool_str3663[sizeof ("hash_func")];
+    char stringpool_str3680[sizeof ("d_builtin_ctz")];
     char stringpool_str3681[sizeof ("gmake")];
     char stringpool_str3682[sizeof ("cppccsymbols")];
     char stringpool_str3691[sizeof ("useposix")];
@@ -2678,6 +2679,7 @@ static const struct stringpool_t stringpool_contents =
     "git_commit_date",
     "canned_gperf",
     "hash_func",
+    "d_builtin_ctz",
     "gmake",
     "cppccsymbols",
     "useposix",
@@ -5782,7 +5784,9 @@ Config_lookup (register const char *str, register unsigned int len)
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3663,		T_INV,0,ALN64I"@@hash_func@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3680,		T_INV,0,ALN64I"@@d_builtin_ctz@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3681,			T_INV,0,ALN64I"@@gmake@@"},
 
@@ -6804,7 +6808,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str8190,		T_INV,0,ALN64I"@@doubleinfbytes@@"}
     };
 
-#line 6807 "Config.xs"
+#line 6811 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

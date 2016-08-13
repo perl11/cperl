@@ -5951,6 +5951,7 @@ $ WC "d_bsd='undef'"
 $ WC "d_bsdgetpgrp='undef'"
 $ WC "d_bsdsetpgrp='undef'"
 $ WC "d_builtin_choose_expr='undef'" ! GCC only
+$ WC "d_builtin_ctz='undef'" ! GCC only
 $ WC "d_builtin_expect='undef'" ! GCC only
 $ WC "d_builtin_prefetch='undef'" ! GCC only
 $ WC "d_bzero='" + d_bzero + "'"

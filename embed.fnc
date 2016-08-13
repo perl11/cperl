@@ -2968,6 +2968,9 @@ AiM	|void	|cx_popwhen      |NN PERL_CONTEXT *cx
 AiM	|void	|cx_pushgiven    |NN PERL_CONTEXT *cx|NULLOK SV *orig_defsv
 AiM	|void	|cx_popgiven     |NN PERL_CONTEXT *cx
 #endif
+#if defined(PERL_IN_HV_C)
+iMPn    |U32    |ctz             |U32 n
+#endif
 
 #ifdef USE_DTRACE
 XEop    |void   |dtrace_probe_call |NN CV *cv|bool is_call

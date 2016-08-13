@@ -6329,6 +6329,9 @@ STATIC void	S_clear_placeholders(pTHX_ HV *hv, SSize_t items)
 #define PERL_ARGS_ASSERT_CLEAR_PLACEHOLDERS	\
 	assert(hv)
 
+PERL_STATIC_INLINE U32	S_ctz(U32 n)
+			__attribute__pure__;
+
 STATIC void	S_hfreeentries(pTHX_ HV *hv)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HFREEENTRIES	\

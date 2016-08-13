@@ -45,7 +45,16 @@ holds the key and hash value.
 #if HV_FILL_RATE == 100
 # define DO_HSPLIT(xhv) ((xhv)->xhv_keys >= (xhv)->xhv_max)
 #else
-# define DO_HSPLIT(xhv) !(xhv)->xhv_max || ((Size_t)(((xhv)->xhv_keys * 100) / (xhv)->xhv_max) >= HV_FILL_RATE)
+# define DO_HSPLIT_slow(xhv) !(xhv)->xhv_max || \
+    ((Size_t)(((xhv)->xhv_keys * 100) / (xhv)->xhv_max) >= HV_FILL_RATE)
+/* x/128 == x>>7, x>>ctz(n) */
+# define DO_HSPLIT_fast(xhv) !(xhv)->xhv_max || \
+    ((Size_t)(((xhv)->xhv_keys * 100) >> CTZ(1+((xhv)->xhv_max))) >= HV_FILL_RATE)
+# if 0
+#  define DO_HSPLIT(xhv) DO_HSPLIT_slow(xhv)
+# else
+#  define DO_HSPLIT(xhv) DO_HSPLIT_fast(xhv)
+# endif
 #endif
 
 static const char S_strtab_error[]

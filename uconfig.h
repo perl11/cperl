@@ -3454,6 +3454,9 @@
 /* HAS_BUILTIN_CHOOSE_EXPR:
  *	Can we handle GCC builtin for compile-time ternary-like expressions
  */
+/* HAS_BUILTIN_CTZ:
+ *	Can we handle GCC builtin for counting trailing zeros in a word
+ */
 /* HAS_BUILTIN_EXPECT:
  *	Can we handle GCC builtin for telling that certain values are more
  *	likely
@@ -3461,8 +3464,9 @@
 /* HAS_BUILTIN_PREFETCH:
  *	Can we handle GCC builtin for filling the cache line with a buffer
  */
-/*#define HAS_BUILTIN_EXPECT	/ **/
 /*#define HAS_BUILTIN_CHOOSE_EXPR	/ **/
+/*#define HAS_BUILTIN_CTZ	/ **/
+/*#define HAS_BUILTIN_EXPECT	/ **/
 /*#define HAS_BUILTIN_PREFETCH	/ **/
 
 /* HAS_BUILTIN_ARITH_OVERFLOW:
@@ -5343,6 +5347,6 @@
 #endif
 
 /* Generated from:
- * 622485f7b197b6529c54ce4c35bcbd50c0833a43a7c83894462ff1b04db671a8 config_h.SH
- * 63a38b29cdde312f55f043c028510d29737c6ff653edb4c16f4267a0d89fb5d1 uconfig.sh
+ * 52a72cf19e9185a68544a313038eca8fa7ceabb9fc921365bc375b9a17d8d259 config_h.SH
+ * 1fc71bb792275b1dfe746662581487d3a5c2cb024cd4ca15e7f2d181a4004145 uconfig.sh
  * ex: set ro: */
