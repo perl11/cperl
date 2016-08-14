@@ -1544,8 +1544,7 @@ PP(pp_aassign)
                 odd = ((lastrelem - firsthashrelem)&1)? 0 : 1;
                 if (UNLIKELY(odd)) {
                     do_oddball(lastrelem, firsthashrelem);
-                    /* we have firstlelem to reuse, it's not needed anymore
-		     */
+                    /* we have firstlelem to reuse, it's not needed anymore */
                     *(lastrelem+1) = &PL_sv_undef;
                 }
 
@@ -1575,6 +1574,8 @@ PP(pp_aassign)
                 }
 
 		hv_clear(hash);
+                hv_ksplit(hash, (lastrelem - relem)>>1); /* rough number,
+                                                            incl. duplicates */
 
 		while (LIKELY(relem < lastrelem+odd)) {	/* gobble up all the rest */
 		    HE *didstore;
@@ -1610,7 +1611,7 @@ PP(pp_aassign)
 		    }
                     if (already_copied)
                         SvREFCNT_inc_simple_void_NN(tmpstr); /* undo mortal free */
-		    didstore = hv_store_ent(hash,sv,tmpstr,0);
+		    didstore = hv_store_ent(hash, sv, tmpstr, 0);
 		    if (magic) {
 			if (!didstore) sv_2mortal(tmpstr);
 			SvSETMAGIC(tmpstr);
