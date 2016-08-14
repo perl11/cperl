@@ -783,13 +783,13 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
            oe -> A .. X -> e -> B => e -> oe -> A .. X -> B */
         if (!HvEITER_get(hv) && entry != *oentry) {
             if (HeNEXT(*oentry) == entry) {
-                DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH move up %d\t%s{%s}\n",
-                                      1, HvNAME_get(hv)?HvNAME_get(hv):"", key));
+                DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH move up 1\t%s{%s}\n",
+                                      HvNAME_get(hv)?HvNAME_get(hv):"", key));
                 HeNEXT(*oentry) = HeNEXT(entry);
             } else {
                 HE* x;
-                DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH move up %d\t%s{%s}\n",
-                                      2, HvNAME_get(hv)?HvNAME_get(hv):"", key));
+                DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH move up 2\t%s{%s}\n",
+                                      HvNAME_get(hv)?HvNAME_get(hv):"", key));
                 /* find X, the one before e */
                 for (x = HeNEXT(*oentry); HeNEXT(x) != entry; x = HeNEXT(x));
                 HeNEXT(x) = HeNEXT(entry);
@@ -974,8 +974,10 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     if ( DO_HSPLIT(xhv) ) {
         const SSize_t oldsize = xhv->xhv_max + 1;
         const SSize_t items = HvPLACEHOLDERS_get(hv);
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH split %6lu\t%6lu\n",
-                              HvTOTALKEYS(hv), HvMAX(hv)));
+        DEBUG_H(PerlIO_printf(Perl_debug_log,
+                    "HASH split %lu\t%6lu => %lu\t%s\n",
+                    XHvTOTALKEYS(xhv), xhv->xhv_max, (oldsize*2)-1,
+                    HvNAME_get(hv)?HvNAME_get(hv):""));
 
         if (items /* hash has placeholders  */
             && !SvREADONLY(hv) /* but is not a restricted hash */) {
@@ -1551,10 +1553,14 @@ Perl_hv_ksplit(pTHX_ HV *hv, IV newmax)
 
     a = (char *) HvARRAY(hv);
     if (a) {
+        DEBUG_H(PerlIO_printf(Perl_debug_log,
+                    "HASH ksplit %lu\t%6lu => %lu(%lu)\t%s\n",
+                    XHvTOTALKEYS(xhv), xhv->xhv_max, newsize-1, newmax,
+                    HvNAME_get(hv)?HvNAME_get(hv):""));
         hsplit(hv, oldsize, newsize);
     } else {
         Newxz(a, PERL_HV_ARRAY_ALLOC_BYTES(newsize), char);
-        xhv->xhv_max = --newsize;
+        xhv->xhv_max = newsize-1;
         HvARRAY(hv) = (HE **) a;
     }
 }
@@ -3157,8 +3163,9 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 	if (!next) {			/* initial entry? */
 	} else if ( DO_HSPLIT(xhv) ) {
             const STRLEN oldsize = xhv->xhv_max + 1;
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH split %6lu\t%6lu\n",
-                                  XHvTOTALKEYS(xhv), oldsize));
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH split %lu\t%6lu => %lu\tstrtab\n",
+                         XHvTOTALKEYS(xhv), xhv->xhv_max, (oldsize*2)-1));
             hsplit(PL_strtab, oldsize, oldsize * 2);
 	}
     }

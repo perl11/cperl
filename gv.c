@@ -1390,6 +1390,8 @@ Flags may be one of:
     GV_NOINIT
     GV_NOEXPAND
     GV_ADDMG
+    GV_CACHE_ONLY
+    GV_NO_SVGMAGIC
 
 The most important of which are probably C<GV_ADD> and C<SVf_UTF8>.
 
@@ -1627,7 +1629,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                                 *stash, nambeg, name_cursor-nambeg, is_utf8
                             );
                     /* If the containing stash has multiple effective
-                    names, see that this one gets them, too. */
+                       names, see that this one gets them, too. */
                     if (HvAUX(GvSTASH(*gv))->xhv_name_count)
                         mro_package_moved(*stash, NULL, *gv, 1);
                     }
