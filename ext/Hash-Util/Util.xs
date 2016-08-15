@@ -315,13 +315,12 @@ PPCODE:
     }
 }
 
-SV*
+void
 num_buckets(rhv)
         SV* rhv
 PROTOTYPE: \%
 PPCODE:
 {
-    PERL_UNUSED_VAR(RETVAL);
     if (SvROK(rhv)) {
         rhv = SvRV(rhv);
         if (SvTYPE(rhv) == SVt_PVHV ) {
@@ -331,13 +330,12 @@ PPCODE:
     XSRETURN_UNDEF;
 }
 
-SV*
+void
 used_buckets(rhv)
         SV* rhv
 PROTOTYPE: \%
 PPCODE:
 {
-    PERL_UNUSED_VAR(RETVAL);
     if (SvROK(rhv)) {
         rhv = SvRV(rhv);
         if ( SvTYPE(rhv) == SVt_PVHV ) {
