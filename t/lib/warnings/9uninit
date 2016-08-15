@@ -2210,3 +2210,9 @@ Use of uninitialized value $x in subtraction (-) at - line 10.
 Use of uninitialized value $x in multiplication (*) at - line 11.
 Use of uninitialized value $x in division (/) at - line 12.
 Use of uninitialized value $e in concatenation (.) or string at - line 15.
+########
+# RT #128940
+use warnings 'uninitialized';
+my $x = "" . open my $fh, "<", "no / such / file";
+EXPECT
+Use of uninitialized value in concatenation (.) or string at - line 3.
