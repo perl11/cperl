@@ -6352,13 +6352,12 @@ STATIC struct xpvhv_aux*	S_hv_auxinit_internal(struct xpvhv_aux *iter)
 #define PERL_ARGS_ASSERT_HV_AUXINIT_INTERNAL	\
 	assert(iter)
 
-STATIC void *	S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char* key, I32 klen, int *flagsp, int action, SV *val, U32 hash, int *does_return)
+STATIC void *	S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char* key, const I32 klen, int flags, const int action, SV *val, const U32 hash, int *return_action)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_5)
 			__attribute__nonnull__(pTHX_9);
 #define PERL_ARGS_ASSERT_HV_COMMON_MAGICAL	\
-	assert(hv); assert(flagsp); assert(does_return)
+	assert(hv); assert(return_action)
 
 STATIC SV*	S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen, int k_flags, I32 d_flags, U32 hash);
 STATIC SV*	S_hv_free_ent_ret(pTHX_ HV *hv, HE *entry)

@@ -7332,21 +7332,6 @@ extern void moncontrol(int);
    reusing the old pads. */
 #define PERL_GOTOSIG_TAILCALL
 
-/* for testing windows env, e.g. hv_common_magical() */
-/* #define ENV_IS_CASELESS */
-
-/* hack to test the windows env codepath on an easier platform */
-#if defined(ENV_IS_CASELESS) \
-    && !(defined(NETWARE)||defined(WIN32)) \
-    && defined(PERL_IN_HV_C)
-char *strupr(char *string) {
-    const char* ori = string;
-    for(; *string; string++)
-        *string = toupper((unsigned char) *string);
-    return ori;
-}
-#endif
-
 /*
 
    (KEEP THIS LAST IN perl.h!)

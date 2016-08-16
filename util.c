@@ -2201,6 +2201,12 @@ Perl_my_setenv(pTHX_ const char *nam, const char *val)
         vlen = strlen(val);
 
         environ[i] = (char*)safesysmalloc((nlen+vlen+2) * sizeof(char));
+        /* only for debugging windows problems on non-windows systems:
+#if defined(DEBUGGING) && defined(ENV_IS_CASELESS) \
+    && !(defined(NETWARE)||defined(WIN32))
+        nam = strupr(nam);
+#endif
+        */
         /* all that work just for this */
         my_setenv_format(environ[i], nam, nlen, val, vlen);
     } else {
@@ -3621,6 +3627,44 @@ Perl_getenv_len(pTHX_ const char *env_elem, unsigned long *len)
 }
 #endif
 
+/* hack to test the windows env codepath on an easier platform */
+#if defined(DEBUGGING) \
+    && defined(ENV_IS_CASELESS)            \
+    && !(defined(NETWARE)||defined(WIN32)) \
+
+const char *strupr(char *string) {
+    const char* ori = string;
+    for(; *string; string++)
+        *string = toupper((unsigned char) *string);
+    return ori;
+}
+
+char *caseless_getenv (const char *env_elem) {
+    char *result;
+    if (!(result = getenv(env_elem))) {
+        char *tmp = (char*)alloca(strlen(env_elem));
+        strcpy(tmp, env_elem);
+        return getenv(strupr(tmp));
+    } else
+        return result;
+}
+
+ char *caseless_getenv_len (const char *env_elem, unsigned long *len) {
+    char *result;
+    if (!(result = getenv(env_elem))) {
+        char *tmp = (char*)alloca(strlen(env_elem));
+        strcpy(tmp, env_elem);
+        result = getenv(strupr(tmp));
+        if (result)
+            *len = strlen(result);
+        return result;
+    }
+    else {
+	*len = strlen(result);
+        return result;
+    }
+}
+#endif
 
 MGVTBL*
 Perl_get_vtbl(pTHX_ int vtbl_id)

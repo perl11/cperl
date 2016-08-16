@@ -496,8 +496,8 @@ C<SV*>.
 #define hv_fetch_ent(hv, keysv, lval, hash)				\
     ((HE *) hv_common((hv), (keysv), NULL, 0, 0,			\
 		      ((lval) ? HV_FETCH_LVALUE : 0), NULL, (hash)))
-#define hv_delete_ent(hv, key, flags, hash)				\
-    (MUTABLE_SV(hv_common((hv), (key), NULL, 0, 0, (flags) | HV_DELETE,	\
+#define hv_delete_ent(hv, key, discard, hash)				\
+    (MUTABLE_SV(hv_common((hv), (key), NULL, 0, 0, (discard)|HV_DELETE, \
 			  NULL, (hash))))
 
 #define hv_store_flags(hv, key, klen, val, hash, flags)			\
@@ -519,9 +519,9 @@ C<SV*>.
 			      ? (HV_FETCH_JUST_SV | HV_FETCH_LVALUE)	\
 			      : HV_FETCH_JUST_SV, NULL, 0))
 
-#define hv_delete(hv, key, klen, flags)					\
+#define hv_delete(hv, key, klen, discard)				\
     (MUTABLE_SV(hv_common_key_len((hv), (key), (klen),			\
-				  (flags) | HV_DELETE, NULL, 0)))
+				  (discard) | HV_DELETE, NULL, 0)))
 
 #ifdef PERL_CORE
 # define hv_storehek(hv, hek, val) \
@@ -534,9 +534,9 @@ C<SV*>.
 		? (HV_FETCH_JUST_SV | HV_FETCH_LVALUE)			\
 		: HV_FETCH_JUST_SV,					\
 	       NULL, HEK_HASH(hek)))
-# define hv_deletehek(hv, hek, flags) \
+# define hv_deletehek(hv, hek, discard) \
     hv_common((hv), NULL, HEK_KEY(hek), HEK_LEN(hek), HEK_UTF8(hek), \
-	      (flags)|HV_DELETE, NULL, HEK_HASH(hek))
+	      (discard)|HV_DELETE, NULL, HEK_HASH(hek))
 #endif
 
 /* This refcounted he structure is used for storing the hints used for lexical
@@ -651,6 +651,13 @@ instead of a string/length pair, and no precomputed hash.
 
 /* Must not conflict with HVhek_UTF8 */
 #define HV_NAME_SETALL		0x02
+
+#ifdef PERL_CORE
+/* return actions for internal hv_common_magical() */
+#define HV_COMMON_MAGICAL_RETURNS       0
+#define HV_COMMON_MAGICAL_IGNORE        1
+#define HV_COMMON_MAGICAL_ENV_IS_CASELESS 2
+#endif
 
 /*
 =for apidoc newHV

@@ -359,10 +359,10 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     XPVHV* xhv;
     HE *entry;
     HE **oentry;
-    bool is_utf8;
+    HEK *keysv_hek = NULL;
     int masked_flags;
     const int return_svp = action & HV_FETCH_JUST_SV;
-    HEK *keysv_hek = NULL;
+    bool is_utf8;
 #ifdef DEBUGGING
     unsigned int linear = 0;
     assert(klen >= 0);
@@ -423,17 +423,24 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     }
 
     if (UNLIKELY(SvMAGICAL(hv))) {
-        int does_return = 0;
+        int return_action = 0;
         const void *retval = hv_common_magical(hv, &keysv, key, klen,
-                                 &flags, action, val, hash, &does_return);
-        if (does_return)
-            return retval;
+                                 flags, action, val, hash, &return_action);
+        if (!return_action)
+            return (void*)retval;
 #ifdef ENV_IS_CASELESS
-        /* windows env !fetch: exists|store */
-        else if (flags & HVhek_FREEKEY) {
-            key = (const char*)strupr(savepvn(key,klen));
-            is_utf8 = FALSE;
+        else /* windows env !fetch: exists|store */
+        if (UNLIKELY(return_action == HV_COMMON_MAGICAL_ENV_IS_CASELESS))
+        {
+            const char* keysave = key;
+            key = (const char*)strupr(savepvn(key, klen));
+            if (flags & HVhek_FREEKEY)
+                Safefree(keysave);
             hash = 0;
+            is_utf8 = FALSE;
+            /*flags |= HVhek_FREEKEY;*/
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH caseless fixup\t\tENV{%.*s}\n", klen, key));
         }
 #endif
     }
@@ -490,8 +497,16 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     }
 
     if (keysv && (SvIsCOW_shared_hash(keysv))) {
-        if (HvSHAREKEYS(hv))
+        if (HvSHAREKEYS(hv)) {
             keysv_hek  = SvSHARED_HEK_FROM_PV(SvPVX_const(keysv));
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH SHAREKEYS + shared_hash\tENV{%.*s}\n",
+                         HEK_LEN(keysv_hek), HEK_KEY(keysv_hek)));
+        } else {
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH shared_hash\t\tENV{%.*s}\n",
+                         HEK_LEN(keysv_hek), HEK_KEY(keysv_hek)));
+        }
         hash = SvSHARED_HASH(keysv);
     }
     else if (!hash)
@@ -644,9 +659,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 #endif
 
         /* fill, size, found index in collision list */
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u * %x\t%s{%s}\n",
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u * %x\t%s{%.*s}\n",
                               HvTOTALKEYS(hv), HvMAX(hv), linear, action,
-                              HvNAME_get(hv)?HvNAME_get(hv):"", key));
+                              HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
 	if (return_svp) {
             return (void *) &HeVAL(entry);
 	}
@@ -655,9 +670,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
   not_found:
     /* fill, size, not found, size of collision list */
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u - %x\t%s{%s}\n",
+    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u - %x\t%s{%.*s}\n",
                           HvTOTALKEYS(hv), HvMAX(hv), linear, action,
-                          HvNAME_get(hv)?HvNAME_get(hv):"", key));
+                          HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
 #ifdef DYNAMIC_ENV_FETCH  /* %ENV lookup?  If so, try to fetch the value now */
     if (!(action & HV_FETCH_ISSTORE) 
 	&& SvRMAGICAL((const SV *)hv)
@@ -784,8 +799,8 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     } else
 #endif
     {   /* Insert at the top which gives us the best performance */
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert top\t%s{%s}\n",
-                              HvNAME_get(hv)?HvNAME_get(hv):"", key));
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert top\t%s{%.*s}\n",
+                              HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
         HeNEXT(entry) = *oentry; /* oe -> n:   e -> oe -> n */
         *oentry = entry;
     }
@@ -850,13 +865,11 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 }
 
 STATIC void*
-S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, I32 klen,
-                    int *flagsp, const int action, SV *val, U32 hash,
-                    int *does_return)
+S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
+                    int flags, const int action, SV *val, const U32 hash,
+                    int *return_action)
 {
     SV* keysv = *keyp;
-    int flags = *flagsp;
-    const int return_svp = action & HV_FETCH_JUST_SV;
     const bool is_utf8 = keysv ? (SvUTF8(keysv) != 0)
                                : ((flags & HVhek_UTF8) ? TRUE : FALSE);
     PERL_ARGS_ASSERT_HV_COMMON_MAGICAL;
@@ -864,6 +877,7 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, I32 klen,
     PERL_UNUSED_ARG(hash);
 #endif
     
+    *return_action = HV_COMMON_MAGICAL_IGNORE;
     if (SvRMAGICAL(hv) && !(action & (HV_FETCH_ISSTORE|HV_FETCH_ISEXISTS))) {
         if (mg_find((const SV *)hv, PERL_MAGIC_tied)
             || SvGMAGICAL((const SV *)hv))
@@ -904,25 +918,28 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, I32 klen,
             LvTARG(sv) = MUTABLE_SV(entry);
 
             /* XXX remove at some point? */
+            assert(!(flags & HVhek_FREEKEY));
             if (flags & HVhek_FREEKEY)
                 Safefree(key);
 
-            *does_return = 1;
-            if (return_svp) {
+            *return_action = HV_COMMON_MAGICAL_RETURNS;
+            if (action & HV_FETCH_JUST_SV) {
                 return entry ? (void *) &HeVAL(entry) : NULL;
             }
             return (void *) entry;
         } /* tied */
 #ifdef ENV_IS_CASELESS
         else if (mg_find((const SV *)hv, PERL_MAGIC_env)) {
+            const int return_svp = action & HV_FETCH_JUST_SV;
             I32 i;
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t mg-fetch ENV{%s}\n",
-                        HvTOTALKEYS(hv), HvMAX(hv), key));
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH %6lu\t%6lu\t mg-fetch\tENV{%.*s}\n",
+                        HvTOTALKEYS(hv), HvMAX(hv), klen, key));
             for (i = 0; i < klen; ++i)
                 if (isLOWER(key[i])) {
                     /* Would be nice if we had a routine to do the
                        copy and upercase in a single pass through.  */
-                    const char * const nkey = strupr(savepvn(key,klen));
+                    const char * const nkey = strupr(savepvn(key, klen));
                     /* Note that this fetch is for nkey (the uppercased
                        key) whereas the store is for key (the original)  */
                     void *result = hv_common(hv, NULL, nkey, klen,
@@ -932,11 +949,15 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, I32 klen,
                                              | return_svp,
                                              NULL /* no value */,
                                              0 /* compute hash */);
+                    *return_action = HV_COMMON_MAGICAL_RETURNS;
                     if (!result && (action & HV_FETCH_LVALUE)) {
+                        DEBUG_H(PerlIO_printf(Perl_debug_log,
+                                "HASH upcase fetch failed\t\tENV{%.*s}\n",
+                                klen, key));
                         /* This call will free key if necessary.
                            Do it this way to encourage compiler to tail
                            call optimise.  */
-                        result = hv_common(hv, keysv, key, klen, flags,
+                        return hv_common(hv, keysv, key, klen, flags,
                                            HV_FETCH_ISSTORE
                                            | HV_DISABLE_UVAR_XKEY
                                            | return_svp,
@@ -945,15 +966,15 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, I32 klen,
                         if (flags & HVhek_FREEKEY)
                             Safefree(key);
                     }
-                    *does_return = 1;
                     return result;
                 }
         } /* env */
 #endif
         else {
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t mg-fetch  %s{%s}\n",
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH %6lu\t%6lu\t mg-fetch \t%s{%.*s}\n",
                         HvTOTALKEYS(hv), HvMAX(hv),
-                        HvNAME_get(hv)?HvNAME_get(hv):"", key));
+                        HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
         }
     } /* ISFETCH */
     else if (SvRMAGICAL(hv) && (action & HV_FETCH_ISEXISTS)) {
@@ -965,9 +986,9 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, I32 klen,
             SV * const svret = sv_newmortal();
             SV * sv = sv_newmortal();
             DEBUG_H(PerlIO_printf(Perl_debug_log,
-                        "HASH %6lu\t%6lu\t mg-exists tied\t%s{%s}\n",
+                        "HASH %6lu\t%6lu\t mg-exists tied\t%s{%.*s}\n",
                         HvTOTALKEYS(hv), HvMAX(hv),
-                        HvNAME_get(hv)?HvNAME_get(hv):"", key));
+                        HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
 
             if (keysv || is_utf8) {
                 if (!keysv) {
@@ -987,10 +1008,10 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, I32 klen,
                 if (mg)
                     magic_existspack(svret, mg);
             }
+            *return_action = HV_COMMON_MAGICAL_RETURNS;
             /* This cast somewhat evil, but I'm merely using NULL/
                not NULL to return the boolean exists.
                And I know hv is not NULL.  */
-            *does_return = 1;
             return SvTRUE(svret) ? (void *)hv : NULL;
         }
 #ifdef ENV_IS_CASELESS
@@ -998,21 +1019,21 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, I32 klen,
             /* XXX This code isn't UTF8 clean.  */
             char * const keysave = (char * const)key;
             key = (const char*)strupr(savepvn(key,klen));
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t mg-exists ENV{%s}\n",
-                                  HvTOTALKEYS(hv), HvMAX(hv), key));
-
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH %6lu\t%6lu\t mg-exists\tENV{%.*s}\n",
+                        HvTOTALKEYS(hv), HvMAX(hv), klen, key));
             if (!memEQ(keysave, key, klen)) {
-                if (flags & HVhek_FREEKEY)
-                    Safefree(keysave);
-                flags |= HVhek_FREEKEY;
-            } else
-                Safefree(key);
+                *keyp = NULL;
+                *return_action = HV_COMMON_MAGICAL_ENV_IS_CASELESS;
+            }
+            Safefree(key);
         }
 #endif
         else {
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t mg-exists\t%s{%s}\n",
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH %6lu\t%6lu\t mg-exists\t%s{%.*s}\n",
                         HvTOTALKEYS(hv), HvMAX(hv),
-                        HvNAME_get(hv)?HvNAME_get(hv):"", key));
+                        HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
         }
     } /* ISEXISTS */
     else if (action & HV_FETCH_ISSTORE) {
@@ -1020,7 +1041,7 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, I32 klen,
         bool needs_store;
         hv_magic_check (hv, &needs_copy, &needs_store);
         DEBUG_H(PerlIO_printf(Perl_debug_log,
-                    "HASH %6lu\t%6lu\t mg-store  %s{%.*s}\tcopy:%s, store:%s\n",
+                    "HASH %6lu\t%6lu\t mg-store \t%s{%.*s}\tcopy:%s, store:%s\n",
                     HvTOTALKEYS(hv), HvMAX(hv),
                     HvNAME_get(hv)?HvNAME_get(hv):"", klen, key,
                     needs_copy?"yes":"no", needs_store?"yes":"no"));
@@ -1044,24 +1065,22 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, I32 klen,
             if (!needs_store) {
                 if (flags & HVhek_FREEKEY)
                     Safefree(key);
-                *does_return = 1;
+                *return_action = HV_COMMON_MAGICAL_RETURNS;
                 return NULL;
             }
 #ifdef ENV_IS_CASELESS
             else if (mg_find((const SV *)hv, PERL_MAGIC_env)) {
                 /* XXX This code isn't UTF8 clean.  */
                 const char *keysave = key;
-                key = (const char*)strupr(savepvn(key,klen));
+                key = (const char*)strupr(savepvn(key, klen));
                 DEBUG_H(PerlIO_printf(Perl_debug_log,
-                                      "HASH %6lu\t%6lu\t mg-store  ENV{%s}\n",
-                                      HvTOTALKEYS(hv), HvMAX(hv), key));
-
+                            "HASH %6lu\t%6lu\t mg-store \tENV{%.*s}\n",
+                            HvTOTALKEYS(hv), HvMAX(hv), klen, key));
                 if (!memEQ(keysave, key, klen)) {
-                    if (flags & HVhek_FREEKEY)
-                        Safefree(keysave);
-                    *flagsp |= HVhek_FREEKEY;
-                } else
-                    Safefree(key);
+                    *keyp = NULL;
+                    *return_action = HV_COMMON_MAGICAL_ENV_IS_CASELESS;
+                }
+                Safefree(key);
             }
 #endif
         } /* needs_copy */
@@ -1451,8 +1470,8 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	else if (mro_changes == 2)
 	    mro_package_moved(NULL, stash, gv, 1);
 
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL+\t{%s}\n",
-                              HvTOTALKEYS(hv), HvMAX(hv), linear, key));
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL+\t{%.*s}\n",
+                              HvTOTALKEYS(hv), HvMAX(hv), linear, klen, key));
 	return sv;
     }
 
@@ -1465,8 +1484,8 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
     if (k_flags & HVhek_FREEKEY)
 	Safefree(key);
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL-\t{%s}\n",
-                          HvTOTALKEYS(hv), HvMAX(hv), linear, key));
+    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL-\t{%.*s}\n",
+                          HvTOTALKEYS(hv), HvMAX(hv), linear, klen, key));
     return NULL;
 }
 

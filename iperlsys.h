@@ -571,6 +571,23 @@ struct IPerlEnvInfo
 #  define PerlEnv_ENVgetenv(str)	PerlEnv_getenv((str))
 #  define PerlEnv_ENVgetenv_len(str,l)	PerlEnv_getenv_len((str), (l))
 #endif
+
+/* hack to test the windows env codepath on an easier platform */
+#if defined(DEBUGGING) \
+    && defined(ENV_IS_CASELESS)            \
+    && !(defined(NETWARE)||defined(WIN32)) \
+    && (defined(PERL_IN_HV_C)||defined(PERL_IN_UTIL_C))
+
+#undef PerlEnv_ENVgetenv_len
+#undef PerlEnv_getenv
+#define PerlEnv_ENVgetenv_len(str)	caseless_getenv_len((str), (l))
+#define PerlEnv_getenv(str)	caseless_getenv((str))
+const char *strupr(char *string);
+char *caseless_getenv (const char *env_elem);
+char *caseless_getenv_len (const char *env_elem, unsigned long *len);
+
+#endif /* hack CASELESS */
+
 #define PerlEnv_uname(name)		uname((name))
 
 #ifdef WIN32

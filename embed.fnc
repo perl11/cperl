@@ -596,9 +596,9 @@ Apdbm	|void	|hv_magic	|NN HV *hv|NULLOK GV *gv|int how
 #if defined(PERL_IN_HV_C)
 s	|SV *	|refcounted_he_value	|NN const struct refcounted_he *he
 sRM	|void *	|hv_common_magical	|NN HV *hv|NULLOK SV **keyp \
-				|NULLOK const char* key|I32 klen|NN int *flagsp \
-				|int action|NULLOK SV *val|U32 hash \
-                                |NN int *does_return
+				|NULLOK const char* key|const I32 klen|int flags \
+				|const int action|NULLOK SV *val|const U32 hash \
+                                |NN int *return_action
 #endif
 Xpd	|HV *	|refcounted_he_chain_2hv|NULLOK const struct refcounted_he *c|U32 flags
 Xpd	|SV *	|refcounted_he_fetch_pvn|NULLOK const struct refcounted_he *chain \
