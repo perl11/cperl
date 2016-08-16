@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..193\n";
+print "1..194\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -628,6 +628,15 @@ like($@, qr/^\QUnrecognized character \x{ffa0}; marked by <-- HERE after \E/,
 # These are ok in emacs, and those are the ones which should be used instead.
 # according to http://www.unicode.org/L2/L2006/06310-hangul-decompose9.pdf
 # ᅟ..ᅠ HANGUL CHOSEONG FILLER..HANGUL JUNGSEONG FILLER
+
+# very large utf8 char in error message was overflowing buffer
+{
+
+    no warnings;
+    eval "q" . chr(100000000064);
+    like $@, qr/Can't find string terminator "." anywhere before EOF/,
+        'RT 128952';
+}
 
 # Add new tests HERE (above this line)
 
