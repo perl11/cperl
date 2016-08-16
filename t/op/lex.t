@@ -7,7 +7,7 @@ use warnings;
 
 BEGIN { chdir 't' if -d 't'; require './test.pl'; }
 
-plan(tests => 30);
+plan(tests => 31);
 
 {
     no warnings 'deprecated';
@@ -253,3 +253,6 @@ fresh_perl_is(
     {},
     '[perl #128996] - use of PL_op after op is freed'
 );
+
+like runperl(prog => 'sub ub(){0} ub ub', stderr=>1), qr/Bareword found/,
+ '[perl #126482] Assert failure when mentioning a constant twice in a row';
