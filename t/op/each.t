@@ -6,7 +6,6 @@ BEGIN {
     set_up_inc('../lib');
 }
 use Config ();
-use Hash::Util;
 
 plan tests => 59;
 
@@ -62,20 +61,26 @@ is ($i, 30, "each count");
 @keys = ('blurfl', keys(%h), 'dyick');
 is ($#keys, 31, "added a key");
 
-$size = Hash::Util::num_buckets(%h);
-keys %h = $size * 5;
-$newsize = Hash::Util::num_buckets(%h);
-is ($newsize, $size * 8, "resize");
-keys %h = 1;
-$size = Hash::Util::num_buckets(%h);
-is ($size, $newsize, "same size");
-%h = (1,1);
-$size = Hash::Util::num_buckets(%h);
-is ($size, $newsize, "still same size");
-undef %h;
-%h = (1,1);
-$size = Hash::Util::num_buckets(%h);
-is ($size, 8, "size 8");
+SKIP: {
+    skip "no Hash::Util on miniperl", 4, if is_miniperl;
+    require Hash::Util;
+    sub Hash::Util::num_buckets (\%);
+
+    $size = Hash::Util::num_buckets(%h);
+    keys %h = $size * 5;
+    $newsize = Hash::Util::num_buckets(%h);
+    is ($newsize, $size * 8, "resize");
+    keys %h = 1;
+    $size = Hash::Util::num_buckets(%h);
+    is ($size, $newsize, "same size");
+    %h = (1,1);
+    $size = Hash::Util::num_buckets(%h);
+    is ($size, $newsize, "still same size");
+    undef %h;
+    %h = (1,1);
+    $size = Hash::Util::num_buckets(%h);
+    is ($size, 8, "size 8");
+}
 
 # test scalar each
 %hash = 1..20;
@@ -100,15 +105,20 @@ $total = 0;
 $total += $key while $key = each %hash;
 is ($total, 100, "test values keys resets iterator");
 
-$size = Hash::Util::num_buckets(%hash);
-keys(%hash) = $size / 2;
-is ($size, Hash::Util::num_buckets(%hash),
-    "assign to keys does not shrink hash bucket array");
-keys(%hash) = $size + 100;
-isnt ($size, Hash::Util::num_buckets(%hash),
-    "assignment to keys of a number not large enough does not change size");
+SKIP: {
+    skip "no Hash::Util on miniperl", 3, if is_miniperl;
+    require Hash::Util;
+    sub Hash::Util::num_buckets (\%);
 
-is (keys(%hash), 10, "keys (%hash)");
+    $size = Hash::Util::num_buckets(%hash);
+    keys(%hash) = $size / 2;
+    is ($size, Hash::Util::num_buckets(%hash),
+	"assign to keys does not shrink hash bucket array");
+    keys(%hash) = $size + 100;
+    isnt ($size, Hash::Util::num_buckets(%hash),
+	  "assignment to keys of a number not large enough does not change size");
+    is (keys(%hash), 10, "keys (%hash)");
+}
 
 @tests = (&next_test, &next_test, &next_test);
 {
