@@ -1203,7 +1203,8 @@ Perl_leave_scope(pTHX_ I32 base)
 	case SAVEt_FREEOP:
             a0 = ap[0];
 	    ASSERT_CURPAD_LEGAL("SAVEt_FREEOP");
-            DEBUG_lv(Perl_deb(aTHX_ "restore FREEOP %p\n", a0.any_ptr));
+            DEBUG_lv(Perl_deb(aTHX_ "restore FREEOP %p %s\n", a0.any_ptr,
+                              OP_NAME((OP*)a0.any_ptr)));
 	    op_free((OP*)a0.any_ptr);
 	    break;
 
