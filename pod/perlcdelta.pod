@@ -268,6 +268,18 @@ handling on non-windows platforms.
 
 =back
 
+=item Hurd
+
+=over 4
+
+=item *
+
+Small improvements for Hurd hints: Enable usemallocwrap as on Linux.
+Populate the $Config{libc} for version reporting.
+L<[perl #128954]|https://rt.perl.org/Public/Bug/Display.html?id=128954>
+
+=back
+
 =back
 
 =head1 Internal Changes
