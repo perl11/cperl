@@ -8,13 +8,11 @@ BEGIN {
     if ($Config::Config{usecperl}) {
       skip_all("cperl does not store illegal prototypes");
     }
-    @INC = qw(. ../lib);
+    set_up_inc( qw(. ../lib) );
 }
 use warnings;
 
-BEGIN {
-    plan( tests => 12 );
-}
+plan( tests => 12 );
 
 use vars qw{ @warnings $sub $warn };
 

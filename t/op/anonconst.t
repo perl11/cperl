@@ -5,7 +5,7 @@ my $cperl = $Config::Config{usecperl};
 BEGIN {
     chdir 't';
     require './test.pl';
-    @INC = "../lib";
+    set_up_inc("../lib");
 }
 
 plan 8;

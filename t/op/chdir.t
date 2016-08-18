@@ -8,8 +8,8 @@ BEGIN {
     # We're not going to chdir() into 't' because we don't know if
     # chdir() works!  Instead, we'll hedge our bets and put both
     # possibilities into @INC.
-    unshift @INC, qw(t . lib ../lib);
-    require "test.pl";
+    require "./test.pl";
+    set_up_inc(qw(t . lib ../lib));
 }
 
 plan(tests => 48);

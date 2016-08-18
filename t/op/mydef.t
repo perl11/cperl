@@ -2,9 +2,11 @@
 
 BEGIN {
     chdir 't' if -d 't';
-    @INC = '../lib';
     require './test.pl';
+    set_up_inc('../lib');
 }
+
+plan tests => 73;
 
 use strict;
 no warnings 'misc', 'experimental::lexical_topic';
@@ -215,4 +217,3 @@ my $file = tempfile();
     ::is($_, 4, '$_ is "special", and always forced to main');
 }
 
-done_testing();
