@@ -35,7 +35,10 @@
 #   define PERL_HASH_ITER_BUCKET(iter)      (((iter)->xhv_riter) ^ ((iter)->xhv_rand))
 #endif
 
-/* entry in hash value chain */
+/* entry in hash value chain.
+   This is being restructured to inlined HEK values, without the hent_next pointer.
+   Hash entries (the HvARRAY) change from HE* pointers to inlined HEK values.
+*/
 struct he {
     /* Keep hent_next first in this structure, because sv_free_arenas take
        advantage of this to share code between the he arenas and the SV
@@ -48,17 +51,21 @@ struct he {
     } he_valu;
 };
 
-/* hash key -- defined separately for use as shared pointer */
+/* hash key -- defined separately for use as shared pointer.
+   With the hek_mflags upfront (cperl-only) we can compare a string value
+   with the first 3 fields at once.
+ */
 struct hek {
-    I32		hek_len;	/* length of hash key */
+    PERL_BITFIELD32 hek_len    : 30; /* length of hash key. max 30 bits.
+                                        perl5 has 2_147_483_648, we have 1_073_741_824. */
+    PERL_BITFIELD32 hek_mflags : 2;  /* cmp-relevant masked flags. UTF8 + WASUTF8 */
 #if defined(PERL_GCC_BRACE_GROUPS_FORBIDDEN) || defined(__SUNPRO_C)
     char	hek_key[1];	/* variable-length hash key */
 #else
     char	hek_key[];      /* for easier debugging */
 #endif
     /* the hash-key is \0-terminated */
-    /* after the \0 there is a byte for flags, such as whether the key
-       is UTF-8. See HVhek_* */
+    /* after the \0 there is a byte for other flags. See HVhek_*, and then the SV* value. */
 };
 
 struct shared_he {
@@ -501,6 +508,7 @@ C<SV*>.
 #ifndef PERL_CORE
 #  define Nullhe Null(HE*)
 #endif
+/* with cperl HvARRAY does not contain HE* anymore, just HEK */
 #define HeNEXT(he)		(he)->hent_next
 #define HeKEY_hek(he)		(he)->hent_hek
 #define HeKEY(he)		HEK_KEY(HeKEY_hek(he))
@@ -536,6 +544,7 @@ C<SV*>.
 #  define Nullhek Null(HEK*)
 #endif
 #define HEK_BASESIZE		STRUCT_OFFSET(HEK, hek_key[0])
+
 /* This is gone. You can compute it with he _calc macros, but is mostly
    not needed. */
 #ifdef PERL_CORE
@@ -544,14 +553,18 @@ C<SV*>.
 #define HEK_HASH_calc(hek)	PERL_HASH(hash,HEK_KEY(hek),HEK_LEN(hek))
 #define HEK_LEN(hek)		(hek)->hek_len
 #define HEK_KEY(hek)		(hek)->hek_key
-#define HEK_FLAGS(hek)	(*((unsigned char *)(HEK_KEY(hek))+HEK_LEN(hek)+1))
 #define HEK_IS_SVKEY(hek) 	HEK_LEN(hek) == HEf_SVKEY
+#define HEK_MFLAGS(hek)		(hek)->hek_mflags
+#define HEK_LEN_MASK(hek)	(U32)(*hek) /* for cmp */
+#define HEK_FLAGS(hek)		(*((unsigned char *)(HEK_KEY(hek))+HEK_LEN(hek)+1))
+#define HEK_VAL(hek)		(SV*)((unsigned char *)(HEK_KEY(hek))+HEK_LEN(hek)+2)
 
+/* masked hek_mflags, relevant for hash-table comparisons. stored before the key */
 #define HVhek_UTF8	0x01 /* Key is utf8 encoded. */
 #define HVhek_WASUTF8	0x02 /* Key is bytes here, but was supplied as utf8. */
 #define HVhek_MASK	0x03
 
-/* unmasked HEK_FLAGS, not relevant in hash-table comparisons */
+/* unmasked HEK_FLAGS, not relevant for hash-table comparisons. stored behind the key */
 #define HVhek_UNSHARED	0x08 /* This key isn't a shared hash key. */
 #define HVhek_TAINTED	0x10 /* This key is tainted */
 #define HVhek_STATIC	0x80 /* This key was statically allocated */
@@ -563,15 +576,16 @@ C<SV*>.
 #define HVhek_KEYCANONICAL 0x400 /* Internal flag - key is in canonical form.
 				    If the string is UTF-8, it cannot be
 				    converted to bytes. */
+
 /* not needed anymore: */
 #define HVhek_ENABLEHVKFLAGS        (HVhek_MASK & ~(HVhek_UNSHARED))
 
-#define HEK_UTF8(hek)		(HEK_FLAGS(hek) & HVhek_UTF8)
-#define HEK_UTF8_on(hek)	(HEK_FLAGS(hek) |= HVhek_UTF8)
-#define HEK_UTF8_off(hek)	(HEK_FLAGS(hek) &= ~HVhek_UTF8)
-#define HEK_WASUTF8(hek)	(HEK_FLAGS(hek) & HVhek_WASUTF8)
-#define HEK_WASUTF8_on(hek)	(HEK_FLAGS(hek) |= HVhek_WASUTF8)
-#define HEK_WASUTF8_off(hek)	(HEK_FLAGS(hek) &= ~HVhek_WASUTF8)
+#define HEK_UTF8(hek)		(HEK_MFLAGS(hek) & HVhek_UTF8)
+#define HEK_UTF8_on(hek)	(HEK_MFLAGS(hek) |= HVhek_UTF8)
+#define HEK_UTF8_off(hek)	(HEK_MFLAGS(hek) &= ~HVhek_UTF8)
+#define HEK_WASUTF8(hek)	(HEK_MFLAGS(hek) & HVhek_WASUTF8)
+#define HEK_WASUTF8_on(hek)	(HEK_MFLAGS(hek) |= HVhek_WASUTF8)
+#define HEK_WASUTF8_off(hek)	(HEK_MFLAGS(hek) &= ~HVhek_WASUTF8)
 #define HEK_UNSHARED(hek)	(HEK_FLAGS(hek) & HVhek_UNSHARED)
 #define HEK_TAINTED(hek)	(HEK_FLAGS(hek) & HVhek_TAINTED)
 #define HEK_TAINTED_on(hek)	(HEK_FLAGS(hek) |= HVhek_TAINTED)
