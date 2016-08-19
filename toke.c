@@ -1921,13 +1921,18 @@ S_update_debugger_info(pTHX_ SV *orig_sv, const char *const buf, STRLEN len)
 }
 
 /*
- * S_skipspace
+ * skipspace
  * Called to gobble the appropriate amount and type of whitespace.
  * Skips comments as well.
  * Returns the next character after the whitespace that is skipped.
+ *
+ * peekspace
+ * Same thing, but look ahead without incrementing line numbers or
+ * adjusting PL_linestart.
  */
 
 #define skipspace(s) skipspace_flags(s, 0)
+#define peekspace(s) skipspace_flags(s, LEX_NO_INCLINE)
 
 STATIC char *
 S_skipspace_flags(pTHX_ char *s, U32 flags)
@@ -7213,7 +7218,7 @@ Perl_yylex(pTHX)
 	    bool arrow;
 	    STRLEN bufoff = PL_bufptr - SvPVX(PL_linestr);
 	    STRLEN   soff = s         - SvPVX(PL_linestr);
-	    s = skipspace_flags(s, LEX_NO_INCLINE);
+	    s = peekspace(s);
 	    arrow = isFATARROW(s);
 	    PL_bufptr = SvPVX(PL_linestr) + bufoff;
 	    s         = SvPVX(PL_linestr) +   soff;
@@ -9556,7 +9561,7 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni, int *normali
         if ((skip = s < PL_bufend && isSPACE(*s)))
             /* Avoid incrementing line numbers or resetting PL_linestart,
                in case we have to back up.  */
-            s2 = skipspace_flags(s, LEX_NO_INCLINE);
+            s2 = peekspace(s);
         else
             s2 = s;
 	    
