@@ -50,8 +50,19 @@ struct he {
 
 /* hash key -- defined separately for use as shared pointer */
 struct hek {
-    U32		hek_hash;	/* hash of key */
-    I32		hek_len;	/* length of hash key */
+    U32		hek_hash;	  /* hash of key */
+    union {
+        struct {
+#ifdef __LITTLE_ENDIAN__
+            PERL_BITFIELD32 hek_len : 31; /* length of hash key */
+            PERL_BITFIELD32 hek_utf8 : 1; /* highest bit for utf8 */
+#else
+            PERL_BITFIELD32 hek_utf8 : 1; /* highest bit for utf8 */ 
+            PERL_BITFIELD32 hek_len : 31; /* length of hash key */
+#endif
+        };
+        U32 hek_len_utf8;
+    } hek_u;
 #ifdef PERL_GCC_BRACE_GROUPS_FORBIDDEN
     char	hek_key[1];	/* variable-length hash key */
 #else
@@ -59,8 +70,18 @@ struct hek {
 #endif
     /* the hash-key is \0-terminated */
     /* after the \0 there is a byte for flags, such as whether the key
-       is UTF-8 */
+       was UTF-8, is UNSHARED, STATIC or TAINTED. See HVhek_* */
 };
+
+#if defined(PERL_CORE) && defined(PERL_IN_HV_C)
+/* stack-allocated static variant for faster run-time comparisons only */
+struct static_hek {
+    U32		hek_hash;
+    U32 	hek_len_utf8;
+    char	hek_key[256];	  /* fixed-length hash key ASCIIZ */
+    /* No flags */
+};
+#endif
 
 struct shared_he {
     struct he shared_he_he;
@@ -403,6 +424,7 @@ C<SV*>.
 #define HeKWASUTF8(he)  	HEK_WASUTF8(HeKEY_hek(he))
 #define HeKLEN_UTF8(he)  	(HeKUTF8(he) ? -HeKLEN(he) : HeKLEN(he))
 #define HeKFLAGS(he)  		HEK_FLAGS(HeKEY_hek(he))
+#define HeKFLAGS_UTF8(he)  	(HeKFLAGS(he) | HeKUTF8(he))
 #define HeVAL(he)		(he)->he_valu.hent_val
 #define HeHASH(he)		HEK_HASH(HeKEY_hek(he))
 /* Here we require a STRLEN lp */
@@ -425,16 +447,19 @@ C<SV*>.
 #ifndef PERL_CORE
 #  define Nullhek Null(HEK*)
 #endif
-#define HEK_BASESIZE		STRUCT_OFFSET(HEK, hek_key[0])
-#define HEK_HASH(hek)		(hek)->hek_hash
-#define HEK_LEN(hek)		(hek)->hek_len
-#define HEK_KEY(hek)		(hek)->hek_key
+#define HEK_BASESIZE	STRUCT_OFFSET(HEK, hek_key[0])
+#define HEK_HASH(hek)	(hek)->hek_hash
+#define HEK_LEN(hek)	(hek)->hek_u.hek_len
+#define HEK_LEN_UTF8(hek) (hek)->hek_u.hek_len_utf8
+#define HEK_KEY(hek)	(hek)->hek_key
 #define HEK_FLAGS(hek)	(*((unsigned char *)(HEK_KEY(hek))+HEK_LEN(hek)+1))
 #define HEK_IS_SVKEY(hek) 	HEK_LEN(hek) == HEf_SVKEY
+#define HEK_FLAGS_UTF8(hek) (HEK_FLAGS(hek) | HEK_UTF8(hek))
 
-#define HVhek_UTF8	0x01 /* Key is utf8 encoded. */
-#define HVhek_WASUTF8	0x02 /* Key is bytes here, but was supplied as utf8. */
-#define HVhek_MASK	0x03
+#define HVhek_UTF8	0x01 /* Moved from flags to len. Key is utf8 encoded. */
+#define HVhek_WASUTF8	0x02 /* Key is bytes here, but was supplied as utf8.
+                                compared in some hash tables, but not the generic one */
+#define HVhek_MASK	0x03 /* 0x2, 0x4 and 0x40 currently unused */
 
 /* unmasked HEK_FLAGS, not relevant in hash-table comparisons */
 #define HVhek_UNSHARED	0x08 /* This key isn't a shared hash key. */
@@ -449,14 +474,14 @@ C<SV*>.
 				    If the string is UTF-8, it cannot be
 				    converted to bytes. */
 /* not needed anymore: */
-#define HVhek_ENABLEHVKFLAGS        (HVhek_MASK & ~(HVhek_UNSHARED))
+#define HVhek_ENABLEHVKFLAGS    (HVhek_MASK & ~(HVhek_UNSHARED))
 
-#define HEK_UTF8(hek)		(HEK_FLAGS(hek) & HVhek_UTF8)
-#define HEK_UTF8_on(hek)	(HEK_FLAGS(hek) |= HVhek_UTF8)
-#define HEK_UTF8_off(hek)	(HEK_FLAGS(hek) &= ~HVhek_UTF8)
+#define HEK_UTF8(hek)		((hek)->hek_u.hek_utf8)
+#define HEK_UTF8_on(hek)	(HEK_UTF8(hek) = 1) 	/* unused in CORE */
+#define HEK_UTF8_off(hek)	(HEK_UTF8(hek) = 0) 	/* unused in CORE */
 #define HEK_WASUTF8(hek)	(HEK_FLAGS(hek) & HVhek_WASUTF8)
-#define HEK_WASUTF8_on(hek)	(HEK_FLAGS(hek) |= HVhek_WASUTF8)
-#define HEK_WASUTF8_off(hek)	(HEK_FLAGS(hek) &= ~HVhek_WASUTF8)
+#define HEK_WASUTF8_on(hek)	(HEK_FLAGS(hek) |= HVhek_WASUTF8)  /* unused in CORE */
+#define HEK_WASUTF8_off(hek)	(HEK_FLAGS(hek) &= ~HVhek_WASUTF8) /* unused in CORE */
 #define HEK_UNSHARED(hek)	(HEK_FLAGS(hek) & HVhek_UNSHARED)
 #define HEK_TAINTED(hek)	(HEK_FLAGS(hek) & HVhek_TAINTED)
 #define HEK_TAINTED_on(hek)	(HEK_FLAGS(hek) |= HVhek_TAINTED)
@@ -615,7 +640,7 @@ instead of a string/length pair, and no precomputed hash.
 
 /* Flag bits are HVhek_UTF8, HVhek_WASUTF8, then */
 #define HVrhek_undef	0x00 /* Value is undef. */
-#define HVrhek_delete	0x10 /* Value is placeholder - signifies delete. */
+#define HVrhek_delete	0x10 /* Value is placeholder - for delete. Clashes with TAINTED */
 #define HVrhek_IV	0x20 /* Value is IV. */
 #define HVrhek_UV	0x30 /* Value is UV. */
 #define HVrhek_PV	0x40 /* Value is a (byte) string. */
