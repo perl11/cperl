@@ -5010,16 +5010,15 @@ Perl_sv_sethek(pTHX_ SV *const sv, const HEK *const hek)
             SvTAINTED_on(sv);
         return;
     } else {
-	const int flags = HEK_FLAGS(hek);
         if (HEK_TAINTED(hek))
             SvTAINTED_on(sv);
-	if (flags & HVhek_WASUTF8) {
+	if (HEK_WASUTF8(hek)) {
 	    STRLEN utf8_len = HEK_LEN(hek);
 	    char *as_utf8 = (char *)bytes_to_utf8((U8*)HEK_KEY(hek), &utf8_len);
 	    sv_usepvn_flags(sv, as_utf8, utf8_len, SV_HAS_TRAILING_NUL);
 	    SvUTF8_on(sv);
             return;
-        } else if (flags & HVhek_UNSHARED) {
+        } else if (HEK_UNSHARED(hek)) {
 	    sv_setpvn(sv, HEK_KEY(hek), HEK_LEN(hek));
 	    if (HEK_UTF8(hek))
 		SvUTF8_on(sv);
@@ -9326,8 +9325,7 @@ Perl_newSVhek(pTHX_ const HEK *const hek)
             SvTAINTED_on(sv);
         return sv;
     } else {
-	const int flags = HEK_FLAGS(hek);
-	if (flags & HVhek_WASUTF8) {
+	if (HEK_WASUTF8(hek)) {
 	    /* Trouble :-)
 	       Andreas would like keys he put in as utf8 to come back as utf8
 	    */
@@ -9340,7 +9338,7 @@ Perl_newSVhek(pTHX_ const HEK *const hek)
             if (HEK_TAINTED(hek))
                 SvTAINTED_on(sv);
 	    return sv;
-        } else if (flags & HVhek_UNSHARED) {
+        } else if (HEK_UNSHARED(hek)) {
             /* A hash that isn't using shared hash keys has to have
 	       the flag in every key so that we know not to try to call
 	       share_hek_hek on it.  */

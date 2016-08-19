@@ -596,7 +596,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		}
 		else
 		    HeKFLAGS(entry) = masked_flags;
-		if (masked_flags & HVhek_ENABLEHVKFLAGS)
+		if (masked_flags & HVhek_MASK)
 		    HvHASKFLAGS_on(hv);
 	    }
 	    if (HeVAL(entry) == &PL_sv_placeholder) {
@@ -826,7 +826,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
     if (val == &PL_sv_placeholder)
 	HvPLACEHOLDERS(hv)++;
-    if (masked_flags & HVhek_ENABLEHVKFLAGS)
+    if (masked_flags & HVhek_MASK)
 	HvHASKFLAGS_on(hv);
 
     xhv->xhv_keys++;
