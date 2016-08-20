@@ -252,6 +252,7 @@ sub parse_argv {
         'B',            # Byte compiler backend
         'O',            # Optimised C backend B::CC
          #'O1-4'        # alias for -Wb=-O1 (new since 2.13)
+        'debug|D',      # alias for --Wb=-Dfull and -S to enable all debug and preserve source code
         'dryrun|n',     # only print commands, do not execute
         'c',            # Compile to C only, no linking
         'check',        # pass -c to B::C and exit
@@ -277,6 +278,12 @@ sub parse_argv {
         'time',         # print benchmark timings (new since 2.08)
         'version',      # (new since 2.13)
     );
+
+    if ( $Options->{debug} ) {
+        $Options->{Wb} = $Options->{Wb} ? $Options->{Wb} . ',' : '';
+        $Options->{Wb} .= '-Dfull';
+        $Options->{S} = 1;
+    }
 
     $Options->{v} += 0;
 
@@ -1204,6 +1211,12 @@ Do not delete generated C code after compilation.
 =item -B
 
 Use the Perl bytecode code generator.
+
+=item --debug or -D
+
+Shortcut for --Wb=-Dfull -S
+to enable all debug levels and also preserve source code,
+also view --Wb to enable some specific debugging options.
 
 =item -O
 
