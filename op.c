@@ -11368,7 +11368,7 @@ Perl_ck_shift(pTHX_ OP *o)
     if (!(o->op_flags & OPf_KIDS)) {
 	OP *argop;
 
-	if (!CvUNIQUE(PL_compcv)) {
+	if (PL_compcv && !CvUNIQUE(PL_compcv)) {
 	    o->op_flags |= OPf_SPECIAL;
             DEBUG_k(Perl_deb(aTHX_ "ck_shift: %s SPECIAL\n", OP_NAME(o)));
 	    return o;
