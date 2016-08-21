@@ -1622,7 +1622,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                     *stash = GvHV(*gv) = newHV();
                     if (!HvNAME_get(*stash)) {
                         if (GvSTASH(*gv) == PL_defstash && *len == 6
-                            && strnEQ(*name, "CORE", 4))
+                            && strEQc(*name, "CORE"))
                             hv_name_set(*stash, "CORE", 4, 0);
                         else
                             hv_name_set(

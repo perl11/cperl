@@ -659,7 +659,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 #endif
 
         /* fill, size, found index in collision list */
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u * %x\t%s{%.*s}\n",
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u * 0x%x\t%s{%.*s}\n",
                               HvTOTALKEYS(hv), HvMAX(hv), linear, action,
                               HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
 	if (return_svp) {
@@ -670,7 +670,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
   not_found:
     /* fill, size, not found, size of collision list */
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u - %x\t%s{%.*s}\n",
+    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u - 0x%x\t%s{%.*s}\n",
                           HvTOTALKEYS(hv), HvMAX(hv), linear, action,
                           HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
 #ifdef DYNAMIC_ENV_FETCH  /* %ENV lookup?  If so, try to fetch the value now */
