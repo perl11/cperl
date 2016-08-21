@@ -1481,7 +1481,7 @@ Perl_mess_sv(pTHX_ SV *basemsg, bool consume)
 	sv_copypv(sv, basemsg);
     }
 
-    if (!SvCUR(sv) || *(SvEND(sv) - 1) != '\n') {
+    if (PL_curcop && (!SvCUR(sv) || *(SvEND(sv) - 1) != '\n')) {
 	/*
 	 * Try and find the file and line for PL_op.  This will usually be
 	 * PL_curcop, but it might be a cop that has been optimised away.  We
