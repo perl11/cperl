@@ -490,7 +490,8 @@ i_dbm=undef;
 
 # Configure doesn't detect ranlib on Tiger properly.
 # NeilW says this should be acceptable on all darwin versions.
-ranlib='ranlib'
+# However with clang -flto we need the llvm-ranlib
+test -z $ranlib && ranlib='ranlib'
 
 # Catch MacPorts gcc/g++ extra libdir
 case "$($cc -v 2>&1)" in

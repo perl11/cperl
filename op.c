@@ -15794,7 +15794,7 @@ Perl_rpeep(pTHX_ OP *o)
 		    o->op_private = (U8)i;
 		    if (o->op_type == OP_GV) {
 			gv = cGVOPo_gv;
-			GvAVn(gv);
+			(void)GvAVn(gv);
 			o->op_type = OP_AELEMFAST;
                         o->op_ppaddr = PL_ppaddr[OP_AELEMFAST];
 		    }

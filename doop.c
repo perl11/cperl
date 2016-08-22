@@ -668,7 +668,7 @@ Perl_do_join(pTHX_ SV *sv, SV *delim, SV **mark, SV **sp)
 	while (items-- > 0) {
 	    if (*mark && !SvGAMAGIC(*mark) && SvOK(*mark)) {
 		STRLEN tmplen;
-		SvPV_const(*mark, tmplen);
+		SvPV_flags_void_len(*mark, tmplen, SV_GMAGIC);
 		len += tmplen;
 	    }
 	    mark++;
