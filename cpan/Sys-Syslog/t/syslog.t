@@ -178,6 +178,10 @@ for my $sock_type (qw(native eventlog unix pipe stream inet tcp udp)) {
         $r = eval { syslog('info', "$test_string by connecting to a $sock_type socket") } || 0;
         if ($sock_type eq 'udp' and $@ =~ /^no connection/) {
             skip "no connection to udp syslog", 6;
+        }
+        elsif ($sock_type eq 'inet' and $@ =~ /^no connection/
+               and $ENV{TRAVIS} and $^O eq 'darwin') {
+            skip "no connection to syslog", 6;
         } else {
             is( $@, '', "[$sock_type] syslog() called with level 'info' (string)" );
             ok( $r, "[$sock_type] syslog() should return true: '$r'" );
@@ -189,6 +193,10 @@ for my $sock_type (qw(native eventlog unix pipe stream inet tcp udp)) {
         }
         if ($sock_type eq 'udp' and $@ =~ /^no connection/) {
             skip "no connection to udp syslog", 4;
+        }
+        elsif ($sock_type eq 'inet' and $@ =~ /^no connection/
+               and $ENV{TRAVIS} and $^O eq 'darwin') {
+            skip "no connection to syslog", 6;
         } else {
             is( $@, '', "[$sock_type] syslog() called with level 'info' (macro)" );
             ok( $r, "[$sock_type] syslog() should return true: '$r'" );
