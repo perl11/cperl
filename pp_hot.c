@@ -4754,7 +4754,7 @@ PP(pp_signature)
                     key = sv_mortalcopy(key);
                 tmpsv = newSV(0);
                 sv_setsv(tmpsv, val);
-                hv_store_ent((HV*)varsv, key, tmpsv, 0);
+                hv_store_ent_void((HV*)varsv, key, tmpsv, 0);
                 TAINT_NOT;
             }
             goto finish;

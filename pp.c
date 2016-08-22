@@ -1172,7 +1172,7 @@ PPt(pp_i_pow, "(:Int,:UInt):Uint")
     } else {
         IV iv;
         if (!SvIOK(svr)) /* forced int (via use integer e.g.) */
-            SvIV_please_nomg(svr);
+            SvIV_please_void_nomg(svr);
         iv = SvIVX(svr);
         if (iv >= 0) {
             power = iv;
@@ -1217,7 +1217,7 @@ PPt(pp_i_pow, "(:Int,:UInt):Uint")
         }
         SP--;
         SETn( result );
-        SvIV_please_nomg(svr);
+        SvIV_please_void_nomg(svr);
     } else {
         unsigned int highbit = 8 * sizeof(UV);
         unsigned int diff = 8 * sizeof(UV);
@@ -1253,14 +1253,14 @@ PPt(pp_i_pow, "(:Int,:UInt):Uint")
             else {
                 /* answer negative, doesn't fit */
                 SETn( -(NV)result );
-                SvIV_please_nomg(svr);
+                SvIV_please_void_nomg(svr);
             }
         } else
         float_ipow:
         {
             SP--;
             SETn( Perl_pow( SvNV_nomg(svl), SvNV_nomg(svr)) );
-	    SvIV_please_nomg(svr);
+	    SvIV_please_void_nomg(svr);
         }
     }
     RETURN;
@@ -1332,7 +1332,7 @@ PP(pp_pow)
             }
             SP--;
             SETn( result );
-            SvIV_please_nomg(svr);
+            SvIV_please_void_nomg(svr);
             RETURN;
         } else {
             unsigned int highbit = 8 * sizeof(UV);
@@ -1422,7 +1422,7 @@ PP(pp_pow)
 
 #ifdef PERL_PRESERVE_IVUV
 	if (is_int)
-	    SvIV_please_nomg(svr);
+	    SvIV_please_void_nomg(svr);
 #endif
 	RETURN;
     }

@@ -657,7 +657,7 @@ static const scan_data_t zero_scan_data =
     const char *ellipses = "";						\
     IV len = RExC_precomp_end - RExC_precomp;					\
 									\
-    if (!SIZE_ONLY)							\
+    if (PASS2)							\
 	SAVEFREESV(RExC_rx_sv);						\
     if (len > RegexLengthToShowInErrorMessages) {			\
 	/* chop 10 shorter than the max, to ensure meaning of "..." */	\
@@ -687,7 +687,7 @@ static const scan_data_t zero_scan_data =
  * Calls SAVEDESTRUCTOR_X if needed, then Simple_vFAIL()
  */
 #define	vFAIL(m) STMT_START {				\
-    if (!SIZE_ONLY)					\
+    if (PASS2)					\
 	SAVEFREESV(RExC_rx_sv);				\
     Simple_vFAIL(m);					\
 } STMT_END
@@ -704,7 +704,7 @@ static const scan_data_t zero_scan_data =
  * Calls SAVEDESTRUCTOR_X if needed, then Simple_vFAIL2().
  */
 #define	vFAIL2(m,a1) STMT_START {			\
-    if (!SIZE_ONLY)					\
+    if (PASS2)                                          \
 	SAVEFREESV(RExC_rx_sv);				\
     Simple_vFAIL2(m, a1);				\
 } STMT_END
@@ -722,7 +722,7 @@ static const scan_data_t zero_scan_data =
  * Calls SAVEDESTRUCTOR_X if needed, then Simple_vFAIL3().
  */
 #define	vFAIL3(m,a1,a2) STMT_START {			\
-    if (!SIZE_ONLY)					\
+    if (PASS2)					\
 	SAVEFREESV(RExC_rx_sv);				\
     Simple_vFAIL3(m, a1, a2);				\
 } STMT_END
@@ -736,7 +736,7 @@ static const scan_data_t zero_scan_data =
 } STMT_END
 
 #define	vFAIL4(m,a1,a2,a3) STMT_START {			\
-    if (!SIZE_ONLY)					\
+    if (PASS2)					\
 	SAVEFREESV(RExC_rx_sv);				\
     Simple_vFAIL4(m, a1, a2, a3);			\
 } STMT_END
@@ -868,7 +868,7 @@ static const scan_data_t zero_scan_data =
 #define ProgLen(ri) ri->u.offsets[0]
 #define SetProgLen(ri,x) ri->u.offsets[0] = x
 #define Set_Node_Offset_To_R(node,byte) STMT_START {			\
-    if (! SIZE_ONLY) {							\
+    if (PASS2) {							\
 	MJD_OFFSET_DEBUG(("** (%d) offset of node %d is %d.\n",		\
 		    __LINE__, (int)(node), (int)(byte)));		\
 	if((node) < 0) {						\
@@ -885,7 +885,7 @@ static const scan_data_t zero_scan_data =
 #define Set_Cur_Node_Offset Set_Node_Offset(RExC_emit, RExC_parse)
 
 #define Set_Node_Length_To_R(node,len) STMT_START {			\
-    if (! SIZE_ONLY) {							\
+    if (PASS2) {							\
 	MJD_OFFSET_DEBUG(("** (%d) size of node %d is %d.\n",		\
 		__LINE__, (int)(node), (int)(len)));			\
 	if((node) < 0) {						\
@@ -10820,7 +10820,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
 		/* this is a pre-compiled code block (?{...}) */
 		cb = &pRExC_state->code_blocks[pRExC_state->code_index];
 		RExC_parse = RExC_start + cb->end;
-		if (!SIZE_ONLY) {
+		if (PASS2) {
 		    OP *o = cb->block;
 		    if (cb->src_regex) {
 			n = add_data(pRExC_state, STR_WITH_LEN("rl"));
@@ -10848,7 +10848,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
                                         * return value */
                                        RExC_flags & RXf_PMf_COMPILETIME
                                       );
-		    if (!SIZE_ONLY) {
+		    if (PASS2) {
 			ret->flags = 2;
                     }
                     REGTAIL(pRExC_state, ret, eval);
@@ -10875,7 +10875,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
                         regnode *tail;
 
 			ret = reg_node(pRExC_state, LOGICAL);
-			if (!SIZE_ONLY)
+			if (PASS2)
 			    ret->flags = 1;
 
                         tail = reg(pRExC_state, 1, &flag, depth+1);
@@ -10905,7 +10905,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
                             (ch == '>' ? '<' : ch));
                     }
                     RExC_parse++;
-	            if (!SIZE_ONLY) {
+	            if (PASS2) {
                         num = add_data( pRExC_state, STR_WITH_LEN("S"));
                         RExC_rxi->data->data[num]=(void*)sv_dat;
                         SvREFCNT_inc_simple_void(sv_dat);
@@ -11077,7 +11077,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
 	    RExC_npar++;
 
 	    ret = reganode(pRExC_state, OPEN, parno);
-	    if (!SIZE_ONLY ){
+	    if (PASS2) {
 	        if (!RExC_nestroot)
 	            RExC_nestroot = parno;
                 if (RExC_open_parens && !RExC_open_parens[parno])
@@ -11116,7 +11116,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
         FAIL2("panic: regbranch returned NULL, flags=%#"UVxf"", (UV) flags);
     }
     if (*RExC_parse == '|') {
-	if (!SIZE_ONLY && RExC_extralen) {
+	if (PASS2 && RExC_extralen) {
 	    reginsert(pRExC_state, BRANCHJ, br, depth+1);
 	}
 	else {                  /* MJD */
@@ -11139,7 +11139,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
     *flagp |= flags & (SPSTART | HASWIDTH | POSTPONED);
     lastbr = br;
     while (*RExC_parse == '|') {
-	if (!SIZE_ONLY && RExC_extralen) {
+	if (PASS2 && RExC_extralen) {
 	    ender = reganode(pRExC_state, LONGJMP,0);
 
             /* Append to the previous. */
@@ -11224,7 +11224,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
         });
         REGTAIL(pRExC_state, lastbr, ender);
 
-	if (have_branch && !SIZE_ONLY) {
+	if (have_branch && PASS2) {
             char is_nothing= 1;
 	    if (depth==1)
                 RExC_seen |= REG_TOP_LEVEL_BRANCHES_SEEN;
@@ -11249,7 +11249,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
 	    }
             if (is_nothing) {
                 br= PL_regkind[OP(ret)] != BRANCH ? regnext(ret) : ret;
-                DEBUG_PARSE_r(if (!SIZE_ONLY) {
+                DEBUG_PARSE_r(if (PASS2) {
                     DEBUG_PARSE_MSG("NADA");
                     regprop(RExC_rx, RExC_mysv1, ret, NULL, pRExC_state);
                     regprop(RExC_rx, RExC_mysv2, ender, NULL, pRExC_state);
@@ -11349,7 +11349,7 @@ S_regbranch(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, I32 first, U32 depth)
     if (first)
 	ret = NULL;
     else {
-	if (!SIZE_ONLY && RExC_extralen)
+	if (PASS2 && RExC_extralen)
 	    ret = reganode(pRExC_state, BRANCHJ,0);
 	else {
 	    ret = reg_node(pRExC_state, BRANCH);
@@ -11548,7 +11548,7 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 
 		w->flags = 0;
                 REGTAIL(pRExC_state, ret, w);
-		if (!SIZE_ONLY && RExC_extralen) {
+		if (PASS2 && RExC_extralen) {
 		    reginsert(pRExC_state, LONGJMP,ret, depth+1);
 		    reginsert(pRExC_state, NOTHING,ret, depth+1);
 		    NEXT_OFF(ret) = 3;	/* Go over LONGJMP. */
@@ -11559,7 +11559,7 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                 Set_Node_Length(ret,
                                 op == '{' ? (RExC_parse - parse_start) : 1);
 
-		if (!SIZE_ONLY && RExC_extralen)
+		if (PASS2 && RExC_extralen)
 		    NEXT_OFF(ret) = 3;	/* Go over NOTHING to LONGJMP. */
                 REGTAIL(pRExC_state, ret, reg_node(pRExC_state, NOTHING));
 		if (SIZE_ONLY)
@@ -11572,7 +11572,7 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 		*flagp = WORST;
 	    if (max > 0)
 		*flagp |= HASWIDTH;
-	    if (!SIZE_ONLY) {
+	    if (PASS2) {
 		ARG1_SET(ret, (U16)min);
 		ARG2_SET(ret, (U16)max);
 	    }
@@ -11624,7 +11624,7 @@ S_regpiece(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 	goto do_curly;
     }
   nest_check:
-    if (!SIZE_ONLY && !(flags&(HASWIDTH|POSTPONED)) && max > REG_INFTY/3) {
+    if (PASS2 && !(flags&(HASWIDTH|POSTPONED)) && max > REG_INFTY/3) {
 	SAVEFREESV(RExC_rx_sv); /* in case of fatal warnings */
 	ckWARN2reg(RExC_parse,
 		   "%"UTF8f" matches null string many times",
@@ -12639,7 +12639,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
             }
 
 	    ret = reg_node(pRExC_state, op);
-            if (! SIZE_ONLY) {
+            if (PASS2) {
                 FLAGS(ret) = namedclass_to_classnum(arg);
             }
 
@@ -13215,7 +13215,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 		     * of a construct.  This catches it in the middle of a
 		     * literal string, or when it's the first thing after
 		     * something like "\b" */
-		    if (! SIZE_ONLY
+		    if (PASS2
 			&& (len || (p > RExC_start && isALPHA_A(*(p -1)))))
 		    {
 			ckWARNregdep(p + 1, "Unescaped left brace in regex is deprecated, passed through");
@@ -15977,7 +15977,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
 		    e = RExC_parse;
 		    n = 1;
 		}
-		if (!SIZE_ONLY) {
+		if (PASS2) {
                     SV* invlist;
                     char* name;
                     char* base_name;    /* name after any packages are stripped */
@@ -16203,7 +16203,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                             RExC_parse += (UTF) ? UTF8SKIP(RExC_parse) : 1;
                             vFAIL("Need exactly 3 octal digits");
                         }
-                        else if (! SIZE_ONLY /* like \08, \178 */
+                        else if (PASS2 /* like \08, \178 */
                                  && numlen < 3
                                  && RExC_parse < RExC_end
                                  && isDIGIT(*RExC_parse)
@@ -16238,7 +16238,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
 		}
 	    default:
 		/* Allow \_ to not give an error */
-		if (!SIZE_ONLY && isWORDCHAR(value) && value != '_') {
+		if (PASS2 && isWORDCHAR(value) && value != '_') {
                     if (strict) {
                         vFAIL2("Unrecognized escape \\%c in character class",
                                (int)value);
@@ -16264,7 +16264,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
 	     * literal, as is the character that began the false range, i.e.
 	     * the 'a' in the examples */
 	    if (range) {
-		if (!SIZE_ONLY) {
+		if (PASS2) {
 		    const int w = (RExC_parse >= rangebegin)
                                   ? RExC_parse - rangebegin
                                   : 0;
@@ -16345,7 +16345,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                 /* The above-Latin1 characters are not subject to locale rules.
                  * Just add them, in the second pass, to the
                  * unconditionally-matched list */
-                if (! SIZE_ONLY) {
+                if (PASS2) {
                     SV* scratch_list = NULL;
 
                     /* Get the list of the above-Latin1 code points this
@@ -16371,7 +16371,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                     continue;   /* Go get next character */
                 }
             }
-            else if (! SIZE_ONLY) {
+            else if (PASS2) {
 
                 /* Here, not in pass1 (in that pass we skip calculating the
                  * contents of this class), and is /l, or is a POSIX class for
@@ -16500,7 +16500,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                                     w, w, rangebegin);
                             }
                         }
-                        if (!SIZE_ONLY) {
+                        if (PASS2) {
                             cp_list = add_cp_to_invlist(cp_list, '-');
                         }
                         element_count++;
@@ -16689,7 +16689,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
         }
 
         /* Deal with this element of the class */
-	if (! SIZE_ONLY) {
+	if (PASS2) {
 
 #ifndef EBCDIC
             cp_foldable_list = _add_range_to_invlist(cp_foldable_list,
@@ -17003,7 +17003,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
              * the parse */
             const char * cur_parse = RExC_parse;
             RExC_parse = (char *)orig_parse;
-            if ( SIZE_ONLY) {
+            if (SIZE_ONLY) {
                 if (! LOC) {
 
                     /* To get locale nodes to not use the full ANYOF size would
@@ -17028,7 +17028,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
             ret = reg_node(pRExC_state, op);
 
             if (PL_regkind[op] == POSIXD || PL_regkind[op] == NPOSIXD) {
-                if (! SIZE_ONLY) {
+                if (PASS2) {
                     FLAGS(ret) = arg;
                 }
                 *flagp |= HASWIDTH|SIMPLE;

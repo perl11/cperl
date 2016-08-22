@@ -1401,6 +1401,9 @@ C<sv_force_normal> does nothing.
 	(!(SvFLAGS(sv) & (SVf_IOK|SVp_IOK)) && (SvFLAGS(sv) & (SVf_NOK|SVf_POK)) \
 	    ? (sv_2iv_flags(sv, 0), SvIOK(sv))	  \
 	    : SvIOK(sv))
+#define SvIV_please_void_nomg(sv) \
+	if (!(SvFLAGS(sv) & (SVf_IOK|SVp_IOK)) && (SvFLAGS(sv) & (SVf_NOK|SVf_POK))) \
+            (void)sv_2iv_flags(sv, 0)
 #define SvIV_set(sv, val) \
 	STMT_START { \
 		assert(PL_valid_types_IV_set[SvTYPE(sv) & SVt_MASK]);	\
@@ -1783,6 +1786,11 @@ Like C<sv_utf8_upgrade>, but doesn't do magic on C<sv>.
     (SvPOK_nog(sv) \
      ? ((lp = SvCUR(sv)), SvPVX_const(sv)) : \
      (const char*) sv_2pv_flags(sv, &lp, (flags|SV_CONST_RETURN)))
+/* Only set the length, void context */
+#define SvPV_flags_void_len(sv, lp, flags) \
+    (SvPOK_nog(sv) \
+     ? (lp = SvCUR(sv)) : \
+     (void)sv_2pv_flags(sv, &lp, (flags)))
 #define SvPV_flags_const_nolen(sv, flags) \
     (SvPOK_nog(sv) \
      ? SvPVX_const(sv) : \

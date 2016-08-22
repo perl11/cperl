@@ -439,7 +439,7 @@ PP(pp_warn)
 	if (SvGMAGICAL(exsv)) exsv = sv_mortalcopy(exsv);
     }
 
-    if (SvROK(exsv) || (SvPV_const(exsv, len), len)) {
+    if (SvROK(exsv) || ((void)SvPV_const(exsv, len), len)) {
 	/* well-formed exception supplied */
     }
     else {
@@ -486,7 +486,7 @@ PP(pp_die)
 	exsv = TOPs;
     }
 
-    if (SvROK(exsv) || (SvPV_const(exsv, len), len)) {
+    if (SvROK(exsv) || ((void)SvPV_const(exsv, len), len)) {
 	/* well-formed exception supplied */
     }
     else {

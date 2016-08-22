@@ -3689,6 +3689,12 @@ S_push_slab(pTHX)
     st->resume_state = state; \
     goto push_state;
 
+#define PUSH_SCAN_STATE_GOTO(state, node, input) \
+    assert_(node == scan) \
+    pushinput = input; \
+    st->resume_state = state; \
+    goto push_state;
+
 /* push a new state with success backtracking, then goto it */
 
 #define PUSH_YES_STATE_GOTO(state, node, input) \
@@ -3697,6 +3703,11 @@ S_push_slab(pTHX)
     st->resume_state = state; \
     goto push_yes_state;
 
+#define PUSH_YES_SCAN_STATE_GOTO(state, node, input) \
+    assert_(node == scan) \
+    pushinput = input; \
+    st->resume_state = state; \
+    goto push_yes_state;
 
 
 
@@ -5670,7 +5681,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 	    });
 
 	    if (ST.accepted > 1 || has_cutgroup) {
-		PUSH_STATE_GOTO(TRIE_next, scan, (char*)uc);
+		PUSH_SCAN_STATE_GOTO(TRIE_next, scan, (char*)uc);
 		NOT_REACHED; /* NOTREACHED */
 	    }
 	    /* only one choice left - just continue */
@@ -7453,9 +7464,9 @@ NULL
 
 	    /* Now go into the branch */
 	    if (has_cutgroup) {
-	        PUSH_YES_STATE_GOTO(BRANCH_next, scan, locinput);
+	        PUSH_YES_SCAN_STATE_GOTO(BRANCH_next, scan, locinput);
 	    } else {
-	        PUSH_STATE_GOTO(BRANCH_next, scan, locinput);
+	        PUSH_SCAN_STATE_GOTO(BRANCH_next, scan, locinput);
 	    }
 	    NOT_REACHED; /* NOTREACHED */
 

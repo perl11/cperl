@@ -15676,8 +15676,8 @@ S_find_hash_subscript(pTHX_ const HV *const hv, const SV *const val)
 	    if (    HeVAL(entry) == &PL_sv_undef ||
 		    HeVAL(entry) == &PL_sv_placeholder)
 		continue;
-	    if (!HeKEY(entry))
-		return NULL;
+	    /*if (!HeKEY(entry))
+              return NULL;*/
 	    if (HeKLEN(entry) == HEf_SVKEY)
 		return sv_mortalcopy(HeKEY_sv(entry));
 	    return sv_2mortal(newSVhek(HeKEY_hek(entry)));

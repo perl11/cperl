@@ -598,15 +598,13 @@ splintflags = \
 splintfiles = $(c1)
 
 .c$(OBJ_EXT): 
-	@`$(CCCMD)` $(PLDLFLAGS) $*.c
+	`$(CCCMD)` $(PLDLFLAGS) $*.c
 
 .c.i:	perl.h config.h
-	@echo `$(CCCMDSRC)` -E $*.c \> $*.i
-	@`$(CCCMDSRC)` -E $*.c > $*.i
+	`$(CCCMDSRC)` -E $*.c > $*.i
 
 .c.s:	perl.h config.h
-	@echo `$(CCCMDSRC)` -S $*.c
-	@`$(CCCMDSRC)` -S $*.c
+	`$(CCCMDSRC)` -S $*.c
 
 all: $(FIRSTMAKEFILE) $(MINIPERL_EXE) $(generated_pods) $(private) $(unidatafiles) $(public) $(dynamic_ext) $(nonxs_ext) extras.make $(MANIFEST_SRT)
 	@echo " ";
@@ -690,8 +688,7 @@ ${file}mini.c: $file.c
     $spitshell >>$Makefile <<!GROK!THIS!
 
 ${file}mini\$(OBJ_EXT): ${file}mini.c
-	echo @\`\$(CCCMD)\` \$(PLDLFLAGS) $DPERL_IS_MINIPERL $DPERL_EXTERNAL_GLOB ${file}mini.c
-	@\`\$(CCCMD)\` \$(PLDLFLAGS) $DPERL_IS_MINIPERL $DPERL_EXTERNAL_GLOB ${file}mini.c
+	\`\$(CCCMD)\` \$(PLDLFLAGS) $DPERL_IS_MINIPERL $DPERL_EXTERNAL_GLOB ${file}mini.c
 !GROK!THIS!
 done
 

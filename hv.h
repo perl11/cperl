@@ -396,18 +396,14 @@ C<SV*>.
 				 (U32)HeKUTF8(he))
 #define HeSTATIC(he)		(HEK_FLAGS(HeKEY_hek(he)) & HVhek_STATIC)
 
-#define HeSVKEY(he)		((HeKEY(he) && 				\
-				  HeKLEN(he) == HEf_SVKEY) ?		\
-				 HeKEY_sv(he) : NULL)
+#define HeSVKEY(he)		((HeKLEN(he) == HEf_SVKEY) ? HeKEY_sv(he) : NULL)
 
-#define HeSVKEY_force(he)	(HeKEY(he) ?				\
-				 ((HeKLEN(he) == HEf_SVKEY) ?		\
+#define HeSVKEY_force(he)	((HeKLEN(he) == HEf_SVKEY) ?		\
 				  HeKEY_sv(he) :			\
 				  newSVpvn_flags(HeKEY(he),		\
                                                  HeKLEN(he),            \
                                                  SVs_TEMP |             \
-                                      ( HeKUTF8(he) ? SVf_UTF8 : 0 ))) : \
-				 &PL_sv_undef)
+                                      ( HeKUTF8(he) ? SVf_UTF8 : 0 )))
 #define HeSVKEY_set(he,sv)	((HeKLEN(he) = HEf_SVKEY), (HeKEY_sv(he) = sv))
 
 #ifndef PERL_CORE
@@ -480,6 +476,11 @@ C<SV*>.
 #define hv_store_ent(hv, keysv, val, hash)				\
     ((HE *) hv_common((hv), (keysv), NULL, 0, 0, HV_FETCH_ISSTORE,	\
 		      (val), (hash)))
+#ifdef PERL_CORE
+#define hv_store_ent_void(hv, keysv, val, hash)				\
+    ((void)hv_common((hv), (keysv), NULL, 0, 0, HV_FETCH_ISSTORE,	\
+		      (val), (hash)))
+#endif
 
 #define hv_exists_ent(hv, keysv, hash)					\
     (hv_common((hv), (keysv), NULL, 0, 0, HV_FETCH_ISEXISTS, 0, (hash))	\
