@@ -10446,12 +10446,12 @@ S_scan_str(pTHX_ char *start, int keep_bracketed_quoted, int keep_delims, int re
 			    /* At here, all closes are "was quoted" one,
 			       so we don't check PL_multi_close. */
 			    if (*t == '\\') {
-				if (!keep_bracketed_quoted && *(t+1) == PL_multi_open)
+				if (!keep_bracketed_quoted && *(t+1) == (char)PL_multi_open)
 				    t++;
 				else
 				    *w++ = *t++;
 			    }
-			    else if (*t == PL_multi_open)
+			    else if (*t == (char)PL_multi_open)
 				brackets++;
 
 			    *w = *t;
