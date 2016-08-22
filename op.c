@@ -16485,6 +16485,8 @@ Perl_custom_op_register(pTHX_ Perl_ppaddr_t ppaddr, const XOP *xop)
 
     if (!hv_store_ent(PL_custom_ops, keysv, newSViv(PTR2IV(xop)), 0))
 	Perl_croak(aTHX_ "panic: can't register custom OP %s", xop->xop_name);
+
+    PL_maxo++;
 }
 
 /*
