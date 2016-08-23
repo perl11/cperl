@@ -573,13 +573,6 @@ for my $symbol (sort keys %unexpected) {
       SKIP: {
         skip("uses $symbol for static coretype names in op.o");
       }
-    }
-    elsif (   $symbol eq 'strcat'
-           && @o == 1 && $o[0] eq 'locale.o')
-    {
-      SKIP: {
-        skip("locale.o legitimately uses strcat");
-      }
     } else {
         is(@o, 0, "uses no $symbol (@o)");
     }
