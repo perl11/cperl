@@ -167,7 +167,7 @@ my ($embed, $core, $ext, $api) = setup_embed();
 	}
 	$ret .= ")";
 	my @attrs;
-	if ( $flags =~ /[AEX]/ ) {
+	if ( $flags =~ /[AEX]/ && $flags !~ /i/) {
 	    push @attrs, "__attribute__used__";
 	}
 	if ( $flags =~ /r/ ) {
