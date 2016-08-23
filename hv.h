@@ -73,7 +73,17 @@ struct hek {
        was UTF-8, is UNSHARED, STATIC or TAINTED. See HVhek_* */
 };
 
-#if defined(PERL_CORE) && defined(PERL_IN_HV_C)
+/* Copy the hek data together on the stack to do only a single comparison
+   in the inner collision loop. The overhead on modern core 2-style CPUs
+   is too high, esp. with PERL_PERTURB_KEYS_TOP, where we usually find the first
+   entry. 8% slower.
+   But it might be faster with alloca + inlined hek_arrays for the collisions.
+ */
+#ifndef HV_STATIC_HEKCMP
+#  undef HV_STATIC_HEKCMP
+#endif
+
+#if defined(HV_STATIC_HEKCMP) && defined(PERL_CORE) && defined(PERL_IN_HV_C)
 /* stack-allocated static variant for faster run-time comparisons only */
 struct static_hek {
     U32		hek_hash;
