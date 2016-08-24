@@ -638,8 +638,18 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     }
 
     if (keysv && (SvIsCOW_shared_hash(keysv))) {
-        if (HvSHAREKEYS(hv))
+        if (HvSHAREKEYS(hv)) {
             keysv_hek  = SvSHARED_HEK_FROM_PV(SvPVX_const(keysv));
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH SHAREKEYS + shared_hash\t%s{%.*s}\n",
+                         HvNAME_get(hv)?HvNAME_get(hv):"",
+                         HEK_LEN(keysv_hek), HEK_KEY(keysv_hek)));
+        } else {
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH shared_hash\t\t%s{%.*s}\n",
+                         HvNAME_get(hv)?HvNAME_get(hv):"",
+                         HEK_LEN(keysv_hek), HEK_KEY(keysv_hek)));
+        }
         hash = SvSHARED_HASH(keysv);
     }
     else if (!hash)
@@ -2787,7 +2797,8 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 
     /* Skip the entire loop if the hash is empty.   */
     if ((flags & HV_ITERNEXT_WANTPLACEHOLDERS)
-	? HvTOTALKEYS(hv) : HvUSEDKEYS(hv)) {
+	? HvTOTALKEYS(hv) : HvUSEDKEYS(hv))
+    {
 	while (!entry) {
 	    /* OK. Come to the end of the current list.  Grab the next one.  */
 
