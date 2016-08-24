@@ -7867,11 +7867,13 @@ Perl_yylex(pTHX)
 		if (len && (len != 4 || memNEc(PL_tokenbuf+1, "CORE"))
                     && !keyword(PL_tokenbuf + 1, len, 0))
                 {
+                    SSize_t off = s - SvPVX(PL_linestr);
                     if (UNLIKELY(normalize)) {
                         s = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
                         Copy(s, &PL_tokenbuf, len+1, char);
                     }
 		    d = skipspace(d);
+                    s = SvPVX(PL_linestr)+off;
 		    if (*d == '(') {
 			force_ident_maybe_lex('&');
 			s = d;
@@ -8665,8 +8667,9 @@ Perl_yylex(pTHX)
 		expectation attrful;
 		bool have_name, have_proto;
 
-		d = s;
+                SSize_t off = s - SvPVX(PL_linestr);
 		s = skipspace(s);
+                d = SvPVX(PL_linestr)+off;
 
 		if (isIDFIRST_lazy_if(s,UTF)
 #ifndef PERL_NO_QUOTE_PKGSEPERATOR
