@@ -154,6 +154,10 @@ use vars '%%Config', '$VERSION';
 
 $VERSION = "%s";
 
+BEGIN {
+    keys(%%Config::) = 63; # without heavy
+}
+
 # Skip @Config::EXPORT because it only contains %%Config, which we special
 # case below as it's not a function. @Config::EXPORT won't change in the
 # lifetime of Perl 5.
