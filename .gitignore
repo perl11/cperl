@@ -209,6 +209,7 @@ GTAGS
 
 .git-rr-cache/DUMMY
 log.test-*
+log.bench-*
 /benchres-*
 
 # debugging helpers
@@ -217,6 +218,7 @@ log.test-*
 /.perldb
 /.valgrindrc
 /valgrind.supp
+/config.sh-*
 /do-*.sh
 /cov-int
 perl.dSYM/
