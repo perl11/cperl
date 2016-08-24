@@ -17,7 +17,7 @@ BEGIN {
 use strict;
 use Config;
 
-plan tests => 871;
+plan tests => 883;
 
 $| = 1;
 
@@ -2460,6 +2460,8 @@ is eval { eval $::x.1 }, 1, 'reset does not taint undef';
     #sig1($TAINT, $x, $TAINT, $x,
     #     $TAINT, $x, $TAINT, $x,
     #     $TAINT, $x, $TAINT, $x);
+    sig1($TAINT, $x, $TAINT, $x,
+         $TAINT, $x, $TAINT, $x);
     sig1($TAINT, $x, $TAINT, $x);
 
     # and slurpy
