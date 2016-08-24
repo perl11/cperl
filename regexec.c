@@ -3690,7 +3690,6 @@ S_push_slab(pTHX)
     goto push_state;
 
 #define PUSH_SCAN_STATE_GOTO(state, node, input) \
-    assert_(node == scan) \
     pushinput = input; \
     st->resume_state = state; \
     goto push_state;
@@ -3704,7 +3703,6 @@ S_push_slab(pTHX)
     goto push_yes_state;
 
 #define PUSH_YES_SCAN_STATE_GOTO(state, node, input) \
-    assert_(node == scan) \
     pushinput = input; \
     st->resume_state = state; \
     goto push_yes_state;
