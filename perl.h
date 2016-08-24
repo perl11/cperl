@@ -3666,10 +3666,13 @@ EXTERN_C int perl_tsa_mutex_unlock(perl_mutex* mutex)
 #  define __attribute__pure__               __attribute__((pure))
 #endif
 #ifdef HASATTRIBUTE_USED
-#  define __attribute__used__             __attribute__((used))
+#  define __attribute__used__               __attribute__((used))
 #endif
 #ifdef HASATTRIBUTE_UNUSED
 #  define __attribute__unused__             __attribute__((unused))
+#endif
+#ifdef HASATTRIBUTE_ALWAYS_INLINE
+#  define __attribute__always_inline__     __attribute__((always_inline))
 #endif
 #ifdef HASATTRIBUTE_WARN_UNUSED_RESULT
 #  define __attribute__warn_unused_result__ __attribute__((warn_unused_result))
@@ -3699,6 +3702,9 @@ EXTERN_C int perl_tsa_mutex_unlock(perl_mutex* mutex)
 #endif
 #ifndef __attribute__unused__
 #  define __attribute__unused__
+#endif
+#ifndef __attribute__always_inline__
+#  define __attribute__always_inline__
 #endif
 #ifndef __attribute__warn_unused_result__
 #  define __attribute__warn_unused_result__
@@ -3905,10 +3911,13 @@ typedef        struct crypt_data {     /* straight from /usr/include/crypt.h */
 
 #ifndef PERL_CALLCONV
 #  ifdef __cplusplus
-#    define PERL_CALLCONV extern "C"
+#    define PERL_CALLCONV extern "C" __attribute__used__
 #  else
 #    define PERL_CALLCONV __attribute__used__
 #  endif
+#endif
+#ifndef PERL_MATHOM_CALLCONV
+#  define PERL_MATHOM_CALLCONV PERL_CALLCONV __attribute__always_inline__
 #endif
 #ifndef PERL_CALLCONV_NO_RET
 #    define PERL_CALLCONV_NO_RET PERL_CALLCONV

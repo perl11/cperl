@@ -1097,12 +1097,16 @@
 /* HASATTRIBUTE_UNUSED:
  *	Can we handle GCC attribute for unused variables and arguments
  */
+/* HASATTRIBUTE_ALWAYS_INLINE:
+ *	Can we force GCC to inline functions even with __attribute__((used))
+ */
 /* HASATTRIBUTE_DEPRECATED:
  *	Can we handle GCC attribute for marking deprecated APIs
  */
 /* HASATTRIBUTE_WARN_UNUSED_RESULT:
  *	Can we handle GCC attribute for warning on unused results
  */
+# HASATTRIBUTE_ALWAYS_INLINE	/**/
 /*#define HASATTRIBUTE_DEPRECATED	/ **/
 /*#define HASATTRIBUTE_FORMAT	/ **/
 /*#define PRINTF_FORMAT_NULL_OK	/ **/
@@ -5371,6 +5375,6 @@
 #endif
 
 /* Generated from:
- * a45b6e68413b01223ba2d8abdc5e26c99b8616f5101a7f97bb250d14639547f8 config_h.SH
+ * 498ddd19d90cae817f159bf23ecaf40ebe41cf8313545b574b150701f4880efc config_h.SH
  * f8cc0ebe3990151622c5f6de84db147b4c280abfcacb337f99a373f553f072fb uconfig.sh
  * ex: set ro: */

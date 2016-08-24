@@ -1132,12 +1132,16 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 /* HASATTRIBUTE_UNUSED:
  *	Can we handle GCC attribute for unused variables and arguments
  */
+/* HASATTRIBUTE_ALWAYS_INLINE:
+ *	Can we force GCC to inline functions even with __attribute__((used))
+ */
 /* HASATTRIBUTE_DEPRECATED:
  *	Can we handle GCC attribute for marking deprecated APIs
  */
 /* HASATTRIBUTE_WARN_UNUSED_RESULT:
  *	Can we handle GCC attribute for warning on unused results
  */
+#$d_attribute_always_inline HASATTRIBUTE_ALWAYS_INLINE	/**/
 #$d_attribute_deprecated HASATTRIBUTE_DEPRECATED	/**/
 #$d_attribute_format HASATTRIBUTE_FORMAT	/**/
 #$d_printf_format_null PRINTF_FORMAT_NULL_OK	/**/

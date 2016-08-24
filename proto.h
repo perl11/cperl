@@ -18,7 +18,7 @@
 
 START_EXTERN_C
 PERL_CALLCONV UV	ASCII_TO_NEED(const UV enc, const UV ch)
-			__attribute__used__
+			__attribute__global__
 			__attribute__deprecated__
 			__attribute__warn_unused_result__
 			__attribute__pure__;
@@ -30,7 +30,7 @@ PERL_CALLCONV int	Perl_Gv_AMupdate(pTHX_ HV* stash, bool destructing)
 	assert(stash)
 
 PERL_CALLCONV UV	NATIVE_TO_NEED(const UV enc, const UV ch)
-			__attribute__used__
+			__attribute__global__
 			__attribute__deprecated__
 			__attribute__warn_unused_result__
 			__attribute__pure__;

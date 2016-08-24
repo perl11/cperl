@@ -167,9 +167,15 @@ my ($embed, $core, $ext, $api) = setup_embed();
 	}
 	$ret .= ")";
 	my @attrs;
-	if ( $flags =~ /[AEX]/ && $flags !~ /i/) {
+	if ( $flags =~ /[AEX]/ && $flags !~ /i/ ) {
 	    push @attrs, "__attribute__used__";
 	}
+        # __attribute__always_inline__ must be before the function, not afterwards.
+        # So we add it to PERL_STATIC_INLINE and PERL_MATHOM_CALLCONV
+	#if ( $flags =~ /[ib]/ ) {
+        #    # b are mathoms
+	#    push @attrs, "__attribute__always_inline__";
+	#}
 	if ( $flags =~ /r/ ) {
 	    push @attrs, "__attribute__noreturn__";
 	}

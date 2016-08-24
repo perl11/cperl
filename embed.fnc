@@ -292,7 +292,7 @@ norx	|void	|win32_croak_not_implemented|NN const char * fname
 #endif
 #if defined(PERL_IMPLICIT_CONTEXT)
 Afnrp	|void	|croak_nocontext|NULLOK const char* pat|...
-Afnrp  |OP*    |die_nocontext  |NULLOK const char* pat|...
+Afnrp	|OP*    |die_nocontext  |NULLOK const char* pat|...
 Afnp	|void	|deb_nocontext	|NN const char* pat|...
 Afnp	|char*	|form_nocontext	|NN const char* pat|...
 Anp	|void	|load_module_nocontext|U32 flags|NN SV* name|NULLOK SV* ver|...
@@ -978,8 +978,8 @@ Afp	|char *	|my_strftime	|NN const char *fmt|int sec|int min|int hour|int mday \
 				|int mon|int year|int wday|int yday|int isdst
 : Used in pp_ctl.c
 p	|void	|my_unexec
-ADMnoPR	|UV	|NATIVE_TO_NEED	|const UV enc|const UV ch
-ADMnoPR	|UV	|ASCII_TO_NEED	|const UV enc|const UV ch
+ADMnoPR |UV	|NATIVE_TO_NEED	|const UV enc|const UV ch
+ADMnoPR |UV	|ASCII_TO_NEED	|const UV enc|const UV ch
 Apa	|OP*	|newANONLIST	|NULLOK OP* o
 Apa	|OP*	|newANONHASH	|NULLOK OP* o
 Ap	|OP*	|newANONSUB	|I32 floor|NULLOK OP* proto|NULLOK OP* block
