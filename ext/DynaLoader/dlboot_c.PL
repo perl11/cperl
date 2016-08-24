@@ -196,18 +196,20 @@ print OUT line_prefix(__LINE__, <<'EOT');
 
     /* No prizes for guessing why we don't say 'bootstrap DynaLoader;' here.
        NOTE: All dl_*.xs (including dl_none.xs) define a dl_error() XSUB */
-    if (get_cv("DynaLoader::boot_DynaLoader", 0) && !get_cv("DynaLoader::dl_error", 0)) {
+    if (get_cvs("DynaLoader::boot_DynaLoader", 0)
+        && !get_cvs("DynaLoader::dl_error", 0))
+    {
         PUSHMARK(SP);
         XPUSHs(newSVpvs("DynaLoader"));
         PUTBACK;
-        call_pv("boot_DynaLoader", G_DISCARD);
+        call_sv(MUTABLE_SV(get_cvs("boot_DynaLoader", GV_ADD)), G_DISCARD);
         /* SP = PL_stack_base + POPMARK; */
     }
 #ifdef DEBUGGING
     if (dl_debug) {
         PerlIO_printf(Perl_debug_log, "DynaLoader.pm loaded (%s %s)\n",
                       av_tostr(aTHX_ GvAV(PL_incgv)), av_tostr(aTHX_ dl_library_path));
-        if (!get_cv("DynaLoader::boot_DynaLoader", 0))
+        if (!get_cvs("DynaLoader::boot_DynaLoader", 0))
             PerlIO_printf(Perl_debug_log, "DynaLoader not linked into this perl\n");
     }
 #endif
