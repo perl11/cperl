@@ -4908,7 +4908,7 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
 	    /* source is a COW shared hash key.  */
 	    DEBUG_C(PerlIO_printf(Perl_debug_log,
 				  "Fast copy on write: Sharing hash\n"));
-            assert(HEK_LEN(hek) != HEf_SVKEY);
+            assert(!(HEK_IS_SVKEY(hek)));
             new_pv = HEK_KEY(hek);
             if (SvTAINTED(sstr))
                 HEK_TAINTED_on(hek);
@@ -5091,7 +5091,7 @@ Perl_sv_sethek(pTHX_ SV *const sv, const HEK *const hek)
 	return;
     }
 
-    if (HEK_LEN(hek) == HEf_SVKEY) {
+    if (HEK_IS_SVKEY(hek)) {
 	sv_setsv(sv, *(SV**)HEK_KEY(hek));
         return;
     } else {
@@ -9563,7 +9563,7 @@ Perl_newSVhek(pTHX_ const HEK *const hek)
 	return sv;
     }
 
-    if (HEK_LEN(hek) == HEf_SVKEY) {
+    if (HEK_IS_SVKEY(hek)) {
 	return newSVsv(*(SV**)HEK_KEY(hek));
     } else {
 	if (HEK_WASUTF8(hek)) {
@@ -16330,7 +16330,7 @@ S_find_hash_subscript(pTHX_ const HV *const hv, const SV *const val)
 		continue;
 	    /*if (!HeKEY(entry))
               return NULL;*/
-	    if (HeKLEN(entry) == HEf_SVKEY)
+	    if (HeKSVKEY(entry))
 		return sv_mortalcopy(HeKEY_sv(entry));
 	    return sv_2mortal(newSVhek(HeKEY_hek(entry)));
 	}

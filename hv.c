@@ -203,12 +203,12 @@ Perl_he_dup(pTHX_ const HE *e, bool shared, CLONE_PARAMS* param)
     ret = new_HE();
     ptr_table_store(PL_ptr_table, e, ret);
 
-    HeNEXT(ret) = he_dup(HeNEXT(e),shared, param);
-    if (HeKLEN(e) == HEf_SVKEY) {
+    HeNEXT(ret) = he_dup(HeNEXT(e), shared, param);
+    if (HeKSVKEY(e)) {
 	char *k;
 	Newx(k, HEK_BASESIZE + sizeof(const SV *), char);
 	HeKEY_hek(ret) = (HEK*)k;
-	HeKEY_sv(ret) = sv_dup_inc(HeKEY_sv(e), param);
+        HeSVKEY_set(he, sv_dup_inc(HeKEY_sv(e), param));
     }
     else if (shared) {
 	/* This is hek_dup inlined, which seems to be important for speed
@@ -221,9 +221,8 @@ Perl_he_dup(pTHX_ const HE *e, bool shared, CLONE_PARAMS* param)
 	    (void)share_hek_hek(shared);
 	}
 	else {
-	    shared
-		= share_hek_flags(HEK_KEY(source), HEK_LEN(source),
-				  HEK_HASH(source), HEK_FLAGS(source) | HEK_UTF8(source));
+	    shared = share_hek_flags(HEK_KEY(source), HEK_LEN(source),
+                         HEK_HASH(source), HEK_FLAGS(source) | HEK_UTF8(source));
 	    ptr_table_store(PL_ptr_table, source, shared);
 	}
 	HeKEY_hek(ret) = shared;
@@ -259,7 +258,7 @@ S_hv_notallowed(pTHX_ int flags, const char *key, I32 klen,
     Perl_croak(aTHX_ msg, SVfARG(sv));
 }
 
-/* (klen == HEf_SVKEY) is special for MAGICAL hv entries, meaning key slot
+/* (hek_len_utf8 == HEf_SVKEY) is special for MAGICAL hv entries, meaning key slot
  * contains an SV* */
 
 /*
@@ -2218,7 +2217,7 @@ S_hv_free_ent_ret(pTHX_ HV *hv, HE *entry)
     PERL_ARGS_ASSERT_HV_FREE_ENT_RET;
 
     val = HeVAL(entry);
-    if (HeIS_SVKEY(entry)) {
+    if (HeKSVKEY(entry)) {
 	SvREFCNT_dec(*(SV**)HEK_KEY(hek));
 	Safefree(hek);
     }
@@ -2260,7 +2259,7 @@ Perl_hv_delayfree_ent(pTHX_ HV *hv, HE *entry)
 	return;
     /* SvREFCNT_inc to counter the SvREFCNT_dec in hv_free_ent  */
     sv_2mortal(SvREFCNT_inc(HeVAL(entry)));	/* free between statements */
-    if (HeIS_SVKEY(entry)) {
+    if (HeKSVKEY(entry)) {
 	sv_2mortal(SvREFCNT_inc(HeKEY_sv(entry)));
     }
     hv_free_ent(hv, entry);
@@ -3266,7 +3265,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
                 Newxz(k, HEK_BASESIZE + sizeof(const SV *), char);
                 hek = (HEK*)k;
                 HeKEY_hek(entry) = hek;
-                HEK_LEN_UTF8(HeKEY_hek(entry)) = (U32)HEf_SVKEY;
+                HEK_LEN_UTF8(hek) = (U32)HEf_SVKEY;
             }
             magic_nextpack(MUTABLE_SV(hv),mg,key);
             if (SvOK(key)) {
@@ -3417,7 +3416,7 @@ Perl_hv_iterkey(pTHX_ HE *entry, I32 *retlen)
 {
     PERL_ARGS_ASSERT_HV_ITERKEY;
 
-    if (UNLIKELY(HeIS_SVKEY(entry))) {
+    if (UNLIKELY(HeKSVKEY(entry))) {
 	STRLEN len;
 	char * const p = SvPV(HeKEY_sv(entry), len);
 	*retlen = len;
@@ -3465,7 +3464,7 @@ Perl_hv_iterval(pTHX_ HV *hv, HE *entry)
     if (UNLIKELY(SvRMAGICAL(hv))) {
 	if (mg_find((const SV *)hv, PERL_MAGIC_tied)) {
 	    SV* const sv = sv_newmortal();
-	    if (HeIS_SVKEY(entry))
+	    if (HeKSVKEY(entry))
 		mg_copy(MUTABLE_SV(hv), sv, (char*)HeKEY_sv(entry), HEf_SVKEY);
 	    else
 		mg_copy(MUTABLE_SV(hv), sv, HeKEY(entry), HeKLEN(entry));
