@@ -2985,7 +2985,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
                 HeKEY_hek(entry) = hek;
                 /* equals to HEK_LEN = (U32)HEf_SVKEY, HEK_UTF8 = 1 */
                 HEK_LEN_UTF8(hek) = 4294967294u;
-                assert((I32)HEK_LEN(hek) == HEf_SVKEY);
+                assert(HEK_LEN(hek) == (HEf_SVKEY & 0x7fffffff));
             }
             magic_nextpack(MUTABLE_SV(hv),mg,key);
             if (SvOK(key)) {
