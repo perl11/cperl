@@ -14,6 +14,11 @@
 #include "XSUB.h"
 #include "ppport.h"
 
+/* not defined in perl5 */
+#ifndef HeKSVKEY
+#define HeKSVKEY(he) HeKLEN(he) == HEf_SVKEY
+#endif
+
 /* need workaround broken dump of !SvOBJECT with SvSTASH in dump.c */
 /* fixed in cperl5.22.2 and perl5.23.8  */
 #if PERL_VERSION >= 18 && (!defined(USE_CPERL) && PERL_VERSION < 24)
@@ -83,7 +88,7 @@ DumpHvARRAY( pTHX_ PerlIO *f, SV *sv) {
 
   for ( key = 0; key <= HvMAX(sv); ++key ) {
     for ( entry = HvARRAY(sv)[key]; entry; entry = HeNEXT(entry) ) {
-      if ( HEf_SVKEY == HeKLEN(entry) ) {
+      if ( HeKSVKEY(entry) ) {
         PerlIO_printf(
           f, "  [SV 0x%" UVxf "] => ",
           PTR2UV(HeKEY(entry)));
@@ -119,7 +124,7 @@ DumpHashKeys( pTHX_ PerlIO *f, SV *sv) {
   
   for ( key = 0; key <= HvMAX(sv); ++key ) {
     for ( entry = HvARRAY(sv)[key]; entry; entry = HeNEXT(entry) ) {
-      if ( HEf_SVKEY == HeKLEN(entry) ) {
+      if ( HeKSVKEY(entry) ) {
         PerlIO_printf(f, "    SV 0x%" UVxf "\n", PTR2UV(HeKEY(entry)) );
         DumpPointer(aTHX_ f, (SV*)(HeKEY(entry)));
       }
