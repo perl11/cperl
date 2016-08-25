@@ -228,6 +228,10 @@ mingw_modfl(long double x, long double *ip)
 #   define RITER_T I32
 # endif
 #endif
+/* not defined in perl5 */
+#ifndef He_IS_SVKEY
+#define He_IS_SVKEY(he) HeKLEN(he) == HEf_SVKEY
+#endif
 
 /* types */
 #define JSON_TYPE_SCALAR       0x0000
