@@ -1280,7 +1280,7 @@ Perl_do_kv(pTHX)
     extend_size = (SSize_t)HvUSEDKEYS(keys) * (dokeys + dovalues);
     EXTEND(SP, extend_size);
 
-    while ((entry = hv_iternext(keys))) {
+    while ((entry = hv_iternext_flags(keys, 0))) {
 	if (dokeys) {
 	    SV* const sv = hv_iterkeysv(entry);
 	    XPUSHs(sv);

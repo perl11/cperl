@@ -540,10 +540,10 @@ S_mg_free_struct(pTHX_ SV *sv, MAGIC *mg)
     if (vtbl && vtbl->svt_free)
 	vtbl->svt_free(aTHX_ sv, mg);
     if (mg->mg_ptr && mg->mg_type != PERL_MAGIC_regex_global) {
-	if (mg->mg_len > 0 || mg->mg_type == PERL_MAGIC_utf8)
-	    Safefree(mg->mg_ptr);
-	else if (mg->mg_len == HEf_SVKEY)
+	if (mg->mg_len == HEf_SVKEY)
 	    SvREFCNT_dec(MUTABLE_SV(mg->mg_ptr));
+	else if (mg->mg_len > 0 || mg->mg_type == PERL_MAGIC_utf8)
+	    Safefree(mg->mg_ptr);
     }
     if (mg->mg_flags & MGf_REFCOUNTED)
 	SvREFCNT_dec(mg->mg_obj);
@@ -1860,11 +1860,10 @@ S_magic_methcall1(pTHX_ SV *sv, const MAGIC *mg, SV *meth, U32 flags,
     PERL_ARGS_ASSERT_MAGIC_METHCALL1;
 
     if (mg->mg_ptr) {
-	if (mg->mg_len >= 0) {
-	    arg1 = newSVpvn_flags(mg->mg_ptr, mg->mg_len, SVs_TEMP);
-	}
-	else if (mg->mg_len == HEf_SVKEY)
+	if (mg->mg_len == HEf_SVKEY)
 	    arg1 = MUTABLE_SV(mg->mg_ptr);
+	else if (mg->mg_len >= 0)
+	    arg1 = newSVpvn_flags(mg->mg_ptr, mg->mg_len, SVs_TEMP);
     }
     else if (mg->mg_type == PERL_MAGIC_tiedelem) {
 	arg1 = newSViv((IV)(mg->mg_len));

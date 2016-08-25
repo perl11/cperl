@@ -228,8 +228,8 @@ pointer may be either C<char*> or C<SV*>, depending on the value of
 C<HeKLEN()>.  Can be assigned to.  The C<HePV()> or C<HeSVKEY()> macros are
 usually preferable for finding the value of a key.
 
-=for apidoc Am|I32|HeKLEN|HE* he
-If this is negative, and amounts to C<HEf_SVKEY>, it indicates the entry
+=for apidoc Am|U32|HeKLEN|HE* he
+If this is equal to C<HEf_SVKEY>, it indicates the entry
 holds an C<SV*> key.  Otherwise, holds the actual length of the key.  Can
 be assigned to.  The C<HePV()> macro is usually preferable for finding key
 lengths.
@@ -312,8 +312,11 @@ C<SV*>.
 
 #define HvHASH_INDEX(hash, max) (hash & (U32)(max))
 
-/* these hash entry flags ride on hent_klen (for use only in magic/tied HVs) */
-#define HEf_SVKEY	-2	/* hent_key is an SV* */
+/* these hash entry flags rides on HeKLEN (for use only in magic/tied HVs) */
+#define HEf_SVKEY	2147483646    /* hent_key is an SV* */
+#ifdef PERL_CORE
+#define HEf_SVKEY_UTF8	4294967294u   /* to check/set the full unmasked word */
+#endif
 
 #ifndef PERL_CORE
 #  define Nullhv Null(HV*)
@@ -449,10 +452,17 @@ C<SV*>.
 				  HeKEY_sv(he) :			\
 				  newSVpvn_flags(HeKEY(he), HeKLEN(he), SVs_TEMP | \
                                       ( HeKUTF8(he) ? SVf_UTF8 : 0 )))
-#define HeSVKEY_set(he,sv)	((HeKLEN(he) = HEf_SVKEY), (HeKEY_sv(he) = sv))
 #define He_IS_SVKEY(he) 	HeKLEN(he) == HEf_SVKEY
 #define He_IS_PLACEHOLDER(he) 	HeVAL(he) == &PL_sv_placeholder
 #define SV_IS_PLACEHOLDER(sv) 	sv == &PL_sv_placeholder
+#ifdef PERL_CORE
+#define HeSVKEY_set(he,sv)	((HEK_LEN_UTF8(HeKEY_hek(he)) = HEf_SVKEY_UTF8), \
+                                 (HeKEY_sv(he) = sv))
+#else
+#define HeSVKEY_set(he,sv)	((HEK_LEN(HeKEY_hek(he)) = HEf_SVKEY), \
+                                 (HEK_UTF8(HeKEY_hek(he)) = 1), \
+                                 (HeKEY_sv(he) = sv))
+#endif
 
 #ifndef PERL_CORE
 #  define Nullhek Null(HEK*)
@@ -465,6 +475,13 @@ C<SV*>.
 #define HEK_FLAGS(hek)	(*((unsigned char *)(HEK_KEY(hek))+HEK_LEN(hek)+1))
 #define HEK_IS_SVKEY(hek) 	HEK_LEN(hek) == HEf_SVKEY
 #define HEK_FLAGS_UTF8(hek) (HEK_FLAGS(hek) | HEK_UTF8(hek))
+/* #define HEK_IS_SVKEY(hek) HEK_LEN(hek) == HEf_SVKEY 
+   but we use the faster unmasked variant. */
+#ifdef PERL_CORE
+#define HEK_IS_SVKEY(hek) HEK_LEN_UTF8(hek) == HEf_SVKEY_UTF8
+#else
+#define HEK_IS_SVKEY(hek) HEK_LEN(hek) == HEf_SVKEY
+#endif
 
 #define HVhek_UTF8	0x01 /* Moved from flags to len. Key is utf8 encoded. */
 #define HVhek_WASUTF8	0x02 /* Key is bytes here, but was supplied as utf8.
