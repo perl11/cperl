@@ -1818,9 +1818,9 @@ static void
 S_do_dump(pTHX_ SV *const sv, I32 lim)
 {
     dVAR;
-    SV *pv_lim_sv = get_sv("Devel::Peek::pv_limit", 0);
+    SV *pv_lim_sv = get_svs("Devel::Peek::pv_limit", 0);
     const STRLEN pv_lim = pv_lim_sv ? SvIV(pv_lim_sv) : 0;
-    SV *dumpop = get_sv("Devel::Peek::dump_ops", 0);
+    SV *dumpop = get_svs("Devel::Peek::dump_ops", 0);
     const U16 save_dumpindent = PL_dumpindent;
     PL_dumpindent = 2;
     do_sv_dump(0, Perl_debug_log, sv, 0, lim,
@@ -6309,6 +6309,14 @@ EOT
 #endif
 EOT
   }
+  # handy accessors only in cperl for now:
+  print <<'EOT';
+#ifndef get_svs
+#  define get_svs(str, flags) get_sv((str), (flags))
+#  define get_avs(str, flags) get_av((str), (flags))
+#  define get_hvs(str, flags) get_hv((str), (flags))
+#endif
+EOT
   if (%init2_remap and !$HAVE_DLFCN_DLOPEN) {
     print <<'EOT';
 XS(XS_DynaLoader_dl_load_file);
@@ -7164,7 +7172,7 @@ _EOT8
   if ($CPERL51 and $debug{cv}) {
     print q{
         /* -DC set dl_debug to 3 */
-        SV* sv = get_sv("DynaLoader::dl_debug", GV_ADD);
+        SV* sv = get_svs("DynaLoader::dl_debug", GV_ADD);
         sv_upgrade(sv, SVt_IV);
         SvIV_set(sv, 3);};
   }
@@ -7581,12 +7589,12 @@ _EOT15
 
     if ($use_perl_script_name) {
       my $dollar_0 = cstring($0);
-      print sprintf(qq{    sv_setpv_mg(get_sv("0", GV_ADD|GV_NOTQUAL), %s);\n}, $dollar_0);
+      print sprintf(qq{    sv_setpv_mg(get_svs("0", GV_ADD|GV_NOTQUAL), %s);\n}, $dollar_0);
       print sprintf(qq{    CopFILE_set(&PL_compiling, %s);\n}, $dollar_0);
     }
     else {
       #print q{    warn("PL_origalen=%d\n", PL_origalen);},"\n";
-      print qq{    sv_setpv_mg(get_sv("0", GV_ADD|GV_NOTQUAL), argv[0]);\n};
+      print qq{    sv_setpv_mg(get_svs("0", GV_ADD|GV_NOTQUAL), argv[0]);\n};
       print qq{    CopFILE_set(&PL_compiling, argv[0]);\n};
     }
     # more global vars
@@ -7597,32 +7605,32 @@ _EOT15
     #print "    PL_utf8locale = ${^UTF8LOCALE};\n" if ${^UTF8LOCALE};
     #print "    PL_utf8cache = ${^UTF8CACHE};\n" if ${^UTF8CACHE};
     # nomg
-    print sprintf(qq{    sv_setpv(get_sv(";", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($;)) if $; ne "\34";
-    print sprintf(qq{    sv_setpv(get_sv("\\"", GV_NOTQUAL), %s); /* \$" */\n}, cstring($")) if $" ne " ";
+    print sprintf(qq{    sv_setpv(get_svs(";", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($;)) if $; ne "\34";
+    print sprintf(qq{    sv_setpv(get_svs("\\"", GV_NOTQUAL), %s); /* \$" */\n}, cstring($")) if $" ne " ";
     # global IO vars
     if ($PERL56) {
       print sprintf(qq{    PL_ofs = %s; PL_ofslen = %u; /* \$, */\n}, cstring($,), length $,) if $,;
       print sprintf(qq{    PL_ors = %s; PL_orslen = %u; /* \$\\ */\n}, cstring($\), length $\) if $\;
     } else {
       print sprintf(qq{    sv_setpv_mg(GvSVn(PL_ofsgv), %s); /* \$, */\n}, cstring($,)) if $,;
-      print sprintf(qq{    sv_setpv_mg(get_sv("\\\\", GV_ADD|GV_NOTQUAL), %s); /* \$\\ */\n}, cstring($\)) if $\; #ORS
+      print sprintf(qq{    sv_setpv_mg(get_svs("\\\\", GV_ADD|GV_NOTQUAL), %s); /* \$\\ */\n}, cstring($\)) if $\; #ORS
     }
-    print sprintf(qq{    sv_setpv_mg(get_sv("/", GV_NOTQUAL), %s);\n}, cstring($/)) if $/ ne "\n"; #RS
-    print         qq{    sv_setiv_mg(get_sv("|", GV_ADD|GV_NOTQUAL), $|);\n} if $|; #OUTPUT_AUTOFLUSH
+    print sprintf(qq{    sv_setpv_mg(get_svs("/", GV_NOTQUAL), %s);\n}, cstring($/)) if $/ ne "\n"; #RS
+    print         qq{    sv_setiv_mg(get_svs("|", GV_ADD|GV_NOTQUAL), $|);\n} if $|; #OUTPUT_AUTOFLUSH
     # global format vars
-    print sprintf(qq{    sv_setpv_mg(get_sv("^A", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($^A)) if $^A; #ACCUMULATOR
-    print sprintf(qq{    sv_setpv_mg(get_sv("^L", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($^L)) if $^L ne "\f"; #FORMFEED
-    print sprintf(qq{    sv_setpv_mg(get_sv(":", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($:)) if $: ne " \n-"; #LINE_BREAK_CHARACTERS
-    print sprintf(qq/    sv_setpv_mg(get_sv("^", GV_ADD|GV_NOTQUAL), savepvn(%s, %u));\n/, cstring($^), length($^))
+    print sprintf(qq{    sv_setpv_mg(get_svs("^A", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($^A)) if $^A; #ACCUMULATOR
+    print sprintf(qq{    sv_setpv_mg(get_svs("^L", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($^L)) if $^L ne "\f"; #FORMFEED
+    print sprintf(qq{    sv_setpv_mg(get_svs(":", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($:)) if $: ne " \n-"; #LINE_BREAK_CHARACTERS
+    print sprintf(qq/    sv_setpv_mg(get_svs("^", GV_ADD|GV_NOTQUAL), savepvn(%s, %u));\n/, cstring($^), length($^))
       if $^ ne "STDOUT_TOP";
-    print sprintf(qq/    sv_setpv_mg(get_sv("~", GV_ADD|GV_NOTQUAL), savepvn(%s, %u));\n/, cstring($~), length($~))
+    print sprintf(qq/    sv_setpv_mg(get_svs("~", GV_ADD|GV_NOTQUAL), savepvn(%s, %u));\n/, cstring($~), length($~))
       if $~ ne "STDOUT";
-    print         qq{    sv_setiv_mg(get_sv("%", GV_ADD|GV_NOTQUAL), $%);\n} if $%; #PAGE_NUMBER
-    print         qq{    sv_setiv_mg(get_sv("-", GV_ADD|GV_NOTQUAL), $-);\n} unless ($- == 0 or $- == 60); #LINES_LEFT
-    print         qq{    sv_setiv_mg(get_sv("=", GV_ADD|GV_NOTQUAL), $=);\n} if $= != 60; #LINES_PER_PAGE
+    print         qq{    sv_setiv_mg(get_svs("%", GV_ADD|GV_NOTQUAL), $%);\n} if $%; #PAGE_NUMBER
+    print         qq{    sv_setiv_mg(get_svs("-", GV_ADD|GV_NOTQUAL), $-);\n} unless ($- == 0 or $- == 60); #LINES_LEFT
+    print         qq{    sv_setiv_mg(get_svs("=", GV_ADD|GV_NOTQUAL), $=);\n} if $= != 60; #LINES_PER_PAGE
 
     # deprecated global vars
-    print qq{    {SV* s = get_sv("[",GV_NOTQUAL); sv_setiv(s, $[); mg_set(s);}\n} if $[; #ARRAY_BASE
+    print qq{    {SV* s = get_svs("[",GV_NOTQUAL); sv_setiv(s, $[); mg_set(s);}\n} if $[; #ARRAY_BASE
     if ($] < 5.010) { # OFMT and multiline matching
       eval q[
             print sprintf(qq{    sv_setpv(GvSVn(gv_fetchpv("\$#", GV_ADD|GV_NOTQUAL, SVt_PV)), %s);\n},
@@ -7631,7 +7639,7 @@ _EOT15
            ];
     }
 
-    print sprintf(qq{    sv_setpv_mg(get_sv("\030", GV_ADD|GV_NOTQUAL), %s); /* \$^X */\n}, cstring($^X));
+    print sprintf(qq{    sv_setpv_mg(get_svs("\030", GV_ADD|GV_NOTQUAL), %s); /* \$^X */\n}, cstring($^X));
     print <<"EOT";
     TAINT_NOT;
 
@@ -8580,7 +8588,7 @@ sub save_sig {
   }
   $init->add( "/* save %SIG */" ) if $verbose;
   warn "save %SIG\n" if $verbose;
-  $init->add( "{", "\tHV* hv = get_hv(\"main::SIG\",GV_ADD);" );
+  $init->add( "{", "\tHV* hv = get_hvs(\"main::SIG\",GV_ADD);" );
   foreach my $x ( @save_sig ) {
     my ($k, $cvref) = @$x;
     my $sv = $cvref->save;
