@@ -47,7 +47,7 @@ File::Path cpan/File-Path/lib/File/Path.pm 623799e76e11a756ca5e18749d8bc1bdc3800
 File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm ea210ef037088b8ff77db8a0c149e09032a4beab
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm e18f8a770bc007bbc24c1e8d632a84ce29a5c2ca
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 5b8a880cb139d79e65302c377272fcfe815184f5
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm c968b0977900360ef0cf739ee9f9c6be6ce91afc
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758

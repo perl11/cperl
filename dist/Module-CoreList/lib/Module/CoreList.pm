@@ -12783,6 +12783,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'PerlIO::encoding'      => '0.24_01',
             'DynaLoader'            => '2.05c',
             'XS::APItest'           => '0.80_02',
+            'Socket'                => '2.24_02',
         },
         removed => {
         }

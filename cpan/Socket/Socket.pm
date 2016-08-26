@@ -3,7 +3,7 @@ package Socket;
 use strict;
 { use 5.006001; }
 
-our $VERSION = '2.024_01';
+our $VERSION = '2.024_02';
 our $XS_VERSION = $VERSION;   # A dev xs version needs to be global, not my
 $VERSION = eval $VERSION;
 

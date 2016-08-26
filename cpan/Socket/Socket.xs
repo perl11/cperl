@@ -1065,7 +1065,7 @@ pack_sockaddr_in6(port_sv, sin6_addr, scope_id=0, flowinfo=0)
 #  endif
 	ST(0) = sv_2mortal(newSVpvn((char *)&sin6, sizeof(sin6)));
 #else
-	PERL_UNUSED_VAR(port);
+	PERL_UNUSED_VAR(port_sv);
 	PERL_UNUSED_VAR(sin6_addr);
 	ST(0) = (SV*)not_here("pack_sockaddr_in6");
 #endif
