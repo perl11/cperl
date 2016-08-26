@@ -24,10 +24,10 @@ relevant exploits.
 
 L<[perl #128951]|https://rt.perl.org/Public/Bug/Display.html?id=128951>
 
-=head2 C<eval "q" . chr(overlarge)> buffer overflow
+=head2 C<eval "q" . chr(overlarge)> stack overflow
 
 In C<eval "q" . chr(100000000064)> generating the error message
-C<Can't find string terminator "XXX"'> was overrunning a buffer
+C<Can't find string terminator "XXX"'> was overrunning a local buffer
 designed to hold a single utf8 char, since it wasn't allowing for
 the C<\0> at the end.
 
