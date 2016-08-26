@@ -98,7 +98,7 @@ dl_unload_all_files(pTHX_ void *unused)
     SV *dl_libref;
 
     if ((sub = get_cvs("DynaLoader::dl_unload_file", 0)) != NULL) {
-        dl_librefs = get_av("DynaLoader::dl_librefs", 0);
+        dl_librefs = get_avs("DynaLoader::dl_librefs", 0);
         EXTEND(SP,1);
         while ((dl_libref = av_pop(dl_librefs)) != &PL_sv_undef) {
            dSP;
@@ -130,7 +130,7 @@ dl_generic_private_init(pTHX)	/* called by dl_*.xs dl_private_init() */
 #endif
 #ifdef DEBUGGING
     {
-	SV *sv = get_sv("DynaLoader::dl_debug", 0);
+	SV *sv = get_svs("DynaLoader::dl_debug", 0);
 	dl_debug = sv ? SvIV(sv) : 0;
     }
 #endif
@@ -211,7 +211,7 @@ XS(XS_DynaLoader_bootstrap_inherit)
                                 SvPVX(ST(0)), (int)items));
 	ENTER_with_name("bootstrap");
         SAVETMPS;
-        if ((isa = get_av(s, GV_ADDMULTI))) {
+        if ((isa = get_avn_flags(s, SvCUR(module_isa), GV_ADDMULTI))) {
             SAVESPTR(isa);
             if (AvFILL(isa)>=0)
                 isa = av_make(AvFILL(isa), AvARRAY(isa));
@@ -268,7 +268,7 @@ dl_construct_modpname(pTHX_ AV* modparts) {
     /* Some systems have restrictions on files names for DLL's etc.
        mod2fname returns appropriate file base name (typically truncated).
        It may also edit @modparts if required. */
-    CV *mod2fname = get_cv("DynaLoader::mod2fname", 0);
+    CV *mod2fname = get_cvs("DynaLoader::mod2fname", 0);
     if (mod2fname) {
 	DLDEBUG(2,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter mod2fname with '%s'\n", SvPVX(AvARRAY(modparts)[AvFILLp(modparts)])));
         SPAGAIN;
@@ -308,7 +308,7 @@ XS(XS_DynaLoader_bootstrap)
         Perl_die(aTHX_ "Usage: DynaLoader::bootstrap($packagename [,$VERSION])\n");
     module = ST(0);
     modulename = SvPVX(module);
-    cv_load_file = get_cv("DynaLoader::dl_load_file", 0);
+    cv_load_file = get_cvs("DynaLoader::dl_load_file", 0);
     if (!cv_load_file) {
       Perl_die(aTHX_ "Can't load module %s, dynamic loading not available in this perl.\n"
                "  (You may need to build a new perl executable which either supports\n"
@@ -317,7 +317,7 @@ XS(XS_DynaLoader_bootstrap)
     }
 
 #ifdef OS2
-    if (!SvTRUE_NN(get_sv("OS2::is_static")))
+    if (!SvTRUE_NN(get_svs("OS2::is_static")))
         Perl_die(aTHX_ "Dynaloaded Perl modules are not available in this build of Perl");
 #endif
 
@@ -579,7 +579,7 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
         Perl_die(aTHX_ "Usage: DynaLoader::dl_find_symbol_anywhere($symbol)\n");
 
     sym = ST(0);
-    dl_librefs = get_av("DynaLoader::dl_librefs", GV_ADDMULTI);
+    dl_librefs = get_avs("DynaLoader::dl_librefs", GV_ADDMULTI);
     dl_find_symbol = (SV*)get_cv("DynaLoader::dl_find_symbol", 0);
     for (i=0; i<=AvFILLp(dl_librefs); i++) {
         SV *libref = AvARRAY(dl_librefs)[i];
@@ -724,9 +724,9 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
                 "Invalid XS module boot function name changed to '%s', %d non-word chars",
                 SvPVX(bootname), warn_nonword);
     }
-    dl_require_symbols = get_av("DynaLoader::dl_require_symbols", GV_ADDMULTI);
+    dl_require_symbols = get_avs("DynaLoader::dl_require_symbols", GV_ADDMULTI);
     av_store(dl_require_symbols, 0, bootname);
-    dl_find_symbol = get_cv("DynaLoader::dl_find_symbol", 0);
+    dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol", 0);
 
     /* TODO .bs support, call flags method */
     flagsiv = newSViv(flags);
@@ -756,7 +756,7 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
     {
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter XS dl_load_file with '%s' %ld\n",
                                 SvPVX(file), flags));
-        cv_load_file = get_cv("DynaLoader::dl_load_file", 0);
+        cv_load_file = get_cvs("DynaLoader::dl_load_file", 0);
         PUSHMARK(SP);
         XPUSHs(file);
         mXPUSHs(flagsiv);
@@ -782,7 +782,7 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
 #endif
     }
     {
-        AV *dl_librefs = get_av("DynaLoader::dl_librefs", GV_ADDMULTI);
+        AV *dl_librefs = get_avs("DynaLoader::dl_librefs", GV_ADDMULTI);
         AV_PUSH(dl_librefs, SvREFCNT_inc_simple_NN(libref)); /* record loaded object */
     }
 #if defined(PERL_IN_DL_FREEMINT_XS)
@@ -823,12 +823,12 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
         Perl_die(aTHX_ "Can't find '%s' symbol in %s\n", SvPVX(bootname), SvPVX(file));
     }
     {
-        AV *dl_modules = get_av("DynaLoader::dl_modules", GV_ADDMULTI);
+        AV *dl_modules = get_avs("DynaLoader::dl_modules", GV_ADDMULTI);
         AV_PUSH(dl_modules, pv_copy(module)); /* record loaded module */
     }
 
     {
-        CV *dl_install_xsub = get_cv("DynaLoader::dl_install_xsub", 0);
+        CV *dl_install_xsub = get_cvs("DynaLoader::dl_install_xsub", 0);
         SV *bootstrap = newSVpvs("");
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log,
             "DynaLoader: Enter dl_install_xsub with %s::bootstrap %lx %s\n",
@@ -848,7 +848,7 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
                                 modulename, xs));
     }
     {
-        AV *dl_shared_objects = get_av("DynaLoader::dl_shared_objects", GV_ADDMULTI);
+        AV *dl_shared_objects = get_avs("DynaLoader::dl_shared_objects", GV_ADDMULTI);
         AV_PUSH(dl_shared_objects, SvREFCNT_inc_simple_NN(file)); /* record loaded files */
     }
 

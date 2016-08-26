@@ -329,9 +329,9 @@ static void
 S_do_dump(pTHX_ SV *const sv, I32 lim)
 {
     dVAR;
-    SV *pv_lim_sv = perl_get_sv("Devel::Peek::pv_limit", 0);
+    SV *pv_lim_sv = get_svs("Devel::Peek::pv_limit", 0);
     const STRLEN pv_lim = pv_lim_sv ? SvIV(pv_lim_sv) : 0;
-    SV *dumpop = perl_get_sv("Devel::Peek::dump_ops", 0);
+    SV *dumpop = get_svs("Devel::Peek::dump_ops", 0);
     const U16 save_dumpindent = PL_dumpindent;
     PL_dumpindent = 2;
     do_sv_dump(0, Perl_debug_log, sv, 0, lim,
@@ -455,9 +455,9 @@ I32	lim
 PPCODE:
 {
     long i;
-    SV *pv_lim_sv = perl_get_sv("Devel::Peek::pv_limit", 0);
+    SV *pv_lim_sv = get_svs("Devel::Peek::pv_limit", 0);
     const STRLEN pv_lim = pv_lim_sv ? SvIV(pv_lim_sv) : 0;
-    SV *dumpop = perl_get_sv("Devel::Peek::dump_ops", 0);
+    SV *dumpop = get_svs("Devel::Peek::dump_ops", 0);
     const U16 save_dumpindent = PL_dumpindent;
     PL_dumpindent = 2;
 

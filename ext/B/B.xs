@@ -278,7 +278,7 @@ get_overlay_object(pTHX_ const OP *o, const char * const name, U32 namelen)
     HE *he;
     SV **svp;
     SV *key;
-    SV *sv =get_sv("B::overlay", 0);
+    SV *sv = get_svs("B::overlay", 0);
     if (!sv || !SvROK(sv))
 	return NULL;
     sv = SvRV(sv);
@@ -824,7 +824,7 @@ BOOT:
     ASSIGN_COMMON_ALIAS(I, warnhook);
     cv = newXS("B::diehook", intrpvar_sv_common, file);
     ASSIGN_COMMON_ALIAS(I, diehook);
-    sv = get_sv("B::OP::does_parent", GV_ADDMULTI);
+    sv = get_svs("B::OP::does_parent", GV_ADDMULTI);
 #ifdef PERL_OP_PARENT
     sv_setsv(sv, &PL_sv_yes);
 #else

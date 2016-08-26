@@ -104,7 +104,7 @@ dl_boot (pTHX) {
     const char *debug = PerlEnv_getenv("PERL_DL_DEBUG");
     UV tmp_dl_debug;
 #endif
-    HV * dl_stash = get_hv("main::DynaLoader::", GV_ADDMULTI);
+    HV * dl_stash = get_hvs("main::DynaLoader::", GV_ADDMULTI);
     newCONSTSUB( dl_stash, "dl_load_flags", newSViv(0) );
 #ifdef DEBUGGING
     /* enable debug/trace messages from DynaLoader perl code */
@@ -112,19 +112,19 @@ dl_boot (pTHX) {
        && (grok_number(debug, strlen(debug), &tmp_dl_debug) & IS_NUMBER_IN_UV)
        && tmp_dl_debug <= INT_MAX)
     {
-        SV *sv = get_sv("DynaLoader::dl_debug", GV_ADDMULTI);
+        SV *sv = get_svs("DynaLoader::dl_debug", GV_ADDMULTI);
         sv_upgrade(sv, SVt_IV);
         SvIV_set(sv, tmp_dl_debug);
         dl_debug = (int)tmp_dl_debug;
     }
 #endif
-    do_expand = get_sv("DynaLoader::dl_expand", GV_ADDMULTI);
+    do_expand = get_svs("DynaLoader::dl_expand", GV_ADDMULTI);
     if (SvTYPE(do_expand) < SVt_IV || !SvIOK(do_expand)) {
         sv_upgrade(do_expand, SVt_IV);
         SvIOK_on(do_expand);
         SvIV_set(do_expand, DL_DO_EXPAND);
     }
-    dl_library_path = get_av("DynaLoader::dl_library_path", GV_ADDMULTI);
+    dl_library_path = get_avs("DynaLoader::dl_library_path", GV_ADDMULTI);
     inc_hv = GvHVn(PL_incgv);
     (void)hv_store(inc_hv, "DynaLoader.pm", sizeof("DynaLoader.pm")-1,
                    SvREFCNT_inc_simple_NN(newSVpvs(__FILE__)), 0);

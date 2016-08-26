@@ -20,7 +20,7 @@ glob_ophook(pTHX_ OP *o)
   {
     dMY_CXT;
     if (!MY_CXT.x_DG_ENTRIES)
-	MY_CXT.x_DG_ENTRIES = get_hv("File::DosGlob::entries", 0);
+	MY_CXT.x_DG_ENTRIES = get_hvs("File::DosGlob::entries", 0);
     if (MY_CXT.x_DG_ENTRIES)
 	(void)hv_delete(MY_CXT.x_DG_ENTRIES, (char *)&o, sizeof(OP *),G_DISCARD);
     if (MY_CXT.x_DG_OLD_OPHOOK) MY_CXT.x_DG_OLD_OPHOOK(aTHX_ o);

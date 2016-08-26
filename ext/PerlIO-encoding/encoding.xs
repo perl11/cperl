@@ -163,7 +163,7 @@ PerlIOEncode_pushed(pTHX_ PerlIO * f, const char *mode, SV * arg, PerlIO_funcs *
 	PerlIOBase(f)->flags |= PERLIO_F_UTF8;
     }
 
-    e->chk = newSVsv(get_sv("PerlIO::encoding::fallback", 0));
+    e->chk = newSVsv(get_svs("PerlIO::encoding::fallback", 0));
     e->inEncodeCall = 0;
 
     FREETMPS;
@@ -661,7 +661,7 @@ PROTOTYPES: ENABLE
 
 BOOT:
 {
-    SV *chk = get_sv("PerlIO::encoding::fallback", GV_ADD|GV_ADDMULTI);
+    SV *chk = get_svs("PerlIO::encoding::fallback", GV_ADD|GV_ADDMULTI);
     /*
      * we now "use Encode ()" here instead of
      * PerlIO/encoding.pm.  This avoids SEGV when ":encoding()"

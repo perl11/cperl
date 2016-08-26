@@ -2115,7 +2115,7 @@ BOOT:
     MY_CXT.i  = 99;
     MY_CXT.sv = newSVpv("initial",0);
 
-    MY_CXT.bhkav = get_av("XS::APItest::bhkav", GV_ADDMULTI);
+    MY_CXT.bhkav = get_avs("XS::APItest::bhkav", GV_ADDMULTI);
     MY_CXT.bhk_record = 0;
 
     BhkENTRY_set(&bhk_test, bhk_start, blockhook_test_start);
@@ -2150,7 +2150,7 @@ CLONE(...)
     MY_CXT.cscgv = gv_fetchpvs("XS::APItest::COMPILE_SCOPE_CONTAINER",
         GV_ADDMULTI, SVt_PVAV);
     MY_CXT.cscav = NULL;
-    MY_CXT.bhkav = get_av("XS::APItest::bhkav", GV_ADDMULTI);
+    MY_CXT.bhkav = get_avs("XS::APItest::bhkav", GV_ADDMULTI);
     MY_CXT.bhk_record = 0;
     MY_CXT.peep_recorder = newAV();
     MY_CXT.rpeep_recorder = newAV();
@@ -2832,27 +2832,27 @@ DPeek (sv)
 void
 BEGIN()
     CODE:
-	sv_inc(get_sv("XS::APItest::BEGIN_called", GV_ADD|GV_ADDMULTI));
+	sv_inc(get_svs("XS::APItest::BEGIN_called", GV_ADD|GV_ADDMULTI));
 
 void
 CHECK()
     CODE:
-	sv_inc(get_sv("XS::APItest::CHECK_called", GV_ADD|GV_ADDMULTI));
+	sv_inc(get_svs("XS::APItest::CHECK_called", GV_ADD|GV_ADDMULTI));
 
 void
 UNITCHECK()
     CODE:
-	sv_inc(get_sv("XS::APItest::UNITCHECK_called", GV_ADD|GV_ADDMULTI));
+	sv_inc(get_svs("XS::APItest::UNITCHECK_called", GV_ADD|GV_ADDMULTI));
 
 void
 INIT()
     CODE:
-	sv_inc(get_sv("XS::APItest::INIT_called", GV_ADD|GV_ADDMULTI));
+	sv_inc(get_svs("XS::APItest::INIT_called", GV_ADD|GV_ADDMULTI));
 
 void
 END()
     CODE:
-	sv_inc(get_sv("XS::APItest::END_called", GV_ADD|GV_ADDMULTI));
+	sv_inc(get_svs("XS::APItest::END_called", GV_ADD|GV_ADDMULTI));
 
 void
 utf16_to_utf8 (sv, ...)
@@ -4229,7 +4229,7 @@ AUTOLOAD(...)
   CODE:
     PERL_UNUSED_ARG(items);
     class_and_method = GvSV(CvGV(cv));
-    comms = get_sv("main::the_method", 1);
+    comms = get_svs("main::the_method", 1);
     if (class_and_method == NULL) {
       RETVAL = 1;
     } else if (!SvOK(class_and_method)) {
