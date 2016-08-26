@@ -15,20 +15,49 @@ XXX Any important notices here
 
 =head1 Security
 
-XXX Any security-related notices go here.  In particular, any security
-vulnerabilities closed should be noted here rather than in the
-L</Selected Bug Fixes> section.
+=head2 C<@{ \327 \n }> buffer overflows
 
-[ List each security issue as a =head2 entry ]
+Fixed C<@{ \327 \n }> tokenizer failures and heap buffer overflows in
+C<sv_vcatpvfn_flags()> with wrong tracking of C<PL_linestr>, the
+currently parsed line buffer. This can easily lead to security
+relevant exploits.
+
+L<[perl #128951]|https://rt.perl.org/Public/Bug/Display.html?id=128951>
+
+=head2 C<eval "q" . chr(overlarge)> buffer overflow
+
+In C<eval "q" . chr(100000000064)> generating the error message
+C<Can't find string terminator "XXX"'> was overrunning a buffer
+designed to hold a single utf8 char, since it wasn't allowing for
+the C<\0> at the end.
+
+L<[perl #128952]|https://rt.perl.org/Public/Bug/Display.html?id=128952>
 
 =head1 Performance Enhancements
 
-XXX Changes which enhance performance without changing behaviour go here.
-There may well be none in a stable release.
-
-[ List each enhancement as a =item entry ]
-
 =over 4
+
+=item *
+
+Extract C<hv_common_magical()> to a seperate function.  Extracts
+uncommon magical code in hot code to an extra static function to help
+keep the icache smaller. Only in rare cases this branch is
+taken. I.e filling ENV at startup, or using tied hashes.
+
+Measured 2-15% faster with normal scripts, not using tied hashes.
+
+=item *
+
+Use more C<strEQc>, C<strNEc> macros.
+
+=item *
+
+aassign: pre-allocate needed hash size with aassign, similar to
+arrays, avoiding run-time hash splits.
+e.g. C<my %h = (.. => .., .. => ..)>
+
+This version is 30% faster overall in the Mail::SpamAssassin testsuite
+than cperl-5.25.0.
 
 =item *
 
@@ -159,25 +188,27 @@ L</Platform Support> section, instead.
 
 =item *
 
-XXX
+fix C<__builtin_prefetch> probe, not yet used.
+
+=item *
+
+new C<__builtin_ctz> probe, C<$Config{d_builtin_ctz} key>, used for faster
+DO_HSPLIT() calculations. About 30% faster for hash intensive tests.
 
 =back
 
 =head1 Testing
 
-XXX Any significant changes to the testing of a freshly built perl should be
-listed here.  Changes which create B<new> files in F<t/> go here as do any
-large changes to the testing harness (e.g. when parallel testing was added).
-Changes to existing files in F<t/> aren't worth summarizing, although the bugs
-that they represent may be covered elsewhere.
-
-[ List each test improvement as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Relax some timing sensitive smoker failures on overly slow systems,
+such as darwin on Travis with DEBUGGING:
+
+Time-HiRes: skip nanosleep test,
+
+Sys-Syslog with not responding syslogd.
 
 =back
 
@@ -205,16 +236,32 @@ XXX
 
 =head2 Platform-Specific Notes
 
-XXX List any changes for specific platforms.  This could include configuration
-and compilation changes or changes in portability/compatibility.  However,
-changes within modules for platforms should generally be listed in the
-L</Modules and Pragmata> section.
+=over 4
+
+=item Win32
 
 =over 4
 
-=item XXX-some-platform
+=item *
 
-XXX
+Preserve the C<Systemroot> env var during env wipe for Win32 in F<t/op/magic.t>
+
+This fixes a test fail with VC 2005 and VC 2008 on WinXP. The
+C<Systemroot> env var is required on WinXP to load SXS tracked DLLs,
+VC 2005 and 2008's MS libc's are SXS tracked (before and after are
+not), so once %ENV is wiped and systemroot is deleted the C<require
+Win32> cant load the XS DLL because the XS DLL is linked against the
+SXS tracked libc specific to 2005/2008.
+
+L<[perl #126041]|https://rt.perl.org/Public/Bug/Display.html?id=126041>
+
+=item *
+
+Added strupr() and more ENV_IS_CASELESS helper functions for non-Win32/Netware
+builds with ENV_IS_CASELESS being defined to easier test caseless windows ENV
+handling on non-windows platforms.
+
+=back
 
 =back
 
@@ -224,44 +271,186 @@ XXX Changes which affect the interface available to C<XS> code go here.  Other
 significant internal changes for future core maintainers should be noted as
 well.
 
-[ List each change as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+C<PL_maxo> is now tracked/incremented in C<custom_op_register()>.
+
+The static number of OPs is determined by the static C<MAXO>
+definition, but users can add custom ops.
+
+Note that perl5.25.4 removes the dynamic part C<maxo>.
+We find it useful, as only C<maxo> returns the number of current ops.
+
+=item *
+
+HVhek_MASK is now only 0x03, sames as HVhek_ENABLEHVKFLAGS, which is
+not needed anymore.
+
+HVhek_MASK is only needed during hash collision comparisons.
+There we only need the 2 UTF8 bits: HVhek_UTF8 and HVhek_WASUTF8,
+but not the 3 others: UNSHARED, TAINTED, STATIC. (the 2 last being
+cperl-only)
 
 =back
 
 =head1 Selected Bug Fixes
 
-XXX Important bug fixes in the core language are summarized here.  Bug fixes in
-files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
-
-[ List each fix as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Fix HEK_TAINTED check for HEf_SVKEY values. A HEf_SVKEY hek has no
+tainted flag, the pointed to SV has. This is a cperl-only security
+feature.
+
+=item *
+
+Only clear LS_COLORS for glob
+
+When miniperl calls csh to implement glob(), we cleared %ENV
+temporarily to avoid csh dying on invalid values for things like
+LS_COLORS.  That has proven to have far too many problems, since many
+system-dependent env vars are necessary for calling an external
+process.  See the L<[perl #126041]|https://rt.perl.org/Public/Bug/Display.html?id=126041> ticket for details.
+
+A better solution is temporarily to clear only those vars that are
+known to be problematic and make csh possibly fail.  There only hap-
+pens to be one of those at present, namely LS_COLORS.
+
+=item *
+
+A SEGV in mess_sv during global destruction with a DEBUGGING perl and
+-DS been fixed, occuring when we wanted to report the location of an
+error when curcop has already been freed.
+
+Testcase: C<./miniperl -DS -e '$_="f"; s/./"&".$&/ee'>
+
+L<[perl #129027]|https://rt.perl.org/Public/Bug/Display.html?id=129027>
+
+=item *
+
+A SEGV in ck_chift with an empty/wrong current function, caused by a
+syntax error has been fixed. The syntax error is now reported lateron.
+Testcase: C<'qq{@{sub{q}}]]}}; s0{shift'>
+
+L<[perl #125351]|https://rt.perl.org/Public/Bug/Display.html?id=125351>
+
+=item *
+
+Since Perl 5.20, line numbers have been off by one when perl is invoked with
+the B<-x> switch.  This has been fixed.
+L<[perl #128508]|https://rt.perl.org/Public/Bug/Display.html?id=128508>
+
+=item *
+
+Handle missing Unicode heredoc terminators correctly.
+E.g. C<perl -CS -e 'use utf8; q«'>
+prints now C<Can't find string terminator "«" anywhere before EOF at -e line 1.>
+
+L<[perl #128701]|https://rt.perl.org/Public/Bug/Display.html?id=128701>
+
+=item *
+
+Mentioning a constant twice in a row does not lead to assertions
+errors with DEBUGGING builds, such as e.g. C<sub ub(){0} ub ub>.
+
+L<[perl #126482]|https://rt.perl.org/Public/Bug/Display.html?id=128701>
 
 =back
 
 =head1 Known Problems
 
-XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
-tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
-platform specific bugs also go here.
-
-[ List each fix as a =item entry ]
+Most of these fixes still need to be backported from perl5.25.x upstream:
 
 =over 4
 
 =item *
 
-XXX
+F<t/op/taint.t> contained a test with signatures and 6 default
+arguments, which on some 32 bit systems led to random "Reference
+parameter cannot take default value at op/taint.t line 2461"
+compile-time failures. This test has been rewritten to ony use 4 arguments.
+
+See L<[cperl #164]|https://github.com/perl11/cperl/issues/164>
+
+=item *
+
+C<clang -flto=thin> and on some systems even C<gcc -flto> with C<-O3>
+or C<-finline> leads to invisible symbols which were inlined and not
+exported, even if they should be declared as public API. Work is
+ongoing in the F<feature/gh186-lto-thin> branch, but there the
+inlining is disabled by the C<used> attribute, leading to a
+10% performance regression.  On the other hand a working
+C<clang-3.9 -flto> leads to 20% performance improvements.
+
+=item *
+
+C< until ($x = 1) { ... } > and C< ... until $x = 1 > now properly
+warn when syntax warnings are enabled.
+L<[perl #127333]|https://rt.perl.org/Public/Bug/Display.html?id=127333>
+
+=item *
+
+C<require> followed by a single colon (as in C<foo() ? require : ...> is
+now parsed correctly as C<require> with implicit $_, rather than
+C<require "">.
+L<[perl #128307]|https://rt.perl.org/Public/Bug/Display.html?id=128307>
+
+=item *
+
+List assignment to C<vec> or C<substr> with an array or hash for its first
+argument used to result in crashes or "Can't coerce" error messages at run
+time, unlike scalar assignment, which would give an error at compile time.
+List assignment now gives a compile-time error, too.
+L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
+
+
+=item *
+
+Code that looks for a variable name associated with an uninitialized value
+could cause an assertion in cases where magic is involved, such as
+C<$ISA[0][0]>.
+L<[perl #128253]|https://rt.perl.org/Public/Bug/Display.html?id=128253>
+
+=item *
+
+In Perl 5.18, the parsing of C<"$foo::$bar"> was accidentally changed, such
+that it would be treated as C<$foo."::".$bar>.  The previous behavior, which
+was to parse it as C<$foo:: . $bar>, needs to be restored.
+L<[perl #128478]|https://rt.perl.org/Public/Bug/Display.html?id=128478>
+
+=item *
+
+A crash caused by code generating the warning "Subroutine STASH::NAME
+redefined" in cases such as C<sub P::f{} undef *P::; *P::f =sub{};> needs to be
+fixed.  In these cases, where the STASH is missing, the warning should appear
+as "Subroutine NAME redefined".
+L<[perl #128257]|https://rt.perl.org/Public/Bug/Display.html?id=128257>
+
+=item *
+
+An assertion triggered by some code that handles deprecated behavior in
+formats needs to be fixed, e.g. in cases like this:
+
+    format STDOUT =
+    @
+    0"$x"
+
+L<[perl #128255]|https://rt.perl.org/Public/Bug/Display.html?id=128255>
+
+=item *
+
+A possible divide by zero in string transformation code on Windows needs to be avoided,
+fixing a crash when collating an empty string.
+L<[perl #128618]|https://rt.perl.org/Public/Bug/Display.html?id=128618>
+
+=item *
+
+Some regular expression parsing glitches could lead to assertion failures with
+regular expressions such as C</(?<=/> and C</(?<!/>.
+L<[perl #128170]|https://rt.perl.org/Public/Bug/Display.html?id=128170>
 
 =back
 
@@ -276,16 +465,49 @@ the perldelta of a previous release.
 
 =back
 
-=head1 Obituary
-
-XXX If any significant core contributor has died, we've added a short obituary
-here.
-
 =head1 Acknowledgements
 
-XXX Generate this with:
+Perl 5.25.1 represents approximately 4 months of development since Perl 5.25.0
+and contains approximately 220,000 lines of changes across 1,400 files from 65
+authors.
 
-  cperl Porting/acknowledgements.pl v5.25.0..HEAD
+Excluding auto-generated files, documentation and release tools, there were
+approximately 140,000 lines of changes to 880 .pm, .t, .c and .h files.
+
+Perl continues to flourish into its third decade thanks to a vibrant community
+of users and developers. The following people are known to have contributed the
+improvements that became Perl 5.25.1:
+
+Reini Urban, Karl Williamson, David Mitchell, Jarkko Hietaniemi, Daniel Dragan,
+Tony Cook, Andy Broad, Steve Hay, Craig A. Berry, Lukas Mai, Yves Orton, Aaron
+Crane, Ricardo Signes, Father Chrysostomos, Matthew Horsfall, Dagfinn Ilmari
+Mannsåker, James E Keenan, H.Merijn Brand, Aristotle Pagaltzis, Abigail, Karen
+Etheridge, Todd Rinaldo, Dan Collins, Shlomi Fish, Stevan Little, Chris
+'BinGOs' Williams, Doug Bell, Jan Dubois, David Golden, Nicholas Clark, Niko
+Tyni, Nicolas Rochelemagne, Tom Hukins, Leon Timmermans, Victor Adam, Andy
+Dougherty, Peter Martini, Rafael Garcia-Suarez, Sisyphus, Vladimir Timofeev,
+Thomas Sibley, Ed J, Hugo van der Sanden, Ivan Pozdeev, Vincent Pit, Herbert
+Breunung, Sawyer X, John SJ Anderson, Alex Vandiver, Ludovic E. R.
+Tolhurst-Cleaver, Stanislaw Pusep, Max Maischein, John Peacock, Zachary Storer,
+Aaron Priven, Pip Cet, Andreas König, Dr.Ruud, Mattia Barbon, Ed Avis, Chas.
+Owens, Mohammed El-Afifi, Helmut Wollmersdorfer, Achim Gratz, Alexander
+D'Archangel.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
+
+    cperl Porting/acknowledgements.pl v5.25.0..HEAD
 
 =head1 Reporting Bugs
 
