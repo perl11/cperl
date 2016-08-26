@@ -98,8 +98,8 @@ SKIP: {
 # pack_sockaddr_in6, unpack_sockaddr_in6
 # sockaddr_in6
 SKIP: {
-    skip "No AF_INET6", 9 unless my $AF_INET6 = eval { Socket::AF_INET6() };
-    skip "Cannot pack_sockaddr_in6()", 9 unless my $sin6 = eval { Socket::pack_sockaddr_in6(0x1234, "0123456789abcdef", 0, 89) };
+    skip "No AF_INET6", 13 unless my $AF_INET6 = eval { Socket::AF_INET6() };
+    skip "Cannot pack_sockaddr_in6()", 13 unless my $sin6 = eval { Socket::pack_sockaddr_in6(0x1234, "0123456789abcdef", 0, 89) };
 
     ok(defined $sin6, 'pack_sockaddr_in6 defined');
 
