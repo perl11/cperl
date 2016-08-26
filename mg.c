@@ -1250,6 +1250,8 @@ Perl_magic_setenv(pTHX_ SV *sv, MAGIC *mg)
 	if (s && klen == 4 && strEQc(key,"PATH")) {
 	    const char * const strend = s + len;
 
+            /* set MGf_TAINTEDDIR if any component of the new path is
+             * relative or world-writeable */
 	    while (s < strend) {
 		char tmpbuf[256];
 		Stat_t st;
