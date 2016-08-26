@@ -17,6 +17,7 @@
 #define PERLIO_NOT_STDIO 1
 #include "perl.h"
 #include "XSUB.h"
+
 #if defined(PERL_IMPLICIT_SYS)
 #  undef signal
 #  undef open
@@ -55,6 +56,12 @@
 
 #ifdef I_UNISTD
 #include <unistd.h>
+#endif
+
+#ifndef get_svs
+#  define get_svs(str, flags) get_sv((str), (flags))
+#  define get_avs(str, flags) get_av((str), (flags))
+#  define get_hvs(str, flags) get_hv((str), (flags))
 #endif
 
 #if defined(USE_QUADMATH) && defined(I_QUADMATH)

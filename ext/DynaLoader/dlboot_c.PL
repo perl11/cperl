@@ -57,7 +57,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
  * Any changes made here will be lost
  * Generated from dlboot_c.PL
  *
- * Copyright (C) 2015 cPanel Inc
+ * Copyright (C) 2015,2016 cPanel Inc
  * Licensed under the same terms as Perl itself.
  */
 

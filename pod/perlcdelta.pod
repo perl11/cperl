@@ -32,7 +32,14 @@ There may well be none in a stable release.
 
 =item *
 
-XXX
+Pre-extend internal hashes and stashes to avoid unnecessary boot-time hash
+splits. C<%warnings::>, C<%Config::>, C<%utf8::>, C<%version::>.
+
+=item *
+
+Added new C<get_svs>, C<get_avs>, C<get_hvs> macros, and accompanied
+C<get_[ash]vn_flags> API functions, to omit the run-time C<strlen(name)>
+for constant names. (#191)
 
 =back
 
@@ -50,11 +57,41 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
-=item DynaLoader 2.05c
+=item B  1.62_04
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item Devel::Peek  1.23_01
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item File::Glob  1.26_01
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item File::DosGlob  1.12_01
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item POSIX  1.65_01
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item PerlIO::encoding  0.24_01
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item XS::APItest  0.80_02
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item DynaLoader  2.05c
 
 no mathoms: call_sv instead of call_pv, get_cvs where available.
 
-=item B-C 1.54_11
+use the new get_svs, get_avs, get_hvs macros.
+
+=item B-C  1.54_12
 
 Better CopFILE_set,
 Fixup arenasize refcnt.
@@ -62,6 +99,10 @@ Delay cvref to init2, properly set a SvRV to a XS sub.
 Optimize constpv for CvFILE (less constants to merge for gcc).
 Improve NV precision by one digit.
 Fix to compile in utf8_heavy.pl, abstract and set %INC.
+Fix generation of @B::C::Config::deps on Windows.
+Fix !C99 precedence bug (e.g. MSVC).
+Minor refactor to simplify save_hek.
+Use the new get_svs, get_avs, get_hvs macros.
 
 =back
 

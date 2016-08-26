@@ -1,7 +1,7 @@
 package File::Glob;
 
 use strict;
-our($VERSION, @ISA, @EXPORT_OK, @EXPORT_FAIL, %EXPORT_TAGS, $DEFAULT_FLAGS);
+our($VERSION, $XS_VERSION, @ISA, @EXPORT_OK, @EXPORT_FAIL, %EXPORT_TAGS, $DEFAULT_FLAGS);
 
 require XSLoader;
 
@@ -37,7 +37,9 @@ pop @{$EXPORT_TAGS{bsd_glob}}; # no "glob"
 
 @EXPORT_OK   = (@{$EXPORT_TAGS{'glob'}}, 'csh_glob');
 
-$VERSION = '1.26';
+$VERSION = '1.26_01';
+$XS_VERSION = $VERSION;
+$VERSION = eval $VERSION;
 
 sub import {
     require Exporter;

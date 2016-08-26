@@ -8,6 +8,12 @@
 #include "XSUB.h"
 #include "fakesdio.h"   /* Causes us to use PerlIO below */
 
+#ifndef get_svs
+#  define get_svs(str, flags) get_sv((str), (flags))
+#  define get_avs(str, flags) get_av((str), (flags))
+#  define get_hvs(str, flags) get_hv((str), (flags))
+#endif
+
 typedef SV *SVREF;
 typedef PTR_TBL_t *XS__APItest__PtrTable;
 

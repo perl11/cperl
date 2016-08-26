@@ -5,6 +5,11 @@
 #include "XSUB.h"
 
 #include "bsd_glob.h"
+#ifndef get_svs
+#  define get_svs(str, flags) get_sv((str), (flags))
+#  define get_avs(str, flags) get_av((str), (flags))
+#  define get_hvs(str, flags) get_hv((str), (flags))
+#endif
 
 #define MY_CXT_KEY "File::Glob::_guts" XS_VERSION
 

@@ -6,7 +6,7 @@
 
 package File::DosGlob;
 
-our $VERSION = '1.12';
+our $VERSION = '1.12_01';
 use strict;
 use warnings;
 

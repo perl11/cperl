@@ -2,7 +2,13 @@
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+
 #define U8 U8
+#ifndef get_svs
+#  define get_svs(str, flags) get_sv((str), (flags))
+#  define get_avs(str, flags) get_av((str), (flags))
+#  define get_hvs(str, flags) get_hv((str), (flags))
+#endif
 
 #define OUR_DEFAULT_FB	"Encode::PERLQQ"
 
