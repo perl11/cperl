@@ -2676,6 +2676,7 @@ PERL_CALLCONV bool	Perl_is_utf8_space(pTHX_ const U8 *p)
 	assert(p)
 
 PERL_STATIC_INLINE bool	Perl_is_utf8_string(const U8 *s, STRLEN len)
+			__attribute__pure__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_IS_UTF8_STRING	\
 	assert(s)
