@@ -1137,7 +1137,14 @@ ApdO	|SV*	|get_sv		|NN const char *name|I32 flags
 ApdO	|AV*	|get_av		|NN const char *name|I32 flags
 ApdO	|HV*	|get_hv		|NN const char *name|I32 flags
 ApdO	|CV*	|get_cv		|NN const char* name|I32 flags
+Apd	|SV*	|get_svn_flags	|NN const char* name|STRLEN len|I32 flags
+Apd	|AV*	|get_avn_flags	|NN const char* name|STRLEN len|I32 flags
+Apd	|HV*	|get_hvn_flags	|NN const char* name|STRLEN len|I32 flags
 Apd	|CV*	|get_cvn_flags	|NN const char* name|STRLEN len|I32 flags
+Adm	|SV*	|get_svs	|NN const char *name|I32 flags
+Adm	|AV*	|get_avs	|NN const char *name|I32 flags
+Adm	|HV*	|get_hvs	|NN const char *name|I32 flags
+Adm	|CV*	|get_cvs	|NN const char* name|I32 flags
 #ifdef WIN32
 ApPM	|char*	|my_setlocale	|int category|NULLOK const char* locale
 #else

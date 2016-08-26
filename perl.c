@@ -2564,24 +2564,33 @@ S_run_body(pTHX_ I32 oldscope)
 /*
 =head1 SV Manipulation Functions
 
-=for apidoc p||get_sv
+=for apidoc p||get_svn_flags
 
 Returns the SV of the specified Perl scalar.  C<flags> are passed to
 C<gv_fetchpv>.  If C<GV_ADD> is set and the
 Perl variable does not exist then it will be created.  If C<flags> is zero
 and the variable does not exist then NULL is returned.
 
+In B<cperl> only.
+
+=for apidoc p||get_sv
+
+Uses C<strlen> to get the length of C<name>, then calls C<get_svn_flags>.
+
+=for apidoc p||get_svs
+
+C<get_svs("Name", flags)> to be used with a constant string.
+
 =cut
 */
 
 SV*
-Perl_get_sv(pTHX_ const char *name, I32 flags)
+Perl_get_svn_flags(pTHX_ const char *name, STRLEN len, I32 flags)
 {
     GV *gv;
+    PERL_ARGS_ASSERT_GET_SVN_FLAGS;
 
-    PERL_ARGS_ASSERT_GET_SV;
-
-    gv = gv_fetchpv(name, flags, SVt_PV);
+    gv = gv_fetchpvn(name, len, flags, SVt_PV);
     if (gv)
 	return GvSV(gv);
     return NULL;
@@ -2590,7 +2599,7 @@ Perl_get_sv(pTHX_ const char *name, I32 flags)
 /*
 =head1 Array Manipulation Functions
 
-=for apidoc p||get_av
+=for apidoc p||get_avn_flags
 
 Returns the AV of the specified Perl global or package array with the given
 name (so it won't work on lexical variables).  C<flags> are passed 
@@ -2600,16 +2609,26 @@ and the variable does not exist then NULL is returned.
 
 Perl equivalent: C<@{"$name"}>.
 
+In B<cperl> only.
+
+=for apidoc p||get_av
+
+Uses C<strlen> to get the length of C<name>, then calls C<get_avn_flags>.
+
+=for apidoc p||get_avs
+
+C<get_avs("Name", flags)> to be used with a constant string.
+
 =cut
 */
 
 AV*
-Perl_get_av(pTHX_ const char *name, I32 flags)
+Perl_get_avn_flags(pTHX_ const char *name, STRLEN len, I32 flags)
 {
-    GV* const gv = gv_fetchpv(name, flags, SVt_PVAV);
+    GV *gv;
+    PERL_ARGS_ASSERT_GET_AVN_FLAGS;
 
-    PERL_ARGS_ASSERT_GET_AV;
-
+    gv = gv_fetchpvn(name, len, flags, SVt_PVAV);
     if (flags)
     	return GvAVn(gv);
     if (gv)
@@ -2620,23 +2639,33 @@ Perl_get_av(pTHX_ const char *name, I32 flags)
 /*
 =head1 Hash Manipulation Functions
 
-=for apidoc p||get_hv
+=for apidoc p||get_hvn_flags
 
 Returns the HV of the specified Perl hash.  C<flags> are passed to
 C<gv_fetchpv>.  If C<GV_ADD> is set and the
 Perl variable does not exist then it will be created.  If C<flags> is zero
 and the variable does not exist then C<NULL> is returned.
 
+In B<cperl> only.
+
+=for apidoc p||get_hv
+
+Uses C<strlen> to get the length of C<name>, then calls C<get_hvn_flags>.
+
+=for apidoc p||get_hvs
+
+C<get_hvs("Name", flags)> to be used with a constant string.
+
 =cut
 */
 
 HV*
-Perl_get_hv(pTHX_ const char *name, I32 flags)
+Perl_get_hvn_flags(pTHX_ const char *name, STRLEN len, I32 flags)
 {
-    GV* const gv = gv_fetchpv(name, flags, SVt_PVHV);
+    GV *gv;
+    PERL_ARGS_ASSERT_GET_HVN_FLAGS;
 
-    PERL_ARGS_ASSERT_GET_HV;
-
+    gv = gv_fetchpvn(name, len, flags, SVt_PVHV);
     if (flags)
     	return GvHVn(gv);
     if (gv)
@@ -2655,9 +2684,15 @@ exist then it will be declared (which has the same effect as saying
 C<sub name;>).  If C<GV_ADD> is not set and the subroutine does not exist
 then NULL is returned.
 
+In B<cperl> only.
+
 =for apidoc p||get_cv
 
 Uses C<strlen> to get the length of C<name>, then calls C<get_cvn_flags>.
+
+=for apidoc p||get_cvs
+
+C<get_cvs("Name", flags)> to be used with a constant string.
 
 =cut
 */
@@ -2665,10 +2700,10 @@ Uses C<strlen> to get the length of C<name>, then calls C<get_cvn_flags>.
 CV*
 Perl_get_cvn_flags(pTHX_ const char *name, STRLEN len, I32 flags)
 {
-    GV* const gv = gv_fetchpvn_flags(name, len, flags, SVt_PVCV);
-
+    GV* gv;
     PERL_ARGS_ASSERT_GET_CVN_FLAGS;
 
+    gv = gv_fetchpvn_flags(name, len, flags, SVt_PVCV);
     /* XXX this is probably not what they think they're getting.
      * It has the same effect as "sub name;", i.e. just a forward
      * declaration! */
@@ -2680,13 +2715,30 @@ Perl_get_cvn_flags(pTHX_ const char *name, STRLEN len, I32 flags)
     return NULL;
 }
 
-/* Nothing in core calls this now, but we can't replace it with a macro and
+/* Nothing in core calls these now, but we can't replace it with a macro and
    move it to mathoms.c as a macro would evaluate name twice.  */
+SV*
+Perl_get_sv(pTHX_ const char *name, I32 flags)
+{
+    PERL_ARGS_ASSERT_GET_SV;
+    return get_svn_flags(name, strlen(name), flags);
+}
+AV*
+Perl_get_av(pTHX_ const char *name, I32 flags)
+{
+    PERL_ARGS_ASSERT_GET_AV;
+    return get_avn_flags(name, strlen(name), flags);
+}
+HV*
+Perl_get_hv(pTHX_ const char *name, I32 flags)
+{
+    PERL_ARGS_ASSERT_GET_HV;
+    return get_hvn_flags(name, strlen(name), flags);
+}
 CV*
 Perl_get_cv(pTHX_ const char *name, I32 flags)
 {
     PERL_ARGS_ASSERT_GET_CV;
-
     return get_cvn_flags(name, strlen(name), flags);
 }
 

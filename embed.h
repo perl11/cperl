@@ -166,14 +166,17 @@
 #endif
 #define free_tmps()		Perl_free_tmps(aTHX)
 #define get_av(a,b)		Perl_get_av(aTHX_ a,b)
+#define get_avn_flags(a,b,c)	Perl_get_avn_flags(aTHX_ a,b,c)
 #define get_context		Perl_get_context
 #define get_cv(a,b)		Perl_get_cv(aTHX_ a,b)
 #define get_cvn_flags(a,b,c)	Perl_get_cvn_flags(aTHX_ a,b,c)
 #define get_hv(a,b)		Perl_get_hv(aTHX_ a,b)
+#define get_hvn_flags(a,b,c)	Perl_get_hvn_flags(aTHX_ a,b,c)
 #define get_op_descs()		Perl_get_op_descs(aTHX)
 #define get_op_names()		Perl_get_op_names(aTHX)
 #define get_ppaddr()		Perl_get_ppaddr(aTHX)
 #define get_sv(a,b)		Perl_get_sv(aTHX_ a,b)
+#define get_svn_flags(a,b,c)	Perl_get_svn_flags(aTHX_ a,b,c)
 #define get_vtbl(a)		Perl_get_vtbl(aTHX_ a)
 #define getcwd_sv(a)		Perl_getcwd_sv(aTHX_ a)
 #define gp_free(a)		Perl_gp_free(aTHX_ a)

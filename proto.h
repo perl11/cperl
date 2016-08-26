@@ -1305,6 +1305,14 @@ PERL_CALLCONV AV*	Perl_get_av(pTHX_ const char *name, I32 flags)
 #define PERL_ARGS_ASSERT_GET_AV	\
 	assert(name)
 
+PERL_CALLCONV AV*	Perl_get_avn_flags(pTHX_ const char* name, STRLEN len, I32 flags)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_GET_AVN_FLAGS	\
+	assert(name)
+
+/* PERL_CALLCONV AV*	get_avs(pTHX_ const char *name, I32 flags)
+			__attribute__nonnull__(pTHX_1); */
+
 PERL_CALLCONV void*	Perl_get_context(void)
 			__attribute__warn_unused_result__;
 
@@ -1317,6 +1325,9 @@ PERL_CALLCONV CV*	Perl_get_cvn_flags(pTHX_ const char* name, STRLEN len, I32 fla
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_GET_CVN_FLAGS	\
 	assert(name)
+
+/* PERL_CALLCONV CV*	get_cvs(pTHX_ const char* name, I32 flags)
+			__attribute__nonnull__(pTHX_1); */
 
 PERL_CALLCONV void	Perl_get_db_sub(pTHX_ SV *sv, CV *cv)
 			__attribute__nonnull__(pTHX_2);
@@ -1332,6 +1343,14 @@ PERL_CALLCONV HV*	Perl_get_hv(pTHX_ const char *name, I32 flags)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_GET_HV	\
 	assert(name)
+
+PERL_CALLCONV HV*	Perl_get_hvn_flags(pTHX_ const char* name, STRLEN len, I32 flags)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_GET_HVN_FLAGS	\
+	assert(name)
+
+/* PERL_CALLCONV HV*	get_hvs(pTHX_ const char *name, I32 flags)
+			__attribute__nonnull__(pTHX_1); */
 
 PERL_CALLCONV const char*	Perl_get_no_modify(pTHX)
 			__attribute__warn_unused_result__
@@ -1358,6 +1377,14 @@ PERL_CALLCONV SV*	Perl_get_sv(pTHX_ const char *name, I32 flags)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_GET_SV	\
 	assert(name)
+
+PERL_CALLCONV SV*	Perl_get_svn_flags(pTHX_ const char* name, STRLEN len, I32 flags)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_GET_SVN_FLAGS	\
+	assert(name)
+
+/* PERL_CALLCONV SV*	get_svs(pTHX_ const char *name, I32 flags)
+			__attribute__nonnull__(pTHX_1); */
 
 PERL_CALLCONV MGVTBL*	Perl_get_vtbl(pTHX_ int vtbl_id)
 			__attribute__warn_unused_result__;

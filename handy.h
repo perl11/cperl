@@ -421,8 +421,15 @@ a string/length pair.
   ((SV **)Perl_hv_common(aTHX_ (hv), NULL, STR_WITH_LEN(key), 0,	\
 			 (HV_FETCH_ISSTORE|HV_FETCH_JUST_SV), (val), 0))
 
-#define lex_stuff_pvs(pv,flags) Perl_lex_stuff_pvn(aTHX_ STR_WITH_LEN(pv), flags)
+#define lex_stuff_pvs(pv,flags)                                 \
+	Perl_lex_stuff_pvn(aTHX_ STR_WITH_LEN(pv), flags)
 
+#define get_svs(str, flags)					\
+	Perl_get_svn_flags(aTHX_ STR_WITH_LEN(str), (flags))
+#define get_avs(str, flags)					\
+	Perl_get_avn_flags(aTHX_ STR_WITH_LEN(str), (flags))
+#define get_hvs(str, flags)					\
+	Perl_get_hvn_flags(aTHX_ STR_WITH_LEN(str), (flags))
 #define get_cvs(str, flags)					\
 	Perl_get_cvn_flags(aTHX_ STR_WITH_LEN(str), (flags))
 
