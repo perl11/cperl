@@ -6725,7 +6725,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
                                   locinput - reginfo->strbeg);
 
                 if (sv_yes_mark) {
-                    SV *sv_mrk = get_sv("REGMARK", 1);
+                    SV *sv_mrk = get_svs("REGMARK", 1);
                     sv_setsv(sv_mrk, sv_yes_mark);
                 }
 
@@ -8439,8 +8439,8 @@ NULL
 
   final_exit:
     if (rex->intflags & PREGf_VERBARG_SEEN) {
-        SV *sv_err = get_sv("REGERROR", 1);
-        SV *sv_mrk = get_sv("REGMARK", 1);
+        SV *sv_err = get_svs("REGERROR", 1);
+        SV *sv_mrk = get_svs("REGMARK", 1);
         if (result) {
             sv_commit = &PL_sv_no;
             if (!sv_yes_mark) 

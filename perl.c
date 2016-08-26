@@ -3329,7 +3329,7 @@ Perl_moreswitches(pTHX_ const char *s)
 		   PL_rs = newSVpvn(&ch, 1);
 	      }
 	 }
-	 sv_setsv(get_sv("/", GV_ADD), PL_rs);
+	 sv_setsv(get_svs("/", GV_ADD), PL_rs);
 	 return s + numlen;
     }
     case 'C':
@@ -3862,7 +3862,7 @@ S_init_main_stash(pTHX)
     PL_globalstash = GvHV(gv_fetchpvs("CORE::GLOBAL::", GV_ADDMULTI,
 				      SVt_PVHV));
     /* We must init $/ before switches are processed. */
-    sv_setpvs(get_sv("/", GV_ADD), "\n");
+    sv_setpvs(get_svs("/", GV_ADD), "\n");
 }
 
 STATIC PerlIO *
@@ -4336,7 +4336,7 @@ S_init_predump_symbols(pTHX)
     GV *tmpgv;
     IO *io;
 
-    sv_setpvs(get_sv("\"", GV_ADD), " ");
+    sv_setpvs(get_svs("\"", GV_ADD), " ");
     PL_ofsgv = (GV*)SvREFCNT_inc(gv_fetchpvs(",", GV_ADD|GV_NOTQUAL, SVt_PV));
 
 
@@ -4558,7 +4558,7 @@ S_init_postdump_symbols(pTHX_ int argc, char **argv, char **env)
 
     /* touch @F array to prevent spurious warnings 20020415 MJD */
     if (PL_minus_a) {
-      (void) get_av("main::F", GV_ADD | GV_ADDMULTI);
+      (void) get_avs("main::F", GV_ADD | GV_ADDMULTI);
     }
 }
 
@@ -4850,7 +4850,7 @@ S_mayberelocate(pTHX_ const char *const dir, STRLEN len, U32 flags)
 	    STRLEN libpath_len = SvCUR(libdir);
 	    if (libpath_len >= 4 && memEQ (libpath, ".../", 4)) {
 		/* Game on!  */
-		SV * const caret_X = get_sv("\030", 0);
+		SV * const caret_X = get_svs("\030", 0);
 		/* Going to use the SV just as a scratch buffer holding a C
 		   string:  */
 		SV *prefix_sv;

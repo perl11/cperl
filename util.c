@@ -5703,10 +5703,10 @@ S_xs_version_bootcheck(pTHX_ U32 items, U32 ax, const char *xs_p,
     else {
 	/* XXX GV_ADDWARN */
 	vn = "XS_VERSION";
-	sv = get_sv(Perl_form(aTHX_ "%"SVf"::%s", SVfARG(module), vn), 0);
+	sv = get_sv(Perl_form(aTHX_ "%"SVf"::XS_VERSION", SVfARG(module)), 0);
 	if (!sv || !SvOK(sv)) {
 	    vn = "VERSION";
-	    sv = get_sv(Perl_form(aTHX_ "%"SVf"::%s", SVfARG(module), vn), 0);
+	    sv = get_sv(Perl_form(aTHX_ "%"SVf"::VERSION", SVfARG(module)), 0);
 	}
     }
     if (sv) {

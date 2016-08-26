@@ -1951,8 +1951,8 @@ PP(pp_caller)
 	    /* Get the bit mask for $warnings::Bits{all}, because
 	     * it could have been extended by warnings::register */
 	    SV **bits_all;
-	    HV * const bits = get_hv("warnings::Bits", 0);
-	    if (bits && (bits_all=hv_fetchs(bits, "all", FALSE))) {
+	    HV * const bits = get_hvs("warnings::Bits", 0);
+	    if (bits && (bits_all = hv_fetchs(bits, "all", FALSE))) {
 		mask = newSVsv(*bits_all);
 	    }
 	    else {

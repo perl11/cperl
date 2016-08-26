@@ -2506,7 +2506,7 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
         trie_words = newAV();
     });
 
-    re_trie_maxbuff = get_sv(RE_TRIE_MAXBUF_NAME, 1);
+    re_trie_maxbuff = get_svs(RE_TRIE_MAXBUF_NAME, 1);
     assert(re_trie_maxbuff);
     if (!SvIOK(re_trie_maxbuff)) {
         sv_setiv(re_trie_maxbuff, RE_TRIE_MAXBUF_INIT);
@@ -4413,7 +4413,7 @@ S_study_chunk(pTHX_ RExC_state_t *pRExC_state, regnode **scanp,
 
 		    int made=0;
 		    if (!re_trie_maxbuff) {
-			re_trie_maxbuff = get_sv(RE_TRIE_MAXBUF_NAME, 1);
+			re_trie_maxbuff = get_svs(RE_TRIE_MAXBUF_NAME, 1);
 			if (!SvIOK(re_trie_maxbuff))
 			    sv_setiv(re_trie_maxbuff, RE_TRIE_MAXBUF_INIT);
 		    }

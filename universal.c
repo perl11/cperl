@@ -1110,8 +1110,8 @@ Perl_boot_core_UNIVERSAL(pTHX)
     { /* On ASCII platforms these functions just return their argument, so can
          be optimized away */
 
-        CV* to_native_cv = get_cv("utf8::unicode_to_native", 0);
-        CV* to_unicode_cv = get_cv("utf8::native_to_unicode", 0);
+        CV* to_native_cv = get_cvs("utf8::unicode_to_native", 0);
+        CV* to_unicode_cv = get_cvs("utf8::native_to_unicode", 0);
 
         assert(to_native_cv); assert(to_unicode_cv);
         cv_set_call_checker(to_native_cv,
@@ -1126,7 +1126,7 @@ Perl_boot_core_UNIVERSAL(pTHX)
     /* Providing a Regexp::DESTROY fixes #21347. See test in t/op/ref.t  */
     {
 	CV * const cv =
-	    newCONSTSUB(get_hv("Regexp::", GV_ADD), "DESTROY", NULL);
+	    newCONSTSUB(get_hvs("Regexp::", GV_ADD), "DESTROY", NULL);
 	char ** cvfile = &CvFILE(cv);
 	char * oldfile = *cvfile;
 	CvDYNFILE_off(cv);

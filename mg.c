@@ -1029,7 +1029,7 @@ Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
             else if (PL_compiling.cop_warnings == pWARN_ALL) {
 		/* Get the bit mask for $warnings::Bits{all}, because
 		 * it could have been extended by warnings::register */
-		HV * const bits = get_hv("warnings::Bits", 0);
+		HV * const bits = get_hvs("warnings::Bits", 0);
 		SV ** const bits_all = bits ? hv_fetchs(bits, "all", FALSE) : NULL;
 		if (bits_all)
 		    sv_copypv(sv, *bits_all);
@@ -2739,7 +2739,7 @@ Perl_magic_set(pTHX_ SV *sv, MAGIC *mg)
             /* It may be the shadow variable ${E_NCODING} which has lexical
              * scope.  See comments at Perl__get_encoding in this file */
             if (*(mg->mg_ptr + 1) == '_') {
-                if (CopSTASH(PL_curcop) != get_hv("encoding::",0))
+                if (CopSTASH(PL_curcop) != get_hvs("encoding::",0))
                     Perl_croak_no_modify();
                 lex = TRUE;
                 offset++;

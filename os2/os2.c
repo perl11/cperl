@@ -2073,7 +2073,7 @@ os2error(int rc)
 	dTHX;
 	ULONG len;
 	char *s;
-	int number = SvTRUE(get_sv("OS2::nsyserror", GV_ADD));
+	int number = SvTRUE(get_svs("OS2::nsyserror", GV_ADD));
 
         if (!(_emx_env & 0x200)) return ""; /* Nop if not OS/2. */
 	if (rc == 0)
