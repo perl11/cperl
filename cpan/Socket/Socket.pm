@@ -3,7 +3,7 @@ package Socket;
 use strict;
 { use 5.006001; }
 
-our $VERSION = '2.021_02';
+our $VERSION = '2.024_01';
 our $XS_VERSION = $VERSION;   # A dev xs version needs to be global, not my
 $VERSION = eval $VERSION;
 
@@ -110,6 +110,10 @@ C<SOL_SOCKET> level.
 Socket option name constants for IPv4 socket options at the C<IPPROTO_IP>
 level.
 
+=head2 IP_PMTUDISC_WANT, IP_PMTUDISC_DONT, ...
+
+Socket option value contants for C<IP_MTU_DISCOVER> socket option.
+
 =head2 IPTOS_LOWDELAY, IPTOS_THROUGHPUT, IPTOS_RELIABILITY, ...
 
 Socket option value constants for C<IP_TOS> socket option.
@@ -182,6 +186,9 @@ arguments packed in and C<AF_INET> filled in. For Internet domain sockets,
 this structure is normally what you need for the arguments in bind(),
 connect(), and send().
 
+An undefined $port argument is taken as zero; an undefined $ip_address is
+considered a fatal error.
+
 =head2 ($port, $ip_address) = unpack_sockaddr_in $sockaddr
 
 Takes a C<sockaddr_in> structure (as returned by pack_sockaddr_in(),
@@ -210,6 +217,9 @@ Takes two to four arguments, a port number, an opaque string (as returned by
 inet_pton()), optionally a scope ID number, and optionally a flow label
 number. Returns the C<sockaddr_in6> structure with those arguments packed in
 and C<AF_INET6> filled in. IPv6 equivalent of pack_sockaddr_in().
+
+An undefined $port argument is taken as zero; an undefined $ip6_address is
+considered a fatal error.
 
 =head2 ($port, $ip6_address, $scope_id, $flowinfo) = unpack_sockaddr_in6 $sockaddr
 
@@ -724,8 +734,8 @@ our @EXPORT = qw(
 	SO_SECURITY_ENCRYPTION_TRANSPORT SO_SNDBUF SO_SNDLOWAT SO_SNDTIMEO
 	SO_STATE SO_TYPE SO_USELOOPBACK SO_XOPEN SO_XSE
 
-	IP_OPTIONS IP_HDRINCL IP_TOS IP_TTL IP_RECVOPTS IP_RECVRETOPTS
-	IP_RETOPTS
+	IP_HDRINCL IP_OPTIONS IP_RECVOPTS IP_RECVRETOPTS IP_RETOPTS IP_TOS
+	IP_TTL
 
 	MSG_BCAST MSG_BTAG MSG_CTLFLAGS MSG_CTLIGNORE MSG_CTRUNC MSG_DONTROUTE
 	MSG_DONTWAIT MSG_EOF MSG_EOR MSG_ERRQUEUE MSG_ETAG MSG_FASTOPEN MSG_FIN
@@ -758,13 +768,16 @@ our @EXPORT_OK = qw(
 
 	SOCK_NONBLOCK SOCK_CLOEXEC
 
-	IP_ADD_MEMBERSHIP IP_ADD_SOURCE_MEMBERSHIP IP_DROP_MEMBERSHIP
-	IP_DROP_SOURCE_MEMBERSHIP IP_MULTICAST_IF IP_MULTICAST_LOOP
-	IP_MULTICAST_TTL
+	IP_ADD_MEMBERSHIP IP_ADD_SOURCE_MEMBERSHIP IP_BIND_ADDRESS_NO_PORT
+	IP_DROP_MEMBERSHIP IP_DROP_SOURCE_MEMBERSHIP IP_FREEBIND
+	IP_MULTICAST_ALL IP_MULTICAST_IF IP_MULTICAST_LOOP IP_MULTICAST_TTL
+	IP_MTU IP_MTU_DISCOVER IP_NODEFRAG IP_RECVERR IP_TRANSPARENT
 
 	IPPROTO_IP IPPROTO_IPV6 IPPROTO_RAW IPPROTO_ICMP IPPROTO_IGMP
 	IPPROTO_TCP IPPROTO_UDP IPPROTO_GRE IPPROTO_ESP IPPROTO_AH
 	IPPROTO_SCTP
+
+	IP_PMTUDISC_DO IP_PMTUDISC_DONT IP_PMTUDISC_PROBE IP_PMTUDISC_WANT
 
 	IPTOS_LOWDELAY IPTOS_THROUGHPUT IPTOS_RELIABILITY IPTOS_MINCOST
 
@@ -776,9 +789,12 @@ our @EXPORT_OK = qw(
 
 	IN6ADDR_ANY IN6ADDR_LOOPBACK
 
-	IPV6_ADD_MEMBERSHIP IPV6_DROP_MEMBERSHIP IPV6_JOIN_GROUP
+	IPV6_ADDRFROM IPV6_ADD_MEMBERSHIP IPV6_DROP_MEMBERSHIP IPV6_JOIN_GROUP
 	IPV6_LEAVE_GROUP IPV6_MTU IPV6_MTU_DISCOVER IPV6_MULTICAST_HOPS
-	IPV6_MULTICAST_IF IPV6_MULTICAST_LOOP IPV6_UNICAST_HOPS IPV6_V6ONLY
+	IPV6_MULTICAST_IF IPV6_MULTICAST_LOOP IPV6_RECVERR IPV6_ROUTER_ALERT
+	IPV6_UNICAST_HOPS IPV6_V6ONLY
+
+	SO_LOCK_FILTER SO_RCVBUFFORCE SO_SNDBUFFORCE
 
 	pack_ip_mreq unpack_ip_mreq pack_ip_mreq_source unpack_ip_mreq_source
 

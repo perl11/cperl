@@ -12751,6 +12751,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList::Utils'=> '5.20160729c',
             'B::C'                  => '1.54_09',
             'DynaLoader'            => '2.05c',
+            'Socket'                => '2.024_01',
         },
         removed => {
         }
