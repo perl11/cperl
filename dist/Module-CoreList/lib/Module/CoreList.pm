@@ -12751,7 +12751,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList::Utils'=> '5.20160729c',
             'B::C'                  => '1.54_11',
             'DynaLoader'            => '2.05c',
-            'Socket'                => '2.024_01',
+            'Socket'                => '2.024_02',
         },
         removed => {
         }
@@ -12777,7 +12777,15 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList::TieHashDelta'=> '5.20160728',
             'Module::CoreList::Utils'=> '5.20160807',
             'B::C'                  => '1.54_11',
+            'B'                     => '1.62_04',
+            'Devel::Peek'           => '1.23_01',
+            'File::Glob'            => '1.26_01',
+            'File::DosGlob'         => '1.12_01',
+            'POSIX'                 => '1.65_01',
+            'PerlIO::encoding'      => '0.24_01',
             'DynaLoader'            => '2.05c',
+            'XS::APItest'           => '0.80_02',
+            'Socket'                => '2.24_02',
         },
         removed => {
         }
