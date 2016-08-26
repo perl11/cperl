@@ -358,6 +358,12 @@ errors with DEBUGGING builds, such as e.g. C<sub ub(){0} ub ub>.
 
 L<[perl #126482]|https://rt.perl.org/Public/Bug/Display.html?id=128701>
 
+=item *
+
+C< until ($x = 1) { ... } > and C< ... until $x = 1 > now properly
+warn when syntax warnings are enabled.
+L<[perl #127333]|https://rt.perl.org/Public/Bug/Display.html?id=127333>
+
 =back
 
 =head1 Known Problems
@@ -384,12 +390,6 @@ ongoing in the F<feature/gh186-lto-thin> branch, but there the
 inlining is disabled by the C<used> attribute, leading to a
 10% performance regression.  On the other hand a working
 C<clang-3.9 -flto> leads to 20% performance improvements.
-
-=item *
-
-C< until ($x = 1) { ... } > and C< ... until $x = 1 > now properly
-warn when syntax warnings are enabled.
-L<[perl #127333]|https://rt.perl.org/Public/Bug/Display.html?id=127333>
 
 =item *
 
