@@ -86,6 +86,11 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
+=item Socket  2.024_01
+
+Merge cpan 2.024 with our 2.021_02,
+plus fix some problems in their new code.
+
 =item B  1.62_04
 
 use the new get_svs, get_avs, get_hvs macros.
