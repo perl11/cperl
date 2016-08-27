@@ -12786,6 +12786,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'DynaLoader'            => '2.05c',
             'XS::APItest'           => '0.80_02',
             'Socket'                => '2.24_02',
+            'Time::HiRes'           => '1.9739',
         },
         removed => {
         }
