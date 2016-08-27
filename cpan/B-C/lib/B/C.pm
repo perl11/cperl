@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_11';
+our $VERSION = '1.54_12';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -1122,17 +1122,18 @@ sub save_hek {
   # The first assigment is already refcount bumped, we have to manually
   # do it for all others
   my ($cstr, $cur, $utf8) = strlen_flags($str);
-  if ($dynamic and defined $hektable{$str.":".$utf8}) {
-    return sprintf("share_hek_hek(%s)", $hektable{$str.":".$utf8});
+  my $hek_key = $str.":".$utf8;
+  if ($dynamic and defined $hektable{$hek_key}) {
+    return sprintf("share_hek_hek(%s)", $hektable{$hek_key});
   }
-  if (!$dynamic and defined $statichektable{$str.":".$utf8}) {
-    return $statichektable{$str.":".$utf8};
+  if (!$dynamic and defined $statichektable{$hek_key}) {
+    return $statichektable{$hek_key};
   }
   $cur = - $cur if $utf8;
   $cstr = '""' if $cstr eq "0";
+  my $sym = sprintf( "hek%d", $hek_index++ );
   if (!$dynamic) {
-    my $sym = sprintf( "hek%d", $hek_index++ );
-    $statichektable{$str.":".$utf8} = $sym;
+    $statichektable{$hek_key} = $sym;
     my $key = $cstr;
     my $len = abs($cur);
     # strip CowREFCNT
@@ -1152,10 +1153,8 @@ sub save_hek {
     $decl->add(sprintf("Static struct hek_ptr %s = { %u, %d, %s};",
                        $sym, 0, $len, $key));
     $init->add(sprintf("PERL_HASH(%s.hek_hash, %s.hek_key, %u);", $sym, $sym, $len));
-    return $sym;
   } else {
-    my $sym = sprintf( "hek%d", $hek_index++ );
-    $hektable{$str.":".$utf8} = $sym;
+    $hektable{$hek_key} = $sym;
     $decl->add(sprintf("Static HEK *%s;", $sym));
     warn sprintf("Saving hek %s %s cur=%d\n", $sym, $cstr, $cur)
       if $debug{pv};
@@ -1174,8 +1173,8 @@ sub save_hek {
     }
     # protect against Unbalanced string table refcount warning with PERL_DESTRUCT_LEVEL=2
     # $free->add("    $sym = NULL;");
-    return $sym;
   }
+  return $sym;
 }
 
 sub gv_fetchpvn {
@@ -3796,13 +3795,13 @@ sub B::RV::save {
     # 5.10 has no struct xrv anymore, just sv_u.svu_rv. static or dynamic?
     # initializer element is computable at load time
     $svsect->add( sprintf( "ptr_undef, $u32fmt, 0x%x, {%s}", $sv->REFCNT, $flags,
-                           (($C99 and is_constant($rv)) ? ".svu_rv=$rv" : "0 /*-> $rv */")));
+                           (($C99 && is_constant($rv)) ? ".svu_rv=$rv" : "0 /*-> $rv */")));
     $svsect->debug( $fullname, $sv->flagspv ) if $debug{flags};
     my $s = "sv_list[".$svsect->index."]";
     # 354 defined needs SvANY
     $init->add( sprintf("$s.sv_any = (char*)&$s - %d;", $Config{ptrsize}))
       if $] > 5.019 or $ITHREADS;
-    unless ($C99 and is_constant($rv)) {
+    unless ($C99 && is_constant($rv)) {
       if ( $rv =~ /get_cv/ ) {
         $init2->add( "$s.sv_u.svu_rv = (SV*)$rv;" ) ;
       } else {
