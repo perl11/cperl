@@ -3008,6 +3008,7 @@ S_finalize_op(pTHX_ OP* o)
 {
     PERL_ARGS_ASSERT_FINALIZE_OP;
 
+    assert(o->op_type != OP_FREED);
 
     switch (o->op_type) {
     case OP_NEXTSTATE:
@@ -15169,6 +15170,9 @@ Perl_rpeep(pTHX_ OP *o)
 
     if (!o || o->op_opt)
 	return;
+
+    assert(o->op_type != OP_FREED);
+
     ENTER;
     SAVEOP();
     SAVEVPTR(PL_curcop);
