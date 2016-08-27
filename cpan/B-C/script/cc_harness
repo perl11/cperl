@@ -175,7 +175,8 @@ if ($debug and $Config{cc} =~ /gcc/) {
   $linkargs =~ s/-s / /;
 }
 
-$ccflags .= " --no-warn -Wl,--warn-once"
+# -Wl,--warn-once is not gold compatible
+$ccflags .= " --no-warn"
   if $Config{cc} =~ /gcc/ and $quiet and $^O ne 'darwin';
 $ccflags .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
 $ccflags .= $B::C::Config::extra_cflags;
