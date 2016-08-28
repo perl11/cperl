@@ -634,6 +634,7 @@ d_lgamma=''
 d_lgamma_r=''
 d_libm_lib_version=''
 d_link=''
+d_little_endian=''
 d_llabs=''
 d_llrint=''
 d_llrintl=''
@@ -1424,6 +1425,7 @@ CONFIG=''
 usecperl=''
 fake_signatures=''
 usenamedanoncv=''
+usehekbitfield=''
 
 : Detect odd OSs
 define='define'
@@ -20203,6 +20205,11 @@ skipping the byteorder check.
 
 EOM
 	byteorder='ffff'
+        if $test x$osname = xdarwin; then
+            d_little_endian='define'
+        else
+            d_little_endian='undef'
+        fi
 	;;
 *)
 	case "$byteorder" in
@@ -20254,6 +20261,7 @@ EOCP
 			esac
 		else
 			dflt='4321'
+                        d_little_endian='undef'
 			cat <<'EOM'
 (I can't seem to compile the test program.  Guessing big-endian...)
 EOM
@@ -20272,6 +20280,59 @@ EOM
 	$rm_try
 	;;
 esac
+
+if $test x$byteorder = x12345678 -o x$byteorder = x1234; then
+    d_little_endian='define'
+elif $test -n $d_little_endian; then
+    d_little_endian='undef'
+fi
+echo "d_little_endian detected as $d_little_endian" >&4
+echo "    byteorder=$byteorder, multiarch=$multiarch" >&4
+
+: Unfortunately some compilers cannot do unsigned bitfields
+: or we have a wrong byteorder definition
+cat > try.c <<EOM
+#define U32 $u32type
+#$d_little_endian HAS_LITTLE_ENDIAN
+struct hek {
+    U32		hek_hash;	  /* hash of key */
+    union {
+struct {
+#ifdef HAS_LITTLE_ENDIAN
+            unsigned hek_len : 31; /* length of hash key */
+            unsigned hek_utf8 : 1; /* highest bit for utf8 */
+#else
+            unsigned hek_utf8 : 1; /* highest bit for utf8 */
+            unsigned hek_len : 31; /* length of hash key */
+#endif
+        };
+        U32 hek_len_utf8;
+    } hek_u;
+    char	hek_key[1];	  /* variable-length hash key */
+};
+int main(int argc, char **argv)
+{
+	struct hek h;
+        
+        h.hek_u.hek_len_utf8 = 4;
+        if (h.hek_u.hek_len != 4 || h.hek_u.hek_utf8 != 0)
+            return 1;
+        h.hek_u.hek_len = 2;
+        if (h.hek_u.hek_len_utf8 != 2)
+            return 2;
+        return 0;
+}
+EOM
+if $cc $ccflags -o try try.c >/dev/null 2>&1 && $run ./try; then
+    echo "Fast PERL_BITFIELD32 access seems to work." >&4
+    val="$define"
+else
+    echo "Fast PERL_BITFIELD32 access does not seem to work. Probably wrong byteorder." >&4
+    val="$undef"
+fi
+$rm_try
+set usehekbitfield
+eval $setvar
 
 : see if ualarm exists
 set ualarm d_ualarm
@@ -25109,6 +25170,7 @@ d_libname_unique='$d_libname_unique'
 d_link='$d_link'
 d_linkat='$d_linkat'
 d_llabs='$d_llabs'
+d_little_endian='$d_little_endian'
 d_llrint='$d_llrint'
 d_llrintl='$d_llrintl'
 d_llround='$d_llround'
@@ -25926,6 +25988,7 @@ usedl='$usedl'
 usedtrace='$usedtrace'
 usefaststdio='$usefaststdio'
 useffi='$useffi'
+usehekbitfield='$usehekbitfield'
 useithreads='$useithreads'
 usekernprocpathname='$usekernprocpathname'
 uselanginfo='$uselanginfo'

@@ -1535,6 +1535,9 @@ d_linkat (d_fsat.U):
 	This variable conditionally defines the HAS_LINKAT symbol, which
 	indicates the POSIX linkat() function is available.
 
+d_little_endian (Devel.U):
+	This variable conditionally defines HAS_LITTLE_ENDIAN.
+
 d_llabs (d_llabs.U):
 	This variable conditionally defines the HAS_LLABS symbol,
 	which indicates to the C program that the llabs() routine is
@@ -5598,6 +5601,11 @@ usefaststdio (usefaststdio.U):
 
 useffi (ffi.U):
 	This variable indicates if the ffi is enabled. See also ffi_targets.
+
+usehekbitfields (Devel.U):
+	This variable conditionally defines the USE_HEK_BITFIELD symbol
+        and indicates if the byteorder and unsigned bitfields were tested ok
+        to use faster combined HEK fields access.
 
 useithreads (usethreads.U):
 	This variable conditionally defines the USE_ITHREADS symbol,

@@ -6200,6 +6200,7 @@ $ WC "d_lgamma='" + d_lgamma + "'"
 $ WC "d_libm_lib_version='undef'"
 $ WC "d_libname_unique='undef'"
 $ WC "d_link='" + d_link + "'"
+$ WC "d_little_endian='define'"
 $! not defined in http://h41379.www4.hpe.com/commercial/c/docs/6180p027.html
 $ WC "d_llabs='undef'"
 $ WC "d_llrint='define'"
@@ -6882,6 +6883,7 @@ $ WC "usedtrace='undef'"
 $ WC "useffi='" + useffi + "'"
 $ WC "ffi_targets=" + ffi_targets + "'"
 $ WC "usefaststdio='" + usefaststdio + "'"
+$ WC "usehekbitfield='undef'"
 $ WC "useieee='" + useieee + "'"                    ! VMS-specific
 $ WC "useithreads='" + useithreads + "'"
 $ WC "usekernelthreads='" + usekernelthreads + "'"	! VMS-specific
