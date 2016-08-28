@@ -1481,6 +1481,9 @@ d_link (d_link.U):
 	This variable conditionally defines HAS_LINK if link() is
 	available to create hard links.
 
+d_little_endian (Devel.U):
+	This variable conditionally defines HAS_LITTLE_ENDIAN.
+
 d_llrint (d_llrint.U):
 	This variable conditionally defines the HAS_LLRINT symbol, which
 	indicates to the C program that the llrint() routine is available
@@ -5459,6 +5462,11 @@ usefaststdio (usefaststdio.U):
 	This variable conditionally defines the USE_FAST_STDIO symbol,
 	and indicates that Perl should be built to use 'fast stdio'.
 	Defaults to define in Perls 5.8 and earlier, to undef later.
+
+usehekbitfields (Devel.U):
+	This variable conditionally defines the USE_HEK_BITFIELD symbol
+        and indicates if the byteorder and unsigned bitfields were tested ok
+        to use faster combined HEK fields access.
 
 useithreads (usethreads.U):
 	This variable conditionally defines the USE_ITHREADS symbol,
