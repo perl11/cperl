@@ -50,8 +50,21 @@ struct he {
 
 /* hash key -- defined separately for use as shared pointer */
 struct hek {
-    U32		hek_hash;	/* hash of key */
-    I32		hek_len;	/* length of hash key */
+    U32		hek_hash;	  /* hash of key */
+    union {
+#ifdef USE_HEK_BITFIELD
+        struct {
+#ifdef HAS_LITTLE_ENDIAN
+            PERL_BITFIELD32 hek_len : 31; /* length of hash key */
+            PERL_BITFIELD32 hek_utf8 : 1; /* highest bit for utf8 */
+#else
+            PERL_BITFIELD32 hek_utf8 : 1; /* highest bit for utf8 */ 
+            PERL_BITFIELD32 hek_len : 31; /* length of hash key */
+#endif
+        };
+#endif
+        U32 hek_len_utf8;
+    } hek_u;
 #if defined(PERL_GCC_BRACE_GROUPS_FORBIDDEN) || defined(__SUNPRO_C)
     char	hek_key[1];	/* variable-length hash key */
 #else
@@ -533,6 +546,8 @@ C<SV*>.
 #define HeKEY_sv(he)		(*(SV**)HeKEY(he))
 #define HeKLEN(he)		HEK_LEN(HeKEY_hek(he))
 #define HeKUTF8(he)  		HEK_UTF8(HeKEY_hek(he))
+#define HeKUTF8_on(he)  	HEK_UTF8_on(HeKEY_hek(he))
+#define HeKUTF8_off(he)  	HEK_UTF8_off(HeKEY_hek(he))
 #define HeKWASUTF8(he)  	HEK_WASUTF8(HeKEY_hek(he))
 #define HeKLEN_UTF8(he)  	(HeKUTF8(he) ? -HeKLEN(he) : HeKLEN(he))
 #define HeKFLAGS(he)  		HEK_FLAGS(HeKEY_hek(he))
@@ -558,17 +573,16 @@ C<SV*>.
                                  (HeKEY_sv(he) = sv))
 #else
 #define HeSVKEY_set(he,sv)	((HEK_LEN(HeKEY_hek(he)) = HEf_SVKEY & 0x7fffffff), \
-                                 (HEK_UTF8(HeKEY_hek(he)) = 1), \
+                                 HEK_UTF8_on(HeKEY_hek(he)),           \
                                  (HeKEY_sv(he) = sv))
 #endif
 
 #ifndef PERL_CORE
 #  define Nullhek Null(HEK*)
 #endif
-#define HEK_BASESIZE		STRUCT_OFFSET(HEK, hek_key[0])
-#define HEK_HASH(hek)		(hek)->hek_hash
-#define HEK_LEN(hek)		(hek)->hek_len
-#define HEK_KEY(hek)		(hek)->hek_key
+#define HEK_BASESIZE	STRUCT_OFFSET(HEK, hek_key[0])
+#define HEK_HASH(hek)	(hek)->hek_hash
+#define HEK_KEY(hek)	(hek)->hek_key
 #define HEK_FLAGS(hek)	(*((unsigned char *)(HEK_KEY(hek))+HEK_LEN(hek)+1))
 #define HEK_IS_SVKEY(hek) 	HEK_LEN(hek) == HEf_SVKEY
 #define HEK_FLAGS_UTF8(hek) (HEK_FLAGS(hek) | HEK_UTF8(hek))
@@ -599,9 +613,24 @@ C<SV*>.
 /* not needed anymore: */
 #define HVhek_ENABLEHVKFLAGS        (HVhek_MASK & ~(HVhek_UNSHARED))
 
-#define HEK_UTF8(hek)		(HEK_FLAGS(hek) & HVhek_UTF8)
-#define HEK_UTF8_on(hek)	(HEK_FLAGS(hek) |= HVhek_UTF8)
-#define HEK_UTF8_off(hek)	(HEK_FLAGS(hek) &= ~HVhek_UTF8)
+#ifdef USE_HEK_BITFIELD
+#define HEK_LEN(hek)		(hek)->hek_u.hek_len
+#define HEK_LEN_UTF8(hek) 	(hek)->hek_u.hek_len_utf8
+#define HEK_LEN_UTF8_set(len,flags) (((U32)(flags) & HVhek_UTF8) << 31) | (U32)(len)
+#define HEK_UTF8(hek)		((hek)->hek_u.hek_utf8)
+/* unused in CORE */
+#define HEK_UTF8_on(hek)	(HEK_UTF8(hek) = 1)
+#define HEK_UTF8_off(hek)	(HEK_UTF8(hek) = 0)
+#else
+#define HEK_LEN(hek)	  	(I32)((hek)->hek_u.hek_len_utf8 & 0x7fffffff)
+#define HEK_LEN_UTF8(hek) 	(hek)->hek_u.hek_len_utf8
+#define HEK_LEN_UTF8_set(len,flags) (((U32)(flags) & HVhek_UTF8) << 31) | (U32)(len)
+#define HEK_UTF8(hek)		((hek)->hek_u.hek_len_utf8 & 0x10000000)
+/* unused in CORE */
+#define HEK_UTF8_on(hek)	((hek)->hek_u.hek_len_utf8 |= 0x10000000)
+#define HEK_UTF8_off(hek)	((hek)->hek_u.hek_len_utf8 &= 0x7ffffff)
+#endif
+
 #define HEK_WASUTF8(hek)	(HEK_FLAGS(hek) & HVhek_WASUTF8)
 #define HEK_WASUTF8_on(hek)	(HEK_FLAGS(hek) |= HVhek_WASUTF8)
 #define HEK_WASUTF8_off(hek)	(HEK_FLAGS(hek) &= ~HVhek_WASUTF8)
