@@ -134,7 +134,7 @@ S_save_hek_flags(const char *str, I32 len, U32 hash, int flags)
     hek = (HEK*)k;
     Copy(str, HEK_KEY(hek), len, char);
     HEK_KEY(hek)[len] = 0;
-    HEK_LEN_UTF8(hek) = ((flags & HVhek_UTF8) << 31) | len;
+    HEK_LEN_UTF8(hek) = HEK_LEN_UTF8_set(len, flags);
     HEK_HASH(hek) = hash;
     HEK_FLAGS(hek) = (unsigned char)((flags & 0xfe) | HVhek_UNSHARED);
 
@@ -440,6 +440,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     AHE *oentry;
     HEK *keysv_hek = NULL;
     const int return_svp = action & HV_FETCH_JUST_SV;
+    const U32 masked_flags = flags & HVhek_MASK;
     int collisions = -1;
 #if defined(USE_DTRACE)
     int dtrace_mode = PERL_DTRACE_HASH_MODE_FETCH;
@@ -677,7 +678,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     }
 #ifdef HV_STATIC_HEKCMP
     if (LIKELY(klen <= 256)) {
-        const U32 len_utf8 = ((flags & HVhek_UTF8) << 31) | klen;
+        const U32 len_utf8 = HEK_LEN_UTF8_set(klen, flags);
         struct static_hek hekcmp = { hash, len_utf8, "" };
         const HEK *hek;
         Move(key, hekcmp.hek_key, klen, char);
@@ -710,7 +711,6 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
     if (entry)
     found: {
-        const int masked_flags = (flags & HVhek_MASK);
         if (action & (HV_FETCH_LVALUE|HV_FETCH_ISSTORE)) {
 	    if ((HeKFLAGS_UTF8(entry) & HVhek_MASK) != masked_flags) {
 		/* We match if HVhek_UTF8 bit in our flags and hash key's
@@ -738,10 +738,12 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		    Perl_croak(aTHX_ S_strtab_error,
 			       action & HV_FETCH_LVALUE ? "fetch" : "store");
 		}
-		else { /* but keep all other flags besides *UTF8 (1+2) */
-                    int oldflags = HeKFLAGS(entry) & 0xfc;
-		    HeKFLAGS(entry) = (masked_flags & 0xfe) | oldflags;
-                    HeKUTF8(entry) = masked_flags & 1;
+		else {
+                    int utf8_mask = masked_flags & 1;
+		    HeKFLAGS(entry) = masked_flags & 0xfe;
+                    if (HeKUTF8(entry) ^ utf8_mask) {
+                        utf8_mask ? HeKUTF8_on(entry) : HeKUTF8_off(entry);
+                    }
                 }
 		if (masked_flags & HVhek_MASK)
 		    HvHASKFLAGS_on(hv);
@@ -935,7 +937,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
        the shared strtab entry with the refcount, in front.  */
     if (HvSHAREKEYS(hv)) {
 	HeKEY_hek(entry) = share_hek_flags(key, klen, hash, flags);
-        if (HeNEXT(entry) && !HeKEY_hek(entry)) {
+        if (UNLIKELY(HeNEXT(entry) && !HeKEY_hek(entry))) {
             /* need to he_dup the strtab entry */
             DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH strtab next conflict\t%s{%.*s}\n",
                                   HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
@@ -983,7 +985,6 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         }
     } else
 #endif
-#ifdef PERL_PERTURB_KEYS_TOP
     {   /* Insert at the top which gives us the best performance */
         DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert top\t%s{%.*s}\n",
                               HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
@@ -992,7 +993,6 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         oentry->hent_he = entry;
         AHeHASH_set(oentry, HeHASH(entry));
     }
-#endif
 #ifdef DEBUGGING
     if (DEBUG_H_TEST_ && DEBUG_v_TEST_)
         deb_hechain(oentry->hent_he);
@@ -1627,7 +1627,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
 #ifdef HV_STATIC_HEKCMP
     if (LIKELY(klen <= 256)) {
-        const U32 len_utf8 = ((k_flags & HVhek_UTF8) << 31) | klen;
+        const U32 len_utf8 = HEK_LEN_UTF8_set(klen, flags);
         struct static_hek hekcmp = { hash, len_utf8, "" };
 
         Move(key, hekcmp.hek_key, klen, char);
@@ -3121,7 +3121,7 @@ Perl_hv_ename_add(pTHX_ HV *hv, const char *name, U32 len, U32 flags)
 	if (count < 0) aux->xhv_name_count--, count = -count;
 	else aux->xhv_name_count++;
 	Renew(aux->xhv_name_u.xhvnameu_names, count + 1, HEK *);
-	(aux->xhv_name_u.xhvnameu_names)[count] = share_hek(name, (flags & SVf_UTF8 ? -(I32)len : (I32)len), hash);
+	(aux->xhv_name_u.xhvnameu_names)[count] = share_hek(name, flags & SVf_UTF8 ? -(I32)len : (I32)len, hash);
     }
     else {
 	HEK *existing_name = aux->xhv_name_u.xhvnameu_name;
@@ -3135,7 +3135,7 @@ Perl_hv_ename_add(pTHX_ HV *hv, const char *name, U32 len, U32 flags)
 	Newx(aux->xhv_name_u.xhvnameu_names, 2, HEK *);
 	aux->xhv_name_count = existing_name ? 2 : -2;
 	*aux->xhv_name_u.xhvnameu_names = existing_name;
-	(aux->xhv_name_u.xhvnameu_names)[1] = share_hek(name, (flags & SVf_UTF8 ? -(I32)len : (I32)len), hash);
+	(aux->xhv_name_u.xhvnameu_names)[1] = share_hek(name, flags & SVf_UTF8 ? -(I32)len : (I32)len, hash);
     }
 }
 
@@ -3680,7 +3680,7 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
     }
     else if (LIKELY(len <= 256)) {
         const int wasutf8 = k_flags & HVhek_WASUTF8;
-        const U32 len_utf8 = ((k_flags & HVhek_UTF8) << 31) | len;
+        const U32 len_utf8 = HEK_LEN_UTF8_set(len, k_flags);
         struct static_hek hekcmp = { hash, len_utf8, "" };
         Move(str, hekcmp.hek_key, len, char);
 
@@ -3695,7 +3695,7 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
 #endif
     } else {
         const int wasutf8 = k_flags & HVhek_WASUTF8;
-        const U32 len_utf8 = ((k_flags & HVhek_UTF8) << 31) | len;
+        const U32 len_utf8 = HEK_LEN_UTF8_set(len, k_flags);
         entry = *oentry;
         HE_OEACH(hv, oentry, entry, {
             const HEK *hek = HeKEY_hek(entry);
@@ -3805,7 +3805,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
     AHE *oentry;
     HE *entry;
     const int wasutf8  = flags & HVhek_WASUTF8;
-    const U32 len_utf8 = ((flags & HVhek_UTF8) << 31) | len;
+    const U32 len_utf8 = HEK_LEN_UTF8_set(len, flags);
     const U32 hindex   = HvHASH_INDEX(hash, HvMAX(PL_strtab));
     XPVHV * const xhv  = (XPVHV*)SvANY(PL_strtab);
     int collisions = -1;
@@ -4596,9 +4596,7 @@ Perl_cop_store_label(pTHX_ COP *const cop, const char *label, STRLEN len,
     if (flags & ~(SVf_UTF8))
 	Perl_croak(aTHX_ "panic: cop_store_label illegal flag bits 0x%" UVxf,
 		   (UV)flags);
-    labelsv = newSVpvn_flags(label, len, SVs_TEMP);
-    if (flags & SVf_UTF8)
-	SvUTF8_on(labelsv);
+    labelsv = newSVpvn_flags(label, len, SVs_TEMP | flags);
     cop->cop_hints_hash
 	= refcounted_he_new_pvs(cop->cop_hints_hash, ":", labelsv, 0);
 }
