@@ -672,14 +672,14 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         })
         if (!entry)
             goto not_found;
-        /* failed on shortcut */
+        /* failed on shortcut, try full loop below */
         entry = orig_entry;
-        goto full_search_loop;
-#ifdef HV_STATIC_HEKCMP
     }
-    else if (LIKELY(klen <= 256)) {
+#ifdef HV_STATIC_HEKCMP
+    if (LIKELY(klen <= 256)) {
         const U32 len_utf8 = ((flags & HVhek_UTF8) << 31) | klen;
         struct static_hek hekcmp = { hash, len_utf8, "" };
+        const HEK *hek;
         Move(key, hekcmp.hek_key, klen, char);
 
         HE_EACH(hv, entry, {
@@ -691,10 +691,10 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
                 continue;
             break;
         })
+    }
 #endif
-    } else
-    full_search_loop: {
-        const U32 len_utf8 = ((flags & HVhek_UTF8) << 31) | klen;
+    else {
+        const U32 len_utf8 = HEK_LEN_UTF8_set(klen, flags);
         HE_EACH(hv, entry, {
             const HEK *hek = HeKEY_hek(entry);
             CHECK_HASH_FLOOD(collisions)
@@ -705,7 +705,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
             if (memNE(HEK_KEY(hek),key,klen))	/* is this it? */
                 continue;
             break;
-        }
+        })
     }
 
     if (entry)
@@ -933,9 +933,16 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
        bad API design.
        Note this entry is not followed by the hek here. This hek has another entry,
        the shared strtab entry with the refcount, in front.  */
-    if (HvSHAREKEYS(hv))
+    if (HvSHAREKEYS(hv)) {
 	HeKEY_hek(entry) = share_hek_flags(key, klen, hash, flags);
-    else if (hv == PL_strtab) {
+        if (HeNEXT(entry) && !HeKEY_hek(entry)) {
+            /* need to he_dup the strtab entry */
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH strtab next conflict\t%s{%.*s}\n",
+                                  HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
+            HeNEXT(entry) = NULL;
+        }
+    }
+    else if (UNLIKELY(hv == PL_strtab)) {
 	/* PL_strtab is usually the only hash without HvSHAREKEYS, so putting
 	   this test here is cheap  */
 	if (flags & HVhek_FREEKEY)
@@ -943,8 +950,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	Perl_croak(aTHX_ S_strtab_error,
 		   action & HV_FETCH_LVALUE ? "fetch" : "store");
     }
-    else                                       /* gotta do the real thing */
+    else {                                      /* gotta do the real thing */
 	HeKEY_hek(entry) = save_hek_flags(key, klen, hash, flags);
+    }
     HeVAL(entry) = val;
 
     if (SvOOK(hv)) { /* aux struct present */
@@ -975,6 +983,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         }
     } else
 #endif
+#ifdef PERL_PERTURB_KEYS_TOP
     {   /* Insert at the top which gives us the best performance */
         DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH insert top\t%s{%.*s}\n",
                               HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
@@ -983,6 +992,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         oentry->hent_he = entry;
         AHeHASH_set(oentry, HeHASH(entry));
     }
+#endif
 #ifdef DEBUGGING
     if (DEBUG_H_TEST_ && DEBUG_v_TEST_)
         deb_hechain(oentry->hent_he);
@@ -1619,18 +1629,20 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     if (LIKELY(klen <= 256)) {
         const U32 len_utf8 = ((k_flags & HVhek_UTF8) << 31) | klen;
         struct static_hek hekcmp = { hash, len_utf8, "" };
+
         Move(key, hekcmp.hek_key, klen, char);
 
         HE_OEACH(hv, oentry, entry, {
             CHECK_HASH_FLOOD(collisions)
             /* compare the first 2 U32 and the string at once */
-            if (memNE(HeKEY_hek(entry),&hekcmp,klen+8))
-                continue;
-        }
+            if (memEQ(HeKEY_hek(entry), &hekcmp, klen+8))
+                goto found;
+            })
     } else
 #endif
     {
-        const U32 len_utf8 = ((k_flags & HVhek_UTF8) << 31) | klen;
+        const U32 len_utf8 = HEK_LEN_UTF8_set(klen, k_flags);
+
         HE_OEACH(hv, oentry, entry, {
             const HEK *hek = HeKEY_hek(entry);
             CHECK_HASH_FLOOD(collisions)
@@ -1643,7 +1655,8 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
             /* only if both have UTF8 bit set or not. ignores WASUTF8 */
             /*if ((HeKUTF8(entry) ^ k_flags) & HVhek_UTF8)
               continue;*/
-        }
+            break;
+        })
     }
 
     if (entry)
@@ -1701,7 +1714,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
                 /* Hang on to it for a bit. */
                 SvREFCNT_inc_simple_void_NN(sv_2mortal((SV *)gv));
             }
-            else if (memEQs(key, klen, "ISA") && GvAV(gv)) {
+            else if (UNLIKELY(klen == 3 && strEQc(key, "ISA") && GvAV(gv))) {
                 AV *isa = GvAV(gv);
                 MAGIC *mg = mg_find((SV*)isa, PERL_MAGIC_isa);
 
