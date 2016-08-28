@@ -473,7 +473,6 @@ C<SV*>.
 #define HEK_LEN_UTF8(hek) (hek)->hek_u.hek_len_utf8
 #define HEK_KEY(hek)	(hek)->hek_key
 #define HEK_FLAGS(hek)	(*((unsigned char *)(HEK_KEY(hek))+HEK_LEN(hek)+1))
-#define HEK_IS_SVKEY(hek) 	HEK_LEN(hek) == HEf_SVKEY
 #define HEK_FLAGS_UTF8(hek) (HEK_FLAGS(hek) | HEK_UTF8(hek))
 /* #define HEK_IS_SVKEY(hek) HEK_LEN(hek) == HEf_SVKEY 
    but we use the faster unmasked variant. */
