@@ -440,7 +440,7 @@ sub like   ($$@) { like_yn (0,@_) }; # 0 for -
 sub unlike ($$@) { like_yn (1,@_) }; # 1 for un-
 
 sub like_yn ($$$@) {
-    my ($flip, undef, $expected, $name, @mess) = @_;
+    my ($flip, $got, $expected, $name, @mess) = @_;
 
     # We just accept like(..., qr/.../), not like(..., '...'), and
     # definitely not like(..., '/.../') like
@@ -448,14 +448,11 @@ sub like_yn ($$$@) {
     unless (re::is_regexp($expected)) {
 	die "PANIC: The value '$expected' isn't a regexp. The like() function needs a qr// pattern, not a string";
     }
-
     my $pass;
-    $pass = $_[1] =~ /$expected/ if !$flip;
-    $pass = $_[1] !~ /$expected/ if $flip;
-    my $display_got = $_[1];
-    $display_got = display($display_got);
-    my $display_expected = $expected;
-    $display_expected = display($display_expected);
+    $pass = $got =~ /$expected/ if !$flip;
+    $pass = $got !~ /$expected/ if $flip;
+    my $display_got = display($got);
+    my $display_expected = display($expected);
     unless ($pass) {
 	unshift(@mess, "#      got '$display_got'\n",
 		$flip
@@ -1479,14 +1476,14 @@ sub object_ok {
 
 # Purposefully avoiding a closure.
 sub __capture {
-    push @::__capture, join "", @_;
+    push @::__capture, join("", @_);
 }
     
 sub capture_warnings {
     my $code = shift;
 
     local @::__capture;
-    local $SIG {__WARN__} = \&__capture;
+    local $SIG{__WARN__} = \&__capture;
     &$code;
     return @::__capture;
 }
