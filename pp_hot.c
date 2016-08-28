@@ -2241,6 +2241,7 @@ PP(pp_helem)
 	 * Try to preserve the existenceness of a tied hash
 	 * element by using EXISTS and DELETE if possible.
 	 * Fallback to FETCH and STORE otherwise. */
+        /* TODO: avoid. get preeminent from fetch_ent */
 	if (SvCANEXISTDELETE(hv))
 	    preeminent = hv_exists_ent(hv, keysv, 0);
     }
@@ -2679,6 +2680,7 @@ PP(pp_multideref)
                          * Try to preserve the existenceness of a tied hash
                          * element by using EXISTS and DELETE if possible.
                          * Fallback to FETCH and STORE otherwise. */
+                        /* TODO: avoid exists+fetch, get preeminent from fetch_ent */
                         if (SvCANEXISTDELETE(hv))
                             preeminent = hv_exists_ent(hv, keysv, 0);
                     }

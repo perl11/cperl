@@ -653,14 +653,19 @@ instead of a string/length pair, and no precomputed hash.
 #define HV_FETCH_JUST_SV	0x20
 #define HV_DELETE		0x40
 #define HV_FETCH_EMPTY_HE	0x80 /* Leave HeVAL null. */
+/* TODO: combinations
+   fetch || store (STORE IFEMPTY) (strtab, magic) "fetch-as-store"
+   fetch && delete (strtab)
+   exists || lvalue (LVALUE IFNOTEXIST) (tied mderef)
+*/
 
 /* Must not conflict with HVhek_UTF8 */
 #define HV_NAME_SETALL		0x02
 
 #ifdef PERL_CORE
 /* return actions for internal hv_common_magical() */
-#define HV_COMMON_MAGICAL_RETURNS       0
-#define HV_COMMON_MAGICAL_IGNORE        1
+#define HV_COMMON_MAGICAL_RETURNS         0
+#define HV_COMMON_MAGICAL_IGNORE          1
 #define HV_COMMON_MAGICAL_ENV_IS_CASELESS 2
 #endif
 

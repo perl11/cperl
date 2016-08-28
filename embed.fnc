@@ -2677,6 +2677,9 @@ AMo	|void|PerlIO_destruct
 
 : Only used in dump.c
 p	|void	|deb_stack_all
+#if defined(DEBUGGING)
+pM	|void	|deb_hechain	|NULLOK HE* entry
+#endif
 #if defined(PERL_IN_DEB_C)
 s	|void	|deb_stack_n	|NN SV** stack_base|I32 stack_min \
 				|I32 stack_max|I32 mark_min|I32 mark_max
@@ -2981,6 +2984,9 @@ AiM	|void	|cx_popgiven     |NN PERL_CONTEXT *cx
 #endif
 #if defined(PERL_IN_HV_C)
 iMPn    |U32    |ctz             |U32 n
+#endif
+#if defined(PERL_IN_HV_C) && defined(DEBUGGING)
+sM      |const char *	|action_name	|const int action
 #endif
 
 #ifdef USE_DTRACE

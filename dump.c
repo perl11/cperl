@@ -2373,6 +2373,37 @@ S_append_gv_name(pTHX_ GV *gv, SV *out)
     SvREFCNT_dec_NN(sv);
 }
 
+/* print the HEKs in a HE chain */
+
+#ifdef DEBUGGING
+STATIC void
+S_deb_hek(pTHX_ HEK* hek)
+{
+    if (!hek) {
+        PerlIO_printf(Perl_debug_log, " [(null)]");
+    }
+    else if (HEK_LEN(hek) == HEf_SVKEY) {
+        SV* sv = *(SV**)HEK_KEY(hek);
+        PerlIO_printf(Perl_debug_log, " [SV: 0x%08x \"%.*s\"]", HEK_HASH(hek),
+                      (int)SvCUR(sv), SvPVX_const(sv));
+    } else {
+        PerlIO_printf(Perl_debug_log, " [0x%08x \"%.*s\"]", HEK_HASH(hek),
+                      (int)HEK_LEN(hek), HEK_KEY(hek));
+    }
+}
+
+void
+Perl_deb_hechain(pTHX_ HE* entry)
+{
+    if (!entry) return;
+    PerlIO_printf(Perl_debug_log, "(");
+    for (; entry; entry = entry->hent_next) {
+        S_deb_hek(aTHX_ entry->hent_hek);
+    }
+    PerlIO_printf(Perl_debug_log, " )\n");
+}
+#endif
+
 #ifdef USE_ITHREADS
 #  define ITEM_SV(item) (comppad ? \
     *av_fetch(comppad, (item)->pad_offset, FALSE) : NULL)

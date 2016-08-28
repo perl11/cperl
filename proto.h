@@ -5704,6 +5704,7 @@ PERL_CALLCONV bool	Perl_do_exec3(pTHX_ const char *incmd, int fd, int do_report)
 
 #endif
 #if defined(DEBUGGING)
+PERL_CALLCONV void	Perl_deb_hechain(pTHX_ HE* entry);
 PERL_CALLCONV int	Perl_get_debug_opts(pTHX_ const char **s, bool givehelp)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
@@ -6430,6 +6431,9 @@ STATIC HEK*	S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flag
 	assert(str)
 
 STATIC void	S_unshare_hek_or_pvn(pTHX_ const HEK* hek, const char* str, I32 len, U32 hash);
+#endif
+#if defined(PERL_IN_HV_C) && defined(DEBUGGING)
+STATIC const char *	S_action_name(pTHX_ const int action);
 #endif
 #if defined(PERL_IN_HV_C) || defined(PERL_IN_MG_C) || defined(PERL_IN_SV_C)
 PERL_CALLCONV void	Perl_sv_kill_backrefs(pTHX_ SV *const sv, AV *const av)

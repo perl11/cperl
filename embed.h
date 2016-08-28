@@ -1461,6 +1461,7 @@
 #define do_exec3(a,b,c)		Perl_do_exec3(aTHX_ a,b,c)
 #  endif
 #  if defined(DEBUGGING)
+#define deb_hechain(a)		Perl_deb_hechain(aTHX_ a)
 #define get_debug_opts(a,b)	Perl_get_debug_opts(aTHX_ a,b)
 #define set_padlist		Perl_set_padlist
 #    if defined(PERL_IN_PAD_C)
@@ -1576,6 +1577,9 @@
 #define save_hek_flags		S_save_hek_flags
 #define share_hek_flags(a,b,c,d)	S_share_hek_flags(aTHX_ a,b,c,d)
 #define unshare_hek_or_pvn(a,b,c,d)	S_unshare_hek_or_pvn(aTHX_ a,b,c,d)
+#  endif
+#  if defined(PERL_IN_HV_C) && defined(DEBUGGING)
+#define action_name(a)		S_action_name(aTHX_ a)
 #  endif
 #  if defined(PERL_IN_MALLOC_C)
 #define adjust_size_and_find_bucket	S_adjust_size_and_find_bucket

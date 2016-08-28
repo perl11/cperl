@@ -350,6 +350,35 @@ Perl_hv_common_key_len(pTHX_ HV *hv, const char *key, I32 klen,
                          action, val, hash);
 }
 
+#ifdef DEBUGGING
+/* return a temp. string for the hv actions */
+
+STATIC const char*
+S_action_name(pTHX_ const int action)
+{
+    static const char* names[] = {
+        "DISABLE_UVAR_XKEY","DISCARD",
+        "STORE","EXISTS","LVALUE","JUST_SV",
+        "DELETE","EMPTY_HE" /* 0x80 */
+    };
+    SV* tmp = newSVpvn_flags("", 0, SVs_TEMP);
+    int i;
+
+    for (i=0; i<8; i++) {
+        int j = 1<<i;
+        if (action & j) {
+            sv_catpvn(tmp, names[i], strlen(names[i]));
+            sv_catpvs(tmp, ",");
+        }
+    }
+    if (SvCUR(tmp)) {
+        STRLEN cur = ((XPV*)SvANY(tmp))->xpv_cur--;
+        SvPVX_mutable(tmp)[cur-1] = '\0';
+    }
+    return SvPVX_const(tmp);
+}
+#endif
+
 /* here klen must be positive */
 void *
 Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
@@ -659,11 +688,15 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
             /*DEBUG_H(HvTOTALKEYS(hv) < 11 ? Perl_hv_dump(hv, 0) : "");*/
         }
 #endif
-
         /* fill, size, found index in collision list */
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u * 0x%x\t%s{%.*s}\n",
-                              HvTOTALKEYS(hv), HvMAX(hv), linear, action,
-                              HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
+        DEBUG_H(PerlIO_printf(Perl_debug_log,
+                    "HASH %6lu\t%6lu\t%u * %s(0x%x)\t%s{%.*s}\n",
+                    HvTOTALKEYS(hv), HvMAX(hv), linear, action_name(action), action,
+                    HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
+#ifdef DEBUGGING
+        if (DEBUG_H_TEST_ && DEBUG_v_TEST_)
+            deb_hechain(*oentry);
+#endif
 	if (return_svp) {
             return (void *) &HeVAL(entry);
 	}
@@ -672,9 +705,10 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
   not_found:
     /* fill, size, not found, size of collision list */
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u - 0x%x\t%s{%.*s}\n",
-                          HvTOTALKEYS(hv), HvMAX(hv), linear, action,
-                          HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
+    DEBUG_H(PerlIO_printf(Perl_debug_log,
+                "HASH %6lu\t%6lu\t%u - %s(0x%x)\t%s{%.*s}\n",
+                HvTOTALKEYS(hv), HvMAX(hv), linear, action_name(action), action,
+                HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
 #ifdef DYNAMIC_ENV_FETCH  /* %ENV lookup?  If so, try to fetch the value now */
     if (!(action & HV_FETCH_ISSTORE) 
 	&& SvRMAGICAL((const SV *)hv)
@@ -806,6 +840,10 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         HeNEXT(entry) = *oentry; /* oe -> n:   e -> oe -> n */
         *oentry = entry;
     }
+#ifdef DEBUGGING
+    if (DEBUG_H_TEST_ && DEBUG_v_TEST_)
+        deb_hechain(*oentry);
+#endif
 #ifdef PERL_HASH_RANDOMIZE_KEYS
     if (SvOOK(hv)) {
         /* Currently this makes various tests warn in annoying ways.
@@ -887,8 +925,8 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
             SV *sv;
             HE *entry;
             DEBUG_H(PerlIO_printf(Perl_debug_log,
-                        "HASH %6lu\t%6lu\t mg-fetch tied\t%s{%.*s}\n",
-                        HvTOTALKEYS(hv), HvMAX(hv),
+                        "HASH %6lu\t%6lu\ttied mg-fetch %s\t%s{%.*s}\n",
+                        HvTOTALKEYS(hv), HvMAX(hv), action_name(action),
                         HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
             /* FIXME should be able to skimp on the HE/HEK here when
                HV_FETCH_JUST_SV is true.  */
@@ -935,8 +973,8 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
             const int return_svp = action & HV_FETCH_JUST_SV;
             I32 i;
             DEBUG_H(PerlIO_printf(Perl_debug_log,
-                        "HASH %6lu\t%6lu\t mg-fetch\tENV{%.*s}\n",
-                        HvTOTALKEYS(hv), HvMAX(hv), klen, key));
+                        "HASH %6lu\t%6lu\tcaseless mg-fetch %s\tENV{%.*s}\n",
+                        HvTOTALKEYS(hv), HvMAX(hv), action_name(action), klen, key));
             for (i = 0; i < klen; ++i)
                 if (isLOWER(key[i])) {
                     /* Would be nice if we had a routine to do the
@@ -974,8 +1012,8 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
 #endif
         else {
             DEBUG_H(PerlIO_printf(Perl_debug_log,
-                        "HASH %6lu\t%6lu\t mg-fetch \t%s{%.*s}\n",
-                        HvTOTALKEYS(hv), HvMAX(hv),
+                        "HASH %6lu\t%6lu\tmg-fetch %s\t%s{%.*s}\n",
+                        HvTOTALKEYS(hv), HvMAX(hv), action_name(action),
                         HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
         }
     } /* ISFETCH */
@@ -988,8 +1026,8 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
             SV * const svret = sv_newmortal();
             SV * sv = sv_newmortal();
             DEBUG_H(PerlIO_printf(Perl_debug_log,
-                        "HASH %6lu\t%6lu\t mg-exists tied\t%s{%.*s}\n",
-                        HvTOTALKEYS(hv), HvMAX(hv),
+                        "HASH %6lu\t%6lu\ttied mg-exists %s\t%s{%.*s}\n",
+                        HvTOTALKEYS(hv), HvMAX(hv), action_name(action),
                         HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
 
             if (keysv || is_utf8) {
@@ -1022,8 +1060,8 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
             char * const keysave = (char * const)key;
             key = (const char*)strupr(savepvn(key,klen));
             DEBUG_H(PerlIO_printf(Perl_debug_log,
-                        "HASH %6lu\t%6lu\t mg-exists\tENV{%.*s}\n",
-                        HvTOTALKEYS(hv), HvMAX(hv), klen, key));
+                        "HASH %6lu\t%6lu\tmg-exists %s\tENV{%.*s}\n",
+                        HvTOTALKEYS(hv), HvMAX(hv), action_name(action), klen, key));
             if (!memEQ(keysave, key, klen)) {
                 *keyp = NULL;
                 *return_action = HV_COMMON_MAGICAL_ENV_IS_CASELESS;
@@ -1033,8 +1071,8 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
 #endif
         else {
             DEBUG_H(PerlIO_printf(Perl_debug_log,
-                        "HASH %6lu\t%6lu\t mg-exists\t%s{%.*s}\n",
-                        HvTOTALKEYS(hv), HvMAX(hv),
+                        "HASH %6lu\t%6lu\tmg-exists %s\t%s{%.*s}\n",
+                        HvTOTALKEYS(hv), HvMAX(hv), action_name(action),
                         HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
         }
     } /* ISEXISTS */
@@ -1043,8 +1081,8 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
         bool needs_store;
         hv_magic_check (hv, &needs_copy, &needs_store);
         DEBUG_H(PerlIO_printf(Perl_debug_log,
-                    "HASH %6lu\t%6lu\t mg-store \t%s{%.*s}\tcopy:%s, store:%s\n",
-                    HvTOTALKEYS(hv), HvMAX(hv),
+                    "HASH %6lu\t%6lu\tmg-store %s\t%s{%.*s}\tcopy:%s, store:%s\n",
+                    HvTOTALKEYS(hv), HvMAX(hv), action_name(action),
                     HvNAME_get(hv)?HvNAME_get(hv):"", klen, key,
                     needs_copy?"yes":"no", needs_store?"yes":"no"));
         if (needs_copy) {
