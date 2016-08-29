@@ -377,6 +377,16 @@ S_action_name(pTHX_ const int action)
     }
     return SvPVX_const(tmp);
 }
+
+static void
+S_assert_hechain(pTHX_ HE* entry)
+{
+    if (!entry) return;
+    for (; entry; entry = entry->hent_next) {
+        assert(entry->hent_hek);
+    }
+}
+
 #endif
 
 /* here klen must be positive */
@@ -411,11 +421,10 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	    if (uf->uf_set == NULL) {
 		SV* obj = mg->mg_obj;
 
-		if (!keysv) {
+		if (!keysv)
 		    keysv = newSVpvn_flags(key, klen, SVs_TEMP |
 					   ((flags & HVhek_UTF8)
 					    ? SVf_UTF8 : 0));
-		}
 		
 		mg->mg_obj = keysv;         /* pass key */
 		uf->uf_index = action;      /* pass action */
@@ -529,14 +538,14 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         if (HvSHAREKEYS(hv)) {
             keysv_hek  = SvSHARED_HEK_FROM_PV(SvPVX_const(keysv));
             DEBUG_H(PerlIO_printf(Perl_debug_log,
-                        "HASH SHAREKEYS + shared_hash\t%s{%.*s}\n",
+                        "HASH SHAREKEYS \t%s{%.*s SV}\n",
                          HvNAME_get(hv)?HvNAME_get(hv):"",
                          HEK_LEN(keysv_hek), HEK_KEY(keysv_hek)));
         } else {
             DEBUG_H(PerlIO_printf(Perl_debug_log,
-                        "HASH shared_hash\t\t%s{%.*s}\n",
+                        "HASH \t\t%s{%.*s SV}\n",
                          HvNAME_get(hv)?HvNAME_get(hv):"",
-                         HEK_LEN(keysv_hek), HEK_KEY(keysv_hek)));
+                         (int)SvCUR(keysv), SvPVX_const(keysv)));
         }
         hash = SvSHARED_HASH(keysv);
     }
@@ -690,12 +699,14 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 #endif
         /* fill, size, found index in collision list */
         DEBUG_H(PerlIO_printf(Perl_debug_log,
-                    "HASH %6lu\t%6lu\t%u * %s(0x%x)\t%s{%.*s}\n",
+                    "HASH %6lu\t%6lu\t%u * %s(0x%x)\t%s%s{%.*s}\n",
                     HvTOTALKEYS(hv), HvMAX(hv), linear, action_name(action), action,
+                    HvSHAREKEYS(hv)?"SHARE ":"",
                     HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
 #ifdef DEBUGGING
         if (DEBUG_H_TEST_ && DEBUG_v_TEST_)
             deb_hechain(*oentry);
+        DEBUG_H(S_assert_hechain(aTHX_ *oentry));
 #endif
 	if (return_svp) {
             return (void *) &HeVAL(entry);
@@ -706,8 +717,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
   not_found:
     /* fill, size, not found, size of collision list */
     DEBUG_H(PerlIO_printf(Perl_debug_log,
-                "HASH %6lu\t%6lu\t%u - %s(0x%x)\t%s{%.*s}\n",
+                "HASH %6lu\t%6lu\t%u - %s(0x%x)\t%s%s{%.*s}\n",
                 HvTOTALKEYS(hv), HvMAX(hv), linear, action_name(action), action,
+                HvSHAREKEYS(hv)?"SHARE ":"",
                 HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
 #ifdef DYNAMIC_ENV_FETCH  /* %ENV lookup?  If so, try to fetch the value now */
     if (!(action & HV_FETCH_ISSTORE) 
@@ -843,6 +855,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 #ifdef DEBUGGING
     if (DEBUG_H_TEST_ && DEBUG_v_TEST_)
         deb_hechain(*oentry);
+    DEBUG_H(S_assert_hechain(aTHX_ *oentry));
 #endif
 #ifdef PERL_HASH_RANDOMIZE_KEYS
     if (SvOOK(hv)) {
@@ -1010,10 +1023,11 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
                 }
         } /* env */
 #endif
-        else {
+        else { /* such as %^H or %SIG */
             DEBUG_H(PerlIO_printf(Perl_debug_log,
-                        "HASH %6lu\t%6lu\tmg-fetch %s\t%s{%.*s}\n",
-                        HvTOTALKEYS(hv), HvMAX(hv), action_name(action),
+                        "HASH %6lu\t%6lu\tmg-fetch '%c' %s\t%s{%.*s}\n",
+                        HvTOTALKEYS(hv), HvMAX(hv),
+                        SvMAGIC(hv)->mg_type, action_name(action),
                         HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
         }
     } /* ISFETCH */
@@ -1071,18 +1085,20 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
 #endif
         else {
             DEBUG_H(PerlIO_printf(Perl_debug_log,
-                        "HASH %6lu\t%6lu\tmg-exists %s\t%s{%.*s}\n",
-                        HvTOTALKEYS(hv), HvMAX(hv), action_name(action),
+                        "HASH %6lu\t%6lu\tmg-exists '%c' %s\t%s{%.*s}\n",
+                        HvTOTALKEYS(hv), HvMAX(hv),
+                        SvMAGIC(hv)->mg_type, action_name(action),
                         HvNAME_get(hv)?HvNAME_get(hv):"", klen, key));
         }
     } /* ISEXISTS */
     else if (action & HV_FETCH_ISSTORE) {
         bool needs_copy;
         bool needs_store;
-        hv_magic_check (hv, &needs_copy, &needs_store);
+        hv_magic_check(hv, &needs_copy, &needs_store);
         DEBUG_H(PerlIO_printf(Perl_debug_log,
-                    "HASH %6lu\t%6lu\tmg-store %s\t%s{%.*s}\tcopy:%s, store:%s\n",
-                    HvTOTALKEYS(hv), HvMAX(hv), action_name(action),
+                    "HASH %6lu\t%6lu\tmg-store '%c' %s\t%s{%.*s}\tcopy:%s, store:%s\n",
+                    HvTOTALKEYS(hv), HvMAX(hv),
+                    SvMAGIC(hv)->mg_type, action_name(action),
                     HvNAME_get(hv)?HvNAME_get(hv):"", klen, key,
                     needs_copy?"yes":"no", needs_store?"yes":"no"));
         if (needs_copy) {
@@ -1248,8 +1264,8 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		}
 #ifdef ENV_IS_CASELESS
 		else if (mg_find((const SV *)hv, PERL_MAGIC_env)) {
-		    /* XXX This code isn't UTF8 clean.  */
-		    keysv = newSVpvn_flags(key, klen, SVs_TEMP);
+                    /* XXX This code isn't UTF8 clean. Esp. strupr() */
+		    keysv = newSVpvn_flags(key, klen, SVs_TEMP));
 		    if (k_flags & HVhek_FREEKEY) {
 			Safefree(key);
 		    }
@@ -1288,8 +1304,18 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     }
 
     if (keysv && (SvIsCOW_shared_hash(keysv))) {
-        if (HvSHAREKEYS(hv))
-            keysv_hek  = SvSHARED_HEK_FROM_PV(SvPVX_const(keysv));
+        if (HvSHAREKEYS(hv)) {
+            keysv_hek = SvSHARED_HEK_FROM_PV(SvPVX_const(keysv));
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH SHAREKEYS + shared_hash\tdelete %s{%.*s}\n",
+                         HvNAME_get(hv)?HvNAME_get(hv):"",
+                         HEK_LEN(keysv_hek), HEK_KEY(keysv_hek)));
+        } else {
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH shared_hash\t\tdelete %s{%.*s}\n",
+                         HvNAME_get(hv)?HvNAME_get(hv):"",
+                         (int)SvCUR(keysv), SvPVX_const(keysv)));
+        }
         hash = SvSHARED_HASH(keysv);
     }
     else if (!hash)
@@ -1476,7 +1502,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	 * we can still access via not-really-existing key without raising
 	 * an error.
 	 */
-	if (SvREADONLY(hv))
+	if (UNLIKELY(SvREADONLY(hv)))
 	    /* We'll be saving this slot, so the number of allocated keys
 	     * doesn't go down, but the number placeholders goes up */
 	    HvPLACEHOLDERS(hv)++;
@@ -1512,6 +1538,11 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
         DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL+\t{%.*s}\n",
                               HvTOTALKEYS(hv), HvMAX(hv), linear, klen, key));
+#ifdef DEBUGGING
+        if (DEBUG_H_TEST_ && DEBUG_v_TEST_)
+            deb_hechain(*oentry);
+        DEBUG_H(S_assert_hechain(aTHX_ *oentry));
+#endif
 	return sv;
     }
 
@@ -1770,7 +1801,7 @@ Perl_newHVhv(pTHX_ HV *ohv)
 
 	(void)hv_iterinit(ohv);
 	while ((entry = hv_iternext_flags(ohv, 0))) {
-	    SV *val = hv_iterval(ohv,entry);
+	    SV *val = hv_iterval(ohv, entry);
 	    SV * const keysv = HeSVKEY(entry);
 	    val = SvIMMORTAL(val) ? val : newSVsv(val);
 	    if (keysv)
@@ -3182,6 +3213,7 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
 /* get a (constant) string ptr from the global string table
  * string will get added if it is not already there.
  * len and hash must both be valid for str.
+ * A negative len denotes utf8, which is then tried to be downgraded.
  */
 HEK *
 Perl_share_hek(pTHX_ const char *str, I32 len, U32 hash)
@@ -3224,6 +3256,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
     XPVHV * const xhv = (XPVHV*)SvANY(PL_strtab);
 
     PERL_ARGS_ASSERT_SHARE_HEK_FLAGS;
+    assert(len >= 0);
 
     /* what follows is the moral equivalent of:
 
@@ -3251,7 +3284,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
     if (!entry) {
 	/* What used to be head of the list.
 	   If this is NULL, then we're the first entry for this slot, which
-	   means we need to increate fill.  */
+	   means we need to increase fill.  */
 	struct shared_he *new_entry;
 	HEK *hek;
 	char *k;

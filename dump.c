@@ -2377,28 +2377,43 @@ S_append_gv_name(pTHX_ GV *gv, SV *out)
 
 #ifdef DEBUGGING
 STATIC void
-S_deb_hek(pTHX_ HEK* hek)
+S_deb_hek(pTHX_ HEK* hek, SV* val)
 {
     if (!hek) {
         PerlIO_printf(Perl_debug_log, " [(null)]");
     }
-    else if (HEK_LEN(hek) == HEf_SVKEY) {
+    else if (HEK_IS_SVKEY(hek)) {
         SV* sv = *(SV**)HEK_KEY(hek);
-        PerlIO_printf(Perl_debug_log, " [SV: 0x%08x \"%.*s\"]", HEK_HASH(hek),
+        PerlIO_printf(Perl_debug_log, " [0x%08x SV:\"%.*s\" ", HEK_HASH(hek),
                       (int)SvCUR(sv), SvPVX_const(sv));
     } else {
-        PerlIO_printf(Perl_debug_log, " [0x%08x \"%.*s\"]", HEK_HASH(hek),
+        PerlIO_printf(Perl_debug_log, " [0x%08x \"%.*s\" ", HEK_HASH(hek),
                       (int)HEK_LEN(hek), HEK_KEY(hek));
+        if (HEK_FLAGS(hek) > 1)
+            PerlIO_printf(Perl_debug_log, "0x%x ", HEK_FLAGS(hek));
+    }
+
+    if (val == &PL_sv_placeholder) {
+        PerlIO_printf(Perl_debug_log, "placeholder]");
+    }
+    else if (val == &PL_sv_undef) {
+        PerlIO_printf(Perl_debug_log, "undef]");
+    }
+    else {
+        PerlIO_printf(Perl_debug_log, "0x%"UVxf"]", PTR2UV(val));
     }
 }
 
 void
 Perl_deb_hechain(pTHX_ HE* entry)
 {
+    U32 i = 0;
     if (!entry) return;
     PerlIO_printf(Perl_debug_log, "(");
-    for (; entry; entry = entry->hent_next) {
-        S_deb_hek(aTHX_ entry->hent_hek);
+    for (; entry; entry = HeNEXT(entry), i++) {
+        S_deb_hek(aTHX_ HeKEY_hek(entry), HeVAL(entry));
+        assert(entry != HeNEXT(entry));
+        assert(i <= PERL_ARENA_SIZE/sizeof(HE));
     }
     PerlIO_printf(Perl_debug_log, " )\n");
 }
