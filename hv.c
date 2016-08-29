@@ -560,11 +560,12 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     } else
 #endif
     {
+        SSize_t hindex = HvHASH_INDEX(hash, HvMAX(hv));
 #ifdef PERL_PERTURB_KEYS_TOP
-	oentry = &(HvARRAY(hv))[hash & (U32) HvMAX(hv)];
+	oentry = &(HvARRAY(hv)[ hindex ]);
         entry = *oentry;
 #else
-	entry = (HvARRAY(hv))[hash & (U32) HvMAX(hv)];
+	entry = HvARRAY(hv)[ hindex ];
 #endif
     }
 
@@ -797,7 +798,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 #endif
 
 #ifndef PERL_PERTURB_KEYS_TOP
-    oentry = &(HvARRAY(hv))[hash & (I32) xhv->xhv_max];
+    oentry = &HvARRAY(hv)[ HvHASH_INDEX(hash, xhv->xhv_max) ];
 #endif
 
     entry = new_HE();
@@ -1323,7 +1324,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
     masked_flags = (k_flags & HVhek_MASK);
 
-    first_entry = oentry = &(HvARRAY(hv))[hash & (U32) HvMAX(hv)];
+    first_entry = oentry = &HvARRAY(hv)[ HvHASH_INDEX(hash, HvMAX(hv)) ];
     entry = *oentry;
 
     if (!entry)
@@ -2028,7 +2029,7 @@ S_clear_placeholders(pTHX_ HV *hv, SSize_t items)
 
     for (i = 0; i <= HvMAX(hv); i++) {
 	/* Loop down the linked list heads  */
-	HE **oentry = &(HvARRAY(hv))[i];
+	HE **oentry = &(HvARRAY(hv)[i]);
 	HE *entry;
 
 	while ((entry = *oentry)) {
@@ -2956,7 +2957,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
     {
 	while (!entry) {
 	    /* OK. Come to the end of the current list.  Grab the next one.  */
-
+            U32 hash;
 	    iter->xhv_riter++;
 	    if (iter->xhv_riter > xhv->xhv_max) {
 		/* There is no next one.  End of the hash.  */
@@ -2966,7 +2967,8 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 #endif
 		break;
 	    }
-            entry = (HvARRAY(hv))[ PERL_HASH_ITER_BUCKET(iter) & xhv->xhv_max ];
+            hash = PERL_HASH_ITER_BUCKET(iter);
+            entry = HvARRAY(hv)[ HvHASH_INDEX(hash, xhv->xhv_max) ];
 
 	    if (!(flags & HV_ITERNEXT_WANTPLACEHOLDERS)) {
 		/* If we have an entry, but it's a placeholder, don't count it.
@@ -3169,7 +3171,7 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
     } */
     xhv = (XPVHV*)SvANY(PL_strtab);
     /* assert(xhv_array != 0) */
-    oentry = &(HvARRAY(PL_strtab))[hash & (I32) HvMAX(PL_strtab)];
+    oentry = &HvARRAY(PL_strtab)[ HvHASH_INDEX(hash, HvMAX(PL_strtab)) ];
     if (he) {
 	const HE *const he_he = &(he->shared_he_he);
         for (entry = *oentry; entry; oentry = &HeNEXT(entry), entry = *oentry) {
@@ -3252,7 +3254,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 {
     HE *entry;
     const int flags_masked = flags & HVhek_MASK;
-    const U32 hindex = hash & (I32) HvMAX(PL_strtab);
+    const SSize_t hindex = HvHASH_INDEX(hash, HvMAX(PL_strtab));
     XPVHV * const xhv = (XPVHV*)SvANY(PL_strtab);
 
     PERL_ARGS_ASSERT_SHARE_HEK_FLAGS;
@@ -3268,8 +3270,8 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
     */
 
     /* assert(xhv_array != 0) */
-    entry = (HvARRAY(PL_strtab))[hindex];
-    for (;entry; entry = HeNEXT(entry)) {
+    entry = HvARRAY(PL_strtab)[hindex];
+    for (; entry; entry = HeNEXT(entry)) {
 	if (HeHASH(entry) != hash)		/* strings can't be equal */
 	    continue;
 	if (HeKLEN(entry) != len)
@@ -3460,7 +3462,7 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
 #else
 	U32 hash = HEK_HASH(chain->refcounted_he_hek);
 #endif
-	HE **oentry = &((HvARRAY(hv))[hash & max]);
+	HE **oentry = &HvARRAY(hv)[ HvHASH_INDEX(hash, max) ];
 	HE *entry = *oentry;
 	SV *value;
 
