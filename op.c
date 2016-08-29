@@ -23797,8 +23797,8 @@ Perl_class_role_finalize(pTHX_ OP* o)
 
     /* walk and finalize the subs and methods, i.e. fixup field accessors */
     for (i=0; i <= HvMAX(stash); i++) {
-        const HE *entry;
-	for (entry = HvARRAY(stash)[i]; entry; entry = HeNEXT(entry)) {
+        HE *entry = AHe(HvARRAY(stash)[i]);
+        HE_EACH(stash, entry, {
 	    GV *gv = (GV*)HeVAL(entry);
             CV *cv;
             if (SvROK(gv) && SvTYPE(SvRV(gv)) == SVt_PVCV)
@@ -23814,7 +23814,7 @@ Perl_class_role_finalize(pTHX_ OP* o)
                     class_role_finalize(newSVOP(OP_CONST,0,HvNAME(hv)));
 	    }
             */
-        }
+        })
     }
     DEBUG_Xv(pnl_dump(PL_comppad_name));
     SvREADONLY_on(stash);

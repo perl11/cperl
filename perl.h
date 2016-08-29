@@ -3883,6 +3883,7 @@ typedef        struct crypt_data {     /* straight from /usr/include/crypt.h */
 #include "cv.h"
 #include "op.h"
 #include "hv.h"
+#include "mro.h"
 #include "cop.h"
 #include "av.h"
 #include "mg.h"

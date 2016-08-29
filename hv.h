@@ -35,7 +35,15 @@
 #   define PERL_HASH_ITER_BUCKET(iter)      (((iter)->xhv_riter) ^ ((iter)->xhv_rand))
 #endif
 
-/* entry in hash value chain */
+/* inlined entry in hash array, 2-3 words */
+struct array_he {
+    HE		*hent_he;	/* ptr to full hash entry */
+#ifdef PERL_INLINE_HASH
+    U32		 hent_hash;	/* hash to catch 99% fails */
+#endif
+};
+
+/* entry in hash value linked list */
 struct he {
     /* Keep hent_next first in this structure, because sv_free_arenas take
        advantage of this to share code between the he arenas and the SV
@@ -66,41 +74,6 @@ struct shared_he {
     struct he shared_he_he;
     struct hek shared_he_hek;
 };
-
-/* Subject to change.
-   Don't access this directly.
-   Use the funcs in mro_core.c
-*/
-
-struct mro_alg {
-    AV *(*resolve)(pTHX_ HV* stash, U32 level);
-    const char *name;
-    U16 length;
-    U16	kflags;	/* For the hash API - set HVhek_UTF8 if name is UTF-8 */
-    U32 hash; /* or 0 */
-};
-
-struct mro_meta {
-    /* a hash holding the different MROs private data.  */
-    HV      *mro_linear_all;
-    /* a pointer directly to the current MROs private data.  If mro_linear_all
-       is NULL, this owns the SV reference, else it is just a pointer to a
-       value stored in and owned by mro_linear_all.  */
-    SV      *mro_linear_current;
-    HV      *mro_nextmethod; /* next::method caching */
-    U32     cache_gen;       /* Bumping this invalidates our method cache */
-    U32     pkg_gen;         /* Bumps when local methods/@ISA change */
-    const struct mro_alg *mro_which; /* which mro alg is in use? */
-    HV      *isa;            /* Everything this class @ISA */
-    HV      *super;          /* SUPER method cache */
-    CV      *destroy;        /* DESTROY method if destroy_gen non-zero */
-    U32     destroy_gen;     /* Generation number of DESTROY cache */
-};
-
-#define MRO_GET_PRIVATE_DATA(smeta, which)		   \
-    (((smeta)->mro_which && (which) == (smeta)->mro_which) \
-     ? (smeta)->mro_linear_current			   \
-     : Perl_mro_get_private_data(aTHX_ (smeta), (which)))
 
 /* Subject to change.
    Don't access this directly.
@@ -463,7 +436,7 @@ C<SV*>.
  */
 #define HvKEYS(hv)		HvUSEDKEYS(hv)
 #define HvUSEDKEYS(hv)		(HvTOTALKEYS(hv) - HvPLACEHOLDERS_get(hv))
-#define HvTOTALKEYS(hv)		XHvTOTALKEYS((XPVHV*) SvANY(hv))
+#define HvTOTALKEYS(hv)		XHvTOTALKEYS((XPVHV*)SvANY(hv))
 #define HvPLACEHOLDERS(hv)	(*Perl_hv_placeholders_p(aTHX_ MUTABLE_HV(hv)))
 #define HvPLACEHOLDERS_get(hv)	(SvMAGIC(hv) ? Perl_hv_placeholders_get(aTHX_ (const HV *)hv) : 0)
 #define HvPLACEHOLDERS_set(hv,p)	Perl_hv_placeholders_set(aTHX_ MUTABLE_HV(hv), p)
@@ -504,6 +477,7 @@ C<SV*>.
 #ifndef PERL_CORE
 #  define Nullhe Null(HE*)
 #endif
+#define AHe(ahe)		(ahe).hent_he
 #define HeNEXT(he)		(he)->hent_next
 #define HeKEY_hek(he)		(he)->hent_hek
 #define HeKEY(he)		HEK_KEY(HeKEY_hek(he))
@@ -577,13 +551,13 @@ C<SV*>.
 /* Default to allocating the correct size - default to assuming that malloc()
    is not broken and is efficient at allocating blocks sized at powers-of-two.
 */   
-#  define PERL_HV_ARRAY_ALLOC_BYTES(size) ((size) * sizeof(HE*))
+#  define PERL_HV_ARRAY_ALLOC_BYTES(size) ((size) * sizeof(AHE))
 #else
 #  define MALLOC_OVERHEAD 16
 #  define PERL_HV_ARRAY_ALLOC_BYTES(size) \
 			(((size) < 64)					\
-			 ? (size) * sizeof(HE*)				\
-			 : (size) * sizeof(HE*) * 2 - MALLOC_OVERHEAD)
+			 ? (size) * sizeof(AHE)				\
+			 : (size) * sizeof(AHE) * 2 - MALLOC_OVERHEAD)
 #endif
 
 /* Flags for hv_iternext_flags.  */
@@ -849,6 +823,10 @@ Creates a new HV.  The reference count is set to 1.
     }
 
 #ifdef PERL_CORE
+#define HE_EACH_POST(hv,entry,post,block)  \
+    for (; entry; entry = HeNEXT(entry), post) { \
+      block; \
+    }
 /* oentry is the changable entry ptr, entry the initial hash hit.
    check all collisions */
 #define HE_OEACH(hv,oentry,entry,block) \

@@ -2624,7 +2624,7 @@ Perl_gv_check(pTHX_ HV *stash)
 #endif
 
     for (i = 0; i <= HvMAX(stash); i++) {
-        const HE *entry = HvARRAY(stash)[i];
+        const HE *entry = AHe(HvARRAY(stash)[i]);
         /* mark stash is being scanned, to avoid recursing */
         HvAUX(stash)->xhv_aux_flags |= HvAUXf_SCAN_STASH;
 
