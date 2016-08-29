@@ -1265,7 +1265,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 #ifdef ENV_IS_CASELESS
 		else if (mg_find((const SV *)hv, PERL_MAGIC_env)) {
                     /* XXX This code isn't UTF8 clean. Esp. strupr() */
-		    keysv = newSVpvn_flags(key, klen, SVs_TEMP));
+		    keysv = newSVpvn_flags(key, klen, SVs_TEMP);
 		    if (k_flags & HVhek_FREEKEY) {
 			Safefree(key);
 		    }
