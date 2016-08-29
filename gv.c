@@ -2628,7 +2628,7 @@ Perl_gv_check(pTHX_ HV *stash)
         /* mark stash is being scanned, to avoid recursing */
         HvAUX(stash)->xhv_aux_flags |= HvAUXf_SCAN_STASH;
 
-	HE_EACH(stash, entry, {
+	HE_EACH(stash, i, entry, {
             GV *gv;
             HV *hv;
 	    STRLEN keylen = HeKLEN(entry);

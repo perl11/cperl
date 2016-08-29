@@ -2,28 +2,26 @@
  *
  *    Copyright (C) 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
  *    2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by Larry Wall and others
+ *    Copyright (C) 2016 cPanel Inc.
  *
  *    You may distribute under the terms of either the GNU General Public
  *    License or the Artistic License, as specified in the README file.
  *
  */
 
-/*
- *      I sit beside the fire and think
- *          of all that I have seen.
- *                         --Bilbo
- *
- *     [p.278 of _The Lord of the Rings_, II/iii: "The Ring Goes South"]
- */
-
 /* 
 =head1 Hash Manipulation Functions
-A HV structure represents a Perl hash.  It consists mainly of an array
-of pointers, each of which points to a linked list of HE structures.  The
-array is indexed by the hash function of the key, so each linked list
-represents all the hash entries with the same hash value.  Each HE contains
-a pointer to the actual value, plus a pointer to a HEK structure which
-holds the key and hash value.
+
+A HV structure represents a Perl hash. It consists mainly of an array
+of hash entries (HE). The array is indexed by the hash function of
+the key.
+
+It is now an open addressing hash table with linear probing and
+each entry contains a HE* ptr and the HASH value for faster inline
+comparison.  The AUX struct is allocated seperately, at [HvMAX].
+
+The fill rate (load factor) went from 100% in perl5 and 90% in cperl
+to now 70%.
 
 =cut
 
@@ -34,9 +32,9 @@ holds the key and hash value.
 #define PERL_HASH_INTERNAL_ACCESS
 #include "perl.h"
 
-/* New 90% fill rate ("load factor"). Was 100 before */
+/* 70% fill rate ("load factor") with open addressing */
 #ifndef HV_FILL_RATE
-# define HV_FILL_RATE 90
+# define HV_FILL_RATE 70
 #endif
 #ifndef HV_FILL_THRESHOLD
 # define HV_FILL_THRESHOLD 31
@@ -45,16 +43,9 @@ holds the key and hash value.
 #if HV_FILL_RATE == 100
 # define DO_HSPLIT(xhv) ((xhv)->xhv_keys >= (xhv)->xhv_max)
 #else
-# define DO_HSPLIT_slow(xhv) !(xhv)->xhv_max || \
-    ((U32)(((xhv)->xhv_keys * 100) / (xhv)->xhv_max) >= HV_FILL_RATE)
 /* x/128 == x>>7, x>>ctz(n) */
-# define DO_HSPLIT_fast(xhv) !(xhv)->xhv_max || \
+# define DO_HSPLIT(xhv) !(xhv)->xhv_max || \
     ((U32)(((xhv)->xhv_keys * 100) >> CTZ(1+((xhv)->xhv_max))) >= HV_FILL_RATE)
-# if 0
-#  define DO_HSPLIT(xhv) DO_HSPLIT_slow(xhv)
-# else
-#  define DO_HSPLIT(xhv) DO_HSPLIT_fast(xhv)
-# endif
 #endif
 
 static const char S_strtab_error[]
@@ -270,20 +261,20 @@ negative the key is assumed to be in UTF-8-encoded Unicode.  The
 C<hash> parameter is the precomputed hash value; if it is zero then
 Perl will compute it.
 
-The return value will be
-C<NULL> if the operation failed or if the value did not need to be actually
-stored within the hash (as in the case of tied hashes).  Otherwise it can
-be dereferenced to get the original C<SV*>.  Note that the caller is
-responsible for suitably incrementing the reference count of C<val> before
-the call, and decrementing it if the function returned C<NULL>.  Effectively
-a successful C<hv_store> takes ownership of one reference to C<val>.  This is
-usually what you want; a newly created SV has a reference count of one, so
-if all your code does is create SVs then store them in a hash, C<hv_store>
-will own the only reference to the new SV, and your code doesn't need to do
-anything further to tidy up.  C<hv_store> is not implemented as a call to
-C<hv_store_ent>, and does not create a temporary SV for the key, so if your
-key data is not already in SV form then use C<hv_store> in preference to
-C<hv_store_ent>.
+The return value will be C<NULL> if the operation failed or if the
+value did not need to be actually stored within the hash (as in the
+case of tied hashes).  Otherwise it can be dereferenced to get the
+original C<SV*>.  Note that the caller is responsible for suitably
+incrementing the reference count of C<val> before the call, and
+decrementing it if the function returned C<NULL>.  Effectively a
+successful C<hv_store> takes ownership of one reference to C<val>.
+This is usually what you want; a newly created SV has a reference
+count of one, so if all your code does is create SVs then store them
+in a hash, C<hv_store> will own the only reference to the new SV, and
+your code doesn't need to do anything further to tidy up.  C<hv_store>
+is not implemented as a call to C<hv_store_ent>, and does not create a
+temporary SV for the key, so if your key data is not already in SV
+form then use C<hv_store> in preference to C<hv_store_ent>.
 
 See L<perlguts/"Understanding the Magic of Tied Hashes and Arrays"> for more
 information on how to use this function on tied hashes.
@@ -412,9 +403,11 @@ static void
 S_assert_hechain(pTHX_ HE* entry)
 {
     if (!entry) return;
-    HE_EACH(hv, entry,
+#ifndef HASH_OPEN_LINEAR
+    HE_EACH(hv, i, entry,
         assert(entry->hent_hek)
     )
+#endif
 }
 
 static void
@@ -423,7 +416,9 @@ S_assert_ahe(pTHX_ AHE* ahe)
 #ifdef PERL_INLINE_HASH
     assert(ahe->hent_he ? ahe->hent_hash : !ahe->hent_hash);
 #endif
+#ifndef HASH_OPEN_LINEAR
     S_assert_hechain(aTHX_ ahe->hent_he);
+#endif
 }
 
 #endif
@@ -655,7 +650,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
          */
         int keysv_flags = HEK_FLAGS(keysv_hek);
         HE  *orig_entry = entry;
-        HE_EACH(hv, entry, {
+        HE_EACH(hv, hindex, entry, {
             const HEK *hek = HeKEY_hek(entry);
             CHECK_HASH_FLOOD(collisions)
             if (hek == keysv_hek)
@@ -671,7 +666,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         entry = orig_entry;
     }
 
-    HE_EACH(hv, entry, {
+    HE_EACH(hv, hindex, entry, {
         CHECK_HASH_FLOOD(collisions)
 	if (HeHASH(entry) != hash)		/* strings can't be equal */
 	    continue;
@@ -761,7 +756,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         /* move found bucket to the front
            oe -> e -> A           => e -> oe -> A
            oe -> A .. X -> e -> B => e -> oe -> A .. X -> B */
-        if (entry != oentry->hent_he && !HvEITER_get(hv)) {
+        if (!HvEITER_get(hv) && entry != oentry->hent_he) {
             if (HeNEXT(oentry->hent_he) == entry) {
                 DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH move up 1\t%s{%s}\n",
                                       HvNAME_get(hv)?HvNAME_get(hv):"", key));
@@ -1558,7 +1553,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         goto not_found;
 #ifdef PERL_INLINE_HASH
     if (first_entry->hent_hash != hash) {
-        oentry = &entry->hent_next;
+        oentry = &HeNEXT(entry);
         entry = *oentry;
         if (!entry)
             goto not_found;
@@ -1579,7 +1574,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
          */
         int keysv_flags = HEK_FLAGS(keysv_hek);
 
-        HE_OEACH(hv, oentry, entry, {
+        HE_OEACH(hv, hindex, oentry, entry, {
             const HEK *hek = HeKEY_hek(entry);
             CHECK_HASH_FLOOD(collisions)
             if (hek == keysv_hek)
@@ -1975,7 +1970,7 @@ S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
             }
 #endif
             entry = *oentry;
-       }
+        }
     }
     if (UNLIKELY(newsize < oldsize)) { /* shrinked */
         if (do_aux) /* move to left */
@@ -2107,16 +2102,17 @@ Perl_newHVhv(pTHX_ HV *ohv)
 	ents = (AHE*)a;
 
         Copy(oents, ents, hv_max+1, AHE);
-	/* and descent into each bucket... */
-	for (; oent <= last; oent++, ents++) {
-            HE *e = oent->hent_he;
-            HE *prev = NULL;
+	/* In each bucket... */
+	for (i = 0; i <= hv_max; i++) {
+	    HE *prev = NULL;
+	    HE *oent = oents[i];
 
 	    if (!oent->hent_he)
 		continue;
 	    /* Copy the linked list of entries. */
-            HE_EACH(hv, e, {
-		const HEK *hek = HeKEY_hek(e);
+            e = oent->hent_he;
+            HE_EACH(hv, i, oent, {
+		const HEK *hek = HeKEY_hek(oent);
 		HE * const ent = new_HE();
 		SV * const val  = HeVAL(e);
 
@@ -2313,7 +2309,7 @@ Perl_hv_clear(pTHX_ HV *hv)
 	U32 i;
 	for (i = 0; i <= xhv->xhv_max; i++) {
             HE *entry = AHe(HvARRAY(hv)[i]);
-            HE_EACH(hv, entry, {
+            HE_EACH(hv, hindex, entry, {
 		/* not already placeholder */
                 if (!(He_IS_PLACEHOLDER(entry))) {
 		    if (HeVAL(entry)) {
@@ -2515,10 +2511,7 @@ Perl_hfree_next_entry(pTHX_ HV *hv, U32 *indexp)
 #endif
     }
     AHe(array[*indexp]) = HeNEXT(entry);
-    /*AHeHASH_set(&array[*indexp], HeNEXT(entry) ? HeHASH(HeNEXT(entry)) : 0);*/
-#ifdef PERL_INLINE_HASH
-    array[*indexp].hent_hash = HeNEXT(entry) ? HeHASH(HeNEXT(entry)) : 0;
-#endif
+    AHeHASH_set(&array[*indexp], HeNEXT(entry) ? HeHASH(HeNEXT(entry)) : 0);
     ((XPVHV*) SvANY(hv))->xhv_keys--;
 
     if (   PL_phase != PERL_PHASE_DESTRUCT && HvENAME(hv)
@@ -3763,7 +3756,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
     if (!entry)
         goto not_found;
 
-    HE_EACH(hv, entry, {
+    HE_EACH(hv, hindex, entry, {
         const HEK *hek = HeKEY_hek(entry);
         CHECK_HASH_FLOOD(collisions)
 	if (HEK_HASH(hek) != hash)		/* strings can't be equal */
@@ -3775,7 +3768,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 	if (HEK_FLAGS(hek) != flags_masked)
 	    continue;
 	break;
-        })
+    })
 
     if (!entry)
     not_found: {
@@ -3994,7 +3987,7 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
 	SV *value;
 
 #ifdef USE_ITHREADS
-        HE_EACH(hv, entry, {
+        HE_EACH(hv, hindex, entry, {
 	    if (HeHASH(entry) == hash) {
 		/* We might have a duplicate key here.  If so, entry is older
 		   than the key we've already put in the hash, so if they are
@@ -4010,7 +4003,7 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
             CHECK_HASH_FLOOD(collisions)
         })
 #else
-        HE_EACH(hv, entry, {
+        HE_EACH(hv, hindex, entry, {
 	    if (HeHASH(entry) == hash) {
 		/* We might have a duplicate key here.  If so, entry is older
 		   than the key we've already put in the hash, so if they are

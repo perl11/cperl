@@ -9997,7 +9997,7 @@ Perl_sv_resetpvn(pTHX_ const char *s, STRLEN len, HV * const stash)
 	}
 	for (i = 0; i <= (I32) HvMAX(stash); i++) {
 	    HE *entry = AHe(HvARRAY(stash)[i]);
-            HE_EACH(hv, entry, {
+            HE_EACH(hv, i, entry, {
 		GV *gv;
 		SV *sv;
 
@@ -16319,7 +16319,7 @@ S_find_hash_subscript(pTHX_ const HV *const hv, const SV *const val)
     array = HvARRAY(hv);
     for (i = HvMAX(hv); i >= 0; i--) {
 	HE *entry = AHe(array[i]);
-        HE_EACH(hv, entry, {
+        HE_EACH(hv, i, entry, {
 	    if (HeVAL(entry) != val)
 		continue;
 	    if (HeVAL(entry) == UNDEF || He_IS_PLACEHOLDER(entry))

@@ -1103,7 +1103,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 	for (; riter <= xhv->xhv_max; riter++) {
             entry = AHe(HvARRAY(oldstash)[riter]);
 	    /* Iterate through the entries in this list */
-	    HE_EACH(oldstash, entry, {
+	    HE_EACH(oldstash, riter, entry, {
 		const char* key;
 		I32 len;
 
@@ -1178,7 +1178,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 	for (riter=0; riter <= xhv->xhv_max; riter++) {
             entry = AHe(HvARRAY(stash)[riter]);
 	    /* Iterate through the entries in this list */
-	    HE_EACH(stash, entry, {
+	    HE_EACH(stash, riter, entry, {
 		const char* key;
 		I32 len;
 

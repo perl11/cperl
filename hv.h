@@ -1,43 +1,34 @@
 /*    hv.h
  *
- *    Copyright (C) 1991, 1992, 1993, 1996, 1997, 1998, 1999,
- *    2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, by Larry Wall and others
+ *    Copyright (C) 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+ *    2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 by Larry Wall and others
+ *    Copyright (C) 2016 cPanel Inc.
+ *    Copyright (C) 2017 Reini Urban
  *
  *    You may distribute under the terms of either the GNU General Public
  *    License or the Artistic License, as specified in the README file.
  *
+ *    Now a proper open addressing hash table, with linear probing and each entry
+ *    contains a HE* ptr and the HASH value for faster inline comparison.
+ *    The AUX struct is allocated seperately, at [HvMAX].
  */
 
-/* These control hash traversal randomization and the environment variable PERL_PERTURB_KEYS.
- * Currently disabling this functionality will break a few tests, but should otherwise work fine.
- * See perlrun for more details. */
+#define PERL_HASH_ITER_BUCKET(iter)      ((iter)->xhv_riter)
 
-#if defined(USE_CPERL)
-/* Performance. We have good enough security measures to fight DoS hash floods. */
-/*# define PERL_PERTURB_KEYS_DISABLED*/
-# define PERL_PERTURB_KEYS_TOP
-/* array_he branch: inline hent_hash into AHE* */
-# define PERL_INLINE_HASH
-#endif
+/* open addressing with linear or robin-hood probing, or ... */
+#define HASH_OPEN_LINEAR
+/* #define HASH_OPEN_QUADRATIC */
+/* #define HASH_OPEN_DOUBLE    */
+/* #define HASH_OPEN_ROBINHOOD */
+/* #define HASH_OPEN_HOPSCOTCH */
+/* #define HASH_CHAINED_LIST   */
 
-#if defined(PERL_PERTURB_KEYS_DISABLED) || defined(PERL_PERTURB_KEYS_TOP)
-#   undef PERL_HASH_RANDOMIZE_KEYS
-#   define PL_HASH_RAND_BITS_ENABLED        0
-#   define PERL_HASH_ITER_BUCKET(iter)      ((iter)->xhv_riter)
-#else
-#   define PERL_HASH_RANDOMIZE_KEYS         1
-#   if defined(PERL_PERTURB_KEYS_RANDOM)
-#       define PL_HASH_RAND_BITS_ENABLED    1
-#   elif defined(PERL_PERTURB_KEYS_DETERMINISTIC)
-#       define PL_HASH_RAND_BITS_ENABLED    2
-#   else
-#       define USE_PERL_PERTURB_KEYS        1
-#       define PL_HASH_RAND_BITS_ENABLED    PL_hash_rand_bits_enabled
-#   endif
-#   define PERL_HASH_ITER_BUCKET(iter)      (((iter)->xhv_riter) ^ ((iter)->xhv_rand))
-#endif
+#undef PERL_HASH_RANDOMIZE_KEYS
+#define PL_HASH_RAND_BITS_ENABLED    0
 
-/* inlined entry in hash array, 2-3 words */
+#define PERL_INLINE_HASH
+
+/* inlined entry in hash array, 1-2 words */
 struct array_he {
     HE		*hent_he;	/* ptr to full hash entry */
 #ifdef PERL_INLINE_HASH
@@ -45,20 +36,25 @@ struct array_he {
 #endif
 };
 
-/* entry in hash value linked list */
+/* hash entry with key + value */
 struct he {
-    /* Keep hent_next first in this structure, because sv_free_arenas take
-       advantage of this to share code between the he arenas and the SV
-       body arenas  */
-    HE		*hent_next;	/* next entry in chain */
-    HEK		*hent_hek;	/* hash key */
+    /*SV		*hent_val;*/	/* scalar value that was hashed */
     union {
 	SV	*hent_val;	/* scalar value that was hashed */
 	Size_t	hent_refcount;	/* references for this shared hash key */
     } he_valu;
+    U32		hent_hash;	/* hash of key */
+    I32		hent_len;	/* length of hash key, with utf8 bit as MSB */
+#ifdef PERL_GCC_BRACE_GROUPS_FORBIDDEN
+    char	hent_key[1];	/* variable-length hash key + flag */
+#else
+    char	hent_key[];      /* for easier debugging */
+#endif
 };
 
-/* hash key -- defined separately for use as shared pointer */
+/* hash key -- defined separately for use as shared pointer.
+   Not needed anymore.
+ */
 struct hek {
     U32		hek_hash;	/* hash of key */
     I32		hek_len;	/* length of hash key */
@@ -67,9 +63,9 @@ struct hek {
 #else
     char	hek_key[];      /* for easier debugging */
 #endif
-    /* the hash-key is \0-terminated */
+    /* The hash-key is \0-terminated */
     /* after the \0 there is a byte for flags, such as whether the key
-       is UTF-8 */
+       is UTF-8 or WASUTF8 */
 };
 
 struct shared_he {
@@ -91,13 +87,12 @@ struct xpvhv_aux {
     AV		*xhv_backreferences; /* back references for weak references */
     HE		*xhv_eiter;	/* current entry of iterator: todo: move to loop context */
     U32		xhv_riter;	/* current root of iterator: todo: move to loop context */
-
-/* Concerning xhv_name_count: When non-zero, xhv_name_u contains a pointer 
- * to an array of HEK pointers, this being the length. The first element is
- * the name of the stash, which may be NULL. If xhv_name_count is positive,
- * then *xhv_name is one of the effective names. If xhv_name_count is nega-
- * tive, then xhv_name_u.xhvnameu_names[1] is the first effective name.
- */
+    /* Concerning xhv_name_count: When non-zero, xhv_name_u contains a pointer 
+     * to an array of HEK pointers, this being the length. The first element is
+     * the name of the stash, which may be NULL. If xhv_name_count is positive,
+     * then *xhv_name is one of the effective names. If xhv_name_count is negative
+     * then xhv_name_u.xhvnameu_names[1] is the first effective name.
+     */
     I32		xhv_name_count;
     struct mro_meta *xhv_mro_meta;
 #ifdef PERL_HASH_RANDOMIZE_KEYS
@@ -126,6 +121,7 @@ struct xpvhv {
     union _xmgu	xmg_u;
     U32     	xhv_keys;       /* total keys, including placeholders */
     U32     	xhv_max;        /* subscript of last element of xhv_array */
+    struct xpvhv_aux* xhv_aux;
 };
 
 #define HV_NO_RITER (U32)U32_MAX
@@ -344,7 +340,7 @@ C<SV*>.
 #define HvHASH_INDEX(hash, max) (hash & (max))
 #endif
 
-/* these hash entry flags ride on hent_klen (for use only in magic/tied HVs) */
+/* These hash entry flags ride on hent_klen (for use only in magic/tied HVs) */
 #define HEf_SVKEY	-2	/* hent_key is an SV* */
 
 #ifndef PERL_CORE
@@ -353,9 +349,7 @@ C<SV*>.
 #define HvARRAY(hv)	((hv)->sv_u.svu_hash)
 #define HvFILL(hv)	Perl_hv_fill(aTHX_ MUTABLE_HV(hv))
 #define HvMAX(hv)	((XPVHV*)SvANY(hv))->xhv_max
-/* This quite intentionally does no flag checking first. That's your
-   responsibility.  */
-#define HvAUX(hv)	((struct xpvhv_aux*)&(HvARRAY(hv)[HvMAX(hv)+1]))
+#define HvAUX(hv)	((XPVHV*)SvANY(hv))->xhv_aux
 #define HvRITER(hv)	(*Perl_hv_riter_p(aTHX_ MUTABLE_HV(hv)))
 #define HvEITER(hv)	(*Perl_hv_eiter_p(aTHX_ MUTABLE_HV(hv)))
 #define HvRITER_set(hv,r)	Perl_hv_riter_set(aTHX_ MUTABLE_HV(hv), r)
@@ -485,17 +479,17 @@ C<SV*>.
 #else
 #  define AHeHASH_set(ahep, hash)
 #endif
-#define HeNEXT(he)		(he)->hent_next
-#define HeKEY_hek(he)		(he)->hent_hek
-#define HeKEY(he)		HEK_KEY(HeKEY_hek(he))
+#define HeNEXT(he)		(he+1)
+#define HeKEY_hek(he)		(*(HEK**)&(he)->hent_hash)
+#define HeKEY(he)		(he)->hent_key
 #define HeKEY_sv(he)		(*(SV**)HeKEY(he))
-#define HeKLEN(he)		HEK_LEN(HeKEY_hek(he))
-#define HeKUTF8(he)  		HEK_UTF8(HeKEY_hek(he))
-#define HeKWASUTF8(he)  	HEK_WASUTF8(HeKEY_hek(he))
+#define HeKLEN(he)		(he)->hent_len
+#define HeKUTF8(he)  		(HeKFLAGS(he) & HVhek_UTF8)
+#define HeKWASUTF8(he)  	(HeKFLAGS(he) & HVhek_WASUTF8)
 #define HeKLEN_UTF8(he)  	(HeKUTF8(he) ? -HeKLEN(he) : HeKLEN(he))
-#define HeKFLAGS(he)  		HEK_FLAGS(HeKEY_hek(he))
+#define HeKFLAGS(he)  		(*((unsigned char *)(HeKEY(he))+HeKLEN(he)+1))
 #define HeVAL(he)		(he)->he_valu.hent_val
-#define HeHASH(he)		HEK_HASH(HeKEY_hek(he))
+#define HeHASH(he)		(he)->hent_hash
 /* Here we require a STRLEN lp */
 #define HePV(he,lp)		((He_IS_SVKEY(he)) ?		\
 				 SvPV(HeKEY_sv(he),lp) :        \
@@ -822,14 +816,36 @@ Creates a new HV.  The reference count is set to 1.
 
 #define newHV()	MUTABLE_HV(newSV_type(SVt_PVHV))
 
+/*#define HE_INC(entry) */
 /* entry is the initial hash hit, check all collisions.
    an empty hash slot has entry==NULL. */
-#define HE_EACH(hv,_entry,block) \
+#ifdef HASH_OPEN_LINEAR
+#define HE_EACH(hv,hindex,_entry,block)              \
+    {   AHE* ahe;                                    \
+        for (; ahe; ahe = &HvARRAY(hv)[++hindex]) {  \
+            /*if (ahe->hent_hash != hash) continue;*/\
+            _entry = ahe->hent_he;                   \
+            block;                                   \
+        }                                            \
+    }
+#else
+#define HE_EACH(hv,hindex,_entry,block)       \
     for (; _entry; _entry = HeNEXT(_entry)) { \
       block; \
     }
+#endif
 
-#define HE_EACH_POST(hv,_entry,post,block)  \
+#ifdef HASH_OPEN_LINEAR
+#define HE_EACH_POST(hv,_entry,post,block)          \
+    for (; _entry;  _entry = HvARRAY(hv)[++hindex], post) { \
+      block; \
+    }
+#define HE_EACH_CMP(hv,_entry,cmp,block)  \
+    for (; cmp; _entry = HvARRAY(hv)[++hindex])) { \
+      block; \
+    }
+#else
+#define HE_EACH_POST(hv,_entry,post,block)          \
     for (; _entry; _entry = HeNEXT(_entry), post) { \
       block; \
     }
@@ -837,16 +853,58 @@ Creates a new HV.  The reference count is set to 1.
     for (; cmp; _entry = HeNEXT(_entry)) { \
       block; \
     }
+#endif
 #ifdef PERL_CORE
 /* oentry is the changable entry ptr, entry the initial hash hit.
    check all collisions */
-#define HE_OEACH(hv,oentry,_entry,block) \
+#ifdef HASH_OPEN_LINEAR
+#define HE_OEACH(hv,hindex,oentry,_entry,block)       \
+    {   AHE* ahe;                                     \
+        for (; ahe; oentry = &HvARRAY(hv)[++hindex], ahe = *oentry) { \
+            if (ahe->hent_hash != hash) continue;     \
+            entry = AHe(ahe);                         \
+            block;                                    \
+        }                                             \
+    }
+#else
+#define HE_OEACH(hv,hindex,oentry,_entry,block)                  \
     for (; _entry; oentry = &HeNEXT(_entry), _entry = *oentry) { \
       block; \
     }
 #endif
+#endif
 
 #include "hv_func.h"
+
+#define hv_begin(h)  (U32)0
+#define hv_end(h)    HvMAX(h)
+#define hv_empty(h,i) !HvARRAY(h)[i].hent_he
+#define hv_key(h, i) HvARRAY(h)[i].hent_he
+#define hv_val(h, i) HvARRAY(h)[i].hent_he->hent_val
+
+/* ahe being &HvARRAY(h)[i] */
+#define hv_isequal(ahe, hek) \
+           HEK_HASH(hek) == ahe->hent_hash     \
+        && HeKLEN(ahe->hent_he) == HEK_LEN(hek) \
+        && memEQ(HeKEY(ahe->hent_he), HEK_KEY(hek), HEK_LEN(hek))
+
+#define hv_foreach(h, kvar, vvar, code)                 \
+  { U32 __i;                                            \
+    for (__i = hv_begin(h); __i != hv_end(h); ++__i) {  \
+      if (hv_empty(h,__i)) continue;                    \
+      (kvar) = hv_key(h,__i);                           \
+      (vvar) = hv_val(h,__i);                           \
+      code;                                             \
+    }                                                   \
+  }
+#define hv_foreach_value(h, vvar, code)                 \
+  { U32 __i;                                            \
+    for (__i = hv_begin(h); __i != hv_end(h); ++__i) {  \
+      if (hv_empty(h,__i)) continue;                    \
+      (vvar) = hv_val(h,__i);                           \
+      code;                                             \
+    }                                                   \
+  }
 
 /*
  * ex: set ts=8 sts=4 sw=4 et:

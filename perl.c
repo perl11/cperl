@@ -1323,7 +1323,7 @@ perl_destruct(pTHXx)
 	AHE * const array = HvARRAY(PL_strtab);
 	HE *hent = AHe(array[0]);
 
-	HE_EACH(PL_strtab, hent, {
+	HE_EACH(PL_strtab, riter, hent, {
 	    if (hent && ckWARN_d(WARN_INTERNAL)) {
 		HE * const next = HeNEXT(hent);
 		Perl_warner(aTHX_ packWARN(WARN_INTERNAL),
