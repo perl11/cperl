@@ -1492,8 +1492,8 @@ S_hsplit(pTHX_ HV *hv, SSize_t const oldsize, SSize_t newsize)
 	if (!entry)				/* non-existent */
 	    continue;
 	do {
-            U32 j = (HeHASH(entry) & newsize);
-	    if (j != (U32)i) {
+            Size_t j = (HeHASH(entry) & newsize);
+	    if (j != (Size_t)i) {
 		*oentry = HeNEXT(entry);
 #ifdef PERL_HASH_RANDOMIZE_KEYS
                 /* if the target cell is empty or PL_HASH_RAND_BITS_ENABLED is false
