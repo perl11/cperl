@@ -1753,7 +1753,7 @@ PERL_CALLCONV void	Perl_hv_ename_delete(pTHX_ HV *hv, const char *name, U32 len,
 #define PERL_ARGS_ASSERT_HV_FETCH_ENT	\
 	assert(keysv)
 
-PERL_CALLCONV SSize_t	Perl_hv_fill(pTHX_ HV *const hv)
+PERL_CALLCONV U32	Perl_hv_fill(pTHX_ HV *const hv)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_FILL	\
 	assert(hv)
@@ -1763,7 +1763,7 @@ PERL_CALLCONV void	Perl_hv_free_ent(pTHX_ HV *hv, HE *entry)
 #define PERL_ARGS_ASSERT_HV_FREE_ENT	\
 	assert(hv)
 
-PERL_CALLCONV SSize_t	Perl_hv_iterinit(pTHX_ HV *hv)
+PERL_CALLCONV U32	Perl_hv_iterinit(pTHX_ HV *hv)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_ITERINIT	\
 	assert(hv)
@@ -1808,7 +1808,7 @@ PERL_CALLCONV SV*	Perl_hv_iterval(pTHX_ HV *hv, HE *entry)
 #define PERL_ARGS_ASSERT_HV_ITERVAL	\
 	assert(hv); assert(entry)
 
-PERL_CALLCONV void	Perl_hv_ksplit(pTHX_ HV *hv, IV newmax)
+PERL_CALLCONV void	Perl_hv_ksplit(pTHX_ HV *hv, U32 newmax)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_KSPLIT	\
 	assert(hv)
@@ -1823,7 +1823,7 @@ PERL_CALLCONV void	Perl_hv_name_set(pTHX_ HV *hv, const char *name, U32 len, U32
 #define PERL_ARGS_ASSERT_HV_NAME_SET	\
 	assert(hv)
 
-PERL_CALLCONV SSize_t	Perl_hv_placeholders_get(pTHX_ const HV *hv)
+PERL_CALLCONV U32	Perl_hv_placeholders_get(pTHX_ const HV *hv)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_PLACEHOLDERS_GET	\
@@ -1835,7 +1835,7 @@ PERL_CALLCONV SSize_t*	Perl_hv_placeholders_p(pTHX_ HV *hv)
 #define PERL_ARGS_ASSERT_HV_PLACEHOLDERS_P	\
 	assert(hv)
 
-PERL_CALLCONV void	Perl_hv_placeholders_set(pTHX_ HV *hv, SSize_t ph)
+PERL_CALLCONV void	Perl_hv_placeholders_set(pTHX_ HV *hv, U32 ph)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_PLACEHOLDERS_SET	\
 	assert(hv)
@@ -1845,13 +1845,13 @@ PERL_CALLCONV void	Perl_hv_rand_set(pTHX_ HV *hv, U32 new_xhv_rand)
 #define PERL_ARGS_ASSERT_HV_RAND_SET	\
 	assert(hv)
 
-PERL_CALLCONV SSize_t*	Perl_hv_riter_p(pTHX_ HV *hv)
+PERL_CALLCONV U32*	Perl_hv_riter_p(pTHX_ HV *hv)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_RITER_P	\
 	assert(hv)
 
-PERL_CALLCONV void	Perl_hv_riter_set(pTHX_ HV *hv, SSize_t riter)
+PERL_CALLCONV void	Perl_hv_riter_set(pTHX_ HV *hv, U32 riter)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_RITER_SET	\
 	assert(hv)
@@ -6352,7 +6352,7 @@ PERL_CALLCONV void	Perl_sv_add_backref(pTHX_ SV *const tsv, SV *const sv)
 
 #endif
 #if defined(PERL_IN_HV_C)
-STATIC void	S_clear_placeholders(pTHX_ HV *hv, SSize_t items)
+STATIC void	S_clear_placeholders(pTHX_ HV *hv, U32 items)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CLEAR_PLACEHOLDERS	\
 	assert(hv)
@@ -6365,7 +6365,7 @@ STATIC void	S_hfreeentries(pTHX_ HV *hv)
 #define PERL_ARGS_ASSERT_HFREEENTRIES	\
 	assert(hv)
 
-STATIC void	S_hsplit(pTHX_ HV *hv, SSize_t const oldsize, SSize_t newsize)
+STATIC void	S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HSPLIT	\
 	assert(hv)
@@ -6443,7 +6443,7 @@ PERL_CALLCONV void	Perl_sv_kill_backrefs(pTHX_ SV *const sv, AV *const av)
 
 #endif
 #if defined(PERL_IN_HV_C) || defined(PERL_IN_SV_C)
-PERL_CALLCONV SV*	Perl_hfree_next_entry(pTHX_ HV *hv, SSize_t *indexp)
+PERL_CALLCONV SV*	Perl_hfree_next_entry(pTHX_ HV *hv, U32 *indexp)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_HFREE_NEXT_ENTRY	\

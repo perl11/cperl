@@ -580,7 +580,7 @@ union _xivu {
 
 union _xmgu {
     MAGIC*  xmg_magic;		/* linked list of magicalness */
-    SSize_t xmg_hash_index;	/* used while freeing hash entries */
+    U32     xmg_hash_index;	/* used while freeing hash entries */
 };
 
 struct xpv {

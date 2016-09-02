@@ -449,7 +449,8 @@ Perl_sv_peek(pTHX_ SV *sv)
         SV * const tmp = newSVpvs_flags("", SVs_TEMP);
         GV* gvcv = CvGV(sv);
         Perl_sv_catpvf(aTHX_ t, "CV(%s)", gvcv
-                       ? generic_pv_escape( tmp, GvNAME(gvcv), GvNAMELEN(gvcv), GvNAMEUTF8(gvcv))
+                       ? generic_pv_escape( tmp, GvNAME(gvcv), GvNAMELEN(gvcv),
+                                            GvNAMEUTF8(gvcv))
                        : "");
 	goto finish;
     } else if (type < SVt_LAST) {
@@ -471,13 +472,14 @@ Perl_sv_peek(pTHX_ SV *sv)
 	    if (SvOOK(sv)) {
 		STRLEN delta;
 		SvOOK_offset(sv, delta);
-		Perl_sv_catpvf(aTHX_ t, "[%s]", pv_display(tmp, SvPVX_const(sv)-delta, delta, 0, 127));
+		Perl_sv_catpvf(aTHX_ t, "[%s]",
+                    pv_display(tmp, SvPVX_const(sv)-delta, delta, 0, 127));
 	    }
-	    Perl_sv_catpvf(aTHX_ t, "%s)", pv_display(tmp, SvPVX_const(sv), SvCUR(sv), SvLEN(sv), 127));
+	    Perl_sv_catpvf(aTHX_ t, "%s)",
+                pv_display(tmp, SvPVX_const(sv), SvCUR(sv), SvLEN(sv), 127));
 	    if (SvUTF8(sv))
 		Perl_sv_catpvf(aTHX_ t, " [UTF8 \"%s\"]",
-			       sv_uni_display(tmp, sv, 6 * SvCUR(sv),
-					      UNI_DISPLAY_QQ));
+		    sv_uni_display(tmp, sv, 6 * SvCUR(sv), UNI_DISPLAY_QQ));
 	    SvREFCNT_dec_NN(tmp);
 	}
     }
@@ -568,7 +570,7 @@ Perl_dump_packsubs(pTHX_ const HV *stash)
 void
 Perl_dump_packsubs_perl(pTHX_ const HV *stash, bool justperl)
 {
-    SSize_t i;
+    U32 i;
 
     PERL_ARGS_ASSERT_DUMP_PACKSUBS_PERL;
 
@@ -1735,10 +1737,10 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	usedkeys = HvUSEDKEYS(sv);
 	if (HvARRAY(sv) && usedkeys) {
 	    /* Show distribution of HEs in the ARRAY */
-	    int freq[200];
+	    unsigned freq[200];
 #define FREQ_MAX ((int)(C_ARRAY_LENGTH(freq) - 1))
-	    SSize_t i;
-	    int max = 0;
+	    U32 i;
+	    U32 max = 0;
 	    U32 pow2 = 2, keys = usedkeys;
 	    NV theoret, sum = 0;
 
@@ -1746,7 +1748,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	    Zero(freq, FREQ_MAX + 1, int);
 	    for (i = 0; i <= HvMAX(sv); i++) {
 		HE* h;
-		SSize_t count = 0;
+		U32 count = 0;
                 for (h = HvARRAY(sv)[i]; h; h = HeNEXT(h))
 		    count++;
 		if (count > FREQ_MAX)
@@ -1757,7 +1759,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	    }
 	    for (i = 0; i <= max; i++) {
 		if (freq[i]) {
-		    PerlIO_printf(file, "%d%s:%d", (int)i,
+		    PerlIO_printf(file, "%u%s:%u", (unsigned)i,
 				  (i == FREQ_MAX) ? "+" : "",
 				  freq[i]);
 		    if (i != max)
@@ -1784,12 +1786,13 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	    theoret = usedkeys;
 	    theoret += theoret * (theoret-1)/pow2;
 	    (void)PerlIO_putc(file, '\n');
-	    Perl_dump_indent(aTHX_ level, file, "  hash quality = %.1"NVff"%%", theoret/sum*100);
+	    Perl_dump_indent(aTHX_ level, file, "  hash quality = %.1"NVff"%%",
+                             theoret/sum*100);
 	}
 	(void)PerlIO_putc(file, '\n');
-	Perl_dump_indent(aTHX_ level, file, "  KEYS = %"IVdf"\n", (IV)usedkeys);
+	Perl_dump_indent(aTHX_ level, file, "  KEYS = %u\n", (unsigned)usedkeys);
         {
-            SSize_t count = 0;
+            U32 count = 0;
             HE **ents = HvARRAY(sv);
 
             if (ents) {
@@ -1804,17 +1807,19 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 
             if (SvOOK(sv)) {
                 struct xpvhv_aux *const aux = HvAUX(sv);
-                Perl_dump_indent(aTHX_ level, file, "  FILL = %"UVuf
-                                 " (cached = %"UVuf")\n",
-                                 (UV)count, (UV)aux->xhv_fill_lazy);
+                Perl_dump_indent(aTHX_ level, file, "  FILL = %u"
+                                 " (cached = %u)\n",
+                                 (unsigned)count, (unsigned)aux->xhv_fill_lazy);
             } else {
-                Perl_dump_indent(aTHX_ level, file, "  FILL = %"UVuf"\n",
-                                 (UV)count);
+                Perl_dump_indent(aTHX_ level, file, "  FILL = %u\n",
+                                 (unsigned)count);
             }
         }
-	Perl_dump_indent(aTHX_ level, file, "  MAX = %"IVdf"\n", (IV)HvMAX(sv));
+	Perl_dump_indent(aTHX_ level, file, "  MAX = %u\n", (unsigned)HvMAX(sv));
         if (SvOOK(sv)) {
-	    Perl_dump_indent(aTHX_ level, file, "  RITER = %"IVdf"\n", (IV)HvRITER_get(sv));
+            U32 riter = HvRITER_get(sv);
+	    Perl_dump_indent(aTHX_ level, file, "  RITER = %ld\n",
+                             riter == HV_NO_RITER ? -1 : (long)riter);
 	    Perl_dump_indent(aTHX_ level, file, "  EITER = 0x%"UVxf"\n", PTR2UV(HvEITER_get(sv)));
 #ifdef PERL_HASH_RANDOMIZE_KEYS
 	    Perl_dump_indent(aTHX_ level, file, "  RAND = 0x%"UVxf, (UV)HvRAND_get(sv));
@@ -1927,7 +1932,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	}
 	if (nest < maxnest) {
 	    HV * const hv = MUTABLE_HV(sv);
-	    SSize_t i;
+	    U32 i;
 	    HE *he;
 
 	    if (HvARRAY(hv)) {
@@ -2392,8 +2397,8 @@ S_deb_hek(pTHX_ HEK* hek, SV* val)
     else if (HEK_IS_SVKEY(hek)) {
         SV * const tmp = newSVpvs_flags("", SVs_TEMP);
         SV* sv = *(SV**)HEK_KEY(hek);
-        PerlIO_printf(Perl_debug_log, " [0x%08x SV:\"%.*s\" ", HEK_HASH(hek),
-                      (int)SvCUR(sv), SvPVX_const(sv));
+        PerlIO_printf(Perl_debug_log, " [0x%08x SV:\"%s\" ", (unsigned)HEK_HASH(hek),
+                      pretty_pv_escape( tmp, SvPVX_const(sv), SvCUR(sv), SvUTF8(sv)));
     } else {
         SV * const tmp = newSVpvs_flags("", SVs_TEMP);
         PerlIO_printf(Perl_debug_log, " [0x%08x \"%s\" ", (unsigned)HEK_HASH(hek),
@@ -2909,13 +2914,13 @@ Perl_hv_dump(pTHX_ SV* sv, bool with_values)
     PerlIO* file = Perl_debug_log;
     HE **ents = HvARRAY(sv);
     int level = 0;
-    SSize_t i;
-    Perl_dump_indent(aTHX_ level, file, "KEYS = %"IVdf"\n", (IV)HvUSEDKEYS(sv));
+    U32 i;
+    Perl_dump_indent(aTHX_ level, file, "KEYS = %u\n", (unsigned)HvUSEDKEYS(sv));
     Perl_dump_indent(aTHX_ level, file, "ARRAY = 0x%"UVxf"\n", PTR2UV(ents));
     if (ents && HvUSEDKEYS(sv)) {
         for (i = 0; i <= HvMAX(sv); i++) {
             HE* h;
-	    PerlIO_printf(file, "[%d]: ", (int)i);
+	    PerlIO_printf(file, "[%u]: ", (unsigned)i);
             for (h = ents[i]; h; h = HeNEXT(h)) {
                 if (with_values)
                     PerlIO_printf(file, "\"%s\" => %s", HeKEY(h), sv_peek(HeVAL(h)));

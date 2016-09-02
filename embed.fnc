@@ -582,16 +582,16 @@ Ap	|void*	|hv_common	|NULLOK HV *hv|NULLOK SV *keysv \
 Ap	|void*	|hv_common_key_len|NULLOK HV *hv|NN const char *key \
 				|I32 klen|const int action|NULLOK SV *val \
 				|const U32 hash
-Apod	|SSize_t|hv_fill	|NN HV *const hv
+Apod	|U32	|hv_fill	|NN HV *const hv
 Ap	|void	|hv_free_ent	|NN HV *hv|NULLOK HE *entry
-Apd	|SSize_t|hv_iterinit	|NN HV *hv
+Apd	|U32	|hv_iterinit	|NN HV *hv
 ApdR	|char*	|hv_iterkey	|NN HE* entry|NN I32* retlen
 ApdR	|SV*	|hv_iterkeysv	|NN HE* entry
 ApdRbm	|HE*	|hv_iternext	|NN HV *hv
 ApdR	|SV*	|hv_iternextsv	|NN HV *hv|NN char **key|NN I32 *retlen
 ApMdR	|HE*	|hv_iternext_flags|NN HV *hv|I32 flags
 ApdR	|SV*	|hv_iterval	|NN HV *hv|NN HE *entry
-Ap	|void	|hv_ksplit	|NN HV *hv|IV newmax
+Ap	|void	|hv_ksplit	|NN HV *hv|U32 newmax
 Apdbm	|void	|hv_magic	|NN HV *hv|NULLOK GV *gv|int how
 #if defined(PERL_IN_HV_C)
 s	|SV *	|refcounted_he_value	|NN const struct refcounted_he *he
@@ -1936,11 +1936,11 @@ s	|HV*	|require_tie_mod|NN GV *gv|NN const char *varpv|NN SV* namesv \
 #endif
 
 #if defined(PERL_IN_HV_C) || defined(PERL_IN_SV_C)
-po	|SV*	|hfree_next_entry	|NN HV *hv|NN SSize_t *indexp
+po	|SV*	|hfree_next_entry	|NN HV *hv|NN U32 *indexp
 #endif
 
 #if defined(PERL_IN_HV_C)
-s	|void	|hsplit		|NN HV *hv|SSize_t const oldsize|SSize_t newsize
+s	|void	|hsplit		|NN HV *hv|U32 const oldsize|U32 newsize
 s	|void	|hfreeentries	|NN HV *hv
 s	|SV*	|hv_free_ent_ret|NN HV *hv|NN HE *entry
 sa	|HE*	|new_he
@@ -1957,7 +1957,7 @@ sn	|struct xpvhv_aux*|hv_auxinit_internal|NN struct xpvhv_aux *iter
 sM	|SV*	|hv_delete_common|NULLOK HV *hv|NULLOK SV *keysv \
 		|NULLOK const char *key|I32 klen|int k_flags|I32 d_flags \
 		|U32 hash
-sM	|void	|clear_placeholders	|NN HV *hv|SSize_t items
+sM	|void	|clear_placeholders	|NN HV *hv|U32 items
 #endif
 
 #if defined(PERL_IN_MG_C)
@@ -2777,9 +2777,9 @@ Apod	|void	|hv_assert	|NN HV *hv
 #endif
 
 ApdR	|SV*	|hv_scalar	|NN HV *hv
-ApoR	|SSize_t*|hv_riter_p	|NN HV *hv
+ApoR	|U32*	|hv_riter_p	|NN HV *hv
 ApoR	|HE**	|hv_eiter_p	|NN HV *hv
-Apo	|void	|hv_riter_set	|NN HV *hv|SSize_t riter
+Apo	|void	|hv_riter_set	|NN HV *hv|U32 riter
 Apo	|void	|hv_eiter_set	|NN HV *hv|NULLOK HE *eiter
 Ap      |void   |hv_rand_set    |NN HV *hv|U32 new_xhv_rand
 Ap	|void	|hv_name_set	|NN HV *hv|NULLOK const char *name|U32 len|U32 flags
@@ -2794,8 +2794,8 @@ poM	|void	|hv_kill_backrefs	|NN HV *hv
 #endif
 Apd	|void	|hv_clear_placeholders	|NN HV *hv
 XpoR	|SSize_t*|hv_placeholders_p	|NN HV *hv
-ApoR	|SSize_t|hv_placeholders_get	|NN const HV *hv
-Apo	|void	|hv_placeholders_set	|NN HV *hv|SSize_t ph
+ApoR	|U32	|hv_placeholders_get	|NN const HV *hv
+Apo	|void	|hv_placeholders_set	|NN HV *hv|U32 ph
 
 : This is indirectly referenced by globals.c. This is somewhat annoying.
 p	|SV*	|magic_scalarpack|NN HV *hv|NN MAGIC *mg

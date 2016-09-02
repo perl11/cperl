@@ -111,8 +111,8 @@ union _xhvnameu {
 struct xpvhv_aux {
     union _xhvnameu xhv_name_u;	/* name, if a symbol table */
     AV		*xhv_backreferences; /* back references for weak references */
-    HE		*xhv_eiter;	/* current entry of iterator */
-    SSize_t	xhv_riter;	/* current root of iterator */
+    HE		*xhv_eiter;	/* current entry of iterator: todo: move to loop context */
+    U32		xhv_riter;	/* current root of iterator: todo: move to loop context */
 
 /* Concerning xhv_name_count: When non-zero, xhv_name_u contains a pointer 
  * to an array of HEK pointers, this being the length. The first element is
@@ -127,7 +127,7 @@ struct xpvhv_aux {
     U32         xhv_last_rand;  /* last random value for hash traversal,
                                    used to detect each() after insert for warnings */
 #endif
-    SSize_t     xhv_fill_lazy;
+    U32 	xhv_fill_lazy;
     U32         xhv_aux_flags;      /* assorted extra flags */
 };
 
@@ -141,11 +141,11 @@ struct xpvhv_aux {
 struct xpvhv {
     HV*		xmg_stash;	/* class package */
     union _xmgu	xmg_u;
-    SSize_t     xhv_keys;       /* total keys, including placeholders */
-    SSize_t     xhv_max;        /* subscript of last element of xhv_array */
+    U32     	xhv_keys;       /* total keys, including placeholders */
+    U32     	xhv_max;        /* subscript of last element of xhv_array */
 };
 
-#define HV_NO_RITER -1
+#define HV_NO_RITER (U32)U32_MAX
 
 /*
 =head1 Hash Manipulation Functions
