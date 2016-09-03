@@ -2597,17 +2597,6 @@
 ( ( ( ( ( ( ((e) - (s)) >= 4 ) && ( 0xDD == ((U8*)s)[0] ) ) && ( 0x65 == ((U8*)s)[1] || 0x66 == ((U8*)s)[1] ) ) && ( ( 0x41 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x6A ) || ( ((U8*)s)[2] & 0xFC ) == 0x70 ) ) && ( ( 0x41 <= ((U8*)s)[3] && ((U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((U8*)s)[3] && ((U8*)s)[3] <= 0x59 ) || ( 0x62 <= ((U8*)s)[3] && ((U8*)s)[3] <= 0x6A ) || ( ((U8*)s)[3] & 0xFC ) == 0x70 ) ) ? 4 : 0 )
 
 /*
-	UTF8_CHAR: Matches legal UTF-EBCDIC encoded characters from 2 through 3 bytes
-
-	0xA0 - 0x3FFF
-*/
-/*** GENERATED CODE ***/
-#define is_UTF8_CHAR_utf8_no_length_checks(s)                               \
-( ( 0x80 == ((U8*)s)[0] || ( 0x8A <= ((U8*)s)[0] && ((U8*)s)[0] <= 0x90 ) || ( 0x9A <= ((U8*)s)[0] && ((U8*)s)[0] <= 0xA0 ) || ( 0xAA <= ((U8*)s)[0] && ((U8*)s)[0] <= 0xAC ) || ( 0xAE <= ((U8*)s)[0] && ((U8*)s)[0] <= 0xB6 ) ) ?\
-    ( ( ( 0x41 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x4A ) || ( 0x51 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x6A ) || ( ((U8*)s)[1] & 0xFC ) == 0x70 ) ? 2 : 0 )\
-: ( ( ( ( ( ((U8*)s)[0] & 0xFC ) == 0xB8 ) || ((U8*)s)[0] == 0xBC || ( ( ((U8*)s)[0] & 0xFE ) == 0xBE ) || ( ( ((U8*)s)[0] & 0xEE ) == 0xCA ) || ( ( ((U8*)s)[0] & 0xFC ) == 0xCC ) ) && ( ( 0x41 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x4A ) || ( 0x51 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x59 ) || ( 0x62 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x6A ) || ( ((U8*)s)[1] & 0xFC ) == 0x70 ) ) && ( ( 0x41 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x59 ) || ( 0x62 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x6A ) || ( ((U8*)s)[2] & 0xFC ) == 0x70 ) ) ? 3 : 0 )
-
-/*
 	QUOTEMETA: Meta-characters that \Q should quote
 
 	\p{_Perl_Quotemeta}
@@ -5507,17 +5496,6 @@
 ( ( ( ( ( ( ((e) - (s)) >= 4 ) && ( 0xDD == ((U8*)s)[0] ) ) && ( ( ((U8*)s)[1] & 0xFE ) == 0x64 ) ) && ( ( 0x41 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x59 ) || 0x5F == ((U8*)s)[2] || ( 0x62 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x72 ) ) ) && ( ( 0x41 <= ((U8*)s)[3] && ((U8*)s)[3] <= 0x4A ) || ( 0x51 <= ((U8*)s)[3] && ((U8*)s)[3] <= 0x59 ) || 0x5F == ((U8*)s)[3] || ( 0x62 <= ((U8*)s)[3] && ((U8*)s)[3] <= 0x6A ) || ( 0x70 <= ((U8*)s)[3] && ((U8*)s)[3] <= 0x72 ) ) ) ? 4 : 0 )
 
 /*
-	UTF8_CHAR: Matches legal UTF-EBCDIC encoded characters from 2 through 3 bytes
-
-	0xA0 - 0x3FFF
-*/
-/*** GENERATED CODE ***/
-#define is_UTF8_CHAR_utf8_no_length_checks(s)                               \
-( ( 0x78 == ((U8*)s)[0] || 0x80 == ((U8*)s)[0] || ( 0x8A <= ((U8*)s)[0] && ((U8*)s)[0] <= 0x90 ) || ( 0x9A <= ((U8*)s)[0] && ((U8*)s)[0] <= 0xA0 ) || ( 0xAA <= ((U8*)s)[0] && ((U8*)s)[0] <= 0xAF ) || ( 0xB1 <= ((U8*)s)[0] && ((U8*)s)[0] <= 0xB5 ) ) ?\
-    ( ( ( 0x41 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x4A ) || ( 0x51 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x59 ) || 0x5F == ((U8*)s)[1] || ( 0x62 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x6A ) || ( 0x70 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x72 ) ) ? 2 : 0 )\
-: ( ( ( ((U8*)s)[0] == 0xB7 || ( ( ((U8*)s)[0] & 0xFE ) == 0xB8 ) || ( ( ((U8*)s)[0] & 0xFC ) == 0xBC ) || ( ( ((U8*)s)[0] & 0xEE ) == 0xCA ) || ( ( ((U8*)s)[0] & 0xFC ) == 0xCC ) ) && ( ( 0x41 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x4A ) || ( 0x51 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x59 ) || 0x5F == ((U8*)s)[1] || ( 0x62 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x6A ) || ( 0x70 <= ((U8*)s)[1] && ((U8*)s)[1] <= 0x72 ) ) ) && ( ( 0x41 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x4A ) || ( 0x51 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x59 ) || 0x5F == ((U8*)s)[2] || ( 0x62 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x6A ) || ( 0x70 <= ((U8*)s)[2] && ((U8*)s)[2] <= 0x72 ) ) ) ? 3 : 0 )
-
-/*
 	QUOTEMETA: Meta-characters that \Q should quote
 
 	\p{_Perl_Quotemeta}
@@ -8302,6 +8280,6 @@
  * 9ef88b957366d6ef66905f48de3b6095ae1538008cd2bf3639be469ac54a38a7 lib/unicore/mktables
  * cdecb300baad839a6f62791229f551a4fa33f3cbdca08e378dc976466354e778 lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
- * e68906c2476403039798ecf73277c9005eb4dff0b9b7e954ec0d7e335162f8b6 regen/regcharclass.pl
+ * 63652b1d6a467c2f96962d5e13497a3e4d7a6a8d8555981ffbdd25ab2dd64ee0 regen/regcharclass.pl
  * a6967a5eb6f40862d25bc55f6993e8f5c97130419ad7c3a1c70bb72d1aa5816a regen/regcharclass_multi_char_folds.pl
  * ex: set ro: */
