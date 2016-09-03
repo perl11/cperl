@@ -134,7 +134,7 @@ struct xpvhv_aux {
 #define HvAUXf_SCAN_STASH   0x1   /* stash is being scanned by gv_check */
 #define HvAUXf_NO_DEREF     0x2   /* @{}, %{} etc (and nomethod) not present */
 #define HvAUXf_STATIC       0x8   /* HvARRAY and xpvhv_aux is statically allocated (embedders) */
-#define HvAUXf_SMALL       0x10  /* Small hash, linear scan */
+#define HvAUXf_SMALL       0x10   /* Small hash, linear scan */
 
 /* hash structure: */
 /* This structure must match the beginning of struct xpvmg in sv.h. */

@@ -343,9 +343,14 @@
 #define mg_size(a)		Perl_mg_size(aTHX_ a)
 #define mini_mktime		Perl_mini_mktime
 #define moreswitches(a)		Perl_moreswitches(aTHX_ a)
+#define mro_get_from_name(a)	Perl_mro_get_from_name(aTHX_ a)
 #define mro_get_linear_isa(a)	Perl_mro_get_linear_isa(aTHX_ a)
+#define mro_get_private_data(a,b)	Perl_mro_get_private_data(aTHX_ a,b)
 #define mro_isa_changed_in(a)	Perl_mro_isa_changed_in(aTHX_ a)
 #define mro_method_changed_in(a)	Perl_mro_method_changed_in(aTHX_ a)
+#define mro_register(a)		Perl_mro_register(aTHX_ a)
+#define mro_set_mro(a,b)	Perl_mro_set_mro(aTHX_ a,b)
+#define mro_set_private_data(a,b,c)	Perl_mro_set_private_data(aTHX_ a,b,c)
 #define my_atof(a)		Perl_my_atof(aTHX_ a)
 #define my_atof2(a,b)		Perl_my_atof2(aTHX_ a,b)
 #define my_dirfd		Perl_my_dirfd
@@ -1325,6 +1330,7 @@
 #define magic_wipepack(a,b)	Perl_magic_wipepack(aTHX_ a,b)
 #define mg_localize(a,b,c)	Perl_mg_localize(aTHX_ a,b,c)
 #define mode_from_discipline(a,b)	Perl_mode_from_discipline(aTHX_ a,b)
+#define mro_meta_init(a)	Perl_mro_meta_init(aTHX_ a)
 #define mro_package_moved(a,b,c,d)	Perl_mro_package_moved(aTHX_ a,b,c,d)
 #define my_attrs(a,b)		Perl_my_attrs(aTHX_ a,b)
 #define my_clearenv()		Perl_my_clearenv(aTHX)

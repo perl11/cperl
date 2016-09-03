@@ -2879,17 +2879,17 @@ XEMop	|void	|emulate_cop_io	|NN const COP *const c|NN SV *const sv
 : Used by SvRX and SvRXOK
 XEMop	|REGEXP *|get_re_arg|NULLOK SV *sv
 
-Aop	|SV*	|mro_get_private_data|NN struct mro_meta *const smeta \
+Ap	|SV*	|mro_get_private_data|NN struct mro_meta *const smeta \
 				     |NN const struct mro_alg *const which
-Aop	|SV*	|mro_set_private_data|NN struct mro_meta *const smeta \
+Ap	|SV*	|mro_set_private_data|NN struct mro_meta *const smeta \
 				     |NN const struct mro_alg *const which \
 				     |NN SV *const data
-Aop	|const struct mro_alg *|mro_get_from_name|NN SV *name
-Aop	|void	|mro_register	|NN const struct mro_alg *mro
-Aop	|void	|mro_set_mro	|NN struct mro_meta *const meta \
+Ap	|const struct mro_alg *|mro_get_from_name|NN SV *name
+Ap	|void	|mro_register	|NN const struct mro_alg *mro
+Ap	|void	|mro_set_mro	|NN struct mro_meta *const meta \
 				|NN SV *const name
 : Used in HvMROMETA(), which is public.
-Xpo	|struct mro_meta*	|mro_meta_init	|NN HV* stash
+Xp	|struct mro_meta*	|mro_meta_init	|NN HV* stash
 #if defined(USE_ITHREADS)
 : Only used in sv.c
 p	|struct mro_meta*	|mro_meta_dup	|NN struct mro_meta* smeta|NN CLONE_PARAMS* param
