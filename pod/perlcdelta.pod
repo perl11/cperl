@@ -298,6 +298,22 @@ well.
 
 =item *
 
+The maximal size of hashes has been reduced from 63 bit back to 32 bit
+on 64-bit systems, as with perl5 upstream and as with cperl-5.22. The
+only problem with 63 bit was the performance overhead of having to
+calculate 64-bit hashes for each string, which was not worth it. For
+overlarge hashes use tie to an external library which handle bigger
+sizes and external maps.
+
+This affects C<xhv_keys>, C<xhv_max>, C<xhv_riter>, C<xhv_fill_lazy>,
+placeholders and the return values and arguments of most C<hv_>
+functions and macros.  C<xhv_riter> is now a full C<U32>, thus the
+previous tombstone value C<-1> is now C<U32_MAX>, so contrary to perl5
+you can still iterate over the full keys range, and not just the half
+of it.
+
+=item *
+
 C<PL_maxo> is now tracked/incremented in C<custom_op_register()>.
 
 The static number of OPs is determined by the static C<MAXO>
