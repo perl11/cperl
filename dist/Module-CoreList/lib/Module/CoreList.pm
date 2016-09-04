@@ -12819,6 +12819,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Getopt::Long'          => '2.49',
             'HTTP::Tiny'            => '0,070',
             'IO::Socket::IP'        => '0.38',
+            'Internals::DumpArenas' => '0.12_04',
             'IPC::Cmd'              => '0.96',
             'JSON::PP'              => '2.27400_02',
             'List::Util'            => '1.46_06',

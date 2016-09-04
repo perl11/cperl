@@ -799,7 +799,7 @@ use File::Glob qw(:case);
     },
 
     'Internals::DumpArenas' => {
-        'DISTRIBUTION' => 'RURBAN/Internals-DumpArenas-0.12_03.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Internals-DumpArenas-0.12_04.tar.gz',
         'FILES'        => q[cpan/Internals-DumpArenas],
     },
 

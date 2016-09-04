@@ -173,6 +173,10 @@ our local make -s silent patches and various others are now all upstream.
 
 Many fixes und improvements
 
+=item Internals-DumpArenas
+
+print empty arrays and hashes as such
+
 =item IO-Socket-IP  0.38
 
 - Support setting custom socket options with new Sockopts
