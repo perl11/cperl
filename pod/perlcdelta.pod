@@ -161,6 +161,17 @@ A regression in Perl 5.24 with C<tr/\N{U+...}/foo/> when the code point was
 between 128 and 255 has been fixed.
 L<[perl #128734]|https://rt.perl.org/Public/Bug/Display.html?id=128734>.
 
+=item *
+
+A vulnerability in Perl's C<sprintf> implementation has been fixed by avoiding
+a possible memory wrap.
+L<[perl #131260]|https://rt.perl.org/Public/Bug/Display.html?id=131260>
+
+=item *
+
+The parser could sometimes crash if a bareword came after C<evalbytes>.
+L<[perl #129196]|https://rt.perl.org/Public/Bug/Display.html?id=129196>
+
 =back
 
 =head1 Platform Support
