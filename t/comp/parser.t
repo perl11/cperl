@@ -591,6 +591,9 @@ eval "grep+grep";
 # Used to crash [perl #125679]
 eval 'BEGIN {$^H=-1} \eval=time';
 
+# Used to fail an assertion [perl #129073], perl5 only.
+eval '${p{};sub p}()';
+
 # RT #124207 syntax error during stringify can leave stringify op
 # with multiple children and assertion failures
 
