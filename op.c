@@ -8977,7 +8977,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 {
     GV *gv;
     const char *ps;
-    CV *cv = NULL;
+    CV *cv = NULL;     /* the previous CV with this name, if any */
     SV *const_sv;
     STRLEN ps_len = 0; /* init it to avoid false uninit warning from icc */
     U32 ps_utf8 = 0;
