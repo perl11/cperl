@@ -5829,7 +5829,8 @@ sub B::HV::save {
   }
 
   # Ordinary HV or Stash
-  # KEYS = 0, inc. dynamically below with hv_store
+  # KEYS = 0, inc. dynamically below with hv_store. TODO: HvSTATIC readonly tables,
+  # without hv_store
   if ($PERL510) {
     my $flags = $hv->FLAGS & ~SVf_READONLY;
     $flags &= ~SVf_PROTECT if $PERL522;

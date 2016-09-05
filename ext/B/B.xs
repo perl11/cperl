@@ -1660,12 +1660,17 @@ MODULE = B	PACKAGE = B::IV
 #define PVCV_sigop_ix	sv_OPp  | STRUCT_OFFSET(struct xpvcv, xcv_sigop)
 #define PVCV_flags_ix	sv_U32p | STRUCT_OFFSET(struct xpvcv, xcv_flags)
 
-#define PVHV_max_ix	sv_STRLENp | STRUCT_OFFSET(struct xpvhv, xhv_max)
+#if defined(USE_CPERL) && PERL_VERSION > 24
+#define PVHV_max_ix	sv_U32p | STRUCT_OFFSET(struct xpvhv, xhv_max)
+#define PVHV_keys_ix	sv_U32p | STRUCT_OFFSET(struct xpvhv, xhv_keys)
+#else
 
+#define PVHV_max_ix	sv_STRLENp | STRUCT_OFFSET(struct xpvhv, xhv_max)
 #if PERL_VERSION > 12
 #define PVHV_keys_ix	sv_STRLENp | STRUCT_OFFSET(struct xpvhv, xhv_keys)
 #else
 #define PVHV_keys_ix	sv_IVp | STRUCT_OFFSET(struct xpvhv, xhv_keys)
+#endif
 #endif
 
 # The type checking code in B has always been identical for all SV types,
