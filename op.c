@@ -13249,6 +13249,7 @@ Perl_ck_subr(pTHX_ OP *o)
 	case OP_METHOD_SUPER:
 	case OP_METHOD_REDIR:
 	case OP_METHOD_REDIR_SUPER:
+	    o->op_flags |= OPf_REF;
 	    if (IS_CONST_OP(aop)) {
 		aop->op_private &= ~OPpCONST_STRICT;
 		const_class = &cSVOPx(aop)->op_sv;
