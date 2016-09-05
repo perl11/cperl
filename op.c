@@ -8874,9 +8874,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
         }
     }
 
-    if (!block)
-	goto attrs;
-
+    if (block) {
     /* If we assign an optree to a PVCV, then we've defined a subroutine that
        the debugger could be able to set a breakpoint in, so signal to
        pp_entereval that it should not throw away any saved lines at scope
@@ -8887,6 +8885,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
     slab = (OPSLAB *)CvSTART(cv);
 #endif
     S_postprocess_optree(aTHX_ cv, block, &start);
+    }
 
   attrs:
     if (attrs) {
@@ -9377,9 +9376,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
         }
     }
 
-    if (!block)
-	goto attrs;
-
+    if (block) {
     /* If we assign an optree to a PVCV, then we've defined a subroutine that
        the debugger could be able to set a breakpoint in, so signal to
        pp_entereval that it should not throw away any saved lines at scope
@@ -9390,6 +9387,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
     slab = (OPSLAB *)CvSTART(cv);
 #endif
     S_postprocess_optree(aTHX_ cv, block, &start);
+    }
 
   attrs:
     if (attrs) {
