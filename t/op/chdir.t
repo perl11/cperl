@@ -10,8 +10,9 @@ BEGIN {
     # possibilities into @INC.
     unshift @INC, qw(t . lib ../lib);
     require "test.pl";
-    plan(tests => 47);
 }
+
+plan(tests => 48);
 
 use Config;
 use Errno qw(ENOENT EBADF EINVAL);
@@ -160,6 +161,12 @@ sub check_env {
         is($warning, '', 'should no longer warn about deprecation');
     }
 }
+
+fresh_perl_is(<<'EOP', '', { stderr => 1 }, "check stack handling");
+for $x (map $_+1, 1 .. 100) {
+  map chdir, 1 .. $x;
+}
+EOP
 
 my %Saved_Env = ();
 sub clean_env {

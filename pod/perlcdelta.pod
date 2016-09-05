@@ -23,11 +23,12 @@ here, but most should go in the L</Performance Enhancements> section.
 
 =head1 Security
 
-XXX Any security-related notices go here.  In particular, any security
-vulnerabilities closed should be noted here rather than in the
-L</Selected Bug Fixes> section.
+=head2 chdir heap-buffer-overflow
 
-[ List each security issue as a =head2 entry ]
+Fixed heap-buffer-overflow in chdir without argument. make chdir allocate the stack
+it needs for the result, overwriting one stack entry. Note that the perl stack is on
+the heap, so it's not that dramatic.
+L<[perl #129130]|https://rt.perl.org/Public/Bug/Display.html?id=129130>
 
 =head1 Incompatible Changes
 
