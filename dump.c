@@ -91,6 +91,11 @@ S_append_flags(pTHX_ SV *sv, U32 flags, const struct flag_to_name *start,
                               PERL_PV_ESCAPE_NONASCII | PERL_PV_ESCAPE_DWIM \
                               | ((utf8) ? PERL_PV_ESCAPE_UNI : 0) )
 
+#define pretty_pv_escape(sv,s,len,utf8) pv_escape( (sv), (s), (len), \
+                              (len) * (4+UTF8_MAXBYTES) + 1, NULL, \
+                              PERL_PV_PRETTY_DUMP \
+                              | ((utf8) ? PERL_PV_ESCAPE_UNI : 0) )
+
 /*
 =for apidoc pv_escape
 
@@ -2379,28 +2384,35 @@ S_append_gv_name(pTHX_ GV *gv, SV *out)
 STATIC void
 S_deb_hek(pTHX_ HEK* hek, SV* val)
 {
+    U32 olddebug;
     if (!hek) {
         PerlIO_printf(Perl_debug_log, " [(null)]");
+        return;
     }
     else if (HEK_IS_SVKEY(hek)) {
+        SV * const tmp = newSVpvs_flags("", SVs_TEMP);
         SV* sv = *(SV**)HEK_KEY(hek);
         PerlIO_printf(Perl_debug_log, " [0x%08x SV:\"%.*s\" ", HEK_HASH(hek),
                       (int)SvCUR(sv), SvPVX_const(sv));
     } else {
-        PerlIO_printf(Perl_debug_log, " [0x%08x \"%.*s\" ", HEK_HASH(hek),
-                      (int)HEK_LEN(hek), HEK_KEY(hek));
+        SV * const tmp = newSVpvs_flags("", SVs_TEMP);
+        PerlIO_printf(Perl_debug_log, " [0x%08x \"%s\" ", (unsigned)HEK_HASH(hek),
+                      pretty_pv_escape( tmp, HEK_KEY(hek), HEK_LEN(hek), HEK_UTF8(hek)));
         if (HEK_FLAGS(hek) > 1)
             PerlIO_printf(Perl_debug_log, "0x%x ", HEK_FLAGS(hek));
     }
-
     if (val == &PL_sv_placeholder) {
-        PerlIO_printf(Perl_debug_log, "placeholder]");
+        PerlIO_printf(Perl_debug_log, "PLACEHOLDER]");
     }
     else if (val == &PL_sv_undef) {
-        PerlIO_printf(Perl_debug_log, "undef]");
+        PerlIO_printf(Perl_debug_log, "UNDEF]");
     }
     else {
-        PerlIO_printf(Perl_debug_log, "0x%"UVxf"]", PTR2UV(val));
+        olddebug = PL_debug;
+        /* sv_peek(val) can recurse into hashes */
+        PL_debug &= ~(DEBUG_H_FLAG | DEBUG_v_FLAG);
+        PerlIO_printf(Perl_debug_log, "%s]", sv_peek(val));
+        PL_debug = olddebug;
     }
 }
 
