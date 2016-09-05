@@ -8574,15 +8574,14 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
     return sv;
 }
 
-static bool
+static void
 S_already_defined(pTHX_ CV *const cv, OP * const block, OP * const o,
 			PADNAME * const name, SV ** const const_svp)
 {
     assert (cv);
     assert (o || name);
     assert (const_svp);
-    if ((!block
-	 )) {
+    if (!block) {
 	if (CvFLAGS(PL_compcv)) {
 	    /* might have had built-in attrs applied */
 	    const bool pureperl = !CvISXSUB(cv) && CvROOT(cv);
@@ -8599,7 +8598,7 @@ S_already_defined(pTHX_ CV *const cv, OP * const block, OP * const o,
 		(CvFLAGS(PL_compcv) & CVf_BUILTIN_ATTRS
 		  & ~(CVf_LVALUE * pureperl));
 	}
-	return FALSE;
+	return;
     }
 
     /* redundant check for speed: */
@@ -8621,7 +8620,7 @@ S_already_defined(pTHX_ CV *const cv, OP * const block, OP * const o,
 	CopLINE_set(PL_curcop, oldline);
     }
     SAVEFREESV(cv);
-    return TRUE;
+    return;
 }
 
 CV *
@@ -8749,7 +8748,8 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
                                  ps_utf8);
 	/* already defined? */
 	if (exists) {
-	    if (S_already_defined(aTHX_ cv,block,NULL,name,&const_sv))
+	    S_already_defined(aTHX_ cv, block, NULL, name, &const_sv);
+            if (block)
 		cv = NULL;
 	    else {
 		if (attrs)
@@ -9234,7 +9234,8 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
             cv_ckproto_len_flags(cv, gv, ps, ps_len, ps_utf8);
 	/* already defined (or promised)? */
 	if (exists || (isGV(gv) && GvASSUMECV(gv))) {
-	    if (S_already_defined(aTHX_ cv, block, o, NULL, &const_sv))
+	    S_already_defined(aTHX_ cv, block, o, NULL, &const_sv);
+            if (block)
 		cv = NULL;
 	    else {
 		if (attrs)
