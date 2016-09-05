@@ -3466,7 +3466,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	yyerror(Perl_form(aTHX_ "Can't modify %s in %s",
 		     (IS_NULL_OP(o) && OpSPECIAL(o)
 		      ? "do block"
-		      : ((OP_TYPE_IS_NN(o, OP_ENTERSUB) || type == OP_ENTERXSSUB)
+		      : (IS_SUB_OP(o)
 			? "non-lvalue subroutine call"
 			: OP_DESC(o))),
 		     type ? PL_op_desc[type] : "local"));
@@ -3801,7 +3801,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
         o->op_flags |= OPf_MOD;
 
     if (type == OP_AASSIGN || type == OP_SASSIGN)
-	o->op_flags |= OPf_SPECIAL|OPf_REF;
+	o->op_flags |= OPf_SPECIAL | (IS_SUB_OP(o) ? 0 : OPf_REF);
     else if (!type) { /* local() */
 	switch (localize) {
 	case 1:
@@ -3817,7 +3817,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	}
     }
     else if (type != OP_GREPSTART && type != OP_ENTERSUB && type != OP_ENTERXSSUB
-             && type != OP_LEAVESUBLV)
+             && type != OP_LEAVESUBLV && !IS_SUB_OP(o))
 	o->op_flags |= OPf_REF;
     return o;
 }
