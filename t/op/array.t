@@ -6,7 +6,7 @@ BEGIN {
     require './test.pl';
 }
 
-plan (173);
+plan (176);
 
 #
 # @foo, @bar, and @ary are also used from tie-stdarray after tie-ing them
@@ -553,6 +553,39 @@ is $#foo, 3, 'assigning to arylen aliased in foreach(scalar $#arylen)';
     my @a = qw(a b c);
     @a = @a;
     is "@a", 'a b c', 'assigning to itself';
+}
+
+# check for 64bit without loading Config
+eval { my $q = pack "q", 0 };
+if ($@) {
+  $@ = '';
+  # INT32_MAX is allowed
+  my $i = 2147483647;
+  $ary[$i];
+  $ary[2147483647];
+  is $@, "", 'no error with INT32_MAX index';
+  
+  # INT32_MAX+1 errors
+  eval 'eval { $ary[2147483648] };';
+  like $@, qr/Too many elements/,
+    'Too many elements compile-time with constant';
+  eval { my $i=2147483648; $ary[$i] };
+  like $@, qr/Too many elements/,
+    'Too many elements run-time with variable';
+} else {
+  # INT64_MAX is allowed
+  my $i = 9223372036854775807;
+  $ary[$i];
+  $ary[9223372036854775807];
+  is $@, "", 'no error with INT64_MAX index';
+
+  # INT64_MAX+1 errors
+  eval 'eval { $ary[9223372036854775808] };';
+  like $@, qr/Too many elements/,
+    'Too many elements compile-time with constant';
+  eval { my $i=9223372036854775808; $ary[$i] };
+  like $@, qr/Too many elements/,
+    'Too many elements run-time with variable';
 }
 
 "We're included by lib/Tie/Array/std.t so we need to return something true";

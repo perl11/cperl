@@ -13299,19 +13299,32 @@ Perl_ck_aelem(pTHX_ OP *o)
     if (OP_TYPE_IS(avop, OP_PADAV) && avop->op_targ) {
         AV* av = MUTABLE_AV(PAD_SV(avop->op_targ));
         if (idx && SvIOK(idx) && AvSHAPED(av)) {
-            IV ix = SvIVX(idx);
+            if (UNLIKELY(SvIsUV(idx))) {
+                UV ix = SvUV(idx);
+                if (ix > (UV)AvFILL(av))
+                    Perl_die(aTHX_ "Array index out of bounds %s[%"UVuf"]",
+                             PAD_COMPNAME_PV(avop->op_targ), ix);
+            } else {
+                IV ix = SvIVX(idx);
 #if IVSIZE == 4
 #  define ABS(ix) abs(ix)
 #else
 #  define ABS(ix) labs(ix)
 #endif
-            if (ABS(ix) > AvFILL(av))
+                if (ABS(ix) > AvFILL(av))
 #undef ABS
-                Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
-                    PAD_COMPNAME_PV(avop->op_targ), ix);
+                    Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
+                             PAD_COMPNAME_PV(avop->op_targ), ix);
+            }
         }
         /* TODO specialize to typed ops */
     }
+    if (UNLIKELY(idx && SvIsUV(idx))) {
+        UV ix = SvUV(idx);
+        if (ix > SSize_t_MAX)
+            Perl_die(aTHX_ "Too many elements");
+    }
+
     DEBUG_k(Perl_deb(aTHX_ "ck_%s %s[%"IVdf"]\n", PL_op_name[o->op_type],
                 targ ? PAD_COMPNAME_PV(targ) : "?",
                 idx ? SvIV(idx) : -99));
@@ -14298,6 +14311,11 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                             maybe_aelemfast = TRUE;
 
                         if (pass) {
+                            if (UNLIKELY(SvIsUV(ix_sv))) {
+                                UV uelem = SvUV(ix_sv);
+                                if (uelem > SSize_t_MAX)
+                                    Perl_die(aTHX_ "Too many elements");
+                            }
                             arg->iv = iv;
                             SvREFCNT_dec_NN(cSVOPo->op_sv);
                         }

@@ -6161,6 +6161,10 @@ BEGIN block.
 
 (F) The function requires fewer arguments than you specified.
 
+=item Too many elements
+
+(F) The array or hash cannot hold any more elements.
+
 =item Too many )'s
 
 (A) You've accidentally run your script through B<csh> instead of Perl.

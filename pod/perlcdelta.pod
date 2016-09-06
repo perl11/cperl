@@ -118,6 +118,31 @@ XXX Description of the change here
 
 =back
 
+=head1 Diagnostics
+
+The following additions or changes have been made to diagnostic output,
+including warnings and fatal error messages.  For the complete list of
+diagnostic messages, see L<perldiag>.
+
+=head2 New Diagnostics
+
+=head3 New Errors
+
+=over 4
+
+=item *
+
+The L<Too many elements|perldiag/"Too many elements"> error is now
+triggered when accessing or extending an out of bounds array index or
+trying to insert too many hash keys. This is to prevent from silent
+hash or array overflows. Previously extending a hash beyond it's
+capable size was silently ignored, leading to performance degradation
+with overly high fill factors and extending an array failed only on
+memory exhaustion, but the signed index led to an index overflow
+between I32 and U32, resp.  I64 and U64.
+
+=back
+
 =head1 Utility Changes
 
 XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
@@ -237,7 +262,20 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =item *
 
-XXX
+Array and hash index overflow are now properly detected and throw an
+"Too many elements" error.
+
+E.g. on 32bit C<$ary[2147483648]> will lead to a compile-time error,
+C<$i=2147483648; $ary[$i]> to a run-time error. Before 5.24c or with perl5
+those two would silently overflow to C<-1>, i.e. accessing the last element.
+
+When inserting more than U32, i.e. 4294967295 hash elements, the same
+error is now thrown. Before 5.24c or with perl5 the element would have
+been inserted, with 32bit the hash table would not have been extended
+and the load factor would increase, the collisions and performance
+would decrease.  On 64bit the hash table would have beed increased,
+but the elements would collide on the last element, leading to the
+same problems, just more dramatic.
 
 =back
 
