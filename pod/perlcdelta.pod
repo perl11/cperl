@@ -215,13 +215,14 @@ XXX Changes which affect the interface available to C<XS> code go here.  Other
 significant internal changes for future core maintainers should be noted as
 well.
 
-[ List each change as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Increasing the hash size to values larger then U32_MAX are now silently ignored.
+This only affects 64-bit platforms. Normally a hash split to an overlarge value
+should die, but historically it silently ignored the split, it just increases the
+fill rate and decreases performance.
 
 =back
 

@@ -1424,6 +1424,10 @@ S_hsplit(pTHX_ HV *hv, SSize_t const oldsize, SSize_t newsize)
 
     PERL_ARGS_ASSERT_HSPLIT;
 
+#if INTSIZE > 4
+    if (newsize > (SSize_t)U32_MAX)
+        return; /* silent as below in hv_ksplit. 64bit only otherwise it is -1 */
+#endif
     PL_nomemok = TRUE;
     Renew(a, PERL_HV_ARRAY_ALLOC_BYTES(newsize)
           + (do_aux ? sizeof(struct xpvhv_aux) : 0), char);
@@ -1554,6 +1558,10 @@ Perl_hv_ksplit(pTHX_ HV *hv, IV newmax)
     if (a) {
         hsplit(hv, oldsize, newsize);
     } else {
+#if INTSIZE > 4
+        if (newsize > (SSize_t)U32_MAX)
+            return;
+#endif
         Newxz(a, PERL_HV_ARRAY_ALLOC_BYTES(newsize), char);
         xhv->xhv_max = --newsize;
         HvARRAY(hv) = (HE **) a;
