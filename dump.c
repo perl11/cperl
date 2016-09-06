@@ -2412,6 +2412,9 @@ S_deb_hek(pTHX_ HEK* hek, SV* val)
     else if (val == &PL_sv_undef) {
         PerlIO_printf(Perl_debug_log, "UNDEF]");
     }
+    else if (val < PL_sv_arenaroot) { /* a refcnt */
+        PerlIO_printf(Perl_debug_log, "%"UVuf"]", PTR2UV(val));
+    }
     else {
         olddebug = PL_debug;
         /* sv_peek(val) can recurse into hashes */
