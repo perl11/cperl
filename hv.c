@@ -803,6 +803,13 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     oentry = &HvARRAY(hv)[ HvHASH_INDEX(hash, xhv->xhv_max) ];
 #endif
 
+#if INTSIZE > 4
+    if (xhv->xhv_keys >= U32_MAX-1)
+#else
+    if (xhv->xhv_keys >= I32_MAX-1)
+#endif
+	Perl_croak(aTHX_ "Too many elements");
+
     entry = new_HE();
     /* share_hek_flags will do the free for us.  This might be considered
        bad API design.  */

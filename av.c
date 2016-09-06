@@ -112,6 +112,13 @@ Perl_av_extend_guts(pTHX_ AV *av, SSize_t key, SSize_t *maxp, SV ***allocp,
 	SSize_t tmp;
 	SSize_t newmax;
 
+#if INTSIZE > 4
+        if ((Size_t)key > SSize_t_MAX)
+#else
+        if (key > I32_MAX)
+#endif
+	    Perl_croak(aTHX_ "Too many elements");
+
 	if (av && *allocp != *arrayp) {
 	    ary = *allocp + AvFILLp(av) + 1;
 	    tmp = *arrayp - *allocp;

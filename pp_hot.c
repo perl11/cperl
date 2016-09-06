@@ -2414,13 +2414,13 @@ PP(pp_multideref)
                 SV *elemsv;
                 IV elem = 0; /* to shut up stupid compiler warnings */
 
-
                 assert(SvTYPE(sv) == SVt_PVAV);
 
                 switch (actions & MDEREF_INDEX_MASK) {
                 case MDEREF_INDEX_none:
                     goto finish;
                 case MDEREF_INDEX_const:
+                    /* uv overflow already checked compile-time */
                     elem  = (++items)->iv;
                     break;
                 case MDEREF_INDEX_padsv:
@@ -2443,7 +2443,14 @@ PP(pp_multideref)
                      * tie or overload execution), its value will be
                      * meaningless apart from just here */
                     PL_multideref_pc = items;
-                    elem = SvIV(elemsv);
+                    if (UNLIKELY(SvIsUV(elemsv))) {
+                        UV uelem = SvUV(elemsv);
+                        if (uelem > SSize_t_MAX)
+                            DIE(aTHX_ "Too many elements");
+                        elem = (IV)uelem;
+                    } else {
+                        elem = SvIV(elemsv);
+                    }
                     break;
                 }
 

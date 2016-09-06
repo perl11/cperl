@@ -65,7 +65,9 @@ perl-5.22.3.
 # In the stable master branch are the following major features
 
 * coretypes (Int, UInt, Num, Str. lowercase native types accepted)
-* types in signatures as designed and also as attribute
+* types in signatures as designed and also as attribute.
+* signatures are 2x faster, not 2x slower as with 5.24 or almost as slow
+  as without as with 5.26.
 * function return types declarations as attribute
 * many more builtin function attributes
 * shaped arrays with compile-time checks and optims
@@ -74,7 +76,7 @@ perl-5.22.3.
 * convert static method to subs
 * Config as XS
 * strict, attributes, DynaLoader, XSLoader as builtin packages, rewritten in C.
-  Security fixes for DynaLoader
+  Security fixes for DynaLoader.
 * changed default hash function to the fastest FNV1A *(as in the stableperl fork)*
 * changed the hash collision strategy from randomize to the usual move-to-front
 * changed the default hash fill rate from 100% to 90%
@@ -94,6 +96,9 @@ perl-5.22.3.
   sense and cause not much trouble.
 * some security fixes for Unicode confusables, but more are needed (use strict 'names').
 * handle method calls on protected stashes
+* disallow silent overflows of hash and array indices. New "Too many elements" error.
+* harmonize overlarge (>2GB) data, max. I64/I32 string and array lengths,
+  U32 hash keys. you can properly access all elements, unlike with perl5.
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.

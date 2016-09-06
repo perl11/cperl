@@ -13347,25 +13347,42 @@ Perl_ck_aelem(pTHX_ OP *o)
     if (OP_TYPE_IS(avop, OP_PADAV) && avop->op_targ) {
         AV* av = MUTABLE_AV(PAD_SV(avop->op_targ));
         if (idx && SvIOK(idx) && AvSHAPED(av)) {
-            IV ix = SvIVX(idx);
-            if (PERL_IABS(ix) > AvFILLp(av))
-                Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
-                    PAD_COMPNAME_PV(avop->op_targ), ix);
-            else {
-                DEBUG_kv(Perl_deb(aTHX_ "ck_%s shape ok %s[%"IVdf"]\n",
-                                  PL_op_name[o->op_type],
-                                  PAD_COMPNAME_PV(avop->op_targ), ix));
-                if (ix < 0) {
-                    ix = AvFILL(av)+1+ix;
-                    SvIV_set(idx, ix);
-                    DEBUG_kv(Perl_deb(aTHX_ "ck_%s %s[->%"IVdf"]\n",
-                                  PL_op_name[o->op_type],
-                                  PAD_COMPNAME_PV(avop->op_targ), ix));
+            if (UNLIKELY(SvIsUV(idx))) {
+                UV ix = SvUV(idx);
+                if (ix > (UV)AvFILL(av))
+                    Perl_die(aTHX_ "Array index out of bounds %s[%"UVuf"]",
+                             PAD_COMPNAME_PV(avop->op_targ), ix);
+                else
+                    DEBUG_kv(Perl_deb(aTHX_ "ck_%s shape ok %s[%"UVuf"]\n",
+                                      PL_op_name[o->op_type],
+                                      PAD_COMPNAME_PV(avop->op_targ), ix));
+            } else {
+                IV ix = SvIVX(idx);
+                if (PERL_IABS(ix) > AvFILLp(av))
+                    Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
+                             PAD_COMPNAME_PV(avop->op_targ), ix);
+                else {
+                    DEBUG_kv(Perl_deb(aTHX_ "ck_%s shape ok %s[%"IVdf"]\n",
+                                      PL_op_name[o->op_type],
+                                      PAD_COMPNAME_PV(avop->op_targ), ix));
+                    if (ix < 0) {
+                        ix = AvFILL(av)+1+ix;
+                        SvIV_set(idx, ix);
+                        DEBUG_kv(Perl_deb(aTHX_ "ck_%s %s[->%"IVdf"]\n",
+                                          PL_op_name[o->op_type],
+                                          PAD_COMPNAME_PV(avop->op_targ), ix));
+                    }
                 }
             }
         }
         /* TODO specialize to typed ops */
     }
+    if (UNLIKELY(idx && SvIsUV(idx))) {
+        UV ix = SvUV(idx);
+        if (ix > SSize_t_MAX)
+            Perl_die(aTHX_ "Too many elements");
+    }
+
     DEBUG_k(Perl_deb(aTHX_ "ck_%s %s[%"IVdf"]\n", PL_op_name[o->op_type],
                 targ ? PAD_COMPNAME_PV(targ) : "?",
                 idx ? SvIV(idx) : -99));
@@ -14368,6 +14385,11 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                             maybe_aelemfast = TRUE;
 
                         if (PASS2) {
+                            if (UNLIKELY(SvIsUV(ix_sv))) {
+                                UV ix = SvUV(ix_sv);
+                                if (ix > SSize_t_MAX)
+                                    Perl_die(aTHX_ "Too many elements");
+                            }
                             arg->iv = iv;
                             SvREFCNT_dec_NN(cSVOPo->op_sv);
                         }
@@ -14381,21 +14403,22 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                             PADOFFSET targ = (((BINOP*)aelem_op)->op_first)->op_targ;
                             SV* av; /* targ may still be empty here */
                             if (targ && (av = PAD_SV(targ)) && AvSHAPED(av)) {
-                                if (PERL_IABS(arg->iv) > AvFILLp(av))
+                                if (UNLIKELY(SvIsUV(cSVOPo->op_sv))) {
+                                    UV ix = SvUV(cSVOPo->op_sv);
+                                    if (ix > (UV)AvFILLp(av))
+                                        Perl_die(aTHX_ "Too many elements");
+                                    else
+                                        DEBUG_kv(Perl_deb(aTHX_
+                                            "mderef %s[%"UVuf"] shape ok -> uoob\n",
+                                            PAD_COMPNAME_PV(targ), ix));
+                                }
+                                else if (UNLIKELY(PERL_IABS(arg->iv) > AvFILLp(av)))
                                     Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
                                              PAD_COMPNAME_PV(targ), arg->iv);
                                 else {
                                     DEBUG_kv(Perl_deb(aTHX_
                                         "mderef %s[%"IVdf"] shape ok -> uoob\n",
                                         PAD_COMPNAME_PV(targ), arg->iv));
-#if 0 /* already done in ck_aelem */
-                                    if (arg->iv < 0) {
-                                        arg->iv = AvFILLp(av)+1+arg->iv;
-                                        DEBUG_kv(Perl_deb(aTHX_
-                                            "mderef %s[->%"IVdf"]\n",
-                                            PAD_COMPNAME_PV(targ), arg->iv));
-                                    }
-#endif
                                 }
                                 index_type |= MDEREF_INDEX_uoob;
                             }
