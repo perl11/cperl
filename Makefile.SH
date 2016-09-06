@@ -508,6 +508,8 @@ h5 = utf8.h warnings.h mydtrace.h op_reg_common.h l1_char_class_tab.h
 h6 = charclass_invlists.h
 h = $(h1) $(h2) $(h3) $(h4) $(h5) $(h6)
 
+inc = mg_names.inc overload.inc packsizetables.inc vxs.inc
+
 c1 = av.c scope.c op.c doop.c doio.c dump.c gv.c hv.c mg.c reentr.c mro_core.c perl.c
 c2 = perly.c pp_hot.c pp.c pp_type.c pp_ctl.c pp_sys.c regcomp.c regexec.c utf8.c sv.c
 c3 = taint.c toke.c util.c deb.c run.c universal.c xsutils.c pad.c globals.c keywords.c
@@ -1763,8 +1765,8 @@ nokfilenack:	utilities
 clist:	$(c)
 	echo $(c) | tr ' ' $(TRNL) >.clist
 
-hlist:  $(h)
-	echo $(h) | tr ' ' $(TRNL) >.hlist
+hlist:  $(h) $(inc)
+	echo $(h) $(inc) | tr ' ' $(TRNL) >.hlist
 
 .PHONY: distcheck
 distcheck: FORCE

@@ -235,7 +235,7 @@ if $test -s .deptmp; then
        >>$mf.new
 else
     $MAKE hlist || ($echo "Searching for .h files..."; \
-	$echo *.h | $tr ' ' $trnl | $egrep -v '\*' >.hlist)
+	$echo *.h *.inc | $tr ' ' $trnl | $egrep -v '\*' >.hlist)
     $echo "You don't seem to have a proper C preprocessor.  Using grep instead."
     $egrep '^#include ' `cat .clist` `cat .hlist`  >.deptmp
     $echo "Updating $mf..."
