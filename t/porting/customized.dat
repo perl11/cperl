@@ -29,6 +29,7 @@ Encode cpan/Encode/bin/enc2xs e5d9cb809558bbc579f3c56f86f937bceccf144b
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 3548b0bb262b8d3a5345549ae5e43d1b3c4fb8e4
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t c01ba6e7a872c8a7fc26e277e0dea109616a5e56
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm ee0d36d1a3d0cc3e4201766fff6519edf7e99d1a
+ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm 4cb6c93da93790904ca08283131c2258fdf8c879
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 313ac548f069f321c940085bfea7e3abcfbe1c06
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm ac22b20036c5ad98510b98a2d1223cf119ef796a
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm 96ef2f03620f8b1a878cea552e75dbf579d5330a
@@ -39,7 +40,7 @@ ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fca
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 52f5520bc957c306776810d2c6a771445e396fb1
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 6f902311d1b30dff17b3959178fda8c86e493aae
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm d900e9f822b908f54683b9f37f74159d8dc9d6d3
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm d42040297c1e9564c4fcb44c548f54d41e13a02a
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938

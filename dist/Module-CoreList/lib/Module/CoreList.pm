@@ -13324,6 +13324,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Time::HiRes'           => '1.9739',
             'B::C'                  => '1.54_12',
             'Socket'                => '2.24_02',
+            'ExtUtils::Liblist::Kid' => '8.04_06',
         },
         removed => {
         }

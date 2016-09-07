@@ -11,7 +11,7 @@ use 5.006;
 
 use strict;
 use warnings;
-our $VERSION = '8.04_03';
+our $VERSION = '8.04_06';
 
 use ExtUtils::MakeMaker::Config;
 use Cwd 'cwd';
@@ -188,6 +188,9 @@ sub _unix_os2_ext {
             }
             elsif ( $custom_name && -e ( $fullname = "$thispth/$thislib" ) ) {
             }
+            # symlinked to libSystem.dylib
+            elsif ($^O eq 'darwin' && $thislib =~ /^(pthread|dl|util|c)$/) {
+            }
             else {
                 warn "$thislib not found in $thispth\n" if $verbose;
                 next;
@@ -253,7 +256,7 @@ sub _unix_os2_ext {
             last;    # found one here so don't bother looking further
         }
         warn "Warning (mostly harmless): " . "No library found for -l$thislib\n"
-          unless $found_lib > 0;
+          if !$found_lib;
     }
 
     unless ( $found ) {
@@ -613,6 +616,9 @@ sub _vms_ext {
                     warn "Warning (mostly harmless): " . "Plain object file $fullname found in library list\n";
                     $type = 'OBJ';
                     $name = $fullname unless $fullname =~ /obj;?\d*$/i;
+                }
+                elsif ($^O eq 'darwin' && $fullname =~ /^(perl|pthread|dl|util|c)$/) {
+                    $type = 'SHR';
                 }
                 if ( defined $type ) {
                     $ctype = $type;

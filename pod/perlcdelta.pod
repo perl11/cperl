@@ -61,6 +61,10 @@ Fix !C99 precedence bug (e.g. MSVC).
 Minor refactor to simplify save_hek.
 Use the new get_svs, get_avs, get_hvs macros.
 
+=item ExtUtils::Liblist::Kid  8.04_06
+
+Silence No library found errors on darwin for libSystem.dylib libs.
+
 =back
 
 =head1 Utility Changes
