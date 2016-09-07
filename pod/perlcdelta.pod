@@ -48,40 +48,6 @@ test improvements.
 Merge cpan 2.024 with our 2.021_02,
 plus fix some problems in their new code.
 
-=item B  1.62_04
-
-use the new get_svs, get_avs, get_hvs macros.
-
-=item Devel::Peek  1.23_01
-
-use the new get_svs, get_avs, get_hvs macros.
-
-=item File::Glob  1.26_01
-
-use the new get_svs, get_avs, get_hvs macros.
-
-=item File::DosGlob  1.12_01
-
-use the new get_svs, get_avs, get_hvs macros.
-
-=item POSIX  1.65_01
-
-use the new get_svs, get_avs, get_hvs macros.
-
-=item PerlIO::encoding  0.24_01
-
-use the new get_svs, get_avs, get_hvs macros.
-
-=item XS::APItest  0.80_02
-
-use the new get_svs, get_avs, get_hvs macros.
-
-=item DynaLoader  2.05c
-
-no mathoms: call_sv instead of call_pv, get_cvs where available.
-
-use the new get_svs, get_avs, get_hvs macros.
-
 =item B-C  1.54_12
 
 Better CopFILE_set,

@@ -13321,20 +13321,9 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList::TieHashDelta'=> '5.20160728',
             'Module::CoreList::Utils'=> '5.20160807',
             'warnings'              => '1.35',
-            #TODO
-            #'B::C'                  => '1.54_12',
-            #'DynaLoader'            => '2.05c',
-            #'B'                     => '1.62_04',
-            #'Devel::Peek'           => '1.23_01',
-            #'File::Glob'            => '1.26_01',
-            #'File::DosGlob'         => '1.12_01',
-            #'POSIX'                 => '1.65_01',
-            #'PerlIO::encoding'      => '0.24_01',
-            #'DynaLoader'            => '2.05c',
-            #'XS::APItest'           => '0.80_02',
-            #'Socket'                => '2.24_02',
-            #'Time::HiRes'           => '1.9739',
-            #'Internals::DumpArenas' => '0.12_04',
+            'Time::HiRes'           => '1.9739',
+            'B::C'                  => '1.54_12',
+            'Socket'                => '2.24_02',
         },
         removed => {
         }

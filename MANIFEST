@@ -2754,6 +2754,7 @@ cpan/Tie-RefHash/t/rebless.t	Test for Tie::RefHash with rebless
 cpan/Tie-RefHash/t/refhash.t	Test for Tie::RefHash and Tie::RefHash::Nestable
 cpan/Tie-RefHash/t/storable.t	Test for Tie::RefHash with storable
 cpan/Tie-RefHash/t/threaded.t	Test for Tie::RefHash with threads
+cpan/Time-HiRes/Changes			Time::HiRes extension
 cpan/Time-HiRes/fallback/const-c.inc	Time::HiRes extension
 cpan/Time-HiRes/fallback/const-xs.inc	Time::HiRes extension
 cpan/Time-HiRes/hints/aix.pl		Hint for Time::HiRes for named architecture
@@ -2778,6 +2779,7 @@ cpan/Time-HiRes/t/time.t		Test for Time::HiRes
 cpan/Time-HiRes/t/tv_interval.t		Test for Time::HiRes
 cpan/Time-HiRes/t/ualarm.t		Test for Time::HiRes
 cpan/Time-HiRes/t/usleep.t		Test for Time::HiRes
+cpan/Time-HiRes/t/utime.t		Test for Time::HiRes
 cpan/Time-HiRes/t/Watchdog.pm		Test for Time::HiRes
 cpan/Time-HiRes/typemap			Time::HiRes extension
 cpan/Time-Local/lib/Time/Local.pm	Reverse translation of localtime, gmtime
