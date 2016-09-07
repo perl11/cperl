@@ -296,25 +296,29 @@ if ($Is_VMS) {
     }
 }
 elsif ($^O ne 'dos') {
-    if (!$Is_NetWare) {
-	safe_unlink("$installbin/$perl_verbase$ver$exe_ext");
+    if (!$Is_NetWare and !$Is_W32) {
+        safe_unlink("$installbin/$perl_verbase$ver$exe_ext");
 	chmod(0755, "perl$exe_ext");
 	copy("perl$exe_ext", "$installbin/$perl_verbase$ver$exe_ext");
 	strip("$installbin/$perl_verbase$ver$exe_ext");
 	chmod(0755, "$installbin/$perl_verbase$ver$exe_ext");
     }
-    else {
-	# If installing onto a NetWare server
-        if ($opts{netware}) {
-	    # Copy perl.nlm, echo.nlm, type.nlm & cgi2perl.nlm
-            mkpath($Config{installnwsystem});
-	    copy("netware\\".$ENV{'MAKE_TYPE'}."\\perl.nlm", $Config{installnwsystem});
-	    copy("netware\\testnlm\\echo\\echo.nlm", $Config{installnwsystem});
-	    copy("netware\\testnlm\\type\\type.nlm", $Config{installnwsystem});
-	    chmod(0755, "$Config{installnwsystem}\\perl.nlm");
-            mkpath($Config{installnwlcgi});
-	    copy("lib\\auto\\cgi2perl\\cgi2perl.nlm", $Config{installnwlcgi});
-	}
+    elsif ($Is_W32) {
+        safe_unlink("$installbin/$perl_verbase$ver$exe_ext");
+	chmod(0755, "$perl$exe_ext");
+	copy("$perl$exe_ext", "$installbin/$perl_verbase$ver$exe_ext");
+	strip("$installbin/$perl_verbase$ver$exe_ext");
+	chmod(0755, "$installbin/$perl_verbase$ver$exe_ext");
+    }
+    elsif ($opts{netware}) {
+        # Copy perl.nlm, echo.nlm, type.nlm & cgi2perl.nlm
+        mkpath($Config{installnwsystem});
+        copy("netware\\".$ENV{'MAKE_TYPE'}."\\perl.nlm", $Config{installnwsystem});
+        copy("netware\\testnlm\\echo\\echo.nlm", $Config{installnwsystem});
+        copy("netware\\testnlm\\type\\type.nlm", $Config{installnwsystem});
+        chmod(0755, "$Config{installnwsystem}\\perl.nlm");
+        mkpath($Config{installnwlcgi});
+        copy("lib\\auto\\cgi2perl\\cgi2perl.nlm", $Config{installnwlcgi});
     } #if (!$Is_NetWare)
 }
 else {
@@ -373,7 +377,7 @@ elsif ($Is_Cygwin) { # On Cygwin symlink it to CORE to make Makefile happy
     )
 } else {
     # [als] hard-coded 'libperl' name... not good!
-    @corefiles = <*.h libperl*.* perl*$Config{lib_ext}>;
+    @corefiles = <*.h libperl*.* $perl*$Config{lib_ext}>;
 
     # AIX needs perl.exp installed as well.
     push(@corefiles,'perl.exp') if $^O eq 'aix';
