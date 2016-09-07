@@ -785,7 +785,7 @@ inet_ntoa(ip_address_sv)
 		croak("Wide character in %s", "Socket::inet_ntoa");
 	ip_address = SvPVbyte(ip_address_sv, addrlen);
         GCC_DIAG_IGNORE(-Wlogical-op)
-        if (addrlen == sizeof(addr) || addrlen == 4)
+        if ((addrlen == sizeof(addr)) || (addrlen == 4))
 		addr.s_addr =
 		    (ip_address[0] & 0xFF) << 24 |
 		    (ip_address[1] & 0xFF) << 16 |
@@ -830,11 +830,17 @@ pack_sockaddr_un(pathname)
 	char * pathname_pv;
 	int addr_len;
 
+	if (!SvOK(pathname))
+	    croak("Undefined path for %s", "Socket::pack_sockaddr_un");
+
 	Zero(&sun_ad, sizeof(sun_ad), char);
 	sun_ad.sun_family = AF_UNIX;
 	pathname_pv = SvPV(pathname,len);
-	if (len > sizeof(sun_ad.sun_path))
+	if (len > sizeof(sun_ad.sun_path)) {
+	    warn("Path length (%d) is longer than maximum supported length"
+	         " (%d) and will be truncated", (int)len, (int)sizeof(sun_ad.sun_path));
 	    len = sizeof(sun_ad.sun_path);
+	}
 #  ifdef OS2	/* Name should start with \socket\ and contain backslashes! */
 	{
 		int off;
@@ -890,8 +896,11 @@ unpack_sockaddr_un(sun_sv)
 #ifdef I_SYS_UN
 	struct sockaddr_un addr;
 	STRLEN sockaddrlen;
-	char * sun_ad = SvPVbyte(sun_sv,sockaddrlen);
-	int addr_len;
+	char * sun_ad;
+	int addr_len = 0;
+	if (!SvOK(sun_sv))
+	    croak("Undefined address for %s", "Socket::unpack_sockaddr_un");
+	sun_ad = SvPVbyte(sun_sv,sockaddrlen);
 #   if defined(__linux__) || defined(HAS_SOCKADDR_SA_LEN)
 	/* On Linux or *BSD sockaddrlen on sockets returned by accept, recvfrom,
 	   getpeername and getsockname is not equal to sizeof(addr). */
@@ -933,8 +942,8 @@ unpack_sockaddr_un(sun_sv)
 #   else
 		const int maxlen = (int)sizeof(addr.sun_path);
 #   endif
-		for (addr_len = 0; addr.sun_path[addr_len]
-		     && addr_len < maxlen; addr_len++);
+		while (addr_len < maxlen && addr.sun_path[addr_len])
+		     addr_len++;
 	}
 
 	ST(0) = sv_2mortal(newSVpvn(addr.sun_path, addr_len));
@@ -944,20 +953,25 @@ unpack_sockaddr_un(sun_sv)
 	}
 
 void
-pack_sockaddr_in(port, ip_address_sv)
-	unsigned short	port
+pack_sockaddr_in(port_sv, ip_address_sv)
+	SV *	port_sv
 	SV *	ip_address_sv
 	CODE:
 	{
 	struct sockaddr_in sin;
 	struct in_addr addr;
 	STRLEN addrlen;
+	unsigned short port = 0;
 	char * ip_address;
+	if (SvOK(port_sv))
+		port = SvUV(port_sv);
+	if (!SvOK(ip_address_sv))
+		croak("Undefined address for %s", "Socket::pack_sockaddr_in");
 	if (DO_UTF8(ip_address_sv) && !sv_utf8_downgrade(ip_address_sv, 1))
 		croak("Wide character in %s", "Socket::pack_sockaddr_in");
 	ip_address = SvPVbyte(ip_address_sv, addrlen);
         GCC_DIAG_IGNORE(-Wlogical-op)
-	if (addrlen == sizeof(addr) || addrlen == 4)
+        if ((addrlen == sizeof(addr)) || (addrlen == 4))
 		addr.s_addr =
 		    (unsigned int)(ip_address[0] & 0xFF) << 24 |
 		    (unsigned int)(ip_address[1] & 0xFF) << 16 |
@@ -986,7 +1000,10 @@ unpack_sockaddr_in(sin_sv)
 	STRLEN sockaddrlen;
 	struct sockaddr_in addr;
 	SV *ip_address_sv;
-	char *	sin = SvPVbyte(sin_sv,sockaddrlen);
+	char * sin;
+	if (!SvOK(sin_sv))
+	    croak("Undefined address for %s", "Socket::unpack_sockaddr_in");
+	sin = SvPVbyte(sin_sv,sockaddrlen);
 	if (sockaddrlen != sizeof(addr)) {
 	    croak("Bad arg length for %s, length is %"UVuf", should be %"UVuf,
 		  "Socket::unpack_sockaddr_in", (UV)sockaddrlen, (UV)sizeof(addr));
@@ -1009,17 +1026,22 @@ unpack_sockaddr_in(sin_sv)
 	}
 
 void
-pack_sockaddr_in6(port, sin6_addr, scope_id=0, flowinfo=0)
-	unsigned short	port
+pack_sockaddr_in6(port_sv, sin6_addr, scope_id=0, flowinfo=0)
+	SV *	port_sv
 	SV *	sin6_addr
 	unsigned long	scope_id
 	unsigned long	flowinfo
 	CODE:
 	{
 #ifdef HAS_SOCKADDR_IN6
+	unsigned short port = 0;
 	struct sockaddr_in6 sin6;
 	char * addrbytes;
 	STRLEN addrlen;
+	if (SvOK(port_sv))
+		port = SvUV(port_sv);
+	if (!SvOK(sin6_addr))
+		croak("Undefined address for %s", "Socket::pack_sockaddr_in6");
 	if (DO_UTF8(sin6_addr) && !sv_utf8_downgrade(sin6_addr, 1))
 		croak("Wide character in %s", "Socket::pack_sockaddr_in6");
 	addrbytes = SvPVbyte(sin6_addr, addrlen);
@@ -1043,7 +1065,7 @@ pack_sockaddr_in6(port, sin6_addr, scope_id=0, flowinfo=0)
 #  endif
 	ST(0) = sv_2mortal(newSVpvn((char *)&sin6, sizeof(sin6)));
 #else
-	PERL_UNUSED_VAR(port);
+	PERL_UNUSED_VAR(port_sv);
 	PERL_UNUSED_VAR(sin6_addr);
 	ST(0) = (SV*)not_here("pack_sockaddr_in6");
 #endif
@@ -1057,8 +1079,11 @@ unpack_sockaddr_in6(sin6_sv)
 #ifdef HAS_SOCKADDR_IN6
 	STRLEN addrlen;
 	struct sockaddr_in6 sin6;
-	char * addrbytes = SvPVbyte(sin6_sv, addrlen);
+	char * addrbytes;
 	SV *ip_address_sv;
+	if (!SvOK(sin6_sv))
+		croak("Undefined address for %s", "Socket::unpack_sockaddr_in6");
+	addrbytes = SvPVbyte(sin6_sv, addrlen);
 	if (addrlen != sizeof(sin6))
 		croak("Bad arg length for %s, length is %"UVuf", should be %"UVuf,
 		      "Socket::unpack_sockaddr_in6", (UV)addrlen, (UV)sizeof(sin6));
