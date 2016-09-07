@@ -1,0 +1,388 @@
+=encoding utf8
+
+=head1 NAME
+
+perl5224cdelta - what is new for cperl v5.22.4
+
+=head1 DESCRIPTION
+
+This document describes perl-only differences between the cperl 5.22.3
+release and the cperl 5.22.4 release.
+
+For B<cperl> also see F<Changes> and L<perlcperl>
+
+=head1 Security
+
+=head2 DynaLoader format string hardening
+
+Replace all C<%> characters in user-controlled library filenames, passed via
+the system dl_error call verbatim to C<printf>, without any arguments on the stack,
+which could lead to execution of arbitrary stack code. No CVE.
+This affects all systems with dynamic loading where the attacker can cause a
+dynamic loading error.
+
+CVSSv2 Severity: 7.2 (AV:L/AC:L/Au:N/C:C/I:C/A:C/E:U/RL:OF/RC:C/CDP:MH/TD:H/CR:H/IR:H/AR:ND)
+
+=head2 No Unicode confusables +UFFA0, +U3164
+
+In deviation from Unicode 1.1 we treat the two HANGUL FILLER characters +UFFA0 and +U3164
+not as valid ID_Start and ID_Continue characters for perl identifiers.
+Variable and package names may not begin with them and may not contain them.
+
+They are usually rendered as whitespace, and would lead to classic TR39 confusables.
+See L<https://github.com/jagracey/Awesome-Unicode#user-content-variable-identifiers-can-effectively-include-whitespace> and L<http://www.unicode.org/reports/tr39/>.
+
+In a more Korean friendly environment, we could check for a ID_Start Hangul
+filler if the next character is a valid Hangul ID_Continue character,
+and allow it then.  Ditto for a ID_Continue Hangul filler if the
+previous and next character is a valid Hangul ID_Start or ID_Continue
+character, and allow it then.
+But those fillers should be treated as whitespace, and should be ignored.
+
+L<http://www.unicode.org/L2/L2006/06310-hangul-decompose9.pdf> explains:
+
+I<< The two other hangul fillers HANGUL CHOSEONG FILLER (Lf),
+i.e. lead filler, and HANGUL JUNGSEONG FILLER (Vf) are used as
+placeholders for missing letters, where there should be at least one
+letter. >>
+
+I<< ... that leaves the (HALFWIDTH) HANGUL FILLERs useless. Indeed,
+they should not be rendered at all, despite that they have been given
+the property Lo. Note that these FILLERs are also given the property
+of Default_Ignorable_Codepoint. >>
+
+I<< Note that the standard normal forms NFKD and NFKC ... return (in
+all views) incorrect results for strings containing these
+characters. >>
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item B::C 1.54_08
+
+Many Windows and cygwin fixes, for the old MSVC compiler, and
+PERL_CORE test integration. Use many new core exports needed for
+windows.
+
+Update perlcc to 2.21, handle multiple -I and -L arguments.
+
+Handle cperl OP_SIGNATURE.
+
+Fix refcount of cop hints hashes with 5.22-nt
+L<[cperl #220]|https://github.com/perl11/cperl/issues/220>
+
+Better UVX L and U suffices.
+
+Handle shared IV and UV xpv structs,
+  fixed 5.24 specific assertions, with shared xpviv/xpvuv.
+  fixed wrong 32 bit ptr offset. re-enabled all 32bit tests.
+
+Handle changed subdirs-test target with newer EUMM.
+
+=item B::Deparse 1.37_01c
+
+Add more cperl-specific ops:
+C<aelem*_u>, C<u_{add,subtract,multiply}>, C<{i,n,s}_aelem{,_u}>
+
+=item Config::Perl::V 0.26_01
+
+cperl patches.
+Add tests for 5.22 and 5.24.
+Support some multi-line keys: ccflags ldflags lddlflags
+Changed tests to use done_testing().
+
+=item Cpanel::JSON::XS 3.0217
+
+Improve error message with class based method calls,
+when forgetting ->new. L<[#66]|https://github.com/rurban/Cpanel-JSON-XS/issues/66>
+
+Fix a off-by-one IV_MIN -> NV overflow in decode_json.
+L<[#67]|https://github.com/rurban/Cpanel-JSON-XS/issues/67> (xdg)
+
+Avoid encode_sv SEGV with -Dusequadmath.
+L<[#62]|https://github.com/rurban/Cpanel-JSON-XS/issues/62>
+Fix quadmath NV stringification.
+
+Preserve numbers as numbers, enforce an added C<.0> (xdg).
+Also note that 42+"bar" will result >=5.10 in numbers not integers,
+=> 42.0
+
+=item Devel::PPPort 3.33_02
+
+Support the latest versions.
+
+cperl specific:
+Minor -Dfortify_inc fixes, kept our Hv macros,
+fix __attribute__((warn_unused_result)) on windows.
+
+=item Socket 2.021_02
+
+Silence some CC warnings
+
+Fix my to our $XS_VERSION
+
+Check for max length before derefing by length (jhi) RT #111707
+
+=item DynaLoader 2.04c
+
+See L</DynaLoader format string hardening> above.
+
+Silence some CC warnings, add changelog.
+
+=item Storable
+
+Silence some CC warnings, esp. on 32bit.
+
+=item Config 6.21
+
+Improvements from cperl-5.24:
+
+    -fix for readonly Makefile.PL (in core src tarballs)
+    -fix wrong SKIP headers
+    -skip in core make regen tests (--tap)
+    -more 5.24 and cperl keys
+    -silence unused classname compiler warning
+    -link to Mock::Config in the docs to temp. write to %Config in tests.
+    -Dfortify_inc fixes
+
+-regen the XSConfig.t/Config_xs.PL key lists
+
+-remove now generated/range operator-ed config_arg keys from XSConfig.t
+ they are redundant
+
+-add common keys d_memmem d_uselocale d_freelocale d_newlocale to CPAN
+
+-clean build product Config_xs_tmp.in
+
+-PERL_UNUSED_ARG fix for 5.8.7
+
+-Silence some CC warnings.
+
+=item libnet 3.08
+
+With our Net::Domain patch for darwin.
+Improved utf8 and ipv6 support.
+
+=item Pod::Checker 1.73
+
+Now based on Pod::Simple, not on Pod::Parser anymore.
+dos2unix
+
+=item Devel-NYTProf
+
+Silence some CC warnings.
+
+=item Digest-MD5
+
+Improve C<d_u32align> diagnostic message
+
+=back
+
+=head1 Utility Changes
+
+=head2 F<installperl>
+
+=over 4
+
+=item *
+
+Fixed regression from 5.22.1c for windows.
+
+=back
+
+=head1 Configuration and Compilation
+
+=over 4
+
+=item *
+
+Added a C<make archclean> target for POSIX platforms, which does not require
+a new C<Configure> call.
+
+=item *
+
+Fixed a couple of quadmath detection issues.
+
+=back
+
+=head1 Internal Changes
+
+Changes which affect the interface available to C<XS> code go here.  Other
+significant internal changes for future core maintainers should be noted as
+well.
+
+=over 4
+
+=item *
+
+SvREADONLY_off(sv) is only usable as statement, not as expression anymore.
+It broke Sun C 5.12, in ByteLoader.
+See L<[cperl #183]|https://github.com/perl11/cperl/issues/183>.
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item handle method calls on protected stashes
+
+L<[cperl #171]|https://github.com/perl11/cperl/issues/171>
+
+Known bug upstream, not fixed there. This problem appears more often
+with cperl with its protected coretypes than upstream.
+
+=item Do not crash when inserting a non-stash into a stash
+
+Also do not treat C<%:> as a stash.
+
+L<RT#128238|https://rt.perl.org/Public/Bug/Display.html?id=128238>
+
+Fedora Patches 37, 36.
+
+=item fedora: Fix precedence in hv_ename_delete
+
+L<RT#128086|https://rt.perl.org/Public/Bug/Display.html?id=128086>
+
+Fedora Patch35
+
+=item fedora: Do not use unitialized memory in $h{\const} warnings
+
+L<RT#128189|https://rt.perl.org/Public/Bug/Display.html?id=128189>
+
+Fedora Patch34
+
+=item fedora: Do not mangle errno from failed socket calls
+
+L<RT#128316|https://rt.perl.org/Public/Bug/Display.html?id=128316>
+
+Fedora Patch32
+
+=item fedora: Backport memory leak when compiling a regular expression with a POSIX class
+
+E.g. when C<use re 'strict';> is used.
+
+L<RT#128313|https://rt.perl.org/Public/Bug/Display.html?id=128313>
+
+Fedora Patch31
+
+=item suse: fix regexp backref overflows
+
+With many backref groups (>I32)
+
+=item suse: perl-saverecontext.diff RT#76538
+
+Handle get magic with globs in the regex compiler.
+Correctly restore context, esp. when loading unicode swashes.
+Reported at 5.12, patched for suse 5.14, still ignored with 5.24.
+
+=item locale race condition when switching to C for error messages
+
+A race condition which occurred when computing C<"$!"> with threads
+activated has been fixed.  This showed up only on Darwin platforms.
+A related problem on Cygwin platforms involving UTF-8 strings has also
+been fixed.
+See L<RT #127708|https://rt.perl.org/Public/Bug/Display.html?id=127708>
+
+=item Fix crash with @a &.= etc.
+
+See L<RT #128204|https://rt.perl.org/Public/Bug/Display.html?id=128204>
+
+=item Fix PERLIO=stdio dup on empty filehandle
+
+See L<RT #63244|https://rt.perl.org/Public/Bug/Display.html?id=63244>
+or L<http://bugs.debian.org/164615>, crashes from 5.8.8 to blead.
+
+C<env PERLIO=stdio perl -e'open(F, "<&STDOUT")' 1</dev/null>
+
+=item Fix crash from empty curcop in gp_free/ckWARN_d
+
+See L<RT #128597|https://rt.perl.org/Public/Bug/Display.html?id=128597>.
+
+C<< open my $fh, ">", \$buf; my $sub = eval q|sub {die}|; $sub->()' >>
+crashed in 5.22 to 5.24.1.
+
+=item Fix crash when vivifying stub in deleted pkg
+
+5.18 which added newSTUB, did not take into account
+that a GV may have a null GvSTASH pointer, if its stash has been
+freed, so this crashed.
+See L<RT #128532|https://rt.perl.org/Public/Bug/Display.html?id=128532>.
+
+C<< delete $My::{"Foo::"}; \&My::Foo::foo >>
+crashed from 5.18 to 5.24.1.
+
+=back
+
+=head1 Acknowledgements
+
+cperl 5.22.4 represents approximately 2 months of development since cperl 5.22.3
+and contains approximately 900,000 lines of changes across 570 files from 13
+authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 7,900 lines of changes to 120 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements
+that became cperl 5.22.4:
+
+Reini Urban, Father Chrysostomos, Karl Williamson, David Mitchell, Daniel
+Dragan, Tony Cook, Lukas Mai, Niko Tyni, H.Merijn Brand, Hugo van der Sanden,
+Dagfinn Ilmari Mannsåker, Aaron Crane, Dan Collins.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+https://rt.perl.org/ .  There may also be information at
+http://www.perl.org/ , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the F<perlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications, which make it
+inappropriate to send to a publicly archived mailing list, then please send it
+to perl5-security-report@perl.org.  This points to a closed subscription
+unarchived mailing list, which includes all the core committers, who will be
+able to help assess the impact of issues, figure out a resolution, and help
+co-ordinate the release of patches to mitigate or fix the problem across all
+platforms on which Perl is supported.  Please only use this address for
+security issues in the Perl core, not for modules independently distributed on
+CPAN.
+
+If you trust the cperl developers more, please send an email to
+them. The p5p security teams skips many security issues, or are
+unwilling to fix them.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
