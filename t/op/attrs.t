@@ -35,7 +35,7 @@ eval 'sub e2 ($) : plugh(0,0) xyzzy ;';
 like $@, qr/^Invalid CODE attributes: ["']?plugh\(0,0\)["']? /;
 
 eval 'sub e3 ($) : plugh(0,0 xyzzy ;';
-like $@, qr/Unterminated attribute parameter in attribute list at/;
+like $@, qr/^Unterminated attribute parameter in attribute list at \(eval \d+\) line 1\.$/;
 
 eval 'sub e4 ($) : plugh + XYZZY ;';
 like $@, qr/Invalid separator character '[+]' in attribute list at/;
@@ -69,9 +69,9 @@ like $@, qr/^Invalid SCALAR attribute: ["']?_5x5["']? at/;
 eval 'my $x : locked method;';
 like $@, qr/^Invalid SCALAR attributes: ["']?locked : method["']? at/;
 eval 'my $x : switch(10,foo();';
-like $@, qr/^Unterminated attribute parameter in attribute list at/;
+like $@, qr/^Unterminated attribute parameter in attribute list at \(eval \d+\) line 1\.$/;
 eval q/my $x : Ugly('(');/;
-like $@, qr/^Unterminated attribute parameter in attribute list at/;
+like $@, qr/^Unterminated attribute parameter in attribute list at \(eval \d+\) line 1\.$/;
 eval 'my $x : 5x5;';
 like $@, qr/error/;
 eval 'my $x : Y2::north;';
@@ -503,5 +503,17 @@ is runperl(
    ),
    "OK",
   'RT 129099 BEGIN() :Foo';
+
+
+#129086
+# When printing error message for an attribute arg without closing ')',
+# if the buffer got reallocated during the scan of the arg, the error
+# message would try to use the old buffer
+fresh_perl_like(
+   'my $abc: abcdefg(' . 'x' x 195 . "\n" . 'x' x 8200 ."\n",
+    qr/^Unterminated attribute parameter in attribute list at - line 1\.$/,
+    { stderr => 1 },
+    'RT #129086 attr(00000'
+),
 
 done_testing();
