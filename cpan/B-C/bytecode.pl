@@ -145,6 +145,11 @@ print BYTERUN_C $c_header, <<'EOT';
   #define DEBUG_v(a) DEBUG_f(a)
 #endif
 
+#ifndef strNEc
+#  define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
+#  define strNEc(s, c) memNE(s, ("" c ""), sizeof(c))
+#endif
+
 #include "byterun.h"
 #include "bytecode.h"
 
