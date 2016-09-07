@@ -1292,7 +1292,7 @@ test-prep : all utils ..\pod\perltoc.pod
 	$(XCOPY) $(PERLEXE) ..\t\$(NULL)
 	copy     $(PERLEXE) ..\t\perl.exe
 	$(XCOPY) $(PERLDLL) ..\t\$(NULL)
-	$(XCOPY) $(PERLIMPLIB) ..\t\$(NULL)
+	$(XCOPY) $(PERLDLL) ..\cpan\B-C\$(NULL)
 	$(XCOPY) $(GLOBEXE) ..\t\$(NULL)
 # If building with gcc versions 4.x.x or greater, then
 # the GCC helper DLL will also need copied to the test directory.
@@ -1318,6 +1318,7 @@ test-reonly : reonly utils
 	$(XCOPY) $(PERLEXE) ..\t\$(NULL)
 	copy     $(PERLEXE) ..\t\perl.exe
 	$(XCOPY) $(PERLDLL) ..\t\$(NULL)
+	$(XCOPY) $(PERLDLL) ..\cpan\B-C\$(NULL)
 	$(XCOPY) $(GLOBEXE) ..\t\$(NULL)
 	cd ..\t && \
 	$(PERLEXE) -I..\lib harness $(OPT) -re \bpat\\/ $(EXTRA) && \
@@ -1335,6 +1336,7 @@ _test :
 	$(XCOPY) $(PERLEXE) ..\t\$(NULL)
 	copy     $(PERLEXE) ..\t\perl.exe
 	$(XCOPY) $(PERLDLL) ..\t\$(NULL)
+	$(XCOPY) $(PERLDLL) ..\cpan\B-C\$(NULL)
 	$(XCOPY) $(GLOBEXE) ..\t\$(NULL)
 	set PERL_STATIC_EXT=$(STATIC_EXT) && \
 	    cd ..\t && $(PERLEXE) -I..\lib harness $(TEST_SWITCHES) $(TEST_FILES)
@@ -1363,6 +1365,7 @@ _clean :
 	-@erase $(DLL_OBJ)
 	-@erase ..\*$(o) ..\*$(a) ..\*.exp *$(o) *$(a) *.exp *.res
 	-@erase ..\t\*.exe ..\t\*.dll ..\t\*.lib ..\t\*.bat 
+	-@erase ..\cpan\B-C\*.dll
 	-@erase *.ilk
 	-@erase *.pdb
 	-@erase Extensions_static

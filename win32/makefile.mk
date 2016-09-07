@@ -1713,6 +1713,7 @@ minitest : .\config.h $(HAVEMINIPERL) ..\git_version.h $(GLOBEXE) $(CONFIGPM) $(
 
 test-prep : all utils ..\pod\perltoc.pod $(TESTPREPGCC)
 	$(XCOPY) $(PERLEXE) ..\t\$(NULL) && $(XCOPY) $(PERLDLL) ..\t\$(NULL) \
+	&& $(XCOPY) $(PERLDLL) ..\cpan\B-C\$(NULL) \
 	&& copy  $(PERLEXE) ..\t\perl.exe \
 	&& $(XCOPY) $(GLOBEXE) ..\t\$(NULL) \
 	&& $(XCOPY) $(PERLIMPLIB) ..\t\$(NULL)
@@ -1790,6 +1791,7 @@ _clean :
 	-@erase $(DLL_OBJ)
 	-@erase ..\*$(o) ..\*$(a) ..\*.exp *$(o) *$(a) *.exp *.res
 	-@erase ..\t\*.exe ..\t\*.dll ..\t\*.lib ..\t\*.bat
+	-@erase ..\cpan\B-C\*.dll
 	-@erase *.ilk
 	-@erase *.pdb ..\*.pdb
 	-@erase Extensions_static

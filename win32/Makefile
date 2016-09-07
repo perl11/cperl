@@ -1404,7 +1404,7 @@ test-prep : all utils ../pod/perltoc.pod
 	$(XCOPY) $(PERLEXE) ..\t\$(NULL)
 	copy     $(PERLEXE) ..\t\perl.exe
 	$(XCOPY) $(PERLDLL) ..\t\$(NULL)
-	$(XCOPY) $(PERLIMPLIB) ..\t\$(NULL)
+	$(XCOPY) $(PERLDLL) ..\cpan\B-C\$(NULL)
 	$(XCOPY) $(GLOBEXE) ..\t\$(NULL)
 	set PERL_STATIC_EXT=$(STATIC_EXT)
 
@@ -1471,6 +1471,7 @@ _clean :
 	-@$(DEL) $(DLL_OBJ)
 	-@$(DEL) ..\*$(o) ..\*.lib ..\*.exp *$(o) *.lib *.exp *.res
 	-@$(DEL) ..\t\*.exe ..\t\*.dll ..\t\*.lib ..\t\*.bat
+	-@$(DEL) ..\cpan\B-C\*.dll
 	-@$(DEL) *.ilk
 	-@$(DEL) *.pdb
 	-@$(DEL) Extensions_static
