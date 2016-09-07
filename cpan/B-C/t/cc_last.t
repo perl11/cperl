@@ -10,8 +10,7 @@ BEGIN {
   }
   require TestBC;
 }
-use Test::More
-  ($^O eq 'MSWin32' ? (skip_all => 'MSWin32') : (tests => 4));
+use Test::More tests => 4;
 my $base = "ccode_last";
 
 # XXX Bogus. This is not the real 'last' failure as described in the README

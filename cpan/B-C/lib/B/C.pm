@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_08';
+our $VERSION = '1.54_12';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -43,6 +43,7 @@ sub new {
 
   # if sv add a dummy sv_arenaroot to support global destruction
   if ($section eq 'sv') {
+    # 0 refcnt placeholder for the static arenasize later adjusted
     $o->add( "NULL, 0, SVTYPEMASK|0x01000000".($] >= 5.009005?", {0}":'')); # SVf_FAKE
     $o->[-1]{dbg}->[0] = "PL_sv_arenaroot";
   }
@@ -119,7 +120,7 @@ sub output {
   my $dodbg = 1 if $debug{flags} and $section->[-1]{dbg};
   if ($section->name eq 'sv') { #fixup arenaroot refcnt
     my $len = scalar @{ $section->[-1]{values} };
-    $section->[-1]{values}->[0] =~ s/^0, 0/0, $len/;
+    $section->[-1]{values}->[0] =~ s/^NULL, 0/NULL, $len/;
   }
   foreach ( @{ $section->[-1]{values} } ) {
     my $dbg = "";
@@ -329,6 +330,7 @@ BEGIN {
       sub SVp_NOK() {0}; # unused
       sub SVp_IOK() {0};
       sub CVf_ANON() {4};
+      sub CVf_CONST() {0}; # unused
       sub PMf_ONCE() {0xff}; # unused
       sub SVf_FAKE() {0x00100000}; # unused
       sub SVs_OBJECT() {0x00001000}
@@ -450,7 +452,7 @@ $all_bc_deps{Socket} = 1 if !@B::C::Config::deps and $] > 5.021;
 
 my ($prev_op, $package_pv, @package_pv); # global stash for methods since 5.13
 my (%symtable, %cvforward, %lexwarnsym);
-my (%strtable, %stashtable, %hektable, %statichektable, %gptable, %cophhtable);
+my (%strtable, %stashtable, %hektable, %statichektable, %gptable, %cophhtable, %copgvtable);
 my (%xsub, %init2_remap);
 my ($warn_undefined_syms, $swash_init, $swash_ToCf);
 my ($staticxs, $outfile);
@@ -1120,17 +1122,18 @@ sub save_hek {
   # The first assigment is already refcount bumped, we have to manually
   # do it for all others
   my ($cstr, $cur, $utf8) = strlen_flags($str);
-  if ($dynamic and defined $hektable{$str.":".$utf8}) {
-    return sprintf("share_hek_hek(%s)", $hektable{$str.":".$utf8});
+  my $hek_key = $str.":".$utf8;
+  if ($dynamic and defined $hektable{$hek_key}) {
+    return sprintf("share_hek_hek(%s)", $hektable{$hek_key});
   }
-  if (!$dynamic and defined $statichektable{$str.":".$utf8}) {
-    return $statichektable{$str.":".$utf8};
+  if (!$dynamic and defined $statichektable{$hek_key}) {
+    return $statichektable{$hek_key};
   }
   $cur = - $cur if $utf8;
   $cstr = '""' if $cstr eq "0";
+  my $sym = sprintf( "hek%d", $hek_index++ );
   if (!$dynamic) {
-    my $sym = sprintf( "hek%d", $hek_index++ );
-    $statichektable{$str.":".$utf8} = $sym;
+    $statichektable{$hek_key} = $sym;
     my $key = $cstr;
     my $len = abs($cur);
     # strip CowREFCNT
@@ -1150,10 +1153,8 @@ sub save_hek {
     $decl->add(sprintf("Static struct hek_ptr %s = { %u, %d, %s};",
                        $sym, 0, $len, $key));
     $init->add(sprintf("PERL_HASH(%s.hek_hash, %s.hek_key, %u);", $sym, $sym, $len));
-    return $sym;
   } else {
-    my $sym = sprintf( "hek%d", $hek_index++ );
-    $hektable{$str.":".$utf8} = $sym;
+    $hektable{$hek_key} = $sym;
     $decl->add(sprintf("Static HEK *%s;", $sym));
     warn sprintf("Saving hek %s %s cur=%d\n", $sym, $cstr, $cur)
       if $debug{pv};
@@ -1172,8 +1173,8 @@ sub save_hek {
     }
     # protect against Unbalanced string table refcount warning with PERL_DESTRUCT_LEVEL=2
     # $free->add("    $sym = NULL;");
-    return $sym;
   }
+  return $sym;
 }
 
 sub gv_fetchpvn {
@@ -1263,7 +1264,8 @@ sub nvx ($) {
   my $ll = $Config{d_longdbl} ? "LL" : "L";
   if ($nvgformat eq 'g') { # a very poor choice to keep precision
     # on intel 17-18, on ppc 31, on sparc64/s390 34
-    $nvgformat = $Config{uselongdouble} ? '.17Lg' : '.16g';
+    # TODO: rather use the binary representation of our union
+    $nvgformat = $Config{uselongdouble} ? '.18Lg' : '.17g';
   }
   my $sval = sprintf("%${nvgformat}%s", $nvx, $nvx > $dblmax ? $ll : "");
   if ($nvx < -$dblmax) {
@@ -1474,9 +1476,8 @@ sub B::OP::save {
     if ($] >= 5.013009) {
       warn "enabling -ffold with ucfirst\n" if $verbose;
       require "utf8.pm" unless $savINC{"utf8.pm"};
-      require "utf8_heavy.pl" unless $savINC{"utf8_heavy.pl"}; # bypass AUTOLOAD
       mark_package("utf8");
-      mark_package("utf8_heavy.pl");
+      load_utf8_heavy();
     }
   }
   if (ref($op) eq 'B::OP') { # check wrong BASEOPs
@@ -1816,9 +1817,9 @@ static void
 S_do_dump(pTHX_ SV *const sv, I32 lim)
 {
     dVAR;
-    SV *pv_lim_sv = get_sv("Devel::Peek::pv_limit", 0);
+    SV *pv_lim_sv = get_svs("Devel::Peek::pv_limit", 0);
     const STRLEN pv_lim = pv_lim_sv ? SvIV(pv_lim_sv) : 0;
-    SV *dumpop = get_sv("Devel::Peek::dump_ops", 0);
+    SV *dumpop = get_svs("Devel::Peek::dump_ops", 0);
     const U16 save_dumpindent = PL_dumpindent;
     PL_dumpindent = 2;
     do_sv_dump(0, Perl_debug_log, sv, 0, lim,
@@ -2464,7 +2465,16 @@ sub B::COP::save {
     $init->add(sprintf( "CopSTASH_set(&cop_list[%d], %s);", $ix, $stash ));
     if (!$ITHREADS) {
       if ($B::C::const_strings) {
-        $init->add(sprintf( "CopFILE_set(&cop_list[%d], %s);", $ix, constpv($file) ));
+        my $constpv = constpv($file);
+        # define CopFILE_set(c,pv)	CopFILEGV_set((c), gv_fetchfile(pv))
+        # cache gv_fetchfile
+        if ( !$copgvtable{$constpv} ) {
+          $copgvtable{$constpv} = $gv_index++;
+          $init->add( sprintf( "gv_list[%d] = gv_fetchfile(%s);", $copgvtable{$constpv}, $constpv ) );
+        }
+        $init->add( sprintf( "CopFILEGV_set(&cop_list[%d], gv_list[%d]); /* %s */",
+                            $ix, $copgvtable{$constpv}, cstring($file) ) );
+        #$init->add(sprintf( "CopFILE_set(&cop_list[%d], %s);", $ix, constpv($file) ));
       } else {
         $init->add(sprintf( "CopFILE_set(&cop_list[%d], %s);", $ix, cstring($file) ));
       }
@@ -2593,8 +2603,7 @@ sub B::PMOP::save {
       # Since 5.13.10 with PMf_FOLD (i) we need to swash_init("utf8::Cased").
       if ($] >= 5.013009 and $pmflags & 4) {
         # Note: in CORE utf8::SWASHNEW is demand-loaded from utf8 with Perl_load_module()
-        require "utf8_heavy.pl" unless $savINC{"utf8_heavy.pl"}; # bypass AUTOLOAD
-        svref_2object( \&{"utf8\::SWASHNEW"} )->save; # for swash_init(), defined in lib/utf8_heavy.pl
+        load_utf8_heavy();
         if ($PERL518 and !$swash_init and $swash_ToCf) {
           $init->add("PL_utf8_tofold = $swash_ToCf;");
           $swash_init++;
@@ -3786,13 +3795,19 @@ sub B::RV::save {
     # 5.10 has no struct xrv anymore, just sv_u.svu_rv. static or dynamic?
     # initializer element is computable at load time
     $svsect->add( sprintf( "ptr_undef, $u32fmt, 0x%x, {%s}", $sv->REFCNT, $flags,
-                           (($C99 and is_constant($rv)) ? ".svu_rv=$rv" : "0 /*-> $rv */")));
+                           (($C99 && is_constant($rv)) ? ".svu_rv=$rv" : "0 /*-> $rv */")));
     $svsect->debug( $fullname, $sv->flagspv ) if $debug{flags};
     my $s = "sv_list[".$svsect->index."]";
     # 354 defined needs SvANY
     $init->add( sprintf("$s.sv_any = (char*)&$s - %d;", $Config{ptrsize}))
       if $] > 5.019 or $ITHREADS;
-    $init->add( "$s.sv_u.svu_rv = (SV*)$rv;" ) unless ($C99 and is_constant($rv));
+    unless ($C99 && is_constant($rv)) {
+      if ( $rv =~ /get_cv/ ) {
+        $init2->add( "$s.sv_u.svu_rv = (SV*)$rv;" ) ;
+      } else {
+        $init->add( "$s.sv_u.svu_rv = (SV*)$rv;" ) ;
+      }
+    }
     return savesym( $sv, "&".$s );
   }
   else {
@@ -3812,7 +3827,7 @@ sub B::RV::save {
     # dynamic; so we need to inc it
     elsif ( $rv =~ /get_cv/ ) {
       $xrvsect->add("Nullsv /* $rv */");
-      $init->add(
+      $init2->add(
         sprintf( "xrv_list[%d].xrv_rv = (SV*)SvREFCNT_inc(%s);", $xrvsect->index, $rv ) );
     }
     else {
@@ -3899,6 +3914,25 @@ sub try_isa {
   return 0; # not found
 }
 
+sub load_utf8_heavy {
+    return if $savINC{"utf8_heavy.pl"};
+
+    require 'utf8_heavy.pl';
+    mark_package('utf8_heavy.pl');
+    $curINC{'utf8_heavy.pl'} = $INC{'utf8_heavy.pl'};
+    $savINC{"utf8_heavy.pl"} = 1;
+    add_hashINC("utf8");
+
+    # FIXME: we want to use add_hashINC for utf8_heavy, inc_packname should return an array
+    # add_hashINC("utf8_heavy.pl");
+
+    # In CORE utf8::SWASHNEW is demand-loaded from utf8 with Perl_load_module()
+    # It adds about 1.6MB exe size 32-bit.
+    svref_2object( \&{"utf8\::SWASHNEW"} )->save;
+
+    return 1;
+}
+
 # If the sub or method is not found:
 # 1. try @ISA, mark_package and return.
 # 2. try UNIVERSAL::method
@@ -3919,7 +3953,8 @@ sub try_autoload {
 		$fullname, $cvstashname ) if $debug{cv};
   if ($fullname eq 'utf8::SWASHNEW') {
     # utf8_heavy was loaded so far, so defer to a demand-loading stub
-    my $stub = sub { require 'utf8_heavy.pl' unless $savINC{"utf8_heavy.pl"}; goto &utf8::SWASHNEW; };
+    # always require utf8_heavy, do not care if it s already in
+    my $stub = sub { require 'utf8_heavy.pl'; goto &utf8::SWASHNEW };
     return svref_2object( $stub );
   }
 
@@ -3965,7 +4000,7 @@ sub try_autoload {
     unless ($@) {
       # we need just the empty auto GV, $cvname->ROOT and $cvname->XSUB,
       # but not the whole CV optree. XXX This still fails with 5.8
-      my $cv = svref_2object( \&{$cvstashname.'::'.$cvname} );
+      my $cv = svref_2object( \&{$fullname} );
       return $cv;
     }
   }
@@ -4209,10 +4244,7 @@ sub B::CV::save {
     push_package($package_pv);
   }
   if ($fullname eq 'utf8::SWASHNEW') { # bypass utf8::AUTOLOAD, a new 5.13.9 mess
-    require "utf8_heavy.pl" unless $savINC{"utf8_heavy.pl"};
-    # sub utf8::AUTOLOAD {}; # How to ignore &utf8::AUTOLOAD with Carp? The symbol table is
-    # already polluted. See issue 61 and force_heavy()
-    svref_2object( \&{"utf8\::SWASHNEW"} )->save;
+    load_utf8_heavy();
   }
 
   if ($fullname eq 'IO::Socket::SSL::SSL_Context::new') {
@@ -4706,10 +4738,13 @@ sub B::CV::save {
 		 $$gv, $$cv) if $debug{cv} and $debug{gv};
   }
   unless ($optimize_cop) {
+    my $file = $cv->FILE();
     if ($MULTI) {
-      $init->add( savepvn( "CvFILE($sym)", $cv->FILE ) );
+      $init->add( savepvn( "CvFILE($sym)", $file ) );
+    } elsif ($B::C::const_strings && length $file) {
+      $init->add( sprintf( "CvFILE(%s) = (char *) %s;", $sym, constpv( $file ) ) );
     } else {
-      $init->add( sprintf( "CvFILE(%s) = %s;", $sym, cstring( $cv->FILE ) ) );
+      $init->add( sprintf( "CvFILE(%s) = %s;", $sym, cstring( $file ) ) );
     }
   }
   my $stash = $cv->STASH;
@@ -5179,6 +5214,7 @@ sub B::GV::save {
         $init2->add(
           sprintf("if ((sv = (SV*)%s))", get_cv($origname, "GV_ADD")),
           sprintf("    GvCV_set(%s, (CV*)SvREFCNT_inc_simple_NN(sv));", $sym));
+          # TODO: add evtl. to SvRV also.
       }
       elsif (!$PERL510 or $gp) {
 	if ($fullname eq 'Internals::V') { # local_patches if $] >= 5.011
@@ -5793,7 +5829,8 @@ sub B::HV::save {
   }
 
   # Ordinary HV or Stash
-  # KEYS = 0, inc. dynamically below with hv_store
+  # KEYS = 0, inc. dynamically below with hv_store. TODO: HvSTATIC readonly tables,
+  # without hv_store
   if ($PERL510) {
     my $flags = $hv->FLAGS & ~SVf_READONLY;
     $flags &= ~SVf_PROTECT if $PERL522;
@@ -6272,6 +6309,14 @@ EOT
 #endif
 EOT
   }
+  # handy accessors only in cperl for now:
+  print <<'EOT';
+#ifndef get_svs
+#  define get_svs(str, flags) get_sv((str), (flags))
+#  define get_avs(str, flags) get_av((str), (flags))
+#  define get_hvs(str, flags) get_hv((str), (flags))
+#endif
+EOT
   if (%init2_remap and !$HAVE_DLFCN_DLOPEN) {
     print <<'EOT';
 XS(XS_DynaLoader_dl_load_file);
@@ -6885,7 +6930,7 @@ _EOT8
       # set static op members to NULL
       my $s = $B::C::static_free[$_];
       if ($s =~ /\(OP\*\)&unopaux_list/) {
-	print "  ($s)->op_type = OP_NULL;";
+	print "    ($s)->op_type = OP_NULL;\n";
       }
     }
 
@@ -7048,7 +7093,7 @@ _EOT7
           print " CopSTASHPV_set(&$s, NULL, 0);\n";
         }
       } elsif ($s =~ /\(OP\*\)&unopaux_list/) {
-	print "  ($s)->op_type = OP_NULL;";
+	print "    ($s)->op_type = OP_NULL;\n";
       # end dead code ---
       #} elsif ($s =~ /^pv\d/) {
       #	print "    $s = \"\";\n";
@@ -7127,7 +7172,7 @@ _EOT8
   if ($CPERL51 and $debug{cv}) {
     print q{
         /* -DC set dl_debug to 3 */
-        SV* sv = get_sv("DynaLoader::dl_debug", GV_ADD);
+        SV* sv = get_svs("DynaLoader::dl_debug", GV_ADD);
         sv_upgrade(sv, SVt_IV);
         SvIV_set(sv, 3);};
   }
@@ -7544,12 +7589,12 @@ _EOT15
 
     if ($use_perl_script_name) {
       my $dollar_0 = cstring($0);
-      print sprintf(qq{    sv_setpv_mg(get_sv("0", GV_ADD|GV_NOTQUAL), %s);\n}, $dollar_0);
+      print sprintf(qq{    sv_setpv_mg(get_svs("0", GV_ADD|GV_NOTQUAL), %s);\n}, $dollar_0);
       print sprintf(qq{    CopFILE_set(&PL_compiling, %s);\n}, $dollar_0);
     }
     else {
       #print q{    warn("PL_origalen=%d\n", PL_origalen);},"\n";
-      print qq{    sv_setpv_mg(get_sv("0", GV_ADD|GV_NOTQUAL), argv[0]);\n};
+      print qq{    sv_setpv_mg(get_svs("0", GV_ADD|GV_NOTQUAL), argv[0]);\n};
       print qq{    CopFILE_set(&PL_compiling, argv[0]);\n};
     }
     # more global vars
@@ -7560,32 +7605,32 @@ _EOT15
     #print "    PL_utf8locale = ${^UTF8LOCALE};\n" if ${^UTF8LOCALE};
     #print "    PL_utf8cache = ${^UTF8CACHE};\n" if ${^UTF8CACHE};
     # nomg
-    print sprintf(qq{    sv_setpv(get_sv(";", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($;)) if $; ne "\34";
-    print sprintf(qq{    sv_setpv(get_sv("\\"", GV_NOTQUAL), %s); /* \$" */\n}, cstring($")) if $" ne " ";
+    print sprintf(qq{    sv_setpv(get_svs(";", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($;)) if $; ne "\34";
+    print sprintf(qq{    sv_setpv(get_svs("\\"", GV_NOTQUAL), %s); /* \$" */\n}, cstring($")) if $" ne " ";
     # global IO vars
     if ($PERL56) {
       print sprintf(qq{    PL_ofs = %s; PL_ofslen = %u; /* \$, */\n}, cstring($,), length $,) if $,;
       print sprintf(qq{    PL_ors = %s; PL_orslen = %u; /* \$\\ */\n}, cstring($\), length $\) if $\;
     } else {
       print sprintf(qq{    sv_setpv_mg(GvSVn(PL_ofsgv), %s); /* \$, */\n}, cstring($,)) if $,;
-      print sprintf(qq{    sv_setpv_mg(get_sv("\\\\", GV_ADD|GV_NOTQUAL), %s); /* \$\\ */\n}, cstring($\)) if $\; #ORS
+      print sprintf(qq{    sv_setpv_mg(get_svs("\\\\", GV_ADD|GV_NOTQUAL), %s); /* \$\\ */\n}, cstring($\)) if $\; #ORS
     }
-    print sprintf(qq{    sv_setpv_mg(get_sv("/", GV_NOTQUAL), %s);\n}, cstring($/)) if $/ ne "\n"; #RS
-    print         qq{    sv_setiv_mg(get_sv("|", GV_ADD|GV_NOTQUAL), $|);\n} if $|; #OUTPUT_AUTOFLUSH
+    print sprintf(qq{    sv_setpv_mg(get_svs("/", GV_NOTQUAL), %s);\n}, cstring($/)) if $/ ne "\n"; #RS
+    print         qq{    sv_setiv_mg(get_svs("|", GV_ADD|GV_NOTQUAL), $|);\n} if $|; #OUTPUT_AUTOFLUSH
     # global format vars
-    print sprintf(qq{    sv_setpv_mg(get_sv("^A", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($^A)) if $^A; #ACCUMULATOR
-    print sprintf(qq{    sv_setpv_mg(get_sv("^L", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($^L)) if $^L ne "\f"; #FORMFEED
-    print sprintf(qq{    sv_setpv_mg(get_sv(":", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($:)) if $: ne " \n-"; #LINE_BREAK_CHARACTERS
-    print sprintf(qq/    sv_setpv_mg(get_sv("^", GV_ADD|GV_NOTQUAL), savepvn(%s, %u));\n/, cstring($^), length($^))
+    print sprintf(qq{    sv_setpv_mg(get_svs("^A", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($^A)) if $^A; #ACCUMULATOR
+    print sprintf(qq{    sv_setpv_mg(get_svs("^L", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($^L)) if $^L ne "\f"; #FORMFEED
+    print sprintf(qq{    sv_setpv_mg(get_svs(":", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($:)) if $: ne " \n-"; #LINE_BREAK_CHARACTERS
+    print sprintf(qq/    sv_setpv_mg(get_svs("^", GV_ADD|GV_NOTQUAL), savepvn(%s, %u));\n/, cstring($^), length($^))
       if $^ ne "STDOUT_TOP";
-    print sprintf(qq/    sv_setpv_mg(get_sv("~", GV_ADD|GV_NOTQUAL), savepvn(%s, %u));\n/, cstring($~), length($~))
+    print sprintf(qq/    sv_setpv_mg(get_svs("~", GV_ADD|GV_NOTQUAL), savepvn(%s, %u));\n/, cstring($~), length($~))
       if $~ ne "STDOUT";
-    print         qq{    sv_setiv_mg(get_sv("%", GV_ADD|GV_NOTQUAL), $%);\n} if $%; #PAGE_NUMBER
-    print         qq{    sv_setiv_mg(get_sv("-", GV_ADD|GV_NOTQUAL), $-);\n} unless ($- == 0 or $- == 60); #LINES_LEFT
-    print         qq{    sv_setiv_mg(get_sv("=", GV_ADD|GV_NOTQUAL), $=);\n} if $= != 60; #LINES_PER_PAGE
+    print         qq{    sv_setiv_mg(get_svs("%", GV_ADD|GV_NOTQUAL), $%);\n} if $%; #PAGE_NUMBER
+    print         qq{    sv_setiv_mg(get_svs("-", GV_ADD|GV_NOTQUAL), $-);\n} unless ($- == 0 or $- == 60); #LINES_LEFT
+    print         qq{    sv_setiv_mg(get_svs("=", GV_ADD|GV_NOTQUAL), $=);\n} if $= != 60; #LINES_PER_PAGE
 
     # deprecated global vars
-    print qq{    {SV* s = get_sv("[",GV_NOTQUAL); sv_setiv(s, $[); mg_set(s);}\n} if $[; #ARRAY_BASE
+    print qq{    {SV* s = get_svs("[",GV_NOTQUAL); sv_setiv(s, $[); mg_set(s);}\n} if $[; #ARRAY_BASE
     if ($] < 5.010) { # OFMT and multiline matching
       eval q[
             print sprintf(qq{    sv_setpv(GvSVn(gv_fetchpv("\$#", GV_ADD|GV_NOTQUAL, SVt_PV)), %s);\n},
@@ -7594,7 +7639,7 @@ _EOT15
            ];
     }
 
-    print sprintf(qq{    sv_setpv_mg(get_sv("\030", GV_ADD|GV_NOTQUAL), %s); /* \$^X */\n}, cstring($^X));
+    print sprintf(qq{    sv_setpv_mg(get_svs("\030", GV_ADD|GV_NOTQUAL), %s); /* \$^X */\n}, cstring($^X));
     print <<"EOT";
     TAINT_NOT;
 
@@ -7732,6 +7777,11 @@ sub walksymtable {
   my ($symref, $method, $recurse, $prefix) = @_;
   my ($sym, $ref, $fullname);
   $prefix = '' unless defined $prefix;
+
+# If load_utf8_heavy doesn't happen before we walk utf8::
+# (when utf8_heavy has already been called) then the stored CV for utf8::S
+# WASHNEW could be wrong.
+  load_utf8_heavy() if ( $prefix eq 'utf8::' && defined $symref->{'SWASHNEW'} );
 
   my @list = sort {
     # we want these symbols to be saved last to avoid incomplete saves
@@ -8191,12 +8241,7 @@ sub save_unused_subs {
       or ($savINC{'utf8_heavy.pl'} and ($B::C::fold or exists($savINC{'utf8.pm'})))) {
     require "utf8.pm" unless $savINC{"utf8.pm"};
     mark_package('utf8');
-    require "utf8_heavy.pl" unless $savINC{"utf8_heavy.pl"}; # bypass AUTOLOAD
-    mark_package('utf8_heavy.pl');
-    # In CORE utf8::SWASHNEW is demand-loaded from utf8 with Perl_load_module()
-    # It adds about 1.6MB exe size 32-bit.
-    svref_2object( \&{"utf8\::SWASHNEW"} )->save;
-    add_hashINC("utf8");
+    load_utf8_heavy();
   }
   # run-time Carp
   # With -fno-warnings we don't insist on initializing warnings::register_categories and Carp.
@@ -8543,7 +8588,7 @@ sub save_sig {
   }
   $init->add( "/* save %SIG */" ) if $verbose;
   warn "save %SIG\n" if $verbose;
-  $init->add( "{", "\tHV* hv = get_hv(\"main::SIG\",GV_ADD);" );
+  $init->add( "{", "\tHV* hv = get_hvs(\"main::SIG\",GV_ADD);" );
   foreach my $x ( @save_sig ) {
     my ($k, $cvref) = @$x;
     my $sv = $cvref->save;
