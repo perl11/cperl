@@ -1292,6 +1292,7 @@ test-prep : all utils ..\pod\perltoc.pod
 	$(XCOPY) $(PERLEXE) ..\t\$(NULL)
 	copy     $(PERLEXE) ..\t\perl.exe
 	$(XCOPY) $(PERLDLL) ..\t\$(NULL)
+	$(XCOPY) $(PERLIMPLIB) ..\t\$(NULL)
 	$(XCOPY) $(GLOBEXE) ..\t\$(NULL)
 # If building with gcc versions 4.x.x or greater, then
 # the GCC helper DLL will also need copied to the test directory.
@@ -1361,7 +1362,7 @@ _clean :
 	-@erase $(WIN32_OBJ)
 	-@erase $(DLL_OBJ)
 	-@erase ..\*$(o) ..\*$(a) ..\*.exp *$(o) *$(a) *.exp *.res
-	-@erase ..\t\*.exe ..\t\*.dll ..\t\*.bat
+	-@erase ..\t\*.exe ..\t\*.dll ..\t\*.lib ..\t\*.bat 
 	-@erase *.ilk
 	-@erase *.pdb
 	-@erase Extensions_static
