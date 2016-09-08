@@ -2412,7 +2412,13 @@ S_deb_hek(pTHX_ HEK* hek, SV* val)
     else if (val == &PL_sv_undef) {
         PerlIO_printf(Perl_debug_log, "UNDEF]");
     }
-    else if (val < PL_sv_arenaroot) { /* a refcnt */
+    else if (val == &PL_sv_yes) {
+        PerlIO_printf(Perl_debug_log, "YES]");
+    }
+    else if (val == &PL_sv_no) {
+        PerlIO_printf(Perl_debug_log, "NO]");
+    }
+    else if (val < &PL_sv_undef) { /* than the first alloced variable, a refcnt */
         PerlIO_printf(Perl_debug_log, "%"UVuf"]", PTR2UV(val));
     }
     else {
