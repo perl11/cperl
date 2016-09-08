@@ -13273,6 +13273,11 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList'      => '5.20160729c',
             'Module::CoreList::TieHashDelta'=> '5.20160618',
             'Module::CoreList::Utils'=> '5.20160729c',
+            'B::C'                  => '1.54_12',
+            'DynaLoader'            => '2.05c',
+            'Socket'                => '2.024_02',
+            'YAML::XS'              => '0.71',
+            'YAML::LibYAML'         => '0.71',
         },
         removed => {
         }
@@ -13325,6 +13330,9 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'B::C'                  => '1.54_12',
             'Socket'                => '2.24_02',
             'ExtUtils::Liblist::Kid' => '8.04_06',
+            'Internals::DumpArenas' => '0.12_04',
+            'YAML::XS'              => '0.71',
+            'YAML::LibYAML'         => '0.71',
         },
         removed => {
         }

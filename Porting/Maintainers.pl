@@ -1519,7 +1519,7 @@ use File::Glob qw(:case);
     },
 
     'YAML::LibYAML' => {
-        'DISTRIBUTION' => "TINITA/YAML-LibYAML-0.62.tar.gz",
+        'DISTRIBUTION' => "RURBAN/YAML-LibYAML-0.71.tar.gz",
         'FILES'        => q[cpan/YAML-LibYAML],
         'CUSTOMIZED'   => [
           # allow PERL_CORE tests
