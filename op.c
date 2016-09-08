@@ -13352,10 +13352,11 @@ Perl_ck_aelem(pTHX_ OP *o)
                 if (ix > (UV)AvFILL(av))
                     Perl_die(aTHX_ "Array index out of bounds %s[%"UVuf"]",
                              PAD_COMPNAME_PV(avop->op_targ), ix);
-                else
+                else {
                     DEBUG_kv(Perl_deb(aTHX_ "ck_%s shape ok %s[%"UVuf"]\n",
                                       PL_op_name[o->op_type],
                                       PAD_COMPNAME_PV(avop->op_targ), ix));
+                }
             } else {
                 IV ix = SvIVX(idx);
                 if (PERL_IABS(ix) > AvFILLp(av))
@@ -14407,10 +14408,11 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                                     UV ix = SvUV(cSVOPo->op_sv);
                                     if (ix > (UV)AvFILLp(av))
                                         Perl_die(aTHX_ "Too many elements");
-                                    else
+                                    else {
                                         DEBUG_kv(Perl_deb(aTHX_
                                             "mderef %s[%"UVuf"] shape ok -> uoob\n",
                                             PAD_COMPNAME_PV(targ), ix));
+                                    }
                                 }
                                 else if (UNLIKELY(PERL_IABS(arg->iv) > AvFILLp(av)))
                                     Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
