@@ -12752,6 +12752,8 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'B::C'                  => '1.54_12',
             'DynaLoader'            => '2.05c',
             'Socket'                => '2.024_02',
+            'YAML::XS'              => '0.71',
+            'YAML::LibYAML'         => '0.71',
         },
         removed => {
         }
@@ -12787,6 +12789,9 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'XS::APItest'           => '0.80_02',
             'Socket'                => '2.24_02',
             'Time::HiRes'           => '1.9739',
+            'Internals::DumpArenas' => '0.12_04',
+            'YAML::XS'              => '0.71',
+            'YAML::LibYAML'         => '0.71',
         },
         removed => {
         }

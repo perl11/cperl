@@ -3185,6 +3185,7 @@ cpan/YAML-LibYAML/LibYAML/ppport_sort.h
 cpan/YAML-LibYAML/LibYAML/reader.c
 cpan/YAML-LibYAML/LibYAML/scanner.c
 cpan/YAML-LibYAML/LibYAML/test.pl
+cpan/YAML-LibYAML/LibYAML/typemap
 cpan/YAML-LibYAML/LibYAML/update.sh
 cpan/YAML-LibYAML/LibYAML/writer.c
 cpan/YAML-LibYAML/lib/YAML/XS.pm

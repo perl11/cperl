@@ -68,6 +68,10 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
+=item YAML::LibYAML  0.71
+
+merged with new upstream libyaml 0.1.7 (2 minor fixes)
+
 =item Time::HiRes  1.9739
 
 More Darwin thread fixes for clock_gettime,

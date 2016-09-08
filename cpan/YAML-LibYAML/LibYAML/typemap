@@ -1,0 +1,24 @@
+LOADER *	T_LOADER
+DUMPER *	T_DUMPER
+
+INPUT
+
+T_LOADER
+        dMY_CXT;
+	if (!(SvROK ($arg)
+           && SvOBJECT (SvRV ($arg))
+           && (sv_derived_from ($arg, \"YAML::XS::Loader\"))
+        ))
+            croak (\"object is not of type YAML::XS::Loader\");
+        /**/
+        $var = (LOADER *)SvPVX (SvRV ($arg));
+
+T_DUMPER
+        dMY_CXT;
+	if (!(SvROK ($arg)
+           && SvOBJECT (SvRV ($arg))
+           && (sv_derived_from ($arg, \"YAML::XS::Dumper\"))
+        ))
+            croak (\"object is not of type YAML::XS::Dumper\");
+        /**/
+        $var = (DUMPER *)SvPVX (SvRV ($arg));
