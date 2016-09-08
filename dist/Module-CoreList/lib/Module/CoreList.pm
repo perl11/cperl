@@ -13309,6 +13309,8 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Socket'                => '2.24_02',
             'Time::HiRes'           => '1.9739',
             'Internals::DumpArenas' => '0.12_04',
+            'YAML::XS'              => '0.71',
+            'YAML::LibYAML'         => '0.71',
         },
         removed => {
         }
