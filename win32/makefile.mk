@@ -910,7 +910,6 @@ MICROCORE_SRC	=		\
 		..\doio.c	\
 		..\doop.c	\
 		..\dquote.c	\
-		..\dump.c	\
 		..\globals.c	\
 		..\mro_core.c	\
 		..\locale.c	\
@@ -928,7 +927,6 @@ MICROCORE_SRC	=		\
 		..\scope.c	\
 		..\taint.c	\
 		..\time64.c	\
-		..\toke.c	\
 		..\universal.c	\
 		..\util.c	\
 		..\xsutils.c
