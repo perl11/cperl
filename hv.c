@@ -659,8 +659,8 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
             const HEK *hek = HeKEY_hek(entry);
             CHECK_HASH_FLOOD(collisions)
             if (hek == keysv_hek)
-                goto found;
-            if (HEK_FLAGS(hek) != keysv_flags) {
+                goto found; /* even if the flags mismatch! breaks many EUMM tests */
+            if (UNLIKELY(HEK_FLAGS(hek) != keysv_flags)) {
                 collisions = -1;
                 break; /* need to do full match */
             }
