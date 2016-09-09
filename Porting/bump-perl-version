@@ -183,8 +183,8 @@ my @maps =  (
 
     # perl511, perl511.dll, perl511.lib, perl511s.lib, libperl511.a
     [
-	qr{\b ((?:lib)?) perl (\d\d\d) (s?) \b }x,
-	sub {$2, "$1perl$newx$newy$3" },
+	qr{\b ((?:lib)?) cperl (\d\d\d) (s?) \b }x,
+	sub {$2, "$1cperl$newx$newy$3" },
 	"$oldx$oldy",
 	qr/win32|hints/,      # README.win32, win32/*, hints/*
     ],
