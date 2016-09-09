@@ -148,9 +148,8 @@ Perl_hek_dup(pTHX_ HEK *source, CLONE_PARAMS* param)
 	(void)share_hek_hek(shared);
     }
     else {
-	shared
-	    = share_hek_flags(HEK_KEY(source), HEK_LEN(source),
-			      HEK_HASH(source), HEK_FLAGS(source));
+	shared = share_hek_flags(HEK_KEY(source), HEK_LEN(source),
+                                 HEK_HASH(source), HEK_FLAGS(source));
 	ptr_table_store(PL_ptr_table, source, shared);
     }
     return shared;
@@ -192,9 +191,8 @@ Perl_he_dup(pTHX_ const HE *e, bool shared, CLONE_PARAMS* param)
 	    (void)share_hek_hek(shared);
 	}
 	else {
-	    shared
-		= share_hek_flags(HEK_KEY(source), HEK_LEN(source),
-				  HEK_HASH(source), HEK_FLAGS(source));
+	    shared = share_hek_flags(HEK_KEY(source), HEK_LEN(source),
+                                     HEK_HASH(source), HEK_FLAGS(source));
 	    ptr_table_store(PL_ptr_table, source, shared);
 	}
 	HeKEY_hek(ret) = shared;
@@ -623,7 +621,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		       need. As keys are shared we can't just write to the
 		       flag, so we share the new one, unshare the old one.  */
 		    HEK * const new_hek = share_hek_flags(key, klen, hash,
-						   masked_flags);
+                                                          masked_flags);
 		    unshare_hek (HeKEY_hek(entry));
 		    HeKEY_hek(entry) = new_hek;
 		}
@@ -700,8 +698,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 #endif
         /* fill, size, found index in collision list */
         DEBUG_H(PerlIO_printf(Perl_debug_log,
-                    "HASH %6u\t%6u\t%u * %s(0x%x)\t%s%s{%.*s}\n",
+                    "HASH %6u\t%6u\t%u [%u] * %s(0x%x)\t%s%s{%.*s}\n",
                     (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), linear,
+                    (unsigned)HvHASH_INDEX(hash, HvMAX(hv)),
                     action_name(action), action,
                     HvSHAREKEYS(hv)?"SHARE ":"",
                     HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
@@ -719,8 +718,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
   not_found:
     /* fill, size, not found, size of collision list */
     DEBUG_H(PerlIO_printf(Perl_debug_log,
-                "HASH %6u\t%6u\t%u - %s(0x%x)\t%s%s{%.*s}\n",
+                "HASH %6u\t%6u\t%u [%u] - %s(0x%x)\t%s%s{%.*s}\n",
                 (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), linear,
+                (unsigned)HvHASH_INDEX(hash, HvMAX(hv)),
                 action_name(action), action,
                 HvSHAREKEYS(hv)?"SHARE ":"",
                 HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
@@ -3328,6 +3328,11 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 	*head = entry;
 
 	xhv->xhv_keys++;
+        DEBUG_H(PerlIO_printf(Perl_debug_log,
+            "HASH insert shared [%d] %u %u\tstrtab{%.*s}\n",
+            (int)hindex, (unsigned)xhv->xhv_keys,
+            (unsigned)xhv->xhv_max, (int)len, str));
+
 	if (!next) {			/* initial entry? */
 	} else if ( DO_HSPLIT(xhv) ) {
             const STRLEN oldsize = xhv->xhv_max + 1;

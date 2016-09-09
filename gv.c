@@ -2438,7 +2438,7 @@ Perl_gv_efullname4(pTHX_ SV *sv, const GV *gv, const char *prefix, bool keepmain
 void
 Perl_gv_check(pTHX_ HV *stash)
 {
-    I32 i;
+    U32 i;
 
     PERL_ARGS_ASSERT_GV_CHECK;
 
@@ -2447,7 +2447,7 @@ Perl_gv_check(pTHX_ HV *stash)
 
     assert(HvARRAY(stash));
 
-    for (i = 0; i <= (I32) HvMAX(stash); i++) {
+    for (i = 0; i <= HvMAX(stash); i++) {
         const HE *entry;
         /* mark stash is being scanned, to avoid recursing */
         HvAUX(stash)->xhv_aux_flags |= HvAUXf_SCAN_STASH;
