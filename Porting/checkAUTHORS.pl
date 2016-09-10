@@ -771,6 +771,7 @@ moritz\100casella.verplant.org          moritz\100faui2k3.org
 neale\100VMA.TABNSW.COM.AU              neale\100pucc.princeton.edu
 neeracher\100mac.com                    neeri\100iis.ee.ethz.ch
 neil\100bowers.com                      neilb\100cre.canon.co.uk
+rochelemagne@cpanel.net			nicolas@rochelemagne.com
 
 nospam-abuse\100bloodgate.com           tels\100bloodgate.com
 +                                       perl_dummy\100bloodgate.com
