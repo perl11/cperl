@@ -522,6 +522,11 @@ Returns zero if non-equal, or non-zero if equal.
 # define strNEc(s, c) memNE(s, ("" c ""), sizeof(c))
 #endif
 
+#define memLT(s1,s2,l) (memcmp(s1,s2,l) < 0)
+#define memLE(s1,s2,l) (memcmp(s1,s2,l) <= 0)
+#define memGT(s1,s2,l) (memcmp(s1,s2,l) > 0)
+#define memGE(s1,s2,l) (memcmp(s1,s2,l) >= 0)
+
 /*
  * Character classes.
  *
