@@ -8588,7 +8588,7 @@ sub save_sig {
   }
   $init->add( "/* save %SIG */" ) if $verbose;
   warn "save %SIG\n" if $verbose;
-  $init->add( "{", "\tHV* hv = get_hvs(\"main::SIG\",GV_ADD);" );
+  $init->add( "{", "\tHV* hv = get_hvs(\"main::SIG\", GV_ADD);" );
   foreach my $x ( @save_sig ) {
     my ($k, $cvref) = @$x;
     my $sv = $cvref->save;
