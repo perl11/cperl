@@ -812,7 +812,8 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
                 HvSHAREKEYS(hv)?"SHARE ":"",
                 HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
 #ifdef PERL_INLINE_HASH
-    assert(oentry->hent_he ? oentry->hent_hash : !oentry->hent_hash);
+    assert(oentry->hent_he ? oentry->hent_hash : 1);
+    /*assert(oentry->hent_he ? oentry->hent_hash : !oentry->hent_hash);*/
 #endif
 #ifdef DYNAMIC_ENV_FETCH  /* %ENV lookup?  If so, try to fetch the value now */
     if (UNLIKELY(!(action & HV_FETCH_ISSTORE) 
