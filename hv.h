@@ -16,6 +16,8 @@
 /* Performance. We have good enough security measures to fight DoS hash floods. */
 /*# define PERL_PERTURB_KEYS_DISABLED*/
 # define PERL_PERTURB_KEYS_TOP
+/* array_he branch: inline hent_hash into AHE* */
+# define PERL_INLINE_HASH
 #endif
 
 #if defined(PERL_PERTURB_KEYS_DISABLED) || defined(PERL_PERTURB_KEYS_TOP)
@@ -318,7 +320,7 @@ C<SV*>.
 #define PERL_HASH_DEFAULT_HvMAX 7
 
 /* Small hash optimization. https://github.com/perl11/cperl/issues/102
-   If max 7 keys set the HvAUX_SMALL flag and just do a linear scan */
+   If max 7 keys just do a linear scan (and unnecessarily set HvAUXf_SMALL) */
 
 #define PERL_HV_SMALL_MAX     7
 
