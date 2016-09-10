@@ -5598,7 +5598,10 @@ sub B::AV::save {
     $count = 0;
     for (my $i=0; $i <= $#array; $i++) {
       if ($fullname =~ m/^(INIT|END)$/ and $values[$i] and ref $array[$i] eq 'B::CV') {
-        $init->add(sprintf("SvREFCNT_inc(%s); /* bump %s */", $values[$i], $fullname));
+        if ($array[$i]->XSUB) {
+          $values[$i] =~ s/, 0\)/, GV_ADD\)/; # GvCV filled in later
+        }
+        $values[$i] = sprintf("SvREFCNT_inc(%s);", $values[$i]);
       }
       if ( $use_svpop_speedup
            && defined $values[$i]
@@ -5692,6 +5695,7 @@ sub B::AV::save {
       $init->add("\tregister int gcount;") if $count;
       my $fill1 = $fill < 3 ? 3 : $fill+1;
       if ($fill > -1) {
+        $fill1 = $fill+1 if $fullname eq 'END';
         # Perl_safesysmalloc (= calloc => malloc) or Perl_malloc (= mymalloc)?
 	if ($MYMALLOC) {
           $init->add(sprintf("\tNewx(svp, %d, SV*);", $fill1),
@@ -5720,11 +5724,12 @@ sub B::AV::save {
       my $fill1 = $fill < 3 ? 3 : $fill+1;
       $init->add("{", "\tSV **svp;");
       $init->add("\tregister int gcount;") if $count;
-      $init->add("\tAV *av = $sym;",
+      $init->add("\tAV *av = $sym;\t/* $fullname */",
                  "\tav_extend(av, $fill1);",
                  "\tsvp = AvARRAY(av);");
       $init->add( substr( $acc, 0, -2 ) );
-      $init->add( "\tAvFILLp(av) = $fill;", "}" );
+      $init->add( "\tAvFILLp(av) = $fill;" );
+      $init->add( "}" );
     }
     $init->split;
 
