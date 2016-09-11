@@ -6799,13 +6799,14 @@ STATIC SV *	S_incpush_if_exists(pTHX_ AV *const av, SV *dir, SV *const stem)
 #  endif
 #endif
 #if !defined(PERL_NO_INLINE_FUNCTIONS)
-PERL_CALLCONV STRLEN	Perl__is_utf8_char_slow(const U8 * const s, const STRLEN len)
+PERL_CALLCONV STRLEN	Perl__is_utf8_char_helper(const U8 * const s, const U8 * const e, const U32 flags)
 			__attribute__global__
 			__attribute__warn_unused_result__
 			__attribute__pure__
-			__attribute__nonnull__(1);
-#define PERL_ARGS_ASSERT__IS_UTF8_CHAR_SLOW	\
-	assert(s)
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(2);
+#define PERL_ARGS_ASSERT__IS_UTF8_CHAR_HELPER	\
+	assert(s); assert(e)
 
 PERL_STATIC_INLINE void	S_append_utf8_from_native_byte(const U8 byte, U8** dest)
 			__attribute__nonnull__(2);
@@ -9693,7 +9694,9 @@ PERL_STATIC_INLINE bool	S_is_utf8_common(pTHX_ const U8 *const p, SV **swash, co
 
 PERL_STATIC_INLINE bool	S_is_utf8_cp_above_31_bits(const U8 * const s, const U8 * const e)
 			__attribute__warn_unused_result__
-			__attribute__pure__;
+			__attribute__pure__
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_IS_UTF8_CP_ABOVE_31_BITS	\
 	assert(s); assert(e)
 
