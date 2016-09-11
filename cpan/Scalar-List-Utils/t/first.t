@@ -5,6 +5,7 @@ use warnings;
 
 use List::Util qw(first);
 use Test::More;
+use Config;
 plan tests => 23 + ($::PERL_ONLY ? 0 : 2);
 my $v;
 
@@ -126,9 +127,10 @@ ok($@ =~ /^Not a subroutine reference/, 'check for code reference');
 eval { &first(+{},1,2,3) };
 ok($@ =~ /^Not a subroutine reference/, 'check for code reference');
 
-{
-    no warnings 'experimental::lexical_topic';
-    my $_ = 1;
-    $v = first { $_ > 6 } 2,4,6,12;
-    is($v, 12, 'first with lexical my');
+SKIP: {
+    skip "lexical topic fixed only in cperl, usable 5.10 - 5.24", 1
+      if ($] > 5.023 && !$Config{usecperl}) or $] < 5.010;
+    chdir "t";
+    do "first-524.inc";
+    chdir "..";
 }
