@@ -38,6 +38,89 @@
 #  include "multicall.h"
 #endif
 
+#if PERL_VERSION_LE(5,8,8) && PERL_VERSION_GE(5,7,0)
+#define COP_SEQ_RANGE_LOW(sv)	U_32(SvNVX(sv))
+#define COP_SEQ_RANGE_HIGH(sv)	U_32(SvUVX(sv))
+#endif
+
+#if PERL_VERSION_GE(5,25,0) && !defined(USE_CPERL)
+STATIC PADOFFSET
+Perl_find_rundefsvoffset(pTHX)
+{
+    return NOT_IN_PAD;
+}
+#endif
+
+#if PERL_VERSION_LE(5,8,9)
+/* non-destructive variant, without cloning */
+STATIC PADOFFSET
+Perl_find_rundefsvoffset(pTHX)
+{
+# if PERL_VERSION_LE(5,7,0)
+    return NOT_IN_PAD;
+# else
+    const char *name = "$_";
+    PADOFFSET newoff = 0;
+    const CV* innercv = Perl_find_runcv(aTHX_ NULL);
+    CV *cv;
+    I32 off = 0;
+    SV *sv;
+    CV* startcv;
+    U32 seq;
+    I32 depth;
+    AV *oldpad;
+    SV *oldsv;
+    AV *curlist;
+
+    seq = CvOUTSIDE_SEQ(innercv);
+    startcv = CvOUTSIDE(innercv);
+
+    for (cv = startcv; cv; seq = CvOUTSIDE_SEQ(cv), cv = CvOUTSIDE(cv)) {
+	SV **svp;
+	AV *curname;
+	I32 fake_off = 0;
+
+	curlist = CvPADLIST(cv);
+	if (!curlist)
+	    continue; /* an undef CV */
+	svp = av_fetch(curlist, 0, FALSE);
+	if (!svp || *svp == &PL_sv_undef)
+	    continue;
+	curname = (AV*)*svp;
+	svp = AvARRAY(curname);
+
+	depth = CvDEPTH(cv);
+	for (off = AvFILLp(curname); off > 0; off--) {
+	    sv = svp[off];
+	    if (!sv || sv == &PL_sv_undef || !strEQ(SvPVX_const(sv), name))
+		continue;
+	    if (SvFAKE(sv)) {
+		/* we'll use this later if we don't find a real entry */
+		fake_off = off;
+		continue;
+	    }
+	    else {
+		if (   seq >  COP_SEQ_RANGE_LOW(sv)	/* min */
+		    && seq <= COP_SEQ_RANGE_HIGH(sv)	/* max */
+		    && !(newoff && !depth) /* ignore inactive when cloning */
+		)
+                  return off;
+	    }
+	}
+
+	/* no real entry - but did we find a fake one? */
+	if (fake_off) {
+	    if (newoff && !depth)
+		return NOT_IN_PAD; /* don't clone from inactive stack frame */
+	    off = fake_off;
+            return off;
+	}
+    }
+    return NOT_IN_PAD;
+# endif
+}
+#endif
+
 #if !PERL_VERSION_GE(5,23,8)
 #  define UNUSED_VAR_newsp PERL_UNUSED_VAR(newsp)
 #else
@@ -471,17 +554,18 @@ CODE:
 
         UNUSED_VAR_newsp;
         PUSH_MULTICALL(cv);
-
-        targlex = find_rundefsvoffset();
+        targlex = Perl_find_rundefsvoffset(aTHX);
         if (targlex == NOT_IN_PAD)
             SAVESPTR(GvSV(PL_defgv));
         for(index = 1 ; index < items ; index++) {
+#  if PERL_VERSION_GE(5,7,0)
             if (targlex != NOT_IN_PAD) {
                 PAD_SVl(targlex) = args[index];
                 SvREFCNT_inc_NN(PAD_SVl(targlex));
             }
             else
-                GvSV(PL_defgv) = args[index];
+#  endif
+              GvSV(PL_defgv) = args[index];
             MULTICALL;
             if(SvTRUEx(*PL_stack_sp)) {
 #  ifdef PERL_HAS_BAD_MULTICALL_REFCOUNT
@@ -548,15 +632,17 @@ PPCODE:
 
         UNUSED_VAR_newsp;
         PUSH_MULTICALL(cv);
-
-        targlex = find_rundefsvoffset();
+        targlex = Perl_find_rundefsvoffset(aTHX);
         if (targlex == NOT_IN_PAD)
             SAVESPTR(GvSV(PL_defgv));
         for(index = 1; index < items; index++) {
+#  if PERL_VERSION_GE(5,7,0)
             if (targlex != NOT_IN_PAD) {
                 PAD_SVl(targlex) = args[index];
                 SvREFCNT_inc_NN(PAD_SVl(targlex));
-            } else {
+            } else
+#  endif
+            {
 #  ifdef SvTEMP_off
                 SV *def_sv =
 #  endif
@@ -1468,7 +1554,7 @@ PPCODE:
     /* TODO: If there exists a UTF8 codepoint with ending ':' we are screwed.
        But perl5 does not care neither. */
     for (s = nameptr; s <= nameptr + namelen; s++) {
-        if (*s == ':' && s[-1] == ':') {
+        if (s > nameptr && *s == ':' && s[-1] == ':') {
             end = s - 1;
             begin = ++s;
             if (seen_quote)
@@ -1477,7 +1563,7 @@ PPCODE:
 #ifdef PERL_HAS_QUOTE_PKGSEPERATOR
         /* "In the year 2525, if man is still alive
            If 4 is finally gone" - gv.c:S_parse_gv_stash_name */
-        else if (*s && s[-1] == '\'') {
+        else if (s > nameptr && *s != '\0' && s[-1] == '\'') {
             end = s - 1;
             begin = s;
             seen_quote++;

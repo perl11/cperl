@@ -68,6 +68,15 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
+=item Sub::Util  1.45_05
+
+set_subname memory fix by @bluhm from Sub::Name 0.20
+[cpan #117072]
+
+Fixes for older perls, esp. lexical $_ support.
+
+Reinstate the &DB::sub setter, but no UTF8 support yet.
+
 =item Config  6.22
 
 protect sv in END during global destruction, esp. with B::C.
