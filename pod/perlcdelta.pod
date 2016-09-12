@@ -86,6 +86,36 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
+=item Config  6.22
+
+protect sv in END during global destruction, esp. with B::C.
+fixes for missing . in @INC (cperl or -Dfortify_inc).
+
+=item YAML::XS  0.71
+
+merged with upstream libyaml 0.1.7
+
+=item Sub::Util  1.45_05
+
+set_subname memory fix by @bluhm from Sub::Name 0.20
+[cpan #117072]
+
+Fixes for older perls, esp. lexical $_ support
+
+=item ExtUtils::Liblist::Kid 8.04_06
+
+one more darwin fix for the wrong no library found warning
+for symlinked darwin libSystem.dylib libraries.
+
+=item IO::Socket::IP 0.38
+
+From https://github.com/atoomic/IO-Socket-IP/
+
+- Support setting custom socket options with new Sockopts
+  constructor parameter
+
+- Restore blocking mode after ->connect errors [cpan #112334]
+
 =item Time::HiRes  1.9739
 
 More Darwin thread fixes for clock_gettime,
@@ -143,6 +173,8 @@ Fix generation of @B::C::Config::deps on Windows.
 Fix !C99 precedence bug (e.g. MSVC).
 Minor refactor to simplify save_hek.
 Use the new get_svs, get_avs, get_hvs macros.
+perlcc add --debug|-D
+Improve endav XSUB bump
 
 =back
 
