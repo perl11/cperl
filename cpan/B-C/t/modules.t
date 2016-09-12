@@ -345,6 +345,9 @@ sub is_todo {
 
   # ---------------------------------------
   if ($Config{useithreads}) {
+    if ($^O eq 'MSWin32') { foreach(qw(
+      Test::Harness
+    )) { return 'MSWin32 with threads' if $_ eq $module; }}
     if ($] >= 5.008008 and $] < 5.008009) { foreach(qw(
       Test::Tester
     )) { return '5.8.8 with threads' if $_ eq $module; }}
