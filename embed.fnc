@@ -716,11 +716,11 @@ AMp	|UV	|to_uni_title	|UV c|NN U8 *p|NN STRLEN *lenp
 ADMpPR	|bool	|isIDFIRST_lazy	|NN const char* p
 ADMpPR	|bool	|isALNUM_lazy	|NN const char* p
 #ifdef PERL_IN_UTF8_C
-snR	|U8	|to_lower_latin1|const U8 c|NULLOK U8 *p|NULLOK STRLEN *lenp
+snR	|U8	|to_lower_latin1	|const U8 c|NULLOK U8 *p|NULLOK STRLEN *lenp
 inPR	|bool	|is_utf8_cp_above_31_bits|NN const U8 * const s|NN const U8 * const e
 #endif
 #if defined(PERL_IN_UTF8_C) || defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C)
-EXp	|UV	|_to_fold_latin1|const U8 c|NN U8 *p|NN STRLEN *lenp|const unsigned int flags
+EXp	|UV	|_to_fold_latin1	|const U8 c|NN U8 *p|NN STRLEN *lenp|const unsigned int flags
 #endif
 #if defined(PERL_IN_UTF8_C) || defined(PERL_IN_PP_C)
 p	|UV	|_to_upper_title_latin1	|const U8 c|NN U8 *p|NN STRLEN *lenp|const char S_or_s
@@ -752,9 +752,12 @@ AnpdD	|STRLEN	|is_utf8_char		|NN const U8 *s
 Abmnpd	|STRLEN	|is_utf8_char_buf	|NN const U8 *buf|NN const U8 *buf_end
 AnipdP	|bool	|is_utf8_string		|NN const U8 *s|STRLEN len
 Anpdmb	|bool	|is_utf8_string_loc	|NN const U8 *s|STRLEN len|NN const U8 **ep
-Anipd	|bool	|is_utf8_string_loclen	|NN const U8 *s|STRLEN len|NULLOK const U8 **ep \
-					|NULLOK STRLEN *el
-AnidP	|bool	|is_utf8_valid_partial_char|NN const U8 * const s|NN const U8 * const e
+Anipd	|bool	|is_utf8_string_loclen	|NN const U8 *s|STRLEN len \
+		|NULLOK const U8 **ep|NULLOK STRLEN *el
+AmndP	|bool	|is_utf8_valid_partial_char \
+		|NN const U8 * const s|NN const U8 * const e
+AnidP	|bool	|is_utf8_valid_partial_char_flags \
+		|NN const U8 * const s|NN const U8 * const e|const U32 flags
 AMpR	|bool	|_is_uni_FOO		|const U8 classnum|const UV c
 AMpR	|bool	|_is_utf8_FOO		|const U8 classnum|NN const U8 *p
 ADMpR	|bool	|is_utf8_alnum		|NN const U8 *p
@@ -869,66 +872,66 @@ Apd	|UV	|grok_oct	|NN const char* start|NN STRLEN* len_p|NN I32* flags \
 				|NULLOK NV *result
 EXpn	|bool	|grok_atoUV	|NN const char* pv|NN UV* valptr|NULLOK const char** endptr
 : These are all indirectly referenced by globals.c. This is somewhat annoying.
-p	|int	|magic_clearenv	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_clear_all_env|NN SV* sv|NN MAGIC* mg
-dp	|int	|magic_clearhint|NN SV* sv|NN MAGIC* mg
-dp	|int	|magic_clearhints|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_clearisa	|NULLOK SV* sv|NN MAGIC* mg
-p	|int	|magic_clearpack|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_clearsig	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_copycallchecker|NN SV* sv|NN MAGIC *mg|NN SV *nsv \
-				      |NULLOK const char *name|I32 namlen
-p	|int	|magic_existspack|NN SV* sv|NN const MAGIC* mg
-p	|int	|magic_freeovrld|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_get	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_getarylen|NN SV* sv|NN const MAGIC* mg
-p	|int	|magic_getdefelem|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_getdebugvar|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_getnkeys	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_getpack	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_getpos	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_getsig	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_getsubstr|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_gettaint	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_getuvar	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_getvec	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_nextpack	|NN SV *sv|NN MAGIC *mg|NN SV *key
-p	|U32	|magic_regdata_cnt|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_regdatum_get|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_clearenv		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_clear_all_env	|NN SV* sv|NN MAGIC* mg
+dp	|int	|magic_clearhint	|NN SV* sv|NN MAGIC* mg
+dp	|int	|magic_clearhints	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_clearisa		|NULLOK SV* sv|NN MAGIC* mg
+p	|int	|magic_clearpack	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_clearsig		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_copycallchecker	|NN SV* sv|NN MAGIC *mg|NN SV *nsv \
+					|NULLOK const char *name|I32 namlen
+p	|int	|magic_existspack	|NN SV* sv|NN const MAGIC* mg
+p	|int	|magic_freeovrld	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_get		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_getarylen	|NN SV* sv|NN const MAGIC* mg
+p	|int	|magic_getdefelem	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_getdebugvar	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_getnkeys		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_getpack		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_getpos		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_getsig		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_getsubstr	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_gettaint		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_getuvar		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_getvec		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_nextpack		|NN SV *sv|NN MAGIC *mg|NN SV *key
+p	|U32	|magic_regdata_cnt	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_regdatum_get	|NN SV* sv|NN MAGIC* mg
 :removing noreturn to silence a warning for this function resulted in no
 :change to the interpreter DLL image under VS 2003 -O1 -GL 32 bits only because
 :this is used in a magic vtable, do not use this on conventionally called funcs
 #ifdef _MSC_VER
-p	|int	|magic_regdatum_set|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_regdatum_set	|NN SV* sv|NN MAGIC* mg
 #else
-pr	|int	|magic_regdatum_set|NN SV* sv|NN MAGIC* mg
+pr	|int	|magic_regdatum_set	|NN SV* sv|NN MAGIC* mg
 #endif
-p	|int	|magic_set	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setarylen|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_cleararylen_p|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_freearylen_p|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setdbline|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setdebugvar|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setdefelem|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setenv	|NN SV* sv|NN MAGIC* mg
-dp	|int	|magic_sethint	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setisa	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setlvref	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setmglob	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setnkeys	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setpack	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setpos	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setregexp|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setsig	|NULLOK SV* sv|NN MAGIC* mg
-p	|int	|magic_setsubstr|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_settaint	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setuvar	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setvec	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_setutf8	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_set_all_env|NN SV* sv|NN MAGIC* mg
-p	|U32	|magic_sizepack	|NN SV* sv|NN MAGIC* mg
-p	|int	|magic_wipepack	|NN SV* sv|NN MAGIC* mg
-pod	|SV*	|magic_methcall	|NN SV *sv|NN const MAGIC *mg \
+p	|int	|magic_set		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setarylen	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_cleararylen_p	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_freearylen_p	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setdbline	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setdebugvar	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setdefelem	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setenv		|NN SV* sv|NN MAGIC* mg
+dp	|int	|magic_sethint		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setisa		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setlvref		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setmglob		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setnkeys		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setpack		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setpos		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setregexp	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setsig		|NULLOK SV* sv|NN MAGIC* mg
+p	|int	|magic_setsubstr	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_settaint		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setuvar		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setvec		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setutf8		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_set_all_env	|NN SV* sv|NN MAGIC* mg
+p	|U32	|magic_sizepack		|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_wipepack		|NN SV* sv|NN MAGIC* mg
+pod	|SV*	|magic_methcall		|NN SV *sv|NN const MAGIC *mg \
 				|NN SV *meth|U32 flags \
 				|U32 argc|...
 Ap	|I32 *	|markstack_grow
@@ -970,14 +973,14 @@ Ap	|I32	|mg_size	|NN SV* sv
 Apn	|void	|mini_mktime	|NN struct tm *ptm
 AMmd	|OP*	|op_lvalue	|NULLOK OP* o|I32 type
 poX	|OP*	|op_lvalue_flags|NULLOK OP* o|I32 type|U32 flags
-p	|void	|prefinalize_optree		|NULLOK CV* cv|NN OP* o
-p	|void	|finalize_optree		|NN OP* o
+p	|void	|prefinalize_optree	|NULLOK CV* cv|NN OP* o
+p	|void	|finalize_optree	|NN OP* o
 #if defined(PERL_IN_OP_C)
 s	|void	|finalize_op	|NN OP* o
 s	|void	|move_proto_attr|NN OP **proto|NN OP **attrs|NN const GV *name
 #endif
 : Used in op.c and pp_sys.c
-p	|int	|mode_from_discipline|NULLOK const char* s|STRLEN len
+p	|int	|mode_from_discipline	|NULLOK const char* s|STRLEN len
 Ap	|const char*	|moreswitches	|NN const char* s
 Ap	|NV	|my_atof	|NN const char *s
 #if !defined(HAS_MEMCPY) || (!defined(HAS_MEMMOVE) && !defined(HAS_SAFE_MEMCPY))
