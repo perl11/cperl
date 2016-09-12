@@ -8280,6 +8280,6 @@
  * 9ef88b957366d6ef66905f48de3b6095ae1538008cd2bf3639be469ac54a38a7 lib/unicore/mktables
  * cdecb300baad839a6f62791229f551a4fa33f3cbdca08e378dc976466354e778 lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
- * f908c7fae4a62ddc4897ade017995b1beae05aa5027f972b4a5824fe24fcf9ef regen/regcharclass.pl
+ * 6dcd2c6eb581c0f753f7c4400f74f57949de9aa8cb234f28f6c4d5a443e13b1e regen/regcharclass.pl
  * a6967a5eb6f40862d25bc55f6993e8f5c97130419ad7c3a1c70bb72d1aa5816a regen/regcharclass_multi_char_folds.pl
  * ex: set ro: */
