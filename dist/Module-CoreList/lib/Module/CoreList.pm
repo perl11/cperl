@@ -13323,6 +13323,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Scalar::Util'          => '1.45_06',
             'List::Util'            => '1.45_06',
             'Sub::Util'             => '1.45_06',
+            'ExtUtils::Liblist::Kid'=> '8.04_06',
         },
         removed => {
         }

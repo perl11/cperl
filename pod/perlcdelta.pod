@@ -68,6 +68,11 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
+=item ExtUtils::Liblist::Kid 8.04_06
+
+one more darwin fix for the wrong no library found warning
+for symlinked darwin libSystem.dylib libraries.
+
 =item List::Util  1.45_06
 
 sum/min/max need to call SvGETMAGIC

@@ -11,7 +11,7 @@ use 5.006;
 
 use strict;
 use warnings;
-our $VERSION = '8.04_05';
+our $VERSION = '8.04_06';
 
 use ExtUtils::MakeMaker::Config;
 use Cwd 'cwd';
@@ -185,6 +185,10 @@ sub _unix_os2_ext {
                 #    ${TARGET_BINARY_INTERFACE:-m88kdgux}/usr/lib/libm.a
                 #
                 # , the compilation tools expand the environment variables.)
+            }
+            elsif ( $^O eq 'darwin'
+                    && $thislib =~ /^(dl|pthread|c|util|m)$/
+                    && -e "/usr/lib/lib$thislib.dylib") {
             }
             elsif ( $custom_name && -e ( $fullname = "$thispth/$thislib" ) ) {
             }
