@@ -807,11 +807,13 @@ use File::Glob qw(:case);
     },
 
     'IO::Socket::IP' => {
-        'DISTRIBUTION' => 'PEVANS/IO-Socket-IP-0.37.tar.gz',
+        'DISTRIBUTION' => 'ATOOMIC/IO-Socket-IP-0.38.tar.gz',
         'FILES'        => q[cpan/IO-Socket-IP],
         'EXCLUDED'     => [
             qr{^examples/},
         ],
+        # demand-load Carp
+        'CUSTOMIZED'   => [ qw( lib/IO/Socket/IP.pm )],
     },
 
     'IO::Zlib' => {
