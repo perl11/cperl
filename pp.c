@@ -5810,6 +5810,8 @@ PP(pp_splice)
 		for (i = length - 1, dst = &AvARRAY(ary)[offset]; i > 0; i--)
 		    SvREFCNT_dec(*dst++);	/* free them now */
 	    }
+	    if (!*MARK)
+		*MARK = &PL_sv_undef;
 	}
 	AvFILLp(ary) += diff;
 
@@ -5906,6 +5908,8 @@ PP(pp_splice)
 		while (length-- > 0)
 		    SvREFCNT_dec(tmparyval[length]);
 	    }
+	    if (!*MARK)
+		*MARK = &PL_sv_undef;
 	}
 	else
 	    *MARK = &PL_sv_undef;
