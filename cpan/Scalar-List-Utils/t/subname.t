@@ -2,6 +2,10 @@ use strict;
 use warnings;
 
 BEGIN { $^P |= 0x210 }
+# $PERLDB sets debugger flags
+# 0x10  Keep info about source lines on which a subroutine is defined.
+# 0x200 Provide informative names to anonymous subroutines based on
+#       the place they were compiled.
 use Test::More;
 use B 'svref_2object';
 
@@ -13,10 +17,10 @@ use B 'svref_2object';
 use if $] >= 5.016, feature => 'unicode_eval';
 
 if ($] >= 5.008) {
-	my $builder = Test::More->builder;
-	binmode $builder->output,         ":encoding(utf8)";
-	binmode $builder->failure_output, ":encoding(utf8)";
-	binmode $builder->todo_output,    ":encoding(utf8)";
+    my $builder = Test::More->builder;
+    binmode $builder->output,         ":encoding(utf8)";
+    binmode $builder->failure_output, ":encoding(utf8)";
+    binmode $builder->todo_output,    ":encoding(utf8)";
 }
 
 sub compile_named_sub {
@@ -123,7 +127,7 @@ is($x->(), "main::foo");
       ::is($x->(), "Blork::Dynamic $_");
   }
 
-  ::is($DB::sub{"main::foo"}, $anon);
+  ::is($DB::sub{"main::foo"}, $anon, "foo");
 
   for (4 .. 5) {
       ::is($DB::sub{"Blork::Dynamic $_"}, $anon);

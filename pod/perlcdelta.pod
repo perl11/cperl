@@ -100,7 +100,9 @@ merged with upstream libyaml 0.1.7
 set_subname memory fix by @bluhm from Sub::Name 0.20
 [cpan #117072]
 
-Fixes for older perls, esp. lexical $_ support
+Fixes for older perls, esp. lexical $_ support.
+
+Reinstate the &DB::sub setter, but no UTF8 support yet.
 
 =item ExtUtils::Liblist::Kid 8.04_06
 

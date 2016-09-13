@@ -43,6 +43,18 @@
 #define COP_SEQ_RANGE_HIGH(sv)	U_32(SvUVX(sv))
 #endif
 
+/* since 5.16.0 */
+#ifndef GvNAMEUTF8
+#  define GvNAMEUTF8(gv) 0
+#endif
+#ifndef HvNAMEUTF8
+#  define HvNAMEUTF8(hv) 0
+#endif
+/* since 5.8.9 */
+#ifndef HV_FETCH_JUST_SV
+#  define HV_FETCH_JUST_SV 0
+#endif
+
 #if PERL_VERSION_GE(5,25,0) && !defined(USE_CPERL)
 STATIC PADOFFSET
 Perl_find_rundefsvoffset(pTHX)
@@ -1604,34 +1616,71 @@ PPCODE:
         nameptr = begin;
         namelen -= begin - nameptr;
     }
-#if PERL_VERSION < 10
+
     /* under debugger, provide information about sub location */
     if (PL_DBsub && CvGV(cv)) {
+        /* WIP utf8 support */
+#if 0
         HV *hv = GvHV(PL_DBsub);
         GV *oldgv = CvGV(cv);
         HV *oldpkg = GvSTASH(oldgv);
+        int is_utf8 = HvNAMEUTF8(oldpkg) | GvNAMEUTF8(oldgv);
         SV *full_name = newSVpvn_flags(HvNAME(oldpkg), HvNAMELEN_get(oldpkg),
-                                       HvNAMEUTF8(oldpkg) ? SVf_UTF8 : 0);
+                                       is_utf8 ? SVf_UTF8 : 0);
         SV** old_data;
 
         sv_catpvs(full_name, "::");
         sv_catpvn(full_name, GvNAME(oldgv), GvNAMELEN(oldgv));
 
-        old_data = hv_fetch(hv, SvPVX(full_name), SvCUR(full_name), 0);
+        old_data = (SV**)hv_fetch_ent(hv, full_name, HV_FETCH_JUST_SV, 0);
         if (old_data) {
             SvREFCNT_dec(full_name);
+            is_utf8 = HvNAMEUTF8(stash) || utf8flag;
             full_name = newSVpvn_flags(HvNAME(stash), HvNAMELEN_get(stash),
-                                       HvNAMEUTF8(stash) ? SVf_UTF8 : 0);
+                                       is_utf8 ? SVf_UTF8 : 0);
             sv_catpvs(full_name, "::");
-            sv_catpvn(full_name, s, namelen);
+            sv_catpvn(full_name, nameptr, namelen);
 
             SvREFCNT_inc(*old_data);
-            if (!hv_store(hv, SvPVX(full_name), SvCUR(full_name), *old_data, 0))
+            if (!hv_store_ent(hv, full_name, *old_data, 0))
                 SvREFCNT_dec(*old_data);
         }
         SvREFCNT_dec(full_name);
-    }
+#else
+        HV *hv = GvHV(PL_DBsub);
+
+        char *new_pkg = HvNAME(stash);
+
+        char *old_name = GvNAME( CvGV(cv) );
+        char *old_pkg = HvNAME( GvSTASH(CvGV(cv)) );
+
+        int old_len = strlen(old_name) + strlen(old_pkg);
+        int new_len = namelen + strlen(new_pkg);
+
+        SV **old_data;
+        char *full_name;
+
+        Newxz(full_name, (old_len > new_len ? old_len : new_len) + 3, char);
+
+        strcat(full_name, old_pkg);
+        strcat(full_name, "::");
+        strcat(full_name, old_name);
+
+        old_data = hv_fetch(hv, full_name, strlen(full_name), 0);
+
+        if (old_data) {
+            strcpy(full_name, new_pkg);
+            strcat(full_name, "::");
+            strcat(full_name, nameptr);
+
+            SvREFCNT_inc(*old_data);
+            if (!hv_store(hv, full_name, strlen(full_name), *old_data, 0))
+                SvREFCNT_dec(*old_data);
+        }
+        Safefree(full_name);
 #endif
+    }
+
     gv = (GV *) newSV(0);
 #if PERL_VERSION >= 16
     gv_init_pvn(gv, stash, nameptr, s - nameptr, GV_ADDMULTI | utf8flag);
