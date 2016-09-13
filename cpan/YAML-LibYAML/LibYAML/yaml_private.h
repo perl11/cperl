@@ -178,7 +178,7 @@ yaml_string_join(
  * Check the current octet in the buffer.
  */
 
-#define CHECK(string,octet) (CHECK_AT((string),(octet),0))
+#define CHECK(string,octet) CHECK_AT((string),(octet),0)
 
 /*
  * Check if the character at the specified position is an alphabetical
@@ -433,7 +433,7 @@ yaml_queue_extend(void **start, void **head, void **tail, void **end);
      (stack).start = (stack).top = (stack).end = 0)
 
 #define STACK_EMPTY(context,stack)                                              \
-    ((stack).start == (stack).top)
+    (stack).start == (stack).top
 
 #define STACK_LIMIT(context,stack,size)                                         \
     ((stack).top - (stack).start < (size) ?                                     \
@@ -466,7 +466,7 @@ yaml_queue_extend(void **start, void **head, void **tail, void **end);
      (queue).start = (queue).head = (queue).tail = (queue).end = 0)
 
 #define QUEUE_EMPTY(context,queue)                                              \
-    ((queue).head == (queue).tail)
+    (queue).head == (queue).tail
 
 #define ENQUEUE(context,queue,value)                                            \
     (((queue).tail != (queue).end                                               \

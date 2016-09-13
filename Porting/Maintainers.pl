@@ -1533,7 +1533,7 @@ use File::Glob qw(:case);
     },
 
     'YAML::LibYAML' => {
-        'DISTRIBUTION' => "RURBAN/YAML-LibYAML-0.71.tar.gz",
+        'DISTRIBUTION' => "RURBAN/YAML-LibYAML-0.73.tar.gz",
         'FILES'        => q[cpan/YAML-LibYAML],
         'CUSTOMIZED'   => [
           # allow PERL_CORE tests
