@@ -91,11 +91,12 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 protect sv in END during global destruction, esp. with B::C.
 fixes for missing . in @INC (cperl or -Dfortify_inc).
 
-=item YAML::XS  0.72
+=item YAML::XS  0.73
 
 merged with upstream libyaml 0.1.7
 avoid duplicate checks against NULL
 fix libyaml clang -Wlogical-op warnings
+fix libyaml clang -Wlogical-not-parentheses warnings
 
 =item Sub::Util  1.45_05
 
