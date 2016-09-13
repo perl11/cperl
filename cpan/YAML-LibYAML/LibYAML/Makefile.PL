@@ -28,7 +28,7 @@ my $DEFINE = $^O eq 'MSWin32'
 
 WriteMakefile(
     NAME => 'YAML::XS::LibYAML',
-    PREREQ_PM => {},
+    PREREQ_PM => { 'Test::Base' => 0.88 },
     # CCFLAGS => '-ansi -pedantic -Wall',
     # CCFLAGS => '-ansi -Wall',
     # CCFLAGS => '-pedantic -Wall',
@@ -39,6 +39,6 @@ WriteMakefile(
     INC => '-I.',
     OBJECT => $obj_files,
     ABSTRACT_FROM => 'lib/YAML/XS/LibYAML.pm',
-    VERSION_FROM => 'lib/YAML/XS/LibYAML.pm',
+    VERSION_FROM => -f '../lib/YAML/XS.pm' ? '../lib/YAML/XS.pm' : 'lib/YAML/XS/LibYAML.pm',
     AUTHOR => 'Ingy döt Net <ingy@cpan.org>',
 );
