@@ -9367,7 +9367,7 @@ Perl_newSVhek(pTHX_ const HEK *const hek)
 	    char *as_utf8 = (char *)bytes_to_utf8 ((U8*)HEK_KEY(hek), &utf8_len);
 	    /* bytes_to_utf8() allocates a new string, which we can repurpose: */
 	    sv_usepvn_flags(sv, as_utf8, utf8_len, SV_HAS_TRAILING_NUL);
-	    SvUTF8_on (sv);
+	    SvUTF8_on(sv);
             if (HEK_TAINTED(hek))
                 SvTAINTED_on(sv);
 	    return sv;
@@ -9376,14 +9376,14 @@ Perl_newSVhek(pTHX_ const HEK *const hek)
 	       the flag in every key so that we know not to try to call
 	       share_hek_hek on it.  */
 
-	    SV * const sv = newSVpvn (HEK_KEY(hek), HEK_LEN(hek));
+	    SV * const sv = newSVpvn(HEK_KEY(hek), HEK_LEN(hek));
 	    if (HEK_UTF8(hek))
-		SvUTF8_on (sv);
+		SvUTF8_on(sv);
             if (HEK_TAINTED(hek))
                 SvTAINTED_on(sv);
 	    return sv;
 	}
-	/* This will be overwhelminly the most common case.  */
+	/* This will be overwhelmingly the most common case.  */
 	{
 	    /* Inline most of newSVpvn_share(), because share_hek_hek() is far
 	       more efficient than sharepvn().  */

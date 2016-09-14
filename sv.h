@@ -170,11 +170,10 @@ typedef enum {
 #endif
 
 /* Adding each hash key to strtab also is massive overkill */
-/*
 #ifdef USE_CPERL
-#define NODEFAULT_SHAREKEYS
+#  define NODEFAULT_SHAREKEYS
 #endif
-*/
+
 
 /* There is collusion here with sv_clear - sv_clear exits early for SVt_NULL
    so never reaches the clause at the end that uses sv_type_details->body_size
