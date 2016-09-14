@@ -57,7 +57,7 @@ plan(1);
 # Ok all preparation is done
 note <<"EOF"
 Found keys '$first_key' and '$second_key' on chain $riter
-Will now iterato to key '$first_key' then delete '$first_key' and '$second_key'.
+Will now iterate to key '$first_key' then delete '$first_key' and '$second_key'.
 EOF
 ;
 1 until $first_key eq each %hash;

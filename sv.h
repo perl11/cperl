@@ -169,6 +169,13 @@ typedef enum {
 #  define SVt_RV	SVt_IV
 #endif
 
+/* Adding each hash key to strtab also is massive overkill */
+/*
+#ifdef USE_CPERL
+#define NODEFAULT_SHAREKEYS
+#endif
+*/
+
 /* There is collusion here with sv_clear - sv_clear exits early for SVt_NULL
    so never reaches the clause at the end that uses sv_type_details->body_size
    to determine whether to call safefree(). Hence body_size can be set
