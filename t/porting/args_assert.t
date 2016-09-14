@@ -3,7 +3,9 @@
 use strict;
 use warnings;
 use Config;
-
+BEGIN {
+  chdir 't' if -d 't' && -f 'MANIFEST';
+}
 require './test.pl';
 
 if ( $Config{usecrosscompile} ) {

@@ -42,6 +42,8 @@ ignored by the alphabetical order, as are all characters other than
 letters.  To look up your message, just ignore anything that is not a
 letter.
 
+Specially handled security warnings are listed as (S security).
+
 =over 4
 
 =item accept() on closed socket %s
@@ -2518,6 +2520,18 @@ something: a template character or a ()-group.  See L<perlfunc/pack>.
 (S internal) A routine asked for a symbol from a symbol table that ought
 to have existed already, but for some reason it didn't, and had to be
 created on an emergency basis to prevent a core dump.
+
+=item Hash flood
+
+(S security) If the collisions for a hash key lookup exceeds 128 tries
+(i.e. a linear search in a linked list), this qualifies as a malicious
+hash DoS (I<Denial of Service>) attack. Generally maximal 8 collisions
+appear in normal hash table usage. Every 8th such hash flood attack
+performs a sleep(2) to limit the impact.
+
+As every security warning this is prefixed with "SECURITY: " and has
+attacker specific suffices: The username, REMOTE_ADDR, application
+path.
 
 =item %s has too many errors
 

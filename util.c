@@ -2135,6 +2135,7 @@ S_vwarner_security(pTHX_ const U32 err, const char* pat, va_list* args)
     SV *msv;
     SV * const sv = mess_alloc();
     char *s;
+    PERL_ARGS_ASSERT_VWARNER_SECURITY;
 
     Perl_sv_catpvf(aTHX_ sv, "SECURITY: ");
     sv_vcatpvfn(sv, pat, strlen(pat), args, NULL, 0, NULL);

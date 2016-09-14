@@ -99,6 +99,7 @@ perl-5.22.3.
 * disallow silent overflows of hash and array indices. New "Too many elements" error.
 * harmonize overlarge (>2GB) data, max. I64/I32 string and array lengths,
   U32 hash keys. you can properly access all elements, unlike with perl5.
+* special handling for security warnings: protect against hash flood DoS.
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.

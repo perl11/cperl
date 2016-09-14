@@ -1,9 +1,11 @@
 #!/usr/bin/perl
 
 BEGIN {
-  @INC = '..' if -f '../TestInit.pm';
+  if (-f '../TestInit.pm') {
+    chdir '..';
+  }
+  @INC = ('lib', '.');
 }
-use TestInit qw(T); # T is chdir to the top level
 
 use warnings;
 use strict;
@@ -74,7 +76,7 @@ open my $diagfh, "<", $pod
 
 my $category_re = qr/ [a-z0-9_:]+?/;    # Note: requires an initial space
 my $severity_re = qr/ . (?: \| . )* /x; # A severity is a single char, but can
-                                        # be of the form 'S|P|W'
+                                        # be of the form 'S|P|W|C'
 my @same_descr;
 while (<$diagfh>) {
   if (m/^=item (.*)/) {
@@ -341,6 +343,7 @@ sub check_file {
                  :  $routine =~ /warn.*_d\z/   ? '[DS]'
                  :  $routine =~ /ck_warn/      ?  'W'
                  :  $routine =~ /warner/       ? '[WDS]'
+                 :  $routine =~ /warn_security/?  'S'
                  :  $routine =~ /warn/         ?  'S'
                  :  $routine =~ /ckWARN.*dep/  ?  'D'
                  :  $routine =~ /ckWARN\d*reg_d/? 'S'
@@ -353,6 +356,8 @@ sub check_file {
       $categories =
         join ", ",
               sort map {s/^WARN_//; lc $_} split /\s*[|,]\s*/, $category;
+    } elsif ($routine && $routine =~ /warn_security/) {
+      $categories = 'security';
     }
     if ($listed_as and $listed_as_line == $. - $multiline) {
       $name = $listed_as;

@@ -33,6 +33,23 @@ the C<\0> at the end.
 
 L<[perl #128952]|https://rt.perl.org/Public/Bug/Display.html?id=128952>
 
+=head2 Detect, protect and warn against hash flood DoS
+
+If the collisions for a hash key lookup exceeds 128 tries (i.e. a
+linear search in a linked list), this qualifies as a malicious hash
+DoS (I<Denial of Service>) attack. Generally maximal 8 collisions
+appear in normal hash table usage. Every 8th such hash flood attack
+performs a sleep(2) to limit the impact.
+
+This security scheme is much easier and faster than trying to hide the
+random hash seed with randomized iterators and collisions lists, which
+cperl doesn't use.
+
+Add a new warnings category 'security' with a special message. A
+"SECURITY: " prefix, as suffix the username, REMOTE_ADDR, full
+pathname to implement a service similar to fail2ban.  Bypass
+$SIG{__WARN__} handlers.  Print to STDERR and if available to syslog.
+
 =head1 Performance Enhancements
 
 =over 4
@@ -216,6 +233,14 @@ diagnostic messages, see L<perldiag>.
 
 =head2 New Diagnostics
 
+Added a new warnings category B<security> which is default ON,
+using a special message.
+
+A "SECURITY: " prefix, and as suffix the username, REMOTE_ADDR, full
+pathname to implement a service similar to fail2ban.  Bypass
+C<$SIG{__WARN__}> handlers.  Prints to STDERR and if available to
+syslog.
+
 =head3 New Errors
 
 =over 4
@@ -235,6 +260,17 @@ Even worse, accessing overflown unsigned array indices would silently
 access the signed counterpart, indices at the end.
 
 Note that the out of bound error message with shaped arrays is different.
+
+=back
+
+=head3 New Warnings
+
+=over 4
+
+=item *
+
+The new C<S security> warning "Hash flood" was added.
+See L</"Detect, protect and warn against hash flood DoS">.
 
 =back
 
