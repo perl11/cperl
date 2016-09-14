@@ -2328,9 +2328,9 @@ their variants.
 
 When Perl is built without options that set PERL_IMPLICIT_CONTEXT, there is no
 first argument containing the interpreter's context.  The trailing underscore
-in the pTHX_ macro indicates that the macro expansion needs a comma
+in the C<pTHX_> macro indicates that the macro expansion needs a comma
 after the context argument because other arguments follow it.  If
-PERL_IMPLICIT_CONTEXT is not defined, pTHX_ will be ignored, and the
+PERL_IMPLICIT_CONTEXT is not defined, C<pTHX_> will be ignored, and the
 subroutine is not prototyped to take the extra argument.  The form of the
 macro without the trailing underscore is used when there are no additional
 explicit arguments.
@@ -2357,11 +2357,11 @@ This doesn't work so cleanly for varargs functions, though, as macros
 imply that the number of arguments is known in advance.  Instead we
 either need to spell them out fully, passing C<aTHX_> as the first
 argument (the Perl core tends to do this with functions like
-Perl_warner), or use a context-free version.
+C<Perl_warner>), or use a context-free version.
 
 The context-free version of Perl_warner is called
-Perl_warner_nocontext, and does not take the extra argument.  Instead
-it does dTHX; to get the context from thread-local storage.  We
+C<Perl_warner_nocontext>, and does not take the extra argument.  Instead
+it does C<dTHX>; to get the context from thread-local storage.  We
 C<#define warner Perl_warner_nocontext> so that extensions get source
 compatibility at the expense of performance.  (Passing an arg is
 cheaper than grabbing it from thread-local storage.)

@@ -34,9 +34,6 @@ holds the key and hash value.
 #define PERL_HASH_INTERNAL_ACCESS
 #include "perl.h"
 
-/* fixme */
-#define warn_security(msg) Perl_warn(aTHX_ msg)
-
 /* New 90% fill rate ("load factor"). Was 100 before */
 #ifndef HV_FILL_RATE
 # define HV_FILL_RATE 90
@@ -66,7 +63,7 @@ static const char S_strtab_error[]
 #define CHECK_HASH_FLOOD(collisions)            \
     if (UNLIKELY(++collisions > 127)) {         \
         if (!(collisions % 8)) {                \
-            warn_security("Hash flood");        \
+            Perl_warn_security(aTHX_ "Hash flood");\
             PerlProc_sleep(2);                  \
         }                                       \
     }

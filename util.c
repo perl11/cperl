@@ -1006,11 +1006,11 @@ Perl_fbm_instr(pTHX_ unsigned char *big, unsigned char *bigend, SV *littlestr, U
 /*
 =for apidoc foldEQ
 
-Returns true if the leading C<len> bytes of the strings C<s1> and C<s2> are the
-same
-case-insensitively; false otherwise.  Uppercase and lowercase ASCII range bytes
-match themselves and their opposite case counterparts.  Non-cased and non-ASCII
-range bytes match only themselves.
+Returns true if the leading C<len> bytes of the strings C<s1> and
+C<s2> are the same case-insensitively; false otherwise.  Uppercase and
+lowercase ASCII range bytes match themselves and their opposite case
+counterparts.  Non-cased and non-ASCII range bytes match only
+themselves.
 
 =cut
 */
@@ -1060,8 +1060,9 @@ Perl_foldEQ_latin1(const char *s1, const char *s2, I32 len)
 /*
 =for apidoc foldEQ_locale
 
-Returns true if the leading C<len> bytes of the strings C<s1> and C<s2> are the
-same case-insensitively in the current locale; false otherwise.
+Returns true if the leading C<len> bytes of the strings C<s1> and
+C<s2> are the same case-insensitively in the current locale; false
+otherwise.
 
 =cut
 */
@@ -1297,6 +1298,7 @@ Perl_form_nocontext(const char* pat, ...)
 
 /*
 =head1 Miscellaneous Functions
+
 =for apidoc form
 
 Takes a sprintf-style format pattern and conventional
@@ -1337,7 +1339,7 @@ Perl_vform(pTHX_ const char *pat, va_list *args)
 }
 
 /*
-=for apidoc Am|SV *|mess|const char *pat|...
+=for apidoc Afpd|SV *|mess|const char *pat|...
 
 Take a sprintf-style format pattern and argument list.  These are used to
 generate a string message.  If the message does not end with a newline,
@@ -1378,14 +1380,21 @@ Perl_mess(pTHX_ const char *pat, ...)
     return retval;
 }
 
+/*
+=for apidoc p|const COP* |closest_cop |NN const COP *cop|NULLOK const OP *o|NULLOK const OP *curop|bool opnext
+
+Look for curop starting from o.
+cop is the last COP we've seen.
+opnext means that curop is actually the ->op_next of the op we are
+seeking.
+
+=cut
+*/
+
 const COP*
 Perl_closest_cop(pTHX_ const COP *cop, const OP *o, const OP *curop,
 		       bool opnext)
 {
-    /* Look for curop starting from o.  cop is the last COP we've seen. */
-    /* opnext means that curop is actually the ->op_next of the op we are
-       seeking. */
-
     PERL_ARGS_ASSERT_CLOSEST_COP;
 
     if (!o || !curop || (
@@ -1418,7 +1427,7 @@ Perl_closest_cop(pTHX_ const COP *cop, const OP *o, const OP *curop,
 }
 
 /*
-=for apidoc Am|SV *|mess_sv|SV *basemsg|bool consume
+=for apidoc Apd|SV *|mess_sv|NN SV *basemsg|bool consume
 
 Expands a message, intended for the user, to include an indication of
 the current location in the code, if the message does not already appear
@@ -1519,14 +1528,13 @@ Perl_mess_sv(pTHX_ SV *basemsg, bool consume)
 }
 
 /*
-=for apidoc Am|SV *|vmess|const char *pat|va_list *args
+=for apidoc Apd|SV *|vmess|NN const char *pat|NULLOK va_list *args
 
 C<pat> and C<args> are a sprintf-style format pattern and encapsulated
-argument list, respectively.  These are used to generate a string message.  If
-the
-message does not end with a newline, then it will be extended with
-some indication of the current location in the code, as described for
-L</mess_sv>.
+argument list, respectively.  These are used to generate a string
+message.  If the message does not end with a newline, then it will be
+extended with some indication of the current location in the code, as
+described for L</mess_sv>.
 
 Normally, the resulting message is returned in a new mortal SV.
 During global destruction a single SV may be shared between uses of
@@ -1880,7 +1888,7 @@ Perl_croak_shaped_array(const char *opname)
 }
 
 /*
-=for apidoc Am|void|warn_sv|SV *baseex
+=for apidoc Apd|void|warn_sv|SV *baseex
 
 This is an XS interface to Perl's C<warn> function.
 
@@ -1908,7 +1916,7 @@ Perl_warn_sv(pTHX_ SV *baseex)
 }
 
 /*
-=for apidoc Am|void|vwarn|const char *pat|va_list *args
+=for apidoc Apd|void|vwarn|const char *pat|va_list *args
 
 This is an XS interface to Perl's C<warn> function.
 
@@ -1936,7 +1944,7 @@ Perl_vwarn(pTHX_ const char* pat, va_list *args)
 }
 
 /*
-=for apidoc Am|void|warn|const char *pat|...
+=for apidoc Afpd|void|warn|const char *pat|...
 
 This is an XS interface to Perl's C<warn> function.
 
@@ -1989,6 +1997,37 @@ Perl_warner_nocontext(U32 err, const char *pat, ...)
 }
 #endif /* PERL_IMPLICIT_CONTEXT */
 
+/*
+=for apidoc Afp|void|warn_security|const char *pat|...
+
+This does an extended warn() call, dependent on the lexical state of
+warnings 'security', which is on by default.
+
+It prefixes the warning with "SECURITY:" and suffixes it with
+information of the caller. The full path of the application, if
+$ENV{REMOTE_IP} prints the ip and user name, if local the user name.
+
+If syslog is supported also prints to the syslog.
+
+=cut
+*/
+
+void
+Perl_warn_security(pTHX_ const char* pat, ...)
+{
+    const U32 err = packWARN(WARN_SECURITY);
+    PERL_ARGS_ASSERT_WARN_SECURITY;
+
+    if (Perl_ckwarn(aTHX_ err)) {
+	va_list args;
+	va_start(args, pat);
+	vwarner(err, pat, &args);
+	va_end(args);
+    }
+}
+
+/* If lexical warnings have not been set then default classes warn.  */
+
 void
 Perl_ck_warner_d(pTHX_ U32 err, const char* pat, ...)
 {
@@ -2001,6 +2040,8 @@ Perl_ck_warner_d(pTHX_ U32 err, const char* pat, ...)
 	va_end(args);
     }
 }
+
+/* If lexical warnings have not been set, use $^W.  */
 
 void
 Perl_ck_warner(pTHX_ U32 err, const char* pat, ...)
@@ -2030,10 +2071,9 @@ Perl_vwarner(pTHX_ U32  err, const char* pat, va_list* args)
 {
     dVAR;
     PERL_ARGS_ASSERT_VWARNER;
-    if (
-        (PL_warnhook == PERL_WARNHOOK_FATAL || ckDEAD(err)) &&
-        !(PL_in_eval & EVAL_KEEPERR)
-    ) {
+    if ((PL_warnhook == PERL_WARNHOOK_FATAL || ckDEAD(err))
+        && !(PL_in_eval & EVAL_KEEPERR))
+    {
 	SV * const msv = vmess(pat, args);
 
 	if (PL_parser && PL_parser->error_count) {

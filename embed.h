@@ -758,6 +758,7 @@
 #define vwarner(a,b,c)		Perl_vwarner(aTHX_ a,b,c)
 #ifndef PERL_IMPLICIT_CONTEXT
 #define warn			Perl_warn
+#define warn_security		Perl_warn_security
 #endif
 #define warn_sv(a)		Perl_warn_sv(aTHX_ a)
 #ifndef PERL_IMPLICIT_CONTEXT

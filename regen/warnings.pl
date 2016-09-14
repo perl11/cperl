@@ -113,6 +113,7 @@ my $tree = {
         'redundant'     => [ 5.021, DEFAULT_OFF],
         'locale'        => [ 5.021, DEFAULT_ON],
         'types'         => [ 5.024, DEFAULT_OFF],
+        'security'      => [ 5.025, DEFAULT_ON],
 
          #'default'     => [ 5.008, DEFAULT_ON ],
 }]};

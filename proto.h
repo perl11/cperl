@@ -5261,6 +5261,12 @@ PERL_CALLCONV void	Perl_warn(pTHX_ const char* pat, ...)
 #define PERL_ARGS_ASSERT_WARN	\
 	assert(pat)
 
+PERL_CALLCONV void	Perl_warn_security(pTHX_ const char* pat, ...)
+			__attribute__format__(__printf__,pTHX_1,pTHX_2)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_WARN_SECURITY	\
+	assert(pat)
+
 PERL_CALLCONV void	Perl_warn_sv(pTHX_ SV *baseex)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_WARN_SV	\
