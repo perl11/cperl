@@ -6,7 +6,7 @@
 #	Windows SDK 64-bit compiler and tools
 #
 # This is set up to build a perl.exe that runs off a shared library
-# (cperl524.dll).  Also makes individual DLLs for the XS extensions.
+# (cperl525.dll).  Also makes individual DLLs for the XS extensions.
 #
 
 ##
@@ -217,7 +217,7 @@ CCTYPE		*= GCC
 # set this to additionally provide a statically linked perl-static.exe.
 # Note that dynamic loading will not work with this perl, so you must
 # include required modules statically using the STATIC_EXT or ALL_STATIC
-# variables below. A static library cperl524s.lib will also be created.
+# variables below. A static library cperl525s.lib will also be created.
 # Ordinary perl.exe is not affected by this option.
 #
 #BUILD_STATIC	*= define
@@ -852,8 +852,8 @@ UTILS		=			\
 
 CFGSH_TMPL	= config.gc
 CFGH_TMPL	= config_H.gc
-PERLIMPLIB	= $(COREDIR)\libcperl524$(a)
-PERLSTATICLIB	= ..\libcperl524s$(a)
+PERLIMPLIB	= $(COREDIR)\libcperl525$(a)
+PERLSTATICLIB	= ..\libcperl525s$(a)
 INT64		= long long
 
 .ELSE
@@ -866,10 +866,10 @@ INT64		= __int64
 
 # makedef.pl must be updated if this changes, and this should normally
 # only change when there is an incompatible revision of the public API.
-PERLIMPLIB	*= $(COREDIR)\cperl524$(a)
-PERLEXPLIB	*= $(COREDIR)\cperl524.exp
-PERLSTATICLIB	*= ..\cperl524s$(a)
-PERLDLL		= ..\cperl524.dll
+PERLIMPLIB	*= $(COREDIR)\cperl525$(a)
+PERLEXPLIB	*= $(COREDIR)\cperl525.exp
+PERLSTATICLIB	*= ..\cperl525s$(a)
+PERLDLL		= ..\cperl525.dll
 
 #EUMM on Win32 isn't ready for parallel make, so only allow this file to be parallel
 #$(MAKE) will contain the -P that this makefile was called with, which is bad for
