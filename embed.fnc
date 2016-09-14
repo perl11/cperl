@@ -1734,6 +1734,9 @@ Afp	|void	|warn_security	|NN const char* pat|...
 Afp	|void	|ck_warner	|U32 err|NN const char* pat|...
 Afp	|void	|ck_warner_d	|U32 err|NN const char* pat|...
 Ap	|void	|vwarner	|U32 err|NN const char* pat|NULLOK va_list* args
+#if defined(PERL_IN_UTIL_C)
+s	|void	|vwarner_security |U32 err|NN const char* pat|NULLOK va_list* args
+#endif
 #ifdef USE_C_BACKTRACE
 pd	|Perl_c_backtrace*|get_c_backtrace|int max_depth|int skip
 dm	|void	|free_c_backtrace|NN Perl_c_backtrace* bt

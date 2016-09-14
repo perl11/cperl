@@ -8293,6 +8293,11 @@ PERL_CALLCONV UV	Perl__to_fold_latin1(pTHX_ const U8 c, U8 *p, STRLEN *lenp, con
 STATIC bool	S_ckwarn_common(pTHX_ U32 w);
 STATIC bool	S_invoke_exception_hook(pTHX_ SV *ex, bool warn);
 STATIC SV*	S_mess_alloc(pTHX);
+STATIC void	S_vwarner_security(pTHX_ U32 err, const char* pat, va_list* args)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_VWARNER_SECURITY	\
+	assert(pat)
+
 STATIC SV *	S_with_queued_errors(pTHX_ SV *ex)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_WITH_QUEUED_ERRORS	\

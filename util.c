@@ -1381,7 +1381,7 @@ Perl_mess(pTHX_ const char *pat, ...)
 }
 
 /*
-=for apidoc p|const COP* |closest_cop |NN const COP *cop|NULLOK const OP *o|NULLOK const OP *curop|bool opnext
+=for apidoc p|const COP* |closest_cop|NN const COP *cop|NULLOK const OP *o|NULLOK const OP *curop|bool opnext
 
 Look for curop starting from o.
 cop is the last COP we've seen.
@@ -2005,9 +2005,9 @@ warnings 'security', which is on by default.
 
 It prefixes the warning with "SECURITY:" and suffixes it with
 information of the caller. The full path of the application, if
-$ENV{REMOTE_IP} prints the ip and user name, if local the user name.
+$ENV{REMOTE_ADDR} prints the ip and user name, if local the user name.
 
-If syslog is supported also prints to the syslog.
+If syslog is supported also prints to the syslog. (TODO)
 
 =cut
 */
@@ -2021,12 +2021,18 @@ Perl_warn_security(pTHX_ const char* pat, ...)
     if (Perl_ckwarn(aTHX_ err)) {
 	va_list args;
 	va_start(args, pat);
-	vwarner(err, pat, &args);
+	vwarner_security(err, pat, &args);
 	va_end(args);
     }
 }
 
-/* If lexical warnings have not been set then default classes warn.  */
+/*
+=for apidoc ck_warner_d
+
+If lexical warnings have not been set then default classes warn.
+
+=cut
+*/
 
 void
 Perl_ck_warner_d(pTHX_ U32 err, const char* pat, ...)
@@ -2041,7 +2047,13 @@ Perl_ck_warner_d(pTHX_ U32 err, const char* pat, ...)
     }
 }
 
-/* If lexical warnings have not been set, use $^W.  */
+/*
+=for apidoc ck_warner
+
+If lexical warnings have not been set, use $^W.
+
+=cut
+*/
 
 void
 Perl_ck_warner(pTHX_ U32 err, const char* pat, ...)
@@ -2056,6 +2068,14 @@ Perl_ck_warner(pTHX_ U32 err, const char* pat, ...)
     }
 }
 
+/*
+=for apidoc warner
+
+warn without checking the state of lexical warnings or global $^W.
+
+=cut
+*/
+
 void
 Perl_warner(pTHX_ U32  err, const char* pat,...)
 {
@@ -2065,6 +2085,15 @@ Perl_warner(pTHX_ U32  err, const char* pat,...)
     vwarner(err, pat, &args);
     va_end(args);
 }
+
+/*
+=for apidoc vwarner
+
+The warner variant without varargs, thus suitable for a non-C99 macro.
+warner uses this.
+
+=cut
+*/
 
 void
 Perl_vwarner(pTHX_ U32  err, const char* pat, va_list* args)
@@ -2080,6 +2109,7 @@ Perl_vwarner(pTHX_ U32  err, const char* pat, va_list* args)
 	    qerror(msv);
 	}
 	else {
+            /* diehook */
 	    invoke_exception_hook(msv, FALSE);
 	    die_unwind(msv);
 	}
@@ -2089,24 +2119,91 @@ Perl_vwarner(pTHX_ U32  err, const char* pat, va_list* args)
     }
 }
 
-/* implements the ckWARN? macros */
+/*
+=for apidoc vwarner_security
+
+The vwarner variant which adds security specific prefix and suffices,
+and ignores any $SIG{__WARN__} hooks.
+
+=cut
+*/
+
+void
+S_vwarner_security(pTHX_ const U32 err, const char* pat, va_list* args)
+{
+    dVAR;
+    SV *msv;
+    SV * const sv = mess_alloc();
+    char *s;
+
+    Perl_sv_catpvf(aTHX_ sv, "SECURITY: ");
+    sv_vcatpvfn(sv, pat, strlen(pat), args, NULL, 0, NULL);
+
+    s = PerlEnv_getenv("REMOTE_ADDR");
+    if (s) {
+        char *user = PerlEnv_getenv("REMOTE_USER");
+        if (user)
+            Perl_sv_catpvf(aTHX_ sv, " from %s@%s", user, s);
+        else
+            Perl_sv_catpvf(aTHX_ sv, " from %s", s);
+    } else {
+        Perl_sv_catpvf(aTHX_ sv, " from %s (%d)", PerlProc_getlogin(),
+                       PerlProc_getuid());
+    }
+    msv = get_svs("\030", 0); /* $^X */
+    if (msv)
+        Perl_sv_catpvf(aTHX_ sv, " in %s", SvPVX_const(msv));
+
+    msv = mess_sv(sv, 1);
+
+    if ((PL_warnhook == PERL_WARNHOOK_FATAL || ckDEAD(err))
+        && !(PL_in_eval & EVAL_KEEPERR))
+    {
+	if (PL_parser && PL_parser->error_count) {
+	    qerror(msv);
+	}
+	else {
+            /* diehook */
+	    invoke_exception_hook(msv, FALSE);
+	    die_unwind(msv);
+	}
+    }
+    else {
+        /* ignore $SIG{__WARN__} hook */
+	write_to_stderr(msv);
+    }
+}
+
+/*
+=for apidoc ckwarn
+
+implements the ckWARN? macros.
+If lexical warnings have not been set, use $^W.
+
+=cut
+*/
 
 bool
 Perl_ckwarn(pTHX_ U32 w)
 {
-    /* If lexical warnings have not been set, use $^W.  */
     if (isLEXWARN_off)
 	return PL_dowarn & G_WARN_ON;
 
     return ckwarn_common(w);
 }
 
-/* implements the ckWARN?_d macro */
+/*
+=for apidoc ckwarn_d
+
+implements the ckWARN?_d macro.
+If lexical warnings have not been set then default classes warn.
+
+=cut
+*/
 
 bool
 Perl_ckwarn_d(pTHX_ U32 w)
 {
-    /* If lexical warnings have not been set then default classes warn.  */
     if (isLEXWARN_off)
 	return TRUE;
 

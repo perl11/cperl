@@ -1844,6 +1844,7 @@
 #define ckwarn_common(a)	S_ckwarn_common(aTHX_ a)
 #define invoke_exception_hook(a,b)	S_invoke_exception_hook(aTHX_ a,b)
 #define mess_alloc()		S_mess_alloc(aTHX)
+#define vwarner_security(a,b,c)	S_vwarner_security(aTHX_ a,b,c)
 #define with_queued_errors(a)	S_with_queued_errors(aTHX_ a)
 #    if defined(PERL_MEM_LOG) && !defined(PERL_MEM_LOG_NOIMPL)
 #define mem_log_common		S_mem_log_common
