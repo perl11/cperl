@@ -5623,8 +5623,9 @@ t/op/grep.t			See if grep() and map() work
 t/op/groups.t			See if $( works
 t/op/gv.t			See if typeglobs work
 t/op/hashassign.t		See if hash assignments work
+t/op/hashflood.t		See if the complexity attackers are repelled
 t/op/hash-rt85026.t		See if hash iteration/deletion works
-t/op/hash.t			See if the complexity attackers are repelled
+t/op/hash.t			See if normal hash usage works
 t/op/hashwarn.t			See if warnings for bad hash assignments work
 t/op/heredoc.t			See if heredoc edge and corner cases work
 t/op/hexfp.t			See if hexadecimal float literals work
@@ -5697,6 +5698,13 @@ t/op/reset.t			See if reset operator works
 t/op/reverse.t			See if reverse operator works
 t/op/rt119311.t			Test bug #119311 (die/DESTROY/recursion)
 t/op/runlevel.t			See if die() works from perl_call_*()
+t/op/seed-djb2-8-0.dat		hashflood.t data
+t/op/seed-fnv1a-8-0.dat		hashflood.t data
+t/op/seed-oaat_hard-8-0.dat	hashflood.t data
+t/op/seed-oaat_old-8-0.dat	hashflood.t data
+t/op/seed-sdbm-8-0.dat		hashflood.t data
+t/op/seed-siphash-8-0.dat	hashflood.t data
+t/op/seed-superfast-8-0.dat	hashflood.t data
 t/op/select.t			See if 0- and 1-argument select works
 t/op/setpgrpstack.t		See if setpgrp works
 t/op/sigdispatch.t		See if signals are always dispatched
