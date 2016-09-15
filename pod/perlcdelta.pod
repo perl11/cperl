@@ -33,7 +33,7 @@ the C<\0> at the end.
 
 L<[perl #128952]|https://rt.perl.org/Public/Bug/Display.html?id=128952>
 
-=head2 Detect, protect and warn against hash flood DoS
+=head2 Protect and warn on hash flood DoS
 
 If the collisions for a hash key lookup exceeds 128 tries (i.e. a
 linear search in a linked list), this qualifies as a malicious hash
@@ -41,14 +41,19 @@ DoS (I<Denial of Service>) attack. Generally maximal 8 collisions
 appear in normal hash table usage. Every 8th such hash flood attack
 performs a sleep(2) to limit the impact.
 
+Detect and protect against it, also call the new C<warn_security("Hash flood")>.
+
 This security scheme is much easier and faster than trying to hide the
 random hash seed with randomized iterators and collisions lists, which
 cperl doesn't use.
 
-Add a new warnings category 'security' with a special message. A
-"SECURITY: " prefix, as suffix the username, REMOTE_ADDR, full
-pathname to implement a service similar to fail2ban.  Bypass
-$SIG{__WARN__} handlers.  Print to STDERR and if available to syslog.
+See L</"New Diagnostics">.
+
+=head2 Warn on metasploit CVE-2015-1592
+
+Detect the destructive attack against Movable-Type, the third vector only,
+which tries to delete F<mt-config.cgi>. Call C<warn_security()>, but do
+not protect against it.
 
 =head1 Performance Enhancements
 
@@ -102,6 +107,10 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 =head2 Updated Modules and Pragmata
 
 =over 4
+
+=item Storable  3.01c
+
+L</"Warn on metasploit CVE-2015-1592">
 
 =item Config  6.22
 
@@ -270,7 +279,7 @@ Note that the out of bound error message with shaped arrays is different.
 =item *
 
 The new C<S security> warning "Hash flood" was added.
-See L</"Detect, protect and warn against hash flood DoS">.
+See L</"Protect and warn on hash flood DoS">.
 
 =back
 
