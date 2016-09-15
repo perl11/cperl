@@ -448,6 +448,7 @@ C<SV*>.
 #define HEK_WASUTF8(hek)	(HEK_FLAGS(hek) & HVhek_WASUTF8)
 #define HEK_WASUTF8_on(hek)	(HEK_FLAGS(hek) |= HVhek_WASUTF8)
 #define HEK_WASUTF8_off(hek)	(HEK_FLAGS(hek) &= ~HVhek_WASUTF8)
+#define HEK_UNSHARED(hek)	(HEK_FLAGS(hek) & HVhek_UNSHARED)
 #define HEK_TAINTED(hek)	(HEK_FLAGS(hek) & HVhek_TAINTED)
 #define HEK_TAINTED_on(hek)	(HEK_FLAGS(hek) |= HVhek_TAINTED)
 #define HEK_STATIC(hek)		(HEK_FLAGS(hek) & HVhek_STATIC)
@@ -476,12 +477,12 @@ C<SV*>.
 #define Perl_sharepvn(pv, len, hash) HEK_KEY(share_hek(pv, len, hash))
 #define sharepvn(pv, len, hash)	     Perl_sharepvn(pv, len, hash)
 
+#define share_hek_he(hek)						\
+    ((struct shared_he *)(((char *)hek)                                 \
+     - STRUCT_OFFSET(struct shared_he, shared_he_hek)))
 #define share_hek_hek(hek)						\
     (UNLIKELY(HEK_STATIC(hek)) ? (hek) :                                \
-    (++(((struct shared_he *)(((char *)hek)				\
-			      - STRUCT_OFFSET(struct shared_he,		\
-					      shared_he_hek)))		\
-	->shared_he_he.he_valu.hent_refcount),       			\
+     (++(share_hek_he(hek)->shared_he_he.he_valu.hent_refcount),        \
      hek))
 
 #define hv_store_ent(hv, keysv, val, hash)				\

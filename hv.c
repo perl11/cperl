@@ -649,16 +649,17 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
     if (keysv && (SvIsCOW_shared_hash(keysv))) {
         if (HvSHAREKEYS(hv)) {
-            keysv_hek  = SvSHARED_HEK_FROM_PV(SvPVX_const(keysv));
+            keysv_hek = SvSHARED_HEK_FROM_PV(SvPVX_const(keysv));
             DEBUG_H(PerlIO_printf(Perl_debug_log,
                         "HASH SHAREKEYS + shared_hash\t%s{%.*s}\n",
                          HvNAME_get(hv)?HvNAME_get(hv):"",
                          (int)HEK_LEN(keysv_hek), HEK_KEY(keysv_hek)));
         } else {
             DEBUG_H(PerlIO_printf(Perl_debug_log,
-                        "HASH shared_hash\t\t%s{%.*s}\n",
+                        "HASH \t\t%s{%.*s SV 0x%x}\n",
                          HvNAME_get(hv)?HvNAME_get(hv):"",
-                         (int)SvCUR(keysv), SvPVX_const(keysv)));
+                         (int)SvCUR(keysv), SvPVX_const(keysv),
+                         HEK_FLAGS(SvSHARED_HEK_FROM_PV(SvPVX_const(keysv)))));
         }
         hash = SvSHARED_HASH(keysv);
     }
@@ -810,7 +811,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
             }
             HeNEXT(entry) = *oentry;
             *oentry = entry;
-            /*DEBUG_H(HvTOTALKEYS(hv) < 11 ? Perl_hv_dump(hv, 0) : "");*/
+            /*DEBUG_Hv(HvTOTALKEYS(hv) < 11 ? Perl_hv_dump(hv, 0) : "");*/
         }
 #endif
 
@@ -1756,6 +1757,7 @@ S_hv_free_ent_ret(pTHX_ HV *hv, HE *entry)
     const HEK* hek = HeKEY_hek(entry);
 
     PERL_ARGS_ASSERT_HV_FREE_ENT_RET;
+    PERL_UNUSED_ARG(hv);
 
     val = HeVAL(entry);
     if (HeKLEN(entry) == HEf_SVKEY) {
@@ -1763,9 +1765,10 @@ S_hv_free_ent_ret(pTHX_ HV *hv, HE *entry)
 	Safefree(hek);
     }
     else if (!HEK_UNSHARED(hek))
-	unshare_hek(hek);
+        unshare_hek(hek);
     else if (!HEK_STATIC(hek))
 	Safefree(hek);
+
     del_HE(entry);
     return val;
 }
@@ -2445,18 +2448,18 @@ Perl_hv_name_set(pTHX_ HV *hv, const char *name, U32 len, U32 flags)
     if (SvOOK(hv)) {
 	iter = HvAUX(hv);
 	if (iter->xhv_name_u.xhvnameu_name) {
-	    if(iter->xhv_name_count) {
-	      if(flags & HV_NAME_SETALL) {
+	    if (iter->xhv_name_count) {
+	      if (flags & HV_NAME_SETALL) {
 		HEK ** const name = HvAUX(hv)->xhv_name_u.xhvnameu_names;
 		HEK **hekp = name + (
 		    iter->xhv_name_count < 0
 		     ? -iter->xhv_name_count
 		     :  iter->xhv_name_count
 		   );
-		while(hekp-- > name+1) 
+		while (hekp-- > name+1) 
 		    unshare_hek_or_pvn(*hekp, 0, 0, 0);
 		/* The first elem may be null. */
-		if(*name) unshare_hek_or_pvn(*name, 0, 0, 0);
+		if (*name) unshare_hek_or_pvn(*name, 0, 0, 0);
 		Safefree(name);
                 iter = HvAUX(hv); /* may been realloced */
 		spot = &iter->xhv_name_u.xhvnameu_name;
@@ -2473,7 +2476,7 @@ Perl_hv_name_set(pTHX_ HV *hv, const char *name, U32 len, U32 flags)
 		    spot[1] = spot[0];
 		    iter->xhv_name_count = -(iter->xhv_name_count + 1);
 		}
-		else if(*(spot = iter->xhv_name_u.xhvnameu_names)) {
+		else if (*(spot = iter->xhv_name_u.xhvnameu_names)) {
 		    unshare_hek_or_pvn(*spot, 0, 0, 0);
 		}
 	      }
@@ -3042,17 +3045,17 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
         if (HEK_STATIC(hek))
             return;
 	/* Find the shared he which is just before us in memory.  */
-	he = (struct shared_he *)(((char *)hek)
-				  - STRUCT_OFFSET(struct shared_he,
-						  shared_he_hek));
+	he = share_hek_he(hek);
+	/*DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%"UVxf": unshare_hek(0x%"UVxf") %ld len\n",
+                                                PTR2UV(he), PTR2UV(hek), (long)HEK_LEN(hek)));*/
 	/* Assert that the caller passed us a genuine (or at least consistent)
-	   shared hek  */
-	assert (he->shared_he_he.hent_hek == hek);
+	   shared hek */
+        assert (he->shared_he_he.hent_hek == hek);
 
-	if (he->shared_he_he.he_valu.hent_refcount - 1) {
-	    --he->shared_he_he.he_valu.hent_refcount;
-	    return;
-	}
+        if (he->shared_he_he.he_valu.hent_refcount - 1) {
+            --he->shared_he_he.he_valu.hent_refcount;
+            return;
+        }
 
         hash = HEK_HASH(hek);
     } else if (len < 0) {
@@ -3098,9 +3101,13 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
 
     if (entry) {
         if (--entry->he_valu.hent_refcount == 0) {
+            const HEK *fhek = HeKEY_hek(entry);
             *oentry = HeNEXT(entry);
-            if (UNLIKELY(!HEK_STATIC(HeKEY_hek(entry))))
+            if (UNLIKELY(!HEK_STATIC(fhek))) {
+                DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%"UVxf": unshare_hek(0x%"UVxf") %ld len\n",
+                                      PTR2UV(entry), PTR2UV(fhek), (long)HEK_LEN(fhek)));
                 Safefree(entry);
+            }
             xhv->xhv_keys--;
         }
     }
@@ -3111,8 +3118,11 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
 			 pTHX__FORMAT,
 			 hek ? HEK_KEY(hek) : str,
 			 ((k_flags & HVhek_UTF8) ? " (utf8)" : "") pTHX__VALUE);
-    if (k_flags & HVhek_FREEKEY && !(k_flags & HVhek_STATIC))
+    if (k_flags & HVhek_FREEKEY && !(k_flags & HVhek_STATIC)) {
+        DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%"UVxf": unshare_pvn FREEKEY %ld len\n",
+                              PTR2UV(str), (long)len));
 	Safefree(str);
+    }
 }
 
 /*
@@ -3214,11 +3224,13 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 	   HE directly from the HEK.
 	*/
 
-	Newx(k, STRUCT_OFFSET(struct shared_he,
-				shared_he_hek.hek_key[0]) + len + 2, char);
+	Newx(k, STRUCT_OFFSET(struct shared_he, shared_he_hek.hek_key[0])
+                + len + 2, char);
 	new_entry = (struct shared_he *)k;
 	entry = &(new_entry->shared_he_he);
 	hek = &(new_entry->shared_he_hek);
+	DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%"UVxf":   share_hek(0x%"UVxf") %ld len\n",
+                              PTR2UV(entry), PTR2UV(hek), (long)len));
 
 	Copy(str, HEK_KEY(hek), len, char);
 	HEK_KEY(hek)[len] = 0;
@@ -3961,23 +3973,26 @@ Perl_hv_assert(pTHX_ HV *hv)
     (void)hv_iterinit(hv);
 
     while ((entry = hv_iternext_flags(hv, HV_ITERNEXT_WANTPLACEHOLDERS))) {
+        const HEK* hek = HeKEY_hek(entry);
 	/* sanity check the values */
 	if (HeVAL(entry) == &PL_sv_placeholder)
 	    placeholders++;
 	else
 	    real++;
+        if (!HEK_UNSHARED(hek))
+            assert(entry == &(share_hek_he(hek)->shared_he_he));
 	/* sanity check the keys */
-	if (HeSVKEY(entry)) {
+	if (HEK_IS_SVKEY(hek)) {
 	    NOOP;   /* Don't know what to check on SV keys.  */
-	} else if (HeKUTF8(entry)) {
+	} else if (HEK_UTF8(hek)) {
 	    withflags++;
-	    if (HeKWASUTF8(entry)) {
+	    if (HEK_WASUTF8(hek)) {
 		PerlIO_printf(Perl_debug_log,
 			    "hash key has both WASUTF8 and UTF8: '%.*s'\n",
-			    (int) HeKLEN(entry),  HeKEY(entry));
+			    (int)HEK_LEN(hek),  HEK_KEY(hek));
 		bad = 1;
 	    }
-	} else if (HeKWASUTF8(entry))
+	} else if (HEK_WASUTF8(hek))
 	    withflags++;
     }
     if (!SvTIED_mg((const SV *)hv, PERL_MAGIC_tied)) {

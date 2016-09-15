@@ -6686,9 +6686,12 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 			    SvLEN_set(sv, 0);
 			}
 		    } else {
-			unshare_hek(SvSHARED_HEK_FROM_PV(SvPVX_const(sv)));
+                        const HEK* hek = SvSHARED_HEK_FROM_PV(SvPVX_const(sv));
+                        if (!HEK_UNSHARED(hek))
+                            unshare_hek(hek);
+                        else if (!HEK_STATIC(hek))
+                            Safefree(hek);
 		    }
-
 		}
 		if (SvLEN(sv)) {
 		    Safefree(SvPVX_mutable(sv));
@@ -6700,7 +6703,11 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 		     && !(IoFLAGS(sv) & IOf_FAKE_DIRP)))
 		Safefree(SvPVX_mutable(sv));
 	    else if (SvPVX_const(sv) && SvIsCOW(sv)) {
-		unshare_hek(SvSHARED_HEK_FROM_PV(SvPVX_const(sv)));
+                const HEK* hek = SvSHARED_HEK_FROM_PV(SvPVX_const(sv));
+                if (!HEK_UNSHARED(hek))
+                    unshare_hek(hek);
+                else if (!HEK_STATIC(hek))
+                    Safefree(hek);
 	    }
 #endif
 	    break;
@@ -9366,6 +9373,10 @@ Perl_newSVhek(pTHX_ const HEK *const hek)
 	    /* Inline most of newSVpvn_share(), because share_hek_hek() is far
 	       more efficient than sharepvn().  */
 	    SV *sv;
+#ifdef DEBUGGING
+            const struct shared_he *he = share_hek_he(hek);
+            assert (he->shared_he_he.hent_hek == hek);
+#endif
 
 	    new_SV(sv);
 	    sv_upgrade(sv, SVt_PV);
@@ -9429,7 +9440,7 @@ Perl_newSVpvn_share(pTHX_ const char *src, I32 len, U32 hash)
     if (is_utf8)
         SvUTF8_on(sv);
     if (src != orig_src)
-	Safefree(src);
+        Safefree(src);
     return sv;
 }
 
