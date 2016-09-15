@@ -4250,7 +4250,7 @@ PERL_CALLCONV int	perl_run(PerlInterpreter *my_perl)
 PERL_CALLCONV void	Perl_pmop_dump(pTHX_ PMOP* pm)
 			__attribute__global__;
 
-PERL_CALLCONV OP*	Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, bool isreg, I32 floor)
+PERL_CALLCONV OP*	Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, UV flags, I32 floor)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_PMRUNTIME	\

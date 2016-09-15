@@ -69,13 +69,15 @@ EOF
 } else {
   $b=<<EOF;
 leave enter nextstate label leaveloop enterloop null and defined null null
-gvsv readline gv lineseq nextstate aassign null pushmark split pushre null
+gvsv readline gv lineseq nextstate aassign null pushmark split null
 gvsv const null pushmark rvav gv nextstate subst const unstack
 EOF
 }
 #$b .= " nextstate" if $] < 5.008001; # ??
 $b=~s/\n/ /g; $b=~s/\s+/ /g;
 $b =~ s/\s+$//;
+$b =~ s/ pushre// if ($] >= 5.025006 # pushre merged into split
+                      or ($Config{usecperl} and $] >= 5.025003));
 
 TODO: {
   local $TODO = '5.21.5 split optimization' if $] == 5.021005;

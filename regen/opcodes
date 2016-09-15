@@ -61,8 +61,6 @@ padhv		private hash		ck_null		d0		"():Hash"
 # throws unimplemented op
 padany		private value		ck_null		d0		"():Void"
 
-pushre		push regexp		ck_null		d/
-
 # Lvalue operators.
 
 sassign		scalar assignment	ck_sassign	s2	S S	"(:Scalar,:Scalar):Scalar"
@@ -348,7 +346,7 @@ multideref	array or hash lookup	ck_null		ds+
 
 unpack		unpack			ck_fun		fu@	S S?
 pack		pack			ck_fun		fmst@	S L
-split		split			ck_split	t@	S S S
+split		split			ck_split	t/	S S S
 join		join or string		ck_join		fmst@	S L
 
 # List operators.

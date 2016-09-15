@@ -122,7 +122,6 @@ padsv		SKIP my $x
 padav		SKIP my @x
 padhv		SKIP my %x
 padany		SKIP (internal)
-pushre		SKIP split /foo/
 rv2gv		*x
 rv2sv		$x
 av2arylen	$#x

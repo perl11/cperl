@@ -398,7 +398,7 @@ addbits($_, 4 => qw(OPpTARGET_MY TARGMY))
     # ck_match does not know about TARGET_MY/TARGLEX.
     # This flag is also used to indicate matches against implicit $_,
     # where $_ is lexical; e.g. my $_; ....; /foo/
-    qw(match subst pushre qr trans transr);
+    qw(match subst qr trans transr);
 
 
 
@@ -414,8 +414,8 @@ addbits($_, 7 => qw(OPpLVALUE LV)) for qw(leave leaveloop);
 
 
 # Pattern coming in on the stack
-addbits($_, 6 => qw(OPpRUNTIME RTIME))
-    for qw(match subst substcont qr pushre);
+addbits($_, 5 => qw(OPpRUNTIME RTIME))
+    for qw(match subst substcont qr split);
 
 # autovivify: Want ref to something, disabled for aelem*_u
 for (qw(rv2gv rv2sv padsv aelem helem entersub enterxssub)) {
@@ -757,8 +757,13 @@ addbits('coreargs',
 
 
 
-addbits('split', 7 => qw(OPpSPLIT_IMPLIM IMPLIM)); # implicit limit
-
+addbits('split',
+    7 => qw(OPpSPLIT_IMPLIM IMPLIM), # implicit limit
+    # @a = split() has been replaced with  split() where split itself
+    # does the array assign
+    4 => qw(OPpSPLIT_ASSIGN ASSIGN), 
+    3 => qw(OPpSPLIT_LEX LEX),  # the OPpSPLIT_ASSIGN is a lexical array
+);
 
 
 addbits($_,
