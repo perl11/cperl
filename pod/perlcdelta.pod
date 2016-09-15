@@ -27,7 +27,22 @@ XXX Any security-related notices go here.  In particular, any security
 vulnerabilities closed should be noted here rather than in the
 L</Selected Bug Fixes> section.
 
-[ List each security issue as a =head2 entry ]
+=head2 Detect, protect and warn against hash flood DoS
+
+If the collisions for a hash key lookup exceeds 128 tries (i.e. a
+linear search in a linked list), this qualifies as a malicious hash
+DoS (I<Denial of Service>) attack. Generally maximal 8 collisions
+appear in normal hash table usage. Every 8th such hash flood attack
+performs a sleep(2) to limit the impact.
+
+This security scheme is much easier and faster than trying to hide the
+random hash seed with randomized iterators and collisions lists, which
+cperl doesn't use.
+
+=head2 Warn on metasploit CVE-2015-1592
+
+Detect the destructive attack against Movable-Type, the third vector only,
+which tries to delete F<mt-config.cgi>. Warn but do not protect against it.
 
 =head1 Performance Enhancements
 
@@ -68,7 +83,11 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
-=item ExtUtils::Liblist::Kid 8.04_06
+=item Storable  3.01c
+
+L</"Warn on metasploit CVE-2015-1592">
+
+=item Config  6.22
 
 one more darwin fix for the wrong no library found warning
 for symlinked darwin libSystem.dylib libraries.
@@ -182,6 +201,11 @@ capable size was silently ignored, leading to performance degradation
 with overly high fill factors and extending an array failed only on
 memory exhaustion, but the signed index led to an index overflow
 between I32 and U32, resp.  I64 and U64.
+
+Even worse, accessing overflown unsigned array indices would silently
+access the signed counterpart, indices at the end.
+
+Note that the out of bound error message with shaped arrays is different.
 
 =back
 

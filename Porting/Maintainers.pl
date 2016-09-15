@@ -1199,6 +1199,13 @@ use File::Glob qw(:case);
     'Storable' => {
         'DISTRIBUTION' => 'AMS/Storable-2.51.tar.gz',
         'FILES'        => q[dist/Storable],
+        # no, we use our own 3.01c with many security fixes.
+        'CUSTOMIZED'   => [
+            qw( Storable.xs Storable.pm
+		ChangeLog README
+		t/huge.t t/blessed.t
+		t/CVE-2015-1592.inc t/CVE-2015-1592.t )
+        ]
     },
 
     'Sys::Syslog' => {
