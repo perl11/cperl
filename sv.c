@@ -13866,7 +13866,7 @@ S_sv_dup_common(pTHX_ const SV *const sstr, CLONE_PARAMS *const param)
 		break;
 	    case SVt_PVHV:
 		if (HvARRAY((const HV *)sstr)) {
-		    SSize_t i = 0;
+		    U32 i = 0;
 		    const bool sharekeys = !!HvSHAREKEYS(sstr);
 		    XPVHV * const dxhv = (XPVHV*)SvANY(dstr);
 		    XPVHV * const sxhv = (XPVHV*)SvANY(sstr);
