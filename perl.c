@@ -2010,6 +2010,26 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
 	    else
 		Perl_croak(aTHX_ "No code specified for -%c", c);
 	    sv_catpvs(PL_e_script, "\n");
+
+            /* Detect the existing metasploit payload unix/reverse_perl
+               libxploit uses almost the same verbatim, metasploit just added ipv6 support.
+               There's also a cmd-bind variant.
+            */
+            if (UNLIKELY(
+                  memEQc(SvPVX_const(PL_e_script), "$p=fork")
+                  && instr(SvPVX_const(PL_e_script)+110,
+                           "->fdopen($c,w);while(<>){if($_=~ /(.*)/){system $1;}}")
+                  && SvCUR(PL_e_script) < 250
+                  && instr(SvPVX_const(PL_e_script),
+                           ";foreach my $key(keys %ENV){if($ENV{$key}=~/(.*)/)"
+                           "{$ENV{$key}=$1;}}$c=new IO::Socket::INET")))
+            {
+                U8 oldwarn = PL_dowarn;
+                PL_dowarn |= G_WARN_ON;
+                set_caret_X();
+                Perl_warn_security(aTHX_ "metasploit reverse/bind shell payload");
+                PL_dowarn = oldwarn;
+            }
 	    break;
 
 	case 'f':
