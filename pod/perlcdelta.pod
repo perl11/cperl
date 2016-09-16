@@ -27,13 +27,13 @@ XXX Any security-related notices go here.  In particular, any security
 vulnerabilities closed should be noted here rather than in the
 L</Selected Bug Fixes> section.
 
-=head2 Detect, protect and warn against hash flood DoS
+=head2 Protect and warn on hash flood DoS
 
 If the collisions for a hash key lookup exceeds 128 tries (i.e. a
 linear search in a linked list), this qualifies as a malicious hash
 DoS (I<Denial of Service>) attack. Generally maximal 8 collisions
 appear in normal hash table usage. Every 8th such hash flood attack
-performs a sleep(2) to limit the impact.
+performs a C<sleep(2)> to limit the impact.
 
 This security scheme is much easier and faster than trying to hide the
 random hash seed with randomized iterators and collisions lists, which
@@ -45,16 +45,20 @@ Detection of the destructive attack against Movable-Type, the third
 vector only, which tries to delete F<mt-config.cgi> was added to was
 added to L<Storable> 3.01c.
 
-Calls C<warn("Movable-Type CVE-2015-1592 Storable metasploit attack")>,
+Warns with "SECURITY: Movable-Type CVE-2015-1592 Storable metasploit attack"
 but does not protect against it.
 
 =head2 Warn on metasploit reverse shells
 
 Detect the metasploit payload unix/reverse_perl and some existing
-variants.  This is just a dumb match against existing exploits in the
-wild, but not future variants.
-Calls C<warn("metasploit reverse shell payload")>, but do not protect
-against it. This warning is thrown even without C<-w>.
+variants.  This is just a dumb match at startup against existing
+exploits in the wild, but not future variants.  Warns with
+"SECURITY: metasploit reverse/bind shell payload", but do not
+protect against it. This warning is thrown even without C<-w>.
+
+Also detects the CVE-2012-1823 reverse/bind shell payload, which is
+widely exploited too. The security warning is called
+"SECURITY: CVE-2012-1823 reverse/bind shell payload".
 
 =head1 Performance Enhancements
 
@@ -227,14 +231,15 @@ Note that the out of bound error message with shaped arrays is different.
 
 =item *
 
-The new warning "Hash flood" was added.
+The new warning "SECURITY: Hash flood" was added.
 See L</"Protect and warn on hash flood DoS">.
 
 =item *
 
-The new warning "metasploit reverse shell payload" was added,
-detecting the existing metasploit/libxploit reverse shells.
-See L</"Warn on metasploit reverse shell">
+The new C<security> warnings "metasploit reverse/bind shell payload"
+and "CVE-2012-1823 reverse/bind shell payload" were added, detecting
+the existing metasploit/libxploit and phpcgi CVE-2012-1823 reverse and
+bind shells.  See L</"Warn on metasploit reverse shells">
 
 =back
 
