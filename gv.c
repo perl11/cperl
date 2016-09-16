@@ -1050,7 +1050,7 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 	   the error reporting code.  */
     }
 
-    for (nend = name; nend < name_end && *nend; nend++) {
+    for (nend = name; nend < name_end; nend++) {
 	if (*nend == '\'') {
 	    nsplit = nend;
 	    name = nend + 1;
