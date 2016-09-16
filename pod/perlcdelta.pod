@@ -98,6 +98,10 @@ avoid duplicate checks against NULL
 fix libyaml clang -Wlogical-op warnings
 fix libyaml clang -Wlogical-not-parentheses warnings
 
+=item List::Util  1.45_06
+
+sum/min/max need to call SvGETMAGIC
+
 =item Sub::Util  1.45_05
 
 set_subname memory fix by @bluhm from Sub::Name 0.20

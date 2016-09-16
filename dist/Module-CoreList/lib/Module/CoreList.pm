@@ -13313,7 +13313,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'YAML::XS'              => '0.73',
             'YAML::LibYAML'         => '0.73',
             'Scalar::Util'          => '1.45_05',
-            'List::Util'            => '1.45_05',
+            'List::Util'            => '1.45_06',
             'Sub::Util'             => '1.45_05',
             'ExtUtils::Liblist::Kid'=> '8.04_06',
             'IO::Socket::IP'        => '0.38',
