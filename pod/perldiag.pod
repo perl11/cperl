@@ -1919,6 +1919,15 @@ L<perlfunc/pack>.
 The following are used in lib/diagnostics.t for testing two =items that
 share the same description.  Changes here need to be propagated to there
 
+=item CVE-2012-1823 reverse/bind shell payload
+
+(S security) Warn against the known CVE-2012-1823 phpcgi reverse/bind
+shell payloads, inspecting the content of C<-e>.
+
+As every security warning this is prefixed with "SECURITY: " and has
+attacker specific suffices: The username, REMOTE_ADDR, application
+path.
+
 =item Deep recursion on anonymous subroutine
 
 =item Deep recursion on subroutine "%s"
@@ -3536,6 +3545,15 @@ interpreter, especially if the word that is being warned about is
 (F) You can't pack a string by supplying a checksum, because the
 checksumming process loses information, and you can't go the other way.
 See L<perlfunc/unpack>.
+
+=item metasploit reverse/bind shell payload
+
+(S security) Warn against 3 known metasploit/libxploit reverse/bind
+shell payloads, inspecting the content of C<-e>.
+
+As every security warning this is prefixed with "SECURITY: " and has
+attacker specific suffices: The username, REMOTE_ADDR, application
+path.
 
 =item Method for operation %s not found in package %s during blessing
 

@@ -61,10 +61,14 @@ attack")>, but does not protect against it.
 =head2 Warn on metasploit reverse shells
 
 Detect the metasploit payload unix/reverse_perl and some existing
-variants.  This is just a dumb match against existing exploits in the
-wild, but not future variants.  Calls C<warn_security("metasploit
-reverse shell payload")>, but do not protect against it. This warning
-is thrown even without C<-w>.
+variants.  This is just a dumb match at startup against existing
+exploits in the wild, but not future variants.  Calls
+C<warn_security("metasploit reverse/bind shell payload")>, but do not
+protect against it. This warning is thrown even without C<-w>.
+
+Also detects the CVE-2012-1823 reverse/bind shell payload, which is
+widely exploited too. The security warning is called "CVE-2012-1823
+reverse/bind shell payload".
 
 =head1 Performance Enhancements
 
@@ -294,9 +298,10 @@ See L</"Protect and warn on hash flood DoS">.
 
 =item *
 
-The new C<S security> warning "metasploit reverse shell payload" was added,
-detecting the existing metasploit/libxploit reverse shells.
-See L</"Warn on metasploit reverse shell">
+The new C<S security> warnings "metasploit reverse/bind shell payload"
+and "CVE-2012-1823 reverse/bind shell payload" were added, detecting
+the existing metasploit/libxploit and phpcgi CVE-2012-1823 reverse and
+bind shells.  See L</"Warn on metasploit reverse shells">
 
 =back
 

