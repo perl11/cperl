@@ -41,8 +41,20 @@ cperl doesn't use.
 
 =head2 Warn on metasploit CVE-2015-1592
 
-Detect the destructive attack against Movable-Type, the third vector only,
-which tries to delete F<mt-config.cgi>. Warn but do not protect against it.
+Detection of the destructive attack against Movable-Type, the third
+vector only, which tries to delete F<mt-config.cgi> was added to was
+added to L<Storable> 3.01c.
+
+Calls C<warn("Movable-Type CVE-2015-1592 Storable metasploit attack")>,
+but does not protect against it.
+
+=head2 Warn on metasploit reverse shells
+
+Detect the metasploit payload unix/reverse_perl and some existing
+variants.  This is just a dumb match against existing exploits in the
+wild, but not future variants.
+Calls C<warn("metasploit reverse shell payload")>, but do not protect
+against it. This warning is thrown even without C<-w>.
 
 =head1 Performance Enhancements
 
@@ -206,6 +218,23 @@ Even worse, accessing overflown unsigned array indices would silently
 access the signed counterpart, indices at the end.
 
 Note that the out of bound error message with shaped arrays is different.
+
+=back
+
+=head3 New Warnings
+
+=over 4
+
+=item *
+
+The new warning "Hash flood" was added.
+See L</"Protect and warn on hash flood DoS">.
+
+=item *
+
+The new warning "metasploit reverse shell payload" was added,
+detecting the existing metasploit/libxploit reverse shells.
+See L</"Warn on metasploit reverse shell">
 
 =back
 

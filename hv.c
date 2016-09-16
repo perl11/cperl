@@ -54,7 +54,7 @@ static const char S_strtab_error[]
 #define CHECK_HASH_FLOOD(collisions)            \
     if (UNLIKELY(++collisions > 127)) {         \
         if (!(collisions % 8)) {                \
-            warn_security("Hash flood");        \
+            warn_security("SECURITY: Hash flood"); \
             PerlProc_sleep(2);                  \
         }                                       \
     }
