@@ -685,6 +685,22 @@ Creates a new HV.  The reference count is set to 1.
 
 #define newHV()	MUTABLE_HV(newSV_type(SVt_PVHV))
 
+/* entry is the initial hash hit, check all collisions.
+   an empty hash slot has entry==NULL. */
+#define HE_EACH(hv,entry,block) \
+    for (; entry; entry = HeNEXT(entry)) { \
+      block; \
+    }
+
+#ifdef PERL_CORE
+/* oentry is the changable entry ptr, entry the initial hash hit.
+   check all collisions */
+#define HE_OEACH(hv,oentry,entry,block) \
+    for (; entry; oentry = &HeNEXT(entry), entry = *oentry) { \
+      block; \
+    }
+#endif
+
 #include "hv_func.h"
 
 /*

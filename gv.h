@@ -155,6 +155,7 @@ Return the CV from the GV.
 #define GvFILEx(gv)	HEK_KEY(GvFILE_HEK(gv))
 #define GvFILE(gv)	(GvFILE_HEK(gv) ? GvFILEx(gv) : NULL)
 #define GvFILEGV(gv)	(GvFILE_HEK(gv) ? gv_fetchfile(GvFILEx(gv)) : NULL)
+#define GvFILE_LEN(gv)	(GvFILE_HEK(gv) ? HEK_LEN(GvFILE_HEK(gv)) : 0)
 
 #define GvEGV(gv)	(GvGP(gv)->gp_egv)
 #define GvEGVx(gv)	(isGV_with_GP(gv) ? GvEGV(gv) : NULL)

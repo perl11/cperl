@@ -9784,11 +9784,8 @@ Perl_sv_resetpvn(pTHX_ const char *s, STRLEN len, HV * const stash)
 	    todo[i] = 1;
 	}
 	for (i = 0; i <= (I32) HvMAX(stash); i++) {
-	    HE *entry;
-	    for (entry = HvARRAY(stash)[i];
-		 entry;
-		 entry = HeNEXT(entry))
-	    {
+	    HE *entry = HvARRAY(stash)[i];
+            HE_EACH(hv, entry, {
 		GV *gv;
 		SV *sv;
 
@@ -9802,13 +9799,11 @@ Perl_sv_resetpvn(pTHX_ const char *s, STRLEN len, HV * const stash)
 		    SV_CHECK_THINKFIRST_COW_DROP(sv);
 		    if (!isGV(sv)) SvOK_off(sv);
 		}
-		if (GvAV(gv)) {
+		if (GvAV(gv))
 		    av_clear(GvAV(gv));
-		}
-		if (GvHV(gv) && !HvNAME_get(GvHV(gv))) {
+		if (GvHV(gv) && !HvNAME_get(GvHV(gv)))
 		    hv_clear(GvHV(gv));
-		}
-	    }
+            })
 	}
     }
 }
@@ -15701,20 +15696,20 @@ S_find_hash_subscript(pTHX_ const HV *const hv, const SV *const val)
 
     array = HvARRAY(hv);
 
-    for (i=HvMAX(hv); i>=0; i--) {
-	HE *entry;
-	for (entry = array[i]; entry; entry = HeNEXT(entry)) {
+    for (i = HvMAX(hv); i>=0; i--) {
+	HE *entry = array[i];
+        HE_EACH(hv, entry, {
 	    if (HeVAL(entry) != val)
 		continue;
-	    if (    HeVAL(entry) == &PL_sv_undef ||
-		    HeVAL(entry) == &PL_sv_placeholder)
+	    if (HeVAL(entry) == &PL_sv_undef ||
+		HeVAL(entry) == &PL_sv_placeholder)
 		continue;
 	    /*if (!HeKEY(entry))
               return NULL;*/
 	    if (HeKLEN(entry) == HEf_SVKEY)
 		return sv_mortalcopy(HeKEY_sv(entry));
 	    return sv_2mortal(newSVhek(HeKEY_hek(entry)));
-	}
+        })
     }
     return NULL;
 }
