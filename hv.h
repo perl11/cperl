@@ -203,6 +203,10 @@ holds an C<SV*> key.  Otherwise, holds the actual length of the key.  Can
 be assigned to.  The C<HePV()> macro is usually preferable for finding key
 lengths.
 
+=for apidoc Am|bool|He_IS_SVKEY|HE* he
+Returns true if the key is an C<SV*>, or false if the hash entry does not
+contain an C<SV*> key. It checks if C<HeKLEN(he) == (U32)HEf_SVKEY>.
+
 =for apidoc Am|SV*|HeVAL|HE* he
 Returns the value slot (type C<SV*>)
 stored in the hash entry.  Can be assigned
@@ -402,23 +406,22 @@ C<SV*>.
 #define HeVAL(he)		(he)->he_valu.hent_val
 #define HeHASH(he)		HEK_HASH(HeKEY_hek(he))
 /* Here we require a STRLEN lp */
-#define HePV(he,lp)		((HeKLEN(he) == HEf_SVKEY) ?		\
-				 SvPV(HeKEY_sv(he),lp) :                \
+#define HePV(he,lp)		((He_IS_SVKEY(he)) ?		\
+				 SvPV(HeKEY_sv(he),lp) :        \
 				 ((lp = HeKLEN(he)), HeKEY(he)))
-#define HeUTF8(he)		((HeKLEN(he) == HEf_SVKEY) ?		\
-				 SvUTF8(HeKEY_sv(he)) :			\
-				 (U32)HeKUTF8(he))
+#define HeUTF8(he)		((He_IS_SVKEY(he)) ? SvUTF8(HeKEY_sv(he)) : (U32)HeKUTF8(he))
 #define HeSTATIC(he)		(HEK_FLAGS(HeKEY_hek(he)) & HVhek_STATIC)
 
-#define HeSVKEY(he)		((HeKLEN(he) == HEf_SVKEY) ? HeKEY_sv(he) : NULL)
+#define HeSVKEY(he)		((He_IS_SVKEY(he)) ? HeKEY_sv(he) : NULL)
 
-#define HeSVKEY_force(he)	((HeKLEN(he) == HEf_SVKEY) ?		\
+#define HeSVKEY_force(he)	((He_IS_SVKEY(he)) ?		\
 				  HeKEY_sv(he) :			\
 				  newSVpvn_flags(HeKEY(he),		\
                                                  HeKLEN(he),            \
                                                  SVs_TEMP |             \
                                       ( HeKUTF8(he) ? SVf_UTF8 : 0 )))
 #define HeSVKEY_set(he,sv)	((HeKLEN(he) = HEf_SVKEY), (HeKEY_sv(he) = sv))
+#define He_IS_SVKEY(he) 	HeKLEN(he) == HEf_SVKEY
 
 #ifndef PERL_CORE
 #  define Nullhek Null(HEK*)

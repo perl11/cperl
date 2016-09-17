@@ -5009,7 +5009,7 @@ Perl_sv_sethek(pTHX_ SV *const sv, const HEK *const hek)
 	return;
     }
 
-    if (HEK_LEN(hek) == HEf_SVKEY) {
+    if (HEK_IS_SVKEY(hek)) {
 	sv_setsv(sv, *(SV**)HEK_KEY(hek));
         return;
     } else {
@@ -9357,7 +9357,7 @@ Perl_newSVhek(pTHX_ const HEK *const hek)
 	return sv;
     }
 
-    if (HEK_LEN(hek) == HEf_SVKEY) {
+    if (HEK_IS_SVKEY(hek)) {
 	return newSVsv(*(SV**)HEK_KEY(hek));
     } else {
 	if (HEK_WASUTF8(hek)) {
@@ -15706,7 +15706,7 @@ S_find_hash_subscript(pTHX_ const HV *const hv, const SV *const val)
 		continue;
 	    /*if (!HeKEY(entry))
               return NULL;*/
-	    if (HeKLEN(entry) == HEf_SVKEY)
+	    if (He_IS_SVKEY(entry))
 		return sv_mortalcopy(HeKEY_sv(entry));
 	    return sv_2mortal(newSVhek(HeKEY_hek(entry)));
         })
