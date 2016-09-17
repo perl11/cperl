@@ -1793,7 +1793,7 @@ Perl__is_in_locale_category(pTHX_ const bool compiling, const int category)
     const COP * const cop = (compiling) ? &PL_compiling : PL_curcop;
 
     SV *categories = cop_hints_fetch_pvs(cop, "locale", 0);
-    if (! categories || categories == &PL_sv_placeholder) {
+    if (! categories || SV_IS_PLACEHOLDER(categories)) {
         return FALSE;
     }
 

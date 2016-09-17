@@ -652,7 +652,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		if (masked_flags & HVhek_MASK)
 		    HvHASKFLAGS_on(hv);
 	    }
-	    if (HeVAL(entry) == &PL_sv_placeholder) {
+	    if (He_IS_PLACEHOLDER(entry)) {
 		/* yes, can store into placeholder slot */
 		if (action & HV_FETCH_LVALUE) {
 		    if (SvMAGICAL(hv)) {
@@ -672,7 +672,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		    HvPLACEHOLDERS(hv)--;
 		} else {
 		    /* store */
-		    if (val != &PL_sv_placeholder)
+		    if (!(SV_IS_PLACEHOLDER(val)))
 			HvPLACEHOLDERS(hv)--;
 		}
 		HeVAL(entry) = val;
@@ -680,7 +680,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		SvREFCNT_dec(HeVAL(entry));
 		HeVAL(entry) = val;
 	    }
-	} else if (HeVAL(entry) == &PL_sv_placeholder) {
+	} else if (He_IS_PLACEHOLDER(entry)) {
 	    /* A deleted slot. If we find a placeholder, we pretend we
                haven't found anything */
 	    goto not_found;
@@ -901,7 +901,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     }
 #endif
 
-    if (val == &PL_sv_placeholder)
+    if (SV_IS_PLACEHOLDER(val))
 	HvPLACEHOLDERS(hv)++;
     if (masked_flags & HVhek_MASK)
 	HvHASKFLAGS_on(hv);
@@ -1402,7 +1402,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	}
 
 	/* if placeholder is here, it's already been deleted.... */
-	if (HeVAL(entry) == &PL_sv_placeholder) {
+	if (He_IS_PLACEHOLDER(entry)) {
 	    if (k_flags & HVhek_FREEKEY)
 		Safefree(key);
             DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d DELpl\n",
@@ -1992,7 +1992,7 @@ Perl_hv_clear(pTHX_ HV *hv)
 	    HE *entry = (HvARRAY(hv))[i];
             HE_EACH(hv, entry, {
 		/* not already placeholder */
-		if (HeVAL(entry) != &PL_sv_placeholder) {
+                if (!(He_IS_PLACEHOLDER(entry))) {
 		    if (HeVAL(entry)) {
 			if (SvREADONLY(HeVAL(entry))) {
 			    SV* const keysv = hv_iterkeysv(entry);
@@ -2068,7 +2068,7 @@ S_clear_placeholders(pTHX_ HV *hv, U32 items)
 	HE *entry;
 
 	while ((entry = *oentry)) {
-	    if (HeVAL(entry) == &PL_sv_placeholder) {
+	    if (He_IS_PLACEHOLDER(entry)) {
 		*oentry = HeNEXT(entry);
 		if (entry == HvEITER_get(hv))
 		    HvLAZYDEL_on(hv);
@@ -2987,7 +2987,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
              * Skip past any placeholders -- don't want to include them in
              * any iteration.
              */
-            while (entry && HeVAL(entry) == &PL_sv_placeholder) {
+            while (entry && He_IS_PLACEHOLDER(entry)) {
                 entry = HeNEXT(entry);
             }
 	}
@@ -3028,7 +3028,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 	    if (!(flags & HV_ITERNEXT_WANTPLACEHOLDERS)) {
 		/* If we have an entry, but it's a placeholder, don't count it.
 		   Try the next.  */
-		while (entry && HeVAL(entry) == &PL_sv_placeholder)
+		while (entry && He_IS_PLACEHOLDER(entry))
 		    entry = HeNEXT(entry);
 	    }
 	    /* Will loop again if this linked list starts NULL
@@ -3616,7 +3616,7 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
 	HeKEY_hek(entry) = share_hek_hek(chain->refcounted_he_hek);
 #endif
 	value = refcounted_he_value(chain);
-	if (value == &PL_sv_placeholder)
+	if (SV_IS_PLACEHOLDER(value))
 	    placeholders++;
 	HeVAL(entry) = value;
 
@@ -3826,7 +3826,7 @@ Perl_refcounted_he_new_pvn(pTHX_ struct refcounted_he *parent,
     struct refcounted_he *he;
     PERL_ARGS_ASSERT_REFCOUNTED_HE_NEW_PVN;
 
-    if (!value || value == &PL_sv_placeholder) {
+    if (!value || SV_IS_PLACEHOLDER(value)) {
 	value_type = HVrhek_delete;
     } else if (SvPOK(value)) {
 	value_type = HVrhek_PV;
@@ -4133,7 +4133,7 @@ Perl_hv_assert(pTHX_ HV *hv)
 
     while ((entry = hv_iternext_flags(hv, HV_ITERNEXT_WANTPLACEHOLDERS))) {
 	/* sanity check the values */
-	if (HeVAL(entry) == &PL_sv_placeholder)
+	if (He_IS_PLACEHOLDER(entry))
 	    placeholders++;
 	else
 	    real++;

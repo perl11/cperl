@@ -413,15 +413,14 @@ C<SV*>.
 #define HeSTATIC(he)		(HEK_FLAGS(HeKEY_hek(he)) & HVhek_STATIC)
 
 #define HeSVKEY(he)		((He_IS_SVKEY(he)) ? HeKEY_sv(he) : NULL)
-
-#define HeSVKEY_force(he)	((He_IS_SVKEY(he)) ?		\
+#define HeSVKEY_force(he)	((He_IS_SVKEY(he)) ?		        \
 				  HeKEY_sv(he) :			\
-				  newSVpvn_flags(HeKEY(he),		\
-                                                 HeKLEN(he),            \
-                                                 SVs_TEMP |             \
+				  newSVpvn_flags(HeKEY(he), HeKLEN(he), SVs_TEMP | \
                                       ( HeKUTF8(he) ? SVf_UTF8 : 0 )))
 #define HeSVKEY_set(he,sv)	((HeKLEN(he) = HEf_SVKEY), (HeKEY_sv(he) = sv))
 #define He_IS_SVKEY(he) 	HeKLEN(he) == HEf_SVKEY
+#define He_IS_PLACEHOLDER(he) 	HeVAL(he) == &PL_sv_placeholder
+#define SV_IS_PLACEHOLDER(sv) 	sv == &PL_sv_placeholder
 
 #ifndef PERL_CORE
 #  define Nullhek Null(HEK*)
