@@ -203,8 +203,8 @@ Perl_he_dup(pTHX_ const HE *e, bool shared, CLONE_PARAMS* param)
     ret = new_HE();
     ptr_table_store(PL_ptr_table, e, ret);
 
-    HeNEXT(ret) = he_dup(HeNEXT(e),shared, param);
-    if (HeKLEN(e) == HEf_SVKEY) {
+    HeNEXT(ret) = he_dup(HeNEXT(e), shared, param);
+    if (He_IS_SVKEY(e)) {
 	char *k;
 	Newx(k, HEK_BASESIZE + sizeof(const SV *), char);
 	HeKEY_hek(ret) = (HEK*)k;
@@ -2172,12 +2172,12 @@ STATIC SV*
 S_hv_free_ent_ret(pTHX_ HV *hv, HE *entry)
 {
     SV *val;
-    const HEK* hek = HeKEY_hek(entry);
+    const HEK *hek = HeKEY_hek(entry);
 
     PERL_ARGS_ASSERT_HV_FREE_ENT_RET;
 
     val = HeVAL(entry);
-    if (HeKLEN(entry) == HEf_SVKEY) {
+    if (HEK_IS_SVKEY(hek)) {
 	SvREFCNT_dec(*(SV**)HEK_KEY(hek));
 	Safefree(hek);
     }
@@ -2219,7 +2219,7 @@ Perl_hv_delayfree_ent(pTHX_ HV *hv, HE *entry)
 	return;
     /* SvREFCNT_inc to counter the SvREFCNT_dec in hv_free_ent  */
     sv_2mortal(SvREFCNT_inc(HeVAL(entry)));	/* free between statements */
-    if (HeKLEN(entry) == HEf_SVKEY) {
+    if (He_IS_SVKEY(entry)) {
 	sv_2mortal(SvREFCNT_inc(HeKEY_sv(entry)));
     }
     hv_free_ent(hv, entry);
@@ -3378,7 +3378,7 @@ Perl_hv_iterkey(pTHX_ HE *entry, I32 *retlen)
 {
     PERL_ARGS_ASSERT_HV_ITERKEY;
 
-    if (UNLIKELY(HeKLEN(entry) == HEf_SVKEY)) {
+    if (UNLIKELY(He_IS_SVKEY(entry))) {
 	STRLEN len;
 	char * const p = SvPV(HeKEY_sv(entry), len);
 	*retlen = len;
@@ -3426,7 +3426,7 @@ Perl_hv_iterval(pTHX_ HV *hv, HE *entry)
     if (UNLIKELY(SvRMAGICAL(hv))) {
 	if (mg_find((const SV *)hv, PERL_MAGIC_tied)) {
 	    SV* const sv = sv_newmortal();
-	    if (HeKLEN(entry) == HEf_SVKEY)
+	    if (He_IS_SVKEY(entry))
 		mg_copy(MUTABLE_SV(hv), sv, (char*)HeKEY_sv(entry), HEf_SVKEY);
 	    else
 		mg_copy(MUTABLE_SV(hv), sv, HeKEY(entry), HeKLEN(entry));
