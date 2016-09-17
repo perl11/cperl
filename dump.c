@@ -803,8 +803,8 @@ Perl_dump_packsubs_perl(pTHX_ const HV *stash, bool justperl)
     if (!HvARRAY(stash))
 	return;
     for (i = 0; i <= HvMAX(stash); i++) {
-        const HE *entry;
-	for (entry = HvARRAY(stash)[i]; entry; entry = HeNEXT(entry)) {
+        const HE *entry = HvARRAY(stash)[i];
+	HE_EACH(hv, entry, {
 	    GV * gv = (GV *)HeVAL(entry);
             if (SvROK(gv) && SvTYPE(SvRV(gv)) == SVt_PVCV)
                 /* unfake a fake GV */
@@ -820,7 +820,7 @@ Perl_dump_packsubs_perl(pTHX_ const HV *stash, bool justperl)
 		if (hv && (hv != PL_defstash))
 		    dump_packsubs_perl(hv, justperl); /* nested package */
 	    }
-	}
+        })
     }
 }
 
@@ -2489,10 +2489,9 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	    PerlIO_printf(file, "  (");
 	    Zero(freq, FREQ_MAX + 1, int);
 	    for (i = 0; i <= HvMAX(sv); i++) {
-		HE* h;
+		HE* h = HvARRAY(sv)[i];
 		U32 count = 0;
-                for (h = HvARRAY(sv)[i]; h; h = HeNEXT(h))
-		    count++;
+                HE_EACH(sv, h, count++);
 		if (count > FREQ_MAX)
 		    count = FREQ_MAX;
 	        freq[count]++;
@@ -2694,12 +2693,13 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
                 U32 count = 0;
 		U32 maxcount = maxnest - nest;
 		for (i=0; i <= HvMAX(hv); i++) {
-		    for (he = HvARRAY(hv)[i]; he; he = HeNEXT(he)) {
+                    he = HvARRAY(hv)[i];
+		    HE_EACH(hv, he, {
+			U32 hash;
 			SV * keysv;
 			SV * elt;
 			const char * keypv;
                         STRLEN len;
-			U32 hash;
 
 			if (count > maxcount && count < HvKEYS(hv)) {
                             Perl_dump_indent(aTHX_ level+1, file,
@@ -2724,7 +2724,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 			    PerlIO_printf(file, "[CURRENT] ");
                         PerlIO_printf(file, "HASH = 0x%" UVxf "\n", (UV) hash);
                         do_sv_dump(level+1, file, elt, nest+1, maxnest, dumpops, pvlim);
-                    }
+                    })
 		}
 	      DONEHV:;
 	    }
@@ -4003,7 +4003,8 @@ S__hv_dump(pTHX_ SV* sv, bool with_values, int level)
         for (i = 0; i <= HvMAX(sv); i++) {
             HE* h;
 	    Perl_dump_indent(aTHX_ level, file, "[%u]: ", (unsigned)i);
-            for (h = ents[i]; h; h = HeNEXT(h)) {
+            h = ents[i];
+            HE_EACH(sv, h, {
                 if (with_values) {
                     SV *v = HeVAL(h);
                     PerlIO_printf(file, "\"%s\" => %s",
@@ -4019,7 +4020,7 @@ S__hv_dump(pTHX_ SV* sv, bool with_values, int level)
                     PerlIO_printf(file, "\"%s\"", HeKEY(h));
                 if (HeNEXT(h))
                     PerlIO_printf(file, ", ");
-            }
+            })
             PerlIO_printf(file, "\n");
         }
     }

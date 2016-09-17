@@ -412,9 +412,9 @@ static void
 S_assert_hechain(pTHX_ HE* entry)
 {
     if (!entry) return;
-    for (; entry; entry = entry->hent_next) {
-        assert(entry->hent_hek);
-    }
+    HE_EACH(hv, entry,
+        assert(entry->hent_hek)
+    )
 }
 
 #endif
@@ -642,9 +642,8 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
          */
         int keysv_flags = HEK_FLAGS(keysv_hek);
         HE  *orig_entry = entry;
-
-        for (; entry; entry = HeNEXT(entry)) {
-            HEK *hek = HeKEY_hek(entry);
+        HE_EACH(hv, entry, {
+            const HEK *hek = HeKEY_hek(entry);
             CHECK_HASH_FLOOD(collisions)
             if (hek == keysv_hek)
                 goto found;
@@ -652,14 +651,14 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
                 collisions = -1;
                 break; /* need to do full match */
             }
-        }
+        })
         if (!entry)
             goto not_found;
         /* failed on shortcut - do full search loop */
         entry = orig_entry;
     }
 
-    for (; entry; entry = HeNEXT(entry)) {
+    HE_EACH(hv, entry, {
         CHECK_HASH_FLOOD(collisions)
 	if (HeHASH(entry) != hash)		/* strings can't be equal */
 	    continue;
@@ -669,8 +668,11 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	    continue;
 	if ((HeKFLAGS(entry) ^ masked_flags) & HVhek_UTF8)
 	    continue;
+        break;
+    })
 
-      found:
+    if (entry) found: {
+        const int masked_flags = (flags & HVhek_MASK);
         if (action & (HV_FETCH_LVALUE|HV_FETCH_ISSTORE)) {
 	    if ((HeKFLAGS(entry) & HVhek_MASK) != masked_flags) {
 		/* We match if HVhek_UTF8 bit in our flags and hash key's
@@ -717,7 +719,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 			   caused a call into hv_store, which in turn would
 			   check magic, and if there is no magic end up pretty
 			   much back at this point (in hv_store's code).  */
-			break;
+                        goto not_found;
 		    }
 		    /* LVAL fetch which actually needs a store.  */
 		    val = newSV(0);
@@ -736,7 +738,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	} else if (HeVAL(entry) == PLACEHOLDER) {
 	    /* A deleted slot. If we find a placeholder, we pretend we
                haven't found anything */
-	    break;
+	    goto not_found;
 	}
 	if (flags & HVhek_FREEKEY)
 	    Safefree(key);
@@ -1437,9 +1439,6 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     int masked_flags;
     HEK *keysv_hek = NULL;
     U8 mro_changes = 0; /* 1 = isa; 2 = package moved */
-    SV *sv;
-    GV *gv = NULL;
-    HV *stash = NULL;
     int collisions = -1;
 
     PERL_DTRACE_PROBE_HASH_ENTRY(PERL_DTRACE_HASH_MODE_DELETE, key);
@@ -1528,14 +1527,13 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     else if (!hash)
         PERL_HASH(hash, key, klen);
 
-    masked_flags = (k_flags & HVhek_MASK);
-
     first_entry = oentry = &HvARRAY(hv)[ HvHASH_INDEX(hash, HvMAX(hv)) ];
     entry = *oentry;
 
     if (!entry)
         goto not_found;
 
+    masked_flags = (k_flags & HVhek_MASK);
     if (keysv_hek) {
         /* keysv is actually a HEK in disguise, so we can match just by
          * comparing the HEK pointers in the HE chain. There is a slight
@@ -1549,14 +1547,14 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
          */
         int keysv_flags = HEK_FLAGS(keysv_hek);
 
-        for (; entry; oentry = &HeNEXT(entry), entry = *oentry) {
-            HEK *hek = HeKEY_hek(entry);
-            DEBUG_H(collisions++);
+        HE_OEACH(hv, oentry, entry, {
+            const HEK *hek = HeKEY_hek(entry);
+            CHECK_HASH_FLOOD(collisions)
             if (hek == keysv_hek)
                 goto found;
             if (HEK_FLAGS(hek) != keysv_flags)
                 break; /* need to do full match */
-        }
+            })
         if (!entry)
             goto not_found;
         /* failed on shortcut - do full search loop */
@@ -1564,18 +1562,26 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         entry = *oentry;
     }
 
-    for (; entry; oentry = &HeNEXT(entry), entry = *oentry) {
+    HE_OEACH(hv, oentry, entry, {
+        const HEK *hek = HeKEY_hek(entry);
         CHECK_HASH_FLOOD(collisions)
-	if (HeHASH(entry) != hash)		/* strings can't be equal */
+        if (HEK_HASH(hek) != hash)		/* strings can't be equal */
+            continue;
+        if (HEK_LEN(hek) != klen)
+            continue;
+        if (memNE(HEK_KEY(hek),key,klen))	/* is this it? */
+            continue;
+	if ((HEK_FLAGS(hek) ^ masked_flags) & HVhek_UTF8)
 	    continue;
-	if (HeKLEN(entry) != klen)
-	    continue;
-	if (memNE(HeKEY(entry),key,klen))	/* is this it? */
-	    continue;
-	if ((HeKFLAGS(entry) ^ masked_flags) & HVhek_UTF8)
-	    continue;
+        break;
+    })
 
-      found:
+    if (entry)
+    found: {
+        SV *sv;
+        GV *gv = NULL;
+        HV *stash = NULL;
+
 	if (hv == PL_strtab) {
 	    if (k_flags & HVhek_FREEKEY)
 		Safefree(key);
@@ -2057,7 +2063,7 @@ Perl_newHVhv(pTHX_ HV *ohv)
 	    }
 
 	    /* Copy the linked list of entries. */
-	    for (; oent; oent = HeNEXT(oent)) {
+            HE_EACH(hv, oent, {
 		const HEK *hek = HeKEY_hek(oent);
 		HE * const ent = new_HE();
 		SV * const val = HeVAL(oent);
@@ -2072,7 +2078,7 @@ Perl_newHVhv(pTHX_ HV *ohv)
 		    ents[i] = ent;
 		prev = ent;
 		HeNEXT(ent) = NULL;
-	    }
+            })
 	}
 
 	HvMAX(hv)   = hv_max;
@@ -2254,7 +2260,7 @@ Perl_hv_clear(pTHX_ HV *hv)
 	U32 i;
 	for (i = 0; i <= xhv->xhv_max; i++) {
 	    HE *entry = (HvARRAY(hv))[i];
-	    for (; entry; entry = HeNEXT(entry)) {
+            HE_EACH(hv, entry, {
 		/* not already placeholder */
 		if (HeVAL(entry) != PLACEHOLDER) {
 		    if (HeVAL(entry)) {
@@ -2269,7 +2275,7 @@ Perl_hv_clear(pTHX_ HV *hv)
 		    HeVAL(entry) = PLACEHOLDER;
 		    HvPLACEHOLDERS(hv)++;
 		}
-	    }
+            })
 	}
     }
     else {
@@ -2404,9 +2410,10 @@ Perl_hfree_next_entry(pTHX_ HV *hv, U32 *indexp)
 
     if (SvOOK(hv) && ((iter = HvAUX(hv)))) {
 	if ((entry = iter->xhv_eiter)) {
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hfree iter [%u]\t%u %u DEL\t%s\n",
-                                  (unsigned)*indexp, (unsigned)HvTOTALKEYS(hv),
-                                  (unsigned)HvMAX(hv), HeKEY(entry)));
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                        "HASH hfree iter [%u]\t%u %u DEL\t%s\n",
+                        (unsigned)*indexp, (unsigned)HvTOTALKEYS(hv),
+                        (unsigned)HvMAX(hv), HeKEY(entry)));
             /* the iterator may get resurrected after each
              * destructor call, so check each time */
             if (entry && HvLAZYDEL(hv)) {	/* was deleted earlier? */
@@ -2434,7 +2441,8 @@ Perl_hfree_next_entry(pTHX_ HV *hv, U32 *indexp)
             *indexp = 0;
 #ifdef PERL_PERTURB_KEYS_TOP
 	if (*indexp == orig_index) {
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hfree leaked key [%u] == %u\t%u %u\n",
+            DEBUG_H(PerlIO_printf(Perl_debug_log,
+                          "HASH hfree leaked key [%u] == %u\t%u %u\n",
                           (unsigned)*indexp,  (unsigned)orig_index,
                           (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv)));
             ((XPVHV*)SvANY(hv))->xhv_keys--;
@@ -3505,8 +3513,8 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
 
 	/* Find the shared he which is just before us in memory.  */
 	he = share_hek_he(hek);
-        /* Assert that the caller passed us a genuine (or at least consistent)
-           shared hek */
+	/* Assert that the caller passed us a genuine (or at least consistent)
+	   shared hek */
         assert (he->shared_he_he.hent_hek == hek);
 
         if (he->shared_he_he.he_valu.hent_refcount - 1) {
@@ -3537,23 +3545,26 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
     oentry = &HvARRAY(PL_strtab)[ HvHASH_INDEX(hash, HvMAX(PL_strtab)) ];
     if (he) {
 	const HE *const he_he = &(he->shared_he_he);
-        for (entry = *oentry; entry; oentry = &HeNEXT(entry), entry = *oentry) {
+        entry = *oentry;
+        HE_OEACH(hv, oentry, entry, {
             if (entry == he_he)
                 break;
-        }
+            })
     } else {
         const int flags_masked = k_flags & HVhek_MASK;
-        for (entry = *oentry; entry; oentry = &HeNEXT(entry), entry = *oentry) {
-            if (HeHASH(entry) != hash)		/* strings can't be equal */
+        entry = *oentry;
+        HE_OEACH(hv, oentry, entry, {
+            const HEK *hek = HeKEY_hek(entry);
+            if (HEK_HASH(hek) != hash)		/* strings can't be equal */
                 continue;
-            if (HeKLEN(entry) != len)
+            if (HEK_LEN(hek) != len)
                 continue;
-            if (HeKEY(entry) != str && memNE(HeKEY(entry),str,len))	/* is this it? */
+            if (HEK_KEY(hek) != str && memNE(HEK_KEY(hek),str,len))	/* is this it? */
                 continue;
-            if (HeKFLAGS(entry) != flags_masked)
+            if (HEK_FLAGS(hek) ^ flags_masked)
                 continue;
             break;
-        }
+        })
     }
 
     if (entry) {
@@ -3659,18 +3670,19 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 
     /* assert(xhv_array != 0) */
     entry = HvARRAY(PL_strtab)[hindex];
-    for (; entry; entry = HeNEXT(entry)) {
+    HE_EACH(hv, entry, {
+        const HEK *hek = HeKEY_hek(entry);
         CHECK_HASH_FLOOD(collisions)
-	if (HeHASH(entry) != hash)		/* strings can't be equal */
+	if (HEK_HASH(hek) != hash)		/* strings can't be equal */
 	    continue;
-	if (HeKLEN(entry) != len)
+	if (HEK_LEN(hek) != len)
 	    continue;
-	if (HeKEY(entry) != str && memNE(HeKEY(entry),str,len))	/* is this it? */
+	if (HEK_KEY(hek) != str && memNE(HEK_KEY(hek),str,len))	/* is this it? */
 	    continue;
-	if (HeKFLAGS(entry) != flags_masked)
+	if (HEK_FLAGS(hek) != flags_masked)
 	    continue;
 	break;
-    }
+        })
 
     if (!entry) {
 	/* What used to be head of the list.
@@ -3888,20 +3900,28 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
 	HE *entry = *oentry;
 	SV *value;
 
-	for (; entry; entry = HeNEXT(entry)) {
+#ifdef USE_ITHREADS
+        HE_EACH(hv, entry, {
 	    if (HeHASH(entry) == hash) {
 		/* We might have a duplicate key here.  If so, entry is older
 		   than the key we've already put in the hash, so if they are
 		   the same, skip adding entry.  */
-#ifdef USE_ITHREADS
-		const U32 klen = HeKLEN_UTF8(entry);
+                const U32 klen = HeKLEN_UTF8(entry);
 		const char *const key = HeKEY(entry);
 		if (klen == chain->refcounted_he_keylen
 		    && (!!HeKUTF8(entry)
 			== !!(chain->refcounted_he_data[0] & HVhek_UTF8))
 		    && memEQ(key, REF_HE_KEY(chain), klen))
 		    goto next_please;
+	    }
+            CHECK_HASH_FLOOD(collisions)
+        })
 #else
+        HE_EACH(hv, entry, {
+	    if (HeHASH(entry) == hash) {
+		/* We might have a duplicate key here.  If so, entry is older
+		   than the key we've already put in the hash, so if they are
+		   the same, skip adding entry.  */
 		if (HeKEY_hek(entry) == chain->refcounted_he_hek)
 		    goto next_please;
 		if (HeKLEN(entry) == HEK_LEN(chain->refcounted_he_hek)
@@ -3909,10 +3929,10 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
 		    && memEQ(HeKEY(entry), HEK_KEY(chain->refcounted_he_hek),
 			     HeKLEN(entry)))
 		    goto next_please;
-#endif
 	    }
             CHECK_HASH_FLOOD(collisions)
-	}
+        })
+#endif
 	assert (!entry);
 	entry = new_HE();
 

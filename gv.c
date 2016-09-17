@@ -2615,11 +2615,20 @@ Perl_gv_check(pTHX_ HV *stash)
 	return;
 
     assert(HvARRAY(stash));
+#ifdef USE_ITHREADS
+# define XCopFILE_set_noinc \
+    CopFILE(PL_curcop) = (char *)file      /* set for warning */
+#else
+# define XCopFILE_set_noinc \
+    CopFILEGV(PL_curcop) = gv_fetchfile_flags(file, HEK_LEN(GvFILE_HEK(gv)), 0)
+#endif
+
     for (i = 0; i <= HvMAX(stash); i++) {
-        const HE *entry;
+        const HE *entry = HvARRAY(stash)[i];
         /* mark stash is being scanned, to avoid recursing */
         HvAUX(stash)->xhv_aux_flags |= HvAUXf_SCAN_STASH;
-	for (entry = HvARRAY(stash)[i]; entry; entry = HeNEXT(entry)) {
+
+	HE_EACH(stash, entry, {
             GV *gv;
             HV *hv;
 	    STRLEN keylen = HeKLEN(entry);
@@ -2630,8 +2639,7 @@ Perl_gv_check(pTHX_ HV *stash)
 	    {
 		if (hv != PL_defstash && hv != stash
                     && !(SvOOK(hv)
-                         && (HvAUX(hv)->xhv_aux_flags & HvAUXf_SCAN_STASH))
-                )
+                         && (HvAUX(hv)->xhv_aux_flags & HvAUXf_SCAN_STASH)))
                     gv_check(hv);              /* nested package */
 	    }
             else if (   HeKLEN(entry) != 0
@@ -2644,23 +2652,21 @@ Perl_gv_check(pTHX_ HV *stash)
 		gv = MUTABLE_GV(HeVAL(entry));
 		if (SvTYPE(gv) != SVt_PVGV || GvMULTI(gv))
 		    continue;
-		file = GvFILE(gv);
 		CopLINE_set(PL_curcop, GvLINE(gv));
-#ifdef USE_ITHREADS
-		CopFILE(PL_curcop) = (char *)file;	/* set for warning */
-#else
-		CopFILEGV(PL_curcop)
-		    = gv_fetchfile_flags(file, HEK_LEN(GvFILE_HEK(gv)), 0);
-#endif
+                file = GvFILE(gv);
+                XCopFILE_set_noinc;
+                /* This creates file copies and INCs gv
+                  CopFILE_setn(PL_curcop, GvFILE(gv), GvFILE_LEN(gv)));*/
 		Perl_warner(aTHX_ packWARN(WARN_ONCE),
 			"Name \"%" HEKf "::%" HEKf
 			"\" used only once: possible typo",
                             HEKfARG(HvNAME_HEK(stash)),
                             HEKfARG(GvNAME_HEK(gv)));
 	    }
-	}
+        })
         HvAUX(stash)->xhv_aux_flags &= ~HvAUXf_SCAN_STASH;
     }
+#undef XCopFILE_set_noinc
 }
 
 GV *
