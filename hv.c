@@ -672,8 +672,8 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
             /* compare the first 2 U32 and the string at once */
             if (memNE(HeKEY_hek(entry),&hekcmp,klen+8))
                 continue;
-            if ((HeKFLAGS(entry) ^ masked_flags) & HVhek_UTF8)
-                continue;
+            /*if ((HeKFLAGS(entry) ^ masked_flags) & HVhek_UTF8)
+              continue;*/
             break;
         }
 #endif
@@ -1547,7 +1547,6 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     else if (!hash)
         PERL_HASH(hash, key, klen);
 
-    masked_flags = (k_flags & HVhek_MASK);
     first_entry = oentry = &HvARRAY(hv)[ HvHASH_INDEX(hash, HvMAX(hv)) ];
     entry = *oentry;
 
