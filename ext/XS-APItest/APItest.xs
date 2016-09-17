@@ -4249,6 +4249,18 @@ test_sv_catpvf(SV *fmtsv)
         sv = sv_2mortal(newSVpvn("", 0));
         sv_catpvf(sv, fmt, 5, 6, 7, 8);
 
+SV *
+string_without_null(SV *sv)
+    CODE:
+    {
+        STRLEN len;
+        const char *s = SvPV(sv, len);
+        RETVAL = newSVpvn_flags(s, len, SvUTF8(sv));
+        *SvEND(RETVAL) = 0xff;
+    }
+    OUTPUT:
+        RETVAL
+
 MODULE = XS::APItest PACKAGE = XS::APItest::AUTOLOADtest
 
 int
