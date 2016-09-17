@@ -888,7 +888,7 @@ Perl__get_encoding(pTHX)
 
     is_encoding = cop_hints_fetch_pvs(PL_curcop, "encoding", 0);
     if (   is_encoding
-        && is_encoding != PLACEHOLDER
+        && !(SV_IS_PLACEHOLDER(is_encoding))
         && SvIOK(is_encoding)
         && SvIV(is_encoding))  /* non-zero mean valid */
     {

@@ -16320,7 +16320,7 @@ S_find_hash_subscript(pTHX_ const HV *const hv, const SV *const val)
         HE_EACH(hv, entry, {
 	    if (HeVAL(entry) != val)
 		continue;
-	    if (HeVAL(entry) == UNDEF || HeVAL(entry) == PLACEHOLDER)
+	    if (HeVAL(entry) == UNDEF || He_IS_PLACEHOLDER(entry))
 		continue;
 	    /*if (!HeKEY(entry))
               return NULL;*/
@@ -16461,7 +16461,7 @@ S_find_uninit_var(pTHX_ const OP *const obase, const SV *const uninit_sv,
     PERL_ARGS_ASSERT_FIND_UNINIT_VAR;
 
     if (!obase || (match && (!uninit_sv || uninit_sv == UNDEF ||
-			    uninit_sv == PLACEHOLDER)))
+                             SV_IS_PLACEHOLDER(uninit_sv) )))
 	return NULL;
 
     switch (obase->op_type) {

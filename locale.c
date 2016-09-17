@@ -4961,7 +4961,7 @@ Perl__is_in_locale_category(pTHX_ const bool compiling, const int category)
     const COP * const cop = (compiling) ? &PL_compiling : PL_curcop;
 
     SV *cat_sv = cop_hints_fetch_pvs(cop, "locale", 0);
-    if (! cat_sv || cat_sv == PLACEHOLDER) {
+    if (! cat_sv || SV_IS_PLACEHOLDER(cat_sv)) {
         return FALSE;
     }
 
