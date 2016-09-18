@@ -1637,14 +1637,19 @@ S_forget_pmop(pTHX_ PMOP *const o)
 	MAGIC * const mg = mg_find((const SV *)pmstash, PERL_MAGIC_symtab);
 	if (mg) {
 	    PMOP **const array = (PMOP**) mg->mg_ptr;
-	    U32 count = mg->mg_len / sizeof(PMOP**);
-	    U32 i = count;
+	    U32 count, i;
+
+            if (UNLIKELY(mg->mg_len < 0))
+                Perl_croak_nocontext("panic: %s buffer overflow", "forget_pmop");
+	    count = (Size_t)mg->mg_len / sizeof(PMOP**);
+            i = count;
 
 	    while (i--) {
 		if (array[i] == o) {
+                    /* if mg_len < 0, then count is negative also */
 		    /* Found it. Move the entry at the end to overwrite it.  */
 		    array[i] = array[--count];
-		    mg->mg_len = count * sizeof(PMOP**);
+		    mg->mg_len = (SSize_t)(count * sizeof(PMOP**));
 		    /* Could realloc smaller at this point always, but probably
 		       not worth it. Probably worth free()ing if we're the
 		       last.  */
@@ -1853,8 +1858,11 @@ Perl_op_sibling_splice(OP *parent, OP *start, int del_count, OP* insert)
             type = XopENTRYCUSTOM(parent, xop_class);
         }
         else {
-            if (type == OP_NULL)
-                type = parent->op_targ;
+            if (type == OP_NULL) {
+                if (UNLIKELY(parent->op_targ > U32_MAX || parent->op_targ < 0))
+                    Perl_croak_nocontext("panic: %s buffer overflow", "op_sibling_splice");
+                type = (U32)parent->op_targ;
+            }
             type = PL_opargs[type] & OA_CLASS_MASK;
         }
 
@@ -4272,7 +4280,7 @@ S_maybe_op_signature(pTHX_ CV *cv, OP *o)
                      SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));
     items = (UNOP_AUX_item*)PerlMemShared_malloc(sizeof(UNOP_AUX_item) * size);
 
-    items[0].uv = size - 1;
+    items[0].uv = (UV)(size - 1);
     items[1].uv = args | (1  << 15); /* fake slurpy bit */
     actions_ix = 2;
     items[actions_ix].uv = 0;
@@ -7805,7 +7813,8 @@ Perl_op_convert_list(pTHX_ I32 type, I32 flags, OP *o)
          */
         OpTYPE_set(o, type);
 
-    o->op_flags |= flags;
+    assert(flags >= 0 && flags <= U8_MAX);
+    o->op_flags |= (U8)flags;
     if (flags & OPf_FOLDED)
 	o->op_folded = 1;
 
@@ -8345,12 +8354,12 @@ S_pmtrans(pTHX_ OP *o, OP *expr, OP *repl)
              * codepoint pairs stored in cp[]. Most "ranges" will start
              * and end at the same char */
 	    while (t < tend) {
-		cp[2*i] = utf8n_to_uvchr(t, tend-t, &ulen, flags);
+		cp[2*i] = utf8n_to_uvchr(t, (STRLEN)(tend-t), &ulen, flags);
 		t += ulen;
                 /* the toker converts X-Y into (X, ILLEGAL_UTF8_BYTE, Y) */
 		if (t < tend && *t == ILLEGAL_UTF8_BYTE) {
 		    t++;
-		    cp[2*i+1] = utf8n_to_uvchr(t, tend-t, &ulen, flags);
+		    cp[2*i+1] = utf8n_to_uvchr(t, (STRLEN)(tend-t), &ulen, flags);
 		    t += ulen;
 		}
 		else {
@@ -8372,8 +8381,8 @@ S_pmtrans(pTHX_ OP *o, OP *expr, OP *repl)
              * end cp.
              */
 	    for (j = 0; j < i; j++) {
-		UV  val = cp[2*j];
-		diff = val - nextmin;
+		UV val = cp[2*j];
+		diff = (I32)(val - nextmin);
 		if (diff > 0) {
 		    t = uvchr_to_utf8(tmpbuf,nextmin);
 		    sv_catpvn(transv, (char*)tmpbuf, t - tmpbuf);

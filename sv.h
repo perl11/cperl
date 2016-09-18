@@ -475,7 +475,7 @@ perform the upgrade if necessary.  See C<L</svtype>>.
  */
 #define SVf_PROTECT	0x00010000  /* very read-only. not in cperl. */
 #define SVs_PADTMP	0x00020000  /* in use as tmp */
-#define SVs_PADSTALE	0x00040000  /* lexical has gone out of scope;
+#define SVs_PADSTALE	UINT32_C(0x00040000)  /* lexical has gone out of scope;
 					only used when !PADTMP */
 #define SVs_TEMP	0x00080000  /* mortal (implies string is stealable) */
 #define SVs_OBJECT	0x00100000  /* is "blessed" */
@@ -532,40 +532,40 @@ perform the upgrade if necessary.  See C<L</svtype>>.
  * no overload methods. Note that this used to be set on the object; but
  * is now only set on stashes.
  */
-#define SVf_AMAGIC	0x10000000  /* has magical overloaded methods */
-#define SVf_IsCOW	0x10000000  /* copy on write (shared hash key if
+#define SVf_AMAGIC	UINT32_C(0x10000000)  /* has magical overloaded methods */
+#define SVf_IsCOW	UINT32_C(0x10000000)  /* copy on write (shared hash key if
 				       SvLEN == 0) */
 
 /* Ensure this value does not clash with the GV_ADD* flags in gv.h, or the
    CV_CKPROTO_* flags in op.c, or the padadd_* flags in pad.h: */
-#define SVf_UTF8        0x20000000  /* SvPV is UTF-8 encoded
+#define SVf_UTF8        UINT32_C(0x20000000)  /* SvPV is UTF-8 encoded
 				       This is also set on RVs whose overloaded
 				       stringification is UTF-8. This might
 				       only happen as a side effect of SvPV() */
 /* PVHV */
-#define SVphv_SHAREKEYS 0x20000000  /* PVHV keys live on shared string table */
+#define SVphv_SHAREKEYS UINT32_C(0x20000000)  /* PVHV keys live on shared string table */
 
 /* PVAV could probably use 0x2000000 without conflict. I assume that PVFM can
    be UTF-8 encoded, and PVCVs could well have UTF-8 prototypes. PVIOs haven't
    been restructured, so sometimes get used as string buffers.  */
-#define SVpav_SHAPED     0x20000000  /* PVAV with declared size */
+#define SVpav_SHAPED    UINT32_C(0x20000000)  /* PVAV with declared size */
 
 /* Some private flags. */
 
 
 /* PVAV */
-#define SVpav_REAL	0x40000000  /* free old entries. handle refcounts of array elements */
+#define SVpav_REAL	UINT32_C(0x40000000)  /* free old entries. handle refcounts of array elements */
 /* PVHV */
-#define SVphv_LAZYDEL	0x40000000  /* entry in xhv_eiter must be deleted */
+#define SVphv_LAZYDEL	UINT32_C(0x40000000)  /* entry in xhv_eiter must be deleted */
 
 /* IV, PVIV, PVNV, PVMG, PVGV and (I assume) PVLV  */
-#define SVf_IVisUV	0x80000000  /* use XPVUV instead of XPVIV */
+#define SVf_IVisUV	UINT32_C(0x80000000)  /* use XPVUV instead of XPVIV */
 /* PVAV */
-#define SVpav_REIFY 	0x80000000  /* elements can become real ($_[] => SV) */
+#define SVpav_REIFY 	UINT32_C(0x80000000)  /* elements can become real ($_[] => SV) */
 /* PVHV */
-#define SVphv_HASKFLAGS	0x80000000  /* keys have flag byte after hash */
+#define SVphv_HASKFLAGS	UINT32_C(0x80000000)  /* keys have flag byte after hash */
 /* RV upwards. However, SVf_ROK and SVp_IOK are exclusive  */
-#define SVprv_WEAKREF   0x80000000  /* Weak reference */
+#define SVprv_WEAKREF   UINT32_C(0x80000000)  /* Weak reference */
 /* pad name vars only */
 
 #define _XPV_HEAD							\

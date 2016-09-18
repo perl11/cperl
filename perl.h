@@ -1704,7 +1704,7 @@ EXTERN_C char *crypt(const char *, const char *);
     !(defined(DEBUGGING) && !defined(PERL_USE_GCC_BRACE_GROUPS)) && \
     !defined(PERL_GCC_PEDANTIC)
 #  ifdef PERL_USE_GCC_BRACE_GROUPS
-#      define my_snprintf(buffer, max, ...) ({ \
+#      define my_snprintf(buffer, max, ...) ({            \
             int len = snprintf(buffer, max, __VA_ARGS__); \
             PERL_SNPRINTF_CHECK(len, max, snprintf); len; })
 #      define PERL_MY_SNPRINTF_GUARDED
@@ -1722,8 +1722,8 @@ EXTERN_C char *crypt(const char *, const char *);
     !(defined(DEBUGGING) && !defined(PERL_USE_GCC_BRACE_GROUPS)) && \
     !defined(PERL_GCC_PEDANTIC)
 #  ifdef PERL_USE_GCC_BRACE_GROUPS
-#      define my_vsnprintf(buffer, max, ...) ({                 \
-            int len = vsnprintf(buffer, max, __VA_ARGS__);      \
+#      define my_vsnprintf(buffer, max, ...) ({            \
+            int len = vsnprintf(buffer, max, __VA_ARGS__); \
             PERL_SNPRINTF_CHECK(len, max, vsnprintf); len; })
 #      define PERL_MY_VSNPRINTF_GUARDED
 #  else
@@ -5421,7 +5421,7 @@ END_EXTERN_C
 #define HINT_BLOCK_SCOPE	0x00000100
 #define HINT_STRICT_SUBS	0x00000200 /* strict pragma */
 #define HINT_STRICT_VARS	0x00000400 /* strict pragma */
-#define HINT_UNI_8_BIT		0x00000800 /* unicode_strings feature */
+#define HINT_UNI_8_BIT		0x00000800U /* unicode_strings feature */
 
 /* The HINT_NEW_* constants are used by the overload pragma */
 #define HINT_NEW_INTEGER	0x00001000
@@ -5443,7 +5443,7 @@ END_EXTERN_C
 
 #define HINT_RE_FLAGS		0x02000000 /* re '/xism' pragma */
 
-#define HINT_FEATURE_MASK	0x1c000000 /* 3 bits for feature bundles */
+#define HINT_FEATURE_MASK	UINT32_C(0x1c000000) /* 3 bits for feature bundles */
 
 #define HINT_STRICT_HASHPAIRS	0x20000000 /* strict pragma */
 

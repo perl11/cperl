@@ -895,11 +895,11 @@ struct context {
 
 /* private flags for CXt_SUB and CXt_FORMAT */
 /* need to fit into U8 */
-#define CXp_MULTICALL	0x10	/* part of a multicall (so don't tear down
+#define CXp_MULTICALL	0x10U	/* part of a multicall (so don't tear down
                                    context on exit). (not CXt_FORMAT) */
-#define CXp_HASARGS	0x20
-#define CXp_SUB_RE	0x40    /* code called within regex, i.e. (?{}) */
-#define CXp_SUB_RE_FAKE	0x80    /* fake sub CX for (?{}) in current scope */
+#define CXp_HASARGS	0x20U
+#define CXp_SUB_RE	0x40U    /* code called within regex, i.e. (?{}) */
+#define CXp_SUB_RE_FAKE	0x80U    /* fake sub CX for (?{}) in current scope */
 
 /* private flags for CXt_EVAL */
 #define CXp_REAL	0x20	/* truly eval'', not a lookalike */

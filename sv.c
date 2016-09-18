@@ -7546,6 +7546,7 @@ Perl_sv_pos_u2b_flags(pTHX_ SV *const sv, STRLEN uoffset, STRLEN *const lenp,
     STRLEN boffset;
 
     PERL_ARGS_ASSERT_SV_POS_U2B_FLAGS;
+    PERL_SNPRINTF_CHECK(uoffset, SSize_t_MAX, sv_pos_u2b_flags);
 
     start = (U8*)SvPV_flags(sv, len, flags);
     if (len) {
@@ -7560,8 +7561,9 @@ Perl_sv_pos_u2b_flags(pTHX_ SV *const sv, STRLEN uoffset, STRLEN *const lenp,
 	    const STRLEN uoffset2 = uoffset + *lenp;
 	    const STRLEN boffset2
 		= sv_pos_u2b_cached(sv, &mg, start, send, uoffset2,
-				      uoffset, boffset) - boffset;
+				    uoffset, boffset) - boffset;
 
+            PERL_SNPRINTF_CHECK(uoffset2, SSize_t_MAX, sv_pos_u2b_flags);
 	    *lenp = boffset2;
 	}
     } else {
@@ -11324,6 +11326,7 @@ Perl_sv_vcatpvfn(pTHX_ SV *const sv, const char *const pat, const STRLEN patlen,
 #if defined(HAS_LONG_DOUBLE) && LONG_DOUBLESIZE > DOUBLESIZE && \
 	defined(PERL_PRIgldbl) && !defined(USE_QUADMATH)
 #  define VCATPVFN_FV_GF PERL_PRIgldbl
+   typedef long double vcatpvfn_long_double_t;
 #  if defined(__VMS) && defined(__ia64) && defined(__IEEE_FLOAT)
        /* Work around breakage in OTS$CVT_FLOAT_T_X */
 #    define VCATPVFN_NV_TO_FV(nv,fv)                    \
@@ -11332,13 +11335,12 @@ Perl_sv_vcatpvfn(pTHX_ SV *const sv, const char *const pat, const STRLEN patlen,
                 fv = Perl_isnan(_dv) ? LDBL_QNAN : _dv; \
             } STMT_END
 #  else
-#    define VCATPVFN_NV_TO_FV(nv,fv) (fv)=(nv)
+#    define VCATPVFN_NV_TO_FV(nv,fv) (fv)=(vcatpvfn_long_double_t)(nv)
 #  endif
-   typedef long double vcatpvfn_long_double_t;
 #else
 #  define VCATPVFN_FV_GF NVgf
-#  define VCATPVFN_NV_TO_FV(nv,fv) (fv)=(nv)
    typedef NV vcatpvfn_long_double_t;
+#  define VCATPVFN_NV_TO_FV(nv,fv) (fv)=(vcatpvfn_long_double_t)(nv)
 #endif
 
 #ifdef LONGDOUBLE_DOUBLEDOUBLE
@@ -13027,7 +13029,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 #elif LONG_DOUBLESIZE > DOUBLESIZE
                 if (intsize == 'q') {
                     fv = va_arg(*args, long double);
-                    nv = fv;
+                    nv = (NV)fv;
                 } else {
                     nv = va_arg(*args, double);
                     VCATPVFN_NV_TO_FV(nv, fv);

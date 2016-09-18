@@ -297,8 +297,13 @@ S_sv_or_pv_pos_u2b(pTHX_ SV *sv, const char *pv, STRLEN pos, STRLEN *lenp)
 {
     PERL_ARGS_ASSERT_SV_OR_PV_POS_U2B;
     if (SvGAMAGIC(sv)) {
-	U8 *hopped = utf8_hop((U8 *)pv, pos);
-        if (lenp) *lenp = (STRLEN)(utf8_hop(hopped, *lenp) - hopped);
+        U8 *hopped;
+        PERL_SNPRINTF_CHECK(pos, SSize_t_MAX, sv_or_pv_pos_u2b);
+        hopped = utf8_hop((U8 *)pv, (SSize_t)pos);
+        if (lenp) {
+            PERL_SNPRINTF_CHECK(*lenp, SSize_t_MAX, sv_or_pv_pos_u2b);
+            *lenp = (STRLEN)(utf8_hop(hopped, (SSize_t)*lenp) - hopped);
+        }
         return (STRLEN)(hopped - (U8 *)pv);
     }
     return sv_pos_u2b_flags(sv,pos,lenp,SV_CONST_RETURN);
@@ -935,8 +940,8 @@ S_is_utf8_string_flags(const U8 *s, STRLEN len, const U32 flags)
     const U8 * first_variant;
 
     PERL_ARGS_ASSERT_IS_UTF8_STRING_FLAGS;
-    assert(0 == (flags & ~(UTF8_DISALLOW_ILLEGAL_INTERCHANGE
-                          |UTF8_DISALLOW_PERL_EXTENDED)));
+    assert(0 == (flags & (U32)~(UTF8_DISALLOW_ILLEGAL_INTERCHANGE
+                                |UTF8_DISALLOW_PERL_EXTENDED)));
 
     if (len == 0) {
         len = strlen((const char *)s);
@@ -946,14 +951,14 @@ S_is_utf8_string_flags(const U8 *s, STRLEN len, const U32 flags)
         return is_utf8_string(s, len);
     }
 
-    if ((flags & ~UTF8_DISALLOW_PERL_EXTENDED)
-                                        == UTF8_DISALLOW_ILLEGAL_INTERCHANGE)
+    if ((flags & (U32)~UTF8_DISALLOW_PERL_EXTENDED)
+        == UTF8_DISALLOW_ILLEGAL_INTERCHANGE)
     {
         return is_strict_utf8_string(s, len);
     }
 
-    if ((flags & ~UTF8_DISALLOW_PERL_EXTENDED)
-                                       == UTF8_DISALLOW_ILLEGAL_C9_INTERCHANGE)
+    if ((flags & (U32)~UTF8_DISALLOW_PERL_EXTENDED)
+        == UTF8_DISALLOW_ILLEGAL_C9_INTERCHANGE)
     {
         return is_c9strict_utf8_string(s, len);
     }
@@ -1445,8 +1450,8 @@ S_is_utf8_string_loclen_flags(const U8 *s, STRLEN len, const U8 **ep, STRLEN *el
     const U8 * first_variant;
 
     PERL_ARGS_ASSERT_IS_UTF8_STRING_LOCLEN_FLAGS;
-    assert(0 == (flags & ~(UTF8_DISALLOW_ILLEGAL_INTERCHANGE
-                          |UTF8_DISALLOW_PERL_EXTENDED)));
+    assert(0 == (flags & (U32)~(UTF8_DISALLOW_ILLEGAL_INTERCHANGE
+                                |UTF8_DISALLOW_PERL_EXTENDED)));
 
     if (len == 0) {
         len = strlen((const char *) s);
@@ -1456,14 +1461,14 @@ S_is_utf8_string_loclen_flags(const U8 *s, STRLEN len, const U8 **ep, STRLEN *el
         return is_utf8_string_loclen(s, len, ep, el);
     }
 
-    if ((flags & ~UTF8_DISALLOW_PERL_EXTENDED)
-                                        == UTF8_DISALLOW_ILLEGAL_INTERCHANGE)
+    if ((flags & (U32)~UTF8_DISALLOW_PERL_EXTENDED)
+        == UTF8_DISALLOW_ILLEGAL_INTERCHANGE)
     {
         return is_strict_utf8_string_loclen(s, len, ep, el);
     }
 
-    if ((flags & ~UTF8_DISALLOW_PERL_EXTENDED)
-                                    == UTF8_DISALLOW_ILLEGAL_C9_INTERCHANGE)
+    if ((flags & (U32)~UTF8_DISALLOW_PERL_EXTENDED)
+        == UTF8_DISALLOW_ILLEGAL_C9_INTERCHANGE)
     {
         return is_c9strict_utf8_string_loclen(s, len, ep, el);
     }
@@ -2097,7 +2102,7 @@ S_cx_pushsub(pTHX_ PERL_CONTEXT *cx, CV *cv, OP *retop, bool hasargs)
     cx->blk_sub.cv = cv;
     cx->blk_sub.olddepth = CvDEPTH(cv);
     cx->blk_sub.prevcomppad = PL_comppad;
-    cx->cx_type |= (hasargs) ? CXp_HASARGS : 0;
+    cx->cx_type |= (U8)(hasargs ? (U8)CXp_HASARGS : (U8)0);
     cx->blk_sub.retop = retop;
     SvREFCNT_inc_simple_void_NN(cv);
     cx->blk_u16 = PL_op->op_private & (phlags|OPpDEREF);
@@ -2231,7 +2236,7 @@ S_cx_pusheval(pTHX_ PERL_CONTEXT *cx, OP *retop, SV *namesv)
 
     assert(!(PL_in_eval     & ~ 0x3F));
     assert(!(PL_op->op_type & ~0x1FF));
-    cx->blk_u16 = (PL_in_eval & 0x3F) | ((U16)PL_op->op_type << 7);
+    cx->blk_u16 = ((U16)PL_in_eval & 0x3F) | ((U16)PL_op->op_type << 7);
 }
 
 
