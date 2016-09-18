@@ -79,7 +79,8 @@ sub find_alias {
 
 sub define_alias {
     while (@_) {
-        my ( $alias, $name ) = splice( @_, 0, 2 );
+        my $alias = shift;
+        my $name = shift;
         unshift( @Alias, $alias => $name );    # newer one has precedence
         if ( ref($alias) ) {
 
