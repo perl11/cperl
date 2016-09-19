@@ -1169,8 +1169,8 @@ Perl_op_clear(pTHX_ OP *o)
 	goto clear_pmop;
 
     case OP_SPLIT:
-        if (     (o->op_private & OPpSPLIT_ASSIGN)
-            && !(o->op_flags & OPf_STACKED))
+        if ( (o->op_private & OPpSPLIT_ASSIGN) /* @array  = split */
+         && !OpSTACKED(o))                     /* @{expr} = split */
         {
             if (o->op_private & OPpSPLIT_LEX)
                 pad_free(cPMOPo->op_pmreplrootu.op_pmtargetoff);
@@ -7124,19 +7124,17 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 	}
 
         /* optimise @a = split(...) into:
-         * local/my @a:  split(..., @a), where @a is not flattened
-         * other arrays: split(...)      where @a is attached to
-         *                               the split op itself
+         * @{expr}:              split(..., @{expr}) (where @a is not flattened)
+         * @a, my @a, local @a:  split(...)          (where @a is attached to
+         *                                            the split op itself)
          */
 
 	if (right && IS_TYPE(right, SPLIT)
             && !(right->op_private & OPpSPLIT_ASSIGN)) {
             OP *gvop = NULL;
 
-            if (!(left->op_private & OPpLVAL_INTRO) &&
-                ( (IS_TYPE(left, RV2AV) && IS_TYPE((gvop = OpFIRST(left)), GV))
-                || IS_TYPE(left, PADAV) )
-                ) {
+            if ( (IS_TYPE(left, RV2AV) && IS_TYPE((gvop = OpFIRST(left)), GV))
+               || IS_TYPE(left, PADAV) ) {
                 /* @pkg or @lex, but not 'local @pkg' nor 'my @lex' */
                 OP *tmpop;
                 PMOP * const pm = (PMOP*)right;
@@ -7158,6 +7156,7 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
                     left->op_targ = 0;	/* steal it */
                     right->op_private |= OPpSPLIT_LEX;
                 }
+                right->op_private |= left->op_private & OPpLVAL_INTRO;
 
             detach_split:
                 tmpop = OpFIRST(OpFIRST(o)); /* to pushmark */
@@ -7170,10 +7169,8 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
                 /* "I don't know and I don't care." */
                 return right;
             }
-            else if (IS_TYPE(left, RV2AV)
-                  || IS_TYPE(left, PADAV))
-            {
-                /* 'local @pkg' or 'my @lex' */
+            else if (IS_TYPE(left, RV2AV)) {
+                /* @{expr} */
 
                 OP *pushop = OpFIRST(OpLAST(o));
                 assert(OpSIBLING(pushop) == left);
