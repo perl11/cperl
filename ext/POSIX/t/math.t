@@ -72,10 +72,10 @@ sub near {
 
 SKIP: {
     unless ($Config{d_acosh}) {
-        skip "no acosh, suspecting no C99 math";
+        skip "no acosh, suspecting no C99 math", 88;
     }
     if ($^O =~ /Win32|VMS/) {
-        skip "running in $^O, C99 math support uneven";
+        skip "running in $^O, C99 math support uneven", 88;
     }
     near(M_SQRT2, 1.4142135623731, "M_SQRT2", 1e-9);
     near(M_E, 2.71828182845905, "M_E", 1e-9);
