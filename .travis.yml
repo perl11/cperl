@@ -54,7 +54,7 @@ env:
     - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall' XCC='gcc'
 
 matrix:
-  allow_failures:
+#  allow_failures:
 #    - env: CONFIGURE_OPTION='' XCC="'gcc\ -m32'"
   fast_finish: true
 
@@ -65,7 +65,9 @@ script:
   - test -n $TRAVIS_TAG && CONFIGURE_OPTION="$CONFIGURE_OPTION -Dusedevel";
     ./Configure -des -Uversiononly -Dcc="$XCC" $CONFIGURE_OPTION -Dprefix=$HOME/cperl/usr
     && make -j4 -s
-  - TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/cperl/usr/bin/cperlivp
+  - if [ ${TRAVIS_OS_NAME} = "linux" -o -z "`echo $CONFIGURE_OPTION | grep 'DDEBUGGING' 2>/dev/null`" ]; then
+      TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/cperl/usr/bin/cperlivp;
+    fi
 
 # only the cfgs with XBITS set. at all 4 cfgs: linux64 linux32 osx64 osx32(?)
 # windows releases with appveyor. deb, rpm, osx packages done extra at home.
