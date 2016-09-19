@@ -90,7 +90,8 @@ in which case they are able to run arbitrary external code.
 
 =item *
 
-Hash keys are B<never> tainted.
+With perl5 hash keys are B<never> tainted.
+With cperl hash keys are properly tainted.
 
 =back
 
@@ -451,6 +452,23 @@ Your access to it does not give you permission to use it blah blah
 blah."  You should see a lawyer to be sure your license's wording will
 stand up in court.
 
+=head2 use warnings 'security'
+
+In cperl the new lexical warnings category B<security> is enabled by
+default, when you turn on warnings in general, e.g. by C<use warnings>
+or C<-w> or C<$^W=1>. This category warns against the most common and
+uniquely identifiable security attacks, and lists the attackers
+$REMOTE_ADDR, username and the full process path.  But it does not
+prevent them, it only prevents from Hash flood attacks by adding a
+sleep in the collision handling. Calling the known metasploit or
+phpcgi perl bind or reverse shells is just warned against. With the known
+metasploit attack against Storable it just throws a security warning.
+
+Layer 7 applications (e.g. on top of Socket) can use the new
+C<warn_security()> API to log security warnings in the same consistent
+matter. These warnings can not be bypassed by a C<$SIG{__WARN__}>
+handler.
+
 =head2 Unicode
 
 Unicode is a new and complex technology and one may easily overlook
@@ -506,26 +524,73 @@ L<Hash::Util> or by using the PERL_PERTURB_KEYS environment variable,
 see L<perlrun/PERL_PERTURB_KEYS>.  Note that this feature controls the
 "visible" order of the keys, and not the actual order they are stored in.
 
+cperl uses a different PERL_PERTURB_TOP strategy, which puts the last
+accessed key to the front of the collision chain, so that subsequent
+accesses to this key are faster. There's no randomization. Security is
+gained by detecting collision attacks directly and protecting from
+them.
+
 =item Bucket Order Perturbance
 
-When items collide into a given hash bucket the order they are stored in
-the chain is no longer predictable in Perl 5.18.  This
-has the intention to make it harder to observe a
-collision.  This behavior can be overridden by using
-the PERL_PERTURB_KEYS environment variable, see L<perlrun/PERL_PERTURB_KEYS>.
+When items collide into a given hash bucket the order they are stored
+in the chain is no longer predictable in Perl 5.18.  This has the
+intention to make it harder to observe a collision.  This behavior can
+be overridden by using the PERL_PERTURB_KEYS environment variable, see
+L<perlrun/PERL_PERTURB_KEYS>.
+
+cperl uses no bucket order perturbance by default.
 
 =item New Default Hash Function
 
-The default hash function has been modified with the intention of making
-it harder to infer the hash seed.
+The default perl5 hash function has been modified with the intention of
+making it harder to infer the hash seed.
+The default cperl hash function hash been changed to be smaller and
+find hash keys faster. See below.
+
+Most of the fast hash functions are easily reversible and lead to
+seed-independent multicollisions.
 
 =item Alternative Hash Functions
 
-The source code includes multiple hash algorithms to choose from.  While we
-believe that the default perl hash is robust to attack, we have included the
-hash function Siphash as a fall-back option.  At the time of release of
-Perl 5.18.0 Siphash is believed to be of cryptographic strength.  This is
-not the default as it is much slower than the default hash.
+The source code includes multiple hash algorithms to choose from.
+While we believe that the default perl hash is robust to attack, we
+have included the hash function Siphash as a fall-back option.  At the
+time of release of Perl 5.18.0 Siphash is believed to be the strongest
+alternative. With cperl there are more strong and slow alternatives.
+This is not the default as it is much slower than the default hash.
+
+Siphash is the most commonly known not-easily reversible hash
+function, with the seed influencing the inner loop. But it is too slow
+to be a viable general purpose alternative, and via new SAT solvers
+even Siphash is insecure.  Esp. since it's even easier to attack via
+timing information, since it's so slow.
+
+Every hash function used in a hash table is too weak to be usable as
+alone security measure against collision attacks. For a successful
+attack you just need to find collisions for 10-13 bits, and use
+e.g. timing attacks, which are not preventable. See
+L<https://github.com/rurban/perl-hash-stats> for an overview of all
+available hash functions.
+
+SPOOKY32 has the least collisions, FNV1A is the fastest when used
+inlined in a hash table, CRC32 is the fastest in modern hardware
+Pentium or ARM and offers very good quality but is too easily
+attackable. SIPHASH and OOAT_HARD are much slower then the others.
+
+=item cperl hash security
+
+cperl doesn't trust any hash function "security" claims, which are
+considered snake oil. Even if Siphash is used by other prominent
+languages, such as python, ruby, rust or haskell it is not considered
+secure.  cperl rather uses a normal fast "insecure" hash function,
+fast move-to-front collision handling from 5.22 to 5.24, and relies on
+the hash collision strategy to protect from DoS attacks. To make it
+harder to guess the seed, the seed is not printed on C<perl -V> as
+done with perl5. cperl counts the collisions explicitly and adds a
+security warning and a sleep to protect other running processes from
+starving and to use too much CPU, when an attack is detected. Those
+attacks are very seldom. If you really want to harm a perl process
+there exist much easier ways to DoS it.
 
 =back
 
@@ -573,8 +638,10 @@ misbehave on any input.
 
 =back
 
-See L<http://www.cs.rice.edu/~scrosby/hash/> for more information,
-and any computer science textbook on algorithmic complexity.
+See L<http://www.cs.rice.edu/~scrosby/hash/> and
+L<https://www.eng.tau.ac.il/~yash/C2_039_Wool.pdf> for more
+information, and any computer science textbook on algorithmic
+complexity.
 
 =head1 SEE ALSO
 
