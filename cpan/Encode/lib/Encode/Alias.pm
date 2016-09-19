@@ -81,7 +81,8 @@ sub define_alias {
     while (@_) {
         my $alias = shift;
         my $name = shift;
-        unshift( @Alias, $alias => $name );    # newer one has precedence
+        unshift( @Alias, $alias => $name )    # newer one has precedence
+            if defined $alias;
         if ( ref($alias) ) {
 
             # clear %Alias cache to allow overrides
@@ -97,9 +98,13 @@ sub define_alias {
                 }
             }
         }
-        else {
+        elsif (defined $alias) {
             DEBUG and warn "delete \$Alias\{$alias\}";
             delete $Alias{$alias};
+        }
+        elsif (DEBUG) {
+            require Carp;
+            Carp::croak "undef \$alias";
         }
     }
 }
