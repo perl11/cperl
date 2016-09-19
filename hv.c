@@ -51,6 +51,15 @@ holds the key and hash value.
 static const char S_strtab_error[]
     = "Cannot modify shared string table in hv_%s";
 
+#define CHECK_HASH_FLOOD(collisions)            \
+    if (UNLIKELY(++collisions > 127)) {         \
+        if (!(collisions % 8)) {                \
+            warn_security("Hash flood");        \
+            PerlProc_sleep(2);                  \
+        }                                       \
+    }
+
+
 #ifdef PURIFY
 
 #define new_HE() (HE*)safemalloc(sizeof(HE))
@@ -351,12 +360,12 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     HE *entry;
     HE **oentry;
     SV *sv;
-    bool is_utf8;
+    HEK *keysv_hek = NULL;
     int masked_flags;
     const int return_svp = action & HV_FETCH_JUST_SV;
-    HEK *keysv_hek = NULL;
+    unsigned int collisions = 0;
+    bool is_utf8;
 #ifdef DEBUGGING
-    unsigned int linear = 0;
     assert(klen >= 0);
 #endif
 
@@ -690,11 +699,13 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
         for (; entry; entry = HeNEXT(entry)) {
             HEK *hek = HeKEY_hek(entry);
-            DEBUG_H(linear++);
+            CHECK_HASH_FLOOD(collisions)
             if (hek == keysv_hek)
                 goto found;
-            if (HEK_FLAGS(hek) != keysv_flags)
+            if (HEK_FLAGS(hek) != keysv_flags) {
+                collisions = 0;
                 break; /* need to do full match */
+            }
         }
         if (!entry)
             goto not_found;
@@ -703,7 +714,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     }
 
     for (; entry; entry = HeNEXT(entry)) {
-        DEBUG_H(linear++);
+        CHECK_HASH_FLOOD(collisions)
 	if (HeHASH(entry) != hash)		/* strings can't be equal */
 	    continue;
 	if (HeKLEN(entry) != klen)
@@ -802,9 +813,13 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 #endif
 
         /* fill, size, found index in collision list */
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u * 0x%x\t%s{%.*s}\n",
-                              HvTOTALKEYS(hv), HvMAX(hv), linear, action,
-                              HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
+        DEBUG_H(PerlIO_printf(Perl_debug_log,
+                    "HASH %6u\t%6u\t%u [%u] * %s(0x%x)\t%s%s{%.*s}\n",
+                    (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
+                    (unsigned)HvHASH_INDEX(hash, HvMAX(hv)),
+                    action_name(action), action,
+                    HvSHAREKEYS(hv)?"SHARE ":"",
+                    HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
 	if (return_svp) {
             return (void *) &HeVAL(entry);
 	}
@@ -813,9 +828,13 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
   not_found:
     /* fill, size, not found, size of collision list */
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u - 0x%x\t%s{%.*s}\n",
-                          HvTOTALKEYS(hv), HvMAX(hv), linear, action,
-                          HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
+    DEBUG_H(PerlIO_printf(Perl_debug_log,
+                "HASH %6u\t%6u\t%u [%u] - %s(0x%x)\t%s%s{%.*s}\n",
+                (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
+                (unsigned)HvHASH_INDEX(hash, HvMAX(hv)),
+                action_name(action), action,
+                HvSHAREKEYS(hv)?"SHARE ":"",
+                HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
 #ifdef DYNAMIC_ENV_FETCH  /* %ENV lookup?  If so, try to fetch the value now */
     if (!(action & HV_FETCH_ISSTORE) 
 	&& SvRMAGICAL((const SV *)hv)
@@ -1101,9 +1120,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     SV *sv;
     GV *gv = NULL;
     HV *stash = NULL;
-#ifdef DEBUGGING
-    unsigned int linear = 0;
-#endif
+    unsigned int collisions = 0;
 
     if (SvRMAGICAL(hv)) {
 	bool needs_copy;
@@ -1201,7 +1218,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
         for (; entry; oentry = &HeNEXT(entry), entry = *oentry) {
             HEK *hek = HeKEY_hek(entry);
-            DEBUG_H(linear++);
+            DEBUG_H(collisions++);
             if (hek == keysv_hek)
                 goto found;
             if (HEK_FLAGS(hek) != keysv_flags)
@@ -1215,7 +1232,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     }
 
     for (; entry; oentry = &HeNEXT(entry), entry = *oentry) {
-        DEBUG_H(linear++);
+        CHECK_HASH_FLOOD(collisions)
 	if (HeHASH(entry) != hash)		/* strings can't be equal */
 	    continue;
 	if (HeKLEN(entry) != klen)
@@ -1236,8 +1253,8 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	if (HeVAL(entry) == &PL_sv_placeholder) {
 	    if (k_flags & HVhek_FREEKEY)
 		Safefree(key);
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DELpl\n",
-                                  HvTOTALKEYS(hv), HvMAX(hv), linear));
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%u DELpl\n",
+                                  (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions));
 	    return NULL;
 	}
 	if (SvREADONLY(hv) && HeVAL(entry) && SvREADONLY(HeVAL(entry))) {
@@ -1393,8 +1410,9 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	else if (mro_changes == 2)
 	    mro_package_moved(NULL, stash, gv, 1);
 
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL+\t{%.*s}\n",
-                              HvTOTALKEYS(hv), HvMAX(hv), linear, (int)klen, key));
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%u DEL+\t{%.*s}\n",
+                              (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
+                              (int)klen, key));
 	return sv;
     }
 
@@ -1407,8 +1425,8 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
     if (k_flags & HVhek_FREEKEY)
 	Safefree(key);
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6lu\t%6lu\t%u DEL-\t{%.*s}\n",
-                          HvTOTALKEYS(hv), HvMAX(hv), linear, (int)klen, key));
+    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%u DEL-\t{%.*s}\n",
+                          (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions, (int)klen, key));
     return NULL;
 }
 
@@ -3113,6 +3131,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
     const int flags_masked = flags & HVhek_MASK;
     const U32 hindex = hash & (I32) HvMAX(PL_strtab);
     XPVHV * const xhv = (XPVHV*)SvANY(PL_strtab);
+    unsigned int collisions = 0;
 
     PERL_ARGS_ASSERT_SHARE_HEK_FLAGS;
 
@@ -3126,8 +3145,9 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
     */
 
     /* assert(xhv_array != 0) */
-    entry = (HvARRAY(PL_strtab))[hindex];
-    for (;entry; entry = HeNEXT(entry)) {
+    entry = HvARRAY(PL_strtab)[hindex];
+    for (; entry; entry = HeNEXT(entry)) {
+        CHECK_HASH_FLOOD(collisions)
 	if (HeHASH(entry) != hash)		/* strings can't be equal */
 	    continue;
 	if (HeKLEN(entry) != len)
@@ -3175,6 +3195,11 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 	*head = entry;
 
 	xhv->xhv_keys++;
+        DEBUG_H(PerlIO_printf(Perl_debug_log,
+            "HASH insert shared [%d] %u %u %u\tstrtab{%.*s}\n",
+            (int)hindex, (unsigned)xhv->xhv_keys,
+            (unsigned)xhv->xhv_max, collisions, (int)len, str));
+
 	if (!next) {			/* initial entry? */
 	} else if ( DO_HSPLIT(xhv) ) {
             const STRLEN oldsize = xhv->xhv_max + 1;
@@ -3294,6 +3319,7 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
     dVAR;
     HV *hv;
     U32 placeholders, max;
+    unsigned int collisions = 0;
 
     if (flags)
 	Perl_croak(aTHX_ "panic: refcounted_he_chain_2hv bad flags %"UVxf,
@@ -3322,6 +3348,7 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
 	SV *value;
 
 	for (; entry; entry = HeNEXT(entry)) {
+            CHECK_HASH_FLOOD(collisions)
 	    if (HeHASH(entry) == hash) {
 		/* We might have a duplicate key here.  If so, entry is older
 		   than the key we've already put in the hash, so if they are
