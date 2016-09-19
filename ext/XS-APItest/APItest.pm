@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.85_02'; # also cperl builtins
+our $VERSION = '0.86_02'; # also cperl builtins
 # $VERSION =~ s/c$//;
 
 require XSLoader;
