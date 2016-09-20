@@ -14,10 +14,22 @@
 #include "XSUB.h"
 #include "ppport.h"
 
+/* not defined in perl5 */
+#ifndef He_IS_SVKEY
+#define He_IS_SVKEY(he) HeKLEN(he) == HEf_SVKEY
+#endif
+
 /* need workaround broken dump of !SvOBJECT with SvSTASH in dump.c */
 /* fixed in cperl5.22.2 and perl5.23.8  */
 #if PERL_VERSION >= 18 && (!defined(USE_CPERL) && PERL_VERSION < 24)
 #define NEED_SAFE_SVSTASH
+#endif
+
+#ifndef HE_EACH
+# define HE_EACH(hv,entry,block) \
+    for (; entry; entry = HeNEXT(entry)) { \
+      block; \
+    }
 #endif
 
 void DumpPointer( pTHX_ PerlIO *f, SV *sv ) {
@@ -74,15 +86,15 @@ DumpAvARRAY( pTHX_ PerlIO *f, SV *sv) {
 void
 DumpHvARRAY( pTHX_ PerlIO *f, SV *sv) {
   U32 key = 0;
-  HE *entry;
   SV *tmp = newSVpv("",0);
 
   PerlIO_printf(f,"HvARRAY(0x%"UVxf")\n",PTR2UV(HvARRAY(sv)));
   if (!HvARRAY(sv)) goto hvend;
 
   for ( key = 0; key <= HvMAX(sv); ++key ) {
-    for ( entry = HvARRAY(sv)[key]; entry; entry = HeNEXT(entry) ) {
-      if ( HEf_SVKEY == HeKLEN(entry) ) {
+    HE *entry = HvARRAY(sv)[key];
+    HE_EACH(sv, entry, {
+      if ( He_IS_SVKEY(entry) ) {
         PerlIO_printf(
           f, "  [SV 0x%"UVxf"] => ",
           PTR2UV(HeKEY(entry)));
@@ -99,7 +111,7 @@ DumpHvARRAY( pTHX_ PerlIO *f, SV *sv) {
       }
       DumpPointer(aTHX_ f, HeVAL(entry));
       PerlIO_puts(f, "\n");
-    }
+    })
   }
  hvend:
   PerlIO_puts(f,"\n");
@@ -110,15 +122,15 @@ DumpHvARRAY( pTHX_ PerlIO *f, SV *sv) {
 void
 DumpHashKeys( pTHX_ PerlIO *f, SV *sv) {
   U32 key = 0;
-  HE *entry;
   SV *tmp = newSVpv("",0);
 
   PerlIO_printf(f,"SHARED HASH KEYS at 0x%"UVxf"\n", PTR2UV(sv));
   if (!HvARRAY(sv)) goto hkend;
   
   for ( key = 0; key <= HvMAX(sv); ++key ) {
-    for ( entry = HvARRAY(sv)[key]; entry; entry = HeNEXT(entry) ) {
-      if ( HEf_SVKEY == HeKLEN(entry) ) {
+    HE *entry = HvARRAY(sv)[key];
+    HE_EACH(sv, entry, {
+      if ( He_IS_SVKEY(entry) ) {
         PerlIO_printf(f, "    SV 0x%"UVxf"\n", PTR2UV(HeKEY(entry)) );
         DumpPointer(aTHX_ f, (SV*)(HeKEY(entry)));
       }
@@ -127,7 +139,7 @@ DumpHashKeys( pTHX_ PerlIO *f, SV *sv) {
                       pv_display( (SV*)tmp, (const char*)HeKEY(entry),
                                   HeKLEN(entry), HeKLEN(entry), 0 ) );
       } 
-    }
+    })
   }
  hkend:
   PerlIO_puts(f,"\n\n");
