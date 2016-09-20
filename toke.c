@@ -5050,6 +5050,7 @@ Perl_yylex(pTHX)
 		/* Generate a string of Perl code to load the debugger.
 		 * If PERL5DB is set, it will return the contents of that,
 		 * otherwise a compile-time require of perl5db.pl.  */
+                /* See also CVE-2016-1531 https://www.exploit-db.com/exploits/39702/ */
 
 		const char * const pdb = PerlEnv_getenv("PERL5DB");
 
