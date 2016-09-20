@@ -37,9 +37,9 @@ L<[perl #128952]|https://rt.perl.org/Public/Bug/Display.html?id=128952>
 
 If the collisions for a hash key lookup exceeds 128 tries (i.e. a
 linear search in a linked list), this qualifies as a malicious hash
-DoS (I<Denial of Service>) attack. Generally maximal 8 collisions
+DoS (I<Denial of Service>) attack. Generally maximal 8-10 collisions
 appear in normal hash table usage. Every 8th such hash flood attack
-performs a sleep(2) to limit the impact.
+performs a C<sleep(2)> to limit the impact.
 
 Detect and protect against it, also call the new C<warn_security("Hash flood")>.
 
@@ -69,6 +69,13 @@ protect against it. This warning is thrown even without C<-w>.
 Also detects the CVE-2012-1823 reverse/bind shell payload, which is
 widely exploited too. The security warning is called "CVE-2012-1823
 reverse/bind shell payload".
+
+=head2 syscalls warnings also security
+
+With a warnings 'syscalls' violation, i.e. detecting C<\0> in arguments
+to C API syscalls, the new 'security' warnings category overrides the 'syscalls'
+category. I.e. the warning is produced by the L<perlapi/warn_security> API,
+and to turn it off, you have to turn off both categories.
 
 =head1 Performance Enhancements
 

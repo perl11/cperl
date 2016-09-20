@@ -116,11 +116,12 @@ SKIP: {
 # (and does that only happen on VMS?)
 
 # fail and print the full filename
-eval { no warnings 'syscalls'; require "strict.pm\0invalid"; };
+eval { no warnings ('syscalls','security'); require "strict.pm\0invalid"; };
 like $@, qr/^Can't locate strict\.pm\\0invalid: /, 'require nul check [perl #117265]';
-eval { no warnings 'syscalls'; do "strict.pm\0invalid"; };
+eval { no warnings ('syscalls','security'); do "strict.pm\0invalid"; };
 like $@, qr/^Can't locate strict\.pm\\0invalid: /, 'do nul check';
 {
+  no warnings 'security'; # cperl only
   my $WARN;
   local $SIG{__WARN__} = sub { $WARN = shift };
   eval { require "strict.pm\0invalid"; };
@@ -138,9 +139,9 @@ like $@, qr/^syntax error at \(eval \d+\) line 1/, 'parse error with \0 in barew
 
 # Refs and globs that stringify with embedded nulls
 # These crashed from 5.20 to 5.24 [perl #128182].
-eval { no warnings 'syscalls'; require eval "qr/\0/" };
+eval { no warnings ('syscalls','security'); require eval "qr/\0/" };
 like $@, qr/^Can't locate \(\?\^:\\0\):/,
     'require ref that stringifies with embedded null';
-eval { no strict; no warnings 'syscalls'; require *{"\0a"} };
+eval { no strict; no warnings ('syscalls','security'); require *{"\0a"} };
 like $@, qr/^Can't locate \*main::\\0a:/,
     'require ref that stringifies with embedded null';

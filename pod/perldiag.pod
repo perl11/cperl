@@ -2933,9 +2933,11 @@ the indicated name isn't valid.  See L<charnames/CUSTOM ALIASES>.
 
 =item Invalid \0 character in %s for %s: %s\0%s
 
-(W syscalls) Embedded \0 characters in pathnames or other system call
+(S security)(W syscalls) Embedded \0 characters in pathnames or other system call
 arguments produce a warning as of 5.20.  The parts after the \0 were
 formerly ignored by system calls.
+With the default warning 'security' in effect, only with cperl, the warning is
+produced by the L<perlapi/warn_security> API.
 
 =item Invalid character in \N{...}; marked by S<<-- HERE> in \N{%s}
 

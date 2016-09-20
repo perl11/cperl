@@ -394,6 +394,7 @@ pass("no crash when open autovivifies glob in freed package");
 
 # [perl #117265] check for embedded nul in pathnames, allow ending \0 though
 {
+    no warnings 'security'; # cperl only
     my $WARN;
     local $SIG{__WARN__} = sub { $WARN = shift };
     my $temp = tempfile();

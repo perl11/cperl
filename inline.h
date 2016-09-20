@@ -317,8 +317,12 @@ S__is_utf8_char_slow(const U8 *s, const U8 *e)
 
 =for apidoc AiR|bool|is_safe_syscall|const char *pv|STRLEN len|const char *what|const char *op_name
 
-Test that the given C<pv> doesn't contain any internal C<NUL> characters.
-If it does, set C<errno> to C<ENOENT>, optionally warn, and return FALSE.
+Test that the given C<pv> doesn't contain any internal C<NUL>
+characters.  If it does, set C<errno> to C<ENOENT>, optionally warn
+with the 'syscalls' category, and return FALSE.  If warnings
+'security' is in effect it overrides the 'syscalls' warnings category.
+I.e. to turn it off you have turn off both: C<no warnings ('syscalls', 'io');>
+Note: With cperl 'syscalls' and 'security' are both default ON.
 
 Return TRUE if the name is safe.
 
@@ -338,11 +342,18 @@ S_is_safe_syscall(pTHX_ const char *pv, STRLEN len, const char *what, const char
     if (len > 1) {
         char *null_at;
         if (UNLIKELY((null_at = (char *)memchr(pv, 0, len-1)) != NULL)) {
-                SETERRNO(ENOENT, LIB_INVARG);
-                Perl_ck_warner(aTHX_ packWARN(WARN_SYSCALLS),
-                                   "Invalid \\0 character in %s for %s: %s\\0%s",
-                                   what, op_name, pv, null_at+1);
-                return FALSE;
+            SETERRNO(ENOENT, LIB_INVARG);
+#ifdef WARN_SECURITY
+            if (Perl_ckwarn(aTHX_ packWARN(WARN_SECURITY)))
+                Perl_warn_security(aTHX_
+                           "Invalid \\0 character in %s for %s: %s\\0%s",
+                           what, op_name, pv, null_at+1);
+            else
+#endif
+            Perl_ck_warner(aTHX_ packWARN(WARN_SYSCALLS),
+                           "Invalid \\0 character in %s for %s: %s\\0%s",
+                           what, op_name, pv, null_at+1);
+            return FALSE;
         }
     }
 
