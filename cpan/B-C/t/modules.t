@@ -41,7 +41,8 @@ use Config;
 
 my $ccopts;
 BEGIN {
-  #plan skip_all => "MSVC" if ($^O eq 'MSWin32' and $Config{cc} eq 'cl');
+  plan skip_all => "skipped: Overlong tests, timeout on Appveyor CI"
+    if $^O eq 'MSWin32' and $ENV{APPVEYOR};
   if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
     # MSVC takes an hour to compile each binary unless -Od
     $ccopts = '"--Wc=-Od"';
