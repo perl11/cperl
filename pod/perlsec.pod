@@ -177,7 +177,7 @@ it doesn't make sense for C<$result> to be tainted.
 
 To test whether a variable contains tainted data, and whose use would
 thus trigger an "Insecure dependency" message, you can use the
-C<tainted()> function of the Scalar::Util module, available in your
+C<tainted()> function of the L<Scalar::Util> module, available in your
 nearby CPAN mirror, and included in Perl starting from the release 5.8.0.
 Or you may be able to use the following C<is_tainted()> function.
 
@@ -232,6 +232,13 @@ contain data from outside the program.  If you are writing a
 locale-aware program, and want to launder data with a regular expression
 containing C<\w>, put C<no locale> ahead of the expression in the same
 block.  See L<perllocale/SECURITY> for further discussion and examples.
+
+The generic untainting attempt as outlined below is being protected by using
+C<use re 'taint'> which keeps tainting for catch-all (.*) group matches.
+
+    use re 'taint';
+    $data =~ /^(.*)$/;
+    $data = $1;     			# $data still tainted
 
 =head2 Switches On the "#!" Line
 
