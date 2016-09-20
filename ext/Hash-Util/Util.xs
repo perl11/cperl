@@ -162,13 +162,11 @@ bucket_info(rhv)
              * for empty chains, ST(2+1) will be for chains with one element,  etc.
              */
             I32 max_chain_length= BUCKET_INFO_ITEMS_ON_STACK - 1; /* so we do not have to do an extra push for the 0 index */
-            HE *he;
             U32 bucket_index;
             for ( bucket_index= 0; bucket_index <= max_bucket_index; bucket_index++ ) {
-                I32 chain_length= BUCKET_INFO_ITEMS_ON_STACK;
-                for (he= bucket_array[bucket_index]; he; he= HeNEXT(he) ) {
-                    chain_length++;
-                }
+                I32 chain_length = BUCKET_INFO_ITEMS_ON_STACK;
+                HE *he = bucket_array[bucket_index];
+                HE_EACH(hv, he, chain_length++)
                 while ( max_chain_length < chain_length ) {
                     mXPUSHi(0);
                     max_chain_length++;
@@ -212,7 +210,6 @@ bucket_array(rhv)
         } else {
             U32 i, max;
             AV *info_av;
-            HE *he;
             I32 empty_count=0;
             if (SvMAGICAL(hv)) {
                 Perl_croak(aTHX_ "hash::bucket_array only works on 'normal' hashes");
@@ -222,7 +219,8 @@ bucket_array(rhv)
             mXPUSHs(newRV_noinc((SV*)info_av));
             for ( i= 0; i <= max; i++ ) {
                 AV *key_av= NULL;
-                for (he= he_ptr[i]; he; he= HeNEXT(he) ) {
+                HE *he= he_ptr[i];
+                HE_EACH(hv, he, {
                     SV *key_sv;
                     char *str;
                     STRLEN len;
@@ -235,7 +233,7 @@ bucket_array(rhv)
                         }
                         av_push(info_av, (SV *)newRV_noinc((SV *)key_av));
                     }
-                    if (HeKLEN(he) == HEf_SVKEY) {
+                    if (He_IS_SVKEY(he)) {
                         SV *sv= HeSVKEY(he);
                         SvGETMAGIC(sv);
                         str= SvPV(sv, len);
@@ -250,7 +248,7 @@ bucket_array(rhv)
                     if (mode) {
                         SvUTF8_on(key_sv);
                     }
-                }
+                })
                 if (!key_av)
                     empty_count++;
             }
