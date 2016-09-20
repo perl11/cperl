@@ -2805,6 +2805,15 @@ Perl_hv_ename_delete(pTHX_ HV *hv, const char *name, U32 len, U32 flags)
     }
 }
 
+/*
+=for apidoc hv_backreferences_p
+
+Returns the modifiable pointer to the field holding the AV* of backreferences.
+See also L<perlapi/sv_get_backrefs>.
+
+=cut
+*/
+
 AV **
 Perl_hv_backreferences_p(pTHX_ HV *hv) {
     PERL_ARGS_ASSERT_HV_BACKREFERENCES_P;
@@ -2814,6 +2823,15 @@ Perl_hv_backreferences_p(pTHX_ HV *hv) {
         return &(iter->xhv_backreferences);
     }
 }
+
+/*
+=for apidoc hv_kill_backrefs
+
+Calls L</sv_kill_backrefs> on the hash backreferences, and
+frees it.
+
+=cut
+*/
 
 void
 Perl_hv_kill_backrefs(pTHX_ HV *hv) {
@@ -3116,14 +3134,20 @@ Now a macro in hv.h
 
 =for apidoc hv_magic
 
-Adds magic to a hash.  See C<L</sv_magic>>.
+Adds magic to a hash.  See L</sv_magic>.
+
+=for apidoc unsharepvn
+
+possibly free a shared string if no one has access to it.
+len and hash must both be valid for str.
+
+=for apidoc unshare_hek
+
+possibly free a shared hek if no one has access to it.
 
 =cut
 */
 
-/* possibly free a shared string if no one has access to it
- * len and hash must both be valid for str.
- */
 void
 Perl_unsharepvn(pTHX_ const char *str, I32 len, U32 hash)
 {
@@ -3230,11 +3254,21 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
 	Safefree(str);
 }
 
-/* get a (constant) string ptr from the global string table
- * string will get added if it is not already there.
- * len and hash must both be valid for str.
- * A negative len denotes utf8, which is then tried to be downgraded.
- */
+/*
+=for apidoc share_hek
+
+get a (constant) string ptr from the global string table.
+
+string will get added if it is not already there.
+len and hash must both be valid for str.
+A negative len denotes utf8, which is then tried to be downgraded.
+
+The shared hek has a he entry before in memory, and the HEK_KEY
+can be used as a SvPVX entry. It needs IsCOW and LEN=0 then.
+See L<perlapi/newSVpvn_share>.
+
+=cut
+*/
 HEK *
 Perl_share_hek(pTHX_ const char *str, I32 len, U32 hash)
 {
@@ -3362,6 +3396,26 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 
     return HeKEY_hek(entry);
 }
+
+/*
+=for apidoc hv_placeholders_p
+
+Returns the pointer to modifiable field to the count of hash placeholders,
+the deleted elements.
+Used as C<HvPLACEHOLDERS(hv)++>
+
+=for apidoc hv_placeholders_get
+
+Returns the count of hash placeholders, deleted elements.
+Used as C<HvPLACEHOLDERS_get(hv)>
+
+=for apidoc hv_placeholders_set
+
+Sets the count of hash placeholders, deleted elements.
+Used as C<HvPLACEHOLDERS_set(hv, 0)>
+
+=cut
+*/
 
 SSize_t *
 Perl_hv_placeholders_p(pTHX_ HV *hv)

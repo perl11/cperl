@@ -5924,8 +5924,8 @@ is an AV then the elements of the AV are the weak reference RVs which
 point at this item. If it is any other type then the item itself is the
 weak reference.
 
-See also C<Perl_sv_add_backref()>, C<Perl_sv_del_backref()>,
-C<Perl_sv_kill_backrefs()>
+See also L<perlintern/sv_add_backref>, L<perlintern/sv_del_backref>,
+L<perlintern/sv_kill_backrefs>
 
 =cut
 */
@@ -5952,32 +5952,37 @@ Perl_sv_get_backrefs(SV *const sv)
     return backrefs;
 }
 
-/* Give tsv backref magic if it hasn't already got it, then push a
- * back-reference to sv onto the array associated with the backref magic.
- *
- * As an optimisation, if there's only one backref and it's not an AV,
- * store it directly in the HvAUX or mg_obj slot, avoiding the need to
- * allocate an AV. (Whether the slot holds an AV tells us whether this is
- * active.)
- */
+/*
+=for apidoc sv_add_backref
 
-/* A discussion about the backreferences array and its refcount:
- *
- * The AV holding the backreferences is pointed to either as the mg_obj of
- * PERL_MAGIC_backref, or in the specific case of a HV, from the
- * xhv_backreferences field. The array is created with a refcount
- * of 2. This means that if during global destruction the array gets
- * picked on before its parent to have its refcount decremented by the
- * random zapper, it won't actually be freed, meaning it's still there for
- * when its parent gets freed.
- *
- * When the parent SV is freed, the extra ref is killed by
- * Perl_sv_kill_backrefs.  The other ref is killed, in the case of magic,
- * by mg_free() / MGf_REFCOUNTED, or for a hash, by Perl_hv_kill_backrefs.
- *
- * When a single backref SV is stored directly, it is not reference
- * counted.
- */
+Give tsv backref magic if it hasn't already got it, then push a
+back-reference to sv onto the array associated with the backref magic.
+
+As an optimisation, if there's only one backref and it's not an AV,
+store it directly in the HvAUX or mg_obj slot, avoiding the need to
+allocate an AV. (Whether the slot holds an AV tells us whether this is
+active.)
+
+
+A discussion about the backreferences array and its refcount:
+
+The AV holding the backreferences is pointed to either as the C<mg_obj> of
+C<PERL_MAGIC_backref>, or in the specific case of a HV, from the
+C<xhv_backreferences> field. The array is created with a refcount
+of 2. This means that if during global destruction the array gets
+picked on before its parent to have its refcount decremented by the
+random zapper, it won't actually be freed, meaning it's still there for
+when its parent gets freed.
+
+When the parent SV is freed, the extra ref is killed by
+L<perlintern/sv_kill_backrefs>.  The other ref is killed, in the case of magic,
+by L<perlapi/mg_free> / C<MGf_REFCOUNTED>, or for a hash, by L<perlintern/hv_kill_backrefs>.
+
+When a single backref SV is stored directly, it is not reference
+counted.
+
+=cut
+*/
 
 void
 Perl_sv_add_backref(pTHX_ SV *const tsv, SV *const sv)
@@ -6035,9 +6040,14 @@ Perl_sv_add_backref(pTHX_ SV *const tsv, SV *const sv)
     AvARRAY(av)[++AvFILLp(av)] = sv; /* av_push() */
 }
 
-/* delete a back-reference to ourselves from the backref magic associated
- * with the SV we point to.
- */
+/*
+=for apidoc sv_del_backref
+
+Delete a back-reference to ourselves from the backref magic associated
+with the SV we point to.
+
+=cut
+*/
 
 void
 Perl_sv_del_backref(pTHX_ SV *const tsv, SV *const sv)
@@ -6155,6 +6165,14 @@ Perl_sv_del_backref(pTHX_ SV *const tsv, SV *const sv)
     }
 
 }
+
+/*
+=for apidoc sv_kill_backrefs
+
+Delete all back-references to ourselves from the backreferences array.
+
+=cut
+*/
 
 void
 Perl_sv_kill_backrefs(pTHX_ SV *const sv, AV *const av)
@@ -6399,9 +6417,15 @@ Perl_sv_replace(pTHX_ SV *const sv, SV *const nsv)
     del_SV(nsv);
 }
 
-/* We're about to free a GV which has a CV that refers back to us.
- * If that CV will outlive us, make it anonymous (i.e. fix up its CvGV
- * field) */
+/*
+=for apidoc anonymise_cv_maybe
+
+We're about to free a GV which has a CV that refers back to us.
+If that CV will outlive us, make it anonymous (i.e. fix up its CvGV
+field)
+
+=cut
+*/
 
 STATIC void
 S_anonymise_cv_maybe(pTHX_ GV *gv, CV* cv)
@@ -6970,8 +6994,14 @@ Perl_sv_free(pTHX_ SV *const sv)
 }
 
 
-/* Private helper function for SvREFCNT_dec().
- * Called with rc set to original SvREFCNT(sv), where rc == 0 or 1 */
+/*
+=for apidoc sv_free2
+
+Private helper function for SvREFCNT_dec().
+Called with rc set to original SvREFCNT(sv), where rc == 0 or 1
+
+=cut
+*/
 
 void
 Perl_sv_free2(pTHX_ SV *const sv, const U32 rc)
@@ -7074,6 +7104,11 @@ Perl_sv_len(pTHX_ SV *const sv)
 
 Returns the number of characters in the string in an SV, counting wide
 UTF-8 bytes as a single character.  Handles magic and type coercion.
+
+=for apidoc sv_len_utf8_nomg
+
+Returns the number of characters in the string in an SV, counting wide
+UTF-8 bytes as a single character.  Ignores get magic.
 
 =cut
 */
