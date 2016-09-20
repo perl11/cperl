@@ -122,6 +122,12 @@
 #  define GV_NOEXPAND 0
 #endif
 
+#ifndef HE_EACH
+# define HE_EACH(hv,entry,block) \
+    for (; entry; entry = HeNEXT(entry)) { \
+      block; \
+    }
+#endif
 
 #ifdef DEBUGME
 
@@ -3338,10 +3344,10 @@ static int store_lhash(pTHX_ stcxt_t *cxt, HV *hv, unsigned char hash_flags)
         if (!entry) continue;
         if ((ret = store_hentry(aTHX_ cxt, hv, ix++, entry, hash_flags)))
             return ret;
-        while ((entry = HeNEXT(entry))) {
-            if ((ret = store_hentry(aTHX_ cxt, hv, ix++, entry, hash_flags)))
-                return ret;
-        }
+        HE_EACH(hv, entry, {
+                if ((ret = store_hentry(aTHX_ cxt, hv, ix++, entry, hash_flags)))
+                    return ret;
+        })
     }
     if (recur_sv == (SV*)hv && cxt->max_recur_depth_hash != -1 && cxt->recur_depth > 0) {
         TRACEME(("recur_depth --%" IVdf, cxt->recur_depth));
