@@ -89,6 +89,13 @@
 #  define SvTRULYREADONLY(sv)	(SvREADONLY(sv) && !SvIsCOW(sv))
 #endif
 
+#ifndef HE_EACH
+# define HE_EACH(hv,entry,block) \
+    for (; entry; entry = HeNEXT(entry)) { \
+      block; \
+    }
+#endif
+
 #ifdef DEBUGME
 
 #ifndef DASSERT
@@ -2932,10 +2939,10 @@ static int store_lhash(pTHX_ stcxt_t *cxt, HV *hv, unsigned char hash_flags)
 		if (!entry) continue;
 		if ((ret = store_hentry(aTHX_ cxt, hv, ix++, entry, hash_flags)))
 			return ret;
-		while ((entry = HeNEXT(entry))) {
+                HE_EACH(hv, entry, {
 			if ((ret = store_hentry(aTHX_ cxt, hv, ix++, entry, hash_flags)))
 				return ret;
-		}
+                })
 	}
 	assert(ix == len);
 	return ret;
