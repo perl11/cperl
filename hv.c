@@ -409,7 +409,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     int masked_flags;
     const int return_svp = action & HV_FETCH_JUST_SV;
     bool is_utf8;
-    unsigned int collisions = 0;
+    int collisions = -1;
 #ifdef DEBUGGING
     assert(klen >= 0);
 #endif
@@ -599,7 +599,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
             if (hek == keysv_hek)
                 goto found;
             if (HEK_FLAGS(hek) != keysv_flags) {
-                collisions = 0;
+                collisions = -1;
                 break; /* need to do full match */
             }
         }
@@ -709,7 +709,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 #endif
         /* fill, size, found index in collision list */
         DEBUG_H(PerlIO_printf(Perl_debug_log,
-                    "HASH %6u\t%6u\t%u [%u] * %s(0x%x)\t%s%s{%.*s}\n",
+                    "HASH %6u\t%6u\t%d [%u] * %s(0x%x)\t%s%s{%.*s}\n",
                     (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
                     (unsigned)HvHASH_INDEX(hash, HvMAX(hv)),
                     action_name(action), action,
@@ -729,7 +729,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
   not_found:
     /* fill, size, not found, size of collision list */
     DEBUG_H(PerlIO_printf(Perl_debug_log,
-                "HASH %6u\t%6u\t%u [%u] - %s(0x%x)\t%s%s{%.*s}\n",
+                "HASH %6u\t%6u\t%d [%u] - %s(0x%x)\t%s%s{%.*s}\n",
                 (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
                 (unsigned)HvHASH_INDEX(hash, HvMAX(hv)),
                 action_name(action), action,
@@ -1255,7 +1255,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     SV *sv;
     GV *gv = NULL;
     HV *stash = NULL;
-    unsigned int collisions = 0;
+    int collisions = -1;
 
     if (SvRMAGICAL(hv)) {
 	bool needs_copy;
@@ -1398,8 +1398,8 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	if (HeVAL(entry) == &PL_sv_placeholder) {
 	    if (k_flags & HVhek_FREEKEY)
 		Safefree(key);
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%u DELpl\n",
-                                  (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions));
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d DELpl\n",
+                        (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions));
 	    return NULL;
 	}
 	if (SvREADONLY(hv) && HeVAL(entry) && SvREADONLY(HeVAL(entry))) {
@@ -1553,7 +1553,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	else if (mro_changes == 2)
 	    mro_package_moved(NULL, stash, gv, 1);
 
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%u DEL+\t{%.*s}\n",
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d DEL+\t{%.*s}\n",
                               (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
                               (int)klen, key));
 #ifdef DEBUGGING
@@ -1573,7 +1573,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
     if (k_flags & HVhek_FREEKEY)
 	Safefree(key);
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%u DEL-\t{%.*s}\n",
+    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d DEL-\t{%.*s}\n",
                           (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions, (int)klen, key));
     return NULL;
 }
@@ -2151,7 +2151,7 @@ Perl_hfree_next_entry(pTHX_ HV *hv, U32 *indexp)
     assert(array);
     while ( ! ((entry = array[*indexp])) ) {
 	if (++(*indexp) > HvMAX(hv))
-	    *indexp = 0;
+            *indexp = 0;
 #ifdef PERL_PERTURB_KEYS_TOP
 	if (*indexp == orig_index) {
             DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH hfree leaked key [%u] == %u\t%u %u\n",
@@ -3308,7 +3308,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
     const int flags_masked = flags & HVhek_MASK;
     const U32 hindex = HvHASH_INDEX(hash, HvMAX(PL_strtab));
     XPVHV * const xhv = (XPVHV*)SvANY(PL_strtab);
-    unsigned int collisions = 0;
+    int collisions = -1;
 
     PERL_ARGS_ASSERT_SHARE_HEK_FLAGS;
     assert(len >= 0);
@@ -3374,7 +3374,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 
 	xhv->xhv_keys++;
         DEBUG_H(PerlIO_printf(Perl_debug_log,
-            "HASH insert shared [%d] %u %u %u\tstrtab{%.*s}\n",
+            "HASH insert shared [%d] %u %u %d\tstrtab{%.*s}\n",
             (int)hindex, (unsigned)xhv->xhv_keys,
             (unsigned)xhv->xhv_max, collisions, (int)len, str));
 
@@ -3519,7 +3519,7 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
     dVAR;
     HV *hv;
     U32 placeholders, max;
-    unsigned int collisions = 0;
+    int collisions = -1;
 
     if (flags)
 	Perl_croak(aTHX_ "panic: refcounted_he_chain_2hv bad flags %"UVxf,
