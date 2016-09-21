@@ -281,6 +281,15 @@ typedef long intptr_t
 /* Unused by core; should be deprecated */
 #define Ctl(ch) ((ch) & 037)
 
+#if defined(PERL_CORE) || defined(PERL_EXT)
+#  ifndef MIN
+#    define MIN(a,b) ((a) < (b) ? (a) : (b))
+#  endif
+#  ifndef MAX
+#    define MAX(a,b) ((a) > (b) ? (a) : (b))
+#  endif
+#endif
+
 /* This is a helper macro to avoid preprocessor issues, replaced by nothing
  * unless under DEBUGGING, where it expands to an assert of its argument,
  * followed by a comma (hence the comma operator).  If we just used a straight
