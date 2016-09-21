@@ -1906,18 +1906,19 @@ STATIC SV*
 S_hv_free_ent_ret(pTHX_ HV *hv, HE *entry)
 {
     SV *val;
+    const HEK* hek = HeKEY_hek(entry);
 
     PERL_ARGS_ASSERT_HV_FREE_ENT_RET;
 
     val = HeVAL(entry);
     if (HeKLEN(entry) == HEf_SVKEY) {
-	SvREFCNT_dec(HeKEY_sv(entry));
-	Safefree(HeKEY_hek(entry));
+	SvREFCNT_dec(*(SV**)HEK_KEY(hek));
+	Safefree(hek);
     }
-    else if (HvSHAREKEYS(hv))
-	unshare_hek(HeKEY_hek(entry));
-    else
-	Safefree(HeKEY_hek(entry));
+    else if (!HEK_UNSHARED(hek))
+	unshare_hek(hek);
+    else if (!HEK_STATIC(hek))
+	Safefree(hek);
     del_HE(entry);
     return val;
 }
