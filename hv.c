@@ -767,11 +767,11 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
                                       HvNAME_get(hv)?HvNAME_get(hv):"", key));
                 HeNEXT(oentry->hent_he) = HeNEXT(entry);
             } else {
-                HE* x;
+                HE* x = HeNEXT(oentry->hent_he);
                 DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH move up 2\t%s{%s}\n",
                                       HvNAME_get(hv)?HvNAME_get(hv):"", key));
                 /* find X, the one before e */
-                for (x = HeNEXT(oentry->hent_he); HeNEXT(x) != entry; x = HeNEXT(x));
+                HE_EACH_CMP(hv, x, HeNEXT(x) != entry, {});
                 HeNEXT(x) = HeNEXT(entry);
             }
             HeNEXT(entry) = oentry->hent_he;

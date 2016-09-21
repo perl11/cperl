@@ -817,20 +817,24 @@ Creates a new HV.  The reference count is set to 1.
 
 /* entry is the initial hash hit, check all collisions.
    an empty hash slot has entry==NULL. */
-#define HE_EACH(hv,entry,block) \
-    for (; entry; entry = HeNEXT(entry)) { \
+#define HE_EACH(hv,_entry,block) \
+    for (; _entry; _entry = HeNEXT(_entry)) { \
       block; \
     }
 
 #ifdef PERL_CORE
-#define HE_EACH_POST(hv,entry,post,block)  \
-    for (; entry; entry = HeNEXT(entry), post) { \
+#define HE_EACH_POST(hv,_entry,post,block)  \
+    for (; _entry; _entry = HeNEXT(_entry), post) { \
+      block; \
+    }
+#define HE_EACH_CMP(hv,_entry,cmp,block)  \
+    for (; cmp; _entry = HeNEXT(_entry)) { \
       block; \
     }
 /* oentry is the changable entry ptr, entry the initial hash hit.
    check all collisions */
-#define HE_OEACH(hv,oentry,entry,block) \
-    for (; entry; oentry = &HeNEXT(entry), entry = *oentry) { \
+#define HE_OEACH(hv,oentry,_entry,block) \
+    for (; _entry; oentry = &HeNEXT(_entry), _entry = *oentry) { \
       block; \
     }
 #endif
