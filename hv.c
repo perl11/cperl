@@ -364,6 +364,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     int masked_flags;
     const int return_svp = action & HV_FETCH_JUST_SV;
     int collisions = -1;
+    U32 hindex;
     bool is_utf8;
 #ifdef DEBUGGING
     assert(klen >= 0);
@@ -672,11 +673,12 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     } else
 #endif
     {
+        hindex = HvHASH_INDEX(hash, HvMAX(hv));
 #ifdef PERL_PERTURB_KEYS_TOP
-	oentry = &(HvARRAY(hv))[hash & (U32) HvMAX(hv)];
+	oentry = &(HvARRAY(hv)[ hindex ]);
         entry = *oentry;
 #else
-	entry = (HvARRAY(hv))[hash & (U32) HvMAX(hv)];
+	entry = HvARRAY(hv)[ hindex ];
 #endif
     }
 
@@ -736,8 +738,8 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		       need. As keys are shared we can't just write to the
 		       flag, so we share the new one, unshare the old one.  */
 		    HEK * const new_hek = share_hek_flags(key, klen, hash,
-						   masked_flags);
-		    unshare_hek (HeKEY_hek(entry));
+                                                          masked_flags);
+		    unshare_hek(HeKEY_hek(entry));
 		    HeKEY_hek(entry) = new_hek;
 		}
 		else if (hv == PL_strtab) {
@@ -910,7 +912,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 #endif
 
 #ifndef PERL_PERTURB_KEYS_TOP
-    oentry = &(HvARRAY(hv))[hash & (I32) xhv->xhv_max];
+    oentry = &HvARRAY(hv)[ HvHASH_INDEX(hash, xhv->xhv_max) ];
 #endif
 
 #if INTSIZE > 4
@@ -1197,7 +1199,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
     masked_flags = (k_flags & HVhek_MASK);
 
-    first_entry = oentry = &(HvARRAY(hv))[hash & (U32) HvMAX(hv)];
+    first_entry = oentry = &HvARRAY(hv)[ HvHASH_INDEX(hash, HvMAX(hv)) ];
     entry = *oentry;
 
     if (!entry)
@@ -1514,15 +1516,18 @@ S_hsplit(pTHX_ HV *hv, SSize_t const oldsize, SSize_t newsize)
 
     newsize--;
     aep = (HE**)a;
-    do {
+    for (; i < oldsize; i++) {
 	HE **oentry = aep + i;
 	HE *entry = aep[i];
 
-	if (!entry)				/* non-existent */
-	    continue;
-	do {
-            Size_t j = (HeHASH(entry) & newsize);
-	    if (j != (Size_t)i) {
+	while (entry) {				/* non-existent */
+            U32 j = (HeHASH(entry) & newsize);
+#ifdef DEBUGGING
+            if (DEBUG_H_TEST_ && DEBUG_v_TEST_) {
+                PerlIO_printf(Perl_debug_log, "HASH split %d->%d\n",i,j);
+            }
+#endif
+	    if (j != i) {
 		*oentry = HeNEXT(entry);
 #ifdef PERL_HASH_RANDOMIZE_KEYS
                 /* if the target cell is empty or PL_HASH_RAND_BITS_ENABLED is false
@@ -1554,8 +1559,8 @@ S_hsplit(pTHX_ HV *hv, SSize_t const oldsize, SSize_t newsize)
 		oentry = &HeNEXT(entry);
 	    }
 	    entry = *oentry;
-	} while (entry);
-    } while (i++ < oldsize);
+	}
+    }
 }
 
 void
@@ -1640,17 +1645,14 @@ Perl_newHVhv(pTHX_ HV *ohv)
 
 	    /* Copy the linked list of entries. */
 	    for (; oent; oent = HeNEXT(oent)) {
-		const U32 hash   = HeHASH(oent);
-		const char * const key = HeKEY(oent);
-		const I32 len    = HeKLEN(oent);
-		const int flags  = HeKFLAGS(oent);
-		HE * const ent   = new_HE();
-		SV *const val    = HeVAL(oent);
+		const HEK *hek = HeKEY_hek(oent);
+		HE * const ent = new_HE();
+		SV * const val = HeVAL(oent);
 
 		HeVAL(ent) = SvIMMORTAL(val) ? val : newSVsv(val);
-		HeKEY_hek(ent)
-                    = shared ? share_hek_flags(key, len, hash, flags)
-                             :  save_hek_flags(key, len, hash, flags);
+		HeKEY_hek(ent) = shared
+                    ? share_hek_flags(HEK_KEY(hek), HEK_LEN(hek), HEK_HASH(hek), HEK_FLAGS(hek))
+                    :  save_hek_flags(HEK_KEY(hek), HEK_LEN(hek), HEK_HASH(hek), HEK_FLAGS(hek));
 		if (prev)
 		    HeNEXT(prev) = ent;
 		else
@@ -3165,7 +3167,7 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 {
     HE *entry;
     const int flags_masked = flags & HVhek_MASK;
-    const U32 hindex = hash & (I32) HvMAX(PL_strtab);
+    const U32 hindex = HvHASH_INDEX(hash, HvMAX(PL_strtab));
     XPVHV * const xhv = (XPVHV*)SvANY(PL_strtab);
     int collisions = -1;
 
@@ -3399,7 +3401,7 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
 #else
 	U32 hash = HEK_HASH(chain->refcounted_he_hek);
 #endif
-	HE **oentry = &((HvARRAY(hv))[hash & max]);
+	HE **oentry = &HvARRAY(hv)[ HvHASH_INDEX(hash, max) ];
 	HE *entry = *oentry;
 	SV *value;
 

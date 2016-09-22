@@ -53,7 +53,11 @@ struct he {
 struct hek {
     U32		hek_hash;	/* hash of key */
     I32		hek_len;	/* length of hash key */
+#ifdef PERL_GCC_BRACE_GROUPS_FORBIDDEN
     char	hek_key[1];	/* variable-length hash key */
+#else
+    char	hek_key[];      /* for easier debugging */
+#endif
     /* the hash-key is \0-terminated */
     /* after the \0 there is a byte for flags, such as whether the key
        is UTF-8 */
@@ -265,6 +269,14 @@ C<SV*>.
  * overall length of the bucket array.
  * */
 #define PERL_HV_ALLOC_AUX_SIZE (1 << 9)
+
+/* 64bit arith is faster, even with the added mask */
+#if LONGSIZE >= 8
+#define HvHASH_INDEX(hash, max) \
+    ((U64_CONST(0x7fffffff00000000) | hash) & (max))
+#else
+#define HvHASH_INDEX(hash, max) (hash & (max))
+#endif
 
 /* these hash entry flags ride on hent_klen (for use only in magic/tied HVs) */
 #define HEf_SVKEY	-2	/* hent_key is an SV* */
