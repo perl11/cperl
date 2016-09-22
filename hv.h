@@ -53,7 +53,11 @@ struct he {
 struct hek {
     U32		hek_hash;	/* hash of key */
     I32		hek_len;	/* length of hash key */
+#ifdef PERL_GCC_BRACE_GROUPS_FORBIDDEN
     char	hek_key[1];	/* variable-length hash key */
+#else
+    char	hek_key[];      /* for easier debugging */
+#endif
     /* the hash-key is \0-terminated */
     /* after the \0 there is a byte for flags, such as whether the key
        is UTF-8 */

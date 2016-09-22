@@ -408,8 +408,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     HEK *keysv_hek = NULL;
     int masked_flags;
     const int return_svp = action & HV_FETCH_JUST_SV;
-    bool is_utf8;
     int collisions = -1;
+    U32 hindex;
+    bool is_utf8;
 #ifdef DEBUGGING
     assert(klen >= 0);
 #endif
@@ -567,7 +568,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     } else
 #endif
     {
-        U32 hindex = HvHASH_INDEX(hash, HvMAX(hv));
+        hindex = HvHASH_INDEX(hash, HvMAX(hv));
 #ifdef PERL_PERTURB_KEYS_TOP
 	oentry = &(HvARRAY(hv)[ hindex ]);
         entry = *oentry;
@@ -633,7 +634,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		       flag, so we share the new one, unshare the old one.  */
 		    HEK * const new_hek = share_hek_flags(key, klen, hash,
                                                           masked_flags);
-		    unshare_hek (HeKEY_hek(entry));
+		    unshare_hek(HeKEY_hek(entry));
 		    HeKEY_hek(entry) = new_hek;
 		}
 		else if (hv == PL_strtab) {
@@ -1582,7 +1583,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 STATIC void
 S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 {
-    U32 i = 0;
+    U32 i;
     char *a = (char*) HvARRAY(hv);
     HE **aep;
 
@@ -1658,14 +1659,18 @@ S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 
     newsize--;
     aep = (HE**)a;
-    do {
+    for (i=0; i < oldsize; i++) {
 	HE **oentry = aep + i;
 	HE *entry = aep[i];
 
-	if (!entry)				/* non-existent */
-	    continue;
-	do {
+	while (entry) {				/* non-existent */
             U32 j = (HeHASH(entry) & newsize);
+#ifdef DEBUGGING
+            if (DEBUG_H_TEST_ && DEBUG_v_TEST_) {
+                PerlIO_printf(Perl_debug_log, "HASH split %d->%d\n",i,j);
+                deb_hechain(aep[i]);
+            }
+#endif
 	    if (j != i) {
 		*oentry = HeNEXT(entry);
 #ifdef PERL_HASH_RANDOMIZE_KEYS
@@ -1697,9 +1702,17 @@ S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 	    else {
 		oentry = &HeNEXT(entry);
 	    }
+#ifdef DEBUGGING
+            if (DEBUG_H_TEST_ && DEBUG_v_TEST_) {
+                if (*oentry)
+                    deb_hechain(*oentry);
+                if (i!=j)
+                    deb_hechain(aep[j]);
+            }
+#endif
 	    entry = *oentry;
-	} while (entry);
-    } while (i++ < oldsize);
+	}
+    }
 }
 
 void
@@ -1785,17 +1798,14 @@ Perl_newHVhv(pTHX_ HV *ohv)
 
 	    /* Copy the linked list of entries. */
 	    for (; oent; oent = HeNEXT(oent)) {
-		const U32 hash   = HeHASH(oent);
-		const char * const key = HeKEY(oent);
-		const I32 len    = HeKLEN(oent);
-		const int flags  = HeKFLAGS(oent);
-		HE * const ent   = new_HE();
-		SV *const val    = HeVAL(oent);
+		const HEK *hek = HeKEY_hek(oent);
+		HE * const ent = new_HE();
+		SV * const val = HeVAL(oent);
 
 		HeVAL(ent) = SvIMMORTAL(val) ? val : newSVsv(val);
-		HeKEY_hek(ent)
-                    = shared ? share_hek_flags(key, len, hash, flags)
-                             :  save_hek_flags(key, len, hash, flags);
+		HeKEY_hek(ent) = shared
+                    ? share_hek_flags(HEK_KEY(hek), HEK_LEN(hek), HEK_HASH(hek), HEK_FLAGS(hek))
+                    :  save_hek_flags(HEK_KEY(hek), HEK_LEN(hek), HEK_HASH(hek), HEK_FLAGS(hek));
 		if (prev)
 		    HeNEXT(prev) = ent;
 		else
