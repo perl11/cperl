@@ -13,8 +13,7 @@
  * See perlrun for more details. */
 
 #if defined(USE_CPERL)
-/* Performance. A random seed with a zero-invariant hash-function is good enough for us,
-   and if they want to DDOS there are much easier ways. */
+/* Performance. We have good enough security measures to fight DoS hash floods. */
 /*# define PERL_PERTURB_KEYS_DISABLED*/
 # define PERL_PERTURB_KEYS_TOP
 #endif
