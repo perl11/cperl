@@ -6,7 +6,10 @@
 
 use strict;
 
-BEGIN { require './test.pl'; }
+BEGIN {
+  chdir 't' if -d 't' && -f 'MANIFEST';
+  require './test.pl';
+}
 
 plan tests => 2;
 watchdog(2);
