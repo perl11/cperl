@@ -822,7 +822,6 @@ Creates a new HV.  The reference count is set to 1.
       block; \
     }
 
-#ifdef PERL_CORE
 #define HE_EACH_POST(hv,_entry,post,block)  \
     for (; _entry; _entry = HeNEXT(_entry), post) { \
       block; \
@@ -831,6 +830,7 @@ Creates a new HV.  The reference count is set to 1.
     for (; cmp; _entry = HeNEXT(_entry)) { \
       block; \
     }
+#ifdef PERL_CORE
 /* oentry is the changable entry ptr, entry the initial hash hit.
    check all collisions */
 #define HE_OEACH(hv,oentry,_entry,block) \

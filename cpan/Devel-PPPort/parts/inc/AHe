@@ -1,0 +1,105 @@
+################################################################################
+##
+##  cperl hash abstractions
+##  Copyright (C) 2016, cPanel Inc
+##
+##  This program is free software; you can redistribute it and/or
+##  modify it under the same terms as Perl itself.
+##
+################################################################################
+
+=provides
+
+AHe
+AHE
+HE_EACH
+HE_EACH_POST
+HE_EACH_CMP
+HV_NO_RITER
+HVhek_TAINTED
+HEK_TAINTED
+HEK_TAINTED_on
+HEK_STATIC
+HeSTATIC
+HVhek_STATIC
+HvAUXf_STATIC
+HvSTATIC_get
+HvSTATIC
+PERL_HV_SMALL_MAX
+HvAUXf_SMALL
+HvSMALL
+XHvSMALL
+HEK_UNSHARED
+HEK_IS_SVKEY
+He_IS_SVKEY
+He_IS_PLACEHOLDER
+SV_IS_PLACEHOLDER
+
+=implementation
+
+/* implemented in cperl since 5.22.1 */
+#ifndef HEK_TAINTED
+#  define HVhek_TAINTED  	0x10
+#  define HEK_TAINTED(hek)	0
+#  define HEK_TAINTED_on(hek)
+#endif
+
+/* implemented in cperl since 5.22.2 */
+#ifndef HV_NO_RITER
+#  define HV_NO_RITER  -1
+#endif
+
+/* implemented in cperl since 5.22.2 */
+#ifndef HEK_STATIC
+#  define HEK_STATIC(hek) 0
+#  define HeSTATIC(hek)   0
+#  define HVhek_STATIC    0x80
+#  define HvAUXf_STATIC   0x8
+#  define HvSTATIC_get(hv) 0
+#  define HvSTATIC(hv)     0
+#endif
+
+/* implemented in cperl since 5.25.1 */
+#ifndef HEK_UNSHARED
+#  define HEK_UNSHARED(hek)      (HEK_FLAGS(hek) & HVhek_UNSHARED)
+#endif
+
+/* implemented in cperl since 5.27.0 */
+#ifndef PERL_HV_SMALL_MAX
+#  define PERL_HV_SMALL_MAX     7
+#endif
+#ifndef HvSMALL
+#  define HvAUXf_SMALL		0x10
+#  define HvSMALL(hv)		(HvTOTALKEYS(hv) <= PERL_HV_SMALL_MAX)
+#  define XHvSMALL(xhv)		(XHvTOTALKEYS(xhv) <= PERL_HV_SMALL_MAX)
+#endif
+
+/* implemented in cperl since 5.27.0 */
+#ifndef HEK_IS_SVKEY
+#  define HEK_IS_SVKEY(hek) 	HEK_LEN(hek) == HEf_SVKEY
+#  define He_IS_SVKEY(he) 	HeKLEN(he) == HEf_SVKEY
+#  define He_IS_PLACEHOLDER(he) HeVAL(he) == &PL_sv_placeholder
+#  define SV_IS_PLACEHOLDER(sv) sv == &PL_sv_placeholder
+#endif
+
+/* implemented in cperl since 5.27.0 */
+#ifndef HE_EACH
+/* seperate linked-list HE from array item AHE */
+# ifndef AHe
+#  define AHE HE
+#  define AHe(he) he
+# endif
+
+# define HE_EACH(hv,entry,block) \
+    for (; entry; entry = HeNEXT(entry)) { \
+      block; \
+    }
+#define HE_EACH_POST(hv,_entry,post,block)  \
+    for (; _entry; _entry = HeNEXT(_entry), post) { \
+      block; \
+    }
+#define HE_EACH_CMP(hv,_entry,cmp,block)  \
+    for (; cmp; _entry = HeNEXT(_entry)) { \
+      block; \
+    }
+#endif
