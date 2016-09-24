@@ -275,15 +275,7 @@ C<SV*>.
  * */
 #define PERL_HV_ALLOC_AUX_SIZE (1 << 9)
 
-/* With 64bit the maximum HvMAX is U64MAX, but the hash stores only 32bit.
-   In order to address bigger hashes > 32bit, expand the hash mask. */
-#if LONGSIZE >= 8
-#define HvHASH_INDEX(hash, max) \
-    ((U64_CONST(0x7fffffff00000000) | hash) & (max))
-#else
-#define HvHASH_INDEX(hash, max) (hash & (I32)(max))
-#endif
-
+#define HvHASH_INDEX(hash, max) (hash & (U32)(max))
 
 /* these hash entry flags ride on hent_klen (for use only in magic/tied HVs) */
 #define HEf_SVKEY	-2	/* hent_key is an SV* */
