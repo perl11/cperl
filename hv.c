@@ -1560,11 +1560,12 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         goto not_found;
 #ifdef PERL_INLINE_HASH
     if (first_entry->hent_hash != hash) {
-        entry = first_entry->hent_he->hent_next;
+        entry = entry->hent_next;
         if (!entry)
-          goto not_found;
+            goto not_found;
     }
 #endif
+    oentry = &entry;
 
     masked_flags = (k_flags & HVhek_MASK);
     if (keysv_hek) {
@@ -1591,6 +1592,8 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         if (!entry)
             goto not_found;
         /* failed on shortcut - do full search loop */
+        oentry = &first_entry->hent_he;
+        entry = *oentry;
     }
 
     HE_OEACH(hv, oentry, entry, {
@@ -1623,8 +1626,9 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	if (He_IS_PLACEHOLDER(entry)) {
 	    if (k_flags & HVhek_FREEKEY)
 		Safefree(key);
-            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d DELpl\n",
-                        (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions));
+            DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d [%u] DELpl\n",
+                        (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
+                        (unsigned)HvHASH_INDEX(hash, HvMAX(hv))));
             PERL_DTRACE_PROBE_HASH_RETURN(PERL_DTRACE_HASH_MODE_DELETE, key);
 	    return NULL;
 	}
@@ -1748,15 +1752,20 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	     * doesn't go down, but the number placeholders goes up */
 	    HvPLACEHOLDERS(hv)++;
 	else {
-            first_entry->hent_he = HeNEXT(entry);
-            if (!first_entry->hent_he) {
+            /* If it's the first entry do more */
+            if (entry == first_entry->hent_he) {
+                first_entry->hent_he = HeNEXT(entry);
+                if (first_entry->hent_he) {
 #ifdef PERL_INLINE_HASH
-                first_entry->hent_hash = 0;
+                    first_entry->hent_hash = HeHASH(first_entry->hent_he);
 #endif
+                } else {
 #ifdef PERL_INLINE_HASH
+                    first_entry->hent_hash = 0;
+#endif
+                }
             } else {
-                first_entry->hent_hash = HeHASH(first_entry->hent_he);
-#endif
+                *oentry = HeNEXT(entry);
             }
 #ifdef USE_SAFE_HASHITER
             HvAUX(hv)->xhv_timestamp++;
@@ -1764,8 +1773,10 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	    if (SvOOK(hv) && entry == HvAUX(hv)->xhv_eiter)
 		HvLAZYDEL_on(hv);
 	    else {
-		if (SvOOK(hv) && HvLAZYDEL(hv) &&
-		    entry == HeNEXT(HvAUX(hv)->xhv_eiter)) {
+		if (SvOOK(hv)
+                    && HvLAZYDEL(hv)
+		    && entry == HeNEXT(HvAUX(hv)->xhv_eiter))
+                {
 		    HeNEXT(HvAUX(hv)->xhv_eiter) = HeNEXT(entry);
                 }
                 hv_free_ent(hv, entry);
@@ -1785,9 +1796,9 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	else if (mro_changes == 2)
 	    mro_package_moved(NULL, stash, gv, 1);
 
-        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d DEL+\t{%.*s}\n",
-                              (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
-                              (int)klen, key));
+        DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d [%u] DEL+\t{%.*s}\n",
+                    (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
+                    (unsigned)HvHASH_INDEX(hash, HvMAX(hv)), (int)klen, key));
 #ifdef DEBUGGING
         if (DEBUG_H_TEST_ && DEBUG_v_TEST_)
             deb_hechain(first_entry->hent_he);
