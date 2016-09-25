@@ -14511,11 +14511,14 @@ S_sv_dup_common(pTHX_ const SV *const sstr, CLONE_PARAMS *const param)
 		    Newx(darray, PERL_HV_ARRAY_ALLOC_BYTES(dxhv->xhv_max+1)
 			+ (SvOOK(sstr) ? sizeof(struct xpvhv_aux) : 0),
 			char);
-		    HvARRAY(dstr) = (HE**)darray;
+		    HvARRAY(dstr) = (AHE*)darray;
 		    while (i <= sxhv->xhv_max) {
-			const HE * const source = HvARRAY(sstr)[i];
-			HvARRAY(dstr)[i] = source
-			    ? he_dup(source, sharekeys, param) : 0;
+			const HE * const source = AHe(HvARRAY(sstr)[i]);
+                        AHe(HvARRAY(dstr)[i]) = source
+                            ? he_dup(source, sharekeys, param) : 0;
+#ifdef PERL_INLINE_HASH
+                        HvARRAY(dstr)[i].hent_hash = HvARRAY(sstr)[i].hent_hash;
+#endif
 			++i;
 		    }
 		    if (SvOOK(sstr)) {
