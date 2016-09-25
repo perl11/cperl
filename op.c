@@ -7137,14 +7137,13 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
                || IS_TYPE(left, PADAV) ) {
                 /* @pkg or @lex, but not 'local @pkg' nor 'my @lex' */
                 OP *tmpop;
-                PMOP * const pm = (PMOP*)right;
                 if (gvop) {
 #ifdef USE_ITHREADS
-                    pm->op_pmreplrootu.op_pmtargetoff
+                    ((PMOP*)right)->op_pmreplrootu.op_pmtargetoff
                         = cPADOPx(gvop)->op_padix;
                     cPADOPx(gvop)->op_padix = 0;	/* steal it */
 #else
-                    pm->op_pmreplrootu.op_pmtargetgv
+                    ((PMOP*)right)->op_pmreplrootu.op_pmtargetgv
                         = MUTABLE_GV(cSVOPx(gvop)->op_sv);
                     cSVOPx(gvop)->op_sv = NULL;	/* steal it */
 #endif
@@ -7152,7 +7151,7 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
                         left->op_private & OPpOUR_INTRO;
                 }
                 else {
-                    pm->op_pmreplrootu.op_pmtargetoff = left->op_targ;
+                    ((PMOP*)right)->op_pmreplrootu.op_pmtargetoff = left->op_targ;
                     left->op_targ = 0;	/* steal it */
                     right->op_private |= OPpSPLIT_LEX;
                 }
