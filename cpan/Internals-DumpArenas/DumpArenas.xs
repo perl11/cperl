@@ -25,6 +25,10 @@
 #define NEED_SAFE_SVSTASH
 #endif
 
+#ifndef AHe
+# define AHE HE*
+# define AHe(he) he
+#endif
 #ifndef HE_EACH
 # define HE_EACH(hv,entry,block) \
     for (; entry; entry = HeNEXT(entry)) { \
@@ -93,7 +97,7 @@ DumpHvARRAY( pTHX_ PerlIO *f, SV *sv) {
   if (!HvARRAY(sv)) goto hvend;
 
   for ( key = 0; key <= HvMAX(sv); ++key ) {
-    HE *entry = HvARRAY(sv)[key];
+    HE *entry = AHe(HvARRAY(sv)[key]);
     HE_EACH(sv, entry, {
       if ( He_IS_SVKEY(entry) ) {
         PerlIO_printf(
@@ -129,7 +133,7 @@ DumpHashKeys( pTHX_ PerlIO *f, SV *sv) {
   if (!HvARRAY(sv)) goto hkend;
   
   for ( key = 0; key <= HvMAX(sv); ++key ) {
-    HE *entry = HvARRAY(sv)[key];
+    HE *entry = AHe(HvARRAY(sv)[key]);
     HE_EACH(sv, entry, {
       if ( He_IS_SVKEY(entry) ) {
         PerlIO_printf(f, "    SV 0x%" UVxf "\n", PTR2UV(HeKEY(entry)) );
