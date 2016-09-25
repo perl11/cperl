@@ -152,6 +152,7 @@
 #define PL_hash_rand_bits	(vTHX->Ihash_rand_bits)
 #define PL_hash_rand_bits_enabled	(vTHX->Ihash_rand_bits_enabled)
 #define PL_hash_slowdos		(vTHX->Ihash_slowdos)
+#define PL_he_base		(vTHX->Ihe_base)
 #define PL_hintgv		(vTHX->Ihintgv)
 #define PL_hv_fetch_ent_mh	(vTHX->Ihv_fetch_ent_mh)
 #define PL_in_clean_all		(vTHX->Iin_clean_all)

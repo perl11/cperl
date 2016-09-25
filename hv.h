@@ -20,6 +20,13 @@
 # define PERL_INLINE_HASH
 #endif
 
+#if defined(USE_CPERL) && (PTRSIZE == 8)
+/* compress hent_he and hent_hash into one word */
+# define PERL_HASH_INLINE_ONEWORD
+# define PERL_48BIT_MASK 0xffffffffffff0000
+# define PERL_16BIT_MASK 0xffff000000000000
+#endif
+
 #if defined(PERL_PERTURB_KEYS_DISABLED) || defined(PERL_PERTURB_KEYS_TOP)
 #   undef PERL_HASH_RANDOMIZE_KEYS
 #   define PL_HASH_RAND_BITS_ENABLED        0
@@ -39,9 +46,16 @@
 
 /* inlined entry in hash array, 2-3 words */
 struct array_he {
+#ifndef PERL_INLINE_HASH
     HE		*hent_he;	/* ptr to full hash entry */
-#ifdef PERL_INLINE_HASH
+#else
+# ifdef PERL_HASH_INLINE_ONEWORD
+    unsigned long hent_he:48;	/* maximum ptr range */
+    unsigned long hent_hash:16;	/* most significant (left) bits */
+# else
+    HE		*hent_he;	/* ptr to full hash entry */
     U32		 hent_hash;	/* hash to catch 99% fails */
+# endif
 #endif
 };
 
@@ -479,11 +493,28 @@ C<SV*>.
 #ifndef PERL_CORE
 #  define Nullhe Null(HE*)
 #endif
-#define AHe(ahe)		(ahe).hent_he
-#ifdef PERL_INLINE_HASH
-#  define AHeHASH_set(ahep, hash) (ahep)->hent_hash = hash
+#ifdef PERL_HASH_INLINE_ONEWORD
+# define AHe(ahe)		(HE*)((ahe).hent_he ? (ahe).hent_he + PL_he_base : NULL)
+# define AHep(ahep)		(HE*)((ahep)->hent_he ? (ahep)->hent_he + PL_he_base : NULL)
+# define AHep_lv(ahep)		(HE*)((ahep)->hent_he)
+# define AHe_set(ahep, he)	(ahep)->hent_he = he ? (he)-PL_he_base : 0
+# define AHeHASH(ahe)		(ahe).hent_hash
+# define AHeHASHp(ahep)		(ahep)->hent_hash
+# define AHeHASH_NE(ahep, hash)	(ahep)->hent_hash != (((hash) & PERL_16BIT_MASK) >> 16)
+# define AHeHASH_set(ahep, hash)	(ahep)->hent_hash = (((hash) & PERL_16BIT_MASK) >> 16)
 #else
+# define AHe(ahe)		(ahe).hent_he
+# define AHep(ahep)		(ahep)->hent_he
+# define AHep_lv(ahep)		(ahep)->hent_he
+# define AHe_set(ahep, he)	(ahep)->hent_he = (he)
+# define AHeHASH(ahe)		(ahe).hent_hash
+# define AHeHASHp(ahep)		(ahep)->hent_hash
+# define AHeHASH_NE(ahep, hash)	(ahep)->hent_hash != hash
+# ifdef PERL_INLINE_HASH
+#  define AHeHASH_set(ahep, hash)	(ahep)->hent_hash = hash
+# else
 #  define AHeHASH_set(ahep, hash)
+# endif
 #endif
 #define HeNEXT(he)		(he)->hent_next
 #define HeKEY_hek(he)		(he)->hent_hek

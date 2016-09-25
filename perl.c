@@ -4125,6 +4125,9 @@ S_init_main_stash(pTHX)
     HV *hv = newHV();
 
     PL_curstash = PL_defstash = (HV *)SvREFCNT_inc_simple_NN(hv);
+#ifdef PERL_HASH_INLINE_ONEWORD
+    PL_he_base = (HE*)(PTR2ul(PL_sv_arenaroot) & PERL_48BIT_MASK);
+#endif
     hv_ksplit(PL_defstash, 64); /* Avoid 3 bootup splits */
     /* We know that the string "main" will be in the global shared string
        table, so it's a small saving to use it rather than allocate another
