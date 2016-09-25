@@ -4,6 +4,17 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#ifndef AHe
+# define AHE HE*
+# define AHe(he) he
+#endif
+#ifndef HE_EACH
+# define HE_EACH(hv,entry,block) \
+    for (; entry; entry = HeNEXT(entry)) { \
+      block; \
+    }
+#endif
+
 MODULE = Hash::Util		PACKAGE = Hash::Util
 
 void
@@ -152,9 +163,13 @@ PPCODE:
         hv = PL_strtab;
     }
     if (hv) {
-        U32 max_bucket_index = HvMAX(hv);
-        U32 total_keys = HvUSEDKEYS(hv);
-        HE **bucket_array = HvARRAY(hv);
+        U32 max_bucket_index= HvMAX(hv);
+        U32 total_keys= HvUSEDKEYS(hv);
+#ifdef AHe
+        AHE *bucket_array= HvARRAY(hv);
+#else
+        HE **bucket_array= HvARRAY(hv);
+#endif
         mXPUSHi(total_keys);
         mXPUSHi(max_bucket_index+1);
         mXPUSHi(0); /* for the number of used buckets */
@@ -172,7 +187,7 @@ PPCODE:
             U32 bucket_index;
             for ( bucket_index= 0; bucket_index <= max_bucket_index; bucket_index++ ) {
                 I32 chain_length = BUCKET_INFO_ITEMS_ON_STACK;
-                HE *he = bucket_array[bucket_index];
+                HE *he = AHe(bucket_array[bucket_index]);
                 HE_EACH(hv, he, chain_length++)
                 while ( max_chain_length < chain_length ) {
                     mXPUSHi(0);
@@ -211,7 +226,11 @@ PPCODE:
         hv = PL_strtab;
     }
     if (hv) {
-        HE **he_ptr = HvARRAY(hv);
+#ifdef AHe
+        AHE *he_ptr= HvARRAY(hv);
+#else
+        HE **he_ptr= HvARRAY(hv);
+#endif
         if (!he_ptr) {
             XSRETURN(0);
         } else {
@@ -226,7 +245,7 @@ PPCODE:
             mXPUSHs(newRV_noinc((SV*)info_av));
             for (i = 0; i <= max; i++) {
                 AV *key_av= NULL;
-                HE *he= he_ptr[i];
+                HE *he= AHe(he_ptr[i]);
                 HE_EACH(hv, he, {
                     SV *key_sv;
                     char *str;
