@@ -478,6 +478,11 @@ C<SV*>.
 #  define Nullhe Null(HE*)
 #endif
 #define AHe(ahe)		(ahe).hent_he
+#ifdef PERL_INLINE_HASH
+#  define AHeHASH_set(ahep, hash) (ahep)->hent_hash = hash
+#else
+#  define AHeHASH_set(ahep, hash)
+#endif
 #define HeNEXT(he)		(he)->hent_next
 #define HeKEY_hek(he)		(he)->hent_hek
 #define HeKEY(he)		HEK_KEY(HeKEY_hek(he))
