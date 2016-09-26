@@ -1772,6 +1772,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	    else {
 		if (SvOOK(hv)
                     && HvLAZYDEL(hv)
+                    && HvAUX(hv)->xhv_eiter
 		    && entry == HeNEXT(HvAUX(hv)->xhv_eiter))
                 {
 		    HeNEXT(HvAUX(hv)->xhv_eiter) = HeNEXT(entry);
@@ -2402,9 +2403,12 @@ S_clear_placeholders(pTHX_ HV *hv, U32 items)
 		if (entry == HvEITER_get(hv))
 		    HvLAZYDEL_on(hv);
 		else {
-		    if (SvOOK(hv) && HvLAZYDEL(hv) &&
-			entry == HeNEXT(HvAUX(hv)->xhv_eiter))
-			HeNEXT(HvAUX(hv)->xhv_eiter) = HeNEXT(entry);
+		    if (SvOOK(hv) && HvLAZYDEL(hv)
+			&& HvAUX(hv)->xhv_eiter
+			&& entry == HeNEXT(HvAUX(hv)->xhv_eiter))
+                    {
+                        HeNEXT(HvAUX(hv)->xhv_eiter) = HeNEXT(entry);
+                    }
 		    hv_free_ent(hv, entry);
                     if (entry == ahe->hent_he) {
                         ahe->hent_he = NULL;
