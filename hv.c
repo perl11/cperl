@@ -1460,6 +1460,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     HEK *keysv_hek = NULL;
     int masked_flags;
     int collisions = -1;
+    U32 hindex;
     U8 mro_changes = 0; /* 1 = isa; 2 = package moved */
     bool is_utf8 = cBOOL(k_flags & HVhek_UTF8);
 
@@ -1549,18 +1550,20 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     else if (!hash)
         PERL_HASH(hash, key, klen);
 
-    first_entry = &HvARRAY(hv)[ HvHASH_INDEX(hash, HvMAX(hv)) ];
-    entry = first_entry->hent_he;
+    hindex = HvHASH_INDEX(hash, HvMAX(hv));
+    first_entry = &HvARRAY(hv)[ hindex ];
+    oentry = &first_entry->hent_he;
+    entry = *oentry;
     if (!entry)
         goto not_found;
 #ifdef PERL_INLINE_HASH
     if (first_entry->hent_hash != hash) {
-        entry = entry->hent_next;
+        oentry = &entry->hent_next;
+        entry = *oentry;
         if (!entry)
             goto not_found;
     }
 #endif
-    oentry = &entry;
 
     masked_flags = (k_flags & HVhek_MASK);
     if (keysv_hek) {
@@ -1623,7 +1626,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		Safefree(key);
             DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d [%u] DELpl\n",
                         (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
-                        (unsigned)HvHASH_INDEX(hash, HvMAX(hv))));
+                        (unsigned)hindex));
             PERL_DTRACE_PROBE_HASH_RETURN(PERL_DTRACE_HASH_MODE_DELETE, key);
 	    return NULL;
 	}
@@ -1756,7 +1759,10 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
                     AHeHASH_set(first_entry, 0);
                 }
             } else {
-                *oentry = HeNEXT(entry);
+                /* oentry not pointing to first_entry->hent_he->hent_next */
+                if (entry == HeNEXT(first_entry->hent_he))
+                    HeNEXT(first_entry->hent_he) = HeNEXT(entry);
+                *oentry = HeNEXT(entry); /* skip entry */
             }
 #ifdef USE_SAFE_HASHITER
             HvAUX(hv)->xhv_timestamp++;
@@ -1789,7 +1795,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
         DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d [%u] DEL+\t{%.*s}\n",
                     (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
-                    (unsigned)HvHASH_INDEX(hash, HvMAX(hv)), (int)klen, key));
+                    (unsigned)hindex, (int)klen, key));
 #ifdef DEBUGGING
         if (DEBUG_H_TEST_ && DEBUG_v_TEST_)
             deb_hechain(first_entry->hent_he);
@@ -1808,9 +1814,9 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
     if (k_flags & HVhek_FREEKEY)
 	Safefree(key);
-    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d DEL-\t{%.*s}\n",
-                          (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv),
-                          collisions, (int)klen, key));
+    DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d [%u] DEL-\t{%.*s}\n",
+                          (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
+                          (unsigned)hindex, (int)klen, key));
     PERL_DTRACE_PROBE_HASH_RETURN(PERL_DTRACE_HASH_MODE_DELETE, key);
     return NULL;
 }
