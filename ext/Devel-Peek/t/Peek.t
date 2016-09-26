@@ -59,7 +59,7 @@ sub do_test {
 	if (open(IN, '<', "peek$$")) {
 	    local $/;
 	    $pattern =~ s/  FLAGS = \\/  FLAGS = \$ADDR \\/g if $] >= 5.021011;
-	    $pattern =~ s/ AUX_FLAGS = 0/ AUX_FLAGS = 0x0 \\(\\)/mg if cperl and $] >= 5.025001;
+;
             # PERL_PERTURB_KEYS_RANDOM
 	    $pattern =~ s/\n    RAND = \$ADDR//mg if cperl and $] >= 5.022002;
 
@@ -67,6 +67,8 @@ sub do_test {
 	    $pattern =~ s/\$FLOAT/(?:\\d*\\.\\d+(?:e[-+]\\d+)?|\\d+)/g;
 	    # handle DEBUG_LEAKING_SCALARS prefix
 	    $pattern =~ s/^(\s*)(SV =.* at )/(?:$1ALLOCATED at .*?\n)?$1$2/mg;
+	    $pattern =~ s/\n    AUX_FLAGS = 0/\n    AUX_FLAGS = 0x0 \\(\\)/mg
+                if cperl && $] >= 5.025001;
 
 	    # Need some clear generic mechanism to eliminate (or add) lines
 	    # of dump output dependant on perl version. The (previous) use of
@@ -106,7 +108,8 @@ sub do_test {
 	    $pattern =~ s/^\h+COW_REFCNT = .*\n//mg
 		if $Config{ccflags} =~
 			/-DPERL_(?:OLD_COPY_ON_WRITE|NO_COW)\b/
-			    || $] < 5.019003;
+                        || $] < 5.019003;
+
 	    print $pattern, "\n" if $DEBUG;
 	    my ($dump, $dump2) = split m/\*\*\*\*\*\n/, scalar <IN>;
 	    print $dump, "\n"    if $DEBUG;
@@ -1591,7 +1594,7 @@ EODUMP
 }
 # wrong destructor cache if gv_fetchmeth_autoload fails RT #126410
 $dump = _dump(\%version::);
-ok( $dump =~ /AUX_FLAGS = 0/ms,
+ok( $dump =~ /AUX_FLAGS = 0x0/ms,
     'No %version:: SEGV') or diag $dump;
 
 # We cannot access sv_dump via do_dump_pad, only Internals::DumpArenas does
