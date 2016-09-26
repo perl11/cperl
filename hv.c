@@ -2946,9 +2946,8 @@ Perl_hv_name_set(pTHX_ HV *hv, const char *name, U32 len, U32 flags)
 		HEK **hekp = name + (
 		    iter->xhv_name_count < 0
 		     ? -iter->xhv_name_count
-		     :  iter->xhv_name_count
-		   );
-		while (hekp-- > name+1) 
+		     :  iter->xhv_name_count);
+		while (hekp-- > name+1)
 		    unshare_hek_or_pvn(*hekp, 0, 0, 0);
 		/* The first elem may be null. */
 		if (*name) unshare_hek_or_pvn(*name, 0, 0, 0);
@@ -2958,11 +2957,10 @@ Perl_hv_name_set(pTHX_ HV *hv, const char *name, U32 len, U32 flags)
 		iter->xhv_name_count = 0;
 	      }
 	      else {
-		if(iter->xhv_name_count > 0) {
+		if (iter->xhv_name_count > 0) {
 		    /* shift some things over */
-		    Renew(
-		     iter->xhv_name_u.xhvnameu_names, iter->xhv_name_count + 1, HEK *
-		    );
+		    Renew(iter->xhv_name_u.xhvnameu_names, iter->xhv_name_count + 1,
+                          HEK *);
 		    spot = iter->xhv_name_u.xhvnameu_names;
 		    spot[iter->xhv_name_count] = spot[1];
 		    spot[1] = spot[0];
@@ -2986,7 +2984,10 @@ Perl_hv_name_set(pTHX_ HV *hv, const char *name, U32 len, U32 flags)
 		spot[1] = existing_name;
 	    }
 	}
-	else { spot = &iter->xhv_name_u.xhvnameu_name; iter->xhv_name_count = 0; }
+	else {
+            spot = &iter->xhv_name_u.xhvnameu_name;
+            iter->xhv_name_count = 0;
+        }
     } else {
 	if (name == 0)
 	    return;
