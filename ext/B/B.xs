@@ -1391,8 +1391,9 @@ string(o, cv)
 # The design of the upstream aux_list method deviates significantly from proper B design.
 
 void
-aux_list(o)
+aux_list(o, cv=NULL)
 	B::OP  o
+	B::CV  cv
     PPCODE:
         PERL_UNUSED_VAR(cv); /* not needed on unthreaded builds */
         switch (o->op_type) {
