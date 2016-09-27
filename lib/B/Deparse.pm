@@ -201,6 +201,7 @@ BEGIN {
 #  (See also BUGS section at the end of this file)
 #
 # - cperl: AELEM_U, AELEMFAST_LEX_U, PERL_FAKE_SIGNATURE
+#   with array_he use feature 'current_sub', 'array_base'; is added for each block
 # - finish tr/// changes
 # - add option for even more parens (generalize \&foo change)
 # - left/right context
@@ -2400,9 +2401,23 @@ sub declare_hinthash {
     if (@features || @unfeatures) {
 	if (!%rev_feature) { %rev_feature = reverse %feature::feature }
     }
+    # normalize both arrays. delete entries in both
+    my %features   = map { $_ => 1 } @features;
+    my %unfeatures = map { $_ => 1 } @unfeatures;
+    my @delete;
+    for (@features) {
+        push @delete, $_ if $unfeatures{$_};
+    }
+    for (@unfeatures) {
+        push @delete, $_ if $features{$_};
+    }
+    for my $del (@delete) {
+        @features   = grep { $_ ne $del } @features;
+        @unfeatures = grep { $_ ne $del } @unfeatures;
+    }
     if (@features) {
 	push @ret, $self->keyword("use") . " feature "
-		 . join(", ", map "'$rev_feature{$_}'", @features) . ";\n";
+          . join(", ", map "'$rev_feature{$_}'", @features) . ";\n";
     }
     if (@unfeatures) {
 	push @ret, $self->keyword("no") . " feature "
