@@ -790,8 +790,13 @@ addbits('signature',
 );
 
 
+addbits('avhvswitch',
+    '0..1' => {
+                   mask_def  => 'OPpAVHVSWITCH_MASK',
+                   label     => 'offset',
+    }
+);
 
-addbits('avhvswitch', '0..1' => { });
 
 1;
 
