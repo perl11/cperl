@@ -710,13 +710,13 @@ checkOptree ( name	=> 'my $a; my @b; my %c; return 1',
 	      bcopts	=> '-exec',
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
 # 1  <;> nextstate(main 991 (eval 17):1) v
-# 2  <0> padrange[$a 1742,1745; @b 1743,1745; %c 1744,1745] vM/LVINTRO,3
+# 2  <0> padrange[$a 1742,1745; @b 1743,1745; %c 1744,1745] vM/LVINTRO,range=3
 # 3  <;> nextstate(main 994 (eval 17):1) v:{
 # 4  <$> const[IV 1] s
 # 5  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
 # 1  <;> nextstate(main 991 (eval 17):1) v
-# 2  <0> padrange[$a 1742,1745; @b 1743,1745; %c 1744,1745] vM/LVINTRO,3
+# 2  <0> padrange[$a 1742,1745; @b 1743,1745; %c 1744,1745] vM/LVINTRO,range=3
 # 3  <;> nextstate(main 994 (eval 17):1) v:{
 # 4  <$> const(IV 1) s
 # 5  <1> leavesub[1 ref] K/REFC,1
