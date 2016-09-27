@@ -130,6 +130,11 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
+=item B  1.62_05
+
+Allow a 2nd optional CV argument for B::OP::aux_list,
+fixing B::Deparse and thereby Data::Dumper and Test2 is_deeply.
+
 =item Storable  3.01c
 
 L</"Warn on metasploit CVE-2015-1592">
