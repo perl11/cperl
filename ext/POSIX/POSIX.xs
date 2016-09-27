@@ -18,6 +18,8 @@
 #include "perl.h"
 #include "XSUB.h"
 
+static int not_here(const char *s);
+
 #if defined(PERL_IMPLICIT_SYS)
 #  undef signal
 #  undef open
@@ -713,7 +715,11 @@ static NV my_expm1(NV x)
 #ifndef c99_fdim
 static NV my_fdim(NV x, NV y)
 {
+#ifdef NV_NAN
   return (Perl_isnan(x) || Perl_isnan(y)) ? NV_NAN : (x > y ? x - y : 0);
+#else
+  return (x > y ? x - y : 0);
+#endif
 }
 #  define c99_fdim my_fdim
 #endif
@@ -729,11 +735,13 @@ static NV my_fma(NV x, NV y, NV z)
 #ifndef c99_fmax
 static NV my_fmax(NV x, NV y)
 {
+#ifdef NV_NAN
   if (Perl_isnan(x)) {
     return Perl_isnan(y) ? NV_NAN : y;
   } else if (Perl_isnan(y)) {
     return x;
   }
+#endif
   return x > y ? x : y;
 }
 #  define c99_fmax my_fmax
@@ -742,11 +750,13 @@ static NV my_fmax(NV x, NV y)
 #ifndef c99_fmin
 static NV my_fmin(NV x, NV y)
 {
+#ifdef NV_NAN
   if (Perl_isnan(x)) {
     return Perl_isnan(y) ? NV_NAN : y;
   } else if (Perl_isnan(y)) {
     return x;
   }
+#endif
   return x < y ? x : y;
 }
 #  define c99_fmin my_fmin
@@ -777,8 +787,10 @@ static NV my_hypot(NV x, NV y)
   x = PERL_ABS(x); /* Take absolute values. */
   if (y == 0)
     return x;
+#ifdef NV_INF
   if (Perl_isnan(y))
     return NV_INF;
+#endif
   y = PERL_ABS(y);
   if (x < y) { /* Swap so that y is less. */
     t = x;
@@ -825,10 +837,14 @@ static NV my_lgamma(NV x);
 static NV my_tgamma(NV x)
 {
   const NV gamma = 0.577215664901532860606512090; /* Euler's gamma constant. */
+#ifdef NV_NAN
   if (Perl_isnan(x) || x < 0.0)
     return NV_NAN;
+#endif
+#ifdef NV_INF
   if (x == 0.0 || x == NV_INF)
     return x == -0.0 ? -NV_INF : NV_INF;
+#endif
 
   /* The function domain is split into three intervals:
    * (0, 0.001), [0.001, 12), and (12, infinity) */
@@ -900,6 +916,7 @@ static NV my_tgamma(NV x)
     return result;
   }
 
+#ifdef NV_INF
   /* Third interval: [12, +Inf) */
 #if LDBL_MANT_DIG == 113 /* IEEE quad prec */
   if (x > 1755.548) {
@@ -910,6 +927,7 @@ static NV my_tgamma(NV x)
     return NV_INF;
   }
 #endif
+#endif
 
   return Perl_exp(c99_lgamma(x));
 }
@@ -918,10 +936,14 @@ static NV my_tgamma(NV x)
 #ifdef USE_MY_LGAMMA
 static NV my_lgamma(NV x)
 {
+#ifdef NV_NAN
   if (Perl_isnan(x))
     return NV_NAN;
+#endif
+#ifdef NV_INF
   if (x <= 0 || x == NV_INF)
     return NV_INF;
+#endif
   if (x == 1.0 || x == 2.0)
     return 0;
   if (x < 12.0)
@@ -962,10 +984,14 @@ static NV my_log1p(NV x)
 {
   /* http://www.johndcook.com/cpp_log_one_plus_x.html -- public domain.
    * Taylor series, the first four terms (the last term quartic). */
+#ifdef NV_NAN
   if (x < -1.0)
     return NV_NAN;
+#endif
+#ifdef NV_INF
   if (x == -1.0)
     return -NV_INF;
+#endif
   if (PERL_ABS(x) > 1e-4)
     return Perl_log(1.0 + x);
   else
@@ -1041,7 +1067,7 @@ static NV my_rint(NV x)
   case FE_TOWARDZERO: return MY_ROUND_TRUNC(x);
   case FE_DOWNWARD:   return MY_ROUND_DOWN(x);
   case FE_UPWARD:     return MY_ROUND_UP(x);
-  default: return NV_NAN;
+  default: break;
   }
 #elif defined(HAS_FPGETROUND)
   switch (fpgetround()) {
@@ -1049,11 +1075,10 @@ static NV my_rint(NV x)
   case FP_RZ: return MY_ROUND_TRUNC(x);
   case FP_RM: return MY_ROUND_DOWN(x);
   case FE_RP: return MY_ROUND_UP(x);
-  default: return NV_NAN;
+  default: break;
   }
-#else
-  return NV_NAN;
 #endif
+  not_here("rint");
 }
 #endif
 
@@ -1126,6 +1151,8 @@ static NV my_trunc(NV x)
 }
 #  define c99_trunc my_trunc
 #endif
+
+#ifdef NV_NAN
 
 #undef NV_PAYLOAD_DEBUG
 
@@ -1293,6 +1320,8 @@ static NV_PAYLOAD_TYPE S_getpayload(NV nv)
 #endif
   return payload;
 }
+
+#endif  /* #ifdef NV_NAN */
 
 /* XXX This comment is just to make I_TERMIO and I_SGTTY visible to
    metaconfig for future extension writers.  We don't use them in POSIX.
@@ -2316,7 +2345,11 @@ acos(x)
 	y1 = 30
     CODE:
 	PERL_UNUSED_VAR(x);
+#ifdef NV_NAN
 	RETVAL = NV_NAN;
+#else
+	RETVAL = 0;
+#endif
 	switch (ix) {
 	case 0:
 	    RETVAL = Perl_acos(x); /* C89 math */
@@ -2622,7 +2655,12 @@ NV
 getpayload(nv)
 	NV nv
     CODE:
+#ifdef DOUBLE_HAS_NAN
 	RETVAL = S_getpayload(nv);
+#else
+        PERL_UNUSED_VAR(nv);
+	not_here("getpayload");
+#endif
     OUTPUT:
 	RETVAL
 
@@ -2631,7 +2669,13 @@ setpayload(nv, payload)
 	NV nv
 	NV payload
     CODE:
+#ifdef DOUBLE_HAS_NAN
 	S_setpayload(&nv, payload, FALSE);
+#else
+        PERL_UNUSED_VAR(nv);
+        PERL_UNUSED_VAR(payload);
+	not_here("setpayload");
+#endif
     OUTPUT:
 	nv
 
@@ -2640,8 +2684,14 @@ setpayloadsig(nv, payload)
 	NV nv
 	NV payload
     CODE:
+#ifdef DOUBLE_HAS_NAN
 	nv = NV_NAN;
 	S_setpayload(&nv, payload, TRUE);
+#else
+        PERL_UNUSED_VAR(nv);
+        PERL_UNUSED_VAR(payload);
+	not_here("setpayloadsig");
+#endif
     OUTPUT:
 	nv
 
@@ -2649,7 +2699,12 @@ int
 issignaling(nv)
 	NV nv
     CODE:
+#ifdef DOUBLE_HAS_NAN
 	RETVAL = Perl_isnan(nv) && NV_NAN_IS_SIGNALING(&nv);
+#else
+        PERL_UNUSED_VAR(nv);
+	not_here("issignaling");
+#endif
     OUTPUT:
 	RETVAL
 
@@ -2675,7 +2730,11 @@ copysign(x,y)
     CODE:
         PERL_UNUSED_VAR(x);
         PERL_UNUSED_VAR(y);
+#ifdef NV_NAN
 	RETVAL = NV_NAN;
+#else
+	RETVAL = 0;
+#endif
 	switch (ix) {
 	case 0:
 #ifdef c99_copysign
@@ -2869,9 +2928,13 @@ nan(payload = 0)
         }
 #elif defined(c99_nan)
 	{
-	  STRLEN elen = my_snprintf(PL_efloatbuf, PL_efloatsize, "%g", nv);
+	  STRLEN elen = my_snprintf(PL_efloatbuf, PL_efloatsize, "%g", payload);
           if ((IV)elen == -1) {
+#ifdef NV_NAN
 	    RETVAL = NV_NAN;
+#else            
+            not_here("nan");
+#endif
           } else {
             RETVAL = c99_nan(PL_efloatbuf);
           }
@@ -2889,7 +2952,11 @@ jn(x,y)
     ALIAS:
 	yn = 1
     CODE:
+#ifdef NV_NAN
 	RETVAL = NV_NAN;
+#else
+	RETVAL = 0;
+#endif
         switch (ix) {
 	case 0:
 #ifdef bessel_jn
