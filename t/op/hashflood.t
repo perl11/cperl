@@ -1,5 +1,4 @@
 #!./perl -w
-# against FNV1A so far only.
 
 BEGIN {
     chdir 't' if -d 't';
@@ -7,6 +6,19 @@ BEGIN {
     set_up_inc('../lib');
 }
 use strict;
+
+use Config;
+my $hash_func = $Config{hash_func};
+unless ($hash_func) {
+  $hash_func = $] >= 5.017 ? 'ONE_AT_A_TIME_HARD' : 'ONE_AT_A_TIME_OLD';
+  if ($Config{ccflags} =~ /-DPERL_HASH_FUNC_(.*) /) {
+    $hash_func = $1;
+  }
+}
+$hash_func =~ s/ONE_AT_A_TIME/OAAT/;
+my $fn = "op/seed-".lc($hash_func)."-8-0.dat";
+# The 3 Murmur variants are yet missing
+skip_all "TODO Unknown hash_func $hash_func" unless -e $fn;
 
 plan tests => 1;
 
