@@ -174,7 +174,7 @@ $config_txt .= "sub $_;\n" foreach sort keys %export_ok;
 
 my $myver = sprintf "%vd", $^V;
 
-$config_txt .= sprintf <<'ENDOFBEG', ($myver) x 3;
+$config_txt .= sprintf <<'ENDOFBEG', $myver, $], $myver;
 
 # Define our own import method to avoid pulling in the full Exporter:
 sub import {
@@ -199,7 +199,7 @@ sub import {
 die "$0: Perl lib version (%s) doesn't match executable '$^X' version ($])"
     unless $^V;
 
-$^V eq %s
+$] eq %s
     or die sprintf "%%s: Perl lib version (%s) doesn't match executable '$^X' version (%%vd)", $0, $^V;
 
 ENDOFBEG
