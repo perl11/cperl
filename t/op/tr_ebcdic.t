@@ -7,7 +7,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc('../lib');
-    #skip_all("Valid only for EBCDIC") unless $::IS_EBCDIC;
+    skip_all("Valid only for EBCDIC") unless $::IS_EBCDIC;
     eval { eval "require unicore::Name; 1"; } or
       skip_all_if_miniperl("unicore::Name not built with miniperl");
 }
