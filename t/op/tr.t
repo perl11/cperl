@@ -9,7 +9,7 @@ BEGIN {
     set_up_inc('../lib');
 }
 
-plan tests => 164;
+plan tests => 139;
 
 # Test this first before we extend the stack with other operations.
 # This caused an asan failure due to a bad write past the end of the stack.
@@ -28,103 +28,10 @@ is($_, "abcdefghijklmnopqrstuvwxyz",    'lc');
 tr/b-y/B-Y/;
 is($_, "aBCDEFGHIJKLMNOPQRSTUVWXYz",    'partial uc');
 
-eval 'tr/a/\N{KATAKANA LETTER AINU P}/;';
-like $@,
-     qr/\\N\{KATAKANA LETTER AINU P} must not be a named sequence in transliteration operator/,
-     "Illegal to tr/// named sequence";
-
 eval 'tr/\x{101}-\x{100}//;';
 like $@,
      qr/Invalid range "\\x\{0101}-\\x\{0100}" in transliteration operator/,
      "UTF-8 range with min > max";
-
-SKIP: {   # Test literal range end point special handling
-    unless ($::IS_EBCDIC) {
-        skip "Valid only for EBCDIC", 24;
-    }
-
-    $_ = "\x89";    # is 'i'
-    tr/i-j//d;
-    is($_, "", '"\x89" should match [i-j]');
-    $_ = "\x8A";
-    tr/i-j//d;
-    is($_, "\x8A", '"\x8A" shouldnt match [i-j]');
-    $_ = "\x90";
-    tr/i-j//d;
-    is($_, "\x90", '"\x90" shouldnt match [i-j]');
-    $_ = "\x91";    # is 'j'
-    tr/i-j//d;
-    is($_, "", '"\x91" should match [i-j]');
-
-    $_ = "\x89";
-    tr/i-\N{LATIN SMALL LETTER J}//d;
-    is($_, "", '"\x89" should match [i-\N{LATIN SMALL LETTER J}]');
-    $_ = "\x8A";
-    tr/i-\N{LATIN SMALL LETTER J}//d;
-    is($_, "\x8A", '"\x8A" shouldnt match [i-\N{LATIN SMALL LETTER J}]');
-    $_ = "\x90";
-    tr/i-\N{LATIN SMALL LETTER J}//d;
-    is($_, "\x90", '"\x90" shouldnt match [i-\N{LATIN SMALL LETTER J}]');
-    $_ = "\x91";
-    tr/i-\N{LATIN SMALL LETTER J}//d;
-    is($_, "", '"\x91" should match [i-\N{LATIN SMALL LETTER J}]');
-
-    $_ = "\x89";
-    tr/i-\N{U+6A}//d;
-    is($_, "", '"\x89" should match [i-\N{U+6A}]');
-    $_ = "\x8A";
-    tr/i-\N{U+6A}//d;
-    is($_, "\x8A", '"\x8A" shouldnt match [i-\N{U+6A}]');
-    $_ = "\x90";
-    tr/i-\N{U+6A}//d;
-    is($_, "\x90", '"\x90" shouldnt match [i-\N{U+6A}]');
-    $_ = "\x91";
-    tr/i-\N{U+6A}//d;
-    is($_, "", '"\x91" should match [i-\N{U+6A}]');
-
-    $_ = "\x89";
-    tr/\N{U+69}-\N{U+6A}//d;
-    is($_, "", '"\x89" should match [\N{U+69}-\N{U+6A}]');
-    $_ = "\x8A";
-    tr/\N{U+69}-\N{U+6A}//d;
-    is($_, "\x8A", '"\x8A" shouldnt match [\N{U+69}-\N{U+6A}]');
-    $_ = "\x90";
-    tr/\N{U+69}-\N{U+6A}//d;
-    is($_, "\x90", '"\x90" shouldnt match [\N{U+69}-\N{U+6A}]');
-    $_ = "\x91";
-    tr/\N{U+69}-\N{U+6A}//d;
-    is($_, "", '"\x91" should match [\N{U+69}-\N{U+6A}]');
-
-    $_ = "\x89";
-    tr/i-\x{91}//d;
-    is($_, "", '"\x89" should match [i-\x{91}]');
-    $_ = "\x8A";
-    tr/i-\x{91}//d;
-    is($_, "", '"\x8A" should match [i-\x{91}]');
-    $_ = "\x90";
-    tr/i-\x{91}//d;
-    is($_, "", '"\x90" should match [i-\x{91}]');
-    $_ = "\x91";
-    tr/i-\x{91}//d;
-    is($_, "", '"\x91" should match [i-\x{91}]');
-
-    # Need to use eval, because tries to compile on ASCII platforms even
-    # though the tests are skipped, and fails because 0x89-j is an illegal
-    # range there.
-    $_ = "\x89";
-    eval 'tr/\x{89}-j//d';
-    is($_, "", '"\x89" should match [\x{89}-j]');
-    $_ = "\x8A";
-    eval 'tr/\x{89}-j//d';
-    is($_, "", '"\x8A" should match [\x{89}-j]');
-    $_ = "\x90";
-    eval 'tr/\x{89}-j//d';
-    is($_, "", '"\x90" should match [\x{89}-j]');
-    $_ = "\x91";
-    eval 'tr/\x{89}-j//d';
-    is($_, "", '"\x91" should match [\x{89}-j]');
-}
-
 
 # In EBCDIC 'I' is \xc9 and 'J' is \0xd1, 'i' is \x89 and 'j' is \x91.
 # Yes, discontinuities.  Regardless, the \xca in the below should stay
@@ -216,7 +123,7 @@ else {
     my $l = chr(300); my $r = chr(400);
     $x = 200.300.400;
     $x =~ tr/\x{12c}/\x{190}/;
-    is($x, 200.400.400,     
+    is($x, 200.400.400,
                         'changing UTF8 chars in a UTF8 string, same length');
     is(length $x, 3);
 

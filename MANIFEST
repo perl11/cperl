@@ -5748,6 +5748,8 @@ t/op/tie.t			See if tie/untie functions work
 t/op/time_loop.t		Test that very large values don't hang gmtime and localtime.
 t/op/time.t			See if time functions work
 t/op/tr.t			See if tr works
+t/op/tr_ebcdic.t		Test tr with EBCDIC
+t/op/tr_unicode.t		Test tr with unicore::Name
 t/op/undef.t			See if undef works
 t/op/universal.t		See if UNIVERSAL class works
 t/op/unlink.t			See if unlink works
