@@ -16035,6 +16035,11 @@ S_find_uninit_var(pTHX_ const OP *const obase, const SV *const uninit_sv,
 
     switch (obase->op_type) {
 
+    case OP_UNDEF:
+        /* undef should care if its args are undef - any warnings
+         * will be from tied/magic vars */
+        break;
+
     case OP_RV2AV:
     case OP_RV2HV:
     case OP_PADAV:
@@ -16582,7 +16587,6 @@ S_find_uninit_var(pTHX_ const OP *const obase, const SV *const uninit_sv,
     case OP_ALARM:
     case OP_SEMGET:
     case OP_GETLOGIN:
-    case OP_UNDEF:
     case OP_SUBSTR:
     case OP_AEACH:
     case OP_EACH:
