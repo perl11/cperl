@@ -1871,6 +1871,7 @@
 #define swash_scan_list_line(a,b,c,d,e,f,g)	S_swash_scan_list_line(aTHX_ a,b,c,d,e,f,g)
 #define swatch_get(a,b,c)	S_swatch_get(aTHX_ a,b,c)
 #define to_lower_latin1		S_to_lower_latin1
+#define unexpected_non_continuation_text(a,b)	S_unexpected_non_continuation_text(aTHX_ a,b)
 #define utf8_add_script(a)	S_utf8_add_script(aTHX_ a)
 #define utf8_error_script(a,b,c)	S_utf8_error_script(aTHX_ a,b,c)
 #define uvuni_get_script(a)	S_uvuni_get_script(aTHX_ a)
