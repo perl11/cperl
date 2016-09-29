@@ -77,7 +77,33 @@ checks. This is only implemented since cperl-5.25 (released with
 
 =item *
 
-The new C<strQEc>/C<strNEc> macros are used instead of
+Renable C<-DNODEFAULT_SHAREKEYS> from perl 5.003_001. Between
+5.003_001 and 5.25.1c all hash keys were stored twice, once in the
+hash and once again in C<PL_strtab>, the global string table, without
+any further benefit. Almost all hashtables got the SHAREKEYS bit. (#201)
+
+Fixed overwriting the HVhek_UNSHARED bit in the hash loop broken with
+v5.9.
+
+10-30% faster.
+
+=item *
+
+aassign: pre-allocate needed hash size with aassign, similar to
+arrays, avoiding run-time hash splits.
+e.g. C<my %h = (.. => .., .. => ..)>
+
+This version is 30% faster overall in the Mail::SpamAssassin testsuite
+than cperl-5.25.0.
+
+=item *
+
+Pre-extend internal hashes and stashes to avoid unnecessary boot-time hash
+splits. C<%warnings::>, C<%Config::>, C<%utf8::>, C<%version::>.
+
+=item *
+
+The new C<strEQc>/C<strNEc> macros are used instead of
 C<strEQ(s,"constant")>. This enables word-wise comparison via memcpy,
 in opposite of byte-wise comparisons via strcmp with already known
 sizes. This is a 10% performance improvement under most optimization
