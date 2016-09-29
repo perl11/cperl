@@ -83,6 +83,18 @@ and to turn it off, you have to turn off both categories.
 
 =item *
 
+Renable C<-DNODEFAULT_SHAREKEYS> from perl 5.003_001. Between
+5.003_001 and 5.25.1c all hash keys were stored twice, once in the
+hash and once again in C<PL_strtab>, the global string table, without
+any further benefit. Almost all hashtables got the SHAREKEYS bit. (#201)
+
+Fixed overwriting the HVhek_UNSHARED bit in the hash loop broken with
+v5.9.
+
+10-30% faster.
+
+=item *
+
 Extract C<hv_common_magical()> to a seperate function.  Extracts
 uncommon magical code in hot code to an extra static function to help
 keep the icache smaller. Only in rare cases this branch is
