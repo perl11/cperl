@@ -3158,14 +3158,12 @@ S_finalize_op(pTHX_ OP* o)
         for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid)) {
 #  ifdef PERL_OP_PARENT
             if (!OpHAS_SIBLING(kid)) {
-                if (has_last && (ISNT_TYPE(o, SASSIGN) || OpLAST(o)))
+                if (has_last)
                     assert(kid == OpLAST(o));
                 assert(kid->op_sibparent == o);
             }
 #  else
-            /* {and,or,xor}assign use a hackish unop'y sassign without last */
-            if (has_last && !OpHAS_SIBLING(kid)
-                && (ISNT_TYPE(o, SASSIGN) || OpLAST(o)))
+            if (has_last && !OpHAS_SIBLING(kid))
                 assert(kid == OpLAST(o));
 #  endif
         }
@@ -7059,9 +7057,10 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 
     if (optype) {
 	if (optype == OP_ANDASSIGN || optype == OP_ORASSIGN || optype == OP_DORASSIGN) {
+            right = scalar(right);
 	    return newLOGOP(optype, 0,
-                op_lvalue(scalar(left), optype),
-                newBINOP(OP_SASSIGN, OPpASSIGN_BACKWARDS<<8, scalar(right), NULL));
+		op_lvalue(scalar(left), optype),
+		newBINOP(OP_SASSIGN, OPpASSIGN_BACKWARDS<<8, right, right));
 	}
 	else {
 	    return newBINOP(optype, OPf_STACKED,
