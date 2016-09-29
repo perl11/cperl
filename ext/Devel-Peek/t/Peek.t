@@ -91,6 +91,13 @@ sub do_test {
 	    $pattern =~ s/\$RV/
 		($] < 5.011) ? 'RV' : 'IV';
 	    /mge;
+            if ($Config{ccflags} =~ /-DNODEFAULT_SHAREKEYS/
+                or (cperl and $] >= 5.025000))
+            {
+                $pattern =~ s/,SHAREKEYS/(?:,SHAREKEYS)?/g;
+                $pattern =~ s/SHAREKEYS,/(?:SHAREKEYS)?/g;
+                $pattern =~ s/\\\(SHAREKEYS\\\)/\\((?:SHAREKEYS)?\\)/g;
+            }
 	    $pattern =~ s/^\h+COW_REFCNT = .*\n//mg
 		if $Config{ccflags} =~
 			/-DPERL_(?:OLD_COPY_ON_WRITE|NO_COW)\b/
@@ -1552,7 +1559,7 @@ EODUMP
 }
 # wrong destructor cache if gv_fetchmeth_autoload fails RT #126410
 $dump = _dump(\%version::);
-ok( $dump =~ /\(OOK,SHAREKEYS,OVERLOAD\)\n\s+AUX_FLAGS = 0/ms,
+ok( $dump =~ /\(OOK,(SHAREKEYS,)?OVERLOAD\)\n\s+AUX_FLAGS = 0/ms,
     'No %version:: SEGV') or diag $dump;
 
 # We cannot access sv_dump via do_dump_pad, only Internals::DumpArenas does
