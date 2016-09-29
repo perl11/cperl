@@ -487,7 +487,11 @@ is($s, "AxBC", "utf8, DELETE");
     is($c, "\x20\x30\x40\x50\x60", "tr/\\x00-\\x1f//d");
 }
 
-($s) = keys %{{pie => 3}};
+# before cperl NODEFAULT_SHAREKEYS the key was guaranteed to be COW. But not anymore
+# ($s) = keys %{{pie => 3}};
+my $x = "x" x 2_000;
+my $s = $x;
+
 SKIP: {
     if (!eval { require XS::APItest }) { skip "no XS::APItest", 2 }
     my $wasro = XS::APItest::SvIsCOW($s);
