@@ -171,7 +171,7 @@ typedef enum {
 
 /* Adding each hash key to strtab also is massive overkill */
 #if defined(USE_CPERL) && !defined(NODEFAULT_SHAREKEYS)
-/*#  define NODEFAULT_SHAREKEYS*/
+#  define NODEFAULT_SHAREKEYS
 #endif
 
 

@@ -729,7 +729,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
       found:
         if (action & (HV_FETCH_LVALUE|HV_FETCH_ISSTORE)) {
-	    if (HeKFLAGS(entry) != masked_flags) {
+	    if ((HeKFLAGS(entry) & HVhek_MASK) != masked_flags) {
 		/* We match if HVhek_UTF8 bit in our flags and hash key's
 		   match.  But if entry was set previously with HVhek_WASUTF8
 		   and key now doesn't (or vice versa) then we should change
@@ -751,8 +751,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		    Perl_croak(aTHX_ S_strtab_error,
 			       action & HV_FETCH_LVALUE ? "fetch" : "store");
 		}
-		else
-		    HeKFLAGS(entry) = masked_flags;
+		else { /* but keep all other flags besides *UTF8 (1+2) */
+		    HeKFLAGS(entry) = masked_flags | (HeKFLAGS(entry) & 0xfc);
+                }
 		if (masked_flags & HVhek_ENABLEHVKFLAGS)
 		    HvHASKFLAGS_on(hv);
 	    }
