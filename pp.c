@@ -2855,6 +2855,8 @@ S_s_complement(pTHX_ SV *targ, SV *sv)
 	    *tmps = ~*tmps;
 }
 
+/* ~ */
+
 PPt(pp_complement, "(:Scalar):Scalar")
 {
     dSP; dTARGET;
@@ -2892,6 +2894,8 @@ PPt(pp_s_complement, "(:Str):Str")
 }
 
 /* integer versions of some of the above */
+
+/* ~1 => UV_MAX-1 */
 
 PPt(pp_i_complement, "(:UInt):UInt")
 {
