@@ -77,29 +77,12 @@ checks. This is only implemented since cperl-5.25 (released with
 
 =item *
 
-Renable C<-DNODEFAULT_SHAREKEYS> from perl 5.003_001. Between
-5.003_001 and 5.25.1c all hash keys were stored twice, once in the
-hash and once again in C<PL_strtab>, the global string table, without
-any further benefit. Almost all hashtables got the SHAREKEYS bit. (#201)
-
-Fixed overwriting the HVhek_UNSHARED bit in the hash loop broken with
-v5.9.
-
-10-30% faster.
-
-=item *
-
 aassign: pre-allocate needed hash size with aassign, similar to
 arrays, avoiding run-time hash splits.
 e.g. C<my %h = (.. => .., .. => ..)>
 
 This version is 30% faster overall in the Mail::SpamAssassin testsuite
 than cperl-5.24.0.
-
-=item *
-
-Pre-extend internal hashes and stashes to avoid unnecessary boot-time hash
-splits. C<%warnings::>, C<%Config::>, C<%utf8::>, C<%version::>.
 
 =item *
 
@@ -384,12 +367,75 @@ fill rate and decreases performance.
 
 =head1 Selected Bug Fixes
 
-XXX Important bug fixes in the core language are summarized here.  Bug fixes in
-files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
-
-[ List each fix as a =item entry ]
-
 =over 4
+
+=item *
+
+Fix HEK_TAINTED check for HEf_SVKEY values. A HEf_SVKEY hek has no
+tainted flag, the pointed to SV has. This is a cperl-only security
+feature.
+
+=item *
+
+Only clear LS_COLORS for glob
+
+When miniperl calls csh to implement glob(), we cleared %ENV
+temporarily to avoid csh dying on invalid values for things like
+LS_COLORS.  That has proven to have far too many problems, since many
+system-dependent env vars are necessary for calling an external
+process.  See the L<[perl #126041]|https://rt.perl.org/Public/Bug/Display.html?id=126041> ticket for details.
+
+A better solution is temporarily to clear only those vars that are
+known to be problematic and make csh possibly fail.  There only hap-
+pens to be one of those at present, namely LS_COLORS.
+
+=item *
+
+A SEGV in mess_sv during global destruction with a DEBUGGING perl and
+-DS been fixed, occuring when we wanted to report the location of an
+error when curcop has already been freed.
+
+Testcase: C<./miniperl -DS -e '$_="f"; s/./"&".$&/ee'>
+
+L<[perl #129027]|https://rt.perl.org/Public/Bug/Display.html?id=129027>
+
+=item *
+
+A SEGV in ck_shift with an empty/wrong current function, caused by a
+syntax error has been fixed. The syntax error is now reported lateron.
+Testcase: C<'qq{@{sub{q}}]]}}; s0{shift'>
+
+L<[perl #125351]|https://rt.perl.org/Public/Bug/Display.html?id=125351>
+
+=item *
+
+Since Perl 5.20, line numbers have been off by one when perl is invoked with
+the B<-x> switch.  This has been fixed.
+L<[perl #128508]|https://rt.perl.org/Public/Bug/Display.html?id=128508>
+
+=item *
+
+Handle missing Unicode heredoc terminators correctly.
+E.g. C<perl -CS -e 'use utf8; q«'>
+prints now C<Can't find string terminator "«" anywhere before EOF at -e line 1.>
+
+L<[perl #128701]|https://rt.perl.org/Public/Bug/Display.html?id=128701>
+
+=item *
+
+Mentioning a constant twice in a row does not lead to assertions
+errors with DEBUGGING builds, such as e.g. C<sub ub(){0} ub ub>.
+
+=item *
+
+Fixed overwriting the HVhek_UNSHARED bit in the hash loop broken with
+v5.9.
+
+This fixed C<-DNODEFAULT_SHAREKEYS>. In the default configuration
+without NODEFAULT_SHAREKEYS since 5.003_001 all hash keys are stored
+twice, once in the hash and once again in C<PL_strtab>, the global
+string table, with the benefit of faster hash loops and copies. Almost
+all hashtables get the SHAREKEYS bit. (#201)
 
 =item *
 

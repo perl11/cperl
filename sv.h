@@ -169,11 +169,15 @@ typedef enum {
 #  define SVt_RV	SVt_IV
 #endif
 
-/* Adding each hash key to strtab also is massive overkill */
-#if defined(USE_CPERL) && !defined(NODEFAULT_SHAREKEYS)
-#  define NODEFAULT_SHAREKEYS
-#endif
-
+/* Adding each hash key also to strtab is overkill.
+   Storing is 2x slower. But hash loops and hash copies are much faster
+   with hek_sv's. So we keep it disabled per default.
+*/
+/*
+  #if defined(USE_CPERL) && !defined(NODEFAULT_SHAREKEYS)
+  #  define NODEFAULT_SHAREKEYS
+  #endif
+*/
 
 /* There is collusion here with sv_clear - sv_clear exits early for SVt_NULL
    so never reaches the clause at the end that uses sv_type_details->body_size

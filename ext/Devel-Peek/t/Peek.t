@@ -95,7 +95,7 @@ sub do_test {
                 or (cperl and $] >= 5.025000))
             {
                 $pattern =~ s/,SHAREKEYS/(?:,SHAREKEYS)?/g;
-                $pattern =~ s/SHAREKEYS,/(?:SHAREKEYS)?/g;
+                $pattern =~ s/SHAREKEYS,/(?:SHAREKEYS,)?/g;
                 $pattern =~ s/\\\(SHAREKEYS\\\)/\\((?:SHAREKEYS)?\\)/g;
             }
 	    $pattern =~ s/^\h+COW_REFCNT = .*\n//mg
