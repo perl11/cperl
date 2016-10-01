@@ -528,6 +528,11 @@ C<SV*>.
 				  (flags) | HV_DELETE, NULL, 0)))
 
 #ifdef PERL_CORE
+
+/* TODO: for HvSHAREKEYS(hv) use the SvIsCOW_shared_hash string
+   after the hek as keysv, thus comparing ptrs not values.
+   Maybe as new hv_{action}sharedhek() */
+
 # define hv_storehek(hv, hek, val) \
     hv_common((hv), NULL, HEK_KEY(hek), HEK_LEN(hek), HEK_UTF8(hek),	\
 	      HV_FETCH_ISSTORE|HV_FETCH_JUST_SV, (val), HEK_HASH(hek))

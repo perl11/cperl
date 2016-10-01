@@ -3976,7 +3976,7 @@ S_glob_assign_glob(pTHX_ SV *const dstr, SV *const sstr, const int dtype)
 			"glob_assign_glob clearing PL_stashcache\n"));
 	/* It's a cache. It will rebuild itself quite happily.
 	   It's a lot of effort to work out exactly which key (or keys)
-	   might be invalidated by the creation of the this file handle.
+	   might be invalidated by the creation of this file handle.
 	 */
 	hv_clear(PL_stashcache);
     }
@@ -6562,10 +6562,8 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 		    if (PL_stashcache) {
 			DEBUG_o(Perl_deb(aTHX_
 			    "sv_clear clearing PL_stashcache for '%"HEKf
-			    "'\n",
-			     HEKfARG(hek)));
-			(void)hv_deletehek(PL_stashcache,
-                                           hek, G_DISCARD);
+			    "'\n", HEKfARG(hek)));
+			(void)hv_deletehek(PL_stashcache, hek, G_DISCARD);
                     }
 		    hv_name_set((HV*)sv, NULL, 0, 0);
 		}

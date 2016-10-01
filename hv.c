@@ -734,7 +734,11 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		   match.  But if entry was set previously with HVhek_WASUTF8
 		   and key now doesn't (or vice versa) then we should change
 		   the key's flag, as this is assignment.  */
-		if (HvSHAREKEYS(hv)) {
+                if (HvSHAREKEYS(hv)
+#ifdef NODEFAULT_SHAREKEYS
+                    || !HEK_UNSHARED(HeKEY_hek(entry))
+#endif
+                    ) {
 		    /* Need to swap the key we have for a key with the flags we
 		       need. As keys are shared we can't just write to the
 		       flag, so we share the new one, unshare the old one.  */
@@ -926,7 +930,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
     entry = new_HE();
     /* share_hek_flags will do the free for us.  This might be considered
-       bad API design.  */
+       bad API design.
+       Note this entry is not followed by the hek here. This hek has another entry,
+       the shared strtab entry with the refcount, in front.  */
     if (HvSHAREKEYS(hv))
 	HeKEY_hek(entry) = share_hek_flags(key, klen, hash, flags);
     else if (hv == PL_strtab) {
@@ -1758,15 +1764,19 @@ S_hv_free_ent_ret(pTHX_ HV *hv, HE *entry)
     const HEK* hek = HeKEY_hek(entry);
 
     PERL_ARGS_ASSERT_HV_FREE_ENT_RET;
-    PERL_UNUSED_ARG(hv);
 
     val = HeVAL(entry);
     if (HeKLEN(entry) == HEf_SVKEY) {
 	SvREFCNT_dec(*(SV**)HEK_KEY(hek));
 	Safefree(hek);
     }
-    else if (!HEK_UNSHARED(hek))
+    else if (HvSHAREKEYS(hv)
+#ifdef NODEFAULT_SHAREKEYS
+             || !HEK_UNSHARED(hek)
+#endif
+             ) {
         unshare_hek(hek);
+    }
     else if (!HEK_STATIC(hek))
 	Safefree(hek);
 
@@ -3045,12 +3055,11 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
     if (hek) {
         if (HEK_STATIC(hek))
             return;
+
 	/* Find the shared he which is just before us in memory.  */
 	he = share_hek_he(hek);
-	/*DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%"UVxf": unshare_hek(0x%"UVxf") %ld len\n",
-                                                PTR2UV(he), PTR2UV(hek), (long)HEK_LEN(hek)));*/
-	/* Assert that the caller passed us a genuine (or at least consistent)
-	   shared hek */
+        /* Assert that the caller passed us a genuine (or at least consistent)
+           shared hek */
         assert (he->shared_he_he.hent_hek == hek);
 
         if (he->shared_he_he.he_valu.hent_refcount - 1) {
@@ -3980,8 +3989,12 @@ Perl_hv_assert(pTHX_ HV *hv)
 	    placeholders++;
 	else
 	    real++;
-        if (!HEK_UNSHARED(hek))
+        if (hv == PL_strtab)
             assert(entry == &(share_hek_he(hek)->shared_he_he));
+        else if (HvSHAREKEYS(hv)) {
+            struct shared_he *he = share_hek_he(hek);
+            assert(he->shared_he_he.hent_hek == hek);
+        }
 	/* sanity check the keys */
 	if (HEK_IS_SVKEY(hek)) {
 	    NOOP;   /* Don't know what to check on SV keys.  */
