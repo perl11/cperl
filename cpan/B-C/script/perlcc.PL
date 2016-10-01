@@ -600,7 +600,11 @@ sub cc_harness_msvc {
     $obj .= ".obj" unless $obj =~ /\.obj$/;
     my $compile = "";
     $compile = '-I"..\..\lib\CORE" ' if $ENV{PERL_CORE};
-    $compile .= ExtUtils::Embed::ccopts." -c -Fo$obj $cfile ";
+    my $ccopts = ExtUtils::Embed::ccopts;
+    my $optWc = opt('Wc');
+    # suppress cl : Command line warning D4025 : overriding '/O1' with '/Od'
+    $ccopts =~ s/\b[-\/]O.\b/-Od/ if $optWc && ($optWc =~ /\b[-\/]Od\b/);
+    $compile .= "$ccopts -c -Fo$obj $cfile ";
     $compile .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;
     my $link = "-out:$Output $obj";
@@ -613,7 +617,7 @@ sub cc_harness_msvc {
         }
     }
     $compile .= ' -DSTATICXS' if opt('staticxs');
-    $compile .= " ".opt('Wc') if opt('Wc');
+    $compile .= " $optWc" if $optWc;
 
     $link .= ' -libpath:"..\..\lib\CORE"' if $ENV{PERL_CORE};
     my $libdir = opt('L');
