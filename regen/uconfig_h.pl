@@ -10,6 +10,14 @@
 
 use strict;
 use Config;
+
+if ($^O =~ /^(MSWin\d\d|os2|dos|mint)$/) {
+    if (system('sh -c exit 0') != 0) {
+        warn '#skipping uconfig_h.pl, sh not available on this platform';
+        exit 0;
+    }
+}
+
 require './regen/regen_lib.pl';
 
 my ($uconfig_h, $uconfig_h_new, $config_h_sh)
