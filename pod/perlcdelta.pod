@@ -237,6 +237,7 @@ Minor refactor to simplify save_hek.
 Use the new get_svs, get_avs, get_hvs macros.
 perlcc add --debug|-D
 Improve endav XSUB bump
+Abstract RITER_T and HVMAX_T for the various sizes, compat HEK_STATIC
 
 =back
 

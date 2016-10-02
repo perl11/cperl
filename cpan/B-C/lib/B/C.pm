@@ -527,6 +527,7 @@ my $MULTI = $Config{usemultiplicity};
 my $ITHREADS = $Config{useithreads};
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
 my $DEBUG_LEAKING_SCALARS = $Config{ccflags} =~ m/-DDEBUG_LEAKING_SCALARS/;
+my $CPERL55  = ( $Config{usecperl} and $] >= 5.025001 ); #HVMAX_T, RITER_T, ...
 my $CPERL52  = ( $Config{usecperl} and $] >= 5.022002 ); #sv_objcount, AvSTATIC, sigs
 my $CPERL51  = ( $Config{usecperl} );
 my $PERL524  = ( $] >= 5.023005 ); #xpviv sharing assertion
@@ -1161,16 +1162,14 @@ sub save_hek {
     # randomized global shared hash keys:
     #   share_hek needs a non-zero hash parameter, unlike hv_store.
     #   Vulnerable to oCERT-2011-003 style DOS attacks?
-    #   user-input (object fields) does not affect strtab, it is pretty safe.
+    #   user-input (object fields) do not affect strtab, it is pretty safe.
     # But we need to randomize them to avoid run-time conflicts
     #   e.g. "Prototype mismatch: sub bytes::length (_) vs (_)"
-    if ($PERL510 and 0) { # no refcount
-      $init->add(sprintf("%s = my_share_hek_0(%s, %d);",
-                         $sym, $cstr, $cur));
-    } else { # vs. bump the refcount
-      $init->add(sprintf("%s = share_hek(%s, %d);",
-                         $sym, $cstr, $cur));
-    }
+    #if (0 and $PERL510) { # no refcount
+    #  $init->add(sprintf("%s = my_share_hek_0(%s, %d);", $sym, $cstr, $cur));
+    #} else { # vs. bump the refcount
+    $init->add(sprintf("%s = share_hek(%s, %d);", $sym, $cstr, $cur));
+    #}
     # protect against Unbalanced string table refcount warning with PERL_DESTRUCT_LEVEL=2
     # $free->add("    $sym = NULL;");
   }
@@ -6650,6 +6649,11 @@ _EOT1
 #    define PERL_STATIC_INLINE static
 #  endif
 #endif
+/* cperl compat */
+#ifndef HEK_STATIC
+# define HEK_STATIC(hek) 0
+#endif
+
 _EOT2
 
   if ($] < 5.008008) {
@@ -6660,6 +6664,7 @@ _EOT2
   # does not compile on darwin with EXTERN_C declaration
   # See branch `boot_DynaLoader`
   print <<'_EOT4';
+
 #define XS_DynaLoader_boot_DynaLoader boot_DynaLoader
 EXTERN_C void boot_DynaLoader (pTHX_ CV* cv);
 
@@ -7107,6 +7112,18 @@ _EOT7
       }
     }
     $free->output( \*STDOUT, "%s\n" );
+
+    my $riter_type = "I32";
+    if ($CPERL51) {
+      $riter_type = $CPERL55 ? "U32" : "SSize_t";
+    }
+    my $hvmax_type = "STRLEN";
+    if ($CPERL51) {
+      $hvmax_type = $CPERL55 ? "U32" : "SSize_t";
+    }
+    print "#define RITER_T $riter_type\n";
+    print "#define HVMAX_T $hvmax_type\n";
+
     print <<'_EOT7a';
 
     /* Avoid Unbalanced string table refcount warning with PERL_DESTRUCT_LEVEL=2 */
@@ -7115,17 +7132,15 @@ _EOT7
         if (destruct_level < i) destruct_level = i;
     }
     if (destruct_level >= 1) {
-        const I32 max = HvMAX(PL_strtab);
+        const HVMAX_T max = HvMAX(PL_strtab);
 	HE * const * const array = HvARRAY(PL_strtab);
-	I32 riter = 0;
+	RITER_T riter = 0;
 	HE *hent = array[0];
 	for (;;) {
 	    if (hent) {
 		HE * const next = HeNEXT(hent);
-#ifdef USE_CPERL
                 if (!HEK_STATIC(&((struct shared_he*)hent)->shared_he_hek))
-#endif
-                Safefree(hent);
+                    Safefree(hent);
 		hent = next;
 	    }
 	    if (!hent) {
