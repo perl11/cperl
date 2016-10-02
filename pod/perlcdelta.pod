@@ -83,6 +83,12 @@ and to turn it off, you have to turn off both categories.
 
 =item *
 
+Improvements when reading from arrays have been imported from perl5.
+C<av_fetch()> uses less branches reading from the end (negative indices),
+and a branch checking for freed C<@_> elements has been removed,
+
+=item *
+
 Extract C<hv_common_magical()> to a seperate function.  Extracts
 uncommon magical code in hot code to an extra static function to help
 keep the icache smaller. Only in rare cases this branch is
@@ -491,14 +497,16 @@ cperl-only)
 
 =item *
 
-Fixed overwriting the HVhek_UNSHARED bit in the hash loop broken with
+Fixed overwriting the C<HVhek_UNSHARED> bit in the hash loop broken with
 v5.9.
 
 This fixed C<-DNODEFAULT_SHAREKEYS>. In the default configuration
 without NODEFAULT_SHAREKEYS since 5.003_001 all hash keys are stored
 twice, once in the hash and once again in C<PL_strtab>, the global
 string table, with the benefit of faster hash loops and copies. Almost
-all hashtables get the SHAREKEYS bit. (#201)
+all hashtables get the SHAREKEYS bit.
+With C<-Accflags=-DNODEFAULT_SHAREKEYS> simple scripts are 20-30% faster.
+L<[cperl #201]|https://github.com/perl11/cperl/issues/201>
 
 =item *
 
