@@ -2,7 +2,8 @@ package Test2::Hub;
 use strict;
 use warnings;
 
-our $VERSION = '1.402075';
+our $VERSION = '1.402075c'; # modernized
+$VERSION =~ s/c$//;
 
 
 use Carp qw/carp croak confess/;
@@ -34,8 +35,7 @@ use Test2::Util::HashBase qw{
 };
 
 my $ID_POSTFIX = 1;
-sub init {
-    my $self = shift;
+sub init ($self) {
 
     $self->{+PID} = $$;
     $self->{+TID} = get_tid();
@@ -56,8 +56,7 @@ sub init {
 
 sub is_subtest { 0 }
 
-sub reset_state {
-    my $self = shift;
+sub reset_state ($self) {
 
     $self->{+COUNT} = 0;
     $self->{+FAILED} = 0;
@@ -69,9 +68,7 @@ sub reset_state {
     delete $self->{+SKIP_REASON};
 }
 
-sub inherit {
-    my $self = shift;
-    my ($from, %params) = @_;
+sub inherit ($self, $from, %params) {
 
     $self->{+_FORMATTER} = $from->{+_FORMATTER}
         unless $self->{+_FORMATTER} || exists($params{formatter});
@@ -95,24 +92,20 @@ sub inherit {
     }
 }
 
-sub format {
-    my $self = shift;
+sub format ($self, @args) {
 
     my $old = $self->{+_FORMATTER};
-    ($self->{+_FORMATTER}) = @_ if @_;
+    ($self->{+_FORMATTER}) = @args if @args;
 
     return $old;
 }
 
-sub is_local {
-    my $self = shift;
+sub is_local ($self) {
     return $$ == $self->{+PID}
         && get_tid() == $self->{+TID};
 }
 
-sub listen {
-    my $self = shift;
-    my ($sub, %params) = @_;
+sub listen ($self, $sub, %params) {
 
     carp "Useless addition of a listener in a child process or thread!"
         if $$ != $self->{+PID} || get_tid() != $self->{+TID};
@@ -125,20 +118,17 @@ sub listen {
     $sub; # Intentional return.
 }
 
-sub unlisten {
-    my $self = shift;
+sub unlisten ($self, @subs) {
 
     carp "Useless removal of a listener in a child process or thread!"
         if $$ != $self->{+PID} || get_tid() != $self->{+TID};
 
-    my %subs = map {$_ => $_} @_;
+    my %subs = map {$_ => $_} @subs;
 
     @{$self->{+_LISTENERS}} = grep { !$subs{$_->{code}} } @{$self->{+_LISTENERS}};
 }
 
-sub filter {
-    my $self = shift;
-    my ($sub, %params) = @_;
+sub filter ($self, $sub, %params) {
 
     carp "Useless addition of a filter in a child process or thread!"
         if $$ != $self->{+PID} || get_tid() != $self->{+TID};
@@ -151,17 +141,14 @@ sub filter {
     $sub; # Intentional Return
 }
 
-sub unfilter {
-    my $self = shift;
+sub unfilter ($self, @subs) {
     carp "Useless removal of a filter in a child process or thread!"
         if $$ != $self->{+PID} || get_tid() != $self->{+TID};
-    my %subs = map {$_ => $_} @_;
+    my %subs = map {$_ => $_} @subs;
     @{$self->{+_FILTERS}} = grep { !$subs{$_->{code}} } @{$self->{+_FILTERS}};
 }
 
-sub pre_filter {
-    my $self = shift;
-    my ($sub, %params) = @_;
+sub pre_filter ($self, $sub, %params) {
 
     croak "pre_filter only takes coderefs for arguments, got '$sub'"
         unless ref $sub && ref $sub eq 'CODE';
@@ -171,15 +158,12 @@ sub pre_filter {
     $sub; # Intentional Return
 }
 
-sub pre_unfilter {
-    my $self = shift;
-    my %subs = map {$_ => $_} @_;
+sub pre_unfilter ($self, @subs) {
+    my %subs = map {$_ => $_} @subs;
     @{$self->{+_PRE_FILTERS}} = grep { !$subs{$_->{code}} } @{$self->{+_PRE_FILTERS}};
 }
 
-sub follow_up {
-    my $self = shift;
-    my ($sub) = @_;
+sub follow_up ($self, $sub) {
 
     carp "Useless addition of a follow-up in a child process or thread!"
         if $$ != $self->{+PID} || get_tid() != $self->{+TID};
@@ -191,9 +175,7 @@ sub follow_up {
 }
 
 *add_context_aquire = \&add_context_acquire;
-sub add_context_acquire {
-    my $self = shift;
-    my ($sub) = @_;
+sub add_context_acquire ($self, $sub) {
 
     croak "add_context_acquire only takes coderefs for arguments, got '$sub'"
         unless ref $sub && ref $sub eq 'CODE';
@@ -204,15 +186,12 @@ sub add_context_acquire {
 }
 
 *remove_context_aquire = \&remove_context_acquire;
-sub remove_context_acquire {
-    my $self = shift;
-    my %subs = map {$_ => $_} @_;
+sub remove_context_acquire ($self, @subs) {
+    my %subs = map {$_ => $_} @subs;
     @{$self->{+_CONTEXT_ACQUIRE}} = grep { !$subs{$_} == $_ } @{$self->{+_CONTEXT_ACQUIRE}};
 }
 
-sub add_context_init {
-    my $self = shift;
-    my ($sub) = @_;
+sub add_context_init ($self, $sub) {
 
     croak "add_context_init only takes coderefs for arguments, got '$sub'"
         unless ref $sub && ref $sub eq 'CODE';
@@ -222,15 +201,12 @@ sub add_context_init {
     $sub; # Intentional return.
 }
 
-sub remove_context_init {
-    my $self = shift;
-    my %subs = map {$_ => $_} @_;
+sub remove_context_init ($self, @subs) {
+    my %subs = map {$_ => $_} @subs;
     @{$self->{+_CONTEXT_INIT}} = grep { !$subs{$_} == $_ } @{$self->{+_CONTEXT_INIT}};
 }
 
-sub add_context_release {
-    my $self = shift;
-    my ($sub) = @_;
+sub add_context_release ($self, $sub) {
 
     croak "add_context_release only takes coderefs for arguments, got '$sub'"
         unless ref $sub && ref $sub eq 'CODE';
@@ -240,15 +216,12 @@ sub add_context_release {
     $sub; # Intentional return.
 }
 
-sub remove_context_release {
-    my $self = shift;
-    my %subs = map {$_ => $_} @_;
+sub remove_context_release ($self, @subs) {
+    my %subs = map {$_ => $_} @subs;
     @{$self->{+_CONTEXT_RELEASE}} = grep { !$subs{$_} == $_ } @{$self->{+_CONTEXT_RELEASE}};
 }
 
-sub send {
-    my $self = shift;
-    my ($e) = @_;
+sub send ($self, $e) {
 
     if ($self->{+_PRE_FILTERS}) {
         for (@{$self->{+_PRE_FILTERS}}) {
@@ -270,9 +243,7 @@ sub send {
     $self->process($e);
 }
 
-sub process {
-    my $self = shift;
-    my ($e) = @_;
+sub process ($self, $e) {
 
     if ($self->{+_FILTERS}) {
         for (@{$self->{+_FILTERS}}) {
@@ -328,9 +299,7 @@ sub cull {
     $self->process($_) for $ipc->cull($self->{+HID});
 }
 
-sub finalize {
-    my $self = shift;
-    my ($trace, $do_plan) = @_;
+sub finalize ($self, $trace?, $do_plan?) {
 
     $self->cull();
 
@@ -386,10 +355,9 @@ Second End: $sfile line $sline
     return $pass;
 }
 
-sub is_passing {
-    my $self = shift;
+sub is_passing ($self, @args) {
 
-    ($self->{+_PASSING}) = @_ if @_;
+    ($self->{+_PASSING}) = @args if @args;
 
     # If we already failed just return 0.
     my $pass = $self->{+_PASSING} or return 0;
@@ -416,12 +384,9 @@ sub is_passing {
     return $pass;
 }
 
-sub plan {
-    my $self = shift;
+sub plan ($self, $plan?) {
 
-    return $self->{+_PLAN} unless @_;
-
-    my ($plan) = @_;
+    return $self->{+_PLAN} unless $plan;
 
     confess "You cannot unset the plan"
         unless defined $plan;
@@ -435,8 +400,7 @@ sub plan {
     $self->{+_PLAN} = $plan;
 }
 
-sub check_plan {
-    my $self = shift;
+sub check_plan ($self) {
 
     return undef unless $self->{+ENDED};
     my $plan = $self->{+_PLAN} || return undef;
@@ -447,8 +411,7 @@ sub check_plan {
     return 0;
 }
 
-sub DESTROY {
-    my $self = shift;
+sub DESTROY ($self) {
     my $ipc = $self->{+IPC} || return;
     return unless $$ == $self->{+PID};
     return unless get_tid() == $self->{+TID};
@@ -495,8 +458,7 @@ handle thread/fork sync, filters, listeners, TAP output, etc.
 You can use either C<filter()> or C<pre_filter()>, depending on your
 needs. Both have identical syntax, so only C<filter()> is shown here.
 
-    $hub->filter(sub {
-        my ($hub, $event) = @_;
+    $hub->filter(sub ($hub, $event) {
 
         my $action = get_action($event);
 
@@ -523,8 +485,7 @@ with the C<inherit> parameter:
 
 =head2 LISTENING FOR EVENTS
 
-    $hub->listen(sub {
-        my ($hub, $event, $number) = @_;
+    $hub->listen(sub ($hub, $event, $number) {
 
         ... do whatever you want with the event ...
 
@@ -540,8 +501,7 @@ with the C<inherit> parameter:
 
 =head2 POST-TEST BEHAVIORS
 
-    $hub->follow_up(sub {
-        my ($trace, $hub) = @_;
+    $hub->follow_up(sub ($trace, $hub) {
 
         ... do whatever you need to ...
 
@@ -585,8 +545,7 @@ You can use this to record all events AFTER they have been sent to the
 formatter. No changes made here will be meaningful, except possibly to other
 listeners.
 
-    $hub->listen(sub {
-        my ($hub, $event, $number) = @_;
+    $hub->listen(sub ($hub, $event, $number) {
 
         ... do whatever you want with the event ...
 
@@ -609,8 +568,7 @@ These can be used to add filters. Filters can modify, replace, or remove events
 before anything else can see them.
 
     $hub->filter(
-        sub {
-            my ($hub, $event) = @_;
+        sub ($hub, $event) {
 
             return $event;    # No Changes
             return;           # Remove the event
@@ -642,8 +600,7 @@ the reference returned by C<filter()> or C<pre_filter()>.
 Use this to add behaviors that are called just before the hub is finalized. The
 only argument to your codeblock will be a L<Test2::Util::Trace> instance.
 
-    $hub->follow_up(sub {
-        my ($trace, $hub) = @_;
+    $hub->follow_up(sub ($trace, $hub) {
 
         ... do whatever you need to ...
 
@@ -660,8 +617,7 @@ context. It gets a single argument, a reference of the hash of parameters
 being used the construct the context. This is your chance to change the
 parameters by directly altering the hash.
 
-    test2_add_callback_context_acquire(sub {
-        my $params = shift;
+    test2_add_callback_context_acquire(sub ($params) {
         $params->{level}++;
     });
 
@@ -814,6 +770,10 @@ F<http://github.com/Test-More/test-more/>.
 =over 4
 
 =item Chad Granum E<lt>exodist@cpan.orgE<gt>
+
+=item Reini Urban E<lt>rurban@cpanel.netE<gt>
+
+modernized
 
 =back
 

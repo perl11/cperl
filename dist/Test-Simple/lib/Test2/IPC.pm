@@ -2,7 +2,8 @@ package Test2::IPC;
 use strict;
 use warnings;
 
-our $VERSION = '1.402075';
+our $VERSION = '1.402075c'; # modernized
+$VERSION =~ s/c$//;
 
 
 use Test2::API::Instance;
@@ -34,7 +35,7 @@ sub import {
     goto &Exporter::import;
 }
 
-sub _make_ipc {
+sub _make_ipc () {
     # Find a driver
     my ($driver) = Test2::API::test2_ipc_drivers();
     unless ($driver) {
@@ -45,9 +46,7 @@ sub _make_ipc {
     return $driver->new();
 }
 
-sub apply_ipc {
-    my $stack = shift;
-
+sub apply_ipc ($stack) {
     my ($root) = @$stack;
 
     return unless $root;
@@ -71,7 +70,7 @@ sub apply_ipc {
     return $ipc;
 }
 
-sub cull {
+sub cull () {
     my $ctx = context();
     $ctx->hub->cull;
     $ctx->release;

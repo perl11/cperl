@@ -2,7 +2,8 @@ package Test2::Util::ExternalMeta;
 use strict;
 use warnings;
 
-our $VERSION = '1.402075';
+our $VERSION = '1.402075c'; # modernized
+$VERSION =~ s/c$//;
 
 
 use Carp qw/croak/;
@@ -12,9 +13,7 @@ sub META_KEY() { '_meta' }
 our @EXPORT = qw/meta set_meta get_meta delete_meta/;
 BEGIN { require Exporter; our @ISA = qw(Exporter) }
 
-sub set_meta {
-    my $self = shift;
-    my ($key, $value) = @_;
+sub set_meta ($self, $key, $value) {
 
     validate_key($key);
 
@@ -22,9 +21,7 @@ sub set_meta {
     $self->{+META_KEY}->{$key} = $value;
 }
 
-sub get_meta {
-    my $self = shift;
-    my ($key) = @_;
+sub get_meta ($self, $key) {
 
     validate_key($key);
 
@@ -32,9 +29,7 @@ sub get_meta {
     return $meta->{$key};
 }
 
-sub delete_meta {
-    my $self = shift;
-    my ($key) = @_;
+sub delete_meta ($self, $key) {
 
     validate_key($key);
 
@@ -42,9 +37,7 @@ sub delete_meta {
     delete $meta->{$key};
 }
 
-sub meta {
-    my $self = shift;
-    my ($key, $default) = @_;
+sub meta ($self, $key, $default?) {
 
     validate_key($key);
 
@@ -62,8 +55,7 @@ sub meta {
     return $meta->{$key};
 }
 
-sub validate_key {
-    my $key = shift;
+sub validate_key ($key) {
 
     return if $key && !ref($key);
 

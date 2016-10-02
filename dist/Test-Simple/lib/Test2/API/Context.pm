@@ -2,7 +2,8 @@ package Test2::API::Context;
 use strict;
 use warnings;
 
-our $VERSION = '1.402075';
+our $VERSION = '1.402075c'; # modernized
+$VERSION =~ s/c$//;
 
 
 use Carp qw/confess croak longmess/;
@@ -33,8 +34,7 @@ use Test2::Util::HashBase qw{
 my $ON_RELEASE = Test2::API::_context_release_callbacks_ref();
 my $CONTEXTS   = Test2::API::_contexts_ref();
 
-sub init {
-    my $self = shift;
+sub init ($self) {
 
     confess "The 'trace' attribute is required"
         unless $self->{+TRACE};
@@ -49,17 +49,17 @@ sub init {
     $self->{+CHILD_ERROR} = $? unless exists $self->{+CHILD_ERROR};
 }
 
-sub snapshot { bless {%{$_[0]}, _is_canon => undef, _is_spawn => undef, _aborted => undef}, __PACKAGE__ }
+sub snapshot ($self) { 
+  bless {%{$self}, _is_canon => undef, _is_spawn => undef, _aborted => undef}, __PACKAGE__ 
+}
 
-sub restore_error_vars {
-    my $self = shift;
+sub restore_error_vars ($self) {
     ($!, $@, $?) = @$self{+ERRNO, +EVAL_ERROR, +CHILD_ERROR};
 }
 
-sub DESTROY {
-    return unless $_[0]->{+_IS_CANON} || $_[0]->{+_IS_SPAWN};
-    return if $_[0]->{+_ABORTED} && ${$_[0]->{+_ABORTED}};
-    my ($self) = @_;
+sub DESTROY ($self) {
+    return unless $self->{+_IS_CANON} || $self->{+_IS_SPAWN};
+    return if $self->{+_ABORTED} && ${$self->{+_ABORTED}};
 
     my $hub = $self->{+HUB};
     my $hid = $hub->{hid};
@@ -111,8 +111,7 @@ Cleaning up the CONTEXT stack...
 # want to die after a failure, but only after diagnostics have been reported.
 # The ideal time for the die to happen is when the context is released.
 # Unfortunately die does not work in a DESTROY block.
-sub release {
-    my ($self) = @_;
+sub release ($self) {
 
     ($!, $@, $?) = @$self{+ERRNO, +EVAL_ERROR, +CHILD_ERROR} and return if $self->{+THROWN};
 
@@ -148,9 +147,7 @@ sub release {
     return;
 }
 
-sub do_in_context {
-    my $self = shift;
-    my ($sub, @args) = @_;
+sub do_in_context ($self, $sub, @args) {
 
     # We need to update the pid/tid and error vars.
     my $clone = $self->snapshot;
@@ -218,11 +215,7 @@ sub send_event {
     $self->{+HUB}->send($e);
 }
 
-sub build_event {
-    my $self  = shift;
-    my $event = shift;
-    my %args  = @_;
-
+sub build_event ($self, $event, %args) {
     my $pkg = $LOADED{$event} || $self->_parse_event($event);
 
     $pkg->new(
@@ -231,9 +224,7 @@ sub build_event {
     );
 }
 
-sub ok {
-    my $self = shift;
-    my ($pass, $name, $on_fail) = @_;
+sub ok ($self, $pass, $name, $on_fail?) {
 
     my $hub = $self->{+HUB};
 
@@ -263,9 +254,7 @@ sub ok {
     return $e;
 }
 
-sub failure_diag {
-    my $self = shift;
-    my ($e) = @_;
+sub failure_diag ($self, $e) {
 
     # This behavior is inherited from Test::Builder which injected a newline at
     # the start of the first diagnostics when the harness is active, but not
@@ -290,33 +279,25 @@ sub failure_diag {
     $self->diag($msg);
 }
 
-sub skip {
-    my $self = shift;
-    my ($name, $reason, @extra) = @_;
+sub skip ($self, $name, $reason, @extra) {
     $self->send_event(
         'Skip',
         name => $name,
         reason => $reason,
         pass => 1,
-        @extra,
+        (@extra ? @extra : ())
     );
 }
 
-sub info {
-    my $self = shift;
-    my ($renderer, %params) = @_;
+sub info ($self, $renderer, %params) {
     $self->send_event('Info', renderer => $renderer, %params);
 }
 
-sub note {
-    my $self = shift;
-    my ($message) = @_;
+sub note ($self, $message) {
     $self->send_event('Note', message => $message);
 }
 
-sub diag {
-    my $self = shift;
-    my ($message) = @_;
+sub diag ($self, $message) {
     my $hub = $self->{+HUB};
     $self->send_event(
         'Diag',
@@ -324,20 +305,15 @@ sub diag {
     );
 }
 
-sub plan {
-    my ($self, $max, $directive, $reason) = @_;
+sub plan ($self, $max, $directive?, $reason?) {
     $self->send_event('Plan', max => $max, directive => $directive, reason => $reason);
 }
 
-sub bail {
-    my ($self, $reason) = @_;
+sub bail ($self, $reason) {
     $self->send_event('Bail', reason => $reason);
 }
 
-sub _parse_event {
-    my $self = shift;
-    my $event = shift;
-
+sub _parse_event ($self, $event) {
     my $pkg;
     if ($event =~ m/^\+(.*)/) {
         $pkg = $1;
@@ -390,8 +366,7 @@ should always use C<context()> which is exported by the L<Test2::API> module.
 
     use Test2::API qw/context/;
 
-    sub my_ok {
-        my ($bool, $name) = @_;
+    sub my_ok ($bool, $name) {
         my $ctx = context();
         $ctx->ok($bool, $name);
         $ctx->release; # You MUST do this!
@@ -402,8 +377,7 @@ Context objects make it easy to wrap other tools that also use context. Once
 you grab a context, any tool you call before releasing your context will
 inherit it:
 
-    sub wrapper {
-        my ($bool, $name) = @_;
+    sub wrapper ($bool, $name) {
         my $ctx = context();
         $ctx->diag("wrapping my_ok");
 
@@ -635,8 +609,7 @@ requests a context, just when a new one is created.
 This is how you add a global init callback. Global callbacks happen for every
 context for any hub or stack.
 
-    Test2::API::test2_add_callback_context_init(sub {
-        my $ctx = shift;
+    Test2::API::test2_add_callback_context_init(sub ($ctx) {
         ...
     });
 
@@ -645,8 +618,7 @@ context for any hub or stack.
 This is how you add an init callback for all contexts created for a given hub.
 These callbacks will not run for other hubs.
 
-    $hub->add_context_init(sub {
-        my $ctx = shift;
+    $hub->add_context_init(sub ($ctx) {
         ...
     });
 
@@ -656,8 +628,7 @@ This is how you specify an init hook that will only run if your call to
 C<context()> generates a new context. The callback will be ignored if
 C<context()> is returning an existing context.
 
-    my $ctx = context(on_init => sub {
-        my $ctx = shift;
+    my $ctx = context(on_init => sub ($ctx) {
         ...
     });
 
@@ -672,8 +643,7 @@ called every time C<< $ctx->release >> is called.
 This is how you add a global release callback. Global callbacks happen for every
 context for any hub or stack.
 
-    Test2::API::test2_add_callback_context_release(sub {
-        my $ctx = shift;
+    Test2::API::test2_add_callback_context_release(sub ($ctx) {
         ...
     });
 
@@ -682,8 +652,7 @@ context for any hub or stack.
 This is how you add a release callback for all contexts created for a given
 hub. These callbacks will not run for other hubs.
 
-    $hub->add_context_release(sub {
-        my $ctx = shift;
+    $hub->add_context_release(sub ($ctx) {
         ...
     });
 
@@ -693,8 +662,7 @@ This is how you add release callbacks directly to a context. The callback will
 B<ALWAYS> be added to the context that gets returned, it does not matter if a
 new one is generated, or if an existing one is returned.
 
-    my $ctx = context(on_release => sub {
-        my $ctx = shift;
+    my $ctx = context(on_release => sub ($ctx) {
         ...
     });
 

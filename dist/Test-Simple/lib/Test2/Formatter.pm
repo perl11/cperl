@@ -44,9 +44,7 @@ A formatter is any package or object with a C<write($event, $num)> method.
     use strict;
     use warnings;
 
-    sub write {
-        my $self_or_class = shift;
-        my ($event, $assert_num) = @_;
+    sub write ($self_or_class, $event, $assert_num) {
         ...
     }
 

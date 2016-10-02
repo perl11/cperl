@@ -2,7 +2,8 @@ package Test2::Hub::Interceptor;
 use strict;
 use warnings;
 
-our $VERSION = '1.402075';
+our $VERSION = '1.402075c'; # modernized
+$VERSION =~ s/c$//;
 
 
 use Test2::Hub::Interceptor::Terminator();
@@ -21,10 +22,7 @@ sub inherit {
     }
 }
 
-sub terminate {
-    my $self = shift;
-    my ($code) = @_;
-
+sub terminate ($self, $code?, $e?) {
     eval {
         no warnings 'exiting';
         last T2_SUBTEST_WRAPPER;

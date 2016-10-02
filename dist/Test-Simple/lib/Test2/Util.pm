@@ -2,7 +2,8 @@ package Test2::Util;
 use strict;
 use warnings;
 
-our $VERSION = '1.402075';
+our $VERSION = '1.402075c'; # modernized
+$VERSION =~ s/c$//;
 
 
 use Config qw/%Config/;
@@ -27,7 +28,7 @@ BEGIN {
     *IS_WIN32 = ($^O eq 'MSWin32') ? sub() { 1 } : sub() { 0 };
 }
 
-sub _can_thread {
+sub _can_thread () {
     return 0 unless $] >= 5.008001;
     return 0 unless $Config{'useithreads'};
 
@@ -42,7 +43,7 @@ sub _can_thread {
     return 1;
 }
 
-sub _can_fork {
+sub _can_fork () {
     return 1 if $Config{d_fork};
     return 0 unless IS_WIN32 || $^O eq 'NetWare';
     return 0 unless $Config{useithreads};
@@ -74,28 +75,23 @@ sub CAN_REALLY_FORK () {
     $can_really_fork;
 }
 
-sub _manual_try(&;@) {
-    my $code = shift;
-    my $args = \@_;
+sub _manual_try ($code, @args) :prototype(&;@) {
     my $err;
-
     my $die = delete $SIG{__DIE__};
 
-    eval { $code->(@$args); 1 } or $err = $@ || "Error was squashed!\n";
+    eval { $code->(@args); 1 } or $err = $@ || "Error was squashed!\n";
 
     $die ? $SIG{__DIE__} = $die : delete $SIG{__DIE__};
 
     return (!defined($err), $err);
 }
 
-sub _local_try(&;@) {
-    my $code = shift;
-    my $args = \@_;
+sub _local_try ($code, @args) :prototype(&;@) {
     my $err;
 
     no warnings;
     local $SIG{__DIE__};
-    eval { $code->(@$args); 1 } or $err = $@ || "Error was squashed!\n";
+    eval { $code->(@args); 1 } or $err = $@ || "Error was squashed!\n";
 
     return (!defined($err), $err);
 }
@@ -133,8 +129,7 @@ BEGIN {
     }
 }
 
-sub pkg_to_file {
-    my $pkg = shift;
+sub pkg_to_file ($pkg) {
     my $file = $pkg;
     $file =~ s{(::|')}{/}g;
     $file .= '.pm';

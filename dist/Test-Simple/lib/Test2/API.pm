@@ -7,7 +7,8 @@ BEGIN {
     $ENV{TEST2_ACTIVE} = 1;
 }
 
-our $VERSION = '1.402075';
+our $VERSION = '1.402075c'; # modernized
+$VERSION =~ s/c$//;
 
 
 my $INST;
@@ -148,9 +149,8 @@ sub test2_ipc_enable_shm      { $INST->ipc_enable_shm }
 sub test2_formatter     { $INST->formatter }
 sub test2_formatters    { @{$INST->formatters} }
 sub test2_formatter_add { $INST->add_formatter(@_) }
-sub test2_formatter_set {
-    my ($formatter) = @_;
-    croak "No formatter specified" unless $formatter;
+sub test2_formatter_set ($formatter) {
+    #croak "No formatter specified" unless $formatter;
     croak "Global Formatter already set" if $INST->formatter_set;
     $INST->set_formatter($formatter);
 }
@@ -164,14 +164,9 @@ sub _context_release_callbacks_ref { $INST->context_release_callbacks }
 # Private, for use in Test2::IPC
 sub _set_ipc { $INST->set_ipc(@_) }
 
-sub context_do(&;@) {
-    my $code = shift;
-    my @args = @_;
-
+sub context_do ($code, @args) :prototype(&;@) {
     my $ctx = context(level => 1);
-
     my $want = wantarray;
-
     my @out;
     my $ok = eval {
         $want          ? @out    = $code->($ctx, @args) :
@@ -190,8 +185,7 @@ sub context_do(&;@) {
     return;
 }
 
-sub no_context(&;$) {
-    my ($code, $hid) = @_;
+sub no_context ($code, $hid?) :prototype(&;$) {
     $hid ||= $STACK->top->hid;
 
     my $ctx = $CONTEXTS->{$hid};
@@ -212,8 +206,7 @@ sub context {
     # We need to grab these before anything else to ensure they are not
     # changed.
     my ($errno, $eval_error, $child_error) = (0 + $!, $@, $?);
-
-    my %params = (level => 0, wrapped => 0, @_);
+    my %params = (level => 0, wrapped => 1, @_);
 
     # If something is getting a context then the sync system needs to be
     # considered loaded...
@@ -324,24 +317,23 @@ sub context {
     return $current;
 }
 
-sub _depth_error {
-    _existing_error(@_, <<"    EOT");
+sub _depth_error ($ctx, $details) {
+    _existing_error($ctx, $details, <<"    EOT");
 context() was called to retrieve an existing context, however the existing
 context was created in a stack frame at the same, or deeper level. This usually
 means that a tool failed to release the context when it was finished.
     EOT
 }
 
-sub _canon_error {
-    _existing_error(@_, <<"    EOT");
+sub _canon_error ($ctx, $details) {
+    _existing_error($ctx, $details, <<"    EOT");
 context() was called to retrieve an existing context, however the existing
 context has an invalid internal state (!_canon_count). This should not normally
 happen unless something is mucking about with internals...
     EOT
 }
 
-sub _existing_error {
-    my ($ctx, $details, $msg) = @_;
+sub _existing_error ($ctx, $details, $msg) {
     my ($pkg, $file, $line, $sub, $depth) = @$details;
 
     my $oldframe = $ctx->{trace}->frame;
@@ -369,13 +361,12 @@ Removing the old context and creating a new one...
     EOT
 }
 
-sub release($;$) {
-    $_[0]->release;
-    return $_[1];
+sub release($self, $retval?) {
+    $self->release;
+    return $retval;
 }
 
-sub intercept(&) {
-    my $code = shift;
+sub intercept ($code) :prototype(&) {
 
     my $ctx = context();
 
@@ -425,8 +416,7 @@ sub intercept(&) {
     return \@events;
 }
 
-sub run_subtest {
-    my ($name, $code, $params, @args) = @_;
+sub run_subtest ($name, $code, $params?, @args) {
 
     $params = {buffered => $params} unless ref $params;
     my $buffered      = delete $params->{buffered};
@@ -1115,8 +1105,7 @@ is too late to add additional results, the main use of this callback is to set t
 exit code.
 
     test2_add_callback_exit(
-        sub {
-            my ($context, $exit, \$new_exit) = @_;
+        sub ($context, $exit, \$new_exit) {
             ...
         }
     );
@@ -1141,8 +1130,7 @@ argument, a reference to the hash of parameters being used the construct the
 context. This is your chance to change the parameters by directly altering the
 hash.
 
-    test2_add_callback_context_acquire(sub {
-        my $params = shift;
+    test2_add_callback_context_acquire(sub ($params) {
         $params->{level}++;
     });
 
@@ -1320,6 +1308,10 @@ F<http://github.com/Test-More/test-more/>.
 =over 4
 
 =item Chad Granum E<lt>exodist@cpan.orgE<gt>
+
+=item Reini Urban E<lt>rurban@cpanel.netE<gt>
+
+modernized
 
 =back
 

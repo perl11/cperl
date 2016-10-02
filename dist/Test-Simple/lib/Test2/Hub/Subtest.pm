@@ -2,7 +2,8 @@ package Test2::Hub::Subtest;
 use strict;
 use warnings;
 
-our $VERSION = '1.402075';
+our $VERSION = '1.402075c'; # modernized
+$VERSION =~ s/c$//;
 
 
 BEGIN { require Test2::Hub; our @ISA = qw(Test2::Hub) }
@@ -42,9 +43,7 @@ sub send {
     last T2_SUBTEST_WRAPPER;
 }
 
-sub terminate {
-    my $self = shift;
-    my ($code, $e) = @_;
+sub terminate ($self, $code, $e) {
     $self->set_exit_code($code);
 
     return if $self->{+MANUAL_SKIP_ALL};

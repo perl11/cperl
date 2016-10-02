@@ -3,7 +3,8 @@ use strict;
 use warnings;
 require PerlIO;
 
-our $VERSION = '1.402075';
+our $VERSION = '1.402075c'; # modernized
+$VERSION =~ s/c$//;
 
 use Test2::Util::HashBase qw{
     no_numbers handles _encoding
@@ -31,10 +32,8 @@ my %CONVERTERS = (
 # Initial list of converters are safe for direct hash access cause we control them.
 my %SAFE_TO_ACCESS_HASH = %CONVERTERS;
 
-sub register_event {
-    my $class = shift;
-    my ($type, $convert) = @_;
-    croak "Event type is a required argument" unless $type;
+sub register_event ($class, $type, $convert) {
+    #croak "Event type is a required argument" unless $type;
     croak "Event type '$type' already registered" if $CONVERTERS{$type};
     croak "The second argument to register_event() must be a code reference or method name"
         unless $convert && (ref($convert) eq 'CODE' || $class->can($convert));
@@ -44,9 +43,7 @@ sub register_event {
 _autoflush(\*STDOUT);
 _autoflush(\*STDERR);
 
-sub init {
-    my $self = shift;
-
+sub init ($self) {
     $self->{+HANDLES} ||= $self->_open_handles;
     if(my $enc = delete $self->{encoding}) {
         $self->encoding($enc);
@@ -55,11 +52,8 @@ sub init {
 
 sub hide_buffered { 1 }
 
-sub encoding {
-    my $self = shift;
-
-    if (@_) {
-        my ($enc) = @_;
+sub encoding ($self, $enc?) {
+    if (defined $enc) {
         my $handles = $self->{+HANDLES};
 
         # https://rt.perl.org/Public/Bug/Display.html?id=31923
@@ -81,8 +75,7 @@ if ($^C) {
     no warnings 'redefine';
     *write = sub {};
 }
-sub write {
-    my ($self, $e, $num) = @_;
+sub write ($self, $e, $num) {
 
     my $type = ref($e);
 
@@ -106,9 +99,7 @@ sub write {
     }
 }
 
-sub _open_handles {
-    my $self = shift;
-
+sub _open_handles ($self) {
     my %seen;
     open(my $out, '>&', STDOUT) or die "Can't dup STDOUT:  $!";
     binmode($out, join(":", "", "raw", grep { $_ ne 'unix' and !$seen{$_}++ } PerlIO::get_layers(STDOUT)));
@@ -130,10 +121,7 @@ sub _autoflush {
     select $old_fh;
 }
 
-sub event_tap {
-    my $self = shift;
-    my ($e, $num) = @_;
-
+sub event_tap ($self, $e, $num?) {
     my $converter = $CONVERTERS{ref($e)} or return;
 
     $num = undef if $self->{+NO_NUMBERS};
@@ -141,9 +129,7 @@ sub event_tap {
     return $self->$converter($e, $num);
 }
 
-sub event_ok {
-    my $self = shift;
-    my ($e, $num) = @_;
+sub event_ok ($self, $e, $num?) {
 
     # We use direct hash access for performance. OK events are so common we
     # need this to be fast.
@@ -174,19 +160,14 @@ sub event_ok {
     return $self->event_ok_multiline($out, $space, @extra);
 }
 
-sub event_ok_multiline {
-    my $self = shift;
-    my ($out, $space, @extra) = @_;
-
+sub event_ok_multiline ($self, $out, $space, @extra) {
     return(
         [OUT_STD, "$out\n"],
         map {[OUT_STD, "#${space}$_\n"]} @extra,
     );
 }
 
-sub event_skip {
-    my $self = shift;
-    my ($e, $num) = @_;
+sub event_skip ($self, $e, $num) {
 
     my $name   = $e->name;
     my $reason = $e->reason;
@@ -208,10 +189,7 @@ sub event_skip {
     return([OUT_STD, "$out\n"]);
 }
 
-sub event_note {
-    my $self = shift;
-    my ($e, $num) = @_;
-
+sub event_note ($self, $e, $num?) {
     chomp(my $msg = $e->message);
     $msg =~ s/^/# /;
     $msg =~ s/\n/\n# /g;
@@ -219,10 +197,7 @@ sub event_note {
     return [OUT_STD, "$msg\n"];
 }
 
-sub event_diag {
-    my $self = shift;
-    my ($e, $num) = @_;
-
+sub event_diag ($self, $e, $num?) {
     chomp(my $msg = $e->message);
     $msg =~ s/^/# /;
     $msg =~ s/\n/\n# /g;
@@ -230,10 +205,7 @@ sub event_diag {
     return [OUT_ERR, "$msg\n"];
 }
 
-sub event_bail {
-    my $self = shift;
-    my ($e, $num) = @_;
-
+sub event_bail ($self, $e, $num?) {
     return if $e->nested;
 
     return [
@@ -242,16 +214,11 @@ sub event_bail {
     ];
 }
 
-sub event_exception {
-    my $self = shift;
-    my ($e, $num) = @_;
+sub event_exception ($self, $e, $num?) {
     return [ OUT_ERR, $e->error ];
 }
 
-sub event_subtest {
-    my $self = shift;
-    my ($e, $num) = @_;
-
+sub event_subtest ($self, $e, $num?) {
     # A 'subtest' is a subclass of 'ok'. Let the code that renders 'ok' render
     # this event.
     my ($ok, @diag) = $self->event_ok($e, $num);
@@ -290,10 +257,7 @@ sub event_subtest {
     );
 }
 
-sub event_plan {
-    my $self = shift;
-    my ($e, $num) = @_;
-
+sub event_plan ($self, $e, $num?) {
     my $directive = $e->directive;
     return if $directive && $directive eq 'NO PLAN';
 
@@ -318,9 +282,7 @@ sub event_version {
     return [OUT_STD, "TAP version $version\n"];
 }
 
-sub event_other {
-    my $self = shift;
-    my ($e, $num) = @_;
+sub event_other ($self, $e, $num?) {
     return if $e->no_display;
 
     my @out;

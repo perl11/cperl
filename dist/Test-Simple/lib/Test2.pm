@@ -199,6 +199,10 @@ F<http://github.com/Test-More/test-more/>.
 
 =item Chad Granum E<lt>exodist@cpan.orgE<gt>
 
+=item Reini Urban E<lt>rurban@cpanel.netE<gt>
+
+modernized
+
 =back
 
 =head1 COPYRIGHT

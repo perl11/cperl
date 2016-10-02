@@ -124,9 +124,10 @@ $CLASS->can('test2_add_callback_post_load')->(sub { $ran++ });
 is($ran, 1, "ran the post-load");
 
 like(
-    exception { $CLASS->can('test2_formatter_set')->() },
-    qr/No formatter specified/,
-    "formatter_set requires an argument"
+     exception { $CLASS->can('test2_formatter_set')->() },
+     qr/Not enough arguments for subroutine Test2::API::test2_formatter_set/,
+     #qr/No formatter specified/,
+     "formatter_set requires an argument"
 );
 
 like(
