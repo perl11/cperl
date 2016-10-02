@@ -7456,10 +7456,10 @@ _EOT7
     }
     if (destruct_level >= 1) {
         const HVMAX_T max = HvMAX(PL_strtab);
-	HE * const * const array = HvARRAY(PL_strtab);
 	RITER_T riter = 0;
-	HE *hent = array[0];
-	for (;;) {
+	AHE *const array = HvARRAY(PL_strtab);
+	HE *hent = AHe(array[0]);
+	HE_EACH(PL_strtab, hent, {
 	    if (hent) {
 		HE * const next = HeNEXT(hent);
                 if (!HEK_STATIC(&((struct shared_he*)hent)->shared_he_hek))
@@ -7469,11 +7469,11 @@ _EOT7
 	    if (!hent) {
 		if (++riter > max)
 		    break;
-		hent = array[riter];
+		hent = AHe(array[riter]);
 	    }
-        }
+        })
         /* Silence strtab refcnt warnings during global destruction */
-        Zero(HvARRAY(PL_strtab), max, HE*);
+        Zero(HvARRAY(PL_strtab), max, AHE);
         /* NULL the HEK "dfs" */
 #if PERL_VERSION > 10
         PL_registered_mros = (HV*)&PL_sv_undef;
