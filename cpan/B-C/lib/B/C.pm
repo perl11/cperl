@@ -538,6 +538,7 @@ my $ITHREADS = $Config{useithreads};
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
 my $DEBUG_LEAKING_SCALARS = $Config{ccflags} =~ m/-DDEBUG_LEAKING_SCALARS/;
 my $GLOBAL_STRUCT = $Config{ccflags} =~ /-DPERL_GLOBAL_STRUCT/; # includes _PRIVATE
+my $CPERL530 = ( $Config{usecperl} and $] >= 5.030 ); # hash-loop
 my $CPERL56  = ( $Config{usecperl} and $] >= 5.025003 ); #sibparent, VALID
 my $CPERL55  = ( $Config{usecperl} and $] >= 5.025001 ); #HVMAX_T, RITER_T, ...
 my $CPERL52  = ( $Config{usecperl} and $] >= 5.022002 ); #sv_objcount, AvSTATIC, sigs
@@ -6098,12 +6099,12 @@ sub B::HV::save {
       my $hv_max = $hv->MAX + 1;
       # riter required, new _aux struct at the end of the HvARRAY. allocate ARRAY also.
       my $riter = ivx($hv->RITER);
-      $init->add("{\tHE **a;",
+      $init->add("{\tAHE *a;",
                  "#ifdef PERL_USE_LARGE_HV_ALLOC",
-                 sprintf("\tNewxz(a, PERL_HV_ARRAY_ALLOC_BYTES(%d) + sizeof(struct xpvhv_aux), HE*);",
+                 sprintf("\tNewxz(a, PERL_HV_ARRAY_ALLOC_BYTES(%d) + sizeof(struct xpvhv_aux), AHE);",
                          $hv_max),
                  "#else",
-                 sprintf("\tNewxz(a, %d + sizeof(struct xpvhv_aux), HE*);", $hv_max),
+                 sprintf("\tNewxz(a, %d + sizeof(struct xpvhv_aux), AHE);", $hv_max),
                  "#endif",
 		 "\tHvARRAY($sym) = a;",
 		 sprintf("\tHvRITER_set($sym, %s);", $riter),"}");
@@ -6928,6 +6929,22 @@ _EOT2
     print "#define GvSVn(s) GvSV(s)\n";
   }
 
+  if (!$CPERL527) {
+    print <<'_EOT3';
+/* Since cperl-5.027 */
+#ifndef AHe
+# define AHE HE*
+# define AHe(he) he
+#endif
+#ifndef HE_EACH
+# define HE_EACH(hv,entry,block) \
+    for (; entry; entry = HeNEXT(entry)) { \
+      block; \
+    }
+#endif
+_EOT3
+  }
+
   # XXX boot_DynaLoader is exported only >=5.8.9
   # does not compile on darwin with EXTERN_C declaration
   # See branch `boot_DynaLoader`
@@ -7416,7 +7433,141 @@ _EOT7
     }
     $free->output( \*STDOUT, "%s\n" );
 
+<<<<<<< HEAD
     print "}\n";
+||||||| merged common ancestors
+    my $riter_type = "I32";
+    if ($CPERL51) {
+      $riter_type = $CPERL55 ? "U32" : "SSize_t";
+    }
+    my $hvmax_type = "STRLEN";
+    if ($CPERL51) {
+      $hvmax_type = $CPERL55 ? "U32" : "SSize_t";
+    }
+    print "#define RITER_T $riter_type\n";
+    print "#define HVMAX_T $hvmax_type\n";
+
+    print <<'_EOT7a';
+
+    /* Avoid Unbalanced string table refcount warning with PERL_DESTRUCT_LEVEL=2 */
+    if (s) {
+        const int i = atoi(s);
+        if (destruct_level < i) destruct_level = i;
+    }
+    if (destruct_level >= 1) {
+        const HVMAX_T max = HvMAX(PL_strtab);
+	HE * const * const array = HvARRAY(PL_strtab);
+	RITER_T riter = 0;
+	HE *hent = array[0];
+	for (;;) {
+	    if (hent) {
+		HE * const next = HeNEXT(hent);
+                if (!HEK_STATIC(&((struct shared_he*)hent)->shared_he_hek))
+                    Safefree(hent);
+		hent = next;
+	    }
+	    if (!hent) {
+		if (++riter > max)
+		    break;
+		hent = array[riter];
+	    }
+        }
+        /* Silence strtab refcnt warnings during global destruction */
+        Zero(HvARRAY(PL_strtab), max, HE*);
+        /* NULL the HEK "dfs" */
+#if PERL_VERSION > 10
+        PL_registered_mros = (HV*)&PL_sv_undef;
+        CopHINTHASH_set(&PL_compiling, NULL);
+#endif
+    }
+
+    /* B::C specific: prepend static svs to arena for sv_clean_objs */
+    SvANY(&sv_list[0]) = (void *)PL_sv_arenaroot;
+    PL_sv_arenaroot = &sv_list[0];
+#if PERL_VERSION > 7
+    if (DEBUG_D_TEST) {
+        SV* sva;
+        PerlIO_printf(Perl_debug_log, "\n");
+        for (sva = PL_sv_arenaroot; sva; sva = (SV*)SvANY(sva)) {
+            PerlIO_printf(Perl_debug_log, "sv_arena: 0x%p - 0x%p (%lu)\n",
+              sva, sva+SvREFCNT(sva), (long)SvREFCNT(sva));
+        }
+    }
+
+    return perl_destruct( my_perl );
+#else
+    perl_destruct( my_perl );
+    return 0;
+#endif
+}
+_EOT7a
+=======
+    my $riter_type = "I32";
+    if ($CPERL51) {
+      $riter_type = $CPERL55 ? "U32" : "SSize_t";
+    }
+    my $hvmax_type = "STRLEN";
+    if ($CPERL51) {
+      $hvmax_type = $CPERL55 ? "U32" : "SSize_t";
+    }
+    print "#define RITER_T $riter_type\n";
+    print "#define HVMAX_T $hvmax_type\n";
+
+    print <<'_EOT7a';
+
+    /* Avoid Unbalanced string table refcount warning with PERL_DESTRUCT_LEVEL=2 */
+    if (s) {
+        const int i = atoi(s);
+        if (destruct_level < i) destruct_level = i;
+    }
+    if (destruct_level >= 1) {
+        const HVMAX_T max = HvMAX(PL_strtab);
+	RITER_T riter = 0;
+	AHE *const array = HvARRAY(PL_strtab);
+	HE *hent = AHe(array[0]);
+	HE_EACH(PL_strtab, hent, {
+	    if (hent) {
+		HE * const next = HeNEXT(hent);
+                if (!HEK_STATIC(&((struct shared_he*)hent)->shared_he_hek))
+                    Safefree(hent);
+		hent = next;
+	    }
+	    if (!hent) {
+		if (++riter > max)
+		    break;
+		hent = AHe(array[riter]);
+	    }
+        })
+        /* Silence strtab refcnt warnings during global destruction */
+        Zero(HvARRAY(PL_strtab), max, AHE);
+        /* NULL the HEK "dfs" */
+#if PERL_VERSION > 10
+        PL_registered_mros = (HV*)&PL_sv_undef;
+        CopHINTHASH_set(&PL_compiling, NULL);
+#endif
+    }
+
+    /* B::C specific: prepend static svs to arena for sv_clean_objs */
+    SvANY(&sv_list[0]) = (void *)PL_sv_arenaroot;
+    PL_sv_arenaroot = &sv_list[0];
+#if PERL_VERSION > 7
+    if (DEBUG_D_TEST) {
+        SV* sva;
+        PerlIO_printf(Perl_debug_log, "\n");
+        for (sva = PL_sv_arenaroot; sva; sva = (SV*)SvANY(sva)) {
+            PerlIO_printf(Perl_debug_log, "sv_arena: 0x%p - 0x%p (%lu)\n",
+              sva, sva+SvREFCNT(sva), (long)SvREFCNT(sva));
+        }
+    }
+
+    return perl_destruct( my_perl );
+#else
+    perl_destruct( my_perl );
+    return 0;
+#endif
+}
+_EOT7a
+>>>>>>> B-C: use AHE* and AHe
   }
 }
 
