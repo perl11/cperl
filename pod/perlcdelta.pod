@@ -77,6 +77,12 @@ checks. This is only implemented since cperl-5.25 (released with
 
 =item *
 
+Improvements when reading from arrays have been imported from perl 5.25.
+C<av_fetch()> uses less branches reading from the end (negative indices),
+and a branch checking for freed C<@_> elements has been removed,
+
+=item *
+
 aassign: pre-allocate needed hash size with aassign, similar to
 arrays, avoiding run-time hash splits.
 e.g. C<my %h = (.. => .., .. => ..)>
@@ -368,6 +374,19 @@ fill rate and decreases performance.
 =head1 Selected Bug Fixes
 
 =over 4
+
+=item *
+
+Fixed overwriting the C<HVhek_UNSHARED> bit in the hash loop broken with
+v5.9.
+
+This fixed C<-DNODEFAULT_SHAREKEYS>. In the default configuration
+without NODEFAULT_SHAREKEYS since 5.003_001 all hash keys are stored
+twice, once in the hash and once again in C<PL_strtab>, the global
+string table, with the benefit of faster hash loops and copies. Almost
+all hashtables get the SHAREKEYS bit.
+With C<-Accflags=-DNODEFAULT_SHAREKEYS> simple scripts are 20-30% faster.
+L<[cperl #201]|https://github.com/perl11/cperl/issues/201>
 
 =item *
 
