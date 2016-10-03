@@ -275,7 +275,13 @@ C<SV*>.
  * */
 #define PERL_HV_ALLOC_AUX_SIZE (1 << 9)
 
-#define HvHASH_INDEX(hash, max) (hash & (U32)(max))
+/* 64bit arith is faster, even with the added mask */
+#if LONGSIZE >= 8
+#define HvHASH_INDEX(hash, max) \
+    ((U64_CONST(0x7fffffff00000000) | hash) & (max))
+#else
+#define HvHASH_INDEX(hash, max) (hash & (max))
+#endif
 
 /* these hash entry flags ride on hent_klen (for use only in magic/tied HVs) */
 #define HEf_SVKEY	-2	/* hent_key is an SV* */
