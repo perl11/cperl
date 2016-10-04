@@ -1011,6 +1011,7 @@ i_ndbm=''
 i_netdb=''
 i_neterrno=''
 i_netinettcp=''
+i_netinet_in_systm=''
 i_netinet_ip=''
 i_netinet_ip6=''
 i_netinet6_in6=''
@@ -23389,7 +23390,11 @@ eval $setvar
 set netinet/tcp.h i_netinettcp
 eval $inhdr
 
-: see if netinet/tcp.h is available
+: see if netinet/in_systm.h is available
+set netinet/in_systm.h i_netinet_in_systm
+eval $inhdr
+
+: see if netinet/ip.h is available
 set netinet/ip.h i_netinet_ip
 eval $inhdr
 
@@ -25174,6 +25179,7 @@ i_ndbm='$i_ndbm'
 i_netdb='$i_netdb'
 i_neterrno='$i_neterrno'
 i_netinettcp='$i_netinettcp'
+i_netinet_in_systm='$i_netinet_in_systm'
 i_netinet_ip='$i_netinet_ip'
 i_netinet_ip6='$i_netinet_ip6'
 i_netinet6_in6='$i_netinet6_in6'

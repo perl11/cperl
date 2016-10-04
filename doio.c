@@ -1127,10 +1127,10 @@ Perl_io_close(pTHX_ IO *io, GV *gv, bool not_implicit, bool warn_on_fail)
 	    if (gv) {
                 const HEK* hek = GvNAME_HEK(gv);
 		Perl_ck_warner_d(aTHX_ packWARN(WARN_IO),
-				"Warning: unable to close filehandle %.*s"
-				 " properly: %"SVf,
+				"Warning: unable to close filehandle %.*s "
+				 "properly: %"SVf,
 				 (int)HEK_LEN(hek), HEK_KEY(hek),
-                                 SVfARG(get_svs("!",GV_ADD)));
+                                 SVfARG(get_sv("!",GV_ADD)));
             }
 	    else
 		Perl_ck_warner_d(aTHX_ packWARN(WARN_IO),

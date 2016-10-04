@@ -758,18 +758,6 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$i_memory I_MEMORY		/**/
 
-/* I_NETINET_IN:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <netinet/in.h>. Otherwise, you may try <sys/in.h>.
- */
-#$i_niin I_NETINET_IN	/**/
-
-/* I_NETINET6_IN6:
- *     This symbol, if defined, indicates to the C program that it can
- *     include <netinet6/in6.h>.
- */
-#$i_netinet6_in6   I_NETINET6_I6                /**/
-
 /* I_STDDEF:
  *	This symbol, if defined, indicates that <stddef.h> exists and should
  *	be included.
@@ -4762,6 +4750,18 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$i_mntent	I_MNTENT		/**/
 
+/* I_NETINET_IN:
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include <netinet/in.h>. Otherwise, you may try <sys/in.h>.
+ */
+#$i_niin I_NETINET_IN	/**/
+
+/* I_NETINET_IN_SYSTM:
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include <netinet/in_systm.h>, needed on OpenBSD and NeXT for <netinet/ip.h>
+ */
+#$i_netinet_in_systm I_NETINET_IN_SYSTM	/**/
+
 /* I_NETINET_TCP:
  *     This symbol, if defined, indicates to the C program that it should
  *     include <netinet/tcp.h>.
@@ -4779,6 +4779,12 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *     include <netinet/ip6.h>.
  */
 #$i_netinet_ip6   I_NETINET_IP6                /**/
+
+/* I_NETINET6_IN6:
+ *     This symbol, if defined, indicates to the C program that it can
+ *     include <netinet6/in6.h>.
+ */
+#$i_netinet6_in6   I_NETINET6_I6                /**/
 
 /* I_POLL:
  *	This symbol, if defined, indicates that <poll.h> exists and
