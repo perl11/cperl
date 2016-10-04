@@ -788,9 +788,9 @@ S_do_chomp(pTHX_ SV *retval, SV *sv, bool chomping)
     if (chomping && (RsSNARF(PL_rs) || RsRECORD(PL_rs)))
 	return 0;
     if (SvTYPE(sv) == SVt_PVAV) {
-	I32 i;
 	AV *const av = MUTABLE_AV(sv);
-	const I32 max = AvFILL(av);
+	SSize_t i;
+	const SSize_t max = AvFILL(av);
 
 	for (i = 0; i <= max; i++) {
 	    sv = MUTABLE_SV(av_fetch(av, i, FALSE));

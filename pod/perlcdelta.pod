@@ -578,6 +578,28 @@ cperl-only)
 
 =item *
 
+More B<I32/IV/SSize_t fixes>, against huge data (2GB) overflows
+
+We are now in a 64bit world and need to get rid of all the wrong
+32bit (2GB) size limits.
+Some of these fixes seem to be even security relevant, as in the last
+2GB series:
+
+chop/chomp of only half of overlarge arrays.
+
+Or ~"a"x2G complement of overlarge strings, silently processing only
+the half - as with overlong hash keys.
+
+There was also a smartmatch Array - CodeRef rule, which passed only over
+half the array elements.  The Hash part was also wrong, but the wrong number
+was not used.
+
+regex match group of >2GB string len.
+
+Missing optimization of inplace substitution via clen overflow.
+
+=item *
+
 Fixed several B<heap-buffer-overflows> detected by asan:
 use-after-free in Dynaloader (ReadKey probe with -DDEBUG_LEAKING_SCALAR),
 heap-overflow in gv_fetchfile (t/comp/parser.t),

@@ -1677,7 +1677,7 @@ S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
             U32 j = (HeHASH(entry) & newsize);
 #ifdef DEBUGGING
             if (DEBUG_H_TEST_ && DEBUG_v_TEST_) {
-                PerlIO_printf(Perl_debug_log, "HASH split %d->%d\n",i,j);
+                PerlIO_printf(Perl_debug_log, "HASH split %u->%u\n",(unsigned)i,(unsigned)j);
                 deb_hechain(aep[i]);
             }
 #endif

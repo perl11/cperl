@@ -1971,7 +1971,7 @@ PP(pp_match)
 	    if (LIKELY((RX_OFFS(rx)[i].start != -1)
                      && RX_OFFS(rx)[i].end   != -1 ))
             {
-		const I32 len = RX_OFFS(rx)[i].end - RX_OFFS(rx)[i].start;
+		const SSize_t len = RX_OFFS(rx)[i].end - RX_OFFS(rx)[i].start;
 		const char * const s = RX_OFFS(rx)[i].start + truebase;
 	        if (UNLIKELY(RX_OFFS(rx)[i].end < 0 || RX_OFFS(rx)[i].start < 0
                         || len < 0 || len > strend - s))
@@ -3285,7 +3285,7 @@ PP(pp_subst)
 #ifdef PERL_ANY_COW
 	&& !was_cow
 #endif
-        && (I32)clen <= RX_MINLENRET(rx)
+        && (SSize_t)clen <= RX_MINLENRET(rx)
         && (  once
            || !(r_flags & REXEC_COPY_STR)
            || (!SvGMAGICAL(dstr) && !(RX_EXTFLAGS(rx) & RXf_EVAL_SEEN))

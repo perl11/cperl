@@ -107,7 +107,7 @@ struct reg_code_block {
 	/* manage things */						\
 	U32 extflags;	/* Flags used both externally and internally */	\
 	SSize_t minlen;	/* mininum possible number of chars in string to match */\
-	SSize_t minlenret; /* mininum possible number of chars in $& */		\
+	SSize_t minlenret; /* minimum possible number of chars in $& */		\
 	STRLEN gofs;	/* chars left of pos that we search from */	\
 	/* substring data about strings that must appear in the */	\
 	/* final match, used for optimisations */			\

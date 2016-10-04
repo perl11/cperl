@@ -840,7 +840,6 @@ PP(pp_formline)
 #ifdef USE_QUADMATH
                 {
                     const char* qfmt = quadmath_format_single(fmt);
-                    int len;
                     if (!qfmt)
                         Perl_croak_nocontext("panic: quadmath invalid format \"%s\"", fmt);
                     len = quadmath_snprintf(t, max, qfmt, (int) fieldsize, (int) arg, value);
@@ -1194,7 +1193,7 @@ PP(pp_flop)
 	SvGETMAGIC(right);
 
 	if (RANGE_IS_NUMERIC(left,right)) {
-	    IV i, j, n;
+	    IV i, j, n = 0;
 	    if ((SvOK(left) && !SvIOK(left) && SvNV_nomg(left) < IV_MIN) ||
 		(SvOK(right) && (SvIOK(right)
 				 ? SvIsUV(right) && SvUV(right) > IV_MAX
@@ -1614,6 +1613,8 @@ S_undo_inc_then_croak(pTHX_ SV *namesv, SV *err, bool require0)
     HV *inc_hv = GvHVn(PL_incgv);
     I32  klen  = SvUTF8(namesv) ? -(I32)SvCUR(namesv) : (I32)SvCUR(namesv);
     const char *key = SvPVX_const(namesv);
+    if (UNLIKELY(SvCUR(namesv) > I32_MAX))
+        Perl_croak(aTHX_ "panic: name too long (%"UVuf")", (UV)SvCUR(namesv));
 
     if (require0) {
 	(void)hv_delete(inc_hv, key, klen, G_DISCARD);
@@ -4740,7 +4741,7 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	    HE *he;
 	    bool andedresults = TRUE;
 	    HV *hv = (HV*) SvRV(d);
-	    I32 numkeys = hv_iterinit(hv);
+	    U32 numkeys = hv_iterinit(hv);
 	    DEBUG_M(Perl_deb(aTHX_ "    applying rule Hash-CodeRef\n"));
 	    if (numkeys == 0)
 		RETPUSHYES;
@@ -4767,10 +4768,11 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	}
 	else if (SvROK(d) && SvTYPE(SvRV(d)) == SVt_PVAV) {
 	    /* Test sub truth for each element */
+	    AV *av = (AV*) SvRV(d);
+	    const SSize_t len = av_tindex(av);
 	    SSize_t i;
 	    bool andedresults = TRUE;
-	    AV *av = (AV*) SvRV(d);
-	    const I32 len = av_tindex(av);
+
 	    DEBUG_M(Perl_deb(aTHX_ "    applying rule Array-CodeRef\n"));
 	    if (len == -1)
 		RETPUSHYES;
