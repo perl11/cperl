@@ -163,10 +163,11 @@ More Darwin thread fixes for clock_gettime,
 Sierra support,
 test improvements.
 
-=item Socket  2.024_02
+=item Socket  2.024_03
 
 Merge cpan 2.024 with our 2.021_02,
 plus fix some problems in their new code.
+Fixes for OpenBSD: Probe for F<netinet/in_systm.h>
 
 =item DynaLoader  2.05c
 
