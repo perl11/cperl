@@ -38,3 +38,6 @@ SKIP: {
   is(Cpanel::JSON::XS->new->utf8->encode ([$s]), "[\"I \342\235\244 perl\"]", 'utf8 enc utf8 [RT #84244]');
 }
 is(Cpanel::JSON::XS->new->binary->encode ([$love]), '["I \xe2\x9d\xa4 perl"]', 'utf8 enc binary');
+
+# TODO: test utf8 hash keys,
+# test utf8 strings without any char > 0x80.
