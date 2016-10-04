@@ -51,7 +51,7 @@ podcheck.t - Look for possible problems in the Perl pods
 
 =head1 DESCRIPTION
 
-podcheck.t is an extension of Pod::Checker.  It looks for pod errors and
+podcheck.t is an extension of L<Pod::Checker>.  It looks for pod errors and
 potential errors in the files given as arguments, or if none specified, in all
 pods in the distribution workspace, except certain known special ones
 (specified below).  It does additional checking beyond that done by

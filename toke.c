@@ -1837,8 +1837,11 @@ S_incline(pTHX_ const char *s)
 
 		if (tmplen2 + 2 <= sizeof smallbuf)
 		    tmpbuf2 = smallbuf;
-		else
+		else {
 		    Newx(tmpbuf2, tmplen2 + 2, char);
+                    if (UNLIKELY(len > I32_MAX))
+                        Perl_croak(aTHX_ "panic: name too long (%"UVuf")", (UV) len);
+                }
 
 		tmpbuf2[0] = '_';
 		tmpbuf2[1] = '<';
@@ -9237,6 +9240,8 @@ S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package, STRLEN
     parse_ident(&s, &d, e, allow_package, is_utf8, TRUE);
     *d = '\0';
     *slp = d - dest;
+    if (UNLIKELY(*slp > I32_MAX))
+        Perl_croak(aTHX_ "panic: name too long (%"UVuf")", (UV) *slp);
     return s;
 }
 

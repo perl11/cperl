@@ -143,6 +143,10 @@ Fix inf/nan detection on HP-UX and others.
 Use faster strEQc macros.
 Prefer memEQ for systems without memcmp, to use bcmp there.
 Add more expect_false() to inf/nan branches.
+Fix av and hv length types: protect from security sensitive overflows,
+add HVMAX_T and RITER_T
+Add new "Hash key too large" error. perl5 silently truncates it,
+but we prefer errors.
 
 =item Term::ReadKey 2.35
 
@@ -323,6 +327,16 @@ Even worse, accessing overflown unsigned array indices would silently
 access the signed counterpart, indices at the end.
 
 Note that the out of bound error message with shaped arrays is different.
+
+=item *
+
+The L<Panic: hash key too long|perldiag/"panic: hash key too long (%u)">
+error is now thrown with overlarge hash keys in every
+C<hv_common> access and in L<Cpanel::JSON::XS>.  perl5 still silently
+ignores those failures, and truncates the keys.
+Many more similar C<panic: (file|keyword|mro|stash)? name too long> errors
+were added to the parser and compiler to protect from overlong names
+(> I32_MAX, 2147483647).
 
 =back
 

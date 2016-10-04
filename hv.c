@@ -452,7 +452,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	    Safefree(key);
 	key = SvPV_const(keysv, len);
         assert(len <= I32_MAX);
-        klen = (I32)len; /* silent truncation */
+        if (UNLIKELY(len > I32_MAX))
+            Perl_croak(aTHX_ "panic: hash key too long (%"UVuf")", (UV) len);
+        klen = (I32)len; /* no silent truncation anymore */
 	is_utf8 = (SvUTF8(keysv) != 0);
 	if (SvIsCOW_shared_hash(keysv)) {
 	    flags = HVhek_KEYCANONICAL | (is_utf8 ? HVhek_UTF8 : 0);
@@ -2602,7 +2604,7 @@ Perl_hv_name_set(pTHX_ HV *hv, const char *name, U32 len, U32 flags)
 
     PERL_ARGS_ASSERT_HV_NAME_SET;
 
-    if (len > I32_MAX)
+    if (UNLIKELY(len > I32_MAX))
 	Perl_croak(aTHX_ "panic: hv name too long (%"UVuf")", (UV) len);
 
     if (SvOOK(hv)) {
@@ -2709,7 +2711,7 @@ Perl_hv_ename_add(pTHX_ HV *hv, const char *name, U32 len, U32 flags)
 
     PERL_ARGS_ASSERT_HV_ENAME_ADD;
 
-    if (len > I32_MAX)
+    if (UNLIKELY(len > I32_MAX))
 	Perl_croak(aTHX_ "panic: hv name too long (%"UVuf")", (UV) len);
 
     PERL_HASH(hash, name, len);
@@ -2771,7 +2773,7 @@ Perl_hv_ename_delete(pTHX_ HV *hv, const char *name, U32 len, U32 flags)
 
     PERL_ARGS_ASSERT_HV_ENAME_DELETE;
 
-    if (len > I32_MAX)
+    if (UNLIKELY(len > I32_MAX))
 	Perl_croak(aTHX_ "panic: hv name too long (%"UVuf")", (UV) len);
 
     if (!SvOOK(hv)) return;
