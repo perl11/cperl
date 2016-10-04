@@ -723,18 +723,6 @@
  */
 /*#define I_MEMORY		/ **/
 
-/* I_NETINET_IN:
- *	This symbol, if defined, indicates to the C program that it should
- *	include <netinet/in.h>. Otherwise, you may try <sys/in.h>.
- */
-/*#define I_NETINET_IN	/ **/
-
-/* I_NETINET6_IN6:
- *     This symbol, if defined, indicates to the C program that it can
- *     include <netinet6/in6.h>.
- */
-/*#define   I_NETINET6_I6                / **/
-
 /* I_STDDEF:
  *	This symbol, if defined, indicates that <stddef.h> exists and should
  *	be included.
@@ -4731,6 +4719,18 @@
  */
 /*#define	I_MNTENT		/ **/
 
+/* I_NETINET_IN:
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include <netinet/in.h>. Otherwise, you may try <sys/in.h>.
+ */
+/*#define I_NETINET_IN	/ **/
+
+/* I_NETINET_IN_SYSTM:
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include <netinet/in_systm.h>, needed on OpenBSD and NeXT for <netinet/ip.h>
+ */
+/*#define I_NETINET_IN_SYSTM	/ **/
+
 /* I_NETINET_TCP:
  *     This symbol, if defined, indicates to the C program that it should
  *     include <netinet/tcp.h>.
@@ -4748,6 +4748,12 @@
  *     include <netinet/ip6.h>.
  */
 /*#define   I_NETINET_IP6                / **/
+
+/* I_NETINET6_IN6:
+ *     This symbol, if defined, indicates to the C program that it can
+ *     include <netinet6/in6.h>.
+ */
+/*#define   I_NETINET6_I6                / **/
 
 /* I_POLL:
  *	This symbol, if defined, indicates that <poll.h> exists and
@@ -5347,6 +5353,6 @@
 #endif
 
 /* Generated from:
- * 52a72cf19e9185a68544a313038eca8fa7ceabb9fc921365bc375b9a17d8d259 config_h.SH
- * 1fc71bb792275b1dfe746662581487d3a5c2cb024cd4ca15e7f2d181a4004145 uconfig.sh
+ * 1e5e965aead2ab59cf9e5d7e4c7960dfa9945630105bcbd300df94149471a1de config_h.SH
+ * e95b41ca67c0d495fbf0e67e14132c07df345fe1b4d13d570a4d89d0b5222e37 uconfig.sh
  * ex: set ro: */
