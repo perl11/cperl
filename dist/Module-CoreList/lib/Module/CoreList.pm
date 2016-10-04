@@ -13320,6 +13320,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'ExtUtils::Command::MM' => '8.04_04',
             'Storable'              => '3.01c',
             'Term::ReadKey'         => '2.35',
+            'Cpanel::JSON::XS'      => '3.0217_03',
         },
         removed => {
         }

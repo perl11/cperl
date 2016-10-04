@@ -1,5 +1,7 @@
 package Cpanel::JSON::XS;
-our $VERSION = '3.0217';
+our $VERSION = '3.0217_03';
+our $XS_VERSION = $VERSION;
+$VERSION = eval $VERSION;
 
 =pod
 
@@ -960,14 +962,22 @@ See SECURITY CONSIDERATIONS, below, for more info on why this is useful.
 
 =item $infnan_mode = $json->get_stringify_infnan
 
-Get or set how Cpanel::JSON::XS encodes C<inf> or C<nan> for numeric
-values. 
+Get or set how Cpanel::JSON::XS encodes C<inf>, C<-inf> or C<nan> for numeric
+values. Also qnan, snan or negative nan on some platforms.
 
 C<null>:     infnan_mode = 0. Similar to most JSON modules in other languages.
+Always null.
 
-stringified: infnan_mode = 1. As in Mojo::JSON.
+stringified: infnan_mode = 1. As in Mojo::JSON. Platform specific strings.
+Stringified via sprintf(%g), with double quotes.
 
-inf/nan:     infnan_mode = 2. As in JSON::XS, and older releases. Produces invalid JSON.
+inf/nan:     infnan_mode = 2. As in JSON::XS, and older releases.
+Passes through platform dependent values, invalid JSON. Stringified via sprintf(%g),
+but without double quotes.
+
+"inf/-inf/nan": infnan_mode = 3. Platform independent inf/nan/-inf strings.
+No QNAN/SNAN/negative NAN support, unified to "nan". Much easier to detect, but may
+conflict with valid strings.
 
 =item $json_text = $json->encode ($perl_scalar)
 
@@ -2110,7 +2120,7 @@ sub is_bool($) {
   or (exists $INC{'Types/Serializer.pm'} and Types::Serialiser::is_bool($_[0]))
 }
 
-XSLoader::load 'Cpanel::JSON::XS', $VERSION;
+XSLoader::load 'Cpanel::JSON::XS', $XS_VERSION;
 
 package
   JSON::PP::Boolean;

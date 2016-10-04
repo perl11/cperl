@@ -35,15 +35,24 @@
 #define STR_INF "1.#INF"
 #define STR_NAN "1.#IND"
 #define STR_QNAN "1.#QNAN"
-#else
-#if defined(sun) || defined(__sun)
+#define HAVE_QNAN
+#elif defined(sun) || defined(__sun)
 #define STR_INF "Infinity"
 #define STR_NAN "NaN"
+#elif defined(__hpux)
+#define STR_INF "++"
+#define STR_NAN "-?"
+#define STR_NEG_INF "---"
+#define STR_NEG_NAN "?"
 #else
 #define STR_INF "inf"
 #define STR_NAN "nan"
-#define STR_QNAN "1.#QNAN"
 #endif
+
+#if defined(_AIX)
+#define HAVE_QNAN
+#undef STR_QNAN
+#define STR_QNAN "NANQ"
 #endif
 
 /* some old perls do not have this, try to make it work, no */
@@ -87,10 +96,15 @@
 #ifndef HvNAMEUTF8
 # define HvNAMEUTF8(hv) 0
 #endif
+/* from cperl */
 #ifndef strEQc
 /* the buffer ends with \0, includes comparison of the \0.
    better than strEQ as it uses memcmp, word-wise comparison. */
-#define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
+# define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
+#endif
+#ifndef memEQc
+/* excluding the final \0, so the string s may continue */
+# define memEQc(s, c) memEQ(s, ("" c ""), sizeof(c)-1)
 #endif
 
 /* three extra for rounding, sign, and end of string */
@@ -1196,27 +1210,63 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
     {
       char *savecur, *saveend;
       char inf_or_nan = 0;
+      NV nv = SvNVX(sv);
       /* trust that perl will do the right thing w.r.t. JSON syntax. */
       need (aTHX_ enc, NV_DIG + 32);
       savecur = enc->cur;
       saveend = enc->end;
+
+#if defined(HAVE_ISINF) && defined(HAVE_ISNAN)
+      /* With no stringify_infnan we can skip the conversion, returning null. */
+      if (enc->json.infnan_mode == 0) {
+# if defined(USE_QUADMATH) && defined(HAVE_ISINFL) && defined(HAVE_ISNANL)
+        if (expect_false(isinfl(nv) || isnanl(nv)))
+# else
+        if (expect_false(isinf(nv) || isnan(nv)))
+# endif
+          {
+            goto is_inf_or_nan;
+          }
+      }
+#endif
 #ifdef USE_QUADMATH
-      quadmath_snprintf(enc->cur, enc->end - enc->cur, "%.*Qg", (int)NV_DIG, SvNVX(sv));
+      quadmath_snprintf(enc->cur, enc->end - enc->cur, "%.*Qg", (int)NV_DIG, nv);
 #else
-      (void)Gconvert (SvNVX (sv), NV_DIG, 0, enc->cur);
+      (void)Gconvert (nv, NV_DIG, 0, enc->cur);
 #endif
 
-      if (strEQ(enc->cur, STR_INF) || strEQc(enc->cur, STR_NAN)
-#if defined(_WIN32)
-          || strEQc(enc->cur, STR_QNAN)
-#endif
-          || (*enc->cur == '-' &&
-              (strEQc(enc->cur+1, STR_INF) || strEQc(enc->cur+1, STR_NAN)
-#if defined(_WIN32)
-               || strEQc(enc->cur+1, STR_QNAN)
-#endif
-               ))) {
+      if (expect_false(strEQc(enc->cur, STR_INF)))
         inf_or_nan = 1;
+#if defined(__hpux)
+      else if (expect_false(strEQc(enc->cur, STR_NEG_INF)))
+        inf_or_nan = 2;
+      else if (expect_false(strEQc(enc->cur, STR_NEG_NAN)))
+        inf_or_nan = 3;
+#endif
+      else if
+#ifdef HAVE_QNAN
+        (expect_false(strEQc(enc->cur, STR_NAN)
+                   || strEQc(enc->cur, STR_QNAN)))
+#else
+        (expect_false(strEQc(enc->cur, STR_NAN)))
+#endif
+        inf_or_nan = 3;
+      else if (*enc->cur == '-') {
+        if (expect_false(strEQc(enc->cur+1, STR_INF)))
+          inf_or_nan = 2;
+        else if
+#ifdef HAVE_QNAN
+          (expect_false(strEQc(enc->cur+1, STR_NAN)
+                     || strEQc(enc->cur+1, STR_QNAN)))
+#else
+          (expect_false(strEQc(enc->cur+1, STR_NAN)))
+#endif
+          inf_or_nan = 3;
+      }
+      if (expect_false(inf_or_nan)) {
+#if defined(HAVE_ISINF) && defined(HAVE_ISNAN)
+      is_inf_or_nan:
+#endif
         if (enc->json.infnan_mode == 0) {
           strncpy(enc->cur, "null\0", 5);
         }
@@ -1227,8 +1277,16 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
           *(enc->cur + l+1) = '"';
           *(enc->cur + l+2) = 0;
         }
+        else if (enc->json.infnan_mode == 3) {
+          if (inf_or_nan == 1)
+            strncpy(enc->cur, "\"inf\"\0", 6);
+          else if (inf_or_nan == 2)
+            strncpy(enc->cur, "\"-inf\"\0", 7);
+          else if (inf_or_nan == 3)
+            strncpy(enc->cur, "\"nan\"\0", 6);
+        }
         else if (enc->json.infnan_mode != 2) {
-          croak ("invalid stringify_infnan mode %c. Must be 0, 1 or 2", enc->json.infnan_mode);
+          croak ("invalid stringify_infnan mode %c. Must be 0, 1, 2 or 3", enc->json.infnan_mode);
         }
       }
       if (SvPOKp (sv) && !strEQ(enc->cur, SvPVX (sv))) {
@@ -2718,7 +2776,7 @@ decode_sv (pTHX_ dec_t *dec)
         return decode_num (aTHX_ dec);
 
       case 't':
-        if (dec->end - dec->cur >= 4 && !memcmp (dec->cur, "true", 4))
+        if (dec->end - dec->cur >= 4 && memEQc(dec->cur, "true"))
           {
             dMY_CXT;
             dec->cur += 4;
@@ -2730,7 +2788,7 @@ decode_sv (pTHX_ dec_t *dec)
         break;
 
       case 'f':
-        if (dec->end - dec->cur >= 5 && !memcmp (dec->cur, "false", 5))
+        if (dec->end - dec->cur >= 5 && memEQc(dec->cur, "false"))
           {
             dMY_CXT;
             dec->cur += 5;
@@ -2742,7 +2800,7 @@ decode_sv (pTHX_ dec_t *dec)
         break;
 
       case 'n':
-        if (dec->end - dec->cur >= 4 && !memcmp (dec->cur, "null", 4))
+        if (dec->end - dec->cur >= 4 && memEQc(dec->cur, "null"))
           {
             dec->cur += 4;
             return newSVsv(&PL_sv_undef);
@@ -3079,7 +3137,7 @@ void new (char *klass)
         json_init ((JSON *)SvPVX (pv));
         XPUSHs (sv_2mortal (sv_bless (
            newRV_noinc (pv),
-           strEQ (klass, "Cpanel::JSON::XS") ? JSON_STASH : gv_stashpv (klass, 1)
+           strEQc (klass, "Cpanel::JSON::XS") ? JSON_STASH : gv_stashpv (klass, 1)
         )));
 }
 
@@ -3165,10 +3223,10 @@ int get_max_size (JSON *self)
 
 void stringify_infnan (JSON *self, IV infnan_mode = 1)
 	PPCODE:
-        self->infnan_mode = (unsigned char)infnan_mode;
-        if (self->infnan_mode > 2) {
-          croak ("invalid stringify_infnan mode %c. Must be 0, 1 or 2", self->infnan_mode);
+        if (infnan_mode > 3 || infnan_mode < 0) {
+          croak ("invalid stringify_infnan mode %d. Must be 0, 1, 2 or 3", (int)infnan_mode);
         }
+        self->infnan_mode = (unsigned char)infnan_mode;
         XPUSHs (ST (0));
         
 int get_stringify_infnan (JSON *self)
