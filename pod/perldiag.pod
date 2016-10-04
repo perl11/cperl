@@ -1917,20 +1917,6 @@ L<perlfunc/pack>.
 The following are used in lib/diagnostics.t for testing two =items that
 share the same description.  Changes here need to be propagated to there
 
-=item SECURITY: CVE-2012-1823 reverse/bind shell payload
-
-(S) Warn against the known CVE-2012-1823 phpcgi reverse/bind
-shell payloads, inspecting the content of C<-e>.
-
-=item SECURITY: Hash flood
-
-(S) If the collisions for a hash key lookup exceeds 128 tries
-(i.e. a linear search in a linked list), this qualifies as a malicious
-hash DoS (I<Denial of Service>) attack. Generally maximal 8 collisions
-appear in normal hash table usage. Every 8th such hash flood attack
-performs a C<sleep(2)> to limit the impact.
-(cperl only)
-
 =item Deep recursion on anonymous subroutine
 
 =item Deep recursion on subroutine "%s"
@@ -2815,7 +2801,7 @@ See L<perlunicode/User-Defined Character Properties> and L<perlsec>.
 
 (W types) The compiler found an argument with a declared type, which
 the needs to be converted at run-time. This warning usually points to
-a wrong type usage.
+a wrong type usage.  (cperl only)
 
 =item Integer overflow in format string for %s
 
@@ -2953,6 +2939,11 @@ instead, except within S<C<(?[   ])>>, where it is a fatal error.
 The S<<-- HERE> shows whereabouts in the regular expression the
 escape was discovered.
 
+=item Invalid for range iterator (%d .. %d)
+
+(F) A range with constant integers as a for loop cannot be reversed.
+(cperl only)
+
 =item Invalid function type %s
 
 (F) The declared type for the function must be a coretype or an existing
@@ -3065,7 +3056,7 @@ silently ignored.
 
 (F) The function cannot handle the declared type of the argument.
 E.g. tie or bless cannot use a typed arg with a coretype, as a
-coretype declaration guarantees no magic.
+coretype declaration guarantees no magic.  (cperl only)
 
 =item Invalid type for shaped array declaration
 Only coretypes are supported.
@@ -3532,11 +3523,6 @@ interpreter, especially if the word that is being warned about is
 (F) You can't pack a string by supplying a checksum, because the
 checksumming process loses information, and you can't go the other way.
 See L<perlfunc/unpack>.
-
-=item SECURITY: metasploit reverse/bind shell payload
-
-(S) Warn against 3 known metasploit/libxploit reverse/bind
-shell payloads, inspecting the content of C<-e>.
 
 =item Method for operation %s not found in package %s during blessing
 
@@ -4180,7 +4166,7 @@ This error might be detected at compile-time or run-time.
 If the called function is declared with a signature, and the error
 message includes "Want: \d, but got: 0", it might be that the call
 C<&$sub> without C<()> needs to be replaced with a C<goto \&sub;>.
-See L<perlcperl/Changed calls to signatures>.
+See L<perlcperl/Changed calls to signatures>.  (cperl only)
 
 =item Not enough format arguments
 
@@ -4545,6 +4531,12 @@ and then discovered it wasn't a context we know how to do a goto in.
 repeatedly, but each time something re-created entries in the glob.
 Most likely the glob contains an object with a reference back to
 the glob and a destructor that adds a new object to the glob.
+
+=item panic: hash key too long (%u)
+
+(P) A given hash key was longer then I32_MAX (2147483647) characters.
+Before cperl-5.25.1 and in perl5 upstream such hash keys were silently
+truncated to this number. (cperl only)
 
 =item panic: hv_riter_set riter %d must be >= -1
 
@@ -5247,7 +5239,7 @@ Doing so has no effect.
 
 (F) In a subroutine signature, you put a C<=> after a reference C<\>
 parameter.  A reference parameter cannot be assigned default values on
-subroutine entries.
+subroutine entries.  (cperl only)
 
 =item Reference to invalid group 0 in regex; marked by S<<-- HERE> in m/%s/
 
@@ -5399,6 +5391,26 @@ On the other hand, if you were actually hoping to treat the hash element
 as a list, you need to look into how references work, because Perl will
 not magically convert between scalars and lists for you.  See
 L<perlref>.
+
+=item SECURITY: CVE-2012-1823 reverse/bind shell payload
+
+(S) Warn against the known CVE-2012-1823 phpcgi reverse/bind
+shell payloads, inspecting the content of C<-e>.
+
+=item SECURITY: Hash flood
+
+(S) If the collisions for a hash key lookup exceeds 128 tries
+(i.e. a linear search in a linked list), this qualifies as a malicious
+hash DoS (I<Denial of Service>) attack. Generally maximal 8 collisions
+appear in normal hash table usage. Every 8th such hash flood attack
+performs a C<sleep(2)> to limit the impact.
+(cperl only)
+
+=item SECURITY: metasploit reverse/bind shell payload
+
+(S) Warn against 3 known metasploit/libxploit reverse/bind
+shell payloads, inspecting the content of C<-e>.
+(cperl only)
 
 =item Search pattern not terminated
 
@@ -5820,7 +5832,7 @@ the scope or until all closure references to it are destroyed.
 
 (F) A subroutine signature had more than 32767 individual parameter
 entries..  In the unlikely event that you need so many parameters,
-use a slurpy array instead.
+use a slurpy array instead.  (cperl only)
 
 =item Subroutine "%s" will not stay shared
 
@@ -6182,7 +6194,9 @@ BEGIN block.
 
 =item Too many elements
 
-(F) The array or hash cannot hold any more elements.
+(F) The array or hash cannot hold any more elements. (cperl only)
+In perl5 too many elements silently overflow to the other side, or
+with hash iterators, just iterate over half of the hash only.
 
 =item Too many )'s
 
@@ -6771,7 +6785,7 @@ inside an attribute handler for an anonymous subroutine.
 (W misc) The ":caller" attribute has no effect in pure perl subroutine
 declarations.  You applied it to a subroutine via
 L<attributes.pm|attributes>.  This is only valid as negated variant
-C<:-caller> on subroutines.
+C<:-caller> on subroutines.  (cperl only)
 
 =item Useless use of /d modifier in transliteration operator
 
@@ -7373,7 +7387,7 @@ before now.  Check your control flow.
 =item Wrong type %s, expected %s
 
 (W types) The type of the argument does not match the user-defined type of
-the function declaration.
+the function declaration.  (cperl only)
 
 =item %s "\x%X" does not map to Unicode
 

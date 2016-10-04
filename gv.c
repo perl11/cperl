@@ -204,6 +204,8 @@ Perl_newGP(pTHX_ GV *const gv)
     }
 
     PERL_HASH(hash, file, len);
+    if (UNLIKELY(len > I32_MAX))
+	Perl_croak(aTHX_ "panic: file name too long (%"UVuf")", (UV) len);
     gp->gp_file_hek = share_hek(file, len, hash);
     gp->gp_refcnt = 1;
 
@@ -416,6 +418,8 @@ Perl_gv_init_pvn(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len, U32 flag
     GvSTASH(gv) = stash;
     if (stash)
 	Perl_sv_add_backref(aTHX_ MUTABLE_SV(stash), MUTABLE_SV(gv));
+    if (UNLIKELY(len > I32_MAX))
+	Perl_croak(aTHX_ "panic: gv name too long (%"UVuf")", (UV) len);
     gv_name_set(gv, name, len, GV_ADD | ( flags & SVf_UTF8 ? SVf_UTF8 : 0 ));
     if (flags & GV_ADDMULTI || doproto)	/* doproto means it */
 	GvMULTI_on(gv);			/* _was_ mentioned */
@@ -513,6 +517,8 @@ S_maybe_add_coresub(pTHX_ HV * const stash, GV *gv,
     assert(gv || stash);
     assert(name);
 
+    if (UNLIKELY(len > I32_MAX))
+	Perl_croak(aTHX_ "panic: keyword name too long (%"UVuf")", (UV) len);
     if (!code) return NULL; /* Not a keyword */
     switch (code < 0 ? -code : code) {
      /* no support for \&CORE::infix;
@@ -3527,7 +3533,7 @@ Perl_gv_name_set(pTHX_ GV *gv, const char *name, U32 len, U32 flags)
 
     PERL_ARGS_ASSERT_GV_NAME_SET;
 
-    if (len > I32_MAX)
+    if (UNLIKELY(len > I32_MAX))
 	Perl_croak(aTHX_ "panic: gv name too long (%"UVuf")", (UV) len);
 
     if (!(flags & GV_ADD) && GvNAME_HEK(gv)) {

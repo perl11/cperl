@@ -9125,11 +9125,13 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 		dVAR;
 		U32 hash;
 		PERL_HASH(hash, name, namlen);
+                if (UNLIKELY(namlen > I32_MAX))
+                    Perl_croak(aTHX_ "panic: name too long (%"UVuf")", (UV) namlen);
 		CvNAME_HEK_set(cv,
 			       share_hek(name,
 					 name_is_utf8
-					    ? -(SSize_t)namlen
-					    :  (SSize_t)namlen,
+					    ? -(I32)namlen
+					    :  (I32)namlen,
 					 hash));
 	    }
 
@@ -9190,10 +9192,12 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
             dVAR;
 	    U32 hash;
 	    PERL_HASH(hash, name, namlen);
+            if (UNLIKELY(namlen > I32_MAX))
+                Perl_croak(aTHX_ "panic: name too long (%"UVuf")", (UV) namlen);
 	    CvNAME_HEK_set(cv, share_hek(name,
 					 name_is_utf8
-					    ? -(SSize_t)namlen
-					    :  (SSize_t)namlen,
+					    ? -(I32)namlen
+					    :  (I32)namlen,
 					 hash));
 	}
 	CvFILE_set_from_cop(cv, PL_curcop);
@@ -11274,9 +11278,9 @@ Perl_ck_require(pTHX_ OP *o)
                            SvPVX(sv));
             }
 	    PERL_HASH(hash, SvPVX(sv), SvCUR(sv));
-	    hek = share_hek(SvPVX(sv),
-			    (SSize_t)SvCUR(sv) * (SvUTF8(sv) ? -1 : 1),
-			    hash);
+            if (UNLIKELY(SvCUR(sv) > I32_MAX))
+                Perl_croak(aTHX_ "panic: name too long (%"UVuf")", (UV)SvCUR(sv));
+	    hek = share_hek(SvPVX(sv),(I32)SvCUR(sv) * (SvUTF8(sv) ? -1 : 1), hash);
 	    sv_sethek(sv, hek);
 	    unshare_hek(hek);
 	    SvFLAGS(sv) |= was_readonly;
@@ -11293,9 +11297,9 @@ Perl_ck_require(pTHX_ OP *o)
                 dVAR;
 		if (was_readonly) SvREADONLY_off(sv);
 		PERL_HASH(hash, s, len);
-		hek = share_hek(s,
-				SvUTF8(sv) ? -(SSize_t)len : (SSize_t)len,
-				hash);
+                if (UNLIKELY(len > I32_MAX))
+                    Perl_croak(aTHX_ "panic: name too long (%"UVuf")", (UV)len);
+		hek = share_hek(s, SvUTF8(sv) ? -(I32)len : (I32)len, hash);
 		sv_sethek(sv, hek);
 		unshare_hek(hek);
 		SvFLAGS(sv) |= was_readonly;
