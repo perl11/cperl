@@ -47,7 +47,7 @@ File::Path cpan/File-Path/lib/File/Path.pm 623799e76e11a756ca5e18749d8bc1bdc3800
 File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm ea210ef037088b8ff77db8a0c149e09032a4beab
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 168199650c952f9604d945bfc9d001ec1af31421
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm b89856c1b19567c7c8eff44ad61c3ca6ca88aeb8
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 944f7270329a49f63bc41e8e360cca9d21943b94
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
@@ -65,8 +65,6 @@ Storable dist/Storable/t/blessed.t 2c3a16fef7fa46e5c03660f5a650ea7837eea27a
 Storable dist/Storable/t/CVE-2015-1592.inc bf181780959ea55981e16c313c78d5a35dd04d06
 Storable dist/Storable/t/CVE-2015-1592.t af14503199305d624849ad020ed584a1d1115ab1
 Storable dist/Storable/t/huge.t 483041a0d9d059a86c5710b5307dd5f09099c1ea
-Term::ReadKey cpan/Term-ReadKey/genchars.pl bb25c74979c6139c3413d97df497329e5775cb19
-Term::ReadKey cpan/Term-ReadKey/Makefile.PL d205400c3c3947b6b3cebe2f8715fbfa76e63ed3
 Test::Harness cpan/Test-Harness/t/lib/NoFork.pm e96d39d98c176745a317e2d178713708f03e8cae
 Test::Harness cpan/Test-Harness/t/multiplexer.t 059fbbd8529bf73ba0615272ee85f1706cae734d
 Test::Harness cpan/Test-Harness/t/nofork.t 17a1bde6de588ca647cd89d3786e84a68164a45c

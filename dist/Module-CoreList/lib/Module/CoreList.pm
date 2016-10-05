@@ -13326,6 +13326,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'ExtUtils::Liblist::Kid'=> '8.04_06',
             'ExtUtils::Command::MM' => '8.04_04',
             'Storable'              => '3.01c',
+            'Term::ReadKey'         => '2.35',
         },
         removed => {
         }

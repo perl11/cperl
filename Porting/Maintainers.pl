@@ -1256,12 +1256,10 @@ use File::Glob qw(:case);
     },
 
     'Term::ReadKey' => {
-        'DISTRIBUTION' => 'JSTOWE/TermReadKey-2.33.tar.gz',
+        'DISTRIBUTION' => 'JSTOWE/TermReadKey-2.35.tar.gz',
         'FILES'        => q[cpan/Term-ReadKey],
         'EXCLUDED'     => [qr{^example}],
-        'CUSTOMIZED'   => [
-           qw( Makefile.PL genchars.pl )
-         ],
+        #'CUSTOMIZED'   => [ qw( Makefile.PL genchars.pl ) ],
     },
 
     'Test' => {

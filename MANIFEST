@@ -2475,7 +2475,7 @@ cpan/Term-Cap/test.pl			See if Term::Cap works
 cpan/Term-ReadKey/Configure.pm
 cpan/Term-ReadKey/genchars.pl
 cpan/Term-ReadKey/Makefile.PL
-cpan/Term-ReadKey/ReadKey.pm
+cpan/Term-ReadKey/ReadKey_pm.PL
 cpan/Term-ReadKey/ReadKey.xs
 cpan/Term-ReadKey/t/01_basic.t
 cpan/Term-ReadKey/t/02_terminal_functions.t
