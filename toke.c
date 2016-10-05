@@ -3509,7 +3509,7 @@ S_scan_const(pTHX_ char *start)
                                                UTF);
 		    if (! valid) {
 			yyerror(error);
-			continue;
+			uv = 0; /* drop through to ensure range ends are set */
 		    }
 		    goto NUM_ESCAPE_INSERT;
 		}
@@ -3527,7 +3527,7 @@ S_scan_const(pTHX_ char *start)
                                                UTF);
 		    if (! valid) {
 			yyerror(error);
-			continue;
+			uv = 0; /* drop through to ensure range ends are set */
 		    }
 		}
 
