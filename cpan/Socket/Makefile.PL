@@ -13,7 +13,7 @@ my $seq = 0;
 sub check_for
 {
     my %args = @_;
-    return if $ENV{PERL_CORE};
+    return if $ENV{PERL_CORE}; # already included in Configure probes
     return if defined $args{confkey} and defined $Config{$args{confkey}};
 
     require ExtUtils::CBuilder;
@@ -131,13 +131,14 @@ check_for(
     main    => "struct ipv6_mreq mreq; mreq.ipv6mr_interface = 0;"
 );
 
+# TODO: Needs adding to perl5 core before importing dual-life again.
+# Only done in cperl.
 check_for(
     confkey => "i_netinet_in_systm",
     define  => "I_NETINET_IN_SYSTM",
     header  => "#include <netinet/in_systm.h>",
 );
 
-# TODO: Needs adding to perl5 core before importing dual-life again
 check_for(
     confkey => "i_netinet_ip",
     define  => "I_NETINET_IP",
@@ -171,6 +172,7 @@ WriteMakefile(
     },
     MIN_PERL_VERSION => '5.006001',
     LICENSE       => 'perl',
+    SIGN          => 1,
     %makefile_args,
 );
 my @names = (

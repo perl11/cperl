@@ -125,8 +125,10 @@ L</"Warn on metasploit CVE-2015-1592">
 
 =item Config  6.22
 
-one more darwin fix for the wrong no library found warning
-for symlinked darwin libSystem.dylib libraries.
+protect sv in END during global destruction, esp. with B::C.
+fixes for missing . in @INC (cperl or -Dfortify_inc).
+Add C<i_netinet_in_systm>.
+Removed C<i_netinet6_in6>.
 
 =item YAML::XS  0.73
 
@@ -148,14 +150,21 @@ Fixes for older perls, esp. lexical $_ support.
 
 Reinstate the &DB::sub setter, but no UTF8 support yet.
 
-=item Config  6.22
+=item ExtUtils::Liblist::Kid 8.04_06
 
+one more darwin fix for the wrong no library found warning
+for symlinked darwin libSystem.dylib libraries.
+
+=item IO::Socket::IP 0.38
+
+From https://github.com/atoomic/IO-Socket-IP/
 protect sv in END during global destruction, esp. with B::C.
 fixes for missing . in @INC (cperl or -Dfortify_inc).
 
-=item YAML::LibYAML  0.71
+- Support setting custom socket options with new Sockopts
+  constructor parameter
 
-merged with new upstream libyaml 0.1.7 (2 minor fixes)
+- Restore blocking mode after ->connect errors [cpan #112334]
 
 =item Time::HiRes  1.9739
 
@@ -163,11 +172,15 @@ More Darwin thread fixes for clock_gettime,
 Sierra support,
 test improvements.
 
-=item Socket  2.024_03
+=item Socket  2.024_04
 
 Merge cpan 2.024 with our 2.021_02,
 plus fix some problems in their new code.
+
 Fixes for OpenBSD: Probe for F<netinet/in_systm.h>
+Removed C<i_netinet6_in6> probe.
+This was never used due to a typo.
+It cannot be used due to RFC 2553.
 
 =item DynaLoader  2.05c
 
@@ -285,18 +298,18 @@ XXX
 
 =head1 Configuration and Compilation
 
-XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
-go here.  Any other changes to the Perl build process should be listed here.
-However, any platform-specific changes should be listed in the
-L</Platform Support> section, instead.
-
-[ List changes as a =item entry ].
-
 =over 4
 
 =item *
 
-XXX
+Removed C<i_netinet6_in6> probe, and matching
+C<I_NETINET6_I6> F<config.h> define, which was a typo.
+This was added with cperl-5.22.2 and was never used due to the typo.
+It cannot be used due to RFC 2553.
+
+=item *
+
+Added C<i_netinet_in_systm> probe.
 
 =back
 
