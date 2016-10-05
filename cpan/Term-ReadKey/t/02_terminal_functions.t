@@ -1,7 +1,6 @@
 use strict;
 use warnings;
 
-
 use Test::More tests => 7;
 
 use Term::ReadKey;
@@ -29,7 +28,8 @@ SKIP:
             }
         }
     };
-    skip( 'Because Term::ReadKey need at least a tty to be useful', 1 ) if $@;
+    skip( 'Because Term::ReadKey need at least a tty to be useful', 7 ) if $@;
+
     *IN = *IN;    # Make single-use warning go away
     $|  = 1;
     no strict "subs";
@@ -37,19 +37,18 @@ SKIP:
     my $size2 = join( ",", GetTerminalSize("IN") );
     my $size3 = join( ",", GetTerminalSize(*IN) );
     my $size4 = join( ",", GetTerminalSize( \*IN ) );
-
+    #diag "TerminalSize=$size1, $size2, $size3, $size4";
     my $size_result=0;
     if ( ( $size1 eq $size2 ) && ( $size2 eq $size3 ) && ( $size3 eq $size4 ) ){
         $size_result = 1;
     }
     is($size_result, 1, "Comparing TerminalSize IN");
 
-    my $usable_terminal=0;
-    for (my $i = 1; $i < 6; $i++){
-        if ( &Term::ReadKey::termoptions() == $i ){
-            $usable_terminal = 1;
-            last;
-        }
+    my $usable_terminal = 0;
+    my $termoptions = Term::ReadKey::termoptions();
+    #diag "termoption=$termoptions";
+    if ($termoptions >= 1 && $termoptions < 6) {
+      $usable_terminal = 1;
     }
     is($usable_terminal, 1, "Manipulating the terminal.");
 
@@ -64,11 +63,13 @@ SKIP:
 
     eval {
         my @size = GetTerminalSize(OUT);
+        #diag "GetTerminalSize(OUT)=",join(",",@size);
     };
     is($@, '', "Check TerminalSize OUT");
 
     eval {
         my @speeds = GetSpeed();
+        #diag "GetSpeed=", join(",",@speeds);
     };
     is($@, '', "Check Terminal communication speed");
 
