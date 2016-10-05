@@ -4784,12 +4784,6 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$i_netinet_ip6   I_NETINET_IP6                /**/
 
-/* I_NETINET6_IN6:
- *     This symbol, if defined, indicates to the C program that it can
- *     include <netinet6/in6.h>.
- */
-#$i_netinet6_in6   I_NETINET6_I6                /**/
-
 /* I_POLL:
  *	This symbol, if defined, indicates that <poll.h> exists and
  *	should be included. (see also HAS_POLL)

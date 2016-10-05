@@ -1015,7 +1015,6 @@ i_netinettcp=''
 i_netinet_in_systm=''
 i_netinet_ip=''
 i_netinet_ip6=''
-i_netinet6_in6=''
 i_niin=''
 i_sysin=''
 i_poll=''
@@ -23433,10 +23432,6 @@ eval $inhdr
 set netinet/ip6.h i_netinet_ip6
 eval $inhdr
 
-: see if netinet6/in6.h is available
-set netinet6/in6.h i_netinet6_in6
-eval $inhdr
-
 : see if this is a poll.h system
 set poll.h i_poll
 eval $inhdr
@@ -25214,7 +25209,6 @@ i_netinettcp='$i_netinettcp'
 i_netinet_in_systm='$i_netinet_in_systm'
 i_netinet_ip='$i_netinet_ip'
 i_netinet_ip6='$i_netinet_ip6'
-i_netinet6_in6='$i_netinet6_in6'
 i_niin='$i_niin'
 i_poll='$i_poll'
 i_prot='$i_prot'

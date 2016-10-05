@@ -190,11 +190,15 @@ More Darwin thread fixes for clock_gettime,
 Sierra support,
 test improvements.
 
-=item Socket  2.024_03
+=item Socket  2.024_04
 
 Merge cpan 2.024 with our 2.021_02,
 plus fix some problems in their new code.
+
 Fixes for OpenBSD: Probe for F<netinet/in_systm.h>
+Removed C<i_netinet6_in6> probe.
+This was never used due to a typo.
+It cannot be used due to RFC 2553.
 
 =item B  1.62_04
 
@@ -354,6 +358,13 @@ L</Platform Support> section, instead.
 [ List changes as a =item entry ].
 
 =over 4
+
+=item *
+
+removed C<i_netinet6_in6> Config entry and probe, and matching
+C<I_NETINET6_I6> F<config.h> define, which was a typo.
+This was added with cperl-5.22.2 and was never used due to the typo.
+It cannot be used due to RFC 2553.
 
 =item *
 

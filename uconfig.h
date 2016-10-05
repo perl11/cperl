@@ -4749,12 +4749,6 @@
  */
 /*#define   I_NETINET_IP6                / **/
 
-/* I_NETINET6_IN6:
- *     This symbol, if defined, indicates to the C program that it can
- *     include <netinet6/in6.h>.
- */
-/*#define   I_NETINET6_I6                / **/
-
 /* I_POLL:
  *	This symbol, if defined, indicates that <poll.h> exists and
  *	should be included. (see also HAS_POLL)
@@ -5353,6 +5347,6 @@
 #endif
 
 /* Generated from:
- * 1e5e965aead2ab59cf9e5d7e4c7960dfa9945630105bcbd300df94149471a1de config_h.SH
- * e95b41ca67c0d495fbf0e67e14132c07df345fe1b4d13d570a4d89d0b5222e37 uconfig.sh
+ * 4ee5c88148d88899ed388b259801f2bc1e391294c6d29be7be325d17dcb17ace config_h.SH
+ * 75026e67ab2ca8a7b583afb6610b87b5f214a383329c042355453ce134f6fa14 uconfig.sh
  * ex: set ro: */
