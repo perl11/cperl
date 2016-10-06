@@ -362,16 +362,19 @@ BEGIN {
       eval q[sub PMf_ONCE(){ 0x0002 }];
     }
     if ($] > 5.021006) {
-      B->import(qw(SVf_PROTECT CVf_ANONCONST));
+      B->import(qw(SVf_PROTECT CVf_ANONCONST SVs_PADSTALE));
     } else {
-      eval q[sub SVf_PROTECT(){ 0x0 }
-             sub CVf_ANONCONST(){ 0x0 }]; # unused
+      eval q[sub SVf_PROTECT()  { 0x0 }
+             sub CVf_ANONCONST(){ 0x0 }
+             sub SVs_PADSTALE() { 0x0 }
+            ]; # unused
     }
   } else {
     eval q[sub SVs_GMG()    { 0x00002000 }
            sub SVs_SMG()    { 0x00004000 }
            sub SVf_PROTECT(){ 0x0 }
            sub CVf_ANONCONST(){ 0x0 }
+           sub SVs_PADSTALE() { 0x0 }
           ]; # unused
   }
   if ($] < 5.018) {
@@ -4210,9 +4213,15 @@ sub B::CV::save {
 
   # XXX how is ANON with CONST handled? CONST uses XSUBANY [GH #246]
   if ($isconst and !is_phase_name($cvname) and
-      ( ($PERL522 and !($CvFLAGS & (CVf_ANONCONST|CVf_CONST)))
-     or (!$PERL522 and !($CvFLAGS & CVf_ANON)) )
-     ) # skip const magic blocks (Attribute::Handlers)
+    (
+      (
+        $PERL522
+        and !( $CvFLAGS & SVs_PADSTALE )
+        and !( $CvFLAGS & CVf_WEAKOUTSIDE )
+        and !( $fullname && $fullname =~ qr{^File::Glob::GLOB} and ( $CvFLAGS & (CVf_ANONCONST|CVf_CONST) )  )
+      )
+      or (!$PERL522 and !($CvFLAGS & CVf_ANON)) )
+    ) # skip const magic blocks (Attribute::Handlers)
   {
     my $stash = $gv->STASH;
     #warn sprintf("$cvstashname\::$cvname 0x%x -> XSUBANY", $CvFLAGS) if $debug{cv};
