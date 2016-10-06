@@ -9,6 +9,8 @@ use Config;
 
 BEGIN { push @INC, "."; }
 use Configure;
+use constant SILENT =>
+  (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/ ? 1 : 0);
 
 #sub report {
 #	my($prog)=join(" ",@_);
@@ -98,11 +100,11 @@ print CCHARS "
 print CCHARS "#define HAVE_POLL_H\n" if CheckHeader("poll.h");
 print CCHARS "#define HAVE_SYS_POLL_H\n" if CheckHeader("sys/poll.h");
 
-print "\n";
+print "\n" unless SILENT;
 if(1) {
 	@values = sort { $possible{$a} cmp $possible{$b} or $a cmp $b } keys %possible;
 
-	print "Writing termio/termios section of cchars.h... ";
+	print "Writing termio/termios section of cchars.h... " unless SILENT;
 	print CCHARS "
 
 #ifdef CC_TERMIOS
@@ -251,7 +253,7 @@ TRTXS(XS_Term__ReadKey_SetControlChars)
 
 ";
 
-	print "Done.\n";
+	print "Done.\n" unless SILENT;
 
 }
 
@@ -260,7 +262,7 @@ undef %billy;
 if(@ARGV) { # If any argument is supplied on the command-line don't check sgtty
 	$SGTTY=0; #skip tests
 }  else {
-	print "Checking for sgtty...\n";
+	print "Checking for sgtty...\n" unless SILENT;
 
 	$SGTTY = CheckStructure("sgttyb","sgtty.h");
 #	$SGTTY = !Compile("
@@ -279,7 +281,7 @@ if(@ARGV) { # If any argument is supplied on the command-line don't check sgtty
 #ioctl(0,TIOCGETP,&s);
 #}");
 
-	print "	Sgtty ",($SGTTY?"":"NOT "),"found.\n";
+	print "	Sgtty ",($SGTTY?"":"NOT "),"found.\n" unless SILENT;
 }
 
 $billy{"ERASE"} = "s1.sg_erase";
@@ -288,7 +290,7 @@ $tchars=$ltchars=0;
 
 if($SGTTY) {
 
-	print "Checking sgtty...\n";
+	print "Checking sgtty...\n" unless SILENT;
 
 	$tchars = CheckStructure("tchars","sgtty.h");
 #	$tchars = !report(	'
@@ -296,7 +298,7 @@ if($SGTTY) {
 #struct tchars t;  
 #main() { ioctl(0,TIOCGETC,&t); }
 #');
-	print "	tchars structure found.\n" if $tchars;
+	print "	tchars structure found.\n" if $tchars and !SILENT;
 
 	$ltchars = CheckStructure("ltchars","sgtty.h");
 #	$ltchars = !report(	'
@@ -305,10 +307,10 @@ if($SGTTY) {
 #main() { ioctl(0,TIOCGLTC,&t); }
 #');
 
-	print "	ltchars structure found.\n" if $ltchars;
+	print "	ltchars structure found.\n" if $ltchars and !SILENT;
 
 
-	print "Checking symbols\n";
+	print "Checking symbols\n" unless SILENT;
 
 
 	for $c (sort keys %possible2) {
@@ -320,7 +322,7 @@ if($SGTTY) {
 #")) {
 		if($tchars and CheckField("tchars","t_$c","sgtty.h")) {
 
-			print "	t_$c ($possible2{$c}) found in tchars\n";
+			print "	t_$c ($possible2{$c}) found in tchars\n" unless SILENT;
 			$billy{$possible2{$c}} = "s2.t_$c";
 		}
 
@@ -330,7 +332,7 @@ if($SGTTY) {
 #main () { char c = s3.t_$c; }
 #")) {
 		elsif($ltchars and CheckField("ltchars","t_$c","sgtty.h")) {
-			print "	t_$c ($possible2{$c}) found in ltchars\n";
+			print "	t_$c ($possible2{$c}) found in ltchars\n" unless SILENT;
 			$billy{$possible2{$c}} = "s3.t_$c";
 		}
 
@@ -363,7 +365,7 @@ struct termstruct {
 	$struct .= "
 };";
 
-print "Writing sgtty section of cchars.h... ";
+print "Writing sgtty section of cchars.h... " unless SILENT;
 
 	print CCHARS "
 
@@ -489,7 +491,7 @@ TRTXS(XS_Term__ReadKey_SetControlChars)
 /* ex: set ro: */
 ";
 
-print "Done.\n";
+print "Done.\n" unless SILENT;
 
 
 
