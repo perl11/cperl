@@ -13297,7 +13297,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList::TieHashDelta'=> '5.20160728',
             'Module::CoreList::Utils'=> '5.20160807',
             'Config'                => '6.22',
-            'B::C'                  => '1.54_12',
+            'B::C'                  => '1.54_13',
             'DynaLoader'            => '2.05c',
             'B'                     => '1.62_04',
             'Devel::Peek'           => '1.23_01',

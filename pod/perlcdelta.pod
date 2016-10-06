@@ -253,7 +253,7 @@ no mathoms: call_sv instead of call_pv, get_cvs where available.
 
 use the new get_svs, get_avs, get_hvs macros.
 
-=item B-C  1.54_12
+=item B-C  1.54_13
 
 Better CopFILE_set,
 Fixup arenasize refcnt.
@@ -268,6 +268,9 @@ Use the new get_svs, get_avs, get_hvs macros.
 perlcc add --debug|-D
 Improve endav XSUB bump
 Abstract RITER_T and HVMAX_T for the various sizes, compat HEK_STATIC
+defer REGCOMP for \P{} properties
+change $sv->EXTFLAGS to compflags since 5.22 for CALLREGCOMP().
+turn off MGf_REFCOUNTED.
 
 =back
 

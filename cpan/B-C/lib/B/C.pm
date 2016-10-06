@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_12';
+our $VERSION = '1.54_13';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -531,7 +531,7 @@ my $CPERL55  = ( $Config{usecperl} and $] >= 5.025001 ); #HVMAX_T, RITER_T, ...
 my $CPERL52  = ( $Config{usecperl} and $] >= 5.022002 ); #sv_objcount, AvSTATIC, sigs
 my $CPERL51  = ( $Config{usecperl} );
 my $PERL524  = ( $] >= 5.023005 ); #xpviv sharing assertion
-my $PERL522  = ( $] >= 5.021006 ); #PADNAMELIST, IsCOW, padname_with_str
+my $PERL522  = ( $] >= 5.021006 ); #PADNAMELIST, IsCOW, padname_with_str, compflags
 my $PERL518  = ( $] >= 5.017010 );
 my $PERL514  = ( $] >= 5.013002 );
 my $PERL512  = ( $] >= 5.011 );
@@ -1281,6 +1281,16 @@ sub nvx ($) {
   $sval = '0' if $sval =~ /(NAN|inf)$/i;
   $sval .= '.00' if $sval =~ /^-?\d+$/;
   return $sval;
+}
+
+sub mg_RC_off {
+  my ($mg, $sym, $type) = @_;
+  warn "MG->FLAGS ",$mg->FLAGS," turn off MGf_REFCOUNTED\n" if $debug{mg};
+  if (!ref $sym) {
+    $init->add(sprintf("my_mg_RC_off(aTHX_ (SV*)$sym, %s);", cchar($type)));
+  } else {
+    $init->add(sprintf("my_mg_RC_off(aTHX_ (SV*)s\\_%x, %s);", $$sym, cchar($type)));
+  }
 }
 
 # for bytes and utf8 only
@@ -2491,6 +2501,21 @@ sub B::COP::save {
   savesym( $op, "(OP*)&cop_list[$ix]" );
 }
 
+# if REGCOMP can be called in init or deferred in init1
+sub re_does_swash {
+  my ($qstr, $pmflags) = @_;
+  # SWASHNEW, now needing a multideref GV. 0x5000000 is just a hack. can be more
+  if (($] >= 5.021006 and ($pmflags & 0x5000000 == 0x5000000))
+      # or any unicode property (#253). Note: \p{} breaks #242
+      or ($qstr =~ /\\P\{/)
+     )
+  {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 sub B::PMOP::save {
   my ( $op, $level, $fullname ) = @_;
   my ($replrootfield, $replstartfield, $gvsym) = ('NULL', 'NULL');
@@ -2591,6 +2616,7 @@ sub B::PMOP::save {
     unless $B::C::optimize_ppaddr;
   my $re = $op->precomp;
   if ( defined($re) ) {
+    my $initpm = $init;
     $Regexp{$$op} = $op;
     if ($PERL510) {
       # TODO minor optim: fix savere( $re ) to avoid newSVpvn;
@@ -2611,10 +2637,9 @@ sub B::PMOP::save {
       # some pm need early init (242), SWASHNEW needs some late GVs (GH#273)
       # esp with 5.22 multideref init. i.e. all \p{} \N{}, \U, /i, ...
       # But XSLoader and utf8::SWASHNEW itself needs to be early.
-      my $initpm = $init;
-      if (($utf8 and $] >= 5.013009 and $pmflags & 4) # needs SWASHNEW (case fold)
-          # also SWASHNEW, now needing a multideref GV. 0x5000000 is just a hack. can be more
-          or ($] >= 5.021006 and ($pmflags & 0x5000000 == 0x5000000))) {
+      if (($utf8 and $] >= 5.013009 and ($pmflags & 4 == 4)) # needs SWASHNEW (case fold)
+          or re_does_swash($qre, $pmflags))
+      {
         $initpm = $init1;
         warn sprintf("deferred PMOP %s %s 0x%x\n", $qre, $fullname, $pmflags) if $debug{sv};
       } else {
@@ -2868,6 +2893,7 @@ sub savepvn {
   }
   else {
     # If READONLY and FAKE use newSVpvn_share instead. (test 75)
+    # XXX IsCOW forgotten here. rather use a helper is_shared_hek()
     if ($PERL510 and $sv and (($sv->FLAGS & 0x09000000) == 0x09000000)) {
       warn sprintf( "Saving shared HEK %s to %s\n", cstring($pv), $dest ) if $debug{sv};
       my $hek = save_hek($pv,'',1);
@@ -2881,7 +2907,7 @@ sub savepvn {
         : ($sv and ref($sv) and $sv->can('CUR') and ref($sv) ne 'B::GV')
           ? $sv->CUR : length(pack "a*", $pv);
       if ($sv and IsCOW($sv) and ($B::C::cow or IsCOW_hek($sv))) {
-        $pv .= "\0\001";
+        $pv .= "\0\001\""; # XXX with unicode .= is sometimes wrong. add it after cstring
         $cstr = cstring($pv);
         $cur += 2;
       }
@@ -3317,14 +3343,16 @@ sub B::REGEXP::save {
   my $ix = $svsect->index;
   warn "Saving RX $cstr to sv_list[$ix]\n" if $debug{rx} or $debug{sv};
   if ($] > 5.011) {
+    my $pmflags = $PERL522 ? $sv->compflags : $sv->EXTFLAGS;
+    my $initpm = re_does_swash($cstr, $pmflags) ? $init1 : $init;
     if ($PERL518 and $sv->EXTFLAGS & RXf_EVAL_SEEN) {
-      $init->add("PL_hints |= HINT_RE_EVAL;");
+      $initpm->add("PL_hints |= HINT_RE_EVAL;");
     }
-    $init->add(# replace sv_any->XPV with struct regexp. need pv and extflags
+    $initpm->add(# replace sv_any->XPV with struct regexp. need pv and extflags
                sprintf("SvANY(&sv_list[%d]) = SvANY(CALLREGCOMP(newSVpvn(%s, %d), 0x%x));",
-                       $ix, $cstr, $cur, $sv->EXTFLAGS));
+                       $ix, $cstr, $cur, $pmflags));
     if ($PERL518 and $sv->EXTFLAGS & RXf_EVAL_SEEN) {
-      $init->add("PL_hints &= ~HINT_RE_EVAL;");
+      $initpm->add("PL_hints &= ~HINT_RE_EVAL;");
     }
   }
   if ($] < 5.017006) {
@@ -3659,7 +3687,7 @@ sub B::PVMG::save_magic {
     $len  = $mg->LENGTH;
     $magic .= $type;
     if ( $debug{mg} ) {
-      warn sprintf( "%s %s magic\n", $fullname, cchar($type) );
+      warn sprintf( "%s %s magic 0x%x\n", $fullname, cchar($type), $mg->FLAGS );
       #eval {
       #  warn sprintf( "magic %s (0x%x), obj %s (0x%x), type %s, ptr %s\n",
       #                B::class($sv), $$sv, B::class($obj), $$obj, cchar($type),
@@ -3690,6 +3718,9 @@ sub B::PVMG::save_magic {
       warn "MG->PTR is an SV*\n" if $debug{mg};
       $init->add(sprintf("sv_magic((SV*)s\\_%x, (SV*)s\\_%x, %s, (char *)%s, %d);",
                          $$sv, $$obj, cchar($type), $ptrsv, $len));
+      if (!($mg->FLAGS & 2)) {
+        mg_RC_off($mg, $sv, $type);
+      }
     }
     # coverage $Template::Stash::PRIVATE
     elsif ( $type eq 'r' ) { # qr magic, for 5.6 done in C.xs. test 20
@@ -3767,7 +3798,10 @@ CODE2
     else {
       $init->add(sprintf(
           "sv_magic((SV*)s\\_%x, (SV*)s\\_%x, %s, %s, %d);",
-          $$sv, $$obj, cchar($type), cstring($ptr), $len))
+          $$sv, $$obj, cchar($type), cstring($ptr), $len));
+      if (!($mg->FLAGS & 2)) {
+        mg_RC_off($mg, $sv, $type);
+      }
     }
   }
   $init->add(sprintf("SvREADONLY_on((SV*)s\\_%x);", $$sv))
@@ -5306,9 +5340,13 @@ sub B::GV::save {
       if ($PERL514 and $cvsym and $cvsym !~ /(get_cv|NULL|lexwarn)/ and $gv->MAGICAL) {
         my @magic = $gv->MAGIC;
         foreach my $mg (@magic) {
-          $init->add( "sv_magic((SV*)$sym, (SV*)$cvsym, '<', 0, 0);",
-                      "CvCVGV_RC_off($cvsym);"
-                    ) if $mg->TYPE eq '<';
+          if ($mg->TYPE eq '<') {
+            $init->add( "sv_magic((SV*)$sym, (SV*)$cvsym, '<', 0, 0);",
+                        "CvCVGV_RC_off($cvsym);");
+            if (!($mg->FLAGS & 2)) {
+              mg_RC_off($mg, $sym, '<'); # 390
+            }
+          }
         }
       }
     }
@@ -6439,6 +6477,15 @@ sub output_declarations {
 #define UNUSED 0
 #define sym_0 0
 
+static void
+my_mg_RC_off(pTHX_ SV* sv, int type) {
+  MAGIC *mg;
+  for (mg = SvMAGIC(sv); mg; mg = mg->mg_moremagic) {
+    if (mg->mg_type == type && (mg->mg_flags | MGf_REFCOUNTED))
+      mg->mg_flags &= ~MGf_REFCOUNTED;
+  }
+}
+
 EOT
   if ($PERL510 and IS_MSVC) {
     # initializing char * differs in levels of indirection from int
@@ -6449,7 +6496,7 @@ EOT
 
   # Need fresh re-hash of strtab. share_hek does not allow hash = 0
   if ( $PERL510 ) {
-    print <<'_EOT0';
+     print <<'_EOT0';
 PERL_STATIC_INLINE HEK *
 my_share_hek( pTHX_ const char *str, I32 len );
 #undef share_hek
