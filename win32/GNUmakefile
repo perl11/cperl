@@ -1453,6 +1453,7 @@ else
 	    $(PERLEXE_OBJ) $(PERLEXE_RES) $(PERLIMPLIB) $(LIBFILES) $(SETARGV_OBJ)
 	$(EMBED_EXE_MANI)
 endif
+	copy $(PERLEXE) ..\perl.exe
 	copy $(PERLEXE) $(WPERLEXE)
 	$(MINIPERL) -I..\lib bin\exetype.pl $(WPERLEXE) WINDOWS
 

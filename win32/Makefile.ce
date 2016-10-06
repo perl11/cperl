@@ -1001,6 +1001,7 @@ $(PERLEXE) : $(PERLDLL) $(CONFIGPM) $(XPERLEXEOBJS) $(PERLEXE_RES) $(STARTOBJS)
             -out:$(MACHINE)\perl.exe \
             -stack:0x100000 $(LINK_FLAGS) $(STARTOBJS) $(XPERLEXEOBJS) \
             $(PERLIMPLIB) $(PERLEXE_RES) $(LIBFILES)
+	copy $(MACHINE)\perl.exe $(PERLEXE)
 
 $(MACHINE)\perlmaince.obj : perlmaince.c
 	$(CC) $(CFLAGS_O) -UPERLDLL -Fo$(MACHINE)\ -c perlmaince.c
