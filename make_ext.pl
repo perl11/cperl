@@ -176,11 +176,16 @@ if (IS_WIN32) {
     push @ext, FindExt::nonxs_ext() if $nonxs;
     push @ext, 'DynaLoader' if $dynaloader;
 
-    foreach (sort @ext) {
+    my @other;
+    foreach (@ext) {
 	if (%incl and !exists $incl{$_}) {
-	    #warn "Skipping extension $_, not in inclusion list\n";
+	    warn "Skipping extension $_, not in inclusion list\n";
 	    next;
 	}
+        if ($_ eq 'Term/ReadKey') { # requires Win32, move to end
+            push @other, $_;
+            next;
+        }
 	if (exists $excl{$_}) {
 	    warn "Skipping extension $_, not ported to current platform";
 	    next;
@@ -190,6 +195,7 @@ if (IS_WIN32) {
 	    push @{$extra_passthrough{$_}}, 'LINKTYPE=static';
 	}
     }
+    push @extspec, @other;
 
     chdir '..'
 	or die "Couldn't chdir to build directory: $!"; # now in the Perl build
@@ -460,8 +466,8 @@ EOM
 	    # the Makefile.PL. Altering the atime and mtime backwards by 4
 	    # seconds seems to resolve the issue.
 	    eval {
-        my $ftime = (stat('Makefile.PL'))[9] - 4;
-        utime $ftime, $ftime, 'Makefile.PL';
+                my $ftime = (stat('Makefile.PL'))[9] - 4;
+                utime $ftime, $ftime, 'Makefile.PL';
 	    };
         } elsif ($mname =~ /\A(?:Carp
                             |ExtUtils::CBuilder
@@ -491,7 +497,8 @@ EOM
                         # or
                         # 2) add the file to regex of "safe" filenames earlier
                         #    in this function, that starts with ChangeLog
-                        die "FATAL - $0 has $mname in the list of simple extensions, but it now contains file '$problem' which we can't handle"
+                        die "FATAL - $0 has $mname in the list of simple extensions, "
+                           ."but it now contains file '$problem' which we can't handle"
                             if $problem eq $_;
                     }
                     # There's an unexpected file, but it seems to be something
