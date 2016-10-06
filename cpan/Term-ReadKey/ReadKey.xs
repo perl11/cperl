@@ -189,6 +189,11 @@
 /*#define DONT_USE_SSIZE*/
 
 
+/* 5.6.2 has it already */
+#ifndef StructCopy
+#  define StructCopy(s,d,t) Copy(s,d,1,t)
+#endif
+
 /* This bit is for OS/2 */
 
 #ifdef OS2
@@ -560,8 +565,10 @@ int termsizeoptions() {
 
 int SetTerminalSize(PerlIO *file,int width,int height,int xpix,int ypix)
 {
+#ifndef VIOMODE
 	char buffer[10];
 	int handle=PerlIO_fileno(file);
+#endif
 
 #ifdef VIOMODE
         return -1;
@@ -845,7 +852,8 @@ void ReadMode(PerlIO *file,int mode)
 
 	if(firsttime) {
 		firsttime=0; 
-		memcpy((void*)&savebuf,(void*)&work,sizeof(struct tbuffer));
+		/*memcpy((void*)&savebuf,(void*)&work,sizeof(struct tbuffer));*/
+                StructCopy(&work,&savebuf,struct tbuffer);
 		if(!hv_store(filehash,(char*)&handle,sizeof(int),
 			newSVpv((char*)&savebuf,sizeof(struct tbuffer)),0))
 			croak("Unable to stash terminal settings.\n");
@@ -855,7 +863,8 @@ void ReadMode(PerlIO *file,int mode)
 		SV ** temp;
 		if(!(temp=hv_fetch(filehash,(char*)&handle,sizeof(int),0))) 
 			croak("Unable to retrieve stashed terminal settings.\n");
-		memcpy(&savebuf,SvPV(*temp,PL_na),sizeof(struct tbuffer));
+		/*memcpy(&savebuf,SvPV(*temp,PL_na),sizeof(struct tbuffer));*/
+                StructCopy(SvPV(*temp,PL_na),&savebuf,struct tbuffer);
 		if(!(temp=hv_fetch(modehash,(char*)&handle,sizeof(int),0))) 
 			croak("Unable to retrieve stashed terminal mode.\n");
 		oldmode=SvIV(*temp);
@@ -988,13 +997,14 @@ void ReadMode(PerlIO *file,int mode)
 		disabled, along with flow control. Echo should be off.
 		CR/LF is not translated, along with 8-bit/parity */
 
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+                StructCopy(&savebuf,&work,struct tbuffer);
 
 		work.c_lflag &= ~(ICANON|ISIG|IEXTEN );
 		work.c_lflag &= ~(ECHO|ECHOE|ECHOK|ECHONL|ECHOCTL);
 		work.c_lflag &= ~(ECHOPRT|ECHOKE|FLUSHO|PENDIN|XCASE);
 		work.c_lflag |= NOFLSH;
-        work.c_iflag &= ~(IXOFF|IXON|IXANY|ICRNL|IMAXBEL|BRKINT);
+                work.c_iflag &= ~(IXOFF|IXON|IXANY|ICRNL|IMAXBEL|BRKINT);
 
 		if(((work.c_iflag & INPCK) != INPCK) ||
                    ((work.c_cflag & PARENB) != PARENB)) {
@@ -1013,12 +1023,13 @@ void ReadMode(PerlIO *file,int mode)
 		disabled, along with flow control. Echo should be off.
 		About the only thing left unchanged is 8-bit/parity */
 
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+                StructCopy(&savebuf,&work,struct tbuffer);
 
 		/*work.c_iflag = savebuf.c_iflag;*/
 		work.c_lflag &= ~(ICANON | ISIG | IEXTEN | ECHO);
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL|ECHOCTL|ECHOPRT|ECHOKE);
-        work.c_iflag &= ~(IXON | IXANY | BRKINT);
+                work.c_iflag &= ~(IXON | IXANY | BRKINT);
 		work.c_oflag = savebuf.c_oflag;
 		work.c_cc[VTIME] = 0;
 		work.c_cc[VMIN] = 1;
@@ -1029,9 +1040,9 @@ void ReadMode(PerlIO *file,int mode)
 		characters enabled, as should be flow control. Echo should
 		still be off */
 
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+                StructCopy(&savebuf,&work,struct tbuffer);
 
-		work.c_iflag = savebuf.c_iflag;
 		work.c_lflag &= ~(ICANON | ECHO);
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL|ECHOCTL|ECHOPRT|ECHOKE);
 		work.c_lflag |= ISIG | IEXTEN;
@@ -1047,17 +1058,14 @@ void ReadMode(PerlIO *file,int mode)
 		characters enabled, as should be flow control. Echo should
 		still be off */
 
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+                StructCopy(&savebuf,&work,struct tbuffer);
 
-		work.c_iflag = savebuf.c_iflag;
 		work.c_lflag |= ICANON|ISIG|IEXTEN;
 		work.c_lflag &= ~ECHO;
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL|ECHOCTL|ECHOPRT|ECHOKE);
 		/*work.c_iflag &= ~(IXON |IXOFF|IXANY);
-		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);
-		work.c_oflag = savebuf.c_oflag;
-		work.c_cc[VTIME] = savebuf.c_cc[VTIME];
-		work.c_cc[VMIN] = savebuf.c_cc[VMIN];*/
+		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);*/
 	}
 	else if(mode==1)
 	{
@@ -1065,27 +1073,20 @@ void ReadMode(PerlIO *file,int mode)
 		characters enabled, as should be flow control. Echo should
 		still be off */
 
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+                StructCopy(&savebuf,&work,struct tbuffer);
 
-		work.c_iflag = savebuf.c_iflag;
 		work.c_lflag |= ICANON|ECHO|ISIG|IEXTEN;
 		/*work.c_iflag &= ~(IXON |IXOFF|IXANY);
-		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);
-		work.c_oflag = savebuf.c_oflag;
-		work.c_cc[VTIME] = savebuf.c_cc[VTIME];
-		work.c_cc[VMIN] = savebuf.c_cc[VMIN];*/
+		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);*/
 	}
 	else if(mode==0){
 		/*work.c_lflag &= ~BITMASK; 
 		work.c_lflag |= savebuf.c_lflag & BITMASK;
-		work.c_oflag = savebuf.c_oflag;
-		work.c_cc[VTIME] = savebuf.c_cc[VTIME];
-		work.c_cc[VMIN] = savebuf.c_cc[VMIN];
-		work.c_iflag = savebuf.c_iflag;
 		work.c_iflag &= ~(IXON|IXOFF|IXANY);
 		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);*/
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
-		/*Copy(&work,&savebuf,1,sizeof(struct tbuffer));*/
+		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+                StructCopy(&savebuf,&work,struct tbuffer);
 
 		firsttime=1;
 	}	
@@ -1144,7 +1145,8 @@ void ReadMode(PerlIO *file,int mode)
 		flow control disabled, and unbuffered. CR/LF translation 
    	 	is off, and 8 bits if possible */
 
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+                StructCopy(&savebuf,&work,struct tbuffer);
 
 		work.c_lflag &= ~(ECHO | ISIG | ICANON | XCASE);
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL | TRK_IDEFAULT);
@@ -1162,11 +1164,11 @@ void ReadMode(PerlIO *file,int mode)
 		flow control disabled, and unbuffered. Parity is not
 		touched. */
 
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+                StructCopy(&savebuf,&work,struct tbuffer);
 
 		work.c_lflag &= ~(ECHO | ISIG | ICANON);
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL TRK_IDEFAULT);
-		work.c_iflag = savebuf.c_iflag;
 		work.c_iflag &= ~(IXON | IXOFF | IXANY | BRKINT);
 		work.c_oflag = savebuf.c_oflag;
 		work.c_cc[VMIN] = 1;
@@ -1176,15 +1178,14 @@ void ReadMode(PerlIO *file,int mode)
 		/* This mode tries to have echo off, signals enabled,
 		flow control as per the original setting, and unbuffered. */
 
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+                StructCopy(&savebuf,&work,struct tbuffer);
 
 		work.c_lflag &= ~(ECHO | ICANON);
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL | TRK_IDEFAULT);
 		work.c_lflag |= ISIG;
-		work.c_iflag = savebuf.c_iflag;
 		work.c_iflag &= ~(IXON | IXOFF | IXANY);
 		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);
-		work.c_oflag = savebuf.c_oflag;
 		work.c_cc[VMIN] = 1;
 		work.c_cc[VTIME] = 1;
 	 }
@@ -1192,49 +1193,34 @@ void ReadMode(PerlIO *file,int mode)
 		/* This mode tries to set echo on, signals on, and buffering
 		on, with flow control set to whatever it was originally. */
 
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+                StructCopy(&savebuf,&work,struct tbuffer);
 
 		work.c_lflag |= (ISIG | ICANON);
 		work.c_lflag &= ~ECHO;
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL | TRK_IDEFAULT);
-		work.c_iflag = savebuf.c_iflag;
 		work.c_iflag &= ~(IXON | IXOFF | IXANY);
 		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);
-		work.c_oflag = savebuf.c_oflag;
-		work.c_cc[VMIN] = savebuf.c_cc[VMIN];
-		work.c_cc[VTIME] = savebuf.c_cc[VTIME];
 		
 		/* This assumes turning ECHO and ICANON back on is
 		   sufficient to re-enable cooked mode. If this is a 
 		   problem, complain to me */
-
-		/* What the heck. We're already saving the entire buf, so
-		I'm now going to reset VMIN and VTIME too. Hope this works 
-		properly */
-		
 	 } 
 	 else if(mode==1) {
 		/* This mode tries to set echo on, signals on, and buffering
 		on, with flow control set to whatever it was originally. */
 
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+                StructCopy(&savebuf,&work,struct tbuffer);
 
 		work.c_lflag |= (ECHO | ISIG | ICANON);
-      work.c_iflag &= ~TRK_IDEFAULT;
-		work.c_iflag = savebuf.c_iflag;
+                work.c_iflag &= ~TRK_IDEFAULT;
 		work.c_iflag &= ~(IXON | IXOFF | IXANY);
 		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);
-		work.c_oflag = savebuf.c_oflag;
-		work.c_cc[VMIN] = savebuf.c_cc[VMIN];
-		work.c_cc[VTIME] = savebuf.c_cc[VTIME];
 		
 		/* This assumes turning ECHO and ICANON back on is
 		   sufficient to re-enable cooked mode. If this is a 
 		   problem, complain to me */
-
-		/* What the heck. We're already saving the entire buf, so
-		I'm now going to reset VMIN and VTIME too. Hope this works 
-		properly */
 	}		
 	 else if(mode==0) {
 		/* Put things back the way they were */
@@ -1244,7 +1230,8 @@ void ReadMode(PerlIO *file,int mode)
 		work.c_oflag = savebuf.c_oflag;
 		work.c_cc[VMIN] = savebuf.c_cc[VMIN];
 		work.c_cc[VTIME] = savebuf.c_cc[VTIME];*/
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+                StructCopy(&savebuf,&work,struct tbuffer);
+		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
 		firsttime=1;
 	 }
  	 else
@@ -1372,7 +1359,8 @@ void ReadMode(PerlIO *file,int mode)
 		 work.ltchar = savebuf.ltchar;
 #		endif
 #endif
-		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+                 /*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+                StructCopy(&savebuf,&work,struct tbuffer);
 		firsttime=1;
 	  }
  	  else
@@ -1424,7 +1412,7 @@ void ReadMode(PerlIO *file,int mode)
 		(void)hv_delete(modehash,(char*)&handle,sizeof(int),0);
 	} else {
 		if(!hv_store(modehash,(char*)&handle,sizeof(int),
-			newSViv(mode),0))
+                             newSViv(mode),0))
 			croak("Unable to stash terminal settings.\n");
 	}
 
