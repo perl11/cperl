@@ -413,6 +413,13 @@ well.
 A new API function, C<sv_set_undef(sv)>, has been added. This is
 equivalent to C<sv_setsv(sv, &PL_sv_undef)>, but is more efficient.
 
+=item *
+
+The function C<L<perlapi/utf8n_to_uvchr>> has been changed to not
+abandon searching for other malformations when the first one is
+encountered.  A call to it thus can generate multiple diagnostics,
+instead of just one.
+
 =back
 
 =head1 Selected Bug Fixes
