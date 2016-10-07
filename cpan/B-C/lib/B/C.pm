@@ -2910,8 +2910,7 @@ sub savepvn {
         : ($sv and ref($sv) and $sv->can('CUR') and ref($sv) ne 'B::GV')
           ? $sv->CUR : length(pack "a*", $pv);
       if ($sv and IsCOW($sv) and ($B::C::cow or IsCOW_hek($sv))) {
-        $pv .= "\0\001\""; # XXX with unicode .= is sometimes wrong. add it after cstring
-        $cstr = cstring($pv);
+        $cstr = substr($cstr,0,-1) . '\0\001"';
         $cur += 2;
       }
       warn sprintf( "Saving PV %s:%d to %s\n", $cstr, $cur, $dest ) if $debug{sv};
