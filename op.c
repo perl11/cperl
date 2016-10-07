@@ -162,7 +162,7 @@ const char * S_typename(pTHX_ const HV* stash)
         int l = HvNAMELEN(stash);
         if (!name)
             return NULL;
-        if (l > 6 && *name == 'm' && memEQs(name, 6, "main::"))
+        if (l > 6 && *name == 'm' && memEQc(name, "main::"))
             return name+6;
         else
             return name; /* custom blessed type or auto-created coretype */
@@ -9348,10 +9348,10 @@ S_clear_special_blocks(pTHX_ const char *const fullname,
     name = colon ? colon + 1 : fullname;
 
     if ((*name == 'B' && strEQc(name, "BEGIN"))
-        || (*name == 'E' && strEQc(name, "END"))
-        || (*name == 'U' && strEQc(name, "UNITCHECK"))
-        || (*name == 'C' && strEQc(name, "CHECK"))
-        || (*name == 'I' && strEQc(name, "INIT"))) {
+     || (*name == 'E' && strEQc(name, "END"))
+     || (*name == 'U' && strEQc(name, "UNITCHECK"))
+     || (*name == 'C' && strEQc(name, "CHECK"))
+     || (*name == 'I' && strEQc(name, "INIT"))) {
         if (!isGV(gv)) {
             (void)CvGV(cv);
             assert(isGV(gv));
@@ -11891,7 +11891,7 @@ core_types_t S_stash_to_coretype(pTHX_ const HV* stash)
         int l = HvNAMELEN(stash);
         if (!name)
             return type_none;
-        if (l>6 && memEQs(name, 6, "main::")) {
+        if (l>6 && memEQc(name, "main::")) {
             name += 6;
             l -= 6;
         }
@@ -12918,7 +12918,7 @@ Perl_ck_entersub_args_core(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 	op_free(entersubop);
 
 	if (opnum == OP_ENTEREVAL
-	 && GvNAMELEN(namegv)==9 && strnEQ(GvNAME(namegv), "evalbytes", 9))
+	 && GvNAMELEN(namegv)==9 && memEQc(GvNAME(namegv), "evalbytes"))
 	    flags |= OPpEVAL_BYTES <<8;
 	
 	switch (PL_opargs[opnum] & OA_CLASS_MASK) {
@@ -16741,7 +16741,7 @@ Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_cv,
 		CvGV(old_cv) && GvSTASH(CvGV(old_cv))
 	     && HvNAMELEN(GvSTASH(CvGV(old_cv))) == 7
 	     && (hvname = HvNAME(GvSTASH(CvGV(old_cv))),
-		 strEQc(hvname, "autouse"))
+		 memEQc(hvname, "autouse"))
 	     )
 	)
      || (is_const

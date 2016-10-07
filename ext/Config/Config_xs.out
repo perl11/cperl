@@ -265,7 +265,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1266
+#define TOTAL_KEYWORDS 1267
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 30
 #define MIN_HASH_VALUE 3
@@ -877,6 +877,7 @@ struct stringpool_t
     char stringpool_str1711[sizeof ("i8type")];
     char stringpool_str1715[sizeof ("d_shmctl")];
     char stringpool_str1717[sizeof ("d_PRIx64")];
+    char stringpool_str1718[sizeof ("sanitize_address")];
     char stringpool_str1719[sizeof ("sig_name_init")];
     char stringpool_str1721[sizeof ("d_j0l")];
     char stringpool_str1722[sizeof ("d_msg_ctrunc")];
@@ -2146,6 +2147,7 @@ static const struct stringpool_t stringpool_contents =
     "i8type",
     "d_shmctl",
     "d_PRIx64",
+    "sanitize_address",
     "sig_name_init",
     "d_j0l",
     "d_msg_ctrunc",
@@ -4290,7 +4292,8 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1717,		T_INV,0,ALN64I"@@d_PRIx64@@"},
-      {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1718,	T_INV,0,ALN64I"@@sanitize_address@@"},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1719,		T_INV,0,ALN64I"@@sig_name_init@@"},
       {XSCNO},
@@ -6798,7 +6801,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str8190,		T_INV,0,ALN64I"@@doubleinfbytes@@"}
     };
 
-#line 6801 "Config.xs"
+#line 6804 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

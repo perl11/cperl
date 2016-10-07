@@ -104,7 +104,16 @@ Measured 2-15% faster with normal scripts, not using tied hashes.
 =item *
 
 Use more C<strEQc>, C<strNEc> macros, when safe to use, i.e. the left
-buffer is big enough.
+buffer is big enough, now with Address Sanitizer fallbacks.
+
+The new fast buffer comparison macros C<strEQc> and C<strNEc> compare
+a full string including the final C<\0>, C<memEQc> and C<memNEc> just
+the start of a buffer, with constants strings. Note that valgrind and
+Address Sanitizer will complain about out of range access of the left
+side of the buffer. To access these buffers however is safe and will
+not lead to SIGBUS on stricter platforms.  To prevent valgrind from
+warning on this, you may want to define C<-DVALGRIND>, which uses a
+safe and slower fallback macro.
 
 =item *
 
@@ -229,9 +238,11 @@ It cannot be used due to RFC 2553.
 
 use the new get_svs, get_avs, get_hvs macros.
 
-=item Devel::Peek  1.23_01
+=item Devel::Peek  1.23_02
 
 use the new get_svs, get_avs, get_hvs macros.
+The flags where harmonized, missing names were added,
+most fields are now print in natural order as in the struct.
 
 =item File::Glob  1.26_01
 
@@ -277,6 +288,14 @@ Abstract RITER_T and HVMAX_T for the various sizes, compat HEK_STATIC
 defer REGCOMP for \P{} properties
 change $sv->EXTFLAGS to compflags since 5.22 for CALLREGCOMP().
 turn off MGf_REFCOUNTED.
+
+=item Exporter
+
+Exporter remained unchanged. But CORE support for the "used only once"
+warnings has been to restricted to the four magic names "EXPORT",
+"EXPORT_OK", "EXPORT_FAIL" and "EXPORT_TAGS". Other names starting
+with "EXPORT" will now throw the "used only once" warning as all other
+symbols.
 
 =back
 
@@ -396,6 +415,11 @@ L</Platform Support> section, instead.
 [ List changes as a =item entry ].
 
 =over 4
+
+=item *
+
+added C<sanitize_address> config entry and probe, and matching
+C<USE_SANITIZE_ADDRESS> F<config.h> define.
 
 =item *
 

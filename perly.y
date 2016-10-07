@@ -259,9 +259,8 @@ barestmt:	PLUGSTMT
 			  CV *fmtcv = PL_compcv;
 			  newFORM($2, $3, $4);
 			  $$ = (OP*)NULL;
-			  if (CvOUTSIDE(fmtcv) && !CvEVAL(CvOUTSIDE(fmtcv))) {
+			  if (CvOUTSIDE(fmtcv) && !CvEVAL(CvOUTSIDE(fmtcv)))
 			      pad_add_weakref(fmtcv);
-			  }
 			  parser->parsed_sub = 1;
 			}
 	|	SUB subname startsub
@@ -270,19 +269,18 @@ barestmt:	PLUGSTMT
 			    const char *const name =
 				SvPV_nolen_const(((SVOP*)$2)->op_sv);
 			    if (strEQc(name, "BEGIN") || strEQc(name, "END")
-			      || strEQc(name, "INIT") || strEQc(name, "CHECK")
-			      || strEQc(name, "UNITCHECK"))
+                             || strEQc(name, "INIT")  || strEQc(name, "CHECK")
+                             || strEQc(name, "UNITCHECK"))
 			      CvSPECIAL_on(PL_compcv);
 			  }
 			  else
-			  /* State subs inside anonymous subs need to be
-			     clonable themselves. */
-			  if (CvANON(CvOUTSIDE(PL_compcv))
-			   || CvCLONE(CvOUTSIDE(PL_compcv))
-			   || !PadnameIsSTATE(PadlistNAMESARRAY(CvPADLIST(
-						CvOUTSIDE(PL_compcv)
-					     ))[$2->op_targ]))
-			      CvCLONE_on(PL_compcv);
+                              /* State subs inside anonymous subs need to be
+                                 clonable themselves. */
+                              if (CvANON(CvOUTSIDE(PL_compcv))
+                                  || CvCLONE(CvOUTSIDE(PL_compcv))
+                                  || !PadnameIsSTATE(PadlistNAMESARRAY(CvPADLIST(
+                                         CvOUTSIDE(PL_compcv)))[$2->op_targ]))
+                                  CvCLONE_on(PL_compcv);
 			  parser->in_my = 0;
 			  parser->in_my_stash = NULL;
 			}
@@ -303,19 +301,18 @@ barestmt:	PLUGSTMT
 			    const char *const name =
 				SvPV_nolen_const(((SVOP*)$2)->op_sv);
 			    if (strEQc(name, "BEGIN") || strEQc(name, "END")
-			      || strEQc(name, "INIT") || strEQc(name, "CHECK")
-			      || strEQc(name, "UNITCHECK"))
-			      CvSPECIAL_on(PL_compcv);
+                             || strEQc(name, "INIT")  || strEQc(name, "CHECK")
+                             || strEQc(name, "UNITCHECK"))
+                                CvSPECIAL_on(PL_compcv);
 			  }
 			  else
-			  /* State subs inside anonymous subs need to be
-			     clonable themselves. */
-			  if (CvANON(CvOUTSIDE(PL_compcv))
-			   || CvCLONE(CvOUTSIDE(PL_compcv))
-			   || !PadnameIsSTATE(PadlistNAMESARRAY(CvPADLIST(
-						CvOUTSIDE(PL_compcv)
-					     ))[$2->op_targ]))
-			      CvCLONE_on(PL_compcv);
+                              /* State subs inside anonymous subs need to be
+                                 clonable themselves. */
+                              if (CvANON(CvOUTSIDE(PL_compcv))
+                               || CvCLONE(CvOUTSIDE(PL_compcv))
+                               || !PadnameIsSTATE(PadlistNAMESARRAY(CvPADLIST(
+                                      CvOUTSIDE(PL_compcv)))[$2->op_targ]))
+                                  CvCLONE_on(PL_compcv);
 			  parser->in_my = 0;
 			  parser->in_my_stash = NULL;
 			}
@@ -335,8 +332,7 @@ barestmt:	PLUGSTMT
 			  SvREFCNT_inc_simple_void(PL_compcv);
 			  $2->op_type == OP_CONST
 			      ? newATTRSUB($3, $2, NULL, $7, body)
-			      : newMYSUB($3, $2, NULL, $7, body)
-			  ;
+			      : newMYSUB($3, $2, NULL, $7, body);
 			  $$ = (OP*)NULL;
 			  intro_my();
 			  parser->parsed_sub = 1;

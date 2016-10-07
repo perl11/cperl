@@ -2300,7 +2300,7 @@ HvARRAY(hv)
             SSize_t extend_size;
 	    (void)hv_iterinit(hv);
             /* 2*HvUSEDKEYS() should never be big enough to truncate or wrap */
-	    assert(HvUSEDKEYS(hv) <= (SSize_t_MAX >> 1));
+	    /*assert(HvUSEDKEYS(hv) <= (SSize_t_MAX >> 1));*/
             extend_size = (SSize_t)HvUSEDKEYS(hv) * 2;
 	    EXTEND(sp, extend_size);
 	    while ((he = hv_iternext(hv))) {

@@ -663,11 +663,9 @@ PP(pp_gelem)
     sv = NULL;
     if (elem) {
 	/* elem will always be NUL terminated.  */
-	const char * const second_letter = elem + 1;
 	switch (*elem) {
 	case 'A':
-	    if (len == 5 && strEQc(second_letter, "RRAY"))
-	    {
+	    if (len == 5 && memEQc(elem, "ARRAY")) {
 		tmpRef = MUTABLE_SV(GvAV(gv));
 		if (tmpRef && !AvREAL((const AV *)tmpRef)
 		 && AvREIFY((const AV *)tmpRef))
@@ -675,42 +673,41 @@ PP(pp_gelem)
 	    }
 	    break;
 	case 'C':
-	    if (len == 4 && strEQc(second_letter, "ODE"))
+	    if (len == 4 && memEQc(elem, "CODE"))
 		tmpRef = MUTABLE_SV(GvCVu(gv));
 	    break;
 	case 'F':
-	    if (len == 10 && strEQc(second_letter, "ILEHANDLE")) {
+	    if (len == 10 && memEQc(elem, "FILEHANDLE")) {
 		tmpRef = MUTABLE_SV(GvIOp(gv));
 	    }
-	    else
-		if (len == 6 && strEQc(second_letter, "ORMAT"))
-		    tmpRef = MUTABLE_SV(GvFORM(gv));
+	    else if (len == 6 && memEQc(elem, "FORMAT"))
+                tmpRef = MUTABLE_SV(GvFORM(gv));
 	    break;
 	case 'G':
-	    if (len == 4 && strEQc(second_letter, "LOB"))
+	    if (len == 4 && memEQc(elem, "GLOB"))
 		tmpRef = MUTABLE_SV(gv);
 	    break;
 	case 'H':
-	    if (len == 4 && strEQc(second_letter, "ASH"))
+	    if (len == 4 && memEQc(elem, "HASH"))
 		tmpRef = MUTABLE_SV(GvHV(gv));
 	    break;
 	case 'I':
-	    if (*second_letter == 'O' && !elem[2] && len == 2)
+	    if (*(elem+1) == 'O' && len == 2)
 		tmpRef = MUTABLE_SV(GvIOp(gv));
 	    break;
 	case 'N':
-	    if (len == 4 && strEQc(second_letter, "AME"))
+	    if (len == 4 && memEQc(elem, "NAME"))
 		sv = newSVhek(GvNAME_HEK(gv));
 	    break;
 	case 'P':
-	    if (len == 7 && strEQc(second_letter, "ACKAGE")) {
+	    if (len == 7 && memEQc(elem, "PACKAGE")) {
 		const HV * const stash = GvSTASH(gv);
 		const HEK * const hek = stash ? HvNAME_HEK(stash) : NULL;
 		sv = hek ? newSVhek(hek) : newSVpvs("__ANON__");
 	    }
 	    break;
 	case 'S':
-	    if (len == 6 && strEQc(second_letter, "CALAR"))
+	    if (len == 6 && memEQc(elem, "SCALAR"))
 		tmpRef = GvSVn(gv);
 	    break;
 	}

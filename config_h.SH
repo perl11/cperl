@@ -5371,6 +5371,13 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$usecperl	USE_CPERL		/**/
 #endif
 
+/* USE_SANITIZE_ADDRESS:
+ *	This symbol, if defined, indicates that Perl is compiled with -fsanitize=address
+ */
+#ifndef USE_SANITIZE_ADDRESS
+#$sanitize_address	USE_SANITIZE_ADDRESS		/**/
+#endif
+
 /* PERL_HASH_FUNC_*:
  *	This symbol defines the used perl hash function variant.
  *      It is set in Configure or via -Dhash_func=, but can be left blank.

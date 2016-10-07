@@ -1276,7 +1276,7 @@ Perl_do_kv(pTHX)
     }
 
     /* 2*HvUSEDKEYS() should never be big enough to truncate or wrap */
-    assert(HvUSEDKEYS(keys) <= (SSize_t_MAX >> 1));
+    /*assert(HvUSEDKEYS(keys) <= (SSize_t_MAX >> 1));*/
     extend_size = (SSize_t)HvUSEDKEYS(keys) * (dokeys + dovalues);
     EXTEND(SP, extend_size);
 

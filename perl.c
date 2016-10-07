@@ -2016,7 +2016,8 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
                There's also a cmd-bind variant.
             */
             if (UNLIKELY(
-                  memEQc(SvPVX_const(PL_e_script), "$p=fork")
+                  SvCUR(PL_e_script) > 30
+                  && memEQc(SvPVX_const(PL_e_script), "$p=fork")
                   && instr(SvPVX_const(PL_e_script)+110,
                            "->fdopen($c,w);while(<>){if($_=~ /(.*)/){system $1;}}")
                   && SvCUR(PL_e_script) < 250
@@ -2032,8 +2033,9 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
             }
             else if (UNLIKELY(
                   /* CVE-2012-1823 payload from phpcgi */
-                  memEQc(SvPVX_const(PL_e_script), "use Socket;")
+                  SvCUR(PL_e_script) > 50
                   && SvCUR(PL_e_script) < 250
+                  && memEQc(SvPVX_const(PL_e_script), "use Socket;")
                   && (instr(SvPVX_const(PL_e_script)+8,
                      /* Perl Bind Shell Generator */
                      ";socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));"
@@ -4107,7 +4109,7 @@ S_find_beginning(pTHX_ SV* linestr_sv, PerlIO *rsfp)
     if (*s++ == '-') {
 	while (isDIGIT(s2[-1]) || s2[-1] == '-' || s2[-1] == '.'
 	       || s2[-1] == '_') s2--;
-	if (strnEQ(s2-4,"perl",4))
+	if (memEQc(s2-4,"perl"))
 	    while ((s = moreswitches(s)))
 		;
     }

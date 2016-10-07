@@ -5336,6 +5336,13 @@
 /*#define	USE_CPERL		/ **/
 #endif
 
+/* USE_SANITIZE_ADDRESS:
+ *	This symbol, if defined, indicates that Perl is compiled with -fsanitize=address
+ */
+#ifndef USE_SANITIZE_ADDRESS
+/*#define	USE_SANITIZE_ADDRESS		/ **/
+#endif
+
 /* PERL_HASH_FUNC_*:
  *	This symbol defines the used perl hash function variant.
  *      It is set in Configure or via -Dhash_func=, but can be left blank.
@@ -5347,6 +5354,6 @@
 #endif
 
 /* Generated from:
- * 4ee5c88148d88899ed388b259801f2bc1e391294c6d29be7be325d17dcb17ace config_h.SH
- * 75026e67ab2ca8a7b583afb6610b87b5f214a383329c042355453ce134f6fa14 uconfig.sh
+ * 52eb080e7187284cf9e423ae0fbcb3813d064c9f38317ba2b36f4843f5738966 config_h.SH
+ * cd2652c60797d3312efde451c31b8e63d0ce285f8975ffb3131ab97038184742 uconfig.sh
  * ex: set ro: */
