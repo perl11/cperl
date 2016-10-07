@@ -385,6 +385,7 @@ asctime_r_proto=''
 d_asctime_r=''
 d_asinh=''
 d_atanh=''
+sanitize_address='undef'
 d_attribute_deprecated=''
 d_attribute_format=''
 d_attribute_malloc=''
@@ -4775,6 +4776,12 @@ case "$gccversion" in
     *-fno-wrapv*|*-fsanitize=undefined*|*-fwrapv*) ;;
     *) ccflags="$ccflags -fwrapv" ;;
     esac
+esac
+
+# define USE_SANITIZE_ADDRESS in config.h
+# TODO: add ldflags and lddlflags logic also
+case "$ccflags" in
+    *-fsanitize=address*|*-faddress-sanitizer*) sanitize_address=define ;;
 esac
 
 : What should the include directory be ?
@@ -25409,6 +25416,7 @@ rm_try='$rm_try'
 rmail='$rmail'
 run='$run'
 runnm='$runnm'
+sanitize_address='$sanitize_address'
 sGMTIME_max='$sGMTIME_max'
 sGMTIME_min='$sGMTIME_min'
 sLOCALTIME_max='$sLOCALTIME_max'

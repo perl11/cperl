@@ -497,13 +497,23 @@ Returns zero if non-equal, or non-zero if equal.
 	(sizeof(s2)-1 == l && memEQ(s1, ("" s2 ""), (sizeof(s2)-1)))
 #define memNEs(s1, l, s2) !memEQs(s1, l, s2)
 
-/* cperl only. if the buffer starts with the constant c */
+/* cperl only. if the buffer starts with the constant c.
+   But the left side must be big enough, or valgrind/asan will fail. */
 #define memEQc(s, c) memEQ(s, ("" c ""), (sizeof(c)-1))
 #define memNEc(s, c) memNE(s, ("" c ""), (sizeof(c)-1))
-/* the buffer ends with \0, includes comparison of the \0.
-   better than strEQ as it uses memcmp, word-wise comparison. */
-#define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
-#define strNEc(s, c) memNE(s, ("" c ""), sizeof(c))
+/* The buffer ends with \0, include comparison of the \0.
+   Better than strEQ as it uses memcmp, word-wise comparison. */
+/* if defined(__has_feature) && __has_feature(address_sanitizer)
+   would also be doable, but we rather rely on a probe. */
+#if defined(USE_SANITIZE_ADDRESS) || defined(VALGRIND)
+/* valgrind/asan safe variants using strcmp */
+# define strEQc(s, c) strEQ(s, ("" c ""))
+# define strNEc(s, c) strNE(s, ("" c ""))
+#else
+/* We don't end on page boundary protections, so no SIGBUS */
+# define strEQc(s, c) memEQ(s, ("" c ""), sizeof(c))
+# define strNEc(s, c) memNE(s, ("" c ""), sizeof(c))
+#endif
 
 /*
  * Character classes.

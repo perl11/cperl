@@ -83,20 +83,32 @@ and a branch checking for freed C<@_> elements has been removed,
 
 =item *
 
+The new C<strEQc>/C<strNEc> macros are used instead of
+C<strEQ(s,"constant")>. This enables word-wise comparison via memcpy,
+in opposite of byte-wise comparisons via strcmp with already known
+sizes. This is a 10% performance improvement under most optimization
+levels.
+
+Use more C<strEQc>, C<strNEc> macros, when safe to use, i.e. the left
+buffer is big enough, now with Address Sanitizer fallbacks.
+
+The new fast buffer comparison macros C<strEQc> and C<strNEc> compare
+a full string including the final C<\0>, C<memEQc> and C<memNEc> just
+the start of a buffer, with constants strings. Note that valgrind and
+Address Sanitizer will complain about out of range access of the left
+side of the buffer. To access these buffers however is safe and will
+not lead to SIGBUS on stricter platforms.  To prevent valgrind from
+warning on this, you may want to define C<-DVALGRIND>, which uses a
+safe and slower fallback macro.
+
+=item *
+
 aassign: pre-allocate needed hash size with aassign, similar to
 arrays, avoiding run-time hash splits.
 e.g. C<my %h = (.. => .., .. => ..)>
 
 This version is 30% faster overall in the Mail::SpamAssassin testsuite
 than cperl-5.24.0.
-
-=item *
-
-The new C<strEQc>/C<strNEc> macros are used instead of
-C<strEQ(s,"constant")>. This enables word-wise comparison via memcpy,
-in opposite of byte-wise comparisons via strcmp with already known
-sizes. This is a 10% performance improvement under most optimization
-levels.
 
 =back
 
@@ -331,7 +343,12 @@ XXX
 
 =item *
 
-Removed C<i_netinet6_in6> probe, and matching
+added C<sanitize_address> config entry and probe, and matching
+C<USE_SANITIZE_ADDRESS> F<config.h> define.
+
+=item *
+
+removed C<i_netinet6_in6> Config entry and probe, and matching
 C<I_NETINET6_I6> F<config.h> define, which was a typo.
 This was added with cperl-5.22.2 and was never used due to the typo.
 It cannot be used due to RFC 2553.

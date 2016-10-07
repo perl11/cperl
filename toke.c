@@ -5873,31 +5873,35 @@ Perl_yylex(pTHX)
 		}
 		else {
                     const char *pv = SvPVX(sv);
-		    if (len == 6 && strEQc(pv, "unique")) {
-			sv_free(sv);
-			if (PL_in_my == KEY_our) {
-			    deprecate(":unique");
-			}
-			else
-			    Perl_croak(aTHX_ "The 'unique' attribute may only be applied to 'our' variables");
-		    }
-
-		    /* NOTE: any CV attrs applied here need to be part of
-		       the CVf_BUILTIN_ATTRS define in cv.h! */
-		    else if (!PL_in_my && len == 6) {
-                        if (memEQc(pv, "lvalue")) {
+		    if (len == 6) {
+                        if (memEQc(pv, "unique")) {
                             sv_free(sv);
-                            CvLVALUE_on(PL_compcv);
+                            if (PL_in_my == KEY_our) {
+                                deprecate(":unique");
+                            }
+                            else
+                                Perl_croak(aTHX_ "The 'unique' attribute may only be applied to 'our' variables");
                         }
-                        else if (memEQc(pv, "locked")) {
-                            sv_free(sv);
-                            deprecate(":locked");
+                        /* NOTE: any CV attrs applied here need to be part of
+                           the CVf_BUILTIN_ATTRS define in cv.h! */
+                        else if (!PL_in_my) {
+                            if (memEQc(pv, "lvalue")) {
+                                sv_free(sv);
+                                CvLVALUE_on(PL_compcv);
+                            }
+                            else if (memEQc(pv, "locked")) {
+                                sv_free(sv);
+                                deprecate(":locked");
+                            }
+                            else if (memEQc(pv, "method")) {
+                                sv_free(sv);
+                                CvMETHOD_on(PL_compcv);
+                            }
+                            /* Scalar */
+                            else if (!find_in_coretypes(pv, len))
+                                goto load_attributes;
                         }
-                        else if (memEQc(pv, "method")) {
-                            sv_free(sv);
-                            CvMETHOD_on(PL_compcv);
-                        }
-                        else
+                        else if (!find_in_coretypes(pv, len))
                             goto load_attributes;
 		    }
 		    else if (

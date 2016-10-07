@@ -2012,26 +2012,19 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
                libxploit uses almost the same verbatim, metasploit just added ipv6 support.
                There's also a cmd-bind variant.
             */
-            if (UNLIKELY(
-                  SvCUR(PL_e_script) > 127
-                  && SvCUR(PL_e_script) < 250
-                  && memEQc(SvPVX_const(PL_e_script), "$p=fork")
+            if (UNLIKELY(SvCUR(PL_e_script) > 127 && SvCUR(PL_e_script) < 250)) {
+                if (UNLIKELY(
+                     memEQc(SvPVX_const(PL_e_script), "$p=fork")
                   && instr(SvPVX_const(PL_e_script)+110,
                            "->fdopen($c,w);while(<>){if($_=~ /(.*)/){system $1;}}")
                   && instr(SvPVX_const(PL_e_script),
                            ";foreach my $key(keys %ENV){if($ENV{$key}=~/(.*)/)"
-                           "{$ENV{$key}=$1;}}$c=new IO::Socket::INET")))
-            {
-                U8 oldwarn = PL_dowarn;
-                PL_dowarn |= G_WARN_ON;
-                set_caret_X();
-                warn_security("SECURITY: metasploit reverse/bind shell payload");
-                PL_dowarn = oldwarn;
-            }
-            else if (UNLIKELY(
+                           "{$ENV{$key}=$1;}}$c=new IO::Socket::INET"))) {
+                    warn_security("SECURITY: metasploit reverse/bind shell payload");
+                }
+                else if (UNLIKELY(
                   /* CVE-2012-1823 payload from phpcgi */
-                  memEQc(SvPVX_const(PL_e_script), "use Socket;")
-                  && SvCUR(PL_e_script) < 250
+                     memEQc(SvPVX_const(PL_e_script), "use Socket;")
                   && (instr(SvPVX_const(PL_e_script)+8,
                      /* Perl Bind Shell Generator */
                      ";socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));"
@@ -2043,14 +2036,11 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
                       ";socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));"
                       "if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");"
                       "open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/sh -i\");}"))))
-            {
-                U8 oldwarn = PL_dowarn;
-                PL_dowarn |= G_WARN_ON;
-                set_caret_X();
-                warn_security("SECURITY: CVE-2012-1823 reverse/bind shell payload");
-                PL_dowarn = oldwarn;
+                {
+                    warn_security("SECURITY: CVE-2012-1823 reverse/bind shell payload");
+                }
             }
-	    break;
+            break;
 
 	case 'f':
 #ifdef USE_SITECUSTOMIZE
@@ -4053,7 +4043,7 @@ S_find_beginning(pTHX_ SV* linestr_sv, PerlIO *rsfp)
     if (*s++ == '-') {
 	while (isDIGIT(s2[-1]) || s2[-1] == '-' || s2[-1] == '.'
 	       || s2[-1] == '_') s2--;
-	if (strnEQ(s2-4,"perl",4))
+	if (memEQc(s2-4,"perl"))
 	    while ((s = moreswitches(s)))
 		;
     }

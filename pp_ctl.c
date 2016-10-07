@@ -899,7 +899,7 @@ PP(pp_formline)
 			    *t++ = ' ';
 		    }
 		    s1 = t - 3;
-		    if (strnEQ(s1,"   ",3)) {
+		    if (memEQc(s1, "   ")) {
 			while (s1 > SvPVX_const(PL_formtarget) && isSPACE(s1[-1]))
 			    s1--;
 		    }
@@ -1239,7 +1239,7 @@ PP(pp_flop)
 	    SV *sv = newSVpvn_flags(lpv, llen, SvUTF8(left)|SVs_TEMP);
 	    while (!SvNIOKp(sv) && SvCUR(sv) <= len) {
 		XPUSHs(sv);
-	        if (strEQ(SvPVX_const(sv),tmps))
+	        if (strEQ(SvPVX_const(sv), tmps))
 	            break;
 		sv = sv_2mortal(newSVsv(sv));
 		sv_inc(sv);

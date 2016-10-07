@@ -824,10 +824,10 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
         /* fill, size, found index in collision list */
         DEBUG_H(PerlIO_printf(Perl_debug_log,
-                    "HASH %6u\t%6u\t%d [%u] * %s(0x%x)\t%s%s{%.*s}\n",
+                    "HASH %6u\t%6u\t%d [%u] * (0x%x)\t%s%s{%.*s}\n",
                     (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
                     (unsigned)HvHASH_INDEX(hash, HvMAX(hv)),
-                    action_name(action), action,
+                    action,
                     HvSHAREKEYS(hv)?"SHARE ":"",
                     HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
 	if (return_svp) {
@@ -839,10 +839,10 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
   not_found:
     /* fill, size, not found, size of collision list */
     DEBUG_H(PerlIO_printf(Perl_debug_log,
-                "HASH %6u\t%6u\t%d [%u] - %s(0x%x)\t%s%s{%.*s}\n",
+                "HASH %6u\t%6u\t%d [%u] - (0x%x)\t%s%s{%.*s}\n",
                 (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions,
                 (unsigned)HvHASH_INDEX(hash, HvMAX(hv)),
-                action_name(action), action,
+                action,
                 HvSHAREKEYS(hv)?"SHARE ":"",
                 HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
 #ifdef DYNAMIC_ENV_FETCH  /* %ENV lookup?  If so, try to fetch the value now */
@@ -1534,7 +1534,7 @@ S_hsplit(pTHX_ HV *hv, SSize_t const oldsize, SSize_t newsize)
             U32 j = (HeHASH(entry) & newsize);
 #ifdef DEBUGGING
             if (DEBUG_H_TEST_ && DEBUG_v_TEST_) {
-                PerlIO_printf(Perl_debug_log, "HASH split %d->%d\n",i,j);
+                PerlIO_printf(Perl_debug_log, "HASH split %ld->%d\n",(long)i,(int)j);
             }
 #endif
 	    if (j != i) {
@@ -3998,7 +3998,7 @@ Perl_hv_assert(pTHX_ HV *hv)
             assert(he->shared_he_he.hent_hek == hek);
         }
 	/* sanity check the keys */
-	if (HEK_IS_SVKEY(hek)) {
+	if (HEK_LEN(hek) == HEf_SVKEY) {
 	    NOOP;   /* Don't know what to check on SV keys.  */
 	} else if (HEK_UTF8(hek)) {
 	    withflags++;

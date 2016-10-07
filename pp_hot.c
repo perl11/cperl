@@ -4969,7 +4969,7 @@ S_opmethod_stash(pTHX_ SV* meth)
 		     && SvOBJECT(ob))))
     {
 	Perl_croak(aTHX_ "Can't call method \"%"SVf"\" on unblessed reference",
-		   SVfARG((SvSCREAM(meth) && strEQc(SvPV_nolen_const(meth),"isa"))
+		   SVfARG((SvSCREAM(meth) && strEQc(SvPV_nolen_const(meth), "isa"))
                                         ? newSVpvs_flags("DOES", SVs_TEMP)
                                         : meth));
     }
