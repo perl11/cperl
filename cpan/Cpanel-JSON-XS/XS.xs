@@ -2,7 +2,6 @@
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-#define NEED_PL_parser
 #define NEED_grok_number
 #define NEED_grok_numeric_radix
 #define NEED_newRV_noinc
