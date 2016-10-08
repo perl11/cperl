@@ -101,13 +101,14 @@ GV *
 Perl_gv_fetchfile_flags(pTHX_ const char *const name, const STRLEN namelen,
 			const U32 flags)
 {
-    char smallbuf[160];
+    static char smallbuf[160];
     char *tmpbuf;
-    const STRLEN tmplen = namelen + 2;
     GV *gv;
+    const STRLEN tmplen = namelen + 2;
 
     PERL_ARGS_ASSERT_GV_FETCHFILE_FLAGS;
     PERL_UNUSED_ARG(flags);
+    assert(namelen > 0);
 
     if (!PL_defstash)
 	return NULL;

@@ -1771,8 +1771,10 @@ S_incline(pTHX_ const char *s)
     PERL_ARGS_ASSERT_INCLINE;
 
     COPLINE_INC_WITH_HERELINES;
-    if (!PL_rsfp && !PL_parser->filtered && PL_lex_state == LEX_NORMAL
-     && s+1 == PL_bufend && *s == ';') {
+    if (!PL_rsfp && !PL_parser->filtered
+        && PL_lex_state == LEX_NORMAL
+        && s+1 == PL_bufend && *s == ';')
+    {
 	/* fake newline in string eval */
 	CopLINE_dec(PL_curcop);
 	return;
