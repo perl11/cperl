@@ -7035,6 +7035,8 @@ Perl_sv_free2(pTHX_ SV *const sv, const U32 rc)
         Perl_dump_sv_child(aTHX_ sv);
 #else
     #ifdef DEBUG_LEAKING_SCALARS
+        /* This is a classic use-after-free, which valgrind and asan
+           will complain about */
         sv_dump(sv);
     #endif
 #ifdef DEBUG_LEAKING_SCALARS_ABORT

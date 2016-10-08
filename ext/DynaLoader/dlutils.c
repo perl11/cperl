@@ -465,7 +465,7 @@ XS(XS_DynaLoader_bootstrap)
                                 av_tostr(aTHX_ dirs), av_tostr(aTHX_ GvAV(PL_incgv))));
         /* last resort, let dl_findfile have a go in all known locations */
         if (AvFILLp(dirs) >= 0) {
-            AV *tmp = newAV();
+            AV *tmp = (AV*)sv_2mortal((SV*)newAV());
             for (i=0; i<=AvFILLp(dirs); i++) {
                 SV *dir = newSVpvs("-L");
                 sv_catsv(dir, AvARRAY(dirs)[i]);
@@ -473,11 +473,10 @@ XS(XS_DynaLoader_bootstrap)
             }
             AV_PUSH(tmp, modfname);
             file = dl_findfile(aTHX_ tmp, G_SCALAR);
-            SvREFCNT_dec_NN(tmp);
         }
         if (!file && AvFILLp(GvAV(PL_incgv)) >= 0) {
             AV *ori = GvAV(PL_incgv);
-            AV *tmp = newAV();
+            AV *tmp = (AV*)sv_2mortal((SV*)newAV());
             for (i=0; i<=AvFILLp(ori); i++) {
                 SV *dir = newSVpvs("-L");
                 sv_catsv(dir, AvARRAY(ori)[i]);
@@ -485,7 +484,6 @@ XS(XS_DynaLoader_bootstrap)
             }
             AV_PUSH(tmp, modfname);
             file = dl_findfile(aTHX_ tmp, G_SCALAR);
-            SvREFCNT_dec_NN(tmp);
         }
     }
     SvREFCNT_dec(modpname);
