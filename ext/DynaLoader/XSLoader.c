@@ -93,8 +93,12 @@ XS(XS_XSLoader_load) {
         SSize_t c = AvFILL(modparts) + 1;
         SSize_t i = SvCUR(file);
         char   *s = SvPVX_mutable(file);
+        if (!i || !c)
+            goto not_found;
+        if (c==1 && memEQc(s, "(eval "))
+            goto not_found;
         s += i-1;
-        for (; c>0 && i>=0 && *s; s--, i--) {
+        for (; c>0 && i>0 && *s; s--, i--) {
             if (*s == '/'
 #ifdef WINPATHSEP
                 || *s == '\\'
@@ -103,14 +107,12 @@ XS(XS_XSLoader_load) {
                 c--;
                 if (c==0) {
                     s[1] = 0;
-                    /* ensures ending / */
-                    SvCUR_set(file, i);
+                    SvCUR_set(file, i); /* ensures ending / */
                     break;
                 }
             }
         }
-        if (!SvCUR(file))
-            goto not_found;
+
         /* Must be absolute or in @INC. See RT #115808
          * Someone may have a #line directive that changes the file name, or
          * may be calling XSLoader::load from inside a string eval.  We cer-
