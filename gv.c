@@ -2436,10 +2436,19 @@ Perl_gv_efullname4(pTHX_ SV *sv, const GV *gv, const char *prefix, bool keepmain
     gv_fullname4(sv, egv ? egv : gv, prefix, keepmain);
 }
 
+/*
+=for apidoc gv_check
 
-/* recursively scan a stash and any nested stashes looking for entries
- * that need the "only used once" warning raised
- */
+Implements C<use warnings 'once';>
+
+Recursively scan a stash (i.e. I<package>) and any nested stashes
+looking for entries that need the "only used once" warning raised.
+
+Names starting with "_" and names not starting with a valid identifier
+are not reported, and neither names with the MULTI flag.
+
+=cut
+*/
 
 void
 Perl_gv_check(pTHX_ HV *stash)

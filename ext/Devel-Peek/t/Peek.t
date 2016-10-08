@@ -60,7 +60,10 @@ sub do_test {
 	if (open(IN, "peek$$")) {
 	    local $/;
 	    $pattern =~ s/  FLAGS = \\/  FLAGS = \$ADDR \\/g if $] >= 5.021011;
+	    $pattern =~ s/ AUX_FLAGS = 0/ AUX_FLAGS = 0x0 \\(\\)/mg if cperl and $] >= 5.025001;
+            # PERL_PERTURB_KEYS_RANDOM
 	    $pattern =~ s/\n    RAND = \$ADDR//mg if cperl and $] >= 5.022002;
+
 	    $pattern =~ s/\$ADDR/0x[[:xdigit:]]+/g;
 	    $pattern =~ s/\$FLOAT/(?:\\d*\\.\\d+(?:e[-+]\\d+)?|\\d+)/g;
 	    # handle DEBUG_LEAKING_SCALARS prefix

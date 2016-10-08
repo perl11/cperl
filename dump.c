@@ -1445,6 +1445,18 @@ const struct flag_to_name regexp_core_intflags_names[] = {
     {PREGf_ANCH_GPOS,       "ANCH_GPOS,"},
 };
 
+const struct flag_to_name hv_aux_flags_names[] = {
+    {HvAUXf_SCAN_STASH, "SCAN_STASH,"},
+    {HvAUXf_NO_DEREF, "NO_DEREF,"},
+#ifdef HvAUXf_STATIC
+    {HvAUXf_STATIC, "STATIC,"},
+#endif
+#ifdef HvAUXf_SMALL
+    {HvAUXf_SMALL, "SMALL,"},
+#endif
+};
+
+
 /* Perl_do_sv_dump():
  *
  * level:   amount to indent the output
@@ -1721,8 +1733,10 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	U32 usedkeys;
         if (SvOOK(sv)) {
             struct xpvhv_aux *const aux = HvAUX(sv);
-            Perl_dump_indent(aTHX_ level, file, "  AUX_FLAGS = %"UVuf"\n",
-                             (UV)aux->xhv_aux_flags);
+            sv_setpvs(d, "");
+            SV_SET_STRINGIFY_FLAGS(d,aux->xhv_aux_flags,hv_aux_flags_names);
+            Perl_dump_indent(aTHX_ level, file, "  AUX_FLAGS = 0x%"UVxf" (%s)\n",
+                             (UV)aux->xhv_aux_flags, SvCUR(d) ? SvPVX_const(d) + 1 : "");
         }
 	Perl_dump_indent(aTHX_ level, file, "  ARRAY = 0x%"UVxf, PTR2UV(HvARRAY(sv)));
 	usedkeys = HvUSEDKEYS(sv);
