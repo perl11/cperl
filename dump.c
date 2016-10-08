@@ -1384,13 +1384,14 @@ const struct flag_to_name hv_flags_names[] = {
     {SVphv_CLONEABLE, "CLONEABLE,"}
 };
 
-const struct flag_to_name gp_flags_names[] = {
+const struct flag_to_name gv_flags_names[] = {
     {GVf_INTRO, "INTRO,"},
     {GVf_MULTI, "MULTI,"},
     {GVf_ASSUMECV, "ASSUMECV,"},
+    {GVf_STATIC, "STATIC,"},
 };
 
-const struct flag_to_name gp_flags_imported_names[] = {
+const struct flag_to_name gv_flags_imported_names[] = {
     {GVf_IMPORTED_SV, " SV"},
     {GVf_IMPORTED_AV, " AV"},
     {GVf_IMPORTED_HV, " HV"},
@@ -1483,7 +1484,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
     if ((flags & SVs_PADSTALE))
         sv_catpv(d, "PADSTALE,");
     if ((flags & SVs_PADTMP))
-	    sv_catpv(d, "PADTMP,");
+        sv_catpv(d, "PADTMP,");
     append_flags(d, flags, first_sv_flags_names);
     if (flags & SVf_ROK)  {	
     				sv_catpv(d, "ROK,");
@@ -1511,24 +1512,14 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	break;
     case SVt_PVGV:
     case SVt_PVLV:
-	if (isGV_with_GP(sv)) {
-	    append_flags(d, GvFLAGS(sv), gp_flags_names);
-	}
-	if (isGV_with_GP(sv) && GvIMPORTED(sv)) {
-	    sv_catpv(d, "IMPORT");
-	    if (GvIMPORTED(sv) == GVf_IMPORTED)
-		sv_catpv(d, "ALL,");
-	    else {
-		sv_catpv(d, "(");
-		append_flags(d, GvFLAGS(sv), gp_flags_imported_names);
-		sv_catpv(d, " ),");
-	    }
-	}
+	if (isGV_with_GP(sv))
+            sv_catpv(d, "with_GP,");
 	/* FALLTHROUGH */
     default:
     evaled_or_uv:
 	if (SvEVALED(sv))	sv_catpv(d, "EVALED,");
-	if (SvIsUV(sv) && !(flags & SVf_ROK))	sv_catpv(d, "IsUV,");
+	if (SvIsUV(sv) && !(flags & SVf_ROK))
+				sv_catpv(d, "IsUV,");
 	break;
     case SVt_PVMG:
         if (!SvSCREAM(sv)) {
@@ -2049,7 +2040,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 			 : "UNDEFINED"));
 	}
 	if (CvOUTSIDE(sv)
-	 && (nest < maxnest && (CvCLONE(sv) || CvCLONED(sv))))
+         && (nest < maxnest && (CvCLONE(sv) || CvCLONED(sv))))
 	    do_sv_dump(level+1, file, MUTABLE_SV(CvOUTSIDE(sv)), nest+1, maxnest, dumpops, pvlim);
         if (CvHASSIG(sv))
             Perl_dump_indent(aTHX_ level, file, "  SIGOP = 0x%"UVxf"\n", PTR2UV(CvSIGOP(sv)));
@@ -2079,27 +2070,35 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
        }
 	Perl_dump_indent(aTHX_ level, file, "  NAMELEN = %"IVdf"\n", (IV)GvNAMELEN(sv));
 	do_hv_dump (level, file, "  GvSTASH", GvSTASH(sv));
-        SV_SET_STRINGIFY_FLAGS(d,GvFLAGS(sv),gp_flags_names);
+        SV_SET_STRINGIFY_FLAGS(d,GvFLAGS(sv),gv_flags_names);
+        if (GvIMPORTED(sv)) {
+            sv_catpv(d, "IMPORT");
+            if (GvIMPORTED(sv) == GVf_IMPORTED)
+                sv_catpv(d, "ALL,");
+            else {
+                sv_catpv(d, "(");
+                append_flags(d, GvFLAGS(sv), gv_flags_imported_names);
+                sv_catpv(d, " ),");
+            }
+        }
 	Perl_dump_indent(aTHX_ level, file, "  GvFLAGS = 0x%"UVxf" (%s)\n",
                          (UV)GvFLAGS(sv), SvPVX_const(d));
 	Perl_dump_indent(aTHX_ level, file, "  GP = 0x%"UVxf"\n", PTR2UV(GvGP(sv)));
 	if (!GvGP(sv))
 	    break;
-	Perl_dump_indent(aTHX_ level, file, "    SV = 0x%"UVxf"\n", PTR2UV(GvSV(sv)));
+	Perl_dump_indent(aTHX_ level, file, "    SV   = 0x%"UVxf"\n", PTR2UV(GvSV(sv)));
+	Perl_dump_indent(aTHX_ level, file, "    IO   = 0x%"UVxf"\n", PTR2UV(GvIOp(sv)));
+	Perl_dump_indent(aTHX_ level, file, "    CV   = 0x%"UVxf"\n", PTR2UV(GvCV(sv)));
+	Perl_dump_indent(aTHX_ level, file, "    CVGEN  = 0x%"UVxf"\n", (UV)GvCVGEN(sv));
 	Perl_dump_indent(aTHX_ level, file, "    REFCNT = %"IVdf"\n", (IV)GvREFCNT(sv));
-	Perl_dump_indent(aTHX_ level, file, "    IO = 0x%"UVxf"\n", PTR2UV(GvIOp(sv)));
-	Perl_dump_indent(aTHX_ level, file, "    FORM = 0x%"UVxf"  \n", PTR2UV(GvFORM(sv)));
-	Perl_dump_indent(aTHX_ level, file, "    AV = 0x%"UVxf"\n", PTR2UV(GvAV(sv)));
-	Perl_dump_indent(aTHX_ level, file, "    HV = 0x%"UVxf"\n", PTR2UV(GvHV(sv)));
-	Perl_dump_indent(aTHX_ level, file, "    CV = 0x%"UVxf"\n", PTR2UV(GvCV(sv)));
-	Perl_dump_indent(aTHX_ level, file, "    CVGEN = 0x%"UVxf"\n", (UV)GvCVGEN(sv));
-	Perl_dump_indent(aTHX_ level, file, "    GPFLAGS = 0x%"UVxf
-					    " (%s)\n",
-			       (UV)GvGPFLAGS(sv),
-			       "");
+	Perl_dump_indent(aTHX_ level, file, "    HV   = 0x%"UVxf"\n", PTR2UV(GvHV(sv)));
+	Perl_dump_indent(aTHX_ level, file, "    AV   = 0x%"UVxf"\n", PTR2UV(GvAV(sv)));
+	Perl_dump_indent(aTHX_ level, file, "    FORM = 0x%"UVxf"\n", PTR2UV(GvFORM(sv)));
+	do_gv_dump            (level, file, "    EGV", GvEGV(sv));
 	Perl_dump_indent(aTHX_ level, file, "    LINE = %"IVdf"\n", (IV)GvLINE(sv));
+	Perl_dump_indent(aTHX_ level, file, "    GPFLAGS = 0x%"UVxf" (%s)\n",
+			       (UV)GvGPFLAGS(sv), "");
 	Perl_dump_indent(aTHX_ level, file, "    FILE = \"%s\"\n", GvFILE(sv));
-	do_gv_dump (level, file, "    EGV", GvEGV(sv));
 	break;
     case SVt_PVIO:
 	Perl_dump_indent(aTHX_ level, file, "  IFP = 0x%"UVxf"\n", PTR2UV(IoIFP(sv)));

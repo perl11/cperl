@@ -453,6 +453,7 @@ do_test('reference to regexp',
     STASH = $ADDR\\t"Regexp"');
 }
 
+# TODO: -DNODEFAULT_SHAREKEYS
 do_test('reference to blessed hash',
         (bless {}, "Tac"),
 'SV = $RV\\($ADDR\\) at $ADDR
@@ -471,9 +472,34 @@ do_test('reference to blessed hash',
 	     ? 0
 	     : 'The hash iterator used in dump.c sets the OOK flag');
 
-do_test('typeglob',
+if ($Config{usecperl} and $] >= 5.025001) {
+  # reordered naturally, and flags fixes
+  do_test('typeglob',
 	*a,
-'SV = PVGV\\($ADDR\\) at $ADDR
+ 'SV = PVGV\\($ADDR\\) at $ADDR
+  REFCNT = 6
+  FLAGS = 0x8009 \\(with_GP\\)
+  NAME = "a"
+  NAMELEN = 1
+  GvSTASH = $ADDR\\t"main"
+  GvFLAGS = 0x2 \\(MULTI\\)
+  GP = $ADDR
+    SV   = $ADDR
+    IO   = 0x0
+    CV   = 0x0
+    CVGEN  = 0x0
+    REFCNT = 1
+    HV   = 0x0
+    AV   = 0x0
+    FORM = 0x0
+    EGV = $ADDR\\t"a"
+    LINE = \\d+
+    GPFLAGS = 0x0 \\(\\)
+    FILE = ".*\\b(?i:Peek\\.t)"');
+} else {
+  do_test('typeglob',
+	*a,
+ 'SV = PVGV\\($ADDR\\) at $ADDR
   REFCNT = 5
   FLAGS = \\(MULTI(?:,IN_PAD)?\\)
   NAME = "a"
@@ -494,6 +520,7 @@ do_test('typeglob',
     FILE = ".*\\b(?i:peek\\.t)"
     FLAGS = $ADDR				# $] < 5.021004
     EGV = $ADDR\\t"a"');
+}
 
 if (ord('A') == 193) {
 do_test('string with Unicode',
