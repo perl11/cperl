@@ -2016,11 +2016,11 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
                There's also a cmd-bind variant.
             */
             if (UNLIKELY(
-                  SvCUR(PL_e_script) > 30
+                  SvCUR(PL_e_script) > 127
+                  && SvCUR(PL_e_script) < 250
                   && memEQc(SvPVX_const(PL_e_script), "$p=fork")
                   && instr(SvPVX_const(PL_e_script)+110,
                            "->fdopen($c,w);while(<>){if($_=~ /(.*)/){system $1;}}")
-                  && SvCUR(PL_e_script) < 250
                   && instr(SvPVX_const(PL_e_script),
                            ";foreach my $key(keys %ENV){if($ENV{$key}=~/(.*)/)"
                            "{$ENV{$key}=$1;}}$c=new IO::Socket::INET")))
@@ -2033,7 +2033,7 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
             }
             else if (UNLIKELY(
                   /* CVE-2012-1823 payload from phpcgi */
-                  SvCUR(PL_e_script) > 50
+                  SvCUR(PL_e_script) > 127
                   && SvCUR(PL_e_script) < 250
                   && memEQc(SvPVX_const(PL_e_script), "use Socket;")
                   && (instr(SvPVX_const(PL_e_script)+8,
@@ -4892,7 +4892,7 @@ S_mayberelocate(pTHX_ const char *const dir, STRLEN len, U32 flags)
 	 */
 	    const char *libpath = SvPVX(libdir);
 	    STRLEN libpath_len = SvCUR(libdir);
-	    if (libpath_len >= 4 && memEQ (libpath, ".../", 4)) {
+	    if (libpath_len >= 4 && memEQc(libpath, ".../")) {
 		/* Game on!  */
 		SV * const caret_X = get_svs("\030", 0);
 		/* Going to use the SV just as a scratch buffer holding a C
@@ -4931,7 +4931,7 @@ S_mayberelocate(pTHX_ const char *const dir, STRLEN len, U32 flags)
 		if (lastslash) {
 		    SV *tempsv;
 		    while ((*lastslash = '\0'), /* Do that, come what may.  */
-			   (libpath_len >= 3 && memEQ(libpath, "../", 3)
+			   (libpath_len >= 3 && memEQc(libpath, "../")
 			    && (lastslash = strrchr(prefix, '/')))) {
 			if (lastslash[1] == '\0'
 			    || (lastslash[1] == '.'
