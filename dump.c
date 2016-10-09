@@ -2367,8 +2367,9 @@ S_append_padvar(pTHX_ PADOFFSET off, CV *cv, SV *out, int n,
                                UTF8fARG(HvNAMEUTF8(typ), typlen, typname));
             }
             cur = SvCUR(out);
+            /* This enforces UTF8 on out */
             Perl_sv_catpvf(aTHX_ out, "%"UTF8f,
-                           UTF8fARG(1, PadnameLEN(pn), PadnamePV(pn)));
+                           UTF8fARG(PadnameUTF8(pn), PadnameLEN(pn), PadnamePV(pn)));
             if (force_sigil)
                 SvPVX(out)[cur] = force_sigil;
         }
@@ -2631,7 +2632,7 @@ Perl_signature_stringify(pTHX_ const OP *o, CV *cv)
     UV actions = (++items)->uv;
     UV action;
     PADOFFSET pad_ix = 0; /* init to avoid 'uninit' compiler warning */
-    SV *out = newSVpvn_flags("" ,0, SVs_TEMP);
+    SV *out = newSVpvn_flags("", 0, SVs_TEMP);
     bool first = TRUE;
 #ifdef USE_ITHREADS
     PADLIST * const padlist = CvPADLIST(cv);

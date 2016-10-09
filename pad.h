@@ -142,6 +142,7 @@ typedef enum {
 #define padadd_NO_DUP_CHECK	0x04	   /* skip warning on dups. */
 #define padadd_STALEOK		0x08	   /* allow stale lexical in active
 					    * sub, but only one level up */
+#define padadd_UTF8		0x10
 
 /* ASSERT_CURPAD_LEGAL and ASSERT_CURPAD_ACTIVE respectively determine
  * whether PL_comppad and PL_curpad are consistent and whether they have
@@ -232,7 +233,7 @@ slot.
 The length of the name.
 
 =for apidoc Amx|bool|PadnameUTF8|PADNAME pn
-Whether PadnamePV is in UTF-8.  Currently, this is always true.
+Whether PadnamePV is UTF-8. For non-cperl this returns always C<1>.
 
 =for apidoc Amx|SV *|PadnameSV|PADNAME pn
 Returns the pad name as a mortal SV.
@@ -319,9 +320,9 @@ Restore the old pad saved into the local variable C<opad> by C<PAD_SAVE_LOCAL()>
 
 #define PadnamePV(pn)		(pn)->xpadn_pv
 #define PadnameLEN(pn)		(pn)->xpadn_len
-#define PadnameUTF8(pn)		1
-#define PadnameSV(pn) \
-	newSVpvn_flags(PadnamePV(pn), PadnameLEN(pn), SVs_TEMP|SVf_UTF8)
+#define PadnameSV(pn)                             \
+    newSVpvn_flags(PadnamePV(pn), PadnameLEN(pn), \
+                   PadnameUTF8(pn) ? SVs_TEMP|SVf_UTF8 : SVs_TEMP)
 #define PadnameFLAGS(pn)	(pn)->xpadn_flags
 #define PadnameIsOUR(pn)	(!!(pn)->xpadn_ourstash)
 #define PadnameOURSTASH(pn)	(pn)->xpadn_ourstash
@@ -331,6 +332,7 @@ Restore the old pad saved into the local variable C<opad> by C<PAD_SAVE_LOCAL()>
 #define PadnameREFCNT_dec(pn)	Perl_padname_free(aTHX_ pn)
 #define PadnameOURSTASH_set(pn,s) (PadnameOURSTASH(pn) = (s))
 #define PadnameTYPE_set(pn,s)	  (PadnameTYPE(pn) = (s))
+#define PadnameUTF8(pn)		(PadnameFLAGS(pn) & PADNAMEt_UTF8)
 #define PadnameOUTER(pn)	(PadnameFLAGS(pn) & PADNAMEt_OUTER)
 #define PadnameIsSTATE(pn)	(PadnameFLAGS(pn) & PADNAMEt_STATE)
 #define PadnameLVALUE(pn)	(PadnameFLAGS(pn) & PADNAMEt_LVALUE)
@@ -343,11 +345,13 @@ Restore the old pad saved into the local variable C<opad> by C<PAD_SAVE_LOCAL()>
 #define PADNAMEt_LVALUE	4	/* used as lvalue */
 #define PADNAMEt_TYPED	8	/* for B; unused by core */
 #define PADNAMEt_OUR	16	/* for B; unused by core */
+#define PADNAMEt_UTF8	32	/* cperl only */
 
 /* backward compatibility */
 #define SvPAD_STATE		PadnameIsSTATE
 #define SvPAD_TYPED(pn)		(!!PadnameTYPE(pn))
 #define SvPAD_OUR(pn)		(!!PadnameOURSTASH(pn))
+#define SvPAD_UTF8(pn)		(!!PadnameUTF8(pn))
 #define SvPAD_STATE_on		PadnameIsSTATE_on
 #define SvPAD_TYPED_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_TYPED)
 #define SvPAD_OUR_on(pn)	(PadnameFLAGS(pn) |= PADNAMEt_OUR)
@@ -356,6 +360,7 @@ Restore the old pad saved into the local variable C<opad> by C<PAD_SAVE_LOCAL()>
 #define SVpad_STATE		PADNAMEt_STATE
 #define SVpad_TYPED		PADNAMEt_TYPED
 #define SVpad_OUR		PADNAMEt_OUR
+#define SVpad_UTF8		PADNAMEt_UTF8
 
 #ifdef DEBUGGING
 #  define PAD_SV(po)	   pad_sv(po)

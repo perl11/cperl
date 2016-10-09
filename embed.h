@@ -395,6 +395,7 @@
 #define newPADNAMELIST		Perl_newPADNAMELIST
 #define newPADNAMEouter		Perl_newPADNAMEouter
 #define newPADNAMEpvn		Perl_newPADNAMEpvn
+#define newPADNAMEpvn_flags	Perl_newPADNAMEpvn_flags
 #define newPMOP(a,b)		Perl_newPMOP(aTHX_ a,b)
 #define newPROG(a)		Perl_newPROG(aTHX_ a)
 #define newPVOP(a,b,c)		Perl_newPVOP(aTHX_ a,b,c)

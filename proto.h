@@ -3062,6 +3062,13 @@ PERL_CALLCONV PADNAME *	Perl_newPADNAMEpvn(const char *s, STRLEN len)
 #define PERL_ARGS_ASSERT_NEWPADNAMEPVN	\
 	assert(s)
 
+PERL_CALLCONV PADNAME *	Perl_newPADNAMEpvn_flags(const char *s, STRLEN len, U32 flags)
+			__attribute__malloc__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(1);
+#define PERL_ARGS_ASSERT_NEWPADNAMEPVN_FLAGS	\
+	assert(s)
+
 PERL_CALLCONV OP*	Perl_newPMOP(pTHX_ I32 type, I32 flags)
 			__attribute__malloc__
 			__attribute__warn_unused_result__;

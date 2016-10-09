@@ -590,6 +590,7 @@ flags can be OR'ed together:
  padadd_OUR          redundantly specifies if it's a package var
  padadd_STATE        variable will retain value persistently
  padadd_NO_DUP_CHECK skip check for lexical shadowing
+ padadd_UTF8
 
 =cut
 */
@@ -603,11 +604,11 @@ Perl_pad_add_name_pvn(pTHX_ const char *namepv, STRLEN namelen,
 
     PERL_ARGS_ASSERT_PAD_ADD_NAME_PVN;
 
-    if (flags & ~(padadd_OUR|padadd_STATE|padadd_NO_DUP_CHECK))
+    if (flags & ~(padadd_OUR|padadd_STATE|padadd_NO_DUP_CHECK|padadd_UTF8))
 	Perl_croak(aTHX_ "panic: pad_add_name_pvn illegal flag bits 0x%" UVxf,
 		   (UV)flags);
 
-    name = newPADNAMEpvn(namepv, namelen);
+    name = newPADNAMEpvn_flags(namepv, namelen, flags & padadd_UTF8 ? SVf_UTF8 : 0);
 
     if ((flags & padadd_NO_DUP_CHECK) == 0) {
 	ENTER;
@@ -676,7 +677,7 @@ Perl_pad_add_name_sv(pTHX_ SV *name, U32 flags, HV *typestash, HV *ourstash)
     char *namepv;
     STRLEN namelen;
     PERL_ARGS_ASSERT_PAD_ADD_NAME_SV;
-    namepv = SvPVutf8(name, namelen);
+    namepv = flags & padadd_UTF8 ? SvPVutf8(name, namelen) : SvPV(name, namelen);
     return pad_add_name_pvn(namepv, namelen, flags, typestash, ourstash);
 }
 
@@ -805,7 +806,7 @@ PADOFFSET
 Perl_pad_add_anon(pTHX_ CV* func, I32 optype)
 {
     PADOFFSET ix;
-    PADNAME * const name = newPADNAMEpvn("&", 1);
+    PADNAME * const name = newPADNAMEpvn_flags("&", 1, 0);
 
     PERL_ARGS_ASSERT_PAD_ADD_ANON;
     assert (SvTYPE(func) == SVt_PVCV);
@@ -834,7 +835,7 @@ void
 Perl_pad_add_weakref(pTHX_ CV* func)
 {
     const PADOFFSET ix = pad_alloc(OP_NULL, SVs_PADMY);
-    PADNAME * const name = newPADNAMEpvn("&", 1);
+    PADNAME * const name = newPADNAMEpvn_flags("&", 1, 0);
     SV * const rv = newRV_inc((SV *)func);
 
     PERL_ARGS_ASSERT_PAD_ADD_WEAKREF;
@@ -1864,24 +1865,24 @@ Perl_do_dump_pad(pTHX_ I32 level, PerlIO *file, PADLIST *padlist, int full)
 	if (namesv) {
 	    if (PadnameOUTER(namesv))
 		Perl_dump_indent(aTHX_ level+1, file,
-		    "%2d. 0x%"UVxf"<%lu> FAKE \"%s\" flags=0x%lx index=%lu\n",
+		    "%2d. 0x%"UVxf"<%lu> FAKE \"%s\"%s flags=0x%lx index=%lu\n",
 		    (int) ix,
 		    PTR2UV(ppad[ix]),
 		    (unsigned long) (ppad[ix] ? SvREFCNT(ppad[ix]) : 0),
-		    PadnamePV(namesv),
+		    PadnamePV(namesv), PadnameUTF8(namesv) ? "u" : "",
 		    (unsigned long)PARENT_FAKELEX_FLAGS(namesv),
 		    (unsigned long)PARENT_PAD_INDEX(namesv)
 
 		);
 	    else
 		Perl_dump_indent(aTHX_ level+1, file,
-		    "%2d. 0x%"UVxf"<%lu> (%lu,%lu) \"%s\"\n",
+		    "%2d. 0x%"UVxf"<%lu> (%lu,%lu) \"%s\"%s\n",
 		    (int) ix,
 		    PTR2UV(ppad[ix]),
 		    (unsigned long) (ppad[ix] ? SvREFCNT(ppad[ix]) : 0),
 		    (unsigned long)COP_SEQ_RANGE_LOW(namesv),
 		    (unsigned long)COP_SEQ_RANGE_HIGH(namesv),
-		    PadnamePV(namesv)
+                    PadnamePV(namesv), PadnameUTF8(namesv) ? "u" : ""
 		);
 	}
 	else if (full) {
@@ -1988,8 +1989,7 @@ S_cv_clone_pad(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned,
 	    || !CvPADLIST(outside)
 	    || CvPADLIST(outside)->xpadl_id != protopadlist->xpadl_outid) {
 	    outside = find_runcv_where(
-		FIND_RUNCV_padid_eq, PTR2IV(protopadlist->xpadl_outid), NULL
-	    );
+		FIND_RUNCV_padid_eq, PTR2IV(protopadlist->xpadl_outid), NULL);
 	    /* outside could be null */
 	}
       }
@@ -2050,7 +2050,7 @@ S_cv_clone_pad(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned,
 		       ing over other state subs’ entries, so we have
 		       to put a stub here and then clone into it on the
 		       second pass. */
-		    if (SvPAD_STATE(namesv) && !CvCLONED(ppad[ix])) {
+		    if (PadnameIsSTATE(namesv) && !CvCLONED(ppad[ix])) {
 			assert(SvTYPE(ppad[ix]) == SVt_PVCV);
 			subclones ++;
 			if (CvOUTSIDE(ppad[ix]) != proto)
@@ -2065,15 +2065,11 @@ S_cv_clone_pad(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned,
 			   upgrade to the real thing on scope entry. */
                         dVAR;
 			U32 hash;
-			PERL_HASH(hash, PadnamePV(namesv)+1,
-				  PadnameLEN(namesv) - 1);
+                        I32 heklen = 1 - PadnameLEN(namesv);
+			PERL_HASH(hash, PadnamePV(namesv)+1, heklen);
 			sv = newSV_type(SVt_PVCV);
-			CvNAME_HEK_set(
-			    sv,
-			    share_hek(PadnamePV(namesv)+1,
-				      1 - PadnameLEN(namesv),
-				      hash)
-			);
+			CvNAME_HEK_set(sv, share_hek(PadnamePV(namesv)+1,
+                            PadnameUTF8(namesv) ? -heklen : heklen, hash));
 			CvLEXICAL_on(sv);
 		    }
 		    else sv = SvREFCNT_inc(ppad[ix]);
@@ -2803,16 +2799,32 @@ Constructs and returns a new pad name.  C<s> must be a UTF-8 string.  Do not
 use this for pad names that point to outer lexicals.  See
 C<L</newPADNAMEouter>>.
 
+For backcompat the created name has always the UTF8 flag, see
+L</newPADNAMEpvn_flags> instead.
+
+=for apidoc newPADNAMEpvn_flags
+
+The variant for L</newPADNAMEpvn> which accepts a flags value of C<0>
+for non-utf8 names.  flags might be 0 or non-zero for UTF8.
+
 =cut
 */
 
 PADNAME *
 Perl_newPADNAMEpvn(const char *s, STRLEN len)
 {
+    PERL_ARGS_ASSERT_NEWPADNAMEPVN;
+    /* before all padnames were UTF8 */
+    return Perl_newPADNAMEpvn_flags(s, len, SVf_UTF8);
+}
+
+PADNAME *
+Perl_newPADNAMEpvn_flags(const char *s, STRLEN len, U32 flags)
+{
     struct padname_with_str *alloc;
     char *alloc2; /* for Newxz */
     PADNAME *pn;
-    PERL_ARGS_ASSERT_NEWPADNAMEPVN;
+    PERL_ARGS_ASSERT_NEWPADNAMEPVN_FLAGS;
     Newxz(alloc2,
 	  STRUCT_OFFSET(struct padname_with_str, xpadn_str[0]) + len + 1,
 	  char);
@@ -2823,6 +2835,8 @@ Perl_newPADNAMEpvn(const char *s, STRLEN len)
     Copy(s, PadnamePV(pn), len, char);
     *(PadnamePV(pn) + len) = '\0';
     PadnameLEN(pn) = len;
+    if (flags)
+        PadnameFLAGS(pn) |= PADNAMEt_UTF8;
     return pn;
 }
 
@@ -2848,7 +2862,7 @@ Perl_newPADNAMEouter(PADNAME *outer)
     /* Not PadnameREFCNT(outer), because ‘outer’ may itself close over
        another entry.  The original pad name owns the buffer.  */
     PadnameREFCNT(PADNAME_FROM_PV(PadnamePV(outer)))++;
-    PadnameFLAGS(pn) = PADNAMEt_OUTER;
+    PadnameFLAGS(pn) = PADNAMEt_OUTER | PadnameUTF8(outer);
     PadnameLEN(pn) = PadnameLEN(outer);
     return pn;
 }
@@ -2900,7 +2914,7 @@ Perl_padname_dup(pTHX_ PADNAME *src, CLONE_PARAMS *param)
 
     dst = PadnameOUTER(src)
      ? newPADNAMEouter(padname_dup(PADNAME_FROM_PV(PadnamePV(src)), param))
-     : newPADNAMEpvn(PadnamePV(src), PadnameLEN(src));
+        : newPADNAMEpvn_flags(PadnamePV(src), PadnameLEN(src), PadnameUTF8(src));
     ptr_table_store(PL_ptr_table, src, dst);
     PadnameLEN(dst) = PadnameLEN(src);
     PadnameFLAGS(dst) = PadnameFLAGS(src);

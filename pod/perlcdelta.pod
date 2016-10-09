@@ -83,6 +83,11 @@ and to turn it off, you have to turn off both categories.
 
 =item *
 
+Make all padnames not UTF8 per default, only the ones which are really UTF8.
+See L</Internal Changes> and L<[cperl #208]|https://github.com/perl11/cperl/issues/208>
+
+=item *
+
 Improvements when reading from arrays have been imported from perl5.
 C<av_fetch()> uses less branches reading from the end (negative indices),
 and a branch checking for freed C<@_> elements has been removed,
@@ -98,7 +103,8 @@ Measured 2-15% faster with normal scripts, not using tied hashes.
 
 =item *
 
-Use more C<strEQc>, C<strNEc> macros.
+Use more C<strEQc>, C<strNEc> macros, when safe to use, i.e. the left
+buffer is big enough.
 
 =item *
 
@@ -106,7 +112,7 @@ aassign: pre-allocate needed hash size with aassign, similar to
 arrays, avoiding run-time hash splits.
 e.g. C<my %h = (.. => .., .. => ..)>
 
-This version is 30% faster overall in the Mail::SpamAssassin testsuite
+This version is 30% faster overall in the L<Mail::SpamAssassin> testsuite
 than cperl-5.25.0.
 
 =item *
@@ -496,6 +502,12 @@ significant internal changes for future core maintainers should be noted as
 well.
 
 =over 4
+
+=item *
+
+Added a new L<perlapi/newPADNAMEpvn_flags> function which disables UTF8 via
+C<flags> of C<0>, a new L<perlapi/PadnameUTF8> macro, and new C<PADNAMEt_UTF8>
+and C<padadd_UTF8> bits.
 
 =item *
 

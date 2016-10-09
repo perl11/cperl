@@ -1031,6 +1031,7 @@ Apabm	|IO*	|newIO
 Apda	|OP*	|newLISTOP	|I32 type|I32 flags|NULLOK OP* first|NULLOK OP* last
 AMpdan	|PADNAME *|newPADNAMEouter|NN PADNAME *outer
 AMpdan	|PADNAME *|newPADNAMEpvn|NN const char *s|STRLEN len
+AMpdan	|PADNAME *|newPADNAMEpvn_flags|NN const char *s|STRLEN len|U32 flags
 AMpdan	|PADNAMELIST *|newPADNAMELIST|size_t max
 #ifdef USE_ITHREADS
 Apda	|OP*	|newPADOP	|I32 type|I32 flags|NN SV* sv
