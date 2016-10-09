@@ -4015,7 +4015,7 @@ S_validate_suid(pTHX_ PerlIO *rsfp)
             )
 	    if (!PL_do_undump)
 		Perl_croak(aTHX_ "YOU HAVEN'T DISABLED SET-ID SCRIPTS IN THE KERNEL YET!\n\
-FIX YOUR KERNEL, PUT A C WRAPPER AROUND THIS SCRIPT, OR USE -u AND UNDUMP!\n");
+FIX YOUR KERNEL, PUT A C WRAPPER AROUND THIS SCRIPT, OR COMPILE IT VIA perlcc OR USE -u AND UNDUMP!\n");
 	/* not set-id, must be wrapped */
     }
 }
