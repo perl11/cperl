@@ -6226,7 +6226,7 @@ Perl_yylex(pTHX)
 			PL_expect = XTERM;
 			break;
 		    }
-		    if (memEQc(s, "sub")) {
+		    if (strnEQ(s, "sub", 3)) {
 			d = s + 3;
 			d = skipspace(d);
 			if (*d == ':') {
