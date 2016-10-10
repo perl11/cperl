@@ -1093,8 +1093,10 @@ sub save_pv_or_rv {
           }
           $free->add("    SvFAKE_off(&$s);");
         } else {
-          if ($iscow and $cur) {
+          if ($iscow and $cur and $PERL518) {
             $len++;
+            $pv .= "\000\001";
+            $flags |= SVf_IsCOW;
           }
         }
       }
@@ -2931,9 +2933,15 @@ sub savepvn {
       if ($sv and IsCOW($sv) and ($B::C::cow or IsCOW_hek($sv))) {
         $cstr = substr($cstr,0,-1) . '\0\001"';
         $cur += 2;
+      } else {
+        if (length(pack "a*", $pv) != $cur && (!$cur || $cstr eq "")) {
+          warn sprintf( "Invalid CUR for %s:%d to %s\n", $cstr, $cur, $dest )
+            if $verbose;
+          $cur = length(pack "a*", $pv);
+        }
       }
       warn sprintf( "Saving PV %s:%d to %s\n", $cstr, $cur, $dest ) if $debug{sv};
-      $cur = 0 if $cstr eq "" and $cur == 7; # 317
+      #$cur = 0 if $cstr eq "" and $cur == 7; # 317
       push @init, sprintf( "%s = savepvn(%s, %u);", $dest, $cstr, $cur );
     }
   }
