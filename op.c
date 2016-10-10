@@ -4271,9 +4271,9 @@ OP *
 Perl_bind_match(pTHX_ I32 type, OP *left, OP *right)
 {
     OP *o;
-    bool ismatchop = 0;
     const OPCODE ltype = left->op_type;
     const OPCODE rtype = right->op_type;
+    bool ismatchop = 0;
 
     PERL_ARGS_ASSERT_BIND_MATCH;
 
@@ -4287,8 +4287,7 @@ Perl_bind_match(pTHX_ I32 type, OP *left, OP *right)
 		       )
 		       ? (int)rtype : OP_MATCH];
       const bool isary = ltype == OP_RV2AV || ltype == OP_PADAV;
-      SV * const name =
-	S_op_varname(aTHX_ left);
+      SV * const name = S_op_varname(aTHX_ left);
       if (name)
 	Perl_warner(aTHX_ packWARN(WARN_MISC),
              "Applying %s to %"SVf" will act on scalar(%"SVf")",
@@ -4771,17 +4770,17 @@ S_fold_constants(pTHX_ OP *o)
 {
     dVAR;
     OP * VOL curop;
-    OP *newop;
-    VOL I32 type = o->op_type;
-    bool is_stringify;
     SV * VOL sv = NULL;
-    int ret = 0;
+    COP not_compiling;
+    OP *newop;
     OP *old_next;
     SV * const oldwarnhook = PL_warnhook;
     SV * const olddiehook  = PL_diehook;
-    COP not_compiling;
-    U8 oldwarn = PL_dowarn;
+    int ret = 0;
+    VOL I32 type = o->op_type;
     I32 old_cxix;
+    U8 oldwarn = PL_dowarn;
+    bool is_stringify;
     dJMPENV;
 
     PERL_ARGS_ASSERT_FOLD_CONSTANTS;
@@ -6190,8 +6189,8 @@ Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, bool isreg, I32 floor)
     }
     else {
 	/* runtime pattern: build chain of regcomp etc ops */
-	bool reglist;
 	PADOFFSET cv_targ = 0;
+	bool reglist;
 
 	reglist = isreg && expr->op_type == OP_LIST;
 	if (reglist)
@@ -6491,8 +6490,8 @@ OP *
 Perl_newPVOP(pTHX_ I32 type, I32 flags, char *pv)
 {
     dVAR;
-    const bool utf8 = cBOOL(flags & SVf_UTF8);
     PVOP *pvop;
+    const bool utf8 = cBOOL(flags & SVf_UTF8);
 
     flags &= ~SVf_UTF8;
 
@@ -8213,8 +8212,8 @@ and may be null to generate a C<default> block.
 OP *
 Perl_newWHENOP(pTHX_ OP *cond, OP *block)
 {
-    const bool cond_llb = (!cond || looks_like_bool(cond));
     OP *cond_op;
+    const bool cond_llb = (!cond || looks_like_bool(cond));
 
     PERL_ARGS_ASSERT_NEWWHENOP;
 
@@ -8469,21 +8468,21 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
     CV **spot;
     SV **svspot;
     const char *ps;
-    STRLEN ps_len = 0; /* init it to avoid false uninit warning from icc */
-    U32 ps_utf8 = 0;
     CV *cv = NULL;
     CV *compcv = PL_compcv;
     SV *const_sv = NULL;
     PADNAME *name;
-    PADOFFSET pax = o->op_targ;
     CV *outcv = CvOUTSIDE(PL_compcv);
     CV *clonee = NULL;
     HEK *hek = NULL;
-    bool reusable = FALSE;
     OP *start = NULL;
 #ifdef PERL_DEBUG_READONLY_OPS
     OPSLAB *slab = NULL;
 #endif
+    STRLEN ps_len = 0; /* init it to avoid false uninit warning from icc */
+    PADOFFSET pax = o->op_targ;
+    U32 ps_utf8 = 0;
+    bool reusable = FALSE;
 
     PERL_ARGS_ASSERT_NEWMYSUB;
 
@@ -8806,10 +8805,10 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 {
     GV *gv;
     const char *ps;
-    STRLEN ps_len = 0; /* init it to avoid false uninit warning from icc */
-    U32 ps_utf8 = 0;
     CV *cv = NULL;
     SV *const_sv;
+    STRLEN ps_len = 0; /* init it to avoid false uninit warning from icc */
+    U32 ps_utf8 = 0;
     const bool ec = cBOOL(PL_parser && PL_parser->error_count);
     /* If the subroutine has no body, no attributes, and no builtin attributes
        then it's just a sub declaration, and we may be able to get away with
@@ -8823,10 +8822,10 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
     STRLEN namlen = 0;
     const char * const name =
 	 o ? SvPV_const(o_is_gv ? (SV *)o : cSVOPo->op_sv, namlen) : NULL;
+    OP *start = NULL;
     bool has_name;
     bool name_is_utf8 = o && !o_is_gv && SvUTF8(cSVOPo->op_sv);
     bool evanescent = FALSE;
-    OP *start = NULL;
 #ifdef PERL_DEBUG_READONLY_OPS
     OPSLAB *slab = NULL;
 #endif
@@ -11492,9 +11491,9 @@ S_simplify_sort(pTHX_ OP *o)
 {
     OP *kid = OpSIBLING(cLISTOPo->op_first);	/* get past pushmark */
     OP *k;
-    int descending;
     GV *gv;
     const char *gvname;
+    int descending;
     bool have_scopeop;
 
     PERL_ARGS_ASSERT_SIMPLIFY_SORT;
@@ -12140,10 +12139,10 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
 {
     const UNOP_AUX* o = CvSIGOP(cv);
     UNOP_AUX_item *items = o->op_aux;
+    SV *out = newSVpvn_flags("", 0, SVs_TEMP);
     UV actions = (++items)->uv;
     UV action;
     bool first = TRUE;
-    SV *out = newSVpvn_flags("", 0, SVs_TEMP);
     DEBUG_k(Perl_deb(aTHX_ "sig_proto: numitems=%lu actions=0x%lx\n", o->op_aux[-1].uv, items->uv));
 
     while (1) {
@@ -14109,10 +14108,10 @@ STATIC void
 S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 {
     dVAR;
-    int pass;
     UNOP_AUX_item *arg_buf = NULL;
-    bool reset_start_targ  = FALSE; /* start->op_targ needs zeroing */
+    int pass;
     int index_skip         = -1;    /* don't output index arg on this action */
+    bool reset_start_targ  = FALSE; /* start->op_targ needs zeroing */
 
     /* similar to regex compiling, do two passes; the first pass
      * determines whether the op chain is convertible and calculates the
@@ -14131,13 +14130,13 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
         UV action            = orig_action;
         OP *first_elem_op    = NULL;  /* first seen aelem/helem */
         OP *top_op           = NULL;  /* highest [ah]elem/exists/del/rv2[ah]v */
+        UNOP_AUX_item *arg        = arg_buf;
+        UNOP_AUX_item *action_ptr = arg_buf;
         int action_count     = 0;     /* number of actions seen so far */
         int action_ix        = 0;     /* action_count % (actions per IV) */
         bool next_is_hash    = FALSE; /* is the next lookup to be a hash? */
         bool is_last         = FALSE; /* no more derefs to follow */
         bool maybe_aelemfast = FALSE; /* we can replace with aelemfast? */
-        UNOP_AUX_item *arg     = arg_buf;
-        UNOP_AUX_item *action_ptr = arg_buf;
 
         if (pass)
             action_ptr->uv = 0;
@@ -14194,9 +14193,9 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
              * aelem/helem/exists/delele) sequence */
 
             OP *kid;
+            UV index_type = MDEREF_INDEX_none;
             bool is_deref;
             bool ok;
-            UV index_type = MDEREF_INDEX_none;
 
             if (action_count) {
                 /* if this is not the first lookup, consume the rv2av/hv  */
