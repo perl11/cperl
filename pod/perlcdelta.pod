@@ -437,6 +437,20 @@ fill rate and decreases performance.
 
 =item *
 
+Fixed several B<heap-buffer-overflows> detected by asan:
+use-after-free in Dynaloader (ReadKey probe with -DDEBUG_LEAKING_SCALAR),
+heap-overflow in gv_fetchfile (t/comp/parser.t),
+heap-overflow with signatures,
+heap-overflow in XSLoader,
+invalid memEQc in toke.c missing out on parsing #!perl -opts,
+B-C global-buffer-overflow with dynamic COW strings, wrong savepvn args.
+
+There are still heap-use-after-free problems with perlcc and PERL_DESTRUCT_LEVEL=2.
+
+See L<[cperl #207]|https://github.com/perl11/cperl/issues/207>
+
+=item *
+
 Fixed overwriting the C<HVhek_UNSHARED> bit in the hash loop broken with
 v5.9.
 

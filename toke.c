@@ -12343,9 +12343,9 @@ S_sig_items_grow(pTHX_ struct parse_subsignature_state *stp)
     ((UNOP_AUX *)stp->sig_op)->op_aux = stp->items + 1;
 }
 
-#define PUSH_ITEM(field, arg) \
+#define PUSH_ITEM(field, arg)             \
     if (stp->items_ix >= stp->items_size) \
-        S_sig_items_grow(aTHX_ stp); \
+        S_sig_items_grow(aTHX_ stp);      \
     stp->items[stp->items_ix++].field = arg;
 
 
@@ -12825,14 +12825,16 @@ Perl_parse_subsignature(pTHX)
             (mand_args << 16) | opt_args | ((slurpy ? 1 : 0) << 15);
 
     if (LIKELY(st.items_ix < st.items_size)) {
-        /* copy to new allocation of exact size */
+        /* copy to new allocation of exact size,
+           plus one slack element at the end for valgrind/asan */
         UNOP_AUX_item *new_items = (UNOP_AUX_item*)PerlMemShared_malloc(
-                                        sizeof(UNOP_AUX_item) * st.items_ix);
+                                       sizeof(UNOP_AUX_item) * (st.items_ix+1));
         Copy(st.items, new_items, st.items_ix, UNOP_AUX_item);
         PerlMemShared_free(st.items);
         st.items = new_items;
-        st.items[0].uv = st.items_ix - 1;
-        ((UNOP_AUX*)st.sig_op)->op_aux = st.items + 1;
+        new_items[0].uv = st.items_ix - 1;
+        new_items[st.items_ix].uv = (UV)-1; /* dummy marker */
+        ((UNOP_AUX*)st.sig_op)->op_aux = new_items + 1;
     }
 
     CvHASSIG_on(PL_compcv);

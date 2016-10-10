@@ -2729,11 +2729,11 @@ S_maybe_op_signature(pTHX_ CV *cv, OP *o)
 
     }
 
-    /* We have a match! Create an OP_SIGNATURE op */
-    /* calculate size of items array */
-    size =
-            1    /* size field */
+    /* We have a match. Create an OP_SIGNATURE op */
+    /* Calculate size of items array */
+    size =  1    /* size field */
           + 1    /* numbers of args field */
+                 /* the actions index */
           + 1    /* padintro item field */
 
           /* number of action item fields */
@@ -12144,7 +12144,7 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
     UV action;
     bool first = TRUE;
     SV *out = newSVpvn_flags("", 0, SVs_TEMP);
-    DEBUG_k(Perl_deb(aTHX_ "sig_proto: items=0x%lx\n", items->uv));
+    DEBUG_k(Perl_deb(aTHX_ "sig_proto: numitems=%lu actions=0x%lx\n", o->op_aux[-1].uv, items->uv));
 
     while (1) {
         switch (action = (actions & SIGNATURE_ACTION_MASK)) {
@@ -12308,7 +12308,6 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
     bool optional = FALSE;
     bool slurpy = FALSE;
 #define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
-#undef SIG_DEBUG
     PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_SIGNATURE;
 
     assert(SvTYPE(cv) == SVt_PVCV);
@@ -12316,7 +12315,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
     assert(o);
 
 #ifdef SIG_DEBUG
-    (void)S_signature_proto(aTHX_ cv, &actions);
+    DEBUG_kv((void)S_signature_proto(aTHX_ cv, &actions));
 #endif
     
     items   = o->op_aux;
@@ -12324,9 +12323,9 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
     mand_params = params >> 16;
     opt_params  = params & ((1<<15)-1);
     actions = (++items)->uv;
-    DEBUG_k(Perl_deb(aTHX_ "ck_sig: %s arity=%d/%d actions=0x%lx\n",
+    DEBUG_k(Perl_deb(aTHX_ "ck_sig: %s arity=%d/%d actions=0x%lx items=%u\n",
                      SvPVX_const(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)),
-                     (int)mand_params, (int)opt_params, actions));
+                     (int)mand_params, (int)opt_params, actions, (unsigned)o->op_aux[-1].uv));
 
     aop = cUNOPx(entersubop)->op_first;
     if (!OpHAS_SIBLING(aop))
