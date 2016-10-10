@@ -1079,10 +1079,10 @@ Perl_more_bodies (pTHX_ const svtype sv_type, const size_t body_size,
     void ** const root = &PL_body_roots[sv_type];
     struct arena_desc *adesc;
     struct arena_set *aroot = (struct arena_set *) PL_body_arenas;
-    unsigned int curr;
     char *start;
     const char *end;
     const size_t good_arena_size = Perl_malloc_good_size(arena_size);
+    unsigned int curr;
 #if defined(DEBUGGING) && defined(PERL_GLOBAL_STRUCT)
     dVAR;
 #endif
@@ -3319,7 +3319,7 @@ Perl_sv_2bool_flags(pTHX_ SV *sv, I32 flags)
 {
     PERL_ARGS_ASSERT_SV_2BOOL_FLAGS;
 
-    restart:
+  restart:
     if (flags & SV_GMAGIC) SvGETMAGIC(sv);
 
     if (!SvOK(sv))
@@ -7634,10 +7634,10 @@ STRLEN
 Perl_sv_pos_b2u_flags(pTHX_ SV *const sv, STRLEN const offset, U32 flags)
 {
     const U8* s;
+    const U8* send;
+    MAGIC* mg = NULL;
     STRLEN len = 0; /* Actually always set, but let's keep gcc happy.  */
     STRLEN blen;
-    MAGIC* mg = NULL;
-    const U8* send;
     bool found = FALSE;
 
     PERL_ARGS_ASSERT_SV_POS_B2U_FLAGS;
@@ -7787,11 +7787,11 @@ I32
 Perl_sv_eq_flags(pTHX_ SV *sv1, SV *sv2, const U32 flags)
 {
     const char *pv1;
-    STRLEN cur1;
     const char *pv2;
+    SV* svrecode = NULL;
+    STRLEN cur1;
     STRLEN cur2;
     I32  eq     = 0;
-    SV* svrecode = NULL;
 
     if (!sv1) {
 	pv1 = "";

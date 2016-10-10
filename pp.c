@@ -2774,8 +2774,8 @@ static void
 S_s_complement(pTHX_ SV *targ, SV *sv)
 {
 	U8 *tmps;
-	I32 anum;
 	STRLEN len;
+	I32 anum;
 
 	sv_copypv_nomg(TARG, sv);
 	tmps = (U8*)SvPV_nomg(TARG, len);

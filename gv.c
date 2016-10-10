@@ -163,12 +163,12 @@ GP *
 Perl_newGP(pTHX_ GV *const gv)
 {
     GP *gp;
-    U32 hash;
     const char *file;
     STRLEN len;
 #ifndef USE_ITHREADS
     GV *filegv;
 #endif
+    U32 hash;
     dVAR;
 
     PERL_ARGS_ASSERT_NEWGP;
@@ -374,8 +374,8 @@ Perl_gv_init_pvn(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len, U32 flag
 	? ((void)(SvIsCOW(gv) && (sv_force_normal((SV *)gv), 0)), SvPVX(gv))
 	: NULL;
     const STRLEN protolen = proto ? SvCUR(gv) : 0;
-    const U32 proto_utf8  = proto ? SvUTF8(gv) : 0;
     SV *const has_constant = doproto && SvROK(gv) ? SvRV(gv) : NULL;
+    const U32 proto_utf8  = proto ? SvUTF8(gv) : 0;
     const U32 exported_constant = has_constant ? SvPCS_IMPORTED(gv) : 0;
 
     PERL_ARGS_ASSERT_GV_INIT_PVN;
@@ -506,14 +506,14 @@ static GV *
 S_maybe_add_coresub(pTHX_ HV * const stash, GV *gv,
                           const char * const name, const STRLEN len)
 {
-    const int code = keyword(name, len, 1);
     static const char file[] = __FILE__;
     CV *cv, *oldcompcv = NULL;
-    int opnum = 0;
-    bool ampable = TRUE; /* &{}-able */
     COP *oldcurcop = NULL;
     yy_parser *oldparser = NULL;
+    const int code = keyword(name, len, 1);
+    int opnum = 0;
     I32 oldsavestack_ix = 0;
+    bool ampable = TRUE; /* &{}-able */
 
     assert(gv || stash);
     assert(name);
@@ -2253,17 +2253,17 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
 		       const svtype sv_type)
 {
     const char *name = nambeg;
+    const char *const name_end = nambeg + full_len;
     GV *gv = NULL;
     GV**gvp;
-    STRLEN len;
     HV *stash = NULL;
+    STRLEN len;
     const I32 no_init = flags & (GV_NOADD_NOINIT | GV_NOINIT);
     const I32 no_expand = flags & GV_NOEXPAND;
     const I32 add = flags & ~GV_NOADD_MASK;
     const U32 is_utf8 = flags & SVf_UTF8;
-    bool addmg = cBOOL(flags & GV_ADDMG);
-    const char *const name_end = nambeg + full_len;
     U32 faking_it;
+    bool addmg = cBOOL(flags & GV_ADDMG);
 
     PERL_ARGS_ASSERT_GV_FETCHPVN_FLAGS;
 
@@ -2661,8 +2661,8 @@ int
 Perl_Gv_AMupdate(pTHX_ HV *stash, bool destructing)
 {
   MAGIC* const mg = mg_find((const SV *)stash, PERL_MAGIC_overload_table);
-  AMT amt;
   const struct mro_meta* stash_meta = HvMROMETA(stash);
+  AMT amt;
   U32 newgen;
 
   PERL_ARGS_ASSERT_GV_AMUPDATE;
@@ -2830,8 +2830,8 @@ Perl_gv_handler(pTHX_ HV *stash, I32 id)
 {
     MAGIC *mg;
     AMT *amtp;
-    U32 newgen;
     struct mro_meta* stash_meta;
+    U32 newgen;
 
     if (!stash || !HvNAME_get(stash))
         return NULL;
@@ -3038,6 +3038,7 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
   CV *cv=NULL;
   CV **cvp=NULL, **ocvp=NULL;
   AMT *amtp=NULL, *oamtp=NULL;
+  HV* stash=NULL;
   int off = 0, off1, lr = 0, notfound = 0;
   int postpr = 0, force_cpy = 0;
   int assign = AMGf_assign & flags;
@@ -3047,7 +3048,6 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
 #ifdef DEBUGGING
   int fl=0;
 #endif
-  HV* stash=NULL;
 
   PERL_ARGS_ASSERT_AMAGIC_CALL;
 

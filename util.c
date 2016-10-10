@@ -682,10 +682,10 @@ void
 Perl_fbm_compile(pTHX_ SV *sv, U32 flags)
 {
     const U8 *s;
+    MAGIC *mg;
     STRLEN i;
     STRLEN len;
     U32 frequency = 256;
-    MAGIC *mg;
     PERL_DEB( STRLEN rarest = 0 );
 
     PERL_ARGS_ASSERT_FBM_COMPILE;
@@ -783,8 +783,8 @@ then.
 char *
 Perl_fbm_instr(pTHX_ unsigned char *big, unsigned char *bigend, SV *littlestr, U32 flags)
 {
-    unsigned char *s;
     STRLEN l;
+    unsigned char *s;
     const unsigned char *little = (const unsigned char *)SvPV_const(littlestr,l);
     STRLEN littlelen = l;
     const I32 multiline = flags & FBMrf_MULTILINE;
@@ -2981,8 +2981,8 @@ dup2(int oldfd, int newfd)
 #else
 #define DUP2_MAX_FDS 256
     int fdtmp[DUP2_MAX_FDS];
-    I32 fdx = 0;
     int fd;
+    I32 fdx = 0;
 
     if (oldfd == newfd)
 	return oldfd;
@@ -3169,9 +3169,9 @@ Perl_my_pclose(pTHX_ PerlIO *ptr)
     SV **svp;
     Pid_t pid;
     Pid_t pid2 = 0;
-    bool close_failed;
     dSAVEDERRNO;
     const int fd = PerlIO_fileno(ptr);
+    bool close_failed;
     bool should_wait;
 
     svp = av_fetch(PL_fdpid,fd,TRUE);
@@ -3439,9 +3439,9 @@ Perl_find_script(pTHX_ const char *scriptname, bool dosearch,
     char *xfailed = NULL;
     char tmpbuf[MAXPATHLEN];
     char *s;
-    I32 len = 0;
-    int retval;
     char *bufend;
+    int retval;
+    I32 len = 0;
 #if defined(DOSISH) && !defined(OS2)
 #  define SEARCH_EXTS ".bat", ".cmd", NULL
 #  define MAX_EXT_LEN 4
@@ -3458,8 +3458,8 @@ Perl_find_script(pTHX_ const char *scriptname, bool dosearch,
 #ifdef SEARCH_EXTS
     static const char *const exts[] = { SEARCH_EXTS };
     const char *const *const ext = search_ext ? search_ext : exts;
-    int extidx = 0, i = 0;
     const char *curext = NULL;
+    int extidx = 0, i = 0;
 #else
     PERL_UNUSED_ARG(search_ext);
 #  define MAX_EXT_LEN 0

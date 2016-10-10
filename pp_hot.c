@@ -329,6 +329,7 @@ S_pushav(pTHX_ AV* const av)
 {
     dSP;
     const SSize_t maxarg = AvFILL(av) + 1;
+
     EXTEND(SP, maxarg);
     if (UNLIKELY(SvRMAGICAL(av))) {
         PADOFFSET i;
@@ -3148,16 +3149,16 @@ PP(pp_subst)
     STRLEN clen;
     SSize_t iters = 0;
     SSize_t maxiters;
-    bool once;
-    U8 rxtainted = 0; /* holds various SUBST_TAINT_* flag bits.
-			See "how taint works" above */
     char *orig;
-    U8 r_flags;
     REGEXP *rx = PM_GETRE(pm);
     STRLEN len;
+    STRLEN slen;
     int force_on_match = 0;
     const I32 oldsave = PL_savestack_ix;
-    STRLEN slen;
+    U8 rxtainted = 0; /* holds various SUBST_TAINT_* flag bits.
+			See "how taint works" above */
+    U8 r_flags;
+    bool once;
     bool doutf8 = FALSE; /* whether replacement is in utf8 */
 #ifdef PERL_ANY_COW
     bool was_cow;
@@ -5040,7 +5041,6 @@ S_opmethod_stash(pTHX_ SV* meth)
 {
     SV* ob;
     HV* stash;
-
     SV* const sv = PL_stack_base + TOPMARK == PL_stack_sp
 	? (Perl_croak(aTHX_ "Can't call method \"%"SVf"\" without a "
 			    "package or object reference", SVfARG(meth)),
