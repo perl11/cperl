@@ -288,6 +288,7 @@ Abstract RITER_T and HVMAX_T for the various sizes, compat HEK_STATIC
 defer REGCOMP for \P{} properties
 change $sv->EXTFLAGS to compflags since 5.22 for CALLREGCOMP().
 turn off MGf_REFCOUNTED.
+global-buffer-overflow with dynamic COW strings, wrong savepvn args.
 
 =item Exporter
 
@@ -561,11 +562,11 @@ We find it useful, as only C<maxo> returns the number of current ops.
 
 =item *
 
-HVhek_MASK is now only 0x03, sames as HVhek_ENABLEHVKFLAGS, which is
+C<HVhek_MASK> is now only 0x03, sames as C<HVhek_ENABLEHVKFLAGS>, which is
 not needed anymore.
 
-HVhek_MASK is only needed during hash collision comparisons.
-There we only need the 2 UTF8 bits: HVhek_UTF8 and HVhek_WASUTF8,
+C<HVhek_MASK> is only needed during hash collision comparisons.
+There we only need the 2 HEK UTF8 bits: C<HVhek_UTF8> and C<HVhek_WASUTF8>,
 but not the 3 others: UNSHARED, TAINTED, STATIC. (the 2 last being
 cperl-only)
 
@@ -574,6 +575,20 @@ cperl-only)
 =head1 Selected Bug Fixes
 
 =over 4
+
+=item *
+
+Fixed several B<heap-buffer-overflows> detected by asan:
+use-after-free in Dynaloader (ReadKey probe with -DDEBUG_LEAKING_SCALAR),
+heap-overflow in gv_fetchfile (t/comp/parser.t),
+heap-overflow with signatures,
+heap-overflow in XSLoader,
+invalid memEQc in toke.c missing out on parsing #!perl -opts,
+B-C global-buffer-overflow with dynamic COW strings, wrong savepvn args.
+
+There are still heap-use-after-free problems with perlcc and PERL_DESTRUCT_LEVEL=2.
+
+See L<[cperl #207]|https://github.com/perl11/cperl/issues/207>
 
 =item *
 
