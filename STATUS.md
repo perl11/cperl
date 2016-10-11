@@ -85,9 +85,10 @@ perl-5.22.3.
 * add some unicode ops
 * improved build system (make -s, faster, CC vs LD confusion)
 * hash keys keep the tainted info. see [perlsec](http://perldoc.perl.org/perlsec.html#Taint-mode)
+  There are no known taint loopholes anymore.
 * fix ops using lexical `$_`
 * readonly packages can be cloned with threads
-* security and overlarge data fixes for Storable
+* security and overlarge data fixes for Storable, YAML not yet.
 * include B-C, Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
 * improved redefined warnings
 * cperl specific toolchain modules, with support for cperl-only module
@@ -96,10 +97,16 @@ perl-5.22.3.
   sense and cause not much trouble.
 * some security fixes for Unicode confusables, but more are needed (use strict 'names').
 * handle method calls on protected stashes
-* disallow silent overflows of hash and array indices. New "Too many elements" error.
+* disallow silent overflows of hash and array indices or string/name lengths.
+  New "Too many elements" error and many new "overlarge" or "too large" panics.
 * harmonize overlarge (>2GB) data, max. I64/I32 string and array lengths,
-  U32 hash keys. you can properly access all elements, unlike with perl5.
-* special handling for security warnings: protect against hash flood DoS.
+  and U32 hash keys. You can properly access all elements, unlike with perl5.
+  Do not silently wrap around indices or counts, do not silently truncate
+  overlarge data as in perl5 upstream.
+* special handling for security warnings: protect against hash flood DoS. Warn on
+  all known public attacks, as metasploit bind/reverse shells or the Storable attack
+  with the new `warn_security` API, which logs attacks at STDERR/syslog with the
+  remote user/IP.
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
