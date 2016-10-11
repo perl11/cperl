@@ -19,7 +19,7 @@
 #    lib/Config_git.pl
 #
 
-$VERSION = '6.21';
+$VERSION = '6.22';
 my $in_core;
 
 BEGIN {
@@ -46,7 +46,7 @@ use Config ;
 if ($in_core) {
     require '../../regen/regen_lib.pl';
 } else {
-    require 'regen/regen_lib.pl';
+    require './regen/regen_lib.pl';
 }
 
 ###########################################################################
@@ -175,7 +175,7 @@ ARCH    BuiltWithPatchPerl  Mcc PERL_PATCHLEVEL ccflags_nolargefiles
 charbits    config_heavy    d_acosh d_asctime64 d_asinh d_atanh d_attribut
 d_attribute_deprecated  d_attribute_format  d_attribute_malloc
 d_attribute_nonnull d_attribute_noreturn    d_attribute_pure
-d_attribute_unused  d_attribute_used d_attribute_warn_unused_result  d_backtrace
+d_attribute_unused  d_attribute_warn_unused_result  d_backtrace
 d_builtin_arith_overflow    d_builtin_choose_expr   d_builtin_expect
 d_c99_variadic_macros   d_cbrt  d_clearenv  d_copysign  d_cplusplus d_ctermid
 d_ctime64   d_difftime64    d_dir_dd_fd d_dladdr    d_duplocale d_erf   d_erfc

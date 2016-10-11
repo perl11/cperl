@@ -68,6 +68,11 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
+=item Config  6.22
+
+protect sv in END during global destruction, esp. with B::C.
+fixes for missing . in @INC (cperl or -Dfortify_inc).
+
 =item YAML::LibYAML  0.71
 
 merged with new upstream libyaml 0.1.7 (2 minor fixes)

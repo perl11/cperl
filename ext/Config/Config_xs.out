@@ -6871,7 +6871,8 @@ PREINIT:
 PPCODE:
   SV * const sv = MY_CXT.defineSV;
   MY_CXT.defineSV = NULL;
-  SvREFCNT_dec_NN(sv);
+  if (sv) /* already NULL in global destruction */
+    SvREFCNT_dec_NN(sv);
   return; /* skip implicit PUTBACK, returning @_ to caller, more efficient*/
 
 #endif

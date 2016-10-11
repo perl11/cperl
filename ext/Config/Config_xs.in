@@ -414,6 +414,7 @@ d_attribute_nonnull,	T_INV,0,ALN64I"@@d_attribute_nonnull@@"
 d_attribute_noreturn,	T_INV,0,ALN64I"@@d_attribute_noreturn@@"
 d_attribute_pure,	T_INV,0,ALN64I"@@d_attribute_pure@@"
 d_attribute_unused,	T_INV,0,ALN64I"@@d_attribute_unused@@"
+d_attribute_used,	T_INV,0,ALN64I"@@d_attribute_used@@"
 d_attribute_warn_unused_result,	T_INV,0,ALN64I"@@d_attribute_warn_unused_result@@"
 d_backtrace,		T_INV,0,ALN64I"@@d_backtrace@@"
 d_bcmp,			T_INV,0,ALN64I"@@d_bcmp@@"
@@ -423,6 +424,7 @@ d_bsdgetpgrp,		T_INV,0,ALN64I"@@d_bsdgetpgrp@@"
 d_bsdsetpgrp,		T_INV,0,ALN64I"@@d_bsdsetpgrp@@"
 d_builtin_arith_overflow,	T_INV,0,ALN64I"@@d_builtin_arith_overflow@@"
 d_builtin_choose_expr,	T_INV,0,ALN64I"@@d_builtin_choose_expr@@"
+d_builtin_ctz,		T_INV,0,ALN64I"@@d_builtin_ctz@@"
 d_builtin_expect,	T_INV,0,ALN64I"@@d_builtin_expect@@"
 d_builtin_prefetch,	T_INV,0,ALN64I"@@d_builtin_prefetch@@"
 d_bzero,		T_INV,0,ALN64I"@@d_bzero@@"
@@ -1068,7 +1070,7 @@ i_mntent,		T_INV,0,ALN64I"@@i_mntent@@"
 i_ndbm,			T_INV,0,ALN64I"@@i_ndbm@@"
 i_netdb,		T_INV,0,ALN64I"@@i_netdb@@"
 i_neterrno,		T_INV,0,ALN64I"@@i_neterrno@@"
-i_netinet6_in6,		T_INV,0,ALN64I"@@i_netinet6_in6@@"
+i_netinet_in_systm,	T_INV,0,ALN64I"@@i_netinet_in_systm@@"
 i_netinet_ip,		T_INV,0,ALN64I"@@i_netinet_ip@@"
 i_netinet_ip6,		T_INV,0,ALN64I"@@i_netinet_ip6@@"
 i_netinettcp,		T_INV,0,ALN64I"@@i_netinettcp@@"
@@ -1325,6 +1327,7 @@ rm_try,			T_INV,0,ALN64I"@@rm_try@@"
 rmail,			T_INV,0,ALN64I"@@rmail@@"
 run,			T_INV,0,ALN64I"@@run@@"
 runnm,			T_INV,0,ALN64I"@@runnm@@"
+sanitize_address,	T_INV,0,ALN64I"@@sanitize_address@@"
 sGMTIME_max,		T_INV,0,ALN64I"@@sGMTIME_max@@"
 sGMTIME_min,		T_INV,0,ALN64I"@@sGMTIME_min@@"
 sLOCALTIME_max,		T_INV,0,ALN64I"@@sLOCALTIME_max@@"
@@ -1579,7 +1582,8 @@ PREINIT:
 PPCODE:
   SV * const sv = MY_CXT.defineSV;
   MY_CXT.defineSV = NULL;
-  SvREFCNT_dec_NN(sv);
+  if (sv) /* already NULL in global destruction */
+    SvREFCNT_dec_NN(sv);
   return; /* skip implicit PUTBACK, returning @_ to caller, more efficient*/
 
 #endif
