@@ -107,6 +107,12 @@ bitwise string operators
 
 Code points over 0xFF do not make sense for bitwise operators.
 
+=head2 Backslash no longer escapes colon in PATH for the -S switch
+
+Previously the C<-S> switch incorrectly treated backslash ("\") as an
+escape for colon when traversing the C<PATH> environment variable.
+L<[perl #129183]|https://rt.perl.org/Ticket/Display.html?id=129183>
+
 =head1 Deprecations
 
 =head2 Use of L<C<vec>|perlfunc/vec EXPR,OFFSET,BITS> on strings with code
