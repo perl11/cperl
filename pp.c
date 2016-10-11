@@ -1925,9 +1925,10 @@ PPt(pp_modulo, "(:Numeric,:Numeric):Numeric")
 PP(pp_repeat)
 {
     dSP; dATARGET;
-    IV count;
+    UV count = 0;
     SV *sv;
     bool infnan = FALSE;
+    bool is_negative = FALSE;
 
     if (GIMME_V == G_ARRAY && PL_op->op_private & OPpREPEAT_DOLIST) {
 	/* TODO: think of some way of doing list-repeat overloading ??? */
@@ -1959,36 +1960,37 @@ PP(pp_repeat)
     }
 
     if (SvIOKp(sv)) {
-	 if (SvUOK(sv)) {
-	      const UV uv = SvUV_nomg(sv);
-	      if (uv > IV_MAX)
-		   count = IV_MAX; /* The best we can do? */
-	      else
-		   count = uv;
-	 } else {
-	      count = SvIV_nomg(sv);
-	 }
+        if (SvUOK(sv))
+            count = SvUV_nomg(sv);
+        else {
+            IV iv = SvIV_nomg(sv);
+            if (UNLIKELY(iv < 0))
+                is_negative = TRUE;
+            else
+                count = (UV)iv;
+        }
     }
     else if (SvNOKp(sv)) {
         const NV nv = SvNV_nomg(sv);
         infnan = Perl_isinfnan(nv);
-        if (UNLIKELY(infnan)) {
-            count = 0;
-        } else {
+        if (LIKELY(!infnan)) {
             if (nv < 0.0)
-                count = -1;   /* An arbitrary negative integer */
-            else
-                count = (IV)nv;
+                is_negative = TRUE;
+            else {
+                if (UNLIKELY(nv > UV_MAX))
+                    Perl_croak(aTHX_ "panic: overlarge repeat count %""", nv);
+                else
+                    count = (UV)nv;
+            }
         }
     }
     else
-	count = SvIV_nomg(sv);
+	count = SvUV_nomg(sv);
 
-    if (infnan) {
+    if (UNLIKELY(infnan)) {
         Perl_ck_warner(aTHX_ packWARN(WARN_NUMERIC),
                        "Non-finite repeat count does nothing");
-    } else if (count < 0) {
-        count = 0;
+    } else if (UNLIKELY(is_negative)) {
         Perl_ck_warner(aTHX_ packWARN(WARN_NUMERIC),
                        "Negative repeat count does nothing");
     }
@@ -1998,14 +2000,14 @@ PP(pp_repeat)
 	const SSize_t items = SP - MARK;
 	const U8 mod = PL_op->op_flags & OPf_MOD;
 
+        assert(items >= 0);
 	if (count > 1) {
 	    SSize_t max;
 
-            if (  items > SSize_t_MAX / count   /* max would overflow */
-                                                /* repeatcpy would overflow */
-               || items > I32_MAX / (I32)sizeof(SV *)
+            if (  items > (SSize_t)(SSize_t_MAX / count)    /* max would overflow */
+               || items > I32_MAX / (I32)sizeof(SV *) /* repeatcpy would overflow */
             )
-               Perl_croak(aTHX_ "%s","Out of memory during list extend");
+               Perl_croak(aTHX_ "%s", "Out of memory during list extend");
             max = items * count;
             MEXTEND(MARK, max);
 
@@ -2023,7 +2025,7 @@ PP(pp_repeat)
 		items * sizeof(const SV *), count - 1);
 	    SP += max;
 	}
-	else if (count <= 0)
+	else if (UNLIKELY(is_negative || !count))
 	    SP = MARK;
     }
     else {	/* Note: mark already snarfed by pp_list */
@@ -2035,31 +2037,28 @@ PP(pp_repeat)
 	    sv_setsv_nomg(TARG, tmpstr);
 	SvPV_force_nomg(TARG, len);
 	isutf = DO_UTF8(TARG);
-	if (count != 1) {
-	    if (count < 1)
-		SvCUR_set(TARG, 0);
-	    else {
-		STRLEN max;
+        if (UNLIKELY(is_negative || !count))
+            SvCUR_set(TARG, 0);
+	else if (count > 1) {
+            STRLEN max;
 
-		if (   len > (MEM_SIZE_MAX-1) / (UV)count /* max would overflow */
-		    || len > (U32)I32_MAX  /* repeatcpy would overflow */
-                )
-		     Perl_croak(aTHX_ "%s",
-                                        "Out of memory during string extend");
-		max = (UV)count * len + 1;
-		SvGROW(TARG, max);
+            if (   len > (MEM_SIZE_MAX-1) / (UV)count /* max would overflow */
+                || len > (U32)I32_MAX  /* repeatcpy would overflow */
+               )
+                Perl_croak(aTHX_ "%s",
+                           "Out of memory during string extend");
+            max = count * len + 1;
+            SvGROW(TARG, max);
 
-		repeatcpy(SvPVX(TARG) + len, SvPVX(TARG), len, count - 1);
-		SvCUR_set(TARG, SvCUR(TARG) * count);
-	    }
-	    *SvEND(TARG) = '\0';
-	}
-	if (isutf)
-	    (void)SvPOK_only_UTF8(TARG);
-	else
-	    (void)SvPOK_only(TARG);
-
-	PUSHTARG;
+            repeatcpy(SvPVX(TARG) + len, SvPVX(TARG), len, count - 1);
+            SvCUR_set(TARG, SvCUR(TARG) * count);
+        }
+        *SvEND(TARG) = '\0';
+        if (isutf)
+            (void)SvPOK_only_UTF8(TARG);
+        else
+            (void)SvPOK_only(TARG);
+        PUSHTARG;
     }
     RETURN;
 }
@@ -2779,6 +2778,8 @@ S_s_complement(pTHX_ SV *targ, SV *sv)
 
 	sv_copypv_nomg(TARG, sv);
 	tmps = (U8*)SvPV_nomg(TARG, len);
+        if (UNLIKELY(len > I32_MAX))
+            Perl_croak(aTHX_ "panic: string too long (%"UVuf")", (UV)len);
 	anum = len;
 	if (SvUTF8(TARG)) {
 	  /* Calculate exact length, let's not estimate. */

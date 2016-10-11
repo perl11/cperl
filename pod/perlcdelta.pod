@@ -363,9 +363,10 @@ The L<Panic: hash key too long|perldiag/"panic: hash key too long (%u)">
 error is now thrown with overlarge hash keys in every
 C<hv_common> access and in L<Cpanel::JSON::XS>.  perl5 still silently
 ignores those failures, and truncates the keys.
+
 Many more similar C<panic: (file|keyword|mro|stash)? name too long> errors
-were added to the parser and compiler to protect from overlong names
-(> I32_MAX, 2147483647).
+were added to the parser, compiler and runtime to protect from overlong names
+(> I32_MAX, 2147483647, 2GB), or counts.
 
 =back
 
@@ -530,6 +531,10 @@ well.
 
 =item *
 
+L<perlapi/repeatcpy> changed the type of the 4th count argument from IV to UV.
+
+=item *
+
 Added a new L<perlapi/newPADNAMEpvn_flags> function which disables UTF8 via
 C<flags> of C<0>, a new L<perlapi/PadnameUTF8> macro, and new C<PADNAMEt_UTF8>
 and C<padadd_UTF8> bits.
@@ -579,11 +584,12 @@ cperl-only)
 =item *
 
 More B<I32/IV/SSize_t fixes>, against huge data (2GB) overflows
+on 64bit.
 
 We are now in a 64bit world and need to get rid of all the wrong
 32bit (2GB) size limits.
 Some of these fixes seem to be even security relevant, as in the last
-2GB series:
+2GB series from L<[cperl #123]|https://github.com/perl11/cperl/issues/123>.
 
 chop/chomp of only half of overlarge arrays.
 
@@ -595,6 +601,9 @@ half the array elements.  The Hash part was also wrong, but the wrong number
 was not used.
 
 regex match group of >2GB string len.
+
+Allow repeat count >2GB and don't silently cap it at IV_MAX. Which was
+at least better then silent wrap around.
 
 Missing optimization of inplace substitution via clen overflow.
 

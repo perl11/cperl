@@ -6,7 +6,7 @@ BEGIN {
 }
 
 require './test.pl';
-plan(tests => 48);
+plan(tests => 51);
 
 # compile time
 
@@ -175,11 +175,29 @@ for(($#that_array)x2) {
 is($#that_array, 28, 'list repetition propagates lvalue cx to its lhs');
 
 # [perl #126309] huge list counts should give an error
-
-
 fresh_perl_like(
  '@a = (1) x ~1',
   qr/Out of memory/,
   {  },
- '(1) x ~1',
+ '(1) x ~1 dies. <UV_MAX, >IV_MAX. RT #126309',
 );
+
+# overlarge NV repeat count
+fresh_perl_like(
+  'my $n = ~1 * 2.0; (1) x $n',
+  qr/panic: overlarge repeat count/,
+  {  },
+  '(1) x 3.20e+19 >UV_MAX dies');
+
+fresh_perl_like(
+  'my $n = 9**9**9; (1) x $n',
+  qr/Non-finite repeat count does nothing/,
+  { switches => ['-w'] },
+  '(1) x inf warns');
+
+fresh_perl_like(
+  'print "1" x -1',
+  qr/Negative repeat count does nothing/,
+  { switches => ['-w'] },
+  '(1) x -1 warns');
+

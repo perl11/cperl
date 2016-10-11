@@ -3769,7 +3769,7 @@ PERL_CALLCONV void	Perl_reginitcolors(pTHX);
 PERL_CALLCONV regnode*	Perl_regnext(pTHX_ regnode* p)
 			__attribute__warn_unused_result__;
 
-PERL_CALLCONV void	Perl_repeatcpy(char* to, const char* from, I32 len, IV count)
+PERL_CALLCONV void	Perl_repeatcpy(char* to, const char* from, I32 len, UV count)
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_REPEATCPY	\

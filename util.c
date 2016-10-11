@@ -3354,34 +3354,50 @@ Perl_my_pclose(pTHX_ PerlIO *ptr)
 }
 #endif
 
+/*
+=for apidoc repeatcpy
+
+Fills the buffer C<to> with C<len> characters of C<from>, C<count> times.
+
+Errors with a negative C<len> argument. There's no check for a maximal
+overall length written into the C<to> buffer, the resulting length is
+not returned, it must be precalculated in the caller.
+
+Note that perl5 and older perls have the C<count> argument as IV, so a
+count value C<gt> IV_MAX might do different things. Before, negative C<count>
+arguments failed with C<croak_memory_wrap>, now they are casted to UV
+and performed.
+
+=cut
+*/
+
 #define PERL_REPEATCPY_LINEAR 4
 void
-Perl_repeatcpy(char *to, const char *from, I32 len, IV count)
+Perl_repeatcpy(char *to, const char *from, I32 len, UV count)
 {
     PERL_ARGS_ASSERT_REPEATCPY;
 
     assert(len >= 0);
 
-    if (count < 0)
-	croak_memory_wrap();
-
     if (len == 1)
 	memset(to, *from, count);
     else if (count) {
 	char *p = to;
-	IV items, linear, half;
+	UV items, linear, half;
+        if (UNLIKELY(len < 0))
+            Perl_croak_nocontext("panic: invalid negative len for repeat");
 
 	linear = count < PERL_REPEATCPY_LINEAR ? count : PERL_REPEATCPY_LINEAR;
 	for (items = 0; items < linear; ++items) {
 	    const char *q = from;
-	    IV todo;
+	    UV todo;
 	    for (todo = len; todo > 0; todo--)
 		*p++ = *q++;
         }
 
 	half = count / 2;
 	while (items <= half) {
-	    IV size = items * len;
+	    UV size = items * (U32)len;
 	    memcpy(p, to, size);
 	    p     += size;
 	    items *= 2;
