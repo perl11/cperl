@@ -2,6 +2,10 @@ use strict;
 use warnings;
 
 BEGIN { $^P |= 0x210 }
+# $PERLDB sets debugger flags
+# 0x10  Keep info about source lines on which a subroutine is defined.
+# 0x200 Provide informative names to anonymous subroutines based on
+#       the place they were compiled.
 use Test::More;
 use B 'svref_2object';
 
@@ -13,10 +17,10 @@ use B 'svref_2object';
 use if $] >= 5.016, feature => 'unicode_eval';
 
 if ($] >= 5.008) {
-	my $builder = Test::More->builder;
-	binmode $builder->output,         ":encoding(utf8)";
-	binmode $builder->failure_output, ":encoding(utf8)";
-	binmode $builder->todo_output,    ":encoding(utf8)";
+    my $builder = Test::More->builder;
+    binmode $builder->output,         ":encoding(utf8)";
+    binmode $builder->failure_output, ":encoding(utf8)";
+    binmode $builder->todo_output,    ":encoding(utf8)";
 }
 
 sub compile_named_sub {
@@ -103,7 +107,7 @@ my $line = __LINE__ - 1;
 my $file = __FILE__;
 my $anon = $DB::sub{"main::__ANON__[${file}:${line}]"};
 
-is($x->(), "main::foo");
+is($x->(), "main::foo", "set name by coderef");
 
 {
   package Blork;
@@ -111,26 +115,26 @@ is($x->(), "main::foo");
   use Sub::Util qw( set_subname );
 
   set_subname " Bar!", $x;
-  ::is($x->(), "Blork:: Bar!");
+  ::is($x->(), "Blork:: Bar!", "leading space");
 
   set_subname "Foo::Bar::Baz", $x;
-  ::is($x->(), "Foo::Bar::Baz");
+  ::is($x->(), "Foo::Bar::Baz", "2 levels");
 
   set_subname "set_subname (dynamic $_)", \&set_subname  for 1 .. 3;
 
   for (4 .. 5) {
       set_subname "Dynamic $_", $x;
-      ::is($x->(), "Blork::Dynamic $_");
+      ::is($x->(), "Blork::Dynamic $_", "Dynamic $_");
   }
 
-  ::is($DB::sub{"main::foo"}, $anon);
+  ::is($DB::sub{"main::foo"}, $anon, "DB::sub foo");
 
   for (4 .. 5) {
-      ::is($DB::sub{"Blork::Dynamic $_"}, $anon);
+      ::is($DB::sub{"Blork::Dynamic $_"}, $anon, "DB::sub Dynamic $_");
   }
 
   for ("Blork:: Bar!", "Foo::Bar::Baz") {
-      ::is($DB::sub{$_}, $anon);
+      ::is($DB::sub{$_}, $anon, "DB::sub anon $_");
   }
 }
 
@@ -140,9 +144,9 @@ is($x->(), "main::foo");
       B::Deparse->new->coderef2text(set_subname foo => sub{ @_ });
   };
 
-  ok !$@;
+  ok !$@, "Deparse without error";
 
-  like $source, qr/\@\_/;
+  like($source, qr/\@\_/, 'Deparse has @_');
 }
 
 # subname of set_subname
@@ -176,9 +180,16 @@ for my $ord (@test_ordinals) {
         $sub = compile_named_sub $fullname => '(caller(0))[3]';
     }
     else { # not a legal identifier but at least test the package name by aliasing
-        $expected = "${pkg}::foo";
-        { no strict 'refs'; *palatable:: = *{"${pkg}::"} } # now palatable:: literally means ${pkg}::
-        $sub = compile_named_sub 'palatable::foo' => '(caller(0))[3]';
+        $expected = "aliased::native::$fullname";
+        {
+            no strict 'refs';
+            *palatable:: = *{"aliased::native::${pkg}::"};
+            # now palatable:: literally means aliased::native::${pkg}::
+            ${"palatable::$subname"} = 1;
+            ${"palatable::"}{"sub"} = ${"palatable::"}{$subname};
+            # and palatable::sub means aliased::native::${pkg}::${subname}
+        }
+        $sub = compile_named_sub 'palatable::sub' => '(caller(0))[3]';
     }
     caller3_ok $sub, $expected, 'natively compiled sub', $ord;
 }

@@ -3,6 +3,7 @@
 # modify it under the same terms as Perl itself.
 #
 # Maintained since 2013 by Paul Evans <leonerd@leonerd.org.uk>
+# Since 2015 unauthorized by Reini Urban for cperl (binary names, utf8, lexical $_, ...)
 
 package List::Util;
 
@@ -15,7 +16,7 @@ our @EXPORT_OK  = qw(
   all any first min max minstr maxstr none notall product reduce sum sum0 shuffle uniq uniqnum uniqstr
   pairs unpairs pairkeys pairvalues pairmap pairgrep pairfirst
 );
-our $VERSION    = "1.45_05";
+our $VERSION    = "1.45_06";
 our $XS_VERSION = $VERSION;
 $VERSION    = eval $VERSION;
 
