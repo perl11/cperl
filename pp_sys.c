@@ -610,10 +610,9 @@ PP(pp_open)
     SV *sv;
     IO *io;
     const char *tmps;
-    STRLEN len;
-    bool  ok;
-
     GV * const gv = MUTABLE_GV(*++MARK);
+    STRLEN len;
+    bool ok;
 
     if (!isGV(gv) && !(SvTYPE(gv) == SVt_PVLV && isGV_with_GP(gv)))
 	DIE(aTHX_ PL_no_usym, "filehandle");
@@ -852,6 +851,7 @@ PP(pp_binmode)
 	STRLEN len = 0;
 	const char *d = NULL;
 	int mode;
+
 	if (discp)
 	    d = SvPV_const(discp, len);
 	mode = mode_from_discipline(d, len);
@@ -878,11 +878,11 @@ PP(pp_tie)
     HV* stash;
     GV *gv = NULL;
     SV *sv;
-    const I32 markoff = MARK - PL_stack_base;
     const char *methname;
     int how = PERL_MAGIC_tied;
-    U32 items;
+    const I32 markoff = MARK - PL_stack_base;
     SV *varsv = *++MARK;
+    U32 items;
 
     switch(SvTYPE(varsv)) {
 	case SVt_PVHV:
@@ -1480,6 +1480,7 @@ PP(pp_leavewrite)
 	if (IoFLAGS(io) & IOf_DIDTOP) {	/* Oh dear.  It still doesn't fit. */
 	    I32 lines = IoLINES_LEFT(io);
 	    const char *s = SvPVX_const(PL_formtarget);
+
 	    if (lines <= 0)		/* Yow, header didn't even fit!!! */
 		goto forget_top;
 	    while (lines-- > 0) {
@@ -1644,24 +1645,24 @@ PP(pp_sysopen)
 PP(pp_sysread)
 {
     dSP; dMARK; dORIGMARK; dTARGET;
-    SSize_t offset;
     IO *io;
     char *buffer;
+    SV *bufsv;
+    SV *read_target;
+    GV * const gv = MUTABLE_GV(*++MARK);
     STRLEN orig_size;
+    SSize_t offset;
     SSize_t length;
     SSize_t count;
-    SV *bufsv;
-    STRLEN blen;
-    int fp_utf8;
-    int buffer_utf8;
-    SV *read_target;
     Size_t got = 0;
     Size_t wanted;
-    bool charstart = FALSE;
+    STRLEN blen;
     STRLEN charskip = 0;
     STRLEN skip = 0;
-    GV * const gv = MUTABLE_GV(*++MARK);
+    int fp_utf8;
+    int buffer_utf8;
     int fd;
+    bool charstart = FALSE;
 
     if ((PL_op->op_type == OP_READ || PL_op->op_type == OP_SYSREAD)
 	&& gv && (io = GvIO(gv)) )
@@ -1910,15 +1911,15 @@ PP(pp_syswrite)
     dSP; dMARK; dORIGMARK; dTARGET;
     SV *bufsv;
     const char *buffer;
-    SSize_t retval;
-    STRLEN blen;
-    STRLEN orig_blen_bytes;
-    const int op_type = PL_op->op_type;
-    bool doing_utf8;
     U8 *tmpbuf = NULL;
     GV *const gv = MUTABLE_GV(*++MARK);
     IO *const io = GvIO(gv);
+    SSize_t retval;
+    STRLEN blen;
+    STRLEN orig_blen_bytes;
     int fd;
+    const int op_type = PL_op->op_type;
+    bool doing_utf8;
 
     if (op_type == OP_SYSWRITE && io) {
 	const MAGIC * const mg = SvTIED_mg((const SV *)io, PERL_MAGIC_tiedscalar);
@@ -2220,7 +2221,7 @@ PP(pp_sysseek)
     const Off_t offset = (Off_t)SvIVx(POPs);
 #endif
 
-    GV * const gv = PL_last_in_gv = MUTABLE_GV(POPs);
+    GV *const gv = PL_last_in_gv = MUTABLE_GV(POPs);
     IO *const io = GvIO(gv);
 
     if (io) {
@@ -2371,11 +2372,11 @@ PP(pp_ioctl)
     dSP; dTARGET;
     SV * const argsv = POPs;
     const unsigned int func = POPu;
-    int optype;
     GV * const gv = MUTABLE_GV(POPs);
     IO * const io = GvIOn(gv);
     char *s;
     IV retval;
+    int optype;
 
     if (!IoIFP(io)) {
 	report_evil_fh(gv);
@@ -2445,11 +2446,11 @@ PP(pp_flock)
 {
 #ifdef FLOCK
     dSP; dTARGET;
-    I32 value;
     const int argtype = POPi;
     GV * const gv = MUTABLE_GV(POPs);
     IO *const io = GvIO(gv);
     PerlIO *const fp = io ? IoIFP(io) : NULL;
+    I32 value;
 
     /* XXX Looks to me like io is always NULL at this point */
     if (fp) {
@@ -2795,9 +2796,9 @@ PP(pp_getpeername)
     const int optype = PL_op->op_type;
     GV * const gv = MUTABLE_GV(POPs);
     IO * const io = GvIOn(gv);
-    Sock_size_t len;
     SV *sv;
     int fd;
+    Sock_size_t len;
 
     if (!IoIFP(io))
 	goto nuts;
@@ -2860,9 +2861,9 @@ PP(pp_stat)
     dSP;
     GV *gv = NULL;
     IO *io = NULL;
-    U8 gimme;
-    I32 max = 13;
     SV* sv;
+    I32 max = 13;
+    U8 gimme;
 
     if (PL_op->op_flags & OPf_REF ? (gv = cGVOP_gv, 1)
                                   : !!(sv=POPs, gv = MAYBE_DEREF_GV(sv))) {
@@ -3083,7 +3084,6 @@ S_try_amagic_ftest(pTHX_ char chr) {
 
 PP(pp_ftrread)
 {
-    I32 result;
     /* Not const, because things tweak this below. Not bool, because there's
        no guarantee that OPpFT_ACCESS is <= CHAR_MAX  */
 #if defined(HAS_ACCESS) || defined (PERL_EFF_ACCESS)
@@ -3100,7 +3100,7 @@ PP(pp_ftrread)
     I32 use_access = 0;
 #endif
     Mode_t stat_mode = S_IRUSR;
-
+    I32 result;
     bool effective = FALSE;
     char opchar = '?';
 
@@ -3374,11 +3374,11 @@ PP(pp_ftlink)
 
 PP(pp_fttty)
 {
-    int fd;
     GV *gv;
     char *name = NULL;
     STRLEN namelen;
     UV uv;
+    int fd;
 
     tryAMAGICftest_MG('t');
 
@@ -3412,15 +3412,15 @@ PP(pp_fttty)
 
 PP(pp_fttext)
 {
-    I32 i;
-    SSize_t len;
-    I32 odd = 0;
     STDCHAR tbuf[512];
     STDCHAR *s;
     IO *io;
     SV *sv = NULL;
     GV *gv;
     PerlIO *fp;
+    SSize_t len;
+    I32 odd = 0;
+    I32 i;
 
     tryAMAGICftest_MG(PL_op->op_type == OP_FTTEXT ? 'T' : 'B');
 
@@ -3934,10 +3934,10 @@ S_dooneliner(pTHX_ const char *cmd, const char *filename)
 PP(pp_mkdir)
 {
     dSP; dTARGET;
-    STRLEN len;
     const char *tmps;
-    bool copy = FALSE;
+    STRLEN len;
     const unsigned int mode = (MAXARG > 1 && (TOPs||((void)POPs,0))) ? POPu : 0777;
+    bool copy = FALSE;
 
     TRIMSLASHES(tmps,len,copy);
 
@@ -3946,11 +3946,11 @@ PP(pp_mkdir)
     SETi( PerlDir_mkdir(tmps, mode) >= 0 );
 #else
     {
-    int oldumask;
-    SETi( dooneliner("mkdir", tmps) );
-    oldumask = PerlLIO_umask(0);
-    PerlLIO_umask(oldumask);
-    PerlLIO_chmod(tmps, (mode & ~oldumask) & 0777);
+        int oldumask;
+        SETi( dooneliner("mkdir", tmps) );
+        oldumask = PerlLIO_umask(0);
+        PerlLIO_umask(oldumask);
+        PerlLIO_chmod(tmps, (mode & ~oldumask) & 0777);
     }
 #endif
     if (copy)
@@ -4017,10 +4017,10 @@ PP(pp_readdir)
     dSP;
 
     SV *sv;
-    const U8 gimme = GIMME_V;
     GV * const gv = MUTABLE_GV(POPs);
-    const Direntry_t *dp;
     IO * const io = GvIOn(gv);
+    const Direntry_t *dp;
+    const U8 gimme = GIMME_V;
 
     if (!IoDIRP(io)) {
 	Perl_ck_warner(aTHX_ packWARN(WARN_IO),
