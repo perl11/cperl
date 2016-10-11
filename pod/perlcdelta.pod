@@ -87,7 +87,7 @@ plus fix some problems in their new code.
 
 no mathoms: call_sv instead of call_pv, get_cvs where available.
 
-=item B-C 1.54_12
+=item B-C 1.54_13
 
 Better CopFILE_set,
 Fixup arenasize refcnt.
@@ -98,6 +98,14 @@ Fix to compile in utf8_heavy.pl, abstract and set %INC.
 Fix generation of @B::C::Config::deps on Windows.
 Fix !C99 precedence bug (e.g. MSVC).
 Minor refactor to simplify save_hek.
+Use the new get_svs, get_avs, get_hvs macros.
+perlcc add --debug|-D
+Improve endav XSUB bump
+Abstract RITER_T and HVMAX_T for the various sizes, compat HEK_STATIC
+Defer REGCOMP for \P{} properties
+Change $sv->EXTFLAGS to compflags since 5.22 for CALLREGCOMP().
+Turn off MGf_REFCOUNTED.
+global-buffer-overflow with dynamic COW strings, wrong savepvn args.
 
 =back
 

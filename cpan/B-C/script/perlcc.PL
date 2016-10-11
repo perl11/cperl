@@ -252,6 +252,7 @@ sub parse_argv {
         'B',            # Byte compiler backend
         'O',            # Optimised C backend B::CC
          #'O1-4'        # alias for -Wb=-O1 (new since 2.13)
+        'debug|D',      # alias for --Wb=-Dfull and -S to enable all debug and preserve source code
         'dryrun|n',     # only print commands, do not execute
         'c',            # Compile to C only, no linking
         'check',        # pass -c to B::C and exit
@@ -277,6 +278,12 @@ sub parse_argv {
         'time',         # print benchmark timings (new since 2.08)
         'version',      # (new since 2.13)
     );
+
+    if ( $Options->{debug} ) {
+        $Options->{Wb} = $Options->{Wb} ? $Options->{Wb} . ',' : '';
+        $Options->{Wb} .= '-Dfull';
+        $Options->{S} = 1;
+    }
 
     $Options->{v} += 0;
 
@@ -593,7 +600,11 @@ sub cc_harness_msvc {
     $obj .= ".obj" unless $obj =~ /\.obj$/;
     my $compile = "";
     $compile = '-I"..\..\lib\CORE" ' if $ENV{PERL_CORE};
-    $compile .= ExtUtils::Embed::ccopts." -c -Fo$obj $cfile ";
+    my $ccopts = ExtUtils::Embed::ccopts;
+    my $optWc = opt('Wc');
+    # suppress cl : Command line warning D4025 : overriding '/O1' with '/Od'
+    $ccopts =~ s/\b[-\/]O.\b/-Od/ if $optWc && ($optWc =~ /\b[-\/]Od\b/);
+    $compile .= "$ccopts -c -Fo$obj $cfile ";
     $compile .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
     $compile .= $B::C::Config::extra_cflags;
     my $link = "-out:$Output $obj";
@@ -606,7 +617,7 @@ sub cc_harness_msvc {
         }
     }
     $compile .= ' -DSTATICXS' if opt('staticxs');
-    $compile .= " ".opt('Wc') if opt('Wc');
+    $compile .= " $optWc" if $optWc;
 
     $link .= ' -libpath:"..\..\lib\CORE"' if $ENV{PERL_CORE};
     my $libdir = opt('L');
@@ -1204,6 +1215,12 @@ Do not delete generated C code after compilation.
 =item -B
 
 Use the Perl bytecode code generator.
+
+=item --debug or -D
+
+Shortcut for --Wb=-Dfull -S
+to enable all debug levels and also preserve source code,
+also view --Wb to enable some specific debugging options.
 
 =item -O
 

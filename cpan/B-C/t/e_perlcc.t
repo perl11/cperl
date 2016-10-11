@@ -18,10 +18,10 @@ BEGIN {
         if ($^O eq 'MSWin32') { # find perl5*.dll
             $ENV{PATH} .= ';..\..';
         }
-        if ($^O eq 'MSWin32' and $ENV{APPVEYOR}) {
-            # can be used with -Od though
-            @plan = (skip_all => 'Overlong tests, timeout on Appveyor CI');
-        }
+        #if ($^O eq 'MSWin32' and $ENV{APPVEYOR}) {
+        #    # can be used with -Od though
+        #    @plan = (skip_all => 'Overlong tests, timeout on Appveyor CI');
+        #}
         #if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
         #    # >= 3 c compiler warnings
         #    @plan = (skip_all => 'Tests not yet ready for MSWin32 MSVC');
@@ -51,10 +51,12 @@ my $a_exe = $^O =~ /MSWin32|cygwin|msys/ ? 'a.exe' : './a.out';
 my $a   = $^O eq 'MSWin32' ? 'pcc.exe' : './pcc';
 my $redir = $^O eq 'MSWin32' ? '' : '2>&1';
 my $devnull = $^O eq 'MSWin32' ? '' : '2>/dev/null';
+# VC takes a couple hours to compile each executable in -O1
+my $Wcflags = $^O eq 'MSWin32' && $Config{cc} =~ /cl/ ? ' --Wc=-Od' : '';
 #my $o = '';
 #$o = "-Wb=-fno-warnings" if $] >= 5.013005;
 #$o = "-Wb=-fno-fold,-fno-warnings" if $] >= 5.013009;
-my $perlcc = "$X ".Mblib." ".perlcc;
+my $perlcc = "$X ".Mblib." ".perlcc.$Wcflags;
 sub cleanup { unlink ('pcc.c','pcc.c.lst','a.out.c', "a.c", $exe, $a, "a.out.c.lst", "a.c.lst"); }
 my $e = q("print q(ok)");
 

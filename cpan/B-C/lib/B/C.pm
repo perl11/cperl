@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_12';
+our $VERSION = '1.54_13';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -362,16 +362,19 @@ BEGIN {
       eval q[sub PMf_ONCE(){ 0x0002 }];
     }
     if ($] > 5.021006) {
-      B->import(qw(SVf_PROTECT CVf_ANONCONST));
+      B->import(qw(SVf_PROTECT CVf_ANONCONST SVs_PADSTALE));
     } else {
-      eval q[sub SVf_PROTECT(){ 0x0 }
-             sub CVf_ANONCONST(){ 0x0 }]; # unused
+      eval q[sub SVf_PROTECT()  { 0x0 }
+             sub CVf_ANONCONST(){ 0x0 }
+             sub SVs_PADSTALE() { 0x0 }
+            ]; # unused
     }
   } else {
     eval q[sub SVs_GMG()    { 0x00002000 }
            sub SVs_SMG()    { 0x00004000 }
            sub SVf_PROTECT(){ 0x0 }
            sub CVf_ANONCONST(){ 0x0 }
+           sub SVs_PADSTALE() { 0x0 }
           ]; # unused
   }
   if ($] < 5.018) {
@@ -527,10 +530,11 @@ my $MULTI = $Config{usemultiplicity};
 my $ITHREADS = $Config{useithreads};
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
 my $DEBUG_LEAKING_SCALARS = $Config{ccflags} =~ m/-DDEBUG_LEAKING_SCALARS/;
+my $CPERL55  = ( $Config{usecperl} and $] >= 5.025001 ); #HVMAX_T, RITER_T, ...
 my $CPERL52  = ( $Config{usecperl} and $] >= 5.022002 ); #sv_objcount, AvSTATIC, sigs
 my $CPERL51  = ( $Config{usecperl} );
 my $PERL524  = ( $] >= 5.023005 ); #xpviv sharing assertion
-my $PERL522  = ( $] >= 5.021006 ); #PADNAMELIST, IsCOW, padname_with_str
+my $PERL522  = ( $] >= 5.021006 ); #PADNAMELIST, IsCOW, padname_with_str, compflags
 my $PERL518  = ( $] >= 5.017010 );
 my $PERL514  = ( $] >= 5.013002 );
 my $PERL512  = ( $] >= 5.011 );
@@ -1089,8 +1093,10 @@ sub save_pv_or_rv {
           }
           $free->add("    SvFAKE_off(&$s);");
         } else {
-          if ($iscow and $cur) {
+          if ($iscow and $cur and $PERL518) {
             $len++;
+            $pv .= "\000\001";
+            $flags |= SVf_IsCOW;
           }
         }
       }
@@ -1161,16 +1167,14 @@ sub save_hek {
     # randomized global shared hash keys:
     #   share_hek needs a non-zero hash parameter, unlike hv_store.
     #   Vulnerable to oCERT-2011-003 style DOS attacks?
-    #   user-input (object fields) does not affect strtab, it is pretty safe.
+    #   user-input (object fields) do not affect strtab, it is pretty safe.
     # But we need to randomize them to avoid run-time conflicts
     #   e.g. "Prototype mismatch: sub bytes::length (_) vs (_)"
-    if ($PERL510 and 0) { # no refcount
-      $init->add(sprintf("%s = my_share_hek_0(%s, %d);",
-                         $sym, $cstr, $cur));
-    } else { # vs. bump the refcount
-      $init->add(sprintf("%s = share_hek(%s, %d);",
-                         $sym, $cstr, $cur));
-    }
+    #if (0 and $PERL510) { # no refcount
+    #  $init->add(sprintf("%s = my_share_hek_0(%s, %d);", $sym, $cstr, $cur));
+    #} else { # vs. bump the refcount
+    $init->add(sprintf("%s = share_hek(%s, %d);", $sym, $cstr, $cur));
+    #}
     # protect against Unbalanced string table refcount warning with PERL_DESTRUCT_LEVEL=2
     # $free->add("    $sym = NULL;");
   }
@@ -1260,17 +1264,14 @@ sub nvx ($) {
     $nvgformat = 'g';
   }
   my $dblmax = "1.79769313486232e+308";
-  # my $ldblmax = "1.18973149535723176502e+4932L"
-  my $ll = $Config{d_longdbl} ? "LL" : "L";
+  my $ldblmax = "1.18973149535723176502e+4932";
   if ($nvgformat eq 'g') { # a very poor choice to keep precision
     # on intel 17-18, on ppc 31, on sparc64/s390 34
     # TODO: rather use the binary representation of our union
     $nvgformat = $Config{uselongdouble} ? '.18Lg' : '.17g';
   }
-  my $sval = sprintf("%${nvgformat}%s", $nvx, $nvx > $dblmax ? $ll : "");
-  if ($nvx < -$dblmax) {
-    $sval = sprintf("%${nvgformat}%s", $nvx, $ll);
-  }
+  my $sval = sprintf("%${nvgformat}%s", $nvx, $nvx > $dblmax ? "L" : "");
+  $sval = sprintf("%${nvgformat}%s", $nvx, "L") if $nvx < -$dblmax;
   if ($INC{'POSIX.pm'}) {
     if ($nvx == POSIX::DBL_MIN()) {
       $sval = "DBL_MIN";
@@ -1279,9 +1280,41 @@ sub nvx ($) {
       $sval = "DBL_MAX";
     }
   }
+  else {
+    if ($nvx == $dblmax) {
+      $sval = "DBL_MAX";
+    }
+  }
+
+  if ($Config{d_longdbl}) {
+    my $posix;
+    if ($INC{'POSIX.pm'}) {
+      eval { $posix = POSIX::LDBL_MIN(); };
+    }
+    if ($posix) { # linux does not have these, darwin does
+      if ($nvx == $posix) {
+        $sval = "NV_MIN";
+      }
+      elsif ($nvx == POSIX::LDBL_MAX()) {
+        $sval = "NV_MAX";
+      }
+    } elsif ($nvx == $ldblmax) {
+      $sval = "NV_MAX";
+    }
+  }
   $sval = '0' if $sval =~ /(NAN|inf)$/i;
   $sval .= '.00' if $sval =~ /^-?\d+$/;
   return $sval;
+}
+
+sub mg_RC_off {
+  my ($mg, $sym, $type) = @_;
+  warn "MG->FLAGS ",$mg->FLAGS," turn off MGf_REFCOUNTED\n" if $debug{mg};
+  if (!ref $sym) {
+    $init->add(sprintf("my_mg_RC_off(aTHX_ (SV*)$sym, %s);", cchar($type)));
+  } else {
+    $init->add(sprintf("my_mg_RC_off(aTHX_ (SV*)s\\_%x, %s);", $$sym, cchar($type)));
+  }
 }
 
 # for bytes and utf8 only
@@ -1817,9 +1850,9 @@ static void
 S_do_dump(pTHX_ SV *const sv, I32 lim)
 {
     dVAR;
-    SV *pv_lim_sv = get_sv("Devel::Peek::pv_limit", 0);
+    SV *pv_lim_sv = get_svs("Devel::Peek::pv_limit", 0);
     const STRLEN pv_lim = pv_lim_sv ? SvIV(pv_lim_sv) : 0;
-    SV *dumpop = get_sv("Devel::Peek::dump_ops", 0);
+    SV *dumpop = get_svs("Devel::Peek::dump_ops", 0);
     const U16 save_dumpindent = PL_dumpindent;
     PL_dumpindent = 2;
     do_sv_dump(0, Perl_debug_log, sv, 0, lim,
@@ -2492,6 +2525,21 @@ sub B::COP::save {
   savesym( $op, "(OP*)&cop_list[$ix]" );
 }
 
+# if REGCOMP can be called in init or deferred in init1
+sub re_does_swash {
+  my ($qstr, $pmflags) = @_;
+  # SWASHNEW, now needing a multideref GV. 0x5000000 is just a hack. can be more
+  if (($] >= 5.021006 and ($pmflags & 0x5000000 == 0x5000000))
+      # or any unicode property (#253). Note: \p{} breaks #242
+      or ($qstr =~ /\\P\{/)
+     )
+  {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 sub B::PMOP::save {
   my ( $op, $level, $fullname ) = @_;
   my ($replrootfield, $replstartfield, $gvsym) = ('NULL', 'NULL');
@@ -2592,6 +2640,7 @@ sub B::PMOP::save {
     unless $B::C::optimize_ppaddr;
   my $re = $op->precomp;
   if ( defined($re) ) {
+    my $initpm = $init;
     $Regexp{$$op} = $op;
     if ($PERL510) {
       # TODO minor optim: fix savere( $re ) to avoid newSVpvn;
@@ -2612,10 +2661,9 @@ sub B::PMOP::save {
       # some pm need early init (242), SWASHNEW needs some late GVs (GH#273)
       # esp with 5.22 multideref init. i.e. all \p{} \N{}, \U, /i, ...
       # But XSLoader and utf8::SWASHNEW itself needs to be early.
-      my $initpm = $init;
-      if (($utf8 and $] >= 5.013009 and $pmflags & 4) # needs SWASHNEW (case fold)
-          # also SWASHNEW, now needing a multideref GV. 0x5000000 is just a hack. can be more
-          or ($] >= 5.021006 and ($pmflags & 0x5000000 == 0x5000000))) {
+      if (($utf8 and $] >= 5.013009 and ($pmflags & 4 == 4)) # needs SWASHNEW (case fold)
+          or re_does_swash($qre, $pmflags))
+      {
         $initpm = $init1;
         warn sprintf("deferred PMOP %s %s 0x%x\n", $qre, $fullname, $pmflags) if $debug{sv};
       } else {
@@ -2869,6 +2917,7 @@ sub savepvn {
   }
   else {
     # If READONLY and FAKE use newSVpvn_share instead. (test 75)
+    # XXX IsCOW forgotten here. rather use a helper is_shared_hek()
     if ($PERL510 and $sv and (($sv->FLAGS & 0x09000000) == 0x09000000)) {
       warn sprintf( "Saving shared HEK %s to %s\n", cstring($pv), $dest ) if $debug{sv};
       my $hek = save_hek($pv,'',1);
@@ -2882,12 +2931,17 @@ sub savepvn {
         : ($sv and ref($sv) and $sv->can('CUR') and ref($sv) ne 'B::GV')
           ? $sv->CUR : length(pack "a*", $pv);
       if ($sv and IsCOW($sv) and ($B::C::cow or IsCOW_hek($sv))) {
-        $pv .= "\0\001";
-        $cstr = cstring($pv);
+        $cstr = substr($cstr,0,-1) . '\0\001"';
         $cur += 2;
+      } else {
+        if (length(pack "a*", $pv) != $cur && (!$cur || $cstr eq "")) {
+          warn sprintf( "Invalid CUR for %s:%d to %s\n", $cstr, $cur, $dest )
+            if $verbose;
+          $cur = length(pack "a*", $pv);
+        }
       }
       warn sprintf( "Saving PV %s:%d to %s\n", $cstr, $cur, $dest ) if $debug{sv};
-      $cur = 0 if $cstr eq "" and $cur == 7; # 317
+      #$cur = 0 if $cstr eq "" and $cur == 7; # 317
       push @init, sprintf( "%s = savepvn(%s, %u);", $dest, $cstr, $cur );
     }
   }
@@ -3318,14 +3372,16 @@ sub B::REGEXP::save {
   my $ix = $svsect->index;
   warn "Saving RX $cstr to sv_list[$ix]\n" if $debug{rx} or $debug{sv};
   if ($] > 5.011) {
+    my $pmflags = $PERL522 ? $sv->compflags : $sv->EXTFLAGS;
+    my $initpm = re_does_swash($cstr, $pmflags) ? $init1 : $init;
     if ($PERL518 and $sv->EXTFLAGS & RXf_EVAL_SEEN) {
-      $init->add("PL_hints |= HINT_RE_EVAL;");
+      $initpm->add("PL_hints |= HINT_RE_EVAL;");
     }
-    $init->add(# replace sv_any->XPV with struct regexp. need pv and extflags
+    $initpm->add(# replace sv_any->XPV with struct regexp. need pv and extflags
                sprintf("SvANY(&sv_list[%d]) = SvANY(CALLREGCOMP(newSVpvn(%s, %d), 0x%x));",
-                       $ix, $cstr, $cur, $sv->EXTFLAGS));
+                       $ix, $cstr, $cur, $pmflags));
     if ($PERL518 and $sv->EXTFLAGS & RXf_EVAL_SEEN) {
-      $init->add("PL_hints &= ~HINT_RE_EVAL;");
+      $initpm->add("PL_hints &= ~HINT_RE_EVAL;");
     }
   }
   if ($] < 5.017006) {
@@ -3660,7 +3716,7 @@ sub B::PVMG::save_magic {
     $len  = $mg->LENGTH;
     $magic .= $type;
     if ( $debug{mg} ) {
-      warn sprintf( "%s %s magic\n", $fullname, cchar($type) );
+      warn sprintf( "%s %s magic 0x%x\n", $fullname, cchar($type), $mg->FLAGS );
       #eval {
       #  warn sprintf( "magic %s (0x%x), obj %s (0x%x), type %s, ptr %s\n",
       #                B::class($sv), $$sv, B::class($obj), $$obj, cchar($type),
@@ -3691,6 +3747,9 @@ sub B::PVMG::save_magic {
       warn "MG->PTR is an SV*\n" if $debug{mg};
       $init->add(sprintf("sv_magic((SV*)s\\_%x, (SV*)s\\_%x, %s, (char *)%s, %d);",
                          $$sv, $$obj, cchar($type), $ptrsv, $len));
+      if (!($mg->FLAGS & 2)) {
+        mg_RC_off($mg, $sv, $type);
+      }
     }
     # coverage $Template::Stash::PRIVATE
     elsif ( $type eq 'r' ) { # qr magic, for 5.6 done in C.xs. test 20
@@ -3768,7 +3827,10 @@ CODE2
     else {
       $init->add(sprintf(
           "sv_magic((SV*)s\\_%x, (SV*)s\\_%x, %s, %s, %d);",
-          $$sv, $$obj, cchar($type), cstring($ptr), $len))
+          $$sv, $$obj, cchar($type), cstring($ptr), $len));
+      if (!($mg->FLAGS & 2)) {
+        mg_RC_off($mg, $sv, $type);
+      }
     }
   }
   $init->add(sprintf("SvREADONLY_on((SV*)s\\_%x);", $$sv))
@@ -4177,9 +4239,15 @@ sub B::CV::save {
 
   # XXX how is ANON with CONST handled? CONST uses XSUBANY [GH #246]
   if ($isconst and !is_phase_name($cvname) and
-      ( ($PERL522 and !($CvFLAGS & (CVf_ANONCONST|CVf_CONST)))
-     or (!$PERL522 and !($CvFLAGS & CVf_ANON)) )
-     ) # skip const magic blocks (Attribute::Handlers)
+    (
+      (
+        $PERL522
+        and !( $CvFLAGS & SVs_PADSTALE )
+        and !( $CvFLAGS & CVf_WEAKOUTSIDE )
+        and !( $fullname && $fullname =~ qr{^File::Glob::GLOB} and ( $CvFLAGS & (CVf_ANONCONST|CVf_CONST) )  )
+      )
+      or (!$PERL522 and !($CvFLAGS & CVf_ANON)) )
+    ) # skip const magic blocks (Attribute::Handlers)
   {
     my $stash = $gv->STASH;
     #warn sprintf("$cvstashname\::$cvname 0x%x -> XSUBANY", $CvFLAGS) if $debug{cv};
@@ -5307,9 +5375,13 @@ sub B::GV::save {
       if ($PERL514 and $cvsym and $cvsym !~ /(get_cv|NULL|lexwarn)/ and $gv->MAGICAL) {
         my @magic = $gv->MAGIC;
         foreach my $mg (@magic) {
-          $init->add( "sv_magic((SV*)$sym, (SV*)$cvsym, '<', 0, 0);",
-                      "CvCVGV_RC_off($cvsym);"
-                    ) if $mg->TYPE eq '<';
+          if ($mg->TYPE eq '<') {
+            $init->add( "sv_magic((SV*)$sym, (SV*)$cvsym, '<', 0, 0);",
+                        "CvCVGV_RC_off($cvsym);");
+            if (!($mg->FLAGS & 2)) {
+              mg_RC_off($mg, $sym, '<'); # 390
+            }
+          }
         }
       }
     }
@@ -5598,7 +5670,10 @@ sub B::AV::save {
     $count = 0;
     for (my $i=0; $i <= $#array; $i++) {
       if ($fullname =~ m/^(INIT|END)$/ and $values[$i] and ref $array[$i] eq 'B::CV') {
-        $init->add(sprintf("SvREFCNT_inc(%s); /* bump %s */", $values[$i], $fullname));
+        if ($array[$i]->XSUB) {
+          $values[$i] =~ s/, 0\)/, GV_ADD\)/; # GvCV filled in later
+        }
+        $values[$i] = sprintf("SvREFCNT_inc(%s);", $values[$i]);
       }
       if ( $use_svpop_speedup
            && defined $values[$i]
@@ -5692,6 +5767,7 @@ sub B::AV::save {
       $init->add("\tregister int gcount;") if $count;
       my $fill1 = $fill < 3 ? 3 : $fill+1;
       if ($fill > -1) {
+        $fill1 = $fill+1 if $fullname eq 'END';
         # Perl_safesysmalloc (= calloc => malloc) or Perl_malloc (= mymalloc)?
 	if ($MYMALLOC) {
           $init->add(sprintf("\tNewx(svp, %d, SV*);", $fill1),
@@ -5720,11 +5796,12 @@ sub B::AV::save {
       my $fill1 = $fill < 3 ? 3 : $fill+1;
       $init->add("{", "\tSV **svp;");
       $init->add("\tregister int gcount;") if $count;
-      $init->add("\tAV *av = $sym;",
+      $init->add("\tAV *av = $sym;\t/* $fullname */",
                  "\tav_extend(av, $fill1);",
                  "\tsvp = AvARRAY(av);");
       $init->add( substr( $acc, 0, -2 ) );
-      $init->add( "\tAvFILLp(av) = $fill;", "}" );
+      $init->add( "\tAvFILLp(av) = $fill;" );
+      $init->add( "}" );
     }
     $init->split;
 
@@ -5829,7 +5906,8 @@ sub B::HV::save {
   }
 
   # Ordinary HV or Stash
-  # KEYS = 0, inc. dynamically below with hv_store
+  # KEYS = 0, inc. dynamically below with hv_store. TODO: HvSTATIC readonly tables,
+  # without hv_store
   if ($PERL510) {
     my $flags = $hv->FLAGS & ~SVf_READONLY;
     $flags &= ~SVf_PROTECT if $PERL522;
@@ -6308,6 +6386,14 @@ EOT
 #endif
 EOT
   }
+  # handy accessors only in cperl for now:
+  print <<'EOT';
+#ifndef get_svs
+#  define get_svs(str, flags) get_sv((str), (flags))
+#  define get_avs(str, flags) get_av((str), (flags))
+#  define get_hvs(str, flags) get_hv((str), (flags))
+#endif
+EOT
   if (%init2_remap and !$HAVE_DLFCN_DLOPEN) {
     print <<'EOT';
 XS(XS_DynaLoader_dl_load_file);
@@ -6426,6 +6512,15 @@ sub output_declarations {
 #define UNUSED 0
 #define sym_0 0
 
+static void
+my_mg_RC_off(pTHX_ SV* sv, int type) {
+  MAGIC *mg;
+  for (mg = SvMAGIC(sv); mg; mg = mg->mg_moremagic) {
+    if (mg->mg_type == type && (mg->mg_flags | MGf_REFCOUNTED))
+      mg->mg_flags &= ~MGf_REFCOUNTED;
+  }
+}
+
 EOT
   if ($PERL510 and IS_MSVC) {
     # initializing char * differs in levels of indirection from int
@@ -6436,7 +6531,7 @@ EOT
 
   # Need fresh re-hash of strtab. share_hek does not allow hash = 0
   if ( $PERL510 ) {
-    print <<'_EOT0';
+     print <<'_EOT0';
 PERL_STATIC_INLINE HEK *
 my_share_hek( pTHX_ const char *str, I32 len );
 #undef share_hek
@@ -6636,6 +6731,11 @@ _EOT1
 #    define PERL_STATIC_INLINE static
 #  endif
 #endif
+/* cperl compat */
+#ifndef HEK_STATIC
+# define HEK_STATIC(hek) 0
+#endif
+
 _EOT2
 
   if ($] < 5.008008) {
@@ -6646,6 +6746,7 @@ _EOT2
   # does not compile on darwin with EXTERN_C declaration
   # See branch `boot_DynaLoader`
   print <<'_EOT4';
+
 #define XS_DynaLoader_boot_DynaLoader boot_DynaLoader
 EXTERN_C void boot_DynaLoader (pTHX_ CV* cv);
 
@@ -7093,6 +7194,18 @@ _EOT7
       }
     }
     $free->output( \*STDOUT, "%s\n" );
+
+    my $riter_type = "I32";
+    if ($CPERL51) {
+      $riter_type = $CPERL55 ? "U32" : "SSize_t";
+    }
+    my $hvmax_type = "STRLEN";
+    if ($CPERL51) {
+      $hvmax_type = $CPERL55 ? "U32" : "SSize_t";
+    }
+    print "#define RITER_T $riter_type\n";
+    print "#define HVMAX_T $hvmax_type\n";
+
     print <<'_EOT7a';
 
     /* Avoid Unbalanced string table refcount warning with PERL_DESTRUCT_LEVEL=2 */
@@ -7101,17 +7214,15 @@ _EOT7
         if (destruct_level < i) destruct_level = i;
     }
     if (destruct_level >= 1) {
-        const I32 max = HvMAX(PL_strtab);
+        const HVMAX_T max = HvMAX(PL_strtab);
 	HE * const * const array = HvARRAY(PL_strtab);
-	I32 riter = 0;
+	RITER_T riter = 0;
 	HE *hent = array[0];
 	for (;;) {
 	    if (hent) {
 		HE * const next = HeNEXT(hent);
-#ifdef USE_CPERL
                 if (!HEK_STATIC(&((struct shared_he*)hent)->shared_he_hek))
-#endif
-                Safefree(hent);
+                    Safefree(hent);
 		hent = next;
 	    }
 	    if (!hent) {
@@ -7163,7 +7274,7 @@ _EOT8
   if ($CPERL51 and $debug{cv}) {
     print q{
         /* -DC set dl_debug to 3 */
-        SV* sv = get_sv("DynaLoader::dl_debug", GV_ADD);
+        SV* sv = get_svs("DynaLoader::dl_debug", GV_ADD);
         sv_upgrade(sv, SVt_IV);
         SvIV_set(sv, 3);};
   }
@@ -7580,12 +7691,12 @@ _EOT15
 
     if ($use_perl_script_name) {
       my $dollar_0 = cstring($0);
-      print sprintf(qq{    sv_setpv_mg(get_sv("0", GV_ADD|GV_NOTQUAL), %s);\n}, $dollar_0);
+      print sprintf(qq{    sv_setpv_mg(get_svs("0", GV_ADD|GV_NOTQUAL), %s);\n}, $dollar_0);
       print sprintf(qq{    CopFILE_set(&PL_compiling, %s);\n}, $dollar_0);
     }
     else {
       #print q{    warn("PL_origalen=%d\n", PL_origalen);},"\n";
-      print qq{    sv_setpv_mg(get_sv("0", GV_ADD|GV_NOTQUAL), argv[0]);\n};
+      print qq{    sv_setpv_mg(get_svs("0", GV_ADD|GV_NOTQUAL), argv[0]);\n};
       print qq{    CopFILE_set(&PL_compiling, argv[0]);\n};
     }
     # more global vars
@@ -7596,32 +7707,32 @@ _EOT15
     #print "    PL_utf8locale = ${^UTF8LOCALE};\n" if ${^UTF8LOCALE};
     #print "    PL_utf8cache = ${^UTF8CACHE};\n" if ${^UTF8CACHE};
     # nomg
-    print sprintf(qq{    sv_setpv(get_sv(";", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($;)) if $; ne "\34";
-    print sprintf(qq{    sv_setpv(get_sv("\\"", GV_NOTQUAL), %s); /* \$" */\n}, cstring($")) if $" ne " ";
+    print sprintf(qq{    sv_setpv(get_svs(";", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($;)) if $; ne "\34";
+    print sprintf(qq{    sv_setpv(get_svs("\\"", GV_NOTQUAL), %s); /* \$" */\n}, cstring($")) if $" ne " ";
     # global IO vars
     if ($PERL56) {
       print sprintf(qq{    PL_ofs = %s; PL_ofslen = %u; /* \$, */\n}, cstring($,), length $,) if $,;
       print sprintf(qq{    PL_ors = %s; PL_orslen = %u; /* \$\\ */\n}, cstring($\), length $\) if $\;
     } else {
       print sprintf(qq{    sv_setpv_mg(GvSVn(PL_ofsgv), %s); /* \$, */\n}, cstring($,)) if $,;
-      print sprintf(qq{    sv_setpv_mg(get_sv("\\\\", GV_ADD|GV_NOTQUAL), %s); /* \$\\ */\n}, cstring($\)) if $\; #ORS
+      print sprintf(qq{    sv_setpv_mg(get_svs("\\\\", GV_ADD|GV_NOTQUAL), %s); /* \$\\ */\n}, cstring($\)) if $\; #ORS
     }
-    print sprintf(qq{    sv_setpv_mg(get_sv("/", GV_NOTQUAL), %s);\n}, cstring($/)) if $/ ne "\n"; #RS
-    print         qq{    sv_setiv_mg(get_sv("|", GV_ADD|GV_NOTQUAL), $|);\n} if $|; #OUTPUT_AUTOFLUSH
+    print sprintf(qq{    sv_setpv_mg(get_svs("/", GV_NOTQUAL), %s);\n}, cstring($/)) if $/ ne "\n"; #RS
+    print         qq{    sv_setiv_mg(get_svs("|", GV_ADD|GV_NOTQUAL), $|);\n} if $|; #OUTPUT_AUTOFLUSH
     # global format vars
-    print sprintf(qq{    sv_setpv_mg(get_sv("^A", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($^A)) if $^A; #ACCUMULATOR
-    print sprintf(qq{    sv_setpv_mg(get_sv("^L", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($^L)) if $^L ne "\f"; #FORMFEED
-    print sprintf(qq{    sv_setpv_mg(get_sv(":", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($:)) if $: ne " \n-"; #LINE_BREAK_CHARACTERS
-    print sprintf(qq/    sv_setpv_mg(get_sv("^", GV_ADD|GV_NOTQUAL), savepvn(%s, %u));\n/, cstring($^), length($^))
+    print sprintf(qq{    sv_setpv_mg(get_svs("^A", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($^A)) if $^A; #ACCUMULATOR
+    print sprintf(qq{    sv_setpv_mg(get_svs("^L", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($^L)) if $^L ne "\f"; #FORMFEED
+    print sprintf(qq{    sv_setpv_mg(get_svs(":", GV_ADD|GV_NOTQUAL), %s);\n}, cstring($:)) if $: ne " \n-"; #LINE_BREAK_CHARACTERS
+    print sprintf(qq/    sv_setpv_mg(get_svs("^", GV_ADD|GV_NOTQUAL), savepvn(%s, %u));\n/, cstring($^), length($^))
       if $^ ne "STDOUT_TOP";
-    print sprintf(qq/    sv_setpv_mg(get_sv("~", GV_ADD|GV_NOTQUAL), savepvn(%s, %u));\n/, cstring($~), length($~))
+    print sprintf(qq/    sv_setpv_mg(get_svs("~", GV_ADD|GV_NOTQUAL), savepvn(%s, %u));\n/, cstring($~), length($~))
       if $~ ne "STDOUT";
-    print         qq{    sv_setiv_mg(get_sv("%", GV_ADD|GV_NOTQUAL), $%);\n} if $%; #PAGE_NUMBER
-    print         qq{    sv_setiv_mg(get_sv("-", GV_ADD|GV_NOTQUAL), $-);\n} unless ($- == 0 or $- == 60); #LINES_LEFT
-    print         qq{    sv_setiv_mg(get_sv("=", GV_ADD|GV_NOTQUAL), $=);\n} if $= != 60; #LINES_PER_PAGE
+    print         qq{    sv_setiv_mg(get_svs("%", GV_ADD|GV_NOTQUAL), $%);\n} if $%; #PAGE_NUMBER
+    print         qq{    sv_setiv_mg(get_svs("-", GV_ADD|GV_NOTQUAL), $-);\n} unless ($- == 0 or $- == 60); #LINES_LEFT
+    print         qq{    sv_setiv_mg(get_svs("=", GV_ADD|GV_NOTQUAL), $=);\n} if $= != 60; #LINES_PER_PAGE
 
     # deprecated global vars
-    print qq{    {SV* s = get_sv("[",GV_NOTQUAL); sv_setiv(s, $[); mg_set(s);}\n} if $[; #ARRAY_BASE
+    print qq{    {SV* s = get_svs("[",GV_NOTQUAL); sv_setiv(s, $[); mg_set(s);}\n} if $[; #ARRAY_BASE
     if ($] < 5.010) { # OFMT and multiline matching
       eval q[
             print sprintf(qq{    sv_setpv(GvSVn(gv_fetchpv("\$#", GV_ADD|GV_NOTQUAL, SVt_PV)), %s);\n},
@@ -7630,7 +7741,7 @@ _EOT15
            ];
     }
 
-    print sprintf(qq{    sv_setpv_mg(get_sv("\030", GV_ADD|GV_NOTQUAL), %s); /* \$^X */\n}, cstring($^X));
+    print sprintf(qq{    sv_setpv_mg(get_svs("\030", GV_ADD|GV_NOTQUAL), %s); /* \$^X */\n}, cstring($^X));
     print <<"EOT";
     TAINT_NOT;
 
@@ -8579,7 +8690,7 @@ sub save_sig {
   }
   $init->add( "/* save %SIG */" ) if $verbose;
   warn "save %SIG\n" if $verbose;
-  $init->add( "{", "\tHV* hv = get_hv(\"main::SIG\",GV_ADD);" );
+  $init->add( "{", "\tHV* hv = get_hvs(\"main::SIG\", GV_ADD);" );
   foreach my $x ( @save_sig ) {
     my ($k, $cvref) = @$x;
     my $sv = $cvref->save;

@@ -41,7 +41,8 @@ use Config;
 
 my $ccopts;
 BEGIN {
-  plan skip_all => "MSVC" if ($^O eq 'MSWin32' and $Config{cc} eq 'cl');
+  plan skip_all => "skipped: Overlong tests, timeout on Appveyor CI"
+    if $^O eq 'MSWin32' and $ENV{APPVEYOR};
   if ($^O eq 'MSWin32' and $Config{cc} eq 'cl') {
     # MSVC takes an hour to compile each binary unless -Od
     $ccopts = '"--Wc=-Od"';
@@ -313,6 +314,9 @@ sub is_todo {
   if ($] >= 5.008004 and $] < 5.0080006) { foreach(qw(
     Module::Pluggable
   )) { return '5.8.5 CopFILE_set' if $_ eq $module; }}
+  if ($] <= 5.0080009) { foreach(qw(
+    IO::Socket
+  )) { return '5.8.9 empty Socket::AF_UNIX' if $_ eq $module; }}
   # PMOP quoting fixed with 1.45_14
   #if ($] < 5.010) { foreach(qw(
   #  DateTime
@@ -342,6 +346,9 @@ sub is_todo {
 
   # ---------------------------------------
   if ($Config{useithreads}) {
+    if ($^O eq 'MSWin32') { foreach(qw(
+      Test::Harness
+    )) { return 'MSWin32 with threads' if $_ eq $module; }}
     if ($] >= 5.008008 and $] < 5.008009) { foreach(qw(
       Test::Tester
     )) { return '5.8.8 with threads' if $_ eq $module; }}
