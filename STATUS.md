@@ -30,7 +30,7 @@ Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 
 The current stable release is [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4),
 the latest release is [5.24.0c](https://github.com/perl11/cperl/releases/).
-See [perl5224cdelta](perl5224cdelta.html) and the [cperl-5.24.1 delta](perlcdelta.html).
+See [perl5224cdelta](perl5224cdelta.html) and the [cperl-5.25.1 delta](perlcdelta.html).
 
 All tests pass. CPAN works.
 
@@ -50,7 +50,7 @@ upgrade is seemless.  E.g. Test2 (the new Test::Simple) broke >15
 modules without any patches.
 
 cperl-5.24.0c has [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
-for problems which are not fixed in perl-5.24.1.
+for problems which are not fixed in perl-5.25.1.
 Ditto cperl-5.22.4c has about 20 fixes which are not in the latest
 perl-5.22.3.
 
@@ -65,7 +65,9 @@ perl-5.22.3.
 # In the stable master branch are the following major features
 
 * coretypes (Int, UInt, Num, Str. lowercase native types accepted)
-* types in signatures as designed and also as attribute
+* types in signatures as designed and also as attribute.
+* signatures are 2x faster, not 2x slower as with 5.24 or almost as slow
+  as without as with 5.26.
 * function return types declarations as attribute
 * many more builtin function attributes
 * shaped arrays with compile-time checks and optims
@@ -74,7 +76,7 @@ perl-5.22.3.
 * convert static method to subs
 * Config as XS
 * strict, attributes, DynaLoader, XSLoader as builtin packages, rewritten in C.
-  Security fixes for DynaLoader
+  Security fixes for DynaLoader.
 * changed default hash function to the fastest FNV1A *(as in the stableperl fork)*
 * changed the hash collision strategy from randomize to the usual move-to-front
 * changed the default hash fill rate from 100% to 90%
@@ -83,9 +85,10 @@ perl-5.22.3.
 * add some unicode ops
 * improved build system (make -s, faster, CC vs LD confusion)
 * hash keys keep the tainted info. see [perlsec](http://perldoc.perl.org/perlsec.html#Taint-mode)
+  There are no known taint loopholes anymore.
 * fix ops using lexical `$_`
 * readonly packages can be cloned with threads
-* security and overlarge data fixes for Storable
+* security and overlarge data fixes for Storable, YAML not yet.
 * include B-C, Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
 * improved redefined warnings
 * cperl specific toolchain modules, with support for cperl-only module
@@ -94,6 +97,16 @@ perl-5.22.3.
   sense and cause not much trouble.
 * some security fixes for Unicode confusables, but more are needed (use strict 'names').
 * handle method calls on protected stashes
+* disallow silent overflows of hash and array indices or string/name lengths.
+  New "Too many elements" error and many new "overlarge" or "too large" panics.
+* harmonize overlarge (>2GB) data, max. I64/I32 string and array lengths,
+  and U32 hash keys. You can properly access all elements, unlike with perl5.
+  Do not silently wrap around indices or counts, do not silently truncate
+  overlarge data as in perl5 upstream.
+* special handling for security warnings: protect against hash flood DoS. Warn on
+  all known public attacks, as metasploit bind/reverse shells or the Storable attack
+  with the new `warn_security` API, which logs attacks at STDERR/syslog with the
+  remote user/IP.
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.

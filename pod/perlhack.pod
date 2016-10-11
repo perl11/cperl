@@ -1118,6 +1118,130 @@ L<http://search.cpan.org/dist/CPANPLUS-YACSmoke/> or
 L<http://search.cpan.org/dist/minismokebox/> or
 L<http://search.cpan.org/dist/CPAN-Reporter/>.
 
+=head1 CPERL
+
+The cperl development model is a bit different from perl5 porters.
+This workflow can also be used for bigger projects with lots of
+parallel branches being worked on.
+
+See L<perlcperl/DEVELOPMENT SETUP> for the initial setup for C<git
+rerere>, which helps in rebasing all actual branches to master for
+every branch merge.  This is needed for every committer.
+
+Every non-trivial bugfix or enhancement has to got through a public
+github issue or pull request.
+
+A branch needs a prefix, like F<bugfix/>, F<feature/> or F<smoke/>,
+and the GITHUB issue number as prefix, like F<feature/gh24-hash-loop>
+If a branch depends on another branch being worked on, you may use
+F<featurex/gh24-new-hash-loop>, i.e. a F<featurex/> prefix and the
+same github number prefix.  Only F<smoke/> branches are smoked by
+Travis CI and Appveyor.
+
+So you create a new branch, like F<feature/gh24-hash-loop>, make it
+work locally, rename the branch to F<smoke/gh24-hash-loop>, push it
+and see if the smokers run through on all platforms. Be sure to add
+documentation and a perlcdelta entry also. This is different to p5p,
+where deltas are written afterwards.
+
+Then a committer will have to merge the branch. This is vastly
+different to other projects. Before pushing the clean merge, one has
+to fix all conflicts with all other actual branches. To ensure that
+the other branches are still current and not out of date.
+This is done via the B<cp-rb> tool in the C<.git-rr-cache> submodule.
+
+Preperation (abbrevations used below):
+
+   alias g=git
+   g alias co checkout
+   g alias br branch
+   g alias rb rebase
+   g alias rbs 'rebase --skip'
+   g alias rbc 'rebase --continue'
+   g alias ciae 'commit --amend --no-edit'
+   alias cp-rb=.git-rr-cache/cp-rb
+
+Merge:
+
+   # ensure your branch is clear, can be merged without conflict
+   g co smoke/gh24-hash-loop
+   g rb master # or origin/master
+   g co master
+   g merge smoke/gh24-hash-loop
+
+Rebase all branches:
+
+   cp-rb
+
+B<cp-rb> rebases all current branches F<bugfix/>, F<feature/>,
+F<featurex/> and F<smoke/> on the new master. For F<featurex/>
+branches or F<smoke/> branches there might be special rules in the
+F<cp-rb> shell script.  In the best case the script finishes without any
+rebase CONFLICT.  This might happen when there is no conflict, i.e. if
+you worked on a rarely touched file, or the conflict was already
+resolved before and stored in F<.git-rr-cache>.  On a CONFLICT F<cp-rb>
+stops, and you are prompted to either resolve or skip it.  The easiest
+is working in Emacs B<magit>, where you see where the rebase stopped,
+which files have conflicts, and by clicking on it, jumps to the
+conflict.  Typically you have to merge the conflicts, stage it and
+C<g rbc>, i.e. C<r r> in magit or C<git rebase --continue>. Then start
+F<cb-rb> again, which then runs until the next new conflict. The
+F<.git-rr-cache> stored your conflict resolution, if skipped or staged
+and stored.
+
+When F<cp-rb> ran through, your F<.git-rr-cache> changes have to be
+stored, and again rebased.
+
+
+   g co master
+   cd .git-rr-cache; g add .; g ci -m'gh24-hash-loop'; cd ..
+   g add .git-rr-cache; g ci --amend --no-edit
+   # and rebase again
+   cp-rb
+
+Now only the F<.git-rr-cache> submodule CONFLICT should appear which
+is automatically skipped. If all goes well, check if any branch messed
+up the rebase , i.e. in magit display with C<C-x g l L> all local
+branches, and see if the first commit of a branch is a duplicate of a
+previous branch. This sometimes happens, esp. when you rebase a
+temp. work branch already. This commit needs to be inspected and most
+likely skipped. C<cp-rb> should only be run when the branch is really
+ready to be merged to master, otherwise you have to clean up a lot of
+branches afterwards.
+
+Then delete the merged branch:
+
+    g br -d smoke/gh24-hash-loop; g push :smoke/gh24-hash-loop
+
+Then you can do a C<git push -f> of all remaining F<smoke/> branches
+and then a C<git push master>, and then C<git push -f> of the rest.
+This way Travis always displays a green status icon, as master is the
+last pushed branch, not some intermediate smoke branch, which is still
+being worked on.
+
+The advantage of this workflow is that you fix branch conflicts based
+on your current work and changes, and not months later, on a branch by
+someone else. All branches are automatically current, based on the
+current master and can be immediately being worked on. The conflicts
+are minimal, and previous conflict resultions are stored in the
+F<.git-rr-cache>.
+
+Even merging thousands of commits from perl5 upstream are handled
+easily with the cache. Just this is done with cherry-picking, not
+rebasing.
+
+The F<branch-point> branch is special. It is either equal to master or
+one C<.git-rr-cache> commit forwards. A trick when merging a new
+branch is to create a special C<.git-rr-cache> commit in
+F<branch-point>, which contains only the C<.git-rr-cache> submodule
+change. All branches are rebased with C<cp-rb> onto this.  Conflicts
+in the last master commit cannot be mixed up then with the
+C<.git-rr-cache>, which will happen several times during a C<cp-rb>
+procedure. After all C<cp-rb> conflicts are resolved, F<branch-point>
+can be fixed up (i.e. merged via C<rebase -i>) with the last master
+commit, to be only one single commit.
+
+
 =head1 WHAT NEXT?
 
 If you've read all the documentation in the document and the ones
