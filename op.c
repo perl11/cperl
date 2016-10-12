@@ -5286,7 +5286,7 @@ Perl_op_convert_list(pTHX_ I32 type, I32 flags, OP *o)
     if (type != OP_SPLIT)
         /* At this point o is a LISTOP, but OP_SPLIT is a PMOP; let
          * ck_split() create a real PMOP and leave the op's type as listop
-         * for for now. Otherwise op_free() etc will crash.
+         * for now. Otherwise op_free() etc will crash.
          */
         OpTYPE_set(o, type);
 
@@ -6136,7 +6136,7 @@ S_set_haseval(pTHX)
  * constant), or convert expr into a runtime regcomp op sequence (if it's
  * not)
  *
- * Flags currently has 2 bits or meaning:
+ * Flags currently has 2 bits of meaning:
  * 1: isreg indicates that the pattern is part of a regex construct, eg
  * $x =~ /pattern/ or split /pattern/, as opposed to $x =~ $pattern or
  * split "pattern", which aren't. In the former case, expr will be a list
@@ -11804,7 +11804,7 @@ Perl_ck_split(pTHX_ OP *o)
     kid = OpFIRST(o);
 
     if (ISNT_TYPE(kid, MATCH) || OpSTACKED(kid)) {
-        /* remove match expression, and replace with new optree  with
+        /* remove match expression, and replace with new optree with
          * a match op at its head */
         op_sibling_splice(o, NULL, 1, NULL);
         /* pmruntime will handle split " " behavior with flag==2 */
@@ -11823,10 +11823,10 @@ Perl_ck_split(pTHX_ OP *o)
      * into its place, then convert the match op into a split op. i.e.
      *
      *  SPLIT                    MATCH                 SPLIT(ex-MATCH)
-     *    |                        |                     |               
-     *  MATCH - A - B - C   =>     R - A - B - C   =>    R - A - B - C 
-     *    |                        |                     |               
-     *    R                        X - Y                 X - Y           
+     *    |                        |                     |
+     *  MATCH - A - B - C   =>     R - A - B - C   =>    R - A - B - C
+     *    |                        |                     |
+     *    R                        X - Y                 X - Y
      *    |
      *    X - Y
      *
