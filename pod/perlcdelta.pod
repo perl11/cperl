@@ -237,6 +237,10 @@ Change $sv->EXTFLAGS to compflags since 5.22 for CALLREGCOMP().
 Turn off MGf_REFCOUNTED.
 global-buffer-overflow with dynamic COW strings, wrong savepvn args.
 
+=item base  2.23_01
+
+fixes for missing . in @INC (cperl or -Dfortify_inc).
+
 =back
 
 =head1 Documentation

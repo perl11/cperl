@@ -3293,7 +3293,11 @@ dist/base/t/fields-5_6_0.t	See if fields work
 dist/base/t/fields-5_8_0.t	See if fields work
 dist/base/t/fields-base.t	See if fields work
 dist/base/t/fields.t		See if fields work
+dist/base/t/incdot.t		See if base works
+dist/base/t/incmodified-vs-incdot.t	See if base works
 dist/base/t/isa.t		See if base's behaviour doesn't change
+dist/base/t/lib/BaseIncExtender.pm		Test module for base.pm
+dist/base/t/lib/BaseIncDoubleExtender.pm	Test module for base.pm
 dist/base/t/lib/Broken.pm	Test module for base.pm
 dist/base/t/lib/Dummy.pm	Test module for base.pm
 dist/base/t/lib/HasSigDie.pm	Module for testing base.pm

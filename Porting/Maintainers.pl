@@ -236,6 +236,7 @@ use File::Glob qw(:case);
     'base' => {
         'DISTRIBUTION' => 'RJBS/base-2.23.tar.gz',
         'FILES'        => q[dist/base],
+        'CUSTOMIZED'   => [ qw[ lib/base.pm ] ],
     },
 
     'bignum' => {
