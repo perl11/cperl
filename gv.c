@@ -1036,7 +1036,7 @@ GV *
 Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN len, U32 flags)
 {
     const char *nend;
-    const char * const name_end= name + len;
+    const char * const name_end = name + len;
     const char *nsplit = NULL;
     GV* gv;
     HV* ostash = stash;
@@ -1075,7 +1075,7 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 			 origname, HvENAME_get(stash), name) );
 	}
 	else if ((nsplit - origname) >= 7
-		 && strEQc(nsplit - 7, "::SUPER")) {
+		 && memEQc(nsplit - 7, "::SUPER")) {
             /* don't autovifify if ->NoSuchStash::SUPER::method */
 	    stash = gv_stashpvn(origname, nsplit - origname - 7, is_utf8);
 	    if (stash) flags |= GV_SUPER;
