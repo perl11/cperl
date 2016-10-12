@@ -14,18 +14,32 @@ L<perl5240cdelta>, which describes differences between 5.22.3 and 5.24.0.
 
 =head1 Notice
 
-perl5.24.1 was security update to non-existing problem. cperl added
-PERLIO_DEBUG as optional handle to redirect DEBUGGING outout via -Dx
-switches to. This is only usable with DEBUGGING perls, which are not
-used in production, only during development.
-perl5.24.1 changed PERLIO_DEBUG to only be active for PerlIO debugging
-together with -Di.
+perl5.24.1 upstream was a security update to non-existing
+problem. cperl added PERLIO_DEBUG as optional handle to redirect
+DEBUGGING outout via -Dx switches to. This is only usable with
+DEBUGGING perls, which are not used in production, only during
+development.  perl5.24.1 changed PERLIO_DEBUG to only be active for
+PerlIO debugging together with C<-Di>.
 
 =head1 Security
 
-XXX Any security-related notices go here.  In particular, any security
-vulnerabilities closed should be noted here rather than in the
-L</Selected Bug Fixes> section.
+=head2 C<@{ \327 \n }> buffer overflows
+
+Fixed C<@{ \327 \n }> tokenizer failures and heap buffer overflows in
+C<sv_vcatpvfn_flags()> with wrong tracking of C<PL_linestr>, the
+currently parsed line buffer. This can easily lead to security
+relevant exploits.
+
+L<[perl #128951]|https://rt.perl.org/Public/Bug/Display.html?id=128951>
+
+=head2 C<eval "q" . chr(overlarge)> stack overflow
+
+In C<eval "q" . chr(100000000064)> generating the error message
+C<Can't find string terminator "XXX"'> was overrunning a local buffer
+designed to hold a single utf8 char, since it wasn't allowing for
+the C<\0> at the end.
+
+L<[perl #128952]|https://rt.perl.org/Public/Bug/Display.html?id=128952>
 
 =head2 Protect and warn on hash flood DoS
 
@@ -110,17 +124,14 @@ e.g. C<my %h = (.. => .., .. => ..)>
 This version is 30% faster overall in the Mail::SpamAssassin testsuite
 than cperl-5.24.0.
 
+=item *
+
+Pre-extend internal hashes and stashes to avoid unnecessary boot-time hash
+splits. C<%warnings::>, C<%Config::>, C<%utf8::>, C<%version::>.
+
 =back
 
 =head1 Modules and Pragmata
-
-XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
-go here.  If Module::CoreList is updated, generate an initial draft of the
-following sections using F<Porting/corelist-perldelta.pl>.  A paragraph summary
-for important changes should then be added by hand.  In an ideal world,
-dual-life modules would have a F<Changes> file that could be cribbed.
-
-[ Within each section, list entries as a =item entry ]
 
 =head2 Updated Modules and Pragmata
 
@@ -188,9 +199,10 @@ for symlinked darwin libSystem.dylib libraries.
 
 =item IO::Socket::IP 0.38
 
-From https://github.com/atoomic/IO-Socket-IP/
 protect sv in END during global destruction, esp. with B::C.
 fixes for missing . in @INC (cperl or -Dfortify_inc).
+
+From https://github.com/atoomic/IO-Socket-IP/:
 
 - Support setting custom socket options with new Sockopts
   constructor parameter
@@ -243,27 +255,6 @@ fixes for missing . in @INC (cperl or -Dfortify_inc).
 
 =back
 
-=head1 Documentation
-
-XXX Changes to files in F<pod/> go here.  Consider grouping entries by
-file and be sure to link to the appropriate page, e.g. L<perlfunc>.
-
-=head2 Changes to Existing Documentation
-
-XXX Changes which significantly change existing files in F<pod/> go here.
-However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
-section.
-
-=head3 L<XXX>
-
-=over 4
-
-=item *
-
-XXX Description of the change here
-
-=back
-
 =head1 Diagnostics
 
 The following additions or changes have been made to diagnostic output,
@@ -291,6 +282,7 @@ Even worse, accessing overflown unsigned array indices would silently
 access the signed counterpart, indices at the end.
 
 Note that the out of bound error message with shaped arrays is different.
+(cperl only)
 
 =item *
 
@@ -301,6 +293,7 @@ ignores those failures, and truncates the keys.
 Many more similar C<panic: (file|keyword|mro|stash)? name too long> errors
 were added to the parser and compiler to protect from overlong names
 (> I32_MAX, 2147483647).
+(cperl only)
 
 =back
 
@@ -310,8 +303,9 @@ were added to the parser and compiler to protect from overlong names
 
 =item *
 
-The new warning "SECURITY: Hash flood" was added.
+The new security warning "Hash flood" was added.
 See L</"Protect and warn on hash flood DoS">.
+(cperl only)
 
 =item *
 
@@ -319,25 +313,7 @@ The new C<security> warnings "metasploit reverse/bind shell payload"
 and "CVE-2012-1823 reverse/bind shell payload" were added, detecting
 the existing metasploit/libxploit and phpcgi CVE-2012-1823 reverse and
 bind shells.  See L</"Warn on metasploit reverse shells">
-
-=back
-
-=head1 Utility Changes
-
-XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
-Most of these are built within the directory F<utils>.
-
-[ List utility changes as a =head2 entry for each utility and =item
-entries for each change
-Use L<XXX> with program names to get proper documentation linking. ]
-
-=head2 L<XXX>
-
-=over 4
-
-=item *
-
-XXX
+(cperl only)
 
 =back
 
@@ -347,37 +323,50 @@ XXX
 
 =item *
 
-added C<sanitize_address> config entry and probe, and matching
+Added C<sanitize_address> config entry and probe, and matching
 C<USE_SANITIZE_ADDRESS> F<config.h> define.
+(cperl only)
 
 =item *
 
-removed C<i_netinet6_in6> Config entry and probe, and matching
+Removed C<i_netinet6_in6> Config entry and probe, and matching
 C<I_NETINET6_I6> F<config.h> define, which was a typo.
 This was added with cperl-5.22.2 and was never used due to the typo.
 It cannot be used due to RFC 2553.
+(cperl only)
 
 =item *
 
 Added C<i_netinet_in_systm> probe.
+(cperl only)
 
 =back
 
 =head1 Testing
 
-XXX Any significant changes to the testing of a freshly built perl should be
-listed here.  Changes which create B<new> files in F<t/> go here as do any
-large changes to the testing harness (e.g. when parallel testing was added).
-Changes to existing files in F<t/> aren't worth summarizing, although the bugs
-that they represent may be covered elsewhere.
-
-[ List each test improvement as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+C<make minitest> has been vastly improved
+
+=item *
+
+Fix tests for the optional C<-DNODEFAULT_SHAREKEYS> configuration.
+
+=item *
+
+Add hash flood tests with pre-created collision data for 511
+collisions on seed=0.
+
+=item *
+
+Split F<t/op/tr.t> into unicode and ebcdic variant
+
+=item *
+
+Don't warn on missing Pod::Man in CORE tests.  Pod::Man is not a
+dependency for EUMM, as it needs EUMM at first.
 
 =back
 
@@ -587,9 +576,32 @@ here.
 
 =head1 Acknowledgements
 
-XXX Generate this with:
+cperl 5.24.1 represents approximately 3 months of development since cperl 5.24.0c
+and contains approximately 15,000 lines of changes across 250 files from 11
+authors.
 
-  perl Porting/acknowledgements.pl v5.22.1..HEAD
+Excluding auto-generated files, documentation and release tools, there were
+approximately 4,900 lines of changes to 130 .pm, .t, .c and .h files.
+
+Perl continues to flourish into its third decade thanks to a vibrant community
+of users and developers. The following people are known to have contributed the
+improvements that became cperl 5.24.1c:
+
+Reini Urban, Father Chrysostomos, David Mitchell, Daniel Dragan, Tony Cook,
+Lukas Mai, Yves Orton, Aristotle Pagaltzis, Misty De Meo, Karl Williamson,
+James Raspass, Nicholas Rochelemange.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the cperl issue
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
 
 =head1 Reporting Bugs
 
@@ -602,6 +614,9 @@ If you believe you have an unreported bug, please run the L<cperlbug> program
 included with your release.  Be sure to trim your bug down to a tiny but
 sufficient test case.  Your bug report, along with the output of C<perl -V>,
 will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
 
 If the bug you are reporting has security implications which make it
 inappropriate to send to a publicly archived mailing list, then see
