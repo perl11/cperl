@@ -5,11 +5,15 @@ use warnings;
 
 BEGIN {
     use Test::More;
+    my $tests = 117 + 9;
     unless ($ENV{PERL_CORE}) {
 	require Test::NoWarnings;
 	Test::NoWarnings->import ();
+	$tests++;
+	}
+
+    plan tests => $tests;
     }
-}
 
 use Config::Perl::V;
 
@@ -64,8 +68,6 @@ my %check = (
     use64bitint     => "define",
     );
 is ($conf->{config}{$_}, $check{$_}, "reconstructed \$Config{$_}") for sort keys %check;
-
-done_testing();
 
 __END__
 Summary of my perl5 (revision 5 version 20 subversion 2) configuration:

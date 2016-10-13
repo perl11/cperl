@@ -8,7 +8,7 @@ use warnings;
 use Config;
 use Exporter;
 use vars qw($VERSION @ISA @EXPORT_OK %EXPORT_TAGS);
-$VERSION     = "0.26_01";
+$VERSION     = "0.27_01";
 @ISA         = ("Exporter");
 @EXPORT_OK   = qw( plv2hash summary myconfig signature );
 %EXPORT_TAGS = (
@@ -61,6 +61,7 @@ my %BTD = map { $_ => 0 } qw(
     PERL_MEM_LOG_TIMESTAMP
     PERL_NATIVE_TYPES
     PERL_NEW_COPY_ON_WRITE
+    PERL_OP_PARENT
     PERL_PERTURB_KEYS_DETERMINISTIC
     PERL_PERTURB_KEYS_DISABLED
     PERL_PERTURB_KEYS_RANDOM
