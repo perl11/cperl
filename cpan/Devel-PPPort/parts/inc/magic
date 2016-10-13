@@ -13,7 +13,6 @@
 
 mg_findext
 sv_unmagicext
-PERL_MAGIC_qr
 
 __UNDEFINED__
 /sv_\w+_mg/
