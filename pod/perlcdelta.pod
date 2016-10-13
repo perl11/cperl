@@ -125,6 +125,10 @@ Many fixes und improvements
 
 set $Module::Load::Conditional::FORCE_SAFE_INC = 1
 
+=item Locale::Codes  3.40
+
+Lot of new codes.
+
 =back
 
 =head1 Documentation
