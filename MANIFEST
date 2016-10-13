@@ -3550,16 +3550,18 @@ dist/Locale-Maketext/lib/Locale/Maketext/TPJ13.pod	Locale::Maketext documentatio
 dist/Locale-Maketext/README				Locale::Maketext
 dist/Locale-Maketext/t/01_about_verbose.t		See if Locale::Maketext works
 dist/Locale-Maketext/t/04_use_external_lex_cache.t	See if Locale::Maketext works
-dist/Locale-Maketext/t/09_compile.t	Test Locale::Maketext::_compile
-dist/Locale-Maketext/t/10_make.t			See if Locale::Maketext works
-dist/Locale-Maketext/t/20_get.t				See if Locale::Maketext works
-dist/Locale-Maketext/t/30_eval_dollar_at.t		See if Locale::Maketext works
-dist/Locale-Maketext/t/40_super.t			See if Locale::Maketext works
-dist/Locale-Maketext/t/50_super.t			See if Locale::Maketext works
-dist/Locale-Maketext/t/60_super.t			See if Locale::Maketext works
-dist/Locale-Maketext/t/70_fail_auto.t			See if Locale::Maketext works
-dist/Locale-Maketext/t/90_utf8.t			See if Locale::Maketext works
-dist/Locale-Maketext/t/91_backslash.t			See if Locale::Maketext works
+dist/Locale-Maketext/t/09_compile.t		Test Locale::Maketext::_compile
+dist/Locale-Maketext/t/10_make.t		See if Locale::Maketext works
+dist/Locale-Maketext/t/20_get.t			See if Locale::Maketext works
+dist/Locale-Maketext/t/30_eval_dollar_at.t	See if Locale::Maketext works
+dist/Locale-Maketext/t/40_super.t		See if Locale::Maketext works
+dist/Locale-Maketext/t/50_super.t		See if Locale::Maketext works
+dist/Locale-Maketext/t/60_super.t		See if Locale::Maketext works
+dist/Locale-Maketext/t/70_fail_auto.t		See if Locale::Maketext works
+dist/Locale-Maketext/t/90_utf8.t		See if Locale::Maketext works
+dist/Locale-Maketext/t/91_backslash.t		See if Locale::Maketext works
+dist/Locale-Maketext/t/92_blacklist.t		See if Locale::Maketext works
+dist/Locale-Maketext/t/93_whitelist.t		See if Locale::Maketext works
 dist/Module-CoreList/Changes			Module::CoreList Changes
 dist/Module-CoreList/corelist			The corelist command-line utility
 dist/Module-CoreList/identify-dependencies	A usage example for Module::CoreList

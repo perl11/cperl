@@ -13320,6 +13320,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'HTTP::Tiny'            => '0,070',
             'IPC::Cmd'              => '0.96',
             'Locale::Codes'         => '3.40',
+            'Locale::Maketext'      => '1.28',
             'POSIX'                 => '1.65_01',
             'PerlIO::encoding'      => '0.24_01',
             'DynaLoader'            => '2.05c',
