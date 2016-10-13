@@ -101,6 +101,8 @@ remove '.' from @INC before module loading RT #116513,
 namespace cleanup (RT #105371 and #105372),
 minor code and documentation tweaks
 
+=item Encode  2.86
+
 =back
 
 =head1 Documentation

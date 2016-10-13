@@ -1,4 +1,4 @@
-# $Id: enc_data.t,v 2.2 2013/02/18 02:23:56 dankogai Exp $
+# $Id: enc_data.t,v 2.3 2016/08/10 18:08:45 dankogai Exp dankogai $
 
 BEGIN {
     require Config; import Config;
@@ -12,6 +12,10 @@ BEGIN {
     }
     if (ord("A") == 193) {
     print "1..0 # encoding pragma does not support EBCDIC platforms\n";
+    exit(0);
+    }
+    if ("$]" >= 5.025) {
+    print "1..0 # encoding pragma not supported in Perl 5.26\n";
     exit(0);
     }
     if ($] <= 5.008 and !$Config{perl_patchlevel}){

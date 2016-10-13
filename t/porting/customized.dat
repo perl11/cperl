@@ -37,7 +37,7 @@ Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
 Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
 Digest::MD5 cpan/Digest-MD5/MD5.xs 9b47158166b1162f11169f9766eddb75046e7917
 Digest::MD5 cpan/Digest-MD5/t/files.t c38f1ab8150ad688de807d140fd410d7cd9410de
-Encode cpan/Encode/bin/enc2xs 5466e0a9ea7cadea5d461a764a4db32330637a1f
+Encode cpan/Encode/bin/enc2xs e89304812340e7555258f59df9224476b4cedb67
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t b65ce65850ad1b887e38d2a081920646f162fbaa
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t c01ba6e7a872c8a7fc26e277e0dea109616a5e56
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm 92397ec3b85c35edd33cbe7b237d244ea2bd00b1
@@ -58,7 +58,7 @@ File::Path cpan/File-Path/lib/File/Path.pm 623799e76e11a756ca5e18749d8bc1bdc3800
 File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm ea210ef037088b8ff77db8a0c149e09032a4beab
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 74f4ba92d69c8253e2e1722100ea467e99ce6c82
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 4edeb64c1e266126c5d5b6c00e50e292aeba9e07
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm a73de818aa5a135ada014bfec9352c417fa8797a
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
