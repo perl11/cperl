@@ -140,6 +140,13 @@ perl #127923 priority. See L<Locale::Maketext/"BRACKET NOTATION SECURITY">
 
 with our t/ skip count fixes.
 
+=item Module-Load-Conditional  0.68
+
+Fix unconditional @INC localisation,
+Add FORCE_SAFE_INC option to fix CVE-2016-1238.
+
+
+
 =back
 
 =head1 Documentation
