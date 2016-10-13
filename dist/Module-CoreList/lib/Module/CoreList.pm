@@ -13415,6 +13415,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'B::C'                  => '1.54_13',
             'DynaLoader'            => '2.05c',
             'B'                     => '1.62_04',
+            'Data::Dumper'          => '2.162',
             'Devel::Peek'           => '1.23_01',
             'File::Glob'            => '1.26_01',
             'File::DosGlob'         => '1.12_01',

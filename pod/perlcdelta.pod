@@ -84,6 +84,12 @@ added F<t/gh70-asan.t>
 
 skip the t/utime.t on ext2/ext3
 
+=item Data::Dumper  1.162
+
+strEQc improvements
+
+fix correct indentation for utf-8 key hash elements, [perl #128524].
+
 =back
 
 =head1 Documentation
