@@ -4,8 +4,8 @@
 
 The name **cperl** stands for **a perl with classes, types, compiler
 support, continuation of perl5 development or just a company-friendly
-perl**, but currently it's only a better variant with types and signatures,
-and without classes.
+perl**, but currently it's only a better variant with types, proper signatures,
+security fixes and without classes.
 
 cperl started Feb. 2015 when `:const` was added, parrot was killed and
 it became clear that optimizing for fun is better than waiting for
@@ -15,7 +15,8 @@ Currently it is about 20% faster than perl5 overall, >2x faster
 then 5.14 and uses the least amount of memory measured since 5.6,
 i.e. less than 5.10 and 5.6.2, which were the previous leaders. While
 perl5.22 uses the most memory yet measured. cperl 5.24 is about 2x faster
-than 5.22.
+than 5.22. Function calls with signatures are 2x faster, normal functions with a
+`my(..) = @_;` prolog are automatically promoted to signatures.
 
 But not all of the wanted features are merged.  The plan is to support
 most perl5-compatible perl6 features (*"do not break CPAN"*), improve
@@ -28,15 +29,17 @@ Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 
-The current stable release is [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4),
-the latest release is [5.24.0c](https://github.com/perl11/cperl/releases/).
-See [perl5224cdelta](perl5224cdelta.html) and the [cperl-5.25.1 delta](perlcdelta.html).
+The current stable release is
+  [5.24.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.1) - [perl5241cdelta](perl5241cdelta.html),
+the latest development release [5.25.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.25.0) - [perl5250cdelta](perl5250cdelta.html).
+See the current changelog [cperl-5.25.1 delta](perlcdelta.html).
+We also have [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
 
 All tests pass. CPAN works.
 
 Some fixes in my `rurban/distroprefs` repo for certain CPAN modules are needed.
 
-For 5.24.0c with some modernized core modules some signatures are
+For 5.24.1c with some modernized core modules some signatures are
 pretty strictly typed to catch wrong usages and enforce better code.
 See the `Test::More::skip()` [FAQ](https://github.com/perl11/cperl/issues/153#issuecomment-224515895) or below.
 Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
@@ -49,8 +52,8 @@ the patches are all provided in my
 upgrade is seemless.  E.g. Test2 (the new Test::Simple) broke >15
 modules without any patches.
 
-cperl-5.24.0c has [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
-for problems which are not fixed in perl-5.25.1.
+cperl-5.24.0c and cperl-5.24.1c have [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
+for problems which are not fixed in perl-5.24.1.
 Ditto cperl-5.22.4c has about 20 fixes which are not in the latest
 perl-5.22.3.
 
@@ -86,17 +89,17 @@ perl-5.22.3.
 * improved build system (make -s, faster, CC vs LD confusion)
 * hash keys keep the tainted info. see [perlsec](http://perldoc.perl.org/perlsec.html#Taint-mode)
   There are no known taint loopholes anymore.
-* fix ops using lexical `$_`
-* readonly packages can be cloned with threads
+* fix ops using lexical `$_`. The lexical topic feature is supported.
+* readonly packages can be cloned with threads.
 * security and overlarge data fixes for Storable, YAML not yet.
 * include B-C, Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
-* improved redefined warnings
-* cperl specific toolchain modules, with support for cperl-only module
+* improved redefined warnings.
+* cperl specific toolchain modules, with support for cperl-only module.
   versions with a 'c' suffix, and 10x faster JSON and YAML usage. (esp. with cpan).
 * many typed and modernized core modules, where signatures and types make
   sense and cause not much trouble.
 * some security fixes for Unicode confusables, but more are needed (use strict 'names').
-* handle method calls on protected stashes
+* handle method calls on protected stashes.
 * disallow silent overflows of hash and array indices or string/name lengths.
   New "Too many elements" error and many new "overlarge" or "too large" panics.
 * harmonize overlarge (>2GB) data, max. I64/I32 string and array lengths,
@@ -105,7 +108,8 @@ perl-5.22.3.
   overlarge data as in perl5 upstream.
 * special handling for security warnings: protect against hash flood DoS. Warn on
   all known public attacks, as metasploit bind/reverse shells or the Storable attack
-  with the new `warn_security` API, which logs attacks at STDERR/syslog with the
+  with the new `warn_security` API.
+  Since 5.25.1 such security warnings are logged at STDERR/syslog with the
   remote user/IP.
 
 Most of them only would have a chance to be merged upstream if a p5p
@@ -350,4 +354,4 @@ They also revert some wrong decisions p5p already made.
 
 * builtin ffi
 
-2016-07-25 rurban
+2016-10-13 rurban
