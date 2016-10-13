@@ -221,11 +221,12 @@ From https://github.com/atoomic/IO-Socket-IP/:
 
 - Restore blocking mode after ->connect errors [cpan #112334]
 
-=item Time::HiRes  1.9739
+=item Time::HiRes  1.9740
 
 More Darwin thread fixes for clock_gettime,
 Sierra support,
-test improvements.
+test improvements,
+skip the t/utime.t on ext2/ext3
 
 =item Socket  2.024_04
 
