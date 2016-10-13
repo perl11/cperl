@@ -1037,8 +1037,8 @@ use File::Glob qw(:case);
         ],
     },
 
-    'NEXT::DISTINCT' => {
-        'DISTRIBUTION' => 'FLORA/NEXT-0.65.tar.gz',
+    'NEXT' => {
+        'DISTRIBUTION' => 'FLORA/NEXT-0.67.tar.gz',
         'FILES'        => q[cpan/NEXT],
         'EXCLUDED'     => [qr{^demo/}],
     },
