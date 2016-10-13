@@ -129,6 +129,13 @@ set $Module::Load::Conditional::FORCE_SAFE_INC = 1
 
 Lot of new codes.
 
+=item Locale::Maketext 1.28
+
+Fix optional runtime load for CVE-2016-1238
+
+Add blacklist and whitelist support, with 
+perl #127923 priority. See L<Locale::Maketext/"BRACKET NOTATION SECURITY">
+
 =back
 
 =head1 Documentation
