@@ -13372,6 +13372,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList'      => '5.20161028c',
             'Module::CoreList::TieHashDelta'=> '5.20160618',
             'Module::CoreList::Utils'=> '5.20161028c',
+            'Archive::Tar'          => '2.10',
             'B::C'                  => '1.54_14',
             'Cpanel::JSON::XS'      => '3.0220',
             'Time::HiRes'           => '1.9740',

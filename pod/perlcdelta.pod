@@ -51,7 +51,9 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
-=item Cpanel-JSON-XS 3.0220
+=item Archive-Tar  2.10
+
+=item Cpanel-JSON-XS  3.0220
 
 modfl() mingw 4.0 runtime bug [perl #125924]
 
