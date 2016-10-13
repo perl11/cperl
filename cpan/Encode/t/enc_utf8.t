@@ -1,4 +1,4 @@
-# $Id: enc_utf8.t,v 2.2 2013/02/18 02:23:56 dankogai Exp $
+# $Id: enc_utf8.t,v 2.3 2016/08/10 18:08:45 dankogai Exp dankogai $
 # This is the twin of enc_eucjp.t .
 
 BEGIN {
@@ -14,6 +14,10 @@ BEGIN {
     if (ord("A") == 193) {
     print "1..0 # encoding pragma does not support EBCDIC platforms\n";
     exit(0);
+    }
+    if ($] >= 5.025003){
+    print "1..0 # Skip: Perl 5.25.2 or lower required\n";
+    exit 0;
     }
 }
 

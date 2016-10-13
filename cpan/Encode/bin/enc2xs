@@ -4,13 +4,14 @@ BEGIN {
     # with $ENV{PERL_CORE} set
     # In case we need it in future...
     require Config; import Config;
+    pop @INC if $INC[-1] eq '.';
 }
 use strict;
 use warnings;
 use Getopt::Std;
 use Config;
 my @orig_ARGV = @ARGV;
-our $VERSION  = do { my @r = (q$Revision: 2.18 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+our $VERSION  = do { my @r = (q$Revision: 2.19 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 # These may get re-ordered.
 # RAW is a do_now as inserted by &enter
@@ -200,9 +201,9 @@ sub compiler_info {
 # This really should go first, else the die here causes empty (non-erroneous)
 # output files to be written.
 my @encfiles;
-if (exists $opt{f}) {
+if (exists $opt{'f'}) {
     # -F is followed by name of file containing list of filenames
-    my $flist = $opt{f};
+    my $flist = $opt{'f'};
     open(FLIST,$flist) || die "Cannot open $flist:$!";
     chomp(@encfiles = <FLIST>);
     close(FLIST);
@@ -210,7 +211,7 @@ if (exists $opt{f}) {
     @encfiles = @ARGV;
 }
 
-my $cname = $opt{o} ? $opt{o} : shift(@ARGV);
+my $cname = exists $opt{'o'} ? $opt{'o'} : shift(@ARGV);
 unless ($cname) { #debuging a win32 nmake error-only. works via cmdline
     print "\nARGV:";
     print "$_ " for @ARGV;
@@ -1078,7 +1079,7 @@ sub make_configlocal_pm {
 	    $LocalMod{$enc} ||= $mod;
 	}
     };
-    File::Find::find({wanted => $wanted}, grep {$_ ne '.'} @INC);
+    File::Find::find({wanted => $wanted}, @INC);
     $_ModLines = "";
     for my $enc ( sort keys %LocalMod ) {
         $_ModLines .=
@@ -1216,7 +1217,7 @@ Now all you have to do is make.
 
   $ make
   cp My.pm blib/lib/Encode/My.pm
-  /usr/local/bin/perl /usr/local/bin/enc2xs -QO \
+  /usr/local/bin/perl /usr/local/bin/enc2xs -Q -O \
     -o encode_t.c -f encode_t.fnm
   Reading myascii (myascii)
   Writing compiled form

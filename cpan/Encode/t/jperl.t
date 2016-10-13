@@ -1,5 +1,5 @@
 #
-# $Id: jperl.t,v 2.2 2013/02/18 02:23:56 dankogai Exp $
+# $Id: jperl.t,v 2.3 2016/08/10 18:08:45 dankogai Exp dankogai $
 #
 # This script is written in euc-jp
 
@@ -16,6 +16,10 @@ BEGIN {
     if (ord("A") == 193) {
     print "1..0 # Skip: EBCDIC\n";
     exit 0;
+    }
+    if ("$]" >= 5.025) {
+    print "1..0 # encoding pragma not supported in Perl 5.26\n";
+    exit(0);
     }
     $| = 1;
 }
