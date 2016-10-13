@@ -579,7 +579,7 @@ for my $module (@modules) {
   
   say "Attempting to update Maintainers.pl";
   open my $Maintainers_pl, '<', 'Porting/Maintainers.pl';
-  open my $new_Maintainers_pl, '>', 'Maintainers.pl';
+  open my $new_Maintainers_pl, '>', 'Porting/Maintainers.pl.new';
 
   my $found;
   my $in_mod_section;
@@ -606,13 +606,13 @@ for my $module (@modules) {
   }
 
   if ($dryrun) {
-    my $cmd = "diff -bu Porting/Maintainers.pl Maintainers.pl";
+    my $cmd = "diff -bu Porting/Maintainers.pl Porting/Maintainers.pl.new";
     say $cmd;
     say `$cmd`;
   }
   elsif ($found) {
     unlink 'Porting/Maintainers.pl';
-    rename 'Maintainers.pl' => 'Porting/Maintainers.pl';
+    rename 'Porting/Maintainers.pl.new' => 'Porting/Maintainers.pl';
     chmod 0755 => 'Porting/Maintainers.pl';
   }
   else {
