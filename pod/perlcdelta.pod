@@ -314,6 +314,13 @@ fix correct indentation for utf-8 key hash elements, [perl #128524].
 
 no changes
 
+=item Digest::SHA  5.96
+
+prevented shasum from possibly running malicious code,
+remove '.' from @INC before module loading RT #116513,
+namespace cleanup (RT #105371 and #105372),
+minor code and documentation tweaks
+
 =back
 
 =head1 Documentation

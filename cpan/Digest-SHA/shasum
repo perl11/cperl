@@ -2,16 +2,18 @@
 
 	## shasum: filter for computing SHA digests (ref. sha1sum/md5sum)
 	##
-	## Copyright (C) 2003-2015 Mark Shelor, All Rights Reserved
+	## Copyright (C) 2003-2016 Mark Shelor, All Rights Reserved
 	##
-	## Version: 5.95
-	## Sat Jan 10 12:15:36 MST 2015
+	## Version: 5.96
+	## Wed Jul 27 20:04:34 MST 2016
 
 	## shasum SYNOPSIS adapted from GNU Coreutils sha1sum. Add
 	## "-a" option for algorithm selection,
 	## "-U" option for Universal Newlines support,
 	## "-0" option for reading bit strings, and
 	## "-p" option for portable digests (to be deprecated).
+
+BEGIN { pop @INC if $INC[-1] eq '.' }
 
 use strict;
 use warnings;
@@ -90,7 +92,7 @@ the 7-bit message I<0001100>:
 
 =head1 AUTHOR
 
-Copyright (c) 2003-2015 Mark Shelor <mshelor@cpan.org>.
+Copyright (c) 2003-2016 Mark Shelor <mshelor@cpan.org>.
 
 =head1 SEE ALSO
 
@@ -101,7 +103,7 @@ L<Digest::SHA::PurePerl>.
 
 END_OF_POD
 
-my $VERSION = "5.95";
+my $VERSION = "5.96";
 
 sub usage {
 	my($err, $msg) = @_;

@@ -13311,6 +13311,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Data::Dumper'          => '2.162',
             'Devel::Peek'           => '1.23_01',
             'Devel::PPPort'         => '3.35_01',
+            'Digest::SHA'           => '5.96',
             'File::Glob'            => '1.26_01',
             'File::DosGlob'         => '1.12_01',
             'POSIX'                 => '1.65_01',
