@@ -57,6 +57,7 @@ my $distmeta = {
 };
 if ($Config{usecperl}) {
     $distmeta->{name} = 'cperl';
+    $distmeta->{version} .= 'c';
     $distmeta->{author} = [ 'rurban@cpanel.net' ];
     $distmeta->{abstract} = 'The cperl language interpreter';
     $distmeta->{resources}->{bugtracker}->{web}

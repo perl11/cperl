@@ -86,7 +86,7 @@ sub load_json_string {
 sub yaml_backend {
   my $backend = $ENV{PERL_YAML_BACKEND};
   if (! defined $backend ) {
-    if (_can_load( 'YAML::XS', 0.70 )) {
+    if (_can_load( 'YAML::XS', 0.73 )) {
       return "YAML::XS";
     } else {
       $backend = 'CPAN::Meta::YAML';
@@ -102,7 +102,7 @@ sub yaml_backend {
 sub json_backend {
   my $backend = $ENV{PERL_JSON_BACKEND};
   if (! $backend or $backend eq 'Cpanel::JSON::XS') {
-    if (_can_load( 'Cpanel::JSON::XS' => 3.0213 )) {
+    if (_can_load( 'Cpanel::JSON::XS' => 3.0218 )) {
       return 'Cpanel::JSON::XS';
     } else {
       $backend = 'JSON::PP';
