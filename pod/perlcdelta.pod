@@ -103,6 +103,14 @@ minor code and documentation tweaks
 
 =item Encode  2.86
 
+=item File::Fetch  2.52
+
+* Set a cleaned env when running git clone
+* Changed git repository link in tests
+* Removed consistently failing httpbin.org tests
+* Require Module::Load::Conditional 0.66
+* Fix FTP tests for ipv6
+
 =back
 
 =head1 Documentation
