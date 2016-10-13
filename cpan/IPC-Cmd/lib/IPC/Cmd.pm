@@ -18,7 +18,7 @@ BEGIN {
                         $HAVE_MONOTONIC
                     ];
 
-    $VERSION        = '0.94';
+    $VERSION        = '0.96';
     $VERBOSE        = 0;
     $DEBUG          = 0;
     $WARN           = 1;
@@ -59,6 +59,8 @@ use Params::Check               qw[check];
 use Text::ParseWords            ();             # import ONLY if needed!
 use Module::Load::Conditional   qw[can_load];
 use Locale::Maketext::Simple    Style => 'gettext';
+
+local $Module::Load::Conditional::FORCE_SAFE_INC = 1;
 
 =pod
 
