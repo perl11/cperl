@@ -51,22 +51,9 @@ dual-life modules would have a F<Changes> file that could be cribbed.
 
 =over 4
 
-=item Net-Ping 2.53
+=item Time::HiRes  1.9740
 
-Fixed missing C<_unpack_sockaddr_in> family, which took AF_INET6 for
-a AF_INET addr in F<t/500_ping_icmp.t> and F<t/500_ping_icmp_ttl.t>.
-Use now a proper default. Detected by the new gitlab ci.
-
-Fixed C<_pack_sockaddr_in> for a proper 2nd argument type, hash or packed
-address.
-
-Improved F<500_ping_icmp.t> to try sudo.
-Relaxed more tests failing with firewalled icmp on localhost. [RT #118441]
-
-=item Pod-HTML 2.22c
-
-Improved parallel testing, relative F<testdir/test$$.lib>.
-See L<[RT #118416]|https://rt.cpan.org/Ticket/Display.html?id=118416>.
+skip the t/utime.t on ext2/ext3
 
 =back
 
