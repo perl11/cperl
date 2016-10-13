@@ -13324,6 +13324,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Math::BigInt'          => '1.999726',
             'Module::Load::Conditional' => '0.68',
             'Module::Metadata'      => '1.000033',
+            'NEXT'                  => '0.67',
             'POSIX'                 => '1.65_01',
             'PerlIO::encoding'      => '0.24_01',
             'DynaLoader'            => '2.05c',

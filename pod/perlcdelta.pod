@@ -375,6 +375,10 @@ Add FORCE_SAFE_INC option to fix CVE-2016-1238.
 - only report "main" as the module name if code was seen outside another
   namespace, fixing bad results for pod files (RT#107525)
 
+=item NEXT  0.67
+
+Doc and meta changes only.
+
 =back
 
 =head1 Documentation
