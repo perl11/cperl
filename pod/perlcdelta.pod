@@ -304,6 +304,12 @@ warnings has been to restricted to the four magic names "EXPORT",
 with "EXPORT" will now throw the "used only once" warning as all other
 symbols.
 
+=item Data::Dumper  1.162
+
+strEQc improvements
+
+fix correct indentation for utf-8 key hash elements, [perl #128524].
+
 =back
 
 =head1 Documentation
