@@ -136,6 +136,10 @@ Fix optional runtime load for CVE-2016-1238
 Add blacklist and whitelist support, with 
 perl #127923 priority. See L<Locale::Maketext/"BRACKET NOTATION SECURITY">
 
+=item Math-BigInt  1.999726
+
+with our t/ skip count fixes.
+
 =back
 
 =head1 Documentation
