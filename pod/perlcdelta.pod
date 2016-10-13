@@ -111,6 +111,12 @@ minor code and documentation tweaks
 * Require Module::Load::Conditional 0.66
 * Fix FTP tests for ipv6
 
+=item Getopt::Long 2.49.1
+
+* RT #114999 fix :number
+* RT #113748 fix VersionMessage ignores -output argument
+* RT #39052 sanify gnu_getopt
+
 =back
 
 =head1 Documentation
