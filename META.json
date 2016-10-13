@@ -4,7 +4,7 @@
       "rurban@cpanel.net"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "CPAN::Meta version 2.150006",
+   "generated_by" : "CPAN::Meta version 2.150010",
    "license" : [
       "perl_5"
    ],
@@ -134,6 +134,6 @@
          "url" : "http://github.com/perl11/cperl/"
       }
    },
-   "version" : "5.024002",
+   "version" : "5.024002c",
    "x_serialization_backend" : "Cpanel::JSON::XS version 3.022"
 }
