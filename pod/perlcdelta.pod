@@ -145,7 +145,15 @@ with our t/ skip count fixes.
 Fix unconditional @INC localisation,
 Add FORCE_SAFE_INC option to fix CVE-2016-1238.
 
+=item Module-Metadata  1.000033
 
+- Fix file operation in tests for VMS
+
+- use a more strict matching heuristic when attempting to infer the
+  "primary" module name in a parsed .pm file
+
+- only report "main" as the module name if code was seen outside another
+  namespace, fixing bad results for pod files (RT#107525)
 
 =back
 
