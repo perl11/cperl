@@ -308,9 +308,10 @@ sub changes_between {
     5.025003 => '2016-07-20',
     5.025004 => '2016-08-20',
     5.025005 => '????-??-??',
-    '5.024001c' => '????-??-??', 
-    '5.025000c' => '2016-08-07', 
-    '5.025001c' => '????-??-??', 
+    '5.024001c' => '2016-10-13',
+    '5.025000c' => '2016-08-07',
+    '5.025001c' => '2016-10-16',
+    '5.022005c' => '2016-10-16',
  );
 
 sub version_sort {
@@ -9944,6 +9945,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::Build::Version'=> 1,
             'Module::Build::YAML'   => 1,
             'Package::Constants'    => 1,
+            'Simple'                => 1,
             'inc::latest'           => 1,
         }
     },
@@ -13269,9 +13271,15 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         delta_from => '5.024000c',
         changed => {
             'B::Op_private'         => '5.024001',
-            'Module::CoreList'      => '5.20160729c',
+            'Module::CoreList'      => '5.20161005c',
             'Module::CoreList::TieHashDelta'=> '5.20160618',
             'Module::CoreList::Utils'=> '5.20160729c',
+            'B::C'                  => '1.54_13',
+            'Config'                => '6.22',
+            'DynaLoader'            => '2.05c',
+            'Socket'                => '2.024_02',
+            'YAML::XS'              => '0.71',
+            'YAML::LibYAML'         => '0.71',
         },
         removed => {
         }
@@ -13325,6 +13333,11 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         removed => {
         }
     },
+    '5.022005c' => {
+        delta_from => '5.022004c',
+        changed => {},
+        removed => {},
+    }
 );
 
 sub is_core
