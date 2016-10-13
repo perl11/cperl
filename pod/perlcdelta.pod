@@ -341,6 +341,10 @@ minor code and documentation tweaks
 
 Many fixes und improvements
 
+=item IPC::Cmd  0.96
+
+set $Module::Load::Conditional::FORCE_SAFE_INC = 1
+
 =back
 
 =head1 Documentation
