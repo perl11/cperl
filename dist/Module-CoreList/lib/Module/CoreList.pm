@@ -13317,6 +13317,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'File::Glob'            => '1.26_01',
             'File::DosGlob'         => '1.12_01',
             'Getopt::Long'          => '2.49',
+            'HTTP::Tiny'            => '0,070',
             'POSIX'                 => '1.65_01',
             'PerlIO::encoding'      => '0.24_01',
             'DynaLoader'            => '2.05c',
