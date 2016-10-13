@@ -5,11 +5,15 @@ use warnings;
 
 BEGIN {
     use Test::More;
+    my $tests = 96 + 9;
     unless ($ENV{PERL_CORE}) {
 	require Test::NoWarnings;
 	Test::NoWarnings->import ();
+	$tests++;
+	}
+
+    plan tests => $tests;
     }
-}
 
 use Config::Perl::V;
 
@@ -24,8 +28,6 @@ my $opt = Config::Perl::V::plv2hash ("")->{build}{options};
 foreach my $o (sort keys %$opt) {
     is ($conf->{build}{options}{$o}, 0, "Runtime option $o unset");
     }
-
-done_testing();
 
 __END__
 Summary of my perl5 (revision 5 version 10 subversion 0) configuration:

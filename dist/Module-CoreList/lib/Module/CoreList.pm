@@ -13336,7 +13336,8 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'CPAN::Meta::Merge'     => '2.150010',
             'CPAN::Meta::Prereqs'   => '2.150010',
             'CPAN::Meta::Spec'      => '2.150010c',
-            'CPAN::Meta::Validator' => '2.150010c'
+            'CPAN::Meta::Validator' => '2.150010c',
+            'Config::Perl::V'       => '0.27_01',
         },
         removed => {
         }
