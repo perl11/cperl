@@ -117,6 +117,10 @@ minor code and documentation tweaks
 * RT #113748 fix VersionMessage ignores -output argument
 * RT #39052 sanify gnu_getopt
 
+=item HTTP::Tiny  0.070
+
+Many fixes und improvements
+
 =back
 
 =head1 Documentation
