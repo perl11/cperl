@@ -13313,6 +13313,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Devel::PPPort'         => '3.35_01',
             'Digest::SHA'           => '5.96',
             'Encode'                => '2.86',
+            'File::Fetch'           => '2.52',
             'File::Glob'            => '1.26_01',
             'File::DosGlob'         => '1.12_01',
             'POSIX'                 => '1.65_01',

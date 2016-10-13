@@ -59,7 +59,7 @@ File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm fb1175286262913bec59482b84a3587ec48339ea
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm ea210ef037088b8ff77db8a0c149e09032a4beab
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm bd85ee00812b62fb2106c4d7564a4b4682421c9a
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm d3b6613472308b648513fbc2930639395c619575
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm c968b0977900360ef0cf739ee9f9c6be6ce91afc
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Domain.pm 3ada368520d3179da8bc1b28ae61a99b4981b758
