@@ -13328,7 +13328,15 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'ExtUtils::Command::MM' => '8.04_04',
             'Storable'              => '3.01c',
             'Term::ReadKey'         => '2.35',
-            'Cpanel::JSON::XS'      => '3.0217_03',
+            'Cpanel::JSON::XS'      => '3.0218',
+            'CPAN::Meta'            => '2.150010c',
+            'CPAN::Meta::Converter' => '2.150010',
+            'CPAN::Meta::Feature'   => '2.150010',
+            'CPAN::Meta::History'   => '2.150010',
+            'CPAN::Meta::Merge'     => '2.150010',
+            'CPAN::Meta::Prereqs'   => '2.150010',
+            'CPAN::Meta::Spec'      => '2.150010c',
+            'CPAN::Meta::Validator' => '2.150010c'
         },
         removed => {
         }

@@ -143,7 +143,15 @@ for constant names. (#191)
 
 =over 4
 
-=item Cpanel::JSON::XS  3.027_03
+=item CPAN::Meta  2.150010c
+
+But we kept our own Parse::CPAN::Meta
+
+=item CPAN  2.14c
+
+=item Archive::Tar  2.10
+
+=item Cpanel::JSON::XS  3.0218
 
 New stringify_infnan(3) infnan_mode.
 Fix inf/nan detection on HP-UX and others.
