@@ -1067,7 +1067,7 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
         }
     }
     if (nsplit) {
-	if ((nsplit - origname) == 5 && memEQs(origname, "SUPER")) {
+	if ((nsplit - origname) == 5 && memEQc(origname, "SUPER")) {
 	    /* ->SUPER::method should really be looked up in original stash */
 	    stash = CopSTASH(PL_curcop);
 	    flags |= GV_SUPER;
@@ -1075,7 +1075,7 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 			 origname, HvENAME_get(stash), name) );
 	}
 	else if ((nsplit - origname) >= 7
-		 && memEQs(nsplit - 7, "::SUPER")) {
+		 && memEQc(nsplit - 7, "::SUPER")) {
             /* don't autovifify if ->NoSuchStash::SUPER::method */
 	    stash = gv_stashpvn(origname, nsplit - origname - 7, is_utf8);
 	    if (stash) flags |= GV_SUPER;
