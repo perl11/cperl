@@ -460,13 +460,17 @@ cpan/CPAN-Meta/t/data-test/unicode.yml
 cpan/CPAN-Meta/t/data-test/version-not-normal.json
 cpan/CPAN-Meta/t/data-test/version-ranges-1_4.yml
 cpan/CPAN-Meta/t/data-test/version-ranges-2.json
+cpan/CPAN-Meta/t/data-test/x_deprecated-META.json
 cpan/CPAN-Meta/t/data-valid/1122575719-META.yml
 cpan/CPAN-Meta/t/data-valid/1206545041-META.yml
 cpan/CPAN-Meta/t/data-valid/1985684504-META.yml
 cpan/CPAN-Meta/t/data-valid/476602558-META.yml
 cpan/CPAN-Meta/t/data-valid/META-1_0.yml
 cpan/CPAN-Meta/t/data-valid/META-1_1.yml
+cpan/CPAN-Meta/t/data-valid/META-1_4.yml
+cpan/CPAN-Meta/t/data-valid/META-2.json
 cpan/CPAN-Meta/t/data-valid/scalar-meta-spec.yml
+cpan/CPAN-Meta/t/data-valid/x_deprecated-META.yml
 cpan/CPAN-Meta/t/load-bad.t
 cpan/CPAN-Meta/t/merge.t
 cpan/CPAN-Meta/t/meta-obj.t
