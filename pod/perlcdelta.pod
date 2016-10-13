@@ -139,14 +139,6 @@ for constant names. (#191)
 
 =head1 Modules and Pragmata
 
-XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
-go here.  If Module::CoreList is updated, generate an initial draft of the
-following sections using F<Porting/corelist-perldelta.pl>.  A paragraph summary
-for important changes should then be added by hand.  In an ideal world,
-dual-life modules would have a F<Changes> file that could be cribbed.
-
-[ Within each section, list entries as a =item entry ]
-
 =head2 Updated Modules and Pragmata
 
 =over 4
@@ -306,22 +298,44 @@ symbols.
 
 =head1 Documentation
 
-XXX Changes to files in F<pod/> go here.  Consider grouping entries by
-file and be sure to link to the appropriate page, e.g. L<perlfunc>.
-
 =head2 Changes to Existing Documentation
 
-XXX Changes which significantly change existing files in F<pod/> go here.
-However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
-section.
-
-=head3 L<XXX>
+=head3 L<perlapi>
 
 =over 4
 
 =item *
 
-XXX Description of the change here
+Add many missing API functions.
+
+=back
+
+=head3 L<perlhack>
+
+=over 4
+
+=item *
+
+Describe the L<perlhack/CPERL> development model, with always updated
+branches, C<git rerere> and F<cp-rb>.
+
+=back
+
+=head3 L<perlsec>
+
+=over 4
+
+=item *
+
+Describe the L<perlsec/"Taint mode"> differences (I<hash keys, use re
+'taint'>), added a L<perlsec/"use warnings 'security'"> paragraph.
+
+=item *
+
+For hashes describe the different B<PERL_PERTURB_TOP> strategy
+regarding B<Bucket Order Perturbance>, add more text to
+L<perlsec/"Alternative Hash Functions"> and add a new L<perlsec/"cperl
+hash security"> paragraph.
 
 =back
 
@@ -392,56 +406,41 @@ bind shells.  See L</"Warn on metasploit reverse shells">
 
 =back
 
-=head1 Utility Changes
-
-XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
-Most of these are built within the directory F<utils>.
-
-[ List utility changes as a =head2 entry for each utility and =item
-entries for each change
-Use L<XXX> with program names to get proper documentation linking. ]
-
-=head2 L<XXX>
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
 =head1 Configuration and Compilation
 
-XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
-go here.  Any other changes to the Perl build process should be listed here.
-However, any platform-specific changes should be listed in the
-L</Platform Support> section, instead.
-
-[ List changes as a =item entry ].
-
 =over 4
 
 =item *
 
-added C<sanitize_address> config entry and probe, and matching
-C<USE_SANITIZE_ADDRESS> F<config.h> define.
+Added a new C<sanitize_address> config entry and probe, and matching
+C<USE_SANITIZE_ADDRESS> F<config.h> definition.
 
 =item *
 
-removed C<i_netinet6_in6> Config entry and probe, and matching
+Added a new C<d_attribute_used> config entry and probe, and matching
+C<HASATTRIBUTE_USED> F<config.h> definition.
+
+=item *
+
+Added a new C<i_netinet_in_systm> config entry and probe, and matching
+C<> F<config.h> define for L<Socket>.
+
+=item *
+
+Removed the C<i_netinet6_in6> Config entry and probe, and matching
 C<I_NETINET6_I6> F<config.h> define, which was a typo.
 This was added with cperl-5.22.2 and was never used due to the typo.
 It cannot be used due to RFC 2553.
 
 =item *
 
-fix C<__builtin_prefetch> probe, not yet used.
+Fixed the C<__builtin_prefetch> probe, not yet used.
 
 =item *
 
-new C<__builtin_ctz> probe, C<$Config{d_builtin_ctz} key>, used for faster
-DO_HSPLIT() calculations. About 30% faster for hash intensive tests.
+Added a new C<__builtin_ctz> probe, C<$Config{d_builtin_ctz} key>,
+used for faster C<DO_HSPLIT()> calculations. About 30% faster for hash
+intensive tests.
 
 =back
 
@@ -469,26 +468,6 @@ Sys-Syslog with not responding syslogd.
 =back
 
 =head1 Platform Support
-
-XXX Any changes to platform support should be listed in the sections below.
-
-[ Within the sections, list each platform as a =item entry with specific
-changes as paragraphs below it. ]
-
-=head2 New Platforms
-
-XXX List any platforms that this version of perl compiles on, that previous
-versions did not.  These will either be enabled by new files in the F<hints/>
-directories, or new subdirectories and F<README> files at the top level of the
-source tree.
-
-=over 4
-
-=item XXX-some-platform
-
-XXX
-
-=back
 
 =head2 Platform-Specific Notes
 
@@ -531,13 +510,24 @@ L<[perl #128954]|https://rt.perl.org/Public/Bug/Display.html?id=128954>
 
 =back
 
+=item OpenBSD
+
+=over 4
+
+=item *
+
+Fixed C<n_time> in L<Socket> for OpenBSD, by including F<netinet/in_systm.h>
+before F<netinet/ip.h>.
+
+=item *
+
+OpenBSD does not do si_uid with sigaction()
+
+=back
+
 =back
 
 =head1 Internal Changes
-
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
 
 =over 4
 
@@ -816,44 +806,22 @@ L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
 
 =back
 
-=head1 Errata From Previous Releases
-
-=over 4
-
-=item *
-
-XXX Add anything here that we forgot to add, or were mistaken about, in
-the perldelta of a previous release.
-
-=back
-
 =head1 Acknowledgements
 
 cperl 5.25.1 represents approximately 4 months of development since cperl 5.25.0
-and contains approximately 220,000 lines of changes across 1,400 files from 65
+and contains approximately 18,000 lines of changes across 270 files from 13
 authors.
 
 Excluding auto-generated files, documentation and release tools, there were
-approximately 140,000 lines of changes to 880 .pm, .t, .c and .h files.
+approximately 7,200 lines of changes to 140 .pm, .t, .c and .h files.
 
 Perl continues to flourish into its third decade thanks to a vibrant community
 of users and developers. The following people are known to have contributed the
 improvements that became cperl 5.25.1:
 
-Reini Urban, Karl Williamson, David Mitchell, Jarkko Hietaniemi, Daniel Dragan,
-Tony Cook, Andy Broad, Steve Hay, Craig A. Berry, Lukas Mai, Yves Orton, Aaron
-Crane, Ricardo Signes, Father Chrysostomos, Matthew Horsfall, Dagfinn Ilmari
-Mannsåker, James E Keenan, H.Merijn Brand, Aristotle Pagaltzis, Abigail, Karen
-Etheridge, Todd Rinaldo, Dan Collins, Shlomi Fish, Stevan Little, Chris
-'BinGOs' Williams, Doug Bell, Jan Dubois, David Golden, Nicholas Clark, Niko
-Tyni, Nicolas Rochelemagne, Tom Hukins, Leon Timmermans, Victor Adam, Andy
-Dougherty, Peter Martini, Rafael Garcia-Suarez, Sisyphus, Vladimir Timofeev,
-Thomas Sibley, Ed J, Hugo van der Sanden, Ivan Pozdeev, Vincent Pit, Herbert
-Breunung, Sawyer X, John SJ Anderson, Alex Vandiver, Ludovic E. R.
-Tolhurst-Cleaver, Stanislaw Pusep, Max Maischein, John Peacock, Zachary Storer,
-Aaron Priven, Pip Cet, Andreas König, Dr.Ruud, Mattia Barbon, Ed Avis, Chas.
-Owens, Mohammed El-Afifi, Helmut Wollmersdorfer, Achim Gratz, Alexander
-D'Archangel.
+Reini Urban, David Mitchell, Father Chrysostomos, Daniel Dragan, Karl
+Williamson, Yves Orton, Pino Toscano, Tony Cook, Lukas Mai, James Raspass,
+Aristotle Pagaltzis, Misty De Meo, Nicolas Rochelemagne.
 
 The list above is almost certainly incomplete as it is automatically generated
 from version control history. In particular, it does not include the names of
@@ -869,7 +837,7 @@ the F<AUTHORS> file in the Perl source distribution.
 
 Generated with:
 
-    cperl Porting/acknowledgements.pl v5.25.0..HEAD
+    cperl Porting/acknowledgements.pl cperl-5.25.0..HEAD
 
 =head1 Reporting Bugs
 
