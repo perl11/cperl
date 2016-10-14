@@ -1013,7 +1013,7 @@ use File::Glob qw(:case);
     },
 
     'Net::Domain' => {
-        'DISTRIBUTION' => 'SHAY/libnet-3.08.tar.gz',
+        'DISTRIBUTION' => 'SHAY/libnet-3.10.tar.gz',
         'FILES'        => q[cpan/libnet],
         'EXCLUDED'     => [
             qw( Configure
@@ -1025,8 +1025,9 @@ use File::Glob qw(:case);
             qr(^demos/),
             qr(^t/external/),
         ],
-        # cperl fix 3.06_01 for darwin to use hostname
-        'CUSTOMIZED'   => [ qw( lib/Net/Domain.pm )],
+        # cperl fix for darwin to use hostname,
+        # suse fix for utf8 Net::Cmd
+        'CUSTOMIZED'   => [ qw( lib/Net/Domain.pm lib/Net/Cmd.pm )],
     },
 
     'Net::Ping' => {

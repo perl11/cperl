@@ -159,6 +159,20 @@ Add FORCE_SAFE_INC option to fix CVE-2016-1238.
 
 Doc and meta changes only.
 
+=item libnet  3.10
+
+- Remove . from @INC when loading optional modules.  [Tony Cook, Perl
+  RT#127834, CVE-2016-1238]
+
+- Increased minimum required version of IO::Socket::IP to 0.25 to hopefully
+  stop t/pop3_ipv6.t hanging.  [CPAN RT#104545]
+
+- Debug output now includes decoded (from base64) negotiation for SASL.
+  [Philip Prindeville, PR#27]
+
+- plus the suse utf8 fixes for Net::Cmd, see 5bd7010cb and
+  our darwin performance fix for hostname.
+
 =back
 
 =head1 Documentation
