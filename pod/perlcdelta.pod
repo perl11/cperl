@@ -147,7 +147,8 @@ for constant names. (#191)
 
 =item CPAN::Meta  2.150010c
 
-But we kept our own Parse::CPAN::Meta
+And merge F<cpan/Parse-CPAN-Meta> into it. F<cpan/Parse-CPAN-Meta> is
+gone.
 
 =item CPAN  2.14c
 

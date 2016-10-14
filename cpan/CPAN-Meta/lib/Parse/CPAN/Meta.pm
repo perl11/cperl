@@ -4,6 +4,7 @@ package Parse::CPAN::Meta;
 # ABSTRACT: Parse META.yml and META.json CPAN metadata files
 
 our $VERSION = '1.5000c';
+$VERSION =~ s/c$//;
 
 use Exporter;
 use Carp 'croak';
@@ -78,7 +79,16 @@ sub load_yaml_string {
 
 sub load_json_string {
   my ($class, $string) = @_;
-  my $data = eval { $class->json_backend()->new->decode($string) };
+  my $backend =  $class->json_backend();
+  my $data;
+  if ($backend eq 'JSON::PP') {
+    require Encode;
+    # load_json_string takes characters, decode_json expects bytes
+    my $encoded = Encode::encode('UTF-8', $string, Encode::PERLQQ());
+    $data = eval { $backend->new->decode($encoded) };
+  } else {
+    $data = eval { $backend->new->decode($string) };
+  }
   croak $@ if $@;
   return $data || {};
 }
@@ -97,6 +107,17 @@ sub yaml_backend {
   $backend->can("Load")
     or croak "PERL_YAML_BACKEND '$backend' does not implement Load()\n";
   return $backend;
+}
+
+sub json_decoder {
+  if (my $decoder = $ENV{CPAN_META_JSON_DECODER}) {
+    _can_load( $decoder )
+      or croak "Could not load CPAN_META_JSON_DECODER '$decoder'\n";
+    $decoder->can('decode_json')
+      or croak "No decode_json sub provided by CPAN_META_JSON_DECODER '$decoder'\n";
+    return $decoder;
+  }
+  return $_[0]->json_backend;
 }
 
 sub json_backend {
@@ -202,7 +223,7 @@ Parse::CPAN::Meta - Parse META.yml and META.json CPAN metadata files
 
 =head1 VERSION
 
-version 1.4418c
+version 1.5000c
 
 =head1 SYNOPSIS
 
@@ -231,7 +252,8 @@ version 1.4418c
 =head1 DESCRIPTION
 
 B<Parse::CPAN::Meta> is a parser for F<META.json> and F<META.yml> files, using
-L<Cpanel::JSON::XS> and/or L<YAML::XS>.
+L<Cpanel::JSON::XS> and/or L<YAML::XS>, with slow fallbacks to L<CPAN::Meta::YAML>
+and L<JSON::PP>.
 
 B<Parse::CPAN::Meta> provides three methods: C<load_file>, C<load_json_string>,
 and C<load_yaml_string>.  These will read and deserialize CPAN metafiles, and
@@ -305,6 +327,18 @@ be L<Cpanel::JSON::XS> or L<JSON::PP>.  Even if C<PERL_JSON_BACKEND> is set,
 this will return L<JSON> as further delegation is handled by
 the L<JSON> module.  See L</ENVIRONMENT> for details.
 
+Note that C<CPAN_META_JSON_BACKEND> and C<CPAN_META_YAML_BACKEND> are ignored.
+
+=head2 json_decoder
+
+  my $decoder = Parse::CPAN::Meta->json_decoder;
+
+Returns the module name of the JSON decoder.  Unlike L</json_backend>, this
+is not necessarily a full L<JSON>-style module, but only something that will
+provide a C<decode_json> subroutine.  If C<CPAN_META_JSON_DECODER> is set,
+this will be whatever that's set to.  If not, this will be whatever has
+been selected as L</json_backend>.  See L</ENVIRONMENT> for more notes.
+
 =head1 FUNCTIONS
 
 For maintenance clarity, no functions are exported by default.  These functions
@@ -347,6 +381,9 @@ C<YAML::XS> is much stricter than the previous default YAML parser
 L<CPAN::Meta::YAML> (i.e. based on C<YAML::Tiny>), so the following
 fatal YAML::XS errors are unfatalized:
 "control characters are not allowed", "invalid trailing UTF-8 octet"
+
+C<CPAN_META_JSON_BACKEND> is only accepted in C<json_decoder>,
+C<CPAN_META_YAML_BACKEND> is ignored.
 
 =for :stopwords cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders metacpan
 
@@ -413,7 +450,7 @@ Steffen Mueller <smueller@cpan.org>
 
 =item *
 
-Reini Urban <rurban@cpan.org>
+Reini Urban <rurban@cpanel.net>
 
 =back
 

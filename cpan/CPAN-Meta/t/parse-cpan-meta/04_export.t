@@ -7,12 +7,14 @@ delete $ENV{PERL_JSON_BACKEND};
 
 use strict;
 BEGIN {
-  $|  = 1;
-  $^W = 1;
+	$|  = 1;
+	$^W = 1;
 }
 
 use Test::More tests => 4;
 use Parse::CPAN::Meta;
+
+
 
 ok not(defined &main::Load), 'Load is not exported';
 ok not(defined &main::Dump), 'Dump is not exported';
