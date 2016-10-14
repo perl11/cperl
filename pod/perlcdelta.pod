@@ -59,6 +59,13 @@ skip cperl builtin prereqs.
 
 =item Archive-Tar  2.10
 
+=item YAML::XS 0.74
+
+fixed encoding issues: fixed wrong $YAML::XS::Encoding and
+$YAML::XS::LineBreak comparison logic.
+fixed utf8 input as handled as UTF8,
+non-utf8 honors $YAML::XS::Encoding.
+
 =item Cpanel-JSON-XS  3.0220
 
 modfl() mingw 4.0 runtime bug [perl #125924]
