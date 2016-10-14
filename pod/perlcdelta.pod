@@ -199,6 +199,8 @@ $YAML::XS::LineBreak comparison logic.
 fixed utf8 input as handled as UTF8,
 non-utf8 honors $YAML::XS::Encoding.
 
+fixed -Wunused value warnings
+
 =item List::Util  1.45_06
 
 sum/min/max need to call SvGETMAGIC
