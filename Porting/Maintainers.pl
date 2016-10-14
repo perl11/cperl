@@ -386,7 +386,7 @@ use File::Glob qw(:case);
         'CUSTOMIZED'   => [
             qw( t/save-load.t t/prereqs.t t/validator.t t/converter-bad.t
                 t/converter-fail.t
-                t/parse-cpan-meta/02_api.t
+                t/parse-cpan-meta/02_api.t t/parse-cpan-meta/05_errors.t
                 lib/CPAN/Meta.pm
                 lib/CPAN/Meta/History/Meta_1_4.pod lib/CPAN/Meta/Spec.pm
                 lib/CPAN/Meta/Validator.pm
