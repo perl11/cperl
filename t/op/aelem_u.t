@@ -5,7 +5,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
 }
-plan( tests => 22 );
+plan( tests => 31 );
 use coretypes;
 use cperl;
 use v5.22;
@@ -17,6 +17,11 @@ my Num @n[5];
 my num @nn[5]; # needs a 64-bit system for true nativeness
 my Str @s[5];
 my str @ss[5];
+# computed size (since v5.27.3c)
+my @b0[] = (0,1,2);
+my @b1[] = (0..2);
+my @b2[] = (qw(0 1 2));
+my @b3[] = (0,(1,2));
 
 # @a consists of 5x undef
 ok(!defined $a[0] && !defined $a[4], '@a[5] initialized to undef');
@@ -24,6 +29,10 @@ is(scalar @i, 5,   'Int @i[5] length 5');
 ok(defined $i[4] && $i[4] == 0,   'Int $i[4] initialized to 0');
 ok(defined $n[4] && $n[4] == 0.0, 'Num $n[4] initialized to 0.0');
 ok(defined $s[4] && $s[4] eq "",  'Str $s[4] initialized to ""');
+ok(defined $b0[2] && $b0[2] == 2, '$b0[2]');
+ok(defined $b1[2] && $b1[2] == 2, '$b1[2]');
+ok(defined $b2[2] && $b2[2] eq '2', '$b2[2]');
+ok(defined $b3[2] && $b3[2] == 2, '$b3[2]');
 
 eval 'defined $a[5];';
 like ($@, qr/^Array index out of bounds \@a\[5\]/, 'Array index out of bounds $a[5]');
@@ -93,3 +102,17 @@ for (0..$#b) { $b[$_] = 0; }       # mderef_u gvsv
 for my $i (0..$#b) { $b[$i] = 0; } # mderef_u padsv
 
 for (0..$#a) { $a[$_] };       # shaped + mderef_u
+
+# computed size
+{
+  my @a[] = (1,2,3);
+  ok(defined $a[0] && $a[2]==3, 'shaped @a[] initialized');
+  eval 'defined $a[4];';
+  like ($@, qr/^Array index out of bounds \@a\[4\]/, 'Array index out of bounds $a[4]');
+  eval 'my @b[];';
+  like ($@, qr/^syntax error/, 'invalid my @b[];');
+  eval 'my @b[] = (@c);';
+  like ($@, qr/^Invalid constant list, cannot compute size/, 'invalid const list');
+  eval 'my @b[] = '. '(1,'x38 . '(0)' .')'x38 . ";\n";
+  like ($@, qr/^Invalid constant list, recursion limit/, 'recursion depth');
+}

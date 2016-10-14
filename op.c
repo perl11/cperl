@@ -4825,7 +4825,8 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	/* FALLTHROUGH */
     default:
       nomod:
-	if (flags & OP_LVALUE_NO_CROAK) return NULL;
+	if (flags & OP_LVALUE_NO_CROAK)
+            return NULL;
 	/* grep, foreach, subcalls, refgen */
 	if (S_potential_mod_type(type))
 	    break;
@@ -5814,6 +5815,7 @@ a private OPpASSIGN_CONSTINIT bit during assignment at run-time.
 
 Do various compile-time assignments on const rhs values, to enable
 constant folding.
+my @a[] = (...) comes also here, setting the computed lhs AvSHAPED size.
 
 Return the newASSIGNOP, or the folded assigned value.
 
@@ -5875,7 +5877,7 @@ Perl_newASSIGNOP_maybe_const(pTHX_ OP *left, I32 optype, OP *right)
                 if (IS_TYPE(right, LIST)) {
                     for (o = OpSIBLING(OpFIRST(right));
                          o && IS_CONST_OP(o);
-                         o=OpSIBLING(o)) ;
+                         o = OpSIBLING(o)) ;
                     if (!o) { /* is const */
                         DEBUG_k(Perl_deb(aTHX_ "my %s[1] :const = (...)\n",
                                          PAD_COMPNAME_PV(left->op_targ)));
@@ -14321,6 +14323,7 @@ CHECK callback for aassign (t2	L L	"(:List,:List):List")
 Checks types and adds C<OPpMAP_PAIR> to C<%hash = map>.
 
 TODO: constant folding with OpSPECIAL
+TODO: fill lhs AvFILLp with gh210-computedsizearydecl
 =cut
 */
 OP *
@@ -17469,8 +17472,8 @@ Perl_ck_pad(pTHX_ OP *o)
                 Perl_die(aTHX_ "Invalid modification of shaped array: %s %s",
                     OP_NAME(OpNEXT(OpNEXT(o))),
                     PAD_COMPNAME_PV(o->op_targ));
-            DEBUG_k(Perl_deb(aTHX_ "ck_pad: %s[%s] AvSHAPED\n", PL_op_name[o->op_type],
-                             PAD_COMPNAME_PV(o->op_targ)));
+            DEBUG_k(Perl_deb(aTHX_ "ck_pad: %s[%s] SHAPED[%d]\n", PL_op_name[o->op_type],
+                             PAD_COMPNAME_PV(o->op_targ), (int)AvFILLp(sv)));
         } else {
             /* maybe check typeinfo also, and set some
                SVf_TYPED flag if we still had one. This const

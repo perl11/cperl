@@ -1121,7 +1121,7 @@ The previous assignments are exactly equivalent to
     ($folks[0], $folks[-1]) = ($folks[-1], $folks[0]);
 
 Since changing a slice changes the original array or hash that it's
-slicing, a C<foreach> construct will alter some--or even all--of the
+slicing, a C<foreach> construct will alter some - or even all - of the
 values of the array or hash.
 
     foreach (@array[ 4 .. 10 ]) { s/peter/paul/ } 
@@ -1154,6 +1154,9 @@ As noted earlier in this document, the scalar sense of list assignment
 is the number of elements on the right-hand side of the assignment.
 The null list contains no elements, so when the password file is
 exhausted, the result is 0, not 2.
+A slice always behaves like the list of its elements. I.e. a hash slice
+as for loop list modifies the elements, but a hash slice as subroutine
+arguments not.
 
 Slices in scalar context return the last item of the slice.
 
@@ -1292,6 +1295,27 @@ module or with the IO::Handle module and its ilk.  These modules
 have the advantage of not hiding different types of the same name
 during the local().  See the bottom of L<perlfunc/open> for an
 example.
+
+=head2 Shaped arrays
+
+Lexical array declarations can contain the number of elements, which
+will lead to compile-bound checks, and faster run-time ops, omitting
+the otherwise necessary out-of-bounds check.
+
+  my @a[20];
+  my @a[] = (0,1,2);
+
+Shaped arrays are pre-initialized according to its type and cannot
+change the size. Attempts are caught at compile-time and run-time.
+Negative constant indices are converted to positive at compile-time.
+
+cperl-only, see L<perlcperl/Typed and shaped arrays>.
+
+The C<:const> attribute also creates a shaped array.
+
+    my @a :const = (1,2);  # shaped as int @a[2]
+
+See L<perlcperl/:const for all>.
 
 =head1 SEE ALSO
 

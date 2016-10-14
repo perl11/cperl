@@ -3075,6 +3075,14 @@ indicated one isn't.  See L<charnames/CUSTOM ALIASES>.
 (F) cperl class declarations can unfortunately clash with pre-existing
 subroutines. See L<perlclass>.
 
+=item Invalid constant list, cannot compute size
+
+(F) A constant list can only consist of compile-time constant elements.
+
+=item Invalid constant list, recursion limit (%d) exceeded
+
+(F) The nesting of the constant list exceeded the builtin recursion limit.
+
 =item Invalid conversion in %s: "%s"
 
 (W printf) Perl does not understand the given format conversion.  See

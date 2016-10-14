@@ -24,6 +24,18 @@ here, but most should go in the L</Performance Enhancements> section.
 
 [ List each enhancement as a =head2 entry ]
 
+=head2 Computed shaped array sizes
+
+This is now a valid shaped array delaration, with the lhs array size
+computed from the number of constant elements in the rhs list
+expressions. The array must only consist of compile-time scalars.
+
+    my @a[] = (0,1,2);
+
+C<my @a[];> without assignment is still a syntax error.
+
+See L<[cperl #210]|https://github.com/perl11/cperl/issues/210>
+
 =head1 Security
 
 =head2 Disallow illegal glob with embedded NUL

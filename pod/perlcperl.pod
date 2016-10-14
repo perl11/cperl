@@ -894,6 +894,12 @@ cannot be changed.  All values are pre-initialized.
   my int @a[20];         # or
   my @a[20] :int;
 
+The number of elements can be compile-time computed from the elements
+of a rhs list of all constant expressions, similar to the
+initialization of :const arrays. See L<:const for all>.
+
+  my @a[] = (0..2);
+
 With known indices the compiler can omit bounds checks on array accesses.
 
     my int @a[5];
@@ -903,7 +909,7 @@ Here C<$a[$_]> uses the unchecked aelem_u operator, because the index
 C<$_> cannot be out of bounds.
 
 Shaped arrays are pre-initialized according to its type and cannot
-change the size. Attempts are caught at compile-time or run-time.
+change the size. Attempts are caught at compile-time and run-time.
 With constant or type-checked indices in range the access op is
 optimized to omit the bounds check, via unchecked aelem_u variants.
 Negative constant indices are converted to positive at compile-time.

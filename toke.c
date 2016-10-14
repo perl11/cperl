@@ -13206,6 +13206,66 @@ Perl_parse_listexpr(pTHX_ U32 flags)
     return parse_expr(LEX_FAKEEOF_LOWLOGIC, flags);
 }
 
+PERL_STATIC_INLINE bool
+S_is_constexpr(pTHX_ OP* o)
+{
+    const bool result = ( OP_TYPE_IS_NN(o, OP_CONST) ||
+                          OP_TYPE_IS_NN(o, OP_AELEM) ||
+                          OP_TYPE_IS_NN(o, OP_PADSV) ||
+                          OP_TYPE_IS_NN(o, OP_HELEM) );
+    return result;
+}
+
+/*
+=for apidoc p|SSize_t|num_constlistexpr|NN OP* o|int depth
+
+Number of const list elements. depth starts with 0
+
+=cut
+*/
+
+SSize_t
+Perl_num_constlistexpr(pTHX_ OP* o, int depth)
+{
+    SSize_t i;
+    PERL_ARGS_ASSERT_NUM_CONSTLISTEXPR;
+    /* range (0..2) */
+    if ( OP_TYPE_IS_NN(o, OP_NULL) &&
+         OpKIDS(o) &&
+         OP_TYPE_IS_NN(OpFIRST(o), OP_FLOP) &&
+         (o = OpFIRST(OpFIRST(o))) &&
+         OP_TYPE_IS_NN(o, OP_FLIP) &&
+         (o = OpFIRST(o)) &&
+         OP_TYPE_IS_NN(o, OP_RANGE) &&
+         (o = OpFIRST(o)) &&
+         OP_TYPE_IS_NN(o, OP_CONST) ) {
+        SV *from = cSVOPx_sv(o);
+        if (SvIOK(from) && OP_TYPE_IS(OpSIBLING(o), OP_CONST)) {
+            SV *to = cSVOPx_sv(OpSIBLING(o));
+            if (SvIOK(to))
+                return SvIV(to) - SvIV(from) + 1;
+        }
+    }
+    if (o == o->op_next && S_is_constexpr(aTHX_ o)) /* (1) */
+        return 1;
+    /* or list (1,2,3), qw(a b c) */
+    if (!OpKIDS(o) || !OP_TYPE_IS_NN(o, OP_LIST))
+        Perl_croak(aTHX_ "Invalid constant list, cannot compute size");
+    assert(OP_TYPE_IS_NN(o, OP_LIST));
+    assert(OP_TYPE_IS(OpFIRST(o), OP_PUSHMARK));
+    o = OpSIBLING(OpFIRST(o));
+    for (i=0; o; o = OpSIBLING(o), i++) {
+        if (OP_TYPE_IS_OR_WAS_NN(o, OP_LIST)) /* (0,(1,2)) */ {
+            if (depth >= 36)
+                Perl_croak(aTHX_ "Invalid constant list, recursion limit (36) exceeded");
+            i += num_constlistexpr(o, depth+1) - 1;
+        }
+        else if (!S_is_constexpr(aTHX_ o))
+            Perl_croak(aTHX_ "Invalid constant list, cannot compute size");
+    }
+    return i;
+}
+ 
 /*
 =for apidoc Amx|OP *|parse_fullexpr|U32 flags
 
