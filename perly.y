@@ -70,7 +70,7 @@
 
 %type <opval> stmtseq fullstmt labfullstmt barestmt block mblock else
 %type <opval> expr term subscripted scalar ary hsh arylen star amper sideff
-%type <opval> sliceme kvslice gelem sizearydecl
+%type <opval> sliceme kvslice gelem sizearydecl computedsizearydecl
 %type <opval> listexpr nexpr texpr iexpr mexpr mnexpr
 %type <opval> optlistexpr optexpr optrepl indirob listop method
 %type <opval> formname subname proto optsubbody cont my_scalar my_var
@@ -1103,6 +1103,19 @@ myattrterm:	MY myterm myattrlist
 			{ $$ = localize($2,2); }
 	|	MY REFGEN myterm myattrlist
 			{ $$ = newUNOP(OP_REFGEN, 0, my_attrs($3,$4)); }
+	|	MY computedsizearydecl myattrlist ASSIGNOP '(' listexpr ')'
+                        {   OP* av = my_attrs($2,$3);
+                            /* sizeof expr must be known */
+                            av_init_shaped(MUTABLE_AV(PAD_SV($2->op_targ)), num_listexpr($6),
+                                           PadnameTYPE(PAD_COMPNAME($2->op_targ)));
+                            $$ = newASSIGNOP(OPf_STACKED, newAVREF(av), $4, $6);
+                        }
+	|	MY computedsizearydecl ASSIGNOP '(' listexpr ')'
+                        {   OP* av = localize($2,$1);
+                            av_init_shaped(MUTABLE_AV(PAD_SV($2->op_targ)), num_listexpr($5),
+                                           PadnameTYPE(PAD_COMPNAME($2->op_targ)));
+                            $$ = newASSIGNOP(OPf_STACKED, newAVREF(av), $3, $5);
+                        }
 	;
 
 /* Things that can be "my"'d */
@@ -1216,11 +1229,23 @@ sizearydecl :	'@' PRIVATEREF '[' THING ']'
 				packWARN(WARN_EXPERIMENTAL__SHAPED_ARRAYS),
 				"The shaped_arrays feature is experimental");
 #endif
-			  $$ = newAVREF($2);
                           av_init_shaped(MUTABLE_AV(PAD_SV($2->op_targ)), SvIVX(constsv),
                                         PadnameTYPE(PAD_COMPNAME($2->op_targ)));
+			  $$ = newAVREF($2);
 			}
 
+computedsizearydecl :	'@' PRIVATEREF '[' ']' %prec '('
+                        {
+                          assert($2->op_targ);
+			  if (!FEATURE_SHAPED_ARRAYS_IS_ENABLED)
+                              Perl_croak(aTHX_ "Experimental "
+                                    "shaped_arrays not enabled");
+#ifndef USE_CPERL
+			  ck_warner_d(packWARN(WARN_EXPERIMENTAL__SHAPED_ARRAYS),
+                                      "The shaped_arrays feature is experimental");
+#endif
+			  $$ = $2;
+			}
 
 hsh	:	'%' indirob
 			{ $$ = newHVREF($2);

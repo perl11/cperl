@@ -523,6 +523,8 @@ Perl_av_init_shaped(pTHX_ AV* av, const SSize_t size, const HV *type)
     assert(SvTYPE(av) == SVt_PVAV);
 
     AvSHAPED_on(av);
+    if (size == 0) /* computed size, filled in later */
+        return av;
     Newx(ary,size,SV*);
     AvALLOC(av) = ary;
     AvARRAY(av) = ary;

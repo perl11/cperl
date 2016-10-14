@@ -13207,6 +13207,26 @@ Perl_parse_listexpr(pTHX_ U32 flags)
 }
 
 /*
+=for apidoc p|SSize_t|num_listexpr|NN OP* expr
+
+Number of list elements for op_append_elem(OP_LIST, ...)
+
+=cut
+*/
+
+SSize_t
+Perl_num_listexpr(pTHX_ OP* op)
+{
+    SSize_t i;
+    if (!op)
+        Perl_croak(aTHX_ "Invalid array size 0");
+    if (op == op->op_next)
+        return 1;
+    for (i=0; op; op = op->op_next, i++) ;
+    return i;
+}
+ 
+/*
 =for apidoc Amx|OP *|parse_fullexpr|U32 flags
 
 Parse a single complete Perl expression.  This allows the full

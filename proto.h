@@ -4193,6 +4193,11 @@ PERL_CALLCONV int	Perl_nothreadhook(pTHX)
 			__attribute__global__;
 
 PERL_CALLCONV void	Perl_notify_parser_that_changed_to_utf8(pTHX);
+PERL_CALLCONV SSize_t	Perl_num_listexpr(pTHX_ OP* expr)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_NUM_LISTEXPR	\
+	assert(expr)
+
 PERL_CALLCONV U16	Perl_numfields(pTHX_ const HV* klass)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);

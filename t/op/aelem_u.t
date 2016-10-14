@@ -5,7 +5,7 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
 }
-plan( tests => 22 );
+plan( tests => 24 );
 use coretypes;
 use cperl;
 use v5.22;
@@ -93,3 +93,10 @@ for (0..$#b) { $b[$_] = 0; }       # mderef_u gvsv
 for my $i (0..$#b) { $b[$i] = 0; } # mderef_u padsv
 
 for (0..$#a) { $a[$_] };       # shaped + mderef_u
+
+{
+  my @a[] = (1,2,3);
+  ok(defined $a[0] && $a[2]==3, 'shaped @a[] initialized');
+  eval 'defined $a[4];';
+  like ($@, qr/^Array index out of bounds \@a\[4\]/, 'Array index out of bounds $a[4]');
+}
