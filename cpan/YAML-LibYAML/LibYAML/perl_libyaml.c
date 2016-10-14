@@ -172,7 +172,7 @@ static yaml_encoding_t
 set_loader_options(perl_yaml_loader_t *loader)
 {
     GV *gv;
-    yaml_encoding_t result = YAML_UTF8_ENCODING;
+    yaml_encoding_t result = YAML_ANY_ENCODING;
 
     /* As with YAML::Tiny. Default: strict Load */
     gv = gv_fetchpv("YAML::XS::NonStrict", TRUE, SVt_PV);
@@ -184,15 +184,15 @@ set_loader_options(perl_yaml_loader_t *loader)
          && SvPOK(GvSV(gv)))
     {
         const char *enc = SvPVX_const(GvSV(gv));
-        if (strncmp(enc, "any", 3))
+        if (memEQs(enc, 3, "any"))
             yaml_parser_set_encoding(&loader->parser,
                                      (result = YAML_ANY_ENCODING));
-        else if (strncmp(enc, "utf8", 4))
+        else if (memEQs(enc, 4, "utf8"))
             yaml_parser_set_encoding(&loader->parser, YAML_UTF8_ENCODING);
-        else if (strncmp(enc, "utf16le", 7))
+        else if (memEQs(enc, 7, "utf16le"))
             yaml_parser_set_encoding(&loader->parser,
                                      (result = YAML_UTF16LE_ENCODING));
-        else if (strncmp(enc, "utf16be", 7))
+        else if (memEQs(enc, 7, "utf16be"))
             yaml_parser_set_encoding(&loader->parser,
                                      (result = YAML_UTF16BE_ENCODING));
         else
@@ -347,15 +347,12 @@ Load(SV *yaml_sv)
 
     yaml_str = (const unsigned char *)SvPV_const(yaml_sv, yaml_len);
 
-    if (DO_UTF8(yaml_sv)) {
-        yaml_sv = sv_mortalcopy(yaml_sv);
-        if (!sv_utf8_downgrade(yaml_sv, TRUE))
-            croak("%s", "Wide character in YAML::XS::Load()");
-        yaml_str = (const unsigned char*)SvPV_const(yaml_sv, yaml_len);
-    }
-
     yaml_parser_initialize(&loader.parser);
     (void)set_loader_options(&loader);
+    if (DO_UTF8(yaml_sv)) { /* overrides $YAML::XS::Encoding */
+        loader.parser.encoding = YAML_UTF8_ENCODING;
+    } /* else check the BOM. don't check for decoded utf8. */
+
     yaml_parser_set_input_string(
         &loader.parser,
         yaml_str,
@@ -697,13 +694,13 @@ set_dumper_options(perl_yaml_dumper_t *dumper)
         && SvPOK(GvSV(gv)))
     {
         const char *enc = SvPVX_const(GvSV(gv));
-        if (strncmp(enc, "any", 3))
+        if (memEQs(enc, 3, "any"))
             yaml_emitter_set_encoding(&dumper->emitter, (result = YAML_ANY_ENCODING));
-        else if (strncmp(enc, "utf8", 4))
+        else if (memEQs(enc, 4, "utf8"))
             yaml_emitter_set_encoding(&dumper->emitter, YAML_UTF8_ENCODING);
-        else if (strncmp(enc, "utf16le", 7))
+        else if (memEQs(enc, 7, "utf16le"))
             yaml_emitter_set_encoding(&dumper->emitter, (result = YAML_UTF16LE_ENCODING));
-        else if (strncmp(enc, "utf16be", 7))
+        else if (memEQs(enc, 7, "utf16be"))
             yaml_emitter_set_encoding(&dumper->emitter, (result = YAML_UTF16BE_ENCODING));
         else
             croak("Invalid $YAML::XS::Encoding %s. Valid: any, utf8, utf16le, utf16be", enc);
@@ -712,13 +709,13 @@ set_dumper_options(perl_yaml_dumper_t *dumper)
         && SvPOK(GvSV(gv)))
     {
         const char *lb = SvPVX_const(GvSV(gv));
-        if (strncmp(lb, "any", 3))
+        if (memEQs(lb, 3, "any"))
             yaml_emitter_set_break(&dumper->emitter, YAML_ANY_BREAK);
-        else if (strncmp(lb, "cr", 4))
+        else if (memEQs(lb, 2, "cr"))
             yaml_emitter_set_break(&dumper->emitter, YAML_CR_BREAK);
-        else if (strncmp(lb, "ln", 7))
+        else if (memEQs(lb, 2, "ln"))
             yaml_emitter_set_break(&dumper->emitter, YAML_LN_BREAK);
-        else if (strncmp(lb, "crln", 7))
+        else if (memEQs(lb, 4, "crln"))
             yaml_emitter_set_break(&dumper->emitter, YAML_CRLN_BREAK);
         else
             croak("Invalid $YAML::XS::LineBreak %s. Valid: any, ln, cr, crln", lb);

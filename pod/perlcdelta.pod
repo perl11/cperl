@@ -187,12 +187,17 @@ L</"Warn on metasploit CVE-2015-1592">
 protect sv in END during global destruction, esp. with B::C.
 fixes for missing . in @INC (cperl or -Dfortify_inc).
 
-=item YAML::XS  0.73
+=item YAML::XS  0.74
 
 merged with upstream libyaml 0.1.7
 avoid duplicate checks against NULL
 fix libyaml clang -Wlogical-op warnings
 fix libyaml clang -Wlogical-not-parentheses warnings
+
+fixed encoding issues: fixed wrong $YAML::XS::Encoding and
+$YAML::XS::LineBreak comparison logic.
+fixed utf8 input as handled as UTF8,
+non-utf8 honors $YAML::XS::Encoding.
 
 =item List::Util  1.45_06
 
