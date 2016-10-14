@@ -382,12 +382,15 @@ use File::Glob qw(:case);
             qr{^history},
             qw[ 'lib/Parse/CPAN/Meta.pm' ],
         ],
+        # support cperl version c suffix, better and safer JSON and YAML.
         'CUSTOMIZED'   => [
             qw( t/save-load.t t/prereqs.t t/validator.t t/converter-bad.t
                 t/converter-fail.t
+                t/parse-cpan-meta/02_api.t
                 lib/CPAN/Meta.pm
                 lib/CPAN/Meta/History/Meta_1_4.pod lib/CPAN/Meta/Spec.pm
                 lib/CPAN/Meta/Validator.pm
+                lib/Parse/CPAN/Meta.pm
               ),
         ],
     },
@@ -1054,14 +1057,21 @@ use File::Glob qw(:case);
         'FILES'        => q[cpan/parent],
     },
 
-    'Parse::CPAN::Meta' => {
-        'DISTRIBUTION' => 'DAGOLDEN/Parse-CPAN-Meta-1.4417.tar.gz',
-        'FILES'        => q[cpan/Parse-CPAN-Meta],
-        'EXCLUDED'     => [
-            qw[t/00-report-prereqs.t],
-            qr{^xt},
-        ],
-    },
+    # merged upstream with CPAN-Meta
+    #'Parse::CPAN::Meta' => {
+    #    'DISTRIBUTION' => 'DAGOLDEN/Parse-CPAN-Meta-1.4417.tar.gz',
+    #    'FILES'        => q[cpan/Parse-CPAN-Meta],
+    #    'EXCLUDED'     => [
+    #        qr[t/00-report-prereqs],
+    #        qr{^xt},
+    #        qr{^history/},
+    #        qr{^lib/CPAN},
+    #        qr{^t/(converter|data-|load|merge|meta-|no-index|optional|prereqs)},
+    #        qr{^t/(README|repository|save-load|validator)},
+    #    ],
+    #    # use YAML::XS
+    #    'CUSTOMIZED'   => [ qw( lib/Parse/CPAN/Meta.pm ) ],
+    #},
 
     # PathTools cannot be cpan'd by sync-with-cpan
     'File::Spec' => {
