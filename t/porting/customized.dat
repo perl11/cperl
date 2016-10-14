@@ -6,10 +6,11 @@ CPAN::Meta cpan/CPAN-Meta/lib/CPAN/Meta.pm 5e1d1466cbdb58d00e3a94661d2871f41efc4
 CPAN::Meta cpan/CPAN-Meta/lib/CPAN/Meta/History/Meta_1_4.pod 3a1ae20933b955b5f1e538ea35b502517a3ae391
 CPAN::Meta cpan/CPAN-Meta/lib/CPAN/Meta/Spec.pm bcee4a5a8412c8ecc90c7ec3ccbabf622de3b56c
 CPAN::Meta cpan/CPAN-Meta/lib/CPAN/Meta/Validator.pm 7d89780911dbd85c10d727de5c5b6497cb745307
-CPAN::Meta cpan/CPAN-Meta/lib/Parse/CPAN/Meta.pm d3d27541eaf3af2ad081884a167c881c8fa8458c
+CPAN::Meta cpan/CPAN-Meta/lib/Parse/CPAN/Meta.pm fb422e81dcb399f91e26c0061409e6632db5bfd3
 CPAN::Meta cpan/CPAN-Meta/t/converter-bad.t 330595949e06e85d480d8f4a90a7c56d787a3379
 CPAN::Meta cpan/CPAN-Meta/t/converter-fail.t 5bc9abb6831beb24e808e7a0f7561d31e9cd1ff8
-CPAN::Meta cpan/CPAN-Meta/t/parse-cpan-meta/02_api.t cee822bfaf178dc4d77c4ce22e0a2398e1065ffc
+CPAN::Meta cpan/CPAN-Meta/t/parse-cpan-meta/02_api.t bf96e9bf7311e1d71eeacd7e7faad5eb456e20ca
+CPAN::Meta cpan/CPAN-Meta/t/parse-cpan-meta/05_errors.t 1893a3223791d2a3fd680e052533858a05eb63e1
 CPAN::Meta cpan/CPAN-Meta/t/prereqs.t e448d3ab77fec103397264b4d9b2e90dd94bced6
 CPAN::Meta cpan/CPAN-Meta/t/save-load.t e7a526f3facbd4fb8ef29837977f7a725434946e
 CPAN::Meta cpan/CPAN-Meta/t/validator.t d8a663c5c9b409da6025a1bafb347fd405e742d6
