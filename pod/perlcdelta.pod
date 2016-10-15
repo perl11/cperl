@@ -197,6 +197,11 @@ Doc and meta changes only.
 
 Added msys
 
+=item podlators  4.08
+
+Many Pod::Man bugfixes and new tests,
+see L<https://metacpan.org/changes/distribution/podlators>
+
 =back
 
 =head1 Documentation

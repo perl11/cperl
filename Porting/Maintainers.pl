@@ -1160,7 +1160,7 @@ use File::Glob qw(:case);
     },
 
     'Pod::Man' => {
-        'DISTRIBUTION' => 'RRA/podlators-4.07.tar.gz',
+        'DISTRIBUTION' => 'RRA/podlators-4.08.tar.gz',
         'FILES'        => q[cpan/podlators pod/perlpodstyle.pod],
 
         # cperl fix to support make -s
@@ -1170,7 +1170,7 @@ use File::Glob qw(:case);
         #        ),
         #],
         'MAP' => {
-            #''                 => 'cpan/podlators/',
+            ''                 => 'cpan/podlators/',
             # this file lives outside the cpan/ directory
             'pod/perlpodstyle.pod' => 'pod/perlpodstyle.pod',
         },
