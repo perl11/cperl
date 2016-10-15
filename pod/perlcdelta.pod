@@ -59,7 +59,7 @@ skip cperl builtin prereqs.
 
 =item Archive-Tar  2.10
 
-=item YAML::XS 0.74
+=item YAML::XS  0.75
 
 fixed encoding issues: fixed wrong $YAML::XS::Encoding and
 $YAML::XS::LineBreak comparison logic.
@@ -67,6 +67,9 @@ fixed utf8 input as handled as UTF8,
 non-utf8 honors $YAML::XS::Encoding.
 
 fixed -Wunused value warnings
+
+merged with upstream YAML-LibYAML,
+implemented $DisableBlessed (security).
 
 =item Cpanel-JSON-XS  3.0220
 
