@@ -22,7 +22,8 @@ sub load_file {
       no strict 'refs'; 
       if (exists &{"$backend\::LoadFile"} ) {
         if ($backend eq 'YAML::XS') {
-          local ( $YAML::XS::NonStrict, $YAML::XS::Encoding ) = (1, 'any');
+          local ($YAML::XS::NonStrict, $YAML::XS::DisableCode, 
+                 $YAML::XS::DisableBlessed) = (1, 1, 1);
           return YAML::XS::LoadFile($filename);
         } elsif ($backend eq 'YAML::Syck') {
           local ( $YAML::Syck::LoadCode, $YAML::Syck::UseCode,
@@ -72,11 +73,13 @@ sub load_yaml_string {
   my $backend = $class->yaml_backend();
   my $data;
   if ($backend eq 'YAML::XS') {
-    local $YAML::XS::NonStrict = 1;
+    local ($YAML::XS::NonStrict, $YAML::XS::DisableCode, 
+           $YAML::XS::DisableBlessed) = (1, 1, 1);
     $data = eval { YAML::XS::Load($string); };
   } elsif ($backend eq 'YAML::Syck') {
-    local ( $YAML::Syck::LoadCode, $YAML::Syck::UseCode,
-            $YAML::Syck::LoadBlessed, $YAML::Syck::ImplicitUnicode ) = (0,0,0,1);
+    local ($YAML::Syck::LoadCode, $YAML::Syck::UseCode,
+           $YAML::Syck::LoadBlessed, $YAML::Syck::ImplicitUnicode)
+        = (0,0,0,1);
     $data = YAML::Syck::Load($string);
   } else {
     $data = eval { no strict 'refs'; &{"$backend\::Load"}($string) };
@@ -232,10 +235,10 @@ sub Load ($) { ## no critic
   my $object;
   eval { require $backend; };
   if ($backend =~ /^YAML(::XS)?$/) {
-    # set YAML::Tiny compatible options:
-    #local $YAML::XS::LoadCode = 0; # so far ignored
+    # set YAML::Tiny/YAML::Syck compatible options:
+    local ($YAML::XS::NonStrict, $YAML::XS::DisableBlessed, $YAML::XS::DisableCode)
+          = (1,1,1);
     #local $YAML::XS::QuoteNumericStrings = 0;
-    local $YAML::XS::NonStrict = 1;
     $object = eval { no strict 'refs'; &{"$backend\::Load"}(shift) };
     # Make some parse errors are non-fatal.
     # Match YAML::Tiny and CPAN::Meta::YAML behavior, which accepts broken YAML

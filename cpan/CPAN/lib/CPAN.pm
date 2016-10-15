@@ -563,6 +563,7 @@ sub _yaml_loadfile {
 
         my ($code, @yaml);
         if ($code = UNIVERSAL::can($yaml_module, "SafeLoadFile")) {
+            # TODO: allow CPAN::* classes
             eval { @yaml = $code->($local_file); };
             if ($@) {
                 # this shall not be done by the frontend
