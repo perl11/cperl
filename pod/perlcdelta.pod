@@ -411,6 +411,10 @@ Doc and meta changes only.
 - plus the suse utf8 fixes for Net::Cmd, see 5bd7010cb and
   our darwin performance fix for hostname.
 
+=item Perl-OSType  1.010
+
+Added msys
+
 =back
 
 =head1 Documentation

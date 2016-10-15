@@ -13340,6 +13340,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Net::SMTP'             => '3.10',
             'Net::Time'             => '3.10',
             'POSIX'                 => '1.65_01',
+            'Perl::OSType'          => '1.010',
             'PerlIO::encoding'      => '0.24_01',
             'DynaLoader'            => '2.05c',
             'XS::APItest'           => '0.80_02',
