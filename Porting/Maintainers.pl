@@ -1122,7 +1122,7 @@ use File::Glob qw(:case);
     },
 
     'Pod::Perldoc' => {
-        'DISTRIBUTION' => 'MALLEN/Pod-Perldoc-3.25.tar.gz',
+        'DISTRIBUTION' => 'MALLEN/Pod-Perldoc-3.27.tar.gz',
         'FILES'        => q[cpan/Pod-Perldoc],
 
         # Note that we use the CPAN-provided Makefile.PL, since it
@@ -1135,7 +1135,7 @@ use File::Glob qw(:case);
         'EXCLUDED' => ['perldoc'],
 
         # https://rt.cpan.org/Ticket/Display.html?id=106798
-        'CUSTOMIZED'   => [ qw[ lib/Pod/Perldoc.pm Makefile.PL ] ],
+        'CUSTOMIZED'   => [ qw[ lib/Pod/Perldoc.pm Makefile.PL t/02_module_pod_output.t ] ],
     },
 
     'Pod::Simple' => {

@@ -13348,6 +13348,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Pod::Text::Color'      => '4.08',
             'Pod::Text::Overstrike' => '4.08',
             'Pod::Text::Termcap'    => '4.08',
+            'Pod::Perldoc'          => '3.27',
             'DynaLoader'            => '2.05c',
             'XS::APItest'           => '0.80_02',
             'Socket'                => '2.24_04',
