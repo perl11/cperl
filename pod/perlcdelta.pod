@@ -150,6 +150,13 @@ for constant names. (#191)
 And merge F<cpan/Parse-CPAN-Meta> into it. F<cpan/Parse-CPAN-Meta> is
 gone.
 
+Parse-CPAN-Meta security: set $YAML::XS::DisableCode, $YAML::XS::DisableBlessed.
+
+Add support for all known YAML and JSON modules: *::Syck, JSON::MaybeXS, Mojo::JSON.
+But JSON::Any is broken.
+
+fixed UTF-8 issues, passes now all Test-CPAN-Meta tests.
+
 =item CPAN  2.14c
 
 =item Archive::Tar  2.10
