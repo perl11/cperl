@@ -13504,6 +13504,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Net::SMTP'             => '3.10',
             'Net::Time'             => '3.10',
             'POSIX'                 => '1.65_01',
+            'Perl::OSType'          => '1.010',
             'PerlIO::encoding'      => '0.24_01',
             'Scalar::Util'          => '1.45_06',
             'Socket'                => '2.24_04',
