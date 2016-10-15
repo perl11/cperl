@@ -202,6 +202,16 @@ Added msys
 Many Pod::Man bugfixes and new tests,
 see L<https://metacpan.org/changes/distribution/podlators>
 
+=item Pod-Perldoc  3.27
+
+Fix broken test on Windows and FreeBSD (RT#116551)
+Fix CVE-2016-1238 by temporarily removing '.' from @INC in world writable directories.
+Fix =head3 appearing in some perlfunc lookups
+AmigaOS patches (RT#106798) (RT#110368)
+Fall back to an English perlfunc if translation doesn't exist (RT#104695)
+FreeBSD has mandoc too, with UTF-8 support.
+-U now documented and implied with -F (RT#87837)
+
 =back
 
 =head1 Documentation
