@@ -62,7 +62,7 @@ File::Path cpan/File-Path/lib/File/Path.pm 623799e76e11a756ca5e18749d8bc1bdc3800
 File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm da7db2b7b06467019466d3d82f29bfdb6c5b0b49
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 72563719b092716504ffd7b36b0f98ff3ada232e
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm dfad97513a96a3589c093662cdfdf3f9544e24da
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm a73de818aa5a135ada014bfec9352c417fa8797a
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
@@ -100,5 +100,5 @@ base dist/base/lib/base.pm b65c508c9d699bf2b7913fb17dc9b23d4c508b33
 lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
 threads dist/threads/lib/threads.pm 7a97056db5cd1f495002050f9bc71cd5b26796ab
 threads dist/threads/threads.xs e40ca2536fc7a3249095559d3b8b55bf2dedc7cc
-version cpan/version/lib/version.pm d0923b895d57f1d669ae36fcf85c87b16db341d1
-version vutil.c 22d1394d667510986af82a96eee250380cfa2736
+version cpan/version/lib/version.pm a808a584588f001c523aa301143d31e21f4f1ef9
+version vutil.c 8c5f094d1e6d51b9fbfb64033b5398cba4a5fd93
