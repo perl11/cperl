@@ -1,6 +1,6 @@
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
 CPAN cpan/CPAN/lib/CPAN.pm 3c18561fe8a6947135c5208d968890b41e1b0dc3
-CPAN cpan/CPAN/lib/CPAN/Distribution.pm 6aecd5eb65cd65fc49019a8283cf6d6131971cf5
+CPAN cpan/CPAN/lib/CPAN/Distribution.pm 01be7d5e0ed091be0f9db7ee562cca0b4670bf49
 CPAN cpan/CPAN/lib/CPAN/FirstTime.pm bc6f59c30cf7dbb7180270d673c3b152ea93f6c2
 CPAN cpan/CPAN/lib/CPAN/Version.pm 4f70abb999f1dba524ffd66ee8ac055cd335e1b8
 CPAN::Meta cpan/CPAN-Meta/lib/CPAN/Meta.pm 5e1d1466cbdb58d00e3a94661d2871f41efc4761
@@ -46,7 +46,7 @@ ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t b65ce65850ad1b887
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t c01ba6e7a872c8a7fc26e277e0dea109616a5e56
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm 92397ec3b85c35edd33cbe7b237d244ea2bd00b1
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm 31719e78e0a0b2c8449a20bb8d3b40b1605a211a
-ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm d88649ead5abb549df286334a035af924cc2befa
+ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 69351c5e5418046f9800b0d78cf454f5c1931e2d
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm d79b98465a632dc3bde76a0210d01014d2257dc6
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm 62b0abc38e8c8734fade49c5e63477fe9fc0ea05
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm 9b0e03ff7966e8dfc3daeaf67e7b83c427ab1ba9
@@ -63,7 +63,7 @@ File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm fb1175286262913bec59482b84a3587ec48339ea
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm da7db2b7b06467019466d3d82f29bfdb6c5b0b49
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 626fb1c196a9e5491df86c348f3b91d0894bdd93
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm c72ff468034e511055d5cbc5c552d0b224e12f9c
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm c968b0977900360ef0cf739ee9f9c6be6ce91afc
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c

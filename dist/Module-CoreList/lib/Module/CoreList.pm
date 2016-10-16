@@ -13363,6 +13363,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'ExtUtils::Liblist::Kid'=> '8.04_06',
             'IO::Socket::IP'        => '0.38',
             'ExtUtils::Command::MM' => '8.04_04',
+            'ExtUtils::MakeMaker'   => '8.04_04',
             'Storable'              => '3.01c',
             'Term::ReadKey'         => '2.37_01',
             'Thread::Semaphore'     => '2.13',

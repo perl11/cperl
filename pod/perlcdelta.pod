@@ -160,6 +160,7 @@ fixed UTF-8 issues, passes now all Test-CPAN-Meta tests.
 =item CPAN  2.14c
 
 reapply most of our patches.
+skip cperl builtin prereqs.
 
 =item Archive::Tar  2.10
 
@@ -232,6 +233,10 @@ Reinstate the &DB::sub setter, but no UTF8 support yet.
 
 one more darwin fix for the wrong no library found warning
 for symlinked darwin libSystem.dylib libraries.
+
+=item ExtUtils::MakeMaker 8.04_04
+
+skip cperl builtin prereqs.
 
 =item IO::Socket::IP 0.38
 

@@ -29,7 +29,7 @@ our %macro_dep; # whether a macro is a dependency
 use constant SILENT => (defined $ENV{MAKEFLAGS}
                         and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
 
-our $VERSION = '8.04_03';
+our $VERSION = '8.04_04';
 $VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
 
 # Emulate something resembling CVS $Revision$
@@ -516,6 +516,11 @@ END
           }
           $installed_file = $prereq;
           $pr_version = $];
+        }
+        elsif ($Config::Config{usecperl}
+               and $prereq =~ /^(DynaLoader|XSLoader|strict|coretypes)$/) {
+          $pr_version = $required_version + 1000;
+          $installed_file = $prereq;
         }
         else {
           $installed_file = MM->_installed_file_for_module($prereq);
