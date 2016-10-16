@@ -212,6 +212,10 @@ Fall back to an English perlfunc if translation doesn't exist (RT#104695)
 FreeBSD has mandoc too, with UTF-8 support.
 -U now documented and implied with -F (RT#87837)
 
+=item Scalar-List-Utils  1.46_06
+
+VERSION bump only to protect from weak upstream.
+
 =back
 
 =head1 Documentation
