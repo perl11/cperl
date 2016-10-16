@@ -11,7 +11,7 @@ use Carp ();
 use B ();
 #use Devel::Peek;
 
-$JSON::PP::VERSION = '2.27400';
+$JSON::PP::VERSION = '2.27400_02'; # _01 taken by 5.25.4
 
 @JSON::PP::EXPORT = qw(encode_json decode_json from_json to_json);
 
@@ -1388,9 +1388,21 @@ BEGIN {
 
 
 # shamelessly copied and modified from JSON::XS code.
-
-$JSON::PP::true  = do { bless \(my $dummy = 1), 'JSON::PP::Boolean' };
-$JSON::PP::false = do { bless \(my $dummy = 0), 'JSON::PP::Boolean' };
+BEGIN {
+  if ($INC{'Cpanel/JSON/XS.pm'}) {
+    $JSON::PP::true  = $Cpanel::JSON::true;
+    $JSON::PP::false = $Cpanel::JSON::false;
+  } elsif ($INC{'JSON/XS.pm'}
+      and $INC{'Types/Serialiser.pm'}
+      and $JSON::XS::VERSION ge "3.00")
+  {
+    $JSON::PP::true  = $Types::Serialiser::true; # readonly if loaded by JSON::XS
+    $JSON::PP::false = $Types::Serialiser::false;
+  } else {
+    $JSON::PP::true  = do { bless \(my $dummy = 1), "JSON::PP::Boolean" };
+    $JSON::PP::false = do { bless \(my $dummy = 0), "JSON::PP::Boolean" };
+  }
+}
 
 sub is_bool($) {
   shift if @_ == 2; # as method call
@@ -1398,10 +1410,9 @@ sub is_bool($) {
   or (exists $INC{'Types/Serializer.pm'} and Types::Serialiser::is_bool($_[0]))
 }
 
-
-sub true  { $JSON::PP::true  }
-sub false { $JSON::PP::false }
-sub null  { undef; }
+sub true  () { $JSON::PP::true  }
+sub false () { $JSON::PP::false }
+sub null  () { undef }
 
 ###############################
 

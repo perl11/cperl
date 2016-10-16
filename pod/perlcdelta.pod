@@ -247,6 +247,10 @@ reformatted
 improved t/parent-pmc.t,
 excluded new xt tests
 
+=item JSON::PP  2.27400_02
+
+Fixed true/false redefinition warnings.
+
 =back
 
 =head1 Documentation
