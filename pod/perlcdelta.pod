@@ -173,14 +173,14 @@ add HVMAX_T and RITER_T
 Add new "Hash key too large" error. perl5 silently truncates it,
 but we prefer errors.
 
-=item Term::ReadKey 2.37
+=item Term::ReadKey 2.37_01
 
 ReadKey.pm renamed to ReadKey_pm.PL,
 expand blockoptions specific variants already at installation,
 no load-time eval, demand-load Carp, remove unneeded AutoLoader,
 harmonize formatting.
 
-patch: use faster StructCopy.
+patch: use faster StructCopy and fixup the XS.
 
 =item B  1.62_05
 
