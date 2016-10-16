@@ -453,6 +453,11 @@ Added C<down_timed> method.
 
 reformatted
 
+=item parent  0.236
+
+improved t/parent-pmc.t,
+excluded new xt tests
+
 =back
 
 =head1 Documentation

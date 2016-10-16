@@ -2062,6 +2062,7 @@ cpan/parent/t/parent-classfromfile.t		tests for parent.pm
 cpan/parent/t/parent-pmc.t			tests for parent.pm
 cpan/parent/t/parent-returns-false.t		tests for parent.pm
 cpan/parent/t/parent.t				tests for parent.pm
+cpan/parent/t/rt62341.t.disabled
 cpan/perlfaq/lib/perlfaq1.pod		General Questions About Perl
 cpan/perlfaq/lib/perlfaq2.pod	Obtaining and Learning about Perl
 cpan/perlfaq/lib/perlfaq3.pod	Programming Tools
