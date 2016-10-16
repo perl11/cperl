@@ -155,7 +155,6 @@ if ($Config{usecperl} and $modernized_cperl) {
     for (qw(CPAN CPAN/Version CPAN/Distribution
             CPAN-Meta-Requirements
             CPAN/Meta CPAN/Meta/Prereqs CPAN/Meta/Spec CPAN/Meta/YAML
-            Parse/CPAN/Meta
             Pod/Html
             Pod/Simple Pod/Simple/DumpAsText Pod/Simple/DumpAsXML Pod/Simple/HTML
             Pod/Simple/Methody Pod/Simple/PullParser Pod/Simple/XMLOutStream

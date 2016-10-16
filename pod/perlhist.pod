@@ -632,7 +632,12 @@ releases, non-threaded.
   5.22.1	127970
   5.22.1c	118640
   5.22.2c	115015
+  5.22.4c	150722
   5.24.0	127363
+  5.24.0c	140068
+  5.24.1c	140084
+  5.25.0c	140068
+  5.25.1c	139732
 
 For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags>:
 
@@ -655,7 +660,12 @@ For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags>:
   5.22.0	888978
   5.22.1c	595302
   5.22.2c	641251
+  5.22.4c	596665
   5.24.0	825211
+  5.24.0c	599835
+  5.24.1c	602459
+  5.25.0c	599835
+  5.25.1c	602278
 
 With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'>:
 
@@ -674,7 +684,12 @@ With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'>:
   5.22.0	2616925
   5.22.1c	2616792
   5.22.2c	1643170
+  5.22.4c	2536098
   5.24.0	2563329
+  5.24.0c	2546138
+  5.24.1c	2546554
+  5.25.0c	2546217
+  5.25.1c	2544751
 
     valgrind --tool=massif --massif-out-file=massif.$r ...
     grep -h mem_heap_B= massif.$r |cut -c12-|sort -rn|head -n1
