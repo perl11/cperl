@@ -76,7 +76,9 @@ ReadKey.c: cchars.h
 sub MY::processPL {
     my $self = shift;
     $_ = $self->MM::processPL();
-    s/ReadKey.pm :: ReadKey_pm.PL/ReadKey.pm :: ReadKey_pm.PL dynamic/;
+    if (!$ENV{PERL_CORE}) {
+        s/ReadKey.pm :: ReadKey_pm.PL/ReadKey.pm :: ReadKey_pm.PL dynamic/;
+    }
     s/\$\(PERLRUN\)/\$(FULLPERLRUNINST)/;
     $_
 }
