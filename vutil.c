@@ -305,7 +305,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
     last = PRESCAN_VERSION(s, FALSE, &errstr, &qv, &saw_decimal, &width, &alpha);
     if (errstr) {
 	/* "undef" is a special case and not an error */
-	if ( ! ( *s == 'u' && strEQc(s+1,"ndef")) ) {
+	if ( ! ( *s == 'u' && strEQ(s+1,"ndef")) ) {
 	    Perl_croak(aTHX_ "%s", errstr);
 	}
     }
@@ -331,7 +331,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
     if ( !qv && width < 3 )
 	(void)hv_stores(MUTABLE_HV(hv), "width", newSViv(width));
 
-    while (isDIGIT(*pos))
+    while (isDIGIT(*pos) || *pos == '_')
 	pos++;
     if (!isALPHA(*pos)) {
 	I32 rev;
@@ -351,6 +351,8 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
 		if ( !qv && s > start && saw_decimal == 1 ) {
 		    mult *= 100;
  		    while ( s < end ) {
+			if (*s == '_')
+			    continue;
 			orev = rev;
  			rev += (*s - '0') * mult;
  			mult /= 10;
@@ -369,6 +371,8 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
   		}
  		else {
  		    while (--end >= s) {
+			if (*end == '_')
+			    continue;
 			orev = rev;
  			rev += (*end - '0') * mult;
  			mult *= 10;
@@ -416,7 +420,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
 		break;
 	    }
 	    if ( qv ) {
-		while ( isDIGIT(*pos) )
+		while ( isDIGIT(*pos) || *pos == '_')
 		    pos++;
 	    }
 	    else {
@@ -466,7 +470,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
     (void)hv_stores(MUTABLE_HV(hv), "version", newRV_noinc(MUTABLE_SV(av)));
 
     /* fix RT#19517 - special case 'undef' as string */
-    if ( *s == 'u' && strEQc(s+1,"ndef") ) {
+    if ( *s == 'u' && strEQ(s+1,"ndef") ) {
 	s += 5;
     }
 
@@ -547,7 +551,16 @@ Perl_new_version(pTHX_ SV *ver)
 	if ( mg ) { /* already a v-string */
 	    const STRLEN len = mg->mg_len;
 	    const char * const version = (const char*)mg->mg_ptr;
+	    char *raw, *under;
+	    static const char underscore[] = "_";
 	    sv_setpvn(rv,version,len);
+	    raw = SvPV_nolen(rv);
+	    under = ninstr(raw, raw+len, underscore, underscore + 1);
+	    if (under) {
+		Move(under + 1, under, raw + len - under - 1, char);
+		SvCUR(rv)--;
+		*SvEND(rv) = '\0';
+	    }
 	    /* this is for consistency with the pure Perl class */
 	    if ( isDIGIT(*version) )
 		sv_insert(rv, 0, 0, "v", 1);
@@ -623,35 +636,45 @@ VER_NV:
 	char tbuf[64];
 	SV *sv = SvNVX(ver) > 10e50 ? newSV(64) : 0;
 	char *buf;
-#ifdef USE_LOCALE_NUMERIC
-        const char * const cur_numeric = setlocale(LC_NUMERIC, NULL);
-        assert(cur_numeric);
 
-        /* XS code can set the locale without us knowing.  To protect the
-         * version number parsing, which requires the radix character to be a
-         * dot, update our records as to what the locale is, so that our
-         * existing macro mechanism can correctly change it to a dot and back
-         * if necessary.  This code is extremely unlikely to be in a loop, so
-         * the extra work will have a negligible performance impact.  See [perl
-         * #121930].
-         *
-         * If the current locale is a standard one, but we are expecting it to
-         * be a different, underlying locale, update our records to make the
-         * underlying locale this (standard) one.  If the current locale is not
-         * a standard one, we should be expecting a non-standard one, the same
-         * one that we have recorded as the underlying locale.  If not, update
-         * our records. */
-        if (strEQc(cur_numeric, "C") || strEQc(cur_numeric, "POSIX")) {
-            if (! PL_numeric_standard) {
-                new_numeric(cur_numeric);
-            }
-        }
-        else if (PL_numeric_standard
-                 || ! PL_numeric_name
-                 || strNE(PL_numeric_name, cur_numeric))
-        {
-            new_numeric(cur_numeric);
-        }
+#if PERL_VERSION_GE(5,19,0)
+	if (SvPOK(ver)) {
+	    /* dualvar? */
+	    goto VER_PV;
+	}
+#endif
+
+#ifdef USE_LOCALE_NUMERIC
+	{
+	    const char * const cur_numeric = setlocale(LC_NUMERIC, NULL);
+	    assert(cur_numeric);
+
+	    /* XS code can set the locale without us knowing.  To protect the
+	     * version number parsing, which requires the radix character to be a
+	     * dot, update our records as to what the locale is, so that our
+	     * existing macro mechanism can correctly change it to a dot and back
+	     * if necessary.  This code is extremely unlikely to be in a loop, so
+	     * the extra work will have a negligible performance impact.  See [perl
+	     * #121930].
+	     *
+	     * If the current locale is a standard one, but we are expecting it to
+	     * be a different, underlying locale, update our records to make the
+	     * underlying locale this (standard) one.  If the current locale is not
+	     * a standard one, we should be expecting a non-standard one, the same
+	     * one that we have recorded as the underlying locale.  If not, update
+	     * our records. */
+	    if (strEQ(cur_numeric, "C") || strEQ(cur_numeric, "POSIX")) {
+		if (! PL_numeric_standard) {
+		    new_numeric(cur_numeric);
+		}
+	    }
+	    else if (PL_numeric_standard
+		     || ! PL_numeric_name
+		     || strNE(PL_numeric_name, cur_numeric))
+	    {
+		new_numeric(cur_numeric);
+	    }
+	}
 #endif
         { /* Braces needed because macro just below declares a variable */
         STORE_NUMERIC_LOCAL_SET_STANDARD();
@@ -682,9 +705,7 @@ VER_NV:
     }
 #endif
     else if ( SvPOK(ver))/* must be a string or something like a string */
-#if PERL_VERSION_LT(5,17,2)
 VER_PV:
-#endif
     {
 	STRLEN len;
 	version = savepvn(SvPV(ver,len), SvCUR(ver));
@@ -746,17 +767,17 @@ VER_PV:
     s = SCAN_VERSION(version, ver, qv);
 #ifdef USE_CPERL
     if ( *s == 'c' && !*(s+1) )
-        goto leave;
+        return ver;
 #endif
     if ( *s != '\0' ) 
 	Perl_ck_warner(aTHX_ packWARN(WARN_MISC), 
 		       "Version string '%s' contains invalid data; "
 		       "ignoring: '%s'", version, s);
 
- leave:
 #if PERL_VERSION_LT(5,19,8) && defined(USE_ITHREADS)
     LEAVE;
 #endif
+
     return ver;
 }
 

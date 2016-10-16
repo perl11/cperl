@@ -126,6 +126,14 @@ Note that you B<must> quote the version when writing an alpha Decimal version.
 The stringified form of Decimal versions will always be the same string that
 was used to initialize the version object.
 
+
+=head2 cperl suffix
+
+A version which only works with cperl, as in C<use cperl> or C<$Config{usecperl}>
+is defined with a "c" suffix to a regular version number.
+External version parsers which scan F<.pm> files does not understand this, but the
+internal version parser does.
+
 =head2 Regular Expressions for Version Parsing
 
 A formalized definition of the legal forms for version strings is
@@ -314,7 +322,7 @@ The internal structure of version objects is a blessed hash with several
 components:
 
     bless( {
-      'original' => 'v1.2.3_4',
+      'original' => 'v1.2.3_4c',
       'alpha' => 1,
       'qv' => 1,
       'version' => [
@@ -322,7 +330,8 @@ components:
 	2,
 	3,
 	4
-      ]
+      ],
+      cperl => 1,
     }, 'version' );
 
 =over 4
@@ -349,6 +358,10 @@ underscore can only appear in the last position.  See L<version/is_alpha()>.
 
 An array of non-negative integers that is used for comparison purposes with
 other version objects.
+
+=item cperl
+
+An optional hash value of 1 denoting a 'c' suffix.
 
 =back
 

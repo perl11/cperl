@@ -13612,6 +13612,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'XS::APItest'           => '0.80_02',
             'YAML::LibYAML'         => '0.75',
             'YAML::XS'              => '0.75',
+            'version'               => '0.9917_01c',
         },
         removed => {
         }

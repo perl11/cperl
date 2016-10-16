@@ -11242,12 +11242,12 @@ Perl_scan_num(pTHX_ const char *start, YYSTYPE* lvalp)
     /* if it starts with a v, it could be a v-string */
     case 'v':
     vstring:
-		sv = newSV(5); /* preallocate storage space */
-		ENTER_with_name("scan_vstring");
-		SAVEFREESV(sv);
-		s = scan_vstring(s, PL_bufend, sv);
-		SvREFCNT_inc_simple_void_NN(sv);
-		LEAVE_with_name("scan_vstring");
+        sv = newSV(5); /* preallocate storage space */
+        ENTER_with_name("scan_vstring");
+        SAVEFREESV(sv);
+        s = scan_vstring(s, PL_bufend, sv);
+        SvREFCNT_inc_simple_void_NN(sv);
+        LEAVE_with_name("scan_vstring");
 	break;
     }
 
@@ -11819,13 +11819,13 @@ Perl_scan_vstring(pTHX_ const char *s, const char *const e, SV *sv)
 	sv_setpvs(sv, "");
 
 	for (;;) {
-	    /* this is atoi() that tolerates underscores */
+	    /* this is atoi() that tolerates underscores plus a final 'c' */
 	    U8 *tmpend;
 	    UV rev = 0;
 	    const char *end = pos;
 	    UV mult = 1;
 	    while (--end >= s) {
-		if (*end != '_') {
+                if (isDIGIT(*end)) {
 		    const UV orev = rev;
 		    rev += (*end - '0') * mult;
 		    mult *= 10;
@@ -11844,7 +11844,10 @@ Perl_scan_vstring(pTHX_ const char *s, const char *const e, SV *sv)
 	    if (pos + 1 < e && *pos == '.' && isDIGIT(pos[1]))
 		 s = ++pos;
 	    else {
-		 s = pos;
+                 if (*pos == 'c')
+                     s = ++pos;
+                 else
+                     s = pos;
 		 break;
 	    }
 	    while (pos < e && (isDIGIT(*pos) || *pos == '_'))
