@@ -13364,7 +13364,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'IO::Socket::IP'        => '0.38',
             'ExtUtils::Command::MM' => '8.04_04',
             'Storable'              => '3.01c',
-            'Term::ReadKey'         => '2.35',
+            'Term::ReadKey'         => '2.37',
             'Cpanel::JSON::XS'      => '3.0218',
             'CPAN::Meta'            => '2.150010c',
             'CPAN::Meta::Converter' => '2.150010',

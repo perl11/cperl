@@ -3,8 +3,8 @@ use ExtUtils::MakeMaker;
 use Carp;
 
 my $mm_version = $ExtUtils::MakeMaker::VERSION || $ExtUtils::MakeMaker::Version;
-if ( $mm_version < 3.5 ) {
-    croak("Sorry, but MakeMaker 3.5 or better is needed to build this package.");
+if ( $mm_version < 6.58 ) {
+    croak("Sorry, but MakeMaker 6.58 or better is needed to build this package.");
 }
 
 &WriteMakefile(
@@ -13,10 +13,23 @@ if ( $mm_version < 3.5 ) {
     LICENSE    => 'perl',
     ABSTRACT   => 'Change terminal modes, and perform non-blocking reads.',
     AUTHOR     => ['Kenneth Albanowski','Jonathan Stowe'],
-    META_MERGE => {
+    CONFIGURE_REQUIRES => {
+        'ExtUtils::MakeMaker' => 6.58,
+    },
+    BUILD_REQUIRES  =>  {
+        'ExtUtils::MakeMaker' => 6.58,
+    },
+    META_ADD => { # needs to _ADD because I want over-ride the dynamic_config
+        dynamic_config => 1,
         no_index  => {
             file     => [ qw(Configure.pm) ],
             package  => [ qw(Configure) ],
+        },
+        provides  => {
+            'Term::ReadKey' => {
+                file    => 'META.yml',
+                version => '2.37',
+            },
         },
         'meta-spec' => { version => 2 },
         resources => {
@@ -27,12 +40,12 @@ if ( $mm_version < 3.5 ) {
             },
         },
     },
-    VERSION_FROM => 'ReadKey_pm.PL',
-    XSPROTOARG   => '-noprototypes',
-    PL_FILES	 => { 'ReadKey_pm.PL' => 'ReadKey.pm' },
-    PM           => { 'ReadKey.pm' => '$(INST_ARCHLIBDIR)/ReadKey.pm' },
-    clean        => { FILES => 'cchars.h ReadKey.pm' },
-    SIGN => 1,
+    VERSION_FROM    => 'ReadKey_pm.PL',
+    XSPROTOARG      => '-noprototypes',
+    PL_FILES	    => { 'ReadKey_pm.PL' => 'ReadKey.pm' },
+    PM              => { 'ReadKey.pm' => '$(INST_ARCHLIBDIR)/ReadKey.pm' },
+    clean           => { FILES => 'cchars.h ReadKey.pm' },
+    SIGN            => 1,
 
     # Uncomment these to allow testing of sgtty under Linux. Not needed normally.
     # INC => "-I/usr/include/bsd",
@@ -63,7 +76,8 @@ ReadKey.c: cchars.h
 sub MY::processPL {
     my $self = shift;
     $_ = $self->MM::processPL();
-    s/\$\(PERLRUN\)/\$(FULLPERLRUN)/;
+    s/ReadKey.pm :: ReadKey_pm.PL/ReadKey.pm :: ReadKey_pm.PL dynamic/;
+    s/\$\(PERLRUN\)/\$(FULLPERLRUNINST)/;
     $_
 }
 
