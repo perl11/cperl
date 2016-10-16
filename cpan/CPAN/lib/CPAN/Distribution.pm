@@ -8,7 +8,7 @@ use CPAN::InfoObj;
 use File::Path ();
 @CPAN::Distribution::ISA = qw(CPAN::InfoObj);
 use vars qw($VERSION);
-$VERSION = "2.14_01";
+$VERSION = "2.14_02"; # with cperl fixes
 
 # no prepare, because prepare is not a command on the shell command line
 # TODO: clear instance cache on reload
@@ -1292,6 +1292,7 @@ Could not determine which directory to use for looking at $dist.
         local $ENV{PERL5OPT} = defined $ENV{PERL5OPT} ? $ENV{PERL5OPT} : "";
         $CPAN::META->set_perl5lib;
         local $ENV{MAKEFLAGS}; # protect us from outer make calls
+        local $ENV{PERL_USE_UNSAFE_INC} = 1;
 
         unless (system($shell) == 0) {
             my $code = $? >> 8;
@@ -2608,6 +2609,12 @@ sub follow_prereqs {
     my(@good_prereq_tuples);
     for my $p (@prereq_tuples) {
         # e.g. $p = ['Devel::PartialDump', 'r', 1]
+        # skip builtins without .pm
+        if ($Config::Config{usecperl}
+        and $p->[0] =~ /^(DynaLoader|XSLoader|strict|coretypes)$/) {
+            CPAN->debug("$p->[0] builtin") if $CPAN::DEBUG;
+            next;
+        }
         # promote if possible
         if ($p->[1] =~ /^(r|c)$/) {
             push @good_prereq_tuples, $p;
@@ -2622,6 +2629,7 @@ sub follow_prereqs {
             die "Panic: in follow_prereqs: reqtype[$p->[1]] seen, should never happen";
         }
     }
+    return unless @good_prereq_tuples;
     my $pretty_id = $self->pretty_id;
     my %map = (
                b => "build_requires",
@@ -3644,6 +3652,10 @@ sub _make_test_illuminate_prereqs {
                 ) {
             # lex Class::Accessor::Chained::Fast which has no $VERSION
             CPAN->debug("m[$m] have available_file[$available_file]")
+              if $CPAN::DEBUG;
+        } elsif ($Config::Config{usecperl}
+                 and $m =~ /^(DynaLoader|XSLoader|strict|coretypes)$/) {
+            CPAN->debug("m[$m] builtin available_version[$available_version]")
                 if $CPAN::DEBUG;
         } else {
             push @prereq, $m

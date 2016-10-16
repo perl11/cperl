@@ -64,7 +64,7 @@ fixed UTF-8 issues, passes now all Test-CPAN-Meta tests.
 reapply most of our patches.
 skip cperl builtin prereqs.
 
-=item Archive-Tar  2.10
+=item Archive::Tar  2.10
 
 =item Term::ReadKey 2.37_01
 
