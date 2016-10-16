@@ -13369,6 +13369,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Time::Local'           => '1.24',
             'parent'                => '0.236',
             'Cpanel::JSON::XS'      => '3.0218',
+            'JSON::PP'              => '2.27400_02',
             'CPAN::Meta'            => '2.150010c',
             'CPAN::Meta::Converter' => '2.150010',
             'CPAN::Meta::Feature'   => '2.150010',
