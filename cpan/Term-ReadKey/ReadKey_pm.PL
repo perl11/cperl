@@ -6,7 +6,7 @@ package Term::ReadKey;
 # and in the Makefile.PL
 use vars qw($VERSION);
 
-$VERSION = '2.37';
+$VERSION = '2.37_01';
 
 use Config;
 use File::Basename qw(&basename &dirname);
@@ -315,14 +315,12 @@ choose to license this under the standard Perl license:
 
 =cut
 
-use vars qw($VERSION);
+use vars qw($VERSION @ISA @EXPORT_OK @EXPORT);
 
-$VERSION = '2.37';
+$VERSION = '2.37_01';
 
 require Exporter;
 require DynaLoader;
-
-use vars qw(@ISA @EXPORT_OK @EXPORT);
 
 @ISA = qw(Exporter DynaLoader);
 

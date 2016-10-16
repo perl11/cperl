@@ -1325,7 +1325,6 @@ use File::Glob qw(:case);
     'Test::Simple' => {
         # bumped to 1.4001014 with cperl modernizations.
         # Test2 based 1.3x versions are not yet modernized,
-        # They thanksfully fail on t/Test2/modules/Hub.t
         # Should be moved to ext/
         'DISTRIBUTION' => 'EXODIST/Test-Simple-1.001014.tar.gz',
         'FILES'        => q[cpan/Test-Simple],

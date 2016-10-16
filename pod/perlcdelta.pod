@@ -66,14 +66,14 @@ skip cperl builtin prereqs.
 
 =item Archive-Tar  2.10
 
-=item Term::ReadKey 2.37
+=item Term::ReadKey 2.37_01
 
 ReadKey.pm renamed to ReadKey_pm.PL,
 expand blockoptions specific variants already at installation,
 no load-time eval, demand-load Carp, remove unneeded AutoLoader,
 harmonize formatting.
 
-patch: use faster StructCopy.
+patch: use faster StructCopy and fixup the XS.
 
 =item YAML::XS  0.75
 
