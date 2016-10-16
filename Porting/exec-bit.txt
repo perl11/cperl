@@ -65,6 +65,7 @@ Porting/do-make-cperl-release
 Porting/do-make-srctarball
 Porting/perl_version
 Porting/expand-macro.pl
+Porting/harness-timer-report.pl
 Porting/findrfuncs
 Porting/makerel
 Porting/make_dot_patch.pl
