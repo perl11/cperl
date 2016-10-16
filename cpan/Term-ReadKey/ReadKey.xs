@@ -1,5 +1,6 @@
 /* -*-C-*- */
 
+#define PERL_NO_GET_CONTEXT     /* we want efficiency */
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -16,7 +17,10 @@
  Written by Kenneth Albanowski on Thu Oct  6 11:42:20 EDT 1994
  Contact at kjahds@kjahds.com or CIS:70705,126
 
- Maintained by Jonathan Stowe <jns@gellyfish.com>
+ Maintained by Jonathan Stowe <jns@gellyfish.co.uk>
+
+ The below captures the history prior to it being in full time version
+ control:
 
  $Id: ReadKey.xs,v 2.22 2005/01/11 21:15:17 jonathan Exp $
 
@@ -188,11 +192,6 @@
 /*#define DONT_USE_SWINSZ*/
 /*#define DONT_USE_SSIZE*/
 
-
-/* 5.6.2 has it already */
-#ifndef StructCopy
-#  define StructCopy(s,d,t) Copy(s,d,1,t)
-#endif
 
 /* This bit is for OS/2 */
 
@@ -380,43 +379,41 @@
 #include "cchars.h"
 
 
-int GetTermSizeVIO _((PerlIO * file,
+STATIC int GetTermSizeVIO _((pTHX_ PerlIO * file,
 	int * retwidth, int * retheight, 
 	int * xpix, int * ypix));
 
-int GetTermSizeGWINSZ _((PerlIO * file,
+STATIC int GetTermSizeGWINSZ _((pTHX_ PerlIO * file,
 	int * retwidth, int * retheight, 
 	int * xpix, int * ypix));
 
-int GetTermSizeGSIZE _((PerlIO * file,
+STATIC int GetTermSizeGSIZE _((pTHX_ PerlIO * file,
 	int * retwidth, int * retheight, 
 	int * xpix, int * ypix));
 
-int GetTermSizeWin32 _((PerlIO * file,
+STATIC int GetTermSizeWin32 _((pTHX_ PerlIO * file,
 	int * retwidth, int * retheight,
 	int * xpix, int * ypix));
 
-int SetTerminalSize _((PerlIO * file,
+STATIC int SetTerminalSize _((pTHX_ PerlIO * file,
 	int width, int height, 
 	int xpix, int ypix));
 
-void ReadMode _((PerlIO * file,int mode));
+STATIC void ReadMode _((pTHX_ PerlIO * file,int mode));
 
-int pollfile _((PerlIO * file, double delay));
+STATIC int pollfile _((pTHX_ PerlIO * file, double delay));
 
-int setnodelay _((PerlIO * file, int mode));
+STATIC int setnodelay _((pTHX_ PerlIO * file, int mode));
 
-int selectfile _((PerlIO * file, double delay));
+STATIC int selectfile _((pTHX_ PerlIO * file, double delay));
 
-#ifdef WIN32
-int Win32PeekChar _((PerlIO * file, double delay, char * key));
-#endif
+STATIC int Win32PeekChar _((pTHX_ PerlIO * file, U32 delay, char * key));
 
-int getspeed _((PerlIO * file, I32 *in, I32 * out ));
+STATIC int getspeed _((pTHX_ PerlIO * file, I32 *in, I32 * out ));
 
 
 #ifdef VIOMODE
-int GetTermSizeVIO(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
+int GetTermSizeVIO(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
 	/*int handle=PerlIO_fileno(file);
 
@@ -429,7 +426,6 @@ int GetTermSizeVIO(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix
         *retheight = modeinfo->row ?: 25;
         *retwidth = modeinfo->col ?: 80;*/
 	int buf[2];
-	PERL_UNUSED_ARG(file);
 
 	_scrsize(&buf[0]);
 
@@ -439,13 +435,8 @@ int GetTermSizeVIO(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix
         return 0;
 }
 #else
-int GetTermSizeVIO(PerlIO *file,int * retwidth,int *retheight, int *xpix,int *ypix)
+int GetTermSizeVIO(pTHX_ PerlIO *file,int * retwidth,int *retheight, int *xpix,int *ypix)
 {
-	PERL_UNUSED_ARG(file);
-	PERL_UNUSED_ARG(retwidth);
-	PERL_UNUSED_ARG(retheight);
-	PERL_UNUSED_ARG(xpix);
-	PERL_UNUSED_ARG(ypix);
 	croak("TermSizeVIO is not implemented on this architecture");
         return 0;
 }
@@ -453,7 +444,7 @@ int GetTermSizeVIO(PerlIO *file,int * retwidth,int *retheight, int *xpix,int *yp
 
 
 #if defined(TIOCGWINSZ) && !defined(DONT_USE_GWINSZ)
-int GetTermSizeGWINSZ(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
+int GetTermSizeGWINSZ(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
 	int handle=PerlIO_fileno(file);
 	struct winsize w;
@@ -468,20 +459,15 @@ int GetTermSizeGWINSZ(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *y
 
 }
 #else
-int GetTermSizeGWINSZ(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
+int GetTermSizeGWINSZ(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
-	PERL_UNUSED_ARG(file);
-	PERL_UNUSED_ARG(retwidth);
-	PERL_UNUSED_ARG(retheight);
-	PERL_UNUSED_ARG(xpix);
-	PERL_UNUSED_ARG(ypix);
 	croak("TermSizeGWINSZ is not implemented on this architecture");
         return 0;
 }
 #endif
 
 #if (!defined(TIOCGWINSZ) || defined(DONT_USE_GWINSZ)) && (defined(TIOCGSIZE) && !defined(DONT_USE_GSIZE))
-int GetTermSizeGSIZE(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
+int GetTermSizeGSIZE(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
 	int handle=PerlIO_fileno(file);
 
@@ -496,20 +482,15 @@ int GetTermSizeGSIZE(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *yp
 	}
 }
 #else
-int GetTermSizeGSIZE(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
+int GetTermSizeGSIZE(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
-	PERL_UNUSED_ARG(file);
-	PERL_UNUSED_ARG(retwidth);
-	PERL_UNUSED_ARG(retheight);
-	PERL_UNUSED_ARG(xpix);
-	PERL_UNUSED_ARG(ypix);
 	croak("TermSizeGSIZE is not implemented on this architecture");
         return 0;
 }
 #endif
 
 #ifdef USE_WIN32
-int GetTermSizeWin32(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
+int GetTermSizeWin32(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
 	int handle=PerlIO_fileno(file);
 	HANDLE whnd = (HANDLE)_get_osfhandle(handle);
@@ -532,20 +513,15 @@ int GetTermSizeWin32(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *yp
 		return -1;
 }
 #else
-int GetTermSizeWin32(PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
+int GetTermSizeWin32(pTHX_ PerlIO *file,int *retwidth,int *retheight,int *xpix,int *ypix)
 {
-	PERL_UNUSED_ARG(file);
-	PERL_UNUSED_ARG(retwidth);
-	PERL_UNUSED_ARG(retheight);
-	PERL_UNUSED_ARG(xpix);
-	PERL_UNUSED_ARG(ypix);
 	croak("TermSizeWin32 is not implemented on this architecture");
         return 0;
 }
 #endif /* USE_WIN32 */
 
 
-int termsizeoptions() {
+STATIC int termsizeoptions() {
 	return	0
 #ifdef VIOMODE
 		| 1
@@ -563,18 +539,16 @@ int termsizeoptions() {
 }
 
 
-int SetTerminalSize(PerlIO *file,int width,int height,int xpix,int ypix)
+int SetTerminalSize(pTHX_ PerlIO *file,int width,int height,int xpix,int ypix)
 {
-#ifndef VIOMODE
-	char buffer[10];
 	int handle=PerlIO_fileno(file);
-#endif
 
 #ifdef VIOMODE
         return -1;
 #else
 
 #if defined(TIOCSWINSZ) && !defined(DONT_USE_SWINSZ)
+	char buffer[10];
 	struct winsize w;
 
 	w.ws_col=width;
@@ -594,6 +568,7 @@ int SetTerminalSize(PerlIO *file,int width,int height,int xpix,int ypix)
 	}
 #else
 # if defined(TIOCSSIZE) && !defined(DONT_USE_SSIZE)
+	char buffer[10];
 	struct ttysize w;
 
 	w.ts_lines=height;
@@ -624,7 +599,7 @@ int SetTerminalSize(PerlIO *file,int width,int height,int xpix,int ypix)
 
 }
 
-I32 terminal_speeds[] = {
+STATIC const I32 terminal_speeds[] = {
 #ifdef B50
 	50, B50,
 #endif
@@ -688,10 +663,12 @@ I32 terminal_speeds[] = {
 	-1,-1
 };
 
-int getspeed(PerlIO *file,I32 *in, I32 *out)
+int getspeed(pTHX_ PerlIO *file,I32 *in, I32 *out)
 {
 	int handle=PerlIO_fileno(file);
+#if defined(I_TERMIOS) || defined(I_TERMIO) || defined(I_SGTTY)
 	int i;
+#endif
 #       ifdef I_TERMIOS
 	/* Posixy stuff */
 
@@ -792,10 +769,10 @@ struct tbuffer {
 #endif
 #endif
 
-HV * filehash; /* Used to store the original terminal settings for each handle*/
-HV * modehash; /* Used to record the current terminal "mode" for each handle*/
+static HV * filehash; /* Used to store the original terminal settings for each handle*/
+static HV * modehash; /* Used to record the current terminal "mode" for each handle*/
 
-void ReadMode(PerlIO *file,int mode)
+void ReadMode(pTHX_ PerlIO *file,int mode)
 {
 	dTHR;
 	int handle;
@@ -852,8 +829,7 @@ void ReadMode(PerlIO *file,int mode)
 
 	if(firsttime) {
 		firsttime=0; 
-		/*memcpy((void*)&savebuf,(void*)&work,sizeof(struct tbuffer));*/
-                StructCopy(&work,&savebuf,struct tbuffer);
+		memcpy((void*)&savebuf,(void*)&work,sizeof(struct tbuffer));
 		if(!hv_store(filehash,(char*)&handle,sizeof(int),
 			newSVpv((char*)&savebuf,sizeof(struct tbuffer)),0))
 			croak("Unable to stash terminal settings.\n");
@@ -863,8 +839,7 @@ void ReadMode(PerlIO *file,int mode)
 		SV ** temp;
 		if(!(temp=hv_fetch(filehash,(char*)&handle,sizeof(int),0))) 
 			croak("Unable to retrieve stashed terminal settings.\n");
-		/*memcpy(&savebuf,SvPV(*temp,PL_na),sizeof(struct tbuffer));*/
-                StructCopy(SvPV(*temp,PL_na),&savebuf,struct tbuffer);
+		memcpy(&savebuf,SvPV(*temp,PL_na),sizeof(struct tbuffer));
 		if(!(temp=hv_fetch(modehash,(char*)&handle,sizeof(int),0))) 
 			croak("Unable to retrieve stashed terminal mode.\n");
 		oldmode=SvIV(*temp);
@@ -997,14 +972,13 @@ void ReadMode(PerlIO *file,int mode)
 		disabled, along with flow control. Echo should be off.
 		CR/LF is not translated, along with 8-bit/parity */
 
-		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
-                StructCopy(&savebuf,&work,struct tbuffer);
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
 
 		work.c_lflag &= ~(ICANON|ISIG|IEXTEN );
 		work.c_lflag &= ~(ECHO|ECHOE|ECHOK|ECHONL|ECHOCTL);
 		work.c_lflag &= ~(ECHOPRT|ECHOKE|FLUSHO|PENDIN|XCASE);
 		work.c_lflag |= NOFLSH;
-                work.c_iflag &= ~(IXOFF|IXON|IXANY|ICRNL|IMAXBEL|BRKINT);
+        work.c_iflag &= ~(IXOFF|IXON|IXANY|ICRNL|IMAXBEL|BRKINT);
 
 		if(((work.c_iflag & INPCK) != INPCK) ||
                    ((work.c_cflag & PARENB) != PARENB)) {
@@ -1023,13 +997,12 @@ void ReadMode(PerlIO *file,int mode)
 		disabled, along with flow control. Echo should be off.
 		About the only thing left unchanged is 8-bit/parity */
 
-		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
-                StructCopy(&savebuf,&work,struct tbuffer);
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
 
 		/*work.c_iflag = savebuf.c_iflag;*/
 		work.c_lflag &= ~(ICANON | ISIG | IEXTEN | ECHO);
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL|ECHOCTL|ECHOPRT|ECHOKE);
-                work.c_iflag &= ~(IXON | IXANY | BRKINT);
+        work.c_iflag &= ~(IXON | IXANY | BRKINT);
 		work.c_oflag = savebuf.c_oflag;
 		work.c_cc[VTIME] = 0;
 		work.c_cc[VMIN] = 1;
@@ -1040,9 +1013,9 @@ void ReadMode(PerlIO *file,int mode)
 		characters enabled, as should be flow control. Echo should
 		still be off */
 
-		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
-                StructCopy(&savebuf,&work,struct tbuffer);
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
 
+		work.c_iflag = savebuf.c_iflag;
 		work.c_lflag &= ~(ICANON | ECHO);
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL|ECHOCTL|ECHOPRT|ECHOKE);
 		work.c_lflag |= ISIG | IEXTEN;
@@ -1058,14 +1031,17 @@ void ReadMode(PerlIO *file,int mode)
 		characters enabled, as should be flow control. Echo should
 		still be off */
 
-		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
-                StructCopy(&savebuf,&work,struct tbuffer);
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
 
+		work.c_iflag = savebuf.c_iflag;
 		work.c_lflag |= ICANON|ISIG|IEXTEN;
 		work.c_lflag &= ~ECHO;
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL|ECHOCTL|ECHOPRT|ECHOKE);
 		/*work.c_iflag &= ~(IXON |IXOFF|IXANY);
-		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);*/
+		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);
+		work.c_oflag = savebuf.c_oflag;
+		work.c_cc[VTIME] = savebuf.c_cc[VTIME];
+		work.c_cc[VMIN] = savebuf.c_cc[VMIN];*/
 	}
 	else if(mode==1)
 	{
@@ -1073,20 +1049,27 @@ void ReadMode(PerlIO *file,int mode)
 		characters enabled, as should be flow control. Echo should
 		still be off */
 
-		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
-                StructCopy(&savebuf,&work,struct tbuffer);
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
 
+		work.c_iflag = savebuf.c_iflag;
 		work.c_lflag |= ICANON|ECHO|ISIG|IEXTEN;
 		/*work.c_iflag &= ~(IXON |IXOFF|IXANY);
-		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);*/
+		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);
+		work.c_oflag = savebuf.c_oflag;
+		work.c_cc[VTIME] = savebuf.c_cc[VTIME];
+		work.c_cc[VMIN] = savebuf.c_cc[VMIN];*/
 	}
 	else if(mode==0){
 		/*work.c_lflag &= ~BITMASK; 
 		work.c_lflag |= savebuf.c_lflag & BITMASK;
+		work.c_oflag = savebuf.c_oflag;
+		work.c_cc[VTIME] = savebuf.c_cc[VTIME];
+		work.c_cc[VMIN] = savebuf.c_cc[VMIN];
+		work.c_iflag = savebuf.c_iflag;
 		work.c_iflag &= ~(IXON|IXOFF|IXANY);
 		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);*/
-		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
-                StructCopy(&savebuf,&work,struct tbuffer);
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
+		/*Copy(&work,&savebuf,1,sizeof(struct tbuffer));*/
 
 		firsttime=1;
 	}	
@@ -1145,8 +1128,7 @@ void ReadMode(PerlIO *file,int mode)
 		flow control disabled, and unbuffered. CR/LF translation 
    	 	is off, and 8 bits if possible */
 
-		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
-                StructCopy(&savebuf,&work,struct tbuffer);
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
 
 		work.c_lflag &= ~(ECHO | ISIG | ICANON | XCASE);
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL | TRK_IDEFAULT);
@@ -1164,11 +1146,11 @@ void ReadMode(PerlIO *file,int mode)
 		flow control disabled, and unbuffered. Parity is not
 		touched. */
 
-		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
-                StructCopy(&savebuf,&work,struct tbuffer);
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
 
 		work.c_lflag &= ~(ECHO | ISIG | ICANON);
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL TRK_IDEFAULT);
+		work.c_iflag = savebuf.c_iflag;
 		work.c_iflag &= ~(IXON | IXOFF | IXANY | BRKINT);
 		work.c_oflag = savebuf.c_oflag;
 		work.c_cc[VMIN] = 1;
@@ -1178,14 +1160,15 @@ void ReadMode(PerlIO *file,int mode)
 		/* This mode tries to have echo off, signals enabled,
 		flow control as per the original setting, and unbuffered. */
 
-		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
-                StructCopy(&savebuf,&work,struct tbuffer);
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
 
 		work.c_lflag &= ~(ECHO | ICANON);
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL | TRK_IDEFAULT);
 		work.c_lflag |= ISIG;
+		work.c_iflag = savebuf.c_iflag;
 		work.c_iflag &= ~(IXON | IXOFF | IXANY);
 		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);
+		work.c_oflag = savebuf.c_oflag;
 		work.c_cc[VMIN] = 1;
 		work.c_cc[VTIME] = 1;
 	 }
@@ -1193,34 +1176,49 @@ void ReadMode(PerlIO *file,int mode)
 		/* This mode tries to set echo on, signals on, and buffering
 		on, with flow control set to whatever it was originally. */
 
-		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
-                StructCopy(&savebuf,&work,struct tbuffer);
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
 
 		work.c_lflag |= (ISIG | ICANON);
 		work.c_lflag &= ~ECHO;
 		work.c_lflag &= ~(ECHOE | ECHOK | ECHONL | TRK_IDEFAULT);
+		work.c_iflag = savebuf.c_iflag;
 		work.c_iflag &= ~(IXON | IXOFF | IXANY);
 		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);
+		work.c_oflag = savebuf.c_oflag;
+		work.c_cc[VMIN] = savebuf.c_cc[VMIN];
+		work.c_cc[VTIME] = savebuf.c_cc[VTIME];
 		
 		/* This assumes turning ECHO and ICANON back on is
 		   sufficient to re-enable cooked mode. If this is a 
 		   problem, complain to me */
+
+		/* What the heck. We're already saving the entire buf, so
+		I'm now going to reset VMIN and VTIME too. Hope this works 
+		properly */
+		
 	 } 
 	 else if(mode==1) {
 		/* This mode tries to set echo on, signals on, and buffering
 		on, with flow control set to whatever it was originally. */
 
-		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
-                StructCopy(&savebuf,&work,struct tbuffer);
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
 
 		work.c_lflag |= (ECHO | ISIG | ICANON);
-                work.c_iflag &= ~TRK_IDEFAULT;
+      work.c_iflag &= ~TRK_IDEFAULT;
+		work.c_iflag = savebuf.c_iflag;
 		work.c_iflag &= ~(IXON | IXOFF | IXANY);
 		work.c_iflag |= savebuf.c_iflag & (IXON|IXOFF|IXANY);
+		work.c_oflag = savebuf.c_oflag;
+		work.c_cc[VMIN] = savebuf.c_cc[VMIN];
+		work.c_cc[VTIME] = savebuf.c_cc[VTIME];
 		
 		/* This assumes turning ECHO and ICANON back on is
 		   sufficient to re-enable cooked mode. If this is a 
 		   problem, complain to me */
+
+		/* What the heck. We're already saving the entire buf, so
+		I'm now going to reset VMIN and VTIME too. Hope this works 
+		properly */
 	}		
 	 else if(mode==0) {
 		/* Put things back the way they were */
@@ -1230,8 +1228,7 @@ void ReadMode(PerlIO *file,int mode)
 		work.c_oflag = savebuf.c_oflag;
 		work.c_cc[VMIN] = savebuf.c_cc[VMIN];
 		work.c_cc[VTIME] = savebuf.c_cc[VTIME];*/
-                StructCopy(&savebuf,&work,struct tbuffer);
-		/*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
 		firsttime=1;
 	 }
  	 else
@@ -1359,8 +1356,7 @@ void ReadMode(PerlIO *file,int mode)
 		 work.ltchar = savebuf.ltchar;
 #		endif
 #endif
-                 /*memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));*/
-                StructCopy(&savebuf,&work,struct tbuffer);
+		memcpy((void*)&work,(void*)&savebuf,sizeof(struct tbuffer));
 		firsttime=1;
 	  }
  	  else
@@ -1412,7 +1408,7 @@ void ReadMode(PerlIO *file,int mode)
 		(void)hv_delete(modehash,(char*)&handle,sizeof(int),0);
 	} else {
 		if(!hv_store(modehash,(char*)&handle,sizeof(int),
-                             newSViv(mode),0))
+			newSViv(mode),0))
 			croak("Unable to stash terminal settings.\n");
 	}
 
@@ -1461,7 +1457,7 @@ understand this syntax, either fix the checkwaiting call below, or define
 DONT_USE_SELECT. */
 
 #ifdef Have_select
-int selectfile(PerlIO *file,double delay)
+int selectfile(pTHX_ PerlIO *file,double delay)
 {
 	struct timeval t;
 	int handle=PerlIO_fileno(file);
@@ -1490,7 +1486,7 @@ int selectfile(PerlIO *file,double delay)
 }
 
 #else
-int selectfile(PerlIO *file, double delay)
+int selectfile(pTHX_ PerlIO *file, double delay)
 {
 	croak("select is not supported on this architecture");
 	return 0;
@@ -1498,7 +1494,7 @@ int selectfile(PerlIO *file, double delay)
 #endif
 
 #ifdef Have_nodelay
-int setnodelay(PerlIO *file, int mode)
+int setnodelay(pTHX_ PerlIO *file, int mode)
 {
 	int handle=PerlIO_fileno(file);
 	int flags;
@@ -1512,7 +1508,7 @@ int setnodelay(PerlIO *file, int mode)
 }
 
 #else
-int setnodelay(PerlIO *file, int mode) 
+int setnodelay(pTHX_ PerlIO *file, int mode)
 {
 	croak("setnodelay is not supported on this architecture");
 	return 0;
@@ -1520,7 +1516,7 @@ int setnodelay(PerlIO *file, int mode)
 #endif
 
 #ifdef Have_poll
-int pollfile(PerlIO *file,double delay)
+int pollfile(pTHX_ pTHX_ PerlIO *file,double delay)
 {
 	int handle=PerlIO_fileno(file);
 	struct pollfd fds;
@@ -1533,10 +1529,8 @@ int pollfile(PerlIO *file,double delay)
 	return (poll(&fds,1,(long)(delay * 1000.0))>0);
 } 
 #else
-int pollfile(PerlIO *file,double delay) 
+int pollfile(pTHX_ PerlIO *file,double delay)
 {
-	PERL_UNUSED_ARG(file);
-	PERL_UNUSED_ARG(delay);
 	croak("pollfile is not supported on this architecture");
 	return 0;
 }
@@ -1580,7 +1574,7 @@ typedef struct {
              goto again;                \
     } while (0)
 
-int Win32PeekChar(PerlIO *file,double delay,char *key)
+int Win32PeekChar(pTHX_ PerlIO *file,U32 delay,char *key)
 {
 	int handle;
 	HANDLE whnd;
@@ -1624,7 +1618,7 @@ again:
     }
 
 	if (delay > 0) {
-		if (WaitForSingleObject(whnd, delay * 1000.0) != WAIT_OBJECT_0)
+		if (WaitForSingleObject(whnd, delay * 1000) != WAIT_OBJECT_0)
 		{
 			return FALSE;
 		}
@@ -1716,20 +1710,15 @@ again:
 
 } 
 #else
-/*
-int Win32PeekChar(PerlIO *file, double delay,char *key) 
+int Win32PeekChar(pTHX_ PerlIO *file, U32 delay,char *key)
 {
-	PERL_UNUSED_ARG(file);
-	PERL_UNUSED_ARG(delay);
-	PERL_UNUSED_ARG(key);
 	croak("Win32PeekChar is not supported on this architecture");
 	return 0;
 }
-*/
 #endif
 
 
-int blockoptions() {
+STATIC int blockoptions() {
 	return	0
 #ifdef Have_nodelay
 		| 1
@@ -1746,7 +1735,7 @@ int blockoptions() {
 		;
 }
 
-int termoptions() {
+STATIC int termoptions() {
 	int i=0;
 #ifdef USE_TERMIOS
 	i=1;		
@@ -1774,6 +1763,10 @@ int
 selectfile(file,delay)
 	InputStream	file
 	double	delay
+CODE:
+	RETVAL = selectfile(aTHX_ file, delay);
+OUTPUT:
+	RETVAL
 
 # Clever, eh?
 void
@@ -1782,37 +1775,41 @@ SetReadMode(mode,file=STDIN)
 	InputStream	file
 	CODE:
 	{
-		ReadMode(file,mode);
+		ReadMode(aTHX_ file,mode);
 	}
 
 int
 setnodelay(file,mode)
 	InputStream	file
 	int	mode
+CODE:
+	RETVAL = setnodelay(aTHX_ file, mode);
+OUTPUT:
+	RETVAL
 
 int
 pollfile(file,delay)
 	InputStream	file
 	double	delay
-
-#ifdef WIN32
+CODE:
+	RETVAL = pollfile(aTHX_ file, delay);
+OUTPUT:
+	RETVAL
 
 SV *
 Win32PeekChar(file, delay)
 	InputStream	file
-	double	delay
+	U32	delay
 	CODE:
 	{
 		char key;
-		if (Win32PeekChar(file, delay, &key))
+		if (Win32PeekChar(aTHX_ file, delay, &key))
 			RETVAL = newSVpv(&key, 1);
 		else
 			RETVAL = newSVsv(&PL_sv_undef);
 	}
 	OUTPUT:
 	RETVAL
-
-#endif
 
 int
 blockoptions()
@@ -1829,7 +1826,7 @@ GetTermSizeWin32(file=STDIN)
 	PPCODE:
 	{
 		int x,y,xpix,ypix;
-		if( GetTermSizeWin32(file,&x,&y,&xpix,&ypix)==0)
+		if( GetTermSizeWin32(aTHX_ file,&x,&y,&xpix,&ypix)==0)
 		{
 			EXTEND(sp, 4);
 			PUSHs(sv_2mortal(newSViv((IV)x)));
@@ -1849,7 +1846,7 @@ GetTermSizeVIO(file=STDIN)
 	PPCODE:
 	{
 		int x,y,xpix,ypix;
-		if( GetTermSizeVIO(file,&x,&y,&xpix,&ypix)==0)
+		if( GetTermSizeVIO(aTHX_ file,&x,&y,&xpix,&ypix)==0)
 		{
 			EXTEND(sp, 4);
 			PUSHs(sv_2mortal(newSViv((IV)x)));
@@ -1869,7 +1866,7 @@ GetTermSizeGWINSZ(file=STDIN)
 	PPCODE:
 	{
 		int x,y,xpix,ypix;
-		if( GetTermSizeGWINSZ(file,&x,&y,&xpix,&ypix)==0)
+		if( GetTermSizeGWINSZ(aTHX_ file,&x,&y,&xpix,&ypix)==0)
 		{
 			EXTEND(sp, 4);
 			PUSHs(sv_2mortal(newSViv((IV)x)));
@@ -1889,7 +1886,7 @@ GetTermSizeGSIZE(file=STDIN)
 	PPCODE:
 	{
 		int x,y,xpix,ypix;
-		if( GetTermSizeGSIZE(file,&x,&y,&xpix,&ypix)==0)
+		if( GetTermSizeGSIZE(aTHX_ file,&x,&y,&xpix,&ypix)==0)
 		{
 			EXTEND(sp, 4);
 			PUSHs(sv_2mortal(newSViv((IV)x)));
@@ -1912,7 +1909,7 @@ SetTerminalSize(width,height,xpix,ypix,file=STDIN)
 	InputStream	file
 	CODE:
 	{
-		RETVAL=SetTerminalSize(file,width,height,xpix,ypix);
+		RETVAL=SetTerminalSize(aTHX_ file,width,height,xpix,ypix);
 	}
 	OUTPUT:
 		RETVAL
@@ -1923,10 +1920,14 @@ GetSpeed(file=STDIN)
 	PPCODE:
 	{
 		I32 in,out;
+/*
+ *    experimentally relaxed for 
+ *    https://rt.cpan.org/Ticket/Display.html?id=88050
 		if(items!=0) {
 			croak("Usage: Term::ReadKey::GetSpeed()");
 		}
-		if(getspeed(file,&in,&out)) {
+*/
+		if(getspeed(aTHX_ file,&in,&out)) {
 			/* Failure */
 			ST( 0) = sv_newmortal();
 		} else {

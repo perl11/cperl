@@ -66,6 +66,15 @@ skip cperl builtin prereqs.
 
 =item Archive-Tar  2.10
 
+=item Term::ReadKey 2.37
+
+ReadKey.pm renamed to ReadKey_pm.PL,
+expand blockoptions specific variants already at installation,
+no load-time eval, demand-load Carp, remove unneeded AutoLoader,
+harmonize formatting.
+
+patch: use faster StructCopy.
+
 =item YAML::XS  0.75
 
 fixed encoding issues: fixed wrong $YAML::XS::Encoding and

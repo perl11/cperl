@@ -1,5 +1,13 @@
 #! perl
 
+package Term::ReadKey;
+
+# This also needs to be adjusted in the generated code below
+# and in the Makefile.PL
+use vars qw($VERSION);
+
+$VERSION = '2.37';
+
 use Config;
 use File::Basename qw(&basename &dirname);
 use File::Spec;
@@ -309,7 +317,7 @@ choose to license this under the standard Perl license:
 
 use vars qw($VERSION);
 
-$VERSION = '2.35';
+$VERSION = '2.37';
 
 require Exporter;
 require DynaLoader;
@@ -377,6 +385,7 @@ sub normalizehandle
 {
     my ($file) = @_; # allows fake signature optimization
 
+    no strict;
     #	print "Handle = $file\n";
     if ( ref($file) ) { return $file; }    # Reference is fine
 
@@ -389,7 +398,8 @@ sub normalizehandle
 
 sub GetTerminalSize
 {
-    my $file = normalizehandle( ( @_ > 1 ? $_[1] : \*STDOUT ) );
+    my $file = normalizehandle( ( @_ > 0 ? $_[0] : \*STDOUT ) );
+
     my (@results, @fail);
 
     if ( &termsizeoptions() & 1 )                       # VIO
