@@ -1453,10 +1453,13 @@ use File::Glob qw(:case);
     },
 
     'Time::Local' => {
-        'DISTRIBUTION' => 'DROLSKY/Time-Local-1.2300.tar.gz',
+        'DISTRIBUTION' => 'DROLSKY/Time-Local-1.24.tar.gz',
         'FILES'        => q[cpan/Time-Local],
         'EXCLUDED'     => [
             qr{^t/release-.*\.t},
+            qr{^t/00-report},
+            qr{^xt/},
+            qw( perlcriticrc perltidyrc tidyall.ini ),
         ],
     },
 

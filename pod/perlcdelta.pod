@@ -238,6 +238,10 @@ the suse patch and disabled the lexical filehandle patch.
 
 Added C<down_timed> method.
 
+=item Time-Local  1.24
+
+reformatted
+
 =back
 
 =head1 Documentation
