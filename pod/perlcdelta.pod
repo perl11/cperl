@@ -159,6 +159,12 @@ Fixed wrong skip message in F<t/020_external.t>
 Improved parallel testing, relative F<testdir/test$$.lib>.
 See L<[RT #118416]|https://rt.cpan.org/Ticket/Display.html?id=118416>.
 
+=item version  0.9917_01c
+
+Merge latest version with the '_' lyon concensus with the cperl extension
+of the optional final 'c' suffix. Extend version::regex for cperl.
+Now also parse the 'c' natively.
+
 =back
 
 =head2 Removed Modules and Pragmata
@@ -402,6 +408,11 @@ This failure was only fatal on 32bit + -Duse64bitint systems.
 C<SIGNATURE_arg_default_op> does not have a items arg.
 See L<[cperl #164]|https://github.com/perl11/cperl/issues/164>.
 and L<[cperl #213]|https://github.com/perl11/cperl/issues/213>.
+
+=item *
+
+v-strings with a 'c' suffix can now be parsed natively, in C<scan_vstring()>.
+See L<[cperl #211]|https://github.com/perl11/cperl/issues/211>.
 
 =back
 
