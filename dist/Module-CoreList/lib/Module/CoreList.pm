@@ -13359,6 +13359,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Scalar::Util'          => '1.46_06',
             'List::Util'            => '1.46_06',
             'Sub::Util'             => '1.46_05',
+            'Sys::Syslog'           => '0.35',
             'ExtUtils::Liblist::Kid'=> '8.04_06',
             'IO::Socket::IP'        => '0.38',
             'ExtUtils::Command::MM' => '8.04_04',

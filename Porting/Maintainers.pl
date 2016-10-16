@@ -1233,7 +1233,7 @@ use File::Glob qw(:case);
     },
 
     'Sys::Syslog' => {
-        'DISTRIBUTION' => 'SAPER/Sys-Syslog-0.34.tar.gz',
+        'DISTRIBUTION' => 'SAPER/Sys-Syslog-0.35.tar.gz',
         'FILES'        => q[cpan/Sys-Syslog],
         'EXCLUDED'     => [
             qr{^eg/},
@@ -1248,6 +1248,7 @@ use File::Glob qw(:case);
                 win32/PerlLog.RES
                 ),
         ],
+        'CUSTOMIZED'   => [ qw( t/syslog.t ) ],
     },
 
     'Term::ANSIColor' => {

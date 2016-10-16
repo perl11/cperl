@@ -434,6 +434,15 @@ FreeBSD has mandoc too, with UTF-8 support.
 
 VERSION bump only to protect from weak upstream.
 
+=item Sys-Syslog  0.35
+
+CVE-2016-1238: avoid loading optional modules from default . (Tony Cook).
+Patch rewrote to no longer depend upon @INC.
+See L<https://metacpan.org/changes/distribution/Sys-Syslog>
+
+Kept our smoker logic in F<t/syslog.t>, for slow darwin systems,
+the suse patch and disabled the lexical filehandle patch.
+
 =back
 
 =head1 Documentation
