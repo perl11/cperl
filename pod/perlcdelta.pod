@@ -445,6 +445,10 @@ See L<https://metacpan.org/changes/distribution/Sys-Syslog>
 Kept our smoker logic in F<t/syslog.t>, for slow darwin systems,
 the suse patch and disabled the lexical filehandle patch.
 
+=item Thread-Semaphore  2.13
+
+Added C<down_timed> method.
+
 =back
 
 =head1 Documentation
