@@ -13366,6 +13366,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Storable'              => '3.01c',
             'Term::ReadKey'         => '2.37_01',
             'Thread::Semaphore'     => '2.13',
+            'Time::Local'           => '1.24',
             'Cpanel::JSON::XS'      => '3.0218',
             'CPAN::Meta'            => '2.150010c',
             'CPAN::Meta::Converter' => '2.150010',
