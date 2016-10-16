@@ -159,6 +159,8 @@ fixed UTF-8 issues, passes now all Test-CPAN-Meta tests.
 
 =item CPAN  2.14c
 
+reapply most of our patches.
+
 =item Archive::Tar  2.10
 
 =item Cpanel::JSON::XS  3.0218
