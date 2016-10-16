@@ -32,7 +32,7 @@ Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 The current stable release is
   [5.24.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.1) - [perl5241cdelta](perl5241cdelta.html),
 the latest development release [5.25.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.25.0) - [perl5250cdelta](perl5250cdelta.html).
-See the current changelog [cperl-5.25.1 delta](perlcdelta.html).
+See the current changelog [cperl-5.25.2 delta](perlcdelta.html).
 We also have [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
 
 All tests pass. CPAN works.
@@ -109,7 +109,7 @@ perl-5.22.3.
 * special handling for security warnings: protect against hash flood DoS. Warn on
   all known public attacks, as metasploit bind/reverse shells or the Storable attack
   with the new `warn_security` API.
-  Since 5.25.1 such security warnings are logged at STDERR/syslog with the
+  Since 5.25.2 such security warnings are logged at STDERR/syslog with the
   remote user/IP.
 
 Most of them only would have a chance to be merged upstream if a p5p
