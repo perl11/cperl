@@ -120,7 +120,7 @@ sub write_b_c_config {
                   i_dlfcn ivdformat ivsize ld ldflags libs longsize mad nvgformat
                   osname osvers perlpath privlib ptrsize sizesize static_ext
                   usecperl usedl useithreads uselongdouble usemultiplicity
-	          usemymalloc uvuformat version))
+	          usemymalloc uvuformat uvxformat version))
       # maybe: use64bitall use64bitint
     {
         if ($CORE) {
