@@ -338,17 +338,48 @@ XXX
 
 =head1 Known Problems
 
-XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
-tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
-platform specific bugs also go here.
+For open cperl problems see L<[issues]|https://github.com/perl11/cperl/issues/>.
 
-[ List each fix as a =item entry ]
+Some of these fixes also can to be backported from perl5.25.x upstream.
 
 =over 4
 
 =item *
 
-XXX
+The perl debugger doesn't yet work with signatures. It doesn't step into
+such functions and it may fail.
+See e.g. L<[cperl #167]|https://github.com/perl11/cperl/issues/167>
+
+=item *
+
+F<t/op/taint.t> contained a test with signatures and 6 default
+arguments, which on some 32 bit systems led to random "Reference
+parameter cannot take default value at op/taint.t line 2461"
+compile-time failures. This test has been rewritten to ony use 4 arguments.
+
+See L<[cperl #164]|https://github.com/perl11/cperl/issues/164>
+
+=item *
+
+C<clang -flto=thin> and on some systems even C<gcc -flto> with C<-O3>
+or C<-finline> leads to invisible symbols which were inlined and not
+exported, even if they should be declared as public API. Work is
+ongoing in the F<feature/gh186-lto-thin> branch, but there the
+inlining is disabled by the C<used> attribute, leading to a
+10% performance regression.  On the other hand a working
+C<clang-3.9 -flto> leads to 20% performance improvements.
+
+=item *
+
+C< until ($x = 1) { ... } > and C< ... until $x = 1 > should
+warn when syntax warnings are enabled.
+L<[perl #127333]|https://rt.perl.org/Public/Bug/Display.html?id=127333>
+
+=item *
+
+C< ${\vec %h, 0, 1} > and C< ${\substr %h, 0} > should not segfault, rather
+the lvalue context should be propagated, and list context properly handled.
+L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
 
 =back
 
@@ -373,7 +404,6 @@ here.
 XXX To be generated with:
 
     cperl Porting/acknowledgements.pl cperl-5.25.1..HEAD
-
 
 =head1 Reporting Bugs
 
