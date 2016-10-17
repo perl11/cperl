@@ -7,7 +7,7 @@ use warnings;
 
 BEGIN { chdir 't' if -d 't'; require './test.pl'; }
 
-plan(tests => 28);
+plan(tests => 29);
 
 {
     no warnings 'deprecated';
@@ -236,4 +236,12 @@ fresh_perl_is(
     . "Execution of - aborted due to compilation errors.",
    { stderr => 1 },
   'allow padsv => const [cperl #108]'
+);
+
+fresh_perl_is(
+    "BEGIN{\$^H=hex ~0}\xF3",
+    "Integer overflow in hexadecimal number at - line 1.\n" .
+    "Malformed UTF-8 character (1 byte, need 4, after start byte 0xf3) at - line 1.",
+    {},
+    '[perl #128996] - use of PL_op after op is freed'
 );

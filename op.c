@@ -911,10 +911,8 @@ Perl_op_free(pTHX_ OP *o)
         op_clear(o);
         if (LIKELY(!o->op_static))
             FreeOp(o); /* Which is Slab_Free() */
-#ifdef DEBUG_LEAKING_SCALARS
         if (PL_op == o)
             PL_op = NULL;
-#endif
     } while ( (o = POP_DEFERRED_OP()) );
 
     Safefree(defer_stack);
