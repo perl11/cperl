@@ -9268,14 +9268,14 @@ STATIC I32	S_reg_check_named_buff_matched(const regexp *rex, const regnode *scan
 #define PERL_ARGS_ASSERT_REG_CHECK_NAMED_BUFF_MATCHED	\
 	assert(rex); assert(scan)
 
-STATIC void	S_regcppop(pTHX_ regexp *rex, U32 *maxopenparen_p)
+STATIC void	S_regcppop(pTHX_ regexp *rex, U32 *maxopenparen_p, int depth)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_REGCPPOP	\
 	assert(rex); assert(maxopenparen_p)
 
-STATIC CHECKPOINT	S_regcppush(pTHX_ const regexp *rex, I32 parenfloor, U32 maxopenparen)
+STATIC CHECKPOINT	S_regcppush(pTHX_ const regexp *rex, I32 parenfloor, U32 maxopenparen, int depth)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_REGCPPUSH	\
