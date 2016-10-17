@@ -109,6 +109,11 @@ when not in relaxed mode.
 
 added F<t/gh70-asan.t>
 
+=item Pod-HTML 2.22c
+
+Improved parallel testing, relative F<testdir/test$$.lib>.
+See L<[RT #118416]|https://rt.cpan.org/Ticket/Display.html?id=118416>.
+
 =item Time::HiRes  1.9740
 
 skip the t/utime.t on ext2/ext3
