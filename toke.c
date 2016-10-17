@@ -12545,7 +12545,7 @@ Perl_parse_subsignature(pTHX)
                  * (e.g. sub ($a = do {my $x}, $b) {} ),
                  * then plant a new padintro action; else update
                  * the existing action with a revised range */
-                if (   padintro_ix == -1
+                if (   padintro_ix == -1 /* initial state */
                     || (pad_offset - pad_base + 1) > OPpPADRANGE_COUNTMASK
                     || pad_offset != prev_pad_offset + 1)
                 {
@@ -12678,8 +12678,9 @@ Perl_parse_subsignature(pTHX)
                                 if (   !defexpr_count
                                     || (
                                         !PadnameOUTER(PAD_COMPNAME(po))
-                                            && (   top_unsafe_pad == NOT_IN_PAD
-                                                || top_unsafe_pad < po)
+                                        && ( top_unsafe_pad == NOT_IN_PAD
+                                             || top_unsafe_pad < po)
+                                        && po != NOT_IN_PAD
                                        ))
                                 {
                                     PUSH_ITEM(pad_offset, po);
