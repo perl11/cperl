@@ -12357,6 +12357,10 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             return entersubop;
         case SIGNATURE_padintro:
             pad_ix = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
+            if (UNLIKELY(items->iv == -1)) /* [cperl #164] */
+                Perl_croak(aTHX_
+                      "panic: Missing padintro item in signature of %s",
+                      SvPVX_const(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)));
 #ifdef DEBUGGING
             varcount = items->uv & OPpPADRANGE_COUNTMASK;
 #endif
@@ -12470,11 +12474,12 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
         UV action = actions & SIGNATURE_ACTION_MASK;
         /* We ran out of args, but maybe the next action is the first optional */
         if (action == SIGNATURE_padintro) {
-            actions >>= SIGNATURE_SHIFT;
             pad_ix = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
+            actions >>= SIGNATURE_SHIFT;
             action = actions & SIGNATURE_ACTION_MASK;
         }
-        if (action > SIGNATURE_arg || action ==  SIGNATURE_end || action == SIGNATURE_reload)
+        if (action != SIGNATURE_arg) /* mandatory arg.
+                                        there are no 2 consecutive padintros */
             return entersubop;
         else {
             SV * const namesv = cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN);
