@@ -83,7 +83,8 @@ There may well be none in a stable release.
 
 =item *
 
-XXX
+C<-DPERL_FAKE_SIGNATURE> is now default, making most function calls 2x faster.
+See L</-Ufake_signatures>
 
 =back
 
@@ -232,9 +233,11 @@ L</Platform Support> section, instead.
 
 =over 4
 
-=item *
+=item -Ufake_signatures
 
-XXX
+Ask for L<fake_signatures> being compiled in as default or not.
+Defaults to yes with cperl, no without. Sets C<$Config{fake_signatures}>
+and C<-DPERL_FAKE_SIGNATURE>.
 
 =back
 

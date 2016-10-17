@@ -5336,6 +5336,15 @@
 /*#define	USE_CPERL		/ **/
 #endif
 
+/* PERL_FAKE_SIGNATURE:
+ *	Convert functions entries automatically to use signatures.
+ *      globally enabling use fake_signatures;
+ *      Can be turned off with no fake_signatures;
+ */
+#ifndef PERL_FAKE_SIGNATURE
+#define	PERL_FAKE_SIGNATURE		/**/
+#endif
+
 /* USE_SANITIZE_ADDRESS:
  *	This symbol, if defined, indicates that Perl is compiled with -fsanitize=address
  */
@@ -5354,6 +5363,6 @@
 #endif
 
 /* Generated from:
- * 52eb080e7187284cf9e423ae0fbcb3813d064c9f38317ba2b36f4843f5738966 config_h.SH
- * cd2652c60797d3312efde451c31b8e63d0ce285f8975ffb3131ab97038184742 uconfig.sh
+ * 89d27b99bc36232d0b6d98a62456a582fe5922d5e4658243dad9bcc98423e634 config_h.SH
+ * d05bd36602e0fd1b12df352d1ae6c2c7bee1878fe9b4068600a1eb8bd8207b81 uconfig.sh
  * ex: set ro: */

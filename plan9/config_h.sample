@@ -4198,5 +4198,38 @@
 /*#define HAS_TTYNAME_R	   / **/
 #define TTYNAME_R_PROTO 0	   /**/
 
+/* USE_CPERL:
+ *	This symbol, if defined, indicates that Perl is the cperl variant.
+ */
+#ifndef USE_CPERL
+# define	USE_CPERL		/**/
+#endif
+
+/* PERL_FAKE_SIGNATURE:
+ *	Convert functions entries automatically to use signatures.
+ *      All like my (,...) = @_;
+ *      Can be turned off with no fake_signatures;
+ */
+#ifndef PERL_FAKE_SIGNATURE
+# ifdef USE_CPERL
+#  define	PERL_FAKE_SIGNATURE		/**/
+# endif
+#endif
+
+/* USE_SANITIZE_ADDRESS:
+ *	This symbol, if defined, indicates that Perl is compiled with -fsanitize=address
+ */
+#ifndef USE_SANITIZE_ADDRESS
+/*#define	USE_SANITIZE_ADDRESS		/ **/
+#endif
+
+/* PERL_HASH_FUNC_*:
+ *	This symbol defines the used perl hash function variant.
+ *      It is set in Configure or via -Dhash_func=, but can be left blank.
+ */
+#ifndef	PERL_HASH_FUNC_FNV1A
+# define	PERL_HASH_FUNC_FNV1A	/**/
+#endif
+
 #endif
 

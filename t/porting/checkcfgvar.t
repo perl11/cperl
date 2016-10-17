@@ -23,6 +23,7 @@
 
 use Config;
 BEGIN {
+    chdir 't' if -f 'MANIFEST';
     require "./test.pl";
     skip_all("Won't ship a release from EBCDIC") if $::IS_EBCDIC;
     @INC = '..' if -f '../TestInit.pm';

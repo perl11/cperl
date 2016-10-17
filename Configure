@@ -1397,6 +1397,7 @@ yacc=''
 yaccflags=''
 CONFIG=''
 usecperl=''
+fake_signatures=''
 
 : Detect odd OSs
 define='define'
@@ -23903,6 +23904,33 @@ case "$d_vfork" in
 	;;
 esac
 
+case "$fake_signatures" in
+$define|true|[yY]*)	dflt='y' ;;
+undef|[nN]*)		dflt='n' ;;
+*) case "$usecperl" in
+       define) 		dflt='y' ;;
+       *)	    	dflt='n' ;;
+   esac
+   ;;
+esac
+cat <<EOM
+
+Would you like to build Perl which automatically converts many functions
+to use faster signatures internally? All functions which do start with
+something like 'my ($arg, ...) = @_;' are detected and converted then,
+unless you are using 'no fake_signatures;'
+
+If this doesn't make any sense to you, just accept the default '$dflt'.
+EOM
+rp='Use fake_signatures?'
+. ./myread
+case "$ans" in
+y|Y)	val="$define" ;;
+*)	val="$undef"  ;;
+esac
+set fake_signatures
+eval $setvar
+
 : see which hash_func to use. can be left empty
 case "$ccflags" in
     *-DPERL_HASH_FUNC_[A-Z]*)
@@ -25111,6 +25139,7 @@ expr='$expr'
 extensions='$extensions'
 extern_C='$extern_C'
 extras='$extras'
+fake_signatures='$fake_signatures'
 fflushNULL='$fflushNULL'
 fflushall='$fflushall'
 find='$find'

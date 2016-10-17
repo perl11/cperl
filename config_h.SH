@@ -5371,6 +5371,15 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #$usecperl	USE_CPERL		/**/
 #endif
 
+/* PERL_FAKE_SIGNATURE:
+ *	Convert functions entries automatically to use signatures.
+ *      globally enabling use fake_signatures;
+ *      Can be turned off with no fake_signatures;
+ */
+#ifndef PERL_FAKE_SIGNATURE
+#$fake_signatures	PERL_FAKE_SIGNATURE		/**/
+#endif
+
 /* USE_SANITIZE_ADDRESS:
  *	This symbol, if defined, indicates that Perl is compiled with -fsanitize=address
  */
