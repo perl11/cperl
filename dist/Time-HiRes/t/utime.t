@@ -42,8 +42,11 @@ BEGIN {
               print "# fstype = $fstype\n";
               if ($fstype eq 'ext3' || $fstype eq 'ext2') {
                   Test::More::plan(skip_all => "fstype $fstype has no subsecond timestamps in $^O");
-            }
-        }
+              }
+          }
+    }
+    if ($^O eq 'linux' && $ENV{GITLAB_CI}) {
+        Test::More::plan(skip_all => "gitlab smoker [cperl #212]");
     }
 }
 
