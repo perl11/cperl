@@ -84,7 +84,7 @@ There may well be none in a stable release.
 =item *
 
 C<-DPERL_FAKE_SIGNATURE> is now default, making most function calls 2x faster.
-See L</-Ufake_signatures>
+See L</fake_signatures>
 
 =back
 
@@ -245,11 +245,16 @@ L</Platform Support> section, instead.
 
 =over 4
 
-=item -Ufake_signatures
+=item fake_signatures
 
 Ask for L<fake_signatures> being compiled in as default or not.
 Defaults to yes with cperl, no without. Sets C<$Config{fake_signatures}>
-and C<-DPERL_FAKE_SIGNATURE>.
+and defines C<PERL_FAKE_SIGNATURE>.
+
+=item d_llabs
+
+Probe for C<llabs()> needed for PERL_IABS on 32bit with -Duse64bitint,
+the default on mingw/cygwin. Defines C<HAS_LLABS>.
 
 =back
 

@@ -627,6 +627,7 @@ d_lgamma=''
 d_lgamma_r=''
 d_libm_lib_version=''
 d_link=''
+d_llabs=''
 d_llrint=''
 d_llrintl=''
 d_llround=''
@@ -16327,6 +16328,10 @@ eval $inlibc
 set llroundl d_llroundl
 eval $inlibc
 
+: see if llabs exists
+set llabs d_llabs
+eval $inlibc
+
 : see if localtime_r exists
 set localtime_r d_localtime_r
 eval $inlibc
@@ -24816,6 +24821,7 @@ d_lgamma_r='$d_lgamma_r'
 d_libm_lib_version='$d_libm_lib_version'
 d_libname_unique='$d_libname_unique'
 d_link='$d_link'
+d_llabs='$d_llabs'
 d_llrint='$d_llrint'
 d_llrintl='$d_llrintl'
 d_llround='$d_llround'

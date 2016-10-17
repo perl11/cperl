@@ -6865,7 +6865,12 @@ extern void moncontrol(int);
 #if IVSIZE == 4
 #  define PERL_IABS(ix) abs(ix)
 #else
-#  define PERL_IABS(ix) labs(ix)
+#  if PTRSIZE == 4 && defined(HAS_LLABS)
+     /* need long long on 32 bit with -Duse64bitint (i.e. cygwin/mingw) */
+#    define PERL_IABS(ix) llabs(ix)
+#  else
+#    define PERL_IABS(ix) labs(ix)
+#  endif
 #endif
 
 #if defined(__DECC) && defined(__osf__)
