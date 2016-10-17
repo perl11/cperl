@@ -1958,7 +1958,7 @@ PP(pp_repeat)
 	sv = POPs;
     }
 
-    if (SvIOKp(sv)) {
+    if (LIKELY(SvIOKp(sv))) {
 	 if (SvUOK(sv)) {
 	      const UV uv = SvUV_nomg(sv);
 	      if (uv > IV_MAX)
@@ -1972,22 +1972,19 @@ PP(pp_repeat)
     else if (SvNOKp(sv)) {
         const NV nv = SvNV_nomg(sv);
         infnan = Perl_isinfnan(nv);
-        if (UNLIKELY(infnan)) {
+        if (UNLIKELY(infnan || (nv > IV_MAX))) {
+            Perl_ck_warner(aTHX_ packWARN(WARN_NUMERIC),
+                           "Non-finite repeat count does nothing");
             count = 0;
-        } else {
-            if (nv < 0.0)
-                count = -1;   /* An arbitrary negative integer */
-            else
-                count = (IV)nv;
-        }
+        } else if (UNLIKELY(nv < 0.0))
+            count = -1;   /* An arbitrary negative integer */
+        else
+            count = (IV)nv;
     }
     else
 	count = SvIV_nomg(sv);
 
-    if (infnan) {
-        Perl_ck_warner(aTHX_ packWARN(WARN_NUMERIC),
-                       "Non-finite repeat count does nothing");
-    } else if (count < 0) {
+    if (UNLIKELY(count < 0)) {
         count = 0;
         Perl_ck_warner(aTHX_ packWARN(WARN_NUMERIC),
                        "Negative repeat count does nothing");
