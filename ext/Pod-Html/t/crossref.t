@@ -1,11 +1,8 @@
 #!/usr/bin/perl -w                                         # -*- perl -*-
 
+our $testlib;
 BEGIN {
-    require "t/pod2html-lib.pl";
-}
-
-END {
-    rem_test_dir();
+    require "./t/pod2html-lib.pl";
 }
 
 use strict;
@@ -24,7 +21,7 @@ SKIP: {
         
     convert_n_test("crossref", "cross references", 
      "--podpath=". File::Spec::Unix->catdir($relcwd, 't') . ":"
-                 . File::Spec::Unix->catdir($relcwd, 'testdir/test.lib'),
+                 . File::Spec::Unix->catdir($relcwd, $testlib),
      "--podroot=". catpath($v, '/', ''),
      "--quiet",
     );
@@ -68,15 +65,15 @@ __DATA__
 
 <p><a href="#non-existent-section">&quot;non existent section&quot;</a></p>
 
-<p><a href="/[RELCURRENTWORKINGDIRECTORY]/testdir/test.lib/var-copy.html">var-copy</a></p>
+<p><a href="/[RELCURRENTWORKINGDIRECTORY]/[TESTLIBDIR]/var-copy.html">var-copy</a></p>
 
-<p><a href="/[RELCURRENTWORKINGDIRECTORY]/testdir/test.lib/var-copy.html#pod">&quot;$&quot;&quot; in var-copy</a></p>
+<p><a href="/[RELCURRENTWORKINGDIRECTORY]/[TESTLIBDIR]/var-copy.html#pod">&quot;$&quot;&quot; in var-copy</a></p>
 
 <p><code>var-copy</code></p>
 
 <p><code>var-copy/$&quot;</code></p>
 
-<p><a href="/[RELCURRENTWORKINGDIRECTORY]/testdir/test.lib/podspec-copy.html#First">&quot;First:&quot; in podspec-copy</a></p>
+<p><a href="/[RELCURRENTWORKINGDIRECTORY]/[TESTLIBDIR]/podspec-copy.html#First">&quot;First:&quot; in podspec-copy</a></p>
 
 <p><code>podspec-copy/First:</code></p>
 

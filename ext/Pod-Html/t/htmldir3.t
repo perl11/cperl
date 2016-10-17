@@ -70,7 +70,7 @@ __DATA__
 
 <p>Normal text, a <a>link</a> to nowhere,</p>
 
-<p>a link to <a href="[RELCURRENTWORKINGDIRECTORY]/testdir/test.lib/var-copy.html">var-copy</a>,</p>
+<p>a link to <a href="[RELCURRENTWORKINGDIRECTORY]/[TESTLIBDIR]/var-copy.html">var-copy</a>,</p>
 
 <p><a href="[RELCURRENTWORKINGDIRECTORY]/t/htmlescp.html">htmlescp</a>,</p>
 

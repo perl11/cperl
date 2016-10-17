@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w                                         # -*- perl -*-
 
-
+our $testlib;
 BEGIN {
-    require "t/pod2html-lib.pl";
+    require "./t/pod2html-lib.pl";
 }
 
 use strict;
@@ -26,9 +26,9 @@ convert_n_test("feature2", "misc pod-html features 2",
 
 like($warn,
     qr(
-	\Acaching\ directories\ for\ later\ use\n
+	caching\ directories\ for\ later\ use\n
 	Converting\ input\ file\ \S+[/\\\]]feature2\.pod\n\z	
-    )x,
+    )mx,
     "misc pod-html --verbose warnings");
 
 __DATA__

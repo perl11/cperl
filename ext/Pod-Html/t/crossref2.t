@@ -1,11 +1,8 @@
 #!/usr/bin/perl -w                                         # -*- perl -*-
 
+our $testlib;
 BEGIN {
     require "t/pod2html-lib.pl";
-}
-
-END {
-    rem_test_dir();
 }
 
 use strict;
@@ -19,7 +16,7 @@ SKIP: {
     my $cwd = Pod::Html::_unixify(cwd());
 
     convert_n_test("crossref", "cross references",
-     "--podpath=t:testdir/test.lib",
+     "--podpath=t:$testlib",
      "--podroot=$cwd",
      "--htmldir=$cwd",
      "--quiet",
@@ -64,15 +61,15 @@ __DATA__
 
 <p><a href="#non-existent-section">&quot;non existent section&quot;</a></p>
 
-<p><a href="../testdir/test.lib/var-copy.html">var-copy</a></p>
+<p><a href="../[TESTLIBDIR]/var-copy.html">var-copy</a></p>
 
-<p><a href="../testdir/test.lib/var-copy.html#pod">&quot;$&quot;&quot; in var-copy</a></p>
+<p><a href="../[TESTLIBDIR]/var-copy.html#pod">&quot;$&quot;&quot; in var-copy</a></p>
 
 <p><code>var-copy</code></p>
 
 <p><code>var-copy/$&quot;</code></p>
 
-<p><a href="../testdir/test.lib/podspec-copy.html#First">&quot;First:&quot; in podspec-copy</a></p>
+<p><a href="../[TESTLIBDIR]/podspec-copy.html#First">&quot;First:&quot; in podspec-copy</a></p>
 
 <p><code>podspec-copy/First:</code></p>
 

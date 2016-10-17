@@ -112,9 +112,10 @@ XXX
 
 =over 4
 
-=item *
+=item Pod-HTML 2.22c
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+Improved parallel testing, relative F<testdir/test$$.lib>.
+See L<[RT #118416]|https://rt.cpan.org/Ticket/Display.html?id=118416>.
 
 =back
 

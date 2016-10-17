@@ -1,11 +1,8 @@
 #!/usr/bin/perl -w                                         # -*- perl -*-
 
+our $testlib;
 BEGIN {
     require "t/pod2html-lib.pl";
-}
-
-END {
-    rem_test_dir();
 }
 
 use strict;
@@ -24,7 +21,7 @@ SKIP: {
                             # this?
 
     convert_n_test("htmldir5", "test --htmldir and --htmlroot 5", 
-     "--podpath=t:testdir/test.lib",
+     "--podpath=t:$testlib",
      "--podroot=$cwd",
      "--htmldir=$cwd",
      "--htmlroot=/",
@@ -59,7 +56,7 @@ __DATA__
 
 <p>Normal text, a <a>link</a> to nowhere,</p>
 
-<p>a link to <a href="../testdir/test.lib/var-copy.html">var-copy</a>,</p>
+<p>a link to <a href="../[TESTLIBDIR]/var-copy.html">var-copy</a>,</p>
 
 <p><a href="./htmlescp.html">htmlescp</a>,</p>
 
