@@ -4017,6 +4017,14 @@
  */
 /*#define HAS_LLROUNDL		/ **/
 
+/* HAS_LLABS:
+ *	This symbol, if defined, indicates that the llabs routine is
+ *	available to return the absolute value for a long long int,
+ *      which is needed on 32bit systems with -Duse64bitint, e.g. cygwin
+ *      or mingw.
+ */
+/*#define HAS_LLABS		/ **/
+
 /* HAS_LOG1P:
  *	This symbol, if defined, indicates that the log1p routine is
  *	available to do the logarithm of 1 plus argument function.
@@ -5350,6 +5358,6 @@
 #endif
 
 /* Generated from:
- * 1991ce02e10a65cd83b56e2c467331888cb5b38fde36d783800222fee6eded55 config_h.SH
- * fd4e28be576ac8ca9cf49d8fb7995374fe4b570fee54125c027bf4d6fcf33b6c uconfig.sh
+ * db334eede001426213e6b3b9e5a212677a78ac10e4af96a1baf8c883bae46173 config_h.SH
+ * 436de01a383a0c78d735e8e3e78800786d30490cf293f4d6af8155a7840a8ecb uconfig.sh
  * ex: set ro: */

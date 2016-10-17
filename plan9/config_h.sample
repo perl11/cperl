@@ -259,6 +259,41 @@
  */
 /*#define HAS_LSTAT		/ **/
 
+/* HAS_LLRINT:
+ *	This symbol, if defined, indicates that the llrint routine is
+ *	available to return the closest long long value according to
+ *	the current rounding mode.
+ */
+/*define HAS_LLRINT		/ **/
+
+/* HAS_LLRINTL:
+ *	This symbol, if defined, indicates that the llrintl routine is
+ *	available to return the closest long long value of the long double
+ *	argument according to the current rounding mode.
+ */
+/*define HAS_LLRINTL		/ **/
+
+/* HAS_LLROUND:
+ *	This symbol, if defined, indicates that the llround routine is
+ *	available to return the nearest long long value.
+ */
+/*define HAS_LLROUND		/ **/
+
+/* HAS_LLROUNDL:
+ *	This symbol, if defined, indicates that the llroundl routine is
+ *	available to return the nearest long long value away from zero of
+ *	the long double argument value.
+ */
+/*define HAS_LLROUNDL		/ **/
+
+/* HAS_LLABS:
+ *	This symbol, if defined, indicates that the llabs routine is
+ *	available to return the absolute value for a long long int,
+ *      which is needed on 32bit systems with -Duse64bitint, e.g. cygwin
+ *      or mingw.
+ */
+/*define HAS_LLABS		/ **/
+
 /* HAS_MBLEN:
  *	This symbol, if defined, indicates that the mblen routine is available
  *	to find the number of bytes in a multibye character.

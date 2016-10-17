@@ -6856,6 +6856,16 @@ extern void moncontrol(int);
 /* Use instead of abs() since abs() forces its argument to be an int,
  * but also beware since this evaluates its argument twice, so no x++. */
 #define PERL_ABS(x) ((x) < 0 ? -(x) : (x))
+#if IVSIZE == 4
+#  define PERL_IABS(ix) abs(ix)
+#else
+#  if PTRSIZE == 4 && defined(HAS_LLABS)
+     /* need long long on 32 bit with -Duse64bitint (i.e. cygwin/mingw) */
+#    define PERL_IABS(ix) llabs(ix)
+#  else
+#    define PERL_IABS(ix) labs(ix)
+#  endif
+#endif
 
 #if defined(__DECC) && defined(__osf__)
 #pragma message disable (mainparm) /* Perl uses the envp in main(). */

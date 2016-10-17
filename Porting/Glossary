@@ -1481,6 +1481,12 @@ d_link (d_link.U):
 	This variable conditionally defines HAS_LINK if link() is
 	available to create hard links.
 
+d_llabs (d_llabs.U):
+	This variable conditionally defines the HAS_LLABS symbol,
+	which indicates to the C program that the llabs() routine is
+	available with the long long API, which is needed on 32bit
+	with -Duse64bitint.
+
 d_llrint (d_llrint.U):
 	This variable conditionally defines the HAS_LLRINT symbol, which
 	indicates to the C program that the llrint() routine is available

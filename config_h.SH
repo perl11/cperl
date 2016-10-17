@@ -4052,6 +4052,14 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$d_llroundl HAS_LLROUNDL		/**/
 
+/* HAS_LLABS:
+ *	This symbol, if defined, indicates that the llabs routine is
+ *	available to return the absolute value for a long long int,
+ *      which is needed on 32bit systems with -Duse64bitint, e.g. cygwin
+ *      or mingw.
+ */
+#$d_llabs HAS_LLABS		/**/
+
 /* HAS_LOG1P:
  *	This symbol, if defined, indicates that the log1p routine is
  *	available to do the logarithm of 1 plus argument function.

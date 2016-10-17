@@ -340,18 +340,12 @@ XXX
 
 =head1 Configuration and Compilation
 
-XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
-go here.  Any other changes to the Perl build process should be listed here.
-However, any platform-specific changes should be listed in the
-L</Platform Support> section, instead.
-
-[ List changes as a =item entry ].
-
 =over 4
 
-=item XXX
+=item d_llabs
 
-XXX
+Probe for C<llabs()> needed for PERL_IABS on 32bit with -Duse64bitint,
+the default on mingw/cygwin. Defines C<HAS_LLABS>.
 
 =back
 
