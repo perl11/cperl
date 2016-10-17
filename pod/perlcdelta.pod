@@ -423,6 +423,18 @@ Some of these fixes also can to be backported from perl5.25.x upstream.
 
 =item *
 
+C< until ($x = 1) { ... } > and C< ... until $x = 1 > should
+warn when syntax warnings are enabled.
+L<[perl #127333]|https://rt.perl.org/Public/Bug/Display.html?id=127333>
+
+=item *
+
+C< ${\vec %h, 0, 1} > and C< ${\substr %h, 0} > should not segfault, rather
+the lvalue context should be propagated, and list context properly handled.
+L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
+
+=item *
+
 The perl debugger doesn't yet work with signatures. It doesn't step into
 such functions and it may fail.
 See e.g. L<[cperl #167]|https://github.com/perl11/cperl/issues/167>
