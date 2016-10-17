@@ -19024,7 +19024,9 @@ Perl_regprop(pTHX_ const regexp *prog, SV *sv, const regnode *o, const regmatch_
 	    = (reg_trie_data*)progi->data->data[!IS_TRIE_AC(op) ? n : ac->trie];
 
         Perl_sv_catpvf(aTHX_ sv, "-%s",PL_reg_name[o->flags]);
-        DEBUG_TRIE_COMPILE_r(
+        DEBUG_TRIE_COMPILE_r({
+          if (trie->jump)
+            sv_catpvs(sv, "(JUMP)");
           Perl_sv_catpvf(aTHX_ sv,
             "<S:%" UVuf "/%" IVdf " W:%" UVuf " L:%" UVuf "/%" UVuf " C:%" UVuf "/%" UVuf ">",
             (UV)trie->startstate,
@@ -19035,7 +19037,7 @@ Perl_regprop(pTHX_ const regexp *prog, SV *sv, const regnode *o, const regmatch_
             (UV)TRIE_CHARCOUNT(trie),
             (UV)trie->uniquecharcount
           );
-        );
+        });
         if ( IS_ANYOF_TRIE(op) || trie->bitmap ) {
             sv_catpvs(sv, "[");
             (void) put_charclass_bitmap_innards(sv,
@@ -19049,7 +19051,6 @@ Perl_regprop(pTHX_ const regexp *prog, SV *sv, const regnode *o, const regmatch_
                                                );
             sv_catpvs(sv, "]");
         }
-
     } else if (k == CURLY) {
         U32 lo = ARG1(o), hi = ARG2(o);
 	if (OP(o) == CURLYM || OP(o) == CURLYN || OP(o) == CURLYX)
