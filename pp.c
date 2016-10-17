@@ -1978,7 +1978,7 @@ PP(pp_repeat)
                 is_negative = TRUE;
             else {
                 if (UNLIKELY(nv > UV_MAX))
-                    Perl_croak(aTHX_ "panic: overlarge repeat count %""", nv);
+                    Perl_croak(aTHX_ "panic: overlarge repeat count %"NVgf"", nv);
                 else
                     count = (UV)nv;
             }
