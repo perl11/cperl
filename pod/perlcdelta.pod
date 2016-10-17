@@ -112,6 +112,12 @@ XXX
 
 =over 4
 
+=item Net-Ping 2.51
+
+Fixed missing C<_unpack_sockaddr_in> family, which took AF_INET6 for
+a AF_INET addr in F<t/500_ping_icmp.t> and F<t/500_ping_icmp_ttl.t>.
+Use now a proper default. Detected by the new gitlab ci.
+
 =item Pod-HTML 2.22c
 
 Improved parallel testing, relative F<testdir/test$$.lib>.

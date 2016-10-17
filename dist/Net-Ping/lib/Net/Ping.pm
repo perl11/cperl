@@ -21,7 +21,7 @@ use Time::HiRes;
 @ISA = qw(Exporter);
 @EXPORT = qw(pingecho);
 @EXPORT_OK = qw(wakeonlan);
-$VERSION = "2.50";
+$VERSION = "2.51";
 
 # Globals
 
@@ -725,7 +725,7 @@ sub ping_icmp
       $from_pid = -1;
       $from_seq = -1;
       $from_saddr = recv($self->{"fh"}, $recv_msg, 1500, ICMP_FLAGS);
-      ($from_port, $from_ip) = _unpack_sockaddr_in($from_saddr);
+      ($from_port, $from_ip) = _unpack_sockaddr_in($from_saddr, $ip->{"family"});
       ($from_type, $from_subcode) = unpack("C2", substr($recv_msg, 20, 2));
       if ($from_type == ICMP_ECHOREPLY) {
         ($from_pid, $from_seq) = unpack("n3", substr($recv_msg, 24, 4))
@@ -1878,10 +1878,12 @@ sub _pack_sockaddr_in($$) {
       $addr,
       ) = @_;
 
-  if ($addr->{"family"} == AF_INET) {
-    return Socket::pack_sockaddr_in($port, $addr->{"addr_in"});
+  my $ip = ref($addr) eq 'HASH' ? $addr->{addr_in} : $addr;
+  if ((ref($addr) eq 'HASH' and $addr->{"family"} == AF_INET)
+      || length($addr) <= 16 ) {
+    return Socket::pack_sockaddr_in($port, $ip);
   } else {
-    return Socket::pack_sockaddr_in6($port, $addr->{"addr_in"});
+    return Socket::pack_sockaddr_in6($port, $ip);
   }
 }
 
@@ -1891,7 +1893,7 @@ sub _unpack_sockaddr_in($;$) {
       ) = @_;
 
   my ($port, $host);
-  if ($family == AF_INET) {
+  if ($family == AF_INET || (!defined($family) and length($addr) <= 16 )) {
     ($port, $host) = Socket::unpack_sockaddr_in($addr);
   } else {
     ($port, $host) = Socket::unpack_sockaddr_in6($addr);
