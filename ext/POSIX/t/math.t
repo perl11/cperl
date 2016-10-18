@@ -176,10 +176,16 @@ SKIP: {
     setpayloadsig($x, 0x12345);
     ok(isnan($x), "setpayloadsig + isnan");
     is(getpayload($x), 0x12345, "setpayload + getpayload");
-    TODO: {
-      local $TODO="32bit setpayloadsig not signaling"
-        if $Config{usecperl} && $Config{ivsize}==4; # or maybe just darwin?
-      ok(issignaling($x), "setpayloadsig + issignaling");
+    my $ok = issignaling($x);
+    if (!$ok) {
+      TODO: {
+        local $TODO="32bit setpayloadsig not signaling"
+          if $Config{usecperl} && $Config{ptrsize}==4; # or maybe just darwin?
+        ok($ok, "setpayloadsig + issignaling");
+      }
+    }
+    else {
+      ok($ok, "setpayloadsig + issignaling");
     }
 
     # Try a payload more than one byte.
