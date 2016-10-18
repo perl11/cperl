@@ -12425,8 +12425,8 @@ Perl_parse_subsignature(pTHX)
     bool slurpy        =  0; /* has a @ or % */
     int  defexpr_count =  0; /* how many non-optimised default exprs seen */
     int  padintro_ix   = -1; /* data slot of current padintro action */
+    PADOFFSET pad_base = 0;  /* first pad index in current range */
     PADOFFSET prev_pad_offset = NOT_IN_PAD;
-    PADOFFSET pad_base = 0;     /* first pad index in current range */
     PADOFFSET top_pad  = NOT_IN_PAD; /* highest pad var index seen so far */
     PADOFFSET top_unsafe_pad  = NOT_IN_PAD; /* highest pad var that may be
                                     affected by non-optimised default exprs */
@@ -12545,17 +12545,27 @@ Perl_parse_subsignature(pTHX)
                  * the existing action with a revised range */
                 if (   padintro_ix == -1 /* initial state */
                     || (pad_offset - pad_base + 1) > OPpPADRANGE_COUNTMASK
+                    || (prev_pad_offset == NOT_IN_PAD && pad_offset > 0)
                     || pad_offset != prev_pad_offset + 1)
                 {
+                    DEBUG_kv(
+                      (padintro_ix >= 0 || prev_pad_offset != NOT_IN_PAD)
+                      ? Perl_deb(aTHX_ "sig: non-continuous padintro prev=%d, pad=%u-%u\n",
+                                 (int)prev_pad_offset, (unsigned)pad_base, (unsigned)pad_offset)
+                      : Perl_deb(aTHX_ "sig: new padintro pad=%u-%u\n",
+                                 (unsigned)pad_base, (unsigned)pad_offset));
                     pad_base = pad_offset;
                     /* reserve slot for padintro arg */
                     padintro_ix = st.items_ix;
                     PUSH_ITEM(uv, 0);
                     /* note that arg items should always be pushed
                      * before actions; otherwise, when actions fill up
-                     * and alloocate a new slot, the new actions slot and
+                     * and allocate a new slot, the new actions slot and
                      * the args slot are in the wrong order */
                     S_sig_push_action(aTHX_ stp, SIGNATURE_padintro);
+                } else {
+                    DEBUG_kv(Perl_deb(aTHX_ "sig: update padintro prev=%d, pad=%u-%u\n",
+                                      (int)prev_pad_offset, (unsigned)pad_base, (unsigned)pad_offset));
                 }
                 st.items[padintro_ix].uv =
                                 (pad_base << OPpPADRANGE_COUNTSHIFT)
@@ -12834,7 +12844,7 @@ Perl_parse_subsignature(pTHX)
         PerlMemShared_free(st.items);
         st.items = new_items;
         new_items[0].uv = st.items_ix - 1;
-        new_items[st.items_ix].uv = (UV)-1; /* dummy marker */
+        new_items[st.items_ix].iv = (IV)-1; /* dummy marker */
         ((UNOP_AUX*)st.sig_op)->op_aux = new_items + 1;
     }
 
