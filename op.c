@@ -12192,25 +12192,25 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
     UV actions = (++items)->uv;
     UV action;
     bool first = TRUE;
-    DEBUG_k(Perl_deb(aTHX_ "sig_proto: numitems=%lu actions=0x%lx\n", o->op_aux[-1].uv, items->uv));
+    DEBUG_k(Perl_deb(aTHX_ "sig_proto: numitems=%lu actions=0x%"UVxf"\n", o->op_aux[-1].uv, items->uv));
 
     while (1) {
         switch (action = (actions & SIGNATURE_ACTION_MASK)) {
         case SIGNATURE_reload:
             actions = (++items)->uv;
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: reload actions=0x%lx items=0x%lx\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: reload actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
             continue;
         case SIGNATURE_end:
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: end actions=0x%lx items=0x%lx\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: end actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
             goto finish;
         case SIGNATURE_padintro:
             items++;
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: padintro actions=0x%lx items=0x%lx\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: padintro actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
             break;
         case SIGNATURE_arg:
             /* Do NOT add a \ to a SCALAR! */
             sv_catpvs_nomg(out, "$");
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: arg actions=0x%lx items=0x%lx\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: arg actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
             break;
         case SIGNATURE_arg_default_iv:
         case SIGNATURE_arg_default_const:
@@ -12218,12 +12218,12 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
         case SIGNATURE_arg_default_gvsv:
         case SIGNATURE_arg_default_op:
             items++; /* fall thru */
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: argdef actions=0x%lx items=0x%lx\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: argdef actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
         case SIGNATURE_arg_default_none:
         case SIGNATURE_arg_default_undef:
         case SIGNATURE_arg_default_0:
         case SIGNATURE_arg_default_1:
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: argdef-static actions=0x%lx items=0x%lx\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: argdef-static actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
             if (first) {
                 sv_catpvs_nomg(out, ";");
                 first = FALSE;
@@ -12232,19 +12232,19 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
             break;
         case SIGNATURE_array:
         case SIGNATURE_hash:
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: arr/hash actions=0x%lx items=0x%lx\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: arr/hash actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
             if (actions & SIGNATURE_FLAG_ref)
                 sv_catpvs_nomg(out, "\\");
             sv_catpvn_nomg(out, action == SIGNATURE_array ? "@": "%", 1);
             break;
         default:
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: default actions=0x%lx items=0x%lx\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: default actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
             return NULL;
             /*sv_catpvs_nomg(out, "_");
               goto finish;*/
         }
         actions >>= SIGNATURE_SHIFT;
-        /*DEBUG_kv(Perl_deb(aTHX_ "sig_proto: loop actions=0x%lx items=0x%lx\n", actions, items->uv));*/
+        /*DEBUG_kv(Perl_deb(aTHX_ "sig_proto: loop actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));*/
     }
   finish:
     *protolen = SvCUR(out);
@@ -12371,7 +12371,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
     mand_params = params >> 16;
     opt_params  = params & ((1<<15)-1);
     actions = (++items)->uv;
-    DEBUG_k(Perl_deb(aTHX_ "ck_sig: %s arity=%d/%d actions=0x%lx items=%u\n",
+    DEBUG_k(Perl_deb(aTHX_ "ck_sig: %s arity=%d/%d actions=0x%"UVxf" items=%u\n",
                      SvPVX_const(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)),
                      (int)mand_params, (int)opt_params, actions, (unsigned)o->op_aux[-1].uv));
 
@@ -12387,7 +12387,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
         switch (action) {
         case SIGNATURE_reload:
             actions = (++items)->uv;
-            DEBUG_kv(Perl_deb(aTHX_ "ck_sig: reload action=%d items=0x%lx with %d %s op arg\n",
+            DEBUG_kv(Perl_deb(aTHX_ "ck_sig: reload action=%d items=0x%"UVxf" with %d %s op arg\n",
                               (int)action, items->uv, (int)arg, OP_NAME(o3)));
             continue; /* no shift, no arg advance */
         case SIGNATURE_end:
@@ -12399,7 +12399,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
                 sv_catpvs(tmpbuf, " ");
                 sv_catsv(tmpbuf, namesv);
                 Perl_sv_catpvf(aTHX_ tmpbuf, " exceeding max %d args", (int)arg);
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: end action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: end action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
                 return too_many_arguments_pv(entersubop, SvPVX_const(tmpbuf), SvUTF8(namesv));
             }
@@ -12414,7 +12414,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             varcount = items->uv & OPpPADRANGE_COUNTMASK;
 #endif
             DEBUG_kv(Perl_deb(aTHX_ "ck_sig: padintro action=%d pad_ix=%d varcount=%d %s "
-                              "items=0x%lx with %d %s op arg\n",
+                              "items=0x%"UVxf" with %d %s op arg\n",
                               (int)action, (int)pad_ix, (int)varcount,
                               PAD_NAME(pad_ix) ? PadnamePV(PAD_NAME(pad_ix)) : "",
                               items->uv, (int)arg, OP_NAME(o3)));
@@ -12423,7 +12423,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
         case SIGNATURE_arg:
             if (UNLIKELY(actions & SIGNATURE_FLAG_ref)) {
                 arg++;
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg ref action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg ref action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
                 /* \$ accepts any scalar lvalue */
                 if (!op_lvalue_flags(scalar(o3), OP_READ, OP_LVALUE_NO_CROAK)) {
@@ -12463,7 +12463,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             }
 #ifdef DEBUGGING
             else {
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
             }
 #endif
@@ -12501,13 +12501,13 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
                                   "HASH reference", 0);
                 }
                 scalar(aop);
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: ref action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: ref action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
             } else {
                 list(aop);
                 optional = TRUE;
                 slurpy = TRUE;
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: slurpy action=%d pad_ix=%d items=0x%lx with %d %s op arg\n",
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: slurpy action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
             }
             pad_ix++;

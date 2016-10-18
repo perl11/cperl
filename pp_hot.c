@@ -2462,7 +2462,7 @@ PP(pp_multideref)
                     /* loop oob allow magic arrays */
                     if (UNLIKELY((actions & MDEREF_INDEX_uoob) && !SvMAGICAL(sv))) {
                         SV* av = sv;
-                        DEBUG_kv(Perl_deb(aTHX_ "mderef oob [%ld]\n", elem));
+                        DEBUG_kv(Perl_deb(aTHX_ "mderef oob [%"IVdf"]\n", elem));
                         sv = AvARRAY(av)[elem];
                         if (!sv) { /* always lval */
                             AvARRAY(av)[elem] = sv = newSV(0);
