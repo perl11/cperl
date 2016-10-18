@@ -13396,7 +13396,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList'      => '5.20161017c',
             'Module::CoreList::TieHashDelta'=> '5.20161017',
             'Module::CoreList::Utils'=> '5.20161017c',
-            'Net::Ping'             => '2.51',
+            'Net::Ping'             => '2.52',
         },
         removed => {},
     },
