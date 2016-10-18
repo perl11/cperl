@@ -1875,8 +1875,10 @@ PP(pp_match)
 
     /* empty pattern special-cased to use last successful pattern if
        possible, except for qr// */
-    if (!ReANY(rx)->mother_re && !RX_PRELEN(rx)
-     && PL_curpm) {
+    if (!ReANY(rx)->mother_re && !RX_PRELEN(rx) && PL_curpm) {
+        if (PL_curpm == PL_reg_curpm)
+            croak("Use of the empty pattern inside of "
+                  "a regex code block is forbidden");
 	pm = PL_curpm;
 	rx = PM_GETRE(pm);
     }
@@ -3230,8 +3232,11 @@ PP(pp_subst)
 				   position, once with zero-length,
 				   second time with non-zero. */
 
-    if (!RX_PRELEN(rx) && PL_curpm
-     && !ReANY(rx)->mother_re) {
+    /* handle the empty pattern */
+    if (!RX_PRELEN(rx) && PL_curpm && !ReANY(rx)->mother_re) {
+        if (PL_curpm == PL_reg_curpm)
+            croak("Use of the empty pattern inside of "
+                  "a regex code block is forbidden");
 	pm = PL_curpm;
 	rx = PM_GETRE(pm);
     }
