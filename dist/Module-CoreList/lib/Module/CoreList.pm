@@ -12830,7 +12830,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Net::FTP::dataconn'    => '3.10',
             'Net::NNTP'             => '3.10',
             'Net::Netrc'            => '3.10',
-            'Net::Ping'             => '2.51',
+            'Net::Ping'             => '2.52',
             'Net::POP3'             => '3.10',
             'Net::SMTP'             => '3.10',
             'Net::Time'             => '3.10',
