@@ -5970,7 +5970,7 @@ S_pmtrans(pTHX_ OP *o, OP *expr, OP *repl)
 			tbl[i] = (short)i;
 		}
 		else {
-		    if (i < 128 && r[j] >= 128)
+		    if (UVCHR_IS_INVARIANT(i) && ! UVCHR_IS_INVARIANT(r[j]))
 			grows = 1;
 		    tbl[i] = r[j++];
 		}
@@ -6017,7 +6017,8 @@ S_pmtrans(pTHX_ OP *o, OP *expr, OP *repl)
 		--j;
 	    }
 	    if (tbl[t[i]] == -1) {
-		if (t[i] < 128 && r[j] >= 128)
+                if (     UVCHR_IS_INVARIANT(t[i])
+                    && ! UVCHR_IS_INVARIANT(r[j]))
 		    grows = 1;
 		tbl[t[i]] = r[j];
 	    }
