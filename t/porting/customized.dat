@@ -78,7 +78,7 @@ Safe dist/Safe/t/safeops.t 47038564ccb909a2d4052cc73a049a5b4185b991
 Storable dist/Storable/ChangeLog c009787b5b738398c945e15ee36dd787824d0d5e
 Storable dist/Storable/README f0a51aec09c8ced5f3ee3f73daa64e9e5a3b5023
 Storable dist/Storable/Storable.pm 05ee4d2ed4167dbe42a12c842a443a9f6b1624be
-Storable dist/Storable/Storable.xs 11af94cb4341246cc026af6cc97c6ccf39ea97c8
+Storable dist/Storable/Storable.xs 0fc8a819a0f1b8b52bf2a68164134b316121c026
 Storable dist/Storable/t/blessed.t 2c3a16fef7fa46e5c03660f5a650ea7837eea27a
 Storable dist/Storable/t/CVE-2015-1592.inc bf181780959ea55981e16c313c78d5a35dd04d06
 Storable dist/Storable/t/CVE-2015-1592.t af14503199305d624849ad020ed584a1d1115ab1

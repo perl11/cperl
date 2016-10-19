@@ -5177,7 +5177,7 @@ static SV *get_lstring(pTHX_ stcxt_t *cxt, UV len, int isutf8, const char *cname
         SEEN_NN(sv, stash, 0);	/* Associate this new scalar with tag "tagnum" */
 
 	if (len ==  0) {
-	    sv_setpvs(sv, "");
+	    SvPVCLEAR(sv);
 	    return sv;
 	}
 
@@ -6113,7 +6113,7 @@ static SV *retrieve_code(pTHX_ stcxt_t *cxt, const char *cname)
 	SAVETMPS;
 
 	errsv = get_sv("@", GV_ADD);
-	sv_setpvs(errsv, "");	/* clear $@ */
+	SvPVCLEAR(errsv);	/* clear $@ */
 	if (SvROK(cxt->eval) && SvTYPE(SvRV(cxt->eval)) == SVt_PVCV) {
 		PUSHMARK(sp);
 		XPUSHs(sv_2mortal(newSVsv(sub)));
