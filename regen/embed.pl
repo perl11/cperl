@@ -75,10 +75,11 @@ my ($embed, $core, $ext, $api) = setup_embed();
 	}
 
 	my ($flags,$retval,$plain_func,@args) = @$_;
-	if ($flags =~ / ( [^AabDdEfiMmnOoPpRrsUXx] ) /x) {
+        if ($flags =~ / ( [^AabDdEfiMmnOoPpRrsUWXx] ) /x) {
 	    warn "flag $1 is not legal (for function $plain_func)";
 	}
 	my (@nonnull, @unused, @names_of_nn, $func);
+        my $has_depth = ( $flags =~ /W/ );
 	my $has_context = ( $flags !~ /n/ );
 	my $never_returns = ( $flags =~ /r/ );
 	my $binarycompat = ( $flags =~ /b/ );
@@ -166,6 +167,7 @@ my ($embed, $core, $ext, $api) = setup_embed();
 	else {
 	    $ret .= "void" if !$has_context;
 	}
+        $ret .= " _pDEPTH" if $has_depth;
 	$ret .= ")";
 	my @attrs;
 	if ( $flags =~ /[AEX]/ && $flags !~ /i/ ) {
@@ -339,7 +341,15 @@ sub embed_h {
 		$ret .=  "\t" x ($t < 4 ? 4 - $t : 1);
 		$ret .= full_name($func, $flags) . "(aTHX";
 		$ret .= "_ " if $alist;
-		$ret .= $alist . ")\n";
+                $ret .= $alist;
+                if ($flags =~ /W/) {
+                    if ($alist) {
+                        $ret .= " _aDEPTH";
+                    } else {
+                        die "Can't use W without other args (currently)";
+                    }
+                }
+                $ret .= ")\n";
 	    }
 	    $ret = "#ifndef NO_MATHOMS\n$ret#endif\n" if $flags =~ /b/;
 	}
