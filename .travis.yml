@@ -48,14 +48,14 @@ env:
     - secure: "zWVKDFnHOuiPTPwo4/BAzTmn/4TPb4MqkmBYaOpom7L46StKDYA8j81hcdsjnAqZUDKEOTY54ASXV/LqaaVn19bggqT8pZg04/uAv1Ci9bOYKKBsD1W/4kws+1o4IdIVO4m6uSlapSFZPExMl/+BNwoiPuJc6Xbfyuh86p5MQ7nqjYxycLXybDrvLtwSGm8XghxGK3/93q8/LF+BVe+ZsaCrozj8Nd0nnzzzuwxGi+VJPhbDp5BH8p06n7eCv5AMR9p1urNQ3XyrdO9GGDuRNzJf6TZHvYJXl0aM8HRklgdMZl2/FQgcRznk9PZFw5n/NttqZvLKh8mTDqfcXAv3JRHZuzSnyY2netUD1/VmUd6TCCM+8zVp3/592tkr2A6tQfmZvFMLeLH5waVC/vRw3UpljEZ0I/3Jac3gE2T36UJmF+k5DWWWBfjGnvJ2S1MTre/nlBgB+gPXZ/XZOt+dBrjFts8Q3gUTgE2IPJUrkOaGKmj8mXcPL/mES6MPIdfJGKDTVd+XwzDD2TNa6D//Y6LcfBCuIF/gQm6ipSDpQLrm52MqXAWLjGpnjj+JKoSrOcoV4GgzzrA90AJr1SBEOttHNPcuZgRJ3krMYsjsYpNR164XBCcRDXYwQl80JpHdC2bAn7Bnv59etJdF+LETxedvGsPfbRU2u9DhoCqegEU="
   matrix:
     - CONFIGURE_OPTION='' XCC='gcc' XBITS=64
-    - CONFIGURE_OPTION='' XCC="'gcc\ -m32'" XBITS=32
+    - CONFIGURE_OPTION='-Duse64bitint' XCC="'gcc\ -m32'" XBITS=32
     - CONFIGURE_OPTION='-DDEBUGGING' XCC='clang'
     - CONFIGURE_OPTION='-Duse64bitall -Dusethreads -Duselongdouble' XCC='clang'
     - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall' XCC='gcc'
 
 matrix:
 #  allow_failures:
-#    - env: CONFIGURE_OPTION='' XCC="'gcc\ -m32'"
+#    - env: CONFIGURE_OPTION='-Duse64bitint' XCC="'gcc\ -m32'"
   fast_finish: true
 
 #osx:   - CONFIGURE_OPTION='-Duselongdouble -Accflags="-march=corei7 -DPERL_FAKE_SIGNATURE"'
@@ -77,7 +77,7 @@ before_deploy:
 
 deploy:
   provider: releases
-  file: "cperl-${TRAVIS_TAG}-${TRAVIS_OS_NAME}${XBITS}.tar.gz"
+  file: cperl-${TRAVIS_TAG}-${TRAVIS_OS_NAME}${XBITS}.tar.gz
   skip_cleanup: true
   on:
     tags: true
