@@ -1339,7 +1339,7 @@ S_require_tie_mod(pTHX_ GV *gv, const char varname, const char * name,
 
       ENTER;
 
-#define HV_FETCH_TIE_FUNC (GV **)hv_fetch(stash, "_tie_it", 7, 0)
+#define HV_FETCH_TIE_FUNC (GV **)hv_fetchs(stash, "_tie_it", 0)
 
       /* Load the module if it is not loaded.  */
       if (!(stash = gv_stashpvn(name, len, 0))
@@ -1644,11 +1644,9 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                     if (!HvNAME_get(*stash)) {
                         if (GvSTASH(*gv) == PL_defstash && *len == 6
                             && strEQc(*name, "CORE"))
-                            hv_name_set(*stash, "CORE", 4, 0);
+                            hv_name_sets(*stash, "CORE", 0);
                         else
-                            hv_name_set(
-                                *stash, nambeg, name_cursor-nambeg, is_utf8
-                            );
+                            hv_name_set(*stash, nambeg, name_cursor-nambeg, is_utf8);
                     /* If the containing stash has multiple effective
                        names, see that this one gets them, too. */
                     if (HvAUX(GvSTASH(*gv))->xhv_name_count)
