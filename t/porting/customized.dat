@@ -102,5 +102,5 @@ threads dist/threads/lib/threads.pm 7a97056db5cd1f495002050f9bc71cd5b26796ab
 threads dist/threads/threads.xs e40ca2536fc7a3249095559d3b8b55bf2dedc7cc
 version cpan/version/lib/version.pm 46e7b7eed74b5080b23f852acd84e6ca5aab6d74
 version cpan/version/lib/version/regex.pm a2e6098571d8085340d4378ec21ad54bbcce1ceb
-version vutil.c cb5ef2b12d780b9556e46341da06145b2de6b5d9
-version vxs.inc a8db3fa8d0d47f035d0b681c8d0bc4afd55dd278
+version vutil.c 414a0cb68dc09c4f1af603a2023ad07455b34fdf
+version vxs.inc 4e088d9287125926c25fd7e01c149f0d52800278
