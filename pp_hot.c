@@ -293,7 +293,7 @@ PPt(pp_concat, "(:Any,:Any):Str")
             if (SvIS_FREED(left))
                 left = newSVpvs("");
             else
-                sv_setpvs(left, "");
+                SvPVCLEAR(left);
 	}
         else {
             SvPV_force_nomg_nolen(left);
