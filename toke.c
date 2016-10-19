@@ -12450,7 +12450,7 @@ Perl_parse_subsignature(pTHX)
      * need to resize and copy at the end. */
     st.items_size = 3;
     st.items = (UNOP_AUX_item*)PerlMemShared_malloc(
-                                    sizeof(UNOP_AUX_item) * st.items_size);
+                   sizeof(UNOP_AUX_item) * st.items_size);
 
     /* Note that because we can croak at any moment, we have to ensure
      * that anything we've allocated so far (such as the items array,
@@ -12557,9 +12557,9 @@ Perl_parse_subsignature(pTHX)
                       : Perl_deb(aTHX_ "sig: new padintro pad=%u-%u\n",
                                  (unsigned)pad_base, (unsigned)pad_offset));
                     pad_base = pad_offset;
-                    /* reserve slot for padintro arg */
+                    /* reserve new item for padintro arg */
                     padintro_ix = st.items_ix;
-                    PUSH_ITEM(uv, 0);
+                    PUSH_ITEM(uv, 0); /* filled below */
                     /* note that arg items should always be pushed
                      * before actions; otherwise, when actions fill up
                      * and allocate a new slot, the new actions slot and

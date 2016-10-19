@@ -12216,9 +12216,9 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
         case SIGNATURE_arg_default_const:
         case SIGNATURE_arg_default_padsv:
         case SIGNATURE_arg_default_gvsv:
-        case SIGNATURE_arg_default_op:
             items++; /* fall thru */
             DEBUG_kv(Perl_deb(aTHX_ "sig_proto: argdef actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
+        case SIGNATURE_arg_default_op:
         case SIGNATURE_arg_default_none:
         case SIGNATURE_arg_default_undef:
         case SIGNATURE_arg_default_0:
@@ -12439,8 +12439,8 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
         case SIGNATURE_arg_default_const:
         case SIGNATURE_arg_default_padsv:
         case SIGNATURE_arg_default_gvsv:
-        case SIGNATURE_arg_default_op:
             items++; /* the default sv/gv */
+        case SIGNATURE_arg_default_op:
         case SIGNATURE_arg_default_none:
         case SIGNATURE_arg_default_undef:
         case SIGNATURE_arg_default_0:
