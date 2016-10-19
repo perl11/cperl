@@ -5799,6 +5799,12 @@ PERL_CALLCONV void	Perl_sv_setpv(pTHX_ SV *const sv, const char *const ptr)
 #define PERL_ARGS_ASSERT_SV_SETPV	\
 	assert(sv)
 
+PERL_CALLCONV char  *	Perl_sv_setpv_bufsize(pTHX_ SV *const sv, const STRLEN cur, const STRLEN len)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_SV_SETPV_BUFSIZE	\
+	assert(sv)
+
 PERL_CALLCONV void	Perl_sv_setpv_mg(pTHX_ SV *const sv, const char *const ptr)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
