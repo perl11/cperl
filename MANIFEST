@@ -2512,6 +2512,7 @@ cpan/Term-ANSIColor/t/module/stringify.t
 cpan/Term-ANSIColor/t/taint/basic.t
 cpan/Term-Cap/Cap.pm			Perl module supporting termcap usage
 cpan/Term-Cap/test.pl			See if Term::Cap works
+cpan/Term-ReadKey/config.h
 cpan/Term-ReadKey/Configure.pm
 cpan/Term-ReadKey/genchars.pl
 cpan/Term-ReadKey/Makefile.PL
