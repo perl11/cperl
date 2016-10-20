@@ -594,7 +594,7 @@ obj5 = regexec$(OBJ_EXT) utf8$(OBJ_EXT) universal$(OBJ_EXT) perlapi$(OBJ_EXT) \
 # perl, and those used by just one or the other. Doesn't include the
 # actual perl(mini)main.o, nor any dtrace objects.
 
-common_objs    = $(obj1) $(obj2) $(obj3) $(ARCHOBJS)
+common_objs    = $(obj1) $(obj2) $(obj3) $(ARCHOBJS) lastfile$(OBJ_EXT)
 mini_only_objs = perlmini$(OBJ_EXT) opmini$(OBJ_EXT) xsutilsmini$(OBJ_EXT) ppmini$(OBJ_EXT)
 main_only_objs = op$(OBJ_EXT) perl$(OBJ_EXT) xsutils$(OBJ_EXT) pp$(OBJ_EXT)
 
@@ -624,9 +624,9 @@ miniperl_dtrace_objs = $(miniperl_objs_nodt:%=mpdtrace/%)
 perllib_dtrace_objs = $(perllib_objs_nodt:%=libpdtrace/%)
 perlmain_dtrace_objs = maindtrace/perlmain$(OBJ_EXT)
 
-miniperl_objs = $(miniperl_dtrace_objs) $(DTRACE_MINI_O) lastfile$(OBJ_EXT)
+miniperl_objs = $(miniperl_dtrace_objs) $(DTRACE_MINI_O)
 perllib_objs  = $(perllib_dtrace_objs) $(DTRACE_PERLLIB_O)
-perlmain_objs = $(perlmain_dtrace_objs) $(DTRACE_MAIN_O) lastfile$(OBJ_EXT)
+perlmain_objs = $(perlmain_dtrace_objs) $(DTRACE_MAIN_O)
 
 miniperl_dep = $(DTRACE_MINI_O)
 perllib_dep = $(DTRACE_PERLLIB_O)
@@ -637,9 +637,9 @@ perlmain_dep = $(DTRACE_MAIN_O)
 *)
     $spitshell >>$Makefile <<'!NO!SUBS!'
 
-miniperl_objs = $(miniperl_objs_nodt) $(DTRACE_MINI_O) lastfile$(OBJ_EXT)
+miniperl_objs = $(miniperl_objs_nodt) $(DTRACE_MINI_O)
 perllib_objs  = $(perllib_objs_nodt) $(DTRACE_PERLLIB_O)
-perlmain_objs = perlmain$(OBJ_EXT) $(DTRACE_MAIN_O) lastfile$(OBJ_EXT)
+perlmain_objs = perlmain$(OBJ_EXT) $(DTRACE_MAIN_O)
 
 miniperl_dep = $(miniperl_objs)
 perllib_dep = $(perllib_objs)

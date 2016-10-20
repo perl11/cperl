@@ -24250,7 +24250,8 @@ linux|dragonfly|*bsd)
 darwin)
     unexec="unexmacosx"
     ccflags="$ccflags -DUNEXEC=$unexec"
-    echo "$unexec found." >&4
+    useshrplib='true'
+    echo "$unexec found. Turned on -Duseshrplib" >&4
     ;;
 aix)
     unexec="unexaix"
