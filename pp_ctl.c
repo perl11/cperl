@@ -3993,19 +3993,8 @@ S_require_file(pTHX_ SV *sv)
 
     if (!IS_SAFE_PATHNAME(name, len, op_name)) {
         if (!op_is_require) {
-            /* CLEAR_ERRSV() expanded, without goto */
-            SV ** const svp = &GvSV(PL_errgv);
-            if (!*svp) {
-                *svp = newSVpvs("");
-            } else if (SvREADONLY(*svp)) {
-                SvREFCNT_dec_NN(*svp);
-                *svp = newSVpvs("");
-            } else {
-                SvPVCLEAR(*svp);
-                SvPOK_only(*svp);
-                if (SvMAGICAL(*svp))
-                    mg_free(*svp);
-            }
+            CLEAR_ERRSV();
+            RETPUSHUNDEF;
         }
         DIE(aTHX_ "Can't locate %s:   %s",
             pv_escape(newSVpvs_flags("",SVs_TEMP),name,len,len*2,

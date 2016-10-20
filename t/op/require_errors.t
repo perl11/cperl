@@ -9,7 +9,7 @@ BEGIN {
 use strict;
 use warnings;
 
-plan(tests => 24);
+plan(tests => 28);
 
 my $nonfile = tempfile();
 
@@ -116,13 +116,25 @@ SKIP: {
 
 # fail and print the full filename
 eval { no warnings ('syscalls','security'); require "strict.pm\0invalid"; };
-like $@, qr/^Can't locate strict\.pm\\0invalid: /, 'require nul check [perl #117265]';
+like $@, qr/^Can't locate strict\.pm\\0invalid: /, 'require nul loud error [perl #117265]';
 eval { no warnings ('syscalls','security'); do "strict.pm\0invalid"; };
-like $@, qr/^Can't locate strict\.pm\\0invalid: /, 'do nul check';
+is $@, "", 'do silent nul error [perl #129928]';
 {
   no warnings 'security'; # cperl only
   my $WARN;
   local $SIG{__WARN__} = sub { $WARN = shift };
+  {
+    my $ret = do "strict.pm\0invalid";
+    my $exc = $@;
+    my $err = $!;
+    is $ret, undef, 'do nulstring returns undef';
+    is $exc, '',    'do nulstring clears $@';
+    $! = $err;
+    ok $!{ENOENT},  'do nulstring fails with ENOENT';
+    like $WARN, qr{^Invalid \\0 character in pathname for do: strict\.pm\\0invalid at }, 'do nulstring warning';
+  }
+
+  $WARN = '';
   eval { require "strict.pm\0invalid"; };
   like $WARN, qr{^Invalid \\0 character in pathname for require: strict\.pm\\0invalid at }, 'nul warning';
   like $@, qr{^Can't locate strict\.pm\\0invalid: }, 'nul error';
