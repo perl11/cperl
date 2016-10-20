@@ -112,7 +112,7 @@ XXX
 
 =over 4
 
-=item Net-Ping 2.52
+=item Net-Ping 2.53
 
 Fixed missing C<_unpack_sockaddr_in> family, which took AF_INET6 for
 a AF_INET addr in F<t/500_ping_icmp.t> and F<t/500_ping_icmp_ttl.t>.
@@ -122,6 +122,7 @@ Fixed C<_pack_sockaddr_in> for a proper 2nd argument type, hash or packed
 address.
 
 Improved F<500_ping_icmp.t> to try sudo.
+Relaxed more tests failing with firewalled icmp on localhost. [RT #118441]
 
 =item Pod-HTML 2.22c
 
