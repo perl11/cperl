@@ -15,7 +15,9 @@ BEGIN {
   require Net::Ping;
   if (!Net::Ping::_isroot()) {
     my $file = __FILE__;
-    if (system("sudo \"$^X\" -Mblib $file") == 0) {
+    my $lib = $ENV{PERL_CORE} ? '-I../../lib' : '-Mblib';
+    # -n prevents from asking for a password. rather fail then
+    if (system("sudo -n \"$^X\" $lib $file") == 0) {
       exit;
     } else {
       plan skip_all => 'no sudo/failed';
