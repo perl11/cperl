@@ -6,7 +6,7 @@ BEGIN {
     set_up_inc('../lib');
 }
 
-plan(tests => 65);
+plan(tests => 67);
 
 sub empty_sub {}
 
@@ -429,6 +429,17 @@ is(curpm(), 'c', 'return and PL_curpm');
             "fake sig shouldnt croak on odd hash assign";
     like $w, qr/Odd number of elements in hash assignment/,
             "fake sig should warn on odd hash assign";
+}
+
+sub rt_129916 { 42 }
+is ref($main::{rt_129916}), 'CODE', 'simple sub stored as CV in stash (main::)';
+{
+    package RT129916;
+    sub foo { 42 }
+}
+{
+    local $TODO = "CV symbol table optimization only works in main:: [perl #129916]";
+    is ref($RT129916::{foo}), 'CODE', 'simple sub stored as CV in stash (non-main::)';
 }
 
 # [perl #129090] Crashes and hangs
