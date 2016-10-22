@@ -199,8 +199,8 @@ them in terms of packages and functions.  Consider the following program:
     #!/usr/bin/perl
 
     require 'syscall.ph';
-    require 'sys/time.ph';
-    require 'sys/resource.ph';
+    require './sys/time.ph';
+    require './sys/resource.ph';
 
     $ru = "\0" x rusage::sizeof();
 

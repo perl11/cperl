@@ -4,8 +4,8 @@ use warnings;
 
 BEGIN { unshift @INC, '.' }
 
-require 'regen/regen_lib.pl';
-require 'regen/charset_translations.pl';
+require './regen/regen_lib.pl';
+require './regen/charset_translations.pl';
 
 # Generates the EBCDIC translation tables that were formerly hard-coded into
 # utfebcdic.h

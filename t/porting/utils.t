@@ -24,7 +24,7 @@ use strict;
 use Config;
 use File::Spec;
 
-require 't/test.pl';
+require './t/test.pl';
 
 # It turns out that, since the default @INC will include your old 5.x libs, if
 # you have them, the Porting utils might load a library that no longer compiles
