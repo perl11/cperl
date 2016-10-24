@@ -31,9 +31,11 @@ Search::Dict - look - search for key in dictionary file
 
 =head1 DESCRIPTION
 
-Sets file position in FILEHANDLE to be first line greater than or equal
-(stringwise) to I<$key>.  Returns the new file position, or -1 if an error
-occurs.
+Sets file position in FILEHANDLE of an alphabetically sorted file to
+be first line greater than or equal (stringwise) to I<$key>.  Returns
+the new file position, or -1 if an error occurs.
+Does binary search of full lines, with optional compator, transformator
+and case-folding.
 
 The flags specify dictionary order and case folding:
 
