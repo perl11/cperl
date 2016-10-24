@@ -827,6 +827,7 @@ sub run_cc_test {
                     progfile => $test);
     if (! $? and -s $cfile) {
 	use ExtUtils::Embed ();
+	$ExtUtils::Embed::Verbose = 1 if $ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} >= 2;
 	my $coredir = $ENV{PERL_CORE}
           ? File::Spec->catdir('..', '..')
           : File::Spec->catdir($Config{installarchlib}, "CORE");
@@ -857,6 +858,7 @@ sub run_cc_test {
         }
 	my $libdir  = File::Spec->catdir($Config{prefix}, "lib");
         my $so = $Config{so};
+        my $libperl = $Config{libperl};
         my $pkg = ($Config{usecperl} and $libperl =~ /libcperl/) ? "cperl" : "perl";
         my $linkargs = $ENV{PERL_CORE}
           ? ExtUtils::Embed::_ccdlflags." ".ExtUtils::Embed::_ldflags()
@@ -883,18 +885,24 @@ sub run_cc_test {
             }
             $linkargs .= " -Od" if $ENV{APPVEYOR};
         }
-	if ( -e "$coredir/$Config{libperl}" and $Config{libperl} !~ /\.$so$/) {
+	if ( -e "$coredir/$libperl" and $libperl !~ /\.$so$/) {
 	    $command .= $linkargs;
-	} elsif ( $useshrplib and (-e "$libdir/$Config{libperl}" or -e "/usr/lib/$Config{libperl}")) {
+	} elsif ( $useshrplib and (-e "$libdir/$libperl" or -e "/usr/lib/$libperl")) {
             # debian: /usr/lib/libperl.so.5.10.1 and broken ExtUtils::Embed::ldopts
-            if ($Config{libperl} =~ /\.$so$/) {
-                my $libperl = File::Spec->catfile($coredir, $Config{libperl});
-                $linkargs =~ s|-lperl |$libperl |; # link directly
+            if ($libperl =~ /\.$so$/) {
+                my $libperlpath = File::Spec->catfile($coredir, $libperl);
+                $linkargs =~ s|-lperl |$libperlpath |; # link directly
             }
 	    $command .= $linkargs;
 	} else {
 	    $command .= $linkargs;
-	    $command .= " -lperl" if $command !~ /(-lperl|CORE\/libperl5)/ and !$is_mswin;
+	    if ($command !~ /(-lc?perl|CORE\/libperl5)/ and !$is_mswin) {
+                if ($Config{usecperl} and $useshrplib) {
+                    $command .= " -lcperl";
+                } else {
+                    $command .= " -lperl";
+                }
+            }
 	}
 	$command .= $B::C::Config::extra_libs;
         my $NULL = $is_mswin ? '' : '2>/dev/null';

@@ -17,7 +17,7 @@ $VERSION = '1.34'; # cperl variant, but cannot use a 'c' here
 	     &ccopts &ccflags &ccdlflags &perl_inc
 	     &xsi_header &xsi_protos &xsi_body);
 
-$Verbose = 0;
+$Verbose = ($ENV{TEST_VERBOSE} and $ENV{TEST_VERBOSE} >= 2) ? 1 : 0;
 $lib_ext = $Config{lib_ext} || '.a';
 
 sub is_cmd { $0 eq '-e' }
@@ -187,6 +187,7 @@ sub ldopts {
     }
     $std = 1 unless scalar @link_args;
     my $sep = $Config{path_sep} || ':';
+    my $useshrplib = $Config{useshrplib} eq 'true';
     @path = $path ? split(/\Q$sep/, $path) : @INC;
 
     push(@potential_libs, @link_args)    if scalar @link_args;
@@ -221,7 +222,7 @@ sub ldopts {
 	    last;
 	}
     }
-    #print STDERR "\@potential_libs = @potential_libs\n";
+    print STDERR "\@potential_libs = @potential_libs\n" if $Verbose;
 
     my $libperl;
     if ($^O eq 'MSWin32') {
@@ -233,7 +234,10 @@ sub ldopts {
 	$libperl = (grep(/^-l\w*perl\w*$/, @link_args))[0]
 	    || ($Config{libperl} =~ /^lib(\w+)(\Q$lib_ext\E|\.\Q$Config{dlext}\E)$/
 		? "-l$1" : '')
-		|| "-lperl";
+            || "-lperl";
+        if ($Config{usecperl} and $useshrplib and $libperl eq '-lperl') {
+            $libperl = '-lcperl';
+        }
     }
 
     my $lpath = File::Spec->catdir($Config{archlibexp}, 'CORE');
@@ -242,7 +246,7 @@ sub ldopts {
 	MM->ext(join ' ', "-L$lpath", $libperl, @potential_libs);
 
     my $ld_or_bs = $bsloadlibs || $ldloadlibs;
-    print STDERR "bs: $bsloadlibs ** ld: $ldloadlibs" if $Verbose;
+    print STDERR "bs: '$bsloadlibs' ** ld: '$ldloadlibs'\n" if $Verbose;
     my $ccdlflags = _ccdlflags();
     my $ldflags   = _ldflags();
     my $linkage = "$ccdlflags $ldflags @archives $ld_or_bs";
