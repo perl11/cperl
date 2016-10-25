@@ -11,11 +11,12 @@
 # Functions whose names begin with underscore are internal helper functions
 # for this file, and are not to be used by outside callers.
 
+use strict;
 use Config;
 use feature 'fc';
 
 eval { require POSIX; POSIX->import('locale_h'); };
-$has_locale_h = ! $@;
+my $has_locale_h = ! $@;
 
 # LC_ALL can be -1 on some platforms.  And, in fact the implementors could
 # legally use any integer to represent any category.  But it makes the most
@@ -214,6 +215,7 @@ sub find_locales ($;$) {  # Returns an array of all the locales we found on the
     # UWIN seems to loop after taint tests, just skip for now
     return if ($^O =~ /^uwin/);
 
+    my @Locale;
     _trylocale("C", $categories, \@Locale, $allow_incompatible);
     _trylocale("POSIX", $categories, \@Locale, $allow_incompatible);
     foreach (0..15) {
