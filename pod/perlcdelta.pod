@@ -351,6 +351,11 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =item *
 
+Fixed C<sv_dump> of fbm-magic strings which did previously contain the wrong
+"VALID,EVALED" string for a flag which is either VALID or EVALED. cperl only.
+
+=item *
+
 Fixed a cperl-only failure in signatures with default blocks introducing
 a new lexical variable. As in C<sub t151($a,$b=do{my $f},$c=1){} t151($x,$x,$x)>.
 This failure was only fatal on 32bit + -Duse64bitint systems.

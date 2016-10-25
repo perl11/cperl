@@ -1530,6 +1530,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
     default:
     evaled_or_uv:
 	if (SvEVALED(sv))	sv_catpv(d, "EVALED,");
+    is_uv:
 	if (SvIsUV(sv) && !(flags & SVf_ROK))
 				sv_catpv(d, "IsUV,");
 	break;
@@ -1537,9 +1538,11 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
         if (!SvSCREAM(sv)) {
             if (SvTAIL(sv))	sv_catpv(d, "TAIL,");
 	    if (SvVALID(sv))	sv_catpv(d, "VALID,");
+            goto is_uv; /* no EVALED, but IsUV */
+        } else {
+            /* FALLTHROUGH */
+            goto evaled_or_uv;
         }
-	/* FALLTHROUGH */
-	goto evaled_or_uv;
     case SVt_PVAV:
 	if (AvSHAPED(sv))	sv_catpv(d, "SHAPED,");
 	break;

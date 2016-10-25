@@ -101,6 +101,9 @@ sub do_test {
                 $pattern =~ s/SHAREKEYS,/(?:SHAREKEYS,)?/g;
                 $pattern =~ s/\\\(SHAREKEYS\\\)/\\((?:SHAREKEYS)?\\)/g;
             }
+            if (cperl and $] >= 5.025002) {
+                $pattern =~ s/VALID,EVALED\\\)/VALID\\)/;
+            }
 	    $pattern =~ s/^\h+COW_REFCNT = .*\n//mg
 		if $Config{ccflags} =~
 			/-DPERL_(?:OLD_COPY_ON_WRITE|NO_COW)\b/
@@ -1119,6 +1122,7 @@ unless ($Config{useithreads}) {
     # FIXME - really this shouldn't say EVALED. It's a false posistive on
     # 0x40000000 being used for several things, not a flag for "I'm in a string
     # eval"
+    # This is currently only fixed for cperl since 5.25.2
 
     do_test('string constant now an FBM', perl,
 'SV = PVMG\\($ADDR\\) at $ADDR
