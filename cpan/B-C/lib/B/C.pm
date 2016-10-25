@@ -2938,7 +2938,7 @@ sub savepvn {
         return (sprintf( "Newx(%s, %u, char);", $dest, $cur ),
                 sprintf( "Copy(%s, %s, %u, char);", $cstr, $dest, $cur ));
       } else {
-        if (length(pack "a*", $pv) != $cur && (!$cur || $cstr eq "")) {
+        if (length(pack "a*", $pv) != $cur && (!$cur || $cstr eq '""')) {
           warn sprintf( "Invalid CUR for %s:%d to %s\n", $cstr, $cur, $dest )
             if $verbose;
           $cur = length(pack "a*", $pv);
