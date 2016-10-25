@@ -1949,6 +1949,30 @@
  *	LONG_DOUBLE_IS_UNKNOWN_FORMAT
  *	It is only defined if the system supports long doubles.
  */
+/* LONG_DOUBLE_STYLE_IEEE
+ *	This symbol, if defined, indicates that the long double
+ *	is any of the IEEE 754 style long doubles:
+ *	LONG_DOUBLE_STYLE_IEEE_STD, LONG_DOUBLE_STYLE_IEEE_EXTENDED,
+ *	LONG_DOUBLE_STYLE_IEEE_DOUBLEDOUBLE.
+ */
+/* LONG_DOUBLE_STYLE_IEEE_DOUBLEDOUBLE
+ *	This symbol, if defined, indicates that the long double is
+ *	the 128-bit double-double.
+ */
+/* LONG_DOUBLE_STYLE_IEEE_EXTENDED
+ *	This symbol, if defined, indicates that the long double is
+ *	the 80-bit IEEE 754. Note that despite the 'extended' this
+ *	is less than the 'std', since this is an extension of
+ *	the double precision.
+ */
+/* LONG_DOUBLE_STYLE_IEEE_STD
+ *	This symbol, if defined, indicates that the long double is
+ *	the 128-bit IEEE 754.
+ */
+/* LONG_DOUBLE_STYLE_VAX
+ *	This symbol, if defined, indicates that the long double is
+ *	the 128-bit VAX format H.
+ */
 /*#define  HAS_LDEXPL		/ **/
 /*#define HAS_LONG_DOUBLE		/ **/
 #ifdef HAS_LONG_DOUBLE
@@ -1965,9 +1989,14 @@
 #define LONG_DOUBLE_IS_DOUBLEDOUBLE_128_BIT_BE_LE	8
 #define LONG_DOUBLE_IS_VAX_H_FLOAT			9
 #define LONG_DOUBLE_IS_UNKNOWN_FORMAT			-1
-/* Backward compat. */
+/* back-compat */
 #define LONG_DOUBLE_IS_DOUBLEDOUBLE_128_BIT_LITTLE_ENDIAN	LONG_DOUBLE_IS_DOUBLEDOUBLE_128_BIT_LE_LE
 #define LONG_DOUBLE_IS_DOUBLEDOUBLE_128_BIT_BIG_ENDIAN	LONG_DOUBLE_IS_DOUBLEDOUBLE_128_BIT_BE_BE
+#undef LONG_DOUBLE_STYLE_IEEE
+#undef LONG_DOUBLE_STYLE_IEEE_DOUBLEDOUBLE
+#undef LONG_DOUBLE_STYLE_IEEE_EXTENDED
+#undef LONG_DOUBLE_STYLE_IEEE_STD
+#undef LONG_DOUBLE_STYLE_VAX
 #endif
 
 /* HAS_LONG_LONG:
@@ -4974,6 +5003,38 @@
  *	DOUBLE_IS_CRAY_SINGLE_64_BIT
  *	DOUBLE_IS_UNKNOWN_FORMAT
  */
+/* DOUBLE_HAS_INF
+ *	This symbol, if defined, indicates that the double has
+ *	the infinity.
+ */
+/* DOUBLE_HAS_NAN
+ *	This symbol, if defined, indicates that the double has
+ *	the not-a-number.
+ */
+/* DOUBLE_HAS_NEGATIVE_ZERO
+ *	This symbol, if defined, indicates that the double has
+ *	the negative_zero.
+ */
+/* DOUBLE_HAS_SUBNORMALS
+ *	This symbol, if defined, indicates that the double has
+ *	the subnormals (denormals).
+ */
+/* DOUBLE_STYLE_CRAY
+ *	This symbol, if defined, indicates that the double is
+ *	the 64-bit CRAY mainframe format.
+ */
+/* DOUBLE_STYLE_IBM
+ *	This symbol, if defined, indicates that the double is
+ *	the 64-bit IBM mainframe format.
+ */
+/* DOUBLE_STYLE_IEEE
+ *	This symbol, if defined, indicates that the double is
+ *	the 64-bit IEEE 754.
+ */
+/* DOUBLE_STYLE_VAX
+ *	This symbol, if defined, indicates that the double is
+ *	the 64-bit VAX format D or G.
+ */
 #define DOUBLEKIND 3		/**/
 #define DOUBLE_IS_IEEE_754_32_BIT_LITTLE_ENDIAN	1
 #define DOUBLE_IS_IEEE_754_32_BIT_BIG_ENDIAN	2
@@ -4994,6 +5055,14 @@
 /*#define PERL_PRIgldbl	"llg"	/ **/
 /*#define PERL_PRIeldbl	"lle"	/ **/
 /*#define PERL_SCNfldbl	"llf"	/ **/
+#define DOUBLE_HAS_INF
+#define DOUBLE_HAS_INF
+#define DOUBLE_HAS_NEGATIVE_ZERO
+#define DOUBLE_HAS_SUBNORMALS
+#undef DOUBLE_STYLE_CRAY
+#undef DOUBLE_STYLE_IBM
+#define DOUBLE_STYLE_IEEE
+#undef DOUBLE_STYLE_VAX
 
 /* DOUBLEMANTBITS:
  *	This symbol, if defined, tells how many mantissa bits
@@ -5423,6 +5492,6 @@
 #endif
 
 /* Generated from:
- * d686c429cac05b9b0612d509c6fe3abd912135cabd7bbd389da3112fb4730644 config_h.SH
- * ec9ec87692ad4242a4488fcd104d51331ed887cc4279786f4d2390e5b6a578ab uconfig.sh
+ * da6717862f0e5932c1bcc750850c50e81281292b1a3ec671214f6f04b5e39679 config_h.SH
+ * 54908e91d2837d81b829067ff4903a68bbb56cc7afcb93c9dbc72094d9cd0211 uconfig.sh
  * ex: set ro: */
