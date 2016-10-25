@@ -112,6 +112,11 @@ XXX
 
 =over 4
 
+=item B-C 1.54_14
+
+Fixed IsCOW savepvn, store the last cowrefcnt.
+Fixed wrong savepvn length, failing with asan.
+
 =item Net-Ping 2.53
 
 Fixed missing C<_unpack_sockaddr_in> family, which took AF_INET6 for
