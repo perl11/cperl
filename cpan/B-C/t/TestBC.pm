@@ -807,7 +807,7 @@ sub run_cc_test {
     open T, ">", $test; print T $script; close T;
     # Being able to test also the CORE B in older perls
     my $Mblib = $] >= 5.009005 ? Mblib() : "";
-    my $useshrplib = $Config{useshrplib} eq 'true';
+    my $useshrplib = $Config{useshrplib} =~ /^(true|yes)$/;
     unless ($Mblib) {           # check for -Mblib from the testsuite
         if (grep { m{blib(/|\\)arch$} } @INC) {
             $Mblib = Mblib();  # forced -Mblib via cmdline without

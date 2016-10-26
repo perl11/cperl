@@ -82,7 +82,8 @@ sub MY::processPL {
         s/ReadKey.pm :: ReadKey_pm.PL/ReadKey.pm :: ReadKey_pm.PL dynamic/;
     } else {
         my $cmd = '$(FULLPERLRUNINST)';
-        if ($Config{useshrplib} eq 'true' && $Config{ldlibpthname}) {
+        my $useshrplib = $Config{useshrplib} =~ /^(true|yes)$/;
+        if ($useshrplib && $Config{ldlibpthname}) {
           $cmd = "$Config{ldlibpthname}=../.. $cmd";
         }
         s/\$\(PERLRUN\)/$cmd/;

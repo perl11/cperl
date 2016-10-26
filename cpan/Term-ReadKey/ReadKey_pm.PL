@@ -519,7 +519,7 @@ if (!$@) {
 } else {
   system "$Config{make} blockoptions";
   my $cmd = "./blockoptions" . $Config{exe_ext};
-  # $cmd = "$Config{ldlibpthname}=../.. $cmd" if $Config{useshrplib};
+  # $cmd = "$Config{ldlibpthname}=../.. $cmd" if $Config{useshrplib} =~ /^(true|yes)$/;
   $blockoptions = `$cmd`;
 }
 print $blockoptions,"\n";
