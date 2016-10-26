@@ -327,8 +327,8 @@ if ($Is_VMS) {
 elsif ($^O ne 'dos') {
     if (!$Is_NetWare) {
 	safe_unlink("$installbin/$perl_verbase$ver$exe_ext");
-	chmod(0755, "perl$exe_ext");
-	copy("perl$exe_ext", "$installbin/$perl_verbase$ver$exe_ext");
+	chmod(0755, "$perl$exe_ext");
+	copy("$perl$exe_ext", "$installbin/$perl_verbase$ver$exe_ext");
 	strip("$installbin/$perl_verbase$ver$exe_ext");
 	chmod(0755, "$installbin/$perl_verbase$ver$exe_ext");
     }
@@ -401,10 +401,10 @@ elsif ($Is_Cygwin) { # On Cygwin symlink it to CORE to make Makefile happy
       push(@corefiles, $instcoredll)
     )
 } elsif ($Is_W32) {
-    @corefiles = <*.h>;
+    @corefiles = <*.h $perl*$Config{lib_ext}>;
 } else {
     # [als] hard-coded 'libperl' name... not good!
-    @corefiles = <*.h libperl*.* perl*$Config{lib_ext}>;
+    @corefiles = <*.h libperl*.* $perl*$Config{lib_ext}>;
 
     # AIX needs perl.exp installed as well.
     push(@corefiles,'perl.exp') if $^O eq 'aix';
