@@ -15,6 +15,7 @@ BEGIN {
   require Net::Ping;
   if (!Net::Ping::_isroot()) {
     my $file = __FILE__;
+    diag 'This optional test may prompt for your sudo password.';
     if (system("sudo \"$^X\" -Mblib $file") == 0) {
       exit;
     } else {

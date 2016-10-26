@@ -117,7 +117,7 @@ XXX
 Fixed IsCOW savepvn, store the last cowrefcnt.
 Fixed wrong savepvn length, failing with asan.
 
-=item Net-Ping 2.53
+=item Net-Ping 2.54
 
 Fixed missing C<_unpack_sockaddr_in> family, which took AF_INET6 for
 a AF_INET addr in F<t/500_ping_icmp.t> and F<t/500_ping_icmp_ttl.t>.
@@ -128,6 +128,10 @@ address.
 
 Improved F<500_ping_icmp.t> to try sudo.
 Relaxed more tests failing with firewalled icmp on localhost. [RT #118441]
+
+Fixed C<ping_external> argument type, either packed ip or hostname. [RT #113825]
+
+Fixed wrong skip message in F<t/020_external.t>
 
 =item Pod-HTML 2.22c
 
