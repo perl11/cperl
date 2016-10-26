@@ -16,7 +16,8 @@ BEGIN {
   if (!Net::Ping::_isroot()) {
     my $file = __FILE__;
     diag 'This optional test may prompt for your sudo password.';
-    if (system("sudo \"$^X\" -Mblib $file") == 0) {
+    my $lib = $ENV{PERL_CORE} ? '-I../../lib' : '-Mblib';
+    if (system("sudo \"$^X\" $lib $file") == 0) {
       exit;
     } else {
       plan skip_all => 'no sudo/failed';
