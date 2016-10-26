@@ -1641,6 +1641,11 @@ cygwin) $spitshell >>$Makefile <<'!NO!SUBS!'
 	cp $(LIBPERL) cpan/B-C/
 !NO!SUBS!
         ;;
+darwin) test -n $useshrplib && $spitshell >>$Makefile <<'!NO!SUBS!'
+	cd t && (rm -f $(LIBPERL); $(LNS) ../$(LIBPERL) $(LIBPERL))
+	cd cpan/B-C && (rm -f $(LIBPERL); $(LNS) ../../$(LIBPERL) $(LIBPERL))
+!NO!SUBS!
+        ;;
 esac
 
 $spitshell >>$Makefile <<'!NO!SUBS!'
