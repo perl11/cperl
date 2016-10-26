@@ -2937,6 +2937,11 @@ sub savepvn {
         warn sprintf( "Saving IsCOW PV %s:%d to %s\n", $cstr, $cur, $dest ) if $debug{sv};
         return (sprintf( "Newx(%s, %u, char);", $dest, $cur ),
                 sprintf( "Copy(%s, %s, %u, char);", $cstr, $dest, $cur ));
+      } elsif ($PERL518 && $cstr =~ /\\000\\001"$/) { # pseudo cow
+        $cur += 2;
+        warn sprintf( "Saving cowed PV %s:%d to %s\n", $cstr, $cur, $dest ) if $debug{sv};
+        return (sprintf( "Newx(%s, %u, char);", $dest, $cur ),
+                sprintf( "Copy(%s, %s, %u, char);", $cstr, $dest, $cur ));
       } else {
         if (length(pack "a*", $pv) != $cur && (!$cur || $cstr eq '""')) {
           warn sprintf( "Invalid CUR for %s:%d to %s\n", $cstr, $cur, $dest )
