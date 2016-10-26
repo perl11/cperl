@@ -403,8 +403,7 @@ elsif ($Is_Cygwin) { # On Cygwin symlink it to CORE to make Makefile happy
 } elsif ($Is_W32) {
     @corefiles = <*.h>;
 } else {
-    # [als] hard-coded 'libperl' name... not good!
-    @corefiles = <*.h libperl*.* perl*$Config{lib_ext}>;
+    @corefiles = ($libperl, <*.h libc?perl*.* perl*$Config{lib_ext}>);
 
     # AIX needs perl.exp installed as well.
     push(@corefiles,'perl.exp') if $^O eq 'aix';
