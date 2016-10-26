@@ -1967,6 +1967,24 @@ typedef NVTYPE NV;
 #       define Perl_tan tanl
 #       define Perl_tanh tanhl
 #   endif
+#if defined(USE_LONG_DOUBLE) && defined(__MINGW64__) \
+    && __MINGW64_VERSION_MAJOR == 4 && __MINGW64_VERSION_MINOR == 0
+   /* modfl() segfaults for -Duselongdouble && 64-bit mingw64 && mingw 
+      runtime version 4.0 [perl #125924] */
+#undef HAS_MODFL
+#ifndef HAS_TRUNCL
+#define HAS_TRUNCL
+#endif
+#ifndef HAS_COPYSIGNL
+#define HAS_COPYSIGNL
+#endif
+#ifndef HAS_MODFL_PROTO
+#define HAS_MODFL_PROTO
+#endif
+#ifdef Perl_modf
+#undef Perl_modf
+#endif
+#endif
 /* e.g. libsunmath doesn't have modfl and frexpl as of mid-March 2000 */
 #   ifndef Perl_modf
 #       ifdef HAS_MODFL
