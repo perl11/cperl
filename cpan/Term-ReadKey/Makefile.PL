@@ -1,5 +1,6 @@
 
 use ExtUtils::MakeMaker;
+use Config;
 use Carp;
 
 my $mm_version = $ExtUtils::MakeMaker::VERSION || $ExtUtils::MakeMaker::Version;
@@ -79,8 +80,13 @@ sub MY::processPL {
     $_ = $self->MM::processPL();
     if (!$ENV{PERL_CORE}) {
         s/ReadKey.pm :: ReadKey_pm.PL/ReadKey.pm :: ReadKey_pm.PL dynamic/;
+    } else {
+        my $cmd = '$(FULLPERLRUNINST)';
+        if ($Config{useshrplib} eq 'true' && $Config{ldlibpthname}) {
+          $cmd = "$Config{ldlibpthname}=../.. $cmd";
+        }
+        s/\$\(PERLRUN\)/$cmd/;
     }
-    s/\$\(PERLRUN\)/\$(FULLPERLRUNINST)/;
     $_
 }
 

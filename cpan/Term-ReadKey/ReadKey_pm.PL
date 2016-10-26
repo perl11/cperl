@@ -518,7 +518,9 @@ if (!$@) {
   $blockoptions = 8;
 } else {
   system "$Config{make} blockoptions";
-  $blockoptions = `./blockoptions`;
+  my $cmd = "./blockoptions" . $Config{exe_ext};
+  # $cmd = "$Config{ldlibpthname}=../.. $cmd" if $Config{useshrplib};
+  $blockoptions = `$cmd`;
 }
 print $blockoptions,"\n";
 
