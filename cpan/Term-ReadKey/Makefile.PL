@@ -1,5 +1,6 @@
 
 use ExtUtils::MakeMaker;
+use Config;
 use Carp;
 
 my $mm_version = $ExtUtils::MakeMaker::VERSION || $ExtUtils::MakeMaker::Version;
@@ -57,8 +58,9 @@ sub MY::top_targets {
     $_ = $self->MM::top_targets();
     # ensure that the XS is built before the PM
     s/pure_all :: config pm_to_blib (.* )linkext/pure_all :: config linkext pm_to_blib $1/;
-
     $_ .= "
+blockoptions: config.h
+	\$(CC) \$(PASTHRU_INC) \$(INC) \$(CCFLAGS) -DPROBE_MAIN config.h -o blockoptions
 
 sgtty cchars.h: genchars.pl
 	\$(PERLRUN) genchars.pl
@@ -78,8 +80,14 @@ sub MY::processPL {
     $_ = $self->MM::processPL();
     if (!$ENV{PERL_CORE}) {
         s/ReadKey.pm :: ReadKey_pm.PL/ReadKey.pm :: ReadKey_pm.PL dynamic/;
+    } else {
+        my $cmd = '$(FULLPERLRUNINST)';
+        my $useshrplib = $Config{useshrplib} =~ /^(true|yes)$/;
+        if ($useshrplib && $Config{ldlibpthname}) {
+          $cmd = "$Config{ldlibpthname}=../.. $cmd";
+        }
+        s/\$\(PERLRUN\)/$cmd/;
     }
-    s/\$\(PERLRUN\)/\$(FULLPERLRUNINST)/;
     $_
 }
 

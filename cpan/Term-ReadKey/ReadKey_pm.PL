@@ -510,15 +510,26 @@ require DynaLoader;
 our @ISA = qw(DynaLoader);
 
 print "Bootstrapping the XS for blockoptions: ";
-bootstrap Term::ReadKey or die;
-print blockoptions()."\n";
+my $blockoptions;
+eval { bootstrap Term::ReadKey };
+if (!$@) {
+  $blockoptions = blockoptions();
+} elsif ($^ eq 'MSWin32') {
+  $blockoptions = 8;
+} else {
+  system "$Config{make} blockoptions";
+  my $cmd = "./blockoptions" . $Config{exe_ext};
+  # $cmd = "$Config{ldlibpthname}=../.. $cmd" if $Config{useshrplib} =~ /^(true|yes)$/;
+  $blockoptions = `$cmd`;
+}
+print $blockoptions,"\n";
 
 open OUT, ">>", $file or die "Can't append to $file: $!";
 print OUT "# blockoptions: \n";
-if ( &blockoptions() & 1 )    # Use nodelay
+if ( $blockoptions & 1 )    # Use nodelay
 {
     print OUT "#nodelay\n";
-    if ( &blockoptions() & 2 )    #poll
+    if ( $blockoptions & 2 )    #poll
     {
         print OUT <<'!NO!SUBS!';
 # poll
@@ -549,7 +560,7 @@ sub ReadLine {
 !NO!SUBS!
 
     }
-    elsif ( &blockoptions() & 4 )    #select
+    elsif ( $blockoptions & 4 )    #select
     {
         print OUT <<'!NO!SUBS!';
 #select
@@ -628,7 +639,7 @@ sub ReadLine {
 else {
     print OUT "#no nodelay\n";
 
-    if ( &blockoptions() & 2 )    # Use poll
+    if ( $blockoptions & 2 )    # Use poll
     {
         print OUT <<'!NO!SUBS!';
 #poll
@@ -649,7 +660,7 @@ sub ReadLine {
 !NO!SUBS!
 
     }
-    elsif ( &blockoptions() & 4 )    # Use select
+    elsif ( $blockoptions & 4 )    # Use select
     {
         print OUT <<'!NO!SUBS!';
 #select
@@ -670,7 +681,7 @@ sub ReadLine {
 !NO!SUBS!
 
     }
-    elsif ( &blockoptions() & 8 )    # Use Win32
+    elsif ( $blockoptions & 8 )    # Use Win32
     {
         print OUT <<'!NO!SUBS!';
 #Win32

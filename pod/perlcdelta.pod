@@ -75,6 +75,8 @@ harmonize formatting.
 
 patch: use faster StructCopy and fixup the XS.
 
+improved blockoptions probe when dynaloading fails.
+
 =item YAML::XS  0.75
 
 fixed encoding issues: fixed wrong $YAML::XS::Encoding and
