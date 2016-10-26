@@ -112,6 +112,10 @@ XXX
 
 =over 4
 
+=item Cpanel-JSON-XS 3.0219
+
+modfl() mingw 4.0 runtime bug [perl #125924]
+
 =item B-C 1.54_14
 
 Fixed IsCOW savepvn, store the last cowrefcnt.

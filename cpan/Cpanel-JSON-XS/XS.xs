@@ -48,6 +48,21 @@
 #define STR_NAN "nan"
 #endif
 
+/* modfl() segfaults for -Duselongdouble && 64-bit mingw64 && mingw
+   runtime version 4.0 [perl #125924] */
+#if defined(USE_LONG_DOUBLE) && defined(__MINGW64__) \
+    && __MINGW64_VERSION_MAJOR == 4 && __MINGW64_VERSION_MINOR == 0
+#undef HAS_MODFL
+#undef Perl_modf
+#define Perl_modf(nv, ip) mingw_modfl(nv, ip)
+long double
+mingw_modfl(long double x, long double *ip)
+{
+    *ip = truncl(x);
+    return (x == *ip ? copysignl(0.0L, x) : x - *ip);
+}
+#endif
+
 #if defined(_AIX)
 #define HAVE_QNAN
 #undef STR_QNAN
