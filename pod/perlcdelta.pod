@@ -364,6 +364,15 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =item *
 
+Fixed several issues with C<-Duseshrplib>, a shared F<libcperl.$so>:
+
+install it (!!),
+fix ExtUtils::Embed and B-C compilation and testing,
+fix tests on darwin,
+fix configuration probe of Term::ReadKey.
+
+=item *
+
 Fixed C<sv_dump> of fbm-magic strings which did previously contain the wrong
 "VALID,EVALED" string for a flag which is either VALID or EVALED. cperl only.
 
