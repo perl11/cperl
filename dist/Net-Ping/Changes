@@ -1,5 +1,11 @@
 CHANGES
 -------
+2.55  Thu Oct 20 09:16:06  2016 +0200 (rurban)
+
+       Bugfixes
+       - Skip sudo for t/500_ping_icmp.t if a prompt is required
+         [RT #118451]
+
 2.54  Thu Oct 20 09:16:06  2016 +0200 (rurban)
 
        Bugfixes
