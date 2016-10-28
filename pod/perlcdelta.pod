@@ -2,256 +2,100 @@
 
 =head1 NAME
 
-perlcdelta - what is new for cperl v5.24.1
+perlcdelta - what is new for cperl v5.24.2
 
 =head1 DESCRIPTION
 
-This document describes perl-only differences between the cperl 5.24.0
-release and the cperl 5.24.1 release.
-
-If you are upgrading from an earlier release such as 5.22.3, first read
-L<perl5240cdelta>, which describes differences between 5.22.3 and 5.24.0.
+This document describes the differences between the cperl 5.24.1
+and the cperl 5.24.2 releases.
 
 =head1 Notice
 
-perl5.24.1 upstream was a security update to non-existing
-problem. cperl added PERLIO_DEBUG as optional handle to redirect
-DEBUGGING outout via -Dx switches to. This is only usable with
-DEBUGGING perls, which are not used in production, only during
-development.  perl5.24.1 changed PERLIO_DEBUG to only be active for
-PerlIO debugging together with C<-Di>.
+XXX Any important notices here
 
 =head1 Security
 
-=head2 C<@{ \327 \n }> buffer overflows
+XXX Any security-related notices go here.  In particular, any security
+vulnerabilities closed should be noted here rather than in the
+L</Selected Bug Fixes> section.
 
-Fixed C<@{ \327 \n }> tokenizer failures and heap buffer overflows in
-C<sv_vcatpvfn_flags()> with wrong tracking of C<PL_linestr>, the
-currently parsed line buffer. This can easily lead to security
-relevant exploits.
-
-L<[perl #128951]|https://rt.perl.org/Public/Bug/Display.html?id=128951>
-
-=head2 C<eval "q" . chr(overlarge)> stack overflow
-
-In C<eval "q" . chr(100000000064)> generating the error message
-C<Can't find string terminator "XXX"'> was overrunning a local buffer
-designed to hold a single utf8 char, since it wasn't allowing for
-the C<\0> at the end.
-
-L<[perl #128952]|https://rt.perl.org/Public/Bug/Display.html?id=128952>
-
-=head2 Protect and warn on hash flood DoS
-
-If the collisions for a hash key lookup exceeds 128 tries (i.e. a
-linear search in a linked list), this qualifies as a malicious hash
-DoS (I<Denial of Service>) attack. Generally maximal 8 collisions
-appear in normal hash table usage. Every 8th such hash flood attack
-performs a C<sleep(2)> to limit the impact.
-
-This security scheme is much easier and faster than trying to hide the
-random hash seed with randomized iterators and collisions lists, which
-cperl doesn't use.
-
-=head2 Warn on metasploit CVE-2015-1592
-
-Detection of the destructive attack against Movable-Type, the third
-vector only, which tries to delete F<mt-config.cgi> was added to was
-added to L<Storable> 3.01c.
-
-Warns with "SECURITY: Movable-Type CVE-2015-1592 Storable metasploit attack"
-but does not protect against it.
-
-=head2 Warn on metasploit reverse shells
-
-Detect the metasploit payload unix/reverse_perl and some existing
-variants.  This is just a dumb match at startup against existing
-exploits in the wild, but not future variants.  Warns with
-"SECURITY: metasploit reverse/bind shell payload", but do not
-protect against it. This warning is thrown even without C<-w>.
-
-Also detects the CVE-2012-1823 reverse/bind shell payload, which is
-widely exploited too. The security warning is called
-"SECURITY: CVE-2012-1823 reverse/bind shell payload".
+[ List each security issue as a =head2 entry ]
 
 =head1 Performance Enhancements
+
+XXX Changes which enhance performance without changing behaviour go here.
+There may well be none in a stable release.
+
+[ List each enhancement as a =item entry ]
 
 =over 4
 
 =item *
 
-Out-of-bounds check elimination in loops has been fixed for lexical
-counters.  E.g. with C<my @a=(0..4); for my $i (0..$#a) { $a[$i] }> each
-access to C<$a[$i]> in the loop is now really converted to the
-unchecked faster B<aelem_u> op.
-
-Note that multideref ops are not yet converted to omit out-of-bounds
-checks. This is only implemented since cperl-5.25 (released with
-5.26.0c), since it needs to widen the internal mderef structure.
-
-=item *
-
-Improvements when reading from arrays have been imported from perl 5.25.
-C<av_fetch()> uses less branches reading from the end (negative indices),
-and a branch checking for freed C<@_> elements has been removed,
-
-=item *
-
-The new C<strEQc>/C<strNEc> macros are used instead of
-C<strEQ(s,"constant")>. This enables word-wise comparison via memcpy,
-in opposite of byte-wise comparisons via strcmp with already known
-sizes. This is a 10% performance improvement under most optimization
-levels.
-
-Use more C<strEQc>, C<strNEc> macros, when safe to use, i.e. the left
-buffer is big enough, now with Address Sanitizer fallbacks.
-
-The new fast buffer comparison macros C<strEQc> and C<strNEc> compare
-a full string including the final C<\0>, C<memEQc> and C<memNEc> just
-the start of a buffer, with constants strings. Note that valgrind and
-Address Sanitizer will complain about out of range access of the left
-side of the buffer. To access these buffers however is safe and will
-not lead to SIGBUS on stricter platforms.  To prevent valgrind from
-warning on this, you may want to define C<-DVALGRIND>, which uses a
-safe and slower fallback macro.
-
-=item *
-
-aassign: pre-allocate needed hash size with aassign, similar to
-arrays, avoiding run-time hash splits.
-e.g. C<my %h = (.. => .., .. => ..)>
-
-This version is 30% faster overall in the Mail::SpamAssassin testsuite
-than cperl-5.24.0.
-
-=item *
-
-Pre-extend internal hashes and stashes to avoid unnecessary boot-time hash
-splits. C<%warnings::>, C<%Config::>, C<%utf8::>, C<%version::>.
+C<-DPERL_FAKE_SIGNATURE> is now default, making most function calls 2x faster.
+See L</fake_signatures>
 
 =back
 
 =head1 Modules and Pragmata
 
+XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
+go here.  If Module::CoreList is updated, generate an initial draft of the
+following sections using F<Porting/corelist-perldelta.pl>.  A paragraph summary
+for important changes should then be added by hand.  In an ideal world,
+dual-life modules would have a F<Changes> file that could be cribbed.
+
+[ Within each section, list entries as a =item entry ]
+
 =head2 Updated Modules and Pragmata
 
 =over 4
 
-=item Cpanel::JSON::XS  3.027_03
+=item Net-Ping 2.53
 
-New stringify_infnan(3) infnan_mode.
-Fix inf/nan detection on HP-UX and others.
-Use faster strEQc macros.
-Prefer memEQ for systems without memcmp, to use bcmp there.
-Add more expect_false() to inf/nan branches.
-Fix av and hv length types: protect from security sensitive overflows,
-add HVMAX_T and RITER_T
-Add new "Hash key too large" error. perl5 silently truncates it,
-but we prefer errors.
+Fixed missing C<_unpack_sockaddr_in> family, which took AF_INET6 for
+a AF_INET addr in F<t/500_ping_icmp.t> and F<t/500_ping_icmp_ttl.t>.
+Use now a proper default. Detected by the new gitlab ci.
 
-=item Term::ReadKey 2.35
+Fixed C<_pack_sockaddr_in> for a proper 2nd argument type, hash or packed
+address.
 
-ReadKey.pm renamed to ReadKey_pm.PL,
-expand blockoptions specific variants already at installation,
-no load-time eval, demand-load Carp, remove unneeded AutoLoader,
-harmonize formatting
+Improved F<500_ping_icmp.t> to try sudo.
+Relaxed more tests failing with firewalled icmp on localhost. [RT #118441]
 
-=item B  1.62_05
+=item Pod-HTML 2.22c
 
-Allow a 2nd optional CV argument for B::OP::aux_list,
-fixing B::Deparse and thereby Data::Dumper and Test2 is_deeply.
+Improved parallel testing, relative F<testdir/test$$.lib>.
+See L<[RT #118416]|https://rt.cpan.org/Ticket/Display.html?id=118416>.
 
-=item Storable  3.01c
+=back
 
-L</"Warn on metasploit CVE-2015-1592">
+=head1 Documentation
 
-=item Config  6.22
+XXX Changes to files in F<pod/> go here.  Consider grouping entries by
+file and be sure to link to the appropriate page, e.g. L<perlfunc>.
 
-protect sv in END during global destruction, esp. with B::C.
-fixes for missing . in @INC (cperl or -Dfortify_inc).
-Add C<i_netinet_in_systm>.
-Removed C<i_netinet6_in6>.
+=head2 New Documentation
 
-=item YAML::XS  0.73
+XXX Changes which create B<new> files in F<pod/> go here.
 
-merged with upstream libyaml 0.1.7
-avoid duplicate checks against NULL
-fix libyaml clang -Wlogical-op warnings
-fix libyaml clang -Wlogical-not-parentheses warnings
+=head3 L<XXX>
 
-=item List::Util  1.45_06
+XXX Description of the purpose of the new file here
 
-sum/min/max need to call SvGETMAGIC
+=head2 Changes to Existing Documentation
 
-=item Sub::Util  1.45_06
+XXX Changes which significantly change existing files in F<pod/> go here.
+However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
+section.
 
-set_subname memory fix by @bluhm from Sub::Name 0.20
-[cpan #117072]
+=head3 L<XXX>
 
-Fixes for older perls, esp. lexical $_ support.
+=over 4
 
-Reinstate the &DB::sub setter, but no UTF8 support yet.
+=item *
 
-=item ExtUtils::Liblist::Kid 8.04_06
-
-one more darwin fix for the wrong no library found warning
-for symlinked darwin libSystem.dylib libraries.
-
-=item IO::Socket::IP 0.38
-
-protect sv in END during global destruction, esp. with B::C.
-fixes for missing . in @INC (cperl or -Dfortify_inc).
-
-From https://github.com/atoomic/IO-Socket-IP/:
-
-- Support setting custom socket options with new Sockopts
-  constructor parameter
-
-- Restore blocking mode after ->connect errors [cpan #112334]
-
-=item Time::HiRes  1.9739
-
-More Darwin thread fixes for clock_gettime,
-Sierra support,
-test improvements.
-
-=item Socket  2.024_04
-
-Merge cpan 2.024 with our 2.021_02,
-plus fix some problems in their new code.
-
-Fixes for OpenBSD: Probe for F<netinet/in_systm.h>
-Removed C<i_netinet6_in6> probe.
-This was never used due to a typo.
-It cannot be used due to RFC 2553.
-
-=item DynaLoader  2.05c
-
-no mathoms: call_sv instead of call_pv, get_cvs where available.
-
-=item B-C 1.54_13
-
-Better CopFILE_set,
-Fixup arenasize refcnt.
-Delay cvref to init2, properly set a SvRV to a XS sub.
-Optimize constpv for CvFILE (less constants to merge for gcc).
-Improve NV precision by one digit.
-Fix to compile in utf8_heavy.pl, abstract and set %INC.
-Fix generation of @B::C::Config::deps on Windows.
-Fix !C99 precedence bug (e.g. MSVC).
-Minor refactor to simplify save_hek.
-Use the new get_svs, get_avs, get_hvs macros.
-perlcc add --debug|-D
-Improve endav XSUB bump
-Abstract RITER_T and HVMAX_T for the various sizes, compat HEK_STATIC
-Defer REGCOMP for \P{} properties
-Change $sv->EXTFLAGS to compflags since 5.22 for CALLREGCOMP().
-Turn off MGf_REFCOUNTED.
-global-buffer-overflow with dynamic COW strings, wrong savepvn args.
-
-=item base  2.23_01
-
-fixes for missing . in @INC (cperl or -Dfortify_inc).
+XXX Description of the change here
 
 =back
 
@@ -261,281 +105,206 @@ The following additions or changes have been made to diagnostic output,
 including warnings and fatal error messages.  For the complete list of
 diagnostic messages, see L<perldiag>.
 
-=head2 New Diagnostics
+XXX New or changed warnings emitted by the core's C<C> code go here.  Also
+include any changes in L<perldiag> that reconcile it to the C<C> code.
 
-=head3 New Errors
+=head2 Changes to Existing Diagnostics
+
+XXX Changes (i.e. rewording) of diagnostic messages go here
 
 =over 4
 
 =item *
 
-The L<Too many elements|perldiag/"Too many elements"> error is now
-triggered when accessing or extending an out of bounds array index or
-trying to insert too many hash keys. This is to prevent from silent
-hash or array overflows. Previously extending a hash beyond it's
-capable size was silently ignored, leading to performance degradation
-with overly high fill factors and extending an array failed only on
-memory exhaustion, but the signed index led to an index overflow
-between I32 and U32, resp.  I64 and U64.
-
-Even worse, accessing overflown unsigned array indices would silently
-access the signed counterpart, indices at the end.
-
-Note that the out of bound error message with shaped arrays is different.
-(cperl only)
-
-=item *
-
-The L<Panic: hash key too long|perldiag/"panic: hash key too long (%u)">
-error is now thrown with overlarge hash keys in every
-C<hv_common> access and in L<Cpanel::JSON::XS>.  perl5 still silently
-ignores those failures, and truncates the keys.
-Many more similar C<panic: (file|keyword|mro|stash)? name too long> errors
-were added to the parser and compiler to protect from overlong names
-(> I32_MAX, 2147483647).
-(cperl only)
+XXX Describe change here
 
 =back
 
-=head3 New Warnings
+=head1 Utility Changes
+
+XXX Changes to installed programs such as F<perlbug> and F<xsubpp> go here.
+Most of these are built within the directory F<utils>.
+
+[ List utility changes as a =head2 entry for each utility and =item
+entries for each change
+Use L<XXX> with program names to get proper documentation linking. ]
+
+=head2 L<XXX>
 
 =over 4
 
 =item *
 
-The new security warning "Hash flood" was added.
-See L</"Protect and warn on hash flood DoS">.
-(cperl only)
-
-=item *
-
-The new C<security> warnings "metasploit reverse/bind shell payload"
-and "CVE-2012-1823 reverse/bind shell payload" were added, detecting
-the existing metasploit/libxploit and phpcgi CVE-2012-1823 reverse and
-bind shells.  See L</"Warn on metasploit reverse shells">
-(cperl only)
+XXX
 
 =back
 
 =head1 Configuration and Compilation
 
+XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
+go here.  Any other changes to the Perl build process should be listed here.
+However, any platform-specific changes should be listed in the
+L</Platform Support> section, instead.
+
+[ List changes as a =item entry ].
+
 =over 4
 
-=item *
+=item XXX
 
-Added C<sanitize_address> config entry and probe, and matching
-C<USE_SANITIZE_ADDRESS> F<config.h> define.
-(cperl only)
-
-=item *
-
-Removed C<i_netinet6_in6> Config entry and probe, and matching
-C<I_NETINET6_I6> F<config.h> define, which was a typo.
-This was added with cperl-5.22.2 and was never used due to the typo.
-It cannot be used due to RFC 2553.
-(cperl only)
-
-=item *
-
-Added C<i_netinet_in_systm> probe.
-(cperl only)
+XXX
 
 =back
 
 =head1 Testing
 
+XXX Any significant changes to the testing of a freshly built perl should be
+listed here.  Changes which create B<new> files in F<t/> go here as do any
+large changes to the testing harness (e.g. when parallel testing was added).
+Changes to existing files in F<t/> aren't worth summarizing, although the bugs
+that they represent may be covered elsewhere.
+
+[ List each test improvement as a =item entry ]
+
 =over 4
 
 =item *
 
-C<make minitest> has been vastly improved
-
-=item *
-
-Fix tests for the optional C<-DNODEFAULT_SHAREKEYS> configuration.
-
-=item *
-
-Add hash flood tests with pre-created collision data for 511
-collisions on seed=0.
-
-=item *
-
-Split F<t/op/tr.t> into unicode and ebcdic variant
-
-=item *
-
-Don't warn on missing Pod::Man in CORE tests.  Pod::Man is not a
-dependency for EUMM, as it needs EUMM at first.
+XXX
 
 =back
 
-=head1 Internal Changes
+=head1 Platform Support
+
+XXX Any changes to platform support should be listed in the sections below.
+
+[ Within the sections, list each platform as a =item entry with specific
+changes as paragraphs below it. ]
+
+=head2 New Platforms
+
+XXX List any platforms that this version of perl compiles on, that previous
+versions did not.  These will either be enabled by new files in the F<hints/>
+directories, or new subdirectories and F<README> files at the top level of the
+source tree.
 
 =over 4
 
-=item *
+=item XXX-some-platform
 
-Increasing the hash size to values larger then U32_MAX are now silently ignored.
-This only affects 64-bit platforms. Normally a hash split to an overlarge value
-should die, but historically it silently ignored the split, it just increases the
-fill rate and decreases performance.
+XXX
+
+=back
+
+=head2 Platform-Specific Notes
+
+XXX List any changes for specific platforms.  This could include configuration
+and compilation changes or changes in portability/compatibility.  However,
+changes within modules for platforms should generally be listed in the
+L</Modules and Pragmata> section.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
 
 =back
 
 =head1 Selected Bug Fixes
 
+XXX Important bug fixes in the core language are summarized here.  Bug fixes in
+files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
+
 =over 4
 
 =item *
 
-Fixed several B<heap-buffer-overflows> detected by asan:
-use-after-free in Dynaloader (ReadKey probe with -DDEBUG_LEAKING_SCALAR),
-heap-overflow in gv_fetchfile (t/comp/parser.t),
-heap-overflow with signatures,
-heap-overflow in XSLoader,
-invalid memEQc in toke.c missing out on parsing #!perl -opts,
-B-C global-buffer-overflow with dynamic COW strings, wrong savepvn args.
+Fixed a cperl-only failure in signatures with default blocks introducing
+a new lexical variable. As in C<sub t151($a,$b=do{my $f},$c=1){} t151($x,$x,$x)>.
+This failure was only fatal on 32bit + -Duse64bitint systems.
 
-There are still heap-use-after-free problems with perlcc and PERL_DESTRUCT_LEVEL=2.
-
-See L<[cperl #207]|https://github.com/perl11/cperl/issues/207>
-
-=item *
-
-Fixed overwriting the C<HVhek_UNSHARED> bit in the hash loop broken with
-v5.9.
-
-This fixed C<-DNODEFAULT_SHAREKEYS>. In the default configuration
-without NODEFAULT_SHAREKEYS since 5.003_001 all hash keys are stored
-twice, once in the hash and once again in C<PL_strtab>, the global
-string table, with the benefit of faster hash loops and copies. Almost
-all hashtables get the SHAREKEYS bit.
-With C<-Accflags=-DNODEFAULT_SHAREKEYS> simple scripts are 20-30% faster.
-L<[cperl #201]|https://github.com/perl11/cperl/issues/201>
-
-=item *
-
-Fix HEK_TAINTED check for HEf_SVKEY values. A HEf_SVKEY hek has no
-tainted flag, the pointed to SV has. This is a cperl-only security
-feature.
-
-=item *
-
-Only clear LS_COLORS for glob
-
-When miniperl calls csh to implement glob(), we cleared %ENV
-temporarily to avoid csh dying on invalid values for things like
-LS_COLORS.  That has proven to have far too many problems, since many
-system-dependent env vars are necessary for calling an external
-process.  See the L<[perl #126041]|https://rt.perl.org/Public/Bug/Display.html?id=126041> ticket for details.
-
-A better solution is temporarily to clear only those vars that are
-known to be problematic and make csh possibly fail.  There only hap-
-pens to be one of those at present, namely LS_COLORS.
-
-=item *
-
-A SEGV in mess_sv during global destruction with a DEBUGGING perl and
--DS been fixed, occuring when we wanted to report the location of an
-error when curcop has already been freed.
-
-Testcase: C<./miniperl -DS -e '$_="f"; s/./"&".$&/ee'>
-
-L<[perl #129027]|https://rt.perl.org/Public/Bug/Display.html?id=129027>
-
-=item *
-
-A SEGV in ck_shift with an empty/wrong current function, caused by a
-syntax error has been fixed. The syntax error is now reported lateron.
-Testcase: C<'qq{@{sub{q}}]]}}; s0{shift'>
-
-L<[perl #125351]|https://rt.perl.org/Public/Bug/Display.html?id=125351>
-
-=item *
-
-Since Perl 5.20, line numbers have been off by one when perl is invoked with
-the B<-x> switch.  This has been fixed.
-L<[perl #128508]|https://rt.perl.org/Public/Bug/Display.html?id=128508>
-
-=item *
-
-Handle missing Unicode heredoc terminators correctly.
-E.g. C<perl -CS -e 'use utf8; q«'>
-prints now C<Can't find string terminator "«" anywhere before EOF at -e line 1.>
-
-L<[perl #128701]|https://rt.perl.org/Public/Bug/Display.html?id=128701>
-
-=item *
-
-Mentioning a constant twice in a row does not lead to assertions
-errors with DEBUGGING builds, such as e.g. C<sub ub(){0} ub ub>.
-
-=item *
-
-Fixed overwriting the HVhek_UNSHARED bit in the hash loop broken with
-v5.9.
-
-This fixed C<-DNODEFAULT_SHAREKEYS>. In the default configuration
-without NODEFAULT_SHAREKEYS since 5.003_001 all hash keys are stored
-twice, once in the hash and once again in C<PL_strtab>, the global
-string table, with the benefit of faster hash loops and copies. Almost
-all hashtables get the SHAREKEYS bit. (#201)
-
-=item *
-
-Array and hash index overflow are now properly detected and throw an
-"Too many elements" error.
-
-E.g. on 32bit C<$ary[2147483648]> will lead to a compile-time error,
-C<$i=2147483648; $ary[$i]> to a run-time error. Before 5.24c or with perl5
-those two would silently overflow to C<-1>, i.e. accessing the last element.
-
-When inserting more than U32, i.e. 4294967295 hash elements, the same
-error is now thrown. Before 5.24c or with perl5 the element would have
-been inserted, with 32bit the hash table would not have been extended
-and the load factor would increase, the collisions and performance
-would decrease.  On 64bit the hash table would have beed increased,
-but the elements would collide on the last element, leading to the
-same problems, just more dramatic.
+C<SIGNATURE_arg_default_op> does not have a items arg.
+See L<[cperl #164]|https://github.com/perl11/cperl/issues/164>.
+and L<[cperl #213]|https://github.com/perl11/cperl/issues/213>.
 
 =back
 
+=head1 Known Problems
+
+For open cperl problems see L<[issues]|https://github.com/perl11/cperl/issues/>.
+
+Some of these fixes also can to be backported from perl5.25.x upstream.
+
+=over 4
+
+=item *
+
+The perl debugger doesn't yet work with signatures. It doesn't step into
+such functions and it may fail.
+See e.g. L<[cperl #167]|https://github.com/perl11/cperl/issues/167>
+
+=item *
+
+F<t/op/taint.t> contained a test with signatures and 6 default
+arguments, which on some 32 bit systems led to random "Reference
+parameter cannot take default value at op/taint.t line 2461"
+compile-time failures. This test has been rewritten to ony use 4 arguments.
+
+See L<[cperl #164]|https://github.com/perl11/cperl/issues/164>
+
+=item *
+
+C<clang -flto=thin> and on some systems even C<gcc -flto> with C<-O3>
+or C<-finline> leads to invisible symbols which were inlined and not
+exported, even if they should be declared as public API. Work is
+ongoing in the F<feature/gh186-lto-thin> branch, but there the
+inlining is disabled by the C<used> attribute, leading to a
+10% performance regression.  On the other hand a working
+C<clang-3.9 -flto> leads to 20% performance improvements.
+
+=item *
+
+C< until ($x = 1) { ... } > and C< ... until $x = 1 > should
+warn when syntax warnings are enabled.
+L<[perl #127333]|https://rt.perl.org/Public/Bug/Display.html?id=127333>
+
+=item *
+
+C< ${\vec %h, 0, 1} > and C< ${\substr %h, 0} > should not segfault, rather
+the lvalue context should be propagated, and list context properly handled.
+L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
+
+=back
+
+=head1 Errata From Previous Releases
+
+=over 4
+
+=item *
+
+XXX Add anything here that we forgot to add, or were mistaken about, in
+the perlcdelta of a previous release.
+
+=back
+
+=head1 Obituary
+
+XXX If any significant core contributor has died, we've added a short obituary
+here.
+
 =head1 Acknowledgements
 
-cperl 5.24.1 represents approximately 3 months of development since cperl 5.24.0c
-and contains approximately 15,000 lines of changes across 250 files from 11
-authors.
+XXX To be generated with:
 
-Excluding auto-generated files, documentation and release tools, there were
-approximately 4,900 lines of changes to 130 .pm, .t, .c and .h files.
-
-Perl continues to flourish into its third decade thanks to a vibrant community
-of users and developers. The following people are known to have contributed the
-improvements that became cperl 5.24.1c:
-
-Reini Urban, Father Chrysostomos, David Mitchell, Daniel Dragan, Tony Cook,
-Lukas Mai, Yves Orton, Aristotle Pagaltzis, Misty De Meo, Karl Williamson,
-James Raspass, Nicholas Rochelemange.
-
-The list above is almost certainly incomplete as it is automatically generated
-from version control history. In particular, it does not include the names of
-the (very much appreciated) contributors who reported issues to the cperl issue
-tracker.
-
-Many of the changes included in this version originated in the CPAN modules
-included in Perl's core. We're grateful to the entire CPAN community for
-helping Perl to flourish.
-
-For a more complete list of all of Perl's historical contributors, please see
-the F<AUTHORS> file in the Perl source distribution.
+    cperl Porting/acknowledgements.pl cperl-5.24.1..HEAD
 
 =head1 Reporting Bugs
 
 If you find what you think is a bug, you might check the articles recently
 posted to the comp.lang.perl.misc newsgroup and the perl bug database at
-https://rt.perl.org/ .  There may also be information at
-http://www.perl.org/ , the Perl Home Page.
+L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
 
 If you believe you have an unreported bug, please run the L<cperlbug> program
 included with your release.  Be sure to trim your bug down to a tiny but
@@ -548,7 +317,7 @@ please file an issue at L<https://github.com/perl11/cperl/issues>.
 If the bug you are reporting has security implications which make it
 inappropriate to send to a publicly archived mailing list, then see
 L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION>
-for details of how to report the issue.
+For details of how to report the issue.
 
 =head1 SEE ALSO
 
