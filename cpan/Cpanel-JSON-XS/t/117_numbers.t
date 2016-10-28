@@ -43,8 +43,12 @@ if ($^O eq 'MSWin32'
 #  $neg_nan = $nan;
 #}
 
-is $json->encode([9**9**9]),         "[\"$inf\"]",  "inf -> \"inf\" stringify_infnan(1)";
-is $json->encode([-9**9**9]),        "[\"$neg_inf\"]", "-inf -> \"-inf\"";
+my $r = $json->encode([9**9**9]);
+$r =~ s/\.0$// if $^O eq 'MSWin32';
+is $r,         "[\"$inf\"]",  "inf -> \"inf\" stringify_infnan(1)";
+$r = $json->encode([-9**9**9]);
+$r =~ s/\.0$// if $^O eq 'MSWin32';
+is $r,        "[\"$neg_inf\"]", "-inf -> \"-inf\"";
 # The concept of negative nan is not portable and varies too much.
 # Windows even emits neg_nan for the first test sometimes. HP-UX has all tests reverse.
 like $json->encode([-sin(9**9**9)]),   qr/\[\"(\Q$neg_nan\E|\Q$nan\E)\"\]/,  "nan -> \"nan\"";

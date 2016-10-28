@@ -112,9 +112,25 @@ XXX
 
 =over 4
 
-=item Cpanel-JSON-XS 3.0219
+=item Cpanel-JSON-XS 3.0220
 
-modfl() mingw 4.0 runtime bug [perl #125924]
+- modfl() mingw 4.0 runtime bug [perl #125924]
+
+- Tested with the comprehensive JSON decode spectests from
+  http://seriot.ch/parsing_json.html. Not added to core. #72
+
+- decode with BOM (UTF-8, UTF-16, or UTF-32). For now only UTF-8,
+  the others error.
+
+- fixed detection of final \0 as illegal non-whitespace garbage. Fixes
+  spectest 'n_number_then_00'. #72
+
+- changed decode of unicode noncharacters between U+FFFD and U+10FFFF
+  to the recommended U+FFFD REPLACEMENT CHARACTER, when not in the binary
+  or relaxed mode.
+
+- fail decode of non-unicode raw characters above U+10FFFF
+  when not in relaxed mode.
 
 =item B-C 1.54_14
 

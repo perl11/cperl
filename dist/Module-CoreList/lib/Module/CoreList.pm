@@ -13397,7 +13397,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList::TieHashDelta'=> '5.20161017',
             'Module::CoreList::Utils'=> '5.20161017c',
             'B::C'                  => '1.54_14',
-            'Cpanel::JSON::XS'      => '3.0219',
+            'Cpanel::JSON::XS'      => '3.0220',
             'Net::Ping'             => '2.55',
         },
         removed => {},
