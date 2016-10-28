@@ -179,7 +179,7 @@ use File::Glob qw(:case);
     },
 
     'B::C' => {
-        'DISTRIBUTION' => 'RURBAN/B-C-1.54_13.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/B-C-1.54_14.tar.gz',
         'FILES'        => q[cpan/B-C],
         'EXCLUDED'     => [
             qr{^.gdb},
