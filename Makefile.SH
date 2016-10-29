@@ -1707,7 +1707,7 @@ minitest_prep:
 	@echo " "
 	- cd t && (rm -f $(PERL_EXE); $(LNS) ../$(MINIPERL_EXE) $(PERL_EXE))
 
-MINITEST_TESTS = base/*.t opbasic/*.t comp/*.t op/*.t cmd/*.t run/*.t io/*.t re/*.t uni/*.t perf/*.t
+MINITEST_TESTS = base/*.t opbasic/*.t comp/*.t op/*.t cmd/*.t run/*.t io/*.t re/*.t uni/*.t perf/*.t ../cpan/version/t/[01][04568]*.t
 
 minitest: $(MINIPERL_EXE) minitest_prep
 	- cd t && $(RUN_PERL) TEST $(MINITEST_TESTS) <$(devtty)
