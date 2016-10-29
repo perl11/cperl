@@ -101,4 +101,4 @@ lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
 threads dist/threads/lib/threads.pm 7a97056db5cd1f495002050f9bc71cd5b26796ab
 threads dist/threads/threads.xs e40ca2536fc7a3249095559d3b8b55bf2dedc7cc
 version cpan/version/lib/version.pm a808a584588f001c523aa301143d31e21f4f1ef9
-version vutil.c 8c5f094d1e6d51b9fbfb64033b5398cba4a5fd93
+version vutil.c 9112461d000e5d9ad60de8105fb803a639cbe020
