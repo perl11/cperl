@@ -1515,12 +1515,12 @@ use File::Glob qw(:case);
         # to delete an entire block out of lib/version.pm, since that code is
         # only necessary with the CPAN release.
         'CUSTOMIZED'   => [
-            qw( lib/version.pm
+            qw( lib/version.pm lib/version/regex.pm
                 ),
 
             # Merged upstream, waiting for new CPAN release: see CPAN RT#92721
-            # cperl skips the ending 'c'
-            qw( vutil.c
+            # cperl allows the ending 'c'
+            qw( vutil.c vxs.inc
                 ),
         ],
 

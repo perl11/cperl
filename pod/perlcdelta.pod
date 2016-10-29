@@ -159,7 +159,7 @@ Fixed wrong skip message in F<t/020_external.t>
 Improved parallel testing, relative F<testdir/test$$.lib>.
 See L<[RT #118416]|https://rt.cpan.org/Ticket/Display.html?id=118416>.
 
-=item version  0.9917_01c
+=item version  0.9917_02c
 
 Merge latest version with the '_' lyon concensus with the cperl extension
 of the optional final 'c' suffix. Extend version::regex for cperl.

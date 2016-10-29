@@ -13627,6 +13627,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'B::C'                  => '1.54_14',
             'Cpanel::JSON::XS'      => '3.0220',
             'Net::Ping'             => '2.55',
+            'version'               => '0.9917_02c',
         },
         removed => {},
     },

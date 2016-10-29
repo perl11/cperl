@@ -63,7 +63,7 @@ File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm fb1175286262913bec59482b84a3587ec48339ea
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm da7db2b7b06467019466d3d82f29bfdb6c5b0b49
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 490a11000e1ed88cd3384f80363b682c7fbf1ac4
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 997cf6b8e55afbe7a83dd4864fc49cdce261ecd9
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 7b6802b86575f74a273d2a6b01502b8d144ba057
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
@@ -100,5 +100,7 @@ autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 lib dist/lib/lib_pm.PL 6f1951dc926375aa93b93515aa5f3c1ca1396b05
 threads dist/threads/lib/threads.pm 7a97056db5cd1f495002050f9bc71cd5b26796ab
 threads dist/threads/threads.xs e40ca2536fc7a3249095559d3b8b55bf2dedc7cc
-version cpan/version/lib/version.pm a808a584588f001c523aa301143d31e21f4f1ef9
+version cpan/version/lib/version.pm 46e7b7eed74b5080b23f852acd84e6ca5aab6d74
+version cpan/version/lib/version/regex.pm a2e6098571d8085340d4378ec21ad54bbcce1ceb
 version vutil.c 9112461d000e5d9ad60de8105fb803a639cbe020
+version vxs.inc 9a7603d9d71c6eb706e1584d4334ee6346c6f86b
