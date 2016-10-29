@@ -2456,11 +2456,8 @@ is eval { eval $::x.1 }, 1, 'reset does not taint undef';
         isnt_tainted($u6, "sig1 u6");
     }
 
-    # flapping test on 32-bit. [cperl #164]
-    #sig1($TAINT, $x, $TAINT, $x,
-    #     $TAINT, $x, $TAINT, $x,
-    #     $TAINT, $x, $TAINT, $x);
     sig1($TAINT, $x, $TAINT, $x,
+         $TAINT, $x, $TAINT, $x,
          $TAINT, $x, $TAINT, $x);
     sig1($TAINT, $x, $TAINT, $x);
 
