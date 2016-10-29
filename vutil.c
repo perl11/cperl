@@ -371,19 +371,27 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
   		}
  		else {
  		    while (--end >= s) {
+			int i;
 			if (*end == '_')
 			    continue;
-			orev = rev;
- 			rev += (*end - '0') * mult;
- 			mult *= 10;
-			if (   (PERL_ABS(orev) > PERL_ABS(rev)) 
-			    || (PERL_ABS(rev) > VERSION_MAX )) {
+			i = (*end - '0');
+                        if (   (mult == VERSION_MAX)
+                            || (i > VERSION_MAX / mult)
+                            || (i * mult > VERSION_MAX - rev))
+                        {
 			    Perl_ck_warner(aTHX_ packWARN(WARN_OVERFLOW), 
 					   "Integer overflow in version");
 			    end = s - 1;
 			    rev = VERSION_MAX;
 			    vinf = 1;
 			}
+                        else
+                            rev += i * mult;
+
+                        if (mult > VERSION_MAX / 10)
+                            mult = VERSION_MAX;
+                        else
+                            mult *= 10;
  		    }
  		} 
   	    }
@@ -857,7 +865,6 @@ Perl_vnumify(pTHX_ SV *vs)
 {
     SSize_t i, len;
     I32 digit;
-    int width;
     bool alpha = FALSE;
     SV *sv;
     AV *av;
@@ -872,14 +879,6 @@ Perl_vnumify(pTHX_ SV *vs)
     /* see if various flags exist */
     if ( hv_exists(MUTABLE_HV(vs), "alpha", 5 ) )
 	alpha = TRUE;
-    {
-	SV ** svp = hv_fetchs(MUTABLE_HV(vs), "width", FALSE);
-	if ( svp )
-	    width = SvIV(*svp);
-	else
-	    width = 3;
-    }
-
 
     if (alpha) {
 	Perl_ck_warner(aTHX_ packWARN(WARN_NUMERIC),
@@ -902,30 +901,14 @@ Perl_vnumify(pTHX_ SV *vs)
 	digit = SvIV(tsv);
     }
     sv = Perl_newSVpvf(aTHX_ "%d.", (int)PERL_ABS(digit));
-    for ( i = 1 ; i < len ; i++ )
+    for ( i = 1 ; i <= len ; i++ )
     {
 	SV * tsv = *av_fetch(av, i, 0);
 	digit = SvIV(tsv);
-	if ( width < 3 ) {
-	    const int denom = (width == 2 ? 10 : 100);
-	    const div_t term = div((int)PERL_ABS(digit),denom);
-	    Perl_sv_catpvf(aTHX_ sv, "%0*d_%d", width, term.quot, term.rem);
-	}
-	else {
-	    Perl_sv_catpvf(aTHX_ sv, "%0*d", width, (int)digit);
-	}
+	Perl_sv_catpvf(aTHX_ sv, "%03d", (int)digit);
     }
 
-    if ( len > 0 )
-    {
-	SV * tsv = *av_fetch(av, len, 0);
-	digit = SvIV(tsv);
-	if ( alpha && width == 3 ) /* alpha version */
-	    sv_catpvs(sv,"_");
-	Perl_sv_catpvf(aTHX_ sv, "%0*d", width, (int)digit);
-    }
-    else /* len == 0 */
-    {
+    if ( len == 0 ) {
 	sv_catpvs(sv, "000");
     }
     return sv;
@@ -955,8 +938,6 @@ Perl_vnormal(pTHX_ SV *vs)
 #endif
 {
     I32 i, len, digit;
-    bool alpha = FALSE;
-    /*bool qv = FALSE;*/
     SV *sv;
     AV *av;
 
@@ -966,11 +947,6 @@ Perl_vnormal(pTHX_ SV *vs)
     vs = VVERIFY(vs);
     if ( ! vs )
 	Perl_croak(aTHX_ "Invalid version object");
-
-    if ( hv_exists(MUTABLE_HV(vs), "alpha", 5 ) )
-	alpha = TRUE;
-    /*if ( hv_exists(MUTABLE_HV(vs), "qv", 2) )
-        qv = TRUE;*/
 
     av = MUTABLE_AV(SvRV(*hv_fetchs(MUTABLE_HV(vs), "version", FALSE)));
 
@@ -984,21 +960,10 @@ Perl_vnormal(pTHX_ SV *vs)
 	digit = SvIV(tsv);
     }
     sv = Perl_newSVpvf(aTHX_ "v%"IVdf, (IV)digit);
-    for ( i = 1 ; i < len ; i++ ) {
+    for ( i = 1 ; i <= len ; i++ ) {
 	SV * tsv = *av_fetch(av, i, 0);
 	digit = SvIV(tsv);
 	Perl_sv_catpvf(aTHX_ sv, ".%"IVdf, (IV)digit);
-    }
-
-    if ( len > 0 )
-    {
-	/* handle last digit specially */
-	SV * tsv = *av_fetch(av, len, 0);
-	digit = SvIV(tsv);
-	if ( alpha )
-	    Perl_sv_catpvf(aTHX_ sv, "_%"IVdf, (IV)digit);
-	else
-	    Perl_sv_catpvf(aTHX_ sv, ".%"IVdf, (IV)digit);
     }
 
     if ( len <= 2 ) { /* short version, must be at least three */
@@ -1073,8 +1038,6 @@ Perl_vcmp(pTHX_ SV *lhv, SV *rhv)
 {
     SSize_t i,l,m,r;
     I32 retval;
-    bool lalpha = FALSE;
-    bool ralpha = FALSE;
     I32 left = 0;
     I32 right = 0;
     AV *lav, *rav;
@@ -1089,13 +1052,9 @@ Perl_vcmp(pTHX_ SV *lhv, SV *rhv)
 
     /* get the left hand term */
     lav = MUTABLE_AV(SvRV(*hv_fetchs(MUTABLE_HV(lhv), "version", FALSE)));
-    if ( hv_exists(MUTABLE_HV(lhv), "alpha", 5 ) )
-	lalpha = TRUE;
 
     /* and the right hand term */
     rav = MUTABLE_AV(SvRV(*hv_fetchs(MUTABLE_HV(rhv), "version", FALSE)));
-    if ( hv_exists(MUTABLE_HV(rhv), "alpha", 5 ) )
-	ralpha = TRUE;
 
     l = av_len(lav);
     r = av_len(rav);
@@ -1114,19 +1073,6 @@ Perl_vcmp(pTHX_ SV *lhv, SV *rhv)
 	if ( left > right )
 	    retval = +1;
 	i++;
-    }
-
-    /* tiebreaker for alpha with identical terms */
-    if ( retval == 0 && l == r && left == right && ( lalpha || ralpha ) )
-    {
-	if ( lalpha && !ralpha )
-	{
-	    retval = -1;
-	}
-	else if ( ralpha && !lalpha)
-	{
-	    retval = +1;
-	}
     }
 
     if ( l != r && retval == 0 ) /* possible match except for trailing 0's */
