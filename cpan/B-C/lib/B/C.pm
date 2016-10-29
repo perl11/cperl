@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_13';
+our $VERSION = '1.54_14';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -2930,11 +2930,20 @@ sub savepvn {
       my $cur = $cur ? $cur
         : ($sv and ref($sv) and $sv->can('CUR') and ref($sv) ne 'B::GV')
           ? $sv->CUR : length(pack "a*", $pv);
-      if ($sv and IsCOW($sv) and ($B::C::cow or IsCOW_hek($sv))) {
+      if ($sv and IsCOW($sv)) { # and ($B::C::cow or IsCOW_hek($sv)))
+        # This cannot be savepvn allocated. TODO: READONLY COW => static hek?
         $cstr = substr($cstr,0,-1) . '\0\001"';
         $cur += 2;
+        warn sprintf( "Saving IsCOW PV %s:%d to %s\n", $cstr, $cur, $dest ) if $debug{sv};
+        return (sprintf( "Newx(%s, %u, char);", $dest, $cur ),
+                sprintf( "Copy(%s, %s, %u, char);", $cstr, $dest, $cur ));
+      } elsif ($PERL518 && $cstr =~ /\\000\\001"$/) { # pseudo cow
+        $cur += 2;
+        warn sprintf( "Saving cowed PV %s:%d to %s\n", $cstr, $cur, $dest ) if $debug{sv};
+        return (sprintf( "Newx(%s, %u, char);", $dest, $cur ),
+                sprintf( "Copy(%s, %s, %u, char);", $cstr, $dest, $cur ));
       } else {
-        if (length(pack "a*", $pv) != $cur && (!$cur || $cstr eq "")) {
+        if (length(pack "a*", $pv) != $cur && (!$cur || $cstr eq '""')) {
           warn sprintf( "Invalid CUR for %s:%d to %s\n", $cstr, $cur, $dest )
             if $verbose;
           $cur = length(pack "a*", $pv);

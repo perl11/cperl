@@ -719,7 +719,7 @@ print OUT <<'!NO!SUBS!';
     $command .= " ".opt('Wc') if opt('Wc');
     my $ccflags = $command;
 
-    my $useshrplib = $Config{useshrplib};
+    my $useshrplib = $Config{useshrplib} =~ /^(true|yes)$/;
     _die("--sharedxs with useshrplib=false\n") if !$useshrplib and opt('sharedxs');
     my $ldopts;
     if ($stash) {

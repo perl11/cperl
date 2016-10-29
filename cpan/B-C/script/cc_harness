@@ -9,7 +9,7 @@ if ($ENV{PERL_CORE}) {
   $libdir  = $Config{prefix} . "/lib";
   $coredir = $ENV{PERL_SRC} || $Config{archlib}."/CORE";
 }
-my $useshrplib = $Config{useshrplib} eq 'true';
+my $useshrplib = $Config{useshrplib} =~ /^(true|yes)$/;
 my $libs = $Config{libs};
 my $so = $Config{so};
 my $libperl = $Config{libperl};

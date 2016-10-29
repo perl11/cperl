@@ -45,6 +45,13 @@ See L</fake_signatures>
 
 =over 4
 
+=item B-C  1.54_14
+
+Fixed cow string lengths and wrong savepvn lengths.
+Fixes heap-buffer overflow at t/c.t 11 with asan.
+
+Fixed -lcperl for shared libcperl.
+
 =item Config::Perl::V  0.27_01
 
 =item CPAN::Meta  2.150010c
