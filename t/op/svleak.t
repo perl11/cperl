@@ -15,7 +15,7 @@ BEGIN {
 
 use Config;
 
-plan tests => 141;
+plan tests => 142;
 
 # run some code N times. If the number of SVs at the end of loop N is
 # greater than (N-1)*delta at the end of loop 1, we've got a leak
@@ -589,4 +589,17 @@ EOF
     my $op = B::svref_2object(\&foo)->ROOT->first;
     sub lk { { my $d = $op->hints_hash->HASH } }
     ::leak(3, 0, \&lk, q!B::RHE->HASH shoudln't leak!);
+}
+
+
+# dying while compiling a regex with codeblocks imported from an embedded
+# qr// could leak
+
+{
+    my sub codeblocks {
+        my $r = qr/(?{ 1; })/;
+        my $c = '(?{ 2; })';
+        eval { /$r$c/ }
+    }
+    ::leak(2, 0, \&codeblocks, q{leaking embedded qr codeblocks});
 }
