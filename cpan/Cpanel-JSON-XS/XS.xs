@@ -28,11 +28,12 @@
 #define HAVE_BAD_POWL
 #endif
 
-#undef HAVE_DECODE_BOM
+/* FIXME: still a refcount error */
+#define HAVE_DECODE_BOM
 #define UTF8BOM     "\357\273\277"      /* EF BB BF */
-#define UTF16BOM    "\377\376"          /* FF FE */
+#define UTF16BOM    "\377\376"          /* FF FE or +UFEFF */
 #define UTF16BOM_BE "\376\377"          /* FE FF */
-#define UTF32BOM    "\377\376\000\000"  /* FF FE 00 00 */
+#define UTF32BOM    "\377\376\000\000"  /* FF FE 00 00 or +UFEFF */
 #define UTF32BOM_BE "\000\000\376\377"  /* 00 00 FE FF */
 
 /* strawberry 5.22 with USE_MINGW_ANSI_STDIO and USE_LONG_DOUBLE has now 
@@ -133,6 +134,24 @@ mingw_modfl(long double x, long double *ip)
 #ifndef HvNAMEUTF8
 # define HvNAMEUTF8(hv) 0
 #endif
+/* since 5.14 check use warnings 'nonchar' */
+#ifdef WARN_NONCHAR
+#define WARNER_NONCHAR(hi)                                      \
+  Perl_ck_warner_d(aTHX_ packWARN(WARN_NONCHAR),                \
+                   "Unicode non-character U+%04"UVXf" is not "  \
+                   "recommended for open interchange", hi)
+/* before check use warnings 'utf8' */
+#elif PERL_VERSION > 10
+#define WARNER_NONCHAR(hi)                                         \
+  Perl_ck_warner_d(aTHX_ packWARN(WARN_UTF8),                      \
+                   "Unicode non-character U+%04"UVXf" is illegal " \
+                   "for interchange", hi)
+#else
+#define WARNER_NONCHAR(hi)                                         \
+  Perl_warner(aTHX_ packWARN(WARN_UTF8),                           \
+              "Unicode non-character U+%04lX is illegal", (unsigned long)hi)
+#endif
+
 /* since 5.16 */
 #ifndef GV_NO_SVGMAGIC
 #define GV_NO_SVGMAGIC 0
@@ -376,7 +395,7 @@ decode_utf8 (pTHX_ unsigned char *s, STRLEN len, int relaxed, STRLEN *clen)
 #elif PERL_VERSION >= 8
     UV c = utf8n_to_uvuni (s, len, clen, UTF8_CHECK_ONLY);
 #endif
-#if PERL_VERSION <= 12
+#if PERL_VERSION >= 8 && PERL_VERSION <= 12
     if (c > PERL_UNICODE_MAX && !relaxed)
       *clen = -1;
 #endif
@@ -2238,53 +2257,60 @@ _decode_str (pTHX_ dec_t *dec, char endstr)
 
                       /* possibly a surrogate pair */
                       if (hi >= 0xd800) {
-                        if (hi < 0xdc00)
-                          {
-                            if (dec_cur [0] != '\\' || dec_cur [1] != 'u')
-                              ERR ("missing low surrogate character in surrogate pair");
+                        if (hi < 0xdc00) {
+                          if (dec_cur [0] != '\\' || dec_cur [1] != 'u')
+                            ERR ("missing low surrogate character in surrogate pair");
 
-                            dec_cur += 2;
+                          dec_cur += 2;
 
-                            dec->cur = dec_cur;
-                            lo = decode_4hex (dec);
-                            dec_cur = dec->cur;
-                            if (lo == (UV)-1)
-                              goto fail;
+                          dec->cur = dec_cur;
+                          lo = decode_4hex (dec);
+                          dec_cur = dec->cur;
+                          if (lo == (UV)-1)
+                            goto fail;
 
-                            if (lo < 0xdc00 || lo >= 0xe000)
-                              ERR ("surrogate pair expected");
+                          if (lo < 0xdc00 || lo >= 0xe000)
+                            ERR ("surrogate pair expected");
 
-                            hi = (hi - 0xD800) * 0x400 + (lo - 0xDC00) + 0x10000;
-
-           /* nonchars +UFDD0-10FFFF
-              https://www.rfc-editor.org/errata_search.php?rfc=7159&eid=3984
-              The WG's consensus was to leave the full range present
-              in the ABNF and add the interoperability guidance about
-              values outside the Unicode accepted range.
-
-              http://seriot.ch/parsing_json.html#25 According to the
-              Unicode standard, invalid codepoints should be replaced
-              by U+FFFD REPLACEMENT CHARACTER. People familiar with
-              Unicode complexity won't be surprised that this
-              replacement is not mandatory, and can be done in several
-              ways (see Unicode PR #121: Recommended Practice for
-              Replacement Characters). So several parsers use
-              replacement characters, while other keep the escaped
-              form or produce an non-Unicode character (see Section 5
-              - Parsing Contents).
-              Most parsers accept this.
-           */
-                            /* in non-relaxed, non-binary mode replace nonchars
-                               with U+FFFD */
-                            if (hi > 0xfdd0 && hi < 0x10ffff
-                                && !(dec->json.flags & F_RELAXED|F_BINARY))
-                              hi = 0xFFFD;
+                          hi = (hi - 0xD800) * 0x400 + (lo - 0xDC00) + 0x10000;
+                          if (UNLIKELY(
+                                 !(dec->json.flags & F_RELAXED)
+                                 && (((hi & 0xfffe) == 0xfffe)
+                                  || ((hi & 0xffff) == 0xffff)))) {
+                            WARNER_NONCHAR(hi);
                           }
-                        else if (hi < 0xe000) {
+                        }
+                        else if (UNLIKELY(hi < 0xe000)) {
                           ERR ("missing high surrogate character in surrogate pair");
-			}
-		      }
+                        }
+                        else
 
+/* check 66 noncharacters U+FDD0..U+FDEF, U+FFFE, U+FFFF
+   and U+1FFFE, U+1FFFF, U+2FFFE, U+2FFFF, ... U+10FFFE, U+10FFFF (issue #74)
+   and warn as in core.
+   See http://www.unicode.org/versions/corrigendum9.html.
+
+   https://www.rfc-editor.org/errata_search.php?rfc=7159&eid=3984
+   The WG's consensus was to leave the full range present
+   in the ABNF and add the interoperability guidance about
+   values outside the Unicode accepted range.
+
+   http://seriot.ch/parsing_json.html#25 According to the Unicode
+   standard, illformed subsequences should be replaced by U+FFFD
+   REPLACEMENT CHARACTER. (See Unicode PR #121: Recommended Practice
+   for Replacement Characters). Several parsers use replacement
+   characters, while other keep the escaped form or produce an
+   non-Unicode character (see Section 5 - Parsing Contents).  This
+   values are not for interchange, only for application internal use.
+   They are different from private use.  Most parsers accept these.
+*/
+                          if (UNLIKELY(
+                                 !(dec->json.flags & F_RELAXED)
+                                 && ((hi >= 0xfdd0 && hi <= 0xfdef)
+                                  || (hi >= 0xfffe && hi <= 0xffff)))) {
+                            WARNER_NONCHAR(hi);
+                          }
+		      }
                       if (hi >= 0x80)
                         {
                           utf8 = 1;
@@ -2949,28 +2975,51 @@ fail:
 }
 
 /* decode UTF32-LE/... to UTF-8:
-   $utf8 = Encode::decode("UTF32-BE", $string); */
+   $utf8 = Encode::decode("UTF-32", $string); */
 static SV *
 decode_bom(pTHX_ const char* encoding, SV* string, STRLEN offset)
 {
   dSP;
-  SV* utf8;
-  SvPV_set(string, SvPVX_mutable (string) + offset);
-  SvCUR_set(string, SvCUR(string) - offset);
+  I32 items;
+  PERL_UNUSED_ARG(offset);
+
+#ifndef HAVE_DECODE_BOM
+  croak ("Cannot handle multibyte BOM yet");
+  return string;
+#else
+  ENTER;
+#if PERL_VERSION > 18
+  /* on older perls (<5.20) this corrupts ax */
+  Perl_load_module(aTHX_ PERL_LOADMOD_NOIMPORT, newSVpvs("Encode"),
+                   NULL, NULL, NULL);
+#else
+  if (!get_cvs("Encode::decode", GV_NOADD_NOINIT|GV_NO_SVGMAGIC))
+    croak("Multibyte BOM needs to use Encode before");
+#endif
+  LEAVE;
   ENTER;
   PUSHMARK(SP);
   XPUSHs(newSVpvn(encoding, strlen(encoding)));
   XPUSHs(string);
   PUTBACK;
-  Perl_load_module(aTHX_ PERL_LOADMOD_NOIMPORT, newSVpvs("Encode"), NULL);
-  call_sv(MUTABLE_SV(get_cvs("Encode::decode", GV_NOADD_NOINIT|GV_NO_SVGMAGIC)), G_SCALAR);
+  /* Calling Encode::Unicode::decode_xs would be faster, but we'd need the blessed
+     enc hash from find_encoding() then. e.g. $Encode::Encoding{'UTF-16LE'}
+     bless {Name=>UTF-16,size=>2,endian=>'',ucs2=>undef}, 'Encode::Unicode';
+     And currenty we enjoy the simplicity of the BOM offset advance by 
+     endianness autodetection.
+   */
+  items = call_sv(MUTABLE_SV(get_cvs("Encode::decode",
+              GV_NOADD_NOINIT|GV_NO_SVGMAGIC)), G_SCALAR);
   SPAGAIN;
-  utf8 = TOPs;
-  PUTBACK;
-  LEAVE;
-  SvPV_set(string, SvPVX_mutable (string) - offset);
-  SvREFCNT_dec_NN(string);
-  return utf8;
+  if (items >= 0 && SvPOK(TOPs)) {
+    LEAVE;
+    SvUTF8_on(TOPs);
+    return POPs;
+  } else {
+    LEAVE;
+    return string;
+  }
+#endif
 }
 
 static SV *
@@ -2978,7 +3027,8 @@ decode_json (pTHX_ SV *string, JSON *json, U8 **offset_return)
 {
   dec_t dec;
   SV *sv;
-  STRLEN len;
+  STRLEN len, offset = 0;
+  int converted = 0;
   dMY_CXT;
 
   /* work around bugs in 5.10 where manipulating magic values
@@ -3027,48 +3077,44 @@ decode_json (pTHX_ SV *string, JSON *json, U8 **offset_return)
     if (*s >= 0xEF) {
       if (len >= 3 && memEQc(s, UTF8BOM)) {
         json->flags |= F_UTF8;
+        converted++;
+        offset = 3;
         SvPV_set(string, SvPVX_mutable (string) + 3);
         SvCUR_set(string, len - 3);
+        SvUTF8_on(string);
+        /* omitting the endian name will skip the BOM in the result */
       } else if (len >= 4 && memEQc(s, UTF32BOM)) {
-#ifndef HAVE_DECODE_BOM
-        croak ("Cannot handle multibyte BOM yet");
-#else
-        string = decode_bom(aTHX_ "UTF32-LE", string, sizeof(UTF32BOM)-1);
+        string = decode_bom(aTHX_ "UTF-32", string, 4);
         json->flags |= F_UTF8;
-#endif
+        converted++;
       } else if (memEQc(s, UTF16BOM)) {
-#ifndef HAVE_DECODE_BOM
-        croak ("Cannot handle multibyte BOM yet");
-#else
-        string = decode_bom(aTHX_ "UTF16-LE", string, sizeof(UTF16BOM)-1);
+        string = decode_bom(aTHX_ "UTF-16", string, 2);
         json->flags |= F_UTF8;
-#endif
+        converted++;
       } else if (memEQc(s, UTF16BOM_BE)) {
-#ifndef HAVE_DECODE_BOM
-        croak ("Cannot handle multibyte BOM yet");
-#else
-        string = decode_bom(aTHX_ "UTF16-BE", string, sizeof(UTF16BOM_BE)-1);
+        string = decode_bom(aTHX_ "UTF-16", string, 2);
         json->flags |= F_UTF8;
-#endif
+        converted++;
       }
     } else if (UNLIKELY(len >= 4 && !*s && memEQc(s, UTF32BOM_BE))) {
-#ifndef HAVE_DECODE_BOM
-        croak ("Cannot handle multibyte BOM yet");
-#else
-        string = decode_bom(aTHX_ "UTF32-BE", string, sizeof(UTF32BOM_BE)-1);
+        string = decode_bom(aTHX_ "UTF-32", string, 4);
         json->flags |= F_UTF8;
-#endif
+        converted++;
     }
   }
 
 #if PERL_VERSION >= 8
-  if (DECODE_WANTS_OCTETS (json))
-    sv_utf8_downgrade (string, 0);
-  else
-    sv_utf8_upgrade (string);
+  if (LIKELY(!converted)) {
+    if (DECODE_WANTS_OCTETS (json))
+      sv_utf8_downgrade (string, 0);
+    else
+      sv_utf8_upgrade (string);
+  }
 #endif
 
-  SvGROW (string, SvCUR (string) + 1); /* should basically be a NOP */
+  /* should basically be a NOP but needed for 5.6 with undef */
+  if (!SvPOK(string))
+    SvGROW (string, SvCUR (string) + 1);
 
   dec.json  = *json;
   dec.cur   = SvPVX (string);
@@ -3099,6 +3145,11 @@ decode_json (pTHX_ SV *string, JSON *json, U8 **offset_return)
           sv = NULL;
         }
     }
+  /* restore old utf8 string with BOM */
+  if (UNLIKELY(offset)) {
+    SvPV_set(string, SvPVX_mutable (string) - offset);
+    SvCUR_set(string, len);
+  }
 
   if (!sv)
     {
@@ -3106,6 +3157,7 @@ decode_json (pTHX_ SV *string, JSON *json, U8 **offset_return)
 
 #if PERL_VERSION >= 8
       /* horrible hack to silence warning inside pv_uni_display */
+      /* TODO: Can be omitted with newer perls */
       COP cop = *PL_curcop;
       cop.cop_warnings = pWARN_NONE;
       ENTER;
@@ -3326,8 +3378,7 @@ void END(...)
 	PPCODE:
         sv = MY_CXT.sv_json;
         MY_CXT.sv_json = NULL;
-        /* todo use SvREFCNT_dec_NN once ppport is fixed */
-        SvREFCNT_dec(sv);
+        SvREFCNT_dec_NN(sv);
         return; /* skip implicit PUTBACK, returning @_ to caller, more efficient*/
 
 void new (char *klass)
