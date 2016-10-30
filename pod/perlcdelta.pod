@@ -96,27 +96,25 @@ fixed -Wunused value warnings
 merged with upstream YAML-LibYAML,
 implemented $DisableBlessed (security).
 
-=item Cpanel-JSON-XS  3.0220
+=item Cpanel-JSON-XS 3.0222
 
-- modfl() mingw 4.0 runtime bug [perl #125924]
+modfl() mingw 4.0 runtime bug [perl #125924]
 
-- Tested with the comprehensive JSON decode spectests from
-  http://seriot.ch/parsing_json.html. Not added to core. #72
+Tested with the comprehensive JSON decode spectests from
+http://seriot.ch/parsing_json.html. Not added to core. #72
 
-- decode with BOM (UTF-8, UTF-16, or UTF-32). For now only UTF-8,
-  the others error.
+decode with BOM: UTF-8, UTF-16, or UTF-32.
 
-- fixed detection of final \0 as illegal non-whitespace garbage. Fixes
-  spectest 'n_number_then_00'. #72
+fixed detection of final \0 as illegal non-whitespace garbage. Fixes
+spectest 'n_number_then_00'. #72
 
-- changed decode of unicode noncharacters between U+FFFD and U+10FFFF
-  to the recommended U+FFFD REPLACEMENT CHARACTER, when not in the binary
-  or relaxed mode.
+warn with unicode noncharacters as in core when not in relaxed mode.
+#74
 
-- fail decode of non-unicode raw characters above U+10FFFF
-  when not in relaxed mode.
+fail decode of non-unicode raw characters above U+10FFFF
+when not in relaxed mode.
 
-- added F<t/gh70-asan.t>
+added F<t/gh70-asan.t>
 
 =item Net-Ping 2.55
 
