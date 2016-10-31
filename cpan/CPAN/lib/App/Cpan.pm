@@ -6,7 +6,7 @@ use vars qw($VERSION);
 
 use if $] < 5.008 => 'IO::Scalar';
 
-$VERSION = '1.64';
+$VERSION = '1.64_01';
 
 =head1 NAME
 
@@ -1479,8 +1479,8 @@ sub _path_to_module
 sub _expand_module
 	{
 	my( $module ) = @_;
-
-	my $expanded = CPAN::Shell->expand( "Module", $module );
+	my $class = $module =~ /^Bundle::/ ? "Bundle" : "Module";
+	my $expanded = CPAN::Shell->expand( $class, $module );
 	unless( defined $expanded ) {
 		$logger->error( "Could not expand [$module]. Check the module name." );
 		my $threshold = (

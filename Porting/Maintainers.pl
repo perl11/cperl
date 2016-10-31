@@ -366,7 +366,7 @@ use File::Glob qw(:case);
         ],
         'CUSTOMIZED'   => [
             qw( lib/CPAN.pm lib/CPAN/FirstTime.pm lib/CPAN/Distribution.pm 
-                lib/CPAN/Version.pm ),
+                lib/CPAN/Version.pm lib/App/Cpan.pm ),
         ],
     },
 
