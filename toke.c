@@ -1667,7 +1667,7 @@ bool
 Perl_validate_proto(pTHX_ SV *name, SV *proto, bool warn)
 {
     STRLEN len, origlen;
-    char *p = proto ? SvPV(proto, len) : NULL;
+    char *p;
     bool bad_proto = FALSE;
     bool in_brackets = FALSE;
     bool after_slash = FALSE;
@@ -1682,6 +1682,7 @@ Perl_validate_proto(pTHX_ SV *name, SV *proto, bool warn)
     if (!proto)
 	return TRUE;
 
+    p = SvPV(proto, len);
     origlen = len;
     for (; len--; p++) {
 	if (!isSPACE(*p)) {
@@ -3074,10 +3075,7 @@ S_scan_const(pTHX_ char *start)
 		IV range_max;	/* last character in range */
                 STRLEN save_offset;
                 STRLEN grow;
-#ifndef EBCDIC  /* Not meaningful except in EBCDIC, so initialize to false */
-                const bool convert_unicode = FALSE;
-                const IV real_range_max = 0;
-#else
+#ifdef EBCDIC
                 bool convert_unicode;
                 IV real_range_max = 0;
 #endif
@@ -3122,12 +3120,14 @@ S_scan_const(pTHX_ char *start)
 #endif
 
                 if (range_min > range_max) {
+#ifdef EBCDIC
                     if (convert_unicode) {
                         /* Need to convert back to native for meaningful
                          * messages for this platform */
                         range_min = UNI_TO_NATIVE(range_min);
                         range_max = UNI_TO_NATIVE(range_max);
                     }
+#endif
 
                     /* Use the characters themselves for the error message if
                      * ASCII printables; otherwise some visible representation
@@ -3137,6 +3137,7 @@ S_scan_const(pTHX_ char *start)
 			 "Invalid range \"%c-%c\" in transliteration operator",
 			 (char)range_min, (char)range_max);
                     }
+#ifdef EBCDIC
                     else if (convert_unicode) {
                         /* diag_listed_as: Invalid range "%s" in transliteration operator */
                         Perl_croak(aTHX_
@@ -3144,6 +3145,7 @@ S_scan_const(pTHX_ char *start)
                                " in transliteration operator",
 			       range_min, range_max);
                     }
+#endif
                     else {
                         /* diag_listed_as: Invalid range "%s" in transliteration operator */
                         Perl_croak(aTHX_
@@ -3225,9 +3227,8 @@ S_scan_const(pTHX_ char *start)
                  * (min, max, and the hyphen) */
                 d = save_offset + SvGROW(sv, SvLEN(sv) + grow - 3);
 
-                /* Here, we expand out the range.  On ASCII platforms, the
-                 * compiler should optimize out the 'convert_unicode==TRUE'
-                 * portion of this */
+#ifdef EBCDIC
+                /* Here, we expand out the range. */
                 if (convert_unicode) {
                     IV i;
 
@@ -3246,7 +3247,10 @@ S_scan_const(pTHX_ char *start)
                         }
 		    }
 		}
-                else {
+                else
+#endif
+                /* Always gets run for ASCII, and sometimes for EBCDIC. */
+                {
                     IV i;
 
                     /* Here, no conversions are necessary, which means that the
@@ -3266,8 +3270,8 @@ S_scan_const(pTHX_ char *start)
 		    }
 		}
 
-                /* (Compilers should optimize this out for non-EBCDIC).  If the
-                 * original range extended above 255, add in that portion */
+#ifdef EBCDIC
+                /* If the original range extended above 255, add in that portion. */
                 if (real_range_max) {
                     *d++ = (char) UTF8_TWO_BYTE_HI(0x100);
                     *d++ = (char) UTF8_TWO_BYTE_LO(0x100);
@@ -3276,6 +3280,7 @@ S_scan_const(pTHX_ char *start)
                     if (real_range_max > 0x100)
                         d = (char*)uvchr_to_utf8((U8*)d, real_range_max);
                 }
+#endif
 
               range_done:
 		/* mark the range as done, and continue */
