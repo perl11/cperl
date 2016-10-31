@@ -12,18 +12,19 @@ WriteMakefile(
     SKIP	 => [qw(dynamic dynamic_lib dynamic_bs)],
     XSPROTOARG   => '-noprototypes', 		# XXX remove later?
     VERSION_FROM => 'dlboot_c.PL',
-    depend       => {	'DynaLoader$(OBJ_EXT)' => 'dlutils.c dlboot_c',
-			'DynaLoader.c' => 'DynaLoader.xs'},
+    PL_FILES     => { 'dlboot_c.PL' => 'dlboot.c' },
+    depend       => { 'DynaLoader$(OBJ_EXT)' => 'dlutils.c dlboot.c',
+		      'DynaLoader.c' => 'DynaLoader.xs'},
     clean	 => {FILES => 'dlboot.c DynaLoader.c DynaLoader.xs'},
 );
 
 sub MY::cflags {
-  package MY;
-  my $flags = shift->SUPER::cflags(@_);
-  if ($flags =~ /-DUSEIMPORTLIB/m) {
-    $flags =~ s/-DUSEIMPORTLIB/-UUSEIMPORTLIB/m;
-  }
-  $flags;
+    package MY;
+    my $flags = shift->SUPER::cflags(@_);
+    if ($flags =~ /-DUSEIMPORTLIB/m) {
+        $flags =~ s/-DUSEIMPORTLIB/-UUSEIMPORTLIB/m;
+    }
+    $flags;
 }
 
 sub MY::postamble {
