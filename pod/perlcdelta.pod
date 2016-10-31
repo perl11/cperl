@@ -112,6 +112,12 @@ XXX
 
 =over 4
 
+=item App::Cpan 1.64_01
+
+Fixed C<CPAN::Shell->expand("Module", "Bundle::...")> error with Bundles,
+a regression from 1.63 and prev. cperl releases up to 5.25.0c.
+cperl only.
+
 =item DynaLoader 2.06c
 
 Fixed build dependency for F<dlboot.c>. No excessive rebuilds anymore.
