@@ -13626,6 +13626,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList::Utils'=> '5.20161017c',
             'B::C'                  => '1.54_14',
             'Cpanel::JSON::XS'      => '3.0222',
+            'DynaLoader'            => '2.06c',
             'Net::Ping'             => '2.55',
             'version'               => '0.9917_02c',
         },
