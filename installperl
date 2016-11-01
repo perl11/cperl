@@ -229,6 +229,7 @@ my $debug = $Config{ccflags} =~ /DDEBUGGING/ ? 1 : undef;
 my $so = $Config{so};
 my $dlext = $Config{dlext};
 my $dlsrc = $Config{dlsrc};
+my $exe = 'perl'.$exe_ext;
 if ($^O eq 'os390') {
     my $pwd;
     chomp($pwd=`pwd`);
@@ -268,7 +269,7 @@ if ($Is_VMS) {  # Hang in there until File::Spec hits the big time
 if (!$Is_NetWare) {
   if (!$Is_VMS) {
     # Windows compiles directly to cperl.exe, the others not.
-    my $exe =  $Is_W32 ? $perl.$exe_ext : 'perl'.$exe_ext;
+    $exe =  $perl.$exe_ext if $Is_W32;
     -x $exe || die "$exe isn't executable!\n";
   }
   else {
@@ -327,8 +328,8 @@ if ($Is_VMS) {
 elsif ($^O ne 'dos') {
     if (!$Is_NetWare) {
 	safe_unlink("$installbin/$perl_verbase$ver$exe_ext");
-	chmod(0755, "perl$exe_ext");
-	copy("perl$exe_ext", "$installbin/$perl_verbase$ver$exe_ext");
+	chmod(0755, $exe);
+	copy($exe, "$installbin/$perl_verbase$ver$exe_ext");
 	strip("$installbin/$perl_verbase$ver$exe_ext");
 	chmod(0755, "$installbin/$perl_verbase$ver$exe_ext");
     }
@@ -346,7 +347,7 @@ elsif ($^O ne 'dos') {
 	}
     } #if (!$Is_NetWare)
 }
-else {
+else { # dos
     safe_unlink("$installbin/$perl.exe");
     copy("perl.exe", "$installbin/$perl.exe");
     chmod(0755, "$installbin/$perl.exe");
@@ -401,7 +402,7 @@ elsif ($Is_Cygwin) { # On Cygwin symlink it to CORE to make Makefile happy
       push(@corefiles, $instcoredll)
     )
 } elsif ($Is_W32) {
-    @corefiles = <*.h>;
+    @corefiles = <*.h $perl*$Config{lib_ext}>;
 } else {
     @corefiles = ($libperl, <*.h libc?perl*.* perl*$Config{lib_ext}>);
 
