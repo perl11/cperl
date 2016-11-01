@@ -60,7 +60,7 @@ sub MY::top_targets {
     s/pure_all :: config pm_to_blib (.* )linkext/pure_all :: config linkext pm_to_blib $1/;
     $_ .= "
 blockoptions: config.h
-	\$(CC) \$(PASTHRU_INC) \$(INC) \$(CCFLAGS) -DPROBE_MAIN config.h -o blockoptions
+	\$(CC) \$(PASTHRU_INC) -I\$(PERL_INC) \$(CCFLAGS) -DPROBE_MAIN config.h -o blockoptions
 
 sgtty cchars.h: genchars.pl
 	\$(PERLRUN) genchars.pl
