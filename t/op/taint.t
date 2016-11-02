@@ -17,7 +17,7 @@ BEGIN {
 use strict;
 use Config;
 
-plan tests => 887;
+plan tests => 887+14;
 
 $| = 1;
 
@@ -2529,6 +2529,47 @@ is eval { eval $::x.1 }, 1, 'reset does not taint undef';
          $TAINT, $x);
     sig4($TAINT, $x);
 }
+
+# RT #129996
+# every item in a list assignment is independent, even if the lvalue
+# has taint magic already
+{
+    my ($a, $b, $c, $d);
+    $d = "";
+    $b = $TAINT;
+    ($a, $b, $c) = ($TAINT, 0, 0);
+    is_tainted   $a, "list assign tainted a";
+    isnt_tainted $b, "list assign tainted b";
+    isnt_tainted $c, "list assign tainted c";
+
+    $b = $TAINT;
+    $b = ""; # untaint;
+    ($a, $b, $c) = ($TAINT, 0, 0);
+    is_tainted   $a, "list assign detainted a";
+    isnt_tainted $b, "list assign detainted b";
+    isnt_tainted $c, "list assign detainted c";
+
+    $b = $TAINT;
+    $b = ""; # untaint;
+    ($a, $b, $c) = ($TAINT);
+    is_tainted   $a, "list assign empty rhs a";
+    isnt_tainted $b, "list assign empty rhs b";
+    isnt_tainted $c, "list assign empty rhs c";
+
+    $b = $TAINT;
+    $b = ""; # untaint;
+    ($a = ($TAINT. "x")), (($b, $c) = (0));
+    is_tainted   $a, "list assign already tainted expression a";
+    isnt_tainted $b, "list assign already tainted expression b";
+    isnt_tainted $c, "list assign already tainted expression c";
+
+    $b = $TAINT;
+    $b = ""; # untaint;
+    (($a) = ($TAINT. "x")), ($b = $b . "x");
+    is_tainted   $a, "list assign post tainted expression a";
+    isnt_tainted $b, "list assign post tainted expression b";
+}
+
 
 # This may bomb out with the alarm signal so keep it last
 SKIP: {
