@@ -180,6 +180,16 @@ L<[perl #129196]|https://rt.perl.org/Public/Bug/Display.html?id=129196>
 
 =over 4
 
+=item VMS
+
+=over 4
+
+=item *
+
+C<configure.com> now recognizes the VSI-branded C compiler.
+
+=back
+
 =item Windows
 
 =over 4
