@@ -4124,6 +4124,27 @@ S_init_main_stash(pTHX)
     GV *gv;
     HV *hv = newHV();
 
+    /* For embedders and B-C only: There might be static or pre-populated main
+       stashes already for startup improvement. But then ensure that they did
+       init the other names also. Official B-C support since: (in-work). */
+    if (UNLIKELY(PL_defstash)) {
+        assert(SvTYPE(PL_defstash)    == SVt_PVHV);
+        assert(SvTYPE(PL_curstname)   == SVt_PV);
+        assert(SvTYPE(PL_incgv)       == SVt_PVGV);
+        assert(GvAV(PL_incgv));
+        assert(GvHV(PL_incgv));
+        assert(SvTYPE(PL_hintgv)      == SVt_PVGV);
+        assert(SvTYPE(PL_defgv)       == SVt_PVGV);
+        assert(SvTYPE(PL_errgv)       == SVt_PVGV);
+        assert(SvTYPE(PL_replgv)      == SVt_PVGV);
+        assert(SvTYPE(PL_errgv)       == SVt_PVGV);
+        assert(GvSV(PL_errgv));
+        assert(SvTYPE(PL_debstash)    == SVt_PVHV);
+        assert(SvTYPE(PL_globalstash) == SVt_PVHV);
+        assert(&PL_compiling);
+        PL_curstash = PL_defstash;
+        return;
+    }
     PL_curstash = PL_defstash = (HV *)SvREFCNT_inc_simple_NN(hv);
     hv_ksplit(PL_defstash, 64); /* Avoid 3 bootup splits */
     /* We know that the string "main" will be in the global shared string
@@ -4140,7 +4161,7 @@ S_init_main_stash(pTHX)
     GvHV(gv) = MUTABLE_HV(SvREFCNT_inc_simple(PL_defstash));
     SvREADONLY_on(gv);
     PL_incgv = gv_HVadd(gv_AVadd(gv_fetchpvs("INC", GV_ADD|GV_NOTQUAL,
-					     SVt_PVAV)));
+                                                 SVt_PVAV)));
     SvREFCNT_inc_simple_void(PL_incgv); /* Don't allow it to be freed */
     GvMULTI_on(PL_incgv);
     PL_hintgv = gv_fetchpvs("\010", GV_ADD|GV_NOTQUAL, SVt_PV); /* ^H */
