@@ -64,6 +64,7 @@ perl-5.22.3.
 ![Memory usage with unicode s///i](cperl-p1.png)
 
 ![Benchmarks](cperl-bench.png)
+For all versions see [bench-all/](bench-all/index.html)
 
 # In the stable master branch are the following major features
 
