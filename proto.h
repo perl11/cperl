@@ -9629,7 +9629,7 @@ STATIC int	S_intuit_more(pTHX_ char *s)
 #define PERL_ARGS_ASSERT_INTUIT_MORE	\
 	assert(s)
 
-STATIC I32	S_lop(pTHX_ I32 f, int x, char *s)
+STATIC I32	S_lop(pTHX_ I32 f, U8 x, char *s)
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_LOP	\
 	assert(s)
@@ -9797,7 +9797,8 @@ PERL_STATIC_INLINE bool	S_does_utf8_overflow(const U8 * const s, const U8 * e)
 
 PERL_STATIC_INLINE bool	S_isFF_OVERLONG(const U8 * const s, const STRLEN len)
 			__attribute__warn_unused_result__
-			__attribute__pure__;
+			__attribute__pure__
+			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_ISFF_OVERLONG	\
 	assert(s)
 

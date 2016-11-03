@@ -2007,7 +2007,7 @@ S_check_uni(pTHX)
  */
 
 STATIC I32
-S_lop(pTHX_ I32 f, int x, char *s)
+S_lop(pTHX_ I32 f, U8 x, char *s)
 {
     PERL_ARGS_ASSERT_LOP;
 
