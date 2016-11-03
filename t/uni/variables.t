@@ -36,7 +36,7 @@ plan (tests => 66894);
         );
 }
 
-# ${yadda'etc} and ${yadda::etc} should both work under strict
+# ${yadda::etc} should both work under strict, ${yadda'etc} not anymore
 {
     local $@;
     eval q<use strict; ${flark::fleem}>;
@@ -44,7 +44,7 @@ plan (tests => 66894);
 
     local $@;
     eval q<use strict; ${fleem'flark}>;
-    is($@, '', q<...as does ${package'var}>);
+    isnt($@, '', q<but ${package'var} is now a syntax error>);
 }
 
 # The first character in ${...} should respect the rules

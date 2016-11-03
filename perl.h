@@ -149,6 +149,9 @@
 /* this used to be off by default, now its on, see perlio.h */
 #define PERLIO_FUNCS_CONST
 
+/* starting with 5.25.2 */
+#define PERL_NO_QUOTE_PKGSEPERATOR
+
 #define pVAR    struct perl_vars* my_vars PERL_UNUSED_DECL
 
 #ifdef PERL_GLOBAL_STRUCT

@@ -9,7 +9,7 @@ BEGIN {
     skip_all_without_unicode_tables();
 }
 
-plan (tests => 52);
+plan (tests => 51);
 
 use utf8;
 use open qw( :utf8 :std );
@@ -186,8 +186,8 @@ is ${"main::\345\225\217"}, undef, "..and using the encoded form doesn't";
 # tests for "Bad name"
 eval q{ Ｆｏｏ::$bar };
 like( $@, qr/Bad name after Ｆｏｏ::/, 'Bad name after Ｆｏｏ::' );
-eval q{ Ｆｏｏ''bar };
-like( $@, qr/Bad name after Ｆｏｏ'/, 'Bad name after Ｆｏｏ\'' );
+#eval q{ Ｆｏｏ''bar }; # now a syntax error
+#like( $@, qr/Bad name after Ｆｏｏ'/, 'Bad name after Ｆｏｏ\'' );
 
 {
     no warnings 'utf8';

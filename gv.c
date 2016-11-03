@@ -1057,11 +1057,14 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
     }
 
     for (nend = name; nend < name_end; nend++) {
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
 	if (*nend == '\'') {
 	    nsplit = nend;
 	    name = nend + 1;
 	}
-        else if (*nend == ':' && nend+1 < name_end && *(nend + 1) == ':') {
+        else
+#endif
+        if (*nend == ':' && nend+1 < name_end && *(nend + 1) == ':') {
             nsplit = nend++;
             name = nend + 1;
         }
@@ -1579,7 +1582,10 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
     for (name_cursor = *name; name_cursor < name_end; name_cursor++) {
         if (name_cursor < name_em1 &&
             ((*name_cursor == ':' && name_cursor[1] == ':')
-           || *name_cursor == '\''))
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
+           || *name_cursor == '\''
+#endif
+             ))
         {
             if (!*stash)
                 *stash = PL_defstash;

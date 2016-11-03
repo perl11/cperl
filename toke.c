@@ -7189,7 +7189,12 @@ Perl_yylex(pTHX)
 
 		/* Get the rest if it looks like a package qualifier */
 
-		if (*s == '\'' || (*s == ':' && s[1] == ':')) {
+		if ((*s == ':' && s[1] == ':')
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR 
+                    || *s == '\''
+#endif
+                    )
+                {
 		    STRLEN morelen;
 		    s = scan_word(s, PL_tokenbuf + len, sizeof PL_tokenbuf - len,
 				  TRUE, &morelen);
@@ -7658,7 +7663,11 @@ Perl_yylex(pTHX)
 		s += 2;
 		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE, &len);
 		if ((*s == ':' && s[1] == ':')
-		 || (!(tmp = keyword(PL_tokenbuf, len, 1)) && *s == '\''))
+                    || (!(tmp = keyword(PL_tokenbuf, len, 1))
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
+                        && *s == '\''
+#endif
+                   ))
 		{
 		    s = d;
 		    len = olen;
@@ -8563,7 +8572,9 @@ Perl_yylex(pTHX)
 		s = skipspace(s);
 
 		if (isIDFIRST_lazy_if(s,UTF)
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
                     || *s == '\''
+#endif
                     || (*s == ':' && s[1] == ':'))
 		{
 
@@ -9211,11 +9222,14 @@ S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
                 *(*d)++ = *(*s)++;
             } while (isWORDCHAR_A(**s) && *d < e);
         }
-        else if (allow_package && **s == '\'' && isIDFIRST_lazy_if(*s+1,is_utf8)) {
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
+        else if (allow_package && **s == '\''
+                 && isIDFIRST_lazy_if(*s+1,is_utf8)) {
             *(*d)++ = ':';
             *(*d)++ = ':';
             (*s)++;
         }
+#endif
         else if (allow_package && **s == ':' && (*s)[1] == ':'
            /* Disallow things like Foo::$bar. For the curious, this is
             * the code path that triggers the "Bad name after" warning
@@ -10173,8 +10187,12 @@ S_scan_inputsymbol(pTHX_ char *start)
     */
     if (*d == '$' && d[1]) d++;
 
-    /* allow <Pkg'VALUE> or <Pkg::VALUE> */
-    while (*d && (isWORDCHAR_lazy_if(d,UTF) || *d == '\'' || *d == ':'))
+    /* allow <Pkg::VALUE> and until 5.25.2 <Pkg'VALUE> */
+    while (*d && (isWORDCHAR_lazy_if(d,UTF) || *d == ':'
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
+                  || *d == '\''
+#endif
+                  ))
 	d += UTF ? UTF8SKIP(d) : 1;
 
     /* If we've tried to read what we allow filehandles to look like, and

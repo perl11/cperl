@@ -42,7 +42,13 @@ XXX For a release on a stable branch, this section aspires to be:
 
 =head1 Deprecations
 
-XXX Any deprecated features, syntax, modules etc. should be listed here.
+=head2 Removed ' as package seperator
+
+Make something like C<sub foo'bar;> a syntax error.
+C<'> is not replaced by C<::> anymore when used as package seperator.
+This was deprecated 10 years ago. We fixed the last remaining F<c2ph> core
+utility using this last remaining perl4'ism.
+See L<[cperl #217]|https://github.com/perl11/cperl/issues/217>.
 
 =head2 Module removals
 

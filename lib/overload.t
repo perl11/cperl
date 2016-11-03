@@ -2364,14 +2364,14 @@ is eval {"$a"}, overload::StrVal($a),
 {
  package mane;
  use overload q\""\ => "bear::strength";
- use overload bool  => "bear'bouillon";
+ use overload bool  => "bear::bouillon"; # now illegal
 }
 @bear::ISA = 'food';
 sub food::strength { 'twine' }
 sub food::bouillon { 0 }
 $a = bless[], mane::;
 is eval { "$a" }, 'twine', ':: in method name' or diag $@;
-is eval { !$a  },   1,      "' in method name" or diag $@;
+is eval { !$a  }, 1,       "no ' in method name" or diag $@;
 
 # [perl #113050] Half of CPAN assumes fallback is under "()"
 {

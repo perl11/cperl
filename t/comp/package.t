@@ -14,10 +14,10 @@ $bar = 4;
 {
     package ABC;
     $blurfl = 5;
-    $main'a = $'b;
+    $main::a = $::b;
 }
 
-$ABC'dyick = 6;
+$ABC::dyick = 6;
 
 $xyz = 2;
 
@@ -31,7 +31,7 @@ if ('a' lt 'A') {
     print $xyz eq 'ABC:bar:main:new:xyz' ? "ok 1\n" : "not ok 1 '$xyz'\n";
 }    
 print $ABC eq 'blurfl:dyick' ? "ok 2\n" : "not ok 2 '$ABC'\n";
-print $main'blurfl == 123 ? "ok 3\n" : "not ok 3\n";
+print $main::blurfl == 123 ? "ok 3\n" : "not ok 3\n";
 
 package ABC;
 

@@ -7,7 +7,7 @@ BEGIN {
     set_up_inc('../lib');
 }
 use warnings;
-plan(tests => 195);
+plan(tests => 194);
 
 # these shouldn't hang
 {
@@ -235,10 +235,10 @@ ok(($@ eq "" && "@b" eq "1 4 5 9"),'redefinition should not take effect during t
 eval { @b = sort twoface 4,1 };
 cmp_ok(substr($@,0,4), 'eq', 'good', 'twoface eval');
 
-eval <<'CODE';
-    my @result = sort main'Backwards 'one', 'two';
-CODE
-cmp_ok($@,'eq','',q(old skool package));
+#eval <<'CODE';
+#    my @result = sort main'Backwards 'one', 'two';
+#CODE
+#cmp_ok($@,'eq','',q(old skool package));
 
 eval <<'CODE';
     # "sort 'one', 'two'" should not try to parse "'one" as a sort sub

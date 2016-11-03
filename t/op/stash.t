@@ -7,7 +7,7 @@ BEGIN {
 
 BEGIN { require "./test.pl"; }
 
-plan( tests => 55 );
+plan( tests => 54 );
 
 # Used to segfault (bug #15479)
 fresh_perl_like(
@@ -309,8 +309,9 @@ fresh_perl_is(
 }
 
 # [perl #88138] ' not equivalent to :: before a null
-${"a'\0b"} = "c";
-is ${"a::\0b"}, "c", "' is equivalent to :: before a null";
+# This is now an error
+#${"a'\0b"} = "c";
+#is ${"a::\0b"}, "c", "' is equivalent to :: before a null";
 
 # [perl #101486] Clobbering the current package
 ok eval '
