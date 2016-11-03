@@ -813,6 +813,7 @@ PERLVAR(I, random_state, PL_RANDOM_STATE_TYPE)
 PERLVARI(I, max_refcnt, UV, 0)		/* Highest SvREFCNT */
 PERLVARI(I, max_cowrefcnt, UV, 0)	/* Highest CowREFCNT */
 PERLVARI(I, max_refcnt_sv, SV*, NULL)	/* SV with highest SvREFCNT */
+PERLVARI(I, count_null_ops, UV, 0)	/* Number of optimized away NULL ops */
 #endif
 
 PERLVARI(I, dump_re_max_len, STRLEN, 0)

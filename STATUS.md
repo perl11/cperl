@@ -75,7 +75,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * function return types declarations as attribute
 * many more builtin function attributes
 * shaped arrays with compile-time checks and optims
-* static loop optims
+* static loop optims, eliminated run-time bounds checks
 * fast arithmetic overflow
 * convert static method to subs
 * Config as XS

@@ -2728,6 +2728,9 @@ typedef struct padname PADNAME;
 # define PERL_SAWAMPERSAND
 #endif
 
+/* If to optimize away NULL ops in rpeep() */
+#define PERL_REMOVE_OP_NULL
+
 #if defined(PERL_DEBUG_READONLY_OPS) && !defined(USE_ITHREADS)
 # error PERL_DEBUG_READONLY_OPS only works with ithreads
 #endif

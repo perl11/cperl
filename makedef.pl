@@ -258,6 +258,7 @@ unless ($define{'DEBUGGING'}) {
 		    PL_max_cowrefcnt
 		    PL_max_refcnt
 		    PL_max_refcnt_sv
+                    PL_count_null_ops
 		    PL_watchaddr
 		    PL_watchok
 		    PL_watch_pvx

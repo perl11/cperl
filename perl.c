@@ -560,6 +560,10 @@ perl_destruct(pTHXx)
 #endif
 
 #ifdef DEBUGGING
+    if (DEBUG_k_TEST) {
+        PerlIO_printf(Perl_debug_log, "== optimized NULL ops: %"UVuf"\n",
+                      PL_count_null_ops);
+    }
     if (DEBUG_C_TEST) {
         PerlIO_printf(Perl_debug_log, "== max refcnt: %"UVuf" (0x%p), max cowrefcnt: %"UVuf"\n",
                       PL_max_refcnt, PL_max_refcnt_sv, PL_max_cowrefcnt);

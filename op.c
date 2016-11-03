@@ -15493,6 +15493,12 @@ Perl_rpeep(pTHX_ OP *o)
 	    {
 		PL_curcop = ((COP*)o);
 	    }
+#ifdef PERL_REMOVE_OP_NULL
+            else if (oldop) {
+                DEBUG_k(PL_count_null_ops++);
+                oldop->op_next = o->op_next;
+            }
+#endif
 	    /* XXX: We avoid setting op_seq here to prevent later calls
 	       to rpeep() from mistakenly concluding that optimisation
 	       has already occurred. This doesn't fix the real problem,
