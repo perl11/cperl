@@ -1074,8 +1074,7 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 	    DEBUG_o( Perl_deb(aTHX_ "Treating %s as %s::%s\n",
 			 origname, HvENAME_get(stash), name) );
 	}
-	else if ((nsplit - origname) >= 7
-		 && memEQc(nsplit - 7, "::SUPER")) {
+	else if ((nsplit - origname) >= 7 && memEQc(nsplit - 7, "::SUPER")) {
             /* don't autovifify if ->NoSuchStash::SUPER::method */
 	    stash = gv_stashpvn(origname, nsplit - origname - 7, is_utf8);
 	    if (stash) flags |= GV_SUPER;
