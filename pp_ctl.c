@@ -1233,9 +1233,16 @@ PP(pp_flop)
 	else {
 	    STRLEN len, llen;
 	    const char * const lpv = SvPV_nomg_const(left, llen);
-	    const char * const tmps = SvPV_nomg_const(right, len);
-
+	    char * tmps            = SvPV_nomg_const(right, len);
 	    SV *sv = newSVpvn_flags(lpv, llen, SvUTF8(left)|SVs_TEMP);
+
+            if (!SvUTF8(left) && SvUTF8(right)) {
+                SV *tmp = newSVpvn_flags(tmps, len, SVf_UTF8|SVs_TEMP);
+                tmps = SvPVX_const(tmp);
+                if (!utf8_to_bytes((U8*)tmps, &len))
+                    Perl_croak(aTHX_ "Wide character in %s",
+                               OP_DESC(PL_op));
+            }
 	    while (!SvNIOKp(sv) && SvCUR(sv) <= len) {
 		XPUSHs(sv);
 	        if (strEQ(SvPVX_const(sv), tmps))

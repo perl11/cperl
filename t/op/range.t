@@ -9,7 +9,7 @@ require './test.pl';
 
 use Config;
 
-plan (141);
+plan (142);
 
 is(join(':',1..5), '1:2:3:4:5');
 
@@ -402,5 +402,14 @@ is( ( join ' ', map { join '', map ++$_, 'a'..'d'      } 1..2 ), 'bcde bcde',
     'modifiable const alpha range' );  # RT#3105
 $s = ''; for (1..2) { for ('a'..'d') { $s .= ++$_ } $s.=' ' if $_==1; }
 is( $s, 'bcde bcde','modifiable alpha counting loop counter' );
+
+{
+  # unicode bug [cperl #218]
+  # http://www.nntp.perl.org/group/perl.perl5.porters/2016/10/msg240665.html
+  my $r = chr 255;
+  utf8::upgrade $r;
+  my $num = () = ("a" .. $r);
+  is($num, 26, "unicode bug"); # or 702 with the bug. \xff => "\303\277"
+}
 
 # EOF
