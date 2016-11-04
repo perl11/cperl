@@ -202,17 +202,17 @@ them in terms of packages and functions.  Consider the following program:
     require 'sys/time.ph';
     require 'sys/resource.ph';
 
-    $ru = "\0" x &rusage'sizeof();
+    $ru = "\0" x rusage::sizeof();
 
     syscall(&SYS_getrusage, &RUSAGE_SELF, $ru)   && die "getrusage: $!";
 
-    @ru = unpack($t = &rusage'typedef(), $ru);
+    @ru = unpack($t = rusage::typedef(), $ru);
 
-    $utime =  $ru[ &rusage'ru_utime + &timeval'tv_sec  ]
-	   + ($ru[ &rusage'ru_utime + &timeval'tv_usec ]) / 1e6;
+    $utime =  $ru[ &rusage::ru_utime + &timeval::tv_sec  ]
+	   + ($ru[ &rusage::ru_utime + &timeval::tv_usec ]) / 1e6;
 
-    $stime =  $ru[ &rusage'ru_stime + &timeval'tv_sec  ]
-	   + ($ru[ &rusage'ru_stime + &timeval'tv_usec ]) / 1e6;
+    $stime =  $ru[ &rusage::ru_stime + &timeval::tv_sec  ]
+	   + ($ru[ &rusage::ru_stime + &timeval::tv_usec ]) / 1e6;
 
     printf "you have used %8.3fs+%8.3fu seconds.\n", $utime, $stime;
 
@@ -225,16 +225,16 @@ provided for your convenience:
              level elements in the structure.  You would use this for
              indexing into arrays of structures, perhaps like this
 
-                 $usec = $u[ &user'u_utimer
-                             + (&ITIMER_VIRTUAL * &itimerval'struct)
-                             + &itimerval'it_value
-                             + &timeval'tv_usec
+                 $usec = $u[ &user::u_utimer
+                             + (&ITIMER_VIRTUAL * &itimerval::struct)
+                             + &itimerval::it_value
+                             + &timeval::tv_usec
                            ];
 
  sizeof      Returns the bytes in the structure, or the member if
              you pass it an argument, such as
 
-                 &rusage'sizeof(&rusage'ru_utime)
+                 &rusage::sizeof(&rusage::ru_utime)
 
  typedef     This is the perl format definition for passing to pack and
              unpack.  If you ask for the typedef of a nothing, you get
@@ -279,18 +279,20 @@ Anyway, here it is.  Should run on perl v4 or greater.  Maybe less.
 
 =cut
 
-$RCSID = '$Id: c2ph,v 1.7 95/10/28 10:41:47 tchrist Exp Locker: tchrist $';
+# brought into the 21th century for cperl with 5.25.2c
+# $RCSID = '$Id: c2ph,v 1.7 95/10/28 10:41:47 tchrist Exp Locker: tchrist $';
 
+#use strict;
 use File::Temp;
 
 ######################################################################
 
 # some handy data definitions.   many of these can be reset later.
 
-$bitorder = 'b';  # ascending; set to B for descending bit fields
-
-%intrinsics =
-%template = (
+my $bitorder = 'b';  # ascending; set to B for descending bit fields
+my (%template, %template_printed, %size_printed);
+my %intrinsics =
+   %template = (
     'char', 			'c',
     'unsigned char', 		'C',
     'short',			's',
@@ -318,13 +320,13 @@ $bitorder = 'b';  # ascending; set to B for descending bit fields
     'bit',			$bitorder,
 );
 
-&buildscrunchlist;
+buildscrunchlist();
 delete $intrinsics{'neganull'};
 delete $intrinsics{'bit'};
 delete $intrinsics{'null'};
 
 # use -s to recompute sizes
-%sizeof = (
+my %sizeof = (
     'char', 			'1',
     'unsigned char', 		'1',
     'short',			'2',
@@ -348,36 +350,37 @@ delete $intrinsics{'null'};
     'pointer',			'4',
 );
 
-($type_width, $member_width, $offset_width, $size_width) = (20, 20, 6, 5);
+my ($type_width, $member_width, $offset_width, $size_width) = (20, 20, 6, 5);
 
-($offset_fmt, $size_fmt) = ('d', 'd');
+my ($offset_fmt, $size_fmt) = ('d', 'd');
 
-$indent = 2;
+my $indent = 2;
 
-$CC = 'cc';
+my $CC = 'cc';
 !NO!SUBS!
 
 if (($Config{gccversion} || '') =~ /^(\d+)\.(\d+)/
   and ($1 > 3 or ($1 == 3 and $2 >= 2))) {
-    print OUT q/$CFLAGS = '-gstabs -S';/;
+    print OUT q/my $CFLAGS = '-gstabs -S';/;
 } else {
-    print OUT q/$CFLAGS = '-g -S';/;
+    print OUT q/my $CFLAGS = '-g -S';/;
 }
 
 print OUT <<'!NO!SUBS!';
 
-$DEFINES = '';
+my $DEFINES = '';
 
-$perl++ if $0 =~ m#/?c2ph$#;
+my $perl++ if $0 =~ m#/?c2ph$#;
 
 use Getopt::Std qw(getopts);
-
 use File::Temp 'tempdir';
+use vars qw($opt_n $opt_p $opt_w $opt_d $opt_v $opt_x $opt_i $opt_a $opt_t);
 
 eval '$'.$1.'$2;' while $ARGV[0] =~ /^([A-Za-z_]+=)(.*)/ && shift;
 
-getopts('aixdpvtnws:') || &usage(0);
+getopts('aixdpvtnws:') || usage(0);
 
+my ($debug, $trace, $verbose);
 $opt_d && $debug++;
 $opt_t && $trace++;
 $opt_p && $perl++;
@@ -397,11 +400,11 @@ sub PLUMBER {
     select(STDERR);
     print "oops, apparent pager foulup\n";
     $isatty++;
-    &usage(1);
+    usage(1);
 }
 
 sub usage {
-    local($oops) = @_;
+    my ($oops) = @_;
     unless (-t STDOUT) {
 	select(STDERR);
     } elsif (!$oops) {
@@ -410,7 +413,7 @@ sub usage {
 	print "hit <RETURN> for further explanation: ";
 	<STDIN>;
 	open (PIPE, "|". ($ENV{PAGER} || 'more'));
-	$SIG{PIPE} = PLUMBER;
+	$SIG{PIPE} = \&PLUMBER;
 	select(PIPE);
     }
 
@@ -442,25 +445,25 @@ Var Name        Default Value    Meaning
 
 EOF
 
-    &defvar('CC', 'which_compiler to call');
-    &defvar('CFLAGS', 'how to generate *.s files with stabs');
-    &defvar('DEFINES','any extra cflags or cpp defines, like -I, -D, -U');
+    defvar('CC', 'which_compiler to call');
+    defvar('CFLAGS', 'how to generate *.s files with stabs');
+    defvar('DEFINES','any extra cflags or cpp defines, like -I, -D, -U');
 
     print "\n";
 
-    &defvar('type_width', 'width of type field   (column 1)');
-    &defvar('member_width', 'width of member field (column 2)');
-    &defvar('offset_width', 'width of offset field (column 3)');
-    &defvar('size_width', 'width of size field   (column 4)');
+    defvar('type_width', 'width of type field   (column 1)');
+    defvar('member_width', 'width of member field (column 2)');
+    defvar('offset_width', 'width of offset field (column 3)');
+    defvar('size_width', 'width of size field   (column 4)');
 
     print "\n";
 
-    &defvar('offset_fmt', 'sprintf format type for offset');
-    &defvar('size_fmt', 'sprintf format type for size');
+    defvar('offset_fmt', 'sprintf format type for offset');
+    defvar('size_fmt', 'sprintf format type for size');
 
     print "\n";
 
-    &defvar('indent', 'how far to indent each nesting level');
+    defvar('indent', 'how far to indent each nesting level');
 
    print <<'EOF';
 
@@ -478,10 +481,11 @@ EOF
 }
 
 sub defvar {
-    local($var, $msg) = @_;
+    my ($var, $msg) = @_;
     printf "%-16s%-15s  %s\n", $var, eval "\$$var", $msg;
 }
 
+my $SAFEDIR;
 sub safedir {
     $SAFEDIR = File::Temp::tempdir("c2ph.XXXXXX", TMPDIR => 1, CLEANUP => 1)
       unless (defined($SAFEDIR));
@@ -489,21 +493,21 @@ sub safedir {
 
 undef $SAFEDIR;
 
-$recurse = 1;
+my $recurse = 1;
 
 if (@ARGV) {
     if (grep(!/\.[csh]$/,@ARGV)) {
 	warn "Only *.[csh] files expected!\n";
-	&usage;
+	usage();
     }
     elsif (grep(/\.s$/,@ARGV)) {
 	if (@ARGV > 1) {
 	    warn "Only one *.s file allowed!\n";
-	    &usage;
+	    usage();
 	}
     }
     elsif (@ARGV == 1 && $ARGV[0] =~ /\.c$/) {
-	local($dir, $file) = $ARGV[0] =~ m#(.*/)?(.*)$#;
+	my ($dir, $file) = $ARGV[0] =~ m#(.*/)?(.*)$#;
 	$chdir = "cd $dir && " if $dir;
 	&system("$chdir$CC $CFLAGS $DEFINES $file") && exit 1;
 	$ARGV[0] =~ s/\.c$/.s/;
@@ -511,8 +515,8 @@ if (@ARGV) {
     else {
 	&safedir;
 	$TMP = "$SAFEDIR/c2ph.$$.c";
-	&system("cat @ARGV > $TMP") && exit 1;
-	&system("cd $SAFEDIR && $CC $CFLAGS $DEFINES $TMP") && exit 1;
+	system("cat @ARGV > $TMP") && exit 1;
+	system("cd $SAFEDIR && $CC $CFLAGS $DEFINES $TMP") && exit 1;
 	unlink $TMP;
 	$TMP =~ s/\.c$/.s/;
 	@ARGV = ($TMP);
@@ -556,24 +560,22 @@ STAB: while (<>) {
 	    $_ = $savebar . $_;
 	    $line = $saveline;
 	}
-	&stab;
+	stab();
 	$savebar = $saveline = undef;
     }
     print STDERR "$.\n" if $trace;
     unlink $TMP if $TMP;
 
-    &compute_intrinsics if $perl && !$opt_i;
+    compute_intrinsics() if $perl && !$opt_i;
 
     print STDERR "resolving types\n" if $trace;
 
-    &resolve_types;
-    &adjust_start_addrs;
+    resolve_types();
+    adjust_start_addrs();
 
     $sum = 2 + $type_width + $member_width;
     $pmask1 = "%-${type_width}s %-${member_width}s";
     $pmask2 = "%-${sum}s %${offset_width}${offset_fmt}%s %${size_width}${size_fmt}%s";
-
-
 
     if ($perl) {
 	# resolve template -- should be in stab define order, but even this isn't enough.
@@ -583,7 +585,7 @@ STAB: while (<>) {
 	    next unless defined $struct{$name};
 	    ($iname = $name) =~ s/\..*//;
 	    $build_recursed = 0;
-	    &build_template($name) unless defined $template{&psou($name)} ||
+	    &build_template($name) unless defined $template{psou($name)} ||
 					$opt_s && !$interested{$iname};
 	}
 	print STDERR "\n\n" if $trace;
@@ -591,9 +593,7 @@ STAB: while (<>) {
 
     print STDERR "dumping structs: " if $trace;
 
-    local($iam);
-
-
+    my ($iam);
 
     foreach $name (sort keys %struct) {
 	($iname = $name) =~ s/\..*//;
@@ -607,15 +607,15 @@ STAB: while (<>) {
 	undef @typeof;
 	undef @fieldnames;
 
-	$mname = &munge($name);
+	$mname = munge($name);
 
-	$fname = &psou($name);
+	$fname = psou($name);
 
 	print "# " if $perl && $verbose;
 	$pcode = '';
 	print "$fname {\n" if !$perl || $verbose;
-	$template{$fname} = &scrunch($template{$fname}) if $perl;
-	&pstruct($name,$name,0);
+	$template{$fname} = scrunch($template{$fname}) if $perl;
+	pstruct($name,$name,0);
 	print "# " if $perl && $verbose;
 	print "}\n" if !$perl || $verbose;
 	print "\n" if $perl && $verbose;
@@ -623,77 +623,74 @@ STAB: while (<>) {
 	if ($perl) {
 	    print "$pcode";
 
-	    printf("\nsub %-32s { %4d; }\n\n", "${mname}'struct", $countof{$name});
+	    printf("\nsub %-32s { %4d; }\n\n", "${mname}::struct", $countof{$name});
 
 	    print <<EOF;
-sub ${mname}'typedef {
-    local(\$${mname}'index) = shift;
-    defined \$${mname}'index
-	? \$${mname}'typedef[\$${mname}'index]
-	: \$${mname}'typedef;
+sub ${mname}::typedef {
+    my (\$${mname}::index) = shift;
+    defined \$${mname}::index
+	? \$${mname}::typedef[\$${mname}::index]
+	: \$${mname}::typedef;
 }
 EOF
 
 	    print <<EOF;
-sub ${mname}'sizeof {
-    local(\$${mname}'index) = shift;
-    defined \$${mname}'index
-	? \$${mname}'sizeof[\$${mname}'index]
-	: \$${mname}'sizeof;
+sub ${mname}::sizeof {
+    my (\$${mname}::index) = shift;
+    defined \$${mname}::index
+	? \$${mname}::sizeof[\$${mname}::index]
+	: \$${mname}::sizeof;
 }
 EOF
 
 	    print <<EOF;
-sub ${mname}'offsetof {
-    local(\$${mname}'index) = shift;
+sub ${mname}::offsetof {
+    my (\$${mname}::index) = shift;
     defined \$${mname}index
-	? \$${mname}'offsetof[\$${mname}'index]
-	: \$${mname}'sizeof;
+	? \$${mname}::offsetof[\$${mname}::index]
+	: \$${mname}::sizeof;
 }
 EOF
 
 	    print <<EOF;
-sub ${mname}'typeof {
-    local(\$${mname}'index) = shift;
+sub ${mname}::typeof {
+    my (\$${mname}::index) = shift;
     defined \$${mname}index
-	? \$${mname}'typeof[\$${mname}'index]
+	? \$${mname}::typeof[\$${mname}::index]
 	: '$name';
 }
 EOF
 
 	    print <<EOF;
-sub ${mname}'fieldnames {
-    \@${mname}'fieldnames;
+sub ${mname}::fieldnames {
+    \@${mname}::fieldnames;
 }
 EOF
 
 	$iam = ($isastruct{$name} && 's') || ($isaunion{$name} && 'u');
 
 	    print <<EOF;
-sub ${mname}'isastruct {
+sub ${mname}::isastruct {
     '$iam';
 }
 EOF
 
-	    print "\$${mname}'typedef = '" . &scrunch($template{$fname})
+	    print "\$${mname}::typedef = '" . scrunch($template{$fname})
 		. "';\n";
+	    print "\$${mname}::sizeof = $sizeof{$name};\n\n";
 
-	    print "\$${mname}'sizeof = $sizeof{$name};\n\n";
 
-
-	    print "\@${mname}'indices = (", &squishseq(@indices), ");\n";
-
+	    print "\@${mname}::indices = (", squishseq(@indices), ");\n";
 	    print "\n";
-
-	    print "\@${mname}'typedef[\@${mname}'indices] = (",
+	    print "\@${mname}::typedef[\@${mname}::indices] = (",
 			join("\n\t", '', @typedef), "\n    );\n\n";
-	    print "\@${mname}'sizeof[\@${mname}'indices] = (",
+	    print "\@${mname}::sizeof[\@${mname}::indices] = (",
 			join("\n\t", '', @sizeof), "\n    );\n\n";
-	    print "\@${mname}'offsetof[\@${mname}'indices] = (",
+	    print "\@${mname}::offsetof[\@${mname}::indices] = (",
 			join("\n\t", '', @offsetof), "\n    );\n\n";
-	    print "\@${mname}'typeof[\@${mname}'indices] = (",
+	    print "\@${mname}::typeof[\@${mname}::indices] = (",
 			join("\n\t", '', @typeof), "\n    );\n\n";
-	    print "\@${mname}'fieldnames[\@${mname}'indices] = (",
+	    print "\@${mname}::fieldnames[\@${mname}::indices] = (",
 			join("\n\t", '', @fieldnames), "\n    );\n\n";
 
 	    $template_printed{$fname}++;
@@ -713,7 +710,7 @@ EOF
 
     foreach $name (sort bysizevalue keys %intrinsics) {
 	next if $size_printed{$name};
-	print '$',&munge($name),"'sizeof = ", $sizeof{$name}, ";\n";
+	print '$',munge($name),"'sizeof = ", $sizeof{$name}, ";\n";
     }
 
     print "\n";
@@ -722,7 +719,7 @@ EOF
 
 
     foreach $name (sort keys %intrinsics) {
-	print '$',&munge($name),"'typedef = '", $template{$name}, "';\n";
+	print '$',munge($name),"'typedef = '", $template{$name}, "';\n";
     }
 
     print "\n1;\n" if $perl;
@@ -732,6 +729,13 @@ EOF
 
 ########################################################################################
 
+my %enum;
+
+sub edecl {
+    s/;$//;
+    $enum{$name} = $_; # unused
+    $_ = '';
+}
 
 sub stab {
     next unless $continued || /:[\$\w]+(\(\d+,\d+\))?=[\*\$\w]+/;  # (\d+,\d+) is for sun
@@ -740,7 +744,9 @@ sub stab {
 
     next if /^\s*$/;
 
-    $size = $3 if $3;
+    my $size = $3 if $3;
+    my ($typeordef, $name, $pdecl, $line, $extra, $struct);
+
     $_ = $continued . $_ if length($continued);
     if (s/\\\\$//) {
       # if last 2 chars of string are '\\' then stab is continued
@@ -750,22 +756,18 @@ sub stab {
       next;
     }
     $continued = '';
-
-
     $line = $_;
 
     if (($name, $pdecl) = /^([\$ \w]+):[tT]((\d+)(=[rufs*](\d+))+)$/) {
 	print "$name is a typedef for some funky pointers: $pdecl\n" if $debug;
-	&pdecl($pdecl);
+	pdecl($pdecl);
 	next;
     }
 
-
-
     if (/(([ \w]+):t(\d+|\(\d+,\d+\)))=r?(\d+|\(\d+,\d+\))(;\d+;\d+;)?/) {
-	local($ident) = $2;
+	my $ident = $2;
 	push(@intrinsics, $ident);
-	$typeno = &typeno($3);
+	$typeno = typeno($3);
 	$type[$typeno] = $ident;
 	print STDERR "intrinsic $ident in new type $typeno\n" if $debug;
 	next;
@@ -774,7 +776,7 @@ sub stab {
     if (($name, $typeordef, $typeno, $extra, $struct, $_)
 	= /^([\$ \w]+):([ustT])(\d+|\(\d+,\d+\))(=[rufs*](\d+))?(.*)$/)
     {
-	$typeno = &typeno($typeno);  # sun foolery
+	$typeno = typeno($typeno);  # sun foolery
     }
     elsif (/^[\$\w]+:/) {
 	next; # variable
@@ -788,11 +790,11 @@ sub stab {
     $sizeof{$name} = $size if $size;
 
     s/;[-\d]*;[-\d]*;$//;  # we don't care about ranges
-
-    $typenos{$name} = $typeno;
+    # was a typo
+    # $typenos{$name} = $typeno;
 
     unless (defined $type[$typeno]) {
-	&panic("type 0??") unless $typeno;
+	panic("type 0??") unless $typeno;
 	$type[$typeno] = $name unless defined $type[$typeno];
 	printf "new type $typeno is $name" if $debug;
 	if ($extra =~ /\*/ && defined $type[$struct]) {
@@ -808,24 +810,24 @@ sub stab {
     #$type[$struct] = $name;
 
     if ($extra =~ /[us*]/) {
-	&sou($name, $extra);
-	$_ = &sdecl($name, $_, 0);
+	sou($name, $extra);
+	$_ = sdecl($name, $_, 0);
     }
     elsif (/^=ar/) {
 	print "it's a bare array typedef -- that's pretty sick\n" if $debug;
 	$_ = "$typeno$_";
 	$scripts = '';
-	$_ = &adecl($_,1);
+	$_ = adecl($_,1);
 
     }
     elsif (s/((\w+):t(\d+|\(\d+,\d+\)))?=r?(;\d+;\d+;)?//) {  # the ?'s are for gcc
 	push(@intrinsics, $2);
-	$typeno = &typeno($3);
+	$typeno = typeno($3);
 	$type[$typeno] = $2;
 	print STDERR "intrinsic $2 in new type $typeno\n" if $debug;
     }
     elsif (s/^=e//) { # blessed be thy compiler; mine won't do this
-	&edecl;
+	edecl();
     }
     else {
 	warn "Funny remainder for $name on line $_ left in $line " if $_;
@@ -839,26 +841,26 @@ sub typeno {  # sun thinks types are (0,27) instead of just 27
 }
 
 sub pstruct {
-    local($what,$prefix,$base) = @_;
-    local($field, $fieldname, $typeno, $count, $offset, $entry);
-    local($fieldtype);
-    local($type, $tname);
-    local($mytype, $mycount, $entry2);
-    local($struct_count) = 0;
-    local($pad, $revpad, $length, $prepad, $lastoffset, $lastlength, $fmt);
-    local($bits,$bytes);
-    local($template);
+    my ($what,$prefix,$base) = @_;
+    my ($field, $fieldname, $typeno, $count, $offset, $entry);
+    my ($fieldtype);
+    my ($type, $tname);
+    my ($mytype, $mycount, $entry2);
+    my ($struct_count) = 0;
+    my ($pad, $revpad, $length, $prepad, $lastoffset, $lastlength, $fmt);
+    my ($bits,$bytes);
+    my ($template);
 
 
-    local($mname) = &munge($name);
+    my ($mname) = munge($name);
 
     sub munge {
-	local($_) = @_;
+	my ($_) = @_;
 	s/[\s\$\.]/_/g;
 	$_;
     }
 
-    local($sname) = &psou($what);
+    my ($sname) = psou($what);
 
     $nesting++;
 
@@ -872,9 +874,9 @@ sub pstruct {
 	$type =~ /([^[]*)(\[.*\])?/;
 	$mytype = $1;
 	$count .= $2;
-	$fieldtype = &psou($mytype);
+	$fieldtype = psou($mytype);
 
-	local($fname) = &psou($name);
+	my ($fname) = psou($name);
 
 	if ($build_templates) {
 
@@ -889,8 +891,8 @@ sub pstruct {
 		}
 	    }
 
-	    $template = &fetch_template($type);
-	    &repeat_template($template,$count);
+	    $template = fetch_template($type);
+	    repeat_template($template,$count);
 
 	    if (! $finished_template{$sname}) {
 		$template{$sname} .= $template;
@@ -917,15 +919,15 @@ sub pstruct {
 			if !$perl || $verbose;
 
 	    if ($perl) {
-		$template = &fetch_template($type);
-		&repeat_template($template,$count);
+		$template = fetch_template($type);
+		repeat_template($template,$count);
 	    }
 
 	    if ($perl && $nesting == 1) {
 
 		push(@sizeof, int($length/8) .",\t# $fieldname");
 		push(@offsetof, int($offset/8) .",\t# $fieldname");
-		local($little) = &scrunch($template);
+		my ($little) = scrunch($template);
 		push(@typedef, "'$little', \t# $fieldname");
 		$type =~ s/(struct|union) //;
 		push(@typeof, "'$mytype" . ($count ? $count : '') .
@@ -940,35 +942,35 @@ sub pstruct {
 
 	}
 	if ($perl) {
-	    local($mycount) = defined $struct{$mytype} ? $countof{$mytype} : 1;
-	    $mycount *= &scripts2count($count) if $count;
+	    my ($mycount) = defined $struct{$mytype} ? $countof{$mytype} : 1;
+	    $mycount *= scripts2count($count) if $count;
 	    if ($nesting==1 && !$build_templates) {
 		$pcode .= sprintf("sub %-32s { %4d; }\n",
-			"${mname}'${fieldname}", $struct_count);
+			"${mname}::${fieldname}", $struct_count);
 		push(@indices, $struct_count);
 	    }
 	    $struct_count += $mycount;
 	}
 
 
-	&pstruct($type, "$prefix.$fieldname", $base+$offset)
+	pstruct($type, "$prefix.$fieldname", $base+$offset)
 		if $recurse && defined $struct{$type};
     }
 
-    $countof{$what} = $struct_count unless defined $countof{$whati};
+    $countof{$what} = $struct_count unless defined $countof{$what};
 
     $template{$sname} .= '$' if $build_templates;
     $finished_template{$sname}++;
 
     if ($build_templates && !defined $sizeof{$name}) {
-	local($fmt) = &scrunch($template{$sname});
+	my ($fmt) = scrunch($template{$sname});
 	print STDERR "no size for $name, punting with $fmt..." if $debug;
 	eval '$sizeof{$name} = length(pack($fmt, ()))';
 	if ($@) {
 	    chop $@;
 	    warn "couldn't get size for \$name: $@";
 	} else {
-	    print STDERR $sizeof{$name}, "\n" if $debUg;
+	    print STDERR $sizeof{$name}, "\n" if $debug;
 	}
     }
 
@@ -977,17 +979,17 @@ sub pstruct {
 
 
 sub psize {
-    local($me) = @_;
-    local($amstruct) = $struct{$me} ?  'struct ' : '';
+    my ($me) = @_;
+    my ($amstruct) = $struct{$me} ?  'struct ' : '';
 
     print '$sizeof{\'', $amstruct, $me, '\'} = ';
     printf "%d;\n", $sizeof{$me};
 }
 
 sub pdecl {
-    local($pdecl) = @_;
-    local(@pdecls);
-    local($tname);
+    my ($pdecl) = @_;
+    my (@pdecls);
+    my ($tname);
 
     warn "pdecl: $pdecl\n" if $debug;
 
@@ -1012,14 +1014,14 @@ sub pdecl {
 
 sub adecl {
     ($arraytype, $unknown, $lower, $upper) = ();
-    #local($typeno);
+    #my ($typeno);
     # global $typeno, @type
-    local($_, $typedef) = @_;
+    my ($_, $typedef) = @_;
 
     while (s/^((\d+|\(\d+,\d+\))=)?ar(\d+|\(\d+,\d+\));//) {
 	($arraytype, $unknown) = ($2, $3);
-	$arraytype = &typeno($arraytype);
-	$unknown = &typeno($unknown);
+	$arraytype = typeno($arraytype);
+	$unknown = typeno($unknown);
 	if (s/^(\d+);(\d+);//) {
 	    ($lower, $upper) = ($1, $2);
 	    $scripts .= '[' .  ($upper+1) . ']';
@@ -1031,16 +1033,16 @@ sub adecl {
 	($start, $length) = ($2, $3);
 	$whatis = $1;
 	if ($whatis =~ /^(\d+|\(\d+,\d+\))=/) {
-	    $typeno = &typeno($1);
-	    &pdecl($whatis);
+	    $typeno = typeno($1);
+	    pdecl($whatis);
 	} else {
-	    $typeno = &typeno($whatis);
+	    $typeno = typeno($whatis);
 	}
     } elsif (s/^(\d+)(=[*suf]\d*)//) {
-	local($whatis) = $2;
+	my ($whatis) = $2;
 
 	if ($whatis =~ /[f*]/) {
-	    &pdecl($whatis);
+	    pdecl($whatis);
 	} elsif ($whatis =~ /[su]/) {  #
 	    print "$prefix.$fieldname is an array$scripts anon structs; disgusting\n"
 		if $debug;
@@ -1048,9 +1050,9 @@ sub adecl {
 	    ##printf "new type $typeno is $name" if $debug;
 	    $typeno = $1;
 	    $type[$typeno] = "$prefix.$fieldname";
-	    local($name) = $type[$typeno];
-	    &sou($name, $whatis);
-	    $_ = &sdecl($name, $_, $start+$offset);
+	    my ($name) = $type[$typeno];
+	    sou($name, $whatis);
+	    $_ = sdecl($name, $_, $start+$offset);
 	    1;
 	    $start = $start{$name};
 	    $offset = $sizeof{$name};
@@ -1064,7 +1066,7 @@ sub adecl {
 	warn "bad array stab: $_ in $line ";
 	next STAB;
     }
-    #local($wasdef) = defined($type[$typeno]) && $debug;
+    #my ($wasdef) = defined($type[$typeno]) && $debug;
     #if ($typedef) {
 	#print "redefining $type[$typeno] to " if $wasdef;
 	#$type[$typeno] = "$whatis$scripts"; # unless defined $type[$typeno];
@@ -1081,12 +1083,12 @@ sub adecl {
 
 
 sub sdecl {
-    local($prefix, $_, $offset) = @_;
+    # cperl only:
+    my ($prefix, $_, $offset) = @_;
 
-    local($fieldname, $scripts, $type, $arraytype, $unknown,
-    $whatis, $pdecl, $upper,$lower, $start,$length) = ();
-    local($typeno,$sou);
-
+    my ($fieldname, $scripts, $type, $arraytype, $unknown,
+        $whatis, $pdecl, $upper,$lower, $start,$length) = ();
+    my ($typeno, $sou);
 
 SFIELD:
     while (/^([^;]+);/) {
@@ -1095,11 +1097,11 @@ SFIELD:
 	if (s/^([\$\w]+)://) {
 	    $fieldname = $1;
 	} elsif (s/(\d+)=([us])(\d+|\(\d+,\d+\))//) { #
-	    $typeno = &typeno($1);
+	    $typeno = typeno($1);
 	    $type[$typeno] = "$prefix.$fieldname";
-	    local($name) = "$prefix.$fieldname";
-	    &sou($name,$2);
-	    $_ = &sdecl("$prefix.$fieldname", $_, $start+$offset);
+	    my ($name) = "$prefix.$fieldname";
+	    sou($name,$2);
+	    $_ = sdecl("$prefix.$fieldname", $_, $start+$offset);
 	    $start = $start{$name};
 	    $offset += $sizeof{$name};
 	    #print "done with anon, start is $start, offset is $offset\n";
@@ -1107,41 +1109,41 @@ SFIELD:
 	} else  {
 	    warn "weird field $_ of $line" if $debug;
 	    next STAB;
-	    #$fieldname = &gensym;
-	    #$_ = &sdecl("$prefix.$fieldname", $_, $start+$offset);
+	    #$fieldname = gensym;
+	    #$_ = sdecl("$prefix.$fieldname", $_, $start+$offset);
 	}
 
 	if (/^(\d+|\(\d+,\d+\))=ar/) {
-	    $_ = &adecl($_);
+	    $_ = adecl($_);
 	}
 	elsif (s/^(\d+|\(\d+,\d+\))?,(\d+),(\d+);//) {
           ($start, $length) =  ($2, $3);
-          &panic("no length?") unless $length;
-          $typeno = &typeno($1) if $1;
+          panic("no length?") unless $length;
+          $typeno = typeno($1) if $1;
         }
         elsif (s/^(\d+)=xs\w+:,(\d+),(\d+);//) {
 	    ($start, $length) =  ($2, $3);
-	    &panic("no length?") unless $length;
-	    $typeno = &typeno($1) if $1;
+	    panic("no length?") unless $length;
+	    $typeno = typeno($1) if $1;
 	}
 	elsif (s/^((\d+|\(\d+,\d+\))(=[*f](\d+|\(\d+,\d+\)))+),(\d+),(\d+);//) {
 	    ($pdecl, $start, $length) =  ($1,$5,$6);
-	    &pdecl($pdecl);
+	    pdecl($pdecl);
 	}
 	elsif (s/(\d+)=([us])(\d+|\(\d+,\d+\))//) { # the dratted anon struct
 	    ($typeno, $sou) = ($1, $2);
-	    $typeno = &typeno($typeno);
+	    $typeno = typeno($typeno);
 	    if (defined($type[$typeno])) {
 		warn "now how did we get type $1 in $fieldname of $line?";
 	    } else {
 		print "anon type $typeno is $prefix.$fieldname\n" if $debug;
 		$type[$typeno] = "$prefix.$fieldname" unless defined $type[$typeno];
 	    };
-	    local($name) = "$prefix.$fieldname";
-	    &sou($name,$sou);
+	    my ($name) = "$prefix.$fieldname";
+	    sou($name,$sou);
 	    print "anon ".($isastruct{$name}) ? "struct":"union"." for $prefix.$fieldname\n" if $debug;
 	    $type[$typeno] = "$prefix.$fieldname";
-	    $_ = &sdecl("$prefix.$fieldname", $_, $start+$offset);
+	    $_ = sdecl("$prefix.$fieldname", $_, $start+$offset);
 	    $start = $start{$name};
 	    $length = $sizeof{$name};
 	}
@@ -1150,11 +1152,11 @@ SFIELD:
 	    next STAB;
 	}
 
-	&panic("no length for $prefix.$fieldname") unless $length;
+	panic("no length for $prefix.$fieldname") unless $length;
 	$struct{$name} .= join(',', $fieldname, $typeno, $scripts, $start, $length) . ';';
     }
     if (s/;\d*,(\d+),(\d+);//) {
-	local($start, $size) = ($1, $2);
+	my ($start, $size) = ($1, $2);
 	$sizeof{$prefix} = $size;
 	print "start of $prefix is $start, size of $sizeof{$prefix}\n" if $debug;
 	$start{$prefix} = $start;
@@ -1162,14 +1164,8 @@ SFIELD:
     $_;
 }
 
-sub edecl {
-    s/;$//;
-    $enum{$name} = $_;
-    $_ = '';
-}
-
 sub resolve_types {
-    local($sou);
+    my ($sou);
     for $i (0 .. $#type) {
 	next unless defined $type[$i];
 	$_ = $type[$i];
@@ -1178,18 +1174,18 @@ sub resolve_types {
 	    next;
 	}
 	print "type[$i] $_ ==> " if $debug;
-	s/^(\d+)(\**)\&\*(\**)/"$2($3".&type($1) . ')()'/e;
-	s/^(\d+)\&/&type($1)/e;
-	s/^(\d+)/&type($1)/e;
+	s/^(\d+)(\**)\&\*(\**)/"$2($3".type($1) . ')()'/e;
+	s/^(\d+)\&/type($1)/e;
+	s/^(\d+)/type($1)/e;
 	s/(\*+)([^*]+)(\*+)/$1$3$2/;
 	s/\((\*+)(\w+)(\*+)\)/$3($1$2)/;
-	s/^(\d+)([\*\[].*)/&type($1).$2/e;
-	#s/(\d+)(\*|(\[[\[\]\d\*]+]\])+)/&type($1).$2/ge;
+	s/^(\d+)([\*\[].*)/type($1).$2/e;
+	#s/(\d+)(\*|(\[[\[\]\d\*]+]\])+)/type($1).$2/ge;
 	$type[$i] = $_;
 	print "$_\n" if $debug;
     }
 }
-sub type { &psou($type[$_[0]] || "<UNDEFINED>"); }
+sub type { psou($type[$_[0]] || "<UNDEFINED>"); }
 
 sub adjust_start_addrs {
     for (sort keys %start) {
@@ -1200,14 +1196,14 @@ sub adjust_start_addrs {
 }
 
 sub sou {
-    local($what, $_) = @_;
+    my ($what, $_) = @_;
     /u/ && $isaunion{$what}++;
     /s/ && $isastruct{$what}++;
 }
 
 sub psou {
-    local($what) = @_;
-    local($prefix) = '';
+    my ($what) = @_;
+    my $prefix = '';
     if ($isaunion{$what})  {
 	$prefix = 'union ';
     } elsif ($isastruct{$what})  {
@@ -1217,7 +1213,7 @@ sub psou {
 }
 
 sub scrunch {
-    local($_) = @_;
+    local ($_) = @_;
 
     return '' if $_ eq '';
 
@@ -1230,10 +1226,8 @@ sub scrunch {
     # i wanna say this, but perl resists my efforts:
     #	   s/(\w)(\1+)/$2 . length($1)/ge;
 
-    &quick_scrunch;
-
+    quick_scrunch(); # created below
     s/ $//;
-
     $_;
 }
 
@@ -1245,15 +1239,15 @@ sub buildscrunchlist {
     $scrunch_code .= "}\n";
     print "$scrunch_code" if $debug;
     eval $scrunch_code;
-    &panic("can't eval scrunch_code $@ \nscrunch_code") if $@;
+    panic("can't eval scrunch_code $@ \nscrunch_code") if $@;
 }
 
 sub fetch_template {
-    local($mytype) = @_;
-    local($fmt);
-    local($count) = 1;
+    my ($mytype) = @_;
+    my ($fmt);
+    my ($count) = 1;
 
-    &panic("why do you care?") unless $perl;
+    panic("why do you care?") unless $perl;
 
     if ($mytype =~ s/(\[\d+\])+$//) {
 	$count .= $1;
@@ -1266,13 +1260,13 @@ sub fetch_template {
 	$fmt = $template{$mytype};
     }
     elsif (defined $struct{$mytype}) {
-	if (!defined $template{&psou($mytype)}) {
-	    &build_template($mytype) unless $mytype eq $name;
+	if (!defined $template{psou($mytype)}) {
+	    build_template($mytype) unless $mytype eq $name;
 	}
-	elsif ($template{&psou($mytype)} !~ /\$$/) {
+	elsif ($template{psou($mytype)} !~ /\$$/) {
 	    #warn "incomplete template for $mytype\n";
 	}
-	$fmt = $template{&psou($mytype)} || '?';
+	$fmt = $template{psou($mytype)} || '?';
     }
     else {
 	warn "unknown fmt for $mytype\n";
@@ -1283,8 +1277,8 @@ sub fetch_template {
 }
 
 sub compute_intrinsics {
-    &safedir;
-    local($TMP) = "$SAFEDIR/c2ph-i.$$.c";
+    safedir;
+    my ($TMP) = "$SAFEDIR/c2ph-i.$$.c";
     open (TMP, ">$TMP") || die "can't open $TMP: $!";
     select(TMP);
 
@@ -1315,7 +1309,7 @@ EOF
     open(PIPE, "cd $SAFEDIR && $CC $TMP && $SAFEDIR/a.out|");
     while (<PIPE>) {
 	chop;
-	split(' ',$_,2);;
+	/(.*?) (.*?) ?/;
 	print "intrinsic $_[1] is size $_[0]\n" if $debug;
 	$sizeof{$_[1]} = $_[0];
 	$intrinsics{$_[1]} = $template{$_[0]};
@@ -1326,13 +1320,13 @@ EOF
 }
 
 sub scripts2count {
-    local($_) = @_;
+    local ($_) = @_;
 
     s/^\[//;
     s/\]$//;
     s/\]\[/*/g;
     $_ = eval;
-    &panic("$_: $@") if $@;
+    panic("$_: $@") if $@;
     $_;
 }
 
@@ -1342,19 +1336,19 @@ sub system {
 }
 
 sub build_template {
-    local($name) = @_;
+    my ($name) = @_;
 
-    &panic("already got a template for $name") if defined $template{$name};
+    panic("already got a template for $name") if defined $template{$name};
 
-    local($build_templates) = 1;
+    my $build_templates = 1;
 
-    local($lparen) = '(' x $build_recursed;
-    local($rparen) = ')' x $build_recursed;
+    my $lparen = '(' x $build_recursed;
+    my $rparen = ')' x $build_recursed;
 
     print STDERR "$lparen$name$rparen " if $trace;
     $build_recursed++;
-    &pstruct($name,$name,0);
-    print STDERR "TEMPLATE for $name is ", $template{&psou($name)}, "\n" if $debug;
+    pstruct($name,$name,0);
+    print STDERR "TEMPLATE for $name is ", $template{psou($name)}, "\n" if $debug;
     --$build_recursed;
 }
 
@@ -1367,10 +1361,9 @@ sub panic {
 
     exit 1 if $] <= 4.003;  # caller broken
 
-    local($i,$_);
-    local($p,$f,$l,$s,$h,$a,@a,@sub);
+    my ($i,$p,$f,$l,$s,$h,$a,@a,@sub);
     for ($i = 0; ($p,$f,$l,$s,$h,$w) = caller($i); $i++) {
-	@a = @DB'args;
+	@a = @DB::args;
 	for (@a) {
 	    if (/^StB\000/ && length($_) == length($_main{'_main'})) {
 		$_ = sprintf("%s",$_);
@@ -1395,10 +1388,10 @@ sub panic {
 }
 
 sub squishseq {
-    local($num);
-    local($last) = -1e8;
-    local($string);
-    local($seq) = '..';
+    my ($num);
+    my ($last) = -1e8;
+    my ($string);
+    my ($seq) = '..';
 
     while (defined($num = shift)) {
         if ($num == ($last + 1)) {
@@ -1419,15 +1412,15 @@ sub squishseq {
 }
 
 sub repeat_template {
-    #  local($template, $scripts) = @_;  have to change caller's values
+    #  my ($template, $scripts) = @_;  have to change caller's values
 
     if ( $_[1] ) {
-	local($ncount) = &scripts2count($_[1]);
+	my ($ncount) = scripts2count($_[1]);
 	if ($_[0] =~ /^\s*c\s*$/i) {
 	    $_[0] = "A$ncount ";
 	    $_[1] = '';
 	} else {
-	    $_[0] = $template x $ncount;
+	    $_[0] = $_[0] x $ncount;
 	}
     }
 }

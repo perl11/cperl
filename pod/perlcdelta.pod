@@ -270,20 +270,16 @@ XXX Describe change here
 
 =head1 Utility Changes
 
-XXX Changes to installed programs such as F<perlbug> and F<xsubpp> go here.
-Most of these are built within the directory F<utils>.
-
-[ List utility changes as a =head2 entry for each utility and =item
-entries for each change
-Use L<XXX> with program names to get proper documentation linking. ]
-
-=head2 L<XXX>
+=head2 L<c2ph>
 
 =over 4
 
 =item *
 
-XXX
+Removed all the old C<'> package seperators, and lexicalized most internal variables from
+B<c2ph>. But it is not yet completely strict safe.
+See L</Removed ' as package seperator> and
+L<[cperl #217]|https://github.com/perl11/cperl/issues/217>.
 
 =back
 
