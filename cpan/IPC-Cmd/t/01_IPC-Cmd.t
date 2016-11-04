@@ -109,6 +109,7 @@ push @Prefs, [ 0,             0 ],  [ 0,             0 ];
             $pp_cmd .= " (IPC::Run: $pref->[0] IPC::Open3: $pref->[1])";
 
             diag( "Running '$pp_cmd'") if $Verbose;
+            sleep(0.3) if $^ eq 'MSWin32';
 
             ### in scalar mode
             {   my $buffer;
