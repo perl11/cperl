@@ -151,7 +151,7 @@ loader_error_msg(perl_yaml_loader_t *loader, char *problem)
                    (long)loader->parser.problem_mark.column + 1
                    );
     else if (loader->parser.problem_offset)
-        msg = form("%s, offset: %ld\n", msg, loader->parser.problem_offset);
+        msg = form("%s, offset: %ld\n", msg, (long)loader->parser.problem_offset);
     else
         msg = form("%s\n", msg);
     if (loader->parser.context)
