@@ -3,9 +3,10 @@
 BEGIN {
     chdir 't' if -d 't';
     @INC = ( '.', '../lib' );
-    require Config;
-    if (($Config::Config{'ccflags'} !~ m!\bDPERL_FAKE_SIGNATURE\b!) ){
-	print "1..0 # Skip -- Perl configured without -DPERL_FAKE_SIGNATURE\n";
+    use Config;
+    if (!$Config{'fake_signatures'}
+        && ($Config{'ccflags'} !~ m!\bDPERL_FAKE_SIGNATURE\b!)) {
+	print "1..0 # Skip -- Perl configured without fake_signatures\n";
 	exit 0;
     }
 }
