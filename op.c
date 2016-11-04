@@ -859,7 +859,7 @@ Perl_op_free(pTHX_ OP *o)
         }
 #endif
 
-        if (o->op_private & OPpREFCOUNTED) {
+        if (UNLIKELY(o->op_private & OPpREFCOUNTED)) {
             switch (type) {
             case OP_LEAVESUB:
             case OP_LEAVESUBLV:
@@ -906,11 +906,14 @@ Perl_op_free(pTHX_ OP *o)
                     DEFER_OP(kid);
             }
         }
-        if (type == OP_NULL)
+        if (UNLIKELY(type == OP_NULL))
             type = (OPCODE)o->op_targ;
 
+#ifdef PERL_DEBUG_READONLY_OPS
+        /* otherwise a NOOP */
         if (o->op_slabbed)
             Slab_to_rw(OpSLAB(o));
+#endif
 
         /* COP* is not cleared by op_clear() so that we may track line
          * numbers etc even after null() */
@@ -919,8 +922,8 @@ Perl_op_free(pTHX_ OP *o)
         }
 
         op_clear(o);
-        if (!o->op_static)
-            FreeOp(o);
+        if (LIKELY(!o->op_static))
+            FreeOp(o); /* Which is Slab_Free() */
 #ifdef DEBUG_LEAKING_SCALARS
         if (PL_op == o)
             PL_op = NULL;
