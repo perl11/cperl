@@ -73,7 +73,7 @@ is_deeply( [ uniqnum qw( 1 1.1 1.2 1.3 ) ],
            'uniqnum distinguishes floats' );
 
 # Hard to know for sure what an Inf is going to be. Lets make one
-my $Inf = 0 + 1E1000;
+my $Inf = 0 + eval '1E1000';
 my $NaN;
 $Inf **= 1000 while ( $NaN = $Inf - $Inf ) == $NaN;
 
