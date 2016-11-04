@@ -282,7 +282,7 @@ Anyway, here it is.  Should run on perl v4 or greater.  Maybe less.
 # brought into the 21th century for cperl with 5.25.2c
 # $RCSID = '$Id: c2ph,v 1.7 95/10/28 10:41:47 tchrist Exp Locker: tchrist $';
 
-#use strict;
+use strict;
 BEGIN { pop @INC if $INC[-1] eq '.' }
 use File::Temp;
 
@@ -291,7 +291,8 @@ use File::Temp;
 # some handy data definitions.   many of these can be reset later.
 
 my $bitorder = 'b';  # ascending; set to B for descending bit fields
-my (%template, %template_printed, %size_printed);
+my (%template, %template_printed, %size_printed, %interested,
+    @intrinsics, %struct, %isastruct, %isaunion, %start);
 my %intrinsics =
    %template = (
     'char', 			'c',
@@ -377,7 +378,10 @@ my $perl++ if $0 =~ m#/?c2ph$#;
 
 use Getopt::Std qw(getopts);
 use File::Temp 'tempdir';
-use vars qw($opt_n $opt_p $opt_w $opt_d $opt_v $opt_x $opt_i $opt_a $opt_t);
+use vars qw($opt_n $opt_p $opt_w $opt_d $opt_v $opt_x $opt_i $opt_a $opt_t $opt_s);
+# hacks:
+my ($typeno, @type, $inseq, $w, $build_recursed,
+    $signal, $isatty);
 
 eval '$'.$1.'$2;' while $ARGV[0] =~ /^([A-Za-z_]+=)(.*)/ && shift;
 
@@ -488,12 +492,11 @@ sub defvar {
     printf "%-16s%-15s  %s\n", $var, eval "\$$var", $msg;
 }
 
-my $SAFEDIR;
+my ($SAFEDIR, $TMP);
 sub safedir {
     $SAFEDIR = File::Temp::tempdir("c2ph.XXXXXX", TMPDIR => 1, CLEANUP => 1)
       unless (defined($SAFEDIR));
 }
-
 undef $SAFEDIR;
 
 my $recurse = 1;
@@ -511,8 +514,8 @@ if (@ARGV) {
     }
     elsif (@ARGV == 1 && $ARGV[0] =~ /\.c$/) {
 	my ($dir, $file) = $ARGV[0] =~ m#(.*/)?(.*)$#;
-	$chdir = "cd $dir && " if $dir;
-	&system("$chdir$CC $CFLAGS $DEFINES $file") && exit 1;
+	my $chdir = "cd $dir && " if $dir;
+	system("$chdir$CC $CFLAGS $DEFINES $file") && exit 1;
 	$ARGV[0] =~ s/\.c$/.s/;
     }
     else {
@@ -547,11 +550,12 @@ main: {
 
 STAB: while (<>) {
 	if ($trace && !($. % 10)) {
-	    $lineno = $..'';
+	    my $lineno = $..'';
 	    print STDERR $lineno, "\b" x length($lineno);
 	}
 	next unless /^\s*\.stabs\s+/;
-	$line = $_;
+	my $line = $_;
+        my ($saveline, $savebar);
 	s/^\s*\.stabs\s+//;
 	if (s/\\\\"[d,]+$//) {
 	    $saveline .= $line;
@@ -564,7 +568,6 @@ STAB: while (<>) {
 	    $line = $saveline;
 	}
 	stab();
-	$savebar = $saveline = undef;
     }
     print STDERR "$.\n" if $trace;
     unlink $TMP if $TMP;
@@ -583,7 +586,7 @@ STAB: while (<>) {
     if ($perl) {
 	# resolve template -- should be in stab define order, but even this isn't enough.
 	print STDERR "\nbuilding type templates: " if $trace;
-	for $i (reverse 0..$#type) {
+	for my $i (reverse 0..$#type) {
 	    next unless defined($name = $type[$i]);
 	    next unless defined $struct{$name};
 	    ($iname = $name) =~ s/\..*//;
@@ -610,9 +613,8 @@ STAB: while (<>) {
 	undef @typeof;
 	undef @fieldnames;
 
-	$mname = munge($name);
-
-	$fname = psou($name);
+	my $mname = munge($name);
+	my $fname = psou($name);
 
 	print "# " if $perl && $verbose;
 	$pcode = '';
@@ -843,6 +845,12 @@ sub typeno {  # sun thinks types are (0,27) instead of just 27
     $_;
 }
 
+sub munge {
+    local ($_) = @_;
+    s/[\s\$\.]/_/g;
+    $_;
+}
+
 sub pstruct {
     my ($what,$prefix,$base) = @_;
     my ($field, $fieldname, $typeno, $count, $offset, $entry);
@@ -854,20 +862,12 @@ sub pstruct {
     my ($bits,$bytes);
     my ($template);
 
-
-    my ($mname) = munge($name);
-
-    sub munge {
-	my ($_) = @_;
-	s/[\s\$\.]/_/g;
-	$_;
-    }
-
-    my ($sname) = psou($what);
+    my $mname = munge($name);
+    my $sname = psou($what);
 
     $nesting++;
 
-    for $field (split(/;/, $struct{$what})) {
+    for my $field (split(/;/, $struct{$what})) {
 	$pad = $prepad = 0;
 	$entry = '';
 	($fieldname, $typeno, $count, $offset, $length) = split(/,/, $field);
@@ -879,7 +879,7 @@ sub pstruct {
 	$count .= $2;
 	$fieldtype = psou($mytype);
 
-	my ($fname) = psou($name);
+	my $fname = psou($name);
 
 	if ($build_templates) {
 
@@ -894,7 +894,7 @@ sub pstruct {
 		}
 	    }
 
-	    $template = fetch_template($type);
+	    $template = fetch_template($type, $name);
 	    repeat_template($template,$count);
 
 	    if (! $finished_template{$sname}) {
@@ -922,7 +922,7 @@ sub pstruct {
 			if !$perl || $verbose;
 
 	    if ($perl) {
-		$template = fetch_template($type);
+		$template = fetch_template($type, $name);
 		repeat_template($template,$count);
 	    }
 
@@ -1016,10 +1016,11 @@ sub pdecl {
 
 
 sub adecl {
-    ($arraytype, $unknown, $lower, $upper) = ();
+    my ($line, $typedef) = @_;
+    $_ = shift;
+    my ($arraytype, $unknown, $lower, $upper, $offset, $whatis);
     #my ($typeno);
     # global $typeno, @type
-    my ($_, $typedef) = @_;
 
     while (s/^((\d+|\(\d+,\d+\))=)?ar(\d+|\(\d+,\d+\));//) {
 	($arraytype, $unknown) = ($2, $3);
@@ -1042,8 +1043,7 @@ sub adecl {
 	    $typeno = typeno($whatis);
 	}
     } elsif (s/^(\d+)(=[*suf]\d*)//) {
-	my ($whatis) = $2;
-
+	$whatis = $2;
 	if ($whatis =~ /[f*]/) {
 	    pdecl($whatis);
 	} elsif ($whatis =~ /[su]/) {  #
@@ -1086,23 +1086,24 @@ sub adecl {
 
 
 sub sdecl {
-    # cperl only:
-    my ($prefix, $_, $offset) = @_;
+    my ($prefix, $line, $offset) = @_;
+    $_ = $line;
 
     my ($fieldname, $scripts, $type, $arraytype, $unknown,
-        $whatis, $pdecl, $upper,$lower, $start,$length) = ();
+        $whatis, $pdecl, $upper, $lower, $start, $length);
     my ($typeno, $sou);
 
 SFIELD:
     while (/^([^;]+);/) {
-	$scripts = '';
+	my $scripts = '';
+        my $name;
 	warn "sdecl $_\n" if $debug;
 	if (s/^([\$\w]+)://) {
 	    $fieldname = $1;
 	} elsif (s/(\d+)=([us])(\d+|\(\d+,\d+\))//) { #
 	    $typeno = typeno($1);
 	    $type[$typeno] = "$prefix.$fieldname";
-	    my ($name) = "$prefix.$fieldname";
+	    $name = "$prefix.$fieldname";
 	    sou($name,$2);
 	    $_ = sdecl("$prefix.$fieldname", $_, $start+$offset);
 	    $start = $start{$name};
@@ -1142,7 +1143,7 @@ SFIELD:
 		print "anon type $typeno is $prefix.$fieldname\n" if $debug;
 		$type[$typeno] = "$prefix.$fieldname" unless defined $type[$typeno];
 	    };
-	    my ($name) = "$prefix.$fieldname";
+	    $name = "$prefix.$fieldname";
 	    sou($name,$sou);
 	    print "anon ".($isastruct{$name}) ? "struct":"union"." for $prefix.$fieldname\n" if $debug;
 	    $type[$typeno] = "$prefix.$fieldname";
@@ -1169,7 +1170,7 @@ SFIELD:
 
 sub resolve_types {
     my ($sou);
-    for $i (0 .. $#type) {
+    for my $i (0 .. $#type) {
 	next unless defined $type[$i];
 	$_ = $type[$i];
 	unless (/\d/) {
@@ -1192,7 +1193,7 @@ sub type { psou($type[$_[0]] || "<UNDEFINED>"); }
 
 sub adjust_start_addrs {
     for (sort keys %start) {
-	($basename = $_) =~ s/\.[^.]+$//;
+	(my $basename = $_) =~ s/\.[^.]+$//;
 	$start{$_} += $start{$basename};
 	print "start: $_ @ $start{$_}\n" if $debug;
     }
@@ -1235,7 +1236,7 @@ sub scrunch {
 }
 
 sub buildscrunchlist {
-    $scrunch_code = "sub quick_scrunch {\n";
+    my $scrunch_code = "sub quick_scrunch {\n";
     for (values %intrinsics) {
         $scrunch_code .= "\ts/(${_}{2,})/'$_' . length(\$1)/ge;\n";
     }
@@ -1246,7 +1247,7 @@ sub buildscrunchlist {
 }
 
 sub fetch_template {
-    my ($mytype) = @_;
+    my ($mytype, $name) = @_;
     my ($fmt);
     my ($count) = 1;
 
@@ -1294,7 +1295,7 @@ main() {
     char *mask = "%d %s\n";
 EOF
 
-    for $type (@intrinsics) {
+    for my $type (@intrinsics) {
 	next if !$type || $type eq 'void' || $type =~ /complex/; # sun stuff
 	print <<"EOF";
     printf(mask,sizeof($type), "$type");
@@ -1355,6 +1356,7 @@ sub build_template {
     --$build_recursed;
 }
 
+my %_main; # ???
 
 sub panic {
 
@@ -1364,7 +1366,7 @@ sub panic {
 
     exit 1 if $] <= 4.003;  # caller broken
 
-    my ($i,$p,$f,$l,$s,$h,$a,@a,@sub);
+    my ($i,$p,$f,$l,$s,$h,$w,$a,@a,@sub);
     for ($i = 0; ($p,$f,$l,$s,$h,$w) = caller($i); $i++) {
 	@a = @DB::args;
 	for (@a) {
