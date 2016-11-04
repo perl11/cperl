@@ -270,7 +270,7 @@ barestmt:	PLUGSTMT
 				SvPV_nolen_const(((SVOP*)$2)->op_sv);
 			    if (strEQc(name, "BEGIN") || strEQc(name, "END")
                              || strEQc(name, "INIT")  || strEQc(name, "CHECK")
-                             || strEQc(name, "UNITCHECK"))
+                             || strEQ(name, "UNITCHECK"))
 			      CvSPECIAL_on(PL_compcv);
 			  }
 			  else
