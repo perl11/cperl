@@ -32,9 +32,9 @@ BEGIN {
 plan(133);
 
 my $rc_filename = '.perldb';
+rename $rc_filename, $rc_filename.".orig" if -f $rc_filename;
 
 sub rc {
-    rename $rc_filename, $rc_filename.".orig" if -f $rc_filename;
     open my $rc_fh, '>', $rc_filename
         or die $!;
     print {$rc_fh} @_;
