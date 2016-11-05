@@ -223,11 +223,10 @@ EOF
 eval q{ foo::$bar };
 like( $@, qr/Bad name after foo::/, 'Bad name after foo::' );
 # Disabled with PERL_NO_QUOTE_PKGSEPERATOR
+eval q{ foo''bar };
 if ($] < 5.025002) {
-  eval q{ foo''bar };
   like( $@, qr/Bad name after foo'/, 'Bad name after foo\'' );
 } else {
-  eval q{ foo''bar };
   like( $@, qr/syntax error at \(eval \d+\) line 1, near "foo''"/, 'syntax error after foo\'' );
 }
 
@@ -374,7 +373,7 @@ if ($] < 5.025002) {
   #is CORE::print::foo, 43, 'CORE::print::foo is not CORE::print ::foo';
   is(1,1, "SKIP sub CORE'print'foo");
   eval "CORE::foo'bar";
-  like($@, qr/Can't find string terminator/, "CORE::foo'bar Can't find string terminator");
+  like($@, qr/CORE::foo is not a keyword/, "CORE::foo is not a keyword");
 }
 
 # bug #71748

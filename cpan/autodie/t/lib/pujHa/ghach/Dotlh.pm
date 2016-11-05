@@ -1,4 +1,4 @@
-package pujHa'ghach::Dotlh;
+package pujHa::ghach::Dotlh;
 
 # Translator notes: Dotlh = status
 
@@ -16,9 +16,9 @@ sub stringify {
 
     my $error = $this->SUPER::stringify;
 
-    return "QaghHommeyHeylIjmo':\n" .   # Due to your apparent minor errors
+    return "QaghHommeyHeylIjmo::\n" .   # Due to your apparent minor errors
            "$error\n" .
-           "lujqu'";                    # Epic fail
+           "lujqu::";                   # Epic fail
 
 
 }

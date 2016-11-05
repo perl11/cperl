@@ -7666,6 +7666,8 @@ Perl_yylex(pTHX)
                     || (!(tmp = keyword(PL_tokenbuf, len, 1))
 #ifndef PERL_NO_QUOTE_PKGSEPERATOR
                         && *s == '\''
+#else                        
+                        && 0
 #endif
                    ))
 		{
