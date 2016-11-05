@@ -7,7 +7,7 @@ BEGIN {
 }
 
 use lib 't/lib';
-use Test::More tests => 54;
+use Test::More tests => 53;
 
 # Make sure we don't mess with $@ or $!.  Test at bottom.
 my $Err   = "this should not be touched";
@@ -23,7 +23,8 @@ require_ok('Test::More');
 ok( 2 eq 2,             'two is two is two is two' );
 is(   "foo", "foo",       'foo is foo' );
 isnt( "foo", "bar",     'foo isnt bar');
-isn't("foo", "bar",     'foo isn\'t bar');
+# now illegal
+#isn't("foo", "bar",     'foo isn\'t bar');
 
 #'#
 like("fooble", '/^foo/',    'foo is like fooble');

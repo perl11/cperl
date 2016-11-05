@@ -130,11 +130,11 @@ OUT
 ERR
 
 #line 132
-isn't("foo", "foo",'foo isn\'t foo?' );
+isnt("foo", "foo",'foo isnt foo?' );
 out_ok( <<OUT, <<ERR );
-not ok - foo isn't foo?
+not ok - foo isnt foo?
 OUT
-#   Failed test 'foo isn\'t foo?'
+#   Failed test 'foo isnt foo?'
 #   at $0 line 132.
 #          got: 'foo'
 #     expected: anything else

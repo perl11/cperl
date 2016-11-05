@@ -17,7 +17,7 @@ sub _carp {
     return warn @_, " at $file line $line\n";
 }
 
-our $VERSION = '1.401014c';
+our $VERSION = '1.401015c';
 $VERSION =~ s/c$//;
 
 use Test::Builder::Module 0.99;
@@ -370,7 +370,7 @@ sub isnt ($$;$) {
     Test::More->builder->isnt_eq(@_);
 }
 
-*isn't = \&isnt;
+# *isn't = \&isnt;
 # ' to unconfuse syntax higlighters
 
 =item B<like>

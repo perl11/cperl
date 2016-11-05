@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.401014c'; # modernized
+our $VERSION = '1.401015c'; # modernized
 $VERSION =~ s/c$//;
 
 BEGIN {

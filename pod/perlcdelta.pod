@@ -46,8 +46,11 @@ XXX For a release on a stable branch, this section aspires to be:
 
 Make something like C<sub foo'bar;> a syntax error.
 C<'> is not replaced by C<::> anymore when used as package seperator.
-This was deprecated 10 years ago. We fixed the last remaining F<c2ph> core
-utility using this last remaining perl4'ism.
+This was deprecated 10 years ago.
+
+cperl fixed the L</c2ph> core utility using this last remaining perl4'ism,
+and removed the C<isn't> method from L<Test::More>.
+
 See L<[cperl #217]|https://github.com/perl11/cperl/issues/217>.
 
 =head2 Module removals
@@ -119,6 +122,10 @@ XXX
 =head2 Updated Modules and Pragmata
 
 =over 4
+
+=item Test::More  1.401015c
+
+Removed the deprecated C<isn't> method, using the C<'> package seperator.
 
 =item App::Cpan 1.64_01
 
