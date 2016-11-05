@@ -24,7 +24,7 @@ use lib 't/lib';
 
 {
     package Child3;
-    use parent "Dummy'Outside";
+    use parent "Dummy::Outside";
 }
 
 my $obj = {};
