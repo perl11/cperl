@@ -1,13 +1,6 @@
 /* Using these defines, you can elide anything you know 
    won't work properly */
 
-/* only needed for cperl cross-compilation when in CORE */
-#ifdef PROBE_MAIN
-#  include "EXTERN.h"
-#  include "perl.h"
-#  include "XSUB.h"
-#endif
-
 /* Methods of doing non-blocking reads */
 
 /*#define DONT_USE_SELECT*/
@@ -201,8 +194,9 @@
 
 /* needed for cperl cross-compilation when in CORE */
 #ifdef PROBE_MAIN
+#include <stdio.h>
 
-STATIC int blockoptions() {
+static int blockoptions() {
 	return	0
 #ifdef Have_nodelay
 		| 1
@@ -219,7 +213,7 @@ STATIC int blockoptions() {
 		;
 }
 
-int main (int argc, char **argv) {
-  printf "%d", blockoptions();
+int main () {
+  printf("%d", blockoptions());
 }
 #endif

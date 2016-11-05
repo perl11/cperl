@@ -45,7 +45,7 @@ if ( $mm_version < 6.58 ) {
     XSPROTOARG      => '-noprototypes',
     PL_FILES	    => { 'ReadKey_pm.PL' => 'ReadKey.pm' },
     PM              => { 'ReadKey.pm' => '$(INST_ARCHLIBDIR)/ReadKey.pm' },
-    clean           => { FILES => 'cchars.h ReadKey.pm' },
+    clean           => { FILES => 'cchars.h ReadKey.pm config_h.c blockoptions$(EXE_EXT)' },
     SIGN            => 1,
 
     # Uncomment these to allow testing of sgtty under Linux. Not needed normally.
@@ -60,7 +60,8 @@ sub MY::top_targets {
     s/pure_all :: config pm_to_blib (.* )linkext/pure_all :: config linkext pm_to_blib $1/;
     $_ .= "
 blockoptions: config.h
-	\$(CC) \$(PASTHRU_INC) -I\$(PERL_INC) \$(CCFLAGS) -DPROBE_MAIN config.h -o blockoptions
+	\$(CP) config.h config_h.c
+	\$(CC) \$(PASTHRU_INC) -I\$(PERL_INC) \$(CCFLAGS) -DPROBE_MAIN config_h.c -o blockoptions
 
 sgtty cchars.h: genchars.pl
 	\$(PERLRUN) genchars.pl
