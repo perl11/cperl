@@ -25,6 +25,18 @@ struct gp {
 
 #define GvXPVGV(gv)	((XPVGV*)SvANY(gv))
 
+/* a simple open-addressing hash with 2 word keys. */
+struct symtab_hek {
+    U32 hash;
+    GV* val; /* containing the pkg and name */
+};
+struct symtab {
+    symtab_hek **array;
+    U32 max;
+    U32 keys;
+    U32 fill_lazy;
+    U32 placeholders;
+};
 
 #if defined (DEBUGGING) && defined(__GNUC__) && !defined(PERL_GCC_BRACE_GROUPS_FORBIDDEN) && !defined(__INTEL_COMPILER)
 #  define GvGP(gv)							\

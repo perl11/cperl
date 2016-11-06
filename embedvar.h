@@ -328,6 +328,7 @@
 #define PL_sv_undef		(vTHX->Isv_undef)
 #define PL_sv_yes		(vTHX->Isv_yes)
 #define PL_sv_zero		(vTHX->Isv_zero)
+#define PL_symtab		(vTHX->Isymtab)
 #define PL_sys_intern		(vTHX->Isys_intern)
 #define PL_taint_warn		(vTHX->Itaint_warn)
 #define PL_tainted		(vTHX->Itainted)

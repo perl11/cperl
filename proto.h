@@ -8238,6 +8238,13 @@ STATIC void	S_gv_magicalize_isa(pTHX_ GV *gv)
 	assert(gv)
 
 #ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE GV*	S_gv_search_symtab(pTHX_ const char *const name, const I32 namelen, const int action, const U32 flags, GV* val)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_GV_SEARCH_SYMTAB	\
+	assert(name)
+#endif
+
+#ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE HV*	S_gv_stashpvn_internal(pTHX_ const char* name, U32 namelen, I32 flags)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_GV_STASHPVN_INTERNAL	\

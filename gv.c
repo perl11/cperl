@@ -2,6 +2,7 @@
  *
  *    Copyright (C) 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
  *    2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 by Larry Wall and others
+ *    Copyright (c) 2016, cPanel Inc.  All rights reserved.
  *
  *    You may distribute under the terms of either the GNU General Public
  *    License or the Artistic License, as specified in the README file.
@@ -21,12 +22,20 @@
 
 /*
 =head1 GV Functions
-A GV is a structure which corresponds to to a Perl typeglob, ie *foo.
-It is a structure that holds a pointer to a scalar, an array, a hash etc,
-corresponding to $foo, @foo, %foo.
 
-GVs are usually found as values in stashes (symbol table hashes) where
-Perl stores its global variables.
+A GV is a symbol or global name which corresponds to a Perl typeglob,
+ie *foo.  It is a structure that holds a pointer to a scalar, an
+array, a hash, function, IO and format with this name, corresponding
+to $foo, @foo, %foo, &foo, *foo.  Since symbols can be imported
+("aliased") into the current package, the GP structure with these
+values can be shared between different symbol GVs.
+
+GVs were previously stored in nested stashes (symbol table hashes) per
+package name, staring with the root stash as C<main::>/C<defstash>.
+
+Now GVs are stored in one C<PL_symtab>, a single open hash, with
+backreferences to the package prefix as index into the same symtab. This is
+optimal for memory savings and search time, but grow is slower.
 
 =cut
 */
@@ -89,6 +98,58 @@ Perl_gv_add_by_type(pTHX_ GV *gv, svtype type)
     }
     PERL_DTRACE_PROBE_GLOB_RETURN(PERL_DTRACE_GLOB_MODE_ADD, "");
     return gv;
+}
+
+/*
+=for apidoc gv_search
+
+Search the PL_symtab for the symbol name, or insert/delete it.
+We search for the full name, but stored is only the package index and name.
+
+=cut
+*/
+
+STATIC GV *
+S_gv_search_symtab(pTHX_ const char *const name, const I32 namelen,
+                      const int action, const U32 flags, GV* val)
+{
+    PERL_ARGS_ASSERT_GV_SEARCH;
+    U32 hash, hindex;
+    int collisions = -1;
+    bool is_utf8 = flags & SVf_UTF8; /* ignored? */
+
+    PERL_HASH(hash, name, namelen);
+    hindex = HvHASH_INDEX(hash, PL_symtab->max);
+    ent = &(PL_symtab->array[ hindex ]);
+    /* todo: wrap around? */
+    for (; ent->hash; ent++) { /* simple linear addressing */
+        CHECK_HASH_FLOOD(collisions)
+	if (ent->hash != hash)
+	    continue;
+        /* found: */
+        if (action & HV_FETCH_LVALUE)
+            return ent->val;
+        else if (action & HV_FETCH_ISSTORE) {
+            ent->val = val;
+            return NULL;
+        }
+        else if (action & HV_DELETE) {
+            ent->val = &PL_sv_placeholder;
+            PL_symtab->placeholders++;
+            return (GV*)&PL_sv_placeholder;
+        }
+    }
+    /* not found */
+    if (action & (HV_FETCH_LVALUE|HV_DELETE))
+        return NULL;
+    else if (action & HV_FETCH_ISSTORE) {
+        if (ent >= PL_symtab->array[ PL_symtab->max ]) {
+            /* grow? */
+        }
+        ent->hash = hash;
+        ent->val  = val;
+        return (GV*)&ent;
+    }
 }
 
 GV *

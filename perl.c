@@ -4124,6 +4124,10 @@ S_init_main_stash(pTHX)
     GV *gv;
     HV *hv = newHV();
 
+    Newxz(PL_symtab, 1, struct symtab);
+    Newxz(PL_symtab->array, 1024, struct symtab_hek);
+    PL_symtab->max = 1023;
+
     PL_curstash = PL_defstash = (HV *)SvREFCNT_inc_simple_NN(hv);
     hv_ksplit(PL_defstash, 64); /* Avoid 3 bootup splits */
     /* We know that the string "main" will be in the global shared string

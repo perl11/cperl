@@ -120,6 +120,8 @@ PERLVARI(I, utf8cache, I8, PERL___I)	/* Is the utf8 caching code enabled? */
 
 
 /* Stashes */
+PERLVAR(I, symtab,	struct symtab)	/* global symbol table */
+/* TODO: refactor */
 PERLVAR(I, defstash,	HV *)		/* main symbol table */
 PERLVAR(I, curstash,	HV *)		/* symbol table for current package */
 
