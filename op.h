@@ -162,6 +162,15 @@ Deprecated.  Use C<GIMME_V> instead.
 #define OPf_LIST	OPf_WANT_LIST
 #define OPf_KNOW	OPf_WANT
 
+#define OpKIDS(o)    ((o)->op_flags & OPf_KIDS)
+#define OpSPECIAL(o) ((o)->op_flags & OPf_SPECIAL)
+#define OpSTACKED(o) ((o)->op_flags & OPf_STACKED)
+#define OpPARENS(o)  ((o)->op_flags & OPf_PARENS)
+#define OpDEREF(o)   ((o)->op_private & OPpDEREF)
+#define OpWANT_VOID(o) (((o)->op_flags & OPf_WANT) == OPf_WANT_VOID)
+#define OpWANT_SCALAR(o) (((o)->op_flags & OPf_WANT) == OPf_WANT_SCALAR)
+#define OpWANT_LIST(o) (((o)->op_flags & OPf_WANT) == OPf_WANT_LIST)
+
 #if !defined(PERL_CORE) && !defined(PERL_EXT)
 #  define GIMME \
 	  (PL_op->op_flags & OPf_WANT					\
@@ -170,7 +179,6 @@ Deprecated.  Use C<GIMME_V> instead.
 	      : G_SCALAR)						\
 	   : dowantarray())
 #endif
-
 
 /* NOTE: OPp* flags are now auto-generated and defined in opcode.h,
  *       from data in regen/op_private */
@@ -479,7 +487,6 @@ struct loop {
 #define kPVOP		cPVOPx(kid)
 #define kCOP		cCOPx(kid)
 #define kLOOP		cLOOPx(kid)
-
 
 #ifdef USE_ITHREADS
 #  define	cGVOPx_gv(o)	((GV*)PAD_SVl(cPADOPx(o)->op_padix))
@@ -944,28 +951,29 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
                     ? XopENTRYCUSTOM(o, xop_type) \
 		    : PL_op_type[(o)->op_type])
 
-#define OP_TYPE_IS(o, type) ((o) && (o)->op_type == (type))
-#define OP_TYPE_IS_NN(o, type) ((o)->op_type == (type))
-#define OP_TYPE_ISNT(o, type) ((o) && (o)->op_type != (type))
+#define OP_TYPE_IS(o, type)      ((o) && (o)->op_type == (type))
+#define OP_TYPE_IS_NN(o, type)   ((o)->op_type == (type))
+#define OP_TYPE_ISNT(o, type)    ((o) && (o)->op_type != (type))
 #define OP_TYPE_ISNT_NN(o, type) ((o)->op_type != (type))
 
+#define OP_TYPE_WAS_NN(o, type) \
+    ( (o)->op_type == OP_NULL && (o)->op_targ == (type) )
 #define OP_TYPE_IS_OR_WAS_NN(o, type) \
     ( ((o)->op_type == OP_NULL \
        ? (o)->op_targ \
        : (o)->op_type) \
       == (type) )
-
 #define OP_TYPE_IS_OR_WAS(o, type) \
     ( (o) && OP_TYPE_IS_OR_WAS_NN(o, type) )
-
 #define OP_TYPE_ISNT_AND_WASNT_NN(o, type) \
     ( ((o)->op_type == OP_NULL \
        ? (o)->op_targ \
        : (o)->op_type) \
       != (type) )
-
 #define OP_TYPE_ISNT_AND_WASNT(o, type) \
     ( (o) && OP_TYPE_ISNT_AND_WASNT_NN(o, type) )
+#define NO_OP_TYPE_OR_WASNT(o, type) \
+    ( !(o) || OP_TYPE_ISNT_AND_WASNT_NN(o, type) )
 
 #define OpTYPECHECKED(o)	(0 + (o)->op_typechecked)
 #define OpRETTYPE(o)		(0 + (o)->op_rettype)
