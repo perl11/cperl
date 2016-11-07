@@ -383,17 +383,16 @@ XXX
 
 =head1 Internal Changes
 
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
-
-[ List each change as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Added many OP read-write field accessor macros, like OpFIRST, OpLAST, OpOTHER,
+OpKIDS, OpSPECIAL, OpSTACKED, OpDEREF, OpWANT_VOID, OpWANT_SCALAR, OpWANT_LIST.
+And shorter type checks: IS_TYPE, ISNT_TYPE, NO_OP_TYPE_OR_WASNT.
+
+rpeep uses now consistently the local C<o>, and not the global C<PL_op> variable.
+See L<[cperl #219]|https://github.com/perl11/cperl/issues/219>.
 
 =back
 

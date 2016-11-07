@@ -3653,7 +3653,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	 && type != OP_ENTERLOOP)
 	    goto nomod;
 	/* Don’t bother applying lvalue context to the ex-list.  */
-	kid = cUNOPx(OpFIRST(o))->op_first;
+	kid = OpFIRST(OpFIRST(o));
 	assert (!OpHAS_SIBLING(kid));
 	goto kid_2lvref;
     case OP_REFGEN:
@@ -3673,7 +3673,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	    }
 	}
 	if (IS_TYPE(o, REFGEN))
-	    op_null(cUNOPx(OpFIRST(o))->op_first); /* pushmark */
+	    op_null(OpFIRST(OpFIRST(o))); /* pushmark */
 	op_null(o);
 	return o;
 
@@ -3840,8 +3840,8 @@ Perl_doref(pTHX_ OP *o, I32 type, bool set_op_ref)
     case OP_ENTERXSSUB:
 	if ((type == OP_EXISTS || type == OP_DEFINED) && !OpSTACKED(o)) {
             OpTYPE_set(o, OP_RV2CV);             /* entersub => rv2cv */
-	    assert(OpFIRST(o)->op_type == OP_NULL);
-	    op_null(((LISTOP*)OpFIRST(o))->op_first);	/* disable pushmark */
+	    assert(IS_NULL_OP(OpFIRST(o)));
+	    op_null(OpFIRST(OpFIRST(o)));	/* disable pushmark */
 	    o->op_flags |= OPf_SPECIAL;
 	}
 	else if (type == OP_RV2SV || type == OP_RV2AV || type == OP_RV2HV){
@@ -4131,7 +4131,7 @@ S_move_proto_attr(pTHX_ OP **proto, OP **attrs, const GV * name)
         }
         /* If the list is now just the PUSHMARK, scrap the whole thing; otherwise attributes.xs
            would get pulled in with no real need */
-        if (!OpHAS_SIBLING(cLISTOPx(*attrs)->op_first)) {
+        if (!OpHAS_SIBLING(OpFIRST(*attrs))) {
             op_free(*attrs);
             *attrs = NULL;
         }
@@ -4283,10 +4283,10 @@ Perl_my_attrs(pTHX_ OP *o, OP *attrs)
 	    /* The listop in rops might have a pushmark at the beginning,
 	       which will mess up list assignment. */
 	    LISTOP * const lrops = (LISTOP *)rops; /* for brevity */
-	    if (rops->op_type == OP_LIST && 
-	        lrops->op_first && lrops->op_first->op_type == OP_PUSHMARK)
+	    if (IS_TYPE(rops, LIST) &&
+	        OpFIRST(lrops) && IS_TYPE(OpFIRST(lrops), PUSHMARK))
 	    {
-		OP * const pushmark = lrops->op_first;
+		OP * const pushmark = OpFIRST(lrops);
                 /* excise pushmark */
                 op_sibling_splice(rops, NULL, 1, NULL);
 		op_free(pushmark);
@@ -4429,7 +4429,7 @@ Perl_op_scope(pTHX_ OP *o)
 	else if (IS_TYPE(o, LINESEQ)) {
 	    OP *kid;
             OpTYPE_set(o, OP_SCOPE);
-	    kid = ((LISTOP*)o)->op_first;
+	    kid = OpFIRST(o);
 	    if (IS_STATE_OP(kid)) {
 		op_null(kid);
 
@@ -4868,8 +4868,8 @@ S_fold_constants(pTHX_ OP *o)
 	if (o->op_private & OPpREPEAT_DOLIST) goto nope;
 	break;
     case OP_SREFGEN:
-	if (ISNT_TYPE(cUNOPx(OpFIRST(o))->op_first, CONST)
-	 || SvPADTMP(cSVOPx_sv(cUNOPx(OpFIRST(o))->op_first)))
+	if (ISNT_TYPE(OpFIRST(OpFIRST(o)), CONST)
+	 || SvPADTMP(cSVOPx_sv(OpFIRST(OpFIRST(o)))))
 	    goto nope;
     }
 
@@ -5014,7 +5014,7 @@ S_gen_constant_list(pTHX_ OP *o)
     av = (AV *)SvREFCNT_inc_NN(*PL_stack_sp--);
 
     /* replace subtree with an OP_CONST */
-    curop = ((UNOP*)o)->op_first;
+    curop = OpFIRST(o);
     op_sibling_splice(o, NULL, -1, newSVOP(OP_CONST, 0, (SV *)av));
     op_free(curop);
 
@@ -5130,8 +5130,8 @@ Perl_op_prepend_elem(pTHX_ I32 type, OP *first, OP *last)
     if (last->op_type == (unsigned)type) {
 	if (type == OP_LIST) {	/* already a PUSHMARK there */
             /* insert 'first' after pushmark */
-            op_sibling_splice(last, cLISTOPx(last)->op_first, 0, first);
-            if (!(first->op_flags & OPf_PARENS))
+            op_sibling_splice(last, OpFIRST(last), 0, first);
+            if (!OpPARENS(first))
                 last->op_flags &= ~OPf_PARENS;
 	}
 	else
@@ -5395,7 +5395,7 @@ Perl_newUNOP(pTHX_ I32 type, I32 flags, OP *first)
 
     NewOp(1101, unop, 1, UNOP);
     OpTYPE_set(unop, type);
-    unop->op_first = first;
+    OpFIRST(unop) = first;
     unop->op_flags = (U8)(flags | OPf_KIDS);
     unop->op_private = (U8)(1 | (flags >> 8));
 
@@ -5432,7 +5432,7 @@ Perl_newUNOP_AUX(pTHX_ I32 type, I32 flags, OP *first, UNOP_AUX_item *aux)
     NewOp(1101, unop, 1, UNOP_AUX);
     unop->op_type = (OPCODE)type;
     unop->op_ppaddr = PL_ppaddr[type];
-    unop->op_first = first;
+    OpFIRST(unop) = first;
     unop->op_flags = (U8)(flags | (first ? OPf_KIDS : 0));
     unop->op_private = (U8)((first ? 1 : 0) | (flags >> 8));
     unop->op_aux = aux;
@@ -5552,7 +5552,7 @@ Perl_newBINOP(pTHX_ I32 type, I32 flags, OP *first, OP *last)
 	first = newOP(OP_NULL, 0);
 
     OpTYPE_set(binop, type);
-    binop->op_first = first;
+    OpFIRST(binop) = first;
     binop->op_flags = (U8)(flags | OPf_KIDS);
     if (!last) {
 	last = first;
@@ -5566,7 +5566,7 @@ Perl_newBINOP(pTHX_ I32 type, I32 flags, OP *first, OP *last)
     if (!OpHAS_SIBLING(last)) /* true unless weird syntax error */
         OpLASTSIB_set(last, (OP*)binop);
 
-    OpLAST(binop) = OpSIBLING(binop->op_first);
+    OpLAST(binop) = OpSIBLING(OpFIRST(binop));
     if (OpLAST(binop))
         OpLASTSIB_set(OpLAST(binop), (OP*)binop);
 
@@ -6063,8 +6063,8 @@ Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, bool isreg, I32 floor)
     has_code = 0;
     if (IS_TYPE(expr, LIST)) {
 	OP *o;
-	for (o = cLISTOPx(expr)->op_first; o; o = OpSIBLING(o)) {
-	    if (IS_NULL_OP(o) && (OpSPECIAL(o))) {
+	for (o = OpFIRST(expr); o; o = OpSIBLING(o)) {
+	    if (IS_NULL_OP(o) && OpSPECIAL(o)) {
 		has_code = 1;
 		assert(!o->op_next);
 		if (UNLIKELY(!OpHAS_SIBLING(o))) {
@@ -6091,10 +6091,10 @@ Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, bool isreg, I32 floor)
 
     if (IS_TYPE(expr, LIST)) {
 	OP *o;
-	for (o = cLISTOPx(expr)->op_first; o; o = OpSIBLING(o)) {
+	for (o = OpFIRST(expr); o; o = OpSIBLING(o)) {
 
             if (IS_TYPE(o, PADAV) || IS_TYPE(o, RV2AV)) {
-                assert( !(o->op_flags  & OPf_WANT));
+                assert( !(o->op_flags & OPf_WANT));
                 /* push the array rather than its contents. The regex
                  * engine will retrieve and join the elements later */
                 o->op_flags |= (OPf_WANT_LIST | OPf_REF);
@@ -6303,7 +6303,7 @@ Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, bool isreg, I32 floor)
 	if (IS_TYPE(expr, REGCRESET) || IS_TYPE(expr, REGCMAYBE)) {
 	    LINKLIST(expr);
 	    rcop->op_next = expr;
-	    ((UNOP*)expr)->op_first->op_next = (OP*)rcop;
+	    OpFIRST(expr)->op_next = (OP*)rcop;
 	}
 	else {
 	    rcop->op_next = LINKLIST(expr);
@@ -6319,11 +6319,11 @@ Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, bool isreg, I32 floor)
 	/* If we are looking at s//.../e with a single statement, get past
 	   the implicit do{}. */
 	if (IS_NULL_OP(curop) && OpKIDS(curop)
-            && IS_TYPE(cUNOPx(curop)->op_first, SCOPE)
-            && OpKIDS(cUNOPx(curop)->op_first))
+            && IS_TYPE(OpFIRST(curop), SCOPE)
+            && OpKIDS(OpFIRST(curop)))
          {
             OP *sib;
-	    OP *kid = cUNOPx(cUNOPx(curop)->op_first)->op_first;
+	    OP *kid = OpFIRST(OpFIRST(curop));
 	    if (IS_NULL_OP(kid) && (sib = OpSIBLING(kid))
 	     && !OpHAS_SIBLING(sib))
 		curop = sib;
@@ -6334,8 +6334,8 @@ Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, bool isreg, I32 floor)
 		 || IS_TYPE(curop, RV2AV)
 		 || IS_TYPE(curop, RV2HV)
 		 || IS_TYPE(curop, RV2GV))
-		   && cUNOPx(curop)->op_first
-		   && IS_TYPE(cUNOPx(curop)->op_first, GV))
+		   && OpFIRST(curop)
+		   && IS_TYPE(OpFIRST(curop), GV))
 		|| IS_TYPE(curop, PADSV)
 		|| IS_TYPE(curop, PADAV)
 		|| IS_TYPE(curop, PADHV)
@@ -6880,7 +6880,7 @@ S_assignment_type(pTHX_ const OP *o)
 
     if (type == OP_SREFGEN)
     {
-	OP * const kid = cUNOPx(OpFIRST(o))->op_first;
+	OP * const kid = OpFIRST(OpFIRST(o));
 	type = kid->op_type;
 	flags |= kid->op_flags;
 	if (!(flags & OPf_PARENS)
@@ -6967,7 +6967,7 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 
 	if (OP_TYPE_IS_OR_WAS(left, OP_LIST))
 	{
-	    OP* lop = ((LISTOP*)left)->op_first;
+	    OP* lop = OpFIRST(left);
 	    while (lop) {
 		if ((IS_TYPE(lop, PADSV) ||
 		     IS_TYPE(lop, PADAV) ||
@@ -6999,11 +6999,10 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 		yyerror(no_list_state);
 	}
 
-	if (right && IS_TYPE(right, SPLIT)
-            && !OpSTACKED(right)) {
-	    OP* tmpop = ((LISTOP*)right)->op_first;
+	if (right && IS_TYPE(right, SPLIT) && !OpSTACKED(right)) {
+	    OP* tmpop = OpFIRST(right);
 	    PMOP * const pm = (PMOP*)tmpop;
-	    assert (tmpop && (tmpop->op_type == OP_PUSHRE));
+	    assert (tmpop && IS_TYPE(tmpop, PUSHRE));
 	    if (
 #ifdef USE_ITHREADS
 		    !pm->op_pmreplrootu.op_pmtargetoff
@@ -7014,7 +7013,7 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 		) {
 		    if (!(left->op_private & OPpLVAL_INTRO) &&
 		        ( (IS_TYPE(left, RV2AV) &&
-			  (tmpop=((UNOP*)left)->op_first)->op_type == OP_GV)
+                           IS_TYPE((tmpop=OpFIRST(left)), GV))
 		        || IS_TYPE(left, PADAV) )
 			) {
 			if (tmpop != (OP *)pm) {
@@ -7036,7 +7035,7 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 			}
 		      detach_split:
 			tmpop = OpFIRST(o);	/* to list (nulled) */
-			tmpop = ((UNOP*)tmpop)->op_first; /* to pushmark */
+			tmpop = OpFIRST(tmpop); /* to pushmark */
                         /* detach rest of siblings from o subtree,
                          * and free subtree */
                         op_sibling_splice(OpFIRST(o), tmpop, -1, NULL);
@@ -7053,8 +7052,7 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
 			OP * const ary =
 #endif
 			op_sibling_splice(OpLAST(o),
-					  cUNOPx(OpLAST(o))
-						->op_first, 1, NULL);
+					  OpFIRST(OpLAST(o)), 1, NULL);
 			assert(ary == left);
 			/* Attach it to the split.  */
 			op_sibling_splice(right, OpLAST(right),
@@ -7357,14 +7355,14 @@ S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
 	else {
 	    /* check for C<my $x if 0>, or C<my($x,$y) if 0> */
 	    const OP *o2 = other;
-	    if ( ! (o2->op_type == OP_LIST
-		    && (( o2 = cUNOPx(o2)->op_first))
-		    && o2->op_type == OP_PUSHMARK
-		    && (( o2 = OpSIBLING(o2))) )
+	    if ( ! (IS_TYPE(o2, LIST)
+		    && ( o2 = OpFIRST(o2) )
+		    && IS_TYPE(o2, PUSHMARK)
+		    && ( o2 = OpSIBLING(o2)) )
 	    )
 		o2 = other;
-	    if ((o2->op_type == OP_PADSV || o2->op_type == OP_PADAV
-                 || o2->op_type == OP_PADHV)
+	    if ((IS_TYPE(o2, PADSV) || IS_TYPE(o2, PADAV)
+                 || IS_TYPE(o2, PADHV))
 		&& o2->op_private & OPpLVAL_INTRO
 		&& !(o2->op_private & OPpPAD_STATE))
 	    {
@@ -7382,7 +7380,7 @@ S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
     else if (OpKIDS(first) && type != OP_DOR
 	&& ckWARN(WARN_MISC)) /* [#24076] Don't warn for <FH> err FOO. */
     {
-	const OP * const k1 = ((UNOP*)first)->op_first;
+	const OP * const k1 = OpFIRST(first);
 	const OP * const k2 = OpSIBLING(k1);
 	OPCODE warnop = 0;
 	switch (first->op_type)
@@ -7634,8 +7632,8 @@ Perl_newLOOPOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL,
 	if (once && (
               (IS_TYPE(expr, CONST) && !SvTRUE(((SVOP*)expr)->op_sv))
            || (  IS_TYPE(expr, NOT)
-              && IS_TYPE(cUNOPx(expr)->op_first, CONST)
-	      && SvTRUE(cSVOPx_sv(cUNOPx(expr)->op_first))
+              && IS_TYPE(OpFIRST(expr), CONST)
+	      && SvTRUE(cSVOPx_sv(OpFIRST(expr)))
 	      )
 	   ))
 	    /* Return the block now, so that S_new_logop does not try to
@@ -7649,7 +7647,7 @@ Perl_newLOOPOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL,
 	    expr = newUNOP(OP_DEFINED, 0,
 		newASSIGNOP(0, newDEFSVOP(), 0, expr) );
 	} else if (OpKIDS(expr)) {
-	    const OP * const k1 = ((UNOP*)expr)->op_first;
+	    const OP * const k1 = OpFIRST(expr);
 	    const OP * const k2 = k1 ? OpSIBLING(k1) : NULL;
 	    switch (expr->op_type) {
 	      case OP_NULL:
@@ -7756,7 +7754,7 @@ Perl_newWHILEOP(pTHX_ I32 flags, I32 debuggable PERL_UNUSED_DECL, LOOP *loop,
 	    expr = newUNOP(OP_DEFINED, 0,
 		newASSIGNOP(0, newDEFSVOP(), 0, expr) );
 	} else if (OpKIDS(expr)) {
-	    const OP * const k1 = ((UNOP*)expr)->op_first;
+	    const OP * const k1 = OpFIRST(expr);
 	    const OP * const k2 = (k1) ? OpSIBLING(k1) : NULL;
 	    switch (expr->op_type) {
 	      case OP_NULL:
@@ -7880,8 +7878,8 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
 	     * may reach this point with an OP_CONST where we're expecting
 	     * an OP_GV.
 	     */
-	    if (IS_TYPE(cUNOPx(sv)->op_first, GV)
-	     && cGVOPx_gv(cUNOPx(sv)->op_first) == PL_defgv)
+	    if (IS_TYPE(OpFIRST(sv), GV)
+	     && cGVOPx_gv(OpFIRST(sv)) == PL_defgv)
 		iterpflags |= OPpITER_DEF;
 	}
 	else if (IS_TYPE(sv, PADSV)) { /* private variable */
@@ -7921,15 +7919,15 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
 	iterflags |= OPf_STACKED;
     }
     else if (IS_NULL_OP(expr) && OpKIDS(expr) &&
-             IS_TYPE(((BINOP*)expr)->op_first, FLOP))
+             IS_TYPE(OpFIRST(expr), FLOP))
     {
 	/* Basically turn for($x..$y) into the same as for($x,$y), but we
 	 * set the STACKED flag to indicate that these values are to be
 	 * treated as min/max values by 'pp_enteriter'.
 	 */
-	const UNOP* const flip = (UNOP*)((UNOP*)((BINOP*)expr)->op_first)->op_first;
-	LOGOP* const range = (LOGOP*) flip->op_first;
-	OP* const left  = range->op_first;
+	const UNOP* const flip = (UNOP*)OpFIRST(OpFIRST(expr));
+	LOGOP* const range = (LOGOP*)OpFIRST(flip);
+	OP* const left  = OpFIRST(range);
 	OP* const right = OpSIBLING(left);
         SV *leftsv, *rightsv;
 	LISTOP* listop;
@@ -7954,10 +7952,10 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
         op_sibling_splice((OP*)range, NULL, -1, NULL);
 
 	listop = (LISTOP*)newLISTOP(OP_LIST, 0, left, right);
-	listop->op_first->op_next = range->op_next;
+	OpFIRST(listop)->op_next = range->op_next;
 	left->op_next = range->op_other;
 	right->op_next = (OP*)listop;
-	listop->op_next = listop->op_first;
+	listop->op_next = OpFIRST(listop);
 
 	op_free(expr);
 	expr = (OP*)(listop);
@@ -15934,7 +15932,7 @@ Perl_rpeep(pTHX_ OP *o)
          : NULL)
 
         case OP_NOT:
-            if ((fop = HV_OR_SCALARHV(cUNOPo->op_first)))
+            if ((fop = HV_OR_SCALARHV(OpFIRST(o))))
                 fop->op_private |= OPpTRUEBOOL;
             break;
 
@@ -15942,10 +15940,10 @@ Perl_rpeep(pTHX_ OP *o)
 	case OP_OR:
 	case OP_DOR:
             /* XXX PL_op? broken by 867fa1e2da14522 demerphq (boolkeys). #219 */
-            fop = cLOGOPo->op_first;
+            fop = OpFIRST(o);
             sop = OpSIBLING(fop);
-	    while (IS_NULL_OP(cLOGOPo->op_other))
-		cLOGOPo->op_other = cLOGOPo->op_other->op_next;
+	    while (IS_NULL_OP(OpOTHER(o)))
+		OpOTHER(o) = OpOTHER(o)->op_next;
 	    while (o->op_next && (   o->op_type == o->op_next->op_type
 				  || IS_NULL_OP(o->op_next)))
 		o->op_next = o->op_next->op_next;
@@ -15961,9 +15959,9 @@ Perl_rpeep(pTHX_ OP *o)
 	        )
 	        && OpWANT_VOID(o)
 	    ) {
-	        o->op_next = ((LOGOP*)o->op_next)->op_other;
+	        o->op_next = OpOTHER(o->op_next);
 	    }
-	    DEFER(cLOGOPo->op_other);
+	    DEFER(OpOTHER(o));
           
 	    o->op_opt = 1;
             fop = HV_OR_SCALARHV(fop);
@@ -16004,7 +16002,7 @@ Perl_rpeep(pTHX_ OP *o)
 	    break;
 	
 	case OP_COND_EXPR:
-	    if ((fop = HV_OR_SCALARHV(cLOGOPo->op_first)))
+	    if ((fop = HV_OR_SCALARHV(OpFIRST(o))))
 		fop->op_private |= OPpTRUEBOOL;
 #undef HV_OR_SCALARHV
 	    /* GERONIMO! */ /* FALLTHROUGH */
@@ -16016,9 +16014,9 @@ Perl_rpeep(pTHX_ OP *o)
 	case OP_DORASSIGN:
 	case OP_RANGE:
 	case OP_ONCE:
-	    while (IS_NULL_OP(cLOGOPo->op_other))
-		cLOGOPo->op_other = cLOGOPo->op_other->op_next;
-	    DEFER(cLOGOPo->op_other);
+	    while (IS_NULL_OP(OpOTHER(o)))
+		OpOTHER(o) = OpOTHER(o)->op_next;
+	    DEFER(OpOTHER(o));
 	    break;
 
 	case OP_ENTERLOOP:
@@ -16036,8 +16034,8 @@ Perl_rpeep(pTHX_ OP *o)
 	    break;
 
         case OP_ENTERTRY:
-	    assert(IS_TYPE(cLOGOPo->op_other, LEAVETRY));
-	    DEFER(cLOGOPo->op_other);
+	    assert(IS_TYPE(OpOTHER(o), LEAVETRY));
+	    DEFER(OpOTHER(o));
 	    break;
 
 	case OP_SUBST:
@@ -16231,7 +16229,7 @@ Perl_rpeep(pTHX_ OP *o)
                       || (  IS_TYPE(o->op_next->op_next, RETURN)
 		      && !CvLVALUE(PL_compcv)))))
 	    {
-		OP *right = cBINOPo->op_first;
+		OP *right = OpFIRST(o);
 		if (right) {
                     /*   sassign
                     *      RIGHT
