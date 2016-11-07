@@ -216,31 +216,31 @@ struct op {
 
 struct unop {
     BASEOP
-    OP *	op_first;
+    OP *	op_first; /* must be first */
 };
 
 struct unop_aux {
     BASEOP
-    OP  	  *op_first;
+    OP  	  *op_first; /* must be first */
     UNOP_AUX_item *op_aux;
 };
 
 struct binop {
     BASEOP
-    OP *	op_first;
-    OP *	op_last;
+    OP *	op_first; /* must be first */
+    OP *	op_last;  /* must be second */
 };
 
 struct logop {
     BASEOP
-    OP *	op_first;
+    OP *	op_first; /* must be first */
     OP *	op_other;
 };
 
 struct listop {
     BASEOP
-    OP *	op_first;
-    OP *	op_last;
+    OP *	op_first; /* must be first */
+    OP *	op_last;  /* must be second */
 };
 
 struct methop {
@@ -261,8 +261,8 @@ struct methop {
 
 struct pmop {
     BASEOP
-    OP *	op_first;
-    OP *	op_last;
+    OP *	op_first; /* must be first */
+    OP *	op_last;  /* must be second */
 #ifdef USE_ITHREADS
     PADOFFSET   op_pmoffset;
 #else
@@ -432,8 +432,8 @@ struct pvop {
 
 struct loop {
     BASEOP
-    OP *	op_first;
-    OP *	op_last;
+    OP *	op_first; /* must be first */
+    OP *	op_last;  /* must be second */
     OP *	op_redoop;
     OP *	op_nextop;
     OP *	op_lastop;
@@ -978,6 +978,11 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
 #define OpTYPECHECKED(o)	(0 + (o)->op_typechecked)
 #define OpRETTYPE(o)		(0 + (o)->op_rettype)
 #define OpRETTYPE_set(o, type)	(o)->op_rettype = (type)
+
+#define OpNEXT(o)    (o)->op_next
+#define OpFIRST(o)   cUNOPx(o)->op_first
+#define OpLAST(o)    cBINOPx(o)->op_last
+#define OpOTHER(o)   cLOGOPx(o)->op_other
 
 #ifdef PERL_OP_PARENT
 #  define OpHAS_SIBLING(o)	(cBOOL((o)->op_moresib))
