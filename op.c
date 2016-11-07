@@ -15723,17 +15723,18 @@ Perl_rpeep(pTHX_ OP *o)
          : NULL)
 
         case OP_NOT:
-            if ((fop = HV_OR_SCALARHV(cUNOP->op_first)))
+            if ((fop = HV_OR_SCALARHV(cUNOPo->op_first)))
                 fop->op_private |= OPpTRUEBOOL;
             break;
 
         case OP_AND:
 	case OP_OR:
 	case OP_DOR:
-            fop = cLOGOP->op_first;
+            /* XXX PL_op? broken by 867fa1e2da14522 demerphq (boolkeys). #219 */
+            fop = cLOGOPo->op_first;
             sop = OpSIBLING(fop);
-	    while (cLOGOP->op_other->op_type == OP_NULL)
-		cLOGOP->op_other = cLOGOP->op_other->op_next;
+	    while (cLOGOPo->op_other->op_type == OP_NULL)
+		cLOGOPo->op_other = cLOGOPo->op_other->op_next;
 	    while (o->op_next && (   o->op_type == o->op_next->op_type
 				  || o->op_next->op_type == OP_NULL))
 		o->op_next = o->op_next->op_next;
@@ -15752,7 +15753,7 @@ Perl_rpeep(pTHX_ OP *o)
 	    ) {
 	        o->op_next = ((LOGOP*)o->op_next)->op_other;
 	    }
-	    DEFER(cLOGOP->op_other);
+	    DEFER(cLOGOPo->op_other);
           
 	    o->op_opt = 1;
             fop = HV_OR_SCALARHV(fop);
@@ -15795,7 +15796,7 @@ Perl_rpeep(pTHX_ OP *o)
 	    break;
 	
 	case OP_COND_EXPR:
-	    if ((fop = HV_OR_SCALARHV(cLOGOP->op_first)))
+	    if ((fop = HV_OR_SCALARHV(cLOGOPo->op_first)))
 		fop->op_private |= OPpTRUEBOOL;
 #undef HV_OR_SCALARHV
 	    /* GERONIMO! */ /* FALLTHROUGH */
@@ -15807,23 +15808,23 @@ Perl_rpeep(pTHX_ OP *o)
 	case OP_DORASSIGN:
 	case OP_RANGE:
 	case OP_ONCE:
-	    while (cLOGOP->op_other->op_type == OP_NULL)
-		cLOGOP->op_other = cLOGOP->op_other->op_next;
-	    DEFER(cLOGOP->op_other);
+	    while (cLOGOPo->op_other->op_type == OP_NULL)
+		cLOGOPo->op_other = cLOGOPo->op_other->op_next;
+	    DEFER(cLOGOPo->op_other);
 	    break;
 
 	case OP_ENTERLOOP:
 	case OP_ENTERITER:
-	    while (cLOOP->op_redoop->op_type == OP_NULL)
-		cLOOP->op_redoop = cLOOP->op_redoop->op_next;
-	    while (cLOOP->op_nextop->op_type == OP_NULL)
-		cLOOP->op_nextop = cLOOP->op_nextop->op_next;
-	    while (cLOOP->op_lastop->op_type == OP_NULL)
-		cLOOP->op_lastop = cLOOP->op_lastop->op_next;
+	    while (cLOOPo->op_redoop->op_type == OP_NULL)
+		cLOOPo->op_redoop = cLOOPo->op_redoop->op_next;
+	    while (cLOOPo->op_nextop->op_type == OP_NULL)
+		cLOOPo->op_nextop = cLOOPo->op_nextop->op_next;
+	    while (cLOOPo->op_lastop->op_type == OP_NULL)
+		cLOOPo->op_lastop = cLOOPo->op_lastop->op_next;
 	    /* a while(1) loop doesn't have an op_next that escapes the
 	     * loop, so we have to explicitly follow the op_lastop to
 	     * process the rest of the code */
-	    DEFER(cLOOP->op_lastop);
+	    DEFER(cLOOPo->op_lastop);
 	    break;
 
         case OP_ENTERTRY:
@@ -15832,12 +15833,12 @@ Perl_rpeep(pTHX_ OP *o)
 	    break;
 
 	case OP_SUBST:
-	    assert(!(cPMOP->op_pmflags & PMf_ONCE));
-	    while (cPMOP->op_pmstashstartu.op_pmreplstart &&
-		   cPMOP->op_pmstashstartu.op_pmreplstart->op_type == OP_NULL)
-		cPMOP->op_pmstashstartu.op_pmreplstart
-		    = cPMOP->op_pmstashstartu.op_pmreplstart->op_next;
-	    DEFER(cPMOP->op_pmstashstartu.op_pmreplstart);
+	    assert(!(cPMOPo->op_pmflags & PMf_ONCE));
+	    while (cPMOPo->op_pmstashstartu.op_pmreplstart &&
+		   cPMOPo->op_pmstashstartu.op_pmreplstart->op_type == OP_NULL)
+		cPMOPo->op_pmstashstartu.op_pmreplstart
+		    = cPMOPo->op_pmstashstartu.op_pmreplstart->op_next;
+	    DEFER(cPMOPo->op_pmstashstartu.op_pmreplstart);
 	    break;
 
 	case OP_SORT: {
@@ -15997,8 +15998,8 @@ Perl_rpeep(pTHX_ OP *o)
 
 	case OP_QR:
 	case OP_MATCH:
-	    if (!(cPMOP->op_pmflags & PMf_ONCE)) {
-		assert (!cPMOP->op_pmstashstartu.op_pmreplstart);
+	    if (!(cPMOPo->op_pmflags & PMf_ONCE)) {
+		assert (!cPMOPo->op_pmstashstartu.op_pmreplstart);
 	    }
 	    break;
 
@@ -16026,7 +16027,7 @@ Perl_rpeep(pTHX_ OP *o)
 		   || (  o->op_next->op_next->op_type == OP_RETURN
 		      && !CvLVALUE(PL_compcv)))))
 	    {
-		OP *right = cBINOP->op_first;
+		OP *right = cBINOPo->op_first;
 		if (right) {
                     /*   sassign
                     *      RIGHT
