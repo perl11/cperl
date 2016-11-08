@@ -387,9 +387,10 @@ XXX
 
 =item *
 
-Added many OP read-write field accessor macros, like OpFIRST, OpLAST, OpOTHER,
-OpKIDS, OpSPECIAL, OpSTACKED, OpDEREF, OpWANT_VOID, OpWANT_SCALAR, OpWANT_LIST.
-And shorter type checks: IS_TYPE, ISNT_TYPE, NO_OP_TYPE_OR_WASNT.
+Added many OP read-write field accessor macros, like C<OpFIRST>,
+C<OpLAST>, C<OpOTHER>, C<OpKIDS>, C<OpSPECIAL>, C<OpSTACKED>,
+C<OpDEREF>, C<OpWANT_VOID>, C<OpWANT_SCALAR>, C<OpWANT_LIST>.  And
+shorter type checks: C<IS_TYPE>, C<ISNT_TYPE>, C<NO_OP_TYPE_OR_WASNT>.
 
 rpeep uses now consistently the local C<o>, and not the global C<PL_op> variable.
 See L<[cperl #219]|https://github.com/perl11/cperl/issues/219>.
