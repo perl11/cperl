@@ -730,14 +730,16 @@ Perl_fbm_compile(pTHX_ SV *sv, U32 flags)
 	return;
 
     if (flags & FBMcf_TAIL) {
-	MAGIC * const mg = SvUTF8(sv) && SvMAGICAL(sv) ? mg_find(sv, PERL_MAGIC_utf8) : NULL;
+	MAGIC * const mg = SvUTF8(sv) && SvMAGICAL(sv)
+                           ? mg_find(sv, PERL_MAGIC_utf8) : NULL;
 	sv_catpvs(sv, "\n");		/* Taken into account in fbm_instr() */
 	if (mg && mg->mg_len >= 0)
 	    mg->mg_len++;
     }
     if (!SvPOK(sv) || SvNIOKp(sv))
 	s = (U8*)SvPV_force_mutable(sv, len);
-    else s = (U8 *)SvPV_mutable(sv, len);
+    else
+        s = (U8 *)SvPV_mutable(sv, len);
     if (len == 0)		/* TAIL might be on a zero-length string. */
 	return;
     SvUPGRADE(sv, SVt_PVMG);

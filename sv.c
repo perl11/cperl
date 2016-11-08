@@ -255,6 +255,7 @@ Public API:
 #endif
 
 #ifdef PERL_POISON
+#  error PERL_POISON no spv support yet
 #  define SvARENA_CHAIN(sv)	((sv)->sv_u.svu_rv)
 #  define SvARENA_CHAIN_SET(sv,val)	(sv)->sv_u.svu_rv = MUTABLE_SV((val))
 /* Whilst I'd love to do this, it seems that things like to check on
@@ -266,7 +267,7 @@ Public API:
 #else
 #  define SvARENA_CHAIN(sv)	SvANY(sv)
 #  define SvARENA_CHAIN_SET(sv,val)	SvANY(sv) = (void *)(val)
-#  define POISON_SV_HEAD(sv)
+#  define POISON_SV_HEAD(sv)    /*SvANY(sv) = NULL*/
 #endif
 
 /* Mark an SV head as unused, and add to free list.
@@ -369,10 +370,7 @@ S_new_SV(pTHX_ const char *file, int line, const char *func)
     sv->sv_debug_optype = PL_op ? PL_op->op_type : 0;
     sv->sv_debug_line = (U16) (PL_parser && PL_parser->copline != NOLINE
 		? PL_parser->copline
-		:  PL_curcop
-		    ? CopLINE(PL_curcop)
-		    : 0
-	    );
+		: PL_curcop ? CopLINE(PL_curcop) : 0);
     sv->sv_debug_inpad = 0;
     sv->sv_debug_parent = NULL;
     sv->sv_debug_file = PL_curcop
@@ -383,11 +381,9 @@ S_new_SV(pTHX_ const char *file, int line, const char *func)
         ? savesharedpv(CopFILE(PL_curcop)): NULL;
 
     sv->sv_debug_serial = PL_sv_serial++;
-
     MEM_LOG_NEW_SV(sv, file, line, func);
     DEBUG_m(Perl_deb(aTHX_ "0x%" UVxf ": (%05ld) new_SV (from %s:%d [%s])\n",
                      PTR2UV(sv), (long)sv->sv_debug_serial, file, line, func));
-
     return sv;
 }
 #  define new_SV(p) (p) = S_new_SV(aTHX_ __FILE__, __LINE__, FUNCTION__)
@@ -476,7 +472,7 @@ S_sv_add_arena(pTHX_ char *const ptr, const U32 size, const U32 flags)
     PERL_ARGS_ASSERT_SV_ADD_ARENA;
 
     /* The first SV in an arena isn't an SV. */
-    SvANY(sva) = (void *) PL_sv_arenaroot;		/* ptr to next arena */
+    SvANY(sva) = (void *) PL_sv_arenaroot;	/* ptr to next arena */
     SvREFCNT(sva) = size / sizeof(SV);		/* number of SV slots */
     SvFLAGS(sva) = flags;			/* FAKE if not to be freed */
 
@@ -822,8 +818,8 @@ Perl_sv_free_arenas(pTHX)
     while (i--)
 	PL_body_roots[i] = 0;
 
-    PL_sv_arenaroot = 0;
-    PL_sv_root = 0;
+    PL_sv_arenaroot = NULL;
+    PL_sv_root = NULL;
 }
 
 /*
@@ -1038,7 +1034,7 @@ static const struct body_details bodies_by_type[] = {
 
     { sizeof(XPVGV), sizeof(XPVGV), 0, SVt_PVGV, TRUE, HADNV,
       HASARENA, FIT_ARENA(0, sizeof(XPVGV)) },
-    
+
     { sizeof(XPVLV), sizeof(XPVLV), 0, SVt_PVLV, TRUE, HADNV,
       HASARENA, FIT_ARENA(0, sizeof(XPVLV)) },
 
@@ -1161,7 +1157,7 @@ Perl_more_bodies (pTHX_ const svtype sv_type, const size_t body_size,
     curr = aroot->curr++;
     adesc = &(aroot->set[curr]);
     assert(!adesc->arena);
-    
+
     Newx(adesc->arena, good_arena_size, char);
     adesc->size = good_arena_size;
     adesc->utype = sv_type;
@@ -1216,8 +1212,8 @@ Perl_more_bodies (pTHX_ const svtype sv_type, const size_t body_size,
 	void ** const r3wt = &PL_body_roots[sv_type]; \
 	xpv = (PTR_TBL_ENT_t*) (*((void **)(r3wt))      \
 	  ? *((void **)(r3wt)) : Perl_more_bodies(aTHX_ sv_type, \
-					     bodies_by_type[sv_type].body_size,\
-					     bodies_by_type[sv_type].arena_size)); \
+					bodies_by_type[sv_type].body_size,\
+					bodies_by_type[sv_type].arena_size)); \
 	*(r3wt) = *(void**)(xpv); \
     } STMT_END
 
@@ -1259,11 +1255,12 @@ Perl_sv_upgrade(pTHX_ SV *const sv, svtype new_type)
     const struct body_details *old_type_details
 	= bodies_by_type + old_type;
     SV *referent = NULL;
+    bool was_spv = SvSPOK(sv) && SvTYPE(sv) == SVt_PV && SvPOK(sv);
 
     PERL_ARGS_ASSERT_SV_UPGRADE;
 
-    if (old_type == new_type)
-	return;
+    if (old_type == new_type && !was_spv)
+        return;
 
     /* This clause was purposefully added ahead of the early return above to
        the shared string hackery for (sort {$a <=> $b} keys %hash), with the
@@ -1273,7 +1270,6 @@ Perl_sv_upgrade(pTHX_ SV *const sv, svtype new_type)
        Given that shared hash key scalars are no longer PVIV, but PV, there is
        no longer need to unshare so as to free up the IVX slot for its proper
        purpose. So it's safe to move the early return earlier.  */
-
     if (new_type > SVt_PVMG && SvIsCOW(sv)) {
 	sv_force_normal_flags(sv, 0);
     }
@@ -1340,7 +1336,7 @@ Perl_sv_upgrade(pTHX_ SV *const sv, svtype new_type)
 	}
 	break;
     case SVt_PV:
-	assert(new_type > SVt_PV);
+	assert(new_type >= SVt_PV);          /* we want to upgrade a SPV to a PV */
 	STATIC_ASSERT_STMT(SVt_IV < SVt_PV);
 	STATIC_ASSERT_STMT(SVt_NV < SVt_PV);
 	break;
@@ -1472,8 +1468,17 @@ Perl_sv_upgrade(pTHX_ SV *const sv, svtype new_type)
 	    new_body = new_NOARENAZ(new_type_details);
 	}
 	SvANY(sv) = new_body;
-
-	if (old_type_details->copy) {
+        if (was_spv) {
+            STRLEN len = strlen((char*)old_body);
+	    char *s = len ? (char*)safemalloc(len+1) : NULL;
+            SvFAKE_off(sv);
+            SvCUR_set(sv, len);
+            SvLEN_set(sv, len ? len+1 : 0);
+            if (len)
+                Copy((char*)old_body, s, len+1, char);
+            SvPV_set(sv, s);
+        }
+	else if (old_type_details->copy) {
 	    /* There is now the potential for an upgrade from something without
 	       an offset (PVNV or PVMG) to something with one (PVCV, PVFM)  */
 	    int offset = old_type_details->offset;
@@ -1486,9 +1491,8 @@ Perl_sv_upgrade(pTHX_ SV *const sv, svtype new_type)
 		length -= difference;
 	    }
 	    assert (length >= 0);
-		
-	    Copy((char *)old_body + offset, (char *)new_body + offset, length,
-		 char);
+            Copy((char *)old_body + offset, (char *)new_body + offset, length,
+                 char);
 	}
 
 #ifndef NV_ZERO_IS_ALLBITS_ZERO
@@ -1526,9 +1530,9 @@ Perl_sv_upgrade(pTHX_ SV *const sv, svtype new_type)
 		   (unsigned long)new_type);
     }
 
-    /* if this is zero, this is a body-less SVt_NULL, SVt_IV/SVt_RV,
+    /* If this is zero, this is a body-less SVt_NULL, SVt_IV/SVt_RV,
        and sometimes SVt_NV */
-    if (old_type_details->body_size) {
+    if (old_type_details->body_size && !was_spv) {
 #ifdef PURIFY
 	safefree(old_body);
 #else
@@ -1568,7 +1572,7 @@ Perl_sv_backoff(SV *const sv)
     assert(SvTYPE(sv) != SVt_PVAV);
 
     SvOOK_offset(sv, delta);
-    
+
     SvLEN_set(sv, SvLEN(sv) + delta);
     SvPV_set(sv, SvPVX(sv) - delta);
     SvFLAGS(sv) &= ~SVf_OOK;
@@ -1642,8 +1646,14 @@ Perl_sv_grow(pTHX_ SV *const sv, STRLEN newlen)
                 newlen = rounded;
         }
 #endif
-	if (SvLEN(sv) && s) {
-	    s = (char*)saferealloc(s, newlen);
+        if (SvANY(sv) == s && SvTYPE(sv) == SVt_PV) {
+            sv_upgrade(sv, SVt_PV); /* add a body and set SvANY */
+            s = sv->sv_u.svu_pv;
+            if (UNLIKELY(!s))
+                s = (char*)safemalloc(newlen);
+        }
+	else if (SvLEN(sv) && s) {
+            s = (char*)saferealloc(s, newlen);
 	}
 	else {
 	    s = (char*)safemalloc(newlen);
@@ -2593,7 +2603,7 @@ Perl_sv_2uv_flags(pTHX_ SV *const sv, const I32 flags)
 
     if (SvVALID(sv) || isREGEXP(sv)) {
 	/* FBMs use the space for SvIVX and SvNVX for other purposes, and use
-	   the same flag bit as SVf_IVisUV, so must not let them cache IVs.  
+	   the same flag bit as SVf_IVisUV, so must not let them cache IVs.
 	   Regexps have no SvIVX and SvNVX fields. */
 	assert(SvPOKp(sv));
 	{
@@ -3096,7 +3106,7 @@ Perl_sv_2pv_flags(pTHX_ SV *const sv, STRLEN *const lp, const I32 flags)
 
 		if (lp)
 		    *lp = RX_WRAPLEN(re);
- 
+
 		return RX_WRAPPED(re);
 	    } else {
 		const char *const typestr = sv_reftype(referent, 0);
@@ -4411,8 +4421,19 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
 	goto undef_sstr;
 
     case SVt_PV:
-	if (dtype < SVt_PV)
-	    sv_upgrade(dstr, SVt_PV);
+	if (dtype <= SVt_PV) {
+            if (SvSPOK(sstr)) {
+                Copy(sstr, dstr, 1, SV);
+                SvANY(dstr) = &dstr->sv_u.svu_pv;
+#ifdef DEBUG_LEAKING_SCALARS
+                dstr->sv_debug_parent = (SV*)sstr;
+                dstr->sv_debug_file = savesharedpv(sstr->sv_debug_file);
+#endif
+                return;
+            }
+	    else
+                sv_upgrade(dstr, SVt_PV);
+        }
 	break;
     case SVt_PVIV:
 	if (dtype < SVt_PVIV)
@@ -4572,7 +4593,7 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
 	  && (stype == SVt_REGEXP || isREGEXP(sstr))) {
 	reg_temp_copy((REGEXP*)dstr, (REGEXP*)sstr);
     }
-    else if (sflags & SVp_POK) {
+    else if (sflags & SVp_POK && !SvSPOK(sstr)) {
 	const STRLEN cur = SvCUR(sstr);
 	const STRLEN len = SvLEN(sstr);
 
@@ -4648,7 +4669,9 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
                  SvREFCNT(sstr) == 1 &&   /* and no other references to it? */
                  len)             /* and really is a string */
 	{	/* Passes the swipe test, ie. steal the string buffer */
-	    if (SvPVX_const(dstr))	/* we know that dtype >= SVt_PV */
+            if (SvSPOK(dstr))
+                SvUPGRADE(dstr, SVt_PV);
+	    else if (SvPVX_const(dstr))	/* we know that dtype >= SVt_PV */
 		SvPV_free(dstr);
             if (DEBUG_C_TEST) {
                 PerlIO_printf(Perl_debug_log, "Swipe: sstr --> dstr \"%s\"\n",
@@ -4702,11 +4725,11 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
 #endif
 #ifdef PERL_ANY_COW
             if (!(sflags & SVf_IsCOW)) {
-                    SvIsCOW_on(sstr);
-		    CowREFCNT(sstr) = 0;
+                SvIsCOW_on(sstr);
+                CowREFCNT(sstr) = 0;
             }
 #endif
-	    if (SvPVX_const(dstr)) {	/* we know that dtype >= SVt_PV */
+	    if (!SvSPOK(dstr) && SvPVX_const(dstr)) {	/* we know that dtype >= SVt_PV */
 		SvPV_free(dstr);
 	    }
 
@@ -4717,6 +4740,8 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
                     sv_buf_to_rw(sstr);
                 }
 #endif
+                if (SvSPOK(dstr))
+                    SvUPGRADE(dstr, SVt_PV);
                 CowREFCNT_inc(sstr);
                 DEBUG_C(PerlIO_printf(Perl_debug_log,
                                       "Copy on write: Splice in \"%s\"\n",
@@ -4732,6 +4757,8 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
                                       SvPVX_const(sstr)));
 
                 assert (SvTYPE(dstr) >= SVt_PV);
+                if (SvSPOK(dstr))
+                    sv_upgrade(dstr, SVt_PV);
                 SvPV_set(dstr,
                     HEK_KEY(share_hek_hek(SvSHARED_HEK_FROM_PV(SvPVX_const(sstr)))));
 	    }
@@ -4885,13 +4912,13 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
 		      (void*)sstr, (void*)dstr);
 	sv_dump(sstr);
 	if (dstr)
-		    sv_dump(dstr);
+            sv_dump(dstr);
     }
 #endif
     if (dstr) {
 	if (SvTHINKFIRST(dstr))
 	    sv_force_normal_flags(dstr, SV_COW_DROP_PV);
-	else if (SvPVX_const(dstr))
+	else if (!SvSPOK(dstr) && SvPVX_const(dstr))
 	    Safefree(SvPVX_mutable(dstr));
     }
     else
@@ -5006,10 +5033,14 @@ Perl_sv_setpvn(pTHX_ SV *const sv, const char *const ptr, const STRLEN len)
     }
     SvUPGRADE(sv, SVt_PV);
 
-    dptr = SvGROW(sv, len + 1);
-    Move(ptr,dptr,len,char);
-    dptr[len] = '\0';
-    SvCUR_set(sv, len);
+    /* empty SPV may be NULL */
+    if ((dptr = SvGROW(sv, len + 1))) {
+        Move(ptr,dptr,len,char);
+        dptr[len] = '\0';
+        SvCUR_set(sv, len);
+    } else if (SvSPOK(sv) && len < SPV_MAX) {
+        Move(ptr,SvANY(sv),len,char);
+    }
     (void)SvPOK_only_UTF8(sv);		/* validate pointer */
     SvTAINT(sv);
     if (SvTYPE(sv) == SVt_PVCV) CvAUTOLOAD_off(sv);
@@ -5245,6 +5276,8 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
         }
 #endif
         SvIsCOW_off(sv);
+        if (SvSPOK(sv))
+            return;
 # ifdef PERL_COPY_ON_WRITE
 	if (len) {
 	    /* Must do this first, since the CowREFCNT uses SvPVX and
@@ -5273,12 +5306,12 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
                 SvPOK_off(sv);
             } else {
                 SvGROW(sv, cur + 1);
-                Move(pvx,SvPVX(sv),cur,char);
+                Move(pvx,sv->sv_u.svu_pv,cur,char);
                 SvCUR_set(sv, cur);
                 *SvEND(sv) = '\0';
             }
-	    if (! len) {
-			unshare_hek(SvSHARED_HEK_FROM_PV(pvx));
+	    if (!len) {
+		unshare_hek(SvSHARED_HEK_FROM_PV(pvx));
 	    }
 # ifdef DEBUGGING
             if (DEBUG_C_TEST && DEBUG_v_TEST)
@@ -5448,6 +5481,8 @@ Perl_sv_chop(pTHX_ SV *const sv, const char *const ptr)
 		   ptr, SvPVX_const(sv), SvPVX_const(sv) + max_delta);
     /* SvPVX(sv) may move in SV_CHECK_THINKFIRST(sv), so don't use ptr any more */
     SV_CHECK_THINKFIRST(sv);
+    if (SvSPOK(sv)) /* OOK will move the any ptr, which kills the SvSPOK test */
+        sv_upgrade(sv, SVt_PV);
     SvPOK_only_UTF8(sv);
 
     if (!SvOOK(sv)) {
@@ -6545,7 +6580,7 @@ Perl_sv_replace(pTHX_ SV *const sv, SV *const nsv)
     assert(!SvREFCNT(sv));
 #ifdef DEBUG_LEAKING_SCALARS
     SvFLAGS(sv)   = SvFLAGS(nsv);
-    SvANY(sv)     = SvANY(nsv);
+    SvANY(sv)     = SvSPOK(sv) ? &sv->sv_u.svu_pv : SvANY(nsv);
     SvREFCNT(sv)  = SvREFCNT(nsv);
     sv->sv_u      = nsv->sv_u;
 #else
@@ -6553,8 +6588,11 @@ Perl_sv_replace(pTHX_ SV *const sv, SV *const nsv)
 #endif
     if (SvTYPE(sv) == SVt_IV) {
 	SET_SVANY_FOR_BODYLESS_IV(sv);
+#if NVSIZE <= IVSIZE
+    } else if (SvTYPE(sv) == SVt_NV) {
+	SET_SVANY_FOR_BODYLESS_NV(sv);
+#endif
     }
-	
 
     SvREFCNT(sv) = refcnt;
     SvFLAGS(nsv) |= SVTYPEMASK;		/* Mark as freed */
@@ -6833,6 +6871,10 @@ Perl_sv_clear(pTHX_ SV *const orig_sv)
 	case SVt_INVLIST:
 	case SVt_PV:
 	  freescalar:
+            if (SvSPOK(sv)) {
+                /*SvANY(sv) = NULL;*/
+                goto free_head;
+            }
 	    /* Don't bother with SvOOK_off(sv); as we're only going to
 	     * free it.  */
 	    if (SvOOK(sv)) {
@@ -9431,6 +9473,7 @@ C<newSVpvn_utf8()> is a convenience wrapper for this function, defined as
     #define newSVpvn_utf8(s, len, u)			\
 	newSVpvn_flags((s), (len), (u) ? SVf_UTF8 : 0)
 
+If the length is smaller than SPV_MAX, a smallstring SPV is created.
 =cut
 */
 
@@ -9443,7 +9486,17 @@ Perl_newSVpvn_flags(pTHX_ const char *const s, const STRLEN len, const U32 flags
        And we're new code so I'm going to assert this from the start.  */
     assert(!(flags & ~(SVf_UTF8|SVs_TEMP)));
     new_SV(sv);
-    sv_setpvn(sv,s,len);
+    /* create a SPV, a body-less small string */
+    if (len < SPV_MAX && !memchr(s,'\0',len)) { /* no NUL allowed */
+        SvANY(sv) = &sv->sv_u.svu_pv;
+        if (len)
+            Copy(s, SvANY(sv), len+1, char);
+        else
+            sv->sv_u.svu_pv = 0;
+        SvFLAGS(sv) = SVf_POK|SVp_POK|SVf_FAKE|SVt_PV;
+    }
+    else
+        sv_setpvn(sv,s,len);
 
     /* This code used to do a sv_2mortal(), however we now unroll the call to
      * sv_2mortal() and do what it does ourselves here.  Since we have asserted
@@ -9511,12 +9564,21 @@ to call C<strlen> use C<newSVpvn> instead (calling C<strlen> yourself).
 
 __attribute__used__
 SV *
-Perl_newSVpv(pTHX_ const char *const s, const STRLEN len)
+Perl_newSVpv(pTHX_ const char *const s, STRLEN len)
 {
     SV *sv;
 
     new_SV(sv);
-    sv_setpvn(sv, s, len || s == NULL ? len : strlen(s));
+    if (!len) len = strlen(s);
+    if (len < SPV_MAX && !memchr(s,'\0',len)) { /* no NUL allowed */
+        SvANY(sv) = &sv->sv_u.svu_pv;
+        if (len)
+            Copy(s, SvANY(sv), len+1, char);
+        else
+            sv->sv_u.svu_pv = 0;
+        SvFLAGS(sv) = SVp_POK|SVf_FAKE|SVt_PV;
+    } else
+        sv_setpvn(sv, s, len || s == NULL ? len : strlen(s));
     return sv;
 }
 
@@ -9535,11 +9597,19 @@ undefined.
 
 __attribute__used__
 SV *
-Perl_newSVpvn(pTHX_ const char *const buffer, const STRLEN len)
+Perl_newSVpvn(pTHX_ const char *const s, const STRLEN len)
 {
     SV *sv;
     new_SV(sv);
-    sv_setpvn(sv,buffer,len);
+    if (len < SPV_MAX && !memchr(s,'\0',len)) { /* no NUL allowed */
+        SvANY(sv) = &sv->sv_u.svu_pv;
+        if (len)
+            Copy(s, SvANY(sv), len+1, char);
+        else
+            sv->sv_u.svu_pv = 0;
+        SvFLAGS(sv) = SVp_POK|SVf_FAKE|SVt_PV;
+    } else
+        sv_setpvn(sv,s,len);
     return sv;
 }
 
@@ -10225,7 +10295,7 @@ Perl_sv_pvn_force_flags(pTHX_ SV *const sv, STRLEN *const lp, const I32 flags)
     PERL_ARGS_ASSERT_SV_PVN_FORCE_FLAGS;
 
     if (flags & SV_GMAGIC) SvGETMAGIC(sv);
-    if (SvTHINKFIRST(sv) && (!SvROK(sv) || SvREADONLY(sv)))
+    if (SvTHINKFIRST(sv) && (!SvROK(sv) || SvREADONLY(sv)) && !SvSPOK(sv))
         sv_force_normal_flags(sv, 0);
 
     if (SvPOK(sv)) {

@@ -111,7 +111,7 @@ Perl_set_version(pTHX_ const char *name, STRLEN nlen, const char *strval, STRLEN
     PERL_ARGS_ASSERT_SET_VERSION;
     SvREADONLY_off(ver);
     SvUPGRADE(ver, SVt_PVNV);
-    SvPVX(ver) = SvGROW(ver, plen+1);
+    SvPV_set(ver, SvGROW(ver, plen+1));
     Move(strval, SvPVX(ver), plen, char);
     SvCUR_set(ver, plen);
     SvNVX(ver) = nvval;

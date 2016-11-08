@@ -1953,11 +1953,9 @@ then calling:
 PERL_STATIC_INLINE bool
 S_should_warn_nl(const char *pv) {
     STRLEN len;
-
     PERL_ARGS_ASSERT_SHOULD_WARN_NL;
 
     len = strlen(pv);
-
     return len > 0 && pv[len-1] == '\n';
 }
 

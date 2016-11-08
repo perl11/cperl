@@ -2975,7 +2975,8 @@ S_check_hash_fields_and_hekify(pTHX_ UNOP *rop, SVOP *key_op, int real)
         }
 
         /* Make the CONST have a shared SV */
-        if (   !SvIsCOW_shared_hash(sv = *svp)
+        sv = *svp;
+        if (   !SvIsCOW_shared_hash(sv)
             && SvTYPE(sv) < SVt_PVMG
             && SvOK(sv)
             && !SvROK(sv)
@@ -16015,7 +16016,8 @@ Perl_ck_require(pTHX_ OP *o)
                         --end;
                     }
                 }
-                SvEND_set(sv, end);
+                if (!SvSPOK(sv))
+                    SvEND_set(sv, end);
                 sv_catpvs(sv, ".pm");
                 s = SvPVX(sv);
                 len = SvCUR(sv);
@@ -16041,7 +16043,7 @@ Perl_ck_require(pTHX_ OP *o)
 	}
     }
 
-    if (!(OpSPECIAL(o)) /* Wasn't written as CORE::require */
+    if (!OpSPECIAL(o) /* Wasn't written as CORE::require */
 	/* handle override, if any */
      && (gv = gv_override("require", 7))) {
 	OP *kid, *newop;

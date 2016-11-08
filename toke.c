@@ -1466,7 +1466,7 @@ Perl_lex_next_chunk(pTHX_ U32 flags)
             PL_parser->last_lop = NULL;
         last_uni_pos = last_lop_pos = 0;
         *buf = 0;
-        SvCUR(linestr) = 0;
+	SvCUR_set(linestr, 0);
     } else {
         old_bufend_pos = PL_parser->bufend - buf;
         bufptr_pos = PL_parser->bufptr - buf;
@@ -2528,6 +2528,7 @@ S_tokeq(pTHX_ SV *sv)
         *d++ = *s++;
     }
     *d = '\0';
+    /* For SPV s and d cannot overflow */
     SvCUR_set(sv, d - SvPVX_const(sv));
   finish:
     if ( PL_hints & HINT_NEW_STRING )

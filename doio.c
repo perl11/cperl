@@ -2206,7 +2206,7 @@ Perl_my_stat_flags(pTHX_ const U32 flags)
         else {
             PL_laststatval = PerlLIO_stat(d, &PL_statcache);
         }
-	if (PL_laststatval < 0 && ckWARN(WARN_NEWLINE) && should_warn_nl(s)) {
+	if (PL_laststatval < 0 && ckWARN(WARN_NEWLINE) && s && should_warn_nl(s)) {
             GCC_DIAG_IGNORE_STMT(-Wformat-nonliteral); /* PL_warn_nl is constant */
 	    Perl_warner(aTHX_ packWARN(WARN_NEWLINE), PL_warn_nl, "stat");
             GCC_DIAG_RESTORE_STMT;

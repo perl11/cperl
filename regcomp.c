@@ -20873,7 +20873,7 @@ Perl_reg_temp_copy(pTHX_ REGEXP *dsv, REGEXP *ssv)
     drx = ReANY(dsv);
 
     SvFLAGS(dsv) |= SvFLAGS(ssv) & (SVf_POK|SVp_POK|SVf_UTF8);
-    SvPV_set(dsv, RX_WRAPPED(ssv));
+    SvPV_set((SV*)dsv, RX_WRAPPED(ssv));
     /* We share the same string buffer as the original regexp, on which we
        hold a reference count, incremented when mother_re is set below.
        The string pointer is copied here, being part of the regexp struct.

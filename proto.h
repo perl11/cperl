@@ -4035,7 +4035,7 @@ PERL_CALLCONV SV*	Perl_newSVnv(pTHX_ const NV n)
 			__attribute__global__
 			__attribute__warn_unused_result__;
 
-PERL_CALLCONV SV*	Perl_newSVpv(pTHX_ const char *const s, const STRLEN len)
+PERL_CALLCONV SV*	Perl_newSVpv(pTHX_ const char *const s, STRLEN len)
 			__attribute__global__
 			__attribute__warn_unused_result__;
 
@@ -5485,12 +5485,12 @@ PERL_CALLCONV void	Perl_sv_catpvn(pTHX_ SV *dsv, const char *sstr, STRLEN len)
 	assert(dsv); assert(sstr)
 #endif
 
-PERL_CALLCONV void	Perl_sv_catpvn_flags(pTHX_ SV *const dstr, const char *sstr, const STRLEN len, const I32 flags)
+PERL_CALLCONV void	Perl_sv_catpvn_flags(pTHX_ SV *const dsv, const char *sstr, const STRLEN len, const I32 flags)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_SV_CATPVN_FLAGS	\
-	assert(dstr); assert(sstr)
+	assert(dsv); assert(sstr)
 
 #ifndef NO_MATHOMS
 PERL_CALLCONV void	Perl_sv_catpvn_mg(pTHX_ SV *sv, const char *ptr, STRLEN len)
