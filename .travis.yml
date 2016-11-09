@@ -1,11 +1,13 @@
 language: c
 sudo: false
+dist: trusty
 addons:
   apt:
     packages:
     - build-essential
     - libtool
     - gperf
+    #- gcc-4.8
     - gcc-multilib
     - libgdbm-dev:i386
   coverity_scan:
@@ -15,8 +17,14 @@ addons:
     build_command_prepend: ./Configure -des -Dusedevel -Uversiononly -Dprefix=$HOME/cperl/usr
     build_command: make -s -j4 ECHO=true
     branch_pattern: coverity
-cache:
-  apt: true
+#cache:
+#  apt: true
+# needed for trusty gcc-multilib
+#before_install:
+#  - dpkg --add-architecture i386
+#  - apt-get update -qq
+
+# disable the default submodule logic, no .git-rr-cache
 git:
   submodules: false
 os:
