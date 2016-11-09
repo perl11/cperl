@@ -2289,11 +2289,6 @@ Perl_new_warnings_bitfield(pTHX_ STRLEN *buffer, const char *const bits,
        /* VMS' my_setenv() is in vms.c */
 #if !defined(WIN32) && !defined(NETWARE)
 
-/* Needed for lto and -fvisibility=hidden on some archs */
-#if defined(HAS_SETENV) && defined(__CYGWIN__)|| defined(__SYMBIAN32__) || defined(__riscos__) || (defined(__sun) && defined(HAS_UNSETENV)) || defined(PERL_DARWIN)
-int setenv(const char *, const char *, int) __attribute__global__;
-#endif
-
 void
 Perl_my_setenv(pTHX_ const char *nam, const char *val)
 {
@@ -4312,7 +4307,6 @@ Fill C<sv> with current working directory
  *     because you might chdir out of a directory that you can't chdir
  *     back into. */
 
-__attribute__used__
 int
 Perl_getcwd_sv(pTHX_ SV *sv)
 {
@@ -5762,7 +5756,6 @@ Perl_my_cxt_init(pTHX_ const char *my_cxt_key, size_t size)
    'file' is the source filename of the caller.
 */
 
-__attribute__used__
 I32
 Perl_xs_handshake(const U32 key, void * v_my_perl, const char * file, ...)
 {

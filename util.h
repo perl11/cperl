@@ -38,6 +38,12 @@
 #  endif	/* WIN32 */
 #endif		/* VMS */
 
+/* global visibility needed for lto and -fvisibility=hidden on some archs,
+   when being optimized away */
+#if defined(HAS_SETENV) && (defined(__CYGWIN__) || defined(__SYMBIAN32__) || defined(__riscos__) || (defined(__sun) && defined(HAS_UNSETENV)) || defined(PERL_DARWIN))
+int setenv(const char *, const char *, int) __attribute__global__;
+#endif
+
 /*
 =head1 Miscellaneous Functions
 

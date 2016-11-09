@@ -3649,7 +3649,7 @@ EXTERN_C int perl_tsa_mutex_unlock(perl_mutex* mutex)
 
 /* We could also use GLOBAL instead of  __attribute__global__.
    But GLOBAL would be expected at the front of the declaration,
-   whilst the attribute is better put behind. */
+   whilst the attribute needs to be put behind. */
 #ifdef __GNUC__
 #  define __attribute__global__         __attribute__((__visibility__("default")))
 #elif defined(__SUNPRO_C)
@@ -3676,7 +3676,7 @@ EXTERN_C int perl_tsa_mutex_unlock(perl_mutex* mutex)
 #ifdef HASATTRIBUTE_PURE
 #  define __attribute__pure__               __attribute__((pure))
 #endif
-#ifdef HASATTRIBUTE_USED
+#if 0 && defined(HASATTRIBUTE_USED)
 #  define __attribute__used__               __attribute__((used))
 #endif
 #ifdef HASATTRIBUTE_UNUSED
@@ -3922,9 +3922,9 @@ typedef        struct crypt_data {     /* straight from /usr/include/crypt.h */
 
 #ifndef PERL_CALLCONV
 #  ifdef __cplusplus
-#    define PERL_CALLCONV extern "C" __attribute__used__
+#    define PERL_CALLCONV extern "C" __attribute__global__
 #  else
-#    define PERL_CALLCONV __attribute__used__
+#    define PERL_CALLCONV __attribute__global__
 #  endif
 #endif
 #ifndef PERL_MATHOM_CALLCONV
@@ -4998,7 +4998,6 @@ EXTCONST char PL_uudmap[256] =
 #    include "uudmap.h"
 #  endif
 ;
-__attribute__used__
 EXTCONST char PL_bitcount[256] =
 #  ifdef PERL_MICRO
 #    include "ubitcount.h"
