@@ -5525,19 +5525,24 @@ default|recommended)
 	# thing. (NWC)
 	case "$osname" in
 	amigaos) ;; # -fstack-protector builds but doesn't work
-	*)	case "$gccversion" in
-		?*)	set stack-protector-strong -fstack-protector-strong
-			eval $checkccflag
-			case "$dflt" in
-			*-fstack-protector-strong*) ;; # It got added.
-			*) # Try the plain/older -fstack-protector.
+	*) case "$gccversion" in
+	       ?*) case "$dflt" in
+		       *-fsanitize=cfi*) ;; # not needed
+                       *) set stack-protector-strong -fstack-protector-strong
+			  eval $checkccflag
+                          ;;
+                   esac
+                   case "$dflt" in
+		       *-fsanitize=cfi*) ;;
+		       *-fstack-protector-strong*) ;; # It got added.
+		       *) # Try the plain/older -fstack-protector.
 			   set stack-protector -fstack-protector
 			   eval $checkccflag
 			   ;;
-			esac
-			;;
-		esac
-		;;
+		   esac
+		   ;;
+	   esac
+	   ;;
 	esac
 	;;
 esac
@@ -5684,6 +5689,22 @@ case "$ldflags" in
 esac
 # See note above about -fstack-protector
 case "$ccflags" in
+*-fsanitize=cfi*)
+	case "$dflt" in
+	*-fsanitize=cfi*) ;; # Don't add it again
+        # only that, not -fstack-protector too
+	*) dflt="$dflt -fsanitize=cfi" ;;
+	esac
+        # add the other needed flags also.
+        case "$dflt" in
+            *-fvisibility=*) ;;
+	    *) dflt="$dflt -fvisibility=default" ;;
+        esac
+        case "$dflt" in
+            *-flto*) ;;
+	    *) dflt="$dflt -flto" ;;
+        esac
+	;;
 *-fstack-protector-strong*)
 	case "$dflt" in
 	*-fstack-protector-strong*) ;; # Don't add it again
@@ -5735,6 +5756,42 @@ none) ldflags='';;
 *) ldflags="$ans";;
 esac
 rmlist="$rmlist pdp11"
+
+case "$ccflags" in
+*-fsanitize=address*)
+    case "$ldflags" in
+        *-fsanitize=address*) ;;
+        *) ldflags="$ldflags -fsanitize=address" ;;
+    esac
+    ;;
+*-fsanitize=cfi*)
+    case "$ccflags" in
+        *-fvisibility=*) ;;
+	*) ccflags="-fvisibility=default $ccflags" ;;
+    esac
+    case "$ccflags" in
+        *-flto*) ;;
+	*) ccflags="-flto $ccflags" ;;
+    esac
+    case "$ldflags" in
+        *-flto*) ;;
+        *) ldflags="-flto $ldflags" ;;
+    esac
+    case "$ccflags" in
+        *-fstack-protector-strong*)
+            ccflags=`echo $ccflags|sed -e's,-fstack-protector-strong,,'`
+            ;;
+        *-fstack-protector*)
+            ccflags=`echo $ccflags|sed -e's,-fstack-protector ,,'`
+            ;;
+    esac
+    ;;
+*-flto*)
+    case "$ldflags" in
+        *-flto*) ;;
+        *) ldflags="-flto $ldflags" ;;
+    esac
+esac
 
 : coherency check
 echo " "
@@ -8705,6 +8762,12 @@ EOM
 	esac
 
 	case "$ldflags" in
+	    *-fsanitize=cfi*)
+		case "$dflt" in
+		    *-fsanitize=cfi*) ;; # Don't add it again
+		    *) dflt="$dflt -fsanitize=cfi" ;;
+		esac
+		;;
 	    *-fstack-protector-strong*)
 		case "$dflt" in
 		    *-fstack-protector-strong*) ;; # Don't add it again
@@ -8718,6 +8781,14 @@ EOM
 		esac
 		;;
 	esac
+	case "$ldflags" in
+	    *-flto*)
+		case "$dflt" in
+		    *-flto*) ;; # Don't add it again
+		    *) dflt="$dflt -flto" ;;
+		esac
+		;;
+        esac
 
 	rp="Any special flags to pass to $ld to create a dynamically loaded library?"
 	. ./myread
