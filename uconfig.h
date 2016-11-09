@@ -1106,7 +1106,7 @@
 /* HASATTRIBUTE_WARN_UNUSED_RESULT:
  *	Can we handle GCC attribute for warning on unused results
  */
-# HASATTRIBUTE_ALWAYS_INLINE	/**/
+/*#define HASATTRIBUTE_ALWAYS_INLINE	/ **/
 /*#define HASATTRIBUTE_DEPRECATED	/ **/
 /*#define HASATTRIBUTE_FORMAT	/ **/
 /*#define PRINTF_FORMAT_NULL_OK	/ **/
@@ -5382,5 +5382,5 @@
 
 /* Generated from:
  * 631433b55a934355f55f202718d69e3d606d90bd2c507c54ce2932a7a33b054d config_h.SH
- * 8657ad515c52678afc5feca7c95ad417a846118f604c49790bb2acd16fa3e1cd uconfig.sh
+ * 3a2fdfafabd2b6647a283bffb4e5250c332b438022fd1503f815c037ac5eace7 uconfig.sh
  * ex: set ro: */
