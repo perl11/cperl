@@ -19,6 +19,7 @@ BEGIN {
     skip_all_without_config(qw(d_pipe d_fork d_waitpid d_getppid));
     plan (8);
 }
+use Config;
 
 # No, we don't want any zombies. kill 0, $ppid spots zombies :-(
 $SIG{CHLD} = 'IGNORE';
@@ -37,8 +38,14 @@ sub fork_and_retrieve {
 	    unless my ($how, $first, $second) = /^([a-z]+),(\d+),(\d+)\z/;
 	cmp_ok ($first, '>=', 1, "Parent of $which grandchild");
 	my $message = "grandchild waited until '$how'";
-	cmp_ok ($second, '>=', 1, "New parent of orphaned $which grandchild")
+        # This is an unstable assumption, see PR_SET_CHILD_SUBREAPER
+        if (!$second and $^O eq 'linux' and $Config{osvers} > 3.4) {
+          ok (!$second, "No reparented orphaned $which grandchild on kernel $Config{osvers}")
 	    ? note ($message) : diag ($message);
+        } else {
+          cmp_ok ($second, '>=', 1, "New parent of orphaned $which grandchild")
+	    ? note ($message) : diag ($message);
+        }
 
 	SKIP: {
 	    skip("Orphan processes are not reparented on QNX", 1)
