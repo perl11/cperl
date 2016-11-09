@@ -79,6 +79,18 @@ int putenv(char *);
 
 #define FLUSH
 
+/* global visibility needed for lto and -fvisibility=hidden on some archs,
+   when being optimized away */
+#if defined(__APPLE__) && defined(__clang__) && !defined(__apple_build_version__)
+# if ((100*__clang_major__ + __clang_minor__) >= 307) /*&& __has_feature(cfi)*/
+/* disable it */
+#warning disable setenv for lto
+# undef HAS_SETENV
+int setenv(const char *, const char *, int) __attribute__global__;
+pid_t getpid(void) __attribute__global__;
+# endif
+#endif
+
 /* NOTE:  Do not call the next three routines directly.  Use the macros
  * in handy.h, so that we can easily redefine everything to do tracking of
  * allocated hunks back to the original New to track down any memory leaks.
@@ -2279,14 +2291,7 @@ Perl_new_warnings_bitfield(pTHX_ STRLEN *buffer, const char *const bits,
 
 /* Needed for lto and -fvisibility=hidden on some archs */
 #if defined(HAS_SETENV) && defined(__CYGWIN__)|| defined(__SYMBIAN32__) || defined(__riscos__) || (defined(__sun) && defined(HAS_UNSETENV)) || defined(PERL_DARWIN)
-# if defined(__GNUC__)
-int setenv(const char *, const char *, int)
-    __attribute__((__visibility__("default")));
-# elif defined(__SUNPRO_C)
-int setenv(const char *, const char *, int)
-    __global;
-/* windows with __declspec(dllexport)? */
-# endif
+int setenv(const char *, const char *, int) __attribute__global__;
 #endif
 
 void
@@ -2363,14 +2368,14 @@ Perl_my_setenv(pTHX_ const char *nam, const char *val)
         my_setenv_format(environ[i], nam, nlen, val, vlen);
     } else {
 # endif /* !PERL_USE_SAFE_PUTENV */
-# if defined(__CYGWIN__)|| defined(__SYMBIAN32__) || defined(__riscos__) || (defined(__sun) && defined(HAS_UNSETENV)) || defined(PERL_DARWIN)
-#  if defined(HAS_UNSETENV) && defined(HAS_SETENV)
+# if (defined(__CYGWIN__)|| defined(__SYMBIAN32__) || defined(__riscos__) || (defined(__sun) && defined(HAS_UNSETENV)) || defined(PERL_DARWIN)) && defined(HAS_SETENV)
+#  if defined(HAS_UNSETENV)
         if (val == NULL) {
             (void)unsetenv(nam);
         } else {
             (void)setenv(nam, val, 1);
         }
-#  elif defined(HAS_SETENV)
+#  else
         (void)setenv(nam, val, 1);
 #  endif /* HAS_UNSETENV */
 # else /* other archs */

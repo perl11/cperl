@@ -3647,6 +3647,17 @@ EXTERN_C int perl_tsa_mutex_unlock(perl_mutex* mutex)
 #  endif
 #endif
 
+/* We could also use GLOBAL instead of  __attribute__global__.
+   But GLOBAL would be expected at the front of the declaration,
+   whilst the attribute is better put behind. */
+#ifdef __GNUC__
+#  define __attribute__global__         __attribute__((__visibility__("default")))
+#elif defined(__SUNPRO_C)
+#  define __attribute__global__	        __global
+#elif defined(WIN32)
+/* on windows __declspec(dllexport) is already in the front. put nothing here */
+#  define __attribute__global__
+#endif
 #ifdef HASATTRIBUTE_DEPRECATED
 #  define __attribute__deprecated__         __attribute__((deprecated))
 #endif
