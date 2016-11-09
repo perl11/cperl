@@ -2276,6 +2276,19 @@ Perl_new_warnings_bitfield(pTHX_ STRLEN *buffer, const char *const bits,
 #ifdef USE_ENVIRON_ARRAY
        /* VMS' my_setenv() is in vms.c */
 #if !defined(WIN32) && !defined(NETWARE)
+
+/* Needed for lto and -fvisibility=hidden on some archs */
+#if defined(HAS_SETENV) && defined(__CYGWIN__)|| defined(__SYMBIAN32__) || defined(__riscos__) || (defined(__sun) && defined(HAS_UNSETENV)) || defined(PERL_DARWIN)
+# if defined(__GNUC__)
+int setenv(const char *, const char *, int)
+    __attribute__((__visibility__("default")));
+# elif defined(__SUNPRO_C)
+int setenv(const char *, const char *, int)
+    __global;
+/* windows with __declspec(dllexport)? */
+# endif
+#endif
+
 void
 Perl_my_setenv(pTHX_ const char *nam, const char *val)
 {
@@ -2349,23 +2362,19 @@ Perl_my_setenv(pTHX_ const char *nam, const char *val)
         /* all that work just for this */
         my_setenv_format(environ[i], nam, nlen, val, vlen);
     } else {
-# endif
-    /* This next branch should only be called #if defined(HAS_SETENV), but
-       Configure doesn't test for that yet.  For Solaris, setenv() and unsetenv()
-       were introduced in Solaris 9, so testing for HAS UNSETENV is sufficient.
-    */
-#   if defined(__CYGWIN__)|| defined(__SYMBIAN32__) || defined(__riscos__) || (defined(__sun) && defined(HAS_UNSETENV)) || defined(PERL_DARWIN)
-#       if defined(HAS_UNSETENV)
+# endif /* !PERL_USE_SAFE_PUTENV */
+# if defined(__CYGWIN__)|| defined(__SYMBIAN32__) || defined(__riscos__) || (defined(__sun) && defined(HAS_UNSETENV)) || defined(PERL_DARWIN)
+#  if defined(HAS_UNSETENV) && defined(HAS_SETENV)
         if (val == NULL) {
             (void)unsetenv(nam);
         } else {
             (void)setenv(nam, val, 1);
         }
-#       else /* ! HAS_UNSETENV */
+#  elif defined(HAS_SETENV)
         (void)setenv(nam, val, 1);
-#       endif /* HAS_UNSETENV */
-#   else
-#       if defined(HAS_UNSETENV)
+#  endif /* HAS_UNSETENV */
+# else /* other archs */
+#  if defined(HAS_UNSETENV)
         if (val == NULL) {
             if (environ) /* old glibc can crash with null environ */
                 (void)unsetenv(nam);
@@ -2377,7 +2386,7 @@ Perl_my_setenv(pTHX_ const char *nam, const char *val)
             my_setenv_format(new_env, nam, nlen, val, vlen);
             (void)putenv(new_env);
         }
-#       else /* ! HAS_UNSETENV */
+#  else /* ! HAS_UNSETENV */
         char *new_env;
 	const int nlen = strlen(nam);
 	int vlen;
@@ -2389,8 +2398,8 @@ Perl_my_setenv(pTHX_ const char *nam, const char *val)
         /* all that work just for this */
         my_setenv_format(new_env, nam, nlen, val, vlen);
         (void)putenv(new_env);
-#       endif /* HAS_UNSETENV */
-#   endif /* __CYGWIN__ */
+#  endif /* HAS_UNSETENV */
+# endif /* __CYGWIN__ */
 #ifndef PERL_USE_SAFE_PUTENV
     }
 #endif

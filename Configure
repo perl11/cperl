@@ -916,6 +916,7 @@ d_semctl_semid_ds=''
 d_semctl_semun=''
 d_union_semun=''
 d_unordered=''
+d_setenv=''
 d_unsetenv=''
 d_usleep=''
 d_usleepproto=''
@@ -20184,6 +20185,10 @@ eval $inlibc
 set unordered d_unordered
 eval $inlibc
 
+: see if setenv exists
+set setenv d_setenv
+eval $inlibc
+
 : see if unsetenv exists
 set unsetenv d_unsetenv
 eval $inlibc
@@ -24987,6 +24992,7 @@ d_semget='$d_semget'
 d_semop='$d_semop'
 d_sendmsg='$d_sendmsg'
 d_setegid='$d_setegid'
+d_setenv='$d_setenv'
 d_seteuid='$d_seteuid'
 d_setgrent='$d_setgrent'
 d_setgrent_r='$d_setgrent_r'

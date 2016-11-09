@@ -4564,6 +4564,12 @@
  */
 /*#define HAS_UNORDERED		/ **/
 
+/* HAS_SETENV:
+ *	This symbol, if defined, indicates that the setenv () routine is
+ *	available for use.
+ */
+/*#define HAS_SETENV		/ **/
+
 /* HAS_UNSETENV:
  *	This symbol, if defined, indicates that the unsetenv () routine is
  *	available for use.
@@ -5375,6 +5381,6 @@
 #endif
 
 /* Generated from:
- * 498ddd19d90cae817f159bf23ecaf40ebe41cf8313545b574b150701f4880efc config_h.SH
- * f8cc0ebe3990151622c5f6de84db147b4c280abfcacb337f99a373f553f072fb uconfig.sh
+ * 631433b55a934355f55f202718d69e3d606d90bd2c507c54ce2932a7a33b054d config_h.SH
+ * 8657ad515c52678afc5feca7c95ad417a846118f604c49790bb2acd16fa3e1cd uconfig.sh
  * ex: set ro: */

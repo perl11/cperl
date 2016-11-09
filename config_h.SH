@@ -4599,6 +4599,12 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$d_unordered HAS_UNORDERED		/**/
 
+/* HAS_SETENV:
+ *	This symbol, if defined, indicates that the setenv () routine is
+ *	available for use.
+ */
+#$d_setenv HAS_SETENV		/**/
+
 /* HAS_UNSETENV:
  *	This symbol, if defined, indicates that the unsetenv () routine is
  *	available for use.
