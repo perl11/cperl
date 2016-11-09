@@ -137,6 +137,9 @@ sub parse_commits_from_stdin_authors {
         # allow Travis to change cpan/B-C/lib/B/Asmdata.pm with threads
         $author = _raw_address('Travis CI <noreply@travis-ci.com>');
         $authors{$author}++;
+        # and travis on trusty is:
+        $author = _raw_address('Travis CI User <travis@example.org>');
+        $authors{$author}++;
     }
 }
 
