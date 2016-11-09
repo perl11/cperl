@@ -11,7 +11,7 @@ use Symbol;
 
 our $VERSION;
 BEGIN {
-  $VERSION = '3.32';
+  $VERSION = '3.32_01';
 }
 use ExtUtils::ParseXS::Constants $VERSION;
 use ExtUtils::ParseXS::CountLines $VERSION;
@@ -891,8 +891,15 @@ MAKE_FETCHMETHOD_WORK
 ##endif
 EOF
 
+  # Windows already has __declspec(dllexport) in XS_EXTERNAL
   print Q(<<"EOF");
-#XS_EXTERNAL(boot_$self->{Module_cname}); /* prototype to pass -Wmissing-prototypes */
+#XS_EXTERNAL(boot_$self->{Module_cname}) /* prototype to pass -Wmissing-prototypes */
+##if defined(__GNUC__)
+#  __attribute__((__visibility__("default")))
+##elif defined(__SUNPRO_C)
+#  __global
+##endif
+  ;
 #XS_EXTERNAL(boot_$self->{Module_cname})
 #[[
 ##if PERL_VERSION_LE(5, 21, 5)

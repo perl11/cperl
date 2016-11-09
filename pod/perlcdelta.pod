@@ -123,6 +123,11 @@ XXX
 
 =over 4
 
+=item ExtUtils-ParseXS 3.32_01
+
+Fix visibility declaration of XS_EXTERNAL for C<-flto> and
+C<-fvisibility=hidden>.
+
 =item Test::More  1.401015c
 
 Removed the deprecated C<isn't> method, using the C<'> package seperator.

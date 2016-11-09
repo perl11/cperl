@@ -1,5 +1,9 @@
 Revision history for Perl extension ExtUtils::ParseXS.
 
+3.32_01 - Wed Nov 9 08:09:40 2016 rurban
+  - Fix visibility declaration of XS_EXTERNAL for -flto and
+    -fvisibility=hidden
+
 3.30 - Mon Aug 31 10:35:00 CET 2015
   - Promote to stable CPAN release.
 
