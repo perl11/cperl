@@ -249,6 +249,7 @@ sub nm_parse_darwin {
             # String literals can live in different sections
             # depending on the compiler and os release, assumedly
             # also linker flags.
+            s/\[no dead strip\] //;
             if (/^\(__TEXT,__(?:const|cstring|literal\d+)\) (?:non-)?external _?(\w+)(\.\w+)?$/) {
                 my ($symbol, $suffix) = ($1, $2);
                 # Ignore function-local constants like
@@ -267,8 +268,7 @@ sub nm_parse_darwin {
                 return if defined $suffix;
                 $symbols->{data}{$dtype}{$symbol}{$symbols->{o}}++;
             } elsif (/^\(__DATA,__const\) non-external _\.memset_pattern\d*$/) {
-                # Skip this, whatever it is (some inlined leakage from
-                # darwin libc?)
+                # Skip these optimized darwin libc variants
             } elsif (/^\(__TEXT,__eh_frame/) {
                 # Skip the eh_frame (exception handling) symbols.
                 return;
