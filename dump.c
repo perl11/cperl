@@ -1734,8 +1734,6 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
             (void)PerlIO_putc(file, '\n');
 	Perl_dump_indent(aTHX_ level, file, "  FILL = %" IVdf "\n", (IV)AvFILLp(sv));
 	Perl_dump_indent(aTHX_ level, file, "  MAX = %" IVdf "\n", (IV)AvMAX(sv));
-	Perl_dump_indent(aTHX_ level, file, "  ARYLEN = 0x%" UVxf "\n",
-				   SvMAGIC(sv) ? PTR2UV(AvARYLEN(sv)) : 0);
         SvPVCLEAR(d);
 	if (nest < maxnest && AvARRAY(MUTABLE_AV(sv))) {
 	    SSize_t count;
