@@ -317,6 +317,21 @@ and defines C<PERL_FAKE_SIGNATURE>.
 Probe for C<llabs()> needed for PERL_IABS on 32bit with -Duse64bitint,
 the default on mingw/cygwin. Defines C<HAS_LLABS>.
 
+=item d_setenv
+
+Probe for C<setenv()> needed on some platforms with strict linkage or
+C<-fvisibility=hidden>.
+
+=item d_attribute_always_inline
+
+Probe for C<__attribute__((always_inline))>, which is helpful with
+C<clang -flto=thin> for exported mathoms (b) and inlined functions.
+
+The problem is that  C<__attribute__((used))> functions are not inlined.
+With always_inline + global visibility, but not C<__attribute__((used))>
+we get inlined variants plus exported copies for the API.
+Add C<PERL_MATHOM_CALLCONV> to use it.
+
 =back
 
 =head1 Testing
@@ -389,6 +404,21 @@ XXX
 =head1 Internal Changes
 
 =over 4
+
+=item *
+
+Support for clang C<-flto> and the new C<-flto=thin> optimization was
+added, via C<__attribute__global__> for global visibility for all
+exported API functions, even if not used, and C<-DLTO>. Note that is
+not needed for C<gcc -flto>, and the clang variant produces slower code.
+
+Rudimentary support for C<-fsanitize=cfi> was also added, which is
+safer than the old C<-fstack-protector-strong>, but this is not yet
+finished.
+
+ExtUtils-ParseXS adds now a correct visibility declaration of
+C<XS_EXTERNAL> for C<-flto> and C<-fvisibility=hidden>, which is needed for
+C<-fsanitize=cfi> support.
 
 =item *
 
