@@ -82,7 +82,7 @@ int putenv(char *);
 /* global visibility needed for lto and -fvisibility=hidden on some archs,
    when being optimized away */
 #if defined(__APPLE__) && defined(__clang__) && !defined(__apple_build_version__)
-# if ((100*__clang_major__ + __clang_minor__) >= 307) /*&& __has_feature(cfi)*/
+# if defined(LTO) && ((100*__clang_major__ + __clang_minor__) >= 307) /*&& __has_feature(cfi)*/
 /* disable it */
 #warning disable setenv for lto
 # undef HAS_SETENV

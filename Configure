@@ -5702,7 +5702,7 @@ case "$ccflags" in
         esac
         case "$dflt" in
             *-flto*) ;;
-	    *) dflt="$dflt -flto" ;;
+	    *) dflt="$dflt -DLTO -flto" ;;
         esac
 	;;
 *-fstack-protector-strong*)
@@ -5771,7 +5771,7 @@ case "$ccflags" in
     esac
     case "$ccflags" in
         *-flto*) ;;
-	*) ccflags="-flto $ccflags" ;;
+	*) ccflags="-DLTO -flto $ccflags" ;;
     esac
     case "$ldflags" in
         *-flto*) ;;
@@ -5787,6 +5787,10 @@ case "$ccflags" in
     esac
     ;;
 *-flto*)
+    case "$ccflags" in
+        *-DLTO*) ;;
+	*) ccflags="-DLTO $ccflags" ;;
+    esac
     case "$ldflags" in
         *-flto*) ;;
         *) ldflags="-flto $ldflags" ;;
