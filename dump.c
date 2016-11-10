@@ -1534,21 +1534,14 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
             sv_catpv(d, "with_GP,");
 	/* FALLTHROUGH */
     default:
-    evaled_or_uv:
-	if (SvEVALED(sv))	sv_catpv(d, "EVALED,");
-    is_uv:
+      is_uv:
 	if (SvIsUV(sv) && !(flags & SVf_ROK))
-				sv_catpv(d, "IsUV,");
+			  sv_catpv(d, "IsUV,");
 	break;
     case SVt_PVMG:
-        if (!SvSCREAM(sv)) {
-            if (SvTAIL(sv))	sv_catpv(d, "TAIL,");
-	    if (SvVALID(sv))	sv_catpv(d, "VALID,");
-            goto is_uv; /* no EVALED, but IsUV */
-        } else {
-            /* FALLTHROUGH */
-            goto evaled_or_uv;
-        }
+	if (SvTAIL(sv))	  sv_catpv(d, "TAIL,");
+	if (SvVALID(sv))  sv_catpv(d, "VALID,");
+	goto is_uv;
     case SVt_PVAV:
 	if (AvSHAPED(sv)) sv_catpv(d, "SHAPED,");
 	if (AvREAL(sv))	  sv_catpv(d, "REAL,");
@@ -1559,7 +1552,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
     }
     /* SVphv_SHAREKEYS and SVpav_SHAPED are also 0x20000000 */
     if ((type != SVt_PVHV) && (type != SVt_PVAV) && SvUTF8(sv))
-        sv_catpv(d, "UTF8");
+			  sv_catpv(d, "UTF8");
 
     if (*(SvEND(d) - 1) == ',') {
         SvCUR_set(d, SvCUR(d) - 1);

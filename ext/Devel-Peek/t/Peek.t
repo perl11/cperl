@@ -1112,15 +1112,10 @@ unless ($Config{useithreads}) {
 
     eval 'index "", perl';
 
-    # FIXME - really this shouldn't say EVALED. It's a false posistive on
-    # 0x40000000 being used for several things, not a flag for "I'm in a string
-    # eval"
-    # This is currently only fixed for cperl since 5.25.2
-
     do_test('string constant now an FBM', perl,
 'SV = PVMG\\($ADDR\\) at $ADDR
   REFCNT = 5
-  FLAGS = \\($PADMY,SMG,POK,(?:IsCOW,)?READONLY,(?:IsCOW,)?pPOK,VALID,EVALED\\)
+  FLAGS = \\($PADMY,SMG,POK,(?:IsCOW,)?READONLY,(?:IsCOW,)?pPOK,VALID\\)
   PV = $ADDR "rule"\\\0
   CUR = 4
   LEN = \d+
@@ -1140,7 +1135,7 @@ unless ($Config{useithreads}) {
     do_test('string constant still an FBM', perl,
 'SV = PVMG\\($ADDR\\) at $ADDR
   REFCNT = 5
-  FLAGS = \\($PADMY,SMG,POK,(?:IsCOW,)?READONLY,(?:IsCOW,)?pPOK,VALID,EVALED\\)
+  FLAGS = \\($PADMY,SMG,POK,(?:IsCOW,)?READONLY,(?:IsCOW,)?pPOK,VALID\\)
   PV = $ADDR "rule"\\\0
   CUR = 4
   LEN = \d+
@@ -1180,7 +1175,7 @@ unless ($Config{useithreads}) {
 
     my $want = 'SV = PVMG\\($ADDR\\) at $ADDR
   REFCNT = 6
-  FLAGS = \\($PADMY,SMG,POK,(?:IsCOW,)?READONLY,(?:IsCOW,)?pPOK,VALID,EVALED\\)
+  FLAGS = \\($PADMY,SMG,POK,(?:IsCOW,)?READONLY,(?:IsCOW,)?pPOK,VALID\\)
   PV = $ADDR "foam"\\\0
   CUR = 4
   LEN = \d+

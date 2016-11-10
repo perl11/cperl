@@ -546,8 +546,6 @@ perform the upgrade if necessary.  See C<L</svtype>>.
 /* This is only set true on a PVGV when it's playing "PVBM", but is tested for
    on any regular scalar (anything <= PVLV) */
 #define SVpbm_VALID	0x40000000
-/* Only used in toke.c on an SV stored in PL_lex_repl */
-#define SVrepl_EVAL	0x40000000  /* Replacement part of s///e */
 
 /* IV, PVIV, PVNV, PVMG, PVGV and (I assume) PVLV  */
 #define SVf_IVisUV	0x80000000  /* use XPVUV instead of XPVIV */
@@ -582,6 +580,7 @@ union _xivu {
     IV	    xivu_iv;		/* signed integer value */
     UV	    xivu_uv;		/* unsigned variant */
     HEK *   xivu_namehek;	/* xpvlv, xpvgv: GvNAME */
+    bool    xivu_eval_seen;     /* used internally by S_scan_subst() */
 };
 
 union _xmgu {
@@ -1251,10 +1250,6 @@ object type. Exposed to perl code via Internals::SvREADONLY().
 #  define SvCOMPILED_on(sv)
 #  define SvCOMPILED_off(sv)
 #endif
-
-#define SvEVALED(sv)		(SvFLAGS(sv) & SVrepl_EVAL)
-#define SvEVALED_on(sv)		(SvFLAGS(sv) |= SVrepl_EVAL)
-#define SvEVALED_off(sv)	(SvFLAGS(sv) &= ~SVrepl_EVAL)
 
 #if defined (DEBUGGING) && defined(__GNUC__) && !defined(PERL_GCC_BRACE_GROUPS_FORBIDDEN)
 #  define SvVALID(sv)		({ const SV *const _svvalid = (const SV*)(sv); \
