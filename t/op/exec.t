@@ -36,7 +36,7 @@ $ENV{LANGUAGE} = 'C';		# Ditto in GNU.
 my $Is_VMS   = $^O eq 'VMS';
 my $Is_Win32 = $^O eq 'MSWin32';
 
-plan(tests => 26);
+plan(tests => 27);
 
 my $Perl = which_perl();
 
@@ -122,6 +122,10 @@ is( `$Perl -le "print 'ok'"`,   "ok\n",     'basic ``' );
 is( <<`END`,                    "ok\n",     '<<`HEREDOC`' );
 $Perl -le "print 'ok'"
 END
+
+is( <<~`END`,                   "ok\n",     '<<~`HEREDOC`' );
+  $Perl -le "print 'ok'"
+  END
 
 {
     no warnings 'experimental::lexical_topic';
