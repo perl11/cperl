@@ -103,7 +103,18 @@ if (@ARGV == 1) {
 }
 
 unless (defined $nm_style) {
-    if ($^O eq 'linux') {
+    # clang lto needs the llvm nm
+    if ($Config{ccflags} =~ /-flto/ and $Config{incpth} =~ m|/clang/|) {
+        my ($versuffix);
+        $nm = `which llvm-nm`; chomp $nm;
+        ($versuffix) = $Config{cc} =~ /clang-((?:mp-)?\d.\d)/;
+        $nm = `which llvm-nm-$versuffix` if $versuffix and !$nm;
+        chomp $nm;
+        $nm_style = 'llvm' if -e $nm;
+    }
+    if (defined $nm_style) {
+        ; # llvm
+    } elsif ($^O eq 'linux') {
         # The 'gnu' style could be equally well be called 'bsd' style,
         # since the output format of the GNU binutils nm is really BSD.
         $nm_style = 'gnu';
@@ -124,6 +135,8 @@ if (defined $nm_style) {
         # or 's', for example one cannot tell the difference between const
         # and non-const data symbols.
         $nm_opt = '-m';
+    } elsif ($nm_style eq 'llvm') {
+        $nm_opt = '-B'; # BSD format
     } else {
         die "$0: Unexpected nm style '$nm_style'\n";
     }
@@ -147,7 +160,7 @@ print "# nm = $nm\n";
 print "# nm_style = $nm_style\n";
 print "# nm_opt = $nm_opt\n";
 
-unless (-x $nm) {
+unless (-x $nm || -l $nm) {
     skip_all "no executable nm $nm";
 }
 
@@ -198,8 +211,9 @@ sub nm_parse_gnu {
     } else {
         die "$0: undefined current object: $line"
             unless defined $symbols->{o};
+        # -flto has pointer placeholders
         # 64-bit systems have 16 hexdigits, 32-bit systems have 8.
-        if (s/^[0-9a-f]{8}(?:[0-9a-f]{8})? //) {
+        if (s/^[0-9a-f-]{8}(?:[0-9a-f-]{8})? //) {
             if (/^[Rr] (\w+)$/) {
                 # R: read only (const)
                 $symbols->{data}{const}{$1}{$symbols->{o}}++;
@@ -291,7 +305,7 @@ sub nm_parse_darwin {
 
 my $nm_parse;
 
-if ($nm_style eq 'gnu') {
+if ($nm_style eq 'gnu' or $nm_style eq 'llvm') {
     $nm_parse = \&nm_parse_gnu;
 } elsif ($nm_style eq 'darwin') {
     $nm_parse = \&nm_parse_darwin;
@@ -324,8 +338,13 @@ unless (exists $symbols{text}) {
 ok($symbols{obj}{'pp.o'}, "has object pp.o");
 ok($symbols{text}{'Perl_peep'}, "has text Perl_peep");
 ok($symbols{text}{'Perl_pp_uc'}{'pp.o'}, "has text Perl_pp_uc in pp.o");
-ok(exists $symbols{data}{const}, "has data const symbols");
-ok($symbols{data}{const}{PL_no_mem}{'globals.o'}, "has PL_no_mem");
+if ($nm_style eq 'llvm' and !exists $symbols{data}{const}) {
+    ok(exists $symbols{data}{data}, "has data data symbols");
+    ok($symbols{data}{data}{PL_no_mem}{'globals.o'}, "has PL_no_mem");
+} else {
+    ok(exists $symbols{data}{const}, "has data const symbols");
+    ok($symbols{data}{const}{PL_no_mem}{'globals.o'}, "has PL_no_mem");
+}
 
 my $GS  = $Config{ccflags} =~ /-DPERL_GLOBAL_STRUCT\b/ ? 1 : 0;
 my $GSP = $Config{ccflags} =~ /-DPERL_GLOBAL_STRUCT_PRIVATE/ ? 1 : 0;
