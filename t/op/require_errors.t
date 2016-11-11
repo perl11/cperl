@@ -9,7 +9,7 @@ BEGIN {
 use strict;
 use warnings;
 
-plan(tests => 20);
+plan(tests => 24);
 
 my $nonfile = tempfile();
 
@@ -144,3 +144,15 @@ like $@, qr/^Can't locate \(\?\^:\\0\):/,
 eval { no strict; no warnings ('syscalls','security'); require *{"\0a"} };
 like $@, qr/^Can't locate \*main::\\0a:/,
     'require ref that stringifies with embedded null';
+
+eval { require undef };
+like $@, qr/^Missing or undefined argument to require /;
+
+eval { do undef };
+like $@, qr/^Missing or undefined argument to do /;
+
+eval { require "" };
+like $@, qr/^Missing or undefined argument to require /;
+
+eval { do "" };
+like $@, qr/^Missing or undefined argument to do /;

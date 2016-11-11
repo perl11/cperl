@@ -3885,20 +3885,39 @@ S_require_file(pTHX_ SV *const sv)
     int saved_errno;
     bool path_searchable;
     I32 old_savestack_ix;
+    const bool op_is_require = PL_op->op_type == OP_REQUIRE;
+    const char *const op_name = op_is_require ? "require" : "do";
+
+    assert(op_is_require || PL_op->op_type == OP_DOFILE);
 
     if (!SvOK(sv))
-        DIE(aTHX_ "Missing or undefined argument to require");
+        DIE(aTHX_ "Missing or undefined argument to %s", op_name);
     name = SvPV_nomg_const(sv, len);
     if (!(name && len > 0 && *name))
-        DIE(aTHX_ "Missing or undefined argument to require");
+        DIE(aTHX_ "Missing or undefined argument to %s", op_name);
 
-    if (!IS_SAFE_PATHNAME(name, len, "require")) {
+    if (!IS_SAFE_PATHNAME(name, len, op_name)) {
+        if (!op_is_require) {
+            /* CLEAR_ERRSV() expanded, without goto */
+            SV ** const svp = &GvSV(PL_errgv);
+            if (!*svp) {
+                *svp = newSVpvs("");
+            } else if (SvREADONLY(*svp)) {
+                SvREFCNT_dec_NN(*svp);
+                *svp = newSVpvs("");
+            } else {
+                SvPVCLEAR(*svp);
+                SvPOK_only(*svp);
+                if (SvMAGICAL(*svp))
+                    mg_free(*svp);
+            }
+        }
         DIE(aTHX_ "Can't locate %s:   %s",
             pv_escape(newSVpvs_flags("",SVs_TEMP),name,len,len*2,
                       NULL, SvUTF8(sv)?PERL_PV_ESCAPE_UNI:0),
             Strerror(ENOENT));
     }
-    TAINT_PROPER("require");
+    TAINT_PROPER(op_name);
 
     path_searchable = path_is_searchable(name);
 
@@ -3909,7 +3928,7 @@ S_require_file(pTHX_ SV *const sv)
      * To prevent this, the key must be stored in UNIX format if the VMS
      * name can be translated to UNIX.
      */
-    
+
     if ((unixname =
 	  tounixspec(name, SvPVX(sv_2mortal(newSVpv("", VMS_MAXRSS-1)))))
 	 != NULL) {
@@ -3925,7 +3944,7 @@ S_require_file(pTHX_ SV *const sv)
 	unixname = (char *) name;
 	unixlen = len;
     }
-    if (PL_op->op_type == OP_REQUIRE) {
+    if (op_is_require) {
 	SV * const * const svp = hv_fetch(GvHVn(PL_incgv),
 					  unixname, unixlen, 0);
 	if ( svp ) {
@@ -4142,7 +4161,7 @@ S_require_file(pTHX_ SV *const sv)
 			dirlen = 0;
 		    }
 
-		    if (!IS_SAFE_SYSCALL(dir, dirlen, "@INC entry", "require"))
+		    if (!IS_SAFE_SYSCALL(dir, dirlen, "@INC entry", op_name))
 			continue;
 #ifdef VMS
 		    if ((unixdir =
@@ -4165,7 +4184,7 @@ S_require_file(pTHX_ SV *const sv)
 				       "%s\\%s",
 				       dir, name);
 #  else
-		    /* The equivalent of		    
+		    /* The equivalent of
 		       Perl_sv_setpvf(aTHX_ namesv, "%s/%s", dir, name);
 		       but without the need to parse the format string, or
 		       call strlen on either pointer, and with the correct
@@ -4193,7 +4212,7 @@ S_require_file(pTHX_ SV *const sv)
 		    }
 #  endif
 #endif
-		    TAINT_PROPER("require");
+		    TAINT_PROPER(op_name);
 		    tryname = SvPVX_const(namesv);
 		    tryrsfp = doopen_pm(namesv);
 		    if (tryrsfp) {
@@ -4219,7 +4238,7 @@ S_require_file(pTHX_ SV *const sv)
     saved_errno = errno; /* sv_2mortal can realloc things */
     sv_2mortal(namesv);
     if (!tryrsfp) {
-	if (PL_op->op_type == OP_REQUIRE) {
+	if (op_is_require) {
 	    if(saved_errno == EMFILE || saved_errno == EACCES) {
 		/* diag_listed_as: Can't locate %s */
 		DIE(aTHX_ "Can't locate %s:   %s: %s",
@@ -4448,7 +4467,7 @@ PP(pp_entereval)
 	SAVEDELETE(PL_defstash, safestr, len);
 	saved_delete = TRUE;
     }
-    
+
     PUTBACK;
 
     if (doeval_compile(gimme, runcv, seq, saved_hh)) {
@@ -4539,7 +4558,7 @@ void
 Perl_delete_eval_scope(pTHX)
 {
     PERL_CONTEXT *cx;
-	
+
     cx = CX_CUR();
     CX_LEAVE_SCOPE(cx);
     cx_popeval(cx);
@@ -4554,7 +4573,7 @@ Perl_create_eval_scope(pTHX_ OP *retop, U32 flags)
 {
     PERL_CONTEXT *cx;
     const U8 gimme = GIMME_V;
-	
+
     cx = cx_pushblock((CXt_EVAL|CXp_TRYBLOCK), gimme,
                     PL_stack_sp, PL_savestack_ix);
     cx_pusheval(cx, retop, NULL);
@@ -4568,7 +4587,7 @@ Perl_create_eval_scope(pTHX_ OP *retop, U32 flags)
 	PL_eval_root = PL_op; /* Only needed so that goto works right. */
     }
 }
-    
+
 PP(pp_entertry)
 {
     create_eval_scope(cLOGOP->op_other->op_next, 0);
@@ -4679,7 +4698,7 @@ S_matcher_matches_sv(pTHX_ PMOP *matcher, SV *sv)
     bool result;
 
     PERL_ARGS_ASSERT_MATCHER_MATCHES_SV;
-    
+
     PL_op = (OP *) matcher;
     XPUSHs(sv);
     PUTBACK;
@@ -4715,7 +4734,7 @@ STATIC OP *
 S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 {
     dSP;
-    
+
     bool object_on_left = FALSE;
     SV *e = TOPs;	/* e is for 'expression' */
     SV *d = TOPm1s;	/* d is for 'default', as in PL_defgv */
@@ -4900,13 +4919,13 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 
 		DEBUG_M(Perl_deb(aTHX_ "        comparing hash key...\n"));
 	    	++ this_key_count;
-	    	
+	    
 	    	if(!hv_exists_ent(other_hv, key, 0)) {
 	    	    (void) hv_iterinit(hv);	/* reset iterator */
 		    RETPUSHNO;
 	    	}
 	    }
-	    
+
 	    if (other_tied) {
 		(void) hv_iterinit(other_hv);
 		while ( hv_iternext(other_hv) )
@@ -4914,7 +4933,7 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	    }
 	    else
 		other_key_count = HvUSEDKEYS(other_hv);
-	    
+
 	    if (this_key_count != other_key_count)
 		RETPUSHNO;
 	    else
@@ -5035,13 +5054,13 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 				&PL_sv_undef, 0);
 			PUSHs(*other_elem);
 			PUSHs(*this_elem);
-			
+
 			PUTBACK;
 			DEBUG_M(Perl_deb(aTHX_ "        recursively comparing array element...\n"));
 			(void) do_smartmatch(seen_this, seen_other, 0);
 			SPAGAIN;
 			DEBUG_M(Perl_deb(aTHX_ "        recursion finished\n"));
-			
+
 			if (!SvTRUEx(POPs))
 			    RETPUSHNO;
 		    }
@@ -5183,7 +5202,7 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	else
 	    RETPUSHNO;
     }
-    
+
     /* As a last resort, use string comparison */
     DEBUG_M(Perl_deb(aTHX_ "    applying rule Any-Any\n"));
     PUSHs(d); PUSHs(e);
@@ -5261,14 +5280,14 @@ PP(pp_continue)
     I32 cxix;
     PERL_CONTEXT *cx;
     OP *nextop;
-    
-    cxix = dopoptowhen(cxstack_ix); 
-    if (cxix < 0)   
+
+    cxix = dopoptowhen(cxstack_ix);
+    if (cxix < 0)
 	DIE(aTHX_ "Can't \"continue\" outside a when block");
 
     if (cxix < cxstack_ix)
         dounwind(cxix);
-    
+
     cx = CX_CUR();
     assert(CxTYPE(cx) == CXt_WHEN);
     PL_stack_sp = PL_stack_base + cx->blk_oldsp;
@@ -5655,7 +5674,7 @@ S_run_user_filter(pTHX_ int idx, SV *buf_sv, int maxlen)
     upstream = ((SvOK(buf_sv) && sv_len(buf_sv)) || SvGMAGICAL(buf_sv))
 	? sv_newmortal() : buf_sv;
     SvUPGRADE(upstream, SVt_PV);
-	
+
     if (filter_has_file) {
 	status = FILTER_READ(idx+1, upstream, 0);
     }

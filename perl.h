@@ -1292,17 +1292,17 @@ EXTERN_C char *crypt(const char *, const char *);
 	goto clresv_newemptypv;						\
     } else if (SvREADONLY(*svp)) {					\
 	SvREFCNT_dec_NN(*svp);						\
-	clresv_newemptypv:						\
+      clresv_newemptypv:						\
 	*svp = newSVpvs("");						\
     } else {								\
 	SV *const errsv = *svp;						\
-        SvPVCLEAR(errsv);                                                \
+        SvPVCLEAR(errsv);                                               \
 	SvPOK_only(errsv);						\
 	if (SvMAGICAL(errsv)) {						\
 	    mg_free(errsv);						\
 	}								\
     }									\
-    } STMT_END
+  } STMT_END
 
 
 #ifdef PERL_CORE
