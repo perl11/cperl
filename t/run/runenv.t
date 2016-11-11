@@ -309,7 +309,7 @@ is ($err, '', 'No errors when determining @INC');
 
 my @default_inc = split /\n/, $out;
 
-if (is_miniperl()) {
+if (is_miniperl() or !$Config{default_inc_excludes_dot}) {
   is ($default_inc[-1], '.', '. is last in @INC');
 } else {
   ok (! grep { $_ eq '.' } @default_inc, '. is not in @INC');
