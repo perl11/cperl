@@ -22,12 +22,24 @@ $skip{PL_hash_rand_bits}= $skip{PL_hash_rand_bits_enabled}= 1; # we can be compi
 $skip{PL_warn_locale}= 1; # we can be compiled without locales, so skip testing them
 $skip{PL_memory_debug_header}= 1; # skipped in makedef
 
-my $trial = "nm globals$Config{_o} 2>&1";
+my $nm = $Config{nm};
+# clang lto needs the llvm nm
+if ($Config{ccflags} =~ /-flto/ and $Config{incpth} =~ m|/clang/|) {
+    my ($versuffix);
+    $nm = `which llvm-nm`; chomp $nm;
+    ($versuffix) = $Config{cc} =~ /clang-((?:mp-)?\d.\d)/;
+    $nm = `which llvm-nm-$versuffix` if $versuffix and !$nm;
+    chomp $nm;
+    $nm .= " -B";
+}
+my @nm = split / /, $nm;
+
+my $trial = "$nm globals$Config{_o} 2>&1";
 my $yes = `$trial`;
 
 skip_all("Could not run `$trial`") if $?;
 
-my $defined = qr/^[0-9a-fA-F]{8,16}\s+[^Uu]\s+_?/m;
+my $defined = qr/^[0-9a-fA-F-]{8,16}\s+[^Uu]\s+_?/m;
 
 skip_all("Could not spot definition of PL_Yes in output of `$trial`")
     unless $yes =~ /${defined}PL_Yes/m;
@@ -47,7 +59,7 @@ close $fh or die "Problem running makedef.pl";
 my %unexported;
 
 foreach my $file (map {$_ . $Config{_o}} qw(globals regcomp)) {
-    open $fh, '-|', 'nm', $file
+    open $fh, '-|', @nm, $file
 	or die "Can't run nm $file";
 
     while (<$fh>) {
