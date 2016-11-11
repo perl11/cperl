@@ -1488,7 +1488,7 @@ use File::Glob qw(:case);
 
     'Unicode::Normalize' => {
         'DISTRIBUTION' => 'KHW/Unicode-Normalize-1.25.tar.gz',
-        'FILES'        => q[cpan/Unicode-Normalize],
+        'FILES'        => q[dist/Unicode-Normalize],
         'EXCLUDED'     => [
             qr{N$},
             qr{^data/},
