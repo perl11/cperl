@@ -6322,19 +6322,26 @@ PERL_STATIC_INLINE U8*	Perl_utf8_hop(const U8 *s, SSize_t off)
 
 PERL_STATIC_INLINE U8*	Perl_utf8_hop_back(const U8 *s, SSize_t off, const U8 *start)
 			__attribute__warn_unused_result__
-			__attribute__pure__;
+			__attribute__pure__
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(3);
 #define PERL_ARGS_ASSERT_UTF8_HOP_BACK	\
 	assert(s); assert(start)
 
 PERL_STATIC_INLINE U8*	Perl_utf8_hop_forward(const U8 *s, SSize_t off, const U8 *end)
 			__attribute__warn_unused_result__
-			__attribute__pure__;
+			__attribute__pure__
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(3);
 #define PERL_ARGS_ASSERT_UTF8_HOP_FORWARD	\
 	assert(s); assert(end)
 
 PERL_STATIC_INLINE U8*	Perl_utf8_hop_safe(const U8 *s, SSize_t off, const U8 *start, const U8 *end)
 			__attribute__warn_unused_result__
-			__attribute__pure__;
+			__attribute__pure__
+			__attribute__nonnull__(1)
+			__attribute__nonnull__(3)
+			__attribute__nonnull__(4);
 #define PERL_ARGS_ASSERT_UTF8_HOP_SAFE	\
 	assert(s); assert(start); assert(end)
 

@@ -1949,27 +1949,27 @@
  *	LONG_DOUBLE_IS_UNKNOWN_FORMAT
  *	It is only defined if the system supports long doubles.
  */
-/* LONG_DOUBLE_STYLE_IEEE
+/* LONG_DOUBLE_STYLE_IEEE:
  *	This symbol, if defined, indicates that the long double
  *	is any of the IEEE 754 style long doubles:
  *	LONG_DOUBLE_STYLE_IEEE_STD, LONG_DOUBLE_STYLE_IEEE_EXTENDED,
  *	LONG_DOUBLE_STYLE_IEEE_DOUBLEDOUBLE.
  */
-/* LONG_DOUBLE_STYLE_IEEE_DOUBLEDOUBLE
+/* LONG_DOUBLE_STYLE_IEEE_DOUBLEDOUBLE:
  *	This symbol, if defined, indicates that the long double is
  *	the 128-bit double-double.
  */
-/* LONG_DOUBLE_STYLE_IEEE_EXTENDED
+/* LONG_DOUBLE_STYLE_IEEE_EXTENDED:
  *	This symbol, if defined, indicates that the long double is
  *	the 80-bit IEEE 754. Note that despite the 'extended' this
  *	is less than the 'std', since this is an extension of
  *	the double precision.
  */
-/* LONG_DOUBLE_STYLE_IEEE_STD
+/* LONG_DOUBLE_STYLE_IEEE_STD:
  *	This symbol, if defined, indicates that the long double is
  *	the 128-bit IEEE 754.
  */
-/* LONG_DOUBLE_STYLE_VAX
+/* LONG_DOUBLE_STYLE_VAX:
  *	This symbol, if defined, indicates that the long double is
  *	the 128-bit VAX format H.
  */
@@ -5003,35 +5003,35 @@
  *	DOUBLE_IS_CRAY_SINGLE_64_BIT
  *	DOUBLE_IS_UNKNOWN_FORMAT
  */
-/* DOUBLE_HAS_INF
+/* DOUBLE_HAS_INF:
  *	This symbol, if defined, indicates that the double has
  *	the infinity.
  */
-/* DOUBLE_HAS_NAN
+/* DOUBLE_HAS_NAN:
  *	This symbol, if defined, indicates that the double has
  *	the not-a-number.
  */
-/* DOUBLE_HAS_NEGATIVE_ZERO
+/* DOUBLE_HAS_NEGATIVE_ZERO:
  *	This symbol, if defined, indicates that the double has
  *	the negative_zero.
  */
-/* DOUBLE_HAS_SUBNORMALS
+/* DOUBLE_HAS_SUBNORMALS:
  *	This symbol, if defined, indicates that the double has
  *	the subnormals (denormals).
  */
-/* DOUBLE_STYLE_CRAY
+/* DOUBLE_STYLE_CRAY:
  *	This symbol, if defined, indicates that the double is
  *	the 64-bit CRAY mainframe format.
  */
-/* DOUBLE_STYLE_IBM
+/* DOUBLE_STYLE_IBM:
  *	This symbol, if defined, indicates that the double is
  *	the 64-bit IBM mainframe format.
  */
-/* DOUBLE_STYLE_IEEE
+/* DOUBLE_STYLE_IEEE:
  *	This symbol, if defined, indicates that the double is
  *	the 64-bit IEEE 754.
  */
-/* DOUBLE_STYLE_VAX
+/* DOUBLE_STYLE_VAX:
  *	This symbol, if defined, indicates that the double is
  *	the 64-bit VAX format D or G.
  */
@@ -5056,7 +5056,7 @@
 /*#define PERL_PRIeldbl	"lle"	/ **/
 /*#define PERL_SCNfldbl	"llf"	/ **/
 #define DOUBLE_HAS_INF
-#define DOUBLE_HAS_INF
+#define DOUBLE_HAS_NAN
 #define DOUBLE_HAS_NEGATIVE_ZERO
 #define DOUBLE_HAS_SUBNORMALS
 #undef DOUBLE_STYLE_CRAY
@@ -5492,6 +5492,6 @@
 #endif
 
 /* Generated from:
- * da6717862f0e5932c1bcc750850c50e81281292b1a3ec671214f6f04b5e39679 config_h.SH
+ * 444f68c7adac23f245c9bb8a633a5a80fae8b9c1390d8ac58ca1cab1fa7791b5 config_h.SH
  * 54908e91d2837d81b829067ff4903a68bbb56cc7afcb93c9dbc72094d9cd0211 uconfig.sh
  * ex: set ro: */
