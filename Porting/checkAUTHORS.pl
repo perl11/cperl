@@ -243,7 +243,7 @@ sub read_authors_files {
                 $name =~ s/\s*\z//;
                 $raw{$email} = $name;
                 $count{$email}++;
-            } elsif (/^([-A-Za-z0-9 .\'À-ÖØöø-ÿ]+)[\t\n]/) {
+            } elsif (/^([- .'\w]+)[\t\n]/) {
                 # Name only
                 $untraced{$1}++;
             } elsif ( length $_ ) {
