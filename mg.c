@@ -2487,7 +2487,6 @@ Perl_magic_setregexp(pTHX_ SV *sv, MAGIC *mg)
 
     if (type == PERL_MAGIC_qr) {
     } else if (type == PERL_MAGIC_bm) {
-	SvTAIL_off(sv);
 	SvVALID_off(sv);
     } else {
 	assert(type == PERL_MAGIC_fm);
