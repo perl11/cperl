@@ -10325,7 +10325,6 @@ STATIC void	S_checkcomma(pTHX_ const char *s, const char *name, const char *what
 #define PERL_ARGS_ASSERT_CHECKCOMMA	\
 	assert(s); assert(name); assert(what)
 
-STATIC int	S_deprecate_commaless_var_list(pTHX);
 STATIC char *	S_filter_gets(pTHX_ SV *sv, STRLEN append)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
