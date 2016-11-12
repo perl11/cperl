@@ -987,10 +987,6 @@ NAMESPACEFLAGS = -force_flat_namespace
 lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
 	-@rm -f miniperl.xok
 	$(LD) $(CLDFLAGS) $(NAMESPACEFLAGS) -o $(MINIPERL_EXE) $(miniperl_objs) $(libs)
-	$(LDLIBPTH) ./miniperl$(HOST_EXE_EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
-	$(MINIPERL) make_patchnum.pl && \
-	  $(MINIPERL) configpm && \
-	  $(MINIPERL) -f write_buildcustomize.pl
 !NO!SUBS!
                 case "$ccflags" in
                     *-DDEBUGGING*) $spitshell >>$Makefile <<'!NO!SUBS!'
@@ -998,6 +994,12 @@ lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
 !NO!SUBS!
                                    ;;
                 esac
+		$spitshell >>$Makefile <<'!NO!SUBS!'
+	$(LDLIBPTH) ./miniperl$(HOST_EXE_EXT) -w -Ilib -Idist/Exporter/lib -MExporter -e '<?>' || sh -c 'echo >&2 Failed to build miniperl.  Please run make minitest; exit 1'
+	$(MINIPERL) make_patchnum.pl && \
+	  $(MINIPERL) configpm && \
+	  $(MINIPERL) -f write_buildcustomize.pl
+!NO!SUBS!
 		;;
 	*)
 		if test "X$hostperl" != X; then
