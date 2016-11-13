@@ -274,28 +274,64 @@ Public API:
  * there may be dangling pointers to it. The last thing we want in that
  * case is for it to be reused. */
 
-#define plant_SV(p) \
+#ifdef DEBUGGING
+
+PERL_STATIC_INLINE
+void plant_SV(pTHX_ SV* p)
+{
+    const U32 old_flags = SvFLAGS(p);
+    MEM_LOG_DEL_SV(p, __FILE__, __LINE__, FUNCTION__);
+    DEBUG_SV_SERIAL(p);
+    FREE_SV_DEBUG_FILE(p);
+    POISON_SV_HEAD(p);
+    SvFLAGS(p) = SVTYPEMASK;
+    if (!(old_flags & SVf_BREAK)) {
+        DEBUG_mv(static char buf[64];
+		 const STRLEN len = my_snprintf(buf, sizeof(buf),
+                     "%p: plant_SV -> %p\n", p, SvARENA_CHAIN(p));
+                 PerlLIO_write(2, buf, len));
+        SvARENA_CHAIN_SET(p, PL_sv_root);
+        PL_sv_root = (p);
+    }
+    --PL_sv_count;
+}
+
+#define uproot_SV(p) \
+    STMT_START {                        \
+	(p) = PL_sv_root;               \
+        DEBUG_mv(static char buf[64];	\
+		 const STRLEN len = my_snprintf(buf, sizeof(buf),    \
+                     "%p: uproot_SV -> %p\n", p, SvARENA_CHAIN(p));  \
+                 PerlLIO_write(2, buf, len));           \
+	PL_sv_root = MUTABLE_SV(SvARENA_CHAIN(p));      \
+	++PL_sv_count;					\
+    } STMT_END
+
+#else
+
+#define plant_SV(p)                                     \
     STMT_START {					\
-	const U32 old_flags = SvFLAGS(p);                   \
-	MEM_LOG_DEL_SV(p, __FILE__, __LINE__, FUNCTION__);  \
+	const U32 old_flags = SvFLAGS(p);               \
+	MEM_LOG_DEL_SV(p, __FILE__, __LINE__, FUNCTION__); \
 	DEBUG_SV_SERIAL(p);				\
 	FREE_SV_DEBUG_FILE(p);				\
 	POISON_SV_HEAD(p);				\
 	SvFLAGS(p) = SVTYPEMASK;			\
-	if (!(old_flags & SVf_BREAK)) {		\
-	    SvARENA_CHAIN_SET(p, PL_sv_root);	\
+	if (!(old_flags & SVf_BREAK)) {                 \
+	    SvARENA_CHAIN_SET(p, PL_sv_root);           \
 	    PL_sv_root = (p);				\
 	}						\
 	--PL_sv_count;					\
     } STMT_END
 
-#define uproot_SV(p) \
+#define uproot_SV(p)                                    \
     STMT_START {					\
 	(p) = PL_sv_root;				\
 	PL_sv_root = MUTABLE_SV(SvARENA_CHAIN(p));      \
 	++PL_sv_count;					\
     } STMT_END
 
+#endif
 
 /* make some more SVs by adding another arena */
 
@@ -304,6 +340,7 @@ S_more_sv(pTHX)
 {
     SV* sv;
     char *chunk;                /* must use New here to match call to */
+
     Newx(chunk,PERL_ARENA_SIZE,char);  /* Safefree() in sv_free_arenas() */
     sv_add_arena(chunk, PERL_ARENA_SIZE, 0);
     uproot_SV(sv);
@@ -350,7 +387,7 @@ S_new_SV(pTHX_ const char *file, int line, const char *func)
 
     return sv;
 }
-#  define new_SV(p) (p)=S_new_SV(aTHX_ __FILE__, __LINE__, FUNCTION__)
+#  define new_SV(p) (p) = S_new_SV(aTHX_ __FILE__, __LINE__, FUNCTION__)
 
 #else
 #  define new_SV(p) \
@@ -376,7 +413,7 @@ S_new_SV(pTHX_ const char *file, int line, const char *func)
 	if (DEBUG_D_TEST)				\
 	    del_sv(p);					\
 	else						\
-	    plant_SV(p);				\
+	    plant_SV(aTHX_ p);				\
     } STMT_END
 
 STATIC void
@@ -402,7 +439,7 @@ S_del_sv(pTHX_ SV *p)
 	    return;
 	}
     }
-    plant_SV(p);
+    plant_SV(aTHX_ p);
 }
 
 #else /* ! DEBUGGING */
@@ -429,6 +466,9 @@ S_sv_add_arena(pTHX_ char *const ptr, const U32 size, const U32 flags)
     SV *const sva = MUTABLE_SV(ptr);
     SV* sv;
     SV* svend;
+#ifdef DEBUGGING
+    static char buf[128];
+#endif
 
     PERL_ARGS_ASSERT_SV_ADD_ARENA;
 
@@ -439,10 +479,15 @@ S_sv_add_arena(pTHX_ char *const ptr, const U32 size, const U32 flags)
 
     PL_sv_arenaroot = sva;
     PL_sv_root = sva + 1;
-
+    DEBUG_mv(const STRLEN len = my_snprintf(buf, sizeof(buf),
+               "%p: sv_add_arena -> %p\n", sva, PL_sv_root);
+	     PerlLIO_write(2, buf, len));
     svend = &sva[SvREFCNT(sva) - 1];
     sv = sva + 1;
     while (sv < svend) {
+        DEBUG_mv(const STRLEN len = my_snprintf(buf, sizeof(buf),
+                     "%p: arena chain -> %p\n", sv, sv+1);
+                 PerlLIO_write(2, buf, len));
 	SvARENA_CHAIN_SET(sv, (sv + 1));
 #ifdef DEBUGGING
 	SvREFCNT(sv) = 0;
@@ -1111,7 +1156,7 @@ Perl_more_bodies (pTHX_ const svtype sv_type, const size_t body_size,
 	newroot->next = aroot;
 	aroot = newroot;
 	PL_body_arenas = (void *) newroot;
-	DEBUG_m(PerlIO_printf(Perl_debug_log, "new arenaset %p\n", (void*)aroot));
+	DEBUG_m(PerlIO_printf(Perl_debug_log, "new arenaset 0x%p\n", (void*)aroot));
     }
 
     /* ok, now have arena-set with at least 1 empty/available arena-desc */
@@ -1122,7 +1167,7 @@ Perl_more_bodies (pTHX_ const svtype sv_type, const size_t body_size,
     Newx(adesc->arena, good_arena_size, char);
     adesc->size = good_arena_size;
     adesc->utype = sv_type;
-    DEBUG_m(PerlIO_printf(Perl_debug_log, "arena %d added: %p size %"UVuf"\n", 
+    DEBUG_m(PerlIO_printf(Perl_debug_log, "arena %d added: 0x%p size %"UVuf"\n",
 			  curr, (void*)adesc->arena, (UV)good_arena_size));
 
     start = (char *) adesc->arena;
@@ -1134,14 +1179,14 @@ Perl_more_bodies (pTHX_ const svtype sv_type, const size_t body_size,
     /* computed count doesn't reflect the 1st slot reservation */
 #if defined(MYMALLOC) || defined(HAS_MALLOC_GOOD_SIZE)
     DEBUG_m(PerlIO_printf(Perl_debug_log,
-			  "arena %p end %p arena-size %d (from %d) type %d "
+			  "arena 0x%p end 0x%p arena-size %d (from %d) type %d "
 			  "size %d ct %d\n",
 			  (void*)start, (void*)end, (int)good_arena_size,
 			  (int)arena_size, sv_type, (int)body_size,
 			  (int)good_arena_size / (int)body_size));
 #else
     DEBUG_m(PerlIO_printf(Perl_debug_log,
-			  "arena %p end %p arena-size %d type %d size %d ct %d\n",
+			  "arena 0x%p end 0x%p arena-size %d type %d size %d ct %d\n",
 			  (void*)start, (void*)end,
 			  (int)arena_size, sv_type, (int)body_size,
 			  (int)good_arena_size / (int)body_size));
