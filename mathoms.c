@@ -108,6 +108,9 @@ PERL_MATHOM_CALLCONV UV Perl_to_utf8_upper(pTHX_ const U8 *p, U8* ustrp, STRLEN 
 PERL_MATHOM_CALLCONV UV Perl_to_utf8_fold(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp);
 PERL_MATHOM_CALLCONV SV *Perl_sv_mortalcopy(pTHX_ SV *const oldstr);
 
+/* Ignore 'always_inline function might not be inlinable' */
+GCC_DIAG_IGNORE(-Wattributes)
+
 /* ref() is now a macro using Perl_doref;
  * this version provided for binary compatibility only.
  */
@@ -1812,6 +1815,7 @@ Perl_pad_compname_type(pTHX_ const PADOFFSET po)
     return PAD_COMPNAME_TYPE(po);
 }
 
+GCC_DIAG_RESTORE
 
 END_EXTERN_C
 
