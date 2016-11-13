@@ -21341,16 +21341,20 @@ Perl_rpeep(pTHX_ OP *o)
 	    break;
 
 	case OP_CONCAT:
-	    if (OpNEXT(o) && IS_TYPE(OpNEXT(o), STRINGIFY)) {
+            if (OP_TYPE_IS(OpNEXT(o), OP_STRINGIFY)) {
+		DEBUG_kv(Perl_deb(aTHX_ "rpeep: CONCAT STRINGIFY => CONCAT\n"));
 		if (OpNEXT(o)->op_private & OPpTARGET_MY) {
-		    if (OpSTACKED(o)) /* chained concats */
-			break; /* ignore_optimization */
-		    else {
+                    /* XXX test: require Config; import Config; print $Config{cp} */
+		    if (OpSTACKED(o)) { /* chained concats */
+		        /* ignore removing the stringify optimization.
+		           see [perl #101640, #124160, #49594] */
+			break;
+		    } else {
 			assert( OP_HAS_TARGLEX(o->op_type) );
 			o->op_targ = OpNEXT(o)->op_targ;
 			OpNEXT(o)->op_targ = 0;
-                        DEBUG_kv(Perl_deb(aTHX_
-                            "rpeep: set TARGET_MY on %s\n", OP_NAME(o)));
+		        DEBUG_kv(Perl_deb(aTHX_	"rpeep: set TARGET_MY on %s%s\n",
+                                          OpSTACKED(o)?"stacked ":"", OP_NAME(o)));
 			o->op_private |= OPpTARGET_MY;
 		    }
 		}
