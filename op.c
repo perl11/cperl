@@ -1914,7 +1914,7 @@ Perl_scalar(pTHX_ OP *o)
 	const char lbrack = o->op_type == OP_KVHSLICE ? '{' : '[';
 	const char rbrack = o->op_type == OP_KVHSLICE ? '}' : ']';
 	SV *name;
-	SV *keysv;
+	SV *keysv = NULL;
 	const char *key = NULL;
 
 	/* This warning can be nonsensical when there is a syntax error. */
@@ -1939,13 +1939,15 @@ Perl_scalar(pTHX_ OP *o)
 		       "as $%"SVf"%c%s%c",
 			SVfARG(name), lbrack, key, rbrack, SVfARG(name),
 			lbrack, key, rbrack);
-	else
+	else {
+            assert(keysv);
   /* diag_listed_as: %%s[%s] in scalar context better written as $%s[%s] */
 	    Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
 		       "%%%"SVf"%c%"SVf"%c in scalar context better "
 		       "written as $%"SVf"%c%"SVf"%c",
 			SVfARG(name), lbrack, SVfARG(keysv), rbrack,
 			SVfARG(name), lbrack, SVfARG(keysv), rbrack);
+        }
       }
     }
     return o;
