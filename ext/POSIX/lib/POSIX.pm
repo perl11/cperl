@@ -4,7 +4,7 @@ use warnings;
 
 our ($AUTOLOAD, %SIGRT);
 
-our $VERSION = '1.73_01';
+our $VERSION = '1.75_01';
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -166,8 +166,6 @@ my %reimpl = (
     strstr    => 'big, little => CORE::index($_[0], $_[1])',
     system    => 'command => CORE::system($_[0])',
     time      => 'CORE::time',
-    tolower   => 'string => lc($_[0])',
-    toupper   => 'string => uc($_[0])',
     umask     => 'mask => CORE::umask($_[0])',
     unlink    => 'filename => CORE::unlink($_[0])',
     utime     => 'filename, atime, mtime => CORE::utime($_[1], $_[2], $_[0])',
@@ -256,8 +254,7 @@ my %default_export_tags = (
 
     assert_h =>	[qw(assert NDEBUG)],
 
-    ctype_h =>	[qw(isalnum isalpha iscntrl isdigit isgraph islower
-		isprint ispunct isspace isupper isxdigit tolower toupper)],
+    ctype_h =>	        [],
 
     dirent_h =>	[],
 
