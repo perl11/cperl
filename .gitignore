@@ -223,3 +223,13 @@ log.bench-*
 /cov-int
 perl.dSYM/
 miniperl.dSYM/
+
+# IDE workspace and project settings
+.XCode/
+.codelite/
+.kdev4/
+cperl.kdev4
+cperl.project
+cperl.workspace
+cperl.xcodeproj/
+cperl.xcworkspace/
