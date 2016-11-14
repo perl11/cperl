@@ -91533,7 +91533,7 @@ static const U8 WB_table[24][24] = {
 #endif	/* defined(PERL_IN_REGEXEC_C) */
 
 /* Generated from:
- * fb4d1a3cd22576a501de6f88d4b66fe20baa226b0691fedee6f26b9bb26fc537 lib/Unicode/UCD.pm
+ * c7213e6574cb18e168abd7821765b6a2b15472126fa44a3d234c15f30529967f lib/Unicode/UCD.pm
  * 47cb62a53beea6d0263e2147331c7e751853c9327225d95bbe2d9e1dc3e1aa44 lib/unicore/ArabicShaping.txt
  * 153f0a100c315f9f3945e78f57137611d36c44b3a975919c499fd403413fede8 lib/unicore/BidiBrackets.txt
  * fbe806975c1bf9fc9960bbaa39ff6290c42c7da8315f9cd459109b024cc1c485 lib/unicore/BidiMirroring.txt
