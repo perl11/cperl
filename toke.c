@@ -6040,7 +6040,8 @@ Perl_yylex(pTHX)
                         if (memEQc(pv, "unique")) {
                             sv_free(sv);
                             if (PL_in_my == KEY_our) {
-                                deprecate(":unique");
+                                deprecate_disappears_in("5.28",
+                                    "Attribute \"unique\" is deprecated");
                             }
                             else
                                 Perl_croak(aTHX_ "The 'unique' attribute may only be applied to 'our' variables");
@@ -6054,7 +6055,8 @@ Perl_yylex(pTHX)
                             }
                             else if (memEQc(pv, "locked")) {
                                 sv_free(sv);
-                                deprecate(":locked");
+                                deprecate_disappears_in("5.28",
+                                    "Attribute \"locked\" is deprecated");
                             }
                             else if (memEQc(pv, "method")) {
                                 sv_free(sv);
