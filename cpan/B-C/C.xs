@@ -264,6 +264,12 @@ PPCODE:
 
 MODULE = B      PACKAGE = B::HV
 
+IV
+Gv_AMG(stash)
+    B::HV stash
+CODE:
+    XSRETURN_IV((!SvREADONLY(stash) && Gv_AMG(stash)) ? 1 : 0);
+
 #if PERL_VERSION > 13
 
 # returns a single or multiple ENAME(s), since 5.14

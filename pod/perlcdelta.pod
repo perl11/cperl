@@ -160,10 +160,11 @@ Fixed build dependency for F<dlboot.c>. No excessive rebuilds anymore.
 - fail decode of non-unicode raw characters above U+10FFFF
   when not in relaxed mode.
 
-=item B-C 1.54_14
+=item B-C 1.54_15
 
 Fixed IsCOW savepvn, store the last cowrefcnt.
 Fixed wrong savepvn length, failing with asan.
+Optimized mro_isa_changed_in initialization.
 
 =item Net-Ping 2.55
 
