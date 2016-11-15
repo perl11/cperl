@@ -10340,6 +10340,7 @@ S_scan_heredoc(pTHX_ char *s)
 	    if (*ss == '\n') {
 		sv_catpv(newstr,"\n");
 		ss++;
+		linecount++;
 
 	    /* Found our indentation? Strip it */
 	    } else if (se - ss >= indent_len
@@ -10363,8 +10364,6 @@ S_scan_heredoc(pTHX_ char *s)
 		    (int)linecount
 		);
 	    }
-
-	    linecount++;
 	}
 
 	sv_setsv(tmpstr,newstr);
