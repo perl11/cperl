@@ -414,7 +414,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 	case SVt_PVCV:
 	    switch ((int)len) {
 	    case 4:
-		if (memEQ(name, "pure", 4)) {
+		if (memEQc(name, "pure")) {
 		    if (negated)
 			Perl_croak(aTHX_ "Illegal :-pure attribute");
                     CvPURE_on(sv);
@@ -422,7 +422,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                 }
 		break;
 	    case 5:
-		if (memEQ(name, "const", 5)) {
+		if (memEQc(name, "const")) {
 		    if (negated)
 			CvCONST_off(sv);
 		    else {
@@ -442,7 +442,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 	    case 6:
 		switch (name[3]) {
 		case 'l':
-		    if (memEQ(name, "lvalue", 6)) {
+		    if (memEQc(name, "lvalue")) {
 			bool warn =
 			    !CvISXSUB(MUTABLE_CV(sv))
 			 && CvROOT(MUTABLE_CV(sv))
@@ -456,7 +456,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    }
 		    break;
 		case 'h':
-		    if (memEQ(name, "method", 6)) {
+		    if (memEQc(name, "method")) {
 			if (negated)
 			    CvFLAGS(MUTABLE_CV(sv)) &= ~CVf_METHOD;
 			else
@@ -467,7 +467,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		}
 		break;
 	    default:
-		if (len > 10 && memEQ(name, "prototype(", 10)) {
+		if (len > 10 && memEQc(name, "prototype(")) {
 		    SV * proto = newSVpvn(name+10,len-11);
 		    HEK *const hek = CvNAME_HEK((CV *)sv);
 		    SV *subname;
@@ -499,7 +499,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 	case SVt_IV:
 	case SVt_PVIV:
 	case SVt_PVMG:
-            if (memEQ(name, "unsigned", 8)
+            if (memEQc(name, "unsigned")
                 && (SvIOK(sv) || SvUOK(sv)))
             {
                 if (negated) /* :-unsigned alias for :signed */
@@ -510,7 +510,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
             }
             /* fallthru - all other data types */
 	default:
-            if (memEQ(name, "const", 5)
+            if (strEQc(name, "const")
                 && !(SvFLAGS(sv) & SVf_PROTECT))
             {
                 if (negated)
@@ -519,7 +519,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                     SvREADONLY_on(sv);
                 continue;
             }
-	    if (memEQs(name, len, "shared")) {
+	    if (strEQc(name, "shared")) {
                 if (negated)
                     Perl_croak(aTHX_ "A variable may not be unshared");
                 SvSHARE(sv);
