@@ -17413,6 +17413,8 @@ bits should be clear.
 The current setting for a particular CV can be retrieved by
 L</cv_get_call_checker_flags>.
 
+The callback must be a global function, not a thread-local function.
+
 =for apidoc Am|void|cv_set_call_checker|CV *cv|Perl_call_checker ckfun|SV *ckobj
 
 The original form of L</cv_set_call_checker_flags>, which passes it the
@@ -17443,6 +17445,9 @@ Perl_cv_set_call_checker_flags(pTHX_ CV *cv, Perl_call_checker ckfun,
 	sv_magic((SV*)cv, UNDEF, PERL_MAGIC_checkcall, NULL, 0);
 	callmg = mg_find((SV*)cv, PERL_MAGIC_checkcall);
 	assert(callmg);
+        /* TODO: check thread-id of ckfun. Must not be thread-local,
+           as PL_check is global and not I specific. [cperl #221] */
+
 	if (callmg->mg_flags & MGf_REFCOUNTED) {
 	    SvREFCNT_dec(callmg->mg_obj);
 	    callmg->mg_flags &= ~MGf_REFCOUNTED;
