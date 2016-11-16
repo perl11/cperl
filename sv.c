@@ -4522,7 +4522,7 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
     }
     else if (sflags & SVp_POK) {
 	const STRLEN cur = SvCUR(sstr);
-	const STRLEN len = SvLEN(sstr);
+	STRLEN len = SvLEN(sstr);
 
 	/*
 	 * We have three basic ways to copy the string:
@@ -4649,9 +4649,14 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
             }
 #endif
 #ifdef PERL_ANY_COW
+            if (len && (len < cur+2)) {
+                sv_grow(sstr, cur+2);
+                len = SvLEN(sstr);
+                assert(len >= cur+2);
+            }
             if (!(sflags & SVf_IsCOW)) {
-                    SvIsCOW_on(sstr);
-		    CowREFCNT(sstr) = 0;
+                SvIsCOW_on(sstr);
+                CowREFCNT(sstr) = 0;
             }
 #endif
 	    if (SvPVX_const(dstr)) {	/* we know that dtype >= SVt_PV */
@@ -4665,6 +4670,7 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
                     sv_buf_to_rw(sstr);
                 }
 #endif
+                assert(len >= cur+2);
                 CowREFCNT_inc(sstr);
                 DEBUG_C(PerlIO_printf(Perl_debug_log,
                                       "Copy on write: Splice in \"%s\"\n",
@@ -4833,7 +4839,7 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
 		      (void*)sstr, (void*)dstr);
 	sv_dump(sstr);
 	if (dstr)
-		    sv_dump(dstr);
+            sv_dump(dstr);
     }
 #endif
     if (dstr) {
@@ -4850,7 +4856,6 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
     assert (SvPOKp(sstr));
 
     if (SvIsCOW(sstr)) {
-
 	if (SvLEN(sstr) == 0) {
             HEK* hek = share_hek_hek(SvSHARED_HEK_FROM_PV(SvPVX_const(sstr)));
 	    /* source is a COW shared hash key.  */
@@ -4867,6 +4872,7 @@ Perl_sv_setsv_cow(pTHX_ SV *dstr, SV *sstr)
     } else {
 	assert ((SvFLAGS(sstr) & CAN_COW_MASK) == CAN_COW_FLAGS);
 	SvUPGRADE(sstr, SVt_COW);
+        SvGROW(sstr, SvCUR(sstr)+2);
 	SvIsCOW_on(sstr);
 	DEBUG_C(PerlIO_printf(Perl_debug_log,
 			      "Fast copy on write: Converting sstr to COW\n"));
@@ -5186,10 +5192,10 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
 
 #ifdef DEBUGGING
         if (DEBUG_C_TEST) {
-                PerlIO_printf(Perl_debug_log,
-                              "Uncopy on write: Force normal %ld \"%s\"\n",
-                              (long) flags, pvx);
-                DEBUG_v(sv_dump(sv));
+            PerlIO_printf(Perl_debug_log,
+                          "Uncopy on write: Force normal %ld \"%s\"\n",
+                          (long) flags, pvx);
+            DEBUG_v(sv_dump(sv));
         }
 #endif
         SvIsCOW_off(sv);
@@ -5225,8 +5231,7 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
                 SvCUR_set(sv, cur);
                 *SvEND(sv) = '\0';
             }
-	    if (len) {
-	    } else {
+	    if (!len) {
 		unshare_hek(SvSHARED_HEK_FROM_PV(pvx));
 	    }
 # ifdef DEBUGGING
@@ -5236,7 +5241,7 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
 	}
 #else
 	    const char * const pvx = SvPVX_const(sv);
-	    const STRLEN len = SvCUR(sv);
+	    const STRLEN cur = SvCUR(sv);
 	    SvIsCOW_off(sv);
 	    SvPV_set(sv, NULL);
 	    SvLEN_set(sv, 0);
@@ -5244,8 +5249,8 @@ Perl_sv_uncow(pTHX_ SV * const sv, const U32 flags)
 		/* OK, so we don't need to copy our buffer.  */
 		SvPOK_off(sv);
 	    } else {
-		SvGROW(sv, len + 1);
-		Move(pvx,SvPVX(sv),len,char);
+		SvGROW(sv, cur + 1);
+		Move(pvx,SvPVX(sv),cur,char);
 		*SvEND(sv) = '\0';
 	    }
             unshare_hek(SvSHARED_HEK_FROM_PV(pvx));
@@ -5498,7 +5503,7 @@ Perl_sv_catpvn_flags(pTHX_ SV *const dsv, const char *sstr, const STRLEN slen, c
       else
           SvGROW(dsv, dlen + slen + 1);
       if (sstr == dstr)
-	sstr = SvPVX_const(dsv);
+          sstr = SvPVX_const(dsv);
       Move(sstr, SvPVX(dsv) + dlen, slen, char);
       SvCUR_set(dsv, dlen + slen);
     }

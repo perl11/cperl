@@ -4470,14 +4470,12 @@ PP(pp_ucfirst)
     /* Here, have the first character's changed case stored in tmpbuf.  Ready to
      * generate the result */
     if (inplace) {
-
 	/* We can convert in place.  This means we change just the first
 	 * character without disturbing the rest; no need to grow */
 	dest = source;
 	s = d = (U8*)SvPV_force_nomg(source, slen);
     } else {
 	dTARGET;
-
 	dest = TARG;
 
 	/* Here, we can't convert in place; we earlier calculated how much
@@ -4510,8 +4508,9 @@ PP(pp_ucfirst)
 		 * into tmpbuf.  First put that into dest, and then append the
 		 * rest of the source, converting it to UTF-8 as we go. */
 
-		/* Assert tculen is 2 here because the only two characters that
-		 * get to this part of the code have 2-byte UTF-8 equivalents */
+		/* Because the only two characters that get to this
+		 * part of the code have 2-byte UTF-8 equivalents */
+                assert(tculen == 2);
 		*d++ = *tmpbuf;
 		*d++ = *(tmpbuf + 1);
 		s++;	/* We have just processed the 1st char */
@@ -4525,7 +4524,7 @@ PP(pp_ucfirst)
 	    SvUTF8_on(dest);
 	}
 	else {   /* in-place UTF-8.  Just overwrite the first character */
-	    Copy(tmpbuf, d, tculen, U8);
+            Copy(tmpbuf, d, tculen, U8);
 	    SvCUR_set(dest, need - 1);
 	}
 
@@ -4536,9 +4535,9 @@ PP(pp_ucfirst)
 		*d = *tmpbuf;
 	    }
 	    else {	/* Not in-place */
-
-		/* Copy the case-changed character(s) from tmpbuf */
-		Copy(tmpbuf, d, tculen, U8);
+                /* Copy the case-changed character(s) from tmpbuf */
+                /* FIXME: heap-use-after-free */
+                Copy(tmpbuf, d, tculen, U8);
 		d += tculen - 1; /* Code below expects d to point to final
 				  * character stored */
 	    }
