@@ -1616,7 +1616,7 @@ Perl_sv_grow(pTHX_ SV *const sv, STRLEN newlen)
     /* the new COW scheme uses SvPVX(sv)[SvLEN(sv)-1] (if spare)
      * to store the COW count. So in general, allocate one more byte than
      * asked for, to make it likely this byte is always spare: and thus
-     * make more strings COW-able.
+     * make more strings COW-able. Unfortunately this is even required now.
      *
      * Only increment if the allocation isn't MEM_SIZE_MAX,
      * otherwise it will wrap to 0.
@@ -1634,8 +1634,8 @@ Perl_sv_grow(pTHX_ SV *const sv, STRLEN newlen)
 	minlen += (minlen >> PERL_STRLEN_EXPAND_SHIFT) + 2;
 	if (newlen < minlen)
 	    newlen = minlen;
-#ifndef PERL_UNWARANTED_CHUMMINESS_WITH_MALLOC
 
+#ifndef PERL_UNWARANTED_CHUMMINESS_WITH_MALLOC
         /* Don't round up on the first allocation, as odds are pretty good that
          * the initial request is accurate as to what is really needed */
         if (SvLEN(sv)) {
@@ -5512,7 +5512,7 @@ Perl_sv_catpvn_flags(pTHX_ SV *const dsv, const char *sstr, const STRLEN slen, c
 	   bytes *and* utf8, which would indicate a bug elsewhere. */
 	assert(sstr != dstr);
 
-	SvGROW(dsv, dlen + slen * 2);
+	SvGROW(dsv, dlen + slen * 2 + 1);
 	d = (U8 *)SvPVX(dsv) + dlen;
 
 	while (sstr < send) {
