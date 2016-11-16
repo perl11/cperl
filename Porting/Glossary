@@ -4481,11 +4481,10 @@ pager (pager.U):
 	Usual values are (the full pathnames of) more, less, pg, or cat.
 
 passcat (nis.U):
-	This variable contains a command that produces the text of the
+	This variable contained a command that produces the text of the
 	/etc/passwd file.  This is normally "cat /etc/passwd", but can be
 	"ypcat passwd" when NIS is used.
-	On some systems, such as os390, there may be no equivalent
-	command, in which case this variable is unset.
+        With cperl passcat is empty.
 
 patchlevel (patchlevel.U):
 	The patchlevel level of this package.

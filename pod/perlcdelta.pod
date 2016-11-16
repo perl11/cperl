@@ -304,6 +304,12 @@ L</Platform Support> section, instead.
 
 =over 4
 
+=item passcat
+
+This suspicious Config key was removed from cperl.
+If you have a NIS database use C<ypcat passwd>.
+passcat is not used in any public CPAN module.
+
 =item fake_signatures
 
 Ask for L<fake_signatures> being compiled in as default or not.

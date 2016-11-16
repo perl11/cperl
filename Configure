@@ -1175,7 +1175,6 @@ netdb_name_type=''
 netdb_net_type=''
 groupcat=''
 hostcat=''
-passcat=''
 orderlib=''
 ranlib=''
 d_perl_otherlibdirs=''
@@ -9316,9 +9315,6 @@ case "$hostcat" in
 esac
 case "$groupcat" in
 '') test -f /etc/group && groupcat='cat /etc/group';;
-esac
-case "$passcat" in
-'') test -f /etc/passwd && passcat='cat /etc/passwd';;
 esac
 
 : now get the host name
@@ -25555,7 +25551,6 @@ osvers='$osvers'
 otherlibdirs='$otherlibdirs'
 package='$package'
 pager='$pager'
-passcat='$passcat'
 patchlevel='$patchlevel'
 path_sep='$path_sep'
 perl5='$perl5'
