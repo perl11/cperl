@@ -5473,11 +5473,12 @@ Perl_sv_catpvn_flags(pTHX_ SV *const dsv, const char *sstr, const STRLEN slen, c
 	 sv_utf8_upgrade_flags_grow(dsv, 0, slen + 1);
 	 dlen = SvCUR(dsv);
       }
-      else SvGROW(dsv, dlen + slen + 3);
+      else
+          SvGROW(dsv, dlen + slen);
       if (sstr == dstr)
 	sstr = SvPVX_const(dsv);
       Move(sstr, SvPVX(dsv) + dlen, slen, char);
-      SvCUR_set(dsv, SvCUR(dsv) + slen);
+      SvCUR_set(dsv, dlen + slen);
     }
     else {
 	/* We inline bytes_to_utf8, to avoid an extra malloc. */
@@ -5489,7 +5490,7 @@ Perl_sv_catpvn_flags(pTHX_ SV *const dsv, const char *sstr, const STRLEN slen, c
 	   bytes *and* utf8, which would indicate a bug elsewhere. */
 	assert(sstr != dstr);
 
-	SvGROW(dsv, dlen + slen * 2 + 3);
+	SvGROW(dsv, dlen + slen * 2);
 	d = (U8 *)SvPVX(dsv) + dlen;
 
 	while (sstr < send) {
