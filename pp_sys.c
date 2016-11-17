@@ -462,7 +462,7 @@ PP(pp_warn)
       }
     }
     if (SvROK(exsv) && !PL_warnhook)
-	 Perl_warn(aTHX_ "%"SVf, SVfARG(exsv));
+	 Perl_warn(aTHX_ "%" SVf, SVfARG(exsv));
     else warn_sv(exsv);
     RETSETYES;
 }
@@ -623,7 +623,7 @@ PP(pp_open)
 
 	if (IoDIRP(io))
 	    Perl_ck_warner_d(aTHX_ packWARN2(WARN_IO, WARN_DEPRECATED),
-			     "Opening dirhandle %"HEKf" also as a file",
+			     "Opening dirhandle %" HEKf " also as a file",
 			     HEKfARG(GvENAME_HEK(gv)));
 
 	mg = SvTIED_mg((const SV *)io, PERL_MAGIC_tiedscalar);
@@ -699,8 +699,8 @@ PP(pp_pipe_op)
     if (PerlProc_pipe(fd) < 0)
 	goto badexit;
 
-    IoIFP(rstio) = PerlIO_fdopen(fd[0], "r"PIPE_OPEN_MODE);
-    IoOFP(wstio) = PerlIO_fdopen(fd[1], "w"PIPE_OPEN_MODE);
+    IoIFP(rstio) = PerlIO_fdopen(fd[0], "r" PIPE_OPEN_MODE);
+    IoOFP(wstio) = PerlIO_fdopen(fd[1], "w" PIPE_OPEN_MODE);
     IoOFP(rstio) = IoIFP(rstio);
     IoIFP(wstio) = IoOFP(wstio);
     IoTYPE(rstio) = IoTYPE_RDONLY;
@@ -947,7 +947,7 @@ PP(pp_tie)
 	 */
        stash = gv_stashsv(*MARK, 0);
        if (!stash || !(gv = gv_fetchmethod(stash, methname))) {
-	    DIE(aTHX_ "Can't locate object method \"%s\" via package \"%"SVf"\"",
+	    DIE(aTHX_ "Can't locate object method \"%s\" via package \"%" SVf "\"",
 		 methname, SVfARG(SvOK(*MARK) ? *MARK : &PL_sv_no));
 	}
 	ENTER_with_name("call_TIE");
@@ -1013,7 +1013,7 @@ PP(pp_untie)
             }
 	    else if (mg && SvREFCNT(obj) > 1) {
 		Perl_ck_warner(aTHX_ packWARN(WARN_UNTIE),
-			       "untie attempted while %"UVuf" inner references still exist",
+			       "untie attempted while %" UVuf " inner references still exist",
 			       (UV)SvREFCNT(obj) - 1 ) ;
 	    }
         }
@@ -1426,7 +1426,7 @@ PP(pp_enterwrite)
     if (!cv) {
 	tmpsv = sv_newmortal();
 	gv_efullname4(tmpsv, fgv, NULL, FALSE);
-	DIE(aTHX_ "Undefined format \"%"SVf"\" called", SVfARG(tmpsv));
+	DIE(aTHX_ "Undefined format \"%" SVf "\" called", SVfARG(tmpsv));
     }
     IoFLAGS(io) &= ~IOf_DIDTOP;
     RETURNOP(doform(cv,gv,PL_op->op_next));
@@ -1461,7 +1461,7 @@ PP(pp_leavewrite)
 		SV *topname;
 		if (!IoFMT_NAME(io))
 		    IoFMT_NAME(io) = savepv(GvNAME(gv));
-		topname = sv_2mortal(Perl_newSVpvf(aTHX_ "%"HEKf"_TOP",
+		topname = sv_2mortal(Perl_newSVpvf(aTHX_ "%" HEKf "_TOP",
                                         HEKfARG(GvNAME_HEK(gv))));
 		topgv = gv_fetchsv(topname, 0, SVt_PVFM);
 		if ((topgv && GvFORM(topgv)) ||
@@ -1510,7 +1510,7 @@ PP(pp_leavewrite)
 	if (!cv) {
 	    SV * const sv = sv_newmortal();
 	    gv_efullname4(sv, fgv, NULL, FALSE);
-	    DIE(aTHX_ "Undefined top format \"%"SVf"\" called", SVfARG(sv));
+	    DIE(aTHX_ "Undefined top format \"%" SVf "\" called", SVfARG(sv));
 	}
 	return doform(cv, gv, PL_op);
     }
@@ -2491,8 +2491,8 @@ PP(pp_socket)
     if (fd < 0) {
 	RETPUSHUNDEF;
     }
-    IoIFP(io) = PerlIO_fdopen(fd, "r"SOCKET_OPEN_MODE);	/* stdio gets confused about sockets */
-    IoOFP(io) = PerlIO_fdopen(fd, "w"SOCKET_OPEN_MODE);
+    IoIFP(io) = PerlIO_fdopen(fd, "r" SOCKET_OPEN_MODE); /* stdio gets confused about sockets */
+    IoOFP(io) = PerlIO_fdopen(fd, "w" SOCKET_OPEN_MODE);
     IoTYPE(io) = IoTYPE_SOCKET;
     if (!IoIFP(io) || !IoOFP(io)) {
 	if (IoIFP(io)) PerlIO_close(IoIFP(io));
@@ -2532,11 +2532,11 @@ PP(pp_sockpair)
     TAINT_PROPER("socketpair");
     if (PerlSock_socketpair(domain, type, protocol, fd) < 0)
 	RETPUSHUNDEF;
-    IoIFP(io1) = PerlIO_fdopen(fd[0], "r"SOCKET_OPEN_MODE);
-    IoOFP(io1) = PerlIO_fdopen(fd[0], "w"SOCKET_OPEN_MODE);
+    IoIFP(io1) = PerlIO_fdopen(fd[0], "r" SOCKET_OPEN_MODE);
+    IoOFP(io1) = PerlIO_fdopen(fd[0], "w" SOCKET_OPEN_MODE);
     IoTYPE(io1) = IoTYPE_SOCKET;
-    IoIFP(io2) = PerlIO_fdopen(fd[1], "r"SOCKET_OPEN_MODE);
-    IoOFP(io2) = PerlIO_fdopen(fd[1], "w"SOCKET_OPEN_MODE);
+    IoIFP(io2) = PerlIO_fdopen(fd[1], "r" SOCKET_OPEN_MODE);
+    IoOFP(io2) = PerlIO_fdopen(fd[1], "w" SOCKET_OPEN_MODE);
     IoTYPE(io2) = IoTYPE_SOCKET;
     if (!IoIFP(io1) || !IoOFP(io1) || !IoIFP(io2) || !IoOFP(io2)) {
 	if (IoIFP(io1)) PerlIO_close(IoIFP(io1));
@@ -2655,8 +2655,8 @@ PP(pp_accept)
 	goto badexit;
     if (IoIFP(nstio))
 	do_close(ngv, FALSE);
-    IoIFP(nstio) = PerlIO_fdopen(fd, "r"SOCKET_OPEN_MODE);
-    IoOFP(nstio) = PerlIO_fdopen(fd, "w"SOCKET_OPEN_MODE);
+    IoIFP(nstio) = PerlIO_fdopen(fd, "r" SOCKET_OPEN_MODE);
+    IoOFP(nstio) = PerlIO_fdopen(fd, "w" SOCKET_OPEN_MODE);
     IoTYPE(nstio) = IoTYPE_SOCKET;
     if (!IoIFP(nstio) || !IoOFP(nstio)) {
 	if (IoIFP(nstio)) PerlIO_close(IoIFP(nstio));
@@ -2871,7 +2871,7 @@ PP(pp_stat)
 	    if (gv != PL_defgv) {
 	    do_fstat_warning_check:
 		Perl_ck_warner(aTHX_ packWARN(WARN_IO),
-			       "lstat() on filehandle%s%"SVf,
+			       "lstat() on filehandle%s%" SVf,
 				gv ? " " : "",
 				SVfARG(gv
                                         ? sv_2mortal(newSVhek(GvENAME_HEK(gv)))
@@ -3990,7 +3990,7 @@ PP(pp_open_dir)
 
     if ((IoIFP(io) || IoOFP(io)))
 	Perl_ck_warner_d(aTHX_ packWARN2(WARN_IO, WARN_DEPRECATED),
-			 "Opening filehandle %"HEKf" also as a directory",
+			 "Opening filehandle %" HEKf " also as a directory",
 			     HEKfARG(GvENAME_HEK(gv)) );
     if (IoDIRP(io))
 	PerlDir_close(IoDIRP(io));
@@ -4025,7 +4025,7 @@ PP(pp_readdir)
 
     if (!IoDIRP(io)) {
 	Perl_ck_warner(aTHX_ packWARN(WARN_IO),
-		       "readdir() attempted on invalid dirhandle %"HEKf,
+		       "readdir() attempted on invalid dirhandle %" HEKf,
                             HEKfARG(GvENAME_HEK(gv)));
         goto nope;
     }
@@ -4075,7 +4075,7 @@ PP(pp_telldir)
 
     if (!IoDIRP(io)) {
 	Perl_ck_warner(aTHX_ packWARN(WARN_IO),
-		       "telldir() attempted on invalid dirhandle %"HEKf,
+		       "telldir() attempted on invalid dirhandle %" HEKf,
                             HEKfARG(GvENAME_HEK(gv)));
         goto nope;
     }
@@ -4101,7 +4101,7 @@ PP(pp_seekdir)
 
     if (!IoDIRP(io)) {
 	Perl_ck_warner(aTHX_ packWARN(WARN_IO),
-		       "seekdir() attempted on invalid dirhandle %"HEKf,
+		       "seekdir() attempted on invalid dirhandle %" HEKf,
                                 HEKfARG(GvENAME_HEK(gv)));
         goto nope;
     }
@@ -4126,7 +4126,7 @@ PP(pp_rewinddir)
 
     if (!IoDIRP(io)) {
 	Perl_ck_warner(aTHX_ packWARN(WARN_IO),
-		       "rewinddir() attempted on invalid dirhandle %"HEKf,
+		       "rewinddir() attempted on invalid dirhandle %" HEKf,
                                 HEKfARG(GvENAME_HEK(gv)));
 	goto nope;
     }
@@ -4150,7 +4150,7 @@ PP(pp_closedir)
 
     if (!IoDIRP(io)) {
 	Perl_ck_warner(aTHX_ packWARN(WARN_IO),
-		       "closedir() attempted on invalid dirhandle %"HEKf,
+		       "closedir() attempted on invalid dirhandle %" HEKf,
                                 HEKfARG(GvENAME_HEK(gv)));
         goto nope;
     }
@@ -4759,7 +4759,7 @@ PP(pp_gmtime)
        else {
            dTARGET;
            PUSHs(TARG);
-           Perl_sv_setpvf_mg(aTHX_ TARG, "%s %s %2d %02d:%02d:%02d %"IVdf,
+           Perl_sv_setpvf_mg(aTHX_ TARG, "%s %s %2d %02d:%02d:%02d %" IVdf,
                                 dayname[tmbuf.tm_wday],
                                 monname[tmbuf.tm_mon],
                                 tmbuf.tm_mday,

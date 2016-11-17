@@ -958,7 +958,7 @@ hash(sv)
 	U32 hash = 0;
 	const char *s = SvPVbyte(sv, len);
 	PERL_HASH(hash, s, len);
-	ST(0) = sv_2mortal(Perl_newSVpvf(aTHX_ "0x%"UVxf, (UV)hash));
+	ST(0) = sv_2mortal(Perl_newSVpvf(aTHX_ "0x%" UVxf, (UV)hash));
 
 #define cast_I32(foo) (I32)foo
 IV

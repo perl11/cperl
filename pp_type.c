@@ -498,7 +498,7 @@ PPt(pp_i_aelem, "(:Array(:Int),:Int):Int")
 
     if (UNLIKELY(SvROK(elemsv) && ckWARN(WARN_MISC)))
 	Perl_warner(aTHX_ packWARN(WARN_MISC),
-		    "Use of reference \"%"SVf"\" as array index",
+		    "Use of reference \"%" SVf "\" as array index",
 		    SVfARG(elemsv));
     if (UNLIKELY(SvTYPE(av) != SVt_PVAV))
 	RETPUSHUNDEF;

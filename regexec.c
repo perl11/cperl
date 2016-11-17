@@ -290,7 +290,7 @@ S_regcppush(pTHX_ const regexp *rex, I32 parenfloor, U32 maxopenparen)
                    (int)parenfloor, (unsigned)REGCP_PAREN_ELEMS);
 
     if ((elems_shifted >> SAVE_TIGHT_SHIFT) != total_elems)
-	Perl_croak(aTHX_ "panic: paren_elems_to_push offset %"UVuf
+	Perl_croak(aTHX_ "panic: paren_elems_to_push offset %" UVuf
 		   " out of range (%lu-%ld)",
 		   total_elems,
                    (unsigned long)maxopenparen,
@@ -301,7 +301,7 @@ S_regcppush(pTHX_ const regexp *rex, I32 parenfloor, U32 maxopenparen)
     DEBUG_BUFFERS_r(
 	if ((int)maxopenparen > (int)parenfloor)
             Perl_re_printf( aTHX_
-		"rex=0x%"UVxf" offs=0x%"UVxf": saving capture indices:\n",
+		"rex=0x%" UVxf " offs=0x%" UVxf ": saving capture indices:\n",
 		PTR2UV(rex),
 		PTR2UV(rex->offs)
 	    );
@@ -312,7 +312,7 @@ S_regcppush(pTHX_ const regexp *rex, I32 parenfloor, U32 maxopenparen)
 	SSPUSHIV(rex->offs[p].start);
 	SSPUSHINT(rex->offs[p].start_tmp);
         DEBUG_BUFFERS_r(Perl_re_printf( aTHX_
-	    "    \\%"UVuf": %"IVdf"(%"IVdf")..%"IVdf"\n",
+	    "    \\%" UVuf ": %" IVdf "(%" IVdf ")..%" IVdf "\n",
 	    (UV)p,
 	    (IV)rex->offs[p].start,
 	    (IV)rex->offs[p].start_tmp,
@@ -331,8 +331,8 @@ S_regcppush(pTHX_ const regexp *rex, I32 parenfloor, U32 maxopenparen)
 /* These are needed since we do not localize EVAL nodes: */
 #define REGCP_SET(cp)                                           \
     DEBUG_STATE_r(                                              \
-        Perl_re_exec_indentf( aTHX_                                         \
-            "Setting an EVAL scope, savestack=%"IVdf",\n",      \
+        Perl_re_exec_indentf( aTHX_                             \
+            "Setting an EVAL scope, savestack=%" IVdf ",\n",    \
             depth, (IV)PL_savestack_ix                          \
         )                                                       \
     );                                                          \
@@ -341,8 +341,9 @@ S_regcppush(pTHX_ const regexp *rex, I32 parenfloor, U32 maxopenparen)
 #define REGCP_UNWIND(cp)                                        \
     DEBUG_STATE_r(                                              \
         if (cp != PL_savestack_ix)                              \
-            Perl_re_exec_indentf( aTHX_                                     \
-                "Clearing an EVAL scope, savestack=%"IVdf"..%"IVdf"\n",\
+            Perl_re_exec_indentf( aTHX_                         \
+                "Clearing an EVAL scope, savestack=%"           \
+                IVdf "..%" IVdf "\n",                           \
                 depth, (IV)(cp), (IV)PL_savestack_ix            \
             )                                                   \
     );                                                          \
@@ -377,7 +378,7 @@ S_regcppop(pTHX_ regexp *rex, U32 *maxopenparen_p)
     DEBUG_BUFFERS_r(
 	if (i || rex->lastparen + 1 <= rex->nparens)
             Perl_re_printf( aTHX_
-		"rex=0x%"UVxf" offs=0x%"UVxf": restoring capture indices to:\n",
+		"rex=0x%" UVxf " offs=0x%" UVxf ": restoring capture indices to:\n",
 		PTR2UV(rex),
 		PTR2UV(rex->offs)
 	    );
@@ -391,7 +392,7 @@ S_regcppop(pTHX_ regexp *rex, U32 *maxopenparen_p)
 	if (paren <= rex->lastparen)
 	    rex->offs[paren].end = tmps;
         DEBUG_BUFFERS_r( Perl_re_printf( aTHX_
-	    "    \\%"UVuf": %"IVdf"(%"IVdf")..%"IVdf"%s\n",
+	    "    \\%" UVuf ": %" IVdf "(%" IVdf ")..%" IVdf "%s\n",
 	    (UV)paren,
 	    (IV)rex->offs[paren].start,
 	    (IV)rex->offs[paren].start_tmp,
@@ -415,7 +416,7 @@ S_regcppop(pTHX_ regexp *rex, U32 *maxopenparen_p)
 	    rex->offs[i].start = -1;
 	rex->offs[i].end = -1;
         DEBUG_BUFFERS_r( Perl_re_printf( aTHX_
-	    "    \\%"UVuf": %s   ..-1 undeffing\n",
+	    "    \\%" UVuf ": %s   ..-1 undeffing\n",
 	    (UV)i,
 	    (i > *maxopenparen_p) ? "-1" : "  "
 	));
@@ -725,8 +726,8 @@ Perl_re_intuit_start(pTHX_
                 continue;
 
             Perl_re_printf( aTHX_
-                "  substrs[%d]: min=%"IVdf" max=%"IVdf" end shift=%"IVdf
-                " useful=%"IVdf" utf8=%d [%s]\n",
+                "  substrs[%d]: min=%" IVdf " max=%" IVdf " end shift=%" IVdf
+                " useful=%" IVdf " utf8=%d [%s]\n",
                 i,
                 (IV)prog->substrs->data[i].min_offset,
                 (IV)prog->substrs->data[i].max_offset,
@@ -785,7 +786,7 @@ Perl_re_intuit_start(pTHX_
                 char *s = HOP3c(strpos, prog->check_offset_min, strend);
 	    
                 DEBUG_EXECUTE_r(Perl_re_printf( aTHX_
-                    "  Looking for check substr at fixed offset %"IVdf"...\n",
+                    "  Looking for check substr at fixed offset %" IVdf "...\n",
                     (IV)prog->check_offset_min));
 
 	        if (SvTAIL(check)) {
@@ -823,7 +824,7 @@ Perl_re_intuit_start(pTHX_
 
 #ifdef DEBUGGING	/* 7/99: reports of failure (with the older version) */
     if (end_shift < 0)
-	Perl_croak(aTHX_ "panic: end_shift: %"IVdf" pattern:\n%s\n ",
+	Perl_croak(aTHX_ "panic: end_shift: %" IVdf " pattern:\n%s\n ",
 		   (IV)end_shift, RX_PRECOMP(prog));
 #endif
 
@@ -860,9 +861,9 @@ Perl_re_intuit_start(pTHX_
 
         DEBUG_OPTIMISE_MORE_r({
             Perl_re_printf( aTHX_
-                "  At restart: rx_origin=%"IVdf" Check offset min: %"IVdf
-                " Start shift: %"IVdf" End shift %"IVdf
-                " Real end Shift: %"IVdf"\n",
+                "  At restart: rx_origin=%" IVdf " Check offset min: %" IVdf
+                " Start shift: %" IVdf " End shift %" IVdf
+                " Real end Shift: %" IVdf "\n",
                 (IV)(rx_origin - strbeg),
                 (IV)prog->check_offset_min,
                 (IV)start_shift,
@@ -908,7 +909,7 @@ Perl_re_intuit_start(pTHX_
 		      check, multiline ? FBMrf_MULTILINE : 0);
 
         DEBUG_EXECUTE_r(Perl_re_printf( aTHX_
-            "  doing 'check' fbm scan, [%"IVdf"..%"IVdf"] gave %"IVdf"\n",
+            "  doing 'check' fbm scan, [%" IVdf "..%" IVdf "] gave %" IVdf "\n",
             (IV)((char*)start_point - strbeg),
             (IV)((char*)end_point   - strbeg),
             (IV)(check_at ? check_at - strbeg : -1)
@@ -940,7 +941,7 @@ Perl_re_intuit_start(pTHX_
             rx_origin = HOP3c(check_at, -prog->check_offset_max, rx_origin);
         /* Finish the diagnostic message */
         DEBUG_EXECUTE_r(Perl_re_printf( aTHX_
-            "%ld (rx_origin now %"IVdf")...\n",
+            "%ld (rx_origin now %" IVdf ")...\n",
             (long)(check_at - strbeg),
             (IV)(rx_origin - strbeg)
         ));
@@ -1054,7 +1055,7 @@ Perl_re_intuit_start(pTHX_
             if (from > to) {
                 s = NULL;
                 DEBUG_EXECUTE_r(Perl_re_printf( aTHX_
-                    "  skipping 'other' fbm scan: %"IVdf" > %"IVdf"\n",
+                    "  skipping 'other' fbm scan: %" IVdf " > %" IVdf "\n",
                     (IV)(from - strbeg),
                     (IV)(to   - strbeg)
                 ));
@@ -1067,7 +1068,7 @@ Perl_re_intuit_start(pTHX_
                     multiline ? FBMrf_MULTILINE : 0
                 );
                 DEBUG_EXECUTE_r(Perl_re_printf( aTHX_
-                    "  doing 'other' fbm scan, [%"IVdf"..%"IVdf"] gave %"IVdf"\n",
+                    "  doing 'other' fbm scan, [%" IVdf "..%" IVdf "] gave %" IVdf "\n",
                     (IV)(from - strbeg),
                     (IV)(to   - strbeg),
                     (IV)(s ? s - strbeg : -1)
@@ -1103,7 +1104,7 @@ Perl_re_intuit_start(pTHX_
                     ? HOP3c(rx_origin, 1, strend)
                     : HOP4c(last, 1 - other->min_offset, strbeg, strend);
             DEBUG_EXECUTE_r(Perl_re_printf( aTHX_
-                "; about to retry %s at offset %ld (rx_origin now %"IVdf")...\n",
+                "; about to retry %s at offset %ld (rx_origin now %" IVdf ")...\n",
                 (other_ix ? "floating" : "anchored"),
                 (long)(HOP3c(check_at, 1, strend) - strbeg),
                 (IV)(rx_origin - strbeg)
@@ -1127,7 +1128,7 @@ Perl_re_intuit_start(pTHX_
                 other_last = HOP3c(s, 1, strend);
             }
             DEBUG_EXECUTE_r(Perl_re_printf( aTHX_
-                " at offset %ld (rx_origin now %"IVdf")...\n",
+                " at offset %ld (rx_origin now %" IVdf ")...\n",
                   (long)(s - strbeg),
                 (IV)(rx_origin - strbeg)
               ));
@@ -1137,9 +1138,9 @@ Perl_re_intuit_start(pTHX_
     else {
         DEBUG_OPTIMISE_MORE_r(
             Perl_re_printf( aTHX_
-                "  Check-only match: offset min:%"IVdf" max:%"IVdf
-                " check_at:%"IVdf" rx_origin:%"IVdf" rx_origin-check_at:%"IVdf
-                " strend:%"IVdf"\n",
+                "  Check-only match: offset min:%" IVdf " max:%" IVdf
+                " check_at:%" IVdf " rx_origin:%" IVdf " rx_origin-check_at:%" IVdf
+                " strend:%" IVdf "\n",
                 (IV)prog->check_offset_min,
                 (IV)prog->check_offset_max,
                 (IV)(check_at-strbeg),
@@ -1211,7 +1212,7 @@ Perl_re_intuit_start(pTHX_
              * didn't contradict, so just retry the anchored "other"
              * substr */
             DEBUG_EXECUTE_r(Perl_re_printf( aTHX_
-                "  Found /%s^%s/m, rescanning for anchored from offset %"IVdf" (rx_origin now %"IVdf")...\n",
+                "  Found /%s^%s/m, rescanning for anchored from offset %" IVdf " (rx_origin now %" IVdf ")...\n",
                 PL_colors[0], PL_colors[1],
                 (IV)(rx_origin - strbeg + prog->anchored_offset),
                 (IV)(rx_origin - strbeg)
@@ -1285,8 +1286,8 @@ Perl_re_intuit_start(pTHX_
             endpos= strend;
 		    
         DEBUG_EXECUTE_r(Perl_re_printf( aTHX_
-            "  looking for class: start_shift: %"IVdf" check_at: %"IVdf
-            " rx_origin: %"IVdf" endpos: %"IVdf"\n",
+            "  looking for class: start_shift: %" IVdf " check_at: %" IVdf
+            " rx_origin: %" IVdf " endpos: %" IVdf "\n",
               (IV)start_shift, (IV)(check_at - strbeg),
               (IV)(rx_origin - strbeg), (IV)(endpos - strbeg)));
 
@@ -1320,7 +1321,7 @@ Perl_re_intuit_start(pTHX_
                          * practice the extra fbm_instr() is likely to
                          * get skipped anyway. */
                         DEBUG_EXECUTE_r( Perl_re_printf( aTHX_
-                            "  about to retry anchored at offset %ld (rx_origin now %"IVdf")...\n",
+                            "  about to retry anchored at offset %ld (rx_origin now %" IVdf ")...\n",
                             (long)(other_last - strbeg),
                             (IV)(rx_origin - strbeg)
                         ));
@@ -1369,7 +1370,7 @@ Perl_re_intuit_start(pTHX_
                 goto fail;
             }
             DEBUG_EXECUTE_r( Perl_re_printf( aTHX_
-                "  about to look for %s substr starting at offset %ld (rx_origin now %"IVdf")...\n",
+                "  about to look for %s substr starting at offset %ld (rx_origin now %" IVdf ")...\n",
                 (prog->substrs->check_ix ? "floating" : "anchored"),
                 (long)(rx_origin + start_shift - strbeg),
                 (IV)(rx_origin - strbeg)
@@ -2605,7 +2606,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                             dump_exec_pos( (char *)uc, c, strend,
                                         real_start, s, utf8_target, 0);
                             Perl_re_printf( aTHX_
-                                " Charid:%3u CP:%4"UVxf" ",
+                                " Charid:%3u CP:%4" UVxf " ",
                                  charid, uvc);
                         });
                     }
@@ -2626,7 +2627,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                                 dump_exec_pos( (char *)uc, c, strend, real_start,
                                     s,   utf8_target, 0 );
                             Perl_re_printf( aTHX_
-                                "%sState: %4"UVxf", word=%"UVxf,
+                                "%sState: %4" UVxf ", word=%" UVxf,
                                 failed ? " Fail transition to " : "",
                                 (UV)state, (UV)word);
                         });
@@ -2677,7 +2678,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                 if (leftmost) {
                     s = (char*)leftmost;
                     DEBUG_TRIE_EXECUTE_r({
-                        Perl_re_printf( aTHX_  "Matches word #%"UVxf" at position %"IVdf". Trying full pattern...\n",
+                        Perl_re_printf( aTHX_  "Matches word #%" UVxf " at position %" IVdf ". Trying full pattern...\n",
                             (UV)accepted_word, (IV)(s - real_start)
                         );
                     });
@@ -2923,7 +2924,7 @@ Perl_regexec_flags(pTHX_ REGEXP * const rx, char *stringarg, char *strend,
             : strbeg; /* pos() not defined; use start of string */
 
         DEBUG_GPOS_r(Perl_re_printf( aTHX_
-            "GPOS ganch set to strbeg[%"IVdf"]\n", (IV)(reginfo->ganch - strbeg)));
+            "GPOS ganch set to strbeg[%" IVdf "]\n", (IV)(reginfo->ganch - strbeg)));
 
         /* in the presence of \G, we may need to start looking earlier in
          * the string than the suggested start point of stringarg:
@@ -3118,7 +3119,7 @@ Perl_regexec_flags(pTHX_ REGEXP * const rx, char *stringarg, char *strend,
         /* do we need a save destructor here for eval dies? */
         Newxz(prog->offs, (prog->nparens + 1), regexp_paren_pair);
         DEBUG_BUFFERS_r(Perl_re_printf( aTHX_
-	    "rex=0x%"UVxf" saving  offs: orig=0x%"UVxf" new=0x%"UVxf"\n",
+	    "rex=0x%" UVxf " saving  offs: orig=0x%" UVxf " new=0x%" UVxf "\n",
 	    PTR2UV(prog),
 	    PTR2UV(swap),
 	    PTR2UV(prog->offs)
@@ -3502,7 +3503,7 @@ Perl_regexec_flags(pTHX_ REGEXP * const rx, char *stringarg, char *strend,
     DEBUG_BUFFERS_r(
 	if (swap)
             Perl_re_printf( aTHX_
-		"rex=0x%"UVxf" freeing offs: 0x%"UVxf"\n",
+		"rex=0x%" UVxf " freeing offs: 0x%" UVxf "\n",
 		PTR2UV(prog),
 		PTR2UV(swap)
 	    );
@@ -3539,7 +3540,7 @@ Perl_regexec_flags(pTHX_ REGEXP * const rx, char *stringarg, char *strend,
     if (swap) {
         /* we failed :-( roll it back */
         DEBUG_BUFFERS_r(Perl_re_printf( aTHX_
-	    "rex=0x%"UVxf" rolling back offs: freeing=0x%"UVxf" restoring=0x%"UVxf"\n",
+	    "rex=0x%" UVxf " rolling back offs: freeing=0x%" UVxf " restoring=0x%" UVxf "\n",
 	    PTR2UV(prog),
 	    PTR2UV(prog->offs),
 	    PTR2UV(swap)
@@ -3648,7 +3649,7 @@ Perl_re_exec_indentf(pTHX_ const char *fmt, U32 depth, ...)
     PerlIO *f= Perl_debug_log;
     PERL_ARGS_ASSERT_RE_EXEC_INDENTF;
     va_start(ap, depth);
-    PerlIO_printf(f, "%*s|%4"UVuf"| %*s", REPORT_CODE_OFF, "", (UV)depth, INDENT_CHARS(depth), "" );
+    PerlIO_printf(f, "%*s|%4" UVuf "| %*s", REPORT_CODE_OFF, "", (UV)depth, INDENT_CHARS(depth), "" );
     result = PerlIO_vprintf(f, fmt, ap);
     va_end(ap);
     return result;
@@ -3944,7 +3945,7 @@ S_dump_exec_pos(pTHX_ const char *locinput,
 
 	const STRLEN tlen=len0+len1+len2;
         Perl_re_printf( aTHX_
-                    "%4"IVdf" <%.*s%.*s%s%.*s>%*s|%4u| ",
+                    "%4" IVdf " <%.*s%.*s%s%.*s>%*s|%4u| ",
 		    (IV)(locinput - loc_bostr),
 		    len0, s0,
 		    len1, s1,
@@ -5285,7 +5286,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
                 DUMP_EXEC_POS( locinput, scan, utf8_target, depth );
                 regprop(rex, prop, scan, reginfo, NULL);
                 Perl_re_printf( aTHX_
-                    "%*s%"IVdf":%s(%"IVdf")\n",
+                    "%*s%" IVdf ":%s(%" IVdf ")\n",
                     INDENT_CHARS(depth), "",
                     (IV)(scan - rexi->program),
                     SvPVX_const(prop),
@@ -5509,7 +5510,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 		    DEBUG_TRIE_EXECUTE_r({
                                 DUMP_EXEC_POS( (char *)uc, scan, utf8_target, depth );
                                 Perl_re_exec_indentf( aTHX_
-                                    "%sState: %4"UVxf" Accepted: %c ",
+                                    "%sState: %4" UVxf " Accepted: %c ",
                                     depth, PL_colors[4],
 			            (UV)state, (accepted ? 'Y' : 'N'));
 		    });
@@ -5543,7 +5544,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 		    }
 		    DEBUG_TRIE_EXECUTE_r(
                         Perl_re_printf( aTHX_
-		            "Charid:%3x CP:%4"UVxf" After State: %4"UVxf"%s\n",
+		            "Charid:%3x CP:%4" UVxf " After State: %4" UVxf "%s\n",
 		            charid, uvc, (UV)state, PL_colors[5] );
 		    );
 		}
@@ -5562,7 +5563,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 		}
 
 		DEBUG_EXECUTE_r(
-                    Perl_re_exec_indentf( aTHX_  "%sgot %"IVdf" possible matches%s\n",
+                    Perl_re_exec_indentf( aTHX_  "%sgot %" IVdf " possible matches%s\n",
                         depth,
 			PL_colors[4], (IV)ST.accepted, PL_colors[5] );
 		);
@@ -6716,7 +6717,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 		nop = nop->op_next;
 
                 DEBUG_STATE_r( Perl_re_printf( aTHX_
-		    "  re EVAL PL_op=0x%"UVxf"\n", PTR2UV(nop)) );
+		    "  re EVAL PL_op=0x%" UVxf "\n", PTR2UV(nop)) );
 
 		rex->offs[0].end = locinput - reginfo->strbeg;
                 if (reginfo->info_aux_eval->pos_magic)
@@ -6977,7 +6978,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 	    if (n > maxopenparen)
 		maxopenparen = n;
             DEBUG_BUFFERS_r(Perl_re_printf( aTHX_
-		"rex=0x%"UVxf" offs=0x%"UVxf": \\%"UVuf": set %"IVdf" tmp; maxopenparen=%"UVuf"\n",
+		"rex=0x%" UVxf " offs=0x%" UVxf ": \\%" UVuf ": set %" IVdf " tmp; maxopenparen=%" UVuf "\n",
 		PTR2UV(rex),
 		PTR2UV(rex->offs),
 		(UV)n,
@@ -6991,8 +6992,8 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 #define CLOSE_CAPTURE                                                      \
     rex->offs[n].start = rex->offs[n].start_tmp;                           \
     rex->offs[n].end = locinput - reginfo->strbeg;                         \
-    DEBUG_BUFFERS_r(Perl_re_printf( aTHX_                                              \
-        "rex=0x%"UVxf" offs=0x%"UVxf": \\%"UVuf": set %"IVdf"..%"IVdf"\n", \
+    DEBUG_BUFFERS_r(Perl_re_printf( aTHX_                                  \
+        "rex=0x%" UVxf " offs=0x%" UVxf ": \\%" UVuf ": set %" IVdf "..%" IVdf "\n", \
         PTR2UV(rex),                                                       \
         PTR2UV(rex->offs),                                                 \
         (UV)n,                                                             \
@@ -7570,7 +7571,7 @@ NULL
 		    ST.count = ST.minmod ? ARG1(ST.me) : ARG2(ST.me);
 	    }
 	    DEBUG_EXECUTE_r(
-                Perl_re_exec_indentf( aTHX_  "CURLYM now matched %"IVdf" times, len=%"IVdf"...\n",
+                Perl_re_exec_indentf( aTHX_  "CURLYM now matched %" IVdf " times, len=%" IVdf "...\n",
                           depth, (IV) ST.count, (IV)ST.alen)
 	    );
 
@@ -7623,7 +7624,7 @@ NULL
 	    }
 
 	    DEBUG_EXECUTE_r(
-                Perl_re_exec_indentf( aTHX_  "CURLYM trying tail with matches=%"IVdf"...\n",
+                Perl_re_exec_indentf( aTHX_  "CURLYM trying tail with matches=%" IVdf "...\n",
                     depth, (IV)ST.count)
 		);
 	    if (! NEXTCHR_IS_EOS && ST.c1 != CHRTEST_VOID) {
@@ -7633,7 +7634,7 @@ NULL
                     {
                         /* simulate B failing */
                         DEBUG_OPTIMISE_r(
-                            Perl_re_exec_indentf( aTHX_  "CURLYM Fast bail next target=0x%"UVXf" c1=0x%"UVXf" c2=0x%"UVXf"\n",
+                            Perl_re_exec_indentf( aTHX_  "CURLYM Fast bail next target=0x%" UVXf " c1=0x%" UVXf " c2=0x%" UVXf "\n",
                                 depth,
                                 valid_utf8_to_uvchr((U8 *) locinput, NULL),
                                 valid_utf8_to_uvchr(ST.c1_utf8, NULL),
@@ -8196,7 +8197,7 @@ NULL
                 sv_commit = ST.mark_name;
 
                 DEBUG_EXECUTE_r({
-                        Perl_re_exec_indentf( aTHX_  "%ssetting cutpoint to mark:%"SVf"...%s\n",
+                        Perl_re_exec_indentf( aTHX_  "%ssetting cutpoint to mark:%" SVf "...%s\n",
                             depth,
 		            PL_colors[4], SVfARG(sv_commit), PL_colors[5]);
 		});
@@ -8261,7 +8262,7 @@ NULL
             break;
 
 	default:
-	    PerlIO_printf(Perl_error_log, "%"UVxf" %d\n",
+	    PerlIO_printf(Perl_error_log, "%" UVxf " %d\n",
 			  PTR2UV(scan), OP(scan));
 	    Perl_croak(aTHX_ "regexp memory corruption");
 
@@ -8991,7 +8992,7 @@ S_regrepeat(pTHX_ regexp *prog, char **startposp, const regnode *p,
 	DEBUG_EXECUTE_r({
 	    SV * const prop = sv_newmortal();
             regprop(prog, prop, p, reginfo, NULL);
-            Perl_re_exec_indentf( aTHX_  "%s can match %"IVdf" times out of %"IVdf"...\n",
+            Perl_re_exec_indentf( aTHX_  "%s can match %" IVdf " times out of %" IVdf "...\n",
                         depth, SvPVX_const(prop),(IV)c,(IV)max);
 	});
     });
@@ -9193,7 +9194,7 @@ S_reginclass(pTHX_ regexp * const prog, const regnode * const n, const U8* const
             && ckWARN_d(WARN_NON_UNICODE))
         {
             Perl_warner(aTHX_ packWARN(WARN_NON_UNICODE),
-                "Matched non-Unicode code point 0x%04"UVXf" against Unicode property; may not be portable", c);
+                "Matched non-Unicode code point 0x%04" UVXf " against Unicode property; may not be portable", c);
         }
     }
 

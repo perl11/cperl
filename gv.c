@@ -206,7 +206,7 @@ Perl_newGP(pTHX_ GV *const gv)
 
     PERL_HASH(hash, file, len);
     if (UNLIKELY(len > I32_MAX))
-	Perl_croak(aTHX_ "panic: file name too long (%"UVuf")", (UV) len);
+	Perl_croak(aTHX_ "panic: file name too long (%" UVuf ")", (UV) len);
     gp->gp_file_hek = share_hek(file, len, hash);
     gp->gp_refcnt = 1;
 
@@ -420,7 +420,7 @@ Perl_gv_init_pvn(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len, U32 flag
     if (stash)
 	Perl_sv_add_backref(aTHX_ MUTABLE_SV(stash), MUTABLE_SV(gv));
     if (UNLIKELY(len > I32_MAX))
-	Perl_croak(aTHX_ "panic: gv name too long (%"UVuf")", (UV) len);
+	Perl_croak(aTHX_ "panic: gv name too long (%" UVuf ")", (UV) len);
     gv_name_set(gv, name, len, GV_ADD | ( flags & SVf_UTF8 ? SVf_UTF8 : 0 ));
     if (flags & GV_ADDMULTI || doproto)	/* doproto means it */
 	GvMULTI_on(gv);			/* _was_ mentioned */
@@ -519,7 +519,7 @@ S_maybe_add_coresub(pTHX_ HV * const stash, GV *gv,
     assert(name);
 
     if (UNLIKELY(len > I32_MAX))
-	Perl_croak(aTHX_ "panic: keyword name too long (%"UVuf")", (UV) len);
+	Perl_croak(aTHX_ "panic: keyword name too long (%" UVuf ")", (UV) len);
     if (!code) return NULL; /* Not a keyword */
     switch (code < 0 ? -code : code) {
      /* no support for \&CORE::infix;
@@ -812,7 +812,7 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
 
         if (!cstash) {
 	    Perl_ck_warner(aTHX_ packWARN(WARN_SYNTAX),
-                           "Can't locate package %"SVf" for @%"HEKf"::ISA",
+                           "Can't locate package %" SVf " for @%" HEKf "::ISA",
 			   SVfARG(linear_sv),
                            HEKfARG(HvNAME_HEK(stash)));
             continue;
@@ -1116,8 +1116,8 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 			return gv;
 		}
 		Perl_croak(aTHX_
-			   "Can't locate object method \"%"UTF8f
-			   "\" via package \"%"HEKf"\"",
+			   "Can't locate object method \"%" UTF8f
+			   "\" via package \"%" HEKf "\"",
                            UTF8fARG(is_utf8, nend - name, name),
                            HEKfARG(HvNAME_HEK(stash)));
 	    }
@@ -1129,9 +1129,9 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 		else
 		    packnamesv = error_report;
 		Perl_croak(aTHX_
-			   "Can't locate object method \"%"UTF8f
-			   "\" via package \"%"SVf"\""
-			   " (perhaps you forgot to load \"%"SVf"\"?)",
+			   "Can't locate object method \"%" UTF8f
+			   "\" via package \"%" SVf "\""
+			   " (perhaps you forgot to load \"%" SVf "\"?)",
 			   UTF8fARG(is_utf8, nend - name, name),
                            SVfARG(packnamesv), SVfARG(packnamesv));
 	    }
@@ -1222,8 +1222,8 @@ Perl_gv_autoload_pvn(pTHX_ HV *stash, const char *name, STRLEN len, U32 flags)
     if (!(flags & GV_AUTOLOAD_ISMETHOD)
         && (GvCVGEN(gv) || GvSTASH(gv) != stash))
 	Perl_ck_warner_d(aTHX_ packWARN(WARN_DEPRECATED),
-			 "Use of inherited AUTOLOAD for non-method %"SVf
-			 "::%"UTF8f"() is deprecated",
+			 "Use of inherited AUTOLOAD for non-method %" SVf
+			 "::%" UTF8f "() is deprecated",
 			 SVfARG(packname),
                          UTF8fARG(is_utf8, len, name));
 
@@ -1347,10 +1347,10 @@ S_require_tie_mod(pTHX_ GV *gv, const char *varpv, SV* namesv, const char *methp
 	assert(sp == PL_stack_sp);
 	stash = gv_stashsv(namesv, 0);
 	if (!stash)
-	    Perl_croak(aTHX_ "panic: Can't use %c%c because %"SVf" is not available",
+	    Perl_croak(aTHX_ "panic: Can't use %c%c because %" SVf " is not available",
                        type, varname, SVfARG(namesv));
 	else if (!gv_fetchmethod(stash, methpv))
-	    Perl_croak(aTHX_ "panic: Can't use %c%c because %"SVf" does not support method %s",
+	    Perl_croak(aTHX_ "panic: Can't use %c%c because %" SVf " does not support method %s",
                        type, varname, SVfARG(namesv), methpv);
 	LEAVE;
     }
@@ -1752,14 +1752,14 @@ S_find_default_stash(pTHX_ HV **stash, const char *name, STRLEN len,
                     /* diag_listed_as: Variable "%s" is not imported%s */
                     Perl_ck_warner_d(
                         aTHX_ packWARN(WARN_MISC),
-                        "Variable \"%c%"UTF8f"\" is not imported",
+                        "Variable \"%c%" UTF8f "\" is not imported",
                         sv_type == SVt_PVAV ? '@' :
                         sv_type == SVt_PVHV ? '%' : '$',
                         UTF8fARG(is_utf8, len, name));
                     if (GvCVu(*gvp))
                         Perl_ck_warner_d(
                             aTHX_ packWARN(WARN_MISC),
-                            "\t(Did you mean &%"UTF8f" instead?)\n",
+                            "\t(Did you mean &%" UTF8f " instead?)\n",
                             UTF8fARG(is_utf8, len, name)
                         );
                     *stash = NULL;
@@ -1776,9 +1776,9 @@ S_find_default_stash(pTHX_ HV **stash, const char *name, STRLEN len,
         if (add && !PL_in_clean_all) {
             GV *gv;
             qerror(Perl_mess(aTHX_
-                 "Global symbol \"%s%"UTF8f
+                 "Global symbol \"%s%" UTF8f
                  "\" requires explicit package name (did you forget to "
-                 "declare \"my %s%"UTF8f"\"?)",
+                 "declare \"my %s%" UTF8f "\"?)",
                  (sv_type == SVt_PV ? "$"
                   : sv_type == SVt_PVAV ? "@"
                   : sv_type == SVt_PVHV ? "%"
@@ -2018,7 +2018,7 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
                     if (!grok_atoUV(name, &uv, NULL) || uv > I32_MAX)
                         return addmg;
                     if (UNLIKELY(uv > I32_MAX))
-                        Perl_croak(aTHX_ "panic: gv name too long (%"UVuf")", uv);
+                        Perl_croak(aTHX_ "panic: gv name too long (%" UVuf ")", uv);
                     paren = (I32)uv;
                     goto storeparen;
                 }
@@ -2360,7 +2360,7 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
 
     if (add & GV_ADDWARN)
 	Perl_ck_warner_d(aTHX_ packWARN(WARN_INTERNAL),
-		"Had to create %"UTF8f" unexpectedly",
+		"Had to create %" UTF8f " unexpectedly",
 		 UTF8fARG(is_utf8, name_end-nambeg, nambeg));
     gv_init_pvn(gv, stash, name, len, (add & GV_ADDMULTI)|is_utf8);
 
@@ -2490,7 +2490,7 @@ Perl_gv_check(pTHX_ HV *stash)
 		    = gv_fetchfile_flags(file, HEK_LEN(GvFILE_HEK(gv)), 0);
 #endif
 		Perl_warner(aTHX_ packWARN(WARN_ONCE),
-			"Name \"%"HEKf"::%"HEKf
+			"Name \"%" HEKf "::%" HEKf
 			"\" used only once: possible typo",
                             HEKfARG(HvNAME_HEK(stash)),
                             HEKfARG(GvNAME_HEK(gv)));
@@ -2506,7 +2506,7 @@ Perl_newGVgen_flags(pTHX_ const char *pack, U32 flags)
     PERL_ARGS_ASSERT_NEWGVGEN_FLAGS;
     assert(!(flags & ~SVf_UTF8));
 
-    return gv_fetchpv(Perl_form(aTHX_ "%"UTF8f"::_GEN_%ld",
+    return gv_fetchpv(Perl_form(aTHX_ "%" UTF8f "::_GEN_%ld",
                                 UTF8fARG(flags, strlen(pack), pack),
                                 (long)PL_gensym++),
                       GV_ADD, SVt_PVGV);
@@ -2589,7 +2589,7 @@ Perl_gp_free(pTHX_ GV *gv)
         const HEK *hvname_hek = HvNAME_HEK(hv);
         if (PL_stashcache && hvname_hek) {
            DEBUG_o(Perl_deb(aTHX_
-                          "gp_free clearing PL_stashcache for '%"HEKf"'\n",
+                          "gp_free clearing PL_stashcache for '%" HEKf "'\n",
                            HEKfARG(hvname_hek)));
            (void)hv_deletehek(PL_stashcache, hvname_hek, G_DISCARD);
         }
@@ -2757,7 +2757,7 @@ Perl_Gv_AMupdate(pTHX_ HV *stash, bool destructing)
 		GV *ngv = NULL;
 		SV *gvsv = GvSV(gv);
 
-		DEBUG_o( Perl_deb(aTHX_ "Resolving method \"%"SVf256\
+		DEBUG_o( Perl_deb(aTHX_ "Resolving method \"%" SVf256\
 			"\" for overloaded \"%s\" in package \"%.256s\"\n",
 			     (void*)GvSV(gv), cp, HvNAME(stash)) );
 		if (!gvsv || !SvPOK(gvsv)
@@ -2772,9 +2772,9 @@ Perl_Gv_AMupdate(pTHX_ HV *stash, bool destructing)
                                                     ? gvsv
                                                     : newSVpvs_flags("???", SVs_TEMP);
 			/* diag_listed_as: Can't resolve method "%s" overloading "%s" in package "%s" */
-			Perl_croak(aTHX_ "%s method \"%"SVf256
+			Perl_croak(aTHX_ "%s method \"%" SVf256
 				    "\" overloading \"%s\" "\
-				    "in package \"%"HEKf256"\"",
+				    "in package \"%" HEKf256 "\"",
 				   (GvCVGEN(gv) ? "Stub found while resolving"
 				    : "Can't resolve"),
 				   SVfARG(name), cp,
@@ -3260,7 +3260,7 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
 	SV *msg;
 	if (off==-1) off=method;
 	msg = sv_2mortal(Perl_newSVpvf(aTHX_
-		      "Operation \"%s\": no method found,%sargument %s%"SVf"%s%"SVf,
+		      "Operation \"%s\": no method found,%sargument %s%" SVf "%s%" SVf,
  		      AMG_id2name(method + assignshift),
  		      (flags & AMGf_unary ? " " : "\n\tleft "),
  		      SvAMAGIC(left)?
@@ -3278,9 +3278,9 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
 		        SVfARG(sv_2mortal(newSVhek(HvNAME_HEK(SvSTASH(SvRV(right)))))):
 		        SVfARG(&PL_sv_no)));
         if (use_default_op) {
-	  DEBUG_o( Perl_deb(aTHX_ "%"SVf, SVfARG(msg)) );
+	  DEBUG_o( Perl_deb(aTHX_ "%" SVf, SVfARG(msg)) );
 	} else {
-	  Perl_croak(aTHX_ "%"SVf, SVfARG(msg));
+	  Perl_croak(aTHX_ "%" SVf, SVfARG(msg));
 	}
 	return NULL;
       }
@@ -3351,7 +3351,7 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
 #ifdef DEBUGGING
   if (!notfound) {
     DEBUG_o(Perl_deb(aTHX_
-		     "Overloaded operator \"%s\"%s%s%s:\n\tmethod%s found%s in package %"SVf"%s\n",
+		     "Overloaded operator \"%s\"%s%s%s:\n\tmethod%s found%s in package %" SVf "%s\n",
 		     AMG_id2name(off),
 		     method+assignshift==off? "" :
 		     " (initially \"",
@@ -3538,7 +3538,7 @@ Perl_gv_name_set(pTHX_ GV *gv, const char *name, U32 len, U32 flags)
     PERL_ARGS_ASSERT_GV_NAME_SET;
 
     if (UNLIKELY(len > I32_MAX))
-	Perl_croak(aTHX_ "panic: gv name too long (%"UVuf")", (UV) len);
+	Perl_croak(aTHX_ "panic: gv name too long (%" UVuf ")", (UV) len);
 
     if (!(flags & GV_ADD) && GvNAME_HEK(gv)) {
 	unshare_hek(GvNAME_HEK(gv));

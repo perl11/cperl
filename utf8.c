@@ -36,7 +36,7 @@
 static const char unees[] =
     "Malformed UTF-8 character (unexpected end of string)";
 static const char cp_above_legal_max[] =
- "Use of code point 0x%"UVXf" is deprecated; the permissible max is 0x%"UVXf"";
+ "Use of code point 0x%" UVXf " is deprecated; the permissible max is 0x%" UVXf;
 
 #define MAX_NON_DEPRECATED_CP ((UV) (IV_MAX))
 
@@ -107,7 +107,7 @@ For details, see the description for L</uvchr_to_utf8_flags>.
     STMT_START {                                                    \
         if (flags & UNICODE_WARN_SURROGATE) {                       \
             Perl_ck_warner_d(aTHX_ packWARN(WARN_SURROGATE),        \
-                                "UTF-16 surrogate U+%04"UVXf, uv);  \
+                                "UTF-16 surrogate U+%04" UVXf, uv); \
         }                                                           \
         if (flags & UNICODE_DISALLOW_SURROGATE) {                   \
             return NULL;                                            \
@@ -118,7 +118,7 @@ For details, see the description for L</uvchr_to_utf8_flags>.
     STMT_START {                                                    \
         if (flags & UNICODE_WARN_NONCHAR) {                         \
             Perl_ck_warner_d(aTHX_ packWARN(WARN_NONCHAR),          \
-		 "Unicode non-character U+%04"UVXf" is not "        \
+		 "Unicode non-character U+%04" UVXf " is not "      \
                  "recommended for open interchange", uv);           \
         }                                                           \
         if (flags & UNICODE_DISALLOW_NONCHAR) {                     \
@@ -199,8 +199,8 @@ Perl_uvoffuni_to_utf8_flags(pTHX_ U8 *d, UV uv, UV flags)
 
               /* Choose the more dire applicable warning */
               (UNICODE_IS_ABOVE_31_BIT(uv))
-              ? "Code point 0x%"UVXf" is not Unicode, and not portable"
-              : "Code point 0x%"UVXf" is not Unicode, may not be portable",
+              ? "Code point 0x%" UVXf " is not Unicode, and not portable"
+              : "Code point 0x%" UVXf " is not Unicode, may not be portable",
              uv);
         }
         if (flags & UNICODE_DISALLOW_SUPER
@@ -771,7 +771,7 @@ Perl_utf8n_to_uvchr(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, U32 flags)
 	    if ((flags & (UTF8_WARN_SURROGATE|UTF8_CHECK_ONLY)) == UTF8_WARN_SURROGATE
 		&& ckWARN_d(WARN_SURROGATE))
 	    {
-		sv = sv_2mortal(Perl_newSVpvf(aTHX_ "UTF-16 surrogate U+%04"UVXf"", uv));
+		sv = sv_2mortal(Perl_newSVpvf(aTHX_ "UTF-16 surrogate U+%04" UVXf, uv));
 		pack_warn = packWARN(WARN_SURROGATE);
 	    }
 	    if (flags & UTF8_DISALLOW_SURROGATE) {
@@ -783,7 +783,7 @@ Perl_utf8n_to_uvchr(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, U32 flags)
                 && ckWARN_d(WARN_NON_UNICODE))
 	    {
 		sv = sv_2mortal(Perl_newSVpvf(aTHX_
-                   "Code point 0x%04"UVXf" is not Unicode, may not be portable",
+                   "Code point 0x%04" UVXf " is not Unicode, may not be portable",
                    uv));
 		pack_warn = packWARN(WARN_NON_UNICODE);
 	    }
@@ -826,7 +826,7 @@ Perl_utf8n_to_uvchr(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, U32 flags)
                     &&  ckWARN_d(WARN_UTF8))
                 {
                     sv = sv_2mortal(Perl_newSVpvf(aTHX_
-                        "Code point 0x%"UVXf" is not Unicode, and not portable",
+                        "Code point 0x%" UVXf " is not Unicode, and not portable",
                         uv));
                     pack_warn = packWARN(WARN_UTF8);
                 }
@@ -851,7 +851,7 @@ Perl_utf8n_to_uvchr(pTHX_ const U8 *s, STRLEN curlen, STRLEN *retlen, U32 flags)
 	    if ((flags & (UTF8_WARN_NONCHAR|UTF8_CHECK_ONLY)) == UTF8_WARN_NONCHAR
 		&& ckWARN_d(WARN_NONCHAR))
 	    {
-		sv = sv_2mortal(Perl_newSVpvf(aTHX_ "Unicode non-character U+%04"UVXf" is not recommended for open interchange", uv));
+		sv = sv_2mortal(Perl_newSVpvf(aTHX_ "Unicode non-character U+%04" UVXf " is not recommended for open interchange", uv));
 		pack_warn = packWARN(WARN_NONCHAR);
 	    }
 	    if (flags & UTF8_DISALLOW_NONCHAR) {
@@ -1372,7 +1372,7 @@ Perl_utf16_to_utf8(pTHX_ U8* p, U8* d, I32 bytelen, I32 *newlen)
     PERL_ARGS_ASSERT_UTF16_TO_UTF8;
 
     if (bytelen & 1)
-	Perl_croak(aTHX_ "panic: utf16_to_utf8: odd bytelen %"UVuf, (UV)bytelen);
+	Perl_croak(aTHX_ "panic: utf16_to_utf8: odd bytelen %" UVuf, (UV)bytelen);
 
     pend = p + bytelen;
 
@@ -1446,7 +1446,7 @@ Perl_utf16_to_utf8_reversed(pTHX_ U8* p, U8* d, I32 bytelen, I32 *newlen)
     PERL_ARGS_ASSERT_UTF16_TO_UTF8_REVERSED;
 
     if (bytelen & 1)
-	Perl_croak(aTHX_ "panic: utf16_to_utf8_reversed: odd bytelen %"UVuf,
+	Perl_croak(aTHX_ "panic: utf16_to_utf8_reversed: odd bytelen %" UVuf,
 		   (UV)bytelen);
 
     while (s < send) {
@@ -1972,7 +1972,7 @@ S__to_utf8_case(pTHX_ const UV uv1, const U8 *p, U8* ustrp, STRLEN *lenp,
                     if (ckWARN_d(WARN_SURROGATE)) {
                         const char* desc = (PL_op) ? OP_DESC(PL_op) : normal;
                         Perl_warner(aTHX_ packWARN(WARN_SURROGATE),
-                            "Operation \"%s\" returns its argument for UTF-16 surrogate U+%04"UVXf"", desc, uv1);
+                            "Operation \"%s\" returns its argument for UTF-16 surrogate U+%04" UVXf, desc, uv1);
                     }
                     goto cases_to_self;
                 }
@@ -1994,7 +1994,7 @@ S__to_utf8_case(pTHX_ const UV uv1, const U8 *p, U8* ustrp, STRLEN *lenp,
                     if (ckWARN_d(WARN_NON_UNICODE)) {
                         const char* desc = (PL_op) ? OP_DESC(PL_op) : normal;
                         Perl_warner(aTHX_ packWARN(WARN_NON_UNICODE),
-                            "Operation \"%s\" returns its argument for non-Unicode code point 0x%04"UVXf"", desc, uv1);
+                            "Operation \"%s\" returns its argument for non-Unicode code point 0x%04" UVXf, desc, uv1);
                     }
                     goto cases_to_self;
                 }
@@ -2132,8 +2132,8 @@ S_check_locale_boundary_crossing(pTHX_ const U8* const p, const UV result, U8* c
 
     /* diag_listed_as: Can't do %s("%s") on non-UTF-8 locale; resolved to "%s". */
     Perl_ck_warner(aTHX_ packWARN(WARN_LOCALE),
-                           "Can't do %s(\"\\x{%"UVXf"}\") on non-UTF-8 locale; "
-                           "resolved to \"\\x{%"UVXf"}\".",
+                           "Can't do %s(\"\\x{%" UVXf "}\") on non-UTF-8 locale; "
+                           "resolved to \"\\x{%" UVXf "}\".",
                            OP_DESC(PL_op),
                            original,
                            original);
@@ -2747,7 +2747,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
                     CORE_SWASH_INIT_RETURN(NULL);
 		}
 		Perl_croak(aTHX_
-			   "Can't find Unicode property definition \"%"SVf"\"",
+			   "Can't find Unicode property definition \"%" SVf "\"",
 			   SVfARG(retval));
                 NOT_REACHED; /* NOTREACHED */
             }
@@ -3016,7 +3016,7 @@ Perl_swash_fetch(pTHX_ SV *swash, const U8 *ptr, bool do_utf8)
 	    if (!svp || !(tmps = (U8*)SvPV(*svp, slen))
 		     || (slen << 3) < needents)
 		Perl_croak(aTHX_ "panic: swash_fetch got improper swatch, "
-			   "svp=%p, tmps=%p, slen=%"UVuf", needents=%"UVuf,
+			   "svp=%p, tmps=%p, slen=%" UVuf ", needents=%" UVuf,
 			   svp, tmps, (UV)slen, (UV)needents);
 	}
 
@@ -3049,7 +3049,7 @@ Perl_swash_fetch(pTHX_ SV *swash, const U8 *ptr, bool do_utf8)
             ((UV) tmps[off + 3]);
     }
     Perl_croak(aTHX_ "panic: swash_fetch got swatch of unexpected bit width, "
-	       "slen=%"UVuf", needents=%"UVuf, (UV)slen, (UV)needents);
+	       "slen=%" UVuf ", needents=%" UVuf, (UV)slen, (UV)needents);
     NORETURN_FUNCTION_END;
 }
 
@@ -3206,7 +3206,7 @@ S_swatch_get(pTHX_ SV* swash, UV start, UV span)
     PERL_ARGS_ASSERT_SWATCH_GET;
 
     if (bits != 1 && bits != 8 && bits != 16 && bits != 32) {
-	Perl_croak(aTHX_ "panic: swatch_get doesn't expect bits %"UVuf,
+	Perl_croak(aTHX_ "panic: swatch_get doesn't expect bits %" UVuf,
 						 (UV)bits);
     }
 
@@ -3385,7 +3385,7 @@ S_swatch_get(pTHX_ SV* swash, UV start, UV span)
 	otherbits = (STRLEN)SvUV(*otherbitssvp);
 	if (bits < otherbits)
 	    Perl_croak(aTHX_ "panic: swatch_get found swatch size mismatch, "
-		       "bits=%"UVuf", otherbits=%"UVuf, (UV)bits, (UV)otherbits);
+		       "bits=%" UVuf ", otherbits=%" UVuf, (UV)bits, (UV)otherbits);
 
 	/* The "other" swatch must be destroyed after. */
 	other = swatch_get(*othersvp, start, span);
@@ -3398,7 +3398,7 @@ S_swatch_get(pTHX_ SV* swash, UV start, UV span)
 	if (bits == 1 && otherbits == 1) {
 	    if (slen != olen)
 		Perl_croak(aTHX_ "panic: swatch_get found swatch length "
-			   "mismatch, slen=%"UVuf", olen=%"UVuf,
+			   "mismatch, slen=%" UVuf ", olen=%" UVuf,
 			   (UV)slen, (UV)olen);
 
 	    switch (opc) {
@@ -3560,7 +3560,7 @@ Perl__swash_inversion_hash(pTHX_ SV* const swash)
 
     /* Must have at least 8 bits to get the mappings */
     if (bits != 8 && bits != 16 && bits != 32) {
-	Perl_croak(aTHX_ "panic: swash_inversion_hash doesn't expect bits %"UVuf,
+	Perl_croak(aTHX_ "panic: swash_inversion_hash doesn't expect bits %" UVuf,
 						 (UV)bits);
     }
 
@@ -3589,7 +3589,7 @@ Perl__swash_inversion_hash(pTHX_ SV* const swash)
 			   "unexpectedly is not a string, flags=%lu",
 			   (unsigned long)SvFLAGS(sv_to));
 	    }
-	    /*DEBUG_U(PerlIO_printf(Perl_debug_log, "Found mapping from %"UVXf", First char of to is %"UVXf"\n", valid_utf8_to_uvchr((U8*) char_from, 0), valid_utf8_to_uvchr((U8*) SvPVX(sv_to), 0)));*/
+	    /*DEBUG_U(PerlIO_printf(Perl_debug_log, "Found mapping from %" UVXf ", First char of to is %" UVXf "\n", valid_utf8_to_uvchr((U8*) char_from, 0), valid_utf8_to_uvchr((U8*) SvPVX(sv_to), 0)));*/
 
 	    /* Each key in the inverse list is a mapped-to value, and the key's
 	     * hash value is a list of the strings (each in UTF-8) that map to
@@ -3668,7 +3668,7 @@ Perl__swash_inversion_hash(pTHX_ SV* const swash)
 					(U8*) SvPVX(*entryp),
 					(U8*) SvPVX(*entryp) + SvCUR(*entryp),
 					0)));
-			/*DEBUG_U(PerlIO_printf(Perl_debug_log, "%s: %d: Adding %"UVXf" to list for %"UVXf"\n", __FILE__, __LINE__, valid_utf8_to_uvchr((U8*) SvPVX(*entryp), 0), u));*/
+			/*DEBUG_U(PerlIO_printf(Perl_debug_log, "%s: %d: Adding %" UVXf " to list for %" UVXf "\n", __FILE__, __LINE__, valid_utf8_to_uvchr((U8*) SvPVX(*entryp), 0), u));*/
 		    }
 		}
 	    }
@@ -3742,7 +3742,7 @@ Perl__swash_inversion_hash(pTHX_ SV* const swash)
 		}
 		entry = *entryp;
 		uv = SvUV(entry);
-		/*DEBUG_U(PerlIO_printf(Perl_debug_log, "list for %"UVXf" contains %"UVXf"\n", val, uv));*/
+		/*DEBUG_U(PerlIO_printf(Perl_debug_log, "list for %" UVXf " contains %" UVXf "\n", val, uv));*/
 		if (uv == val) {
 		    found_key = TRUE;
 		}
@@ -3760,14 +3760,14 @@ Perl__swash_inversion_hash(pTHX_ SV* const swash)
 	    /* Make sure there is a mapping to itself on the list */
 	    if (! found_key) {
 		av_push(list, newSVuv(val));
-		/*DEBUG_U(PerlIO_printf(Perl_debug_log, "%s: %d: Adding %"UVXf" to list for %"UVXf"\n", __FILE__, __LINE__, val, val));*/
+		/*DEBUG_U(PerlIO_printf(Perl_debug_log, "%s: %d: Adding %" UVXf " to list for %" UVXf "\n", __FILE__, __LINE__, val, val));*/
 	    }
 
 
 	    /* Simply add the value to the list */
 	    if (! found_inverse) {
 		av_push(list, newSVuv(inverse));
-		/*DEBUG_U(PerlIO_printf(Perl_debug_log, "%s: %d: Adding %"UVXf" to list for %"UVXf"\n", __FILE__, __LINE__, inverse, val));*/
+		/*DEBUG_U(PerlIO_printf(Perl_debug_log, "%s: %d: Adding %" UVXf " to list for %" UVXf "\n", __FILE__, __LINE__, inverse, val));*/
 	    }
 
 	    /* swatch_get() increments the value of val for each element in the
@@ -3875,7 +3875,7 @@ Perl__swash_to_invlist(pTHX_ SV* const swash)
             /* Then just populate the rest of the input */
             while (elements-- > 0) {
                 if (l > lend) {
-                    Perl_croak(aTHX_ "panic: Expecting %"UVuf" more elements than available", elements);
+                    Perl_croak(aTHX_ "panic: Expecting %" UVuf " more elements than available", elements);
                 }
                 while (isSPACE(*l)) l++;
                 if (!grok_atoUV((const char *)l, other_elements_ptr++, &after_atou)) {
@@ -3974,7 +3974,7 @@ Perl__swash_to_invlist(pTHX_ SV* const swash)
 
 	if (bits != otherbits || bits != 1) {
 	    Perl_croak(aTHX_ "panic: _swash_to_invlist only operates on boolean "
-		       "properties, bits=%"UVuf", otherbits=%"UVuf,
+		       "properties, bits=%" UVuf ", otherbits=%" UVuf,
 		       (UV)bits, (UV)otherbits);
 	}
 
@@ -4090,7 +4090,7 @@ Perl_check_utf8_print(pTHX_ const U8* s, const STRLEN len)
                      * do for the non-chars and above-unicodes */
 		    UV uv = utf8_to_uvchr_buf(s, e, &char_len);
 		    Perl_warner(aTHX_ packWARN(WARN_SURROGATE),
-			"Unicode surrogate U+%04"UVXf" is illegal in UTF-8", uv);
+			"Unicode surrogate U+%04" UVXf " is illegal in UTF-8", uv);
 		    ok = FALSE;
 		}
 	    }
@@ -4179,7 +4179,7 @@ Perl_pv_uni_display(pTHX_ SV *dsv, const U8 *spv, STRLEN len, STRLEN pvlim, UV f
 	     }
 	 }
 	 if (!ok)
-	     Perl_sv_catpvf(aTHX_ dsv, "\\x{%"UVxf"}", u);
+	     Perl_sv_catpvf(aTHX_ dsv, "\\x{%" UVxf "}", u);
     }
     if (truncated)
 	 sv_catpvs(dsv, "...");
