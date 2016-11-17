@@ -1427,7 +1427,7 @@ Perl_utf8n_to_uvchr_error(pTHX_ const U8 *s,
                                                                         uv, 0);
                             message = Perl_form(aTHX_
                                 "%s: %s (overlong; instead use %s to represent"
-                                " U+%0*"UVXf")",
+                                " U+%0*" UVXf ")",
                                 malformed_text,
                                 _byte_dump_string(s0, send - s0),
                                 _byte_dump_string(tmpbuf, e - tmpbuf),
@@ -1459,7 +1459,7 @@ Perl_utf8n_to_uvchr_error(pTHX_ const U8 *s,
                         }
                         else {
                             message = Perl_form(aTHX_
-                                            "UTF-16 surrogate U+%04"UVXf"", uv);
+                                            "UTF-16 surrogate U+%04" UVXf, uv);
                         }
                     }
                 }
@@ -1489,7 +1489,7 @@ Perl_utf8n_to_uvchr_error(pTHX_ const U8 *s,
                         }
                         else {
                             message = Perl_form(aTHX_
-                                                "Code point 0x%04"UVXf" is not"
+                                                "Code point 0x%04" UVXf " is not"
                                                 " Unicode, may not be portable",
                                                 uv);
                         }
@@ -1528,7 +1528,7 @@ Perl_utf8n_to_uvchr_error(pTHX_ const U8 *s,
                         }
                         else {
                             message = Perl_form(aTHX_
-                                        "Code point 0x%"UVXf" is not Unicode,"
+                                        "Code point 0x%" UVXf " is not Unicode,"
                                         " and not portable",
                                          uv);
                         }
@@ -1579,7 +1579,7 @@ Perl_utf8n_to_uvchr_error(pTHX_ const U8 *s,
 
                         pack_warn = packWARN(WARN_NONCHAR);
                         message = Perl_form(aTHX_ "Unicode non-character"
-                                                " U+%04"UVXf" is not recommended"
+                                                " U+%04" UVXf " is not recommended"
                                                 " for open interchange", uv);
                     }
                 }
