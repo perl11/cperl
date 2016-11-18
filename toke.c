@@ -10182,7 +10182,7 @@ S_scan_heredoc(pTHX_ char *s)
 	else
 	    term = '"';
 	if (! isWORDCHAR_lazy_if_safe(s, PL_bufend, UTF))
-	    deprecate("bare << to mean <<\"\"");
+	    deprecate_fatal_in("5.28", "Use of bare << to mean <<\"\" is deprecated");
 	peek = s;
         while (isWORDCHAR_lazy_if_safe(peek, PL_bufend, UTF)) {
 	    peek += UTF ? UTF8SKIP(peek) : 1;
