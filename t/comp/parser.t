@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..194\n";
+print "1..196\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -633,6 +633,22 @@ like($@, qr/^\QUnrecognized character \x{2062}; marked by <-- HERE after \E/,
 eval 'use utf8; $a⁣b == 2;'; # forbidden 2063
 like($@, qr/^\QUnrecognized character \x{2063}; marked by <-- HERE after \E/,
      "\\x2063 invisible seperator forbidden in identifiers");
+
+# TR36 no bidi spoofs
+# U+202E (right-to-left override), g, o, o, g, U+202C (pop directional formatting), l, e, ., c, o, m>
+eval 'use utf8; sub ‮goog‬le {}';
+like($@, qr/^\QIllegal declaration of anonymous subroutine at \E/,
+     "bidi spoof with right-to-left override and pop");
+# but via no strict 'refs' (no strict names yet) this would be allowed.
+
+# <c, a, f, e, U+0301, U+0301> Repeated combining marks
+#eval 'use utf8; sub café́ {}'; # currently allowed (?)
+
+# <c, a, f, e, U+0301> vs <c, a, f, U+00E9>
+# we do not normalize, so sub café {} will not do café()
+eval 'use utf8; sub café {} café()'; # spoof
+like($@, qr/^Undefined subroutine &main::caf. called at /,
+     "unicode spoof with combining marks");
 
 # And now some unicode bugs: https://github.com/jagracey/Awesome-Unicode#user-content-variable-identifiers-can-effectively-include-whitespace
 # Not a space nor whitespace char, but ID_Start + ID_Continue!
