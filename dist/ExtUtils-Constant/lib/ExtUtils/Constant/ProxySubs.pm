@@ -3,7 +3,7 @@ use strict;
 use vars qw($VERSION @ISA %type_to_struct %type_from_struct %type_to_sv
 	    %type_to_C_value %type_is_a_problem %type_num_args
 	    %type_temporary);
-$VERSION = '0.23_09';
+$VERSION = '0.24_01';
 @ISA = 'ExtUtils::Constant::XS';
 
 =head1 NAME
@@ -97,10 +97,6 @@ use it with any CPAN module!
 
 =cut
 
-use strict;
-use vars qw($VERSION @ISA %type_to_struct %type_from_struct %type_to_sv
-	    %type_to_C_value %type_is_a_problem %type_num_args
-	    %type_temporary);
 use Carp;
 require ExtUtils::Constant::XS;
 use ExtUtils::Constant::Utils qw(C_stringify);
@@ -848,7 +844,7 @@ $xs_subname(sv)
 	SV *		sv;
     PPCODE:
 	sv = newSVpvf("Your vendor has not defined $package_sprintf_safe macro %" SVf
-			  ", used", sv);
+                      ", used", sv);
         PUSHs(sv_2mortal(sv));
 EXPLODE
 

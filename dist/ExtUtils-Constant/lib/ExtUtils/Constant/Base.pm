@@ -5,7 +5,7 @@ use vars qw($VERSION);
 use Carp;
 use Text::Wrap;
 use ExtUtils::Constant::Utils qw(C_stringify perl_stringify);
-$VERSION = '0.23_09';
+$VERSION = '0.24_01';
 
 use constant is_perl56 => ($] < 5.007 && $] > 5.005_50);
 

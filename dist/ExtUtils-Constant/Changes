@@ -113,4 +113,9 @@ history can be found via http://perl5.git.perl.org/perl.git/tree/HEAD:/lib ]
 0.23_08 2017-04-25 rurban
 	Minor C code improvements for croak_on_read, tested with -Wall -Wextra:
         Correct MGVTBL for all versions, get_missing_hash not needed.
- 
+
+0.23_09 2017-05-19 rurban
+	C++ compat fixes. -Wliteral-suffix
+
+0.24_01 2017-11-15 rurban
+	better machine code on threaded perl (croak_nocontext)

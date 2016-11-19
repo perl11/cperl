@@ -53,10 +53,6 @@ Bug reports from 5.6.0 users (even users on OS X dependent on Apple to ship
 5.6.1) will be acknowledged, tested on 5.6.1, and if not repeatable on 5.6.1
 will be noted as known failures due to 5.6.0, with no further action taken.
 
-I am sorry if this sounds unhelpful, but I have better things to do with
-the limited free time I can donate to this module than to go chasing bugs
-known to already have a fix.
-
 By all means send patches to work round 5.6.0 features; if they don't conflict
 with 5.005, 5.6.1, or 5.8.0 they will go in.
 
