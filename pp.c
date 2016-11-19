@@ -1174,7 +1174,11 @@ PPt(pp_i_pow, "(:Int,:UInt):Uint")
         if (iv >= 0) {
             power = iv;
         } else {
-            goto float_ipow; /* Can't do negative powers this way.  */
+            /* Can't do negative powers this way.  */
+            SP--;
+            SETn( Perl_pow( SvNV_nomg(svl), SvNV_nomg(svr)) );
+	    SvIV_please_void_nomg(svr);
+            RETURN;
         }
     }
     
@@ -1252,9 +1256,7 @@ PPt(pp_i_pow, "(:Int,:UInt):Uint")
                 SETn( -(NV)result );
                 SvIV_please_void_nomg(svr);
             }
-        } else
-        float_ipow:
-        {
+        } else {
             SP--;
             SETn( Perl_pow( SvNV_nomg(svl), SvNV_nomg(svr)) );
 	    SvIV_please_void_nomg(svr);

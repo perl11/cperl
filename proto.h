@@ -6083,7 +6083,7 @@ PERL_CALLCONV I32	Perl_unpackstring(pTHX_ const char *pat, const char *patend, c
 #define PERL_ARGS_ASSERT_UNPACKSTRING	\
 	assert(pat); assert(patend); assert(s); assert(strend)
 
-PERL_CALLCONV void	Perl_unshare_hek(pTHX_ HEK* hek)
+PERL_CALLCONV void	Perl_unshare_hek(pTHX_ const HEK* hek)
 			__attribute__global__;
 
 PERL_CALLCONV void	Perl_unsharepvn(pTHX_ const char* sv, I32 len, U32 hash)

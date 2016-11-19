@@ -1233,7 +1233,7 @@ PP(pp_flop)
 	else {
 	    STRLEN len, llen;
 	    const char * const lpv = SvPV_nomg_const(left, llen);
-	    char * tmps            = SvPV_nomg_const(right, len);
+	    const char * tmps      = SvPV_nomg_const(right, len);
 	    SV *sv = newSVpvn_flags(lpv, llen, SvUTF8(left)|SVs_TEMP);
 
             if (!SvUTF8(left) && SvUTF8(right)) {
