@@ -164,7 +164,7 @@ config_argc config_args d_re_comp   d_regcmp    dlltool dtraceobject
 git_ancestor    git_commit_date git_remote_branch   git_unpushed
 hostgenerate    hostosname  hostperl    incpth  installhtmldir
 installhtmlhelpdir  ld_can_script   libdb_needs_pthread mad malloc_cflags
-sysroot targetdir   targetenv   targethost  targetmkdir targetport
+passcat  sysroot targetdir   targetenv   targethost  targetmkdir targetport
 useversionedarchname
 
       );
@@ -215,7 +215,7 @@ installvendorhtml1dir   installvendorhtml3dir   installvendorman1dir
 installvendorman3dir    installvendorscript ldflags_nolargefiles
 libs_nolargefiles   libswanted_nolargefiles longdblinfbytes longdblkind
 longdblmantbits longdblnanbytes madlyh  madlyobj    madlysrc    mistrustnm
-nv_overflows_integers_at    nvmantbits  op_cflags   perl_patchlevel
+nv_overflows_integers_at    nvmantbits  op_cflags  perl_patchlevel
 perl_revision   perl_static_inline  perl_subversion perl_version    ppmarch
 pthread_h_first regexec_cflags  rm_try  run sGMTIME_max sGMTIME_min
 sLOCALTIME_max  sLOCALTIME_min  sitehtml1dir    sitehtml1direxp sitehtml3dir

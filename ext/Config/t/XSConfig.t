@@ -81,7 +81,7 @@ config_argc config_args d_re_comp   d_regcmp    dlltool dtraceobject
 git_ancestor    git_commit_date git_remote_branch   git_unpushed
 hostgenerate    hostosname  hostperl    incpth  installhtmldir
 installhtmlhelpdir  ld_can_script   libdb_needs_pthread mad malloc_cflags
-sysroot targetdir   targetenv   targethost  targetmkdir targetport
+passcat sysroot targetdir   targetenv   targethost  targetmkdir targetport
 useversionedarchname
   );
   unless($in_core) { #cperl doesn't need these, CPAN does
