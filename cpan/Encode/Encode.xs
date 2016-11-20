@@ -84,12 +84,12 @@ static void
 utf8_safe_downgrade(pTHX_ SV ** src, U8 ** s, STRLEN * slen, bool modify)
 {
     if (!modify) {
-        SV *tmp = sv_2mortal(newSVpvn(*s, *slen));
+        SV *tmp = sv_2mortal(newSVpvn((char *)*s, *slen));
         SvUTF8_on(tmp);
         if (SvTAINTED(*src))
             SvTAINTED_on(tmp);
         *src = tmp;
-        *s = SvPVX(*src);
+        *s = (U8 *)SvPVX(*src);
     }
     if (*slen) {
         if (!utf8_to_bytes(*s, slen))
@@ -103,13 +103,13 @@ static void
 utf8_safe_upgrade(pTHX_ SV ** src, U8 ** s, STRLEN * slen, bool modify)
 {
     if (!modify) {
-        SV *tmp = sv_2mortal(newSVpvn(*s, *slen));
+        SV *tmp = sv_2mortal(newSVpvn((char *)*s, *slen));
         if (SvTAINTED(*src))
             SvTAINTED_on(tmp);
         *src = tmp;
     }
     sv_utf8_upgrade_nomg(*src);
-    *s = SvPV_nomg(*src, *slen);
+    *s = (U8 *)SvPV_nomg(*src, *slen);
 }
 
 #define ERR_ENCODE_NOMAP "\"\\x{%04" UVxf "}\" does not map to %s"
@@ -244,7 +244,7 @@ encode_method(pTHX_ const encode_t * enc, const encpage_t * dir, SV * src, U8 * 
             SV* subchar = 
             (fallback_cb != &PL_sv_undef)
 		? do_fallback_cb(aTHX_ ch, fallback_cb)
-		: newSVpvf(check & ENCODE_PERLQQ ? "\\x{%04"UVxf"}" :
+		: newSVpvf(check & ENCODE_PERLQQ ? "\\x{%04" UVxf "}" :
                  check & ENCODE_HTMLCREF ? "&#%" UVuf ";" :
                  "&#x%" UVxf ";", (UV)ch);
 	    SvUTF8_off(subchar); /* make sure no decoded string gets in */
@@ -558,9 +558,10 @@ INIT:
     modify = (check && !(check & ENCODE_LEAVE_SRC));
 CODE:
 {
+    dSP;
     if (!SvOK(src))
         XSRETURN_UNDEF;
-    s = modify ? SvPV_force_nomg(src, slen) : SvPV_nomg(src, slen);
+    s = modify ? (U8 *)SvPV_force_nomg(src, slen) : (U8 *)SvPV_nomg(src, slen);
     if (SvUTF8(src))
         utf8_safe_downgrade(aTHX_ &src, &s, &slen, modify);
     e = s+slen;
@@ -568,7 +569,6 @@ CODE:
     /* 
      * PerlIO check -- we assume the object is of PerlIO if renewed
      */
-    dSP;
     ENTER; SAVETMPS;
     PUSHMARK(sp);
     XPUSHs(obj);
@@ -623,7 +623,7 @@ CODE:
 {
     if (!SvOK(src))
         XSRETURN_UNDEF;
-    s = modify ? SvPV_force_nomg(src, slen) : SvPV_nomg(src, slen);
+    s = modify ? (U8 *)SvPV_force_nomg(src, slen) : (U8 *)SvPV_nomg(src, slen);
     e = s+slen;
     dst = sv_2mortal(newSV(slen>0?slen:1)); /* newSV() abhors 0 -- inaba */
     if (SvUTF8(src)) {
@@ -715,23 +715,29 @@ SV *	src
 SV *	off
 SV *	term
 SV *    check_sv
-INIT:
-    SvGETMAGIC(src);
-    SvGETMAGIC(check_sv);
-    int check = SvROK(check_sv) ? ENCODE_PERLQQ|ENCODE_LEAVE_SRC : SvIV_nomg(check_sv);
-    SV *fallback_cb = SvROK(check_sv) ? check_sv : &PL_sv_undef;
-    bool modify = (check && !(check & ENCODE_LEAVE_SRC));
-    encode_t *enc = INT2PTR(encode_t *, SvIV(SvRV(obj)));
-    STRLEN offset = (STRLEN)SvIV(off);
+PREINIT:
+    int check;
+    SV *fallback_cb;
+    bool modify;
+    encode_t *enc;
+    STRLEN offset;
     int code = 0;
     U8 *s;
     STRLEN slen;
     SV *tmp;
+INIT:
+    SvGETMAGIC(src);
+    SvGETMAGIC(check_sv);
+    check = SvROK(check_sv) ? ENCODE_PERLQQ|ENCODE_LEAVE_SRC : SvIV_nomg(check_sv);
+    fallback_cb = SvROK(check_sv) ? check_sv : &PL_sv_undef;
+    modify = (check && !(check & ENCODE_LEAVE_SRC));
+    enc = INT2PTR(encode_t *, SvIV(SvRV(obj)));
+    offset = (STRLEN)SvIV(off);
 CODE:
 {
     if (!SvOK(src))
         XSRETURN_NO;
-    s = modify ? SvPV_force_nomg(src, slen) : SvPV_nomg(src, slen);
+    s = modify ? (U8 *)SvPV_force_nomg(src, slen) : (U8 *)SvPV_nomg(src, slen);
     if (SvUTF8(src))
         utf8_safe_downgrade(aTHX_ &src, &s, &slen, modify);
     tmp = encode_method(aTHX_ enc, enc->t_utf8, src, s, slen, check,
@@ -752,20 +758,25 @@ Method_decode(obj,src,check_sv = &PL_sv_no)
 SV *	obj
 SV *	src
 SV *	check_sv
+PREINIT:
+    int check;
+    SV *fallback_cb;
+    bool modify;
+    encode_t *enc;
+    U8 *s;
+    STRLEN slen;
 INIT:
     SvGETMAGIC(src);
     SvGETMAGIC(check_sv);
-    int check = SvROK(check_sv) ? ENCODE_PERLQQ|ENCODE_LEAVE_SRC : SvIV_nomg(check_sv);
-    SV *fallback_cb = SvROK(check_sv) ? check_sv : &PL_sv_undef;
-    bool modify = (check && !(check & ENCODE_LEAVE_SRC));
-    encode_t *enc = INT2PTR(encode_t *, SvIV(SvRV(obj)));
-    U8 *s;
-    STRLEN slen;
+    check = SvROK(check_sv) ? ENCODE_PERLQQ|ENCODE_LEAVE_SRC : SvIV_nomg(check_sv);
+    fallback_cb = SvROK(check_sv) ? check_sv : &PL_sv_undef;
+    modify = (check && !(check & ENCODE_LEAVE_SRC));
+    enc = INT2PTR(encode_t *, SvIV(SvRV(obj)));
 CODE:
 {
     if (!SvOK(src))
         XSRETURN_UNDEF;
-    s = modify ? SvPV_force_nomg(src, slen) : SvPV_nomg(src, slen);
+    s = modify ? (U8 *)SvPV_force_nomg(src, slen) : (U8 *)SvPV_nomg(src, slen);
     if (SvUTF8(src))
         utf8_safe_downgrade(aTHX_ &src, &s, &slen, modify);
     RETVAL = encode_method(aTHX_ enc, enc->t_utf8, src, s, slen, check,
@@ -780,20 +791,25 @@ Method_encode(obj,src,check_sv = &PL_sv_no)
 SV *	obj
 SV *	src
 SV *	check_sv
+PREINIT:
+    int check;
+    SV *fallback_cb;
+    bool modify;
+    encode_t *enc;
+    U8 *s;
+    STRLEN slen;
 INIT:
     SvGETMAGIC(src);
     SvGETMAGIC(check_sv);
-    int check = SvROK(check_sv) ? ENCODE_PERLQQ|ENCODE_LEAVE_SRC : SvIV_nomg(check_sv);
-    SV *fallback_cb = SvROK(check_sv) ? check_sv : &PL_sv_undef;
-    bool modify = (check && !(check & ENCODE_LEAVE_SRC));
-    encode_t *enc = INT2PTR(encode_t *, SvIV(SvRV(obj)));
-    U8 *s;
-    STRLEN slen;
+    check = SvROK(check_sv) ? ENCODE_PERLQQ|ENCODE_LEAVE_SRC : SvIV_nomg(check_sv);
+    fallback_cb = SvROK(check_sv) ? check_sv : &PL_sv_undef;
+    modify = (check && !(check & ENCODE_LEAVE_SRC));
+    enc = INT2PTR(encode_t *, SvIV(SvRV(obj)));
 CODE:
 {
     if (!SvOK(src))
         XSRETURN_UNDEF;
-    s = modify ? SvPV_force_nomg(src, slen) : SvPV_nomg(src, slen);
+    s = modify ? (U8 *)SvPV_force_nomg(src, slen) : (U8 *)SvPV_nomg(src, slen);
     if (!SvUTF8(src))
         utf8_safe_upgrade(aTHX_ &src, &s, &slen, modify);
     RETVAL = encode_method(aTHX_ enc, enc->f_utf8, src, s, slen, check,

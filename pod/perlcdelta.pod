@@ -125,7 +125,8 @@ XXX
 
 =item Encode 2.87
 
-various. not yet g++-6 -fpermissive safe.
+various upstream fixes.
+plus g++-6 -fpermissive and -Wc++11-compat fixes.
 
 =item ExtUtils-Constant 0.23_04
 

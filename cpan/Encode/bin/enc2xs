@@ -123,10 +123,7 @@ my %encode_types = (U => \&encode_U,
                    );
 
 # Win32 does not expand globs on command line
-if ($^O eq 'MSWin32' and !$ENV{PERL_CORE}) {
-    eval "\@ARGV = map(glob(\$_),\@ARGV)";
-    @ARGV = @orig_ARGV unless @ARGV;
-}
+eval "\@ARGV = map(glob(\$_),\@ARGV)" if ($^O eq 'MSWin32');
 
 my %opt;
 # I think these are:
@@ -137,8 +134,6 @@ my %opt;
 # -o <output> to specify the output file name (else it's the first arg)
 # -f <inlist> to give a file with a list of input files (else use the args)
 # -n <name> to name the encoding (else use the basename of the input file.
-#Getopt::Long::Configure("bundling");
-#GetOptions(\%opt, qw(C M=s S Q q O o=s f=s n=s v));
 getopts('CM:SQqOo:f:n:v',\%opt);
 
 $opt{M} and make_makefile_pl($opt{M}, @ARGV);
@@ -211,13 +206,7 @@ if (exists $opt{'f'}) {
     @encfiles = @ARGV;
 }
 
-my $cname = exists $opt{'o'} ? $opt{'o'} : shift(@ARGV);
-unless ($cname) { #debuging a win32 nmake error-only. works via cmdline
-    print "\nARGV:";
-    print "$_ " for @ARGV;
-    print "\nopt:";
-    print "  $_ => ",defined $opt{$_}?$opt{$_}:"undef","\n" for keys %opt;
-}
+my $cname = (exists $opt{'o'}) ? $opt{'o'} : shift(@ARGV);
 chmod(0666,$cname) if -f $cname && !-w $cname;
 open(C,">$cname") || die "Cannot open $cname:$!";
 
@@ -480,9 +469,7 @@ sub compile_ucm
    $erep = $attr{'subchar'}; 
    $erep =~ s/^\s+//; $erep =~ s/\s+$//;
   }
- print "Reading $name ($cs)\n"
-   unless defined $ENV{MAKEFLAGS}
-      and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
+ print "Reading $name ($cs)\n";
  my $nfb = 0;
  my $hfb = 0;
  while (<$fh>)
@@ -768,9 +755,17 @@ sub addstrings
  if ($a->{'Forward'})
   {
    my ($cpp, $static, $sized) = compiler_info(1);
-   my $var   = $static ? 'static const' : 'extern';
    my $count = $sized ? scalar(@{$a->{'Entries'}}) : '';
-   print $fh "$var encpage_t $name\[$count];\n";
+   if ($static) {
+     # we cannot ask Config for d_plusplus since we can override CC=g++-6 on the cmdline
+     print $fh "#ifdef __cplusplus\n"; # -fpermissive since g++-6
+     print $fh "extern encpage_t $name\[$count];\n";
+     print $fh "#else\n";
+     print $fh "static const encpage_t $name\[$count];\n";
+     print $fh "#endif\n";
+   } else {
+     print $fh "extern encpage_t $name\[$count];\n";
+   }
   }
  $a->{'DoneStrings'} = 1;
  foreach my $b (@{$a->{'Entries'}})
@@ -861,9 +856,16 @@ sub outtable
    outtable($fh,$t,$bigname) unless $t->{'Done'};
   }
  my ($cpp, $static) = compiler_info(0);
- my $var = $static ? 'static const ' : '';
- print $fh "\n${var}encpage_t $name\[",
-   scalar(@{$a->{'Entries'}}), "] = {\n";
+ my $count = scalar(@{$a->{'Entries'}});
+ if ($static) {
+     print $fh "#ifdef __cplusplus\n"; # -fpermissive since g++-6
+     print $fh "encpage_t $name\[$count] = {\n";
+     print $fh "#else\n";
+     print $fh "static const encpage_t $name\[$count] = {\n";
+     print $fh "#endif\n";
+ } else {
+   print $fh "\nencpage_t $name\[$count] = {\n";
+ }
  foreach my $b (@{$a->{'Entries'}})
   {
    my ($sc,$ec,$out,$t,$end,$l,$fb) = @$b;
