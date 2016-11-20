@@ -123,6 +123,10 @@ XXX
 
 =over 4
 
+=item Devel-PPPort 3.35_02
+
+Fix -Wc++11-compat warnings
+
 =item Internals-DumpArenas 0.12_05
 
 Fix -Wc++11-compat warnings
