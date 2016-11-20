@@ -123,6 +123,14 @@ XXX
 
 =over 4
 
+=item Socket 2.024_05
+
+Fix -Wc++11-compat warnings
+
+=item POSIX 1.65_02
+
+Fix -Wc++11-compat warnings
+
 =item Scalar-List-Utils 1.46_07
 
 Fix -Wc++11-compat warnings
