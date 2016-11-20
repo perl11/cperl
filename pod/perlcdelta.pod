@@ -123,6 +123,10 @@ XXX
 
 =over 4
 
+=item ExtUtils-Constant 0.23_04
+
+Fix -Wc++11-compat warnings in generated const-xs.inc code.
+
 =item ExtUtils-ParseXS 3.32_01
 
 Fix visibility declaration of XS_EXTERNAL for C<-flto> and
