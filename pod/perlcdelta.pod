@@ -123,6 +123,10 @@ XXX
 
 =over 4
 
+=item Encode 2.87
+
+various. not yet g++-6 -fpermissive safe.
+
 =item ExtUtils-Constant 0.23_04
 
 Fix -Wc++11-compat warnings in generated const-xs.inc code.
