@@ -173,9 +173,10 @@ our local make -s silent patches and various others are now all upstream.
 
 Many fixes und improvements
 
-=item Internals-DumpArenas
+=item Internals-DumpArenas  0.12_05
 
-print empty arrays and hashes as such
+Fix -Wc++11-compat warnings.
+Print empty arrays and hashes as such.
 
 =item IO-Socket-IP  0.38
 
