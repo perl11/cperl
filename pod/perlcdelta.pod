@@ -123,6 +123,10 @@ XXX
 
 =over 4
 
+=item Cwd  4.65c
+
+Fix -Wc++11-compat warnings
+
 =item Data-Dumper  2.163
 
 Fix -Wc++11-compat warnings
