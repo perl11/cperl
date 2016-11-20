@@ -18,7 +18,7 @@ our @EXPORT_OK = qw(
   subname set_subname
 );
 
-our $VERSION    = "1.46_06";
+our $VERSION    = "1.46_07";
 $VERSION   = eval $VERSION;
 
 require List::Util; # as it has the XS

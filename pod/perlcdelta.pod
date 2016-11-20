@@ -123,6 +123,10 @@ XXX
 
 =over 4
 
+=item Scalar-List-Utils 1.46_07
+
+Fix -Wc++11-compat warnings
+
 =item Cwd  4.65c
 
 Fix -Wc++11-compat warnings

@@ -1184,11 +1184,11 @@ CODE:
                 arg = sv_mortalcopy(arg);
 
             if(SvUOK(arg))
-                sv_setpvf(keysv, "%"UVuf, SvUV(arg));
+                sv_setpvf(keysv, "%" UVuf, SvUV(arg));
             else if(SvIOK(arg))
-                sv_setpvf(keysv, "%"IVdf, SvIV(arg));
+                sv_setpvf(keysv, "%" IVdf, SvIV(arg));
             else
-                sv_setpvf(keysv, "%"NVgf, SvNV(arg));
+                sv_setpvf(keysv, "%" NVgf, SvNV(arg));
 #ifdef HV_FETCH_EMPTY_HE
             {
               HE* he = (HE*)hv_common(seen, NULL, SvPVX(keysv), SvCUR(keysv), 0,
@@ -1558,12 +1558,12 @@ PPCODE:
     else if (!SvOK(sub))
         croak(PL_no_usym, "a subroutine");
     else if (PL_op->op_private & HINT_STRICT_REFS)
-        croak("Can't use string (\"%"SVf"\") as %s ref while \"strict refs\" in use",
+        croak("Can't use string (\"%" SVf "\") as %s ref while \"strict refs\" in use",
               SVfARG(sub), "a subroutine");
     else if ((gv = gv_fetchsv(sub, FALSE, SVt_PVCV)))
         cv = GvCVu(gv);
     if (!cv)
-        croak("Undefined subroutine %"SVf, SVfARG(sub));
+        croak("Undefined subroutine %" SVf, SVfARG(sub));
     if (SvTYPE(cv) != SVt_PVCV && SvTYPE(cv) != SVt_PVFM)
         croak("Not a subroutine reference");
 
