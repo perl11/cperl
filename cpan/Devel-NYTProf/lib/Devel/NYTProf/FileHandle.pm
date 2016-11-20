@@ -15,5 +15,5 @@ my $c = DynaLoader::dl_find_symbol_anywhere($c_name);
 
 die "Can't locate '$c_name' in Devel::NYTProf shared object" unless $c;
 my $xs = DynaLoader::dl_install_xsub(__PACKAGE__ . '::bootstrap', $c, __FILE__);
-&$xs(__PACKAGE__, $Devel::NYTProf::Core::VERSION);
+&$xs(__PACKAGE__, $Devel::NYTProf::Core::XS_VERSION);
 

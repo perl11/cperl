@@ -123,6 +123,10 @@ XXX
 
 =over 4
 
+=item Devel-NYTProf 6.04
+
+Fix -Wc++11-compat warnings, and various minor issues.
+
 =item Devel-PPPort 3.35_02
 
 Fix -Wc++11-compat warnings
