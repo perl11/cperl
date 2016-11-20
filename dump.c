@@ -853,7 +853,7 @@ Perl_do_op_dump(pTHX_ I32 level, PerlIO *file, const OP *o)
         if (o->op_static)   sv_catpvs(tmpsv, ",STATIC");
         if (o->op_folded)   sv_catpvs(tmpsv, ",FOLDED");
         if (o->op_moresib)  sv_catpvs(tmpsv, ",MORESIB");
-        Perl_dump_indent(aTHX_ level, file, "FLAGS = 0x%"UVxf" (%s)\n",
+        Perl_dump_indent(aTHX_ level, file, "FLAGS = 0x%" UVxf " (%s)\n",
                          (UV)o->op_flags, SvCUR(tmpsv) ? SvPVX_const(tmpsv) + 1 : "");
     }
 
@@ -963,7 +963,7 @@ Perl_do_op_dump(pTHX_ I32 level, PerlIO *file, const OP *o)
                     Perl_dump_indent(aTHX_ level, file, "GV = %s\n",
                                      generic_pv_escape( tmpsv2, name, len, SvUTF8(tmpsv)));
                 } else if (SvTYPE(sv) == SVt_IV && SvROK(sv)) {
-                    Perl_dump_indent(aTHX_ level, file, "RV = 0x%"UVxf"\n", PTR2UV(SvRV(sv)));
+                    Perl_dump_indent(aTHX_ level, file, "RV = 0x%" UVxf "\n", PTR2UV(SvRV(sv)));
                 }
 	    }
 	    else
@@ -1694,7 +1694,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
             else if (stash == ((HV *)0)+1)
                 Perl_dump_indent(aTHX_ level, file, "  DESTROY (empty)\n");
             else
-                Perl_dump_indent(aTHX_ level, file, "  DESTROY = 0x%"UVxf"\n",
+                Perl_dump_indent(aTHX_ level, file, "  DESTROY = 0x%" UVxf "\n",
                                  PTR2UV(stash));
         }
 
@@ -2073,7 +2073,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
          && (nest < maxnest && (CvCLONE(sv) || CvCLONED(sv))))
 	    do_sv_dump(level+1, file, MUTABLE_SV(CvOUTSIDE(sv)), nest+1, maxnest, dumpops, pvlim);
         if (CvHASSIG(sv))
-            Perl_dump_indent(aTHX_ level, file, "  SIGOP = 0x%"UVxf"\n", PTR2UV(CvSIGOP(sv)));
+            Perl_dump_indent(aTHX_ level, file, "  SIGOP = 0x%" UVxf "\n", PTR2UV(CvSIGOP(sv)));
 	break;
 
     case SVt_PVGV:
@@ -2120,12 +2120,12 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	Perl_dump_indent(aTHX_ level, file, "    IO   = 0x%" UVxf "\n", PTR2UV(GvIOp(sv)));
 	Perl_dump_indent(aTHX_ level, file, "    CV   = 0x%" UVxf "\n", PTR2UV(GvCV(sv)));
 	Perl_dump_indent(aTHX_ level, file, "    CVGEN  = 0x%" UVxf "\n", (UV)GvCVGEN(sv));
-	Perl_dump_indent(aTHX_ level, file, "    REFCNT = %"IVdf"\n", (IV)GvREFCNT(sv));
+	Perl_dump_indent(aTHX_ level, file, "    REFCNT = %" IVdf "\n", (IV)GvREFCNT(sv));
 	Perl_dump_indent(aTHX_ level, file, "    HV   = 0x%" UVxf "\n", PTR2UV(GvHV(sv)));
 	Perl_dump_indent(aTHX_ level, file, "    AV   = 0x%" UVxf "\n", PTR2UV(GvAV(sv)));
 	Perl_dump_indent(aTHX_ level, file, "    FORM = 0x%" UVxf "\n", PTR2UV(GvFORM(sv)));
 	do_gv_dump            (level, file, "    EGV", GvEGV(sv));
-	Perl_dump_indent(aTHX_ level, file, "    LINE = %"IVdf"\n", (IV)GvLINE(sv));
+	Perl_dump_indent(aTHX_ level, file, "    LINE = %" IVdf "\n", (IV)GvLINE(sv));
 	Perl_dump_indent(aTHX_ level, file, "    GPFLAGS = 0x%" UVxf " (%s)\n",
 			       (UV)GvGPFLAGS(sv), "");
 	Perl_dump_indent(aTHX_ level, file, "    FILE = \"%s\"\n", GvFILE(sv));
@@ -2200,7 +2200,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 				(UV)(r->intflags));
             }
 #undef SV_SET_STRINGIFY_FLAGS
-	    Perl_dump_indent(aTHX_ level, file, "  NPARENS = %"UVuf"\n",
+	    Perl_dump_indent(aTHX_ level, file, "  NPARENS = %" UVuf "\n",
 				(UV)(r->nparens));
 	    Perl_dump_indent(aTHX_ level, file, "  LASTPAREN = %" UVuf "\n",
 				(UV)(r->lastparen));
@@ -2449,7 +2449,7 @@ S_deb_hek(pTHX_ HEK* hek, SV* val)
         PerlIO_printf(Perl_debug_log, "NO]");
     }
     else if (val < &PL_sv_undef) { /* than the first alloced variable, a refcnt */
-        PerlIO_printf(Perl_debug_log, "%"UVuf"]", PTR2UV(val));
+        PerlIO_printf(Perl_debug_log, "%" UVuf "]", PTR2UV(val));
     }
     else {
         olddebug = PL_debug;
@@ -2714,7 +2714,7 @@ Perl_signature_stringify(pTHX_ const OP *o, CV *cv)
                 sv_catpvs_nomg(out, "=1");
                 break;
             case SIGNATURE_arg_default_iv:
-                Perl_sv_catpvf(aTHX_ out, "=%"IVdf, (++items)->iv);
+                Perl_sv_catpvf(aTHX_ out, "=%" IVdf, (++items)->iv);
                 break;
             case SIGNATURE_arg_default_padsv:
                 sv_catpvs_nomg(out, "=");
@@ -2837,15 +2837,15 @@ Perl_debop(pTHX_ const OP *o)
             SV* const sv = *PL_stack_sp;
             if (SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVCV)
                 /* goto \&subref */
-                PerlIO_printf(Perl_debug_log, "(\\&%"SVf")",
+                PerlIO_printf(Perl_debug_log, "(\\&%" SVf ")",
                               SVfARG(cv_name((CV*)SvRV(sv), NULL, CV_NAME_NOMAIN)));
             else { /* goto EXPR */
-                PerlIO_printf(Perl_debug_log, "(%"SVf")",
+                PerlIO_printf(Perl_debug_log, "(%" SVf ")",
                               SVfARG(sv));
             }
         } else if (!(PL_op->op_flags & OPf_SPECIAL)) {
             /* goto LABEL */
-            PerlIO_printf(Perl_debug_log, "(%"SVf")",
+            PerlIO_printf(Perl_debug_log, "(%" SVf ")",
                           SVfARG(cPVOP->op_pv));
         }
         break;
@@ -2854,7 +2854,7 @@ Perl_debop(pTHX_ const OP *o)
         {
             SV* const sv = *PL_stack_sp;
             if (sv && SvTYPE(sv) == SVt_PVCV) /* no GV or PV yet */
-                PerlIO_printf(Perl_debug_log, "(%"SVf")",
+                PerlIO_printf(Perl_debug_log, "(%" SVf ")",
                     SVfARG(cv_name((CV*)sv, NULL, CV_NAME_NOMAIN)));
             break;
         }
@@ -2862,7 +2862,7 @@ Perl_debop(pTHX_ const OP *o)
         {
             SV* const meth = cMETHOPx_meth(PL_op);
             if (meth && SvPOK(meth))
-                PerlIO_printf(Perl_debug_log, "(->%"SVf")", SVfARG(meth));
+                PerlIO_printf(Perl_debug_log, "(->%" SVf ")", SVfARG(meth));
             break;
         }
 
@@ -2872,7 +2872,7 @@ Perl_debop(pTHX_ const OP *o)
         break;
 
     case OP_SIGNATURE:
-        PerlIO_printf(Perl_debug_log, "(%"SVf")",
+        PerlIO_printf(Perl_debug_log, "(%" SVf ")",
             SVfARG(signature_stringify(o, deb_curcv(cxstack_ix))));
         break;
 

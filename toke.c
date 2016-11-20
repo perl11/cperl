@@ -7627,7 +7627,7 @@ Perl_yylex(pTHX)
 			name = POPs;
 			PUTBACK;
 			PerlIO_apply_layers(aTHX_ PL_rsfp, NULL,
-					    Perl_form(aTHX_ ":encoding(%"SVf")",
+					    Perl_form(aTHX_ ":encoding(%" SVf ")",
 						      SVfARG(name)));
 			FREETMPS;
 			LEAVE;
@@ -9264,7 +9264,7 @@ S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package, STRLEN
     *d = '\0';
     *slp = d - dest;
     if (UNLIKELY(*slp > I32_MAX))
-        Perl_croak(aTHX_ "panic: name too long (%"UVuf")", (UV) *slp);
+        Perl_croak(aTHX_ "panic: name too long (%" UVuf ")", (UV) *slp);
     return s;
 }
 

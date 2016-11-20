@@ -561,11 +561,11 @@ perl_destruct(pTHXx)
 
 #ifdef DEBUGGING
     if (DEBUG_k_TEST) {
-        PerlIO_printf(Perl_debug_log, "== optimized NULL ops: %"UVuf"\n",
+        PerlIO_printf(Perl_debug_log, "== optimized NULL ops: %" UVuf "\n",
                       PL_count_null_ops);
     }
     if (DEBUG_C_TEST) {
-        PerlIO_printf(Perl_debug_log, "== max refcnt: %"UVuf" (0x%p), max cowrefcnt: %"UVuf"\n",
+        PerlIO_printf(Perl_debug_log, "== max refcnt: %" UVuf " (0x%p), max cowrefcnt: %" UVuf "\n",
                       PL_max_refcnt, PL_max_refcnt_sv, PL_max_cowrefcnt);
         if (DEBUG_v_TEST) {
             sv_dump(PL_max_refcnt_sv);
@@ -1283,8 +1283,8 @@ perl_destruct(pTHXx)
 	    for (sv = sva + 1; sv < svend; ++sv) {
 		if (SvTYPE(sv) != (svtype)SVTYPEMASK) {
 		    PerlIO_printf(Perl_debug_log, "leaked: sv=0x%p"
-			" flags=0x%"UVxf
-			" refcnt=%"UVuf pTHX__FORMAT "\n"
+			" flags=0x%" UVxf
+			" refcnt=%" UVuf pTHX__FORMAT "\n"
 			"\tallocated at %s:%d %s %s (parent 0x%" UVxf ");"
 			"serial %" UVuf "\n",
                         (void*)sv, (UV)SvFLAGS(sv), (UV)SvREFCNT(sv)

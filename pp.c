@@ -1980,7 +1980,7 @@ PP(pp_repeat)
                 is_negative = TRUE;
             else {
                 if (UNLIKELY(nv > UV_MAX))
-                    Perl_croak(aTHX_ "panic: overlarge repeat count %"NVgf"", nv);
+                    Perl_croak(aTHX_ "panic: overlarge repeat count %" NVgf, nv);
                 else
                     count = (UV)nv;
             }
@@ -2781,7 +2781,7 @@ S_s_complement(pTHX_ SV *targ, SV *sv)
 	sv_copypv_nomg(TARG, sv);
 	tmps = (U8*)SvPV_nomg(TARG, len);
         if (UNLIKELY(len > I32_MAX))
-            Perl_croak(aTHX_ "panic: string too long (%"UVuf")", (UV)len);
+            Perl_croak(aTHX_ "panic: string too long (%" UVuf ")", (UV)len);
 	anum = len;
 	if (SvUTF8(TARG)) {
 	  /* Calculate exact length, let's not estimate. */

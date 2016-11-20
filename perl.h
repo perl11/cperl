@@ -5950,7 +5950,9 @@ EXTCONST bool PL_valid_types_NV_set[];
  */
 
 /* The quadmath literals are anon structs which -Wc++-compat doesn't like. */
+#ifndef __cplusplus
 GCC_DIAG_IGNORE(-Wc++-compat)
+#endif
 
 #  ifdef USE_QUADMATH
 /* Cannot use HUGE_VALQ for PL_inf because not a compile-time
@@ -6020,7 +6022,9 @@ INFNAN_NV_U8_DECL PL_nan = { 0.0/0.0 }; /* keep last */
 #    endif
 #  endif
 
+#ifndef __cplusplus
 GCC_DIAG_RESTORE
+#endif
 
 #else
 

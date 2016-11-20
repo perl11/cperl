@@ -7935,11 +7935,11 @@ Perl_newFOROP(pTHX_ I32 flags, OP *sv, OP *expr, OP *block, OP *cont)
             && SvIOK(rightsv = cSVOPx_sv(right)))
         {
             if (UNLIKELY(SvIV(rightsv) < SvIV(leftsv)))
-                DIE(aTHX_ "Invalid for range iterator (%"IVdf" .. %"IVdf")",
+                DIE(aTHX_ "Invalid for range iterator (%" IVdf " .. %" IVdf ")",
                     SvIV(leftsv), SvIV(rightsv));
             /* TODO: unroll loop for small constant ranges, if the body is not too big */
             if (SvIV(rightsv)-SvIV(leftsv) <= PERL_MAX_UNROLL_LOOP_COUNT) {
-                DEBUG_kv(Perl_deb(aTHX_ "TODO unroll loop (%"IVdf"..%"IVdf")\n",
+                DEBUG_kv(Perl_deb(aTHX_ "TODO unroll loop (%" IVdf "..%" IVdf ")\n",
                                   SvIV(leftsv), SvIV(rightsv)));
                 /* TODO easy with op_clone_oplist from feature/gh23-inline-subs */
             }
@@ -9168,7 +9168,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 		U32 hash;
 		PERL_HASH(hash, name, namlen);
                 if (UNLIKELY(namlen > I32_MAX))
-                    Perl_croak(aTHX_ "panic: name too long (%"UVuf")", (UV) namlen);
+                    Perl_croak(aTHX_ "panic: name too long (%" UVuf ")", (UV) namlen);
 		CvNAME_HEK_set(cv,
 			       share_hek(name,
 					 name_is_utf8
@@ -9235,7 +9235,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	    U32 hash;
 	    PERL_HASH(hash, name, namlen);
             if (UNLIKELY(namlen > I32_MAX))
-                Perl_croak(aTHX_ "panic: name too long (%"UVuf")", (UV) namlen);
+                Perl_croak(aTHX_ "panic: name too long (%" UVuf ")", (UV) namlen);
 	    CvNAME_HEK_set(cv, share_hek(name,
 					 name_is_utf8
 					    ? -(I32)namlen
@@ -11317,7 +11317,7 @@ Perl_ck_require(pTHX_ OP *o)
                 }
                 PERL_HASH(hash, SvPVX(sv), SvCUR(sv));
                 if (UNLIKELY(SvCUR(sv) > I32_MAX))
-                    Perl_croak(aTHX_ "panic: name too long (%"UVuf")", (UV)SvCUR(sv));
+                    Perl_croak(aTHX_ "panic: name too long (%" UVuf ")", (UV)SvCUR(sv));
                 hek = share_hek(SvPVX(sv),(I32)SvCUR(sv) * (SvUTF8(sv) ? -1 : 1), hash);
                 sv_sethek(sv, hek);
                 unshare_hek(hek);
@@ -11335,7 +11335,7 @@ Perl_ck_require(pTHX_ OP *o)
                     if (was_readonly) SvREADONLY_off(sv);
                     PERL_HASH(hash, s, len);
                     if (UNLIKELY(len > I32_MAX))
-                        Perl_croak(aTHX_ "panic: name too long (%"UVuf")", (UV)len);
+                        Perl_croak(aTHX_ "panic: name too long (%" UVuf ")", (UV)len);
                     hek = share_hek(s, SvUTF8(sv) ? -(I32)len : (I32)len, hash);
                     sv_sethek(sv, hek);
                     unshare_hek(hek);
@@ -12355,7 +12355,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
     mand_params = params >> 16;
     opt_params  = params & ((1<<15)-1);
     actions = (++items)->uv;
-    DEBUG_k(Perl_deb(aTHX_ "ck_sig: %s arity=%d/%d actions=0x%"UVxf" items=%u\n",
+    DEBUG_k(Perl_deb(aTHX_ "ck_sig: %s arity=%d/%d actions=0x%" UVxf " items=%u\n",
                      SvPVX_const(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)),
                      (int)mand_params, (int)opt_params, actions, (unsigned)o->op_aux[-1].uv));
 
@@ -12371,7 +12371,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
         switch (action) {
         case SIGNATURE_reload:
             actions = (++items)->uv;
-            DEBUG_kv(Perl_deb(aTHX_ "ck_sig: reload action=%d items=0x%"UVxf" with %d %s op arg\n",
+            DEBUG_kv(Perl_deb(aTHX_ "ck_sig: reload action=%d items=0x%" UVxf " with %d %s op arg\n",
                               (int)action, items->uv, (int)arg, OP_NAME(o3)));
             continue; /* no shift, no arg advance */
         case SIGNATURE_end:
@@ -12383,7 +12383,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
                 sv_catpvs(tmpbuf, " ");
                 sv_catsv(tmpbuf, namesv);
                 Perl_sv_catpvf(aTHX_ tmpbuf, " exceeding max %d args", (int)arg);
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: end action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: end action=%d pad_ix=%d items=0x%" UVxf " with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
                 return too_many_arguments_pv(entersubop, SvPVX_const(tmpbuf), SvUTF8(namesv));
             }
@@ -12398,7 +12398,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             varcount = items->uv & OPpPADRANGE_COUNTMASK;
 #endif
             DEBUG_kv(Perl_deb(aTHX_ "ck_sig: padintro action=%d pad_ix=%d varcount=%d %s "
-                              "items=0x%"UVxf" with %d %s op arg\n",
+                              "items=0x%" UVxf " with %d %s op arg\n",
                               (int)action, (int)pad_ix, (int)varcount,
                               PAD_NAME(pad_ix) ? PadnamePV(PAD_NAME(pad_ix)) : "",
                               items->uv, (int)arg, OP_NAME(o3)));
@@ -12407,7 +12407,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
         case SIGNATURE_arg:
             if (UNLIKELY(actions & SIGNATURE_FLAG_ref)) {
                 arg++;
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg ref action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg ref action=%d pad_ix=%d items=0x%" UVxf " with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
                 /* \$ accepts any scalar lvalue */
                 if (!op_lvalue_flags(scalar(o3), OP_READ, OP_LVALUE_NO_CROAK)) {
@@ -12447,7 +12447,7 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             }
 #ifdef DEBUGGING
             else {
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg action=%d pad_ix=%d items=0x%" UVxf " with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
             }
 #endif
@@ -12485,13 +12485,13 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
                                   "HASH reference", 0);
                 }
                 scalar(aop);
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: ref action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: ref action=%d pad_ix=%d items=0x%" UVxf " with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
             } else {
                 list(aop);
                 optional = TRUE;
                 slurpy = TRUE;
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: slurpy action=%d pad_ix=%d items=0x%"UVxf" with %d %s op arg\n",
+                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: slurpy action=%d pad_ix=%d items=0x%" UVxf " with %d %s op arg\n",
                                   (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
             }
             pad_ix++;
@@ -13344,26 +13344,26 @@ Perl_ck_aelem(pTHX_ OP *o)
             if (UNLIKELY(SvIsUV(idx))) {
                 UV ix = SvUV(idx);
                 if (ix > (UV)AvFILL(av))
-                    Perl_die(aTHX_ "Array index out of bounds %s[%"UVuf"]",
+                    Perl_die(aTHX_ "Array index out of bounds %s[%" UVuf "]",
                              PAD_COMPNAME_PV(avop->op_targ), ix);
                 else {
-                    DEBUG_kv(Perl_deb(aTHX_ "ck_%s shape ok %s[%"UVuf"]\n",
+                    DEBUG_kv(Perl_deb(aTHX_ "ck_%s shape ok %s[%" UVuf "]\n",
                                       PL_op_name[o->op_type],
                                       PAD_COMPNAME_PV(avop->op_targ), ix));
                 }
             } else {
                 IV ix = SvIVX(idx);
                 if (PERL_IABS(ix) > AvFILLp(av))
-                    Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
+                    Perl_die(aTHX_ "Array index out of bounds %s[%" IVdf "]",
                              PAD_COMPNAME_PV(avop->op_targ), ix);
                 else {
-                    DEBUG_kv(Perl_deb(aTHX_ "ck_%s shape ok %s[%"IVdf"]\n",
+                    DEBUG_kv(Perl_deb(aTHX_ "ck_%s shape ok %s[%" IVdf "]\n",
                                       PL_op_name[o->op_type],
                                       PAD_COMPNAME_PV(avop->op_targ), ix));
                     if (ix < 0) {
                         ix = AvFILL(av)+1+ix;
                         SvIV_set(idx, ix);
-                        DEBUG_kv(Perl_deb(aTHX_ "ck_%s %s[->%"IVdf"]\n",
+                        DEBUG_kv(Perl_deb(aTHX_ "ck_%s %s[->%" IVdf "]\n",
                                           PL_op_name[o->op_type],
                                           PAD_COMPNAME_PV(avop->op_targ), ix));
                     }
@@ -13378,7 +13378,7 @@ Perl_ck_aelem(pTHX_ OP *o)
             Perl_die(aTHX_ "Too many elements");
     }
 
-    DEBUG_k(Perl_deb(aTHX_ "ck_%s %s[%"IVdf"]\n", PL_op_name[o->op_type],
+    DEBUG_k(Perl_deb(aTHX_ "ck_%s %s[%" IVdf "]\n", PL_op_name[o->op_type],
                 targ ? PAD_COMPNAME_PV(targ) : "?",
                 idx ? SvIV(idx) : -99));
     return o;
@@ -14405,16 +14405,16 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                                         Perl_die(aTHX_ "Too many elements");
                                     else {
                                         DEBUG_kv(Perl_deb(aTHX_
-                                            "mderef %s[%"UVuf"] shape ok -> uoob\n",
+                                            "mderef %s[%" UVuf "] shape ok -> uoob\n",
                                             PAD_COMPNAME_PV(targ), ix));
                                     }
                                 }
                                 else if (UNLIKELY(PERL_IABS(arg->iv) > AvFILLp(av)))
-                                    Perl_die(aTHX_ "Array index out of bounds %s[%"IVdf"]",
+                                    Perl_die(aTHX_ "Array index out of bounds %s[%" IVdf "]",
                                              PAD_COMPNAME_PV(targ), arg->iv);
                                 else {
                                     DEBUG_kv(Perl_deb(aTHX_
-                                        "mderef %s[%"IVdf"] shape ok -> uoob\n",
+                                        "mderef %s[%" IVdf "] shape ok -> uoob\n",
                                         PAD_COMPNAME_PV(targ), arg->iv));
                                 }
                                 index_type |= MDEREF_INDEX_uoob;
@@ -14886,7 +14886,7 @@ S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
     {
         /* Unrolling is easier in newFOROP? */
         if (SvIV(tosv)-SvIV(fromsv) <= PERL_MAX_UNROLL_LOOP_COUNT) {
-            DEBUG_kv(Perl_deb(aTHX_ "rpeep: possibly unroll loop (%"IVdf"..%"IVdf")\n",
+            DEBUG_kv(Perl_deb(aTHX_ "rpeep: possibly unroll loop (%" IVdf "..%" IVdf ")\n",
                               SvIV(fromsv), SvIV(tosv)));
             /* TODO op_clone_oplist from feature/gh23-inline-subs */
         }
@@ -15841,7 +15841,7 @@ Perl_rpeep(pTHX_ OP *o)
                                 IV ix = AvFILLp(av)+1+i;
                                 if (ix <= 255) {
                                     o->op_private = (U8)ix;
-                                    DEBUG_k(Perl_deb(aTHX_ "aelemfast_lex_u %s[->%"IVdf"]\n",
+                                    DEBUG_k(Perl_deb(aTHX_ "aelemfast_lex_u %s[->%" IVdf "]\n",
                                                      PAD_COMPNAME_PV(o->op_targ), ix));
                                 }
                                 else
@@ -16741,8 +16741,8 @@ Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_cv,
                 if (!line) goto no_caller;
                 Perl_warner(aTHX_ packWARN(WARN_REDEFINE),
                             is_const
-			    ? "Constant subroutine %"SVf" redefined, called by %s:%ld"
-			    : "Subroutine %"SVf" redefined, called by %s:%ld",
+			    ? "Constant subroutine %" SVf " redefined, called by %s:%ld"
+			    : "Subroutine %" SVf " redefined, called by %s:%ld",
                             SVfARG(name), file, line);
             } else {
                 goto no_caller;
@@ -16753,7 +16753,7 @@ Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_cv,
             Perl_warner(aTHX_ packWARN(WARN_REDEFINE),
 			  is_const
 			    ? "Constant subroutine %" SVf " redefined"
-			    : "Subroutine %"SVf" redefined",
+			    : "Subroutine %" SVf " redefined",
                           SVfARG(name));
         }
     }

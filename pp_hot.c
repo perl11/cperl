@@ -2462,7 +2462,7 @@ PP(pp_multideref)
                     /* loop oob allow magic arrays */
                     if (UNLIKELY((actions & MDEREF_INDEX_uoob) && !SvMAGICAL(sv))) {
                         SV* av = sv;
-                        DEBUG_kv(Perl_deb(aTHX_ "mderef oob [%"IVdf"]\n", elem));
+                        DEBUG_kv(Perl_deb(aTHX_ "mderef oob [%" IVdf "]\n", elem));
                         sv = AvARRAY(av)[elem];
                         if (!sv) { /* always lval */
                             AvARRAY(av)[elem] = sv = newSV(0);
@@ -4533,22 +4533,22 @@ PP(pp_signature)
                                mand_params, argc, PadnamePV(pn));
             } else
 #endif
-            S_croak_caller("Not enough arguments for %s%s%s %s. Want: %"UVuf
-                           ", but got: %"UVuf"",
+            S_croak_caller("Not enough arguments for %s%s%s %s. Want: %" UVuf
+                           ", but got: %" UVuf,
                            CvDESC3(cv),
                            SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
                            mand_params, argc);
         }
         if (UNLIKELY(!slurpy && argc > mand_params + opt_params)) {
             if (opt_params)
-                S_croak_caller("Too many arguments for %s%s%s %s. Want: %"UVuf"-%"UVuf
-                               ", but got: %"UVuf"",
+                S_croak_caller("Too many arguments for %s%s%s %s. Want: %" UVuf "-%" UVuf
+                               ", but got: %" UVuf,
                                CvDESC3(cv),
                                SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
                                mand_params, mand_params + opt_params, argc);
             else
-                S_croak_caller("Too many arguments for %s%s%s %s. Want: %"UVuf
-                               ", but got: %"UVuf"",
+                S_croak_caller("Too many arguments for %s%s%s %s. Want: %" UVuf
+                               ", but got: %" UVuf,
                                CvDESC3(cv),
                                SvPVX_const(cv_name((CV*)cv,NULL,CV_NAME_NOMAIN)),
                                mand_params, argc);
