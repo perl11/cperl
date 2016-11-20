@@ -4,7 +4,7 @@ use warnings;
 
 our ($AUTOLOAD, %SIGRT);
 
-our $VERSION = '1.65_01';
+our $VERSION = '1.65_02';
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 

@@ -3394,7 +3394,7 @@ strtoul(str, base = 0)
 	int		base
     PREINIT:
 	unsigned long num;
-	char *unparsed;
+	char *unparsed = NULL;
     PPCODE:
 	PERL_UNUSED_VAR(str);
 	PERL_UNUSED_VAR(base);
