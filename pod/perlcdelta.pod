@@ -123,6 +123,10 @@ XXX
 
 =over 4
 
+=item Data-Dumper  2.163
+
+Fix -Wc++11-compat warnings
+
 =item Time-HiRes  1.9740_01
 
 Fix -Wc++11-compat warnings
