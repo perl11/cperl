@@ -138,13 +138,13 @@ mingw_modfl(long double x, long double *ip)
 #ifdef WARN_NONCHAR
 #define WARNER_NONCHAR(hi)                                      \
   Perl_ck_warner_d(aTHX_ packWARN(WARN_NONCHAR),                \
-                   "Unicode non-character U+%04"UVXf" is not "  \
+                   "Unicode non-character U+%04" UVXf " is not "  \
                    "recommended for open interchange", hi)
 /* before check use warnings 'utf8' */
 #elif PERL_VERSION > 10
 #define WARNER_NONCHAR(hi)                                         \
   Perl_ck_warner_d(aTHX_ packWARN(WARN_UTF8),                      \
-                   "Unicode non-character U+%04"UVXf" is illegal " \
+                   "Unicode non-character U+%04" UVXf " is illegal " \
                    "for interchange", hi)
 #else
 #define WARNER_NONCHAR(hi)                                         \
@@ -801,6 +801,12 @@ encode_str (pTHX_ enc_t *enc, char *str, STRLEN len, int is_utf8)
 }
 
 INLINE void
+encode_const_str (pTHX_ enc_t *enc, const char *str, STRLEN len, int is_utf8)
+{
+  encode_str (aTHX_ enc, (char *)str, len, is_utf8);
+}
+
+INLINE void
 encode_indent (pTHX_ enc_t *enc)
 {
   if (enc->json.flags & F_INDENT)
@@ -866,7 +872,7 @@ encode_av (pTHX_ enc_t *enc, AV *av)
           if (svp)
             encode_sv (aTHX_ enc, *svp);
           else
-            encode_str (aTHX_ enc, "null", 4, 0);
+            encode_const_str (aTHX_ enc, "null", 4, 0);
 
           if (i < len)
             encode_comma (aTHX_ enc);
@@ -1077,7 +1083,7 @@ encode_stringify(pTHX_ enc_t *enc, SV *sv, int isref)
     if (isref && !(enc->json.flags & F_ALLOW_UNKNOWN))
       croak ("cannot encode reference to scalar '%s' unless the scalar is 0 or 1",
              SvPV_nolen (sv_2mortal (newRV_inc (sv))));
-    encode_str (aTHX_ enc, "null", 4, 0);
+    encode_const_str (aTHX_ enc, "null", 4, 0);
     return;
   }
   /* sv_2pv_flags does not accept those types: */
@@ -1109,7 +1115,7 @@ encode_stringify(pTHX_ enc_t *enc, SV *sv, int isref)
     }
 #endif
     if (!len) {
-      encode_str (aTHX_ enc, "null", 4, 0);
+      encode_const_str (aTHX_ enc, "null", 4, 0);
       SvREFCNT_dec(pv);
       return;
     }
@@ -1144,7 +1150,7 @@ encode_stringify(pTHX_ enc_t *enc, SV *sv, int isref)
     }
   }
   if (!str)
-    encode_str (aTHX_ enc, "null", 4, 0);
+    encode_const_str (aTHX_ enc, "null", 4, 0);
   else {
     if (isref != 1)
       encode_ch (aTHX_ enc, '"');
@@ -1182,9 +1188,9 @@ encode_rv (pTHX_ enc_t *enc, SV *rv)
       if (stash == bstash || stash == mstash || stash == oldstash)
         {
           if (SvIV (sv))
-            encode_str (aTHX_ enc, "true", 4, 0);
+            encode_const_str (aTHX_ enc, "true", 4, 0);
           else
-            encode_str (aTHX_ enc, "false", 5, 0);
+            encode_const_str (aTHX_ enc, "false", 5, 0);
         }
       else if ((enc->json.flags & F_ALLOW_TAGS)
             && (method = gv_fetchmethod_autoload (stash, "FREEZE", 0)))
@@ -1264,7 +1270,7 @@ encode_rv (pTHX_ enc_t *enc, SV *rv)
       else if (enc->json.flags & F_CONV_BLESSED)
         encode_stringify(aTHX_ enc, sv, 0);
       else if (enc->json.flags & F_ALLOW_BLESSED)
-        encode_str (aTHX_ enc, "null", 4, 0);
+        encode_const_str (aTHX_ enc, "null", 4, 0);
       else
         croak ("encountered object '%s', but neither allow_blessed, convert_blessed nor allow_tags settings are enabled (or TO_JSON/FREEZE method missing)",
                SvPV_nolen (sv_2mortal (newRV_inc (sv))));
@@ -1278,19 +1284,19 @@ encode_rv (pTHX_ enc_t *enc, SV *rv)
       int bool_type = ref_bool_type (aTHX_ sv);
 
       if (bool_type == 1)
-        encode_str (aTHX_ enc, "true", 4, 0);
+        encode_const_str (aTHX_ enc, "true", 4, 0);
       else if (bool_type == 0)
-        encode_str (aTHX_ enc, "false", 5, 0);
+        encode_const_str (aTHX_ enc, "false", 5, 0);
       else if (enc->json.flags & F_ALLOW_STRINGIFY)
         encode_stringify(aTHX_ enc, sv, SvROK(sv));
       else if (enc->json.flags & F_ALLOW_UNKNOWN)
-        encode_str (aTHX_ enc, "null", 4, 0);
+        encode_const_str (aTHX_ enc, "null", 4, 0);
       else
         croak ("cannot encode reference to scalar '%s' unless the scalar is 0 or 1",
                SvPV_nolen (sv_2mortal (newRV_inc (sv))));
     }
   else if (enc->json.flags & F_ALLOW_UNKNOWN)
-    encode_str (aTHX_ enc, "null", 4, 0);
+    encode_const_str (aTHX_ enc, "null", 4, 0);
   else
     croak ("encountered %s, but JSON can only represent references to arrays or hashes",
            SvPV_nolen (sv_2mortal (newRV_inc (sv))));
@@ -1303,11 +1309,11 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
 
   if (UNLIKELY(sv == &PL_sv_yes ))
     {
-      encode_str (aTHX_ enc, "true", 4, 0);
+      encode_const_str (aTHX_ enc, "true", 4, 0);
     }
   else if (UNLIKELY(sv == &PL_sv_no ))
     {
-      encode_str (aTHX_ enc, "false", 5, 0);
+      encode_const_str (aTHX_ enc, "false", 5, 0);
     }
   else if (SvNOKp (sv))
     {
@@ -1473,8 +1479,8 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
           saveend = enc->end;
           enc->cur +=
              SvIsUV(sv)
-                ? snprintf (enc->cur, IVUV_MAXCHARS, "%"UVuf, (UV)SvUVX (sv))
-                : snprintf (enc->cur, IVUV_MAXCHARS, "%"IVdf, (IV)SvIVX (sv));
+                ? snprintf (enc->cur, IVUV_MAXCHARS, "%" UVuf, (UV)SvUVX (sv))
+                : snprintf (enc->cur, IVUV_MAXCHARS, "%" IVdf, (IV)SvIVX (sv));
         }
 
       if (SvPOKp (sv) && !strEQ(savecur, SvPVX (sv))) {
@@ -1499,7 +1505,7 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
   else if (SvROK (sv))
     encode_rv (aTHX_ enc, sv);
   else if (!SvOK (sv) || enc->json.flags & F_ALLOW_UNKNOWN)
-    encode_str (aTHX_ enc, "null", 4, 0);
+    encode_const_str (aTHX_ enc, "null", 4, 0);
   else
     croak ("encountered perl type (%s,0x%x) that JSON cannot handle, check your input data",
            SvPV_nolen (sv), (unsigned int)SvFLAGS (sv));
@@ -2529,7 +2535,7 @@ decode_num (pTHX_ dec_t *dec)
 
       if (dec->json.flags & F_ALLOW_BIGNUM) {
         SV* pv = newSVpvs("require Math::BigInt && return Math::BigInt->new(\"");
-        sv_catpv(pv, start);
+        sv_catpvn(pv, start, dec->cur - start);
         sv_catpvs(pv, "\");");
         eval_sv(pv, G_SCALAR);
         SvREFCNT_dec(pv);
@@ -2547,7 +2553,7 @@ decode_num (pTHX_ dec_t *dec)
 
   if (dec->json.flags & F_ALLOW_BIGNUM) {
     SV* pv = newSVpvs("require Math::BigFloat && return Math::BigFloat->new(\"");
-    sv_catpv(pv, start);
+    sv_catpvn(pv, start, dec->cur - start);
     sv_catpvs(pv, "\");");
     eval_sv(pv, G_SCALAR);
     SvREFCNT_dec(pv);
