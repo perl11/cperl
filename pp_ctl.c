@@ -2729,6 +2729,7 @@ PP(pp_goto)
 	    PERL_CONTEXT *cx;
 	    CV *cv = MUTABLE_CV(SvRV(sv));
 	    AV *arg = GvAV(PL_defgv);
+            PADLIST *padlist;
 
 	    while (!CvROOT(cv) && !CvXSUB(cv)) {
 		const GV * const gv = CvGV(cv);
@@ -2793,7 +2794,6 @@ PP(pp_goto)
 
                 if (CvHASSIG(cv)) { /* @_ -> SP */
                     CV* cursub = cx->blk_sub.cv;
-                    PADLIST * const padlist = CvPADLIST(cv);
                     cx->blk_sub.cv = cv; /* adjust context */
                     cx->blk_sub.olddepth = CvDEPTH(cv);
                     /* sig2sig: no @_, just copy pads to MARK */
@@ -2803,6 +2803,7 @@ PP(pp_goto)
 #ifdef DEBUGGING
                         SSize_t argc = stack - cx->blk_sub.argarray + 1;
 #endif
+                        padlist = CvPADLIST(cv);
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
                              "goto %s from sig with sig: keep %ld args\n",
                              SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
@@ -2951,8 +2952,8 @@ PP(pp_goto)
                 if (CvHASSIG(cv)) {
                     /* with signatures we do a real tailcall, not as in perl5 pp or python.
                        without new cx and padframe, reusing the old pads. retop is CvSTART */
-                    PADLIST * const padlist = CvPADLIST(cv);
                     I32 depth = CvDEPTH(cv);
+                    padlist = CvPADLIST(cv);
                     cx->blk_sub.cv = cv;
                     cx->blk_sub.argarray  = MARK+1;
                     cx->blk_sub.savearray = (AV*)SP;
@@ -3009,12 +3010,11 @@ PP(pp_goto)
 		goto _return;
 	    }
 	    else {
-		PADLIST * const padlist = CvPADLIST(cv);
-
                 SAVEFREESV(cv); /* later, undo the 'avoid premature free' hack */
 
                 /* partial unrolled cx_pushsub(): */
 
+                padlist = CvPADLIST(cv);
 		cx->blk_sub.cv = cv;
 		cx->blk_sub.olddepth = CvDEPTH(cv);
 

@@ -3595,9 +3595,13 @@ PerlIOStdio_set_ptrcnt(pTHX_ PerlIO *f, STDCHAR * ptr, SSize_t cnt)
          * - casting the LHS to (void*) -- totally unportable
          *
          * So let's try silencing the warning at least for gcc. */
+#ifdef __cplusplus
+	PerlSIO_set_ptr(stdio, (U8*)ptr);
+#else
         GCC_DIAG_IGNORE(-Wpointer-sign);
 	PerlSIO_set_ptr(stdio, ptr); /* LHS STDCHAR* cast non-portable */
         GCC_DIAG_RESTORE;
+#endif
 #ifdef STDIO_PTR_LVAL_SETS_CNT
 	assert(PerlSIO_get_cnt(stdio) == (cnt));
 #endif
