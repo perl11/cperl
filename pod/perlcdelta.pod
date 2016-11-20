@@ -123,6 +123,10 @@ XXX
 
 =over 4
 
+=item Time-HiRes  1.9740_01
+
+Fix -Wc++11-compat warnings
+
 =item Storable 3.02c
 
 Fix -Wc++11-compat warnings
