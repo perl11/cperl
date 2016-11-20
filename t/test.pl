@@ -808,6 +808,7 @@ sub which_perl {
 
 	# VMS should have 'perl' aliased properly
 	return $Perl if $is_vms;
+        $Perl = '../miniperl' if $Perl eq './miniperl' and !-f $Perl;
 
 	my $exe;
 	if (! eval {require Config; 1}) {
@@ -1245,7 +1246,7 @@ sub run_multiple_progs {
 	my $results = runperl( stderr => 1, progfile => $tmpfile,
 			       stdin => undef, $up
 			       ? (switches => [ "-I.", "-I$up/lib", $switch], nolib => 1)
-			       : (switches => [ "-I.", $switch])
+			       : (switches => [ "-I.", "-I../lib", $switch])
 			        );
 	my $status = $?;
 	$results =~ s/\n+$//;
