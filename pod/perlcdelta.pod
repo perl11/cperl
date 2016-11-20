@@ -123,6 +123,10 @@ XXX
 
 =over 4
 
+=item Internals-DumpArenas 0.12_05
+
+Fix -Wc++11-compat warnings
+
 =item Socket 2.024_05
 
 Fix -Wc++11-compat warnings
