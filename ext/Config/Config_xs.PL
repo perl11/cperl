@@ -54,6 +54,8 @@ if ($in_core) {
 my $force = @ARGV ? $ARGV[0] eq '--force' : 0;
 shift if $force;
 exit if $ARGV[0] eq '--tap';
+my $regen = @ARGV ? $ARGV[0] eq '--regen' : 0;
+shift if $regen;
 my $no_gperf = @ARGV ? $ARGV[0] eq '--no-gperf' : 0;
 shift if $no_gperf;
 my $verbose = @ARGV ? $ARGV[0] eq '--verbose' : 0;
@@ -236,7 +238,7 @@ vendorscript    vendorscriptexp voidflags   yacc    yaccflags
             $h{$k} = '';
         }
     }
-    gen_gperf_Config($xsin, $xsout, \%h); # generate git tracked
+    gen_gperf_Config($xsin, $xsout, \%h) if $regen;
     $xsout = $xsoutcustm; # use smaller build specific .xs
 }
 

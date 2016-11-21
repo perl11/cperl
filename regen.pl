@@ -23,7 +23,7 @@ foreach my $pl (map {chomp; "regen/$_"} <DATA>) {
 if (!$tap) {
   my $perl = ($^O =~ /^(MSWin32|symbian|os2|cygwin|dos)$/) ? 'perl.exe' : "perl";
   my @command = (($perl eq 'perl' ? './perl' : $perl), '-I.',
-                 'ext/Config/Config_xs.PL', '--force', @ARGV);
+                 'ext/Config/Config_xs.PL', '--force', '--regen', @ARGV);
   print "$tap@command\n";
   system @command
     and die "@command failed: $?";
