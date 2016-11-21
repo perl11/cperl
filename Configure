@@ -20881,7 +20881,9 @@ $cat >try.c <<EOP
 #ifdef I_MATH
 #include <math.h>
 #endif
+#include <string.h>
 #include <stdio.h>
+typedef unsigned char* U8;
 /* Note that whether the sign bit is on or off
  * for NaN depends on the CPU/FPU, and possibly
  * can be affected by the build toolchain.
@@ -20892,8 +20894,16 @@ $cat >try.c <<EOP
  * (respectively) as opposed to the more usual
  * 0x7f, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
  */
-static void bytes(unsigned char *p, unsigned int n) {
+static void bytes(U8 p, unsigned int n) {
   int i;
+#ifdef HAS_LONG_DOUBLE
+# if LONGDBLKIND == 3 || LONGDBLKIND == 4
+  if (n > 10) {
+    /* the 80-bit long doubles might have garbage in their excess bytes */
+    memset(p + 10, '\0', LONGDBLSIZE - 10);
+  }
+# endif
+#endif
   for (i = 0; i < n; i++) {
     printf("0x%02x%s", p[i], i < n - 1 ? ", " : "\n");
   }
@@ -20910,15 +20920,11 @@ int main(int argc, char *argv[]) {
 #endif
   if (argc == 2) {
     switch (argv[1][0]) {
-    case '1': bytes(&dinf, sizeof(dinf)); break;
-    case '2': bytes(&dnan, sizeof(dnan)); break;
+    case '1': bytes((U8)&dinf, sizeof(dinf)); break;
+    case '2': bytes((U8)&dnan, sizeof(dnan)); break;
 #ifdef HAS_LONG_DOUBLE
-# if LONG_DOUBLEKIND == 3 || LONG_DOUBLEKIND == 4
-/* the 80-bit long doubles might have garbage in their excess bytes */
-    memset((char *)&ldinf + 10, '\0', LONG_DOUBLESIZE - 10);
-# endif
-    case '3': bytes(&ldinf, sizeof(ldinf)); break;
-    case '4': bytes(&ldnan, sizeof(ldnan)); break;
+    case '3': bytes((U8)&ldinf, sizeof(ldinf)); break;
+    case '4': bytes((U8)&ldnan, sizeof(ldnan)); break;
 #endif
     }
   }
