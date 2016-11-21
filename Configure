@@ -240,6 +240,7 @@ d_eunice=''
 d_xenix=''
 eunicefix=''
 ar=''
+arflags=''
 awk=''
 bash=''
 bison=''
@@ -22159,43 +22160,66 @@ EOP
 $cc $ccflags -c bar1.c >/dev/null 2>&1
 $cc $ccflags -c bar2.c >/dev/null 2>&1
 $cc $ccflags -c foo.c >/dev/null 2>&1
-$ar rc bar$_a bar2$_o bar1$_o >/dev/null 2>&1
+arflags=Dcr
+if $ar $arflags bar$_a bar2$_o bar1$_o >/dev/null 2>&1; then
+    echo "$ar $arflags with support for deterministic timestamp stripping." >&4
+else
+    if $test x$osname = xdarwin; then
+        # D support since llvm-3.7 (trying macports llvm now)
+        ar=llvm-ar-mp-3.9
+        if $ar $arflags bar$_a bar2$_o bar1$_o >/dev/null 2>&1; then
+            echo "$ar $arflags with support for deterministic timestamp stripping." >&4
+            full_ar=`which $ar`
+        else
+            arflags=cr
+            echo "$ar cr needed. No support for deterministic timestamp stripping." >&4
+        fi
+    else
+        arflags=cr
+        echo "$ar cr needed. No support for deterministic timestamp stripping." >&4
+    fi
+fi
 if $cc -o foobar $ccflags $ldflags foo$_o bar$_a $libs > /dev/null 2>&1 &&
 	$run ./foobar >/dev/null 2>&1; then
-	echo "$ar appears to generate random libraries itself."
-	orderlib=false
-	if [ "X$ranlib" = "X" ]; then
-	    ranlib=":"
-	fi
+    echo "$ar $arflags generates random libraries itself." >&4
+    orderlib=false
+    if [ "X$ranlib" = "X" ]; then
+	ranlib=":"
+    fi
 elif $ar s bar$_a >/dev/null 2>&1 &&
-	$cc -o foobar $ccflags $ldflags foo$_o bar$_a $libs > /dev/null 2>&1 &&
-	$run ./foobar >/dev/null 2>&1; then
-		echo "a table of contents needs to be added with '$ar s'."
-		orderlib=false
-		ranlib="$ar s"
+	 $cc -o foobar $ccflags $ldflags foo$_o bar$_a $libs > /dev/null 2>&1 &&
+	 $run ./foobar >/dev/null 2>&1; then
+    echo "a table of contents needs to be added with '$ar s'." >&4
+    orderlib=false
+    ranlib="$ar s"
 elif $ar ts bar$_a >/dev/null 2>&1 &&
-	$cc -o foobar $ccflags $ldflags foo$_o bar$_a $libs > /dev/null 2>&1 &&
-	$run ./foobar >/dev/null 2>&1; then
-		echo "a table of contents needs to be added with '$ar ts'."
-		orderlib=false
-		ranlib="$ar ts"
+	 $cc -o foobar $ccflags $ldflags foo$_o bar$_a $libs > /dev/null 2>&1 &&
+	 $run ./foobar >/dev/null 2>&1; then
+    echo "a table of contents needs to be added with '$ar ts'." >&4
+    orderlib=false
+    ranlib="$ar ts"
 else
-	case "$ranlib" in
-	:) ranlib='';;
+    case "$ranlib" in
+	:)  ranlib='' ;;
 	'')
-		ranlib=`./loc ranlib X /usr/bin /bin /usr/local/bin`
-		$test -f $ranlib || ranlib=''
-		;;
-	esac
-	if $test -n "$ranlib"; then
-		echo "your system has '$ranlib'; we'll use that."
-		orderlib=false
-	else
-		echo "your system doesn't seem to support random libraries"
-		echo "so we'll use lorder and tsort to order the libraries."
-		orderlib=true
-		ranlib=":"
-	fi
+	    ranlib=`./loc ranlib X /usr/bin /bin /usr/local/bin /opt/local/bin`
+	    $test -f $ranlib || ranlib=''
+            # -D for determinism
+            if $ranlib -D bar$_a; then
+                echo "can use $ranlib with -D for determinism. " >&4
+                ranlib="$ranlib -D"
+            fi
+	    ;;
+    esac
+    if $test -n "$ranlib"; then
+	echo "your system has '$ranlib'; we'll use that."
+	orderlib=false
+    else
+	echo "your system doesn't seem to support random libraries"
+	echo "so we'll use lorder and tsort to order the libraries."
+	orderlib=true
+	ranlib=":"
+    fi
 fi
 $rm -f foo* bar*
 
@@ -24666,6 +24690,7 @@ api_subversion='$api_subversion'
 api_version='$api_version'
 api_versionstring='$api_versionstring'
 ar='$ar'
+arflags='$arflags'
 archlib='$archlib'
 archlibexp='$archlibexp'
 archname64='$archname64'

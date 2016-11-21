@@ -321,7 +321,9 @@ HOST_GENERATE = $hostgenerate
 SYSTEM_PERL = $perl
 
 # These variables may need to be manually set for non-Unix systems.
-AR = $full_ar
+AR      = $full_ar
+ARFLAGS = $arflags
+RANLIB  = $ranlib
 HOST_EXE_EXT = $_exe
 EXE_EXT = $_exe
 LIB_EXT = $_a
@@ -801,7 +803,7 @@ MINIPERL_NONSHR		= miniperl_nonshr$(EXE_EXT)
 
 $(LIBPERL_NONSHR): $(perllib_objs)
 	$(RMS) $(LIBPERL_NONSHR)
-	$(AR) rc $(LIBPERL_NONSHR) $(perllib_objs)
+	$(AR) $(ARFLAGS) $(LIBPERL_NONSHR) $(perllib_objs)
 
 $(MINIPERL_NONSHR): $(LIBPERL_NONSHR) miniperlmain$(OBJ_EXT) opmini$(OBJ_EXT)  perlmini$(OBJ_EXT)
 	$(LD) $(LDFLAGS) -o $(MINIPERL_NONSHR) miniperlmain$(OBJ_EXT) \
@@ -847,7 +849,7 @@ LIBPERL_NONSHR		= libperl$(LIB_EXT)
 
 $(LIBPERL_NONSHR): $(perllib_objs)
 	$(RMS) $(LIBPERL_NONSHR)
-	$(AR) rc $(LIBPERL_NONSHR) $(perllib_objs)
+	$(AR) $(ARFLAGS) $(LIBPERL_NONSHR) $(perllib_objs)
 	touch $(LIBPERL_NONSHR)
 
 !NO!SUBS!
@@ -904,7 +906,7 @@ $(LIBPERL): $& $(perllib_objs) $(DYNALOADER) $(LIBPERLEXPORT)
 		    $spitshell >>$Makefile <<'!NO!SUBS!'
 	rm -f libperl$(OBJ_EXT)
 	mv $@ libperl$(OBJ_EXT)
-	$(AR) qv $(LIBPERL) libperl$(OBJ_EXT)
+	$(AR) $(ARFLAGS) $(LIBPERL) libperl$(OBJ_EXT)
 	touch $(LIBPERL_NONSHR)
 !NO!SUBS!
 		    ;;
@@ -919,8 +921,8 @@ $(LIBPERL): $& $(perllib_objs) $(DYNALOADER) $(LIBPERLEXPORT)
 	*)
 		$spitshell >>$Makefile <<'!NO!SUBS!'
 	rm -f $(LIBPERL)
-	$(AR) rc $(LIBPERL) $(perllib_objs) $(DYNALOADER)
-	@$(ranlib) $(LIBPERL)
+	$(AR) $(ARFLAGS) $(LIBPERL) $(perllib_objs) $(DYNALOADER)
+	@$(RANLIB) $(LIBPERL)
 !NO!SUBS!
 		;;
 	esac

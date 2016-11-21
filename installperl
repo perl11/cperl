@@ -328,6 +328,7 @@ if ($Is_VMS) {
 elsif ($^O ne 'dos') {
     if (!$Is_NetWare) {
 	safe_unlink("$installbin/$perl_verbase$ver$exe_ext");
+	strip($exe);
 	chmod(0755, $exe);
 	copy($exe, "$installbin/$perl_verbase$ver$exe_ext");
 	strip("$installbin/$perl_verbase$ver$exe_ext");
@@ -417,6 +418,7 @@ foreach my $file (@corefiles) {
 	    strip("-S", "$installarchlib/CORE/$file") if $^O eq 'darwin' and !$debug;
 	    chmod($SO_MODE, "$installarchlib/CORE/$file");
 	} else {
+	    strip("$installarchlib/CORE/$file");
 	    chmod($NON_SO_MODE, "$installarchlib/CORE/$file");
 	}
     }

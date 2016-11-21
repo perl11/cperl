@@ -350,6 +350,14 @@ L<[cperl #217]|https://github.com/perl11/cperl/issues/217>.
 
 =over 4
 
+=item arflags
+
+Probe for arflags, which do support C<D> for deterministic static archives
+without member timestamps. On darwin we currently only have F<llvm-ar-mp-3.9>
+(since 3.7) which does support this.
+
+ranlib is probed for the C<-D> flag for reproducible build determinism.
+
 =item fixed longdblinfbytes probe
 
 With Intel long double it didn't clean random excess garbage bytes

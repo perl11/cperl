@@ -76,7 +76,7 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
   }
   # these qw blocks are created with genkeys.PL in the cpan repo
   my @cannedkeys = qw(
-bin_ELF bootstrap_charset   canned_gperf    ccstdflags  ccwarnflags charsize
+arflags bin_ELF bootstrap_charset canned_gperf ccstdflags ccwarnflags charsize
 cf_epoch config_argc config_args d_re_comp   d_regcmp    dlltool dtraceobject
 git_ancestor    git_commit_date git_remote_branch   git_unpushed
 hostgenerate    hostosname  hostperl    incpth  installhtmldir

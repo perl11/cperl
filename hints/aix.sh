@@ -694,5 +694,6 @@ EOF
   ;;
 esac # not gcc
 
+arflags=qv
 
 # EOF

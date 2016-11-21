@@ -47,7 +47,7 @@ alignbytes=8
 
 case "$usemymalloc" in
     '')  usemymalloc='n' ;;
-    esac
+esac
 
 # Intuiting the existence of system calls under AIX is difficult,
 # at best; the safest technique is to find them empirically.
@@ -58,17 +58,17 @@ case "$osvers" in
     4.1.*|4.2.*)
 	case "$usenm" in
 	    '') usenm='undef' ;;
-	    esac
+	esac
 	case "$usenativedlopen" in
 	    '') usenativedlopen='false' ;;
-	    esac
+	esac
 	;;
     *)
 	case "$usenativedlopen" in
 	    '') usenativedlopen='true' ;;
-	    esac
+	esac
 	;;
-    esac
+esac
 
 so="a"
 # AIX itself uses .o (libc.o) but we prefer compatibility
@@ -100,19 +100,19 @@ program, unset it and restart.
 EOF
 	;;
     *)  ;;
-    esac
+esac
 
 # uname -m output is too specific and not appropriate here
 case "$archname" in
     '') archname="$osname" ;;
-    esac
+esac
 
 cc=${cc:-cc}
 ccflags="$ccflags -D_ALL_SOURCE -D_ANSI_C_SOURCE -D_POSIX_SOURCE"
 case "$cc" in
     *gcc*) ;;
     *) ccflags="$ccflags -qmaxmem=-1 -qnoansialias" ;;
-    esac
+esac
 
 # since change #28654, _XOPEN_SOURCE symbol needs to be defined on aix 4.2
 # to avoid the following build error in perlio.c :
@@ -125,7 +125,7 @@ case "$osvers" in
 	d_inetpton='undef'
 	d_inetntop='undef'
 	;;
-    esac
+esac
 nm_opt='-B'
 
 # These functions don't work like Perl expects them to.
@@ -144,7 +144,7 @@ case "$cc" in
 	if [ "X$gccversion" = "X" ]; then
 	    # Done too late in Configure if hinted
 	    gccversion=`$cc -dumpversion`
-	    fi
+	fi
 	;;
 
     *)  ccversion=`lslpp -L | grep 'C for AIX Compiler$' | grep -v '\.msg\.[A-Za-z_]*\.' | head -1 | awk '{print $1,$2}'`
@@ -164,16 +164,16 @@ case "$cc" in
 				cc_type=vac
 				fi
 			    rm -f reflect
-			    fi
+			fi
 			;;
-		    esac
+		esac
 		ccversion=`lslpp -L | grep 'C for AIX Compiler$' | grep -i $cc_type | head -1`
 		;;
 
 	    vac*.*.*.*)
 		cc_type=vac
 		;;
-	    esac
+	esac
 	ccversion=`echo "$ccversion" | awk '{print $2}'`
 
 	case "$ccversion" in
@@ -215,12 +215,12 @@ EOF
 ***
 EOF
 regcomp_cflags='optimize='
-		;;
-	    esac
+             ;;
+	esac
 	case "$ccversion" in
 	    5*) usemallocwrap='n' ;; # causes panic in miniperl
-	    esac
-    esac
+	esac
+esac
 # the required -bE:$installarchlib/CORE/perl.exp is added by
 # libperl.U (Configure) later.
 
@@ -233,15 +233,15 @@ if test $usenativedlopen = 'true' ; then
     lddlflags="$lddlflags -bhalt:4 -bexpall -G -bnoentry -lc"
 else
     lddlflags="$lddlflags -bhalt:4 -bM:SRE -bI:\$(PERL_INC)/perl.exp -bE:\$(BASEEXT).exp -bnoentry -lc"
-    fi
+fi
 
 case "$use64bitall" in
     $define|true|[yY]*) use64bitint="$define" ;;
-    esac
+esac
 
 case "$usemorebits" in
     $define|true|[yY]*) use64bitint="$define"; uselongdouble="$define" ;;
-    esac
+esac
 
 case $cc_type in
     vac|xlc)
@@ -251,8 +251,8 @@ case $cc_type in
 		libswanted="c128 $libswanted"
 		lddlflags=`echo "$lddlflags " | sed -e 's/ -lc / -lc128 -lc /'`
 		;;
-	    esac
-    esac
+	esac
+esac
 
 case "$cc" in
     *gcc*) ;;
@@ -273,16 +273,16 @@ case "$cc" in
 ***
 EOF
 			exit 1
-			fi
-			;;
-		esac
-	    fi
+		    fi
+		    ;;
+	    esac
+	fi
 	;;
-    esac
+esac
 
 case "$ldlibpthname" in
     '') ldlibpthname=LIBPATH ;;
-    esac
+esac
 
 # AIX 4.2 (using latest patchlevels on 20001130) has a broken bind
 # library (getprotobyname and getprotobynumber are outversioned by
@@ -295,9 +295,9 @@ case "`oslevel`" in
 	        shift
 	        libswanted="$*"
 	        ;;
-	    esac
+	esac
         ;;
-    esac
+esac
 
 # This script UU/usethreads.cbu will get 'called-back' by Configure
 # after it has prompted the user for whether to use threads.
@@ -330,7 +330,7 @@ case "$usethreads" in
 
 		case "`oslevel`" in
 		    4.2.1.*) i_crypt='undef' ;;
-		    esac
+		esac
 		;;
 	    '')
 		cc=cc_r
@@ -343,7 +343,7 @@ case "$usethreads" in
 EOM
 		exit 1
 		;;
-	    esac
+	esac
 
 	# c_rify libswanted.
 	set `echo X "$libswanted "| sed -e 's/ \([cC]\) / \1_r /g'`
@@ -363,7 +363,7 @@ EOM
 	shift
 	lddlflags="$*"
 	;;
-    esac
+esac
 EOCBU
 
 # This script UU/uselargefiles.cbu will get 'called-back' by Configure
@@ -381,7 +381,7 @@ ldflags_uselargefiles="`getconf XBS5_LP64_OFF64_LDFLAGS 2>/dev/null`"
 # Keep these at the left margin.
 ccflags_uselargefiles="`getconf XBS5_ILP32_OFFBIG_CFLAGS 2>/dev/null`"
 ldflags_uselargefiles="`getconf XBS5_ILP32_OFFBIG_LDFLAGS 2>/dev/null`"
-	    fi
+	fi
 
 	# _Somehow_ in AIX 4.3.1.0 the above getconf call manages to
 	# insert(?) *something* to $ldflags so that later (in Configure) evaluating
@@ -400,7 +400,7 @@ libswanted_uselargefiles="`getconf XBS5_LP64_OFF64_LIBS 2>/dev/null|sed -e 's@^-
 	else
 # Keep this at the left margin.
 libswanted_uselargefiles="`getconf XBS5_ILP32_OFFBIG_LIBS 2>/dev/null|sed -e 's@^-l@@' -e 's@ -l@ @g'`"
-	    fi
+	fi
 
 	case "$ccflags_uselargefiles$ldflags_uselargefiles$libs_uselargefiles" in
 	    '') ;;
@@ -408,7 +408,7 @@ libswanted_uselargefiles="`getconf XBS5_ILP32_OFFBIG_LIBS 2>/dev/null|sed -e 's@
 	        ldflags="$ldflags $ldflags_uselargefiles"
 	        libswanted="$libswanted $libswanted_uselargefiles"
 	        ;;
-	    esac
+	esac
 
 	case "$gccversion" in
 	    '') ;;
@@ -425,9 +425,9 @@ libswanted_uselargefiles="`getconf XBS5_ILP32_OFFBIG_LIBS 2>/dev/null|sed -e 's@
 	        echo >&4 "(using ldflags   $ldflags)"
 	        echo >&4 "(using lddlflags $lddlflags)"
 	        ;;
-	    esac
+        esac
 	;;
-    esac
+esac
 EOCBU
 
 # This script UU/use64bitint.cbu will get 'called-back' by Configure
@@ -443,9 +443,9 @@ You should upgrade to at least AIX 4.3.
 EOM
 		exit 1
 		;;
-	    esac
+	esac
 	;;
-    esac
+esac
 EOCBU
 
 cat > UU/use64bitall.cbu <<'EOCBU'
@@ -461,7 +461,7 @@ You should upgrade to at least AIX 4.3.
 EOM
 		exit 1
 		;;
-	    esac
+	esac
 	echo " "
 	echo "Checking the CPU width of your hardware..." >&4
 	$cat >size.c <<EOCP
@@ -484,7 +484,7 @@ EOCP
 	    rp="What is the width of your CPU (in bits)?"
 	    . ./myread
 	    qacpuwidth="$ans"
-	    fi
+	fi
 	$rm -f size.c size
 	case "$qacpuwidth" in
 	    32*)
@@ -494,7 +494,7 @@ full 64-bit build on a 64-bit machine.
 EOM
 		exit 1
 		;;
-	    esac
+	esac
 
 	qacflags="`getconf XBS5_LP64_OFF64_CFLAGS 2>/dev/null`"
 	qaldflags="`getconf XBS5_LP64_OFF64_LDFLAGS 2>/dev/null`"
@@ -529,14 +529,14 @@ EOM
 	        lddlflags="$qaldflags $lddlflags"
 	        libswanted="$libswanted $qalibs"
 	        ;;
-	    esac
+	esac
 	case "$ccflags" in
 	    *-DUSE_64_BIT_ALL*) ;;
 	    *) ccflags="$ccflags -DUSE_64_BIT_ALL";;
-	    esac
+	esac
 	case "$archname64" in
 	    ''|64*) archname64=64all ;;
-	    esac
+	esac
 	longsize="8"
 	qacflags=''
 	qaldflags=''
@@ -551,7 +551,7 @@ if test $usenativedlopen = 'true' ; then
     case "$cc" in
         *gcc*) ldflags="$ldflags -Wl,-brtl" ;;
         *)     ldflags="$ldflags -brtl" ;;
-        esac
+    esac
 else
     case `oslevel` in
 	4.2.*)	;;	# libC_r has broke gettimeofday
@@ -570,15 +570,15 @@ else
 		set `echo X "$lddlflags "| sed -e 's/ -lc / -lC -lc /'`
 		shift
 		lddlflags="$*"
-		fi
-	esac
-    fi
+	    fi
+    esac
+fi
 
 case "$PASE" in
     define)
 	case "$prefix" in
 	    '') prefix=/QOpenSys/perl ;;
-	    esac
+	esac
 	cat >&4 <<EOF
 
 ***
@@ -603,8 +603,10 @@ EOF
 	# lots of grief will issue forth from Cwd.
 	case "$d_fchdir" in
 	    '') d_fchdir="$undef" ;;
-	    esac
+	esac
 	;;
-    esac
+esac
+
+arflags=qv
 
 # EOF

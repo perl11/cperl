@@ -20,14 +20,14 @@ alignbytes=8
 
 case "$usemymalloc" in
     '')  usemymalloc='n' ;;
-    esac
+esac
 
 # Intuiting the existence of system calls under AIX is difficult,
 # at best; the safest technique is to find them empirically.
 
 case "$usenm" in
     '') usenm='undef'
-    esac
+esac
 
 so="a"
 # AIX itself uses .o (libc.o) but we prefer compatibility
@@ -47,7 +47,7 @@ You should upgrade to at least AIX 4.3.
 EOM
 	exit
 	;;
-    esac
+esac
 
 case "$usemorebits" in
 if [ "$OBJECT_MODE"  = "64" ] then
@@ -57,12 +57,12 @@ You have OBJECT_MODE=64 set in the environment.
 This would force a full 64-bit build, but AIX 3
 does not support 64bit.
 EOF
-    fi
+fi
 
 # uname -m output is too specific and not appropriate here
 case "$archname" in
     '') archname="$osname" ;;
-    esac
+esac
 
 cc=${cc:-cc}
 d_fchmod='undef'
@@ -92,7 +92,7 @@ case "$cc" in
         if [ "X$gccversion" = "X" ]; then
 	    # Done too late in Configure if hinted
 	    gccversion=`$cc -dumpversion`
-	    fi
+	fi
         ;;
 
     *)  ccversion=`lslpp -L | grep 'C for AIX Compiler$' | grep -v '\.msg\.[A-Za-z_]*\.' | head -1 | awk '{print $1,$2}'`
@@ -113,15 +113,15 @@ case "$cc" in
 				cc_type=vac
 				fi
 			    rm -f reflect
-			    fi
+			fi
 			;;
-		    esac
+		esac
 		ccversion=`lslpp -L | grep 'C for AIX Compiler$' | grep -i $cc_type | head -1`
 		;;
 	    vac*.*.*.*)
 		cc_type=vac
 		;;
-	    esac
+	esac
 
 	ccversion=`echo "$ccversion" | awk '{print $2}'`
 	case "$ccversion" in
@@ -161,8 +161,8 @@ EOF
 EOF
 regcomp_cflags='optimize='
 		;;
-	    esac
-    esac
+	esac
+esac
 # the required -bE:$installarchlib/CORE/perl.exp is added by
 # libperl.U (Configure) later.
 
@@ -181,8 +181,8 @@ case $cc_type in
 		libswanted="c128 $libswanted"
 		lddlflags=`echo "$lddlflags " | sed -e 's/ -lc / -lc128 -lc /'`
 		;;
-	    esac
-    esac
+	esac
+esac
 
 case "$cc" in
     *gcc*) ;;
@@ -203,16 +203,16 @@ case "$cc" in
 ***
 EOF
 		       exit 1
-		       fi 
+		   fi 
 		   ;;
-		esac
-	    fi
+	    esac
+	fi
 	;;
-    esac
+esac
 
 case "$ldlibpthname" in
     '') ldlibpthname=LIBPATH ;;
-    esac
+esac
 
 # This script UU/usethreads.cbu will get 'called-back' by Configure 
 # after it has prompted the user for whether to use threads.
@@ -291,21 +291,21 @@ ldflags_uselargefiles="`getconf XBS5_LP64_OFF64_LDFLAGS 2>/dev/null`"
 # Keep these at the left margin.
 ccflags_uselargefiles="`getconf XBS5_ILP32_OFFBIG_CFLAGS 2>/dev/null`"
 ldflags_uselargefiles="`getconf XBS5_ILP32_OFFBIG_LDFLAGS 2>/dev/null`"
-	    fi
+	fi
 	if test X"$use64bitint:$quadtype" = X"$define:long" -o X"$use64bitall" = Xdefine; then
 # Keep this at the left margin.
 libswanted_uselargefiles="`getconf XBS5_LP64_OFF64_LIBS 2>/dev/null|sed -e 's@^-l@@' -e 's@ -l@ @g'`"
 	else
 # Keep this at the left margin.
 libswanted_uselargefiles="`getconf XBS5_ILP32_OFFBIG_LIBS 2>/dev/null|sed -e 's@^-l@@' -e 's@ -l@ @g'`"
-	    fi
+	fi
 	case "$ccflags_uselargefiles$ldflags_uselargefiles$libs_uselargefiles" in
 	    '') ;;
 	    *)  ccflags="$ccflags $ccflags_uselargefiles"
 	        ldflags="$ldflags $ldflags_uselargefiles"
 	        libswanted="$libswanted $libswanted_uselargefiles"
 	        ;;
-	    esac
+        esac
 	case "$gccversion" in
 	    '') ;;
 	    *)  # Remove xlc-specific -qflags.
@@ -330,7 +330,7 @@ if test $usenativedlopen = 'true' ; then
     case "$cc" in
         *gcc*) ldflags="$ldflags -Wl,-brtl" ;;
         *)     ldflags="$ldflags -brtl" ;;
-        esac
+    esac
 else
     # If the C++ libraries, libC and libC_r, are available we will
     # prefer them over the vanilla libc, because the libC contain
@@ -347,7 +347,9 @@ else
 	set `echo X "$lddlflags "| sed -e 's/ -lc / -lC -lc /'`
 	shift
 	lddlflags="$*"
-	fi
     fi
+fi
+
+arflags=qv
 
 # EOF

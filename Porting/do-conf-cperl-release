@@ -30,9 +30,9 @@ destdir=$dir/../../cperl-$ver-inst
 test -d $destdir && rm -rf $destdir
 
 if [ -n $PERL_NO_FULLTEST ]; then
-    make -s test-porting && make install DESTDIR=$destdir
+    make -s test-porting && make install-strip DESTDIR=$destdir
 else
-    make -s test && make install DESTDIR=$destdir
+    make -s test && make install-strip DESTDIR=$destdir
 fi
 
 pushd $destdir
