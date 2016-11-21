@@ -5378,9 +5378,17 @@
 #define	PERL_HASH_FUNC_FNV1A	/**/
 #endif
 
+/* PERL_BUILD_DATE:
+ *	This symbol defines the date of the newest source file, needed
+ *      for reproducible builds.
+ */
+#ifndef PERL_BUILD_DATE
+#define PERL_BUILD_DATE "Thu Jan  1 00:00:00 GMT 1970"
+#endif
+
 #endif
 
 /* Generated from:
- * 631433b55a934355f55f202718d69e3d606d90bd2c507c54ce2932a7a33b054d config_h.SH
+ * 814cc333c0e23f2691895fa3f233c0133ca30e665131f05c81b4e40ea5c58982 config_h.SH
  * 3a2fdfafabd2b6647a283bffb4e5250c332b438022fd1503f815c037ac5eace7 uconfig.sh
  * ex: set ro: */

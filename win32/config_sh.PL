@@ -91,6 +91,8 @@ else {
     $opt{osvers} = '4.0';
 }
 
+#TODO: cf_time
+
 if (exists $opt{cc}) {
     # cl version detection borrowed from Test::Smoke's configsmoke.pl
     if ($opt{cc} =~ /\b(?:cl|icl)/) { #MSVC can come as clarm.exe, icl=Intel C

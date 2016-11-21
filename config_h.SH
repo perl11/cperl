@@ -5413,6 +5413,14 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #define	PERL_HASH_FUNC_${hash_func}	/**/
 #endif
 
+/* PERL_BUILD_DATE:
+ *	This symbol defines the date of the newest source file, needed
+ *      for reproducible builds.
+ */
+#ifndef PERL_BUILD_DATE
+#define PERL_BUILD_DATE "$cf_time"
+#endif
+
 #endif
 !GROK!THIS!
 ;;

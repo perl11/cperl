@@ -472,6 +472,13 @@ INST_COREDIR	= $(INST_ARCHLIB)\CORE
 INST_HTML	= $(INST_TOP)$(INST_VER)\html
 
 #
+# For reproducible builds
+#
+
+LC_ALL=C
+PERL_HASH_SEED=0
+
+#
 # Programs to compile, build .lib files and link
 #
 

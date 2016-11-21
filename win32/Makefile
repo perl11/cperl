@@ -425,6 +425,13 @@ MINIDELAYLOAD	= -DELAYLOAD:advapi32.dll
 !ENDIF
 !ENDIF
 
+#
+# For reproducible builds
+#
+
+LC_ALL=C
+PERL_HASH_SEED=0
+
 # Visual C++ 2005 and 2008 (VC++ 8.0 and 9.0) create manifest files for EXEs and
 # DLLs. These either need copying everywhere with the binaries, or else need
 # embedding in them otherwise MSVCR80.dll or MSVCR90.dll won't be found. For

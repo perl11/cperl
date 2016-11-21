@@ -15,7 +15,6 @@ export STRIP = $(CROSS)strip
 export AR = $(CROSS)ar
 export RANLIB = $(CROSS)ranlib
 
-
 ## Optimisation work
 ifeq ($(ARCH),arm)
  ifdef CONFIG_TARGET_ARM_SA11X0

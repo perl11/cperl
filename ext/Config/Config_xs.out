@@ -265,7 +265,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1271
+#define TOTAL_KEYWORDS 1272
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 30
 #define MIN_HASH_VALUE 3
@@ -924,6 +924,7 @@ struct stringpool_t
     char stringpool_str1955[sizeof ("sitelibexp")];
     char stringpool_str1957[sizeof ("i_gdbm")];
     char stringpool_str1960[sizeof ("d_llroundl")];
+    char stringpool_str1970[sizeof ("cf_epoch")];
     char stringpool_str1981[sizeof ("d_siginfo_si_status")];
     char stringpool_str1983[sizeof ("d_vendorbin")];
     char stringpool_str1984[sizeof ("usedtrace")];
@@ -2198,6 +2199,7 @@ static const struct stringpool_t stringpool_contents =
     "sitelibexp",
     "i_gdbm",
     "d_llroundl",
+    "cf_epoch",
     "d_siginfo_si_status",
     "d_vendorbin",
     "usedtrace",
@@ -4426,8 +4428,10 @@ Config_lookup (register const char *str, register unsigned int len)
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1960,		T_INV,0,ALN64I"@@d_llroundl@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1970,		T_INV,0,ALN64I"@@cf_epoch@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO},
+      {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str1981,	T_INV,0,ALN64I"@@d_siginfo_si_status@@"},
       {XSCNO},
@@ -6861,7 +6865,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str8644,	T_INV,0,ALN64I"@@known_extensions@@"}
     };
 
-#line 6864 "Config.xs"
+#line 6868 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

@@ -4871,4 +4871,12 @@
 #define	PERL_HASH_FUNC_FNV1A	/**/
 #endif
 
+/* PERL_BUILD_DATE:
+ *	This symbol defines the date of the newest source file, needed
+ *      for reproducible builds.
+ */
+#ifndef PERL_BUILD_DATE
+#define PERL_BUILD_DATE "$cf_time"
+#endif
+
 #endif

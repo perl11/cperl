@@ -373,6 +373,11 @@ STARTOBJS  = $(CECONSOLEDIR)/$(MACHINE)/wmain.obj \
 ######################################################################
 # common section
 
+# For reproducible builds
+
+LC_ALL=C
+PERL_HASH_SEED=0
+
 CEDEFS    = -D_WINDOWS -D_WIN32_WCE=$(CEVersion) -DUNDER_CE=$(CEVersion) \
             $(MCFLAGS) -D PERL
 

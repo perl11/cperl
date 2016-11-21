@@ -366,6 +366,7 @@ locincpth=''
 optimize=''
 cf_email=''
 cf_by=''
+cf_epoch=''
 cf_time=''
 charbits=''
 charsize=''
@@ -3889,8 +3890,44 @@ esac
 
 . ./posthint.sh
 
+: reproducible builds
+echo " "
+if [ "x$SOURCE_DATE_EPOCH" != "x" ]; then
+    echo "cf_time from SOURCE_DATE_EPOCH" >&4
+    cf_epoch=$SOURCE_DATE_EPOCH
+    cf_time=`LC_ALL=C LANGUAGE=C $date -u -d "@$cf_epoch" 2>&1 || LC_ALL=C LANGUAGE=C $date -u -r "$cf_epoch" 2>&1`
+elif [ -d $rsrc/.git ]; then
+    tmppwd=`pwd`
+    cd $rsrc || exit
+    cf_file=$(ls -t `git ls-tree --full-tree -r --name-only HEAD` | head -n1)
+    echo "cf_time from newest git file $cf_file" >&4
+    cf_epoch=`$date -r $cf_file +%s 2>&1`
+    cd $tmppwd || exit
+    cf_time=`LC_ALL=C LANGUAGE=C $date -u -d "@$cf_epoch" 2>&1 || LC_ALL=C LANGUAGE=C $date -u -r "$cf_epoch" 2>&1`
+elif [ -f $rsrc/MANIFEST ]; then
+    # from tar
+    tmppwd=`pwd`
+    cd $rsrc || exit
+    cf_file=$(ls -t `awk '{print $1}' $rsrc/MANIFEST` | head -n1)
+    echo "cf_time from newest MANIFEST file $cf_file" >&4
+    cf_epoch=`$date -r $cf_file +%s 2>&1`
+    cd $tmppwd || exit
+    cf_time=`LC_ALL=C LANGUAGE=C $date -u -d "@$cf_epoch" 2>&1 || LC_ALL=C LANGUAGE=C $date -u -r "$cf_epoch" 2>&1`
+else
+    echo "cf_time from current date" >&4
+    cf_epoch=`$date +%s 2>&1`
+    cf_time=`LC_ALL=C; LANGUAGE=C; export LC_ALL; export LANGUAGE; $date 2>&1`
+fi
+case "$cf_time" in
+*date*)
+    # error. probably empty cf_epoch
+    echo "cf_time error calling date with cf_epoch=$cf_epoch" >&4
+    cf_epoch=`$date +%s 2>&1`
+    cf_time=`LC_ALL=C; LANGUAGE=C; export LC_ALL; export LANGUAGE; $date 2>&1`
+    ;;
+esac
+echo "cf_epoch=$cf_epoch cf_time=$cf_time" >&4
 : who configured the system
-cf_time=`LC_ALL=C; LANGUAGE=C; export LC_ALL; export LANGUAGE; $date 2>&1`
 case "$cf_by" in
 "")
 	cf_by=`(logname) 2>/dev/null`
@@ -24651,6 +24688,7 @@ ccsymbols='$ccsymbols'
 ccversion='$ccversion'
 cf_by='$cf_by'
 cf_email='$cf_email'
+cf_epoch='$cf_epoch'
 cf_time='$cf_time'
 charbits='$charbits'
 charsize='$charsize'

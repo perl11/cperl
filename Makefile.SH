@@ -436,6 +436,14 @@ INSTALLPREFIXEXP = $prefix
 # $installusrbinperl
 # $versiononly
 
+$spitshell >>$Makefile <<EOF
+
+# For reproducible builds
+
+LC_ALL=C
+PERL_HASH_SEED=0
+EOF
+
 case "${osname}:${osvers}" in
 darwin:*)
 $spitshell >>$Makefile <<EOF
@@ -445,7 +453,6 @@ $spitshell >>$Makefile <<EOF
 # perl: warning: Setting locale failed.
 # warnings during the build process we reset the locale variables.
 
-LC_ALL=C
 LANG=C
 LANGUAGE=C
 EOF
