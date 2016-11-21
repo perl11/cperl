@@ -17,7 +17,7 @@ my $COMPAT185 = "" ;
 ParseCONFIG() ;
 
 my @files = ('DB_File.pm', glob "t/*.t") ;
-UpDowngrade(@files);
+UpDowngrade(@files) unless $ENV{PERL_CORE};
 
 if (defined $DB_NAME)
   { $LIBS = $DB_NAME }
