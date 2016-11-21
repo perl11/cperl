@@ -15,9 +15,11 @@ B-C/cccode*
 B-C/lib/B/C/
 B-C/pcc.plc
 B-C/script/perlcc
+B-C/lib/B/Asmdata.pm
 DB_File/dbr*
 Devel-NYTProf/t/nytprof-50-errno.out
 Devel-NYTProf/t/nytprof_readstream.out
 Term-ReadKey/cchars.h
 Term-ReadKey/ReadKey.pm
+Term-ReadKey/blockoptions
 YAML-LibYAML/t/output/

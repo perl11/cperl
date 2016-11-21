@@ -146,7 +146,6 @@ cpan/B-C/cc_runtime.h
 cpan/B-C/C.xs				B::C XS - workaround various B limitations and bugs
 cpan/B-C/hints/darwin.pl
 cpan/B-C/hints/openbsd.pl
-cpan/B-C/lib/B/Asmdata.pm		B::Bytecode - assembler ops
 cpan/B-C/lib/B/Assembler.pm		B::Bytecode - assemble to bytecode
 cpan/B-C/lib/B/Bblock.pm		B::CC - basic blocks
 cpan/B-C/lib/B/Bytecode.pm		B::Bytecode - the bytecode compiler
