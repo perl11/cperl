@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cd /usr/src/perl/blead/cperl
+ver=$(../perl_version)
+
+mkdir ../cperl-${ver}-build 2>/dev/null \
+    || rm -rf ../cperl-${ver}-build ../cperl-${ver} 
+cp -frp .git ../cperl-${ver}-build/
+cd ../cperl-${ver}-build
+git reset --hard
+git clean -dxf
+#cp ../cperl/Porting/makerel Porting/
+perl Porting/makerel -bx

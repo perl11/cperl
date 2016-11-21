@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+my $fn = -f "patchlevel.h" ? "patchlevel.h" : "../patchlevel.h";
+open my $f, $fn or die;
+my $ver = "24";
+while (defined($_ = <$f>)) {
+    if (m/^#define\s+PERL_VERSION\s+(\d+)/) {
+        $ver = $1;
+    }
+    if (m/^#define\s+PERL_SUBVERSION\s+(\d+)/) { 
+        print "5.$ver.$1"; exit;
+    }
+}

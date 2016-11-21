@@ -5163,6 +5163,10 @@ Porting/corelist-diff		Tool to produce corelist diffs
 Porting/corelist-perldelta.pl	Generates data perldelta from Module::CoreList
 Porting/corelist.pl		Generates data for Module::CoreList
 Porting/deparse-skips.txt	List of test files to ignore/skip for deparse tests.
+Porting/do-conf-clean		Build helper script to clean all
+Porting/do-conf-cperl-release	Build helper script to build a binary release
+Porting/do-make-cperl-release	Build helper script to package a binary release
+Porting/do-make-srctarball	Build helper script to package a src tarball
 Porting/epigraphs.pod		the release epigraphs used over the years
 Porting/exec-bit.txt		List of files that get +x in release tarball
 Porting/exercise_makedef.pl	Brute force testing for makedef.pl
@@ -5189,12 +5193,13 @@ Porting/manisort		Sort the MANIFEST
 Porting/new-perldelta.pl	Generate a new perldelta
 Porting/newtests-perldelta.pl	Generate Perldelta stub for newly added tests
 Porting/perldelta_template.pod	Template for creating new perldelta.pod files
-Porting/perlhist_calculate.pl		Perform calculations to update perlhist
+Porting/perlhist_calculate.pl	Perform calculations to update perlhist
+Porting/perl_version		Build helper script to return the current version
 Porting/pod_lib.pl		Code for handling generated pods
 Porting/pod_rules.pl		generate lists of pod files for Makefiles
 Porting/podtidy			Reformat pod using Pod::Tidy
 Porting/pumpkin.pod		Guidelines and hints for Perl maintainers
-Porting/README.pod			Outline of contents of Porting directory
+Porting/README.pod		Outline of contents of Porting directory
 Porting/README.y2038		Perl notes for the 2038 fix
 Porting/release_announcement_template.txt
 Porting/release_cperl.pod	cperl Release Manager's Guide
@@ -5205,7 +5210,7 @@ Porting/sort_perldiag.pl	Keep our diagnostics orderly
 Porting/sync-with-cpan		Sync with CPAN
 Porting/timecheck2.c		Test program for the 2038 fix
 Porting/timecheck.c		Test program for the 2038 fix
-Porting/todo.pod		Perl things to do
+Porting/todo.pod		p5p things to do
 Porting/valgrindpp.pl		Summarize valgrind reports
 pp.c				Push/Pop code
 pp_ctl.c			Push/Pop code for control flow

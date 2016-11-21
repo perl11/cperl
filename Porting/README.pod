@@ -137,6 +137,24 @@ Generates info for Module::CoreList from this perl tree.
 
 List of test files to ignore/skip for deparse tests.
 
+=head2 F<do-conf-clean>
+
+Build helper script to clean all. Called by F<do-conf-cperl-release>.
+
+=head2 F<do-conf-cperl-release>
+
+Build helper script to build a binary release.
+
+=head2 F<do-make-cperl-release>
+
+Build helper script to package a binary release package, built with
+F<do-conf-cperl-release>.
+Add an optional revision argument.
+
+=head2 F<do-make-srctarball>
+
+Build helper script to package a src tarball.
+
 =head2 F<epigraphs.pod>
 
 List of Perl release epigraphs.
@@ -264,6 +282,12 @@ Template for F<perldelta>.
 =head2 F<perlhist_calculate.pl>
 
 Generates info for F<perlhist> from this perl tree.
+
+=head2 F<perl_version>
+
+Build helper script to return the perl version from F<patchlevel.h>.
+Called by F<do-conf-cperl-release>, F<do-make-cperl-release> and
+F<do-make-srctarball>.
 
 =head2 F<pod_lib.pl>
 

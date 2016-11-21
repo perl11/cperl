@@ -59,6 +59,11 @@ Porting/config_h.pl
 Porting/corecpan.pl
 Porting/corelist-perldelta.pl
 Porting/corelist.pl
+Porting/do-conf-clean
+Porting/do-conf-cperl-release
+Porting/do-make-cperl-release
+Porting/do-make-srctarball
+Porting/perl_version
 Porting/expand-macro.pl
 Porting/findrfuncs
 Porting/makerel

@@ -1,0 +1,93 @@
+#!/bin/sh
+# requires the ruby package fpm, installs into /usr/local
+dir=`dirname $0`
+ver=$($dir/perl_version)
+rev=${1:-1}
+
+PERL_MM_USE_DEFAULT=1
+sh $dir/do-conf-cperl-release >$dir/../log.conf-$ver-$rev 2>&1
+destdir=cperl-$ver-inst
+curdir=`pwd`
+builddate=`perl -ne'/^cf_time=.(.*).$/ and print $1' $dir/../config.sh`
+cd $dir/../..
+find $destdir -depth -newermt "$builddate" -print0 | \
+    xargs -0r touch --no-dereference --date="$builddate"
+
+case `uname` in
+Darwin)
+    ext=pkg
+    pkg=cperl-$ver-$rev.$ext
+    fpm -s dir -t osxpkg -v $ver-$rev \
+        -n cperl \
+        -m 'rurban@cpanel.net' \
+        --vendor 'perl11.org' \
+        --url 'http://perl11.org/cperl/' \
+        --description 'a perl5 with classes, types, compiler support, company-friendly.' \
+        -C $destdir .
+    ;;
+Linux)
+    if [ -f /etc/redhat-release ]; then
+        arch=`uname -m`
+        ext=rpm
+        fpm -s dir -t rpm -n cperl -v $ver --iteration $rev --epoch '' -a $arch \
+            -m 'rurban@cpanel.net' \
+            -d 'zlib' -d bzip2-libs -d 'gdbm' -d 'libdb4' \
+            --url http://perl11.org/cperl/rpm/ \
+            --description 'a perl5 with classes, types, compiler support, company-friendly.' \
+            -C $destdir .
+        pkg=cperl-$ver-$rev-$arch.$ext
+    else
+        case "`grep Debian /etc/issue 2>/dev/null`" in
+            *Debian*)
+                case `uname -m` in
+                    x86_64) arch=amd64 ;;
+                    *) arch=`uname -m` ;;
+                esac
+                ext=deb
+                pkg=cperl_${ver}-${rev}_${arch}.$ext
+                fpm -s dir -t deb -n cperl -v $ver-$rev -a $arch \
+                    -m 'rurban@cpanel.net' \
+                    -d 'zlib1g >= 1:1.2.2.3' -d libbz2-1.0 -d 'libgdbm3 >= 1.8.3' \
+                    -d 'libdb5.1' \
+                    --url http://perl11.org/deb/ \
+                    --deb-changelog cperl/pod/perlcdelta.pod \
+                    --description 'a perl5 with classes, types, compiler support, company-friendly.' \
+                    --deb-field 'Built-Using: gcc' \
+                    --deb-field 'Package-Type: deb' \
+                    --deb-no-default-config-files \
+                    --license 'Artistic 2' \
+                    -C $destdir .
+                ;;
+        esac
+    fi
+    # TODO: pacman, guix, ...
+    ;;
+SunOS)
+    ext=tar.gz
+    pkg=cperl-${ver}-${rev}.$ext
+    fpm -s dir -t solaris -v $ver-$rev \
+        -n cperl \
+        -m 'rurban@cpanel.net' \
+        --vendor 'perl11.org' \
+        --url 'http://perl11.org/cperl/' \
+        --description 'a perl5 with classes, types, compiler support, company-friendly.' \
+        -C $destdir .
+    ;;
+*BSD|DragonFly)
+    ext=tar.gz
+    pkg=cperl-${ver}-${rev}.$ext
+    fpm -s dir -t freebsd -v $ver-$rev \
+        -n cperl \
+        -m 'rurban@cpanel.net' \
+        --vendor 'perl11.org' \
+        --url 'http://perl11.org/cperl/' \
+        --description 'a perl5 with classes, types, compiler support, company-friendly.' \
+        -C $destdir .
+    ;;
+esac
+# no support for HP-UX, OSF1, ULTRIX, UWIN-W7, OS/390, IRIX64, AIX
+# GNU/kFreeBSD, GNU (Hurd), sn5176 (Cray), cygwin ... Do it manually there.
+# Windows/MINGW have different .bat files.
+
+sha1sum $pkg
+cd $curdir

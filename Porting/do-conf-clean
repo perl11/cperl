@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# before building blead or merge-upstream
+sudo -n chown `whoami` -R .
+make -C cpan/Encode clean
+make -j4 -s realclean ECHO=true
+
+rm {cpan,dist,ext}/*/Makefile {lib,cpan,dist,ext}/*/pm_to_blib
+rm -f lib/XSLoader.p* lib/DynaLoader.p* ext/Config/Config.xs
+rm -f lib/Config*.p*
+rm cpan/Time-Hires/xdefine
+rm {ext,cpan}/*/const-{c,xs}.inc
+rm -rf lib/auto
+find pod -type l -name perl5*\.pod -exec ls -lad {} \; -delete
+
+git clean -dxf dist/ cpan/
+git clean -dxn|egrep '^(pod|ext|cpan|dist|utils|t)/'|cut -c14-| xargs rm -rf
+git clean -dxn|egrep '\.(o|h)$' |cut -c14-| xargs rm
+#git clean -dxf dist/ExtUtils-Constant cpan/ExtUtils-Constant
+
+#rm ext/warnings/Makefile.PL 2>/dev/null
+#rm ext/Config/Makefile.PL 2>/dev/null
+rm ext/DynaLoader/DynaLoader.pm 2>/dev/null
+git checkout ext/DynaLoader/DynaLoader.pm 2>/dev/null
+if [ ! -f ext/attributes/attributes.pm ]; then rm -rf ext/attributes; fi
+if [ ! -f ext/warnings/warnings.pm ]; then rm -rf ext/warnings; fi
+if [ ! -f dist/XSLoader/XSLoader_pm.PL ]; then rm -rf dist/XSLoader; rm -f lib/{XS,Dyna}Loader.pm; fi
+#if [ ! -f ext/Config/Config.pm ]; then rm -rf ext/Config; fi
+
+#for m in {dist,ext,cpan}/*; do test -d $m && make -s -C $m clean 2>/dev/null; done
+rm Policy.sh config.sh config.h 2>/dev/null
+rm -rf UU .depending 2>/dev/null
+#rm pod/perl5222cdelta.pod
+#git co pod/perl5222cdelta.pod
+if [ -f pod/perlcperl~.pod ]; then rm pod/perlcperl~.pod; fi

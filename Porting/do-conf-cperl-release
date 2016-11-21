@@ -1,0 +1,48 @@
+#!/bin/bash
+PERL_MM_USE_DEFAULT=1
+dir=`dirname $0`
+sh $dir/do-conf-clean
+
+ver=`$dir/perl_version`
+prefix="/usr/local"
+
+# odd or even
+case $ver in
+5\..[02468]\.*) usedevel="" ;;
+*)              usedevel="-Dusedevel" ;;
+esac
+
+# we put our clashing utils into scriptdir.
+# for fully reproducible builds across machines also set
+#   cf_by, cf_email, mydomain, myhostname, myuname.
+./Configure -sder -Dcc=gcc -Dprefix="$prefix" $usedevel \
+            -Dsitebin="$prefix/lib/cperl/site_cperl/$ver/bin" \
+            -Dscriptdir="$prefix/lib/cperl/$ver/bin" \
+            -Dcf_by='rurban' -Dcf_email='rurban@cpanel.net' \
+            -Uusethreads -Doptimize='-O3' $@
+
+sed -i -e's,-fstack-protector-strong,-fstack-protector,' config.sh Makefile cflags
+touch config.h
+make -s git_version.h ECHO=true
+make -s -j4 ECHO=true
+
+destdir=$dir/../../cperl-$ver-inst
+test -d $destdir && rm -rf $destdir
+
+if [ -n $PERL_NO_FULLTEST ]; then
+    make -s test-porting && make install DESTDIR=$destdir
+else
+    make -s test && make install DESTDIR=$destdir
+fi
+
+pushd $destdir
+pre=${prefix:1}
+# change hardlink into symlink, copy cperl* to /usr/bin, rm perl
+rm $pre/bin/perl
+for f in perldoc perlivp; do
+  rm $pre/bin/c$f 2>/dev/null
+  rm $pre/lib/cperl/$ver/bin/$f 2>/dev/null
+  ln -s ../lib/cperl/$ver/bin/c$f $pre/bin/c$f
+  ln -s c$f $pre/lib/cperl/$ver/bin/$f
+done
+popd

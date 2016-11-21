@@ -348,14 +348,33 @@ L<[cperl #217]|https://github.com/perl11/cperl/issues/217>.
 
 =head1 Configuration and Compilation
 
-XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
-go here.  Any other changes to the Perl build process should be listed here.
-However, any platform-specific changes should be listed in the
-L</Platform Support> section, instead.
-
-[ List changes as a =item entry ].
-
 =over 4
+
+=item cperl build helper scripts
+
+Added the following release scripts to F<Porting:> F<do-conf-clean>
+F<do-conf-cperl-release> F<do-make-cperl-release>
+F<do-make-srctarball> F<perl_version> for Linux (debian and rpm) and
+Darwin.
+
+Those builds are now reproducible, see below.
+
+=item reproducible builds
+
+cperl has now support for automatic reproducible builds on most platforms.
+A new B<cf_epoch> config key was added.
+
+The config key B<cf_time> is now based on: 1. SOURCE_DATE_EPOCH,
+2. with .git the newest file in the repository, or 3. the newest file
+in the MANIFEST.
+
+Builds are done with C<LC_ALL=C> and C<PERL_HASH_SEED=0>, but builds are still
+LANGUAGE or compiler specific.
+
+Those builds are reproducible when done on the same machine and user.
+Otherwise set the keys: cf_by, cf_email, mydomain, myhostname, myuname also.
+
+See L<[cperl #169]|https://github.com/perl11/cperl/issues/169>.
 
 =item passcat
 

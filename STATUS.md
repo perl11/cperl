@@ -113,7 +113,8 @@ For all versions see [bench-all/](bench-all/index.html)
   Since 5.25.2 such security warnings are logged at STDERR/syslog with the
   remote user/IP.
 * Support clang LTO "link time optimizations", using proper linkage attributes.
-  -fsanitize=cfi instead of -fstack-protector not yet. 
+  -fsanitize=cfi instead of -fstack-protector not yet.
+* Reproducible builds
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
