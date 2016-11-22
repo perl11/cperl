@@ -236,7 +236,7 @@ do_test('reference to scalar',
         \$a,
 'SV = $RV\\($ADDR\\) at $ADDR
   REFCNT = 1
-  FLAGS = \\(ROK\\)
+  FLAGS = \(ROK\)
   RV = $ADDR
   SV = PV\\($ADDR\\) at $ADDR
     REFCNT = 2
@@ -260,27 +260,26 @@ if ($type eq 'N') {
   $c_pattern = '
     SV = IV\\($ADDR\\) at $ADDR
       REFCNT = 1
-      FLAGS = \\(IOK,pIOK\\)
+      FLAGS = \(IOK,pIOK\)
       IV = 456';
 }
 do_test('reference to array',
        [$b,$c],
 'SV = $RV\\($ADDR\\) at $ADDR
   REFCNT = 1
-  FLAGS = \\(ROK\\)
+  FLAGS = \(ROK\)
   RV = $ADDR
   SV = PVAV\\($ADDR\\) at $ADDR
     REFCNT = 1
-    FLAGS = \\(\\)
+    FLAGS = 0x4000000b \(REAL\)
     ARRAY = $ADDR
     FILL = 1
     MAX = 1
     ARYLEN = 0x0
-    FLAGS = \\(REAL\\)
     Elt No. 0
     SV = IV\\($ADDR\\) at $ADDR
       REFCNT = 1
-      FLAGS = \\(IOK,pIOK\\)
+      FLAGS = \(IOK,pIOK\)
       IV = 123
     Elt No. 1' . $c_pattern);
 
@@ -1003,12 +1002,11 @@ do_test('large hash',
 do_test('Dump @array', '@array', <<'ARRAY', '', '', 1);
 SV = PVAV\($ADDR\) at $ADDR
   REFCNT = 1
-  FLAGS = \(\)
+  FLAGS = 0x4000000b \(REAL\)
   ARRAY = $ADDR
   FILL = 2
   MAX = 3
   ARYLEN = 0x0
-  FLAGS = \(REAL\)
   Elt No. 0
   SV = IV\($ADDR\) at $ADDR
     REFCNT = 1
@@ -1029,12 +1027,11 @@ ARRAY
 do_test('Dump @array,1', '@array,1', <<'ARRAY', '', '', 1);
 SV = PVAV\($ADDR\) at $ADDR
   REFCNT = 1
-  FLAGS = \(\)
+  FLAGS = 0x4000000b \(REAL\)
   ARRAY = $ADDR
   FILL = 2
   MAX = 3
   ARYLEN = 0x0
-  FLAGS = \(REAL\)
   Elt No. 0
   SV = IV\($ADDR\) at $ADDR
     REFCNT = 1
