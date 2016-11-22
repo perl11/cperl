@@ -85,7 +85,7 @@ my ($embed, $core, $ext, $api) = setup_embed();
 	my $binarycompat = ( $flags =~ /b/ );
 	my $commented_out = ( ! $binarycompat && $flags =~ /m/ );
 	my $is_malloc = ( $flags =~ /a/ );
-	my $can_ignore = ( $flags !~ /R/ ) && !$is_malloc;
+	my $can_ignore = ( $flags !~ /R/ ) && ( $flags !~ /P/ ) && !$is_malloc;
 
 	if (! $can_ignore && $retval eq 'void') {
 	    warn "It is nonsensical to require the return value of a void function ($plain_func) to be checked";
