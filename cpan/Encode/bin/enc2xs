@@ -469,7 +469,9 @@ sub compile_ucm
    $erep = $attr{'subchar'}; 
    $erep =~ s/^\s+//; $erep =~ s/\s+$//;
   }
- print "Reading $name ($cs)\n";
+ print "Reading $name ($cs)\n"
+   unless defined $ENV{MAKEFLAGS}
+      and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
  my $nfb = 0;
  my $hfb = 0;
  while (<$fh>)
