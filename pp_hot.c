@@ -4367,7 +4367,7 @@ PP(pp_entersub)
 	DIE(aTHX_ "Closure prototype called");
 
     if (UNLIKELY((PL_op->op_private & OPpENTERSUB_DB) && GvCV(PL_DBsub)
-            && !CvNODEBUG(cv)))
+                 && !CvNODEBUG(cv)))
     {
         get_db_sub(sv, cv);
         if (CvISXSUB(cv))
@@ -4450,10 +4450,13 @@ PP(pp_entersub)
                 SSize_t items = SP - MARK;
                 AV **defavp;
 
-                /* it's the responsibility of whoever leaves a sub to ensure
+                /* It's the responsibility of whoever leaves a sub to ensure
                  * that a clean, empty AV is left in pad[0]. This is normally
                  * done by cx_popsub() */
-                assert(!AvREAL(av) && AvFILLp(av) == -1);
+                if (LIKELY(!((PL_op->op_private & OPpENTERSUB_DB)
+                             && cv == GvCV(PL_DBsub)
+                             && !CvNODEBUG(cv))))
+                    assert(!AvREAL(av) && AvFILLp(av) == -1);
 
                 defavp = &GvAV(PL_defgv);
                 cx->blk_sub.savearray = *defavp;
@@ -4483,8 +4486,8 @@ PP(pp_entersub)
 	 * if they want to
 	 */
 	if (UNLIKELY(depth == PERL_SUB_DEPTH_WARN
-                && ckWARN(WARN_RECURSION)
-                && !(PERLDB_SUB && cv == GvCV(PL_DBsub))))
+                     && ckWARN(WARN_RECURSION)
+                     && !(PERLDB_SUB && cv == GvCV(PL_DBsub))))
 	    sub_crush_depth(cv);
 	RETURNOP(CvSTART(cv));
     }
@@ -4566,7 +4569,7 @@ PP(pp_enterxssub)
     }
 
     if (UNLIKELY((PL_op->op_private & OPpENTERSUB_DB) && GvCV(PL_DBsub)
-            && !CvNODEBUG(cv)))
+                 && !CvNODEBUG(cv)))
     {
 	 get_db_sub(sv, cv);
          PL_curcopdb = PL_curcop;

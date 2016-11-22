@@ -252,7 +252,7 @@ if ($type eq 'N') {
   $c_pattern = '
     SV = PVNV\\($ADDR\\) at $ADDR
       REFCNT = 1
-      FLAGS = \\(IOK,NOK,pIOK,pNOK\\)
+      FLAGS = \(IOK,NOK,pIOK,pNOK\)
       IV = 456
       NV = 456
       PV = 0';
