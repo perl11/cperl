@@ -268,7 +268,9 @@ IV
 Gv_AMG(stash)
     B::HV stash
 CODE:
-    XSRETURN_IV((!SvREADONLY(stash) && Gv_AMG(stash)) ? 1 : 0);
+    RETVAL = (!SvREADONLY(stash) && Gv_AMG(stash)) ? 1 : 0;
+OUTPUT:
+    RETVAL
 
 #if PERL_VERSION > 13
 
