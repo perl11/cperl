@@ -239,9 +239,14 @@ my @modules  = $all ? sort keys %Modules : (shift);
 
 for my $module (@modules) {
 
-  my $cpan_mod     = $module;
+  if (!exists $Modules{$module}) {
+    if ($module =~ /-/ && $module !~ /::/) {
+      $module =~ s/-/::/g;
+    }
+  }
   my $info         = $Modules{$module} or die "Cannot find module $module";
   my $distribution = $$info{DISTRIBUTION};
+  my $cpan_mod     = $module;
   next if $$info{FILES} !~ m{^(cpan|dist)/};
   next unless $distribution;
   my $prefix = $1;
