@@ -426,7 +426,7 @@ use File::Glob qw(:case);
     },
 
     'Cpanel::JSON::XS' => {
-        'DISTRIBUTION' => 'RURBAN/Cpanel-JSON-XS-3.0224.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Cpanel-JSON-XS-3.0225.tar.gz',
         'FILES'        => q[cpan/Cpanel-JSON-XS],
         'EXCLUDED'     => [
             '.travis.yml',
@@ -434,7 +434,7 @@ use File::Glob qw(:case);
             'eg/bench',
             't/30_jsonspec.t',
             qr{^t/z_},
-            qr{^t/test_(porting|transform)},
+            qr{^t/test_(parsing|transform)},
         ],
     },
 

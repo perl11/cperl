@@ -379,8 +379,8 @@ INLINE UV
 decode_utf8 (pTHX_ unsigned char *s, STRLEN len, int relaxed, STRLEN *clen)
 {
   if (LIKELY(len >= 2
-                   && IN_RANGE_INC (char, s[0], 0xc2, 0xdf)
-                   && IN_RANGE_INC (char, s[1], 0x80, 0xbf)))
+             && IN_RANGE_INC (char, s[0], 0xc2, 0xdf)
+             && IN_RANGE_INC (char, s[1], 0x80, 0xbf)))
     {
       *clen = 2;
       return ((s[0] & 0x1f) << 6) | (s[1] & 0x3f);
@@ -391,7 +391,7 @@ decode_utf8 (pTHX_ unsigned char *s, STRLEN len, int relaxed, STRLEN *clen)
    We accept only valid unicode, unless we are in the relaxed mode. */
 #if PERL_VERSION > 12
     UV c = utf8n_to_uvuni (s, len, clen,
-               UTF8_CHECK_ONLY | (relaxed ? 0 : UTF8_DISALLOW_SUPER));
+                           UTF8_CHECK_ONLY | (relaxed ? 0 : UTF8_DISALLOW_SUPER));
 #elif PERL_VERSION >= 8
     UV c = utf8n_to_uvuni (s, len, clen, UTF8_CHECK_ONLY);
 #endif
@@ -402,31 +402,70 @@ decode_utf8 (pTHX_ unsigned char *s, STRLEN len, int relaxed, STRLEN *clen)
 #if PERL_VERSION >= 8
     return c;
 #else
-    /* for perl 5.6 */
+    /* 5.6 does not detect certain ill-formed sequences, esp. overflows,
+       which are security relevant. so we add code to detect these. */
     UV c = utf8_to_uv(s, len, clen, UTF8_CHECK_ONLY);
-    if (c > PERL_UNICODE_MAX && !relaxed)
-      *clen = -1;
+    if (!relaxed) {
+      if (!c || c > PERL_UNICODE_MAX)
+        *clen = -1;
+      /* need to check manually for some overflows. 5.6 unicode bug */
+      else if (len >= 2
+               && IN_RANGE_INC (char, s[0], 0xc0, 0xfe)
+               && !IN_RANGE_INC (char, s[0], 0xc2, 0xdf)) {
+        U8 *s0, *send;
+        UV uv = *s;
+        UV expectlen = UTF8SKIP(s);
+
+#define UTF_CONTINUATION_MASK           ((U8) ((1U << 6) - 1))
+#define UTF_ACCUMULATION_OVERFLOW_MASK                          \
+        (((UV) UTF_CONTINUATION_MASK) << ((sizeof(UV) * 8) - 6))
+
+        s0 = s;
+        /*printf ("maybe overlong <%.*s> %d/%d %x %x\n", len, s, c,
+                  *clen, s[0], s[1]);*/
+        if (*clen > 4) {
+          *clen = -1;
+          return c;
+        }
+        send = (U8*) s0 + ((expectlen <= len) ? len : len);
+        for (s = s0 + 1; s < send; s++) {
+          if (LIKELY(UTF8_IS_CONTINUATION(*s))) {
+            if (uv & UTF_ACCUMULATION_OVERFLOW_MASK) {
+              /*printf ("overflow\n");*/
+              *clen = -1;
+              return c;
+	    }
+	    uv = UTF8_ACCUMULATE(uv, *s);
+          }
+	  else {
+            /*printf ("unexpected non continuation\n");*/
+            *clen = -1;
+            return c;
+          }
+	}
+      }
+    }
     return c;
 #endif
   }
 }
 
-/* likewise for encoding, also never called for ascii codepoints */
-/* this function takes advantage of this fact, although current gccs */
-/* seem to optimise the check for >= 0x80 away anyways */
+/* Likewise for encoding, also never called for ascii codepoints. */
+/* This function takes advantage of this fact, although current gcc's */
+/* seem to optimise the check for >= 0x80 away anyways. */
 INLINE unsigned char *
 encode_utf8 (unsigned char *s, UV ch)
 {
-  if      (UNLIKELY(ch < 0x000080))
+  if    (UNLIKELY(ch < 0x000080))
     *s++ = ch;
   else if (LIKELY(ch < 0x000800))
     *s++ = 0xc0 | ( ch >>  6),
     *s++ = 0x80 | ( ch        & 0x3f);
-  else if (              ch < 0x010000)
+  else if        (ch < 0x010000)
     *s++ = 0xe0 | ( ch >> 12),
     *s++ = 0x80 | ((ch >>  6) & 0x3f),
     *s++ = 0x80 | ( ch        & 0x3f);
-  else if (              ch < 0x110000)
+  else if        (ch < 0x110000)
     *s++ = 0xf0 | ( ch >> 18),
     *s++ = 0x80 | ((ch >> 12) & 0x3f),
     *s++ = 0x80 | ((ch >>  6) & 0x3f),
@@ -787,8 +826,8 @@ encode_str (pTHX_ enc_t *enc, char *str, STRLEN len, int is_utf8)
                       while (--clen);
                     }
                   else
-                    {
-                      need (aTHX_ enc, len += UTF8_MAXBYTES - 1); /* never more than 11 bytes needed */
+                    { /* never more than 11 bytes needed */
+                      need (aTHX_ enc, len += UTF8_MAXBYTES - 1);
                       enc->cur = (char*)encode_utf8 ((U8*)enc->cur, uch);
                       ++str;
                     }

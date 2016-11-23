@@ -163,9 +163,10 @@ Fix -Wc++11-compat warnings
 
 Fix -Wc++11-compat warnings
 
-=item Cpanel-JSON-XS 3.0224
+=item Cpanel-JSON-XS 3.0225
 
-Fixes for g++-6, stricter -fpermissive and -Wc++11-compat
+Fixes for g++-6, stricter -fpermissive and -Wc++11-compat.
+Added tests for ill-formed utf8 sequences from Encode.
 
 =item Encode 2.87
 
