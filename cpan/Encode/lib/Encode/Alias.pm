@@ -104,7 +104,7 @@ sub define_alias {
         }
         elsif (DEBUG) {
             require Carp;
-            Carp::croak "undef \$alias";
+            Carp::croak("undef \$alias");
         }
     }
 }
