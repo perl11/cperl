@@ -473,8 +473,8 @@ our ($module, $init_name, %savINC, %curINC, $mainfile, @static_free);
 our ($use_av_undef_speedup, $use_svpop_speedup) = (1, 1);
 our ($optimize_ppaddr, $optimize_warn_sv, $use_perl_script_name,
     $save_data_fh, $save_sig, $optimize_cop, $av_init, $av_init2, $ro_inc, $destruct,
-    $fold, $warnings, $const_strings, $stash, $can_delete_pkg, $pv_copy_on_grow, $dyn_padlist,
-    $walkall, $cow);
+    $fold, $warnings, $const_strings, $stash, $can_delete_pkg, $pv_copy_on_grow,
+    $dyn_padlist, $defstash, $walkall, $cow);
 our $verbose = 0;
 our %option_map = (
     #ignored until IsCOW has a seperate COWREFCNT field (5.22 maybe)
@@ -498,6 +498,7 @@ our %option_map = (
     'save-sig-hash'   => \$B::C::save_sig,
     'dyn-padlist'     => \$B::C::dyn_padlist, # with -O4, needed for cv cleanup with
 	                                      # non-local exits since 5.18
+    'defstash'        => \$B::C::defstash,
     'cop'             => \$optimize_cop, # XXX very unsafe!
 					 # Better do it in CC, but get rid of
 					 # NULL cops also there.
@@ -510,7 +511,8 @@ our %optimization_map = (
     4 => [qw(-fcop -fno-dyn-padlist)],
 );
 push @{$optimization_map{2}}, '-fcow' if $] >= 5.020;
-# skipping here: oFr which need extra logic
+push @{$optimization_map{3}}, '-fdefstash' if $Config{usecperl} and $] >= 5.025002;
+
 our %debug_map = (
     'O' => 'op',
     'A' => 'av',
@@ -528,7 +530,6 @@ our %debug_map = (
 #   'm' => 'meth',
     'u' => 'unused',
 );
-
 my @xpvav_sizes;
 my ($max_string_len, $in_endav);
 my %static_core_pkg; # = map {$_ => 1} static_core_packages();
@@ -5137,7 +5138,7 @@ sub B::GV::save {
                   };
   my $is_coresym;
   # those are already initialized in init_predump_symbols()
-  # and init_main_stash()
+  # and init_main_stash(). some not with -fdefstash/-O3 on cperl.
   for my $s (sort keys %$core_syms) {
     if ($fullname eq 'main::'.$s) {
       $sym = savesym( $gv, $core_syms->{$s} );
@@ -8804,6 +8805,41 @@ sub save_context {
       delete_unsaved_hashINC('Errno');
     }
   }
+  if ($B::C::defstash) {
+    # ensure all those variables are initialized:
+    #   defstash, curstname, incgv, hintgv, defgv, errgv, replgv, debstash,
+    #   globalstash
+    # TODO: optimize later.
+    $init->add
+      ("/* -fdefstash */",
+       "{ GV *gv;",
+       q{PL_curstash = PL_defstash = (HV *)SvREFCNT_inc_simple_NN(newHV());},
+       q{hv_ksplit(PL_defstash, 64); /* Avoid 3 bootup splits */},
+       q{PL_curstname = newSVpvs_share("main");},
+       q{gv = gv_fetchpvs("main::", GV_ADD|GV_NOTQUAL, SVt_PVHV);},
+       q{SvREFCNT_dec(GvHV(gv));},
+       q{hv_name_set(PL_defstash, "main", 4, 0);},
+       q{GvHV(gv) = MUTABLE_HV(SvREFCNT_inc_simple(PL_defstash));},
+       q{SvREADONLY_on(gv);},
+       q{PL_defgv = gv_fetchpvs("_", GV_ADD|GV_NOTQUAL, SVt_PVAV);},
+       q{SvREFCNT_inc_simple_void(PL_defgv);},
+       q{PL_errgv = gv_fetchpvs("@", GV_ADD|GV_NOTQUAL, SVt_PV);},
+       q{SvREFCNT_inc_simple_void(PL_errgv);},
+       q{GvMULTI_on(PL_errgv);},
+       q{PL_replgv = gv_fetchpvs("\022", GV_ADD|GV_NOTQUAL, SVt_PV);},
+       q{SvREFCNT_inc_simple_void(PL_replgv);},
+       q{GvMULTI_on(PL_replgv);},
+       q{(void)Perl_form(aTHX_ "%240s","");},
+       q{sv_grow(ERRSV, 240);},
+       q{CLEAR_ERRSV();},
+       q{CopSTASH_set(&PL_compiling, PL_defstash);},
+       q{PL_debstash = GvHV(gv_fetchpvs("DB::", GV_ADDMULTI, SVt_PVHV));},
+       q{PL_globalstash = GvHV(gv_fetchpvs("CORE::GLOBAL::", GV_ADDMULTI,},
+       q{					SVt_PVHV));},
+       q{sv_setpvs(get_svs("/", GV_ADD), "\n");},
+       "}",
+      );
+  }
 
   my ($curpad_nam, $curpad_sym);
   {
@@ -9721,6 +9757,15 @@ If an explicit stash member or the stash itself C<%package::> is used in
 the source code, the requested stash member(s) is/are automatically created.
 
 C<-fno-stash> is the default.
+
+=item B<-fdefstash>
+
+Allow static main stashes, and avoid re-initialization in init_main_stash()
+at perl core startup.
+These global variables are initialized statically:
+defstash, curstname, incgv, hintgv, defgv, errgv, replgv, debstash, globalstash.
+
+Enabled with C<-O3>, on cperl only.
 
 =item B<-fno-delete-pkg>
 
