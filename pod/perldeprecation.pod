@@ -189,6 +189,13 @@ Setting this variable will become a fatal error in Perl 5.28,
 but will be supported in cperl.
 
 
+=head3 C<< B::OP::terse >>
+
+This method, which just calls C<< B::Concise::b_terse >>, has been
+deprecated, and will disappear in Perl 5.28. Please use 
+C<< B::Concise >> instead.
+
+
 
 =head3 Use of inherited AUTOLOAD for non-method %s() is deprecated
 
