@@ -5755,6 +5755,12 @@ PERL_CALLCONV SV*	Perl_sv_rvweaken(pTHX_ SV *const sv)
 #define PERL_ARGS_ASSERT_SV_RVWEAKEN	\
 	assert(sv)
 
+PERL_CALLCONV void	Perl_sv_set_undef(pTHX_ SV *sv)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_SV_SET_UNDEF	\
+	assert(sv)
+
 PERL_CALLCONV void	Perl_sv_sethek(pTHX_ SV *const sv, const HEK *const hek)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);

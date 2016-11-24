@@ -1889,7 +1889,7 @@ PP(pp_aassign)
 
 	default:
 	    if (!SvIMMORTAL(lsv)) {
-                sv_setsv(lsv, &PL_sv_undef);
+                sv_set_undef(lsv);
                 SvSETMAGIC(lsv);
                 *relem++ = lsv;
             }

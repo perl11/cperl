@@ -2781,6 +2781,7 @@ sR	|char*	|uvuni_get_script|const UV uv
 AiMn	|void	|append_utf8_from_native_byte|const U8 byte|NN U8** dest
 #endif
 
+Apd	|void	|sv_set_undef	|NN SV *sv
 Apd	|void	|sv_setsv_flags	|NN SV *dstr|NULLOK SV *sstr|const I32 flags
 Apd	|void	|sv_catpvn_flags|NN SV *const dstr|NN const char *sstr|const STRLEN len \
 				|const I32 flags
