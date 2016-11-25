@@ -72,8 +72,9 @@ PATHNAME: for my $pathname (@files) {
         fail("$pathname has more than 39 characters after the dot");
     } elsif ($filename =~ /^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])\./i) {
         fail("$pathname has a reserved name");
-    } elsif ($filename =~ /\s|\(|\&/) {
-        fail("$pathname has a reserved character");
+    } elsif ($filename =~ /(\s|\(|\&)/) {
+        # detects a missing tab
+        fail("$pathname has a reserved character ($filename: $1)");
     } else {
         pass("$pathname ok");
     }
