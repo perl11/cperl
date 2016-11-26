@@ -12,7 +12,7 @@ BEGIN {
     skip_all_without_config('d_fork');
 }
 
-plan tests => 106;
+plan tests => 114;
 
 my $STDOUT = tempfile();
 my $STDERR = tempfile();
@@ -216,12 +216,19 @@ try({PERL_HASH_SEED_DEBUG => 1},
 
 my $usecperl = $Config::Config{usecperl}; # also with PERL_PERTURB_KEYS_DISABLED
 my $perturb = $usecperl ? "0" : "2";
+my $DEBUGGING = $Config::Config{ccflags} =~ /-DDEBUGGING/;
 
 # security, disable with -t
 try({PERL_HASH_SEED_DEBUG => 1, PERL_HASH_SEED => "0"},
     ['-t', '-e','1'],
     '',
     '');
+
+# security, hide seed without DEBUGGING
+try({PERL_HASH_SEED_DEBUG => 1, PERL_HASH_SEED => "0"},
+    ['-e','1'],
+    '',
+    $DEBUGGING ? qr/HASH_SEED = 0x\d+/ : qr/HASH_SEED = <hidden>/);
 
 # special case, seed "0" implies disabled hash key traversal randomization
 try({PERL_HASH_SEED_DEBUG => 1, PERL_HASH_SEED => "0"},
@@ -256,34 +263,40 @@ try({PERL_HASH_SEED_DEBUG => 1, PERL_PERTURB_KEYS => "2"},
 try({PERL_HASH_SEED_DEBUG => 1, PERL_HASH_SEED => "12345678"},
     ['-e','1'],
     '',
-    qr/HASH_SEED = 0x12345678/);
+    $DEBUGGING ? qr/HASH_SEED = 0x12345678/ : qr/HASH_SEED = <hidden>/);
 
 try({PERL_HASH_SEED_DEBUG => 1, PERL_HASH_SEED => "12"},
     ['-e','1'],
     '',
-    qr/HASH_SEED = 0x12000000/);
+    $DEBUGGING ? qr/HASH_SEED = 0x12000000/ : qr/HASH_SEED = <hidden>/);
 
 try({PERL_HASH_SEED_DEBUG => 1, PERL_HASH_SEED => "123456789"},
     ['-e','1'],
     '',
-    qr/HASH_SEED = 0x12345678/);
+    $DEBUGGING ? qr/HASH_SEED = 0x12345678/ : qr/HASH_SEED = <hidden>/);
 
 # Test that PERL_PERTURB_KEYS works as expected.  We check that we get the same
 # results if we use PERL_PERTURB_KEYS = 0 or 2 and we reuse the seed from previous run.
+# Note that with cperl modes 1 and 2, random and deterministic, are disabled.
+# You always get PERTURB_KEYS=TOP, which might change the order with most read accesses.
 my @print_keys = ( '-e', '@_{"A".."Z"}=(); print keys %_');
-for my $mode ( 0, 1, 2 ) { # disabled and deterministic respectively
-    my %base_opts = ( PERL_PERTURB_KEYS => $mode, PERL_HASH_SEED_DEBUG => 1 ),
-    my ($out, $err) = runperl_and_capture( { %base_opts }, [ @print_keys ]);
-    if ($err=~/HASH_SEED = (0x[a-f0-9]+)/) {
-        my $seed = $1;
-        my($out2, $err2) = runperl_and_capture( { %base_opts, PERL_HASH_SEED => $seed }, [ @print_keys ]);
-        if ( $mode == 1 ) {
-            isnt ($out,$out2,"PERL_PERTURB_KEYS = $mode results in different key order with the same key");
-        } else {
-            is ($out,$out2,"PERL_PERTURB_KEYS = $mode allows one to recreate a random hash");
-        }
-        is ($err,$err2,"Got the same debug output when we set PERL_HASH_SEED and PERL_PERTURB_KEYS");
-    }
+my $seed = int(rand(~1)) & 0xffff_ffff; # UINT32_MAX, ~1 might be 64bit
+$seed++ unless $seed; # 0 is a special case, avoid.
+for my $mode ( 0, 1, 2 ) { # disabled, random, deterministic
+  my %base_opts = ( PERL_PERTURB_KEYS => $mode, PERL_HASH_SEED_DEBUG => 1 );
+  $base_opts{PERL_HASH_SEED} = $seed unless $DEBUGGING;
+  my ($out, $err) = runperl_and_capture( { %base_opts }, [ @print_keys ]);
+  if ($DEBUGGING and $err=~/HASH_SEED = (0x[a-f0-9]+)/) {
+    $seed = $1;
+  }
+  my($out2, $err2) = runperl_and_capture( { %base_opts, PERL_HASH_SEED => $seed }, [ @print_keys ]);
+  # in cperl only mode 0 is enabled
+  if ( !$usecperl and $mode == 1 ) {
+    isnt ($out,$out2,"PERL_PERTURB_KEYS=$mode different key order with the same key");
+  } else {
+    is ($out,$out2,"PERL_PERTURB_KEYS=$mode allows one to recreate a random hash");
+  }
+  is ($err,$err2,"Same debug output with PERL_HASH_SEED=$seed and PERL_PERTURB_KEYS=$mode");
 }
 
 # Tests for S_incpush_use_sep():

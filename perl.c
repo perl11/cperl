@@ -2261,12 +2261,17 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
             !TAINTING_get &&
 # endif
             s && strEQc(s, "1")) {
-            const unsigned char *seed= PERL_HASH_SEED;
-            const unsigned char *seed_end= PERL_HASH_SEED + PERL_HASH_SEED_BYTES;
-            PerlIO_printf(Perl_debug_log, "HASH_FUNCTION = %s HASH_SEED = 0x", PERL_HASH_FUNC);
+# ifdef DEBUGGING
+            const unsigned char *seed     = PERL_HASH_SEED;
+            const unsigned char *seed_end = PERL_HASH_SEED + PERL_HASH_SEED_BYTES;
+            PerlIO_printf(Perl_debug_log, "HASH_FUNCTION = %s HASH_SEED = " "0x", PERL_HASH_FUNC);
             while (seed < seed_end) {
                 PerlIO_printf(Perl_debug_log, "%02x", *seed++);
             }
+# else
+            PerlIO_printf(Perl_debug_log, "HASH_FUNCTION = %s HASH_SEED = ", PERL_HASH_FUNC);
+            PerlIO_printf(Perl_debug_log, "<hidden>");
+# endif
             PerlIO_printf(Perl_debug_log, " PERTURB_KEYS = %d (%s)",
                     PL_HASH_RAND_BITS_ENABLED,
                     PL_HASH_RAND_BITS_ENABLED == 0 ?

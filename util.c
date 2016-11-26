@@ -4982,6 +4982,10 @@ Perl_get_hash_seed(pTHX_ unsigned char * const seed_buffer)
             PL_hash_rand_bits_enabled= 1;
         } else if (strEQc(env_pv,"2") || strEQc(env_pv,"DETERMINISTIC")) {
             PL_hash_rand_bits_enabled= 2;
+#ifdef PERL_PERTURB_KEYS_TOP
+        } else (strEQc(env_pv,"TOP")) {
+            PL_hash_rand_bits_enabled= 0;
+#endif
         } else {
             Perl_warn(aTHX_ "perl: warning: strange setting in '$ENV{PERL_PERTURB_KEYS}': '%s'\n", env_pv);
         }
