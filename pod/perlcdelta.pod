@@ -23,6 +23,39 @@ here, but most should go in the L</Performance Enhancements> section.
 
 =head1 Security
 
+=head2 hash seed exposure
+
+cperl5.22.2 added a restraint to expose the internal hash secret seed
+via the environment variable PERL_HASH_SEED_DEBUG=1 to be hidden in taint mode.
+See L<[cperl #114]|https://github.com/perl11/cperl/issues/114>
+and L<perl5222cdelta/Core Enhancements>.
+
+    PERL_HASH_SEED_DEBUG=1 cperl5.22.2 -e1 =>
+    HASH_FUNCTION = FNV1A HASH_SEED = 0xecfb00eb PERTURB_KEYS = 0 (TOP)
+
+    PERL_HASH_SEED_DEBUG=1 cperl5.22.2 -t -e1 => empty
+
+But unfortunately not many perl services are actually protected with
+C<-t>, even if cperl fixed taint mode to be actually secure. The
+seed exposure is only needed for a debugging perl, and actually is
+security relevant.
+
+So PERL_HASH_SEED_DEBUG=1 will now hide the seed value in
+non-DEBUGGING builds.
+
+    PERL_HASH_SEED_DEBUG=1 cperl5.25.2 -e1 =>
+    HASH_FUNCTION = FNV1A HASH_SEED = <hidden> PERTURB_KEYS = 0 (TOP)
+
+Note that the seed is still trivially exposable via other means if a
+local script can be executed, as the seed value is readable from a
+fixed offset to the first argument of every OP, at my_perl via unpack
+"P". That's why cperl fixed hash table security via proper means in
+the collision resolution, not via a slow hash function, and not via
+order hiding as perl5 believes in.
+
+More discussion at L<https://github.com/google/highwayhash/issues/28> and
+L<https://github.com/google/highwayhash/issues/29>.
+
 =head2 chdir heap-buffer-overflow
 
 Fixed heap-buffer-overflow in chdir without argument. make chdir allocate the stack
