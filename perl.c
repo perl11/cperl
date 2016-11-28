@@ -983,7 +983,7 @@ perl_destruct(pTHXx)
 	    safesysfree(environ[i]);
 
 	/* Must use safesysfree() when working with environ. */
-	safesysfree(environ);		
+	safesysfree((char*)environ);
 
 	environ = PL_origenviron;
     }

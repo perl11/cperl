@@ -1424,7 +1424,7 @@ object type. Exposed to perl code via Internals::SvREADONLY().
 /* Given that these two are new, there can't be any existing code using them
  *  as LVALUEs  */
 #  define SvPVX_mutable(sv)	(0 + SvPVX(sv))
-#  define SvPVX_const(sv)	(SvSPOK(sv)?(const char*)(0+SvANY(sv)):(const char*)(0 + (sv)->sv_u.svu_pv))
+#  define SvPVX_const(sv)	(SvSPOK(sv)?(const char*)(0+(char*)SvANY(sv)):(const char*)(0 + (sv)->sv_u.svu_pv))
 #else
 #error PERL_POISON no spv support yet
 /* Except for the poison code, which uses & to scribble over the pointer after
