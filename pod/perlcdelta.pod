@@ -459,19 +459,15 @@ Add C<PERL_MATHOM_CALLCONV> to use it.
 
 =head1 Testing
 
-XXX Any significant changes to the testing of a freshly built perl should be
-listed here.  Changes which create B<new> files in F<t/> go here as do any
-large changes to the testing harness (e.g. when parallel testing was added).
-Changes to existing files in F<t/> aren't worth summarizing, although the bugs
-that they represent may be covered elsewhere.
-
-[ List each test improvement as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Added F<t/porting/embedcpp.t> to check for perl.h C++ compatibility with a modern
+C++ compiler. There must be no fatal compilation errors in the C<-c> step from
+C++ incompatibilities in any header file.
+
+This is related to the new C<-Wc++11-compat> and C<-fpermissive> fixes.
 
 =back
 

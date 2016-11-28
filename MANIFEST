@@ -5844,10 +5844,11 @@ t/porting/checkcfgvar.t		Check that all config.sh-like files are good
 t/porting/cmp_version.t		Test whether all changed module files have their VERSION bumped
 t/porting/copyright.t		Check that copyright years match
 t/porting/corelist.t		Check that Module-CoreList has perl versions for the current perl
-t/porting/customized.dat		Data file for porting/customized.t
+t/porting/customized.dat	Data file for porting/customized.t
 t/porting/customized.t		Check all CUSTOMIZED files are as they should be
 t/porting/diag.t		Test completeness of perldiag.pod
 t/porting/dual-life.t		Check that dual-life bins are in utils/
+t/porting/embedcpp.t		Check perl.h C++ compatibility
 t/porting/exec-bit.t		Check that exec-bit bins are identified
 t/porting/extrefs.t		Check perl headers don't make extern refs
 t/porting/filenames.t		Check the MANIFEST for filename portability.
@@ -5872,7 +5873,7 @@ t/README			Instructions for regression tests
 t/re/charset.t			See if regex modifiers like /d, /u work properly
 t/re/fold_grind.t		See if case folding works properly
 t/re/no_utf8_pm.t		Verify utf8.pm doesn't get loaded unless required
-t/re/overload.t		Test against string corruption in pattern matches on overloaded objects
+t/re/overload.t			Test against string corruption in pattern matches on overloaded objects
 t/re/pat_advanced.t		See if advanced esoteric patterns work
 t/re/pat_advanced_thr.t		See if advanced esoteric patterns work in another thread
 t/re/pat_psycho.t		See if insane esoteric and slow patterns work
