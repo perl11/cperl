@@ -22,12 +22,19 @@ it needs for the result, overwriting one stack entry. Note that the perl stack i
 the heap, so it's not that dramatic.
 L<[perl #129130]|https://rt.perl.org/Public/Bug/Display.html?id=129130>
 
+=head1 Deprecations
+
+=head2 do_open, do_close macros
+
+Those macros clash on darwin XTools with the system iostream
+C<_OutputIterator> methods. We need to use the fullname
+B<Perl_do_open> and B<Perl_do_close> functions whenever perl needs to be
+embedded into C++ projects. Or the better C<do_openn> macro.
+
+With the system C++ compiler on darwin C<do_open>, C<do_close> are now
+undefined.  See L<[cperl #227]|https://github.com/perl11/cperl/issues/227>
+
 =head1 Performance Enhancements
-
-XXX Changes which enhance performance without changing behaviour go here.
-There may well be none in a stable release.
-
-[ List each enhancement as a =item entry ]
 
 =over 4
 
@@ -478,6 +485,9 @@ C++ compiler. There must be no fatal compilation errors in the C<-c> step from
 C++ incompatibilities in any header file.
 
 This is related to the new C<-Wc++11-compat> and C<-fpermissive> fixes.
+
+Note that Microsoft Visual C++ still throws errors. You cannot use that yet.
+See L<[cperl #227]|https://github.com/perl11/cperl/issues/227>.
 
 =back
 
