@@ -6933,6 +6933,11 @@ extern void moncontrol(int);
 
 #define do_open(g, n, l, a, rm, rp, sf) \
 	do_openn(g, n, l, a, rm, rp, sf, (SV **) NULL, 0)
+/* nameclash with _OutputIterator */
+#if defined(__cplusplus) && defined(__APPLE__)
+#undef do_open
+#undef do_close
+#endif
 #ifdef PERL_DEFAULT_DO_EXEC3_IMPLEMENTATION
 #  define do_exec(cmd)			do_exec3(cmd,0,0)
 #endif

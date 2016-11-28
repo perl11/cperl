@@ -75,6 +75,16 @@ XXX For a release on a stable branch, this section aspires to be:
 
 =head1 Deprecations
 
+=head2 do_open, do_close macros
+
+Those macros clash on darwin XTools with the system iostream
+C<_OutputIterator> methods. We need to use the fullname
+B<Perl_do_open> and B<Perl_do_close> functions whenever perl needs to be
+embedded into C++ projects.
+
+With the system C++ compiler on darwin C<do_open>, C<do_close> are now
+undefined.  See L<[cperl #227]|https://github.com/perl11/cperl/issues/227>
+
 =head2 Removed ' as package seperator
 
 Make something like C<sub foo'bar;> a syntax error.
@@ -465,7 +475,10 @@ Add C<PERL_MATHOM_CALLCONV> to use it.
 
 Added F<t/porting/embedcpp.t> to check for perl.h C++ compatibility with a modern
 C++ compiler. There must be no fatal compilation errors in the C<-c> step from
-C++ incompatibilities in any header file.
+C++ incompatibilities in any perl header file.
+
+Note that Microsoft Visual C++ still throws errors. You cannot use that yet.
+See L<[cperl #227]|https://github.com/perl11/cperl/issues/227>.
 
 This is related to the new C<-Wc++11-compat> and C<-fpermissive> fixes.
 

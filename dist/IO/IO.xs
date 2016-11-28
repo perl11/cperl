@@ -299,7 +299,7 @@ new_tmpfile(packname = "IO::File")
 	gv = (GV*)SvREFCNT_inc(newGVgen(packname));
 	if (gv)
 	    (void) hv_delete(GvSTASH(gv), GvNAME(gv), GvNAMELEN(gv), G_DISCARD);
-	if (gv && do_open(gv, "+>&", 3, FALSE, 0, 0, fp)) {
+	if (gv && Perl_do_open(aTHX_ gv, "+>&", 3, FALSE, 0, 0, fp)) {
 	    ST(0) = sv_2mortal(newRV((SV*)gv));
 	    sv_bless(ST(0), gv_stashpv(packname, TRUE));
 	    SvREFCNT_dec(gv);   /* undo increment in newRV() */
