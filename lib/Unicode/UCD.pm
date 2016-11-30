@@ -986,7 +986,7 @@ sub _charscripts {
             push @SCRIPTS, [ 0, 0x10FFFF, 'Unknown' ];
         }
         else {
-            @SCRIPTS =_read_table("To/Sc.pl");
+            @SCRIPTS = _read_table("To/Sc.pl");
         }
     }
     foreach my $entry (@SCRIPTS) {

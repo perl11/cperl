@@ -9197,6 +9197,162 @@ S_new_constant(pTHX_ const char *s, STRLEN len, const char *key, STRLEN keylen,
     return res;
 }
 
+/* Latin or Common Script character: unicore/To/Sc.pl */
+/* perl -nle'
+   /^([0-9A-F]+)\t([0-9A-F]+)\t(Common|Latin)\s/ &&
+       print $2-$1==1 ? "    (p == 0x$1 || p == 0x$2) ||"
+                      : "    (p >= 0x$1 && p <= 0x$2) ||";
+   /^([0-9A-F]+)\t\t(Common|Latin)/ &&
+       print "    (p == 0x$1) ||";' \
+   lib/unicore/To/Sc.pl */
+PERL_STATIC_INLINE bool
+isLATIN_or_COMMON_uni(UV p) {
+    return (p <= 0x2E9) ||
+        (p >= 0x2EC && p <= 0x2FF) ||
+        (p >= 0x2000 && p <= 0x27FF && !(p >= 0x20D0 && p <= 0x20F0) && p != 0x2126) ||
+        (p >= 0x2C60 && p <= 0x2C7F) ||
+        (p == 0x374) ||
+        (p == 0x37E) ||
+        (p == 0x385) ||
+        (p == 0x387) ||
+        (p == 0x589) ||
+        (p == 0x605) ||
+        (p == 0x61B) ||
+        (p == 0x61C) ||
+        (p == 0x60C) ||
+        (p == 0x61F) ||
+        (p == 0x640) ||
+        (p == 0x6DD) ||
+        (p == 0x61F) ||
+        (p == 0x964) || (p == 0x965) ||
+        (p == 0xE3F) ||
+        (p >= 0xFD5 && p <= 0xFD8) ||
+        (p == 0x10FB) ||
+        (p >= 0x16EB && p <= 0x16ED) ||
+        (p == 0x1735) || (p == 0x1736) ||
+        (p == 0x1802) || (p == 0x1803) ||
+        (p == 0x1805) ||
+        (p == 0x1CD3) ||
+        (p == 0x1CE1) ||
+        (p >= 0x1CE9 && p <= 0x1CEC) ||
+        (p >= 0x1CEE && p <= 0x1CF3) ||
+        (p == 0x1CF5) || (p == 0x1CF6) ||
+        (p >= 0x2C60 && p <= 0x2C7F) ||
+        (p >= 0x2E00 && p <= 0x2E42) ||
+        (p >= 0x2FF0 && p <= 0x3004) ||
+        (p == 0x3006) ||
+        (p >= 0x3008 && p <= 0x3020) ||
+        (p >= 0x3030 && p <= 0x3037) ||
+        (p >= 0x303C && p <= 0x303F) ||
+        (p >= 0x309B && p <= 0x309C) ||
+        (p == 0x30A0) ||
+        (p >= 0x30FB && p <= 0x30FC) ||
+        (p >= 0x3190 && p <= 0x319F) ||
+        (p >= 0x31C0 && p <= 0x31E3) ||
+        (p >= 0x3220 && p <= 0x325F) ||
+        (p >= 0x327F && p <= 0x32CF) ||
+        (p >= 0x3358 && p <= 0x33FF) ||
+        (p >= 0x4DC0 && p <= 0x4DFF) ||
+        (p >= 0xA700 && p <= 0xA721) ||
+        (p >= 0xA722 && p <= 0xA787) ||
+        (p >= 0xA788 && p <= 0xA78A) ||
+        (p >= 0xA78B && p <= 0xA7AD) ||
+        (p >= 0xA7B0 && p <= 0xA7B7) ||
+        (p >= 0xA7F7 && p <= 0xA7FF) ||
+        (p >= 0xA830 && p <= 0xA839) ||
+        (p == 0xA92E) ||
+        (p == 0xA9CF) ||
+        (p >= 0xAB30 && p <= 0xAB5A) ||
+        (p == 0xAB5B) ||
+        (p >= 0xAB5C && p <= 0xAB64) ||
+        (p >= 0xFB00 && p <= 0xFB06) ||
+        (p >= 0xFD3E && p <= 0xFD3F) ||
+        (p >= 0xFE10 && p <= 0xFE19) ||
+        (p >= 0xFE30 && p <= 0xFE52) ||
+        (p >= 0xFE54 && p <= 0xFE66) ||
+        (p >= 0xFE68 && p <= 0xFE6B) ||
+        (p == 0xFEFF) ||
+        (p >= 0xFF01 && p <= 0xFF20) ||
+        (p >= 0xFF21 && p <= 0xFF3A) ||
+        (p >= 0xFF3B && p <= 0xFF40) ||
+        (p >= 0xFF41 && p <= 0xFF5A) ||
+        (p >= 0xFF5B && p <= 0xFF65) ||
+        (p == 0xFF70) ||
+        (p >= 0xFF9E && p <= 0xFF9F) ||
+        (p >= 0xFFE0 && p <= 0xFFE6) ||
+        (p >= 0xFFE8 && p <= 0xFFEE) ||
+        (p >= 0xFFF9 && p <= 0xFFFD) ||
+        (p >= 0x10100 && p <= 0x10102) ||
+        (p >= 0x10107 && p <= 0x10133) ||
+        (p >= 0x10137 && p <= 0x1013F) ||
+        (p >= 0x10190 && p <= 0x1019B) ||
+        (p >= 0x101D0 && p <= 0x101FC) ||
+        (p >= 0x102E1 && p <= 0x102FB) ||
+        (p >= 0x1BCA0 && p <= 0x1BCA3) ||
+        (p >= 0x1D000 && p <= 0x1D0F5) ||
+        (p >= 0x1D100 && p <= 0x1D126) ||
+        (p >= 0x1D129 && p <= 0x1D166) ||
+        (p >= 0x1D16A && p <= 0x1D17A) ||
+        (p >= 0x1D183 && p <= 0x1D184) ||
+        (p >= 0x1D18C && p <= 0x1D1A9) ||
+        (p >= 0x1D1AE && p <= 0x1D1E8) ||
+        (p >= 0x1D300 && p <= 0x1D356) ||
+        (p >= 0x1D360 && p <= 0x1D371) ||
+        (p >= 0x1D400 && p <= 0x1D454) ||
+        (p >= 0x1D456 && p <= 0x1D49C) ||
+        (p >= 0x1D49E && p <= 0x1D49F) ||
+        (p == 0x1D4A2) ||
+        (p >= 0x1D4A5 && p <= 0x1D4A6) ||
+        (p >= 0x1D4A9 && p <= 0x1D4AC) ||
+        (p >= 0x1D4AE && p <= 0x1D4B9) ||
+        (p == 0x1D4BB) ||
+        (p >= 0x1D4BD && p <= 0x1D4C3) ||
+        (p >= 0x1D4C5 && p <= 0x1D505) ||
+        (p >= 0x1D507 && p <= 0x1D50A) ||
+        (p >= 0x1D50D && p <= 0x1D514) ||
+        (p >= 0x1D516 && p <= 0x1D51C) ||
+        (p >= 0x1D51E && p <= 0x1D539) ||
+        (p >= 0x1D53B && p <= 0x1D53E) ||
+        (p >= 0x1D540 && p <= 0x1D544) ||
+        (p == 0x1D546) ||
+        (p >= 0x1D54A && p <= 0x1D550) ||
+        (p >= 0x1D552 && p <= 0x1D6A5) ||
+        (p >= 0x1D6A8 && p <= 0x1D7CB) ||
+        (p >= 0x1D7CE && p <= 0x1D7FF) ||
+        (p >= 0x1F000 && p <= 0x1F02B) ||
+        (p >= 0x1F030 && p <= 0x1F093) ||
+        (p >= 0x1F0A0 && p <= 0x1F0AE) ||
+        (p >= 0x1F0B1 && p <= 0x1F0BF) ||
+        (p >= 0x1F0C1 && p <= 0x1F0CF) ||
+        (p >= 0x1F0D1 && p <= 0x1F0F5) ||
+        (p >= 0x1F100 && p <= 0x1F10C) ||
+        (p >= 0x1F110 && p <= 0x1F12E) ||
+        (p >= 0x1F130 && p <= 0x1F16B) ||
+        (p >= 0x1F170 && p <= 0x1F19A) ||
+        (p >= 0x1F1E6 && p <= 0x1F1FF) ||
+        (p >= 0x1F201 && p <= 0x1F202) ||
+        (p >= 0x1F210 && p <= 0x1F23A) ||
+        (p >= 0x1F240 && p <= 0x1F248) ||
+        (p == 0x1F250 || p == 0x1F251) ||
+        (p >= 0x1F300 && p <= 0x1F579) ||
+        (p >= 0x1F57B && p <= 0x1F5A3) ||
+        (p >= 0x1F5A5 && p <= 0x1F6D0) ||
+        (p >= 0x1F6E0 && p <= 0x1F6EC) ||
+        (p >= 0x1F6F0 && p <= 0x1F6F3) ||
+        (p >= 0x1F700 && p <= 0x1F773) ||
+        (p >= 0x1F780 && p <= 0x1F7D4) ||
+        (p >= 0x1F800 && p <= 0x1F80B) ||
+        (p >= 0x1F810 && p <= 0x1F847) ||
+        (p >= 0x1F850 && p <= 0x1F859) ||
+        (p >= 0x1F860 && p <= 0x1F887) ||
+        (p >= 0x1F890 && p <= 0x1F8AD) ||
+        (p >= 0x1F910 && p <= 0x1F918) ||
+        (p >= 0x1F980 && p <= 0x1F984) ||
+        (p == 0x1F9C0) ||
+        (p == 0xE0001) ||
+        (p >= 0xE0020 && p <= 0xE007F);
+}
+
 PERL_STATIC_INLINE void
 S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
                     bool is_utf8, bool check_dollar) {
@@ -9210,14 +9366,28 @@ S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
              * like c\N{COMBINING TILDE} would start failing, as the
              * isWORDCHAR_A case below would gobble the 'c' up.
              */
-
+            STRLEN len = UTF8SKIP(*s);
             char *t = *s + UTF8SKIP(*s);
-            while (isIDCONT_utf8((U8*)t))
-                t += UTF8SKIP(t);
-            if (*d + (t - *s) > e)
+            if (len > 1) {
+                const UV uv = utf8n_to_uvchr((U8*)*s, len, &len, UTF8_ALLOW_ANYUV);
+                if (UNLIKELY(!isLATIN_or_COMMON_uni(uv)))
+                    /* get script. check if scripts>2 exist */
+                    utf8_check_script(uv);
+            }
+            while (isIDCONT_utf8((U8*)t)) {
+                const int l = UTF8SKIP(t);
+                if (l>1) {
+                    const UV uv = utf8n_to_uvchr((U8*)t, l, &len, UTF8_ALLOW_ANYUV);
+                    if (UNLIKELY(!isLATIN_or_COMMON_uni(uv)))
+                        utf8_check_script(uv);
+                }
+                t += l;
+            }
+            len = t - *s;
+            if (*d + len > e)
                 Perl_croak(aTHX_ "%s", ident_too_long);
-            Copy(*s, *d, t - *s, char);
-            *d += t - *s;
+            Copy(*s, *d, len, char);
+            *d += len;
             *s = t;
         }
         else if ( isWORDCHAR_A(**s) ) {

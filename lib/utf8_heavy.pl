@@ -682,17 +682,18 @@ sub _loose_name ($) {
 }
 
 our %scripts = ('Common' => 1, 'Latin' => 1);
-# not using the pre-processed mktables yet
+# not using the pre-processed Sc/* inversion tables yet
+# matching 41 lib/unicore/lib/Sc/ files.
 our %valid_scripts = map {$_ => 1} qw(
     Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese Bamum
     Bassa_Vah Batak Bengali Bopomofo Brahmi Braille Buginese Buhid
     Canadian_Aboriginal Carian Caucasian_Albanian Chakma Cham Cherokee
-    B<Common> Coptic Cuneiform Cypriot Cyrillic Deseret Devanagari Duployan
+    Common Coptic Cuneiform Cypriot Cyrillic Deseret Devanagari Duployan
     Egyptian_Hieroglyphs Elbasan Ethiopic Georgian Glagolitic Gothic
     Grantha Greek Gujarati Gurmukhi Han Hangul Hanunoo Hatran Hebrew
     Hiragana Imperial_Aramaic Inherited Inscriptional_Pahlavi
     Inscriptional_Parthian Javanese Kaithi Kannada Katakana Kayah_Li
-    Kharoshthi Khmer Khojki Khudawadi Lao B<Latin> Lepcha Limbu Linear_A
+    Kharoshthi Khmer Khojki Khudawadi Lao Latin Lepcha Limbu Linear_A
     Linear_B Lisu Lycian Lydian Mahajani Malayalam Mandaic Manichaean
     Meetei_Mayek Mende_Kikakui Meroitic_Cursive Meroitic_Hieroglyphs Miao
     Modi Mongolian Mro Multani Myanmar Nabataean New_Tai_Lue Nko Ogham

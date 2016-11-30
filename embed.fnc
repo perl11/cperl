@@ -1601,14 +1601,15 @@ EXMpn	|void	|_invlist_populate_swatch |NN SV* const invlist|const UV start \
 EXp	|SV*	|_core_swash_init|NN const char* pkg|NN const char* name \
 		|NN SV* listsv|I32 minbits|I32 none \
 		|NULLOK SV* invlist|NULLOK U8* const flags_p
+EXp	|void	|utf8_check_script|const UV uv
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C)
-EiMRn	|UV*	|invlist_array	|NN SV* const invlist
+EiMRn	|UV*	|invlist_array		|NN SV* const invlist
 EiMRn	|bool*	|get_invlist_offset_addr|NN SV* invlist
-EiMRn	|UV	|_invlist_len	|NN SV* const invlist
-EMiRn	|bool	|_invlist_contains_cp|NN SV* const invlist|const UV cp
+EiMRn	|UV	|_invlist_len		|NN SV* const invlist
+EMiRn	|bool	|_invlist_contains_cp	|NN SV* const invlist|const UV cp
 EXpMRn	|IV	|_invlist_search	|NN SV* const invlist|const UV cp
-EXMpR	|SV*	|_get_swash_invlist|NN SV* const swash
+EXMpR	|SV*	|_get_swash_invlist	|NN SV* const swash
 EXMpR	|HV*	|_swash_inversion_hash	|NN SV* const swash
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C)

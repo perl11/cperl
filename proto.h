@@ -8804,6 +8804,9 @@ PERL_CALLCONV SV*	Perl__core_swash_init(pTHX_ const char* pkg, const char* name,
 #define PERL_ARGS_ASSERT__CORE_SWASH_INIT	\
 	assert(pkg); assert(name); assert(listsv)
 
+PERL_CALLCONV void	Perl_utf8_check_script(pTHX_ UV uv)
+			__attribute__global__;
+
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_TOKE_C) || defined(PERL_IN_DQUOTE_C)
 PERL_STATIC_INLINE char*	S_form_short_octal_warning(pTHX_ const char * const s, const STRLEN len)
