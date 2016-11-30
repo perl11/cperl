@@ -107,8 +107,7 @@ sub _loose_name ($) {
                                         # generated file?  If so, we know it's
                                         # well behaved.
 
-        if ($type)
-        {
+        if ($type) {
             # Verify that this isn't a recursive call for this property.
             # Can't use croak, as it may try to recurse to here itself.
             my $class_type = $class . "::$type";
@@ -680,6 +679,34 @@ sub _loose_name ($) {
 
         return $SWASH;
     }
+}
+
+our %scripts = ('Common' => 1, 'Latin' => 1);
+# not using the pre-processed mktables yet
+our %valid_scripts = map {$_ => 1} qw(
+    Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese Bamum
+    Bassa_Vah Batak Bengali Bopomofo Brahmi Braille Buginese Buhid
+    Canadian_Aboriginal Carian Caucasian_Albanian Chakma Cham Cherokee
+    B<Common> Coptic Cuneiform Cypriot Cyrillic Deseret Devanagari Duployan
+    Egyptian_Hieroglyphs Elbasan Ethiopic Georgian Glagolitic Gothic
+    Grantha Greek Gujarati Gurmukhi Han Hangul Hanunoo Hatran Hebrew
+    Hiragana Imperial_Aramaic Inherited Inscriptional_Pahlavi
+    Inscriptional_Parthian Javanese Kaithi Kannada Katakana Kayah_Li
+    Kharoshthi Khmer Khojki Khudawadi Lao B<Latin> Lepcha Limbu Linear_A
+    Linear_B Lisu Lycian Lydian Mahajani Malayalam Mandaic Manichaean
+    Meetei_Mayek Mende_Kikakui Meroitic_Cursive Meroitic_Hieroglyphs Miao
+    Modi Mongolian Mro Multani Myanmar Nabataean New_Tai_Lue Nko Ogham
+    Ol_Chiki Old_Hungarian Old_Italic Old_North_Arabian Old_Permic
+    Old_Persian Old_South_Arabian Old_Turkic Oriya Osmanya Pahawh_Hmong
+    Palmyrene Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Pau_Cin_Hau
+    Phags_Pa Phoenician Psalter_Pahlavi Rejang Runic Samaritan Saurashtra
+    Sharada Shavian Siddham SignWriting Sinhala Sora_Sompeng Sundanese
+    Syloti_Nagri Syriac Tagalog Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri
+    Tamil Telugu Thaana Thai Tibetan Tifinagh Tirhuta Ugaritic Vai
+    Warang_Citi Yi);
+
+sub valid_script {
+    return exists $valid_scripts{$_};
 }
 
 # Now SWASHGET is recasted into a C function S_swatch_get (see utf8.c).

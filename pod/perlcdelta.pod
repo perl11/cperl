@@ -23,6 +23,39 @@ here, but most should go in the L</Performance Enhancements> section.
 
 =head1 Security
 
+=head2 use utf8 'Script'
+
+In order to avoid TR39 confusable security hacks, we add the following
+unicode rules for identifiers and literals:
+
+=over
+
+=item *
+
+The 'Common' and 'Latin' scripts are always allowed and don't need to
+be declared.
+
+=item *
+
+The first non-Latin and not-Common unicode script for an identifier is
+the only allowed one. Others lead to parsers errors.
+
+=item *
+
+Additional unicode scripts can and should be declared via B<use utf8
+'Greek', 'script-name2'...>. This allows mixed scripts in
+identifiers. This can be scoped in blocks.
+
+=back
+
+See L<http://www.unicode.org/reports/tr39/#Mixed_Script_Detection> and
+L<[cperl #229]|https://github.com/perl11/cperl/issues/229>
+
+This holds for all identifiers (all names: package, gv, sub,
+variables) and literal numbers.
+
+Currently there exist 131 scripts, see L<utf8/"Valid scripts">.
+
 =head2 hash seed exposure
 
 cperl5.22.2 added a restraint to expose the internal hash secret seed
