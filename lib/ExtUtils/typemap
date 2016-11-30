@@ -400,7 +400,7 @@ T_STDIO
 	{
 	    GV *gv = newGVgen("$Package");
 	    PerlIO *fp = PerlIO_importFILE($var,0);
-	    if ( fp && Perl_do_open(aTHX_ gv, "+<&", 3, FALSE, 0, 0, fp) ) {
+	    if ( fp && do_openn(gv, "+<&", 3, FALSE, 0, 0, fp, NULL, 0) ) {
 		SV *rv = newRV_inc((SV*)gv);
 		rv = sv_bless(rv, GvSTASH(gv));
 		${"$var" eq "RETVAL" ? \"$arg = sv_2mortal(rv);"
@@ -412,7 +412,7 @@ T_STDIO
 T_IN
 	{
 	    GV *gv = newGVgen("$Package");
-	    if ( Perl_do_open(aTHX_ gv, "<&", 2, FALSE, 0, 0, $var) ) {
+	    if ( do_openn(gv, "<&", 2, FALSE, 0, 0, $var, NULL, 0) ) {
 		SV *rv = newRV_inc((SV*)gv);
 		rv = sv_bless(rv, GvSTASH(gv));
 		${"$var" eq "RETVAL" ? \"$arg = sv_2mortal(rv);"
@@ -424,7 +424,7 @@ T_IN
 T_INOUT
 	{
 	    GV *gv = newGVgen("$Package");
-	    if ( Perl_do_open(aTHX_ gv, "+<&", 3, FALSE, 0, 0, $var) ) {
+	    if ( do_openn(gv, "+<&", 3, FALSE, 0, 0, $var, NULL, 0) ) {
 		SV *rv = newRV_inc((SV*)gv);
 		rv = sv_bless(rv, GvSTASH(gv));
 		${"$var" eq "RETVAL" ? \"$arg = sv_2mortal(rv);"
@@ -436,7 +436,7 @@ T_INOUT
 T_OUT
 	{
 	    GV *gv = newGVgen("$Package");
-	    if ( Perl_do_open(aTHX_ gv, "+>&", 3, FALSE, 0, 0, $var) ) {
+	    if ( do_openn(gv, "+>&", 3, FALSE, 0, 0, $var, NULL, 0) ) {
 		SV *rv = newRV_inc((SV*)gv);
 		rv = sv_bless(rv, GvSTASH(gv));
 		${"$var" eq "RETVAL" ? \"$arg = sv_2mortal(rv);"
