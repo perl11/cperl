@@ -782,7 +782,7 @@ corresponding OUTPUT code:
   ',
     'T_OUT' => '    {
             GV *gv = newGVgen("$Package");
-            if ( Perl_do_open(aTHX_ gv, "+>&", 3, FALSE, 0, 0, $var) )
+            if ( do_openn(gv, "+>&", 3, FALSE, 0, 0, $var, NULL, 0) )
                 sv_setsv(
                   $arg,
                   sv_bless(newRV((SV*)gv), gv_stashpv("$Package",1))
