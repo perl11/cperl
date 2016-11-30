@@ -17,7 +17,7 @@ use open qw( :utf8 :std );
 
 plan( tests => 49 );
 
-#These come from op/my_stash.t
+# These come from op/my_stash.t
 {
     use constant Myクラス => 'ꕽ::Ʉ::ꔬz::ꢨᙇ';
     
@@ -39,7 +39,7 @@ plan( tests => 49 );
     }
 }
 
-#op/stash.t
+# op/stash.t
 {
     package ᛐⲞɲe::Šꇇᚽṙᆂṗ;
     $본go::ଶfʦbᚒƴ::scalar = 1;
@@ -150,7 +150,6 @@ plan( tests => 49 );
         }
     
         # on glob reassignment, orphaned CV should have anon CvGV
-    
         {
             my $r;
             eval q[
@@ -162,12 +161,11 @@ plan( tests => 49 );
             delete $ＦŌŌ௨::{Ƒ};
             my $cv = B::svref_2object($r);
             my $gv = $cv->GV;
-            ok($gv->isa(q/B::GV/), "orphaned CV has valid GV");
+            ok($gv->isa("B::GV"), "orphaned CV has valid GV");
             is($gv->NAME, '__ANON__', "orphaned CV has anon GV");
         }
-    
+
         # deleting __ANON__ glob shouldn't break things
-    
         {
             package ＦŌŌ３;
             sub 남えㄉ {};
@@ -216,7 +214,6 @@ plan( tests => 49 );
     }
     
     # make sure having a sub called __ANON__ doesn't confuse perl.
-    
     {
         package クラス;
         my $c;

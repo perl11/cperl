@@ -1704,6 +1704,7 @@ Apd	|U8*	|uvoffuni_to_utf8_flags	|NN U8 *d|UV uv|UV flags
 Ap	|U8*	|uvuni_to_utf8_flags	|NN U8 *d|UV uv|UV flags
 Apd	|char*	|pv_uni_display	|NN SV *dsv|NN const U8 *spv|STRLEN len|STRLEN pvlim|UV flags
 ApdR	|char*	|sv_uni_display	|NN SV *dsv|NN SV *ssv|STRLEN pvlim|UV flags
+AMpdR	|char*	|pv_uni_normalize|NN char *s1|STRLEN len|NULLOK STRLEN *dlenp
 : Used by Data::Alias
 EXp	|void	|vivify_defelem	|NN SV* sv
 : Used in pp.c
@@ -2542,7 +2543,7 @@ sR	|char*	|scan_str	|NN char *start|int keep_quoted \
 sR	|char*	|scan_subst	|NN char *start
 sR	|char*	|scan_trans	|NN char *start
 s	|char*	|scan_word	|NN char *s|NN char *dest|STRLEN destlen \
-				|int allow_package|NN STRLEN *slp
+				|int allow_package|NN STRLEN *slp|NULLOK int *normalize
 s	|void	|update_debugger_info|NULLOK SV *orig_sv \
 				|NULLOK const char *const buf|STRLEN len
 sR	|char*	|skipspace_flags|NN char *s|U32 flags
@@ -2577,7 +2578,7 @@ s	|int	|deprecate_commaless_var_list
 s	|int	|ao		|int toketype
 s  |void|parse_ident|NN char **s|NN char **d \
                      |NN char * const e|int allow_package \
-				|bool is_utf8|bool check_dollar
+				|bool is_utf8|bool check_dollar|NN int *normalize
 #  if defined(PERL_CR_FILTER)
 s	|I32	|cr_textfilter	|int idx|NULLOK SV *sv|int maxlen
 s	|void	|strip_return	|NN SV *sv

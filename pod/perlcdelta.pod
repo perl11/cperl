@@ -57,6 +57,15 @@ variables) and literal numbers.
 
 Currently there exist 131 scripts, see L<utf8/"Valid scripts">.
 
+=head2 Unicode normalization of identifiers/names
+
+All stored names, identifiers and literals are stored as normalized
+NFC unicode, which prevents from TR39 and TR36 unicode confusable and
+spoofing security problems.
+
+Note that even perl6 stores different names for confusables, which
+match each other due to their NFG rules.
+
 =head2 hash seed exposure
 
 cperl5.22.2 added a restraint to expose the internal hash secret seed

@@ -4256,6 +4256,13 @@ PERL_CALLCONV char*	Perl_pv_uni_display(pTHX_ SV *dsv, const U8 *spv, STRLEN len
 #define PERL_ARGS_ASSERT_PV_UNI_DISPLAY	\
 	assert(dsv); assert(spv)
 
+PERL_CALLCONV char*	Perl_pv_uni_normalize(pTHX_ char *s1, STRLEN len, STRLEN *dlenp)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_PV_UNI_NORMALIZE	\
+	assert(s1)
+
 PERL_CALLCONV void	Perl_qerror(pTHX_ SV* err)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
@@ -9386,12 +9393,13 @@ STATIC void	S_no_op(pTHX_ const char *const what, char *s)
 #define PERL_ARGS_ASSERT_NO_OP	\
 	assert(what)
 
-STATIC void	S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package, bool is_utf8, bool check_dollar)
+STATIC void	S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package, bool is_utf8, bool check_dollar, int *normalize)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
-			__attribute__nonnull__(pTHX_3);
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_7);
 #define PERL_ARGS_ASSERT_PARSE_IDENT	\
-	assert(s); assert(d); assert(e)
+	assert(s); assert(d); assert(e); assert(normalize)
 
 STATIC int	S_pending_ident(pTHX);
 STATIC char*	S_scan_const(pTHX_ char *start)
@@ -9448,7 +9456,7 @@ STATIC char*	S_scan_trans(pTHX_ char *start)
 #define PERL_ARGS_ASSERT_SCAN_TRANS	\
 	assert(start)
 
-STATIC char*	S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package, STRLEN *slp)
+STATIC char*	S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package, STRLEN *slp, int *normalize)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_5);
