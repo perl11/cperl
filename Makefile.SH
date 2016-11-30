@@ -582,32 +582,6 @@ lintflags = \
     -erroff=E_STATIC_UNUSED \
     -erroff=E_TRUE_LOGICAL_EXPR
 
-splintflags = \
-    -I/usr/lib/gcc/i486-linux-gnu/4.0.2/include/ \
-    -D__builtin_va_list=va_list \
-    -Dsigjmp_buf=jmp_buf \
-    -warnposix \
-    \
-    +boolint \
-    +charintliteral \
-    -fixedformalarray \
-    -mustfreefresh \
-    -nestedextern \
-    -predboolint \
-    -predboolothers \
-    -preproc \
-    -boolops \
-    -shadow \
-    -nullstate \
-    +longintegral \
-    +matchanyintegral \
-    -type \
-    \
-    +line-len 999 \
-    +weak
-
-splintfiles = $(c1)
-
 .c$(OBJ_EXT): 
 	`$(CCCMD)` $(PLDLFLAGS) $*.c
 
@@ -1538,10 +1512,6 @@ _verycleaner:
 lint: $(c)
 	rm -f *.ln
 	lint $(lintflags) -DPERL_CORE -D_REENTRANT -DDEBUGGING -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 $(c)
-
-.PHONY: splint
-splint: $(c)
-	splint $(splintflags) -DPERL_CORE -D_REENTRANT -DDEBUGGING -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 $(splintfiles)
 
 cscopeflags = -Rb  # Recursive, build-only.
 
