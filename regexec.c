@@ -1678,7 +1678,7 @@ REXEC_FBC_SCAN( /* Loops while (s < strend) */                 \
     tmp = TEST_UV(tmp);                                                        \
     LOAD_UTF8_CHARCLASS_ALNUM();                                               \
     REXEC_FBC_UTF8_SCAN( /* advances s while s < strend */                     \
-        if (tmp == ! (TEST_UTF8((U8 *) s))) {                                  \
+        if (tmp == ! (TEST_UTF8((U8 *) s, (U8 *) reginfo->strend))) {          \
             tmp = !tmp;                                                        \
             IF_SUCCESS;                                                        \
         }                                                                      \
@@ -2050,7 +2050,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
             goto do_boundu;
         }
 
-        FBC_BOUND(isWORDCHAR_LC, isWORDCHAR_LC_uvchr, isWORDCHAR_LC_utf8);
+        FBC_BOUND(isWORDCHAR_LC, isWORDCHAR_LC_uvchr, isWORDCHAR_LC_utf8_safe);
         break;
 
     case NBOUNDL:
@@ -2063,14 +2063,14 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
             goto do_nboundu;
         }
 
-        FBC_NBOUND(isWORDCHAR_LC, isWORDCHAR_LC_uvchr, isWORDCHAR_LC_utf8);
+        FBC_NBOUND(isWORDCHAR_LC, isWORDCHAR_LC_uvchr, isWORDCHAR_LC_utf8_safe);
         break;
 
     case BOUND: /* regcomp.c makes sure that this only has the traditional \b
                    meaning */
         assert(FLAGS(c) == TRADITIONAL_BOUND);
 
-        FBC_BOUND(isWORDCHAR, isWORDCHAR_uni, isWORDCHAR_utf8);
+        FBC_BOUND(isWORDCHAR, isWORDCHAR_uni, isWORDCHAR_utf8_safe);
         break;
 
     case BOUNDA: /* regcomp.c makes sure that this only has the traditional \b
@@ -2084,7 +2084,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                    meaning */
         assert(FLAGS(c) == TRADITIONAL_BOUND);
 
-        FBC_NBOUND(isWORDCHAR, isWORDCHAR_uni, isWORDCHAR_utf8);
+        FBC_NBOUND(isWORDCHAR, isWORDCHAR_uni, isWORDCHAR_utf8_safe);
         break;
 
     case NBOUNDA: /* regcomp.c makes sure that this only has the traditional \b
@@ -2096,7 +2096,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
 
     case NBOUNDU:
         if ((bound_type) FLAGS(c) == TRADITIONAL_BOUND) {
-            FBC_NBOUND(isWORDCHAR_L1, isWORDCHAR_uni, isWORDCHAR_utf8);
+            FBC_NBOUND(isWORDCHAR_L1, isWORDCHAR_uni, isWORDCHAR_utf8_safe);
             break;
         }
 
@@ -2109,7 +2109,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
       do_boundu:
         switch((bound_type) FLAGS(c)) {
             case TRADITIONAL_BOUND:
-                FBC_BOUND(isWORDCHAR_L1, isWORDCHAR_uni, isWORDCHAR_utf8);
+                FBC_BOUND(isWORDCHAR_L1, isWORDCHAR_uni, isWORDCHAR_utf8_safe);
                 break;
             case GCB_BOUND:
                 if (s == reginfo->strbeg) {
@@ -2385,7 +2385,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
         if (utf8_target) {
             /* The complement of something that matches only ASCII matches all
              * non-ASCII, plus everything in ASCII that isn't in the class. */
-            REXEC_FBC_UTF8_CLASS_SCAN(! isASCII_utf8(s)
+            REXEC_FBC_UTF8_CLASS_SCAN(   ! isASCII_utf8_safe(s, strend)
                                       || ! _generic_isCC_A(*s, FLAGS(c)));
             break;
         }
@@ -2449,27 +2449,27 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                                            macros */
                 case _CC_ENUM_SPACE:
                     REXEC_FBC_UTF8_CLASS_SCAN(
-                                        to_complement ^ cBOOL(isSPACE_utf8(s)));
+                        to_complement ^ cBOOL(isSPACE_utf8_safe(s, strend)));
                     break;
 
                 case _CC_ENUM_BLANK:
                     REXEC_FBC_UTF8_CLASS_SCAN(
-                                        to_complement ^ cBOOL(isBLANK_utf8(s)));
+                        to_complement ^ cBOOL(isBLANK_utf8_safe(s, strend)));
                     break;
 
                 case _CC_ENUM_XDIGIT:
                     REXEC_FBC_UTF8_CLASS_SCAN(
-                                       to_complement ^ cBOOL(isXDIGIT_utf8(s)));
+                       to_complement ^ cBOOL(isXDIGIT_utf8_safe(s, strend)));
                     break;
 
                 case _CC_ENUM_VERTSPACE:
                     REXEC_FBC_UTF8_CLASS_SCAN(
-                                       to_complement ^ cBOOL(isVERTWS_utf8(s)));
+                       to_complement ^ cBOOL(isVERTWS_utf8_safe(s, strend)));
                     break;
 
                 case _CC_ENUM_CNTRL:
                     REXEC_FBC_UTF8_CLASS_SCAN(
-                                        to_complement ^ cBOOL(isCNTRL_utf8(s)));
+                        to_complement ^ cBOOL(isCNTRL_utf8_safe(s, strend)));
                     break;
 
                 default:
@@ -2494,9 +2494,10 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
          * FBC macro instead of being expanded out.  Since we've loaded the
          * swash, we don't have to check for that each time through the loop */
         REXEC_FBC_UTF8_CLASS_SCAN(
-                to_complement ^ cBOOL(_generic_utf8(
+                to_complement ^ cBOOL(_generic_utf8_safe(
                                       classnum,
                                       s,
+                                      strend,
                                       swash_fetch(PL_utf8_swash_ptrs[classnum],
                                                   (U8 *) s, TRUE))));
         break;
@@ -6081,12 +6082,14 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 		if (locinput == reginfo->strbeg)
 		    b1 = isWORDCHAR_LC('\n');
 		else {
-                    b1 = isWORDCHAR_LC_utf8(reghop3((U8*)locinput, -1,
-                                                        (U8*)(reginfo->strbeg)));
+                    b1 = isWORDCHAR_LC_utf8_safe(reghop3((U8*)locinput, -1,
+                                                        (U8*)(reginfo->strbeg)),
+                                                 (U8*)(reginfo->strend));
 		}
                 b2 = (NEXTCHR_IS_EOS)
                     ? isWORDCHAR_LC('\n')
-                    : isWORDCHAR_LC_utf8((U8*)locinput);
+                    : isWORDCHAR_LC_utf8_safe((U8*) locinput,
+                                              (U8*) reginfo->strend);
 	    }
 	    else { /* Here the string isn't utf8 */
 		b1 = (locinput == reginfo->strbeg)
@@ -6160,11 +6163,15 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
                         bool b1, b2;
                         b1 = (locinput == reginfo->strbeg)
                              ? 0 /* isWORDCHAR_L1('\n') */
-                             : isWORDCHAR_utf8(reghop3((U8*)locinput, -1,
-                                                       (U8*)(reginfo->strbeg)));
+                             : isWORDCHAR_utf8_safe(
+                                               reghop3((U8*)locinput,
+                                                       -1,
+                                                       (U8*)(reginfo->strbeg)),
+                                                    (U8*) reginfo->strend);
                         b2 = (NEXTCHR_IS_EOS)
                             ? 0 /* isWORDCHAR_L1('\n') */
-                            : isWORDCHAR_utf8((U8*)locinput);
+                            : isWORDCHAR_utf8_safe((U8*)locinput,
+                                                   (U8*) reginfo->strend);
                         match = cBOOL(b1 != b2);
                         break;
                     }
@@ -8983,7 +8990,7 @@ S_regrepeat(pTHX_ regexp *prog, char **startposp, const regnode *p,
             /* The complement of something that matches only ASCII matches all
              * non-ASCII, plus everything in ASCII that isn't in the class. */
 	    while (hardcount < max && scan < loceol
-                   && (! isASCII_utf8(scan)
+                   && (   ! isASCII_utf8_safe(scan, reginfo->strend)
                        || ! _generic_isCC_A((U8) *scan, FLAGS(p))))
             {
                 scan += UTF8SKIP(scan);
@@ -9051,7 +9058,8 @@ S_regrepeat(pTHX_ regexp *prog, char **startposp, const regnode *p,
                     case _CC_ENUM_SPACE:
                         while (hardcount < max
                                && scan < loceol
-                               && (to_complement ^ cBOOL(isSPACE_utf8(scan))))
+                               && (to_complement
+                                   ^ cBOOL(isSPACE_utf8_safe(scan, loceol))))
                         {
                             scan += UTF8SKIP(scan);
                             hardcount++;
@@ -9060,7 +9068,8 @@ S_regrepeat(pTHX_ regexp *prog, char **startposp, const regnode *p,
                     case _CC_ENUM_BLANK:
                         while (hardcount < max
                                && scan < loceol
-                               && (to_complement ^ cBOOL(isBLANK_utf8(scan))))
+                               && (to_complement
+                                    ^ cBOOL(isBLANK_utf8_safe(scan, loceol))))
                         {
                             scan += UTF8SKIP(scan);
                             hardcount++;
@@ -9069,7 +9078,8 @@ S_regrepeat(pTHX_ regexp *prog, char **startposp, const regnode *p,
                     case _CC_ENUM_XDIGIT:
                         while (hardcount < max
                                && scan < loceol
-                               && (to_complement ^ cBOOL(isXDIGIT_utf8(scan))))
+                               && (to_complement
+                                   ^ cBOOL(isXDIGIT_utf8_safe(scan, loceol))))
                         {
                             scan += UTF8SKIP(scan);
                             hardcount++;
@@ -9078,7 +9088,8 @@ S_regrepeat(pTHX_ regexp *prog, char **startposp, const regnode *p,
                     case _CC_ENUM_VERTSPACE:
                         while (hardcount < max
                                && scan < loceol
-                               && (to_complement ^ cBOOL(isVERTWS_utf8(scan))))
+                               && (to_complement
+                                   ^ cBOOL(isVERTWS_utf8_safe(scan, loceol))))
                         {
                             scan += UTF8SKIP(scan);
                             hardcount++;
@@ -9087,7 +9098,8 @@ S_regrepeat(pTHX_ regexp *prog, char **startposp, const regnode *p,
                     case _CC_ENUM_CNTRL:
                         while (hardcount < max
                                && scan < loceol
-                               && (to_complement ^ cBOOL(isCNTRL_utf8(scan))))
+                               && (to_complement
+                                   ^ cBOOL(isCNTRL_utf8_safe(scan, loceol))))
                         {
                             scan += UTF8SKIP(scan);
                             hardcount++;
@@ -9113,9 +9125,10 @@ S_regrepeat(pTHX_ regexp *prog, char **startposp, const regnode *p,
         }
 
         while (hardcount < max && scan < loceol
-               && to_complement ^ cBOOL(_generic_utf8(
+               && to_complement ^ cBOOL(_generic_utf8_safe(
                                        classnum,
                                        scan,
+                                       loceol,
                                        swash_fetch(PL_utf8_swash_ptrs[classnum],
                                                    (U8 *) scan,
                                                    TRUE))))
