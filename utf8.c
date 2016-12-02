@@ -4549,9 +4549,9 @@ S_uvuni_get_script(pTHX_ const UV uv) {
     dSP;
     SV* retval = NULL;
     SV* errsv_save;
-    
+
+    Perl_load_module(aTHX_ PERL_LOADMOD_NOIMPORT, newSVpvs("Unicode::UCD"), NULL);
     ENTER;
-    load_module(PERL_LOADMOD_NOIMPORT, newSVpvs("Unicode::UCD"), NULL);
     SPAGAIN;
     PUSHMARK(SP);
     EXTEND(SP,1);
@@ -4574,11 +4574,29 @@ S_uvuni_get_script(pTHX_ const UV uv) {
     return retval ? SvPVX_const(retval) : "";
 }
 
-/*
-=for apidoc utf8_check_script
+PERL_STATIC_INLINE void
+S_utf8_add_script(pTHX_ const char* script) {
+    const GV* gv = gv_fetchpvs("utf8::SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
+    HV* allowed;
+    PERL_ARGS_ASSERT_UTF8_ADD_SCRIPT;
 
-Check if the script property of the unicode character was
-declared via C<use utf8 'Script'>, otherwise error.
+    if (!gv) {
+        allowed = GvHVn(gv_fetchpvs("utf8::SCRIPTS", GV_ADD, SVt_PVHV));
+        (void)hv_store(allowed, "Latin", 5, newSViv(1), 0);
+        (void)hv_store(allowed, "Common", 6, newSViv(1), 0);
+    } else
+        allowed = GvHV(gv);
+
+    /* Add as yes, not 1 to seperate it from explicitly declared Scripts */
+    (void)hv_store(allowed, script, strlen(script), newSViv(1), 0);
+}
+
+
+/*
+=for apidoc utf8_error_script
+
+If this character is the first non-Latin or non-Common character,
+add the script to the list of allowed scripts, otherwise error.
 
 Note that the argument is guaranteed to be not of the
 Common or Latin script property.
@@ -4588,23 +4606,63 @@ Common or Latin script property.
 
 PERL_STATIC_INLINE void
 S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
+    static int count = 0;
     STRLEN len = strlen((char*)s);
-    SV* tmp = newSVpvs("");
     PERL_ARGS_ASSERT_UTF8_ERROR_SCRIPT;
 
     if (!script) {
         uv = utf8n_to_uvchr(s, len, &len, UTF8_ALLOW_ANYUV);
         script = uvuni_get_script(uv);
     }
-    Perl_croak(aTHX_ "Invalid script %s in identifier %.*s for U+%04" UVXf,
-               script, len, s, uv);
-    SvREFCNT_dec(tmp);
+    ++count;
+    if (count == 1) {
+        DEBUG_p(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
+                              script, uv));
+        utf8_add_script(script);
+    }
+    else {
+        const GV* gv = gv_fetchpvs("utf8::SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
+        const HV* allowed = gv ? GvHV(gv) : NULL;
+        if (allowed && HvKEYS(allowed) > 2) {
+            HE *entry;
+            SV* tmp = newSVpvs("");
+            I32 l;
+            Perl_sv_catpvf(aTHX_ tmp,
+                "Invalid script %s in identifier %.*s for U+%04" UVXf
+                ". Have", script, (int)len, s, uv);
+            hv_iterinit(allowed);
+            while ((entry = hv_iternext(allowed))) {
+		const char * const key = hv_iterkey(entry, &l);
+                if (strNE(key, "Latin") && strNE(key, "Common"))
+                    Perl_sv_catpvf(aTHX_ tmp, ", %.*s", (int)l, key);
+            }
+            Perl_croak(aTHX_ "%s", SvPVX(tmp));
+            SvREFCNT_dec(tmp);
+        } else {
+            Perl_croak(aTHX_ "Invalid script %s in identifier %.*s for U+%04" UVXf,
+                       script, (int)len, s, uv);
+        }
+    }
 }
+
+/*
+=for apidoc utf8_check_script
+
+Check if the script property of the unicode character was
+declared via C<use utf8 'Script'>. 
+If this character is the first, add the script to the list of
+allowed scripts, otherwise error.
+
+Note that the argument is guaranteed to be not of the
+Common or Latin script property.
+
+=cut
+*/
 
 void
 Perl_utf8_check_script(pTHX_ const U8 *s)
 {
-    const GV* gv = gv_fetchpvs("utf8::scripts", GV_NOTQUAL, SVt_PVHV);
+    const GV* gv = gv_fetchpvs("utf8::SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
     const HV* allowed = gv ? GvHV(gv) : NULL;
 
     PERL_ARGS_ASSERT_UTF8_CHECK_SCRIPT;
@@ -4617,6 +4675,8 @@ Perl_utf8_check_script(pTHX_ const U8 *s)
         const UV uv = utf8n_to_uvchr(s, len, &len, UTF8_ALLOW_ANYUV);
         const char* script = uvuni_get_script(uv);
 
+        DEBUG_p(PerlIO_printf(Perl_debug_log, "check Script %s for U+%04" UVXf "\n",
+                              script, uv));
         if (!hv_exists(allowed, script, strlen(script)))
             utf8_error_script(s, script, uv);
     }

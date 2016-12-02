@@ -214,7 +214,7 @@ EXPECT
 ########
 
 # perl.c
-use utf8;
+use utf8 'Runic';
 use open qw( :utf8 :std );
 package ɕლȃṢȿ;
 { use warnings 'once' ; $ᛪ = 3 ; }

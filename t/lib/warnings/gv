@@ -220,7 +220,7 @@ Name "main::ʎ" used only once: possible typo at - line 9.
 Use of uninitialized value $ʎ in print at - line 9.
 ########
 # gv.c
-use utf8;
+use utf8 'Hiragana';
 use open qw( :utf8 :std );
 use warnings;
 $ㄒ = 0;
@@ -237,7 +237,7 @@ Name "main::ʎ" used only once: possible typo at - line 10.
 Use of uninitialized value $ʎ in print at - line 10.
 ########
 # gv.c
-use utf8;
+use utf8 'Hiragana';
 use open qw( :utf8 :std );
 use warnings;
 package 팣칵ぇ;
@@ -250,7 +250,7 @@ Name "팣칵ぇ::ʎ" used only once: possible typo at - line 8.
 Use of uninitialized value $팣칵ぇ::ʎ in print at - line 8.
 ########
 # gv.c
-use utf8;
+use utf8 'Hiragana';
 use open qw( :utf8 :std );
 use warnings;
 package 팣칵ぇ;
@@ -264,7 +264,7 @@ Name "팣칵ぇ::ʎ" used only once: possible typo at - line 9.
 Use of uninitialized value $팣칵ぇ::ʎ in print at - line 9.
 ########
 # gv.c
-use utf8;
+use utf8 'Hiragana';
 use open qw( :utf8 :std );
 use warnings;
 package 팣칵ぇ;
@@ -281,7 +281,7 @@ Name "팣칵ぇ::ʎ" used only once: possible typo at - line 10.
 Use of uninitialized value $팣칵ぇ::ʎ in print at - line 10.
 ########
 # gv.c
-use utf8;
+use utf8 'Hiragana';
 use open qw( :utf8 :std );
 use warnings;
 package 팣칵ぇ;

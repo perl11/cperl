@@ -10,10 +10,10 @@ sub import {
     if (@_) {
         require "utf8_heavy.pl";
         for (@_) {
-            if (utf8::valid_script($_)) {
-                # if scoped (later)
+            if (valid_script($_)) {
+                # if scoped (later):
                 # $^H{utf8scripts}{$_} = 1;
-                $utf8::scripts{$_} = 1;
+                $utf8::SCRIPTS{$_} = 1;
             } else {
                 require Carp;
                 Carp::croak("Unknown unicode script $_");
@@ -28,9 +28,9 @@ sub unimport {
     if (@_) {
         require "utf8_heavy.pl";
         for (@_) {
-            if (utf8::valid_script($_)) {
+            if (valid_script($_)) {
                 # delete $^H{utf8scripts}{$_};
-                delete $utf8::scripts{$_};
+                delete $utf8::SCRIPTS{$_};
             } else {
                 require Carp;
                 Carp::croak("Unknown unicode script $_");

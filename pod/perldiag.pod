@@ -3060,12 +3060,15 @@ than a colon or whitespace was seen between the elements of a layer list.
 If the previous attribute had a parenthesised parameter list, perhaps that
 list was terminated too soon.
 
-=item Invalid script %s in identifier %.*s for U+%04
+=item Invalid script %s in identifier %s for U+%X
+
+=item Invalid script %s in identifier %s for U+%X. Have
 
 (F) An invalid unicode character was found in an identifier, with a
-Script property outside of Latin or Common, which was not declared by
-C<use utf8 'Script';>. This is mandatory in cperl for security reasons.
-See L</http://www.unicode.org/reports/tr39/#Mixed_Script_Confusables>.
+second Script property outside of Latin or Common, which were not
+declared by C<use utf8 'Script', 'Script2';>. Declaration of mixed
+scripts are mandatory in cperl for security reasons.  See
+L</http://www.unicode.org/reports/tr39/#Mixed_Script_Confusables>.
 
 =item Invalid strict version format (%s)
 

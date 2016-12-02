@@ -681,10 +681,11 @@ sub _loose_name ($) {
     }
 }
 
-our %scripts = ('Common' => 1, 'Latin' => 1);
+our %SCRIPTS = ('Common' => 1, 'Latin' => 1);
 # not using the pre-processed Sc/* inversion tables yet
 # matching 41 lib/unicore/lib/Sc/ files.
-our %valid_scripts = map {$_ => 1} qw(
+# The short forms are not permitted. (i.e. Tglg for Tagalog)
+our %VALID_SCRIPTS = map {$_ => 1} qw(
     Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese Bamum
     Bassa_Vah Batak Bengali Bopomofo Brahmi Braille Buginese Buhid
     Canadian_Aboriginal Carian Caucasian_Albanian Chakma Cham Cherokee
@@ -707,7 +708,7 @@ our %valid_scripts = map {$_ => 1} qw(
     Warang_Citi Yi);
 
 sub valid_script {
-    return exists $valid_scripts{$_};
+    return exists $VALID_SCRIPTS{$_[0]};
 }
 
 # Now SWASHGET is recasted into a C function S_swatch_get (see utf8.c).

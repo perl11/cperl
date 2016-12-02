@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..196\n";
+print "1..198\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -641,14 +641,20 @@ like($@, qr/^\QIllegal declaration of anonymous subroutine at \E/,
      "bidi spoof with right-to-left override and pop");
 # but via no strict 'refs' (no strict names yet) this would be allowed.
 
-# <c, a, f, e, U+0301, U+0301> Repeated combining marks
-#eval 'use utf8; sub café́ {}'; # currently allowed (?)
+# <c, a, f, e, U+0301, U+0301> Repeated combining marks, normalize or error?
+#eval 'use utf8; sub café́ {}'; # currently allowed, see #228
 
 # <c, a, f, e, U+0301> vs <c, a, f, U+00E9>
-# we do not normalize, so sub café {} will not do café()
-eval 'use utf8; sub café {} café()'; # spoof
+# we will normalize with #228, sub café {} will not do café() now
+eval 'use utf8; sub café {"ok"} print café()'; # spoof
 like($@, qr/^Undefined subroutine &main::caf. called at /,
-     "unicode spoof with combining marks");
+     "TODO unicode spoofed identifier #228");
+
+# this fails with miniperl
+eval 'use utf8; sub Teχ텟;';
+like($@, qr/^Invalid script/, "Invalid mixed-scripts");
+eval 'use utf8 qw(Greek Hangul); sub Teχ텟;';
+is($@, '', "declared mixed scripts #229");
 
 # And now some unicode bugs: https://github.com/jagracey/Awesome-Unicode#user-content-variable-identifiers-can-effectively-include-whitespace
 # Not a space nor whitespace char, but ID_Start + ID_Continue!
