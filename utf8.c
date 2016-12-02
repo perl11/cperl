@@ -4536,9 +4536,17 @@ Perl_uvuni_to_utf8_flags(pTHX_ U8 *d, UV uv, UV flags)
     return uvoffuni_to_utf8_flags(d, uv, flags);
 }
 
+/*
+=for apidoc utf8_get_script
+
+Returns the script property as string of the unicode character.
+
+=cut
+*/
 
 STATIC char*
-S_uvuni_get_script(UV uv) {
+S_utf8_get_script(const U8 *s) {
+    PERL_ARGS_ASSERT_UTF8_GET_SCRIPT;
     return "<unknown script>";
 }
 
@@ -4555,16 +4563,26 @@ Common or Latin script property.
 */
 
 void
-Perl_utf8_check_script(const UV uv)
+Perl_utf8_check_script(pTHX_ const U8 *s)
 {
     const GV* gv = gv_fetchpvs("utf8::scripts", GV_NOTQUAL, SVt_PVHV);
     const HV* allowed = gv ? GvHV(gv) : NULL;
-    const char* script = S_uvuni_get_script(uv);
-    if (!allowed || HvKEYS(allowed) <= 2) { /* Common and Latin always present */
-        Perl_croak(aTHX_ "Invalid script %s in identifier for U+%04" UVXf, script, uv);
-    } else {
-        if (!hv_exists(allowed, script, strlen(script)))
-            Perl_croak(aTHX_ "Invalid script %s in identifier for U+%04" UVXf, script, uv);
+    const char* script = S_utf8_get_script(s);
+
+    PERL_ARGS_ASSERT_UTF8_CHECK_SCRIPT;
+
+    if (!allowed /* utf8_heavy never loaded, use utf8 'Script' never imported */
+        || HvKEYS(allowed) <= 2 /* Common and Latin are always present */
+        || !hv_exists(allowed, script, strlen(script)))
+    {
+        STRLEN len = strlen((char*)s);
+        const UV uv = utf8n_to_uvchr(s, len, &len, UTF8_ALLOW_ANYUV);
+	SV* tmp = newSVpvs("");
+        Perl_croak(aTHX_ "Invalid script %s in identifier %s for U+%04" UVXf,
+                   script,
+                   pv_display(tmp, (char*)s, len, 0, 60),
+                   uv);
+	SvREFCNT_dec(tmp);
     }
     return;
 }

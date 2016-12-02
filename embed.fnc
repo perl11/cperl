@@ -1601,7 +1601,7 @@ EXMpn	|void	|_invlist_populate_swatch |NN SV* const invlist|const UV start \
 EXp	|SV*	|_core_swash_init|NN const char* pkg|NN const char* name \
 		|NN SV* listsv|I32 minbits|I32 none \
 		|NULLOK SV* invlist|NULLOK U8* const flags_p
-EXp	|void	|utf8_check_script|const UV uv
+EXMp	|void	|utf8_check_script|NN const U8 *s
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C)
 EiMRn	|UV*	|invlist_array		|NN SV* const invlist
@@ -2653,6 +2653,7 @@ sR	|SV*	|swatch_get	|NN SV* swash|UV start|UV span
 sRM	|U8*	|swash_scan_list_line|NN U8* l|NN U8* const lend|NN UV* min \
 		|NN UV* max|NN UV* val|const bool wants_value		    \
 		|NN const U8* const typestr
+sR	|char*	|utf8_get_script|NN const U8 *s
 #endif
 
 #ifndef PERL_NO_INLINE_FUNCTIONS

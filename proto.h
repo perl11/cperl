@@ -8804,8 +8804,11 @@ PERL_CALLCONV SV*	Perl__core_swash_init(pTHX_ const char* pkg, const char* name,
 #define PERL_ARGS_ASSERT__CORE_SWASH_INIT	\
 	assert(pkg); assert(name); assert(listsv)
 
-PERL_CALLCONV void	Perl_utf8_check_script(pTHX_ UV uv)
-			__attribute__global__;
+PERL_CALLCONV void	Perl_utf8_check_script(pTHX_ const U8 *s)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_UTF8_CHECK_SCRIPT	\
+	assert(s)
 
 #endif
 #if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_TOKE_C) || defined(PERL_IN_DQUOTE_C)
@@ -9543,6 +9546,12 @@ STATIC SV*	S_swatch_get(pTHX_ SV* swash, UV start, UV span)
 
 STATIC U8	S_to_lower_latin1(const U8 c, U8 *p, STRLEN *lenp)
 			__attribute__warn_unused_result__;
+
+STATIC char*	S_utf8_get_script(pTHX_ const U8 *s)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_UTF8_GET_SCRIPT	\
+	assert(s)
 
 #endif
 #if defined(PERL_IN_UTF8_C) || defined(PERL_IN_PP_C)
