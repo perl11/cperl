@@ -9547,11 +9547,13 @@ STATIC SV*	S_swatch_get(pTHX_ SV* swash, UV start, UV span)
 STATIC U8	S_to_lower_latin1(const U8 c, U8 *p, STRLEN *lenp)
 			__attribute__warn_unused_result__;
 
-STATIC char*	S_utf8_get_script(pTHX_ const U8 *s)
-			__attribute__warn_unused_result__
+PERL_STATIC_INLINE void	S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv)
 			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_UTF8_GET_SCRIPT	\
+#define PERL_ARGS_ASSERT_UTF8_ERROR_SCRIPT	\
 	assert(s)
+
+STATIC char*	S_uvuni_get_script(pTHX_ const UV uv)
+			__attribute__warn_unused_result__;
 
 #endif
 #if defined(PERL_IN_UTF8_C) || defined(PERL_IN_PP_C)
