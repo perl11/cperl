@@ -1788,39 +1788,39 @@ Constant subroutine main::frèd redefined at - line 5.
 use warnings 'redefine' ;
 use utf8;
 use open qw( :utf8 :std );
-sub ᚠርƊ {}
-sub ᚠርƊ {}
+sub ሀርƊ {}
+sub ሀርƊ {}
 no warnings 'redefine' ;
-sub ᚠርƊ {}
+sub ሀርƊ {}
 EXPECT
-Subroutine ᚠርƊ redefined at - line 6.
+Subroutine ሀርƊ redefined at - line 6.
 ########
 # op.c
 use warnings 'redefine' ;
 use utf8;
 use open qw( :utf8 :std );
-sub ᚠርƊ () { 1 }
-sub ᚠርƊ () { 1 }
+sub ሀርƊ () { 1 }
+sub ሀርƊ () { 2 }
 no warnings 'redefine' ;
-sub ᚠርƊ () { 1 }
+sub ሀርƊ () { 3 }
 EXPECT
-Constant subroutine ᚠርƊ redefined at - line 6.
+Constant subroutine ሀርƊ redefined at - line 6.
 ########
 # op.c
 use utf8;
 use open qw( :utf8 :std );
-sub ᚠርƊ () { 1 }
-sub ᚠርƊ () { 2 }
+sub ሀርƊ () { 1 }
+sub ሀርƊ () { 2 }
 EXPECT
-Constant subroutine ᚠርƊ redefined at - line 5.
+Constant subroutine ሀርƊ redefined at - line 5.
 ########
 # op.c
 use utf8;
 use open qw( :utf8 :std );
-sub ᚠርƊ () { 1 }
-*ᚠርƊ = sub () { 2 };
+sub ሀርƊ () { 1 }
+*ሀርƊ = sub () { 2 };
 EXPECT
-Constant subroutine main::ᚠርƊ redefined at - line 5.
+Constant subroutine main::ሀርƊ redefined at - line 5.
 ########
 # OPTION regex
 sub DynaLoader::dl_error {};

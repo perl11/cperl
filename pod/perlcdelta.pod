@@ -26,7 +26,7 @@ here, but most should go in the L</Performance Enhancements> section.
 =head2 use utf8 'Script'
 
 In order to avoid TR39 confusable security hacks, we add the following
-unicode rules for identifiers and literals:
+unicode rules for identifiers and literals with mixed script properties:
 
 =over
 

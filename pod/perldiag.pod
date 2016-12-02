@@ -3068,7 +3068,7 @@ list was terminated too soon.
 second Script property outside of Latin or Common, which were not
 declared by C<use utf8 'Script', 'Script2';>. Declaration of mixed
 scripts are mandatory in cperl for security reasons.  See
-L</http://www.unicode.org/reports/tr39/#Mixed_Script_Confusables>.
+L<http://www.unicode.org/reports/tr39/#Mixed_Script_Confusables>.
 
 =item Invalid strict version format (%s)
 

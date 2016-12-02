@@ -21,7 +21,9 @@
 
     Had to create %SVf unexpectedly		[gv_fetchpv]
     Attempt to free unreferenced glob pointers	[gp_free]
-    
+
+This has cperl specific multi-script declarations and changes.
+
 __END__
 # gv.c
 use warnings 'syntax' ;
@@ -220,7 +222,7 @@ Name "main::ʎ" used only once: possible typo at - line 9.
 Use of uninitialized value $ʎ in print at - line 9.
 ########
 # gv.c
-use utf8 'Hiragana';
+use utf8;
 use open qw( :utf8 :std );
 use warnings;
 $ㄒ = 0;
@@ -237,12 +239,12 @@ Name "main::ʎ" used only once: possible typo at - line 10.
 Use of uninitialized value $ʎ in print at - line 10.
 ########
 # gv.c
-use utf8 'Hiragana';
+use utf8 'Hangul', 'Hiragana';
 use open qw( :utf8 :std );
 use warnings;
 package 팣칵ぇ;
-$ㄒ = 1;
-if ($ㄒ) {
+$ぁ = 1;
+if ($ぁ) {
     print $ʎ;
 }
 EXPECT
@@ -250,7 +252,7 @@ Name "팣칵ぇ::ʎ" used only once: possible typo at - line 8.
 Use of uninitialized value $팣칵ぇ::ʎ in print at - line 8.
 ########
 # gv.c
-use utf8 'Hiragana';
+use utf8 'Hangul', 'Hiragana';
 use open qw( :utf8 :std );
 use warnings;
 package 팣칵ぇ;
@@ -264,7 +266,7 @@ Name "팣칵ぇ::ʎ" used only once: possible typo at - line 9.
 Use of uninitialized value $팣칵ぇ::ʎ in print at - line 9.
 ########
 # gv.c
-use utf8 'Hiragana';
+use utf8 'Hangul', 'Hiragana';
 use open qw( :utf8 :std );
 use warnings;
 package 팣칵ぇ;
@@ -281,7 +283,7 @@ Name "팣칵ぇ::ʎ" used only once: possible typo at - line 10.
 Use of uninitialized value $팣칵ぇ::ʎ in print at - line 10.
 ########
 # gv.c
-use utf8 'Hiragana';
+use utf8 'Hangul', 'Hiragana';
 use open qw( :utf8 :std );
 use warnings;
 package 팣칵ぇ;

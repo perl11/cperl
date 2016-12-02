@@ -13,6 +13,7 @@
   Unbalanced string table refcount: (%d) for \"%s\"	[perl_destruct]
   Scalars leaked: %ld					[perl_destruct]
 
+This has cperl specific multi-script declarations and changes.
 
 __END__
 # perl.c
@@ -161,7 +162,7 @@ use utf8;
 use open qw( :utf8 :std );
 package ɕლȃṢȿ;
 no warnings 'once' ;
-$ᛪ = 3 ;
+$Ⴁ = 4 ;
 use warnings 'once' ;
 $ȥ = 3 ;
 EXPECT
@@ -172,22 +173,22 @@ Name "ɕლȃṢȿ::ȥ" used only once: possible typo at - line 10.
 use utf8;
 use open qw( :utf8 :std );
 package ɕლȃṢȿ;
-$ᛪ = 3 ;
+$Ⴁ = 4 ;
 no warnings 'once' ;
 $ȥ = 3 
 EXPECT
-Name "ɕლȃṢȿ::ᛪ" used only once: possible typo at - line 6.
+Name "ɕლȃṢȿ::Ⴁ" used only once: possible typo at - line 6.
 ########
 # perl.c
 use utf8;
 use open qw( :utf8 :std );
 package ɕლȃṢȿ;
 BEGIN { $^W =1 ; }
-$ᛪ = 3 ;
+$Ⴁ = 4 ;
 no warnings 'once' ;
 $ȥ = 3 
 EXPECT
-Name "ɕლȃṢȿ::ᛪ" used only once: possible typo at - line 6.
+Name "ɕლȃṢȿ::Ⴁ" used only once: possible typo at - line 6.
 ########
 -W
 # perl.c
@@ -195,17 +196,17 @@ use utf8;
 use open qw( :utf8 :std );
 package ɕლȃṢȿ;
 no warnings 'once' ;
-$ᛪ = 3 ;
+$Ⴁ = 4 ;
 use warnings 'once' ;
 $ȥ = 3 ;
 EXPECT
 OPTION random
-Name "ɕლȃṢȿ::ᛪ" used only once: possible typo at - line 7.
+Name "ɕლȃṢȿ::Ⴁ" used only once: possible typo at - line 7.
 Name "ɕლȃṢȿ::ȥ" used only once: possible typo at - line 9.
 ########
 -X
 # perl.c
-use utf8;
+use utf8 'Georgian';
 use open qw( :utf8 :std );
 use warnings 'once' ;
 package ɕლȃṢȿ;
@@ -224,7 +225,7 @@ Name "ɕლȃṢȿ::ᛪ" used only once: possible typo at - line 6.
 ########
 
 # perl.c
-use utf8;
+use utf8 'Runic';
 use open qw( :utf8 :std );
 package ɕლȃṢȿ;
 $ȥ = 3 ;

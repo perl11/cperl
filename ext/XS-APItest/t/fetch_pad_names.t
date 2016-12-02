@@ -174,7 +174,7 @@ END_EVAL
 }
 
 $cv = sub {
-    use utf8;
+    use utf8 'Han';
     our $戦国 = 10;
     {
         no strict 'refs';
@@ -253,7 +253,7 @@ general_tests( $cv->(), $names_av, {
 }
 
 $cv = do {
-    use utf8;
+    use utf8 'Katakana','Hiragana';
     sub {
         my $ニコニコ = 'katakana';
         my $にこにこ = 'hiragana';
