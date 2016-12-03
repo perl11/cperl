@@ -4550,7 +4550,8 @@ S_uvuni_get_script(pTHX_ const UV uv) {
     SV* retval = NULL;
     SV* errsv_save;
 
-    Perl_load_module(aTHX_ PERL_LOADMOD_NOIMPORT, newSVpvs("Unicode::UCD"), NULL);
+    /* and heavy is loaded via AUTOLOAD */
+    Perl_load_module(aTHX_ PERL_LOADMOD_NOIMPORT, newSVpvs("utf8"), NULL);
     ENTER;
     SPAGAIN;
     PUSHMARK(SP);
@@ -4559,8 +4560,8 @@ S_uvuni_get_script(pTHX_ const UV uv) {
     PUTBACK;
     if ((errsv_save = GvSV(PL_errgv))) SAVEFREESV(errsv_save);
     GvSV(PL_errgv) = NULL;
-    /* TODO: Convert this to C */
-    if (call_sv(newSVpvs_flags("Unicode::UCD::charscript", SVs_TEMP), G_SCALAR)) {
+    /* TODO: Convert this to C. UCD access is still primitive and huge. */
+    if (call_sv(newSVpvs_flags("utf8::charscript", SVs_TEMP), G_SCALAR)) {
         retval = *PL_stack_sp--;
         SvREFCNT_inc(retval);
     }
