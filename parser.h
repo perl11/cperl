@@ -41,8 +41,8 @@ typedef struct yy_parser {
     int		    yychar;	/* The lookahead symbol.  */
     YYSTYPE	    yylval;	/* value of lookahead symbol, set by yylex() */
 
-    int		    stack_size;
     yy_stack_frame  *stack;	/* base of stack */
+    yy_stack_frame  *stack_max1;/* (top-1)th element of alloacted stack */
     yy_stack_frame  *ps;	/* current stack frame */
 
     struct yy_parser *old_parser; /* previous value of PL_parser */
