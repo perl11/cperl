@@ -2,7 +2,7 @@
 
 BEGIN { chdir 't' if -d 't'; @INC = '../lib'; require './test.pl' }
 
-use utf8;
+use utf8 qw(Thai Hangul Lao Bopomofo Canadian_Aboriginal Ethiopic);
 use open qw( :utf8 :std );
 
 plan 12;

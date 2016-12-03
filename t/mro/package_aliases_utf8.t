@@ -11,7 +11,9 @@ BEGIN {
 
 use strict;
 use warnings;
-use utf8;
+use utf8 qw( Devanagari Bopomofo Ethiopic Hangul Cyrillic Katakana
+             Canadian_Aboriginal Kannada Thai Runic Ogham Lao Syriac Gujarati
+             Oriya Greek Georgian Malayalam Gurmukhi Cham Hiragana Gurmukhi );
 use open qw( :utf8 :std );
 
 plan(tests => 52);
@@ -61,7 +63,8 @@ my $prog =    q~
              @INC = '../lib';
          }
      }
-     use utf8;
+     use utf8 qw( Hangul Gurmukhi Cham Cyrillic Canadian_Aboriginal Kannada
+                  Runic );
      use open qw( :utf8 :std );
 
      @숩cਲꩋ::ISA = "ｌㅔf";
@@ -123,7 +126,8 @@ for(
              @INC = '../lib';
          }
      }
-     use utf8;
+     use utf8 qw( Hangul Gurmukhi Cham Cyrillic Canadian_Aboriginal Kannada
+                  Runic );
      use open qw( :utf8 :std );
      @숩cਲꩋ::ISA = "ｌㅔf::Side";
      @ｌㅔf::Side::ISA = "톺ĺФț";
@@ -187,8 +191,8 @@ for(
              chdir 't' if -d 't';
              @INC = '../lib';
          }
-     }
-      use utf8;
+      }
+      use utf8 qw( Cyrillic Hangul Thai Devanagari Bopomofo );
       use open qw( :utf8 :std );
       use Encode ();
 
@@ -224,7 +228,7 @@ for(
              @INC = '../lib';
          }
       }
-      use utf8;
+      use utf8 qw( Cyrillic Hangul Thai Devanagari Bopomofo );
       use open qw( :utf8 :std );
       use Encode ();
 
@@ -308,7 +312,8 @@ my $prog =    q~#!perl -w
              @INC = '../lib';
          }
      }
-     use utf8;
+     use utf8 qw( Hangul Canadian_Aboriginal Ethiopic Runic Katakana Kannada Ogham
+                  Lao );
      use open qw( :utf8 :std );
      @펱ᑦ::ISA = "T잌ዕ";
      @T잌ዕ::ISA = "Bᛆヶṝ";

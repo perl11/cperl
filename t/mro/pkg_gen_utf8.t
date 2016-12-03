@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use utf8;
+use utf8 qw(Oriya Canadian_Aboriginal Hangul Bopomofo);
 use open qw( :utf8 :std );
 
 chdir 't' if -d 't';

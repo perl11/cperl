@@ -7,7 +7,7 @@ BEGIN {
 }
 
 use strict;
-use utf8;
+use utf8 qw( Hangul Cyrillic Ethiopic Canadian_Aboriginal Malayalam Hiragana );
 use open qw( :utf8 :std );
 
 plan 'no_plan';

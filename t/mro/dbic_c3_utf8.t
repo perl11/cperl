@@ -2,7 +2,8 @@
 
 use strict;
 use warnings;
-use utf8;
+use utf8 qw(Hangul Katakana Lepcha Ethiopic Canadian_Aboriginal Hiragana
+            Runic Thai Cyrillic Ogham Gujarati Devanagari Cham);
 use open qw( :utf8 :std );
 
 require q(./test.pl); plan(tests => 1);

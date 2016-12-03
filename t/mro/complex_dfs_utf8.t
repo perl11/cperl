@@ -52,6 +52,7 @@ KJIHGFEDABC
 =cut
 
 {
+    use utf8 qw(Hangul Canadian_Aboriginal);
     package 텟Ṱ::ᐊ; use mro 'dfs';
 
     package 텟Ṱ::ḅ; use mro 'dfs';
@@ -61,6 +62,7 @@ KJIHGFEDABC
     package 텟Ṱ::Ḏ; use mro 'dfs';
     use base qw/텟Ṱ::ᐊ 텟Ṱ::ḅ 텟Ṱ::ȼ/;
 
+    use utf8 qw(Cyrillic);
     package 텟Ṱ::Ӭ; use mro 'dfs';
     use base qw/텟Ṱ::Ḏ/;
 

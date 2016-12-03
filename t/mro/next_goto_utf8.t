@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use utf8;
+use utf8 qw(Canadian_Aboriginal Runic Hangul Bengali);
 use open qw( :utf8 :std );
 require q(./test.pl); plan(tests => 4);
 

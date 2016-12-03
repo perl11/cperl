@@ -721,6 +721,10 @@ sub valid_script {
 
 sub reset_scripts {
     %SCRIPTS = ('Common' => 1, 'Latin' => 1, 'Inherited' => 1);
+    #my %def = ('Common' => 1, 'Latin' => 1, 'Inherited' => 1);
+    #for my $s (keys %SCRIPTS) {
+    #    delete $SCRIPTS{$s} unless $def{$s};
+    #}
 }
 
 our %SCRIPT_ALIAS =

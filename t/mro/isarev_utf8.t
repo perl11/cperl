@@ -10,7 +10,9 @@ BEGIN {
 
 use strict;
 use warnings;
-use utf8;
+use utf8 qw(Hangul Cyrillic Bengali Georgian Hiragana Thai Tamil Bopomofo
+            Gujarati Lao Katakana Runic Phags_Pa Armenian Malayalam
+            Canadian_Aboriginal Ethiopic Oriya Ogham Buhid Devanagari Greek);
 use open qw( :utf8 :std );
 
 plan(tests => 24);

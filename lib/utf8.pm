@@ -9,18 +9,18 @@ sub import {
     $^H |= $utf8::hint_bits;
     if (@_) {
         require "utf8_heavy.pl";
-        for (@_) {
-            if (valid_script($_)) {
+        for my $s (@_) {
+            if (valid_script($s)) {
                 # if scoped (later):
                 # $^H{utf8scripts}{$_} = 1;
-                $utf8::SCRIPTS{$_} = 1;
-            } elsif (@aliases = script_aliases($_)) {
+                $utf8::SCRIPTS{$s} = 1;
+            } elsif (@aliases = script_aliases($s)) {
                 for my $a (@aliases) {
                     $utf8::SCRIPTS{$a} = 1;
                 }
             } else {
                 require Carp;
-                Carp::croak("Unknown unicode script $_");
+                Carp::croak("Unknown unicode script $s");
             }
         }
     }
@@ -31,11 +31,11 @@ sub unimport {
     $^H &= ~$utf8::hint_bits;
     if (@_) {
         require "utf8_heavy.pl";
-        for (@_) {
-            if (valid_script($_)) {
+        for my $s (@_) {
+            if (valid_script($s)) {
                 # delete $^H{utf8scripts}{$_};
-                delete $utf8::SCRIPTS{$_};
-            } elsif (@aliases = script_aliases($_)) {
+                delete $utf8::SCRIPTS{$s};
+            } elsif (@aliases = script_aliases($s)) {
                 for my $a (@aliases) {
                     delete $utf8::SCRIPTS{$a};
                 }

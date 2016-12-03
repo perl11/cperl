@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use utf8;
+use utf8 qw( Hangul Canadian_Aboriginal Cyrillic );
 use open qw( :utf8 :std );
 
 require q(./test.pl); plan(tests => 12);
