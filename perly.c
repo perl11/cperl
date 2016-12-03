@@ -286,11 +286,8 @@ Perl_yyparse (pTHX_ int gramtype)
     ps->state = 0;
     SAVEDESTRUCTOR_X(S_clear_yystack, parser);
 
-/*------------------------------------------------------------.
-| yynewstate -- Push a new state, which is found in yystate.  |
-`------------------------------------------------------------*/
-  yynewstate:
-
+    while (1) {
+        /* main loop: shift some tokens, then reduce when possible */
 
     while (1) {
 
@@ -460,7 +457,7 @@ Perl_yyparse (pTHX_ int gramtype)
 	yystate = yydefgoto[yyn - YYNTOKENS];
     ps->state = yystate;
 
-    goto yynewstate;
+    continue;
 
 
   /*------------------------------------.
@@ -564,7 +561,7 @@ Perl_yyparse (pTHX_ int gramtype)
     ps->name    ="<err>";
 #endif
 
-    goto yynewstate;
+    } /* main loop */
 
 
   /*-------------------------------------.
