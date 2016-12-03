@@ -853,7 +853,6 @@ XS(XS_PerlIO__Layer__NoWarnings)
        during loading of layers.
      */
     dXSARGS;
-    PERL_UNUSED_ARG(cv);
 #ifndef DEBUGGING
     PERL_UNUSED_VAR(items);
 #endif
@@ -867,7 +866,6 @@ XS(XS_PerlIO__Layer__find); /* prototype to pass -Wmissing-prototypes */
 XS(XS_PerlIO__Layer__find)
 {
     dXSARGS;
-    PERL_UNUSED_ARG(cv);
     if (items < 2)
 	Perl_croak(aTHX_ "Usage class->find(name[,load])");
     else {
@@ -3587,6 +3585,7 @@ STDCHAR *
 PerlIOStdio_get_base(pTHX_ PerlIO *f)
 {
     FILE * const stdio = PerlIOSelf(f, PerlIOStdio)->stdio;
+    PERL_UNUSED_CONTEXT;
     return (STDCHAR*)PerlSIO_get_base(stdio);
 }
 
@@ -3594,6 +3593,7 @@ Size_t
 PerlIOStdio_get_bufsiz(pTHX_ PerlIO *f)
 {
     FILE * const stdio = PerlIOSelf(f, PerlIOStdio)->stdio;
+    PERL_UNUSED_CONTEXT;
     return PerlSIO_get_bufsiz(stdio);
 }
 #endif
@@ -3603,6 +3603,7 @@ STDCHAR *
 PerlIOStdio_get_ptr(pTHX_ PerlIO *f)
 {
     FILE * const stdio = PerlIOSelf(f, PerlIOStdio)->stdio;
+    PERL_UNUSED_CONTEXT;
     return (STDCHAR*)PerlSIO_get_ptr(stdio);
 }
 
@@ -3610,6 +3611,7 @@ SSize_t
 PerlIOStdio_get_cnt(pTHX_ PerlIO *f)
 {
     FILE * const stdio = PerlIOSelf(f, PerlIOStdio)->stdio;
+    PERL_UNUSED_CONTEXT;
     return PerlSIO_get_cnt(stdio);
 }
 
@@ -3617,6 +3619,7 @@ void
 PerlIOStdio_set_ptrcnt(pTHX_ PerlIO *f, STDCHAR * ptr, SSize_t cnt)
 {
     FILE * const stdio = PerlIOSelf(f, PerlIOStdio)->stdio;
+    PERL_UNUSED_CONTEXT;
     if (ptr != NULL) {
 #ifdef STDIO_PTR_LVALUE
         /* This is a long-standing infamous mess.  The root of the
@@ -5149,6 +5152,7 @@ PerlIO_tmpfile(void)
 void
 Perl_PerlIO_save_errno(pTHX_ PerlIO *f)
 {
+    PERL_UNUSED_CONTEXT;
     if (!PerlIOValid(f))
 	return;
     PerlIOBase(f)->err = errno;
@@ -5164,6 +5168,7 @@ Perl_PerlIO_save_errno(pTHX_ PerlIO *f)
 void
 Perl_PerlIO_restore_errno(pTHX_ PerlIO *f)
 {
+    PERL_UNUSED_CONTEXT;
     if (!PerlIOValid(f))
 	return;
     SETERRNO(PerlIOBase(f)->err, PerlIOBase(f)->os_err);

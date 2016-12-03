@@ -2389,6 +2389,7 @@ Perl_hv_fill(pTHX_ HV *const hv)
     U32 count = 0;
     HE **ents = HvARRAY(hv);
 
+    PERL_UNUSED_CONTEXT;
     PERL_ARGS_ASSERT_HV_FILL;
 
     /* No keys implies no buckets used.

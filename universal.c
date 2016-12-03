@@ -554,7 +554,6 @@ XS(XS_Internals_SvREADONLY)	/* This is dangerous stuff. */
     dXSARGS;
     SV * const svz = ST(0);
     SV * sv;
-    PERL_UNUSED_ARG(cv);
 
     /* [perl #77776] - called as &foo() not foo() */
     if (!SvROK(svz))
@@ -601,7 +600,6 @@ XS(XS_constant__make_const)	/* This is dangerous stuff. */
     dXSARGS;
     SV * const svz = ST(0);
     SV * sv;
-    PERL_UNUSED_ARG(cv);
 
     /* [perl #77776] - called as &foo() not foo() */
     if (!SvROK(svz) || items != 1)
@@ -629,7 +627,6 @@ XS(XS_Internals_SvREFCNT)	/* This is dangerous stuff. */
     SV * const svz = ST(0);
     SV * sv;
     U32 refcnt;
-    PERL_UNUSED_ARG(cv);
 
     /* [perl #77776] - called as &foo() not foo() */
     if ((items != 1 && items != 2) || !SvROK(svz))
@@ -790,7 +787,6 @@ XS(XS_re_is_regexp); /* prototype to pass -Wmissing-prototypes */
 XS(XS_re_is_regexp)
 {
     dXSARGS;
-    PERL_UNUSED_VAR(cv);
 
     if (items != 1)
 	croak_xs_usage(cv, "sv");
