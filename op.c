@@ -15529,10 +15529,10 @@ Perl_rpeep(pTHX_ OP *o)
                  && IS_TYPE(kid->op_next, REPEAT)
                  && kid->op_next->op_private & OPpREPEAT_DOLIST
                  && OpWANT_LIST(kid->op_next)
-                 && SvIOK(kSVOP_sv) && SvIVX(kSVOP_sv) == 0)
+                 && SvIOK(kSVOP_sv) && SvIVX(kSVOP_sv) == 0
+                 && oldop)
                 {
                     o = kid->op_next; /* repeat */
-                    assert(oldop);
                     oldop->op_next = o;
                     op_free(OpFIRST(o));
                     op_free(OpLAST(o));
