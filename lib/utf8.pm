@@ -176,7 +176,8 @@ Tamil Telugu Thaana Thai Tibetan Tifinagh Tirhuta Ugaritic Vai
 Warang_Citi Yi
 
 Note that this matches the UCD and is a bit different to the old-style
-casing of L<Unicode::UCD/charscript()>.
+casing of L<Unicode::UCD/charscript()> in previous versions of
+L<Unicode::UCD>.
 
 We add some aliases for languages using multiple scripts:
 
@@ -309,8 +310,10 @@ probably want to use C<utf8::is_utf8()> instead.
 
 =item * C<$bool = utf8::valid_script($script)>
 
-Check if C<$script> is a valid Unicode Script property.
-Aliases are not.
+Check if C<$script> is a valid Unicode Script property.  Aliases are
+not. Old-style script names with a lowercase character following the
+C<_> are not. Checks are case-sensitive. Abbrevated script names are
+also not valid.
 
 =item * C<@scripts = utf8::script_aliases($alias)>
 
