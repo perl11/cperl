@@ -2654,7 +2654,7 @@ sRM	|U8*	|swash_scan_list_line|NN U8* l|NN U8* const lend|NN UV* min \
 		|NN UV* max|NN UV* val|const bool wants_value		    \
 		|NN const U8* const typestr
 i	|void	|utf8_add_script|NN const char* script
-i	|void	|utf8_error_script|NN const U8 *s|NULLOK const char* script|UV uv
+s	|void	|utf8_error_script|NN const U8 *s|NULLOK const char* script|UV uv
 sR	|char*	|uvuni_get_script|const UV uv
 #endif
 

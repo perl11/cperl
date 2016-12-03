@@ -206,7 +206,7 @@ Name "ɕლȃṢȿ::ȥ" used only once: possible typo at - line 9.
 ########
 -X
 # perl.c
-use utf8 'Georgian';
+use utf8 'Georgian', 'Runic';
 use open qw( :utf8 :std );
 use warnings 'once' ;
 package ɕლȃṢȿ;
@@ -215,7 +215,7 @@ EXPECT
 ########
 
 # perl.c
-use utf8 'Runic';
+use utf8 'Georgian', 'Runic';
 use open qw( :utf8 :std );
 package ɕლȃṢȿ;
 { use warnings 'once' ; $ᛪ = 3 ; }
@@ -225,7 +225,7 @@ Name "ɕლȃṢȿ::ᛪ" used only once: possible typo at - line 6.
 ########
 
 # perl.c
-use utf8 'Runic';
+use utf8 'Georgian', 'Runic';
 use open qw( :utf8 :std );
 package ɕლȃṢȿ;
 $ȥ = 3 ;

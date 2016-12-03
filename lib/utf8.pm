@@ -14,6 +14,10 @@ sub import {
                 # if scoped (later):
                 # $^H{utf8scripts}{$_} = 1;
                 $utf8::SCRIPTS{$_} = 1;
+            } elsif (@aliases = script_aliases($_)) {
+                for my $a (@aliases) {
+                    $utf8::SCRIPTS{$a} = 1;
+                }
             } else {
                 require Carp;
                 Carp::croak("Unknown unicode script $_");
@@ -31,6 +35,10 @@ sub unimport {
             if (valid_script($_)) {
                 # delete $^H{utf8scripts}{$_};
                 delete $utf8::SCRIPTS{$_};
+            } elsif (@aliases = script_aliases($_)) {
+                for my $a (@aliases) {
+                    delete $utf8::SCRIPTS{$a};
+                }
             } else {
                 require Carp;
                 Carp::croak("Unknown unicode script $_");
@@ -56,7 +64,7 @@ utf8 - Perl pragma to enable/disable UTF-8 (or UTF-EBCDIC) in source code
 =head1 SYNOPSIS
 
  use utf8;
- use utf8 'Greek', 'Arabic';  # allow certain script families
+ use utf8 'Greek', 'Arabic';  # allow mixed-scripts in identifiers
  no utf8;
 
  # Convert the internal representation of a Perl scalar to/from UTF-8.
@@ -85,8 +93,9 @@ utf8 - Perl pragma to enable/disable UTF-8 (or UTF-EBCDIC) in source code
 =head1 DESCRIPTION
 
 The C<use utf8> pragma tells the Perl parser to allow UTF-8 and
-certain mixed scripts other than Latin and Common in the program text
-in the current lexical scope for identifiers and literals. It doesn't
+certain mixed scripts other than Latin, Common and Inherited in the
+program text in the current lexical scope for identifiers (package and
+symbol names, function and variable names) and literals. It doesn't
 declare strings in the source to be UTF-8 encoded or unicode, see
 L<feature/"The 'unicode_strings' feature"> instead.
 
@@ -131,12 +140,13 @@ until the end the block (or file, if at top level) by C<no utf8;>.
 
 =head2 Valid scripts
 
-C<use utf8> takes any valid script names as arguments. This declares
-those scripts for all identifiers as valid, all others besides 'Latin'
-and 'Common' are invalid.  Being forced to declare valid scripts
-disallows unicode confusables from different language families, which
-might looks the same but are not. This does not affect strings, only
-names, literals and numbers.
+C<use utf8> takes any valid UCD script names as arguments. This
+declares those scripts for all identifiers as valid, all others
+besides 'Latin', 'Common' and 'Inherited' are invalid.  This is
+currently only globally, not lexically scoped.  Being forced to declare
+valid scripts disallows unicode confusables from different language
+families, which might looks the same but are not. This does not affect
+strings, only names, literals and numbers.
 
 The unicode standard 8.0 defines 131 scripts, i.e. written language
 families.
@@ -150,7 +160,7 @@ Canadian_Aboriginal Carian Caucasian_Albanian Chakma Cham Cherokee
 B<Common> Coptic Cuneiform Cypriot Cyrillic Deseret Devanagari Duployan
 Egyptian_Hieroglyphs Elbasan Ethiopic Georgian Glagolitic Gothic
 Grantha Greek Gujarati Gurmukhi Han Hangul Hanunoo Hatran Hebrew
-Hiragana Imperial_Aramaic Inherited Inscriptional_Pahlavi
+Hiragana Imperial_Aramaic B<Inherited> Inscriptional_Pahlavi
 Inscriptional_Parthian Javanese Kaithi Kannada Katakana Kayah_Li
 Kharoshthi Khmer Khojki Khudawadi Lao B<Latin> Lepcha Limbu Linear_A
 Linear_B Lisu Lycian Lydian Mahajani Malayalam Mandaic Manichaean
@@ -164,6 +174,11 @@ Sharada Shavian Siddham SignWriting Sinhala Sora_Sompeng Sundanese
 Syloti_Nagri Syriac Tagalog Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri
 Tamil Telugu Thaana Thai Tibetan Tifinagh Tirhuta Ugaritic Vai
 Warang_Citi Yi
+
+We add some aliases for languages using multiple scripts:
+
+   :Japanese => Katakana Hiragana Han
+   :Korean   => Hangul Han
 
 =head2 Utility functions
 
@@ -289,6 +304,39 @@ Main reason for this routine is to allow Perl's test suite to check
 that operations have left strings in a consistent state.  You most
 probably want to use C<utf8::is_utf8()> instead.
 
+=item * C<$bool = utf8::valid_script($script)>
+
+Check if C<$script> is a valid Unicode Script property.
+Aliases are not.
+
+=item * C<@scripts = utf8::script_aliases($alias)>
+
+Return the list of scripts for an $alias.
+E.g. C<script_aliases(':Japanese') => ('Katakana' 'Hiragana' 'Han')>
+An alias must start with the ':' character.
+
+=item * C<add_script_alias($alias, @scripts)>
+
+Add a custom alias (language) for multiple scripts, for languages
+which commonly use mixed scripts.
+An alias must start with the ':' character, and all scripts must be valid
+Unicode Script property names.
+
+E.g.
+
+    BEGIN {
+      use utf8; # to load add_script_alias()
+      utf8::add_script_alias(':Ethopian_Runic', # define it
+                             'Ethopian' 'Runic');
+      use utf8 ':Ethopian_Runic'; # use it
+    }
+
+as abbrevation for C<use utf8 'Ethopian', 'Runic';>
+
+Predefined are C<':Japanese' => qw(Katakana Hiragana Han)> (Han
+standing for Kanji here) and C<':Korean' => qw(Hangul Han)> for mixing old
+chinese symbols.
+
 =back
 
 C<utf8::encode> is like C<utf8::upgrade>, but the UTF8 flag is
@@ -314,10 +362,14 @@ considered insecure.
 
 perl5 upstream does not normalize its unicode identifiers as described in
 L<http://www.unicode.org/reports/tr15/> since 5.16 and is therefore
-considered insecure.
+considered insecure. See L<http://www.unicode.org/reports/tr36/> for the security
+risks.
 
 =head1 SEE ALSO
 
-L<perlunitut>, L<perluniintro>, L<perlrun>, L<bytes>, L<perlunicode>
+L<perlunitut>, L<perluniintro>, L<perlrun>, L<bytes>, L<perlunicode>.
+
+L<http://www.unicode.org/reports/tr36/#Mixed_Script_Spoofing>,
+L<http://unicode.org/reports/tr39/#Mixed_Script_Confusables>.
 
 =cut

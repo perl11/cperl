@@ -681,7 +681,7 @@ sub _loose_name ($) {
     }
 }
 
-our %SCRIPTS = ('Common' => 1, 'Latin' => 1);
+our %SCRIPTS = ('Common' => 1, 'Latin' => 1, 'Inherited' => 1);
 # not using the pre-processed Sc/* inversion tables yet
 # matching 41 lib/unicore/lib/Sc/ files.
 # The short forms are not permitted. (i.e. Tglg for Tagalog)
@@ -709,6 +709,31 @@ our %VALID_SCRIPTS = map {$_ => 1} qw(
 
 sub valid_script {
     return exists $VALID_SCRIPTS{$_[0]};
+}
+
+our %SCRIPT_ALIAS =
+  (':Japanese' => [qw(Katakana Hiragana Han)],
+   ':Korean'   => [qw(Hangul Han)],
+  );
+
+sub script_aliases {
+    if (exists $SCRIPT_ALIAS{$_[0]}) {
+        return @{$SCRIPT_ALIAS{$_[0]}};
+    } else {
+        return ();
+    }
+}
+
+sub add_script_alias {
+    my ($alias, @scripts) = @_;
+    if (substr($alias, 0, 1) ne ':') {
+        croak "Invalid script alias $alias. Must start with ':'";
+    }
+    my @invalid = grep { !valid_script($_) } @scripts;
+    if (@invalid) {
+        croak "Invalid script for alias $alias: ".join(", ", @invalid);
+    }
+    $SCRIPT_ALIAS{$alias} = [ @scripts ];
 }
 
 # Now SWASHGET is recasted into a C function S_swatch_get (see utf8.c).

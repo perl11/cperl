@@ -32,18 +32,19 @@ unicode rules for identifiers and literals with mixed script properties:
 
 =item *
 
-The 'Common' and 'Latin' scripts are always allowed and don't need to
-be declared.
+The 'Common', 'Latin' and 'Inherited' scripts are always allowed and
+don't need to be declared.
 
 =item *
 
-The first non-Latin and not-Common unicode script for an identifier is
-the only allowed one. Others lead to parsers errors.
+The first non-default unicode script for an identifier is
+the only allowed one. This qualifies as single-script.
+More scripts lead to parsers errors.
 
 =item *
 
-Additional unicode scripts can and should be declared via B<use utf8
-'Greek', 'script-name2'...>. This allows mixed scripts in
+Additional unicode scripts can and should be declared via
+B<use utf8 'Greek', 'script-name2'...>. This allows mixed scripts in
 identifiers. This can be scoped in blocks.
 
 =back
@@ -51,7 +52,7 @@ identifiers. This can be scoped in blocks.
 See L<http://www.unicode.org/reports/tr39/#Mixed_Script_Detection> and
 L<[cperl #229]|https://github.com/perl11/cperl/issues/229>
 
-This holds for all identifiers (all names: package, gv, sub,
+This holds for all identifiers (i.e. all names: package, gv, sub,
 variables) and literal numbers.
 
 Currently there exist 131 scripts, see L<utf8/"Valid scripts">.

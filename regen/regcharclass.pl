@@ -1699,11 +1699,14 @@ PATWS: pattern white space
 => generic cp : safe
 \p{_Perl_PatWS}
 
-COMMON_SCRIPT: Common Script
-=> UTF8 :fast
-\p{Script=Common}
-
 LATIN_SCRIPT: Latin Script
 => UTF8 :fast
 \p{Script=Latin}
 
+COMMON_SCRIPT: Common Script
+=> UTF8 :fast
+\p{Script=Common}
+
+INHERITED_SCRIPT: Inherited Script
+=> UTF8 :fast
+\p{Script=Inherited}

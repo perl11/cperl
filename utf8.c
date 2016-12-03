@@ -4559,6 +4559,7 @@ S_uvuni_get_script(pTHX_ const UV uv) {
     PUTBACK;
     if ((errsv_save = GvSV(PL_errgv))) SAVEFREESV(errsv_save);
     GvSV(PL_errgv) = NULL;
+    /* TODO: Convert this to C */
     if (call_sv(newSVpvs_flags("Unicode::UCD::charscript", SVs_TEMP), G_SCALAR)) {
         retval = *PL_stack_sp--;
         SvREFCNT_inc(retval);
@@ -4584,6 +4585,7 @@ S_utf8_add_script(pTHX_ const char* script) {
         allowed = GvHVn(gv_fetchpvs("utf8::SCRIPTS", GV_ADD, SVt_PVHV));
         (void)hv_store(allowed, "Latin", 5, newSViv(1), 0);
         (void)hv_store(allowed, "Common", 6, newSViv(1), 0);
+        (void)hv_store(allowed, "Inherited", 9, newSViv(1), 0);
     } else
         allowed = GvHV(gv);
 
@@ -4595,8 +4597,9 @@ S_utf8_add_script(pTHX_ const char* script) {
 /*
 =for apidoc utf8_error_script
 
-If this character is the first non-Latin or non-Common character,
-add the script to the list of allowed scripts, otherwise error.
+If this character is the first non-Latin or non-Common character, and
+no other scripts were declared, add the script to the list of allowed
+scripts, otherwise error.
 
 Note that the argument is guaranteed to be not of the
 Common or Latin script property.
@@ -4604,10 +4607,12 @@ Common or Latin script property.
 =cut
 */
 
-PERL_STATIC_INLINE void
+STATIC void
 S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
     static int count = 0;
     STRLEN len = strlen((char*)s);
+    const GV* gv = gv_fetchpvs("utf8::SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
+    const HV* allowed = gv ? GvHV(gv) : NULL;
     PERL_ARGS_ASSERT_UTF8_ERROR_SCRIPT;
 
     if (!script) {
@@ -4615,26 +4620,29 @@ S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
         script = uvuni_get_script(uv);
     }
     ++count;
-    if (count == 1) {
+    /* The first error is suppressed and assumed as new default script,
+       when no scripts were declared. */
+    if (count == 1 && (!allowed || HvKEYS(allowed) == 3)) {
         DEBUG_p(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
                               script, uv));
         utf8_add_script(script);
     }
     else {
-        const GV* gv = gv_fetchpvs("utf8::SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
-        const HV* allowed = gv ? GvHV(gv) : NULL;
-        if (allowed && HvKEYS(allowed) > 2) {
+        if (allowed && HvKEYS(allowed) > 3) {
             HE *entry;
             SV* tmp = newSVpvs("");
             I32 l;
+            int i = 0;
             Perl_sv_catpvf(aTHX_ tmp,
                 "Invalid script %s in identifier %.*s for U+%04" UVXf
                 ". Have", script, (int)len, s, uv);
             hv_iterinit(allowed);
             while ((entry = hv_iternext(allowed))) {
 		const char * const key = hv_iterkey(entry, &l);
-                if (strNE(key, "Latin") && strNE(key, "Common"))
-                    Perl_sv_catpvf(aTHX_ tmp, ", %.*s", (int)l, key);
+                if (strNE(key, "Latin") && strNE(key, "Common")
+                    && strNE(key, "Inherited")) {
+                    Perl_sv_catpvf(aTHX_ tmp, "%s %.*s", i++?",":"", (int)l, key);
+                }
             }
             Perl_croak(aTHX_ "%s", SvPVX(tmp));
             SvREFCNT_dec(tmp);
@@ -4668,7 +4676,7 @@ Perl_utf8_check_script(pTHX_ const U8 *s)
     PERL_ARGS_ASSERT_UTF8_CHECK_SCRIPT;
 
     if (!allowed /* utf8_heavy never loaded, use utf8 'Script' never imported */
-        || HvKEYS(allowed) <= 2) { /* Common and Latin are always present */
+        || HvKEYS(allowed) <= 3) { /* Latin,Common,Inherited are always present */
         utf8_error_script(s, NULL, 0);
     } else {
         STRLEN len = strlen((char*)s);

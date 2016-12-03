@@ -677,4 +677,11 @@ eval "package \x{100};\n" . <<'END'
 END
 or die $@;
 
+eval <<'END'
+use utf8 'Greek', 'Cyrillic';
+$
+::ok(1);
+end
+
+
 done_testing();
