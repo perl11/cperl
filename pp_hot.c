@@ -288,7 +288,10 @@ PPt(pp_concat, "(:Any,:Any):Str")
 	if (!SvOK(left)) {
 	    if (left == right && ckWARN(WARN_UNINITIALIZED)) /* $l .= $l */
 		report_uninit(right);
-	    sv_setpvs(left, "");
+            if (SvIS_FREED(left))
+                left = newSVpvs("");
+            else
+                sv_setpvs(left, "");
 	}
         else {
             SvPV_force_nomg_nolen(left);
