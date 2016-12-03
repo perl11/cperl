@@ -9744,9 +9744,11 @@ OP *
 Perl_newANONATTRSUB(pTHX_ I32 floor, OP *proto, OP *attrs, OP *block)
 {
     SV * const cv = MUTABLE_SV(newATTRSUB(floor, 0, proto, attrs, block));
-    OP * anoncode = 
-	newSVOP(OP_ANONCODE, 0,
-		cv);
+    OP * anoncode;
+    if (LIKELY(cv))
+        anoncode = newSVOP(OP_ANONCODE, 0, cv);
+    else
+	Perl_croak(aTHX_ "panic: newANONATTRSUB. empty cv");
     if (CvANONCONST(cv))
 	anoncode = newUNOP(OP_ANONCONST, 0,
 			   op_convert_list(OP_ENTERSUB,
