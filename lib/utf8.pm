@@ -155,25 +155,29 @@ families.
         sort -u
 
 Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese Bamum
-Bassa_Vah Batak Bengali Bopomofo Brahmi Braille Buginese Buhid
-Canadian_Aboriginal Carian Caucasian_Albanian Chakma Cham Cherokee
-B<Common> Coptic Cuneiform Cypriot Cyrillic Deseret Devanagari Duployan
-Egyptian_Hieroglyphs Elbasan Ethiopic Georgian Glagolitic Gothic
+Bassa_vah Batak Bengali Bopomofo Brahmi Braille Buginese Buhid
+Canadian_aboriginal Carian Caucasian_albanian Chakma Cham Cherokee
+Common Coptic Cuneiform Cypriot Cyrillic Deseret Devanagari Duployan
+Egyptian_hieroglyphs Elbasan Ethiopic Georgian Glagolitic Gothic
 Grantha Greek Gujarati Gurmukhi Han Hangul Hanunoo Hatran Hebrew
-Hiragana Imperial_Aramaic B<Inherited> Inscriptional_Pahlavi
-Inscriptional_Parthian Javanese Kaithi Kannada Katakana Kayah_Li
-Kharoshthi Khmer Khojki Khudawadi Lao B<Latin> Lepcha Limbu Linear_A
+Hiragana Imperial_aramaic Inherited Inscriptional_pahlavi
+Inscriptional_parthian Javanese Kaithi Kannada Katakana Kayah_li
+Kharoshthi Khmer Khojki Khudawadi Lao Latin Lepcha Limbu Linear_A
 Linear_B Lisu Lycian Lydian Mahajani Malayalam Mandaic Manichaean
-Meetei_Mayek Mende_Kikakui Meroitic_Cursive Meroitic_Hieroglyphs Miao
-Modi Mongolian Mro Multani Myanmar Nabataean New_Tai_Lue Nko Ogham
-Ol_Chiki Old_Hungarian Old_Italic Old_North_Arabian Old_Permic
-Old_Persian Old_South_Arabian Old_Turkic Oriya Osmanya Pahawh_Hmong
-Palmyrene Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Pau_Cin_Hau
-Phags_Pa Phoenician Psalter_Pahlavi Rejang Runic Samaritan Saurashtra
-Sharada Shavian Siddham SignWriting Sinhala Sora_Sompeng Sundanese
-Syloti_Nagri Syriac Tagalog Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri
+Meetei_mayek Mende_kikakui Meroitic_cursive Meroitic_hieroglyphs Miao
+Modi Mongolian Mro Multani Myanmar Nabataean New_tai_lue Nko Ogham
+Ol_chiki Old_hungarian Old_italic Old_north_arabian Old_permic
+Old_persian Old_south_arabian Old_turkic Oriya Osmanya Pahawh_hmong
+Palmyrene Pau_cin_hau Phags_Pa Phoenician Psalter_pahlavi Pau_Cin_Hau
+Phags_pa Phoenician Psalter_pahlavi Rejang Runic Samaritan Saurashtra
+Sharada Shavian Siddham SignWriting Sinhala Sora_sompeng Sundanese
+Syloti_nagri Syriac Tagalog Tagbanwa Tai_le Tai_tham Tai_viet Takri
 Tamil Telugu Thaana Thai Tibetan Tifinagh Tirhuta Ugaritic Vai
-Warang_Citi Yi
+Warang_citi Yi
+
+Note that in Perl different to the UCD the character after a C<_> is
+always lowercase(old-style casing). This is a traditional
+L<Unicode::UCD/charscript()> oddity and cannot be changed.
 
 We add some aliases for languages using multiple scripts:
 

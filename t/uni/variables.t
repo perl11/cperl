@@ -286,6 +286,8 @@ for my $chr (
        );
 }
 
+# allow all scripts:
+use utf8 keys %utf8::VALID_SCRIPTS;
 for my $i (0x100..0xffff) {
    my $chr = chr($i);
    my $esc = sprintf("%x", $i);
@@ -301,6 +303,7 @@ for my $i (0x100..0xffff) {
           )
    }
 }
+utf8::reset_scripts();
 
 {
     # Bleadperl v5.17.9-109-g3283393 breaks ZEFRAM/Module-Runtime-0.013.tar.gz
