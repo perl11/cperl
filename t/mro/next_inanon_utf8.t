@@ -14,34 +14,34 @@ anonymous subroutine.
 =cut
 
 {
-    package ㅏ;
-    use mro 'c3'; 
+    package ки;
+    use mro 'c3';
 
-    sub ᕘ {
-      return 'ㅏ::ᕘ';
+    sub Bаи {
+      return 'ки::Bаи';
     }
 
-    sub Ḃᛆ {
-      return 'ㅏ::Ḃᛆ';
+    sub FÒÒ {
+      return 'ки::FÒÒ';
     }
 }
 
 {
     package Ḃ;
-    use base 'ㅏ';
-    use mro 'c3'; 
-    
-    sub ᕘ {
+    use base 'ки';
+    use mro 'c3';
+
+    sub Bаи {
       my $code = sub {
-        return 'Ḃ::ᕘ => ' . (shift)->next::method();
+        return 'Ḃ::Bаи => ' . (shift)->next::method();
       };
       return (shift)->$code;
     }
 
-    sub Ḃᛆ {
+    sub FÒÒ {
       my $code1 = sub {
         my $code2 = sub {
-          return 'Ḃ::Ḃᛆ => ' . (shift)->next::method();
+          return 'Ḃ::FÒÒ => ' . (shift)->next::method();
         };
         return (shift)->$code2;
       };
@@ -49,10 +49,10 @@ anonymous subroutine.
     }
 }
 
-is(Ḃ->ᕘ, "Ḃ::ᕘ => ㅏ::ᕘ",
+is(Ḃ->Bаи, "Ḃ::Bаи => ки::Bаи",
    'method resolved inside anonymous sub');
 
-is(Ḃ->Ḃᛆ, "Ḃ::Ḃᛆ => ㅏ::Ḃᛆ",
+is(Ḃ->FÒÒ, "Ḃ::FÒÒ => ки::FÒÒ",
    'method resolved inside nested anonymous subs');
 
 

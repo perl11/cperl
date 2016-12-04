@@ -1,6 +1,7 @@
 #!./perl
 
-use utf8;
+use utf8 qw( Tamil Runic Cyrillic Devanagari Vai Hangul Rejang Canadian_Aboriginal
+             Greek Georgian Oriya Katakana Gujarati Lao Arabic Bopomofo Hiragana );
 use open qw( :utf8 :std );
 use strict;
 use warnings;
@@ -197,8 +198,8 @@ is(eval { MRO_ᕡ->텟tf운ꜿ() }, 123);
         '@MRO_ഋ7::ISA = "MRO_ഋ8"; push(@MRO_ഋ8::ISA, qw/ｘｘ MRO_ഋ7 ƳƳ/)',
     );
     foreach my $code (@recurse_codes) {
-        eval $code;
-        ok($@ =~ /Recursive inheritance detected/);
+        eval 'use utf8 "Malayalam"; ' . $code;
+        ok($@ =~ /Recursive inheritance detected/, $@);
     }
 }
 

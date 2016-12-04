@@ -58,9 +58,9 @@ like($obj, qr/Ȼლᔆ=ARRAY.*world/u, 'rcatline and refs');
     print { $out_fh } "Data\n";
     close $out_fh;
 
-    open hòฟ, "<", $file;
-    is( scalar(<hòฟ>), "Data\n", "readline() works correctly on UTF-8 filehandles" );
-    close hòฟ;
+    open Føø, "<", $file;
+    is( scalar(<Føø>), "Data\n", "readline() works correctly on UTF-8 filehandles" );
+    close Føø;
 }
 
 __DATA__

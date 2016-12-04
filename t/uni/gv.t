@@ -11,7 +11,8 @@ BEGIN {
     skip_all_without_unicode_tables();
 }
 
-use utf8;
+use utf8 qw( Canadian_Aboriginal Runic Telugu Katakana Ethiopic
+             Gujarati Thai Hangul Cyrillic Bopomofo Georgian );
 use open qw( :utf8 :std );
 use warnings;
 

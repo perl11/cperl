@@ -11,41 +11,41 @@ require './test.pl';
 plan(tests => 4);
 
 {
-    package ᕘ;
+    package и;
     use strict;
     use warnings;
     use mro 'c3';
-    
-    sub fಓ { 'ᕘ::fಓ' }
-    
+
+    sub ки { 'и::ки' }
+
     package Fᶽ;
     use strict;
     use warnings;
     use mro 'c3';
-    use base 'ᕘ';
+    use base 'и';
 
-    sub fಓ { 'Fᶽ::fಓ => ' . (shift)->next::method }
-        
-    package Bᛆ;
+    sub ки { 'Fᶽ::ки => ' . (shift)->next::method }
+
+    package BÒ;
     use strict;
-    use warnings;    
+    use warnings;
     use mro 'c3';
-    use base 'ᕘ';
+    use base 'и';
 
-    sub fಓ { 'Bᛆ::fಓ => ' . (shift)->next::method }
-    
-    package Baᕃ;
+    sub ки { 'BÒ::ки => ' . (shift)->next::method }
+
+    package Bаи;
     use strict;
-    use warnings;    
+    use warnings;
 
-    use base 'Bᛆ', 'Fᶽ';
-    
-    sub fಓ { 'Baᕃ::fಓ => ' . (shift)->NEXT::fಓ }    
+    use base 'BÒ', 'Fᶽ';
+
+    sub ки { 'Bаи::ки => ' . (shift)->NEXT::ки }
 }
 
-is(ᕘ->fಓ, 'ᕘ::fಓ', '... got the right value from ᕘ->fಓ');
-is(Fᶽ->fಓ, 'Fᶽ::fಓ => ᕘ::fಓ', '... got the right value from Fᶽ->fಓ');
-is(Bᛆ->fಓ, 'Bᛆ::fಓ => ᕘ::fಓ', '... got the right value from Bᛆ->fಓ');
+is(и->ки, 'и::ки', '... got the right value from и->ки');
+is(Fᶽ->ки, 'Fᶽ::ки => и::ки', '... got the right value from Fᶽ->ки');
+is(BÒ->ки, 'BÒ::ки => и::ки', '... got the right value from BÒ->ки');
 
-is(Baᕃ->fಓ, 'Baᕃ::fಓ => Bᛆ::fಓ => Fᶽ::fಓ => ᕘ::fಓ', '... got the right value using NEXT in a subclass of a C3 class');
+is(Bаи->ки, 'Bаи::ки => BÒ::ки => Fᶽ::ки => и::ки', '... got the right value using NEXT in a subclass of a C3 class');
 

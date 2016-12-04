@@ -7,7 +7,7 @@ BEGIN {
     }
 }
 
-use utf8;
+use utf8 qw( Hangul Mandaic Canadian_Aboriginal Ethiopic Balinese Runic );
 use open qw( :utf8 :std );
 use strict;
 use warnings;

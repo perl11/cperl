@@ -9,7 +9,7 @@ BEGIN {
     }
 }
 
-use utf8;
+use utf8 qw( Hangul Tai_Viet Mandaic Runic Katakana Cyrillic Yi );
 use open qw( :utf8 :std );
 
 require q(./test.pl); plan(tests => 7);

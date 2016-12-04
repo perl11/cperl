@@ -36,29 +36,35 @@ example taken from: L<http://www.opendylan.org/books/drm/Method_Dispatch>
 =cut
 
 {
+    use utf8 qw(Canadian_Aboriginal Hangul);
     package 옵젳Ṯ;
     use mro 'dfs';
-    
+
+    use utf8 qw(Phags_Pa Ogham);
     package ᓕᵮꡠＦᚖᶭ;
     use mro 'dfs';
     use base '옵젳Ṯ';
-    
+
+    use utf8 qw(Bopomofo Katakana);
     package SㄣチenŦ;
     use mro 'dfs';
     use base 'ᓕᵮꡠＦᚖᶭ';
-    
+
+    use utf8 qw(Ol_Chiki);
     package 빞엗ᱞ;
     use mro 'dfs';    
     use base 'ᓕᵮꡠＦᚖᶭ';
-    
+
     package ᕟ텔li겐ț;
     use mro 'dfs';    
     use base 'SㄣチenŦ';
-    
+
+    use utf8 qw(Cyrillic);
     package Hʉ만ӫ읻;
     use mro 'dfs';    
     use base '빞엗ᱞ';
-    
+
+    use utf8 qw(Ethiopic);
     package ቩᓪ찬;
     use mro 'dfs';    
     use base ('ᕟ텔li겐ț', 'Hʉ만ӫ읻');

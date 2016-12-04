@@ -9210,14 +9210,28 @@ S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
              * like c\N{COMBINING TILDE} would start failing, as the
              * isWORDCHAR_A case below would gobble the 'c' up.
              */
-
-            char *t = *s + UTF8SKIP(*s);
-            while (isIDCONT_utf8((U8*)t))
-                t += UTF8SKIP(t);
-            if (*d + (t - *s) > e)
+            const U8 *p = (U8*)*s;
+            STRLEN len = UTF8SKIP(p);
+            char *t = p + UTF8SKIP(p);
+            if (UNLIKELY(len > 1 && !(is_LATIN_SCRIPT_utf8(p)
+                                      || is_COMMON_SCRIPT_utf8(p)))) {
+                utf8_check_script(p);
+            }
+            while (isIDCONT_utf8((U8*)t)) {
+                const int l = UTF8SKIP(t);
+                if (UNLIKELY
+                    (l>1 && !(is_LATIN_SCRIPT_utf8(t)
+                              || is_COMMON_SCRIPT_utf8(t)
+                              || is_INHERITED_SCRIPT_utf8(t)))) {
+                    utf8_check_script((U8*)t);
+                }
+                t += l;
+            }
+            len = t - *s;
+            if (*d + len > e)
                 Perl_croak(aTHX_ "%s", ident_too_long);
-            Copy(*s, *d, t - *s, char);
-            *d += t - *s;
+            Copy(*s, *d, len, char);
+            *d += len;
             *s = t;
         }
         else if ( isWORDCHAR_A(**s) ) {

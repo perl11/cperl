@@ -2,14 +2,49 @@ package utf8;
 
 $utf8::hint_bits = 0x00800000;
 
-our $VERSION = '1.19';
+our $VERSION = '2.00c';
 
 sub import {
+    shift;
     $^H |= $utf8::hint_bits;
+    if (@_) {
+        require "utf8_heavy.pl";
+        for my $s (@_) {
+            if (valid_script($s)) {
+                # if scoped (later):
+                # $^H{utf8scripts}{$_} = 1;
+                $utf8::SCRIPTS{$s} = 1;
+            } elsif (@aliases = script_aliases($s)) {
+                for my $a (@aliases) {
+                    $utf8::SCRIPTS{$a} = 1;
+                }
+            } else {
+                require Carp;
+                Carp::croak("Unknown unicode script $s");
+            }
+        }
+    }
 }
 
 sub unimport {
+    shift;
     $^H &= ~$utf8::hint_bits;
+    if (@_) {
+        require "utf8_heavy.pl";
+        for my $s (@_) {
+            if (valid_script($s)) {
+                # delete $^H{utf8scripts}{$_};
+                delete $utf8::SCRIPTS{$s};
+            } elsif (@aliases = script_aliases($s)) {
+                for my $a (@aliases) {
+                    delete $utf8::SCRIPTS{$a};
+                }
+            } else {
+                require Carp;
+                Carp::croak("Unknown unicode script $_");
+            }
+        }
+    }
 }
 
 sub AUTOLOAD {
@@ -29,6 +64,7 @@ utf8 - Perl pragma to enable/disable UTF-8 (or UTF-EBCDIC) in source code
 =head1 SYNOPSIS
 
  use utf8;
+ use utf8 'Greek', 'Arabic';  # allow mixed-scripts in identifiers
  no utf8;
 
  # Convert the internal representation of a Perl scalar to/from UTF-8.
@@ -56,12 +92,18 @@ utf8 - Perl pragma to enable/disable UTF-8 (or UTF-EBCDIC) in source code
 
 =head1 DESCRIPTION
 
-The C<use utf8> pragma tells the Perl parser to allow UTF-8 in the
-program text in the current lexical scope.  The C<no utf8> pragma tells Perl
-to switch back to treating the source text as literal bytes in the current
-lexical scope.  (On EBCDIC platforms, technically it is allowing UTF-EBCDIC,
-and not UTF-8, but this distinction is academic, so in this document the term
-UTF-8 is used to mean both).
+The C<use utf8> pragma tells the Perl parser to allow UTF-8 and
+certain mixed scripts other than Latin, Common and Inherited in the
+program text in the current lexical scope for identifiers (package and
+symbol names, function and variable names) and literals. It doesn't
+declare strings in the source to be UTF-8 encoded or unicode, see
+L<feature/"The 'unicode_strings' feature"> instead.
+
+The C<no utf8> pragma tells Perl to switch back to treating the source
+text as literal bytes in the current lexical scope.  (On EBCDIC
+platforms, technically it is allowing UTF-EBCDIC, and not UTF-8, but
+this distinction is academic, so in this document the term UTF-8 is
+used to mean both).
 
 B<Do not use this pragma for anything else than telling Perl that your
 script is written in UTF-8.> The utility functions described below are
@@ -71,8 +113,8 @@ Because it is not possible to reliably tell UTF-8 from native 8 bit
 encodings, you need either a Byte Order Mark at the beginning of your
 source code, or C<use utf8;>, to instruct perl.
 
-When UTF-8 becomes the standard source format, this pragma will
-effectively become a no-op.
+When UTF-8 becomes the standard source format, this pragma wwithout
+any argument will become effectively a no-op.
 
 See also the effects of the C<-C> switch and its cousin, the
 C<PERL_UNICODE> environment variable, in L<perlrun>.
@@ -83,10 +125,11 @@ Enabling the C<utf8> pragma has the following effect:
 
 =item *
 
-Bytes in the source text that are not in the ASCII character set will be
-treated as being part of a literal UTF-8 sequence.  This includes most
-literals such as identifier names, string constants, and constant
-regular expression patterns.
+Bytes in the source text that are not in the ASCII character set will
+be treated as being part of a literal UTF-8 sequence.  This includes
+most literals such as identifier names (packages, symbols, function
+names, variable names, globs), string constants, unicode numeric
+literals and constant regular expression patterns.
 
 =back
 
@@ -94,6 +137,52 @@ Note that if you have non-ASCII, non-UTF-8 bytes in your script (for example
 embedded Latin-1 in your string literals), C<use utf8> will be unhappy.  If
 you want to have such bytes under C<use utf8>, you can disable this pragma
 until the end the block (or file, if at top level) by C<no utf8;>.
+
+=head2 Valid scripts
+
+C<use utf8> takes any valid UCD script names as arguments. This
+declares those scripts for all identifiers as valid, all others
+besides 'Latin', 'Common' and 'Inherited' are invalid.  This is
+currently only globally, not lexically scoped.  Being forced to declare
+valid scripts disallows unicode confusables from different language
+families, which might looks the same but are not. This does not affect
+strings, only names, literals and numbers.
+
+The unicode standard 8.0 defines 131 scripts, i.e. written language
+families.
+
+    perl -alne'/; (\w+) #/ && print $1' lib/unicore/Scripts.txt | \
+        sort -u
+
+Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese Bamum
+Bassa_Vah Batak Bengali Bopomofo Brahmi Braille Buginese Buhid
+Canadian_Aboriginal Carian Caucasian_Albanian Chakma Cham Cherokee
+B<Common> Coptic Cuneiform Cypriot Cyrillic Deseret Devanagari Duployan
+Egyptian_Hieroglyphs Elbasan Ethiopic Georgian Glagolitic Gothic
+Grantha Greek Gujarati Gurmukhi Han Hangul Hanunoo Hatran Hebrew
+Hiragana Imperial_Aramaic B<Inherited> Inscriptional_Pahlavi
+Inscriptional_Parthian Javanese Kaithi Kannada Katakana Kayah_Li
+Kharoshthi Khmer Khojki Khudawadi Lao B<Latin> Lepcha Limbu Linear_A
+Linear_B Lisu Lycian Lydian Mahajani Malayalam Mandaic Manichaean
+Meetei_Mayek Mende_Kikakui Meroitic_Cursive Meroitic_Hieroglyphs Miao
+Modi Mongolian Mro Multani Myanmar Nabataean New_Tai_Lue Nko Ogham
+Ol_Chiki Old_Hungarian Old_Italic Old_North_Arabian Old_Permic
+Old_Persian Old_South_Arabian Old_Turkic Oriya Osmanya Pahawh_Hmong
+Palmyrene Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Pau_Cin_Hau
+Phags_Pa Phoenician Psalter_Pahlavi Rejang Runic Samaritan Saurashtra
+Sharada Shavian Siddham SignWriting Sinhala Sora_Sompeng Sundanese
+Syloti_Nagri Syriac Tagalog Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri
+Tamil Telugu Thaana Thai Tibetan Tifinagh Tirhuta Ugaritic Vai
+Warang_Citi Yi
+
+Note that this matches the UCD and is a bit different to the old-style
+casing of L<Unicode::UCD/charscript()> in previous versions of
+L<Unicode::UCD>.
+
+We add some aliases for languages using multiple scripts:
+
+   :Japanese => Katakana Hiragana Han
+   :Korean   => Hangul Han
 
 =head2 Utility functions
 
@@ -219,6 +308,41 @@ Main reason for this routine is to allow Perl's test suite to check
 that operations have left strings in a consistent state.  You most
 probably want to use C<utf8::is_utf8()> instead.
 
+=item * C<$bool = utf8::valid_script($script)>
+
+Check if C<$script> is a valid Unicode Script property.  Aliases are
+not. Old-style script names with a lowercase character following the
+C<_> are not. Checks are case-sensitive. Abbrevated script names are
+also not valid.
+
+=item * C<@scripts = utf8::script_aliases($alias)>
+
+Return the list of scripts for an $alias.
+E.g. C<script_aliases(':Japanese') => ('Katakana' 'Hiragana' 'Han')>
+An alias must start with the ':' character.
+
+=item * C<add_script_alias($alias, @scripts)>
+
+Add a custom alias (language) for multiple scripts, for languages
+which commonly use mixed scripts.
+An alias must start with the ':' character, and all scripts must be valid
+Unicode Script property names.
+
+E.g.
+
+    BEGIN {
+      use utf8; # to load add_script_alias()
+      utf8::add_script_alias(':Ethiopic_Runic', # define it
+                             'Ethiopic' 'Runic');
+      use utf8 ':Ethiopic_Runic'; # use it
+    }
+
+as abbrevation for C<use utf8 'Ethiopic', 'Runic';>
+
+Predefined are C<':Japanese' => qw(Katakana Hiragana Han)> (Han
+standing for Kanji here) and C<':Korean' => qw(Hangul Han)> for mixing old
+chinese symbols.
+
 =back
 
 C<utf8::encode> is like C<utf8::upgrade>, but the UTF8 flag is
@@ -238,8 +362,20 @@ Some filesystems may not support UTF-8 file names, or they may be supported
 incompatibly with Perl.  Therefore UTF-8 names that are visible to the
 filesystem, such as module names may not work.
 
+perl5 upstream allows mixed script confusables as described in
+L<http://www.unicode.org/reports/tr39/> since 5.16 and is therefore
+considered insecure.
+
+perl5 upstream does not normalize its unicode identifiers as described in
+L<http://www.unicode.org/reports/tr15/> since 5.16 and is therefore
+considered insecure. See L<http://www.unicode.org/reports/tr36/> for the security
+risks.
+
 =head1 SEE ALSO
 
-L<perlunitut>, L<perluniintro>, L<perlrun>, L<bytes>, L<perlunicode>
+L<perlunitut>, L<perluniintro>, L<perlrun>, L<bytes>, L<perlunicode>.
+
+L<http://www.unicode.org/reports/tr36/#Mixed_Script_Spoofing>,
+L<http://unicode.org/reports/tr39/#Mixed_Script_Confusables>.
 
 =cut

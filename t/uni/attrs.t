@@ -9,7 +9,7 @@ BEGIN {
     skip_all_if_miniperl("miniperl can't load attributes");
 }
 
-use utf8;
+use utf8 qw( Canadian_Aboriginal Hangul Bopomofo Katakana Runic Ethiopic );
 use open qw( :utf8 :std );
 use warnings;
 use feature 'unicode_strings';

@@ -8,7 +8,7 @@ BEGIN {
         @INC = '../lib';
     }
 }
-use utf8;
+use utf8 qw( Katakana Runic );
 use open qw( :utf8 :std );
 
 require './test.pl';

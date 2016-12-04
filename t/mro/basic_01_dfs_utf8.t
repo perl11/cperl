@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use utf8;
+use utf8 qw( Runic Myanmar );
 use open qw( :utf8 :std );
 
 require q(./test.pl); plan(tests => 4);
@@ -29,8 +29,8 @@ This tests the classic diamond inheritance pattern.
 }
 {
     package Ｄiᚪၚd_C;
-    use base 'Ｄiᚪၚd_A';     
-    
+    use base 'Ｄiᚪၚd_A';
+
     sub hèllò { 'Ｄiᚪၚd_C::hèllò' }
 }
 {

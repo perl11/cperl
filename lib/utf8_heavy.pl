@@ -107,8 +107,7 @@ sub _loose_name ($) {
                                         # generated file?  If so, we know it's
                                         # well behaved.
 
-        if ($type)
-        {
+        if ($type) {
             # Verify that this isn't a recursive call for this property.
             # Can't use croak, as it may try to recurse to here itself.
             my $class_type = $class . "::$type";
@@ -680,6 +679,77 @@ sub _loose_name ($) {
 
         return $SWASH;
     }
+}
+
+our %SCRIPTS = ('Common' => 1, 'Latin' => 1, 'Inherited' => 1);
+# not using the pre-processed Sc/* inversion tables yet
+# matching 41 lib/unicore/lib/Sc/ files.
+# The short forms are not permitted. (i.e. Tglg for Tagalog)
+our %VALID_SCRIPTS = map {$_ => 1} qw(
+  Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese Bamum
+  Bassa_Vah Batak Bengali Bopomofo Brahmi Braille Buginese Buhid
+  Canadian_Aboriginal Carian Caucasian_Albanian Chakma Cham Cherokee
+  Common Coptic Cuneiform Cypriot Cyrillic Deseret Devanagari Duployan
+  Egyptian_Hieroglyphs Elbasan Ethiopic Georgian Glagolitic Gothic
+  Grantha Greek Gujarati Gurmukhi Han Hangul Hanunoo Hatran Hebrew
+  Hiragana Imperial_Aramaic Inherited Inscriptional_Pahlavi
+  Inscriptional_Parthian Javanese Kaithi Kannada Katakana Kayah_Li
+  Kharoshthi Khmer Khojki Khudawadi Lao Latin Lepcha Limbu Linear_A
+  Linear_B Lisu Lycian Lydian Mahajani Malayalam Mandaic Manichaean
+  Meetei_Mayek Mende_Kikakui Meroitic_Cursive Meroitic_Hieroglyphs Miao
+  Modi Mongolian Mro Multani Myanmar Nabataean New_Tai_Lue Nko Ogham
+  Ol_Chiki Old_Hungarian Old_Italic Old_North_Arabian Old_Permic
+  Old_Persian Old_South_Arabian Old_Turkic Oriya Osmanya Pahawh_Hmong
+  Palmyrene Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Pau_Cin_Hau
+  Phags_Pa Phoenician Psalter_Pahlavi Rejang Runic Samaritan Saurashtra
+  Sharada Shavian Siddham SignWriting Sinhala Sora_Sompeng Sundanese
+  Syloti_Nagri Syriac Tagalog Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri
+  Tamil Telugu Thaana Thai Tibetan Tifinagh Tirhuta Ugaritic Vai
+  Warang_Citi Yi);
+
+# The UCD variant with new-style casing of the Script names.
+sub charscript {
+    require Unicode::UCD;
+    $_ = Unicode::UCD::charscript($_[0]);
+    s/_(\w)/_\U$1/g;  # Switch to new-style casing as in the UCD
+    $_
+}
+
+sub valid_script {
+    return exists $VALID_SCRIPTS{$_[0]};
+}
+
+sub reset_scripts {
+    %SCRIPTS = ('Common' => 1, 'Latin' => 1, 'Inherited' => 1);
+    #my %def = ('Common' => 1, 'Latin' => 1, 'Inherited' => 1);
+    #for my $s (keys %SCRIPTS) {
+    #    delete $SCRIPTS{$s} unless $def{$s};
+    #}
+}
+
+our %SCRIPT_ALIAS =
+  (':Japanese' => [qw(Katakana Hiragana Han)],
+   ':Korean'   => [qw(Hangul Han)],
+  );
+
+sub script_aliases {
+    if (exists $SCRIPT_ALIAS{$_[0]}) {
+        return @{$SCRIPT_ALIAS{$_[0]}};
+    } else {
+        return ();
+    }
+}
+
+sub add_script_alias {
+    my ($alias, @scripts) = @_;
+    if (substr($alias, 0, 1) ne ':') {
+        croak "Invalid script alias $alias. Must start with ':'";
+    }
+    my @invalid = grep { !valid_script($_) } @scripts;
+    if (@invalid) {
+        croak "Invalid script for alias $alias: ".join(", ", @invalid);
+    }
+    $SCRIPT_ALIAS{$alias} = [ @scripts ];
 }
 
 # Now SWASHGET is recasted into a C function S_swatch_get (see utf8.c).

@@ -5,7 +5,7 @@ use warnings;
 no warnings 'surrogate';    # surrogates can be inputs to this
 use charnames ();
 
-our $VERSION = '0.64';
+our $VERSION = '0.65';
 
 require Exporter;
 
@@ -416,11 +416,11 @@ sub charinfo {
                         // $utf8::SwashInfo{'ToGc'}{'missing'};
     # Return undef if category value is 'Unassigned' or one of its synonyms 
     return if grep { lc $_ eq 'unassigned' }
-                                    prop_value_aliases('Gc', $prop{'category'});
+    prop_value_aliases('Gc', $prop{'category'});
 
     $prop{'code'} = sprintf "%04X", $code;
     $prop{'name'} = ($char =~ /\p{Cntrl}/) ? '<control>'
-                                           : (charnames::viacode($code) // "");
+                    : (charnames::viacode($code) // "");
 
     $prop{'combining'} = getCombinClass($code);
 
@@ -451,7 +451,7 @@ sub charinfo {
         @DECOMPOSITIONS = _read_table("Decomposition.pl")
                           unless @DECOMPOSITIONS;
         $prop{'decomposition'} = _search(\@DECOMPOSITIONS, 0, $#DECOMPOSITIONS,
-                                                                $code) // "";
+                                         $code) // "";
     }
 
     # Can use num() to get the numeric values, if any.
@@ -986,11 +986,11 @@ sub _charscripts {
             push @SCRIPTS, [ 0, 0x10FFFF, 'Unknown' ];
         }
         else {
-            @SCRIPTS =_read_table("To/Sc.pl");
+            @SCRIPTS = _read_table("To/Sc.pl");
         }
     }
     foreach my $entry (@SCRIPTS) {
-        $entry->[2] =~ s/(_\w)/\L$1/g;  # Preserve old-style casing
+        # $entry->[2] =~ s/(_\w)/\L$1/g;  # Preserve old-style casing
         push @{$SCRIPTS{$entry->[2]}}, $entry;
     }
 }

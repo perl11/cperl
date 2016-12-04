@@ -10,7 +10,9 @@ BEGIN {
     set_up_inc('../lib');
 }
 
-use utf8;
+use utf8 qw( Katakana Vai Saurashtra Canadian_Aboriginal Runic Coptic
+             Yi Hangul Oriya Ogham Tai_Viet Cyrillic Bopomofo Kannada
+             Tamil Hiragana Glagolitic );
 use open qw( :utf8 :std );
 
 plan( tests => 49 );

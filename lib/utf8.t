@@ -464,7 +464,7 @@ SKIP: {
 }
 
 {
-    eval {utf8::encode("�")};
+    eval {utf8::encode("£")};
     like($@, qr/^Modification of a read-only value attempted/,
 	 "utf8::encode should refuse to touch read-only values");
 }
@@ -676,5 +676,26 @@ eval "package \x{100};\n" . <<'END'
     1
 END
 or die $@;
+
+eval <<'END';
+use utf8;
+my $ЀЀ = 1;
+END
+::like($@, qr/^Invalid script Cyrillic/, $@);
+
+{
+    BEGIN { utf8::reset_scripts(); }
+    use utf8;
+    my $Ѐ = 1;
+    ::ok(1, "Allow single script Cyrillic");
+    BEGIN { utf8::reset_scripts(); }
+}
+
+{
+    use utf8 'Greek', 'Cyrillic';
+    my $ЀΕ = 1;
+    ::ok(1, "Declared mixed script Greek Cyrillic");
+    BEGIN { utf8::reset_scripts(); }
+}
 
 done_testing();

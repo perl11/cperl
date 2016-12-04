@@ -1698,3 +1698,15 @@ PROBLEMATIC_LOCALE_FOLDEDS_START : The first folded character of folds which are
 PATWS: pattern white space
 => generic cp : safe
 \p{_Perl_PatWS}
+
+LATIN_SCRIPT: Latin Script
+=> UTF8 :fast
+\p{Script=Latin}
+
+COMMON_SCRIPT: Common Script
+=> UTF8 :fast
+\p{Script=Common}
+
+INHERITED_SCRIPT: Inherited Script
+=> UTF8 :fast
+\p{Script=Inherited}

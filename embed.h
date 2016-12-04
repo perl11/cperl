@@ -1101,6 +1101,7 @@
 #  endif
 #  if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C)     || defined(PERL_IN_TOKE_C)
 #define _core_swash_init(a,b,c,d,e,f,g)	Perl__core_swash_init(aTHX_ a,b,c,d,e,f,g)
+#define utf8_check_script(a)	Perl_utf8_check_script(aTHX_ a)
 #  endif
 #  if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_TOKE_C) || defined(PERL_IN_DQUOTE_C)
 #define form_short_octal_warning(a,b)	S_form_short_octal_warning(aTHX_ a,b)
@@ -1837,6 +1838,9 @@
 #define swash_scan_list_line(a,b,c,d,e,f,g)	S_swash_scan_list_line(aTHX_ a,b,c,d,e,f,g)
 #define swatch_get(a,b,c)	S_swatch_get(aTHX_ a,b,c)
 #define to_lower_latin1		S_to_lower_latin1
+#define utf8_add_script(a)	S_utf8_add_script(aTHX_ a)
+#define utf8_error_script(a,b,c)	S_utf8_error_script(aTHX_ a,b,c)
+#define uvuni_get_script(a)	S_uvuni_get_script(aTHX_ a)
 #  endif
 #  if defined(PERL_IN_UTF8_C) || defined(PERL_IN_PP_C)
 #define _to_upper_title_latin1(a,b,c,d)	Perl__to_upper_title_latin1(aTHX_ a,b,c,d)
