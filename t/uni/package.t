@@ -9,66 +9,66 @@ BEGIN {
 
 plan (tests => 18);
 
-use utf8;
+use utf8; # Hangul only
 use open qw( :utf8 :std );
 
 package Føø::Bær { }
 
-package クラス { }
+package 수요일 { }
 
-package ฟọ::バッズ { }
+package 년::이번 { }
 
 ok 1, "sanity check. If we got this far, UTF-8 in package names is legal.";
 
 #The next few come from comp/package.t
 {
 
-    $ㄅĽuṞfⳐ = 123;
+    $압 = 123;
     
-    package ꑭʑ;
+    package 년;
 
-    sub ニュー {bless [];}
+    sub 내일 { bless []; }
     $bar = 4;
     {
-        package 압Ƈ;
-        $ㄅĽuṞfⳐ = 5;
+        package 압십;
+        $압 = 5;
     }
     
-    $압Ƈ::d읯ⱪ = 6;
+    $압십::d열시 = 6;
 
-    $ꑭʑ = 2;
+    $년 = 2;
     
-    $ꑭʑ = join(':', sort(keys %ꑭʑ::));
-    $압Ƈ = join(':', sort(keys %압Ƈ::));
+    $년 = join(':', sort(keys %년::));
+    $압십 = join(':', sort(keys %압십::));
     
-    ::is $ꑭʑ, 'bar:ニュー:ꑭʑ:압Ƈ', "comp/stash.t test 1";
-    ::is $압Ƈ, "d읯ⱪ:ㄅĽuṞfⳐ", "comp/stash.t test 2";
-    ::is $main::ㄅĽuṞfⳐ, 123, "comp/stash.t test 3";
+    ::is $년, 'BEGIN:bar:내일:년:압십:이번::', "comp/stash.t test 1";
+    ::is $압십, "BEGIN:d열시:압", "comp/stash.t test 2";
+    ::is $main::압, 123, "comp/stash.t test 3";
 
-    package 압Ƈ;
+    package 압십;
 
-    ::is $ㄅĽuṞfⳐ, 5, "comp/stash.t test 4";
-    eval q(::is $ㄅĽuṞfⳐ, 5, "comp/stash.t test 5";);
-    eval q(package main; is $ㄅĽuṞfⳐ, 123, "comp/stash.t test 6";);
-    ::is $ㄅĽuṞfⳐ, 5, "comp/stash.t test 7";
+    ::is $압, 5, "comp/stash.t test 4";
+    eval q(::is $압, 5, "comp/stash.t test 5";);
+    eval q(package main; is $압, 123, "comp/stash.t test 6";);
+    ::is $압, 5, "comp/stash.t test 7";
 
     #This is actually pretty bad, as caller() wasn't clean to begin with.
     package main;
-    sub ㄘ { caller(0) }
+    sub 여 { caller(0) }
     
-    sub ƒஓ {
-    my $s = shift;
-    if ($s) {
-            package ᛔQR;
-            main::ㄘ();
+    sub 섯 {
+        my $s = shift;
+        if ($s) {
+            package 분QR;
+            main::여();
+        }
     }
-    }
     
-    is((ƒஓ(1))[0], 'ᛔQR', "comp/stash.t test 8");
+    is((섯(1))[0], '분QR', "comp/stash.t test 8");
     
-    my $Q = ꑭʑ->ニュー();
-    undef %ꑭʑ::;
-    eval { $a = *ꑭʑ::ニュー{PACKAGE}; };
+    my $Q = 년->내일();
+    undef %년::;
+    eval { $a = *년::내일{PACKAGE}; };
     is $a, "__ANON__", "comp/stash.t test 9";
 
     {
@@ -90,7 +90,7 @@ ok 1, "sanity check. If we got this far, UTF-8 in package names is legal.";
 #This comes from comp/package_block.t
 {
     local $@;
-    eval q[package ᕘ {];
+    eval q[package 년 {];
     like $@, qr/\AMissing right curly /, "comp/package_block.t test";
 }
 

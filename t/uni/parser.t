@@ -11,7 +11,7 @@ BEGIN {
 
 plan (tests => 51);
 
-use utf8;
+use utf8 qw( Han Cyrillic Katakana );
 use open qw( :utf8 :std );
 
 is *tèst, "*main::tèst", "sanity check.";

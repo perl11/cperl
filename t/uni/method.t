@@ -11,7 +11,7 @@ BEGIN {
 }
 
 use strict;
-use utf8;
+use utf8 qw( Katakana Thai );
 use open qw( :utf8 :std );
 no warnings 'once';
 

@@ -7,7 +7,7 @@ BEGIN {
 
 plan tests => 4;
 
-use utf8;
+use utf8 qw( Han Hiragana );
 use open qw( :utf8 :std );
 
 sub goto_baresub {
