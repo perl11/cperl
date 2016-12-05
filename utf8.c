@@ -1864,7 +1864,11 @@ Perl__is_utf8_mark(pTHX_ const U8 *p)
 {
     PERL_ARGS_ASSERT__IS_UTF8_MARK;
 
+#ifdef SLOW_MARK
     return is_utf8_common(p, &PL_utf8_mark, "IsM", NULL);
+#else
+    return is_MARK_utf8(p);
+#endif
 }
 
 /*

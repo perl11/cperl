@@ -1710,3 +1710,7 @@ COMMON_SCRIPT: Common Script
 INHERITED_SCRIPT: Inherited Script
 => UTF8 :fast
 \p{Script=Inherited}
+
+MARK: Mark characters (Spacing_Mark | Nonspacing_Mark | Enclosing_Mark)
+=> UTF8 :fast
+\p{IsM}
