@@ -6533,7 +6533,7 @@ PP(pp_split)
     }
 
     GETTARGET;
-    PUSHi(iters);
+    XPUSHi(iters);
     RETURN;
 }
 
