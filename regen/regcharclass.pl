@@ -1707,10 +1707,22 @@ COMMON_SCRIPT: Common Script
 => UTF8 :fast
 \p{Script=Common}
 
+LATIN_OR_COMMON_SCRIPT: Latin or Common Script
+=> UTF8 :fast
+&regcharclass_multi_char_folds::latin_or_common()
+
 INHERITED_SCRIPT: Inherited Script
 => UTF8 :fast
 \p{Script=Inherited}
 
-MARK: Mark characters (Spacing_Mark | Nonspacing_Mark | Enclosing_Mark)
+MARK: 1963 mark characters (Combining, Overlay, ...)
 => UTF8 :fast
 \p{IsM}
+
+DECOMPOSED_REST: The remaining 869 non-mark and non-hangul normalizables
+=> UTF8 :safe
+&regcharclass_multi_char_folds::decomposed_rest()
+
+HANGUL: has special normalization rules
+=> UTF8 :fast
+\p{Hangul}

@@ -3,6 +3,7 @@ use 5.015;
 use strict;
 use warnings;
 use Unicode::UCD "prop_invmap";
+use Unicode::Normalize qw(NFC NFD);
 
 # This returns an array of strings of the form
 #   "\x{foo}\x{bar}\x{baz}"
@@ -80,7 +81,9 @@ sub multi_char_folds ($) {
         # for ascii chars in EXACTFA (and EXACTFL) nodes.  But I (khw) doubt
         # that there will ever be such a fold created by Unicode, so the code
         # isn't there to occupy space and time; instead there is this check.
-        die sprintf("regcomp.c can't cope with a latin1 multi-char fold (found in the fold of 0x%X", $cp_ref->[$i]) if grep { $_ < 256 && chr($_) !~ /[[:ascii:]]/ } @{$folds_ref->[$i]};
+        die sprintf("regcomp.c can't cope with a latin1 multi-char fold (found in the fold of 0x%X",
+            $cp_ref->[$i])
+                if grep { $_ < 256 && chr($_) !~ /[[:ascii:]]/ } @{$folds_ref->[$i]};
 
         # Create a line that looks like "\x{foo}\x{bar}\x{baz}" of the code
         # points that make up the fold.
@@ -137,6 +140,40 @@ sub multi_char_folds ($) {
 
 
     return @folds;
+}
+
+sub latin_or_common {
+    my @list;
+    for my $c (1..0x10FFFF) {
+        my $s = chr($c);
+        if ($s =~ /\p{Script=Latin}/ or $s =~ /\p{Script=Common}/) {
+            my $q = join("",map{sprintf"\\x{%X}",$_} unpack "U*",$s);
+            push @list, "\"$q\"";
+        }
+    }
+    @list
+}
+
+# all 869 decomposed characters, which are not mark and not Hangul characters.
+# for Hangul we have special rules.
+sub decomposed_rest {
+    my @nfd;
+    for my $c (1..0x10FFFF) {
+        my $s   = chr($c);
+        my $nfd = NFD($s);
+        # all NFD's of valid identifiers, which have a different NFC:
+        # diacrits, dialytika, tonos...
+        if ($s =~ /\p{IsM}/ or $s =~ /\p{Hangul}/) {
+            ;
+        } elsif ($s =~ /\p{IDStart}/ && NFC($s) ne $nfd) {
+            my $q = join("",map{sprintf"\\x{%X}",$_} unpack "U*",$nfd);
+            push @nfd, "\"$q\"";
+        } elsif ($s =~ /\p{IDContinue}/ && NFC($s) ne $nfd) {
+            my $q = join("",map{sprintf"\\x{%X}",$_} unpack "U*",$nfd);
+            push @nfd, "\"$q\"";
+        }
+    }
+    @nfd
 }
 
 1

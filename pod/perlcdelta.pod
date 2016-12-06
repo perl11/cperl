@@ -26,7 +26,7 @@ here, but most should go in the L</Performance Enhancements> section.
 =head2 use utf8 'Script'
 
 In order to avoid TR39 confusable security hacks, we add the following
-unicode rules for identifiers and literals with mixed script properties:
+unicode rules for identifiers and literals with B<mixed script> properties:
 
 =over
 
@@ -59,12 +59,29 @@ Currently there exist 131 scripts, see L<utf8/"Valid scripts">.
 
 =head2 Unicode normalization of identifiers/names
 
-All stored names, identifiers and literals are stored as normalized
-NFC unicode, which prevents from TR39 and TR36 unicode confusable and
-spoofing security problems.
+All stored utf8 names, identifiers and literals are parsed and stored
+as normalized NFC unicode, which prevents from various TR39 and TR36
+unicode confusable and spoofing security problems.
+
+However, dynamically created symbols via string refs are not normalized.
+C<${"$decomposed"}> stays decomposed.
 
 Note that even perl6 stores different names for confusables, which
-match each other due to their NFG rules.
+match each other due to their NFG rules on their string
+matchers. perl5 matches strictly binary, which leads to confusable and
+spoofing security problems.
+
+See L<[cperl #228]|https://github.com/perl11/cperl/issues/228>,
+L<http://www.unicode.org/reports/tr36/>,
+L<http://www.unicode.org/reports/tr39>,
+L<http://www.unicode.org/reports/tr31/>
+and the Python 3 discussion 2007 on PEP 3131
+L<https://docs.python.org/3/reference/lexical_analysis.html#identifiers>.
+
+Python 3 normalizes to NFKC (Compatibility Decomposition, followed by
+Canonical Composition), cperl uses both canonical transformations.
+See L<http://unicode.org/reports/tr15/#Norm_Forms> for the difference.
+Basically NFKC transforms to shorter ligatures. NFC is recommended by TR15.
 
 =head2 hash seed exposure
 
@@ -83,7 +100,7 @@ C<-t>, even if cperl fixed taint mode to be actually secure. The
 seed exposure is only needed for a debugging perl, and actually is
 security relevant.
 
-So PERL_HASH_SEED_DEBUG=1 will now hide the seed value in
+So C<PERL_HASH_SEED_DEBUG=1> will now hide the seed value in
 non-DEBUGGING builds.
 
     PERL_HASH_SEED_DEBUG=1 cperl5.25.2 -e1 =>
@@ -91,10 +108,9 @@ non-DEBUGGING builds.
 
 Note that the seed is still trivially exposable via other means if a
 local script can be executed, as the seed value is readable from a
-fixed offset to the first argument of every OP, at my_perl via unpack
-"P". That's why cperl fixed hash table security via proper means in
-the collision resolution, not via a slow hash function, and not via
-order hiding as perl5 believes in.
+fixed memory offset via unpack "P". That's why cperl fixed hash table
+security via proper means in the collision resolution, not via a slow
+hash function, and not via order hiding as perl5 believes in.
 
 More discussion at L<https://github.com/google/highwayhash/issues/28> and
 L<https://github.com/google/highwayhash/issues/29>.
@@ -130,12 +146,14 @@ undefined.  See L<[cperl #227]|https://github.com/perl11/cperl/issues/227>
 
 =head2 Removed ' as package seperator
 
-Make something like C<sub foo'bar;> a syntax error.
+Made something like C<sub foo'bar;> a syntax error.
 C<'> is not replaced by C<::> anymore when used as package seperator.
 This was deprecated 10 years ago.
 
 cperl fixed the L</c2ph> core utility using this last remaining perl4'ism,
 and removed the C<isn't> method from L<Test::More>.
+In a later versions C<'> can be reenabled as proper IDContinue character for
+identifiers, e.g. for Test::More C<isn't>.
 
 See L<[cperl #217]|https://github.com/perl11/cperl/issues/217>.
 

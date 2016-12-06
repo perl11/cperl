@@ -217,6 +217,7 @@ sub _scan_test {
             $switch = '';
         }
     }
+    $switch = '-C' if $test eq 'uni/normalize.t';
 
     my $file_opts = "";
     if ($type eq 'deparse') {

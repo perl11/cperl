@@ -757,8 +757,9 @@ ADMpR	|bool	|is_utf8_lower		|NN const U8 *p
 ADMpR	|bool	|is_utf8_print		|NN const U8 *p
 ADMpR	|bool	|is_utf8_punct		|NN const U8 *p
 ADMpR	|bool	|is_utf8_xdigit		|NN const U8 *p
-AMpR	|bool	|_is_utf8_mark		|NN const U8 *p
 ADMpR	|bool	|is_utf8_mark		|NN const U8 *p
+AMpR	|bool	|_is_utf8_mark		|NN const U8 *p
+AMpR	|bool	|_is_decomposed_string	|NN const U8 *p|STRLEN len
 : Used in perly.y
 p	|OP*	|jmaybe			|NN OP *o
 : Used in pp.c 
@@ -2534,7 +2535,7 @@ iR	|SV*	|get_and_check_backslash_N_name|NN const char* s \
 sR	|char*	|scan_formline	|NN char *s
 sR	|char*	|scan_heredoc	|NN char *s
 s	|char*	|scan_ident	|NN char *s|NN char *dest \
-				|STRLEN destlen|I32 ck_uni
+				|STRLEN destlen|I32 ck_uni|NULLOK int *normalize
 sR	|char*	|scan_inputsymbol|NN char *start
 sR	|char*	|scan_pat	|NN char *start|I32 type
 sR	|char*	|scan_str	|NN char *start|int keep_quoted \

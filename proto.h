@@ -53,6 +53,13 @@ PERL_CALLCONV SV*	Perl__get_encoding(pTHX)
 			__attribute__global__
 			__attribute__pure__;
 
+PERL_CALLCONV bool	Perl__is_decomposed_string(pTHX_ const U8 *p, STRLEN len)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT__IS_DECOMPOSED_STRING	\
+	assert(p)
+
 PERL_CALLCONV bool	Perl__is_in_locale_category(pTHX_ const bool compiling, const int category)
 			__attribute__global__;
 
@@ -9420,7 +9427,7 @@ STATIC char*	S_scan_heredoc(pTHX_ char *s)
 #define PERL_ARGS_ASSERT_SCAN_HEREDOC	\
 	assert(s)
 
-STATIC char*	S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni)
+STATIC char*	S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni, int *normalize)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_SCAN_IDENT	\

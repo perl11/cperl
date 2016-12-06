@@ -4560,7 +4560,7 @@ typedef struct {
     STRLEN pos; /* position */
 } UNF_cc;
 
-static int compare_cc(const void *a, const void *b)
+static int S_compare_cc(const void *a, const void *b)
 {
     int ret_cc;
     ret_cc = ((UNF_cc*) a)->cc - ((UNF_cc*) b)->cc;
@@ -4571,7 +4571,7 @@ static int compare_cc(const void *a, const void *b)
 	 - ( ((UNF_cc*) a)->pos < ((UNF_cc*) b)->pos );
 }
 
-static U8* dec_canonical(UV uv)
+static U8* S_dec_canonical(UV uv)
 {
     U8 ***plane, **row;
     if (PERL_UNICODE_MAX < uv)
@@ -4583,7 +4583,7 @@ static U8* dec_canonical(UV uv)
     return row ? row[uv & 0xff] : NULL;
 }
 
-static UV composite_uv(UV uv, UV uv2)
+static UV S_composite_uv(UV uv, UV uv2)
 {
     UNF_complist ***plane, **row, *cell, *i;
 
@@ -4616,7 +4616,7 @@ static UV composite_uv(UV uv, UV uv2)
     return 0;
 }
 
-static U8 getCombinClass(UV uv)
+static U8 S_getCombinClass(UV uv)
 {
     U8 **plane, *row;
     if (PERL_UNICODE_MAX < uv)
@@ -4628,15 +4628,16 @@ static U8 getCombinClass(UV uv)
     return row ? row[uv & 0xff] : 0;
 }
 
-static U8* pv_cat_decompHangul(pTHX_ U8* d, UV uv)
+static U8*
+S_pv_cat_decompHangul(pTHX_ U8* d, UV uv)
 {
     UV sindex =  uv - Hangul_SBase;
     UV lindex =  sindex / Hangul_NCount;
     UV vindex = (sindex % Hangul_NCount) / Hangul_TCount;
     UV tindex =  sindex % Hangul_TCount;
 
-    if (! Hangul_IsS(uv))
-	return d;
+    /*if (! Hangul_IsS(uv))
+      return d;*/
 
     d = uvchr_to_utf8(d, (lindex + Hangul_LBase));
     d = uvchr_to_utf8(d, (vindex + Hangul_VBase));
@@ -4644,25 +4645,6 @@ static U8* pv_cat_decompHangul(pTHX_ U8* d, UV uv)
 	d = uvchr_to_utf8(d, (tindex + Hangul_TBase));
     return d;
 }
-
-#if 0
-static char* sv_2pvunicode(pTHX_ SV *sv, STRLEN *lp)
-{
-    char *s;
-    STRLEN len;
-    s = SvPV(sv,len);
-    if (!SvUTF8(sv)) {
-	SV* tmpsv = sv_2mortal(newSVpvn(s, len));
-	if (!SvPOK(tmpsv))
-	    s = SvPV_force(tmpsv,len);
-	sv_utf8_upgrade(tmpsv);
-	s = SvPV(tmpsv,len);
-    }
-    if (lp)
-	*lp = len;
-    return s;
-}
-#endif
 
 /* check if the string buffer is enough before uvchr_to_utf8(). */
 /* dstart, d, and dlen should be defined outside before. */
@@ -4674,8 +4656,8 @@ static char* sv_2pvunicode(pTHX_ SV *sv, STRLEN *lp)
         d = dstart + curlen;                    \
     }
 
-static
-U8* pv_utf8_decompose(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
+static U8*
+S_pv_utf8_decompose(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
 {
     U8* p = s;
     U8* e = s + slen;
@@ -4688,15 +4670,13 @@ U8* pv_utf8_decompose(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
 	if (!retlen)
             /* diag_listed_as: Malformed UTF-8 character in decompose (empty string) */
 	    Perl_croak(aTHX_ "Malformed UTF-8 character in %s (empty string)", "decompose");
-	p += retlen;
 
 	if (Hangul_IsS(uv)) {
 	    Renew_d_if_not_enough_to(UTF8_MAXLEN * 3)
-	    d = pv_cat_decompHangul(aTHX_ d, uv);
+	    d = S_pv_cat_decompHangul(aTHX_ d, uv);
 	}
 	else {
-	    U8* r = dec_canonical(uv);
-
+	    U8* r = S_dec_canonical(uv);
 	    if (r) {
 		STRLEN len = (STRLEN)strlen((char *)r);
 		Renew_d_if_not_enough_to(len)
@@ -4708,13 +4688,14 @@ U8* pv_utf8_decompose(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
 		d = uvchr_to_utf8(d, uv);
 	    }
 	}
+	p += retlen;
     }
     *dp = dstart;
     return d;
 }
 
-static
-U8* pv_utf8_reorder(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
+static U8*
+S_pv_utf8_reorder(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
 {
     U8* p = s;
     U8* e = s + slen;
@@ -4736,7 +4717,7 @@ U8* pv_utf8_reorder(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
 	    Perl_croak(aTHX_ "Malformed UTF-8 character in %s (empty string)", "reorder");
 	p += retlen;
 
-	curCC = getCombinClass(uv);
+	curCC = S_getCombinClass(uv);
 
 	if (curCC != 0) {
 	    if (seq_max < cc_pos + 1) { /* extend if need */
@@ -4767,7 +4748,7 @@ U8* pv_utf8_reorder(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
 	    STRLEN i;
 
 	    if (cc_pos > 1) /* reordered if there are two c.c.'s */
-		qsort((void*)seq_ptr, cc_pos, sizeof(UNF_cc), compare_cc);
+		qsort((void*)seq_ptr, cc_pos, sizeof(UNF_cc), S_compare_cc);
 
 	    for (i = 0; i < cc_pos; i++) {
 		Renew_d_if_not_enough_to(UTF8_MAXLEN);
@@ -4787,8 +4768,8 @@ U8* pv_utf8_reorder(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
     return d;
 }
 
-static
-U8* pv_utf8_compose(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
+static U8*
+S_pv_utf8_compose(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
 {
     U8* p = s;
     U8* e = s + slen;
@@ -4813,7 +4794,7 @@ U8* pv_utf8_compose(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
 	    Perl_croak(aTHX_ "Malformed UTF-8 character in %s (empty string)", "compose");
 	p += retlen;
 
-	curCC = getCombinClass(uv);
+	curCC = S_getCombinClass(uv);
 
 	if (!valid_uvS) {
 	    if (curCC == 0) {
@@ -4835,7 +4816,7 @@ U8* pv_utf8_compose(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
 		 curCC == 0 && preCC == 0     -- starter + starter
 		 curCC != 0 && preCC < curCC  -- lower CC */
             /* try composition */
-            UV uvComp = composite_uv(uvS, uv);
+            UV uvComp = S_composite_uv(uvS, uv);
 
             if (uvComp && !isExclusion(uvComp))  {
                 uvS = uvComp;
@@ -4900,6 +4881,8 @@ U8* pv_utf8_compose(pTHX_ U8* s, STRLEN slen, U8** dp, STRLEN dlen)
 Normalize the UTF-8 string to NFC, for all symbols and identifiers.
 Returns a fresh copy of the PV.
 
+The maximal source length is 1024.
+
 =cut
 */
 
@@ -4915,25 +4898,26 @@ Perl_pv_uni_normalize(pTHX_ char *s1, STRLEN slen, STRLEN *dlenp)
        with reserve for NFD */
 
     PERL_ARGS_ASSERT_PV_UNI_NORMALIZE;
+    assert(slen < 1024); /* parser.h sizeof PL_tokenbuf */
     DEBUG_T(tmp = newSVpvs_flags("", SVs_TEMP));
     DEBUG_T(PerlIO_printf(Perl_debug_log, "normalize \"%.*s\" [UTF8 \"%s\"] to NFC... ",
            (int)slen, s1, pv_uni_display(tmp, (U8*)s1, slen, slen*4, UNI_DISPLAY_QQ)));
 
     Newx(d, slen+1, U8);
-    dend = pv_utf8_decompose(aTHX_ (U8*)s1, slen, &d, slen);
+    dend = S_pv_utf8_decompose(aTHX_ (U8*)s1, slen, &d, slen);
     *dend = '\0';
     dlen = dend - d;
 
     slen = dlen;
     Newx(s, slen+1, U8);
-    send = pv_utf8_reorder(aTHX_ d, dlen, &s, slen);
+    send = S_pv_utf8_reorder(aTHX_ d, dlen, &s, slen);
     *send = '\0';
     slen = send - s;
     Safefree(d);
 
     dlen = slen;
     Newx(d, dlen+1, U8);
-    dend = pv_utf8_compose(aTHX_ s, slen, &d, dlen);
+    dend = S_pv_utf8_compose(aTHX_ s, slen, &d, dlen);
     *dend = '\0';
     *dlenp = dend - d;
     Safefree(s);
@@ -4941,6 +4925,29 @@ Perl_pv_uni_normalize(pTHX_ char *s1, STRLEN slen, STRLEN *dlenp)
     DEBUG_T(PerlIO_printf(Perl_debug_log, " => \"%.*s\" [UTF8 \"%s\"]\n",
                 (int)*dlenp, d, pv_uni_display(tmp, d, *dlenp, dlen*4, UNI_DISPLAY_QQ)));
     return (char *)d;
+}
+
+/*
+=for apidoc _is_decomposed_string
+
+Check for the right-hand-side of the Decomposition_Mapping property,
+which means the codepoint can be normalized, if the sequence is
+decomposed (NFD or NFKD).
+
+This is equivalent to all 1963 C<\p{IsM}> Mark characters,
+plus the remaining 869 non-mark and non-hangul normalizables.
+
+=cut
+*/
+
+bool
+Perl__is_decomposed_string(pTHX_ const U8 *p, STRLEN len)
+{
+    PERL_ARGS_ASSERT__IS_DECOMPOSED_STRING;
+
+    if (is_MARK_utf8(p) || is_HANGUL_utf8(p))
+        return TRUE;
+    return cBOOL(is_DECOMPOSED_REST_utf8_safe(p, p + len));
 }
 
 /*

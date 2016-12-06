@@ -645,9 +645,9 @@ like($@, qr/^\QIllegal declaration of anonymous subroutine at \E/,
 #eval 'use utf8; sub café́ {}'; # currently allowed, see #228
 
 # spoof <c, a, f, e, U+0301> normalized to <c, a, f, U+00E9>
-my $r = eval 'use utf8; sub café {"ok"} print café()';
-is($r, "ok", #qr/^Undefined subroutine &main::caf. called at /,
-     "normalized unicode spoofed identifier #228 $@");
+my $r = eval 'use utf8; sub café {1} café()';
+#was qr/^Undefined subroutine &main::caf. called at /,
+is($r, 1, "normalized unicode spoofed identifier #228 $@");
 
 eval 'use utf8; sub Teχ텟;';
 like($@, qr/^Invalid script/, "Invalid mixed-scripts");

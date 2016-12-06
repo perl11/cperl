@@ -1,8 +1,9 @@
 #!./perl
 
-# Checks if identifiers with combining marks and more are properly
+# Checks if all identifiers with combining marks are properly
 # NFC normalized. (cperl only)
-# All possible identifiers: variables, sub, format, packages, global,
+#
+# All possible parsed identifiers: variables, sub, format, packages, global,
 # my, our state, label, lexsubs.
 # 
 
@@ -15,13 +16,20 @@ BEGIN {
 
 use 5.025;
 use cperl;
-use utf8;
+use utf8 'Greek';
 use Unicode::Normalize qw(NFC NFD);
+use B;
+utf8->import(keys %utf8::VALID_SCRIPTS);
+
+# 866 non-mark letters which differ in NFC to NFD:
+# $ unichars '\PM' '\pL' 'NFC ne NFD'
 
 # see also NormalizationTests.txt or perl6 roast S15-normalization/nfc-0.t
 # but we test just all exhaustively
 my @nfc;
-for my $c (1 .. 1000) { # 0x10_FFFF) {
+#for my $c (1) {
+#for my $c (980 .. 1025) {
+for my $c (1 .. 0x10FFFF) {
     my $s = chr($c);
     my $nfd = NFD($s);
     # all valid identifiers, which have a different NFD: marks, diacrits, ...
@@ -30,59 +38,114 @@ for my $c (1 .. 1000) { # 0x10_FFFF) {
     } elsif ($s =~ /\p{IDContinue}/ && NFC($s) ne $nfd) {
         push @nfc, "A".$nfd => "A".NFC($s);
     }
+    # => 12076 confusables
 }
 
-plan (tests => 11 * (scalar(@nfc)/2));
-use B;
+plan (tests => 22 + (scalar(@nfc)/2));
+my $i = 1;
+
+# first check if _is_utf8_decomposed() catches all characters for pv_uni_normalize.
+no strict;
+while (@nfc) {
+    my $from  = shift @nfc;
+    my $to    = shift @nfc;
+    my $qfrom = join("",map{sprintf"\\x{%X}",$_}unpack"U*",$from);
+    my $qto   = join("",map{sprintf"\\x{%X}",$_}unpack"U*",$to);
+    my $norm = 0;
+    # ϔ => ϔ \x3d2\x308 (cf 92, cc 88) => \x3d4 (cf 94) (\317\222 \314\210 => \317\224)
+    # Ѐ => Ѐ   \x415\x300 (d0 95, cc 80) => \x400         (\320\225 \314\200 => \320\200)
+    eval "\$$from=$i;\$norm=\$$to";
+    is( $norm, $i, "normalized \$$qfrom => \$$qto")
+      or diag "\$$from=$i;\$norm=\$$to";
+    $i++;
+}
+
 {
-    my $i = 1;
+    # then check all 24 places in the lexer for identifiers
+    # where pv_uni_normalize is called.
+    # E\314\201 (E\x301 45cc81) => \303\211 (\xc9 c389)
     no strict;
-    while (@nfc) {
-        my $from = shift @nfc;
-        my $to   = shift @nfc;
-        my $qfrom = join("",map{sprintf"\\x{%x}",$_}unpack"U*",$from);
-        my $qto   = join("",map{sprintf"\\x{%x}",$_}unpack"U*",$to);
+    local $@;
+    my $from = "É"; # decomposed \x45 \x301
+    my $to   = "É"; # composed   \xc9
+    my $qfrom = join("",map{sprintf"\\x{%x}",$_}unpack"U*",$from);
+    my $qto   = join("",map{sprintf"\\x{%x}",$_}unpack"U*",$to);
 
-        # pv_uni_normalize currently used in 7 places
-        local $@;
-        my ($orig, $norm, $gv) = eval "\${$from} = $i; (\${$from}, \${$to}, *{$from})";
-        is( $orig, $i, "orig global var \${$qfrom}" );
-        is( $norm, $i, "norm global var \${$qto}" );
-        my $b = B::svref_2object(\$gv);
-        if (ref $b eq 'B::GV') {
-            is( $b->NAME, $to, "normalized name $from => $to" );
-        } else {
-            is( ref $b, 'B::GV');
-        }
-        $i++;
-
-        ($orig, $norm, $gv) = eval "sub $from {$i}; ($from(), $to(), *{$from})";
-        is( $orig, $i, "orig sub $qfrom" );
-        is( $norm, $i, "norm sub $qto" );
-        #$b = B::svref_2object(\$gv);
-        #is( $b->CV->NAME, $to, "normalized name $to" );
-        $i++;
-        
-        ($orig, $norm, $gv) = eval "sub $from () {$i}; ($from(), $to(), *{$from})";
-        is( $orig, $i, "orig const sub $qfrom" );
-        is( $norm, $i, "norm const sub $qto" );
-        #$b = B::svref_2object(\$gv);
-        #is( $b->CV->NAME, $to, "normalized name $to" );
-        $i++;
-
-        # intuit_method
-        ($orig, $norm, $gv) = eval "package PKG_$from; sub $from {$i};".
-                                   "(PKG_$from $from, PKG_$from $to, *{$from})";
-        is( $orig, $i, "orig intuit method $qfrom" );
-        is( $norm, $i, "norm intuit method $qto" );
-        $i++;
-        
-        ($orig, $norm) = eval "my \${$from}=$i; (\${$from}, \${$to})";
-        is( $orig, $i, "orig lex \${$qfrom}" );
-        is( $norm, $i, "norm lex \${$qto}" );
-        $i++;
+    my ($orig, $norm, $gv, $cv);
+    ${É} = $i; ($orig, $norm, $gv) = (${É}, ${É}, *É);
+    is( $orig, $i, "orig global var \${$qfrom}" );
+    is( $norm, $i, "norm global var \${$qto}" );
+    my $b = B::svref_2object(\$gv);
+    if (ref $b eq 'B::GV') {
+        is( $b->NAME, $to, "normalize E+COMBINING ACUTE ACCENT => E WITH ACUTE" );
+    } else {
+        is( ref $b, "B::GV", " => $qto (".ord($to).")");
     }
-}
+    $i++;
 
-# all non-mark letters which differ in NFC to NFD:
-# $ unichars '\PM' \pL' 'NFC ne NFD'
+    $É = $i; ($orig, $norm, $gv) = ($É, $É, *É);
+    is( $orig, $i, "orig global var \$$qfrom" );
+    is( $norm, $i, "norm global var \$$qto" );
+    my $b = B::svref_2object(\$gv);
+    if (ref $b eq 'B::GV') {
+        is( $b->NAME, $to, "normalize GV E+COMBINING ACUTE ACCENT => E WITH ACUTE" );
+    } else {
+        is( ref $b, "B::GV", " => $qto");
+    }
+    $i++;
+
+    sub É {$i}; $orig = É(); $norm = É(); $cv = \&É;
+    is( $orig, $i, "orig sub $qfrom" );
+    is( $norm, $i, "norm sub $qto" );
+  TODO: {
+      local $TODO = "B::CV->NAME_HEK";
+      $b = B::svref_2object($cv);
+      if (ref $b eq 'B::CV') {
+          is( $b->NAME_HEK, $to, "normalize CV NAME to E WITH ACUTE" );
+      } else {
+          is( ref $b, "B::CV", " => $qto");
+      }
+    }
+    $i++;
+
+    # if the parser accepted both names as valid subs
+    sub aÉ {$i}; ($orig, $norm) = (aÉ, aÉ);
+    is( $orig, $i, "without parens" );
+    is( $norm, $i );
+
+    sub bÉ () {$i}; ($orig, $norm, $cv) = (bÉ(), bÉ(), \&bÉ);
+    is( $orig, $i, "orig const sub $qfrom" );
+    is( $norm, $i, "norm const sub $qto" );
+  TODO: {
+      local $TODO = "B::CV->NAME_HEK";
+      $b = B::svref_2object(\$cv);
+      if (ref $b eq 'B::CV') {
+          is( $b->NAME_HEK, $to, "normalize CV NAME to E WITH ACUTE" );
+      } else {
+          is( ref $b, "B::CV", " => $qto");
+      }
+    }
+    $i++;
+
+    sub PKG_É::É {$i};
+    $orig = É PKG_É;
+    $norm = É PKG_É;
+    is( $orig, $i, "orig intuit method $qfrom" );
+    is( $norm, $i, "norm intuit method $qto" );
+    $i++;
+    
+    sub PKG_É::É {$i};
+    $orig = PKG_É->É;
+    $norm = PKG_É->É;
+    is( $orig, $i, "orig method $qfrom" );
+    is( $norm, $i, "norm method $qto" );
+
+    my $dÉ = $i; $orig = $dÉ; $norm = $dÉ;
+    is( $orig, $i, "orig lex \${$qfrom}" );
+    is( $norm, $i, "norm lex \${$qto}" );
+    $i++;
+
+    ${"eÉ"} = $i; ${"eÉ"} = 0; ($orig, $norm) = (${"eÉ"}, ${"eÉ"});
+    is( $orig, $i, "dynamic string ref \${\"$qfrom\"}");
+    is( $norm, 0,  "not normalized");
+}
