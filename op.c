@@ -8888,7 +8888,10 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	const I32 flags =
 	   ec ? GV_NOADD_NOINIT
 	      :   PL_curstash != CopSTASH(PL_curcop)
-	       || memchr(name, ':', namlen) || memchr(name, '\'', namlen)
+	       || memchr(name, ':', namlen)
+#ifndef PERL_NO_QUOTE_PKGSEPERATOR
+               || memchr(name, '\'', namlen)
+#endif
 		    ? gv_fetch_flags
 		    : GV_ADDMULTI | GV_NOINIT | GV_NOTQUAL;
 	gv = gv_fetchsv(cSVOPo->op_sv, flags, SVt_PVCV);
