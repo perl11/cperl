@@ -4909,20 +4909,23 @@ Perl_seed(pTHX)
 void
 Perl_get_hash_seed(pTHX_ unsigned char * const seed_buffer)
 {
+#ifndef NO_PERL_HASH_ENV
     const char *env_pv;
+#endif
     unsigned long i;
 
     PERL_ARGS_ASSERT_GET_HASH_SEED;
 
+#ifndef NO_PERL_HASH_ENV
     env_pv= PerlEnv_getenv("PERL_HASH_SEED");
 
     if ( env_pv )
-#ifndef USE_HASH_SEED_EXPLICIT
+#  ifndef USE_HASH_SEED_EXPLICIT
     {
         /* ignore leading spaces */
         while (isSPACE(*env_pv))
             env_pv++;
-#ifdef USE_PERL_PERTURB_KEYS
+#    ifdef USE_PERL_PERTURB_KEYS
         /* if they set it to "0" we disable key traversal randomization completely */
         if (strEQc(env_pv,"0")) {
             PL_hash_rand_bits_enabled= 0;
@@ -4930,7 +4933,7 @@ Perl_get_hash_seed(pTHX_ unsigned char * const seed_buffer)
             /* otherwise switch to deterministic mode */
             PL_hash_rand_bits_enabled= 2;
         }
-#endif
+#    endif
         /* ignore a leading 0x... if it is there */
         if (env_pv[0] == '0' && env_pv[1] == 'x')
             env_pv += 2;
@@ -4952,6 +4955,7 @@ Perl_get_hash_seed(pTHX_ unsigned char * const seed_buffer)
         /* should we warn about insufficient hex? */
     }
     else
+#  endif
 #endif
     {
         (void)seedDrand01((Rand_seed_t)seed());
@@ -4971,6 +4975,7 @@ Perl_get_hash_seed(pTHX_ unsigned char * const seed_buffer)
             PL_hash_rand_bits = ROTL_UV(PL_hash_rand_bits,8);
         }
     }
+#  ifndef NO_PERL_HASH_ENV
     env_pv= PerlEnv_getenv("PERL_PERTURB_KEYS");
     if (env_pv) {
         if (strEQc(env_pv,"0") || strEQc(env_pv,"NO")) {
@@ -4987,6 +4992,7 @@ Perl_get_hash_seed(pTHX_ unsigned char * const seed_buffer)
             Perl_warn(aTHX_ "perl: warning: strange setting in '$ENV{PERL_PERTURB_KEYS}': '%s'\n", env_pv);
         }
     }
+#  endif
 #endif
 }
 

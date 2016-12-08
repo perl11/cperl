@@ -2309,7 +2309,7 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
 	scriptname = "-";
     }
 
-#if defined(USE_HASH_SEED) || defined(USE_HASH_SEED_EXPLICIT) || defined(USE_HASH_SEED_DEBUG)
+#if (defined(USE_HASH_SEED) || defined(USE_HASH_SEED_EXPLICIT) || defined(USE_HASH_SEED_DEBUG)) && !defined(NO_PERL_HASH_SEED_DEBUG)
     {
         const char * const s = PerlEnv_getenv("PERL_HASH_SEED_DEBUG");
         if (
