@@ -2031,10 +2031,16 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 				 (IV)CvXSUBANY(sv).any_i32);
 	    }
 	}
-	if (CvNAMED(sv))
-	    Perl_dump_indent(aTHX_ level, file, "  NAME = \"%s\"\n",
-				   HEK_KEY(CvNAME_HEK((CV *)sv)));
-	else do_gvgv_dump(level, file, "  GVGV::GV", CvGV(sv));
+	if (CvNAMED(sv)) {
+            const HEK *const name = CvNAME_HEK((CV *)sv);
+            SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
+            Perl_dump_indent(aTHX_ level, file, "  NAME = \"%s\"\n",
+                             generic_pv_escape(tmpsv, HEK_KEY(name),
+                                               HEK_LEN(name),
+                                               HEK_UTF8(name)));
+        }
+	else
+            do_gvgv_dump(level, file, "  GVGV::GV", CvGV(sv));
 	Perl_dump_indent(aTHX_ level, file, "  FILE = \"%s\"\n", CvFILE(sv));
 	Perl_dump_indent(aTHX_ level, file, "  DEPTH = %" IVdf "\n", (IV)CvDEPTH(sv));
         SV_SET_STRINGIFY_FLAGS(d,CvFLAGS(sv),cv_flags_names);
@@ -2807,12 +2813,10 @@ Perl_debop(pTHX_ const OP *o)
 	    SvREFCNT_dec_NN(sv);
 	}
 	else if (cGVOPo_gv) {
-	    SV * const sv = newSV(0);
 	    assert(SvROK(cGVOPo_gv));
 	    assert(SvTYPE(SvRV(cGVOPo_gv)) == SVt_PVCV);
-	    PerlIO_printf(Perl_debug_log, "(cv ref: %s)",
-		    SvPV_nolen_const(cv_name((CV *)SvRV(cGVOPo_gv),sv,0)));
-	    SvREFCNT_dec_NN(sv);
+            PerlIO_printf(Perl_debug_log, "(\\&%" SVf ")",
+                          SVfARG(cv_name((CV*)SvRV(cGVOPo_gv), NULL, CV_NAME_NOMAIN)));
 	}
 	else
 	    PerlIO_printf(Perl_debug_log, "(NULL)");
