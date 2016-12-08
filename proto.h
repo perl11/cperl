@@ -52,6 +52,13 @@ PERL_CALLCONV void	Perl_Slab_Free(pTHX_ void *op)
 #define PERL_ARGS_ASSERT_SLAB_FREE	\
 	assert(op)
 
+PERL_CALLCONV void	Perl__force_out_malformed_utf8_message(pTHX_ const U8 *const p, const U8 * const e, const U32 flags, const bool die_here)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT__FORCE_OUT_MALFORMED_UTF8_MESSAGE	\
+	assert(p); assert(e)
+
 PERL_CALLCONV SV*	Perl__get_encoding(pTHX)
 			__attribute__global__
 			__attribute__warn_unused_result__
