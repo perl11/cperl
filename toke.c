@@ -5522,7 +5522,6 @@ Perl_yylex(pTHX)
         else if ((c = UNIsuperscript(s)) != 0xff) {
             doPOWcop(3,c);
         }
-        s++;
         goto switchdefault;
     }
     case (char)((U8)0xC2): /* more utf8: 3 superscripts */
@@ -5538,7 +5537,6 @@ Perl_yylex(pTHX)
 	else if ((U8)s[1] == 0xB3) { /* ³ **3 U+02070 \302\263 */
             doPOWcop(2,3);
         }
-        s++;
         goto switchdefault;
     case (char)((U8)0xC3): /* more utf8: ÷ */
         if (!UTF || !FEATURE_UNICODE_IS_ENABLED || PL_expect == XREF) {
@@ -5553,7 +5551,6 @@ Perl_yylex(pTHX)
             s += 2;
 	    Mop(OP_DIVIDE);
         }
-        s++;
         goto switchdefault;
     case '-':
 	if (s[1] && isALPHA(s[1]) && !isWORDCHAR(s[2])) {
