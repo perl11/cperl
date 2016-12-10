@@ -42,9 +42,7 @@ typedef struct yy_parser {
     YYSTYPE	    yylval;	/* value of lookahead symbol, set by yylex() */
 
     yy_stack_frame  *stack;	/* base of stack */
-    yy_stack_frame  *stack_maxbase;/* (stack + alloced size - YY_MAXRULE)
-                                    * it's offset by -YY_MAXRULE to make
-                                    * overflow checks quicker */
+    yy_stack_frame  *stack_max1;/* (top-1)th element of allocated stack */
     yy_stack_frame  *ps;	/* current stack frame */
 
     struct yy_parser *old_parser; /* previous value of PL_parser */

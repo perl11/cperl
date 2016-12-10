@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..210\n";
+print "1..212\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -718,6 +718,23 @@ eval 'sub { read $fh, keys %h, 0 }';
 is $@, "", 'read into keys';
 eval 'substr keys(%h),0,=3';
 is $@, "", 'substr keys assignment';
+
+# very large utf8 char in error message was overflowing buffer
+{
+
+    no warnings;
+    eval "q" . chr(100000000064);
+    like $@, qr/Can't find string terminator "." anywhere before EOF/,
+        'RT 128952';
+}
+
+# RT #130311: many parser shifts before a reduce
+
+{
+    eval '[' . ('{' x 300);
+    like $@, qr/Missing right curly or square bracket/, 'RT #130311';
+}
+
 
 # Add new tests HERE (above this line)
 
