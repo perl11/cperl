@@ -265,8 +265,13 @@ a big difference.
 Prior to Perl v5.24, non-graphical ASCII control characters were also
 allowed in some situations; this had been deprecated since v5.20.
 
-Prior to cperl v5.25.2 mixed-script unicode identifiers were allowed,
+Prior to cperl v5.25.2c mixed-script unicode identifiers were allowed,
 and identifiers were not normalized to NFC.
+
+Since 5.16 up and until cperl v5.25.2c, binary names were silently
+allowed in names, such symbols and packages. Before 5.16 names were
+silently stripped, since v5.25.2c names are stripped with a prominent
+security warning.
 
 =head2 Context
 X<context> X<scalar context> X<list context>

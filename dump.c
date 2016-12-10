@@ -351,7 +351,7 @@ Perl_pv_display(pTHX_ SV *dsv, const char *pv, STRLEN cur, STRLEN len, STRLEN pv
 
     pv_pretty( dsv, pv, cur, pvlim, NULL, NULL, PERL_PV_PRETTY_DUMP);
     if (len > cur && pv[cur] == '\0')
-            sv_catpvs( dsv, "\\0");
+        sv_catpvs( dsv, "\\0");
     return SvPVX(dsv);
 }
 

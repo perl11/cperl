@@ -2086,7 +2086,7 @@ sR	|SV*	|refto		|NN SV* sv
 #endif
 #if defined(PERL_IN_PP_C) || defined(PERL_IN_PP_HOT_C)
 : Used in pp_hot.c
-pRxo	|GV*	|softref2xv	|NN SV *const sv|NN const char *const what \
+pRxo	|GV*	|softref2xv	|NN SV *sv|NN const char *const what \
 				|const svtype type|NN SV ***spp
 #endif
 

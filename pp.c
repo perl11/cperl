@@ -323,10 +323,11 @@ PP(pp_rv2gv)
 
 /* Helper function for pp_rv2sv and pp_rv2av  */
 GV *
-Perl_softref2xv(pTHX_ SV *const sv, const char *const what,
+Perl_softref2xv(pTHX_ SV *sv, const char *const what,
 		const svtype type, SV ***spp)
 {
     GV *gv;
+    const char *null_at;
 
     PERL_ARGS_ASSERT_SOFTREF2XV;
 
@@ -338,9 +339,7 @@ Perl_softref2xv(pTHX_ SV *const sv, const char *const what,
 	    Perl_die(aTHX_ PL_no_usym, what);
     }
     if (!SvOK(sv)) {
-	if (
-	  PL_op->op_flags & OPf_REF
-	)
+	if (PL_op->op_flags & OPf_REF)
 	    Perl_die(aTHX_ PL_no_usym, what);
 	if (ckWARN(WARN_UNINITIALIZED))
 	    report_uninit(sv);
@@ -351,15 +350,29 @@ Perl_softref2xv(pTHX_ SV *const sv, const char *const what,
 	**spp = &PL_sv_undef;
 	return NULL;
     }
-    if ((PL_op->op_flags & OPf_SPECIAL) &&
-	!(PL_op->op_flags & OPf_MOD))
-	{
-	    if (!(gv = gv_fetchsv_nomg(sv, GV_ADDMG, type)))
-		{
-		    **spp = &PL_sv_undef;
-		    return NULL;
-		}
-	}
+    if (UNLIKELY
+        (SvPOK(sv) && SvCUR(sv) > 1 &&
+         (null_at = (const char *)memchr(SvPVX_const(sv), 0, SvCUR(sv)))))
+    {
+        const char* pv = SvPVX_const(sv);
+        SV* tmp = newSVpvs_flags("", SVs_TEMP);
+        SV* newsv = newSVpvn_flags(pv, null_at - pv, SVs_TEMP);
+        if (Perl_ckwarn(aTHX_ packWARN(WARN_SECURITY)))
+            Perl_warn_security(aTHX_
+                "Invalid \\0 character in string for SYMBOL: %s",
+                pv_display(tmp, pv, SvCUR(sv), SvCUR(sv), 127));
+        else
+            Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
+                "Invalid \\0 character in string for SYMBOL: %s",
+                pv_display(tmp, pv, SvCUR(sv), SvCUR(sv), 127));
+        sv = newsv;
+    }
+    if (OpSPECIAL(PL_op) && !(PL_op->op_flags & OPf_MOD)) {
+        if (!(gv = gv_fetchsv_nomg(sv, GV_ADDMG, type))) {
+            **spp = &PL_sv_undef;
+            return NULL;
+        }
+    }
     else {
 	gv = gv_fetchsv_nomg(sv, GV_ADD, type);
     }
@@ -373,9 +386,8 @@ PP(pp_rv2sv)
 
     SvGETMAGIC(sv);
     if (SvROK(sv)) {
-	if (SvAMAGIC(sv)) {
+	if (SvAMAGIC(sv))
 	    sv = amagic_deref_call(sv, to_sv_amg);
-	}
 
 	sv = SvRV(sv);
 	if (SvTYPE(sv) >= SVt_PVAV)

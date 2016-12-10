@@ -7989,7 +7989,7 @@ STATIC SV*	S_refto(pTHX_ SV* sv)
 
 #endif
 #if defined(PERL_IN_PP_C) || defined(PERL_IN_PP_HOT_C)
-PERL_CALLCONV GV*	Perl_softref2xv(pTHX_ SV *const sv, const char *const what, const svtype type, SV ***spp)
+PERL_CALLCONV GV*	Perl_softref2xv(pTHX_ SV *sv, const char *const what, const svtype type, SV ***spp)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)

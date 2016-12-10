@@ -83,6 +83,17 @@ Canonical Composition), cperl uses both canonical transformations.
 See L<http://unicode.org/reports/tr15/#Norm_Forms> for the difference.
 Basically NFKC transforms to shorter ligatures. NFC is recommended by TR15.
 
+=head2 No binary symbols
+
+Fallback to the secure behvaiour as before v5.16 and strip symbol
+names of everything after the first \0 character.  This protects from
+creating binary symbols as with C<no strict 'refs'; ${"a\0\hidden"}>,
+which were especially problematic for package names, which were mapped
+1:1 to filenames.  With the default warning 'security' in effect, a
+warning is produced by the L<perlapi/warn_security> API, same as for
+unsafe syscalls since 5.20. See L<perldiag/Invalid \0 character in string for SYMBOL: %s>
+and L<[cperl #233]|https://github.com/perl11/cperl/issues/233>.
+
 =head2 hash seed exposure
 
 cperl5.22.2 added a restraint to expose the internal hash secret seed

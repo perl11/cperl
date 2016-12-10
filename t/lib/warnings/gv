@@ -299,3 +299,24 @@ if ($ㄒ) {
 EXPECT
 Name "팣칵ぇ::ʎ" used only once: possible typo at - line 11.
 Use of uninitialized value $팣칵ぇ::ʎ in print at - line 11.
+########
+# pp.c
+no strict 'refs';
+use warnings;
+${"a\0hidden"} = "ok\n";
+EXPECT
+OPTION regex
+SECURITY: Invalid \\0 character in string for SYMBOL: "a\\0hidden" from .+ at - line 4.
+########
+# pp.c
+no strict 'refs';
+use warnings;
+no warnings 'security';
+${"a\0hidden"} = "ok\n";
+print ${"a\0hidden"};
+print $a;
+EXPECT
+Invalid \0 character in string for SYMBOL: "a\0hidden" at - line 5.
+Invalid \0 character in string for SYMBOL: "a\0hidden" at - line 6.
+ok
+ok
