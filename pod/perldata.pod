@@ -128,6 +128,26 @@ characters.  Perl requires every character in an identifier to also
 match C<\w> (this prevents some problematic cases); and Perl
 additionally accepts identfier names beginning with an underscore.
 
+With cperl all utf8 identifiers and literals are parsed and stored as
+normalized NFC variants, which prevents from various TR39 and TR36
+unicode confusable and spoofing security problems.  However,
+dynamically created symbols via string refs are not normalized.
+C<${"$decomposed"}> stays decomposed.  This is similar to Python 3,
+but Python 3 normalizes to the non-canonical NFKC.  See
+L<http://www.unicode.org/reports/tr36/> and
+L<http://www.unicode.org/reports/tr39>.
+
+Also with cperl mixed scripts in unicode identifiers are forbidden,
+but they can be declared via C<use utf8 (Scriptnames...);>.  The
+'Common', 'Latin' and 'Inherited' scripts are always allowed and don't
+need to be declared.  The first non-default unicode script for an
+identifier is the only allowed one. This qualifies as single-script.
+More scripts lead to parsers errors.  See L<utf8/"Valid scripts">,
+L<http://www.unicode.org/reports/tr36/#Mixed_Script_Spoofing> and
+L<http://www.unicode.org/reports/tr31/>.
+
+Please avoid the declaration of 'Cyrillic' and 'Greek' in one source file.
+
 If not under C<use utf8>, the source is treated as ASCII + 128 extra
 generic characters, and identifiers should match
 
@@ -244,6 +264,9 @@ a big difference.
 
 Prior to Perl v5.24, non-graphical ASCII control characters were also
 allowed in some situations; this had been deprecated since v5.20.
+
+Prior to cperl v5.25.2 mixed-script unicode identifiers were allowed,
+and identifiers were not normalized to NFC.
 
 =head2 Context
 X<context> X<scalar context> X<list context>
