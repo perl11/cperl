@@ -329,7 +329,7 @@ Perl_yyparse (pTHX_ int gramtype)
     /* YYCHAR is either YYEMPTY or YYEOF or a valid lookahead symbol.  */
     if (parser->yychar == YYEMPTY) {
 	YYDPRINTF ((Perl_debug_log, "Reading a token:\n"));
-	parser->yychar = yylex();
+	parser->yychar = Perl_yylex(aTHX);
     }
 
     if (parser->yychar <= YYEOF) {

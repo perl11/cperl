@@ -18,11 +18,10 @@ rules apply; see L<perldata/Identifier parsing> for details.
 
 Perl variable names may also be a sequence of digits, a single
 punctuation character, or the two-character sequence: C<^> (caret or
-CIRCUMFLEX ACCENT) followed by any one of the characters C<[][A-Z^_?\]>.
-These names are all reserved for
-special uses by Perl; for example, the all-digits names are used
-to hold data captured by backreferences after a regular expression
-match.
+CIRCUMFLEX ACCENT) followed by any one of the characters
+C<[][A-Z^_?\]>.  These names are all reserved for special uses by
+Perl; for example, the all-digits names are used to hold data captured
+by backreferences after a regular expression match.
 
 Since Perl v5.6.0, Perl variable names may also be alphanumeric strings
 preceded by a caret.  These must all be written in the form C<${^Foo}>;

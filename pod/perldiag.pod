@@ -3467,6 +3467,21 @@ just before the first bad one.  If C<utf8> warnings are enabled, a
 warning is generated that gives more details about the type of
 malformation.
 
+=item Malformed UTF-8 character in compose (empty string)
+
+(F) The final NFC composition part of the re-ordered NFD of an unicode
+identifier failed.
+
+=item Malformed UTF-8 character in decompose (empty string)
+
+(F) The NFD decomposition part of NFC normalization of an unicode
+identifier failed.
+
+=item Malformed UTF-8 character in reorder (empty string)
+
+(F) The middle NFD reordering part of the NFC normalization of an unicode
+identifier failed.
+
 =item Malformed UTF-8 returned by \N{%s} immediately after '%s'
 
 (F) The charnames handler returned malformed UTF-8.

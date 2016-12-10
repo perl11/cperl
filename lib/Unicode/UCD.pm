@@ -756,8 +756,9 @@ sub charprop ($$) {
 
         # Convert special entry.
         if ($map eq '<hangul syllable>' && $format eq 'ad') {
-            use Unicode::Normalize qw(NFD);
-            return NFD(chr $cp);
+            require Unicode::Normalize;
+            # Unicode::Normalize->import('NFD');
+            return Unicode::Normalize::NFD(chr $cp);
         }
 
         # The rest need adjustment from the first entry in the inversion list

@@ -1142,15 +1142,16 @@ sub run_tests {
 
     {
         my @ary = (
-            pack('U', 0x00F1), # n-tilde
-            '_'.pack('U', 0x00F1), # _ + n-tilde
-            'c'.pack('U', 0x0327),        # c + cedilla
-            pack('U*', 0x00F1, 0x0327),# n-tilde + cedilla
-            pack('U', 0x0391),            # ALPHA
-            pack('U', 0x0391).'2',        # ALPHA + 2
-            pack('U', 0x0391).'_',        # ALPHA + _
+            pack('U', 0x00F1), 		# n-tilde
+            '_'.pack('U', 0x00F1), 	# _ + n-tilde
+            'c'.pack('U', 0x0327),      # c + cedilla       -> normalized
+            pack('U*', 0x00F1, 0x0327),	# n-tilde + cedilla -> normalized
+            pack('U', 0x0391),          # ALPHA
+            pack('U', 0x0391).'2',      # ALPHA + 2
+            pack('U', 0x0391).'_',      # ALPHA + _
         );
 
+        my %TODO = ('c'.pack('U', 0x0327) => 1,  pack('U*', 0x00F1, 0x0327) => 1);
         for my $uni (@ary) {
             my ($r1, $c1, $r2, $c2) = eval qq {
                 use utf8;
@@ -1159,10 +1160,13 @@ sub run_tests {
                 scalar ("..bar bar.." =~ /(?<${uni}>bar) \\k<${uni}>/),
                         \$+{${uni}};
             };
-            ok $r1,                         "Named capture UTF (?'')";
-            ok defined $c1 && $c1 eq 'foo', "Named capture UTF \%+";
-            ok $r2,                         "Named capture UTF (?<>)";
-            ok defined $c2 && $c2 eq 'bar', "Named capture UTF \%+";
+            ok $r1, "Named capture UTF (?'')";
+            ok $r2, "Named capture UTF (?<>)";
+          TODO: {
+              todo_skip('Normalized key. [cperl #230]') if $TODO{$uni};
+              ok defined $c1 && $c1 eq 'foo', "Named capture UTF \%+";
+              ok defined $c2 && $c2 eq 'bar', "Named capture UTF \%+";
+            }
         }
     }
 

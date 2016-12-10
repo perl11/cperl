@@ -31,6 +31,8 @@ typedef struct yy_lexshared {
     SV			*re_eval_str;	/* "(?{...})" text */
 } LEXSHARED;
 
+#define TOKENBUF_SIZE 1024
+
 typedef struct yy_parser {
 
     /* parser state */
@@ -103,7 +105,7 @@ typedef struct yy_parser {
     U32		nexttoke;
 
     COP		*saved_curcop;	/* the previous PL_curcop */
-    char	tokenbuf[1024];
+    char	tokenbuf[TOKENBUF_SIZE];
     line_t	herelines;	/* number of lines in here-doc */
     line_t	preambling;	/* line # when processing $ENV{PERL5DB} */
     U8		lex_fakeeof;	/* precedence at which to fake EOF */

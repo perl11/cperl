@@ -5984,6 +5984,7 @@ t/uni/latin2.t			See if Unicode in latin2 works
 t/uni/lex_utf8.t		See if Unicode in lexer works
 t/uni/lower.t			See if Unicode casing works
 t/uni/method.t			See if Unicode methods work
+t/uni/normalize.t		See if Unicode identifier normalization works
 t/uni/opcroak.t			See if Unicode croaks from op.c work
 t/uni/overload.t		See if Unicode overloading works
 t/uni/package.t			See if Unicode in package declarations works
@@ -6012,6 +6013,10 @@ t/win32/system_tests		Test runner for system.t
 uconfig64.sh			Configuration script for microperl for LP64
 uconfig.h			Configuration header for microperl
 uconfig.sh			Configuration script for microperl
+unfcan.h			Unicode::Normalize generated header
+unfcmb.h			Unicode::Normalize generated header
+unfcmp.h			Unicode::Normalize generated header
+unfexc.h			Unicode::Normalize generated header
 unicode_constants.h		compile-time macros for Unicode code points
 universal.c			The default UNIVERSAL package methods
 unixish.h			Defines that are assumed on Unix
@@ -6027,7 +6032,7 @@ utils/cperlbug.PL		A simple tool to submit a bug report
 utils/cperldoc.PL		A simple tool to find & display perl's documentation
 utils/cperlivp.PL		installation verification procedure
 utils/enc2xs.PL			Encode module generator
-utils/encguess.PL			guess character encodings of files
+utils/encguess.PL		guess character encodings of files
 utils/h2ph.PL			A thing to turn C .h files into perl .ph files
 utils/h2xs.PL			Program to make .xs files from C header files
 utils/instmodsh.PL		Give information about installed extensions

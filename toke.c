@@ -518,14 +518,13 @@ S_tokereport(pTHX_ I32 rv, const YYSTYPE* lvalp)
 STATIC void
 S_printbuf(pTHX_ const char *const fmt, const char *const s)
 {
-    SV* const tmp = newSVpvs("");
+    SV* const tmp = newSVpvs_flags("", SVs_TEMP);
 
     PERL_ARGS_ASSERT_PRINTBUF;
 
     GCC_DIAG_IGNORE(-Wformat-nonliteral); /* fmt checked by caller */
     PerlIO_printf(Perl_debug_log, fmt, pv_display(tmp, s, strlen(s), 0, 60));
     GCC_DIAG_RESTORE;
-    SvREFCNT_dec(tmp);
 }
 
 #endif
@@ -2148,14 +2147,15 @@ S_force_word(pTHX_ char *start, int token, int check_keyword, int allow_pack)
     if (isIDFIRST_lazy_if(s,UTF)
         || (allow_pack && *s == ':' && s[1] == ':') )
     {
-	s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, allow_pack, &len);
+        int normalize;
+	s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, allow_pack, &len, &normalize);
 	if (check_keyword) {
-	  char *s2 = PL_tokenbuf;
-	  STRLEN len2 = len;
-	  if (allow_pack && len > 6 && strnEQ(s2, "CORE::", 6))
-	    s2 += 6, len2 -= 6;
-	  if (keyword(s2, len2, 0))
-	    return start;
+            char *s2 = PL_tokenbuf;
+            STRLEN len2 = len;
+            if (allow_pack && len > 6 && strnEQ(s2, "CORE::", 6))
+                s2 += 6, len2 -= 6;
+            if (keyword(s2, len2, 0))
+                return start;
 	}
 	if (token == METHOD) {
 	    s = skipspace(s);
@@ -2165,9 +2165,14 @@ S_force_word(pTHX_ char *start, int token, int check_keyword, int allow_pack)
 		PL_expect = XOPERATOR;
 	    }
 	}
+        start = PL_tokenbuf;
+        if (UNLIKELY(normalize)) {
+            start = pv_uni_normalize(start, len, &len);
+            Copy(start, PL_tokenbuf, len+1, char);
+        }
 	NEXTVAL_NEXTTOKE.opval
 	    = (OP*)newSVOP(OP_CONST,0,
-			   S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len));
+			   S_newSV_maybe_utf8(aTHX_ start, len));
 	NEXTVAL_NEXTTOKE.opval->op_private |= OPpCONST_BARE;
 	force_next(token);
     }
@@ -2190,8 +2195,8 @@ S_force_ident(pTHX_ const char *s, int kind)
 
     if (s[0]) {
 	const STRLEN len = s[1] ? strlen(s) : 1; /* s = "\"" see yylex */
-	OP* const o = (OP*)newSVOP(OP_CONST, 0, newSVpvn_flags(s, len,
-                                                                UTF ? SVf_UTF8 : 0));
+	OP* const o = (OP*)newSVOP(OP_CONST, 0,
+                                   newSVpvn_flags(s, len, UTF ? SVf_UTF8 : 0));
 	NEXTVAL_NEXTTOKE.opval = o;
 	force_next(WORD);
 	if (kind) {
@@ -2958,7 +2963,7 @@ S_scan_const(pTHX_ char *start)
     bool didrange = FALSE;              /* did we just finish a range? */
     bool in_charclass = FALSE;          /* within /[...]/ */
     bool has_utf8 = FALSE;              /* Output constant is UTF8 */
-    bool  this_utf8 = cBOOL(UTF);       /* Is the source string assumed to be
+    bool this_utf8 = cBOOL(UTF);        /* Is the source string assumed to be
                                            UTF8?  But, this can show as true
                                            when the source isn't utf8, as for
                                            example when it is entirely composed
@@ -4093,15 +4098,24 @@ S_intuit_more(pTHX_ char *s)
 	    case '$':
 		weight -= seen[un_char] * 10;
 		if (isWORDCHAR_lazy_if(s+1,UTF)) {
-		    int len;
+		    STRLEN len;
+                    int normalize;
                     char *tmp = PL_bufend;
                     PL_bufend = (char*)send;
-                    scan_ident(s, tmpbuf, sizeof tmpbuf, FALSE);
+                    scan_ident(s, tmpbuf, sizeof tmpbuf, FALSE, &normalize);
                     PL_bufend = tmp;
 		    len = (int)strlen(tmpbuf);
-		    if (len > 1 && gv_fetchpvn_flags(tmpbuf, len,
-                                                    UTF ? SVf_UTF8 : 0, SVt_PV))
-			weight -= 100;
+                    if (len > 1) {
+                        if (UNLIKELY(normalize)) {
+                            tmp = pv_uni_normalize(tmpbuf, len, &len);
+                            Copy(tmp, tmpbuf, len+1, char);
+                        }
+                        if (gv_fetchpvn_flags(tmpbuf, len,
+                                              UTF ? SVf_UTF8 : 0, SVt_PV))
+                            weight -= 100;
+                        else
+                            weight -= 10;
+                    }
 		    else
 			weight -= 10;
 		}
@@ -4202,6 +4216,7 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
 	   blown PVGVs with attached PVCV.  */
     GV * const gv =
 	ioname ? gv_fetchsv(ioname, GV_NOADD_NOINIT, SVt_PVCV) : NULL;
+    int normalize;
 
     PERL_ARGS_ASSERT_INTUIT_METHOD;
 
@@ -4227,13 +4242,18 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
 	return *s == '(' ? FUNCMETH : METHOD;
     }
 
-    s = scan_word(s, tmpbuf, sizeof tmpbuf, TRUE, &len);
+    s = scan_word(s, tmpbuf, sizeof tmpbuf, TRUE, &len, &normalize);
     /* start is the beginning of the possible filehandle/object,
      * and s is the end of it
      * tmpbuf is a copy of it (but with single quotes as double colons)
      */
 
     if (!keyword(tmpbuf, len, 0)) {
+        if (UNLIKELY(normalize)) {
+            char *p = pv_uni_normalize(tmpbuf, len, &len);
+            Copy(p, tmpbuf, len+1, char);
+            /*Copy(p, &PL_tokenbuf, len+1, char);*/
+        }
 	if (len > 2 && tmpbuf[len - 2] == ':' && tmpbuf[len - 1] == ':') {
 	    len -= 2;
 	    tmpbuf[len] = '\0';
@@ -4243,7 +4263,7 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
 				    GV_NOADD_NOINIT|( UTF ? SVf_UTF8 : 0 ),
 				    SVt_PVCV);
 	if (indirgv && SvTYPE(indirgv) != SVt_NULL
-	 && (!isGV(indirgv) || GvCVu(indirgv)))
+            && (!isGV(indirgv) || GvCVu(indirgv)))
 	    return 0;
 	/* filehandle or package name makes it a method */
 	if (!cv || GvIO(indirgv) || gv_stashpvn(tmpbuf, len, UTF ? SVf_UTF8 : 0)) {
@@ -4676,15 +4696,15 @@ Perl_yylex(pTHX)
     I32 orig_keyword = 0;
     GV *gv = NULL;
     GV **gvp = NULL;
+    int normalize = 0;
 
     DEBUG_T( {
-	SV* tmp = newSVpvs("");
+        SV *tmp = newSVpvs_flags("", SVs_TEMP);
 	PerlIO_printf(Perl_debug_log, "### %" IVdf ":LEX_%s/X%s %s\n",
 	    (IV)CopLINE(PL_curcop),
 	    lex_state_names[PL_lex_state],
 	    exp_name[PL_expect],
 	    pv_display(tmp, s, strlen(s), 0, 60));
-	SvREFCNT_dec(tmp);
     } );
 
     /* when we've already built the next token, just pull it out of the queue */
@@ -5016,15 +5036,18 @@ Perl_yylex(pTHX)
                                                     SVs_TEMP | SVf_UTF8),
                                             10, UNI_DISPLAY_ISPRINT)
                             : Perl_form(aTHX_ "\\x%02X", (unsigned char)*s);
-        len = UTF ? Perl_utf8_length(aTHX_ (U8 *) PL_linestart, (U8 *) s) : (STRLEN) (s - PL_linestart);
+        len = UTF ? Perl_utf8_length(aTHX_ (U8 *) PL_linestart,
+                                     (U8 *) s) : (STRLEN) (s - PL_linestart);
         if (len > UNRECOGNIZED_PRECEDE_COUNT) {
-            d = UTF ? (char *) utf8_hop((U8 *) s, -UNRECOGNIZED_PRECEDE_COUNT) : s - UNRECOGNIZED_PRECEDE_COUNT;
+            d = UTF ? (char *) utf8_hop((U8 *) s,
+                    -UNRECOGNIZED_PRECEDE_COUNT) : s - UNRECOGNIZED_PRECEDE_COUNT;
         } else {
             d = PL_linestart;
         }
-        Perl_croak(aTHX_  "Unrecognized character %s; marked by <-- HERE after %" UTF8f "<-- HERE near column %d", c,
-                          UTF8fARG(UTF, (s - d), d),
-                         (int) len + 1);
+        Perl_croak(aTHX_  "Unrecognized character %s; marked by <-- HERE after %" UTF8f
+                   "<-- HERE near column %d", c,
+                   UTF8fARG(UTF, (s - d), d),
+                   (int) len + 1);
     }
     case 4:
     case 26:
@@ -5092,7 +5115,8 @@ Perl_yylex(pTHX)
 			if ((*PL_splitstr == '/' || *PL_splitstr == '\''
 			     || *PL_splitstr == '"')
 			      && strchr(PL_splitstr + 1, *PL_splitstr))
-			    Perl_sv_catpvf(aTHX_ PL_linestr, "our @F=split(%s);", PL_splitstr);
+			    Perl_sv_catpvf(aTHX_ PL_linestr, "our @F=split(%s);",
+                                           PL_splitstr);
 			else {
 			    /* "q\0${splitstr}\0" is legal perl. Yes, even NUL
 			       bytes can be used as quoting characters.  :-) */
@@ -5227,7 +5251,7 @@ Perl_yylex(pTHX)
                             const char * const lstart = SvPV_const(x, llen);
                             if (llen < blen) {
                                 bstart += blen - llen;
-                                if (strnEQ(bstart, lstart, llen) &&	bstart[-1] == '/') {
+                                if (strnEQ(bstart, lstart, llen) && bstart[-1] == '/') {
                                     sv_setpvn(x, ipath, ipathend - ipath);
                                     SvSETMAGIC(x);
                                 }
@@ -5359,7 +5383,8 @@ Perl_yylex(pTHX)
 			         we must not do it again */
 			{
 			    sv_setpvs(PL_linestr, "");
-			    PL_oldoldbufptr = PL_oldbufptr = s = PL_linestart = SvPVX(PL_linestr);
+			    PL_oldoldbufptr = PL_oldbufptr = s = PL_linestart
+                                = SvPVX(PL_linestr);
 			    PL_bufend = SvPVX(PL_linestr) + SvCUR(PL_linestr);
 			    PL_last_lop = PL_last_uni = NULL;
 			    PL_preambled = FALSE;
@@ -5701,7 +5726,11 @@ Perl_yylex(pTHX)
     case '*':
 	if (PL_expect == XPOSTDEREF) POSTDEREF('*');
 	if (PL_expect != XOPERATOR) {
-	    s = scan_ident(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE);
+	    s = scan_ident(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &normalize);
+            if (UNLIKELY(normalize)) {
+                d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+                Copy(d, &PL_tokenbuf, len+1, char);
+            }
 	    PL_expect = XOPERATOR;
 	    force_ident(PL_tokenbuf, '*');
 	    if (!*PL_tokenbuf)
@@ -5745,16 +5774,19 @@ Perl_yylex(pTHX)
 	else if (PL_expect == XPOSTDEREF) POSTDEREF('%');
 	PL_tokenbuf[0] = '%';
 	s = scan_ident(s, PL_tokenbuf + 1,
-		sizeof PL_tokenbuf - 1, FALSE);
+		sizeof PL_tokenbuf - 1, FALSE, &normalize);
 	pl_yylval.ival = 0;
 	if (!PL_tokenbuf[1]) {
 	    PREREF('%');
 	}
-	if ((PL_expect != XREF || PL_oldoldbufptr == PL_last_lop) && intuit_more(s)) {
-	    if (*s == '[')
-		PL_tokenbuf[0] = '@';
-	}
+	if ((PL_expect != XREF || PL_oldoldbufptr == PL_last_lop)
+            && intuit_more(s) && *s == '[')
+            PL_tokenbuf[0] = '@';
 	PL_expect = XOPERATOR;
+        if (UNLIKELY(normalize)) {
+            d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+            Copy(d, &PL_tokenbuf, len+1, char);
+        }
 	force_ident_maybe_lex('%');
 	TERM('%');
     }
@@ -5764,7 +5796,7 @@ Perl_yylex(pTHX)
 	if (bof && s[1] == '.')
 	    s++;
 	if (!PL_lex_allbrackets && PL_lex_fakeeof >=
-		(s[1] == '=' ? LEX_FAKEEOF_ASSIGN : LEX_FAKEEOF_BITWISE))
+            (s[1] == '=' ? LEX_FAKEEOF_ASSIGN : LEX_FAKEEOF_BITWISE))
 	{
 	    s = d;
 	    TOKEN(0);
@@ -5833,7 +5865,7 @@ Perl_yylex(pTHX)
 	    while (isIDFIRST_lazy_if(s,UTF)) {
 		I32 tmp;
 		SV *sv;
-		d = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE, &len);
+		d = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE, &len, &normalize);
 		if (isLOWER(*s) && (tmp = keyword(PL_tokenbuf, len, 0))) {
 		    if (tmp < 0) tmp = -tmp;
 		    switch (tmp) {
@@ -5850,6 +5882,10 @@ Perl_yylex(pTHX)
 			break;
 		    }
 		}
+                if (UNLIKELY(normalize)) {
+                    char *s1 = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+                    Copy(s1, &PL_tokenbuf, len+1, char);
+                }
 		sv = newSVpvn_flags(s, len, UTF ? SVf_UTF8 : 0);
 		if (*d == '(') {
 		    d = scan_str(d,TRUE,TRUE,FALSE,NULL);
@@ -6080,7 +6116,11 @@ Perl_yylex(pTHX)
 	    }
 	    if (d < PL_bufend && isIDFIRST_lazy_if(d,UTF)) {
 		d = scan_word(d, PL_tokenbuf + 1, sizeof PL_tokenbuf - 1,
-			      FALSE, &len);
+			      FALSE, &len, &normalize);
+                if (UNLIKELY(normalize)) {
+                    char *s1 = pv_uni_normalize(PL_tokenbuf+1, len, &len);
+                    Copy(s1, &PL_tokenbuf[1], len+1, char);
+                }
 		while (d < PL_bufend && SPACE_OR_TAB(*d))
 		    d++;
 		if (*d == '}') {
@@ -6325,7 +6365,11 @@ Perl_yylex(pTHX)
 
 	PL_tokenbuf[0] = '&';
 	s = scan_ident(s - 1, PL_tokenbuf + 1,
-		       sizeof PL_tokenbuf - 1, TRUE);
+		       sizeof PL_tokenbuf - 1, TRUE, &normalize);
+        if (UNLIKELY(normalize)) {
+            d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+            Copy(d, &PL_tokenbuf, len+1, char);
+        }
 	pl_yylval.ival = (OPpENTERSUB_AMPER<<8);
 	if (PL_tokenbuf[1]) {
 	    force_ident_maybe_lex('&');
@@ -6569,7 +6613,7 @@ Perl_yylex(pTHX)
 	if (s[1] == '#' && (isIDFIRST_lazy_if(s+2,UTF) || strchr("{$:+-@", s[2]))) {
 	    PL_tokenbuf[0] = '@';
 	    s = scan_ident(s + 1, PL_tokenbuf + 1,
-			   sizeof PL_tokenbuf - 1, FALSE);
+			   sizeof PL_tokenbuf - 1, FALSE, &normalize);
             if (PL_expect == XOPERATOR) {
                 d = s;
                 if (PL_bufptr > s) {
@@ -6580,6 +6624,10 @@ Perl_yylex(pTHX)
             }
 	    if (!PL_tokenbuf[1])
 		PREREF(DOLSHARP);
+            if (UNLIKELY(normalize)) {
+                d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+                Copy(d, &PL_tokenbuf, len+1, char);
+            }
 	    PL_expect = XOPERATOR;
 	    force_ident_maybe_lex('#');
 	    TOKEN(DOLSHARP);
@@ -6587,7 +6635,7 @@ Perl_yylex(pTHX)
 
 	PL_tokenbuf[0] = '$';
 	s = scan_ident(s, PL_tokenbuf + 1,
-		       sizeof PL_tokenbuf - 1, FALSE);
+		       sizeof PL_tokenbuf - 1, FALSE, &normalize);
 	if (PL_expect == XOPERATOR) {
 	    d = s;
 	    if (PL_bufptr > s) {
@@ -6632,24 +6680,28 @@ Perl_yylex(pTHX)
 		    PL_tokenbuf[0] = '%';
 		    if (memEQc(PL_tokenbuf+1, "SIG")  && ckWARN(WARN_SYNTAX)
 			&& (t = strchr(s, '}')) && (t = strchr(t, '=')))
-			{
-			    char tmpbuf[sizeof PL_tokenbuf];
-			    do {
-				t++;
-			    } while (isSPACE(*t));
-			    if (isIDFIRST_lazy_if(t,UTF)) {
-				STRLEN len;
-				t = scan_word(t, tmpbuf, sizeof tmpbuf, TRUE,
-					      &len);
-				while (isSPACE(*t))
-				    t++;
-				if (*t == ';'
-                                       && get_cvn_flags(tmpbuf, len, UTF ? SVf_UTF8 : 0))
-				    Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
-					"You need to quote \"%" UTF8f "\"",
-					 UTF8fARG(UTF, len, tmpbuf));
-			    }
-			}
+		    {
+                        char tmpbuf[sizeof PL_tokenbuf];
+                        do {
+                            t++;
+                        } while (isSPACE(*t));
+                        if (isIDFIRST_lazy_if(t,UTF)) {
+                            STRLEN len;
+                            t = scan_word(t, tmpbuf, sizeof tmpbuf, TRUE,
+                                          &len, &normalize);
+                            if (UNLIKELY(normalize)) {
+                                d = pv_uni_normalize(tmpbuf, len, &len);
+                                Copy(d, &tmpbuf, len+1, char);
+                            }
+                            while (isSPACE(*t))
+                                t++;
+                            if (*t == ';'
+                                && get_cvn_flags(tmpbuf, len, UTF ? SVf_UTF8 : 0))
+                                Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
+                                            "You need to quote \"%" UTF8f "\"",
+                                            UTF8fARG(UTF, len, tmpbuf));
+                        }
+                    }
 		}
 	    }
 
@@ -6664,8 +6716,9 @@ Perl_yylex(pTHX)
 		    PL_expect = XTERM;		/* e.g. print $fh &sub */
 		else if (isIDFIRST_lazy_if(s,UTF)) {
 		    char tmpbuf[sizeof PL_tokenbuf];
+                    int normtmp; /* here ignored */
 		    int t2;
-		    scan_word(s, tmpbuf, sizeof tmpbuf, TRUE, &len);
+		    scan_word(s, tmpbuf, sizeof tmpbuf, TRUE, &len, &normtmp);
 		    if ((t2 = keyword(tmpbuf, len, 0))) {
 			/* binary operators exclude handle interpretations */
 			switch (t2) {
@@ -6684,6 +6737,10 @@ Perl_yylex(pTHX)
 			}
 		    }
 		    else {
+                        if (0 && UNLIKELY(normtmp)) {
+                            d = pv_uni_normalize(tmpbuf, len, &len);
+                            Copy(d, &tmpbuf, len+1, char);
+                        }
 			PL_expect = XTERM;	/* e.g. print $fh subr() */
 		    }
 		}
@@ -6704,6 +6761,10 @@ Perl_yylex(pTHX)
 		    PL_expect = XTERM;		/* print $fh <<"EOF" */
 	    }
 	}
+        if (UNLIKELY(normalize)) {
+            d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+            Copy(d, &PL_tokenbuf, len+1, char);
+        }
 	force_ident_maybe_lex('$');
 	TOKEN('$');
 
@@ -6711,7 +6772,11 @@ Perl_yylex(pTHX)
         if (PL_expect == XPOSTDEREF)
             POSTDEREF('@');
 	PL_tokenbuf[0] = '@';
-	s = scan_ident(s, PL_tokenbuf + 1, sizeof PL_tokenbuf - 1, FALSE);
+	s = scan_ident(s, PL_tokenbuf + 1, sizeof PL_tokenbuf - 1, FALSE, &normalize);
+        if (UNLIKELY(normalize)) {
+            d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+            Copy(d, &PL_tokenbuf, len+1, char);
+        }
 	if (PL_expect == XOPERATOR) {
             d = s;
             if (PL_bufptr > s) {
@@ -6929,7 +6994,7 @@ Perl_yylex(pTHX)
 			|| PL_expect == XREF || PL_expect == XSTATE
 			|| PL_expect == XTERMORDORDOR)) {
 		GV *const gv = gv_fetchpvn_flags(s, start - s,
-                                                    UTF ? SVf_UTF8 : 0, SVt_PVCV);
+                                                 UTF ? SVf_UTF8 : 0, SVt_PVCV);
 		if (!gv) {
 		    s = scan_num(s, &pl_yylval);
 		    TERM(THING);
@@ -6980,6 +7045,7 @@ Perl_yylex(pTHX)
 	CV *cv;
 	PADOFFSET off;
 	OP *rv2cv_op;
+        int normalize;
 
 	lex = FALSE;
 	orig_keyword = 0;
@@ -6991,7 +7057,11 @@ Perl_yylex(pTHX)
 	rv2cv_op = NULL;
 
 	PL_bufptr = s;
-	s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE, &len);
+	s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE, &len, &normalize);
+        if (UNLIKELY(normalize)) {
+            d = pv_uni_normalize(PL_tokenbuf, len, &len);
+            Copy(d, &PL_tokenbuf, len+1, char);
+        }
 
 	/* Some keywords can be followed by any delimiter, including ':' */
 	anydelim = word_takes_any_delimeter(PL_tokenbuf, len);
@@ -7004,15 +7074,14 @@ Perl_yylex(pTHX)
 
 	d = s;
 	while (d < PL_bufend && isSPACE(*d))
-		d++;	/* no comments skipped here, or s### is misparsed */
+            d++;	/* no comments skipped here, or s### is misparsed */
 
 	/* Is this a word before a => operator? */
 	if (isFATARROW(d)) {
 	  fat_arrow:
 	    CLINE;
-	    pl_yylval.opval
-		= (OP*)newSVOP(OP_CONST, 0,
-			       S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len));
+	    pl_yylval.opval = (OP*)newSVOP(OP_CONST, 0,
+			               S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len));
 	    pl_yylval.opval->op_private = OPpCONST_BARE;
 	    TERM(WORD);
 	}
@@ -7093,7 +7162,7 @@ Perl_yylex(pTHX)
 	    off = 0;
 	}
 
-	if (tmp < 0) {			/* second-class keyword? */
+	if (tmp < 0) {		/* second-class keyword? */
 	    GV *ogv = NULL;	/* override (winner) */
 	    GV *hgv = NULL;	/* hidden (loser) */
 	    if (PL_expect != XOPERATOR && (*s != ':' || s[1] != ':')) {
@@ -7196,12 +7265,17 @@ Perl_yylex(pTHX)
                     )
                 {
 		    STRLEN morelen;
+                    int normalize;
 		    s = scan_word(s, PL_tokenbuf + len, sizeof PL_tokenbuf - len,
-				  TRUE, &morelen);
+				  TRUE, &morelen, &normalize);
 		    if (!morelen)
 			Perl_croak(aTHX_ "Bad name after %" UTF8f "%s",
 				UTF8fARG(UTF, len, PL_tokenbuf),
 				*s == '\'' ? "'" : "::");
+                    if (UNLIKELY(normalize)) {
+                        d = pv_uni_normalize(PL_tokenbuf + len, morelen, &morelen);
+                        Copy(d, &PL_tokenbuf[len], morelen+1, char);
+                    }
 		    len += morelen;
 		    pkgname = 1;
 		}
@@ -7224,6 +7298,10 @@ Perl_yylex(pTHX)
                     && PL_tokenbuf[len - 2] == ':'
                     && PL_tokenbuf[len - 1] == ':')
 		{
+                    if (UNLIKELY(normalize)) {
+                        d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+                        Copy(d, &PL_tokenbuf, len+1, char);
+                    }
 		    if (ckWARN(WARN_BAREWORD)
 			&& ! gv_fetchpvn_flags(PL_tokenbuf, len, UTF ? SVf_UTF8 : 0, SVt_PVHV))
 			Perl_warner(aTHX_ packWARN(WARN_BAREWORD),
@@ -7243,8 +7321,7 @@ Perl_yylex(pTHX)
 		/* if we saw a global override before, get the right name */
 
 		if (!sv)
-		  sv = S_newSV_maybe_utf8(aTHX_ PL_tokenbuf,
-						len);
+                    sv = S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len);
 		if (gvp) {
 		    SV * const tmp_sv = sv;
 		    sv = newSVpvs("CORE::GLOBAL::");
@@ -7262,8 +7339,7 @@ Perl_yylex(pTHX)
 		if (safebw)
 		    goto safe_bareword;
 
-		if (!off)
-		{
+		if (!off) {
 		    OP *const_op = newSVOP(OP_CONST, 0, SvREFCNT_inc_NN(sv));
 		    const_op->op_private = OPpCONST_BARE;
 		    rv2cv_op =
@@ -7360,8 +7436,9 @@ Perl_yylex(pTHX)
 		    NEXTVAL_NEXTTOKE.opval =
 			off ? rv2cv_op : pl_yylval.opval;
 		    if (off)
-			 op_free(pl_yylval.opval), force_next(PRIVATEREF);
-		    else op_free(rv2cv_op),	   force_next(WORD);
+                        op_free(pl_yylval.opval), force_next(PRIVATEREF);
+		    else
+                        op_free(rv2cv_op),	   force_next(WORD);
 		    pl_yylval.ival = 0;
 		    TOKEN('&');
 		}
@@ -7660,9 +7737,10 @@ Perl_yylex(pTHX)
 	case_KEY_CORE:
 	    {
 		STRLEN olen = len;
+                int normalize;
 		d = s;
 		s += 2;
-		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE, &len);
+		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE, &len, &normalize);
 		if ((*s == ':' && s[1] == ':')
                     || (!(tmp = keyword(PL_tokenbuf, len, 1))
 #ifndef PERL_NO_QUOTE_PKGSEPERATOR
@@ -7787,11 +7865,17 @@ Perl_yylex(pTHX)
 	    if (*s == '{')
 		PRETERMBLOCK(DO);
 	    if (*s != '\'') {
+                int normalize;
 		*PL_tokenbuf = '&';
 		d = scan_word(s, PL_tokenbuf + 1, sizeof PL_tokenbuf - 1,
-			      1, &len);
+			      1, &len, &normalize);
 		if (len && (len != 4 || memNEc(PL_tokenbuf+1, "CORE"))
-		 && !keyword(PL_tokenbuf + 1, len, 0)) {
+                    && !keyword(PL_tokenbuf + 1, len, 0))
+                {
+                    if (UNLIKELY(normalize)) {
+                        s = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+                        Copy(s, &PL_tokenbuf, len+1, char);
+                    }
 		    d = skipspace(d);
 		    if (*d == '(') {
 			force_ident_maybe_lex('&');
@@ -7918,7 +8002,12 @@ Perl_yylex(pTHX)
                 }
                 /* honor optional type, as in "for my Int $x {}" */
                 if (d != s && isIDFIRST_lazy_if(d, UTF)) {
-                    d = scan_word(d, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
+                    int normalize;
+                    d = scan_word(d, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
+                    if (UNLIKELY(normalize)) {
+                        char *d1 = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+                        Copy(d1, &PL_tokenbuf, len+1, char);
+                    }
                     d = skipspace(d);
                 }
                 if (*d != '$')
@@ -8163,9 +8252,9 @@ Perl_yylex(pTHX)
 	    PL_in_my = (U16)tmp;
 	    s = skipspace(s);
 	    if (isIDFIRST_lazy_if(s,UTF)) {
-		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
-		if (len == 3 && memEQc(PL_tokenbuf, "sub"))
-		{
+                int normalize;
+		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
+		if (len == 3 && memEQc(PL_tokenbuf, "sub")) {
 		    if (!FEATURE_LEXSUBS_IS_ENABLED)
 			Perl_croak(aTHX_
 				  "Experimental \"%s\" subs not enabled",
@@ -8175,7 +8264,10 @@ Perl_yylex(pTHX)
 			packWARN(WARN_EXPERIMENTAL__LEXICAL_SUBS),
 			"The lexical_subs feature is experimental");
 		    goto really_sub;
-		}
+		} else if (UNLIKELY(normalize)) {
+                    d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+                    Copy(d, &PL_tokenbuf, len+1, char);
+                }
 		PL_in_my_stash = find_in_my_stash(PL_tokenbuf, len);
 		if (!PL_in_my_stash)
                     PL_in_my_stash = find_in_coretypes(PL_tokenbuf, len);
@@ -8212,9 +8304,10 @@ Perl_yylex(pTHX)
 	case KEY_open:
 	    s = skipspace(s);
 	    if (isIDFIRST_lazy_if(s,UTF)) {
-          const char *t;
-          d = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE,
-              &len);
+                const char *t;
+                int normalize;
+                d = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE,
+                              &len, &normalize);
 		for (t=d; isSPACE(*t);)
 		    t++;
 		if ( *t && strchr("|&*+-=!?:.", *t) && ckWARN_d(WARN_PRECEDENCE)
@@ -8227,6 +8320,10 @@ Perl_yylex(pTHX)
 		       "Precedence problem: open %" UTF8f " should be open(%" UTF8f ")",
 			UTF8fARG(UTF, d-s, s), UTF8fARG(UTF, d-s, s));
 		}
+                if (UNLIKELY(normalize)) {
+                    d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
+                    Copy(d, &PL_tokenbuf, len+1, char);
+                }
 	    }
 	    LOP(OP_OPEN,XTERM);
 
@@ -8565,11 +8662,11 @@ Perl_yylex(pTHX)
 	case KEY_sub:
 	  really_sub:
 	    {
-		char * const tmpbuf = PL_tokenbuf + 1;
+		char * tmpbuf = PL_tokenbuf + 1;
+                SV *format_name = NULL;
+		const int key = tmp;
 		expectation attrful;
 		bool have_name, have_proto;
-		const int key = tmp;
-                SV *format_name = NULL;
 
 		d = s;
 		s = skipspace(s);
@@ -8580,46 +8677,50 @@ Perl_yylex(pTHX)
 #endif
                     || (*s == ':' && s[1] == ':'))
 		{
-
 		    PL_expect = XBLOCK;
 		    attrful = XATTRBLOCK;
 		    d = scan_word(s, tmpbuf, sizeof PL_tokenbuf - 1, TRUE,
-				  &len);
-                    if (key == KEY_format)
-			format_name = S_newSV_maybe_utf8(aTHX_ s, d - s);
+				  &len, &normalize);
+                    if (UNLIKELY(key == KEY_format)) {
+                        if (UNLIKELY(normalize)) {
+                            d = pv_uni_normalize(s, len, &len);
+                            format_name = S_newSV_maybe_utf8(aTHX_ d, len);
+                        } else
+                            format_name = S_newSV_maybe_utf8(aTHX_ s, d - s);
+                    }
 		    *PL_tokenbuf = '&';
-		    if (memchr(tmpbuf, ':', len) || key != KEY_sub
-		     || pad_findmy_pvn(
-			    PL_tokenbuf, len + 1, 0
-			) != NOT_IN_PAD)
-			sv_setpvn(PL_subname, tmpbuf, len);
-		    else {
-			sv_setsv(PL_subname,PL_curstname);
-			sv_catpvs(PL_subname,"::");
-			sv_catpvn(PL_subname,tmpbuf,len);
+                    if (UNLIKELY(normalize)) {
+                        tmpbuf = pv_uni_normalize(tmpbuf, len, &len);
+                        Copy(tmpbuf, &PL_tokenbuf[1], len+1, char);
+                    }
+		    if (memchr(tmpbuf, ':', len)
+                        || key != KEY_sub
+                        || pad_findmy_pvn(PL_tokenbuf, len + 1, 0) != NOT_IN_PAD) {
+                        sv_setpvn(PL_subname, tmpbuf, len);
+                    } else {
+			sv_setsv(PL_subname, PL_curstname);
+			sv_catpvs(PL_subname, "::");
+			sv_catpvn(PL_subname, tmpbuf, len);
 		    }
-                    if (SvUTF8(PL_linestr))
+                    if (SvUTF8(PL_linestr) || normalize)
                         SvUTF8_on(PL_subname);
 		    have_name = TRUE;
-
 
 		    s = skipspace(d);
 		}
 		else {
-		    if (key == KEY_my || key == KEY_our || key==KEY_state)
-		    {
+		    if (key == KEY_my || key == KEY_our || key==KEY_state) {
 			*d = '\0';
 			/* diag_listed_as: Missing name in "%s sub" */
-			Perl_croak(aTHX_
-				  "Missing name in \"%s\"", PL_bufptr);
+			Perl_croak(aTHX_ "Missing name in \"%s\"", PL_bufptr);
 		    }
 		    PL_expect = XTERMBLOCK;
 		    attrful = XATTRTERM;
-		    sv_setpvs(PL_subname,"?");
+		    sv_setpvs(PL_subname, "?");
 		    have_name = FALSE;
 		}
 
-		if (key == KEY_format) {
+		if (UNLIKELY(key == KEY_format)) {
 		    if (format_name) {
                         NEXTVAL_NEXTTOKE.opval
                             = (OP*)newSVOP(OP_CONST,0, format_name);
@@ -8676,7 +8777,8 @@ Perl_yylex(pTHX)
 		    if (!have_name)
 			Perl_croak(aTHX_ "Illegal declaration of anonymous subroutine");
 		    else if (*s != ';' && *s != '}')
-			Perl_croak(aTHX_ "Illegal declaration of subroutine %" SVf, SVfARG(PL_subname));
+			Perl_croak(aTHX_ "Illegal declaration of subroutine %" SVf,
+                                   SVfARG(PL_subname));
 		}
 
 		if (have_proto) {
@@ -8909,7 +9011,7 @@ S_pending_ident(pTHX)
 
             pl_yylval.opval = newOP(OP_PADANY, 0); /* rurban 2015: this op leaks #94 */
             pl_yylval.opval->op_targ = allocmy(PL_tokenbuf, tokenbuf_len,
-                                                        UTF ? SVf_UTF8 : 0);
+                                               UTF ? SVf_UTF8 : 0);
 	    return PRIVATEREF;
         }
     }
@@ -8920,8 +9022,7 @@ S_pending_ident(pTHX)
 
     if (!has_colon) {
 	if (!PL_in_my)
-	    tmp = pad_findmy_pvn(PL_tokenbuf, tokenbuf_len,
-                                 0);
+	    tmp = pad_findmy_pvn(PL_tokenbuf, tokenbuf_len, 0);
         if (tmp != NOT_IN_PAD) {
             /* might be an "our" variable" */
             if (PAD_COMPNAME_FLAGS_isOUR(tmp)) {
@@ -9199,9 +9300,10 @@ S_new_constant(pTHX_ const char *s, STRLEN len, const char *key, STRLEN keylen,
 
 PERL_STATIC_INLINE void
 S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
-                    bool is_utf8, bool check_dollar) {
+              bool is_utf8, bool check_dollar, int *normalize) {
     PERL_ARGS_ASSERT_PARSE_IDENT;
 
+    *normalize = 0;
     for (;;) {
         if (*d >= e)
             Perl_croak(aTHX_ "%s", ident_too_long);
@@ -9212,20 +9314,23 @@ S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
              */
             const U8 *p = (U8*)*s;
             STRLEN len = UTF8SKIP(p);
-            char *t = p + UTF8SKIP(p);
-            if (UNLIKELY(len > 1 && !(is_LATIN_SCRIPT_utf8(p)
-                                      || is_COMMON_SCRIPT_utf8(p)))) {
-                utf8_check_script(p);
+            char *t = p + len;
+            if (len > 1) {
+                if (UNLIKELY(!(is_LATIN_OR_COMMON_SCRIPT_utf8(p))))
+                    utf8_check_script(p);
+                if (!*normalize && UNLIKELY(_is_decomposed_string(p, len)))
+                    *normalize = 1;
             }
             while (isIDCONT_utf8((U8*)t)) {
-                const int l = UTF8SKIP(t);
-                if (UNLIKELY
-                    (l>1 && !(is_LATIN_SCRIPT_utf8(t)
-                              || is_COMMON_SCRIPT_utf8(t)
-                              || is_INHERITED_SCRIPT_utf8(t)))) {
-                    utf8_check_script((U8*)t);
+                len = UTF8SKIP(t);
+                if (len > 1) {
+                    if (UNLIKELY(!(is_LATIN_OR_COMMON_SCRIPT_utf8(t)
+                                || is_INHERITED_SCRIPT_utf8(t))))
+                        utf8_check_script((U8*)t);
+                    if (!*normalize && UNLIKELY(_is_decomposed_string((U8*)t, len)))
+                        *normalize = 1;
                 }
-                t += l;
+                t += len;
             }
             len = t - *s;
             if (*d + len > e)
@@ -9266,7 +9371,8 @@ S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
    *slp
    */
 STATIC char *
-S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package, STRLEN *slp)
+S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package,
+            STRLEN *slp, int *normalize)
 {
     char *d = dest;
     char * const e = d + destlen - 3;  /* two-character token, ending NUL */
@@ -9274,7 +9380,7 @@ S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package, STRLEN
 
     PERL_ARGS_ASSERT_SCAN_WORD;
 
-    parse_ident(&s, &d, e, allow_package, is_utf8, TRUE);
+    parse_ident(&s, &d, e, allow_package, is_utf8, TRUE, normalize);
     *d = '\0';
     *slp = d - dest;
     if (UNLIKELY(*slp > I32_MAX))
@@ -9311,15 +9417,15 @@ S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package, STRLEN
 #endif
 
 STATIC char *
-S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni)
+S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni, int *normalize)
 {
-    I32 herelines = PL_parser->herelines;
     SSize_t bracket = -1;
-    char funny = *s++;
     char *d = dest;
     char * const e = d + destlen - 3;    /* two-character token, ending NUL */
-    bool is_utf8 = cBOOL(UTF);
+    I32 herelines = PL_parser->herelines;
     I32 orig_copline = 0, tmp_copline = 0;
+    char funny = *s++;
+    bool is_utf8 = cBOOL(UTF);
 
     PERL_ARGS_ASSERT_SCAN_IDENT;
 
@@ -9333,7 +9439,7 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni)
 	}
     }
     else {  /* See if it is a "normal" identifier */
-        parse_ident(&s, &d, e, 1, is_utf8, FALSE);
+        parse_ident(&s, &d, e, 1, is_utf8, FALSE, normalize);
     }
     *d = '\0';
     d = dest;
@@ -9422,7 +9528,7 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni)
                (the later check for } being at the expected point will trap
                cases where this doesn't pan out.)  */
             d += is_utf8 ? UTF8SKIP(d) : 1;
-            parse_ident(&s, &d, e, 1, is_utf8, TRUE);
+            parse_ident(&s, &d, e, 1, is_utf8, TRUE, normalize);
 	    *d = '\0';
             tmp_copline = CopLINE(PL_curcop);
             if (s < PL_bufend && isSPACE(*s)) {
@@ -12199,11 +12305,12 @@ Perl_parse_label(pTHX_ U32 flags)
     } else {
 	char *s, *t;
 	STRLEN wlen, bufptr_pos;
+        int normalize;
 	lex_read_space(0);
 	t = s = PL_bufptr;
         if (!isIDFIRST_lazy_if(s, UTF))
 	    goto no_label;
-	t = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE, &wlen);
+	t = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE, &wlen, &normalize);
 	if (word_takes_any_delimeter(s, wlen))
 	    goto no_label;
 	bufptr_pos = s - SvPVX(PL_linestr);
@@ -12215,10 +12322,14 @@ Perl_parse_label(pTHX_ U32 flags)
 	    PL_oldoldbufptr = PL_oldbufptr;
 	    PL_oldbufptr = s;
 	    PL_bufptr = t+1;
+            if (UNLIKELY(normalize)) {
+                s = pv_uni_normalize(s, wlen, &wlen);
+                Copy(s, &PL_tokenbuf, wlen+1, char);
+            }
 	    return newSVpvn_flags(s, wlen, UTF ? SVf_UTF8 : 0);
 	} else {
 	    PL_bufptr = s;
-	    no_label:
+        no_label:
 	    if (flags & PARSE_OPTIONAL) {
 		return NULL;
 	    } else {
@@ -12331,6 +12442,9 @@ S_parse_opt_lexvar(pTHX_ bool is_ref)
 {
     I32 sigil, c;
     char *s, *d;
+    int normalize = FALSE;
+    bool is_utf8 = cBOOL(UTF);
+
     lex_token_boundary();
     sigil = lex_read_unichar(0);
     if (lex_peek_unichar(0) == '#') {
@@ -12345,14 +12459,21 @@ S_parse_opt_lexvar(pTHX_ bool is_ref)
     d = PL_tokenbuf + 1;
     PL_tokenbuf[0] = (char)sigil;
     parse_ident(&s, &d, PL_tokenbuf + sizeof(PL_tokenbuf) - 1, 0,
-		cBOOL(UTF), FALSE);
+		is_utf8, FALSE, &normalize);
     PL_bufptr = s;
     if (d == PL_tokenbuf+1)
 	return NOT_IN_PAD;
     if (is_ref && (sigil == '@' || sigil == '%')) {
         PL_tokenbuf[0] = '$';
     }
-    return allocmy(PL_tokenbuf, d - PL_tokenbuf, UTF ? SVf_UTF8 : 0);
+    if (is_utf8 && normalize) {
+        STRLEN len;
+        char *norm = pv_uni_normalize(PL_tokenbuf, d - PL_tokenbuf, &len);
+        Copy(norm, &PL_tokenbuf[1], len+1, char);
+        return allocmy(norm, len, SVf_UTF8);
+    } else {
+        return allocmy(PL_tokenbuf, d - PL_tokenbuf, UTF ? SVf_UTF8 : 0);
+    }
 }
 
 
@@ -12530,7 +12651,12 @@ Perl_parse_subsignature(pTHX)
         if (c != '$' && c != '@' && c != '%' && c != '\\') {
             char *s = PL_parser->bufptr;
             STRLEN len;
-            s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
+            int normalize;
+            s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
+            if (UNLIKELY(normalize)) {
+                char *d = pv_uni_normalize(s, len, &len);
+                Copy(d, &PL_tokenbuf, len+1, char);
+            }
             typestash = find_in_my_stash(PL_tokenbuf, len);
             if (!typestash)
                 typestash = find_in_coretypes(PL_tokenbuf, len);

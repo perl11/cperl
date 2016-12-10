@@ -826,6 +826,33 @@ machines) is a valid UTF-8 character.
  * retained solely for backwards compatibility */
 #define IS_UTF8_CHAR(p, n)      (isUTF8_CHAR(p, (p) + (n)) == n)
 
+/* HANGUL begin */
+#define Hangul_SBase  0xAC00
+#define Hangul_SFinal 0xD7A3
+#define Hangul_SCount  11172
+
+#define Hangul_NCount    588
+
+#define Hangul_LBase  0x1100
+#define Hangul_LFinal 0x1112
+#define Hangul_LCount     19
+
+#define Hangul_VBase  0x1161
+#define Hangul_VFinal 0x1175
+#define Hangul_VCount     21
+
+#define Hangul_TBase  0x11A7
+#define Hangul_TFinal 0x11C2
+#define Hangul_TCount     28
+
+#define Hangul_IsS(u)  ((Hangul_SBase <= (u)) && ((u) <= Hangul_SFinal))
+#define Hangul_IsN(u)  (((u) - Hangul_SBase) % Hangul_TCount == 0)
+#define Hangul_IsLV(u) (Hangul_IsS(u) && Hangul_IsN(u))
+#define Hangul_IsL(u)  ((Hangul_LBase <= (u)) && ((u) <= Hangul_LFinal))
+#define Hangul_IsV(u)  ((Hangul_VBase <= (u)) && ((u) <= Hangul_VFinal))
+#define Hangul_IsT(u)  ((Hangul_TBase  < (u)) && ((u) <= Hangul_TFinal))
+/* HANGUL end */
+
 #endif /* H_UTF8 */
 
 /*

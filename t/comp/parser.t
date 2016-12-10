@@ -644,13 +644,11 @@ like($@, qr/^\QIllegal declaration of anonymous subroutine at \E/,
 # <c, a, f, e, U+0301, U+0301> Repeated combining marks, normalize or error?
 #eval 'use utf8; sub café́ {}'; # currently allowed, see #228
 
-# <c, a, f, e, U+0301> vs <c, a, f, U+00E9>
-# we will normalize with #228, sub café {} will not do café() now
-eval 'use utf8; sub café {"ok"} print café()'; # spoof
-like($@, qr/^Undefined subroutine &main::caf. called at /,
-     "TODO unicode spoofed identifier #228");
+# spoof <c, a, f, e, U+0301> normalized to <c, a, f, U+00E9>
+my $r = eval 'use utf8; sub café {1} café()';
+#was qr/^Undefined subroutine &main::caf. called at /,
+is($r, 1, "normalized unicode spoofed identifier #228 $@");
 
-# this fails with miniperl
 eval 'use utf8; sub Teχ텟;';
 like($@, qr/^Invalid script/, "Invalid mixed-scripts");
 eval 'use utf8 qw(Greek Hangul); sub Teχ텟;';
