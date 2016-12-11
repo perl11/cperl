@@ -9,18 +9,6 @@ perlcdelta - what is new for cperl v5.25.2
 This document describes the differences between the cperl 5.25.1
 and the cperl 5.25.2 development releases.
 
-=head1 Notice
-
-XXX Any important notices here
-
-=head1 Core Enhancements
-
-XXX New core language features go here.  Summarize user-visible core language
-enhancements.  Particularly prominent performance optimisations could go
-here, but most should go in the L</Performance Enhancements> section.
-
-[ List each enhancement as a =head2 entry ]
-
 =head1 Security
 
 =head2 use utf8 'Script'
@@ -135,16 +123,6 @@ it needs for the result, overwriting one stack entry. Note that the perl stack i
 the heap, so it's not that dramatic.
 L<[perl #129130]|https://rt.perl.org/Public/Bug/Display.html?id=129130>
 
-=head1 Incompatible Changes
-
-XXX For a release on a stable branch, this section aspires to be:
-
-    There are no changes intentionally incompatible with 5.XXX.XXX
-    If any exist, they are bugs, and we request that you submit a
-    report.  See L</Reporting Bugs> below.
-
-[ List each incompatible change as a =head2 entry ]
-
 =head1 Deprecations
 
 =head2 do_open, do_close macros
@@ -170,35 +148,6 @@ identifiers, e.g. for Test::More C<isn't>.
 
 See L<[cperl #217]|https://github.com/perl11/cperl/issues/217>.
 
-=head2 Module removals
-
-XXX Remove this section if inapplicable.
-
-The following modules will be removed from the core distribution in a
-future release, and will at that time need to be installed from CPAN.
-Distributions on CPAN which require these modules will need to list them as
-prerequisites.
-
-The core versions of these modules will now issue C<"deprecated">-category
-warnings to alert you to this fact.  To silence these deprecation warnings,
-install the modules in question from CPAN.
-
-Note that these are (with rare exceptions) fine modules that you are encouraged
-to continue to use.  Their disinclusion from core primarily hinges on their
-necessity to bootstrapping a fully functional, CPAN-capable Perl installation,
-not usually on concerns over their design.
-
-=over
-
-=item XXX
-
-XXX Note that deprecated modules should be listed here even if they are listed
-as an updated module in the L</Modules and Pragmata> section.
-
-=back
-
-[ List each other deprecation as a =head2 entry ]
-
 =head1 Performance Enhancements
 
 =over 4
@@ -218,27 +167,13 @@ See L</fake_signatures>
 
 =head1 Modules and Pragmata
 
-XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
-go here.  If Module::CoreList is updated, generate an initial draft of the
-following sections using F<Porting/corelist-perldelta.pl>.  A paragraph summary
-for important changes should then be added by hand.  In an ideal world,
-dual-life modules would have a F<Changes> file that could be cribbed.
-
-[ Within each section, list entries as a =item entry ]
-
-=head2 New Modules and Pragmata
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
 =head2 Updated Modules and Pragmata
 
 =over 4
+
+=item B-Debug 1.24
+
+Support 5.25.6 split optimization
 
 =item Devel-NYTProf 6.04
 
@@ -282,11 +217,6 @@ Fix -Wc++11-compat warnings
 
 Fix -Wc++11-compat warnings
 
-=item Cpanel-JSON-XS 3.0225
-
-Fixes for g++-6, stricter -fpermissive and -Wc++11-compat.
-Added tests for ill-formed utf8 sequences from Encode.
-
 =item Encode 2.87
 
 various upstream fixes.
@@ -315,7 +245,11 @@ cperl only.
 
 Fixed build dependency for F<dlboot.c>. No excessive rebuilds anymore.
 
-=item Cpanel-JSON-XS 3.0222
+=item Cpanel-JSON-XS 3.0225
+
+- Fixes for g++-6, stricter -fpermissive and -Wc++11-compat.
+
+- Added tests for ill-formed utf8 sequences from Encode.
 
 - modfl() mingw 4.0 runtime bug [perl #125924]
 
@@ -336,7 +270,9 @@ Fixed build dependency for F<dlboot.c>. No excessive rebuilds anymore.
 =item B-C 1.54_15
 
 Fixed IsCOW savepvn, store the last cowrefcnt.
+
 Fixed wrong savepvn length, failing with asan.
+
 Optimized mro_isa_changed_in initialization.
 
 =item Net-Ping 2.55
@@ -369,34 +305,9 @@ Now also parse the 'c' natively.
 
 =back
 
-=head2 Removed Modules and Pragmata
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
 =head1 Documentation
 
-XXX Changes to files in F<pod/> go here.  Consider grouping entries by
-file and be sure to link to the appropriate page, e.g. L<perlfunc>.
-
-=head2 New Documentation
-
-XXX Changes which create B<new> files in F<pod/> go here.
-
-=head3 L<XXX>
-
-XXX Description of the purpose of the new file here
-
 =head2 Changes to Existing Documentation
-
-XXX Changes which significantly change existing files in F<pod/> go here.
-However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
-section.
 
 =head3 L<perldata>
 
@@ -404,7 +315,7 @@ section.
 
 =item *
 
-Added new cperl v5.25.2c restrictions for identifiers:
+Added new cperl v5.25.2c restrictions for L<perldata/Identifier parsing>:
 No undeclared mixed scripts, normalization to NFC and no binary symbols.
 
 =back
@@ -447,18 +358,6 @@ L<Invalid script %s in identifier for U+%04|perldiag/"Invalid script %s in ident
 =item *
 
 L<Invalid \0 character in string for SYMBOL: %s|perldiag/"Invalid \0 character in string for SYMBOL: %s">
-
-=back
-
-=head2 Changes to Existing Diagnostics
-
-XXX Changes (i.e. rewording) of diagnostic messages go here
-
-=over 4
-
-=item *
-
-XXX Describe change here
 
 =back
 
@@ -568,55 +467,6 @@ Note that Microsoft Visual C++ still throws errors. You cannot use that yet.
 See L<[cperl #227]|https://github.com/perl11/cperl/issues/227>.
 
 This is related to the new C<-Wc++11-compat> and C<-fpermissive> fixes.
-
-=back
-
-=head1 Platform Support
-
-XXX Any changes to platform support should be listed in the sections below.
-
-[ Within the sections, list each platform as a =item entry with specific
-changes as paragraphs below it. ]
-
-=head2 New Platforms
-
-XXX List any platforms that this version of perl compiles on, that previous
-versions did not.  These will either be enabled by new files in the F<hints/>
-directories, or new subdirectories and F<README> files at the top level of the
-source tree.
-
-=over 4
-
-=item XXX-some-platform
-
-XXX
-
-=back
-
-=head2 Discontinued Platforms
-
-XXX List any platforms that this version of perl no longer compiles on.
-
-=over 4
-
-=item XXX-some-platform
-
-XXX
-
-=back
-
-=head2 Platform-Specific Notes
-
-XXX List any changes for specific platforms.  This could include configuration
-and compilation changes or changes in portability/compatibility.  However,
-changes within modules for platforms should generally be listed in the
-L</Modules and Pragmata> section.
-
-=over 4
-
-=item XXX-some-platform
-
-XXX
 
 =back
 
@@ -750,25 +600,33 @@ L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
 
 =back
 
-=head1 Errata From Previous Releases
-
-=over 4
-
-=item *
-
-XXX Add anything here that we forgot to add, or were mistaken about, in
-the perlcdelta of a previous release.
-
-=back
-
-=head1 Obituary
-
-XXX If any significant core contributor has died, we've added a short obituary
-here.
-
 =head1 Acknowledgements
 
-XXX To be generated with:
+cperl 5.25.2 represents approximately 2 months of development since cperl 5.25.1c
+and contains approximately 44,000 lines of changes across 400 files from 5
+authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 31,000 lines of changes to 260 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements
+that became Perl 5.25.2:
+
+Reini Urban, Tony Cook, Yves Orton, Hugo van der Sanden, Karl Williamson.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
 
     cperl Porting/acknowledgements.pl cperl-5.25.1..HEAD
 

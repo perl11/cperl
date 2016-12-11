@@ -228,7 +228,7 @@ use File::Glob qw(:case);
     },
 
     'B::Debug' => {
-        'DISTRIBUTION' => 'RURBAN/B-Debug-1.23_01.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/B-Debug-1.24.tar.gz',
         'FILES'        => q[cpan/B-Debug],
         'EXCLUDED'     => ['t/pod.t'],
     },
@@ -551,7 +551,7 @@ use File::Glob qw(:case);
     },
 
     'Encode' => {
-        'DISTRIBUTION' => 'DANKOGAI/Encode-2.86.tar.gz',
+        'DISTRIBUTION' => 'DANKOGAI/Encode-2.87.tar.gz',
         'FILES'        => q[cpan/Encode],
         # cperl fix to support make -s, formatting, enc2xs #114065 for win32
         'CUSTOMIZED'   => [ qw( bin/enc2xs )],
@@ -1037,7 +1037,7 @@ use File::Glob qw(:case);
     },
 
     'Net::Ping' => {
-        'DISTRIBUTION' => 'RURBAN/Net-Ping-2.52.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Net-Ping-2.55.tar.gz',
         'FILES'        => q[dist/Net-Ping],
         'EXCLUDED'     => [
             qw{t/600_pod.t t/601_pod-coverage.t},
