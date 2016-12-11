@@ -9812,9 +9812,17 @@ Perl_sv_resetpvn(pTHX_ const char *s, STRLEN len, HV * const stash)
 
     Zero(todo, 256, char);
     send = s + len;
+    if (UNLIKELY(len && memchr(s, 0, len))) {
+        SV* tmp = newSVpvs_flags("", SVs_TEMP);
+        Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
+                       "Invalid \\0 character for reset: %s",
+                       pv_display(tmp, s, len, len, 127));
+    }
     while (s < send) {
 	I32 max;
 	I32 i = (unsigned char)*s;
+        if (UNLIKELY(!*s))
+            return;
 	if (s[1] == '-') {
 	    s += 2;
 	}

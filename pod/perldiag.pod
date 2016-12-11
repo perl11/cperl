@@ -2939,6 +2939,12 @@ formerly ignored by system calls.
 With the default warning 'security' in effect, only with cperl, the warning is
 produced by the L<perlapi/warn_security> API.
 
+=item Invalid \0 character for reset: %s
+
+(W misc) Symbol names are stripped of everything
+after the first \0 character as in perl version before 5.16.
+This protects from deleting not-matching symbols.
+
 =item Invalid \0 character in string for SYMBOL: %s
 
 (S security)(W misc) Symbol names are stripped of everything
