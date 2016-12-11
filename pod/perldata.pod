@@ -156,12 +156,15 @@ generic characters, and identifiers should match
 That is, any word character in the ASCII range, as long as the first
 character is not a digit.
 
-There are two package separators in Perl: A double colon (C<::>) and a single
-quote (C<'>).  Normal identifiers can start or end with a double colon, and
-can contain several parts delimited by double colons.
-Single quotes have similar rules, but with the exception that they are not
-legal at the end of an identifier: That is, C<$'foo> and C<$foo'bar> are
-legal, but C<$foo'bar'> is not.
+There are two package separators in Perl, but only one in cperl: A
+double colon (C<::>) and a single quote (C<'>).  Normal identifiers
+can start or end with a double colon, and can contain several parts
+delimited by double colons.  Single quotes have similar rules, but
+with the exception that they are not legal at the end of an
+identifier: That is, C<$'foo> and C<$foo'bar> are legal, but
+C<$foo'bar'> is not.
+In cperl only the double colon (C<::>) is legal, the perl4 package
+seperator C<'> is illegal.
 
 Additionally, if the identifier is preceded by a sigil --
 that is, if the identifier is part of a variable name -- it
