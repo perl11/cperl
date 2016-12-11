@@ -541,18 +541,27 @@ TODO: {
     $name1 = "\0Chalk";
     $name2 = "\0Cheese";
 
-    isnt ($name1, $name2, "They differ");
+    isnt ($name1, $name2, "Names differ");
 
     is ($$name1, undef, 'Nothing before we start (scalars)');
     is ($$name2, undef, 'Nothing before we start');
     $$name1 = "Yummy";
     is ($$name1, "Yummy", 'Accessing via the correct name works');
-    is ($$name2, undef,
-	'Accessing via a different NUL-containing name gives nothing');
+    if ($] < 5.016 or $^V >= v5.25.2c) {
+        is ($$name2, $$name1, 'Same names when stripped after NUL');
+    } else {
+        # perl5 behavior since 5.16
+        is ($$name2, undef, 'Accessing via a different NUL-containing name gives nothing');
+    }
+
     # defined uses a different code path
     ok (defined $$name1, 'defined via the correct name works');
-    ok (!defined $$name2,
-	'defined via a different NUL-containing name gives nothing');
+    if ($] < 5.016 or $^V >= v5.25.2c) {
+        ok (defined $$name2, 'Same names, when stripped after NUL');
+    } else {
+        ok (!defined $$name2,
+            'defined via a different NUL-containing name gives nothing');
+    }
 
     is ($name1->[0], undef, 'Nothing before we start (arrays)');
     is ($name2->[0], undef, 'Nothing before we start');
@@ -572,11 +581,19 @@ TODO: {
     (undef, $one) = @{$name1}[2,3];
     (undef, $two) = @{$name2}[2,3];
     is ($one, "Yummy", 'Accessing via the correct name works');
-    is ($two, undef,
-	'Accessing via a different NUL-containing name gives nothing');
+    if ($] < 5.016 or $^V >= v5.25.2c) {
+        is ($one, $two, 'Same names, when stripped after NUL');
+    } else {
+        is ($two, undef,
+            'Accessing via a different NUL-containing name gives nothing');
+    }
     ok (defined $one, 'defined via the correct name works');
-    ok (!defined $two,
-	'defined via a different NUL-containing name gives nothing');
+    if ($] < 5.016 or $^V >= v5.25.2c) {
+        ok (defined $two, 'Same names, when stripped after NUL');
+    } else {
+        ok (!defined $two,
+            'defined via a different NUL-containing name gives nothing');
+    }
 
     is ($name1->{PWOF}, undef, 'Nothing before we start (hashes)');
     is ($name2->{PWOF}, undef, 'Nothing before we start');
@@ -596,11 +613,19 @@ TODO: {
     (undef, $one) = @{$name1}{'SNIF', 'BEEYOOP'};
     (undef, $two) = @{$name2}{'SNIF', 'BEEYOOP'};
     is ($one, "Yummy", 'Accessing via the correct name works');
-    is ($two, undef,
-	'Accessing via a different NUL-containing name gives nothing');
+    if ($] < 5.016 or $^V >= v5.25.2c) {
+        is ($one, $two, 'Same names, when stripped after NUL');
+    } else {
+        is ($two, undef,
+            'Accessing via a different NUL-containing name gives nothing');
+    }
     ok (defined $one, 'defined via the correct name works');
-    ok (!defined $two,
-	'defined via a different NUL-containing name gives nothing');
+    if ($] < 5.016 or $^V >= v5.25.2c) {
+        ok (defined $two, 'Same name, when stripped after NUL');
+    } else {
+        ok (!defined $two,
+            'defined via a different NUL-containing name gives nothing');
+    }
 
     $name1 = "Left"; $name2 = "Left\0Right";
     my $glob2 = *{$name2};

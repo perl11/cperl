@@ -34,6 +34,11 @@
 	  (PERL_DECIMAL_VERSION <= PERL_VERSION_DECIMAL(r,v,s))
 #endif
 
+/* if to disallow \0 in names */
+#if PERL_VERSION_LE(5,16,0) || (defined(USE_CPERL) && PERL_VERSION_GE(5,25,2))
+#define PERL_STRIP_NUL
+#endif
+
 #if PERL_VERSION_GE(5,6,0)
 #  include "multicall.h"
 #endif
@@ -54,6 +59,7 @@
 #ifndef HV_FETCH_JUST_SV
 #  define HV_FETCH_JUST_SV 0
 #endif
+
 
 #if PERL_VERSION_GE(5,25,0) && !defined(USE_CPERL)
 STATIC PADOFFSET
@@ -1532,6 +1538,7 @@ PPCODE:
 
 # Binary and unicode support from https://github.com/rurban/sub-name/commits/binary
 # refined in https://github.com/Leont/Sub-Name/commits/safe
+# cperl-5.25.2c started disallowing NUL again, as <5.16
 
 void
 set_subname(name, sub)
@@ -1569,7 +1576,24 @@ PPCODE:
 
     /* TODO: If there exists a UTF8 codepoint with ending ':' we are screwed.
        But perl5 does not care neither. */
-    for (s = nameptr; s <= nameptr + namelen; s++) {
+    for (s = nameptr; s < nameptr + namelen; s++) {
+#ifdef PERL_STRIP_NUL
+        if (!*s) {
+#  if PERL_VERSION >= 25
+            SV* tmp = newSVpvs_flags("", SVs_TEMP);
+            if (Perl_ckwarn(aTHX_ packWARN(WARN_SECURITY)))
+                Perl_warn_security(aTHX_
+                                 "Invalid \\0 character in name for set_subname: %s",
+                                 pv_display(tmp, nameptr, namelen, namelen, 127));
+            else
+                Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
+                             "Invalid \\0 character in name for set_subname: %s",
+                             pv_display(tmp, nameptr, namelen, namelen, 127));
+#  endif
+            namelen = s - nameptr;
+            break;
+        }
+#endif
         if (s > nameptr && *s == ':' && s[-1] == ':') {
             end = s - 1;
             begin = ++s;
@@ -1577,8 +1601,8 @@ PPCODE:
                 seen_quote++;
         }
 #ifdef PERL_HAS_QUOTE_PKGSEPERATOR
-        /* "In the year 2525, if man is still alive
-           If 4 is finally gone" - gv.c:S_parse_gv_stash_name */
+        /* cperl doesnt support the perl4 ' pkg seperator anymore.
+           gv.c:S_parse_gv_stash_name */
         else if (s > nameptr && *s != '\0' && s[-1] == '\'') {
             end = s - 1;
             begin = s;
@@ -1586,7 +1610,6 @@ PPCODE:
         }
 #endif
     }
-    s--;
     if (end) {
         SV* tmp;
         if (seen_quote > 1) {

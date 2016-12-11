@@ -96,12 +96,13 @@ is join("-", $scratch::a//'u', $scratch::a2//'u', $scratch::b//'u',
    "u-u-u-sea",
    'reset "range"';
 
+no warnings; # avoid security warnings
 { no strict; ${"scratch::\0foo"} = "bar" }
 $scratch::a = "foo";
-package scratch { reset "\0a" }
+package scratch { reset "\0" }
 is join("-", $scratch::a//'u', do { no strict; ${"scratch::\0foo"} }//'u'),
-   "u-u",
-   'reset "\0char"';
+  ($] < 5.016 or $^V >= v5.25.2c ? "foo-bar" : "u-u"),
+  'reset "\0char"';
 
 $scratch::cow = __PACKAGE__;
 $scratch::qr = ${qr//};

@@ -83,6 +83,19 @@ Canonical Composition), cperl uses both canonical transformations.
 See L<http://unicode.org/reports/tr15/#Norm_Forms> for the difference.
 Basically NFKC transforms to shorter ligatures. NFC is recommended by TR15.
 
+=head2 No binary symbols
+
+Fallback to the secure behvaiour as before v5.16 and strip symbol
+names of everything after the first \0 character.  This protects from
+creating binary symbols as with C<no strict 'refs'; ${"a\0\hidden"}>,
+which were especially problematic for package names, which were mapped
+1:1 to filenames.  With the default warning 'security' in effect, a
+warning is produced by the L<perlapi/warn_security> API, same as for
+unsafe syscalls since 5.20.
+
+See L<perldiag/Invalid \0 character in string for SYMBOL: %s>
+and L<[cperl #233]|https://github.com/perl11/cperl/issues/233>.
+
 =head2 hash seed exposure
 
 cperl5.22.2 added a restraint to expose the internal hash secret seed
@@ -247,9 +260,11 @@ Fix -Wc++11-compat warnings
 
 Fix -Wc++11-compat warnings
 
-=item Scalar-List-Utils 1.46_07
+=item Scalar-List-Utils 1.46_08
 
-Fix -Wc++11-compat warnings
+Fix -Wc++11-compat warnings.
+
+Warn and strip \0 in names. [cperl #233]
 
 =item Cwd  4.65c
 
@@ -383,13 +398,14 @@ XXX Changes which significantly change existing files in F<pod/> go here.
 However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
 section.
 
-=head3 L<XXX>
+=head3 L<perldata>
 
 =over 4
 
 =item *
 
-XXX Description of the change here
+Added new cperl v5.25.2c restrictions for identifiers:
+No undeclared mixed scripts, normalization to NFC and no binary symbols.
 
 =back
 
@@ -410,7 +426,13 @@ similar to C<-Dm> and C<env PERL_MEM_LOG=s>.
 
 =item *
 
-XXX L<message|perldiag/"message">
+L<Malformed UTF-8 character in compose (empty string)|perldiag/"Malformed UTF-8 character in compose (empty string)">
+
+L<Malformed UTF-8 character in decompose (empty string)|perldiag/"Malformed UTF-8 character in compose (empty string)">
+
+L<Malformed UTF-8 character in reorder (empty string)|perldiag/"Malformed UTF-8 character in compose (empty string)">
+
+New unicode identifier normalization errors.
 
 =back
 
@@ -421,6 +443,10 @@ XXX L<message|perldiag/"message">
 =item *
 
 L<Invalid script %s in identifier for U+%04|perldiag/"Invalid script %s in identifier for U+%04">
+
+=item *
+
+L<Invalid \0 character in string for SYMBOL: %s|perldiag/"Invalid \0 character in string for SYMBOL: %s">
 
 =back
 
