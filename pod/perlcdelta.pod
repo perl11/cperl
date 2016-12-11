@@ -91,7 +91,9 @@ creating binary symbols as with C<no strict 'refs'; ${"a\0\hidden"}>,
 which were especially problematic for package names, which were mapped
 1:1 to filenames.  With the default warning 'security' in effect, a
 warning is produced by the L<perlapi/warn_security> API, same as for
-unsafe syscalls since 5.20. See L<perldiag/Invalid \0 character in string for SYMBOL: %s>
+unsafe syscalls since 5.20.
+
+See L<perldiag/Invalid \0 character in string for SYMBOL: %s>
 and L<[cperl #233]|https://github.com/perl11/cperl/issues/233>.
 
 =head2 hash seed exposure
@@ -394,13 +396,14 @@ XXX Changes which significantly change existing files in F<pod/> go here.
 However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
 section.
 
-=head3 L<XXX>
+=head3 L<perldata>
 
 =over 4
 
 =item *
 
-XXX Description of the change here
+Added new cperl v5.25.2c restrictions for identifiers:
+No undeclared mixed scripts, normalization to NFC and no binary symbols.
 
 =back
 
@@ -421,7 +424,13 @@ similar to C<-Dm> and C<env PERL_MEM_LOG=s>.
 
 =item *
 
-XXX L<message|perldiag/"message">
+L<Malformed UTF-8 character in compose (empty string)|perldiag/"Malformed UTF-8 character in compose (empty string)">
+
+L<Malformed UTF-8 character in decompose (empty string)|perldiag/"Malformed UTF-8 character in compose (empty string)">
+
+L<Malformed UTF-8 character in reorder (empty string)|perldiag/"Malformed UTF-8 character in compose (empty string)">
+
+New unicode identifier normalization errors.
 
 =back
 
@@ -432,6 +441,10 @@ XXX L<message|perldiag/"message">
 =item *
 
 L<Invalid script %s in identifier for U+%04|perldiag/"Invalid script %s in identifier for U+%04">
+
+=item *
+
+L<Invalid \0 character in string for SYMBOL: %s|perldiag/"Invalid \0 character in string for SYMBOL: %s">
 
 =back
 
