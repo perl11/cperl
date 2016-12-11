@@ -260,9 +260,11 @@ Fix -Wc++11-compat warnings
 
 Fix -Wc++11-compat warnings
 
-=item Scalar-List-Utils 1.46_07
+=item Scalar-List-Utils 1.46_08
 
-Fix -Wc++11-compat warnings
+Fix -Wc++11-compat warnings.
+
+Warn and strip \0 in names. [cperl #233]
 
 =item Cwd  4.65c
 
