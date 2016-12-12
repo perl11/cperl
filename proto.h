@@ -9271,7 +9271,7 @@ STATIC char*	S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s, cons
 #define PERL_ARGS_ASSERT_FIND_BYCLASS	\
 	assert(prog); assert(c); assert(s); assert(strend)
 
-STATIC bool	S_isFOO_lc(pTHX_ const U8 classnum, const U8 character)
+PERL_CALLCONV bool	Perl_isFOO_lc(pTHX_ const U8 classnum, const U8 character)
 			__attribute__global__
 			__attribute__warn_unused_result__;
 
