@@ -13835,7 +13835,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Devel::NYTProf'        => '6.04',
             'Devel::PPPort'         => '3.35_02',
             'DynaLoader'            => '2.06c',
-            'Encode'                => '2.87',
+            'Encode'                => '2.88',
             'ExtUtils::Constant'    => '0.23_04',
             'ExtUtils::ParseXS'     => '3.32_01',
             'Internals::DumpArenas' => '0.12_05',

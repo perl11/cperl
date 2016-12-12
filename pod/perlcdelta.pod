@@ -221,10 +221,11 @@ Fix -Wc++11-compat warnings
 
 Fix -Wc++11-compat warnings
 
-=item Encode 2.87
+=item Encode 2.88
 
 various upstream fixes.
 plus g++-6 -fpermissive and -Wc++11-compat fixes.
+our local make -s silent patches and various others are now all upstream.
 
 =item ExtUtils-Constant 0.23_04
 
@@ -244,6 +245,7 @@ Removed the deprecated C<isn't> method, using the C<'> package seperator.
 Fixed C<CPAN::Shell->expand("Module", "Bundle::...")> error with Bundles,
 a regression from 1.63 and prev. cperl releases up to 5.25.0c.
 cperl only.
+C<cpan .> in local directory still broken (upstream).
 
 =item DynaLoader 2.06c
 

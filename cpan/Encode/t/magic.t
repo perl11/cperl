@@ -20,11 +20,12 @@ use warnings;
 
 use Encode qw(find_encoding encode decode encode_utf8 decode_utf8 is_utf8 _utf8_on _utf8_off FB_CROAK);
 
-use Test::More tests => 3*(2*(3*(4*4)+4)+4+3*3);
+use Test::More tests => 3*(2*(4*(4*4)+4)+4+3*3);
 
 my $ascii = find_encoding('ASCII');
 my $latin1 = find_encoding('Latin1');
 my $utf8 = find_encoding('UTF-8');
+my $utf16 = find_encoding('UTF-16LE');
 
 my $undef = undef;
 my $ascii_str = 'ascii_str';
@@ -34,7 +35,7 @@ _utf8_on($utf8_str);
 {
     foreach my $str ($undef, $ascii_str, $utf8_str) {
         foreach my $croak (0, 1) {
-            foreach my $enc ('ASCII', 'Latin1', 'UTF-8') {
+            foreach my $enc ('ASCII', 'Latin1', 'UTF-8', 'UTF-16LE') {
                 my $mod = defined $str && $croak;
                 my $func = "encode('" . $enc . "', " . (!defined $str ? 'undef' : is_utf8($str) ? '$utf8_str' : '$ascii_str') . ($croak ? ', FB_CROAK' : '') . ')';
                 tie my $input, 'TieScalarCounter', $str;
@@ -42,19 +43,20 @@ _utf8_on($utf8_str);
                 is(tied($input)->{fetch}, 1, "$func processes get magic only once");
                 is(tied($input)->{store}, $mod ? 1 : 0, "$func " . ($mod ? 'processes set magic only once' : 'does not process set magic'));
                 is($input, $mod ? '' : $str, "$func " . ($mod ? 'modifies' : 'does not modify') . ' $input string');
-                is($output, $str, "$func returns correct \$output string");
+                is($output, ((defined $str and $enc eq 'UTF-16LE') ? encode("UTF-16LE", $str) : $str), "$func returns correct \$output string");
             }
-            foreach my $enc ('ASCII', 'Latin1', 'UTF-8') {
+            foreach my $enc ('ASCII', 'Latin1', 'UTF-8', 'UTF-16LE') {
                 my $mod = defined $str && $croak;
                 my $func = "decode('" . $enc . "', " . (!defined $str ? 'undef' : is_utf8($str) ? '$utf8_str' : '$ascii_str') . ($croak ? ', FB_CROAK' : '') . ')';
-                tie my $input, 'TieScalarCounter', $str;
+                my $input_str = ((defined $str and $enc eq 'UTF-16LE') ? encode("UTF-16LE", $str) : $str);
+                tie my $input, 'TieScalarCounter', $input_str;
                 my $output = decode($enc, $input, $croak ? FB_CROAK : 0);
                 is(tied($input)->{fetch}, 1, "$func processes get magic only once");
                 is(tied($input)->{store}, $mod ? 1 : 0, "$func " . ($mod ? 'processes set magic only once' : 'does not process set magic'));
-                is($input, $mod ? '' : $str, "$func " . ($mod ? 'modifies' : 'does not modify') . ' $input string');
+                is($input, $mod ? '' : $input_str, "$func " . ($mod ? 'modifies' : 'does not modify') . ' $input string');
                 is($output, $str, "$func returns correct \$output string");
             }
-            foreach my $obj ($ascii, $latin1, $utf8) {
+            foreach my $obj ($ascii, $latin1, $utf8, $utf16) {
                 my $mod = defined $str && $croak;
                 my $func = '$' . $obj->name() . '->encode(' . (!defined $str ? 'undef' : is_utf8($str) ? '$utf8_str' : '$ascii_str') . ($croak ? ', FB_CROAK' : '') . ')';
                 tie my $input, 'TieScalarCounter', $str;
@@ -62,16 +64,17 @@ _utf8_on($utf8_str);
                 is(tied($input)->{fetch}, 1, "$func processes get magic only once");
                 is(tied($input)->{store}, $mod ? 1 : 0, "$func " . ($mod ? 'processes set magic only once' : 'does not process set magic'));
                 is($input, $mod ? '' : $str, "$func " . ($mod ? 'modifies' : 'does not modify') . ' $input string');
-                is($output, $str, "$func returns correct \$output string");
+                is($output, ((defined $str and $obj == $utf16) ? encode("UTF-16LE", $str) : $str), "$func returns correct \$output string");
             }
-            foreach my $obj ($ascii, $latin1, $utf8) {
+            foreach my $obj ($ascii, $latin1, $utf8, $utf16) {
                 my $mod = defined $str && $croak;
                 my $func = '$' . $obj->name() . '->decode(' . (!defined $str ? 'undef' : is_utf8($str) ? '$utf8_str' : '$ascii_str') . ($croak ? ', FB_CROAK' : '') . ')';
-                tie my $input, 'TieScalarCounter', $str;
+                my $input_str = ((defined $str and $obj == $utf16) ? encode("UTF-16LE", $str) : $str);
+                tie my $input, 'TieScalarCounter', $input_str;
                 my $output = $obj->decode($input, $croak ? FB_CROAK : 0);
                 is(tied($input)->{fetch}, 1, "$func processes get magic only once");
                 is(tied($input)->{store}, $mod ? 1 : 0, "$func " . ($mod ? 'processes set magic only once' : 'does not process set magic'));
-                is($input, $mod ? '' : $str, "$func " . ($mod ? 'modifies' : 'does not modify') . ' $input string');
+                is($input, $mod ? '' : $input_str, "$func " . ($mod ? 'modifies' : 'does not modify') . ' $input string');
                 is($output, $str, "$func returns correct \$output string");
             }
             {

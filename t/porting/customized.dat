@@ -42,7 +42,6 @@ Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
 Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
 Digest::MD5 cpan/Digest-MD5/MD5.xs 9b47158166b1162f11169f9766eddb75046e7917
 Digest::MD5 cpan/Digest-MD5/t/files.t c38f1ab8150ad688de807d140fd410d7cd9410de
-Encode cpan/Encode/bin/enc2xs f91f3d68af67a36241f4365d9a2d8c3e546fd5e7
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t b65ce65850ad1b887e38d2a081920646f162fbaa
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t c01ba6e7a872c8a7fc26e277e0dea109616a5e56
 ExtUtils::MakeMaker cpan/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm 92397ec3b85c35edd33cbe7b237d244ea2bd00b1
@@ -64,7 +63,7 @@ File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm fb1175286262913bec59482b84a3587ec48339ea
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm da7db2b7b06467019466d3d82f29bfdb6c5b0b49
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 3a80510c4e56674327edae2a0f5eb2ffbaf7e1cb
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 4da1fead7ccbd1a16f1177e1d2b8b34419642501
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 287e7fd47f58f39bb3ab80c77d421970f223ebc8
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c

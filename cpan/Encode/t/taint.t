@@ -1,6 +1,7 @@
 #!/usr/bin/perl -T
 use strict;
 use Encode qw(encode decode);
+local %Encode::ExtModule = %Encode::Config::ExtModule;
 use Scalar::Util qw(tainted);
 use Test::More;
 my $taint = substr($ENV{PATH},0,0);

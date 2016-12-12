@@ -11,7 +11,7 @@ use warnings;
 use Getopt::Std;
 use Config;
 my @orig_ARGV = @ARGV;
-our $VERSION  = do { my @r = (q$Revision: 2.19 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+our $VERSION  = do { my @r = (q$Revision: 2.20 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 # These may get re-ordered.
 # RAW is a do_now as inserted by &enter
@@ -123,7 +123,10 @@ my %encode_types = (U => \&encode_U,
                    );
 
 # Win32 does not expand globs on command line
-eval "\@ARGV = map(glob(\$_),\@ARGV)" if ($^O eq 'MSWin32');
+if ($^O eq 'MSWin32' and !$ENV{PERL_CORE}) {
+    eval "\@ARGV = map(glob(\$_),\@ARGV)";
+    @ARGV = @orig_ARGV unless @ARGV;
+}
 
 my %opt;
 # I think these are:
@@ -134,6 +137,8 @@ my %opt;
 # -o <output> to specify the output file name (else it's the first arg)
 # -f <inlist> to give a file with a list of input files (else use the args)
 # -n <name> to name the encoding (else use the basename of the input file.
+#Getopt::Long::Configure("bundling");
+#GetOptions(\%opt, qw(C M=s S Q q O o=s f=s n=s v));
 getopts('CM:SQqOo:f:n:v',\%opt);
 
 $opt{M} and make_makefile_pl($opt{M}, @ARGV);
@@ -196,9 +201,9 @@ sub compiler_info {
 # This really should go first, else the die here causes empty (non-erroneous)
 # output files to be written.
 my @encfiles;
-if (exists $opt{'f'}) {
+if (exists $opt{f}) {
     # -F is followed by name of file containing list of filenames
-    my $flist = $opt{'f'};
+    my $flist = $opt{f};
     open(FLIST,$flist) || die "Cannot open $flist:$!";
     chomp(@encfiles = <FLIST>);
     close(FLIST);
@@ -206,7 +211,13 @@ if (exists $opt{'f'}) {
     @encfiles = @ARGV;
 }
 
-my $cname = (exists $opt{'o'}) ? $opt{'o'} : shift(@ARGV);
+my $cname = $opt{o} ? $opt{o} : shift(@ARGV);
+unless ($cname) { #debuging a win32 nmake error-only. works via cmdline
+    print "\nARGV:";
+    print "$_ " for @ARGV;
+    print "\nopt:";
+    print "  $_ => ",defined $opt{$_}?$opt{$_}:"undef","\n" for keys %opt;
+}
 chmod(0666,$cname) if -f $cname && !-w $cname;
 open(C,">", $cname) || die "Cannot open $cname:$!";
 

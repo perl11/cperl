@@ -1,5 +1,5 @@
 /*
- $Id: Encode.xs,v 2.38 2016/10/28 05:03:52 dankogai Exp dankogai $
+ $Id: Encode.xs,v 2.39 2016/11/29 23:29:23 dankogai Exp dankogai $
  */
 
 #define PERL_NO_GET_CONTEXT
@@ -832,6 +832,8 @@ CODE:
 void
 Method_perlio_ok(obj)
 SV *	obj
+PREINIT:
+    SV *sv;
 CODE:
 {
     /* encode_t *enc = INT2PTR(encode_t *, SvIV(SvRV(obj))); */
@@ -841,7 +843,8 @@ CODE:
     eval_pv("require PerlIO::encoding", 0);
     SPAGAIN;
 
-    if (SvTRUE(get_sv("@", 0))) {
+    sv = get_sv("@", 0);
+    if (SvTRUE(sv)) {
     ST(0) = &PL_sv_no;
     }else{
     ST(0) = &PL_sv_yes;
@@ -852,6 +855,8 @@ CODE:
 void
 Method_mime_name(obj)
 SV *	obj
+PREINIT:
+    SV *sv;
 CODE:
 {
     encode_t *enc = INT2PTR(encode_t *, SvIV(SvRV(obj)));
@@ -859,7 +864,8 @@ CODE:
     eval_pv("require Encode::MIME::Name", 0);
     SPAGAIN;
 
-    if (SvTRUE(get_sv("@", 0))) {
+    sv = get_sv("@", 0);
+    if (SvTRUE(sv)) {
 	ST(0) = &PL_sv_undef;
     }else{
 	ENTER;
