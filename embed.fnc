@@ -776,13 +776,13 @@ ADMpR	|bool	|is_uni_lower_lc	|UV c
 ADMpR	|bool	|is_uni_print_lc	|UV c
 ADMpR	|bool	|is_uni_punct_lc	|UV c
 ADMpPR	|bool	|is_uni_xdigit_lc	|UV c
-AnidRP	|bool	|is_utf8_invariant_string|NN const U8* const s|STRLEN const len
-AmnpdRP	|bool	|is_ascii_string	|NN const U8* const s|const STRLEN len
-AmnpdRP	|bool	|is_invariant_string	|NN const U8* const s|const STRLEN len
+AnidR	|bool	|is_utf8_invariant_string|NN const U8* const s|STRLEN const len
+AmnpdR	|bool	|is_ascii_string	|NN const U8* const s|const STRLEN len
+AmnpdR	|bool	|is_invariant_string	|NN const U8* const s|const STRLEN len
 AnpdD	|STRLEN	|is_utf8_char		|NN const U8 *s
 Abmnpd	|STRLEN	|is_utf8_char_buf	|NN const U8 *buf|NN const U8 *buf_end
-AnipdP	|bool	|is_utf8_string		|NN const U8 *s|const STRLEN len
-AnidP	|bool	|is_utf8_string_flags					    \
+AnipdR	|bool	|is_utf8_string		|NN const U8 *s|const STRLEN len
+AnidR	|bool	|is_utf8_string_flags					    \
 		|NN const U8 *s|const STRLEN len|const U32 flags
 AnidR	|bool	|is_strict_utf8_string	|NN const U8 *s|const STRLEN len
 AnidR	|bool	|is_c9strict_utf8_string|NN const U8 *s|const STRLEN len
@@ -1983,7 +1983,7 @@ Apd	|void	|sv_uncow       |NN SV *const sv|const U32 flags
 Apd	|void	|sv_force_normal_flags|NN SV *const sv|const U32 flags
 pX	|SSize_t|tmps_grow_p	|SSize_t ix
 Apd	|SV*	|sv_rvweaken	|NN SV *const sv
-AnpPMd	|SV*	|sv_get_backrefs|NN SV *const sv
+AnpMd	|SV*	|sv_get_backrefs|NN SV *const sv
 : This is indirectly referenced by globals.c. This is somewhat annoying.
 p	|int	|magic_killbackrefs|NN SV *sv|NN MAGIC *mg
 Ap	|OP*	|newANONATTRSUB	|I32 floor|NULLOK OP *proto|NULLOK OP *attrs|NULLOK OP *block
@@ -2042,7 +2042,7 @@ Ap	|void	|sys_intern_dup	|NN struct interp_intern* src|NN struct interp_intern* 
 #  endif
 #endif
 
-AmopP	|const XOP *	|custom_op_xop	|NN const OP *o
+Amop	|const XOP *	|custom_op_xop	|NN const OP *o
 ApR	|const char *	|custom_op_name	|NN const OP *o
 ApR	|const char *	|custom_op_desc	|NN const OP *o
 pRX	|XOPRETANY	|custom_op_get_field	|NN const OP *o|const xop_flags_enum field
@@ -3179,7 +3179,7 @@ AiM	|void	|cx_pushgiven    |NN PERL_CONTEXT *cx|NULLOK SV *orig_defsv
 AiM	|void	|cx_popgiven     |NN PERL_CONTEXT *cx
 #endif
 #if defined(PERL_IN_HV_C)
-iMPn    |U32    |ctz             |U32 n
+iMRn    |U32    |ctz             |U32 n
 #endif
 #if defined(PERL_IN_HV_C) && defined(DEBUGGING)
 sM      |const char *	|action_name	|const int action

@@ -944,8 +944,6 @@ PERL_CALLCONV void	Perl_custom_op_register(pTHX_ Perl_ppaddr_t ppaddr, const XOP
 
 /* PERL_CALLCONV const XOP *	Perl_custom_op_xop(pTHX_ const OP *o)
 			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(pTHX_1); */
 
 PERL_CALLCONV void	Perl_cv_ckproto_len_flags(pTHX_ const CV* cv, const GV* gv, const char* p, const STRLEN len, const U32 flags)
@@ -2327,7 +2325,6 @@ PERL_CALLCONV bool	Perl_isIDFIRST_lazy(pTHX_ const char* p)
 /* PERL_CALLCONV bool	Perl_is_ascii_string(const U8* const s, const STRLEN len)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1); */
 
 PERL_STATIC_INLINE bool	S_is_c9strict_utf8_string(const U8 *s, const STRLEN len)
@@ -2349,7 +2346,6 @@ PERL_STATIC_INLINE bool	S_is_c9strict_utf8_string_loclen(const U8 *s, const STRL
 /* PERL_CALLCONV bool	Perl_is_invariant_string(const U8* const s, const STRLEN len)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1); */
 
 PERL_CALLCONV I32	Perl_is_lvalue_sub(pTHX)
@@ -2643,7 +2639,6 @@ PERL_CALLCONV bool	Perl_is_utf8_idfirst(pTHX_ const U8 *p)
 
 PERL_STATIC_INLINE bool	S_is_utf8_invariant_string(const U8* const s, STRLEN const len)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_IS_UTF8_INVARIANT_STRING	\
 	assert(s)
@@ -2714,14 +2709,12 @@ PERL_CALLCONV bool	Perl_is_utf8_space(pTHX_ const U8 *p)
 
 PERL_STATIC_INLINE bool	Perl_is_utf8_string(const U8 *s, const STRLEN len)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_IS_UTF8_STRING	\
 	assert(s)
 
 PERL_STATIC_INLINE bool	S_is_utf8_string_flags(const U8 *s, const STRLEN len, const U32 flags)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_IS_UTF8_STRING_FLAGS	\
 	assert(s)
@@ -5479,8 +5472,6 @@ PERL_CALLCONV void	Perl_sv_free2(pTHX_ SV *const sv, const U32 refcnt)
 PERL_CALLCONV void	Perl_sv_free_arenas(pTHX);
 PERL_CALLCONV SV*	Perl_sv_get_backrefs(SV *const sv)
 			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_SV_GET_BACKREFS	\
 	assert(sv)
@@ -7807,8 +7798,7 @@ STATIC void	S_clear_placeholders(pTHX_ HV *hv, U32 items)
 	assert(hv)
 
 PERL_STATIC_INLINE U32	S_ctz(U32 n)
-			__attribute__warn_unused_result__
-			__attribute__pure__;
+			__attribute__warn_unused_result__;
 
 STATIC void	S_hfreeentries(pTHX_ HV *hv)
 			__attribute__nonnull__(pTHX_1);
