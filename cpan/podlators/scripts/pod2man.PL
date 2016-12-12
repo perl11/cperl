@@ -30,7 +30,8 @@ if ($^O eq 'VMS') {
 ## no critic (InputOutput::RequireBriefOpen)
 ## no critic (InputOutput::RequireCheckedSyscalls)
 open(my $out, '>', $file) or die "Cannot create $file: $!\n";
-print "Extracting $file (with variable substitutions)\n";
+print "Extracting $file (with variable substitutions)\n"
+  unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
 ## use critic
 
 # In this section, Perl variables will be expanded during extraction.  You can
