@@ -171,6 +171,10 @@ See L</fake_signatures>
 
 =over 4
 
+=item Locale-Codes 3.42
+
+Added Czech republic aliases back in
+
 =item Archive-Tar 2.18
 
 Better 09_roundtrip.t tests.

@@ -456,7 +456,7 @@ use File::Glob qw(:case);
     },
 
     'Devel::NYTProf' => {
-        'DISTRIBUTION' => 'TIMB/Devel-NYTProf-6.03.tar.gz',
+        'DISTRIBUTION' => 'TIMB/Devel-NYTProf-6.04.tar.gz',
         'FILES'        => q[cpan/Devel-NYTProf],
         'EXCLUDED'     => [
             qr{^t/[79].*\.t},
@@ -873,7 +873,7 @@ use File::Glob qw(:case);
     },
 
     'Locale::Codes' => {
-        'DISTRIBUTION' => 'SBECK/Locale-Codes-3.40.tar.gz',
+        'DISTRIBUTION' => 'SBECK/Locale-Codes-3.42.tar.gz',
         'FILES'        => q[cpan/Locale-Codes],
         'EXCLUDED'     => [
             qw( README.first
@@ -1043,7 +1043,7 @@ use File::Glob qw(:case);
     },
 
     'NEXT' => {
-        'DISTRIBUTION' => 'FLORA/NEXT-0.67.tar.gz',
+        'DISTRIBUTION' => 'NEILB/NEXT-0.67.tar.gz',
         'FILES'        => q[cpan/NEXT],
         'EXCLUDED'     => [qr{^demo/}],
     },
@@ -1091,7 +1091,7 @@ use File::Glob qw(:case);
     },
 
     'perlfaq' => {
-        'DISTRIBUTION' => 'ETHER/perlfaq-5.021011.tar.gz',
+        'DISTRIBUTION' => 'LLAP/perlfaq-5.021011.tar.gz',
         'FILES'        => q[cpan/perlfaq],
         'EXCLUDED'     => [
             qw( inc/CreateQuestionList.pm
