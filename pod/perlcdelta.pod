@@ -234,9 +234,22 @@ Fix -Wc++11-compat warnings
 
 Fix -Wc++11-compat warnings
 
-=item Time-HiRes  1.9740_01
+=item Time-HiRes  1.9741_01
 
 Fix -Wc++11-compat warnings
+Keep our better C++ fixes
+Keep our t/usleep.t, t/alarm.t, t/utime.t fixes.
+Keep our do_openn improvements in typemap.
+
+from upstream:
+
+- El Capitan compatibility
+- use CLOCK_REALTIME for clock_nanosleep scan
+- include file consistency in scans
+- use clockid_t consistently
+- use hv_fetchs()
+- scan for clockid_t (needed for macos Sierra)
+- darwin lacks clockid_t [rt.cpan.org #129789]
 
 =item Storable 3.02c
 

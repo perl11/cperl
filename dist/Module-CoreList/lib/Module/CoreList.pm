@@ -13865,7 +13865,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Sub::Util'             => '1.46_08',
             'Term::ANSIColor'       => '4.06',
             'Test::More '           => '1.401015c',
-            'Time::HiRes '          => '1.9740_01',
+            'Time::HiRes '          => '1.9741_01',
             'version'               => '0.9917_02c',
         },
         removed => {},
