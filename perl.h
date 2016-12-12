@@ -3647,15 +3647,23 @@ EXTERN_C int perl_tsa_mutex_unlock(perl_mutex* mutex)
 #  endif
 #endif
 
-/* We could also use GLOBAL instead of  __attribute__global__.
-   But GLOBAL would be expected at the front of the declaration,
-   whilst the attribute needs to be put behind. */
+/* GLOBAL is in front of the declaration: sun cc, MSVC,
+   Similar to EXT, which is for exported perl.h variables.
+   __attribute__global__ after: gnuc, clang. */
 #if defined(__clang__) && defined(LTO)
+#  define GLOBAL
 #  define __attribute__global__         __attribute__((__visibility__("default")))
 #elif defined(__SUNPRO_C) && defined(LTO)
-#  define __attribute__global__	        __global
+#  define GLOBAL  __global
+#  define __attribute__global__
+#elif defined(__CYGWIN__) && defined(USE_DYNAMIC_LOADING)
+#  define GLOBAL __declspec(dllexport)
+#  define __attribute__global__
+#elif !defined(UNDER_CE) && defined(WIN32) && defined(USE_DYNAMIC_LOADING)
+#  define GLOBAL __declspec(dllexport)
+#  define __attribute__global__
 #else
-/* on windows __declspec(dllexport) is already in the front. put nothing here */
+#  define GLOBAL
 #  define __attribute__global__
 #endif
 #ifdef HASATTRIBUTE_DEPRECATED

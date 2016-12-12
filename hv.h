@@ -52,7 +52,7 @@ struct he {
 struct hek {
     U32		hek_hash;	/* hash of key */
     I32		hek_len;	/* length of hash key */
-#ifdef PERL_GCC_BRACE_GROUPS_FORBIDDEN
+#if defined(PERL_GCC_BRACE_GROUPS_FORBIDDEN) || defined(__SUNPRO_C)
     char	hek_key[1];	/* variable-length hash key */
 #else
     char	hek_key[];      /* for easier debugging */

@@ -2905,7 +2905,7 @@ Apo	|void*	|my_cxt_init	|NN int *index|size_t size
 so	|void	|xs_version_bootcheck|U32 items|U32 ax|NN const char *xs_p \
 				|STRLEN xs_len
 #endif
-Xpon	|I32	|xs_handshake	|const U32 key|NN void * v_my_perl\
+Apon	|I32	|xs_handshake	|const U32 key|NN void * v_my_perl\
 				|NN const char * file| ...
 Xp	|void	|xs_boot_epilog	|const I32 ax
 #ifndef HAS_STRLCAT

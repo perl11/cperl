@@ -124,31 +124,25 @@ is a lexical C<$_> in scope.
  * "STATIC", ie. it exports XSUB symbols. You probably don't want that.
  */
 
-#define XSPROTO(name) void name(pTHX_ CV* cv)
+#if defined(HASATTRIBUTE_UNUSED) && !defined(__cplusplus)
+#  define XSPROTO(name) void name(pTHX_ CV* cv __attribute__unused__)
+#else
+#  define XSPROTO(name) void name(pTHX_ CV* cv)
+#endif
 
 #undef XS
 #undef XS_EXTERNAL
 #undef XS_INTERNAL
-#if defined(__CYGWIN__) && defined(USE_DYNAMIC_LOADING)
-#  define XS_EXTERNAL(name) __declspec(dllexport) XSPROTO(name)
-#  define XS_INTERNAL(name) STATIC XSPROTO(name)
-#endif
 #if defined(__SYMBIAN32__)
 #  define XS_EXTERNAL(name) EXPORT_C XSPROTO(name)
 #  define XS_INTERNAL(name) EXPORT_C STATIC XSPROTO(name)
-#endif
-#ifndef XS_EXTERNAL
-#  if defined(HASATTRIBUTE_UNUSED) && !defined(__cplusplus)
-#    define XS_EXTERNAL(name) void name(pTHX_ CV* cv __attribute__unused__)
-#    define XS_INTERNAL(name) STATIC void name(pTHX_ CV* cv __attribute__unused__)
+#else
+#  ifdef __cplusplus
+#    define XS_EXTERNAL(name) extern "C" GLOBAL XSPROTO(name)
+#    define XS_INTERNAL(name) static XSPROTO(name)
 #  else
-#    ifdef __cplusplus
-#      define XS_EXTERNAL(name) extern "C" XSPROTO(name)
-#      define XS_INTERNAL(name) static XSPROTO(name)
-#    else
-#      define XS_EXTERNAL(name) XSPROTO(name)
-#      define XS_INTERNAL(name) STATIC XSPROTO(name)
-#    endif
+#    define XS_EXTERNAL(name) GLOBAL XSPROTO(name)
+#    define XS_INTERNAL(name) STATIC XSPROTO(name)
 #  endif
 #endif
 

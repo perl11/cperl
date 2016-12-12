@@ -163,6 +163,11 @@ any NULL-sensitive op-tree structure. See how many with C<-Dk>.
 C<-DPERL_FAKE_SIGNATURE> is now default, making most function calls 2x faster.
 See L</fake_signatures>
 
+=item *
+
+The new compiler option support allows generation of much faster
+code. I.e. clang-4.0 with -flto or zapcc produce ~20% faster code.
+
 =back
 
 =head1 Modules and Pragmata
@@ -424,6 +429,21 @@ L<[cperl #217]|https://github.com/perl11/cperl/issues/217>.
 
 =back
 
+=head1 Platform Support
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item Solaris
+
+With the SunPro cc compiler we use now the C<__global> declaration
+for exported functions, similar to Windows C<__declspec(dllexport)>.
+
+This is hidden under the new C<GLOBAL> macro.
+
+=back
+
 =head1 Configuration and Compilation
 
 =over 4
@@ -525,17 +545,27 @@ This is related to the new C<-Wc++11-compat> and C<-fpermissive> fixes.
 =item *
 
 Support for clang C<-flto> and the new C<-flto=thin> optimization was
-added, via C<__attribute__global__> for global visibility for all
-exported API functions, even if not used, and C<-DLTO>. Note that is
-not needed for C<gcc -flto>, and the clang variant produces slower code.
+added, via C<GLOBAL> declaration and C<__attribute__global__> for
+global visibility for all exported API functions, even if not used,
+and C<-DLTO>. Note that is not needed for C<gcc -flto>, and the clang
+variant produces slower code.
 
 Rudimentary support for C<-fsanitize=cfi> was also added, which is
 safer than the old C<-fstack-protector-strong>, but this is not yet
 finished.
 
-ExtUtils-ParseXS adds now a correct visibility declaration of
+L<ExtUtils::ParseXS> adds now a correct visibility declaration of
 C<XS_EXTERNAL> for C<-flto> and C<-fvisibility=hidden>, which is needed for
 C<-fsanitize=cfi> support.
+
+C<Perl_xs_handshake> is now properly exported, which is needed for
+C<clang -flto=thin>.
+
+=item *
+
+C<XS_EXTERNAL> and C<XSPROTO> were simplified to use the new C<GLOBAL>
+declaration and C<__attribute__global__> attribute, for easier
+platform abstractions.
 
 =item *
 
@@ -550,9 +580,6 @@ See L<[cperl #219]|https://github.com/perl11/cperl/issues/219>.
 =back
 
 =head1 Selected Bug Fixes
-
-XXX Important bug fixes in the core language are summarized here.  Bug fixes in
-files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =over 4
 

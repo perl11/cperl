@@ -25,17 +25,17 @@
 
 /* public XS package methods */
 /* -- converted to XS */
-PERL_CALLCONV void XS_strict_bits(pTHX_ CV *cv);
-PERL_CALLCONV void XS_strict_import(pTHX_ CV *cv);
-PERL_CALLCONV void XS_strict_unimport(pTHX_ CV *cv);
-PERL_CALLCONV void XS_attributes_reftype(pTHX_ CV *cv);
-PERL_CALLCONV void XS_attributes__fetch_attrs(pTHX_ CV *cv);
-PERL_CALLCONV void XS_attributes__modify_attrs(pTHX_ CV *cv);
-PERL_CALLCONV void XS_attributes__guess_stash(pTHX_ CV *cv);
-PERL_CALLCONV void XS_attributes_bootstrap(pTHX_ CV *cv);
+XS_EXTERNAL(XS_strict_bits);
+XS_EXTERNAL(XS_strict_import);
+XS_EXTERNAL(XS_strict_unimport);
+XS_EXTERNAL(XS_attributes_reftype);
+XS_EXTERNAL(XS_attributes__fetch_attrs);
+XS_EXTERNAL(XS_attributes__modify_attrs);
+XS_EXTERNAL(XS_attributes__guess_stash);
+XS_EXTERNAL(XS_attributes_bootstrap);
 /* converted to XS */
-PERL_CALLCONV void XS_attributes_import(pTHX_ CV *cv);
-PERL_CALLCONV void XS_attributes_get(pTHX_ CV *cv);
+XS_EXTERNAL(XS_attributes_import);
+XS_EXTERNAL(XS_attributes_get);
 
 /* internal only */
 static HV*  S_guess_stash(pTHX_ SV*);
@@ -296,7 +296,7 @@ Perl_boot_core_xsutils(pTHX)
         | HINT_EXPLICIT_STRICT_VARS)
 
 /* Needed by B::Deparse and vars */
-XS(XS_strict_bits)
+XS_EXTERNAL(XS_strict_bits)
 {
     dVAR;
     dXSARGS;
@@ -325,7 +325,7 @@ XS(XS_strict_bits)
 /*
   See L<strict>
 */
-XS(XS_strict_import)
+XS_EXTERNAL(XS_strict_import)
 {
     dVAR;
     dXSARGS;
@@ -357,7 +357,7 @@ XS(XS_strict_import)
 /*
   See L<strict>
 */
-XS(XS_strict_unimport)
+XS_EXTERNAL(XS_strict_unimport)
 {
     dVAR;
     dXSARGS;
@@ -564,7 +564,7 @@ S_guess_stash(pTHX_ SV* sv)
     }
 }
 
-XS(XS_attributes_bootstrap)
+XS_EXTERNAL(XS_attributes_bootstrap)
 {
     dVAR;
     dXSARGS;
@@ -610,7 +610,7 @@ If there are any bad attributes C<import> croaks.
 
 */
 
-XS(XS_attributes_import)
+XS_EXTERNAL(XS_attributes_import)
 {
     /*
       @_ > 2 && ref $_[2] or do {
@@ -691,7 +691,7 @@ S_attributes__push_fetch(pTHX_ SV *sv)
   Handling"> below.  Otherwise, only L<built-in attributes|"Built-in
   Attributes"> will be returned.
  */
-XS(XS_attributes_get)
+XS_EXTERNAL(XS_attributes_get)
 {
     dVAR;
     dXSARGS;
@@ -751,7 +751,7 @@ usage:
 }
 
 /* default modify handler for builtin attributes */
-XS(XS_attributes__modify_attrs)
+XS_EXTERNAL(XS_attributes__modify_attrs)
 {
     dVAR;
     dXSARGS;
@@ -773,7 +773,7 @@ usage:
 }
 
 /* default fetch handler for builtin attributes */
-XS(XS_attributes__fetch_attrs)
+XS_EXTERNAL(XS_attributes__fetch_attrs)
 {
     dVAR;
     dXSARGS;
@@ -794,7 +794,7 @@ usage:
 }
 
 /* helper function to return and set the stash of the svref */
-XS(XS_attributes__guess_stash)
+XS_EXTERNAL(XS_attributes__guess_stash)
 {
     dVAR;
     dXSARGS;
@@ -828,7 +828,7 @@ usage:
   This can be useful for determining the I<type> value which forms part of
   the method names described in L<"Package-specific Attribute Handling"> below.
 */
-XS(XS_attributes_reftype)
+XS_EXTERNAL(XS_attributes_reftype)
 {
     dVAR;
     dXSARGS;

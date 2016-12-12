@@ -80,19 +80,19 @@ const char ldlibpthname[] = LDLIBPTHNAME;
 
 static SV * dl_findfile(pTHX_ AV* args, int gimme);
 static char * av_tostr(pTHX_ AV *args);
-PERL_CALLCONV void XS_DynaLoader_bootstrap_inherit(pTHX_ CV *cv);
-PERL_CALLCONV void XS_DynaLoader_bootstrap(pTHX_ CV *cv);
-PERL_CALLCONV void XS_DynaLoader_dl_findfile(pTHX_ CV *cv);
+XS_EXTERNAL(XS_DynaLoader_bootstrap_inherit);
+XS_EXTERNAL(XS_DynaLoader_bootstrap);
+XS_EXTERNAL(XS_DynaLoader_dl_findfile);
 #ifndef VMS
-PERL_CALLCONV void XS_DynaLoader_dl_expandspec(pTHX_ CV *cv);
+XS_EXTERNAL(XS_DynaLoader_dl_expandspec);
 #endif
-PERL_CALLCONV void XS_DynaLoader_dl_find_symbol_anywhere(pTHX_ CV *cv);
+XS_EXTERNAL(XS_DynaLoader_dl_find_symbol_anywhere);
 #ifdef HAS_LIBNAME_UNIQUE
-PERL_CALLCONV void XS_DynaLoader_mod2fname(pTHX_ CV *cv);
+XS_EXTERNAL(XS_DynaLoader_mod2fname);
 #endif
-PERL_CALLCONV void XS_XSLoader_load(pTHX_ CV *cv);
-PERL_CALLCONV void XS_XSLoader_load_file(pTHX_ CV *cv);
-PERL_CALLCONV void XS_XSLoader_bootstrap_inherit(pTHX_ CV *cv);
+XS_EXTERNAL(XS_XSLoader_load);
+XS_EXTERNAL(XS_XSLoader_load_file);
+XS_EXTERNAL(XS_XSLoader_bootstrap_inherit);
 
 EXTERN_C void
 dl_boot (pTHX) {
