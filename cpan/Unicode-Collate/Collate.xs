@@ -25,24 +25,21 @@
 
 #define VCE_Length	(9)
 
-/* Now also defined in cperl utf8.h */
-#ifndef Hangul_SBase
 #define Hangul_SBase  (0xAC00)
-#define Hangul_NCount (588)
-#define Hangul_TCount (28)
-#define Hangul_TBase  (0x11A7) /* from "no-final" codepoint */
-#define Hangul_LBase  (0x1100)
-#define Hangul_VBase  (0x1161)
-#endif
 #define Hangul_SIni   (0xAC00)
 #define Hangul_SFin   (0xD7A3)
+#define Hangul_NCount (588)
+#define Hangul_TCount (28)
+#define Hangul_LBase  (0x1100)
 #define Hangul_LIni   (0x1100)
 #define Hangul_LFin   (0x1159)
 #define Hangul_LFill  (0x115F)
 #define Hangul_LEnd   (0x115F) /* Unicode 5.2 */
+#define Hangul_VBase  (0x1161)
 #define Hangul_VIni   (0x1160) /* from Vowel Filler */
 #define Hangul_VFin   (0x11A2)
 #define Hangul_VEnd   (0x11A7) /* Unicode 5.2 */
+#define Hangul_TBase  (0x11A7) /* from "no-final" codepoint */
 #define Hangul_TIni   (0x11A8)
 #define Hangul_TFin   (0x11F9)
 #define Hangul_TEnd   (0x11FF) /* Unicode 5.2 */
@@ -59,6 +56,7 @@
 #define CJK_UidF51    (0x9FC3)
 #define CJK_UidF52    (0x9FCB)
 #define CJK_UidF61    (0x9FCC)
+#define CJK_UidF80    (0x9FD5)
 #define CJK_ExtAIni   (0x3400) /* Unicode 3.0 */
 #define CJK_ExtAFin   (0x4DB5) /* Unicode 3.0 */
 #define CJK_ExtBIni  (0x20000) /* Unicode 3.1 */
@@ -67,6 +65,8 @@
 #define CJK_ExtCFin  (0x2B734) /* Unicode 5.2 */
 #define CJK_ExtDIni  (0x2B740) /* Unicode 6.0 */
 #define CJK_ExtDFin  (0x2B81D) /* Unicode 6.0 */
+#define CJK_ExtEIni  (0x2B820) /* Unicode 8.0 */
+#define CJK_ExtEFin  (0x2CEA1) /* Unicode 8.0 */
 
 #define CJK_CompIni  (0xFA0E)
 #define CJK_CompFin  (0xFA29)
@@ -269,6 +269,7 @@ _derivCE_9 (code)
     _derivCE_20 = 3
     _derivCE_22 = 4
     _derivCE_24 = 5
+    _derivCE_32 = 6
   PREINIT:
     UV base, aaaa, bbbb;
     U8 a[VCE_Length + 1] = "\x00\x00\x00\x00\x00\x00\x00\x00\x00";
@@ -279,7 +280,8 @@ _derivCE_9 (code)
 	if (codeRange(CJK_CompIni, CJK_CompFin))
 	    basic_unified = (bool)UnifiedCompat[code - CJK_CompIni];
 	else
-	    basic_unified = (ix >= 5 ? (code <= CJK_UidF61) :
+	    basic_unified = (ix >= 6 ? (code <= CJK_UidF80) :
+			     ix == 5 ? (code <= CJK_UidF61) :
 			     ix >= 3 ? (code <= CJK_UidF52) :
 			     ix == 2 ? (code <= CJK_UidF51) :
 			     ix == 1 ? (code <= CJK_UidF41) :
@@ -293,7 +295,9 @@ _derivCE_9 (code)
 		||
 	    (ix >= 3 && codeRange(CJK_ExtCIni, CJK_ExtCFin))
 		||
-	    (ix >= 4 && codeRange(CJK_ExtDIni, CJK_ExtDFin)))
+	    (ix >= 4 && codeRange(CJK_ExtDIni, CJK_ExtDFin))
+		||
+	    (ix >= 6 && codeRange(CJK_ExtEIni, CJK_ExtEFin)))
 	    ? 0xFB80   /* CJK ext. */
 	    : 0xFBC0;  /* others */
     aaaa =  base + (code >> 15);
@@ -358,7 +362,8 @@ _isUIdeo (code, uca_vers)
 	if (codeRange(CJK_CompIni, CJK_CompFin))
 	    basic_unified = (bool)UnifiedCompat[code - CJK_CompIni];
 	else
-	    basic_unified = (uca_vers >= 24 ? (code <= CJK_UidF61) :
+	    basic_unified = (uca_vers >= 32 ? (code <= CJK_UidF80) :
+			     uca_vers >= 24 ? (code <= CJK_UidF61) :
 			     uca_vers >= 20 ? (code <= CJK_UidF52) :
 			     uca_vers >= 18 ? (code <= CJK_UidF51) :
 			     uca_vers >= 14 ? (code <= CJK_UidF41) :
@@ -374,6 +379,8 @@ _isUIdeo (code, uca_vers)
 	(uca_vers >= 20 && codeRange(CJK_ExtCIni, CJK_ExtCFin))
 		||
 	(uca_vers >= 22 && codeRange(CJK_ExtDIni, CJK_ExtDFin))
+		||
+	(uca_vers >= 32 && codeRange(CJK_ExtEIni, CJK_ExtEFin))
     );
 OUTPUT:
     RETVAL
