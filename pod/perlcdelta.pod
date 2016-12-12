@@ -171,6 +171,15 @@ See L</fake_signatures>
 
 =over 4
 
+=item podlators 4.09
+
+Add the t/data/snippets tests.
+
+Use Pod::Simple's logic to determine the native code
+points for NO BREAK SPACE and SOFT HYPHEN instead of hard-coding the
+ASCII values.  Hopefully fixes the case of mysterious disappearing
+open brackets on EBCDIC systems.  (#118240)
+
 =item Locale-Codes 3.42
 
 Added Czech republic aliases back in
