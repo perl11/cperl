@@ -207,8 +207,9 @@ Fixed true/false redefinition warnings.
 - plus the suse utf8 fixes for Net::Cmd, see 5bd7010cb and
   our darwin performance fix for hostname.
 
-=item Locale::Codes  3.40
+=item Locale-Codes 3.42
 
+Added Czech republic aliases back in
 Lot of new codes.
 
 =item Locale::Maketext 1.28
