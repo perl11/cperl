@@ -39,6 +39,13 @@ my $unflagged_pointers;
 # implicit interpreter context argument.
 #
 
+my $error_count = 0;
+sub die_at_end ($) { # Keeps going for now, but makes sure the regen doesn't
+                     # succeed.
+    warn shift;
+    $error_count++;
+}
+
 sub full_name ($$) { # Returns the function name with potentially the
 		     # prefixes 'S_' or 'Perl_'
     my ($func, $flags) = @_;
@@ -75,7 +82,7 @@ my ($embed, $core, $ext, $api) = setup_embed();
 
 	my ($flags,$retval,$plain_func,@args) = @$_;
         if ($flags =~ / ( [^AabDdEfiMmnOoPpRrsUWXx] ) /x) {
-	    warn "flag $1 is not legal (for function $plain_func)";
+	    die_at_end "flag $1 is not legal (for function $plain_func)";
 	}
 	my (@nonnull, @unused, @names_of_nn, $func);
         my $has_depth = ( $flags =~ /W/ );
@@ -90,7 +97,7 @@ my ($embed, $core, $ext, $api) = setup_embed();
 	    warn "It is nonsensical to require the return value of a void function ($plain_func) to be checked";
 	}
 
-	warn "$plain_func: s flag is mutually exclusive from the i and p plags"
+	die_at_end "$plain_func: s flag is mutually exclusive from the i and p plags"
 					    if $flags =~ /s/ && $flags =~ /[ip]/;
 
 	if ($flags =~ /([si])/) {
@@ -145,7 +152,7 @@ my ($embed, $core, $ext, $api) = setup_embed();
 		if ( ($temp_arg ne "...")
 		     && ($temp_arg !~ /\w+\s+(\w+)(?:\[\d+\])?\s*$/)
 		     && ($temp_arg !~ / PERL_UNUSED_DECL/) ) {
-		    warn "$func: $arg ($n) doesn't have a name\n";
+		    die_at_end "$func: $arg ($n) doesn't have a name\n";
 		}
 		if (defined $1 && $nn && !($commented_out && !$binarycompat)) {
 		    push @names_of_nn, $1 if $1 ne 'PERL_UNUSED_DECL';
@@ -239,10 +246,10 @@ my ($embed, $core, $ext, $api) = setup_embed();
 END_EXTERN_C
 EOF
 
-    read_only_bottom_close_and_rename($pr);
+    read_only_bottom_close_and_rename($pr) if ! $error_count;
 }
 
-warn "$unflagged_pointers pointer arguments to clean up\n" if $unflagged_pointers;
+die_at_end "$unflagged_pointers pointer arguments to clean up\n" if $unflagged_pointers;
 
 sub readvars {
     my ($file, $pre) = @_;
@@ -253,7 +260,7 @@ sub readvars {
     while (<FILE>) {
 	s/[ \t]*#.*//;		# Delete comments.
 	if (/PERLVARA?I?C?\($pre,\s*(\w+)/) {
-	    warn "duplicate symbol $1 while processing $file line $.\n"
+	    die_at_end "duplicate symbol $1 while processing $file line $.\n"
 		if $seen{$1}++;
 	}
     }
@@ -445,7 +452,7 @@ print $em <<'END';
 #endif
 END
 
-read_only_bottom_close_and_rename($em);
+read_only_bottom_close_and_rename($em) if ! $error_count;
 
 $em = open_print_header('embedvar.h');
 
@@ -510,7 +517,7 @@ print $em <<'END';
 #endif /* PERL_GLOBAL_STRUCT */
 END
 
-read_only_bottom_close_and_rename($em);
+read_only_bottom_close_and_rename($em) if ! $error_count;
 
 my $capih = open_print_header('perlapi.h');
 
@@ -613,7 +620,7 @@ print $capih <<'EOT';
 #endif /* __perlapi_h__ */
 EOT
 
-read_only_bottom_close_and_rename($capih);
+read_only_bottom_close_and_rename($capih) if ! $error_count;
 
 my $capi = open_print_header('perlapi.c', <<'EOQ');
  *
@@ -662,6 +669,8 @@ END_EXTERN_C
 #endif /* MULTIPLICITY && PERL_GLOBAL_STRUCT */
 EOT
 
-read_only_bottom_close_and_rename($capi);
+read_only_bottom_close_and_rename($capi) if ! $error_count;
+
+die "$error_count errors found" if $error_count;
 
 # ex: set ts=8 sts=4 sw=4 noet:
