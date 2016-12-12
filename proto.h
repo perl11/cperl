@@ -2332,7 +2332,6 @@ PERL_CALLCONV bool	Perl_isIDFIRST_lazy(pTHX_ const char* p)
 
 PERL_STATIC_INLINE bool	S_is_c9strict_utf8_string(const U8 *s, const STRLEN len)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_IS_C9STRICT_UTF8_STRING	\
 	assert(s)
@@ -2359,7 +2358,6 @@ PERL_CALLCONV I32	Perl_is_lvalue_sub(pTHX)
 
 PERL_STATIC_INLINE bool	S_is_strict_utf8_string(const U8 *s, const STRLEN len)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_IS_STRICT_UTF8_STRING	\
 	assert(s)
@@ -2769,7 +2767,6 @@ PERL_CALLCONV bool	Perl_is_utf8_upper(pTHX_ const U8 *p)
 
 PERL_STATIC_INLINE bool	S_is_utf8_valid_partial_char_flags(const U8 * const s, const U8 * const e, const U32 flags)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_IS_UTF8_VALID_PARTIAL_CHAR_FLAGS	\
@@ -6302,7 +6299,6 @@ PERL_CALLCONV U8*	Perl_utf16_to_utf8_reversed(pTHX_ U8* p, U8 *d, I32 bytelen, I
 
 PERL_STATIC_INLINE IV	Perl_utf8_distance(pTHX_ const U8 *a, const U8 *b)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_UTF8_DISTANCE	\
@@ -6310,14 +6306,12 @@ PERL_STATIC_INLINE IV	Perl_utf8_distance(pTHX_ const U8 *a, const U8 *b)
 
 PERL_STATIC_INLINE U8*	Perl_utf8_hop(const U8 *s, SSize_t off)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_UTF8_HOP	\
 	assert(s)
 
 PERL_STATIC_INLINE U8*	Perl_utf8_hop_back(const U8 *s, SSize_t off, const U8 *start)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(3);
 #define PERL_ARGS_ASSERT_UTF8_HOP_BACK	\
@@ -6325,7 +6319,6 @@ PERL_STATIC_INLINE U8*	Perl_utf8_hop_back(const U8 *s, SSize_t off, const U8 *st
 
 PERL_STATIC_INLINE U8*	Perl_utf8_hop_forward(const U8 *s, SSize_t off, const U8 *end)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(3);
 #define PERL_ARGS_ASSERT_UTF8_HOP_FORWARD	\
@@ -6333,7 +6326,6 @@ PERL_STATIC_INLINE U8*	Perl_utf8_hop_forward(const U8 *s, SSize_t off, const U8 
 
 PERL_STATIC_INLINE U8*	Perl_utf8_hop_safe(const U8 *s, SSize_t off, const U8 *start, const U8 *end)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(3)
 			__attribute__nonnull__(4);
@@ -8583,8 +8575,7 @@ PERL_STATIC_INLINE void	S_alloc_maybe_populate_EXACT(pTHX_ RExC_state_t *pRExC_s
 
 STATIC const char *	S_cntrl_to_mnemonic(const U8 c)
 			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__pure__;
+			__attribute__warn_unused_result__;
 
 PERL_STATIC_INLINE U8	S_compute_EXACTish(RExC_state_t *pRExC_state)
 			__attribute__nonnull__(1);
@@ -8601,7 +8592,6 @@ STATIC regnode *	S_construct_ahocorasick_from_trie(pTHX_ RExC_state_t *pRExC_sta
 STATIC int	S_edit_distance(const UV *src, const UV *tgt, const STRLEN x, const STRLEN y, const SSize_t maxDistance)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_EDIT_DISTANCE	\
@@ -8823,8 +8813,7 @@ STATIC regnode*	S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 dept
 
 STATIC unsigned int	S_regex_set_precedence(const U8 my_operator)
 			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__pure__;
+			__attribute__warn_unused_result__;
 
 STATIC void	S_reginsert(pTHX_ RExC_state_t *pRExC_state, U8 op, regnode *opnd, U32 depth)
 			__attribute__global__
@@ -9110,7 +9099,6 @@ PERL_CALLCONV bool	Perl_grok_bslash_x(pTHX_ char** s, UV* uv, const char** error
 
 PERL_STATIC_INLINE I32	S_regcurly(const char *s)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_REGCURLY	\
 	assert(s)
@@ -9815,7 +9803,6 @@ STATIC UV	S_check_locale_boundary_crossing(pTHX_ const U8* const p, const UV res
 
 PERL_STATIC_INLINE bool	S_does_utf8_overflow(const U8 * const s, const U8 * e)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_DOES_UTF8_OVERFLOW	\
@@ -9823,7 +9810,6 @@ PERL_STATIC_INLINE bool	S_does_utf8_overflow(const U8 * const s, const U8 * e)
 
 PERL_STATIC_INLINE bool	S_isFF_OVERLONG(const U8 * const s, const STRLEN len)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_ISFF_OVERLONG	\
 	assert(s)
@@ -9838,7 +9824,6 @@ PERL_STATIC_INLINE bool	S_is_utf8_common(pTHX_ const U8 *const p, SV **swash, co
 
 PERL_STATIC_INLINE bool	S_is_utf8_cp_above_31_bits(const U8 * const s, const U8 * const e)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_IS_UTF8_CP_ABOVE_31_BITS	\
@@ -9846,7 +9831,6 @@ PERL_STATIC_INLINE bool	S_is_utf8_cp_above_31_bits(const U8 * const s, const U8 
 
 PERL_STATIC_INLINE bool	S_is_utf8_overlong_given_start_byte_ok(const U8 * const s, const STRLEN len)
 			__attribute__warn_unused_result__
-			__attribute__pure__
 			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_IS_UTF8_OVERLONG_GIVEN_START_BYTE_OK	\
 	assert(s)
