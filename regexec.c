@@ -7510,6 +7510,7 @@ NULL
                         DEBUG_EXECUTE_r( Perl_re_exec_indentf( aTHX_  "whilem: (cache) already tried at this position...\n",
                             depth)
 			);
+                        cur_curlyx->u.curlyx.count--;
 			sayNO; /* cache records failure */
 		    }
 		    ST.cache_offset = offset;
