@@ -830,10 +830,14 @@ PERL_CALLCONV void	Perl_ck_warner_d(pTHX_ U32 err, const char* pat, ...)
 	assert(pat)
 
 PERL_CALLCONV bool	Perl_ckwarn(pTHX_ U32 w)
-			__attribute__global__;
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__pure__;
 
 PERL_CALLCONV bool	Perl_ckwarn_d(pTHX_ U32 w)
-			__attribute__global__;
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__pure__;
 
 PERL_CALLCONV void	Perl_clear_defarray(pTHX_ AV* av, bool abandon)
 			__attribute__global__
@@ -2248,11 +2252,15 @@ PERL_CALLCONV void	Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
 
 /* PERL_CALLCONV I32	ibcmp(pTHX_ const char* a, const char* b, I32 len)
 			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__pure__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2); */
 
 /* PERL_CALLCONV I32	ibcmp_locale(pTHX_ const char* a, const char* b, I32 len)
 			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__pure__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2); */
 
@@ -2790,7 +2798,9 @@ PERL_CALLCONV bool	Perl_is_utf8_xidfirst(pTHX_ const U8 *p)
 	assert(p)
 
 PERL_CALLCONV bool	Perl_isinfnan(NV nv)
-			__attribute__global__;
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__pure__;
 
 PERL_CALLCONV bool	Perl_isinfnansv(pTHX_ SV *sv)
 			__attribute__nonnull__(pTHX_1);
