@@ -171,6 +171,14 @@ See L</fake_signatures>
 
 =over 4
 
+=item Term-ANSIColor 4.06
+
+Add aliases ansi16 through ansi255 and on_ansi16 through on_ansi255
+(plus the corresponding constants) for the grey and rgb colors so that
+one can refer to all of the 256 ANSI colors with consistent names.
+These are aliases; the colors returned by uncolor will still use the
+grey and rgb names.  (#118267)
+
 =item podlators 4.09
 
 Add the t/data/snippets tests.

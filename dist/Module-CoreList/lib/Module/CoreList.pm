@@ -13863,6 +13863,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Socket'                => '2.024_05',
             'Storable'              => '3.02c',
             'Sub::Util'             => '1.46_08',
+            'Term::ANSIColor'       => '4.06',
             'Test::More '           => '1.401015c',
             'Time::HiRes '          => '1.9740_01',
             'version'               => '0.9917_02c',
