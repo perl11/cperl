@@ -171,6 +171,8 @@ END
 ;;
 esac
 
+unset found_libucb
+
 # Use shell built-in 'type' command instead of /usr/bin/which to
 # avoid possible csh start-up problems and also to use the same shell
 # we'll be using to Configure and make perl.
