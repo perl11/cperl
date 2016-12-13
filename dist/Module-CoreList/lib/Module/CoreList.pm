@@ -12788,6 +12788,8 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'CPAN::Meta::Validator' => '2.150010c',
             'Cpanel::JSON::XS'      => '3.0225',
             'Data::Dumper'          => '2.162',
+            'Devel::NYTProf'        => '6.04',
+            'Devel::NYTProf::Core'  => '6.04',
             'Devel::Peek'           => '1.23_01',
             'Devel::PPPort'         => '3.35_01',
             'Digest::SHA'           => '5.96',

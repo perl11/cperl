@@ -46,6 +46,12 @@ See L</fake_signatures>
 
 =over 4
 
+=item App::Cpan 1.64_01
+
+Fixed C<CPAN::Shell->expand("Module", "Bundle::...")> error with Bundles,
+a regression from 1.63 and prev. cperl releases up to 5.25.0c.
+cperl only.
+
 =item Archive-Tar  2.18
 
 Better 09_roundtrip.t tests.
@@ -118,77 +124,15 @@ skip cperl builtin prereqs.
 
 - added F<t/gh70-asan.t>
 
-=item Term::ReadKey 2.37_01
-
-ReadKey.pm renamed to ReadKey_pm.PL,
-expand blockoptions specific variants already at installation,
-no load-time eval, demand-load Carp, remove unneeded AutoLoader,
-harmonize formatting.
-
-patch: use faster StructCopy and fixup the XS.
-
-improved blockoptions probe when dynaloading fails.
-
-=item YAML::XS  0.75
-
-fixed encoding issues: fixed wrong $YAML::XS::Encoding and
-$YAML::XS::LineBreak comparison logic.
-fixed utf8 input as handled as UTF8,
-non-utf8 honors $YAML::XS::Encoding.
-
-fixed -Wunused value warnings
-
-merged with upstream YAML-LibYAML,
-implemented $DisableBlessed (security).
-
-=item App::Cpan 1.64_01
-
-Fixed C<CPAN::Shell->expand("Module", "Bundle::...")> error with Bundles,
-a regression from 1.63 and prev. cperl releases up to 5.25.0c.
-cperl only.
-
-=item DynaLoader 2.06c
-
-Fixed build dependency for F<dlboot.c>. No excessive rebuilds anymore.
-
-=item Net-Ping 2.55
-
-Fixed missing C<_unpack_sockaddr_in> family, which took AF_INET6 for
-a AF_INET addr in F<t/500_ping_icmp.t> and F<t/500_ping_icmp_ttl.t>.
-Use now a proper default. Detected by the new gitlab ci.
-
-Fixed C<_pack_sockaddr_in> for a proper 2nd argument type, hash or packed
-address.
-
-Improved F<500_ping_icmp.t> to try C<sudo -n> (no prompt). [RT #118451]
-
-Relaxed more tests failing with firewalled icmp on localhost. [RT #118441]
-
-Fixed ping_external argument type, either packed ip or hostname.
-[RT #113825]
-
-Fixed wrong skip message in F<t/020_external.t>
-
-=item Pod-HTML 2.22c
-
-Improved parallel testing, relative F<testdir/test$$.lib>.
-See L<[RT #118416]|https://rt.cpan.org/Ticket/Display.html?id=118416>.
-
-=item Time::HiRes  1.9740
-
-skip the t/utime.t on ext2/ext3
-
-=item version  0.9917_02c
-
-Merge latest version with the '_' lyon concensus with the cperl extension
-of the optional final 'c' suffix. Extend version::regex for cperl.
-Now also parse the 'c' natively.
-
 =item Data::Dumper  1.162
 
 strEQc improvements
 
 fix correct indentation for utf-8 key hash elements, [perl #128524].
+
+=item Devel-NYTProf 6.04
+
+Fix -Wc++11-compat warnings, and various minor issues.
 
 =item Devel::PPPort  3.35_01
 
@@ -200,6 +144,10 @@ prevented shasum from possibly running malicious code,
 remove '.' from @INC before module loading RT #116513,
 namespace cleanup (RT #105371 and #105372),
 minor code and documentation tweaks
+
+=item DynaLoader 2.06c
+
+Fixed build dependency for F<dlboot.c>. No excessive rebuilds anymore.
 
 =item Encode  2.86
 
@@ -224,6 +172,24 @@ Many fixes und improvements
 =item IPC::Cmd  0.96
 
 set $Module::Load::Conditional::FORCE_SAFE_INC = 1
+
+=item JSON::PP  2.27400_02
+
+Fixed true/false redefinition warnings.
+
+=item libnet  3.10
+
+- Remove . from @INC when loading optional modules.  [Tony Cook, Perl
+  RT#127834, CVE-2016-1238]
+
+- Increased minimum required version of IO::Socket::IP to 0.25 to hopefully
+  stop t/pop3_ipv6.t hanging.  [CPAN RT#104545]
+
+- Debug output now includes decoded (from base64) negotiation for SASL.
+  [Philip Prindeville, PR#27]
+
+- plus the suse utf8 fixes for Net::Cmd, see 5bd7010cb and
+  our darwin performance fix for hostname.
 
 =item Locale::Codes  3.40
 
@@ -255,23 +221,32 @@ Add FORCE_SAFE_INC option to fix CVE-2016-1238.
 - only report "main" as the module name if code was seen outside another
   namespace, fixing bad results for pod files (RT#107525)
 
+=item Net-Ping 2.55
+
+Fixed missing C<_unpack_sockaddr_in> family, which took AF_INET6 for
+a AF_INET addr in F<t/500_ping_icmp.t> and F<t/500_ping_icmp_ttl.t>.
+Use now a proper default. Detected by the new gitlab ci.
+
+Fixed C<_pack_sockaddr_in> for a proper 2nd argument type, hash or packed
+address.
+
+Improved F<500_ping_icmp.t> to try C<sudo -n> (no prompt). [RT #118451]
+
+Relaxed more tests failing with firewalled icmp on localhost. [RT #118441]
+
+Fixed ping_external argument type, either packed ip or hostname.
+[RT #113825]
+
+Fixed wrong skip message in F<t/020_external.t>
+
 =item NEXT  0.67
 
 Doc and meta changes only.
 
-=item libnet  3.10
+=item parent  0.236
 
-- Remove . from @INC when loading optional modules.  [Tony Cook, Perl
-  RT#127834, CVE-2016-1238]
-
-- Increased minimum required version of IO::Socket::IP to 0.25 to hopefully
-  stop t/pop3_ipv6.t hanging.  [CPAN RT#104545]
-
-- Debug output now includes decoded (from base64) negotiation for SASL.
-  [Philip Prindeville, PR#27]
-
-- plus the suse utf8 fixes for Net::Cmd, see 5bd7010cb and
-  our darwin performance fix for hostname.
+improved t/parent-pmc.t,
+excluded new xt tests
 
 =item Perl-OSType  1.010
 
@@ -292,6 +267,11 @@ Fall back to an English perlfunc if translation doesn't exist (RT#104695)
 FreeBSD has mandoc too, with UTF-8 support.
 -U now documented and implied with -F (RT#87837)
 
+=item Pod-HTML 2.22c
+
+Improved parallel testing, relative F<testdir/test$$.lib>.
+See L<[RT #118416]|https://rt.cpan.org/Ticket/Display.html?id=118416>.
+
 =item Scalar-List-Utils  1.46_06
 
 VERSION bump only to protect from weak upstream.
@@ -305,22 +285,46 @@ See L<https://metacpan.org/changes/distribution/Sys-Syslog>
 Kept our smoker logic in F<t/syslog.t>, for slow darwin systems,
 the suse patch and disabled the lexical filehandle patch.
 
+=item Term::ReadKey 2.37_01
+
+ReadKey.pm renamed to ReadKey_pm.PL,
+expand blockoptions specific variants already at installation,
+no load-time eval, demand-load Carp, remove unneeded AutoLoader,
+harmonize formatting.
+
+patch: use faster StructCopy and fixup the XS.
+
+improved blockoptions probe when dynaloading fails.
+
 =item Thread-Semaphore  2.13
 
 Added C<down_timed> method.
+
+=item Time-HiRes  1.9740
+
+skip the t/utime.t on ext2/ext3
 
 =item Time-Local  1.24
 
 reformatted
 
-=item parent  0.236
+=item version  0.9917_02c
 
-improved t/parent-pmc.t,
-excluded new xt tests
+Merge latest version with the '_' lyon concensus with the cperl extension
+of the optional final 'c' suffix. Extend version::regex for cperl.
+Now also parse the 'c' natively.
 
-=item JSON::PP  2.27400_02
+=item YAML::XS  0.75
 
-Fixed true/false redefinition warnings.
+fixed encoding issues: fixed wrong $YAML::XS::Encoding and
+$YAML::XS::LineBreak comparison logic.
+fixed utf8 input as handled as UTF8,
+non-utf8 honors $YAML::XS::Encoding.
+
+fixed -Wunused value warnings
+
+merged with upstream YAML-LibYAML,
+implemented $DisableBlessed (security).
 
 =back
 
