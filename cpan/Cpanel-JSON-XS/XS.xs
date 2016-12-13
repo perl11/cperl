@@ -138,13 +138,13 @@ mingw_modfl(long double x, long double *ip)
 #ifdef WARN_NONCHAR
 #define WARNER_NONCHAR(hi)                                      \
   Perl_ck_warner_d(aTHX_ packWARN(WARN_NONCHAR),                \
-                   "Unicode non-character U+%04"UVXf" is not "  \
+                   "Unicode non-character U+%04" UVXf " is not "  \
                    "recommended for open interchange", hi)
 /* before check use warnings 'utf8' */
 #elif PERL_VERSION > 10
 #define WARNER_NONCHAR(hi)                                         \
   Perl_ck_warner_d(aTHX_ packWARN(WARN_UTF8),                      \
-                   "Unicode non-character U+%04"UVXf" is illegal " \
+                   "Unicode non-character U+%04" UVXf " is illegal " \
                    "for interchange", hi)
 #else
 #define WARNER_NONCHAR(hi)                                         \
@@ -379,8 +379,8 @@ INLINE UV
 decode_utf8 (pTHX_ unsigned char *s, STRLEN len, int relaxed, STRLEN *clen)
 {
   if (LIKELY(len >= 2
-                   && IN_RANGE_INC (char, s[0], 0xc2, 0xdf)
-                   && IN_RANGE_INC (char, s[1], 0x80, 0xbf)))
+             && IN_RANGE_INC (char, s[0], 0xc2, 0xdf)
+             && IN_RANGE_INC (char, s[1], 0x80, 0xbf)))
     {
       *clen = 2;
       return ((s[0] & 0x1f) << 6) | (s[1] & 0x3f);
@@ -391,7 +391,7 @@ decode_utf8 (pTHX_ unsigned char *s, STRLEN len, int relaxed, STRLEN *clen)
    We accept only valid unicode, unless we are in the relaxed mode. */
 #if PERL_VERSION > 12
     UV c = utf8n_to_uvuni (s, len, clen,
-               UTF8_CHECK_ONLY | (relaxed ? 0 : UTF8_DISALLOW_SUPER));
+                           UTF8_CHECK_ONLY | (relaxed ? 0 : UTF8_DISALLOW_SUPER));
 #elif PERL_VERSION >= 8
     UV c = utf8n_to_uvuni (s, len, clen, UTF8_CHECK_ONLY);
 #endif
@@ -402,31 +402,70 @@ decode_utf8 (pTHX_ unsigned char *s, STRLEN len, int relaxed, STRLEN *clen)
 #if PERL_VERSION >= 8
     return c;
 #else
-    /* for perl 5.6 */
+    /* 5.6 does not detect certain ill-formed sequences, esp. overflows,
+       which are security relevant. so we add code to detect these. */
     UV c = utf8_to_uv(s, len, clen, UTF8_CHECK_ONLY);
-    if (c > PERL_UNICODE_MAX && !relaxed)
-      *clen = -1;
+    if (!relaxed) {
+      if (!c || c > PERL_UNICODE_MAX)
+        *clen = -1;
+      /* need to check manually for some overflows. 5.6 unicode bug */
+      else if (len >= 2
+               && IN_RANGE_INC (char, s[0], 0xc0, 0xfe)
+               && !IN_RANGE_INC (char, s[0], 0xc2, 0xdf)) {
+        U8 *s0, *send;
+        UV uv = *s;
+        UV expectlen = UTF8SKIP(s);
+
+#define UTF_CONTINUATION_MASK           ((U8) ((1U << 6) - 1))
+#define UTF_ACCUMULATION_OVERFLOW_MASK                          \
+        (((UV) UTF_CONTINUATION_MASK) << ((sizeof(UV) * 8) - 6))
+
+        s0 = s;
+        /*printf ("maybe overlong <%.*s> %d/%d %x %x\n", len, s, c,
+                  *clen, s[0], s[1]);*/
+        if (*clen > 4) {
+          *clen = -1;
+          return c;
+        }
+        send = (U8*) s0 + ((expectlen <= len) ? len : len);
+        for (s = s0 + 1; s < send; s++) {
+          if (LIKELY(UTF8_IS_CONTINUATION(*s))) {
+            if (uv & UTF_ACCUMULATION_OVERFLOW_MASK) {
+              /*printf ("overflow\n");*/
+              *clen = -1;
+              return c;
+	    }
+	    uv = UTF8_ACCUMULATE(uv, *s);
+          }
+	  else {
+            /*printf ("unexpected non continuation\n");*/
+            *clen = -1;
+            return c;
+          }
+	}
+      }
+    }
     return c;
 #endif
   }
 }
 
-/* likewise for encoding, also never called for ascii codepoints */
-/* this function takes advantage of this fact, although current gccs */
-/* seem to optimise the check for >= 0x80 away anyways */
+/* Likewise for encoding, also never called for ascii codepoints. */
+/* This function takes advantage of this fact, although current gcc's */
+/* seem to optimise the check for >= 0x80 away anyways. */
 INLINE unsigned char *
 encode_utf8 (unsigned char *s, UV ch)
 {
-  if      (UNLIKELY(ch < 0x000080))
+  if    (UNLIKELY(ch < 0x000080))
     *s++ = ch;
   else if (LIKELY(ch < 0x000800))
     *s++ = 0xc0 | ( ch >>  6),
     *s++ = 0x80 | ( ch        & 0x3f);
-  else if (              ch < 0x010000)
+  else if        (ch < 0x010000)
     *s++ = 0xe0 | ( ch >> 12),
     *s++ = 0x80 | ((ch >>  6) & 0x3f),
     *s++ = 0x80 | ( ch        & 0x3f);
-  else if (              ch < 0x110000)
+  else if        (ch < 0x110000)
     *s++ = 0xf0 | ( ch >> 18),
     *s++ = 0x80 | ((ch >> 12) & 0x3f),
     *s++ = 0x80 | ((ch >>  6) & 0x3f),
@@ -787,8 +826,8 @@ encode_str (pTHX_ enc_t *enc, char *str, STRLEN len, int is_utf8)
                       while (--clen);
                     }
                   else
-                    {
-                      need (aTHX_ enc, len += UTF8_MAXBYTES - 1); /* never more than 11 bytes needed */
+                    { /* never more than 11 bytes needed */
+                      need (aTHX_ enc, len += UTF8_MAXBYTES - 1);
                       enc->cur = (char*)encode_utf8 ((U8*)enc->cur, uch);
                       ++str;
                     }
@@ -798,6 +837,12 @@ encode_str (pTHX_ enc_t *enc, char *str, STRLEN len, int is_utf8)
 
       --len;
     }
+}
+
+INLINE void
+encode_const_str (pTHX_ enc_t *enc, const char *str, STRLEN len, int is_utf8)
+{
+  encode_str (aTHX_ enc, (char *)str, len, is_utf8);
 }
 
 INLINE void
@@ -866,7 +911,7 @@ encode_av (pTHX_ enc_t *enc, AV *av)
           if (svp)
             encode_sv (aTHX_ enc, *svp);
           else
-            encode_str (aTHX_ enc, "null", 4, 0);
+            encode_const_str (aTHX_ enc, "null", 4, 0);
 
           if (i < len)
             encode_comma (aTHX_ enc);
@@ -1077,7 +1122,7 @@ encode_stringify(pTHX_ enc_t *enc, SV *sv, int isref)
     if (isref && !(enc->json.flags & F_ALLOW_UNKNOWN))
       croak ("cannot encode reference to scalar '%s' unless the scalar is 0 or 1",
              SvPV_nolen (sv_2mortal (newRV_inc (sv))));
-    encode_str (aTHX_ enc, "null", 4, 0);
+    encode_const_str (aTHX_ enc, "null", 4, 0);
     return;
   }
   /* sv_2pv_flags does not accept those types: */
@@ -1109,7 +1154,7 @@ encode_stringify(pTHX_ enc_t *enc, SV *sv, int isref)
     }
 #endif
     if (!len) {
-      encode_str (aTHX_ enc, "null", 4, 0);
+      encode_const_str (aTHX_ enc, "null", 4, 0);
       SvREFCNT_dec(pv);
       return;
     }
@@ -1144,7 +1189,7 @@ encode_stringify(pTHX_ enc_t *enc, SV *sv, int isref)
     }
   }
   if (!str)
-    encode_str (aTHX_ enc, "null", 4, 0);
+    encode_const_str (aTHX_ enc, "null", 4, 0);
   else {
     if (isref != 1)
       encode_ch (aTHX_ enc, '"');
@@ -1182,9 +1227,9 @@ encode_rv (pTHX_ enc_t *enc, SV *rv)
       if (stash == bstash || stash == mstash || stash == oldstash)
         {
           if (SvIV (sv))
-            encode_str (aTHX_ enc, "true", 4, 0);
+            encode_const_str (aTHX_ enc, "true", 4, 0);
           else
-            encode_str (aTHX_ enc, "false", 5, 0);
+            encode_const_str (aTHX_ enc, "false", 5, 0);
         }
       else if ((enc->json.flags & F_ALLOW_TAGS)
             && (method = gv_fetchmethod_autoload (stash, "FREEZE", 0)))
@@ -1264,7 +1309,7 @@ encode_rv (pTHX_ enc_t *enc, SV *rv)
       else if (enc->json.flags & F_CONV_BLESSED)
         encode_stringify(aTHX_ enc, sv, 0);
       else if (enc->json.flags & F_ALLOW_BLESSED)
-        encode_str (aTHX_ enc, "null", 4, 0);
+        encode_const_str (aTHX_ enc, "null", 4, 0);
       else
         croak ("encountered object '%s', but neither allow_blessed, convert_blessed nor allow_tags settings are enabled (or TO_JSON/FREEZE method missing)",
                SvPV_nolen (sv_2mortal (newRV_inc (sv))));
@@ -1278,19 +1323,19 @@ encode_rv (pTHX_ enc_t *enc, SV *rv)
       int bool_type = ref_bool_type (aTHX_ sv);
 
       if (bool_type == 1)
-        encode_str (aTHX_ enc, "true", 4, 0);
+        encode_const_str (aTHX_ enc, "true", 4, 0);
       else if (bool_type == 0)
-        encode_str (aTHX_ enc, "false", 5, 0);
+        encode_const_str (aTHX_ enc, "false", 5, 0);
       else if (enc->json.flags & F_ALLOW_STRINGIFY)
         encode_stringify(aTHX_ enc, sv, SvROK(sv));
       else if (enc->json.flags & F_ALLOW_UNKNOWN)
-        encode_str (aTHX_ enc, "null", 4, 0);
+        encode_const_str (aTHX_ enc, "null", 4, 0);
       else
         croak ("cannot encode reference to scalar '%s' unless the scalar is 0 or 1",
                SvPV_nolen (sv_2mortal (newRV_inc (sv))));
     }
   else if (enc->json.flags & F_ALLOW_UNKNOWN)
-    encode_str (aTHX_ enc, "null", 4, 0);
+    encode_const_str (aTHX_ enc, "null", 4, 0);
   else
     croak ("encountered %s, but JSON can only represent references to arrays or hashes",
            SvPV_nolen (sv_2mortal (newRV_inc (sv))));
@@ -1303,11 +1348,11 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
 
   if (UNLIKELY(sv == &PL_sv_yes ))
     {
-      encode_str (aTHX_ enc, "true", 4, 0);
+      encode_const_str (aTHX_ enc, "true", 4, 0);
     }
   else if (UNLIKELY(sv == &PL_sv_no ))
     {
-      encode_str (aTHX_ enc, "false", 5, 0);
+      encode_const_str (aTHX_ enc, "false", 5, 0);
     }
   else if (SvNOKp (sv))
     {
@@ -1473,8 +1518,8 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
           saveend = enc->end;
           enc->cur +=
              SvIsUV(sv)
-                ? snprintf (enc->cur, IVUV_MAXCHARS, "%"UVuf, (UV)SvUVX (sv))
-                : snprintf (enc->cur, IVUV_MAXCHARS, "%"IVdf, (IV)SvIVX (sv));
+                ? snprintf (enc->cur, IVUV_MAXCHARS, "%" UVuf, (UV)SvUVX (sv))
+                : snprintf (enc->cur, IVUV_MAXCHARS, "%" IVdf, (IV)SvIVX (sv));
         }
 
       if (SvPOKp (sv) && !strEQ(savecur, SvPVX (sv))) {
@@ -1499,7 +1544,7 @@ encode_sv (pTHX_ enc_t *enc, SV *sv)
   else if (SvROK (sv))
     encode_rv (aTHX_ enc, sv);
   else if (!SvOK (sv) || enc->json.flags & F_ALLOW_UNKNOWN)
-    encode_str (aTHX_ enc, "null", 4, 0);
+    encode_const_str (aTHX_ enc, "null", 4, 0);
   else
     croak ("encountered perl type (%s,0x%x) that JSON cannot handle, check your input data",
            SvPV_nolen (sv), (unsigned int)SvFLAGS (sv));
@@ -2529,7 +2574,7 @@ decode_num (pTHX_ dec_t *dec)
 
       if (dec->json.flags & F_ALLOW_BIGNUM) {
         SV* pv = newSVpvs("require Math::BigInt && return Math::BigInt->new(\"");
-        sv_catpv(pv, start);
+        sv_catpvn(pv, start, dec->cur - start);
         sv_catpvs(pv, "\");");
         eval_sv(pv, G_SCALAR);
         SvREFCNT_dec(pv);
@@ -2547,7 +2592,7 @@ decode_num (pTHX_ dec_t *dec)
 
   if (dec->json.flags & F_ALLOW_BIGNUM) {
     SV* pv = newSVpvs("require Math::BigFloat && return Math::BigFloat->new(\"");
-    sv_catpv(pv, start);
+    sv_catpvn(pv, start, dec->cur - start);
     sv_catpvs(pv, "\");");
     eval_sv(pv, G_SCALAR);
     SvREFCNT_dec(pv);

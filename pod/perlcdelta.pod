@@ -94,7 +94,29 @@ fixed UTF-8 issues, passes now all Test-CPAN-Meta tests.
 reapply most of our patches.
 skip cperl builtin prereqs.
 
-=item Archive::Tar  2.10
+=item Cpanel-JSON-XS 3.0225
+
+- Fixes for g++-6, stricter -fpermissive and -Wc++11-compat.
+
+- Added tests for ill-formed utf8 sequences from Encode.
+
+- modfl() mingw 4.0 runtime bug [perl #125924]
+
+- Tested with the comprehensive JSON decode spectests from
+  http://seriot.ch/parsing_json.html. Not added to core. #72
+
+- decode with BOM: UTF-8, UTF-16, or UTF-32.
+
+- fixed detection of final \0 as illegal non-whitespace garbage. Fixes
+  spectest 'n_number_then_00'. #72
+
+- warn with unicode noncharacters as in core when not in relaxed mode.
+  #74
+
+- fail decode of non-unicode raw characters above U+10FFFF
+  when not in relaxed mode.
+
+- added F<t/gh70-asan.t>
 
 =item Term::ReadKey 2.37_01
 
@@ -128,26 +150,6 @@ cperl only.
 =item DynaLoader 2.06c
 
 Fixed build dependency for F<dlboot.c>. No excessive rebuilds anymore.
-
-=item Cpanel-JSON-XS 3.0222
-
-modfl() mingw 4.0 runtime bug [perl #125924]
-
-Tested with the comprehensive JSON decode spectests from
-http://seriot.ch/parsing_json.html. Not added to core. #72
-
-decode with BOM: UTF-8, UTF-16, or UTF-32.
-
-fixed detection of final \0 as illegal non-whitespace garbage. Fixes
-spectest 'n_number_then_00'. #72
-
-warn with unicode noncharacters as in core when not in relaxed mode.
-#74
-
-fail decode of non-unicode raw characters above U+10FFFF
-when not in relaxed mode.
-
-added F<t/gh70-asan.t>
 
 =item Net-Ping 2.55
 
