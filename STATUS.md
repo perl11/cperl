@@ -31,8 +31,8 @@ Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 
 The current stable release is
   [5.24.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.1) - [perl5241cdelta](perl5241cdelta.html),
-the latest development release [5.25.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.25.0) - [perl5250cdelta](perl5250cdelta.html).
-See the current changelog [cperl-5.25.2 delta](perlcdelta.html).
+the latest development release [5.25.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.25.2) - [perl5250cdelta](perl5252cdelta.html).
+See the current changelog [cperlcdelta](perlcdelta.html).
 We also have [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
 
 All tests pass. CPAN works.
@@ -99,7 +99,7 @@ For all versions see [bench-all/](bench-all/index.html)
   versions with a 'c' suffix, and 10x faster JSON and YAML usage. (esp. with cpan).
 * many typed and modernized core modules, where signatures and types make
   sense and cause not much trouble.
-* some security fixes for Unicode confusables, but more are needed (use strict 'names').
+* many security fixes for Unicode symbols. no mixed scripts, normalized, no \0.
 * handle method calls on protected stashes.
 * disallow silent overflows of hash and array indices or string/name lengths.
   New "Too many elements" error and many new "overlarge" or "too large" panics.
@@ -313,6 +313,17 @@ are limited. So they are based on master.
 
   compile/dump to native code via emacs unexec, on most platforms.
 
+* [feature/gh141-smallstring](https://github.com/perl11/cperl/issues/141)
+
+  [code](http://github.com/perl11/cperl/commits/feature/gh141-smallstring)
+
+  optimize space for small strings.
+
+and various [hash tables refactorings]((https://github.com/perl11/cperl/issues/24):
+
+feature/gh24-base-hash feature/gh24-he-array feature/gh24-oldnew-hash-table
+featurex/gh24-array_he featurex/gh24-hash-loop featurex/gh24-hash-loop+utf8
+featurex/gh24-hash-utf8
 
 ## A bit more work is needed for
 
@@ -349,6 +360,10 @@ They also revert some wrong decisions p5p already made.
 
   class, method and multi keywords but no dispatch, subtyping and type checks yet.
   in work.
+
+* various more hash tables:
+
+featurex/gh24-one-word-ahe featurex/gh24-open-hash
 
 ## Soon
 

@@ -13,7 +13,11 @@ There's no C<make release> target yet.
 
     less Porting/release_manager_guide.pod
 
-    ../do-conf-cperl-release
+    Porting/do-conf-cperl-release
+    Porting/do-make-cperl-release
+
+or:
+
     make -s -j4 test && make -s install DESTDIR=`pwd`/../cperl-5.25.2-inst
 
     mkdir ../cperl-5.25.2
@@ -28,7 +32,7 @@ There's no C<make release> target yet.
         --version 5.25.2 \
         -m rurban@cpanel.net \
         --url http://perl11.org/cperl/$t/ \
-        --deb-config Porting/debian --deb-changelog pod/perl5222cdelta.pod
+        --deb-config Porting/debian --deb-changelog pod/perl5252cdelta.pod
     done
 
 So far we have no upstream accepted C<cperl> packages yet, so we
@@ -65,7 +69,8 @@ ccflags is architecture specific.
                 -Dcf_email='rurban@cpanel.net' \
                 -Uusethreads -Doptimize='-O3 -g'
 
-    sed -i -e's,-fstack-protector-strong,-fstack-protector,' config.sh Makefile cflags
+    sed -i -e's,-fstack-protector-strong,-fstack-protector,' config.sh \
+      Makefile cflags
     touch config.h
     make -s git_version.h ECHO=true
     make -s -j4 ECHO=true
@@ -174,10 +179,24 @@ Copy the created rpms into the rpm dest dirs.
 
 perl11.org/cperl/STATUS.html, perl11.org/cperl/Changes.html and the pods.
 
-(from markdown and pod) TODO...
+From markdown and pod:
+
+    ROOT=../perl11.github.com/cperl
+    
+    #Markdown.pl Changes > $ROOT/Changes.html
+    pod2html --podpath=pod pod/perlcperl.pod > $ROOT/index.html
+    cdelta=`ls pod/perl5*cdelta.pod|sed 's,pod/perl,,; s,.pod$,,' `
+    for p in "" data cperl sub types obj cdelta delta call util guts hack $cdelta sec hist; do
+        pod2html --podpath=pod pod/perl$p.pod > $ROOT/perl$p.html
+    done
+    Markdown.pl STATUS.md > $ROOT/STATUS.html
+    
+    sed -i -e's,href="/pod/,href="/cperl/,' $ROOT/*.html
 
 =head2 publish the website
 
+    cd ../perl11.github.com/cperl
+    git ci -am'update cperl release'
     git push
 
 Check it and announce it on twitter and your blog.

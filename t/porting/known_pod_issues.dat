@@ -375,6 +375,7 @@ pod/perlwin32.pod	Verbatim line length including indents exceeds 79 by	7
 porting/epigraphs.pod	Verbatim line length including indents exceeds 79 by	16
 porting/release_cperl.pod	? Should you be using F<...> or maybe L<...> instead of	1
 porting/release_cperl.pod	Verbatim line length including indents exceeds 79 by	4
+porting/release_cperl.pod	line containing nothing but whitespace in paragraph	2
 porting/release_managers_guide.pod	Verbatim line length including indents exceeds 79 by	1
 porting/todo.pod	? Should you be using F<...> or maybe L<...> instead of	1
 lib/benchmark.pm	Verbatim line length including indents exceeds 79 by	2

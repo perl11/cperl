@@ -41,7 +41,7 @@ for my $c (1 .. 0x10FFFF) {
     # => 12076 confusables
 }
 
-plan (tests => 22 + (scalar(@nfc)/2));
+plan (tests => 24 + (scalar(@nfc)/2));
 my $i = 1;
 
 # first check if _is_utf8_decomposed() catches all characters for pv_uni_normalize.
@@ -76,35 +76,23 @@ while (@nfc) {
     is( $orig, $i, "orig global var \${$qfrom}" );
     is( $norm, $i, "norm global var \${$qto}" );
     my $b = B::svref_2object(\$gv);
-    if (ref $b eq 'B::GV') {
-        is( $b->NAME, $to, "normalize E+COMBINING ACUTE ACCENT => E WITH ACUTE" );
-    } else {
-        is( ref $b, "B::GV", " => $qto (".ord($to).")");
-    }
+    is( $b->NAME, $to, "normalize E+COMBINING ACUTE ACCENT => E WITH ACUTE" );
     $i++;
 
     $É = $i; ($orig, $norm, $gv) = ($É, $É, *É);
     is( $orig, $i, "orig global var \$$qfrom" );
     is( $norm, $i, "norm global var \$$qto" );
     my $b = B::svref_2object(\$gv);
-    if (ref $b eq 'B::GV') {
-        is( $b->NAME, $to, "normalize GV E+COMBINING ACUTE ACCENT => E WITH ACUTE" );
-    } else {
-        is( ref $b, "B::GV", " => $qto");
-    }
+    is( $b->NAME, $to, "normalize GV E+COMBINING ACUTE ACCENT => E WITH ACUTE" );
     $i++;
 
     sub É {$i}; $orig = É(); $norm = É(); $cv = \&É;
     is( $orig, $i, "orig sub $qfrom" );
     is( $norm, $i, "norm sub $qto" );
   TODO: {
-      local $TODO = "B::CV->NAME_HEK";
+      local $TODO = "B::CV->NAME_HEK of \\&";
       $b = B::svref_2object($cv);
-      if (ref $b eq 'B::CV') {
-          is( $b->NAME_HEK, $to, "normalize CV NAME to E WITH ACUTE" );
-      } else {
-          is( ref $b, "B::CV", " => $qto");
-      }
+      is( $b->NAME_HEK, $to, "normalize CV NAME to E WITH ACUTE" );
     }
     $i++;
 
@@ -116,15 +104,8 @@ while (@nfc) {
     sub bÉ () {$i}; ($orig, $norm, $cv) = (bÉ(), bÉ(), \&bÉ);
     is( $orig, $i, "orig const sub $qfrom" );
     is( $norm, $i, "norm const sub $qto" );
-  TODO: {
-      local $TODO = "B::CV->NAME_HEK";
-      $b = B::svref_2object(\$cv);
-      if (ref $b eq 'B::CV') {
-          is( $b->NAME_HEK, $to, "normalize CV NAME to E WITH ACUTE" );
-      } else {
-          is( ref $b, "B::CV", " => $qto");
-      }
-    }
+    $b = B::svref_2object($cv);
+    is( $b->NAME_HEK, "b".$to, "normalize CV NAME to E WITH ACUTE" );
     $i++;
 
     sub PKG_É::É {$i};
@@ -149,3 +130,11 @@ while (@nfc) {
     is( $orig, $i, "dynamic string ref \${\"$qfrom\"}");
     is( $norm, 0,  "not normalized");
 }
+
+# almost illegal unicode: double combiners
+my $qfrom = join("",map{sprintf"\\x{%x}",$_}unpack"U*","É́");
+my $qto   = join("",map{sprintf"\\x{%x}",$_}unpack"U*","É́");
+# correctly normalized, but shouldn't this warn?
+${É́} = $i; ($orig, $norm) = (${É́}, ${É́});
+is( $orig, $i, "orig global var \${$qfrom}" );
+is( $norm, $i, "norm global var \${$qto}" );
