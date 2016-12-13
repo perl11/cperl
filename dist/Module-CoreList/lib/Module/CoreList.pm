@@ -12794,7 +12794,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Devel::PPPort'         => '3.35_02',
             'Digest::SHA'           => '5.96',
             'DynaLoader'            => '2.06c',
-            'Encode'                => '2.86',
+            'Encode'                => '2.88',
             'ExtUtils::MM'	    => '8.04_04',
             'ExtUtils::MM_AIX'	    => '8.04_04',
             'ExtUtils::MM_Any'	    => '8.04_04',

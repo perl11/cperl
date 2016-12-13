@@ -149,7 +149,11 @@ minor code and documentation tweaks
 
 Fixed build dependency for F<dlboot.c>. No excessive rebuilds anymore.
 
-=item Encode  2.86
+=item Encode  2.88
+
+various upstream fixes.
+plus g++-6 -fpermissive and -Wc++11-compat fixes.
+our local make -s silent patches and various others are now all upstream.
 
 =item File::Fetch  2.52
 

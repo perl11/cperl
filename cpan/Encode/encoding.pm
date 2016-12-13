@@ -1,15 +1,16 @@
-# $Id: encoding.pm,v 2.18 2016/08/10 18:08:45 dankogai Exp dankogai $
+# $Id: encoding.pm,v 2.19 2016/11/01 13:30:38 dankogai Exp $
 package encoding;
-our $VERSION = sprintf "%d.%02d", q$Revision: 2.18 $ =~ /(\d+)/g;
+our $VERSION = sprintf "%d.%02d", q$Revision: 2.19 $ =~ /(\d+)/g;
 
 use Encode;
 use strict;
 use warnings;
+use Config;
 
 use constant {
     DEBUG => !!$ENV{PERL_ENCODE_DEBUG},
     HAS_PERLIO => eval { require PerlIO::encoding; PerlIO::encoding->VERSION(0.02) },
-    PERL_5_21_7 => $^V && $^V ge v5.21.7,
+    PERL_5_21_7 => $^V && $^V ge v5.21.7, # lexically scoped
 };
 
 sub _exception {
