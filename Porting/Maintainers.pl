@@ -265,6 +265,8 @@ use File::Glob qw(:case);
             qr{^t/Test/},
             qr{^bzip2-src/.*\.patch$/},
         ],
+        # https://rt.cpan.org/Ticket/Display.html?id=119005
+        'CUSTOMIZED'   => [ qw[ Bzip2.xs ] ],
     },
 
     'Compress::Raw::Zlib' => {
@@ -279,7 +281,7 @@ use File::Glob qw(:case);
                 ),
         ],
 
-        # https://rt.cpan.org/Ticket/Display.html?id=106799
+        # https://rt.cpan.org/Ticket/Display.html?id=119007
         'CUSTOMIZED'   => [ qw[ Zlib.xs ] ],
     },
 

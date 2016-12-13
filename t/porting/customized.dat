@@ -20,7 +20,8 @@ CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f89aec2164476eb98e93f05a5e
 CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf0eb5e96a544eba22bbdef9365
 CPAN::Meta::YAML cpan/CPAN-Meta-YAML/t/lib/TestUtils.pm 89535dc9f122a77a8320df27e5929aa574196753
-Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Zlib.xs 9b79d2a71b2d65282a9af4190d2e0e5c58c648b7
+Compress::Raw::Bzip2 cpan/Compress-Raw-Bzip2/Bzip2.xs da250401c7fbbb3bf8abe57a53e92dda000dc3e6
+Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Zlib.xs fa7cfc65b266928d789af50588f7454aaef22670
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t aa8d82945028d74b2c0ee8feba7bf127930ffd8a
 Config::Perl::V cpan/Config-Perl-V/V.pm 74b5c9278c618b0dc2534064f804228588cda18b
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
@@ -63,7 +64,7 @@ File::Path cpan/File-Path/lib/File/Path.pm 623799e76e11a756ca5e18749d8bc1bdc3800
 File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm da7db2b7b06467019466d3d82f29bfdb6c5b0b49
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm ff5cfeb592347dcb0696ffe9ae2d80bc501121f7
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm e4c0eb61d184420de1a0f71e3438b33ceb8b2455
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 1aafcafa50418655434eddd43b565a8a79e550d3
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
