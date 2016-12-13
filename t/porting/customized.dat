@@ -33,11 +33,11 @@ Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm bc6efbd91bce9b1eae3c341c4
 Devel::PPPort cpan/Devel-PPPort/parts/apidoc.fnc 5bd7e8faec56c6210a21647873eae922c4d48659
 Devel::PPPort cpan/Devel-PPPort/parts/inc/gv 4b6916d3d5c64a605b5b5f1727ac629d14372a05
 Devel::PPPort cpan/Devel-PPPort/parts/inc/HvNAME 5fa336117cbb7f06b8d442ed7bc78ffe34a0ab1f
-Devel::PPPort cpan/Devel-PPPort/parts/inc/misc 3e6464a3c3798457af939b27b15364dbf6ce5263
+Devel::PPPort cpan/Devel-PPPort/parts/inc/misc 20c84ddb8721614177f9af7f4307f02f0ece5b52
 Devel::PPPort cpan/Devel-PPPort/parts/todo/5013007 0446df4a31dcd58b8e27ab9e810711f0e4840fee
 Devel::PPPort cpan/Devel-PPPort/parts/todo/5015004 4bdb7b2545380ade42e22dbb097f7fbf07737393
 Devel::PPPort cpan/Devel-PPPort/ppport_h.PL 3aa0b958adf67a9b9385bf2b5b89ecf8cdd391c7
-Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL f906987f48b0aa9553bf858324578830ed08a105
+Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL c60773e43d0b824c65bbf5919c0af0009b16af89
 Devel::PPPort cpan/Devel-PPPort/PPPort_xs.PL 034cce281a0017fe0ba05d9060f34a8c65781553
 Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
 Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
@@ -64,7 +64,7 @@ File::Path cpan/File-Path/lib/File/Path.pm 623799e76e11a756ca5e18749d8bc1bdc3800
 File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm da7db2b7b06467019466d3d82f29bfdb6c5b0b49
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 8999b35d92e0ab5ab1d58b4d967b0faddb45f775
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 0bc948344ec38422a7cde4be2984b5785109815f
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 1aafcafa50418655434eddd43b565a8a79e550d3
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c

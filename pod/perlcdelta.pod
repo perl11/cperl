@@ -134,9 +134,9 @@ fix correct indentation for utf-8 key hash elements, [perl #128524].
 
 Fix -Wc++11-compat warnings, and various minor issues.
 
-=item Devel::PPPort  3.35_01
+=item Devel::PPPort  3.35_02
 
-no changes
+Fix -Wc++11-compat warnings.
 
 =item Digest::SHA  5.96
 
