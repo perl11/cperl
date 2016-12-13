@@ -12760,7 +12760,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Module::CoreList::TieHashDelta'=> '5.20160618',
             'Module::CoreList::Utils'=> '5.20161028c',
             'App::CPAN'             => '1.64_01',
-            'Archive::Tar'          => '2.10',
+            'Archive::Tar'          => '2.18',
             'base'                  => '1.23_01',  
             'B::C'                  => '1.54_15',
             'Config::Perl::V'       => '0.27_01',
