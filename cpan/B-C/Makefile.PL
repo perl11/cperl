@@ -153,7 +153,7 @@ elsif ($] > 5.015005 and $] < 5.019004) {
     warn "Warning: Bad perl version $]\n".
 	 $unicode_warning.
 	 "  Check your code for syntax spoofs, confusables, esp. strip \\0 from package names.\n";
-} elsif ($] >= 5.019004) {
+} elsif ($] >= 5.019004 and !($Config{usecperl} and $] >= 5.025002)) {
     warn "Warning:\n".
 	 $unicode_warning.
 	 "  Check your code for syntax spoofs, confusables, strip \\0 from package names.\n".
@@ -444,9 +444,9 @@ TAGS : $asmdata
 	etags --language=perl lib/B/*.pm
 ";
     if ($] > 5.009 and defined($ExtUtils::MM_Unix::VERSION)) {
-        my $ver = $ExtUtils::MM_Unix::VERSION;
+        my $ver = 0+$ExtUtils::MM_Unix::VERSION;
         # 8.0403 is the cperl 5.24.0 version based on 7.04_03
-        if ($ver eq '8.0403' or $ver lt '7.0509') {
+        if ($ver == 8.0403 or $ver == 8.0404 or $ver < 7.0509 or $ver == 7.1) {
             $result .= "\ntest :: subdirs-test\n\n";
         } else {
             $result .= "\ntest :: subdirs-test_\$(LINKTYPE)\n\n";

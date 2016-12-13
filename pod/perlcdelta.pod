@@ -46,9 +46,15 @@ See L</fake_signatures>
 
 =over 4
 
-=item B-C  1.54_14
+=item B-C  1.54_15
 
-Fixed cow string lengths and wrong savepvn lengths.
+Fixed IsCOW savepvn, store the last cowrefcnt.
+
+Fixed wrong savepvn length, failing with asan.
+
+Optimized mro_isa_changed_in initialization.
+Added B::HV::Gv_AMG method.
+
 Fixes heap-buffer overflow at t/c.t 11 with asan.
 
 Fixed -lcperl for shared libcperl.
