@@ -9372,7 +9372,7 @@ S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
 
     *normalize = 0;
     /*DEBUG_T(PerlIO_printf(Perl_debug_log, "parse_ident \"%s\"\n", *s));*/
-    for (;;) {
+    while (*s < PL_bufend) {
         if (*d >= e)
             Perl_croak(aTHX_ "%s", ident_too_long);
         if (is_utf8 && isIDFIRST_utf8_safe(*s, PL_bufend)) {
