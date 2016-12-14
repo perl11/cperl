@@ -173,6 +173,13 @@ our local make -s silent patches and various others are now all upstream.
 
 Many fixes und improvements
 
+=item IO-Socket-IP  0.38
+
+- Support setting custom socket options with new Sockopts
+  constructor parameter
+
+- Restore blocking mode after ->connect errors [cpan #112334]
+
 =item IPC::Cmd  0.96
 
 set $Module::Load::Conditional::FORCE_SAFE_INC = 1
