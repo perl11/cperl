@@ -339,6 +339,10 @@ skip the t/utime.t on ext2/ext3
 Less runtime memory: demand-load Carp, Config.
 reformatted
 
+=item Unicode-Collate 1.19
+
+Many new locales. Some major fixes.
+
 =item version  0.9917_02c
 
 Merge latest version with the '_' lyon concensus with the cperl extension

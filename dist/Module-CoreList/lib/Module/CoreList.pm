@@ -12861,6 +12861,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Thread::Semaphore'     => '2.13',
             'Time::Local'           => '1.25',
             'Time::HiRes'           => '1.9740',
+            'Unicode::Collate'      => '1.19',
             'YAML::XS'              => '0.75',
             'YAML::LibYAML'         => '0.75',
         },
