@@ -7,7 +7,7 @@
 #
 package B;
 
-$B::VERSION = '1.62_05';
+$B::VERSION = '1.62_06';
 
 require XSLoader;
 require Exporter;

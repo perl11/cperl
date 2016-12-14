@@ -60,6 +60,10 @@ Better 09_roundtrip.t tests.
 
 revert base.pm incdot test change and fix properly
 
+=item B  1.62_06
+
+fix -Wc++11-compat
+
 =item B-C  1.54_15
 
 Fixed IsCOW savepvn, store the last cowrefcnt.

@@ -278,7 +278,7 @@ get_overlay_object(pTHX_ const OP *o, const char * const name, U32 namelen)
     HE *he;
     SV **svp;
     SV *key;
-    SV *sv =get_sv("B::overlay", 0);
+    SV *sv = get_sv("B::overlay", 0);
     if (!sv || !SvROK(sv))
 	return NULL;
     sv = SvRV(sv);
@@ -958,7 +958,7 @@ hash(sv)
 	U32 hash = 0;
 	const char *s = SvPVbyte(sv, len);
 	PERL_HASH(hash, s, len);
-	ST(0) = sv_2mortal(Perl_newSVpvf(aTHX_ "0x%"UVxf, (UV)hash));
+	ST(0) = sv_2mortal(Perl_newSVpvf(aTHX_ "0x%" UVxf, (UV)hash));
 
 #define cast_I32(foo) (I32)foo
 IV

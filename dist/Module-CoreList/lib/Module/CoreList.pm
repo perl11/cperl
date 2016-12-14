@@ -12764,6 +12764,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'App::CPAN'             => '1.64_01',
             'Archive::Tar'          => '2.18',
             'base'                  => '1.23_01',  
+            'B'                     => '1.62_06',
             'B::C'                  => '1.54_15',
             'Compress::Raw::Bzip2'  => '2.069',
             'Compress::Raw::Zlib'   => '2.069',
