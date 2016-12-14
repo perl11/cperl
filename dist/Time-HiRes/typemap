@@ -28,6 +28,8 @@ AV *			T_AVREF
 HV *			T_HVREF
 CV *			T_CVREF
 
+clockid_t               T_IV
+
 IV			T_IV
 UV			T_UV
 NV                      T_NV
@@ -282,7 +284,7 @@ T_STDIO
 	{
 	    GV *gv = newGVgen("$Package");
 	    PerlIO *fp = PerlIO_importFILE($var,0);
-	    if ( fp && do_open(gv, "+<&", 3, FALSE, 0, 0, fp) )
+	    if ( fp && do_openn(gv, "+<&", 3, FALSE, 0, 0, fp, NULL, 0) )
 		sv_setsv($arg, sv_bless(newRV((SV*)gv), gv_stashpv("$Package",1)));
 	    else
 		$arg = &PL_sv_undef;
@@ -290,7 +292,7 @@ T_STDIO
 T_IN
 	{
 	    GV *gv = newGVgen("$Package");
-	    if ( do_open(gv, "<&", 2, FALSE, 0, 0, $var) )
+	    if ( do_openn(gv, "<&", 2, FALSE, 0, 0, $var, NULL, 0) )
 		sv_setsv($arg, sv_bless(newRV((SV*)gv), gv_stashpv("$Package",1)));
 	    else
 		$arg = &PL_sv_undef;
@@ -298,7 +300,7 @@ T_IN
 T_INOUT
 	{
 	    GV *gv = newGVgen("$Package");
-	    if ( do_open(gv, "+<&", 3, FALSE, 0, 0, $var) )
+	    if ( do_openn(aTHX_ gv, "+<&", 3, FALSE, 0, 0, $var, NULL, 0) )
 		sv_setsv($arg, sv_bless(newRV((SV*)gv), gv_stashpv("$Package",1)));
 	    else
 		$arg = &PL_sv_undef;
@@ -306,7 +308,7 @@ T_INOUT
 T_OUT
 	{
 	    GV *gv = newGVgen("$Package");
-	    if ( do_open(gv, "+>&", 3, FALSE, 0, 0, $var) )
+	    if ( do_openn(aTHX_ gv, "+>&", 3, FALSE, 0, 0, $var, NULL, 0) )
 		sv_setsv($arg, sv_bless(newRV((SV*)gv), gv_stashpv("$Package",1)));
 	    else
 		$arg = &PL_sv_undef;
