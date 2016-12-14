@@ -517,6 +517,11 @@ END
           $installed_file = $prereq;
           $pr_version = $];
         }
+        elsif ($Config::Config{usecperl}
+               and $prereq =~ /^(DynaLoader|XSLoader|strict|coretypes)$/) {
+          $pr_version = $required_version + 1000;
+          $installed_file = $prereq;
+        }
         else {
           $installed_file = MM->_installed_file_for_module($prereq);
           $pr_version = $installed_file ? MM->parse_version($installed_file) : 'undef';
