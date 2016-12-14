@@ -8,6 +8,7 @@ BEGIN { $^P |= 0x210 }
 #       the place they were compiled.
 use Test::More;
 use B 'svref_2object';
+use Config;
 
 # This is a mess. The stash can supposedly handle Unicode but the behavior
 # is literally undefined before 5.16 (with crashes beyond the basic plane),
@@ -53,6 +54,10 @@ sub caller3_ok {
 
     # this is apparently how things worked before 5.16
     utf8::encode($expected) if $] < 5.016 and $ord > 255;
+    # before 5.16 and after v5.25.2c names with NUL are stripped
+    if (!$ord and ($] < 5.016 or ($Config{usecperl} and $] >= 5.025002))) {
+      $expected =~ s/\0.*//;
+    }
 
     my $stash_name = join '::', map { $_->STASH->NAME, $_->NAME } svref_2object($sub)->GV;
 
@@ -63,16 +68,16 @@ sub caller3_ok {
 #######################################################################
 
 my @test_ordinals = ( 1 .. 255 );
-# 5.16 is the first perl to start properly handling \0 in identifiers
-push @test_ordinals, 0
-    unless $] < 5.016;
+# 5.16 is the first perl to allow \0 in identifiers
+# 5.25.2c disallowed \0 again.
+push @test_ordinals, 0 if $] >= 5.016 and !($] >= 5.025002 and $Config{usecperl});
 # This is a mess. Yes, the stash supposedly can handle unicode, yet
 # on < 5.16 the behavior is literally undefined (with crashes beyond
 # the basic plane), and is still unclear post 5.16 with eval_bytes/eval_utf8
 # In any case - subname needs to *somehow* work with this, so try to
 # do the a heuristic with plain eval (grep for `5.016` below)
 
-# Unicode in 5.6 is not sane (crashes etc)
+# Unicode in 5.6 cannot handle multi-byte characters (crashes)
 push @test_ordinals,
     0x100,    # LATIN CAPITAL LETTER A WITH MACRON
     0x498,    # CYRILLIC CAPITAL LETTER ZE WITH DESCENDER
@@ -167,7 +172,10 @@ for my $ord (@test_ordinals) {
     my $subname   = sprintf 'SOME_%c_NAME', $ord;
     my $fullname = $pkg . '::' . $subname;
     if ($ord == 0x27) { # ' => :: gv.c:S_parse_gv_stash_name
-        $fullname = "test::SOME_::_STASH::SOME_::_NAME";
+      $fullname = "test::SOME_::_STASH::SOME_::_NAME";
+    }
+    if (!$ord && ($] >= 5.025002 and $Config{usecperl})) {
+      $fullname = "test::SOME_::SOME_";
     }
 
     $sub = set_subname $fullname => sub { (caller(0))[3] };
@@ -180,11 +188,17 @@ for my $ord (@test_ordinals) {
         $sub = compile_named_sub $fullname => '(caller(0))[3]';
     }
     else { # not a legal identifier but at least test the package name by aliasing
+        # unicode quirks <5.16
+        if (($ord == 0x2122 or $ord == 0x1f4a9) and $] < 5.015) {
+            $subname  = "sub";
+            $fullname = $pkg . '::' . $subname;
+        }
         $expected = "aliased::native::$fullname";
         {
             no strict 'refs';
             *palatable:: = *{"aliased::native::${pkg}::"};
             # now palatable:: literally means aliased::native::${pkg}::
+            warnings->unimport('security') if $Config{usecperl} and $] >= 5.025;
             ${"palatable::$subname"} = 1;
             ${"palatable::"}{"sub"} = ${"palatable::"}{$subname};
             # and palatable::sub means aliased::native::${pkg}::${subname}

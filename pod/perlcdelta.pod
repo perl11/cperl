@@ -289,9 +289,10 @@ FreeBSD has mandoc too, with UTF-8 support.
 Improved parallel testing, relative F<testdir/test$$.lib>.
 See L<[RT #118416]|https://rt.cpan.org/Ticket/Display.html?id=118416>.
 
-=item Scalar-List-Utils  1.46_06
+=item Scalar-List-Utils  1.46_08
 
-VERSION bump only to protect from weak upstream.
+Fix -Wc++11-compat warnings.
+Prepare for handling NUL in names for cperl-5.25.2
 
 =item Sys-Syslog  0.35
 
