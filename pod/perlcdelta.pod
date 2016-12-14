@@ -269,10 +269,10 @@ excluded new xt tests
 
 Added msys
 
-=item podlators  4.08
+=item podlators  4.09
 
-Many Pod::Man bugfixes and new tests,
-see L<https://metacpan.org/changes/distribution/podlators>
+Many L<Pod::Man> bugfixes and new tests.
+See L<https://metacpan.org/changes/distribution/podlators>
 
 =item Pod-Perldoc  3.27
 
