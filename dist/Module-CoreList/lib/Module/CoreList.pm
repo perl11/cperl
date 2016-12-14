@@ -12856,6 +12856,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Socket'                => '2.024_05',
             'Sub::Util'             => '1.46_08',
             'Sys::Syslog'           => '0.35',
+            'Term::ANSIColor'       => '4.06',
             'Term::ReadKey'         => '2.37_01',
             'Thread::Semaphore'     => '2.13',
             'Time::Local'           => '1.24',
