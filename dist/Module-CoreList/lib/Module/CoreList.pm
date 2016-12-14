@@ -12768,6 +12768,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'B::C'                  => '1.54_15',
             'Compress::Raw::Bzip2'  => '2.069',
             'Compress::Raw::Zlib'   => '2.069',
+            'Config'                => '6.22_01',
             'Config::Perl::V'       => '0.27_01',
             'CPAN'                  => '2.14c',
             'CPAN::Distribution'    => '2.14_01',

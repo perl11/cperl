@@ -8,9 +8,11 @@ package
     Config;
 use strict;
 use warnings;
-our (%Config, $VERSION);
+our (%Config, $VERSION, $XS_VERSION);
 
-$VERSION = '6.22';
+$VERSION = '6.22_01';
+$XS_VERSION = $VERSION;
+$VERSION = eval $VERSION;
 
 # Skip @Config::EXPORT because it only contains %Config, which we special
 # case below as it's not a function. @Config::EXPORT won't change in the
@@ -60,7 +62,7 @@ sub DESTROY { }
 
 if (defined &DynaLoader::boot_DynaLoader) {
     require XSLoader;
-    XSLoader::load(__PACKAGE__, $VERSION);
+    XSLoader::load();
     tie %Config, 'Config';
 } else {
     no warnings 'redefine';

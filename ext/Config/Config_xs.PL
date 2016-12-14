@@ -19,7 +19,6 @@
 #    lib/Config_git.pl
 #
 
-$VERSION = '6.22';
 my $in_core;
 
 BEGIN {
@@ -54,6 +53,8 @@ if ($in_core) {
 my $force = @ARGV ? $ARGV[0] eq '--force' : 0;
 shift if $force;
 exit if $ARGV[0] eq '--tap';
+my $regen = @ARGV ? $ARGV[0] eq '--regen' : 0;
+shift if $regen;
 my $no_gperf = @ARGV ? $ARGV[0] eq '--no-gperf' : 0;
 shift if $no_gperf;
 my $verbose = @ARGV ? $ARGV[0] eq '--verbose' : 0;
@@ -164,7 +165,7 @@ config_argc config_args d_re_comp   d_regcmp    dlltool dtraceobject
 git_ancestor    git_commit_date git_remote_branch   git_unpushed
 hostgenerate    hostosname  hostperl    incpth  installhtmldir
 installhtmlhelpdir  ld_can_script   libdb_needs_pthread mad malloc_cflags
-sysroot targetdir   targetenv   targethost  targetmkdir targetport
+passcat  sysroot targetdir   targetenv   targethost  targetmkdir targetport
 useversionedarchname
 
       );
@@ -215,7 +216,7 @@ installvendorhtml1dir   installvendorhtml3dir   installvendorman1dir
 installvendorman3dir    installvendorscript ldflags_nolargefiles
 libs_nolargefiles   libswanted_nolargefiles longdblinfbytes longdblkind
 longdblmantbits longdblnanbytes madlyh  madlyobj    madlysrc    mistrustnm
-nv_overflows_integers_at    nvmantbits  op_cflags   perl_patchlevel
+nv_overflows_integers_at    nvmantbits  op_cflags  perl_patchlevel
 perl_revision   perl_static_inline  perl_subversion perl_version    ppmarch
 pthread_h_first regexec_cflags  rm_try  run sGMTIME_max sGMTIME_min
 sLOCALTIME_max  sLOCALTIME_min  sitehtml1dir    sitehtml1direxp sitehtml3dir
@@ -236,7 +237,7 @@ vendorscript    vendorscriptexp voidflags   yacc    yaccflags
             $h{$k} = '';
         }
     }
-    gen_gperf_Config($xsin, $xsout, \%h); # generate git tracked
+    gen_gperf_Config($xsin, $xsout, \%h) if $regen;
     $xsout = $xsoutcustm; # use smaller build specific .xs
 }
 

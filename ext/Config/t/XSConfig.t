@@ -76,12 +76,12 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
   }
   # these qw blocks are created with genkeys.PL in the cpan repo
   my @cannedkeys = qw(
-bin_ELF bootstrap_charset   canned_gperf    ccstdflags  ccwarnflags charsize
+bin_ELF bootstrap_charset canned_gperf ccstdflags ccwarnflags charsize
 config_argc config_args d_re_comp   d_regcmp    dlltool dtraceobject
 git_ancestor    git_commit_date git_remote_branch   git_unpushed
 hostgenerate    hostosname  hostperl    incpth  installhtmldir
 installhtmlhelpdir  ld_can_script   libdb_needs_pthread mad malloc_cflags
-sysroot targetdir   targetenv   targethost  targetmkdir targetport
+passcat sysroot targetdir   targetenv   targethost  targetmkdir targetport
 useversionedarchname
   );
   unless($in_core) { #cperl doesn't need these, CPAN does

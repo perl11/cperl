@@ -85,6 +85,10 @@ Fixed APPEND_OUTPUT logic [RT #119005]
 
 Fixed APPEND_OUTPUT logic [RT #119007]
 
+=item Config  6.22_01
+
+add fake_signatures, --regen support, support for dev versions.
+
 =item Config::Perl::V  0.27_01
 
 =item CPAN::Meta  2.150010c
