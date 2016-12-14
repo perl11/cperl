@@ -334,8 +334,9 @@ Added C<down_timed> method.
 
 skip the t/utime.t on ext2/ext3
 
-=item Time-Local  1.24
+=item Time-Local  1.25
 
+Less runtime memory: demand-load Carp, Config.
 reformatted
 
 =item version  0.9917_02c

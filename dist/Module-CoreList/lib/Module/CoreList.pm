@@ -12859,7 +12859,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Term::ANSIColor'       => '4.06',
             'Term::ReadKey'         => '2.37_01',
             'Thread::Semaphore'     => '2.13',
-            'Time::Local'           => '1.24',
+            'Time::Local'           => '1.25',
             'Time::HiRes'           => '1.9740',
             'YAML::XS'              => '0.75',
             'YAML::LibYAML'         => '0.75',
