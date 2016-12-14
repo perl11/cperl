@@ -294,6 +294,10 @@ See L<[RT #118416]|https://rt.cpan.org/Ticket/Display.html?id=118416>.
 Fix -Wc++11-compat warnings.
 Prepare for handling NUL in names for cperl-5.25.2
 
+=item Socket  2.024_05
+
+Fix -Wc++11-compat warnings.
+
 =item Sys-Syslog  0.35
 
 CVE-2016-1238: avoid loading optional modules from default . (Tony Cook).

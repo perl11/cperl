@@ -12853,7 +12853,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Pod::Text::Termcap'    => '4.08',
             'parent'                => '0.236',
             'Scalar::Util'          => '1.46_08',
-            'Socket'                => '2.024_04',
+            'Socket'                => '2.024_05',
             'Sub::Util'             => '1.46_08',
             'Sys::Syslog'           => '0.35',
             'Term::ReadKey'         => '2.37_01',
