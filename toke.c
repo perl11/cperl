@@ -1032,8 +1032,8 @@ Perl_lex_grow_linestr(pTHX_ STRLEN len)
     re_eval_start_pos = PL_parser->lex_shared->re_eval_start ?
                             PL_parser->lex_shared->re_eval_start - buf : 0;
 
-    buf = sv_grow(linestr, len);
-
+    buf = sv_grow(linestr, len+1);
+    assert(buf == SvPVX(linestr));
     PL_parser->bufend = buf + bufend_pos;
     PL_parser->bufptr = buf + bufptr_pos;
     PL_parser->oldbufptr = buf + oldbufptr_pos;
