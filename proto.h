@@ -93,6 +93,14 @@ PERL_CALLCONV bool	Perl__is_utf8_FOO(pTHX_ const U8 classnum, const U8 *p)
 #define PERL_ARGS_ASSERT__IS_UTF8_FOO	\
 	assert(p)
 
+PERL_CALLCONV bool	Perl__is_utf8_FOO_with_len(pTHX_ const U8 classnum, const U8 *p, const U8 * const e)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT__IS_UTF8_FOO_WITH_LEN	\
+	assert(p); assert(e)
+
 PERL_CALLCONV bool	Perl__is_utf8_idcont(pTHX_ const U8 *p)
 			__attribute__global__
 			__attribute__warn_unused_result__
@@ -121,12 +129,28 @@ PERL_CALLCONV bool	Perl__is_utf8_perl_idcont(pTHX_ const U8 *p)
 #define PERL_ARGS_ASSERT__IS_UTF8_PERL_IDCONT	\
 	assert(p)
 
+PERL_CALLCONV bool	Perl__is_utf8_perl_idcont_with_len(pTHX_ const U8 *p, const U8 * const e)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT__IS_UTF8_PERL_IDCONT_WITH_LEN	\
+	assert(p); assert(e)
+
 PERL_CALLCONV bool	Perl__is_utf8_perl_idstart(pTHX_ const U8 *p)
 			__attribute__global__
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT__IS_UTF8_PERL_IDSTART	\
 	assert(p)
+
+PERL_CALLCONV bool	Perl__is_utf8_perl_idstart_with_len(pTHX_ const U8 *p, const U8 * const e)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT__IS_UTF8_PERL_IDSTART_WITH_LEN	\
+	assert(p); assert(e)
 
 PERL_CALLCONV bool	Perl__is_utf8_xidcont(pTHX_ const U8 *p)
 			__attribute__global__
@@ -9828,6 +9852,15 @@ PERL_STATIC_INLINE bool	S_is_utf8_common(pTHX_ const U8 *const p, SV **swash, co
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_IS_UTF8_COMMON	\
 	assert(p); assert(swash); assert(swashname)
+
+PERL_STATIC_INLINE bool	S_is_utf8_common_with_len(pTHX_ const U8 *const p, const U8 *const e, SV **swash, const char * const swashname, SV* const invlist)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_4);
+#define PERL_ARGS_ASSERT_IS_UTF8_COMMON_WITH_LEN	\
+	assert(p); assert(e); assert(swash); assert(swashname)
 
 PERL_STATIC_INLINE bool	S_is_utf8_cp_above_31_bits(const U8 * const s, const U8 * const e)
 			__attribute__warn_unused_result__
