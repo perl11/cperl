@@ -870,6 +870,7 @@ rmbarker\100cpan.org                    rmb1\100cise.npl.co.uk
 robertmay\100cpan.org                   rob\100themayfamily.me.uk
 roberto\100keltia.freenix.fr            roberto\100eurocontrol.fr
 robin\100cpan.org                       robin\100kitsite.com
+rochelemagne\100cpanel.net		atoomic\100cpan.org
 roderick\100argon.org                   roderick\100gate.net
 +                                       roderick\100ibcinc.com
 argrath\100ub32.org                     root\100ub32.org
