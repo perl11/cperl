@@ -4,7 +4,7 @@ use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use Module::CoreList::TieHashDelta;
 use version;
-$VERSION = '5.20161213c';
+$VERSION = '5.20161217c';
 $VERSION =~ s/c$//;
 
 sub _released_order {   # Sort helper, to make '?' sort after everything else
@@ -313,10 +313,11 @@ sub changes_between {
     '5.025001c' => '2016-10-16',
     '5.025002c' => '2016-12-13',
     '5.024002c' => '2016-12-16',
-    '5.022005c' => '????-??-??',
     5.025006 => '2016-10-20',
     5.025007 => '2016-11-20',
+    '5.022005c' => '????-??-??',
     5.025008 => '????-??-??',
+    '5.025003c' => '????-??-??',
  );
 
 sub version_sort {
@@ -13872,6 +13873,16 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
         },
         removed => {},
     },
+    '5.025003c' => {
+        delta_from => '5.025002c',
+        changed => {
+            'B::Op_private'         => '5.025003',
+            'Module::CoreList'      => '5.20161217c',
+            'Module::CoreList::TieHashDelta'=> '5.20161017',
+            'Module::CoreList::Utils'=> '5.20161217c',
+        },
+        removed => {},
+    },
 );
 
 sub is_core
@@ -14450,11 +14461,6 @@ for my $version (sort { version_sort($a, $b) } keys %delta) {
         changed => {},
         removed => {}
     },
-    '5.024000c' => {
-        delta_from => '5.022003c',
-        changed => {},
-        removed => {}
-    },
     5.023001 => {
         delta_from => 5.023000,
         changed => {
@@ -14546,6 +14552,21 @@ for my $version (sort { version_sort($a, $b) } keys %delta) {
         removed => {
         }
     },
+    '5.024000c' => {
+        delta_from => '5.022003c',
+        changed => {},
+        removed => {}
+    },
+    '5.024001c' => {
+        delta_from => '5.024000c',
+        changed => {},
+        removed => {}
+    },
+    '5.024002c' => {
+        delta_from => '5.024001c',
+        changed => {},
+        removed => {}
+    },
     5.025000 => {
         delta_from => 5.024,
         changed => {
@@ -14601,6 +14622,26 @@ for my $version (sort { version_sort($a, $b) } keys %delta) {
         },
         removed => {
         }
+    },
+    '5.025000c' => {
+        delta_from => '5.024000c',
+        changed => {},
+        removed => {}
+    },
+    '5.025001c' => {
+        delta_from => '5.025000c',
+        changed => {},
+        removed => {}
+    },
+    '5.025002c' => {
+        delta_from => '5.025001c',
+        changed => {},
+        removed => {}
+    },
+    '5.025003c' => {
+        delta_from => '5.025002c',
+        changed => {},
+        removed => {}
     },
 );
 
