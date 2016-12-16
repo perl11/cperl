@@ -142,9 +142,9 @@ sub import {
     }
     $name = $enc->name;    # canonize
     unless ( $arg{Filter} ) {
-        if ($] >= 5.025003) {
+        if ($] >= 5.025003 and !$Config{usecperl}) {
             require Carp;
-            Carp::croak("The encoding pragma is no longer supported");
+            Carp::croak("The encoding pragma is no longer supported. Check cperl");
         }
         warnings::warnif("deprecated",$deprecate) if $deprecate;
 
