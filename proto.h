@@ -86,12 +86,15 @@ PERL_CALLCONV bool	Perl__is_uni_perl_idstart(pTHX_ UV c)
 			__attribute__global__
 			__attribute__warn_unused_result__;
 
-PERL_CALLCONV bool	Perl__is_utf8_FOO(pTHX_ const U8 classnum, const U8 *p)
+PERL_CALLCONV bool	Perl__is_utf8_FOO(pTHX_ U8 classnum, const U8 * const p, const char * const name, const char * const alternative, const bool use_utf8, const bool use_locale, const char * const file, const unsigned line)
 			__attribute__global__
 			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_2);
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_4)
+			__attribute__nonnull__(pTHX_7);
 #define PERL_ARGS_ASSERT__IS_UTF8_FOO	\
-	assert(p)
+	assert(p); assert(name); assert(alternative); assert(file)
 
 PERL_CALLCONV bool	Perl__is_utf8_FOO_with_len(pTHX_ const U8 classnum, const U8 *p, const U8 * const e)
 			__attribute__global__
@@ -9271,10 +9274,6 @@ STATIC char*	S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s, cons
 #define PERL_ARGS_ASSERT_FIND_BYCLASS	\
 	assert(prog); assert(c); assert(s); assert(strend)
 
-PERL_CALLCONV bool	Perl_isFOO_lc(pTHX_ const U8 classnum, const U8 character)
-			__attribute__global__
-			__attribute__warn_unused_result__;
-
 STATIC bool	S_isFOO_utf8_lc(pTHX_ const U8 classnum, const U8* character)
 			__attribute__global__
 			__attribute__warn_unused_result__
@@ -9417,6 +9416,12 @@ STATIC void	S_to_utf8_substr(pTHX_ regexp * prog)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_TO_UTF8_SUBSTR	\
 	assert(prog)
+
+#endif
+#if defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C)
+PERL_CALLCONV bool	Perl_isFOO_lc(pTHX_ const U8 classnum, const U8 character)
+			__attribute__global__
+			__attribute__warn_unused_result__;
 
 #endif
 #if defined(PERL_IN_SCOPE_C)
@@ -9913,6 +9918,13 @@ STATIC void	S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv)
 
 STATIC char*	S_uvuni_get_script(pTHX_ const UV uv)
 			__attribute__warn_unused_result__;
+
+STATIC void	S_warn_on_first_deprecated_use(pTHX_ const char * const name, const char * const alternative, const bool use_locale, const char * const file, const unsigned line)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_4);
+#define PERL_ARGS_ASSERT_WARN_ON_FIRST_DEPRECATED_USE	\
+	assert(name); assert(alternative); assert(file)
 
 #endif
 #if defined(PERL_IN_UTF8_C) || defined(PERL_IN_PP_C)

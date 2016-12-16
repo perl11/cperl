@@ -821,7 +821,11 @@ AmndP	|bool	|is_utf8_valid_partial_char				    \
 AnidR	|bool	|is_utf8_valid_partial_char_flags			    \
 		|NN const U8 * const s|NN const U8 * const e|const U32 flags
 AMpR	|bool	|_is_uni_FOO		|const U8 classnum|const UV c
-AMpR	|bool	|_is_utf8_FOO		|const U8 classnum|NN const U8 *p
+AMpR	|bool	|_is_utf8_FOO		|U8 classnum|NN const U8 * const p  \
+		|NN const char * const name				    \
+		|NN const char * const alternative			    \
+		|const bool use_utf8|const bool use_locale		    \
+		|NN const char * const file|const unsigned line
 AMpR	|bool	|_is_utf8_FOO_with_len	|const U8 classnum|NN const U8 *p   \
 		|NN const U8 * const e
 ADMpR	|bool	|is_utf8_alnum		|NN const U8 *p
@@ -1758,6 +1762,12 @@ sMR	|char *	|unexpected_non_continuation_text			\
 		|const STRLEN non_cont_byte_pos				\
 		|const STRLEN expect_len
 sM	|char *	|_byte_dump_string|NN const U8 * s|const STRLEN len
+s	|void	|warn_on_first_deprecated_use				    \
+				|NN const char * const name		    \
+				|NN const char * const alternative	    \
+				|const bool use_locale			    \
+				|NN const char * const file		    \
+				|const unsigned line
 s	|UV	|_to_utf8_case  |const UV uv1					\
 				|NN const U8 *p					\
 				|NN U8* ustrp					\
@@ -2499,8 +2509,10 @@ Es	|U8	|regtail_study	|NN RExC_state_t *pRExC_state \
 #  endif
 #endif
 
-#if defined(PERL_IN_REGEXEC_C)
+#if defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C)
 EXRpM	|bool	|isFOO_lc	|const U8 classnum|const U8 character
+#endif
+#if defined(PERL_IN_REGEXEC_C)
 ERs	|bool	|isFOO_utf8_lc	|const U8 classnum|NN const U8* character
 ERs	|SSize_t|regmatch	|NN regmatch_info *reginfo|NN char *startpos|NN regnode *prog
 WERs	|I32	|regrepeat	|NN regexp *prog|NN char **startposp \
