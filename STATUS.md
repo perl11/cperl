@@ -38,7 +38,7 @@ All tests pass. CPAN works.
 
 Some fixes in my `rurban/distroprefs` repo for certain CPAN modules are needed.
 
-For 5.24.1c with some modernized core modules some signatures are
+Since 5.24.1c with some modernized core modules some signatures are
 pretty strictly typed to catch wrong usages and enforce better code.
 See the `Test::More::skip()` [FAQ](https://github.com/perl11/cperl/issues/153#issuecomment-224515895) or below.
 Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
@@ -360,7 +360,8 @@ They also revert some wrong decisions p5p already made.
 
 * various more hash tables:
 
-featurex/gh24-one-word-ahe featurex/gh24-open-hash
+[featurex/gh24-one-word-ahe](http://github.com/perl11/cperl/commits/featurex/gh24-one-word-ahe)
+[featurex/gh24-open-hash](http://github.com/perl11/cperl/commits/featurex/gh24-open-hash)
 
 ## Soon
 

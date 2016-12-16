@@ -10307,7 +10307,7 @@ S_scan_inputsymbol(pTHX_ char *start)
     */
     if (*d == '$' && d[1]) d++;
 
-    /* allow <Pkg::VALUE> and until 5.25.2 <Pkg'VALUE> */
+    /* allow <Pkg::VALUE> and until 5.25.3 <Pkg'VALUE> */
     while (*d && (isWORDCHAR_lazy_if(d,UTF) || *d == ':'
 #ifndef PERL_NO_QUOTE_PKGSEPERATOR
                   || *d == '\''
