@@ -606,6 +606,7 @@ the strings?).
  rurban    5.24.0c-RC5  2016-Jul-19
  rurban    5.24.0c      2016-Jul-28
  rurban    5.24.1c      2016-Oct-13
+ rurban    5.24.2c      2016-Dec-16
 
  Ricardo   5.25.0       2016-May-09     The 5.25 development track
  Sawyer X  5.25.1       2016-May-20
@@ -616,11 +617,12 @@ the strings?).
 
  rurban    5.25.0c      2016-Aug-07
  rurban    5.25.1c      2016-Oct-16
+ rurban    5.25.2c      2016-Dec-13
 
 =head2 SELECTED RELEASE MEMORY USAGE
 
 Size in memory measured with massif for B<perl -e0> for most major
-releases, non-threaded.
+releases, non-threaded. (I<m0>)
 
   release       memory usage
   ==========================
@@ -631,19 +633,15 @@ releases, non-threaded.
   5.12.5	112494
   5.14.4	115511
   5.16.3	118067
-  5.18.4	122128
-  5.20.2	127253
-  5.22.1	127970
-  5.22.1c	118640
-  5.22.2c	115015
+  5.18.4	121992
+  5.20.3	127223
+  5.22.2	127961
   5.22.4c	150722
   5.24.0	127363
-  5.24.0c	140068
-  5.24.1c	140084
-  5.25.0c	140068
-  5.25.1c	139732
+  5.24.2c	140041
+  5.25.2c	139482
 
-For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags>:
+For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags> (I<p0>):
 
   release       memory usage
   ==========================
@@ -655,23 +653,15 @@ For B<perl -MConfig -Mstrict -Mwarnings -V:ccflags>:
   5.12.5	656194
   5.14.4	718838
   5.16.3	734030
-  5.18.2	878407
-  5.20.0	891716
-  5.20.2	882824
-  5.21.9	936898
-  5.21.10	918720
-  5.21.11	888951
-  5.22.0	888978
-  5.22.1c	595302
-  5.22.2c	641251
+  5.18.4	800224
+  5.20.3	838428
+  5.22.2	812375
   5.22.4c	596665
   5.24.0	825211
-  5.24.0c	599835
-  5.24.1c	602459
-  5.25.0c	599835
-  5.25.1c	602278
+  5.24.2c	602570
+  5.25.2c	601482
 
-With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'>:
+With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'> (I<p1>):
 
   release       memory usage
   ==========================
@@ -683,17 +673,13 @@ With unicode: B<perl -C -E'use utf8; my $s="x≈x"; $s=~s/a≈e//i;'>:
   5.12.5	1693931
   5.14.4	1719327
   5.16.3	1941590
-  5.18.2	2338119
-  5.20.2	2451474
-  5.22.0	2616925
-  5.22.1c	2616792
-  5.22.2c	1643170
+  5.18.4	2313133
+  5.20.3	2328494
+  5.22.2	2498574
   5.22.4c	2536098
   5.24.0	2563329
-  5.24.0c	2546138
-  5.24.1c	2546554
-  5.25.0c	2546217
-  5.25.1c	2544751
+  5.24.2c	2546608
+  5.25.2c	2589496
 
     valgrind --tool=massif --massif-out-file=massif.$r ...
     grep -h mem_heap_B= massif.$r |cut -c12-|sort -rn|head -n1

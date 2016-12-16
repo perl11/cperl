@@ -30,9 +30,8 @@ on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 
 The current stable release is
-  [5.24.1c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.1) - [perl5241cdelta](perl5241cdelta.html),
-the latest development release [5.25.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.25.2) - [perl5250cdelta](perl5252cdelta.html).
-See the current changelog [cperlcdelta](perlcdelta.html).
+  [5.24.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.2) - [perl5242cdelta](perl5242cdelta.html),
+the latest development release [5.25.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.25.2) - [perl5252cdelta](perl5252cdelta.html).
 We also have [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
 
 All tests pass. CPAN works.
@@ -52,10 +51,8 @@ the patches are all provided in my
 upgrade is seemless.  E.g. Test2 (the new Test::Simple) broke >15
 modules without any patches.
 
-cperl-5.24.0c and cperl-5.24.1c have [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere),
-for problems which are not fixed in perl-5.24.1.
-Ditto cperl-5.22.4c has about 20 fixes which are not in the latest
-perl-5.22.3.
+v5.24.0c, v5.24.1c and v5.24.2c have [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere), for problems which are not fixed in perl-5.24.1.
+Ditto cperl-5.22.4c has about 20 fixes which are not in the latest perl-5.22.3.
 
 ![Memory usage: perl -e0](cperl-m0.png)
 
@@ -90,7 +87,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * improved build system (make -s, faster, CC vs LD confusion)
 * hash keys keep the tainted info. see [perlsec](http://perldoc.perl.org/perlsec.html#Taint-mode)
   There are no known taint loopholes anymore.
-* fix ops using lexical `$_`. The lexical topic feature is supported.
+* fixes ops and modules using lexical `$_`. The lexical topic feature is supported.
 * readonly packages can be cloned with threads.
 * security and overlarge data fixes for Storable, YAML not yet.
 * include B-C, Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
@@ -110,11 +107,11 @@ For all versions see [bench-all/](bench-all/index.html)
 * special handling for security warnings: protect against hash flood DoS. Warn on
   all known public attacks, as metasploit bind/reverse shells or the Storable attack
   with the new `warn_security` API.
-  Since 5.25.2 such security warnings are logged at STDERR/syslog with the
+  Since v5.25.1c such security warnings are logged at STDERR/syslog with the
   remote user/IP.
 * Support clang LTO "link time optimizations", using proper linkage attributes.
   -fsanitize=cfi instead of -fstack-protector not yet.
-* Reproducible builds
+* Reproducible builds are default since v5.25.2c
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
@@ -373,4 +370,4 @@ featurex/gh24-one-word-ahe featurex/gh24-open-hash
 
 * builtin ffi
 
-2016-10-13 rurban
+2016-12-16 rurban
