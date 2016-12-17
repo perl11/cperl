@@ -11282,7 +11282,7 @@ Perl_ck_require(pTHX_ OP *o)
 	char *s;
 	STRLEN len;
 
-	if (IS_CONST_OP(kid)) {
+        if (IS_CONST_OP(kid)) {
             SV * const sv = kid->op_sv;
             U32 const was_readonly = SvREADONLY(sv);
             if (kid->op_private & OPpCONST_BARE) {
@@ -11315,15 +11315,18 @@ Perl_ck_require(pTHX_ OP *o)
                 }
                 SvEND_set(sv, end);
                 sv_catpvs(sv, ".pm");
+                s = SvPVX(sv);
+                len = SvCUR(sv);
 
-                if (disallowed) {
+                if (disallowed)
                     Perl_croak(aTHX_ "Bareword in require maps to disallowed filename \"%s\"",
-                               SvPVX(sv));
-                }
-                PERL_HASH(hash, SvPVX(sv), SvCUR(sv));
-                if (UNLIKELY(SvCUR(sv) > I32_MAX))
-                    Perl_croak(aTHX_ "panic: name too long (%" UVuf ")", (UV)SvCUR(sv));
-                hek = share_hek(SvPVX(sv),(I32)SvCUR(sv) * (SvUTF8(sv) ? -1 : 1), hash);
+                               s);
+
+            share_hek:
+                PERL_HASH(hash, s, len);
+                if (UNLIKELY(len > I32_MAX))
+                    Perl_croak(aTHX_ "panic: name too long (%" UVuf ")", (UV)len);
+                hek = share_hek(s, (I32)len * (SvUTF8(sv) ? -1 : 1), hash);
                 sv_sethek(sv, hek);
                 unshare_hek(hek);
                 SvFLAGS(sv) |= was_readonly;
@@ -11338,13 +11341,7 @@ Perl_ck_require(pTHX_ OP *o)
                 else {
                     dVAR;
                     if (was_readonly) SvREADONLY_off(sv);
-                    PERL_HASH(hash, s, len);
-                    if (UNLIKELY(len > I32_MAX))
-                        Perl_croak(aTHX_ "panic: name too long (%" UVuf ")", (UV)len);
-                    hek = share_hek(s, SvUTF8(sv) ? -(I32)len : (I32)len, hash);
-                    sv_sethek(sv, hek);
-                    unshare_hek(hek);
-                    SvFLAGS(sv) |= was_readonly;
+                    goto share_hek;
                 }
             }
 	}

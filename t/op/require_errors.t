@@ -29,7 +29,7 @@ for my $file ("::$nonfile", "::$nonfile\::bar") {
     eval "require $file";
 
     like $@, qr/^Bareword in require maps to disallowed filename/,
-    "correct error message for require $file";
+      "correct error message for require $file";
 }
 
 eval {
