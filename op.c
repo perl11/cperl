@@ -7416,7 +7416,7 @@ S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
 	}
     }
 
-    if (!other)
+    if (UNLIKELY(!other))
 	return first;
 
     /* optimize AND and OR ops that have NOTs as children */
