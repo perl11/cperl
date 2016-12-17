@@ -79,18 +79,6 @@ int putenv(char *);
 
 #define FLUSH
 
-/* global visibility needed for lto and -fvisibility=hidden on some archs,
-   when being optimized away */
-#if defined(__APPLE__) && defined(__clang__) && !defined(__apple_build_version__)
-# if defined(LTO) && ((100*__clang_major__ + __clang_minor__) >= 307) /*&& __has_feature(cfi)*/
-/* disable it */
-#warning disable setenv for lto
-# undef HAS_SETENV
-int setenv(const char *, const char *, int) __attribute__global__;
-pid_t getpid(void) __attribute__global__;
-# endif
-#endif
-
 /* NOTE:  Do not call the next three routines directly.  Use the macros
  * in handy.h, so that we can easily redefine everything to do tracking of
  * allocated hunks back to the original New to track down any memory leaks.
