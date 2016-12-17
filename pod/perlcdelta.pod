@@ -153,6 +153,10 @@ XXX
 
 Fixes for PERL_OP_PARENT: moresib, sibling, parent.
 
+=item Carp 1.41c
+
+Handle chunk errors phrases
+
 =back
 
 =head2 Removed Modules and Pragmata
