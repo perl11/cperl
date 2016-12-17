@@ -24,13 +24,18 @@ $skip{PL_memory_debug_header}= 1; # skipped in makedef
 
 my $nm = $Config{nm};
 # clang lto needs the llvm nm
-if ($Config{ccflags} =~ /-flto/ and $Config{incpth} =~ m|/clang/|) {
+if (($Config{ccflags} =~ /-flto/ or $Config{cc} =~ /-flto/)
+    and $Config{incpth} =~ m|/clang/|)
+{
     my ($versuffix);
-    $nm = `which llvm-nm`; chomp $nm;
-    ($versuffix) = $Config{cc} =~ /clang-((?:mp-)?\d.\d)/;
-    $nm = `which llvm-nm-$versuffix` if $versuffix and !$nm;
-    chomp $nm;
-    $nm .= " -B";
+    ($versuffix) = $Config{cc} =~ /clang-((?:mp-)?(?:\d.\d|devel))/;
+    $nm = `which llvm-nm-$versuffix` if $versuffix;
+    if ($nm) {
+        chomp $nm;
+    } else {
+        $nm = `which llvm-nm`; chomp $nm;
+    }
+    $nm .= " -B" if $nm;
 }
 my @nm = split / /, $nm;
 
