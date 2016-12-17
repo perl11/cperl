@@ -108,16 +108,20 @@ as an updated module in the L</Modules and Pragmata> section.
 
 =head1 Performance Enhancements
 
-XXX Changes which enhance performance without changing behaviour go here.
-There may well be none in a stable release.
-
-[ List each enhancement as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Bareword constant strings are now permitted to take part in constant
+folding. They were originally exempted from constant folding in August 1999,
+during the development of Perl 5.6, to ensure that C<use strict "subs">
+would still apply to bareword constants. That has now been accomplished a
+different way, so barewords, like other constants, now gain the performance
+benefits of constant folding.
+
+This also means that void-context warnings on constant expressions of
+barewords now report the folded constant operand, rather than the operation;
+this matches the behaviour for non-bareword constants.
 
 =back
 
