@@ -726,8 +726,7 @@ sub cc_queue {
     # curse in sv_clean_objs() checks for ->op_next->op_type
     $fakeop_next = $start->next->save;
   }
-  my $fakeop = B::FAKEOP->new( "next" => $fakeop_next, sibling => 0, ppaddr => $name,
-                               targ=>0, type=>0, flags=>0, private=>0);
+  my $fakeop = B::FAKEOP->new( "next" => $fakeop_next, ppaddr => $name );
   $start = $fakeop->save;
   debug "cc_queue: name $name returns $start\n" if $debug{queue};
   return $start;

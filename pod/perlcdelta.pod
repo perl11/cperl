@@ -145,9 +145,9 @@ XXX
 
 =over 4
 
-=item *
+=item B-C 1.54_16
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+Fixes for PERL_OP_PARENT: moresib, sibling, parent.
 
 =back
 

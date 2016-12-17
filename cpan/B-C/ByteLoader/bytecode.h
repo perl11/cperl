@@ -845,9 +845,12 @@ static int bget_swab = 0;
   } STMT_END
 #endif
 
+#ifndef _OP_SIBPARENT_FIELDNAME
+#  define _OP_SIBPARENT_FIELDNAME op_sibling
+#endif
 #ifndef OpSIBLING
-#  define OpSIBLING(o)        (o)->op_sibling
-#  define OpSIBLING_set(o, v) (o)->op_sibling = (v)
+#  define OpSIBLING(o)        (o)->_OP_SIBPARENT_FIELDNAME
+#  define OpSIBLING_set(o, v) (o)->_OP_SIBPARENT_FIELDNAME = (v)
 #  define OpMAYBESIB_set(o, s, p) OpSIBLING_set(o, s)
 #else
 #  ifndef OpSIBLING_set

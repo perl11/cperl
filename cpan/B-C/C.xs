@@ -21,6 +21,9 @@
 #ifndef RX_EXTFLAGS
 # define RX_EXTFLAGS(prog) ((prog)->extflags)
 #endif
+#ifndef _OP_SIBPARENT_FIELDNAME
+# define _OP_SIBPARENT_FIELDNAME op_sibling
+#endif
 
 #if PERL_VERSION < 10
 #undef  MY_CXT_INIT
@@ -180,7 +183,7 @@ my_runops(pTHX)
             Copy( PL_op, op, 1, PMOP );
             /* we need just the flags */
             op->op_next = NULL;
-            op->op_sibling = NULL;
+            op->_OP_SIBPARENT_FIELDNAME = NULL;
             op->op_first = NULL;
             op->op_last = NULL;
 

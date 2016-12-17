@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_15';
+our $VERSION = '1.54_16';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -530,6 +530,7 @@ my $MULTI = $Config{usemultiplicity};
 my $ITHREADS = $Config{useithreads};
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
 my $DEBUG_LEAKING_SCALARS = $Config{ccflags} =~ m/-DDEBUG_LEAKING_SCALARS/;
+my $CPERL56  = ( $Config{usecperl} and $] >= 5.025003 ); #sibparent, xpad_cop_seq
 my $CPERL55  = ( $Config{usecperl} and $] >= 5.025001 ); #HVMAX_T, RITER_T, ...
 my $CPERL52  = ( $Config{usecperl} and $] >= 5.022002 ); #sv_objcount, AvSTATIC, sigs
 my $CPERL51  = ( $Config{usecperl} );
@@ -547,6 +548,10 @@ my $HAVE_DLFCN_DLOPEN = $Config{i_dlfcn} && $Config{d_dlopen};
 # %Lu is not supported on older 32bit systems
 my $u32fmt = $Config{ivsize} == 4 ? "%lu" : "%u";
 sub IS_MSVC () { $^O eq 'MSWin32' and $Config{cc} eq 'cl' }
+my $have_sibparent = ($] >= 5.025006
+  or $Config{ccflags} =~ /-DPERL_OP_PARENT/
+  or ($CPERL55 && $] >= 5.025003)) ? 1 : 0;
+
 my @threadsv_names;
 
 BEGIN {
@@ -1365,6 +1370,7 @@ $isa_cache{'B::OBJECT::can'} = 'UNIVERSAL';
 my $opsect_common =
   "next, sibling, ppaddr, " . ( $MAD ? "madprop, " : "" ) . "targ, type, ";
 #$opsect_common =~ s/, sibling/, _OP_SIBPARENT_FIELDNAME/ if $] > 5.021007;
+$opsect_common =~ s/, sibling/, sibparent/ if $have_sibparent;
 {
 
   # For 5.8:
@@ -1422,26 +1428,41 @@ my $opsect_common =
     $opsect_common .= "opt, slabbed, savefree, static, folded, spare";
   }
   elsif ($] < 5.0210011) {
-    $static = '0, 0, 0, 1, 0, 0, 0';
+    $static = '0, 0, 0, 1, 0, %d, 0';
     $opsect_common .= "opt, slabbed, savefree, static, folded, lastsib, spare";
   }
   else {
-    $static = '0, 0, 0, 1, 0, 0, 0';
+    $static = '0, 0, 0, 1, 0, %d, 0';
     $opsect_common .= "opt, slabbed, savefree, static, folded, moresib, spare";
   }
 
   sub B::OP::_save_common_middle {
     my $op = shift;
     my $madprop = $MAD ? "0," : "";
+    my $ret;
+    if ($static =~ / %d,/) {
+      my $has_sib;
+      if (ref($op) eq 'B::FAKEOP') {
+        $has_sib = 0;
+      } elsif ($] < 5.0210011) {
+        $has_sib = $op->lastsib;
+      } else {
+        $has_sib = $op->moresib;
+      }
+      $ret = sprintf( "%s, %s %u, %u, $static, 0x%x, 0x%x",
+                      $op->fake_ppaddr, $madprop, $op->targ, $op->type,
+                      $has_sib,
+                      $op->flags, $op->private );
+    } else {
+      $ret = sprintf( "%s, %s %u, %u, $static, 0x%x, 0x%x",
+                      $op->fake_ppaddr, $madprop, $op->targ, $op->type,
+                      $op->flags, $op->private );
+    }
     # XXX maybe add a ix=opindex string for debugging if $debug{flags}
     if ($B::C::Config::have_op_rettype) {
-      sprintf( "%s,%s %u, %u, $static, 0x%x, 0x%x, 0x%x",
-               $op->fake_ppaddr, $madprop, $op->targ, $op->type, $op->flags, $op->private,
-               $op->rettype );
-    } else {
-      sprintf( "%s,%s %u, %u, $static, 0x%x, 0x%x",
-               $op->fake_ppaddr, $madprop, $op->targ, $op->type, $op->flags, $op->private );
+      $ret .= sprintf(", 0x%x", $op->rettype);
     }
+    $ret;
   }
   $opsect_common .= ", flags, private";
   if ($B::C::Config::have_op_rettype) {
@@ -1482,13 +1503,20 @@ sub B::OP::_save_common {
       warn "package_pv for method_name not found\n" if $debug{cv};
     }
   }
-  #if ($op->type == $OP_CUSTOM) {
-  #  warn sprintf("CUSTOM OP %s\n", $op->name) if $verbose;
-  #}
+  if ($op->type == $OP_CUSTOM) {
+    warn sprintf("CUSTOM OP %s $op\n", $op->name) if $verbose;
+  }
   # $prev_op = $op;
+  my $sibling;
+  if ($have_sibparent and !$op->moresib) { # HAS_SIBLING
+    $sibling = $op->parent;
+    warn "sibparent ",$op->name," $sibling\n" if $verbose and $debug{op};
+  } else {
+    $sibling = $op->sibling;
+  }
   return sprintf( "s\\_%x, s\\_%x, %s",
                   ${ $op->next },
-                  ${ $op->sibling },
+                  $$sibling,
                   $op->_save_common_middle
                 );
 }
@@ -1621,6 +1649,8 @@ sub save {
 sub next    { $_[0]->{"next"}  || 0 }
 sub type    { $_[0]->{type}    || 0 }
 sub sibling { $_[0]->{sibling} || 0 }
+sub moresib { $_[0]->{moresib} || 0 }
+sub parent  { $_[0]->{parent}  || 0 }
 sub ppaddr  { $_[0]->{ppaddr}  || 0 }
 sub targ    { $_[0]->{targ}    || 0 }
 sub flags   { $_[0]->{flags}   || 0 }
