@@ -11,10 +11,6 @@ BEGIN {
         print "1..0 # Skip -- need perlio to walk the optree\n";
         exit 0;
     }
-    if (($Config::Config{'usecperl'}) ){
-        print "1..0 # Skip -- cperl padranges TODO\n";
-        exit 0;
-    }
 }
 use OptreeCheck;
 use Config;
@@ -27,12 +23,12 @@ checkOptree ( name	=> 'sub {my $a}',
 	      code	=> sub {my $a},
 	      strip_open_hints => 1,
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
-# 1  <;> nextstate(main 45 optree.t:23) v:>,<,%
-# 2  <0> padsv[$a 45,46] sM/LVINTRO
+# 1  <;> nextstate(main 1611 optree.t:23) v:>,<,%
+# 2  <0> padsv[$a 1611,1612] sM/LVINTRO
 # 3  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
-# 1  <;> nextstate(main 45 optree.t:23) v:>,<,%
-# 2  <0> padsv[$a 45,46] sM/LVINTRO
+# 1  <;> nextstate(main 1611 optree.t:23) v:>,<,%
+# 2  <0> padsv[$a 1611,1612] sM/LVINTRO
 # 3  <1> leavesub[1 ref] K/REFC,1
 EONT_EONT
 
@@ -42,11 +38,11 @@ checkOptree ( name	=> '-exec sub {my $a}',
 	      strip_open_hints => 1,
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
 # 1  <;> nextstate(main 49 optree.t:52) v:>,<,%
-# 2  <0> padsv[$a 49,50] sM/LVINTRO
+# 2  <0> padsv[$a 1614,1615] sM/LVINTRO
 # 3  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
 # 1  <;> nextstate(main 49 optree.t:45) v:>,<,%
-# 2  <0> padsv[$a 49,50] sM/LVINTRO
+# 2  <0> padsv[$a 1614,1615] sM/LVINTRO
 # 3  <1> leavesub[1 ref] K/REFC,1
 EONT_EONT
 
@@ -143,14 +139,14 @@ checkOptree ( name	=> 'sub {my $a=undef}',
 1        <;> nextstate(main 641 optree_varinit.t:130) v:>,<,% ->2
 4        <2> sassign sKS/2 ->5
 2           <0> undef s ->3
-3           <0> padsv[$a 641,642] sRM*/LVINTRO ->4
+3           <0> padsv[$a 1622,1623] sRM*/LVINTRO ->4
 EOT_EOT
 # 5  <1> leavesub[1 ref] K/REFC,1 ->(end)
 # -     <@> lineseq KP ->5
 # 1        <;> nextstate(main 641 optree_varinit.t:130) v:>,<,% ->2
 # 4        <2> sassign sKS/2 ->5
 # 2           <0> undef s ->3
-# 3           <0> padsv[$a 641,642] sRM*/LVINTRO ->4
+# 3           <0> padsv[$a 1622,1623] sRM*/LVINTRO ->4
 EONT_EONT
 
 checkOptree ( name	=> 'sub {our $a=undef}',
@@ -271,15 +267,15 @@ checkOptree ( name	=> 'sub {my $a=()}',
 	      bcopts	=> '-exec',
 	      strip_open_hints => 1,
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
-1  <;> nextstate(main -439 optree.t:105) v:>,<,%
+1  <;> nextstate(main 1630 optree.t:105) v:>,<,%
 2  <0> stub sP
-3  <0> padsv[$a -439,-438] sRM*/LVINTRO
+3  <0> padsv[$a 1630,1631] sRM*/LVINTRO
 4  <2> sassign sKS/2
 5  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
-# 1  <;> nextstate(main 438 optree_varinit.t:247) v:>,<,%
+# 1  <;> nextstate(main 1630 optree_varinit.t:247) v:>,<,%
 # 2  <0> stub sP
-# 3  <0> padsv[$a 438,439] sRM*/LVINTRO
+# 3  <0> padsv[$a 1630,1631] sRM*/LVINTRO
 # 4  <2> sassign sKS/2
 # 5  <1> leavesub[1 ref] K/REFC,1
 EONT_EONT

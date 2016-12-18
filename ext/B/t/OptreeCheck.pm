@@ -5,7 +5,7 @@ use warnings;
 use vars qw($TODO $Level $using_open);
 require "test.pl";
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 
 # now export checkOptree, and those test.pl functions used by tests
 our @EXPORT = qw( checkOptree plan skip skip_all pass is like unlike
@@ -706,7 +706,7 @@ sub mkCheckRex {
 		 .*			# all sorts of things follow it
 		 v			# The opening v
 		)
-		(?:(:>,<,%,\\\{)		# hints when open.pm is in force
+		(?:(:>,<,%,\\\{)	# hints when open.pm is in force
 		   |(:>,<,%))		# (two variations)
 		(\ ->(?:-|[0-9a-z]+))?
 		$
@@ -725,8 +725,8 @@ sub mkCheckRex {
     $str =~ s/(\d refs?)/\\d+ refs?/msg;		# 1 ref, 2+ refs (plural)
     $str =~ s/leavesub \[\d\]/leavesub [\\d]/msg;	# for -terse
     # wild pad targ values
-    $str =~ s/pad(sv|av|hv|range)\[(.+?) \d+,\d+\]/$1\[$2 \\d+,\\d+]/mg;
-    $str =~ s/(padrange\[.+?) \d+,\d+;/$1 \\d+,\\d+;/mg;
+    $str =~ s/(padsv|padav|padhv|padrange|aelemfast_lex)\[(.+?) \d+,\d+\]/$1\\[$2 \\d+,\\d+\\]/msg;
+    $str =~ s/(padrange\[.+?) \d+,\d+;/$1 \\d+,\\d+;/msg;
     #$str =~ s/(\s*)\n/\n/msg;				# trailing spaces
     
     croak "whitespace only reftext found for '$want': $tc->{name}"

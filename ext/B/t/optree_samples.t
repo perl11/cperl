@@ -11,10 +11,6 @@ BEGIN {
         print "1..0 # Skip -- need perlio to walk the optree\n";
         exit 0;
     }
-    if (($Config::Config{'usecperl'}) ){
-        print "1..0 # Skip -- cperl padranges TODO\n";
-        exit 0;
-    }
 }
 use OptreeCheck;
 use Config;
@@ -81,11 +77,11 @@ checkOptree ( name	=> '-basic (see above, with my $a = shift)',
 # 1        <;> nextstate(main 666 optree_samples.t:70) v:>,<,% ->2
 # 4        <2> sassign vKS/2 ->5
 # 2           <0> shift s* ->3
-# 3           <0> padsv[$a 666,670] sRM*/LVINTRO ->4
+# 3           <0> padsv[$a 1619,1626] sRM*/LVINTRO ->4
 # 5        <;> nextstate(main 670 optree_samples.t:71) v:>,<,% ->6
 # -        <1> null K/1 ->-
 # 7           <|> cond_expr(other->8) K/1 ->c
-# 6              <0> padsv[$a 666,670] s ->7
+# 6              <0> padsv[$a 1619,1626] s ->7
 # -              <@> scope K ->-
 # -                 <;> ex-nextstate(main 1603 optree_samples.t:70) v:>,<,% ->8
 # a                 <@> print sK ->b
@@ -103,11 +99,11 @@ EOT_EOT
 # 1        <;> nextstate(main 666 optree_samples.t:72) v:>,<,% ->2
 # 4        <2> sassign vKS/2 ->5
 # 2           <0> shift s* ->3
-# 3           <0> padsv[$a 666,670] sRM*/LVINTRO ->4
+# 3           <0> padsv[$a 1619,1626] sRM*/LVINTRO ->4
 # 5        <;> nextstate(main 670 optree_samples.t:73) v:>,<,% ->6
 # -        <1> null K/1 ->-
 # 7           <|> cond_expr(other->8) K/1 ->c
-# 6              <0> padsv[$a 666,670] s ->7
+# 6              <0> padsv[$a 1619,1626] s ->7
 # -              <@> scope K ->-
 # -                 <;> ex-nextstate(main 1603 optree_samples.t:70) v:>,<,% ->8
 # a                 <@> print sK ->b
@@ -169,10 +165,10 @@ checkOptree ( name	=> '-exec (see above, with my $a = shift)',
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
 # 1  <;> nextstate(main 675 optree_samples.t:165) v:>,<,%
 # 2  <0> shift s*
-# 3  <0> padsv[$a 675,679] sRM*/LVINTRO
+# 3  <0> padsv[$a 1636,1643] sRM*/LVINTRO
 # 4  <2> sassign vKS/2
 # 5  <;> nextstate(main 679 optree_samples.t:166) v:>,<,%
-# 6  <0> padsv[$a 675,679] s
+# 6  <0> padsv[$a 1636,1643] s
 # 7  <|> cond_expr(other->8) K/1
 # 8      <0> pushmark s
 # 9      <$> const[PV "foo"] s
@@ -188,10 +184,10 @@ checkOptree ( name	=> '-exec (see above, with my $a = shift)',
 EOT_EOT
 # 1  <;> nextstate(main 675 optree_samples.t:171) v:>,<,%
 # 2  <0> shift s*
-# 3  <0> padsv[$a 675,679] sRM*/LVINTRO
+# 3  <0> padsv[$a 1636,1643] sRM*/LVINTRO
 # 4  <2> sassign vKS/2
 # 5  <;> nextstate(main 679 optree_samples.t:172) v:>,<,%
-# 6  <0> padsv[$a 675,679] s
+# 6  <0> padsv[$a 1636,1643] s
 # 7  <|> cond_expr(other->8) K/1
 # 8      <0> pushmark s
 # 9      <$> const(PV "foo") s
@@ -245,7 +241,7 @@ checkOptree ( name	=> '-exec sub { foreach (1..10) {print "foo $_"} }',
 # 4  <$> const[IV 10] s
 # 5  <#> gv[*_] s
 # 6  <{> enteriter(next->d last->g redo->7) KS/DEF
-# e  <0> iter s
+# e  <0> iter_lazyiv s
 # f  <|> and(other->7) K/1
 # 7      <;> nextstate(main 442 optree.t:158) v:>,<,%
 # 8      <0> pushmark s
@@ -264,7 +260,7 @@ EOT_EOT
 # 4  <$> const(IV 10) s
 # 5  <$> gv(*_) s
 # 6  <{> enteriter(next->d last->g redo->7) KS/DEF
-# e  <0> iter s
+# e  <0> iter_lazyiv s
 # f  <|> and(other->7) K/1
 # 7      <;> nextstate(main 443 optree_samples.t:182) v:>,<,%
 # 8      <0> pushmark s
@@ -296,7 +292,7 @@ checkOptree ( name	=> '-basic sub { print "foo $_" foreach (1..10) }',
 # 5              <#> gv[*_] s ->6
 # -           <1> null K/1 ->f
 # e              <|> and(other->7) K/1 ->f
-# d                 <0> iter s ->e
+# d                 <0> iter_lazyiv s ->e
 # -                 <@> lineseq sK ->-
 # b                    <@> print vK ->c
 # 7                       <0> pushmark s ->8
@@ -321,7 +317,7 @@ EOT_EOT
 # 5              <$> gv(*_) s ->6
 # -           <1> null K/1 ->f
 # e              <|> and(other->7) K/1 ->f
-# d                 <0> iter s ->e
+# d                 <0> iter_lazyiv s ->e
 # -                 <@> lineseq sK ->-
 # b                    <@> print vK ->c
 # 7                       <0> pushmark s ->8
@@ -346,7 +342,7 @@ checkOptree ( name	=> '-exec -e foreach (1..10) {print qq{foo $_}}',
 # 5  <$> const[IV 10] s
 # 6  <#> gv[*_] s
 # 7  <{> enteriter(next->e last->h redo->8) vKS/DEF
-# f  <0> iter s
+# f  <0> iter_lazyiv s
 # g  <|> and(other->8) vK/1
 # 8      <;> nextstate(main 1 -e:1) v:>,<,%
 # 9      <0> pushmark s
@@ -366,7 +362,7 @@ EOT_EOT
 # 5  <$> const(IV 10) s
 # 6  <$> gv(*_) s
 # 7  <{> enteriter(next->e last->h redo->8) vKS/DEF
-# f  <0> iter s
+# f  <0> iter_lazyiv s
 # g  <|> and(other->8) vK/1
 # 8      <;> nextstate(main 1 -e:1) v:>,<,%
 # 9      <0> pushmark s
@@ -391,7 +387,7 @@ checkOptree ( name	=> '-exec sub { print "foo $_" foreach (1..10) }',
 # 4  <$> const[IV 10] s
 # 5  <#> gv[*_] s
 # 6  <{> enteriter(next->c last->f redo->7) KS/DEF
-# d  <0> iter s
+# d  <0> iter_lazyiv s
 # e  <|> and(other->7) K/1
 # 7      <0> pushmark s
 # 8      <$> const[PV "foo "] s
@@ -409,7 +405,7 @@ EOT_EOT
 # 4  <$> const(IV 10) s
 # 5  <$> gv(*_) s
 # 6  <{> enteriter(next->c last->f redo->7) KS/DEF
-# d  <0> iter s
+# d  <0> iter_lazyiv s
 # e  <|> and(other->7) K/1
 # 7      <0> pushmark s
 # 8      <$> const(PV "foo ") s
@@ -535,7 +531,7 @@ checkOptree ( name	=> '%h=(); for $_(@a){$h{getkey($_)} = $_}',
 # b  <#> gv[*_] s
 # c  <1> rv2gv sKRM/1
 # d  <{> enteriter(next->o last->r redo->e) KS/DEF
-# p  <0> iter s
+# p  <0> iter_ary s
 # q  <|> and(other->e) K/1
 # e      <;> nextstate(main 505 (eval 24):1) v:{
 # f      <#> gvsv[*_] s
@@ -566,7 +562,7 @@ EOT_EOT
 # b  <$> gv(*_) s
 # c  <1> rv2gv sKRM/1
 # d  <{> enteriter(next->o last->r redo->e) KS/DEF
-# p  <0> iter s
+# p  <0> iter_ary s
 # q  <|> and(other->e) K/1
 # e      <;> nextstate(main 505 (eval 24):1) v:{
 # f      <$> gvsv(*_) s
@@ -663,8 +659,8 @@ checkOptree ( name	=> 'if ($a || $b) { } return 1',
 # 2  <#> gvsv[*a] s
 # 3  <|> or(other->4) sK/1
 # 4      <#> gvsv[*b] s
-# 5      <|> and(other->6) vK/1
-# 6  <0> stub v
+# 5  <|> and(other->6) vK/1
+# 6      <0> stub v
 # 7  <;> nextstate(main 997 (eval 15):1) v
 # 8  <$> const[IV 1] s
 # 9  <1> leavesub[1 ref] K/REFC,1
@@ -673,8 +669,8 @@ EOT_EOT
 # 2  <$> gvsv(*a) s
 # 3  <|> or(other->4) sK/1
 # 4      <$> gvsv(*b) s
-# 5      <|> and(other->6) vK/1
-# 6  <0> stub v
+# 5  <|> and(other->6) vK/1
+# 6      <0> stub v
 # 7  <;> nextstate(main 3 (eval 3):1) v
 # 8  <$> const(IV 1) s
 # 9  <1> leavesub[1 ref] K/REFC,1
@@ -690,8 +686,8 @@ checkOptree ( name	=> 'unless ($a && $b) { } return 1',
 # 2  <#> gvsv[*a] s
 # 3  <|> and(other->4) sK/1
 # 4      <#> gvsv[*b] s
-# 5      <|> or(other->6) vK/1
-# 6  <0> stub v
+# 5  <|> or(other->6) vK/1
+# 6      <0> stub v
 # 7  <;> nextstate(main 997 (eval 15):1) v
 # 8  <$> const[IV 1] s
 # 9  <1> leavesub[1 ref] K/REFC,1
@@ -700,8 +696,8 @@ EOT_EOT
 # 2  <$> gvsv(*a) s
 # 3  <|> and(other->4) sK/1
 # 4      <$> gvsv(*b) s
-# 5      <|> or(other->6) vK/1
-# 6  <0> stub v
+# 5  <|> or(other->6) vK/1
+# 6      <0> stub v
 # 7  <;> nextstate(main 3 (eval 3):1) v
 # 8  <$> const(IV 1) s
 # 9  <1> leavesub[1 ref] K/REFC,1
@@ -714,13 +710,13 @@ checkOptree ( name	=> 'my $a; my @b; my %c; return 1',
 	      bcopts	=> '-exec',
 	      expect	=> <<'EOT_EOT', expect_nt => <<'EONT_EONT');
 # 1  <;> nextstate(main 991 (eval 17):1) v
-# 2  <0> padrange[$a 991,994; @b 992,994; %c 993,994] vM/LVINTRO,3
+# 2  <0> padrange[$a 1742,1745; @b 1743,1745; %c 1744,1745] vM/LVINTRO,3
 # 3  <;> nextstate(main 994 (eval 17):1) v:{
 # 4  <$> const[IV 1] s
 # 5  <1> leavesub[1 ref] K/REFC,1
 EOT_EOT
 # 1  <;> nextstate(main 991 (eval 17):1) v
-# 2  <0> padrange[$a 991,994; @b 992,994; %c 993,994] vM/LVINTRO,3
+# 2  <0> padrange[$a 1742,1745; @b 1743,1745; %c 1744,1745] vM/LVINTRO,3
 # 3  <;> nextstate(main 994 (eval 17):1) v:{
 # 4  <$> const(IV 1) s
 # 5  <1> leavesub[1 ref] K/REFC,1
