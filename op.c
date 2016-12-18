@@ -3097,7 +3097,7 @@ S_finalize_op(pTHX_ OP* o)
         for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid)) {
 #  ifdef PERL_OP_PARENT
             if (!OpHAS_SIBLING(kid)) {
-                if (has_last)
+                if (has_last && (ISNT_TYPE(o, SASSIGN) || OpLAST(o)))
                     assert(kid == OpLAST(o));
                 assert(kid->op_sibparent == o);
             }
