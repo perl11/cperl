@@ -4408,6 +4408,13 @@ test_isBLANK_LC_uvchr(UV ord)
         RETVAL
 
 bool
+test_isBLANK(UV ord)
+    CODE:
+        RETVAL = isBLANK(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isBLANK_A(UV ord)
     CODE:
         RETVAL = isBLANK_A(ord);
@@ -4471,6 +4478,13 @@ test_isUPPER_LC_uvchr(UV ord)
         RETVAL
 
 bool
+test_isUPPER(UV ord)
+    CODE:
+        RETVAL = isUPPER(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isUPPER_A(UV ord)
     CODE:
         RETVAL = isUPPER_A(ord);
@@ -4516,6 +4530,13 @@ bool
 test_isLOWER_LC_uvchr(UV ord)
     CODE:
         RETVAL = isLOWER_LC_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isLOWER(UV ord)
+    CODE:
+        RETVAL = isLOWER(ord);
     OUTPUT:
         RETVAL
 
@@ -4569,6 +4590,13 @@ test_isALPHA_LC_uvchr(UV ord)
         RETVAL
 
 bool
+test_isALPHA(UV ord)
+    CODE:
+        RETVAL = isALPHA(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isALPHA_A(UV ord)
     CODE:
         RETVAL = isALPHA_A(ord);
@@ -4614,6 +4642,13 @@ bool
 test_isWORDCHAR_LC_uvchr(UV ord)
     CODE:
         RETVAL = isWORDCHAR_LC_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isWORDCHAR(UV ord)
+    CODE:
+        RETVAL = isWORDCHAR(ord);
     OUTPUT:
         RETVAL
 
@@ -4667,6 +4702,13 @@ test_isALPHANUMERIC_LC_uvchr(UV ord)
         RETVAL
 
 bool
+test_isALPHANUMERIC(UV ord)
+    CODE:
+        RETVAL = isALPHANUMERIC(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isALPHANUMERIC_A(UV ord)
     CODE:
         RETVAL = isALPHANUMERIC_A(ord);
@@ -4698,6 +4740,13 @@ bool
 test_isALPHANUMERIC_LC_utf8(unsigned char * p)
     CODE:
         RETVAL = isALPHANUMERIC_LC_utf8( p);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isALNUM(UV ord)
+    CODE:
+        RETVAL = isALNUM(ord);
     OUTPUT:
         RETVAL
 
@@ -4765,6 +4814,13 @@ test_isDIGIT_LC_utf8(unsigned char * p)
         RETVAL
 
 bool
+test_isDIGIT(UV ord)
+    CODE:
+        RETVAL = isDIGIT(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isDIGIT_A(UV ord)
     CODE:
         RETVAL = isDIGIT_A(ord);
@@ -4782,6 +4838,13 @@ bool
 test_isDIGIT_LC(UV ord)
     CODE:
         RETVAL = isDIGIT_LC(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isOCTAL(UV ord)
+    CODE:
+        RETVAL = isOCTAL(ord);
     OUTPUT:
         RETVAL
 
@@ -4810,6 +4873,13 @@ bool
 test_isIDFIRST_LC_uvchr(UV ord)
     CODE:
         RETVAL = isIDFIRST_LC_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isIDFIRST(UV ord)
+    CODE:
+        RETVAL = isIDFIRST(ord);
     OUTPUT:
         RETVAL
 
@@ -4863,6 +4933,13 @@ test_isIDCONT_LC_uvchr(UV ord)
         RETVAL
 
 bool
+test_isIDCONT(UV ord)
+    CODE:
+        RETVAL = isIDCONT(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isIDCONT_A(UV ord)
     CODE:
         RETVAL = isIDCONT_A(ord);
@@ -4908,6 +4985,13 @@ bool
 test_isSPACE_LC_uvchr(UV ord)
     CODE:
         RETVAL = isSPACE_LC_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isSPACE(UV ord)
+    CODE:
+        RETVAL = isSPACE(ord);
     OUTPUT:
         RETVAL
 
@@ -4961,6 +5045,13 @@ test_isASCII_LC_uvchr(UV ord)
         RETVAL
 
 bool
+test_isASCII(UV ord)
+    CODE:
+        RETVAL = isASCII(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isASCII_A(UV ord)
     CODE:
         RETVAL = isASCII_A(ord);
@@ -5006,6 +5097,13 @@ bool
 test_isCNTRL_LC_uvchr(UV ord)
     CODE:
         RETVAL = isCNTRL_LC_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isCNTRL(UV ord)
+    CODE:
+        RETVAL = isCNTRL(ord);
     OUTPUT:
         RETVAL
 
@@ -5059,6 +5157,13 @@ test_isPRINT_LC_uvchr(UV ord)
         RETVAL
 
 bool
+test_isPRINT(UV ord)
+    CODE:
+        RETVAL = isPRINT(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isPRINT_A(UV ord)
     CODE:
         RETVAL = isPRINT_A(ord);
@@ -5104,6 +5209,13 @@ bool
 test_isGRAPH_LC_uvchr(UV ord)
     CODE:
         RETVAL = isGRAPH_LC_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isGRAPH(UV ord)
+    CODE:
+        RETVAL = isGRAPH(ord);
     OUTPUT:
         RETVAL
 
@@ -5157,6 +5269,13 @@ test_isPUNCT_LC_uvchr(UV ord)
         RETVAL
 
 bool
+test_isPUNCT(UV ord)
+    CODE:
+        RETVAL = isPUNCT(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isPUNCT_A(UV ord)
     CODE:
         RETVAL = isPUNCT_A(ord);
@@ -5206,6 +5325,13 @@ test_isXDIGIT_LC_uvchr(UV ord)
         RETVAL
 
 bool
+test_isXDIGIT(UV ord)
+    CODE:
+        RETVAL = isXDIGIT(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isXDIGIT_A(UV ord)
     CODE:
         RETVAL = isXDIGIT_A(ord);
@@ -5251,6 +5377,13 @@ bool
 test_isPSXSPC_LC_uvchr(UV ord)
     CODE:
         RETVAL = isPSXSPC_LC_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isPSXSPC(UV ord)
+    CODE:
+        RETVAL = isPSXSPC(ord);
     OUTPUT:
         RETVAL
 
