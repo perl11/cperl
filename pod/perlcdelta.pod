@@ -345,9 +345,11 @@ L</Modules and Pragmata> section.
 
 =over 4
 
-=item XXX-some-platform
+=item darwin
 
-XXX
+Fixed setting C<MACOSX_DEPLOYMENT_TARGET=10.3> for OS X 10.3.x - 10.5.x.
+This is irrelevant for cperl since cperl uses ldflags and cflags
+C<-mmacosx-version-min=10.x>
 
 =back
 
