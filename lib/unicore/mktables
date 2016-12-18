@@ -19620,7 +19620,8 @@ if (! $rebuild) {
     }
 }
 if (! $rebuild) {
-    print "$0: Files seem to be ok, not bothering to rebuild.  Add '-w' option to force build\n";
+    print "$0: Files seem to be ok, not bothering to rebuild.  Add '-w' option to force build\n"
+      unless (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/);
     exit(0);
 }
 print "$0: Must rebuild tables.\n" if $verbosity >= $VERBOSE;

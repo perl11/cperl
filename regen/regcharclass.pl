@@ -1699,14 +1699,6 @@ PATWS: pattern white space
 => generic cp : safe
 \p{_Perl_PatWS}
 
-LATIN_SCRIPT: Latin Script
-=> UTF8 :fast
-\p{Script=Latin}
-
-COMMON_SCRIPT: Common Script
-=> UTF8 :fast
-\p{Script=Common}
-
 LATIN_OR_COMMON_SCRIPT: Latin or Common Script
 => UTF8 :fast
 &regcharclass_multi_char_folds::latin_or_common()
