@@ -812,6 +812,16 @@ Returns the value of an ASCII-range hex digit and advances the string pointer.
 Behaviour is only well defined when isXDIGIT(*str) is true.
 
 =head1 Character case changing
+Perl uses "full" Unicode case mappings.  This means that converting a single
+character to another case may result in a sequence of more than one character.
+For example, the uppercase of C<E<223>> (LATIN SMALL LETTER SHARP S) is the two
+character sequence C<SS>.  This presents some complications   The lowercase of
+all characters in the range 0..255 is a single character, and thus
+C<L</toLOWER_L1>> is furnished.  But, C<toUPPER_L1> can't exist, as it couldn't
+return a valid result for all legal inputs.  Instead C<L</toUPPER_uvchr>> has
+an API that does allow every possible legal result to be returned.)  Likewise
+no other function that is crippled by not being able to give the correct
+results for the full range of possible inputs has been implemented here.
 
 =for apidoc Am|U8|toUPPER|U8 ch
 Converts the specified character to uppercase.  If the input is anything but an
@@ -826,7 +836,8 @@ that the buffer pointed to by C<s> needs to be at least C<UTF8_MAXBYTES_CASE+1>
 bytes since the uppercase version may be longer than the original character.
 
 The first code point of the uppercased version is returned
-(but note, as explained just above, that there may be more.)
+(but note, as explained at L<the top of this section|/Character case
+changing>, that there may be more.)
 
 =for apidoc Am|UV|toUPPER_utf8|U8* p|U8* s|STRLEN* lenp
 Converts the UTF-8 encoded character at C<p> to its uppercase version, and
@@ -835,7 +846,8 @@ that the buffer pointed to by C<s> needs to be at least C<UTF8_MAXBYTES_CASE+1>
 bytes since the uppercase version may be longer than the original character.
 
 The first code point of the uppercased version is returned
-(but note, as explained just above, that there may be more.)
+(but note, as explained at L<the top of this section|/Character case
+changing>, that there may be more).
 
 The input character at C<p> is assumed to be well-formed.
 
@@ -853,7 +865,8 @@ that the buffer pointed to by C<s> needs to be at least C<UTF8_MAXBYTES_CASE+1>
 bytes since the foldcase version may be longer than the original character.
 
 The first code point of the foldcased version is returned
-(but note, as explained just above, that there may be more.)
+(but note, as explained at L<the top of this section|/Character case
+changing>, that there may be more).
 
 =for apidoc Am|UV|toFOLD_utf8|U8* p|U8* s|STRLEN* lenp
 Converts the UTF-8 encoded character at C<p> to its foldcase version, and
@@ -862,7 +875,8 @@ that the buffer pointed to by C<s> needs to be at least C<UTF8_MAXBYTES_CASE+1>
 bytes since the foldcase version may be longer than the original character.
 
 The first code point of the foldcased version is returned
-(but note, as explained just above, that there may be more.)
+(but note, as explained at L<the top of this section|/Character case
+changing>, that there may be more).
 
 The input character at C<p> is assumed to be well-formed.
 
@@ -887,7 +901,8 @@ that the buffer pointed to by C<s> needs to be at least C<UTF8_MAXBYTES_CASE+1>
 bytes since the lowercase version may be longer than the original character.
 
 The first code point of the lowercased version is returned
-(but note, as explained just above, that there may be more.)
+(but note, as explained at L<the top of this section|/Character case
+changing>, that there may be more).
 
 =for apidoc Am|UV|toLOWER_utf8|U8* p|U8* s|STRLEN* lenp
 Converts the UTF-8 encoded character at C<p> to its lowercase version, and
@@ -896,7 +911,8 @@ that the buffer pointed to by C<s> needs to be at least C<UTF8_MAXBYTES_CASE+1>
 bytes since the lowercase version may be longer than the original character.
 
 The first code point of the lowercased version is returned
-(but note, as explained just above, that there may be more.)
+(but note, as explained at L<the top of this section|/Character case
+changing>, that there may be more).
 
 The input character at C<p> is assumed to be well-formed.
 
@@ -915,7 +931,8 @@ that the buffer pointed to by C<s> needs to be at least C<UTF8_MAXBYTES_CASE+1>
 bytes since the titlecase version may be longer than the original character.
 
 The first code point of the titlecased version is returned
-(but note, as explained just above, that there may be more.)
+(but note, as explained at L<the top of this section|/Character case
+changing>, that there may be more).
 
 =for apidoc Am|UV|toTITLE_utf8|U8* p|U8* s|STRLEN* lenp
 Converts the UTF-8 encoded character at C<p> to its titlecase version, and
@@ -924,7 +941,8 @@ that the buffer pointed to by C<s> needs to be at least C<UTF8_MAXBYTES_CASE+1>
 bytes since the titlecase version may be longer than the original character.
 
 The first code point of the titlecased version is returned
-(but note, as explained just above, that there may be more.)
+(but note, as explained at L<the top of this section|/Character case
+changing>, that there may be more).
 
 The input character at C<p> is assumed to be well-formed.
 
