@@ -4401,6 +4401,13 @@ test_isBLANK_uni(UV ord)
         RETVAL
 
 bool
+test_isBLANK_uvchr(UV ord)
+    CODE:
+        RETVAL = isBLANK_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isBLANK_LC_uvchr(UV ord)
     CODE:
         RETVAL = isBLANK_LC_uvchr(ord);
@@ -4457,6 +4464,13 @@ test_isVERTWS_uni(UV ord)
         RETVAL
 
 bool
+test_isVERTWS_uvchr(UV ord)
+    CODE:
+        RETVAL = isVERTWS_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isVERTWS_utf8(unsigned char * p)
     CODE:
         RETVAL = isVERTWS_utf8(p);
@@ -4467,6 +4481,13 @@ bool
 test_isUPPER_uni(UV ord)
     CODE:
         RETVAL = isUPPER_uni(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isUPPER_uvchr(UV ord)
+    CODE:
+        RETVAL = isUPPER_uvchr(ord);
     OUTPUT:
         RETVAL
 
@@ -4527,6 +4548,13 @@ test_isLOWER_uni(UV ord)
         RETVAL
 
 bool
+test_isLOWER_uvchr(UV ord)
+    CODE:
+        RETVAL = isLOWER_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isLOWER_LC_uvchr(UV ord)
     CODE:
         RETVAL = isLOWER_LC_uvchr(ord);
@@ -4579,6 +4607,13 @@ bool
 test_isALPHA_uni(UV ord)
     CODE:
         RETVAL = isALPHA_uni(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isALPHA_uvchr(UV ord)
+    CODE:
+        RETVAL = isALPHA_uvchr(ord);
     OUTPUT:
         RETVAL
 
@@ -4639,6 +4674,13 @@ test_isWORDCHAR_uni(UV ord)
         RETVAL
 
 bool
+test_isWORDCHAR_uvchr(UV ord)
+    CODE:
+        RETVAL = isWORDCHAR_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isWORDCHAR_LC_uvchr(UV ord)
     CODE:
         RETVAL = isWORDCHAR_LC_uvchr(ord);
@@ -4691,6 +4733,13 @@ bool
 test_isALPHANUMERIC_uni(UV ord)
     CODE:
         RETVAL = isALPHANUMERIC_uni(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isALPHANUMERIC_uvchr(UV ord)
+    CODE:
+        RETVAL = isALPHANUMERIC_uvchr(ord);
     OUTPUT:
         RETVAL
 
@@ -4793,6 +4842,13 @@ test_isDIGIT_uni(UV ord)
         RETVAL
 
 bool
+test_isDIGIT_uvchr(UV ord)
+    CODE:
+        RETVAL = isDIGIT_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isDIGIT_LC_uvchr(UV ord)
     CODE:
         RETVAL = isDIGIT_LC_uvchr(ord);
@@ -4870,6 +4926,13 @@ test_isIDFIRST_uni(UV ord)
         RETVAL
 
 bool
+test_isIDFIRST_uvchr(UV ord)
+    CODE:
+        RETVAL = isIDFIRST_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isIDFIRST_LC_uvchr(UV ord)
     CODE:
         RETVAL = isIDFIRST_LC_uvchr(ord);
@@ -4922,6 +4985,13 @@ bool
 test_isIDCONT_uni(UV ord)
     CODE:
         RETVAL = isIDCONT_uni(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isIDCONT_uvchr(UV ord)
+    CODE:
+        RETVAL = isIDCONT_uvchr(ord);
     OUTPUT:
         RETVAL
 
@@ -4982,6 +5052,13 @@ test_isSPACE_uni(UV ord)
         RETVAL
 
 bool
+test_isSPACE_uvchr(UV ord)
+    CODE:
+        RETVAL = isSPACE_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isSPACE_LC_uvchr(UV ord)
     CODE:
         RETVAL = isSPACE_LC_uvchr(ord);
@@ -5034,6 +5111,13 @@ bool
 test_isASCII_uni(UV ord)
     CODE:
         RETVAL = isASCII_uni(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isASCII_uvchr(UV ord)
+    CODE:
+        RETVAL = isASCII_uvchr(ord);
     OUTPUT:
         RETVAL
 
@@ -5094,6 +5178,13 @@ test_isCNTRL_uni(UV ord)
         RETVAL
 
 bool
+test_isCNTRL_uvchr(UV ord)
+    CODE:
+        RETVAL = isCNTRL_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isCNTRL_LC_uvchr(UV ord)
     CODE:
         RETVAL = isCNTRL_LC_uvchr(ord);
@@ -5146,6 +5237,13 @@ bool
 test_isPRINT_uni(UV ord)
     CODE:
         RETVAL = isPRINT_uni(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isPRINT_uvchr(UV ord)
+    CODE:
+        RETVAL = isPRINT_uvchr(ord);
     OUTPUT:
         RETVAL
 
@@ -5206,6 +5304,13 @@ test_isGRAPH_uni(UV ord)
         RETVAL
 
 bool
+test_isGRAPH_uvchr(UV ord)
+    CODE:
+        RETVAL = isGRAPH_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isGRAPH_LC_uvchr(UV ord)
     CODE:
         RETVAL = isGRAPH_LC_uvchr(ord);
@@ -5258,6 +5363,13 @@ bool
 test_isPUNCT_uni(UV ord)
     CODE:
         RETVAL = isPUNCT_uni(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isPUNCT_uvchr(UV ord)
+    CODE:
+        RETVAL = isPUNCT_uvchr(ord);
     OUTPUT:
         RETVAL
 
@@ -5318,6 +5430,13 @@ test_isXDIGIT_uni(UV ord)
         RETVAL
 
 bool
+test_isXDIGIT_uvchr(UV ord)
+    CODE:
+        RETVAL = isXDIGIT_uvchr(ord);
+    OUTPUT:
+        RETVAL
+
+bool
 test_isXDIGIT_LC_uvchr(UV ord)
     CODE:
         RETVAL = isXDIGIT_LC_uvchr(ord);
@@ -5370,6 +5489,13 @@ bool
 test_isPSXSPC_uni(UV ord)
     CODE:
         RETVAL = isPSXSPC_uni(ord);
+    OUTPUT:
+        RETVAL
+
+bool
+test_isPSXSPC_uvchr(UV ord)
+    CODE:
+        RETVAL = isPSXSPC_uvchr(ord);
     OUTPUT:
         RETVAL
 
@@ -5780,6 +5906,26 @@ test_toLOWER_uni(UV ord)
         RETVAL
 
 AV *
+test_toLOWER_uvchr(UV ord)
+    PREINIT:
+        U8 s[UTF8_MAXBYTES_CASE + 1];
+        STRLEN len;
+        AV *av;
+        SV *utf8;
+    CODE:
+        av = newAV();
+        av_push(av, newSVuv(toLOWER_uvchr(ord, s, &len)));
+
+        utf8 = newSVpvn((char *) s, len);
+        SvUTF8_on(utf8);
+        av_push(av, utf8);
+
+        av_push(av, newSVuv(len));
+        RETVAL = av;
+    OUTPUT:
+        RETVAL
+
+AV *
 test_toLOWER_utf8(SV * p)
     PREINIT:
         U8 *input;
@@ -5825,6 +5971,26 @@ test_toFOLD_uni(UV ord)
     CODE:
         av = newAV();
         av_push(av, newSVuv(toFOLD_uni(ord, s, &len)));
+
+        utf8 = newSVpvn((char *) s, len);
+        SvUTF8_on(utf8);
+        av_push(av, utf8);
+
+        av_push(av, newSVuv(len));
+        RETVAL = av;
+    OUTPUT:
+        RETVAL
+
+AV *
+test_toFOLD_uvchr(UV ord)
+    PREINIT:
+        U8 s[UTF8_MAXBYTES_CASE + 1];
+        STRLEN len;
+        AV *av;
+        SV *utf8;
+    CODE:
+        av = newAV();
+        av_push(av, newSVuv(toFOLD_uvchr(ord, s, &len)));
 
         utf8 = newSVpvn((char *) s, len);
         SvUTF8_on(utf8);
@@ -5892,6 +6058,26 @@ test_toUPPER_uni(UV ord)
         RETVAL
 
 AV *
+test_toUPPER_uvchr(UV ord)
+    PREINIT:
+        U8 s[UTF8_MAXBYTES_CASE + 1];
+        STRLEN len;
+        AV *av;
+        SV *utf8;
+    CODE:
+        av = newAV();
+        av_push(av, newSVuv(toUPPER_uvchr(ord, s, &len)));
+
+        utf8 = newSVpvn((char *) s, len);
+        SvUTF8_on(utf8);
+        av_push(av, utf8);
+
+        av_push(av, newSVuv(len));
+        RETVAL = av;
+    OUTPUT:
+        RETVAL
+
+AV *
 test_toUPPER_utf8(SV * p)
     PREINIT:
         U8 *input;
@@ -5930,6 +6116,26 @@ test_toTITLE_uni(UV ord)
     CODE:
         av = newAV();
         av_push(av, newSVuv(toTITLE_uni(ord, s, &len)));
+
+        utf8 = newSVpvn((char *) s, len);
+        SvUTF8_on(utf8);
+        av_push(av, utf8);
+
+        av_push(av, newSVuv(len));
+        RETVAL = av;
+    OUTPUT:
+        RETVAL
+
+AV *
+test_toTITLE_uvchr(UV ord)
+    PREINIT:
+        U8 s[UTF8_MAXBYTES_CASE + 1];
+        STRLEN len;
+        AV *av;
+        SV *utf8;
+    CODE:
+        av = newAV();
+        av_push(av, newSVuv(toTITLE_uvchr(ord, s, &len)));
 
         utf8 = newSVpvn((char *) s, len);
         SvUTF8_on(utf8);
