@@ -428,6 +428,13 @@ beyond pass/fail.  Previously, the only ways to know why a sequence was
 ill-formed was to capture and parse the generated diagnostics, or to do
 your own analysis.
 
+=item *
+
+Calling the functions C<utf8n_to_uvchr> and its derivatives, while
+passing a string length of 0, and specifying that this is allowed is now
+asserted against in DEBUGGING builds.  If you have nothing to decode,
+you shouldn't call the decode function.
+
 =back
 
 =head1 Selected Bug Fixes
