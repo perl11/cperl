@@ -7126,10 +7126,14 @@ _EOT8
     }
 #endif
 
+#if PERL_VERSION > 7
     PL_stashcache = (HV*)&PL_sv_undef; /* sometimes corrupted */
+#endif
 #if !defined(WIN32) || (defined(USE_CPERL) && PERL_VERSION >= 24)
     if (PL_sv_objcount) {
+# if PERL_VERSION > 7
         PL_stashcache = newHV(); /* Hack: sometimes corrupted, holding a GV */
+# endif
 	PL_in_clean_all = 1;
 	sv_clean_objs();         /* and now curse the rest */
 	PL_sv_objcount = 0;
@@ -7149,7 +7153,9 @@ _EOT8
 # endif
 #endif
 
+#if PERL_VERSION > 7
     PL_stashcache = (HV*)&PL_sv_undef;
+#endif
     /* Silence strtab refcnt warnings during global destruction */
     Zero(HvARRAY(PL_strtab), HvMAX(PL_strtab), HE*);
     /* NULL the HEK "dfs" */

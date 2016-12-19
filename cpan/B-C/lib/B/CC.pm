@@ -1199,7 +1199,7 @@ sub declare_pad {
 # for cc: unique ascii representation of an utf8 string, for labels
 sub encode_utf8($) {
   my $l = shift;
-  if ($] > 5.006 and utf8::is_utf8($l)) {
+  if ($] > 5.007 and utf8::is_utf8($l)) {
     #  utf8::encode($l);
     #  $l =~ s/([\x{0100}-\x{ffff}])/sprintf("u%x", $1)/ge;
     #$l = substr(B::cstring($l), 1, -1);
