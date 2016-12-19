@@ -478,7 +478,7 @@ OpSIBLING_tests()
 			failures++; warn("Op should have had a sib after maybesibset");
 		}
 
-		OpMAYBESIB_set(x, NULL, NULL);
+		OpMAYBESIB_set(x, (OP*)NULL, NULL);
 
 		if (OpHAS_SIBLING(x) || OpSIBLING(x)) {
 			failures++; warn("OpMAYBESIB_set with NULL failed?");

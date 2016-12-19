@@ -991,7 +991,7 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
 #  define OpLASTSIB_set(o, parent) \
        ((o)->op_moresib = 0, (o)->op_sibparent = (parent))
 #  define OpMAYBESIB_set(o, sib, parent) \
-       ((o)->op_sibparent = ((o)->op_moresib = cBOOL(sib)) ? (sib) : (parent))
+       ((o)->op_sibparent = ((o)->op_moresib = cBOOL(sib)) ? (OP*)(sib) : (parent))
 #else
 #  define OpHAS_SIBLING(o)	(cBOOL((o)->op_sibling))
 #  define OpSIBLING(o)		(0 + (o)->op_sibling)
