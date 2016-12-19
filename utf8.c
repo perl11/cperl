@@ -2744,10 +2744,10 @@ Perl__is_utf8_mark(pTHX_ const U8 *p)
 /*
 =for apidoc to_utf8_case
 
-Instead use the appropriate one of L</toUPPER_utf8>,
-L</toTITLE_utf8>,
-L</toLOWER_utf8>,
-or L</toFOLD_utf8>.
+Instead use the appropriate one of L</toUPPER_utf8_safe>,
+L</toTITLE_utf8_safe>,
+L</toLOWER_utf8_safe>,
+or L</toFOLD_utf8_safe>.
 
 C<p> contains the pointer to the UTF-8 string encoding
 the character that is being converted.  This routine assumes that the character
@@ -3045,6 +3045,8 @@ S_check_locale_boundary_crossing(pTHX_ const U8* const p, const UV result, U8* c
  * going on. */
 #define CASE_CHANGE_BODY_START(locale_flags, LC_L1_change_macro, L1_func,    \
                                L1_func_extra_param)                          \
+    if (e == NULL) e = p + UTF8SKIP(p);                                      \
+                                                                             \
     if (flags & (locale_flags)) {                                            \
         /* Treat a UTF-8 locale as not being in locale at all */             \
         if (IN_UTF8_CTYPE_LOCALE) {                                          \
@@ -3063,7 +3065,7 @@ S_check_locale_boundary_crossing(pTHX_ const U8* const p, const UV result, U8* c
             return L1_func(*p, ustrp, lenp, L1_func_extra_param);            \
         }                                                                    \
     }                                                                        \
-    else if UTF8_IS_NEXT_CHAR_DOWNGRADEABLE(p, p + UTF8SKIP(p)) {            \
+    else if UTF8_IS_NEXT_CHAR_DOWNGRADEABLE(p, e) {                          \
         if (flags & (locale_flags)) {                                        \
             result = LC_L1_change_macro(EIGHT_BIT_UTF8_TO_NATIVE(*p,         \
                                                                  *(p+1)));   \
@@ -3075,7 +3077,6 @@ S_check_locale_boundary_crossing(pTHX_ const U8* const p, const UV result, U8* c
     }                                                                        \
     else {  /* malformed UTF-8 or ord above 255 */                           \
         STRLEN len_result;                                                   \
-        const U8 * e = p + UTF8SKIP(p); /* Have to assume len is valid */    \
         result = utf8n_to_uvchr(p, e - p, &len_result, UTF8_CHECK_ONLY);     \
         if (len_result == (STRLEN) -1) {                                     \
             _force_out_malformed_utf8_message(p, e,                          \
@@ -3108,7 +3109,7 @@ S_check_locale_boundary_crossing(pTHX_ const U8* const p, const UV result, U8* c
 /*
 =for apidoc to_utf8_upper
 
-Instead use L</toUPPER_utf8>.
+Instead use L</toUPPER_utf8_safe>.
 
 =cut */
 
@@ -3117,7 +3118,7 @@ Instead use L</toUPPER_utf8>.
  *         be used. */
 
 UV
-Perl__to_utf8_upper_flags(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp, bool flags)
+Perl__to_utf8_upper_flags(pTHX_ const U8 *p, const U8 *e, U8* ustrp, STRLEN *lenp, bool flags)
 {
     UV result;
 
@@ -3132,7 +3133,7 @@ Perl__to_utf8_upper_flags(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp, bool flags
 /*
 =for apidoc to_utf8_title
 
-Instead use L</toTITLE_utf8>.
+Instead use L</toTITLE_utf8_safe>.
 
 =cut */
 
@@ -3143,7 +3144,7 @@ Instead use L</toTITLE_utf8>.
  */
 
 UV
-Perl__to_utf8_title_flags(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp, bool flags)
+Perl__to_utf8_title_flags(pTHX_ const U8 *p, const U8 *e, U8* ustrp, STRLEN *lenp, bool flags)
 {
     UV result;
 
@@ -3157,7 +3158,7 @@ Perl__to_utf8_title_flags(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp, bool flags
 /*
 =for apidoc to_utf8_lower
 
-Instead use L</toLOWER_utf8>.
+Instead use L</toLOWER_utf8_safe>.
 
 =cut */
 
@@ -3167,7 +3168,7 @@ Instead use L</toLOWER_utf8>.
  */
 
 UV
-Perl__to_utf8_lower_flags(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp, bool flags)
+Perl__to_utf8_lower_flags(pTHX_ const U8 *p, const U8 *e, U8* ustrp, STRLEN *lenp, bool flags)
 {
     UV result;
 
@@ -3180,7 +3181,7 @@ Perl__to_utf8_lower_flags(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp, bool flags
 /*
 =for apidoc to_utf8_fold
 
-Instead use L</toFOLD_utf8>.
+Instead use L</toFOLD_utf8_safe>.
 
 =cut */
 
@@ -3195,7 +3196,7 @@ Instead use L</toFOLD_utf8>.
  */
 
 UV
-Perl__to_utf8_fold_flags(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp, U8 flags)
+Perl__to_utf8_fold_flags(pTHX_ const U8 *p, const U8 *e, U8* ustrp, STRLEN *lenp, U8 flags)
 {
     UV result;
 
