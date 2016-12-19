@@ -176,33 +176,37 @@ PERL_CALLCONV UV	Perl__to_uni_fold_flags(pTHX_ UV c, U8 *p, STRLEN *lenp, U8 fla
 #define PERL_ARGS_ASSERT__TO_UNI_FOLD_FLAGS	\
 	assert(p); assert(lenp)
 
-PERL_CALLCONV UV	Perl__to_utf8_fold_flags(pTHX_ const U8 *p, const U8 *e, U8* ustrp, STRLEN *lenp, U8 flags)
+PERL_CALLCONV UV	Perl__to_utf8_fold_flags(pTHX_ const U8 *p, const U8 *e, U8* ustrp, STRLEN *lenp, U8 flags, const char * const file, const int line)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_3);
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_6);
 #define PERL_ARGS_ASSERT__TO_UTF8_FOLD_FLAGS	\
-	assert(p); assert(ustrp)
+	assert(p); assert(ustrp); assert(file)
 
-PERL_CALLCONV UV	Perl__to_utf8_lower_flags(pTHX_ const U8 *p, const U8* e, U8* ustrp, STRLEN *lenp, bool flags)
+PERL_CALLCONV UV	Perl__to_utf8_lower_flags(pTHX_ const U8 *p, const U8* e, U8* ustrp, STRLEN *lenp, bool flags, const char * const file, const int line)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_3);
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_6);
 #define PERL_ARGS_ASSERT__TO_UTF8_LOWER_FLAGS	\
-	assert(p); assert(ustrp)
+	assert(p); assert(ustrp); assert(file)
 
-PERL_CALLCONV UV	Perl__to_utf8_title_flags(pTHX_ const U8 *p, const U8* e, U8* ustrp, STRLEN *lenp, bool flags)
+PERL_CALLCONV UV	Perl__to_utf8_title_flags(pTHX_ const U8 *p, const U8* e, U8* ustrp, STRLEN *lenp, bool flags, const char * const file, const int line)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_3);
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_6);
 #define PERL_ARGS_ASSERT__TO_UTF8_TITLE_FLAGS	\
-	assert(p); assert(ustrp)
+	assert(p); assert(ustrp); assert(file)
 
-PERL_CALLCONV UV	Perl__to_utf8_upper_flags(pTHX_ const U8 *p, const U8 *e, U8* ustrp, STRLEN *lenp, bool flags)
+PERL_CALLCONV UV	Perl__to_utf8_upper_flags(pTHX_ const U8 *p, const U8 *e, U8* ustrp, STRLEN *lenp, bool flags, const char * const file, const int line)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_3);
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_6);
 #define PERL_ARGS_ASSERT__TO_UTF8_UPPER_FLAGS	\
-	assert(p); assert(ustrp)
+	assert(p); assert(ustrp); assert(file)
 
 PERL_CALLCONV void	Perl__warn_problematic_locale(void)
 			__attribute__global__;
@@ -6247,6 +6251,7 @@ PERL_CALLCONV UV	Perl_to_utf8_case(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp, S
 #ifndef NO_MATHOMS
 PERL_CALLCONV UV	Perl_to_utf8_fold(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 			__attribute__global__
+			__attribute__deprecated__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_TO_UTF8_FOLD	\
@@ -6256,6 +6261,7 @@ PERL_CALLCONV UV	Perl_to_utf8_fold(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 #ifndef NO_MATHOMS
 PERL_CALLCONV UV	Perl_to_utf8_lower(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 			__attribute__global__
+			__attribute__deprecated__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_TO_UTF8_LOWER	\
@@ -6265,6 +6271,7 @@ PERL_CALLCONV UV	Perl_to_utf8_lower(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 #ifndef NO_MATHOMS
 PERL_CALLCONV UV	Perl_to_utf8_title(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 			__attribute__global__
+			__attribute__deprecated__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_TO_UTF8_TITLE	\
@@ -6274,6 +6281,7 @@ PERL_CALLCONV UV	Perl_to_utf8_title(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 #ifndef NO_MATHOMS
 PERL_CALLCONV UV	Perl_to_utf8_upper(pTHX_ const U8 *p, U8* ustrp, STRLEN *lenp)
 			__attribute__global__
+			__attribute__deprecated__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_TO_UTF8_UPPER	\
@@ -9828,6 +9836,13 @@ STATIC UV	S__to_utf8_case(pTHX_ const UV uv1, const U8 *p, U8* ustrp, STRLEN *le
 			__attribute__nonnull__(pTHX_6);
 #define PERL_ARGS_ASSERT__TO_UTF8_CASE	\
 	assert(p); assert(ustrp); assert(swashp); assert(normal)
+
+STATIC U32	S_check_and_deprecate(pTHX_ const U8 * p, const U8 ** e, const unsigned type, const bool use_locale, const char * const file, const unsigned line)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_5);
+#define PERL_ARGS_ASSERT_CHECK_AND_DEPRECATE	\
+	assert(p); assert(e); assert(file)
 
 STATIC UV	S_check_locale_boundary_crossing(pTHX_ const U8* const p, const UV result, U8* const ustrp, STRLEN *lenp)
 			__attribute__warn_unused_result__
