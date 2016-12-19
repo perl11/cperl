@@ -938,6 +938,7 @@ d_freelocale (d_newlocale.U):
 	This variable conditionally defines the HAS_FREELOCALE symbol, which
 	indicates to the C program that the freelocale() routine is available
 	to deallocates the resources associated with a locale object.
+        It is unused and deprecated with v5.25.3c
 
 d_frexpl (d_frexpl.U):
 	This variable conditionally defines the HAS_FREXPL symbol, which
@@ -1761,6 +1762,7 @@ d_newlocale (d_newlocale.U):
 	This variable conditionally defines the HAS_NEWLOCALE symbol, which
 	indicates to the C program that the newlocale() routine is available
 	to return a new locale object or modify an existing locale object.
+        It is unused and deprecated with v5.25.3c
 
 d_nextafter (d_nextafter.U):
 	This variable conditionally defines HAS_NEXTAFTER if nextafter()
@@ -2701,7 +2703,8 @@ d_unsetenv (d_unsetenv.U):
 d_uselocale (d_newlocale.U):
 	This variable conditionally defines the HAS_USELOCALE symbol, which
 	indicates to the C program that the uselocale() routine is available
-	to set the current locale for the calling thread.
+	to set the current locale for the calling thread. It is unused and
+        deprecated with v5.25.3c.
 
 d_usleep (d_usleep.U):
 	This variable conditionally defines HAS_USLEEP if usleep() is

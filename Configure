@@ -16939,15 +16939,15 @@ eval $inlibc
 set nearbyint d_nearbyint
 eval $inlibc
 
-: see if newlocale exists
+: see if newlocale exists unused deprecated
 set newlocale d_newlocale
 eval $inlibc
 
-: see if freelocale exists
+: see if freelocale exists unused deprecated
 set freelocale d_freelocale
 eval $inlibc
 
-: see if uselocale exists
+: see if uselocale exists unused deprecated
 set uselocale d_uselocale
 eval $inlibc
 

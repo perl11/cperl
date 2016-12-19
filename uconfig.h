@@ -182,7 +182,7 @@
 /*#define HAS_GETLOGIN		/ **/
 
 /* HAS_GETPGID:
- *	This symbol, if defined, indicates to the C program that 
+ *	This symbol, if defined, indicates to the C program that
  *	the getpgid(pid) function is available to get the
  *	process group id.
  */
@@ -648,8 +648,8 @@
  *	This symbol holds the type used for the second argument to
  *	getgroups() and setgroups().  Usually, this is the same as
  *	gidtype (gid_t) , but sometimes it isn't.
- *	It can be int, ushort, gid_t, etc... 
- *	It may be necessary to include <sys/types.h> to get any 
+ *	It can be int, ushort, gid_t, etc...
+ *	It may be necessary to include <sys/types.h> to get any
  *	typedef'ed information.  This is only required if you have
  *	getgroups() or setgroups()..
  */
@@ -4158,14 +4158,17 @@
  *	This symbol, if defined, indicates that the newlocale routine is
  *	available to return a new locale object or modify an existing
  *	locale object.
+ *      This new v5.24 key was never used and is deprecated.
  */
 /* HAS_FREELOCALE:
  *	This symbol, if defined, indicates that the freelocale routine is
  *	available to deallocates the resources associated with a locale object.
+ *      This new v5.24 key was never used and is deprecated.
  */
 /* HAS_USELOCALE:
  *	This symbol, if defined, indicates that the uselocale routine is
  *	available to set the current locale for the calling thread.
+ *      This new v5.24 key was never used and is deprecated.
  */
 /*#define	HAS_NEWLOCALE	/ **/
 /*#define	HAS_FREELOCALE	/ **/
@@ -5389,6 +5392,6 @@
 #endif
 
 /* Generated from:
- * 814cc333c0e23f2691895fa3f233c0133ca30e665131f05c81b4e40ea5c58982 config_h.SH
+ * 0ae9e11832bedac55dec02769493f75f4e33f39c317ebe5d00c54e732518b536 config_h.SH
  * 3a2fdfafabd2b6647a283bffb4e5250c332b438022fd1503f815c037ac5eace7 uconfig.sh
  * ex: set ro: */
