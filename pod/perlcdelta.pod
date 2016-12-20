@@ -410,17 +410,13 @@ C<-mmacosx-version-min=10.x>
 
 =head1 Internal Changes
 
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
-
-[ List each change as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Perl no longer panics when switching into some locales on machines with
+buggy C<strxfrm()> implementations in their libc.
+L<[perl #121734]|https://rt.perl.org/Public/Bug/Display.html?id=121734>
 
 =back
 
