@@ -82,6 +82,16 @@ be called with ampersand syntax (C<&CORE::keys(\%hash>) and via reference
 (C<< my $k = \&CORE::keys; $k->(\%hash) >>).  Previously they could only be
 used when inlined.
 
+=head2 Unicode 9.0 is now supported
+
+A list of changes is at
+L<http://www.unicode.org/versions/Unicode9.0.0/>.  Modules that are
+shipped with core Perl but not maintained by p5p do not necessarily
+support Unicode 9.0.  L<Unicode::Normalize> does work on 9.0.
+
+Note that some changed UCD database files in 9.0 stayed renamed to their
+shortened name in perl.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
