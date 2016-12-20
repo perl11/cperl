@@ -17,6 +17,370 @@ Consult your favorite dictionary for details.
 
 =head1 EPIGRAPHS
 
+=head2 v5.25.8 - Langston Hughes, So long
+
+Announced on 2016-12-20 by Sawyer X.
+
+  So long
+  is in the song
+  and it's in the way you're gone
+  but it's like a foreign language
+  in my mind
+  and maybe was I blind
+  I could not see
+  and would not know
+  you're gone so long
+  so long.
+
+=head2 v5.25.7 - J.R.R. Tolkien, "The Silmarillion"
+
+L<Announced on 2016-11-20 by Chad 'Exodist' Granum|http://www.nntp.perl.org/group/perl.perl5.porters/2016/11/msg241120.html>
+
+  Of Beren and Lúthien
+
+  Among the tales of sorrow and of ruin that come down to us from the darkness of
+  those days there are yet some in which amid weeping there is joy and under the
+  shadow of death light that endures. And of these histories most fair still in
+  the ears of the Elves is the tale of Beren and Lúthien. Of their lives was made
+  the Lay of Leithian, Release from Bondage, which is the longest save one of the
+  songs concerning the world of old; but here is told in fewer words and without
+  song.
+
+=head2 v5.25.6 - Alan Warner, "The Sopranos"
+
+L<Announced on 2016-10-10 by Aaron Crane|http://www.nntp.perl.org/group/perl.perl5.porters/2016/10/msg240406.html>
+
+  I'm up on all the pop trivia, says the guy with the stud in his tongue.
+      Are you?
+      Yes. Do you know who he lead singer of Echo and the Bunnymen is?
+      Let me guess, is he called Echo?
+      Good guess but no, anyway when they played Glastonbury it was so
+  muddy he had two roadies to hold up a binliner on each of his legs so
+  they wouldn't get covered in mud.
+      That's what being rich and famous is all about, having someone
+  else hold up your binliners on each leg when you're wandering across
+  a sea of shite.
+      Do you know what Sammy Davis Junior said being black and famous in
+  America meant?
+      No.
+      He said being black and famous in America meant he could be
+  refused entry to exclusive clubs and restaurants that other people
+  could only ever dream of going to. Do you know Michael Stipe likes to
+  send his remote control toy cars onto stage while his support band are
+  playing to freak them out?
+      Who's Michael Stipe?
+      You're not really a pop trivia person, are you, Kylah?
+      No, I'm not, Stephen.
+
+=head2 v5.25.5 - Philip K. Dick, VALIS
+
+L<Announced on 2016-09-20 by Stevan Little|http://www.nntp.perl.org/group/perl.perl5.porters/2016/09/msg239887.html>
+
+  We hypostatize information into objects. Rearrangement of objects is
+  change in the content of the information; the message has changed.
+  This is a language which we have lost the ability to read. We ourselves
+  are a part of this language; changes in us are changes in the content
+  of the information. We ourselves are information-rich; information
+  enters us, is processed and is then projected outward once more, now
+  in an altered form. We are not aware that we are doing this, that in
+  fact this is all we are doing
+
+=head2 v5.25.4 - Terry Pratchett, "Truckers"
+
+L<Announced on 2016-08-20 by Chris 'BinGOs' Williams|http://www.nntp.perl.org/group/perl.perl5.porters/2016/08/msg239191.html>
+
+  Concerning Nomes and Time
+
+  Nomes are small. On the whole, small creatures don't live for a long
+  time. But perhaps they do live fast.
+
+  Let me explain.
+
+  One of the shortest-lived creatures on the planet Earth is the adult
+  common mayfly. It lasts for one day. The longest-living things are
+  bristlecone pine trees, at 4,700 years and still counting.
+
+  This may seem tough on the mayflies. But the important thing is not
+  how long your life is, but how long it seems.
+
+  To a mayfly, a single hour may last as long as a century. Perhaps
+  old mayflies sit around complaining about how life this minute isn't a
+  patch on the good old minutes of long ago, when the world was
+  young and the sun seemed so much brighter and larvae showed you a
+  bit of respect. Whereas the trees, which are not famous to their
+  quick reactions, may just have time to notice the way the sky keeps
+  flickering before the dry rot and woodworm set in.
+
+  It's all a sort of relativity. The faster you live, the more time
+  stretches out. To a nome, a year lasts as long as ten years does to a
+  human. Remember it. Don't let it concern you. They don't. They don't
+  even know.
+
+=head2 v5.25.3 - Edward Lear, ed. Vivien Noakes, "The Complete Nonsense and Other Verse": The Dong with a Luminous Nose
+
+L<Announced on 2016-07-20 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2016/07/msg238158.html>
+
+  When awful darkness and silence reign
+    Over the great Gromboolian plain,
+      Through the long, long wintry nights; -
+  When the angry breakers roar
+  As they beat on the rocky shore; -
+      When Storm-clouds brood on the towering heights
+  Of the Hills of the Chankly Bore: -
+
+  Then, through the vast and gloomy dark,
+  There moves what seems a fiery spark,
+      A lonely spark with silvery rays
+      Piercing the coal-black night, -
+      A Meteor strange and bright: -
+  Hither and thither the vision strays,
+      A single lurid light.
+
+  Slowly it wanders, - pauses, - creeps, -
+  Anon it sparkles, - flashes and leaps;
+  And ever as onward it gleaming goes
+  A light on the Bong-tree stems it throws.
+  And those who watch at that midnight hour
+  From Hall or Terrace, or lofty Tower,
+  Cry, as the wild light passes along, -
+        'The Dong! - the Dong!
+      The wandering Dong through the forest goes!
+        The Dong! the Dong!
+      The Dong with a luminous Nose!'
+
+=head2 v5.25.2 - Dan le Sac Vs Scroobius Pip "Waiting For The Beat To Kick In"
+
+L<Announced on 2016-06-20 by Matthew Horsfall|http://www.nntp.perl.org/group/perl.perl5.porters/2016/06/msg237274.html>
+
+  Waiting for the beat to kick in
+  But it never does
+  Waiting for my feet to grow wings
+  That lift me above
+  All of these tiresome things
+  That we know and love
+  Waiting for the beat to kick in
+  But it never does
+
+=head2 v5.25.1 - Eli Pariser, "The Filter Bubble"
+
+L<Announced on 2016-05-20 by Sawyer X|http://www.nntp.perl.org/group/perl.perl5.porters/2016/05/msg236566.html>
+
+Imagine that you're a smart high school student on the low end of the social
+totem pole. You're alienated from adult authority, but unlike many teenagers,
+you're also alienated from the power structures of your peers -- an existence
+that can feel lonely and peripheral. Systems and equations are intuitive, but
+people aren't -- social signals are confusing and messy, difficult to interpret.
+
+Then you discover code. You may be powerless at the lunch table, but code
+gives you power over an infinitely malleable world and opens the door to a
+symbolic system that's perfectly clear and ordered. The jostling for position
+and status fades away. The nagging parental voices disappear. There's just a
+clean, white page for you to fill, an opportunity to build a better place, a
+home, from the ground up.
+
+No wonder you're a geek.
+
+=head2 v5.25.0 - Robert Frost, "The Trial by Existence"
+
+L<Announced on 2016-05-09 by Ricardo Signes|http://www.nntp.perl.org/group/perl.perl5.porters/2016/05/msg236244.html>
+
+  Even the bravest that are slain
+    Shall not dissemble their surprise
+  On waking to find valor reign,
+    Even as on earth, in paradise;
+  And where they sought without the sword
+    Wide fields of asphodel fore’er,
+  To find that the utmost reward
+    Of daring should be still to dare.
+
+=head2 v5.24.1-RC4 - John Milton, ed. Gordon Campbell, "Paradise Lost", Book II
+
+L<Announced on 2016-10-12 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2016/10/msg240224.html>
+
+    Before the gates there sat
+  On either side a formidable shape;
+  The one seemed woman to the waste, and fair,
+  But ended foul in many a scaly fold,
+  Voluminous and vast -- a serpent armed
+  With mortal sting; about her middle round
+  A cry of hell hounds never ceasing barked
+  With wide Cerberean mouths full loud, and rung
+  A hideous peal; yet, when they list, would creep,
+  If aught disturbed their noise, into her womb,
+  And kennel there; yet there still barked and howled
+  Within unseen. Far less abhorred than these
+  Vexed Scylla, bathing in the sea that parts
+  Calabria from the hoarse Trinacrian shore;
+  Nor uglier follow the night-hag, when, called
+  In secret, riding through the air she comes,
+  Lured with the smell of infant blood, to dance
+  With Lapland witches, while the labouring moon
+  Eclipses at their charms. The other shape --
+  If shape it might be called that shape had none
+  Distinguishable in member, joint, or limb;
+  Or substance might be called that shadow seemed,
+  For each seemed either -- black it stood as night,
+  Fierce as ten Furies, terrible as hell,
+  And shook a dreadful dart: what seemed his head
+  The likeness of a kingly crown had on.
+  Satan was now at hand, and from his seat
+  The monster moving onward came as fast
+  With horrid strides; hell trembled as he strode.
+
+=head2 v5.24.1-RC3 - Dante Alighieri, trans. Dorothy L. Sayers and Barbara Reynolds, "The Divine Comedy", Cantica III: Paradise, Canto XXIII
+
+L<Announced on 2016-08-11 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2016/08/msg238909.html>
+
+  A bird within the bower of her delight,
+    Quiet upon the nest with her sweet brood
+    Throughout the dark concealment of the night,
+
+  Anxious to look on them and gather food -
+    No weary task for her, for as at play
+    Blithely she toils to seek her fledglings' good -
+
+  Before the time, upon the topmost spray
+    Eager awaits the sun and on the East
+    Fixes her wakeful eye till break of day.
+
+=head2 v5.24.1-RC2 - Dante Alighieri, trans. Dorothy L. Sayers, "The Divine Comedy", Cantica II: Purgatory, Canto X
+
+L<Announced on 2016-07-25 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2016/07/msg238269.html>
+
+  When we had crossed the threshold of that gate
+    Which the soul's evil loves put out of use,
+    Because they make the crooked path seem straight,
+
+  I heard its closing clang ring clamorous,
+    And had I then turned back my eyes to it
+    How could my fault have found the least excuse?
+
+  We had to climb now through a rocky slit
+    Which ran from side to side in many a swerve,
+    As runs the wave in onset and retreat.
+
+  "Now here," the master said, "we must observe
+    Some little caution, hugging now this wall,
+    Now that, upon the far side of the curve."
+
+=head2 v5.24.1-RC1 - Dante Alighieri, trans. Dorothy L. Sayers, "The Divine Comedy", Cantica I: Hell, Canto XX
+
+L<Announced on 2016-07-17 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2016/07/msg238072.html>
+
+  New punishments behoves me sing in this
+    Twentieth canto of my first canticle,
+    Which tells of spirits sunk in the Abyss.
+
+  I now stood ready to observe the full
+    Extent of the new chasm thus laid bare,
+    Drenched as it was in tears most miserable.
+
+  Through the round vale I saw folk drawing near,
+    Weeping and silent, and at such slow pace
+    As Litany processions keep, up here.
+
+  And presently, when I had dropped my gaze
+    Lower than the head, I saw them strangely wried
+    'Twixt collar-bone and chin, so that the face
+
+  Of each was turned towards his own backside,
+    And backwards must they needs creep with their feet,
+    All power of looking forward being denied.
+
+=head2 v5.24.0 - Robert Frost, "The Black Cottage"
+
+L<Announced on 2016-05-09 by Ricardo Signes|http://www.nntp.perl.org/group/perl.perl5.porters/2016/05/msg236242.html>
+
+  As I sit here, and oftentimes, I wish
+  I could be monarch of a desert land
+  I could devote and dedicate forever
+  To the truths we keep coming back and back to.
+  So desert it would have to be, so walled
+  By mountain ranges half in summer snow,
+  No one would covet it or think it worth
+  The pains of conquering to force change on.
+  Scattered oases where men dwelt, but mostly
+  Sand dunes held loosely in tamarisk
+  Blown over and over themselves in idleness.
+  Sand grains should sugar in the natal dew
+  The babe born to the desert, the sand storm
+  Retard mid-waste my cowering caravans—
+
+  “There are bees in this wall.” He struck the clapboards,
+  Fierce heads looked out; small bodies pivoted.
+  We rose to go. Sunset blazed on the windows.
+
+=head2 v5.24.0-RC5 - The Mountain Goats, "No Children"
+
+L<Announced on 2016-05-04 by Ricardo Signes|http://www.nntp.perl.org/group/perl.perl5.porters/2016/05/msg236198.html>
+
+  And I hope when you think of me years down the line
+  You can't find one good thing to say
+  And I'd hope that if I found the strength to walk out
+  You'd stay the hell out of my way
+
+  I am drowning, there is no sign of land
+  You are coming down with me, hand in unlovable hand
+
+=head2 v5.24.0-RC4 - The Joker in "The Killing Joke"
+
+L<Announced on 2016-05-02 by Ricardo Signes|http://www.nntp.perl.org/group/perl.perl5.porters/2016/05/msg236145.html>
+
+"See, there were these two guys in a lunatic asylum…"
+
+=head2 v5.24.0-RC3 - Jesse Vincent
+
+L<Announced on 2016-04-27 by Ricardo Signes|http://www.nntp.perl.org/group/perl.perl5.porters/2016/04/msg236066.html>
+
+The Great Pumpkin is a Santa-Claus like figure. He does bring toys like
+Santa. But unlike Santa, who gives away toys because it's his job, he
+gives away toys because it's the right thing to do.
+
+=head2 v5.24.0-RC2 - Joseph Heller, "Catch-22"
+
+L<Announced on 2016-04-23 by Ricardo Signes|http://www.nntp.perl.org/group/perl.perl5.porters/2016/04/msg235999.html>
+
+“How do you feel, Yossarian?”
+
+“Fine. No, I’m very frightened.”
+
+“That’s good,” said Major Danby. “It proves you’re still alive. It won’t
+be fun.”
+
+Yossarian started out. “Yes it will.”
+
+“I mean it, Yossarian. You’ll have to keep on your toes every minute of
+every day. They’ll bend heaven and earth to catch you.”
+
+“I’ll keep on my toes every minute.”
+
+“You’ll have to jump.”
+
+“I’ll jump.”
+
+“Jump!” Major Danby cried.
+
+Yossarian jumped.
+
+Nately’s [girl] was hiding just outside the door. The knife came down,
+missing him by inches, and he took off.
+
+=head2 v5.24.0-RC1 - Robert Frost, "The Census-Taker"
+
+L<Announced on 2016-04-14 by Ricardo Signes|http://www.nntp.perl.org/group/perl.perl5.porters/2016/04/msg235807.html>
+
+  Nothing was left to do that I could see
+  Unless to find that there was no one there
+  And declare to the cliffs too far for echo,
+  "The place is desert, and let whoso lurks
+  In silence, if in this he is aggrieved,
+  Break silence now or be forever silent.
+  Let him say why it should not be declared so."
+  The melancholy of having to count souls
+  Where they grow fewer and fewer every year
+  Is extreme where they shrink to none at all.
+  It must be I want life to go on living.
+
 =head2 v5.23.9 - Tom Kitchin, "from nature to plate"
 
 L<Announced on 2016-03-20 by Abigail|http://www.nntp.perl.org/group/perl.perl5.porters/2016/03/msg235251.html>

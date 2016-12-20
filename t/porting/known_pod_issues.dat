@@ -385,7 +385,7 @@ pod/perltru64.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perltypes.pod	Apparent broken link	4
 pod/perltypes.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlwin32.pod	Verbatim line length including indents exceeds 79 by	7
-porting/epigraphs.pod	Verbatim line length including indents exceeds 79 by	16
+porting/epigraphs.pod	Verbatim line length including indents exceeds 79 by	24
 porting/release_cperl.pod	? Should you be using F<...> or maybe L<...> instead of	1
 porting/release_cperl.pod	Verbatim line length including indents exceeds 79 by	4
 porting/release_cperl.pod	line containing nothing but whitespace in paragraph	2
