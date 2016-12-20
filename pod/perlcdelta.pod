@@ -305,20 +305,63 @@ XXX Describe change here
 
 =head1 Utility Changes
 
-XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
-Most of these are built within the directory F<utils>.
-
-[ List utility changes as a =head2 entry for each utility and =item
-entries for each change
-Use L<XXX> with program names to get proper documentation linking. ]
-
-=head2 L<XXX>
+=head2 F<Porting/bench.pl>
 
 =over 4
 
 =item *
 
-XXX
+allow per-PUT (perl under test) options and modules
+
+Rework process_perls() to give a richer usage / API, allowing
+additional command-line options, specific to each Perl-Under-Test.
+For example:
+
+    Porting/bench.pl -- perl=plain perl=slower -Mstrict -DmpMA
+
+The above runs the same perl-exe for 2 different tests (PUTS), but
+adds expensive debugging options to only the 2nd PUT.
+
+=item *
+
+provide per-PUT environment
+
+    $ perl Porting/bench.pl --jobs=2 \
+       --verbose --debug --tests=/loop::for::pkg_/ \
+       -- \
+       cperl5.25.3:+bare \
+       cperl5.25.3=+full:PERL_MEM_LOG=3mst,PERLIO=:stdio -MData::Dumper
+
+this will run:
+
+    PERL_HASH_SEED=0 PERLIO=:stdio PERL_MEM_LOG=3mst valgrind \
+      --tool=cachegrind --branch-sim=yes --cachegrind-out-file=/dev/null \
+      cperl5.25.3  -MData::Dumper - 20 2>&1
+
+Note that ':' is now a valid separator between the perl & label, but
+not between ENVAR=value pairs, where a ',' is required.
+
+=item *
+
+store data using unique label, not perl-exe, which may be used 2x
+
+=item *
+
+add B<=+label> feature, which appends the label to perl-name
+
+Using this reduces the burden of keeping each label unique,
+simplifying the use of labels to name varying workloads created by
+C<<< -Mfoo -M<something-heavy> >>>
+
+This enables an invocation like the following to run -DDEBUGGING
+perls-A,B in bare mode, and heavily encumbered by -Dflag induced
+overhead:
+
+     $] perl Porting/bench.pl --jobs=2 \
+        --tests=/loop::for::my/ \
+        -- \
+        perl-A=+bare perl-A=+workload -DpsltocPmfr \
+        perl-B=+bare perl-B=+workload -DpsltocPmfr
 
 =back
 
