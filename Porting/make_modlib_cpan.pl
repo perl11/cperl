@@ -7,7 +7,7 @@ use warnings;
 use 5.14.0;
 use autodie;
 use HTTP::Tiny;
-use JSON::PP;
+use Cpanel::JSON::XS;
 
 $|=1;
 
@@ -23,7 +23,7 @@ unless ( $response->{success} ) {
 
 die "No content" unless $response->{content};
 
-my $json     = JSON::PP->new->utf8;
+my $json     = Cpanel::JSON::XS->new->utf8;
 my $mirrors  = $json->decode( $response->{content} );
 my %sorted;
 my @rsync;
