@@ -2,7 +2,7 @@ package utf8;
 
 $utf8::hint_bits = 0x00800000;
 
-our $VERSION = '2.00c';
+our $VERSION = '2.01c';
 
 sub import {
     shift;
@@ -310,10 +310,12 @@ probably want to use C<utf8::is_utf8()> instead.
 
 =item * C<$bool = utf8::valid_script($script)>
 
-Check if C<$script> is a valid Unicode Script property.  Aliases are
-not. Old-style script names with a lowercase character following the
-C<_> are not. Checks are case-sensitive. Abbrevated script names are
-also not valid.
+Check if C<$script> is a valid Unicode Script property for an
+identifier.  Aliases are not. Old-style script names with a lowercase
+character following the C<_> are not. Checks are
+case-sensitive. Abbrevated script names are also not valid.  TR39
+Table 4 "Candidate Characters for Exclusion from Identifiers" are not
+automatically allowed, and need to be explicitly declared.
 
 =item * C<@scripts = utf8::script_aliases($alias)>
 
