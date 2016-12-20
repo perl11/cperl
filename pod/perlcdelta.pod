@@ -243,17 +243,67 @@ XXX Description of the purpose of the new file here
 
 =head2 Changes to Existing Documentation
 
-XXX Changes which significantly change existing files in F<pod/> go here.
-However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
-section.
-
-=head3 L<XXX>
+=head3 L<perlcommunity>
 
 =over 4
 
 =item *
 
-XXX Description of the change here
+All references to Usenet have been removed.
+
+=back
+
+=head3 L<perldelta>
+
+=over 4
+
+=item *
+
+All references to Usenet have been removed.
+
+=back
+
+=head3 L<perllocale>
+
+=over 4
+
+=item *
+
+Document NUL collation handling.
+
+=back
+
+=head3 L<perlmodinstall>
+
+=over 4
+
+=item *
+
+All references to Usenet have been removed.
+
+=back
+
+=head3 L<perlmodlib>
+
+=over 4
+
+=item *
+
+Updated the mirror list.
+
+=item *
+
+All references to Usenet have been removed.
+
+=back
+
+=head3 L<perlnewmod>
+
+=over 4
+
+=item *
+
+All references to Usenet have been removed.
 
 =back
 
