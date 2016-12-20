@@ -9426,6 +9426,13 @@ STATIC void	S_to_utf8_substr(pTHX_ regexp * prog)
 	assert(prog)
 
 #endif
+#if defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_TOKE_C)
+PERL_CALLCONV bool	Perl__is_grapheme(pTHX_ const U8 * strbeg, const U8 * s, const U8 *strend, const UV cp)
+			__attribute__warn_unused_result__;
+#define PERL_ARGS_ASSERT__IS_GRAPHEME	\
+	assert(strbeg); assert(s); assert(strend)
+
+#endif
 #if defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_UTF8_C)
 PERL_CALLCONV bool	Perl_isFOO_lc(pTHX_ const U8 classnum, const U8 character)
 			__attribute__global__
