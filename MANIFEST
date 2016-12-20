@@ -4773,12 +4773,12 @@ lib/Unicode/README		Explanation what happened to lib/unicode.
 lib/Unicode/UCD.pm		Unicode character database
 lib/Unicode/UCD.t		See if Unicode character database works
 lib/unicore/ArabicShaping.txt			Unicode character database
-lib/unicore/auxiliary/GCBTest.txt	Unicode character database
+lib/unicore/auxiliary/GCBTest.txt		Unicode character database
 lib/unicore/auxiliary/GraphemeBreakProperty.txt	Unicode character database
-lib/unicore/auxiliary/LBTest.txt	Unicode character database
-lib/unicore/auxiliary/SBTest.txt	Unicode character database
+lib/unicore/auxiliary/LBTest.txt		Unicode character database
+lib/unicore/auxiliary/SBTest.txt		Unicode character database
 lib/unicore/auxiliary/SentenceBreakProperty.txt	Unicode character database
-lib/unicore/auxiliary/WBTest.txt	Unicode character database
+lib/unicore/auxiliary/WBTest.txt		Unicode character database
 lib/unicore/auxiliary/WordBreakProperty.txt	Unicode character database
 lib/unicore/BidiBrackets.txt			Unicode character database
 lib/unicore/BidiMirroring.txt			Unicode character database
@@ -4822,6 +4822,12 @@ lib/unicore/README.perl				Unicode character database
 lib/unicore/ReadMe.txt				Unicode character database info
 lib/unicore/ScriptExtensions.txt		Unicode character database
 lib/unicore/Scripts.txt				Unicode character database
+lib/unicore/security/confusablesSummary.txt	Unicode character database
+lib/unicore/security/confusables.txt		Unicode character database
+lib/unicore/security/IdentifierStatus.txt	Unicode character database
+lib/unicore/security/IdentifierType.txt		Unicode character database
+lib/unicore/security/intentional.txt		Unicode character database
+lib/unicore/security/ReadMe.txt			Unicode character database TR39 info
 lib/unicore/SpecialCasing.txt			Unicode character database
 lib/unicore/StandardizedVariants.txt		Unicode character database
 lib/unicore/UnicodeData.txt			Unicode character database
