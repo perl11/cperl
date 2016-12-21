@@ -731,6 +731,9 @@ our %EXCLUDED_SCRIPTS = map {$_ => !!1} qw(
   Syriac Tagalog Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri Tifinagh
   Tirhuta Ugaritic Vai Warang_Citi Yi);
 
+Internals::SvREADONLY(%VALID_SCRIPTS);
+Internals::SvREADONLY(%EXCLUDED_SCRIPTS);
+
 # The UCD variant with new-style casing of the Script names.
 sub charscript {
     require Unicode::UCD;
