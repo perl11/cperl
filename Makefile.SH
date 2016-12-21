@@ -1332,7 +1332,7 @@ AUTOGEN_FILES = opcode.h opnames.h pp_proto.h proto.h embed.h embedvar.h \
 		lib/feature.pm feature.h \
 		ext/Config/Config_xs.out ext/Config/Config.xs
 
-.PHONY: regen regen_headers regen_all
+.PHONY: regen regen_headers regen_all regen_uni
 
 regen:	FORCE
 	-perl regen.pl
@@ -1348,6 +1348,15 @@ META.yml:   FORCE
 META.json:   FORCE
 	PATH="`pwd`:${PATH}" PERL5LIB="`pwd`/lib" $(RUN_PERL) Porting/makemeta -j
 
+regen_uni: $(PERL_EXE)
+	$(MINIPERL) lib/unicore/mktables -C lib/unicore -P pod -maketest -makelist -p -w
+	$(MINIPERL) regen/mk_PL_charclass.pl
+	$(MINIPERL) regen/ebcdic.pl
+	$(MINIPERL) regen/charset_translations.pl
+	$(MINIPERL) regen/unicode_constants.pl
+	$(RUN_PERL) regen/mk_invlists.pl
+	$(RUN_PERL) regen/regcharclass.pl
+	$(RUN_PERL) regen/regcharclass_multi_char_folds.pl
 
 regen_all regen-all: regen regen_meta
 
