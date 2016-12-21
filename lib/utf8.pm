@@ -13,10 +13,10 @@ sub import {
             if (valid_script($s)) {
                 # if scoped (later):
                 # $^H{utf8scripts}{$_} = 1;
-                $utf8::SCRIPTS{$s} = 1;
+                $utf8::SCRIPTS{$s} = !!1;
             } elsif (@aliases = script_aliases($s)) {
                 for my $a (@aliases) {
-                    $utf8::SCRIPTS{$a} = 1;
+                    $utf8::SCRIPTS{$a} = !!1;
                 }
             } else {
                 require Carp;
@@ -148,31 +148,31 @@ valid scripts disallows unicode confusables from different language
 families, which might looks the same but are not. This does not affect
 strings, only names, literals and numbers.
 
-The unicode standard 8.0 defines 131 scripts, i.e. written language
+The unicode standard 9.0 defines 137 scripts, i.e. written language
 families.
 
     perl -alne'/; (\w+) #/ && print $1' lib/unicore/Scripts.txt | \
         sort -u
 
-Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese Bamum
-Bassa_Vah Batak Bengali Bopomofo Brahmi Braille Buginese Buhid
-Canadian_Aboriginal Carian Caucasian_Albanian Chakma Cham Cherokee
-B<Common> Coptic Cuneiform Cypriot Cyrillic Deseret Devanagari Duployan
-Egyptian_Hieroglyphs Elbasan Ethiopic Georgian Glagolitic Gothic
-Grantha Greek Gujarati Gurmukhi Han Hangul Hanunoo Hatran Hebrew
-Hiragana Imperial_Aramaic B<Inherited> Inscriptional_Pahlavi
-Inscriptional_Parthian Javanese Kaithi Kannada Katakana Kayah_Li
-Kharoshthi Khmer Khojki Khudawadi Lao B<Latin> Lepcha Limbu Linear_A
-Linear_B Lisu Lycian Lydian Mahajani Malayalam Mandaic Manichaean
-Meetei_Mayek Mende_Kikakui Meroitic_Cursive Meroitic_Hieroglyphs Miao
-Modi Mongolian Mro Multani Myanmar Nabataean New_Tai_Lue Nko Ogham
-Ol_Chiki Old_Hungarian Old_Italic Old_North_Arabian Old_Permic
-Old_Persian Old_South_Arabian Old_Turkic Oriya Osmanya Pahawh_Hmong
-Palmyrene Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Pau_Cin_Hau
-Phags_Pa Phoenician Psalter_Pahlavi Rejang Runic Samaritan Saurashtra
-Sharada Shavian Siddham SignWriting Sinhala Sora_Sompeng Sundanese
+Adlam Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese
+Bamum Bassa_Vah Batak Bengali Bhaiksuki Bopomofo Brahmi Braille
+Buginese Buhid Canadian_Aboriginal Carian Caucasian_Albanian Chakma
+Cham Cherokee Common Coptic Cuneiform Cypriot Cyrillic Deseret
+Devanagari Duployan Egyptian_Hieroglyphs Elbasan Ethiopic Georgian
+Glagolitic Gothic Grantha Greek Gujarati Gurmukhi Han Hangul Hanunoo
+Hatran Hebrew Hiragana Imperial_Aramaic Inherited
+Inscriptional_Pahlavi Inscriptional_Parthian Javanese Kaithi Kannada
+Katakana Kayah_Li Kharoshthi Khmer Khojki Khudawadi Lao Latin Lepcha
+Limbu Linear_A Linear_B Lisu Lycian Lydian Mahajani Malayalam Mandaic
+Manichaean Marchen Meetei_Mayek Mende_Kikakui Meroitic_Cursive
+Meroitic_Hieroglyphs Miao Modi Mongolian Mro Multani Myanmar Nabataean
+New_Tai_Lue Newa Nko Ogham Ol_Chiki Old_Hungarian Old_Italic
+Old_North_Arabian Old_Permic Old_Persian Old_South_Arabian Old_Turkic
+Oriya Osage Osmanya Pahawh_Hmong Palmyrene Pau_Cin_Hau Phags_Pa
+Phoenician Psalter_Pahlavi Rejang Runic Samaritan Saurashtra Sharada
+Shavian Siddham SignWriting Sinhala Sora_Sompeng Sundanese
 Syloti_Nagri Syriac Tagalog Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri
-Tamil Telugu Thaana Thai Tibetan Tifinagh Tirhuta Ugaritic Vai
+Tamil Tangut Telugu Thaana Thai Tibetan Tifinagh Tirhuta Ugaritic Vai
 Warang_Citi Yi
 
 Note that this matches the UCD and is a bit different to the old-style
@@ -183,6 +183,46 @@ We add some aliases for languages using multiple scripts:
 
    :Japanese => Katakana Hiragana Han
    :Korean   => Hangul Han
+   :Hanb     => Han Bopomofo
+
+These three aliases need not to be declared. They are allowed scripts
+in the L<Highly Restriction
+Level|http://www.unicode.org/reports/tr39/#Restriction_Level_Detection>
+for identifiers.
+
+B<Certain scripts don't need to be declared:>
+
+We follow the B<Moderately Restrictive Level> for identifiers.
+I.e. All characters in each identifier must be from a single script,
+or from any of the following combinations:
+
+Latin + Han + Hiragana + Katakana; or equivalently: Latn + Jpan
+
+Latin + Han + Bopomofo; or equivalently: Latn + Hanb
+
+Latin + Han + Hangul; or equivalently: Latn + Kore
+
+Allow Latin with other Recommended or Aspirational scripts except
+Cyrillic and Greek.
+
+So these scripts need always to be declared:
+
+Cyrillic Greek Ahom Anatolian_Hieroglyphs Avestan Balinese Bamum
+Bassa_Vah Batak Brahmi Braille Buginese Buhid Carian
+Caucasian_Albanian Chakma Cham Cherokee Common Coptic Cuneiform
+Cypriot Deseret Duployan Egyptian_Hieroglyphs Elbasan Glagolitic
+Gothic Grantha Hanunoo Hatran Imperial_Aramaic Inherited
+Inscriptional_Pahlavi Inscriptional_Parthian Javanese Kaithi Kayah_Li
+Kharoshthi Khojki Khudawadi Lepcha Limbu Linear_A Linear_B Lisu Lycian
+Lydian Mahajani Mandaic Manichaean Meetei_Mayek Mende_Kikakui
+Meroitic_Cursive Meroitic_Hieroglyphs Modi Mro Multani Nabataean
+New_Tai_Lue Nko Ogham Ol_Chiki Old_Hungarian Old_Italic
+Old_North_Arabian Old_Permic Old_Persian Old_South_Arabian Old_Turkic
+Osmanya Pahawh_Hmong Palmyrene Pau_Cin_Hau Phags_Pa Phoenician
+Psalter_Pahlavi Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Rejang
+Runic Samaritan Saurashtra Sharada Shavian Siddham SignWriting
+Sora_Sompeng Sundanese Syloti_Nagri Syriac Tagalog Tagbanwa Tai_Le
+Tai_Tham Tai_Viet Takri Tirhuta Ugaritic Vai Warang_Citi
 
 =head2 Utility functions
 

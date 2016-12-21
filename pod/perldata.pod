@@ -1,3 +1,5 @@
+=encoding UTF-8
+
 =head1 NAME
 
 perldata - Perl data types
@@ -128,6 +130,10 @@ characters.  Perl requires every character in an identifier to also
 match C<\w> (this prevents some problematic cases); and Perl
 additionally accepts identfier names beginning with an underscore.
 
+cperl implements the L<Moderately Restrictive level
+|http://www.unicode.org/reports/tr39/#General_Security_Profile> for
+unicode identifiers.
+
 With cperl all utf8 identifiers and literals are parsed and stored as
 normalized NFC variants, which prevents from various TR39 and TR36
 unicode confusable and spoofing security problems.  However,
@@ -140,13 +146,32 @@ L<http://www.unicode.org/reports/tr39>.
 Also with cperl mixed scripts in unicode identifiers are forbidden,
 but they can be declared via C<use utf8 (Scriptnames...);>.  The
 'Common', 'Latin' and 'Inherited' scripts are always allowed and don't
-need to be declared.  The first non-default unicode script for an
-identifier is the only allowed one. This qualifies as single-script.
-More scripts lead to parsers errors.  See L<utf8/"Valid scripts">,
+need to be declared. Also the following combinations are allowed
+without any declaration: Latin + Hangul + Han (:Korean), Latin +
+Katakana + Hiregana (::Japanese) and Latin + Han + Bopomofo (:Hanb).
+And some more recommended and aspirational scripts, which are not
+excluded, except Cyrillic and Greek. See L<utf8/Valid scripts>.
+
+The first allowed undeclared unicode script for an identifier is the
+only allowed one. This qualifies as single-script.  More scripts lead
+to parsers errors.  See L<utf8/"Valid scripts">,
 L<http://www.unicode.org/reports/tr36/#Mixed_Script_Spoofing> and
 L<http://www.unicode.org/reports/tr31/>.
 
-Please avoid the declaration of 'Cyrillic' and 'Greek' in one source file.
+I.e. You may still declare those scripts as valid, but they are not
+automatically allowed, similar to the need to declare mixed scripts.
+
+    use utf8;
+    my $ᭅ = 1; # \x{1b45} BALINESE LETTER KAF SASAK
+
+=> Error: Invalid script Balinese in identifier ᭅ for U+1B45
+
+    use utf8 'Balinese';
+    my $ᭅ = 1; # \x{1b45} BALINESE LETTER KAF SASAK
+    print "ok";
+
+Please avoid the declaration of Cyrillic and Greek scripts in one
+source file.
 
 If not under C<use utf8>, the source is treated as ASCII + 128 extra
 generic characters, and identifiers should match

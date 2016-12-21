@@ -5004,7 +5004,7 @@ S_utf8_add_script(pTHX_ const char* script) {
         allowed = GvHV(gv);
 
     /* Add as yes, not 1 to seperate it from explicitly declared Scripts */
-    (void)hv_store(allowed, script, strlen(script), newSViv(1), 0);
+    (void)hv_store(allowed, script, strlen(script), SvREFCNT_inc_simple_NN(&PL_sv_yes), 0);
 }
 
 
@@ -5015,11 +5015,14 @@ If this character is the first non-Latin or non-Common character, and
 no other scripts were declared, and the script is not member of %utf8::EXCLUDED_SCRIPTS,
 then add the script to the list of allowed scripts, otherwise error.
 
-%utf8::EXCLUDED_SCRIPTS consists of tr31
-Candidate_Characters_for_Exclusion_from_Identifiers.
+%utf8::EXCLUDED_SCRIPTS map the Moderately Restrictive Level for identifiers.
+i.e. Allow Recommended or Aspirational scripts except Cyrillic and Greek.
 
-Note that the argument is guaranteed to be not of the
-Common or Latin script property.
+Also allow Latin + :Japanese, Latin + :Hanb and Latin + :Korean, but
+always only the first encounter of such a combination.
+
+Note that the argument is guaranteed to be not of the Common or Latin
+script property.
 
 =cut
 */
@@ -5042,6 +5045,7 @@ S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
     if (count == 1 && (!allowed || HvKEYS(allowed) == 3)) {
         const GV* exc = gv_fetchpvs("utf8::EXCLUDED_SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
         const HV* excluded = exc ? GvHV(exc) : NULL;
+        /* Special alias rules for Japanese, Korean and Hanb */
         if (hv_exists(excluded, script, len)) {
             DEBUG_T(PerlIO_printf(Perl_debug_log, "Script %s for U+%04" UVXf
                                   " is excluded, not added automatically.\n",
@@ -5051,6 +5055,28 @@ S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
             DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
                                   script, uv));
             utf8_add_script(script);
+            if (strEQc(script, "Hiragana")) {
+                DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
+                                  ":Japanese", uv));
+                utf8_add_script("Katakana");
+                utf8_add_script("Han");
+            } else
+            if (strEQc(script, "Katakana")) {
+                DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
+                                  ":Japanese", uv));
+                utf8_add_script("Hiragana");
+                utf8_add_script("Han");
+            } else
+            if (strEQc(script, "Bopomofo")) {
+                DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
+                                  ":Hanb", uv));
+                utf8_add_script("Han");
+            } else
+            if (strEQc(script, "Hangul")) {
+                DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
+                                  ":Korean", uv));
+                utf8_add_script("Han");
+            }
         }
     }
     else {
