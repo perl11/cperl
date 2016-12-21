@@ -681,11 +681,11 @@ sub _loose_name ($) {
     }
 }
 
-our %SCRIPTS = ('Common' => 1, 'Latin' => 1, 'Inherited' => 1);
+our %SCRIPTS = ('Common' => !!1, 'Latin' => !!1, 'Inherited' => !!1);
 # not using the pre-processed Sc/* inversion tables yet
 # matching 41 lib/unicore/lib/Sc/ files.
 # The short forms are not permitted. (i.e. Tglg for Tagalog)
-our %VALID_SCRIPTS = map {$_ => 1} qw(
+our %VALID_SCRIPTS = map {$_ => !!1} qw(
   Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese Bamum
   Bassa_Vah Batak Bengali Bopomofo Brahmi Braille Buginese Buhid
   Canadian_Aboriginal Carian Caucasian_Albanian Chakma Cham Cherokee
@@ -720,7 +720,7 @@ sub valid_script {
 }
 
 sub reset_scripts {
-    %SCRIPTS = ('Common' => 1, 'Latin' => 1, 'Inherited' => 1);
+    %SCRIPTS = ('Common' => !!1, 'Latin' => !!1, 'Inherited' => !!1);
     #my %def = ('Common' => 1, 'Latin' => 1, 'Inherited' => 1);
     #for my $s (keys %SCRIPTS) {
     #    delete $SCRIPTS{$s} unless $def{$s};

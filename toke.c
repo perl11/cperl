@@ -9286,6 +9286,7 @@ S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
     PERL_ARGS_ASSERT_PARSE_IDENT;
 
     *normalize = 0;
+    /*DEBUG_T(PerlIO_printf(Perl_debug_log, "parse_ident \"%s\"\n", *s));*/
     for (;;) {
         if (*d >= e)
             Perl_croak(aTHX_ "%s", ident_too_long);
