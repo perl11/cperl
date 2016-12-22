@@ -83,7 +83,7 @@ sub version_strip {
   $a
 }
 
-my %delta = (
+our %delta :const = (
     5 => {
         changed => {
             'a2p'                   => '1',
@@ -1297,13 +1297,14 @@ my %delta = (
     },
 );
 
-%utilities = Module::CoreList::_undelta(\%delta);
+our %utilities = Module::CoreList::_undelta(\%delta);
 
 # Create aliases with trailing zeros for $] use
 
 $utilities{'5.000'} = $utilities{5};
 
 _create_aliases(\%utilities);
+Internals::SvREADONLY(%utilities);
 
 sub _create_aliases {
     my ($hash) = @_;

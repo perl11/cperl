@@ -178,7 +178,7 @@ sub changes_between {
 # NB. If you put version numbers with trailing zeroes here, you
 # should also add an alias for the numerical ($]) version; see
 # just before the __END__ of this module.
-%released = (
+our %released = (
     5.000    => '1994-10-17',
     5.001    => '1995-03-14',
     5.002    => '1996-02-29',
@@ -356,7 +356,7 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
     push @{ $families{ $family }} , $version;
 }
 
-%delta = (
+our %delta = (
     5 => {
         changed => {
             'AnyDBM_File'           => undef,
@@ -13952,9 +13952,9 @@ sub is_core
     return $perl_version <= $final_release;
 }
 
-%version = _undelta(\%delta);
+our %version = _undelta(\%delta);
 
-%deprecated = (
+our %deprecated = (
     5.011    => {
         changed => { map { $_ => 1 } qw/
             Class::ISA
@@ -14657,7 +14657,7 @@ sub is_core
 
 %deprecated = _undelta(\%deprecated);
 
-%upstream = (
+our %upstream :const = (
     'App::Cpan'             => 'cpan',
     'App::Prove'            => 'cpan',
     'App::Prove::State'     => 'cpan',
@@ -15073,7 +15073,7 @@ sub is_core
     'version::vpp'          => 'cpan',
 );
 
-%bug_tracker = (
+our %bug_tracker :const = (
     'App::Cpan'             => undef,
     'App::Prove'            => 'http://rt.cpan.org/Public/Dist/Display.html?Name=Test-Harness',
     'App::Prove::State'     => 'http://rt.cpan.org/Public/Dist/Display.html?Name=Test-Harness',
@@ -15513,6 +15513,7 @@ sub _create_aliases {
             $hash->{$padded} = $hash->{$version};
         }
     }
+    Internals::SvREADONLY($hash);
 }
 
 1;
