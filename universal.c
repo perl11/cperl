@@ -783,18 +783,32 @@ XS(XS_hash_util_bucket_ratio); /* prototype to pass -Wmissing-prototypes */
 XS(XS_hash_util_bucket_ratio)
 {
     dXSARGS;
-    SV *rhv;
+    SV *hv;
     PERL_UNUSED_VAR(cv);
 
     if (items != 1)
         croak_xs_usage(cv, "hv");
 
-    rhv= ST(0);
-    if (SvROK(rhv)) {
-        rhv= SvRV(rhv);
-        if ( SvTYPE(rhv)==SVt_PVHV ) {
-            SV *ret= Perl_hv_bucket_ratio(aTHX_ (HV*)rhv);
-            ST(0)= ret;
+    hv = ST(0);
+    if (SvROK(hv)) {
+        hv = SvRV(hv);
+        if ( SvTYPE(hv) == SVt_PVHV ) {
+            /* inlined hv_bucket_ratio, which is deprecated */
+            SV* ret;
+            if (SvRMAGICAL(hv)) {
+                MAGIC * const mg = mg_find((const SV *)hv, PERL_MAGIC_tied);
+                if (mg) {
+                    ST(0) = magic_scalarpack((HV*)hv, mg);
+                    XSRETURN(1);
+                }
+            }
+            ret = sv_newmortal();
+            if (HvUSEDKEYS((const HV *)hv))
+                Perl_sv_setpvf(aTHX_ ret, "%ld/%ld",
+                               (long)HvFILL(hv), (long)HvMAX(hv) + 1);
+            else
+                sv_setiv(ret, 0);
+            ST(0) = ret;
             XSRETURN(1);
         }
     }
