@@ -682,30 +682,61 @@ sub _loose_name ($) {
 }
 
 our %SCRIPTS = ('Common' => !!1, 'Latin' => !!1, 'Inherited' => !!1);
+
 # not using the pre-processed Sc/* inversion tables yet
 # matching 41 lib/unicore/lib/Sc/ files.
 # The short forms are not permitted. (i.e. Tglg for Tagalog)
 our %VALID_SCRIPTS = map {$_ => !!1} qw(
-  Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese Bamum
-  Bassa_Vah Batak Bengali Bopomofo Brahmi Braille Buginese Buhid
-  Canadian_Aboriginal Carian Caucasian_Albanian Chakma Cham Cherokee
-  Common Coptic Cuneiform Cypriot Cyrillic Deseret Devanagari Duployan
-  Egyptian_Hieroglyphs Elbasan Ethiopic Georgian Glagolitic Gothic
-  Grantha Greek Gujarati Gurmukhi Han Hangul Hanunoo Hatran Hebrew
-  Hiragana Imperial_Aramaic Inherited Inscriptional_Pahlavi
-  Inscriptional_Parthian Javanese Kaithi Kannada Katakana Kayah_Li
-  Kharoshthi Khmer Khojki Khudawadi Lao Latin Lepcha Limbu Linear_A
-  Linear_B Lisu Lycian Lydian Mahajani Malayalam Mandaic Manichaean
-  Meetei_Mayek Mende_Kikakui Meroitic_Cursive Meroitic_Hieroglyphs Miao
-  Modi Mongolian Mro Multani Myanmar Nabataean New_Tai_Lue Nko Ogham
-  Ol_Chiki Old_Hungarian Old_Italic Old_North_Arabian Old_Permic
-  Old_Persian Old_South_Arabian Old_Turkic Oriya Osmanya Pahawh_Hmong
-  Palmyrene Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Pau_Cin_Hau
-  Phags_Pa Phoenician Psalter_Pahlavi Rejang Runic Samaritan Saurashtra
-  Sharada Shavian Siddham SignWriting Sinhala Sora_Sompeng Sundanese
-  Syloti_Nagri Syriac Tagalog Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri
-  Tamil Telugu Thaana Thai Tibetan Tifinagh Tirhuta Ugaritic Vai
-  Warang_Citi Yi);
+  Adlam Ahom Anatolian_Hieroglyphs Arabic Armenian Avestan Balinese
+  Bamum Bassa_Vah Batak Bengali Bhaiksuki Bopomofo Brahmi Braille
+  Buginese Buhid Canadian_Aboriginal Carian Caucasian_Albanian Chakma
+  Cham Cherokee Common Coptic Cuneiform Cypriot Cyrillic Deseret
+  Devanagari Duployan Egyptian_Hieroglyphs Elbasan Ethiopic Georgian
+  Glagolitic Gothic Grantha Greek Gujarati Gurmukhi Han Hangul Hanunoo
+  Hatran Hebrew Hiragana Imperial_Aramaic Inherited
+  Inscriptional_Pahlavi Inscriptional_Parthian Javanese Kaithi Kannada
+  Katakana Kayah_Li Kharoshthi Khmer Khojki Khudawadi Lao Latin Lepcha
+  Limbu Linear_A Linear_B Lisu Lycian Lydian Mahajani Malayalam
+  Mandaic Manichaean Marchen Meetei_Mayek Mende_Kikakui
+  Meroitic_Cursive Meroitic_Hieroglyphs Miao Modi Mongolian Mro
+  Multani Myanmar Nabataean New_Tai_Lue Newa Nko Ogham Ol_Chiki
+  Old_Hungarian Old_Italic Old_North_Arabian Old_Permic Old_Persian
+  Old_South_Arabian Old_Turkic Oriya Osage Osmanya Pahawh_Hmong
+  Palmyrene Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Rejang
+  Runic Samaritan Saurashtra Sharada Shavian Siddham SignWriting
+  Sinhala Sora_Sompeng Sundanese Syloti_Nagri Syriac Tagalog Tagbanwa
+  Tai_Le Tai_Tham Tai_Viet Takri Tamil Tangut Telugu Thaana Thai
+  Tibetan Tifinagh Tirhuta Ugaritic Vai Warang_Citi Yi);
+
+# These script need to be declared, are not automatically added on
+# the first encounter.
+# http://www.unicode.org/reports/tr31/
+#   #Table_Candidate_Characters_for_Exclusion_from_Identifiers
+# plus Cyrillic and Greek to reach the Moderately Restrictive Level
+# minus the Aspirational scripts: Canadian_Aboriginal, Miao
+# Mongolian, Tifinagh, Yi
+our %EXCLUDED_SCRIPTS = map {$_ => !!1} qw(
+  Cyrillic Greek
+  Ahom Anatolian_Hieroglyphs Avestan Balinese Bamum Bassa_Vah Batak
+  Brahmi Braille Buginese Buhid Carian
+  Caucasian_Albanian Chakma Cham Cherokee Common Coptic Cuneiform
+  Cypriot Deseret Duployan Egyptian_Hieroglyphs Elbasan Glagolitic
+  Gothic Grantha Hanunoo Hatran Imperial_Aramaic Inherited
+  Inscriptional_Pahlavi Inscriptional_Parthian Javanese Kaithi
+  Kayah_Li Kharoshthi Khojki Khudawadi Lepcha Limbu Linear_A Linear_B
+  Lisu Lycian Lydian Mahajani Mandaic Manichaean Meetei_Mayek
+  Mende_Kikakui Meroitic_Cursive Meroitic_Hieroglyphs Modi
+  Mro Multani Nabataean New_Tai_Lue Nko Ogham Ol_Chiki
+  Old_Hungarian Old_Italic Old_North_Arabian Old_Permic Old_Persian
+  Old_South_Arabian Old_Turkic Osmanya Pahawh_Hmong Palmyrene
+  Pau_Cin_Hau Phags_Pa Phoenician Psalter_Pahlavi Pau_Cin_Hau Phags_Pa
+  Phoenician Psalter_Pahlavi Rejang Runic Samaritan Saurashtra Sharada
+  Shavian Siddham SignWriting Sora_Sompeng Sundanese Syloti_Nagri
+  Syriac Tagalog Tagbanwa Tai_Le Tai_Tham Tai_Viet Takri
+  Tirhuta Ugaritic Vai Warang_Citi);
+
+Internals::SvREADONLY(%VALID_SCRIPTS);
+Internals::SvREADONLY(%EXCLUDED_SCRIPTS);
 
 # The UCD variant with new-style casing of the Script names.
 sub charscript {
@@ -730,6 +761,7 @@ sub reset_scripts {
 our %SCRIPT_ALIAS =
   (':Japanese' => [qw(Katakana Hiragana Han)],
    ':Korean'   => [qw(Hangul Han)],
+   ':Hanb'     => [qw(Han Bopomofo)],
   );
 
 sub script_aliases {

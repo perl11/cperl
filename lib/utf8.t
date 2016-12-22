@@ -681,6 +681,7 @@ eval <<'END';
 use utf8;
 my $ЀЀ = 1;
 END
+chomp($@);
 ::like($@, qr/^Invalid script Cyrillic/, $@);
 
 {
@@ -695,6 +696,17 @@ END
     use utf8 'Greek', 'Cyrillic';
     my $ЀΕ = 1;
     ::ok(1, "Declared mixed script Greek Cyrillic");
+    BEGIN { utf8::reset_scripts(); }
+}
+
+{
+    BEGIN { utf8::reset_scripts(); }
+    eval <<'END';
+use utf8;
+my $ᭅ = 1; # \x{1b45} BALINESE LETTER KAF SASAK
+END
+    chomp($@);
+    ::like($@, qr/^Invalid script Balinese/, "EXCLUDED_SCRIPT ". $@);
     BEGIN { utf8::reset_scripts(); }
 }
 

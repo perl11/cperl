@@ -94,11 +94,58 @@ shortened name in perl.
 
 =head1 Security
 
-XXX Any security-related notices go here.  In particular, any security
-vulnerabilities closed should be noted here rather than in the
-L</Selected Bug Fixes> section.
+=head2 Unicode identifiers: Moderately Restrictive Level
 
-[ List each security issue as a =head2 entry ]
+cperl follows the B<General Security Profile> for identifiers in
+programming languages.
+
+B<Moderately Restrictive>: Allow Latin with other Recommended or
+Aspirational scripts except Cyrillic and Greek. Otherwise, the same as
+L<Highly
+Restrictive|http://www.unicode.org/reports/tr39/#Identifier_Characters>,
+i.e. allow :Japanese, :Korean and :Hanb.
+
+"Some characters are not in modern customary use, and thus implementations
+may want to exclude them from identifiers.  These include characters in
+historic and obsolete scripts, scripts used mostly liturgically, and
+regional scripts used only in very small communities or with very limited
+current usage.  The set of characters in Table 4, Candidate Characters for
+Exclusion from Identifiers provides candidates of these."
+
+Honors the L<TR31 Candidate Characters for Exclusion from Identifiers
+|http://www.unicode.org/reports/tr31/#Table_Candidate_Characters_for_Exclusion_from_Identifiers>
+
+I.e. You may still declare those scripts as valid, but they are not
+automatically allowed, similar to the need to declare mixed scripts.
+
+    use utf8;
+    my $ᭅ = 1; # \x{1b45} BALINESE LETTER KAF SASAK
+
+=> Invalid script Balinese in identifier ᭅ for U+1B45
+
+    use utf8 'Balinese';
+    my $ᭅ = 1; # \x{1b45} BALINESE LETTER KAF SASAK
+    print "ok";
+
+=>
+
+     ok
+
+The scripts listed at "Table 6, Aspirational Use Scripts":
+Canadian_Aboriginal, Miao, Mongolian, Tifinagh and Yi are included,
+i.e. need not to be declared.
+
+With this restriction we are close to the implementation of the
+Moderately Restrictive level for identifiers by default. See
+L<http://www.unicode.org/reports/tr39/#General_Security_Profile> and
+L<http://www.unicode.org/reports/tr36/#Security_Levels_and_Alerts>.
+
+With special declarations of the used scripts you can weaken the
+restriction level to B<Minimally Restrictive>.
+
+Missing for the B<Moderately Restrictive> level are warnings on
+single-, mixed and whole-script confusables, and warnings on certain
+mixed-script pairs such as Greek + Cyrillic.
 
 =head1 Incompatible Changes
 

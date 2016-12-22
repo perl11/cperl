@@ -5004,7 +5004,7 @@ S_utf8_add_script(pTHX_ const char* script) {
         allowed = GvHV(gv);
 
     /* Add as yes, not 1 to seperate it from explicitly declared Scripts */
-    (void)hv_store(allowed, script, strlen(script), newSViv(1), 0);
+    (void)hv_store(allowed, script, strlen(script), SvREFCNT_inc_simple_NN(&PL_sv_yes), 0);
 }
 
 
@@ -5012,11 +5012,17 @@ S_utf8_add_script(pTHX_ const char* script) {
 =for apidoc utf8_error_script
 
 If this character is the first non-Latin or non-Common character, and
-no other scripts were declared, add the script to the list of allowed
-scripts, otherwise error.
+no other scripts were declared, and the script is not member of %utf8::EXCLUDED_SCRIPTS,
+then add the script to the list of allowed scripts, otherwise error.
 
-Note that the argument is guaranteed to be not of the
-Common or Latin script property.
+%utf8::EXCLUDED_SCRIPTS map the Moderately Restrictive Level for identifiers.
+i.e. Allow Recommended or Aspirational scripts except Cyrillic and Greek.
+
+Also allow Latin + :Japanese, Latin + :Hanb and Latin + :Korean, but
+always only the first encounter of such a combination.
+
+Note that the argument is guaranteed to be not of the Common or Latin
+script property.
 
 =cut
 */
@@ -5037,11 +5043,44 @@ S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
     /* The first error is suppressed and assumed as new default script,
        when no scripts were declared. */
     if (count == 1 && (!allowed || HvKEYS(allowed) == 3)) {
-        DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
-                              script, uv));
-        utf8_add_script(script);
+        const GV* exc = gv_fetchpvs("utf8::EXCLUDED_SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
+        const HV* excluded = exc ? GvHV(exc) : NULL;
+        /* Special alias rules for Japanese, Korean and Hanb */
+        if (hv_exists(excluded, script, len)) {
+            DEBUG_T(PerlIO_printf(Perl_debug_log, "Script %s for U+%04" UVXf
+                                  " is excluded, not added automatically.\n",
+                                  script, uv));
+            goto script_error;
+        } else {
+            DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
+                                  script, uv));
+            utf8_add_script(script);
+            if (strEQc(script, "Hiragana")) {
+                DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
+                                  ":Japanese", uv));
+                utf8_add_script("Katakana");
+                utf8_add_script("Han");
+            } else
+            if (strEQc(script, "Katakana")) {
+                DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
+                                  ":Japanese", uv));
+                utf8_add_script("Hiragana");
+                utf8_add_script("Han");
+            } else
+            if (strEQc(script, "Bopomofo")) {
+                DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
+                                  ":Hanb", uv));
+                utf8_add_script("Han");
+            } else
+            if (strEQc(script, "Hangul")) {
+                DEBUG_T(PerlIO_printf(Perl_debug_log, "added Script %s for U+%04" UVXf "\n",
+                                  ":Korean", uv));
+                utf8_add_script("Han");
+            }
+        }
     }
     else {
+    script_error:
         if (allowed && HvKEYS(allowed) > 3) {
             HE *entry;
             SV* tmp = newSVpvs("");
@@ -5072,8 +5111,8 @@ S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
 
 Check if the script property of the unicode character was
 declared via C<use utf8 'Script'>. 
-If this character is the first, add the script to the list of
-allowed scripts, otherwise error.
+If this character is the first of a not excluded valid script,
+add the script to the list of allowed scripts, otherwise error.
 
 Note that the argument is guaranteed to be not of the
 Common or Latin script property.
