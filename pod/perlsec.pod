@@ -480,8 +480,9 @@ handler.
 
 Unicode is a new and complex technology and one may easily overlook
 certain security pitfalls.  See L<perluniintro> for an overview and
-L<perlunicode> for details, and L<perlunicode/"Security Implications
-of Unicode"> for security implications in particular.
+L<perlunicode> for details, and in particular L<utf8/Valid scripts>,
+L<perldata/Identifier parsing> and L<perlunicode/"Security
+Implications of Unicode"> for security implications.
 
 =head2 Algorithmic Complexity Attacks
 

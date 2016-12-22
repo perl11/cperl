@@ -70,8 +70,34 @@ See L<encoding>.
 If your Perl script is itself encoded in L<UTF-8|/Unicode Encodings>,
 the S<C<use utf8>> pragma must be explicitly included to enable
 recognition of that (in string or regular expression literals, or in
-identifier names).  B<This is the only time when an explicit S<C<use
-utf8>> is needed.>  (See L<utf8>).
+identifier names). See L<utf8>.
+
+=item C<Unicode identifiers follow the Moderately Restrictive Level>
+
+perl5 allows unsafe and confusable unicode identifiers, and even
+allows NUL in identifiers.
+
+cperl on the other hand follows the B<Moderately Restrictive Level>
+unicode security standard for identifiers.  I.e. All characters in
+each identifier must be from a single script, or from any of the
+following combinations:
+
+Latin + Han + Hiragana + Katakana; or equivalently: Latn + Jpan
+
+Latin + Han + Bopomofo; or equivalently: Latn + Hanb
+
+Latin + Han + Hangul; or equivalently: Latn + Kore
+
+Allow Latin with other Recommended or Aspirational scripts except
+Cyrillic and Greek.
+
+Mixed scripts outside of the Moderately Restrictive Level must be
+explictly declared via C<use utf8 scriptnames...;>.
+
+All unicode characters in identifiers are normalized to NFC, similar
+to Python 3, so spoofing and confusable attacks are much harder.
+
+See L<utf8/Valid scripts> and L<perldata/Identifier parsing> or L<perlsec/Unicode>
 
 =item C<BOM>-marked scripts and L<UTF-16|/Unicode Encodings> scripts autodetected
 
@@ -388,9 +414,11 @@ decomposed characters; this module can be used to make it all one or the
 other.
 
 You may be presented with strings in any of these equivalent forms.
-There is currently nothing in Perl 5 that ignores the differences.  So
-you'll have to specially hanlde it.  The usual advice is to convert your
-inputs to C<NFD> before processing further.
+There is currently nothing in Perl 5 that ignores the differences in
+strings. Only identifiers, such as all names are normalized to NFC (in
+cperl only). You'll have to specially handle it in strings.  The
+usual advice is to convert your inputs to C<NFD> before processing
+further.
 
 For more detailed information, see L<http://unicode.org/reports/tr15/>.
 
@@ -2045,6 +2073,21 @@ the Unicode properties (character classes) like C<\p{Nd}> are known to
 be quite a bit slower (5-20 times) than their simpler counterparts
 like C<[0-9]> (then again, there are hundreds of Unicode characters matching
 C<Nd> compared with the 10 ASCII characters matching C<[0-9]>).
+
+=head2 range
+
+perl5 has a broken range operator for utf8 encoded strings, only cperl
+has this fixed.  When the right side of the range is a UTF-8 encoded
+string, but the left side not, downgrade the right side to native
+octets.  E.g.
+
+    my $r = chr 255; utf8::upgrade $r; my $num = ("a" .. $r);
+    print $num
+
+should print 26 but does 702, because the utf-8 repr. of C<\x{ff}>
+is C<"\303\277" [UTF8 "\x{ff}"]>, and the range was incremented from
+"a" to "\x{c3}\x{bf}" instead.
+See L<[cperl #218]|https://github.com/perl11/cperl/issues/218>.
 
 =head1 SEE ALSO
 
