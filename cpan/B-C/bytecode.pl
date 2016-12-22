@@ -150,6 +150,7 @@ print BYTERUN_C $c_header, <<'EOT';
 
 struct byteloader_header bl_header;
 
+#if 0
 static const int optype_size[] = {
 EOT
 my $i = 0;
@@ -159,6 +160,7 @@ for ($i = 0; $i < @optype - 1; $i++) {
 printf BYTERUN_C "    sizeof(%s)\n", $optype[$i], $i;
 print BYTERUN_C <<'EOT';
 };
+#endif
 
 void *
 bset_obj_store(pTHX_ struct byteloader_state *bstate, void *obj, I32 ix)
