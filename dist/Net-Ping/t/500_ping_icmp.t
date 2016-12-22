@@ -24,7 +24,11 @@ BEGIN {
     my $file = __FILE__;
     my $lib = $ENV{PERL_CORE} ? '-I../../lib' : '-Mblib';
     # -n prevents from asking for a password. rather fail then
-    if ($ENV{PERL_CORE} and system("sudo -n \"$^X\" $lib $file") == 0) {
+    # A technical problem is with leak-detectors, like asan, which
+    # require PERL_DESTRUCT_LEVEL=2 to be set in the root env.
+    if ($ENV{PERL_CORE} and
+        system("sudo -n PERL_DESTRUCT_LEVEL=2 \"$^X\" $lib $file") == 0)
+    {
       exit;
     } else {
       plan skip_all => 'no sudo/failed';
