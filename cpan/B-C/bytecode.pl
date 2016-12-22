@@ -522,7 +522,11 @@ EOT
 	print BYTERUN_C "\t\tDEBUG_v(Perl_deb(aTHX_ \"\t   BSET_OBJ_STORE($lvalue$optarg)\\n\"));\n";
     }
     elsif ($optarg && $lvalue ne "none") {
-	print BYTERUN_C "\t\t$lvalue = ${rvalcast}arg;\n" unless $unsupp;
+	if ($insn eq 'comment') {
+	    printf BYTERUN_C "\t\tPERL_UNUSED_VAR(arg);\n";
+        } else {
+            print BYTERUN_C "\t\t$lvalue = ${rvalcast}arg;\n" unless $unsupp;
+        }
 	printf BYTERUN_C "\t\tDEBUG_v(Perl_deb(aTHX_ \"\t   $lvalue = ${rvalcast}%s;\\n\", $printarg%s));\n",
 	  $fundtype =~ /(strconst|pvcontents)/ ? '\"%s\"' : ($argtype =~ /index$/ ? '0x%'.$UVxf : $argfmt);
     }
