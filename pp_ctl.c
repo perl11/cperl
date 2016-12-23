@@ -1632,12 +1632,13 @@ S_pop_eval_context_maybe_croak(pTHX_ PERL_CONTEXT *cx, SV *errsv, int action)
 
     if (do_croak) {
         const char *fmt;
-        HV *inc_hv = GvHVn(PL_incgv);
+        HV *inc_hv;
         I32  klen  = SvUTF8(namesv) ? -(I32)SvCUR(namesv) : (I32)SvCUR(namesv);
         const char *key = SvPVX_const(namesv);
         if (UNLIKELY(SvCUR(namesv) > I32_MAX))
             Perl_croak(aTHX_ "panic: name too long (%" UVuf ")", (UV)SvCUR(namesv));
 
+        inc_hv = GvHVn(PL_incgv);
         if (action == 1) {
             (void)hv_delete(inc_hv, key, klen, G_DISCARD);
             fmt = "%"SVf" did not return a true value";
