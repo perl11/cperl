@@ -32,6 +32,13 @@ C<op_dump()> and it's XS module L<Devel::Peek>.
 Improve the display of cop SEQ values and ranges, and padnames.
 Added a DEBUGGING C<cop_dump()> helper, esp. useful for deleted PL_curcop's.
 
+=head2 More unicode ops
+
+Added the strong unicode fraction op C</> U+2044, which binds stronger
+than all other arithmetic ops, and the two unicode multiplication ops
+C<⋅> U+022C5 (dot operator) and C<∙> U+2219 (multiplication dot),
+which binds the same as C<*>.
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
@@ -171,6 +178,17 @@ XXX Description of the purpose of the new file here
 =item *
 
 Added API docs for most hash macros.
+
+=back
+
+=head3 L<perlop>
+
+=over 4
+
+=item *
+
+Added the missing operator precedences and documentation for the cperl
+unicode operators.
 
 =back
 

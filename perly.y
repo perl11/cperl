@@ -56,7 +56,7 @@
 %token <ival> GIVEN WHEN DEFAULT
 %token <ival> LOOPEX DOTDOT YADAYADA
 %token <ival> FUNC0 FUNC1 FUNC UNIOP LSTOP
-%token <ival> RELOP EQOP MULOP ADDOP
+%token <ival> RELOP EQOP MULOP UNIMULOP ADDOP
 %token <ival> DOLSHARP DO HASHBRACK NOAMP
 %token <ival> LOCAL MY HAS REQUIRE
 %token <ival> COLONATTR FORMLBRACK FORMRBRACK
@@ -106,6 +106,7 @@
 %right <ival> POWOP POWCOP
 %nonassoc <ival> PREINC PREDEC POSTINC POSTDEC POSTJOIN
 %left <ival> ARROW
+%left UNIMULOP
 %nonassoc <ival> ')'
 %left <ival> '('
 %left '[' '{'
@@ -816,6 +817,11 @@ termbinop:	term ASSIGNOP term 			/* $x = $y */
 	|	term POWOP term                        /* $x ** $y */
 			{ $$ = newBINOP(OP_POW, 0, scalar($1), scalar($3)); }
 	|	term MULOP term                        /* $x * $y, $x x $y */
+			{   if ($2 != OP_REPEAT)
+				scalar($1);
+			    $$ = newBINOP($2, 0, $1, scalar($3));
+			}
+	|	term UNIMULOP term                        /* $x UNI/ $y, $x sdot $y */
 			{   if ($2 != OP_REPEAT)
 				scalar($1);
 			    $$ = newBINOP($2, 0, $1, scalar($3));

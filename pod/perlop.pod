@@ -1,3 +1,5 @@
+=encoding UTF-8
+
 =head1 NAME
 X<operator>
 
@@ -31,6 +33,8 @@ I<Operator precedence> means some operators are evaluated before
 others.  For example, in S<C<2 + 4 * 5>>, the multiplication has higher
 precedence so S<C<4 * 5>> is evaluated first yielding S<C<2 + 20 ==
 22>> and not S<C<6 * 5 == 30>>.
+Some special cperl/perl6 unicode operators have higher precedence
+than normal operators. So far only the fraction C<U+2044> operator.
 
 I<Operator associativity> defines what happens if a sequence of the
 same operators is used one after another: whether the evaluator will
@@ -47,17 +51,18 @@ for C folks.)  With very few exceptions, these all operate on scalar
 values only, not array values.
 
     left	terms and list operators (leftward)
-    left	->
+    left	-> →
+    left        ⁄ fraction U+02044
     nonassoc	++ --
-    right	**
+    right	** ² ³
     right	! ~ \ and unary + and -
     left	=~ !~
-    left	* / % x
+    left	* / % x ÷ ⋅ sdot U+022C5 mdot U+2219
     left	+ - .
     left	<< >>
     nonassoc	named unary operators
-    nonassoc	< > <= >= lt gt le ge
-    nonassoc	== != <=> eq ne cmp ~~
+    nonassoc	< > <= ≤ >= ≥ lt gt le ge 
+    nonassoc	== != ≠ <=> ⇔ eq ne cmp ~~
     left	&
     left	| ^
     left	&&
@@ -65,7 +70,7 @@ values only, not array values.
     nonassoc	..  ...
     right	?:
     right	= += -= *= etc. goto last next redo dump
-    left	, =>
+    left	, => ⇒
     nonassoc	list operators (rightward)
     right	not
     left	and
@@ -141,9 +146,9 @@ as well as L</"I/O Operators">.
 =head2 The Arrow Operator
 X<arrow> X<dereference> X<< -> >>
 
-"C<< -> >>" is an infix dereference operator, just as it is in C
-and C++.  If the right side is either a C<[...]>, C<{...}>, or a
-C<(...)> subscript, then the left side must be either a hard or
+"C<< -> >>" or cperl C<→> is an infix dereference operator, just as it
+is in C and C++.  If the right side is either a C<[...]>, C<{...}>, or
+a C<(...)> subscript, then the left side must be either a hard or
 symbolic reference to an array, a hash, or a subroutine respectively.
 (Or technically speaking, a location capable of holding a hard
 reference, if it's an array or hash reference being used for
@@ -213,6 +218,9 @@ Note that certain exponentiation expressions are ill-defined:
 these include C<0**0>, C<1**Inf>, and C<Inf**0>.  Do not expect
 any particular results from these special cases, the results
 are platform-dependent.
+
+The cperl unicode constant superscript operators C<⁰>, C<¹>, C<²> -
+C<⁹> are also valid. See L</Unicode Operators>.
 
 =head2 Symbolic Unary Operators
 X<unary operator> X<operator, unary>
@@ -306,8 +314,16 @@ X<operator, multiplicative>
 Binary C<"*"> multiplies two numbers.
 X<*>
 
+The unicode C<⋅> U+022C5 (dot operator) and C<∙> U+2219 (multiplication dot)
+also multiply two numbers, when C<use utf8> and C<use feature 'unicode_strings'>
+(eg. via use v5.26) are in effect.
+
 Binary C<"/"> divides two numbers.
 X</> X<slash>
+
+The unicode C<⁄> U+02244 (fraction) divides two numbers, when C<use
+utf8> and C<use feature 'unicode_strings'> (eg. via use v5.26) are in
+effect, but the precedence is the highest of all arithmetic operators.
 
 Binary C<"%"> is the modulo operator, which computes the division
 remainder of its first argument with respect to its second argument.
@@ -417,6 +433,45 @@ the S<C<use bigint>> pragma neatly sidesteps the issue altogether:
     use bigint;
     print 20 << 100; # 25353012004564588029934064107520
 
+=head2 Unicode Operators
+X<operator, unicode>
+
+In B<cperl> several mathematical, arrow or logical unicode operators
+can also be used, similar to perl6.  They are only in effect with
+C<use utf8> and C<use feature 'unicode_strings'> (eg. via use v5.26).
+
+It's precedence is mostly the same is the non-unicode counterparts,
+just the fraction operator binds higher then div C</>.
+
+However, there are no perl6 ascii counterparts, the so-called "texas"
+operators. L<https://docs.perl6.org/language/unicode_texas.html>
+
+=over
+
+=item C<⇒> U+021D2 fatcomma =>
+
+=item C<→> U+02192> arrow ->
+
+=item C<⁄> U+02044 fraction
+
+=item C<⇔> U+021D4 <=>
+
+=item C<≠> U+02260 !=
+
+=item C<≥> U+02265 >=
+
+=item C<≤> U+02264 <=
+
+=item C<⋅> U+022C5 *
+
+=item C<∙> U+2219 *
+
+=item C<÷> U+00F7 /
+
+=item C<¹>, C<²>, ... pow constants from 0..9 as superscripts
+
+=back
+
 =head2 Named Unary Operators
 X<operator, named unary>
 
@@ -472,13 +527,11 @@ Binary C<< ">" >> returns true if the left argument is numerically greater
 than the right argument.
 X<< > >>
 
-Binary C<< "<=" >> returns true if the left argument is numerically less than
-or equal to the right argument.
-X<< <= >>
+Binary C<< "<=" >> or C<≤> returns true if the left argument is
+numerically less than or equal to the right argument.  X<< <= >>
 
-Binary C<< ">=" >> returns true if the left argument is numerically greater
-than or equal to the right argument.
-X<< >= >>
+Binary C<< ">=" >> or C<≥> returns true if the left argument is
+numerically greater than or equal to the right argument.  X<< >= >>
 
 Binary C<"lt"> returns true if the left argument is stringwise less than
 the right argument.
@@ -499,15 +552,15 @@ X<< ge >>
 =head2 Equality Operators
 X<equality> X<equal> X<equals> X<operator, equality>
 
-Binary C<< "==" >> returns true if the left argument is numerically equal to
-the right argument.
+Binary C<< "==" >> returns true if the left argument is numerically
+equal to the right argument.
 X<==>
 
-Binary C<< "!=" >> returns true if the left argument is numerically not equal
-to the right argument.
+Binary C<< "!=" >> or C<≠> returns true if the left argument is
+numerically not equal to the right argument.
 X<!=>
 
-Binary C<< "<=>" >> returns -1, 0, or 1 depending on whether the left
+Binary C<< "<=>" >> or C<⇔> returns -1, 0, or 1 depending on whether the left
 argument is numerically less than, equal to, or greater than the right
 argument.  If your platform supports C<NaN>'s (not-a-numbers) as numeric
 values, using them with C<< "<=>" >> returns undef.  C<NaN> is not

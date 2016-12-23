@@ -289,6 +289,7 @@ static const char* const lex_state_names[] = {
 #define Aop(f)   return ao((pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, (int)ADDOP))
 #define AopNOASSIGN(f) return (pl_yylval.ival=f, PL_bufptr=s, REPORT((int)ADDOP))
 #define Mop(f)   return ao((pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, (int)MULOP))
+#define UMop(f)   return ao((pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, (int)UNIMULOP))
 #define Eop(f)   return (pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, REPORT((int)EQOP))
 #define Rop(f)   return (pl_yylval.ival=f, PL_expect=XTERM, PL_bufptr=s, REPORT((int)RELOP))
 
@@ -431,6 +432,7 @@ static struct debug_tokens {
     { SUB,		TOKENTYPE_IVAL,		"SUB" },
     { THING,		TOKENTYPE_OPVAL,	"THING" },
     { UMINUS,		TOKENTYPE_NONE,		"UMINUS" },
+    { UNIMULOP,		TOKENTYPE_OPNUM,	"UNIMULOP" },
     { UNIOP,		TOKENTYPE_OPNUM,	"UNIOP" },
     { UNIOPSUB,		TOKENTYPE_OPVAL,	"UNIOPSUB" },
     { UNLESS,		TOKENTYPE_IVAL,		"UNLESS" },
@@ -5753,7 +5755,7 @@ Perl_yylex(pTHX)
                 Perl_croak(aTHX_ "panic: input overflow");
 	}
 	goto retry;
-    case (char)((U8)0xE2): { /* lots of utf8: -> => <=> != <= >= */
+    case (char)((U8)0xE2): { /* lots of utf8: -> => <=> != <= >= ⁄ */
         U8 c;
         /* requires use utf8 and use 5.22 or -E */
         if (!UTF || !FEATURE_UNICODE_IS_ENABLED || PL_expect == XREF) {
@@ -5814,15 +5816,22 @@ Perl_yylex(pTHX)
             s += 3;
             Rop(OP_LE);
         }
-        else if (memEQc(s,"\xE2\x8B\x85")) { /* ⋅ * U+022C5 \342\200\247 (sdot) */
+        else if (memEQc(s,"\xE2\x8B\x85") ||   /* ⋅ * U+022C5 \342\200\247 (sdot) */
+                 memEQc(s,"\xE2\x88\x99")) {  /* ∙ U+2219 \342\210\231 bullet operator */
             if (*(s+4) == '=' && !PL_lex_allbrackets &&
 		PL_lex_fakeeof >= LEX_FAKEEOF_ASSIGN) {
                 TOKEN(0);
             }
             s += 3;
             PL_parser->saw_infix_sigil = 1;
-            Mop(OP_MULTIPLY);
+            Mop(OP_MULTIPLY); /* binds weak */
         }
+        else if (memEQc(s,"\xE2\x81\x84") && PL_expect == XOPERATOR) {
+            /* 1⁄3 U+02044 \342\201\204 (fraction) */
+            s += 3;
+            UMop(OP_DIVIDE);  /* binds strongest */
+        }
+
         /* superscripts as power with a constant: $a ** [0,4-9], 1-2 digits only */
         /* "\xE2\x81\xB0" ⁰ **0 U+02070 \342\201\260 */
 #define doPOWcop(len,val)                               \

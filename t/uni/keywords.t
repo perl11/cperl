@@ -10,7 +10,7 @@ BEGIN {
 use utf8;
 use 5.021011;
 
-plan( tests => 16 );
+plan( tests => 19 );
 
 {
   my $h = eval '{main ⇒ 1}';
@@ -28,6 +28,12 @@ ok eval '$obj→test', "unicode -> ARROW";
 my @a = eval 'sort {$a⇔$b} (2,1)';
 ok $a[0] == 1, 'unicode <=> NCMP';
 
+{
+  no utf8;
+  eval '2⁴';
+  is($@, 'Unrecognized character \xE2; marked by <-- HERE after 2<-- HERE near column 2 at (eval 12) line 1.'."\n", 'throws error without utf8');
+}
+
 $a = eval '1≠2';
 ok $a, 'unicode != NE';
 $a = eval '1≤2';
@@ -37,7 +43,14 @@ ok $a, 'unicode >= GE';
 $a = eval '10÷2';
 is ($a, 5, 'unicode / DIVIDE');
 $a = eval '10⋅2';
-is($a, 20, 'unicode * DOT');
+is($a, 20, 'unicode * SDOT');
+# ** binds higher then /, but uni fraction binds strongest
+$a = eval '2⁄2**3'; # TODO: sup 6 / sub 2
+is ($a, 1, 'unicode / fraction binds strong');
+$a = eval '0.5⋅2**3';
+is ($a, 4, 'unicode sdot binds weak');
+$a = eval '0.5∙2**3';
+is ($a, 4, 'unicode mdot binds weak');
 
 eval 'my $x=2;@a=($x⁰,2¹,$x²,2³,$x⁴,$x⁵,$x⁶,$x⁷,$x⁸,$x⁹);';
 ok(eq_array(\@a, [1,2,4,8,16,32,64,128,256,512]), 'unicode pow 0-9 superscripts');
@@ -51,12 +64,6 @@ is($a, 33554432, 'unicode pow 2 digits composed: 2**25');
 $a = eval '2⁰²⁵'; # => (2**02)**5
 is($a, 1024, 'unicode pow 3 digits composed (2**02)**5');
 is($@, '', 'no error with pow >3 digits ');
-
-{
-  no utf8;
-  eval '2⁴';
-  is($@, 'Unrecognized character \xE2; marked by <-- HERE after 2<-- HERE near column 2 at (eval 21) line 1.'."\n", 'throws error without utf8');
-}
 
 my $b = 1;
 $a = eval '(1+$b)²';
