@@ -311,21 +311,21 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
     PERL_ARGS_ASSERT_CV_UNDEF_FLAGS;
 
     DEBUG_X(PerlIO_printf(Perl_debug_log,
-	  "CV undef:  cv=0x%" UVxf " comppad=0x%" UVxf " %s\n",
-          PTR2UV(cv), PTR2UV(PL_comppad), CvNAMEPV(cv))
-    );
+	  "CV undef:  cv=0x%" UVxf " comppad=0x%" UVxf " %" SVf "\n",
+                          PTR2UV(cv), PTR2UV(PL_comppad),
+                          SVfARG(cv_name(cv,NULL,0))));
 
     if (CvFILE(&cvbody)) {
 	char * file = CvFILE(&cvbody);
 	CvFILE(&cvbody) = NULL;
-	if(CvDYNFILE(&cvbody))
+	if (CvDYNFILE(&cvbody))
 	    Safefree(file);
     }
 
     /* CvSLABBED_off(&cvbody); *//* turned off below */
     /* release the sub's body */
     if (!CvISXSUB(&cvbody)) {
-        if(CvROOT(&cvbody)) {
+        if (CvROOT(&cvbody)) {
             assert(SvTYPE(cv) == SVt_PVCV || SvTYPE(cv) == SVt_PVFM); /*unsafe is safe */
             if (CvDEPTHunsafe(&cvbody)) {
                 assert(SvTYPE(cv) == SVt_PVCV);
@@ -343,7 +343,7 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
             LEAVE;
         }
 	else if (CvSLABBED(&cvbody)) {
-            if( CvSTART(&cvbody)) {
+            if (CvSTART(&cvbody)) {
                 ENTER;
                 PAD_SAVE_SETNULLPAD();
 
@@ -469,15 +469,16 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
     /* remove CvOUTSIDE unless this is an undef rather than a free */
     if (!SvREFCNT(cv)) {
 	CV * outside = CvOUTSIDE(&cvbody);
-	if(outside) {
+	if (outside) {
 	    CvOUTSIDE(&cvbody) = NULL;
 	    if (!CvWEAKOUTSIDE(&cvbody))
 		SvREFCNT_dec_NN(outside);
 	}
     }
-    if (CvCONST(&cvbody)) {
-	SvREFCNT_dec(MUTABLE_SV(CvXSUBANY(&cvbody).any_ptr));
-	/* CvCONST_off(cv); *//* turned off below */
+    if (CvCONST(&cvbody) && CvISXSUB(&cvbody)) {
+        SV *sv = MUTABLE_SV(CvXSUBANY(&cvbody).any_ptr);
+        if (sv && SvTYPE(sv) != SVt_PVAV && SvREFCNT(sv))
+            SvREFCNT_dec_NN(sv);
     }
     /* delete all flags except WEAKOUTSIDE and CVGV_RC, which indicate the
      * ref status of CvOUTSIDE and CvGV, and ANON, NAMED and
@@ -2380,7 +2381,8 @@ Perl_cv_name(pTHX_ CV *cv, SV *sv, U32 flags)
 	    }
 	    else if (CvLEXICAL(cv) || flags & CV_NAME_NOTQUAL)
 		sv_sethek(retsv, GvNAME_HEK(GvEGV(CvGV(cv))));
-	    else gv_efullname4(retsv, CvGV(cv), NULL, !(flags & CV_NAME_NOMAIN));
+	    else if (CvGV(cv))
+                gv_efullname4(retsv, CvGV(cv), NULL, !(flags & CV_NAME_NOMAIN));
 	}
 	else if (flags & CV_NAME_NOTQUAL) {
             sv_sethek(retsv, GvNAME_HEK(cv));
@@ -2601,7 +2603,7 @@ Perl_padlist_dup(pTHX_ PADLIST *srcpad, CLONE_PARAMS *param)
 			    pad1a[ix] = sv_dup_inc(oldpad[ix], param);
 			}
 		    else {		/* our own lexical */
-			if(SvPADSTALE(oldpad[ix]) && SvREFCNT(oldpad[ix]) > 1) {
+			if (SvPADSTALE(oldpad[ix]) && SvREFCNT(oldpad[ix]) > 1) {
 			    /* This is a work around for how the current
 			       implementation of ?{ } blocks in regexps
 			       interacts with lexicals.  */
