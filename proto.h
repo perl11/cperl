@@ -8030,7 +8030,7 @@ STATIC void	S_find_and_forget_pmops(pTHX_ OP *o)
 #define PERL_ARGS_ASSERT_FIND_AND_FORGET_PMOPS	\
 	assert(o)
 
-STATIC OP*	S_fold_constants(pTHX_ OP *o)
+STATIC OP*	S_fold_constants(pTHX_ OP * const o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_FOLD_CONSTANTS	\
 	assert(o)

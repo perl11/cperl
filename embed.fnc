@@ -531,7 +531,7 @@ i	|OP*	|op_std_init	|NN OP *o
 i	|OP*	|newMETHOP_internal	|I32 type|I32 flags|NULLOK OP* dynamic_meth \
 					|NULLOK SV* const_meth
 : FIXME
-s	|OP*	|fold_constants	|NN OP *o
+s	|OP*	|fold_constants	|NN OP * const o
 #endif
 #if defined(USE_ITHREADS)
 pXo	|void	|op_relocate_sv	|NN SV** svp|NN PADOFFSET* targp
