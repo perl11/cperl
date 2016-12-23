@@ -38,7 +38,7 @@ sub do_test {
     my $repeat_todo = $_[4];
     my $pattern = $_[2];
     my $do_eval = $_[5];
-    if (open(OUT,">peek$$")) {
+    if (open(OUT,'>', "peek$$")) {
 	open(STDERR, ">&OUT") or die "Can't dup OUT: $!";
         if ($do_eval) {
             my $sub = eval "sub { Dump $_[1] }";
@@ -57,7 +57,7 @@ sub do_test {
         }
 	open(STDERR, ">&SAVERR") or die "Can't restore STDERR: $!";
 	close(OUT);
-	if (open(IN, "peek$$")) {
+	if (open(IN, '<', "peek$$")) {
 	    local $/;
 	    $pattern =~ s/  FLAGS = \\/  FLAGS = \$ADDR \\/g if $] >= 5.021011;
 	    $pattern =~ s/ AUX_FLAGS = 0/ AUX_FLAGS = 0x0 \\(\\)/mg if cperl and $] >= 5.025001;
@@ -1213,7 +1213,7 @@ unless ($Config{useithreads}) {
 # (One block of study tests removed when study was made a no-op.)
 
 {
-    open(OUT,">peek$$") or die "Failed to open peek $$: $!";
+    open(OUT, '>', "peek$$") or die "Failed to open peek $$: $!";
     open(STDERR, ">&OUT") or die "Can't dup OUT: $!";
     DeadCode();
     open(STDERR, ">&SAVERR") or die "Can't restore STDERR: $!";
@@ -1299,12 +1299,12 @@ do_test('UTF-8 in a regular expression',
 use utf8;
 
 sub _dump {
-   open(OUT,">peek$$") or die $!;
+   open(OUT, '>', "peek$$") or die $!;
    open(STDERR, ">&OUT") or die "Can't dup OUT: $!";
    Dump($_[0]);
    open(STDERR, ">&SAVERR") or die "Can't restore STDERR: $!";
    close(OUT);
-   open(IN, "peek$$") or die $!;
+   open(IN, '<', "peek$$") or die $!;
    my $dump = do { local $/; <IN> };
    close(IN);
    1 while unlink "peek$$";

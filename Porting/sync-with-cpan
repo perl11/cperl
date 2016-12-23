@@ -368,7 +368,7 @@ for my $module (@modules) {
         next FILE if $base =~ $qr;
       }
       # How to deal with unwritable files?
-      open(my $fh, ">>", $file)
+      open(my $fh, '>>', $file)
         || warn "Cannot write $file:$!";
       close($fh);
       utime($t,$t,$file);

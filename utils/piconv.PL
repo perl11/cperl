@@ -18,7 +18,7 @@ chdir dirname($0);
 my $file = basename($0, '.PL');
 $file .= '.com' if $^O eq 'VMS';
 
-open OUT,">$file" or die "Can't create $file: $!";
+open OUT, ">", $file or die "Can't create $file: $!";
 
 print "Extracting $file (with variable substitutions)\n"
   unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
@@ -36,7 +36,7 @@ use File::Spec;
 
 my $piconv = File::Spec->catfile(File::Spec->catdir(File::Spec->updir, "cpan", "Encode", "bin"), "piconv");
 
-if (open(PICONV, $piconv)) {
+if (open(PICONV, '<', $piconv)) {
     print OUT <PICONV>;
     close PICONV;
 } else {

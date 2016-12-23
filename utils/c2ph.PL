@@ -40,7 +40,7 @@ chdir dirname($0);
 $file = basename($0, '.PL');
 $file .= '.com' if $^O eq 'VMS';
 
-open OUT,">$file" or die "Can't create $file: $!";
+open OUT, '>', $file or die "Can't create $file: $!";
 
 print "Extracting $file (with variable substitutions)\n"
   unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
@@ -1280,9 +1280,9 @@ sub fetch_template {
 }
 
 sub compute_intrinsics {
-    safedir;
-    my ($TMP) = "$SAFEDIR/c2ph-i.$$.c";
-    open (TMP, ">$TMP") || die "can't open $TMP: $!";
+    safedir();
+    local($TMP) = "$SAFEDIR/c2ph-i.$$.c";
+    open (TMP, ">", $TMP) || die "can't open $TMP: $!";
     select(TMP);
 
     print STDERR "computing intrinsic sizes: " if $trace;

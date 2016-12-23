@@ -18,7 +18,7 @@ chdir dirname($0);
 $file = basename($0, '.PL');
 $file .= '.com' if $^O eq 'VMS';
 
-open OUT,">$file" or die "Can't create $file: $!";
+open OUT, ">", $file or die "Can't create $file: $!";
 
 print "Extracting $file (with variable substitutions)\n"
   unless defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/;
@@ -127,7 +127,7 @@ while (<>) {
 	$export_ok = "\@EXPORT_OK = qw(@export_ok);\n";
     }
 
-    if ( open(PM, ">$newname") ) {
+    if ( open(PM, ">", $newname) ) {
         print PM <<"END";
 package $newpack;
 use 5.006;
