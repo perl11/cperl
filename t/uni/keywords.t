@@ -38,6 +38,8 @@ $a = eval '10÷2';
 is ($a, 5, 'unicode / DIVIDE');
 $a = eval '10⋅2';
 is($a, 20, 'unicode * DOT');
+$a = eval '1+6⁄2'; # TODO: sup 6 / sub 2
+is ($a, 4, 'unicode / fraction');
 
 eval 'my $x=2;@a=($x⁰,2¹,$x²,2³,$x⁴,$x⁵,$x⁶,$x⁷,$x⁸,$x⁹);';
 ok(eq_array(\@a, [1,2,4,8,16,32,64,128,256,512]), 'unicode pow 0-9 superscripts');

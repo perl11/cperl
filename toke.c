@@ -5753,7 +5753,7 @@ Perl_yylex(pTHX)
                 Perl_croak(aTHX_ "panic: input overflow");
 	}
 	goto retry;
-    case (char)((U8)0xE2): { /* lots of utf8: -> => <=> != <= >= */
+    case (char)((U8)0xE2): { /* lots of utf8: -> => <=> != <= >= ⁄ */
         U8 c;
         /* requires use utf8 and use 5.22 or -E */
         if (!UTF || !FEATURE_UNICODE_IS_ENABLED || PL_expect == XREF) {
@@ -5823,6 +5823,12 @@ Perl_yylex(pTHX)
             PL_parser->saw_infix_sigil = 1;
             Mop(OP_MULTIPLY);
         }
+        else if (memEQc(s,"\xE2\x81\x84") && PL_expect == XOPERATOR) {
+            /* 1⁄3 U+02044 \342\201\204 (fraction) */
+            s += 3;
+            Mop(OP_DIVIDE);
+        }
+
         /* superscripts as power with a constant: $a ** [0,4-9], 1-2 digits only */
         /* "\xE2\x81\xB0" ⁰ **0 U+02070 \342\201\260 */
 #define doPOWcop(len,val)                               \
