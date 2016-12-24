@@ -107,7 +107,7 @@ sub get_module_list {
   close F;
   @modules = grep {s/\s+//g;!/^#/} split /\n/, $s;
 
-  diag "scanning installed modules";
+  diag "scanning installed modules" unless $ENV{PERL_CORE};
   for my $m (@modules) {
     # redirect stderr
     open (SAVEOUT, ">&STDERR");
