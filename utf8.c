@@ -4789,7 +4789,6 @@ Perl__swash_to_invlist(pTHX_ SV* const swash)
             invlist = _new_invlist(0);
         }
         else {
-            while (isSPACE(*l)) l++;
             l = (U8 *) after_atou;
 
             /* Get the 0th element, which is needed to setup the inversion list */
