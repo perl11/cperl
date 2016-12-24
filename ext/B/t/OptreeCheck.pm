@@ -725,8 +725,9 @@ sub mkCheckRex {
     $str =~ s/(\d refs?)/\\d+ refs?/msg;		# 1 ref, 2+ refs (plural)
     $str =~ s/leavesub \[\d\]/leavesub [\\d]/msg;	# for -terse
     # wild pad targ values
-    $str =~ s/(padsv|padav|padhv|padrange|aelemfast_lex)\[(.+?) \d+,\d+\]/$1\\[$2 \\d+,\\d+\\]/msg;
-    $str =~ s/(padrange\[.+?) \d+,\d+;/$1 \\d+,\\d+;/msg;
+    $str =~ s/(padsv|padav|padhv|padrange|aelemfast_lex)\\\[(.+?) \d+,\d+\\\]/$1\\[$2 \\d+,\\d+\\]/msg;
+    $str =~ s/(padrange\\\[.+?) \d+,\d+;/$1 \\d+,\\d+;/msg;
+    $str =~ s/(padrange\\\[.+?) \d+,\d+;/$1 \\d+,\\d+;/msg; # $a @b %c => 2x
     #$str =~ s/(\s*)\n/\n/msg;				# trailing spaces
     
     croak "whitespace only reftext found for '$want': $tc->{name}"
