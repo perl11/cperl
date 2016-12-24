@@ -193,13 +193,7 @@ C<(keys @_) = ...>, which are also errors.  [perl #128187]
 
 =item *
 
-The new v5.24 Config keys B<d_newlocale>, B<d_freelocale> and
-B<d_uselocale> and corresponding F<config.h> defines B<HAS_NEWLOCALE>,
-B<HAS_FREELOCALE> and B<HAS_USELOCALE> are unused and deprecated with
-v5.25.3c
-
-The new v5.26 upstream Config keys B<i_xlocale> and B<d_duplocale> are
-never stored as such, and are not available in cperl.
+XXX
 
 =back
 

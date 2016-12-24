@@ -265,7 +265,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1273
+#define TOTAL_KEYWORDS 1275
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 30
 #define MIN_HASH_VALUE 3
@@ -1458,6 +1458,7 @@ struct stringpool_t
     char stringpool_str4286[sizeof ("d_safemcpy")];
     char stringpool_str4293[sizeof ("yaccflags")];
     char stringpool_str4301[sizeof ("perl_patchlevel")];
+    char stringpool_str4309[sizeof ("i_xlocale")];
     char stringpool_str4313[sizeof ("d_killpg")];
     char stringpool_str4320[sizeof ("d_getspnam_r")];
     char stringpool_str4322[sizeof ("fpostype")];
@@ -1484,6 +1485,7 @@ struct stringpool_t
     char stringpool_str4527[sizeof ("d_vendorarch")];
     char stringpool_str4538[sizeof ("d_sockaddr_sa_len")];
     char stringpool_str4552[sizeof ("ldlibpthname")];
+    char stringpool_str4559[sizeof ("d_querylocale")];
     char stringpool_str4562[sizeof ("dynamic_ext")];
     char stringpool_str4575[sizeof ("d_pwpasswd")];
     char stringpool_str4614[sizeof ("db_version_patch")];
@@ -2734,6 +2736,7 @@ static const struct stringpool_t stringpool_contents =
     "d_safemcpy",
     "yaccflags",
     "perl_patchlevel",
+    "i_xlocale",
     "d_killpg",
     "d_getspnam_r",
     "fpostype",
@@ -2760,6 +2763,7 @@ static const struct stringpool_t stringpool_contents =
     "d_vendorarch",
     "d_sockaddr_sa_len",
     "ldlibpthname",
+    "d_querylocale",
     "dynamic_ext",
     "d_pwpasswd",
     "db_version_patch",
@@ -5960,8 +5964,10 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4301,	T_INV,0,ALN64I"@@perl_patchlevel@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4309,		T_INV,0,ALN64I"@@i_xlocale@@"},
+      {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4313,		T_INV,0,ALN64I"@@d_killpg@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -6050,7 +6056,10 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4552,		T_INV,0,ALN64I"@@ldlibpthname@@"},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4559,		T_INV,0,ALN64I"@@d_querylocale@@"},
+      {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4562,		T_INV,0,ALN64I"@@dynamic_ext@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -6941,7 +6950,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str9303,	T_INV,0,ALN64I"@@d_attribute_always_inline@@"}
     };
 
-#line 6944 "Config.xs"
+#line 6953 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

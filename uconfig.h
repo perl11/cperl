@@ -4159,21 +4159,24 @@
  *	This symbol, if defined, indicates that the newlocale routine is
  *	available to return a new locale object or modify an existing
  *	locale object.
- *      This new v5.24 key was never used and is deprecated.
  */
 /* HAS_FREELOCALE:
  *	This symbol, if defined, indicates that the freelocale routine is
  *	available to deallocates the resources associated with a locale object.
- *      This new v5.24 key was never used and is deprecated.
  */
 /* HAS_USELOCALE:
  *	This symbol, if defined, indicates that the uselocale routine is
  *	available to set the current locale for the calling thread.
- *      This new v5.24 key was never used and is deprecated.
+ */
+/* I_XLOCALE:
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include <xlocale.h> to get uselocale() and its friends.
  */
 /*#define	HAS_NEWLOCALE	/ **/
 /*#define	HAS_FREELOCALE	/ **/
 /*#define	HAS_USELOCALE	/ **/
+/*#define	HAS_QUERYLOCALE	/ **/
+/*#define	I_XLOCALE               / **/
 
 /* HAS_NEXTAFTER:
  *	This symbol, if defined, indicates that the nextafter routine is
@@ -5393,6 +5396,6 @@
 #endif
 
 /* Generated from:
- * b34c889e80f8d06c693aef3144ca5a30e9bce3e451026b72e36d43aa854324df config_h.SH
- * 3a2fdfafabd2b6647a283bffb4e5250c332b438022fd1503f815c037ac5eace7 uconfig.sh
+ * cad488b2c73579300490b758f610332c405a9d02a9d750da13d8a2ba17283ca3 config_h.SH
+ * 81c039d8d31caba5af87490c0bc74e3f9b5e9d8653b017448a2b1fa0fe485f8a uconfig.sh
  * ex: set ro: */
