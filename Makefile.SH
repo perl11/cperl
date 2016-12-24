@@ -659,21 +659,18 @@ utils/Makefile: \$(MINIPERL_EXE) \$(CONFIGPM) utils/Makefile.PL
 	\$(MINIPERL) utils/Makefile.PL
 
 utilities:	utils/Makefile $util_deps
-	@echo " "; echo "	Making utilities"; cd utils; \$(LDLIBPTH) \$(MAKE) all
-
-!GROK!THIS!
-
-$spitshell >>$Makefile <<'!NO!SUBS!'
+	cd utils; \$(LDLIBPTH) \$(MAKE) all
 
 # This is now done by installman only if you actually want the man pages.
-#	@echo " "; echo "	Making docs"; cd pod; $(MAKE) all;
+#docs:
+#	cd pod; \$(LDLIBPTH) \$(MAKE) all;
 
 # Phony target to force checking subdirectories.
 # Apparently some makes require an action for the FORCE target.
 .PHONY: FORCE
 FORCE:
 	@sh -c true
-!NO!SUBS!
+!GROK!THIS!
 
 for file in op perl; do
     if $issymlink $file.c; then
