@@ -7983,12 +7983,15 @@ Perl_yylex(pTHX)
 		d = s;
 
 		if (l >= 3 && memEQc(d, "my")
-                    && (isSPACE(*(d + 2)) || *(d+2) == '$')) {
+                    && (isSPACE(*(d+2)) || *(d+2) == '$'
+                        || (*(d+2) == '\\' && *(d+3) == '$'))) {
 		    d += 2;
                     d = skipspace(d);
                 }
                 else if (l >= 4 && memEQc(d, "our")
-                         && (isSPACE(*(d + 3)) || *(d+3) == '$')) {
+                         && (isSPACE(*(d+3))
+                             || *(d+3) == '$'
+                             || (*(d+3) == '\\' && *(d+4) == '$'))) {
 		    d += 3;
                     d = skipspace(d);
                 }

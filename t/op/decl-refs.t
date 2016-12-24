@@ -3,24 +3,21 @@ BEGIN {
     require './test.pl';
     set_up_inc('../lib');
 }
+use Config;
 
-plan 402;
+plan 378;
 
 for my $decl (qw< my CORE::state our local >) {
     for my $funny (qw< $ @ % >) {
         # Test three syntaxes with each declarator/funny char combination:
         #     my \$foo    my(\$foo)    my\($foo)    for my \$foo
-
-        for my $code("$decl \\${funny}x", "$decl\(\\${funny}x\)",
-                     "$decl\\\(${funny}x\)",
-                     "for $decl \\${funny}x (\\${funny}y) {}") {
-          SKIP: {
-            skip "for local is illegal", 3 if $code =~ /^for local/;
+        my @decls = ("$decl \\${funny}x", "$decl\(\\${funny}x\)",
+                      "$decl\\\(${funny}x\)");
+        push @decls, "for $decl \\${funny}x (\\${funny}y) {}" if $decl =~ /(my|our)/;
+        for my $code (@decls) {
             eval $code;
-            like
-                $@,
-                qr/^The experimental declared_refs feature is not enabled/,
-               "$code error when feature is disabled";
+            like $@, qr/^The experimental declared_refs feature is not enabled/,
+              "$code error when feature is disabled";
 
             use feature 'declared_refs';
 
@@ -30,7 +27,6 @@ for my $decl (qw< my CORE::state our local >) {
             is $c, 1, "one warning from $code";
             like $w, qr/^Declaring references is experimental at /,
                 "experimental warning for $code";
-          }
         }
     }
 }
@@ -39,7 +35,7 @@ use feature 'declared_refs', 'state';
 no warnings 'experimental::declared_refs';
 
 for $decl ('my', 'state', 'our', 'local') {
-for $sigl ('$', '@', '%') {
+  for $sigl ('$', '@', '%') {
     # The weird code that follows uses ~ as a sigil placeholder and MY
     # as a declarator placeholder.
     my $code = '#line ' . (__LINE__+1) . ' ' . __FILE__ . "\n" . <<'END';
@@ -66,7 +62,9 @@ for $sigl ('$', '@', '%') {
     };
     SKIP : {
         unless ('MY' eq 'local') {
-            skip_if_miniperl "No attributes on miniperl", 2;
+            unless ($Config{usecperl}) {
+                skip_if_miniperl "No attributes on perl5 miniperl", 2;
+            }
             eval 'MY \~h : risible' or die $@ unless 'MY' eq 'local';
         }
     }
@@ -89,7 +87,9 @@ for $sigl ('$', '@', '%') {
     };
     SKIP : {
         unless ('MY' eq 'local') {
-            skip_if_miniperl "No attributes on miniperl", 2;
+            unless ($Config{usecperl}) {
+                skip_if_miniperl "No attributes on perl5 miniperl", 2;
+            }
             eval 'MY (\~h) : bumpy' or die $@;
         }
     }
@@ -102,12 +102,13 @@ END
     if ($decl =~ /^(?:our|local)\z/) {
         $code =~ s/is ?no?t/is/g; # tests for package vars
     }
-    eval $code or die $@;
-}}
+    eval $code or die "$code: $@";
+  }
+}
 
 use feature 'refaliasing'; no warnings "experimental::refaliasing";
-for $decl ('my', 'state', 'our') {
-for $sigl ('$', '@', '%') {
+for $decl ('my', 'our') {
+  for $sigl ('$', '@', '%') {
     my $code = '#line ' . (__LINE__+1) . ' ' . __FILE__ . "\n" . <<'ENE';
     for MY \~x (\~::y) {
         is \~x, \~::y, '\~x aliased by for MY \~x';
@@ -118,5 +119,6 @@ ENE
     $code =~ s/MY/$decl/g;
     $code =~ s/~/$sigl/g;
     $code =~ s/is ?no?t/is/g if $decl eq 'our';
-    eval $code or die $@;
-}}
+    eval $code or die "$code: $@";
+  }
+}
