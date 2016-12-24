@@ -39,7 +39,7 @@ $Config{startperl}
 	if \$running_under_some_shell;
 !GROK!THIS!
 
-print <<'!NO!SUBS!';
+print OUT <<'!NO!SUBS!';
 
 BEGIN { pop @INC if $INC[-1] eq '.' }
 
