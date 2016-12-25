@@ -1625,11 +1625,13 @@ Not implemented.
 
 =item dump LABEL
 
+=item dump FILENAME
+
 (S<RISC OS>)
 Not useful.
 
 (Cygwin, Win32)
-Not supported.
+Not implemented, until the unexec branch lands.
 
 (VMS)
 Invokes VMS debugger.
@@ -1762,6 +1764,9 @@ Not implemented.
 Not implemented.
 
 =item getservbyport PORT,PROTO
+
+(S<Plan 9>, uconfig)
+Undefined.
 
 =item getpwent
 
