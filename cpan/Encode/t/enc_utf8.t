@@ -15,8 +15,8 @@ BEGIN {
     print "1..0 # encoding pragma does not support EBCDIC platforms\n";
     exit(0);
     }
-    if ($] >= 5.025003){
-    print "1..0 # Skip: Perl 5.25.2 or lower required\n";
+    if ($] >= 5.025003 and !$Config{usecperl}){
+    print "1..0 # Skip: Perl <=5.25.2 or cperl required\n";
     exit 0;
     }
 }
