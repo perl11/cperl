@@ -37,20 +37,21 @@ typedef struct yy_parser {
 
     /* parser state */
 
-    struct yy_parser *old_parser; /* previous value of PL_parser */
-    YYSTYPE	    yylval;	/* value of lookahead symbol, set by yylex() */
+    int		    yylen;	/* length of active reduction */
     int		    yychar;	/* The lookahead symbol.  */
-
-    /* Number of tokens to shift before error messages enabled.  */
-    int		    yyerrstatus;
+    YYSTYPE	    yylval;	/* value of lookahead symbol, set by yylex() */
 
     int		    stack_size;
-    int		    yylen;	/* length of active reduction */
     yy_stack_frame  *stack;	/* base of stack */
     yy_stack_frame  *ps;	/* current stack frame */
 
+    struct yy_parser *old_parser; /* previous value of PL_parser */
+    /* Number of tokens to shift before error messages enabled.  */
+    int		    yyerrstatus;
+
     /* lexer state */
 
+    char	tokenbuf[TOKENBUF_SIZE];
     I32		lex_brackets;	/* square and curly bracket count */
     I32		lex_casemods;	/* casemod count */
     char	*lex_brackstack;/* what kind of brackets to pop */
@@ -97,20 +98,18 @@ typedef struct yy_parser {
     U16		in_my;		/* we're compiling a "my"/"our" declaration */
     U8		lex_state;	/* next token is determined */
     U8		error_count;	/* how many compile errors so far, max 10 */
-		/* 16-BIT HOLE */
     HV		*in_my_stash;	/* declared class of this "my" declaration */
     PerlIO	*rsfp;		/* current source file pointer */
     AV		*rsfp_filters;	/* holds chain of active source filters */
-    U8		form_lex_state;	/* remember lex_state when parsing fmt */
 
     YYSTYPE	nextval[5];	/* value of next token, if any */
     I32		nexttype[5];	/* type of next token */
-    U8		nexttoke;
 
     COP		*saved_curcop;	/* the previous PL_curcop */
-    char	tokenbuf[TOKENBUF_SIZE];
     line_t	herelines;	/* number of lines in here-doc */
     line_t	preambling;	/* line # when processing $ENV{PERL5DB} */
+    U8		form_lex_state;	/* remember lex_state when parsing fmt */
+    U8		nexttoke;
     U8		lex_fakeeof;	/* precedence at which to fake EOF */
     U8		lex_flags;
     PERL_BITFIELD16	in_pod:1;      /* lexer is within a =pod section */
