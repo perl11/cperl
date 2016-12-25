@@ -6076,6 +6076,10 @@ static SV *retrieve_code(pTHX_ stcxt_t *cxt, const char *cname)
             CROAK(("Unexpected type %d in retrieve_code\n", (int)type));
 	}
 
+	if (!text) {
+		CROAK(("Unable to retrieve code\n"));
+	}
+
 	/*
 	 * prepend "sub " to the source
 	 */
@@ -6196,7 +6200,7 @@ static SV *old_retrieve_array(pTHX_ stcxt_t *cxt, const char *cname)
 			continue;			/* av_extend() already filled us with undef */
 		}
 		if (c != SX_ITEM)
-			(void) retrieve_other(aTHX_ (stcxt_t *) 0, 0);	/* Will croak out */
+			(void) retrieve_other(aTHX_ cxt, 0);	/* Will croak out */
 		TRACEME(("(#%d) item", (int)i));
 		sv = retrieve(aTHX_ cxt, 0);						/* Retrieve item */
 		if (!sv)
@@ -6274,7 +6278,7 @@ static SV *old_retrieve_hash(pTHX_ stcxt_t *cxt, const char *cname)
 			if (!sv)
 				return (SV *) 0;
 		} else
-			(void) retrieve_other(aTHX_ (stcxt_t *) 0, 0);	/* Will croak out */
+			(void) retrieve_other(aTHX_ cxt, 0);	/* Will croak out */
 
 		/*
 		 * Get key.
@@ -6285,7 +6289,7 @@ static SV *old_retrieve_hash(pTHX_ stcxt_t *cxt, const char *cname)
 
 		GETMARK(c);
 		if (c != SX_KEY)
-			(void) retrieve_other(aTHX_ (stcxt_t *) 0, 0); /* Will croak out */
+			(void) retrieve_other(aTHX_ cxt, 0); /* Will croak out */
 		RLEN(size);				/* Get key size */
 		KBUFCHK((STRLEN)size);			/* Grow hash key read pool if needed */
 		if (size)
