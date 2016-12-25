@@ -1479,6 +1479,10 @@ full description of available variables.
 
 =over 8
 
+=item -X FILEHANDLE
+
+=item -X EXPR
+
 =item -X
 
 (Win32)
@@ -1523,7 +1527,7 @@ Emulated using timers that must be explicitly polled whenever Perl
 wants to dispatch "safe signals" and therefore cannot interrupt
 blocking system calls.
 
-=item atan2
+=item atan2 Y,X
 
 (Tru64, HP-UX 10.20)
 Due to issues with various CPUs, math libraries, compilers, and standards,
@@ -1535,7 +1539,7 @@ run on does not allow it.
 The current version of the standards for C<atan2> is available at
 L<http://www.opengroup.org/onlinepubs/009695399/functions/atan2.html>.
 
-=item binmode
+=item binmode FILEHANDLE
 
 (S<RISC OS>)
 Meaningless.
@@ -1548,7 +1552,7 @@ filehandle may be closed, or pointer may be in a different position.
 The value returned by L<C<tell>|perlfunc/tell FILEHANDLE> may be affected
 after the call, and the filehandle may be flushed.
 
-=item chmod
+=item chmod LIST
 
 (Win32)
 Only good for changing "owner" read-write access; "group" and "other"
@@ -1568,7 +1572,7 @@ in the SYSTEM environment settings.
 Setting the exec bit on some locations (generally F</sdcard>) will return true
 but not actually set the bit.
 
-=item chown
+=item chown LIST
 
 (S<Plan 9>, S<RISC OS>)
 Not implemented.
@@ -1579,12 +1583,14 @@ Does nothing, but won't fail.
 (VOS)
 A little funky, because VOS's notion of ownership is a little funky.
 
+=item chroot FILENAME
+
 =item chroot
 
 (Win32, VMS, S<Plan 9>, S<RISC OS>, VOS)
 Not implemented.
 
-=item crypt
+=item crypt PLAINTEXT,SALT
 
 (Win32)
 May not be available if library or source was not provided when building
@@ -1593,17 +1599,17 @@ perl.
 (Android)
 Not implemented.
 
-=item dbmclose
+=item dbmclose HASH
 
 (VMS, S<Plan 9>, VOS)
 Not implemented.
 
-=item dbmopen
+=item dbmopen HASH,DBNAME,MODE
 
 (VMS, S<Plan 9>, VOS)
 Not implemented.
 
-=item dump
+=item dump LABEL
 
 (S<RISC OS>)
 Not useful.
@@ -1614,7 +1620,7 @@ Not supported.
 (VMS)
 Invokes VMS debugger.
 
-=item exec
+=item exec LIST
 
 (Win32)
 C<exec LIST> without the use of indirect object syntax (C<exec PROGRAM LIST>)
@@ -1625,6 +1631,8 @@ Does not automatically flush output handles on some platforms.
 
 (Symbian OS)
 Not supported.
+
+=item exit EXPR
 
 =item exit
 
@@ -1652,13 +1660,15 @@ A workaround is to use L<C<POSIX::_exit>|POSIX/C<_exit>>.
     require POSIX;
     POSIX::_exit(0);
 
-=item fcntl
+=item fcntl FILEHANDLE,FUNCTION,SCALAR
 
 (Win32)
 Not implemented.
 
 (VMS)
 Some functions available based on the version of VMS.
+
+=item flock FILEHANDLE,OPERATION
 
 =item flock
 
@@ -1681,7 +1691,7 @@ Does not automatically flush output handles on some platforms.
 (S<RISC OS>)
 Not implemented.
 
-=item getpgrp
+=item getpgrp PID
 
 (Win32, VMS, S<RISC OS>)
 Not implemented.
@@ -1691,12 +1701,12 @@ Not implemented.
 (Win32, S<RISC OS>)
 Not implemented.
 
-=item getpriority
+=item getpriority WHICH,WHO
 
 (Win32, VMS, S<RISC OS>, VOS)
 Not implemented.
 
-=item getpwnam
+=item getpwnam NAME
 
 (Win32)
 Not implemented.
@@ -1704,17 +1714,17 @@ Not implemented.
 (S<RISC OS>)
 Not useful.
 
-=item getgrnam
+=item getgrnam NAME
 
 (Win32, VMS, S<RISC OS>)
 Not implemented.
 
-=item getnetbyname
+=item getnetbyname NAME
 
 (Android, Win32, S<Plan 9>)
 Not implemented.
 
-=item getpwuid
+=item getpwuid UID
 
 (Win32)
 Not implemented.
@@ -1722,22 +1732,22 @@ Not implemented.
 (S<RISC OS>)
 Not useful.
 
-=item getgrgid
+=item getgrgid GID
 
 (Win32, VMS, S<RISC OS>)
 Not implemented.
 
-=item getnetbyaddr
+=item getnetbyaddr ADDR,ADDRTYPE
 
 (Android, Win32, S<Plan 9>)
 Not implemented.
 
-=item getprotobynumber
+=item getprotobynumber NUMBER
 
 (Android)
 Not implemented.
 
-=item getservbyport
+=item getservbyport PORT,PROTO
 
 =item getpwent
 
@@ -1780,22 +1790,22 @@ Not implemented.
 (Android)
 Not implemented.
 
-=item sethostent
+=item sethostent STAYOPEN
 
 (Android, Win32, S<Plan 9>, S<RISC OS>)
 Not implemented.
 
-=item setnetent
+=item setnetent STAYOPEN
 
 (Win32, S<Plan 9>, S<RISC OS>)
 Not implemented.
 
-=item setprotoent
+=item setprotoent STAYOPEN
 
 (Android, Win32, S<Plan 9>, S<RISC OS>)
 Not implemented.
 
-=item setservent
+=item setservent STAYOPEN
 
 (S<Plan 9>, Win32, S<RISC OS>)
 Not implemented.
@@ -1838,6 +1848,8 @@ Not implemented.
 (S<Plan 9>)
 Not implemented.
 
+=item glob EXPR
+
 =item glob
 
 This operator is implemented via the L<C<File::Glob>|File::Glob> extension
@@ -1865,7 +1877,7 @@ in the Winsock API does.
 (S<RISC OS>)
 Available only for socket handles.
 
-=item kill
+=item kill SIGNAL, LIST
 
 (S<RISC OS>)
 Not implemented, hence not useful for taint checking.
@@ -1888,7 +1900,7 @@ C<$pid>.
 A pid of -1 indicating all processes on the system is not currently
 supported.
 
-=item link
+=item link OLDFILE,NEWFILE
 
 (S<RISC OS>, VOS)
 Not implemented.
@@ -1913,6 +1925,10 @@ C<localtime> has the same range as L</gmtime>, but because time zone
 rules change, its accuracy for historical and future times may degrade
 but usually by no more than an hour.
 
+=item lstat FILEHANDLE
+
+=item lstat EXPR
+
 =item lstat
 
 (S<RISC OS>)
@@ -1921,32 +1937,40 @@ Not implemented.
 (Win32)
 Return values (especially for device and inode) may be bogus.
 
-=item msgctl
+=item msgctl ID,CMD,ARG
 
-=item msgget
+=item msgget KEY,FLAGS
 
-=item msgsnd
+=item msgsnd ID,MSG,FLAGS
 
-=item msgrcv
+=item msgrcv ID,VAR,SIZE,TYPE,FLAGS
 
 (Android, Win32, VMS, S<Plan 9>, S<RISC OS>, VOS)
 Not implemented.
 
-=item open
+=item open FILEHANDLE,EXPR
+
+=item open FILEHANDLE
 
 (Win32, S<RISC OS>)
 Open modes C<|-> and C<-|> are unsupported.
 
 (SunOS, Solaris, HP-UX)
 Opening a process does not automatically flush output handles on some
-platforms.
+platforms.  (SunOS, Solaris, HP-UX)
+
+=item pipe READHANDLE,WRITEHANDLE
+
+Very limited functionality. (MiNT)
+
+=item readlink EXPR
 
 =item readlink
 
 (Win32, VMS, S<RISC OS>)
 Not implemented.
 
-=item rename
+=item rename OLDNAME,NEWNAME
 
 (Win32)
 Can't move directories between directories on different logical volumes.
@@ -1958,7 +1982,7 @@ Will not cause L<C<readdir>|perlfunc/readdir DIRHANDLE> to re-read the
 directory stream.  The entries already read before the C<rewinddir> call
 will just be returned again from a cache buffer.
 
-=item select
+=item select RBITS,WBITS,EBITS,TIMEOUT
 
 (Win32, VMS)
 Only implemented on sockets.
@@ -1969,11 +1993,11 @@ Only reliable on sockets.
 Note that the L<C<select FILEHANDLE>|perlfunc/select FILEHANDLE> form is
 generally portable.
 
-=item semctl
+=item semctl ID,SEMNUM,CMD,ARG
 
-=item semget
+=item semget KEY,NSEMS,FLAGS
 
-=item semop
+=item semop KEY,OPSTRING
 
 (Android, Win32, VMS, S<RISC OS>)
 Not implemented.
@@ -1983,12 +2007,12 @@ Not implemented.
 (Android, VMS, Win32, S<RISC OS>)
 Not implemented.
 
-=item setpgrp
+=item setpgrp PID,PGRP
 
 (Win32, VMS, S<RISC OS>, VOS)
 Not implemented.
 
-=item setpriority
+=item setpriority WHICH,WHO,PRIORITY
 
 (Win32, VMS, S<RISC OS>, VOS)
 Not implemented.
@@ -1998,36 +2022,42 @@ Not implemented.
 (Android, Win32, S<RISC OS>)
 Not implemented.
 
-=item setsockopt
+=item setsockopt SOCKET,LEVEL,OPTNAME,OPTVAL
 
 (S<Plan 9>)
 Not implemented.
 
-=item shmctl
+=item shmctl ID,CMD,ARG
 
-=item shmget
+=item shmget KEY,SIZE,FLAGS
 
-=item shmread
+=item shmread ID,VAR,POS,SIZE
 
-=item shmwrite
+=item shmwrite ID,STRING,POS,SIZE
 
 (Android, Win32, VMS, S<RISC OS>)
 Not implemented.
 
-=item sleep
+=item sleep SECONDS
 
 (Win32)
 Emulated using synchronization functions such that it can be
 interrupted by L<C<alarm>|perlfunc/alarm SECONDS>, and limited to a
 maximum of 4294967 seconds, approximately 49 days.
 
-=item socketpair
+=item sockatmark SOCKET
+
+=item socketpair SOCKET1,SOCKET2,DOMAIN,TYPE,PROTOCOL
 
 (S<RISC OS>)
 Not implemented.
 
 (VMS)
 Available on 64 bit OpenVMS 8.2 and later.
+
+=item stat FILEHANDLE
+
+=item stat EXPR
 
 =item stat
 
@@ -2065,7 +2095,7 @@ and update attributes that may have been changed through hard links.
 Setting L<C<${^WIN32_SLOPPY_STAT}>|perlvar/${^WIN32_SLOPPY_STAT}> to a
 true value speeds up C<stat> by not performing this operation.
 
-=item symlink
+=item symlink OLDFILE,NEWFILE
 
 (Win32, S<RISC OS>)
 Not implemented.
@@ -2074,19 +2104,19 @@ Not implemented.
 Implemented on 64 bit VMS 8.3.  VMS requires the symbolic link to be in Unix
 syntax if it is intended to resolve to a valid path.
 
-=item syscall
+=item syscall LIST
 
 (Win32, VMS, S<RISC OS>, VOS)
 Not implemented.
 
-=item sysopen
+=item sysopen FILEHANDLE,FILENAME,MODE,PERMS
 
 (S<Mac OS>, OS/390)
 The traditional C<0>, C<1>, and C<2> MODEs are implemented with different
 numeric values on some systems.  The flags exported by L<C<Fcntl>|Fcntl>
 (C<O_RDONLY>, C<O_WRONLY>, C<O_RDWR>) should work everywhere though.
 
-=item system
+=item system LIST
 
 (Win32)
 As an optimization, may not call the command shell specified in
@@ -2127,7 +2157,7 @@ condition code is one that has a POSIX value encoded, the POSIX value will
 be decoded to extract the expected exit value.  For more details see
 L<perlvms/$?>.
 
-=item telldir
+=item telldir DIRHANDLE
 
 (Android)
 Not implemented.
@@ -2143,7 +2173,9 @@ runtime library.
 (S<RISC OS>)
 Not useful.
 
-=item truncate
+=item truncate FILEHANDLE,LENGTH
+
+=item truncate EXPR,LENGTH
 
 (Older versions of VMS)
 Not implemented.
@@ -2157,6 +2189,8 @@ mode (i.e., use C<<< open(my $fh, '>>', 'filename') >>>
 or C<sysopen(my $fh, ..., O_APPEND|O_RDWR)>.  If a filename is supplied, it
 should not be held open elsewhere.
 
+=item umask EXPR
+
 =item umask
 
 Returns C<undef> where unavailable.
@@ -2165,7 +2199,7 @@ Returns C<undef> where unavailable.
 C<umask> works but the correct permissions are set only when the file
 is finally closed.
 
-=item utime
+=item utime LIST
 
 (VMS, S<RISC OS>)
 Only the modification time is updated.
@@ -2178,7 +2212,7 @@ time" field, and it may limit timestamps to a granularity of two seconds.
 
 =item wait
 
-=item waitpid
+=item waitpid PID,FLAGS
 
 (Win32)
 Can only be applied to process handles returned for processes spawned
@@ -2190,12 +2224,10 @@ Not useful.
 
 =back
 
-
 =head1 Supported Platforms
 
-The following platforms are known to build Perl 5.12 (as of April 2010,
-its release date) from the standard source code distribution available
-at L<http://www.cpan.org/src>
+The following platforms are known to build Perl from the standard
+source code distribution available at L<http://www.cpan.org/src>
 
 =over
 
@@ -2205,7 +2237,7 @@ at L<http://www.cpan.org/src>
 
 =item AIX
 
-=item Win32
+=item Win32 (x86, Win64)
 
 =over
 
@@ -2220,6 +2252,10 @@ at L<http://www.cpan.org/src>
 =item Windows Server 2008
 
 =item Windows 7
+
+=item Windows 8
+
+=item Windows 10
 
 =back
 
