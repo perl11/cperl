@@ -4887,8 +4887,8 @@ Perl_sv_set_undef(pTHX_ SV *sv)
     if (isGV_with_GP(sv))
         Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
                        "Undefined value assigned to typeglob");
-
-    SvOK_off(sv);
+    else
+        SvOK_off(sv);
 }
 
 
