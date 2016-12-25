@@ -943,28 +943,38 @@ The L<C<$^O>|perlvar/$^O> variable and the
 L<C<$Config{archname}>|Config/C<archname>> values for various DOSish
 perls are as follows:
 
-    OS             $^O       $Config{archname}  ID    Version
-    ---------------------------------------------------------
-    MS-DOS         dos       ?
-    PC-DOS         dos       ?
-    OS/2           os2       ?
-    Windows 3.1    ?         ?                  0     3 01
-    Windows 95     MSWin32   MSWin32-x86        1     4 00
-    Windows 98     MSWin32   MSWin32-x86        1     4 10
-    Windows ME     MSWin32   MSWin32-x86        1     ?
-    Windows NT     MSWin32   MSWin32-x86        2     4 xx
-    Windows NT     MSWin32   MSWin32-ALPHA      2     4 xx
-    Windows NT     MSWin32   MSWin32-ppc        2     4 xx
-    Windows 2000   MSWin32   MSWin32-x86        2     5 00
-    Windows XP     MSWin32   MSWin32-x86        2     5 01
-    Windows 2003   MSWin32   MSWin32-x86        2     5 02
-    Windows Vista  MSWin32   MSWin32-x86        2     6 00
-    Windows 7      MSWin32   MSWin32-x86        2     6 01
-    Windows 7      MSWin32   MSWin32-x64        2     6 01
-    Windows 2008   MSWin32   MSWin32-x86        2     6 01
-    Windows 2008   MSWin32   MSWin32-x64        2     6 01
-    Windows CE     MSWin32   ?                  3
-    Cygwin         cygwin    cygwin
+    OS               $^O       $Config{archname}      ID    Version
+    ---------------------------------------------------------------
+    MS-DOS           dos       ?
+    PC-DOS           dos       ?
+    OS/2             os2       ?
+    Win32s           MSWin32   MSWin32-x86             0
+    Windows 3.1      MSWin32   MSWin32-x86             0     3 01
+    Windows 95       MSWin32   MSWin32-x86             1     4 00
+    Windows 98       MSWin32   MSWin32-x86             1     4 10
+    Windows ME       MSWin32   MSWin32-x86             1     4 90
+    Windows NT       MSWin32   MSWin32-x86             2     3.51 - 4.00
+    Windows NT       MSWin32   MSWin32-ALPHA           2     3.51 - 4.00
+    Windows NT       MSWin32   MSWin32-ppc             2     3.51 - 4.00
+    Windows 2000     MSWin32   MSWin32-x86             2     5 00
+    Windows XP       MSWin32   MSWin32-x86             2     5 01
+    Windows 2003     MSWin32   MSWin32-x86             2     5 02
+    Windows Home     MSWin32   MSWin32-x86             2     5 02
+    Windows Vista    MSWin32   MSWin32-x86             2     6 00
+    Windows 2008     MSWin32   MSWin32-x86             2     6 00
+    Windows 2008     MSWin32   MSWin32-x64             2     6 00
+    Windows 7        MSWin32   MSWin32-x86             2     6 01
+    Windows 7        MSWin32   MSWin32-x64             2     6 01
+    Windows 2008 R2  MSWin32   MSWin32-x86             2     6 00
+    Windows 2008 R2  MSWin32   MSWin32-x64             2     6 00
+    Windows 8        MSWin32   MSWin32-x86             2     6 02
+    Windows 8        MSWin32   MSWin32-x64             2     6 02
+    Windows 2012     MSWin32   MSWin32-x86             2     6 02
+    Windows 2012     MSWin32   MSWin32-x64             2     6 02
+    Windows 10       MSWin32   MSWin32-x86             2     6 02
+    Windows 10       MSWin32   MSWin32-x64             2     6 02
+    Windows CE       MSWin32   MS Pocket PC-WCE300-ARM 3
+    Cygwin           cygwin    cygwin
 
 The various MSWin32 Perl's can distinguish the OS they are running on
 via the value of the fifth element of the list returned from
@@ -974,6 +984,10 @@ L<C<Win32::GetOSVersion()>|Win32/Win32::GetOSVersion()>.  For example:
         my @os_version_info = Win32::GetOSVersion();
         print +('3.1','95','NT')[$os_version_info[4]],"\n";
     }
+
+Since Windows 8.1 GetOSVersion, GetVersion and with Windows 10
+VerifyVersionInfo has been deprecated by Microsoft.  One would need
+the IsWindows*OrGreater API.
 
 There are also C<Win32::IsWinNT()|Win32/Win32::IsWinNT()>,
 C<Win32::IsWin95()|Win32/Win32::IsWin95()>, and
