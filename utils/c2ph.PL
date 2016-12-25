@@ -196,7 +196,7 @@ cpp symbols, not real C, which was also very much needed.  What I offer
 you is a symbolic way of getting at all the C structures.  I've couched
 them in terms of packages and functions.  Consider the following program:
 
-    #!/usr/local/bin/perl
+    #!/usr/bin/perl
 
     require 'syscall.ph';
     require 'sys/time.ph';
@@ -352,16 +352,17 @@ my %sizeof = (
 );
 
 my ($type_width, $member_width, $offset_width, $size_width) = (20, 20, 6, 5);
-
 my ($offset_fmt, $size_fmt) = ('d', 'd');
-
 my $indent = 2;
+use Config;
 
-my $CC = 'cc';
+my $CC = $ENV{CC} || 'cc';
 !NO!SUBS!
 
+# TODO: CC=gcc may override this gcc detection
 if (($Config{gccversion} || '') =~ /^(\d+)\.(\d+)/
-  and ($1 > 3 or ($1 == 3 and $2 >= 2))) {
+    and ($1 > 3 or ($1 == 3 and $2 >= 2))
+    and $Config{gccversion} !~ /Clang/) {
     print OUT q/my $CFLAGS = '-gstabs -S';/;
 } else {
     print OUT q/my $CFLAGS = '-g -S';/;
@@ -369,7 +370,8 @@ if (($Config{gccversion} || '') =~ /^(\d+)\.(\d+)/
 
 print OUT <<'!NO!SUBS!';
 
-my $DEFINES = '';
+my $DEFINES = ($ENV{PERL_CORE} ? '-I.' : "-I".$Config{archlib}."/CORE")
+  . " -std=c89 ". $Config{ccflags};
 
 my $perl++ if $0 =~ m#/?c2ph$#;
 

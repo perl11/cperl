@@ -522,6 +522,17 @@ overhead:
 
 =back
 
+=head2 L<c2ph>
+
+=over 4
+
+=item *
+
+Allow other CC compilers (i.e. gcc for -gstabs). Check for clang.
+Use proper DEFINE flags.
+
+=back
+
 =head1 Configuration and Compilation
 
 XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
