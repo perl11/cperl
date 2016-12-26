@@ -3539,7 +3539,10 @@ S_scan_const(pTHX_ char *start)
 			has_utf8 = TRUE;
                     }
 
-                    if (has_utf8) {
+                    if (! has_utf8) {
+		        *d++ = (char)uv;
+                    }
+		    else {
                        /* Usually, there will already be enough room in 'sv'
                         * since such escapes are likely longer than any UTF-8
                         * sequence they can end up as.  This isn't the case on
@@ -3564,9 +3567,6 @@ S_scan_const(pTHX_ char *start)
 				(PL_lex_repl ? OPpTRANS_FROM_UTF
 					     : OPpTRANS_TO_UTF);
 			}
-                    }
-		    else {
-		        *d++ = (char)uv;
 		    }
 		}
 #ifdef EBCDIC
