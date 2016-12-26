@@ -69,13 +69,17 @@ Refetch the stack pointer.  Used after a callback.  See L<perlcall>.
 #define TOPMARK S_TOPMARK(aTHX)
 #define POPMARK S_POPMARK(aTHX)
 
-#define INCMARK \
-    STMT_START {                                                      \
-        DEBUG_s(DEBUG_v(PerlIO_printf(Perl_debug_log,                 \
-                "MARK inc  %p %" IVdf "\n",                             \
-                (PL_markstack_ptr+1), (IV)*(PL_markstack_ptr+1))));   \
-        PL_markstack_ptr++;                                           \
+#if defined(DEBUGGING)
+# define INCMARK                                              \
+    STMT_START {                                              \
+        PL_markstack_ptr++;                                   \
+        DEBUG_s(DEBUG_v(PerlIO_printf(Perl_debug_log,         \
+                "MARK inc  %p %" IVdf "\n",                   \
+                PL_markstack_ptr, (IV)*PL_markstack_ptr)));   \
     } STMT_END
+#else
+# define INCMARK                (void)(*PL_markstack_ptr++)
+#endif
 
 #define dSP		SV **sp = PL_stack_sp
 #define djSP		dSP
