@@ -2584,11 +2584,7 @@ Perl_my_strerror(pTHX_ const int errnum)
 
 # ifdef USE_THREAD_SAFE_LOCALE
 
-        if (save_locale
-#if defined(__APPLE__) && defined(LC_GLOBAL_LOCALE)
-            && save_locale != LC_GLOBAL_LOCALE
-#endif
-            && ! uselocale(save_locale)) {
+        if (save_locale && ! uselocale(save_locale)) {
             DEBUG_L(PerlIO_printf(Perl_debug_log,
                           "uselocale restore failed, errno=%d\n", errno));
         }

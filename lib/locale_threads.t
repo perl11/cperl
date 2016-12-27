@@ -12,11 +12,13 @@ BEGIN {
     skip_all_without_config('useithreads');
     $| = 1;
 }
+print "1..1\n";
 
 SKIP: { # perl #127708
     my @locales = grep { $_ !~ / ^ C \b | POSIX /x } find_locales('LC_MESSAGES',
                                                         'non-problematic-only');
     skip("No valid locale to test with", 1) unless @locales;
+    skip('darwin not-threadsafe uselocale', 1) if $^O eq 'darwin';
 
     # reset the locale environment
     local @ENV{'LANG', (grep /^LC_/, keys %ENV)};
@@ -50,5 +52,3 @@ SKIP: { # perl #127708
 
     pass("Didn't segfault");
 }
-
-done_testing;

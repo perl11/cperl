@@ -11,9 +11,9 @@ my $is_ebcdic = ord("A") == 193;
 
 no warnings 'locale';  # We test even weird locales; and do some scary things
                        # in ok locales
-
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
+my $test_num = 0;
 
 BEGIN {
     chdir 't' if -d 't';
@@ -25,11 +25,10 @@ BEGIN {
 	exit;
     }
     $| = 1;
-    require Config; import Config;
 }
-
 use strict;
-use feature 'fc', 'postderef';
+use feature 'fc';
+use Config;
 
 # =1 adds debugging output; =2 increases the verbosity somewhat
 our $debug = $ENV{PERL_DEBUG_FULL_TEST} // 0;
@@ -48,9 +47,9 @@ my %problematical_tests;
 # If any %problematical_tests fails in one of these locales, it is
 # considered a TODO.
 my %known_bad_locales = (
-                          irix => qr/ ^ (?: cs | hu | sk ) $/x,
-                          darwin => qr/ ^ lt_LT.ISO8859 /ix,
-                          os390 => qr/ ^ italian /ix,
+                          irix   => qr/ ^ (?: cs | hu | sk ) $/x,
+                          #darwin => qr/ ^ lt_LT.ISO8859 /ix,
+                          os390  => qr/ ^ italian /ix,
                         );
 
 # cygwin isn't returning proper radix length in this locale, but supposedly to
@@ -60,18 +59,18 @@ if ($^O eq 'cygwin' && version->new(($Config{osvers} =~ /^(\d+(?:\.\d+)+)/)[0]) 
 }
 
 use Dumpvalue;
-
-my $dumper = Dumpvalue->new(
-                            tick => qq{"},
-                            quoteHighBit => 0,
-                            unctrl => "quote"
-                           );
+my $dumper = Dumpvalue->new
+  (
+   tick         => qq{"},
+   quoteHighBit => 0,
+   unctrl       => "quote"
+  );
 
 sub debug {
-  return unless $debug;
-  my($mess) = join "", '# ', @_;
-  chomp $mess;
-  print STDERR $dumper->stringify($mess,1), "\n";
+    return unless $debug;
+    my ($mess) = join "", '# ', @_;
+    chomp $mess;
+    print STDERR $dumper->stringify($mess, 1), "\n";
 }
 
 sub note {
@@ -90,17 +89,18 @@ sub debugf {
 
 $a = 'abc %9';
 
-my $test_num = 0;
-
 sub ok {
     my ($result, $message) = @_;
     $message = "" unless defined $message;
 
     print 'not ' unless ($result);
     print "ok " . ++$test_num;
-    print " $message";
+    print " - $message";
     print "\n";
     return ($result) ? 1 : 0;
+}
+sub done_testing {
+    print "1..$test_num\n";
 }
 
 # First we'll do a lot of taint checking for locales.
@@ -733,9 +733,6 @@ check_taint_not $1, '"foo.bar_baz" =~ /^(.*)[._](.*?)$/';
 # Let us do some *real* locale work now,
 # unless setlocale() is missing (i.e. minitest).
 
-# The test number before our first setlocale()
-my $final_without_setlocale = $test_num;
-
 # Find locales.
 
 debug "Scanning for locales...\n";
@@ -754,6 +751,8 @@ unless (@Locale) {
     exit;
 }
 
+# The test number before our first setlocale()
+my $final_without_setlocale = $test_num;
 
 setlocale(&POSIX::LC_ALL, "C");
 
@@ -1086,7 +1085,7 @@ foreach my $Locale (@Locale) {
         push @failures, $x unless $ok;
         push @fold_failures, $x unless $fold_ok;
     }
-    $locales_test_number++;
+    $locales_test_number = $test_num;
     $first_casing_test_number = $locales_test_number;
     $test_names{$locales_test_number} = 'Verify that /[[:upper:]]/ matches all alpha X for which uc(X) == X and lc(X) != X';
     report_multi_result($Locale, $locales_test_number, \@failures);
@@ -2384,17 +2383,19 @@ my $final_locales_test_number = $locales_test_number;
 
 # Recount the errors.
 
+my $num;
 TEST_NUM:
-foreach $test_num ($first_locales_test_number..$final_locales_test_number) {
+foreach $num ($first_locales_test_number..$final_locales_test_number) {
+    my $fail;
     if (%setlocale_failed) {
-        print "not ";
+        $fail++;
     }
-    elsif ($Problem{$test_num}
-           || ! defined $Okay{$test_num}
-           || ! @{$Okay{$test_num}})
+    elsif ($Problem{$num}
+           || ! defined $Okay{$num}
+           || ! @{$Okay{$num}})
     {
 	if (defined $not_necessarily_a_problem_test_number
-            && $test_num == $not_necessarily_a_problem_test_number)
+            && $num == $not_necessarily_a_problem_test_number)
         {
 	    print "# The failure of test $not_necessarily_a_problem_test_number is not necessarily fatal.\n";
 	    print "# It usually indicates a problem in the environment,\n";
@@ -2403,25 +2404,22 @@ foreach $test_num ($first_locales_test_number..$final_locales_test_number) {
 
         # If there are any locales that pass this test, or are known-bad, it
         # may be that there are enough passes that we TODO the failure.
-        if (($Okay{$test_num} || $Known_bad_locale{$test_num})
-            && grep { $_ == $test_num } keys %problematical_tests)
+        if (($Okay{$num} || $Known_bad_locale{$num})
+            && grep { $_ == $num } keys %problematical_tests)
         {
-            no warnings 'experimental::postderef';
-
             # Don't count the known-bad failures when calculating the
             # percentage that fail.
-            my $known_failures = (exists $Known_bad_locale{$test_num})
-                                  ? scalar(keys $Known_bad_locale{$test_num}->%*)
+            my $known_failures = (exists $Known_bad_locale{$num})
+                                  ? scalar(keys %{$Known_bad_locale{$num}})
                                   : 0;
-            my $adjusted_failures = scalar(keys $Problem{$test_num}->%*)
+            my $adjusted_failures = scalar(keys %{$Problem{$num}})
                                     - $known_failures;
 
             # Specially handle failures where only known-bad locales fail.
             # This makes the diagnositics clearer.
             if ($adjusted_failures <= 0) {
-                print "not ok $test_num $test_names{$test_num} # TODO fails only on ",
-                                                                "known bad locales: ",
-                      join " ", keys $Known_bad_locale{$test_num}->%*, "\n";
+                ok(0, "$test_names{$num} # TODO fails only on known bad locales: "
+                      . join(" ", keys %{$Known_bad_locale{$num}}));
                 next TEST_NUM;
             }
 
@@ -2431,7 +2429,7 @@ foreach $test_num ($first_locales_test_number..$final_locales_test_number) {
                                / 10;
             if ($percent_fail < $acceptable_failure_percentage) {
                 if (! $debug) {
-                    $test_names{$test_num} .= 'TODO';
+                    $test_names{$num} .= ' #TODO';
                     print "# ", 100 - $percent_fail, "% of locales not known to be problematic on this platform\n";
                     print "# pass the following test, so it is likely that the failures\n";
                     print "# are errors in the locale definitions.  The test is marked TODO, as the\n";
@@ -2440,7 +2438,7 @@ foreach $test_num ($first_locales_test_number..$final_locales_test_number) {
             }
             if ($debug) {
                 print "# $percent_fail% of locales (",
-                      scalar(keys $Problem{$test_num}->%*),
+                      scalar(keys %{$Problem{$num}}),
                       " of ",
                       scalar(@Locale),
                       ") fail the above test (TODO cut-off is ",
@@ -2451,25 +2449,18 @@ foreach $test_num ($first_locales_test_number..$final_locales_test_number) {
         print "#\n";
         if ($debug) {
             print "# The code points that had this failure are given above.  Look for lines\n";
-            print "# that match 'failed $test_num'\n";
+            print "# that match 'failed $num'\n";
         }
         else {
             print "# For more details, rerun, with environment variable PERL_DEBUG_FULL_TEST=1.\n";
-            print "# Then look at that output for lines that match 'failed $test_num'\n";
+            print "# Then look at that output for lines that match 'failed $num'\n";
         }
-	print "not ";
+        $fail++;
     }
-    print "ok $test_num";
-    if (defined $test_names{$test_num}) {
-        # If TODO is in the test name, make it thus
-        my $todo = $test_names{$test_num} =~ s/TODO\s*//;
-        print " $test_names{$test_num}";
-        print " # TODO" if $todo;
-    }
-    print "\n";
+    ok(!$fail, $test_names{$num}); 
 }
 
-$test_num = $final_locales_test_number;
+# $test_num = $final_locales_test_number;
 
 unless ( $^O =~ m!^(dragonfly|openbsd|bitrig|mirbsd)$! ) {
     # perl #115808
@@ -2699,10 +2690,7 @@ if ($didwarn) {
 }
 
 if (exists $known_bad_locales{$^O} && ! %Known_bad_locale) {
-    $test_num++;
-    print "ok $test_num $^O no longer has known bad locales # TODO\n";
+    ok(1, "$^O no longer has known bad locales # TODO");
 }
 
-print "1..$test_num\n";
-
-# eof
+done_testing();

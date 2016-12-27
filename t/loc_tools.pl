@@ -11,7 +11,10 @@
 # Functions whose names begin with underscore are internal helper functions
 # for this file, and are not to be used by outside callers.
 
-eval { require POSIX; import POSIX 'locale_h'; };
+use Config;
+use feature 'fc';
+
+eval { require POSIX; POSIX->import('locale_h'); };
 $has_locale_h = ! $@;
 
 sub _trylocale ($$$$) { # For use only by other functions in this file!
@@ -92,9 +95,7 @@ my $max_bad_category_number = -1000000;
 #   6 => 'CTYPE',
 # where 6 is the value of &POSIX::LC_CTYPE
 my %category_name;
-# Note: This will fail with miniperl
-eval { require POSIX; import POSIX 'locale_h'; };
-unless ($@) {
+if ($has_locale_h) {
     my $number_for_missing_category = $max_bad_category_number;
     foreach my $name (qw(ALL COLLATE CTYPE MESSAGES MONETARY NUMERIC TIME)) {
         my $number = eval "&POSIX::LC_$name";
@@ -134,8 +135,6 @@ sub locales_enabled(;$) {
     # a string name of the category, like 'LC_TIME'.  The initial 'LC_' is
     # optional.  It is a fatal error to call this with something that isn't a
     # known category
-
-    use Config;
 
     return 0 unless    $Config{d_setlocale}
                         # I (khw) cargo-culted the '?' in the pattern on the
@@ -357,7 +356,7 @@ sub is_locale_utf8 ($) { # Return a boolean as to if core Perl thinks the input
     # go through testing all the locales on the platform.
     if (CORE::fc(chr utf8::unicode_to_native(0xdf)) ne "ss") {
         if ($locale =~ /UTF-?8/i) {
-            ok (0, "Verify $locale with UTF-8 in name is a UTF-8 locale");
+            ok(0, "Verify $locale with UTF-8 in name is a UTF-8 locale");
         }
     }
     else {
