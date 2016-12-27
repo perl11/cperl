@@ -21,6 +21,7 @@ SKIP: { # perl #127708
     # reset the locale environment
     local @ENV{'LANG', (grep /^LC_/, keys %ENV)};
     local $ENV{LC_MESSAGES} = $locales[0];
+    #diag "LC_MESSAGES=$ENV{LC_MESSAGES}";
 
     # We're going to try with all possible error numbers on this platform
     my $error_count = keys(%!) + 1;

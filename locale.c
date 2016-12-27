@@ -2582,15 +2582,19 @@ Perl_my_strerror(pTHX_ const int errnum)
     if (! within_locale_scope) {
         errno = 0;
 
-#  ifdef USE_THREAD_SAFE_LOCALE
+# ifdef USE_THREAD_SAFE_LOCALE
 
-        if (save_locale && ! uselocale(save_locale)) {
+        if (save_locale
+#if defined(__APPLE__) && defined(LC_GLOBAL_LOCALE)
+            && save_locale != LC_GLOBAL_LOCALE
+#endif
+            && ! uselocale(save_locale)) {
             DEBUG_L(PerlIO_printf(Perl_debug_log,
                           "uselocale restore failed, errno=%d\n", errno));
         }
     }
 
-#  else
+# else
 
         if (save_locale && ! locale_is_C) {
             if (! setlocale(LC_MESSAGES, save_locale)) {
@@ -2598,12 +2602,13 @@ Perl_my_strerror(pTHX_ const int errnum)
                       "setlocale restore failed, errno=%d\n", errno));
             }
             Safefree(save_locale);
+            save_locale = NULL;
         }
     }
 
     LOCALE_UNLOCK;
 
-#  endif
+# endif
 #endif
 
     return errstr;
