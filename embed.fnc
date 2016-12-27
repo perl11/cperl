@@ -2891,7 +2891,7 @@ ApoR	|U32	|hv_placeholders_get	|NN const HV *hv
 Apo	|void	|hv_placeholders_set	|NN HV *hv|U32 ph
 
 : This is indirectly referenced by globals.c. This is somewhat annoying.
-p	|SV*	|magic_scalarpack|NN HV *hv|NN MAGIC *mg
+XEp	|SV*	|magic_scalarpack|NN HV *hv|NN MAGIC *mg
 
 #if defined(PERL_IN_SV_C)
 s	|SV *	|find_hash_subscript|NULLOK const HV *const hv \
