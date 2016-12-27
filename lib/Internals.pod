@@ -52,6 +52,9 @@ You are strongly discouraged from using this function directly. It is used
 by various core modules, like C<Hash::Util>, and the C<constant> pragma
 to implement higher-level behavior which should be used instead.
 
+Esp. changing READONLY to 0 after compilation is forbidden. The compiler
+relies on the READONLY flag to do type-checks and optimizations.
+
 See the core implementation for the exact meaning of the readonly flag for
 each internal variable type.
 
