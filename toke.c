@@ -2966,23 +2966,25 @@ S_scan_const(pTHX_ char *start)
                                            on sizing. */
     char *s = start;			/* start of the constant */
     char *d = SvPVX(sv);		/* destination for copies */
-    bool dorange = FALSE;               /* are we in a translit range? */
-    bool didrange = FALSE;              /* did we just finish a range? */
-    bool in_charclass = FALSE;          /* within /[...]/ */
-    bool has_utf8 = FALSE;              /* Output constant is UTF8 */
-    bool this_utf8 = cBOOL(UTF);        /* Is the source string assumed to be
-                                           UTF8?  But, this can show as true
-                                           when the source isn't utf8, as for
-                                           example when it is entirely composed
-                                           of hex constants */
+    SV *res;		                /* result from charnames */
+    STRLEN offset_to_max;   /* The offset in the output to where the range
+                               high-end character is temporarily placed */
     STRLEN utf8_variant_count = 0;      /* When not in UTF-8, this counts the
                                            number of characters found so far
                                            that will expand (into 2 bytes)
                                            should we have to convert to
                                            UTF-8) */
-    SV *res;		                /* result from charnames */
-    STRLEN offset_to_max;   /* The offset in the output to where the range
-                               high-end character is temporarily placed */
+    bool dorange = FALSE;               /* are we in a translit range? */
+    bool didrange = FALSE;              /* did we just finish a range? */
+    bool in_charclass = FALSE;          /* within /[...]/ */
+    bool has_utf8 = FALSE;              /* Output constant is UTF8 */
+    bool has_above_latin1 = FALSE;      /* does something require special
+                                           handling in tr/// ? */
+    bool this_utf8 = cBOOL(UTF);        /* Is the source string assumed to be
+                                           UTF8?  But, this can show as true
+                                           when the source isn't utf8, as for
+                                           example when it is entirely composed
+                                           of hex constants */
 
     /* Note on sizing:  The scanned constant is placed into sv, which is
      * initialized by newSV() assuming one byte of output for every byte of
@@ -3035,15 +3037,15 @@ S_scan_const(pTHX_ char *start)
              *     flag is set and we fix up the range.
              *
              * Ranges entirely within Latin1 are expanded out entirely, in
-             * order to avoid the significant overhead of making a swash.
-             * Ranges that extend above Latin1 have to have a swash, so there
-             * is no advantage to expanding them here, so they are stored
-             * here as Min, ILLEGAL_UTF8_BYTE, Max.  The illegal byte signifies
-             * a hyphen without any possible ambiguity.  On EBCDIC machines, if
-             * the range is expressed as Unicode, the Latin1 portion is
-             * expanded out even if the entire range extends above Latin1.
-             * This is because each code point in it has to be processed here
-             * individually to get its native translation */
+             * order to make the transliteration a simple table look-up.
+             * Ranges that extend above Latin1 have to be done differently, so
+             * there is no advantage to expanding them here, so they are
+             * stored here as Min, ILLEGAL_UTF8_BYTE, Max.  The illegal byte
+             * signifies a hyphen without any possible ambiguity.  On EBCDIC
+             * machines, if the range is expressed as Unicode, the Latin1
+             * portion is expanded out even if the range extends above
+             * Latin1.  This is because each code point in it has to be
+             * processed here individually to get its native translation */
 
 	    if (! dorange) {
 
@@ -3062,6 +3064,15 @@ S_scan_const(pTHX_ char *start)
                     non_portable_endpoint = 0;
                     backslash_N = 0;
 #endif
+                    /* The tests here and the following 'else' for being above
+                     * Latin1 suffice to find all such occurences in the
+                     * constant, except those added by a backslash escape
+                     * sequence, like \x{100}.  And all those set
+                     * 'has_above_latin1' as appropriate */
+                    if (this_utf8 && UTF8_IS_ABOVE_LATIN1(*s)) {
+                        has_above_latin1 = TRUE;
+                    }
+
                     /* Drops down to generic code to process current byte */
                 }
                 else {
@@ -3081,6 +3092,10 @@ S_scan_const(pTHX_ char *start)
                      * pointer).  We'll finish processing the range the next
                      * time through the loop */
                     offset_to_max = d - SvPVX_const(sv);
+
+                    if (this_utf8 && UTF8_IS_ABOVE_LATIN1(*s)) {
+                        has_above_latin1 = TRUE;
+                    }
                 }
             }  /* End of not a range */
             else {
@@ -3182,14 +3197,15 @@ S_scan_const(pTHX_ char *start)
 
 		if (has_utf8) {
 
-                    /* We try to avoid creating a swash.  If the upper end of
-                     * this range is below 256, this range won't force a swash;
-                     * otherwise it does force a swash, and as long as we have
-                     * to have one, we might as well not expand things out.
-                     * But if it's EBCDIC, we may have to look at each
-                     * character below 256 if we have to convert to/from
-                     * Unicode values */
-                    if (range_max > 255
+                    /* If everything in the transliteration is below 256, we
+                     * can avoid special handling later.  A translation table
+                     * of each of those bytes is created.  And so we expand out
+                     * all ranges to their constituent code points.  But if
+                     * we've encountered something above 255, the expanding
+                     * won't help, so skip doing that.  But if it's EBCDIC, we
+                     * may have to look at each character below 256 if we have
+                     * to convert to/from Unicode values */
+                    if (   has_above_latin1
 #ifdef EBCDIC
 		        && (range_min > 255 || ! convert_unicode)
 #endif
@@ -3548,6 +3564,7 @@ S_scan_const(pTHX_ char *start)
                             d = SvPVX(sv) + SvCUR(sv);
                         }
 
+                        has_above_latin1 = TRUE;
                         has_utf8 = TRUE;
                     }
 
@@ -3713,6 +3730,7 @@ S_scan_const(pTHX_ char *start)
                             }
 
 			    has_utf8 = TRUE;
+                            has_above_latin1 = TRUE;
 			}
 
                         /* Add the (Unicode) code point to the output. */
@@ -3857,6 +3875,11 @@ S_scan_const(pTHX_ char *start)
                                     (int) (e + 1 - start), start));
                                 goto end_backslash_N;
                             }
+
+                            if (SvUTF8(res) && UTF8_IS_ABOVE_LATIN1(*str)) {
+                                has_above_latin1 = TRUE;
+                            }
+
                         }
                         else if (! SvUTF8(res)) {
                             /* Make sure \N{} return is UTF-8.  This is because
