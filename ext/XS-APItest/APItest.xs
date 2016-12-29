@@ -5349,6 +5349,9 @@ test_isASCII_utf8(unsigned char * p, int type)
     PREINIT:
 	const unsigned char * e;
     CODE:
+#ifndef DEBUGGING
+        PERL_UNUSED_VAR(e);
+#endif
         if (type >= 0) {
             e = p + UTF8SKIP(p) - type;
             RETVAL = isASCII_utf8_safe(p, e);
@@ -5364,6 +5367,9 @@ test_isASCII_LC_utf8(unsigned char * p, int type)
     PREINIT:
 	const unsigned char * e;
     CODE:
+#ifndef DEBUGGING
+        PERL_UNUSED_VAR(e);
+#endif
         if (type >= 0) {
             e = p + UTF8SKIP(p) - type;
             RETVAL = isASCII_LC_utf8_safe(p, e);
@@ -6234,7 +6240,7 @@ test_toLOWER_utf8(SV * p, int type)
         AV *av;
         SV *utf8;
 	const unsigned char * e;
-        UV resultant_cp;
+        UV resultant_cp = UV_MAX;   /* Initialized because of dumb compilers */
     CODE:
         input = (U8 *) SvPV(p, len);
         av = newAV();
@@ -6324,7 +6330,7 @@ test_toFOLD_utf8(SV * p, int type)
         AV *av;
         SV *utf8;
 	const unsigned char * e;
-        UV resultant_cp;
+        UV resultant_cp = UV_MAX;
     CODE:
         input = (U8 *) SvPV(p, len);
         av = newAV();
@@ -6414,7 +6420,7 @@ test_toUPPER_utf8(SV * p, int type)
         AV *av;
         SV *utf8;
 	const unsigned char * e;
-        UV resultant_cp;
+        UV resultant_cp = UV_MAX;
     CODE:
         input = (U8 *) SvPV(p, len);
         av = newAV();
@@ -6497,7 +6503,7 @@ test_toTITLE_utf8(SV * p, int type)
         AV *av;
         SV *utf8;
 	const unsigned char * e;
-        UV resultant_cp;
+        UV resultant_cp = UV_MAX;
     CODE:
         input = (U8 *) SvPV(p, len);
         av = newAV();
