@@ -528,7 +528,7 @@ for my $module (@modules) {
     open my $fh, ">>", $MANIFEST;
     say $fh "$prefix/$pkg_dir/$_" for @commit;
     close $fh;
-    system $^X => "Porting/manisort", '--output', $MANIFEST_SORT;
+    system $^X => "Porting/manisort", '--quiet', '--output', $MANIFEST_SORT;
     rename $MANIFEST_SORT => $MANIFEST;
   }
 
