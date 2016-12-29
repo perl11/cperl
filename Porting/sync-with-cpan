@@ -70,7 +70,7 @@ Restore files mentioned in C<CUSTOMIZED>
 
 =item *
 
-Adds new files to F<MANIFEST>
+Updates the contents of F<MANIFEST>
 
 =item *
 
@@ -129,11 +129,11 @@ and <make test_porting>.
 
 =item *
 
-Delete files from F<MANIFEST>
+3-way merge of CUSTOMIZED files.
 
 =item *
 
-3-way merge of CUSTOMIZED files.
+Update F<Porting/Maintainers.pl>
 
 =item *
 
@@ -521,15 +521,29 @@ for my $module (@modules) {
   }
 
   chdir "..";
-  if (!$dryrun and @commit) {
+  if (!$dryrun and (@commit || @gone)) {
     say "Fixing MANIFEST";
-    my $MANIFEST      = "MANIFEST";
-    my $MANIFEST_SORT = "$MANIFEST.sorted";
-    open my $fh, ">>", $MANIFEST;
-    say $fh "$prefix/$pkg_dir/$_" for @commit;
-    close $fh;
-    system $^X => "Porting/manisort", '--quiet', '--output', $MANIFEST_SORT;
-    rename $MANIFEST_SORT => $MANIFEST;
+    my $MANIFEST     = "MANIFEST";
+    my $MANIFEST_NEW = "$MANIFEST.new";
+
+    open my $orig, "<", $MANIFEST
+        or die "Failed to open $MANIFEST for reading: $!\n";
+    open my $new, ">", $MANIFEST_NEW
+        or die "Failed to open $MANIFEST_NEW for writing: $!\n";
+    my %gone = map +("$prefix/$pkg_dir/$_" => 1), @gone;
+    while (my $line = <$orig>) {
+        my ($file) = $line =~ /^(\S+)/
+            or die "Can't parse MANIFEST line: $line";
+        print $new $line if !$gone{$file};
+    }
+
+    say $new "$prefix/$pkg_dir/$_" for @commit;
+
+    close $new or die "Can't close $MANIFEST: $!\n";
+
+    system $^X => "Porting/manisort", '--quiet', "--output=$MANIFEST", $MANIFEST_NEW;
+    unlink $MANIFEST_NEW
+        or die "Can't delete temporary $MANIFEST_NEW: $!\n";
   }
 
   if ($make_c) {
