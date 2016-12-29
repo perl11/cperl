@@ -566,13 +566,6 @@ for my $symbol (sort keys %unexpected) {
       SKIP: {
         skip("uses sprintf for Gconvert in sv.o");
       }
-    }
-    elsif ($symbol =~ /^str(cpy|cat)$/ &&
-        $Config{usecperl} &&
-        @o == 1 && $o[0] eq 'op.o') {
-      SKIP: {
-        skip("uses $symbol for static coretype names in op.o");
-      }
     } else {
         is(@o, 0, "uses no $symbol (@o)");
     }
