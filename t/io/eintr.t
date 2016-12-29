@@ -13,7 +13,6 @@ BEGIN {
 }
 
 skip_all_without_dynamic_extension('Fcntl');
-skip_all("eintr tests can't be run inside travis-CI VMs") if $ENV{TRAVIS};
 
 use warnings;
 use strict;
@@ -107,6 +106,10 @@ my $surely_this_arbitrary_number_is_fine = (eval {
     fcntl($out, F_GETPIPE_SZ, 0);
 } || 0xfffff) + 1;
 
+SKIP: {
+skip("eintr tests can't be run inside travis-CI VMs", 5) if $ENV{TRAVIS};
+skip("print/ALRM darwin threads", 5) if $^O eq 'darwin' and $Config{useithreads};
+
 # close during print
 
 fresh_io;
@@ -134,6 +137,8 @@ ok(!$st, 'print/die: print status');
 alarm(1);
 ok(!eval {close($out)}, 'print/die: close status');
 alarm(0);
+
+}
 
 # close during close
 
