@@ -174,7 +174,9 @@ our (@IGNORABLE, %Modules);
 
 require "./Porting/Maintainers.pl";
 
-my %IGNORABLE = map {$_ => 1} @IGNORABLE;
+my $MAKE_LOG = 'make.log';
+
+my %IGNORABLE    = map {$_ => 1} @IGNORABLE;
 
 my $tmpdir = tmpdir();
 
@@ -228,12 +230,12 @@ sub make {
     my @args = @_;
     if( $^O eq 'MSWin32') {
         chdir "Win32";
-        system("$Config{make} @args >..\\make.log 2>&1")
-          and die "Running make failed, see make.log";
+        system "$Config{make} @args> ..\\$MAKE_LOG 2>&1"
+            and die "Running make failed, see $MAKE_LOG";
         chdir '..';
     } else {
-        system("$Config{make} -s -j4 @args >make.log 2>&1")
-          and die "Running make failed, see make.log";
+        system "$Config{make} @args> $MAKE_LOG 2>&1"
+            and die "Running make failed, see $MAKE_LOG";
     };
 };
 
