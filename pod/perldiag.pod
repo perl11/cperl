@@ -671,6 +671,10 @@ checking.  Alternatively, if you are certain that you're calling the
 function correctly, you may put an ampersand before the name to avoid
 the warning.  See L<perlsub>.
 
+=item Can declare %s only within a class
+
+(F) A method declaration is currently only allowed inside a class block.
+
 =item Cannot chr %f
 
 (F) You passed an invalid number (like an infinity or not-a-number) to C<chr>.
@@ -708,6 +712,10 @@ be directly assigned to.
 
 (S io) You tried to apply an encoding that did not exist to a filehandle,
 either with open() or binmode().
+
+=item Cannot nest a package into a class
+
+(F) A package declaration inside a class block is forbidden.
 
 =item Cannot pack %f with '%c'
 

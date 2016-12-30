@@ -9030,12 +9030,12 @@ Perl_yylex(pTHX)
 		bool have_name, have_proto;
 
                 SSize_t off = s - SvPVX(PL_linestr);
-                if (!PL_in_class && (tmp == KEY_multi || tmp == KEY_method))
+                if (UNLIKELY(!PL_in_class && tmp == KEY_method))
                     Perl_croak(aTHX_ "Can declare %s only within a class", PL_tokenbuf);
 
 		d = s;
 		s = skipspace(s);
-                d = SvPVX(PL_linestr)+off;
+                d = SvPVX(PL_linestr) + off;
 
                 if (   isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)
 #ifndef PERL_NO_QUOTE_PKGSEPERATOR
