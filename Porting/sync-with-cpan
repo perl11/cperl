@@ -171,6 +171,8 @@ use Config qw( %Config ); # for make and _exe only. so it can be another perl
 
 $| = 1;
 
+use constant WIN32 => $^O eq 'MSWin32';
+
 die "This does not look like a top level directory"
      unless -d "cpan" && -d "Porting";
 
@@ -234,7 +236,7 @@ sub de_exec {
 sub make {
     my @args = @_;
     unshift @args, "-j$make_jobs" if defined $make_jobs;
-    if( $^O eq 'MSWin32') {
+    if (WIN32) {
         chdir "Win32";
         system "$Config{make} @args> ..\\$MAKE_LOG 2>&1"
             and die "Running make failed, see $MAKE_LOG";
@@ -578,7 +580,7 @@ for my $module (@modules) {
   # repeatedly.
   if (@commit || @gone) {
     say "Running regen/lib_cleanup.pl to handle potential added/deleted dirs";
-    my $exe_dir = $^O eq 'MSWin32' ? ".\\" : './';
+    my $exe_dir = WIN32 ? ".\\" : './';
     if ($dryrun) {
       print "${exe_dir}perl$Config{_exe} -Ilib regen/lib_cleanup.pl\n";
     } else {
