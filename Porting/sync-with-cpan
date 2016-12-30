@@ -162,6 +162,7 @@ use Getopt::Long;
 use Archive::Tar;
 use File::Path qw( remove_tree );
 use File::Find;
+use File::Spec::Functions qw( tmpdir );
 use Config qw( %Config ); # for make and _exe only. so it can be another perl
 
 $| = 1;
@@ -174,7 +175,8 @@ our (@IGNORABLE, %Modules);
 require "./Porting/Maintainers.pl";
 
 my %IGNORABLE = map {$_ => 1} @IGNORABLE;
-my $tmpdir    = $ENV{ TEMP } // '/tmp';
+
+my $tmpdir = tmpdir();
 
 my $package      = "02packages.details.txt";
 my $package_url  = "http://www.cpan.org/modules/$package";
