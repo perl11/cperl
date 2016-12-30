@@ -238,6 +238,15 @@ sub de_exec {
     }
 }
 
+# Equivalent of `chmod +w`
+sub make_writable {
+    my ($filename) = @_;
+    my $mode = (stat $filename)[2] & 0777;
+    if (!($mode & 0222)) { # not writable
+        chmod $mode | (0222 & ~umask), $filename;
+    }
+}
+
 sub make {
     my @args = @_;
     unshift @args, "-j$make_jobs" if defined $make_jobs;
@@ -408,6 +417,7 @@ EOF
         next FILE if $base =~ $qr;
       }
       # How to deal with unwritable files?
+      make_writable($file); # for convenience if the user later edits it
       open(my $fh, '>>', $file)
         || warn "Cannot write $file:$!";
       close($fh);
