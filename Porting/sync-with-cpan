@@ -683,7 +683,7 @@ EOF
             }
         }
 
-        if (/\Q$cpan_mod/) {
+        if (/\Q$module/) {
             $in_mod_section = 1;
         }
     }
