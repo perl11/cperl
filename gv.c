@@ -1826,8 +1826,12 @@ S_find_default_stash(pTHX_ HV **stash, const char *name, STRLEN len,
 #undef SvREADONLY_on
 #define SvREADONLY_on(sv) (SvFLAGS(sv) |= SVf_READONLY)
 
-/* gv_magicalize() is called by gv_fetchpvn_flags when creating
- * a new GV.
+/*
+=for apidoc s|bool|gv_magicalize|NN GV *gv|NN HV *stash|NN const char *name \
+                     |STRLEN len|const svtype sv_type
+
+ * gv_magicalize() is called by gv_fetchpvn_flags when creating
+ * a new GV, gv is NN.
  * Note that it does not insert the GV into the stash prior to
  * magicalization, which some variables require need in order
  * to work (like $[, %+, %-, %!), so callers must take care of
@@ -2210,11 +2214,11 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
 
    ret:
     /* Return true if we actually did something.  */
-    return GvAV(gv) || GvHV(gv) || GvIO(gv) || GvCV(gv)
-        || ( GvSV(gv) && (
-                           SvOK(GvSV(gv)) || SvMAGICAL(GvSV(gv))
-                         )
-           );
+    {
+        const GP* const gp = GvGP(gv);
+        return gp->gp_av || gp->gp_hv || gp->gp_io || gp->gp_cv
+            || ( gp->gp_sv && (SvOK(gp->gp_sv) || SvMAGICAL(gp->gp_sv)));
+    }
 }
 
 /* If we do ever start using this later on in the file, we need to make
