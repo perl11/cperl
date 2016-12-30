@@ -607,8 +607,9 @@ for my $module (@modules) {
     say "Running module tests";
     my $exe_dir = $^O =~ /MSWin/ ? "..\\" : './';
     my @test_files = grep { /\.t$/ } find_type_f( "../$prefix/$pkg_dir" );
+    $ENV{TEST_JOBS} = $_ for grep defined, $make_jobs;
     if (@test_files) {
-      my $output  = `${exe_dir}perl$Config{_exe} TEST @test_files`;
+      my $output = `${exe_dir}perl$Config{_exe} -I../lib harness @test_files`;
       unless ($output =~ /All tests successful/) {
         say $output;
         exit 1;
