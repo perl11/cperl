@@ -10,7 +10,6 @@ BEGIN {
     chdir 't' if -d 't';
     require './test.pl';
     set_up_inc('../lib');
-    skip_all_without_dynamic_extension('Fcntl');
 }
 
 use warnings;
@@ -100,14 +99,16 @@ ok(close($in), 'read/die: close status');
 # consistently failing. At exactly 0x100000 it started passing
 # again. Now we're asking the kernel what the pipe buffer is, and if
 # that fails, hoping this number is bigger than any pipe buffer.
-my $surely_this_arbitrary_number_is_fine = (eval {
-    use Fcntl qw(F_GETPIPE_SZ);
-    fcntl($out, F_GETPIPE_SZ, 0);
-} || 0xfffff) + 1;
+my $surely_this_arbitrary_number_is_fine = is_miniperl() ? 0xfffff + 1 :
+  (eval {
+      require Fcntl; Fcntl->import('F_GETPIPE_SZ');
+      fcntl($out, Fcntl::F_GETPIPE_SZ(), 0);
+   } || 0xfffff) + 1;
 
 SKIP: {
 skip("eintr tests can't be run inside travis-CI VMs", 5) if $ENV{TRAVIS};
-skip("print/ALRM darwin threads", 5) if $^O eq 'darwin' and $Config{useithreads};
+skip("write not interruptible on darwin $Config{osvers}", 5) if $^O eq 'darwin'
+  and $osmajmin >= 15.6;
 
 # close during print
 
