@@ -424,31 +424,37 @@ barestmt:	PLUGSTMT
 	|	FOR scalar lpar_or_qw remember mexpr ')' mblock cont
 			{
 			  $$ = block_end($4, newFOROP(0,
-				      op_lvalue($2, OP_ENTERLOOP), $5, $7, $8));
+			         op_lvalue($2, OP_ENTERLOOP), $5, $7, $8));
 			  parser->copline = (line_t)$1;
 			}
 	|	FOR my_refgen remember my_var
 			{ parser->in_my = 0; $<opval>$ = my($4); }
-		lpar_or_qw mexpr ')' mblock cont
+		'(' mexpr ')' mblock cont
 			{
 			  $$ = block_end($3, newFOROP(0,
-			         op_lvalue(newUNOP(OP_REFGEN, 0,
-						    $<opval>6), OP_ENTERLOOP),
+			         op_lvalue(newUNOP(OP_REFGEN, 0, $<opval>5),
+                                           OP_ENTERLOOP),
 					 $7, $9, $10));
 			  parser->copline = (line_t)$1;
 			}
-	|	FOR REFGEN refgen_topic lpar_or_qw remember mexpr ')' mblock cont
+	|	FOR REFGEN refgen_topic '(' remember mexpr ')' mblock cont
 			{
-                            $$ = block_end($5, newFOROP(0,
-				    op_lvalue(newUNOP(OP_REFGEN, 0, $3),
-                                              OP_ENTERLOOP),
-                                           $6, $8, $9));
+                          $$ = block_end($5, newFOROP(0,
+				 op_lvalue(newUNOP(OP_REFGEN, 0, $3),
+                                           OP_ENTERLOOP),
+                                         $6, $8, $9));
 			  parser->copline = (line_t)$1;
 			}
-	|	FOR lpar_or_qw remember mexpr ')' mblock cont
+	|	FOR '(' remember mexpr ')' mblock cont
 			{
 			  $$ = block_end($3,
 				  newFOROP(0, (OP*)NULL, $4, $6, $7));
+			  parser->copline = (line_t)$1;
+			}
+	|	FOR remember QWLIST mblock cont
+			{
+			  $$ = block_end($2,
+				  newFOROP(0, (OP*)NULL, $3, $4, $5));
 			  parser->copline = (line_t)$1;
 			}
 	|	block cont

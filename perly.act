@@ -469,7 +469,7 @@ case 2:
 #line 425 "perly.y" /* yacc.c:1646  */
     {
 			  (yyval.opval) = block_end((ps[-4].val.ival), newFOROP(0,
-				      op_lvalue((ps[-6].val.opval), OP_ENTERLOOP), (ps[-3].val.opval), (ps[-1].val.opval), (ps[0].val.opval)));
+			         op_lvalue((ps[-6].val.opval), OP_ENTERLOOP), (ps[-3].val.opval), (ps[-1].val.opval), (ps[0].val.opval)));
 			  parser->copline = (line_t)(ps[-7].val.ival);
 			}
 
@@ -485,8 +485,8 @@ case 2:
 #line 433 "perly.y" /* yacc.c:1646  */
     {
 			  (yyval.opval) = block_end((ps[-7].val.ival), newFOROP(0,
-			         op_lvalue(newUNOP(OP_REFGEN, 0,
-						    (ps[-4].val.opval)), OP_ENTERLOOP),
+			         op_lvalue(newUNOP(OP_REFGEN, 0, (ps[-5].val.opval)),
+                                           OP_ENTERLOOP),
 					 (ps[-3].val.opval), (ps[-1].val.opval), (ps[0].val.opval)));
 			  parser->copline = (line_t)(ps[-9].val.ival);
 			}
@@ -496,10 +496,10 @@ case 2:
   case 50:
 #line 441 "perly.y" /* yacc.c:1646  */
     {
-                            (yyval.opval) = block_end((ps[-4].val.ival), newFOROP(0,
-				    op_lvalue(newUNOP(OP_REFGEN, 0, (ps[-6].val.opval)),
-                                              OP_ENTERLOOP),
-                                           (ps[-3].val.opval), (ps[-1].val.opval), (ps[0].val.opval)));
+                          (yyval.opval) = block_end((ps[-4].val.ival), newFOROP(0,
+				 op_lvalue(newUNOP(OP_REFGEN, 0, (ps[-6].val.opval)),
+                                           OP_ENTERLOOP),
+                                         (ps[-3].val.opval), (ps[-1].val.opval), (ps[0].val.opval)));
 			  parser->copline = (line_t)(ps[-8].val.ival);
 			}
 
@@ -518,6 +518,16 @@ case 2:
   case 52:
 #line 455 "perly.y" /* yacc.c:1646  */
     {
+			  (yyval.opval) = block_end((ps[-3].val.ival),
+				  newFOROP(0, (OP*)NULL, (ps[-2].val.opval), (ps[-1].val.opval), (ps[0].val.opval)));
+			  parser->copline = (line_t)(ps[-4].val.ival);
+			}
+
+    break;
+
+  case 53:
+#line 461 "perly.y" /* yacc.c:1646  */
+    {
 			  /* a block is a loop that happens once */
 			  (yyval.opval) = newWHILEOP(0, 1, (LOOP*)(OP*)NULL,
 				  (OP*)NULL, (ps[-1].val.opval), (ps[0].val.opval), 0);
@@ -525,8 +535,8 @@ case 2:
 
     break;
 
-  case 53:
-#line 461 "perly.y" /* yacc.c:1646  */
+  case 54:
+#line 467 "perly.y" /* yacc.c:1646  */
     {
 			  package((ps[-2].val.opval));
 			  if ((ps[-3].val.opval)) {
@@ -536,8 +546,8 @@ case 2:
 
     break;
 
-  case 54:
-#line 468 "perly.y" /* yacc.c:1646  */
+  case 55:
+#line 474 "perly.y" /* yacc.c:1646  */
     {
 			  /* a block is a loop that happens once */
 			  (yyval.opval) = newWHILEOP(0, 1, (LOOP*)(OP*)NULL,
@@ -548,16 +558,16 @@ case 2:
 
     break;
 
-  case 55:
-#line 476 "perly.y" /* yacc.c:1646  */
+  case 56:
+#line 482 "perly.y" /* yacc.c:1646  */
     {
 			  (yyval.opval) = (ps[-1].val.opval);
 			}
 
     break;
 
-  case 56:
-#line 480 "perly.y" /* yacc.c:1646  */
+  case 57:
+#line 486 "perly.y" /* yacc.c:1646  */
     {
 			  (yyval.opval) = (OP*)NULL;
 			  parser->copline = NOLINE;
@@ -565,8 +575,8 @@ case 2:
 
     break;
 
-  case 57:
-#line 488 "perly.y" /* yacc.c:1646  */
+  case 58:
+#line 494 "perly.y" /* yacc.c:1646  */
     { OP *list;
 			  if ((ps[0].val.opval)) {
 			      OP *term = (ps[0].val.opval);
@@ -584,75 +594,75 @@ case 2:
 
     break;
 
-  case 58:
-#line 505 "perly.y" /* yacc.c:1646  */
+  case 59:
+#line 511 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = NULL; }
 
     break;
 
-  case 59:
-#line 507 "perly.y" /* yacc.c:1646  */
+  case 60:
+#line 513 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = op_unscope((ps[-1].val.opval)); }
 
     break;
 
-  case 60:
-#line 512 "perly.y" /* yacc.c:1646  */
+  case 61:
+#line 518 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (OP*)NULL; }
 
     break;
 
-  case 61:
-#line 514 "perly.y" /* yacc.c:1646  */
+  case 62:
+#line 520 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 62:
-#line 516 "perly.y" /* yacc.c:1646  */
+  case 63:
+#line 522 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newLOGOP(OP_AND, 0, (ps[0].val.opval), (ps[-2].val.opval)); }
 
     break;
 
-  case 63:
-#line 518 "perly.y" /* yacc.c:1646  */
+  case 64:
+#line 524 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newLOGOP(OP_OR, 0, (ps[0].val.opval), (ps[-2].val.opval)); }
 
     break;
 
-  case 64:
-#line 520 "perly.y" /* yacc.c:1646  */
+  case 65:
+#line 526 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newLOOPOP(OPf_PARENS, 1, scalar((ps[0].val.opval)), (ps[-2].val.opval)); }
 
     break;
 
-  case 65:
-#line 522 "perly.y" /* yacc.c:1646  */
+  case 66:
+#line 528 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newLOOPOP(OPf_PARENS, 1, (ps[0].val.opval), (ps[-2].val.opval)); }
 
     break;
 
-  case 66:
-#line 524 "perly.y" /* yacc.c:1646  */
+  case 67:
+#line 530 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newFOROP(0, (OP*)NULL, (ps[0].val.opval), (ps[-2].val.opval), (OP*)NULL);
 			  parser->copline = (line_t)(ps[-1].val.ival); }
 
     break;
 
-  case 67:
-#line 527 "perly.y" /* yacc.c:1646  */
+  case 68:
+#line 533 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newWHENOP((ps[0].val.opval), op_scope((ps[-2].val.opval))); }
 
     break;
 
-  case 68:
-#line 532 "perly.y" /* yacc.c:1646  */
+  case 69:
+#line 538 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (OP*)NULL; }
 
     break;
 
-  case 69:
-#line 534 "perly.y" /* yacc.c:1646  */
+  case 70:
+#line 540 "perly.y" /* yacc.c:1646  */
     {
 			  ((ps[0].val.opval))->op_flags |= OPf_PARENS;
 			  (yyval.opval) = op_scope((ps[0].val.opval));
@@ -660,8 +670,8 @@ case 2:
 
     break;
 
-  case 70:
-#line 539 "perly.y" /* yacc.c:1646  */
+  case 71:
+#line 545 "perly.y" /* yacc.c:1646  */
     {   parser->copline = (line_t)(ps[-5].val.ival);
 			    (yyval.opval) = newCONDOP(0,
 				newSTATEOP(OPf_SPECIAL,NULL,(ps[-3].val.opval)),
@@ -671,129 +681,129 @@ case 2:
 
     break;
 
-  case 71:
-#line 549 "perly.y" /* yacc.c:1646  */
+  case 72:
+#line 555 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (OP*)NULL; }
 
     break;
 
-  case 72:
-#line 551 "perly.y" /* yacc.c:1646  */
+  case 73:
+#line 557 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = op_scope((ps[0].val.opval)); }
 
     break;
 
-  case 73:
-#line 556 "perly.y" /* yacc.c:1646  */
+  case 74:
+#line 562 "perly.y" /* yacc.c:1646  */
     { (yyval.ival) = (PL_min_intro_pending &&
 			    PL_max_intro_pending >=  PL_min_intro_pending);
 			  intro_my(); }
 
     break;
 
-  case 74:
-#line 562 "perly.y" /* yacc.c:1646  */
+  case 75:
+#line 568 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (OP*)NULL; }
 
     break;
 
-  case 76:
-#line 568 "perly.y" /* yacc.c:1646  */
+  case 77:
+#line 574 "perly.y" /* yacc.c:1646  */
     { YYSTYPE tmplval;
 			  (void)scan_num("1", &tmplval);
 			  (yyval.opval) = tmplval.opval; }
 
     break;
 
-  case 78:
-#line 576 "perly.y" /* yacc.c:1646  */
+  case 79:
+#line 582 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = invert(scalar((ps[0].val.opval))); }
 
     break;
 
-  case 79:
-#line 581 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); intro_my(); }
-
-    break;
-
   case 80:
-#line 585 "perly.y" /* yacc.c:1646  */
+#line 587 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); intro_my(); }
 
     break;
 
   case 81:
-#line 588 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
+#line 591 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = (ps[0].val.opval); intro_my(); }
 
     break;
 
   case 82:
-#line 589 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (OP*)NULL; }
+#line 594 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
   case 83:
-#line 593 "perly.y" /* yacc.c:1646  */
-    { (yyval.ival) = start_subparse(FALSE, 0);
-			    SAVEFREESV(PL_compcv); }
+#line 595 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = (OP*)NULL; }
 
     break;
 
   case 84:
 #line 599 "perly.y" /* yacc.c:1646  */
-    { (yyval.ival) = start_subparse(FALSE, CVf_ANON);
+    { (yyval.ival) = start_subparse(FALSE, 0);
 			    SAVEFREESV(PL_compcv); }
 
     break;
 
   case 85:
-#line 604 "perly.y" /* yacc.c:1646  */
+#line 605 "perly.y" /* yacc.c:1646  */
+    { (yyval.ival) = start_subparse(FALSE, CVf_ANON);
+			    SAVEFREESV(PL_compcv); }
+
+    break;
+
+  case 86:
+#line 610 "perly.y" /* yacc.c:1646  */
     { (yyval.ival) = start_subparse(TRUE, 0);
 			    SAVEFREESV(PL_compcv); }
 
     break;
 
-  case 88:
-#line 615 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (OP*)NULL; }
-
-    break;
-
-  case 90:
+  case 89:
 #line 621 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (OP*)NULL; }
 
     break;
 
   case 91:
-#line 623 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
+#line 627 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = (OP*)NULL; }
 
     break;
 
   case 92:
-#line 625 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (OP*)NULL; }
-
-    break;
-
-  case 93:
-#line 630 "perly.y" /* yacc.c:1646  */
+#line 629 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 94:
-#line 632 "perly.y" /* yacc.c:1646  */
+  case 93:
+#line 631 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (OP*)NULL; }
 
     break;
 
+  case 94:
+#line 636 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = (ps[0].val.opval); }
+
+    break;
+
   case 95:
-#line 637 "perly.y" /* yacc.c:1646  */
+#line 638 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = (OP*)NULL; }
+
+    break;
+
+  case 96:
+#line 643 "perly.y" /* yacc.c:1646  */
     {
 #ifndef USE_CPERL
 			  /* We shouldn't get here otherwise */
@@ -807,8 +817,8 @@ case 2:
 
     break;
 
-  case 96:
-#line 648 "perly.y" /* yacc.c:1646  */
+  case 97:
+#line 654 "perly.y" /* yacc.c:1646  */
     {
 			  (yyval.opval) = (ps[-1].val.opval);
 			  parser->expect = XATTRBLOCK;
@@ -816,38 +826,38 @@ case 2:
 
     break;
 
-  case 98:
-#line 656 "perly.y" /* yacc.c:1646  */
+  case 99:
+#line 662 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (OP*)NULL; }
 
     break;
 
-  case 99:
-#line 661 "perly.y" /* yacc.c:1646  */
+  case 100:
+#line 667 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newLOGOP(OP_AND, 0, (ps[-2].val.opval), (ps[0].val.opval)); }
 
     break;
 
-  case 100:
-#line 663 "perly.y" /* yacc.c:1646  */
+  case 101:
+#line 669 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newLOGOP((ps[-1].val.ival), 0, (ps[-2].val.opval), (ps[0].val.opval)); }
 
     break;
 
-  case 101:
-#line 665 "perly.y" /* yacc.c:1646  */
+  case 102:
+#line 671 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newLOGOP(OP_DOR, 0, (ps[-2].val.opval), (ps[0].val.opval)); }
 
     break;
 
-  case 103:
-#line 671 "perly.y" /* yacc.c:1646  */
+  case 104:
+#line 677 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[-1].val.opval); }
 
     break;
 
-  case 104:
-#line 673 "perly.y" /* yacc.c:1646  */
+  case 105:
+#line 679 "perly.y" /* yacc.c:1646  */
     {
 			  OP* term = (ps[0].val.opval);
 			  (yyval.opval) = op_append_elem(OP_LIST, (ps[-2].val.opval), term);
@@ -855,24 +865,24 @@ case 2:
 
     break;
 
-  case 106:
-#line 682 "perly.y" /* yacc.c:1646  */
+  case 107:
+#line 688 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = op_convert_list((ps[-2].val.ival), OPf_STACKED,
 				op_prepend_elem(OP_LIST, newGVREF((ps[-2].val.ival),(ps[-1].val.opval)), (ps[0].val.opval)) );
 			}
 
     break;
 
-  case 107:
-#line 686 "perly.y" /* yacc.c:1646  */
+  case 108:
+#line 692 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = op_convert_list((ps[-4].val.ival), OPf_STACKED,
 				op_prepend_elem(OP_LIST, newGVREF((ps[-4].val.ival),(ps[-2].val.opval)), (ps[-1].val.opval)) );
 			}
 
     break;
 
-  case 108:
-#line 690 "perly.y" /* yacc.c:1646  */
+  case 109:
+#line 696 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = op_convert_list(OP_ENTERSUB, OPf_STACKED,
 				op_append_elem(OP_LIST,
 				    op_prepend_elem(OP_LIST, scalar((ps[-5].val.opval)), (ps[-1].val.opval)),
@@ -881,21 +891,11 @@ case 2:
 
     break;
 
-  case 109:
-#line 696 "perly.y" /* yacc.c:1646  */
+  case 110:
+#line 702 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = op_convert_list(OP_ENTERSUB, OPf_STACKED,
 				op_append_elem(OP_LIST, scalar((ps[-2].val.opval)),
 				    newMETHOP(OP_METHOD, 0, (ps[0].val.opval))));
-			}
-
-    break;
-
-  case 110:
-#line 701 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = op_convert_list(OP_ENTERSUB, OPf_STACKED,
-				op_append_elem(OP_LIST,
-				    op_prepend_elem(OP_LIST, (ps[-1].val.opval), (ps[0].val.opval)),
-				    newMETHOP(OP_METHOD, 0, (ps[-2].val.opval))));
 			}
 
     break;
@@ -904,33 +904,43 @@ case 2:
 #line 707 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = op_convert_list(OP_ENTERSUB, OPf_STACKED,
 				op_append_elem(OP_LIST,
-				    op_prepend_elem(OP_LIST, (ps[-3].val.opval), (ps[-1].val.opval)),
-				    newMETHOP(OP_METHOD, 0, (ps[-4].val.opval))));
+				    op_prepend_elem(OP_LIST, (ps[-1].val.opval), (ps[0].val.opval)),
+				    newMETHOP(OP_METHOD, 0, (ps[-2].val.opval))));
 			}
 
     break;
 
   case 112:
 #line 713 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = op_convert_list((ps[-1].val.ival), 0, (ps[0].val.opval)); }
+    { (yyval.opval) = op_convert_list(OP_ENTERSUB, OPf_STACKED,
+				op_append_elem(OP_LIST,
+				    op_prepend_elem(OP_LIST, (ps[-3].val.opval), (ps[-1].val.opval)),
+				    newMETHOP(OP_METHOD, 0, (ps[-4].val.opval))));
+			}
 
     break;
 
   case 113:
-#line 715 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = op_convert_list((ps[-3].val.ival), 0, (ps[-1].val.opval)); }
+#line 719 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = op_convert_list((ps[-1].val.ival), 0, (ps[0].val.opval)); }
 
     break;
 
   case 114:
-#line 717 "perly.y" /* yacc.c:1646  */
+#line 721 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = op_convert_list((ps[-3].val.ival), 0, (ps[-1].val.opval)); }
+
+    break;
+
+  case 115:
+#line 723 "perly.y" /* yacc.c:1646  */
     { SvREFCNT_inc_simple_void(PL_compcv);
 			  (yyval.opval) = newANONATTRSUB((ps[-1].val.ival), 0, (OP*)NULL, (ps[0].val.opval)); }
 
     break;
 
-  case 115:
-#line 720 "perly.y" /* yacc.c:1646  */
+  case 116:
+#line 726 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_ENTERSUB, OPf_STACKED,
 				 op_append_elem(OP_LIST,
 				   op_prepend_elem(OP_LIST, (ps[-1].val.opval), (ps[0].val.opval)), (ps[-4].val.opval)));
@@ -938,21 +948,21 @@ case 2:
 
     break;
 
-  case 118:
-#line 735 "perly.y" /* yacc.c:1646  */
+  case 119:
+#line 741 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newBINOP(OP_GELEM, 0, (ps[-4].val.opval), scalar((ps[-2].val.opval))); }
 
     break;
 
-  case 119:
-#line 737 "perly.y" /* yacc.c:1646  */
+  case 120:
+#line 743 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newBINOP(OP_AELEM, 0, oopsAV((ps[-3].val.opval)), scalar((ps[-1].val.opval)));
 			}
 
     break;
 
-  case 120:
-#line 740 "perly.y" /* yacc.c:1646  */
+  case 121:
+#line 746 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newBINOP(OP_AELEM, 0,
 					ref(newAVREF((ps[-4].val.opval)),OP_RV2AV),
 					scalar((ps[-1].val.opval)));
@@ -960,8 +970,8 @@ case 2:
 
     break;
 
-  case 121:
-#line 745 "perly.y" /* yacc.c:1646  */
+  case 122:
+#line 751 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newBINOP(OP_AELEM, 0,
 					ref(newAVREF((ps[-3].val.opval)),OP_RV2AV),
 					scalar((ps[-1].val.opval)));
@@ -969,91 +979,91 @@ case 2:
 
     break;
 
-  case 122:
-#line 750 "perly.y" /* yacc.c:1646  */
+  case 123:
+#line 756 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newBINOP(OP_HELEM, 0, oopsHV((ps[-4].val.opval)), jmaybe((ps[-2].val.opval)));
 			}
 
     break;
 
-  case 123:
-#line 753 "perly.y" /* yacc.c:1646  */
+  case 124:
+#line 759 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newBINOP(OP_HELEM, 0,
 					ref(newHVREF((ps[-5].val.opval)),OP_RV2HV),
 					jmaybe((ps[-2].val.opval))); }
 
     break;
 
-  case 124:
-#line 757 "perly.y" /* yacc.c:1646  */
+  case 125:
+#line 763 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newBINOP(OP_HELEM, 0,
 					ref(newHVREF((ps[-4].val.opval)),OP_RV2HV),
 					jmaybe((ps[-2].val.opval))); }
 
     break;
 
-  case 125:
-#line 761 "perly.y" /* yacc.c:1646  */
+  case 126:
+#line 767 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_ENTERSUB, OPf_STACKED,
 				   newCVREF(0, scalar((ps[-3].val.opval)))); }
 
     break;
 
-  case 126:
-#line 764 "perly.y" /* yacc.c:1646  */
+  case 127:
+#line 770 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_ENTERSUB, OPf_STACKED,
 				   op_append_elem(OP_LIST, (ps[-1].val.opval),
 				       newCVREF(0, scalar((ps[-4].val.opval))))); }
 
     break;
 
-  case 127:
-#line 769 "perly.y" /* yacc.c:1646  */
+  case 128:
+#line 775 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_ENTERSUB, OPf_STACKED,
 				   op_append_elem(OP_LIST, (ps[-1].val.opval),
 					       newCVREF(0, scalar((ps[-3].val.opval))))); }
 
     break;
 
-  case 128:
-#line 773 "perly.y" /* yacc.c:1646  */
+  case 129:
+#line 779 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_ENTERSUB, OPf_STACKED,
 				   newCVREF(0, scalar((ps[-2].val.opval)))); }
 
     break;
 
-  case 129:
-#line 776 "perly.y" /* yacc.c:1646  */
+  case 130:
+#line 782 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newSLICEOP(0, (ps[-1].val.opval), (ps[-4].val.opval)); }
 
     break;
 
-  case 130:
-#line 778 "perly.y" /* yacc.c:1646  */
+  case 131:
+#line 784 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newSLICEOP(0, (ps[-1].val.opval), (ps[-3].val.opval)); }
 
     break;
 
-  case 131:
-#line 780 "perly.y" /* yacc.c:1646  */
+  case 132:
+#line 786 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newSLICEOP(0, (ps[-1].val.opval), (OP*)NULL); }
 
     break;
 
-  case 132:
-#line 785 "perly.y" /* yacc.c:1646  */
+  case 133:
+#line 791 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newASSIGNOP(OPf_STACKED, (ps[-2].val.opval), (ps[-1].val.ival), (ps[0].val.opval)); }
 
     break;
 
-  case 133:
-#line 787 "perly.y" /* yacc.c:1646  */
+  case 134:
+#line 793 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newBINOP(OP_POW, 0, scalar((ps[-2].val.opval)), scalar((ps[0].val.opval))); }
 
     break;
 
-  case 134:
-#line 789 "perly.y" /* yacc.c:1646  */
+  case 135:
+#line 795 "perly.y" /* yacc.c:1646  */
     {   if ((ps[-1].val.ival) != OP_REPEAT)
 				scalar((ps[-2].val.opval));
 			    (yyval.opval) = newBINOP((ps[-1].val.ival), 0, (ps[-2].val.opval), scalar((ps[0].val.opval)));
@@ -1061,112 +1071,112 @@ case 2:
 
     break;
 
-  case 135:
-#line 794 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newBINOP((ps[-1].val.ival), 0, scalar((ps[-2].val.opval)), scalar((ps[0].val.opval))); }
-
-    break;
-
   case 136:
-#line 796 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newBINOP((ps[-1].val.ival), 0, scalar((ps[-2].val.opval)), scalar((ps[0].val.opval))); }
-
-    break;
-
-  case 137:
-#line 798 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newBINOP((ps[-1].val.ival), 0, scalar((ps[-2].val.opval)), scalar((ps[0].val.opval))); }
-
-    break;
-
-  case 138:
 #line 800 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newBINOP((ps[-1].val.ival), 0, scalar((ps[-2].val.opval)), scalar((ps[0].val.opval))); }
 
     break;
 
-  case 139:
+  case 137:
 #line 802 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newBINOP((ps[-1].val.ival), 0, scalar((ps[-2].val.opval)), scalar((ps[0].val.opval))); }
 
     break;
 
-  case 140:
+  case 138:
 #line 804 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newBINOP((ps[-1].val.ival), 0, scalar((ps[-2].val.opval)), scalar((ps[0].val.opval))); }
 
     break;
 
-  case 141:
+  case 139:
 #line 806 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newRANGE((ps[-1].val.ival), scalar((ps[-2].val.opval)), scalar((ps[0].val.opval))); }
+    { (yyval.opval) = newBINOP((ps[-1].val.ival), 0, scalar((ps[-2].val.opval)), scalar((ps[0].val.opval))); }
+
+    break;
+
+  case 140:
+#line 808 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newBINOP((ps[-1].val.ival), 0, scalar((ps[-2].val.opval)), scalar((ps[0].val.opval))); }
+
+    break;
+
+  case 141:
+#line 810 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newBINOP((ps[-1].val.ival), 0, scalar((ps[-2].val.opval)), scalar((ps[0].val.opval))); }
 
     break;
 
   case 142:
-#line 808 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newLOGOP(OP_AND, 0, (ps[-2].val.opval), (ps[0].val.opval)); }
+#line 812 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newRANGE((ps[-1].val.ival), scalar((ps[-2].val.opval)), scalar((ps[0].val.opval))); }
 
     break;
 
   case 143:
-#line 810 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newLOGOP(OP_OR, 0, (ps[-2].val.opval), (ps[0].val.opval)); }
+#line 814 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newLOGOP(OP_AND, 0, (ps[-2].val.opval), (ps[0].val.opval)); }
 
     break;
 
   case 144:
-#line 812 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newLOGOP(OP_DOR, 0, (ps[-2].val.opval), (ps[0].val.opval)); }
+#line 816 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newLOGOP(OP_OR, 0, (ps[-2].val.opval), (ps[0].val.opval)); }
 
     break;
 
   case 145:
-#line 814 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = bind_match((ps[-1].val.ival), (ps[-2].val.opval), (ps[0].val.opval)); }
+#line 818 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newLOGOP(OP_DOR, 0, (ps[-2].val.opval), (ps[0].val.opval)); }
 
     break;
 
   case 146:
-#line 819 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newUNOP(OP_NEGATE, 0, scalar((ps[0].val.opval))); }
+#line 820 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = bind_match((ps[-1].val.ival), (ps[-2].val.opval), (ps[0].val.opval)); }
 
     break;
 
   case 147:
-#line 821 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
+#line 825 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newUNOP(OP_NEGATE, 0, scalar((ps[0].val.opval))); }
 
     break;
 
   case 148:
-#line 824 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newUNOP(OP_NOT, 0, scalar((ps[0].val.opval))); }
+#line 827 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
   case 149:
-#line 826 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newUNOP((ps[-1].val.ival), 0, scalar((ps[0].val.opval))); }
+#line 830 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newUNOP(OP_NOT, 0, scalar((ps[0].val.opval))); }
 
     break;
 
   case 150:
-#line 828 "perly.y" /* yacc.c:1646  */
+#line 832 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newUNOP((ps[-1].val.ival), 0, scalar((ps[0].val.opval))); }
+
+    break;
+
+  case 151:
+#line 834 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_POSTINC, 0,
 					op_lvalue(scalar((ps[-1].val.opval)), OP_POSTINC)); }
 
     break;
 
-  case 151:
-#line 831 "perly.y" /* yacc.c:1646  */
+  case 152:
+#line 837 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_POSTDEC, 0,
 					op_lvalue(scalar((ps[-1].val.opval)), OP_POSTDEC));}
 
     break;
 
-  case 152:
-#line 834 "perly.y" /* yacc.c:1646  */
+  case 153:
+#line 840 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = op_convert_list(OP_JOIN, 0,
 				       op_append_elem(
 					OP_LIST,
@@ -1180,60 +1190,60 @@ case 2:
 
     break;
 
-  case 153:
-#line 845 "perly.y" /* yacc.c:1646  */
+  case 154:
+#line 851 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newBINOP(OP_POW, 0, scalar((ps[-1].val.opval)),
                                         newSVOP(OP_CONST, 0, newSViv(parser->yylval.ival))); }
 
     break;
 
-  case 154:
-#line 848 "perly.y" /* yacc.c:1646  */
+  case 155:
+#line 854 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_PREINC, 0,
 					op_lvalue(scalar((ps[0].val.opval)), OP_PREINC)); }
 
     break;
 
-  case 155:
-#line 851 "perly.y" /* yacc.c:1646  */
+  case 156:
+#line 857 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_PREDEC, 0,
 					op_lvalue(scalar((ps[0].val.opval)), OP_PREDEC)); }
 
     break;
 
-  case 156:
-#line 858 "perly.y" /* yacc.c:1646  */
+  case 157:
+#line 864 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newANONLIST((ps[-1].val.opval)); }
 
     break;
 
-  case 157:
-#line 860 "perly.y" /* yacc.c:1646  */
+  case 158:
+#line 866 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newANONLIST((OP*)NULL);}
 
     break;
 
-  case 158:
-#line 862 "perly.y" /* yacc.c:1646  */
+  case 159:
+#line 868 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newANONHASH((ps[-2].val.opval)); }
 
     break;
 
-  case 159:
-#line 864 "perly.y" /* yacc.c:1646  */
+  case 160:
+#line 870 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newANONHASH((OP*)NULL); }
 
     break;
 
-  case 160:
-#line 866 "perly.y" /* yacc.c:1646  */
+  case 161:
+#line 872 "perly.y" /* yacc.c:1646  */
     { SvREFCNT_inc_simple_void(PL_compcv);
 			  (yyval.opval) = newANONATTRSUB((ps[-3].val.ival), (ps[-2].val.opval), (ps[-1].val.opval), (ps[0].val.opval)); }
 
     break;
 
-  case 161:
-#line 869 "perly.y" /* yacc.c:1646  */
+  case 162:
+#line 875 "perly.y" /* yacc.c:1646  */
     {
 			  OP *sig = (ps[-4].val.opval), *body = (ps[-1].val.opval);
                           /* empty sig sub needs a nextstate at the end
@@ -1251,104 +1261,104 @@ case 2:
 
     break;
 
-  case 162:
-#line 888 "perly.y" /* yacc.c:1646  */
+  case 163:
+#line 894 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = dofile((ps[0].val.opval), (ps[-1].val.ival));}
 
     break;
 
-  case 163:
-#line 890 "perly.y" /* yacc.c:1646  */
+  case 164:
+#line 896 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_NULL, OPf_SPECIAL, op_scope((ps[0].val.opval)));}
 
     break;
 
-  case 168:
-#line 898 "perly.y" /* yacc.c:1646  */
+  case 169:
+#line 904 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newCONDOP(0, (ps[-4].val.opval), (ps[-2].val.opval), (ps[0].val.opval)); }
 
     break;
 
-  case 169:
-#line 900 "perly.y" /* yacc.c:1646  */
+  case 170:
+#line 906 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_REFGEN, 0, (ps[0].val.opval)); }
 
     break;
 
-  case 170:
-#line 902 "perly.y" /* yacc.c:1646  */
+  case 171:
+#line 908 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_REFGEN, 0, localize((ps[0].val.opval),1)); }
 
     break;
 
-  case 171:
-#line 904 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
-
-    break;
-
   case 172:
-#line 906 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = localize((ps[0].val.opval),0); }
-
-    break;
-
-  case 173:
-#line 908 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = sawparens((ps[-1].val.opval)); }
-
-    break;
-
-  case 174:
 #line 910 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 175:
+  case 173:
 #line 912 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = sawparens(newNULLLIST()); }
+    { (yyval.opval) = localize((ps[0].val.opval),0); }
 
     break;
 
-  case 176:
+  case 174:
 #line 914 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
+    { (yyval.opval) = sawparens((ps[-1].val.opval)); }
 
     break;
 
-  case 177:
+  case 175:
 #line 916 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 178:
+  case 176:
 #line 918 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
+    { (yyval.opval) = sawparens(newNULLLIST()); }
 
     break;
 
-  case 179:
+  case 177:
 #line 920 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 180:
+  case 178:
 #line 922 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newUNOP(OP_AV2ARYLEN, 0, ref((ps[0].val.opval), OP_AV2ARYLEN));}
+    { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 181:
+  case 179:
 #line 924 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 182:
+  case 180:
 #line 926 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = (ps[0].val.opval); }
+
+    break;
+
+  case 181:
+#line 928 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newUNOP(OP_AV2ARYLEN, 0, ref((ps[0].val.opval), OP_AV2ARYLEN));}
+
+    break;
+
+  case 182:
+#line 930 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = (ps[0].val.opval); }
+
+    break;
+
+  case 183:
+#line 932 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = op_prepend_elem(OP_ASLICE,
 				newOP(OP_PUSHMARK, 0),
 				    newLISTOP(OP_ASLICE, 0,
@@ -1361,8 +1371,8 @@ case 2:
 
     break;
 
-  case 183:
-#line 936 "perly.y" /* yacc.c:1646  */
+  case 184:
+#line 942 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = op_prepend_elem(OP_KVASLICE,
 				newOP(OP_PUSHMARK, 0),
 				    newLISTOP(OP_KVASLICE, 0,
@@ -1375,8 +1385,8 @@ case 2:
 
     break;
 
-  case 184:
-#line 946 "perly.y" /* yacc.c:1646  */
+  case 185:
+#line 952 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = op_prepend_elem(OP_HSLICE,
 				newOP(OP_PUSHMARK, 0),
 				    newLISTOP(OP_HSLICE, 0,
@@ -1389,8 +1399,8 @@ case 2:
 
     break;
 
-  case 185:
-#line 956 "perly.y" /* yacc.c:1646  */
+  case 186:
+#line 962 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = op_prepend_elem(OP_KVHSLICE,
 				newOP(OP_PUSHMARK, 0),
 				    newLISTOP(OP_KVHSLICE, 0,
@@ -1403,27 +1413,27 @@ case 2:
 
     break;
 
-  case 186:
-#line 966 "perly.y" /* yacc.c:1646  */
+  case 187:
+#line 972 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 187:
-#line 968 "perly.y" /* yacc.c:1646  */
+  case 188:
+#line 974 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_ENTERSUB, 0, scalar((ps[0].val.opval))); }
 
     break;
 
-  case 188:
-#line 970 "perly.y" /* yacc.c:1646  */
+  case 189:
+#line 976 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_ENTERSUB, OPf_STACKED, scalar((ps[-2].val.opval)));
 			}
 
     break;
 
-  case 189:
-#line 973 "perly.y" /* yacc.c:1646  */
+  case 190:
+#line 979 "perly.y" /* yacc.c:1646  */
     {
 			  (yyval.opval) = newUNOP(OP_ENTERSUB, OPf_STACKED,
 				op_append_elem(OP_LIST, (ps[-1].val.opval), scalar((ps[-3].val.opval))));
@@ -1431,153 +1441,153 @@ case 2:
 
     break;
 
-  case 190:
-#line 978 "perly.y" /* yacc.c:1646  */
+  case 191:
+#line 984 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_ENTERSUB, OPf_STACKED,
 			    op_append_elem(OP_LIST, (ps[0].val.opval), scalar((ps[-1].val.opval))));
 			}
 
     break;
 
-  case 191:
-#line 982 "perly.y" /* yacc.c:1646  */
+  case 192:
+#line 988 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newSVREF((ps[-3].val.opval)); }
 
     break;
 
-  case 192:
-#line 984 "perly.y" /* yacc.c:1646  */
+  case 193:
+#line 990 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newAVREF((ps[-3].val.opval)); }
 
     break;
 
-  case 193:
-#line 986 "perly.y" /* yacc.c:1646  */
+  case 194:
+#line 992 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newHVREF((ps[-3].val.opval)); }
 
     break;
 
-  case 194:
-#line 988 "perly.y" /* yacc.c:1646  */
+  case 195:
+#line 994 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_ENTERSUB, 0,
 				       scalar(newCVREF((ps[-1].val.ival),(ps[-3].val.opval)))); }
 
     break;
 
-  case 195:
-#line 991 "perly.y" /* yacc.c:1646  */
+  case 196:
+#line 997 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newGVREF(0,(ps[-3].val.opval)); }
 
     break;
 
-  case 196:
-#line 993 "perly.y" /* yacc.c:1646  */
+  case 197:
+#line 999 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newOP((ps[0].val.ival), OPf_SPECIAL);
 			    PL_hints |= HINT_BLOCK_SCOPE; }
 
     break;
 
-  case 197:
-#line 996 "perly.y" /* yacc.c:1646  */
+  case 198:
+#line 1002 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newLOOPEX((ps[-1].val.ival),(ps[0].val.opval)); }
 
     break;
 
-  case 198:
-#line 998 "perly.y" /* yacc.c:1646  */
+  case 199:
+#line 1004 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_NOT, 0, scalar((ps[0].val.opval))); }
 
     break;
 
-  case 199:
-#line 1000 "perly.y" /* yacc.c:1646  */
+  case 200:
+#line 1006 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newOP((ps[0].val.ival), 0); }
 
     break;
 
-  case 200:
-#line 1002 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newUNOP((ps[-1].val.ival), 0, (ps[0].val.opval)); }
-
-    break;
-
   case 201:
-#line 1004 "perly.y" /* yacc.c:1646  */
+#line 1008 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP((ps[-1].val.ival), 0, (ps[0].val.opval)); }
 
     break;
 
   case 202:
-#line 1006 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newOP(OP_REQUIRE, (ps[0].val.ival) ? OPf_SPECIAL : 0); }
+#line 1010 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newUNOP((ps[-1].val.ival), 0, (ps[0].val.opval)); }
 
     break;
 
   case 203:
-#line 1008 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newUNOP(OP_REQUIRE, (ps[-1].val.ival) ? OPf_SPECIAL : 0, (ps[0].val.opval)); }
+#line 1012 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newOP(OP_REQUIRE, (ps[0].val.ival) ? OPf_SPECIAL : 0); }
 
     break;
 
   case 204:
-#line 1010 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = newUNOP(OP_ENTERSUB, OPf_STACKED, scalar((ps[0].val.opval))); }
+#line 1014 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newUNOP(OP_REQUIRE, (ps[-1].val.ival) ? OPf_SPECIAL : 0, (ps[0].val.opval)); }
 
     break;
 
   case 205:
-#line 1012 "perly.y" /* yacc.c:1646  */
+#line 1016 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = newUNOP(OP_ENTERSUB, OPf_STACKED, scalar((ps[0].val.opval))); }
+
+    break;
+
+  case 206:
+#line 1018 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_ENTERSUB, OPf_STACKED,
 			    op_append_elem(OP_LIST, (ps[0].val.opval), scalar((ps[-1].val.opval)))); }
 
     break;
 
-  case 206:
-#line 1015 "perly.y" /* yacc.c:1646  */
+  case 207:
+#line 1021 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newOP((ps[0].val.ival), 0); }
 
     break;
 
-  case 207:
-#line 1017 "perly.y" /* yacc.c:1646  */
+  case 208:
+#line 1023 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newOP((ps[-2].val.ival), 0);}
 
     break;
 
-  case 208:
-#line 1019 "perly.y" /* yacc.c:1646  */
+  case 209:
+#line 1025 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 209:
-#line 1021 "perly.y" /* yacc.c:1646  */
+  case 210:
+#line 1027 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[-2].val.opval); }
 
     break;
 
-  case 210:
-#line 1023 "perly.y" /* yacc.c:1646  */
+  case 211:
+#line 1029 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_ENTERSUB, OPf_STACKED, scalar((ps[0].val.opval))); }
 
     break;
 
-  case 211:
-#line 1025 "perly.y" /* yacc.c:1646  */
+  case 212:
+#line 1031 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = ((ps[-2].val.ival) == OP_NOT)
                           ? newUNOP((ps[-2].val.ival), 0, newSVOP(OP_CONST, 0, newSViv(0)))
                           : newOP((ps[-2].val.ival), OPf_SPECIAL); }
 
     break;
 
-  case 212:
-#line 1029 "perly.y" /* yacc.c:1646  */
+  case 213:
+#line 1035 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP((ps[-3].val.ival), 0, (ps[-1].val.opval)); }
 
     break;
 
-  case 213:
-#line 1031 "perly.y" /* yacc.c:1646  */
+  case 214:
+#line 1037 "perly.y" /* yacc.c:1646  */
     {
 			    if (   (ps[0].val.opval)->op_type != OP_TRANS
 			        && (ps[0].val.opval)->op_type != OP_TRANSR
@@ -1591,14 +1601,14 @@ case 2:
 
     break;
 
-  case 214:
-#line 1042 "perly.y" /* yacc.c:1646  */
+  case 215:
+#line 1048 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = pmruntime((ps[-5].val.opval), (ps[-2].val.opval), (ps[-1].val.opval), 1, (ps[-4].val.ival)); }
 
     break;
 
-  case 217:
-#line 1046 "perly.y" /* yacc.c:1646  */
+  case 218:
+#line 1052 "perly.y" /* yacc.c:1646  */
     {
 			  (yyval.opval) = newLISTOP(OP_DIE, 0, newOP(OP_PUSHMARK, 0),
 				newSVOP(OP_CONST, 0, newSVpvs("Unimplemented")));
@@ -1606,142 +1616,142 @@ case 2:
 
     break;
 
-  case 219:
-#line 1055 "perly.y" /* yacc.c:1646  */
+  case 220:
+#line 1061 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = my_attrs((ps[-1].val.opval),(ps[0].val.opval)); }
 
     break;
 
-  case 220:
-#line 1057 "perly.y" /* yacc.c:1646  */
+  case 221:
+#line 1063 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = localize((ps[0].val.opval),1); }
 
     break;
 
-  case 221:
-#line 1059 "perly.y" /* yacc.c:1646  */
+  case 222:
+#line 1065 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newUNOP(OP_REFGEN, 0, my_attrs((ps[-1].val.opval),(ps[0].val.opval))); }
 
     break;
 
-  case 222:
-#line 1064 "perly.y" /* yacc.c:1646  */
+  case 223:
+#line 1070 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = sawparens((ps[-1].val.opval)); }
 
     break;
 
-  case 223:
-#line 1066 "perly.y" /* yacc.c:1646  */
+  case 224:
+#line 1072 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = sawparens(newNULLLIST()); }
 
     break;
 
-  case 224:
-#line 1069 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
-
-    break;
-
   case 225:
-#line 1071 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
-
-    break;
-
-  case 226:
-#line 1073 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (ps[0].val.opval); }
-
-    break;
-
-  case 227:
 #line 1075 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 228:
-#line 1080 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = (OP*)NULL; }
-
-    break;
-
-  case 229:
-#line 1082 "perly.y" /* yacc.c:1646  */
+  case 226:
+#line 1077 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 230:
+  case 227:
+#line 1079 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = (ps[0].val.opval); }
+
+    break;
+
+  case 228:
+#line 1081 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = (ps[0].val.opval); }
+
+    break;
+
+  case 229:
 #line 1086 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (OP*)NULL; }
 
     break;
 
-  case 231:
+  case 230:
 #line 1088 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 232:
+  case 231:
 #line 1092 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (OP*)NULL; }
 
     break;
 
-  case 233:
+  case 232:
 #line 1094 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
-  case 234:
+  case 233:
 #line 1098 "perly.y" /* yacc.c:1646  */
-    { (yyval.ival) = (ps[0].val.ival); }
+    { (yyval.opval) = (OP*)NULL; }
+
+    break;
+
+  case 234:
+#line 1100 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = (ps[0].val.opval); }
 
     break;
 
   case 235:
-#line 1100 "perly.y" /* yacc.c:1646  */
-    { munge_qwlist_to_paren_list((ps[0].val.opval)); }
+#line 1104 "perly.y" /* yacc.c:1646  */
+    { (yyval.ival) = (ps[0].val.ival); }
 
     break;
 
   case 236:
-#line 1102 "perly.y" /* yacc.c:1646  */
-    { (yyval.ival) = (ps[0].val.ival); }
+#line 1106 "perly.y" /* yacc.c:1646  */
+    { munge_qwlist_to_paren_list((ps[0].val.opval)); }
 
     break;
 
   case 237:
 #line 1108 "perly.y" /* yacc.c:1646  */
+    { (yyval.ival) = (ps[0].val.ival); }
+
+    break;
+
+  case 238:
+#line 1114 "perly.y" /* yacc.c:1646  */
     { parser->in_my = 0; (yyval.opval) = my((ps[0].val.opval)); }
 
     break;
 
-  case 245:
-#line 1125 "perly.y" /* yacc.c:1646  */
+  case 246:
+#line 1131 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newCVREF((ps[-1].val.ival),(ps[0].val.opval)); }
 
     break;
 
-  case 246:
-#line 1129 "perly.y" /* yacc.c:1646  */
+  case 247:
+#line 1135 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newSVREF((ps[0].val.opval)); }
 
     break;
 
-  case 247:
-#line 1133 "perly.y" /* yacc.c:1646  */
+  case 248:
+#line 1139 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newAVREF((ps[0].val.opval));
 			  if ((yyval.opval)) (yyval.opval)->op_private |= (ps[-1].val.ival);
 			}
 
     break;
 
-  case 248:
-#line 1139 "perly.y" /* yacc.c:1646  */
+  case 249:
+#line 1145 "perly.y" /* yacc.c:1646  */
     {
                           SV *constsv = cSVOPx_sv((ps[-1].val.opval));
                           assert((ps[-3].val.opval)->op_targ);
@@ -1771,70 +1781,70 @@ case 2:
 
     break;
 
-  case 249:
-#line 1168 "perly.y" /* yacc.c:1646  */
+  case 250:
+#line 1174 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newHVREF((ps[0].val.opval));
 			  if ((yyval.opval)) (yyval.opval)->op_private |= (ps[-1].val.ival);
 			}
 
     break;
 
-  case 250:
-#line 1174 "perly.y" /* yacc.c:1646  */
+  case 251:
+#line 1180 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newAVREF((ps[0].val.opval)); }
 
     break;
 
-  case 251:
-#line 1176 "perly.y" /* yacc.c:1646  */
+  case 252:
+#line 1182 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newAVREF((ps[-3].val.opval)); }
 
     break;
 
-  case 252:
-#line 1180 "perly.y" /* yacc.c:1646  */
+  case 253:
+#line 1186 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newGVREF(0,(ps[0].val.opval)); }
 
     break;
 
-  case 254:
-#line 1185 "perly.y" /* yacc.c:1646  */
+  case 255:
+#line 1191 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newAVREF((ps[-2].val.opval)); }
 
     break;
 
-  case 256:
-#line 1190 "perly.y" /* yacc.c:1646  */
+  case 257:
+#line 1196 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newHVREF((ps[-2].val.opval)); }
 
     break;
 
-  case 258:
-#line 1195 "perly.y" /* yacc.c:1646  */
+  case 259:
+#line 1201 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = newGVREF(0,(ps[-2].val.opval)); }
 
     break;
 
-  case 259:
-#line 1200 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = scalar((ps[0].val.opval)); }
-
-    break;
-
   case 260:
-#line 1202 "perly.y" /* yacc.c:1646  */
+#line 1206 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = scalar((ps[0].val.opval)); }
 
     break;
 
   case 261:
-#line 1204 "perly.y" /* yacc.c:1646  */
-    { (yyval.opval) = op_scope((ps[0].val.opval)); }
+#line 1208 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = scalar((ps[0].val.opval)); }
 
     break;
 
   case 262:
-#line 1207 "perly.y" /* yacc.c:1646  */
+#line 1210 "perly.y" /* yacc.c:1646  */
+    { (yyval.opval) = op_scope((ps[0].val.opval)); }
+
+    break;
+
+  case 263:
+#line 1213 "perly.y" /* yacc.c:1646  */
     { (yyval.opval) = (ps[0].val.opval); }
 
     break;
@@ -1845,6 +1855,6 @@ case 2:
     
 
 /* Generated from:
- * 74c4b21e7499869ddcd657838088e4693d2c0c909cbbab66c7227874dea087d8 perly.y
+ * d05dd327dc67452eabf31fb86d50000777cae721beb59e30a2b9e31a205cce47 perly.y
  * d75acf04e5e050e9d0de13999b5b46a13f176dcf9f75c07acf51e913fc41db9a regen_perly.pl
  * ex: set ro: */
