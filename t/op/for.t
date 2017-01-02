@@ -5,7 +5,7 @@ BEGIN {
     require "./test.pl";
 }
 
-plan(126);
+plan(129);
 
 # A lot of tests to check that reversed for works.
 
@@ -694,13 +694,3 @@ for $x qw(a b c) {
     $r .= $x;
 }
 is ($r, 'abc', 'qw as parens');
-
-{
-  use experimental 'refaliasing';
-  no warnings 'experimental::refaliasing';
-  $r = '';
-  for \my $i qw(a b c) {
-    $r .= $i;
-  }
-  is ($r, 'abc', 'qw as parens');
-}

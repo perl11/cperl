@@ -18,6 +18,29 @@ XXX Any important notices here
 
 =head1 Core Enhancements
 
+=head2 for qw() is legal again
+
+perl5.14 deprecated and 5.18 started disallowing a
+L<for|perlsyn/"Statement Modifiers"> loop with a
+L<qw()|perlop/"qw/STRING/"> list, "qw-as-parens".
+
+The rationale to remove the handy C<for qw()> syntax was bogus and
+annoying.  cperl 5.25.3 re-instated it for C<for> loops, but not for
+the rest.  cperl does not insist on the backwards syntax to require
+C<(qw( ... ))> around the C<for> list.
+
+   cperl5.25.3 -e'for qw(a b c) { print $_ }'
+
+   perl5.18 -e'for (qw(a b c)) { print $_ }'
+
+   perl5.14 -e'for $_ qw(a b c) { print $_ }'
+   => Use of qw(...) as parentheses is deprecated at -e line 1
+
+   perl5.12  -e'for $_ qw(a b c) { print $_ }'
+
+The new additional cperl syntax is even easier to use than before.
+See L<[cperl #26]|https://github.com/perl11/cperl/issues/26>.
+
 =head2 Perl can now do default collation in UTF-8 locales on platforms
 that support it
 

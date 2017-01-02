@@ -8424,9 +8424,9 @@ Perl_yylex(pTHX)
 			    for (; !isSPACE(*d) && len; --len, ++d)
 				/**/;
 			}
-			sv = newSVpvn_utf8(b, d-b, DO_UTF8(PL_lex_stuff));
+			sv = newSVpvn_utf8(b, d - b, DO_UTF8(PL_lex_stuff));
 			words = op_append_elem(OP_LIST, words,
-					    newSVOP(OP_CONST, 0, tokeq(sv)));
+                                               newSVOP(OP_CONST, 0, tokeq(sv)));
 		    }
 		}
 	    }
@@ -13031,7 +13031,7 @@ Perl_munge_qwlist_to_paren_list(pTHX_ OP *qwlist)
 	op_free(qwlist);
     }
     else {
-        DEBUG_k(Perl_deb(aTHX_ "munge_qwlist_to_paren_list"));
+        DEBUG_T(Perl_deb(aTHX_ "munge_qwlist_to_paren_list"));
 	NEXTVAL_NEXTTOKE.opval = qwlist;
 	force_next(THING);
     }
