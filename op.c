@@ -3695,9 +3695,32 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	    goto nomod;
 	else if (!OpKIDS(o))
 	    break;
+
 	if (o->op_targ != OP_LIST) {
-	    op_lvalue(OpFIRST(o), type);
-	    break;
+            OP *sib = OpSIBLING(OpFIRST(o));
+            /* OP_TRANS and OP_TRANSR with argument have a weird optree
+             * that looks like
+             *
+             *   null
+             *      arg
+             *      trans
+             *
+             * compared with things like OP_MATCH which have the argument
+             * as a child:
+             *
+             *   match
+             *      arg
+             *
+             * so handle specially to correctly get "Can't modify" croaks etc
+             */
+
+            if (sib && (IS_TYPE(sib, TRANS) || IS_TYPE(sib, TRANSR)))
+            {
+                /* this should trigger a "Can't modify transliteration" err */
+                op_lvalue(sib, type);
+            }
+            op_lvalue(OpFIRST(o), type);
+            break;
 	}
 	/* FALLTHROUGH */
     case OP_LIST:
@@ -3705,7 +3728,7 @@ Perl_op_lvalue_flags(pTHX_ OP *o, I32 type, U32 flags)
 	for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid))
 	    /* elements might be in void context because the list is
 	       in scalar context or because they are attribute sub calls */
-	    if ( (kid->op_flags & OPf_WANT) != OPf_WANT_VOID )
+	    if ( !OpWANT_VOID(kid) )
 		op_lvalue(kid, type);
 	break;
 
