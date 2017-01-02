@@ -1474,3 +1474,17 @@ my $v = 𝛃 - 5;
 EXPECT
 OPTION regex
 (Wide character.*\n)?Warning: Use of "𝛃" without parentheses is ambiguous
+########
+# toke.c
+use warnings 'semicolon' ;
+for qw(a b) { print $_ }
+no warnings 'semicolon' ;
+EXPECT
+ab
+########
+# toke.c
+use warnings 'semicolon' ;
+for my $i qw(a b) { print $i }
+no warnings 'semicolon' ;
+EXPECT
+ab

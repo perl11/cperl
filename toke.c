@@ -6232,8 +6232,7 @@ Perl_yylex(pTHX)
 		if (t < PL_bufend && ((*t == ',' && (*s == 'q' || !isLOWER(*s)))
                                       || isFATARROW(t)))
 		    OPERATOR(HASHBRACK);
-		if (PL_expect == XREF)
-		{
+		if (PL_expect == XREF) {
 		  block_expectation:
 		    /* If there is an opening brace or 'sub:', treat it
 		       as a term to make ${{...}}{k} and &{sub:attr...}
@@ -8434,7 +8433,7 @@ Perl_yylex(pTHX)
 		words = newNULLLIST();
 	    SvREFCNT_dec_NN(PL_lex_stuff);
 	    PL_lex_stuff = NULL;
-	    PL_expect = XOPERATOR;
+	    PL_expect = XOPERATOR; /* or XBLOCK after for qw() */
 	    pl_yylval.opval = sawparens(words);
 	    TOKEN(QWLIST);
 	}
@@ -9550,8 +9549,7 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni, int *normali
 		return s;
 	    }
 	}
-	/* Handle extended ${^Foo} variables
-	 * 1999-02-27 mjd-perl-patch@plover.com */
+	/* Handle extended ${^Foo} variables */
 	else if (! isPRINT(*d) /* isCNTRL(d), plus all non-ASCII */
 		 && isWORDCHAR(*s))
 	{

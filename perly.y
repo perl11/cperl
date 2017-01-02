@@ -416,15 +416,19 @@ barestmt:	PLUGSTMT
 			  $$ = block_end($3, forop);
 			  parser->copline = (line_t)$1;
 			}
-	|	FOR MY remember my_scalar lpar_or_qw mexpr ')' mblock cont
+	|	FOR MY remember my_scalar lpar_or_qw mexpr ')'
+			{ parser->expect = XBLOCK; }
+		mblock cont
 			{
-			  $$ = block_end($3, newFOROP(0, $4, $6, $8, $9));
+			  $$ = block_end($3, newFOROP(0, $4, $6, $9, $10));
 			  parser->copline = (line_t)$1;
 			}
-	|	FOR scalar lpar_or_qw remember mexpr ')' mblock cont
+	|	FOR scalar lpar_or_qw remember mexpr ')'
+			{ parser->expect = XBLOCK; }
+		mblock cont
 			{
 			  $$ = block_end($4, newFOROP(0,
-			         op_lvalue($2, OP_ENTERLOOP), $5, $7, $8));
+			         op_lvalue($2, OP_ENTERLOOP), $5, $8, $9));
 			  parser->copline = (line_t)$1;
 			}
 	|	FOR my_refgen remember my_var
@@ -451,10 +455,12 @@ barestmt:	PLUGSTMT
 				  newFOROP(0, (OP*)NULL, $4, $6, $7));
 			  parser->copline = (line_t)$1;
 			}
-	|	FOR remember QWLIST mblock cont
+	|	FOR remember QWLIST
+			{ parser->expect = XBLOCK; }
+        	mblock cont
 			{
 			  $$ = block_end($2,
-				  newFOROP(0, (OP*)NULL, $3, $4, $5));
+				  newFOROP(0, (OP*)NULL, $3, $5, $6));
 			  parser->copline = (line_t)$1;
 			}
 	|	block cont
