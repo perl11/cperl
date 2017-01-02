@@ -437,8 +437,9 @@ S_toke_name(pTHX_ I32 state, int* ltype)
     if (DEBUG_T_TEST) {
         const struct debug_tokens *p;
         state &= 0xffffff; /* filter out 2<<24, 4<<24 */
-        if (state > (I32)(sizeof debug_tokens/sizeof debug_tokens[0]))
-            return NULL;
+        /* debug_tokens use states 258 - 338 */
+        /*if (state > (I32)(sizeof debug_tokens/sizeof debug_tokens[0]))
+          return NULL;*/
         for (p = debug_tokens; p->token; p++) {
             if (p->token == (int)state) {
                 name = p->name;
