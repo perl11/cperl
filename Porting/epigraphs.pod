@@ -193,6 +193,24 @@ L<Announced on 2016-05-09 by Ricardo Signes|http://www.nntp.perl.org/group/perl.
   To find that the utmost reward
     Of daring should be still to dare.
 
+=head2 v5.24.1-RC5 - John Milton, ed. Gordon Campbell, "Paradise Regained", Book IV
+
+L<Announced on 2017-01-02 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2017/01/msg242016.html>
+
+  Thus passed the night so foul, till Morning fair
+  Came forth with pilgrim steps, in amice grey;
+  Who with her radiant finger stilled the roar
+  Of thunder, chased the clouds, and laid the winds,
+  And grisly spectres, which the fiend had raised
+  To tempt the Son of God with terrors dire.
+  And now the sun with more effectual beams
+  Had cheered the face of earth, and dried the wet
+  From drooping plant, or dropping tree; the birds,
+  Who all things now behold more fresh and green,
+  After a night of storm so ruinous,
+  Cleared up their choicest notes in bush and spray,
+  To gratulate the sweet return of morn.
+
 =head2 v5.24.1-RC4 - John Milton, ed. Gordon Campbell, "Paradise Lost", Book II
 
 L<Announced on 2016-10-12 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2016/10/msg240224.html>
@@ -662,6 +680,153 @@ L<Announced on 2015-06-20 by Ricardo Signes|http://www.nntp.perl.org/group/perl.
   To be just like them
   They sing while you slave and I just get bored
   I ain't gonna work on Maggie's farm no more
+
+=head2 v5.22.3-RC5 - John Milton, ed. Gordon Campbell, "Paradise Regained", Book II
+
+L<Announced on 2017-01-02 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2017/01/msg242017.html>
+
+  Thus wore out night; and now the herald lark
+  Left his ground-nest, high towering to descry
+  The Morn's approach, and greet her with his song;
+  As lightly from his grassy couch up rose
+  Our Saviour, and found all was but a dream;
+  Fasting he went to sleep, and fasting waked.
+  Up to a hill anon his steps he reared,
+  From whose high top to ken the prospect round,
+  If cottage were in view, sheep-cote, or herd;
+  But cottage, herd, or sheep-cote, none he saw --
+  Only in a bottom saw a pleasant grove,
+  With chant of tuneful birds resounding loud;
+  Thither he bent his way, determined there
+  To rest at noon, and entered soon the shade,
+  High-roofed and walks beneath, and alleys brown,
+  That opened in the midst a woody scene;
+  Nature's own work it seemed (Nature taught Art),
+  And, to a superstitious eye, the haunt
+  Of wood-gods and wood-nymphs.
+
+=head2 v5.22.3-RC4 - John Milton, ed. Gordon Campbell, "Paradise Lost", Book II
+
+L<Announced on 2016-10-12 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2016/10/msg240223.html>
+
+  Far off from these, a slow and silent stream,
+  Lethe, the river of oblivion, rolls
+  Her watery labyrinth, whereof who drinks
+  Forthwith his former state and being forgets --
+  Forgets both joy and grief, pleasure and pain.
+  Beyond this flood a frozen continent
+  Lies dark and wild, beat with perpetual storms
+  Of Whirlwind and dire hail, which on firm land
+  Thaws not, but gathers heap, and ruin seems
+  Of ancient pile; all else deep snow and ice,
+  A gulf profound as that Serbonian bog
+  Betwixt Damiata and Mount Casius old,
+  Where armies whole have sunk: the parching air
+  Burns frore, and cold performs the effect of fire.
+  Thither, by harpy-footed Furies haled,
+  At certain revolutions all the damned
+  Are brought; and feel by turns the bitter change
+  Of fierce extremes, extremes by change more fierce,
+  From beds of raging fire to starve in ice
+  Their soft ethereal warmth, and there to pine
+  Immovable, infixed, and frozen round
+  Periods of time -- thence hurried back to fire.
+  They ferry over this Lethean sound
+  Both to and fro, their sorrow to augment,
+  And wish and struggle, as they pass, to reach
+  The tempting stream, with one small drop to lose
+  In sweet forgetfulness all pain and woe,
+  All in one moment, and so near the brink;
+  But fate withstands, and, to oppose the attempt,
+  Medusa with Gorgonian terror guards
+  The ford, and of itself the water flies
+  All taste of living wight, as once it fled
+  The lip of Tantalus.
+
+=head2 v5.22.3-RC3 - Dante Alighieri, trans. Dorothy L. Sayers and Barbara Reynolds, "The Divine Comedy", Cantica III: Paradise, Canto IV
+
+L<Announced on 2016-08-11 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2016/08/msg238908.html>
+
+  Between two dishes, equally attractive
+    And near to him, a free man, I suppose,
+    Would starve to death before his teeth got active;
+
+  So would a lamb 'twixt two fierce wolfish foes,
+    Fearing the fangs both ways, not stir a foot;
+    So would a deerhound halt between two does;
+
+  So I can't blame myself for standing mute,
+    Nor praise myself: for I must needs so do,
+    Suspended 'twixt two doubts, alike acute.
+
+=head2 v5.22.3-RC2 - Dante Alighieri, trans. Dorothy L. Sayers, "The Divine Comedy", Cantica II: Purgatory, Canto I
+
+L<Announced on 2016-07-25 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2016/07/msg238270.html>
+
+  For better waters heading with the wind
+    My ship of genius now shakes out her sail
+    And leaves that ocean of despair behind;
+
+  For to the second realm I tune my tale,
+    Where human spirits purge themselves, and train
+    To leap up into joy celestial.
+
+  Now from the grave wake poetry again,
+    O sacred Muses I have served so long!
+    Now let Calliope uplift her strain
+
+  And lift my voice up on the mighty song
+    That smote the miserable Magpies nine
+    Out of all hope of pardon for their wrong!
+
+=head2 v5.22.3-RC1 - Dante Alighieri, trans. Dorothy L. Sayers, "The Divine Comedy", Cantica I: Hell, Canto XII
+
+L<Announced on 2016-07-17 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2016/07/msg238071.html>
+
+  The place we came to, to descend the brink from,
+    Was sheer crag; and there was a Thing there - making,
+    All told, a prospect any eye would shrink from.
+
+  Like the great landslide that rushed downward, shaking
+    The bank of Adige on this side Trent,
+    (Whether through faulty shoring or the earth's quaking)
+
+  So that the rock, down from the summit rent
+    Far as the plain, lies strewn, and one might crawl
+    From top to bottom by that unsure descent,
+
+  Such was the precipice; and there we spied,
+    Topping the cleft that split the rocky wall,
+    That which was wombed in the false heifer's side,
+
+  The infamy of Crete, stretched out a-sprawl;
+    And seeing us, he gnawed himself, like one
+    Inly devoured with spite and burning gall.
+
+=head2 v5.22.2 - Gaston Leroux, trans. Mireille Ribière, "The Phantom of the Opera"
+
+L<Announced on 2016-04-29 by Steve Hay|http://www.nntp.perl.org/group/perl.perl5.porters/2016/04/msg236120.html>
+
+A silence; and then: 'If, in just two minutes' time by my watch--and a
+splendid watch it is--you have not turned the scorpion, mademoiselle, I
+shall turn the grasshopper... and the grasshopper, remember, _leaps
+straight up into the air!_'
+The silence that ensued was terrifying, worse than any we had
+experienced before.  I knew that when Erik spoke with that quiet,
+gentle, slightly weary voice, it meant that he had reached the end of
+his tether: that he was capable of the most abominable crimes or the
+most selfless devotion; that the slightest irritation might unleash a
+storm.
+Realizing that our fate was out of our hands, the Viscount fell to his
+knees and prayed.  As for me, I pressed both hands to my chest, for my
+heart was pounding so fiercely that I thought it would burst.  We were
+intensely aware of the excruciating dilemma Christine Daaé faced in
+those final seconds.  We understood why she hesitated to turn the
+scorpion.  What if the scorpion, rather than the grasshopper, were to
+set off the explosion?  What if Erik was simply intent on destroying
+everything, regardless?
+At last he spoke: 'The two minutes are up,' he said in a soft, angelic
+voice.  'Goodbye, mademoiselle.  Off you go, little grasshopper!'
 
 =head2 v5.22.2-RC1 - Gaston Leroux, trans. Mireille Ribière, "The Phantom of the Opera"
 
