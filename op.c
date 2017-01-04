@@ -16107,17 +16107,17 @@ Perl_rpeep(pTHX_ OP *o)
             /* FALLTHROUGH */
 	case OP_PADAV:
 	case OP_PADSV:
-	/* Skip over state($x) in void context.  */
-	if (oldop && o->op_private == (OPpPAD_STATE|OPpLVAL_INTRO)
-            && OpWANT_VOID(o))
-	{
-	    oldop->op_next = o->op_next;
-            /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p oldop->op_next=0x%p (Skip over state($x) in void context)\n", o, oldop->op_next));*/
-	    goto redo_nextstate;
-	}
-	if (ISNT_TYPE(o, PADAV))
-	    break;
-	/* FALLTHROUGH */
+            /* Skip over state($x) in void context.  */
+            if (oldop && o->op_private == (OPpPAD_STATE|OPpLVAL_INTRO)
+                && OpWANT_VOID(o))
+            {
+                oldop->op_next = o->op_next;
+                /*DEBUG_kv(Perl_deb(aTHX_ "rpeep: o=0x%p oldop->op_next=0x%p (Skip over state($x) in void context)\n", o, oldop->op_next));*/
+                goto redo_nextstate;
+            }
+            if (ISNT_TYPE(o, PADAV))
+                break;
+            /* FALLTHROUGH */
 	case OP_GV:
 	    if (IS_TYPE(o, PADAV) || IS_TYPE(o->op_next, RV2AV)) {
 		OP* const pop = (IS_TYPE(o, PADAV))
