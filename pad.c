@@ -742,7 +742,7 @@ Perl_pad_alloc(pTHX_ I32 optype, U32 tmptype)
 	 * For a constant, likewise, but use PL_constpadix.
 	 */
 	PADNAME * const * const names = PadnamelistARRAY(PL_comppad_name);
-	const SSize_t names_fill = PadnamelistMAX(PL_comppad_name);
+	const PADOFFSET names_fill = PadnamelistMAX(PL_comppad_name);
 	const bool konst = cBOOL(tmptype & SVf_READONLY);
 	retval = konst ? PL_constpadix : PL_padix;
 	for (;;) {
@@ -1239,8 +1239,8 @@ S_pad_findlex(pTHX_ const char *namepv, STRLEN namelen, U32 flags, const CV* cv,
 
 		/* trying to capture from an anon prototype? */
 		if (CvCOMPILED(cv)
-			? CvANON(cv) && CvCLONE(cv) && !CvCLONED(cv)
-			: *out_flags & PAD_FAKELEX_ANON)
+                    ? CvANON(cv) && CvCLONE(cv) && !CvCLONED(cv)
+                    : *out_flags & PAD_FAKELEX_ANON)
 		{
 		    if (warn)
 			S_unavailable(aTHX_
@@ -1265,7 +1265,7 @@ S_pad_findlex(pTHX_ const char *namepv, STRLEN namelen, U32 flags, const CV* cv,
 		    }
 
 		    if (fake_offset && CvANON(cv)
-			    && CvCLONE(cv) &&!CvCLONED(cv))
+                        && CvCLONE(cv) && !CvCLONED(cv))
 		    {
 			PADNAME *n;
 			/* not yet caught - look further up */
@@ -1458,7 +1458,7 @@ Perl_pad_block_start(pTHX_ int full)
     PL_comppad_name_floor = PadnamelistMAX(PL_comppad_name);
     if (full)
 	PL_comppad_name_fill = PL_comppad_name_floor;
-    if (PL_comppad_name_floor < 0)
+    if (PL_comppad_name_floor == NOT_IN_PAD)
 	PL_comppad_name_floor = 0;
     save_strlen((STRLEN *)&PL_min_intro_pending);
     save_strlen((STRLEN *)&PL_max_intro_pending);
@@ -1864,7 +1864,7 @@ Perl_do_dump_pad(pTHX_ I32 level, PerlIO *file, PADLIST *padlist, int full)
 	    PTR2UV(pad_name), PTR2UV(pname), PTR2UV(pad), PTR2UV(ppad)
     );
 
-    for (ix = 1; ix <= PadnamelistMAX(pad_name); ix++) {
+    for (ix = 1; ix <= (PADOFFSET)PadnamelistMAX(pad_name); ix++) {
         const PADNAME *namesv = pname[ix];
 	if (namesv && !PadnameLEN(namesv)) {
 	    namesv = NULL;
@@ -2590,7 +2590,7 @@ Perl_padlist_dup(pTHX_ PADLIST *srcpad, CLONE_PARAMS *param)
 	PadlistARRAY(dstpad)[1] = pad1;
 	pad1a = AvARRAY(pad1);
 
-	if (ix > -1) {
+	if (ix != NOT_IN_PAD) {
 	    AvFILLp(pad1) = ix;
 
 	    for ( ;ix > 0; ix--) {
@@ -2602,10 +2602,10 @@ Perl_padlist_dup(pTHX_ PADLIST *srcpad, CLONE_PARAMS *param)
 		    if (PadnameOUTER(names[ix])
 			|| PadnameIsSTATE(names[ix])
 			|| sigil == '&')
-			{
-			    /* outer lexical or anon code */
-			    pad1a[ix] = sv_dup_inc(oldpad[ix], param);
-			}
+		    {
+                        /* outer lexical or anon code */
+                        pad1a[ix] = sv_dup_inc(oldpad[ix], param);
+                    }
 		    else {		/* our own lexical */
 			if (SvPADSTALE(oldpad[ix]) && SvREFCNT(oldpad[ix]) > 1) {
 			    /* This is a work around for how the current
