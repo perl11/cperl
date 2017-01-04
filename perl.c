@@ -1263,8 +1263,8 @@ perl_destruct(pTHXx)
 	 * for both HE and HEK, we either need to explicitly unshare it the
 	 * correct way, or actually free things here.
 	 */
-	I32 riter = 0;
-	const I32 max = HvMAX(PL_strtab);
+	U32 riter = 0;
+	const U32 max = HvMAX(PL_strtab);
 	HE * const * const array = HvARRAY(PL_strtab);
 	HE *hent = array[0];
 
