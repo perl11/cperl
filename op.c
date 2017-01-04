@@ -15251,6 +15251,68 @@ S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
     return FALSE;
 }
 
+/* See if the ops following o are such that o will always be executed in
+ * boolean context: that is, the SV which o pushes onto the stack will
+ * only ever be used by later ops with SvTRUE(sv) or similar.
+ * If so, set a suitable private flag on o. Normally this will be
+ * bool_flag; but if it's only possible to determine booleaness at run
+ * time (e.g. sub f { ....; (%h || $y) }), then set maybe_flag instead.
+ */
+
+static void
+S_check_for_bool_cxt(pTHX_ OP*o, U8 bool_flag, U8 maybe_flag)
+{
+    OP *lop;
+
+    assert(OpWANT_SCALAR(o));
+
+    lop = o->op_next;
+
+    while (lop) {
+        switch (lop->op_type) {
+        case OP_NULL:
+        case OP_SCALAR:
+            break;
+
+        /* these two never leave the original value on the stack */
+        case OP_NOT:
+        case OP_COND_EXPR:
+        /* AND may leave its original arg on the stack, but only if it's
+         * false. As long as o returns a value which is both false
+         * and usable in scalar context, it's safe.
+         */
+        case OP_AND:
+            o->op_private |= bool_flag;
+            lop = NULL;
+            break;
+
+        /* OR and DOR leave the original arg on the stack when following
+         * the op_next route. If not in void context, we need to ensure
+         * that whatever follows consumes the arg only in boolean context
+         * too.
+         */
+        case OP_OR:
+        case OP_DOR:
+            if (OpWANT_VOID(lop)) {
+                o->op_private |= bool_flag;
+                lop = NULL;
+            }
+            else if (!(lop->op_flags & OPf_WANT)) {
+                /* unknown context - decide at runtime */
+                o->op_private |= maybe_flag;
+                lop = NULL;
+            }
+            break;
+
+        default:
+            lop = NULL;
+        }
+
+        if (lop)
+            lop = lop->op_next;
+    }
+}
+
 
 /* returns the next non-null op */
 
@@ -15283,8 +15345,6 @@ Perl_rpeep(pTHX_ OP *o)
     OP** defer_queue[MAX_DEFERRED]; /* small queue of deferred branches */
     int defer_base = 0;
     int defer_ix = -1;
-    OP *fop;
-    OP *sop;
 
     if (!o || o->op_opt)
 	return;
@@ -16037,9 +16097,16 @@ Perl_rpeep(pTHX_ OP *o)
             break;
         }
 
+	case OP_RV2HV:
+	case OP_PADHV:
+            /* see if %h is used in boolean context */
+            if ((o->op_flags & OPf_WANT) == OPf_WANT_SCALAR)
+                S_check_for_bool_cxt(aTHX_ o, OPpTRUEBOOL, OPpMAYBE_TRUEBOOL);
+            if (o->op_type != OP_PADHV)
+                break;
+            /* FALLTHROUGH */
 	case OP_PADAV:
 	case OP_PADSV:
-	case OP_PADHV:
 	/* Skip over state($x) in void context.  */
 	if (oldop && o->op_private == (OPpPAD_STATE|OPpLVAL_INTRO)
             && OpWANT_VOID(o))
@@ -16155,26 +16222,12 @@ Perl_rpeep(pTHX_ OP *o)
 
 	    break;
         
-#define HV_OR_SCALARHV(op)                      \
-    (  IS_TYPE(op, PADHV) || IS_TYPE(op, RV2HV) \
-       ? (op)                                   \
-       : IS_TYPE(op, SCALAR) && OpKIDS(op)      \
-       && (  IS_TYPE(OpFIRST(op), PADHV)        \
-          || IS_TYPE(OpFIRST(op), RV2HV))       \
-         ? OpFIRST(op)                          \
-         : NULL)
-
         case OP_NOT:
-            if ((fop = HV_OR_SCALARHV(OpFIRST(o))))
-                fop->op_private |= OPpTRUEBOOL;
             break;
 
         case OP_AND:
 	case OP_OR:
 	case OP_DOR:
-            /* XXX PL_op? broken by 867fa1e2da14522 demerphq (boolkeys). #219 */
-            fop = OpFIRST(o);
-            sop = OpSIBLING(fop);
 	    while (IS_NULL_OP(OpOTHER(o)))
 		OpOTHER(o) = OpOTHER(o)->op_next;
 	    while (o->op_next && (   o->op_type == o->op_next->op_type
@@ -16197,49 +16250,9 @@ Perl_rpeep(pTHX_ OP *o)
 	    DEFER(OpOTHER(o));
           
 	    o->op_opt = 1;
-            fop = HV_OR_SCALARHV(fop);
-            if (sop) sop = HV_OR_SCALARHV(sop);
-            if (fop || sop
-            ){	
-                OP * nop = o;
-                OP * lop = o;
-                if (!OpWANT_VOID(nop)) {
-                    while (nop && nop->op_next) {
-                        switch (nop->op_next->op_type) {
-                            case OP_NOT:
-                            case OP_AND:
-                            case OP_OR:
-                            case OP_DOR:
-                                lop = nop = nop->op_next;
-                                break;
-                            case OP_NULL:
-                                nop = nop->op_next;
-                                break;
-                            default:
-                                nop = NULL;
-                                break;
-                        }
-                    }            
-                }
-                if (fop) {
-                    if (OpWANT_VOID(lop) || IS_TYPE(o, AND))
-                        fop->op_private |= OPpTRUEBOOL;
-                    else if (!(lop->op_flags & OPf_WANT))
-                        fop->op_private |= OPpMAYBE_TRUEBOOL;
-                }
-                if (OpWANT_VOID(lop) && sop)
-                    sop->op_private |= OPpTRUEBOOL;
-            }                  
-            
-	    
 	    break;
 	
 	case OP_COND_EXPR:
-	    if ((fop = HV_OR_SCALARHV(OpFIRST(o))))
-		fop->op_private |= OPpTRUEBOOL;
-#undef HV_OR_SCALARHV
-	    /* GERONIMO! */ /* FALLTHROUGH */
-
 	case OP_MAPWHILE:
 	case OP_GREPWHILE:
 	case OP_ANDASSIGN:
