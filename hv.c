@@ -745,9 +745,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
                 HvSHAREKEYS(hv)?"SHARE ":"",
                 HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
 #ifdef DYNAMIC_ENV_FETCH  /* %ENV lookup?  If so, try to fetch the value now */
-    if (!(action & HV_FETCH_ISSTORE) 
-	&& SvRMAGICAL((const SV *)hv)
-	&& mg_find((const SV *)hv, PERL_MAGIC_env))
+    if (UNLIKELY(!(action & HV_FETCH_ISSTORE) 
+                 && SvRMAGICAL((const SV *)hv)
+                 && mg_find((const SV *)hv, PERL_MAGIC_env)))
     {
 	unsigned long len;
 	const char * const env = PerlEnv_ENVgetenv_len(key,&len);
@@ -956,7 +956,7 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
 #endif
     
     *return_action = HV_COMMON_MAGICAL_IGNORE;
-    if (SvRMAGICAL(hv) && !(action & (HV_FETCH_ISSTORE|HV_FETCH_ISEXISTS))) {
+    if (UNLIKELY(SvRMAGICAL(hv) && !(action & (HV_FETCH_ISSTORE|HV_FETCH_ISEXISTS)))) {
         if (mg_find((const SV *)hv, PERL_MAGIC_tied)
             || SvGMAGICAL((const SV *)hv))
         {
@@ -1056,7 +1056,7 @@ S_hv_common_magical(pTHX_ HV *hv, SV **keyp, const char *key, const I32 klen,
                         HvNAME_get(hv)?HvNAME_get(hv):"", (int)klen, key));
         }
     } /* ISFETCH */
-    else if (SvRMAGICAL(hv) && (action & HV_FETCH_ISEXISTS)) {
+    else if (UNLIKELY(SvRMAGICAL(hv) && (action & HV_FETCH_ISEXISTS))) {
         if (mg_find((const SV *)hv, PERL_MAGIC_tied)
             || SvGMAGICAL((const SV *)hv))
         {
@@ -1212,7 +1212,7 @@ Perl_hv_scalar(pTHX_ HV *hv)
 
     PERL_ARGS_ASSERT_HV_SCALAR;
 
-    if (SvRMAGICAL(hv)) {
+    if (UNLIKELY(SvRMAGICAL(hv))) {
 	MAGIC * const mg = mg_find((const SV *)hv, PERL_MAGIC_tied);
 	if (mg)
 	    return magic_scalarpack(hv, mg);
@@ -1246,7 +1246,7 @@ Perl_hv_bucket_ratio(pTHX_ HV *hv)
 
     PERL_ARGS_ASSERT_HV_BUCKET_RATIO;
 
-    if (SvRMAGICAL(hv)) {
+    if (UNLIKELY(SvRMAGICAL(hv))) {
         MAGIC * const mg = mg_find((const SV *)hv, PERL_MAGIC_tied);
         if (mg)
             return magic_scalarpack(hv, mg);
@@ -1301,7 +1301,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     HV *stash = NULL;
     int collisions = -1;
 
-    if (SvRMAGICAL(hv)) {
+    if (UNLIKELY(SvRMAGICAL(hv))) {
 	bool needs_copy;
 	bool needs_store;
 	hv_magic_check (hv, &needs_copy, &needs_store);
@@ -2936,7 +2936,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
     iter = HvAUX(hv);
 
     oldentry = entry = iter->xhv_eiter;
-    if (SvMAGICAL(hv) && SvRMAGICAL(hv)) {
+    if (UNLIKELY(SvMAGICAL(hv) && SvRMAGICAL(hv))) {
 	if ( ( mg = mg_find((const SV *)hv, PERL_MAGIC_tied) ) ) {
             SV * const key = sv_newmortal();
             if (entry) {
@@ -3079,7 +3079,7 @@ Perl_hv_iterkey(pTHX_ HE *entry, I32 *retlen)
 {
     PERL_ARGS_ASSERT_HV_ITERKEY;
 
-    if (HeKLEN(entry) == HEf_SVKEY) {
+    if (UNLIKELY(HeKLEN(entry) == HEf_SVKEY)) {
 	STRLEN len;
 	char * const p = SvPV(HeKEY_sv(entry), len);
 	*retlen = len;
@@ -3124,7 +3124,7 @@ Perl_hv_iterval(pTHX_ HV *hv, HE *entry)
 {
     PERL_ARGS_ASSERT_HV_ITERVAL;
 
-    if (SvRMAGICAL(hv)) {
+    if (UNLIKELY(SvRMAGICAL(hv))) {
 	if (mg_find((const SV *)hv, PERL_MAGIC_tied)) {
 	    SV* const sv = sv_newmortal();
 	    if (HeKLEN(entry) == HEf_SVKEY)
