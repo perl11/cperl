@@ -346,7 +346,7 @@ multideref	array or hash lookup	ck_null		ds+
 
 # Explosives and implosives.
 
-unpack		unpack			ck_fun		u@	S S?
+unpack		unpack			ck_fun		fu@	S S?
 pack		pack			ck_fun		fmst@	S L
 split		split			ck_split	t@	S S S
 join		join or string		ck_join		fmst@	S L

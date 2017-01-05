@@ -4715,7 +4715,7 @@ Perl_newPROG(pTHX_ OP *o)
 	PERL_CONTEXT *cx;
 	I32 i;
 	if (PL_eval_root)
-		return;
+            return;
 	PL_eval_root = newUNOP(OP_LEAVEEVAL,
 			       ((PL_in_eval & EVAL_KEEPERR)
 				? OPf_SPECIAL : 0), o);
@@ -4918,8 +4918,8 @@ S_fold_constants(pTHX_ OP *o)
 
     PERL_ARGS_ASSERT_FOLD_CONSTANTS;
 
-    if (!(PL_opargs[type] & OA_FOLDCONST))
-	goto nope;
+    if (!(PL_opargs[type] & OA_FOLDCONST)) /* 82 ops */
+      goto nope;
 
     DEBUG_kv(Perl_deb(aTHX_ "fold_constant(%s)?\n", OP_NAME(o)));
     switch (type) {
@@ -4950,19 +4950,25 @@ S_fold_constants(pTHX_ OP *o)
 	    goto nope;
 #endif
 	break;
+    case OP_UNPACK:
+        if (OpWANT_LIST(o)) /* cannot represent a list as const SV */
+            goto nope;
     case OP_PACK:
 	if (!OpHAS_SIBLING(OpFIRST(o))
             || ISNT_TYPE(OpSIBLING(OpFIRST(o)), CONST))
 	    goto nope;
 	{
-	    SV * const sv = cSVOPx_sv(OpSIBLING(OpFIRST(o)));
-	    if (!SvPOK(sv) || SvGMAGICAL(sv)) goto nope;
-	    {
-		const char *s = SvPVX_const(sv);
-		while (s < SvEND(sv)) {
-		    if (isALPHA_FOLD_EQ(*s, 'p')) goto nope;
-		    s++;
-		}
+	    SV * const templ = cSVOPx_sv(OpSIBLING(OpFIRST(o)));
+            const char *s = SvPVX_const(templ);
+	    if (!SvPOK(templ) || SvGMAGICAL(templ))
+                goto nope;
+            /* unpack returning a list */
+            if (type == OP_UNPACK && SvCUR(templ) > 1)
+                goto nope;
+            while (s < SvEND(templ)) {
+                if (isALPHA_FOLD_EQ(*s, 'p'))
+                    goto nope;
+                s++;
 	    }
 	}
 	break;
@@ -4990,8 +4996,7 @@ S_fold_constants(pTHX_ OP *o)
         case OP_LIST:
         case OP_SCALAR:
         case OP_NULL:
-        case OP_PUSHMARK:
-            /* Foldable; move to next op in list */
+        case OP_PUSHMARK: /* Foldable; move to next op in list */
             break;
 
         default:
@@ -5073,6 +5078,7 @@ S_fold_constants(pTHX_ OP *o)
        want to hide.  If the stringify op is itself already marked
        folded, however, then it is actually a folded join.  */
     is_stringify = type == OP_STRINGIFY && !o->op_folded;
+    DEBUG_k(Perl_deb(aTHX_ "fold_constant(%s) => const\n", OP_NAME(o)));
     op_free(o);
     assert(sv);
     if (is_stringify)
@@ -5082,7 +5088,6 @@ S_fold_constants(pTHX_ OP *o)
 	SvREADONLY_on(sv);
     }
     newop = newSVOP(OP_CONST, 0, MUTABLE_SV(sv));
-    DEBUG_k(Perl_deb(aTHX_ "fold_constant => %s\n", OP_NAME(newop)));
     DEBUG_kv(debop(newop));
     if (!is_stringify) newop->op_folded = 1;
     return newop;

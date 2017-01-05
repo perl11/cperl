@@ -3360,7 +3360,7 @@ EXTCONST U32 PL_opargs[] = {
 	0x00091001,	/* hslice */
 	0x00091001,	/* kvhslice */
 	0x00003c44,	/* multideref */
-	0x00245080,	/* unpack */
+	0x00245082,	/* unpack */
 	0x0008500f,	/* pack */
 	0x00445008,	/* split */
 	0x0008500f,	/* join */
