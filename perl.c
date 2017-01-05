@@ -1718,6 +1718,7 @@ perl_parse(pTHXx_ XSINIT_t xsinit, int argc, char **argv, char **env)
     case 0:
 	parse_body(env,xsinit);
 	if (PL_unitcheckav) {
+	    PERL_SET_PHASE(PERL_PHASE_UNITCHECK);
 	    call_list(oldscope, PL_unitcheckav);
 	}
 	if (PL_checkav) {
@@ -1736,6 +1737,7 @@ perl_parse(pTHXx_ XSINIT_t xsinit, int argc, char **argv, char **env)
 	FREETMPS;
 	SET_CURSTASH(PL_defstash);
 	if (PL_unitcheckav) {
+	    PERL_SET_PHASE(PERL_PHASE_UNITCHECK);
 	    call_list(oldscope, PL_unitcheckav);
 	}
 	if (PL_checkav) {
@@ -5419,8 +5421,10 @@ read_e_script(pTHX_ int idx, SV *buf_sv, int maxlen)
 void
 Perl_xs_boot_epilog(pTHX_ const I32 ax)
 {
-  if (PL_unitcheckav)
+    if (PL_unitcheckav) {
+        PERL_SET_PHASE(PERL_PHASE_UNITCHECK);
 	call_list(PL_scopestack_ix, PL_unitcheckav);
+    }
     XSRETURN_YES;
 }
 

@@ -5496,7 +5496,8 @@ enum perl_phase {
     PERL_PHASE_INIT		= 3,
     PERL_PHASE_RUN		= 4,
     PERL_PHASE_END		= 5,
-    PERL_PHASE_DESTRUCT		= 6
+    PERL_PHASE_DESTRUCT		= 6,
+    PERL_PHASE_UNITCHECK	= 8
 };
 
 #ifdef DOINIT
