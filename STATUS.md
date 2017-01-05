@@ -81,6 +81,10 @@ For all versions see [bench-all/](bench-all/index.html)
 * changed default hash function to the fastest FNV1A *(as in the stableperl fork)*
 * changed the hash collision strategy from randomize to the usual move-to-front
 * changed the default hash fill rate from 100% to 90%
+* cperl has besides java the only secure hash table implementation of all popular
+  dynamic scripting languages or static languages with internal hash table support.
+  other secure hash tables are only found in glibc, bsd or unix kernels or various
+  public services.
 * seperate XS and PP XS calls dynamically with a new enterxssub op
 * -DI and -Dk
 * add some unicode ops
@@ -88,6 +92,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * hash keys keep the tainted info. see [perlsec](http://perldoc.perl.org/perlsec.html#Taint-mode)
   There are no known taint loopholes anymore.
 * fixes ops and modules using lexical `$_`. The lexical topic feature is supported.
+* fixed the encoding pragma, it is undeprecated.
 * readonly packages can be cloned with threads.
 * security and overlarge data fixes for Storable, YAML not yet.
 * include B-C, Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
@@ -112,6 +117,16 @@ For all versions see [bench-all/](bench-all/index.html)
 * Support clang LTO "link time optimizations", using proper linkage attributes.
   -fsanitize=cfi instead of -fstack-protector not yet.
 * Reproducible builds are default since v5.25.2c
+* Unicode *Moderately Restrictive Level* security profile for identifiers.
+  cperl is the only known unicode-enabled language following any
+  recommended security practice. python 3 does normalization but not any
+  restriction level. perl5+6, ruby, php, javascript, java, c#, python, julia,
+  haskell, lua, swift ... allow all insecure confusable characters and arbitrary
+  mixed scripts in identifiers.
+* undeprecate qw-as-parens with for. 'for qw(a b c) { print }' works again.
+* constant fold unpack in scalar context
+* range works with unicode characters
+* UNITCHECK global phase introspection
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
