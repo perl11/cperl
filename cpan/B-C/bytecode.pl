@@ -391,6 +391,9 @@ for (@data) {
 	if ($ver =~ /^<?8\-?/) {
 	    $ver =~ s/8/8.001/; # as convenience for a shorter table.
 	}
+        if ($ver eq '10-25.005' and $Config{usecperl}) {
+            $ver = '10-25.003'; # fixup for cperl cop_seq_low
+        }
 	# Add these misses to ASMDATA. TODO: To BYTERUN maybe with a translator, as the
 	# perl fields to write to are gone. Reading for the disassembler should be possible.
 	if ($ver =~ /^\>[\d\.]+$/) {
@@ -405,7 +408,7 @@ for (@data) {
 	}
     }
     # warn "unsupported $idx\t$ver\t$insn\n" if $unsupp;
-    if (!$unsupp or ($] >= 5.007 and $insn !~ /pad|xcv_name_hek|unop_aux/)) {
+    if (!$unsupp or ($] >= 5.007 and $insn !~ /pad|cop_seq|xcv_name_hek|unop_aux/)) {
 	$insn_name[$insn_num] = $insn;
 	push @insndata, [$insn_num, $unsupp, $insn, $lvalue, $rvalcast, $argtype, $flags];
 	# Find the next unused instruction number
@@ -522,8 +525,8 @@ EOT
 	print BYTERUN_C "\t\tDEBUG_v(Perl_deb(aTHX_ \"\t   BSET_OBJ_STORE($lvalue$optarg)\\n\"));\n";
     }
     elsif ($optarg && $lvalue ne "none") {
-	if ($insn eq 'comment') {
-	    printf BYTERUN_C "\t\tPERL_UNUSED_VAR(arg);\n";
+        if ($insn eq 'comment') {
+            printf BYTERUN_C "\t\tPERL_UNUSED_VAR(arg);\n";
         } else {
             print BYTERUN_C "\t\t$lvalue = ${rvalcast}arg;\n" unless $unsupp;
         }
@@ -1061,8 +1064,8 @@ __END__
 # 5.10.0 misses the RX_EXTFLAGS macro
 154 10-10.5 op_reflags  PM_GETRE(cPMOP)->extflags	U32
 154 11  op_reflags  	RX_EXTFLAGS(PM_GETRE(cPMOP))	U32
-155 10 	cop_seq_low	((XPVNV*)(SvANY(bstate->bs_sv)))->xnv_u.xpad_cop_seq.xlow  U32
-156 10	cop_seq_high	((XPVNV*)(SvANY(bstate->bs_sv)))->xnv_u.xpad_cop_seq.xhigh U32
+155 10-25.005	cop_seq_low	((XPVNV*)(SvANY(bstate->bs_sv)))->xnv_u.xpad_cop_seq.xlow  U32
+156 10-25.005	cop_seq_high	((XPVNV*)(SvANY(bstate->bs_sv)))->xnv_u.xpad_cop_seq.xhigh U32
 157 8	gv_fetchpvn_flags bstate->bs_sv			U32		x
 # restore dup to stdio handles 0-2
 158 0 	xio_ifp		bstate->bs_sv	  		char		x
