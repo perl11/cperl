@@ -5431,6 +5431,9 @@ EXTCONST char PL_bincompat_options[] =
 #  ifdef USE_64_BIT_INT
 			     " USE_64_BIT_INT"
 #  endif
+#  ifdef USE_DTRACE
+			     " USE_DTRACE"
+#  endif
 #  ifdef USE_IEEE
 			     " USE_IEEE"
 #  endif

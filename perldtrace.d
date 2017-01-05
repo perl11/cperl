@@ -1,6 +1,8 @@
-/*
+/* -*- dtrace-script -*-
  * Written by Alan Burlinson -- taken from his blog post
- * at <http://bleaklow.com/2005/09/09/dtrace_and_perl.html>.
+ * at C<http://bleaklow.com/2005/09/09/dtrace_and_perl.html>,
+ * archived at L<https://web.archive.org/web/20130513220122/http://bleaklow.com/2005/09/09/dtrace_and_perl.html>
+ * with the perl5 patch at L<http://rich.phekda.org/perl-dtrace/perl-5.8.8-dtrace-20070720.patch>
  */
 
 provider perl {

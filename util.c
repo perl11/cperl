@@ -6979,7 +6979,7 @@ Perl_dtrace_probe_phase(pTHX_ enum perl_phase phase)
     const char *ph_old = PL_phase_names[PL_phase];
     const char *ph_new = PL_phase_names[phase];
 
-    PERL_PHASE_CHANGE(ph_new, ph_old);
+    PERL_PHASE_CHANGE(ph_old, ph_new);
 }
 
 #endif
