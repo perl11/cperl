@@ -1,7 +1,6 @@
 #!./perl
 
-my $Perl;
-my $dtrace;
+my ($Perl, @dtrace);
 
 BEGIN {
     chdir 't' if -d 't';
@@ -10,14 +9,17 @@ BEGIN {
 
     skip_all_without_config("usedtrace");
 
-    $dtrace = $Config::Config{dtrace};
-
+    @dtrace = ($Config::Config{dtrace});
     $Perl = which_perl();
 
-    `$dtrace -V` or skip_all("$dtrace unavailable");
+    `@dtrace -V` or skip_all("@dtrace unavailable");
 
-    my $result = `$dtrace -qnBEGIN -c'$Perl -e 1' 2>&1`;
-    $? && skip_all("Apparently can't probe using $dtrace (perhaps you need root?): $result");
+    my $result = `@dtrace -qnBEGIN -c'$Perl -e 1' 2>&1`;
+    if ($? and $^O eq 'darwin') {
+        @dtrace = ('sudo','-n',@dtrace);
+        $result = `@dtrace -qnBEGIN -c'$Perl -e 1' 2>&1`;
+    }
+    $? && skip_all("Apparently can't probe using @dtrace (perhaps you need root?): $result");
 }
 
 use strict;
@@ -59,7 +61,7 @@ dtrace_like(
     '1',
     'phase-change { printf("%s -> %s; ", copyinstr(arg1), copyinstr(arg0)) }',
     qr/START -> RUN; RUN -> DESTRUCT;/,
-    'phase changes of a simple script',
+    'phase changes of a simple script #TODO',
 );
 
 # this code taken from t/opbasic/magic_phase.t which tests all of the
@@ -86,7 +88,7 @@ MAGIC_OP
 
      qr/START -> CHECK; CHECK -> INIT; INIT -> RUN; RUN -> END; END -> DESTRUCT;/,
 
-     'phase-changes in a script that exercises all of ${^GLOBAL_PHASE}',
+     'phase-changes in a script that exercises all of ${^GLOBAL_PHASE} #TODO',
 );
 
 dtrace_like(<< 'PHASES',
@@ -114,7 +116,7 @@ PHASES
 
      qr/foo during INIT; baz during END;/,
 
-     'make sure sub-entry and phase-change interact well',
+     'make sure sub-entry and phase-change interact well #TODO',
 );
 
 dtrace_like(<< 'PERL_SCRIPT',
@@ -134,7 +136,7 @@ D_SCRIPT
 
 dtrace_like(<< 'PERL_SCRIPT',
     BEGIN {@INC = '../lib'}
-    use strict;
+    use vars;
     require HTTP::Tiny;
     do "run/dtrace.pl";
 PERL_SCRIPT
@@ -146,24 +148,20 @@ D_SCRIPT
         # the original test made sure that each file generated a loading-file then a loaded-file,
         # but that had a race condition when the kernel would push the perl process onto a different
         # CPU, so the DTrace output would appear out of order
-        qr{loading-file <strict\.pm>.*loading-file <HTTP/Tiny\.pm>.*loading-file <run/dtrace\.pl>}s,
-        qr{loaded-file <strict\.pm>.*loaded-file <HTTP/Tiny\.pm>.*loaded-file <run/dtrace\.pl>}s,
+        qr{loading-file <vars\.pm>.*loading-file <HTTP/Tiny\.pm>.*loading-file <run/dtrace\.pl>}s,
+        qr{loaded-file <vars\.pm>.*loaded-file <HTTP/Tiny\.pm>.*loaded-file <run/dtrace\.pl>}s,
     ],
-    'loading-file, loaded-file probes',
+    'loading-file, loaded-file probes #TODO',
 );
 
 sub dtrace_like {
-    my $perl     = shift;
-    my $probes   = shift;
-    my $expected = shift;
-    my $name     = shift;
+    my ($perl, $probes, $expected, $name) = @_;
 
     my ($reader, $writer);
-
     my $pid = open2($reader, $writer,
-        $dtrace,
+        @dtrace,
         '-q',
-        '-n', 'BEGIN { trace("ready!\n") }', # necessary! see below
+        '-n', 'BEGIN { trace("ready\n") }', # necessary! see below
         '-n', $probes,
         '-c', $Perl,
     );
@@ -171,7 +169,7 @@ sub dtrace_like {
     # wait until DTrace tells us that it is initialized
     # otherwise our probes won't properly fire
     chomp(my $throwaway = <$reader>);
-    $throwaway eq "ready!" or die "Unexpected 'ready!' result from DTrace: $throwaway";
+    $throwaway eq "ready" or die "Unexpected 'ready' result from DTrace: $throwaway";
 
     # now we can start executing our perl
     print $writer $perl;
@@ -187,11 +185,18 @@ sub dtrace_like {
     die "Unexpected error from DTrace: $result"
         if $child_exit_status != 0;
 
-    if (ref($expected) eq 'ARRAY') {
-        like($result, $_, $name) for @$expected;
-    }
-    else {
-        like($result, $expected, $name);
+    undef $::TODO;
+  TODO: {
+      if ($name =~ / #TODO(.*)/) {
+          $::TODO = $1 ? $1 : $^O;
+          $name =~ s/ #TODO.*//;
+      }
+      if (ref($expected) eq 'ARRAY') {
+          like($result, $_, $name) for @$expected;
+      }
+      else {
+          like($result, $expected, $name);
+      }
     }
 }
 
