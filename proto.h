@@ -6449,7 +6449,7 @@ PERL_CALLCONV void	Perl_utilize(pTHX_ int aver, I32 floor, OP* version, OP* idop
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1); */
 
-PERL_CALLCONV U8*	Perl_uvoffuni_to_utf8_flags(pTHX_ U8 *d, UV uv, UV flags)
+PERL_CALLCONV U8*	Perl_uvoffuni_to_utf8_flags(pTHX_ U8 *d, UV uv, const UV flags)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_UVOFFUNI_TO_UTF8_FLAGS	\
@@ -9428,7 +9428,11 @@ STATIC void	S_to_utf8_substr(pTHX_ regexp * prog)
 #endif
 #if defined(PERL_IN_REGEXEC_C) || defined(PERL_IN_TOKE_C)
 PERL_CALLCONV bool	Perl__is_grapheme(pTHX_ const U8 * strbeg, const U8 * s, const U8 *strend, const UV cp)
-			__attribute__warn_unused_result__;
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT__IS_GRAPHEME	\
 	assert(strbeg); assert(s); assert(strend)
 
