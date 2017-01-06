@@ -15,6 +15,14 @@ provider perl {
 
     probe load__entry(const char *);
     probe load__return(const char *);
+
+    /*
+    probe gv_fetch__entry(const char *);
+    probe gv_fetch__return(const char *);
+
+    probe hv_common__entry(const char *);
+    probe hv_common__return(const char *);
+    */
 };
 
 /*

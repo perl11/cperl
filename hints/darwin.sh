@@ -160,6 +160,7 @@ usedl='define';
 # 10.4 can use dlopen.
 # 10.4 broke poll().
 # at least 14.3 fixed poll
+# dtrace came with 10.5
 case "$osvers" in
 [1-7].*)
     dlsrc='dl_dyld.xs';
@@ -167,11 +168,16 @@ case "$osvers" in
 [89].*)
     dlsrc='dl_dlopen.xs';
     ;;
+1[123456789].*)
+    dlsrc='dl_dlopen.xs';
+    test -z $usedtrace && usedtrace=define
+    ;;
 10.[123].*)
     dlsrc='dl_dlopen.xs';
     ;;
 10.*)
     dlsrc='dl_dlopen.xs';
+    test -z $usedtrace && usedtrace=define
     d_poll='undef';
     i_poll='undef';
     ;;
