@@ -13,8 +13,8 @@ provider perl {
 
     probe op__entry(const char *);
 
-    probe loading__file(const char *);
-    probe loaded__file(const char *);
+    probe load__entry(const char *);
+    probe load__return(const char *);
 };
 
 /*

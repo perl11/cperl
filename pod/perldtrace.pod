@@ -59,6 +59,10 @@ The C<phase-change> probe was added.
 
 The C<op-entry>, C<loading-file>, and C<loaded-file> probes were added.
 
+=item 5.25.3c
+
+C<loading-file>, C<loaded-file> renamed to C<load-entry>, C<load-return>.
+
 =back
 
 =head1 PROBES
@@ -112,18 +116,18 @@ still before the opcode itself is executed).
      printf("About to execute opcode %s\n", copyinstr(arg0));
  }
 
-=item loading-file(FILENAME)
+=item load-entry(FILENAME)
 
 Fires when Perl is about to load an individual file, whether from
 C<use>, C<require>, or C<do>. This probe fires before the file is
 read from disk. The filename argument is converted to local filesystem
 paths instead of providing C<Module::Name>-style names.
 
- :*perl*:loading-file {
+ :*perl*:load-entry {
      printf("About to load %s\n", copyinstr(arg0));
  }
 
-=item loaded-file(FILENAME)
+=item load-return(FILENAME)
 
 Fires when Perl has successfully loaded an individual file, whether
 from C<use>, C<require>, or C<do>. This probe fires after the file
@@ -131,7 +135,7 @@ is read from disk and its contents evaluated. The filename argument
 is converted to local filesystem paths instead of providing
 C<Module::Name>-style names.
 
- :*perl*:loaded-file {
+ :*perl*:load-return {
      printf("Successfully loaded %s\n", copyinstr(arg0));
  }
 
@@ -201,6 +205,27 @@ C<Module::Name>-style names.
  warnings::unimport                                             4589
  Exporter::Heavy::_rebuild_cache                                5039
  Exporter::import                                              14578
+
+=item How much time is spent in an op on average
+
+ # dtrace -qZn "BEGIN{self->prev=0;} op-entry { myop = copyinstr(arg0); curtime = timestamp; elapsed = self->prev ? curtime - self->prev : 0; @[myop]=avg(elapsed); self->prev = curtime;} END { trunc(@, 15); printf(\"\nTime (avg ns)\n\"); printa(\"%10s\t%@8u\n\", @);}" -c'./miniperl -Ilib -E0'
+
+  Time (avg ns)
+    pushmark	    2149
+     sassign	    2160
+  multideref	    2176
+       const	    2255
+    leavesub	    2282
+       padsv	    2460
+     aassign	    2555
+          or	    2651
+       leave	    2984
+    iter_ary	    3213
+   leaveeval	    3235
+    entersub	    3868
+       aelem	    3884
+       enter	    3892
+   nextstate	   10073
 
 =back
 

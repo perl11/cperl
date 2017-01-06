@@ -8408,7 +8408,7 @@ $define)
 		$cat >try.c <<EOM
 #include "perldtrace.h"
 int main(void) {
-    PERL_LOADED_FILE("dummy");
+    PERL_LOAD_ENTRY("dummy");
     return 0;
 }
 EOM

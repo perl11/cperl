@@ -3979,7 +3979,7 @@ S_require_file(pTHX_ SV *const sv)
         }
     }
 
-    PERL_DTRACE_PROBE_FILE_LOADING(unixname);
+    PERL_DTRACE_PROBE_LOAD_ENTRY(unixname);
 
     /* prepare to compile file */
 
@@ -4313,7 +4313,7 @@ S_require_file(pTHX_ SV *const sv)
     else
 	op = PL_op->op_next;
 
-    PERL_DTRACE_PROBE_FILE_LOADED(unixname);
+    PERL_DTRACE_PROBE_LOAD_RETURN(unixname);
 
     return op;
 }

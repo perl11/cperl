@@ -141,17 +141,17 @@ dtrace_like(<< 'PERL_SCRIPT',
     do "run/dtrace.pl";
 PERL_SCRIPT
     << 'D_SCRIPT',
-    loading-file { printf("loading-file <%s>\n", copyinstr(arg0)) }
-    loaded-file  { printf("loaded-file <%s>\n", copyinstr(arg0)) }
+    load-entry   { printf("load-entry <%s>\n", copyinstr(arg0)) }
+    load-return  { printf("load-return <%s>\n", copyinstr(arg0)) }
 D_SCRIPT
     [
-        # the original test made sure that each file generated a loading-file then a loaded-file,
-        # but that had a race condition when the kernel would push the perl process onto a different
-        # CPU, so the DTrace output would appear out of order
-        qr{loading-file <vars\.pm>.*loading-file <HTTP/Tiny\.pm>.*loading-file <run/dtrace\.pl>}s,
-        qr{loaded-file <vars\.pm>.*loaded-file <HTTP/Tiny\.pm>.*loaded-file <run/dtrace\.pl>}s,
+      # the original test made sure that each file generated a load-entry then a load-return,
+      # but that had a race condition when the kernel would push the perl process onto a different
+      # CPU, so the DTrace output would appear out of order
+      qr{load-entry <vars\.pm>.*load-entry <HTTP/Tiny\.pm>.*load-entry <run/dtrace\.pl>}s,
+      qr{load-return <vars\.pm>.*load-return <HTTP/Tiny\.pm>.*load-return <run/dtrace\.pl>}s,
     ],
-    'loading-file, loaded-file probes #TODO',
+    'load-entry, load-return probes #TODO',
 );
 
 sub dtrace_like {

@@ -6909,7 +6909,7 @@ int perl_tsa_mutex_destroy(perl_mutex* mutex)
 
 #ifdef USE_DTRACE
 
-/* log a sub call or return */
+/* log a sub call entry/return */
 
 void
 Perl_dtrace_probe_call(pTHX_ CV *cv, bool is_call)
@@ -6944,7 +6944,7 @@ Perl_dtrace_probe_call(pTHX_ CV *cv, bool is_call)
 }
 
 
-/* log a require file loading/loaded  */
+/* log a require file entry/return  */
 
 void
 Perl_dtrace_probe_load(pTHX_ const char *name, bool is_loading)
@@ -6952,10 +6952,10 @@ Perl_dtrace_probe_load(pTHX_ const char *name, bool is_loading)
     PERL_ARGS_ASSERT_DTRACE_PROBE_LOAD;
 
     if (is_loading) {
-	PERL_LOADING_FILE(name);
+	PERL_LOAD_ENTRY(name);
     }
     else {
-	PERL_LOADED_FILE(name);
+	PERL_LOAD_RETURN(name);
     }
 }
 

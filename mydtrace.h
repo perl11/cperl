@@ -13,20 +13,20 @@
 
 #  include "perldtrace.h"
 
-#  define PERL_DTRACE_PROBE_ENTRY(cv)               \
+#  define PERL_DTRACE_PROBE_SUB_ENTRY(cv)           \
     if (PERL_SUB_ENTRY_ENABLED())                   \
         Perl_dtrace_probe_call(aTHX_ cv, TRUE);
 
-#  define PERL_DTRACE_PROBE_RETURN(cv)              \
-    if (PERL_SUB_ENTRY_ENABLED())                   \
+#  define PERL_DTRACE_PROBE_SUB_RETURN(cv)          \
+    if (PERL_SUB_RETURN_ENABLED())                  \
         Perl_dtrace_probe_call(aTHX_ cv, FALSE);
 
-#  define PERL_DTRACE_PROBE_FILE_LOADING(name)      \
-    if (PERL_SUB_ENTRY_ENABLED())                   \
+#  define PERL_DTRACE_PROBE_LOAD_ENTRY(name)        \
+    if (PERL_LOAD_ENTRY_ENABLED())                  \
         Perl_dtrace_probe_load(aTHX_ name, TRUE);
 
-#  define PERL_DTRACE_PROBE_FILE_LOADED(name)       \
-    if (PERL_SUB_ENTRY_ENABLED())                   \
+#  define PERL_DTRACE_PROBE_LOAD_RETURN(name)       \
+    if (PERL_LOAD_RETURN_ENABLED())                 \
         Perl_dtrace_probe_load(aTHX_ name, FALSE);
 
 #  define PERL_DTRACE_PROBE_OP(op)                  \
@@ -34,16 +34,16 @@
         Perl_dtrace_probe_op(aTHX_ op);
 
 #  define PERL_DTRACE_PROBE_PHASE(phase)            \
-    if (PERL_OP_ENTRY_ENABLED())                    \
+    if (PERL_PHASE_CHANGE_ENABLED())                \
         Perl_dtrace_probe_phase(aTHX_ phase);
 
 #else
 
 /* NOPs */
-#  define PERL_DTRACE_PROBE_ENTRY(cv)
-#  define PERL_DTRACE_PROBE_RETURN(cv)
-#  define PERL_DTRACE_PROBE_FILE_LOADING(cv)
-#  define PERL_DTRACE_PROBE_FILE_LOADED(cv)
+#  define PERL_DTRACE_PROBE_SUB_ENTRY(cv)
+#  define PERL_DTRACE_PROBE_SUB_RETURN(cv)
+#  define PERL_DTRACE_PROBE_LOAD_ENTRY(fn)
+#  define PERL_DTRACE_PROBE_LOAD_RETURN(fn)
 #  define PERL_DTRACE_PROBE_OP(op)
 #  define PERL_DTRACE_PROBE_PHASE(phase)
 

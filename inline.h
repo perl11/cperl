@@ -1300,7 +1300,7 @@ S_cx_pushsub(pTHX_ PERL_CONTEXT *cx, CV *cv, OP *retop, bool hasargs)
 
     PERL_ARGS_ASSERT_CX_PUSHSUB;
 
-    PERL_DTRACE_PROBE_ENTRY(cv);
+    PERL_DTRACE_PROBE_SUB_ENTRY(cv);
     cx->blk_sub.cv = cv;
     cx->blk_sub.olddepth = CvDEPTH(cv);
     cx->blk_sub.prevcomppad = PL_comppad;
@@ -1371,7 +1371,7 @@ S_cx_popsub(pTHX_ PERL_CONTEXT *cx)
     PERL_ARGS_ASSERT_CX_POPSUB;
     assert(CxTYPE(cx) == CXt_SUB);
 
-    PERL_DTRACE_PROBE_RETURN(cx->blk_sub.cv);
+    PERL_DTRACE_PROBE_SUB_RETURN(cx->blk_sub.cv);
 
     if (CxHASARGS(cx) && !CvHASSIG((const CV*)cx->blk_sub.cv))
         cx_popsub_args(cx);
