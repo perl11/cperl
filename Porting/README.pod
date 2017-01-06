@@ -216,6 +216,11 @@ subdirectories to determine if the number of SVs goes up and reports it as a
 leak to STDOUT.  WARNING! some harm could be done if a line contains something
 similar to C<`rm *`>.
 
+=head2 F<load.d>
+
+DTrace script for probes of loading external files via do or
+require. See L<perldtrace>.
+
 =head2 F<Maintainers>
 
 This script shows information about the maintainers of core files/modules.
@@ -274,6 +279,10 @@ This script automates the process for creating perldelta.pl.
 =head2 F<newtests-perldelta.pl>
 
 This script outputs the added tests between the two versions of Perl.
+
+=head2 F<op.d>
+
+DTrace script for op probes. See L<perldtrace>.
 
 =head2 F<perldelta_template.pod>
 
@@ -360,6 +369,10 @@ Shell script to list patches in RT.
 This is a script for sorting the warning and error messages in
 F<perldiag.pod>.  POD formatting, printf-style escapes, non-letter characters,
 and case are ignored, as explained in L<perldiag>.
+
+=head2 F<subs.d>
+
+DTrace script for sub call probes. See L<perldtrace>.
 
 =head2 F<sync-with-cpan>
 

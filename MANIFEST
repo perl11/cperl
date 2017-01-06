@@ -5244,6 +5244,7 @@ Porting/GitUtils.pm		Generate the contents of a .patch file
 Porting/Glossary		Glossary of config.sh variables
 Porting/how_to_write_a_perldelta.pod	Bluffer's guide to writing a perldelta.
 Porting/leakfinder.pl		Hacky script for finding memory leaks
+Porting/load.d			DTrace script for load probes
 Porting/Maintainers		Program to pretty print info in Maintainers.pl
 Porting/Maintainers.pl		Information about maintainers
 Porting/Maintainers.pm		Library to pretty print info in Maintainers.pl
@@ -5257,6 +5258,7 @@ Porting/manicheck		Check against MANIFEST
 Porting/manisort		Sort the MANIFEST
 Porting/new-perldelta.pl	Generate a new perldelta
 Porting/newtests-perldelta.pl	Generate Perldelta stub for newly added tests
+Porting/op.d			DTrace script for op timings
 Porting/perl_version		Build helper script to return the current version
 Porting/perldelta_template.pod	Template for creating new perldelta.pod files
 Porting/perlhist_calculate.pl	Perform calculations to update perlhist
@@ -5272,6 +5274,7 @@ Porting/release_managers_guide.pod	Release Manager's Guide
 Porting/release_schedule.pod	Schedule for future releases
 Porting/rt_list_patches		A tool to help you apply patches from RT
 Porting/sort_perldiag.pl	Keep our diagnostics orderly
+Porting/subs.d			DTrace script for sub probes
 Porting/sync-with-cpan		Sync with CPAN
 Porting/timecheck.c		Test program for the 2038 fix
 Porting/timecheck2.c		Test program for the 2038 fix

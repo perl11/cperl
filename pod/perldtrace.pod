@@ -28,7 +28,8 @@ tracing. Perl is a DTrace I<provider>, meaning it exposes several
 I<probes> for instrumentation. You can use these in conjunction
 with kernel-level probes, as well as probes from other providers
 such as MySQL, in order to diagnose software defects, or even just
-your application's bottlenecks.
+your application's bottlenecks, from user-land calls, to binaries,
+up into kernel calls.
 
 Perl must be compiled with the C<-Dusedtrace> option in order to
 make use of the provided probes. While DTrace aims to have no
@@ -36,6 +37,12 @@ overhead when its instrumentation is not active, Perl's support
 itself cannot uphold that guarantee, so it is built without DTrace
 probes under most systems. One notable exception is that Mac OS X
 ships a F</usr/bin/perl> with DTrace support enabled.
+
+Currently DTrace is known to be ported to Solaris, Mac OS X, FreeBSD,
+DragonFLY BSD, NetBSD, and on linux there is a unstable port via a
+dtrace4linux at L<https://crtags.blogspot.de/>.
+
+On Mac OS X you need to run it as root: C<sudo dtrace>.
 
 =head1 HISTORY
 
@@ -62,6 +69,8 @@ The C<op-entry>, C<loading-file>, and C<loaded-file> probes were added.
 =item 5.25.3c
 
 C<loading-file>, C<loaded-file> renamed to C<load-entry>, C<load-return>.
+Switched C<phase-change> arguments from (new, old) to (old, new).
+Added more examples.
 
 =back
 
@@ -93,7 +102,7 @@ from a DTrace action.
            copyinstr(arg3), copyinstr(arg0), copyinstr(arg1), arg2);
  }
 
-=item phase-change(NEWPHASE, OLDPHASE)
+=item phase-change(OLDPHASE, NEWPHASE)
 
 Traces changes to Perl's interpreter state. You can internalize this
 as tracing changes to Perl's C<${^GLOBAL_PHASE}> variable, especially
@@ -102,7 +111,7 @@ C<${^GLOBAL_PHASE}> reports.
 
  :*perl*::phase-change {
      printf("Phase changed from %s to %s\n",
-         copyinstr(arg1), copyinstr(arg0));
+         copyinstr(arg0), copyinstr(arg1));
  }
 
 =item op-entry(OPNAME)
@@ -179,6 +188,8 @@ C<Module::Name>-style names.
  0    <- Perl_pp_leavesub                      whiten
  0  <- Perl_dounwind                           BEGIN
 
+See F<Porting/subs.d> for a similar example.
+
 =item Function calls during interpreter cleanup
 
  # dtrace -Zn 'phase-change /copyinstr(arg0) == "END"/ { self->ending = 1 } sub-entry /self->ending/ { trace(copyinstr(arg0)) }'
@@ -226,6 +237,8 @@ C<Module::Name>-style names.
        aelem	    3884
        enter	    3892
    nextstate	   10073
+
+See F<Porting/op.d> for a bigger example, with count() and quantize().
 
 =back
 
