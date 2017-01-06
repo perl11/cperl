@@ -1,10 +1,11 @@
 #!./perl
 
 my ($Perl, @dtrace);
+my $lockfile = "dtrace.lock";
 
 BEGIN {
     chdir 't' if -d 't';
-    @INC = '../lib';
+    @INC = ('.', '../lib');
     require './test.pl';
 
     skip_all_without_config("usedtrace");
@@ -14,17 +15,25 @@ BEGIN {
 
     `@dtrace -V` or skip_all("@dtrace unavailable");
 
-    my $result = `@dtrace -qnBEGIN -c'$Perl -e 1' 2>&1`;
+    my $result = `@dtrace -qZnBEGIN -c'$Perl -e 1' 2>&1`;
     if ($? and $^O eq 'darwin') {
         @dtrace = ('sudo','-n',@dtrace);
-        $result = `@dtrace -qnBEGIN -c'$Perl -e 1' 2>&1`;
+        $result = `@dtrace -qZnBEGIN -c'$Perl -e 1' 2>&1`;
     }
-    $? && skip_all("Apparently can't probe using @dtrace (perhaps you need root?): $result");
+    $? &&
+      skip_all("Apparently can't probe using @dtrace (perhaps you need root?): $result");
+    $lockfile = "dtrace.lock";
+    -f $lockfile && sleep(5+rand()) &&
+      skip_all("$lockfile exists. Tests cannot run concurrently");
+    my $fh;
+    open $fh, ">", $lockfile;
+    print $fh $$;
+    close $fh;
 }
+END { unlink $lockfile; }
 
 use strict;
 use warnings;
-use IPC::Open2;
 
 plan(tests => 9);
 
@@ -47,12 +56,12 @@ dtrace_like(
     'sub-entry { printf("-> %s::%s at %s line %d!\n", copyinstr(arg3), copyinstr(arg0), copyinstr(arg1), arg2) }
      sub-return { printf("<- %s::%s at %s line %d!\n", copyinstr(arg3), copyinstr(arg0), copyinstr(arg1), arg2) }',
 
-     qr/-> My::outer at - line 2!
--> Your::inner at - line 4!
-<- Your::inner at - line 4!
-<- My::outer at - line 2!
--> Your::inner at - line 4!
-<- Your::inner at - line 4!/,
+     qr/-> My::outer at tmp.* line 2!
+-> Your::inner at tmp.* line 4!
+<- Your::inner at tmp.* line 4!
+<- My::outer at tmp.* line 2!
+-> Your::inner at tmp.* line 4!
+<- Your::inner at tmp.* line 4!/,
 
     'traced multiple function calls',
 );
@@ -61,7 +70,7 @@ dtrace_like(
     '1',
     'phase-change { printf("%s -> %s; ", copyinstr(arg1), copyinstr(arg0)) }',
     qr/START -> RUN; RUN -> DESTRUCT;/,
-    'phase changes of a simple script #TODO',
+    'phase changes of a simple script',
 );
 
 # this code taken from t/opbasic/magic_phase.t which tests all of the
@@ -88,7 +97,7 @@ MAGIC_OP
 
      qr/START -> CHECK; CHECK -> INIT; INIT -> RUN; RUN -> END; END -> DESTRUCT;/,
 
-     'phase-changes in a script that exercises all of ${^GLOBAL_PHASE} #TODO',
+     'phase-changes in a script that exercises all of ${^GLOBAL_PHASE}',
 );
 
 dtrace_like(<< 'PHASES',
@@ -105,18 +114,18 @@ PHASES
     '
     BEGIN { starting = 1 }
 
-    phase-change                            { phase    = arg0 }
+    phase-change                            { phase    = copyinstr(arg0) }
     phase-change /copyinstr(arg0) == "RUN"/ { starting = 0 }
     phase-change /copyinstr(arg0) == "END"/ { ending   = 1 }
 
-    sub-entry /copyinstr(arg0) != copyinstr(phase) && (starting || ending)/ {
-        printf("%s during %s; ", copyinstr(arg0), copyinstr(phase));
+    sub-entry /copyinstr(arg0) != phase && (starting || ending)/ {
+        printf("%s during %s; ", copyinstr(arg0), phase);
     }
     ',
 
      qr/foo during INIT; baz during END;/,
 
-     'make sure sub-entry and phase-change interact well #TODO',
+     'make sure sub-entry and phase-change interact well',
 );
 
 dtrace_like(<< 'PERL_SCRIPT',
@@ -135,7 +144,7 @@ D_SCRIPT
 );
 
 dtrace_like(<< 'PERL_SCRIPT',
-    BEGIN {@INC = '../lib'}
+    BEGIN {@INC = ('.', '../lib')}
     use vars;
     require HTTP::Tiny;
     do "run/dtrace.pl";
@@ -151,39 +160,36 @@ D_SCRIPT
       qr{load-entry <vars\.pm>.*load-entry <HTTP/Tiny\.pm>.*load-entry <run/dtrace\.pl>}s,
       qr{load-return <vars\.pm>.*load-return <HTTP/Tiny\.pm>.*load-return <run/dtrace\.pl>}s,
     ],
-    'load-entry, load-return probes #TODO',
+    'load-entry, load-return probes',
 );
 
 sub dtrace_like {
     my ($perl, $probes, $expected, $name) = @_;
-
-    my ($reader, $writer);
-    my $pid = open2($reader, $writer,
-        @dtrace,
-        '-q',
-        '-n', 'BEGIN { trace("ready\n") }', # necessary! see below
-        '-n', $probes,
-        '-c', $Perl,
-    );
-
-    # wait until DTrace tells us that it is initialized
-    # otherwise our probes won't properly fire
-    chomp(my $throwaway = <$reader>);
-    $throwaway eq "ready" or die "Unexpected 'ready' result from DTrace: $throwaway";
-
-    # now we can start executing our perl
-    print $writer $perl;
-    close $writer;
-
-    # read all the dtrace results back in
+    my ($fh, $tmp, $src);
+    $tmp = tempfile();
+    $src = $tmp . ".pl";
+    $tmp .= ".d";
+    open $fh, ">", $tmp;
+    print $fh $probes;
+    close $fh;
+    register_tempfile($tmp, $src);
+    open $fh, ">", $src;
+    print $fh $perl;
+    close $fh;
     local $/;
-    my $result = <$reader>;
+    my $result = `@dtrace -q -s $tmp -c"$Perl $src"`;
 
     # make sure that dtrace is all done and successful
-    waitpid($pid, 0);
     my $child_exit_status = $? >> 8;
-    die "Unexpected error from DTrace: $result"
-        if $child_exit_status != 0;
+    unlink($tmp); unlink($src);
+    if ($child_exit_status != 0) {
+      ok(0, "DTrace error: $result");
+      if (ref($expected) eq 'ARRAY') {
+        shift @$expected;
+        ok(0, "SKIP") for @$expected;
+      }
+      return;
+    }
 
     undef $::TODO;
   TODO: {
@@ -192,10 +198,14 @@ sub dtrace_like {
           $name =~ s/ #TODO.*//;
       }
       if (ref($expected) eq 'ARRAY') {
-          like($result, $_, $name) for @$expected;
+        for (@$expected) {
+          like($result, $_, $name)
+            or diag($result);
+        }
       }
       else {
-          like($result, $expected, $name);
+        like($result, $expected, $name)
+          or diag($result);
       }
     }
 }

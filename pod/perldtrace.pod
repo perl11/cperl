@@ -69,7 +69,6 @@ The C<op-entry>, C<loading-file>, and C<loaded-file> probes were added.
 =item 5.25.3c
 
 C<loading-file>, C<loaded-file> renamed to C<load-entry>, C<load-return>.
-Switched C<phase-change> arguments from (new, old) to (old, new).
 Added more examples.
 
 =back
@@ -102,7 +101,7 @@ from a DTrace action.
            copyinstr(arg3), copyinstr(arg0), copyinstr(arg1), arg2);
  }
 
-=item phase-change(OLDPHASE, NEWPHASE)
+=item phase-change(NEWPHASE, OLDPHASE)
 
 Traces changes to Perl's interpreter state. You can internalize this
 as tracing changes to Perl's C<${^GLOBAL_PHASE}> variable, especially
@@ -111,7 +110,7 @@ C<${^GLOBAL_PHASE}> reports.
 
  :*perl*::phase-change {
      printf("Phase changed from %s to %s\n",
-         copyinstr(arg0), copyinstr(arg1));
+         copyinstr(arg1), copyinstr(arg0));
  }
 
 =item op-entry(OPNAME)

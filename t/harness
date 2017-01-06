@@ -20,6 +20,7 @@ our $Valgrind_Log;
 
 my $Verbose = 0;
 $Verbose++ while @ARGV && $ARGV[0] eq '-v' && shift;
+unlink 'dtrace.lock' if -f 'dtrace.lock';
 
 # For valgrind summary output
 my $htoolnm;

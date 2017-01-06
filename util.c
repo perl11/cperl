@@ -6911,29 +6911,41 @@ int perl_tsa_mutex_destroy(perl_mutex* mutex)
 
 /* log a sub call entry/return */
 
+PERL_CALLCONV
 void
 Perl_dtrace_probe_call(pTHX_ CV *cv, bool is_call)
 {
     const char *func;
     const char *file;
     const char *stash;
-    const COP  *start;
+    const COP  *start = NULL;
     line_t      line;
 
     PERL_ARGS_ASSERT_DTRACE_PROBE_CALL;
 
-    if (CvNAMED(cv)) {
-        HEK *hek = CvNAME_HEK(cv);
-        func = HEK_KEY(hek);
+    if (LIKELY(SvTYPE(cv) == SVt_PVCV)) {
+        func = CvNAMED(cv) ? CvNAMEPV(cv) : GvENAME(CvGV(cv));
+        if (UNLIKELY(!func))
+            func = "__ANON__";
+        start = (const COP *)CvSTART(cv);
     }
-    else {
-        GV  *gv = CvGV(cv);
-        func = GvENAME(gv);
+    else
+        func = "";
+    if (LIKELY(start) && OP_IS_COP(start->op_type)) {
+#ifndef USE_ITHREADS
+        GV* gv = CopFILEGV(start);
+        file  = (gv && isGV_with_GP(gv)) ? GvNAME(gv)+2 : "";
+#else
+        /* XXX heap-buffer-overflow with asan threaded */
+        file  = CopFILE(start) ? CopFILE(start) : "";
+#endif
+        line  = CopLINE(start);
+        stash = CopSTASH(start) ? HvNAME_get(CopSTASH(start)) : "";
+    } else {
+        file = "";
+        line = -1;
+        stash = "";
     }
-    start = (const COP *)CvSTART(cv);
-    file  = CopFILE(start);
-    line  = CopLINE(start);
-    stash = CopSTASHPV(start);
 
     if (is_call) {
         PERL_SUB_ENTRY(func, file, line, stash);
@@ -6946,40 +6958,50 @@ Perl_dtrace_probe_call(pTHX_ CV *cv, bool is_call)
 
 /* log a require file entry/return  */
 
+PERL_CALLCONV
 void
 Perl_dtrace_probe_load(pTHX_ const char *name, bool is_loading)
 {
+    char* n;
     PERL_ARGS_ASSERT_DTRACE_PROBE_LOAD;
 
+    n = strdup(name);
     if (is_loading) {
-	PERL_LOAD_ENTRY(name);
+	PERL_LOAD_ENTRY(n);
     }
     else {
-	PERL_LOAD_RETURN(name);
+	PERL_LOAD_RETURN(n);
     }
+    free(n);
 }
 
 
 /* log an op execution */
 
+PERL_CALLCONV
 void
 Perl_dtrace_probe_op(pTHX_ const OP *op)
 {
+    char* n;
     PERL_ARGS_ASSERT_DTRACE_PROBE_OP;
-
-    PERL_OP_ENTRY(OP_NAME(op));
+    n = strdup(OP_NAME(op));
+    PERL_OP_ENTRY(n);
+    free(n);
 }
 
 
 /* log a compile/run phase change */
 
+PERL_CALLCONV
 void
 Perl_dtrace_probe_phase(pTHX_ enum perl_phase phase)
 {
-    const char *ph_old = PL_phase_names[PL_phase];
-    const char *ph_new = PL_phase_names[phase];
+    const char *ph_old = strdup(PL_phase_names[PL_phase]);
+    const char *ph_new = strdup(PL_phase_names[phase]);
 
-    PERL_PHASE_CHANGE(ph_old, ph_new);
+    PERL_PHASE_CHANGE(ph_new, ph_old);
+    free(ph_new);
+    free(ph_old);
 }
 
 #endif
