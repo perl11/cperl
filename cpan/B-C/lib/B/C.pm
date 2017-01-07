@@ -3,7 +3,7 @@
 #      Copyright (c) 1996, 1997, 1998 Malcolm Beattie
 #      Copyright (c) 2008, 2009, 2010, 2011 Reini Urban
 #      Copyright (c) 2010 Nick Koston
-#      Copyright (c) 2011, 2012, 2013, 2014, 2015, 2016 cPanel Inc
+#      Copyright (c) 2011, 2012, 2013, 2014, 2015, 2016, 2017 cPanel Inc
 #
 #      You may distribute under the terms of either the GNU General Public
 #      License or the Artistic License, as specified in the README file.
@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_16';
+our $VERSION = '1.54_17';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -563,14 +563,16 @@ sub DynaLoader::croak {die @_}
 
 # needed for init2 remap and Dynamic annotation
 sub dl_module_to_sofile {
-  my $module = shift or die "missing module name";
-  my $modlibname = shift or die "missing module filepath";
+  my $module = shift
+    or die 'dl_module_to_sofile($module, $path) missing module name';
+  my $modlibname = shift
+    or die 'dl_module_to_sofile($module, $path): missing module path for '.$module;
   my @modparts = split(/::/,$module);
   my $modfname = $modparts[-1];
   my $modpname = join('/',@modparts);
   my $c = @modparts;
   $modlibname =~ s,[\\/][^\\/]+$,, while $c--;    # Q&D basename
-  die "missing module filepath" unless $modlibname;
+  die "dl_module_to_sofile: empty modlibname" unless $modlibname;
   my $sofile = "$modlibname/auto/$modpname/$modfname.".$Config{dlext};
   return $sofile;
 }
@@ -2576,6 +2578,7 @@ sub B::PMOP::save {
   my $sym = objsym($op);
   return $sym if defined $sym;
   # 5.8.5-thr crashes here (7) at pushre
+  my $pushre = ($] >= 5.025006 or $CPERL56) ? "split" : "pushre";
   if ($] < 5.008008 and $ITHREADS and $$op < 256) { # B bug. split->first->pmreplroot = 0x1
     die "Internal B::walkoptree error: invalid PMOP for pushre\n";
     return;
@@ -2587,16 +2590,16 @@ sub B::PMOP::save {
 
   # under ithreads, OP_PUSHRE.op_replroot is an integer. multi not.
   $replrootfield = sprintf( "s\\_%x", $$replroot ) if ref $replroot;
-  if ( $ITHREADS && $op->name eq "pushre" ) {
-    warn "PMOP::save saving a pp_pushre as int ${replroot}\n" if $debug{gv};
+  if ( $ITHREADS && $op->name eq $pushre ) {
+    warn "PMOP::save saving a pp_$pushre as int ${replroot}\n" if $debug{gv};
     $replrootfield = "INT2PTR(OP*,${replroot})";
   }
-  elsif ($$replroot) {
+  elsif (ref $replroot && $$replroot) {
     # OP_PUSHRE (a mutated version of OP_MATCH for the regexp
     # argument to a split) stores a GV in op_pmreplroot instead
     # of a substitution syntax tree. We don't want to walk that...
-    if ( $op->name eq "pushre" ) {
-      warn "PMOP::save saving a pp_pushre with GV $gvsym\n" if $debug{gv};
+    if ( $op->name eq $pushre ) {
+      warn "PMOP::save saving a pp_$pushre with GV $gvsym\n" if $debug{gv};
       $gvsym = $replroot->save;
       $replrootfield = "NULL";
       $replstartfield = $replstart->save if $replstart;
@@ -4267,13 +4270,14 @@ sub B::CV::save {
   }
 
   # XXX how is ANON with CONST handled? CONST uses XSUBANY [GH #246]
-  if ($isconst and !is_phase_name($cvname) and
+  if ($isconst and $cvxsub and !is_phase_name($cvname) and
     (
       (
-        $PERL522
-        and !( $CvFLAGS & SVs_PADSTALE )
-        and !( $CvFLAGS & CVf_WEAKOUTSIDE )
-        and !( $fullname && $fullname =~ qr{^File::Glob::GLOB} and ( $CvFLAGS & (CVf_ANONCONST|CVf_CONST) )  )
+       $PERL522
+       and !( $CvFLAGS & SVs_PADSTALE )
+       and !( $CvFLAGS & CVf_WEAKOUTSIDE )
+       and !( $fullname && $fullname =~ qr{^File::Glob::GLOB}
+              and ( $CvFLAGS & (CVf_ANONCONST|CVf_CONST) )  )
       )
       or (!$PERL522 and !($CvFLAGS & CVf_ANON)) )
     ) # skip const magic blocks (Attribute::Handlers)
@@ -4307,7 +4311,7 @@ sub B::CV::save {
       $init->add("$cvi = newCONSTSUB( $stsym, $name, (SV*)$vsym );");
       return savesym( $cv, $cvi );
     }
-    elsif ($sv and ref($sv) =~ /^B::[NRPI]/) {
+    elsif ($sv and ref($sv) =~ /^B::[ANRPI]/) { # use constant => ()
       my $vsym  = $sv->save;
       my $cvi = "cv".$cv_index++;
       $decl->add("Static CV* $cvi;");
@@ -6477,8 +6481,10 @@ EOT
     if (exists $xsub{$pkg}) { # check if not removed in between
       my ($stashfile) = $xsub{$pkg} =~ /^Dynamic-(.+)$/;
       # get so file from pm. Note: could switch prefix from vendor/site//
-      $init2_remap{$pkg}{FILE} = dl_module_to_sofile($pkg, $stashfile);
-      $remap++;
+      if ($stashfile) {
+        $init2_remap{$pkg}{FILE} = dl_module_to_sofile($pkg, $stashfile);
+        $remap++;
+      }
     }
   }
   if ($remap) {
