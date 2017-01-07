@@ -531,3 +531,23 @@ if test "$d_unsetenv" = "$define" -a \
         ccflags="$ccflags -DPERL_USE_SAFE_PUTENV"
 fi
 EOOVER
+
+# no DTrace with cross
+if [ x$usedtrace = xdefine ]; then
+    case "$cc" in
+        *-m32*) usedtrace=undef ;;
+    esac
+    case "$ccflags" in
+        *-m32*) usedtrace=undef ;;
+    esac
+    if [ x$usecrosscompile = xdefine ]; then usedtrace=undef; fi
+    if [ x$usedtrace = xundef ]; then
+        cat <<EOM >&4
+
+*** Warning, disabled dtrace with the cross compiler -m32.
+*** It is unstable on many systems. To manually enable it, set
+*** usedtrace=define in config.sh
+
+EOM
+    fi
+fi
