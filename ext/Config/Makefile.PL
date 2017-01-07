@@ -38,10 +38,10 @@ WriteMakefile(
                                       UNINST_0             UNINST_1
                                       ')},
     'PM' => {
-        'Config.pm'      => '$(INST_LIBDIR)/Config.pm',
-        ($in_core ? () : ('Config_mini.pl'     => '$(INST_LIBDIR)/Config_mini.pl',
-                          'Config_xs_heavy.pl' => '$(INST_LIBDIR)/Config_xs_heavy.pl',
-                          'XSConfig.pod'       => '$(INST_LIBDIR)/XSConfig.pod')),
+        'Config.pm'     => '$(INST_ARCHLIBDIR)/Config.pm',
+        ($in_core ? () : ('Config_mini.pl'     => '$(INST_ARCHLIBDIR)/Config_mini.pl',
+                          'Config_xs_heavy.pl' => '$(INST_ARCHLIBDIR)/Config_xs_heavy.pl',
+                          'XSConfig.pod'       => '$(INST_ARCHLIBDIR)/XSConfig.pod')),
     },
     # XS Config can not be loaded by P5P DynaLoader, only by XSLoader WITHOUT
     # XSLoader passing the "complicated" loading scenario to DynaLoader.
