@@ -1939,15 +1939,15 @@ S_print_collxfrm_input_and_return(pTHX_
     PERL_ARGS_ASSERT_PRINT_COLLXFRM_INPUT_AND_RETURN;
 
     PerlIO_printf(Perl_debug_log, "_mem_collxfrm[%d]: returning ",
-                                                            PL_collation_ix);
+                  (int)PL_collation_ix);
     if (xlen) {
-        PerlIO_printf(Perl_debug_log, "%"UVuf"", (UV) *xlen);
+        PerlIO_printf(Perl_debug_log, "%" UVuf, (UV) *xlen);
     }
     else {
         PerlIO_printf(Perl_debug_log, "NULL");
     }
     PerlIO_printf(Perl_debug_log, " for locale '%s', string='",
-                                                            PL_collation_name);
+                  PL_collation_name);
 
     while (t < e) {
         UV cp = (is_utf8)
