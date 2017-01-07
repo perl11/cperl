@@ -14,6 +14,10 @@ BEGIN {
     $Perl = which_perl();
 
     `@dtrace -V` or skip_all("@dtrace unavailable");
+    if ($Config::Config{usethreads} and $^O eq 'darwin' and $ENV{TRAVIS}) {
+      # interferes with fresh_perl => SEGV
+      skip_all("dtrace darwin threads via TRAVIS");
+    }
 
     my $result = `@dtrace -qZnBEGIN -c'$Perl -e 1' 2>&1`;
     if ($? and $^O eq 'darwin') {
@@ -22,6 +26,7 @@ BEGIN {
     }
     $? &&
       skip_all("Apparently can't probe using @dtrace (perhaps you need root?): $result");
+
     $lockfile = "dtrace.lock";
     -f $lockfile && sleep(5+rand()) &&
       skip_all("$lockfile exists. Tests cannot run concurrently");
@@ -143,11 +148,16 @@ D_SCRIPT
     'basic op probe',
 );
 
-dtrace_like(<< 'PERL_SCRIPT',
-    BEGIN {@INC = ('.', '../lib')}
+my $tmp = tempfile();
+open my $fh,'>',$tmp;
+print $fh "42";
+close $fh;
+
+dtrace_like(<< "PERL_SCRIPT",
+    BEGIN { \@INC = ('.', '../lib') }
     use vars;
     require HTTP::Tiny;
-    do "run/dtrace.pl";
+    do "$tmp";
 PERL_SCRIPT
     << 'D_SCRIPT',
     load-entry   { printf("load-entry <%s>\n", copyinstr(arg0)) }
@@ -157,11 +167,12 @@ D_SCRIPT
       # the original test made sure that each file generated a load-entry then a load-return,
       # but that had a race condition when the kernel would push the perl process onto a different
       # CPU, so the DTrace output would appear out of order
-      qr{load-entry <vars\.pm>.*load-entry <HTTP/Tiny\.pm>.*load-entry <run/dtrace\.pl>}s,
-      qr{load-return <vars\.pm>.*load-return <HTTP/Tiny\.pm>.*load-return <run/dtrace\.pl>}s,
+      qr{load-entry <vars\.pm>.*load-entry <HTTP/Tiny\.pm>.*load-entry <\Q$tmp\E>}s,
+      qr{load-return <vars\.pm>.*load-return <HTTP/Tiny\.pm>.*load-return <\Q$tmp\E>}s,
     ],
     'load-entry, load-return probes',
 );
+unlink $tmp;
 
 sub dtrace_like {
     my ($perl, $probes, $expected, $name) = @_;

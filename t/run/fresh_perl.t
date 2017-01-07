@@ -17,7 +17,6 @@ BEGIN {
 use strict;
 
 my $Perl = which_perl();
-
 $|=1;
 
 my @prgs = ();

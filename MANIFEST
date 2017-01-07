@@ -5989,7 +5989,6 @@ t/re/substT.t			See if substitution works with -T
 t/re/uniprops.t			Test unicode \p{} regex constructs
 t/README			Instructions for regression tests
 t/run/cloexec.t			Test close-on-exec.
-t/run/dtrace.pl			For dtrace.t
 t/run/dtrace.t			Test for DTrace probes
 t/run/exit.t			Test perl's exit status.
 t/run/flib/broken.pm		Bad .pm file for switchM.t
