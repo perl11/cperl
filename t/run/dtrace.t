@@ -58,8 +58,8 @@ dtrace_like(
         My::outer();
         Your::inner();',
 
-    'sub-entry { printf("-> %s::%s at %s line %d!\n", copyinstr(arg3), copyinstr(arg0), copyinstr(arg1), arg2) }
-     sub-return { printf("<- %s::%s at %s line %d!\n", copyinstr(arg3), copyinstr(arg0), copyinstr(arg1), arg2) }',
+    'perl$target:::sub-entry { printf("-> %s::%s at %s line %d!\n", copyinstr(arg3), copyinstr(arg0), copyinstr(arg1), arg2) }
+     perl$target:::sub-return { printf("<- %s::%s at %s line %d!\n", copyinstr(arg3), copyinstr(arg0), copyinstr(arg1), arg2) }',
 
      qr/-> My::outer at tmp.* line 2!
 -> Your::inner at tmp.* line 4!
@@ -73,7 +73,7 @@ dtrace_like(
 
 dtrace_like(
     '1',
-    'phase-change { printf("%s -> %s; ", copyinstr(arg1), copyinstr(arg0)) }',
+    'perl$target:::phase-change { printf("%s -> %s; ", copyinstr(arg1), copyinstr(arg0)) }',
     qr/START -> RUN; RUN -> DESTRUCT;/,
     'phase changes of a simple script',
 );
@@ -98,7 +98,7 @@ dtrace_like(<< 'MAGIC_OP',
     END { $x++ }
 MAGIC_OP
 
-    'phase-change { printf("%s -> %s; ", copyinstr(arg1), copyinstr(arg0)) }',
+    'perl$target:::phase-change { printf("%s -> %s; ", copyinstr(arg1), copyinstr(arg0)) }',
 
      qr/START -> CHECK; CHECK -> INIT; INIT -> RUN; RUN -> END; END -> DESTRUCT;/,
 
@@ -119,11 +119,11 @@ PHASES
     '
     BEGIN { starting = 1 }
 
-    phase-change                            { phase    = copyinstr(arg0) }
-    phase-change /copyinstr(arg0) == "RUN"/ { starting = 0 }
-    phase-change /copyinstr(arg0) == "END"/ { ending   = 1 }
+    perl$target:::phase-change                            { phase    = copyinstr(arg0) }
+    perl$target:::phase-change /copyinstr(arg0) == "RUN"/ { starting = 0 }
+    perl$target:::phase-change /copyinstr(arg0) == "END"/ { ending   = 1 }
 
-    sub-entry /copyinstr(arg0) != phase && (starting || ending)/ {
+    perl$target:::sub-entry /copyinstr(arg0) != phase && (starting || ending)/ {
         printf("%s during %s; ", copyinstr(arg0), phase);
     }
     ',
@@ -139,7 +139,7 @@ dtrace_like(<< 'PERL_SCRIPT',
     chop $tmp;
 PERL_SCRIPT
     << 'D_SCRIPT',
-    op-entry { printf("op-entry <%s>\n", copyinstr(arg0)) }
+    perl$target:::op-entry { printf("op-entry <%s>\n", copyinstr(arg0)) }
 D_SCRIPT
     [
         qr/op-entry <subst>/,
@@ -160,8 +160,8 @@ dtrace_like(<< "PERL_SCRIPT",
     do "$tmp";
 PERL_SCRIPT
     << 'D_SCRIPT',
-    load-entry   { printf("load-entry <%s>\n", copyinstr(arg0)) }
-    load-return  { printf("load-return <%s>\n", copyinstr(arg0)) }
+    perl$target:::load-entry   { printf("load-entry <%s>\n", copyinstr(arg0)) }
+    perl$target:::load-return  { printf("load-return <%s>\n", copyinstr(arg0)) }
 D_SCRIPT
     [
       # the original test made sure that each file generated a load-entry then a load-return,
