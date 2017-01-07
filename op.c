@@ -7126,16 +7126,16 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
         /* optimise @a = split(...) into:
          * local/my @a:  split(..., @a), where @a is not flattened
          * other arrays: split(...)      where @a is attached to
-         *                                   the split op itself
+         *                               the split op itself
          */
 
-	if (right && IS_TYPE(right, SPLIT) && !(right->op_private & OPpSPLIT_ASSIGN)) {
+	if (right && IS_TYPE(right, SPLIT)
+            && !(right->op_private & OPpSPLIT_ASSIGN)) {
             OP *gvop = NULL;
 
             if (!(left->op_private & OPpLVAL_INTRO) &&
-                ( (IS_TYPE(left, RV2AV) &&
-                   IS_TYPE((gvop=OpFIRST(left)), GV))
-                  || IS_TYPE(left, PADAV) )
+                ( (IS_TYPE(left, RV2AV) && IS_TYPE((gvop = OpFIRST(left)), GV))
+                || IS_TYPE(left, PADAV) )
                 ) {
                 /* @pkg or @lex, but not 'local @pkg' nor 'my @lex' */
                 OP *tmpop;
@@ -7160,8 +7160,7 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
                 }
 
             detach_split:
-                tmpop = OpFIRST(o);	/* to list (nulled) */
-                tmpop = OpFIRST(tmpop); /* to pushmark */
+                tmpop = OpFIRST(OpFIRST(o)); /* to pushmark */
                 /* detach rest of siblings from o subtree,
                  * and free subtree */
                 op_sibling_splice(OpFIRST(o), tmpop, 1, NULL);
@@ -7172,7 +7171,7 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
                 return right;
             }
             else if (IS_TYPE(left, RV2AV)
-                     || IS_TYPE(left, PADAV))
+                  || IS_TYPE(left, PADAV))
             {
                 /* 'local @pkg' or 'my @lex' */
 
@@ -7186,8 +7185,8 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
                 /* Detach split and expunge aassign as above.  */
                 goto detach_split;
             }
-            else if (PL_modcount < RETURN_UNLIMITED_NUMBER &&
-                     IS_CONST_OP(OpLAST(right)))
+            else if (PL_modcount < RETURN_UNLIMITED_NUMBER
+                  && IS_CONST_OP(OpLAST(right)))
             {
                 /* convert split(...,0) to split(..., PL_modcount+1) */
                 SV ** const svp = &((SVOP*)OpLAST(right))->op_sv;
@@ -7219,7 +7218,7 @@ Perl_newASSIGNOP(pTHX_ I32 flags, OP *left, I32 optype, OP *right)
     }
     else {
 	o = newBINOP(OP_SASSIGN, flags,
-	    scalar(right), op_lvalue(scalar(left), OP_SASSIGN) );
+                     scalar(right), op_lvalue(scalar(left), OP_SASSIGN) );
     }
     return o;
 }
@@ -7272,7 +7271,7 @@ Perl_newSTATEOP(pTHX_ I32 flags, char *label, OP *o)
     cop->cop_warnings = DUP_WARNINGS(PL_curcop->cop_warnings);
     CopHINTHASH_set(cop, cophh_copy(CopHINTHASH_get(PL_curcop)));
     if (label) {
-	Perl_cop_store_label(aTHX_ cop, label, strlen(label), utf8);
+	cop_store_label(cop, label, strlen(label), utf8);
 
 	PL_hints |= HINT_BLOCK_SCOPE;
 	/* It seems that we need to defer freeing this pointer, as other parts

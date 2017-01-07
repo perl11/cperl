@@ -1984,7 +1984,7 @@ PP(pp_caller)
         mPUSHs(mask);
     }
 
-    PUSHs(cx->blk_oldcop->cop_hints_hash ?
+    PUSHs(CopHINTHASH_get(cx->blk_oldcop) ?
 	  sv_2mortal(newRV_noinc(MUTABLE_SV(cop_hints_2hv(cx->blk_oldcop, 0))))
 	  : &PL_sv_undef);
     RETURN;
@@ -3505,6 +3505,7 @@ S_doeval_compile(pTHX_ U8 gimme, CV* outside, U32 seq, HV *hh)
 	if (SvTYPE(PL_curstash) != SVt_PVHV) PL_curstash = NULL;
 	else SvREFCNT_inc_simple_void(PL_curstash);
     }
+
     /* XXX:ajgo do we really need to alloc an AV for begin/checkunit */
     SAVESPTR(PL_beginav);
     PL_beginav = newAV();
@@ -3512,7 +3513,6 @@ S_doeval_compile(pTHX_ U8 gimme, CV* outside, U32 seq, HV *hh)
     SAVESPTR(PL_unitcheckav);
     PL_unitcheckav = newAV();
     SAVEFREESV(PL_unitcheckav);
-
 
     ENTER_with_name("evalcomp");
     SAVESPTR(PL_compcv);
@@ -3553,27 +3553,28 @@ S_doeval_compile(pTHX_ U8 gimme, CV* outside, U32 seq, HV *hh)
     SAVECOMPILEWARNINGS();
     if (clear_hints) {
 	if (PL_dowarn & G_WARN_ALL_ON)
-	    PL_compiling.cop_warnings = pWARN_ALL ;
+	    PL_compiling.cop_warnings = pWARN_ALL;
 	else if (PL_dowarn & G_WARN_ALL_OFF)
-	    PL_compiling.cop_warnings = pWARN_NONE ;
+	    PL_compiling.cop_warnings = pWARN_NONE;
 	else
-	    PL_compiling.cop_warnings = pWARN_STD ;
+	    PL_compiling.cop_warnings = pWARN_STD;
     }
     else {
 	PL_compiling.cop_warnings =
 	    DUP_WARNINGS(oldcurcop->cop_warnings);
 	cophh_free(CopHINTHASH_get(&PL_compiling));
-	if (Perl_cop_fetch_label(aTHX_ oldcurcop, NULL, NULL)) {
+	if (CopLABEL(oldcurcop)) {
 	    /* The label, if present, is the first entry on the chain. So rather
 	       than writing a blank label in front of it (which involves an
 	       allocation), just use the next entry in the chain.  */
-	    PL_compiling.cop_hints_hash
-		= cophh_copy(oldcurcop->cop_hints_hash->refcounted_he_next);
+	    CopHINTHASH_set(&PL_compiling,
+                cophh_copy(CopHINTHASH_get(oldcurcop)->refcounted_he_next));
 	    /* Check the assumption that this removed the label.  */
-	    assert(Perl_cop_fetch_label(aTHX_ &PL_compiling, NULL, NULL) == NULL);
+	    assert(CopLABEL(&PL_compiling) == NULL);
 	}
 	else
-	    PL_compiling.cop_hints_hash = cophh_copy(oldcurcop->cop_hints_hash);
+	    CopHINTHASH_set(&PL_compiling,
+                cophh_copy(CopHINTHASH_get(oldcurcop)));
     }
 
     CALL_BLOCK_HOOKS(bhk_eval, saveop);
@@ -3581,9 +3582,9 @@ S_doeval_compile(pTHX_ U8 gimme, CV* outside, U32 seq, HV *hh)
     /* note that yyparse() may raise an exception, e.g. C<BEGIN{die}>,
      * so honour CATCH_GET and trap it here if necessary */
 
-
     /* compile the code */
-    yystatus = (!in_require && CATCH_GET) ? S_try_yyparse(aTHX_ GRAMPROG) : yyparse(GRAMPROG);
+    yystatus = (!in_require && CATCH_GET)
+                 ? S_try_yyparse(aTHX_ GRAMPROG) : yyparse(GRAMPROG);
 
     if (yystatus || PL_parser->error_count || !PL_eval_root) {
 	PERL_CONTEXT *cx;
@@ -3668,7 +3669,7 @@ S_check_type_and_open(pTHX_ SV *name)
 
     PERL_ARGS_ASSERT_CHECK_TYPE_AND_OPEN;
 
-    /* checking here captures a reasonable error message when
+    /* Checking here captures a reasonable error message when
      * PERL_DISABLE_PMC is true, but when PMC checks are enabled, the
      * user gets a confusing message about looking for the .pmc file
      * rather than for the .pm file so do the check in S_doopen_pm when
@@ -3680,12 +3681,12 @@ S_check_type_and_open(pTHX_ SV *name)
         return NULL;
 #endif
 
-    /* on Win32 stat is expensive (it does an open() and close() twice and
+    /* On Win32 stat is expensive (it does an open() and close() twice and
        a couple other IO calls), the open will fail with a dir on its own with
        errno EACCES, so only do a stat to separate a dir from a real EACCES
        caused by user perms */
 #ifndef WIN32
-    /* we use the value of errno later to see how stat() or open() failed.
+    /* We use the value of errno later to see how stat() or open() failed.
      * We don't want it set if the stat succeeded but we still failed,
      * such as if the name exists, but is a directory */
     errno = 0;

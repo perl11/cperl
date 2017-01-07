@@ -451,7 +451,7 @@ struct cop {
 #define CopSTASHPV_set(c,pv)	CopSTASH_set((c), gv_stashpv(pv,GV_ADD))
 #define CopSTASH_eq(c,hv)	(CopSTASH(c) == (hv))
 
-#define CopHINTHASH_get(c)	((COPHH*)((c)->cop_hints_hash))
+#define CopHINTHASH_get(c)	(c)->cop_hints_hash
 #define CopHINTHASH_set(c,h)	((c)->cop_hints_hash = (h))
 
 /*
