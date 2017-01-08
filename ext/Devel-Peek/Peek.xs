@@ -187,46 +187,46 @@ _mstats_to_hv(HV *hv, const struct mstats_buffer *b, int level)
     SV **svp;
     int type;
 
-    svp = hv_fetchs(hv, "topbucket", 1);
+    svp = hv_fetchs(hv, "topbucket", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.topbucket);
 
-    svp = hv_fetchs(hv, "topbucket_ev", 1);
+    svp = hv_fetchs(hv, "topbucket_ev", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.topbucket_ev);
 
-    svp = hv_fetchs(hv, "topbucket_odd", 1);
+    svp = hv_fetchs(hv, "topbucket_odd", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.topbucket_odd);
 
-    svp = hv_fetchs(hv, "totfree", 1);
+    svp = hv_fetchs(hv, "totfree", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.totfree);
 
-    svp = hv_fetchs(hv, "total", 1);
+    svp = hv_fetchs(hv, "total", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.total);
 
-    svp = hv_fetchs(hv, "total_chain", 1);
+    svp = hv_fetchs(hv, "total_chain", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.total_chain);
 
-    svp = hv_fetchs(hv, "total_sbrk", 1);
+    svp = hv_fetchs(hv, "total_sbrk", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.total_sbrk);
 
-    svp = hv_fetchs(hv, "sbrks", 1);
+    svp = hv_fetchs(hv, "sbrks", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.sbrks);
 
-    svp = hv_fetchs(hv, "sbrk_good", 1);
+    svp = hv_fetchs(hv, "sbrk_good", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.sbrk_good);
 
-    svp = hv_fetchs(hv, "sbrk_slack", 1);
+    svp = hv_fetchs(hv, "sbrk_slack", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.sbrk_slack);
 
-    svp = hv_fetchs(hv, "start_slack", 1);
+    svp = hv_fetchs(hv, "start_slack", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.start_slack);
 
-    svp = hv_fetchs(hv, "sbrked_remains", 1);
+    svp = hv_fetchs(hv, "sbrked_remains", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.sbrked_remains);
     
-    svp = hv_fetchs(hv, "minbucket", 1);
+    svp = hv_fetchs(hv, "minbucket", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.minbucket);
     
-    svp = hv_fetchs(hv, "nbuckets", 1);
+    svp = hv_fetchs(hv, "nbuckets", HV_FETCH_LVALUE);
     sv_setiv(*svp, b->buffer.nbuckets);
 
     if (_NBUCKETS < b->buffer.nbuckets) 
@@ -239,7 +239,7 @@ _mstats_to_hv(HV *hv, const struct mstats_buffer *b, int level)
 	    "free", "used", "mem_size", "available_size"    
 	};
 
-	svp = hv_fetch(hv, types[type], strlen(types[type]), 1);
+	svp = hv_fetch(hv, types[type], strlen(types[type]), HV_FETCH_LVALUE);
 
 	if (SvOK(*svp) && !(SvROK(*svp) && SvTYPE(SvRV(*svp)) == SVt_PVAV))
 	    croak("Unexpected value for the key '%s' in the mstats hash", types[type]);
