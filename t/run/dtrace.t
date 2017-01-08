@@ -148,6 +148,13 @@ D_SCRIPT
     'basic op probe',
 );
 
+if (is_miniperl()) {
+  # dies when loading XSLoader
+  ok(1, "SKIP miniperl");
+  ok(1, "SKIP miniperl");
+  exit;
+}
+
 my $tmp = tempfile();
 open my $fh,'>',$tmp;
 print $fh "42";
