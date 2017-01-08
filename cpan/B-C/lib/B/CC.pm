@@ -3,7 +3,7 @@
 #      Copyright (c) 1996, 1997, 1998 Malcolm Beattie
 #      Copyright (c) 2009, 2010, 2011 Reini Urban
 #      Copyright (c) 2010 Heinz Knutzen
-#      Copyright (c) 2012-2015 cPanel Inc
+#      Copyright (c) 2012-2017 cPanel Inc
 #
 #      You may distribute under the terms of either the GNU General Public
 #      License or the Artistic License, as specified in the README file.
