@@ -220,17 +220,14 @@ XXX Describe change here
 XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
 Most of these are built within the directory F<utils>.
 
-[ List utility changes as a =head2 entry for each utility and =item
-entries for each change
-Use L<XXX> with program names to get proper documentation linking. ]
-
-=head2 L<XXX>
+=head2 L<dtrace>
 
 =over 4
 
 =item *
 
-XXX
+Four new dtrace probes for hash and glob. See L<perldtrace> and
+L<#240|https://github.com/perl11/cperl/issues/240>.
 
 =back
 

@@ -416,6 +416,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     int masked_flags;
     const int return_svp = action & HV_FETCH_JUST_SV;
     int collisions = -1;
+    int dtrace_mode = PERL_DTRACE_HASH_MODE_FETCH;
     U32 hindex;
     bool is_utf8;
 #ifdef DEBUGGING
@@ -428,7 +429,21 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	return NULL;
 
     assert(SvTYPE(hv) == SVt_PVHV);
-
+#if defined(USE_DTRACE)
+    if (PERL_HASH_ENTRY_ENABLED()) {
+        if (action & HV_FETCH_ISEXISTS) {
+            dtrace_mode = PERL_DTRACE_HASH_MODE_EXISTS;
+            Perl_dtrace_probe_hash(aTHX_ PERL_DTRACE_HASH_MODE_EXISTS, key, TRUE);
+        } else if (action & HV_FETCH_ISSTORE) {
+            dtrace_mode = PERL_DTRACE_HASH_MODE_STORE;
+            Perl_dtrace_probe_hash(aTHX_ PERL_DTRACE_HASH_MODE_STORE, key, TRUE);
+        } else if (action & HV_DELETE) {
+            dtrace_mode = PERL_DTRACE_HASH_MODE_DELETE;
+        } else {
+            Perl_dtrace_probe_hash(aTHX_ PERL_DTRACE_HASH_MODE_FETCH, key, TRUE);
+        }
+    }
+#endif
     if (SvSMAGICAL(hv) && SvGMAGICAL(hv) && !(action & HV_DISABLE_UVAR_XKEY)) {
 	MAGIC* mg;
 	if ((mg = mg_find((const SV *)hv, PERL_MAGIC_uvar))) {
@@ -481,8 +496,10 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         int return_action = 0;
         const void *retval = hv_common_magical(hv, &keysv, key, klen,
                                  flags, action, val, hash, &return_action);
-        if (!return_action)
+        if (!return_action) {
+            PERL_DTRACE_PROBE_HASH_RETURN(dtrace_mode, key);
             return (void*)retval;
+        }
 #ifdef ENV_IS_CASELESS
         else /* windows env !fetch: exists|store */
         if (UNLIKELY(return_action == HV_COMMON_MAGICAL_ENV_IS_CASELESS))
@@ -525,6 +542,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
             if (flags & HVhek_FREEKEY)
                 Safefree(key);
 
+            PERL_DTRACE_PROBE_HASH_RETURN(dtrace_mode, key);
 	    return NULL;
 	}
     }
@@ -736,6 +754,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
             deb_hechain(*oentry);
         DEBUG_H(S_assert_hechain(aTHX_ *oentry));
 #endif
+        PERL_DTRACE_PROBE_HASH_RETURN(dtrace_mode, key);
 	if (return_svp) {
             return (void *) &HeVAL(entry);
 	}
@@ -761,6 +780,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	if (env) {
 	    const SV* sv = newSVpvn(env,len);
 	    SvTAINTED_on(sv);
+            PERL_DTRACE_PROBE_HASH_RETURN(dtrace_mode, key);
 	    return hv_common(hv, keysv, key, klen, flags,
 			     HV_FETCH_ISSTORE|HV_DISABLE_UVAR_XKEY|return_svp,
 			     sv, hash);
@@ -790,6 +810,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	/* Not doing some form of store, so return failure.  */
 	if (flags & HVhek_FREEKEY)
 	    Safefree(key);
+        PERL_DTRACE_PROBE_HASH_RETURN(PERL_DTRACE_HASH_MODE_EXISTS, key);
 	return NULL;
     }
     if (action & HV_FETCH_LVALUE) {
@@ -806,6 +827,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	       key, this would result in a double conversion, which would show
 	       up as a bug if the conversion routine is not idempotent.
 	       Hence the use of HV_DISABLE_UVAR_XKEY.  */
+            PERL_DTRACE_PROBE_HASH_RETURN(dtrace_mode, key);
 	    return hv_common(hv, keysv, key, klen, flags,
 			     HV_FETCH_ISSTORE|HV_DISABLE_UVAR_XKEY|return_svp,
 			     val, hash);
@@ -1312,6 +1334,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     HV *stash = NULL;
     int collisions = -1;
 
+    PERL_DTRACE_PROBE_HASH_ENTRY(PERL_DTRACE_HASH_MODE_DELETE, key);
     if (UNLIKELY(SvRMAGICAL(hv))) {
 	bool needs_copy;
 	bool needs_store;
@@ -1353,8 +1376,10 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	}
     }
     xhv = (XPVHV*)SvANY(hv);
-    if (!HvARRAY(hv))
+    if (!HvARRAY(hv)) {
+        PERL_DTRACE_PROBE_HASH_RETURN(PERL_DTRACE_HASH_MODE_DELETE, key);
 	return NULL;
+    }
 
     if (is_utf8 && !(k_flags & HVhek_KEYCANONICAL)) {
 	const char * const keysave = key;
@@ -1455,6 +1480,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		Safefree(key);
             DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d DELpl\n",
                         (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions));
+            PERL_DTRACE_PROBE_HASH_RETURN(PERL_DTRACE_HASH_MODE_DELETE, key);
 	    return NULL;
 	}
 	if (SvREADONLY(hv) && HeVAL(entry) && SvREADONLY(HeVAL(entry))) {
@@ -1610,6 +1636,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
             deb_hechain(*oentry);
         DEBUG_H(S_assert_hechain(aTHX_ *oentry));
 #endif
+        PERL_DTRACE_PROBE_HASH_RETURN(PERL_DTRACE_HASH_MODE_DELETE, key);
 	return sv;
     }
 
@@ -1624,6 +1651,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	Safefree(key);
     DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d DEL-\t{%.*s}\n",
                           (unsigned)HvTOTALKEYS(hv), (unsigned)HvMAX(hv), collisions, (int)klen, key));
+    PERL_DTRACE_PROBE_HASH_RETURN(PERL_DTRACE_HASH_MODE_DELETE, key);
     return NULL;
 }
 

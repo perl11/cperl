@@ -16,13 +16,13 @@ provider perl {
     probe load__entry(const char *);
     probe load__return(const char *);
 
-    /*
-    probe gv_fetch__entry(const char *);
-    probe gv_fetch__return(const char *);
+    /* int mode: gv_init/gv_add/gv_fetch/gv_fetchmethod */
+    probe glob__entry(int, const char *);
+    probe glob__return(int, const char *);
 
-    probe hv_common__entry(const char *);
-    probe hv_common__return(const char *);
-    */
+    /* int mode: fetch/store/exists/delete */
+    probe hash__entry(int, const char *);
+    probe hash__return(int, const char *);
 };
 
 /*

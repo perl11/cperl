@@ -451,6 +451,8 @@ unless ($define{'USE_DTRACE'}) {
                     Perl_dtrace_probe_load
                     Perl_dtrace_probe_op
                     Perl_dtrace_probe_phase
+		    Perl_dtrace_probe_glob
+                    Perl_dtrace_probe_hash
                 );
 }
 

@@ -46,6 +46,7 @@ Perl_gv_add_by_type(pTHX_ GV *gv, svtype type)
 {
     SV **where;
 
+    PERL_DTRACE_PROBE_GLOB_ENTRY(PERL_DTRACE_GLOB_MODE_ADD, "");
     if (
         !gv
      || (
@@ -87,6 +88,7 @@ Perl_gv_add_by_type(pTHX_ GV *gv, svtype type)
 	     && memEQc(GvNAME(gv), "ISA"))
 	    sv_magic(*where, (SV *)gv, PERL_MAGIC_isa, NULL, 0);
     }
+    PERL_DTRACE_PROBE_GLOB_RETURN(PERL_DTRACE_GLOB_MODE_ADD, "");
     return gv;
 }
 
@@ -380,6 +382,7 @@ Perl_gv_init_pvn(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len, U32 flag
 
     PERL_ARGS_ASSERT_GV_INIT_PVN;
     assert (!(proto && has_constant));
+    PERL_DTRACE_PROBE_GLOB_ENTRY(PERL_DTRACE_GLOB_MODE_INIT, name);
 
     if (has_constant) {
 	/* The constant has to be a scalar, array or subroutine.  */
@@ -396,7 +399,6 @@ Perl_gv_init_pvn(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len, U32 flag
 	SvRV_set(gv, NULL);
 	SvROK_off(gv);
     }
-
 
     if (old_type < SVt_PVGV) {
 	if (old_type >= SVt_PV)
@@ -467,6 +469,7 @@ Perl_gv_init_pvn(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len, U32 flag
             }
 	}
     }
+    PERL_DTRACE_PROBE_GLOB_RETURN(PERL_DTRACE_GLOB_MODE_INIT, name);
 }
 
 STATIC void
@@ -1041,7 +1044,8 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
     const U32 is_utf8  = flags & SVf_UTF8;
 
     PERL_ARGS_ASSERT_GV_FETCHMETHOD_PVN_FLAGS;
-
+    PERL_DTRACE_PROBE_GLOB_ENTRY(PERL_DTRACE_GLOB_MODE_FETCHMETH, name);
+ 
     if (SvTYPE(stash) < SVt_PVHV)
 	stash = NULL;
     else {
@@ -1156,6 +1160,7 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 	}
     }
 
+    PERL_DTRACE_PROBE_GLOB_RETURN(PERL_DTRACE_GLOB_MODE_FETCHMETH, name);
     return gv;
 }
 
@@ -2339,6 +2344,7 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
     bool addmg = cBOOL(flags & GV_ADDMG);
 
     PERL_ARGS_ASSERT_GV_FETCHPVN_FLAGS;
+    PERL_DTRACE_PROBE_GLOB_ENTRY(PERL_DTRACE_GLOB_MODE_FETCH, name);
 
      /* If we have GV_NOTQUAL, the caller promised that
       * there is no stash, so we can skip the check.
@@ -2458,6 +2464,7 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
     }
     
     if (gv) gv_init_svtype(gv, faking_it ? SVt_PVCV : sv_type);
+    PERL_DTRACE_PROBE_GLOB_RETURN(PERL_DTRACE_GLOB_MODE_FETCH, name);
     return gv;
 }
 

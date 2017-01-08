@@ -3306,6 +3306,8 @@ XEop	|void   |dtrace_probe_call |NN CV *cv|bool is_call
 XEop	|void   |dtrace_probe_load |NN const char *name|bool is_loading
 XEop	|void   |dtrace_probe_op   |NN const OP *op
 XEop	|void   |dtrace_probe_phase|enum perl_phase phase
+XEop	|void   |dtrace_probe_glob |int mode|NN const char *name|bool is_entry
+XEop	|void   |dtrace_probe_hash |int mode|NN const char *name|bool is_entry
 #endif
 
 : ex: set ts=8 sts=4 sw=4 noet:

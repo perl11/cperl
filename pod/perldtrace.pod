@@ -4,7 +4,7 @@ perldtrace - Perl's support for DTrace
 
 =head1 SYNOPSIS
 
- # dtrace -Zn 'perl::sub-entry, perl::sub-return { trace(copyinstr(arg0)) }'
+ # dtrace -Zn 'perl::sub-entry, perl::sub-return {trace(copyinstr(arg0))}'
  dtrace: description 'perl::sub-entry, perl::sub-return ' matched 10 probes
 
  # perl -E 'sub outer { inner(@_) } sub inner { say shift } outer("hello")'
@@ -31,18 +31,22 @@ such as MySQL, in order to diagnose software defects, or even just
 your application's bottlenecks, from user-land calls, to binaries,
 up into kernel calls.
 
-Perl must be compiled with the C<-Dusedtrace> option in order to
+Perl needs to be compiled with the C<-Dusedtrace> option in order to
 make use of the provided probes. While DTrace aims to have no
 overhead when its instrumentation is not active, Perl's support
 itself cannot uphold that guarantee, so it is built without DTrace
 probes under most systems. One notable exception is that Mac OS X
-ships a F</usr/bin/perl> with DTrace support enabled.
+builds with C<-Dusedtrace> by default, and ships a F</usr/bin/perl>
+with DTrace support enabled.
 
 Currently DTrace is known to be ported to Solaris, Mac OS X, FreeBSD,
 DragonFLY BSD, NetBSD, and on linux there is a unstable port via a
-dtrace4linux at L<https://crtags.blogspot.de/>.
+I<dtrace4linux> at L<https://crtags.blogspot.de/>, but see
+L<https://github.com/agentzh/perl-systemtap-toolkit> instead.
 
-On Mac OS X you need to run it as root: C<sudo dtrace>.
+On most systems you need to run it as root: C<sudo dtrace>, and beware
+that probes are global. Prefer to use pid-specific probes, beginning
+with C<perl$target:::>.
 
 =head1 HISTORY
 
@@ -69,6 +73,7 @@ The C<op-entry>, C<loading-file>, and C<loaded-file> probes were added.
 =item 5.25.3c
 
 C<loading-file>, C<loaded-file> renamed to C<load-entry>, C<load-return>.
+Added C<glob-entry>, C<glob-return>, C<hash-entry>, C<hash-return> probes.
 Added more examples.
 
 =back
@@ -84,7 +89,7 @@ refer to the subroutine that is being invoked; there is currently
 no way to get ahold of any information about the subroutine's
 I<caller> from a DTrace action.
 
- :*perl*::sub-entry {
+ perl$target:::sub-entry {
      printf("%s::%s entered at %s line %d\n",
            copyinstr(arg3), copyinstr(arg0), copyinstr(arg1), arg2);
  }
@@ -96,7 +101,7 @@ refer to the subroutine that is returning; there is currently no
 way to get ahold of any information about the subroutine's I<caller>
 from a DTrace action.
 
- :*perl*::sub-return {
+ perl$target:::sub-return {
      printf("%s::%s returned at %s line %d\n",
            copyinstr(arg3), copyinstr(arg0), copyinstr(arg1), arg2);
  }
@@ -108,7 +113,7 @@ as tracing changes to Perl's C<${^GLOBAL_PHASE}> variable, especially
 since the values for C<NEWPHASE> and C<OLDPHASE> are the strings that
 C<${^GLOBAL_PHASE}> reports.
 
- :*perl*::phase-change {
+ perl$target:::phase-change {
      printf("Phase changed from %s to %s\n",
          copyinstr(arg1), copyinstr(arg0));
  }
@@ -120,7 +125,7 @@ is fired before the opcode is executed. When the Perl debugger is
 enabled, the DTrace probe is fired I<after> the debugger hooks (but
 still before the opcode itself is executed).
 
- :*perl*::op-entry {
+ perl$target:::op-entry {
      printf("About to execute opcode %s\n", copyinstr(arg0));
  }
 
@@ -131,7 +136,7 @@ C<use>, C<require>, or C<do>. This probe fires before the file is
 read from disk. The filename argument is converted to local filesystem
 paths instead of providing C<Module::Name>-style names.
 
- :*perl*:load-entry {
+ perl$target:::load-entry {
      printf("About to load %s\n", copyinstr(arg0));
  }
 
@@ -143,8 +148,56 @@ is read from disk and its contents evaluated. The filename argument
 is converted to local filesystem paths instead of providing
 C<Module::Name>-style names.
 
- :*perl*:load-return {
+ perl$target:::load-return {
      printf("Successfully loaded %s\n", copyinstr(arg0));
+ }
+
+=item glob-entry(MODE, NAME)
+
+Fires when Perl is performing a glob lookup.
+
+  MODE 0: gv_init
+       1: gv_add (empty name)
+       2: gv_fetch
+       3: gv_fetchmeth
+
+ perl$target:::glob-entry {
+     printf("glob lookup mode %d: %s\n", arg0, copyinstr(arg1));
+ }
+
+=item glob-return(MODE, NAME)
+
+Fires when Perl finished a glob lookup.
+For MODE see L</glob-entry(MODE, NAME)>.
+
+ perl$target:::glob-return {
+   printf("glob lookup mode: %d: %s done\n", arg0, copyinstr(arg1));
+ }
+
+=item hash-entry(MODE, KEY)
+
+Fires when Perl is performing an internal hash-table lookup.
+
+  MODE 0: hv_fetch
+       1: hv_store
+       2: hv_exists
+       3: hv_delete
+
+ perl$target:::hash-entry {
+     printf("hash lookup mode %d {%s}\n", arg0, copyinstr(arg1));
+ }
+
+Example to print the sum of operations by type:
+
+  $ sudo dtrace -qn "hash-entry{@[arg0]=count()}" -c"perl script.pl"
+
+=item hash-return(MODE, KEY)
+
+Fires when Perl finished an internal hash-table lookup.
+For MODE see L</hash-entry(MODE, KEY)>.
+
+ perl$target:::hash-return {
+   printf("hash lookup mode %d {%s} done\n", arg0, copyinstr(arg1));
  }
 
 =back
@@ -155,7 +208,8 @@ C<Module::Name>-style names.
 
 =item Most frequently called functions
 
- # dtrace -qZn 'sub-entry { @[strjoin(strjoin(copyinstr(arg3),"::"),copyinstr(arg0))] = count() } END {trunc(@, 10)}'
+ # dtrace -qZn 'sub-entry { @[strjoin(strjoin(copyinstr(arg3),"::"),
+                  copyinstr(arg0))] = count() } END {trunc(@, 10)}'
 
  Class::MOP::Attribute::slots                                    400
  Try::Tiny::catch                                                411
@@ -191,7 +245,8 @@ See F<Porting/subs.d> for a similar example.
 
 =item Function calls during interpreter cleanup
 
- # dtrace -Zn 'phase-change /copyinstr(arg0) == "END"/ { self->ending = 1 } sub-entry /self->ending/ { trace(copyinstr(arg0)) }'
+ # dtrace -Zn 'phase-change /copyinstr(arg0) == "END"/ { self->ending = 1 }
+               sub-entry /self->ending/ { trace(copyinstr(arg0)) }'
 
  CPU     ID                    FUNCTION:NAME
    1  77214       Perl_pp_entersub:sub-entry   END
@@ -202,7 +257,11 @@ See F<Porting/subs.d> for a similar example.
 
 =item System calls at compile time
 
- # dtrace -qZn 'phase-change /copyinstr(arg0) == "START"/ { self->interesting = 1 } phase-change /copyinstr(arg0) == "RUN"/ { self->interesting = 0 } syscall::: /self->interesting/ { @[probefunc] = count() } END { trunc(@, 3) }'
+ # dtrace -qZn 'phase-change
+     /copyinstr(arg0) == "START"/ { self->interesting = 1 }
+     phase-change /copyinstr(arg0) == "RUN"/ { self->interesting = 0 }
+     syscall::: /self->interesting/ { @[probefunc] = count() }
+     END { trunc(@, 3) }'
 
  lseek                                                           310
  read                                                            374
@@ -210,7 +269,10 @@ See F<Porting/subs.d> for a similar example.
 
 =item Perl functions that execute the most opcodes
 
- # dtrace -qZn 'sub-entry { self->fqn = strjoin(copyinstr(arg3), strjoin("::", copyinstr(arg0))) } op-entry /self->fqn != ""/ { @[self->fqn] = count() } END { trunc(@, 3) }'
+ # dtrace -qZn 'sub-entry { self->fqn = strjoin(copyinstr(arg3),
+                            strjoin("::", copyinstr(arg0))) }
+                op-entry /self->fqn != ""/ { @[self->fqn] = count() }
+                END { trunc(@, 3) }'
 
  warnings::unimport                                             4589
  Exporter::Heavy::_rebuild_cache                                5039
@@ -218,7 +280,13 @@ See F<Porting/subs.d> for a similar example.
 
 =item How much time is spent in an op on average
 
- # dtrace -qZn "BEGIN{self->prev=0;} op-entry { myop = copyinstr(arg0); curtime = timestamp; elapsed = self->prev ? curtime - self->prev : 0; @[myop]=avg(elapsed); self->prev = curtime;} END { trunc(@, 15); printf(\"\nTime (avg ns)\n\"); printa(\"%10s\t%@8u\n\", @);}" -c'./miniperl -Ilib -E0'
+ # dtrace -qZn "BEGIN{self->prev=0;}
+                op-entry { myop = copyinstr(arg0); curtime = timestamp;
+                           elapsed = self->prev ? curtime - self->prev : 0;
+                           @[myop]=avg(elapsed); self->prev = curtime;}
+                END { trunc(@, 15); printf(\"\nTime (avg ns)\n\");
+                      printa(\"%10s\t%@8u\n\", @);}"
+          -c'./miniperl -Ilib -E0'
 
   Time (avg ns)
     pushmark	    2149
@@ -238,6 +306,87 @@ See F<Porting/subs.d> for a similar example.
    nextstate	   10073
 
 See F<Porting/op.d> for a bigger example, with count() and quantize().
+
+=item What hash operations dominate
+
+Number of modes:
+
+ # sudo dtrace -n "hash-entry{@[arg0]=count()}" -c"./miniperl -Ilib script.pl"
+
+                3               15  # DELETE
+                2               39  # EXISTS
+                1              125  # STORE
+                0              724  # FETCH
+
+Time spent (on average):
+
+ # sudo dtrace -qn "BEGIN{self->ts=0}hash-entry{self->ts=timestamp}
+                    hash-return{@[arg0]=avg(timestamp-self->ts)}"
+               -c"./miniperl -Ilib script.pl"
+
+                0             1000  # FETCH
+                2             1014  # EXISTS
+                1             1111  # STORE
+                3             1641  # DELETE
+
+See F<mydtrace.h> for the modes.
+
+=item glob/gv call statistics
+
+ # sudo dtrace -qn "BEGIN{self->ts=0} glob-entry{self->ts=timestamp}
+                    glob-return{ts=timestamp-self->ts;@a[arg0]=avg(ts);
+                                @q[arg0]=quantize(ts);@c[arg0]=count()}"
+               -c"./miniperl -Ilib autodoc.pl"
+
+average time per mode (ns):
+
+                1             1234  # ADD
+                0             1417  # INIT
+                2             3055  # FETCH
+                3             4150  # FETCHMETH
+
+time spent per mode (ns):
+
+                3
+           value  ------------- Distribution ------------- count
+            1024 |                                         0
+            2048 |@@@@@@@@@@@@@                            1
+            4096 |@@@@@@@@@@@@@@@@@@@@@@@@@@@              2
+            8192 |                                         0
+
+                1
+           value  ------------- Distribution ------------- count
+             256 |                                         0
+             512 |@@@@@@@@@@@@@@@@@@@@@@@@@                67
+            1024 |@@@@@@@@@@@                              31
+            2048 |@@@                                      8
+            4096 |@                                        2
+            8192 |                                         0
+
+                0
+           value  ------------- Distribution ------------- count
+             256 |                                         0
+             512 |@                                        8
+            1024 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@     273
+            2048 |@@                                       16
+            4096 |                                         3
+            8192 |                                         0
+
+                2
+           value  ------------- Distribution ------------- count
+            1024 |                                         0
+            2048 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    224
+            4096 |@@                                       13
+            8192 |                                         3
+           16384 |                                         1
+           32768 |                                         0
+
+sum of glob calls:
+
+                3                3  # FETCHMETH
+                1              108  # ADD
+                2              241  # FETCH
+                0              300  # INIT
 
 =back
 
@@ -268,6 +417,7 @@ Perl.
 
 =head1 AUTHORS
 
-Shawn M Moore C<sartak@gmail.com>
+Shawn M Moore C<sartak@gmail.com>,
+Reini Urban C<rurban@cpan.org>
 
 =cut

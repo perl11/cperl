@@ -426,7 +426,7 @@ pod/perl5242cdelta.pod	Apparent broken link	2
 pod/perl5260cdelta.pod	Apparent broken link	3
 pod/perl5260cdelta.pod	unresolved internal link	2
 pod/perl5270cdelta.pod	Apparent broken link	3
-pod/perl5270cdelta.pod	Apparent internal link is missing its forward slash	4
+pod/perl5270cdelta.pod	Apparent internal link is missing its forward slash	3
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	6
 pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1
@@ -437,7 +437,7 @@ pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	11
 pod/perlcperl.pod	unresolved internal link	1
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	27
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perldtrace.pod	Verbatim line length including indents exceeds 79 by	8
+pod/perldtrace.pod	Verbatim line length including indents exceeds 79 by	12
 pod/perlgit.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perlgit.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlguts.pod	? Should you be using L<...> instead of	1
@@ -445,7 +445,7 @@ pod/perlhack.pod	? Should you be using L<...> instead of	1
 pod/perlhist.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlhpux.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlintern.pod	Non-ASCII character seen before =encoding. Assuming UTF-8	1
-pod/perlintern.pod	Verbatim line length including indents exceeds 79 by	77
+pod/perlintern.pod	Verbatim line length including indents exceeds 79 by	79
 pod/perlintern.pod	line containing nothing but whitespace in paragraph	4
 pod/perlinterp.pod	? Should you be using L<...> instead of	1
 pod/perlirix.pod	Verbatim line length including indents exceeds 79 by	1

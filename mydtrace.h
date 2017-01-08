@@ -37,6 +37,22 @@
     if (PERL_PHASE_CHANGE_ENABLED())                \
         Perl_dtrace_probe_phase(aTHX_ phase);
 
+#  define PERL_DTRACE_PROBE_GLOB_ENTRY(mode, name)  \
+    if (PERL_GLOB_ENTRY_ENABLED())                  \
+        Perl_dtrace_probe_glob(aTHX_ mode, name, TRUE);
+
+#  define PERL_DTRACE_PROBE_GLOB_RETURN(mode, name) \
+    if (PERL_GLOB_RETURN_ENABLED())                 \
+        Perl_dtrace_probe_glob(aTHX_ mode, name, FALSE);
+
+#  define PERL_DTRACE_PROBE_HASH_ENTRY(mode, name)  \
+    if (PERL_HASH_ENTRY_ENABLED())                  \
+        Perl_dtrace_probe_hash(aTHX_ mode, name, TRUE);
+
+#  define PERL_DTRACE_PROBE_HASH_RETURN(mode, name) \
+    if (PERL_HASH_RETURN_ENABLED())                 \
+        Perl_dtrace_probe_hash(aTHX_ mode, name, FALSE);
+
 #else
 
 /* NOPs */
@@ -46,8 +62,22 @@
 #  define PERL_DTRACE_PROBE_LOAD_RETURN(fn)
 #  define PERL_DTRACE_PROBE_OP(op)
 #  define PERL_DTRACE_PROBE_PHASE(phase)
+#  define PERL_DTRACE_PROBE_GLOB_ENTRY(mode, name)
+#  define PERL_DTRACE_PROBE_GLOB_RETURN(mode, name)
+#  define PERL_DTRACE_PROBE_HASH_ENTRY(mode, name)
+#  define PERL_DTRACE_PROBE_HASH_RETURN(mode, name)
 
 #endif
+
+#define PERL_DTRACE_GLOB_MODE_INIT      0
+#define PERL_DTRACE_GLOB_MODE_ADD       1
+#define PERL_DTRACE_GLOB_MODE_FETCH     2
+#define PERL_DTRACE_GLOB_MODE_FETCHMETH 3
+
+#define PERL_DTRACE_HASH_MODE_FETCH     0
+#define PERL_DTRACE_HASH_MODE_STORE     1
+#define PERL_DTRACE_HASH_MODE_EXISTS    2
+#define PERL_DTRACE_HASH_MODE_DELETE    3
 
 /*
  * ex: set ts=8 sts=4 sw=4 et:

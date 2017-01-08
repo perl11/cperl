@@ -6931,6 +6931,7 @@ PERL_CALLCONV
 void
 Perl_dtrace_probe_load(pTHX_ const char *name, bool is_loading)
 {
+    /* TODO stack allocation */
     char* n;
     PERL_ARGS_ASSERT_DTRACE_PROBE_LOAD;
 
@@ -6951,6 +6952,7 @@ PERL_CALLCONV
 void
 Perl_dtrace_probe_op(pTHX_ const OP *op)
 {
+    /* TODO stack allocation */
     char* n;
     PERL_ARGS_ASSERT_DTRACE_PROBE_OP;
     n = strdup(OP_NAME(op));
@@ -6965,12 +6967,45 @@ PERL_CALLCONV
 void
 Perl_dtrace_probe_phase(pTHX_ enum perl_phase phase)
 {
+    /* TODO stack allocation */
     char *ph_old = strdup(PL_phase_names[PL_phase]);
     char *ph_new = strdup(PL_phase_names[phase]);
 
     PERL_PHASE_CHANGE(ph_new, ph_old);
     free(ph_new);
     free(ph_old);
+}
+
+/* log a symbol resolution entry/return */
+
+PERL_CALLCONV
+void
+Perl_dtrace_probe_glob(pTHX_ int mode, const char *name, bool is_entry)
+{
+    PERL_ARGS_ASSERT_DTRACE_PROBE_GLOB;
+
+    if (is_entry) {
+        PERL_GLOB_ENTRY(mode, name);
+    }
+    else {
+        PERL_GLOB_RETURN(mode, name);
+    }
+}
+
+/* log a hash operation entry/return */
+
+PERL_CALLCONV
+void
+Perl_dtrace_probe_hash(pTHX_ int mode, const char *name, bool is_entry)
+{
+    PERL_ARGS_ASSERT_DTRACE_PROBE_HASH;
+
+    if (is_entry) {
+        PERL_HASH_ENTRY(mode, name);
+    }
+    else {
+        PERL_HASH_RETURN(mode, name);
+    }
 }
 
 #endif

@@ -10535,6 +10535,18 @@ PERL_CALLCONV void	Perl_dtrace_probe_call(pTHX_ CV *cv, bool is_call)
 #define PERL_ARGS_ASSERT_DTRACE_PROBE_CALL	\
 	assert(cv)
 
+PERL_CALLCONV void	Perl_dtrace_probe_glob(pTHX_ int mode, const char *name, bool is_entry)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_DTRACE_PROBE_GLOB	\
+	assert(name)
+
+PERL_CALLCONV void	Perl_dtrace_probe_hash(pTHX_ int mode, const char *name, bool is_entry)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_DTRACE_PROBE_HASH	\
+	assert(name)
+
 PERL_CALLCONV void	Perl_dtrace_probe_load(pTHX_ const char *name, bool is_loading)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
