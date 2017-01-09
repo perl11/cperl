@@ -4329,14 +4329,22 @@ Gid_t getegid (void);
 #  define DEBUG_L_TEST_  UNLIKELY(PL_debug & DEBUG_L_FLAG)
 #  define DEBUG_I_TEST_  UNLIKELY(PL_debug & DEBUG_I_FLAG)
 #  define DEBUG_k_TEST_  UNLIKELY(PL_debug & DEBUG_k_FLAG)
-#  define DEBUG_kv_TEST_ UNLIKELY((PL_debug & DEBUG_k_FLAG|DEBUG_v_FLAG) == (DEBUG_k_FLAG|DEBUG_v_FLAG))
-#  define DEBUG_Xv_TEST_ UNLIKELY((PL_debug & DEBUG_X_FLAG|DEBUG_v_FLAG) == (DEBUG_X_FLAG|DEBUG_v_FLAG))
-#  define DEBUG_Uv_TEST_ UNLIKELY((PL_debug & DEBUG_U_FLAG|DEBUG_v_FLAG) == (DEBUG_U_FLAG|DEBUG_v_FLAG))
-#  define DEBUG_Pv_TEST_ UNLIKELY((PL_debug & DEBUG_P_FLAG|DEBUG_v_FLAG) == (DEBUG_P_FLAG|DEBUG_v_FLAG))
-#  define DEBUG_Iv_TEST_ UNLIKELY((PL_debug & DEBUG_I_FLAG|DEBUG_v_FLAG) == (DEBUG_I_FLAG|DEBUG_v_FLAG))
-#  define DEBUG_Lv_TEST_ UNLIKELY((PL_debug & DEBUG_L_FLAG|DEBUG_v_FLAG) == (DEBUG_L_FLAG|DEBUG_v_FLAG))
-#  define DEBUG_lv_TEST_ UNLIKELY((PL_debug & DEBUG_l_FLAG|DEBUG_v_FLAG) == (DEBUG_l_FLAG|DEBUG_v_FLAG))
-#  define DEBUG_mv_TEST_ UNLIKELY((PL_debug & DEBUG_m_FLAG|DEBUG_v_FLAG) == (DEBUG_m_FLAG|DEBUG_v_FLAG))
+#  define DEBUG_kv_TEST_ UNLIKELY((PL_debug & (DEBUG_k_FLAG|DEBUG_v_FLAG)) \
+                                  	   == (DEBUG_k_FLAG|DEBUG_v_FLAG))
+#  define DEBUG_Xv_TEST_ UNLIKELY((PL_debug & (DEBUG_X_FLAG|DEBUG_v_FLAG)) \
+                                  	   == (DEBUG_X_FLAG|DEBUG_v_FLAG))
+#  define DEBUG_Uv_TEST_ UNLIKELY((PL_debug & (DEBUG_U_FLAG|DEBUG_v_FLAG)) \
+                                  	   == (DEBUG_U_FLAG|DEBUG_v_FLAG))
+#  define DEBUG_Pv_TEST_ UNLIKELY((PL_debug & (DEBUG_P_FLAG|DEBUG_v_FLAG)) \
+                                  	   == (DEBUG_P_FLAG|DEBUG_v_FLAG))
+#  define DEBUG_Iv_TEST_ UNLIKELY((PL_debug & (DEBUG_I_FLAG|DEBUG_v_FLAG)) \
+                                  	   == (DEBUG_I_FLAG|DEBUG_v_FLAG))
+#  define DEBUG_Lv_TEST_ UNLIKELY((PL_debug & (DEBUG_L_FLAG|DEBUG_v_FLAG)) \
+                                  	   == (DEBUG_L_FLAG|DEBUG_v_FLAG))
+#  define DEBUG_lv_TEST_ UNLIKELY((PL_debug & (DEBUG_l_FLAG|DEBUG_v_FLAG)) \
+                                  	   == (DEBUG_l_FLAG|DEBUG_v_FLAG))
+#  define DEBUG_mv_TEST_ UNLIKELY((PL_debug & (DEBUG_m_FLAG|DEBUG_v_FLAG)) \
+                                  	   == (DEBUG_m_FLAG|DEBUG_v_FLAG))
 
 #ifdef DEBUGGING
 
