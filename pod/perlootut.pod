@@ -459,9 +459,10 @@ L<perlobj>.
 
 =head2 Moose
 
-L<Moose> bills itself as a "postmodern object system for Perl 5". Don't
-be scared, the "postmodern" label is a callback to Larry's description
-of Perl as "the first postmodern computer language".
+L<Moose|http://search.cpan.org/dist/Moose/> bills itself as a
+"postmodern object system for Perl 5". Don't be scared, the
+"postmodern" label is a callback to Larry's description of Perl as
+"the first postmodern computer language".
 
 C<Moose> provides a complete, modern OO system. Its biggest influence
 is the Common Lisp Object System, but it also borrows ideas from
@@ -584,36 +585,38 @@ may not be right for you.
 
 =head3 Mouse
 
-L<Mouse> is the fast, smaller variant of C<Moose> and the currently
-recommended OO system for perl5.
+L<Mouse|http://search.cpan.org/dist/Mouse/> is the fast, smaller
+variant of C<Moose> and the currently recommended OO system for perl5.
 
-Moose has a large compile-time penalty. Though significant progress
+C<Moose> has a large compile-time penalty. Though significant progress
 has been made over the years, the compile time penalty is a
 non-starter for some very specific applications. If you are writing a
 command-line application or CGI script where startup time is
-essential, you may not be able to use Moose (we recommend that you
+essential, you may not be able to use C<Moose> (we recommend that you
 instead use persistent Perl executing environments like "FastCGI" for
 the latter, if possible).
 
-Mouse is a Moose compatible object system, which aims to alleviate this
-penalty by providing a subset of Moose's functionality.
+C<Mouse> is a C<Moose> compatible object system, which aims to
+alleviate this penalty by providing a subset of C<Moose>'s
+functionality.
 
-We're also going as light on dependencies as possible. Mouse currently has
-no dependencies except for building/testing modules. Mouse also works
-without XS, although it has an XS backend to make it much faster.
+C<Mouse> is also going as light on dependencies as possible. C<Mouse>
+currently has no dependencies except for building/testing
+modules. C<Mouse> also works without XS, although it has an XS backend
+to make it much faster.
 
-Compatibility with Moose has been the utmost concern. The sugary interface
-is highly compatible with Moose. Even the error messages are taken from
-Moose. The Mouse code just runs its test suite 4x faster.
+Compatibility with C<Moose> has been the utmost concern. The sugary interface
+is highly compatible with C<Moose>. Even the error messages are taken from
+C<Moose>. The C<Mouse> code just runs its test suite 4x faster.
 
 =head3 Moo
 
-If you try C<Moose> and find that one of these issues is preventing you
-from using C<Moose>, we encourage you to consider L<Moo> next. C<Moo>
-implements a subset of C<Moose>'s functionality in a simpler package.
-For most features that it does implement, the end-user API is
-I<identical> to C<Moose>, meaning you can switch from C<Moo> to
-C<Moose> quite easily.
+If you try C<Moose> and find that one of these issues is preventing
+you from using C<Moose>, we encourage you to consider
+L<Moo|http://search.cpan.org/dist/Moo/> next. C<Moo> implements a
+subset of C<Moose>'s functionality in a simpler package.  For most
+features that it does implement, the end-user API is I<identical> to
+C<Moose>, meaning you can switch from C<Moo> to C<Moose> quite easily.
 
 C<Moo> does not implement most of C<Moose>'s introspection API, so it's
 often faster when loading your modules. Additionally, none of its
@@ -635,8 +638,9 @@ alternative to C<Moose>.
 
 =head2 Class::Accessor
 
-L<Class::Accessor> is the polar opposite of C<Moose>. It provides very
-few features, nor is it self-hosting.
+L<Class::Accessor|http://search.cpan.org/dist/Class::Accessor/> is the
+polar opposite of C<Moose>. It provides very few features, nor is it
+self-hosting.
 
 It is, however, very simple, pure Perl, and it has no non-core
 dependencies. It also provides a "Moose-like" API on demand for the
@@ -672,10 +676,11 @@ constructor for your class.
 
 =head2 Class::Tiny
 
-Finally, we have L<Class::Tiny>. This module truly lives up to its
-name. It has an incredibly minimal API and absolutely no dependencies
-on any recent Perl. Still, we think it's a lot easier to use than
-writing your own OO code from scratch.
+Then, we have
+L<Class::Tiny|http://search.cpan.org/dist/Class::Tiny/>. This module
+truly lives up to its name. It has an incredibly minimal API and
+absolutely no dependencies on any recent Perl. Still, we think it's a
+lot easier to use than writing your own OO code from scratch.
 
 Here's our C<File> class once more:
 
@@ -701,13 +706,21 @@ As we mentioned before, roles provide an alternative to inheritance,
 but Perl does not have any built-in role support. If you choose to use
 Moose, it comes with a full-fledged role implementation. However, if
 you use one of our other recommended OO modules, you can still use
-roles with L<Role::Tiny>
+roles with L<Role::Tiny|http://search.cpan.org/dist/Role::Tiny/>.
 
 C<Role::Tiny> provides some of the same features as Moose's role
 system, but in a much smaller package. Most notably, it doesn't support
 any sort of attribute declaration, so you have to do that by hand.
 Still, it's useful, and works well with C<Class::Accessor> and
 C<Class::Tiny>
+
+=head2 Dios
+
+L<Dios|http://search.cpan.org/dist/Dios/> is the newest OO for
+perl5. It provides the currently best feature set for a modern object
+system, with a decent performance and is implemented via a nice but
+slow macro system.  It has the closest remembrance to the perl6 and
+syntax and type system.  But it relies in C<Object::InsideOut>.
 
 =head2 OO System Summary
 
@@ -718,9 +731,10 @@ Here's a brief recap of the options we covered:
 =item * L<Moose>
 
 C<Moose> is the maximal option. It has a lot of features, a big
-ecosystem, and a thriving user base. We also covered L<Moo> briefly.
-C<Moo> is C<Moose> lite, and a reasonable alternative when Moose
-doesn't work for your application.
+ecosystem, and a thriving user base. C<Mouse> is the recommended fast
+variant of C<Moose>. We also covered L<Moo> briefly.  C<Moo> is
+C<Moose> lite, and a reasonable alternative when Moose doesn't work
+for your application.
 
 =item * L<Class::Accessor>
 
@@ -742,6 +756,12 @@ to worry about details.
 Use C<Role::Tiny> with C<Class::Accessor> or C<Class::Tiny> if you find
 yourself considering multiple inheritance. If you go with C<Moose>, it
 comes with its own role implementation.
+
+=item * L<Dios>
+
+Has a familiar syntax, needs faster macros, uses internally insideout
+objects, which are much faster to use, but come with security
+problems, and is very new.
 
 =back
 
@@ -766,13 +786,13 @@ modern Perl.
 For small systems, L<Class::Tiny> and L<Class::Accessor> both provide
 minimal object systems that take care of basic boilerplate for you.
 
-For bigger projects, L<Moose> provides a rich set of features that will
-let you focus on implementing your business logic. L<Moo> provides a
-nice alternative to L<Moose> when you want a lot of features but need
-faster compile time or to avoid XS.
+For bigger projects, L<Moose> and L<Mouse> provide a rich set of
+features that will let you focus on implementing your business
+logic. L<Moo> provides a nice alternative to L<Moose> when you want a
+lot of features but need faster compile time or to avoid XS.
 
-We encourage you to play with and evaluate L<Moose>, L<Moo>,
-L<Class::Accessor>, and L<Class::Tiny> to see which OO system is right
-for you.
+We encourage you to play with and evaluate L<Moose>, L<Mouse>, L<Moo>,
+L<Class::Accessor>, L<Class::Tiny> and L<Dios> to see which OO system
+is right for you.
 
 =cut

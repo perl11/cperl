@@ -370,6 +370,7 @@ pod/perlinterp.pod	? Should you be using L<...> instead of	1
 pod/perlirix.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlmacosx.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlmroapi.pod	? Should you be using L<...> instead of	1
+pod/perlootut.pod	Apparent internal link is missing its forward slash	4
 pod/perlos2.pod	? Should you be using L<...> instead of	2
 pod/perlos2.pod	Verbatim line length including indents exceeds 79 by	5
 pod/perlos390.pod	Verbatim line length including indents exceeds 79 by	2
