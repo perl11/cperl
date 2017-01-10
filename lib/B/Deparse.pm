@@ -68,7 +68,7 @@ use B qw(class main_root main_start main_cv svref_2object opnumber perlstring
         SIGNATURE_SHIFT
     );
 
-$VERSION = '1.39_03c';
+$VERSION = '1.40_03c';
 $VERSION =~ s/c$//;
 use strict;
 use vars qw/$AUTOLOAD/;
@@ -594,7 +594,7 @@ sub next_todo {
                 #  makes use of a lexical var that's not in scope.
                 #  So strip it out.
                 return $pragmata
-                            if $use_dec =~ /^use \S+ \(@\{\$args\[0\];}\);/;
+                            if $use_dec =~ /^use \S+ \(@\{\$args\[0\];\}\);/;
 
 		$use_dec =~ s/^(use|no)\b/$self->keyword($1)/e;
 	    }

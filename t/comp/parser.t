@@ -469,7 +469,7 @@ if ($] < 5.025002) {
 	'literal -> after an array subscript within ""');
     @x = ['string'];
     # this used to give "string"
-    like("$x[0]-> [0]", qr/^ARRAY\([^)]*\)-> \[0]\z/,
+    like("$x[0]-> [0]", qr/^ARRAY\([^)]*\)-> \[0\]\z/,
 	'literal -> [0] after an array subscript within ""');
 }
 

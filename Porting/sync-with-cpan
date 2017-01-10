@@ -693,7 +693,7 @@ EOF
                 }
             }
 
-            if (/^    }/) {
+            if (/^    \}/) {
                 $in_mod_section = 0;
             }
         }
