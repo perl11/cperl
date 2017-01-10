@@ -10,8 +10,8 @@
 # might be indicated merely by this test file taking unusually long to
 # run, rather than actually timing out.
 #
-# This is similar to t/perf/speed.t but tests performance regressions specific
-# to taint.
+# This is similar to t/perf/cow-timeout.t but tests performance regressions
+# specific to taint.
 #
 
 BEGIN {
