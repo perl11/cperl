@@ -5495,10 +5495,9 @@ appended string to be interpreted as UTF-8 by supplying the C<SV_CATUTF8>
 flag, and as bytes by supplying the C<SV_CATBYTES> flag; the SV or the
 string appended will be upgraded to UTF-8 if necessary.
 
-If C<flags> has the C<SV_SMAGIC> bit set, will
-C<mg_set> on C<dsv> afterwards if appropriate.
-C<sv_catpvn> and C<sv_catpvn_nomg> are implemented
-in terms of this function.
+If C<flags> has the C<SV_SMAGIC> bit set, will C<mg_set> on C<dsv>
+afterwards if appropriate.  C<sv_catpvn> and C<sv_catpvn_nomg> are
+implemented in terms of this function.
 
 =cut
 */
@@ -5518,7 +5517,7 @@ Perl_sv_catpvn_flags(pTHX_ SV *const dsv, const char *sstr, const STRLEN slen, c
 	 dlen = SvCUR(dsv);
       }
       else
-          SvGROW(dsv, dlen + slen);
+          SvGROW(dsv, dlen + slen + 1);
       if (sstr == dstr)
 	sstr = SvPVX_const(dsv);
       Move(sstr, SvPVX(dsv) + dlen, slen, char);
