@@ -209,8 +209,7 @@ to that database.
 
 For example,
 
-    cd t
-    ./perl -I../lib porting/podcheck.t --add_link Unicode::Casing
+    ./perl -Ilib t/porting/podcheck.t --add_link Unicode::Casing
 
 causes the external module "Unicode::Casing" to be added to the database, so
 C<LE<lt>Unicode::CasingE<gt>> will be considered valid.
@@ -2164,7 +2163,6 @@ if (! $regen
 my $how_to = <<EOF;
    run this test script by hand, using the following formula (on
    Un*x-like machines):
-        cd t
         ./perl -Ilib t/porting/podcheck.t --regen
 EOF
 
