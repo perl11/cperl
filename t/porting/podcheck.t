@@ -1698,7 +1698,7 @@ if ($has_input_files) {
 else { # No input files -- go find all the possibilities.
     if ($regen) {
         $copy_fh = open_new($known_issues);
-        note("Regenerating $known_issues, please be patient...");
+        note("Regenerating t/porting/known_pod_issues.dat, please be patient...");
         print $copy_fh $HEADER;
     }
 
