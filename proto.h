@@ -3540,6 +3540,12 @@ PERL_CALLCONV void	Perl_mg_free_type(pTHX_ SV* sv, int how)
 #define PERL_ARGS_ASSERT_MG_FREE_TYPE	\
 	assert(sv)
 
+PERL_CALLCONV void	Perl_mg_freeext(pTHX_ SV* sv, int how, const MGVTBL *vtbl)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_MG_FREEEXT	\
+	assert(sv)
+
 PERL_CALLCONV int	Perl_mg_get(pTHX_ SV* sv)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
@@ -7045,9 +7051,11 @@ STATIC int	S_dooneliner(pTHX_ const char *cmd, const char *filename)
 #  endif
 #endif
 #if !defined(HAS_MKSTEMP)
-PERL_CALLCONV int	Perl_my_mkstemp(char *templte);
+PERL_CALLCONV int	Perl_my_mkstemp(char *templte)
+			__attribute__nonnull__(1);
 #define PERL_ARGS_ASSERT_MY_MKSTEMP	\
 	assert(templte)
+
 #endif
 #if !defined(HAS_RENAME)
 PERL_CALLCONV I32	Perl_same_dirent(pTHX_ const char* a, const char* b)
