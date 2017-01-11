@@ -1622,7 +1622,6 @@ distclean: realclean
 	-if exist $(LIBDIR)\IO rmdir /s /q $(LIBDIR)\IO
 	-if exist $(LIBDIR)\IPC rmdir /s /q $(LIBDIR)\IPC
 	-if exist $(LIBDIR)\JSON rmdir /s /q $(LIBDIR)\JSON
-	-if exist $(LIBDIR)\LibYAML rmdir /s /q $(LIBDIR)\LibYAML
 	-if exist $(LIBDIR)\List rmdir /s /q $(LIBDIR)\List
 	-if exist $(LIBDIR)\Locale rmdir /s /q $(LIBDIR)\Locale
 	-if exist $(LIBDIR)\Math rmdir /s /q $(LIBDIR)\Math
@@ -1656,6 +1655,7 @@ distclean: realclean
 	-if exist $(LIBDIR)\Win32API rmdir /s /q $(LIBDIR)\Win32API
 	-if exist $(LIBDIR)\XS rmdir /s /q $(LIBDIR)\XS
 	-if exist $(LIBDIR)\YAML rmdir /s /q $(LIBDIR)\YAML
+	-if exist $(LIBDIR)\YAML\XS rmdir /s /q $(LIBDIR)\YAML\XS
 	-cd $(PODDIR) && del /f *.html *.bat roffitall \
 	    perl5253cdelta.pod perl5258delta.pod perlaix.pod perlamiga.pod \
 	    perlandroid.pod perlapi.pod perlbs2000.pod perlce.pod \

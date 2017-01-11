@@ -1345,7 +1345,7 @@ META.yml:   FORCE
 META.json:   FORCE
 	PATH="`pwd`:${PATH}" PERL5LIB="`pwd`/lib" $(RUN_PERL) Porting/makemeta -j
 
-regen_uni: $(PERL_EXE)
+regen_uni: $(PERL_EXE) FORCE
 	$(MINIPERL) lib/unicore/mktables -C lib/unicore -P pod -maketest -makelist -p -w
 	$(MINIPERL) regen/mk_PL_charclass.pl
 	$(MINIPERL) regen/ebcdic.pl
@@ -1355,7 +1355,9 @@ regen_uni: $(PERL_EXE)
 	$(RUN_PERL) regen/regcharclass.pl
 	$(RUN_PERL) regen/regcharclass_multi_char_folds.pl
 
-regen_all regen-all: regen regen_meta
+regen_all regen-all: regen regen_meta regen_uni FORCE
+	-perl regen/keywords.pl
+	$(RUN_PERL) regen/lib_cleanup.pl
 
 .PHONY:	manisort manicheck
 
