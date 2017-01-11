@@ -4664,6 +4664,12 @@
  */
 /*#define HAS_WRITEV		/ **/
 
+/* DEFAULT_INC_EXCLUDES_DOT:
+ *	This symbol, if defined, removes the legacy default behavior of
+ *	including '.' at the end of @INC.
+ */
+#define DEFAULT_INC_EXCLUDES_DOT	/**/
+
 /* USE_DYNAMIC_LOADING:
  *	This symbol, if defined, indicates that dynamic loading of
  *	some sort is available.
@@ -5492,6 +5498,6 @@
 #endif
 
 /* Generated from:
- * 444f68c7adac23f245c9bb8a633a5a80fae8b9c1390d8ac58ca1cab1fa7791b5 config_h.SH
- * 54908e91d2837d81b829067ff4903a68bbb56cc7afcb93c9dbc72094d9cd0211 uconfig.sh
+ * d6185b0a78c38e26ca03da044c402b5474a8da01617d7a0f63f2e45d0dc17f6f config_h.SH
+ * ddd094aa4b2b0fb57ef94ced7f6ab081971fd11695d1f1b2d4560c8c03580615 uconfig.sh
  * ex: set ro: */

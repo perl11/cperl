@@ -1,6 +1,6 @@
 %{/* -*- mode: c; c-basic-offset: 4; -*-
 
-Copyright (C) 2015, 2016 cPanel Inc
+Copyright (C) 2015-2017 cPanel Inc
 Copyright (C) 2015 Daniel Dragan
 
 =head1 NAME
@@ -945,6 +945,7 @@ db_prefixtype,		T_INV,0,ALN64I"@@db_prefixtype@@"
 db_version_major,	T_INV,0,ALN64I"@@db_version_major@@"
 db_version_minor,	T_INV,0,ALN64I"@@db_version_minor@@"
 db_version_patch,	T_INV,0,ALN64I"@@db_version_patch@@"
+default_inc_excludes_dot,	T_INV,0,ALN64I"@@default_inc_excludes_dot@@"
 defvoidused,		T_INV,0,ALN64I"@@defvoidused@@"
 direntrytype,		T_INV,0,ALN64I"@@direntrytype@@"
 dl_so_eq_ext,		T_INV,0,ALN64I"@@dl_so_eq_ext@@"

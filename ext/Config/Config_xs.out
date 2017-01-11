@@ -35,7 +35,7 @@
 
 /* -*- mode: c; c-basic-offset: 4; -*-
 
-Copyright (C) 2015, 2016 cPanel Inc
+Copyright (C) 2015-2017 cPanel Inc
 Copyright (C) 2015 Daniel Dragan
 
 =head1 NAME
@@ -265,7 +265,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1290
+#define TOTAL_KEYWORDS 1291
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -1639,6 +1639,7 @@ struct stringpool_t
     char stringpool_str6953[sizeof ("d_double_has_inf")];
     char stringpool_str6992[sizeof ("fake_signatures")];
     char stringpool_str7097[sizeof ("d_msg_proxy")];
+    char stringpool_str7178[sizeof ("default_inc_excludes_dot")];
     char stringpool_str7277[sizeof ("d_nv_zero_is_allbits_zero")];
     char stringpool_str7336[sizeof ("d_double_has_negative_zero")];
     char stringpool_str7375[sizeof ("d_gethostbyname_r")];
@@ -2932,6 +2933,7 @@ static const struct stringpool_t stringpool_contents =
     "d_double_has_inf",
     "fake_signatures",
     "d_msg_proxy",
+    "default_inc_excludes_dot",
     "d_nv_zero_is_allbits_zero",
     "d_double_has_negative_zero",
     "d_gethostbyname_r",
@@ -6739,7 +6741,9 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str7178,	T_INV,0,ALN64I"@@default_inc_excludes_dot@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -7020,7 +7024,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str9303,	T_INV,0,ALN64I"@@d_attribute_always_inline@@"}
     };
 
-#line 7023 "Config.xs"
+#line 7027 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);
