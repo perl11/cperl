@@ -2936,6 +2936,10 @@ po	|void *	|more_bodies	|const svtype sv_type|const size_t body_size \
 				|const size_t arena_size
 : Used in op.c and toke.c. Also usable for coretypes-aware extensions
 EXMpR	|HV *	|find_in_coretypes|NN const char *pkgname|STRLEN len
+EXpR	|SV*	|get_and_check_backslash_N_name|NN const char* s	\
+				|NN const char* const e			\
+				|const bool is_utf8			\
+				|NN const char** error_msg
 
 #if defined(PERL_IN_TOKE_C)
 s	|void	|check_uni
@@ -2947,9 +2951,6 @@ s	|char*	|force_word	|NN char *start|int token|int check_keyword \
 				|int allow_pack
 s	|SV*	|tokeq		|NN SV *sv
 sR	|char*	|scan_const	|NN char *start
-sR	|SV*	|get_and_check_backslash_N_name|NN const char* s \
-				|NN const char* const e		 \
-				|NN const char** error_msg
 sR	|SV*	|get_and_check_backslash_N_name_wrapper|NN const char* s \
 				|NN const char* const e
 sR	|char*	|scan_formline	|NN char *s

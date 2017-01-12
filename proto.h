@@ -1766,6 +1766,15 @@ PERL_CALLCONV void	Perl_free_tied_hv_pool(pTHX);
 PERL_CALLCONV void	Perl_free_tmps(pTHX)
 			__attribute__global__;
 
+PERL_CALLCONV SV*	Perl_get_and_check_backslash_N_name(pTHX_ const char* s, const char* const e, const bool is_utf8, const char** error_msg)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_4);
+#define PERL_ARGS_ASSERT_GET_AND_CHECK_BACKSLASH_N_NAME	\
+	assert(s); assert(e); assert(error_msg)
+
 PERL_CALLCONV AV*	Perl_get_av(pTHX_ const char *name, I32 flags)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
@@ -10937,14 +10946,6 @@ STATIC char*	S_force_word(pTHX_ char *start, int token, int check_keyword, int a
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_FORCE_WORD	\
 	assert(start)
-
-STATIC SV*	S_get_and_check_backslash_N_name(pTHX_ const char* s, const char* const e, const char** error_msg)
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_2)
-			__attribute__nonnull__(pTHX_3);
-#define PERL_ARGS_ASSERT_GET_AND_CHECK_BACKSLASH_N_NAME	\
-	assert(s); assert(e); assert(error_msg)
 
 STATIC SV*	S_get_and_check_backslash_N_name_wrapper(pTHX_ const char* s, const char* const e)
 			__attribute__warn_unused_result__
