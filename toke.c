@@ -9930,10 +9930,6 @@ S_scan_pat(pTHX_ char *start, I32 type)
 		       "Use of /c modifier is meaningless without /g" );
     }
 
-    if (UNLIKELY((x_mod_count) > 1)) {
-        yyerror("Only one /x regex modifier is allowed");
-    }
-
     PL_lex_op = (OP*)pm;
     pl_yylval.ival = OP_MATCH;
     return s;
@@ -9986,10 +9982,6 @@ S_scan_subst(pTHX_ char *start)
 	{
 	    break;
 	}
-    }
-
-    if (UNLIKELY((x_mod_count) > 1)) {
-        yyerror("Only one /x regex modifier is allowed");
     }
 
     if ((pm->op_pmflags & PMf_CONTINUE)) {
