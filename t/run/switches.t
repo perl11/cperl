@@ -12,7 +12,7 @@ BEGIN {
 
 BEGIN { require "./test.pl";  require "./loc_tools.pl"; }
 
-plan(tests => 135);
+plan(tests => 136);
 
 use Config;
 
@@ -563,6 +563,21 @@ CODE
         ok(open($fh, "<", $work), "open out file");
         is(scalar <$fh>, "yy\n", "file successfully saved after chdir");
         close $fh;
+    }
+
+    {
+        # test we handle the rename to the backup failing
+        # make it fail by creating a directory of the backup name
+        mkdir "$work.bak" or die "Cannot make mask backup directory: $!";
+        fresh_perl_like(<<'CODE', qr/Can't rename/, { stderr => 1 }, "fail backup rename");
+@ARGV = ("inplacetmp/foo");
+$^I = ".bak";
+while (<>) {
+  print;
+}
+print "ok\n";
+CODE
+        rmdir "$work.bak" or die "Cannot remove mask backup directory: $!";
     }
 
     unlink $work;
