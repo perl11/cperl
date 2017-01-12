@@ -530,10 +530,11 @@ my $MULTI = $Config{usemultiplicity};
 my $ITHREADS = $Config{useithreads};
 my $DEBUGGING = ($Config{ccflags} =~ m/-DDEBUGGING/);
 my $DEBUG_LEAKING_SCALARS = $Config{ccflags} =~ m/-DDEBUG_LEAKING_SCALARS/;
-my $CPERL56  = ( $Config{usecperl} and $] >= 5.025003 ); #sibparent, xpad_cop_seq
+my $CPERL56  = ( $Config{usecperl} and $] >= 5.025003 ); #sibparent, VALID
 my $CPERL55  = ( $Config{usecperl} and $] >= 5.025001 ); #HVMAX_T, RITER_T, ...
 my $CPERL52  = ( $Config{usecperl} and $] >= 5.022002 ); #sv_objcount, AvSTATIC, sigs
 my $CPERL51  = ( $Config{usecperl} );
+my $PERL5257 = ( $CPERL56 or $] >= 5.025007 ); # VALID/TAIL, sibparent, ...
 my $PERL524  = ( $] >= 5.023005 ); #xpviv sharing assertion
 my $PERL522  = ( $] >= 5.021006 ); #PADNAMELIST, IsCOW, padname_with_str, compflags
 my $PERL518  = ( $] >= 5.017010 );
@@ -548,9 +549,7 @@ my $HAVE_DLFCN_DLOPEN = $Config{i_dlfcn} && $Config{d_dlopen};
 # %Lu is not supported on older 32bit systems
 my $u32fmt = $Config{ivsize} == 4 ? "%lu" : "%u";
 sub IS_MSVC () { $^O eq 'MSWin32' and $Config{cc} eq 'cl' }
-my $have_sibparent = ($] >= 5.025006
-  or $Config{ccflags} =~ /-DPERL_OP_PARENT/
-  or ($CPERL55 && $] >= 5.025003)) ? 1 : 0;
+my $have_sibparent = ($PERL5257 or $Config{ccflags} =~ /-DPERL_OP_PARENT/) ? 1 : 0;
 
 my @threadsv_names;
 
@@ -2578,7 +2577,7 @@ sub B::PMOP::save {
   my $sym = objsym($op);
   return $sym if defined $sym;
   # 5.8.5-thr crashes here (7) at pushre
-  my $pushre = ($] >= 5.025006 or $CPERL56) ? "split" : "pushre";
+  my $pushre = $PERL5257 ? "split" : "pushre";
   if ($] < 5.008008 and $ITHREADS and $$op < 256) { # B bug. split->first->pmreplroot = 0x1
     die "Internal B::walkoptree error: invalid PMOP for pushre\n";
     return;
@@ -4910,10 +4909,11 @@ sub B::GV::save {
   warn sprintf( "  GV %s $sym type=%d, flags=0x%x %s\n", $gv->NAME,
                 # B::SV::SvTYPE not with 5.6
                 B::SV::SvTYPE($gv), $gv->FLAGS) if $debug{gv} and !$PERL56;
-  if ($PERL510 and $gv->FLAGS & 0x40000000) { # SVpbm_VALID
+  if ($PERL510 and !$PERL5257 and $gv->FLAGS & 0x40000000) { # SVpbm_VALID
     warn sprintf( "  GV $sym isa FBM\n") if $debug{gv};
     return B::BM::save($gv);
   }
+  # since 5.25.7 VALID is just a B magic at a gv->SV->PVMG. See below.
 
   my $gvname   = $gv->NAME;
   my $package;
@@ -5192,6 +5192,15 @@ sub B::GV::save {
       for my $s (sort keys %$core_svs) {
         if ($fullname eq 'main::'.$s) {
           savesym( $gvsv, $core_svs->{$s} ); # TODO: This could bypass BEGIN settings (->save is ignored)
+        }
+      }
+      if ($PERL5257 and $gvsv->MAGICAL) {
+        my @magic = $gvsv->MAGIC;
+        foreach my $mg (@magic) {
+          if ($mg->TYPE eq 'B') {
+            warn sprintf( "  GvSV $sym isa FBM\n") if $debug{gv};
+            savesym($gvsv, B::BM::save($gvsv));
+          }
         }
       }
       if ($gvname eq 'VERSION' and $xsub{$package} and $gvsv->FLAGS & SVf_ROK and !$PERL56) {
