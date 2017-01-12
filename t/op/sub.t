@@ -431,11 +431,12 @@ is(curpm(), 'c', 'return and PL_curpm');
             "fake sig should warn on odd hash assign";
 }
 
-sub rt_129916 { 42 }
+my $lex = 42;
+sub rt_129916 { $lex }
 is ref($main::{rt_129916}), 'CODE', 'simple sub stored as CV in stash (main::)';
 {
     package RT129916;
-    sub foo { 42 }
+    sub foo { $lex }
 }
 {
     local $TODO = "CV symbol table optimization only works in main:: [perl #129916]";
