@@ -1998,10 +1998,9 @@ static void
 S_scalar_slice_warning(pTHX_ const OP *o)
 {
     OP *kid;
-    const char lbrack =
-	IS_TYPE(o, HSLICE) ? '{' : '[';
-    const char rbrack =
-	IS_TYPE(o, HSLICE) ? '}' : ']';
+    const bool h = OP_TYPE_IS_OR_WAS_NN(o, OP_HSLICE);
+    const char lbrack = h ? '{' : '[';
+    const char rbrack = h ? '}' : ']';
     SV *name;
     SV *keysv = NULL; /* just to silence compiler warnings */
     const char *key = NULL;
@@ -3284,6 +3283,10 @@ S_finalize_op(pTHX_ OP* o)
         S_check_hash_fields_and_hekify(aTHX_ rop, key_op);
 	break;
     }
+    case OP_NULL:
+	if (o->op_targ != OP_HSLICE && o->op_targ != OP_ASLICE)
+	    break;
+	/* FALLTHROUGH */
     case OP_ASLICE:
 	S_scalar_slice_warning(aTHX_ o);
 	break;
