@@ -466,7 +466,12 @@ perform the upgrade if necessary.  See C<L</svtype>>.
  * sets both (SVf_READONLY|SVf_PROTECT) to indicate both to core and user
  * code that this SV should not be messed with.
  */
-#define SVf_PROTECT	0x00010000  /* very read-only */
+/* cperl has the new double-readonly system with SVf_PROTECT disabled and
+ * uses the last free bit for something else more important: SVf_NATIVE.
+ * Instead the two places which abused SvREADONLY had been fixed.
+ * See L<perlcperl/Undo the double readonly system>
+ */
+#define SVf_PROTECT	0x00010000  /* very read-only. not in cperl. */
 #define SVs_PADTMP	0x00020000  /* in use as tmp */
 #define SVs_PADSTALE	0x00040000  /* lexical has gone out of scope;
 					only used when !PADTMP */
@@ -497,6 +502,7 @@ perform the upgrade if necessary.  See C<L</svtype>>.
 #define SVf_NATIVE	0x00010000  /* for lexicals in curpad[], the PV slot
                                        holds the value. */
 #ifdef USE_CPERL
+/* see above */
 #undef SVf_PROTECT
 #define SVf_PROTECT	SVf_READONLY
 #endif
