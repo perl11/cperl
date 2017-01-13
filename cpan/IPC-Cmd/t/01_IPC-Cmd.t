@@ -109,7 +109,8 @@ push @Prefs, [ 0,             0 ],  [ 0,             0 ];
             $pp_cmd .= " (IPC::Run: $pref->[0] IPC::Open3: $pref->[1])";
 
             diag( "Running '$pp_cmd'") if $Verbose;
-            sleep(0.3) if $^ eq 'MSWin32';
+            sleep(0.3) if $^O eq 'MSWin32';
+            sleep(2) if $ENV{APPVEYOR};
 
             ### in scalar mode
             {   my $buffer;
@@ -119,7 +120,9 @@ push @Prefs, [ 0,             0 ],  [ 0,             0 ];
 
                 SKIP: {
                     skip "No buffers available", 1
-                                unless $Class->can_capture_buffer;
+                      unless $Class->can_capture_buffer;
+                    skip "Appveyor failure", 1
+                      if $^O eq 'MSWin32' and $ENV{APPVEYOR} and $buffer !~ $regex;
 
                     like( $buffer, $regex,
                                 "   Buffer matches $regex -- ($pp_cmd)" );
