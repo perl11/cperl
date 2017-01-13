@@ -4,9 +4,8 @@
 
 use strict;
 use warnings;
+use Config;
 use 5.010;
-use Benchmark ':hireswallclock';
-use List::Util qw(max sum);
 
 sub run_tests;
 
@@ -15,10 +14,13 @@ $| = 1;
 BEGIN {
     chdir 't' if -d 't';
     @INC = ('../lib');
-    require Config; import Config;
     require './test.pl';
+    skip_all_if_miniperl("miniperl: List::Util XS needed");
     skip_all("PERL_NO_COW") if $Config::Config{ccflags} =~ /PERL_NO_COW/;
 }
+
+use Benchmark ':hireswallclock';
+use List::Util qw(max sum);
 
 plan tests => 2;
 my (%bench, @td1, @td2);
