@@ -255,6 +255,7 @@ sub make {
 
 my @modules  = $all ? sort keys %Modules : (shift);
 
+MODULES:
 for my $module (@modules) {
 
   if (!exists $Modules{$module}) {
@@ -354,6 +355,10 @@ for my $module (@modules) {
     }
   }
   else {
+    if (!$dryrun and (!-e $tarball or !-f _)) {
+      warn "Tarball $tarball does not exist\n";
+      next MODULES;
+    }
     $new_file     = $tarball;
     $new_version  = $version // ($new_file =~ /-([0-9._]+(?:-TRIAL[0-9]*)?)\.(tar\.gz|tgz)/) [0];
   }
