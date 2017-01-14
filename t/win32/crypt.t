@@ -6,6 +6,7 @@ BEGIN {
     require "./test.pl";
     eval 'use Errno';
     die $@ if $@ and !is_miniperl();
+    skip_all($^O) if $^O ne 'MSWin32';
 }
 
 my @bad_salts =

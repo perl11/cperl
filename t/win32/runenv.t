@@ -8,6 +8,8 @@
 BEGIN {
     chdir 't' if -d 't';
     @INC = '../lib';
+    require './test.pl';
+    skip_all($^O) if $^O ne 'MSWin32';
     require Config; import Config;
     require File::Temp; import File::Temp qw/:POSIX/;
 
@@ -20,7 +22,6 @@ BEGIN {
 	$::tests = 40;
     }
 
-    require './test.pl';
 }
 
 skip_all "requires compilation with PERL_IMPLICIT_SYS"
