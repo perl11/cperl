@@ -5435,7 +5435,6 @@ t/base/rs.t			See if record-read works
 t/base/term.t			See if various terms work
 t/base/translate.t		See if character set translation works
 t/base/while.t			See if while work
-t/benchmark/rt26188-speed-up-keys-on-empty-hash.t	Benchmark if keys on empty hashes is fast enough
 t/bigmem/index.t		Check that index() handles large offsets
 t/bigmem/pos.t			Check that pos() handles large offsets
 t/bigmem/read.t			Check read() handles large offsets
@@ -5898,6 +5897,7 @@ t/perf/benchmarks.t		test t/perf/benchmarks syntax
 t/perf/cow-concat.t		See if COW has outliers with concat
 t/perf/cow-taint.t		Check COW performance regression with taint
 t/perf/cow-timeout.t		Check COW performance regression
+t/perf/hash-keys.t		Benchmark if keys on empty hashes is fast enough
 t/perf/opcount.t		See if optimised subs have the right op counts
 t/perf/optree.t			Test presence of some op optimisations
 t/perl.supp			Perl valgrind suppressions
