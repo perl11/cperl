@@ -1150,9 +1150,7 @@ pass "no crash when sort block deletes *a and *b";
 
 SKIP:
 {
-    eval { require Config; 1 }
-      or skip "Cannot load Config", 1;
-    $Config::Config{ivsize} == 8
+    length(pack('j', 1)) == 8
       or skip "this test can only fail with 64-bit integers", 1;
     # sort's built-in numeric comparison wasn't careful enough in a world
     # of integers with more significant digits than NVs
