@@ -139,7 +139,7 @@ plan tests => 130;
     1 while -f ++ $datafile;
     END {unlink_all $datafile if $datafile}
 
-    open  MY_DATA, "> $datafile" or die "Failed to open $datafile: $!";
+    open  MY_DATA, ">", $datafile or die "Failed to write $datafile: $!";
     print MY_DATA  << "    --";
         One
         Two
@@ -222,11 +222,11 @@ plan tests => 130;
     my @programs = (<< '    --', << '    --');
 #!./perl
 BEGIN{$|=$SIG{__WARN__}=sub{$_=$_[0];y-_- -;print/(.)"$/;seek _,-open(_ 
-,"+<$0"),2;truncate _,tell _;close _;exec$0}}//rekcaH_lreP_rehtona_tsuJ
+,"+<$0"),2;truncate _,tell _;close _;exec$0}}// rekcaH_lreP_rehtona_tsuJ
     --
 #!./perl
 BEGIN{$SIG{__WARN__}=sub{$_=pop;y-_- -;print/".*(.)"/;  
-truncate$0,-1+-s$0;exec$0;}}//rekcaH_lreP_rehtona_tsuJ
+truncate$0,-1+-s$0;exec$0;}}// rekcaH_lreP_rehtona_tsuJ
     --
     chomp @programs;
 
@@ -246,24 +246,24 @@ truncate$0,-1+-s$0;exec$0;}}//rekcaH_lreP_rehtona_tsuJ
 
     my $i = 1;
     foreach my $program (@programs) {
-        open my $fh => "> $progfile" or die "Failed to open $progfile: $!\n";
+        open my $fh, ">", $progfile or die "Failed to open $progfile: $!\n";
         print   $fh $program;
         close   $fh or die "Failed to close $progfile: $!\n";
 
-        chmod 0755   => $progfile or die "Failed to chmod $progfile: $!\n";
+        chmod 0755, $progfile or die "Failed to chmod $progfile: $!\n";
         my $command  = "./$progfile 2>&1";
         if ( $^O eq 'qnx' ) {
-          skip "#!./perl not supported in QNX4";
-          skip "#!./perl not supported in QNX4";
+            skip "#!./perl not supported in QNX4";
+            skip "#!./perl not supported in QNX4";
         } else {
-          my $output   = `$command`;
+            my $output   = `$command`;
 
-          is ($output, $JaPH, "Self correcting code $i");
+            is ($output, $JaPH, "Self correcting code $i");
 
-                 $output   = `$command`;
-          is ($output, "",    "Self corrected code $i");
+            $output   = `$command`;
+            is ($output, "",    "Self corrected code $i");
         }
-        $i ++;
+        $i++;
     }
 }
 
@@ -315,9 +315,9 @@ SWITCHES
 SKIP: Times::JulianDay not part of the main distribution.
 
 #######  Autoload 1.
-sub _'_{$_'_=~s/$a/$_/}map{$$_=$Z++}Y,a..z,A..X;*{($_::_=sprintf+q=%X==>"$A$Y".
+sub _::_{$_::_=~s/$a/$_/}map{$$_=$Z++}Y,a..z,A..X;*{($_::_=sprintf+q=%X==>"$A$Y".
 "$b$r$T$u")=~s~0~O~g;map+_::_,U=>T=>L=>$Z;$_::_}=*_;sub _{print+/.*::(.*)/s};;;
-*{chr($b*$e)}=*_'_;*__=*{chr(1<<$e)};                # Perl 5.6.0 broke this...
+*{chr($b*$e)}=*_::_;*__=*{chr(1<<$e)};                # Perl 5.6.0 broke this...
 _::_(r(e(k(c(a(H(__(l(r(e(P(__(r(e(h(t(o(n(a(__(t(us(J())))))))))))))))))))))))
 EXPECT: Just__another__Perl__Hacker
 
