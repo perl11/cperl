@@ -383,10 +383,16 @@ EOF
   else {
     if (!$dryrun and (!-e $tarball or !-f _)) {
       warn "Tarball $tarball does not exist\n";
+      chdir "..";
       next MODULES;
     }
     $new_file     = $tarball;
     $new_version  = $version // ($new_file =~ /-([0-9._]+(?:-TRIAL[0-9]*)?)\.(tar\.gz|tgz)/) [0];
+    if ($new_version eq $old_version) {
+      say "skip $module: Blead and that tarball both have version $new_version";
+      chdir "..";
+      next MODULES;
+    }
   }
 
   my  $old_dir      = "$pkg_dir-$old_version";
