@@ -703,7 +703,7 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
             U8* s = (U8*)SvPV_const(bootname, len);
             for (i=5; i<(IV)len;) {
                 int l = UTF8SKIP(&s[i]);
-                if (s[i] != '_' && !isWORDCHAR_utf8(&s[i])) {
+                if (s[i] != '_' && !isWORDCHAR_utf8_safe(&s[i], &s[i+l])) {
                     if (s[i] != ':')
                         warn_nonword++;
                     if (l > 1) { /* shrink */
