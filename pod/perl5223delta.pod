@@ -2,15 +2,15 @@
 
 =head1 NAME
 
-perl5241delta - what is new for perl v5.24.1
+perl5223delta - what is new for perl v5.22.3
 
 =head1 DESCRIPTION
 
-This document describes differences between the 5.24.0 release and the 5.24.1
+This document describes differences between the 5.22.2 release and the 5.22.3
 release.
 
-If you are upgrading from an earlier release such as 5.22.0, first read
-L<perl5240delta>, which describes differences between 5.22.0 and 5.24.0.
+If you are upgrading from an earlier release such as 5.22.1, first read
+L<perl5222delta>, which describes differences between 5.22.1 and 5.22.2.
 
 =head1 Security
 
@@ -46,7 +46,7 @@ F</tmp> directory.
 In most cases this removal should not cause problems, but difficulties were
 encountered with L<base>, which treats every module name supplied as optional.
 These difficulties have not yet been resolved, so for this release there are no
-changes to L<base>.  We hope to have a fix for L<base> in Perl 5.24.2.
+changes to L<base>.  We hope to have a fix for L<base> in Perl 5.22.4.
 
 To protect your own code from this attack, either remove the default F<".">
 entry from C<@INC> at the start of your script, so:
@@ -77,7 +77,7 @@ becomes:
 =head1 Incompatible Changes
 
 Other than the security changes above there are no changes intentionally
-incompatible with Perl 5.24.0.  If any exist, they are bugs, and we request
+incompatible with Perl 5.22.2.  If any exist, they are bugs, and we request
 that you submit a report.  See L</Reporting Bugs> below.
 
 =head1 Modules and Pragmata
@@ -92,7 +92,7 @@ L<Archive::Tar> has been upgraded from version 2.04 to 2.04_01.
 
 =item *
 
-L<bignum> has been upgraded from version 0.42 to 0.42_01.
+L<bignum> has been upgraded from version 0.39 to 0.39_01.
 
 =item *
 
@@ -108,11 +108,15 @@ L<Digest::SHA> has been upgraded from version 5.95 to 5.95_01.
 
 =item *
 
-L<Encode> has been upgraded from version 2.80 to 2.80_01.
+L<Encode> has been upgraded from version 2.72 to 2.72_01.
 
 =item *
 
-L<ExtUtils::MakeMaker> has been upgraded from version 7.10_01 to 7.10_02.
+L<ExtUtils::Command> has been upgraded from version 1.20 to 1.20_01.
+
+=item *
+
+L<ExtUtils::MakeMaker> has been upgraded from version 7.04_01 to 7.04_02.
 
 =item *
 
@@ -120,19 +124,19 @@ L<File::Fetch> has been upgraded from version 0.48 to 0.48_01.
 
 =item *
 
-L<File::Spec> has been upgraded from version 3.63 to 3.63_01.
+L<File::Spec> has been upgraded from version 3.56_01 to 3.56_02.
 
 =item *
 
-L<HTTP::Tiny> has been upgraded from version 0.056 to 0.056_001.
+L<HTTP::Tiny> has been upgraded from version 0.054 to 0.054_01.
 
 =item *
 
-L<IO> has been upgraded from version 1.36 to 1.36_01.
+L<IO> has been upgraded from version 1.35 to 1.35_01.
 
 =item *
 
-The IO-Compress modules have been upgraded from version 2.069 to 2.069_001.
+The IO-Compress modules have been upgraded from version 2.068 to 2.068_001.
 
 =item *
 
@@ -156,7 +160,7 @@ L<Memoize> has been upgraded from version 1.03 to 1.03_01.
 
 =item *
 
-L<Module::CoreList> has been upgraded from version 5.20160506 to 5.20170114_24.
+L<Module::CoreList> has been upgraded from version 5.20160429 to 5.20170114_22.
 
 =item *
 
@@ -164,7 +168,7 @@ L<Net::Ping> has been upgraded from version 2.43 to 2.43_01.
 
 =item *
 
-L<Parse::CPAN::Meta> has been upgraded from version 1.4417 to 1.4417_001.
+L<Parse::CPAN::Meta> has been upgraded from version 1.4414 to 1.4414_001.
 
 =item *
 
@@ -172,11 +176,11 @@ L<Pod::Html> has been upgraded from version 1.22 to 1.2201.
 
 =item *
 
-L<Pod::Perldoc> has been upgraded from version 3.25_02 to 3.25_03.
+L<Pod::Perldoc> has been upgraded from version 3.25 to 3.25_01.
 
 =item *
 
-L<Storable> has been upgraded from version 2.56 to 2.56_01.
+L<Storable> has been upgraded from version 2.53_01 to 2.53_02.
 
 =item *
 
@@ -184,16 +188,16 @@ L<Sys::Syslog> has been upgraded from version 0.33 to 0.33_01.
 
 =item *
 
-L<Test> has been upgraded from version 1.28 to 1.28_01.
+L<Test> has been upgraded from version 1.26 to 1.26_01.
 
 =item *
 
-L<Test::Harness> has been upgraded from version 3.36 to 3.36_01.
+L<Test::Harness> has been upgraded from version 3.35 to 3.35_01.
 
 =item *
 
-L<XSLoader> has been upgraded from version 0.21 to 0.22, fixing a security hole
-in which binary files could be loaded from a path outside of C<@INC>.
+L<XSLoader> has been upgraded from version 0.20 to 0.20_01, fixing a security
+hole in which binary files could be loaded from a path outside of C<@INC>.
 L<[perl #128528]|https://rt.perl.org/Public/Bug/Display.html?id=128528>
 
 =back
@@ -240,17 +244,14 @@ B<-Di> switch is working correctly.
 
 =item *
 
-The change to hashbang redirection introduced in Perl 5.24.0, whereby perl
-would redirect to another interpreter (Perl 6) if it found a hashbang path
-which contains "perl" followed by "6", has been reverted because it broke in
-cases such as C<#!/opt/perl64/bin/perl>.
+The C<PadlistNAMES> macro is an lvalue again.
 
 =back
 
 =head1 Acknowledgements
 
-Perl 5.24.1 represents approximately 8 months of development since Perl 5.24.0
-and contains approximately 8,100 lines of changes across 240 files from 18
+Perl 5.22.3 represents approximately 9 months of development since Perl 5.22.2
+and contains approximately 4,400 lines of changes across 240 files from 20
 authors.
 
 Excluding auto-generated files, documentation and release tools, there were
@@ -258,12 +259,12 @@ approximately 2,200 lines of changes to 170 .pm, .t, .c and .h files.
 
 Perl continues to flourish into its third decade thanks to a vibrant community
 of users and developers.  The following people are known to have contributed
-the improvements that became Perl 5.24.1:
+the improvements that became Perl 5.22.3:
 
-Aaron Crane, Alex Vandiver, Aristotle Pagaltzis, Chad Granum, Chris 'BinGOs'
-Williams, Craig A. Berry, Father Chrysostomos, James E Keenan, Jarkko
-Hietaniemi, Karen Etheridge, Leon Timmermans, Matthew Horsfall, Ricardo Signes,
-Sawyer X, Sébastien Aperghis-Tramoni, Stevan Little, Steve Hay, Tony Cook.
+Aaron Crane, Abigail, Alex Vandiver, Aristotle Pagaltzis, Chad Granum, Chris
+'BinGOs' Williams, Craig A. Berry, David Mitchell, Father Chrysostomos, James E
+Keenan, Jarkko Hietaniemi, Karen Etheridge, Karl Williamson, Matthew Horsfall,
+Niko Tyni, Ricardo Signes, Sawyer X, Stevan Little, Steve Hay, Tony Cook.
 
 The list above is almost certainly incomplete as it is automatically generated
 from version control history.  In particular, it does not include the names of
@@ -281,18 +282,23 @@ the F<AUTHORS> file in the Perl source distribution.
 
 If you find what you think is a bug, you might check the articles recently
 posted to the comp.lang.perl.misc newsgroup and the Perl bug database at
-L<https://rt.perl.org/> .  There may also be information at
-L<http://www.perl.org/> , the Perl Home Page.
+https://rt.perl.org/ .  There may also be information at http://www.perl.org/ ,
+the Perl Home Page.
 
 If you believe you have an unreported bug, please run the L<perlbug> program
 included with your release.  Be sure to trim your bug down to a tiny but
 sufficient test case.  Your bug report, along with the output of C<perl -V>,
 will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
 
-If the bug you are reporting has security implications which make it
-inappropriate to send to a publicly archived mailing list, then see
-L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION> for details of how to
-report the issue.
+If the bug you are reporting has security implications, which make it
+inappropriate to send to a publicly archived mailing list, then please send it
+to perl5-security-report@perl.org.  This points to a closed subscription
+unarchived mailing list, which includes all the core committers, who will be
+able to help assess the impact of issues, figure out a resolution, and help
+co-ordinate the release of patches to mitigate or fix the problem across all
+platforms on which Perl is supported.  Please only use this address for
+security issues in the Perl core, not for modules independently distributed on
+CPAN.
 
 =head1 SEE ALSO
 
