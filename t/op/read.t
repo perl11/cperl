@@ -6,10 +6,18 @@ BEGIN {
     set_up_inc('../lib');
 }
 use strict;
+# This is true if Config is not built, or if PerlIO is enabled
+# ie assume that PerlIO is present, unless we know for sure otherwise.
+my $has_perlio = !eval {
+    no warnings;
+    require Config;
+    !$Config::Config{useperlio}
+};
 
-plan tests => 2116;
+plan tests => $has_perlio ? 2116 : 996;
 
-open(FOO,'op/read.t') || open(FOO,'t/op/read.t') || open(FOO,':op:read.t') || die "Can't open op.read";
+open(FOO,'op/read.t') || open(FOO,'t/op/read.t') || open(FOO,':op:read.t')
+  || die "Can't open op.read";
 seek(FOO,4,0) or die "Seek failed: $!";
 my $buf;
 my $got = read(FOO,$buf,4);
@@ -22,14 +30,6 @@ $got = read(FOO,$buf,4);
 
 is ($got, 0);
 is ($buf, "");
-
-# This is true if Config is not built, or if PerlIO is enabled
-# ie assume that PerlIO is present, unless we know for sure otherwise.
-my $has_perlio = !eval {
-    no warnings;
-    require Config;
-    !$Config::Config{useperlio}
-};
 
 my $tmpfile = tempfile();
 
@@ -52,15 +52,14 @@ foreach my $value (@values) {
 	}
       SKIP:
 	foreach my $utf8 (@utf8) {
-	    skip "Needs :utf8 layer but no perlio", 2 * @offsets * @lengths
-	      if $utf8 and !$has_perlio;
-
-	    open FH, ">$tmpfile" or die "Can't open $tmpfile: $!";
+	    open FH, ">", $tmpfile or die "Can't open $tmpfile: $!";
 	    binmode FH, "utf8" if $utf8;
 	    print FH $value;
 	    close FH;
 	    foreach my $offset (@offsets) {
                 next if !length($initial_buffer) && $offset != 0;
+                skip "No :utf8 layer without perlio", 2 * @lengths
+                  if $utf8 and !$has_perlio;
 		foreach my $length (@lengths) {
 		    # Will read the lesser of the length of the file and the
 		    # read length
