@@ -261,7 +261,7 @@ sub make {
     };
 };
 
-my @modules  = $all ? sort keys %Modules : (shift);
+my @modules  = $all ? sort keys %Modules : @ARGV;
 
 MODULES:
 for my $module (@modules) {
