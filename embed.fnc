@@ -1044,12 +1044,30 @@ Apd	|int	|mg_set		|NN SV* sv
 Ap	|I32	|mg_size	|NN SV* sv
 Apn	|void	|mini_mktime	|NN struct tm *ptm
 AMmd	|OP*	|op_lvalue	|NULLOK OP* o|I32 type
-poX	|OP*	|op_lvalue_flags|NULLOK OP* o|I32 type|U32 flags
+Ap	|OP*	|op_lvalue_flags|NULLOK OP* o|I32 type|U32 flags
 p	|void	|prefinalize_optree	|NULLOK CV* cv|NN OP* o
 p	|void	|finalize_optree	|NN OP* o
 #if defined(PERL_IN_OP_C)
+s	|void	|prefinalize_op	|NULLOK CV *cv|NN OP* o
+s	|void	|cant_declare	|NN OP* o
 s	|void	|finalize_op	|NN OP* o
 s	|void	|move_proto_attr|NN OP **proto|NN OP **attrs|NN const GV *name
+s	|int	|match_user_type|NN const char *dname|bool du8 \
+				|NN const char* aname|bool au8
+s	|OP*	|arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NN GV *cvname
+#if 0 /* XXX cyclic dep on core_types_t in opcodes.h */
+:s	|void	|bad_type_core	|NN const char *argname|NN GV *gv \
+:                	|core_types_t got|NN const char* gotname|bool gotu8 \
+:                	|NN const char *wanted|bool wu8
+:i	|int	|match_type	|NN const HV* stash|core_types_t atyp|NN const char* aname \
+:				|bool au8|NN int *castable
+:i|core_types_t	|op_typed	|NN OP* o
+:s|core_types_t	|op_typed_user	|NN OP* o|NULLOK char** usertype|NULLOK int* u8
+i|const char *  |core_type_name	|core_types_t t
+i|core_types_t	|stash_to_coretype|NULLOK const HV* stash
+in	|int	|match_type1	|const U32 sig|core_types_t arg1
+in	|int	|match_type2	|const U32 sig|core_types_t arg1|core_types_t arg2
+#endif
 #endif
 : Used in op.c and pp_sys.c
 p	|int	|mode_from_discipline	|NULLOK const char* s|STRLEN len
@@ -2173,7 +2191,7 @@ s	|void	|apply_attrs_my	|NN HV *stash|NN OP *target|NULLOK OP *attrs|NN OP **imo
 s	|void	|bad_type_pv	|I32 n|NN const char *t|NN const OP *o|NN const OP *kid
 s	|void	|bad_type_gv	|I32 n|NN GV *gv|NN const OP *kid|NN const char *t
 s	|void	|no_bareword_allowed|NN OP *o
-sR	|OP*	|no_fh_allowed|NN OP *o
+sR	|OP*	|no_fh_allowed	|NN OP *o
 sR	|OP*	|too_few_arguments_pv|NN OP *o|NN const char* name|U32 flags
 s	|OP*	|too_many_arguments_pv|NN OP *o|NN const char* name|U32 flags
 s	|bool	|looks_like_bool|NN const OP* o
@@ -2186,7 +2204,37 @@ s	|bool	|process_special_blocks	|I32 floor \
 					|NN GV *const gv|NN CV *const cv
 s	|void	|clear_special_blocks	|NN const char *const fullname\
 					|NN GV *const gv|NN CV *const cv
+sn	|void	|prune_chain_head 	|NN OP** op_p
+s	|const char*|typename 	|NULLOK const HV* stash
+in	|OP*	|op_next_nn 	|NN OP* o
+s	|OPSLAB*|new_slab	|size_t sz
+i	|void	|op_destroy	|NULLOK OP* o
+#if defined(USE_ITHREADS)
+s	|void	|op_clear_gv	|NULLOK OP* o|NN PADOFFSET *ixp
+#else
+s	|void	|op_clear_gv	|NULLOK OP* o|NN SV** svp
 #endif
+s	|OP*	|op_sibling_newUNOP	|NULLOK OP *parent|NULLOK OP *start|I32 type|I32 flags
+s	|void	|postprocess_optree	|NULLOK CV *cv|NN OP *root|NN OP **startp
+s	|void	|check_hash_fields_and_hekify	|NULLOK UNOP *rop|NN SVOP *key_op
+#ifdef PERL_FAKE_SIGNATURE
+s	|void	|maybe_op_signature|NN CV *cv|NN OP *o
+#endif
+s	|bool	|aassign_padcheck|NN OP* o|bool rhs
+s	|int	|aassign_scan	|NN OP* o|bool rhs|bool top|NN int *scalars_p
+s	|void	|check_for_bool_cxt |NN OP* o|U8 bool_flag|U8 maybe_flag
+s	|void	|const_av_xsub	|NN CV* cv
+s	|void	|const_sv_xsub	|NN CV* cv
+s	|void	|io_hints	|NN OP* o
+s	|void	|maybe_multideref|NN OP *start|NN OP *orig_o|UV orig_action|U8 hints
+s	|OP*	|maybe_targlex	|NN OP* o
+#ifndef USE_ITHREADS
+s	|bool	|mderef_uoob_gvsv|NN OP* o|NN SV* idx
+#endif
+s	|bool	|mderef_uoob_targ|NN OP* o|PADOFFSET targ
+s	|bool	|peep_leaveloop	|NN OP* leave|NN OP* from|NN OP* to
+#endif
+
 XpR	|void*	|Slab_Alloc	|size_t sz
 Xp	|void	|Slab_Free	|NN void *op
 #if defined(PERL_DEBUG_READONLY_OPS)

@@ -456,6 +456,7 @@
 #define op_dump(a)		Perl_op_dump(aTHX_ a)
 #define op_free(a)		Perl_op_free(aTHX_ a)
 #define op_linklist(a)		Perl_op_linklist(aTHX_ a)
+#define op_lvalue_flags(a,b,c)	Perl_op_lvalue_flags(aTHX_ a,b,c)
 #define op_null(a)		Perl_op_null(aTHX_ a)
 #define op_prepend_elem(a,b,c)	Perl_op_prepend_elem(aTHX_ a,b,c)
 #define op_refcnt_lock()	Perl_op_refcnt_lock(aTHX)
@@ -1464,6 +1465,11 @@
 #  if !(defined(PERL_DEFAULT_DO_EXEC3_IMPLEMENTATION))
 #define do_exec(a)		Perl_do_exec(aTHX_ a)
 #  endif
+#  if !(defined(USE_ITHREADS))
+#    if defined(PERL_IN_OP_C)
+#define op_clear_gv(a,b)	S_op_clear_gv(aTHX_ a,b)
+#    endif
+#  endif
 #  if !(defined(_MSC_VER))
 #define magic_regdatum_set(a,b)	Perl_magic_regdatum_set(aTHX_ a,b)
 #  endif
@@ -1501,6 +1507,11 @@
 #define utf16_textfilter(a,b,c)	S_utf16_textfilter(aTHX_ a,b,c)
 #    endif
 #  endif
+#  if !defined(USE_ITHREADS)
+#    if defined(PERL_IN_OP_C)
+#define mderef_uoob_gvsv(a,b)	S_mderef_uoob_gvsv(aTHX_ a,b)
+#    endif
+#  endif
 #  if !defined(USE_QUADMATH)
 #    if defined(PERL_IN_NUMERIC_C)
 #define mulexp10		S_mulexp10
@@ -1508,6 +1519,14 @@
 #  endif
 #  if !defined(WIN32)
 #define do_exec3(a,b,c)		Perl_do_exec3(aTHX_ a,b,c)
+#  endif
+#  if 0 /* XXX cyclic dep on core_types_t in opcodes.h */
+#    if defined(PERL_IN_OP_C)
+#define core_type_name(a)	S_core_type_name(aTHX_ a)
+#define match_type1		S_match_type1
+#define match_type2		S_match_type2
+#define stash_to_coretype(a)	S_stash_to_coretype(aTHX_ a)
+#    endif
 #  endif
 #  if defined(DEBUGGING)
 #define deb_hechain(a)		Perl_deb_hechain(aTHX_ a)
@@ -1566,6 +1585,11 @@
 #define sv_buf_to_ro(a)		Perl_sv_buf_to_ro(aTHX_ a)
 #    if defined(PERL_IN_SV_C)
 #define sv_buf_to_rw(a)		S_sv_buf_to_rw(aTHX_ a)
+#    endif
+#  endif
+#  if defined(PERL_FAKE_SIGNATURE)
+#    if defined(PERL_IN_OP_C)
+#define maybe_op_signature(a,b)	S_maybe_op_signature(aTHX_ a,b)
 #    endif
 #  endif
 #  if defined(PERL_HASH_RANDOMIZE_KEYS)
@@ -1658,12 +1682,20 @@
 #define mro_get_linear_isa_dfs(a,b)	S_mro_get_linear_isa_dfs(aTHX_ a,b)
 #  endif
 #  if defined(PERL_IN_OP_C)
+#define aassign_padcheck(a,b)	S_aassign_padcheck(aTHX_ a,b)
+#define aassign_scan(a,b,c,d)	S_aassign_scan(aTHX_ a,b,c,d)
 #define apply_attrs(a,b,c)	S_apply_attrs(aTHX_ a,b,c)
 #define apply_attrs_my(a,b,c,d)	S_apply_attrs_my(aTHX_ a,b,c,d)
+#define arg_check_type(a,b,c)	S_arg_check_type(aTHX_ a,b,c)
 #define assignment_type(a)	S_assignment_type(aTHX_ a)
 #define bad_type_gv(a,b,c,d)	S_bad_type_gv(aTHX_ a,b,c,d)
 #define bad_type_pv(a,b,c,d)	S_bad_type_pv(aTHX_ a,b,c,d)
+#define cant_declare(a)		S_cant_declare(aTHX_ a)
+#define check_for_bool_cxt(a,b,c)	S_check_for_bool_cxt(aTHX_ a,b,c)
+#define check_hash_fields_and_hekify(a,b)	S_check_hash_fields_and_hekify(aTHX_ a,b)
 #define clear_special_blocks(a,b,c)	S_clear_special_blocks(aTHX_ a,b,c)
+#define const_av_xsub(a)	S_const_av_xsub(aTHX_ a)
+#define const_sv_xsub(a)	S_const_sv_xsub(aTHX_ a)
 #define cop_free(a)		S_cop_free(aTHX_ a)
 #define dup_attrlist(a)		S_dup_attrlist(aTHX_ a)
 #define finalize_op(a)		S_finalize_op(aTHX_ a)
@@ -1673,21 +1705,34 @@
 #define forget_pmop(a)		S_forget_pmop(aTHX_ a)
 #define gen_constant_list(a)	S_gen_constant_list(aTHX_ a)
 #define inplace_aassign(a)	S_inplace_aassign(aTHX_ a)
+#define io_hints(a)		S_io_hints(aTHX_ a)
 #define is_handle_constructor	S_is_handle_constructor
 #define listkids(a)		S_listkids(aTHX_ a)
 #define looks_like_bool(a)	S_looks_like_bool(aTHX_ a)
+#define match_user_type(a,b,c,d)	S_match_user_type(aTHX_ a,b,c,d)
+#define maybe_multideref(a,b,c,d)	S_maybe_multideref(aTHX_ a,b,c,d)
+#define maybe_targlex(a)	S_maybe_targlex(aTHX_ a)
+#define mderef_uoob_targ(a,b)	S_mderef_uoob_targ(aTHX_ a,b)
 #define modkids(a,b)		S_modkids(aTHX_ a,b)
 #define move_proto_attr(a,b,c)	S_move_proto_attr(aTHX_ a,b,c)
 #define my_kid(a,b,c)		S_my_kid(aTHX_ a,b,c)
 #define newGIVWHENOP(a,b,c,d,e)	S_newGIVWHENOP(aTHX_ a,b,c,d,e)
 #define newMETHOP_internal(a,b,c,d)	S_newMETHOP_internal(aTHX_ a,b,c,d)
 #define new_logop(a,b,c,d)	S_new_logop(aTHX_ a,b,c,d)
+#define new_slab(a)		S_new_slab(aTHX_ a)
 #define no_bareword_allowed(a)	S_no_bareword_allowed(aTHX_ a)
 #define no_fh_allowed(a)	S_no_fh_allowed(aTHX_ a)
+#define op_destroy(a)		S_op_destroy(aTHX_ a)
 #define op_integerize(a)	S_op_integerize(aTHX_ a)
+#define op_next_nn		S_op_next_nn
+#define op_sibling_newUNOP(a,b,c,d)	S_op_sibling_newUNOP(aTHX_ a,b,c,d)
 #define op_std_init(a)		S_op_std_init(aTHX_ a)
+#define peep_leaveloop(a,b,c)	S_peep_leaveloop(aTHX_ a,b,c)
 #define pmtrans(a,b,c)		S_pmtrans(aTHX_ a,b,c)
+#define postprocess_optree(a,b,c)	S_postprocess_optree(aTHX_ a,b,c)
+#define prefinalize_op(a,b)	S_prefinalize_op(aTHX_ a,b)
 #define process_special_blocks(a,b,c,d)	S_process_special_blocks(aTHX_ a,b,c,d)
+#define prune_chain_head	S_prune_chain_head
 #define ref_array_or_hash(a)	S_ref_array_or_hash(aTHX_ a)
 #define refkids(a,b)		S_refkids(aTHX_ a,b)
 #define scalar_mod_type		S_scalar_mod_type
@@ -1698,6 +1743,10 @@
 #define simplify_sort(a)	S_simplify_sort(aTHX_ a)
 #define too_few_arguments_pv(a,b,c)	S_too_few_arguments_pv(aTHX_ a,b,c)
 #define too_many_arguments_pv(a,b,c)	S_too_many_arguments_pv(aTHX_ a,b,c)
+#define typename(a)		S_typename(aTHX_ a)
+#    if defined(USE_ITHREADS)
+#define op_clear_gv(a,b)	S_op_clear_gv(aTHX_ a,b)
+#    endif
 #  endif
 #  if defined(PERL_IN_OP_C) || defined(PERL_IN_SV_C)
 #define report_redefined_cv(a,b,c)	Perl_report_redefined_cv(aTHX_ a,b,c)

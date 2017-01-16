@@ -574,7 +574,8 @@ struct loop {
 /*
 =head1 Optree Manipulation Functions
 
-=for apidoc Am|OP*|LINKLIST|OP *o
+=for apidoc Am|OP*	|LINKLIST	|NN OP *o
+
 Given the root of an optree, link the tree in execution order using the
 C<op_next> pointers and return the first op executed.  If this has
 already been done, it will not be redone, and C<< o->op_next >> will be

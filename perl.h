@@ -438,9 +438,27 @@
                                CLANG_DIAG_PRAGMA(clang diagnostic ignored #x)
 #  define CLANG_DIAG_RESTORE   _Pragma("clang diagnostic pop")
 #else
-#  define CLANG_DIAG_IGNORE(w)
+#  define CLANG_DIAG_IGNORE(x)
 #  define CLANG_DIAG_RESTORE
 #endif
+
+/* for CLANG35_DIAG_IGNORE(-Wpointer-bool-conversion) */
+/* for the version matches see https://trac.macports.org/wiki/XcodeVersionInfo */
+#if defined(__clang__) && \
+  ((!defined(__apple_build_version__) &&               \
+    ((__clang_major__ == 3 && __clang_minor__ >= 5) || \
+     (__clang_major__ >= 4))) || \
+   (defined(__apple_build_version__) &&                \
+    ((__clang_major__ == 6 && __clang_minor__ >= 0) || \
+     (__clang_major__ >= 7))))
+#  define CLANG35_DIAG_IGNORE(x) _Pragma("clang diagnostic push") \
+                                 CLANG_DIAG_PRAGMA(clang diagnostic ignored #x)
+#  define CLANG35_DIAG_RESTORE _Pragma("clang diagnostic pop")
+#else
+#  define CLANG35_DIAG_IGNORE(x)
+#  define CLANG35_DIAG_RESTORE
+#endif
+
 
 #define NOOP /*EMPTY*/(void)0
 /* cea2e8a9dd23747f accidentally lost the comment originally from the first
@@ -5830,7 +5848,6 @@ struct tempsym; /* defined in pp_pack.c */
 #if defined(WIN32)
 #  include "win32iop.h"
 #endif
-
 
 #include "proto.h"
 

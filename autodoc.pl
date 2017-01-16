@@ -106,7 +106,13 @@ HDR_DOC:
 	if ($in =~ /^=for\s+apidoc\s+(.*?)\s*\n/) {
 	    my $proto = $1;
 	    $proto = "||$proto" unless $proto =~ /\|/;
-	    my($flags, $ret, $name, @args) = split /\|/, $proto;
+	    my ($flags, $ret, $name, @args) = split /\|/, $proto;
+            warn "$in empty apidoc" unless $name;
+            $flags =~ s/\s+$// if $flags;
+            $ret   =~ s/\s+$// if $ret;
+            $ret = "void" if $flags and !$ret;
+            $name  =~ s/\s+$//;
+            $name  =~ s/^\s+//;
 	    my $docs = "";
 DOC:
 	    while (defined($doc = $get_next_line->())) {
