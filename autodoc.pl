@@ -266,7 +266,7 @@ removed without notice.\n\n$docs" if $flags =~ /x/;
 	if ($long_args) { print $fh "\n", substr $indent, 0, -4 }
 	print $fh ")\n\n";
     }
-    print $fh "=for hackers\nFound in file $file\n\n";
+    print $fh "=for hackers\nFound in file F<$file>\n\n";
 }
 
 sub sort_helper {

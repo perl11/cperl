@@ -3955,6 +3955,11 @@ S_init_main_stash(pTHX)
     sv_setpvs(get_svs("/", GV_ADD), "\n");
 }
 
+/*
+=for apidoc open_script
+
+=cut
+*/
 STATIC PerlIO *
 S_open_script(pTHX_ const char *scriptname, bool dosearch, bool *suidscript)
 {

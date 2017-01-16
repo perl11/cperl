@@ -1140,11 +1140,11 @@ Perl's version of what C<strndup()> would be if it existed.  Returns a
 pointer to a newly allocated string which is a duplicate of the first
 C<len> bytes from C<pv>, plus a trailing
 C<NUL> byte.  The memory allocated for
-the new string can be freed with the C<Safefree()> function.
+the new string can be freed with the L</Safefree> function.
 
 On some platforms, Windows for example, all allocated memory owned by a thread
 is deallocated when that thread ends.  So if you need that not to happen, you
-need to use the shared memory functions, such as C<L</savesharedpvn>>.
+need to use the shared memory functions, such as L</savesharedpvn>.
 
 =cut
 */
@@ -1172,7 +1172,7 @@ Perl_savepvn(pTHX_ const char *pv, I32 len)
 /*
 =for apidoc savesharedpv
 
-A version of C<savepv()> which allocates the duplicate string in memory
+A version of L</savepv> which allocates the duplicate string in memory
 which is shared between threads.
 
 =cut
@@ -1199,7 +1199,7 @@ Perl_savesharedpv(pTHX_ const char *pv)
 /*
 =for apidoc savesharedpvn
 
-A version of C<savepvn()> which allocates the duplicate string in memory
+A version of L</savepvn> which allocates the duplicate string in memory
 which is shared between threads.  (With the specific difference that a C<NULL>
 pointer is not acceptable)
 
@@ -1223,12 +1223,12 @@ Perl_savesharedpvn(pTHX_ const char *const pv, const STRLEN len)
 /*
 =for apidoc savesvpv
 
-A version of C<savepv()>/C<savepvn()> which gets the string to duplicate from
-the passed in SV using C<SvPV()>
+A version of L</savepv>/L</savepvn> which gets the string to duplicate from
+the passed in SV using L</SvPV>
 
 On some platforms, Windows for example, all allocated memory owned by a thread
 is deallocated when that thread ends.  So if you need that not to happen, you
-need to use the shared memory functions, such as C<L</savesharedsvpv>>.
+need to use the shared memory functions, such as L</savesharedsvpv>.
 
 =cut
 */
@@ -1250,7 +1250,7 @@ Perl_savesvpv(pTHX_ SV *sv)
 /*
 =for apidoc savesharedsvpv
 
-A version of C<savesharedpv()> which allocates the duplicate string in
+A version of L</savesharedpv> which allocates the duplicate string in
 memory which is shared between threads.
 
 =cut
@@ -1267,7 +1267,7 @@ Perl_savesharedsvpv(pTHX_ SV *sv)
     return savesharedpvn(pv, len);
 }
 
-/* the SV for Perl_form() and mess() is not kept in an arena */
+/* The SV for Perl_form() and mess() is not kept in an arena */
 
 STATIC SV *
 S_mess_alloc(pTHX)
@@ -1350,7 +1350,7 @@ Perl_vform(pTHX_ const char *pat, va_list *args)
 }
 
 /*
-=for apidoc Afpd|SV *|mess|const char *pat|...
+=for apidoc Afpd|SV *	|mess	|const char *pat|...
 
 Take a sprintf-style format pattern and argument list.  These are used to
 generate a string message.  If the message does not end with a newline,
@@ -1438,7 +1438,7 @@ Perl_closest_cop(pTHX_ const COP *cop, const OP *o, const OP *curop,
 }
 
 /*
-=for apidoc Apd|SV *|mess_sv|NN SV *basemsg|bool consume
+=for apidoc Apd|SV *	|mess_sv	|NN SV *basemsg|bool consume
 
 Expands a message, intended for the user, to include an indication of
 the current location in the code, if the message does not already appear
@@ -1539,7 +1539,7 @@ Perl_mess_sv(pTHX_ SV *basemsg, bool consume)
 }
 
 /*
-=for apidoc Apd|SV *|vmess|NN const char *pat|NULLOK va_list *args
+=for apidoc Apd|SV *	|vmess	|NN const char *pat|NULLOK va_list *args
 
 C<pat> and C<args> are a sprintf-style format pattern and encapsulated
 argument list, respectively.  These are used to generate a string
@@ -1649,7 +1649,7 @@ S_invoke_exception_hook(pTHX_ SV *ex, bool warn)
 }
 
 /*
-=for apidoc Am|OP *|die_sv|SV *baseex
+=for apidoc Am|OP *	|die_sv	|SV *baseex
 
 Behaves the same as L</croak_sv>, except for the return type.
 It should be used only where the C<OP *> return type is required.
@@ -1678,7 +1678,7 @@ Perl_die_sv(pTHX_ SV *baseex)
 #endif
 
 /*
-=for apidoc Am|OP *|die|const char *pat|...
+=for apidoc Am|OP *	|die	|const char *pat|...
 
 Behaves the same as L</croak>, except for the return type.
 It should be used only where the C<OP *> return type is required.
@@ -1733,9 +1733,9 @@ Perl_die(pTHX_ const char* pat, ...)
 #endif
 
 /*
-=for apidoc Am|void|croak_sv|SV *baseex
+=for apidoc Am|void	|croak_sv	|SV *baseex
 
-This is an XS interface to Perl's C<die> function.
+This is an XS interface to Perl's L<perlfunc/die> function.
 
 C<baseex> is the error message or object.  If it is a reference, it
 will be used as-is.  Otherwise it is used as a string, and if it does
@@ -1763,9 +1763,9 @@ Perl_croak_sv(pTHX_ SV *baseex)
 }
 
 /*
-=for apidoc Am|void|vcroak|const char *pat|va_list *args
+=for apidoc Am|void	|vcroak	|const char *pat|va_list *args
 
-This is an XS interface to Perl's C<die> function.
+This is an XS interface to Perl's L<perlfunc/die> function.
 
 C<pat> and C<args> are a sprintf-style format pattern and encapsulated
 argument list.  These are used to generate a string message.  If the
@@ -1775,7 +1775,7 @@ L</mess_sv>.
 
 The error message will be used as an exception, by default
 returning control to the nearest enclosing C<eval>, but subject to
-modification by a C<$SIG{__DIE__}> handler.  In any case, the C<croak>
+modification by a C<$SIG{__DIE__}> handler.  In any case, the L</croak>
 function never returns normally.
 
 For historical reasons, if C<pat> is null then the contents of C<ERRSV>
@@ -1796,9 +1796,9 @@ Perl_vcroak(pTHX_ const char* pat, va_list *args)
 }
 
 /*
-=for apidoc Am|void|croak|const char *pat|...
+=for apidoc Am|void	|croak	|const char *pat|...
 
-This is an XS interface to Perl's C<die> function.
+This is an XS interface to Perl's L<perlfunc/die> function.
 
 Take a sprintf-style format pattern and argument list.  These are used to
 generate a string message.  If the message does not end with a newline,
@@ -1843,10 +1843,10 @@ Perl_croak(pTHX_ const char *pat, ...)
 }
 
 /*
-=for apidoc Am|void|croak_no_modify
+=for apidoc Am|void	|croak_no_modify
 
 Exactly equivalent to C<Perl_croak(aTHX_ "%s", PL_no_modify)>, but generates
-terser object code than using C<Perl_croak>.  Less code used on exception code
+terser object code than using L</croak>.  Less code used on exception code
 paths reduces CPU cache pressure.
 
 =cut
@@ -1899,9 +1899,9 @@ Perl_croak_shaped_array(const char *opname)
 }
 
 /*
-=for apidoc Apd|void|warn_sv|SV *baseex
+=for apidoc Apd|void	|warn_sv	|SV *baseex
 
-This is an XS interface to Perl's C<warn> function.
+This is an XS interface to Perl's L<perlfunc/warn> function.
 
 C<baseex> is the error message or object.  If it is a reference, it
 will be used as-is.  Otherwise it is used as a string, and if it does
@@ -1929,7 +1929,7 @@ Perl_warn_sv(pTHX_ SV *baseex)
 /*
 =for apidoc Apd|void|vwarn|const char *pat|va_list *args
 
-This is an XS interface to Perl's C<warn> function.
+This is an XS interface to Perl's L<perlfunc/warn> function.
 
 C<pat> and C<args> are a sprintf-style format pattern and encapsulated
 argument list.  These are used to generate a string message.  If the
@@ -1955,9 +1955,9 @@ Perl_vwarn(pTHX_ const char* pat, va_list *args)
 }
 
 /*
-=for apidoc Afpd|void|warn|const char *pat|...
+=for apidoc Afpd|void	|warn	|const char *pat|...
 
-This is an XS interface to Perl's C<warn> function.
+This is an XS interface to Perl's L<perlfunc/warn> function.
 
 Take a sprintf-style format pattern and argument list.  These are used to
 generate a string message.  If the message does not end with a newline,
@@ -2009,14 +2009,14 @@ Perl_warner_nocontext(U32 err, const char *pat, ...)
 #endif /* PERL_IMPLICIT_CONTEXT */
 
 /*
-=for apidoc Afp|void|warn_security|const char *pat|...
+=for apidoc Afp|void	|warn_security	|const char *pat|...
 
-This does an extended warn() call, dependent on the lexical state of
+This does an extended L</warn> call, dependent on the lexical state of
 warnings 'security', which is on by default.
 
 It prefixes the warning with "SECURITY:" and suffixes it with
 information of the caller. The full path of the application, if
-$ENV{REMOTE_ADDR} prints the ip and user name, if local the user name.
+C<$ENV{REMOTE_ADDR}> prints the ip and user name, if local the user name.
 
 If syslog is supported also prints to the syslog. (TODO)
 
@@ -2061,7 +2061,7 @@ Perl_ck_warner_d(pTHX_ U32 err, const char* pat, ...)
 /*
 =for apidoc ck_warner
 
-If lexical warnings have not been set, use $^W.
+If lexical warnings have not been set, use C<$^W>.
 
 =cut
 */
@@ -2082,7 +2082,7 @@ Perl_ck_warner(pTHX_ U32 err, const char* pat, ...)
 /*
 =for apidoc warner
 
-warn without checking the state of lexical warnings or global $^W.
+L</warn> without checking the state of lexical warnings or global C<$^W>.
 
 =cut
 */
@@ -2101,7 +2101,7 @@ Perl_warner(pTHX_ U32  err, const char* pat,...)
 =for apidoc vwarner
 
 The warner variant without varargs, thus suitable for a non-C99 macro.
-warner uses this.
+L</warner> uses this.
 
 =cut
 */
@@ -3454,6 +3454,33 @@ Perl_same_dirent(pTHX_ const char *a, const char *b)
 }
 #endif /* !HAS_RENAME */
 
+/*
+=for apidoc find_script
+
+Searches for the executable script.
+
+If C<dosearch>, i.e. <-S> is true and if scriptname does not contain path
+delimiters, search the PATH for scriptname.
+
+If SEARCH_EXTS is also defined, will look for each
+scriptname{SEARCH_EXTS} whenever scriptname is not found
+while searching the PATH.
+
+Assuming SEARCH_EXTS is C<".foo",".bar",NULL>, PATH search
+proceeds as follows:
+
+  If DOSISH or VMSISH:
+    + look for ./scriptname{,.foo,.bar}
+    + search the PATH for scriptname{,.foo,.bar}
+
+  If !DOSISH:
+    + look *only* in the PATH for scriptname{,.foo,.bar} (note
+      this will not look in '.' if it's not in the PATH)
+
+This is called by L</open_script> when C<-e> was not specified.
+
+=cut
+*/
 char*
 Perl_find_script(pTHX_ const char *scriptname, bool dosearch,
 		 const char *const *const search_ext, I32 flags)
