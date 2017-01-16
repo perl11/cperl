@@ -184,19 +184,32 @@ if (@ARGV) {
 if ($^O eq 'MSWin32') {
     s,\\,/,g for @tests;
 }
-@tests=grep /$re/, @tests 
+@tests = grep /$re/, @tests
     if $re;
 
 # Allow eg ./perl t/harness t/op/lc.t
 for (@tests) {
-    if (! -f $_ && !/^\.\./ && -f "../$_") {
-        $_ = "../$_";
-        s{^\.\./t/}{};
+    if (! -f $_) {
+        if (!/^\.\./ && -f "../$_") {
+            $_ = "../$_";
+            s{^\.\./t/}{};
+        }
+        # and ./perl t/harness base
+        elsif (-d $_) {
+            my @new = <$_/*.t>;
+            $_ = shift @new; # replace the dir
+            push @tests, @new;
+        }
+        # and even ./perl t/harness ext/Config/t
+        elsif (-d "../$_") {
+            my @new = <../$_/*.t>;
+            $_ = shift @new; # replace it
+            push @tests, @new;
+        }
     }
 }
 
 my %options;
-
 my $type = 'perl';
 
 # Load TAP::Parser now as otherwise it could be required in the short time span
