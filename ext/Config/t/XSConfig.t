@@ -78,7 +78,7 @@ if (exists $XSConfig{canned_gperf}) { #fix up PP Config to look like XS Config
   my @cannedkeys = qw(
 arflags bin_ELF bootstrap_charset canned_gperf ccstdflags ccwarnflags charsize
 cf_epoch config_argc config_args d_re_comp   d_regcmp    dlltool dtraceobject
-git_ancestor    git_commit_date git_remote_branch   git_unpushed
+dtracexnolibs git_ancestor    git_commit_date git_remote_branch   git_unpushed
 hostgenerate    hostosname  hostperl    incpth  installhtmldir
 installhtmlhelpdir  ld_can_script   libdb_needs_pthread mad malloc_cflags
 passcat sysroot targetdir   targetenv   targethost  targetmkdir targetport
