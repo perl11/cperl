@@ -94,6 +94,7 @@ if ($WARNINGS_ON_BOOTSTRAP) {
 } else {
     # More CHECK and INIT blocks that could warn:
     local $^W;
+    no warnings; # Otherwise cperl still warns "Too late to run CHECK block"
     XSLoader::load();
 }
 
