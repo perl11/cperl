@@ -14776,7 +14776,7 @@ S_aassign_scan(pTHX_ OP* o, bool rhs, bool top, int *scalars_p)
     if (   rhs
         && top
         && (OpKIDS(o))
-        && OP_TYPE_IS_OR_WAS(o, OP_LIST)
+        && OP_TYPE_IS_OR_WAS_NN(o, OP_LIST)
     ) {
         OP *kid = OpFIRST(o);
         if (   (   IS_TYPE(kid, PUSHMARK)
@@ -15794,8 +15794,8 @@ S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
     }
 
     /* for (0..$#a) { ... $a[$_] ...} */
-    if (OP_TYPE_IS(to, OP_AV2ARYLEN) || maxto) {
-        OP *kid = OP_TYPE_IS(to, OP_AV2ARYLEN) ? OpFIRST(to) : NULL;
+    if (OP_TYPE_IS_NN(to, OP_AV2ARYLEN) || maxto) {
+        OP *kid = OP_TYPE_IS_NN(to, OP_AV2ARYLEN) ? OpFIRST(to) : NULL;
         OP *loop, *iter, *body, *o2;
         SV *idx = MUTABLE_SV(PL_defgv);
 #ifdef DEBUGGING
