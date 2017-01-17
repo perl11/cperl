@@ -362,3 +362,10 @@ use utf8;
 my $a = qr ̂foobar̂;
 EXPECT
 Use of unassigned code point or non-standalone grapheme for a delimiter at - line 8.
+########
+# NAME tr/// handling of mis-formatted \o characters
+# may only fail with ASAN
+tr/\o-0//;
+EXPECT
+Missing braces on \o{} at - line 2, within string
+Execution of - aborted due to compilation errors.
