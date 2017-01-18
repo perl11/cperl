@@ -4018,6 +4018,9 @@ PERL_CALLCONV OP*	Perl_op_append_elem(pTHX_ I32 optype, OP* first, OP* last)
 PERL_CALLCONV OP*	Perl_op_append_list(pTHX_ I32 optype, OP* first, OP* last)
 			__attribute__global__;
 
+PERL_CALLCONV OPclass	Perl_op_class(pTHX_ const OP *o)
+			__attribute__global__;
+
 PERL_CALLCONV void	Perl_op_clear(pTHX_ OP* o)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
