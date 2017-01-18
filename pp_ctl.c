@@ -3755,12 +3755,15 @@ S_doopen_pm(pTHX_ SV *name)
 	SV *const pmcsv = sv_newmortal();
 	PerlIO * pmcio;
 
-	SvSetSV_nosteal(pmcsv,name);
+	SvSetSV_nosteal(pmcsv, name);
 	sv_catpvs(pmcsv, "c");
 
 	pmcio = check_type_and_open(pmcsv);
-	if (pmcio)
+	if (pmcio) {
+            /* change the callers name to pmc */
+            sv_setpvn(name, SvPVX(pmcsv), SvCUR(pmcsv));
 	    return pmcio;
+        }
     }
     return check_type_and_open(name);
 }
@@ -4013,6 +4016,9 @@ S_require_file(pTHX_ SV *const sv)
 	/* At this point, name is SvPVX(sv)  */
 	tryname = name;
 	tryrsfp = doopen_pm(sv);
+#ifndef PERL_DISABLE_PMC
+        tryname = SvPVX_const(sv);
+#endif
     }
     if (!tryrsfp && !(errno == EACCES && !path_searchable)) {
 	AV * const ar = GvAVn(PL_incgv);
@@ -4221,6 +4227,9 @@ S_require_file(pTHX_ SV *const sv)
 		    tryname = SvPVX_const(namesv);
 		    tryrsfp = doopen_pm(namesv);
 		    if (tryrsfp) {
+#ifndef PERL_DISABLE_PMC
+                        tryname = SvPVX_const(namesv);
+#endif
 			if (tryname[0] == '.' && tryname[1] == '/') {
 			    ++tryname;
 			    while (*++tryname == '/') {}
@@ -4298,12 +4307,12 @@ S_require_file(pTHX_ SV *const sv)
     /* Check whether a hook in @INC has already filled %INC */
     if (!hook_sv) {
 	(void)hv_store(GvHVn(PL_incgv),
-		       unixname, unixlen, newSVpv(tryname,0),0);
+		       unixname, unixlen, newSVpv(tryname, 0), 0);
     } else {
 	SV** const svp = hv_fetch(GvHVn(PL_incgv), unixname, unixlen, 0);
 	if (!svp)
 	    (void)hv_store(GvHVn(PL_incgv),
-			   unixname, unixlen, SvREFCNT_inc_simple(hook_sv), 0 );
+			   unixname, unixlen, SvREFCNT_inc_simple(hook_sv), 0);
     }
 
     old_savestack_ix = PL_savestack_ix;
