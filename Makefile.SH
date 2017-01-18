@@ -457,7 +457,7 @@ FIRSTMAKEFILE = $firstmakefile
 # Any special object files needed by this architecture, e.g. os2/os2.obj
 ARCHOBJS = $archobjs
 
-.SUFFIXES: .c \$(OBJ_EXT) .i .s
+.SUFFIXES: .c \$(OBJ_EXT) .i .s .bc .ll
 
 # grrr
 SHELL = $sh
@@ -690,6 +690,12 @@ lintflags = \
 
 .c.s:	perl.h config.h
 	`$(CCCMDSRC)` -S $*.c
+
+.c.bc:	perl.h config.h
+	`$(CCCMDSRC)` -emit-llvm $*.c -o $*.bc
+
+.c.ll:	perl.h config.h
+	`$(CCCMDSRC)` -emit-llvm -S $*.c -o $*.ll
 
 all: $(FIRSTMAKEFILE) $(MINIPERL_EXE) $(generated_pods) $(private) $(unidatafiles) $(public) $(dynamic_ext) $(nonxs_ext) extras.make $(MANIFEST_SRT) common_build
 	@echo " ";
