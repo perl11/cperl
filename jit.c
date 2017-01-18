@@ -32,6 +32,14 @@
 #include <llvm-c/Transforms/Scalar.h>
 #include <llvm-c/Transforms/IPO.h>
 
+#define LLVMVER ((LLVM_VERSION_MAJOR * 100) + LLVM_VERSION_MINOR)
+#if LLVMVER < 306
+# define LLVM_LEGACYJIT
+#else
+# define LLVM_MCJIT
+/*#define LLVM_ORCJIT*/
+#endif
+
 /* not yet my_perl specific */
 static struct jit_t {
     LLVMExecutionEngineRef engine;
@@ -67,7 +75,7 @@ bool Perl_jit_init() {
 #if 1
     if (!LLVMCreateMemoryBufferWithContentsOfFile(path, &MemBuf, &error))
         Perl_croak(aTHX_ "jit: not enough memory or %s not found: %s", path, error);
-#if ((LLVM_VERSION_MAJOR * 100) + LLVM_VERSION_MINOR) > 308
+#if LLVMVER >= 309
     if (!LLVMGetBitcodeModule2(MemBuf, &jit.corelib)) {
         Perl_ck_warner(aTHX_ packWARN(WARN_INTERNAL),
                        "jit: Could not load %s\n", path);
@@ -76,6 +84,7 @@ bool Perl_jit_init() {
 #else
     /* XXX crash here */
     error = NULL;
+    /* maybe add LoadLibraryPermanently to export the symbols? */
     if (!LLVMGetBitcodeModule(MemBuf, &jit.corelib, &error)) {
         Perl_ck_warner(aTHX_ packWARN(WARN_INTERNAL),
                        "jit: Could not load %s: %s\n", path, error);
@@ -91,8 +100,14 @@ bool Perl_jit_init() {
 #endif
 
     jit.pass    = LLVMCreatePassManager();
+#ifdef LLVM_MCJIT
+    LLVMLinkInMCJIT();
+    LLVMInitializeNativeTarget();
+    LLVMInitializeNativeAsmPrinter();
+#else
     LLVMLinkInJIT();
     LLVMInitializeNativeTarget();
+#endif
     LLVMDisposeMemoryBuffer(MemBuf);
     return TRUE;
 #endif
@@ -129,8 +144,8 @@ S_jit_bcpath(pTHX_ CV* cv, char *pmcpath) {
         }
     } else {
         /* replace .pmc with .bc */
-        pmcpath = strdup(pmcpath);
         int len = strlen(pmcpath);
+        pmcpath = strdup(pmcpath);
         if (pmcpath[len-4] == '.') {
             pmcpath[len-3] = 'b';
             pmcpath[len-2] = 'c';
@@ -203,7 +218,9 @@ bool Perl_jit_compile(pTHX_ const CV* cv, const char* pmcpath) {
     const char* subname = SvPVX_const(cv_name(cv, NULL, 0));
     /* TODO: cchars(subname) */
     LLVMExecutionEngineRef jitengine;
+#ifdef LLVM_LEGACYJIT
     LLVMModuleProviderRef provider;
+#endif
     LLVMPassManagerRef pass   = jit.pass;
     LLVMModuleRef corelib     = jit.corelib;
     LLVMValueRef  opval       = jit.op;
@@ -324,37 +341,80 @@ bool Perl_jit_compile(pTHX_ const CV* cv, const char* pmcpath) {
     }
 #endif
     jitengine = jit.engine;
-
-    /* simple jit variants:
-       LLVMCreateJITCompilerForModule(&jitengine, module, Aggressive) optlevel or detailled passes
-       LLVMCreateExecutionEngineForModule(&jitengine, module, &error)
-    */
-    provider = LLVMCreateModuleProviderForExistingModule(module);
     error = NULL;
+
+#ifdef LLVM_LEGACYJIT
+    provider = LLVMCreateModuleProviderForExistingModule(module);
     if (LLVMCreateJITCompiler(&jitengine, provider, 2, &error) != 0) {
         PerlIO_printf(Perl_error_log, "error: %s\n", error);
         LLVMDisposeMessage(error);
         DIE("failed to create LLVM jit execution engine\n");
     }
-
-    /* detailed optimization passes, tunable. need to analyse and time it */
     LLVMAddTargetData(LLVMGetExecutionEngineTargetData(jitengine), pass);
-    /*LLVMAddConstantPropagationPass(pass);*/
-    LLVMAddInstructionCombiningPass(pass);
-    LLVMAddPromoteMemoryToRegisterPass(pass);
-    /* LLVMAddDemoteMemoryToRegisterPass(pass); */ /* Demotes every possible value to memory */
-    LLVMAddGVNPass(pass);
-    LLVMAddCFGSimplificationPass(pass);
+#else
+    {
+        struct LLVMMCJITCompilerOptions options;
+        LLVMInitializeMCJITCompilerOptions(&options, sizeof(options));
+        options.OptLevel = 0; /* and run our passes after */
+        options.CodeModel = LLVMCodeModelJITDefault;
+        options.EnableFastISel = FALSE;
+        options.NoFramePointerElim = TRUE;
+        if (LLVMCreateMCJITCompilerForModule(&jitengine, module,
+                        &options, sizeof(options), &error) != 0) {
+            PerlIO_printf(Perl_error_log, "error: %s\n", error);
+            LLVMDisposeMessage(error);
+            DIE("failed to create LLVM jit execution engine\n");
+        }
+    }
+    LLVMSetModuleDataLayout(module, LLVMGetExecutionEngineTargetData(jitengine));
+#endif
+
+    /* detailed optimization passes, tunable. need to analyse and time.
+       e.g. pyston is almost as slow as perl6, 100x slower than the interpreter */
+#ifdef DEBUGGING
+    if (DEBUG_j_TEST_) {
+        PerlIO_printf(Perl_debug_log, "subname %s::%s:\n", package, subname);
+        LLVMDumpModule(module);
+    }
+#endif
+
+#ifdef DEBUGGING
+#define ADD_PASS(name, pass, module)                   \
+    LLVMAdd ## name ## Pass(pass);                     \
+    if (DEBUG_j_TEST_) {                               \
+        LLVMRunPassManager(pass, module);              \
+        PerlIO_printf(Perl_debug_log, "%s:\n", name);  \
+        LLVMDumpModule(module);                        \
+    }
+#else
+#define ADD_PASS(name, pass, module)                   \
+    LLVMAdd ## name ## Pass(pass)
+#endif
+
+#if defined(USE_ITHREADS) && !defined(PERL_LLVM_NOBUILDER)
+    /* fixup BuildStructGEP only */
+    ADD_PASS(PromoteMemoryToRegister, pass, module); /* mem2reg for Iop phi's */
+#endif
+    /* some IPOs first to step into the pp's at first */
+    ADD_PASS(FunctionInlining, pass, module); /* the best at first */
+    ADD_PASS(GlobalDCE, pass, module);
+    ADD_PASS(GlobalOptimizer, pass, module);
+    /* "peephole" optimizations and bit-twiddling optzns */
+    /*ADD_PASS(InstructionCombining, pass, module);*/ /* after inlining */
+    ADD_PASS(Reassociate, pass, module);
+    /*ADD_PASS(DemoteMemoryToRegister, pass, module);*/
+    /*ADD_PASS(ConstantPropagation, pass, module);*/
+    /*ADD_PASS(GVN, pass, module);*/ /* Eliminate Common SubExpressions */
+    /*ADD_PASS(CFGSimplification, pass, module);*/
+
     /* expensive IPO libs: */
-    LLVMAddArgumentPromotionPass(pass);
-    LLVMAddConstantMergePass(pass);
-    LLVMAddDeadArgEliminationPass(pass);
-    LLVMAddFunctionAttrsPass(pass);
-    LLVMAddFunctionInliningPass(pass);
-    LLVMAddGlobalDCEPass(pass);
-    LLVMAddGlobalOptimizerPass(pass);
+    ADD_PASS(ArgumentPromotion, pass, module);
+    ADD_PASS(ConstantMerge, pass, module);
+    ADD_PASS(DeadArgElimination, pass, module);
+    ADD_PASS(FunctionAttrs, pass, module);
 
     LLVMRunPassManager(pass, module);
+    DEBUG_j(PerlIO_printf(Perl_debug_log, "Complete\n"));
 
     jit.engine = jitengine;
     CvJIT_on(cv);
@@ -365,10 +425,12 @@ bool Perl_jit_compile(pTHX_ const CV* cv, const char* pmcpath) {
         PerlIO_printf(Perl_error_log, "jit: error writing bitcode to %s, skipping\n",
             bcpath);
     }
+#ifdef DEBUGGING
     if (DEBUG_j_TEST_) { /* -Dj prints the bitcode: lldm-dis subname.bc */
-        PerlIO_printf(Perl_debug_log, "subname %s:\n", subname);
+        PerlIO_printf(Perl_debug_log, "subname %s::%s:\n", package, subname);
         LLVMDumpModule(module);
     }
+#endif
     LLVMDisposeBuilder(builder);
     return TRUE;
 }
