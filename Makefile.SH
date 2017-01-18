@@ -565,7 +565,7 @@ c3 = taint.c toke.c util.c deb.c run.c universal.c pad.c globals.c keywords.c
 c4 = perlio.c perlapi.c numeric.c mathoms.c locale.c pp_pack.c pp_sort.c caretx.c dquote.c time64.c
 c5 = $(mallocsrc)
 
-c = $(c1) $(c2) $(c3) $(c4) $(c5) miniperlmain.c opmini.c perlmini.c xsutilsmini.c ppmini.c
+c = $(c1) $(c2) $(c3) $(c4) $(c5) miniperlmain.c opmini.c perlmini.c xsutilsmini.c ppmini.c jitmini.c
 
 # The optimal order of the objects was determined via guided search through all permutations,
 # But -flto and autofdo/llvm-bolt are recommended as they do much more.
@@ -575,7 +575,7 @@ obj2 = perly$(OBJ_EXT) toke$(OBJ_EXT)
 # opmini
 obj3 = av$(OBJ_EXT) pad$(OBJ_EXT) sv$(OBJ_EXT) hv$(OBJ_EXT) pp_hot$(OBJ_EXT) run$(OBJ_EXT) \
        pp_type$(OBJ_EXT)
-# ppmini
+# ppmini jitmini
 obj4 = scope$(OBJ_EXT) pp_ctl$(OBJ_EXT) pp_sys$(OBJ_EXT) mg$(OBJ_EXT) regcomp$(OBJ_EXT) \
        doop$(OBJ_EXT) doio$(OBJ_EXT) util$(OBJ_EXT) keywords$(OBJ_EXT)
 # xsutilsmini
@@ -590,14 +590,18 @@ obj5 = regexec$(OBJ_EXT) utf8$(OBJ_EXT) universal$(OBJ_EXT) perlapi$(OBJ_EXT) \
 # actual perl(mini)main.o, nor any dtrace objects.
 
 common_objs    = $(obj1) $(obj2) $(obj3) $(ARCHOBJS)
-mini_only_objs = perlmini$(OBJ_EXT) opmini$(OBJ_EXT) xsutilsmini$(OBJ_EXT) ppmini$(OBJ_EXT)
-main_only_objs = op$(OBJ_EXT) perl$(OBJ_EXT) xsutils$(OBJ_EXT) pp$(OBJ_EXT)
+mini_only_objs = perlmini$(OBJ_EXT) opmini$(OBJ_EXT) xsutilsmini$(OBJ_EXT) \
+                 ppmini$(OBJ_EXT) jitmini$(OBJ_EXT)
+main_only_objs = op$(OBJ_EXT) perl$(OBJ_EXT) xsutils$(OBJ_EXT) \
+                 pp$(OBJ_EXT) jit$(OBJ_EXT)
 
 miniperl_objs_nodt = $(obj1) perlmini$(OBJ_EXT) miniperlmain$(OBJ_EXT) \
-                     $(obj2) opmini$(OBJ_EXT) $(obj3) ppmini$(OBJ_EXT) \
+                     $(obj2) opmini$(OBJ_EXT) \
+                     $(obj3) ppmini$(OBJ_EXT) jitmini$(OBJ_EXT) \
                      $(obj4) xsutilsmini$(OBJ_EXT) $(obj5) $(ARCHOBJS)
 perllib_objs_nodt  = $(obj1) perl$(OBJ_EXT) \
-                     $(obj2) op$(OBJ_EXT) $(obj3) pp$(OBJ_EXT) \
+                     $(obj2) op$(OBJ_EXT) \
+                     $(obj3) pp$(OBJ_EXT) jitmini$(OBJ_EXT) \
                      $(obj4) xsutils$(OBJ_EXT) $(obj5) $(ARCHOBJS)
 
 !NO!SUBS!
@@ -616,15 +620,15 @@ define:define)
     $spitshell >>$Makefile <<'!NO!SUBS!'
 
 miniperl_dtrace_objs = $(miniperl_objs_nodt:%=mpdtrace/%)
-perllib_dtrace_objs = $(perllib_objs_nodt:%=libpdtrace/%)
+perllib_dtrace_objs  = $(perllib_objs_nodt:%=libpdtrace/%)
 perlmain_dtrace_objs = maindtrace/perlmain$(OBJ_EXT)
 
 miniperl_objs = $(miniperl_dtrace_objs) $(DTRACE_MINI_O)
-perllib_objs  = $(perllib_dtrace_objs) $(DTRACE_PERLLIB_O)
+perllib_objs  = $(perllib_dtrace_objs)  $(DTRACE_PERLLIB_O)
 perlmain_objs = $(perlmain_dtrace_objs) $(DTRACE_MAIN_O)
 
 miniperl_dep = $(DTRACE_MINI_O)
-perllib_dep = $(DTRACE_PERLLIB_O)
+perllib_dep  = $(DTRACE_PERLLIB_O)
 perlmain_dep = $(DTRACE_MAIN_O)
 
 !NO!SUBS!
@@ -633,11 +637,11 @@ perlmain_dep = $(DTRACE_MAIN_O)
     $spitshell >>$Makefile <<'!NO!SUBS!'
 
 miniperl_objs = $(miniperl_objs_nodt) $(DTRACE_MINI_O)
-perllib_objs  = $(perllib_objs_nodt) $(DTRACE_PERLLIB_O)
-perlmain_objs = perlmain$(OBJ_EXT) $(DTRACE_MAIN_O)
+perllib_objs  = $(perllib_objs_nodt)  $(DTRACE_PERLLIB_O)
+perlmain_objs = perlmain$(OBJ_EXT)    $(DTRACE_MAIN_O)
 
 miniperl_dep = $(miniperl_objs)
-perllib_dep = $(perllib_objs)
+perllib_dep  = $(perllib_objs)
 perlmain_dep = $(perlmain_objs)
 
 !NO!SUBS!
@@ -752,7 +756,7 @@ FORCE:
 	@sh -c true
 !GROK!THIS!
 
-for file in op perl xsutils pp; do
+for file in op perl xsutils pp jit; do
     if $issymlink $file.c; then
         $spitshell >>$Makefile <<!GROK!THIS!
 
@@ -1699,7 +1703,8 @@ veryclean:	_verycleaner _mopup _clobber
 
 # Do not 'make _mopup' directly.
 _mopup:
-	rm -f *$(OBJ_EXT) *$(LIB_EXT) all perlmain.c opmini.c perlmini.c xsutilsmini.c ppmini.c generate_uudmap$(EXE_EXT) $(generated_headers)
+	rm -f *$(OBJ_EXT) *$(LIB_EXT) all perlmain.c opmini.c perlmini.c xsutilsmini.c 
+	rm -f ppmini.c jitmini.c generate_uudmap$(EXE_EXT) $(generated_headers)
 	-rmdir .depending
 	-@test -f extra.pods && rm -f `cat extra.pods`
 	-@test -f vms/README_vms.pod && rm -f vms/README_vms.pod

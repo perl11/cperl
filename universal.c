@@ -1403,6 +1403,24 @@ XS(XS_Internals_getcwd)
 
 #endif
 
+XS(XS_JitCache_load);
+XS(XS_JitCache_load)
+{
+    dXSARGS;
+    char* path;
+    char* bcpath;
+    void *ret;
+    if (items < 1 || !SvPOK(ST(0)))
+        croak_xs_usage(cv, "path, @subs");
+
+    path  = SvPVX(ST(0));
+    /* ignore the subs args for now */
+    ret   = jit_checkcache(NULL, path, &bcpath);
+    ST(0) = ret ? sv_2mortal(newSVpv(bcpath, 0)) : &PL_sv_no;
+    free(bcpath);
+    XSRETURN(1);
+}
+
 #include "vutil.h"
 #include "vxs.inc"
 
@@ -1453,6 +1471,7 @@ static const struct xsub_details these_details[] = {
 #ifdef HAS_GETCWD
     {"Internals::getcwd", XS_Internals_getcwd, ""},
 #endif
+    {"Internals::JitCache::load", XS_JitCache_load, "$@"},
 };
 
 STATIC OP*

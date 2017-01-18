@@ -20,7 +20,7 @@
 #define PERL_IN_JIT_C
 #include "perl.h"
 
-#ifdef USE_LLVMJIT
+#if defined(USE_LLVMJIT) && !defined(PERL_IS_MINIPERL)
 
 #include <llvm-c/Core.h>
 #include <llvm-c/ExecutionEngine.h>
@@ -35,8 +35,8 @@
 /* not yet my_perl specific */
 static struct jit_t {
     LLVMExecutionEngineRef engine;
-    LLVMPassManagerRef     pass;
     LLVMModuleRef          corelib;
+    LLVMPassManagerRef     pass;
     LLVMValueRef           op;
 #ifdef USE_ITHREADS
     LLVMValueRef           myperl;
@@ -64,8 +64,7 @@ bool Perl_jit_init() {
         strcat(path, "/libperl.bc");
     }
     /* not yet enabled */
-#if 0
-
+#if 1
     if (!LLVMCreateMemoryBufferWithContentsOfFile(path, &MemBuf, &error))
         Perl_croak(aTHX_ "jit: not enough memory or %s not found: %s", path, error);
 #if ((LLVM_VERSION_MAJOR * 100) + LLVM_VERSION_MINOR) > 308
@@ -84,9 +83,11 @@ bool Perl_jit_init() {
     }
 #endif
 
-    jit.op      = LLVMGetNamedGlobal(jit.corelib, "PL_op");
 #ifdef USE_ITHREADS
     jit.myperl  = LLVMGetNamedGlobal(jit.corelib, "my_perl");
+    jit.op      = LLVMBuildStructGEP(builder, myperl, 1, 0, "Iop");
+#else
+    jit.op      = LLVMGetNamedGlobal(jit.corelib, "PL_op");
 #endif
 
     jit.pass    = LLVMCreatePassManager();
@@ -112,7 +113,7 @@ void Perl_jit_destroy() {
 }
 
 /* .pmc or .plc => .bc */
-static char *
+STATIC char *
 S_jit_bcpath(pTHX_ CV* cv, char *pmcpath) {
     if (!pmcpath) {
         COP* op = (COP*)CvSTART(cv);
@@ -143,6 +144,7 @@ S_jit_bcpath(pTHX_ CV* cv, char *pmcpath) {
 =for apidoc jit_checkcache
 
 This is called by C<require package.pmc>.
+Exported as C<Internals::JitCache::load>.
 
 Stat the parallel .bc, check the timestamps, verify the IR, load it and set the
 CvJIT flags on all included subs.
@@ -209,29 +211,30 @@ bool Perl_jit_compile(pTHX_ const CV* cv, const char* pmcpath) {
     /* check for existing module */
     LLVMModuleRef module      = (LLVMModuleRef)jit_checkcache(cv, pmcpath, &bcpath);
 
-#if PTRSIZE == 8
+#ifndef PERL_LLVM_NOBUILDER
+#  if PTRSIZE == 8
     LLVMTypeRef ptrty         = LLVMPointerType(LLVMInt8Type(), 0);
-#else
+#  else
     LLVMTypeRef ptrty         = LLVMPointerType(LLVMInt4Type(), 0);
-#endif
-#ifdef USE_ITHREADS
+#  endif
+#  ifdef USE_ITHREADS
     LLVMTypeRef  param_types[]= { ptrty };
     LLVMTypeRef  ppret_type   = LLVMFunctionType(ptrty, param_types, 1, 0);
-#else
+#  else
     LLVMTypeRef  ppret_type   = LLVMFunctionType(ptrty, NULL, 0, 0);
-#endif  
+#  endif  
     LLVMTypeRef  subret_type  = LLVMFunctionType(LLVMVoidType(), NULL, 0, 0);
     LLVMValueRef sub          = LLVMAddFunction(module
                                                   ? module
                                                   : LLVMModuleCreateWithName(package),
                                                 subname, subret_type);
     LLVMBasicBlockRef entry   = LLVMAppendBasicBlock(sub, "entry");
-
-#ifndef PERL_LLVM_NOBUILDER
     LLVMBuilderRef builder    = LLVMCreateBuilder();
     char ppname[48] = { "_Perl_pp_" };
     const int len = sizeof("_Perl_pp_")-1;
+
 #else
+
     LLVMMemoryBufferRef MemBuf;
     SV* irbuf = newSVpvs(
       "; ModuleID = '_jitted.c'\n\n"
@@ -245,6 +248,8 @@ bool Perl_jit_compile(pTHX_ const CV* cv, const char* pmcpath) {
     assert(corelib);
 
 #ifdef PERL_LLVM_NOBUILDER
+    if (!module) module = LLVMModuleCreateWithName(package);
+
     /* Instead of the Builder API we could simply assemble
        the code from IRReader.h: LLVMParseIRInContext().
        It is a bit slower though. */
@@ -270,6 +275,7 @@ bool Perl_jit_compile(pTHX_ const CV* cv, const char* pmcpath) {
 #else
         sv_catpvf(irbuf, "  %u = tail call %%struct.op* @Perl_pp_%s() #2\n", i, name);
         sv_catpvf(irbuf, "  store %%struct.op* %u, %struct.op** @PL_op, align 8, !tbaa !2\n", i++);
+        /* TODO PERL_DTRACE_PROBE_OP(op); */
 #endif
     }
     sv_catpvs(irbuf, "  ret void\n}\n");
@@ -294,8 +300,7 @@ bool Perl_jit_compile(pTHX_ const CV* cv, const char* pmcpath) {
             LLVMValueRef call = LLVMBuildCall(builder, fn,
                                               param_types, 1, name);
             /* store into a struct offset */
-            LLVMValueRef iop = LLVMBuildStructGEP(builder, myperl, 1, 0, "Iop");
-            LLVMBuildStore(builder, call, iop);
+            LLVMBuildStore(builder, call, opval);
 #else
             /* PL_op = Perl_pp_%s(); */
             LLVMValueRef call = LLVMBuildCall(builder, fn,

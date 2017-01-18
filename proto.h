@@ -8172,7 +8172,6 @@ STATIC Size_t	S_do_trans_simple_utf8(pTHX_ SV * const sv)
 
 #endif
 #if defined(PERL_IN_DUMP_C)
-STATIC CV*	S_deb_curcv(pTHX_ I32 ix);
 STATIC void	S_debprof(pTHX_ const OP *o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DEBPROF	\
@@ -8203,6 +8202,11 @@ PERL_CALLCONV void	Perl_hv_kill_backrefs(pTHX_ HV *hv)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_KILL_BACKREFS	\
 	assert(hv)
+
+#endif
+#if defined(PERL_IN_DUMP_C) || defined(PERL_IN_JIT_C)
+PERL_CALLCONV CV*	Perl_deb_curcv(pTHX_ I32 ix)
+			__attribute__global__;
 
 #endif
 #if defined(PERL_IN_GV_C)
@@ -8385,6 +8389,16 @@ PERL_CALLCONV SV*	Perl_hfree_next_entry(pTHX_ HV *hv, U32 *indexp)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_HFREE_NEXT_ENTRY	\
 	assert(hv); assert(indexp)
+
+#  endif
+#endif
+#if defined(PERL_IN_JIT_C)
+#  if defined(USE_CPERL)
+STATIC char*	S_jit_bcpath(pTHX_ CV* cv, char* pmcpath)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_JIT_BCPATH	\
+	assert(cv); assert(pmcpath)
 
 #  endif
 #endif
@@ -11229,6 +11243,31 @@ PERL_CALLCONV void	Perl_hv_study(pTHX_ HV *hv)
 PERL_CALLCONV void	Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
 			__attribute__global__;
 
+PERL_CALLCONV void*	Perl_jit_checkcache(pTHX_ const CV* cv, const char* pmcpath, char** bcpath)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_JIT_CHECKCACHE	\
+	assert(pmcpath); assert(bcpath)
+
+PERL_CALLCONV bool	Perl_jit_compile(pTHX_ const CV* cv, const char* pmcpath)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_JIT_COMPILE	\
+	assert(cv)
+
+PERL_CALLCONV void	Perl_jit_destroy(pTHX)
+			__attribute__global__;
+
+PERL_CALLCONV bool	Perl_jit_init(pTHX)
+			__attribute__global__;
+
+PERL_CALLCONV OP*	Perl_jit_run(pTHX_ const CV* cv)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_JIT_RUN	\
+	assert(cv)
+
 PERL_CALLCONV SV*	Perl_magic_scalarpack(pTHX_ HV *hv, MAGIC *mg)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
@@ -11335,6 +11374,9 @@ PERL_CALLCONV void	Perl_repeatcpy(char* to, const char* from, I32 len, UV count)
 			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_REPEATCPY	\
 	assert(to); assert(from)
+
+PERL_CALLCONV int	Perl_runops_jit(pTHX)
+			__attribute__global__;
 
 PERL_CALLCONV char*	Perl_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package, STRLEN *slp, int *normalize)
 			__attribute__global__

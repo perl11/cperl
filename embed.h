@@ -1061,6 +1061,11 @@
 #define hv_ksplit(a,b)		Perl_hv_ksplit(aTHX_ a,b)
 #define hv_study(a)		Perl_hv_study(aTHX_ a)
 #define hv_undef_flags(a,b)	Perl_hv_undef_flags(aTHX_ a,b)
+#define jit_checkcache(a,b,c)	Perl_jit_checkcache(aTHX_ a,b,c)
+#define jit_compile(a,b)	Perl_jit_compile(aTHX_ a,b)
+#define jit_destroy()		Perl_jit_destroy(aTHX)
+#define jit_init()		Perl_jit_init(aTHX)
+#define jit_run(a)		Perl_jit_run(aTHX_ a)
 #define method_field_type(a)	Perl_method_field_type(aTHX_ a)
 #define newPADNAMEpvn_flags	Perl_newPADNAMEpvn_flags
 #define newSVsv(a)		Perl_newSVsv(aTHX_ a)
@@ -1075,6 +1080,7 @@
 #define re_op_compile(a,b,c,d,e,f,g,h)	Perl_re_op_compile(aTHX_ a,b,c,d,e,f,g,h)
 #define re_study(a)		Perl_re_study(aTHX_ a)
 #define repeatcpy		Perl_repeatcpy
+#define runops_jit()		Perl_runops_jit(aTHX)
 #define set_version(a,b,c,d,e)	Perl_set_version(aTHX_ a,b,c,d,e)
 #define share_hek(a,b,c)	Perl_share_hek(aTHX_ a,b,c)
 #define sv_clean_objs()		Perl_sv_clean_objs(aTHX)
@@ -1254,6 +1260,9 @@
 #  if defined(PERL_CORE) || defined(PERL_EXT)
 #define isSCRIPT_RUN(a,b,c)	Perl_isSCRIPT_RUN(aTHX_ a,b,c)
 #define variant_under_utf8_count	S_variant_under_utf8_count
+#  endif
+#  if defined(PERL_IN_DUMP_C) || defined(PERL_IN_JIT_C)
+#define deb_curcv(a)		Perl_deb_curcv(aTHX_ a)
 #  endif
 #  if defined(PERL_IN_REGCOMP_C)
 #define _make_exactf_invlist(a,b)	S__make_exactf_invlist(aTHX_ a,b)
@@ -1923,7 +1932,6 @@
 #define do_trans_simple_utf8(a)	S_do_trans_simple_utf8(aTHX_ a)
 #  endif
 #  if defined(PERL_IN_DUMP_C)
-#define deb_curcv(a)		S_deb_curcv(aTHX_ a)
 #define debprof(a)		S_debprof(aTHX_ a)
 #define pm_description(a)	S_pm_description(aTHX_ a)
 #define sequence_num(a)		S_sequence_num(aTHX_ a)
@@ -1971,6 +1979,11 @@
 #  endif
 #  if defined(PERL_IN_HV_C) && defined(DEBUGGING)
 #define action_name(a)		S_action_name(aTHX_ a)
+#  endif
+#  if defined(PERL_IN_JIT_C)
+#    if defined(USE_CPERL)
+#define jit_bcpath(a,b)		S_jit_bcpath(aTHX_ a,b)
+#    endif
 #  endif
 #  if defined(PERL_IN_LOCALE_C)
 #define save_to_buffer		S_save_to_buffer

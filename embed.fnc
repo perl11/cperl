@@ -3120,8 +3120,10 @@ Ep	|int	|re_exec_indentf	|NN const char *fmt|U32 depth|...
 #  endif
 #endif
 
+#if defined(PERL_IN_DUMP_C) || defined(PERL_IN_JIT_C)
+XEp	|CV*	|deb_curcv	|I32 ix
+#endif
 #if defined(PERL_IN_DUMP_C)
-s	|CV*	|deb_curcv	|I32 ix
 s	|void	|debprof	|NN const OP *o
 s	|UV	|sequence_num	|NULLOK const OP *o
 s	|SV*	|pm_description	|NN const PMOP *pm
@@ -3900,6 +3902,18 @@ XEop	|STRLEN*|dup_warnings	|NULLOK STRLEN* warnings
 : removed from core, but needed for ppport
 #if !defined(SPRINTF_RETURNS_STRLEN) && PERL_VERSION < 28
 Apnod  |int    |my_sprintf     |NN char *buffer|NN const char *pat|...
+#endif
+
+#if defined(USE_CPERL)
+Ap	|bool	|jit_init
+Ap	|void	|jit_destroy
+Ap	|void*	|jit_checkcache	|NULLOK const CV* cv|NN const char* pmcpath|NN char** bcpath
+Ap	|bool	|jit_compile	|NN const CV* cv|NULLOK const char* pmcpath
+Ap	|OP*	|jit_run	|NN const CV* cv
+Ap	|int	|runops_jit
+#  if defined(PERL_IN_JIT_C)
+s	|char*	|jit_bcpath	|NN CV* cv|NN char* pmcpath
+#  endif
 #endif
 
 : ex: set ts=8 sts=4 sw=4 noet:

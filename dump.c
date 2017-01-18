@@ -3914,9 +3914,8 @@ Perl_op_class(pTHX_ const OP *o)
 }
 
 
-
-STATIC CV*
-S_deb_curcv(pTHX_ I32 ix)
+CV*
+Perl_deb_curcv(pTHX_ I32 ix)
 {
     PERL_SI *si = PL_curstackinfo;
     for (; ix >=0; ix--) {

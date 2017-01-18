@@ -31,6 +31,7 @@ bug*.pl
 /makedir
 /makefile
 /myconfig
+/jitmini.c
 /opmini.c
 /perlmain.c
 /perlmini.c
