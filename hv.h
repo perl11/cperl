@@ -512,8 +512,7 @@ C<SV*>.
 #endif
 
 #define hv_exists_ent(hv, keysv, hash)					\
-    (hv_common((hv), (keysv), NULL, 0, 0, HV_FETCH_ISEXISTS, 0, (hash))	\
-     ? TRUE : FALSE)
+    cBOOL(hv_common((hv), (keysv), NULL, 0, 0, HV_FETCH_ISEXISTS, 0, (hash)))
 #define hv_fetch_ent(hv, keysv, lval, hash)				\
     ((HE *) hv_common((hv), (keysv), NULL, 0, 0,			\
 		      ((lval) ? HV_FETCH_LVALUE : 0), NULL, (hash)))
@@ -534,8 +533,7 @@ C<SV*>.
 
 
 #define hv_exists(hv, key, klen)					\
-    (hv_common_key_len((hv), (key), (klen), HV_FETCH_ISEXISTS, NULL, 0) \
-     ? TRUE : FALSE)
+    cBOOL(hv_common_key_len((hv), (key), (klen), HV_FETCH_ISEXISTS, NULL, 0))
 
 #define hv_fetch(hv, key, klen, lval)					\
     ((SV**) hv_common_key_len((hv), (key), (klen), (lval)		\
