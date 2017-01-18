@@ -1496,7 +1496,7 @@
 #  endif
 #  if !defined(PERL_DISABLE_PMC)
 #    if defined(PERL_IN_PP_CTL_C)
-#define doopen_pm(a)		S_doopen_pm(aTHX_ a)
+#define doopen_pm(a,b)		S_doopen_pm(aTHX_ a,b)
 #    endif
 #  endif
 #  if !defined(PERL_IS_MINIPERL)

@@ -2333,7 +2333,7 @@ s	|bool	|doeval_compile	|U8 gimme \
 				|NULLOK CV* outside|U32 seq|NULLOK HV* hh
 sR	|PerlIO *|check_type_and_open|NN SV *name
 #ifndef PERL_DISABLE_PMC
-sR	|PerlIO *|doopen_pm	|NN SV *name
+sR	|PerlIO *|doopen_pm	|NN SV *name|bool pmc
 #endif
 iRn	|bool	|path_is_searchable|NN const char *name
 sR	|I32	|run_user_filter|int idx|NN SV *buf_sv|int maxlen

@@ -3737,7 +3737,7 @@ S_check_type_and_open(pTHX_ SV *name)
 
 #ifndef PERL_DISABLE_PMC
 STATIC PerlIO *
-S_doopen_pm(pTHX_ SV *name)
+S_doopen_pm(pTHX_ SV *name, bool pmc)
 {
     STRLEN namelen;
     const char *p = SvPV_const(name, namelen);
@@ -3751,7 +3751,7 @@ S_doopen_pm(pTHX_ SV *name)
     if (!IS_SAFE_PATHNAME(p, namelen, "require"))
         return NULL;
 
-    if (namelen > 3 && memEQs(p + namelen - 3, 3, ".pm")) {
+    if (pmc && namelen > 3 && memEQs(p + namelen - 3, 3, ".pm")) {
 	SV *const pmcsv = sv_newmortal();
 	PerlIO * pmcio;
 
@@ -3768,7 +3768,7 @@ S_doopen_pm(pTHX_ SV *name)
     return check_type_and_open(name);
 }
 #else
-#  define doopen_pm(name) check_type_and_open(name)
+#  define doopen_pm(name, pmc) check_type_and_open(name, pmc)
 #endif /* !PERL_DISABLE_PMC */
 
 /* require doesn't search for absolute names, or when the name is
@@ -3880,7 +3880,7 @@ S_require_file(pTHX_ SV *const sv)
     int vms_unixname = 0;
     char *unixdir;
 #endif
-    const char *tryname = NULL;
+    char *tryname = NULL;
     SV *namesv = NULL;
     const U8 gimme = GIMME_V;
     int filter_has_file = 0;
@@ -4012,13 +4012,10 @@ S_require_file(pTHX_ SV *const sv)
 
     /* prepare to compile file */
 
-    if (!path_searchable) {
+    if (!path_searchable) { /* absolute path */
 	/* At this point, name is SvPVX(sv)  */
 	tryname = name;
-	tryrsfp = doopen_pm(sv);
-#ifndef PERL_DISABLE_PMC
-        tryname = SvPVX_const(sv);
-#endif
+	tryrsfp = doopen_pm(sv, 0); /* absolute do not expand pmc */
     }
     if (!tryrsfp && !(errno == EACCES && !path_searchable)) {
 	AV * const ar = GvAVn(PL_incgv);
@@ -4225,7 +4222,7 @@ S_require_file(pTHX_ SV *const sv)
 #endif
 		    TAINT_PROPER(op_name);
 		    tryname = SvPVX_const(namesv);
-		    tryrsfp = doopen_pm(namesv);
+		    tryrsfp = doopen_pm(namesv, 1);
 		    if (tryrsfp) {
 #ifndef PERL_DISABLE_PMC
                         tryname = SvPVX_const(namesv);
