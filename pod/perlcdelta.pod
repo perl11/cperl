@@ -457,6 +457,23 @@ Fixes for PERL_OP_PARENT: moresib, sibling, parent.
 
 Handle chunk errors phrases
 
+=item Compress-Raw-Bzip2 2.070
+
+This was already fixed in cperl since 5.25.2:
+L<RT #119005|https://rt.cpan.org/Ticket/Display.html?id=119005>:
+[PATCH] Wrong APPEND_OUTPUT logic
+
+This was already fixed in cperl since 5.25.2:
+L<RT #119141|https://rt.cpan.org/Ticket/Display.html?id=119141>:
+-Wlogical-not-parentheses
+
+This was already fixed in cperl Dec 8 2015 but lost with the update to 2.069
+Mar 28 2016.
+L<RT #100817|https://rt.cpan.org/Ticket/Display.html?id=100817>
+gcc 4.9.2 warning -Wmaybe-uninitialized for cost[3-5]
+Coped fix for same issue from
+L<RT #105647|https://rt.cpan.org/Ticket/Display.html?id=105647>
+
 =item Opcode 1.35_01c
 
 Add avhvswitch op
