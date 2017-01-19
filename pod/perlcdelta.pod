@@ -441,6 +441,14 @@ this matches the behaviour for non-bareword constants.
 
 =over 4
 
+=item Archive-Tar 2.24
+
+Handle tarballs compressed with pbzip2 (RT #119262)
+
+Add missing strict/warnings pragma to Constants.pm
+
+Check for gzip/bzip2 before round tripping gz/bz2 files in tests
+
 =item B-C 1.54_16
 
 Fixes for PERL_OP_PARENT: moresib, sibling, parent.
