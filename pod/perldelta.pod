@@ -389,7 +389,7 @@ fail.
 
 =back
 
-[perl #130108]
+L<[perl #130108]|https://rt.perl.org/Public/Bug/Display.html?id=130108>
 
 =item *
 
@@ -540,7 +540,7 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 =item *
 
 Under C<use utf8>, the entire Perl program is now checked that the UTF-8
-is wellformed.  This resolves [perl #126310].
+is wellformed.  This resolves L<[perl #126310]|https://rt.perl.org/Public/Bug/Display.html?id=126310>.
 
 =item *
 

@@ -344,8 +344,7 @@ pod/perl5222cdelta.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perl5240cdelta.pod	Apparent broken link	1
 pod/perl5242cdelta.pod	Apparent broken link	2
 pod/perl5252cdelta.pod	Apparent broken link	1
-pod/perl5253cdelta.pod	Apparent broken link	2
-pod/perl5253cdelta.pod	Apparent internal link is missing its forward slash	1
+pod/perl5253cdelta.pod	Apparent broken link	1
 pod/perl5253cdelta.pod	Deleting unknown formatting code M<>	1
 pod/perl5253cdelta.pod	Verbatim line length including indents exceeds 79 by	2
 pod/perl5253cdelta.pod	unresolved internal link	1
@@ -358,7 +357,7 @@ pod/perlcperl.pod	Apparent broken link	2
 pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	11
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	27
 pod/perldebtut.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perldelta.pod	Apparent broken link	3
+pod/perldelta.pod	Apparent broken link	1
 pod/perldtrace.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perlgit.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perlgit.pod	Verbatim line length including indents exceeds 79 by	1

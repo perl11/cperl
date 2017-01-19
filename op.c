@@ -2562,6 +2562,9 @@ Perl_scalarvoid(pTHX_ OP *arg)
 
 /*
 =for apidoc listkids
+
+Sets list context for all kids.
+
 =cut
 */
 static OP *
@@ -2577,6 +2580,9 @@ S_listkids(pTHX_ OP *o)
 
 /*
 =for apidoc list
+
+Sets list context for the op.
+
 =cut
 */
 OP *
@@ -2669,6 +2675,10 @@ Perl_list(pTHX_ OP *o)
 
 /*
 =for apidoc scalarseq
+
+Sets scalar void context for scalar sequences: lineseq, scope, leave
+and leavetry.
+
 =cut
 */
 static OP *
@@ -2703,6 +2713,9 @@ S_scalarseq(pTHX_ OP *o)
 
 /*
 =for apidoc modkids
+
+Sets lvalue context for all kids.
+
 =cut
 */
 static OP *
@@ -3181,6 +3194,9 @@ Perl_op_relocate_sv(pTHX_ SV** svp, PADOFFSET* targp)
 
 /*
 =for apidoc finalize_op
+
+Calls several op-specific finalizers, warnings and fixups.
+
 =cut
 */
 static void
@@ -3202,16 +3218,16 @@ S_finalize_op(pTHX_ OP* o)
                 && ckWARN(WARN_EXEC)
                 && OpHAS_SIBLING(sib))
             {
-		    const OPCODE type = OpSIBLING(sib)->op_type;
-		    if (type != OP_EXIT && type != OP_WARN && type != OP_DIE) {
-			const line_t oldline = CopLINE(PL_curcop);
-			CopLINE_set(PL_curcop, CopLINE((COP*)sib));
-			Perl_warner(aTHX_ packWARN(WARN_EXEC),
-			    "Statement unlikely to be reached");
-			Perl_warner(aTHX_ packWARN(WARN_EXEC),
-			    "\t(Maybe you meant system() when you said exec()?)\n");
-			CopLINE_set(PL_curcop, oldline);
-		    }
+                const OPCODE type = OpSIBLING(sib)->op_type;
+                if (type != OP_EXIT && type != OP_WARN && type != OP_DIE) {
+                    const line_t oldline = CopLINE(PL_curcop);
+                    CopLINE_set(PL_curcop, CopLINE((COP*)sib));
+                    Perl_warner(aTHX_ packWARN(WARN_EXEC),
+                                "Statement unlikely to be reached");
+                    Perl_warner(aTHX_ packWARN(WARN_EXEC),
+                                "\t(Maybe you meant system() when you said exec()?)\n");
+                    CopLINE_set(PL_curcop, oldline);
+                }
 	    }
         }
 	break;
@@ -4104,6 +4120,9 @@ S_is_handle_constructor(const OP *o, I32 numargs)
 
 /*
 =for apidoc refkids
+
+Sets ref context for all kids.
+
 =cut
 */
 static OP *
@@ -4118,7 +4137,11 @@ S_refkids(pTHX_ OP *o, I32 type)
 }
 
 /*
-=for apidoc doref
+=for apidoc ref
+
+Sets ref context for the op, i.e. marks the op as modifying via OPf_MOD,
+or OPf_REF for references.
+
 =cut
 */
 OP *
@@ -4221,6 +4244,9 @@ Perl_doref(pTHX_ OP *o, I32 type, bool set_op_ref)
 
 /*
 =for apidoc dup_attrlist
+Return a copy of an attribute list, i.e. a CONST or LIST with a
+list of CONST values.
+
 =cut
 */
 static OP *
@@ -4251,6 +4277,10 @@ S_dup_attrlist(pTHX_ OP *o)
 
 /*
 =for apidoc apply_attrs
+
+Calls the attribute importer with the target and a list of attributes.
+As manually done via C<use attributes $pkg, $rv, @attrs>.
+
 =cut
 */
 static void
@@ -4280,6 +4310,13 @@ S_apply_attrs(pTHX_ HV *stash, SV *target, OP *attrs)
 
 /*
 =for apidoc apply_attrs_my
+
+Similar to L</apply_attrs> calls the attribute importer with the
+target, which must be a lexical and a list of attributes.  As manually
+done via C<use attributes $pkg, $rv, @attrs>.
+
+Returns the list of attributes in the **imopsp argument.
+
 =cut
 */
 static void
@@ -4742,6 +4779,9 @@ Perl_bind_match(pTHX_ I32 type, OP *left, OP *right)
 
 /*
 =for apidoc invert
+
+Add a unary NOT op in front, inverting the op.
+
 =cut
 */
 OP *
@@ -4796,6 +4836,9 @@ Perl_op_scope(pTHX_ OP *o)
 
 /*
 =for apidoc op_unscope
+
+Nullify all state ops in the kids of a lineseq.
+
 =cut
 */
 OP *
@@ -5134,6 +5177,9 @@ Perl_jmaybe(pTHX_ OP *o)
 
 /*
 =for apidoc op_std_init
+
+Fixup all temp. pads: apply scalar context, and allocate missing targs.
+
 =cut
 */
 PERL_STATIC_INLINE OP *
@@ -5153,6 +5199,9 @@ S_op_std_init(pTHX_ OP *o)
 
 /*
 =for apidoc op_integerize
+
+Change the optype to the integer variant, when use integer is in scope.
+
 =cut
 */
 PERL_STATIC_INLINE OP *
@@ -5171,6 +5220,11 @@ S_op_integerize(pTHX_ OP *o)
 
 /*
 =for apidoc fold_constants
+
+Apply constant folding to a scalar at compile-time, via a fake eval.
+Returns a new op_folded op which replaces the old constant expression,
+or the old unfolded op.
+
 =cut
 */
 static OP *
