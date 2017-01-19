@@ -1,14 +1,14 @@
-: BEGIN{die "You meant to run regen/embed.pl"} # Stop early if fed to perl.
+: BEGIN{die "You meant to run regen/embed.pl"} # -*- sh -*-
 :
 : This file is processed by regen/embed.pl and autodoc.pl
-: It is used to declare the interfaces to the functions defined by perl.  All
+: It's used to declare the interfaces to the functions defined by perl.  All
 : non-static functions must have entries here.  Static functions need not, but
 : there is benefit to declaring them here, as it generally handles the thread
-: context parameter invisibly, as well as making sure a PERL_ARGS_ASSERT_foo
-: macro is defined, which can save you debugging time.
+: context parameter invisibly, declares NN optimizations, as well as making
+: sure a PERL_ARGS_ASSERT_foo macro is defined, which can save you debugging time.
 :
 : Lines are of the form:
-:    flags|return_type|function_name|arg1|arg2|...|argN
+:    flags|return_type	|function_name	|arg1|arg2|...|argN
 :
 : A line may be continued on another by ending it with a backslash.
 : Leading and trailing whitespace will be ignored in each component.
@@ -26,9 +26,9 @@
 :         any doc entry goes in perlapi.pod rather than perlintern.pod.  If no
 :	     documentation is furnished for this function, and M is also
 :	     specified, the function is not listed as part of the public API.
-:	     If M isn't specified, and no documentation is furnished, the
+:	     If M is not specified, and no documentation is furnished, the
 :	     function is listed in perlapi as existing and being undocumented
-:         makes '#define foo Perl_foo' scope not just for PERL_CORE/PERL_EXT
+:         makes "#define foo Perl_foo" scope not just for PERL_CORE/PERL_EXT
 :
 :      If the function is only exported for use in a public
 :      macro, see X.
@@ -36,7 +36,7 @@
 :   a  Allocates memory a la malloc/calloc.  Also implies "R".
 :      This should only be on functions which returns 'empty' memory
 :      which has no other pointers to it, and which does not contain
-:      any pointers to other things. So for example realloc() can't be
+:      any pointers to other things. So for example realloc() cannot be
 :      'a'.
 :
 :         proto.h: add __attribute__malloc__
@@ -74,7 +74,7 @@
 :
 :   d  Function has documentation (somewhere) in the source:
 :
-:         enables 'no docs for foo" warning in autodoc.pl
+:         enables "no docs for foo" warning in autodoc.pl
 :
 :   E  Visible to extensions included in the Perl core:
 :
@@ -87,7 +87,7 @@
 :
 :   f  Function takes a format string. If the function name =~ qr/strftime/
 :      then its assumed to take a strftime-style format string as 1st arg;
-:      otherwise it's assumed to be a printf style format string, varargs
+:      otherwise it is assumed to be a printf style format string, varargs
 :      (hence any entry that would otherwise go in embed.h is suppressed):
 :
 :         proto.h: add __attribute__format__ (or ...null_ok__)
@@ -192,12 +192,12 @@
 : Pointer parameters that must not be passed NULLs should be prefixed with NN.
 :
 : Pointer parameters that may be NULL should be prefixed with NULLOK.  This has
-: no effect on output yet.  It's a notation for the maintainers to know "I have
+: no effect on output yet.  It is a notation for the maintainers to know "I have
 : defined whether NULL is OK or not" rather than having neither NULL or NULLOK,
 : which is ambiguous.
 : UNUSED parameters get the PERL_UNUSED_DECL, ie. the optional __attribute__((unused))
 :
-: Individual flags may be separated by whitespace.
+: Individual flags may be separated by and fields may end with whitespace.'
 
 #if defined(PERL_IMPLICIT_SYS)
 Ano	|PerlInterpreter*|perl_alloc_using \
@@ -329,7 +329,7 @@ ApdR	|OP*	|op_convert_list	|I32 optype|I32 flags|NULLOK OP* o
 : Used in op.c and perl.c
 pM	|void	|create_eval_scope|NULLOK OP *retop|U32 flags
 Aprd	|void	|croak_sv	|NN SV *baseex
-: croak()'s first parm can be NULL.  Otherwise, mod_perl breaks.
+: croak() first parm can be NULL.  Otherwise, mod_perl breaks.
 Afprd	|void	|croak		|NULLOK const char* pat|...
 Aprd	|void	|vcroak		|NULLOK const char* pat|NULLOK va_list* args
 Anprd	|void	|croak_no_modify
