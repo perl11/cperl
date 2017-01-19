@@ -115,7 +115,7 @@ C<{> got a deprecation warning. These cases started warning in Perl 5.26,
 and they will be fatal by Perl 5.30.
 
 
-=head2 Using my() in false conditional.
+=head3 Using my() in false conditional.
 
 There has been a long-standing bug in Perl that causes a lexical variable
 not to be cleared at scope exit when its declaration includes a false
