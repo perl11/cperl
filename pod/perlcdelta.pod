@@ -1477,6 +1477,12 @@ L<[perl #121734]|https://rt.perl.org/Public/Bug/Display.html?id=121734>
 
 =item *
 
+Fix and explain sv_dump (also via Devel::Peek Dump) that maxnested means
+also maxelems, by printing now "... (skipping Elt 5-20)".
+L<[cperl #243]|https://github.com/perl11/cperl/issues/243>.
+
+=item *
+
 Under C<use utf8>, the entire Perl program is now checked that the UTF-8
 is wellformed.  L<[perl #126310]|https://rt.perl.org/Public/Bug/Display.html?id=126310>.
 

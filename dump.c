@@ -1718,14 +1718,17 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	Perl_dump_indent(aTHX_ level, file, "  MAX = %" IVdf "\n", (IV)AvMAX(sv));
         SvPVCLEAR(d);
 	if (nest < maxnest && AvARRAY(MUTABLE_AV(sv))) {
-	    SSize_t count;
-            SV **svp = AvARRAY(MUTABLE_AV(sv));
-	    for (count = 0;
-                 count <= AvFILLp(MUTABLE_AV(sv)) && count < maxnest;
-                 count++, svp++)
-            {
-		SV* const elt = *svp;
-		Perl_dump_indent(aTHX_ level + 1, file, "Elt No. %" IVdf "\n", (IV)count);
+	    SSize_t count = 0;
+            SSize_t fill  = AvFILLp(MUTABLE_AV(sv));
+            SV **svp      = AvARRAY(MUTABLE_AV(sv));
+	    for (; count <= fill; count++) {
+		SV* const elt = *svp++;
+                if (count >= maxnest) {
+                    Perl_dump_indent(aTHX_ level+1, file, "... (skipping Elt %u-%u)\n",
+                                     (unsigned)count, (unsigned)fill);
+                    break;
+                }
+		Perl_dump_indent(aTHX_ level+1, file, "Elt No. %u\n", (unsigned)count);
                 do_sv_dump(level+1, file, elt, nest+1, maxnest, dumpops, pvlim);
 	    }
 	}
@@ -1933,20 +1936,26 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	}
 	if (nest < maxnest) {
 	    HV * const hv = MUTABLE_HV(sv);
-	    U32 i;
-	    HE *he;
-
 	    if (HvARRAY(hv)) {
-		int count = maxnest - nest;
+                HE *he;
+                U32 i;
+                U32 count = 0;
+		U32 maxcount = maxnest - nest;
 		for (i=0; i <= HvMAX(hv); i++) {
 		    for (he = HvARRAY(hv)[i]; he; he = HeNEXT(he)) {
-			U32 hash;
 			SV * keysv;
-			const char * keypv;
 			SV * elt;
+			const char * keypv;
                         STRLEN len;
+			U32 hash;
 
-			if (count-- <= 0) goto DONEHV;
+			if (count > maxcount && count < HvKEYS(hv)) {
+                            Perl_dump_indent(aTHX_ level+1, file,
+                                             "... (skipping Elt %u-%u)\n",
+                                             (unsigned)count, (unsigned)HvKEYS(hv));
+                            goto DONEHV;
+                        }
+                        count++;
 
 			hash = HeHASH(he);
 			keysv = hv_iterkeysv(he);

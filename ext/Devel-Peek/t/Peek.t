@@ -996,8 +996,9 @@ do_test('large hash',
 ');
 
 # Dump with arrays, hashes, and operator return values
+# The default maxnested limit is 4
 @array = 1..3;
-do_test('Dump @array', '@array', <<'ARRAY', '', '', 1);
+do_test('Dump @array', '@array', <<'EOF', '', '', 1);
 SV = PVAV\($ADDR\) at $ADDR
   REFCNT = 1
   FLAGS = 0x4000000b \(REAL\)
@@ -1019,9 +1020,9 @@ SV = PVAV\($ADDR\) at $ADDR
     REFCNT = 1
     FLAGS = \(IOK,pIOK\)
     IV = 3
-ARRAY
+EOF
 
-do_test('Dump @array,1', '@array,1', <<'ARRAY', '', '', 1);
+do_test('Dump @array,1', '@array,1', <<'EOF', '', '', 1);
 SV = PVAV\($ADDR\) at $ADDR
   REFCNT = 1
   FLAGS = 0x4000000b \(REAL\)
@@ -1033,7 +1034,9 @@ SV = PVAV\($ADDR\) at $ADDR
     REFCNT = 1
     FLAGS = \(IOK,pIOK\)
     IV = 1
-ARRAY
+  \.\.\. \(skipping Elt 1-2\)
+EOF
+# skipping marker added with v5.25.3c
 
 %hash = 1..2;
 do_test('Dump %hash', '%hash', <<'HASH', '', '', 1);
