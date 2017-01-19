@@ -8,6 +8,7 @@
 # The exit code for the script is the sort result status
 # (i.e., 0 means already sorted properly, 1 means not properly sorted)
 
+BEGIN { push @INC, '.', 'lib'; }
 use strict;
 use warnings;
 $| = 1;

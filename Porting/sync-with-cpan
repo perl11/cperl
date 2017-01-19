@@ -288,7 +288,7 @@ for my $module (@modules) {
     say "--force is in effect, so we'll soldier on. Wish me luck!";
   }
 
-  if ($info->{CUSTOMIZED}) {
+  if (!$dryrun and $info->{CUSTOMIZED}) {
     print <<"EOF";
 $module has a CUSTOMIZED entry in Porting/Maintainers.pl.
 
@@ -565,9 +565,9 @@ EOF
   # We don't really care whether we've deleted the file - since we
   # do a git restore, it's going to be resurrected if necessary.
   #
-  if (!$dryrun and $$info {CUSTOMIZED}) {
+  if (!$dryrun and $$info{CUSTOMIZED}) {
     say "Restoring customized files";
-    foreach my $file (@{$$info {CUSTOMIZED}}) {
+    foreach my $file (@{$$info{CUSTOMIZED}}) {
         system('git', "checkout", "$pkg_dir/$file");
     }
   }
@@ -593,7 +593,8 @@ EOF
 
     close $new or die "Can't close $MANIFEST: $!\n";
 
-    system $^X => "Porting/manisort", '--quiet', "--output=$MANIFEST", $MANIFEST_NEW;
+    system $^X => "Porting/manisort", '--quiet',
+                  "--output=$MANIFEST", $MANIFEST_NEW;
     unlink $MANIFEST_NEW
         or die "Can't delete temporary $MANIFEST_NEW: $!\n";
   }
@@ -727,7 +728,7 @@ EOF
   }
 }
 
-print <<"EOF";
+print <<"EOF" unless $dryrun;
 
 =======================================================================
 
