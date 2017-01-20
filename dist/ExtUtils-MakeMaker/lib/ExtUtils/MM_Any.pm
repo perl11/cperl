@@ -1,7 +1,7 @@
 package ExtUtils::MM_Any;
 
 use strict;
-our $VERSION = '7.24';
+our $VERSION = '8.24_01';
 $VERSION = eval $VERSION;
 
 use Carp;
@@ -771,7 +771,7 @@ clean :: clean_subdirs
 
     # Leave Makefile.old around for realclean
     push @m, <<'MAKE';
-	  $(NOECHO) $(RM_F) $(MAKEFILE_OLD)
+	$(NOECHO) $(RM_F) $(MAKEFILE_OLD)
 	- $(MV) $(FIRST_MAKEFILE) $(MAKEFILE_OLD) $(DEV_NULL)
 MAKE
 

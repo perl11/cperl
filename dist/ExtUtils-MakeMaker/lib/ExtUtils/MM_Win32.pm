@@ -26,7 +26,7 @@ use ExtUtils::MakeMaker qw(neatvalue _sprintf562);
 
 require ExtUtils::MM_Unix;
 our @ISA = qw( ExtUtils::MM_Any ExtUtils::MM_Unix );
-our $VERSION = '7.24';
+our $VERSION = '8.24_01';
 $VERSION = eval $VERSION;
 
 $ENV{EMXSHELL} = 'sh'; # to run `commands`
@@ -259,6 +259,17 @@ MAXLINELENGTH = $size
     return $prefix . $make_text;
 }
 
+=item specify_shell
+
+Set SHELL to $ENV{COMSPEC} only if make is type 'gmake'.
+
+=cut
+
+sub specify_shell {
+    my $self = shift;
+    return '' unless $self->is_make_type('gmake');
+    "\nSHELL = $ENV{COMSPEC}\n";
+}
 
 =item special_targets
 

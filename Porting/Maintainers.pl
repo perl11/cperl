@@ -678,22 +678,23 @@ use File::Glob qw(:case);
         # cperl skips the ending 'c'
         # use -e not -f for solibs
         # fix for Porting/cmpVERSION.pl with IO::Scalar parse_version() handles
-        #'CUSTOMIZED'   => 
-        #  [ qw[ lib/ExtUtils/MM_Any.pm
-        #        lib/ExtUtils/MM_Unix.pm
-        #        lib/ExtUtils/Command/MM.pm
-        #        lib/ExtUtils/MakeMaker.pm
-        #        lib/ExtUtils/Mkbootstrap.pm
-        #        lib/ExtUtils/Liblist/Kid.pm
-        #        t/basic.t
-        #        t/Liblist.t
-        #        t/Mkbootstrap.t
-        #        t/pm_to_blib.t
-        #        t/prereq.t
-        #        t/vstrings.t ],
-        #    # Not yet submitted
-        #    qq[t/lib/MakeMaker/Test/NoXS.pm],
-        # ],
+        # PERL_USE_UNSAFE_INC=1
+        'CUSTOMIZED'   => 
+          [ qw[ 
+            lib/ExtUtils/MM_Unix.pm
+            lib/ExtUtils/MM_Win32.pm
+            lib/ExtUtils/Command/MM.pm
+            lib/ExtUtils/MakeMaker.pm
+            lib/ExtUtils/Mkbootstrap.pm
+            lib/ExtUtils/Liblist/Kid.pm
+            t/Liblist.t
+            t/MM_Cygwin.t
+            t/Mkbootstrap.t
+            t/miniperl.t
+            t/pod2man.t
+            t/prereq.t
+            t/prompt.t ],
+         ],
     },
 
     'ExtUtils::Manifest' => {

@@ -3,7 +3,8 @@ package ExtUtils::Mkbootstrap;
 # There's just too much Dynaloader incest here to turn on strict vars.
 use strict 'refs';
 
-our $VERSION = '7.24';
+our $VERSION = '8.24_03c';
+$VERSION =~ s/c$//;
 $VERSION = eval $VERSION;
 
 require Exporter;
@@ -41,10 +42,10 @@ sub Mkbootstrap {
 	shift @INC;
     }
 
-    if ($Config{'dlsrc'} =~ /^dl_dld/){
-	package DynaLoader;
-	push(@dl_resolve_using, dl_findfile('-lc'));
-    }
+    #if ($Config{'dlsrc'} =~ /^dl_dld/){
+    #	package DynaLoader;
+    #	push(@dl_resolve_using, dl_findfile('-lc'));
+    #}
 
     my(@all) = (@bsloadlibs, @DynaLoader::dl_resolve_using);
     my($method) = '';

@@ -42,13 +42,15 @@ use TieOut;
 my $out = tie *STDOUT, 'TieOut';
 
 # with $Verbose set, it should print status messages about libraries
-$ExtUtils::Mkbootstrap::Verbose = 1;
-Mkbootstrap('');
-is( $out->read, "\tbsloadlibs=\n", 'should report libraries in Verbose mode' );
+{
+  $ExtUtils::Mkbootstrap::Verbose = 1;
+  local $ENV{MAKEFLAGS} = 'silent';
+  Mkbootstrap('');
+  is( $out->read, "\tbsloadlibs=\n", 'should report libraries in Verbose mode' );
 
-Mkbootstrap('', 'foo');
-like( $out->read, qr/bsloadlibs=foo/, 'should still report libraries' );
-
+  Mkbootstrap('', 'foo');
+  like( $out->read, qr/bsloadlibs=foo/, 'should still report libraries' );
+}
 
 # if ${_[0]}_BS exists, require it
 $file_is_ready = open(OUT, '>boot_BS');
@@ -118,9 +120,10 @@ SKIP: {
 	close OUT;
 
 	# if $DynaLoader::bscode is set, write its contents to the file
-    local $DynaLoader::bscode;
+        local $DynaLoader::bscode;
 	$DynaLoader::bscode = 'Wall';
 	$ExtUtils::Mkbootstrap::Verbose = 0;
+	local $ENV{MAKEFLAGS} = 'silent'
 
 	# if arguments contain '-l' or '-L' or '-R' print dl_findfile message
 	eval{ Mkbootstrap('dasboot', '-Larry') };

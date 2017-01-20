@@ -127,7 +127,11 @@ sub teardown_recurs {
     foreach my $file (keys %Files) {
         my $dir = dirname($file);
         if( -e $dir ) {
-            rmtree($dir) || return;
+            if ($^O eq 'MSWin32') { # problematic without XS, miniperl
+                system("del /s /q \"$dir\"");
+            } else {
+                rmtree($dir) || return;
+            }
         }
     }
     return 1;

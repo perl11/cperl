@@ -5,6 +5,9 @@ use strict;
 
 BEGIN {require 5.006;}
 
+# Assure anything called from Makefile.PL is allowed to have . in @INC.
+BEGIN { $ENV{PERL_USE_UNSAFE_INC} = 1; }
+
 require Exporter;
 use ExtUtils::MakeMaker::Config;
 use ExtUtils::MakeMaker::version; # ensure we always have our fake version.pm
@@ -24,7 +27,7 @@ my %Recognized_Att_Keys;
 our %macro_fsentity; # whether a macro is a filesystem name
 our %macro_dep; # whether a macro is a dependency
 
-our $VERSION = '7.24';
+our $VERSION = '8.24_01';
 $VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
 
 # Emulate something resembling CVS $Revision$
@@ -232,7 +235,7 @@ sub eval_in_subdirs {
     use Cwd qw(cwd abs_path);
     my $pwd = cwd() || die "Can't figure out your cwd!";
 
-    local @INC = map eval {abs_path($_) if -e} || $_, @INC;
+    local @INC = map eval {abs_path("$_") if -e} || $_, @INC;
     push @INC, '.';     # '.' has to always be at the end of @INC
 
     foreach my $dir (@{$self->{DIR}}){
@@ -588,9 +591,14 @@ END
           $installed_file = $prereq;
           $pr_version = $];
         }
+        elsif ($Config::Config{usecperl}
+               and $prereq =~ /^(DynaLoader|XSLoader|strict|coretypes)$/) {
+          $pr_version = $required_version + 1000;
+          $installed_file = $prereq;
+        }
         else {
           $installed_file = MM->_installed_file_for_module($prereq);
-          $pr_version = MM->parse_version($installed_file) if $installed_file;
+          $pr_version = $installed_file ? MM->parse_version($installed_file) : 'undef';
           $pr_version = 0 if $pr_version eq 'undef';
           if ( !eval { version->new( $pr_version ); 1 } ) {
             #no warnings 'numeric'; # module doesn't use warnings
@@ -608,6 +616,10 @@ END
 
         # convert X.Y_Z alpha version #s to X.YZ for easier comparisons
         $pr_version =~ s/(\d+)\.(\d+)_(\d+)/$1.$2$3/;
+        if ($pr_version) {
+          $pr_version =~ s/c$//;
+          $pr_version =~ s/(\d+)\.(\d+)_(\d+)/$1.$2$3/;
+        }
 
         if (!$installed_file) {
             warn sprintf "Warning: prerequisite %s %s not found.\n",
@@ -920,6 +932,13 @@ sub _installed_file_for_module {
             $path = $tmp;
             last;
         }
+    }
+    if (!$path
+        and $Config::Config{usecperl} # builtins
+        and $prereq =~ /^(DynaLoader|XSLoader|strict|coretypes)$/)
+    {
+      $INC{$file} = $prereq unless exists $INC{$file};
+      $path = $prereq;
     }
 
     return $path;
@@ -1734,10 +1753,11 @@ below the perl source tree. The support for extensions below the ext
 directory of the perl distribution is only good for the standard
 extensions that come with perl.
 
-If an extension is being built below the C<ext/> directory of the perl
-source then MakeMaker will set PERL_SRC automatically (e.g.,
-C<../..>).  If PERL_SRC is defined and the extension is recognized as
-a standard extension, then other variables default to the following:
+If an extension is being built below the C<ext/> C<cpan/> or C<dist/>
+directory of the perl source and PERL_CORE=1 is defined then MakeMaker
+will set PERL_SRC automatically (e.g., C<../..>).  If PERL_SRC is
+defined and the extension is recognized as a standard extension, then
+other variables default to the following:
 
   PERL_INC     = PERL_SRC
   PERL_LIB     = PERL_SRC/lib

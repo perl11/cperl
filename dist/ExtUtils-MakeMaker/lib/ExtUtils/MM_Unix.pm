@@ -14,7 +14,7 @@ use ExtUtils::MakeMaker qw($Verbose neatvalue _sprintf562);
 
 # If we make $VERSION an our variable parse_version() breaks
 use vars qw($VERSION);
-$VERSION = '7.24';
+$VERSION = '8.24_01';
 $VERSION = eval $VERSION;  ## no critic [BuiltinFunctions::ProhibitStringyEval]
 
 require ExtUtils::MM_Any;
@@ -37,6 +37,7 @@ BEGIN {
                    grep( $^O eq $_, qw(bsdos interix dragonfly) )
                   );
     $Is{Android} = $^O =~ /android/;
+    $Is{Darwin}  = $^O eq 'darwin';
 }
 
 BEGIN {
@@ -975,6 +976,7 @@ sub xs_dynamic_lib_macros {
     my $armaybe = $self->_xs_armaybe($attribs);
     my $ld_opt = $Is{OS2} ? '$(OPTIMIZE) ' : ''; # Useful on other systems too?
     my $ld_fix = $Is{OS2} ? '|| ( $(RM_F) $@ && sh -c false )' : '';
+    $ld_fix = '&& dsymutil "$@"' if $Is{Darwin} and $Config{ccflags} =~ /-DDEBUGGING/;
     sprintf <<'EOF', $armaybe, $ld_opt.$otherldflags, $inst_dynamic_dep, $ld_fix;
 # This section creates the dynamically loadable objects from relevant
 # objects and possibly $(MYEXTLIB).
@@ -2874,7 +2876,6 @@ sub parse_version {
 
     local $/ = "\n";
     local $_;
-<<<<<<< f9c6ea6e9490d185912e2be5f353b399711fe646
     # builtins not parsable
     if (!ref $parsefile and !-e $parsefile and $Config::Config{usecperl}) {
       no strict 'refs';
@@ -2891,20 +2892,6 @@ sub parse_version {
     } else {
       $fh = $parsefile;
     }
-||||||| merged common ancestors
-    if (!-e $parsefile and $Config::Config{usecperl}) { # builtins not parsable
-      no strict 'refs';
-      my ($prereq) = $parsefile =~ /\.c:(.*)$/;
-      my $normal;
-      $normal = ${$prereq."::VERSION"} if $prereq;
-      $result = $normal if defined $normal;
-      $result = "undef" unless defined $result;
-      return $result;
-    }
-    open(my $fh, '<', $parsefile) or die "Could not open '$parsefile': $!";
-=======
-    open(my $fh, '<', $parsefile) or die "Could not open '$parsefile': $!";
->>>>>>> ExtUtils-MakeMaker: Update to plain 7.24
     my $inpod = 0;
     while (<$fh>) {
         $inpod = /^=(?!cut)/ ? 1 : /^=cut/ ? 0 : $inpod;
@@ -3300,6 +3287,16 @@ MAKE_FRAG
     }
 
     return $m;
+}
+
+=item specify_shell
+
+Specify SHELL if needed - not done on Unix.
+
+=cut
+
+sub specify_shell {
+  return '';
 }
 
 =item specify_shell
@@ -3736,23 +3733,24 @@ EOF
 
 For some reason which I forget, Unix machines like to have
 PERL_DL_NONLAZY set for tests.
+PERL_USE_UNSAFE_INC=1 is set to re-add the unsafe . to @INC
 
 =cut
 
 sub test_via_harness {
     my($self, $perl, $tests) = @_;
-    return $self->SUPER::test_via_harness("PERL_DL_NONLAZY=1 $perl", $tests);
+    return $self->SUPER::test_via_harness("PERL_DL_NONLAZY=1 PERL_USE_UNSAFE_INC=1 $perl", $tests);
 }
 
 =item test_via_script (override)
 
-Again, the PERL_DL_NONLAZY thing.
+Again, the PERL_DL_NONLAZY and PERL_USE_UNSAFE_INC thing.
 
 =cut
 
 sub test_via_script {
     my($self, $perl, $script) = @_;
-    return $self->SUPER::test_via_script("PERL_DL_NONLAZY=1 $perl", $script);
+    return $self->SUPER::test_via_script("PERL_DL_NONLAZY=1 PERL_USE_UNSAFE_INC=1 $perl", $script);
 }
 
 

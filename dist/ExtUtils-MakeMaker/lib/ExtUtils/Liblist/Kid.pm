@@ -11,7 +11,7 @@ use 5.006;
 
 use strict;
 use warnings;
-our $VERSION = '7.24';
+our $VERSION = '8.24_01';
 $VERSION = eval $VERSION;
 
 use ExtUtils::MakeMaker::Config;
@@ -150,28 +150,28 @@ sub _unix_os2_ext {
                       } @fullname
                 )[0];
             }
-            elsif ( -f ( $fullname = "$thispth/lib$thislib.$so" )
-                && ( ( $Config{'dlsrc'} ne "dl_dld.xs" ) || ( $thislib eq "m" ) ) )
+            elsif ( -e ( $fullname = "$thispth/lib$thislib.$so" )
+                && ( $thislib eq "m" ) )
             {
             }
-            elsif (-f ( $fullname = "$thispth/lib${thislib}_s$Config_libext" )
+            elsif (-e ( $fullname = "$thispth/lib${thislib}_s$Config_libext" )
                 && ( $Config{'archname'} !~ /RM\d\d\d-svr4/ )
                 && ( $thislib .= "_s" ) )
             {    # we must explicitly use _s version
             }
-            elsif ( -f ( $fullname = "$thispth/lib$thislib$Config_libext" ) ) {
+            elsif ( -e ( $fullname = "$thispth/lib$thislib$Config_libext" ) ) {
             }
             elsif ( defined( $Config_dlext )
-                && -f ( $fullname = "$thispth/lib$thislib.$Config_dlext" ) )
+                && -e ( $fullname = "$thispth/lib$thislib.$Config_dlext" ) )
             {
             }
-            elsif ( -f ( $fullname = "$thispth/$thislib$Config_libext" ) ) {
+            elsif ( -e ( $fullname = "$thispth/$thislib$Config_libext" ) ) {
             }
-            elsif ( -f ( $fullname = "$thispth/lib$thislib.dll$Config_libext" ) ) {
+            elsif ( -e ( $fullname = "$thispth/lib$thislib.dll$Config_libext" ) ) {
             }
-            elsif ( $^O eq 'cygwin' && -f ( $fullname = "$thispth/$thislib.dll" ) ) {
+            elsif ( $^O eq 'cygwin' && -e ( $fullname = "$thispth/$thislib.dll" ) ) {
             }
-            elsif ( -f ( $fullname = "$thispth/Slib$thislib$Config_libext" ) ) {
+            elsif ( -e ( $fullname = "$thispth/Slib$thislib$Config_libext" ) ) {
             }
             elsif ($^O eq 'dgux'
                 && -l ( $fullname = "$thispth/lib$thislib$Config_libext" )
@@ -187,7 +187,11 @@ sub _unix_os2_ext {
                 #
                 # , the compilation tools expand the environment variables.)
             }
-            elsif ( $custom_name && -f ( $fullname = "$thispth/$thislib" ) ) {
+            elsif ( $^O eq 'darwin'
+                    && $thislib =~ /^(dl|pthread|c|util|m)$/
+                    && -e "/usr/lib/lib$thislib.dylib") {
+            }
+            elsif ( $custom_name && -e ( $fullname = "$thispth/$thislib" ) ) {
             }
             else {
                 warn "$thislib not found in $thispth\n" if $verbose;
@@ -226,8 +230,7 @@ sub _unix_os2_ext {
             }
 
             # We might be able to load this archive file dynamically
-            if (   ( $Config{'dlsrc'} =~ /dl_next/ && $Config{'osvers'} lt '4_0' )
-                || ( $Config{'dlsrc'} =~ /dl_dld/ ) )
+            if ( ( $Config{'dlsrc'} =~ /dl_next/ && $Config{'osvers'} lt '4_0' ) )
             {
 
                 # We push -l$thislib instead of $fullname because
@@ -254,7 +257,7 @@ sub _unix_os2_ext {
             last;    # found one here so don't bother looking further
         }
         warn "Warning (mostly harmless): " . "No library found for -l$thislib\n"
-          unless $found_lib > 0;
+          if !$found_lib and !$ENV{PERL_CORE};
     }
 
     unless ( $found ) {
@@ -329,7 +332,8 @@ sub _win32_ext {
         my ( $fullname, $path ) = _win32_search_file( $thislib, $libext, \@paths, $verbose, $GC );
 
         if ( !$fullname ) {
-            warn "Warning (mostly harmless): No library found for $thislib\n";
+            warn "Warning (mostly harmless): No library found for $thislib\n"
+                if !$ENV{PERL_CORE};
             next;
         }
 
@@ -399,7 +403,7 @@ sub _win32_search_file {
             my $fullname = $lib_file;
             $fullname = "$path\\$fullname" if $path;
 
-            return ( $fullname, $path ) if -f $fullname;
+            return ( $fullname, $path ) if -e $fullname;
 
             _debug( "'$thislib' not found as '$fullname'\n", $verbose );
         }
@@ -574,7 +578,7 @@ sub _vms_ext {
                 $name = "$dir$variant";
                 warn "\tChecking $name\n" if $verbose > 2;
                 $fullname = VMS::Filespec::rmsexpand( $name );
-                if ( defined $fullname and -f $fullname ) {
+                if ( defined $fullname and -e $fullname ) {
 
                     # It's got its own suffix, so we'll have to figure out the type
                     if    ( $fullname =~ /(?:$so|exe)$/i )      { $type = 'SHR'; }
@@ -588,8 +592,8 @@ sub _vms_ext {
                         $type = 'SHR';
                     }
                 }
-                elsif (-f ( $fullname = VMS::Filespec::rmsexpand( $name, $so ) )
-                    or -f ( $fullname = VMS::Filespec::rmsexpand( $name, '.exe' ) ) )
+                elsif (-e ( $fullname = VMS::Filespec::rmsexpand( $name, $so ) )
+                    or -e ( $fullname = VMS::Filespec::rmsexpand( $name, '.exe' ) ) )
                 {
                     $type = 'SHR';
                     $name = $fullname unless $fullname =~ /exe;?\d*$/i;
@@ -597,7 +601,8 @@ sub _vms_ext {
                 elsif (
                     not length( $ctype ) and    # If we've got a lib already,
                                                 # don't bother
-                    ( -f ( $fullname = VMS::Filespec::rmsexpand( $name, $lib_ext ) ) or -f ( $fullname = VMS::Filespec::rmsexpand( $name, '.olb' ) ) )
+                    ( -e ( $fullname = VMS::Filespec::rmsexpand( $name, $lib_ext ) )
+                   or -e ( $fullname = VMS::Filespec::rmsexpand( $name, '.olb' ) ) )
                   )
                 {
                     $type = 'OLB';
@@ -606,7 +611,8 @@ sub _vms_ext {
                 elsif (
                     not length( $ctype ) and    # If we've got a lib already,
                                                 # don't bother
-                    ( -f ( $fullname = VMS::Filespec::rmsexpand( $name, $obj_ext ) ) or -f ( $fullname = VMS::Filespec::rmsexpand( $name, '.obj' ) ) )
+                    ( -e ( $fullname = VMS::Filespec::rmsexpand( $name, $obj_ext ) )
+                   or -e ( $fullname = VMS::Filespec::rmsexpand( $name, '.obj' ) ) )
                   )
                 {
                     warn "Warning (mostly harmless): " . "Plain object file $fullname found in library list\n";
@@ -628,7 +634,8 @@ sub _vms_ext {
                 next LIB;
             }
         }
-        warn "Warning (mostly harmless): " . "No library found for $lib\n";
+        warn "Warning (mostly harmless): " . "No library found for $lib\n"
+          if !$ENV{PERL_CORE};
     }
 
     push @fndlibs, @{ $found{OBJ} } if exists $found{OBJ};

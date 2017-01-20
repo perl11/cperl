@@ -352,9 +352,18 @@ Fix xsubpp warnings
 
 =over 4
 
-=item *
+=item L<ExtUtils::MakeMaker> 8.24_01
 
-XXX
+Updated to 7.24, and re-added our cperl fixes.
+
+fix \Q$archname\E in t/basic.t
+
+skip cperl builtin prereqs.
+
+ExtUtils::Liblist::Kid:
+
+one more darwin fix for the wrong no library found warning
+for symlinked darwin libSystem.dylib libraries.
 
 =back
 
