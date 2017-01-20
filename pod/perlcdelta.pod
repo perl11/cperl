@@ -496,6 +496,10 @@ L<RT #117675|https://rt.cpan.org/Ticket/Display.html?id=117675>
 zipdetails: CVE-2016-1238: avoid loading optional modules from default
 L<RT #116538|https://rt.cpan.org/Ticket/Display.html?id=116538>
 
+=item Net-Ping 2.56
+
+Stabilized test, geocities.com is down.
+
 =item Opcode 1.35_01c
 
 Add avhvswitch op

@@ -21,7 +21,7 @@ use Time::HiRes;
 @ISA = qw(Exporter);
 @EXPORT = qw(pingecho);
 @EXPORT_OK = qw(wakeonlan);
-$VERSION = "2.55";
+$VERSION = "2.56";
 
 # Globals
 
@@ -622,8 +622,7 @@ sub ping_external {
     local @INC = @INC;
     pop @INC if $INC[-1] eq '.';
     require Net::Ping::External;
-  }
-    or croak('Protocol "external" not supported on your system: Net::Ping::External not found');
+  } or croak('Protocol "external" not supported on your system: Net::Ping::External not found');
   return Net::Ping::External::ping(@addr, timeout => $timeout,
                                    family => $family);
 }

@@ -3656,7 +3656,6 @@ dist/Net-Ping/t/000_load.t		Ping Net::Ping
 dist/Net-Ping/t/001_new.t		Ping Net::Ping
 dist/Net-Ping/t/010_pingecho.t		Ping Net::Ping
 dist/Net-Ping/t/020_external.t		Ping Net::Ping
-dist/Net-Ping/t/100_load.t		Ping Net::Ping
 dist/Net-Ping/t/110_icmp_inst.t		Ping Net::Ping
 dist/Net-Ping/t/120_udp_inst.t		Ping Net::Ping
 dist/Net-Ping/t/130_tcp_inst.t		Ping Net::Ping
@@ -3672,7 +3671,6 @@ dist/Net-Ping/t/450_service.t		Ping Net::Ping
 dist/Net-Ping/t/500_ping_icmp.t		Ping Net::Ping
 dist/Net-Ping/t/510_ping_udp.t		Ping Net::Ping
 dist/Net-Ping/t/520_icmp_ttl.t		Ping Net::Ping
-dist/Net-Ping/t/600_pod.t		Ping Net::Ping
 dist/PathTools/Cwd.pm				Various cwd routines (getcwd, fastcwd, chdir)
 dist/PathTools/Cwd.xs				Cwd extension external subroutines
 dist/PathTools/lib/File/Spec.pm		portable operations on file names
