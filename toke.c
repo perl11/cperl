@@ -4449,8 +4449,7 @@ Perl_filter_add(pTHX_ filter_t funcp, SV *datasv)
 		STRLEN const last_lop_pos =
 		    PL_parser->last_lop ? PL_parser->last_lop - buf : 0;
 		av_push(PL_rsfp_filters, linestr);
-		PL_parser->linestr =
-		    newSVpvn(SvPVX(linestr), ++s-SvPVX(linestr));
+		PL_parser->linestr = newSVpvn(SvPVX(linestr), ++s - SvPVX(linestr));
 		buf = SvPVX(PL_parser->linestr);
 		PL_parser->bufend = buf + SvCUR(PL_parser->linestr);
 		PL_parser->bufptr = buf + bufptr_pos;
@@ -4462,7 +4461,7 @@ Perl_filter_add(pTHX_ filter_t funcp, SV *datasv)
 		if (PL_parser->last_lop)
 		    PL_parser->last_lop = buf + last_lop_pos;
 		SvLEN(linestr) = SvCUR(linestr);
-		SvCUR(linestr) = s-SvPVX(linestr);
+		SvCUR(linestr) = s - SvPVX(linestr);
 		PL_parser->filtered = 1;
 		break;
 	    }
@@ -4485,7 +4484,7 @@ Perl_filter_del(pTHX_ filter_t funcp)
     DEBUG_P(PerlIO_printf(Perl_debug_log, "filter_del func %p",
 			  FPTR2DPTR(void*, funcp)));
 #endif
-    if (!PL_parser || !PL_rsfp_filters || AvFILLp(PL_rsfp_filters)<0)
+    if (!PL_parser || !PL_rsfp_filters || AvFILLp(PL_rsfp_filters) < 0)
 	return;
     /* if filter is on top of stack (usual case) just pop it off */
     datasv = FILTER_DATA(AvFILLp(PL_rsfp_filters));
