@@ -1190,17 +1190,8 @@ use File::Glob qw(:case);
 
     'Scalar::Util' => {
         # lexical $_ support, binary names, various other fixes
-        'DISTRIBUTION' => 'RURBAN/Scalar-List-Utils-1.46_08.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Scalar-List-Utils-1.47_01.tar.gz',
         'FILES'        => q[cpan/Scalar-List-Utils],
-        # Bump version, make blead compile: RT #113180
-        #'CUSTOMIZED'   => [
-        #    qw( ListUtil.xs
-        #        lib/List/Util.pm
-        #        lib/List/Util/XS.pm
-        #        lib/Scalar/Util.pm
-        #        lib/Sub/Util.pm
-        #        )
-        #],
     },
 
     'Search::Dict' => {

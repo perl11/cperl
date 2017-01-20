@@ -515,6 +515,13 @@ Trying to import POSIX subs that have no real implementations
 (like C<POSIX::atend()>) now fails at import time, instead of
 waiting until runtime.
 
+=item Scalar-List-Util 1.47_01
+
+Bumped version because upstream is still years behind:
+  lexical $_ support, binary names, various other fixes.
+
+Improved taint test.
+
 =back
 
 =head1 Documentation
