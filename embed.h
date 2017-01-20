@@ -146,13 +146,16 @@
 #define dounwind(a)		Perl_dounwind(aTHX_ a)
 #define dowantarray()		Perl_dowantarray(aTHX)
 #define dump_all()		Perl_dump_all(aTHX)
+#define dump_all_perl(a)	Perl_dump_all_perl(aTHX_ a)
 #define dump_eval()		Perl_dump_eval(aTHX)
 #define dump_form(a)		Perl_dump_form(aTHX_ a)
 #ifndef PERL_IMPLICIT_CONTEXT
 #define dump_indent		Perl_dump_indent
 #endif
 #define dump_packsubs(a)	Perl_dump_packsubs(aTHX_ a)
+#define dump_packsubs_perl(a,b)	Perl_dump_packsubs_perl(aTHX_ a,b)
 #define dump_sub(a)		Perl_dump_sub(aTHX_ a)
+#define dump_sub_perl(a,b)	Perl_dump_sub_perl(aTHX_ a,b)
 #define dump_vindent(a,b,c,d)	Perl_dump_vindent(aTHX_ a,b,c,d)
 #define eval_pv(a,b)		Perl_eval_pv(aTHX_ a,b)
 #define eval_sv(a,b)		Perl_eval_sv(aTHX_ a,b)
@@ -1007,6 +1010,9 @@
 #define sv_only_taint_gmagic	S_sv_only_taint_gmagic
 #  endif
 #  if defined(DEBUGGING)
+#define deb_hechain(a)		Perl_deb_hechain(aTHX_ a)
+#define deb_hek(a,b)		Perl_deb_hek(aTHX_ a,b)
+#define hv_dump(a,b)		Perl_hv_dump(aTHX_ a,b)
 #    if defined(PERL_IN_REGCOMP_C)
 #define dump_trie(a,b,c,d)	S_dump_trie(aTHX_ a,b,c,d)
 #define dump_trie_interim_list(a,b,c,d,e)	S_dump_trie_interim_list(aTHX_ a,b,c,d,e)
@@ -1292,9 +1298,6 @@
 #define do_vecset(a)		Perl_do_vecset(aTHX_ a)
 #define do_vop(a,b,c,d)		Perl_do_vop(aTHX_ a,b,c,d)
 #define dofile(a,b)		Perl_dofile(aTHX_ a,b)
-#define dump_all_perl(a)	Perl_dump_all_perl(aTHX_ a)
-#define dump_packsubs_perl(a,b)	Perl_dump_packsubs_perl(aTHX_ a,b)
-#define dump_sub_perl(a,b)	Perl_dump_sub_perl(aTHX_ a,b)
 #define finalize_optree(a)	Perl_finalize_optree(aTHX_ a)
 #define find_lexical_cv(a)	Perl_find_lexical_cv(aTHX_ a)
 #define find_runcv_where(a,b,c)	Perl_find_runcv_where(aTHX_ a,b,c)
@@ -1618,7 +1621,10 @@
 #define do_trans_simple_utf8(a)	S_do_trans_simple_utf8(aTHX_ a)
 #  endif
 #  if defined(PERL_IN_DUMP_C)
+#define append_gv_name(a,b)	S_append_gv_name(aTHX_ a,b)
+#define append_padvar(a,b,c,d,e,f)	S_append_padvar(aTHX_ a,b,c,d,e,f)
 #define deb_curcv(a)		S_deb_curcv(aTHX_ a)
+#define deb_padvar(a,b,c)	S_deb_padvar(aTHX_ a,b,c)
 #define debprof(a)		S_debprof(aTHX_ a)
 #define pm_description(a)	S_pm_description(aTHX_ a)
 #define sequence_num(a)		S_sequence_num(aTHX_ a)

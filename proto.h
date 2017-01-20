@@ -1370,7 +1370,9 @@ PERL_CALLCONV double	Perl_drand48_r(perl_drand48_t *random_state)
 PERL_CALLCONV void	Perl_dump_all(pTHX)
 			__attribute__global__;
 
-PERL_CALLCONV void	Perl_dump_all_perl(pTHX_ bool justperl);
+PERL_CALLCONV void	Perl_dump_all_perl(pTHX_ bool justperl)
+			__attribute__global__;
+
 PERL_CALLCONV void	Perl_dump_eval(pTHX)
 			__attribute__global__;
 
@@ -1388,13 +1390,14 @@ PERL_CALLCONV void	Perl_dump_indent(pTHX_ I32 level, PerlIO *file, const char* p
 #define PERL_ARGS_ASSERT_DUMP_INDENT	\
 	assert(file); assert(pat)
 
-PERL_CALLCONV void	Perl_dump_packsubs(pTHX_ const HV* stash)
+PERL_CALLCONV void	Perl_dump_packsubs(pTHX_ const HV *stash)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DUMP_PACKSUBS	\
 	assert(stash)
 
-PERL_CALLCONV void	Perl_dump_packsubs_perl(pTHX_ const HV* stash, bool justperl)
+PERL_CALLCONV void	Perl_dump_packsubs_perl(pTHX_ const HV *stash, bool justperl)
+			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DUMP_PACKSUBS_PERL	\
 	assert(stash)
@@ -1406,6 +1409,7 @@ PERL_CALLCONV void	Perl_dump_sub(pTHX_ const GV* gv)
 	assert(gv)
 
 PERL_CALLCONV void	Perl_dump_sub_perl(pTHX_ const GV* gv, bool justperl)
+			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DUMP_SUB_PERL	\
 	assert(gv)
@@ -7134,7 +7138,13 @@ PERL_STATIC_INLINE core_types_t	S_stash_to_coretype(pTHX_ const HV* stash);
 #  endif
 #endif
 #if defined(DEBUGGING)
+PERL_CALLCONV void	Perl_deb_hechain(pTHX_ HE* entry)
+			__attribute__global__;
+
 PERL_CALLCONV void	Perl_deb_hechain(pTHX_ HE* entry);
+PERL_CALLCONV void	Perl_deb_hek(pTHX_ HEK* hek, SV* val)
+			__attribute__global__;
+
 PERL_CALLCONV int	Perl_get_debug_opts(pTHX_ const char **s, bool givehelp)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
@@ -7146,6 +7156,12 @@ PERL_CALLCONV void	Perl_hv_assert(pTHX_ HV *hv)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_ASSERT	\
 	assert(hv)
+
+PERL_CALLCONV void	Perl_hv_dump(pTHX_ SV* sv, bool with_values)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_HV_DUMP	\
+	assert(sv)
 
 PERL_CALLCONV void	Perl_pad_setsv(pTHX_ PADOFFSET po, SV* sv)
 			__attribute__global__
@@ -7794,7 +7810,18 @@ STATIC I32	S_do_trans_simple_utf8(pTHX_ SV * const sv)
 
 #endif
 #if defined(PERL_IN_DUMP_C)
+STATIC void	S_append_gv_name(pTHX_ GV *gv, SV *out)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_APPEND_GV_NAME	\
+	assert(out)
+
+STATIC void	S_append_padvar(pTHX_ PADOFFSET off, CV *cv, SV *out, int n, bool paren, char force_sigil)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_APPEND_PADVAR	\
+	assert(out)
+
 STATIC CV*	S_deb_curcv(pTHX_ I32 ix);
+STATIC void	S_deb_padvar(pTHX_ PADOFFSET off, int n, bool paren);
 STATIC void	S_debprof(pTHX_ const OP *o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DEBPROF	\

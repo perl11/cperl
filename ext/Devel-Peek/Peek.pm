@@ -117,15 +117,16 @@ function.
 
 All output is to STDERR.
 
-The C<Dump()> function takes one or two arguments: something to dump, and
-an optional limit for recursion and array elements (default is 4).  The
-first argument is evaluted in rvalue scalar context, with exceptions for
-@array and %hash, which dump the array or hash itself.  So C<Dump @array>
-works, as does C<Dump $foo>.  And C<Dump pos> will call C<pos> in rvalue
-context, whereas C<Dump ${\pos}> will call it in lvalue context.
+The C<Dump()> function takes one or two arguments: something to dump,
+and an optional limit for recursion, and max. number of array and hash
+elements (default is 4).  The first argument is evaluted in rvalue
+scalar context, with exceptions for @array and %hash, which dump the
+array or hash itself.  So C<Dump @array> works, as does C<Dump $foo>.
+And C<Dump pos> will call C<pos> in rvalue context, whereas C<Dump
+${\pos}> will call it in lvalue context.
 
-Function C<DumpArray()> allows dumping of multiple values (useful when you
-need to analyze returns of functions).
+Function C<DumpArray()> allows dumping of multiple values (useful when
+you need to analyze returns of functions).
 
 The global variable $Devel::Peek::pv_limit can be set to limit the
 number of character printed in various string values.  Setting it to 0
@@ -152,7 +153,8 @@ the modification.)
 runops_debug() returns true if the current I<opcode dispatcher> is the
 debugging one.  When called with an argument, switches to debugging or
 non-debugging dispatcher depending on the argument (active for
-newly-entered subs/etc only).  (The returned value is for the dispatcher before the modification.)
+newly-entered subs/etc only).  (The returned value is for the
+dispatcher before the modification.)
 
 =head2 Memory footprint debugging
 
@@ -565,8 +567,8 @@ C<SvREFCNT_dec>.
 
 =head1 BUGS
 
-Readers have been known to skip important parts of L<perlguts>, causing much
-frustration for all.
+Readers have been known to skip important parts of L<perlguts>,
+causing much frustration for all.
 
 =head1 AUTHOR
 

@@ -343,7 +343,6 @@ Note that the final string may be up to 7 chars longer than pvlim.
 
 =cut
 */
-
 char *
 Perl_pv_display(pTHX_ SV *dsv, const char *pv, STRLEN cur, STRLEN len, STRLEN pvlim)
 {
@@ -355,6 +354,12 @@ Perl_pv_display(pTHX_ SV *dsv, const char *pv, STRLEN cur, STRLEN len, STRLEN pv
     return SvPVX(dsv);
 }
 
+/*
+=for apidoc sv_peek
+Returns a temporary string of the SV value.
+
+=cut
+*/
 char *
 Perl_sv_peek(pTHX_ SV *sv)
 {
@@ -512,6 +517,15 @@ Perl_sv_peek(pTHX_ SV *sv)
 =head1 Debugging Utilities
 */
 
+/*
+=for apidoc dump_indent
+=for apidoc dump_vindent
+
+Dumps the string with arguments to the given IO, starting
+with a indent level of whitespace.
+
+=cut
+*/
 void
 Perl_dump_indent(pTHX_ I32 level, PerlIO *file, const char* pat, ...)
 {
@@ -534,18 +548,27 @@ Perl_dump_vindent(pTHX_ I32 level, PerlIO *file, const char* pat, va_list *args)
 =for apidoc dump_all
 
 Dumps the entire optree of the current program starting at C<PL_main_root> to 
-C<STDERR>.  Also dumps the optrees for all visible subroutines in
-C<PL_defstash>.
+C<STDERR>.  Also dumps the optrees for all visible subroutines in C<%main::>, the
+C<PL_defstash>. But no XS subs or subs with empty bodies.
+See L</dump_all_perl>.
 
 =cut
 */
-
 void
 Perl_dump_all(pTHX)
 {
     dump_all_perl(FALSE);
 }
 
+/*
+=for apidoc dump_all_perl
+Dumps the entire optree of the current program starting to 
+C<STDERR>. 
+Also dumps all SUBS in the %main:: package to C<STDERR>.
+See L</dump_packsubs_perl>.
+
+=cut
+*/
 void
 Perl_dump_all_perl(pTHX_ bool justperl)
 {
@@ -557,12 +580,11 @@ Perl_dump_all_perl(pTHX_ bool justperl)
 
 /*
 =for apidoc dump_packsubs
-
-Dumps the optrees for all visible subroutines in C<stash>.
+Dumps all perl-only SUBS in the package C<stash> to C<STDERR>.
+See L</dump_packsubs_perl>.
 
 =cut
 */
-
 void
 Perl_dump_packsubs(pTHX_ const HV *stash)
 {
@@ -570,6 +592,13 @@ Perl_dump_packsubs(pTHX_ const HV *stash)
     dump_packsubs_perl(stash, FALSE);
 }
 
+/*
+=for apidoc dump_packsubs_perl
+Dumps all SUBS in the package to C<STDERR>.
+See L</dump_sub_perl>.
+
+=cut
+*/
 void
 Perl_dump_packsubs_perl(pTHX_ const HV *stash, bool justperl)
 {
@@ -601,6 +630,13 @@ Perl_dump_packsubs_perl(pTHX_ const HV *stash, bool justperl)
     }
 }
 
+/*
+=for apidoc dump_sub
+Dumps the perl-only SUB to C<STDERR>.
+See L</dump_sub_perl>.
+
+=cut
+*/
 void
 Perl_dump_sub(pTHX_ const GV *gv)
 {
@@ -608,6 +644,13 @@ Perl_dump_sub(pTHX_ const GV *gv)
     dump_sub_perl(gv, FALSE);
 }
 
+/*
+=for apidoc dump_sub_perl
+Dumps any SUB to C<STDERR>, optionally also XS and empty sub declarations.
+See also L</dump_sub>.
+
+=cut
+*/
 void
 Perl_dump_sub_perl(pTHX_ const GV *gv, bool justperl)
 {
@@ -636,6 +679,12 @@ Perl_dump_sub_perl(pTHX_ const GV *gv, bool justperl)
 	Perl_dump_indent(aTHX_ 0, Perl_debug_log, "<undef>\n");
 }
 
+/*
+=for apidoc dump_form
+Dumps the FORMAT to C<STDERR>.
+
+=cut
+*/
 void
 Perl_dump_form(pTHX_ const GV *gv)
 {
@@ -651,12 +700,26 @@ Perl_dump_form(pTHX_ const GV *gv)
 	Perl_dump_indent(aTHX_ 0, Perl_debug_log, "<undef>\n");
 }
 
+/*
+=for apidoc dump_eval
+Dumps the current C<eval_root> to C<STDERR>.
+
+=cut
+*/
 void
 Perl_dump_eval(pTHX)
 {
     op_dump(PL_eval_root);
 }
 
+/*
+=for apidoc Ap|void	|do_pmop_dump	|I32 level|NN PerlIO *file|NULLOK const PMOP *pm
+
+    level:   amount to indent the output
+    file:    the IO to dump to
+    pm:      the object to dump
+=cut
+*/
 void
 Perl_do_pmop_dump(pTHX_ I32 level, PerlIO *file, const PMOP *pm)
 {
@@ -751,17 +814,27 @@ S_pm_description(pTHX_ const PMOP *pm)
     return desc;
 }
 
+/*
+=for apidoc pmop_dump
+Dumps a pmop to C<STDERR>.
+
+=cut
+*/
 void
 Perl_pmop_dump(pTHX_ PMOP *pm)
 {
     do_pmop_dump(0, Perl_debug_log, pm);
 }
 
-/* Return a unique integer to represent the address of op o.
- * If it already exists in PL_op_sequence, just return it;
- * otherwise add it.
- *  *** Note that this isn't thread-safe */
+/*
+=for apidoc sequence_num
+Return a unique integer to represent the address of op o.
+If it already exists in PL_op_sequence, just return it;
+otherwise add it.
 
+ *** Note that this isn't thread-safe.
+=cut
+*/
 STATIC UV
 S_sequence_num(pTHX_ const OP *o)
 {
@@ -785,9 +858,6 @@ S_sequence_num(pTHX_ const OP *o)
 }
 
 
-
-
-
 const struct flag_to_name op_flags_names[] = {
     {OPf_KIDS, ",KIDS"},
     {OPf_PARENS, ",PARENS"},
@@ -798,6 +868,16 @@ const struct flag_to_name op_flags_names[] = {
 };
 
 
+/*
+=for apidoc Ap|void	|do_op_dump	|I32 level|NN PerlIO *file|NULLOK const OP *o
+
+    level:   amount to indent the output
+    file:    the IO to dump to
+    o:       the op to dump
+
+Observes the global C<PL_dumpindent>, default 4, e.g. set by Devel::Peek or B::C to 2.
+=cut
+*/
 void
 Perl_do_op_dump(pTHX_ I32 level, PerlIO *file, const OP *o)
 {
@@ -1088,12 +1168,10 @@ Perl_do_op_dump(pTHX_ I32 level, PerlIO *file, const OP *o)
 
 /*
 =for apidoc op_dump
-
 Dumps the optree starting at OP C<o> to C<STDERR>.
 
 =cut
 */
-
 void
 Perl_op_dump(pTHX_ const OP *o)
 {
@@ -1101,6 +1179,12 @@ Perl_op_dump(pTHX_ const OP *o)
     do_op_dump(0, Perl_debug_log, o);
 }
 
+/*
+=for apidoc gv_dump
+Dumps a gv to C<STDERR>.
+
+=cut
+*/
 void
 Perl_gv_dump(pTHX_ GV *gv)
 {
@@ -1139,8 +1223,23 @@ static const struct { const char type; const char *name; } magic_names[] = {
 	{ 0,                         NULL },
 };
 
+/*
+=for apidoc Ap|void	|do_magic_dump	|I32 level|NN PerlIO *file|NULLOK const MAGIC *mg \
+				|I32 nest|I32 maxnest|bool dumpops|STRLEN pvlim
+
+    level:   amount to indent the output
+    file:    the IO to dump to
+    mg:      the MAGIC to dump
+    nest:    the current level of recursion
+    maxnest: the maximum allowed level of recursion,
+             also the max number of HV and AV elements listed.
+    dumpops: if true, also dump the ops associated with a CV
+    pvlim:   limit on the length of any strings that are output
+=cut
+*/
 void
-Perl_do_magic_dump(pTHX_ I32 level, PerlIO *file, const MAGIC *mg, I32 nest, I32 maxnest, bool dumpops, STRLEN pvlim)
+Perl_do_magic_dump(pTHX_ I32 level, PerlIO *file, const MAGIC *mg, I32 nest,
+                   I32 maxnest, bool dumpops, STRLEN pvlim)
 {
     PERL_ARGS_ASSERT_DO_MAGIC_DUMP;
 
@@ -1152,7 +1251,8 @@ Perl_do_magic_dump(pTHX_ I32 level, PerlIO *file, const MAGIC *mg, I32 nest, I32
 	    if (v >= PL_magic_vtables
 		&& v < PL_magic_vtables + magic_vtable_max) {
 		const U32 i = v - PL_magic_vtables;
-	        Perl_dump_indent(aTHX_ level, file, "    MG_VIRTUAL = &PL_vtbl_%s\n", PL_magic_vtable_names[i]);
+	        Perl_dump_indent(aTHX_ level, file, "    MG_VIRTUAL = &PL_vtbl_%s\n",
+                                 PL_magic_vtable_names[i]);
 	    }
 	    else
 	        Perl_dump_indent(aTHX_ level, file, "    MG_VIRTUAL = 0x%"
@@ -1220,7 +1320,8 @@ Perl_do_magic_dump(pTHX_ I32 level, PerlIO *file, const MAGIC *mg, I32 nest, I32
 			(IV)RX_REFCNT(re));
             }
             if (mg->mg_flags & MGf_REFCOUNTED)
-		do_sv_dump(level+2, file, mg->mg_obj, nest+1, maxnest, dumpops, pvlim); /* MG is already +1 */
+                /* MG is already +1 */
+		do_sv_dump(level+2, file, mg->mg_obj, nest+1, maxnest, dumpops, pvlim);
 	}
         if (mg->mg_len)
 	    Perl_dump_indent(aTHX_ level, file, "    MG_LEN = %ld\n", (long)mg->mg_len);
@@ -1229,7 +1330,8 @@ Perl_do_magic_dump(pTHX_ I32 level, PerlIO *file, const MAGIC *mg, I32 nest, I32
 	    if (mg->mg_len >= 0) {
 		if (mg->mg_type != PERL_MAGIC_utf8) {
 		    SV * const sv = newSVpvs("");
-		    PerlIO_printf(file, " %s", pv_display(sv, mg->mg_ptr, mg->mg_len, 0, pvlim));
+		    PerlIO_printf(file, " %s",
+                                  pv_display(sv, mg->mg_ptr, mg->mg_len, 0, pvlim));
 		    SvREFCNT_dec_NN(sv);
 		}
             }
@@ -1263,12 +1365,24 @@ Perl_do_magic_dump(pTHX_ I32 level, PerlIO *file, const MAGIC *mg, I32 nest, I32
     }
 }
 
+/*
+=for apidoc magic_dump
+Dumps magic to C<STDERR>.
+
+=cut
+*/
 void
 Perl_magic_dump(pTHX_ const MAGIC *mg)
 {
     do_magic_dump(0, Perl_debug_log, mg, 0, 0, FALSE, 0);
 }
 
+/*
+=for apidoc do_hv_dump
+Dumps a named hv with given indent level to a IO.
+
+=cut
+*/
 void
 Perl_do_hv_dump(pTHX_ I32 level, PerlIO *file, const char *name, HV *sv)
 {
@@ -1292,6 +1406,12 @@ Perl_do_hv_dump(pTHX_ I32 level, PerlIO *file, const char *name, HV *sv)
         (void)PerlIO_putc(file, '\n');
 }
 
+/*
+=for apidoc do_gv_dump
+Dumps a named gv with given indent level to a IO.
+
+=cut
+*/
 void
 Perl_do_gv_dump(pTHX_ I32 level, PerlIO *file, const char *name, GV *sv)
 {
@@ -1307,6 +1427,12 @@ Perl_do_gv_dump(pTHX_ I32 level, PerlIO *file, const char *name, GV *sv)
         (void)PerlIO_putc(file, '\n');
 }
 
+/*
+=for apidoc do_gvgv_dump
+Dumps a named gv name with given indent level to a IO.
+
+=cut
+*/
 void
 Perl_do_gvgv_dump(pTHX_ I32 level, PerlIO *file, const char *name, GV *sv)
 {
@@ -1462,18 +1588,23 @@ const struct flag_to_name hv_aux_flags_names[] = {
 };
 
 
-/* Perl_do_sv_dump():
- *
- * level:   amount to indent the output
- * sv:      the object to dump
- * nest:    the current level of recursion
- * maxnest: the maximum allowed level of recursion
- * dumpops: if true, also dump the ops associated with a CV
- * pvlim:   limit on the length of any strings that are output
- * */
+/*
+=for apidoc Ap|void	|do_sv_dump	|I32 level|NN PerlIO *file|NULLOK SV *sv \
+				|I32 nest|I32 maxnest|bool dumpops|STRLEN pvlim
 
+    level:   amount to indent the output
+    file:    the IO to dump to
+    sv:      the object to dump
+    nest:    the current level of recursion
+    maxnest: the maximum allowed level of recursion,
+             also the max number of HV and AV elements listed.
+    dumpops: if true, also dump the ops associated with a CV
+    pvlim:   limit on the length of any strings that are output
+=cut
+*/
 void
-Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bool dumpops, STRLEN pvlim)
+Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
+                bool dumpops, STRLEN pvlim)
 {
     SV *d;
     const char *s;
@@ -1683,7 +1814,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
         HV* stash = SvSTASH(sv);
 
 	if (SvMAGIC(sv))
-		do_magic_dump(level, file, SvMAGIC(sv), nest+1, maxnest, dumpops, pvlim);
+            do_magic_dump(level, file, SvMAGIC(sv), nest+1, maxnest, dumpops, pvlim);
 	if (stash) {
             if (SvOBJECT(sv))
                 do_hv_dump(level, file, "  STASH", stash);
@@ -1819,7 +1950,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
             U32 riter = HvRITER_get(sv);
 	    Perl_dump_indent(aTHX_ level, file, "  RITER = %ld\n",
                              riter == HV_NO_RITER ? -1 : (long)riter);
-	    Perl_dump_indent(aTHX_ level, file, "  EITER = 0x%" UVxf "\n", PTR2UV(HvEITER_get(sv)));
+	    Perl_dump_indent(aTHX_ level, file, "  EITER = 0x%" UVxf "\n",
+                             PTR2UV(HvEITER_get(sv)));
 #ifdef PERL_HASH_RANDOMIZE_KEYS
 	    Perl_dump_indent(aTHX_ level, file, "  RAND = 0x%" UVxf, (UV)HvRAND_get(sv));
             if (HvRAND_get(sv) != HvLASTRAND_get(sv) && HvRITER_get(sv) != HV_NO_RITER ) {
@@ -1831,7 +1963,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	{
 	    MAGIC * const mg = mg_find(sv, PERL_MAGIC_symtab);
 	    if (mg && mg->mg_obj) {
-		Perl_dump_indent(aTHX_ level, file, "  PMROOT = 0x%" UVxf "\n", PTR2UV(mg->mg_obj));
+		Perl_dump_indent(aTHX_ level, file, "  PMROOT = 0x%" UVxf "\n",
+                                 PTR2UV(mg->mg_obj));
 	    }
 	}
 	{
@@ -1866,7 +1999,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 			if (*hekp) {
                             SV *tmp = newSVpvs_flags("", SVs_TEMP);
 			    Perl_sv_catpvf(aTHX_ names, ", \"%s\"",
-                              generic_pv_escape(tmp, HEK_KEY(*hekp), HEK_LEN(*hekp), HEK_UTF8(*hekp)));
+                              generic_pv_escape(tmp, HEK_KEY(*hekp), HEK_LEN(*hekp),
+                                                HEK_UTF8(*hekp)));
 			} else {
 			    /* This should never happen. */
 			    sv_catpvs(names, ", (null)");
@@ -1962,9 +2096,12 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 			keypv = SvPV_const(keysv, len);
 			elt = HeVAL(he);
 
-                        Perl_dump_indent(aTHX_ level+1, file, "Elt %s ", pv_display(d, keypv, len, 0, pvlim));
+                        Perl_dump_indent(aTHX_ level+1, file, "Elt %s ",
+                                         pv_display(d, keypv, len, 0, pvlim));
                         if (SvUTF8(keysv))
-                            PerlIO_printf(file, "[UTF8 \"%s\"] ", sv_uni_display(d, keysv, 6 * SvCUR(keysv), UNI_DISPLAY_QQ));
+                            PerlIO_printf(file, "[UTF8 \"%s\"] ",
+                                          sv_uni_display(d, keysv, 6 * SvCUR(keysv),
+                                                         UNI_DISPLAY_QQ));
 			if (HvEITER_get(hv) == he)
 			    PerlIO_printf(file, "[CURRENT] ");
                         PerlIO_printf(file, "HASH = 0x%" UVxf "\n", (UV) hash);
@@ -2145,8 +2282,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	else {
 	    Perl_dump_indent(aTHX_ level, file, "  TOP_GV = 0x%" UVxf "\n",
 			     PTR2UV(IoTOP_GV(sv)));
-	    do_sv_dump (level+1, file, MUTABLE_SV(IoTOP_GV(sv)), nest+1,
-			maxnest, dumpops, pvlim);
+	    do_sv_dump(level+1, file, MUTABLE_SV(IoTOP_GV(sv)), nest+1,
+                       maxnest, dumpops, pvlim);
 	}
 	/* Source filters hide things that are not GVs in these three, so let's
 	   be careful out there.  */
@@ -2157,8 +2294,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	else {
 	    Perl_dump_indent(aTHX_ level, file, "  FMT_GV = 0x%" UVxf "\n",
 			     PTR2UV(IoFMT_GV(sv)));
-	    do_sv_dump (level+1, file, MUTABLE_SV(IoFMT_GV(sv)), nest+1,
-			maxnest, dumpops, pvlim);
+	    do_sv_dump(level+1, file, MUTABLE_SV(IoFMT_GV(sv)), nest+1,
+                       maxnest, dumpops, pvlim);
 	}
         if (IoBOTTOM_NAME(sv))
             Perl_dump_indent(aTHX_ level, file, "  BOTTOM_NAME = \"%s\"\n", IoBOTTOM_NAME(sv));
@@ -2167,8 +2304,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 	else {
 	    Perl_dump_indent(aTHX_ level, file, "  BOTTOM_GV = 0x%" UVxf "\n",
 			     PTR2UV(IoBOTTOM_GV(sv)));
-	    do_sv_dump (level+1, file, MUTABLE_SV(IoBOTTOM_GV(sv)), nest+1,
-			maxnest, dumpops, pvlim);
+	    do_sv_dump(level+1, file, MUTABLE_SV(IoBOTTOM_GV(sv)), nest+1,
+                       maxnest, dumpops, pvlim);
 	}
 	if (isPRINT(IoTYPE(sv)))
             Perl_dump_indent(aTHX_ level, file, "  TYPE = '%c'\n", IoTYPE(sv));
@@ -2253,14 +2390,11 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest, bo
 
 /*
 =for apidoc sv_dump
-
 Dumps the contents of an SV to the C<STDERR> filehandle.
 
 For an example of its output, see L<Devel::Peek>.
-
 =cut
 */
-
 void
 Perl_sv_dump(pTHX_ SV *sv)
 {
@@ -2272,6 +2406,14 @@ Perl_sv_dump(pTHX_ SV *sv)
 	do_sv_dump(0, Perl_debug_log, sv, 0, 0, 0, 0);
 }
 
+/*
+=for apidoc runops_debug
+The slow runloop used with -DDEBUGGING to observe all C<-D> flags,
+esp. C<-Dt> op tracing, C<-Ds> stack, C<-Dsv> verbose stack and C<-DP>
+profiling.
+
+=cut
+*/
 int
 Perl_runops_debug(pTHX)
 {
@@ -2319,9 +2461,13 @@ Perl_runops_debug(pTHX)
 }
 
 
-/* print the names of the n lexical vars starting at pad offset off */
+/*
+=for apidoc deb_padvar
+Print the names of the n lexical vars starting at pad offset off.
 
-STATIC void
+=cut
+*/
+static void
 S_deb_padvar(pTHX_ PADOFFSET off, int n, bool paren)
 {
     PADNAME *sv;
@@ -2349,15 +2495,20 @@ S_deb_padvar(pTHX_ PADOFFSET off, int n, bool paren)
 }
 
 
-/* append to the out SV, the names of the n lexicals starting at offset
- * off in the CV * cv */
+/*
+=for apidoc append_padvar
+Append to the out SV, the names of the n lexicals starting at offset
+off in the CV * cv.
 
+=cut
+*/
 static void
 S_append_padvar(pTHX_ PADOFFSET off, CV *cv, SV *out, int n,
         bool paren, char force_sigil)
 {
     PADNAMELIST *namepad = NULL;
     int i;
+    PERL_ARGS_ASSERT_APPEND_PADVAR;
 
     if (cv) {
         PADLIST * const padlist = CvPADLIST(cv);
@@ -2398,11 +2549,17 @@ S_append_padvar(pTHX_ PADOFFSET off, CV *cv, SV *out, int n,
         sv_catpvs_nomg(out, "(");
 }
 
+/*
+=for apidoc append_gv_name
+Append to the out SV the name of the gv.
 
+=cut
+*/
 static void
 S_append_gv_name(pTHX_ GV *gv, SV *out)
 {
     SV *sv;
+    PERL_ARGS_ASSERT_APPEND_GV_NAME;
     if (!gv) {
         sv_catpvs_nomg(out, "<NULLGV>");
         return;
@@ -2413,8 +2570,14 @@ S_append_gv_name(pTHX_ GV *gv, SV *out)
     SvREFCNT_dec_NN(sv);
 }
 
-/* print the HEKs in a HE chain */
+/*
+=for apidoc deb_hek
+Print the HEK key and value, along with the hash and flags.
 
+Only avalaible with C<-DDEBUGGING>.
+
+=cut
+*/
 #ifdef DEBUGGING
 STATIC void
 S_deb_hek(pTHX_ HEK* hek, SV* val)
@@ -2460,6 +2623,14 @@ S_deb_hek(pTHX_ HEK* hek, SV* val)
     }
 }
 
+/*
+=for apidoc deb_hechain
+Print the HE chain.
+
+Only avalaible with C<-DDEBUGGING>.
+
+=cut
+*/
 void
 Perl_deb_hechain(pTHX_ HE* entry)
 {
@@ -2491,7 +2662,6 @@ the op_aux field of a MULTIDEREF op, associated with CV cv
 
 =cut
 */
-
 SV*
 Perl_multideref_stringify(pTHX_ const OP *o, CV *cv)
 {
@@ -2505,6 +2675,7 @@ Perl_multideref_stringify(pTHX_ const OP *o, CV *cv)
 #ifdef USE_ITHREADS
     PAD *comppad;
 
+    PERL_ARGS_ASSERT_MULTIDEREF_STRINGIFY;
     if (cv) {
         PADLIST *padlist = CvPADLIST(cv);
         comppad = PadlistARRAY(padlist)[1];
@@ -2640,7 +2811,6 @@ the op_aux field of a SIGNATURE op, associated with CV cv.
 
 =cut
 */
-
 SV*
 Perl_signature_stringify(pTHX_ const OP *o, CV *cv)
 {
@@ -2774,12 +2944,11 @@ Perl_signature_stringify(pTHX_ const OP *o, CV *cv)
 
 /*
 =for apidoc debop
-
-Print the name of the op to stderr.
+Print the name of the op to stderr, used by C<-Dt>.
+Some ops are printed with an argument.
 
 =cut
 */
-
 I32
 Perl_debop(pTHX_ const OP *o)
 {
@@ -2944,7 +3113,15 @@ Perl_debprofdump(pTHX)
 
 #ifdef DEBUGGING
 
-/* dump the hv keys and optionally values */
+/*
+=for apidoc hv_dump
+Dump all the hv keys and optionally values.
+sv_dump dumps only a limited amount of keys.
+
+Only avalaible with C<-DDEBUGGING>.
+
+=cut
+*/
 void
 Perl_hv_dump(pTHX_ SV* sv, bool with_values)
 {
@@ -2952,6 +3129,8 @@ Perl_hv_dump(pTHX_ SV* sv, bool with_values)
     HE **ents = HvARRAY(sv);
     int level = 0;
     U32 i;
+    PERL_ARGS_ASSERT_HV_DUMP;
+    
     Perl_dump_indent(aTHX_ level, file, "KEYS = %u\n", (unsigned)HvUSEDKEYS(sv));
     Perl_dump_indent(aTHX_ level, file, "ARRAY = 0x%" UVxf "\n", PTR2UV(ents));
     if (ents && HvUSEDKEYS(sv)) {

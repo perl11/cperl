@@ -506,16 +506,16 @@ p	|void	|do_vop		|I32 optype|NN SV* sv|NN SV* left|NN SV* right
 p	|OP*	|dofile		|NN OP* term|I32 force_builtin
 ApR	|U8	|dowantarray
 Ap	|void	|dump_all
-p	|void	|dump_all_perl	|bool justperl
+Ap	|void	|dump_all_perl	|bool justperl
+Ap	|void	|dump_packsubs	|NN const HV *stash
+Ap	|void	|dump_packsubs_perl |NN const HV *stash|bool justperl
 Ap	|void	|dump_eval
 Ap	|void	|dump_form	|NN const GV* gv
 Ap	|void	|gv_dump	|NULLOK GV* gv
 Ap	|void	|op_dump	|NN const OP *o
 Ap	|void	|pmop_dump	|NULLOK PMOP* pm
-Ap	|void	|dump_packsubs	|NN const HV* stash
-p	|void	|dump_packsubs_perl	|NN const HV* stash|bool justperl
 Ap	|void	|dump_sub	|NN const GV* gv
-p	|void	|dump_sub_perl	|NN const GV* gv|bool justperl
+Ap	|void	|dump_sub_perl	|NN const GV* gv|bool justperl
 Apd	|void	|fbm_compile	|NN SV* sv|U32 flags
 ApdR	|char*	|fbm_instr	|NN unsigned char* big|NN unsigned char* bigend \
 				|NN SV* littlestr|U32 flags
@@ -2015,6 +2015,11 @@ Ap	|void	|do_pmop_dump	|I32 level|NN PerlIO *file|NULLOK const PMOP *pm
 Ap	|void	|do_sv_dump	|I32 level|NN PerlIO *file|NULLOK SV *sv|I32 nest \
 				|I32 maxnest|bool dumpops|STRLEN pvlim
 Ap	|void	|magic_dump	|NULLOK const MAGIC *mg
+#if defined(DEBUGGING)
+XEMp	|void	|deb_hek	|NULLOK HEK* hek|NULLOK SV* val
+XEMp	|void	|deb_hechain	|NULLOK HE* entry
+XEMp	|void	|hv_dump	|NN SV* sv|bool with_values
+#endif
 Ap	|void	|reginitcolors
 ApdRmb	|char*	|sv_2pv_nolen	|NN SV* sv
 ApdRmb	|char*	|sv_2pvutf8_nolen|NN SV* sv
@@ -2669,6 +2674,10 @@ s	|CV*	|deb_curcv	|I32 ix
 s	|void	|debprof	|NN const OP *o
 s	|UV	|sequence_num	|NULLOK const OP *o
 s	|SV*	|pm_description	|NN const PMOP *pm
+s	|void	|deb_padvar	|PADOFFSET off|int n|bool paren
+s	|void	|append_padvar	|PADOFFSET off|NULLOK CV *cv|NN SV *out|int n \
+        			|bool paren|char force_sigil
+s	|void	|append_gv_name	|NULLOK GV *gv|NN SV *out
 #endif
 
 #if defined(PERL_IN_SCOPE_C)
