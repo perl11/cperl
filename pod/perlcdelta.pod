@@ -474,6 +474,13 @@ gcc 4.9.2 warning -Wmaybe-uninitialized for cost[3-5]
 Coped fix for same issue from
 L<RT #105647|https://rt.cpan.org/Ticket/Display.html?id=105647>
 
+=item Compress-Raw-Zlib 2.071
+
+Better fix for the cperl APPEND logic.
+
+inflate.c: Fixed -1L compilation warning
+L<RT #119580|https://rt.cpan.org/Ticket/Display.html?id=119580>
+
 =item Opcode 1.35_01c
 
 Add avhvswitch op
