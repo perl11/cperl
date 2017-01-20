@@ -488,6 +488,14 @@ L<RT #107642|https://rt.cpan.org/Ticket/Display.html?id=107642>
 
 The other 2 fixes were already in cperl, plus a fix for reproducible builds.
 
+=item IO-Compress 2.070
+
+File::GlobMapper, Fix prototype errors while lazy loading the module
+L<RT #117675|https://rt.cpan.org/Ticket/Display.html?id=117675>
+
+zipdetails: CVE-2016-1238: avoid loading optional modules from default
+L<RT #116538|https://rt.cpan.org/Ticket/Display.html?id=116538>
+
 =item Opcode 1.35_01c
 
 Add avhvswitch op
