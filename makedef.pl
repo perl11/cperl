@@ -251,6 +251,9 @@ unless ($define{'DEBUGGING'}) {
 		    Perl_debprofdump
 		    Perl_debstack
 		    Perl_debstackptrs
+                    Perl_deb_hechain
+                    Perl_deb_hek
+                    Perl_hv_dump
 		    Perl_pad_sv
 		    Perl_pad_setsv
                     Perl__setlocale_debug_string
