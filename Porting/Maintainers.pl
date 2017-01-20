@@ -662,8 +662,8 @@ use File::Glob qw(:case);
     },
 
     'ExtUtils::MakeMaker' => {
-        'DISTRIBUTION' => 'BINGOS/ExtUtils-MakeMaker-7.04.tar.gz',
-        'FILES'        => q[dist/ExtUtils-MakeMaker],
+        'DISTRIBUTION' => 'BINGOS/ExtUtils-MakeMaker-7.24.tar.gz',
+        'FILES'        => q[cpan/ExtUtils-MakeMaker],
         'EXCLUDED'     => [
             qr{^t/lib/Test/},
             qr{^(bundled|my)/},
@@ -678,23 +678,22 @@ use File::Glob qw(:case);
         # cperl skips the ending 'c'
         # use -e not -f for solibs
         # fix for Porting/cmpVERSION.pl with IO::Scalar parse_version() handles
-        'CUSTOMIZED'   => 
-          [ qw[ lib/ExtUtils/MM_Any.pm
-                lib/ExtUtils/MM_Unix.pm
-                lib/ExtUtils/Command/MM.pm
-                lib/ExtUtils/MakeMaker.pm
-                lib/ExtUtils/MakeMaker/Locale.pm
-                lib/ExtUtils/Mkbootstrap.pm
-                lib/ExtUtils/Liblist/Kid.pm
-                t/basic.t
-                t/Liblist.t
-                t/Mkbootstrap.t
-                t/pm_to_blib.t
-                t/prereq.t
-                t/vstrings.t ],
-            # Not yet submitted
-            qq[t/lib/MakeMaker/Test/NoXS.pm],
-          ],
+        #'CUSTOMIZED'   => 
+        #  [ qw[ lib/ExtUtils/MM_Any.pm
+        #        lib/ExtUtils/MM_Unix.pm
+        #        lib/ExtUtils/Command/MM.pm
+        #        lib/ExtUtils/MakeMaker.pm
+        #        lib/ExtUtils/Mkbootstrap.pm
+        #        lib/ExtUtils/Liblist/Kid.pm
+        #        t/basic.t
+        #        t/Liblist.t
+        #        t/Mkbootstrap.t
+        #        t/pm_to_blib.t
+        #        t/prereq.t
+        #        t/vstrings.t ],
+        #    # Not yet submitted
+        #    qq[t/lib/MakeMaker/Test/NoXS.pm],
+        # ],
     },
 
     'ExtUtils::Manifest' => {

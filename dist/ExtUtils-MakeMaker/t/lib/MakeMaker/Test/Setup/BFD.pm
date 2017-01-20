@@ -55,16 +55,20 @@ program - this is a program
 1;
 END
 
-             'Big-Dummy/t/compile.t'          => <<'END',
-print "1..2\n";
+             'Big-Dummy/test.pl'          => <<'END',
+print "1..1\n";
+print "ok 1 - testing test.pl\n";
+END
 
+             'Big-Dummy/t/compile.t'          => <<'END',
+print "1..3\n";
 print eval "use Big::Dummy; 1;" ? "ok 1\n" : "not ok 1\n";
 print "ok 2 - TEST_VERBOSE\n";
+print "ok 3 - testing t/*.t\n";
 END
 
              'Big-Dummy/Liar/t/sanity.t'      => <<'END',
 print "1..3\n";
-
 print eval "use Big::Dummy; 1;" ? "ok 1\n" : "not ok 1\n";
 print eval "use Big::Liar; 1;" ? "ok 2\n" : "not ok 2\n";
 print "ok 3 - TEST_VERBOSE\n";
@@ -96,11 +100,13 @@ END
             );
 
 
+# if given args, those are inserted as components in resulting path, eg:
+# setup_recurs('dir') means instead of creating Big-Dummy/*, dir/Big-Dummy/*
 sub setup_recurs {
-
     while(my($file, $text) = each %Files) {
         # Convert to a relative, native file path.
-        $file = File::Spec->catfile(File::Spec->curdir, split m{\/}, $file);
+        $file = File::Spec->catfile(File::Spec->curdir, @_, split m{\/}, $file);
+        $file = File::Spec->rel2abs($file);
 
         my $dir = dirname($file);
         mkpath $dir;
@@ -121,11 +127,7 @@ sub teardown_recurs {
     foreach my $file (keys %Files) {
         my $dir = dirname($file);
         if( -e $dir ) {
-            if ($^O eq 'MSWin32') { # problematic without XS, miniperl
-                system("del /s /q \"$dir\"");
-            } else {
-                rmtree($dir) || return;
-            }
+            rmtree($dir) || return;
         }
     }
     return 1;

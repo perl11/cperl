@@ -14,6 +14,7 @@ use warnings;
 $| = 1;
 
 # Get command line options
+BEGIN { push @INC, "." };
 use Getopt::Long;
 require "./Porting/manifest_lib.pl";
 my $outfile;

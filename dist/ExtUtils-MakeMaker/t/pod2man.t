@@ -37,7 +37,7 @@ use Test::More tests => 3;
     local $SIG{__WARN__} = sub {
         $warnings .= join '', @_;
     };
-    local $ENV{PERL_CORE};
+
     ok !pod2man();
     is $warnings, <<'END'
 Pod::Man is not available: Simulated Pod::Man failure
