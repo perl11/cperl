@@ -211,6 +211,33 @@ C<%{^CAPTURE}> is the equivalent to C<%+> (ie named captures)
 
 C<%{^CAPTURE_ALL}> is the equivalent to C<%-> (ie all named captures).
 
+=head2 Improved .pmc loading
+
+cperl now sets the correct F<.pmc> filename for C<__FILE__> and
+C<CopFILE>, when it was loaded from it.
+
+cperl also allows bypassing a F<.pmc> if loaded explicitly via
+L<do|perlfunc/do> and an absolute pathname.
+
+This allows improved F<.pmc> file caching of only selective parts of a
+module. Such as a method jit, which stores onlt some subs, but not the
+whole module in it's cache.  Hence the Cache logic in the F<.pmc> can now
+first load the parallel source F<.pm> and then apply the F<.pmc>
+optimizations. E.g. by loading a LLVM F<.bc> file contents with only
+some subs.
+
+The impact for existing code is low. If you loaded a .pmc via
+C<do "/abspath/module.pm"> you need to add now a final "c" explictly:
+C<do "/abspath/module.pmc">.
+
+With perl5 upstream those two longstanding PMC bugs made it
+impossible to use a partial Byte- or JitCache.
+It also makes it possible to re-instate the old python-like timestamp
+logic which was removed for pugs 2006 with commit
+L<a91233bf4cf|https://github.com/perl11/cperl/commit/a91233bf4cf6a12df8935c3530a6ca900ca6ca2f>.
+
+L<[cperl #244]|https://github.com/perl11/cperl/issues/244>.
+
 =head1 Security
 
 =head2 "Escaped" colons and relative paths in PATH
