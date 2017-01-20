@@ -481,6 +481,13 @@ Better fix for the cperl APPEND logic.
 inflate.c: Fixed -1L compilation warning
 L<RT #119580|https://rt.cpan.org/Ticket/Display.html?id=119580>
 
+=item DB_File 1.840
+
+unused arg warnings
+L<RT #107642|https://rt.cpan.org/Ticket/Display.html?id=107642>
+
+The other 2 fixes were already in cperl, plus a fix for reproducible builds.
+
 =item Opcode 1.35_01c
 
 Add avhvswitch op
