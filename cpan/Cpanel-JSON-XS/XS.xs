@@ -3074,7 +3074,7 @@ decode_json (pTHX_ SV *string, JSON *json, U8 **offset_return)
   SV *sv;
   STRLEN len, offset = 0;
   int converted = 0;
-  dMY_CXT;
+  /*dMY_CXT;*/
 
   /* work around bugs in 5.10 where manipulating magic values
    * makes perl ignore the magic in subsequent accesses.
@@ -3406,8 +3406,8 @@ PROTOTYPES: DISABLE
 
 #ifdef USE_ITHREADS
 
-void CLONE (...)
-	CODE:
+void CLONE ()
+    PPCODE:
 {
         MY_CXT_CLONE; /* possible declaration */
         init_MY_CXT(aTHX_ &MY_CXT);
@@ -3416,18 +3416,18 @@ void CLONE (...)
 
 #endif
 
-void END(...)
-	PREINIT:
+void END()
+    PREINIT:
         dMY_CXT;
         SV * sv;
-	PPCODE:
+    PPCODE:
         sv = MY_CXT.sv_json;
         MY_CXT.sv_json = NULL;
         SvREFCNT_dec_NN(sv);
         return; /* skip implicit PUTBACK, returning @_ to caller, more efficient*/
 
 void new (char *klass)
-	PPCODE:
+    PPCODE:
 {
         dMY_CXT;
   	SV *pv = NEWSV (0, sizeof (JSON));
@@ -3440,7 +3440,7 @@ void new (char *klass)
 }
 
 void ascii (JSON *self, int enable = 1)
-	ALIAS:
+    ALIAS:
         ascii           = F_ASCII
         latin1          = F_LATIN1
         binary          = F_BINARY
@@ -3462,18 +3462,15 @@ void ascii (JSON *self, int enable = 1)
         allow_bignum    = F_ALLOW_BIGNUM
         escape_slash    = F_ESCAPE_SLASH
         allow_stringify = F_ALLOW_STRINGIFY
-	PPCODE:
-{
+    PPCODE:
         if (enable)
           self->flags |=  ix;
         else
           self->flags &= ~ix;
-
         XPUSHs (ST (0));
-}
 
 void get_ascii (JSON *self)
-	ALIAS:
+    ALIAS:
         get_ascii           = F_ASCII
         get_latin1          = F_LATIN1
         get_binary          = F_BINARY
@@ -3494,33 +3491,33 @@ void get_ascii (JSON *self)
         get_allow_bignum    = F_ALLOW_BIGNUM
         get_escape_slash    = F_ESCAPE_SLASH
         get_allow_stringify  = F_ALLOW_STRINGIFY
-	PPCODE:
+    PPCODE:
         XPUSHs (boolSV (self->flags & ix));
 
 void max_depth (JSON *self, U32 max_depth = 0x80000000UL)
-	PPCODE:
+    PPCODE:
         self->max_depth = max_depth;
         XPUSHs (ST (0));
 
 U32 get_max_depth (JSON *self)
-	CODE:
+    CODE:
         RETVAL = self->max_depth;
-	OUTPUT:
+    OUTPUT:
         RETVAL
 
 void max_size (JSON *self, U32 max_size = 0)
-	PPCODE:
+    PPCODE:
         self->max_size = max_size;
         XPUSHs (ST (0));
 
 int get_max_size (JSON *self)
-	CODE:
+    CODE:
         RETVAL = self->max_size;
-	OUTPUT:
+    OUTPUT:
         RETVAL
 
 void stringify_infnan (JSON *self, IV infnan_mode = 1)
-	PPCODE:
+    PPCODE:
         if (infnan_mode > 3 || infnan_mode < 0) {
           croak ("invalid stringify_infnan mode %d. Must be 0, 1, 2 or 3", (int)infnan_mode);
         }
@@ -3528,13 +3525,13 @@ void stringify_infnan (JSON *self, IV infnan_mode = 1)
         XPUSHs (ST (0));
         
 int get_stringify_infnan (JSON *self)
-	CODE:
+    CODE:
         RETVAL = (int)self->infnan_mode;
-	OUTPUT:
+    OUTPUT:
         RETVAL
 
 void sort_by (JSON *self, SV* cb = &PL_sv_yes)
-	PPCODE:
+    PPCODE:
 {
         SvREFCNT_dec (self->cb_sort_by);
         self->cb_sort_by = SvOK (cb) ? newSVsv (cb) : 0;
@@ -3546,7 +3543,7 @@ void sort_by (JSON *self, SV* cb = &PL_sv_yes)
 
         
 void filter_json_object (JSON *self, SV *cb = &PL_sv_undef)
-	PPCODE:
+    PPCODE:
 {
         SvREFCNT_dec (self->cb_object);
         self->cb_object = SvOK (cb) ? newSVsv (cb) : 0;
@@ -3555,7 +3552,7 @@ void filter_json_object (JSON *self, SV *cb = &PL_sv_undef)
 }
 
 void filter_json_single_key_object (JSON *self, SV *key, SV *cb = &PL_sv_undef)
-	PPCODE:
+    PPCODE:
 {
 	if (!self->cb_sk_object)
           self->cb_sk_object = newHV ();
@@ -3577,17 +3574,17 @@ void filter_json_single_key_object (JSON *self, SV *key, SV *cb = &PL_sv_undef)
 }
 
 void encode (JSON *self, SV *scalar)
-	PPCODE:
+    PPCODE:
         PUTBACK; scalar = encode_json (aTHX_ scalar, self); SPAGAIN;
         XPUSHs (scalar);
 
 void decode (JSON *self, SV *jsonstr)
-	PPCODE:
+    PPCODE:
         PUTBACK; jsonstr = decode_json (aTHX_ jsonstr, self, 0); SPAGAIN;
         XPUSHs (jsonstr);
 
 void decode_prefix (JSON *self, SV *jsonstr)
-	PPCODE:
+    PPCODE:
 {
 	SV *sv;
         U8 *offset;
@@ -3598,7 +3595,7 @@ void decode_prefix (JSON *self, SV *jsonstr)
 }
 
 void incr_parse (JSON *self, SV *jsonstr = 0)
-	PPCODE:
+    PPCODE:
 {
 	if (!self->incr_text)
           self->incr_text = newSVpvn ("", 0);
@@ -3694,21 +3691,21 @@ void incr_parse (JSON *self, SV *jsonstr = 0)
 #if PERL_VERSION > 6
 
 SV *incr_text (JSON *self)
-        ATTRS: lvalue
-	CODE:
+    ATTRS: lvalue
+    CODE:
 {
         if (UNLIKELY(self->incr_pos))
           croak ("incr_text can not be called when the incremental parser already started parsing");
 
         RETVAL = self->incr_text ? SvREFCNT_inc (self->incr_text) : &PL_sv_undef;
 }
-	OUTPUT:
+    OUTPUT:
         RETVAL
 
 #else
 
 SV *incr_text (JSON *self)
-	CODE:
+    CODE:
 {
         if (UNLIKELY(self->incr_pos))
           croak ("incr_text can not be called when the incremental parser already started parsing");
