@@ -522,6 +522,12 @@ Bumped version because upstream is still years behind:
 
 Improved taint test.
 
+=item threads 2.12_01
+
+Upstream 2.12 had no changes (!)
+We keep our 2 added tests. Improve the modglobal init.
+Add a longer and more realistic threads DESCRIPTION.
+
 =back
 
 =head1 Documentation

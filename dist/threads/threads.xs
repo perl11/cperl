@@ -133,10 +133,15 @@ typedef struct {
     IV page_size;
 } my_pool_t;
 
-#define dMY_POOL \
-    SV *my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,               \
-                               sizeof(MY_POOL_KEY)-1, TRUE);            \
+#define dMY_POOL                                                    \
+    SV *my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,           \
+                               sizeof(MY_POOL_KEY)-1, TRUE);        \
     my_pool_t *my_poolp = INT2PTR(my_pool_t*, SvUV(my_pool_sv))
+
+#define MY_POOL_set                                                 \
+    my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,               \
+                           sizeof(MY_POOL_KEY)-1, TRUE);            \
+    my_poolp = INT2PTR(my_pool_t*, SvUV(my_pool_sv))
 
 #define MY_POOL (*my_poolp)
 
@@ -273,8 +278,7 @@ S_ithread_free(pTHX_ ithread *thread)
     my_pool_t *my_poolp = NULL;
 
     if (PL_modglobal) {
-        my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY, sizeof(MY_POOL_KEY)-1, TRUE);
-        my_poolp = INT2PTR(my_pool_t*, SvUV(my_pool_sv));
+        MY_POOL_set;
     }
 
     if (! (thread->state & PERL_ITHR_NONVIABLE)) {
@@ -1826,7 +1830,6 @@ BOOT:
     SV *my_pool_sv = *hv_fetch(PL_modglobal, MY_POOL_KEY,
                                sizeof(MY_POOL_KEY)-1, TRUE);
     my_pool_t *my_poolp = (my_pool_t*)SvPVX(newSV(sizeof(my_pool_t)-1));
-
     MY_CXT_INIT;
 
     Zero(my_poolp, 1, my_pool_t);
