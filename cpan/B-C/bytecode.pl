@@ -7,6 +7,7 @@ BEGIN {
 use strict;
 use Config;
 my $CPERL = $Config{usecperl};
+my $DEBUGGING = $Config{ccflags} =~ /-DDEBUGGING/;
 my %alias_to = (
                 U32 => [qw(line_t)],
                 PADOFFSET => [qw(STRLEN SSize_t)],
@@ -478,6 +479,9 @@ EOT
 	if ($rvalcast) {
 	    $argtype = $rvalcast . $argtype;
 	}
+	if ($unsupp and !$DEBUGGING) {
+            printf BYTERUN_C "\t\tPERL_UNUSED_VAR(arg);\n";
+        }
 	if ($unsupp and $holes{$insn_num}) {
 	    printf BYTERUN_C "\t\tPerlIO_printf(Perl_error_log, \"Unsupported bytecode instruction %%d (%s) at stream offset %%d.\\n\",
 	                                  insn, bstate->bs_fdata->next_out);\n", uc($insn);
