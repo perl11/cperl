@@ -8819,6 +8819,12 @@ STATIC void	S_io_hints(pTHX_ OP* o)
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE bool	S_is_types_strict(pTHX);
 #endif
+STATIC void	S_linearize_optree(pTHX_ CV* cv, OP* o)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_LINEARIZE_OPTREE	\
+	assert(cv); assert(o)
+
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE int	S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname, bool au8, int *castable)
 			__attribute__nonnull__(pTHX_1)

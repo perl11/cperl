@@ -63,6 +63,29 @@ typedef PERL_BITFIELD16 Optype;
 /* Class::XSAccessor abuses this */
 #define op_spare op_typechecked
 
+/* The new linearized short form of the op in the oparray */
+struct opl {
+    OP* op_ppaddr;
+    U16 opl_targ, opl_type;
+    U8  op_flags, op_private;
+    union {
+        SV* sv;
+        struct opl_16_t {
+            I16 first, second; /* absolute jump to index */
+#if PTRSIZE == 8
+            I16 nextop, lastop;
+#endif
+        } opl_16;
+        struct opl_8_t { /* relative loop ops */
+            I16 first;
+            I8 second, redoop, nextop, lastop;
+        } opl_8;
+    } opl_u;
+};
+
+#define OPLSize(a) (a)[0].opl_targ
+typedef struct opl OPL;
+
 /* If op_type:9 is changed to :10, also change cx_pusheval()
    Also, if the type of op_type is ever changed (e.g. to PERL_BITFIELD32)
    then all the other bit-fields before/after it should change their

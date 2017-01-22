@@ -1247,6 +1247,7 @@ p	|void	|finalize_optree	|NN OP* o
 p	|void	|optimize_optree|NN OP* o
 #if defined(PERL_IN_OP_C)
 #  if defined(USE_CPERL)
+s	|void	|linearize_optree|NN CV* cv|NN OP* o
 s	|void	|cant_declare	|NN OP* o
 #  endif
 s	|void	|optimize_op	|NN OP* o

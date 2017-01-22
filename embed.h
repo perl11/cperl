@@ -2082,6 +2082,7 @@
 #define do_method_finalize(a,b,c,d)	S_do_method_finalize(aTHX_ a,b,c,d)
 #define io_hints(a)		S_io_hints(aTHX_ a)
 #define is_types_strict()	S_is_types_strict(aTHX)
+#define linearize_optree(a,b)	S_linearize_optree(aTHX_ a,b)
 #define match_type(a,b,c,d,e)	S_match_type(aTHX_ a,b,c,d,e)
 #define match_type1		S_match_type1
 #define match_type2		S_match_type2

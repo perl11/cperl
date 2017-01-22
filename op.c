@@ -4096,6 +4096,7 @@ S_process_optree(pTHX_ CV *cv, OP *root, OP *start)
         if (*startp && cv_check_inline(*startp, cv))
             CvINLINABLE_on(cv);
 #endif
+        linearize_optree(cv, root);
         /* now that optimizer has done its work, adjust pad values */
         pad_tidy(IS_TYPE(root, LEAVEWRITE)
                     ? padtidy_FORMAT
@@ -4103,7 +4104,107 @@ S_process_optree(pTHX_ CV *cv, OP *root, OP *start)
     }
 }
 
+void extend_oparray(OPL** oparray, int i) {
+    if (OPLSize(*oparray) < i)
+        *oparray = (OPL*)realloc(*oparray, i*sizeof(OPL));
+}
 
+/*
+=for apidoc linearize_optree
+
+Throw away all op pointers, such as op_next, op_sibling, op_first and
+op_other, and replace some of them by relative indices. Such as with the
+python bytecode after CFG.  Set a special PL_runloop_linear for this cv.
+
+Runtime OP* accesses need a replacement for the OP* => index.
+size should be 16bit (short), i.e. max 65536 ops and lexicals per function.
+
+E.g. RETURNOP returns the op_next or op_other relative offset into the
+oparray.  Run-time loaded B::Deparse or more AST introspection will
+not work anymore, as the fat AST info and tree structure is
+gone. B::C/CC/Bytecode and Concise will still work fine though.
+
+=cut
+*/
+void
+S_linearize_optree(pTHX_ CV *cv, OP* o)
+{
+    PERL_ARGS_ASSERT_LINEARIZE_OPTREE;
+    /* compress the op from:
+         word: next, sibling, addr, targ,
+         16:   type, 8: flags, private, rettype,
+         word: first, last, redoop, nextop, lastop
+      0-index: size
+      => word: addr,
+         16:   targ, type,
+         8:    flags, private, rettype,
+         16:   first, last. evtl last, redoop, nextop, lastop
+    */
+    OP* start = o;
+    int end, i = 0;
+    OPL *oparray = (OPL*)malloc(6*sizeof(OPL));
+    /* put all ptrs into a hash, the new op into the oparray */
+    PTR_TBL_t *ptr_table = ptr_table_new();
+
+#define OP_STORE(o, i)                       \
+    ptr_table_store(ptr_table, o, i);        \
+    extend_oparray(&oparray, i);             \
+    memcpy(&oparray[i].op_ppaddr, &o->op_ppaddr, sizeof(OP*)+sizeof(PADOFFSET)+32)
+
+    /* first linearize the main chain */
+    for (; o; o = o->op_next, i++) {
+        OP_STORE(o, i);
+    }
+    end = i + 1;
+    /* then add all other chains, and link them together */
+    for (o=start, i=0; o; o = o->op_next, i++) {
+        /* store the other chains */
+        if (OpKIDS(o)) {
+            int j;
+            OP* o1 = o;
+            /* with a LOGOP first is the same as next. only store the other */
+            o = OP_IS_LOGOP(o->op_type) ? OpOTHER(o) : OpFIRST(o);
+            /* chain for first */
+            if (j = ptr_table_fetch(ptr_table, o)) {
+                oparray[i].first = j; /* already stored */
+            } else { /* add a new chain */
+                oparray[end].first = end+1;
+                OP_STORE(o, end);
+                for (end++; o; o = o->op_next, end++) {
+                    OP_STORE(o, end);
+                }
+            }
+            /* all the other types, if possible */
+            if (OP_IS_BINOP(o1->op_type)) {
+                o = o1->op_last;
+                /* chain for second */
+                if (j = ptr_table_fetch(ptr_table, o)) {
+                    oparray[i].second = j; /* already stored */
+                } else { /* add a new chain */
+                    oparray[end].second = end+1;
+                    OP_STORE(o, end);
+                    for (end++; o; o = o->op_next, end++) {
+                        OP_STORE(o, end);
+                    }
+                }
+            }
+        } else if (OP_IS_SVOP(o->op_type)) { /* has SV* attached */
+            oparray[i].sv = cSVOPo_sv;
+        } else if (OP_IS_PADOP(o->op_type) || OP_IS_COP(o->op_type)) { /* already handled */
+            ;
+        } else { /* LIST, METHOD */
+            DEBUG_kv(Perl_deb("Cannot linearize op_type %d yet\n", (int)o->op_type));
+            return;
+        }
+    }
+    CvLINEARIZED_on(cv);
+}
+
+OP* S_linearize_walkops(OP* o) {
+    for (; o; o = o->op_next) {
+        if (OpKIDS(o)) ; /* WIP ... */
+    }
+}
 
 /*
 =for apidoc s||maybe_op_signature|NN CV *cv|NN OP *o

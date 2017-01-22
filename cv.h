@@ -160,6 +160,8 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CVf_MULTI	0x1000000 /* multi dispatch on types (nyi) */
 #define CVf_LAZYPARSE	0x2000000 /* TODO GH #274 */
 #define CVf_FFILIB_HANDLE 0x4000000 /* If is a DynaLoader libhandle */
+#define CVf_MULTI	0x800000 /* multi dispatch on types */
+#define CVf_LINEARIZED 0x1000000 /* optimized oparray */
 
 /* This symbol for optimised communication between toke.c and op.c: */
 #define CVf_BUILTIN_ATTRS	(CVf_METHOD|CVf_LVALUE|CVf_CONST|CVf_ANONCONST \
@@ -274,6 +276,8 @@ See L<perlguts/Autoloading with XSUBs>.
 
 #define CvMULTI(cv)		(CvFLAGS(cv) & CVf_MULTI)
 #define CvMULTI_on(cv)		(CvFLAGS(cv) |= CVf_MULTI)
+#define CvLINEARIZED(cv)	(CvFLAGS(cv) & CVf_LINEARIZED)
+#define CvLINEARIZED_on(cv)	(CvFLAGS(cv) |= CVf_LINEARIZED)
 
 /* Flags for newXS_flags  */
 #define XS_DYNAMIC_FILENAME	0x01	/* The filename isn't static  */
