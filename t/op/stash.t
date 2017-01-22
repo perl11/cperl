@@ -6,7 +6,7 @@ BEGIN {
     set_up_inc( qw(../lib) );
 }
 
-plan( tests => 54 );
+plan( tests => 55 );
 
 # Used to segfault (bug #15479)
 fresh_perl_like(
@@ -26,7 +26,7 @@ fresh_perl_is(
 
 # Used to segfault, too
 SKIP: {
- skip_if_miniperl('requires XS');
+  skip_if_miniperl('requires XS');
   fresh_perl_like(
     'sub foo::bar{}; $mro::{get_mro}=*foo::bar; undef %foo::; require mro',
      qr/^Subroutine mro::get_mro redefined/,
@@ -358,3 +358,10 @@ is runperl(
   ),
   "ok\n",
   "[cperl #171] method calls on protected stashes";
+
+is runperl(
+    prog => '%:: = (); print *{q|::|}, qq|\n|',
+    stderr => 1,
+   ),
+   "*main::main::\n",
+   "[perl #129869] lookup %:: by name after clearing %::";
