@@ -1558,10 +1558,10 @@ dumpindent is 4 at -e line 1.
                  |   
 7                +--gv SVOP(0xNNN) ===> 5 [enterxssub 0xNNN]
                      FLAGS = (SCALAR,SLABBED)
-                     GV = t::DumpProg
+                     GV = t::DumpProg (0xNNN)
 EODUMP
 
-    $e =~ s/GV = t::DumpProg/PADIX = 2/ if $threads;
+    $e =~ s/GV = t::DumpProg \(0xNNN\)/PADIX = 2/ if $threads;
     $e =~ s/SVOP/PADOP/g if $threads;
     my $out = t::runperl
                  switches => ['-Ilib'],
@@ -1571,7 +1571,7 @@ EODUMP
     $out =~ s/FLAGS = 0x[[:xdigit:]]+ \(/FLAGS = \(/g if $] > 5.022;
     $out =~ s/ *SEQ = .*\n//;
     $out =~ s/0x[0-9a-f]{2,}\]/${1}0xNNN]/g;
-    $out =~ s/0x[0-9a-f]{2,}\) ===/0xNNN) ===/g;
+    $out =~ s/\(0x[0-9a-f]{3,}\)/(0xNNN)/g;
     is $out, $e, "DumpProg() has no 'Attempt to free X prematurely' warning";
       #or do { push @INC, '/usr/local/lib/cperl/site_cperl/5.26.0';
       #        require Text::Diff;

@@ -792,6 +792,38 @@ Perl_dump_eval(pTHX)
     op_dump(PL_eval_root);
 }
 
+
+/* returns a temp SV displaying the name of a GV. Handles the case where
+ * a GV is in fact a ref to a CV */
+
+static SV *
+S_gv_display(pTHX_ GV *gv)
+{
+    SV * const name = newSV(0);
+    if (gv) {
+        SV * const raw = newSVpvs_flags("", SVs_TEMP);
+        STRLEN len;
+        const char * rawpv;
+
+        if (isGV_with_GP(gv))
+            gv_fullname3(raw, gv, NULL);
+        else {
+            assert(SvROK(gv));
+            assert(SvTYPE(SvRV(gv)) == SVt_PVCV);
+            Perl_sv_catpvf(aTHX_ raw, "cv ref: %s",
+                    SvPV_nolen_const(cv_name((CV *)SvRV(gv), name, 0)));
+        }
+        rawpv = SvPV_const(raw, len);
+        generic_pv_escape(name, rawpv, len, SvUTF8(raw));
+    }
+    else
+        sv_catpvs(name, "(NULL)");
+
+    return name;
+}
+
+
+
 /* forward decl */
 static void
 S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o);
@@ -1149,26 +1181,9 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o)
 	S_opdump_indent(aTHX_ o, level, bar, file,
                         "PADIX = %" IVdf "\n", (IV)cPADOPo->op_padix);
 #else
-        {
-            SV *sv = cSVOPo->op_sv;
-            if (sv) {
-                if (SvTYPE(sv) == SVt_PVGV) {
-                    STRLEN len;
-                    const char * name;
-                    SV * const tmpsv  = newSVpvs_flags("", SVs_TEMP);
-                    SV * const tmpsv2 = newSVpvs_flags("", SVs_TEMP);
-                    gv_fullname3(tmpsv, MUTABLE_GV(sv), NULL);
-                    name = SvPV_const(tmpsv, len);
-                    S_opdump_indent(aTHX_ o, level, bar, file, "GV = %s\n",
-                                    generic_pv_escape( tmpsv2, name, len, SvUTF8(tmpsv)));
-                } else if (SvTYPE(sv) == SVt_IV && SvROK(sv)) {
-                    S_opdump_indent(aTHX_ o, level, bar, file, "RV = 0xs" UVxf "\n",
-                                    PTR2UV(SvRV(sv))); 
-                }
-            }
-            else
-                S_opdump_indent(aTHX_ o, level, bar, file, "GV = NULL\n");
-        }
+        S_opdump_indent(aTHX_ o, level, bar, file,
+            "GV = %" SVf " (0x%" UVxf ")\n",
+            SVfARG(S_gv_display(aTHX_ cGVOPo_gv)), PTR2UV(cGVOPo_gv));
 #endif
         break;
 
@@ -3135,20 +3150,8 @@ Perl_debop(pTHX_ const OP *o)
 	break;
     case OP_GVSV:
     case OP_GV:
-	if (cGVOPo_gv && isGV(cGVOPo_gv)) {
-	    SV * const sv = newSV(0);
-	    gv_fullname3(sv, cGVOPo_gv, NULL);
-	    PerlIO_printf(Perl_debug_log, "(%s)", SvPV_nolen_const(sv));
-	    SvREFCNT_dec_NN(sv);
-	}
-	else if (cGVOPo_gv) {
-	    assert(SvROK(cGVOPo_gv));
-	    assert(SvTYPE(SvRV(cGVOPo_gv)) == SVt_PVCV);
-            PerlIO_printf(Perl_debug_log, "(\\&%" SVf ")",
-                          SVfARG(cv_name((CV*)SvRV(cGVOPo_gv), NULL, CV_NAME_NOMAIN)));
-	}
-	else
-	    PerlIO_printf(Perl_debug_log, "(NULL)");
+        PerlIO_printf(Perl_debug_log, "(%" SVf ")",
+                SVfARG(S_gv_display(aTHX_ cGVOPo_gv)));
 	break;
 
     case OP_PADSV:
