@@ -17792,7 +17792,8 @@ Perl_rpeep(pTHX_ OP *o)
                        OP_TYPE_IS_OR_WAS_NN(kid, OP_NEXTSTATE)
                     || OP_TYPE_IS_OR_WAS_NN(kid, OP_DBSTATE)
                     || IS_TYPE(kid, STUB)
-                    || IS_TYPE(kid, ENTER));
+                    || IS_TYPE(kid, ENTER)
+                    || (PL_parser && PL_parser->error_count));
                 OpNEXT(nullop) = OpNEXT(kid);
                 DEFER(OpNEXT(nullop));
 	    }
