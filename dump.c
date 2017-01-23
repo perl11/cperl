@@ -210,16 +210,16 @@ Perl_pv_escape( pTHX_ SV *dsv, char const * const str,
                             chsize = 1;
                         break;
 		default:
-                     if ( (flags & PERL_PV_ESCAPE_DWIM) && c != '\0' ) {
+                    if ( (flags & PERL_PV_ESCAPE_DWIM) && c != '\0' ) {
                         chsize = my_snprintf( octbuf, PV_ESCAPE_OCTBUFSIZE,
                                       isuni ? "%cx{%02" UVxf "}" : "%cx%02" UVxf,
                                       esc, u);
-                     }
-                     else if ( (pv+readsize < end) && isDIGIT((U8)*(pv+readsize)) )
-                            chsize = my_snprintf( octbuf, PV_ESCAPE_OCTBUFSIZE, 
+                    }
+                    else if ((pv+readsize < end) && isDIGIT((U8)*(pv+readsize)))
+                        chsize = my_snprintf( octbuf, PV_ESCAPE_OCTBUFSIZE,
                                                   "%c%03o", esc, c);
-			else
-                            chsize = my_snprintf( octbuf, PV_ESCAPE_OCTBUFSIZE, 
+                    else
+                        chsize = my_snprintf( octbuf, PV_ESCAPE_OCTBUFSIZE,
                                                   "%c%o", esc, c);
                 }
             } else {
@@ -2382,13 +2382,13 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	if (isREGEXP(sv)) goto dumpregexp;
 	if (!isGV_with_GP(sv))
 	    break;
-       {
-          SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
-          Perl_dump_indent(aTHX_ level, file, "  NAME = \"%s\"\n",
-                    generic_pv_escape(tmpsv, GvNAME(sv),
-                                      GvNAMELEN(sv),
-                                      GvNAMEUTF8(sv)));
-       }
+        {
+            SV* tmpsv = newSVpvs_flags("", SVs_TEMP);
+            Perl_dump_indent(aTHX_ level, file, "  NAME = \"%s\"\n",
+                     generic_pv_escape(tmpsv, GvNAME(sv),
+                                       GvNAMELEN(sv),
+                                       GvNAMEUTF8(sv)));
+        }
 	Perl_dump_indent(aTHX_ level, file, "  NAMELEN = %" IVdf "\n", (IV)GvNAMELEN(sv));
 	do_hv_dump (level, file, "  GvSTASH", GvSTASH(sv));
         SV_SET_STRINGIFY_FLAGS(d,GvFLAGS(sv),gv_flags_names);
