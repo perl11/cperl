@@ -3136,6 +3136,7 @@ PP(pp_goto)
 	OP *gotoprobe = NULL;
 	bool leaving_eval = FALSE;
 	bool in_block = FALSE;
+	bool pseudo_block = FALSE;
 	PERL_CONTEXT *last_eval_cx = NULL;
 
 	/* find label */
@@ -3174,11 +3175,9 @@ PP(pp_goto)
 		    gotoprobe = PL_main_root;
 		break;
 	    case CXt_SUB:
-		if (CvDEPTH(cx->blk_sub.cv) && !CxMULTICALL(cx)) {
-		    gotoprobe = CvROOT(cx->blk_sub.cv);
-		    break;
-		}
-		/* FALLTHROUGH */
+		gotoprobe = CvROOT(cx->blk_sub.cv);
+		pseudo_block = cBOOL(CxMULTICALL(cx));
+		break;
 	    case CXt_FORMAT:
 	    case CXt_NULL:
 		DIE(aTHX_ "Can't \"goto\" out of a pseudo block");
@@ -3207,6 +3206,8 @@ PP(pp_goto)
 			break;
 		}
 	    }
+	    if (pseudo_block)
+		DIE(aTHX_ "Can't \"goto\" out of a pseudo block");
 	    PL_lastgotoprobe = gotoprobe;
 	}
 	if (!retop)
