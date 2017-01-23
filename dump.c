@@ -1149,9 +1149,9 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o)
 	S_opdump_indent(aTHX_ o, level, bar, file,
                         "PADIX = %" IVdf "\n", (IV)cPADOPo->op_padix);
 #else
-	if ( ! (o->op_flags & OPf_SPECIAL)) { /* not lexical */
+        {
             SV *sv = cSVOPo->op_sv;
-	    if (sv) {
+            if (sv) {
                 if (SvTYPE(sv) == SVt_PVGV) {
                     STRLEN len;
                     const char * name;
@@ -1165,12 +1165,12 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o)
                     S_opdump_indent(aTHX_ o, level, bar, file, "RV = 0xs" UVxf "\n",
                                     PTR2UV(SvRV(sv))); 
                 }
-	    }
-	    else
-		S_opdump_indent(aTHX_ o, level, bar, file, "GV = NULL\n");
-	}
+            }
+            else
+                S_opdump_indent(aTHX_ o, level, bar, file, "GV = NULL\n");
+        }
 #endif
-	break;
+        break;
 
     case OP_MULTIDEREF:
     case OP_SIGNATURE:
