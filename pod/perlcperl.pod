@@ -84,14 +84,27 @@ incompatibilities, which arise from late perl5 signatures design
 changes and 2002 constant folding changes which we do not
 follow. perl5 signatures are marked as experimental after all.
 
-CPAN works. Some modules currently need patches in our distroprefs repo,
-see L<https://github.com/rurban/distroprefs>.
+CPAN works. Some modules currently need patches in our distroprefs
+repo, where the maintainers refuse to support it.  See
+L<https://github.com/rurban/distroprefs>.
+
+Some internal modules are explicitly modernized, which is denoted by
+the B<c> suffix in the version number. Those modules use proper
+signatures and hereby do safer type-checking at compile-time, and are
+also 2x faster because of using signatures. Some toolchain modules
+also switched over to support 10x faster and more secure XS variants
+of JSON and YAML, and support the cperl improvements (i.e. builtin
+strict, DynaLoader, XSLoader) and add more security (i.e. DynaLoader,
+YAML). These modules usually get a +1 major version bump, so you
+cannot easily override them accidently with worse cpan updates.  Such
+as EUMM, bignum or Test2.
 
 =over
 
 =item B<< Illegal prototypes die, are not stored >>
 
-In perl illegal prototypes warn with C<'illegalproto'> and are stored as such.
+In perl illegal prototypes warn with C<'illegalproto'> and are stored
+as such.
 
 In cperl illegal prototypes in signatures used without C<:prototype()>
 immediately die, they cannot be suppressed with C<no warnings
@@ -476,18 +489,18 @@ code-smell, e.g. SASSIGN, given/when and the match functions.
 
 =head2 Undo B bootstrap breakage
 
-L<B> was changed to support C<use strict> from the very beginning,
-which broke the L<B::Bytecode> compiler performance advantage, adding
-all compiler internal constants to the emitted bytecode.  Reverting
-this breakage was denied because this developer did not understand the
-code.  It is too bothersome in the long run to maintain our reversion
-of this breakage over years.  It easier to check for I<usecperl> in
-the compiler to be able to compile to bytecode properly again.
+L<B> was changed to C<use strict>, which broke the L<B::Bytecode>
+compiler performance advantage, adding all compiler internal constants
+to the emitted bytecode.  Reverting this breakage was denied because
+this developer did not understand the code.  It is too bothersome in
+the long run to maintain our reversion of this breakage over years.
+It easier to check for I<usecperl> in the compiler to be able to
+compile to bytecode properly again.
 
 =head2 Undo constant folding i_opt de-optimization
 
 Automatic integer optimizations for constants were removed from
-constant folding against community consent in the early times with
+constant folding against community consent in the early p5p times with
 commit C<e7311069>.
 
 We re-add this optimization to treat constant integers and typed
@@ -510,21 +523,22 @@ We are also now able to do constant-folding on subroutine bodies, to
 either inline the body into the caller or replace the body with a
 constant in the general case. (i.e. without the C<()> prototype)
 
-=head2 Undo support for binary names (NY, maybe)
+=head2 Undo support for binary names
 
-By announcing unicode support for names p5p silently allowed C<\0>
-inside names, which they called an advantage by supporting now binary
-safe names and "harmonization".  In reality unicode names were already
-supported since 5.8.4 and the whole 5.16 unicode name theatre was only
-about binary names.  They didn't support binary names in all other
-code parts which had to deal with names, and thus enabled a huge
-attack vector to hide arbitrary user strings behind C<\0> names, which
-was silently stripped before and when used in syscalls.  They moved
-resonsibility to the user, as previously for input strings only, now
-also for input names, e.g. for package names which search the
-filesystem directly without sanitation or proper checks. Support for
-those binary names is still not complete with 5.24 in core, even if
-p5p pushed so strong for it against my protest.
+By announcing unicode support for names with 5.16 p5p silently allowed
+C<\0> inside names, which they called an advantage by supporting now
+binary safe names and "harmonization".  In reality unicode names were
+already supported since 5.8.4 (with negative HEK key lengths) and the
+whole 5.16 unicode name theatre was only about binary names.  They
+didn't support binary names in all other code parts which had to deal
+with names, and thus enabled a huge attack vector to hide arbitrary
+user strings behind C<\0> names, which was silently stripped before
+and when used in syscalls.  They moved resonsibility to the user, as
+previously for input strings only, now also for input names, e.g. for
+package names which search the filesystem directly without sanitation
+or proper checks. Support for those binary names is still not complete
+with 5.24 in core, even if p5p pushed so strong for it against my
+protest.
 
 We have to keep the new GV API - accepting the string length - but
 even without C<strict names> we strip everything behind the C<\0> as
@@ -547,6 +561,9 @@ malicious intent, and this must appear in logfiles.  This is worse than
 syntax errors and syntax errors are warned by default. p5p was
 vehemently against this change.
 
+cperl has a new 'security' warnings category, which bypasses STDERR
+capture and also tries to log the remote user IP.
+
 =head2 strict names (NY)
 
 With C<use strict "names"> we do not accept unparsable symbols created
@@ -556,14 +573,19 @@ There's currently no room for an explicit C<use strict 'names'> hint
 due to a bad strict implementation. But later when we freed some
 C<PL_hint> bits to hold strict defaults we can add support for that.
 
-=head2 TR39 confusable names (NY)
+=head2 TR39 confusable names
 
-Reject confusables as described in TR39. Theoretically this can be
-added with L</"strict names (NY)"> only, but since this is only dangerous since
-v5.16 we can just throw a syntax error by default as in other languages
-with proper unicode support, e.g. I<Java>.
+cperl rejects since 5.26 confusables as described in TR39, rejects
+most mixed scripts and normalizes unicode identifiers, similar to
+python 3.  cperl is actually one of the very rare dynamic languages
+with full unicode identifer support which actually does follow the
+unicode consortium security recommendations and profile.
+cperl implements the L<Moderately Restrictive level
+|http://www.unicode.org/reports/tr39/#General_Security_Profile> for
+unicode identifiers.
+See L<perldata/Identifier parsing>
 
-The compiler had to add this warning since 5.16:
+The compiler had to add this warning since 5.16 until 5.26:
 
 I<Perl handling of new unicode identifiers - package and symbol names ->
 I<without proper TR39 handling is considered a security risc and is not fully supported.>
@@ -1018,9 +1040,11 @@ use the SCOPE keyword.
 
 =head3 unicode folding tables as XS extension
 
-They are compiled as shared library, with all keys as readonly perfect
-hash.  Some internal variables are not accessible anymore, the API is
-via the documented functions.
+They should be compiled as shared library, with all keys as readonly
+perfect hash or as trie.  Some internal variables are not accessible
+anymore, the API is via the documented functions.  The trie lookup
+should not be implemented vi pure-perl (100x slower) and use esp. the
+memory in a readonly shared library for huge space savings (2M).
 
 Maybe seperate them into a light folding table and heavy names and
 properties.
@@ -1047,9 +1071,10 @@ goto to signatures are now real fast tailcalls.
 
 =head2 Proper object system
 
-No, not Moose, but close.  Rather an optimizable perl6-like object
-system in core.  Provide a simple MOP for reflection purposes, bot not
-for overrides, i.e. metaobjects for classes, proper class and method
+No, not Moose, but close.  Closer to Mouse though, which is currently
+the recommended OO. Rather an optimizable perl6-like object system in
+core.  Provide a simple MOP for reflection purposes, bot not for
+overrides, i.e. metaobjects for classes, proper class and method
 syntax, anonymous classes by pointer not name, proper multi dispatch
 with types, roles, class and method lookup by pointer, not by name.
 Create native optimized shapes via mixins as in p2 (an enhanced
@@ -1104,8 +1129,12 @@ and optimizing compiler, see luajit2,
 L<http://www.emulators.com/docs/nx25_nostradamus.htm> or
 L<http://nominolo.blogspot.de/2012/07/implementing-fast-interpreters.html>
 
-A tracing jit, and not a method jit sounds best, together with the inliner,
-native op sequences and loop optimizations.
+A tracing jit, and not a method jit sounds best, together with the
+inliner, native op sequences and loop optimizations.  Currently we are
+trying a simple llvm based method jit, which kicks in after counting
+methods and loops (similar to unladen-swallow and pyston), and inlines
+some C<pp> runtime functions and herbey eliminations to function head,
+parameter and return overhead.
 
 =head2 Optimize the vm, the runloop
 
@@ -1133,6 +1162,11 @@ Maybe rewrite to a better register-based compiler with fixed-length 2
 operands as in p2, but this might be too tricky for XS, mapping the
 global stack to the local stack.  Probably no SSA (three arguments),
 just a cpu friendly two argument form as in p2/lua 5.1.
+
+Cuurently there's a branch with linearized ops, called OPL without any
+op pointers, just indices into a oparray per sub. Similar to python,
+just with common-sized ops, not 1-3 word ops as in python. op_next is
+always the next op in the array, so cached. op_other are skips.
 
 Allow faster XS calls, user-provided function calls and method calls.
 Provide support for named arguments in the vm, fast not via hashes.
@@ -1166,6 +1200,7 @@ binary names, all as UTF8. Maybe restrict to ASCII or valid
 identifiers to limit the trie memory (array of 26 vs 256).  Stashes
 point then to trie nodes and need a HV check.  Optionally provide
 partial read-only support for the compiler, as for C<PL_strtab>.
+See the branch F<feature/gh127-gvflat>
 
 =head2 Coro support
 
@@ -1212,16 +1247,18 @@ very common, or "trolls"), and are allowed to avoid discussions
 of features or problems by directly committing to master, rejecting
 tickets or selectively abuse their powers. This is forbidden in cperl.
 
-We track stable upstream releases for our releases only. The current
-stable release is based in 5.23.0, which will lead to 5.22.1. The
-previous stable release was 5.14.4, as 5.16 introduced critical
-instabilities which were not fixed mostly until 5.20 and 5.22, and
-5.20 alone was not worth to update cperl to. The previous stable
-release was 5.8.9 and the one before was 5.6.2.  So we do not know
-which will be the next stable cperl release. It could be 5.24, but
-usually it takes longer, so something like 5.30 sounds realistic.  So
-far we have detected 2 grave API mistakes in 5.22.0. But we do merge
-all official p5p releases into our development branch monthly.
+We track stable upstream releases for our releases.  Of each major
+perl5 release we merge eventually most of the p5p commits into cperl,
+but we make publicly clear beforehand in the merge window which
+commits will be rejected, and why.  Everything is done in public
+branches.  So you can raise your objections or improvements
+beforehand.  Merge and reject follows the same development process as
+cperl bugfixes, features and security.
+
+Features are developed in sprint-like 1-2 week cycles. If it doesn't
+work out in this period, switch to the next branches or sometimes
+continue on it. Several feature branches are already done, but not yet
+merged, because we wait for other decisions to be made.
 
 =head1 With classes, types, compilable, company friendly
 
@@ -1255,10 +1292,12 @@ See L<perltypes>
 =item B<< compilable >>
 
 perl5 proper started being compiler unfriendly with 5.16, with changed
-security and string handling. It can be compiled but it is not
-recommended, as it features only about 5% memory savings. B::C can
+security and then COW handling with 5.18. It can be compiled but it is
+not recommended, as it features only about 5% memory savings. B::C can
 still strip the nested stashes (namespaces), but needs to keep all COW
-strings dynamic.
+strings dynamic. There are possible workarounds such as storing all
+simple strings as hash keys, or making them immutable, but this is not
+a viable solution.
 
 With cperl we can again compile to more efficient code, with > 35%
 memory savings.
@@ -1270,6 +1309,10 @@ See L<B::C|http://search.cpan.org/dist/B-C/>
 The optional types lead to better documentation, earlier compile-time
 type violations, less needed tests and more performance. Managers love
 this.
+
+cperl uses a professional development process which is different to
+the old established dictatorial process of power-abuse, the right to
+commit to master of without discussion and developer burnout.
 
 It is also better compilable.
 
