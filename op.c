@@ -1260,8 +1260,9 @@ Perl_op_clear(pTHX_ OP *o)
 	/* FALLTHROUGH */
     case OP_TRANS:
     case OP_TRANSR:
-	if (o->op_private & (OPpTRANS_FROM_UTF|OPpTRANS_TO_UTF)) {
-	    assert(IS_TYPE(o, TRANS) || IS_TYPE(o, TRANSR));
+        if (   (IS_TYPE(o, TRANS) || IS_TYPE(o, TRANSR))
+            && (o->op_private & (OPpTRANS_FROM_UTF|OPpTRANS_TO_UTF)))
+        {
 #ifdef USE_ITHREADS
 	    if (cPADOPo->op_padix > 0) {
 		pad_swipe(cPADOPo->op_padix, TRUE);
