@@ -522,6 +522,11 @@ Bumped version because upstream is still years behind:
 
 Improved taint test.
 
+=item Storable 3.05c
+
+Fixed 3 null ptr dereferences leading to segfaults.
+L<[perl #130098]|https://rt.perl.org/Public/Bug/Display.html?id=130098>
+
 =item threads 2.12_01
 
 Upstream 2.12 had no changes (!)
