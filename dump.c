@@ -2591,12 +2591,12 @@ Perl_sv_dump(pTHX_ SV *sv)
     int was_m = 0;
     if (DEBUG_m_TEST) {PL_debug &= ~DEBUG_m_FLAG; was_m++;}
 #endif
-    PERL_ARGS_ASSERT_SV_DUMP;
 
-    if (SvROK(sv))
+    if (sv && SvROK(sv))
 	do_sv_dump(0, Perl_debug_log, sv, 0, 4, 0, 0);
     else
 	do_sv_dump(0, Perl_debug_log, sv, 0, 0, 0, 0);
+
 #ifdef DEBUGGING
     if (was_m)
         PL_debug |= DEBUG_m_FLAG;

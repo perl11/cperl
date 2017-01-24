@@ -5503,10 +5503,7 @@ PERL_CALLCONV bool	Perl_sv_does_sv(pTHX_ SV* sv, SV* namesv, U32 flags)
 	assert(sv); assert(namesv)
 
 PERL_CALLCONV void	Perl_sv_dump(pTHX_ SV* sv)
-			__attribute__global__
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_SV_DUMP	\
-	assert(sv)
+			__attribute__global__;
 
 /* PERL_CALLCONV I32	sv_eq(pTHX_ SV* sv1, SV* sv2)
 			__attribute__global__; */
