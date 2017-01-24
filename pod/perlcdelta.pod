@@ -528,6 +528,10 @@ Upstream 2.12 had no changes (!)
 We keep our 2 added tests. Improve the modglobal init.
 Add a longer and more realistic threads DESCRIPTION.
 
+=item threads-shared 1.54
+
+ifdef clang
+
 =back
 
 =head1 Documentation
