@@ -371,6 +371,14 @@ C<(keys @_) = ...>, which are also errors.  L<[perl #128187]|https://rt.perl.org
 
 =over 4
 
+=item * if length($str) is faster
+
+length in boolean context without get magic doesn't need to calculate
+the utf8 length, it only needs to check if SvCUR field is empty.  And
+it doesn't need to allocate a new IV for the result, just use the
+existing sv_yes or sv_no.
+Analog to L<[cperl #245]|https://github.com/perl11/cperl/issues/245> for ref.
+
 =item * if ref() is faster
 
 ref in boolean context doesn't need to allocate a string.

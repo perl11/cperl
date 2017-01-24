@@ -22,6 +22,8 @@ use B qw(svref_2object
          OPpASSIGN_COMMON_AGG
          OPpTRUEBOOL
          OPpMAYBE_TRUEBOOL
+         OPpLENGTH_TRUEBOOL
+         OPpLENGTH_MAYBE_TRUEBOOL
       );
 
 
@@ -213,6 +215,7 @@ for my $ops (
     [ 'padhv', '%lex',         [],       OPpTRUEBOOL, OPpMAYBE_TRUEBOOL ],
     [ 'padhv', 'scalar(%lex)', [0],      OPpTRUEBOOL, OPpMAYBE_TRUEBOOL ],
     [ 'ref',   'ref($x)',      [],       OPpTRUEBOOL, OPpMAYBE_TRUEBOOL ],
+    #[ 'length','length($x)',   [],       OPpLENGTH_TRUEBOOL, OPpLENGTH_MAYBE_TRUEBOOL ],
 ) {
     my ($op_name, $op_code, $post_op_path, $bool_flag, $maybe_flag) = @$ops;
 
@@ -398,7 +401,7 @@ for my $ops (
 
             if (!$expr || $expr->name ne $op_name) {
                 die "Can't find $op_name op in optree for '$code'; "
-                     . "this test needs to be rewritten" 
+                     . "this test needs to be rewritten.\n" . $expr->name
             }
 
             my $exp = $expects->[$context];

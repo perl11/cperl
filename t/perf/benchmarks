@@ -1203,6 +1203,21 @@
         code    => '$x = ref $r',
     },
 
+    'func::length::fast_bool' => {
+        desc    => 'if length($nomagic) in boolean context',
+        setup   => 'my $r = "boo"',
+        code    => '!length $r',
+    },
+    'func::length::slow_bool' => {
+        desc    => 'if length($blessed) slow path in boolean context',
+        setup   => 'my $a=""; my $r = bless \$a, "Internals"',
+        code    => '!length $r',
+    },
+    'func::length::fast_scalar' => {
+        desc    => 'length($nomagic) in scalar context',
+        setup   => 'my $r = "boo"',
+        code    => 'length $r',
+    },
 
 
     'func::sort::num' => {

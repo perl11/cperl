@@ -6,7 +6,7 @@ BEGIN {
     set_up_inc('../lib');
 }
 
-plan (tests => 41);
+plan (tests => 44);
 
 print "not " unless length("")    == 0;
 print "ok 1\n";
@@ -246,3 +246,8 @@ bless $ref, "\x{100}";
 is length $ref, length "$ref", 'length on reference blessed to utf8 class';
 
 is($warnings, 0, "There were no other warnings");
+
+my ($yes, $no) = ("0", "");
+is !length($ref), !!0, 'length on magic in boolean context';
+is !length($yes), !!0, 'length on str in boolean context';
+is !length($no),  !!1, 'length on empty str in boolean context';

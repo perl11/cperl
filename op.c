@@ -2198,11 +2198,11 @@ Perl_scalarvoid(pTHX_ OP *arg)
     dVAR;
     OP *kid;
     SV* sv;
-    U8 want;
     SSize_t defer_stack_alloc = 0;
     SSize_t defer_ix = -1;
     OP **defer_stack = NULL;
     OP *o = arg;
+    U8 want;
     PERL_ARGS_ASSERT_SCALARVOID;
 
     do {
@@ -16837,7 +16837,7 @@ Perl_rpeep(pTHX_ OP *o)
 	case OP_RV2HV:
 	case OP_PADHV:
             /* see if %h is used in boolean context */
-            if ((o->op_flags & OPf_WANT) == OPf_WANT_SCALAR)
+            if (OpWANT_SCALAR(o))
                 S_check_for_bool_cxt(aTHX_ o, OPpTRUEBOOL, OPpMAYBE_TRUEBOOL);
             if (o->op_type != OP_PADHV)
                 break;
@@ -17354,8 +17354,13 @@ Perl_rpeep(pTHX_ OP *o)
 
         case OP_REF:
             /* see if ref() is used in boolean context */
-            if ((o->op_flags & OPf_WANT) == OPf_WANT_SCALAR)
-                S_check_for_bool_cxt(aTHX_ o, OPpTRUEBOOL, OPpMAYBE_TRUEBOOL);
+            if (OpWANT_SCALAR(o))
+                check_for_bool_cxt(o, OPpTRUEBOOL, OPpMAYBE_TRUEBOOL);
+            break;
+        case OP_LENGTH:
+            if (OpWANT_SCALAR(o))
+                check_for_bool_cxt(o, OPpLENGTH_TRUEBOOL,
+                                   OPpLENGTH_MAYBE_TRUEBOOL);
             break;
 
 	case OP_CUSTOM: {

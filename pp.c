@@ -3608,22 +3608,31 @@ PP(pp_length)
     /* simplest case shortcut */
     /* turn off SVf_UTF8 in tmp flags if HINT_BYTES on*/
     U32 svflags = (SvFLAGS(sv) ^ (in_bytes << 26)) & (SVf_POK|SVs_GMG|SVf_UTF8);
-    STATIC_ASSERT_STMT(HINT_BYTES == 0x00000008 && SVf_UTF8 == 0x20000000 && (SVf_UTF8 == HINT_BYTES << 26));
+    STATIC_ASSERT_STMT(HINT_BYTES == 0x00000008
+                       && SVf_UTF8 == 0x20000000
+                       && (SVf_UTF8 == HINT_BYTES << 26));
+    if (LIKELY(svflags == SVf_POK)) {
+        if (UNLIKELY((PL_op->op_private & OPpLENGTH_TRUEBOOL)
+                     || ((PL_op->op_private & OPpLENGTH_MAYBE_TRUEBOOL)
+                         && block_gimme() == G_VOID))) {
+            SETs(SvCUR(sv) ? &PL_sv_yes : &PL_sv_no);
+            return NORMAL;
+        } else {
+            SETs(TARG);
+            goto simple_pv;
+        }
+    }
     SETs(TARG);
-
-    if(LIKELY(svflags == SVf_POK))
-        goto simple_pv;
-    if(svflags & SVs_GMG)
+    if (svflags & SVs_GMG)
         mg_get(sv);
     if (SvOK(sv)) {
 	if (!IN_BYTES) /* reread to avoid using an C auto/register */
 	    sv_setiv(TARG, (IV)sv_len_utf8_nomg(sv));
-	else
-	{
+	else {
 	    STRLEN len;
             /* unrolled SvPV_nomg_const(sv,len) */
-            if(SvPOK_nog(sv)){
-                simple_pv:
+            if (SvPOK_nog(sv)) {
+              simple_pv:
                 len = SvCUR(sv);
             } else  {
                 (void)sv_2pv_flags(sv, &len, 0|SV_CONST_RETURN);
@@ -3641,7 +3650,7 @@ PP(pp_length)
         }
     }
     SvSETMAGIC(TARG);
-    no_set_magic:
+  no_set_magic:
     return NORMAL; /* no putback, SP didn't move in this opcode */
 }
 
