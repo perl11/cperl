@@ -371,19 +371,23 @@ C<(keys @_) = ...>, which are also errors.  L<[perl #128187]|https://rt.perl.org
 
 =over 4
 
+=item * if ref() is faster
+
+ref in boolean context doesn't need to allocate a string.
+2-3x faster. See L<[cperl #245]|https://github.com/perl11/cperl/issues/245> and
+L<[perl #78288]|https://rt.perl.org/Public/Bug/Display.html?id=78288>
+
 =item * readline is faster
 
 Reading from a file line-by-line with C<readline()> or C<< E<lt>E<gt> >> should
 now typically be faster due to a better implementation of the code that
 searches for the next newline character.
 
-=item *
+=item * C<$ref1 = $ref2> has been optimized.
 
-C<$ref1 = $ref2> has been optimized.
+=item * Array and hash assignment are faster
 
-=item *
-
-Array and hash assignment are now faster, e.g.
+e.g.
 
     (..., @a) = (...);
     (..., %h) = (...);
@@ -392,27 +396,23 @@ especially when the RHS is empty.
 
 Note that perl5 hash assignment is still inferior to cperl hash assignment.
 
-=item *
+=item * Less SvSCREAM 
 
 Reduce the number of odd special cases for the SvSCREAM flag.
 
-=item *
+=item * Better do_vop
 
 Avoid C<sv_catpvn()> in C<do_vop()> when unneeded.
 
-=item *
+=item * Better COW in Regex
 
 Enhancements in Regex concat COW implementation.
 
-=item *
+=item * Speed up AV and HV clearing/undeffing.
 
-Speed up AV and HV clearing/undeffing.
+=item * Converting a single-digit string to a number is now substantially faster.
 
-=item *
-
-Converting a single-digit string to a number is now substantially faster.
-
-=item *
+=item * Simplified split
 
 The internal op implementing the C<split> builtin has been simplified and
 sped up. Firstly, it no longer requires a subsidiary internal C<pushre> op
@@ -420,7 +420,7 @@ to do its work. Secondly, code of the form C<my @x = split(...)> is now
 optimised in the same way as C<@x = split(...)>, and is therefore a few
 percent faster.
 
-=item *
+=item * Constant fold with barewords
 
 Bareword constant strings are now permitted to take part in constant
 folding. They were originally exempted from constant folding in August 1999,

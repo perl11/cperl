@@ -1646,8 +1646,8 @@ PP(pp_aassign)
              * value slots with &PL_sv_undef */
             EXTEND_MORTAL(nelems + 1);
 
-             /* convert to number of key/value pairs */
-             nelems >>= 1;
+            /* convert to number of key/value pairs */
+            nelems >>= 1;
 
             PL_tmps_stack[++PL_tmps_ix] = SvREFCNT_inc_simple_NN(hash);
             tmps_base = PL_tmps_ix + 1;
