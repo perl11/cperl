@@ -35,9 +35,9 @@ All branches are frequently rebased. Use the provided helpers
 F<cp-rb>, F<cp-rbi>, F<cp-lb> and F<cp-rh>.
 
 The fastest performance unstable branches are currently
-C<feature/gh87-types-proto>, C<feature/gh23-inline-subs> and
-C<feature/gh14-native-types>. The branch with the biggest memory
-savings is C<feature/gh9-warnings-xs>.
+F<feature/gh87-types-proto>, F<feature/gh23-inline-subs> and
+F<feature/gh14-native-types>. The branch with the biggest memory
+savings is F<feature/gh9-warnings-xs>.
 
 B<INSTALL:>
 
@@ -187,7 +187,8 @@ L<http://www.open-std.org/JTC1/SC22/wg14/www/docs/n1124.pdf>
 
 I<"When integers are divided, the result of the / operator is the
 algebraic quotient with any fractional part discarded. If the
-quotient C<<a/b>> is representable, the expression C<<(a/b)*b + a%b>> shall equal a.">
+quotient C<< a/b >> is representable, the expression C<< (a/b)*b + a%b >>
+shall equal a.">
 
 Perl does not obey this, only with use integer.
 
@@ -495,7 +496,8 @@ to the emitted bytecode.  Reverting this breakage was denied because
 this developer did not understand the code.  It is too bothersome in
 the long run to maintain our reversion of this breakage over years.
 It easier to check for I<usecperl> in the compiler to be able to
-compile to bytecode properly again.
+compile to bytecode properly again. Note that they broke it again
+with 5.22, and are again refusing to fix it.
 
 =head2 Undo constant folding i_opt de-optimization
 
@@ -601,7 +603,7 @@ hash values, p5p added a second readonly bit C<SVf_PROTECT> for
 special values which are not allowed to be writable, even if the
 better solution to check for this special values at Hash unlock would
 have been trivial.  It does not need to take away the last free SV
-bit, which we used to implement coretype checks on pad values, and
+bit which we used to implement coretype checks on pad values, and
 unlock really only needs to unlock the previously locked values, not
 make all values unconditionally writable, thus making previously
 readonly values writable. C<SVf_PROTECT> does not help with that.
@@ -642,14 +644,13 @@ Hash functions need to be implemented as macros, not functions, undo
 that. (I<maybe>)
 
 Use cache-friendly open addressing, not simple, slow and DOS'able
-(i.e. insecure) linked lists. Fix the "security issues", i.e. denial
-of service issues properly.
+(i.e. insecure) linked lists.
 
 Seperate the keys from the values to fit the search into a cache line.
 
 Provide a special C<:const> hash table type to enable optimizations to
 perfect hashes. With C<study %hash> you can do the similar costly
-optimizations on non-const hashes to allow faster key access.
+optimizations on non-const hashes at run-time to allow faster key access.
 
 =head2 Compile-time attribute hooks
 
@@ -662,8 +663,10 @@ L</"Rewrite critical core modules in C as builtins"> below.
 
 =head2 coretypes: Int, UInt, Num, Str
 
-coretypes can only be built-in. Provide the 4 basic ones, and the
-combinations with C<Undef>, and the lowercase native types.
+coretypes can only be built-in, there's no way to implement it as
+extension, similar to an object system. cperl provides the 4 basic
+ones, and the combinations with C<Undef>, and the lowercase native
+types. Same as in perl6.
 Type combination are done via C<@ISA>, i.e.
 
     class ?Int :const { our @ISA :const = qw(Int Undef); }
@@ -743,7 +746,7 @@ checks for types and magic hooks.
 B<Builtin types> are the coretypes C<< Int, Num, Str, UInt, ?Int, ?Num, ?Str >>
 and for builtin op-dispatch: C<< Void int uint num str Int UInt Num Str
 Bool Numeric Scalar Ref Sub Array Hash List Any >>, with
-a C<?> prefix denoting C<| Undef> I<"or undef">, a C<?> suffix
+a C<?> prefix denoting C<| Undef> I<"or undef">, a C<?> suffix is
 optional, and for aggregate types using C<()> brackets, like C<:Array(:Int)>.
 
 B<Status>: User code in pure perl or XS is currently not typed-checked
@@ -789,8 +792,9 @@ replaced in the body. constants args and literals are replaced as is,
 also args as simple rvalues. lvalue args are checked for call-by-ref or
 call-by-value semantics, and use the arg either directly or as copy.
 
-With shaped arrays and it's new unchecked C<aelem_u> variants, loop bodies are
-optimized when the upper loop bound is declared via C<$#>, the I<arylen>.
+With shaped arrays and it's new unchecked C<aelem_u> variants, loop
+bodies are optimized when the upper loop bound is declared via C<$#>,
+the I<arylen>.
 
     for (0..$#array) {  .. $array[$_] .. }
 
@@ -800,10 +804,10 @@ the loop, even if the array is not explicitly declared as shaped array.
 
 Work is ongoing in loop unrolling, function inlining and speculative
 method inlining, which should speed up run-time performance
-dramatically and enable new optimizations, which were previously
+dramatically and enable new optimizations which were previously
 stopped on each function call border.  Planned is also polymorphic
 inline caching with a usage counter, not just naive monomorphic inline
-cache for method calls.
+cache for method calls. This is needed for the jit optimizer.
 
 Check the new DEBUGGING option C<-Dk> which lists all optimizations
 and checks at compile-time, optionally verbose together with C<-Dkv>.
@@ -816,7 +820,7 @@ and checks at compile-time, optionally verbose together with C<-Dkv>.
 When the method is defined directly in the package, it is not possible
 to inject another package at run-time into the method search, thus the
 method call is optimized from a dynamic method dispatch to a normal
-static functions call.
+static function call.
 
 =head2 Typed and shaped arrays
 
@@ -843,7 +847,7 @@ C<$_> cannot be out of bounds.
 Shaped arrays are pre-initialized according to its type and cannot
 change the size. Attempts are caught at compile-time or run-time.
 With constant or type-checked indices in range the access op is
-optimized to omit the bounds check, via unchecked aelem variants.
+optimized to omit the bounds check, via unchecked aelem_u variants.
 Negative constant indices are converted to positive at compile-time.
 
 =head2 Typed and shaped hashes (NY)
@@ -973,7 +977,6 @@ documented functions.
 
 B<Status:> 1 scope bug with Carp. Not yet enabled.
 
-
 =head2 Added the compiler back to core
 
 The L<B::C|http://search.cpan.org/dist/B-C/> testsuite runs too long
@@ -1043,7 +1046,7 @@ use the SCOPE keyword.
 They should be compiled as shared library, with all keys as readonly
 perfect hash or as trie.  Some internal variables are not accessible
 anymore, the API is via the documented functions.  The trie lookup
-should not be implemented vi pure-perl (100x slower) and use esp. the
+should not be implemented vi pure-perl (80x slower) and use esp. the
 memory in a readonly shared library for huge space savings (2M).
 
 Maybe seperate them into a light folding table and heavy names and
@@ -1072,15 +1075,16 @@ goto to signatures are now real fast tailcalls.
 =head2 Proper object system
 
 No, not Moose, but close.  Closer to Mouse though, which is currently
-the recommended OO. Rather an optimizable perl6-like object system in
-core.  Provide a simple MOP for reflection purposes, bot not for
-overrides, i.e. metaobjects for classes, proper class and method
-syntax, anonymous classes by pointer not name, proper multi dispatch
-with types, roles, class and method lookup by pointer, not by name.
-Create native optimized shapes via mixins as in p2 (an enhanced
-bless). Lexical methods are private, optimize dispatch for single
-inheritance. i.e the convenient class syntax extends on a single class
-only, classes are finalizable by the calling application.
+the recommended OO.  Mouse with a perl6-like syntax.  Rather an
+optimizable perl6-like object system in core.  Provide a simple MOP
+for reflection purposes, bot not for overrides, i.e. metaobjects for
+classes, proper class and method syntax, anonymous classes by pointer
+not name, proper multi dispatch with types, roles, class and method
+lookup by pointer, not by name.  Create native optimized shapes via
+mixins as in p2 (an enhanced bless). Lexical methods are private,
+optimize dispatch for single inheritance. i.e the convenient class
+syntax extends on a single class only, classes are finalizable by the
+calling application.
 
 Support multi-dispatch in perl6 syntax and optimize for early-bound
 method calls with typed arguments and closed classes.
@@ -1089,7 +1093,7 @@ Dispatch is via C3, not the old depth-first left-to-right mro
 implementation.
 
 For type inference we will need to make C<new> a special keyword,
-which is a shortcut for C<bless>, with a fixed classname. C<bless> can
+which is a shortcut for C<bless> with a fixed classname. C<bless> can
 use computed classnames and thus enforces dynamic types.
 
 =head2 libffi in core
@@ -1110,6 +1114,8 @@ uses the C<is> traits for all function attributes, which we do not.
 The alternative syntax would be via a C<:native> attribute, which would allow
 options, as in C<sub atoi(str $s):int :native($libc);>.
 
+But with the jit in core we would not need the external libffi dependency.
+
 =head2 Editor integration
 
 With type inference we can provide a much nicer development
@@ -1122,8 +1128,6 @@ introspection facilities.
 
 Add a jit for the easiest platforms, and provide dynamic
 javascript-based optimizations when stacks need to be replaced.
-Eventually even promote to bignum not double automatically, as in
-perl6. But this is optional, the next points are more important.
 Jit's are a bit overrated. a fast bytecode loop can easily beat a jit
 and optimizing compiler, see luajit2,
 L<http://www.emulators.com/docs/nx25_nostradamus.htm> or
@@ -1133,14 +1137,16 @@ A tracing jit, and not a method jit sounds best, together with the
 inliner, native op sequences and loop optimizations.  Currently we are
 trying a simple llvm based method jit, which kicks in after counting
 methods and loops (similar to unladen-swallow and pyston), and inlines
-some C<pp> runtime functions and herbey eliminations to function head,
-parameter and return overhead.
+some C<pp> runtime functions and hereby eliminations to function
+intro, parameter and return overhead, and then can apply the usual
+optimizations applied to the bodies without the call overhead.
 
 =head2 Optimize the vm, the runloop
 
 We carry around way too much bloat in the ops and the data, which is
 not needed at run-time. e.g. the compiler throws away the nested
 symbol table stashes if not needed, which frees 20% memory.
+All the op pointers are not needed at run-time.
 But think of a lua/p2-like redesign of tagged values and slimmer ops,
 and eventually put the stack onto the CPU stack.
 

@@ -352,7 +352,7 @@ pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	6
 pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perlce.pod	Verbatim line length including indents exceeds 79 by	3
-pod/perlcperl.pod	? Should you be using F<...> or maybe L<...> instead of	4
+pod/perlcperl.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perlcperl.pod	Apparent broken link	2
 pod/perlcperl.pod	Verbatim line length including indents exceeds 79 by	11
 pod/perldebguts.pod	Verbatim line length including indents exceeds 79 by	27
