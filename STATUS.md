@@ -4,8 +4,7 @@
 
 The name **cperl** stands for **a perl with classes, types, compiler
 support, continuation of perl5 development or just a company-friendly
-perl**, but currently it's only a better variant with types, proper signatures,
-security fixes and without classes.
+perl**.
 
 cperl started Feb. 2015 when `:const` was added, parrot was killed and
 it became clear that optimizing for fun is better than waiting for
@@ -25,6 +24,11 @@ re-establish perl5 core development which essentially stopped 2002,
 use perl6-like development policies, and better security fixes and
 maintenance than the upstream p5p perl5. See [README.cperl](perlcperl.html).
 
+There's no class keyword yet as this needs proper field and method
+handling, multi-dispatch, aggregate type handling and class
+finalization, which is not yet finished. But classes are user-facing
+types, and type-support is builtin.
+
 Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
@@ -35,7 +39,6 @@ the latest development release [5.25.2c](https://github.com/perl11/cperl/release
 We also have [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
 
 All tests pass. CPAN works.
-
 Some fixes in my `rurban/distroprefs` repo for certain CPAN modules are needed.
 
 Since 5.24.1c with some modernized core modules some signatures are
@@ -80,7 +83,8 @@ For all versions see [bench-all/](bench-all/index.html)
   Security fixes for DynaLoader.
 * changed default hash function to the fastest FNV1A *(as in the stableperl fork)*
 * changed the hash collision strategy from randomize to the usual move-to-front
-* changed the default hash fill rate from 100% to 90%
+* changed the default hash fill rate from 100% to 90%. It's tunable via ccflags and
+  still fast.
 * cperl has besides java the only secure hash table implementation of all popular
   dynamic scripting languages or static languages with internal hash table support.
   other secure hash tables are only found in glibc, bsd or unix kernels or various
