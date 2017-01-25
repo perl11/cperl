@@ -322,6 +322,7 @@ character in front of them.
 
 E.g. C<qr ̂foobar̂;> is now an error, it is only deprecated with v5.25.9
 upstream and will be illegal in perl5 v5.30.
+cperl only.
 
 =head2 for state loops still illegal
 
@@ -365,7 +366,8 @@ to in list context.
     (bar) = 3; # also an error
 
 This makes the lvalue sub case consistent with C<(keys %hash) = ...> and
-C<(keys @_) = ...>, which are also errors.  L<[perl #128187]|https://rt.perl.org/Public/Bug/Display.html?id=128187>
+C<(keys @_) = ...>, which are also errors.
+L<[perl #128187]|https://rt.perl.org/Public/Bug/Display.html?id=128187>
 
 =head1 Performance Enhancements
 
@@ -378,12 +380,14 @@ the utf8 length, it only needs to check if SvCUR field is empty.  And
 it doesn't need to allocate a new IV for the result, just use the
 existing sv_yes or sv_no.
 Analog to L<[cperl #245]|https://github.com/perl11/cperl/issues/245> for ref.
+cperl only.
 
 =item * if ref() is faster
 
 ref in boolean context doesn't need to allocate a string.
 2-3x faster. See L<[cperl #245]|https://github.com/perl11/cperl/issues/245> and
 L<[perl #78288]|https://rt.perl.org/Public/Bug/Display.html?id=78288>
+cperl only. in perl5 announced for 5.26.
 
 =item * readline is faster
 
