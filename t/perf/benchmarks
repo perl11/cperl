@@ -256,26 +256,22 @@
     # compare to expr::array::lex_1const_0
     'expr::array::shaped' => {
         desc    => 'shaped @a[$var]',
-        setup   => 'BEGIN{%int::; my int $i=0; use Config; $Config{usecperl}'
-                   .'? eval q(use feature "shaped_arrays";my @a[5];) : eval q(my @a;);}',
+        setup   => 'my int $i=0; my @a[5]',
         code    => '$a[$i]',
     },
     'expr::array::shaped_int' => {
-        desc    => 'shaped @a[$var]',
-        setup   => 'BEGIN{%int::; my int $i=0; use Config; $Config{usecperl}'
-                   .'? eval q(use feature "shaped_arrays";my int @a[5];) : eval q(my @a;);}',
+        desc    => 'shaped int @a[$var]',
+        setup   => 'my int $i=0; my int @a[5]',
         code    => '$a[$i]',
     },
     'expr::array::shaped_const' => {
         desc    => 'shaped @a[const]',
-        setup   => 'BEGIN{%int::; use Config; $Config{usecperl}'
-                   .'? eval q(use feature "shaped_arrays";my @a[5];) : eval q(my @a;);}',
+        setup   => 'my @a[5]',
         code    => '$a[0]',
     },
     'expr::array::shaped_const_int' => {
         desc    => 'shaped int @a[const]',
-        setup   => 'BEGIN{%int::; use Config; $Config{usecperl}'
-                   .'? eval q(use feature "shaped_arrays";my int @a[5];) : eval q(my @a;);}',
+        setup   => 'my int @a[5]',
         code    => '$a[0]',
     },
 
@@ -368,7 +364,7 @@
     },
     'expr::hash::bool_full' => {
         desc    => 'non-empty lexical hash in boolean context',
-        setup   => 'my %h = 1..10;',
+        setup   => 'my %h = 1..10',
         code    => '!%h',
     },
 
@@ -377,7 +373,7 @@
         map {
             sprintf('expr::hash::notexists_lex_keylen%04d',$_) => {
                 desc    => 'exists on non-key of length '. $_,
-                setup   => 'my %h; my $key = "A" x ' . $_ . '; $h{$key."x"} = 1;',
+                setup   => 'my %h; my $key = "A" x ' . $_ . '; $h{$key."x"} = 1',
                 code    => 'exists $h{$key}',
             },
         } (

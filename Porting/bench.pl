@@ -590,6 +590,8 @@ sub process_puts {
 
 sub make_perl_prog {
     my ($test, $desc, $setup, $code) = @_;
+    $setup =~ s/;$//;
+    $code =~ s/;$//;
 
     return <<EOF;
 # $desc
