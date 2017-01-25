@@ -240,6 +240,16 @@ L<[cperl #244]|https://github.com/perl11/cperl/issues/244>.
 
 =head1 Security
 
+=head2 Storable stack overflow or exit
+
+By reading malcrafted local Storable files you could easily overwrite
+the local stack with controlled data.  With bigger values you could
+cause an immediate exit, without backtrace or an exception being
+caught.
+
+Note that p5p doesn't think that local Storable files are a security issue.
+L<[perl #130635]|https://rt.perl.org/Public/Bug/Display.html?id=130635>
+
 =head2 "Escaped" colons and relative paths in PATH
 
 On Unix systems, Perl treats any relative paths in the PATH environment
@@ -538,6 +548,9 @@ Improved taint test.
 
 Fixed 3 null ptr dereferences leading to segfaults.
 L<[perl #130098]|https://rt.perl.org/Public/Bug/Display.html?id=130098>
+
+Fixed some important security bugs with reading from Storable files.
+See L</Storable stack overflow or exit>.
 
 =item threads 2.12_01
 

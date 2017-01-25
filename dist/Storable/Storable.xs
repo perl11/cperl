@@ -1097,7 +1097,7 @@ static const char byteorderstr_56[] = {BYTEORDER_BYTES_56, 0};
 #define SAFEPVREAD(x,y,z)					\
 	STMT_START {						\
 		if (!cxt->fio)					\
-			MBUF_SAFEPVREAD(x,y,z);		\
+			MBUF_SAFEPVREAD(x,y,z);			\
 		else if (PerlIO_read(cxt->fio, x, y) != y) {	\
 			Safefree(z);				\
 			return (SV *) 0;			\
@@ -3664,8 +3664,8 @@ static int store_blessed(
 	HV *pkg)
 {
 	SV *hook;
-	I32 len;
 	char *classname;
+	I32 len;
 	I32 classnum;
 
 	TRACEME(("store_blessed, type %d, class \"%s\"", type, HvNAME_get(pkg)));
@@ -3716,7 +3716,7 @@ static int store_blessed(
 		} else {
 			unsigned char flag = (unsigned char) 0x80;
 			PUTMARK(flag);
-			WLEN(len);					/* Don't BER-encode, this should be rare */
+			WLEN(len);				/* Don't BER-encode, this should be rare */
 		}
 		WRITE(classname, len);				/* Final \0 is omitted */
 	}
@@ -4297,7 +4297,7 @@ static SV *retrieve_idx_blessed(pTHX_ stcxt_t *cxt, const char *cname)
  */
 static SV *retrieve_blessed(pTHX_ stcxt_t *cxt, const char *cname)
 {
-	I32 len;
+	U32 len;
 	SV *sv;
 	char buf[LG_BLESS + 1];		/* Avoid malloc() if possible */
 	char *classname = buf;
@@ -4317,11 +4317,18 @@ static SV *retrieve_blessed(pTHX_ stcxt_t *cxt, const char *cname)
 	GETMARK(len);			/* Length coded on a single char? */
 	if (len & 0x80) {
 		RLEN(len);
-		TRACEME(("** allocating %d bytes for class name", (int)len+1));
+		TRACEME(("** allocating %ld bytes for class name", (long)len+1));
+		if (len > I32_MAX)
+                        CROAK(("Corrupted classname length %lu", (long)len));
+                PL_nomemok = TRUE; /* handle error by ourselves */
 		New(10003, classname, len+1, char);
+                PL_nomemok = FALSE;
+                if (!classname)
+                    CROAK(("Out of memory with len %ld", (long)len));
+                PL_nomemok = FALSE;
 		malloced_classname = classname;
 	}
-	SAFEPVREAD(classname, len, malloced_classname);
+	SAFEPVREAD(classname, (I32)len, malloced_classname);
 	classname[len] = '\0';		/* Mark string end */
 
 	/*
@@ -4368,7 +4375,7 @@ static SV *retrieve_blessed(pTHX_ stcxt_t *cxt, const char *cname)
  */
 static SV *retrieve_hook(pTHX_ stcxt_t *cxt, const char *cname)
 {
-	I32 len;
+	U32 len;
 	char buf[LG_BLESS + 1];		/* Avoid malloc() if possible */
 	char *classname = buf;
 	unsigned int flags;
@@ -4502,13 +4509,19 @@ static SV *retrieve_hook(pTHX_ stcxt_t *cxt, const char *cname)
 		else
 			GETMARK(len);
 
-		if (len > LG_BLESS) {
-                        TRACEME(("** allocating %d bytes for class name", (int)len+1));
+                TRACEME(("** allocating %ld bytes for class name", (long)len+1));
+		if (len > I32_MAX) /* security */
+                        CROAK(("Corrupted classname length %lu", (long)len));
+                else if (len > LG_BLESS) { /* security: signed len */
+                        PL_nomemok = TRUE; /* handle error by ourselves */
 			New(10003, classname, len+1, char);
+                        PL_nomemok = FALSE;
+                        if (!classname)
+                            CROAK(("Out of memory with len %u", (unsigned)len+1));
 			malloced_classname = classname;
 		}
 
-		SAFEPVREAD(classname, len, malloced_classname);
+		SAFEPVREAD(classname, (I32)len, malloced_classname);
 		classname[len] = '\0';		/* Mark string end */
 
 		/*
@@ -6030,7 +6043,7 @@ static SV *retrieve_flag_hash(pTHX_ stcxt_t *cxt, const char *cname)
 static SV *retrieve_code(pTHX_ stcxt_t *cxt, const char *cname)
 {
 #if PERL_VERSION < 6
-    CROAK(("retrieve_code does not work with perl 5.005 or less\n"));
+	CROAK(("retrieve_code does not work with perl 5.005 or less\n"));
 #else
 	dSP;
 	I32 type, count;
