@@ -1745,6 +1745,8 @@ unless those are turned off.
 UV
 Perl_utf8_to_uvchr_buf(pTHX_ const U8 *s, const U8 *send, STRLEN *retlen)
 {
+    PERL_ARGS_ASSERT_UTF8_TO_UVCHR_BUF;
+
     assert(s < send);
 
     return utf8n_to_uvchr(s, send - s, retlen,
