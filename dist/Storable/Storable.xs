@@ -602,11 +602,11 @@ static stcxt_t *Context_ptr = NULL;
 
 #define MBUF_XTEND(x)						\
 	STMT_START {						\
-		int nsz = (int) round_mgrow((x)+msiz);		\
-		int offset = mptr - mbase;			\
+		STRLEN nsz = (STRLEN) round_mgrow((x)+msiz);	\
+		STRLEN offset = mptr - mbase;			\
 		ASSERT(!cxt->membuf_ro, ("mbase is not read-only")); \
-		TRACEME(("** extending mbase from %d to %d bytes (wants %d new)", \
-			 (int)msiz, nsz, (int)(x)));			\
+		TRACEME(("** extending mbase from %ld to %ld bytes (wants %ld new)", \
+			 (long)msiz, nsz, (long)(x)));			\
 		Renew(mbase, nsz, char);				\
 		msiz = nsz;						\
 		mptr = mbase + offset;					\
@@ -887,6 +887,7 @@ static const char byteorderstr_56[] = {BYTEORDER_BYTES_56, 0};
 #define STORABLE_BIN_WRITE_MINOR	8
 #elif PATCHLEVEL >= 19
 /* Perl 5.19 takes away the special meaning of PL_sv_undef in arrays. */
+/* With 3.x we added LOBJECT */
 #define STORABLE_BIN_WRITE_MINOR	11
 #else
 #define STORABLE_BIN_WRITE_MINOR	9
@@ -2356,8 +2357,9 @@ static int store_scalar(pTHX_ stcxt_t *cxt, SV *sv)
 			STORE_UTF8STR(pv, wlen);
 		else
 			STORE_SCALAR(pv, wlen);
-		TRACEME(("ok (scalar 0x%" UVxf " '%s', length = %" IVdf ")",
-			 PTR2UV(sv), SvPVX(sv), (IV)len));
+		TRACEME(("ok (scalar 0x%" UVxf " '%s', length = %" UVuf ")",
+			 PTR2UV(sv), len >= 2048 ? "<string too long>" : SvPVX(sv),
+                         (UV)len));
 	} else {
 		CROAK(("Can't determine type of %s(0x%" UVxf ")",
 		       sv_reftype(sv, FALSE),
@@ -5218,7 +5220,8 @@ static SV *get_lstring(pTHX_ stcxt_t *cxt, UV len, int isutf8, const char *cname
         }
 
 	if (isutf8) {
-		TRACEME(("large utf8 string len %" UVuf " '%s'", len, SvPVX(sv)));
+		TRACEME(("large utf8 string len %" UVuf " '%s'", len,
+                         len >= 2048 ? "<string too long>" : SvPVX(sv)));
 #ifdef HAS_UTF8_SCALARS
 		SvUTF8_on(sv);
 #else
@@ -5230,7 +5233,8 @@ static SV *get_lstring(pTHX_ stcxt_t *cxt, UV len, int isutf8, const char *cname
 			UTF8_CROAK();
 #endif
 	} else {
-		TRACEME(("large string len %" UVuf " '%s'", len, SvPVX(sv)));
+		TRACEME(("large string len %" UVuf " '%s'", len,
+                         len >= 2048 ? "<string too long>" : SvPVX(sv)));
 	}
 	TRACEME(("ok (get_lstring at 0x%" UVxf ")", PTR2UV(sv)));
 
@@ -6392,8 +6396,9 @@ static SV *magic_check(pTHX_ stcxt_t *cxt)
 			current = buf + old_len;
 		}
 		use_network_order = *current;
-	} else
+	} else {
 		GETMARK(use_network_order);
+        }
 
 	/*
 	 * Starting with 0.6, the "use_network_order" byte flag is also used to
@@ -6958,7 +6963,7 @@ static SV *mretrieve(pTHX_ SV *sv, IV flag)
 static SV *dclone(pTHX_ SV *sv)
 {
 	dSTCXT;
-	int size;
+	STRLEN size;
 	stcxt_t *real_context;
 	SV *out;
 
@@ -7012,7 +7017,7 @@ static SV *dclone(pTHX_ SV *sv)
 	ASSERT(!cxt->entry, ("entry will not cause new context allocation"));
 
 	size = MBUF_SIZE();
-	TRACEME(("dclone stored %d bytes", size));
+	TRACEME(("dclone stored %ld bytes", (long)size));
 	MBUF_INIT(size);
 
 	/*

@@ -582,9 +582,8 @@ most mixed scripts and normalizes unicode identifiers, similar to
 python 3.  cperl is actually one of the very rare dynamic languages
 with full unicode identifer support which actually does follow the
 unicode consortium security recommendations and profile.
-cperl implements the L<Moderately Restrictive level
-|http://www.unicode.org/reports/tr39/#General_Security_Profile> for
-unicode identifiers.
+cperl implements the L<Moderately Restrictive level|http://www.unicode.org/reports/tr39/#General_Security_Profile>
+for unicode identifiers.
 See L<perldata/Identifier parsing>
 
 The compiler had to add this warning since 5.16 until 5.26:
