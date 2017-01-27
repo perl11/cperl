@@ -753,11 +753,11 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
     if (SvREADONLY(cachestash))
         create = HV_FETCH_ISEXISTS;
     he = (HE*)hv_common(cachestash, meth, name, len,
-                        (flags & SVf_UTF8) ? HVhek_UTF8 : 0, create, NULL, 0);
+                        is_utf8 ? HVhek_UTF8 : 0, create, NULL, 0);
     if (he) {
         gvp = UNLIKELY(create == HV_FETCH_ISEXISTS)
             ? (GV**)&HeVAL((HE*)hv_common(cachestash, meth, name, len,
-                        (flags & SVf_UTF8) ? HVhek_UTF8 : 0, items, NULL, 0))
+                        is_utf8 ? HVhek_UTF8 : 0, items, NULL, 0))
             : (GV**)&HeVAL(he);
     }
     else
