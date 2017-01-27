@@ -4034,7 +4034,7 @@ PP(pp_ord)
     }
 
     SETu(DO_UTF8(argsv)
-           ? utf8n_to_uvchr(s, len, 0, UTF8_ALLOW_ANYUV)
+           ? (len ? utf8n_to_uvchr(s, len, 0, UTF8_ALLOW_ANYUV) : 0)
            : (UV)(*s));
 
     return NORMAL;
