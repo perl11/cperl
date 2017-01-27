@@ -292,7 +292,9 @@ typedef unsigned long stag_t;	/* Used by pre-0.6 binary format */
 #endif
 
 /* Needed for 32bit with lengths > 2G - 4G, and 64bit */
+#if UVSIZE > 4
 #define HAS_U64
+#endif
 
 /*
  * Fields s_tainted and s_dirty are prefixed with s_ because Perl's include
@@ -989,7 +991,11 @@ static const char byteorderstr_56[] = {BYTEORDER_BYTES_56, 0};
 	} STMT_END
 #else
 #define WLEN(x)	WRITE_I32(x)
+#ifdef HAS_U64
 #define W64LEN(x) WRITE_U64(x)
+#else
+#define W64LEN(x) CROAK(("no 64bit UVs"))
+#endif
 #endif
 
 #define WRITE(x,y) 							\
@@ -1278,8 +1284,10 @@ static SV *retrieve_lobject(pTHX_ stcxt_t *cxt, const char *cname);
 
 static SV *get_lstring(pTHX_ stcxt_t *cxt, UV len, int isutf8, const char *cname);
 static SV *get_larray(pTHX_ stcxt_t *cxt, UV len, const char *cname);
+#ifdef HAS_U64
 static SV *get_lhash(pTHX_ stcxt_t *cxt, UV len, int flagged, const char *cname);
 static int store_lhash(pTHX_ stcxt_t *cxt, HV *hv, unsigned char hash_flags);
+#endif
 static int store_hentry(pTHX_ stcxt_t *cxt, HV* hv, UV i, HE *he, unsigned char hash_flags);
 
 typedef SV* (*sv_retrieve_t)(pTHX_ stcxt_t *cxt, const char *name);
@@ -2386,6 +2394,7 @@ static int store_array(pTHX_ stcxt_t *cxt, AV *av)
 	MUST_FIT_IN_UV(len);
 	TRACEME(("store_array (0x%" UVxf ")", PTR2UV(av)));
 
+#ifdef HAS_U64
 	if (len > 0x7fffffffu) {
 		/*
 		 * Large array by emitting SX_LOBJECT 1 U64 data
@@ -2394,7 +2403,9 @@ static int store_array(pTHX_ stcxt_t *cxt, AV *av)
 		PUTMARK(SX_ARRAY);
 		W64LEN(len);
 		TRACEME(("lobject size = %lu", (unsigned long)len));
-	} else {
+	} else
+#endif
+        {
 		/*
 		 * Normal array by emitting SX_ARRAY, followed by the array length.
 		 */
@@ -2521,7 +2532,7 @@ static int store_hash(pTHX_ stcxt_t *cxt, HV *hv)
 		W64LEN(len);
 		return store_lhash(aTHX_ cxt, hv, hash_flags);
 #else
-		CROAK(("Storable cannot yet handle overlong hashes with >2G keys"));
+		CROAK(("Cannot store large objects on a 32bit system"));
 #endif
 	} else {
 		I32 l = (I32)len;
@@ -2900,6 +2911,7 @@ static int store_hentry(pTHX_ stcxt_t *cxt, HV* hv, UV i, HE *he, unsigned char 
 }
 
 
+#ifdef HAS_U64
 /*
  * store_lhash
  *
@@ -2942,6 +2954,7 @@ static int store_lhash(pTHX_ stcxt_t *cxt, HV *hv, unsigned char hash_flags)
 	assert(ix == len);
 	return ret;
 }
+#endif
 
 /*
  * store_code
@@ -2954,7 +2967,7 @@ static int store_lhash(pTHX_ stcxt_t *cxt, HV *hv, unsigned char hash_flags)
 static int store_code(pTHX_ stcxt_t *cxt, CV *cv)
 {
 #if PERL_VERSION < 6
-    /*
+        /*
 	 * retrieve_code does not work with perl 5.005 or less
 	 */
 	return store_other(aTHX_ cxt, (SV*)cv);
@@ -5422,7 +5435,14 @@ static SV *retrieve_lobject(pTHX_ stcxt_t *cxt, const char *cname)
 
 	GETMARK(type);
 	TRACEME(("object type %d", type));
+#ifdef HAS_U64
 	READ(&len, 8);
+#else
+	READ(&len, 4);
+        if (len > 0)
+            CROAK(("Invalid large object for this 32bit system"));
+	READ(&len, 4);
+#endif
 	TRACEME(("wlen %" UVuf, len));
 	switch (type) {
 	case SX_LSCALAR:
@@ -5441,6 +5461,8 @@ static SV *retrieve_lobject(pTHX_ stcxt_t *cxt, const char *cname)
 	case SX_HASH:
 		sv = get_lhash(aTHX_ cxt, len, 0, cname);
 		break;
+#else
+            CROAK(("Invalid large object for this 32bit system"));
 #endif
 	default:
 		CROAK(("Unexpected type %d in retrieve_lobject\n", type));
@@ -5733,6 +5755,7 @@ static SV *get_larray(pTHX_ stcxt_t *cxt, UV len, const char *cname)
 	return (SV *) av;
 }
 
+#ifdef HAS_U64
 /*
  * get_lhash
  *
@@ -5814,7 +5837,7 @@ static SV *get_lhash(pTHX_ stcxt_t *cxt, UV len, int hash_flags, const char *cna
 	TRACEME(("ok (get_lhash at 0x%" UVxf ")", PTR2UV(hv)));
 	return (SV *) hv;
 }
-
+#endif
 
 /*
  * retrieve_hash

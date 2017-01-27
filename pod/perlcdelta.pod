@@ -551,14 +551,18 @@ Fixed 3 null ptr dereferences leading to segfaults.
 L<[perl #130098]|https://rt.perl.org/Public/Bug/Display.html?id=130098>
 
 Fixed some important security bugs with reading from Storable files
-or memory. See L</Storable stack overflow or exit>.
+or memory, directly controlling the stack (not the perl stack).
+See L</Storable stack overflow or exit>.
 
 Fixed up early huge buffer and index support from 3.00c, which was
-failing with wrong malloc errors due to silent overwrap >2GB.
+failing with wrong malloc errors due to silently overwrap >2GB.
 F<t/huge.t> works now correctly.  Note that 2 cases are not relevant
 since v5.25.1c/v5.24.1c anymore as with these releases we limit the
 maximum number of elements for hashes and arrays, and fail with "Too
 many elements" before.
+
+Skip or croak when reading or writing 64bit large objects on 32bit
+systems.
 
 =item threads 2.12_01
 
