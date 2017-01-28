@@ -60,11 +60,18 @@ holds the key and hash value.
 static const char S_strtab_error[]
     = "Cannot modify shared string table in hv_%s";
 
+/* We slow down single attackers (as with login), but die on DDOS.
+   Note that those attacks are difficult to perform, as first the
+   seed needs to be detected [cperl #199].
+   Not as in a trivial Slow DOS. [cperl #246] */
 #define CHECK_HASH_FLOOD(collisions)            \
     if (UNLIKELY(++collisions > 127)) {         \
         if (!(collisions % 8)) {                \
             Perl_warn_security(aTHX_ "Hash flood");\
-            PerlProc_sleep(2);                  \
+            if (++PL_hash_slowdos > 127)        \
+                Perl_croak(aTHX_ "panic: distributed hash flood\n"); \
+            else                                \
+                PerlProc_sleep(2);              \
         }                                       \
     }
 

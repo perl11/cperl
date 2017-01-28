@@ -319,6 +319,22 @@ When called without argument it overwrote subsequent stack entries
 with the easily controllable result.
 L<[perl #129130]|https://rt.perl.org/Public/Bug/Display.html?id=129130>
 
+=head2 Improved Hash DDoS prevention
+
+This is merely a theoretical problem, improving on the previous sleep
+solution against hash floods.  Distributed hashflood attacks could
+lead to memory exhaustion and denial of service in threaded servers,
+which would bypass the original FAIL_DELAY-like intrusion detection
+and mitigation.
+
+First sleep, but if >128 concurrent attacks are detected, exit
+hard. Use a global hash_slowdos counter.  Note that this is also
+triggered by a 128*8*128 hash collision single source attack (=131072).
+This is still better, faster and smaller than the java solution to
+convert the linked list to a tree. We log the attackers and can block
+them.
+L<[cperl #246]|https://github.com/perl11/cperl/issues/246>.
+
 =head1 Incompatible Changes
 
 =head2 String delimiters that aren't stand-alone graphemes are illegal

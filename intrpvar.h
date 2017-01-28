@@ -827,6 +827,7 @@ PERLVARI(I, count_null_ops, UV, 0)	/* Number of optimized away NULL ops */
 #endif
 
 PERLVARI(I, dump_re_max_len, STRLEN, 0)
+PERLVARI(I, hash_slowdos, U16, 0)       /* Number of concurrent hash DoS attacks */
 
 /* If you are adding a U8 or U16, check to see if there are 'Space' comments
  * above on where there are gaps which currently will be structure padding.  */
