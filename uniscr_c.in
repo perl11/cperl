@@ -1,0 +1,265 @@
+%{/* -*- mode: c; c-basic-offset: 4; -*-
+
+Copyright (C) 2017 cPanel Inc
+
+Unicode perfect hash for { scripts => sv_yes }
+tied to %VALID_SCRIPTS
+
+gperf -m 2 --output-file=uniscr.c uniscr_c.in
+
+=cut
+
+*/
+
+#define PERL_NO_GET_CONTEXT
+#define PERL_EXT
+#include "EXTERN.h"
+#include "perl.h"
+#include "XSUB.h"
+
+/* Inside of tied XS object is a SVUV which is the iterator for the tied hash.
+   The iterator is the offset of next stringpool string to read, unless the
+   iterating is finished, then offset is beyond the end of stringpool and should
+   not be used to deref (read) the string pool, until the next FIRSTKEY which
+   resets the offset back to 0 or offset of 2nd string in string pool */
+
+typedef UV CFGSELF; /* for typemap */
+    
+struct Perl_scripts_bool { U16 name; U16 len; const char *value; };
+
+static const struct Perl_scripts_bool *
+scripts_bool_lookup (register const char *str, register unsigned int len);
+
+%}
+%language=ANSI-C
+%struct-type
+%define hash-function-name   scripts_bool_hash
+%define lookup-function-name scripts_bool_lookup
+%pic
+%readonly-tables
+
+struct Perl_scripts_bool;
+
+%%
+Adlam
+Ahom
+Anatolian_Hieroglyphs
+Arabic
+Armenian
+Avestan
+Balinese
+Bamum
+Bassa_Vah
+Batak
+Bengali
+Bhaiksuki
+Bopomofo
+Brahmi
+Braille
+Buginese
+Buhid
+Canadian_Aboriginal
+Carian
+Caucasian_Albanian
+Chakma
+Cham
+Cherokee
+Common
+Coptic
+Cuneiform
+Cypriot
+Cyrillic
+Deseret
+Devanagari
+Duployan
+Egyptian_Hieroglyphs
+Elbasan
+Ethiopic
+Georgian
+Glagolitic
+Gothic
+Grantha
+Greek
+Gujarati
+Gurmukhi
+Han
+Hangul
+Hanunoo
+Hatran
+Hebrew
+Hiragana
+Imperial_Aramaic
+Inherited
+Inscriptional_Pahlavi
+Inscriptional_Parthian
+Javanese
+Kaithi
+Kannada
+Katakana
+Kayah_Li
+Kharoshthi
+Khmer
+Khojki
+Khudawadi
+Lao
+Latin
+Lepcha
+Limbu
+Linear_A
+Linear_B
+Lisu
+Lycian
+Lydian
+Mahajani
+Malayalam
+Mandaic
+Manichaean
+Marchen
+Meetei_Mayek
+Mende_Kikakui
+Meroitic_Cursive
+Meroitic_Hieroglyphs
+Miao
+Modi
+Mongolian
+Mro
+Multani
+Myanmar
+Nabataean
+New_Tai_Lue
+Newa
+Nko
+Ogham
+Ol_Chiki
+Old_Hungarian
+Old_Italic
+Old_North_Arabian
+Old_Permic
+Old_Persian
+Old_South_Arabian
+Old_Turkic
+Oriya
+Osage
+Osmanya
+Pahawh_Hmong
+Palmyrene
+Pau_Cin_Hau
+Phags_Pa
+Phoenician
+Psalter_Pahlavi
+Rejang
+Runic
+Samaritan
+Saurashtra
+Sharada
+Shavian
+Siddham
+SignWriting
+Sinhala
+Sora_Sompeng
+Sundanese
+Syloti_Nagri
+Syriac
+Tagalog
+Tagbanwa
+Tai_Le
+Tai_Tham
+Tai_Viet
+Takri
+Tamil
+Tangut
+Telugu
+Thaana
+Thai
+Tibetan
+Tifinagh
+Tirhuta
+Ugaritic
+Vai
+Warang_Citi
+Yi
+%%
+
+MODULE = Unicode		PACKAGE = Unicode
+PROTOTYPES: DISABLE
+
+void
+FETCH(self, key)
+     SV* self
+     SV* key
+ALIAS:
+     EXISTS = 1
+PREINIT:
+     const struct Perl_scripts_bool *c;
+     SV * RETVAL;
+PPCODE:
+     SP++; /* make space for 1 returned SV* */
+     PUTBACK; /* let some vars go out of liveness */
+#if Size_t_size > INTSIZE
+     if (SvCUR(key) > UINT_MAX)
+         REYURN_UNDEF;
+#endif
+     c = scripts_lookup(SvPVX_const(key), (unsigned int)SvCUR(key));
+     PERL_UNUSED_VAR(self);
+     RETVAL = c ? PL_sv_yes : &PL_sv_undef;
+
+     *SP = RETVAL;
+     return; /* skip implicit PUTBACK, it was done earlier */
+
+#you would think the prototype croak can be removed and replaced with ...
+#but the check actually makes sure there is 1 SP slot available since the retval
+#SV* winds up ontop of the incoming self arg
+void
+SCALAR(self)
+    SV *self
+CODE:
+    PERL_UNUSED_VAR(self);
+    /* MAX_HASH_VALUE is technically wrong, real array size is MAX_HASH_VALUE +1 */
+    *SP = newSVpvn(STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(MAX_HASH_VALUE),
+                   sizeof(STRINGIFY(TOTAL_KEYWORDS) "/" STRINGIFY(MAX_HASH_VALUE))-1);
+    return; /* skip implicit PUTBACK, SP didnt move, 1 arg in means 1 arg out */
+
+void
+FIRSTKEY(self)
+         UNISELF *self
+PREINIT:
+    /* Note: This is highly gperf dependent */
+    const char *s = (const char *)stringpool;
+    size_t len;
+CODE:
+    STATIC_ASSERT_STMT(sizeof(stringpool_contents) > 1); /* atleast 1 string */
+
+    len = strlen(s);
+    /* self is SVIV with offset (aka iterator) into stringpool */
+    *self = len + 1; /* set to next string to read */
+    /* overwrite UNISELF *self slot on stack */
+    *SP = sv_2mortal(newSVpvn(s, len));
+    return; /* skip implicit PUTBACK, 1 arg in, means 1 arg out, SP not moved*/
+
+void
+NEXTKEY(self, lastkey)
+         UNISELF *self
+         SV *lastkey
+PREINIT:
+    SV * RETVAL;
+PPCODE:
+    PERL_UNUSED_VAR(lastkey);
+    SP++; /* make space for 1 returned SV* */
+    PUTBACK; /* let some vars go out of liveness */
+
+    /* bounds check to avoid running off the end of stringpool */
+    if (*self < sizeof(stringpool_contents)) {
+        const char * key = (const char*)stringpool+*self;
+        size_t len = strlen(key);
+        *self += len + 1;
+        RETVAL = sv_2mortal(newSVpvn(key, len));
+    }
+    else
+        RETVAL = &PL_sv_undef;
+    *SP = RETVAL;
+    return; /* skip implicit PUTBACK, it was done earlier */
+     
+BOOT:
+{
+  STATIC_ASSERT_STMT(sizeof(stringpool_contents) <= 1 << 15);
+}
