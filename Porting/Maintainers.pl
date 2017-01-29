@@ -1208,21 +1208,11 @@ use File::Glob qw(:case);
     'Socket' => {
         'DISTRIBUTION' => 'RURBAN/Socket-2.024_04.tar.gz',
         'FILES'        => q[cpan/Socket],
-        #'CUSTOMIZED'   => [
-        #    qw( Makefile.PL Socket.xs )
-        #]
     },
 
     'Storable' => {
-        'DISTRIBUTION' => 'AMS/Storable-2.51.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Storable-3.05.tar.gz',
         'FILES'        => q[dist/Storable],
-        # no, we use our own 3.05c with many security fixes.
-        'CUSTOMIZED'   => [
-            qw( Storable.xs Storable.pm
-		ChangeLog README
-		t/huge.t t/blessed.t t/retrieve.t
-		t/CVE-2015-1592.inc t/CVE-2015-1592.t )
-        ]
     },
 
     'Sys::Syslog' => {

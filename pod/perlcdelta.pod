@@ -545,7 +545,9 @@ lexical $_ support, binary names, various other fixes.
 
 Improved taint test.
 
-=item Storable 3.05c
+=item Storable 3.05
+
+From L<https://github.com/rurban/Storable>
 
 Fixed 3 null ptr dereferences leading to segfaults.
 L<[perl #130098]|https://rt.perl.org/Public/Bug/Display.html?id=130098>
@@ -559,7 +561,10 @@ failing with wrong malloc errors due to silently overwrap >2GB.
 F<t/huge.t> works now correctly.  Note that 2 cases are not relevant
 since v5.25.1c/v5.24.1c anymore as with these releases we limit the
 maximum number of elements for hashes and arrays, and fail with "Too
-many elements" before.
+many elements" before. Bumped up PERL_TEST_MEMORY requirements to 8 and 16
+for arrays and hashes. In reality the VMM subsystem will kill the process
+on perl5 before. C<$a[9223372036854]=0> or C<%a=(0..4294967296)> are easy
+ways to DoS a perl5 system. Only cperl is safe.
 
 Skip or croak when reading or writing 64bit large objects on 32bit
 systems.
