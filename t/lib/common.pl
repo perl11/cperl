@@ -38,7 +38,7 @@ $^X = rel2abs($^X);
 my $tempdir = tempfile;
 
 mkdir $tempdir, 0700 or die "Can't mkdir '$tempdir': $!";
-chdir $tempdir or die die "Can't chdir '$tempdir': $!";
+chdir $tempdir or die "Can't chdir '$tempdir': $!";
 my $cleanup = 1;
 
 END {
