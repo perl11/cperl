@@ -9,10 +9,6 @@ perl5251cdelta - what is new for cperl v5.25.1
 This document describes perl-only differences between the cperl 5.25.0
 release and the cperl 5.25.1 development releases.
 
-=head1 Notice
-
-XXX Any important notices here
-
 =head1 Security
 
 =head2 C<@{ \327 \n }> buffer overflows
