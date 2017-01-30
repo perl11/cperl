@@ -8104,10 +8104,9 @@ STATIC void	S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp
 	assert(stash); assert(target); assert(imopsp)
 
 STATIC OP*	S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
-			__attribute__nonnull__(pTHX_2)
-			__attribute__nonnull__(pTHX_3);
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_ARG_CHECK_TYPE	\
-	assert(o); assert(cvname)
+	assert(o)
 
 STATIC I32	S_assignment_type(pTHX_ const OP *o)
 			__attribute__warn_unused_result__;

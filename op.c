@@ -839,6 +839,17 @@ S_bad_type_core(pTHX_ const char *argname, GV *gv,
 }
 
 static void
+S_warn_type_core(pTHX_ const char *argname, const char *to,
+                 core_types_t got, const char* gotname,
+                 const char *wanted)
+{
+    const char *name = got == type_Object ? gotname : core_type_name(got);
+    Perl_ck_warner(aTHX_ packWARN(WARN_TYPES),
+                   "Type of %s to %s must be %s (not %s)",
+                   to, argname, wanted, name);
+}
+
+static void
 S_no_bareword_allowed(pTHX_ OP *o)
 {
     PERL_ARGS_ASSERT_NO_BAREWORD_ALLOWED;
@@ -11723,6 +11734,157 @@ S_maybe_targlex(pTHX_ OP *o)
     return o;
 }
 
+/* stash_to_coretype(HV* stash) converts the name of the padname type
+   to the core_types_t enum.
+
+   For native types we still return the non-native counterpart.
+   PERL_NATIVE_TYPES is implemented in the native type branch,
+   with escape analysis, upgrading long-enough sequences to native ops
+   in rpeep */
+PERL_STATIC_INLINE
+core_types_t S_stash_to_coretype(pTHX_ const HV* stash)
+{
+    if (!(UNLIKELY(VALIDTYPE(stash))))
+        return type_none;
+    {
+        const char *name = HvNAME(stash);
+        int l = HvNAMELEN(stash);
+        if (!name)
+            return type_none;
+        if (l>6 && memEQc(name, "main::")) {
+            name += 6;
+            l -= 6;
+        }
+        /* At first a very naive string check.
+           we should really use a PL_coretypes array with stash ptrs */
+        if (memEQs(name, l, "int"))
+#ifdef PERL_NATIVE_TYPES
+            return type_int;
+#else
+            return type_Int;
+#endif
+        if (memEQs(name, l, "Int"))
+            return type_Int;
+        if (memEQs(name, l, "num"))
+#ifdef PERL_NATIVE_TYPES
+            return type_num;
+#else
+            return type_Num;
+#endif
+        if (memEQs(name, l, "Num"))
+            return type_Num;
+        if (memEQs(name, l, "uint"))
+#ifdef PERL_NATIVE_TYPES
+            return type_uint;
+#else
+            return type_UInt;
+#endif
+        if (memEQs(name, l, "UInt"))
+            return type_UInt;
+        if (memEQs(name, l, "str"))
+#ifdef PERL_NATIVE_TYPES
+            return type_str;
+#else
+            return type_Str;
+#endif
+        if (memEQs(name, l, "Str"))
+            return type_Str;
+        if (memEQs(name, l, "Numeric"))
+            return type_Numeric;
+        if (memEQs(name, l, "Scalar"))
+            return type_Scalar;
+        return type_Object;
+    }
+}
+
+
+/* Return the type as core_types_t enum of the op.
+   User-defined types are only returned as type_Object,
+   get the name of those with S_typename.
+
+   TODO: add defined return types of all ops, and user-defined CV types for entersub.
+   */
+static core_types_t
+S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
+{
+    core_types_t t;
+    switch (o->op_type) {
+    case OP_PADSV: {
+        /*SV* c = PAD_SV(o->op_targ);*/
+        PADNAME * const pn = PAD_COMPNAME(ck_pad(o)->op_targ);
+        t = stash_to_coretype(PadnameTYPE(pn));
+        if (usertype && t == type_Object) {
+            *usertype = (char*)typename(PadnameTYPE(pn));
+            *u8 = HvNAMEUTF8(PadnameTYPE(pn));
+        }
+        return t;
+    }
+    case OP_CONST: {
+        SV *sv = cSVOPx(o)->op_sv;
+        switch (SvTYPE(sv)) {
+        case SVt_IV:
+            if (!SvROK(sv)) return SvUOK(sv) ? type_UInt : type_Int;
+            else {
+                SV* rv = SvRV(sv); 
+                if (SvTYPE(rv) >= SVt_PVMG && SvOBJECT(rv) && VALIDTYPE(SvSTASH(rv))) {
+                    if (usertype) {
+                        HV *stash = SvSTASH(rv);
+                        *usertype = (char*)typename(stash);
+                        *u8 = HvNAMEUTF8(stash);
+                    }
+                    return type_Object;
+                }
+                return type_Scalar; /* or Ref, but we don't do Ref isa Scalar yet  */
+            }
+        case SVt_NULL:   return type_none;
+        case SVt_PV:
+            return (o->op_private & OPpCONST_BARE) /* typeglob (filehandle) */
+                   ? type_Scalar : type_Str;
+        case SVt_NV:     return type_Num;
+            /* numified strings as const, stay conservative */
+        case SVt_PVIV:   return type_Scalar; /* no POK check */
+        case SVt_PVNV:   return type_Scalar; /* no POK check */
+        case SVt_PVAV:   return type_Array;
+        case SVt_PVHV:   return type_Hash;
+        case SVt_PVCV:   return type_Sub;
+        case SVt_REGEXP: return type_Regexp;
+        default: {
+            HV* stash = SvSTASH(sv);
+            if (usertype && stash) {
+                *usertype = (char*)typename(stash);
+                *u8 = HvNAMEUTF8(stash);
+            }
+            return stash ? type_Object : type_Scalar; }
+        }
+        break;
+    }
+    case OP_RV2SV: {
+        OP* kid = OpSIBLING(o);
+        if (OP_TYPE_IS(kid, OP_NULL))
+            kid = S_op_next_nn(kid);
+        /* check types of some special constants: $^O => Str */
+        if (OP_TYPE_IS(OpSIBLING(o), OP_GV)) {
+            if (cGVOPx_gv(kid) == gv_fetchpvs("^O", 0, SVt_PV))
+                return type_Str;
+        }
+    }
+    case OP_RV2CV:
+    case OP_ENTERSUB: {
+        /*PADNAME * const pn = PAD_COMPNAME(o->op_targ);
+          return stash_to_coretype(PadnameTYPE(pn));*/
+        return type_none; }
+    } /* switch */
+    /* else */
+    t = (core_types_t)(PL_op_type[o->op_type] & 0xff);
+    return t == type_Void ? type_none : t;
+}
+
+PERL_STATIC_INLINE
+core_types_t S_op_typed(pTHX_ OP* o)
+{
+    return S_op_typed_user(aTHX_ o, NULL, 0);
+}
+
 /*
 =for apidoc ck_sassign
 CHECK callback for sassign (s2	S S	"(:Scalar,:Scalar):Scalar")
@@ -11730,13 +11892,17 @@ CHECK callback for sassign (s2	S S	"(:Scalar,:Scalar):Scalar")
 Esp. handles state var initialization and tries to optimize away the
 assignment for a lexical C<$_> via L</maybe_targlex>.
 
+Checks types.
+
 =cut
 */
 OP *
 Perl_ck_sassign(pTHX_ OP *o)
 {
     dVAR;
-    OP * const kid = OpFIRST(o);
+    OP * const kid  = OpFIRST(o);
+    OP * const left = OpLAST(o);
+    const core_types_t t_left  = (const core_types_t)op_typed(left);
 
     PERL_ARGS_ASSERT_CK_SASSIGN;
 
@@ -11746,11 +11912,9 @@ Perl_ck_sassign(pTHX_ OP *o)
 	   whose op_last is a padsv. */
 	if ((IS_TYPE(kkid, PADSV) ||
 	     (OP_TYPE_IS_OR_WAS(kkid, OP_LIST) &&
-	      IS_TYPE((kkid = OpLAST(kkid)), PADSV)
-	     )
-	    )
+	      IS_TYPE((kkid = OpLAST(kkid)), PADSV)))
             && (kkid->op_private & (OPpLVAL_INTRO|OPpPAD_STATE))
-               == (OPpLVAL_INTRO|OPpPAD_STATE)) {
+                  == (OPpLVAL_INTRO|OPpPAD_STATE)) {
 	    const PADOFFSET target = kkid->op_targ;
 	    OP *const other = newOP(OP_PADSV,
 				    kkid->op_flags
@@ -11776,6 +11940,22 @@ Perl_ck_sassign(pTHX_ OP *o)
 	    return nullop;
 	}
     }
+    /* check types, same as for an argument check */
+    if (t_left > type_none) {
+#define PAD_NAME(pad_ix) padnamelist_fetch(PL_comppad_name, pad_ix)
+        if (IS_TYPE(left, AELEM) || IS_TYPE(left, AELEM_U)) {
+            arg_check_type(PAD_NAME(OpFIRST(left)->op_targ), kid, NULL);
+        }
+        /* TODO helem */
+        else if (IS_TYPE(left, PADSV))
+            arg_check_type(PAD_NAME(left->op_targ), kid, NULL);
+        else if (IS_TYPE(left, PADAV) || IS_TYPE(left, PADHV)) {
+            /* XXX if rhs is scalar, check the aggregate type of the element, not the @ */
+            arg_check_type(PAD_NAME(left->op_targ), kid, NULL);
+        }
+#undef PAD_NAME
+    }
+
     return S_maybe_targlex(aTHX_ o);
 }
 
@@ -12656,157 +12836,6 @@ Perl_rv2cv_op_cv(pTHX_ OP *cvop, U32 flags)
     }
 }
 
-/* stash_to_coretype(HV* stash) converts the name of the padname type
-   to the core_types_t enum.
-
-   For native types we still return the non-native counterpart.
-   PERL_NATIVE_TYPES is implemented in the native type branch,
-   with escape analysis, upgrading long-enough sequences to native ops
-   in rpeep */
-PERL_STATIC_INLINE
-core_types_t S_stash_to_coretype(pTHX_ const HV* stash)
-{
-    if (!(UNLIKELY(VALIDTYPE(stash))))
-        return type_none;
-    {
-        const char *name = HvNAME(stash);
-        int l = HvNAMELEN(stash);
-        if (!name)
-            return type_none;
-        if (l>6 && memEQc(name, "main::")) {
-            name += 6;
-            l -= 6;
-        }
-        /* At first a very naive string check.
-           we should really use a PL_coretypes array with stash ptrs */
-        if (memEQs(name, l, "int"))
-#ifdef PERL_NATIVE_TYPES
-            return type_int;
-#else
-            return type_Int;
-#endif
-        if (memEQs(name, l, "Int"))
-            return type_Int;
-        if (memEQs(name, l, "num"))
-#ifdef PERL_NATIVE_TYPES
-            return type_num;
-#else
-            return type_Num;
-#endif
-        if (memEQs(name, l, "Num"))
-            return type_Num;
-        if (memEQs(name, l, "uint"))
-#ifdef PERL_NATIVE_TYPES
-            return type_uint;
-#else
-            return type_UInt;
-#endif
-        if (memEQs(name, l, "UInt"))
-            return type_UInt;
-        if (memEQs(name, l, "str"))
-#ifdef PERL_NATIVE_TYPES
-            return type_str;
-#else
-            return type_Str;
-#endif
-        if (memEQs(name, l, "Str"))
-            return type_Str;
-        if (memEQs(name, l, "Numeric"))
-            return type_Numeric;
-        if (memEQs(name, l, "Scalar"))
-            return type_Scalar;
-        return type_Object;
-    }
-}
-
-
-/* Return the type as core_types_t enum of the op.
-   User-defined types are only returned as type_Object,
-   get the name of those with S_typename.
-
-   TODO: add defined return types of all ops, and user-defined CV types for entersub.
-   */
-static core_types_t
-S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
-{
-    core_types_t t;
-    switch (o->op_type) {
-    case OP_PADSV: {
-        /*SV* c = PAD_SV(o->op_targ);*/
-        PADNAME * const pn = PAD_COMPNAME(ck_pad(o)->op_targ);
-        t = stash_to_coretype(PadnameTYPE(pn));
-        if (usertype && t == type_Object) {
-            *usertype = (char*)typename(PadnameTYPE(pn));
-            *u8 = HvNAMEUTF8(PadnameTYPE(pn));
-        }
-        return t;
-    }
-    case OP_CONST: {
-        SV *sv = cSVOPx(o)->op_sv;
-        switch (SvTYPE(sv)) {
-        case SVt_IV:
-            if (!SvROK(sv)) return SvUOK(sv) ? type_UInt : type_Int;
-            else {
-                SV* rv = SvRV(sv); 
-                if (SvTYPE(rv) >= SVt_PVMG && SvOBJECT(rv) && VALIDTYPE(SvSTASH(rv))) {
-                    if (usertype) {
-                        HV *stash = SvSTASH(rv);
-                        *usertype = (char*)typename(stash);
-                        *u8 = HvNAMEUTF8(stash);
-                    }
-                    return type_Object;
-                }
-                return type_Scalar; /* or Ref, but we don't do Ref isa Scalar yet  */
-            }
-        case SVt_NULL:   return type_none;
-        case SVt_PV:
-            return (o->op_private & OPpCONST_BARE) /* typeglob (filehandle) */
-                   ? type_Scalar : type_Str;
-        case SVt_NV:     return type_Num;
-            /* numified strings as const, stay conservative */
-        case SVt_PVIV:   return type_Scalar; /* no POK check */
-        case SVt_PVNV:   return type_Scalar; /* no POK check */
-        case SVt_PVAV:   return type_Array;
-        case SVt_PVHV:   return type_Hash;
-        case SVt_PVCV:   return type_Sub;
-        case SVt_REGEXP: return type_Regexp;
-        default: {
-            HV* stash = SvSTASH(sv);
-            if (usertype && stash) {
-                *usertype = (char*)typename(stash);
-                *u8 = HvNAMEUTF8(stash);
-            }
-            return stash ? type_Object : type_Scalar; }
-        }
-        break;
-    }
-    case OP_RV2SV: {
-        OP* kid = OpSIBLING(o);
-        if (OP_TYPE_IS(kid, OP_NULL))
-            kid = S_op_next_nn(kid);
-        /* check types of some special constants: $^O => Str */
-        if (OP_TYPE_IS(OpSIBLING(o), OP_GV)) {
-            if (cGVOPx_gv(kid) == gv_fetchpvs("^O", 0, SVt_PV))
-                return type_Str;
-        }
-    }
-    case OP_RV2CV:
-    case OP_ENTERSUB: {
-        /*PADNAME * const pn = PAD_COMPNAME(o->op_targ);
-          return stash_to_coretype(PadnameTYPE(pn));*/
-        return type_none; }
-    } /* switch */
-    /* else */
-    t = (core_types_t)(PL_op_type[o->op_type] & 0xff);
-    return t == type_Void ? type_none : t;
-}
-
-PERL_STATIC_INLINE
-core_types_t S_op_typed(pTHX_ OP* o)
-{
-    return S_op_typed_user(aTHX_ o, NULL, 0);
-}
-
 /* match a return usertype from arg to
    the declared usertype name of a variable (dname).
 
@@ -12854,6 +12883,7 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
                  bool au8, int *castable)
 {
     core_types_t dtyp = stash_to_coretype(stash);
+    int retval;
     if (LIKELY(dtyp == type_none /* no declared type */
                /* or same coretype */
                || (dtyp == atyp && dtyp != type_Object)
@@ -12863,24 +12893,36 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
         return 1;
     /* we can cast any coretype to another: numify, stringify, but not user-objects.
        but if someone declared a coretype, like int and gets a Str do not cast. */
-    *castable = (dtyp > type_Str && dtyp < type_Object);
+    *castable = (dtyp >= type_int && dtyp < type_Object);
     /* we allow MyInt (isa Int) for int args */
     if (atyp == type_Object)
         return S_match_user_type(aTHX_ typename(stash), HvNAMEUTF8(stash), aname, au8);
     /* and now check the allowed variants */
     switch (dtyp) {
     case type_int:
-        return atyp != type_str  && atyp <= type_UInt;
+        retval = atyp != type_str  && atyp <= type_UInt;
+        *castable = retval || (atyp == type_Numeric);
+        return retval;
     case type_Int:
-        return atyp == type_int  || atyp == type_UInt || atyp == type_uint;
+        retval = (atyp == type_int || atyp == type_UInt || atyp == type_uint);
+        *castable = retval || atyp == type_Numeric  || atyp <= type_Num;
+        return retval;
     case type_uint:
-        return atyp == type_UInt || atyp == type_Int  || atyp == type_int;
+        retval = (atyp == type_UInt || atyp == type_Int  || atyp == type_int);
+        *castable = retval || atyp == type_Numeric  || atyp <= type_Num;
+        return retval;
     case type_UInt:
         return atyp == type_uint || atyp == type_Int  || atyp == type_int;
+        *castable = retval || atyp == type_Numeric || atyp <= type_Num;
+        return retval;
     case type_num:
-        return atyp == type_Num;
+        retval = (atyp == type_Num);
+        *castable = retval || atyp == type_Numeric || atyp <= type_Num;
+        return retval;
     case type_Num:
-        return atyp == type_num;
+        retval = (atyp == type_num);
+        *castable = retval || atyp == type_Numeric || atyp <= type_Num;
+        return retval;
     case type_Str:
         return atyp == type_str;
     case type_str:
@@ -12901,7 +12943,7 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
 }
 
 /*
-=for apidoc s|OP*  |arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NN GV *cvname
+=for apidoc s|OP*  |arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NULLOK GV *cvname
 
 Check if the declared static type of the argument from pn can be
 fullfilled by the dynamic type of the arg in OP* o (padsv, const,
@@ -12932,8 +12974,11 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
             /* TODO: add numeric type casts */
             if (!match_type(type, argtype, argname, argu8, &castable)) {
                 if (!castable) {
-                    bad_type_core(PadnamePV(pn), cvname, argtype, argname, argu8,
-                                  name, HvNAMEUTF8(type));
+                    cvname
+                        ? bad_type_core(PadnamePV(pn), cvname, argtype,
+                                      argname, argu8, name, HvNAMEUTF8(type))
+                        : S_warn_type_core(aTHX_ PadnamePV(pn), "assignment", argtype,
+                                           argname, name);
                 } else {
                     if (ckWARN(WARN_TYPES) || DEBUG_k_TEST_)
                         Perl_warner(aTHX_  packWARN(WARN_TYPES),
@@ -12946,6 +12991,12 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
                     case type_Numeric:
                     case type_Scalar:
                         scalar(o);
+                        break;
+                    case type_int:
+                    case type_Int:
+                    case type_uint:
+                    case type_UInt:
+                        op_integerize(o);
                         break;
                     default:
                         break;
@@ -14370,10 +14421,10 @@ int S_match_type2(const U32 sig, core_types_t arg1, core_types_t arg2)
 /*
 =for apidoc ck_type
 
-check unop and binops for typed args, find specialized match and promote.
-forget about native types (escape analysis) here, use the boxed variants.
-we can only unbox them later in rpeep sequences, by adding unbox...box ops.
-set the OpRETTYPE of unops and binops.
+Check unop and binops for typed args, find specialized match and promote.
+Forget about native types (escape analysis) here, use the boxed variants.
+We can only unbox them later in rpeep sequences, by adding unbox...box ops.
+Set the OpRETTYPE of unops and binops.
 =cut
 */
 OP *

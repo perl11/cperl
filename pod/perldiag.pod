@@ -6311,6 +6311,12 @@ certain type.  Arrays must be @NAME or C<@{EXPR}>.  Hashes must be
 %NAME or C<%{EXPR}>.  No implicit dereferencing is allowed--use the
 {EXPR} forms as an explicit dereference.  See L<perlref>.
 
+=item Type of %s to %s must be %s (not %s)
+
+(W types) This warning typically appears on assignments to typed
+variables, where the right side type cannot be coerced to the type of
+the left side variable.
+
 =item umask not implemented
 
 (F) Your machine doesn't implement the umask function and you tried to

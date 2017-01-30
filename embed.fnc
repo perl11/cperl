@@ -1054,7 +1054,7 @@ s	|void	|finalize_op	|NN OP* o
 s	|void	|move_proto_attr|NN OP **proto|NN OP **attrs|NN const GV *name
 s	|int	|match_user_type|NN const char *dname|bool du8 \
 				|NN const char* aname|bool au8
-s	|OP*	|arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NN GV *cvname
+s	|OP*	|arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NULLOK GV *cvname
 #if 0 /* XXX cyclic dep on core_types_t in opcodes.h */
 :s	|void	|bad_type_core	|NN const char *argname|NN GV *gv \
 :                	|core_types_t got|NN const char* gotname|bool gotu8 \

@@ -7,7 +7,7 @@ BEGIN {
 }
 
 use coretypes;
-plan 18;
+plan 19;
 
 # native or coretypes. the result should be the same
 my int $x = 4;
@@ -84,3 +84,9 @@ $c = sin $a;
 ok($c >= -0.871575772413588-EPS && $c <= -0.871575772413588+EPS, "num_sin");
 $c = log $a;
 ok($c >= 1.43508452528932-EPS && $c <= 1.43508452528932+EPS, "num_log");
+
+my $args = { switches => ['-w'] };
+fresh_perl_like(<<'EOF', qr/Type of assignment to \@a must be Int \(not Str\)/, $args, 'ck_sassign');
+my Int @a;
+$a[0] = "";
+EOF
