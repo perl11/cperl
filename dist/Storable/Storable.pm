@@ -22,10 +22,11 @@ package Storable; @ISA = qw(Exporter);
 	BLESS_OK TIE_OK FLAGS_COMPAT
 );
 
-use vars qw($canonical $forgive_me $VERSION);
+use vars qw($canonical $forgive_me $VERSION $XS_VERSION);
 
-$VERSION = '3.05';
-#$VERSION = eval $VERSION;
+$VERSION = '3.05_02';
+$XS_VERSION = $VERSION;
+$VERSION = eval $VERSION;
 
 BEGIN {
     if (eval {
@@ -85,7 +86,7 @@ $Storable::flags = FLAGS_COMPAT;
 $Storable::downgrade_restricted = 1;
 $Storable::accept_future_minor = 1;
 
-XSLoader::load('Storable', $Storable::VERSION);
+XSLoader::load('Storable');
 
 #
 # Determine whether locking is possible, but only when needed.

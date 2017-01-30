@@ -22,6 +22,7 @@ WriteMakefile(
                            },
     ) : ()),
     dist                => { SUFFIX => 'gz', COMPRESS => 'gzip -f' },
+    SIGN                => 1
 );
 
 my $ivtype = $Config{ivtype};

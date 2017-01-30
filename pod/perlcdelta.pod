@@ -561,7 +561,7 @@ lexical $_ support, binary names, various other fixes.
 
 Improved taint test.
 
-=item Storable 3.05
+=item Storable 3.05_02
 
 From L<https://github.com/rurban/Storable>
 
@@ -571,6 +571,11 @@ L<[perl #130098]|https://rt.perl.org/Public/Bug/Display.html?id=130098>
 Fixed some important security bugs with reading from Storable files
 or memory, directly controlling the stack (not the perl stack).
 See L</Storable stack overflow or exit>.
+
+Another stack-overflow fix is for L<[cpan
+#97526]|https://rt.cpan.org/Ticket/Display.html?id=97526>, limiting
+the maximal number of nested hash or arrays to 3000. Cpanel::JSON::XS
+has it at 512.
 
 Fixed up early huge buffer and index support from 3.00c, which was
 failing with wrong malloc errors due to silently overwrap >2GB.
