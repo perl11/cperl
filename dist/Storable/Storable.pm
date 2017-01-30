@@ -24,7 +24,7 @@ package Storable; @ISA = qw(Exporter);
 
 use vars qw($canonical $forgive_me $VERSION $XS_VERSION);
 
-$VERSION = '3.05_02';
+$VERSION = '3.05_03';
 $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 

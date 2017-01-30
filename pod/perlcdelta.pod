@@ -561,7 +561,7 @@ lexical $_ support, binary names, various other fixes.
 
 Improved taint test.
 
-=item Storable 3.05_02
+=item Storable 3.05_03
 
 From L<https://github.com/rurban/Storable>
 
