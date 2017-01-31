@@ -15,7 +15,7 @@ use warnings;
 
 $SIG{__WARN__} = sub { die @_ };
 
-sub eval_ok ($;$) {
+sub eval_ok ($;@) {
     eval shift;
     is( $@, '', @_);
 }
@@ -40,7 +40,8 @@ like $@, qr/^Unterminated attribute parameter in attribute list at \(eval \d+\) 
 eval 'sub e4 ($) : plugh + XYZZY ;';
 like $@, qr/Invalid separator character '[+]' in attribute list at/;
 
-eval_ok 'my main $x : = 0;';
+eval 'my main $x : = 0;';
+like $@, qr/^Wrong type Int, expected main at /, 'main = Int typefail';
 eval_ok 'my $x : = 0;';
 eval_ok 'my $x ;';
 eval_ok 'my ($x) : = 0;';
