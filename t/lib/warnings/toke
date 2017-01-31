@@ -1568,3 +1568,29 @@ print (...) interpreted as function at - line 3.
 print (...) interpreted as function at - line 4.
 )
 ))
+########
+# NAME  [perl $130567] Assertion failure
+BEGIN {
+    if (ord('A') != 65) {
+        print "SKIPPED\n# test is ASCII-specific";
+        exit 0;
+    }
+}
+no warnings "uninitialized";
+$_= "";
+s//\3000/;
+s//"\x{180};;s\221(*$@$`\241\275";/gee;
+s//"s\221\302\302\302\302\302\302\302$@\241\275";/gee;
+EXPECT
+########
+# NAME  [perl $129036] Assertion failure
+BEGIN{$0="";$^H=hex join""=>A00000}p?
+EXPECT
+OPTION fatal
+syntax error at - line 1, at EOF
+Execution of - aborted due to compilation errors.
+########
+# NAME  [perl #130655]
+use utf8;
+qw∘foo ∞ ♥ bar∘
+EXPECT
