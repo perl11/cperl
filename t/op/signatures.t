@@ -1444,14 +1444,17 @@ sub t119a (Int $a) :int { ++$a }
     @MyInt::ISA=('Int');
     my MyInt $i = 1;   # but MyInt is not a int, only a Int
     eval 't119a($i);'; # slow isa check with type_Object
-    is $@, "", "Int isa MyInt, slow isa check with type_Object";
-    eval 't119($i);'; # Int !isa int
-    like $@, qr/\AType of arg \$a to t119 must be int \(not MyInt\) at \(eval \d+\) line 1, near "/, "int not MyInt";
+    is $@, "", "MyInt isa Int, slow isa check with type_Object";
+    eval 't119($i);'; # MyInt isa Int isa int
+    is $@, "", "MyInt isa int, two stage type check";
+    #like $@, qr/\AType of arg \$a to t119 must be int \(not MyInt\) at \(eval \d+\) line 1, near "/, "int not MyInt";
 
     @MyStr::ISA=('Str');
     my MyStr $s;
+    # warns with use warnings 'types';
     eval 't119a($s);'; # ck error (slow isa check with type_Object)
-    like $@, qr/\AType of arg \$a to t119a must be Int \(not MyStr\) at \(eval \d+\) line 1, near "/, "Int not MyStr";
+    is $@, "", "MyStr isa Str, valid cast to int";
+    #like $@, qr/\AType of arg \$a to t119a must be Int \(not MyStr\) at \(eval \d+\) line 1, near "/, "Int not MyStr";
 }
 
 # check that a sub can have 32767 parameters ...
