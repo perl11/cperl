@@ -1211,6 +1211,7 @@
 #define boot_core_xsutils()	Perl_boot_core_xsutils(aTHX)
 #define cando(a,b,c)		Perl_cando(aTHX_ a,b,c)
 #define check_utf8_print(a,b)	Perl_check_utf8_print(aTHX_ a,b)
+#define ck_aassign(a)		Perl_ck_aassign(aTHX_ a)
 #define ck_aelem(a)		Perl_ck_aelem(aTHX_ a)
 #define ck_anoncode(a)		Perl_ck_anoncode(aTHX_ a)
 #define ck_backtick(a)		Perl_ck_backtick(aTHX_ a)
@@ -1728,6 +1729,7 @@
 #define new_slab(a)		S_new_slab(aTHX_ a)
 #define no_bareword_allowed(a)	S_no_bareword_allowed(aTHX_ a)
 #define no_fh_allowed(a)	S_no_fh_allowed(aTHX_ a)
+#define op_check_type(a,b,c)	S_op_check_type(aTHX_ a,b,c)
 #define op_destroy(a)		S_op_destroy(aTHX_ a)
 #define op_integerize(a)	S_op_integerize(aTHX_ a)
 #define op_next_nn		S_op_next_nn

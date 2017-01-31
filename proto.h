@@ -510,6 +510,12 @@ PERL_CALLCONV bool	Perl_check_utf8_print(pTHX_ const U8 *s, const STRLEN len)
 #define PERL_ARGS_ASSERT_CHECK_UTF8_PRINT	\
 	assert(s)
 
+PERL_CALLCONV OP *	Perl_ck_aassign(pTHX_ OP *o)
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CK_AASSIGN	\
+	assert(o)
+
 PERL_CALLCONV OP *	Perl_ck_aelem(pTHX_ OP *o)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
@@ -8270,6 +8276,13 @@ STATIC OP*	S_no_fh_allowed(pTHX_ OP *o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_NO_FH_ALLOWED	\
 	assert(o)
+
+STATIC void	S_op_check_type(pTHX_ OP* o, OP* left, OP* right)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_OP_CHECK_TYPE	\
+	assert(o); assert(left); assert(right)
 
 PERL_STATIC_INLINE void	S_op_destroy(pTHX_ OP* o);
 PERL_STATIC_INLINE OP*	S_op_integerize(pTHX_ OP *o)

@@ -11885,6 +11885,31 @@ core_types_t S_op_typed(pTHX_ OP* o)
     return S_op_typed_user(aTHX_ o, NULL, 0);
 }
 
+STATIC void
+S_op_check_type(pTHX_ OP* o, OP* left, OP* right)
+{
+    const core_types_t t_left = (const core_types_t)op_typed(left);
+    PERL_ARGS_ASSERT_OP_CHECK_TYPE;
+    /* check types, same as for an argument check */
+    if (t_left > type_none) {
+#define PAD_NAME(pad_ix) padnamelist_fetch(PL_comppad_name, pad_ix)
+        const SV* name = newSVpvn_flags(OP_DESC(o), strlen(OP_DESC(o)),
+                                        SVs_TEMP);
+        DEBUG_kv(Perl_deb(aTHX_ "ck op types %s: %s <=> %s\n", OP_NAME(o),
+                          OP_NAME(left), OP_NAME(right)));
+        if (IS_TYPE(left, AELEM) ||
+            IS_TYPE(left, AELEM_U) ||
+            IS_TYPE(left, HELEM))
+            arg_check_type(PAD_NAME(OpFIRST(left)->op_targ), right, (GV*)name);
+        else if (IS_TYPE(left, PADSV))
+            arg_check_type(PAD_NAME(left->op_targ), right, (GV*)name);
+        else if (IS_TYPE(left, PADAV) || IS_TYPE(left, PADHV))
+            arg_check_type(PAD_NAME(left->op_targ), right, (GV*)name);
+
+#undef PAD_NAME
+    }
+}
+
 /*
 =for apidoc ck_sassign
 CHECK callback for sassign (s2	S S	"(:Scalar,:Scalar):Scalar")
@@ -11900,25 +11925,24 @@ OP *
 Perl_ck_sassign(pTHX_ OP *o)
 {
     dVAR;
-    OP * const kid  = OpFIRST(o);
+    OP * const right  = OpFIRST(o);
     OP * const left = OpLAST(o);
-    const core_types_t t_left  = (const core_types_t)op_typed(left);
 
     PERL_ARGS_ASSERT_CK_SASSIGN;
 
-    if (OpHAS_SIBLING(kid)) {
-	OP *kkid = OpSIBLING(kid);
-	/* For state variable assignment with attributes, kkid is a list op
+    if (OpHAS_SIBLING(right)) {
+	OP *kright = OpSIBLING(right);
+	/* For state variable assignment with attributes, kright is a list op
 	   whose op_last is a padsv. */
-	if ((IS_TYPE(kkid, PADSV) ||
-	     (OP_TYPE_IS_OR_WAS(kkid, OP_LIST) &&
-	      IS_TYPE((kkid = OpLAST(kkid)), PADSV)))
-            && (kkid->op_private & (OPpLVAL_INTRO|OPpPAD_STATE))
+	if ((IS_TYPE(kright, PADSV) ||
+	     (OP_TYPE_IS_OR_WAS(kright, OP_LIST) &&
+	      IS_TYPE((kright = OpLAST(kright)), PADSV)))
+            && (kright->op_private & (OPpLVAL_INTRO|OPpPAD_STATE))
                   == (OPpLVAL_INTRO|OPpPAD_STATE)) {
-	    const PADOFFSET target = kkid->op_targ;
+	    const PADOFFSET target = kright->op_targ;
 	    OP *const other = newOP(OP_PADSV,
-				    kkid->op_flags
-				    | ((kkid->op_private & ~OPpLVAL_INTRO) << 8));
+				    kright->op_flags
+				    | ((kright->op_private & ~OPpLVAL_INTRO) << 8));
 	    OP *const first = newOP(OP_NULL, 0);
 	    OP *const nullop = newCONDOP(0, first, o, other);
 	    /* XXX targlex disabled for now; see ticket #124160 and esp. #101640
@@ -11940,23 +11964,57 @@ Perl_ck_sassign(pTHX_ OP *o)
 	    return nullop;
 	}
     }
-    /* check types, same as for an argument check */
-    if (t_left > type_none) {
-#define PAD_NAME(pad_ix) padnamelist_fetch(PL_comppad_name, pad_ix)
-        if (IS_TYPE(left, AELEM) || IS_TYPE(left, AELEM_U)) {
-            arg_check_type(PAD_NAME(OpFIRST(left)->op_targ), kid, NULL);
-        }
-        /* TODO helem */
-        else if (IS_TYPE(left, PADSV))
-            arg_check_type(PAD_NAME(left->op_targ), kid, NULL);
-        else if (IS_TYPE(left, PADAV) || IS_TYPE(left, PADHV)) {
-            /* XXX if rhs is scalar, check the aggregate type of the element, not the @ */
-            arg_check_type(PAD_NAME(left->op_targ), kid, NULL);
-        }
-#undef PAD_NAME
-    }
+
+    DEBUG_kv(Perl_deb(aTHX_ "ck_sassign: check types\n"));
+    op_check_type(o, left, right);
 
     return S_maybe_targlex(aTHX_ o);
+}
+
+/*
+=for apidoc ck_aassign
+CHECK callback for aassign (t2	L L	"(:List,:List):List")
+
+Only checks types.
+
+=cut
+*/
+OP *
+Perl_ck_aassign(pTHX_ OP *o)
+{
+    dVAR;
+    /* null->pushmark->elems... */
+    OP * right = OpFIRST(o);
+    OP * left  = OpLAST(o);
+
+    PERL_ARGS_ASSERT_CK_AASSIGN;
+    if (!(right && OpKIDS(right)
+          && OP_TYPE_IS_OR_WAS_NN(right, OP_LIST)))
+        return o;
+    if (!(left && OpKIDS(left)
+          && OP_TYPE_IS_OR_WAS_NN(left, OP_LIST)))
+        return o;
+
+    left = OpFIRST(left);
+    if (IS_TYPE(left, PUSHMARK) || IS_TYPE(left, PADRANGE))
+        left = OpSIBLING(left);
+    right = OpFIRST(right);
+    if (IS_TYPE(right, PUSHMARK) || IS_TYPE(right, PADRANGE))
+        right = OpSIBLING(right);
+    DEBUG_kv(Perl_deb(aTHX_ "ck_aassign: check types\n"));
+
+    while (left && right) {
+        /* my int %a; my str %b; %a = %b; (...) = (...); */
+        op_check_type(o, left, right);
+        if (left == OpNEXT(left))  /* not yet LINKLIST'ed */
+            break;
+        if (right == OpNEXT(right))
+            break;
+        left  = OpNEXT(left);
+        right = OpNEXT(right);
+    }
+
+    return o;
 }
 
 /*
@@ -12953,7 +13011,10 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
 
 Check if the declared static type of the argument from pn can be
 fullfilled by the dynamic type of the arg in OP* o (padsv, const,
-any return type). If possible add a typecast to o to fullfill it. 
+any return type). If possible add a typecast to o to fullfill it.
+
+With an empty cvname the check is not fatal, as it does not happen in
+a signature but in an exiting old op. Only types warnings are thrown then.
 
 =cut
 */
@@ -12968,27 +13029,45 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
         char *usertype = NULL;
         int argu8 = 0;
         const char *name = typename(type);
-        const core_types_t argtype = op_typed_user(o, &usertype, &argu8);
+        core_types_t argtype = op_typed_user(o, &usertype, &argu8);
         const char *argname = usertype ? usertype : core_type_name(argtype);
-        DEBUG_k(Perl_deb(aTHX_ "ck argtype %s against arg: %s\n",
-                         name?name:"none", argname));
+        DEBUG_k(Perl_deb(aTHX_ "ck argtype %s against %s%s\n",
+                         name?name:"none", SvPOK(cvname)?"":"arg: ",
+                         argname));
         o->op_typechecked = 1;
         if (argtype > type_none && argtype < type_Void
             && name && strNE(argname, name)) {
             int castable = 0;
-            /* TODO check aggregate type: Array(int), Hash(str), ... */
-            /* TODO: add numeric type casts */
+            /* check aggregate type: Array(int), Hash(str), ... */
+            if (argtype == type_Hash &&
+                PadnamePV(pn)[0] == '%' &&
+                IS_TYPE(o, PADHV))
+            {
+                PADNAME * const xpn = PAD_COMPNAME(o->op_targ);
+                argtype = stash_to_coretype(PadnameTYPE(xpn));
+            }
+            else
+            if (argtype == type_Array &&
+                PadnamePV(pn)[0] == '@' &&
+                IS_TYPE(o, PADAV))
+            {
+                PADNAME * const xpn = PAD_COMPNAME(o->op_targ);
+                argtype = stash_to_coretype(PadnameTYPE(xpn));
+            }
             if (!match_type(type, argtype, argname, argu8, &castable)) {
                 if (!castable) {
-                    cvname
-                        ? bad_type_core(PadnamePV(pn), cvname, argtype,
-                                      argname, argu8, name, HvNAMEUTF8(type))
-                        : S_warn_type_core(aTHX_ PadnamePV(pn), "assignment", argtype,
-                                           argname, name);
+                    if (!SvPOK(cvname))
+                        bad_type_core(PadnamePV(pn), cvname, argtype,
+                                      argname, argu8, name, HvNAMEUTF8(type));
+                    else
+                        S_warn_type_core(aTHX_ PadnamePV(pn),
+                                         SvPVX(cvname), argtype,
+                                         argname, name);
                 } else {
-                    if (ckWARN(WARN_TYPES) || DEBUG_k_TEST_)
-                        Perl_warner(aTHX_  packWARN(WARN_TYPES),
-                                    "Inserting type cast %s to %s\n", name, argname);
+                    if (/*ckWARN(WARN_TYPES) || */DEBUG_k_TEST_)
+                        /* Todo: for normal ops, reverse this cast argname => name */
+                        Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
+                                    "Inserting type cast %s to %s", name, argname);
                     /* Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric */
                     /* Maybe allow casting from Scalar/Numeric to Int => int()
                        and Scalar to Str => stringify() */
@@ -13002,7 +13081,7 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
                     case type_Int:
                     case type_uint:
                     case type_UInt:
-                        op_integerize(o);
+                        /*o = fold_constants(op_integerize(newUNOP(OP_INT, 0, scalar(o))));*/
                         break;
                     default:
                         break;

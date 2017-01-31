@@ -2780,7 +2780,7 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_null,		/* padhv */
 	Perl_ck_null,		/* padany */
 	Perl_ck_sassign,	/* sassign */
-	Perl_ck_null,		/* aassign */
+	Perl_ck_aassign,	/* aassign */
 	Perl_ck_spair,		/* chop */
 	Perl_ck_null,		/* schop */
 	Perl_ck_spair,		/* chomp */

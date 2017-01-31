@@ -30,7 +30,6 @@ B<cperl> adds support for builtin coretypes, has type declarations for
 most internal ops, and can optimize based in type inference or
 declared types.
 
-
 =head2 Why types? Types are unperlish
 
 No, they are not. Types for lexical variables are permitted since 2001
@@ -97,6 +96,16 @@ C<Dynamic> to override coretypes, but there will be I<subtyped>
 children of coretypes to allow stringification and undef.  So it is
 safe to optimize coretypes to its native operations at compile-time.
 
+The type checkers will not throw errors on coretype violations with
+existing ops, only C<use warnings "types"> warnings, which can be made
+fatal. The new signature op and feature however is stricter, and does
+throw type violation errors at compile-time on not matching coretypes.
+Other basic non-coretypes, i.e. user-types and Scalar, Numeric will
+always throw type violation errors.
+Any type can be promoted to int, num and str.
+
+See L</type checker> below.
+
 See also L<perldata/"coretypes"> for examples.
 
 =head2 native types
@@ -143,8 +152,33 @@ ops.
 
 =head2 type checker
 
-Compile-time type checks for user-defined types need to be enabled with
-C<use types>. Type warnings are enabled with C<use warnings 'types'>.
+The type checker is totally unsound. Only a few ops are type-checked,
+currently only signature subroutine calls and scalar assignment.
+
+Compile-time type checks for user-defined types need to be enabled
+with C<use types>. Type warnings are enabled with C<use warnings
+'types'> and appear at compile-time.  Type warnings can of course be
+fatalized.  Signature type checks do not need C<use types> and are
+always fatal, at compile-time.
+
+    my int @a;
+    my MyClass $c = bless [], 'MyClass';
+    $a[0] = $c;
+    # => compile-time types warning: Inserting type cast int to MyClass
+
+    my MyClass @a;
+    $a[0] = 0;
+    # => compile-time error. int => MyClass not castable
+
+    use warnings;
+    my int @a;
+    $a[0] = "";
+    # compile-time warning: Type of assignment to @a must be int (not Str)
+
+    use warnings FATAL => 'types';
+    my int @a;
+    $a[0] = "";
+    # fatal compile-time warning: Type of assignment to @a must be int (not Str)
 
 =head2 type inference
 
@@ -155,7 +189,7 @@ hash keys, but has to give up on magic, dualvars, and C<no strict
 added declarations and type checks, as e.g. in C<smartmatch> or
 C<given>/C<when> with type support it can infer much more.
 
-    if (type $a == "int") {  => $a is an int in this scope }
+    if (type $a == :int) {  => $a is an int in this scope }
 
 Typed lexicals and signatures lead to a typical performance win to ~2x
 faster, you get compile-time type warnings, a business friendly coding

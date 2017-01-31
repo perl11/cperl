@@ -7,7 +7,7 @@ BEGIN {
 }
 
 use coretypes;
-plan 19;
+plan 22;
 
 # native or coretypes. the result should be the same
 my int $x = 4;
@@ -86,7 +86,24 @@ $c = log $a;
 ok($c >= 1.43508452528932-EPS && $c <= 1.43508452528932+EPS, "num_log");
 
 my $args = { switches => ['-w'] };
-fresh_perl_like(<<'EOF', qr/Type of assignment to \@a must be Int \(not Str\)/, $args, 'ck_sassign');
+my $err = qr/Type of scalar assignment to [@%]a must be Int \(not Str\)/;
+fresh_perl_like(<<'EOF', $err, $args, 'ck_sassign aelem');
 my Int @a;
 $a[0] = "";
+EOF
+
+fresh_perl_like(<<'EOF', $err, $args, 'ck_sassign helem');
+my Int %a;
+$a{"key"} = "";
+EOF
+
+$err = qr/Type of list assignment to [@%]a must be Int \(not Str\)/;
+fresh_perl_like(<<'EOF', $err, $args, 'ck_aassign array');
+my Int @a; my Str @b;
+@a = @b;
+EOF
+
+fresh_perl_like(<<'EOF', $err, $args, 'ck_aassign hash');
+my Int %a; my Str %b;
+%a = %b;
 EOF
