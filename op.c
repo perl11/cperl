@@ -12844,27 +12844,33 @@ Perl_rv2cv_op_cv(pTHX_ OP *cvop, U32 flags)
 STATIC
 int S_match_user_type(pTHX_ const char *dname, bool du8, const char* aname, bool au8)
 {
-    /* search dname in @aname::ISA (contra-variance) */
-    const HV* astash = gv_stashpvn(aname, strlen(aname), au8 ? SVf_UTF8 : 0);
-    const HV* dstash = gv_stashpvn(dname, strlen(dname), du8 ? SVf_UTF8 : 0);
-    const AV* isa    = mro_get_linear_isa((HV*)astash);
-    const SV * const namesv = newSVhek(HvENAME_HEK(dstash)
-                                       ? HvENAME_HEK(dstash)
-                                       : HvNAME_HEK(dstash));
-    int i;
     PERL_ARGS_ASSERT_MATCH_USER_TYPE;
 
-    if (UNLIKELY(strEQ(dname, aname))) return 1;
-
-    for (i=0; i<=AvFILLp(isa); i++) {
-        SV* ele = AvARRAY(isa)[i]; /* array of shared class name HEKs */
-        DEBUG_kv(Perl_deb(aTHX_ "typecheck %s in %s\n", dname, SvPVX_const(ele)));
-        if (sv_eq(ele, (SV*)namesv)) return 1;
+    if (UNLIKELY(strEQ(dname, aname)))
+        return 1;
+    else {
+        const HV * const dstash = gv_stashpvn(dname, strlen(dname), du8 ? SVf_UTF8 : 0);
+        const SV * const namesv = newSVhek(HvENAME_HEK(dstash)
+                                       ? HvENAME_HEK(dstash)
+                                       : HvNAME_HEK(dstash));
+        /* Search dname in @aname::ISA (contra-variance).
+         * The astash needs to exist, just coretypes are created on the fly. */
+        const HV* astash = gv_stashpvn(aname, strlen(aname), au8 ? SVf_UTF8 : 0);
+        if (astash) { /* Autocreated coretypes do not have an ISA */
+            SSize_t i;
+            const AV* isa = mro_get_linear_isa((HV*)astash);
+            for (i=0; i<=AvFILLp(isa); i++) {
+                SV* ele = AvARRAY(isa)[i]; /* array of shared class name HEKs */
+                DEBUG_kv(Perl_deb(aTHX_ "typecheck %s in %s\n", dname, SvPVX_const(ele)));
+                if (sv_eq(ele, (SV*)namesv))
+                    return 1;
+            }
+        }
+        if (ckWARN(WARN_TYPES))
+            Perl_warner(aTHX_ packWARN(WARN_TYPES),
+                        "Wrong type %s, expected %s", aname, dname);
+        return 0;
     }
-    if (ckWARN(WARN_TYPES))
-        Perl_warner(aTHX_ packWARN(WARN_TYPES),
-                    "Wrong type %s, expected %s", aname, dname);
-    return 0;
 }
  
 /* match a return coretype from arg or op (atyp) to
