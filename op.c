@@ -12962,30 +12962,31 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
     if (atyp == type_Object)
         return S_match_user_type(aTHX_ typename(stash), HvNAMEUTF8(stash), aname, au8);
     /* and now check the allowed variants */
+#define isNumScalar (atyp == type_Numeric || atyp == type_Scalar)
     switch (dtyp) {
     case type_int:
         retval = atyp != type_str  && atyp <= type_UInt;
-        *castable = retval || (atyp == type_Numeric);
+        *castable = retval || isNumScalar;
         return retval;
     case type_Int:
         retval = (atyp == type_int || atyp == type_UInt || atyp == type_uint);
-        *castable = retval || atyp == type_Numeric  || atyp <= type_Num;
+        *castable = retval || atyp <= type_Num || isNumScalar;
         return retval;
     case type_uint:
         retval = (atyp == type_UInt || atyp == type_Int  || atyp == type_int);
-        *castable = retval || atyp == type_Numeric  || atyp <= type_Num;
+        *castable = retval || atyp <= type_Num || isNumScalar;
         return retval;
     case type_UInt:
-        return atyp == type_uint || atyp == type_Int  || atyp == type_int;
-        *castable = retval || atyp == type_Numeric || atyp <= type_Num;
+        retval = (atyp == type_uint || atyp == type_Int  || atyp == type_int);
+        *castable = retval || atyp <= type_Num || isNumScalar;
         return retval;
     case type_num:
         retval = (atyp == type_Num);
-        *castable = retval || atyp == type_Numeric || atyp <= type_Num;
+        *castable = retval || atyp <= type_Num || isNumScalar;
         return retval;
     case type_Num:
         retval = (atyp == type_num);
-        *castable = retval || atyp == type_Numeric || atyp <= type_Num;
+        *castable = retval || atyp <= type_Num || isNumScalar;
         return retval;
     case type_Str:
         return atyp == type_str;
@@ -13031,6 +13032,7 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
         const char *name = typename(type);
         core_types_t argtype = op_typed_user(o, &usertype, &argu8);
         const char *argname = usertype ? usertype : core_type_name(argtype);
+        bool is_argcheck = !SvPOK(cvname);
         DEBUG_k(Perl_deb(aTHX_ "ck argtype %s against %s%s\n",
                          name?name:"none", SvPOK(cvname)?"":"arg: ",
                          argname));
@@ -13054,23 +13056,34 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
                 PADNAME * const xpn = PAD_COMPNAME(o->op_targ);
                 argtype = stash_to_coretype(PadnameTYPE(xpn));
             }
+
             if (!match_type(type, argtype, argname, argu8, &castable)) {
                 if (!castable) {
-                    if (!SvPOK(cvname))
+                    if (is_argcheck)
                         bad_type_core(PadnamePV(pn), cvname, argtype,
                                       argname, argu8, name, HvNAMEUTF8(type));
-                    else
+                    else {
+                        /* ignore "Inserting type cast str to Scalar" */
                         S_warn_type_core(aTHX_ PadnamePV(pn),
                                          SvPVX(cvname), argtype,
                                          argname, name);
+                    }
                 } else {
-                    if (/*ckWARN(WARN_TYPES) || */DEBUG_k_TEST_)
-                        /* Todo: for normal ops, reverse this cast argname => name */
-                        Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
-                                    "Inserting type cast %s to %s", name, argname);
+#ifdef DEBUGGING
                     /* Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric */
                     /* Maybe allow casting from Scalar/Numeric to Int => int()
                        and Scalar to Str => stringify() */
+                    if (/*ckWARN(WARN_TYPES) || */DEBUG_k_TEST_) {
+                        if (is_argcheck)
+                            Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
+                                           "Inserting type cast %s to %s", name, argname);
+                        else
+                            Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
+                                           "Inserting type cast %s to %s", argname, name);
+                    }
+#endif
+                    if (!o->op_rettype && is_argcheck)
+                        o->op_rettype = argtype;
                     switch (argtype) {
                     case type_Bool:
                     case type_Numeric:
