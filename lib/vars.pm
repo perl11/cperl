@@ -2,7 +2,7 @@ package vars;
 
 use 5.006;
 
-our $VERSION = '1.04_01c';
+our $VERSION = '1.05_01c';
 $VERSION =~ s/c$//;
 
 use warnings::register "vars";
@@ -21,7 +21,7 @@ sub import {
 		    Carp::croak("Can't declare individual elements of hash or array");
 		} elsif (warnings::enabled("vars") and length($sym) == 1 and $sym !~ tr/a-zA-Z//) {
 		    warnings::warn("vars", "No need to declare built-in vars");
-		} elsif  (($^H &= strict::bits('vars'))) {
+		} elsif  (($^H & strict::bits('vars'))) {
 		    require Carp;
 		    Carp::croak("'$_' is not a valid variable name under strict vars");
 		}

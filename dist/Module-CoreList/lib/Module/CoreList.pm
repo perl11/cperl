@@ -18419,6 +18419,7 @@ our %delta :const = (
             'Storable'              => '3.13_04',
             'Time::HiRes'           => '1.9760_02',
             'Unicode::UCD'          => '0.71_03',
+            'vars'                  => '1.05_01c',
         },
         removed => {
         }
