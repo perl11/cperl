@@ -6312,7 +6312,7 @@ void
 Perl_sv_kill_backrefs(pTHX_ SV *const sv, AV *const av)
 {
     SV **svp;
-    SV **last;
+    SV **last = NULL;
     bool is_array;
 
     PERL_ARGS_ASSERT_SV_KILL_BACKREFS;
