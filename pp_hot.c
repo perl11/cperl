@@ -37,13 +37,12 @@
 
 /* Hot code. */
 
-PP(pp_const)
+PPt(pp_const, "():Scalar")
 {
     dSP;
     XPUSHs(cSVOP_sv);
     RETURN;
 }
-PPt(pp_const, "():Scalar");
 
 PPt(pp_nextstate, "():Void")
 {
@@ -257,71 +256,71 @@ PPt(pp_unstack, "():Void")
 
 PPt(pp_concat, "(:Any,:Any):Str")
 {
-  dSP; dATARGET; tryAMAGICbin_MG(concat_amg, AMGf_assign);
-  {
-    dPOPTOPssrl;
-    const char *rpv = NULL;
-    STRLEN rlen;
-    bool lbyte;
-    bool rbyte = FALSE;
-    bool rcopied = FALSE;
+    dSP; dATARGET; tryAMAGICbin_MG(concat_amg, AMGf_assign);
+    {
+        dPOPTOPssrl;
+        const char *rpv = NULL;
+        STRLEN rlen;
+        bool lbyte;
+        bool rbyte = FALSE;
+        bool rcopied = FALSE;
 
-    if (TARG == right && right != left) { /* $r = $l.$r */
-	rpv = SvPV_nomg_const(right, rlen);
-	rbyte = !DO_UTF8(right);
-	right = newSVpvn_flags(rpv, rlen, SVs_TEMP);
-	rpv = SvPV_const(right, rlen);	/* no point setting UTF-8 here */
-	rcopied = TRUE;
-    }
-
-    if (TARG != left) { /* not $l .= $r */
-        STRLEN llen;
-        const char* const lpv = SvPV_nomg_const(left, llen);
-	lbyte = !DO_UTF8(left);
-	sv_setpvn(TARG, lpv, llen);
-	if (!lbyte)
-	    SvUTF8_on(TARG);
-	else
-	    SvUTF8_off(TARG);
-    }
-    else { /* $l .= $r   and   left == TARG */
-	if (!SvOK(left)) {
-            if ((left == right                          /* $l .= $l */
-                 || (PL_op->op_private & OPpTARGET_MY)) /* $l = $l . $r */
-                && ckWARN(WARN_UNINITIALIZED))
-                report_uninit(left);
-            if (SvIS_FREED(left))
-                left = newSVpvs("");
-            else
-                SvPVCLEAR(left);
-	}
-        else {
-            SvPV_force_nomg_nolen(left);
+        if (TARG == right && right != left) { /* $r = $l.$r */
+            rpv = SvPV_nomg_const(right, rlen);
+            rbyte = !DO_UTF8(right);
+            right = newSVpvn_flags(rpv, rlen, SVs_TEMP);
+            rpv = SvPV_const(right, rlen);	/* no point setting UTF-8 here */
+            rcopied = TRUE;
         }
-	lbyte = !DO_UTF8(left);
-	if (IN_BYTES)
-	    SvUTF8_off(left);
-    }
 
-    if (!rcopied) {
-	rpv = SvPV_nomg_const(right, rlen);
-	rbyte = !DO_UTF8(right);
-    }
-    if (lbyte != rbyte) {
-	if (lbyte)
-	    sv_utf8_upgrade_nomg(TARG);
-	else {
-	    if (!rcopied)
-		right = newSVpvn_flags(rpv, rlen, SVs_TEMP);
-	    sv_utf8_upgrade_nomg(right);
-	    rpv = SvPV_nomg_const(right, rlen);
-	}
-    }
-    sv_catpvn_nomg(TARG, rpv, rlen);
+        if (TARG != left) { /* not $l .= $r */
+            STRLEN llen;
+            const char* const lpv = SvPV_nomg_const(left, llen);
+            lbyte = !DO_UTF8(left);
+            sv_setpvn(TARG, lpv, llen);
+            if (!lbyte)
+                SvUTF8_on(TARG);
+            else
+                SvUTF8_off(TARG);
+        }
+        else { /* $l .= $r   and   left == TARG */
+            if (!SvOK(left)) {
+                if ((left == right                          /* $l .= $l */
+                     || (PL_op->op_private & OPpTARGET_MY)) /* $l = $l . $r */
+                    && ckWARN(WARN_UNINITIALIZED))
+                    report_uninit(left);
+                if (SvIS_FREED(left))
+                    left = newSVpvs("");
+                else
+                    SvPVCLEAR(left);
+            }
+            else {
+                SvPV_force_nomg_nolen(left);
+            }
+            lbyte = !DO_UTF8(left);
+            if (IN_BYTES)
+                SvUTF8_off(left);
+        }
 
-    SETTARG;
-    RETURN;
-  }
+        if (!rcopied) {
+            rpv = SvPV_nomg_const(right, rlen);
+            rbyte = !DO_UTF8(right);
+        }
+        if (lbyte != rbyte) {
+            if (lbyte)
+                sv_utf8_upgrade_nomg(TARG);
+            else {
+                if (!rcopied)
+                    right = newSVpvn_flags(rpv, rlen, SVs_TEMP);
+                sv_utf8_upgrade_nomg(right);
+                rpv = SvPV_nomg_const(right, rlen);
+            }
+        }
+        sv_catpvn_nomg(TARG, rpv, rlen);
+
+        SETTARG;
+        RETURN;
+    }
 }
 
 /* push the elements of av onto the stack.
@@ -566,11 +565,13 @@ PP(pp_defined)
     defined = FALSE;
     switch (SvTYPE(sv)) {
     case SVt_PVAV:
-	if (AvMAX(sv) >= 0 || SvGMAGICAL(sv) || (SvRMAGICAL(sv) && mg_find(sv, PERL_MAGIC_tied)))
+	if (AvMAX(sv) >= 0 || SvGMAGICAL(sv)
+            || (SvRMAGICAL(sv) && mg_find(sv, PERL_MAGIC_tied)))
 	    defined = TRUE;
 	break;
     case SVt_PVHV:
-	if (HvARRAY(sv) || SvGMAGICAL(sv) || (SvRMAGICAL(sv) && mg_find(sv, PERL_MAGIC_tied)))
+	if (HvARRAY(sv) || SvGMAGICAL(sv)
+            || (SvRMAGICAL(sv) && mg_find(sv, PERL_MAGIC_tied)))
 	    defined = TRUE;
 	break;
     case SVt_PVCV:
@@ -1097,20 +1098,20 @@ PP(pp_rv2av)
 	    Perl_croak(aTHX_ "%s", PL_no_localize_ref);
     }
     else if (UNLIKELY(SvTYPE(sv) != type)) {
-	    GV *gv;
+        GV *gv;
 	
-	    if (!isGV_with_GP(sv)) {
-		gv = Perl_softref2xv(aTHX_ sv, is_pp_rv2av ? an_array : a_hash,
-				     type, &sp);
-		if (!gv)
-		    RETURN;
-	    }
-	    else {
-		gv = MUTABLE_GV(sv);
-	    }
-	    sv = is_pp_rv2av ? MUTABLE_SV(GvAVn(gv)) : MUTABLE_SV(GvHVn(gv));
-	    if (PL_op->op_private & OPpLVAL_INTRO)
-		sv = is_pp_rv2av ? MUTABLE_SV(save_ary(gv)) : MUTABLE_SV(save_hash(gv));
+        if (!isGV_with_GP(sv)) {
+            gv = Perl_softref2xv(aTHX_ sv, is_pp_rv2av ? an_array : a_hash,
+                                 type, &sp);
+            if (!gv)
+                RETURN;
+        }
+        else {
+            gv = MUTABLE_GV(sv);
+        }
+        sv = is_pp_rv2av ? MUTABLE_SV(GvAVn(gv)) : MUTABLE_SV(GvHVn(gv));
+        if (PL_op->op_private & OPpLVAL_INTRO)
+            sv = is_pp_rv2av ? MUTABLE_SV(save_ary(gv)) : MUTABLE_SV(save_hash(gv));
     }
     if (PL_op->op_flags & OPf_REF) {
         SETs(sv);
@@ -1184,7 +1185,6 @@ S_do_oddball(pTHX_ SV **oddkey, SV **firstkey)
 		err = "Odd number of elements in hash assignment";
 	    Perl_warner(aTHX_ packWARN(WARN_MISC), "%s", err);
 	}
-
     }
 }
 
