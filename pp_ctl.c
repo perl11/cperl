@@ -3436,11 +3436,15 @@ Perl_find_runcv_where(pTHX_ U8 cond, IV arg, U32 *db_seqp)
 }
 
 
-/* Run yyparse() in a setjmp wrapper. Returns:
- *   0: yyparse() successful
- *   1: yyparse() failed
- *   3: yyparse() died
- */
+/*
+=for apidoc try_yyparse
+Run yyparse() in a setjmp wrapper. Returns:
+   0: yyparse() successful
+   1: yyparse() failed
+   3: yyparse() died
+
+=cut
+*/
 STATIC int
 S_try_yyparse(pTHX_ int gramtype)
 {
@@ -3465,20 +3469,23 @@ S_try_yyparse(pTHX_ int gramtype)
 }
 
 
-/* Compile a require/do or an eval ''.
- *
- * outside is the lexically enclosing CV (if any) that invoked us.
- * seq     is the current COP scope value.
- * hh      is the saved hints hash, if any.
- *
- * Returns a bool indicating whether the compile was successful; if so,
- * PL_eval_start contains the first op of the compiled code; otherwise,
- * pushes undef.
- *
- * This function is called from two places: pp_require and pp_entereval.
- * These can be distinguished by whether PL_op is entereval.
- */
+/*
+=for apidoc doeval_compile
+Compile a require/do or an eval ''.
 
+outside is the lexically enclosing CV (if any) that invoked us.
+seq     is the current COP scope value.
+hh      is the saved hints hash, if any.
+
+Returns a bool indicating whether the compile was successful; if so,
+PL_eval_start contains the first op of the compiled code; otherwise,
+pushes undef.
+
+This function is called from two places: pp_require and pp_entereval.
+These can be distinguished by whether PL_op is entereval.
+
+=cut
+*/
 STATIC bool
 S_doeval_compile(pTHX_ U8 gimme, CV* outside, U32 seq, HV *hh)
 {
@@ -3675,7 +3682,15 @@ S_doeval_compile(pTHX_ U8 gimme, CV* outside, U32 seq, HV *hh)
     return TRUE;
 }
 
+/*
+=for apidoc check_type_and_open
 
+Returns a PerlIO* object when the perl script name
+could be opened for reading.
+If not NULL.
+
+=cut
+*/
 STATIC PerlIO *
 S_check_type_and_open(pTHX_ SV *name)
 {
@@ -3720,11 +3735,11 @@ S_check_type_and_open(pTHX_ SV *name)
 #ifdef WIN32
     /* EACCES stops the INC search early in pp_require to implement
        feature RT #113422 */
-    if(!retio && errno == EACCES) { /* exists but probably a directory */
+    if (!retio && errno == EACCES) { /* exists but probably a directory */
 	int eno;
 	st_rc = PerlLIO_stat(p, &st);
 	if (st_rc >= 0) {
-	    if(S_ISDIR(st.st_mode) || S_ISBLK(st.st_mode))
+	    if (S_ISDIR(st.st_mode) || S_ISBLK(st.st_mode))
 		eno = 0;
 	    else
 		eno = EACCES;
@@ -3735,6 +3750,15 @@ S_check_type_and_open(pTHX_ SV *name)
     return retio;
 }
 
+/*
+=for apidoc doopen_pm
+
+Returns a PerlIO* object when the perl module
+could be opened for reading.
+Includes optional compiled module .pmc handling.
+
+=cut
+*/
 #ifndef PERL_DISABLE_PMC
 STATIC PerlIO *
 S_doopen_pm(pTHX_ SV *name, bool pmc)
@@ -3771,8 +3795,12 @@ S_doopen_pm(pTHX_ SV *name, bool pmc)
 #  define doopen_pm(name, pmc) check_type_and_open(name, pmc)
 #endif /* !PERL_DISABLE_PMC */
 
-/* require doesn't search for absolute names, or when the name is
-   explicitly relative the current directory */
+/*
+=for apidoc path_is_searchable
+require doesn't search for absolute names, or when the name is
+explicitly relative the current directory.
+=cut
+*/
 PERL_STATIC_INLINE bool
 S_path_is_searchable(const char *name)
 {
@@ -3798,25 +3826,30 @@ S_path_is_searchable(const char *name)
 }
 
 
-/* implement 'require 5.010001' */
-
+/*
+=for apidoc require_version
+Implements 'require 5.010001', the version check part of require.
+=cut
+*/
 static OP *
 S_require_version(pTHX_ SV *sv)
 {
     dVAR; dSP;
+    PERL_ARGS_ASSERT_REQUIRE_VERSION;
 
     sv = sv_2mortal(new_version(sv));
     if (!Perl_sv_derived_from_pvn(aTHX_ PL_patchlevel, STR_WITH_LEN("version"), 0))
         upg_version(PL_patchlevel, TRUE);
-    if (cUNOP->op_first->op_type == OP_CONST && cUNOP->op_first->op_private & OPpCONST_NOVER) {
-        if ( vcmp(sv,PL_patchlevel) <= 0 )
+    if (cUNOP->op_first->op_type == OP_CONST
+        && cUNOP->op_first->op_private & OPpCONST_NOVER)
+    {
+        if ( vcmp(sv, PL_patchlevel) <= 0 )
             DIE(aTHX_ "Perls since %" SVf " too modern--this is %" SVf ", stopped",
                 SVfARG(sv_2mortal(vnormal(sv))),
-                SVfARG(sv_2mortal(vnormal(PL_patchlevel)))
-		);
+                SVfARG(sv_2mortal(vnormal(PL_patchlevel))));
     }
     else {
-        if ( vcmp(sv,PL_patchlevel) > 0 ) {
+        if ( vcmp(sv, PL_patchlevel) > 0 ) {
             I32 first = 0;
             AV *lav;
             SV * const req = SvRV(sv);
@@ -3862,10 +3895,15 @@ S_require_version(pTHX_ SV *sv)
     RETPUSHYES;
 }
 
-/* Handle C<require Foo::Bar>, C<require "Foo/Bar.pm"> and C<do "Foo.pm">.
- * The first form will have already been converted at compile time to
- * the second form */
+/*
+=for apidoc require_file
 
+Handle C<require Foo::Bar>, C<require "Foo/Bar.pm"> and C<do "Foo.pm">.
+
+The first form will have already been converted at compile time to
+the second form.
+=cut
+*/
 static OP *
 S_require_file(pTHX_ SV *const sv)
 {
@@ -3896,6 +3934,7 @@ S_require_file(pTHX_ SV *const sv)
     const bool op_is_require = PL_op->op_type == OP_REQUIRE;
     const char *const op_name = op_is_require ? "require" : "do";
 
+    PERL_ARGS_ASSERT_REQUIRE_FILE;
     assert(op_is_require || PL_op->op_type == OP_DOFILE);
 
     if (!SvOK(sv))
@@ -4563,8 +4602,12 @@ PP(pp_leaveeval)
     return retop;
 }
 
-/* Common code for Perl_call_sv and Perl_fold_constants, put here to keep it
-   close to the related Perl_create_eval_scope.  */
+/*
+=for apidoc delete_eval_scope
+Common code for Perl_call_sv and Perl_fold_constants, put here to keep it
+close to the related Perl_create_eval_scope.
+=cut
+*/
 void
 Perl_delete_eval_scope(pTHX)
 {
@@ -4577,8 +4620,12 @@ Perl_delete_eval_scope(pTHX)
     CX_POP(cx);
 }
 
-/* Common-ish code salvaged from Perl_call_sv and pp_entertry, because it was
-   also needed by Perl_fold_constants.  */
+/*
+=for apidoc create_eval_scope
+Common-ish code salvaged from Perl_call_sv and pp_entertry, because it was
+also needed by Perl_fold_constants.
+=cut
+*/
 void
 Perl_create_eval_scope(pTHX_ OP *retop, U32 flags)
 {

@@ -1806,10 +1806,13 @@
 #define matcher_matches_sv(a,b)	S_matcher_matches_sv(aTHX_ a,b)
 #define num_overflow		S_num_overflow
 #define path_is_searchable	S_path_is_searchable
+#define require_file(a)		S_require_file(aTHX_ a)
+#define require_version(a)	S_require_version(aTHX_ a)
 #define run_user_filter(a,b,c)	S_run_user_filter(aTHX_ a,b,c)
 #define rxres_free(a)		S_rxres_free(aTHX_ a)
 #define rxres_restore(a,b)	S_rxres_restore(aTHX_ a,b)
 #define save_lines(a,b)		S_save_lines(aTHX_ a,b)
+#define try_yyparse(a)		S_try_yyparse(aTHX_ a)
 #  endif
 #  if defined(PERL_IN_PP_HOT_C)
 #define do_oddball(a,b)		S_do_oddball(aTHX_ a,b)

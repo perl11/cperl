@@ -1401,6 +1401,9 @@ Ap	|Sighandler_t|rsignal_state|int i
 #if defined(PERL_IN_PP_CTL_C)
 s	|void	|rxres_free	|NN void** rsp
 s	|void	|rxres_restore	|NN void **rsp|NN REGEXP *rx
+s	|OP *	|require_version|NN SV *sv
+s	|OP *	|require_file	|NN SV *sv
+s	|int	|try_yyparse	|int gramtype
 #endif
 : Used in pp_hot.c
 p	|void	|rxres_save	|NN void **rsp|NN REGEXP *rx

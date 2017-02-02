@@ -8556,6 +8556,16 @@ PERL_STATIC_INLINE bool	S_path_is_searchable(const char *name)
 #define PERL_ARGS_ASSERT_PATH_IS_SEARCHABLE	\
 	assert(name)
 
+STATIC OP *	S_require_file(pTHX_ SV *sv)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_REQUIRE_FILE	\
+	assert(sv)
+
+STATIC OP *	S_require_version(pTHX_ SV *sv)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_REQUIRE_VERSION	\
+	assert(sv)
+
 STATIC I32	S_run_user_filter(pTHX_ int idx, SV *buf_sv, int maxlen)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_2);
@@ -8578,6 +8588,7 @@ STATIC void	S_save_lines(pTHX_ AV *array, SV *sv)
 #define PERL_ARGS_ASSERT_SAVE_LINES	\
 	assert(sv)
 
+STATIC int	S_try_yyparse(pTHX_ int gramtype);
 #endif
 #if defined(PERL_IN_PP_HOT_C)
 STATIC void	S_do_oddball(pTHX_ SV **oddkey, SV **firstkey)
