@@ -11893,18 +11893,16 @@ S_op_check_type(pTHX_ OP* o, OP* left, OP* right)
     /* check types, same as for an argument check */
     if (t_left > type_none) {
 #define PAD_NAME(pad_ix) padnamelist_fetch(PL_comppad_name, pad_ix)
-        const SV* name = newSVpvn_flags(OP_DESC(o), strlen(OP_DESC(o)),
-                                        SVs_TEMP);
         DEBUG_kv(Perl_deb(aTHX_ "ck op types %s: %s <=> %s\n", OP_NAME(o),
                           OP_NAME(left), OP_NAME(right)));
         if (IS_TYPE(left, AELEM) ||
             IS_TYPE(left, AELEM_U) ||
             IS_TYPE(left, HELEM))
-            arg_check_type(PAD_NAME(OpFIRST(left)->op_targ), right, (GV*)name);
+            ret_check_type(PAD_NAME(OpFIRST(left)->op_targ), right, OP_DESC(o));
         else if (IS_TYPE(left, PADSV))
-            arg_check_type(PAD_NAME(left->op_targ), right, (GV*)name);
+            ret_check_type(PAD_NAME(left->op_targ), right, OP_DESC(o));
         else if (IS_TYPE(left, PADAV) || IS_TYPE(left, PADHV))
-            arg_check_type(PAD_NAME(left->op_targ), right, (GV*)name);
+            ret_check_type(PAD_NAME(left->op_targ), right, OP_DESC(o));
 
 #undef PAD_NAME
     }
@@ -13008,14 +13006,11 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
 }
 
 /*
-=for apidoc s|OP*  |arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NULLOK GV *cvname
+=for apidoc s|OP*  |arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NN GV *cvname
 
 Check if the declared static type of the argument from pn can be
 fullfilled by the dynamic type of the arg in OP* o (padsv, const,
 any return type). If possible add a typecast to o to fullfill it.
-
-With an empty cvname the check is not fatal, as it does not happen in
-a signature but in an exiting old op. Only types warnings are thrown then.
 
 =cut
 */
@@ -13032,13 +13027,12 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
         const char *name = typename(type);
         core_types_t argtype = op_typed_user(o, &usertype, &argu8);
         const char *argname = usertype ? usertype : core_type_name(argtype);
-        bool is_argcheck = !SvPOK(cvname);
-        DEBUG_k(Perl_deb(aTHX_ "ck argtype %s against %s%s\n",
-                         name?name:"none", SvPOK(cvname)?"":"arg: ",
-                         argname));
+        DEBUG_k(Perl_deb(aTHX_ "ck argtype %s against arg %s\n",
+                         name?name:"none", argname));
         o->op_typechecked = 1;
         if (argtype > type_none && argtype < type_Void
-            && name && strNE(argname, name)) {
+            && name && strNE(argname, name))
+        {
             int castable = 0;
             /* check aggregate type: Array(int), Hash(str), ... */
             if (argtype == type_Hash &&
@@ -13059,43 +13053,43 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
 
             if (!match_type(type, argtype, argname, argu8, &castable)) {
                 if (!castable) {
-                    if (is_argcheck)
-                        bad_type_core(PadnamePV(pn), cvname, argtype,
-                                      argname, argu8, name, HvNAMEUTF8(type));
-                    else {
-                        /* ignore "Inserting type cast str to Scalar" */
-                        S_warn_type_core(aTHX_ PadnamePV(pn),
-                                         SvPVX(cvname), argtype,
-                                         argname, name);
-                    }
+                    bad_type_core(PadnamePV(pn), cvname, argtype,
+                                  argname, argu8, name, HvNAMEUTF8(type));
                 } else {
 #ifdef DEBUGGING
                     /* Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric */
                     /* Maybe allow casting from Scalar/Numeric to Int => int()
                        and Scalar to Str => stringify() */
                     if (/*ckWARN(WARN_TYPES) || */DEBUG_k_TEST_) {
-                        if (is_argcheck)
-                            Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
-                                           "Inserting type cast %s to %s", name, argname);
-                        else
-                            Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
-                                           "Inserting type cast %s to %s", argname, name);
+                        Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
+                                       "Inserting type cast %s to %s", name, argname);
                     }
 #endif
-                    if (!o->op_rettype && is_argcheck)
+                    if (!o->op_rettype)
                         o->op_rettype = argtype;
                     switch (argtype) {
                     case type_Bool:
+                        /* Apply boolean context */
+                        scalar(o);
+                        if (IS_TYPE(o, RV2HV) ||
+                            IS_TYPE(o, PADHV) ||
+                            IS_TYPE(o, REF))
+                            o->op_private |= OPpTRUEBOOL;
+                        else if (IS_TYPE(o, LENGTH))
+                            o->op_private |= OPpLENGTH_TRUEBOOL;
+                        break;
                     case type_Numeric:
                     case type_Scalar:
                         scalar(o);
                         break;
+                    /*
                     case type_int:
                     case type_Int:
                     case type_uint:
                     case type_UInt:
-                        /*o = fold_constants(op_integerize(newUNOP(OP_INT, 0, scalar(o))));*/
-                        break;
+                        o = fold_constants(op_integerize(newUNOP
+                              (OP_INT, 0, scalar(o))));
+                        break; */
                     default:
                         break;
                     }
@@ -13104,6 +13098,104 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
                 /* mark argument as already typechecked, to avoid it at run-time.
                    but only when we start typechecking run-time. */
                 /*o->op_typechecked = 1;*/
+            }
+        }
+    }
+    return o;
+}
+
+/*
+=for apidoc s|OP*  |ret_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
+
+Check if the declared static type of the return type or op from the
+lhs pn can be fullfilled by the dynamic type of the rhs in OP* o
+(padsv, const, any return type). If possible add a typecast to o to
+fullfill it.
+
+Different to arg_check_type a type violation is not fatal, it only throws
+a compile-time warning when no applicable type-conversion can be applied.
+
+=cut
+*/
+static OP*
+S_ret_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
+{
+    const HV *type = pn ? PadnameTYPE(pn) : NULL;
+    PERL_ARGS_ASSERT_RET_CHECK_TYPE;
+    if (UNLIKELY(VALIDTYPE(type))) {
+        /* check type of sub return value or binop */
+        char *usertype = NULL;
+        int argu8 = 0;
+        const char *name = typename(type);
+        core_types_t argtype = op_typed_user(o, &usertype, &argu8);
+        const char *argname = usertype ? usertype : core_type_name(argtype);
+        DEBUG_k(Perl_deb(aTHX_ "ck type %s against %s\n",
+                         name?name:"none",  argname));
+        o->op_typechecked = 1;
+        if (argtype > type_none && argtype < type_Void
+            && name && strNE(argname, name))
+        {
+            int castable = 0;
+            /* check aggregate type: Array(int), Hash(str), ... */
+            if (argtype == type_Hash &&
+                PadnamePV(pn)[0] == '%' &&
+                IS_TYPE(o, PADHV))
+            {
+                PADNAME * const xpn = PAD_COMPNAME(o->op_targ);
+                argtype = stash_to_coretype(PadnameTYPE(xpn));
+            }
+            else
+            if (argtype == type_Array &&
+                PadnamePV(pn)[0] == '@' &&
+                IS_TYPE(o, PADAV))
+            {
+                PADNAME * const xpn = PAD_COMPNAME(o->op_targ);
+                argtype = stash_to_coretype(PadnameTYPE(xpn));
+            }
+
+            if (!match_type(type, argtype, argname, argu8, &castable)) {
+                if (!castable) {
+                    /* ignore "Inserting type cast str to Scalar" */
+                    S_warn_type_core(aTHX_ PadnamePV(pn),
+                                     opdesc, argtype,
+                                     argname, name);
+                } else {
+#ifdef DEBUGGING
+                    /* Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric */
+                    /* Maybe allow casting from Scalar/Numeric to Int => int()
+                       and Scalar to Str => stringify() */
+                    if (/*ckWARN(WARN_TYPES) || */DEBUG_k_TEST_) {
+                        Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
+                                       "Inserting type cast %s to %s", argname, name);
+                    }
+#endif
+                    if (!OpRETTYPE(o))
+                        OpRETTYPE_set(o, argtype);
+                    switch (argtype) {
+                    case type_Bool:
+                        /* Apply boolean context */
+                        scalar(o);
+                        if (IS_TYPE(o, RV2HV) ||
+                            IS_TYPE(o, PADHV) ||
+                            IS_TYPE(o, REF))
+                            o->op_private |= OPpTRUEBOOL;
+                        else if (IS_TYPE(o, LENGTH))
+                            o->op_private |= OPpLENGTH_TRUEBOOL;
+                        break;
+                    case type_Numeric:
+                    case type_Scalar:
+                        /* Adding an int(op) in front makes not much sense here.
+                           fold_constants or integerize would */
+                    case type_int:
+                    case type_Int:
+                    case type_uint:
+                    case type_UInt:
+                        scalar(o);
+                        break;
+                    default:
+                        break;
+                    }
+                }
             }
         }
     }
@@ -16987,7 +17079,7 @@ Perl_rpeep(pTHX_ OP *o)
 	case OP_PADHV:
             /* see if %h is used in boolean context */
             if (OpWANT_SCALAR(o))
-                S_check_for_bool_cxt(aTHX_ o, OPpTRUEBOOL, OPpMAYBE_TRUEBOOL);
+                check_for_bool_cxt(o, OPpTRUEBOOL, OPpMAYBE_TRUEBOOL);
             if (o->op_type != OP_PADHV)
                 break;
             /* FALLTHROUGH */

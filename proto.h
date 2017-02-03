@@ -8340,6 +8340,12 @@ STATIC void	S_prune_chain_head(OP** op_p)
 
 STATIC OP*	S_ref_array_or_hash(pTHX_ OP* cond);
 STATIC OP*	S_refkids(pTHX_ OP* o, I32 type);
+STATIC OP*	S_ret_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_3);
+#define PERL_ARGS_ASSERT_RET_CHECK_TYPE	\
+	assert(o); assert(opdesc)
+
 STATIC bool	S_scalar_mod_type(const OP *o, I32 type)
 			__attribute__warn_unused_result__;
 

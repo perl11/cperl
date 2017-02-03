@@ -1743,6 +1743,7 @@
 #define prune_chain_head	S_prune_chain_head
 #define ref_array_or_hash(a)	S_ref_array_or_hash(aTHX_ a)
 #define refkids(a,b)		S_refkids(aTHX_ a,b)
+#define ret_check_type(a,b,c)	S_ret_check_type(aTHX_ a,b,c)
 #define scalar_mod_type		S_scalar_mod_type
 #define scalarboolean(a)	S_scalarboolean(aTHX_ a)
 #define scalarkids(a)		S_scalarkids(aTHX_ a)
