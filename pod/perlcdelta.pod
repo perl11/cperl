@@ -21,7 +21,8 @@ C<${^ENCODING}> and the encoding pragma was not removed, rather fixed
 instead.
 
 Assignment type violations are now warned, with C<use warnings 'types'>
-enabled. Only signature type violations are fatal.
+enabled. Only signature type violations or C<use types 'strict'> violations
+are fatal.
 
 The still incomplete and slow implementation for the experimental
 subroutine signatures feature from 5.25.4 was not added, as cperl's
@@ -36,6 +37,17 @@ security in the collision resolution instead. A hash function can
 never ensure DoS safety for a hash table.
 
 =head1 Core Enhancements
+
+=head2 Type-check assignments
+
+Assignment type violations are now also warned, with C<use warnings 'types'>
+enabled, previously only signature types were checked.
+Only signature type violations or C<use types 'strict'> violations
+are fatal.
+
+Note that the type system is still completely unsound. So far it is
+only there to catch the most common errors and enable coretype
+optimizations.
 
 =head2 for qw() is legal again
 
@@ -477,6 +489,16 @@ this matches the behaviour for non-bareword constants.
 =back
 
 =head1 Modules and Pragmata
+
+=head2 New Modules and Pragmata
+
+=over 4
+
+=item types 0.01
+
+Controls the type-checker. See L<types> or L<perltypes>.
+
+=back
 
 =head2 Updated Modules and Pragmata
 

@@ -52,6 +52,9 @@ other ops.
 Note that types in signatures are always checked, regardless of the state of the
 types pragma, i.e. the types warnings category.
 
+strict mode also forbids the insertion of automatic type casts. Such
+as e.g.  C<my num @i; $i[0] = 1;> will cast the 1 to 1.0.
+
 See L<perltypes>.
 
 =cut

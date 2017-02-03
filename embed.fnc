@@ -1054,6 +1054,7 @@ s	|void	|finalize_op	|NN OP* o
 s	|void	|move_proto_attr|NN OP **proto|NN OP **attrs|NN const GV *name
 s	|int	|match_user_type|NN const char *dname|bool du8 \
 				|NN const char* aname|bool au8
+i	|bool	|is_types_strict
 s	|OP*	|arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NULLOK GV *cvname
 s	|OP*	|ret_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
 s	|void	|op_check_type  |NN OP* o|NN OP* left|NN OP* right

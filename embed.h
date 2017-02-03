@@ -1714,6 +1714,7 @@
 #define inplace_aassign(a)	S_inplace_aassign(aTHX_ a)
 #define io_hints(a)		S_io_hints(aTHX_ a)
 #define is_handle_constructor	S_is_handle_constructor
+#define is_types_strict()	S_is_types_strict(aTHX)
 #define listkids(a)		S_listkids(aTHX_ a)
 #define looks_like_bool(a)	S_looks_like_bool(aTHX_ a)
 #define match_user_type(a,b,c,d)	S_match_user_type(aTHX_ a,b,c,d)

@@ -13105,6 +13105,22 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
 }
 
 /*
+=for apidoc s|bool  |is_types_strict
+
+Check if the current lexical block has C<use types 'strict'> enabled.
+
+=cut
+*/
+PERL_STATIC_INLINE bool
+S_is_types_strict(pTHX)
+{
+    if (isLEXWARN_off)
+        return FALSE;
+    return ! specialWARN(PL_curcop->cop_warnings) &&
+        isWARNf_on(((STRLEN *)PL_curcop->cop_warnings), unpackWARN1(WARN_TYPES));
+}
+
+/*
 =for apidoc s|OP*  |ret_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
 
 Check if the declared static type of the return type or op from the
@@ -13154,11 +13170,10 @@ S_ret_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
             }
 
             if (!match_type(type, argtype, argname, argu8, &castable)) {
-                if (!castable) {
+                if (!castable || S_is_types_strict(aTHX)) {
                     /* ignore "Inserting type cast str to Scalar" */
                     S_warn_type_core(aTHX_ PadnamePV(pn),
-                                     opdesc, argtype,
-                                     argname, name);
+                                     opdesc, argtype, argname, name);
                 } else {
 #ifdef DEBUGGING
                     /* Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric */
