@@ -180,6 +180,12 @@ always fatal, at compile-time.
     $a[0] = "";
     # fatal compile-time warning: Type of assignment to @a must be int (not Str)
 
+=head2 use types 'strict'
+
+The strict argument to the L<types> pragma enables strict types warnings,
+so old-style code behaves like modern perl, dying on type violations.
+C<use types> without strict just warns.
+
 =head2 type inference
 
 The inferencer runs automatically on some very limited syntax and can

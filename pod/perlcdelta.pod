@@ -20,6 +20,9 @@ This cperl version is merged with the perl versions 5.25.3 - 5.25.9.
 C<${^ENCODING}> and the encoding pragma was not removed, rather fixed
 instead.
 
+Assignment type violations are now warned, with C<use warnings 'types'>
+enabled. Only signature type violations are fatal.
+
 The still incomplete and slow implementation for the experimental
 subroutine signatures feature from 5.25.4 was not added, as cperl's
 signatures are twice as fast and have many more features. In detail

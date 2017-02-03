@@ -1709,6 +1709,7 @@ use File::Glob qw(:case);
                 lib/sort.{pm,t}
                 lib/strict.{pm,t}
                 lib/subs.{pm,t}
+                lib/types.pm
                 lib/unicore/
                 lib/utf8.{pm,t}
                 lib/utf8_heavy.pl
