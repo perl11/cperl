@@ -431,6 +431,7 @@
 #  define GCC_DIAG_IGNORE(w)
 #  define GCC_DIAG_RESTORE
 #endif
+
 /* for clang specific pragmas */
 #if defined(__clang__) || defined(__clang)
 #  define CLANG_DIAG_PRAGMA(x) _Pragma (#x)
@@ -440,6 +441,19 @@
 #else
 #  define CLANG_DIAG_IGNORE(x)
 #  define CLANG_DIAG_RESTORE
+#endif
+
+/* suppress version specific warnings: */
+
+/* for GCC47_DIAG_IGNORE(-Wmaybe-uninitialized) - unreliable */
+#if (!defined(__clang__) && !defined(__clang)) &&                       \
+     (defined( __GNUC__) && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 407)
+#  define GCC47_DIAG_IGNORE(w) _Pragma("GCC diagnostic push")         \
+                             GCC_DIAG_PRAGMA(GCC diagnostic ignored #w)
+#  define GCC47_DIAG_RESTORE   _Pragma("GCC diagnostic pop")
+#else
+#  define GCC47_DIAG_IGNORE(w)
+#  define GCC47_DIAG_RESTORE
 #endif
 
 /* for CLANG35_DIAG_IGNORE(-Wpointer-bool-conversion) */

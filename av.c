@@ -726,8 +726,12 @@ Perl_av_undef(pTHX_ AV *av)
         /* disarm av's premature free guard */
         if (LIKELY(PL_tmps_ix == orig_ix))
             PL_tmps_ix--;
-        else
+        else {
+            /* known gcc bug, since 4.7 */
+            GCC47_DIAG_IGNORE(-Wmaybe-uninitialized)
             PL_tmps_stack[orig_ix] = &PL_sv_undef;
+            GCC47_DIAG_RESTORE
+        }
         SvREFCNT_dec_NN(av);
     }
 }
