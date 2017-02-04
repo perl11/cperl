@@ -317,10 +317,6 @@ sub build_extension { #build_extensions is not recursion safe
 	    if (version->parse($newv) ne $oldv) {
 		close $mfh or die "close $makefile: $!";
 		_unlink($makefile);
-		{
-		    no warnings 'deprecated';
-		    goto NO_MAKEFILE;
-		}
 	    }
 	}
 
@@ -354,7 +350,6 @@ sub build_extension { #build_extensions is not recursion safe
     }
 
     if ($makefile_no_minus_f || !-f $makefile) {
-	NO_MAKEFILE:
 	if (!-f 'Makefile.PL') {
             unless (just_pm_to_blib($target, $ext_dir, $mname, $return_dir)) {
                 # No problems returned, so it has faked everything for us. :-)
