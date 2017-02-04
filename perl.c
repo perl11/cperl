@@ -1980,6 +1980,9 @@ S_Internals_V(pTHX_ CV *cv)
 #  ifdef PERL_RELOCATABLE_INCPUSH
 			     " PERL_RELOCATABLE_INCPUSH"
 #  endif
+#  ifdef PERL_TYPES_INFER
+			     " PERL_TYPES_INFER"
+#  endif
 #  ifdef PERL_USE_DEVEL
 			     " PERL_USE_DEVEL"
 #  endif

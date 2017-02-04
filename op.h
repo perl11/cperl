@@ -51,7 +51,7 @@ typedef PERL_BITFIELD16 Optype;
 #ifdef BASEOP_DEFINITION
 #define BASEOP BASEOP_DEFINITION
 #else
-#define BASEOP				\
+#define _BASEOP				\
     OP*		op_next;		\
     OP*		_OP_SIBPARENT_FIELDNAME;\
     OP*		(*op_ppaddr)(pTHX);	\
@@ -65,8 +65,15 @@ typedef PERL_BITFIELD16 Optype;
     PERL_BITFIELD16 op_moresib:1;       \
     PERL_BITFIELD16 op_typechecked:1;	\
     U8		op_flags;		\
-    U8		op_private;             \
+    U8		op_private;
+#endif
+#ifdef PERL_TYPES_INFER
+#define BASEOP                          \
+    _BASEOP                             \
     U8		op_rettype;
+#else
+#define BASEOP				\
+    _BASEOP
 #endif
 
 /* Class::XSAccessor abuses this */
@@ -1018,8 +1025,13 @@ C<sib> is non-null. For a higher-level interface, see C<L</op_sibling_splice>>.
     ( !(o) || OP_TYPE_ISNT_AND_WASNT_NN(o, type) )
 
 #define OpTYPECHECKED(o)	(0 + (o)->op_typechecked)
+#ifdef PERL_TYPES_INFER
 #define OpRETTYPE(o)		(U8)(0 + (o)->op_rettype)
 #define OpRETTYPE_set(o, type)	(o)->op_rettype = (U8)(type)
+#else
+#define OpRETTYPE(o)            0
+#define OpRETTYPE_set(o, type)  NOOP
+#endif
 
 #define OpNEXT(o)    (o)->op_next
 #define OpFIRST(o)   cUNOPx(o)->op_first

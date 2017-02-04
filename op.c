@@ -537,7 +537,7 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
                   (void*)o, (void*)slab, (unsigned long)space, (unsigned long)sz));
 
   gotit:
-    assert(!o->op_rettype);
+    assert(!OpRETTYPE(o));
 #ifdef PERL_OP_PARENT
     /* moresib == 0, op_sibling == 0 implies a solitary unattached op */
     assert(!o->op_moresib);

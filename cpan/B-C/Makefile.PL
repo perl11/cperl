@@ -285,10 +285,11 @@ sub check_op_rettype {
     my $op_h = File::Spec->catfile(headerpath(), 'op.h');
     my ($fh, $found);
     open $fh, $op_h or die "$op_h: $!";
-    while(<$fh>) {
+    while (<$fh>) {
         if (/^\s+U8\s+op_rettype/) {
             close $fh;
-            return 1;
+            # and since 5.25.3 it depends on -DPERL_TYPES_INFER
+            return $] < 5.025003 ? 1 : 0;
         }
     }
     close $fh;

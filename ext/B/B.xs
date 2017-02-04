@@ -658,7 +658,8 @@ static const struct OP_methods {
 #  else
   { STR_WITH_LEN("rclass"),  op_offset_special, 0,                     },/*56*/
 #  endif
-#  if PERL_VERSION >= 22 && defined(OpRETTYPE)
+#  if PERL_VERSION >= 22 && defined(OpRETTYPE) && \
+    (PERL_VERSION < 25 || defined(PERL_TYPES_INFER))
   { STR_WITH_LEN("rettype"), U8p, STRUCT_OFFSET(struct op, op_rettype),},/*57*/
 #  endif
 #endif
