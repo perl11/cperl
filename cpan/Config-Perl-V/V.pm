@@ -7,7 +7,7 @@ use warnings;
 
 use Config;
 use Exporter;
-our $VERSION     = "0.30_01";
+our $VERSION     = "0.30_02";
 our @ISA         = ("Exporter");
 our @EXPORT_OK   = qw( plv2hash summary myconfig signature );
 our %EXPORT_TAGS = (
@@ -67,6 +67,7 @@ my %BTD = map { $_ => 0 } qw(
     PERL_PERTURB_KEYS_TOP
     PERL_PRESERVE_IVUV
     PERL_RELOCATABLE_INCPUSH
+    PERL_TYPES_INFER
     PERL_USE_DEVEL
     PERL_USE_SAFE_PUTENV
     SILENT_NO_TAINT_SUPPORT
