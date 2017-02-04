@@ -176,9 +176,8 @@ PP(pp_introcv)
 PP(pp_clonecv)
 {
     dTARGET;
-    CV * const protocv = PadnamePROTOCV(
-                                        PadlistNAMESARRAY(CvPADLIST(find_runcv(NULL)))[ARGTARG]
-                                        );
+    CV * const protocv = PadnamePROTOCV
+        (PadlistNAMESARRAY(CvPADLIST(find_runcv(NULL)))[ARGTARG]);
     assert(SvTYPE(TARG) == SVt_PVCV);
     assert(protocv);
     if (CvISXSUB(protocv)) { /* constant */
@@ -353,20 +352,20 @@ Perl_softref2xv(pTHX_ SV *sv, const char *const what,
     if (UNLIKELY
         (SvPOK(sv) && SvCUR(sv) > 1 &&
          (null_at = (const char *)memchr(SvPVX_const(sv), 0, SvCUR(sv)))))
-        {
-            const char* pv = SvPVX_const(sv);
-            SV* tmp = newSVpvs_flags("", SVs_TEMP);
-            SV* newsv = newSVpvn_flags(pv, null_at - pv, SVs_TEMP);
-            if (Perl_ckwarn(aTHX_ packWARN(WARN_SECURITY)))
-                Perl_warn_security(aTHX_
-                                   "Invalid \\0 character in string for SYMBOL: %s",
-                                   pv_display(tmp, pv, SvCUR(sv), SvCUR(sv), 127));
-            else
-                Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
+    {
+        const char* pv = SvPVX_const(sv);
+        SV* tmp = newSVpvs_flags("", SVs_TEMP);
+        SV* newsv = newSVpvn_flags(pv, null_at - pv, SVs_TEMP);
+        if (Perl_ckwarn(aTHX_ packWARN(WARN_SECURITY)))
+            Perl_warn_security(aTHX_
                                "Invalid \\0 character in string for SYMBOL: %s",
                                pv_display(tmp, pv, SvCUR(sv), SvCUR(sv), 127));
-            sv = newsv;
-        }
+        else
+            Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
+                           "Invalid \\0 character in string for SYMBOL: %s",
+                           pv_display(tmp, pv, SvCUR(sv), SvCUR(sv), 127));
+        sv = newsv;
+    }
     if (OpSPECIAL(PL_op) && !(PL_op->op_flags & OPf_MOD)) {
         if (!(gv = gv_fetchsv_nomg(sv, GV_ADDMG, type))) {
             **spp = &PL_sv_undef;
@@ -515,8 +514,7 @@ PP(pp_prototype)
     }
     if ((cv = sv_2cv(TOPs, &stash, &gv, 0))) {
         if (SvPOK(cv))
-            ret = newSVpvn_flags(
-                                 CvPROTO(cv), CvPROTOLEN(cv), SVs_TEMP | SvUTF8(cv));
+            ret = newSVpvn_flags(CvPROTO(cv), CvPROTOLEN(cv), SVs_TEMP | SvUTF8(cv));
         else if (CvHASSIG(cv) && CvSIGOP(cv)) { /* catch illegal prototype */
             ret = newSVpvn_flags("(", 1, SVs_TEMP);
             sv_catsv(ret, signature_stringify((OP*)CvSIGOP(cv), cv));
@@ -658,12 +656,12 @@ PP(pp_bless)
     HV *stash;
 
     if (MAXARG == 1)
-        {
-        curstash:
-            stash = CopSTASH(PL_curcop);
-            if (SvTYPE(stash) != SVt_PVHV)
-                Perl_croak(aTHX_ "Attempt to bless into a freed package");
-        }
+    {
+      curstash:
+        stash = CopSTASH(PL_curcop);
+        if (SvTYPE(stash) != SVt_PVHV)
+            Perl_croak(aTHX_ "Attempt to bless into a freed package");
+    }
     else {
 	SV * const ssv = POPs;
 	STRLEN len;
