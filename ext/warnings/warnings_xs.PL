@@ -362,7 +362,6 @@ EOM
 
   $index *= 2;
   $warn_size = int($index / 8) + ($index % 8 != 0);
-
   my $k ;
   my $last_ver = 0;
   foreach $k (sort { $a <=> $b } keys %ValueToName) {
@@ -517,11 +516,15 @@ foreach my $k (sort { $a <=> $b } keys %ValueToName) {
     my ($name, $version) = @{ $ValueToName{$k} };
     # Note: keeping the proper case
     my $offset = $k * 2;
-    my $v = $list{$name};
-    my @list = sort { $a <=> $b } @$v;
-    my $bits     = mkOct($max_bytes, map $_ * 2 , @list);
-    my $deadbits = mkOct($max_bytes, map $_ * 2 + 1 , @list);
-    print $xs "$name, $offset, \"$bits\", \"$deadbits\"\n";
+    if ($name eq 'all') {
+      print $xs "$name, $offset, WARN_ALLstring, WARN_DEADALLstring\n";
+    } else {
+      my $v = $list{$name};
+      my @list = sort { $a <=> $b } @$v;
+      my $bits     = mkOct($max_bytes, map $_ * 2 , @list);
+      my $deadbits = mkOct($max_bytes, map $_ * 2 + 1 , @list);
+      print $xs "$name, $offset, \"$bits\", \"$deadbits\"\n";
+    }
 }
 print $xs "%%\n";
 

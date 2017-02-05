@@ -404,7 +404,7 @@ warnings_const_lookup (register const char *str, register size_t len)
 #line 136 "ext/warnings/warnings_xs.in"
       {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str42, 102, "\0\0\0\0\0\0\0\0\0\0\0\0\100\125\25\125\1\104\1\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\200\252\52\252\2\210\2\0\0\0\0\0\0\0\0\0\0\0\0\0"},
 #line 85 "ext/warnings/warnings_xs.in"
-      {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str43, 0, "\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\125\5\0\0\0\0\0\0\0\0\0\0\0\0\0", "\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\252\12\0\0\0\0\0\0\0\0\0\0\0\0\0"},
+      {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str43, 0, WARN_ALLstring, WARN_DEADALLstring},
 #line 103 "ext/warnings/warnings_xs.in"
       {(int)(size_t)&((struct stringpool_t *)0)->stringpool_str44, 36, "\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"},
 #line 93 "ext/warnings/warnings_xs.in"

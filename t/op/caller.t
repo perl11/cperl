@@ -92,6 +92,10 @@ sub check_bits
 {
     local $Level = $Level + 2;
     my ($got, $exp, $desc) = @_;
+    # Ignore XS warnings excessive bits
+    if (length($got) > length($exp)) {
+      $got = substr($got, 0, length($exp));
+    }
     if (! ok($got eq $exp, $desc)) {
         diag('     got: ' . show_bits($got));
         diag('expected: ' . show_bits($exp));
@@ -126,7 +130,6 @@ sub get_caller_0_9 {
 			'default bits on via "use warnings"' ); }
     testwarn("\x55" x $warnings::BYTES, 'all');
 }
-
 
 # The next two cases test for a bug where caller ignored evals if
 # the DB::sub glob existed but &DB::sub did not (for example, if
