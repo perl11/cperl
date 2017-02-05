@@ -9,8 +9,8 @@ BEGIN { eval { require feature } };
 use Carp qw/croak carp/;
 
 my @keys = keys %warnings::Offsets;
-unless (@keys and defined &warnings::keys) { # XS warnings
-	@keys = grep { /^experimental::/ } warnings::keys();
+unless (@keys and defined &warnings::KEYS) { # XS warnings
+	@keys = grep { /^experimental::/ } warnings::KEYS();
 }
 
 my %warnings = map { $_ => 1 } grep { /^experimental::/ } @keys;
