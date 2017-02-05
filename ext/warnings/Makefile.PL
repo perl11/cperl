@@ -4,8 +4,8 @@ WriteMakefile(
     'VERSION_FROM'	=> 'warnings.pm',
     'PL_FILES'		=> { 'warnings_xs.PL' => 'warnings.xs' },
     'PM' => {
-        'warnings.pm'   => '$(INST_LIBDIR)/warnings.pm'
-        'register.pm'   => '$(INST_LIBDIR)/warnings/register.pm'
+        'warnings.pm'   => '$(INST_LIBDIR)/warnings.pm',
+        'register.pm'   => '$(INST_LIBDIR)/warnings/register.pm',
     },
 );
 

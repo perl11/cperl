@@ -5368,7 +5368,8 @@ ext/VMS-Stdio/Stdio.xs		VMS options to stdio routines
 ext/VMS-Stdio/t/vms_stdio.t	regression tests for VMS::Stdio
 ext/warnings/Makefile.PL	XS warnings extension makefile writer
 ext/warnings/register.pm	warnings::register extension
-ext/warnings/warnings.boot	miniperl compatible warnings for bootstrap only
+ext/warnings/typemap		extension typemap
+ext/warnings/warnings.boot	miniperl disabled warnings for bootstrap only
 ext/warnings/warnings.pm	warnings extension
 ext/warnings/warnings.t		Test warnings
 ext/warnings/warnings.xs	Pre-generated warnings.xs hash

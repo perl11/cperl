@@ -1668,6 +1668,9 @@ warnings_boot : lib/warnings/register.pm FORCE
 
 warnings_post : lib/warnings.pm lib/warnings/register.pm
 
+ext/warnings/warnings.xs : ext/warnings/warnings_xs.in $(MINIPERL_EXE)
+	$(MINIPERL) ext/warnings/warnings_xs.PL
+
 d_dummy $(dynamic_ext):	preplibrary makeppport $(DYNALOADER) FORCE $(PERLEXPORT) $(LIBPERL)
 	$(MINIPERL) make_ext.pl $@ $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=dynamic
 

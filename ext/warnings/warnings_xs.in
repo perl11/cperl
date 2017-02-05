@@ -8,7 +8,8 @@ ext/warnings/warnings.xs - gperf generated read-only warnings hash as shared lib
 
 =head1 DESCRIPTION
 
-Generated warnings hash from F<ext/warnings/warnings_xs.in> via F<ext/warnings/warnings_xs.PL>
+Generated warnings hash from F<ext/warnings/warnings_xs.in>
+via F<ext/warnings/warnings_xs.PL>
 
 C<gperf --output-file=ext/warnings/warnings.xs ext/warnings/warnings_xs.in>
 with cleanups for header, inline, C++ and c89.
@@ -61,6 +62,7 @@ Generated lookup function to access to read-only compile-time part of the hash.
 #define WFATAL   2
 #define WMESSAGE 4
 
+typedef UV HASHOBJ;
 #define AV_PUSH(av, val) av_store(av, AvFILLp(av)+1, val)
 
 struct Perl_warnings { int name; const U8 offset; const char *bits; const char *deadbits; };
@@ -392,6 +394,9 @@ _set_warn_bits(const char *func, const char* arg, SV *mask) {
                  pv_display( dsv, SvPVX(mask), SvCUR(mask), SvCUR(mask), 80));
         SvREFCNT_dec(dsv);
     }
+#else
+    PERL_UNUSED_ARG(func);
+    PERL_UNUSED_ARG(arg);
 #endif
     if (PL_dowarn & G_WARN_ALL_MASK) return;
 #if 1
@@ -469,6 +474,7 @@ _do_bits(SV *mask, const SV * const word, int fatal, int nonfatal) {
 
 
 MODULE = warnings		PACKAGE = warnings
+PROTOTYPES: DISABLE
 
 void
 _bits (mask, ...)
@@ -531,7 +537,8 @@ PPCODE:
             mask = newWSVpvh(WARN_DEFAULTstring);
         }
     } else
-        mask = newSVpvn((char*)((STRLEN*)PL_compiling.cop_warnings+1), *PL_compiling.cop_warnings);
+        mask = newSVpvn((char*)((STRLEN*)PL_compiling.cop_warnings+1),
+                        *PL_compiling.cop_warnings);
 
     if (IsSet(SvPVX(mask), 0)) {
         if (!w_all) w_all = Perl_warnings_lookup("all", 3);
@@ -596,7 +603,8 @@ PPCODE:
             mask = newWSVpvh(WARN_DEFAULTstring);
         }
     } else
-        mask = newSVpvn((char*)((STRLEN*)PL_compiling.cop_warnings+1), *PL_compiling.cop_warnings);
+        mask = newSVpvn((char*)((STRLEN*)PL_compiling.cop_warnings+1),
+                        *PL_compiling.cop_warnings);
 
     if (IsSet(SvPVX(mask), 0)) {
         if (!w_all) w_all = Perl_warnings_lookup("all", 3);
@@ -605,7 +613,9 @@ PPCODE:
             do_vop(OP_BIT_OR, mask, mask, newWSVpv(w_all->deadbits));
     }
     /* push @_, 'all' if !@_ || @_==1 && $_[0] eq 'FATAL'; */
-    if ((items == 1) || (items == 2 && (SvPOK(ST(1)) && memEQs(SvPVX(ST(1)), SvCUR(ST(1)), "FATAL")))) {
+    if ((items == 1) ||
+        (items == 2 && (SvPOK(ST(1)) && memEQs(SvPVX(ST(1)), SvCUR(ST(1)), "FATAL"))))
+    {
         mPUSHs(newSVpvs("all"));
         ax--;
         items++;
@@ -761,7 +771,7 @@ PPCODE:
     XSRETURN_UNDEF;
 
 void
-keys()
+KEYS()
 PREINIT:
     int i;
     const int size = TOTAL_KEYWORDS;
@@ -785,19 +795,87 @@ PPCODE:
             PUSHs(key);
     }
 
+# in fact a HASHOBJ*
 void
-exists(category)
-         SV *category
+TIEHASH(classname)
+    SV * classname
+PREINIT:
+    SV * rv;
+    SV * tmp;
+CODE:
+    rv = sv_newmortal();
+    tmp = classname;
+    *SP = rv;
+    sv_setref_uv(rv, SvPVX(tmp), 0);
+    return;
+
+void
+FIRSTKEY(self)
+    HASHOBJ *self
+PREINIT:
+    const char *s = (const char *)stringpool;
+    size_t len;
+    STATIC_ASSERT_STMT(sizeof(stringpool_contents) > 1);
+CODE:
+    len = strlen(s);
+    *self = len + 1;
+    *SP = sv_2mortal(newSVpvn(aTHX_ s, len));
+    return;
+
+void
+NEXTKEY(self, lastkey)
+    HASHOBJ *self
+    SV *lastkey
+PREINIT:
+    SV * RETVAL;
+PPCODE:
+    PERL_UNUSED_VAR(lastkey);
+    SP++;
+    PUTBACK;
+    /* bounds check to avoid running off the end of stringpool */
+    if (*self < sizeof(stringpool_contents)) {
+        const char * key = (const char*)stringpool + *self;
+        size_t len = strlen(key);
+        *self += len + 1;
+        RETVAL = sv_2mortal(newSVpvn(aTHX_ key, len));
+    }
+    else
+        RETVAL = &PL_sv_undef;
+    *SP = RETVAL;
+    return;
+
+void
+FETCH(self, category)
+    SV* self
+    SV* category
+ALIAS:
+    EXISTS = 1
 PREINIT:
     const char *str = SvPVX(category);
     const IV len = SvCUR(category);
     const struct Perl_warnings *w = warnings_const_lookup(str, len);
+    const char* name = HvNAME(SvSTASH(SvRV(self)));
+    const bool isdead = name && strEQ(name, "warnings::_DeadBits");
 PPCODE:
-    if (!w) {
+    if (w) {
+        if (ix)
+            XSRETURN_YES;
+        else {
+            ST(0) = sv_2mortal(newWSVpv(isdead ? w->deadbits : w->bits));
+            XSRETURN(1);
+        }
+    } else {
         SV **bit;
         HV * const bits = get_hv("warnings::_Bits", 0);
         if (bits && ((bit = hv_fetch(bits, str, len, FALSE)))) {
-            XSRETURN_YES;
+            if (ix)
+                XSRETURN_YES;
+            else {
+                STRLEN len = SvCUR(*bit);
+                ST(0) = sv_2mortal(newSVpvn(SvPVX_const(*bit)+(isdead ? len/2 : 0),
+                                            len/2));
+                XSRETURN(1);
+            }
         }
     }
     XSRETURN_UNDEF;
@@ -806,12 +884,14 @@ BOOT:
 {
     GV *last_bit = gv_fetchpv("warnings::LAST_BIT", GV_ADDMULTI, SVt_IV);
     GV *bytes    = gv_fetchpv("warnings::BYTES", GV_ADDMULTI, SVt_IV);
-    HV * const bits = get_hv("warnings::_Bits", GV_ADD);
-    SV *bits_all = newWSVpvh(WARN_ALLstring);
-    sv_catsv(bits_all, newWSVpvh(WARN_DEADALLstring));
+    HV * const _bits = get_hv("warnings::_Bits", GV_ADD);
+    SV *bits_all     = newWSVpvh(WARN_ALLstring);
+    SV *deadbits_all = newWSVpvh(WARN_DEADALLstring);
+    sv_catsv(bits_all, deadbits_all);
     sv_upgrade(bits_all, SVt_PVIV);
     SvIV_set(bits_all, 0);
-    hv_store(bits, "all", 3, bits_all, 0);
+    hv_store(_bits, "all", 3, bits_all, 0);
     GvSV(last_bit) = newSViv(WARN_LAST_BIT);
     GvSV(bytes)    = newSViv(WARNsize);
 }
+

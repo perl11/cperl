@@ -9,8 +9,14 @@ unless ( __FILE__ =~ /(^|[\/\\])\Q${\__PACKAGE__}\E\.pmc?$/ ) {
     die("Incorrect use of pragma '${\__PACKAGE__}' at $f line $l.\n");
 }
 
+# needed for various modules (needs to be tied)
+our (%Bits, %DeadBits);
+
 if (defined &XSLoader::load) {
   XSLoader::load(__PACKAGE__, $VERSION);
+  @warnings::_Bits::ISA = @warnings::_DeadBits::ISA = ('warnings');
+  tie %Bits, 'warnings::_Bits';
+  tie %DeadBits, 'warnings::_DeadBits';
 } else { # for bootstrapping with miniperl
   eval 'sub register_categories {} sub _chk {0}';
 }
