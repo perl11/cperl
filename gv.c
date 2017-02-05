@@ -2647,7 +2647,7 @@ Perl_gp_free(pTHX_ GV *gv)
 	     && (IoTYPE(io) == IoTYPE_WRONLY ||
 		 IoTYPE(io) == IoTYPE_RDWR   ||
 		 IoTYPE(io) == IoTYPE_APPEND)
-	     && ckWARN_d(WARN_IO)
+             && (!PL_curcop || ckWARN_d(WARN_IO))
 	     && IoIFP(io) != PerlIO_stdin()
 	     && IoIFP(io) != PerlIO_stdout()
 	     && IoIFP(io) != PerlIO_stderr()
