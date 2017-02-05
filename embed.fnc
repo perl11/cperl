@@ -573,8 +573,8 @@ p	|Size_t	|do_trans	|NN SV* sv
 p	|UV	|do_vecget	|NN SV* sv|STRLEN offset|int size
 : Defined in doop.c, used only in mg.c (with /* XXX slurp this routine */)
 p	|void	|do_vecset	|NN SV* sv
-: Defined in doop.c, used only in pp.c
-p	|void	|do_vop		|I32 optype|NN SV* sv|NN SV* left|NN SV* right
+: Defined in doop.c, used in pp.c and warnings.xs
+Ap	|void	|do_vop		|I32 optype|NN SV* sv|NN SV* left|NN SV* right
 : Used in perly.y
 p	|OP*	|dofile		|NN OP* term|I32 force_builtin
 ApR	|U8	|dowantarray

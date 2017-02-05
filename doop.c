@@ -1011,6 +1011,14 @@ Perl_do_vecset(pTHX_ SV *sv)
     SvSETMAGIC(targ);
 }
 
+/*
+=for apidoc Ap|void|do_vop|I32 optype|NN SV* sv|NN SV* left|NN SV* right
+
+Do binary bit ops, on string or uint arguments.
+
+=cut
+*/
+
 void
 Perl_do_vop(pTHX_ I32 optype, SV *sv, SV *left, SV *right)
 {

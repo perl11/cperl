@@ -1386,6 +1386,7 @@ PERL_CALLCONV void	Perl_do_vecset(pTHX_ SV* sv)
 	assert(sv)
 
 PERL_CALLCONV void	Perl_do_vop(pTHX_ I32 optype, SV* sv, SV* left, SV* right)
+			__attribute__global__
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3)
 			__attribute__nonnull__(pTHX_4);
