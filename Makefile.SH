@@ -1657,14 +1657,10 @@ lib/warnings/register.pm : ext/warnings/register.pm
 lib/warnings.pm : ext/warnings/warnings.pm FORCE
 	test -f ext/warnings/Makefile || $(MINIPERL) make_ext.pl ext/warnings $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=dynamic $(STATIC_LDFLAGS)
 	$(MAKE) -C ext/warnings
-	echo Enabled warnings
-	$(RMS) lib/warnings.pm
-	$(CPS) ext/warnings/warnings.pm lib/warnings.pm
+	$(MINIPERL) miniwarn.pl perl
 
 warnings_boot : lib/warnings/register.pm FORCE
-	echo Disabled warnings
-	$(RMS) lib/warnings.pm
-	$(CPS) ext/warnings/warnings.boot lib/warnings.pm
+	$(MINIPERL) miniwarn.pl
 
 warnings_post : lib/warnings.pm lib/warnings/register.pm
 

@@ -5366,6 +5366,7 @@ ext/VMS-Stdio/Makefile.PL	MakeMaker driver for VMS::Stdio
 ext/VMS-Stdio/Stdio.pm		VMS options to stdio routines
 ext/VMS-Stdio/Stdio.xs		VMS options to stdio routines
 ext/VMS-Stdio/t/vms_stdio.t	regression tests for VMS::Stdio
+ext/warnings/Dummy.c		Persuade EUMM this is an XS
 ext/warnings/Makefile.PL	XS warnings extension makefile writer
 ext/warnings/register.pm	warnings::register extension
 ext/warnings/typemap		extension typemap
@@ -5932,7 +5933,7 @@ lib/vmsish.pm			Control VMS-specific behavior of Perl core
 lib/vmsish.t			Tests for vmsish.pm
 locale.c			locale-specific utility functions
 make_ext.pl			Used by Makefile to execute extension Makefiles
-make_patchnum.pl		Script to generate git_version.h and lib/Config_git.pl files for all OS'es
+make_patchnum.pl		Generate git_version.h and lib/Config_git.pl
 makedef.pl			Create symbol export lists for linking
 makedepend.SH			Precursor to makedepend
 Makefile.micro			microperl Makefile
@@ -5951,9 +5952,10 @@ mg_names.inc			Generated magic names used by dump.c
 mg_raw.h			Generated magic data used by generate_uudmap.c
 mg_vtable.h			Generated magic vtable data
 miniperlmain.c			Basic perl w/o dynamic loading or extensions
+miniwarn.pl			Switch between miniperl or perl warnings
 mkppport			A script that distributes ppport.h
 mkppport.lst			List of extensions that need a ppport.h
-mro_core.c				Method Resolution Order code
+mro_core.c			Method Resolution Order code
 myconfig.SH			Prints summary of the current configuration
 mydtrace.h			Support for optional DTrace probes
 NetWare/bat/Buildtype.bat	NetWare port

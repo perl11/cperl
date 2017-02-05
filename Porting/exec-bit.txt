@@ -32,6 +32,7 @@ installperl
 installman
 makedepend.SH
 metaconfig.SH
+miniwarn.pl
 myconfig.SH
 regen/embed.pl
 regen/feature.pl
