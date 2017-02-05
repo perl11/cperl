@@ -1,6 +1,7 @@
 #!/usr/bin/perl -wT
 
 use strict;
+use warnings;
 use Config;
 push @INC, '.';
 if (-f 't/test.pl') {
@@ -146,7 +147,11 @@ for my $module (sort keys %modules) {
 # warnings is now also a xs.
 my $numm = scalar(@DynaLoader::dl_modules);
 my $numl = scalar(@DynaLoader::dl_librefs);
-if (grep /^(warnings|Config)$/, @DynaLoader::dl_modules) {
+if (grep /^warnings$/, @DynaLoader::dl_modules) {
+  $numm--;
+  $numl--;
+}
+if (grep /^Config$/, @DynaLoader::dl_modules) {
   $numm--;
   $numl--;
 }
