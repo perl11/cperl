@@ -50,7 +50,7 @@ ok(! defined $dot->read,
 {
     local $@;
     eval { $redot = DirHandle->new( '.', '..' ); };
-    like($@, qr/^usage/,
+    like($@, qr/^(usage|Too many)/,
         "DirHandle constructor with too many arguments fails as expected");
 }
 
@@ -90,33 +90,33 @@ isa_ok($aadot, 'DirHandle');
 {
     local $@;
     eval { $aadot->open('.', '..'); };
-    like($@, qr/^usage/,
+    like($@, qr/^(usage|Too many)/,
         "'open' called with too many arguments fails as expected");
 }
 ok($aadot->open('.'), "Explicit call of 'open' method returns true value");
 {
     local $@;
     eval { $aadot->read('foobar'); };
-    like($@, qr/^usage/,
+    like($@, qr/^(usage|Too many)/,
         "'read' called with argument fails as expected");
 }
 {
     local $@;
     eval { $aadot->close('foobar'); };
-    like($@, qr/^usage/,
+    like($@, qr/^(usage|Too many)/,
         "'close' called with argument fails as expected");
 }
 {
     local $@;
     eval { $aadot->rewind('foobar'); };
-    like($@, qr/^usage/,
+    like($@, qr/^(usage|Too many)/,
         "'rewind' called with argument fails as expected");
 }
 
 {
     local $@;
-    eval { $bbdot = DirHandle::new(); };
-    like($@, qr/^usage/,
+    eval '$bbdot = DirHandle::new();';
+    like($@, qr/^(usage|Not enough)/,
         "DirHandle called as function but with no arguments fails as expected");
 }
 

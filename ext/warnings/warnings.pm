@@ -19,6 +19,7 @@ if (defined &XSLoader::load) {
   tie %DeadBits, 'warnings::_DeadBits';
 } else { # for bootstrapping with miniperl
   eval 'sub register_categories {} sub _chk {0}';
+  $^W = 0; # ${^WARNING_BITS} = "0"x18;
 }
 
 sub Croaker {
