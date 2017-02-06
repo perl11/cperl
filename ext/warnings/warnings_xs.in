@@ -449,20 +449,29 @@ _do_bits(SV *mask, const SV * const word, int fatal, int nonfatal) {
         const struct Perl_warnings *w
             = Perl_warnings_lookup(SvPVX_const(word), SvCUR(word));
         if (w) {
-            do_vop(OP_BIT_OR, mask, mask, newWSVpv(w->bits));
-            if (fatal)
-                do_vop(OP_BIT_OR, mask, mask, newWSVpv(w->deadbits));
+            SV *tmp = newWSVpv(w->bits);
+            do_vop(OP_BIT_OR, mask, mask, tmp);
+            SvREFCNT_dec(tmp);
+            if (fatal) {
+                tmp = newWSVpv(w->deadbits);
+                do_vop(OP_BIT_OR, mask, mask, tmp);
+                SvREFCNT_dec(tmp);
+            }
             if (nonfatal) {
                 U8 *p;
                 STRLEN j;
                 SV *tmp = newWSVpvs("");
-                do_vop(OP_BIT_OR, tmp, newWSVpv(w->deadbits), newWSVpvs("\3"));
+                SV *dead = newWSVpv(w->deadbits);
+                SV *three = newWSVpvs("\3");
+                do_vop(OP_BIT_OR, tmp, dead, three);
                 /* scomplement is static */
                 for (p=(U8*)SvPVX(tmp), j=0; j<SvCUR(tmp); j++) {
                     const U8 c = *p;
                     *p++ = ~c;
                 }
                 do_vop(OP_BIT_AND, mask, mask, tmp);
+                SvREFCNT_dec(three);
+                SvREFCNT_dec(dead);
                 SvREFCNT_dec(tmp);
             }
             return mask;
@@ -561,10 +570,16 @@ PPCODE:
                         *PL_compiling.cop_warnings);
 
     if (IsSet(SvPVX(mask), 0)) {
+        SV* tmp;
         if (!w_all) w_all = Perl_warnings_lookup("all", 3);
-        do_vop(OP_BIT_OR, mask, mask, newWSVpv(w_all->bits));
-        if (IsSet(SvPVX(mask), 1))
-            do_vop(OP_BIT_OR, mask, mask, newWSVpv(w_all->deadbits));
+        tmp = newWSVpv(w_all->bits);
+        do_vop(OP_BIT_OR, mask, mask, tmp);
+        SvREFCNT_dec(tmp);
+        if (IsSet(SvPVX(mask), 1)) {
+            tmp = newWSVpv(w_all->deadbits);
+            do_vop(OP_BIT_OR, mask, mask, tmp);
+            SvREFCNT_dec(tmp);
+        }
     }
     if (items > 1) {
         int i;
@@ -588,17 +603,22 @@ PPCODE:
         word = ST(1);
         /* push @_, 'all' if @_==1 && ( $_[0] eq 'FATAL' || $_[0] eq 'NONFATAL' ); */
         if (items == 2 && SvPOK(word)) {
+            SV* all = newSVpvs("all");
             if (memEQs(SvPVX(word), SvCUR(word), "FATAL"))
-                mask = _do_bits(mask, newSVpvs("all"), 1, 0);
+                mask = _do_bits(mask, all, 1, 0);
             else if (memEQs(SvPVX(word), SvCUR(word), "NONFATAL"))
-                mask = _do_bits(mask, newSVpvs("all"), 0, 1);
+                mask = _do_bits(mask, all, 0, 1);
+            SvREFCNT_dec(all);
         }
         _set_warn_bits("import", SvPVX(word), mask);
         SvREFCNT_dec(mask);
         XSRETURN_UNDEF;
     } else {
+        SV *tmp;
         if (!w_all) w_all = Perl_warnings_lookup("all", 3);
-        do_vop(OP_BIT_OR, mask, mask, newWSVpv(w_all->bits));
+        tmp = newWSVpv(w_all->bits);
+        do_vop(OP_BIT_OR, mask, mask, tmp);
+        SvREFCNT_dec(tmp);
         _set_warn_bits("import", "", mask);
         mXPUSHs(mask);
         XSRETURN(1);
@@ -629,10 +649,16 @@ PPCODE:
                         *PL_compiling.cop_warnings);
 
     if (IsSet(SvPVX(mask), 0)) {
+        SV *tmp;
         if (!w_all) w_all = Perl_warnings_lookup("all", 3);
-        do_vop(OP_BIT_OR, mask, mask, newWSVpv(w_all->bits));
-        if (IsSet(SvPVX(mask), 1))
-            do_vop(OP_BIT_OR, mask, mask, newWSVpv(w_all->deadbits));
+        tmp = newWSVpv(w_all->bits);
+        do_vop(OP_BIT_OR, mask, mask, tmp);
+        SvREFCNT_dec(tmp);
+        if (IsSet(SvPVX(mask), 1)) {
+            tmp = newWSVpv(w_all->deadbits);
+            do_vop(OP_BIT_OR, mask, mask, tmp);
+            SvREFCNT_dec(tmp);
+        }
     }
     /* push @_, 'all' if !@_ || @_==1 && $_[0] eq 'FATAL'; */
     if ((items == 1) ||
@@ -653,13 +679,17 @@ PPCODE:
             if (w) { /* $mask &= ~($catmask | $DeadBits{$word} | $All); */
                 STRLEN j; U8 *p;
                 SV *catmask = newWSVpv(w->bits);
-                do_vop(OP_BIT_OR, catmask, catmask, newWSVpv(w->deadbits));
-                do_vop(OP_BIT_OR, catmask, catmask, newWSVpvs("\3")); /* $All */
+                SV *dead    = newWSVpv(w->deadbits);
+                SV *three   = newWSVpvs("\3");
+                do_vop(OP_BIT_OR, catmask, catmask, dead);
+                do_vop(OP_BIT_OR, catmask, catmask, three); /* $All */
                 for (p=(U8*)SvPVX(catmask), j=0; j<SvCUR(catmask); j++) {
                     const U8 c = *p;
                     *p++ = ~c;
                 }
                 do_vop(OP_BIT_AND, mask, mask, catmask);
+                SvREFCNT_dec(three);
+                SvREFCNT_dec(dead);
                 SvREFCNT_dec(catmask);
             } else {
                 SV *msg = newSVpvs("Unknown warnings category '");
@@ -793,7 +823,6 @@ PPCODE:
                 sv_catsv(bits, dead);
                 sv_upgrade(bits, SVt_PVIV);
                 SvIV_set(bits, 0);
-                SvREFCNT_dec(dead);
                 hv_store(bith, "all", 3, bits, 0);
             } else { /* existing $_Bits{all} */
                 U32 l = SvCUR(wd->base) / 2;
@@ -819,6 +848,7 @@ PPCODE:
             SvREADONLY_off(last_bitsv);
             SvIV_set(last_bitsv, last_bit);
             SvREADONLY_on(last_bitsv);
+            SvREFCNT_dec(dead);
 #ifdef DEBUGGING
             if (DEBUG_v_TEST_) {
                 SV *dsv = newSVpvn("", 80);
@@ -858,7 +888,7 @@ PPCODE:
             HE *he = hv_iternext(bits);
             SV *key = hv_iterkeysv(he);
             if (strnNE(SvPVX(key), "all", SvCUR(key)))
-                mPUSHs(key);
+                PUSHs(key);
         }
     }
 

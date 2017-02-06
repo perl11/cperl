@@ -9,11 +9,11 @@ BEGIN { eval { require feature } };
 use Carp qw/croak carp/;
 
 my @keys = keys %warnings::Offsets;
+my %warnings = map { $_ => 1 } grep { /^experimental::/ } @keys;
 unless (@keys and defined &warnings::KEYS) { # XS warnings
-	@keys = grep { /^experimental::/ } warnings::KEYS();
+	%warnings = map { $_ => 1} grep { /^experimental::/ } warnings::KEYS();
 }
 
-my %warnings = map { $_ => 1 } grep { /^experimental::/ } @keys;
 my %features = map { $_ => 1 } $] > 5.015006 ? keys %feature::feature : do {
 	my @features;
 	if ($] >= 5.010) {

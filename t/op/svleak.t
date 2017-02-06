@@ -4,6 +4,12 @@
 # sv_count available, allowing us to run a bit of code multiple times and
 # see if the count increases.
 
+# Other ways to inspect svleaks:
+# warnings->import("misc") leaked.
+#   PERL_HASH_SEED=0 cperl -MInternals::DumpArenas=DumpArenasFd \
+#   -E'use warnings;for (1..3){open $f,">x$_";warnings->import("misc");DumpArenasFd($_+2);close $f}'
+# Dumps the arenas in 3 loops to files x1, x2, x3
+
 BEGIN {
     chdir 't' if -d 't';
     @INC = '../lib';
