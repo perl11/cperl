@@ -1259,7 +1259,7 @@ sub skip ( str $why = "", Numeric $how_many = 0) {
     unless ($how_many) {
         # $how_many can only be avoided when no_plan is in use.
         _carp "skip() needs to know \$how_many tests are in the block"
-          unless $tb->has_plan eq 'no_plan';
+          if !defined($tb->has_plan) or $tb->has_plan ne 'no_plan';
         $how_many = 1;
     }
 
@@ -1338,10 +1338,10 @@ interpret them as passing.
 sub todo_skip ( str $why = "", Numeric $how_many = 0) {
     my $tb = Test::More->builder;
 
-    unless( $how_many ) {
+    unless ($how_many) {
         # $how_many can only be avoided when no_plan is in use.
         _carp "todo_skip() needs to know \$how_many tests are in the block"
-          unless $tb->has_plan eq 'no_plan';
+          if !defined($tb->has_plan) or $tb->has_plan ne 'no_plan';
         $how_many = 1;
     }
 
