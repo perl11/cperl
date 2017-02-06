@@ -710,7 +710,8 @@ $(MANIFEST_SRT):	MANIFEST $(PERL_EXE)
 # by make_patchnum.pl.
 git_version.h: lib/Config_git.pl
 git_version.sh: lib/Config_git.pl
-lib/Config_git.pl: $(MINIPERL_EXE) make_patchnum.pl
+# requires warnings
+lib/Config_git.pl: $(MINIPERL_EXE) mini_boot make_patchnum.pl
 	$(MINIPERL) make_patchnum.pl
 
 # make sure that we recompile perl.c if the git version changes
@@ -1131,7 +1132,7 @@ lib/buildcustomize.pl: $& $(miniperl_dep) write_buildcustomize.pl
 
 	$spitshell >>$Makefile <<'!NO!SUBS!'
 
-$(PERL_EXE): $& $(perlmain_dep) $(LIBPERL) $(static_ext) $(boot_ext) ext.libs $(PERLEXPORT) write_buildcustomize.pl
+$(PERL_EXE): $& $(perlmain_dep) $(LIBPERL) $(static_ext) $(boot_ext) ext.libs $(PERLEXPORT) write_buildcustomize.pl mini_post
 	-@rm -f miniperl.xok
 !NO!SUBS!
 
@@ -1655,14 +1656,15 @@ lib/warnings/register.pm : ext/warnings/register.pm
 	$(CPS) ext/warnings/register.pm lib/warnings/
 
 lib/warnings.pm : ext/warnings/warnings.pm FORCE
-	test -f ext/warnings/Makefile || $(MINIPERL) make_ext.pl ext/warnings $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=dynamic $(STATIC_LDFLAGS)
-	$(MAKE) -C ext/warnings
+	if test -f ext/warnings/Makefile; then \
+          $(MAKE) -C ext/warnings; else \
+          $(MINIPERL) make_ext.pl ext/warnings $(MAKE_EXT_ARGS) MAKE="$(MAKE)" LIBPERL_A=$(LIBPERL) LINKTYPE=dynamic $(STATIC_LDFLAGS); fi
 	$(MINIPERL) miniwarn.pl perl
 
 warnings_boot : lib/warnings/register.pm FORCE
 	$(MINIPERL) miniwarn.pl
 
-warnings_post : lib/warnings.pm lib/warnings/register.pm
+warnings_post : ext/warnings/warnings.xs lib/warnings.pm lib/warnings/register.pm FORCE
 
 ext/warnings/warnings.xs : ext/warnings/warnings_xs.in $(MINIPERL_EXE)
 	$(MINIPERL) ext/warnings/warnings_xs.PL

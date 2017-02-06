@@ -14,12 +14,15 @@ via F<ext/warnings/warnings_xs.PL>
 C<gperf --output-file=ext/warnings/warnings.xs ext/warnings/warnings_xs.in>
 with cleanups for header, inline, C++ and c89.
 
-The hashes C<%Bits>, C<%DeadBits> are tied to the the values in the
-const wordlist perfect hash.  Only the C<all> key is writable, but the
-hash is extendable.  Every read-access goes first through the perfect
-hash, and then into a normal perl hash, to be able to register custom
-user-categories. We assume almost nobody needs to create his own user
-category, so penalize this.
+The old external hashes C<%Bits>, C<%DeadBits> are tied to the
+values in the const wordlist perfect hash.  Only the C<all> key is
+writable, but the hash is extendable.  Every read-access goes first
+through the perfect hash, and then into a normal perl hash, to be able
+to register custom user-categories. We assume almost nobody needs to
+create his own user category, so penalize this.
+
+For "all", if C<%_Bits> exists, i.e. user category warnings were added, 
+"all is taken from there, otherwise from the initial const hash.
 
 =over 4
 
@@ -68,6 +71,7 @@ typedef UV HASHOBJ;
 struct Perl_warnings { int name; const U8 offset; const char *bits; const char *deadbits; };
 struct Perl_warnings_dyn { int name; U8 offset; char *bits; char *deadbits; SV *base; };
 struct Perl_warnings_dyn ws;
+struct Perl_warnings_dyn wall;
 struct Perl_warnings *
 Perl_warnings_lookup (register const char *str, register unsigned int len);
 
@@ -83,89 +87,90 @@ Perl_warnings_lookup (register const char *str, register unsigned int len);
 struct Perl_warnings;
 %%
 all, 0, WARN_ALLstring, WARN_DEADALLstring
-closure, 2, "\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-deprecated, 4, "\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-exiting, 6, "\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-glob, 8, "\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-io, 10, "\0\124\125\0\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\250\252\0\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-closed, 12, "\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-exec, 14, "\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-layer, 16, "\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-newline, 18, "\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-pipe, 20, "\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-unopened, 22, "\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-misc, 24, "\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-numeric, 26, "\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-once, 28, "\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-overflow, 30, "\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-pack, 32, "\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-portable, 34, "\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-recursion, 36, "\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-redefine, 38, "\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-regexp, 40, "\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-severe, 42, "\0\0\0\0\0\124\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\250\12\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-debugging, 44, "\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-inplace, 46, "\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-internal, 48, "\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-malloc, 50, "\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-signal, 52, "\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-substr, 54, "\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-syntax, 56, "\0\0\0\0\0\0\0\125\125\25\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\252\252\52\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-ambiguous, 58, "\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-bareword, 60, "\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-digit, 62, "\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-parenthesis, 64, "\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-precedence, 66, "\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-printf, 68, "\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-prototype, 70, "\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-qw, 72, "\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-reserved, 74, "\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-semicolon, 76, "\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-taint, 78, "\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-threads, 80, "\0\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-uninitialized, 82, "\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-unpack, 84, "\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-untie, 86, "\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-utf8, 88, "\0\0\0\0\0\0\0\0\0\0\0\1\25\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\2\52\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-void, 90, "\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-imprecision, 92, "\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-illegalproto, 94, "\0\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-non_unicode, 96, "\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-nonchar, 98, "\0\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-surrogate, 100, "\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental, 102, "\0\0\0\0\0\0\0\0\0\0\0\0\100\125\25\125\1\104\1\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\200\252\52\252\2\210\2\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::lexical_subs, 104, "\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::lexical_topic, 106, "\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::regex_sets, 108, "\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::smartmatch, 110, "\0\0\0\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::autoderef, 112, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::postderef, 114, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::signatures, 116, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-syscalls, 118, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::bitwise, 120, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::const_attr, 122, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::re_strict, 124, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::refaliasing, 126, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::win32_perlio, 128, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-locale, 130, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-missing, 132, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-redundant, 134, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-types, 136, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::declared_refs, 138, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-security, 140, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::alpha_assertions, 142, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-experimental::script_run, 144, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0"
-shadow, 146, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0"
+closure, 2, "\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+deprecated, 4, "\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+exiting, 6, "\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+glob, 8, "\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+io, 10, "\0\124\125\0\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0", "\0\250\252\0\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0"
+closed, 12, "\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+exec, 14, "\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+layer, 16, "\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+newline, 18, "\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+pipe, 20, "\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+unopened, 22, "\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+misc, 24, "\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+numeric, 26, "\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+once, 28, "\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+overflow, 30, "\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+pack, 32, "\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+portable, 34, "\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+recursion, 36, "\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+redefine, 38, "\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+regexp, 40, "\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0\0"
+severe, 42, "\0\0\0\0\0\124\5\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\250\12\0\0\0\0\0\0\0\0\0\0\0\0"
+debugging, 44, "\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0\0"
+inplace, 46, "\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0\0"
+internal, 48, "\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\0"
+malloc, 50, "\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0\0"
+signal, 52, "\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0\0"
+substr, 54, "\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0\0"
+syntax, 56, "\0\0\0\0\0\0\0\125\125\25\0\100\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\252\252\52\0\200\0\0\0\0\0\0\0"
+ambiguous, 58, "\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0"
+bareword, 60, "\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0\0"
+digit, 62, "\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0\0"
+parenthesis, 64, "\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0\0"
+precedence, 66, "\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0\0"
+printf, 68, "\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0\0"
+prototype, 70, "\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0\0"
+qw, 72, "\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0\0"
+reserved, 74, "\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0\0"
+semicolon, 76, "\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0\0"
+taint, 78, "\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0\0"
+threads, 80, "\0\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0\0\0"
+uninitialized, 82, "\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0\0"
+unpack, 84, "\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0\0"
+untie, 86, "\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0\0"
+utf8, 88, "\0\0\0\0\0\0\0\0\0\0\0\1\25\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\2\52\0\0\0\0\0\0"
+void, 90, "\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0"
+imprecision, 92, "\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0\0"
+illegalproto, 94, "\0\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0\0\0"
+non_unicode, 96, "\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0\0"
+nonchar, 98, "\0\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0\0"
+surrogate, 100, "\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0\0"
+experimental, 102, "\0\0\0\0\0\0\0\0\0\0\0\0\100\125\25\125\1\104\1", "\0\0\0\0\0\0\0\0\0\0\0\0\200\252\52\252\2\210\2"
+experimental::lexical_subs, 104, "\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\0\0"
+experimental::lexical_topic, 106, "\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0\0"
+experimental::regex_sets, 108, "\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0\0"
+experimental::smartmatch, 110, "\0\0\0\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0\0"
+experimental::autoderef, 112, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\0"
+experimental::postderef, 114, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0\0"
+experimental::signatures, 116, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\40\0\0\0\0"
+syscalls, 118, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\100\0\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\200\0\0\0\0"
+experimental::bitwise, 120, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0"
+experimental::const_attr, 122, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0\0"
+experimental::re_strict, 124, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\40\0\0\0"
+experimental::refaliasing, 126, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\100\0\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\200\0\0\0"
+experimental::win32_perlio, 128, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\2\0\0"
+locale, 130, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0\0"
+missing, 132, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\40\0\0"
+redundant, 134, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\100\0\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\200\0\0"
+types, 136, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\2\0"
+experimental::declared_refs, 138, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\10\0"
+security, 140, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\40\0"
+experimental::alpha_assertions, 142, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\100\0", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\200\0"
+experimental::script_run, 144, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\2"
+shadow, 146, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4", "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\10"
 %%
 
 /* We really need to zero the bits */
 static SV *
 newWSV(const char *str, const int len) {
-    SV *sv = newSV(WARN_MAX_BYTES);
+    int nlen = len ? len : WARN_MAX_BYTES;
+    SV *sv = newSV(nlen);
     /*SvUPGRADE(sv, SVt_PV); --unneeded*/
-    SvCUR_set(sv, WARN_MAX_BYTES);
+    SvCUR_set(sv, nlen);
     SvPOK_on(sv);
-    Zero(SvPVX(sv), WARN_MAX_BYTES, char);
+    Zero(SvPVX(sv), nlen, char);
     if (len)
         Move(str, SvPVX(sv), len, char);
     return sv;
@@ -181,22 +186,28 @@ newWSV(const char *str, const int len) {
 struct Perl_warnings *
 Perl_warnings_lookup (register const char *str, register unsigned int len) {
     const struct Perl_warnings *w = warnings_const_lookup(str, len);
-    if (memEQs(str, len, "all") || !w) {
+    const bool is_all = memEQs(str, len, "all");
+    if (is_all || !w) {
         SV **bit;
         HV * const bits = get_hv("warnings::_Bits", 0);
-        SvREADONLY_off(bits);
-        if (bits && ((bit = hv_fetch(bits, str, len, FALSE)))) {
-            char *p = SvPVX(*bit);
-            struct Perl_warnings_dyn *w1 = &ws;
-            STRLEN l = SvCUR(*bit) / 2;
-            w1->offset   = SvIVX(*bit);
-            w1->bits     = p;
-            w1->deadbits = p + l;
-            w1->base = *bit;
+        if (bits && HvTOTALKEYS(bits)) {
+            SvREADONLY_off(bits);
+            if ((bit = hv_fetch(bits, str, len, FALSE))) {
+                char *p = SvPVX(*bit);
+                /* use the static temp. buffer */
+                struct Perl_warnings_dyn *wd = is_all ? &wall : &ws;
+                STRLEN l = SvCUR(*bit) / 2;
+                wd->offset   = SvIVX(*bit);
+                wd->bits     = p;
+                wd->deadbits = p + l;
+                wd->base     = *bit;
+                SvREADONLY_on(bits);
+                return (struct Perl_warnings *)wd;
+            }
             SvREADONLY_on(bits);
-            return (struct Perl_warnings *)w1;
+        } else if (is_all) { /* old all */
+            return (struct Perl_warnings *)w;
         } else {
-            SvREADONLY_on(bits);
             return NULL;
         }
     }
@@ -326,7 +337,11 @@ static int _chk(const char *sub, const U32 flags, I32 ax) {
     else if (old_warnings == pWARN_ALL ||
              (old_warnings == pWARN_STD && (PL_dowarn & G_WARN_ON))) {
         const struct Perl_warnings *w_all = Perl_warnings_lookup("all", 3);
-        mask = newWSVpv(w_all->bits);
+        HV * const bits = get_hv("warnings::_Bits", 0);
+        if (bits && HvTOTALKEYS(bits))
+            mask = newWSV(w_all->bits, SvCUR(((struct Perl_warnings_dyn*)w_all)->base));
+        else
+            mask = newWSVpvh(w_all->bits);
     }
     else {
         assert(!specialWARN(old_warnings));
@@ -431,7 +446,8 @@ _set_warn_bits(const char *func, const char* arg, SV *mask) {
 static SV*
 _do_bits(SV *mask, const SV * const word, int fatal, int nonfatal) {
     if (SvPOK(word)) {
-        const struct Perl_warnings *w = Perl_warnings_lookup(SvPVX_const(word), SvCUR(word));
+        const struct Perl_warnings *w
+            = Perl_warnings_lookup(SvPVX_const(word), SvCUR(word));
         if (w) {
             do_vop(OP_BIT_OR, mask, mask, newWSVpv(w->bits));
             if (fatal)
@@ -488,7 +504,7 @@ PREINIT:
     int fatal = 0, no_fatal = 0;
 PPCODE:
     if (!SvPOK(mask))
-        mask = newWSVpvh(WARN_NONEstring);
+        mask = sv_2mortal(newWSVpvh(WARN_NONEstring));
     for (i=1; i<items; i++) {
         SV *word = ST(i);
         if (SvPOK(word)) {
@@ -578,6 +594,8 @@ PPCODE:
                 mask = _do_bits(mask, newSVpvs("all"), 0, 1);
         }
         _set_warn_bits("import", SvPVX(word), mask);
+        SvREFCNT_dec(mask);
+        XSRETURN_UNDEF;
     } else {
         if (!w_all) w_all = Perl_warnings_lookup("all", 3);
         do_vop(OP_BIT_OR, mask, mask, newWSVpv(w_all->bits));
@@ -630,7 +648,8 @@ PPCODE:
         if (memEQs(SvPVX(word), SvCUR(word), "FATAL"))
             continue;
         else {
-            const struct Perl_warnings *w = Perl_warnings_lookup(SvPVX(word), SvCUR(word));
+            const struct Perl_warnings *w
+                = Perl_warnings_lookup(SvPVX(word), SvCUR(word));
             if (w) { /* $mask &= ~($catmask | $DeadBits{$word} | $All); */
                 STRLEN j; U8 *p;
                 SV *catmask = newWSVpv(w->bits);
@@ -717,62 +736,100 @@ PPCODE:
         SV *name = ST(i);
         char* n;
         struct Perl_warnings *w;
-        struct Perl_warnings_dyn *wd;
         STRLEN l = SvCUR(name);
         if (!SvPOK(name)) continue;
         n = SvPVX(name);
         w = Perl_warnings_lookup(n, l);
         if (!w) { /* oops, a new category. Add to dynamic %_Bits */
+            struct Perl_warnings_dyn* wd = NULL;
             HV * const bith = get_hv("warnings::_Bits", GV_ADD);
-            SV **bit;
+            SV *last_bitsv  = get_sv("warnings::LAST_BIT", 0);
+            IV last_bit = SvIVX(last_bitsv);
+            IV offset = last_bit + 1;
+            SV *bytes = get_sv("warnings::BYTES", 0);
+            SV *bits = newWSVpvs("");
+            SV *dead = newWSVpvs("");
+            U32 nl = SvIVX(bytes);
+            char *b, *d;
+
+            /* with elements in %_Bits its guaranteed to return a dynamic wd,
+               otherwise the static w, which will ignore from now on */
+            if (HvTOTALKEYS(bith)) {
+                wd = (struct Perl_warnings_dyn *)Perl_warnings_lookup("all", 3);
+            }
+            
+            SvGROW(bits, nl*2);
+            SvGROW(dead, nl);
+            SvCUR_set(bits, nl);
+            SvCUR_set(dead, nl);
+            b = SvPVX(bits);
+            d = SvPVX(dead);
+            b[ Off(last_bit) ] |= Bit(last_bit);
+            d[ Off(offset) ]   |= Bit(offset);
+            sv_catsv(bits, dead);
+            sv_upgrade(bits, SVt_PVIV);
+            SvIV_set(bits, last_bit);
             SvREADONLY_off(bith);
-            if (!(bit = hv_fetch(bith, n, l, FALSE))) {
-                SV *last_bitsv = get_sv("warnings::LAST_BIT", 0);
-                IV last_bit = SvIVX(last_bitsv);
-                SV *bytes = get_sv("warnings::BYTES", 0);
-                IV offset = last_bit + 1;
-                SV *bits = newWSVpvs("");
-                SV *deadbits = newWSVpvs("");
-                char *b = SvPVX(bits);
-                char *d = SvPVX(deadbits);
+            hv_store_ent(bith, name, bits, 0);
+#ifdef DEBUGGING
+            if (DEBUG_v_TEST_) {
+                SV *dsv = newSVpvn("", 80);
+                Perl_deb("warnings::register_categories %s %s\n", n,
+                         pv_display( dsv, SvPVX(bits), SvCUR(bits), WARN_MAX_BYTES, 80));
+                SvREFCNT_dec(dsv);
+            }
+#endif
+            /* also extend "all" */
+            if (!wd) { /* fresh */
+                bits = newWSVpvs("");
+                SvGROW(bits, nl*2);
+                Move(WARN_ALLstring, SvPVX_const(bits), nl, char);
+                Move(WARN_DEADALLstring, SvPVX_const(dead), nl, char);
+                SvCUR_set(bits, nl);
+                b = SvPVX(bits);
+                d = SvPVX(dead);
                 b[ Off(last_bit) ] |= Bit(last_bit);
                 d[ Off(offset) ]   |= Bit(offset);
-                sv_catsv(bits, deadbits);
+                sv_catsv(bits, dead);
                 sv_upgrade(bits, SVt_PVIV);
-                SvIV_set(bits, last_bit);
-                hv_store_ent(bith, name, bits, 0);
-                /* now extend "all" */
-                wd = (struct Perl_warnings_dyn *)Perl_warnings_lookup("all", 3);
-                wd->bits[ Off(last_bit) ]   |= Bit(last_bit);
+                SvIV_set(bits, 0);
+                SvREFCNT_dec(dead);
+                hv_store(bith, "all", 3, bits, 0);
+            } else { /* existing $_Bits{all} */
+                U32 l = SvCUR(wd->base) / 2;
+                bits = wd->base;
+                if (nl > l) {
+                    SvGROW(bits, nl*2);
+                    SvCUR_set(bits, nl);
+                    wd->bits = SvPVX(bits);
+                    Move(wd->deadbits, wd->bits + l, nl, char);
+                    wd->deadbits = wd->bits + nl;
+                }
+                wd->bits[   Off(last_bit) ] |= Bit(last_bit);
                 wd->deadbits[ Off(offset) ] |= Bit(offset);
-                SvIV_set(bits, last_bit);
-                SvREADONLY_on(bits);
-                last_bit = offset + 1;
-                if (Off(last_bit) > SvIVX(bytes)) {
-                    SvREADONLY_off(bytes);
-                    SvIV_set(bytes, Off(last_bit));
-                    SvREADONLY_on(bytes);
-                    if (Off(last_bit) > WARN_MAX_BYTES) /* This is a new cperl limitation */
-                        croak("Internal error: Cannot register more than 255 warnings");
-                }
-                SvREADONLY_off(last_bitsv);
-                SvIV_set(last_bitsv, last_bit);
-                SvREADONLY_on(last_bitsv);
-#ifdef DEBUGGING
-                if (DEBUG_v_TEST_) {
-                    SV *dsv = newSVpvn("", 80);
-                    Perl_deb("warnings::register_categories %s %s\n", n,
-                             pv_display( dsv, SvPVX(bits), WARN_MAX_BYTES, WARN_MAX_BYTES, 80));
-                    Perl_deb(" all=%s, BYTES=%ld, LAST_BIT=%ld\n",
-                             pv_display( dsv, wd->bits, WARN_MAX_BYTES, WARN_MAX_BYTES, 80),
-                             SvIVX(bytes), last_bit);
-                    SvREFCNT_dec(dsv);
-                }
-#endif
-                /* we need to update ${^WARNING_BITS}/cop_warnings also? */
-                /* _set_warn_bits("register_categories", n, newWSV(wd->bits, SvIVX(bytes))); */
             }
             SvREADONLY_on(bith);
+
+            last_bit = offset + 1;
+            if (Off(last_bit) > SvIVX(bytes)) {
+                SvREADONLY_off(bytes);
+                SvIV_set(bytes, Off(last_bit));
+                SvREADONLY_on(bytes);
+            }
+            SvREADONLY_off(last_bitsv);
+            SvIV_set(last_bitsv, last_bit);
+            SvREADONLY_on(last_bitsv);
+#ifdef DEBUGGING
+            if (DEBUG_v_TEST_) {
+                SV *dsv = newSVpvn("", 80);
+                Perl_deb(" all=%s, BYTES=%ld, LAST_BIT=%ld\n",
+                         pv_display( dsv, SvPVX(bits), SvCUR(bits), WARN_MAX_BYTES, 80),
+                         SvIVX(bytes), last_bit);
+                SvREFCNT_dec(dsv);
+            }
+#endif
+            /* we need to update ${^WARNING_BITS}/cop_warnings also? */
+            /* _set_warn_bits("register_categories", n, newWSV(wd->bits, SvIVX(bytes))); */
         }
     }
     XSRETURN_UNDEF;
@@ -784,22 +841,25 @@ PREINIT:
     const int size = TOTAL_KEYWORDS;
     char *s = (char *)stringpool;
     HV * const bits = get_hv("warnings::_Bits", 0);
-    I32 len = HvTOTALKEYS(bits);
 PPCODE:
     /* Note: This is highly gperf dependent! */
-    EXTEND(sp, size+len);
+    EXTEND(sp, size);
     for (i=0; i<size; i++) {
         int l = strlen(s);
         mPUSHp(s, l);
         s += l+1;
     }
-    /* And now the dynamic bits */
-    hv_iterinit(bits);
-    for (i = 0; i < len; i++) {
-        HE *he = hv_iternext(bits);
-        SV *key = hv_iterkeysv(he);
-        if (strnNE(SvPVX(key), "all", SvCUR(key)))
-            PUSHs(key);
+    if (bits) {
+        I32 len = HvTOTALKEYS(bits);
+        EXTEND(sp, len);
+        /* And now the dynamic bits */
+        hv_iterinit(bits);
+        for (i = 0; i < len; i++) {
+            HE *he = hv_iternext(bits);
+            SV *key = hv_iterkeysv(he);
+            if (strnNE(SvPVX(key), "all", SvCUR(key)))
+                mPUSHs(key);
+        }
     }
 
 # in fact a HASHOBJ*
@@ -875,19 +935,21 @@ PPCODE:
     } else {
         SV **bit;
         HV * const bits = get_hv("warnings::_Bits", 0);
-        SvREADONLY_off(bits);
-        if (bits && ((bit = hv_fetch(bits, str, len, FALSE)))) {
-            SvREADONLY_on(bits);
-            if (ix)
-                XSRETURN_YES;
-            else {
-                STRLEN len = SvCUR(*bit);
-                ST(0) = sv_2mortal(newSVpvn(SvPVX_const(*bit)+(isdead ? len/2 : 0),
-                                            len/2));
-                XSRETURN(1);
+        if (bits) {
+            SvREADONLY_off(bits);
+            if ((bit = hv_fetch(bits, str, len, FALSE))) {
+                SvREADONLY_on(bits);
+                if (ix)
+                    XSRETURN_YES;
+                else {
+                    STRLEN len = SvCUR(*bit);
+                    ST(0) = sv_2mortal(newSVpvn(SvPVX_const(*bit)+(isdead ? len/2 : 0),
+                                                len/2));
+                    XSRETURN(1);
+                }
             }
+            SvREADONLY_on(bits);
         }
-        SvREADONLY_on(bits);
     }
     XSRETURN_UNDEF;
 
@@ -895,16 +957,8 @@ BOOT:
 {
     GV *last_bit = gv_fetchpv("warnings::LAST_BIT", GV_ADDMULTI, SVt_IV);
     GV *bytes    = gv_fetchpv("warnings::BYTES", GV_ADDMULTI, SVt_IV);
-    HV * const _bits = get_hv("warnings::_Bits", GV_ADD);
-    SV *bits_all     = newWSVpvh(WARN_ALLstring);
-    SV *deadbits_all = newWSVpvh(WARN_DEADALLstring);
-    sv_catsv(bits_all, deadbits_all);
-    sv_upgrade(bits_all, SVt_PVIV);
-    SvIV_set(bits_all, 0);
-    hv_store(_bits, "all", 3, bits_all, 0);
     GvSV(last_bit) = newSViv(WARN_LAST_BIT);
     SvREADONLY_on(GvSV(last_bit));
     GvSV(bytes)    = newSViv(WARNsize);
     SvREADONLY_on(GvSV(bytes));
-    SvREADONLY_on(_bits);
 }

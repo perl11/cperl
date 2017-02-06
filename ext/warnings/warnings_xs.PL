@@ -380,10 +380,8 @@ EOM
   print $warn tab(6, '#define WARN_LAST_BIT'),	" $index\n";
   print $warn tab(6, '#define WARNsize'),	" $warn_size\n";
   print $warn tab(6, '#define WARN_MAX_BYTES'),	" $max_bytes\n";
-  print $warn tab(6, '#define WARN_ALLstring'), ' "', '\125' x $warn_size, 
-                                                '\0' x ($max_bytes - $warn_size), "\"\n";
-  print $warn tab(6, '#define WARN_DEADALLstring'), ' "', '\252' x $warn_size,
-                                                '\0' x ($max_bytes - $warn_size), "\"\n";
+  print $warn tab(6, '#define WARN_ALLstring'), ' "', '\125' x $warn_size, "\"\n";
+  print $warn tab(6, '#define WARN_DEADALLstring'), ' "', '\252' x $warn_size, "\"\n";
   print $warn tab(6, '#define WARN_NONEstring'), ' "', ('\0' x $max_bytes), "\"\n";
   print $warn tab(6, '/*'), ' [', mkRange(@def), "] */\n";
   print $warn tab(6, '#define WARN_DEFAULTstring'), ' "',  mkOct($max_bytes, map $_ * 2, @def) , "\"\n" ;
@@ -521,8 +519,8 @@ foreach my $k (sort { $a <=> $b } keys %ValueToName) {
     } else {
       my $v = $list{$name};
       my @list = sort { $a <=> $b } @$v;
-      my $bits     = mkOct($max_bytes, map $_ * 2 , @list);
-      my $deadbits = mkOct($max_bytes, map $_ * 2 + 1 , @list);
+      my $bits     = mkOct($warn_size, map $_ * 2 , @list);
+      my $deadbits = mkOct($warn_size, map $_ * 2 + 1 , @list);
       print $xs "$name, $offset, \"$bits\", \"$deadbits\"\n";
     }
 }
