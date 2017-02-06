@@ -15326,11 +15326,10 @@ S_inplace_aassign(pTHX_ OP *o) {
 }
 
 
-
 /*
 =for apidoc maybe_multideref
 
-given an op_next chain of ops beginning at 'start'
+Given an op_next chain of ops beginning at 'start'
 that potentially represent a series of one or more aggregate derefs
 (such as $a->[1]{$key}), examine the chain, and if appropriate, convert
 the whole chain to a single OP_MULTIDEREF op (maybe with a few
@@ -15455,14 +15454,14 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                  * case */
                 if (ISNT_TYPE(o, RV2AV) &&
                     ISNT_TYPE(o, RV2HV))
-                    return;
+                    goto MDEREF_FREE;
 
                 /* rv2av or rv2hv sKR/1 */
 
                 ASSUME(!(o->op_flags & ~(OPf_WANT|OPf_KIDS|OPf_PARENS
                                             |OPf_REF|OPf_MOD|OPf_SPECIAL)));
                 if (o->op_flags != (OPf_WANT_SCALAR|OPf_KIDS|OPf_REF))
-                    return;
+                    goto MDEREF_FREE;
 
                 /* at this point, we wouldn't expect any of these
                  * possible private flags:
@@ -15482,7 +15481,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                 action = next_is_hash
                             ? MDEREF_HV_vivify_rv2hv_helem
                             : MDEREF_AV_vivify_rv2av_aelem;
-                o = o->op_next;
+                o = OpNEXT(o);
             }
 
             /* if this is the second pass, and we're at the depth where
@@ -15509,11 +15508,11 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                         if (PASS2) {
                             arg->pad_offset = o->op_targ;
                             /* you can get here via loop oob elimination */
-                            if (IS_TYPE(o->op_next, AELEM_U))
+                            if (IS_TYPE(OpNEXT(o), AELEM_U))
                                 index_type |= MDEREF_INDEX_uoob;
                         }
                         arg++;
-                        o = o->op_next;
+                        o = OpNEXT(o);
                     }
                     break;
 
@@ -15529,7 +15528,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 
                         if (PASS2) {
                             UNOP *rop = NULL;
-                            OP * helem_op = o->op_next;
+                            OP * helem_op = OpNEXT(o);
 
                             ASSUME(   IS_TYPE(helem_op, HELEM)
                                    || IS_NULL_OP(helem_op));
@@ -15579,7 +15578,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                     }
                     index_type = MDEREF_INDEX_const;
                     if (PASS2) {
-                        OP *aelem_op = o->op_next;
+                        OP *aelem_op = OpNEXT(o);
                         if (IS_TYPE(aelem_op, AELEM_U)) {
                             index_type |= MDEREF_INDEX_uoob;
                         } else if (IS_TYPE(aelem_op, AELEM)) {
@@ -15611,7 +15610,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                         cSVOPo->op_sv = NULL;
                     }
                     arg++;
-                    o = o->op_next;
+                    o = OpNEXT(o);
                     break;
 
                 case OP_GV:
@@ -15624,7 +15623,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                     )
                         break;
 
-                    kid = o->op_next;
+                    kid = OpNEXT(o);
                     if (ISNT_TYPE(kid, RV2SV))
                         break;
 
@@ -15653,7 +15652,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                     }
                     arg++;
                     index_type = MDEREF_INDEX_gvsv;
-                    o = kid->op_next;
+                    o = OpNEXT(kid);
                     break;
 
                 } /* switch */
@@ -15672,24 +15671,20 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
             /* possibly an optimised away [ah]elem (where op_next is
              * exists or delete) */
             if (IS_NULL_OP(o))
-                o = o->op_next;
+                o = OpNEXT(o);
 
             /* at this point we're looking for an OP_AELEM, OP_HELEM,
              * OP_EXISTS or OP_DELETE */
 
             /* if something like arybase (a.k.a $[ ) is in scope,
              * abandon optimisation attempt */
-            if (UNLIKELY(IS_TYPE(o, AELEM)
-                         && PL_check[o->op_type] != Perl_ck_aelem))
-                return;
             /* similarly for customised exists and delete with
                use autovivication */
-            if (UNLIKELY(IS_TYPE(o, EXISTS)
-                         && PL_check[o->op_type] != Perl_ck_exists))
-                return;
-            if (UNLIKELY(IS_TYPE(o, DELETE)
-                         && PL_check[o->op_type] != Perl_ck_delete))
-                return;
+            if (UNLIKELY
+                (  (IS_TYPE(o, AELEM)  && PL_check[o->op_type] != Perl_ck_aelem)
+                || (IS_TYPE(o, EXISTS) && PL_check[o->op_type] != Perl_ck_exists)
+                || (IS_TYPE(o, DELETE) && PL_check[o->op_type] != Perl_ck_delete)))
+                goto MDEREF_FREE;
 
             /* skip aelemfast if private cannot hold all bits */
             if ( (ISNT_TYPE(o, AELEM) && ISNT_TYPE(o, AELEM_U))
@@ -15766,7 +15761,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                 top_op = o;
                 if (is_deref) {
                     next_is_hash = cBOOL((o->op_private & OPpDEREF) == OPpDEREF_HV);
-                    o = o->op_next;
+                    o = OpNEXT(o);
                 }
                 else {
                     is_last = TRUE;
@@ -15788,7 +15783,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                 if (!action_count) {
                     DEBUG_kv(Perl_deb(aTHX_ "no multideref: %s %s\n",
                                       OP_NAME(start), OP_NAME(o)));
-                    return;
+                    goto MDEREF_FREE;
                 }
                 is_last = TRUE;
                 index_skip = action_count;
@@ -15971,8 +15966,8 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                     op_sibling_splice(p, NULL, 1, NULL));
             op_null(start);
 
-            start->op_next = mderef;
-            mderef->op_next = index_skip == -1 ? o->op_next : o;
+            OpNEXT(start) = mderef;
+            OpNEXT(mderef) = index_skip == -1 ? OpNEXT(o) : o;
 
             /* excise and free the original tree, and replace with
              * the multideref op */
@@ -15988,7 +15983,11 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
             Size_t size = arg - arg_buf;
 
             if (maybe_aelemfast && action_count == 1) {
-                DEBUG_kv(Perl_deb(aTHX_ "no multideref %s = > aelemfast\n", OP_NAME(start)));
+                DEBUG_kv(Perl_deb(aTHX_ "no multideref %s = > aelemfast\n",
+                                  OP_NAME(start)));
+            MDEREF_FREE:
+                if (arg_buf)
+                    PerlMemShared_free(arg_buf);
                 return;
             }
 
@@ -16001,7 +16000,7 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
         }
     } /* for (pass = ...) */
     DEBUG_kv(Perl_deb(aTHX_ "=> multideref %s %s\n", PL_op_name[start->op_targ],
-                      SvPVX(multideref_stringify(start->op_next, NULL))));
+                      SvPVX(multideref_stringify(OpNEXT(start), NULL))));
 #undef PASS2
 }
 
@@ -16145,8 +16144,8 @@ S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
         }
         DEBUG_kv(Perl_deb(aTHX_ "rpeep: omit loop bounds checks (from..arylen) for %s[%s]\n",
                           aname, iname));
-        iter = loop->op_next;
-        body = cLOGOPx(iter->op_next)->op_other;
+        iter = OpNEXT(loop);
+        body = OpOTHER(OpNEXT(iter));
         /* replace all aelem with aelem_u for this exact array in
            this loop body, if the index is the loop counter */
         for (o2=body; o2 != iter; o2=o2->op_next) {
@@ -16235,7 +16234,7 @@ S_check_for_bool_cxt(pTHX_ OP* o, U8 bool_flag, U8 maybe_flag)
     PERL_ARGS_ASSERT_CHECK_FOR_BOOL_CXT;
     assert(OpWANT_SCALAR(o));
 
-    lop = o->op_next;
+    lop = OpNEXT(o);
 
     while (lop) {
         switch (lop->op_type) {
