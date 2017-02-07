@@ -18,9 +18,12 @@ plan(tests => 6);
 my $c = new Safe;
 $c->permit(qw(require caller));
 
-my $no_warn_redef = ($] != 5.008009)
-    ? q(no warnings 'redefine';)
-    : q($SIG{__WARN__}=sub{};);
+# XS warnings broke reval
+my $no_warn_redef = defined &warnings::KEYS
+    ? ''
+    : ($] != 5.008009)
+      ? q(no warnings 'redefine';)
+      : q($SIG{__WARN__}=sub{};);
 my $r = $c->reval($no_warn_redef . q!
     sub UNIVERSAL::isa { "pwned" }
     (bless[],"Foo")->isa("Foo");
