@@ -2755,6 +2755,8 @@ s	|void	|anonymise_cv_maybe	|NN GV *gv|NN CV *cv
 : Used in sv.c and hv.c
 po	|void *	|more_bodies	|const svtype sv_type|const size_t body_size \
 				|const size_t arena_size
+: Used in op.c and toke.c. Also usable for coretypes-aware extensions
+EXMpR	|HV *	|find_in_coretypes|NN const char *pkgname|STRLEN len
 
 #if defined(PERL_IN_TOKE_C)
 s	|void	|check_uni
@@ -2804,7 +2806,6 @@ sR	|I32	|sublex_push
 sR	|I32	|sublex_start
 sR	|char *	|filter_gets	|NN SV *sv|STRLEN append
 sR	|HV *	|find_in_my_stash |NN const char *pkgname|STRLEN len
-sR	|HV *	|find_in_coretypes|NN const char *pkgname|STRLEN len
 sR	|char *	|tokenize_use	|int is_use|NN char *s
 so	|SV*	|new_constant	|NULLOK const char *s|STRLEN len \
 				|NN const char *key|STRLEN keylen|NN SV *sv \

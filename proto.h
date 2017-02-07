@@ -1488,6 +1488,13 @@ PERL_CALLCONV void	Perl_finalize_optree(pTHX_ OP* o)
 #define PERL_ARGS_ASSERT_FINALIZE_OPTREE	\
 	assert(o)
 
+PERL_CALLCONV HV *	Perl_find_in_coretypes(pTHX_ const char *pkgname, STRLEN len)
+			__attribute__global__
+			__attribute__warn_unused_result__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_FIND_IN_CORETYPES	\
+	assert(pkgname)
+
 PERL_CALLCONV CV *	Perl_find_lexical_cv(pTHX_ PADOFFSET off);
 PERL_CALLCONV CV*	Perl_find_runcv(pTHX_ U32 *db_seqp)
 			__attribute__global__
@@ -9843,12 +9850,6 @@ STATIC char *	S_filter_gets(pTHX_ SV *sv, STRLEN append)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_FILTER_GETS	\
 	assert(sv)
-
-STATIC HV *	S_find_in_coretypes(pTHX_ const char *pkgname, STRLEN len)
-			__attribute__warn_unused_result__
-			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_FIND_IN_CORETYPES	\
-	assert(pkgname)
 
 STATIC HV *	S_find_in_my_stash(pTHX_ const char *pkgname, STRLEN len)
 			__attribute__warn_unused_result__

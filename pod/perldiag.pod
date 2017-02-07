@@ -755,6 +755,11 @@ to compress something else.  See L<perlfunc/pack>.
 (F) Only hard references may be blessed.  This is how Perl "enforces"
 encapsulation of objects.  See L<perlobj>.
 
+=item Can't bless to coretype %s
+
+(W types) Dynamic coercion to coretypes is forbidden. coretypes need
+to be declared at compile-time. See L<perltypes>.
+
 =item Can't "break" in a loop topicalizer
 
 (F) You called C<break>, but you're in a C<foreach> block rather than

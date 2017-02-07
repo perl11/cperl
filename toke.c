@@ -4611,10 +4611,15 @@ S_filter_gets(pTHX_ SV *sv, STRLEN append)
         return (sv_gets(sv, PL_rsfp, append));
 }
 
-/* autocreate coretypes. some of them inherited (set the ISA) */
+/*
+=for apidoc EXMpR	|HV *	|find_in_coretypes|NN const char *pkgname|STRLEN len
 
-STATIC HV *
-S_find_in_coretypes(pTHX_ const char *pkgname, STRLEN len)
+Check for and autocreate coretypes. Some of them inherited, setting the ISA.
+Returns NULL if the name is not a coretype.
+=cut
+*/
+HV *
+Perl_find_in_coretypes(pTHX_ const char *pkgname, STRLEN len)
 {
     PERL_ARGS_ASSERT_FIND_IN_CORETYPES;
 

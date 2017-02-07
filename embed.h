@@ -970,6 +970,7 @@
 #define av_reify(a)		Perl_av_reify(aTHX_ a)
 #define current_re_engine()	Perl_current_re_engine(aTHX)
 #define cv_ckproto_len_flags(a,b,c,d,e)	Perl_cv_ckproto_len_flags(aTHX_ a,b,c,d,e)
+#define find_in_coretypes(a,b)	Perl_find_in_coretypes(aTHX_ a,b)
 #define grok_atoUV		Perl_grok_atoUV
 #define magic_scalarpack(a,b)	Perl_magic_scalarpack(aTHX_ a,b)
 #define mg_find_mglob(a)	Perl_mg_find_mglob(aTHX_ a)
@@ -1901,7 +1902,6 @@
 #define checkcomma(a,b,c)	S_checkcomma(aTHX_ a,b,c)
 #define deprecate_commaless_var_list()	S_deprecate_commaless_var_list(aTHX)
 #define filter_gets(a,b)	S_filter_gets(aTHX_ a,b)
-#define find_in_coretypes(a,b)	S_find_in_coretypes(aTHX_ a,b)
 #define find_in_my_stash(a,b)	S_find_in_my_stash(aTHX_ a,b)
 #define force_ident(a,b)	S_force_ident(aTHX_ a,b)
 #define force_ident_maybe_lex(a)	S_force_ident_maybe_lex(aTHX_ a)

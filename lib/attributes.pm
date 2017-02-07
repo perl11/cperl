@@ -296,11 +296,16 @@ evaluation.  The return value is captured and turned into a constant
 subroutine.  For other data it sets the READONLY flag and enables
 compile-time optimizations.
 
-=item int, num, str
+=item Int, Uint, Num, Str, int, uint, num, str
 
 The cperl variant uses coretypes which declares these types.  For
 subroutines these types declare the strict return type for the
 subroutine.
+
+=item Any other name
+
+cperl lets you declare function return types. Any other name is
+the strict return type for the subroutine.
 
 =back
 
@@ -325,7 +330,7 @@ multi-interpreter environment.
 With the cperl variant :const declares a lexical variable as
 compile-time constant, it sets the READONLY flag.
 
-=item int, num, str
+=item Int, Uint, Num, Str, int, uint, num, str
 
 The cperl variant uses coretypes which declares these types.
 These types attributes declare the strict type for the variable.

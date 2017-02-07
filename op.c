@@ -1953,7 +1953,8 @@ S_scalarboolean(pTHX_ OP *o)
                    of the conditional, not the last.  */
 		CopLINE_set(PL_curcop, PL_parser->copline);
             }
-	    Perl_warner(aTHX_ packWARN(WARN_SYNTAX), "Found = in conditional, should be ==");
+	    Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
+                        "Found = in conditional, should be ==");
 	    CopLINE_set(PL_curcop, oldline);
 	}
     }
@@ -12892,16 +12893,23 @@ Perl_rv2cv_op_cv(pTHX_ OP *cvop, U32 flags)
     }
 }
 
-/* Match a return usertype from arg to
-   the declared usertype name of a variable (dname).
+/* 
+=for apidoc s	|int	|match_user_type|NN const char *dname|bool du8 \
+					|NN const char* aname|bool au8
 
-   Note that old-style package ISA's are created dynamically.
-   Only classes with compile-time known ISA's can be checked at compile-time.
+Match a return usertype from arg (aname+au8) to
+the declared usertype name of a variable (dname+du8).
 
-   Too big for gcc to inline.
+Note that old-style package ISA's are created dynamically.
+Only classes with compile-time known ISA's can be checked at compile-time.
+Which are currently: use base/fields; 
+and later the perl6 syntax class Name is Parent {}
+Todo: Moose syntax
+=cut
 */
-STATIC
-int S_match_user_type(pTHX_ const char *dname, bool du8, const char* aname, bool au8)
+STATIC int
+S_match_user_type(pTHX_ const char *dname, bool du8,
+                  const char* aname, bool au8)
 {
     PERL_ARGS_ASSERT_MATCH_USER_TYPE;
 
@@ -12962,7 +12970,8 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
     *castable = (dtyp >= type_int && dtyp < type_Object);
     /* we allow MyInt (isa Int) for int args */
     if (atyp == type_Object) {
-        /* TODO: check for class or package types */
+        /* TODO: check for class or package types. Does the class has an ISA? #249
+           If not cannot do this check before run-time. */
         if (UNLIKELY(PL_phase >= PERL_PHASE_RUN))
             return S_match_user_type(aTHX_ typename(stash), HvNAMEUTF8(stash), aname, au8);
         else
@@ -13162,15 +13171,16 @@ S_ret_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
         {
             int castable = 0;
             /* check aggregate type: Array(int), Hash(str), ... */
-            if (argtype == type_Hash &&
+            if (!PadnamePV(pn))
+                ; /* ignore */
+            else if (argtype == type_Hash &&
                 PadnamePV(pn)[0] == '%' &&
                 IS_TYPE(o, PADHV))
             {
                 PADNAME * const xpn = PAD_COMPNAME(o->op_targ);
                 argtype = stash_to_coretype(PadnameTYPE(xpn));
             }
-            else
-            if (argtype == type_Array &&
+            else if (argtype == type_Array &&
                 PadnamePV(pn)[0] == '@' &&
                 IS_TYPE(o, PADAV))
             {
@@ -14749,11 +14759,15 @@ Perl_ck_type(pTHX_ OP *o)
 /*
 =for apidoc ck_nomg
 
-for tie and bless:
+for tie and bless
 
 check if the first argument is not a typed coretype.
 We guarantee coretyped variables to have no magic.
+
 TODO: For bless we also require a ref.
+For bless we can predict the result type is 2nd arg is a constant.
+This types the result of new methods.
+    sub D3::new {bless[],"D3"};my B2 $obj1 = D3->new;
 =cut
 */
 OP *
@@ -14770,6 +14784,30 @@ Perl_ck_nomg(pTHX_ OP *o)
             a = a->op_next;
         else
             a = OpSIBLING(a->op_next);
+    }
+    if (IS_TYPE(o, BLESS)) {
+        if (OP_TYPE_IS(a, OP_NULL))
+            a = OpNEXT(a);
+        /* maybe we can check which ops are disallowed here */
+        if (a &&
+            (IS_TYPE(a, PADAV) ||
+             IS_TYPE(a, PADHV) ||
+             IS_TYPE(a, LIST)))
+            /* diag_listed_as: Can't bless non-reference value */
+            Perl_croak(aTHX_ "Can't bless non-reference value (%s)", OP_NAME(a));
+        if (IS_TYPE(OpLAST(o), CONST)) {
+            OP* b = OpLAST(o);
+            SV* name = cSVOPx_sv(b);
+            if (SvPOK(name)) {
+                /* ignore coretypes: bless $x, "Str" */
+                if (find_in_coretypes(SvPVX(name), SvCUR(name)))
+                    Perl_warner(aTHX_ packWARN(WARN_TYPES),
+                                "Can't bless to coretype %s", SvPVX(name));
+                else {
+                    OpRETTYPE_set(o, type_Object);
+                }
+            }
+        }
     }
     /* e.g. bless \$, $class */
     if (OP_TYPE_IS(a, OP_SREFGEN)) {
@@ -17625,6 +17663,22 @@ Perl_rpeep(pTHX_ OP *o)
             if (OpWANT_SCALAR(o))
                 check_for_bool_cxt(o, OPpLENGTH_TRUEBOOL,
                                    OPpLENGTH_MAYBE_TRUEBOOL);
+            break;
+
+        case OP_BLESS:
+            if (!OpNEXT(o) && IS_CONST_OP(OpLAST(o)) &&
+                PL_compcv && !CvCLONE(PL_compcv))
+            {   /* Type inference:
+                 * If this is the last op of the body,
+                 * set the type of the containing sub,
+                 * as sub foo :type { bless{},"type" }
+                 * Else TODO the type of the assigned variable.
+                 */
+                OP* b = OpLAST(o);
+                SV* name = cSVOPx_sv(b);
+                CvTYPED_on(PL_compcv);
+                CvTYPE_set(PL_compcv, gv_stashsv(name, SvUTF8(name)|GV_NO_SVGMAGIC));
+            }
             break;
 
 	case OP_CUSTOM: {

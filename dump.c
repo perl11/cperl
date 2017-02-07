@@ -1714,7 +1714,6 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
     /* Dump SV type */
     if (type < SVt_LAST) {
 	PerlIO_printf(file, "%s%s\n", svtypenames[type], s);
-
 	if (type ==  SVt_NULL) {
 	    SvREFCNT_dec_NN(d);
 	    return;
@@ -2482,6 +2481,7 @@ S_deb_padvar(pTHX_ PADOFFSET off, int n, bool paren)
     if (paren)
         PerlIO_printf(Perl_debug_log, "(");
     for (i = 0; i < n; i++) {
+        /* TODO: add types */
         if (comppad && (sv = padnamelist_fetch(comppad, off + i)))
             PerlIO_printf(Perl_debug_log, "%" PNf, PNfARG(sv));
         else

@@ -680,7 +680,7 @@ PP(pp_bless)
             /* We need to check the flag again: */
             if (!SvAMAGIC(ssv)) goto frog;
 	}
-	else ptr = SvPV_nomg_const(ssv,len);
+	else ptr = SvPV_nomg_const(ssv, len);
 	if (len == 0)
 	    Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
 			   "Explicit blessing to '' (assuming package main)");
