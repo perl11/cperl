@@ -2,11 +2,12 @@
 
 # We skip this on 5.9.0 and up since pseudohashes were removed and a lot of
 # it won't work.
-if( $] >= 5.009 ) { 
+BEGIN {
+  if ( $] >= 5.009 ) {
     print "1..0 # skip pseudo-hashes removed in 5.9.0\n";
     exit;
+  }
 }
-
 
 my $w;
 
