@@ -25,8 +25,10 @@ sub apply_config {
     push @no, "Amiga.*" unless $^O eq "amigaos";
     push @no, "VMS.*" unless $^O eq "VMS";
     push @no, "Win32.*" unless $^O eq "MSWin32" || $^O eq "cygwin";
-    # special-case warnings for cperl, maybe later
-    #push @no, "warnings" unless $config->{static_ext} =~ /warnings/;
+    # special-case warnings for cperl
+    if (defined &warnings::KEYS) {
+      push @no, "warnings" unless $config->{static_ext} =~ /warnings/;
+    }
 
     $no = join('|', @no);
     $no = qr/^(?:$no)$/i;
@@ -98,6 +100,7 @@ sub has_xs_or_c {
     while (defined (my $item = readdir $dh)) {
         return 1 if $item =~ /\.xs$/;
         return 1 if $item =~ /\.c$/;
+        return 1 if $item =~ /_xs\.in$/;
     }
     return 0;
 }
@@ -109,7 +112,10 @@ sub scan_ext
     opendir my $dh, "$ext_dir";
     while (defined (my $item = readdir $dh)) {
         next if $item =~ /^\.\.?$/;
-        next if $item =~ /^(?:DynaLoader|warnings)$/; # warnings for cperl maybe later
+        next if $item =~ /^DynaLoader$/;
+        unless (defined &warnings::KEYS) {
+          next if $item =~ /^warnings$/; # XS warnings for cperl
+        }
         next unless -d "$ext_dir/$item";
         my $this_ext = $item;
         my $leaf = $item;
