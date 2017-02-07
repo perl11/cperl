@@ -1052,7 +1052,7 @@ s	|void	|prefinalize_op	|NULLOK CV *cv|NN OP* o
 s	|void	|cant_declare	|NN OP* o
 s	|void	|finalize_op	|NN OP* o
 s	|void	|move_proto_attr|NN OP **proto|NN OP **attrs|NN const GV *name
-s	|int	|match_user_type|NN const char *dname|bool du8 \
+s	|int	|match_user_type|NN const HV* const dstash \
 				|NN const char* aname|bool au8
 i	|bool	|is_types_strict
 s	|OP*	|arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NULLOK GV *cvname

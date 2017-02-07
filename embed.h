@@ -1718,7 +1718,7 @@
 #define is_types_strict()	S_is_types_strict(aTHX)
 #define listkids(a)		S_listkids(aTHX_ a)
 #define looks_like_bool(a)	S_looks_like_bool(aTHX_ a)
-#define match_user_type(a,b,c,d)	S_match_user_type(aTHX_ a,b,c,d)
+#define match_user_type(a,b,c)	S_match_user_type(aTHX_ a,b,c)
 #define maybe_multideref(a,b,c,d)	S_maybe_multideref(aTHX_ a,b,c,d)
 #define maybe_targlex(a)	S_maybe_targlex(aTHX_ a)
 #define mderef_uoob_targ(a,b)	S_mderef_uoob_targ(aTHX_ a,b)

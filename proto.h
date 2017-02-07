@@ -8225,11 +8225,11 @@ STATIC bool	S_looks_like_bool(pTHX_ const OP* o)
 #define PERL_ARGS_ASSERT_LOOKS_LIKE_BOOL	\
 	assert(o)
 
-STATIC int	S_match_user_type(pTHX_ const char *dname, bool du8, const char* aname, bool au8)
+STATIC int	S_match_user_type(pTHX_ const HV* const dstash, const char* aname, bool au8)
 			__attribute__nonnull__(pTHX_1)
-			__attribute__nonnull__(pTHX_3);
+			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_MATCH_USER_TYPE	\
-	assert(dname); assert(aname)
+	assert(dstash); assert(aname)
 
 STATIC void	S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
 			__attribute__nonnull__(pTHX_1)

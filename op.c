@@ -12894,7 +12894,7 @@ Perl_rv2cv_op_cv(pTHX_ OP *cvop, U32 flags)
 }
 
 /* 
-=for apidoc s	|int	|match_user_type|NN const char *dname|bool du8 \
+=for apidoc s	|int	|match_user_type|NN const HV* dstash \
 					|NN const char* aname|bool au8
 
 Match a return usertype from arg (aname+au8) to
@@ -12908,37 +12908,35 @@ Todo: Moose syntax
 =cut
 */
 STATIC int
-S_match_user_type(pTHX_ const char *dname, bool du8,
+S_match_user_type(pTHX_ const HV* const dstash,
                   const char* aname, bool au8)
 {
+    const SV * const dname = newSVhek(HvENAME_HEK(dstash)
+                                      ? HvENAME_HEK(dstash)
+                                      : HvNAME_HEK(dstash));
+    const HV* astash = gv_stashpvn(aname, strlen(aname), au8 ? SVf_UTF8 : 0);
     PERL_ARGS_ASSERT_MATCH_USER_TYPE;
 
-    if (UNLIKELY(strEQ(dname, aname)))
+    if (astash == dstash) /* compare ptrs not strings */
         return 1;
-    else {
-        const HV * const dstash = gv_stashpvn(dname, strlen(dname), du8 ? SVf_UTF8 : 0);
-        const SV * const namesv = newSVhek(HvENAME_HEK(dstash)
-                                       ? HvENAME_HEK(dstash)
-                                       : HvNAME_HEK(dstash));
-        /* Search dname in @aname::ISA (contra-variance).
-         * The astash needs to exist, just coretypes are created on the fly. */
-        const HV* astash = gv_stashpvn(aname, strlen(aname), au8 ? SVf_UTF8 : 0);
-        /* XXX Some autocreated coretypes do have an ISA */
-        if (astash) {
-            SSize_t i;
-            const AV* isa = mro_get_linear_isa((HV*)astash);
-            for (i=0; i<=AvFILLp(isa); i++) {
-                SV* ele = AvARRAY(isa)[i]; /* array of shared class name HEKs */
-                DEBUG_kv(Perl_deb(aTHX_ "typecheck %s in %s\n", dname, SvPVX_const(ele)));
-                if (sv_eq(ele, (SV*)namesv))
-                    return 1;
-            }
+    /* Search dname in @aname::ISA (contra-variance).
+     * The astash needs to exist, just coretypes are created on the fly. */
+    /* XXX Some autocreated coretypes do have an ISA */
+    if (astash) {
+        SSize_t i;
+        const AV* isa = mro_get_linear_isa((HV*)astash);
+        for (i=0; i<=AvFILLp(isa); i++) {
+            SV* ele = AvARRAY(isa)[i]; /* array of shared class name HEKs */
+            DEBUG_kv(Perl_deb(aTHX_ "typecheck %s in %s\n", SvPVX_const(dname),
+                              SvPVX_const(ele)));
+            if (sv_eq(ele, (SV*)dname))
+                return 1;
         }
-        if (ckWARN(WARN_TYPES))
-            Perl_warner(aTHX_ packWARN(WARN_TYPES),
-                        "Wrong type %s, expected %s", aname, dname);
-        return 0;
     }
+    if (ckWARN(WARN_TYPES))
+        Perl_warner(aTHX_ packWARN(WARN_TYPES),
+                    "Wrong type %s, expected %s", aname, SvPVX_const(dname));
+    return 0;
 }
  
 /* match a return coretype from arg or op (atyp) to
@@ -12973,7 +12971,7 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
         /* TODO: check for class or package types. Does the class has an ISA? #249
            If not cannot do this check before run-time. */
         if (UNLIKELY(PL_phase >= PERL_PHASE_RUN))
-            return S_match_user_type(aTHX_ typename(stash), HvNAMEUTF8(stash), aname, au8);
+            return match_user_type(stash, aname, au8);
         else
             return 1; /* compiler cannot decide on run-time ISA's */
     }
@@ -13014,7 +13012,7 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
         return atyp <= type_Scalar;
     case type_Object:
         *castable = 1; /* XXX for now just warn, no error */
-        return S_match_user_type(aTHX_ typename(stash), HvNAMEUTF8(stash), aname, au8);
+        return match_user_type(stash, aname, au8);
     case type_Any:
     case type_Void:
         return 1;
