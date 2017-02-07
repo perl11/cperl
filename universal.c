@@ -595,6 +595,44 @@ XS(XS_Internals_SvREADONLY)	/* This is dangerous stuff. */
     XSRETURN_UNDEF; /* Can't happen. */
 }
 
+XS(XS_Internals_HvCLASS); /* prototype to pass -Wmissing-prototypes */
+XS(XS_Internals_HvCLASS)	/* Needed for base to fake cperl classes */
+{
+    dXSARGS;
+    SV * const svz = ST(0);
+    SV * stash;
+
+    if (SvPOK(svz)) {
+        stash = (SV*)gv_stashsv(svz, SvUTF8(svz));
+        if (!stash)
+            Perl_croak(aTHX_ "Internals::HvCLASS: Unknown classname %s",
+                       SvPVX(SvRV(svz)));
+    }
+    else if (!SvROK(svz))
+        croak_xs_usage(cv, "STASH[, ON]");
+    else
+        stash = SvRV(svz);
+    if (SvTYPE(stash) != SVt_PVHV)
+        croak_xs_usage(cv, "STASH[, ON]");
+
+    if (items == 1) {
+	 if (HvCLASS(stash))
+	     XSRETURN_YES;
+	 else
+	     XSRETURN_NO;
+    }
+    else if (items == 2) {
+	if (SvTRUE(ST(1))) {
+	    HvCLASS_on(stash);
+	    XSRETURN_YES;
+	}
+	else {
+            croak_xs_usage(cv, "STASH[, ON]");
+	}
+    }
+    XSRETURN_UNDEF; /* Can't happen. */
+}
+
 XS(XS_constant__make_const); /* prototype to pass -Wmissing-prototypes */
 XS(XS_constant__make_const)	/* This is dangerous stuff. */
 {
@@ -1032,6 +1070,7 @@ static const struct xsub_details details[] = {
     {"utf8::native_to_unicode", XS_utf8_native_to_unicode, NULL},
     {"utf8::unicode_to_native", XS_utf8_unicode_to_native, NULL},
     {"Internals::SvREADONLY", XS_Internals_SvREADONLY, "\\[$%@];$"},
+    {"Internals::HvCLASS", XS_Internals_HvCLASS, "\\[$%];$"},
     {"Internals::SvREFCNT", XS_Internals_SvREFCNT, "\\[$%@];$"},
     {"Internals::hv_clear_placeholders", XS_Internals_hv_clear_placehold, "\\%"},
     {"constant::_make_const", XS_constant__make_const, "\\[$@]"},

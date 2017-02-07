@@ -82,6 +82,8 @@ sub import {
     my $fields_base;
 
     my $inheritor = caller(0);
+    # cperl: set the class flag in the stash
+    Internals::HvCLASS($inheritor, 1);
 
     my @bases;
     foreach my $base (@_) {
@@ -253,6 +255,10 @@ for a description of this feature.
 
 The base class' C<import> method is B<not> called.
 
+use base is also important to allow compile-time type checks on user
+classes.  Without base the type-checker doesn't know if the class @ISA
+is closed already, and will not find parents being added later at
+run-time.
 
 =head1 DIAGNOSTICS
 

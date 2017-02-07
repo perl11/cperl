@@ -11811,8 +11811,9 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
     core_types_t t;
     switch (o->op_type) {
     case OP_PADSV: {
-        /*SV* c = PAD_SV(o->op_targ);*/
         PADNAME * const pn = PAD_COMPNAME(ck_pad(o)->op_targ);
+        if (UNLIKELY(o->op_targ && SvMAGICAL(PAD_SV(o->op_targ))))
+            return type_none;
         t = stash_to_coretype(PadnameTYPE(pn));
         if (usertype && t == type_Object) {
             *usertype = (char*)typename(PadnameTYPE(pn));
@@ -12900,8 +12901,15 @@ Returns 1 if this class has a compile-time @ISA
 or we are already at the run-time phase.
 This is not called for coretypes, coretypes would always return 1.
 
-Check for class or package types. Does the class has an ISA? #249
+Check for class or package types. Does the class has an compile-time
+ISA to allow compile-time checks? #249
+HvCLASS: Is it a cperl class? Does it use base or fields?
 If not cannot do this check before run-time.
+
+(Essentially cperl classes are just syntactic and performance
+optimized sugar over base/fields with roles and multi-dispatch
+support. We don't invent anything new, we just fix what p5p broke.)
+
 =cut
 */
 STATIC int
@@ -12910,10 +12918,11 @@ S_can_class_typecheck(pTHX_ const HV* const stash)
     PERL_ARGS_ASSERT_CAN_CLASS_TYPECHECK;
     if (UNLIKELY(PL_phase >= PERL_PHASE_RUN))
         return 1;
-    else {
+    else if (HvCLASS(stash)) {
         const AV* isa = mro_get_linear_isa(stash);
         return AvFILLp(isa) ? 1 : 0;
-    }
+    } else
+        return 0;
 }
 
 /* 

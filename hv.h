@@ -369,12 +369,17 @@ C<SV*>.
 #define HvPLACEHOLDERS_get(hv)	(SvMAGIC(hv) ? Perl_hv_placeholders_get(aTHX_ (const HV *)hv) : 0)
 #define HvPLACEHOLDERS_set(hv,p)	Perl_hv_placeholders_set(aTHX_ MUTABLE_HV(hv), p)
 
+/* cperl only*/
 #define HvSMALL(hv)		(HvTOTALKEYS(hv) <= PERL_HV_SMALL_MAX)
 #define XHvSMALL(xhv)		(XHvTOTALKEYS(xhv) <= PERL_HV_SMALL_MAX)
 
 #define HvSHAREKEYS(hv)		(SvFLAGS(hv) & SVphv_SHAREKEYS)
 #define HvSHAREKEYS_on(hv)	(SvFLAGS(hv) |= SVphv_SHAREKEYS)
 #define HvSHAREKEYS_off(hv)	(SvFLAGS(hv) &= ~SVphv_SHAREKEYS)
+
+/* cperl only. basically if the class has a closed compile-time @ISA */
+#define HvCLASS(stash)          (SvFLAGS(stash) & SVphv_CLASS)
+#define HvCLASS_on(stash)       (SvFLAGS(stash) |= SVphv_CLASS)
 
 /* This is an optimisation flag. It won't be set if all hash keys have a 0
  * flag. Currently the only flags relate to utf8.
