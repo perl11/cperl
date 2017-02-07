@@ -50,18 +50,18 @@ use constant COUNTDOWN	=> scalar reverse 1, 2, 3, 4, 5;
 use constant COUNTLIST	=> reverse 1, 2, 3, 4, 5;
 use constant COUNTLAST	=> (COUNTLIST)[-1];
 
-is COUNTDOWN, '54321';
+is COUNTDOWN, '54321', 'COUNTDOWN scalar context';
 my @cl = COUNTLIST;
-is @cl, 5;
-is COUNTDOWN, join '', @cl;
-is COUNTLAST, 1;
-is((COUNTLIST)[1], 4);
+is @cl, 5, 'COUNTLIST';
+is (COUNTDOWN, join('', @cl), 'COUNTDOWN list context');
+is COUNTLAST, 1, 'COUNTLAST';
+is((COUNTLIST)[1], 4, 'COUNTLIST[1]');
 
 use constant ABC	=> 'ABC';
-is "abc${\( ABC )}abc", "abcABCabc";
+is "abc${\( ABC )}abc", "abcABCabc", "scalar template expansion";
 
 use constant DEF	=> 'D', 'E', chr ord 'F';
-is "d e f @{[ DEF ]} d e f", "d e f D E F d e f";
+is "d e f @{[ DEF ]} d e f", "d e f D E F d e f", "list template expansion";
 
 use constant SINGLE	=> "'";
 use constant DOUBLE	=> '"';
@@ -164,7 +164,7 @@ ok !$constant::declared{'main::PIE'};
 }
 
 ok declared 'Other::IN_OTHER_PACK';
-ok $constant::declared{'Other::IN_OTHER_PACK'};
+ok($constant::declared{'Other::IN_OTHER_PACK'}, "declared Other::IN_OTHER_PACK");
 
 @warnings = ();
 eval q{
@@ -187,7 +187,7 @@ eval q{
     use constant 'UNITCHECK' => 1;
 };
 
-my @Expected_Warnings = 
+my @Expected_Warnings =
   (
    qr/^Constant name 'BEGIN' is a Perl keyword at/,
    qr/^Constant subroutine BEGIN redefined at/,
@@ -234,29 +234,32 @@ elsif (@warnings == 15) {
 else {
     my $rule = " -" x 20;
     diag "/!\\ unexpected case: ", scalar @warnings, " warnings\n$rule\n";
-    diag map { "  $_" } @warnings;
+    diag map { " $_" } @warnings;
     diag $rule, $/;
 }
 
-is @warnings, 17;
+my $numwarnings = scalar(@warnings);
+is($numwarnings, 17, "expected number of 'Perl keyword' warnings");
 
-for my $idx (0..$#warnings) {
-    like $warnings[$idx], $Expected_Warnings[$idx];
+for my $idx (0..$numwarnings-1) {
+  like $warnings[$idx], $Expected_Warnings[$idx];
+}
+for (0 .. 16-$numwarnings) {
+  ok 1, "SKIP - not enough Perl keyword warnings";
 }
 
 @warnings = ();
 
-
 use constant {
-	THREE  => 3,
-	FAMILY => [ qw( John Jane Sally ) ],
-	AGES   => { John => 33, Jane => 28, Sally => 3 },
-	RFAM   => [ [ qw( John Jane Sally ) ] ],
-	SPIT   => sub { shift },
+    THREE  => 3,
+    FAMILY => [ qw( John Jane Sally ) ],
+    AGES   => { John => 33, Jane => 28, Sally => 3 },
+    RFAM   => [ [ qw( John Jane Sally ) ] ],
+    SPIT   => sub { shift },
 };
 
-is @{+FAMILY}, THREE;
-is @{+FAMILY}, @{RFAM->[0]};
+is @{+FAMILY}, THREE, '@{+FAMILY}';
+is @{+FAMILY}, @{RFAM->[0]}, '@{RFAM->[0]}';
 is FAMILY->[2], RFAM->[0]->[2];
 is AGES->{FAMILY->[1]}, 28;
 is THREE**3, SPIT->(@{+FAMILY}**3);
