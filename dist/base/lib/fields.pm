@@ -12,7 +12,7 @@ unless( eval q{require warnings::register; warnings::register->import; 1} ) {
 }
 use vars qw(%attr $VERSION);
 
-$VERSION = '2.23';
+$VERSION = '2.24c';
 $VERSION =~ tr/_//d;
 
 # constant.pm is slow
@@ -39,6 +39,8 @@ sub import {
     my $fields = \%{"$package\::FIELDS"};
     my $fattr = ($attr{$package} ||= [1]);
     my $next = @$fattr;
+    # cperl: set the class flag in the stash, and close the ISA
+    Internals::HvCLASS($package, 1);
 
     # Quiet pseudo-hash deprecation warning for uses of fields::new.
     bless \%{"$package\::FIELDS"}, 'pseudohash';
@@ -234,10 +236,9 @@ hash of the calling package, but this may change in future versions.
 Do B<not> update the %FIELDS hash directly, because it must be created
 at compile-time for it to be fully useful, as is done by this pragma.
 
-If a typed lexical variable (C<my Class
-$var>) holding a reference is used to access a
-hash element and a package with the same name as the type has
-declared class fields using this pragma, then the hash key is
+If a typed lexical variable (C<my Class $var>) holding a reference is
+used to access a hash element and a package with the same name as the
+type has declared class fields using this pragma, then the hash key is
 verified at compile time.  If the variables are not typed, access is
 only checked at run time.
 
@@ -246,14 +247,14 @@ fields declared using the C<fields> pragma.  This enables field
 inheritance to work properly.  Inherited fields can be overridden but
 will generate a warning if warnings are enabled.
 
-B<Only valid for Perl 5.8.x and earlier:> Field names that start with an
-underscore character are made private to the class and are not visible
-to subclasses.
+B<Only valid for Perl 5.8.x and earlier and future cperl versions:>
+Field names that start with an underscore character are made private
+to the class and are not visible to subclasses.
 
-Also, B<in Perl 5.8.x and earlier>, this pragma uses pseudo-hashes, the
-effect being that you can have objects with named fields which are as
-compact and as fast arrays to access, as long as the objects are
-accessed through properly typed variables.
+Also, B<until in Perl 5.8.x and future cperl versions>, this pragma
+uses pseudo-hashes, the effect being that you can have objects with
+named fields which are as compact and as fast arrays to access, as
+long as the objects are accessed through properly typed variables.
 
 The following functions are supported:
 
@@ -312,6 +313,16 @@ be used to construct the pseudo hash.  Examples:
     my $pseudohash = fields::phash(%args);
 
 =back
+
+=head1 CAVEATS
+
+Due to the limitations of the implementation, you must use
+base I<before> you declare any of your own fields.
+
+perl5 allows @ISA do be changed at run-time, which defeats
+any compile-time type checks and optimizations.
+cperl packages which use fields or base guarantee a READONLY @ISA,
+which enables compile-time type checking of inherited classes.
 
 =head1 SEE ALSO
 

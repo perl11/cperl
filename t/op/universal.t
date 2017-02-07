@@ -83,9 +83,18 @@ ok (!Cedric->isa('Programmer'));
 
 ok (Cedric->isa('Human'));
 
-push(@Cedric::ISA,'Programmer');
-
-ok (Cedric->isa('Programmer'));
+# forbidden since cperl-5.25.3
+if (defined &Internals::HvCLASS) {
+  eval 'push(@Cedric::ISA, "Programmer");';
+  like($@, qr/Modification of a read-only value attempted/, 'cperl closed @ISA');
+  eval '@Cedric::ISA = qw(Bob);';
+  like($@, qr/Modification of a read-only value attempted/, 'cperl closed @ISA');
+} else {
+  push(@Cedric::ISA, 'Programmer');
+  ok (Cedric->isa('Programmer'), 'run-time extend ISA');
+  @Cedric::ISA = qw(Bob);
+  ok (!Cedric->isa('Programmer'), 'run-time override ISA');
+}
 
 {
     package Alice;
@@ -94,10 +103,6 @@ ok (Cedric->isa('Programmer'));
 
 ok $a->isa('Programmer');
 ok $a->isa("Female");
-
-@Cedric::ISA = qw(Bob);
-
-ok (!Cedric->isa('Programmer'));
 
 my $b = 'abc';
 my @refs = qw(SCALAR SCALAR     LVALUE      GLOB ARRAY HASH CODE);

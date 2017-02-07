@@ -602,18 +602,18 @@ XS(XS_Internals_HvCLASS)	/* Needed for base to fake cperl classes */
     SV * const svz = ST(0);
     SV * stash;
 
-    if (SvPOK(svz)) {
-        stash = (SV*)gv_stashsv(svz, SvUTF8(svz));
+    if (!SvROK(svz))
+        croak_xs_usage(cv, "STASH[, ON] (RV)");
+    else
+        stash = SvRV(svz);
+    if (SvPOK(stash)) {
+        stash = (SV*)gv_stashsv(stash, SvUTF8(stash));
         if (!stash)
             Perl_croak(aTHX_ "Internals::HvCLASS: Unknown classname %s",
                        SvPVX(SvRV(svz)));
     }
-    else if (!SvROK(svz))
-        croak_xs_usage(cv, "STASH[, ON]");
-    else
-        stash = SvRV(svz);
     if (SvTYPE(stash) != SVt_PVHV)
-        croak_xs_usage(cv, "STASH[, ON]");
+        croak_xs_usage(cv, "STASH[, ON] (HV)");
 
     if (items == 1) {
 	 if (HvCLASS(stash))
@@ -623,8 +623,19 @@ XS(XS_Internals_HvCLASS)	/* Needed for base to fake cperl classes */
     }
     else if (items == 2) {
 	if (SvTRUE(ST(1))) {
-	    HvCLASS_on(stash);
-	    XSRETURN_YES;
+            if (!HvCLASS(stash)) {
+                /* make it an almost closed class.
+                   prefer damians' perl5i policy over larry's use oo :closed,
+                   which is still not here. */
+                GV* isa;
+                SV *name = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash),
+                               SVs_TEMP | (HvNAMEUTF8(stash) ? SVf_UTF8 : 0));
+                sv_catpvs(name, "::ISA");
+                isa = gv_fetchsv(name, GV_ADD, SVt_PVAV);
+                HvCLASS_on(stash);
+                SvREADONLY_on(GvAVn(isa));
+                XSRETURN_YES;
+            }
 	}
 	else {
             croak_xs_usage(cv, "STASH[, ON]");

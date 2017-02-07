@@ -1,9 +1,10 @@
 #!/usr/bin/perl -w
 
-my ($Has_PH, $Field);
+my ($Is_cperl, $Has_PH, $Field);
 BEGIN { 
     $Has_PH = $] < 5.009;
     $Field = $Has_PH ? "pseudo-hash field" : "class field";
+    $Is_cperl = $^V =~ /c$/ ? 1 : 0;
 }
 
 my $W;
@@ -230,7 +231,6 @@ package main;
 
 # [perl #31078] an intermediate class with no additional fields caused
 # hidden fields in base class to get stomped on
-
 {
     package X;
     use fields qw(X1 _X2);
@@ -238,11 +238,7 @@ package main;
 	my X $self = shift;
 	$self = fields::new($self) unless ref $self;
 	$self->{X1} = "x1";
-	# FIXME. This code is dead on blead because the test is skipped.
-	# The test states that it's being skipped because restricted hashes
-	# don't support a feature. Presumably we need to make that feature
-	# supported. Bah.
-	# use Devel::Peek; Dump($self);
+	# XXX: These private fields are dead on blead but fixed in cperl.
 	$self->{_X2} = "_x2";
 	return $self;
     }
@@ -273,7 +269,7 @@ package main;
 
     package main;
 
-    if ($Has_PH) {
+    if ($Is_cperl or $Has_PH) {
 	my Z $c = Z->new();
 	is($c->get_X2, '_x2', "empty intermediate class");
     }

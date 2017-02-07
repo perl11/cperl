@@ -3,11 +3,11 @@ package base;
 
 use strict 'vars';
 use vars qw($VERSION);
-$VERSION = '2.24';
+$VERSION = '2.25c';
 $VERSION =~ tr/_//d;
 
 # constant.pm is slow
-sub SUCCESS () { 1 }
+sub SUCCESS    () { 1 }
 
 sub PUBLIC     () { 2**0  }
 sub PRIVATE    () { 2**1  }
@@ -82,8 +82,6 @@ sub import {
     my $fields_base;
 
     my $inheritor = caller(0);
-    # cperl: set the class flag in the stash
-    Internals::HvCLASS($inheritor, 1);
 
     my @bases;
     foreach my $base (@_) {
@@ -114,6 +112,15 @@ sub import {
                 # see [perl #118561]
                 die if $@ && $@ !~ /^Can't locate \Q$fn\E .*? at .* line [0-9]+(?:, <[^>]*> (?:line|chunk) [0-9]+)?\.\n\z/s
                           || $@ =~ /Compilation failed in require at .* line [0-9]+(?:, <[^>]*> (?:line|chunk) [0-9]+)?\.\n\z/;
+                unless (%{"$base\::"}) {
+                  # autocreate coretypes
+                  if (grep /^\Q$base\E$/,
+                           qw(int uint num str Int UInt Num Str Scalar Numeric)) {
+                    eval "my $base \$a;";
+                    #eval "sub dummy ($base \$a){}";
+                    ${"$base\::VERSION"} = 0.01; # XXX bug, no ISA
+                  }
+                }
                 unless (%{"$base\::"}) {
                     require Carp;
                     local $" = " ";
@@ -148,12 +155,14 @@ ERROS
             }
         }
     }
-    # Save this until the end so it's all or nothing if the above loop croaks.
-    push @{"$inheritor\::ISA"}, @bases;
-
-    if( defined $fields_base ) {
+    if ( defined $fields_base ) {
         inherit_fields($inheritor, $fields_base);
     }
+    # Save this until the end so it's all or nothing if the above loop croaks.
+    Internals::SvREADONLY(@{"$inheritor\::ISA"}, 0); # only when fields is before base.
+    push @{"$inheritor\::ISA"}, @bases;
+    # cperl: set the class flag in the stash, and close the ISA
+    Internals::HvCLASS($inheritor, 1);
 }
 
 
@@ -230,6 +239,7 @@ those modules at the same time.  Roughly similar in effect to
         require Foo;
         require Bar;
         push @ISA, qw(Foo Bar);
+	Internals::SvREADONLY(@ISA, 1); # cperl only
     }
 
 When C<base> tries to C<require> a module, it will not die if it cannot find
@@ -287,6 +297,8 @@ This module was introduced with Perl 5.004_04.
 Due to the limitations of the implementation, you must use
 base I<before> you declare any of your own fields.
 
+perl5 allows @ISA do be changed at run-time, which defeats
+any compile-time type checks and optimizations.
 
 =head1 SEE ALSO
 

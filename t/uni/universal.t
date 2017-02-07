@@ -81,24 +81,27 @@ ok ! (eval { $a->VERSION(2.719) });
 like $@, qr/^Àlìcè version 2.719 required--this is only version 2.718 at /u;
 
 ok (!Cèdrìc->isa('Prògràmmèr'));
-
 ok (Cèdrìc->isa('Hùmàn'));
 
-push(@Cèdrìc::ISA,'Prògràmmèr');
-
-ok (Cèdrìc->isa('Prògràmmèr'));
+# forbidden since cperl-5.25.3
+if (defined &Internals::HvCLASS) {
+  eval 'push(@Cèdrìc::ISA, "Prògràmmèr");';
+  like($@, qr/Modification of a read-only value attempted/, 'cperl closed @ISA');
+  eval '@Cèdrìc::ISA = qw(Bob);';
+  like($@, qr/Modification of a read-only value attempted/, 'cperl closed @ISA');
+} else {
+  push(@Cèdrìc::ISA,'Prògràmmèr');
+  ok (Cèdrìc->isa('Prògràmmèr'), 'run-time extend ISA');
+  @Cèdrìc::ISA = qw(Bòb);
+  ok (!Cèdrìc->isa('Prògràmmèr'), 'run-time override ISA');
+}
 
 {
     package Àlìcè;
     base::->import('Prògràmmèr');
 }
-
 ok $a->isa('Prògràmmèr');
 ok $a->isa("Fèmàlè");
-
-@Cèdrìc::ISA = qw(Bòb);
-
-ok (!Cèdrìc->isa('Prògràmmèr'));
 
 my $b = 'abc';
 my @refs = qw(SCALAR SCALAR     LVALUE      GLOB ARRAY HASH CODE);
