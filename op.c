@@ -12892,8 +12892,11 @@ Perl_rv2cv_op_cv(pTHX_ OP *cvop, U32 flags)
     }
 }
 
-/* match a return usertype from arg to
+/* Match a return usertype from arg to
    the declared usertype name of a variable (dname).
+
+   Note that old-style package ISA's are created dynamically.
+   Only classes with compile-time known ISA's can be checked at compile-time.
 
    Too big for gcc to inline.
 */
@@ -12912,7 +12915,8 @@ int S_match_user_type(pTHX_ const char *dname, bool du8, const char* aname, bool
         /* Search dname in @aname::ISA (contra-variance).
          * The astash needs to exist, just coretypes are created on the fly. */
         const HV* astash = gv_stashpvn(aname, strlen(aname), au8 ? SVf_UTF8 : 0);
-        if (astash) { /* Autocreated coretypes do not have an ISA */
+        /* XXX Some autocreated coretypes do have an ISA */
+        if (astash) {
             SSize_t i;
             const AV* isa = mro_get_linear_isa((HV*)astash);
             for (i=0; i<=AvFILLp(isa); i++) {
@@ -12957,8 +12961,13 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
        but if someone declared a coretype, like int and gets a Str do not cast. */
     *castable = (dtyp >= type_int && dtyp < type_Object);
     /* we allow MyInt (isa Int) for int args */
-    if (atyp == type_Object)
-        return S_match_user_type(aTHX_ typename(stash), HvNAMEUTF8(stash), aname, au8);
+    if (atyp == type_Object) {
+        /* TODO: check for class or package types */
+        if (UNLIKELY(PL_phase >= PERL_PHASE_RUN))
+            return S_match_user_type(aTHX_ typename(stash), HvNAMEUTF8(stash), aname, au8);
+        else
+            return 1; /* compiler cannot decide on run-time ISA's */
+    }
     /* and now check the allowed variants */
 #define isNumScalar (atyp == type_Numeric || atyp == type_Scalar)
     switch (dtyp) {
