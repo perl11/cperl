@@ -515,13 +515,13 @@ foreach my $k (sort { $a <=> $b } keys %ValueToName) {
     # Note: keeping the proper case
     my $offset = $k * 2;
     if ($name eq 'all') {
-      print $xs "$name, $offset, WARN_ALLstring, WARN_DEADALLstring\n";
+      print $xs "$name, WARN_ALLstring, WARN_DEADALLstring, 0, $warn_size\n";
     } else {
       my $v = $list{$name};
       my @list = sort { $a <=> $b } @$v;
       my $bits     = mkOct($warn_size, map $_ * 2 , @list);
       my $deadbits = mkOct($warn_size, map $_ * 2 + 1 , @list);
-      print $xs "$name, $offset, \"$bits\", \"$deadbits\"\n";
+      print $xs "$name, \"$bits\", \"$deadbits\", $offset, $warn_size\n";
     }
 }
 print $xs "%%\n";
@@ -564,7 +564,7 @@ EOT
     # s/^#line .*?\n//gm;
 
     # C++ requires full struct initializers
-    s/{-1},/{-1, 0, NULL, NULL},/g;
+    s/{-1},/{-1, NULL, NULL, 0, 0},/g;
 
     # XXX skip inline. Note that on windows this regex fails.
     s/\Q#ifdef __GNUC__
