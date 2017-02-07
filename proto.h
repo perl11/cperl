@@ -8138,6 +8138,11 @@ STATIC void	S_bad_type_pv(pTHX_ I32 n, const char *t, const OP *o, const OP *kid
 #define PERL_ARGS_ASSERT_BAD_TYPE_PV	\
 	assert(t); assert(o); assert(kid)
 
+STATIC int	S_can_class_typecheck(pTHX_ const HV* const stash)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CAN_CLASS_TYPECHECK	\
+	assert(stash)
+
 STATIC void	S_cant_declare(pTHX_ OP* o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_CANT_DECLARE	\

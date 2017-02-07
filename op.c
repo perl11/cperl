@@ -12893,8 +12893,31 @@ Perl_rv2cv_op_cv(pTHX_ OP *cvop, U32 flags)
     }
 }
 
+/*
+=for apidoc s	|int	|can_class_typecheck|NN const HV* const stash
+
+Returns 1 if this class has a compile-time @ISA
+or we are already at the run-time phase.
+This is not called for coretypes, coretypes would always return 1.
+
+Check for class or package types. Does the class has an ISA? #249
+If not cannot do this check before run-time.
+=cut
+*/
+STATIC int
+S_can_class_typecheck(pTHX_ const HV* const stash)
+{
+    PERL_ARGS_ASSERT_CAN_CLASS_TYPECHECK;
+    if (UNLIKELY(PL_phase >= PERL_PHASE_RUN))
+        return 1;
+    else {
+        const AV* isa = mro_get_linear_isa(stash);
+        return AvFILLp(isa) ? 1 : 0;
+    }
+}
+
 /* 
-=for apidoc s	|int	|match_user_type|NN const HV* dstash \
+=for apidoc s	|int	|match_user_type|NN const HV* const dstash \
 					|NN const char* aname|bool au8
 
 Match a return usertype from arg (aname+au8) to
@@ -12939,16 +12962,20 @@ S_match_user_type(pTHX_ const HV* const dstash,
     return 0;
 }
  
-/* match a return coretype from arg or op (atyp) to
-   the declared stash of a variable (dtyp).
+/*
+for apidoc match_type
 
-   Added a 4th parameter if to allow inserting a type cast: 
-   numify. Scalar => Bool/Numeric
-   Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric
-   Maybe allow casting from Scalar/Numeric to Int => int()
-   and Scalar to Str => stringify()
+match a return coretype from arg or op (atyp) to
+the declared stash of a variable (dtyp).
 
-   on atyp == type_Object check the name and its ISA instead.
+Added a 4th parameter if to allow inserting a type cast: 
+numify. Scalar => Bool/Numeric
+Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric
+Maybe allow casting from Scalar/Numeric to Int => int()
+and Scalar to Str => stringify()
+
+on atyp == type_Object check the name and its ISA instead.
+=cut
 */
 PERL_STATIC_INLINE
 int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
@@ -12968,9 +12995,7 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
     *castable = (dtyp >= type_int && dtyp < type_Object);
     /* we allow MyInt (isa Int) for int args */
     if (atyp == type_Object) {
-        /* TODO: check for class or package types. Does the class has an ISA? #249
-           If not cannot do this check before run-time. */
-        if (UNLIKELY(PL_phase >= PERL_PHASE_RUN))
+        if (can_class_typecheck(stash))
             return match_user_type(stash, aname, au8);
         else
             return 1; /* compiler cannot decide on run-time ISA's */
@@ -13012,7 +13037,9 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
         return atyp <= type_Scalar;
     case type_Object:
         *castable = 1; /* XXX for now just warn, no error */
-        return match_user_type(stash, aname, au8);
+        return can_class_typecheck(stash)
+            ? match_user_type(stash, aname, au8)
+            : 1;
     case type_Any:
     case type_Void:
         return 1;

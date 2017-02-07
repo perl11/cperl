@@ -1698,6 +1698,7 @@
 #define assignment_type(a)	S_assignment_type(aTHX_ a)
 #define bad_type_gv(a,b,c,d)	S_bad_type_gv(aTHX_ a,b,c,d)
 #define bad_type_pv(a,b,c,d)	S_bad_type_pv(aTHX_ a,b,c,d)
+#define can_class_typecheck(a)	S_can_class_typecheck(aTHX_ a)
 #define cant_declare(a)		S_cant_declare(aTHX_ a)
 #define check_for_bool_cxt(a,b,c)	S_check_for_bool_cxt(aTHX_ a,b,c)
 #define check_hash_fields_and_hekify(a,b)	S_check_hash_fields_and_hekify(aTHX_ a,b)
