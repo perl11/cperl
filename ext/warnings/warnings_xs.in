@@ -1,6 +1,7 @@
 %{/* -*- mode: c; c-basic-offset: 4; -*-
 
 Copyright (C) 2015, cPanel Inc
+Copyright (C) 2017, Reini Urban <rurban@cpan.org>
 
 =head1 NAME
 
@@ -405,7 +406,7 @@ static int _chk(const char *sub, const U32 flags, I32 ax) {
 
 /* sv_magic_set ${^WARNINGS_BITS} = mask */
 static void
-_set_warn_bits(const char *func, const char* arg, SV *mask) {
+_set_warn_bits(SV* mask, const char *func, const char* arg) {
 #ifdef DEBUGGING
     if (DEBUG_v_TEST_) {
         SV *dsv = newSVpvn("", 80);
@@ -418,19 +419,18 @@ _set_warn_bits(const char *func, const char* arg, SV *mask) {
     PERL_UNUSED_ARG(arg);
 #endif
     if (PL_dowarn & G_WARN_ALL_MASK) return;
-#if 1
+
     /* we always call it with a string */
     if (!SvPOK(mask)) {
         PL_compiling.cop_warnings = pWARN_STD;
         return;
     }
-#endif
-    if (memEQs(SvPVX(mask), WARN_MAX_BYTES, WARN_ALLstring)) {
+    if (memEQs(SvPVX(mask), WARNsize, WARN_ALLstring)) {
         if (!specialWARN(PL_compiling.cop_warnings))
             PerlMemShared_free(PL_compiling.cop_warnings);
         PL_compiling.cop_warnings = pWARN_ALL;
         PL_dowarn |= G_WARN_ONCE;
-    } else if (memEQs(SvPVX(mask), WARN_MAX_BYTES, WARN_NONEstring)) {
+    } else if (memEQs(SvPVX(mask), WARNsize, WARN_NONEstring)) {
         if (!specialWARN(PL_compiling.cop_warnings))
             PerlMemShared_free(PL_compiling.cop_warnings);
         PL_compiling.cop_warnings = pWARN_NONE;
@@ -591,13 +591,13 @@ PPCODE:
                 if (memEQs(SvPVX(word), SvCUR(word), "FATAL")) {
                     fatal = 1;
                     no_fatal = 0;
-                } else
-                    if (memEQs(SvPVX(word), SvCUR(word), "NONFATAL")) {
-                        fatal = 0;
-                        no_fatal = 1;
-                    } else {
-                        mask = _do_bits(mask, word, fatal, no_fatal);
-                    }
+                }
+                else if (memEQs(SvPVX(word), SvCUR(word), "NONFATAL")) {
+                    fatal = 0;
+                    no_fatal = 1;
+                } else {
+                    mask = _do_bits(mask, word, fatal, no_fatal);
+                }
             }
         }
         word = ST(1);
@@ -610,7 +610,7 @@ PPCODE:
                 mask = _do_bits(mask, all, 0, 1);
             SvREFCNT_dec(all);
         }
-        _set_warn_bits("import", SvPVX(word), mask);
+        _set_warn_bits(mask, "import", SvPVX(word));
         SvREFCNT_dec(mask);
         XSRETURN_UNDEF;
     } else {
@@ -619,7 +619,7 @@ PPCODE:
         tmp = newWSVpv(w_all->bits);
         do_vop(OP_BIT_OR, mask, mask, tmp);
         SvREFCNT_dec(tmp);
-        _set_warn_bits("import", "", mask);
+        _set_warn_bits(mask, "import", "");
         mXPUSHs(mask);
         XSRETURN(1);
     }
@@ -707,7 +707,7 @@ PPCODE:
             }
         }
     }
-    _set_warn_bits("unimport", items > 1 ? SvPVX(ST(1)) : "", mask);
+    _set_warn_bits(mask, "unimport", items > 1 ? SvPVX(ST(1)) : "");
     mXPUSHs(mask);
     XSRETURN(1);
 
@@ -858,8 +858,8 @@ PPCODE:
                 SvREFCNT_dec(dsv);
             }
 #endif
-            /* we need to update ${^WARNING_BITS}/cop_warnings also? */
-            /* _set_warn_bits("register_categories", n, newWSV(wd->bits, SvIVX(bytes))); */
+            /* Do we need to update ${^WARNING_BITS}/cop_warnings also? */
+            /* _set_warn_bits(newWSV(wd->bits, SvIVX(bytes)), "register_categories", n); */
         }
     }
     XSRETURN_UNDEF;
