@@ -98,7 +98,7 @@ for my $tref ( @NumTests ){
 my $bas_tests = 21;
 
 # number of tests in section 3
-my $bug_tests = 66 + 3 * 3 * 5 * 2 * 3 + 2 + 66 + 6 + 2 + 3 + 96 + 11 + 5;
+my $bug_tests = 66 + 3 * 3 * 5 * 2 * 3 + 2 + 66 + 6 + 2 + 3 + 96 + 11 + 6;
 
 # number of tests in section 4
 my $hmb_tests = 37;
@@ -2017,6 +2017,9 @@ EOP
     { stderr => 1 },
     '#128255 Assert fail in S_sublex_done');
 
+
+# [perl #130722] assertion failure
+fresh_perl_is('for(1..2){formline*0}', '', { stderr => 1 } , "#130722 - assertion failure");
 
 #############################
 ## Section 4
