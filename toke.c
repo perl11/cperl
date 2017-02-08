@@ -549,7 +549,8 @@ S_def_coretype(pTHX_ SV *sv, const char *t1, int len)
         av_push(isa, newSVpvn(t1, len));
     mg_set(MUTABLE_SV(isa));
     SvREADONLY_on(MUTABLE_SV(isa));
-    SvREADONLY_on(MUTABLE_SV(stash));
+    if (strNE(SvPVX(sv), "Scalar::"))
+        SvREADONLY_on(MUTABLE_SV(stash));
     return stash;
 }
 

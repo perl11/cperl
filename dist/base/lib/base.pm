@@ -115,7 +115,8 @@ sub import {
                 unless (%{"$base\::"}) {
                   # autocreate coretypes
                   if (grep /^\Q$base\E$/,
-                           qw(int uint num str Int UInt Num Str Scalar Numeric)) {
+                           # dont restrict Scalar for Scalar::Util
+                           qw(int uint num str Int UInt Num Str Numeric)) {
                     eval "my $base \$a;";
                     #eval "sub dummy ($base \$a){}";
                     ${"$base\::VERSION"} = 0.01; # XXX bug, no ISA
