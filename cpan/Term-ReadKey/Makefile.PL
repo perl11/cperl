@@ -87,7 +87,7 @@ sub MY::processPL {
         if ($useshrplib && $Config{ldlibpthname}) {
           $cmd = "$Config{ldlibpthname}=../.. $cmd";
         }
-        s/\$\(PERLRUN\)/$cmd/;
+        s/\$\(PERLRUN\)(.+)$/$cmd \1 || \$\(PERLRUN\) \1/;
     }
     $_
 }
