@@ -62,8 +62,8 @@ File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
 IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm fb1175286262913bec59482b84a3587ec48339ea
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm da7db2b7b06467019466d3d82f29bfdb6c5b0b49
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 93aed34a374d60ecd03d4b76025bfb50aacc0f02
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm eb1c0d03346c76ef13debfe57d251f3927bd3857
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 0d0c8e1a86ea355798b82b1e8230d0678161913d
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm a88f6bb9b19ab71b221b52c292a3d5b5acd23026
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
 Net::Domain cpan/libnet/lib/Net/Domain.pm 73f78880a95de5372bb234f37c386f52e43795d9
@@ -90,6 +90,10 @@ YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL af46c9ce20b08189cc0fa26b20c6
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 37441ba0eff59df1e75d7c2db64d9b478a8ffc60
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm c18836415c5d185eae1cb829e0f0b3c18135d2a0
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
+base dist/base/lib/base.pm 8c56f516799ba4666b1dccb198cbd1e8c1d25853
+base dist/base/lib/fields.pm 1ef6ddefc3b54c6958cdba85bdb85b16a9e3a07b
+base dist/base/t/fields-5_6_0.t 175dea16b9325762cea401d156e8f440f916fa90
+base dist/base/t/fields-5_8_0.t ace0272fe98ed4be52b7359654ae328ce537372a
 lib dist/lib/lib_pm.PL 04a3dedbc657cac6c8db1faf2f0c6a7af328a23f
 threads dist/threads/lib/threads.pm 36113e8bd890ab0af5a534fa45e994ab7f0e3146
 threads dist/threads/threads.xs 3696e2134762671414ed4ceb68042d55c129a8b6
