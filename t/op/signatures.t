@@ -1433,7 +1433,7 @@ sub t150 (int $i, @error) { 1 }
     is scalar(t150(1, "")), 1, "reset tyepstash";
 }
 
-# user-type checks
+# user-types inherited from coretypes (contra-variance)
 sub t119a (Int $a) :int { ++$a }
 {
     my int $b = 0;
@@ -1441,20 +1441,18 @@ sub t119a (Int $a) :int { ++$a }
     eval "t119a('a')"; # ck error (fast direct violation)
     like $@, qr/\AType of arg \$a to t119a must be Int \(not Str\) at \(eval \d+\) line 1, near "/, "Int not Str";
 
-    @MyInt::ISA=('Int');
-    my MyInt $i = 1;   # but MyInt is not a int, only a Int
+    @MyInt::ISA = ('Int');
+    my MyInt $i; # but MyInt is not a int, only a Int
     eval 't119a($i);'; # slow isa check with type_Object
     is $@, "", "MyInt isa Int, slow isa check with type_Object";
     eval 't119($i);'; # MyInt isa Int isa int
     is $@, "", "MyInt isa int, two stage type check";
-    #like $@, qr/\AType of arg \$a to t119 must be int \(not MyInt\) at \(eval \d+\) line 1, near "/, "int not MyInt";
 
-    @MyStr::ISA=('Str');
+    @MyStr::ISA = ('Str');
     my MyStr $s;
     # warns with use warnings 'types';
     eval 't119a($s);'; # ck error (slow isa check with type_Object)
     is $@, "", "MyStr isa Str, valid cast to int";
-    #like $@, qr/\AType of arg \$a to t119a must be Int \(not MyStr\) at \(eval \d+\) line 1, near "/, "Int not MyStr";
 }
 
 # check that a sub can have 32767 parameters ...

@@ -7,7 +7,7 @@ BEGIN {
 }
 
 use coretypes;
-plan 22;
+plan 29;
 
 # native or coretypes. the result should be the same
 my int $x = 4;
@@ -85,25 +85,78 @@ ok($c >= -0.871575772413588-EPS && $c <= -0.871575772413588+EPS, "num_sin");
 $c = log $a;
 ok($c >= 1.43508452528932-EPS && $c <= 1.43508452528932+EPS, "num_log");
 
-my $args = { switches => ['-w'] };
+my $args = { switches => ['-w', '-Mtypes=strict'] };
 my $err = qr/Type of scalar assignment to [@%]a must be Int \(not Str\)/;
-fresh_perl_like(<<'EOF', $err, $args, 'ck_sassign aelem');
+fresh_perl_like(<<'EOF', $err, $args, 'ck_sassign aelem strict');
 my Int @a;
 $a[0] = "";
 EOF
 
-fresh_perl_like(<<'EOF', $err, $args, 'ck_sassign helem');
+fresh_perl_like(<<'EOF', $err, $args, 'ck_sassign helem strict');
 my Int %a;
 $a{"key"} = "";
 EOF
 
 $err = qr/Type of list assignment to [@%]a must be Int \(not Str\)/;
-fresh_perl_like(<<'EOF', $err, $args, 'ck_aassign array');
+fresh_perl_like(<<'EOF', $err, $args, 'ck_aassign array strict');
 my Int @a; my Str @b;
 @a = @b;
 EOF
 
-fresh_perl_like(<<'EOF', $err, $args, 'ck_aassign hash');
+fresh_perl_like(<<'EOF', $err, $args, 'ck_aassign hash strict');
 my Int %a; my Str %b;
 %a = %b;
 EOF
+
+# permit coretypes casts
+$args = { switches => ['-w'] };
+fresh_perl_is(<<'EOF', '', $args, 'ck_sassign aelem Int = Str');
+my Int @a;
+$a[0] = "";
+EOF
+
+fresh_perl_is(<<'EOF', '', $args, 'ck_sassign helem Int = Str');
+my Int %a;
+$a{"key"} = "";
+EOF
+
+fresh_perl_is(<<'EOF', '', $args, 'ck_aassign array Int = Str');
+my Int @a; my Str @b;
+@a = @b;
+EOF
+
+fresh_perl_is(<<'EOF', '', $args, 'ck_aassign hash Int = Str');
+my Int %a; my Str %b;
+%a = %b;
+EOF
+
+$err = qr/Type of scalar assignment to [@%]a must be Int \(not Bla\)/;
+fresh_perl_like(<<'EOF', $err, $args, 'fail with user-type to coretype');
+package Bla;
+my Bla $b;
+my Int @a;
+$a[0] = $b;
+EOF
+
+fresh_perl_is(<<'EOF', '', $args, 'allow coretype to user-type');
+package Bla;
+my Bla %a;
+$a{"key"} = "";
+EOF
+
+$args = { switches => ['-w', '-Mtypes=strict'] };
+$err = qr/Type of scalar assignment to [@%]a must be Bla \(not Str\)/;
+fresh_perl_like(<<'EOF', $err, $args, 'fail strict coretype to user-type');
+package Bla;
+my Bla %a;
+$a{"key"} = "";
+EOF
+
+# a normal dynamic class
+#{
+#  @MyInt::ISA = ('Int');
+#  my $j = 1;
+#  my MyInt $i = bless \$j, "MyInt";
+#  sub dummy($x) { ok(1, "MyInt=>int arg") }
+#  dummy($i);
+#} # bug: Attempt to access disallowed key 'DESTROY' in the restricted hash '%Int::'

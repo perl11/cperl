@@ -11850,13 +11850,15 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
         case SVt_PVHV:   return type_Hash;
         case SVt_PVCV:   return type_Sub;
         case SVt_REGEXP: return type_Regexp;
-        default: {
-            HV* stash = SvSTASH(sv);
-            if (usertype && stash) {
-                *usertype = (char*)typename(stash);
-                *u8 = HvNAMEUTF8(stash);
+        default:
+            {
+                HV* stash = SvSTASH(sv);
+                if (usertype && stash) {
+                    *usertype = (char*)typename(stash);
+                    *u8 = HvNAMEUTF8(stash);
+                }
+                return stash ? type_Object : type_Scalar;
             }
-            return stash ? type_Object : type_Scalar; }
         }
         break;
     }
@@ -11872,9 +11874,12 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
     }
     case OP_RV2CV:
     case OP_ENTERSUB: {
-        /*PADNAME * const pn = PAD_COMPNAME(o->op_targ);
-          return stash_to_coretype(PadnameTYPE(pn));*/
-        return type_none; }
+        PADNAME * const pn = PAD_COMPNAME(0); /* first slot: rettype */
+        return stash_to_coretype(PadnameTYPE(pn));
+        /*return type_none;*/
+        }
+    default:
+        break;
     } /* switch */
     /* else */
     t = (core_types_t)(PL_op_type[o->op_type] & 0xff);
@@ -12929,12 +12934,15 @@ S_can_class_typecheck(pTHX_ const HV* const stash)
 =for apidoc s	|int	|match_user_type|NN const HV* const dstash \
 					|NN const char* aname|bool au8
 
-Match a return usertype from arg (aname+au8) to
-the declared usertype name of a variable (dname+du8).
+Match a usertype from argument (aname+au8) to
+the declared usertype name of a variable (dstash).
+Searches dstash in @aname::ISA (contra-variance, for arguments).
+
+On assignment and return-type checks reverse the arguments (co-variance).
 
 Note that old-style package ISA's are created dynamically.
 Only classes with compile-time known ISA's can be checked at compile-time.
-Which are currently: use base/fields; 
+Which are currently: use base/fields using Internals::HvCLASS,
 and later the perl6 syntax class Name is Parent {}
 Todo: Moose syntax
 =cut
@@ -12974,8 +12982,9 @@ S_match_user_type(pTHX_ const HV* const dstash,
 /*
 for apidoc match_type
 
-match a return coretype from arg or op (atyp) to
+Match a coretype from arg or op (atyp) to
 the declared stash of a variable (dtyp).
+Searches stash in @aname::ISA (contra-variance, for arguments).
 
 Added a 4th parameter if to allow inserting a type cast: 
 numify. Scalar => Bool/Numeric
@@ -12983,7 +12992,7 @@ Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric
 Maybe allow casting from Scalar/Numeric to Int => int()
 and Scalar to Str => stringify()
 
-on atyp == type_Object check the name and its ISA instead.
+On atyp == type_Object check the name and its ISA instead.
 =cut
 */
 PERL_STATIC_INLINE
@@ -13002,12 +13011,16 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
     /* we can cast any coretype to another: numify, stringify, but not user-objects.
        but if someone declared a coretype, like int and gets a Str do not cast. */
     *castable = (dtyp >= type_int && dtyp < type_Object);
-    /* we allow MyInt (isa Int) for int args */
+    /* user-type can extend coretypes. e.g. MyInt (isa Int) for int args */
     if (atyp == type_Object) {
         if (can_class_typecheck(stash))
             return match_user_type(stash, aname, au8);
-        else
-            return 1; /* compiler cannot decide on run-time ISA's */
+        else {
+            const char* dname = HvNAME(stash);
+            /* compiler cannot decide on run-time ISA's */
+            *castable = 1; /* only warn */
+            return dname && strEQ(dname, aname);
+        }
     }
     /* and now check the allowed variants */
 #define isNumScalar (atyp == type_Numeric || atyp == type_Scalar)
@@ -13045,10 +13058,10 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
     case type_Scalar:
         return atyp <= type_Scalar;
     case type_Object:
-        *castable = 1; /* XXX for now just warn, no error */
-        return can_class_typecheck(stash)
+        /* we allow MyInt (isa Int) for int args */
+        return atyp == type_Object && can_class_typecheck(stash)
             ? match_user_type(stash, aname, au8)
-            : 1;
+            : atyp >= type_Object;
     case type_Any:
     case type_Void:
         return 1;
@@ -13063,6 +13076,7 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
 Check if the declared static type of the argument from pn can be
 fullfilled by the dynamic type of the arg in OP* o (padsv, const,
 any return type). If possible add a typecast to o to fullfill it.
+Using contra-variance.
 
 =cut
 */
@@ -13182,6 +13196,7 @@ fullfill it.
 
 Different to arg_check_type a type violation is not fatal, it only throws
 a compile-time warning when no applicable type-conversion can be applied.
+Using co-variance.
 
 =cut
 */
@@ -13204,27 +13219,34 @@ S_ret_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
             && name && strNE(argname, name))
         {
             int castable = 0;
+            HV* dstash = gv_stashpvn(argname, strlen(argname),
+                                     argu8 ? SVf_UTF8 : 0);
+            if (!dstash && !usertype) {
+                /* auto-create a missing coretype, such
+                   as for my Bla $a = 0; */
+                dstash = find_in_coretypes(argname, strlen(argname));
+            }
             /* check aggregate type: Array(int), Hash(str), ... */
             if (!PadnamePV(pn))
-                ; /* ignore */
-            else if (argtype == type_Hash &&
-                PadnamePV(pn)[0] == '%' &&
-                IS_TYPE(o, PADHV))
+                ;
+            else if ((argtype == type_Hash &&
+                      PadnamePV(pn)[0] == '%' &&
+                      IS_TYPE(o, PADHV))
+                      ||
+                     (argtype == type_Array &&
+                      PadnamePV(pn)[0] == '@' &&
+                      IS_TYPE(o, PADAV)))
             {
                 PADNAME * const xpn = PAD_COMPNAME(o->op_targ);
-                argtype = stash_to_coretype(PadnameTYPE(xpn));
+                dstash = PadnameTYPE(xpn);
+                argtype = stash_to_coretype(dstash);
             }
-            else if (argtype == type_Array &&
-                PadnamePV(pn)[0] == '@' &&
-                IS_TYPE(o, PADAV))
+            /* reverse the args: co-variance */
+            if (!match_type(dstash, stash_to_coretype(type), name,
+                            HvNAMEUTF8(type), &castable))
             {
-                PADNAME * const xpn = PAD_COMPNAME(o->op_targ);
-                argtype = stash_to_coretype(PadnameTYPE(xpn));
-            }
-
-            if (!match_type(type, argtype, argname, argu8, &castable)) {
+                /* ignore "Inserting type cast str to Scalar" */
                 if (!castable || S_is_types_strict(aTHX)) {
-                    /* ignore "Inserting type cast str to Scalar" */
                     S_warn_type_core(aTHX_ PadnamePV(pn),
                                      opdesc, argtype, argname, name);
                 } else {
