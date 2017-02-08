@@ -783,11 +783,12 @@ use File::Glob qw(:case);
         ],
     },
 
-    'I18N::Collate' => {
-        'DISTRIBUTION' => 'FLORA/I18N-Collate-1.02.tar.gz',
-        'FILES'        => q[dist/I18N-Collate],
-        'EXCLUDED'     => [qr{^t/release-.*\.t}],
-    },
+    # removed with v5.25.3c
+    #'I18N::Collate' => {
+    #    'DISTRIBUTION' => 'FLORA/I18N-Collate-1.02.tar.gz',
+    #    'FILES'        => q[dist/I18N-Collate],
+    #    'EXCLUDED'     => [qr{^t/release-.*\.t}],
+    #},
 
     'I18N::LangTags' => {
         'FILES'        => q[dist/I18N-LangTags],

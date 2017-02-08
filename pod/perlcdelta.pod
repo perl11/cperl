@@ -448,6 +448,7 @@ This makes the lvalue sub case consistent with C<(keys %hash) = ...> and
 C<(keys @_) = ...>, which are also errors.
 L<[perl #128187]|https://rt.perl.org/Public/Bug/Display.html?id=128187>
 
+
 =head1 Performance Enhancements
 
 =over 4
@@ -663,6 +664,22 @@ Add a longer and more realistic threads DESCRIPTION.
 =item threads-shared 1.54
 
 ifdef clang
+
+=back
+
+=head2 Removed Modules and Pragmata
+
+=over 4
+
+=item I18N-Collate 1.02
+
+Compared 8-bit scalar data according to the current locale.
+
+Deprecated with 5.003_06.
+Its functionality was integrated into the Perl core language in the
+release 5.003_06.
+
+See L<perllocale> for further information.
 
 =back
 

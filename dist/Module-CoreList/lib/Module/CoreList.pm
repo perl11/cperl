@@ -13934,7 +13934,9 @@ our %delta = (
             'types'                 => '0.01',
             'Storable'              => '3.05_03',
         },
-        removed => {},
+        removed => {
+            'I18N::Collate' => '2.070',
+        },
     },
 );
 

@@ -30,7 +30,6 @@
          "dist/ExtUtils-Constant",
          "dist/ExtUtils-ParseXS",
          "dist/Filter-Simple",
-         "dist/I18N-Collate",
          "dist/if",
          "dist/IO/",
          "dist/lib/",
