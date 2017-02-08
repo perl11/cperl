@@ -41,7 +41,7 @@ eval 'sub e4 ($) : plugh + XYZZY ;';
 like $@, qr/Invalid separator character '[+]' in attribute list at/;
 
 eval 'my main $x : = 0;';
-like $@, qr/^Wrong type Int, expected main at /, 'main = Int typefail';
+like $@, qr/^Wrong type main, expected Int at /, 'main = Int typefail';
 eval_ok 'my $x : = 0;';
 eval_ok 'my $x ;';
 eval_ok 'my ($x) : = 0;';
