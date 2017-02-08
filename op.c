@@ -11786,10 +11786,10 @@ Perl_ck_smartmatch(pTHX_ OP *o)
         op_sibling_splice(o, NULL, 0, first);
 	
 	/* Implicitly take a reference to a regular expression */
-	if (IS_TYPE(first, MATCH)) {
+	if (IS_TYPE(first, MATCH) && !OpSTACKED(first)) {
             OpTYPE_set(first, OP_QR);
 	}
-	if (IS_TYPE(second, MATCH)) {
+	if (IS_TYPE(second, MATCH) && !OpSTACKED(first)) {
             OpTYPE_set(second, OP_QR);
         }
     }
