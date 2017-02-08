@@ -20,21 +20,24 @@ This cperl version is merged with the perl versions 5.25.3 - 5.25.9.
 C<${^ENCODING}> and the encoding pragma was not removed, rather fixed
 instead.
 
-Assignment type violations are now warned, with C<use warnings 'types'>
-enabled. Only signature type violations or C<use types 'strict'> violations
-are fatal.
+User-type support is greatly enhanced. See L</Type-check assignments>,
+L</HvCLASS>, L<Type-infer bless>, and L</Type-infer subroutine return
+types>.  Before just coretypes were properly checked, now C<use types>
+adds warnings for all other types.
 
 The still incomplete and slow implementation for the experimental
 subroutine signatures feature from 5.25.4 was not added, as cperl's
-signatures are twice as fast and have many more features. In detail
-the new C<OP_ARGELEM>, C<OP_ARGDEFELEM> and C<OP_ARGCHECK> are not
-used, cperl still uses C<OP_SIGNATURE> only.
+signatures are over 50% faster for over a year and have many more
+features. In detail the new C<OP_ARGELEM>, C<OP_ARGDEFELEM> and
+C<OP_ARGCHECK> are not used, cperl still uses C<OP_SIGNATURE> only.
 
 cperl doesn't use the slow Siphash 1-3 as default on 64bit, and no
-hybrid hash function as introduced with 5.25.8. cperl rather uses fast
-hash functions and other typical optimizations, while adding proper
-security in the collision resolution instead. A hash function can
-never ensure DoS safety for a hash table.
+hybrid hash function as introduced with 5.25.8. cperl rather uses a
+short and fast hash function and other typical hash table
+optimizations, while adding proper security in the collision
+resolution instead. A secure PRF (pseudo random function) can never
+ensure DoS safety for a hash table, contrary to the Siphash paper
+claims.
 
 =head1 Core Enhancements
 
@@ -48,6 +51,29 @@ are fatal.
 Note that the type system is still completely unsound. So far it is
 only there to catch the most common errors and enable coretype
 optimizations.
+cperl only.
+
+=head2 HvCLASS
+
+With cperl C<use base> or C<use fields> now closes the C<@ISA> and
+hereby enable compile-time checks and optimizations. The new
+C<Internals::HvCLASS> function gets or sets the same type for
+base/field classes as with the upcoming class keyword.
+See L<[cperl #249]|https://github.com/perl11/cperl/issues/249>.
+cperl only.
+
+=head2 Type-infer bless
+
+bless with a constant 2nd argument, the classname, infers this type to
+the enclosing sub if its the last statement in a body, or to the
+left-side assignment of a lexical variable.
+cperl only.
+
+=head2 Type-infer subroutine return types
+
+Subroutine types, either declared or inferred, are now passed through
+to the type-checker at compile-time.
+cperl only.
 
 =head2 for qw() is legal again
 
@@ -71,6 +97,7 @@ require C<(qw( ... ))> around the C<for> list.
 
 The new additional cperl syntax is even easier to use than before.
 See L<[cperl #26]|https://github.com/perl11/cperl/issues/26>.
+cperl only.
 
 =head2 Perl can now do default collation in UTF-8 locales on platforms
 that support it
@@ -251,19 +278,29 @@ It also makes it possible to re-instate the old python-like timestamp
 logic which was removed for pugs 2006 with commit
 L<a91233bf4cf|https://github.com/perl11/cperl/commit/a91233bf4cf6a12df8935c3530a6ca900ca6ca2f>.
 
-L<[cperl #244]|https://github.com/perl11/cperl/issues/244>.
+See L<[cperl #244]|https://github.com/perl11/cperl/issues/244>.
+cperl only.
 
 =head1 Security
 
-=head2 Storable stack overflow or exit
+=head2 Storable stack overflows
 
 By reading malcrafted local Storable files or memory you could easily
 overwrite the local stack with controlled data.  With bigger values
 you could cause an immediate exit, without backtrace or an exception
 being caught.
 
-Note that p5p doesn't think that this is a security issue.
+Another major stack-overflow fix is for
+L<[cpan #97526]|https://rt.cpan.org/Ticket/Display.html?id=97526>,
+limiting the maximal number of nested hash or arrays to 3000.
+Cpanel::JSON::XS has it at 512.
+
+Note that p5p doesn't think that these are security issues.
 L<[perl #130635]|https://rt.perl.org/Public/Bug/Display.html?id=130635>
+(even if similar less severe attacks had a CVE and a metasploit module,
+which cperl detects).
+
+cperl only so far. Uploaded to CPAN, but at this date still unauthorized.
 
 =head2 "Escaped" colons and relative paths in PATH
 
@@ -349,6 +386,7 @@ This is still better, faster and smaller than the java solution to
 convert the linked list to a tree. We log the attackers and can block
 them.
 L<[cperl #246]|https://github.com/perl11/cperl/issues/246>.
+cperl only.
 
 =head1 Incompatible Changes
 
@@ -428,7 +466,7 @@ cperl only.
 ref in boolean context doesn't need to allocate a string.
 2-3x faster. See L<[cperl #245]|https://github.com/perl11/cperl/issues/245> and
 L<[perl #78288]|https://rt.perl.org/Public/Bug/Display.html?id=78288>
-cperl only. in perl5 announced for 5.26.
+cperl only. in perl5 announced for 5.28.
 
 =item * readline is faster
 
@@ -472,6 +510,7 @@ sped up. Firstly, it no longer requires a subsidiary internal C<pushre> op
 to do its work. Secondly, code of the form C<my @x = split(...)> is now
 optimised in the same way as C<@x = split(...)>, and is therefore a few
 percent faster.
+This required B::* compiler changes.
 
 =item * Constant fold with barewords
 

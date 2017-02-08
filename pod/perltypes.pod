@@ -32,11 +32,11 @@ declared types.
 
 =head2 Why types? Types are unperlish
 
-No, they are not. Types for lexical variables are permitted since 2001
-and used in a few CPAN modules, i.e. Net::DNS.  Perl6 uses types all
-over.  Every perl5 value is typed at run-time. Just all the normal ops
-are generic and are allowed to change the type of its arguments and
-its result at will.
+No, they are not. Types for lexical variables are permitted since
+2001, esp. with use fields and used in a few CPAN modules,
+i.e. Net::DNS.  Perl6 uses types all over.  Every perl5 value is typed
+at run-time. Just all the normal ops are generic and are allowed to
+change the type of its arguments and its result at will.
 
 Checking types already at compile-time allows dramatic performance and
 size optimizations, lead to better documented code and lead to earlier
@@ -51,7 +51,8 @@ I<magic>, i.e. checking for extraordinary conditions can be bypassed
 with typed variants. And with unboxed native types all the arithmetic
 ops are at least 2-4x faster.
 
-Without types no multi-dispatch, no proper object system. There's no
+Without types there will be no multi-dispatch, no proper object
+system, and smartmatch is almost impossible without types. There's no
 need to overload internal methods anymore. The compiler and run-time
 can dispatch on the types of its arguments.
 
@@ -97,12 +98,12 @@ children of coretypes to allow stringification and undef.  So it is
 safe to optimize coretypes to its native operations at compile-time.
 
 The type checkers will not throw errors on coretype violations with
-existing ops, only C<use warnings "types"> warnings, which can be made
-fatal. The new signature op and feature however is stricter, and does
-throw type violation errors at compile-time on not matching coretypes.
-Other basic non-coretypes, i.e. user-types and Scalar, Numeric will
-always throw type violation errors.
-Any type can be promoted to int, num and str.
+existing ops, only C<use types> or C<use warnings "types"> warnings,
+which can be made fatal. The new signature op and feature however is
+stricter, and does throw type violation errors at compile-time on not
+matching coretypes.  Other basic non-coretypes, i.e. user-types and
+Scalar, Numeric will always throw type violation errors.  Any type can
+be promoted to int, num and str.
 
 See L</type checker> below.
 
@@ -157,8 +158,11 @@ currently only signature subroutine calls and scalar assignment.
 
 Compile-time type checks for user-defined types need to be enabled
 with C<use types>. Type warnings are enabled with C<use warnings
-'types'> and appear at compile-time.  Type warnings can of course be
-fatalized.  Signature type checks do not need C<use types> and are
+'types'> and appear at compile-time. Note that currently C<use types>
+just enables the types warnings category.
+
+Type warnings can of course be fatalized, e.g. with C<use types
+'strict'> Signature type checks do not need C<use types> and are
 always fatal, at compile-time.
 
     my int @a;
@@ -185,6 +189,9 @@ always fatal, at compile-time.
 The strict argument to the L<types> pragma enables strict types warnings,
 so old-style code behaves like modern perl, dying on type violations.
 C<use types> without strict just warns.
+
+With strict types even user-type violations will error, without only
+signature type violations are strict.
 
 =head2 type inference
 
@@ -233,6 +240,20 @@ classnames.
 B<typeof> returns the compile-time declared or inferred type of the expression.
 This may be different from the run-time class name, obtained with L<perlfunc/ref> or
 L<Scalar::Util/reftype>.
+
+=head2 Internals::HvCLASS
+
+Get or set the status of HvCLASS of stashes.
+
+Needed by the cperl variants of L<base> and L<fields> to make the
+C<@ISA> inheritance readonly at compile-time, to enable compile-time
+checks of classes using base or fields. Those classes are essentially
+the same as the upcoming B<class> keyword, which is fast sugar over the
+old base/field object system with pseudohashes.
+
+Without const @ISA we cannot do compile-time type checks, and we better
+don't do them at run-time. Only dynamic non HvCLASS packages are
+type-checked at run-time.
 
 =head1 More type terminology
 
@@ -468,6 +489,9 @@ can be inlined, and therefore even more optimized.
 Note that the C<package MyBase> must be constant here. Otherwise
 C<&MyBase::new> can be deleted and C<@MyBase::ISA> be changed to lead
 a parent object at run-time.
+
+base classes with optional fields just close the C<@ISA>, but not the
+method hash.
 
 =head3 Types and const inheritance
 
