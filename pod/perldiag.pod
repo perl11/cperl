@@ -2861,12 +2861,6 @@ expression that contains a call to a user-defined character property
 function, i.e. C<\p{IsFoo}> or C<\p{InFoo}>.
 See L<perlunicode/User-Defined Character Properties> and L<perlsec>.
 
-=item Inserting type cast %s to %s
-
-(W types) The compiler found an argument with a declared type, which
-the needs to be converted at run-time. This warning usually points to
-a wrong type usage.  (cperl only)
-
 =item Integer overflow in format string for %s
 
 (F) The indexes and widths specified in the format string of C<printf()>
@@ -3928,6 +3922,12 @@ two separate things, you need to separate them:
  (?[ [ \o{7776} ] ])     # One meaning
  (?[ [ \777 6 ] ])       # Another meaning
  (?[ [ \777 \006 ] ])    # Still another
+
+=item Need type cast or dynamic inheritence from %s to %s
+
+(W types) The compiler found an argument with a declared type, which
+the needs to be converted at run-time. This warning usually points to
+a wrong type usage.  (cperl only)
 
 =item Negative '/' count in unpack
 

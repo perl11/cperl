@@ -8368,11 +8368,21 @@ STATIC OP*	S_scalarboolean(pTHX_ OP *o)
 	assert(o)
 
 STATIC OP*	S_scalarkids(pTHX_ OP* o);
+STATIC OP*	S_scalarkids(pTHX_ OP *o)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_SCALARKIDS	\
+	assert(o)
+
 STATIC OP*	S_scalarseq(pTHX_ OP* o);
 STATIC OP*	S_search_const(pTHX_ OP *o)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SEARCH_CONST	\
+	assert(o)
+
+STATIC OP*	S_set_boolean(pTHX_ OP *o)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_SET_BOOLEAN	\
 	assert(o)
 
 STATIC void	S_simplify_sort(pTHX_ OP *o)

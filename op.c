@@ -1918,16 +1918,17 @@ Perl_op_contextualize(pTHX_ OP *o, I32 context)
 }
 
 /*
-=for apidoc s|OP*	|scalarkids	|NULLOK OP* o
+=for apidoc s|OP*	|scalarkids	|NN OP* o
 
-Sets scalar context for all kids
+Sets scalar context for all kids.
 
 =cut
 */
 static OP *
 S_scalarkids(pTHX_ OP *o)
 {
-    if (o && OpKIDS(o)) {
+    PERL_ARGS_ASSERT_SCALARKIDS;
+    if (OpKIDS(o)) {
         OP *kid;
         for (kid = OpFIRST(o); kid; kid = OpSIBLING(kid))
 	    scalar(kid);
@@ -1935,6 +1936,39 @@ S_scalarkids(pTHX_ OP *o)
     return o;
 }
 
+/*
+=for apidoc set_boolean
+
+Force the op to be in boolean context, similar to L</scalar>
+and L</scalarboolean>
+This just abstracts away the various private TRUEBOOL flag values.
+
+=cut
+*/
+PERL_STATIC_INLINE OP*
+S_set_boolean(pTHX_ OP* o)
+{
+    PERL_ARGS_ASSERT_SET_BOOLEAN;
+    if (IS_TYPE(o, RV2HV) ||
+        IS_TYPE(o, PADHV) ||
+        IS_TYPE(o, REF))
+        o->op_private |= OPpTRUEBOOL;
+    else if (IS_TYPE(o, LENGTH))
+        o->op_private |= OPpLENGTH_TRUEBOOL;
+    return o;
+}
+
+/*
+=for apidoc s|OP*	|scalarboolean	|NN OP* o
+
+Checks boolean context for the op, merely for syntax warnings.
+
+Note: We cannot L</set_boolean> context here, as some ops
+still require the non-boolified stackvalue.
+See L</check_for_bool_cxt>.
+
+=cut
+*/
 static OP *
 S_scalarboolean(pTHX_ OP *o)
 {
@@ -7821,7 +7855,8 @@ S_new_logop(pTHX_ I32 type, I32 flags, OP** firstp, OP** otherp)
 	if (cstop->op_private & OPpCONST_STRICT)
 	    no_bareword_allowed(cstop);
 	else if ((cstop->op_private & OPpCONST_BARE))
-		Perl_ck_warner(aTHX_ packWARN(WARN_BAREWORD), "Bareword found in conditional");
+		Perl_ck_warner(aTHX_ packWARN(WARN_BAREWORD),
+                               "Bareword found in conditional");
 	if ((type == OP_AND &&  SvTRUE(((SVOP*)cstop)->op_sv)) ||
 	    (type == OP_OR  && !SvTRUE(((SVOP*)cstop)->op_sv)) ||
 	    (type == OP_DOR && !SvOK(((SVOP*)cstop)->op_sv))) {
@@ -12960,8 +12995,10 @@ S_match_user_type(pTHX_ const HV* const dstash,
     if (astash == dstash) /* compare ptrs not strings */
         return 1;
     /* Search dname in @aname::ISA (contra-variance).
-     * The astash needs to exist, just coretypes are created on the fly. */
-    /* XXX Some autocreated coretypes do have an ISA */
+     * The astash needs to exist, but coretypes are created on the fly. */
+    /* Some autocreated coretypes do have an ISA */
+    if (!astash)
+        astash = find_in_coretypes(aname, strlen(aname));
     if (astash) {
         SSize_t i;
         const AV* isa = mro_get_linear_isa((HV*)astash);
@@ -12973,7 +13010,7 @@ S_match_user_type(pTHX_ const HV* const dstash,
                 return 1;
         }
     }
-    if (ckWARN(WARN_TYPES))
+    if (can_class_typecheck(dstash))
         Perl_warner(aTHX_ packWARN(WARN_TYPES),
                     "Wrong type %s, expected %s", aname, SvPVX_const(dname));
     return 0;
@@ -13011,21 +13048,20 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
     /* we can cast any coretype to another: numify, stringify, but not user-objects.
        but if someone declared a coretype, like int and gets a Str do not cast. */
     *castable = (dtyp >= type_int && dtyp < type_Object);
-    /* user-type can extend coretypes. e.g. MyInt (isa Int) for int args */
+    /* user-type can inherit from coretypes. e.g. MyInt (isa Int) for int args */
     if (atyp == type_Object) {
-        if (can_class_typecheck(stash)) {
-            *castable = match_user_type(stash, aname, au8);
+        *castable = match_user_type(stash, aname, au8);
+        if (can_class_typecheck(stash) || *castable) {
             return *castable;
         }
         else {
-            /* we can numify and stringify objects, but not the other way round */
-            *castable = (dtyp == type_Object);
-#if 0
+            /* We can numify and stringify any object.
+               The other way round it is possible to let the user-type inherit
+               from the coretype dynamically. */
             const char* dname = HvNAME(stash);
             /* compiler cannot decide on run-time ISA's */
-            *castable = 1; /* only warn */
+            *castable = 1; /* Does not match yet, but maybe later */
             return dname && strEQ(dname, aname);
-#endif
         }
     }
     /* and now check the allowed variants */
@@ -13081,9 +13117,10 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
 
 Check if the declared static type of the argument from pn can be
 fullfilled by the dynamic type of the arg in OP* o (padsv, const,
-any return type). If possible add a typecast to o to fullfill it.
+any return type). If possible add a typecast to C<o> to fullfill it.
 Using contra-variance.
 
+Signatures are new, hence much stricter, than return-types and assignments.
 =cut
 */
 static OP*
@@ -13107,17 +13144,15 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
         {
             int castable = 0;
             /* check aggregate type: Array(int), Hash(str), ... */
-            if (argtype == type_Hash &&
-                PadnamePV(pn)[0] == '%' &&
-                IS_TYPE(o, PADHV))
-            {
-                PADNAME * const xpn = PAD_COMPNAME(o->op_targ);
-                argtype = stash_to_coretype(PadnameTYPE(xpn));
-            }
-            else
-            if (argtype == type_Array &&
-                PadnamePV(pn)[0] == '@' &&
-                IS_TYPE(o, PADAV))
+            if (!PadnamePV(pn))
+                ;
+            else if ((argtype == type_Hash &&
+                      PadnamePV(pn)[0] == '%' &&
+                      IS_TYPE(o, PADHV))
+                      ||
+                     (argtype == type_Array &&
+                      PadnamePV(pn)[0] == '@' &&
+                      IS_TYPE(o, PADAV)))
             {
                 PADNAME * const xpn = PAD_COMPNAME(o->op_targ);
                 argtype = stash_to_coretype(PadnameTYPE(xpn));
@@ -13128,41 +13163,36 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
                     bad_type_core(PadnamePV(pn), cvname, argtype,
                                   argname, argu8, name, HvNAMEUTF8(type));
                 } else {
-#ifdef DEBUGGING
                     /* Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric */
                     /* Maybe allow casting from Scalar/Numeric to Int => int()
                        and Scalar to Str => stringify() */
-                    if (/*ckWARN(WARN_TYPES) || */DEBUG_k_TEST_) {
-                        Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
-                                       "Inserting type cast %s to %s", name, argname);
-                    }
-#endif
-                    if (!o->op_rettype)
-                        o->op_rettype = argtype;
+                    DEBUG_k(Perl_deb(aTHX_
+                        "ck arg_check_type: need type cast from %s to %s\n",
+                                     argname, name));
+                    if (!OpRETTYPE(o))
+                        OpRETTYPE_set(o, argtype);
                     switch (argtype) {
                     case type_Bool:
-                        /* Apply boolean context */
-                        scalar(o);
-                        if (IS_TYPE(o, RV2HV) ||
-                            IS_TYPE(o, PADHV) ||
-                            IS_TYPE(o, REF))
-                            o->op_private |= OPpTRUEBOOL;
-                        else if (IS_TYPE(o, LENGTH))
-                            o->op_private |= OPpLENGTH_TRUEBOOL;
+                        set_boolean(o);
                         break;
                     case type_Numeric:
                     case type_Scalar:
                         scalar(o);
                         break;
-                    /*
                     case type_int:
                     case type_Int:
                     case type_uint:
                     case type_UInt:
-                        o = fold_constants(op_integerize(newUNOP
-                              (OP_INT, 0, scalar(o))));
-                        break; */
+                        /* o = fold_constants(op_integerize(newUNOP
+                           (OP_INT, 0, scalar(o)))); */
+                        break;
+                    case type_str:
+                    case type_Str:
+                        break;
                     default:
+                        Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
+                            "Need type cast or dynamic inheritence from %s to %s",
+                            argname, name);
                         break;
                     }
                 }
@@ -13202,8 +13232,10 @@ fullfill it.
 
 Different to arg_check_type a type violation is not fatal, it only throws
 a compile-time warning when no applicable type-conversion can be applied.
-Using co-variance.
+Return-types and assignments are passed through the type inferencer and 
+applied to old constructs, not signatures, hence not so strict.
 
+Using co-variance.
 =cut
 */
 static OP*
@@ -13247,6 +13279,7 @@ S_ret_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
                 dstash = PadnameTYPE(xpn);
                 argtype = stash_to_coretype(dstash);
             }
+
             /* reverse the args: co-variance */
             if (!match_type(dstash, stash_to_coretype(type), name,
                             HvNAMEUTF8(type), &castable))
@@ -13256,39 +13289,34 @@ S_ret_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
                     S_warn_type_core(aTHX_ PadnamePV(pn),
                                      opdesc, argtype, argname, name);
                 } else {
-#ifdef DEBUGGING
                     /* Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric */
                     /* Maybe allow casting from Scalar/Numeric to Int => int()
                        and Scalar to Str => stringify() */
-                    if (/*ckWARN(WARN_TYPES) || */DEBUG_k_TEST_) {
-                        Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
-                                       "Inserting type cast %s to %s", argname, name);
-                    }
-#endif
+                    DEBUG_k(Perl_deb(aTHX_
+                        "ck ret_check_type: need type cast from %s to %s\n",
+                                     argname, name));
                     if (!OpRETTYPE(o))
                         OpRETTYPE_set(o, argtype);
                     switch (argtype) {
                     case type_Bool:
-                        /* Apply boolean context */
-                        scalar(o);
-                        if (IS_TYPE(o, RV2HV) ||
-                            IS_TYPE(o, PADHV) ||
-                            IS_TYPE(o, REF))
-                            o->op_private |= OPpTRUEBOOL;
-                        else if (IS_TYPE(o, LENGTH))
-                            o->op_private |= OPpLENGTH_TRUEBOOL;
+                        set_boolean(o);
                         break;
                     case type_Numeric:
                     case type_Scalar:
                         /* Adding an int(op) in front makes not much sense here.
-                           fold_constants or integerize would */
+                           fold_constants or integerize would. */
                     case type_int:
                     case type_Int:
                     case type_uint:
                     case type_UInt:
+                    case type_str:
+                    case type_Str:
                         scalar(o);
                         break;
                     default:
+                        Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
+                            "Need type cast or dynamic inheritence from %s to %s",
+                            argname, name);
                         break;
                     }
                 }
@@ -13319,38 +13347,51 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
     UV actions = (++items)->uv;
     UV action;
     bool first = TRUE;
-    DEBUG_k(Perl_deb(aTHX_ "sig_proto: numitems=%lu actions=0x%"UVxf"\n", o->op_aux[-1].uv, items->uv));
+    DEBUG_k(Perl_deb(aTHX_ "sig_proto: numitems=%lu actions=0x%" UVxf "\n",
+                     o->op_aux[-1].uv, items->uv));
 
     while (1) {
         switch (action = (actions & SIGNATURE_ACTION_MASK)) {
         case SIGNATURE_reload:
             actions = (++items)->uv;
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: reload actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_
+                "sig_proto: reload actions=0x%" UVxf " items=0x%" UVxf "\n",
+                actions, items->uv));
             continue;
         case SIGNATURE_end:
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: end actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_
+                "sig_proto: end actions=0x%" UVxf " items=0x%" UVxf "\n",
+                actions, items->uv));
             goto finish;
         case SIGNATURE_padintro:
             items++;
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: padintro actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_
+                "sig_proto: padintro actions=0x%" UVxf " items=0x%" UVxf "\n",
+                actions, items->uv));
             break;
         case SIGNATURE_arg:
             /* Do NOT add a \ to a SCALAR! */
             sv_catpvs_nomg(out, "$");
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: arg actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_
+                "sig_proto: arg actions=0x%" UVxf " items=0x%" UVxf "\n",
+                actions, items->uv));
             break;
         case SIGNATURE_arg_default_iv:
         case SIGNATURE_arg_default_const:
         case SIGNATURE_arg_default_padsv:
         case SIGNATURE_arg_default_gvsv:
             items++; /* fall thru */
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: argdef actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_
+                "sig_proto: argdef actions=0x%" UVxf " items=0x%" UVxf "\n",
+                actions, items->uv));
         case SIGNATURE_arg_default_op:
         case SIGNATURE_arg_default_none:
         case SIGNATURE_arg_default_undef:
         case SIGNATURE_arg_default_0:
         case SIGNATURE_arg_default_1:
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: argdef-static actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_
+                "sig_proto: argdef-static actions=0x%" UVxf " items=0x%" UVxf "\n",
+                actions, items->uv));
             if (first) {
                 sv_catpvs_nomg(out, ";");
                 first = FALSE;
@@ -13359,19 +13400,24 @@ S_signature_proto(pTHX_ CV* cv, STRLEN *protolen)
             break;
         case SIGNATURE_array:
         case SIGNATURE_hash:
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: arr/hash actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_
+                "sig_proto: arr/hash actions=0x%" UVxf " items=0x%" UVxf "\n",
+                actions, items->uv));
             if (actions & SIGNATURE_FLAG_ref)
                 sv_catpvs_nomg(out, "\\");
             sv_catpvn_nomg(out, action == SIGNATURE_array ? "@": "%", 1);
             break;
         default:
-            DEBUG_kv(Perl_deb(aTHX_ "sig_proto: default actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));
+            DEBUG_kv(Perl_deb(aTHX_
+                "sig_proto: default actions=0x%" UVxf " items=0x%" UVxf "\n",
+                actions, items->uv));
             return NULL;
             /*sv_catpvs_nomg(out, "_");
               goto finish;*/
         }
         actions >>= SIGNATURE_SHIFT;
-        /*DEBUG_kv(Perl_deb(aTHX_ "sig_proto: loop actions=0x%"UVxf" items=0x%"UVxf"\n", actions, items->uv));*/
+        /*DEBUG_kv(Perl_deb(aTHX_ "sig_proto: loop actions=0x%" UVxf " items=0x%" UVxf "\n",
+              actions, items->uv));*/
     }
   finish:
     *protolen = SvCUR(out);
@@ -13495,9 +13541,10 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
     mand_params = params >> 16;
     opt_params  = params & ((1<<15)-1);
     actions = (++items)->uv;
-    DEBUG_k(Perl_deb(aTHX_ "ck_sig: %s arity=%d/%d actions=0x%" UVxf " items=%u\n",
-                     SvPVX_const(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)),
-                     (int)mand_params, (int)opt_params, actions, (unsigned)o->op_aux[-1].uv));
+    DEBUG_k(Perl_deb(aTHX_
+        "ck_sig: %s arity=%d/%d actions=0x%" UVxf " items=%u\n",
+        SvPVX_const(cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN)),
+        (int)mand_params, (int)opt_params, actions, (unsigned)o->op_aux[-1].uv));
 
     aop = OpFIRST(entersubop);
     if (!OpHAS_SIBLING(aop))
@@ -13511,21 +13558,25 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
         switch (action) {
         case SIGNATURE_reload:
             actions = (++items)->uv;
-            DEBUG_kv(Perl_deb(aTHX_ "ck_sig: reload action=%d items=0x%" UVxf " with %d %s op arg\n",
-                              (int)action, items->uv, (int)arg, OP_NAME(o3)));
+            DEBUG_kv(Perl_deb(aTHX_
+                "ck_sig: reload action=%d items=0x%" UVxf " with %d %s op arg\n",
+                (int)action, items->uv, (int)arg, OP_NAME(o3)));
             continue; /* no shift, no arg advance */
         case SIGNATURE_end:
             if (!optional || (!slurpy && ((UV)arg >= mand_params + opt_params))) {
                 /* args but not in sig */
                 SV * const namesv = cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN);
-                SV* tmpbuf = newSVpvn_flags(OP_DESC(entersubop), strlen(OP_DESC(entersubop)),
+                SV* tmpbuf = newSVpvn_flags(OP_DESC(entersubop),
+                                            strlen(OP_DESC(entersubop)),
                                             SVs_TEMP|SvUTF8(namesv));
                 sv_catpvs(tmpbuf, " ");
                 sv_catsv(tmpbuf, namesv);
                 Perl_sv_catpvf(aTHX_ tmpbuf, " exceeding max %d args", (int)arg);
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: end action=%d pad_ix=%d items=0x%" UVxf " with %d %s op arg\n",
-                                  (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
-                return too_many_arguments_pv(entersubop, SvPVX_const(tmpbuf), SvUTF8(namesv));
+                DEBUG_kv(Perl_deb(aTHX_
+                    "ck_sig: end action=%d pad_ix=%d items=0x%" UVxf " with %d %s op arg\n",
+                    (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
+                return too_many_arguments_pv(entersubop, SvPVX_const(tmpbuf),
+                                             SvUTF8(namesv));
             }
             return entersubop;
         case SIGNATURE_padintro:
@@ -13537,18 +13588,20 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
 #ifdef DEBUGGING
             varcount = items->uv & OPpPADRANGE_COUNTMASK;
 #endif
-            DEBUG_kv(Perl_deb(aTHX_ "ck_sig: padintro action=%d pad_ix=%d varcount=%d %s "
-                              "items=0x%" UVxf " with %d %s op arg\n",
-                              (int)action, (int)pad_ix, (int)varcount,
-                              PAD_NAME(pad_ix) ? PadnamePV(PAD_NAME(pad_ix)) : "",
-                              items->uv, (int)arg, OP_NAME(o3)));
+            DEBUG_kv(Perl_deb(aTHX_
+                "ck_sig: padintro action=%d pad_ix=%d varcount=%d %s "
+                "items=0x%" UVxf " with %d %s op arg\n",
+                (int)action, (int)pad_ix, (int)varcount,
+                PAD_NAME(pad_ix) ? PadnamePV(PAD_NAME(pad_ix)) : "",
+                items->uv, (int)arg, OP_NAME(o3)));
             actions >>= SIGNATURE_SHIFT;
             continue; /* no arg advance */
         case SIGNATURE_arg:
             if (UNLIKELY(actions & SIGNATURE_FLAG_ref)) {
                 arg++;
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg ref action=%d pad_ix=%d items=0x%" UVxf " with %d %s op arg\n",
-                                  (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
+                DEBUG_kv(Perl_deb(aTHX_
+                    "ck_sig: arg ref action=%d pad_ix=%d items=0x%" UVxf " with %d %s op arg\n",
+                    (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
                 /* \$ accepts any scalar lvalue */
                 if (!op_lvalue_flags(scalar(o3), OP_READ, OP_LVALUE_NO_CROAK)) {
                     type = PAD_NAME(pad_ix) ? PadnameTYPE(PAD_NAME(pad_ix)) : NULL;
@@ -13572,13 +13625,15 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             arg++;
             if (UNLIKELY(actions & SIGNATURE_FLAG_skip)) {
                 items--;
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: skip action=%d pad_ix=%d with %d %s op arg\n",
-                                  (int)action, (int)pad_ix, (int)arg, OP_NAME(o3)));
+                DEBUG_kv(Perl_deb(aTHX_
+                    "ck_sig: skip action=%d pad_ix=%d with %d %s op arg\n",
+                    (int)action, (int)pad_ix, (int)arg, OP_NAME(o3)));
                 scalar(aop);
                 break;
             }
             if (UNLIKELY(action != SIGNATURE_arg)) {
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: default action=%d (default ignored)\n", (int)action));
+                DEBUG_kv(Perl_deb(aTHX_
+                    "ck_sig: default action=%d (default ignored)\n", (int)action));
                 optional = TRUE;
                 if (actions & SIGNATURE_FLAG_ref) {
                     yyerror(Perl_form(aTHX_ "Reference parameter cannot take default value"));
@@ -13587,8 +13642,9 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
             }
 #ifdef DEBUGGING
             else {
-                DEBUG_kv(Perl_deb(aTHX_ "ck_sig: arg action=%d pad_ix=%d items=0x%" UVxf " with %d %s op arg\n",
-                                  (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
+                DEBUG_kv(Perl_deb(aTHX_
+                    "ck_sig: arg action=%d pad_ix=%d items=0x%" UVxf " with %d %s op arg\n",
+                    (int)action, (int)pad_ix, items->uv, (int)arg, OP_NAME(o3)));
             }
 #endif
             /* TODO: o3 needs to return a scalar */
@@ -14821,15 +14877,22 @@ Perl_ck_type(pTHX_ OP *o)
 /*
 =for apidoc ck_nomg
 
-for tie and bless
+For tie and bless
 
-check if the first argument is not a typed coretype.
+Check if the first argument is not a typed coretype.
 We guarantee coretyped variables to have no magic.
 
-TODO: For bless we also require a ref.
-For bless we can predict the result type is 2nd arg is a constant.
-This types the result of new methods.
-    sub D3::new {bless[],"D3"};my B2 $obj1 = D3->new;
+For bless we also require a ref. Check for the most common mistakes
+as first argument, which cannot be a ref.
+
+For bless we can predict the result type if the 2nd arg is a constant.
+This allows to type the result of the new method.
+
+    sub D3::new {bless[],"D3"};
+    my B2 $obj1 = D3->new;
+
+And we disallow the blessing to coretypes. This needs to be done via normal
+compile-time declarations, not dynamic blessing.
 =cut
 */
 OP *
@@ -15145,8 +15208,8 @@ enum {
 =for apidoc aassign_padcheck
 helper function for S_aassign_scan().
 
-check a PAD-related op for commonality and/or set its generation number.
-Returns a boolean indicating whether its shared
+Check a PAD-related op for commonality and/or set its generation number.
+Returns a boolean indicating whether its shared.
 =cut
 */
 static bool

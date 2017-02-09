@@ -4624,22 +4624,38 @@ Perl_find_in_coretypes(pTHX_ const char *pkgname, STRLEN len)
 {
     PERL_ARGS_ASSERT_FIND_IN_CORETYPES;
 
-    if (len == 3
-        && (strnEQ(pkgname, "int", 3) || strnEQ(pkgname, "Int", 3)
-         || strnEQ(pkgname, "str", 3) || strnEQ(pkgname, "Str", 3)
-         || strnEQ(pkgname, "num", 3) || strnEQ(pkgname, "Num", 3)
-         )) {
-        SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
-        return def_coretype_1(sv);
-    } else if (len == 4
-               && (strnEQ(pkgname, "uint", 4)
-                   || strnEQ(pkgname, "UInt", 4))) {
-        SV *sv = newSVpvn_flags(pkgname, 4, SVs_TEMP);
-        return def_coretype_2(sv, pkgname+1, 3);
-    } else if (len == 6 && strnEQ(pkgname, "Scalar", 6)) {
+    if (len == 3) {
+        if (strEQs(pkgname, "int") ||
+            strEQs(pkgname, "str") ||
+            strEQs(pkgname, "num")) {
+            SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
+            return def_coretype_1(sv);
+        }
+        else if (strEQs(pkgname, "Int")) {
+            SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
+            return def_coretype_2(sv, "int", 3);
+        }
+        else if (strEQs(pkgname, "Num")) {
+            SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
+            return def_coretype_2(sv, "num", 3);
+        }
+        else if (strEQs(pkgname, "Str")) {
+            SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
+            return def_coretype_2(sv, "str", 3);
+        }
+    } else if (len == 4) {
+        if (strEQs(pkgname, "UInt")) {
+            SV *sv = newSVpvn_flags(pkgname, 4, SVs_TEMP);
+            return def_coretype_2(sv, "uint", 4);
+        }
+        else if (strEQs(pkgname, "uint")) {
+            SV *sv = newSVpvn_flags(pkgname, 4, SVs_TEMP);
+            return def_coretype_2(sv, "int", 3);
+        }
+    } else if (len == 6 && strEQs(pkgname, "Scalar")) {
         SV *sv = newSVpvn_flags(pkgname, 6, SVs_TEMP);
         return def_coretype_1(sv);
-    } else if (len == 7 && strnEQ(pkgname, "Numeric", 7)) {
+    } else if (len == 7 && strEQs(pkgname, "Numeric")) {
         SV *sv = newSVpvn_flags(pkgname, 7, SVs_TEMP);
         return def_coretype_2(sv, "Scalar", 6);
     }

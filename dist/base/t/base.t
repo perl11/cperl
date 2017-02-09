@@ -2,6 +2,8 @@
 
 use strict;
 use Test::More tests => 15;
+# @INC: t/lib
+BEGIN { chdir "dist/base" if $ENV{PERL_CORE} and -d "dist/base"; }
 
 use_ok('base');
 

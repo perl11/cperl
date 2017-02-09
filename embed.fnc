@@ -2191,6 +2191,8 @@ s	|void	|forget_pmop	|NN PMOP *const o
 s	|void	|find_and_forget_pmops	|NN OP *o
 s	|void	|cop_free	|NN COP *cop
 s	|OP*	|modkids	|NULLOK OP *o|I32 type
+s	|OP*	|scalarkids	|NN OP *o
+i	|OP*	|set_boolean	|NN OP *o
 s	|OP*	|scalarboolean	|NN OP *o
 sR	|OP*	|search_const	|NN OP *o
 sR	|OP*	|new_logop	|I32 type|I32 flags|NN OP **firstp|NN OP **otherp

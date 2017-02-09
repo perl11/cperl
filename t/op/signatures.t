@@ -1436,6 +1436,7 @@ sub t150 (int $i, @error) { 1 }
 # user-types inherited from coretypes (contra-variance)
 sub t119a (Int $a) :int { ++$a }
 {
+    local $^W;
     my int $b = 0;
     is t119a($b), 1;
     eval "t119a('a')"; # ck error (fast direct violation)
@@ -1448,11 +1449,12 @@ sub t119a (Int $a) :int { ++$a }
     eval 't119($i);'; # MyInt isa Int isa int
     is $@, "", "MyInt isa int, two stage type check";
 
+    $@ = "";
     @MyStr::ISA = ('Str');
     my MyStr $s;
-    # warns with use warnings 'types';
+    # warns with use warnings 'types' or -w use types or use types 'strict'. 
     eval 't119a($s);'; # ck error (slow isa check with type_Object)
-    is $@, "", "MyStr isa Str, valid cast to int";
+    is $@, "", "MyStr isa Str, valid cast to Int";
 }
 
 # check that a sub can have 32767 parameters ...
