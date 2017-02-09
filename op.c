@@ -13013,13 +13013,19 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
     *castable = (dtyp >= type_int && dtyp < type_Object);
     /* user-type can extend coretypes. e.g. MyInt (isa Int) for int args */
     if (atyp == type_Object) {
-        if (can_class_typecheck(stash))
-            return match_user_type(stash, aname, au8);
+        if (can_class_typecheck(stash)) {
+            *castable = match_user_type(stash, aname, au8);
+            return *castable;
+        }
         else {
+            /* we can numify and stringify objects, but not the other way round */
+            *castable = (dtyp == type_Object);
+#if 0
             const char* dname = HvNAME(stash);
             /* compiler cannot decide on run-time ISA's */
             *castable = 1; /* only warn */
             return dname && strEQ(dname, aname);
+#endif
         }
     }
     /* and now check the allowed variants */
