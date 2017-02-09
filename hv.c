@@ -769,13 +769,17 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 #endif
 
     if (!entry && SvREADONLY(hv) && !(action & HV_FETCH_ISEXISTS)) {
-        /* if the hash has a name report it also */
-        if (HvNAME_get(hv)) {
-            SV *msg = newSVpvs_flags("Attempt to access disallowed key '%" SVf "' in"
-                                     " the restricted hash '%", SVs_TEMP);
-            sv_cathek(msg, HvNAME_HEK(hv));
-            sv_catpvs(msg, "::'");
-            hv_notallowed(flags, key, klen, SvPVX(msg));
+        /* If the hash has a name report it also */
+        const HEK* name = HvNAME_HEK(hv);
+        if (name) {
+            /* But allow DESTROY calls in restricted coretypes */
+            if (strNEs(key, "DESTROY") && strNEs(key, "AUTOLOAD")) {
+                SV *msg = newSVpvs_flags("Attempt to access disallowed key '%" SVf "' in"
+                                         " the restricted hash '%", SVs_TEMP);
+                sv_cathek(msg, name);
+                sv_catpvs(msg, "::'");
+                hv_notallowed(flags, key, klen, SvPVX(msg));
+            }
         } else {
             hv_notallowed(flags, key, klen,
 			"Attempt to access disallowed key '%" SVf "' in"

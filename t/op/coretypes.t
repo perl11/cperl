@@ -7,7 +7,7 @@ BEGIN {
 }
 
 use coretypes;
-plan 29;
+plan 30;
 
 # native or coretypes. the result should be the same
 my int $x = 4;
@@ -138,6 +138,9 @@ my Int @a;
 $a[0] = $b;
 EOF
 
+# Bla can dynamically inherit from Str
+# @Bla::ISA = qw(Str);
+# With a class this would be forbidden
 fresh_perl_is(<<'EOF', '', $args, 'allow coretype to user-type');
 package Bla;
 my Bla %a;
@@ -152,11 +155,12 @@ my Bla %a;
 $a{"key"} = "";
 EOF
 
-# a normal dynamic class
-#{
-#  @MyInt::ISA = ('Int');
-#  my $j = 1;
-#  my MyInt $i = bless \$j, "MyInt";
-#  sub dummy($x) { ok(1, "MyInt=>int arg") }
-#  dummy($i);
-#} # bug: Attempt to access disallowed key 'DESTROY' in the restricted hash '%Int::'
+# A normal dynamic class, inheriting from a restricted coreclass
+# bug #250: Attempt to access disallowed key 'DESTROY' in the restricted hash '%Int::'
+{
+  @MyInt::ISA = ('Int');
+  my $j = 1;
+  my MyInt $i = bless \$j, "MyInt";
+  sub dummy($x) { ok(1, "MyInt=>int arg") }
+  dummy($i);
+}
