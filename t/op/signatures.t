@@ -1437,6 +1437,7 @@ sub t150 (int $i, @error) { 1 }
 sub t119a (Int $a) :int { ++$a }
 {
     local $^W;
+    #no warnings 'types';
     my int $b = 0;
     is t119a($b), 1;
     eval "t119a('a')"; # ck error (fast direct violation)
@@ -1444,6 +1445,7 @@ sub t119a (Int $a) :int { ++$a }
 
     @MyInt::ISA = ('Int');
     my MyInt $i; # but MyInt is not a int, only a Int
+    # All these warn with use warnings 'types' or -w use types or use types 'strict'. 
     eval 't119a($i);'; # slow isa check with type_Object
     is $@, "", "MyInt isa Int, slow isa check with type_Object";
     eval 't119($i);'; # MyInt isa Int isa int
@@ -1452,9 +1454,13 @@ sub t119a (Int $a) :int { ++$a }
     $@ = "";
     @MyStr::ISA = ('Str');
     my MyStr $s;
-    # warns with use warnings 'types' or -w use types or use types 'strict'. 
-    eval 't119a($s);'; # ck error (slow isa check with type_Object)
-    is $@, "", "MyStr isa Str, valid cast to Int";
+    my @w;
+    $SIG{__WARN__} = sub{push @w, shift};
+    eval 't119a($s);'; # error (slow isa check with type_Object)
+    like $@, qr/\AType of arg \$a to t119a must be Int \(not MyStr\) at \(eval \d+\) line 1, near "/, "MyStr isa Str != Int in user-type match";
+    # there's also a warning
+    #like($w[0], qr/^Wrong type MyStr, expected Int at \(eval \d+\)/);
+    undef $SIG{__WARN__};
 }
 
 # check that a sub can have 32767 parameters ...
