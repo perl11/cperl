@@ -111,8 +111,8 @@ base dist/base/lib/fields.pm 1ef6ddefc3b54c6958cdba85bdb85b16a9e3a07b
 base dist/base/t/fields-5_6_0.t 175dea16b9325762cea401d156e8f440f916fa90
 base dist/base/t/fields-5_8_0.t ace0272fe98ed4be52b7359654ae328ce537372a
 lib dist/lib/lib_pm.PL 04a3dedbc657cac6c8db1faf2f0c6a7af328a23f
-threads dist/threads/lib/threads.pm 36113e8bd890ab0af5a534fa45e994ab7f0e3146
-threads dist/threads/threads.xs 3696e2134762671414ed4ceb68042d55c129a8b6
+threads dist/threads/lib/threads.pm 655a2f0b5b6812699ee642f19936e89ac1ed0136
+threads dist/threads/threads.xs 1f7666e9e86b3558a4922a6a1a7a5d1c94f9741e
 version cpan/version/lib/version.pm 46e7b7eed74b5080b23f852acd84e6ca5aab6d74
 version cpan/version/lib/version/regex.pm a2e6098571d8085340d4378ec21ad54bbcce1ceb
 version vutil.c 179fac0b75dd5b1ffc854af2d59bb353a40d32e1
