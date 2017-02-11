@@ -83,6 +83,7 @@ Individual members of C<PL_parser> have their own documentation.
 #define PL_last_lop		(PL_parser->last_lop)
 #define PL_last_lop_op		(PL_parser->last_lop_op)
 #define PL_lex_state		(PL_parser->lex_state)
+#define PL_lex_stuff		(PL_parser->lex_stuff)
 #define PL_rsfp			(PL_parser->rsfp)
 #define PL_rsfp_filters		(PL_parser->rsfp_filters)
 #define PL_in_my		(PL_parser->in_my)
@@ -7264,12 +7265,15 @@ Perl_yylex(pTHX)
 	pl_yylval.ival = OP_CONST;
 	/* FIXME. I think that this can be const if char *d is replaced by
 	   more localised variables.  */
-	for (d = SvPV(PL_lex_stuff, len); len; len--, d++) {
-	    if (*d == '$' || *d == '@' || *d == '\\' || !UTF8_IS_INVARIANT((U8)*d)) {
-		pl_yylval.ival = OP_STRINGIFY;
-		break;
-	    }
-	}
+        if (SvTYPE(PL_lex_stuff) != SVt_PVAV) {
+            for (d = SvPV(PL_lex_stuff, len); len; len--, d++) {
+                if (*d == '$' || *d == '@' || *d == '\\' ||
+                    !UTF8_IS_INVARIANT((U8)*d)) {
+                    pl_yylval.ival = OP_STRINGIFY;
+                    break;
+                }
+            }
+        }
 	if (pl_yylval.ival == OP_CONST)
 	    COPLINE_SET_FROM_MULTI_END;
 	TERM(sublex_start());
@@ -8712,10 +8716,26 @@ Perl_yylex(pTHX)
 
 	case KEY_class:
             if (PL_in_class) goto just_a_word;
-	    s = force_word(s,BAREWORD,FALSE,TRUE);
-	    s = skipspace(s);
+            PL_parser->lex_sub_repl = NULL;
+            s = force_word(s,BAREWORD,FALSE,TRUE);
+            s = skipspace(s);
+            /* optional: is parent_class ... */
+            while (memEQc(s, "is")) {
+                AV* class_isa = NULL;
+                d = skipspace(s+2);
+                if (d == s+2)
+                    Perl_croak(aTHX_ "Syntax error %s", s);
+                s = force_word(d,BAREWORD,TRUE,TRUE);
+                if (!find_in_my_stash(PL_tokenbuf, strlen(PL_tokenbuf)))
+                    S_no_such_class(aTHX_ PL_tokenbuf);
+                if (!class_isa) {
+                    class_isa = newAV();
+                    PL_parser->lex_sub_repl = (SV*)class_isa;
+                }
+                av_push(class_isa, newSVpvn(PL_tokenbuf, strlen(PL_tokenbuf)));
+                s = skipspace(s);
+            }
             PL_in_class = TRUE;
-	    /*s = force_strict_version(s);*/
 	    PREBLOCK(CLASS);
 
 	case KEY_package:
@@ -9738,8 +9758,7 @@ S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
 }
 
 /* Returns a NUL terminated string, with the length of the string written to
-   *slp
-   */
+   *slp */
 STATIC char *
 S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package,
             STRLEN *slp, int *normalize)

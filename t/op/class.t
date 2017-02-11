@@ -5,7 +5,7 @@ BEGIN {
     #require './test.pl';
 }
 local($\, $", $,) = (undef, ' ', '');
-print "1..8\n";
+print "1..10\n";
 my $test = 1;
 
 class Foo {
@@ -49,3 +49,9 @@ sub Bar::class { print "ok $test\n"; $test++ }
 Bar::class();
 Baz->class();
 Bar->class();
+
+class Baz is Foo {
+  method new {}
+}
+print @Baz::ISA !=1         ? "not " : "", "ok ", $test++;
+print $Baz::ISA[0] ne "Foo" ? "not " : "", "ok ", $test++;

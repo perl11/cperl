@@ -929,6 +929,12 @@ PERL_CALLCONV bool	Perl_ckwarn_d(pTHX_ U32 w)
 			__attribute__warn_unused_result__
 			__attribute__pure__;
 
+PERL_CALLCONV void	Perl_class_is(pTHX_ OP* o, AV* av)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_CLASS_IS	\
+	assert(o); assert(av)
+
 PERL_CALLCONV void	Perl_clear_defarray(pTHX_ AV* av, bool abandon)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
