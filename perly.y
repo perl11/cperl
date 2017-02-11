@@ -489,6 +489,13 @@ barestmt:	PLUGSTMT
 	|	CLASS BAREWORD '{' remember
 			{
 			  package($2);
+                          if (parser->lex_sub_repl) { /* ISA */
+                              AV* av = (AV*)parser->lex_sub_repl;
+                              class_is($2, av);
+                              parser->lex_sub_repl = NULL;
+                          }
+                          if (cSVOPx($2)->op_sv)
+                              HvCLASS_on(cSVOPx($2)->op_sv);
 			}
 		stmtseq '}'
 			{

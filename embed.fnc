@@ -1269,6 +1269,7 @@ AMp	|PADOFFSET|alloccopstash|NN HV *hv
 pR	|OP*	|oopsAV		|NN OP* o
 : Used in perly.y
 pR	|OP*	|oopsHV		|NN OP* o
+pM	|void	|class_is	|NN OP* o|NN AV* av
 
 : peephole optimiser
 p	|void	|peep		|NULLOK OP* o

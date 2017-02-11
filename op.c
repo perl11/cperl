@@ -19143,5 +19143,27 @@ S_const_av_xsub(pTHX_ CV* cv)
 }
 
 /*
+=for apidoc class_is
+
+Adds a one or more parent classes to the ISA of the class in op,
+and sets the ISA readonly.
+
+=cut
+*/
+void
+Perl_class_is(OP* o, AV* av)
+{
+    SV *const name = cSVOPo->op_sv;
+    SV* isa = newSVpvn_flags(SvPVX(name), SvCUR(name), SVs_TEMP|SvUTF8(name));
+    PERL_ARGS_ASSERT_CLASS_IS;
+
+    sv_catpvs(isa, "::ISA");
+    isa = (SV*)gv_fetchsv(isa, GV_ADD, SVt_PVAV);
+    AvSHAPED_on(av);
+    SvREADONLY_on(av);
+    GvAV((GV*)isa) = av;
+}
+
+/*
  * ex: set ts=8 sts=4 sw=4 et:
  */

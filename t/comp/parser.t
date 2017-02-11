@@ -551,8 +551,10 @@ like $@, "^No such class a1b at ", 'Wrong TYPE of my of for statement';
 }
 
 eval 'method {} {$_,undef}';
-like $@, qq/^Can't call method "method" on unblessed reference at /,
-     'method BLOCK {...} does not try to disambiguate';
+#like $@, qq/^Can't call method "method" on unblessed reference at /,
+#     'method BLOCK {...} does not try to disambiguate';
+like $@, qr/^Can declare method only within a class at /,
+  'method now a keyword, ony valid within classes';
 
 eval '#line 1 maggapom
       if ($a>3) { $a ++; }
