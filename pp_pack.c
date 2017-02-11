@@ -2595,10 +2595,7 @@ S_pack_rec(pTHX_ SV *cat, tempsym_t* symptr, SV **beglist, SV **endlist )
 			GROWING(0, cat, start, cur, len+UTF8_MAXLEN);
 			end = start+SvLEN(cat)-UTF8_MAXLEN;
 		    }
-		    cur = (char *) uvchr_to_utf8_flags((U8 *) cur,
-						       auv,
-						       warn_utf8 ?
-						       0 : UNICODE_ALLOW_ANY);
+		    cur = (char *) uvchr_to_utf8_flags((U8 *) cur, auv, 0);
 		} else {
 		    if (auv >= 0x100) {
 			if (!SvUTF8(cat)) {
@@ -2649,9 +2646,7 @@ S_pack_rec(pTHX_ SV *cat, tempsym_t* symptr, SV **beglist, SV **endlist )
 		auv = SvUV_no_inf(fromstr, datumtype);
 		if (utf8) {
 		    U8 buffer[UTF8_MAXLEN], *endb;
-		    endb = uvchr_to_utf8_flags(buffer, UNI_TO_NATIVE(auv),
-					       warn_utf8 ?
-					       0 : UNICODE_ALLOW_ANY);
+		    endb = uvchr_to_utf8_flags(buffer, UNI_TO_NATIVE(auv), 0);
 		    if (cur+(endb-buffer)*UTF8_EXPAND >= end) {
 			*cur = '\0';
 			SvCUR_set(cat, cur - start);
@@ -2667,9 +2662,9 @@ S_pack_rec(pTHX_ SV *cat, tempsym_t* symptr, SV **beglist, SV **endlist )
 			GROWING(0, cat, start, cur, len+UTF8_MAXLEN);
 			end = start+SvLEN(cat)-UTF8_MAXLEN;
 		    }
-		    cur = (char *) uvchr_to_utf8_flags((U8 *) cur, UNI_TO_NATIVE(auv),
-						       warn_utf8 ?
-						       0 : UNICODE_ALLOW_ANY);
+		    cur = (char *) uvchr_to_utf8_flags((U8 *) cur,
+                                                       UNI_TO_NATIVE(auv),
+						       0);
 		}
 	    }
 	    break;
