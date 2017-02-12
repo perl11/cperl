@@ -420,11 +420,11 @@ Perl_av_store(pTHX_ AV *av, SSize_t key, SV *val)
 	for (; mg; mg = mg->mg_moremagic) {
 	  if (!isUPPER(mg->mg_type)) continue;
 	  if (val) {
-	    sv_magic(val, MUTABLE_SV(av), toLOWER(mg->mg_type), 0, key);
+              sv_magic(val, MUTABLE_SV(av), toLOWER(mg->mg_type), 0, key);
 	  }
 	  if (PL_delaymagic && mg->mg_type == PERL_MAGIC_isa) {
-	    PL_delaymagic |= DM_ARRAY_ISA;
-	    set = FALSE;
+              PL_delaymagic |= DM_ARRAY_ISA;
+              set = FALSE;
 	  }
 	}
 	if (set)

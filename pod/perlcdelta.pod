@@ -212,6 +212,14 @@ If so, destruct all ops, leading to no valgrind leaks, even with
 --leak-check=full.
 cperl-only L<[cperl #400]|https://github.com/perl11/cperl/issues/400>
 
+=head2 C3 MRO is the new default
+
+The default MRO switched from the DFS (depth-first-search) to the
+recommended C3 algorithm, which was previously optional. All object
+system based on inheritence need to use C3 to avoid the diamond
+problem. And this change speeds it up, avoiding run-time loading of
+F<ext/mro>.
+
 =head1 Security
 
 =head2 Variable length lookbehind in regular expression pattern matching

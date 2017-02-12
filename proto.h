@@ -8489,9 +8489,9 @@ STATIC void	S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_st
 #define PERL_ARGS_ASSERT_MRO_GATHER_AND_RENAME	\
 	assert(stashes); assert(seen_stashes); assert(namesv)
 
-STATIC AV*	S_mro_get_linear_isa_dfs(pTHX_ HV* stash, U32 level)
+STATIC AV*	S_mro_get_linear_isa_c3(pTHX_ HV* stash, U32 level)
 			__attribute__nonnull__(pTHX_1);
-#define PERL_ARGS_ASSERT_MRO_GET_LINEAR_ISA_DFS	\
+#define PERL_ARGS_ASSERT_MRO_GET_LINEAR_ISA_C3	\
 	assert(stash)
 
 #endif

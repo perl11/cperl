@@ -3772,7 +3772,7 @@ p	|struct mro_meta*	|mro_meta_dup	|NN struct mro_meta* smeta \
 #endif
 Apd	|AV*	|mro_get_linear_isa|NN HV* stash
 #if defined(PERL_IN_MRO_C)
-sd	|AV*	|mro_get_linear_isa_dfs|NN HV* stash|U32 level
+sd	|AV*	|mro_get_linear_isa_c3|NN HV* stash|U32 level
 s	|void	|mro_clean_isarev|NN HV * const isa   \
 				 |NN const char * const name \
 				 |const STRLEN len \

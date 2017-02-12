@@ -12,9 +12,10 @@ use warnings;
 
 # mro.pm versions < 1.00 reserved for MRO::Compat
 #  for partial back-compat to 5.[68].x
-our $VERSION = '1.22_02';
-our $XS_VERSION = $VERSION;
-$VERSION = eval $VERSION;
+# Since 2.00 c3 is the new default, ext/mro for the old dfs
+our $VERSION = '2.00';
+#our $XS_VERSION = $VERSION;
+#$VERSION = eval $VERSION;
 
 require XSLoader;
 XSLoader::load('mro');
@@ -52,10 +53,10 @@ mro - Method Resolution Order
 
 =head1 SYNOPSIS
 
-  use mro; # enables next::method and friends globally
+  use mro;       # enables next::method and friends globally
 
-  use mro 'dfs'; # enable DFS MRO for this class (Perl default)
-  use mro 'c3'; # enable C3 MRO for this class
+  use mro 'c3';  # ensure C3 MRO for this class (cperl default)
+  use mro 'dfs'; # enable DFS MRO for this class (the old variant)
 
 =head1 DESCRIPTION
 
@@ -65,6 +66,9 @@ with method resolution order and method caching in general.
 These interfaces are only available in Perl 5.9.5 and higher.
 See L<MRO::Compat> on CPAN for a mostly forwards compatible
 implementation for older Perls.
+
+cperl uses C3 as default since 5.26, similar to perl6 and Moose, perl5
+as of 5.26 still uses the old dfs as default.
 
 =head1 OVERVIEW
 
@@ -80,19 +84,18 @@ has been loaded via C<use> or C<require>.
 
 In addition to the traditional Perl default MRO (depth first
 search, called C<DFS> here), Perl now offers the C3 MRO as
-well.  Perl's support for C3 is based on the work done in
+well.  Perl's support for C3 is based on the work done in Perl6 and
 Stevan Little's module L<Class::C3>, and most of the C3-related
 documentation here is ripped directly from there.
 
 =head2 What is C3?
 
 C3 is the name of an algorithm which aims to provide a sane method
-resolution order under multiple inheritance. It was first introduced in
-the language Dylan (see links in the L</"SEE ALSO"> section), and then
-later adopted as the preferred MRO (Method Resolution Order) for the
-new-style classes in Python 2.3. Most recently it has been adopted as the
-"canonical" MRO for Perl 6 classes, and the default MRO for Parrot objects
-as well.
+resolution order under multiple inheritance. It was first introduced
+in the language Dylan (see links in the L</"SEE ALSO"> section), and
+then later adopted as the preferred MRO (Method Resolution Order) for
+the new-style classes in Python 2.3 and is the "canonical" MRO for
+Perl 6 and cperl classes.
 
 =head2 How does C3 work
 
@@ -144,78 +147,71 @@ Returns the MRO of the given class (either C<c3> or C<dfs>).
 
 =head2 mro::get_isarev($classname)
 
-Gets the C<mro_isarev> for this class, returned as an
-arrayref of class names.  These are every class that "isa"
-the given class name, even if the isa relationship is
-indirect.  This is used internally by the MRO code to
-keep track of method/MRO cache invalidations.
+Gets the C<mro_isarev> for this class, returned as an arrayref of
+class names.  These are every class that "isa" the given class name,
+even if the isa relationship is indirect.  This is used internally by
+the MRO code to keep track of method/MRO cache invalidations.
 
 As with C<mro::get_linear_isa> above, C<UNIVERSAL> is special.
-C<UNIVERSAL> (and parents') isarev lists do not include
-every class in existence, even though all classes are
-effectively descendants for method inheritance purposes.
+C<UNIVERSAL> (and parents') isarev lists do not include every class in
+existence, even though all classes are effectively descendants for
+method inheritance purposes.
 
 =head2 mro::is_universal($classname)
 
-Returns a boolean status indicating whether or not
-the given classname is either C<UNIVERSAL> itself,
-or one of C<UNIVERSAL>'s parents by C<@ISA> inheritance.
+Returns a boolean status indicating whether or not the given classname
+is either C<UNIVERSAL> itself, or one of C<UNIVERSAL>'s parents by
+C<@ISA> inheritance.
 
-Any class for which this function returns true is
-"universal" in the sense that all classes potentially
-inherit methods from it.
+Any class for which this function returns true is "universal" in the
+sense that all classes potentially inherit methods from it.
 
 =head2 mro::invalidate_all_method_caches()
 
-Increments C<PL_sub_generation>, which invalidates method
-caching in all packages.
+Increments C<PL_sub_generation>, which invalidates method caching in
+all packages.
 
 =head2 mro::method_changed_in($classname)
 
-Invalidates the method cache of any classes dependent on the
-given class.  This is not normally necessary.  The only
-known case where pure perl code can confuse the method
-cache is when you manually install a new constant
-subroutine by using a readonly scalar value, like the
-internals of L<constant> do.  If you find another case,
-please report it so we can either fix it or document
-the exception here.
+Invalidates the method cache of any classes dependent on the given
+class.  This is not normally necessary.  The only known case where
+pure perl code can confuse the method cache is when you manually
+install a new constant subroutine by using a readonly scalar value,
+like the internals of L<constant> do.  If you find another case,
+please report it so we can either fix it or document the exception
+here.
 
 =head2 mro::get_pkg_gen($classname)
 
-Returns an integer which is incremented every time a
-real local method in the package C<$classname> changes,
-or the local C<@ISA> of C<$classname> is modified.
+Returns an integer which is incremented every time a real local method
+in the package C<$classname> changes, or the local C<@ISA> of
+C<$classname> is modified.
 
-This is intended for authors of modules which do lots
-of class introspection, as it allows them to very quickly
-check if anything important about the local properties
-of a given class have changed since the last time they
-looked.  It does not increment on method/C<@ISA>
-changes in superclasses.
+This is intended for authors of modules which do lots of class
+introspection, as it allows them to very quickly check if anything
+important about the local properties of a given class have changed
+since the last time they looked.  It does not increment on
+method/C<@ISA> changes in superclasses.
 
-It's still up to you to seek out the actual changes,
-and there might not actually be any.  Perhaps all
-of the changes since you last checked cancelled each
-other out and left the package in the state it was in
-before.
+It's still up to you to seek out the actual changes, and there might
+not actually be any.  Perhaps all of the changes since you last
+checked cancelled each other out and left the package in the state it
+was in before.
 
-This integer normally starts off at a value of C<1>
-when a package stash is instantiated.  Calling it
-on packages whose stashes do not exist at all will
-return C<0>.  If a package stash is completely
-deleted (not a normal occurrence, but it can happen
-if someone does something like C<undef %PkgName::>),
-the number will be reset to either C<0> or C<1>,
-depending on how completely the package was wiped out.
+This integer normally starts off at a value of C<1> when a package
+stash is instantiated.  Calling it on packages whose stashes do not
+exist at all will return C<0>.  If a package stash is completely
+deleted (not a normal occurrence, but it can happen if someone does
+something like C<undef %PkgName::>), the number will be reset to
+either C<0> or C<1>, depending on how completely the package was wiped
+out.
 
 =head2 next::method
 
-This is somewhat like C<SUPER>, but it uses the C3 method
-resolution order to get better consistency in multiple
-inheritance situations.  Note that while inheritance in
-general follows whichever MRO is in effect for the
-given class, C<next::method> only uses the C3 MRO.
+This is somewhat like C<SUPER>, but it uses the C3 method resolution
+order to get better consistency in multiple inheritance situations.
+Note that while inheritance in general follows whichever MRO is in
+effect for the given class, C<next::method> only uses the C3 MRO.
 
 One generally uses it like so:
 
@@ -225,9 +221,8 @@ One generally uses it like so:
     return $superclass_answer + 1;
   }
 
-Note that you don't (re-)specify the method name.
-It forces you to always use the same method name
-as the method you started in.
+Note that you don't (re-)specify the method name.  It forces you to
+always use the same method name as the method you started in.
 
 It can be called on an object or a class, of course.
 
@@ -237,33 +232,30 @@ The way it resolves which actual method to call is:
 
 =item 1
 
-First, it determines the linearized C3 MRO of
-the object or class it is being called on.
+First, it determines the linearized C3 MRO of the object or class it
+is being called on.
 
 =item 2
 
-Then, it determines the class and method name
-of the context it was invoked from.
+Then, it determines the class and method name of the context it was
+invoked from.
 
 =item 3
 
-Finally, it searches down the C3 MRO list until
-it reaches the contextually enclosing class, then
-searches further down the MRO list for the next
-method with the same name as the contextually
-enclosing method.
+Finally, it searches down the C3 MRO list until it reaches the
+contextually enclosing class, then searches further down the MRO list
+for the next method with the same name as the contextually enclosing
+method.
 
 =back
 
-Failure to find a next method will result in an
-exception being thrown (see below for alternatives).
+Failure to find a next method will result in an exception being thrown
+(see below for alternatives).
 
-This is substantially different than the behavior
-of C<SUPER> under complex multiple inheritance.
-(This becomes obvious when one realizes that the
-common superclasses in the C3 linearizations of
-a given class and one of its parents will not
-always be ordered the same for both.)
+This is substantially different than the behavior of C<SUPER> under
+complex multiple inheritance.  (This becomes obvious when one realizes
+that the common superclasses in the C3 linearizations of a given class
+and one of its parents will not always be ordered the same for both.)
 
 B<Caveat>: Calling C<next::method> from methods defined outside the class:
 
@@ -301,16 +293,30 @@ In simple cases, it is equivalent to:
 
    $self->next::method(@_) if $self->next::can;
 
-But there are some cases where only this solution
-works (like C<goto &maybe::next::method>);
+But there are some cases where only this solution works (like C<goto
+&maybe::next::method>);
 
 =head1 SEE ALSO
+
+=over 4
+
+=item L<https://en.wikipedia.org/wiki/C3_linearization>
+
+=back
 
 =head2 The original Dylan paper
 
 =over 4
 
 =item L<http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.19.3910&rep=rep1&type=pdf>
+
+=back
+
+=head2 Perl6
+
+=over 4
+
+=item L<https://docs.perl6.org/type/Metamodel::C3MRO>
 
 =back
 
@@ -335,6 +341,16 @@ Parrot now uses C3
 =item L<http://www.python.org/2.3/mro.html>
 
 =item L<http://www.python.org/2.2.2/descrintro.html#mro>
+
+=back
+
+=head2 Chicken Scheme
+
+On top of L<tinyclos|http://wiki.call-cc.org/eggref/4/tinyclos>.
+
+=over 4
+
+=item L<http://wiki.call-cc.org/eggref/4/c3>
 
 =back
 

@@ -20,7 +20,10 @@
 
 /*
 =head1 MRO Functions
-These functions are related to the method resolution order of perl classes
+These functions are related to the method resolution order of perl classes.
+
+Implemented are the old dfs, and the new c3 methods, but via the L<perlmroapi>
+you can add arbitrary methods as extension.
 
 =cut
 */
@@ -29,8 +32,8 @@ These functions are related to the method resolution order of perl classes
 #define PERL_IN_MRO_C
 #include "perl.h"
 
-static const struct mro_alg dfs_alg =
-    {S_mro_get_linear_isa_dfs, "dfs", 3, 0, 0};
+static const struct mro_alg c3_alg =
+    {S_mro_get_linear_isa_c3, "c3", 2, 0, 0};
 
 SV *
 Perl_mro_get_private_data(pTHX_ struct mro_meta *const smeta,
@@ -152,7 +155,7 @@ Perl_mro_meta_init(pTHX_ HV* stash)
     HvAUX(stash)->xhv_mro_meta = newmeta;
     newmeta->cache_gen = 1;
     newmeta->pkg_gen = 1;
-    newmeta->mro_which = &dfs_alg;
+    newmeta->mro_which = &c3_alg;
 
     return newmeta;
 }
@@ -201,199 +204,312 @@ Perl_mro_meta_dup(pTHX_ struct mro_meta* smeta, CLONE_PARAMS* param)
 #endif /* USE_ITHREADS */
 
 /*
-=for apidoc mro_get_linear_isa_dfs
+=for apidoc mro_get_linear_isa_c3
 
-Returns the Depth-First Search linearization of C<@ISA>
-the given stash.  The return value is a read-only AV*.
-C<level> should be 0 (it is used internally in this
-function's recursion).
+Returns the C3 linearization of C<@ISA> the given stash.  The return
+value is a read-only AV*.  C<level> should be 0 (it is used internally
+in this function's recursion).
 
-You are responsible for C<SvREFCNT_inc()> on the
-return value if you plan to store it anywhere
-semi-permanently (otherwise it might be deleted
-out from under you the next time the cache is
-invalidated).
+You are responsible for C<SvREFCNT_inc()> on the return value if you
+plan to store it anywhere semi-permanently (otherwise it might be
+deleted out from under you the next time the cache is invalidated).
 
 =cut
 */
+
 static AV*
-S_mro_get_linear_isa_dfs(pTHX_ HV *stash, U32 level)
+S_mro_get_linear_isa_c3(pTHX_ HV* stash, U32 level)
 {
     AV* retval;
     GV** gvp;
     GV* gv;
-    AV* av;
+    AV* isa;
     const HEK* stashhek;
     struct mro_meta* meta;
-    SV *our_name;
-    HV *stored = NULL;
 
-    PERL_ARGS_ASSERT_MRO_GET_LINEAR_ISA_DFS;
+    PERL_ARGS_ASSERT_MRO_GET_LINEAR_ISA_C3;
     assert(HvAUX(stash));
 
-    stashhek
-     = HvAUX(stash)->xhv_name_u.xhvnameu_name && HvENAME_HEK_NN(stash)
-        ? HvENAME_HEK_NN(stash)
-        : HvNAME_HEK(stash);
-
+    stashhek = HvENAME_HEK(stash);
     if (!stashhek)
-      Perl_croak(aTHX_ "Can't linearize anonymous symbol table");
+        stashhek = HvNAME_HEK(stash);
+    if (!stashhek)
+        /* TODO: fix this severe limitation */
+        Perl_croak(aTHX_ "Can't linearize anonymous symbol table");
 
     if (level > 100)
-        Perl_croak(aTHX_
-		  "Recursive inheritance detected in package '%" HEKf "'",
-		   HEKfARG(stashhek));
+        Perl_croak(aTHX_ "Recursive inheritance detected in package '%" HEKf
+                         "'",
+                          HEKfARG(stashhek));
 
     meta = HvMROMETA(stash);
 
     /* return cache if valid */
-    if ((retval = MUTABLE_AV(MRO_GET_PRIVATE_DATA(meta, &dfs_alg)))) {
+    if ((retval = MUTABLE_AV(MRO_GET_PRIVATE_DATA(meta, &c3_alg)))) {
         return retval;
     }
 
     /* not in cache, make a new one */
-
-    retval = MUTABLE_AV(sv_2mortal(MUTABLE_SV(newAV())));
-    /* We use this later in this function, but don't need a reference to it
-       beyond the end of this function, so reference count is fine.  */
-    our_name = newSVhek(stashhek);
-    av_push(retval, our_name); /* add ourselves at the top */
-
-    /* fetch our @ISA */
     gvp = (GV**)hv_fetchs_ifexists(stash, "ISA", FALSE);
-    av = (gvp && (gv = *gvp) && isGV_with_GP(gv)) ? GvAV(gv) : NULL;
+    isa = (gvp && (gv = *gvp) && isGV_with_GP(gv)) ? GvAV(gv) : NULL;
 
-    /* "stored" is used to keep track of all of the classnames we have added to
-       the MRO so far, so we can do a quick exists check and avoid adding
-       duplicate classnames to the MRO as we go.
-       It's then retained to be re-used as a fast lookup for ->isa(), by adding
-       our own name and "UNIVERSAL" to it.  */
+    /* For a better idea how the rest of this works, see the much clearer
+       pure perl version in Algorithm::C3 0.01:
+       http://search.cpan.org/src/STEVAN/Algorithm-C3-0.01/lib/Algorithm/C3.pm
+       (later versions go about it differently than this code for speed reasons)
+    */
 
-    if (av && AvFILLp(av) >= 0) {
+    if (isa && AvFILLp(isa) >= 0) {
+        SV** seqs_ptr;
+        SSize_t seqs_items;
+        HV *tails;
+        AV *const seqs = MUTABLE_AV(sv_2mortal(MUTABLE_SV(newAV())));
+        I32* heads;
 
-        SV **svp = AvARRAY(av);
-        SSize_t items = AvFILLp(av) + 1;
-
-        /* foreach(@ISA) */
+        /* This builds @seqs, which is an array of arrays.
+           The members of @seqs are the MROs of
+           the members of @ISA, followed by @ISA itself.
+        */
+        SSize_t items = AvFILLp(isa) + 1;
+        SV** isa_ptr = AvARRAY(isa);
         while (items--) {
-            SV* const sv = *svp ? *svp : UNDEF;
-            HV* const basestash = gv_stashsv(sv, 0);
-	    SV *const *subrv_p;
-	    SSize_t subrv_items;
-	    svp++;
-
-            if (!basestash) {
-                /* if no stash exists for this @ISA member,
-                   simply add it to the MRO and move on */
-		subrv_p = &sv;
-		subrv_items = 1;
+            /* Change deleted ISA elems into "main".
+               !*isa_ptr deletion can happen with $#ISA++.
+               Normal deletion changes the isaelem to an empty PVMG.
+               The stash of those will always be main. */
+            SV* isa_item = *isa_ptr ? *isa_ptr : &PL_sv_undef;
+            HV* isa_item_stash = gv_stashsv(isa_item, 0);
+            if (UNLIKELY((isa_item == &PL_sv_undef) ||
+                         (SvFLAGS(isa_item) == SVt_PVMG && /* missing SVs_SMG */
+                          isa_item_stash &&
+                          !SvPVX(isa_item)))) { /* a deleted elem */
+                SvREFCNT_dec_NN(isa_item);
+                /* *isa_ptr = &PL_sv_undef; */
+                isa_item_stash = NULL;
+                *isa_ptr = newSVpvs("main");
+                isa_item = *isa_ptr;
+            }
+            isa_ptr++;
+            if (!isa_item_stash) {
+                /* if no stash, make a temporary fake MRO
+                   containing just itself */
+                AV* const isa_lin = newAV();
+                av_push(isa_lin, newSVsv(isa_item));
+                av_push(seqs, MUTABLE_SV(isa_lin));
             }
             else {
-                /* otherwise, recurse into ourselves for the MRO
-                   of this @ISA member, and append their MRO to ours.
-		   The recursive call could throw an exception, which
-		   has memory management implications here, hence the use of
-		   the mortal.  */
-		const AV *const subrv
-		    = mro_get_linear_isa_dfs(basestash, level + 1);
+                /* recursion */
+                AV* const isa_lin
+		  = S_mro_get_linear_isa_c3(aTHX_ isa_item_stash, level + 1);
 
-		subrv_p = AvARRAY(subrv);
-		subrv_items = AvFILLp(subrv) + 1;
-	    }
-	    if (stored) {
-		while (subrv_items--) {
-		    SV *const subsv = *subrv_p++;
-		    /* LVALUE fetch will create a new undefined SV if necessary
-		     */
-		    HE *const he = hv_fetch_ent(stored, subsv, 1, 0);
-		    assert(he);
-		    if (HeVAL(he) != UNDEF) {
-			/* It was newly created.  Steal it for our new SV, and
-			   replace it in the hash with the "real" thing.  */
-			SV *const val = HeVAL(he);
-			HEK *const key = HeKEY_hek(he);
-
-			HeVAL(he) = UNDEF;
-			sv_sethek(val, key);
-			av_push(retval, val);
-		    }
-		}
-            } else {
-		/* We are the first (or only) parent. We can short cut the
-		   complexity above, because our @ISA is simply us prepended
-		   to our parent's @ISA, and our ->isa cache is simply our
-		   parent's, with our name added.  */
-		/* newSVsv() is slow. This code is only faster if we can avoid
-		   it by ensuring that SVs in the arrays are shared hash key
-		   scalar SVs, because we can "copy" them very efficiently.
-		   Although to be fair, we can't *ensure* this, as a reference
-		   to the internal array is returned by mro::get_linear_isa(),
-		   so we'll have to be defensive just in case someone faffed
-		   with it.  */
-		if (basestash) {
+		if (items == 0 && AvFILLp(seqs) == -1) {
+		    /* Only one parent class. For this case, the C3
+		       linearisation is this class followed by the parent's
+		       linearisation, so don't bother with the expensive
+		       calculation.  */
 		    SV **svp;
-		    stored = MUTABLE_HV(sv_2mortal((SV*)newHVhv(HvMROMETA(basestash)->isa)));
+		    SV *const *subrv_p = AvARRAY(isa_lin);
+		    SSize_t subrv_items = AvFILLp(isa_lin) + 1;
+
+		    /* Hijack the allocated but unused array seqs to be the
+		       return value. It's currently mortalised.  */
+		    retval = seqs;
+
 		    av_extend(retval, subrv_items);
 		    AvFILLp(retval) = subrv_items;
 		    svp = AvARRAY(retval);
+
+		    /* First entry is this class.  We happen to make a shared
+		       hash key scalar because it's the cheapest and fastest
+		       way to do it.  */
+		    *svp++ = newSVhek(stashhek);
+
 		    while (subrv_items--) {
+			/* These values are unlikely to be shared hash key
+			   scalars, so no point in adding code to optimising
+			   for a case that is unlikely to be true.
+			   (Or prove me wrong and do it.)  */
 			SV *const val = *subrv_p++;
-			*++svp = SvIsCOW_shared_hash(val)
-			    ? newSVhek(SvSHARED_HEK_FROM_PV(SvPVX(val)))
-			    : newSVsv(val);
+                        if (LIKELY(val != &PL_sv_undef)) {
+                            if (SvIsCOW_shared_hash(val))
+                                *svp++ = SvREFCNT_inc_simple_NN(val);
+                            else
+                                *svp++ = newSVsv(val);
+                        }
 		    }
-		} else {
-		    /* They have no stash.  So create ourselves an ->isa cache
-		       as if we'd copied it from what theirs should be.  */
-		    stored = MUTABLE_HV(sv_2mortal(MUTABLE_SV(newHV())));
-		    (void) hv_store(stored, "UNIVERSAL", 9, UNDEF, 0);
-		    av_push(retval,
-			    newSVhek(HeKEY_hek(hv_store_ent(stored, sv,
-							    UNDEF, 0))));
+
+		    SvREFCNT_inc(retval);
+		    goto done;
 		}
-	    }
+                av_push(seqs, SvREFCNT_inc_simple_NN(MUTABLE_SV(isa_lin)));
+            }
         }
-    } else {
-	/* We have no parents.  */
-	stored = MUTABLE_HV(sv_2mortal(MUTABLE_SV(newHV())));
-	(void) hv_store(stored, "UNIVERSAL", 9, UNDEF, 0);
+        av_push(seqs, SvREFCNT_inc_simple_NN(MUTABLE_SV(isa)));
+	tails = MUTABLE_HV(sv_2mortal(MUTABLE_SV(newHV())));
+
+        /* This builds "heads", which as an array of integer array
+           indices, one per seq, which point at the virtual "head"
+           of the seq (initially zero) */
+        Newxz(heads, AvFILLp(seqs)+1, I32);
+
+        /* This builds %tails, which has one key for every class
+           mentioned in the tail of any sequence in @seqs (tail meaning
+           everything after the first class, the "head").  The value
+           is how many times this key appears in the tails of @seqs. */
+        seqs_ptr = AvARRAY(seqs);
+        seqs_items = AvFILLp(seqs) + 1;
+        while (seqs_items--) {
+            AV *const seq = MUTABLE_AV(*seqs_ptr++);
+            SSize_t seq_items = AvFILLp(seq);
+            if (seq_items > 0) {
+                SV** seq_ptr = AvARRAY(seq) + 1;
+                while (seq_items--) {
+                    SV* const seqitem = *seq_ptr++;
+		    /* LVALUE fetch will create a new undefined SV if necessary */
+                    HE* const he = hv_fetch_ent(tails, seqitem, 1, 0);
+                    if (he) {
+                        SV* const val = HeVAL(he);
+                        /* For 5.8.0 and later, sv_inc() will increment undef to
+			   an IV of 1, which is what we want for a newly created
+			   entry.  However, for 5.6.x it will become an NV of
+			   1.0, which confuses the SvIVX() checks above.  */
+			if (SvIOK(val)) {
+			    SvIV_set(val, SvIVX(val) + 1);
+			} else {
+			    sv_setiv(val, 1);
+			}
+                    }
+                }
+            }
+        }
+
+        /* Initialize retval to build the return value in */
+        retval = newAV();
+        av_push(retval, newSVhek(stashhek)); /* us first */
+
+        /* This loop won't terminate until we either finish building
+           the MRO, or get an exception. */
+        while (1) {
+            SV* cand = NULL;
+            SV* winner = NULL;
+            SSize_t s;
+
+            /* "foreach $seq (@seqs)" */
+            SV** const avptr = AvARRAY(seqs);
+            for (s = 0; s <= AvFILLp(seqs); s++) {
+                SV** svp;
+                AV * const seq = MUTABLE_AV(avptr[s]);
+		SV* seqhead;
+                if (!seq)
+                    continue; /* skip empty seqs */
+                svp = av_fetch(seq, heads[s], 0);
+                seqhead = *svp; /* seqhead = head of this seq */
+                if (!winner) {
+		    HE* tail_entry;
+		    SV* val;
+                    /* If we haven't found a winner for this round yet,
+                       and this seqhead is not in tails (or the count
+                       for it in tails has dropped to zero), then this
+                       seqhead is our new winner, and is added to the
+                       final MRO immediately */
+                    cand = seqhead;
+                    if ((tail_entry = hv_fetch_ent(tails, cand, 0, 0))
+                       && (val = HeVAL(tail_entry))
+                       && (SvIVX(val) > 0))
+                           continue;
+                    winner = newSVsv(cand);
+                    av_push(retval, winner);
+                    /* note however that even when we find a winner,
+                       we continue looping over @seqs to do housekeeping */
+                }
+                if (!sv_cmp(seqhead, winner)) {
+                    /* Once we have a winner (including the iteration
+                       where we first found him), inc the head ptr
+                       for any seq which had the winner as a head,
+                       NULL out any seq which is now empty,
+                       and adjust tails for consistency */
+
+                    const int new_head = ++heads[s];
+                    if (new_head > AvFILLp(seq)) {
+                        SvREFCNT_dec(avptr[s]);
+                        avptr[s] = NULL;
+                    }
+                    else {
+			HE* tail_entry;
+			SV* val;
+                        /* Because we know this new seqhead used to be
+                           a tail, we can assume it is in tails and has
+                           a positive value, which we need to dec */
+                        svp = av_fetch(seq, new_head, 0);
+                        seqhead = *svp;
+                        tail_entry = hv_fetch_ent(tails, seqhead, 0, 0);
+                        val = HeVAL(tail_entry);
+                        sv_dec(val);
+                    }
+                }
+            }
+
+            /* if we found no candidates, we are done building the MRO.
+               !cand means no seqs have any entries left to check */
+            if (!cand) {
+                Safefree(heads);
+                break;
+            }
+
+            /* If we had candidates, but nobody won, then the @ISA
+               hierarchy is not C3-incompatible */
+            if (!winner) {
+                SV *errmsg;
+                SSize_t i;
+
+                errmsg = newSVpvf
+                  (
+                   "Inconsistent hierarchy during C3 merge of class '%" HEKf "':\n\t"
+                   "current merge results [\n",
+                   HEKfARG(stashhek));
+                for (i = 0; i <= av_tindex(retval); i++) {
+                    SV **elem = av_fetch(retval, i, 0);
+                    sv_catpvf(errmsg, "\t\t%" SVf ",\n", SVfARG(*elem));
+                }
+                sv_catpvf(errmsg,
+                    "\t]\n\tmerging failed on '%" SVf "'", SVfARG(cand));
+
+                /* we have to do some cleanup before we croak */
+
+                SvREFCNT_dec(retval);
+                Safefree(heads);
+
+                Perl_croak(aTHX_ "%" SVf, SVfARG(errmsg));
+            }
+        }
+    }
+    else { /* @ISA was undefined or empty */
+        /* build a retval containing only ourselves */
+        retval = newAV();
+        av_push(retval, newSVhek(stashhek));
     }
 
-    (void) hv_store_ent(stored, our_name, UNDEF, 0);
-
-    SvREFCNT_inc_simple_void_NN(stored);
-    SvTEMP_off(stored);
-    SvREADONLY_on(stored);
-
-    meta->isa = stored;
-
-    /* now that we're past the exception dangers, grab our own reference to
-       the AV we're about to use for the result. The reference owned by the
-       mortals' stack will be released soon, so everything will balance.  */
-    SvREFCNT_inc_simple_void_NN(retval);
-    SvTEMP_off(retval);
-
+ done:
     /* we don't want anyone modifying the cache entry but us,
        and we do so by replacing it completely */
     SvREADONLY_on(retval);
 
-    return MUTABLE_AV(mro_set_private_data(meta, &dfs_alg,
-                                           MUTABLE_SV(retval)));
+    return MUTABLE_AV(mro_set_private_data(meta, &c3_alg,
+                          MUTABLE_SV(retval)));
 }
+
 
 /*
 =for apidoc mro_get_linear_isa
 
 Returns the mro linearisation for the given stash.  By default, this
-will be whatever C<mro_get_linear_isa_dfs> returns unless some
-other MRO is in effect for the stash.  The return value is a
-read-only AV*.
+will be whatever C<mro_get_linear_isa_c3> returns unless the other MRO
+(dfs) is in effect for the stash.  The return value is a read-only
+AV*.
 
-You are responsible for C<SvREFCNT_inc()> on the
-return value if you plan to store it anywhere
-semi-permanently (otherwise it might be deleted
-out from under you the next time the cache is
-invalidated).
+You are responsible for C<SvREFCNT_inc()> on the return value if you
+plan to store it anywhere semi-permanently (otherwise it might be
+deleted out from under you the next time the cache is invalidated).
 
 =cut
 */
@@ -412,7 +528,7 @@ Perl_mro_get_linear_isa(pTHX_ HV *stash)
         Perl_croak(aTHX_ "panic: invalid MRO!");
     isa = meta->mro_which->resolve(aTHX_ stash, 0);
 
-    if (meta->mro_which != &dfs_alg) { /* skip for dfs, for speed */
+    if (meta->mro_which != &c3_alg) { /* skip for the default, for speed */
 	SV * const namesv =
 	    (HvENAME(stash)||HvNAME(stash))
 	      ? newSVhek(HvENAME_HEK(stash)
@@ -436,26 +552,23 @@ Perl_mro_get_linear_isa(pTHX_ HV *stash)
     }
 
     if (!meta->isa) {
-	    HV *const isa_hash = newHV();
-	    /* Linearisation didn't build it for us, so do it here.  */
-	    SV *const *svp = AvARRAY(isa);
-	    SV *const *const svp_end = svp + AvFILLp(isa) + 1;
-	    const HEK *canon_name = HvENAME_HEK(stash);
-	    if (!canon_name) canon_name = HvNAME_HEK(stash);
-
-	    while (svp < svp_end) {
-		(void) hv_store_ent(isa_hash, *svp++, UNDEF, 0);
-	    }
-
-	    (void)hv_common(isa_hash, NULL, HEK_KEY(canon_name),
-			     HEK_LEN(canon_name), HEK_FLAGS(canon_name),
-			     HV_FETCH_ISSTORE, UNDEF,
-			     HEK_HASH(canon_name));
-	    (void)hv_store(isa_hash, "UNIVERSAL", 9, UNDEF, 0);
-
-	    SvREADONLY_on(isa_hash);
-
-	    meta->isa = isa_hash;
+        HV *const isa_hash = newHV();
+        /* Linearisation didn't build it for us, */
+        SV *const *svp = AvARRAY(isa);
+        SV *const *const svp_end = svp + AvFILLp(isa);
+        const HEK *canon_name = HvENAME_HEK(stash);
+        if (!canon_name) canon_name = HvNAME_HEK(stash);
+        /* so add empty isa_hash entries for all isa keys */
+        while (svp <= svp_end) {
+            (void) hv_store_ent(isa_hash, *svp++, UNDEF, 0);
+        }
+        (void)hv_common(isa_hash, NULL, HEK_KEY(canon_name),
+                        HEK_LEN(canon_name), HEK_FLAGS(canon_name),
+                        HV_FETCH_ISSTORE, UNDEF,
+                        HEK_HASH(canon_name));
+        (void)hv_stores(isa_hash, "UNIVERSAL", UNDEF);
+        SvREADONLY_on(isa_hash);
+        meta->isa = isa_hash;
     }
 
     return isa;
@@ -464,9 +577,9 @@ Perl_mro_get_linear_isa(pTHX_ HV *stash)
 /*
 =for apidoc mro_isa_changed_in
 
-Takes the necessary steps (cache invalidations, mostly)
-when the C<@ISA> of the given package has changed.  Invoked
-by the C<setisa> magic, should not need to invoke directly.
+Takes the necessary steps (cache invalidations, mostly) when the
+C<@ISA> of the given package has changed.  Invoked by the C<setisa>
+magic, should not need to invoke directly.
 
 =cut
 */
@@ -645,8 +758,7 @@ Perl_mro_isa_changed_in(pTHX_ HV* stash)
     }
 
     /* Now iterate our MRO (parents), adding ourselves and everything from
-       our isarev to their isarev.
-    */
+       our isarev to their isarev. */
 
     /* We're starting at the 2nd element, skipping ourselves here */
     linear_mro = mro_get_linear_isa(stash);
@@ -688,7 +800,6 @@ S_mro_clean_isarev(pTHX_ HV * const isa, const char * const name,
                          U32 flags)
 {
     HE* iter;
-
     PERL_ARGS_ASSERT_MRO_CLEAN_ISAREV;
 
     /* Delete our name from our former parents' isarevs. */
@@ -708,7 +819,7 @@ S_mro_clean_isarev(pTHX_ HV * const isa, const char * const name,
                                 G_DISCARD|HV_DELETE, NULL, hash);
                 if (!HvARRAY(isarev) || !HvUSEDKEYS(isarev))
                     (void)hv_delete(PL_isarev, key,
-                                        HeKUTF8(iter) ? -klen : klen, G_DISCARD);
+                                    HeKUTF8(iter) ? -klen : klen, G_DISCARD);
             }
         }
     }
@@ -722,8 +833,8 @@ another spot in the stash hierarchy.  C<stash> is the stash that has been
 assigned.  C<oldstash> is the stash it replaces, if any.  C<gv> is the glob
 that is actually being assigned to.
 
-This can also be called with a null first argument to
-indicate that C<oldstash> has been deleted.
+This can also be called with a null first argument to indicate that
+C<oldstash> has been deleted.
 
 This function invalidates isa caches on the old stash, on all subpackages
 nested inside it, and on the subclasses of all those, including
@@ -969,7 +1080,8 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 			    mro_clean_isarev(meta->isa, name, len, 0, 0,
 					     name_utf8 ? HVhek_UTF8 : 0);
                         if (UNLIKELY(len > I32_MAX))
-                            Perl_croak(aTHX_ "panic: stash name too long (%" UVuf ")", (UV) len);
+                            Perl_croak(aTHX_ "panic: stash name too long (%" UVuf ")",
+                                       (UV) len);
 			isarev = (HV *)hv_delete(PL_isarev, name,
                                                  name_utf8 ? -(I32)len : (I32)len, 0);
 			fetched_isarev = TRUE;
@@ -997,18 +1109,18 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 	    hv_ename_add(stash, name, len, name_utf8);
 	}
 
-       /* Add it to the big list if it needs
-	* mro_isa_changed_in called on it. That happens if it was
-	* detached from the symbol table (so it had no HvENAME) before
-	* being assigned to the spot named by the 'name' variable, because
-	* its cached isa linearisation is now stale (the effective name
-	* having changed), and subclasses will then use that cache when
-	* mro_package_moved calls mro_isa_changed_in. (See
-	* [perl #77358].)
+       /* Add it to the big list if it needs mro_isa_changed_in called
+	* on it. That happens if it was detached from the symbol table
+	* (so it had no HvENAME) before being assigned to the spot
+	* named by the 'name' variable, because its cached isa
+	* linearisation is now stale (the effective name having
+	* changed), and subclasses will then use that cache when
+	* mro_package_moved calls mro_isa_changed_in. (See [perl
+	* #77358].)
 	*
-	* If it did have a name, then its previous name is still
-	* used in isa caches, and there is no need for
-	* mro_package_moved to call mro_isa_changed_in.
+	* If it did have a name, then its previous name is still used
+	* in isa caches, and there is no need for mro_package_moved to
+	* call mro_isa_changed_in.
 	*/
 
         /* Hack. Again a pointer, not the name */
@@ -1063,30 +1175,30 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 	}
     }
     if ( isarev || !fetched_isarev ) {
-      while (fetched_isarev || items--) {
-	HE *iter;
+        while (fetched_isarev || items--) {
+            HE *iter;
 
-	if (!fetched_isarev) {
-	    HE * const he = hv_fetch_ent(PL_isarev, *svp++, 0, 0);
-	    if (!he || !(isarev = MUTABLE_HV(HeVAL(he)))) continue;
-	}
+            if (!fetched_isarev) {
+                HE * const he = hv_fetch_ent(PL_isarev, *svp++, 0, 0);
+                if (!he || !(isarev = MUTABLE_HV(HeVAL(he)))) continue;
+            }
 
-	(void)hv_iterinit(isarev);
-	while ((iter = hv_iternext(isarev))) {
-	    HV* revstash = gv_stashsv(hv_iterkeysv(iter), 0);
-	    struct mro_meta * meta;
+            (void)hv_iterinit(isarev);
+            while ((iter = hv_iternext(isarev))) {
+                HV* revstash = gv_stashsv(hv_iterkeysv(iter), 0);
+                struct mro_meta * meta;
 
-	    if (!revstash) continue;
-	    meta = HvMROMETA(revstash);
-            /* Hack. Again a pointer, not the name */
-	    (void)hv_store(stashes, (const char *)&revstash, sizeof(HV *),
-                           meta->isa ? SvREFCNT_inc_simple_NN((SV *)meta->isa)
-                                     : SV_YES, 0);
-	    CLEAR_LINEAR(meta);
+                if (!revstash) continue;
+                meta = HvMROMETA(revstash);
+                /* Hack. Again a pointer, not the name */
+                (void)hv_store(stashes, (const char *)&revstash, sizeof(HV *),
+                               meta->isa ? SvREFCNT_inc_simple_NN((SV *)meta->isa)
+                               : SV_YES, 0);
+                CLEAR_LINEAR(meta);
+            }
+
+            if (fetched_isarev) break;
         }
-
-	if (fetched_isarev) break;
-      }
     }
 
     /* This is partly based on code in hv_iternext_flags. We are not call-
@@ -1164,7 +1276,8 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
                                               substash, oldsubstash, subname);
 		    }
 
-		    (void)hv_store(seen, key, HeUTF8(entry) ? -(I32)len : (I32)len, SV_YES, 0);
+		    (void)hv_store(seen, key, HeUTF8(entry) ? -(I32)len : (I32)len,
+                                   SV_YES, 0);
 		}
 	    }
 	}
@@ -1195,7 +1308,8 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 
 		    /* If this entry was seen when we iterated through the
 		       oldstash, skip it. */
-		    if (seen && hv_exists(seen, key, HeUTF8(entry) ? -(I32)len : (I32)len))
+		    if (seen && hv_exists(seen, key, HeUTF8(entry)
+                                          ? -(I32)len : (I32)len))
                         continue;
 
 		    /* We get here only if this stash has no corresponding
@@ -1251,30 +1365,25 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 /*
 =for apidoc mro_method_changed_in
 
-Invalidates method caching on any child classes
-of the given stash, so that they might notice
-the changes in this one.
+Invalidates method caching on any child classes of the given stash, so
+that they might notice the changes in this one.
 
-Ideally, all instances of C<PL_sub_generation++> in
-perl source outside of F<mro.c> should be
-replaced by calls to this.
+Ideally, all instances of C<PL_sub_generation++> in perl source
+outside of F<mro.c> should be replaced by calls to this.
 
-Perl automatically handles most of the common
-ways a method might be redefined.  However, there
-are a few ways you could change a method in a stash
-without the cache code noticing, in which case you
-need to call this method afterwards:
+Perl automatically handles most of the common ways a method might be
+redefined.  However, there are a few ways you could change a method in
+a stash without the cache code noticing, in which case you need to
+call this method afterwards:
 
-1) Directly manipulating the stash HV entries from
-XS code.
+1) Directly manipulating the stash HV entries from XS code.
 
-2) Assigning a reference to a readonly scalar
-constant into a stash entry in order to create
-a constant subroutine (like F<constant.pm>
+2) Assigning a reference to a readonly scalar constant into a stash
+entry in order to create a constant subroutine (like F<constant.pm>
 does).
 
-This same method is available from pure perl
-via, C<mro::method_changed_in(classname)>.
+This same method is available from pure perl via,
+C<mro::method_changed_in(classname)>.
 
 =cut
 */
@@ -1368,9 +1477,7 @@ void
 Perl_boot_core_mro(pTHX)
 {
     static const char file[] = __FILE__;
-
-    mro_register(&dfs_alg);
-
+    mro_register(&c3_alg);
     newXSproto("mro::method_changed_in", XS_mro_method_changed_in, file, "$");
 }
 
@@ -1382,15 +1489,11 @@ XS(XS_mro_method_changed_in)
 
     if (items != 1)
 	croak_xs_usage(cv, "classname");
-
     classname = ST(0);
-
     class_stash = gv_stashsv(classname, 0);
     if (!class_stash)
         Perl_croak(aTHX_ "No such class: '%" SVf "'!", SVfARG(classname));
-
     mro_method_changed_in(class_stash);
-
     XSRETURN_EMPTY;
 }
 

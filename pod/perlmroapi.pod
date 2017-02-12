@@ -8,6 +8,8 @@ As of Perl 5.10.1 there is a new interface for plugging and using method
 resolution orders other than the default (linear depth first search).
 The C3 method resolution order added in 5.10.0 has been re-implemented as
 a plugin, without changing its Perl-space interface.
+Since cperl-5.28 C3 is now the default mro, the old C<dfs> is
+implemented in F<ext/mro>.
 
 Each plugin should register itself by providing
 the following structure
@@ -81,7 +83,7 @@ stash, and a pointer to your C<mro_alg> structure:
 
 To set your private value, call C<Perl_mro_set_private_data()>:
 
-    Perl_mro_set_private_data(aTHX_ meta, &c3_alg, private_sv);
+    Perl_mro_set_private_data(aTHX_ meta, &my_mro_alg, private_sv);
 
 The private data cache will take ownership of a reference to private_sv,
 much the same way that C<hv_store()> takes ownership of a reference to the
@@ -89,9 +91,17 @@ value that you pass it.
 
 =head1 Examples
 
-For examples of MRO implementations, see C<S_mro_get_linear_isa_c3()>
+For examples of MRO implementations, see C<S_mro_get_linear_isa_dfs()>
 and the C<BOOT:> section of F<ext/mro/mro.xs>, and
-C<S_mro_get_linear_isa_dfs()> in F<mro_core.c>
+C<S_mro_get_linear_isa_c3()> in F<mro_core.c>
+
+Only two mro implementations are known to be useful: The old
+dfs (used in perl5). And the new c3, which is the default in python,
+perl6 and cperl.
+
+=head1 SEE ALSO
+
+L<https://en.wikipedia.org/wiki/C3_linearization>
 
 =head1 AUTHORS
 

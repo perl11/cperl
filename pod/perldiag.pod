@@ -1142,7 +1142,9 @@ L<perlfunc/last>.
 =item Can't linearize anonymous symbol table
 
 (F) Perl tried to calculate the method resolution order (MRO) of a
-package, but failed because the package stash has no name.
+package, but failed because the package stash has no name. Symbol
+tables can become anonymous for example by undefining stashes:
+C<undef %Some::Package::>.
 
 =item Can't load '%s' for module %s
 

@@ -1,5 +1,9 @@
 Revision history for Perl extension mro.
 
+2.00 Sun Feb 12 10:44:08 2017 +0100
+	- switched in cperl 5.26 from C3 to DFS.
+        mro_core is now c3, ext/mro the old dfs.
+
 1.08 Sun Jun 12 14:09:03 BST 2011
 	- remove two broken URLs from the documentation
 
