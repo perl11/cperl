@@ -145,7 +145,8 @@ like( runperl( switches => [ "-Dsv" ], stderr => 1,
       "-Dsv Verbose: use in conjunction with other flags" );
 like( runperl( switches => [ "-DC" ], stderr => 1,
                prog => '1' ),
-      qr/\nCopy on write: clear "IO::Handle"\n/,
+      # depending on dfs or c3
+      qr/\nCopy on write: clear "IO::(File|Handle)"\n/,
       "-DC Copy on write" );
 like( runperl( switches => [ "-DA" ], stderr => 1,
                prog => '1' ),

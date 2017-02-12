@@ -1,7 +1,15 @@
 #!./perl
 
-use utf8 qw( Tamil Runic Cyrillic Devanagari Hangul Rejang 
-             Greek Georgian Oriya Katakana Gujarati Lao Arabic 
+BEGIN {
+    chdir 't' if -d 't';
+    require q(./test.pl);
+    set_up_inc('../lib');
+}
+
+# FIXME: lots of unneeded mixed scripts here. Stick to one language [cperl #232].
+# Esp. mixing Greek with Cyrillic is dangerous.
+use utf8 qw( Tamil Runic Cyrillic Devanagari Hangul Rejang
+             Greek Georgian Oriya Katakana Gujarati Lao Arabic
              Bopomofo Hiragana Ethiopic Mongolian
            );
 use open qw( :utf8 :std );
@@ -33,21 +41,17 @@ require mro;
 
 my @MFO_ᚠ_DFS = qw/MRO_ᚠ MRO_ｄ MRO_அ MRO_ɓ MRO_ᶝ MRO_ɛ/;
 my @MFO_ᚠ_C3 = qw/MRO_ᚠ MRO_ｄ MRO_ɛ MRO_அ MRO_ɓ MRO_ᶝ/;
-is(mro::get_mro('MRO_ᚠ'), 'dfs');
-ok(eq_array(
-    mro::get_linear_isa('MRO_ᚠ'), \@MFO_ᚠ_DFS
-));
+is(mro::get_mro('MRO_ᚠ'), 'c3');
+ok(eq_array( mro::get_linear_isa('MRO_ᚠ'), \@MFO_ᚠ_C3));
 
 ok(eq_array(mro::get_linear_isa('MRO_ᚠ', 'dfs'), \@MFO_ᚠ_DFS));
 ok(eq_array(mro::get_linear_isa('MRO_ᚠ', 'c3'), \@MFO_ᚠ_C3));
-eval{mro::get_linear_isa('MRO_ᚠ', 'C3')};
-like($@, qr/^Invalid mro name: 'C3'/);
+eval{mro::get_linear_isa('MRO_ᚠ', 'DFS')};
+like($@, qr/^Invalid mro name: 'DFS'/);
 
-mro::set_mro('MRO_ᚠ', 'c3');
-is(mro::get_mro('MRO_ᚠ'), 'c3');
-ok(eq_array(
-    mro::get_linear_isa('MRO_ᚠ'), \@MFO_ᚠ_C3
-));
+mro::set_mro('MRO_ᚠ', 'dfs');
+is(mro::get_mro('MRO_ᚠ'), 'dfs');
+ok(eq_array(mro::get_linear_isa('MRO_ᚠ'), \@MFO_ᚠ_DFS));
 
 ok(eq_array(mro::get_linear_isa('MRO_ᚠ', 'dfs'), \@MFO_ᚠ_DFS));
 ok(eq_array(mro::get_linear_isa('MRO_ᚠ', 'c3'), \@MFO_ᚠ_C3));
@@ -66,7 +70,7 @@ ok(!mro::is_universal('MRO_ɓ'));
 # is_universal, get_mro, and get_linear_isa should
 # handle non-existent packages sanely
 ok(!mro::is_universal('Does_Not_Exist'));
-is(mro::get_mro('Also_Does_Not_Exist'), 'dfs');
+is(mro::get_mro('Also_Does_Not_Exist'), 'c3');
 ok(eq_array(
     mro::get_linear_isa('Does_Not_Exist_Three'),
     [qw/Does_Not_Exist_Three/]
@@ -157,8 +161,10 @@ is(eval { MRO_ᠠ->텟tf운ꜿ() }, 123);
 
     # this looks dumb, but it preserves existing behavior for compatibility
     #  (undefined @ISA elements treated as "main")
+    # This revealed a c3 bug [cperl #251] (undetected since 2007).
     $ᛁ앛ଌᛠ::ISA[1] = undef;
-    ok(eq_array(mro::get_linear_isa('ᛁ앛ଌᛠ'),[qw/ᛁ앛ଌᛠ ｘｘ main ƶƶ/]));
+    ok(eq_array(mro::get_linear_isa('ᛁ앛ଌᛠ'),[qw/ᛁ앛ଌᛠ ｘｘ main ƶƶ/]))
+      or diag "'".join("' '",@{mro::get_linear_isa('ᛁ앛ଌᛠ')})."'";
 
     # undef the array itself
     undef @ᛁ앛ଌᛠ::ISA;

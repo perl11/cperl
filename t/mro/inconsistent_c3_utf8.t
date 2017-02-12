@@ -37,17 +37,18 @@ except TypeError:
 
 {
     package ẋ;
-    
+
     package Ƴ;
-    
+
     package ẋƳ;
     our @ISA = ('ẋ', 'Ƴ');
-    
+
     package Ƴẋ;
     our @ISA = ('Ƴ', 'ẋ');
 
     package Ȥ;
     our @ISA = ('ẋƳ', 'Ƴẋ');
+    use mro 'dfs'; # defer error to run-time
 }
 
 eval { mro::get_linear_isa('Ȥ', 'c3') };

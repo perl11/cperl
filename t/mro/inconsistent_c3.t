@@ -45,6 +45,7 @@ except TypeError:
 
     package Z;
     our @ISA = ('XY', 'YX');
+    use mro 'dfs'; # defer error to run-time
 }
 
 eval { mro::get_linear_isa('Z', 'c3') };

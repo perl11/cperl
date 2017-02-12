@@ -30,21 +30,17 @@ require mro;
 
 my @MFO_F_DFS = qw/MRO_F MRO_D MRO_A MRO_B MRO_C MRO_E/;
 my @MFO_F_C3 = qw/MRO_F MRO_D MRO_E MRO_A MRO_B MRO_C/;
-is(mro::get_mro('MRO_F'), 'dfs');
-ok(eq_array(
-    mro::get_linear_isa('MRO_F'), \@MFO_F_DFS
-));
+is(mro::get_mro('MRO_F'), 'c3');
+ok(eq_array(mro::get_linear_isa('MRO_F'), \@MFO_F_C3));
 
 ok(eq_array(mro::get_linear_isa('MRO_F', 'dfs'), \@MFO_F_DFS));
 ok(eq_array(mro::get_linear_isa('MRO_F', 'c3'), \@MFO_F_C3));
-eval{mro::get_linear_isa('MRO_F', 'C3')};
-like($@, qr/^Invalid mro name: 'C3'/);
+eval{mro::get_linear_isa('MRO_F', 'DFS')};
+like($@, qr/^Invalid mro name: 'DFS'/);
 
-mro::set_mro('MRO_F', 'c3');
-is(mro::get_mro('MRO_F'), 'c3');
-ok(eq_array(
-    mro::get_linear_isa('MRO_F'), \@MFO_F_C3
-));
+mro::set_mro('MRO_F', 'dfs');
+is(mro::get_mro('MRO_F'), 'dfs');
+ok(eq_array(mro::get_linear_isa('MRO_F'), \@MFO_F_DFS));
 
 ok(eq_array(mro::get_linear_isa('MRO_F', 'dfs'), \@MFO_F_DFS));
 ok(eq_array(mro::get_linear_isa('MRO_F', 'c3'), \@MFO_F_C3));
@@ -68,7 +64,7 @@ ok(!mro::is_universal('MRO_B'));
 # is_universal, get_mro, and get_linear_isa should
 # handle non-existent packages sanely
 ok(!mro::is_universal('Does_Not_Exist'));
-is(mro::get_mro('Also_Does_Not_Exist'), 'dfs');
+is(mro::get_mro('Also_Does_Not_Exist'), 'c3');
 ok(eq_array(
     mro::get_linear_isa('Does_Not_Exist_Three'),
     [qw/Does_Not_Exist_Three/]
@@ -153,12 +149,14 @@ is(eval { MRO_N->testfunc() }, 123);
     {
         package ISACLEAR;
         our @ISA = qw/XX YY ZZ/;
+        mro::set_mro("ISACLEAR", "c3");
     }
     # baseline
     ok(eq_array(mro::get_linear_isa('ISACLEAR'),[qw/ISACLEAR XX YY ZZ/]));
 
     # this looks dumb, but it preserves existing behavior for compatibility
     #  (undefined @ISA elements treated as "main")
+    # This revealed a c3 bug [cperl #251] (undetected since 2007).
     $ISACLEAR::ISA[1] = undef;
     ok(eq_array(mro::get_linear_isa('ISACLEAR'),[qw/ISACLEAR XX main ZZ/]))
        or diag("'".join("' '",@{mro::get_linear_isa('ISACLEAR')})."'");

@@ -278,7 +278,6 @@ Perl_boot_core_xsutils(pTHX)
     newXS("Exporter::boot_Exporter",	boot_Exporter,	file);
     newXS("XSLoader::boot_XSLoader",	boot_XSLoader,	file);
     boot_Exporter(aTHX_ xsfile);
-    boot_XSLoader(aTHX_ xsfile);
 
     /* shared xs: if as generated external modules only, without .pm */
     newXS("warnings::bootstrap",	XS_warnings_bootstrap,	file);
