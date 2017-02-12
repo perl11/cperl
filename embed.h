@@ -1013,7 +1013,6 @@
 #  if defined(DEBUGGING)
 #define deb_hechain(a)		Perl_deb_hechain(aTHX_ a)
 #define deb_hek(a,b)		Perl_deb_hek(aTHX_ a,b)
-#define hv_dump(a,b)		Perl_hv_dump(aTHX_ a,b)
 #    if defined(PERL_IN_REGCOMP_C)
 #define dump_trie(a,b,c,d)	S_dump_trie(aTHX_ a,b,c,d)
 #define dump_trie_interim_list(a,b,c,d,e)	S_dump_trie_interim_list(aTHX_ a,b,c,d,e)
@@ -1534,9 +1533,15 @@
 #    endif
 #  endif
 #  if defined(DEBUGGING)
+#define av_dump(a)		Perl_av_dump(aTHX_ a)
 #define deb_hechain(a)		Perl_deb_hechain(aTHX_ a)
 #define get_debug_opts(a,b)	Perl_get_debug_opts(aTHX_ a,b)
+#define hv_dump(a,b)		Perl_hv_dump(aTHX_ a,b)
 #define set_padlist		Perl_set_padlist
+#    if defined(PERL_IN_DUMP_C)
+#define _av_dump(a,b)		S__av_dump(aTHX_ a,b)
+#define _hv_dump(a,b,c)		S__hv_dump(aTHX_ a,b,c)
+#    endif
 #    if defined(PERL_IN_PAD_C)
 #define cv_dump(a,b)		S_cv_dump(aTHX_ a,b)
 #    endif

@@ -1562,6 +1562,11 @@ F<t/uni/overload.t>: Skip hanging test on FreeBSD.
 
 =item *
 
+Two internal debugging helpers C<av_dump> and C<hv_dump> had been added,
+to print all array elements and hash keys (and optional values).
+
+=item *
+
 New versions of macros like C<isALPHA_utf8> and C<toLOWER_utf8>  have
 been added, each with the
 suffix C<_safe>, like C<isSPACE_utf8_safe>.  These take an extra

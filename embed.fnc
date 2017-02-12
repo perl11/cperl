@@ -2025,7 +2025,12 @@ Ap	|void	|magic_dump	|NULLOK const MAGIC *mg
 #if defined(DEBUGGING)
 XEMp	|void	|deb_hek	|NULLOK HEK* hek|NULLOK SV* val
 XEMp	|void	|deb_hechain	|NULLOK HE* entry
-XEMp	|void	|hv_dump	|NN SV* sv|bool with_values
+#if defined(PERL_IN_DUMP_C)
+s	|void	|_hv_dump	|NN SV* sv|bool with_values|int level
+s	|void	|_av_dump	|NN SV* av|int level
+#endif
+xp	|void	|hv_dump	|NN SV* sv|bool with_values
+xp	|void	|av_dump	|NN SV* av
 #endif
 Ap	|void	|reginitcolors
 ApdRmb	|char*	|sv_2pv_nolen	|NN SV* sv

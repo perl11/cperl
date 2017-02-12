@@ -411,8 +411,8 @@ Perl_sv_peek(pTHX_ SV *sv)
 	else {
 	    sv_catpv(t, "SV_PLACEHOLDER");
 	    if (!(SvFLAGS(sv) & (SVf_OK|SVf_OOK|SVs_OBJECT|
-				 SVs_GMG|SVs_SMG|SVs_RMG)) &&
-		SvREADONLY(sv))
+				 SVs_GMG|SVs_SMG|SVs_RMG))
+		  && SvREADONLY(sv))
 		goto finish;
 	}
 	sv_catpv(t, ":");
@@ -3118,28 +3118,38 @@ Perl_debprofdump(pTHX)
 Dump all the hv keys and optionally values.
 sv_dump dumps only a limited amount of keys.
 
-Only avalaible with C<-DDEBUGGING>.
+Only available with C<-DDEBUGGING>.
 
 =cut
 */
 void
-Perl_hv_dump(pTHX_ SV* sv, bool with_values)
+S__hv_dump(pTHX_ SV* sv, bool with_values, int level)
 {
     PerlIO* file = Perl_debug_log;
     HE **ents = HvARRAY(sv);
-    int level = 0;
     U32 i;
-    PERL_ARGS_ASSERT_HV_DUMP;
+    PERL_ARGS_ASSERT__HV_DUMP;
     
+    if (SvTYPE(sv) != SVt_PVHV)
+        return;
     Perl_dump_indent(aTHX_ level, file, "KEYS = %u\n", (unsigned)HvUSEDKEYS(sv));
     Perl_dump_indent(aTHX_ level, file, "ARRAY = 0x%" UVxf "\n", PTR2UV(ents));
     if (ents && HvUSEDKEYS(sv)) {
         for (i = 0; i <= HvMAX(sv); i++) {
             HE* h;
-	    PerlIO_printf(file, "[%u]: ", (unsigned)i);
+	    Perl_dump_indent(aTHX_ level, file, "[%u]: ", (unsigned)i);
             for (h = ents[i]; h; h = HeNEXT(h)) {
-                if (with_values)
-                    PerlIO_printf(file, "\"%s\" => %s", HeKEY(h), sv_peek(HeVAL(h)));
+                if (with_values) {
+                    SV *v = HeVAL(h);
+                    PerlIO_printf(file, "\"%s\" => %s",
+                                     HeKEY(h), sv_peek(v));
+                    if (v && SvTYPE(v) == SVt_PVAV) {
+                        _av_dump(v, level+1);
+                    }
+                    else if (v && SvTYPE(v) == SVt_PVHV) {
+                        _hv_dump(v, 1, level+1);
+                    }
+                }
                 else
                     PerlIO_printf(file, "\"%s\"", HeKEY(h));
                 if (HeNEXT(h))
@@ -3149,7 +3159,54 @@ Perl_hv_dump(pTHX_ SV* sv, bool with_values)
         }
     }
 }
+void
+Perl_hv_dump(pTHX_ SV* sv, bool with_values)
+{
+    PERL_ARGS_ASSERT_HV_DUMP;
+    return _hv_dump(sv, with_values, 0);
+}
 
+/*
+=for apidoc av_dump
+Dump all the av values.
+sv_dump dumps only a limited amount of keys.
+
+Only available with C<-DDEBUGGING>.
+
+=cut
+*/
+void
+S__av_dump(pTHX_ SV* av, int level)
+{
+    PerlIO* file = Perl_debug_log;
+    SV **ents = AvARRAY(av);
+    U32 i;
+    PERL_ARGS_ASSERT__AV_DUMP;
+
+    if (SvTYPE(av) != SVt_PVAV)
+        return;
+    Perl_dump_indent(aTHX_ level, file, "FILL = %" IVdf "\n", (IV)AvFILL(av));
+    Perl_dump_indent(aTHX_ level, file, "MAX = %" IVdf "\n", (IV)AvMAX(av));
+    Perl_dump_indent(aTHX_ level, file, "ARRAY = 0x%" UVxf "\n", PTR2UV(ents));
+    if (ents && AvFILLp(av)>=0) {
+        for (i = 0; i <= AvFILLp(av); i++) {
+            Perl_dump_indent(aTHX_ level, file, "[%u]: %s\n",
+                             (unsigned)i, sv_peek(ents[i]));
+            if (ents[i] && SvTYPE(ents[i]) == SVt_PVAV) {
+                _av_dump(ents[i], level+1);
+            }
+            else if (ents[i] && SvTYPE(ents[i]) == SVt_PVHV) {
+                _hv_dump(ents[i], 0, level+1);
+            }
+        }
+    }
+}
+void
+Perl_av_dump(pTHX_ SV* av)
+{
+    PERL_ARGS_ASSERT_AV_DUMP;
+    return _av_dump(av, 0);
+}
 #endif
 
 /*

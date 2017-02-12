@@ -7151,6 +7151,11 @@ PERL_STATIC_INLINE core_types_t	S_stash_to_coretype(pTHX_ const HV* stash);
 #  endif
 #endif
 #if defined(DEBUGGING)
+PERL_CALLCONV void	Perl_av_dump(pTHX_ SV* av)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_AV_DUMP	\
+	assert(av)
+
 PERL_CALLCONV void	Perl_deb_hechain(pTHX_ HE* entry)
 			__attribute__global__;
 
@@ -7171,7 +7176,6 @@ PERL_CALLCONV void	Perl_hv_assert(pTHX_ HV *hv)
 	assert(hv)
 
 PERL_CALLCONV void	Perl_hv_dump(pTHX_ SV* sv, bool with_values)
-			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_DUMP	\
 	assert(sv)
@@ -7191,6 +7195,18 @@ PERL_CALLCONV void	Perl_set_padlist(CV * cv, PADLIST * padlist)
 #define PERL_ARGS_ASSERT_SET_PADLIST	\
 	assert(cv)
 
+#  if defined(PERL_IN_DUMP_C)
+STATIC void	S__av_dump(pTHX_ SV* av, int level)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT__AV_DUMP	\
+	assert(av)
+
+STATIC void	S__hv_dump(pTHX_ SV* sv, bool with_values, int level)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT__HV_DUMP	\
+	assert(sv)
+
+#  endif
 #  if defined(PERL_IN_PAD_C)
 STATIC void	S_cv_dump(pTHX_ const CV *cv, const char *title)
 			__attribute__nonnull__(pTHX_1)
@@ -8380,7 +8396,7 @@ STATIC OP*	S_search_const(pTHX_ OP *o)
 #define PERL_ARGS_ASSERT_SEARCH_CONST	\
 	assert(o)
 
-STATIC OP*	S_set_boolean(pTHX_ OP *o)
+PERL_STATIC_INLINE OP*	S_set_boolean(pTHX_ OP *o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_SET_BOOLEAN	\
 	assert(o)
