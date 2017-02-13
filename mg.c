@@ -260,6 +260,12 @@ Perl_mg_set(pTHX_ SV *sv)
     PERL_ARGS_ASSERT_MG_SET;
 
     if (PL_localizing == 2 && sv == DEFSV) return 0;
+    /* add no magic on special sentinels */
+    if (   sv == &PL_sv_undef
+        || sv == &PL_sv_placeholder
+        || sv == &PL_sv_yes
+        || sv == &PL_sv_no)
+        return 0;
 
     save_magic_flags(mgs_ix, sv, SVs_GMG|SVs_SMG); /* leave SVs_RMG on */
 
@@ -288,7 +294,7 @@ Reports on the SV's length in bytes, calling length magic if available,
 but does not set the UTF8 flag on C<sv>.  It will fall back to 'get'
 magic if there is no 'length' magic, but with no indication as to
 whether it called 'get' magic.  It assumes C<sv> is a C<PVMG> or
-higher.  Use C<sv_len()> instead.
+higher.  Use L</sv_len> instead.
 
 =cut
 */
@@ -1741,9 +1747,7 @@ Perl_magic_clearisa(pTHX_ SV *sv, MAGIC *mg)
 	return 0;
     }
 
-    stash = GvSTASH(
-        (const GV *)mg->mg_obj
-    );
+    stash = GvSTASH((const GV *)mg->mg_obj);
 
     /* The stash may have been detached from the symbol table, so check its
        name before doing anything. */

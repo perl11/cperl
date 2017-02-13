@@ -1222,7 +1222,6 @@ object type. Exposed to perl code via Internals::SvREADONLY().
         || (SV*)(_sv) == &PL_sv_undef           \
         || (SV*)(_sv) == &PL_sv_yes             \
         || (SV*)(_sv) == &PL_sv_no              \
-        || (SV*)(_sv) == (SV*)&PL_padname_const \
         || (SV*)(_sv) == (SV*)&PL_defstash)     \
            croak_no_modify();                   \
        else                                     \
@@ -1234,7 +1233,6 @@ object type. Exposed to perl code via Internals::SvREADONLY().
      || (SV*)(sv) == &PL_sv_undef               \
      || (SV*)(sv) == &PL_sv_yes                 \
      || (SV*)(sv) == &PL_sv_no                  \
-     || (SV*)(sv) == (SV*)&PL_padname_const     \
      || (SV*)(sv) == (SV*)&PL_defstash)         \
         croak_no_modify();                      \
     else                                        \

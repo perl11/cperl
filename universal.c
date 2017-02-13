@@ -576,16 +576,14 @@ XS(XS_Internals_SvREADONLY)	/* This is dangerous stuff. */
 	else {
 	    /* I hope you really know what you are doing. */
 #ifdef USE_CPERL
-            /*static GV* S_main_stash =
-                gv_fetchpvs("main::", GV_NOTQUAL, SVt_PVHV);*/
+            /*static GV* S_main_stash = gv_fetchpvs("main::", GV_NOTQUAL, SVt_PVHV); */
             /* fail on some protected values: yes, no, undef, ... */
-            if (sv == &PL_sv_placeholder
+            if (   sv == &PL_sv_placeholder
                 || sv == &PL_sv_undef
                 || sv == &PL_sv_yes
                 || sv == &PL_sv_no
-                || sv == (SV*)&PL_padname_const
-                /*|| sv == (SV*)S_main_stash*/
-                || sv == (SV*)&PL_defstash) /* %main:: or just *main:: */
+              /*|| sv == (SV*)S_main_stash*/
+                || sv == (SV*)&PL_defstash) /* only %main:: or also *main:: ? */
                 croak_no_modify();
 #endif
 	    SvFLAGS(sv) &=~ SVf_READONLY;

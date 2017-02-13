@@ -41,6 +41,12 @@ claims.
 
 =head1 Core Enhancements
 
+=head2 No magic to undef/yes/no/placeholder SVs
+
+cperl silently forbids attaching magic to the four major builtin SV
+sentinels undef, yes, no and placeholder, which are mostly compared to
+by pointer. Adding magic to them will break that comparison.
+
 =head2 Type-check assignments
 
 Assignment type violations are now also warned, with C<use warnings 'types'>
