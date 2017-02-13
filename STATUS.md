@@ -332,6 +332,25 @@ for cperl.
 This is also the answer to the question why `scalar(@array)` is
 considered bad, and why counts and lengths cannot overflow.
 
+## c3 changes for Exporter
+
+cperl uses since 5.26 the **c3** mro as default. This is the default
+linearization method for object orientated inheritence to avoid the
+diamond problem.
+
+However due to wrong old practices using the primitive dfs
+(depth-first search) linearization method some subclassing packages
+use a wrong `@ISA`.
+
+The typical fix for subclasses using Exporter is usually by moving `Exporter`
+to the end of the `@ISA`:
+
+    -our @ISA = qw(Exporter My::Baseclass);
+    +our @ISA = qw(My::Baseclass Exporter);
+
+In core affected are the Math::BigInt and the IO::Compress modules, which
+do a lot of subclassing.
+
 # Branch overview
 
 ## Older bugfixes for perl5 upstream

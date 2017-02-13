@@ -722,6 +722,39 @@ system, with a decent performance and is implemented via a nice but
 slow macro system.  It has the closest remembrance to the perl6 and
 syntax and type system.  But it relies in C<Object::InsideOut>.
 
+=head2 base/fields
+
+This was the default, old object system until 5.10. Before it was
+compile-time optimized with pseudo-hashes allowing types and
+compile-time optimizations of field accessors.
+
+    package MyClass;
+    use base "BaseClass";
+    use fields qw(field1 field2);
+    sub new {
+      my MyClass $self = shift;
+      $self->{foo} = 10;
+      $self->{bar} = 20;
+      return $self;
+    }
+
+    # this will generate a compile-time error
+    my MyClass $foo = MyClass->new;
+    $foo->{zap} = 24;
+
+    # This will access the field foo per index 0, not per hash lookup.
+    $foo->{foo} = 0;
+
+use L<base> establishes a compile-time inheritance, the base classes.
+use L<fields> establishes compile-time fields per class, which came
+out of fashion since the removal of optimized pseudo-hashes with 5.10.
+Before it guaranteed field-access of typed objects per index, not per hash,
+and convenient typed classes and restricted hashes to detect wrong field
+and method names at compile-time.
+
+Compile-time composition of roles was also possible, and the DOES and
+NEXT methods were supported.
+
 =head2 OO System Summary
 
 Here's a brief recap of the options we covered:
@@ -735,6 +768,10 @@ ecosystem, and a thriving user base. C<Mouse> is the recommended fast
 variant of C<Moose>. We also covered L<Moo> briefly.  C<Moo> is
 C<Moose> lite, and a reasonable alternative when Moose doesn't work
 for your application.
+
+=item * L<Mouse>
+
+The fast drop-in replacement for Moose, if Moose is too slow for you.
 
 =item * L<Class::Accessor>
 
@@ -762,6 +799,10 @@ comes with its own role implementation.
 Has a familiar syntax, needs faster macros, uses internally insideout
 objects, which are much faster to use, but come with security
 problems, and is very new.
+
+=item * L<base> / L<fields>
+
+The old simple OO, severly restricted since the removal of pseudo-hashes.
 
 =back
 

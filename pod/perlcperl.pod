@@ -243,6 +243,29 @@ Division for two integer constants is an internal exception and
 is not promoted to use integer division. C<< 2/5 => 0.4 >>
 Compile-time shift operations return unsigned integers.
 
+=item B<< c3 as mro default >>
+
+cperl uses since 5.26 the standard c3 mro as default, the old dfs is
+available in F<ext/mro> as module.
+
+c3 is a bit stricter when loading incompatible, not resolvable C<@ISA> chains.
+Some modules either need to change their wrong C<@ISA>, or C<use mro "dfs";>
+in subclassed packages. The most common error is B<Exporter> at the beginning
+of the C<@ISA> list of a subclassed package, where it needs to be at the end.
+
+A typical error message is:
+
+     Inconsistent hierarchy during C3 merge of class 'Math::BigInt::Subclass':
+            current merge results [
+                    Math::BigInt::Subclass,
+            ]
+            merging failed on 'Exporter'
+
+The fix is in Math::BigInt::Subclass:
+
+    -our @ISA = qw(Exporter Math::BigFloat);
+    +our @ISA = qw(Math::BigFloat Exporter);
+
 =back
 
 =head1 Fix breakage and bad design
@@ -1368,6 +1391,11 @@ It supports the perl6-like syntax for class, method, has, roles
 and easier perl6-like syntax, which closely resembles early perl6
 designs, Damian Conway's perl5i and C<Moose>, without its massive
 overhead.
+
+The @ISA of classes and packages using base or fields is now closed
+(i.e. readonly), you cannot change it run-time. Hereby enabling some
+compile-time optimizations, and avoiding wrong monkey patching
+in-between, where it should happen at the end of the inheritance chain.
 
 See L<perlclass>
 
