@@ -1568,6 +1568,10 @@ F<t/uni/overload.t>: Skip hanging test on FreeBSD.
 
 =item *
 
+The initial size of empty arrays went in cperl from 4 to 2, AvMAX = 1.
+
+=item *
+
 New public SV_YES and SV_NO macros were added, representing &PL_sv_yes
 and &PL_sv_no, plus new macros for CORE only: UNDEF and
 PLACEHOLDER. They cannot be used in headers, as they are used with

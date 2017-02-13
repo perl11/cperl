@@ -1004,7 +1004,7 @@ SV = PVAV\($ADDR\) at $ADDR
   FLAGS = 0x4000000b \(REAL\)
   ARRAY = $ADDR
   FILL = 2
-  MAX = 3
+  MAX = 2
   Elt No. 0
   SV = IV\($ADDR\) at $ADDR
     REFCNT = 1
@@ -1028,7 +1028,7 @@ SV = PVAV\($ADDR\) at $ADDR
   FLAGS = 0x4000000b \(REAL\)
   ARRAY = $ADDR
   FILL = 2
-  MAX = 3
+  MAX = 2
   Elt No. 0
   SV = IV\($ADDR\) at $ADDR
     REFCNT = 1

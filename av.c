@@ -214,7 +214,7 @@ Perl_av_extend_guts(pTHX_ AV *av, SSize_t key, SSize_t *maxp, SV ***allocp,
 		}
 	    }
 	    else {
-		newmax = key < 3 ? 3 : key;
+		newmax = key < 1 ? 1 : key; /* initially 2 elems (not 4) */
 		{
 #ifdef PERL_MALLOC_WRAP /* Duplicated in pp_hot.c */
 		    static const char oom_array_extend[] =
@@ -406,7 +406,7 @@ Perl_av_store(pTHX_ AV *av, SSize_t key, SV *val)
     if (!AvREAL(av) && AvREIFY(av))
 	av_reify(av);
     if (key > AvMAX(av))
-	av_extend(av,key);
+	av_extend(av, key);
     ary = AvARRAY(av);
     if (AvFILLp(av) < key) {
 	if (!AvREAL(av)) {
@@ -785,7 +785,7 @@ Perl_av_push(pTHX_ AV *av, SV *val)
 			    val);
 	return;
     }
-    av_store(av,AvFILLp(av)+1,val);
+    av_store(av, AvFILLp(av)+1, val);
 }
 
 /*

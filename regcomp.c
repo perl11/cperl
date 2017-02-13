@@ -1422,7 +1422,8 @@ S_get_ANYOF_cp_list_for_ssc(pTHX_ const RExC_state_t *pRExC_state,
             invlist = sv_2mortal(_new_invlist(1));
             return _add_range_to_invlist(invlist, 0, UV_MAX);
         }
-        else if (ary[3] && ary[3] != UNDEF) {
+        else if (AvFILLp(av) >= 3 &&
+                 ary[3] && ary[3] != UNDEF) {
 
             /* Here no compile-time swash, and no run-time only data.  Use the
              * node's inversion list */
@@ -1431,6 +1432,7 @@ S_get_ANYOF_cp_list_for_ssc(pTHX_ const RExC_state_t *pRExC_state,
 
         /* Get the code points valid only under UTF-8 locales */
         if ((ANYOF_FLAGS(node) & ANYOFL_FOLD)
+            && AvFILLp(av) >= 2
             && ary[2] && ary[2] != UNDEF)
         {
             only_utf8_locale_invlist = ary[2];
@@ -3235,7 +3237,7 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
 #ifdef RE_TRACK_PATTERN_OFFSETS
         else {
             DEBUG_r({
-                const  regnode *nop = NEXTOPER( convert );
+                const regnode *nop = NEXTOPER( convert );
                 mjd_offset= Node_Offset((nop));
                 mjd_nodelen= Node_Length((nop));
             });
@@ -3266,6 +3268,7 @@ S_make_trie(pTHX_ RExC_state_t *pRExC_state, regnode *startbranch,
                 if ( trie->states[state].wordnum )
                         count = 1;
 
+                av_extend(revcharmap, trie->uniquecharcount-1);
                 for ( ofs = 0 ; ofs < trie->uniquecharcount ; ofs++ ) {
                     if ( ( base + ofs >= trie->uniquecharcount ) &&
                          ( base + ofs - trie->uniquecharcount < trie->lasttrans ) &&
@@ -8024,7 +8027,7 @@ Perl_reg_named_buff_all(pTHX_ REGEXP * const r, const U32 flags)
     PERL_ARGS_ASSERT_REG_NAMED_BUFF_ALL;
 
     if (rx && RXp_PAREN_NAMES(rx)) {
-        HV *hv= RXp_PAREN_NAMES(rx);
+        HV *hv = RXp_PAREN_NAMES(rx);
         HE *temphe;
         (void)hv_iterinit(hv);
         while ( (temphe = hv_iternext_flags(hv,0)) ) {
@@ -10791,10 +10794,10 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
                             Perl_croak(aTHX_
                                 "panic: reg_scan_name returned NULL");
                         if (!RExC_paren_names) {
-                            RExC_paren_names= newHV();
+                            RExC_paren_names = newHV();
                             sv_2mortal(MUTABLE_SV(RExC_paren_names));
 #ifdef DEBUGGING
-                            RExC_paren_name_list= newAV();
+                            RExC_paren_name_list = newAV();
                             sv_2mortal(MUTABLE_SV(RExC_paren_name_list));
 #endif
                         }
@@ -18052,6 +18055,7 @@ S_set_ANYOF_arg(pTHX_ RExC_state_t* const pRExC_state,
 	AV * const av = newAV();
 	SV *rv;
 
+        av_extend(av, 4);
 	av_store(av, 0, (runtime_defns)
 			? SvREFCNT_inc(runtime_defns) : UNDEF);
 	if (swash) {
