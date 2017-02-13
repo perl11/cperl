@@ -211,6 +211,12 @@ PERL_CALLCONV UV	Perl__to_utf8_upper_flags(pTHX_ const U8 *p, const U8 *e, U8* u
 PERL_CALLCONV void	Perl__warn_problematic_locale(void)
 			__attribute__global__;
 
+PERL_CALLCONV void	Perl_abort_execution(pTHX_ const char * const msg, const char * const name)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_ABORT_EXECUTION	\
+	assert(msg); assert(name)
+
 PERL_CALLCONV LOGOP*	Perl_alloc_LOGOP(pTHX_ I32 type, OP *first, OP *other);
 PERL_CALLCONV PADOFFSET	Perl_allocmy(pTHX_ const char *const name, const STRLEN len, const U32 flags)
 			__attribute__nonnull__(pTHX_1);
