@@ -342,14 +342,14 @@ S_pushav(pTHX_ AV* const av)
             /* See note in pp_helem, and bug id #27839 */
             SP[i+1] = svp
                 ? SvGMAGICAL(*svp) ? (mg_get(*svp), *svp) : *svp
-                : &PL_sv_undef;
+                : UNDEF;
         }
     }
     else {
         PADOFFSET i;
         for (i=0; i < (PADOFFSET)maxarg; i++) {
             SV * const sv = AvARRAY(av)[i];
-            SP[i+1] = LIKELY(sv) ? sv : &PL_sv_undef;
+            SP[i+1] = LIKELY(sv) ? sv : UNDEF;
         }
     }
     SP += maxarg;
@@ -449,7 +449,7 @@ PPt(pp_readline, "(:Scalar):Any")
 	    PUTBACK;
 	    Perl_pp_rv2gv(aTHX);
 	    PL_last_in_gv = MUTABLE_GV(*PL_stack_sp--);
-	    if (PL_last_in_gv == (GV *)&PL_sv_undef)
+	    if (PL_last_in_gv == (GV *)UNDEF)
 		PL_last_in_gv = NULL;
 	    else
 		assert(isGV_with_GP(PL_last_in_gv));
@@ -888,7 +888,7 @@ PPt(pp_aelemfast, "():Scalar")
 
     /* ... else do it the hard way */
     svp = av_fetch(av, key, lval);
-    sv = (svp ? *svp : &PL_sv_undef);
+    sv = (svp ? *svp : UNDEF);
 
     if (UNLIKELY(!svp && lval))
         DIE(aTHX_ PL_no_aelem, (int)key);
@@ -929,7 +929,7 @@ PPt(pp_aelemfast_lex_u, "():Scalar")
 #endif
 
     EXTEND(SP, 1);
-    PUSHs(sv ? sv : &PL_sv_undef);
+    PUSHs(sv ? sv : UNDEF);
     RETURN;
 }
 
@@ -951,12 +951,12 @@ PPt(pp_aelem_u, "(:Array(:Scalar),:Int):Scalar")
     if (UNLIKELY(SvTYPE(av) != SVt_PVAV)) /* likely is that AvARRAY is uninit, or lval */
 	RETSETUNDEF;
     if (!AvARRAY(av)) {
-        TOPs = lval ? newSV(0) : &PL_sv_undef;
+        TOPs = lval ? newSV(0) : UNDEF;
         RETURN;
     }
     svp = &AvARRAY(av)[index]; /* negative indices are illegal for _u */
     if (!svp)
-        TOPs = lval ? newSV(0) : &PL_sv_undef;
+        TOPs = lval ? newSV(0) : UNDEF;
     else
         TOPs = *svp;
     RETURN;
@@ -1061,12 +1061,12 @@ PP(pp_print)
 	}
     }
     SP = ORIGMARK;
-    XPUSHs(&PL_sv_yes);
+    XPUSHs(SV_YES);
     RETURN;
 
   just_say_no:
     SP = ORIGMARK;
-    XPUSHs(&PL_sv_undef);
+    XPUSHs(UNDEF);
     RETURN;
 }
 
@@ -1151,7 +1151,7 @@ PP(pp_rv2av)
 	      || (  PL_op->op_private & OPpMAYBE_TRUEBOOL
 		 && block_gimme() == G_VOID  ))
 	      && (!SvRMAGICAL(sv) || !mg_find(sv, PERL_MAGIC_tied)))
-	    SETs(HvUSEDKEYS(sv) ? &PL_sv_yes : &PL_sv_no);
+	    SETs(HvUSEDKEYS(sv) ? SV_YES : SV_NO);
 	else if (gimme == G_SCALAR) {
 	    dTARG;
 	    TARG = Perl_hv_scalar(aTHX_ MUTABLE_HV(sv));
@@ -1501,12 +1501,12 @@ PP(pp_aassign)
 
             /* Reserve slots for ary, plus the elems we're about to copy,
              * then protect ary and temporarily void the remaining slots
-             * with &PL_sv_undef */
+             * with UNDEF */
             EXTEND_MORTAL(nelems + 1);
             PL_tmps_stack[++PL_tmps_ix] = SvREFCNT_inc_simple_NN(ary);
             tmps_base = PL_tmps_ix + 1;
             for (i = 0; i < nelems; i++)
-                PL_tmps_stack[tmps_base + i] = &PL_sv_undef;
+                PL_tmps_stack[tmps_base + i] = UNDEF;
             PL_tmps_ix += nelems;
 
             /* Make a copy of each RHS elem and save on the tmps_stack
@@ -1576,12 +1576,12 @@ PP(pp_aassign)
                      * the 1 refcnt on the tmps stack; otherwise disarm
                      * the tmps stack entry */
                     if (av_store(ary, i, rsv))
-                        *svp = &PL_sv_undef;
+                        *svp = UNDEF;
                     /* av_store() may have added set magic to rsv */;
                     SvSETMAGIC(rsv);
                 }
                 /* disarm ary refcount: see comments below about leak */
-                PL_tmps_stack[tmps_base - 1] = &PL_sv_undef;
+                PL_tmps_stack[tmps_base - 1] = UNDEF;
             }
             else {
                 /* directly access/set the guts of the AV */
@@ -1624,7 +1624,7 @@ PP(pp_aassign)
             if (UNLIKELY(nelems & 1)) {
                 do_oddball(lastrelem, relem);
                 /* we have firstlelem to reuse, it's not needed any more */
-                *++lastrelem = &PL_sv_undef;
+                *++lastrelem = UNDEF;
                 nelems++;
             }
 
@@ -1643,7 +1643,7 @@ PP(pp_aassign)
              * * preallocate for the keys we'll possibly copy or refcount bump
              *   later;
              * then protect hash and temporarily void the remaining
-             * value slots with &PL_sv_undef */
+             * value slots with UNDEF */
             EXTEND_MORTAL(nelems + 1);
 
             /* convert to number of key/value pairs */
@@ -1652,7 +1652,7 @@ PP(pp_aassign)
             PL_tmps_stack[++PL_tmps_ix] = SvREFCNT_inc_simple_NN(hash);
             tmps_base = PL_tmps_ix + 1;
             for (i = 0; i < nelems; i++)
-                PL_tmps_stack[tmps_base + i] = &PL_sv_undef;
+                PL_tmps_stack[tmps_base + i] = UNDEF;
             PL_tmps_ix += nelems;
 
             /* Make a copy of each RHS hash value and save on the tmps_stack
@@ -1757,7 +1757,7 @@ PP(pp_aassign)
                      * the 1 refcnt on the tmps stack; otherwise disarm
                      * the tmps stack entry */
                     if (hv_store_ent(hash, key, val, 0))
-                        PL_tmps_stack[tmps_base + i] = &PL_sv_undef;
+                        PL_tmps_stack[tmps_base + i] = UNDEF;
                     else
                         dirty_tmps = TRUE;
                     /* hv_store_ent() may have added set magic to val */;
@@ -1774,7 +1774,7 @@ PP(pp_aassign)
                     while (relem < lastrelem) {
                         HE *he;
                         he = hv_fetch_ent(hash, *relem++, 0, 0);
-                        *relem++ = (he ? HeVAL(he) : &PL_sv_undef);
+                        *relem++ = (he ? HeVAL(he) : UNDEF);
                     }
                 }
             }
@@ -1784,7 +1784,7 @@ PP(pp_aassign)
                     SV *key = *svp++;
                     SV *val = *svp;
                     if (hv_store_ent(hash, key, val, 0))
-                        PL_tmps_stack[tmps_base + i] = &PL_sv_undef;
+                        PL_tmps_stack[tmps_base + i] = UNDEF;
                     else
                         dirty_tmps = TRUE;
                     /* hv_store_ent() may have added set magic to val */;
@@ -1798,7 +1798,7 @@ PP(pp_aassign)
                  * free_tmps() do the proper but slow job later.
                  * Just disarm hash refcount: see comments below about leak
                  */
-                PL_tmps_stack[tmps_base - 1] = &PL_sv_undef;
+                PL_tmps_stack[tmps_base - 1] = UNDEF;
             }
             else {
                 /* Quietly remove all the SVs from the tmps stack slots,
@@ -2486,7 +2486,7 @@ PP(pp_helem)
     he = hv_fetch_ent(hv, keysv, lval && !defer, 0);
     svp = he ? &HeVAL(he) : NULL;
     if (lval) {
-	if (!svp || !*svp || *svp == &PL_sv_undef) {
+	if (!svp || !*svp || *svp == UNDEF) {
 	    SV* lv;
 	    SV* key2;
 	    if (!defer) {
@@ -2516,7 +2516,7 @@ PP(pp_helem)
 	    RETURN;
 	}
     }
-    sv = (svp && *svp ? *svp : &PL_sv_undef);
+    sv = (svp && *svp ? *svp : UNDEF);
     /* Originally this did a conditional C<sv = sv_mortalcopy(sv)>; this
      * was to make C<local $tied{foo} = $tied{foo}> possible.
      * However, it seems no longer to be needed for that purpose, and
@@ -2712,14 +2712,14 @@ PP(pp_multideref)
                 }
 
                 if (PL_op->op_private & OPpMULTIDEREF_EXISTS) {
-                    sv = av_exists((AV*)sv, elem) ? &PL_sv_yes : &PL_sv_no;
+                    sv = av_exists((AV*)sv, elem) ? SV_YES : SV_NO;
                 } else if (PL_op->op_private & OPpMULTIDEREF_DELETE) {
                     I32 discard = (GIMME_V == G_VOID) ? G_DISCARD : 0;
                     sv = av_delete((AV*)sv, elem, discard);
                     if (discard)
                         return NORMAL;
                     if (!sv)
-                        sv = &PL_sv_undef;
+                        sv = UNDEF;
                 }
                 else {
                     const U32 lval = PL_op->op_flags & OPf_MOD || LVRET;
@@ -2769,7 +2769,7 @@ PP(pp_multideref)
                         }
                     }
                     else {
-                        sv = (svp ? *svp : &PL_sv_undef);
+                        sv = (svp ? *svp : UNDEF);
                         /* see note in pp_helem() */
                         if (SvRMAGICAL(av) && SvGMAGICAL(sv))
                             mg_get(sv);
@@ -2886,7 +2886,7 @@ PP(pp_multideref)
 
                 if (!(actions & MDEREF_FLAG_last)) {
                     HE *he = hv_fetch_ent((HV*)sv, keysv, 1, 0);
-                    if (!he || !(sv=HeVAL(he)) || sv == &PL_sv_undef)
+                    if (!he || !(sv=HeVAL(he)) || sv == UNDEF)
                         DIE(aTHX_ PL_no_helem_sv, SVfARG(keysv));
                     break;
                 }
@@ -2896,7 +2896,7 @@ PP(pp_multideref)
                 {
                     if (PL_op->op_private & OPpMULTIDEREF_EXISTS) {
                         sv = hv_exists_ent((HV*)sv, keysv, 0)
-                                                ? &PL_sv_yes : &PL_sv_no;
+                                                ? SV_YES : SV_NO;
                     }
                     else {
                         I32 discard = (GIMME_V == G_VOID) ? G_DISCARD : 0;
@@ -2904,7 +2904,7 @@ PP(pp_multideref)
                         if (discard)
                             return NORMAL;
                         if (!sv)
-                            sv = &PL_sv_undef;
+                            sv = UNDEF;
                     }
                 }
                 else {
@@ -2934,7 +2934,7 @@ PP(pp_multideref)
 
 
                     if (lval) {
-                        if (!svp || !(sv = *svp) || sv == &PL_sv_undef) {
+                        if (!svp || !(sv = *svp) || sv == UNDEF) {
                             SV* lv;
                             SV* key2;
                             if (!defer)
@@ -2967,7 +2967,7 @@ PP(pp_multideref)
                         }
                     }
                     else {
-                        sv = (svp && *svp ? *svp : &PL_sv_undef);
+                        sv = (svp && *svp ? *svp : UNDEF);
                         /* see note in pp_helem() */
                         if (SvRMAGICAL(hv) && SvGMAGICAL(sv))
                             mg_get(sv);
@@ -2998,7 +2998,7 @@ PP(pp_iter_lazyiv)
     cur = cx->blk_loop.state_u.lazyiv.cur;
     if (UNLIKELY(cur > cx->blk_loop.state_u.lazyiv.end)) {
         assert(PL_stack_sp < PL_stack_max);
-        *++PL_stack_sp = &PL_sv_no;
+        *++PL_stack_sp = SV_NO;
         return PL_op->op_next;
     }
 
@@ -3036,7 +3036,7 @@ PP(pp_iter_lazyiv)
 
     /* pp_enteriter should have pre-extended the stack */
     assert(PL_stack_sp < PL_stack_max);
-    *++PL_stack_sp = &PL_sv_yes;
+    *++PL_stack_sp = SV_YES;
 
     return PL_op->op_next;
 }
@@ -3063,7 +3063,7 @@ PP(pp_iter_ary)
                  : ix < 0))
     {
         assert(PL_stack_sp < PL_stack_max);
-        *++PL_stack_sp = &PL_sv_no;
+        *++PL_stack_sp = SV_NO;
         return PL_op->op_next;
     }
 
@@ -3097,7 +3097,7 @@ PP(pp_iter_ary)
         sv = newSVavdefelem(av, ix, 0);
     }
     else
-        sv = &PL_sv_undef;
+        sv = UNDEF;
 
     oldsv = *itersvp;
     *itersvp = sv;
@@ -3112,7 +3112,7 @@ PP(pp_iter_ary)
 
  retyes:
     assert(PL_stack_sp < PL_stack_max);
-    *++PL_stack_sp = &PL_sv_yes;
+    *++PL_stack_sp = SV_YES;
 
     return PL_op->op_next;
 }
@@ -3276,7 +3276,7 @@ PP(pp_iter)
             sv = newSVavdefelem(av, ix, 0);
         }
         else
-            sv = &PL_sv_undef;
+            sv = UNDEF;
 
         oldsv = *itersvp;
         *itersvp = sv;
@@ -3294,10 +3294,10 @@ PP(pp_iter)
 	DIE(aTHX_ "panic: pp_iter, type=%u", CxTYPE(cx));
     }
 
-    retsv = &PL_sv_yes;
+    retsv = SV_YES;
     if (0) {
       retno:
-        retsv = &PL_sv_no;
+        retsv = SV_NO;
     }
     /* pp_enteriter should have pre-extended the stack */
     assert(PL_stack_sp < PL_stack_max);
@@ -3494,7 +3494,7 @@ PP(pp_subst)
     if (!CALLREGEXEC(rx, orig, strend, orig, 0, TARG, NULL, r_flags))
     {
 	SPAGAIN;
-	PUSHs(rpm->op_pmflags & PMf_NONDESTRUCT ? TARG : &PL_sv_no);
+	PUSHs(rpm->op_pmflags & PMf_NONDESTRUCT ? TARG : SV_NO);
 	LEAVE_SCOPE(oldsave);
 	RETURN;
     }
@@ -3588,7 +3588,7 @@ PP(pp_subst)
 		    Copy(c, d, clen, char);
 	    }
 	    SPAGAIN;
-	    PUSHs(&PL_sv_yes);
+	    PUSHs(SV_YES);
 	}
 	else {
             char *d, *m;
@@ -3907,7 +3907,7 @@ Perl_leave_adjust_stacks(pTHX_ SV **from_sp, SV **to_sp, U8 gimme, int pass)
             /* no return args */
             assert(from_sp == SP);
             EXTEND(SP, 1);
-            *++SP = &PL_sv_undef;
+            *++SP = UNDEF;
             to_sp = SP;
             nargs   = 0;
         }
@@ -4163,7 +4163,7 @@ PP(pp_leavesub)
     if (CxMULTICALL(cx)) {
         /* entry zero of a stack is always PL_sv_undef, which
          * simplifies converting a '()' return into undef in scalar context */
-        assert(PL_stack_sp > PL_stack_base || *PL_stack_base == &PL_sv_undef);
+        assert(PL_stack_sp > PL_stack_base || *PL_stack_base == UNDEF);
 	return 0;
     }
 
@@ -4276,13 +4276,13 @@ PP(pp_entersub)
                 if (UNLIKELY(!SvOK(sv)))
                     DIE(aTHX_ PL_no_usym, "a subroutine");
 
-                if (UNLIKELY(sv == &PL_sv_yes)) { /* unfound import, ignore */
+                if (UNLIKELY(sv == SV_YES)) { /* unfound import, ignore */
                     if (PL_op->op_flags & OPf_STACKED) /* hasargs */
                         SP = PL_stack_base + POPMARK;
                     else
                         (void)POPMARK;
                     if (GIMME_V == G_SCALAR)
-                        PUSHs(&PL_sv_undef);
+                        PUSHs(UNDEF);
                     RETURN;
                 }
 
@@ -4533,7 +4533,7 @@ PP(pp_enterxssub)
             if(isGV_with_GP(sv)) goto we_have_a_glob;
             /* FALLTHROUGH */
         default:
-            if (sv == &PL_sv_yes) {		/* unfound import, ignore */
+            if (sv == SV_YES) {		/* unfound import, ignore */
                 if (hasargs)
                     SP = PL_stack_base + POPMARK;
                 else
@@ -4676,7 +4676,7 @@ PP(pp_enterxssub)
 	if (is_scalar) {
             SV **svp = PL_stack_base + markix + 1;
             if (svp != PL_stack_sp) {
-                *svp = svp > PL_stack_sp ? &PL_sv_undef : *PL_stack_sp;
+                *svp = svp > PL_stack_sp ? UNDEF : *PL_stack_sp;
                 PL_stack_sp = svp;
             }
 	}
@@ -4918,7 +4918,7 @@ PP(pp_signature)
                 DEBUG_Xv(Perl_deb(aTHX_ "  sigcopy padp %p %s = argp %p %-4s\n", varsv,
                                   PadnamePV(padnl[po++]), argsv, SvPEEK(argsv)));
                 if (UNLIKELY(!argsv))
-                    argsv = &PL_sv_undef;
+                    argsv = UNDEF;
                 goto setsv;
             }
             if (!varsv)
@@ -5151,7 +5151,7 @@ PP(pp_signature)
                     argc--;
                 }
                 else
-                    val = &PL_sv_undef;
+                    val = UNDEF;
                 assert(val);
 
                 if (UNLIKELY(SvGMAGICAL(key)))
@@ -5246,7 +5246,7 @@ PP(pp_aelem)
 	    RETURN;
 	}
     }
-    sv = (svp ? *svp : &PL_sv_undef);
+    sv = (svp ? *svp : UNDEF);
     if (!lval && SvRMAGICAL(av) && SvGMAGICAL(sv)) /* see note in pp_helem() */
 	mg_get(sv);
     PUSHs(sv);

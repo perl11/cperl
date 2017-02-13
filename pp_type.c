@@ -534,7 +534,7 @@ PPt(pp_i_aelem, "(:Array(:Int),:Int):Int")
 	    RETURN;
 	}
     }
-    sv = (svp ? *svp : &PL_sv_undef);
+    sv = (svp ? *svp : UNDEF);
     PUSHs(sv);
     RETURN;
 }

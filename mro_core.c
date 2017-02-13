@@ -276,7 +276,7 @@ S_mro_get_linear_isa_dfs(pTHX_ HV *stash, U32 level)
 
         /* foreach(@ISA) */
         while (items--) {
-            SV* const sv = *svp ? *svp : &PL_sv_undef;
+            SV* const sv = *svp ? *svp : UNDEF;
             HV* const basestash = gv_stashsv(sv, 0);
 	    SV *const *subrv_p;
 	    SSize_t subrv_items;
@@ -307,13 +307,13 @@ S_mro_get_linear_isa_dfs(pTHX_ HV *stash, U32 level)
 		     */
 		    HE *const he = hv_fetch_ent(stored, subsv, 1, 0);
 		    assert(he);
-		    if (HeVAL(he) != &PL_sv_undef) {
+		    if (HeVAL(he) != UNDEF) {
 			/* It was newly created.  Steal it for our new SV, and
 			   replace it in the hash with the "real" thing.  */
 			SV *const val = HeVAL(he);
 			HEK *const key = HeKEY_hek(he);
 
-			HeVAL(he) = &PL_sv_undef;
+			HeVAL(he) = UNDEF;
 			sv_sethek(val, key);
 			av_push(retval, val);
 		    }
@@ -346,20 +346,20 @@ S_mro_get_linear_isa_dfs(pTHX_ HV *stash, U32 level)
 		    /* They have no stash.  So create ourselves an ->isa cache
 		       as if we'd copied it from what theirs should be.  */
 		    stored = MUTABLE_HV(sv_2mortal(MUTABLE_SV(newHV())));
-		    (void) hv_store(stored, "UNIVERSAL", 9, &PL_sv_undef, 0);
+		    (void) hv_store(stored, "UNIVERSAL", 9, UNDEF, 0);
 		    av_push(retval,
 			    newSVhek(HeKEY_hek(hv_store_ent(stored, sv,
-							    &PL_sv_undef, 0))));
+							    UNDEF, 0))));
 		}
 	    }
         }
     } else {
 	/* We have no parents.  */
 	stored = MUTABLE_HV(sv_2mortal(MUTABLE_SV(newHV())));
-	(void) hv_store(stored, "UNIVERSAL", 9, &PL_sv_undef, 0);
+	(void) hv_store(stored, "UNIVERSAL", 9, UNDEF, 0);
     }
 
-    (void) hv_store_ent(stored, our_name, &PL_sv_undef, 0);
+    (void) hv_store_ent(stored, our_name, UNDEF, 0);
 
     SvREFCNT_inc_simple_void_NN(stored);
     SvTEMP_off(stored);
@@ -444,14 +444,14 @@ Perl_mro_get_linear_isa(pTHX_ HV *stash)
 	    if (!canon_name) canon_name = HvNAME_HEK(stash);
 
 	    while (svp < svp_end) {
-		(void) hv_store_ent(isa_hash, *svp++, &PL_sv_undef, 0);
+		(void) hv_store_ent(isa_hash, *svp++, UNDEF, 0);
 	    }
 
 	    (void)hv_common(isa_hash, NULL, HEK_KEY(canon_name),
 			     HEK_LEN(canon_name), HEK_FLAGS(canon_name),
-			     HV_FETCH_ISSTORE, &PL_sv_undef,
+			     HV_FETCH_ISSTORE, UNDEF,
 			     HEK_HASH(canon_name));
-	    (void)hv_store(isa_hash, "UNIVERSAL", 9, &PL_sv_undef, 0);
+	    (void)hv_store(isa_hash, "UNIVERSAL", 9, UNDEF, 0);
 
 	    SvREADONLY_on(isa_hash);
 
@@ -581,7 +581,7 @@ Perl_mro_isa_changed_in(pTHX_ HV* stash)
 	    (void)
 	      hv_store(
 	       isa_hashes, (const char*)&revstash, sizeof(HV *),
-	       revmeta->isa ? (SV *)revmeta->isa : &PL_sv_undef, 0
+	       revmeta->isa ? (SV *)revmeta->isa : UNDEF, 0
 	      );
 	    revmeta->isa = NULL;
         }
@@ -629,10 +629,10 @@ Perl_mro_isa_changed_in(pTHX_ HV* stash)
                        it doesn't exist.  */
 
                     (void)
-                      hv_storehek(mroisarev, namehek, &PL_sv_yes);
+                      hv_storehek(mroisarev, namehek, SV_YES);
                 }
 
-                if ((SV *)isa != &PL_sv_undef) {
+                if ((SV *)isa != UNDEF) {
                     assert(namehek);
                     mro_clean_isarev(
                      isa, HEK_KEY(namehek), HEK_LEN(namehek),
@@ -672,7 +672,7 @@ Perl_mro_isa_changed_in(pTHX_ HV* stash)
 	   save time by not making two calls to the common HV code for the
 	   case where it doesn't exist.  */
 
-	(void)hv_storehek(mroisarev, stashhek, &PL_sv_yes);
+	(void)hv_storehek(mroisarev, stashhek, SV_YES);
     }
 
     /* Delete our name from our former parents' isarevs. */
@@ -866,7 +866,7 @@ Perl_mro_package_moved(pTHX_ HV * const stash, HV * const oldstash,
 	    struct mro_meta * const meta = HvMROMETA(stash);
 	    if (meta->isa != (HV *)HeVAL(iter)) {
 		SvREFCNT_dec(meta->isa);
-		meta->isa = HeVAL(iter) == &PL_sv_yes
+		meta->isa = HeVAL(iter) == SV_YES
 		    ? NULL : (HV *)HeVAL(iter);
 		HeVAL(iter) = NULL; /* We donated our reference count. */
 	    }
@@ -902,9 +902,9 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
        To avoid allocating extra SVs, instead of a bitfield we can make
        bizarre use of immortals:
 
-        &PL_sv_undef:  seen on the left  (oldstash)
-        &PL_sv_no   :  seen on the right (stash)
-        &PL_sv_yes  :  seen on both sides
+        UNDEF:  seen on the left  (oldstash)
+        SV_NO   :  seen on the right (stash)
+        SV_YES  :  seen on both sides
 
      */
 
@@ -914,16 +914,16 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
         /* Hack. This stores a pointer, not the name */
 	HE * const entry = (HE*)hv_common(seen_stashes, NULL, (const char *)&oldstash,
               sizeof(HV *), 0, HV_FETCH_LVALUE|HV_FETCH_EMPTY_HE, NULL, 0);
-	if (HeVAL(entry) == &PL_sv_undef || HeVAL(entry) == &PL_sv_yes) {
+	if (HeVAL(entry) == UNDEF || HeVAL(entry) == SV_YES) {
 	    oldstash = NULL;
 	    goto check_stash;
 	}
-	HeVAL(entry) = HeVAL(entry) == &PL_sv_no ? &PL_sv_yes : &PL_sv_undef;
+	HeVAL(entry) = HeVAL(entry) == SV_NO ? SV_YES : UNDEF;
 	meta = HvMROMETA(oldstash);
         /* Hack. Again a pointer, not the name */
 	(void)hv_store(stashes, (const char *)&oldstash, sizeof(HV *),
                        meta->isa ? SvREFCNT_inc_simple_NN((SV *)meta->isa)
-                                 : &PL_sv_yes, 0);
+                                 : SV_YES, 0);
 	CLEAR_LINEAR(meta);
 
 	/* Update the effective name. */
@@ -1013,16 +1013,16 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
         /* Hack. Again a pointer, not the name */
 	entry = (HE *)hv_common(seen_stashes, NULL, (const char *)&stash,
               sizeof(HV *), 0, HV_FETCH_LVALUE|HV_FETCH_EMPTY_HE, NULL, 0);
-	if (HeVAL(entry) == &PL_sv_yes || HeVAL(entry) == &PL_sv_no)
+	if (HeVAL(entry) == SV_YES || HeVAL(entry) == SV_NO)
 	    stash = NULL;
 	else {
-	    HeVAL(entry) = HeVAL(entry) == &PL_sv_undef ? &PL_sv_yes : &PL_sv_no;
+	    HeVAL(entry) = HeVAL(entry) == UNDEF ? SV_YES : SV_NO;
 	    if (!stash_had_name) {
 		struct mro_meta * const meta = HvMROMETA(stash);
                 /* Hack. Again a pointer, not the name */
 		(void)hv_store(stashes, (const char *)&stash, sizeof(HV *),
                                meta->isa ? SvREFCNT_inc_simple_NN((SV *)meta->isa)
-                                         : &PL_sv_yes, 0);
+                                         : SV_YES, 0);
 		CLEAR_LINEAR(meta);
 	    }
 	}
@@ -1080,7 +1080,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
             /* Hack. Again a pointer, not the name */
 	    (void)hv_store(stashes, (const char *)&revstash, sizeof(HV *),
                            meta->isa ? SvREFCNT_inc_simple_NN((SV *)meta->isa)
-                                     : &PL_sv_yes, 0);
+                                     : SV_YES, 0);
 	    CLEAR_LINEAR(meta);
         }
 
@@ -1163,7 +1163,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
                                               substash, oldsubstash, subname);
 		    }
 
-		    (void)hv_store(seen, key, HeUTF8(entry) ? -(I32)len : (I32)len, &PL_sv_yes, 0);
+		    (void)hv_store(seen, key, HeUTF8(entry) ? -(I32)len : (I32)len, SV_YES, 0);
 		}
 	    }
 	}

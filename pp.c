@@ -56,7 +56,7 @@ PP(pp_stub)
 {
     dSP;
     if (GIMME_V == G_SCALAR)
-	XPUSHs(&PL_sv_undef);
+	XPUSHs(UNDEF);
     RETURN;
 }
 
@@ -97,14 +97,14 @@ PP(pp_padav)
 	    SSize_t i;
 	    for (i=0; i < maxarg; i++) {
 		SV * const * const svp = av_fetch(MUTABLE_AV(TARG), i, FALSE);
-		SP[i+1] = (svp) ? *svp : &PL_sv_undef;
+		SP[i+1] = (svp) ? *svp : UNDEF;
 	    }
 	}
 	else {
 	    SSize_t i;
 	    for (i=0; i < maxarg; i++) {
 		SV * const sv = AvARRAY((const AV *)TARG)[i];
-		SP[i+1] = sv ? sv : &PL_sv_undef;
+		SP[i+1] = sv ? sv : UNDEF;
 	    }
 	}
 	SP += maxarg;
@@ -150,7 +150,7 @@ PP(pp_padhv)
                     && block_gimme() == G_VOID  ))
              && (!SvRMAGICAL(TARG) || !mg_find(TARG, PERL_MAGIC_tied))
              )
-	SETs(HvUSEDKEYS(TARG) ? &PL_sv_yes : &PL_sv_no);
+	SETs(HvUSEDKEYS(TARG) ? SV_YES : SV_NO);
     else if (gimme == G_SCALAR) {
 	SV* const sv = Perl_hv_scalar(aTHX_ MUTABLE_HV(TARG));
 	SETs(sv);
@@ -236,7 +236,7 @@ S_rv2gv(pTHX_ SV *sv, const bool vivify_sv, const bool strict,
 		/* If this is a 'my' scalar and flag is set then vivify
 		 * NI-S 1999/05/07
 		 */
-		if (vivify_sv && sv != &PL_sv_undef) {
+		if (vivify_sv && sv != UNDEF) {
 		    GV *gv;
 		    if (SvREADONLY(sv))
 			Perl_croak_no_modify();
@@ -264,14 +264,14 @@ S_rv2gv(pTHX_ SV *sv, const bool vivify_sv, const bool strict,
                 }
 		if (ckWARN(WARN_UNINITIALIZED))
 		    report_uninit(sv);
-		return &PL_sv_undef;
+		return UNDEF;
 	    }
 	    if (noinit)
                 {
                     if (!(sv = MUTABLE_SV(gv_fetchsv_nomg(
                                                           sv, GV_ADDMG, SVt_PVGV
                                                           ))))
-                        return &PL_sv_undef;
+                        return UNDEF;
                 }
 	    else {
 		if (strict) {
@@ -346,7 +346,7 @@ Perl_softref2xv(pTHX_ SV *sv, const char *const what,
 	    (*spp)--;
 	    return NULL;
 	}
-	**spp = &PL_sv_undef;
+	**spp = UNDEF;
 	return NULL;
     }
     if (UNLIKELY
@@ -368,7 +368,7 @@ Perl_softref2xv(pTHX_ SV *sv, const char *const what,
     }
     if (OpSPECIAL(PL_op) && !(PL_op->op_flags & OPf_MOD)) {
         if (!(gv = gv_fetchsv_nomg(sv, GV_ADDMG, type))) {
-            **spp = &PL_sv_undef;
+            **spp = UNDEF;
             return NULL;
         }
     }
@@ -457,7 +457,7 @@ PP(pp_pos)
             SETu(i);
             return NORMAL;
         }
-        SETs(&PL_sv_undef);
+        SETs(UNDEF);
     }
     return NORMAL;
 }
@@ -484,7 +484,7 @@ PP(pp_rv2cv)
 	    : MUTABLE_CV(gv);
     }    
     else
-	cv = MUTABLE_CV(&PL_sv_undef);
+	cv = MUTABLE_CV(UNDEF);
     SETs(MUTABLE_SV(cv));
     return NORMAL;
 }
@@ -495,7 +495,7 @@ PP(pp_prototype)
     CV *cv;
     HV *stash;
     GV *gv;
-    SV *ret = &PL_sv_undef;
+    SV *ret = UNDEF;
 
     if (SvGMAGICAL(TOPs)) SETs(sv_mortalcopy(TOPs));
     if (SvPOK(TOPs) && SvCUR(TOPs) >= 7) {
@@ -553,7 +553,7 @@ PP(pp_refgen)
 	else
             {
                 MEXTEND(SP, 1);
-                *MARK = &PL_sv_undef;
+                *MARK = UNDEF;
             }
 	*MARK = refto(*MARK);
 	SP = MARK;
@@ -576,7 +576,7 @@ S_refto(pTHX_ SV *sv)
 	if (LvTARGLEN(sv))
 	    vivify_defelem(sv);
 	if (!(sv = LvTARG(sv)))
-	    sv = &PL_sv_undef;
+	    sv = UNDEF;
 	else
 	    SvREFCNT_inc_void_NN(sv);
     }
@@ -607,7 +607,7 @@ PP(pp_ref)
 
     SvGETMAGIC(sv);
     if (!SvROK(sv)) {
-	SETs(&PL_sv_no);
+	SETs(SV_NO);
         return NORMAL;
     }
 
@@ -634,7 +634,7 @@ PP(pp_ref)
                         goto do_sv_ref;
                 }
             }
-            SETs(&PL_sv_yes);
+            SETs(SV_YES);
             return NORMAL;
         }
 
@@ -758,7 +758,7 @@ PP(pp_gelem)
     if (sv)
 	sv_2mortal(sv);
     else
-	sv = &PL_sv_undef;
+	sv = UNDEF;
     SETs(sv);
     RETURN;
 }
@@ -773,13 +773,13 @@ PP(pp_study)
     (void)SvPV(sv, len);
     if (len == 0 || len > I32_MAX || !SvPOK(sv) || SvUTF8(sv) || SvVALID(sv)) {
 	/* Historically, study was skipped in these cases. */
-	SETs(&PL_sv_no);
+	SETs(SV_NO);
 	return NORMAL;
     }
 
     /* Make study a no-op. It's no longer useful and its existence
        complicates matters elsewhere. */
-    SETs(&PL_sv_yes);
+    SETs(SV_YES);
     return NORMAL;
 }
 
@@ -835,7 +835,7 @@ S_do_chomp(pTHX_ SV *retval, SV *sv, bool chomping)
 
 	for (i = 0; i <= max; i++) {
 	    sv = MUTABLE_SV(av_fetch(av, i, FALSE));
-	    if (sv && ((sv = *(SV**)sv), sv != &PL_sv_undef))
+	    if (sv && ((sv = *(SV**)sv), sv != UNDEF))
 		count += do_chomp(retval, sv, chomping);
 	}
         return count;
@@ -1027,7 +1027,7 @@ PP(pp_undef)
     sv = TOPs;
     if (!sv)
         {
-            SETs(&PL_sv_undef);
+            SETs(UNDEF);
             return NORMAL;
         }
 
@@ -1114,7 +1114,7 @@ PP(pp_undef)
 	SvSETMAGIC(sv);
     }
 
-    SETs(&PL_sv_undef);
+    SETs(UNDEF);
     return NORMAL;
 }
 
@@ -1994,7 +1994,7 @@ PP(pp_repeat)
 		dTOPss;
 		ASSUME(MARK + 1 == SP);
 		XPUSHs(sv);
-		MARK[1] = &PL_sv_undef;
+		MARK[1] = UNDEF;
 	    }
 	    SP = MARK + 2;
 	}
@@ -2506,7 +2506,7 @@ PP(pp_cmp)
     left  = TOPs;
     value = do_ncmp(left, right);
     if (value == 2) {
-	SETs(&PL_sv_undef);
+	SETs(UNDEF);
     }
     else {
 	dTARGET;
@@ -3613,7 +3613,7 @@ PP(pp_length)
         if (UNLIKELY((PL_op->op_private & OPpLENGTH_TRUEBOOL)
                      || ((PL_op->op_private & OPpLENGTH_MAYBE_TRUEBOOL)
                          && block_gimme() == G_VOID))) {
-            SETs(SvCUR(sv) ? &PL_sv_yes : &PL_sv_no);
+            SETs(SvCUR(sv) ? SV_YES : SV_NO);
             return NORMAL;
         } else {
             SETs(TARG);
@@ -3643,7 +3643,7 @@ PP(pp_length)
 	} else { /* TARG is on stack at this point and is overwriten by SETs.
                    This branch is the odd one out, so put TARG by default on
                    stack earlier to let local SP go out of liveness sooner */
-            SETs(&PL_sv_undef);
+            SETs(UNDEF);
             goto no_set_magic;
         }
     }
@@ -5105,12 +5105,12 @@ PP(pp_aslice)
 			SAVEADELETE(av, elem);
 		}
 	    }
-	    *MARK = svp ? *svp : &PL_sv_undef;
+	    *MARK = svp ? *svp : UNDEF;
 	}
     }
     if (GIMME_V != G_ARRAY) {
 	MARK = ORIGMARK;
-	*++MARK = SP > ORIGMARK ? *SP : &PL_sv_undef;
+	*++MARK = SP > ORIGMARK ? *SP : UNDEF;
 	SP = MARK;
     }
     RETURN;
@@ -5146,16 +5146,16 @@ PP(pp_kvaslice)
 
 	svp = av_fetch(av, SvIV(*MARK), lval);
         if (lval) {
-            if (!svp || !*svp || *svp == &PL_sv_undef) {
+            if (!svp || !*svp || *svp == UNDEF) {
                 DIE(aTHX_ PL_no_aelem, SvIV(*MARK));
             }
 	    *MARK = sv_mortalcopy(*MARK);
         }
-	*++MARK = svp ? *svp : &PL_sv_undef;
+	*++MARK = svp ? *svp : UNDEF;
     }
     if (GIMME_V != G_ARRAY) {
 	MARK = SP - items*2;
-	*++MARK = items > 0 ? *SP : &PL_sv_undef;
+	*++MARK = items > 0 ? *SP : UNDEF;
 	SP = MARK;
     }
     RETURN;
@@ -5182,7 +5182,7 @@ PP(pp_aeach)
     mPUSHi(current);
     if (gimme == G_ARRAY) {
 	SV **const element = av_fetch(array, current, 0);
-        PUSHs(element ? *element : &PL_sv_undef);
+        PUSHs(element ? *element : UNDEF);
     }
     RETURN;
 }
@@ -5225,7 +5225,7 @@ PP(pp_akeys)
 	else {
 	    for (i = 0;  i <= n;  i++) {
 		SV *const *const elem = Perl_av_fetch(aTHX_ array, i, 0);
-		PUSHs(elem ? *elem : &PL_sv_undef);
+		PUSHs(elem ? *elem : UNDEF);
 	    }
 	}
       }
@@ -5309,7 +5309,7 @@ S_do_delete_local(pTHX)
             }
             else {
                 SAVEHDELETE(hv, keysv);
-                *MARK = &PL_sv_undef;
+                *MARK = UNDEF;
             }
         }
     }
@@ -5344,7 +5344,7 @@ S_do_delete_local(pTHX)
                 }
                 else {
                     SAVEADELETE(av, idx);
-                    *MARK = &PL_sv_undef;
+                    *MARK = UNDEF;
                 }
             }
         }
@@ -5361,7 +5361,7 @@ S_do_delete_local(pTHX)
 	    if (SP > MARK)
 		*++MARK = *SP;
 	    else
-		*++MARK = &PL_sv_undef;
+		*++MARK = UNDEF;
 	    SP = MARK;
 	}
     }
@@ -5390,14 +5390,14 @@ PP(pp_delete)
 	if (hvtype == SVt_PVHV) {			/* hash element */
 	    while (++MARK <= SP) {
 		SV * const sv = hv_delete_ent(hv, *MARK, discard, 0);
-		*MARK = sv ? sv : &PL_sv_undef;
+		*MARK = sv ? sv : UNDEF;
 	    }
 	}
 	else if (hvtype == SVt_PVAV) {                  /* array element */
             if (PL_op->op_flags & OPf_SPECIAL) {
                 while (++MARK <= SP) {
                     SV * const sv = av_delete(MUTABLE_AV(hv), SvIV(*MARK), discard);
-                    *MARK = sv ? sv : &PL_sv_undef;
+                    *MARK = sv ? sv : UNDEF;
                 }
             }
 	}
@@ -5410,7 +5410,7 @@ PP(pp_delete)
 	    if (SP > MARK)
 		*++MARK = *SP;
 	    else
-		*++MARK = &PL_sv_undef;
+		*++MARK = UNDEF;
 	    SP = MARK;
 	}
     }
@@ -5429,7 +5429,7 @@ PP(pp_delete)
 	else
 	    DIE(aTHX_ "Not a HASH reference");
 	if (!sv)
-	    sv = &PL_sv_undef;
+	    sv = UNDEF;
 	if (!discard)
 	    PUSHs(sv);
     }
@@ -5504,7 +5504,7 @@ PP(pp_hslice)
         svp = he ? &HeVAL(he) : NULL;
 
         if (lval) {
-            if (!svp || !*svp || *svp == &PL_sv_undef) {
+            if (!svp || !*svp || *svp == UNDEF) {
                 DIE(aTHX_ PL_no_helem_sv, SVfARG(keysv));
             }
             if (localizing) {
@@ -5517,11 +5517,11 @@ PP(pp_hslice)
 		    SAVEHDELETE(hv, keysv);
             }
         }
-        *MARK = svp && *svp ? *svp : &PL_sv_undef;
+        *MARK = svp && *svp ? *svp : UNDEF;
     }
     if (GIMME_V != G_ARRAY) {
 	MARK = ORIGMARK;
-	*++MARK = SP > ORIGMARK ? *SP : &PL_sv_undef;
+	*++MARK = SP > ORIGMARK ? *SP : UNDEF;
 	SP = MARK;
     }
     RETURN;
@@ -5562,16 +5562,16 @@ PP(pp_kvhslice)
         svp = he ? &HeVAL(he) : NULL;
 
         if (lval) {
-            if (!svp || !*svp || *svp == &PL_sv_undef) {
+            if (!svp || !*svp || *svp == UNDEF) {
                 DIE(aTHX_ PL_no_helem_sv, SVfARG(keysv));
             }
 	    *MARK = sv_mortalcopy(*MARK);
         }
-        *++MARK = svp && *svp ? *svp : &PL_sv_undef;
+        *++MARK = svp && *svp ? *svp : UNDEF;
     }
     if (GIMME_V != G_ARRAY) {
 	MARK = SP - items*2;
-	*++MARK = items > 0 ? *SP : &PL_sv_undef;
+	*++MARK = items > 0 ? *SP : UNDEF;
 	SP = MARK;
     }
     RETURN;
@@ -5588,7 +5588,7 @@ PP(pp_list)
 	if (++MARK <= SP)
 	    *MARK = *SP;		/* unwanted list, return last item */
 	else
-	    *MARK = &PL_sv_undef;
+	    *MARK = UNDEF;
 	SP = MARK;
 	PUTBACK;
     }
@@ -5609,14 +5609,14 @@ PP(pp_lslice)
 
     if (GIMME_V != G_ARRAY) {
         if (lastlelem < firstlelem) {
-            *firstlelem = &PL_sv_undef;
+            *firstlelem = UNDEF;
         }
         else {
             I32 ix = SvIV(*lastlelem);
             if (ix < 0)
                 ix += max;
             if (ix < 0 || ix >= max)
-                *firstlelem = &PL_sv_undef;
+                *firstlelem = UNDEF;
             else
                 *firstlelem = firstrelem[ix];
         }
@@ -5634,10 +5634,10 @@ PP(pp_lslice)
 	if (ix < 0)
 	    ix += max;
 	if (ix < 0 || ix >= max)
-	    *lelem = &PL_sv_undef;
+	    *lelem = UNDEF;
 	else {
 	    if (!(*lelem = firstrelem[ix]))
-		*lelem = &PL_sv_undef;
+		*lelem = UNDEF;
 	    else if (mod && SvPADTMP(*lelem)) {
 		*lelem = firstrelem[ix] = sv_mortalcopy(*lelem);
             }
@@ -5780,7 +5780,7 @@ PP(pp_splice)
 		    sv_2mortal(*dst);	/* free them eventually */
 		}
 		else
-		    *dst = &PL_sv_undef;
+		    *dst = UNDEF;
 		dst++;
 	    }
 	    MARK += length - 1;
@@ -5793,7 +5793,7 @@ PP(pp_splice)
 		    SvREFCNT_dec(*dst++);	/* free them now */
 	    }
 	    if (!*MARK)
-		*MARK = &PL_sv_undef;
+		*MARK = UNDEF;
 	}
 	AvFILLp(ary) += diff;
 
@@ -5877,7 +5877,7 @@ PP(pp_splice)
 		      if (real)
 			sv_2mortal(*dst);	/* free them eventually */
 		    }
-		    else *dst = &PL_sv_undef;
+		    else *dst = UNDEF;
 		    dst++;
 		}
 	    }
@@ -5891,10 +5891,10 @@ PP(pp_splice)
 		    SvREFCNT_dec(tmparyval[length]);
 	    }
 	    if (!*MARK)
-		*MARK = &PL_sv_undef;
+		*MARK = UNDEF;
 	}
 	else
-	    *MARK = &PL_sv_undef;
+	    *MARK = UNDEF;
 	Safefree(tmparyval);
     }
 
@@ -6087,7 +6087,7 @@ PP(pp_reverse)
 
 	SvUTF8_off(TARG);				/* decontaminate */
 	if (SP - MARK > 1)
-	    do_join(TARG, &PL_sv_no, MARK, SP);
+	    do_join(TARG, SV_NO, MARK, SP);
 	else {
 	    sv_setsv(TARG, SP > MARK ? *SP : find_rundefsv());
 	}
@@ -6210,7 +6210,7 @@ PP(pp_split)
 		AvREAL_on(ary);
 		AvREIFY_off(ary);
 		for (i = AvFILLp(ary); i >= 0; i--)
-		    AvARRAY(ary)[i] = &PL_sv_undef; /* don't free mere refs */
+		    AvARRAY(ary)[i] = UNDEF; /* don't free mere refs */
 	    }
 	    /* temporarily switch stacks */
 	    SAVESWITCHSTACK(PL_curstack, ary);
@@ -6491,7 +6491,7 @@ PP(pp_split)
 						  | make_mortal);
 			}
 			else
-			    dstr = &PL_sv_undef;  /* undef, not "" */
+			    dstr = UNDEF;  /* undef, not "" */
 			XPUSHs(dstr);
 		    }
 
@@ -6558,7 +6558,7 @@ PP(pp_split)
 		EXTEND(SP, iters);
 		for (i=0; i < iters; i++) {
 		    SV **svp = av_fetch(ary, i, FALSE);
-		    PUSHs((svp) ? *svp : &PL_sv_undef);
+		    PUSHs((svp) ? *svp : UNDEF);
 		}
 		RETURN;
 	    }
@@ -6700,11 +6700,11 @@ PP(pp_coreargs)
 		    cxstack[cxstack_ix].blk_oldcop->cop_seq
 		));
 	    }
-	    else PUSHs(numargs ? svp && *svp ? *svp : &PL_sv_undef : NULL);
+	    else PUSHs(numargs ? svp && *svp ? *svp : UNDEF : NULL);
 	    break;
 	case OA_LIST:
 	    while (numargs--) {
-		PUSHs(svp && *svp ? *svp : &PL_sv_undef);
+		PUSHs(svp && *svp ? *svp : UNDEF);
 		svp++;
 	    }
 	    RETURN;
@@ -6753,7 +6753,7 @@ PP(pp_coreargs)
 	    else {
 		const bool constr = PL_op->op_private & whicharg;
 		PUSHs(S_rv2gv(aTHX_
-		    svp && *svp ? *svp : &PL_sv_undef,
+		    svp && *svp ? *svp : UNDEF,
 		    constr, cBOOL(CopHINTS_get(PL_curcop) & HINT_STRICT_REFS),
 		    !constr
 		));
@@ -6818,7 +6818,7 @@ PP(pp_runcv)
 	cv = find_runcv_where(FIND_RUNCV_level_eq, 1, NULL);
     }
     else cv = find_runcv(NULL);
-    XPUSHs(CvEVAL(cv) ? &PL_sv_undef : sv_2mortal(newRV((SV *)cv)));
+    XPUSHs(CvEVAL(cv) ? UNDEF : sv_2mortal(newRV((SV *)cv)));
     RETURN;
 }
 

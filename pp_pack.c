@@ -1848,7 +1848,7 @@ PP(pp_unpack)
 
     SPAGAIN;
     if ( !cnt && gimme == G_SCALAR )
-       PUSHs(&PL_sv_undef);
+       PUSHs(UNDEF);
     RETURN;
 }
 
@@ -2113,8 +2113,8 @@ S_pack_rec(pTHX_ SV *cat, tempsym_t* symptr, SV **beglist, SV **endlist )
 	char *cur   = start + SvCUR(cat);
         bool needs_swap;
 
-#define NEXTFROM (lengthcode ? lengthcode : items > 0 ? (--items, *beglist++) : &PL_sv_no)
-#define PEEKFROM (lengthcode ? lengthcode : items > 0 ? *beglist : &PL_sv_no)
+#define NEXTFROM (lengthcode ? lengthcode : items > 0 ? (--items, *beglist++) : SV_NO)
+#define PEEKFROM (lengthcode ? lengthcode : items > 0 ? *beglist : SV_NO)
 
         switch (howlen) {
 	  case e_star:

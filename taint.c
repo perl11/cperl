@@ -124,7 +124,7 @@ Perl_taint_env(pTHX)
 	if (i)
 	    len = my_sprintf(name,"DCL$PATH;%d", i);
 	svp = hv_fetch(GvHVn(PL_envgv), name, len, FALSE);
-	if (!svp || *svp == &PL_sv_undef)
+	if (!svp || *svp == UNDEF)
 	    break;
 	if (SvTAINTED(*svp)) {
 	    TAINT;
@@ -177,7 +177,7 @@ Perl_taint_env(pTHX)
 
     for (e = misc_env; *e; e++) {
 	SV * const * const svp = hv_fetch(GvHVn(PL_envgv), *e, strlen(*e), FALSE);
-	if (svp && *svp != &PL_sv_undef && SvTAINTED(*svp)) {
+	if (svp && *svp != UNDEF && SvTAINTED(*svp)) {
 	    TAINT;
 	    taint_proper("Insecure $ENV{%s}%s", *e);
 	}

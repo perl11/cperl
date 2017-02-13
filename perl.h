@@ -1332,7 +1332,11 @@ EXTERN_C char *crypt(const char *, const char *);
   } STMT_END
 
 
+#define SV_YES (0 + &PL_sv_yes)
+#define SV_NO  (0 + &PL_sv_no)
 #ifdef PERL_CORE
+# define UNDEF  (0 + &PL_sv_undef)
+# define PLACEHOLDER  (0 + &PL_sv_placeholder)
 # define DEFSV (0 + GvSVn(PL_defgv))
 # define DEFSV_set(sv) \
     (SvREFCNT_dec(GvSV(PL_defgv)), GvSV(PL_defgv) = SvREFCNT_inc(sv))

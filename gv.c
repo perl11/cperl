@@ -1089,7 +1089,7 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 	   Foo->unimport from being an error even if there's no
            import/unimport subroutine */
 	if (strEQc(name,"import") || strEQc(name,"unimport"))
-	    gv = MUTABLE_GV(&PL_sv_yes);
+	    gv = MUTABLE_GV(SV_YES);
 	else if (autoload)
 	    gv = gv_autoload_pvn(
 		ostash, name, nend - name, GV_AUTOLOAD_ISMETHOD|flags
@@ -1631,7 +1631,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                 }
                 gvp = (GV**)hv_fetch(*stash, key, is_utf8 ? -((I32)*len) : (I32)*len, add);
                 *gv = gvp ? *gvp : NULL;
-                if (*gv && *gv != (const GV *)&PL_sv_undef) {
+                if (*gv && *gv != (const GV *)UNDEF) {
                     if (SvTYPE(*gv) != SVt_PVGV)
                         gv_init_pvn(*gv, *stash, key, *len, (add & GV_ADDMULTI)|is_utf8);
                     else
@@ -1639,7 +1639,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                 }
                 if (key != *name /*&& (!*gv || !GvSTATIC(*gv)) */)
                     Safefree(key);
-                if (!*gv || *gv == (const GV *)&PL_sv_undef)
+                if (!*gv || *gv == (const GV *)UNDEF)
                     return FALSE;
 
                 if (!(*stash = GvHV(*gv))) {
@@ -1759,7 +1759,7 @@ S_find_default_stash(pTHX_ HV **stash, const char *name, STRLEN len,
                 (*name == 'a' || *name == 'b')) )
             {
                 GV**gvp = (GV**)hv_fetch(*stash,name,is_utf8 ? -(I32)len : (I32)len,0);
-                if (!gvp || *gvp == (const GV *)&PL_sv_undef ||
+                if (!gvp || *gvp == (const GV *)UNDEF ||
                     SvTYPE(*gvp) != SVt_PVGV)
                 {
                     *stash = NULL;
@@ -1969,7 +1969,7 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
 		    for (i = 1; i < SIG_SIZE; i++) {
 			SV * const * const init = hv_fetch(hv, PL_sig_name[i], strlen(PL_sig_name[i]), 1);
 			if (init)
-			    sv_setsv(*init, &PL_sv_undef);
+			    sv_setsv(*init, UNDEF);
 		    }
 		}
 		break;
@@ -2349,7 +2349,7 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
             else return NULL;
         }
     gvp = (GV**)hv_fetch(stash, name, is_utf8 ? -(I32)len : (I32)len,add);
-    if (!gvp || *gvp == (const GV *)&PL_sv_undef) {
+    if (!gvp || *gvp == (const GV *)UNDEF) {
 	if (addmg) gv = (GV *)newSV(0);
 	else return NULL;
     }
@@ -2938,7 +2938,7 @@ Perl_try_amagic_un(pTHX_ int method, int flags) {
 
     SvGETMAGIC(arg);
 
-    if (SvAMAGIC(arg) && (tmpsv = amagic_call(arg, &PL_sv_undef, method,
+    if (SvAMAGIC(arg) && (tmpsv = amagic_call(arg, UNDEF, method,
 					      AMGf_noright | AMGf_unary
 					    | (flags & AMGf_numarg))))
     {
@@ -3014,7 +3014,7 @@ Perl_try_amagic_bin(pTHX_ int method, int flags) {
 	   able name. */
 	if (!SvOK(right)) {
 	    if (ckWARN(WARN_UNINITIALIZED)) report_uninit(right);
-	    sv_setsv_flags(left, &PL_sv_no, 0);
+	    sv_setsv_flags(left, SV_NO, 0);
 	}
 	else sv_setsv_flags(left, right, 0);
 	SvGETMAGIC(right);
@@ -3043,7 +3043,7 @@ Perl_amagic_deref_call(pTHX_ SV *ref, int method) {
     if (HvAUX(stash)->xhv_aux_flags & HvAUXf_NO_DEREF)
         return ref;
 
-    while ((tmpsv = amagic_call(ref, &PL_sv_undef, method,
+    while ((tmpsv = amagic_call(ref, UNDEF, method,
 				AMGf_noright | AMGf_unary))) { 
 	if (!SvROK(tmpsv))
 	    Perl_croak(aTHX_ "Overloaded dereference did not return a reference");
@@ -3134,14 +3134,14 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
 	   force_cpy = 1;
 	   if ((cv = cvp[off=add_ass_amg])
 	       || ((cv = cvp[off = add_amg]) && (force_cpy = 0, postpr = 1))) {
-	     right = &PL_sv_yes; lr = -1; assign = 1;
+	     right = SV_YES; lr = -1; assign = 1;
 	   }
 	   break;
 	 case dec_amg:
 	   force_cpy = 1;
 	   if ((cv = cvp[off = subtr_ass_amg])
 	       || ((cv = cvp[off = subtr_amg]) && (force_cpy = 0, postpr=1))) {
-	     right = &PL_sv_yes; lr = -1; assign = 1;
+	     right = SV_YES; lr = -1; assign = 1;
 	   }
 	   break;
 	 case bool__amg:
@@ -3316,7 +3316,7 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
  		        "has no overloaded magic",
  		      SvAMAGIC(left)?
 		        SVfARG(sv_2mortal(newSVhek(HvNAME_HEK(SvSTASH(SvRV(left)))))):
-		        SVfARG(&PL_sv_no),
+		        SVfARG(SV_NO),
  		      SvAMAGIC(right)?
  		        ",\n\tright argument in overloaded package ":
  		        (flags & AMGf_unary
@@ -3324,7 +3324,7 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
  			 : ",\n\tright argument has no overloaded magic"),
  		      SvAMAGIC(right)?
 		        SVfARG(sv_2mortal(newSVhek(HvNAME_HEK(SvSTASH(SvRV(right)))))):
-		        SVfARG(&PL_sv_no)));
+		        SVfARG(SV_NO)));
         if (use_default_op) {
 	  DEBUG_o( Perl_deb(aTHX_ "%" SVf, SVfARG(msg)) );
 	} else {
@@ -3490,15 +3490,15 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
     EXTEND(SP, notfound + 5);
     PUSHs(lr>0? right: left);
     PUSHs(lr>0? left: right);
-    PUSHs( lr > 0 ? &PL_sv_yes : ( assign ? &PL_sv_undef : &PL_sv_no ));
+    PUSHs( lr > 0 ? SV_YES : ( assign ? UNDEF : SV_NO ));
     if (notfound) {
       PUSHs(newSVpvn_flags(AMG_id2name(method + assignshift),
 			   AMG_id2namelen(method + assignshift), SVs_TEMP));
     }
     else if (flags & AMGf_numarg)
-      PUSHs(&PL_sv_undef);
+      PUSHs(UNDEF);
     if (flags & AMGf_numarg)
-      PUSHs(&PL_sv_yes);
+      PUSHs(SV_YES);
     PUSHs(MUTABLE_SV(cv));
     PUTBACK;
     oldmark = TOPMARK;
@@ -3514,7 +3514,7 @@ Perl_amagic_call(pTHX_ SV *left, SV *right, int method, int flags)
             /* returning NULL has another meaning, and we check the context
              * at the call site too, so this can be differentiated from the
              * scalar case */
-            res = &PL_sv_undef;
+            res = UNDEF;
             SP = PL_stack_base + oldmark;
             break;
         case G_ARRAY: {

@@ -101,7 +101,7 @@ PP(pp_regcomp)
 #endif
 
     re = PM_GETRE(pm);
-    assert (re != (REGEXP*) &PL_sv_undef);
+    assert (re != (REGEXP*) UNDEF);
     eng = re ? RX_ENGINE(re) : current_re_engine();
 
     new_re = (eng->op_comp
@@ -567,7 +567,7 @@ PP(pp_formline)
 	    if (MARK < SP)
 		sv = *++MARK;
 	    else {
-		sv = &PL_sv_no;
+		sv = SV_NO;
 		Perl_ck_warner(aTHX_ packWARN(WARN_SYNTAX), "Not enough format arguments");
 	    }
 	    if (SvTAINTED(sv))
@@ -685,7 +685,7 @@ PP(pp_formline)
 	    goto append;
 
 	case FF_CHOP: /* (for ^*) chop the current item */
-	    if (sv != &PL_sv_no) {
+	    if (sv != SV_NO) {
 		const char *s = chophere;
 		if (chopspace) {
 		    while (isSPACE(*s))
@@ -1062,7 +1062,7 @@ PP(pp_mapwhile)
 	     * copies of meaningless values. */
 	    while (items-- > 0) {
 		(void)POPs;
-		*dst-- = &PL_sv_undef;
+		*dst-- = UNDEF;
 	    }
 	    FREETMPS;
 	}
@@ -1657,7 +1657,7 @@ S_pop_eval_context_maybe_croak(pTHX_ PERL_CONTEXT *cx, SV *errsv, int action)
             errsv = namesv;
         }
         else {
-            (void)hv_store(inc_hv, key, klen, &PL_sv_undef, 0);
+            (void)hv_store(inc_hv, key, klen, UNDEF, 0);
             fmt = "%"SVf"Compilation failed in require";
             if (!errsv)
                 errsv = newSVpvs_flags("Unknown error\n", SVs_TEMP);
@@ -1750,7 +1750,7 @@ Perl_die_unwind(pTHX_ SV *msv)
             oldsp = PL_stack_base + cx->blk_oldsp;
             gimme = cx->blk_gimme;
 	    if (gimme == G_SCALAR)
-		*++oldsp = &PL_sv_undef;
+		*++oldsp = UNDEF;
 	    PL_stack_sp = oldsp;
 
 	    restartjmpenv = cx->blk_eval.cur_top_env;
@@ -1883,7 +1883,7 @@ PP(pp_caller)
     if (gimme != G_ARRAY) {
         EXTEND(SP, 1);
 	if (!stash_hek)
-	    PUSHs(&PL_sv_undef);
+	    PUSHs(UNDEF);
 	else {
 	    dTARGET;
 	    sv_sethek(TARG, stash_hek);
@@ -1895,7 +1895,7 @@ PP(pp_caller)
     EXTEND(SP, 11);
 
     if (!stash_hek)
-	PUSHs(&PL_sv_undef);
+	PUSHs(UNDEF);
     else {
 	dTARGET;
 	sv_sethek(TARG, stash_hek);
@@ -1926,7 +1926,7 @@ PP(pp_caller)
     }
     gimme = cx->blk_gimme;
     if (gimme == G_VOID)
-	PUSHs(&PL_sv_undef);
+	PUSHs(UNDEF);
     else
 	PUSHs(boolSV((gimme & G_WANT) == G_ARRAY));
     if (CxTYPE(cx) == CXt_EVAL) {
@@ -1942,22 +1942,22 @@ PP(pp_caller)
                 PUSHs(sv_2mortal(newSVsv(cur_text)));
             }
 
-	    PUSHs(&PL_sv_no);
+	    PUSHs(SV_NO);
 	}
 	/* require */
 	else if (cx->blk_eval.old_namesv) {
 	    mPUSHs(newSVsv(cx->blk_eval.old_namesv));
-	    PUSHs(&PL_sv_yes);
+	    PUSHs(SV_YES);
 	}
 	/* eval BLOCK (try blocks have old_namesv == 0) */
 	else {
-	    PUSHs(&PL_sv_undef);
-	    PUSHs(&PL_sv_undef);
+	    PUSHs(UNDEF);
+	    PUSHs(UNDEF);
 	}
     }
     else {
-	PUSHs(&PL_sv_undef);
-	PUSHs(&PL_sv_undef);
+	PUSHs(UNDEF);
+	PUSHs(UNDEF);
     }
     if (CxTYPE(cx) == CXt_SUB && CxHASARGS(cx) && !CvHASSIG(cx->blk_sub.cv)
 	&& CopSTASH_eq(PL_curcop, PL_debstash))
@@ -1983,7 +1983,7 @@ PP(pp_caller)
 	if  (old_warnings == pWARN_NONE)
             mask = newSVpvn(WARN_NONEstring, WARNsize) ;
 	else if (old_warnings == pWARN_STD && (PL_dowarn & G_WARN_ON) == 0)
-            mask = &PL_sv_undef ;
+            mask = UNDEF ;
         else if (old_warnings == pWARN_ALL ||
 		  (old_warnings == pWARN_STD && PL_dowarn & G_WARN_ON)) {
 	    /* Get the bit mask for $warnings::Bits{all}, because
@@ -2004,7 +2004,7 @@ PP(pp_caller)
 
     PUSHs(CopHINTHASH_get(cx->blk_oldcop) ?
 	  sv_2mortal(newRV_noinc(MUTABLE_SV(cop_hints_2hv(cx->blk_oldcop, 0))))
-	  : &PL_sv_undef);
+	  : UNDEF);
     RETURN;
 }
 
@@ -2018,7 +2018,7 @@ PP(pp_reset)
     else
 	tmps = SvPVx_const(POPs, len);
     sv_resetpvn(tmps, len, CopSTASH(PL_curcop));
-    PUSHs(&PL_sv_yes);
+    PUSHs(SV_YES);
     RETURN;
 }
 
@@ -2255,7 +2255,7 @@ PP(pp_enteriter)
 		   to replace !SvOK() with a pointer to "".  */
 		if (!SvOK(right)) {
 		    SvREFCNT_dec(right);
-		    cx->blk_loop.state_u.lazysv.end = &PL_sv_no;
+		    cx->blk_loop.state_u.lazysv.end = SV_NO;
 		}
             }
 	}
@@ -2354,7 +2354,7 @@ PP(pp_leavesublv)
     if (CxMULTICALL(cx)) {
         /* entry zero of a stack is always PL_sv_undef, which
          * simplifies converting a '()' return into undef in scalar context */
-        assert(PL_stack_sp > PL_stack_base || *PL_stack_base == &PL_sv_undef);
+        assert(PL_stack_sp > PL_stack_base || *PL_stack_base == UNDEF);
 	return 0;
     }
 
@@ -2375,7 +2375,7 @@ PP(pp_leavesublv)
                     SV *sv = *PL_stack_sp;
                     if ((SvPADTMP(sv) || SvREADONLY(sv))) {
                         what =
-                            SvREADONLY(sv) ? (sv == &PL_sv_undef) ? "undef"
+                            SvREADONLY(sv) ? (sv == UNDEF) ? "undef"
                             : "a readonly value" : "a temporary";
                     }
                     else goto ok;
@@ -2417,7 +2417,7 @@ PP(pp_leavesublv)
                      *    sub foo :lvalue { undef }
                      *    ($a, undef, foo(), $b) = 1..4;
                      */
-                    if (sv != &PL_sv_undef && (SvPADTMP(sv) || SvREADONLY(sv)))
+                    if (sv != UNDEF && (SvPADTMP(sv) || SvREADONLY(sv)))
                     {
                         /* Might be flattened array after $#array =  */
                         what = SvREADONLY(sv)
@@ -2515,7 +2515,7 @@ PP(pp_return)
          * top stack element). But for an  empty arg list, e.g.
          *    for (1,2) { return }
          * we need to set sp = oldsp so that pp_leavesub knows to push
-         * &PL_sv_undef onto the stack.
+         * UNDEF onto the stack.
          */
         SV **oldsp;
         cx = &cxstack[cxix];
@@ -3281,7 +3281,7 @@ PP(pp_exit)
     }
     PL_exit_flags |= PERL_EXIT_EXPECTED;
     my_exit(anum);
-    PUSHs(&PL_sv_undef);
+    PUSHs(UNDEF);
     RETURN;
 }
 
@@ -3640,7 +3640,7 @@ S_doeval_compile(pTHX_ U8 gimme, CV* outside, U32 seq, HV *hh)
         if (!*(SvPV_nolen_const(errsv)))
             sv_setpvs(errsv, "Compilation error");
 
-	if (gimme != G_ARRAY) PUSHs(&PL_sv_undef);
+	if (gimme != G_ARRAY) PUSHs(UNDEF);
 	PUTBACK;
 	return FALSE;
     }
@@ -3995,7 +3995,7 @@ S_require_file(pTHX_ SV *const sv)
 	SV * const * const svp = hv_fetch(GvHVn(PL_incgv),
 					  unixname, unixlen, 0);
 	if ( svp ) {
-	    if (*svp != &PL_sv_undef)
+	    if (*svp != UNDEF)
 		RETPUSHYES;
 	    else
 		DIE(aTHX_ "Attempt to reload %s aborted.\n"
@@ -4804,7 +4804,7 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	    d = sv_mortalcopy(d);
     }
     else
-	d = &PL_sv_undef;
+	d = UNDEF;
 
     assert(e);
     if (SvGMAGICAL(e))
@@ -4925,7 +4925,7 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	    c = call_sv(e, G_SCALAR);
 	    SPAGAIN;
 	    if (c == 0)
-		PUSHs(&PL_sv_no);
+		PUSHs(SV_NO);
 	    else if (SvTEMP(TOPs))
 		SvREFCNT_inc_void(TOPs);
 	    FREETMPS;
@@ -5106,10 +5106,10 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 		    else {
 			(void)hv_store_ent(seen_this,
 				sv_2mortal(newSViv(PTR2IV(*this_elem))),
-				&PL_sv_undef, 0);
+				UNDEF, 0);
 			(void)hv_store_ent(seen_other,
 				sv_2mortal(newSViv(PTR2IV(*other_elem))),
-				&PL_sv_undef, 0);
+				UNDEF, 0);
 			PUSHs(*other_elem);
 			PUSHs(*this_elem);
 
@@ -5210,7 +5210,7 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	    PUTBACK;
 	    result = matcher_matches_sv(matcher, d);
             SPAGAIN;
-	    PUSHs(result ? &PL_sv_yes : &PL_sv_no);
+	    PUSHs(result ? SV_YES : SV_NO);
 	    destroy_matcher(matcher);
 	    RETURN;
 	}

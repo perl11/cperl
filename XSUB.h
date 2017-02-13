@@ -158,7 +158,7 @@ is a lexical C<$_> in scope.
 /* These 3 macros are replacements for dXSARGS macro only in bootstrap.
    They factor out common code in every BOOT XSUB. Computation of vars mark
    and items will optimize away in most BOOT functions. Var ax can never be
-   optimized away since BOOT must return &PL_sv_yes by default from xsubpp.
+   optimized away since BOOT must return SV_YES by default from xsubpp.
    Note these macros are not drop in replacements for dXSARGS since they set
    PL_xsubfilename. */
 #define dXSBOOTARGSXSAPIVERCHK  \
@@ -218,11 +218,11 @@ Place a copy of a string into the specified position C<pos> on the stack.
 The value is stored in a new mortal SV.
 
 =for apidoc Am|void|XST_mNO|int pos
-Place C<&PL_sv_no> into the specified position C<pos> on the
+Place C<SV_NO> into the specified position C<pos> on the
 stack.
 
 =for apidoc Am|void|XST_mYES|int pos
-Place C<&PL_sv_yes> into the specified position C<pos> on the
+Place C<SV_YES> into the specified position C<pos> on the
 stack.
 
 =for apidoc Am|void|XST_mUNDEF|int pos
@@ -246,10 +246,10 @@ Return a double from an XSUB immediately.  Uses C<XST_mNV>.
 Return a copy of a string from an XSUB immediately.  Uses C<XST_mPV>.
 
 =for apidoc Ams||XSRETURN_NO
-Return C<&PL_sv_no> from an XSUB immediately.  Uses C<XST_mNO>.
+Return C<SV_NO> from an XSUB immediately.  Uses C<XST_mNO>.
 
 =for apidoc Ams||XSRETURN_YES
-Return C<&PL_sv_yes> from an XSUB immediately.  Uses C<XST_mYES>.
+Return C<SV_YES> from an XSUB immediately.  Uses C<XST_mYES>.
 
 =for apidoc Ams||XSRETURN_UNDEF
 Return C<&PL_sv_undef> from an XSUB immediately.  Uses C<XST_mUNDEF>.

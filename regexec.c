@@ -170,7 +170,7 @@ static const char* const non_utf8_target_but_utf8_required
 #define LOAD_UTF8_CHARCLASS(swash_ptr, property_name, invlist) STMT_START {   \
         if (!swash_ptr) {                                                     \
             U8 flags = _CORE_SWASH_INIT_ACCEPT_INVLIST;                       \
-            swash_ptr = _core_swash_init("utf8", property_name, &PL_sv_undef, \
+            swash_ptr = _core_swash_init("utf8", property_name, UNDEF, \
                                          1, 0, invlist, &flags);              \
             assert(swash_ptr);                                                \
         }                                                                     \
@@ -198,7 +198,7 @@ static const char* const non_utf8_target_but_utf8_required
                                         PL_XPosix_ptrs[_CC_WORDCHAR],         \
                                         LATIN_SMALL_LIGATURE_LONG_S_T_UTF8);
 
-#define PLACEHOLDER	/* Something for the preprocessor to grab onto */
+#define RXPLACEHOLDER	/* Something for the preprocessor to grab onto */
 /* TODO: Combine JUMPABLE and HAS_TEXT to cache OP(rn) */
 
 /* for use after a quantifier and before an EXACT-like node -- japhy */
@@ -523,7 +523,7 @@ S_isFOO_utf8_lc(pTHX_ const U8 classnum, const U8* character)
             PL_utf8_swash_ptrs[classnum] =
                     _core_swash_init("utf8",
                                      "",
-                                     &PL_sv_undef, 1, 0,
+                                     UNDEF, 1, 0,
                                      PL_XPosix_ptrs[classnum], &flags);
         }
 
@@ -1734,30 +1734,30 @@ REXEC_FBC_SCAN( /* Loops while (s < strend) */                 \
 /* The only difference between the BOUND and NBOUND cases is that
  * REXEC_FBC_TRYIT is called when matched in BOUND, and when non-matched in
  * NBOUND.  This is accomplished by passing it as either the if or else clause,
- * with the other one being empty (PLACEHOLDER is defined as empty).
+ * with the other one being empty (RXPLACEHOLDER is defined as empty).
  *
  * The TEST_FOO parameters are for operating on different forms of input, but
  * all should be ones that return identically for the same underlying code
  * points */
 #define FBC_BOUND(TEST_NON_UTF8, TEST_UV, TEST_UTF8)                           \
     FBC_BOUND_COMMON(                                                          \
-          FBC_UTF8(TEST_UV, TEST_UTF8, REXEC_FBC_TRYIT, PLACEHOLDER),          \
-          TEST_NON_UTF8, REXEC_FBC_TRYIT, PLACEHOLDER)
+          FBC_UTF8(TEST_UV, TEST_UTF8, REXEC_FBC_TRYIT, RXPLACEHOLDER),          \
+          TEST_NON_UTF8, REXEC_FBC_TRYIT, RXPLACEHOLDER)
 
 #define FBC_BOUND_A(TEST_NON_UTF8)                                             \
     FBC_BOUND_COMMON(                                                          \
-            FBC_UTF8_A(TEST_NON_UTF8, REXEC_FBC_TRYIT, PLACEHOLDER),           \
-            TEST_NON_UTF8, REXEC_FBC_TRYIT, PLACEHOLDER)
+            FBC_UTF8_A(TEST_NON_UTF8, REXEC_FBC_TRYIT, RXPLACEHOLDER),           \
+            TEST_NON_UTF8, REXEC_FBC_TRYIT, RXPLACEHOLDER)
 
 #define FBC_NBOUND(TEST_NON_UTF8, TEST_UV, TEST_UTF8)                          \
     FBC_BOUND_COMMON(                                                          \
-          FBC_UTF8(TEST_UV, TEST_UTF8, PLACEHOLDER, REXEC_FBC_TRYIT),          \
-          TEST_NON_UTF8, PLACEHOLDER, REXEC_FBC_TRYIT)
+          FBC_UTF8(TEST_UV, TEST_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT),          \
+          TEST_NON_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT)
 
 #define FBC_NBOUND_A(TEST_NON_UTF8)                                            \
     FBC_BOUND_COMMON(                                                          \
-            FBC_UTF8_A(TEST_NON_UTF8, PLACEHOLDER, REXEC_FBC_TRYIT),           \
-            TEST_NON_UTF8, PLACEHOLDER, REXEC_FBC_TRYIT)
+            FBC_UTF8_A(TEST_NON_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT),           \
+            TEST_NON_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT)
 
 #ifdef DEBUGGING
 static IV
@@ -2485,7 +2485,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
             PL_utf8_swash_ptrs[classnum] =
                     _core_swash_init("utf8",
                                      "",
-                                     &PL_sv_undef, 1, 0,
+                                     UNDEF, 1, 0,
                                      PL_XPosix_ptrs[classnum], &flags);
         }
 
@@ -6496,7 +6496,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
                         PL_utf8_swash_ptrs[classnum]
                                 = _core_swash_init("utf8",
                                         "",
-                                        &PL_sv_undef, 1, 0,
+                                        UNDEF, 1, 0,
                                         PL_XPosix_ptrs[classnum], &flags);
                     }
                     if (! (to_complement
@@ -6930,7 +6930,7 @@ S_regmatch(pTHX_ regmatch_info *reginfo, char *startpos, regnode *prog)
 		CALLRUNOPS(aTHX);			/* Scalar context. */
 		SPAGAIN;
 		if ((IV)(SP-PL_stack_base) == before)
-		    ret = &PL_sv_undef;   /* protect against empty (?{}) blocks. */
+		    ret = UNDEF;   /* protect against empty (?{}) blocks. */
 		else {
 		    ret = POPs;
 		    PUTBACK;
@@ -8637,13 +8637,13 @@ NULL
         SV *sv_err = get_svs("REGERROR", 1);
         SV *sv_mrk = get_svs("REGMARK", 1);
         if (result) {
-            sv_commit = &PL_sv_no;
+            sv_commit = SV_NO;
             if (!sv_yes_mark) 
-                sv_yes_mark = &PL_sv_yes;
+                sv_yes_mark = SV_YES;
         } else {
             if (!sv_commit) 
-                sv_commit = &PL_sv_yes;
-            sv_yes_mark = &PL_sv_no;
+                sv_commit = SV_YES;
+            sv_yes_mark = SV_NO;
         }
         assert(sv_err);
         assert(sv_mrk);
@@ -9122,7 +9122,7 @@ S_regrepeat(pTHX_ regexp *prog, char **startposp, const regnode *p,
             PL_utf8_swash_ptrs[classnum] = _core_swash_init(
                                         "utf8",
                                         "",
-                                        &PL_sv_undef, 1, 0,
+                                        UNDEF, 1, 0,
                                         PL_XPosix_ptrs[classnum], &flags);
         }
 
@@ -9556,7 +9556,7 @@ S_setup_eval_state(pTHX_ regmatch_info *const reginfo)
         Newxz(PL_reg_curpm, 1, PMOP);
 #ifdef USE_ITHREADS
         {
-            SV* const repointer = &PL_sv_undef;
+            SV* const repointer = UNDEF;
             /* this regexp is also owned by the new PL_reg_curpm, which
                will try to free it.  */
             av_push(PL_regex_padav, repointer);

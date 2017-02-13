@@ -290,7 +290,7 @@ struct pmop {
 /* The assignment is just to enforce type safety (or at least get a warning).
  */
 /* With first class regexps not via a reference one needs to assign
-   &PL_sv_undef under ithreads. (This would probably work unthreaded, but NULL
+   UNDEF under ithreads. (This would probably work unthreaded, but NULL
    is cheaper. I guess we could allow NULL, but the check above would get
    more complex, and we'd have an AV with (SV*)NULL in it, which feels bad */
 /* BEWARE - something that calls this macro passes (r) which has a side

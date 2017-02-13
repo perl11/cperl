@@ -261,10 +261,10 @@ Perl_mg_set(pTHX_ SV *sv)
 
     if (PL_localizing == 2 && sv == DEFSV) return 0;
     /* add no magic on special sentinels */
-    if (   sv == &PL_sv_undef
-        || sv == &PL_sv_placeholder
-        || sv == &PL_sv_yes
-        || sv == &PL_sv_no)
+    if (   sv == UNDEF
+        || sv == PLACEHOLDER
+        || sv == SV_YES
+        || sv == SV_NO)
         return 0;
 
     save_magic_flags(mgs_ix, sv, SVs_GMG|SVs_SMG); /* leave SVs_RMG on */
@@ -815,7 +815,7 @@ Perl__get_encoding(pTHX)
 
     is_encoding = cop_hints_fetch_pvs(PL_curcop, "encoding", 0);
     if (   is_encoding
-        && is_encoding != &PL_sv_placeholder
+        && is_encoding != PLACEHOLDER
         && SvIOK(is_encoding)
         && SvIV(is_encoding))  /* non-zero mean valid */
     {
@@ -1845,7 +1845,7 @@ Perl_magic_methcall(pTHX_ SV *sv, const MAGIC *mg, SV *meth, U32 flags,
     PUSHs(SvTIED_obj(sv, mg));
     if (flags & G_UNDEF_FILL) {
 	while (argc--) {
-	    PUSHs(&PL_sv_undef);
+	    PUSHs(UNDEF);
 	}
     } else if (argc > 0) {
 	va_list args;
@@ -2026,18 +2026,18 @@ Perl_magic_scalarpack(pTHX_ HV *hv, MAGIC *mg)
         SV *key;
         if (HvEITER_get(hv))
             /* we are in an iteration so the hash cannot be empty */
-            return &PL_sv_yes;
+            return SV_YES;
         /* no xhv_eiter so now use FIRSTKEY */
         key = sv_newmortal();
         magic_nextpack(MUTABLE_SV(hv), mg, key);
         HvEITER_set(hv, NULL);     /* need to reset iterator */
-        return SvOK(key) ? &PL_sv_yes : &PL_sv_no;
+        return SvOK(key) ? SV_YES : SV_NO;
     }
    
     /* there is a SCALAR method that we can call */
     retval = Perl_magic_methcall(aTHX_ MUTABLE_SV(hv), mg, SV_CONST(SCALAR), 0, 0);
     if (!retval)
-	retval = &PL_sv_undef;
+	retval = UNDEF;
     return retval;
 }
 
@@ -2377,7 +2377,7 @@ Perl_defelem_target(pTHX_ SV *sv, MAGIC *mg)
 		targ = AvARRAY(av)[LvSTARGOFF(sv)];
 	    }
 	}
-	if (targ && (targ != &PL_sv_undef)) {
+	if (targ && (targ != UNDEF)) {
 	    /* somebody else defined it for us */
 	    SvREFCNT_dec(LvTARG(sv));
 	    LvTARG(sv) = SvREFCNT_inc_simple_NN(targ);
@@ -2430,7 +2430,7 @@ Perl_vivify_defelem(pTHX_ SV *sv)
 	HE * const he = hv_fetch_ent(MUTABLE_HV(ahv), mg->mg_obj, TRUE, 0);
         if (he)
             value = HeVAL(he);
-	if (!value || value == &PL_sv_undef)
+	if (!value || value == UNDEF)
 	    Perl_croak(aTHX_ PL_no_helem_sv, SVfARG(mg->mg_obj));
     }
     else if (LvSTARGOFF(sv) < 0)
@@ -2974,7 +2974,7 @@ Perl_magic_set(pTHX_ SV *sv, MAGIC *mg)
                 if (reftype[0] == 'S' || reftype[0] == 'L') {
                     IV val= SvIV(referent);
                     if (val <= 0) {
-                        tmpsv= &PL_sv_undef;
+                        tmpsv= UNDEF;
                         Perl_ck_warner_d(aTHX_ packWARN(WARN_DEPRECATED),
                             "Setting $/ to a reference to %s as a form of slurp is deprecated, treating as undef",
                             SvIV(SvRV(sv)) < 0 ? "a negative integer" : "zero"
@@ -3593,7 +3593,7 @@ Perl_magic_copycallchecker(pTHX_ SV *sv, MAGIC *mg, SV *nsv,
     PERL_UNUSED_ARG(name);
     PERL_UNUSED_ARG(namlen);
 
-    sv_magic(nsv, &PL_sv_undef, mg->mg_type, NULL, 0);
+    sv_magic(nsv, UNDEF, mg->mg_type, NULL, 0);
     nmg = mg_find(nsv, mg->mg_type);
     assert(nmg);
     if (nmg->mg_flags & MGf_REFCOUNTED) SvREFCNT_dec(nmg->mg_obj);

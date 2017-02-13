@@ -1526,7 +1526,7 @@ Perl_mess_sv(pTHX_ SV *basemsg, bool consume)
 				   *SvPV_const(PL_rs,l) == '\n' && l == 1);
 	    Perl_sv_catpvf(aTHX_ sv, ", <%" SVf "> %s %" IVdf,
 			   SVfARG(PL_last_in_gv == PL_argvgv
-                                 ? &PL_sv_no
+                                 ? SV_NO
                                  : sv_2mortal(newSVhek(GvNAME_HEK(PL_last_in_gv)))),
 			   line_mode ? "line" : "chunk",
 			   (IV)IoLINES(GvIOp(PL_last_in_gv)));
@@ -3245,7 +3245,7 @@ Perl_wait4pid(pTHX_ Pid_t pid, int *statusp, int flags)
 	    /* The keys in PL_pidstatus are now the raw 4 (or 8) bytes of the
 	       pid, rather than a string form.  */
 	    SV * const * const svp = hv_fetch(PL_pidstatus,(const char*) &pid,sizeof(Pid_t),FALSE);
-	    if (svp && *svp != &PL_sv_undef) {
+	    if (svp && *svp != UNDEF) {
 		*statusp = SvIVX(*svp);
 		(void)hv_delete(PL_pidstatus,(const char*) &pid,sizeof(Pid_t),
 				G_DISCARD);
@@ -3971,13 +3971,13 @@ Perl_report_evil_fh(pTHX_ const GV *gv)
 	Perl_warner(aTHX_ packWARN(warn_type),
 		   "%s%s on %s %s%s%" SVf, func, pars, vile, type,
 		    have_name ? " " : "",
-		    SVfARG(have_name ? name : &PL_sv_no));
+		    SVfARG(have_name ? name : SV_NO));
 	if (io && IoDIRP(io) && !(IoFLAGS(io) & IOf_FAKE_DIRP))
 		Perl_warner(
 			    aTHX_ packWARN(warn_type),
 			"\t(Are you trying to call %s%s on dirhandle%s%" SVf "?)\n",
 			func, pars, have_name ? " " : "",
-			SVfARG(have_name ? name : &PL_sv_no)
+			SVfARG(have_name ? name : SV_NO)
 			    );
     }
 }

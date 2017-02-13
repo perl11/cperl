@@ -2473,7 +2473,7 @@ S_is_utf8_common(pTHX_ const U8 *const p, SV **swash,
                                    * list; otherwise will go out to disk */
                                   (invlist) ? "" : swashname,
 
-                                  &PL_sv_undef, 1, 0, invlist, &flags);
+                                  UNDEF, 1, 0, invlist, &flags);
     }
 
     return swash_fetch(*swash, p, TRUE) != 0;
@@ -2507,7 +2507,7 @@ S_is_utf8_common_with_len(pTHX_ const U8 *const p, const U8 * const e, SV **swas
                                    * list; otherwise will go out to disk */
                                   (invlist) ? "" : swashname,
 
-                                  &PL_sv_undef, 1, 0, invlist, &flags);
+                                  UNDEF, 1, 0, invlist, &flags);
     }
 
     return swash_fetch(*swash, p, TRUE) != 0;
@@ -2532,7 +2532,7 @@ S_warn_on_first_deprecated_use(pTHX_ const char * const name,
                 PL_seen_deprecated_macro = newHV();
             }
             if (! hv_store(PL_seen_deprecated_macro, key,
-                           strlen(key), &PL_sv_undef, 0))
+                           strlen(key), UNDEF, 0))
             {
 		Perl_croak(aTHX_ "panic: hv_store() unexpectedly failed");
             }
@@ -2915,7 +2915,7 @@ S__to_utf8_case(pTHX_ const UV uv1, const U8 *p, U8* ustrp, STRLEN *lenp,
     }
 
     if (!*swashp) /* load on-demand */
-         *swashp = _core_swash_init("utf8", normal, &PL_sv_undef, 4, 0, NULL, NULL);
+         *swashp = _core_swash_init("utf8", normal, UNDEF, 4, 0, NULL, NULL);
 
     if (special) {
          /* It might be "special" (sometimes, but not always,
@@ -3565,13 +3565,13 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
      * will be the union of the specified ones, although <listsv>'s various
      * actions can intersect, etc. what <name> gives.  To avoid going out to
      * disk at all, <invlist> should specify completely what the swash should
-     * have, and <listsv> should be &PL_sv_undef and <name> should be "".
+     * have, and <listsv> should be UNDEF and <name> should be "".
      *
      * <invlist> is only valid for binary properties */
 
     PMOP *old_PL_curpm= PL_curpm; /* save away the old PL_curpm */
 
-    SV* retval = &PL_sv_undef;
+    SV* retval = UNDEF;
     HV* swash_hv = NULL;
     const int invlist_swash_boundary =
         (flags_p && *flags_p & _CORE_SWASH_INIT_ACCEPT_INVLIST)
@@ -3579,7 +3579,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
                     message */
         : -1;   /* Never return just an inversion list */
 
-    assert(listsv != &PL_sv_undef || *name || invlist);
+    assert(listsv != UNDEF || *name || invlist);
     assert(! invlist || minbits == 1);
 
     PL_curpm= NULL; /* reset PL_curpm so that we dont get confused between the regex
@@ -3588,7 +3588,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
 
     /* If data was passed in to go out to utf8_heavy to find the swash of, do
      * so */
-    if (listsv != &PL_sv_undef || *name) {
+    if (listsv != UNDEF || *name) {
 	dSP;
 	const size_t pkg_len = strlen(pkg);
 	const size_t name_len = strlen(name);
@@ -3685,7 +3685,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
     } /* End of calling the module to find the swash */
 
     /* If this operation fetched a swash, and we will need it later, get it */
-    if (retval != &PL_sv_undef
+    if (retval != UNDEF
         && (minbits == 1 || (flags_p
                             && ! (*flags_p
                                   & _CORE_SWASH_INIT_USER_DEFINED_PROPERTY))))
@@ -5924,7 +5924,7 @@ S_utf8_add_script(pTHX_ const char* script) {
         allowed = GvHV(gv);
 
     /* Add as yes, not 1 to seperate it from explicitly declared Scripts */
-    (void)hv_store(allowed, script, strlen(script), SvREFCNT_inc_simple_NN(&PL_sv_yes), 0);
+    (void)hv_store(allowed, script, strlen(script), SvREFCNT_inc_simple_NN(SV_YES), 0);
 }
 
 

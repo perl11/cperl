@@ -58,7 +58,7 @@ Perl_av_reify(pTHX_ AV *av)
 	AvARRAY(av)[--key] = NULL;
     while (key) {
 	SV * const sv = AvARRAY(av)[--key];
-	if (sv != &PL_sv_undef)
+	if (sv != UNDEF)
 	    SvREFCNT_inc_simple_void(sv);
     }
     key = AvARRAY(av) - AvALLOC(av);
@@ -493,7 +493,7 @@ Perl_av_make(pTHX_ SSize_t size, SV **strp)
         if (LIKELY(PL_tmps_ix == orig_ix))
             PL_tmps_ix--;
         else
-            PL_tmps_stack[orig_ix] = &PL_sv_undef;
+            PL_tmps_stack[orig_ix] = UNDEF;
     }
     return av;
 }
@@ -548,7 +548,7 @@ Perl_av_init_shaped(pTHX_ AV* av, const SSize_t size, const HV *type)
         else if (memEQs(name, l, "Str"))
             def = newSVpvs("");
         else if (memEQs(name, l, "Scalar"))
-            def = NULL; /* not &PL_sv_undef, it's r-o */
+            def = NULL; /* not UNDEF, it's r-o */
         else if (memEQs(name, l, "int")
               || memEQs(name, l, "uint")
               || memEQs(name, l, "str"))
@@ -667,7 +667,7 @@ Perl_av_clear(pTHX_ AV *av)
         if (LIKELY(PL_tmps_ix == orig_ix))
             PL_tmps_ix--;
         else
-            PL_tmps_stack[orig_ix] = &PL_sv_undef;
+            PL_tmps_stack[orig_ix] = UNDEF;
         SvREFCNT_dec_NN(av);
     }
 }
@@ -729,7 +729,7 @@ Perl_av_undef(pTHX_ AV *av)
         else {
             /* known gcc bug, since 4.7 */
             GCC47_DIAG_IGNORE(-Wmaybe-uninitialized)
-            PL_tmps_stack[orig_ix] = &PL_sv_undef;
+            PL_tmps_stack[orig_ix] = UNDEF;
             GCC47_DIAG_RESTORE
         }
         SvREFCNT_dec_NN(av);
@@ -793,7 +793,7 @@ Perl_av_push(pTHX_ AV *av, SV *val)
 
 Removes one SV from the end of the array, reducing its size by one and
 returning the SV (transferring control of one reference count) to the
-caller.  Returns C<&PL_sv_undef> if the array is empty.
+caller.  Returns C<UNDEF> if the array is empty.
 
 Perl equivalent: C<pop(@myarray);>
 
@@ -820,12 +820,12 @@ Perl_av_pop(pTHX_ AV *av)
 	return retval;
     }
     if (AvFILL(av) < 0)
-	return &PL_sv_undef;
+	return UNDEF;
     retval = AvARRAY(av)[AvFILLp(av)];
     AvARRAY(av)[AvFILLp(av)--] = NULL;
     if (UNLIKELY(SvSMAGICAL(av)))
 	mg_set(MUTABLE_SV(av));
-    return retval ? retval : &PL_sv_undef;
+    return retval ? retval : UNDEF;
 }
 
 /*
@@ -920,7 +920,7 @@ Perl_av_unshift(pTHX_ AV *av, SSize_t num)
 
 Removes one SV from the start of the array, reducing its size by one and
 returning the SV (transferring control of one reference count) to the
-caller.  Returns C<&PL_sv_undef> if the array is empty.
+caller.  Returns C<UNDEF> if the array is empty.
 
 Perl equivalent: C<shift(@myarray);>
 
@@ -947,7 +947,7 @@ Perl_av_shift(pTHX_ AV *av)
 	return retval;
     }
     if (AvFILL(av) < 0)
-      return &PL_sv_undef;
+      return UNDEF;
     retval = *AvARRAY(av);
     if (AvREAL(av))
 	*AvARRAY(av) = NULL;
@@ -956,7 +956,7 @@ Perl_av_shift(pTHX_ AV *av)
     AvFILLp(av)--;
     if (UNLIKELY(SvSMAGICAL(av)))
 	mg_set(MUTABLE_SV(av));
-    return retval ? retval : &PL_sv_undef;
+    return retval ? retval : UNDEF;
 }
 
 /*

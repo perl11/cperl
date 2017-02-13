@@ -1568,6 +1568,13 @@ F<t/uni/overload.t>: Skip hanging test on FreeBSD.
 
 =item *
 
+New public SV_YES and SV_NO macros were added, representing &PL_sv_yes
+and &PL_sv_no, plus new macros for CORE only: UNDEF and
+PLACEHOLDER. They cannot be used in headers, as they are used with
+extensions also.
+
+=item *
+
 Two internal debugging helpers C<av_dump> and C<hv_dump> had been added,
 to print all array elements and hash keys (and optional values).
 

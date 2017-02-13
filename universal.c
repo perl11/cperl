@@ -381,7 +381,7 @@ XS(XS_UNIVERSAL_can)
     if (!SvOK(sv) || (SvPOK(sv) && !SvCUR(sv)))
 	XSRETURN_UNDEF;
 
-    rv = &PL_sv_undef;
+    rv = UNDEF;
 
     if (SvROK(sv)) {
         sv = MUTABLE_SV(SvRV(sv));
@@ -578,10 +578,10 @@ XS(XS_Internals_SvREADONLY)	/* This is dangerous stuff. */
 #ifdef USE_CPERL
             /*static GV* S_main_stash = gv_fetchpvs("main::", GV_NOTQUAL, SVt_PVHV); */
             /* fail on some protected values: yes, no, undef, ... */
-            if (   sv == &PL_sv_placeholder
-                || sv == &PL_sv_undef
-                || sv == &PL_sv_yes
-                || sv == &PL_sv_no
+            if (   sv == PLACEHOLDER
+                || sv == UNDEF
+                || sv == SV_YES
+                || sv == SV_NO
               /*|| sv == (SV*)S_main_stash*/
                 || sv == (SV*)&PL_defstash) /* only %main:: or also *main:: ? */
                 croak_no_modify();
@@ -788,16 +788,16 @@ XS(XS_PerlIO_get_layers)
 			 and "steal" it when we free the AV below.  */
 		       PUSHs(namok
 			      ? sv_2mortal(SvREFCNT_inc_simple_NN(*namsvp))
-			      : &PL_sv_undef);
+			      : UNDEF);
 		       PUSHs(argok
 			      ? newSVpvn_flags(SvPVX_const(*argsvp),
 					       SvCUR(*argsvp),
 					       (SvUTF8(*argsvp) ? SVf_UTF8 : 0)
 					       | SVs_TEMP)
-			      : &PL_sv_undef);
+			      : UNDEF);
 		       PUSHs(flgok
 			      ? sv_2mortal(SvREFCNT_inc_simple_NN(*flgsvp))
-			      : &PL_sv_undef);
+			      : UNDEF);
 		       nitem += 3;
 		  }
 		  else {
@@ -808,7 +808,7 @@ XS(XS_PerlIO_get_layers)
 		       else if (namok)
 			    PUSHs(sv_2mortal(SvREFCNT_inc_simple_NN(*namsvp)));
 		       else
-			    PUSHs(&PL_sv_undef);
+			    PUSHs(UNDEF);
 		       nitem++;
 		       if (flgok) {
 			    const IV flags = SvIVX(*flgsvp);
@@ -862,7 +862,7 @@ XS(XS_re_regnames_count)
     ret = CALLREG_NAMED_BUFF_COUNT(rx);
 
     SPAGAIN;
-    PUSHs(ret ? sv_2mortal(ret) : &PL_sv_undef);
+    PUSHs(ret ? sv_2mortal(ret) : UNDEF);
     XSRETURN(1);
 }
 
@@ -893,7 +893,7 @@ XS(XS_re_regname)
     ret = CALLREG_NAMED_BUFF_FETCH(rx, ST(0), (flags | RXapif_REGNAME));
 
     SPAGAIN;
-    PUSHs(ret ? sv_2mortal(ret) : &PL_sv_undef);
+    PUSHs(ret ? sv_2mortal(ret) : UNDEF);
     XSRETURN(1);
 }
 

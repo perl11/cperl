@@ -81,6 +81,9 @@ S_mro_get_linear_isa_c3(pTHX_ HV* stash, U32 level)
         SSize_t items = AvFILLp(isa) + 1;
         SV** isa_ptr = AvARRAY(isa);
         while (items--) {
+            /* Deleted ISA items end up as empty PVMG, never NULL.
+               And their stash will be "main", not empty.
+               But you still can create empty entries with $#ISA++; RT 119433. */
             SV* const isa_item = *isa_ptr ? *isa_ptr : &PL_sv_undef;
             HV* const isa_item_stash = gv_stashsv(isa_item, 0);
             isa_ptr++;

@@ -1825,7 +1825,7 @@ Perl_pad_free(pTHX_ PADOFFSET po)
 
 #ifndef USE_PAD_RESET
     sv = PL_curpad[po];
-    if (sv && sv != &PL_sv_undef && !SvPADMY(sv))
+    if (sv && sv != UNDEF && !SvPADMY(sv))
 	SvFLAGS(sv) &= ~SVs_PADTMP;
 
     if (po < PL_padix)

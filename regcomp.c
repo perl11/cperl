@@ -1412,17 +1412,17 @@ S_get_ANYOF_cp_list_for_ssc(pTHX_ const RExC_state_t *pRExC_state,
         SV **const ary = AvARRAY(av);
         assert(RExC_rxi->data->what[n] == 's');
 
-        if (ary[1] && ary[1] != &PL_sv_undef) { /* Has compile-time swash */
+        if (ary[1] && ary[1] != UNDEF) { /* Has compile-time swash */
             invlist = sv_2mortal(invlist_clone(_get_swash_invlist(ary[1])));
         }
-        else if (ary[0] && ary[0] != &PL_sv_undef) {
+        else if (ary[0] && ary[0] != UNDEF) {
 
             /* Here, no compile-time swash, and there are things that won't be
              * known until runtime -- we have to assume it could be anything */
             invlist = sv_2mortal(_new_invlist(1));
             return _add_range_to_invlist(invlist, 0, UV_MAX);
         }
-        else if (ary[3] && ary[3] != &PL_sv_undef) {
+        else if (ary[3] && ary[3] != UNDEF) {
 
             /* Here no compile-time swash, and no run-time only data.  Use the
              * node's inversion list */
@@ -1431,7 +1431,7 @@ S_get_ANYOF_cp_list_for_ssc(pTHX_ const RExC_state_t *pRExC_state,
 
         /* Get the code points valid only under UTF-8 locales */
         if ((ANYOF_FLAGS(node) & ANYOFL_FOLD)
-            && ary[2] && ary[2] != &PL_sv_undef)
+            && ary[2] && ary[2] != UNDEF)
         {
             only_utf8_locale_invlist = ary[2];
         }
@@ -6224,7 +6224,7 @@ S_concat_pat(pTHX_ RExC_state_t * const pRExC_state,
         STRLEN orig_patlen = 0;
         bool code = 0;
         SV *msv = use_delim ? delim : *svp;
-        if (!msv) msv = &PL_sv_undef;
+        if (!msv) msv = UNDEF;
 
         /* if we've got a delimiter, we go round the loop twice for each
          * svp slot (except the last), using the delimiter the second
@@ -6259,7 +6259,7 @@ S_concat_pat(pTHX_ RExC_state_t * const pRExC_state,
                 SAVEFREEPV(array);
                 for (i=0; i < maxarg; i++) {
                     SV ** const svp = av_fetch(av, i, FALSE);
-                    array[i] = svp ? *svp : &PL_sv_undef;
+                    array[i] = svp ? *svp : UNDEF;
                 }
             }
             else
@@ -7841,8 +7841,8 @@ Perl_reg_named_buff(pTHX_ REGEXP * const rx, SV * const key, SV * const value,
         return NULL;
     } else if (flags & RXapif_EXISTS) {
         return reg_named_buff_exists(rx, key, flags)
-            ? &PL_sv_yes
-            : &PL_sv_no;
+            ? SV_YES
+            : SV_NO;
     } else if (flags & RXapif_REGNAMES) {
         return reg_named_buff_all(rx, flags);
     } else if (flags & (RXapif_SCALAR | RXapif_REGNAMES_COUNT)) {
@@ -7901,7 +7901,7 @@ Perl_reg_named_buff_fetch(pTHX_ REGEXP * const r, SV * const namesv,
                         return ret;
                 } else {
                     if (retarray)
-                        ret = newSVsv(&PL_sv_undef);
+                        ret = newSVsv(UNDEF);
                 }
                 if (retarray)
                     av_push(retarray, ret);
@@ -8012,7 +8012,7 @@ Perl_reg_named_buff_scalar(pTHX_ REGEXP * const r, const U32 flags)
             return NULL;
         }
     }
-    return &PL_sv_undef;
+    return UNDEF;
 }
 
 SV*
@@ -15713,7 +15713,7 @@ S_output_or_return_posix_warnings(pTHX_ RExC_state_t *pRExC_state, AV* posix_war
 
     PERL_ARGS_ASSERT_OUTPUT_OR_RETURN_POSIX_WARNINGS;
 
-    while ((msg = av_shift(posix_warnings)) != &PL_sv_undef) {
+    while ((msg = av_shift(posix_warnings)) != UNDEF) {
         if (return_posix_warnings) {
             if (! *return_posix_warnings) { /* mortalize to not leak if
                                                warnings are fatal */
@@ -15969,7 +15969,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
 
     if (SIZE_ONLY) {
 	RExC_size += ANYOF_SKIP;
-	listsv = &PL_sv_undef; /* For code scanners: listsv always non-NULL. */
+	listsv = UNDEF; /* For code scanners: listsv always non-NULL. */
     }
     else {
         ANYOF_FLAGS(ret) = 0;
@@ -16300,7 +16300,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                                              (lookup_name)
                                               ? lookup_name
                                               : name,
-                                             &PL_sv_undef,
+                                             UNDEF,
                                              1, /* binary */
                                              0, /* not tr/// */
                                              NULL, /* No inversion list */
@@ -17075,7 +17075,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
                 this_array_ptr = (AV**) av_fetch(multi_char_matches,
                                                  cp_count, FALSE);
                 while ((this_sequence = av_pop(*this_array_ptr)) !=
-                                                                &PL_sv_undef)
+                                                                UNDEF)
                 {
                     if (! first_time) {
                         sv_catpv(substitute_parse, "|");
@@ -18025,16 +18025,16 @@ S_set_ANYOF_arg(pTHX_ RExC_state_t* const pRExC_state,
      *  av[0] stores the character class description in its textual form.
      *        This is used later (regexec.c:Perl_regclass_swash()) to
      *        initialize the appropriate swash, and is also useful for dumping
-     *        the regnode.  This is set to &PL_sv_undef if the textual
+     *        the regnode.  This is set to UNDEF if the textual
      *        description is not needed at run-time (as happens if the other
      *        elements completely define the class)
-     *  av[1] if &PL_sv_undef, is a placeholder to later contain the swash
+     *  av[1] if UNDEF, is a placeholder to later contain the swash
      *        computed from av[0].  But if no further computation need be done,
-     *        the swash is stored here now (and av[0] is &PL_sv_undef).
+     *        the swash is stored here now (and av[0] is UNDEF).
      *  av[2] stores the inversion list of code points that match only if the
      *        current locale is UTF-8
      *  av[3] stores the cp_list inversion list for use in addition or instead
-     *        of av[0]; used only if cp_list exists and av[1] is &PL_sv_undef.
+     *        of av[0]; used only if cp_list exists and av[1] is UNDEF.
      *        (Otherwise everything needed is already in av[0] and av[1])
      *  av[4] is set if any component of the class is from a user-defined
      *        property; used only if av[3] exists */
@@ -18053,14 +18053,14 @@ S_set_ANYOF_arg(pTHX_ RExC_state_t* const pRExC_state,
 	SV *rv;
 
 	av_store(av, 0, (runtime_defns)
-			? SvREFCNT_inc(runtime_defns) : &PL_sv_undef);
+			? SvREFCNT_inc(runtime_defns) : UNDEF);
 	if (swash) {
 	    assert(cp_list);
 	    av_store(av, 1, swash);
 	    SvREFCNT_dec_NN(cp_list);
 	}
 	else {
-	    av_store(av, 1, &PL_sv_undef);
+	    av_store(av, 1, UNDEF);
 	    if (cp_list) {
 		av_store(av, 3, cp_list);
 		av_store(av, 4, newSVuv(has_user_defined_property));
@@ -18071,7 +18071,7 @@ S_set_ANYOF_arg(pTHX_ RExC_state_t* const pRExC_state,
 	    av_store(av, 2, only_utf8_locale_list);
         }
         else {
-	    av_store(av, 2, &PL_sv_undef);
+	    av_store(av, 2, UNDEF);
         }
 
 	rv = newRV_noinc(MUTABLE_SV(av));
@@ -18141,7 +18141,7 @@ Perl__get_regclass_nonbitmap_data(pTHX_ const regexp *prog,
             if (av_tindex_nomg(av) >= 2) {
                 if (only_utf8_locale_ptr
                     && ary[2]
-                    && ary[2] != &PL_sv_undef)
+                    && ary[2] != UNDEF)
                 {
                     *only_utf8_locale_ptr = ary[2];
                 }
@@ -18170,8 +18170,8 @@ Perl__get_regclass_nonbitmap_data(pTHX_ const regexp *prog,
 	    if (ary[1] && SvROK(ary[1])) {
 		sw = ary[1];
 	    }
-	    else if (doinit && ((si && si != &PL_sv_undef)
-                                 || (invlist && invlist != &PL_sv_undef))) {
+	    else if (doinit && ((si && si != UNDEF)
+                                 || (invlist && invlist != UNDEF))) {
 		assert(si);
 		sw = _core_swash_init("utf8", /* the utf8 package */
 				      "", /* nameless */
@@ -18195,7 +18195,7 @@ Perl__get_regclass_nonbitmap_data(pTHX_ const regexp *prog,
          * return the currently best available information, which is the string
          * that will eventually be used to do that resolving, 'si' */
 	if ((! sw || (invlist = _get_swash_invlist(sw)) == NULL)
-            && (si && si != &PL_sv_undef))
+            && (si && si != UNDEF))
         {
             /* Here, we only have 'si' (and possibly some passed-in data in
              * 'invlist', which is handled below)  If the caller only wants

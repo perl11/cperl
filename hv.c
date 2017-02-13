@@ -665,7 +665,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		if (masked_flags & HVhek_MASK)
 		    HvHASKFLAGS_on(hv);
 	    }
-	    if (HeVAL(entry) == &PL_sv_placeholder) {
+	    if (HeVAL(entry) == PLACEHOLDER) {
 		/* yes, can store into placeholder slot */
 		if (action & HV_FETCH_LVALUE) {
 		    if (SvMAGICAL(hv)) {
@@ -685,7 +685,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		    HvPLACEHOLDERS(hv)--;
 		} else {
 		    /* store */
-		    if (val != &PL_sv_placeholder)
+		    if (val != PLACEHOLDER)
 			HvPLACEHOLDERS(hv)--;
 		}
 		HeVAL(entry) = val;
@@ -693,7 +693,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 		SvREFCNT_dec(HeVAL(entry));
 		HeVAL(entry) = val;
 	    }
-	} else if (HeVAL(entry) == &PL_sv_placeholder) {
+	} else if (HeVAL(entry) == PLACEHOLDER) {
 	    /* A deleted slot. If we find a placeholder, we pretend we
                haven't found anything */
 	    break;
@@ -913,7 +913,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     }
 #endif
 
-    if (val == &PL_sv_placeholder)
+    if (val == PLACEHOLDER)
 	HvPLACEHOLDERS(hv)++;
     if (masked_flags & HVhek_MASK)
 	HvHASKFLAGS_on(hv);
@@ -1450,7 +1450,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	}
 
 	/* if placeholder is here, it's already been deleted.... */
-	if (HeVAL(entry) == &PL_sv_placeholder) {
+	if (HeVAL(entry) == PLACEHOLDER) {
 	    if (k_flags & HVhek_FREEKEY)
 		Safefree(key);
             DEBUG_H(PerlIO_printf(Perl_debug_log, "HASH %6u\t%6u\t%d DELpl\n",
@@ -1559,7 +1559,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	}
 
 	sv = d_flags & G_DISCARD ? HeVAL(entry) : sv_2mortal(HeVAL(entry));
-	HeVAL(entry) = &PL_sv_placeholder;
+	HeVAL(entry) = PLACEHOLDER;
 	if (sv) {
 	    /* deletion of method from stash */
 	    if (isGV(sv) && isGV_with_GP(sv) && GvCVu(sv) && HvENAME_get(hv))
@@ -2040,7 +2040,7 @@ Perl_hv_clear(pTHX_ HV *hv)
 	    HE *entry = (HvARRAY(hv))[i];
 	    for (; entry; entry = HeNEXT(entry)) {
 		/* not already placeholder */
-		if (HeVAL(entry) != &PL_sv_placeholder) {
+		if (HeVAL(entry) != PLACEHOLDER) {
 		    if (HeVAL(entry)) {
 			if (SvREADONLY(HeVAL(entry))) {
 			    SV* const keysv = hv_iterkeysv(entry);
@@ -2050,7 +2050,7 @@ Perl_hv_clear(pTHX_ HV *hv)
 			}
 			SvREFCNT_dec_NN(HeVAL(entry));
 		    }
-		    HeVAL(entry) = &PL_sv_placeholder;
+		    HeVAL(entry) = PLACEHOLDER;
 		    HvPLACEHOLDERS(hv)++;
 		}
 	    }
@@ -2074,7 +2074,7 @@ Perl_hv_clear(pTHX_ HV *hv)
     if (LIKELY(PL_tmps_ix == orig_ix))
         PL_tmps_ix--;
     else
-        PL_tmps_stack[orig_ix] = &PL_sv_undef;
+        PL_tmps_stack[orig_ix] = UNDEF;
     SvREFCNT_dec_NN(hv);
 }
 
@@ -2083,7 +2083,7 @@ Perl_hv_clear(pTHX_ HV *hv)
 
 Clears any placeholders from a hash.  If a restricted hash has any of its keys
 marked as readonly and the key is subsequently deleted, the key is not actually
-deleted but is marked by assigning it a value of C<&PL_sv_placeholder>.  This tags
+deleted but is marked by assigning it a value of C<PLACEHOLDER>.  This tags
 it so it will be ignored by future operations such as iterating over the hash,
 but will still allow the hash to have a value reassigned to the key at some
 future point.  This function clears any such placeholder keys from the hash.
@@ -2121,7 +2121,7 @@ S_clear_placeholders(pTHX_ HV *hv, U32 items)
 	HE *entry;
 
 	while ((entry = *oentry)) {
-	    if (HeVAL(entry) == &PL_sv_placeholder) {
+	    if (HeVAL(entry) == PLACEHOLDER) {
 		*oentry = HeNEXT(entry);
 		if (entry == HvEITER_get(hv))
 		    HvLAZYDEL_on(hv);
@@ -2373,7 +2373,7 @@ Perl_hv_undef_flags(pTHX_ HV *hv, U32 flags)
         if (LIKELY(PL_tmps_ix == orig_ix))
             PL_tmps_ix--;
         else
-            PL_tmps_stack[orig_ix] = &PL_sv_undef;
+            PL_tmps_stack[orig_ix] = UNDEF;
         SvREFCNT_dec_NN(hv);
     }
 }
@@ -2938,7 +2938,7 @@ The C<flags> value will normally be zero; if C<HV_ITERNEXT_WANTPLACEHOLDERS> is
 set the placeholders keys (for restricted hashes) will be returned in addition
 to normal keys.  By default placeholders are automatically skipped over.
 Currently a placeholder is implemented with a value that is
-C<&PL_sv_placeholder>.  Note that the implementation of placeholders and
+C<PLACEHOLDER>.  Note that the implementation of placeholders and
 restricted hashes may change, and the implementation currently is
 insufficiently abstracted for any change to be tidy.
 
@@ -3031,7 +3031,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
              * Skip past any placeholders -- don't want to include them in
              * any iteration.
              */
-            while (entry && HeVAL(entry) == &PL_sv_placeholder) {
+            while (entry && HeVAL(entry) == PLACEHOLDER) {
                 entry = HeNEXT(entry);
             }
 	}
@@ -3072,7 +3072,7 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
 	    if (!(flags & HV_ITERNEXT_WANTPLACEHOLDERS)) {
 		/* If we have an entry, but it's a placeholder, don't count it.
 		   Try the next.  */
-		while (entry && HeVAL(entry) == &PL_sv_placeholder)
+		while (entry && HeVAL(entry) == PLACEHOLDER)
 		    entry = HeNEXT(entry);
 	    }
 	    /* Will loop again if this linked list starts NULL
@@ -3548,7 +3548,7 @@ S_refcounted_he_value(pTHX_ const struct refcounted_he *he)
 	value = newSV(0);
 	break;
     case HVrhek_delete:
-	value = &PL_sv_placeholder;
+	value = PLACEHOLDER;
 	break;
     case HVrhek_IV:
 	value = newSViv(he->refcounted_he_val.refcounted_he_u_iv);
@@ -3659,7 +3659,7 @@ Perl_refcounted_he_chain_2hv(pTHX_ const struct refcounted_he *chain, U32 flags)
 	HeKEY_hek(entry) = share_hek_hek(chain->refcounted_he_hek);
 #endif
 	value = refcounted_he_value(chain);
-	if (value == &PL_sv_placeholder)
+	if (value == PLACEHOLDER)
 	    placeholders++;
 	HeVAL(entry) = value;
 
@@ -3695,7 +3695,7 @@ by C<keypv> and C<keylen>.  If C<flags> has the C<REFCOUNTED_HE_KEY_UTF8>
 bit set, the key octets are interpreted as UTF-8, otherwise they
 are interpreted as Latin-1.  C<hash> is a precomputed hash of the key
 string, or zero if it has not been precomputed.  Returns a mortal scalar
-representing the value associated with the key, or C<&PL_sv_placeholder>
+representing the value associated with the key, or C<PLACEHOLDER>
 if there is no value associated with the key.
 
 =cut
@@ -3770,12 +3770,12 @@ Perl_refcounted_he_fetch_pvn(pTHX_ const struct refcounted_he *chain,
 	    if (flags & REFCOUNTED_HE_EXISTS)
 		return (chain->refcounted_he_data[0] & HVrhek_typemask)
 		    == HVrhek_delete
-		    ? NULL : &PL_sv_yes;
+		    ? NULL : SV_YES;
 	    return sv_2mortal(refcounted_he_value(chain));
 	}
     }
   ret:
-    return flags & REFCOUNTED_HE_EXISTS ? NULL : &PL_sv_placeholder;
+    return flags & REFCOUNTED_HE_EXISTS ? NULL : PLACEHOLDER;
 }
 
 /*
@@ -3842,7 +3842,7 @@ by this function, which thus does not take ownership of any reference
 to it, and later changes to the scalar will not be reflected in the
 value visible in the C<refcounted_he>.  Complex types of scalar will not
 be stored with referential integrity, but will be coerced to strings.
-C<value> may be either null or C<&PL_sv_placeholder> to indicate that no
+C<value> may be either null or C<PLACEHOLDER> to indicate that no
 value is to be associated with the key; this, as with any non-null value,
 takes precedence over the existence of a value for the key further along
 the chain.
@@ -3869,7 +3869,7 @@ Perl_refcounted_he_new_pvn(pTHX_ struct refcounted_he *parent,
     struct refcounted_he *he;
     PERL_ARGS_ASSERT_REFCOUNTED_HE_NEW_PVN;
 
-    if (!value || value == &PL_sv_placeholder) {
+    if (!value || value == PLACEHOLDER) {
 	value_type = HVrhek_delete;
     } else if (SvPOK(value)) {
 	value_type = HVrhek_PV;
@@ -4177,7 +4177,7 @@ Perl_hv_assert(pTHX_ HV *hv)
     while ((entry = hv_iternext_flags(hv, HV_ITERNEXT_WANTPLACEHOLDERS))) {
         const HEK* hek = HeKEY_hek(entry);
 	/* sanity check the values */
-	if (HeVAL(entry) == &PL_sv_placeholder)
+	if (HeVAL(entry) == PLACEHOLDER)
 	    placeholders++;
 	else
 	    real++;

@@ -2016,7 +2016,7 @@ nothing in the core.
             * library figure out what to do.  This usually means
             * "current time". */
 
-           if ( accessed == &PL_sv_undef && modified == &PL_sv_undef )
+           if ( accessed == UNDEF && modified == UNDEF )
                 utbufp = NULL;
            else {
                 Zero(&utbuf, sizeof utbuf, char);

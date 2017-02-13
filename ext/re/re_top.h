@@ -7,6 +7,11 @@
 #  define DEBUGGING
 #endif
 
+#define UNDEF  (0 + &PL_sv_undef)
+#define SV_YES (0 + &PL_sv_yes)
+#define SV_NO  (0 + &PL_sv_no)
+#define PLACEHOLDER  (0 + &PL_sv_placeholder)
+
 /* We *really* need to overwrite these symbols: */
 #define Perl_regexec_flags      my_regexec
 #define Perl_regdump            my_regdump

@@ -2770,7 +2770,7 @@ S_get_and_check_backslash_N_name(pTHX_ const char* s, const char* const e)
                 U8 flags = _CORE_SWASH_INIT_ACCEPT_INVLIST;
                 PL_utf8_charname_begin = _core_swash_init("utf8",
                                                         "_Perl_Charname_Begin",
-                                                        &PL_sv_undef,
+                                                        UNDEF,
                                                         1, 0, NULL, &flags);
             }
             if (! swash_fetch(PL_utf8_charname_begin, (U8 *) s, TRUE)) {
@@ -2801,7 +2801,7 @@ S_get_and_check_backslash_N_name(pTHX_ const char* s, const char* const e)
                     U8 flags = _CORE_SWASH_INIT_ACCEPT_INVLIST;
                     PL_utf8_charname_continue = _core_swash_init("utf8",
                                                 "_Perl_Charname_Continue",
-                                                &PL_sv_undef,
+                                                UNDEF,
                                                 1, 0, NULL, &flags);
                 }
                 if (! swash_fetch(PL_utf8_charname_continue, (U8 *) s, TRUE)) {
@@ -4548,7 +4548,7 @@ Perl_filter_read(pTHX_ int idx, SV *buf_sv, int maxlen)
 	return SvCUR(buf_sv);
     }
     /* Skip this filter slot if filter has been deleted	*/
-    if ( (datasv = FILTER_DATA(idx)) == &PL_sv_undef) {
+    if ( (datasv = FILTER_DATA(idx)) == UNDEF) {
 	DEBUG_P(PerlIO_printf(Perl_debug_log,
 			      "filter_read %d: skipped (filter deleted)\n",
 			      idx));
@@ -7792,7 +7792,7 @@ Perl_yylex(pTHX)
                    newSVOP(OP_CONST, 0,
                            (PL_curstash
                             ? newSVhek(HvNAME_HEK(PL_curstash))
-                            : &PL_sv_undef))
+                            : UNDEF))
 	    );
 
 	case KEY___DATA__:
@@ -9352,7 +9352,7 @@ S_new_constant(pTHX_ const char *s, STRLEN len, const char *key, STRLEN keylen,
     if (PL_error_count > 0 && *key == 'c')
     {
 	SvREFCNT_dec_NN(sv);
-	return &PL_sv_undef;
+	return UNDEF;
     }
 
     sv_2mortal(sv);			/* Parent created it permanently */
@@ -9419,7 +9419,7 @@ S_new_constant(pTHX_ const char *s, STRLEN len, const char *key, STRLEN keylen,
     if (type && pv)
   	typesv = newSVpvn_flags(type, typelen, SVs_TEMP);
     else
-  	typesv = &PL_sv_undef;
+  	typesv = UNDEF;
 
     PUSHSTACKi(PERLSI_OVERLOAD);
     ENTER ;

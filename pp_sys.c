@@ -319,7 +319,7 @@ PP(pp_backtick)
 	else if (gimme == G_SCALAR) {
 	    ENTER_with_name("backtick");
 	    SAVESPTR(PL_rs);
-	    PL_rs = &PL_sv_undef;
+	    PL_rs = UNDEF;
             SvPVCLEAR(TARG);        /* note that this preserves previous buffer */
 	    while (sv_gets(TARG, fp, SvCUR(TARG)) != NULL)
 		NOOP;
@@ -425,12 +425,12 @@ PP(pp_warn)
     STRLEN len;
     if (SP - MARK > 1) {
 	dTARGET;
-	do_join(TARG, &PL_sv_no, MARK, SP);
+	do_join(TARG, SV_NO, MARK, SP);
 	exsv = TARG;
 	SP = MARK + 1;
     }
     else if (SP == MARK) {
-	exsv = &PL_sv_no;
+	exsv = SV_NO;
 	EXTEND(SP, 1);
 	SP = MARK + 1;
     }
@@ -478,7 +478,7 @@ PP(pp_die)
 #endif
     if (SP - MARK != 1) {
 	dTARGET;
-	do_join(TARG, &PL_sv_no, MARK, SP);
+	do_join(TARG, SV_NO, MARK, SP);
 	exsv = TARG;
 	SP = MARK + 1;
     }
@@ -805,7 +805,7 @@ PP(pp_umask)
      * since 'group' and 'other' concepts probably don't exist here. */
     if (MAXARG >= 1 && (TOPs||POPs) && (POPi & 0700))
 	DIE(aTHX_ "umask not implemented");
-    XPUSHs(&PL_sv_undef);
+    XPUSHs(UNDEF);
 #endif
     RETURN;
 }
@@ -947,7 +947,7 @@ PP(pp_tie)
 	 */
        stash = gv_stashsv(*MARK, 0);
        if (!stash) {
-           SV *stashname = SvOK(*MARK) ? *MARK : &PL_sv_no;
+           SV *stashname = SvOK(*MARK) ? *MARK : SV_NO;
            if (!SvCUR(*MARK)) {
                stashname = sv_2mortal(newSVpvs("main"));
            }
@@ -1054,7 +1054,7 @@ PP(pp_tied)
 	return NORMAL; /* PUTBACK not needed, pp_tied never moves SP */
     }
     ret_undef:
-    SETs(&PL_sv_undef);
+    SETs(UNDEF);
     return NORMAL;
 }
 
@@ -1087,7 +1087,7 @@ PP(pp_dbmopen)
     else
     {
 	mPUSHu(O_RDWR);
-	if (!SvOK(right)) right = &PL_sv_no;
+	if (!SvOK(right)) right = SV_NO;
     }
     PUSHs(right);
     PUTBACK;
@@ -1543,27 +1543,27 @@ PP(pp_leavewrite)
          * Currently we ignore any args to 'return' and just return
          * a single undef in both scalar and list contexts
          */
-	PUSHs(&PL_sv_undef);
+	PUSHs(UNDEF);
     else if (!io || !(fp = IoOFP(io))) {
 	if (io && IoIFP(io))
 	    report_wrongway_fh(gv, '<');
 	else
 	    report_evil_fh(gv);
-	PUSHs(&PL_sv_no);
+	PUSHs(SV_NO);
     }
     else {
 	if ((IoLINES_LEFT(io) -= FmLINES(PL_formtarget)) < 0) {
 	    Perl_ck_warner(aTHX_ packWARN(WARN_IO), "page overflow");
 	}
 	if (!do_print(PL_formtarget, fp))
-	    PUSHs(&PL_sv_no);
+	    PUSHs(SV_NO);
 	else {
 	    FmLINES(PL_formtarget) = 0;
 	    SvCUR_set(PL_formtarget, 0);
 	    *SvEND(PL_formtarget) = '\0';
 	    if (IoFLAGS(io) & IOf_FLUSH)
 		(void)PerlIO_flush(fp);
-	    PUSHs(&PL_sv_yes);
+	    PUSHs(SV_YES);
 	}
     }
     PL_formtarget = PL_bodytarget;
@@ -1580,7 +1580,7 @@ PP(pp_prtf)
     IO *const io = GvIO(gv);
 
     /* Treat empty list as "" */
-    if (MARK == SP) XPUSHs(&PL_sv_no);
+    if (MARK == SP) XPUSHs(SV_NO);
 
     if (io) {
 	const MAGIC * const mg = SvTIED_mg((const SV *)io, PERL_MAGIC_tiedscalar);
@@ -1622,12 +1622,12 @@ PP(pp_prtf)
 		goto just_say_no;
     }
     SP = ORIGMARK;
-    PUSHs(&PL_sv_yes);
+    PUSHs(SV_YES);
     RETURN;
 
   just_say_no:
     SP = ORIGMARK;
-    PUSHs(&PL_sv_undef);
+    PUSHs(UNDEF);
     RETURN;
 }
 
@@ -1644,10 +1644,10 @@ PP(pp_sysopen)
     const char * const tmps = SvPV_const(sv, len);
     if (do_open_raw(gv, tmps, len, mode, perm)) {
 	IoLINES(GvIOp(gv)) = 0;
-	PUSHs(&PL_sv_yes);
+	PUSHs(SV_YES);
     }
     else {
-	PUSHs(&PL_sv_undef);
+	PUSHs(UNDEF);
     }
     RETURN;
 }
@@ -2256,7 +2256,7 @@ PP(pp_sysseek)
     else {
 	const Off_t sought = do_sysseek(gv, offset, whence);
         if (sought < 0)
-            PUSHs(&PL_sv_undef);
+            PUSHs(UNDEF);
         else {
             SV* const sv = sought ?
 #if LSEEKSIZE > IVSIZE
@@ -2786,7 +2786,7 @@ PP(pp_ssockopt)
 	    }
 	    if (PerlSock_setsockopt(fd, lvl, optname, buf, len) < 0)
 		goto nuts2;
-	    PUSHs(&PL_sv_yes);
+	    PUSHs(SV_YES);
 	}
 	break;
     }
@@ -2888,7 +2888,7 @@ PP(pp_stat)
 				gv ? " " : "",
 				SVfARG(gv
                                         ? sv_2mortal(newSVhek(GvENAME_HEK(gv)))
-                                        : &PL_sv_no));
+                                        : SV_NO));
 	    } else if (PL_laststype != OP_LSTAT)
 		/* diag_listed_as: The stat preceding %s wasn't an lstat */
 		Perl_croak(aTHX_ "The stat preceding lstat() wasn't an lstat");
@@ -3056,9 +3056,9 @@ S_ft_return_true(pTHX_ SV *ret) {
     return NORMAL;
 }
 
-#define FT_RETURNNO	return S_ft_return_false(aTHX_ &PL_sv_no)
-#define FT_RETURNUNDEF	return S_ft_return_false(aTHX_ &PL_sv_undef)
-#define FT_RETURNYES	return S_ft_return_true(aTHX_ &PL_sv_yes)
+#define FT_RETURNNO	return S_ft_return_false(aTHX_ SV_NO)
+#define FT_RETURNUNDEF	return S_ft_return_false(aTHX_ UNDEF)
+#define FT_RETURNYES	return S_ft_return_true(aTHX_ SV_YES)
 
 #define tryAMAGICftest_MG(chr) STMT_START { \
 	if ( (SvFLAGS(*PL_stack_sp) & (SVf_ROK|SVs_GMG)) \
@@ -4950,7 +4950,7 @@ S_space_join_names_mortal(pTHX_ char *const *array)
 	    sv_catpvs(target, " ");
 	}
     } else {
-	target = sv_mortalcopy(&PL_sv_no);
+	target = sv_mortalcopy(SV_NO);
     }
     return target;
 }
@@ -5040,7 +5040,7 @@ PP(pp_ghostent)
 	if (hent->h_addr)
 	    mPUSHp(hent->h_addr, len);
 	else
-	    PUSHs(&PL_sv_no);
+	    PUSHs(SV_NO);
 #endif /* h_addr */
     }
     RETURN;
@@ -5540,7 +5540,7 @@ PP(pp_gpwent)
 	mPUSHs(newSVpv(pwent->pw_age, 0));
 #	    else
 	/* I think that you can never get this compiled, but just in case.  */
-	PUSHs(&PL_sv_no);
+	PUSHs(SV_NO);
 #           endif
 #       endif
 #   endif
@@ -5554,14 +5554,14 @@ PP(pp_gpwent)
 	mPUSHs(newSVpv(pwent->pw_comment, 0));
 #	else
 	/* I think that you can never get this compiled, but just in case.  */
-	PUSHs(&PL_sv_no);
+	PUSHs(SV_NO);
 #       endif
 #   endif
 
 #   ifdef PWGECOS
 	PUSHs(sv = sv_2mortal(newSVpv(pwent->pw_gecos, 0)));
 #   else
-	PUSHs(sv = sv_mortalcopy(&PL_sv_no));
+	PUSHs(sv = sv_mortalcopy(SV_NO));
 #   endif
 	/* pw_gecos is tainted because user himself can diddle with it. */
 	SvTAINTED_on(sv);
@@ -5633,7 +5633,7 @@ PP(pp_ggrent)
 #ifdef GRPASSWD
 	mPUSHs(newSVpv(grent->gr_passwd, 0));
 #else
-	PUSHs(&PL_sv_no);
+	PUSHs(SV_NO);
 #endif
 
         sv_setgid(PUSHmortal, grent->gr_gid);
@@ -5702,7 +5702,7 @@ PP(pp_syscall)
     while (++MARK <= SP) {
 	if (SvNIOK(*MARK) || !i)
 	    a[i++] = SvIV(*MARK);
-	else if (*MARK == &PL_sv_undef)
+	else if (*MARK == UNDEF)
 	    a[i++] = 0;
 	else
 	    a[i++] = (unsigned long)SvPV_force_nolen(*MARK);

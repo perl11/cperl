@@ -1311,7 +1311,7 @@ Perl_op_clear(pTHX_ OP *o)
 	if(PL_regex_pad) {        /* We could be in destruction */
 	    const IV offset = (cPMOPo)->op_pmoffset;
 	    ReREFCNT_dec(PM_GETRE(cPMOPo));
-	    PL_regex_pad[offset] = &PL_sv_undef;
+	    PL_regex_pad[offset] = UNDEF;
             sv_catpvn_nomg(PL_regex_pad[0], (const char *)&offset,
 			   sizeof(offset));
         }
@@ -4383,7 +4383,7 @@ S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp)
     /* Ensure that attributes.pm is loaded. */
     /* Don't force the C<use> if we don't need it. */
     svp = hv_fetchs(GvHVn(PL_incgv), ATTRSMODULE_PM, FALSE);
-    if (svp && *svp != &PL_sv_undef)
+    if (svp && *svp != UNDEF)
 	NOOP;	/* already in %INC */
     else
 	Perl_load_module(aTHX_ PERL_LOADMOD_NOIMPORT,
@@ -4616,7 +4616,7 @@ S_my_kid(pTHX_ OP *o, OP *attrs, OP **imopsp)
 	} else if (attrs) {
 	    GV * const gv = cGVOPx_gv(OpFIRST(o));
             HV *stash = GvSTASH(gv);
-            if (!stash) stash = (HV*)&PL_sv_no;
+            if (!stash) stash = (HV*)SV_NO;
 	    assert(PL_parser);
 	    PL_parser->in_my = FALSE;
 	    PL_parser->in_my_stash = NULL;
@@ -6500,9 +6500,9 @@ Perl_newPMOP(pTHX_ I32 type, I32 flags)
 
 	pmop->op_pmoffset = offset;
 	/* This slot should be free, so assert this:  */
-	assert(PL_regex_pad[offset] == &PL_sv_undef);
+	assert(PL_regex_pad[offset] == UNDEF);
     } else {
-	SV * const repointer = &PL_sv_undef;
+	SV * const repointer = UNDEF;
 	av_push(PL_regex_padav, repointer);
 	pmop->op_pmoffset = av_tindex(PL_regex_padav);
 	PL_regex_pad = AvARRAY(PL_regex_padav);
@@ -6582,7 +6582,7 @@ Perl_pmruntime(pTHX_ OP *o, OP *expr, OP *repl, UV flags, I32 floor)
 		       the op we were expecting to see, to avoid crashing
 		       elsewhere.  */
 		    op_sibling_splice(expr, o, 0,
-				      newSVOP(OP_CONST, 0, &PL_sv_no));
+				      newSVOP(OP_CONST, 0, SV_NO));
 		}
 		o->op_next = OpSIBLING(o);
 	    }
@@ -7703,7 +7703,7 @@ Perl_newSTATEOP(pTHX_ I32 flags, char *label, OP *o)
 	AV *av = CopFILEAVx(PL_curcop);
 	if (av) {
 	    SV * const * const svp = av_fetch(av, CopLINE(cop), FALSE);
-	    if (svp && *svp != &PL_sv_undef ) {
+	    if (svp && *svp != UNDEF ) {
 		(void)SvIOK_on(*svp);
 		SvIV_set(*svp, PTR2IV(cop));
 	    }
@@ -8732,8 +8732,8 @@ S_looks_like_bool(pTHX_ const OP *o)
 	
 	case OP_CONST:
 	    /* Detect comparisons that have been optimized away */
-	    if (cSVOPo->op_sv == &PL_sv_yes
-	    ||  cSVOPo->op_sv == &PL_sv_no)
+	    if (cSVOPo->op_sv == SV_YES
+	    ||  cSVOPo->op_sv == SV_NO)
 	    
 		return TRUE;
 	    else
@@ -8963,7 +8963,7 @@ S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 	}
 	else if (allow_lex && type == OP_PADSV) {
             if (PAD_COMPNAME_FLAGS(o->op_targ) & PADNAMEt_OUTER) {
-                sv = &PL_sv_undef; /* an arbitrary non-null value */
+                sv = UNDEF; /* an arbitrary non-null value */
                 padsv = TRUE;
             }
             else
@@ -14054,7 +14054,7 @@ Perl_ck_entersub_args_core(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 	case 'P': return newSVOP(OP_CONST, 0,
 	                           (PL_curstash
 	                             ? newSVhek(HvNAME_HEK(PL_curstash))
-	                             : &PL_sv_undef
+	                             : UNDEF
 	                           )
 	                        );
 	}
@@ -14234,7 +14234,7 @@ Perl_cv_set_call_checker_flags(pTHX_ CV *cv, Perl_call_checker ckfun,
 	    mg_free_type((SV*)cv, PERL_MAGIC_checkcall);
     } else {
 	MAGIC *callmg;
-	sv_magic((SV*)cv, &PL_sv_undef, PERL_MAGIC_checkcall, NULL, 0);
+	sv_magic((SV*)cv, UNDEF, PERL_MAGIC_checkcall, NULL, 0);
 	callmg = mg_find((SV*)cv, PERL_MAGIC_checkcall);
 	assert(callmg);
 	if (callmg->mg_flags & MGf_REFCOUNTED) {
@@ -17620,7 +17620,7 @@ Perl_rpeep(pTHX_ OP *o)
 	     && (!CvANON(PL_compcv) || (!PL_cv_has_eval && !PL_perldb)))
 	    {
 		SV *sv;
-		if (CvEVAL(PL_compcv)) sv = &PL_sv_undef;
+		if (CvEVAL(PL_compcv)) sv = UNDEF;
 		else {
 		    sv = newRV((SV *)PL_compcv);
 		    sv_rvweaken(sv);

@@ -3498,7 +3498,7 @@ Perl_sv_utf8_upgrade_flags_grow(pTHX_ SV *const sv, const I32 flags, STRLEN extr
 {
     PERL_ARGS_ASSERT_SV_UTF8_UPGRADE_FLAGS_GROW;
 
-    if (sv == &PL_sv_undef)
+    if (sv == UNDEF)
 	return 0;
     if (!SvPOK_nog(sv)) {
 	STRLEN len = 0;
@@ -4307,7 +4307,7 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
 	return;
 
     if (UNLIKELY( !sstr ))
-	sstr = &PL_sv_undef;
+	sstr = UNDEF;
 
     stype = SvTYPE(sstr);
     dtype = SvTYPE(dstr);
@@ -4839,7 +4839,7 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, SV* sstr, const I32 flags)
 /*
 =for apidoc sv_set_undef
 
-Equivalent to C<sv_setsv(sv, &PL_sv_undef)>, but more efficient.
+Equivalent to C<sv_setsv(sv, UNDEF)>, but more efficient.
 Doesn't handle set magic.
 
 The perl equivalent is C<$sv = undef;>. Note that it doesn't free any string
@@ -4864,7 +4864,7 @@ Perl_sv_set_undef(pTHX_ SV *sv)
         if (SvREADONLY(sv)) {
             /* does undeffing PL_sv_undef count as modifying a read-only
              * variable? Some XS code does this */
-            if (sv == &PL_sv_undef)
+            if (sv == UNDEF)
                 return;
             Perl_croak_no_modify();
         }
@@ -11117,7 +11117,7 @@ Perl_sv_vsetpvfn(pTHX_ SV *const sv, const char *const pat, const STRLEN patlen,
 
 /*
  * Warn of missing argument to sprintf. The value used in place of such
- * arguments should be &PL_sv_no; an undefined value would yield
+ * arguments should be SV_NO; an undefined value would yield
  * inappropriate "use of uninit" warnings [perl #71000].
  */
 STATIC void
@@ -11589,7 +11589,7 @@ S_hextract(pTHX_ const NV nv, int* exponent, bool *subnormal,
         if (in_range)                                  \
             (var) = (expr);                            \
         else {                                         \
-            (var) = &PL_sv_no; /* [perl #71000] */     \
+            (var) = SV_NO; /* [perl #71000] */     \
             arg_missing = TRUE;                        \
         }                                              \
     } STMT_END
@@ -12026,7 +12026,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                     else
                         FETCH_VCATPVFN_ARGUMENT(
                             precsv, svix < svmax, svargs[svix++]);
-                    i = precsv == &PL_sv_no ? 0 : SvIVx(precsv);
+                    i = precsv == SV_NO ? 0 : SvIVx(precsv);
                 }
 		precis = i;
 		has_precis = !(i < 0);
@@ -15303,9 +15303,9 @@ perl_clone_using(PerlInterpreter *proto_perl, UV flags,
 
     /* initialize these special pointers as early as possible */
     init_constants();
-    ptr_table_store(PL_ptr_table, &proto_perl->Isv_undef, &PL_sv_undef);
-    ptr_table_store(PL_ptr_table, &proto_perl->Isv_no, &PL_sv_no);
-    ptr_table_store(PL_ptr_table, &proto_perl->Isv_yes, &PL_sv_yes);
+    ptr_table_store(PL_ptr_table, &proto_perl->Isv_undef, UNDEF);
+    ptr_table_store(PL_ptr_table, &proto_perl->Isv_no, SV_NO);
+    ptr_table_store(PL_ptr_table, &proto_perl->Isv_yes, SV_YES);
     ptr_table_store(PL_ptr_table, &proto_perl->Ipadname_const,
 		    &PL_padname_const);
 
@@ -15332,7 +15332,7 @@ perl_clone_using(PerlInterpreter *proto_perl, UV flags,
        count, with the array becoming empty before it is freed. However, it
        makes it conceptually clear what is going on, and will avoid some
        work inside av.c, filling slots between AvFILL() and AvMAX() with
-       &PL_sv_undef, and SvREFCNT_dec()ing those.  */
+       UNDEF, and SvREFCNT_dec()ing those.  */
     AvREAL_off(param->stashes);
 
     if (!(flags & CLONEf_COPY_STACKS)) {
@@ -15728,7 +15728,7 @@ S_unreferenced_to_tmp_stack(pTHX_ AV *const unreferenced)
 	    } else {
 		/* As an optimisation, because we are already walking the
 		   entire array, instead of above doing either
-		   SvREFCNT_inc(*svp) or *svp = &PL_sv_undef, we can instead
+		   SvREFCNT_inc(*svp) or *svp = UNDEF, we can instead
 		   release our reference to the scalar, so that at the end of
 		   the array owns zero references to the scalars it happens to
 		   point to. We are effectively converting the array from
@@ -15808,33 +15808,33 @@ Perl_clone_params_new(PerlInterpreter *const from, PerlInterpreter *const to)
 void
 Perl_init_constants(pTHX)
 {
-    SvREFCNT(&PL_sv_undef)	= SvREFCNT_IMMORTAL;
-    SvFLAGS(&PL_sv_undef)	= SVf_READONLY|SVf_PROTECT|SVt_NULL;
-    SvANY(&PL_sv_undef)		= NULL;
+    SvREFCNT(UNDEF)	= SvREFCNT_IMMORTAL;
+    SvFLAGS(UNDEF)	= SVf_READONLY|SVf_PROTECT|SVt_NULL;
+    SvANY(UNDEF)		= NULL;
 
-    SvANY(&PL_sv_no)		= new_XPVNV();
-    SvREFCNT(&PL_sv_no)		= SvREFCNT_IMMORTAL;
-    SvFLAGS(&PL_sv_no)		= SVt_PVNV|SVf_READONLY|SVf_PROTECT
+    SvANY(SV_NO)		= new_XPVNV();
+    SvREFCNT(SV_NO)		= SvREFCNT_IMMORTAL;
+    SvFLAGS(SV_NO)		= SVt_PVNV|SVf_READONLY|SVf_PROTECT
 				  |SVp_IOK|SVf_IOK|SVp_NOK|SVf_NOK
 				  |SVp_POK|SVf_POK;
 
-    SvANY(&PL_sv_yes)		= new_XPVNV();
-    SvREFCNT(&PL_sv_yes)	= SvREFCNT_IMMORTAL;
-    SvFLAGS(&PL_sv_yes)		= SVt_PVNV|SVf_READONLY|SVf_PROTECT
+    SvANY(SV_YES)		= new_XPVNV();
+    SvREFCNT(SV_YES)	= SvREFCNT_IMMORTAL;
+    SvFLAGS(SV_YES)		= SVt_PVNV|SVf_READONLY|SVf_PROTECT
 				  |SVp_IOK|SVf_IOK|SVp_NOK|SVf_NOK
 				  |SVp_POK|SVf_POK;
 
-    SvPV_set(&PL_sv_no, (char*)PL_No);
-    SvCUR_set(&PL_sv_no, 0);
-    SvLEN_set(&PL_sv_no, 0);
-    SvIV_set(&PL_sv_no, 0);
-    SvNV_set(&PL_sv_no, 0);
+    SvPV_set(SV_NO, (char*)PL_No);
+    SvCUR_set(SV_NO, 0);
+    SvLEN_set(SV_NO, 0);
+    SvIV_set(SV_NO, 0);
+    SvNV_set(SV_NO, 0);
 
-    SvPV_set(&PL_sv_yes, (char*)PL_Yes);
-    SvCUR_set(&PL_sv_yes, 1);
-    SvLEN_set(&PL_sv_yes, 0);
-    SvIV_set(&PL_sv_yes, 1);
-    SvNV_set(&PL_sv_yes, 1);
+    SvPV_set(SV_YES, (char*)PL_Yes);
+    SvCUR_set(SV_YES, 1);
+    SvLEN_set(SV_YES, 0);
+    SvIV_set(SV_YES, 1);
+    SvNV_set(SV_YES, 1);
 
     PadnamePV(&PL_padname_const) = (char *)PL_No;
 }
@@ -15888,7 +15888,7 @@ Perl_sv_recode_to_utf8(pTHX_ SV *sv, SV *encoding)
 
   Both will default the value - let them.
 
-	XPUSHs(&PL_sv_yes);
+	XPUSHs(SV_YES);
 */
 	PUTBACK;
 	call_method("decode", G_SCALAR);
@@ -16003,8 +16003,8 @@ S_find_hash_subscript(pTHX_ const HV *const hv, const SV *const val)
 	for (entry = array[i]; entry; entry = HeNEXT(entry)) {
 	    if (HeVAL(entry) != val)
 		continue;
-	    if (    HeVAL(entry) == &PL_sv_undef ||
-		    HeVAL(entry) == &PL_sv_placeholder)
+	    if (    HeVAL(entry) == UNDEF ||
+		    HeVAL(entry) == PLACEHOLDER)
 		continue;
 	    /*if (!HeKEY(entry))
               return NULL;*/
@@ -16024,11 +16024,11 @@ S_find_array_subscript(pTHX_ const AV *const av, const SV *const val)
 {
     PERL_ARGS_ASSERT_FIND_ARRAY_SUBSCRIPT;
 
-    if (!av || SvMAGICAL(av) || !AvARRAY(av) ||
-			(AvFILLp(av) > FUV_MAX_SEARCH_SIZE))
+    if (!av || SvMAGICAL(av) || !AvARRAY(av)
+        || (AvFILLp(av) > FUV_MAX_SEARCH_SIZE))
 	return -1;
 
-    if (val != &PL_sv_undef) {
+    if (val != UNDEF) {
 	SV ** const svp = AvARRAY(av);
 	SSize_t i;
 
@@ -16144,8 +16144,8 @@ S_find_uninit_var(pTHX_ const OP *const obase, const SV *const uninit_sv,
 
     PERL_ARGS_ASSERT_FIND_UNINIT_VAR;
 
-    if (!obase || (match && (!uninit_sv || uninit_sv == &PL_sv_undef ||
-			    uninit_sv == &PL_sv_placeholder)))
+    if (!obase || (match && (!uninit_sv || uninit_sv == UNDEF ||
+			    uninit_sv == PLACEHOLDER)))
 	return NULL;
 
     switch (obase->op_type) {
@@ -16832,7 +16832,7 @@ Perl_report_uninit(pTHX_ const SV *uninit_sv)
     if (desc)
         /* diag_listed_as: Use of uninitialized value%s */
         Perl_warner(aTHX_ packWARN(WARN_UNINITIALIZED), PL_warn_uninit_sv,
-                SVfARG(varname ? varname : &PL_sv_no),
+                SVfARG(varname ? varname : SV_NO),
                 " in ", desc);
     else
         Perl_warner(aTHX_ packWARN(WARN_UNINITIALIZED), PL_warn_uninit,

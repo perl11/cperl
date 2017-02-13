@@ -491,12 +491,12 @@ Does not use C<TARG>.  See also C<L</XPUSHu>>, C<L</mPUSHu>> and C<L</PUSHu>>.
 #define dPOPTOPiirl_nomg \
     IV right = SvIV_nomg(TOPs); IV left = (sp--, SvIV_nomg(TOPs))
 
-#define RETPUSHYES	RETURNX(PUSHs(&PL_sv_yes))
-#define RETPUSHNO	RETURNX(PUSHs(&PL_sv_no))
+#define RETPUSHYES	RETURNX(PUSHs(SV_YES))
+#define RETPUSHNO	RETURNX(PUSHs(SV_NO))
 #define RETPUSHUNDEF	RETURNX(PUSHs(&PL_sv_undef))
 
-#define RETSETYES	RETURNX(SETs(&PL_sv_yes))
-#define RETSETNO	RETURNX(SETs(&PL_sv_no))
+#define RETSETYES	RETURNX(SETs(SV_YES))
+#define RETSETNO	RETURNX(SETs(SV_NO))
 #define RETSETUNDEF	RETURNX(SETs(&PL_sv_undef))
 #define RETSETTARG	STMT_START { SETTARG; RETURN; } STMT_END
 

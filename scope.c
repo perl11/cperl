@@ -72,7 +72,7 @@ Perl_new_stackinfo(pTHX_ I32 stitems, I32 cxitems)
     si->si_stack = newAV();
     AvREAL_off(si->si_stack);
     av_extend(si->si_stack, stitems > 0 ? stitems-1 : 0);
-    AvALLOC(si->si_stack)[0] = &PL_sv_undef;
+    AvALLOC(si->si_stack)[0] = UNDEF;
     AvFILLp(si->si_stack) = 0;
     si->si_prev = 0;
     si->si_next = 0;
@@ -1393,7 +1393,7 @@ Perl_leave_scope(pTHX_ I32 base)
 		SvREFCNT_dec(a2.any_sv);
 	    if (LIKELY(svp)) {
 		SV * const sv = *svp;
-		if (LIKELY(sv && sv != &PL_sv_undef)) {
+		if (LIKELY(sv && sv != UNDEF)) {
 		    if (UNLIKELY(SvTIED_mg((const SV *)a0.any_av, PERL_MAGIC_tied)))
 			SvREFCNT_inc_void_NN(sv);
                     a1.any_sv  = a2.any_sv;
@@ -1417,7 +1417,7 @@ Perl_leave_scope(pTHX_ I32 base)
 	    SvREFCNT_dec(a1.any_sv);
 	    if (LIKELY(he)) {
 		const SV * const oval = HeVAL(he);
-		if (LIKELY(oval && oval != &PL_sv_undef)) {
+		if (LIKELY(oval && oval != UNDEF)) {
                     SV **svp = &HeVAL(he);
 		    if (UNLIKELY(SvTIED_mg((const SV *)a0.any_hv, PERL_MAGIC_tied)))
 			SvREFCNT_inc_void(*svp);

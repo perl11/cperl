@@ -128,7 +128,7 @@ S_deb_stack_n(pTHX_ SV** stack_base, I32 stack_min, I32 stack_max,
     if (i > stack_min)
 	PerlIO_printf(Perl_debug_log, "... ");
 
-    if (stack_base[0] != &PL_sv_undef || stack_max < 0)
+    if (stack_base[0] != UNDEF || stack_max < 0)
 	PerlIO_printf(Perl_debug_log, " [STACK UNDERFLOW!!!]\n");
     do {
 	++i;

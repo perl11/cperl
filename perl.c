@@ -279,8 +279,8 @@ perl_construct(pTHXx)
 
     init_constants();
 
-    SvREADONLY_on(&PL_sv_placeholder);
-    SvREFCNT(&PL_sv_placeholder) = SvREFCNT_IMMORTAL;
+    SvREADONLY_on(PLACEHOLDER);
+    SvREFCNT(PLACEHOLDER) = SvREFCNT_IMMORTAL;
 
     PL_sighandlerp = (Sighandler_t) Perl_sighandler;
 #ifdef PERL_USES_PL_PIDSTATUS
@@ -965,7 +965,7 @@ perl_destruct(pTHXx)
 
 	for (; i; i--) {
 	    SvREFCNT_dec(ary[i]);
-	    ary[i] = &PL_sv_undef;
+	    ary[i] = UNDEF;
 	}
     }
 #endif
@@ -1300,15 +1300,15 @@ perl_destruct(pTHXx)
 
     /* free special SVs */
 
-    SvREFCNT(&PL_sv_yes) = 0;
-    sv_clear(&PL_sv_yes);
-    SvANY(&PL_sv_yes) = NULL;
-    SvFLAGS(&PL_sv_yes) = 0;
+    SvREFCNT(SV_YES) = 0;
+    sv_clear(SV_YES);
+    SvANY(SV_YES) = NULL;
+    SvFLAGS(SV_YES) = 0;
 
-    SvREFCNT(&PL_sv_no) = 0;
-    sv_clear(&PL_sv_no);
-    SvANY(&PL_sv_no) = NULL;
-    SvFLAGS(&PL_sv_no) = 0;
+    SvREFCNT(SV_NO) = 0;
+    sv_clear(SV_NO);
+    SvANY(SV_NO) = NULL;
+    SvFLAGS(SV_NO) = 0;
 
     {
         int i;
@@ -1389,8 +1389,8 @@ perl_destruct(pTHXx)
        as currently layers use it rather than NULL as a marker
        for no arg - and will try and SvREFCNT_dec it.
      */
-    SvREFCNT(&PL_sv_undef) = 0;
-    SvREADONLY_off(&PL_sv_undef);
+    SvREFCNT(UNDEF) = 0;
+    SvREADONLY_off(UNDEF);
 
     Safefree(PL_origfilename);
     PL_origfilename = NULL;
@@ -3055,7 +3055,7 @@ Perl_call_sv(pTHX_ SV *sv, VOL I32 flags)
 		retval = 0;
 	    else {
 		retval = 1;
-		*++PL_stack_sp = &PL_sv_undef;
+		*++PL_stack_sp = UNDEF;
 	    }
 	    break;
 	}
@@ -3174,7 +3174,7 @@ Perl_eval_sv(pTHX_ SV *sv, I32 flags)
 	    retval = 0;
 	else {
 	    retval = 1;
-	    *++PL_stack_sp = &PL_sv_undef;
+	    *++PL_stack_sp = UNDEF;
 	}
 	break;
     }
@@ -3416,7 +3416,7 @@ Perl_moreswitches(pTHX_ const char *s)
 	      numlen = 4;
 	      rschar = (U32)grok_oct(s, &numlen, &flags, NULL);
 	      if (rschar & ~((U8)~0))
-		   PL_rs = &PL_sv_undef;
+		   PL_rs = UNDEF;
 	      else if (!rschar && numlen >= 2)
 		   PL_rs = newSVpvs("");
 	      else {

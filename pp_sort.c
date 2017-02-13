@@ -1805,7 +1805,7 @@ S_sortcv(pTHX_ SV *const a, SV *const b)
     PL_curcop = cop;
     /* entry zero of a stack is always PL_sv_undef, which
      * simplifies converting a '()' return into undef in scalar context */
-    assert(PL_stack_sp > PL_stack_base || *PL_stack_base == &PL_sv_undef);
+    assert(PL_stack_sp > PL_stack_base || *PL_stack_base == UNDEF);
     result = SvIV(*PL_stack_sp);
 
     LEAVE_SCOPE(oldsaveix);
@@ -1852,7 +1852,7 @@ S_sortcv_stacked(pTHX_ SV *const a, SV *const b)
     PL_curcop = cop;
     /* entry zero of a stack is always PL_sv_undef, which
      * simplifies converting a '()' return into undef in scalar context */
-    assert(PL_stack_sp > PL_stack_base || *PL_stack_base == &PL_sv_undef);
+    assert(PL_stack_sp > PL_stack_base || *PL_stack_base == UNDEF);
     result = SvIV(*PL_stack_sp);
 
     LEAVE_SCOPE(oldsaveix);
@@ -1880,7 +1880,7 @@ S_sortcv_xsub(pTHX_ SV *const a, SV *const b)
     (void)(*CvXSUB(cv))(aTHX_ cv);
     /* entry zero of a stack is always PL_sv_undef, which
      * simplifies converting a '()' return into undef in scalar context */
-    assert(PL_stack_sp > PL_stack_base || *PL_stack_base == &PL_sv_undef);
+    assert(PL_stack_sp > PL_stack_base || *PL_stack_base == UNDEF);
     result = SvIV(*PL_stack_sp);
 
     LEAVE_SCOPE(oldsaveix);

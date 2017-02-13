@@ -379,15 +379,15 @@ Perl_sv_peek(pTHX_ SV *sv)
 	sv_catpv(t, "WILD");
 	goto finish;
     }
-    else if (sv == &PL_sv_undef || sv == &PL_sv_no || sv == &PL_sv_yes || sv == &PL_sv_placeholder) {
-	if (sv == &PL_sv_undef) {
+    else if (sv == UNDEF || sv == SV_NO || sv == SV_YES || sv == PLACEHOLDER) {
+	if (sv == UNDEF) {
 	    sv_catpv(t, "SV_UNDEF");
 	    if (!(SvFLAGS(sv) & (SVf_OK|SVf_OOK|SVs_OBJECT|
 				 SVs_GMG|SVs_SMG|SVs_RMG)) &&
 		SvREADONLY(sv))
 		goto finish;
 	}
-	else if (sv == &PL_sv_no) {
+	else if (sv == SV_NO) {
 	    sv_catpv(t, "SV_NO");
 	    if (!(SvFLAGS(sv) & (SVf_ROK|SVf_OOK|SVs_OBJECT|
 				 SVs_GMG|SVs_SMG|SVs_RMG)) &&
@@ -397,7 +397,7 @@ Perl_sv_peek(pTHX_ SV *sv)
 		SvNVX(sv) == 0.0)
 		goto finish;
 	}
-	else if (sv == &PL_sv_yes) {
+	else if (sv == SV_YES) {
 	    sv_catpv(t, "SV_YES");
 	    if (!(SvFLAGS(sv) & (SVf_ROK|SVf_OOK|SVs_OBJECT|
 				 SVs_GMG|SVs_SMG|SVs_RMG)) &&
@@ -2599,19 +2599,19 @@ S_deb_hek(pTHX_ HEK* hek, SV* val)
         if (HEK_FLAGS(hek) > 1)
             PerlIO_printf(Perl_debug_log, "0x%x ", HEK_FLAGS(hek));
     }
-    if (val == &PL_sv_placeholder) {
+    if (val == PLACEHOLDER) {
         PerlIO_printf(Perl_debug_log, "PLACEHOLDER]");
     }
-    else if (val == &PL_sv_undef) {
+    else if (val == UNDEF) {
         PerlIO_printf(Perl_debug_log, "UNDEF]");
     }
-    else if (val == &PL_sv_yes) {
+    else if (val == SV_YES) {
         PerlIO_printf(Perl_debug_log, "YES]");
     }
-    else if (val == &PL_sv_no) {
+    else if (val == SV_NO) {
         PerlIO_printf(Perl_debug_log, "NO]");
     }
-    else if (val < &PL_sv_undef) { /* than the first alloced variable, a refcnt */
+    else if (val < UNDEF) { /* than the first alloced variable, a refcnt */
         PerlIO_printf(Perl_debug_log, "%" UVuf "]", PTR2UV(val));
     }
     else {
