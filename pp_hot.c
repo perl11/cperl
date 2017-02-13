@@ -122,21 +122,11 @@ PPt(pp_and, "(:Scalar,:Scalar):Void")
     }
 }
 
-PPt(pp_sassign, "(:Scalar,:Scalar):Scalar")
+/* *foo = \&bar */
+static OP *
+S_sassign_cv_to_gv(pTHX_ SV* left, SV* right)
 {
     dSP;
-    /* sassign keeps its args in the optree traditionally backwards.
-       So we pop them differently.
-    */
-    SV *left = POPs; SV *right = TOPs;
-
-    if (PL_op->op_private & OPpASSIGN_BACKWARDS) { /* {or,and.dor}assign */
-	SV * const temp = left;
-	left = right; right = temp;
-    }
-    assert(TAINTING_get || !TAINT_get);
-    if (UNLIKELY(TAINT_get) && !SvTAINTED(right))
-	TAINT_NOT;
     if (UNLIKELY(PL_op->op_private & OPpASSIGN_CV_TO_GV)) {
         /* *foo = \&bar */
 	SV * const cv = SvRV(right);
@@ -185,8 +175,8 @@ PPt(pp_sassign, "(:Scalar,:Scalar):Scalar")
 		   all sorts of fun as the reference to our new sub is
 		   donated to the GV that we're about to assign to.
 		*/
-		SvRV_set(right, MUTABLE_SV(newCONSTSUB(GvSTASH(left), NULL,
-						      SvRV(cv))));
+		SvRV_set(right,
+                  MUTABLE_SV(newCONSTSUB(GvSTASH(left), NULL, SvRV(cv))));
 		SvREFCNT_dec_NN(cv);
 		LEAVE_with_name("sassign_coderef");
 	    } else {
@@ -214,16 +204,47 @@ PPt(pp_sassign, "(:Scalar,:Scalar):Scalar")
 		SvRV_set(right, MUTABLE_SV(source));
 	    }
 	}
-
     }
-    /* XXX do this in the compiler, not here! */
-    if (
-      UNLIKELY(SvTEMP(left)) && !SvSMAGICAL(left) && SvREFCNT(left) == 1 &&
-      (!isGV_with_GP(left) || SvFAKE(left)) && ckWARN(WARN_MISC)
-    )
-	Perl_warner(aTHX_
-	    packWARN(WARN_MISC), "Useless assignment to a temporary"
-	);
+    /* even with this duplicate code 10% faster */
+#if 1
+    if (UNLIKELY(SvTEMP(left)) && !SvSMAGICAL(left) && SvREFCNT(left) == 1
+        && (!isGV_with_GP(left) || SvFAKE(left)) && ckWARN(WARN_MISC)) {
+	Perl_warner(aTHX_ packWARN(WARN_MISC),
+                    "Useless assignment to a temporary");
+    }
+    SvSetMagicSV(left, right);
+    SETs(left);
+    RETURN;
+#else
+    return NULL;
+#endif
+}
+
+PPt(pp_sassign, "(:Scalar,:Scalar):Scalar")
+{
+    dSP;
+    /* sassign keeps its args in the optree traditionally backwards.
+       So we pop them differently.
+    */
+    SV *left = POPs; SV *right = TOPs;
+
+    if (PL_op->op_private & OPpASSIGN_BACKWARDS) { /* {or,and.dor}assign */
+	SV * const temp = left;
+	left = right; right = temp;
+    }
+    assert(TAINTING_get || !TAINT_get);
+    if (UNLIKELY(TAINT_get) && !SvTAINTED(right))
+	TAINT_NOT;
+    if (UNLIKELY(PL_op->op_private & OPpASSIGN_CV_TO_GV)) {
+        OP *o;
+        if ((o = S_sassign_cv_to_gv(aTHX_ left, right)))
+            return o;
+    }
+    if (UNLIKELY(SvTEMP(left)) && !SvSMAGICAL(left) && SvREFCNT(left) == 1
+        && (!isGV_with_GP(left) || SvFAKE(left)) && ckWARN(WARN_MISC)) {
+	Perl_warner(aTHX_ packWARN(WARN_MISC),
+                    "Useless assignment to a temporary");
+    }
     SvSetMagicSV(left, right);
     SETs(left);
     RETURN;

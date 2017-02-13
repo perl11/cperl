@@ -33,6 +33,12 @@ were undeprecated in cperl and rather fixed. I<(as in previous cperl releases.)>
 
 =item *
 
+Seperate an unlikely codepath in scalar assignments (ASSIGN_CV_TO_GV)
+to another function, helping the CPU instruction cache. 10% faster on
+Intel.
+
+=item *
+
 Ensure that the lexer always sees large enough buffers to do fast
 wordwise memcmp comparisons, esp. with constant lengths.
 
