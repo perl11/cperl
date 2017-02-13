@@ -60,7 +60,7 @@ BEGIN {
       ? 'Family' : 'Domain';
 }
 
-our @ISA = ('Exporter','Net::Cmd',$IOCLASS);
+our @ISA = ('Net::Cmd',$IOCLASS,'Exporter');
 
 use constant TELNET_IAC => 255;
 use constant TELNET_IP  => 244;
