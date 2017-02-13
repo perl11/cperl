@@ -5,18 +5,22 @@ my $order = 0;
 
 package A;
 @ISA = qw/B C D/;
+use mro 'dfs';
 
 sub test { ::ok(++$order==1,"test A"); $_[0]->NEXT::UNSEEN::ACTUAL::test;}
 
 package B;
 @ISA = qw/D C/;
+use mro 'dfs';
 sub test { ::ok(++$order==2,"test B"); $_[0]->NEXT::ACTUAL::UNSEEN::test;}
 
 package C;
 @ISA = qw/D/;
+use mro 'dfs';
 sub test { ::ok(++$order==4,"test C"); $_[0]->NEXT::UNSEEN::ACTUAL::test;}
 
 package D;
+use mro 'dfs';
 
 sub test { ::ok(++$order==3,"test D"); $_[0]->NEXT::ACTUAL::UNSEEN::test;}
 
