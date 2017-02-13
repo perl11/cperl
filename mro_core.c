@@ -462,16 +462,16 @@ S_mro_get_linear_isa_c3(pTHX_ HV* stash, U32 level)
                 SV *errmsg;
                 SSize_t i;
 
-                errmsg = newSVpvf
-                  (
+                errmsg = Perl_newSVpvf
+                  (aTHX_
                    "Inconsistent hierarchy during C3 merge of class '%" HEKf "':\n\t"
                    "current merge results [\n",
                    HEKfARG(stashhek));
                 for (i = 0; i <= av_tindex(retval); i++) {
                     SV **elem = av_fetch(retval, i, 0);
-                    sv_catpvf(errmsg, "\t\t%" SVf ",\n", SVfARG(*elem));
+                    Perl_sv_catpvf(aTHX_ errmsg, "\t\t%" SVf ",\n", SVfARG(*elem));
                 }
-                sv_catpvf(errmsg,
+                Perl_sv_catpvf(aTHX_ errmsg,
                     "\t]\n\tmerging failed on '%" SVf "'", SVfARG(cand));
 
                 /* we have to do some cleanup before we croak */
