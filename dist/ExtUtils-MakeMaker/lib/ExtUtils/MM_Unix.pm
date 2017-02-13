@@ -3904,9 +3904,13 @@ Build man pages, too
 sub all_target {
     my $self = shift;
 
-    return <<'MAKE_EXT';
-all :: pure_all manifypods
-	$(NOECHO) $(NOOP)
+    my $manifypods = '';
+    if ($self->os_flavor_is('Unix')) {
+        $manifypods = ' manifypods';
+    }
+    return <<"MAKE_EXT";
+all :: pure_all $manifypods
+	\$(NOECHO) \$(NOOP)
 MAKE_EXT
 }
 

@@ -20,7 +20,7 @@ $VERSION =~ tr/_//d;
 
 require ExtUtils::MM_Any;
 require ExtUtils::MM_Unix;
-our @ISA = qw( ExtUtils::MM_Any ExtUtils::MM_Unix );
+our @ISA = qw( ExtUtils::MM_Unix ExtUtils::MM_Any );
 
 use ExtUtils::MakeMaker qw($Verbose neatvalue _sprintf562);
 our $Revision = $ExtUtils::MakeMaker::Revision;
