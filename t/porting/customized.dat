@@ -139,7 +139,7 @@ YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL af46c9ce20b08189cc0fa26b20c6
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 527302db61c55bf695da94adfa66e7c2f34b1f09
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm 9716931aaf2305fab4a41f35560362947ba3a805
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
-base dist/base/lib/base.pm 03b27b38c40206834bde6e3a891e85de85673fff
+base dist/base/lib/base.pm 9328b5b1eee7c1771a92d49d3a484b3541a0ffdc
 base dist/base/lib/fields.pm ed23ed73d3e76fe02fd2309b49fa8b1744f027ef
 base dist/base/t/fields-5_6_0.t 175dea16b9325762cea401d156e8f440f916fa90
 base dist/base/t/fields-5_8_0.t ace0272fe98ed4be52b7359654ae328ce537372a
