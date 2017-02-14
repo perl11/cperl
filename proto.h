@@ -6702,6 +6702,7 @@ PERL_CALLCONV int	Perl_yylex(pTHX)
 			__attribute__global__;
 
 PERL_CALLCONV int	Perl_yyparse(pTHX_ int gramtype);
+PERL_CALLCONV void	Perl_yyquit(pTHX);
 PERL_CALLCONV void	Perl_yyunlex(pTHX);
 #if !(defined(DEBUGGING))
 #  if !defined(NV_PRESERVES_UV)
