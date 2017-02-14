@@ -3762,6 +3762,7 @@ S_scan_const(pTHX_ char *start)
 		s++;
 		if (*s != '{') {
 		    yyerror("Missing braces on \\N{}");
+                    *d++ = '\0';
 		    continue;
 		}
 		s++;
@@ -3792,6 +3793,7 @@ S_scan_const(pTHX_ char *start)
                                 "Invalid hexadecimal number in \\N{U+...}"
                             );
                             s = e + 1;
+                            *d++ = '\0';
                             continue;
                         }
                         while (++s < e) {
@@ -3990,6 +3992,7 @@ S_scan_const(pTHX_ char *start)
                                     " in transliteration operator",
                                         /*  +1 to include the "}" */
                                     (int) (e + 1 - start), start));
+                                *d++ = '\0';
                                 goto end_backslash_N;
                             }
 
