@@ -605,6 +605,10 @@ L<RT #117675|https://rt.cpan.org/Ticket/Display.html?id=117675>
 zipdetails: CVE-2016-1238: avoid loading optional modules from default
 L<RT #116538|https://rt.cpan.org/Ticket/Display.html?id=116538>
 
+=item Math-BigInt 1.999809
+
+Merged CPAN updates with cperl-specific c3, stricter tests and . in @INC fixes.
+
 =item Net-Ping 2.56
 
 Stabilized test, geocities.com is down.

@@ -5,7 +5,7 @@ use warnings;
 
 our ($CLASS, $CALC);
 
-is($CLASS->config()->{lib}, $CALC, "$CLASS->config()->{lib}");
+is($CLASS->config('lib'), $CALC, "$CLASS->config('lib')");
 
 my ($x, $y, $z, @args, $try, $want, $got);
 my ($f, $setup);
@@ -81,6 +81,8 @@ while (<DATA>) {
         $try .= qq| $setup; \$x->bsqrt();|;
     } elsif ($f eq "bfac") {
         $try .= qq| $setup; \$x->bfac();|;
+    } elsif ($f eq "bdfac") {
+        $try .= qq| $setup; \$x->bdfac();|;
     } elsif ($f eq "blog") {
         if (defined $args[1] && $args[1] ne '') {
             $try .= qq| \$y = $CLASS->new($args[1]);|;
@@ -1759,6 +1761,25 @@ Nanfac:NaN
 10:3628800
 11:39916800
 12:479001600
+
+&bdfac
+NaN:NaN
+-1:NaN
++inf:inf
+-inf:NaN
+0:1
+1:1
+2:2
+3:3
+4:8
+5:15
+6:48
+7:105
+8:384
+9:945
+10:3840
+11:10395
+12:46080
 
 &broot
 # sqrt()

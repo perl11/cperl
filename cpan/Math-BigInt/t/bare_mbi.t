@@ -9,7 +9,7 @@ use lib 't';
 
 use Math::BigInt lib => 'BareCalc';
 
-print "# ", Math::BigInt->config()->{lib}, "\n";
+print "# ", Math::BigInt->config('lib'), "\n";
 
 our ($CLASS, $CALC);
 $CLASS = "Math::BigInt";

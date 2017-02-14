@@ -31,10 +31,9 @@ ExtUtils::MM_Any - Platform-agnostic MM methods
 
   package ExtUtils::MM_SomeOS;
 
-  # Temporarily, you have to subclass both.  Put MM_Any first.
-  require ExtUtils::MM_Any;
+  # Temporarily, you have to subclass both. Put MM_Unix first.
   require ExtUtils::MM_Unix;
-  @ISA = qw(ExtUtils::MM_Any ExtUtils::Unix);
+  @ISA = qw( ExtUtils::MM_Unix ExtUtils::MM_Any );
 
 =head1 DESCRIPTION
 

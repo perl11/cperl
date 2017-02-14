@@ -17,7 +17,6 @@ use File::Basename;
 
 our $VERSION = '8.04_04';
 
-require ExtUtils::MM_Any;
 require ExtUtils::MM_Unix;
 our @ISA = qw( ExtUtils::MM_Any ExtUtils::MM_Unix );
 
@@ -31,9 +30,10 @@ ExtUtils::MM_VMS - methods to override UN*X behaviour in ExtUtils::MakeMaker
 
 =head1 SYNOPSIS
 
-  Do not use this directly.
-  Instead, use ExtUtils::MM and it will figure out which MM_*
-  class to use for you.
+  use ExtUtils::MakeMaker;
+  # Do not use this directly.
+  # Instead, use ExtUtils::MM and it will figure out which MM_*
+  # class to use for you.
 
 =head1 DESCRIPTION
 

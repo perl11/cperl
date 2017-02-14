@@ -11,7 +11,7 @@ our ($CLASS, $CALC);
 package Math::Foo;
 
 use Math::BigInt lib => $main::CALC;
-our @ISA = (qw/Math::BigInt/);
+our @ISA = qw/Math::BigInt/;
 
 use overload
   # customized overload for sub, since original does not use swap there
@@ -33,7 +33,7 @@ sub _swap {
 ##############################################################################
 package main;
 
-is($CLASS->config()->{lib}, $CALC, "$CLASS->config()->{lib}");
+is($CLASS->config('lib'), $CALC, "$CLASS->config('lib')");
 
 my ($x, $y, $z, @args, $try, $got, $want);
 my ($f, $round_mode, $expected_class);
@@ -82,7 +82,9 @@ while (<DATA>) {
     # overloaded functions
     } elsif ($f =~ /^(log|exp|sin|cos|atan2|int|neg|abs|sqrt)$/) {
         $try .= " \$x = $f(\$x);";
-    } elsif ($f =~ /^(numify|length|stringify|as_hex|as_bin|as_oct)$/) {
+    } elsif ($f =~ /^(numify|length|stringify)$/) {
+        $try .= " \$x->$f();";
+    } elsif ($f =~ /^(to|as)_(hex|oct|bin)$/) {
         $try .= " \$x->$f();";
     } elsif ($f eq "exponent") {
         # ->bstr() to see if an object is returned
@@ -118,7 +120,7 @@ while (<DATA>) {
         } elsif ($f eq "bdiv") {
             $try .= ' $x->bdiv($y);';
         } elsif ($f eq "bdiv-list") {
-            $try .= ' join (",", $x->bdiv($y));';
+            $try .= ' join(",", $x->bdiv($y));';
         } elsif ($f eq "btdiv") {
             $try .= ' $x->btdiv($y);';
         } elsif ($f eq "btdiv-list") {
@@ -210,7 +212,7 @@ while (<DATA>) {
     }
     # check internal state of number objects
     is_valid($got, $f) if ref $got;
-}                               # endwhile data tests
+}                               # end while data tests
 close DATA;
 
 # test whether self-multiplication works correctly (result is 2**64)
@@ -564,9 +566,13 @@ is($x->bsstr(), '105e+13',	# not 1.05e+15
 $z = 1e+129;			# definitely a float (may fail on UTS)
 # don't compare to $z, since some Perl versions stringify $z into something
 # like '1.e+129' or something equally ugly
-$x = $CLASS->new($z);
-is($x->bsstr(), '1e+129',
-   qq|\$x = $CLASS->new($z); \$x->bsstr() = "1e+129"|);
+SKIP:{
+    my $vax_float = (pack("d", 1) =~ /^[\x80\x10]\x40/);
+    skip("vax float range smaller", 1) if $vax_float;
+    $x = $CLASS->new($z);
+    is($x -> bsstr(), '1e+129',
+       qq|\$x = $CLASS->new($z); \$x->bsstr() = "1e+129"|);
+}
 
 ###############################################################################
 # test for whitespace including newlines to be handled correctly
@@ -2594,7 +2600,7 @@ abc:+0:NaN
 abc:abc:NaN
 abc:+0:NaN
 +0:abc:NaN
-+0:+0:NaN
++0:+0:0
 +1:+0:0
 +0:+1:0
 +27:+90:270

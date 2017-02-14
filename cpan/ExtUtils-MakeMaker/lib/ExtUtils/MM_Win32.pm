@@ -9,7 +9,7 @@ ExtUtils::MM_Win32 - methods to override UN*X behaviour in ExtUtils::MakeMaker
 
 =head1 SYNOPSIS
 
- use ExtUtils::MM_Win32; # Done internally by ExtUtils::MakeMaker if needed
+  use ExtUtils::MakeMaker;
 
 =head1 DESCRIPTION
 
@@ -24,7 +24,6 @@ use File::Basename;
 use File::Spec;
 use ExtUtils::MakeMaker qw( neatvalue );
 
-require ExtUtils::MM_Any;
 require ExtUtils::MM_Unix;
 our @ISA = qw( ExtUtils::MM_Any ExtUtils::MM_Unix );
 our $VERSION = '8.04_04';
