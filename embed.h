@@ -1524,6 +1524,11 @@
 #  if !defined(WIN32)
 #define do_exec3(a,b,c)		Perl_do_exec3(aTHX_ a,b,c)
 #  endif
+#  if 0
+#    if defined(PERL_IN_OP_C)
+#define ret_check_type(a,b,c)	S_ret_check_type(aTHX_ a,b,c)
+#    endif
+#  endif
 #  if 0 /* XXX cyclic dep on core_types_t in opcodes.h */
 #    if defined(PERL_IN_OP_C)
 #define core_type_name(a)	S_core_type_name(aTHX_ a)
@@ -1695,6 +1700,7 @@
 #define mro_get_linear_isa_dfs(a,b)	S_mro_get_linear_isa_dfs(aTHX_ a,b)
 #  endif
 #  if defined(PERL_IN_OP_C)
+#define _op_check_type(a,b,c)	S__op_check_type(aTHX_ a,b,c)
 #define aassign_padcheck(a,b)	S_aassign_padcheck(aTHX_ a,b)
 #define aassign_scan(a,b,c,d)	S_aassign_scan(aTHX_ a,b,c,d)
 #define apply_attrs(a,b,c)	S_apply_attrs(aTHX_ a,b,c)
@@ -1751,7 +1757,6 @@
 #define prune_chain_head	S_prune_chain_head
 #define ref_array_or_hash(a)	S_ref_array_or_hash(aTHX_ a)
 #define refkids(a,b)		S_refkids(aTHX_ a,b)
-#define ret_check_type(a,b,c)	S_ret_check_type(aTHX_ a,b,c)
 #define scalar_mod_type		S_scalar_mod_type
 #define scalarboolean(a)	S_scalarboolean(aTHX_ a)
 #define scalarkids(a)		S_scalarkids(aTHX_ a)

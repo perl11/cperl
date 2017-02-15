@@ -11940,11 +11940,11 @@ S_op_check_type(pTHX_ OP* o, OP* left, OP* right)
         if (IS_TYPE(left, AELEM) ||
             IS_TYPE(left, AELEM_U) ||
             IS_TYPE(left, HELEM))
-            ret_check_type(PAD_NAME(OpFIRST(left)->op_targ), right, OP_DESC(o));
+            _op_check_type(PAD_NAME(OpFIRST(left)->op_targ), right, OP_DESC(o));
         else if (IS_TYPE(left, PADSV))
-            ret_check_type(PAD_NAME(left->op_targ), right, OP_DESC(o));
+            _op_check_type(PAD_NAME(left->op_targ), right, OP_DESC(o));
         else if (IS_TYPE(left, PADAV) || IS_TYPE(left, PADHV))
-            ret_check_type(PAD_NAME(left->op_targ), right, OP_DESC(o));
+            _op_check_type(PAD_NAME(left->op_targ), right, OP_DESC(o));
 
 #undef PAD_NAME
     }
@@ -12971,9 +12971,9 @@ S_can_class_typecheck(pTHX_ const HV* const stash)
 
 Match a usertype from argument (aname+au8) to
 the declared usertype name of a variable (dstash).
-Searches dstash in @aname::ISA (contra-variance, for arguments).
+Searches dstash in @aname::ISA (contravariant, for arguments).
 
-On assignment and return-type checks reverse the arguments (co-variance).
+On return-type checks the arguments get in reversed (covariant).
 
 Note that old-style package ISA's are created dynamically.
 Only classes with compile-time known ISA's can be checked at compile-time.
@@ -12994,7 +12994,7 @@ S_match_user_type(pTHX_ const HV* const dstash,
 
     if (astash == dstash) /* compare ptrs not strings */
         return 1;
-    /* Search dname in @aname::ISA (contra-variance).
+    /* Search dname in @aname::ISA (contravariant).
      * The astash needs to exist, but coretypes are created on the fly. */
     /* Some autocreated coretypes do have an ISA */
     if (!astash)
@@ -13010,7 +13010,7 @@ S_match_user_type(pTHX_ const HV* const dstash,
                 return 1;
         }
     }
-    if (can_class_typecheck(dstash))
+    if (can_class_typecheck(dstash) && ckWARN(WARN_TYPES))
         Perl_warner(aTHX_ packWARN(WARN_TYPES),
                     "Wrong type %s, expected %s", aname, SvPVX_const(dname));
     return 0;
@@ -13021,7 +13021,7 @@ for apidoc match_type
 
 Match a coretype from arg or op (atyp) to
 the declared stash of a variable (dtyp).
-Searches stash in @aname::ISA (contra-variance, for arguments).
+Searches stash in @aname::ISA (contravariant, for arguments).
 
 Added a 4th parameter if to allow inserting a type cast: 
 numify. Scalar => Bool/Numeric
@@ -13042,7 +13042,7 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
                /* or same coretype */
                || (dtyp == atyp && dtyp != type_Object)
                /* or Scalar arg, matches any decl */
-               /*|| (atyp == type_Scalar && dtyp <= type_Object)))*/
+               || (atyp == type_Scalar && dtyp <= type_Object)
                ))
         return 1;
     /* we can cast any coretype to another: numify, stringify, but not user-objects.
@@ -13100,10 +13100,11 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
     case type_Scalar:
         return atyp <= type_Scalar;
     case type_Object:
+        /* allow more specific classes, such as coretypes */
         /* we allow MyInt (isa Int) for int args */
         return atyp == type_Object && can_class_typecheck(stash)
             ? match_user_type(stash, aname, au8)
-            : atyp >= type_Object;
+            : atyp <= type_Object;
     case type_Any:
     case type_Void:
         return 1;
@@ -13118,7 +13119,7 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
 Check if the declared static type of the argument from pn can be
 fullfilled by the dynamic type of the arg in OP* o (padsv, const,
 any return type). If possible add a typecast to C<o> to fullfill it.
-Using contra-variance.
+contravariant.
 
 Signatures are new, hence much stricter, than return-types and assignments.
 =cut
@@ -13190,9 +13191,10 @@ S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
                     case type_Str:
                         break;
                     default:
-                        Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
-                            "Need type cast or dynamic inheritence from %s to %s",
-                            argname, name);
+                        if (ckWARN(WARN_TYPES))
+                            Perl_warner(aTHX_  packWARN(WARN_TYPES),
+                              "Need type cast or dynamic inheritence from %s to %s",
+                              argname, name);
                         break;
                     }
                 }
@@ -13223,9 +13225,9 @@ S_is_types_strict(pTHX)
 }
 
 /*
-=for apidoc s|OP*  |ret_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
+=for apidoc s|OP*  |_op_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
 
-Check if the declared static type of the return type or op from the
+Check if the declared static type of the op (i.e. assignment) from the
 lhs pn can be fullfilled by the dynamic type of the rhs in OP* o
 (padsv, const, any return type). If possible add a typecast to o to
 fullfill it.
@@ -13235,7 +13237,106 @@ a compile-time warning when no applicable type-conversion can be applied.
 Return-types and assignments are passed through the type inferencer and 
 applied to old constructs, not signatures, hence not so strict.
 
-Using co-variance.
+Contravariant: Enables you to use a more generic (less derived) type
+than originally specified.
+=cut
+*/
+static OP*
+S__op_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
+{
+    const HV *type = pn ? PadnameTYPE(pn) : NULL;
+    PERL_ARGS_ASSERT__OP_CHECK_TYPE;
+    if (UNLIKELY(VALIDTYPE(type))) {
+        /* check type of binop, same as for args */
+        char *usertype = NULL;
+        int argu8 = 0;
+        const char *name = typename(type);
+        core_types_t argtype = op_typed_user(o, &usertype, &argu8);
+        const char *argname = usertype ? usertype : core_type_name(argtype);
+        DEBUG_k(Perl_deb(aTHX_ "ck optype %s against %s\n",
+                         name?name:"none",  argname));
+        o->op_typechecked = 1;
+        if (argtype > type_none && argtype < type_Void
+            && name && strNE(argname, name))
+        {
+            int castable = 0;
+            /* check aggregate type: Array(int), Hash(str), ... */
+            if (!PadnamePV(pn))
+                ;
+            else if ((argtype == type_Hash &&
+                      PadnamePV(pn)[0] == '%' &&
+                      IS_TYPE(o, PADHV))
+                      ||
+                     (argtype == type_Array &&
+                      PadnamePV(pn)[0] == '@' &&
+                      IS_TYPE(o, PADAV)))
+            {
+                PADNAME * const xpn = PAD_COMPNAME(o->op_targ);
+                argtype = stash_to_coretype(PadnameTYPE(xpn));
+            }
+
+            /* normal args: contravariant */
+            if (!match_type(type, argtype, argname, argu8, &castable))
+            {
+                /* ignore "Inserting type cast str to Scalar" */
+                if (!castable || S_is_types_strict(aTHX)) {
+                    S_warn_type_core(aTHX_ PadnamePV(pn),
+                                     opdesc, argtype, argname, name);
+                } else {
+                    /* Currently castable is only: Scalar/Ref/Sub/Regexp => Bool/Numeric */
+                    /* Maybe allow casting from Scalar/Numeric to Int => int()
+                       and Scalar to Str => stringify() */
+                    DEBUG_k(Perl_deb(aTHX_
+                        "ck _op_check_type: need type cast from %s to %s\n",
+                                     argname, name));
+                    if (!OpRETTYPE(o))
+                        OpRETTYPE_set(o, argtype);
+                    switch (argtype) {
+                    case type_Bool:
+                        set_boolean(o);
+                        break;
+                    case type_Numeric:
+                    case type_Scalar:
+                        /* Adding an int(op) in front makes not much sense here.
+                           fold_constants or integerize would. */
+                    case type_int:
+                    case type_Int:
+                    case type_uint:
+                    case type_UInt:
+                    case type_str:
+                    case type_Str:
+                        scalar(o);
+                        break;
+                    default:
+                        if (ckWARN(WARN_TYPES))
+                          Perl_warner(aTHX_  packWARN(WARN_TYPES),
+                              "Need type cast or dynamic inheritence from %s to %s",
+                              argname, name);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return o;
+}
+
+/* yet unused */
+#if 0
+/*
+=for apidoc s|OP*  |ret_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
+
+Check if the declared static type of the return type from the
+lhs pn can be fullfilled by the dynamic type of the rhs in OP* o
+(padsv, const, any return type). If possible add a typecast to o to
+fullfill it.
+
+Different to arg_check_type a type violation is not fatal, it only throws
+a compile-time warning when no applicable type-conversion can be applied.
+Return-types and assignments are passed through the type inferencer and 
+applied to old constructs, not signatures, hence not so strict.
+
+Covariant: Enables you to use a more derived type than originally specified.
 =cut
 */
 static OP*
@@ -13280,7 +13381,7 @@ S_ret_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
                 argtype = stash_to_coretype(dstash);
             }
 
-            /* reverse the args: co-variance */
+            /* reverse the args: covariant */
             if (!match_type(dstash, stash_to_coretype(type), name,
                             HvNAMEUTF8(type), &castable))
             {
@@ -13314,7 +13415,8 @@ S_ret_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
                         scalar(o);
                         break;
                     default:
-                        Perl_ck_warner(aTHX_  packWARN(WARN_TYPES),
+                        if (ckWARN(WARN_TYPES))
+                          Perl_warner(aTHX_  packWARN(WARN_TYPES),
                             "Need type cast or dynamic inheritence from %s to %s",
                             argname, name);
                         break;
@@ -13325,6 +13427,7 @@ S_ret_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
     }
     return o;
 }
+#endif
 
 #ifdef SIG_DEBUG
 

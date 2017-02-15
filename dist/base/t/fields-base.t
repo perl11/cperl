@@ -154,8 +154,13 @@ is( $W, 1, 'right warnings' );
 # A simple object creation and attribute access test
 my B2 $obj1 = D3->new;
 $obj1->{b1} = "B2";
-my D3 $obj2 = $obj1;
-$obj2->{b1} = "D3";
+my D3 $obj2;
+{
+  local $^W;
+  no warnings 'types'; # ignore contravariant warning here
+  $obj2 = $obj1;
+  $obj2->{b1} = "D3";
+}
 
 # We should get compile time failures field name typos
 eval q(return; my D3 $obj3 = $obj2; $obj3->{notthere} = "");

@@ -1057,7 +1057,10 @@ s	|int	|match_user_type|NN const HV* const dstash \
 				|NN const char* aname|bool au8
 i	|bool	|is_types_strict
 s	|OP*	|arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NULLOK GV *cvname
+#if 0
 s	|OP*	|ret_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
+#endif
+s	|OP*	|_op_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
 s	|void	|op_check_type  |NN OP* o|NN OP* left|NN OP* right
 #if 0 /* XXX cyclic dep on core_types_t in opcodes.h */
 :s	|void	|bad_type_core	|NN const char *argname|NN GV *gv \

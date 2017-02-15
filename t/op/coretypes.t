@@ -108,39 +108,41 @@ my Int %a; my Str %b;
 %a = %b;
 EOF
 
-# permit coretypes casts
+# Warn on coretypes casts
 $args = { switches => ['-w'] };
-fresh_perl_is(<<'EOF', '', $args, 'ck_sassign aelem Int = Str');
+$err = qr/Type of scalar assignment to [@%]a must be Int \(not Str\)/;
+fresh_perl_like(<<'EOF', $err, $args, 'ck_sassign aelem Int = Str');
 my Int @a;
 $a[0] = "";
 EOF
 
-fresh_perl_is(<<'EOF', '', $args, 'ck_sassign helem Int = Str');
+fresh_perl_like(<<'EOF', $err, $args, 'ck_sassign helem Int = Str');
 my Int %a;
 $a{"key"} = "";
 EOF
 
-fresh_perl_is(<<'EOF', '', $args, 'ck_aassign array Int = Str');
+$err = qr/Type of list assignment to [@%]a must be Int \(not Str\)/;
+fresh_perl_like(<<'EOF', $err, $args, 'ck_aassign array Int = Str');
 my Int @a; my Str @b;
 @a = @b;
 EOF
 
-fresh_perl_is(<<'EOF', '', $args, 'ck_aassign hash Int = Str');
+fresh_perl_like(<<'EOF', $err, $args, 'ck_aassign hash Int = Str');
 my Int %a; my Str %b;
 %a = %b;
 EOF
 
-$err = qr/Type of scalar assignment to [@%]a must be Int \(not Bla\)/;
-fresh_perl_like(<<'EOF', $err, $args, 'fail with user-type to coretype');
+$err = qr/Need type cast or dynamic inheritence from Bla to Int/;
+fresh_perl_like(<<'EOF', $err, $args, 'warn with user-type to coretype');
 package Bla;
 my Bla $b;
 my Int @a;
 $a[0] = $b;
 EOF
 
-# Bla can dynamically inherit from Str
-# @Bla::ISA = qw(Str);
-# With a class this would be forbidden
+# Bla can dynamically inherit from Str.
+# Basically @Bla::ISA = qw(Str);
+# With a class this would be forbidden.
 fresh_perl_is(<<'EOF', '', $args, 'allow coretype to user-type');
 package Bla;
 my Bla %a;
@@ -148,8 +150,7 @@ $a{"key"} = "";
 EOF
 
 $args = { switches => ['-w', '-Mtypes=strict'] };
-$err = qr/Type of scalar assignment to [@%]a must be Bla \(not Str\)/;
-fresh_perl_like(<<'EOF', $err, $args, 'fail strict coretype to user-type');
+fresh_perl_is(<<'EOF', '', $args, 'even strict coretype to user-type');
 package Bla;
 my Bla %a;
 $a{"key"} = "";

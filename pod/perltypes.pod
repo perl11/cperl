@@ -34,9 +34,10 @@ declared types.
 
 No, they are not. Types for lexical variables are permitted since
 2001, esp. with use fields and used in a few CPAN modules,
-i.e. Net::DNS.  Perl6 uses types all over.  Every perl5 value is typed
-at run-time. Just all the normal ops are generic and are allowed to
-change the type of its arguments and its result at will.
+i.e. Net::DNS, IPC::Run.  Perl6 uses types all over.  Every perl5
+value is typed at run-time. Just all the normal ops are generic and
+are allowed to change the type of its arguments and its result at
+will.
 
 Checking types already at compile-time allows dramatic performance and
 size optimizations, lead to better documented code and lead to earlier
@@ -65,20 +66,34 @@ can handle the arguments and result types much better as e.g. the
 javascript v8 engine does, but observing the run-time types and
 optimize dynamically. You don't need dart to run fast javascript but
 it helps.
+Every other dynamic languages switched in the meantime to optional typing.
+No other dynamic language forced type optimizations and checkers out of core.
+
+=head2 Type tree
+
+  Scalar -> Numeric -> Int|Num -> int|num
+                       Uint       uint
+         -> Str -> str
+
+         -> Object -> ...
+
+From most generic left to more specific to the left.
+Contravariance enables you to use a more generic (less derived, more left) type
+than originally specified.
 
 =head2 coretypes
 
 The builtin C<coretypes> module implements efficient implementations
-and B<strict types> of C<Int>, C<UInt>, C<Num> and C<Str>, which can
-be applied to scalars, arrays, hashes and functions, in lexical
-variable declarations and in signature declarations before the
-variable name, or afterwards as attribute.
+and types of C<Int>, C<UInt>, C<Num> and C<Str>, which can be applied
+to scalars, arrays, hashes and functions, in lexical variable
+declarations and in signature declarations before the variable name,
+or afterwards as attribute.
 
-Any type change for those strictly typed variables will be detected at
-compile-time and if this fails at run-time.  The type C<Int> is
-interpreted as IV, C<Num> as NV and C<Str> as PV only. There is
-no stringification for IV and NV, no magic such as L<perlfunc/tie>,
-no setting to C<undef> allowed.
+Any type change for typed variables will be detected at compile-time
+and if this fails at run-time.  The type C<Int> is interpreted as IV,
+C<Num> as NV and C<Str> as PV only. There is no stringification for IV
+and NV, no magic such as L<perlfunc/tie>, no setting to C<undef>
+allowed.
 
     my Int @a = (0..9);
     tie @a, 'Tie::Array';
@@ -97,6 +112,12 @@ C<Dynamic> to override coretypes, but there will be I<subtyped>
 children of coretypes to allow stringification and undef.  So it is
 safe to optimize coretypes to its native operations at compile-time.
 
+B<coretypes are less strict than user-types.>
+
+Implicitly typed coretypes such as constant literals are treated not
+as strict, and are type-casted as before. With use warnings "types"
+however some warnings will be shown.
+
 The type checkers will not throw errors on coretype violations with
 existing ops, only C<use types> or C<use warnings "types"> warnings,
 which can be made fatal. The new signature op and feature however is
@@ -104,8 +125,10 @@ stricter, and does throw type violation errors at compile-time on not
 matching coretypes.  Other basic non-coretypes, i.e. user-types and
 Scalar, Numeric will always throw type violation errors.  Any type can
 be promoted to int, num and str.
+Most constants, such as constant literal strings, numbers, integers are
+typed as coretypes.
 
-See L</type checker> below.
+See L</Type checker> below.
 
 See also L<perldata/"coretypes"> for examples.
 
@@ -151,10 +174,10 @@ are added automatically.
 Unboxed native values can appear on the stack, on pads and in const
 ops.
 
-=head2 type checker
+=head2 Type checker
 
 The type checker is totally unsound. Only a few ops are type-checked,
-currently only signature subroutine calls and scalar assignment.
+currently only signature subroutine calls and scalar assignments.
 
 Compile-time type checks for user-defined types need to be enabled
 with C<use types>. Type warnings are enabled with C<use warnings
@@ -168,11 +191,11 @@ always fatal, at compile-time.
     my int @a;
     my MyClass $c = bless [], 'MyClass';
     $a[0] = $c;
-    # => compile-time types warning: Inserting type cast int to MyClass
+    # compile-time types warning: Inserting type cast int to MyClass
 
-    my MyClass @a;
+    my MyClass $a;
     $a[0] = 0;
-    # => compile-time error. int => MyClass not castable
+    # no warning: objects are accepted and converted to coretypes.
 
     use warnings;
     my int @a;
@@ -182,7 +205,11 @@ always fatal, at compile-time.
     use warnings FATAL => 'types';
     my int @a;
     $a[0] = "";
-    # fatal compile-time warning: Type of assignment to @a must be int (not Str)
+    # fatal compile-time warning: Type of scalar assignment to @a must be int (not Str)
+
+use L<base> and use L<fields> was changed in cperl to behave as proper
+cperl classes. I.e. their @ISA are compile-time closed, which enables
+proper inheritance checks at compile-time.
 
 =head2 use types 'strict'
 
@@ -193,7 +220,7 @@ C<use types> without strict just warns.
 With strict types even user-type violations will error, without only
 signature type violations are strict.
 
-=head2 type inference
+=head2 Type inference
 
 The inferencer runs automatically on some very limited syntax and can
 currently only infer C<Int> on array indices, ranges and C<Str> on
@@ -289,10 +316,15 @@ For B<method signatures>:
 Typed arguments accept the same type or more generic arguments.
 Int as accepted as Numeric, but Numeric is not accepted as Int.
 
+B<Contravariance> is the most used variance: Enables you to use a more
+generic (less derived) type than originally specified.
+It is used for all signature and assignment type matching.
+
 =item Covariance of return types in the subtype.
 
 Typed return values accept the same type or more specific types.
 Numeric is accepted as Int, but Int is not accepted as Numeric.
+This is only used for declared function return types. I<Currently not implemented>.
 
 =item No new exceptions should be thrown by methods of the subtype
 
@@ -340,12 +372,12 @@ as valid type in an argument declaration.
 
 B<Avoiding the diamond problem>:
 
-subtypes need proper linearization of the inheritance tree.
+Subtypes need proper linearization of the inheritance tree.
 
-Therefore subtypes are required to use the B<c3> inheritance, with
-C<use mro "c3">.  subclasses defined with the new C<class> keyword use
-the c3 inheritance already.
-
+Therefore cperl switched from the old default mro B<dfs> to the better
+but stricter B<c3> inheritance with v5.26.c.  C<@ISA> violations throw
+errors with c3. Many old perl5 packages have broken ISA trees, and
+either need to C<use mro 'dfs'>, or fix it.
 
 B<A typical violation>:
 
