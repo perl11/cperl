@@ -194,6 +194,11 @@ Fixed a place where the regex parser was not setting the syntax error correctly
 on a syntactically incorrect pattern.
 L<[perl #129122]|https://rt.perl.org/Public/Bug/Display.html?id=129122>
 
+=item *
+
+Fixed a memory leak in list assign from/to magic values, added with v5.23.6.
+L<[perl #130766]|https://rt.perl.org/Public/Bug/Display.html?id=130766>
+
 =back
 
 =head1 Platform Support
