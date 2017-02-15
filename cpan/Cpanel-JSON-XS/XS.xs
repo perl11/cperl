@@ -3406,7 +3406,7 @@ PROTOTYPES: DISABLE
 
 #ifdef USE_ITHREADS
 
-void CLONE ()
+void CLONE (...)
     PPCODE:
 {
         MY_CXT_CLONE; /* possible declaration */
@@ -3416,7 +3416,7 @@ void CLONE ()
 
 #endif
 
-void END()
+void END(...)
     PREINIT:
         dMY_CXT;
         SV * sv;

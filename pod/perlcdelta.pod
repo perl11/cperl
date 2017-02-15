@@ -590,6 +590,12 @@ Better fix for the cperl APPEND logic.
 inflate.c: Fixed -1L compilation warning
 L<RT #119580|https://rt.cpan.org/Ticket/Display.html?id=119580>
 
+=item Cpanel-JSON-XS  3.0227
+
+fix CLONE and END
+
+relax longdouble Gconvert test on ppc64le and aarch64-linux-ld
+
 =item DB_File 1.840
 
 unused arg warnings
@@ -649,8 +655,8 @@ See L</Storable stack overflow or exit>.
 
 Another stack-overflow fix is for L<[cpan
 #97526]|https://rt.cpan.org/Ticket/Display.html?id=97526>, limiting
-the maximal number of nested hash or arrays to 3000. Cpanel::JSON::XS
-has it at 512.
+the maximal number of nested hash or arrays to 3000.
+Cpanel::JSON::XS has it at 512.
 
 Fixed up early huge buffer and index support from 3.00c, which was
 failing with wrong malloc errors due to silently overwrap >2GB.
