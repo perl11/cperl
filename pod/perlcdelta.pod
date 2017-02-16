@@ -589,12 +589,24 @@ gcc 4.9.2 warning -Wmaybe-uninitialized for cost[3-5]
 Coped fix for same issue from
 L<RT #105647|https://rt.cpan.org/Ticket/Display.html?id=105647>
 
-=item Compress-Raw-Zlib 2.071
+=item Compress-Raw-Zlib 2.072
 
 Better fix for the cperl APPEND logic.
 
 inflate.c: Fixed -1L compilation warning
 L<RT #119580|https://rt.cpan.org/Ticket/Display.html?id=119580>
+
+More fixes needed for 2.072 which doesn't even compile.
+
+inflateUndermine: subvert arg conditionally used/unused
+L<RT #120207|https://rt.cpan.org/Ticket/Display.html?id=120207>
+
+two gcc6-found problems
+L<RT #112829|https://rt.cpan.org/Ticket/Display.html?id=112829>
+
+fix deflateParams for zlib > 1.2.8
+Tests broken with zlib-1.2.10
+L<RT #119762|https://rt.cpan.org/Ticket/Display.html?id=119762>
 
 =item Cpanel-JSON-XS  3.0227
 

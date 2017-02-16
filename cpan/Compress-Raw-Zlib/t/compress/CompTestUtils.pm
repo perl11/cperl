@@ -70,8 +70,8 @@ BEGIN {
 
     our ($index);
     $index = '00000';
-    our ($useTempFile) = defined &File::Temp::tempdir;
-    our ($useTempDir) = defined &File::Temp::newdir;
+    our ($useTempFile);
+    our ($useTempDir);
     
     sub new
     {
