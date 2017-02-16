@@ -459,6 +459,12 @@ L<[perl #128187]|https://rt.perl.org/Public/Bug/Display.html?id=128187>
 
 =over 4
 
+=item * Less initial array elements
+
+The initial size of empty arrays went in cperl from 4 to 2, AvMAX = 1.
+Array speed is 2-15% faster on perlbench, overall speed the fastest of
+all so far. Memory win: <0.1%
+
 =item * if length($str) is faster
 
 length in boolean context without get magic doesn't need to calculate
@@ -1578,7 +1584,11 @@ F<t/uni/overload.t>: Skip hanging test on FreeBSD.
 
 =item *
 
-The initial size of empty arrays went in cperl from 4 to 2, AvMAX = 1.
+Forbid attaching magic to 4 builtin SV sentinels.
+
+The unique sv_undef, sv_yes, sv_no and sv_placeholder SV values are compared by
+pointer. Adding magic to it will break that and is now silently skipped.
+If you need to magicalize sv_yes or sv_no, turn it into a normal IV before.
 
 =item *
 
