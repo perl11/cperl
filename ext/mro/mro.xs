@@ -69,10 +69,10 @@ S_mro_get_linear_isa_c3(pTHX_ HV* stash, U32 level)
 
     if (isa && AvFILLp(isa) >= 0) {
         SV** seqs_ptr;
-        SSize_t seqs_items;
-        HV *tails;
         AV *const seqs = MUTABLE_AV(sv_2mortal(MUTABLE_SV(newAV())));
+        HV *tails;
         I32* heads;
+        SSize_t seqs_items;
 
         /* This builds @seqs, which is an array of arrays.
            The members of @seqs are the MROs of
@@ -81,11 +81,22 @@ S_mro_get_linear_isa_c3(pTHX_ HV* stash, U32 level)
         SSize_t items = AvFILLp(isa) + 1;
         SV** isa_ptr = AvARRAY(isa);
         while (items--) {
-            /* Deleted ISA items end up as empty PVMG, never NULL.
-               And their stash will be "main", not empty.
-               But you still can create empty entries with $#ISA++; RT 119433. */
-            SV* const isa_item = *isa_ptr ? *isa_ptr : &PL_sv_undef;
-            HV* const isa_item_stash = gv_stashsv(isa_item, 0);
+            /* Change deleted ISA elems into "main".
+               !*isa_ptr deletion can happen with $#ISA++.
+               Normal deletion changes the isaelem to an empty PVMG.
+               The stash of those will always be main. */
+            SV* isa_item = *isa_ptr ? *isa_ptr : &PL_sv_undef;
+            HV* isa_item_stash = gv_stashsv(isa_item, 0);
+            if (UNLIKELY((isa_item == &PL_sv_undef) ||
+                         (SvFLAGS(isa_item) == SVt_PVMG && /* missing SVs_SMG */
+                          isa_item_stash &&
+                          !SvPVX(isa_item)))) { /* a deleted elem */
+                SvREFCNT_dec_NN(isa_item);
+                /* *isa_ptr = &PL_sv_undef; */
+                isa_item_stash = NULL;
+                *isa_ptr = newSVpvs("main");
+                isa_item = *isa_ptr;
+            }
             isa_ptr++;
             if (!isa_item_stash) {
                 /* if no stash, make a temporary fake MRO
@@ -105,12 +116,11 @@ S_mro_get_linear_isa_c3(pTHX_ HV* stash, U32 level)
 		       linearisation, so don't bother with the expensive
 		       calculation.  */
 		    SV **svp;
-		    SSize_t subrv_items = AvFILLp(isa_lin) + 1;
 		    SV *const *subrv_p = AvARRAY(isa_lin);
+		    SSize_t subrv_items = AvFILLp(isa_lin) + 1;
 
 		    /* Hijack the allocated but unused array seqs to be the
 		       return value. It's currently mortalised.  */
-
 		    retval = seqs;
 
 		    av_extend(retval, subrv_items);
@@ -127,13 +137,16 @@ S_mro_get_linear_isa_c3(pTHX_ HV* stash, U32 level)
 			   scalars, so no point in adding code to optimising
 			   for a case that is unlikely to be true.
 			   (Or prove me wrong and do it.)  */
-
 			SV *const val = *subrv_p++;
-			*svp++ = newSVsv(val);
+                        if (LIKELY(val != &PL_sv_undef)) {
+                            if (SvIsCOW_shared_hash(val))
+                                *svp++ = SvREFCNT_inc_simple_NN(val);
+                            else
+                                *svp++ = newSVsv(val);
+                        }
 		    }
 
 		    SvREFCNT_inc(retval);
-
 		    goto done;
 		}
                 av_push(seqs, SvREFCNT_inc_simple_NN(MUTABLE_SV(isa_lin)));

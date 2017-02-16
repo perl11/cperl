@@ -59,12 +59,10 @@ is(UNIVERSAL::can("Diamond_D", 'hello')->(), 'Diamond_C::hello', '... can(method
 
     # this looks dumb, but it preserves existing behavior for compatibility
     #  (undefined @ISA elements treated as "main")
-    # c3 merge still buggy.
+    # c3 merge fixed with #251
     $ISACLEAR::ISA[1] = undef;
-    local $::TODO = "c3 merge with deleted entries [cperl #251]";
     ok(eq_array(mro::get_linear_isa('ISACLEAR'),[qw/ISACLEAR XX main ZZ/]))
       or diag("'".join("' '",@{mro::get_linear_isa('ISACLEAR')})."'");
-    undef $::TODO;
 
     # undef the array itself
     undef @ISACLEAR::ISA;

@@ -1753,6 +1753,19 @@ L<[perl #121734]|https://rt.perl.org/Public/Bug/Display.html?id=121734>
 
 =item *
 
+Fix c3 ISA linearization with deleted ISA elements, leaving "main" plus
+an empty name.
+
+    cperl -Mmro=c3 -e'
+        @ISACLEAR::ISA=qw/XX YY ZZ/;
+        $ISACLEAR::ISA[1]=undef;
+        print join",",@{mro::get_linear_isa('ISACLEAR')}'
+    => XX,main,,ZZ # wrong
+
+L<[cperl #251]|https://github.com/perl11/cperl/issues/251>.
+
+=item *
+
 Fix and explain sv_dump (also via Devel::Peek Dump) that maxnested means
 also maxelems, by printing now "... (skipping Elt 5-20)".
 L<[cperl #243]|https://github.com/perl11/cperl/issues/243>.
