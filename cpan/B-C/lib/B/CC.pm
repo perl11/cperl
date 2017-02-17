@@ -1816,10 +1816,13 @@ sub pp_gvsv {
   else {
     $gvsym = $op->gv->save;
   }
+  write_back_stack();
   # Expects GV*, not SV* PL_curpad
   $gvsym = "(GV*)$gvsym" if $gvsym =~ /PL_curpad/;
-  write_back_stack();
-  if ( $op->private & OPpLVAL_INTRO ) {
+  if ($gvsym eq '(SV*)&PL_sv_undef') {
+    runtime("XPUSHs($gvsym);");
+  }
+  elsif ( $op->private & OPpLVAL_INTRO ) {
     runtime("XPUSHs(save_scalar($gvsym));");
     #my $obj = new B::Stackobj::Const($op->gv);
     #push( @stack, $obj );

@@ -12,7 +12,7 @@
 package B::C;
 use strict;
 
-our $VERSION = '1.54_17';
+our $VERSION = '1.55_02';
 our (%debug, $check, %Config);
 BEGIN {
   require B::C::Config;
@@ -555,10 +555,9 @@ my @threadsv_names;
 
 BEGIN {
   @threadsv_names = threadsv_names();
+  # This the Carp free workaround for DynaLoader::bootstrap
+  eval 'sub DynaLoader::croak {die @_}' unless $CPERL51;
 }
-
-# This the Carp free workaround for DynaLoader::bootstrap
-sub DynaLoader::croak {die @_}
 
 # needed for init2 remap and Dynamic annotation
 sub dl_module_to_sofile {
@@ -1507,7 +1506,7 @@ sub B::OP::_save_common {
   if ($op->type == $OP_CUSTOM) {
     warn sprintf("CUSTOM OP %s $op\n", $op->name) if $verbose;
   }
-  # $prev_op = $op;
+  $prev_op = $op;
   my $sibling;
   if ($have_sibparent and !$op->moresib) { # HAS_SIBLING
     $sibling = $op->parent;
@@ -2315,7 +2314,9 @@ sub B::COP::save {
 
   $level = 0 unless $level;
   # we need to keep CvSTART cops, so check $level == 0
-  if ($optimize_cop and $level and !$op->label) { # XXX very unsafe!
+  # what a COP needs to do is to reset the stack, and restore locals
+  if ($optimize_cop and $level and !$op->label
+      and ref($prev_op) ne 'B::LISTOP') { # XXX very unsafe!
     my $sym = savesym( $op, $op->next->save );
     warn sprintf( "Skip COP (0x%x) => %s (0x%x), line %d file %s\n",
                   $$op, $sym, $op->next, $op->line, $op->file ) if $debug{cops};

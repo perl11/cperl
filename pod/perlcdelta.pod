@@ -564,9 +564,15 @@ Add missing strict/warnings pragma to Constants.pm
 
 Check for gzip/bzip2 before round tripping gz/bz2 files in tests
 
-=item B-C 1.54_16
+=item B-C 1.55_02
 
 Fixes for PERL_OP_PARENT: moresib, sibling, parent.
+
+Fix hints/522_patched.pl dependency on C.so [cpan #120161]
+
+PUSHRE replaced by SPLIT, no xpad_cop_seq, SVpbm_VALID
+
+Improved dl_module_to_sofile without 2nd arg
 
 =item Carp 1.41c
 

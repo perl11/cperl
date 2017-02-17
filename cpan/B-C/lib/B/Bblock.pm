@@ -4,7 +4,7 @@ package B::Bblock;
 our $VERSION = '1.05';
 
 use Exporter ();
-@ISA       = "Exporter";
+@ISA = "Exporter";
 our @EXPORT_OK = qw(find_leaders);
 
 use B qw(peekop walkoptree walkoptree_exec
@@ -15,8 +15,10 @@ use strict;
 
 my $bblock;
 my @bblock_ends;
-sub CPERL56 () { ( $Config::Config{usecperl} and $] >= 5.025003 ) } #sibparent, xpad_cop_seq
-sub PUSHRE () { ($] >= 5.025006 or CPERL56) ? "split" : "pushre" }
+# don't load Config with its dependencies
+use B::C ();
+sub CPERL56 () { ($B::C::Config::Config{usecperl} and $] >= 5.025003) ? 1 : 0 } #sibparent, xpad_cop_seq
+sub PUSHRE  () { ($] >= 5.025006 or CPERL56) ? "split" : "pushre" }
 
 sub mark_leader {
   my $op = shift;

@@ -17,8 +17,8 @@ require ByteLoader;    # we just need its $VERSION
 no warnings;           # XXX
 
 @ISA       = qw(Exporter);
-@EXPORT_OK = qw(assemble_fh newasm endasm assemble asm maxopix maxsvix);
-$VERSION   = '1.13';
+our @EXPORT_OK = qw(assemble_fh newasm endasm assemble asm maxopix maxsvix);
+our $VERSION   = '1.13';
 
 use strict;
 my %opnumber;

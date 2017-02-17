@@ -13,9 +13,9 @@ our $VERSION = '1.12_01';
 
 use Exporter ();
 @ISA       = qw(Exporter);
-@EXPORT_OK = qw(set_callback T_UNKNOWN T_NUM T_INT T_STR VALID_UNSIGNED
+our @EXPORT_OK = qw(set_callback T_UNKNOWN T_NUM T_INT T_STR VALID_UNSIGNED
   VALID_INT VALID_NUM VALID_STR VALID_SV REGISTER TEMPORARY);
-%EXPORT_TAGS = (
+our %EXPORT_TAGS = (
   types => [qw(T_UNKNOWN T_NUM T_INT T_STR)],
   flags => [
     qw(VALID_INT VALID_NUM VALID_STR VALID_SV
