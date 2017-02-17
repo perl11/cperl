@@ -614,6 +614,11 @@ fix deflateParams for zlib > 1.2.8
 Tests broken with zlib-1.2.10
 L<RT #119762|https://rt.cpan.org/Ticket/Display.html?id=119762>
 
+=item CPAN 2.17
+
+with cperl support.
+See L<https://github.com/andk/cpanpm/pull/109>
+
 =item Cpanel-JSON-XS  3.0227
 
 fix CLONE and END

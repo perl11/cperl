@@ -2,7 +2,7 @@ package CPAN::Version;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = "5.5003_01"; # strip cperl c suffices
+$VERSION = "5.5003_01"; # with cperl support
 
 # CPAN::Version::vcmp courtesy Jost Krieger
 sub vcmp {
