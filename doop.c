@@ -1067,16 +1067,16 @@ Perl_do_vop(pTHX_ I32 optype, SV *sv, SV *left, SV *right)
 	dc = SvPVX(sv);		/* sv_usepvn() calls Renew() */
     }
     if (left_utf || right_utf) {
-	UV duc, luc, ruc;
 	char *dcorig = dc;
 	char *dcsave = NULL;
 	STRLEN lulen = leftlen;
 	STRLEN rulen = rightlen;
-	STRLEN ulen;
 
 	switch (optype) {
 	case OP_BIT_AND:
 	    while (lulen && rulen) {
+                UV duc, luc, ruc;
+                STRLEN ulen;
 		luc = utf8n_to_uvchr((U8*)lc, lulen, &ulen, UTF8_ALLOW_ANYUV);
 		lc += ulen;
 		lulen -= ulen;
@@ -1099,6 +1099,8 @@ Perl_do_vop(pTHX_ I32 optype, SV *sv, SV *left, SV *right)
 	    break;
 	case OP_BIT_XOR:
 	    while (lulen && rulen) {
+                UV duc, luc, ruc;
+                STRLEN ulen;
 		luc = utf8n_to_uvchr((U8*)lc, lulen, &ulen, UTF8_ALLOW_ANYUV);
 		lc += ulen;
 		lulen -= ulen;
@@ -1116,6 +1118,8 @@ Perl_do_vop(pTHX_ I32 optype, SV *sv, SV *left, SV *right)
 	    goto mop_up_utf;
 	case OP_BIT_OR:
 	    while (lulen && rulen) {
+                UV duc, luc, ruc;
+                STRLEN ulen;
 		luc = utf8n_to_uvchr((U8*)lc, lulen, &ulen, UTF8_ALLOW_ANYUV);
 		lc += ulen;
 		lulen -= ulen;

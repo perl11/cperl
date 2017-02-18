@@ -669,7 +669,6 @@ void
 Perl_opslab_force_free(pTHX_ OPSLAB *slab)
 {
     OPSLAB *slab2;
-    OPSLOT *slot;
 #ifdef DEBUGGING
     size_t savestack_count = 0;
 #endif
@@ -677,6 +676,7 @@ Perl_opslab_force_free(pTHX_ OPSLAB *slab)
     DEBUG_S_warn((aTHX_ "forced freeing slab %p", (void*)slab));
     slab2 = slab;
     do {
+        OPSLOT *slot;
 	for (slot = slab2->opslab_first;
 	     slot->opslot_next;
 	     slot = slot->opslot_next) {
@@ -2251,10 +2251,10 @@ Perl_scalarvoid(pTHX_ OP *arg)
     SSize_t defer_ix = -1;
     OP **defer_stack = NULL;
     OP *o = arg;
-    U8 want;
     PERL_ARGS_ASSERT_SCALARVOID;
 
     do {
+        U8 want;
         SV *useless_sv = NULL;
         const char* useless = NULL;
 

@@ -1426,7 +1426,6 @@ PP(pp_enterwrite)
     IO *io;
     GV *fgv;
     CV *cv = NULL;
-    SV *tmpsv = NULL;
 
     if (MAXARG == 0) {
 	EXTEND(SP, 1);
@@ -1450,7 +1449,7 @@ PP(pp_enterwrite)
 
     cv = GvFORM(fgv);
     if (!cv) {
-	tmpsv = sv_newmortal();
+        SV * const tmpsv = sv_newmortal();
 	gv_efullname4(tmpsv, fgv, NULL, FALSE);
 	DIE(aTHX_ "Undefined format \"%" SVf "\" called", SVfARG(tmpsv));
     }
@@ -4436,10 +4435,9 @@ PP(pp_system)
 	    if (did_pipes) {
 		int errkid;
 		unsigned n = 0;
-		SSize_t n1;
 
 		while (n < sizeof(int)) {
-		    n1 = PerlLIO_read(pp[0],
+                    const SSize_t n1 = PerlLIO_read(pp[0],
 				      (void*)(((char*)&errkid)+n),
 				      (sizeof(int)) - n);
 		    if (n1 <= 0)
@@ -4848,7 +4846,6 @@ PP(pp_alarm)
 PP(pp_sleep)
 {
     dSP; dTARGET;
-    I32 duration;
     Time_t lasttime;
     Time_t when;
 
@@ -4856,7 +4853,7 @@ PP(pp_sleep)
     if (MAXARG < 1 || (!TOPs && !POPs))
 	PerlProc_pause();
     else {
-	duration = POPi;
+        const I32 duration = POPi;
         if (duration < 0) {
           /* diag_listed_as: %s() with negative argument */
           Perl_ck_warner_d(aTHX_ packWARN(WARN_MISC),
