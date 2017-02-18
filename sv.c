@@ -10379,8 +10379,13 @@ Perl_sv_ref(pTHX_ SV *dst, const SV *const sv, const int ob)
                     : sv_setpvs(dst, "__ANON__");
     }
     else {
-        const char * reftype = sv_reftype(sv, 0);
-        sv_setpv(dst, reftype);
+        sv_setpv(dst, sv_reftype(sv, 0));
+        /* Undo sv_setpv tainted'ness.
+           Those fixed ref names cannot be tainted. */
+        if (SvTAINTED(dst)) {
+            sv_untaint(dst);
+            SvMAGICAL_off(dst);
+        }
     }
     return dst;
 }

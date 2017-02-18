@@ -1786,6 +1786,13 @@ L<[perl #121734]|https://rt.perl.org/Public/Bug/Display.html?id=121734>
 
 =item *
 
+Fixed an assertion error with DEBUGGING builds in the C<ref> op, detected
+with C<-T> in pod testing. Turn off taint magic for the return value
+of C<ref> with fixed ref names.
+L<[cperl #254]|https://github.com/perl11/cperl/issues/254>.
+
+=item *
+
 Fix c3 ISA linearization with deleted ISA elements, leaving "main" plus
 an empty name.
 
