@@ -44,7 +44,7 @@ foreach my $filename (@filenames) {
     next if $filename =~ /uris\.txt/;
     next if $filename =~ /check_uris/;
     next if $filename =~ /\.patch$/;
-    next if $filename =~ 'cpan/Pod-Simple/t/perlfaqo?\.pod';
+    next if $filename =~ 'dist/Pod-Simple/t/perlfaqo?\.pod';
     next if $filename =~ /checkURL\.pl$/;
     my $contents = File::Slurp::read_file($filename);
     my @uris     = URI::Find::Simple::list_uris($contents);

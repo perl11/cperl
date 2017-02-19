@@ -108,8 +108,8 @@ my %skip;
 	cpan/Scalar-List-Utils/ListUtil.xs
 	cpan/IPC-SysV/SysV.xs
 	cpan/Test-Simple/lib/Test/Builder/Tester.pm
-	cpan/Pod-Simple/lib/Pod/Simple/LinkSection.pm
-	cpan/Pod-Simple/lib/Pod/Simple/Debug.pm
+	dist/Pod-Simple/lib/Pod/Simple/LinkSection.pm
+	dist/Pod-Simple/lib/Pod/Simple/Debug.pm
 	cpan/CPAN/lib/CPAN.pm
 	cpan/CPAN/lib/CPAN/Distribution.pm
 	cpan/CPAN/lib/CPAN/Shell.pm

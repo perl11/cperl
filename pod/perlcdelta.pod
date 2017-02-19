@@ -689,6 +689,8 @@ to see if a file is UTF-8 or not
 Merged with our cperl signature modernizations, tracked at
 L<https://github.com/rurban/pod-simple/tree/cperl>.
 
+Moved from cpan to dist.
+
 =item POSIX 1.69_01
 
 Several defects in making its symbols exportable.

@@ -2179,204 +2179,6 @@ cpan/Pod-Perldoc/t/01_about_verbose.t
 cpan/Pod-Perldoc/t/02_module_pod_output.t
 cpan/Pod-Perldoc/t/man/_get_columns.t		test file for Pod-Perldoc
 cpan/Pod-Perldoc/t/pod.t			test file for Pod-Perldoc
-cpan/Pod-Simple/lib/Pod/Simple.pm			Pod made simple
-cpan/Pod-Simple/lib/Pod/Simple.pod			Pod for Pod::Simple
-cpan/Pod-Simple/lib/Pod/Simple/BlackBox.pm		Pod::Simple::BlackBox
-cpan/Pod-Simple/lib/Pod/Simple/Checker.pm		check the Pod syntax of a document
-cpan/Pod-Simple/lib/Pod/Simple/Debug.pm			put Pod::Simple into trace/debug mode
-cpan/Pod-Simple/lib/Pod/Simple/DumpAsText.pm		dump Pod-parsing events as text
-cpan/Pod-Simple/lib/Pod/Simple/DumpAsXML.pm		turn Pod into XML
-cpan/Pod-Simple/lib/Pod/Simple/HTML.pm			convert Pod to HTML
-cpan/Pod-Simple/lib/Pod/Simple/HTMLBatch.pm		convert several Pod files to several HTML files
-cpan/Pod-Simple/lib/Pod/Simple/HTMLLegacy.pm		Pod::Simple::HTMLLegacy
-cpan/Pod-Simple/lib/Pod/Simple/LinkSection.pm		represent "section" attributes of L codes
-cpan/Pod-Simple/lib/Pod/Simple/Methody.pm		turn Pod::Simple events into method calls
-cpan/Pod-Simple/lib/Pod/Simple/Progress.pm		Pod::Simple::Progress
-cpan/Pod-Simple/lib/Pod/Simple/PullParser.pm		a pull-parser interface to parsing Pod
-cpan/Pod-Simple/lib/Pod/Simple/PullParserEndToken.pm	end-tokens from Pod::Simple::PullParser
-cpan/Pod-Simple/lib/Pod/Simple/PullParserStartToken.pm	start-tokens from Pod::Simple::PullParser
-cpan/Pod-Simple/lib/Pod/Simple/PullParserTextToken.pm	text-tokens from Pod::Simple::PullParser
-cpan/Pod-Simple/lib/Pod/Simple/PullParserToken.pm	tokens from Pod::Simple::PullParser
-cpan/Pod-Simple/lib/Pod/Simple/RTF.pm			format Pod as RTF
-cpan/Pod-Simple/lib/Pod/Simple/Search.pm		find POD documents in directory trees
-cpan/Pod-Simple/lib/Pod/Simple/SimpleTree.pm		parse Pod into a simple parse tree
-cpan/Pod-Simple/lib/Pod/Simple/Subclassing.pod		write a formatter as a Pod::Simple subclass
-cpan/Pod-Simple/lib/Pod/Simple/Text.pm			format Pod as plaintext
-cpan/Pod-Simple/lib/Pod/Simple/TextContent.pm		get the text content of Pod
-cpan/Pod-Simple/lib/Pod/Simple/TiedOutFH.pm		Pod::Simple::TiedOutFH
-cpan/Pod-Simple/lib/Pod/Simple/Transcode.pm		Pod::Simple::Transcode
-cpan/Pod-Simple/lib/Pod/Simple/TranscodeDumb.pm		Pod::Simple::TranscodeDumb
-cpan/Pod-Simple/lib/Pod/Simple/TranscodeSmart.pm	Pod::Simple::TranscodeSmart
-cpan/Pod-Simple/lib/Pod/Simple/XHTML.pm			turn Pod into XHTML
-cpan/Pod-Simple/lib/Pod/Simple/XMLOutStream.pm		turn Pod into XML
-cpan/Pod-Simple/t/00about.t				Pod::Simple test file
-cpan/Pod-Simple/t/20_skip.t				Pod::Simple test file
-cpan/Pod-Simple/t/ac_d.t				Pod::Simple test file
-cpan/Pod-Simple/t/accept01.t				Pod::Simple test file
-cpan/Pod-Simple/t/accept05.t				Pod::Simple test file
-cpan/Pod-Simple/t/ascii_order.pl
-cpan/Pod-Simple/t/basic.t				Pod::Simple test file
-cpan/Pod-Simple/t/begin.t				Pod::Simple test file
-cpan/Pod-Simple/t/cbacks.t				Pod::Simple test file
-cpan/Pod-Simple/t/chunking.t				Pod::Simple test file
-cpan/Pod-Simple/t/closeys.t				Pod::Simple test file
-cpan/Pod-Simple/t/corpus.t				Pod::Simple test file
-cpan/Pod-Simple/t/corpus/2202jp.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/2202jp.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/2202jpx.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/2202jpx.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/2202jpy.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/2202jpy.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/2202jpz.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/2202jpz.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/8859_7.pod			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/8859_7.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/cp1256.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/cp1256.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/enc_char_directive.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/enc_char_directive.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/enc_char_wrong_directive.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/enc_char_wrong_directive.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/encwarn01.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/encwarn01.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/encwarn02.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/encwarn02.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/encwarn03.txt
-cpan/Pod-Simple/t/corpus/encwarn03.xml
-cpan/Pod-Simple/t/corpus/encwarn04.txt
-cpan/Pod-Simple/t/corpus/encwarn04.xml
-cpan/Pod-Simple/t/corpus/fet_cont.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/fet_cont.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/fet_dup.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/fet_dup.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/iso6.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/iso6.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/koi8r.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/koi8r.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/laozi38.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/laozi38.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/laozi38b.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/laozi38b.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/laozi38p.pod			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/laozi38p.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/lat1fr.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/lat1fr.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/lat1frim.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/lat1frim.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/nonesuch.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/nonesuch.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/pasternak_cp1251.txt		Pod::Simple test file
-cpan/Pod-Simple/t/corpus/pasternak_cp1251.xml		Pod::Simple test file
-cpan/Pod-Simple/t/corpus/plain.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/plain.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/plain_explicit.txt		Pod::Simple test file
-cpan/Pod-Simple/t/corpus/plain_explicit.xml		Pod::Simple test file
-cpan/Pod-Simple/t/corpus/plain_latin1.txt		Pod::Simple test file
-cpan/Pod-Simple/t/corpus/plain_latin1.xml		Pod::Simple test file
-cpan/Pod-Simple/t/corpus/plain_utf8.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/plain_utf8.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/polish_utf8.txt		Pod::Simple test file
-cpan/Pod-Simple/t/corpus/polish_utf8.xml		Pod::Simple test file
-cpan/Pod-Simple/t/corpus/s2763_sjis.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/s2763_sjis.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/thai_iso11.txt			Pod::Simple test file
-cpan/Pod-Simple/t/corpus/thai_iso11.xml			Pod::Simple test file
-cpan/Pod-Simple/t/corpus2/fiqhakbar_iso6.txt		Pod::Simple test file
-cpan/Pod-Simple/t/corpus2/fiqhakbar_iso6.xml		Pod::Simple test file
-cpan/Pod-Simple/t/corpus2/polish_implicit_utf8.txt	Pod::Simple test file
-cpan/Pod-Simple/t/corpus2/polish_utf16be_bom.txt	Pod::Simple test file
-cpan/Pod-Simple/t/corpus2/polish_utf16le_bom.txt	Pod::Simple test file
-cpan/Pod-Simple/t/corpus2/polish_utf8_bom.txt		Pod::Simple test file
-cpan/Pod-Simple/t/corpus2/polish_utf8_bom.xml		Pod::Simple test file
-cpan/Pod-Simple/t/corpus2/polish_utf8_bom2.txt		Pod::Simple test file
-cpan/Pod-Simple/t/corpus2/polish_utf8_bom2.xml		Pod::Simple test file
-cpan/Pod-Simple/t/corpus2/README			Pod::Simple test file
-cpan/Pod-Simple/t/emptylists.t				Pod::Simple test file
-cpan/Pod-Simple/t/enc-chars.t
-cpan/Pod-Simple/t/encod01.t				Pod::Simple test file
-cpan/Pod-Simple/t/encod02.t				Pod::Simple test file
-cpan/Pod-Simple/t/encod03.t				Pod::Simple test file
-cpan/Pod-Simple/t/encod04.t
-cpan/Pod-Simple/t/end_over.t				Pod::Simple test file
-cpan/Pod-Simple/t/eol.t					Pod::Simple test file
-cpan/Pod-Simple/t/eol2.t				Pod::Simple test file
-cpan/Pod-Simple/t/fake-closers.t			Pod::Simple test file
-cpan/Pod-Simple/t/fcodes.t				Pod::Simple test file
-cpan/Pod-Simple/t/fcodes_e.t				Pod::Simple test file
-cpan/Pod-Simple/t/fcodes_l.t				Pod::Simple test file
-cpan/Pod-Simple/t/fcodes_s.t				Pod::Simple test file
-cpan/Pod-Simple/t/for.t					Pod::Simple test file
-cpan/Pod-Simple/t/fornot.t				Pod::Simple test file
-cpan/Pod-Simple/t/heads.t				Pod::Simple test file
-cpan/Pod-Simple/t/html01.t				Pod::Simple test file
-cpan/Pod-Simple/t/html02.t				Pod::Simple test file
-cpan/Pod-Simple/t/html03.t				Pod::Simple test file
-cpan/Pod-Simple/t/htmlbat.t				Pod::Simple test file
-cpan/Pod-Simple/t/items.t				Pod::Simple test file
-cpan/Pod-Simple/t/items02.t				Pod::Simple test file
-cpan/Pod-Simple/t/itemstar.t				Pod::Simple test file
-cpan/Pod-Simple/t/junk1.pod				Pod::Simple test file
-cpan/Pod-Simple/t/junk1o.txt				Pod::Simple test file
-cpan/Pod-Simple/t/junk2.pod				Pod::Simple test file
-cpan/Pod-Simple/t/junk2o.txt				Pod::Simple test file
-cpan/Pod-Simple/t/linkclas.t				Pod::Simple test file
-cpan/Pod-Simple/t/output.t				Pod::Simple test file
-cpan/Pod-Simple/t/perlcyg.pod				Pod::Simple test file
-cpan/Pod-Simple/t/perlcygo.txt				Pod::Simple test file
-cpan/Pod-Simple/t/perlfaq.pod				Pod::Simple test file
-cpan/Pod-Simple/t/perlfaqo.txt				Pod::Simple test file
-cpan/Pod-Simple/t/perlvar.pod				Pod::Simple test file
-cpan/Pod-Simple/t/perlvaro.txt				Pod::Simple test file
-cpan/Pod-Simple/t/puller.t				Pod::Simple test file
-cpan/Pod-Simple/t/pulltitl.t				Pod::Simple test file
-cpan/Pod-Simple/t/reinit.t				Pod::Simple test file
-cpan/Pod-Simple/t/render.t				Pod::Simple test file
-cpan/Pod-Simple/t/search05.t				Pod::Simple test file
-cpan/Pod-Simple/t/search10.t				Pod::Simple test file
-cpan/Pod-Simple/t/search12.t				Pod::Simple test file
-cpan/Pod-Simple/t/search20.t				Pod::Simple test file
-cpan/Pod-Simple/t/search22.t				Pod::Simple test file
-cpan/Pod-Simple/t/search25.t				Pod::Simple test file
-cpan/Pod-Simple/t/search26.t				Pod::Simple test file
-cpan/Pod-Simple/t/search27.t				Pod::Simple test file
-cpan/Pod-Simple/t/search28.t				Pod::Simple test file
-cpan/Pod-Simple/t/search29.t				Pod::Simple test file
-cpan/Pod-Simple/t/search50.t				Pod::Simple test file
-cpan/Pod-Simple/t/stree.t				Pod::Simple test file
-cpan/Pod-Simple/t/strpvbtm.t				Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/Blorm.pm			Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/hinkhonk/Glunk.pod		Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/hinkhonk/readme.txt		Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/hinkhonk/Vliff.pm		Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/pod/perlflif.pod		Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/pod/perlthng.pod		Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/squaa.pm			Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/squaa/Glunk.pod		Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/squaa/Vliff.pm		Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/zikzik.pod			Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/Zonk/Fiddle.txt		Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/Zonk/Pronk.pm		Pod::Simple test file
-cpan/Pod-Simple/t/testlib1/Zonk/Veng.pm			Pod::Simple test file
-cpan/Pod-Simple/t/testlib2/hinkhonk/Glunk.pod		Pod::Simple test file
-cpan/Pod-Simple/t/testlib2/hinkhonk/readme.txt		Pod::Simple test file
-cpan/Pod-Simple/t/testlib2/hinkhonk/Vliff.pm		Pod::Simple test file
-cpan/Pod-Simple/t/testlib2/pod/perlthng.pod		Pod::Simple test file
-cpan/Pod-Simple/t/testlib2/pod/perlzuk.pod		Pod::Simple test file
-cpan/Pod-Simple/t/testlib2/squaa/Vliff.pm		Pod::Simple test file
-cpan/Pod-Simple/t/testlib2/squaa/Wowo.pod		Pod::Simple test file
-cpan/Pod-Simple/t/testlib2/Suzzle.pm			Pod::Simple test file
-cpan/Pod-Simple/t/testlib3/squaa/Vliff.pm		Pod::Simple test file
-cpan/Pod-Simple/t/tiedfh.t				Pod::Simple test file
-cpan/Pod-Simple/t/verb_fmt.t				Pod::Simple test file
-cpan/Pod-Simple/t/verbatim.t				Pod::Simple test file
-cpan/Pod-Simple/t/whine.t
-cpan/Pod-Simple/t/x_nixer.t				Pod::Simple test file
-cpan/Pod-Simple/t/xhtml-bkb.t
-cpan/Pod-Simple/t/xhtml01.t				Pod::Simple test file
-cpan/Pod-Simple/t/xhtml05.t				Pod::Simple test file
-cpan/Pod-Simple/t/xhtml10.t				Pod::Simple test file
-cpan/Pod-Simple/t/xhtml15.t				Pod::Simple test file
-cpan/Pod-Simple/t/xhtml20.t				Pod::Simple test file
 cpan/Pod-Usage/lib/Pod/Usage.pm
 cpan/Pod-Usage/scripts/pod2usage.PL
 cpan/Pod-Usage/t/inc/Pod/InputObjects.pm
@@ -3703,6 +3505,204 @@ dist/PathTools/t/Spec-taint.t		See if File::Spec works with taint
 dist/PathTools/t/taint.t		See if Cwd works with taint
 dist/PathTools/t/tmpdir.t		See if File::Spec->tmpdir() works
 dist/PathTools/t/win32.t		See if Cwd works on Win32
+dist/Pod-Simple/lib/Pod/Simple.pm			Pod made simple
+dist/Pod-Simple/lib/Pod/Simple.pod			Pod for Pod::Simple
+dist/Pod-Simple/lib/Pod/Simple/BlackBox.pm		Pod::Simple::BlackBox
+dist/Pod-Simple/lib/Pod/Simple/Checker.pm		check the Pod syntax of a document
+dist/Pod-Simple/lib/Pod/Simple/Debug.pm			put Pod::Simple into trace/debug mode
+dist/Pod-Simple/lib/Pod/Simple/DumpAsText.pm		dump Pod-parsing events as text
+dist/Pod-Simple/lib/Pod/Simple/DumpAsXML.pm		turn Pod into XML
+dist/Pod-Simple/lib/Pod/Simple/HTML.pm			convert Pod to HTML
+dist/Pod-Simple/lib/Pod/Simple/HTMLBatch.pm		convert several Pod files to several HTML files
+dist/Pod-Simple/lib/Pod/Simple/HTMLLegacy.pm		Pod::Simple::HTMLLegacy
+dist/Pod-Simple/lib/Pod/Simple/LinkSection.pm		represent "section" attributes of L codes
+dist/Pod-Simple/lib/Pod/Simple/Methody.pm		turn Pod::Simple events into method calls
+dist/Pod-Simple/lib/Pod/Simple/Progress.pm		Pod::Simple::Progress
+dist/Pod-Simple/lib/Pod/Simple/PullParser.pm		a pull-parser interface to parsing Pod
+dist/Pod-Simple/lib/Pod/Simple/PullParserEndToken.pm	end-tokens from Pod::Simple::PullParser
+dist/Pod-Simple/lib/Pod/Simple/PullParserStartToken.pm	start-tokens from Pod::Simple::PullParser
+dist/Pod-Simple/lib/Pod/Simple/PullParserTextToken.pm	text-tokens from Pod::Simple::PullParser
+dist/Pod-Simple/lib/Pod/Simple/PullParserToken.pm	tokens from Pod::Simple::PullParser
+dist/Pod-Simple/lib/Pod/Simple/RTF.pm			format Pod as RTF
+dist/Pod-Simple/lib/Pod/Simple/Search.pm		find POD documents in directory trees
+dist/Pod-Simple/lib/Pod/Simple/SimpleTree.pm		parse Pod into a simple parse tree
+dist/Pod-Simple/lib/Pod/Simple/Subclassing.pod		write a formatter as a Pod::Simple subclass
+dist/Pod-Simple/lib/Pod/Simple/Text.pm			format Pod as plaintext
+dist/Pod-Simple/lib/Pod/Simple/TextContent.pm		get the text content of Pod
+dist/Pod-Simple/lib/Pod/Simple/TiedOutFH.pm		Pod::Simple::TiedOutFH
+dist/Pod-Simple/lib/Pod/Simple/Transcode.pm		Pod::Simple::Transcode
+dist/Pod-Simple/lib/Pod/Simple/TranscodeDumb.pm		Pod::Simple::TranscodeDumb
+dist/Pod-Simple/lib/Pod/Simple/TranscodeSmart.pm	Pod::Simple::TranscodeSmart
+dist/Pod-Simple/lib/Pod/Simple/XHTML.pm			turn Pod into XHTML
+dist/Pod-Simple/lib/Pod/Simple/XMLOutStream.pm		turn Pod into XML
+dist/Pod-Simple/t/00about.t				Pod::Simple test file
+dist/Pod-Simple/t/20_skip.t				Pod::Simple test file
+dist/Pod-Simple/t/ac_d.t				Pod::Simple test file
+dist/Pod-Simple/t/accept01.t				Pod::Simple test file
+dist/Pod-Simple/t/accept05.t				Pod::Simple test file
+dist/Pod-Simple/t/ascii_order.pl
+dist/Pod-Simple/t/basic.t				Pod::Simple test file
+dist/Pod-Simple/t/begin.t				Pod::Simple test file
+dist/Pod-Simple/t/cbacks.t				Pod::Simple test file
+dist/Pod-Simple/t/chunking.t				Pod::Simple test file
+dist/Pod-Simple/t/closeys.t				Pod::Simple test file
+dist/Pod-Simple/t/corpus.t				Pod::Simple test file
+dist/Pod-Simple/t/corpus/2202jp.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/2202jp.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/2202jpx.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/2202jpx.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/2202jpy.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/2202jpy.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/2202jpz.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/2202jpz.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/8859_7.pod			Pod::Simple test file
+dist/Pod-Simple/t/corpus/8859_7.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/cp1256.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/cp1256.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/enc_char_directive.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/enc_char_directive.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/enc_char_wrong_directive.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/enc_char_wrong_directive.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/encwarn01.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/encwarn01.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/encwarn02.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/encwarn02.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/encwarn03.txt
+dist/Pod-Simple/t/corpus/encwarn03.xml
+dist/Pod-Simple/t/corpus/encwarn04.txt
+dist/Pod-Simple/t/corpus/encwarn04.xml
+dist/Pod-Simple/t/corpus/fet_cont.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/fet_cont.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/fet_dup.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/fet_dup.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/iso6.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/iso6.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/koi8r.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/koi8r.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/laozi38.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/laozi38.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/laozi38b.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/laozi38b.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/laozi38p.pod			Pod::Simple test file
+dist/Pod-Simple/t/corpus/laozi38p.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/lat1fr.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/lat1fr.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/lat1frim.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/lat1frim.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/nonesuch.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/nonesuch.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/pasternak_cp1251.txt		Pod::Simple test file
+dist/Pod-Simple/t/corpus/pasternak_cp1251.xml		Pod::Simple test file
+dist/Pod-Simple/t/corpus/plain.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/plain.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/plain_explicit.txt		Pod::Simple test file
+dist/Pod-Simple/t/corpus/plain_explicit.xml		Pod::Simple test file
+dist/Pod-Simple/t/corpus/plain_latin1.txt		Pod::Simple test file
+dist/Pod-Simple/t/corpus/plain_latin1.xml		Pod::Simple test file
+dist/Pod-Simple/t/corpus/plain_utf8.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/plain_utf8.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/polish_utf8.txt		Pod::Simple test file
+dist/Pod-Simple/t/corpus/polish_utf8.xml		Pod::Simple test file
+dist/Pod-Simple/t/corpus/s2763_sjis.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/s2763_sjis.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus/thai_iso11.txt			Pod::Simple test file
+dist/Pod-Simple/t/corpus/thai_iso11.xml			Pod::Simple test file
+dist/Pod-Simple/t/corpus2/fiqhakbar_iso6.txt		Pod::Simple test file
+dist/Pod-Simple/t/corpus2/fiqhakbar_iso6.xml		Pod::Simple test file
+dist/Pod-Simple/t/corpus2/polish_implicit_utf8.txt	Pod::Simple test file
+dist/Pod-Simple/t/corpus2/polish_utf16be_bom.txt	Pod::Simple test file
+dist/Pod-Simple/t/corpus2/polish_utf16le_bom.txt	Pod::Simple test file
+dist/Pod-Simple/t/corpus2/polish_utf8_bom.txt		Pod::Simple test file
+dist/Pod-Simple/t/corpus2/polish_utf8_bom.xml		Pod::Simple test file
+dist/Pod-Simple/t/corpus2/polish_utf8_bom2.txt		Pod::Simple test file
+dist/Pod-Simple/t/corpus2/polish_utf8_bom2.xml		Pod::Simple test file
+dist/Pod-Simple/t/corpus2/README			Pod::Simple test file
+dist/Pod-Simple/t/emptylists.t				Pod::Simple test file
+dist/Pod-Simple/t/enc-chars.t
+dist/Pod-Simple/t/encod01.t				Pod::Simple test file
+dist/Pod-Simple/t/encod02.t				Pod::Simple test file
+dist/Pod-Simple/t/encod03.t				Pod::Simple test file
+dist/Pod-Simple/t/encod04.t
+dist/Pod-Simple/t/end_over.t				Pod::Simple test file
+dist/Pod-Simple/t/eol.t					Pod::Simple test file
+dist/Pod-Simple/t/eol2.t				Pod::Simple test file
+dist/Pod-Simple/t/fake-closers.t			Pod::Simple test file
+dist/Pod-Simple/t/fcodes.t				Pod::Simple test file
+dist/Pod-Simple/t/fcodes_e.t				Pod::Simple test file
+dist/Pod-Simple/t/fcodes_l.t				Pod::Simple test file
+dist/Pod-Simple/t/fcodes_s.t				Pod::Simple test file
+dist/Pod-Simple/t/for.t					Pod::Simple test file
+dist/Pod-Simple/t/fornot.t				Pod::Simple test file
+dist/Pod-Simple/t/heads.t				Pod::Simple test file
+dist/Pod-Simple/t/html01.t				Pod::Simple test file
+dist/Pod-Simple/t/html02.t				Pod::Simple test file
+dist/Pod-Simple/t/html03.t				Pod::Simple test file
+dist/Pod-Simple/t/htmlbat.t				Pod::Simple test file
+dist/Pod-Simple/t/items.t				Pod::Simple test file
+dist/Pod-Simple/t/items02.t				Pod::Simple test file
+dist/Pod-Simple/t/itemstar.t				Pod::Simple test file
+dist/Pod-Simple/t/junk1.pod				Pod::Simple test file
+dist/Pod-Simple/t/junk1o.txt				Pod::Simple test file
+dist/Pod-Simple/t/junk2.pod				Pod::Simple test file
+dist/Pod-Simple/t/junk2o.txt				Pod::Simple test file
+dist/Pod-Simple/t/linkclas.t				Pod::Simple test file
+dist/Pod-Simple/t/output.t				Pod::Simple test file
+dist/Pod-Simple/t/perlcyg.pod				Pod::Simple test file
+dist/Pod-Simple/t/perlcygo.txt				Pod::Simple test file
+dist/Pod-Simple/t/perlfaq.pod				Pod::Simple test file
+dist/Pod-Simple/t/perlfaqo.txt				Pod::Simple test file
+dist/Pod-Simple/t/perlvar.pod				Pod::Simple test file
+dist/Pod-Simple/t/perlvaro.txt				Pod::Simple test file
+dist/Pod-Simple/t/puller.t				Pod::Simple test file
+dist/Pod-Simple/t/pulltitl.t				Pod::Simple test file
+dist/Pod-Simple/t/reinit.t				Pod::Simple test file
+dist/Pod-Simple/t/render.t				Pod::Simple test file
+dist/Pod-Simple/t/search05.t				Pod::Simple test file
+dist/Pod-Simple/t/search10.t				Pod::Simple test file
+dist/Pod-Simple/t/search12.t				Pod::Simple test file
+dist/Pod-Simple/t/search20.t				Pod::Simple test file
+dist/Pod-Simple/t/search22.t				Pod::Simple test file
+dist/Pod-Simple/t/search25.t				Pod::Simple test file
+dist/Pod-Simple/t/search26.t				Pod::Simple test file
+dist/Pod-Simple/t/search27.t				Pod::Simple test file
+dist/Pod-Simple/t/search28.t				Pod::Simple test file
+dist/Pod-Simple/t/search29.t				Pod::Simple test file
+dist/Pod-Simple/t/search50.t				Pod::Simple test file
+dist/Pod-Simple/t/stree.t				Pod::Simple test file
+dist/Pod-Simple/t/strpvbtm.t				Pod::Simple test file
+dist/Pod-Simple/t/testlib1/Blorm.pm			Pod::Simple test file
+dist/Pod-Simple/t/testlib1/hinkhonk/Glunk.pod		Pod::Simple test file
+dist/Pod-Simple/t/testlib1/hinkhonk/readme.txt		Pod::Simple test file
+dist/Pod-Simple/t/testlib1/hinkhonk/Vliff.pm		Pod::Simple test file
+dist/Pod-Simple/t/testlib1/pod/perlflif.pod		Pod::Simple test file
+dist/Pod-Simple/t/testlib1/pod/perlthng.pod		Pod::Simple test file
+dist/Pod-Simple/t/testlib1/squaa.pm			Pod::Simple test file
+dist/Pod-Simple/t/testlib1/squaa/Glunk.pod		Pod::Simple test file
+dist/Pod-Simple/t/testlib1/squaa/Vliff.pm		Pod::Simple test file
+dist/Pod-Simple/t/testlib1/zikzik.pod			Pod::Simple test file
+dist/Pod-Simple/t/testlib1/Zonk/Fiddle.txt		Pod::Simple test file
+dist/Pod-Simple/t/testlib1/Zonk/Pronk.pm		Pod::Simple test file
+dist/Pod-Simple/t/testlib1/Zonk/Veng.pm			Pod::Simple test file
+dist/Pod-Simple/t/testlib2/hinkhonk/Glunk.pod		Pod::Simple test file
+dist/Pod-Simple/t/testlib2/hinkhonk/readme.txt		Pod::Simple test file
+dist/Pod-Simple/t/testlib2/hinkhonk/Vliff.pm		Pod::Simple test file
+dist/Pod-Simple/t/testlib2/pod/perlthng.pod		Pod::Simple test file
+dist/Pod-Simple/t/testlib2/pod/perlzuk.pod		Pod::Simple test file
+dist/Pod-Simple/t/testlib2/squaa/Vliff.pm		Pod::Simple test file
+dist/Pod-Simple/t/testlib2/squaa/Wowo.pod		Pod::Simple test file
+dist/Pod-Simple/t/testlib2/Suzzle.pm			Pod::Simple test file
+dist/Pod-Simple/t/testlib3/squaa/Vliff.pm		Pod::Simple test file
+dist/Pod-Simple/t/tiedfh.t				Pod::Simple test file
+dist/Pod-Simple/t/verb_fmt.t				Pod::Simple test file
+dist/Pod-Simple/t/verbatim.t				Pod::Simple test file
+dist/Pod-Simple/t/whine.t
+dist/Pod-Simple/t/x_nixer.t				Pod::Simple test file
+dist/Pod-Simple/t/xhtml-bkb.t
+dist/Pod-Simple/t/xhtml01.t				Pod::Simple test file
+dist/Pod-Simple/t/xhtml05.t				Pod::Simple test file
+dist/Pod-Simple/t/xhtml10.t				Pod::Simple test file
+dist/Pod-Simple/t/xhtml15.t				Pod::Simple test file
+dist/Pod-Simple/t/xhtml20.t				Pod::Simple test file
 dist/Safe/Changes		Changes for Safe.pm
 dist/Safe/Makefile.PL		Makefile.PL for Safe.pm
 dist/Safe/MANIFEST		MANIFEST for Safe.pm

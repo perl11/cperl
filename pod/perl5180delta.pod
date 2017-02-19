@@ -1449,7 +1449,7 @@ L<Pod::Simple> has been upgraded to 3.28.
 
 Numerous improvements have been made, mostly to Pod::Simple::XHTML,
 which also has a compatibility change: the C<codes_in_verbatim> option
-is now disabled by default.  See F<cpan/Pod-Simple/ChangeLog> for the
+is now disabled by default.  See F<dist/Pod-Simple/ChangeLog> for the
 full details.
 
 =item *
