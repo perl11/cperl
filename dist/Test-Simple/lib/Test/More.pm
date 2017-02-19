@@ -17,10 +17,9 @@ sub _carp {
     return warn @_, " at $file line $line\n";
 }
 
-our $VERSION = '1.401015c';
-$VERSION =~ s/c$//;
+our $VERSION = '1.302075';
 
-use Test::Builder::Module 0.99;
+use Test::Builder::Module;
 our @ISA    = qw(Test::Builder::Module);
 our @EXPORT = qw(ok use_ok require_ok
   is isnt like unlike is_deeply
@@ -126,6 +125,8 @@ the end.
 
   done_testing( $number_of_tests_run );
 
+B<NOTE> C<done_testing()> should never be called in an C<END { ... }> block.
+
 Sometimes you really don't know how many tests were run, or it's too
 difficult to calculate.  In which case you can leave off
 $number_of_tests_run.
@@ -162,21 +163,35 @@ or for deciding between running the tests at all:
 
 =cut
 
-# TODO (...)
-sub plan (@args) {
-    Test::More->builder->plan(@args);
+sub plan {
+    my $tb = Test::More->builder;
+
+    return $tb->plan(@_);
 }
 
 # This implements "use Test::More 'no_diag'" but the behavior is
 # deprecated.
-sub import_extra ($class, $list) {
+sub import_extra {
+    my $class = shift;
+    my $list  = shift;
+
     my @other = ();
     my $idx   = 0;
+    my $import;
     while( $idx <= $#{$list} ) {
         my $item = $list->[$idx];
 
         if( defined $item and $item eq 'no_diag' ) {
             $class->builder->no_diag(1);
+        }
+        elsif( defined $item and $item eq 'import' ) {
+            if ($import) {
+                push @$import, @{$list->[ ++$idx ]};
+            }
+            else {
+                $import = $list->[ ++$idx ];
+                push @other, $item, $import;
+            }
         }
         else {
             push @other, $item;
@@ -186,6 +201,18 @@ sub import_extra ($class, $list) {
     }
 
     @$list = @other;
+
+    if ($class eq __PACKAGE__ && (!$import || grep $_ eq '$TODO', @$import)) {
+        my $to = $class->builder->exported_to;
+        no strict 'refs';
+        *{"$to\::TODO"} = \our $TODO;
+        if ($import) {
+            @$import = grep $_ ne '$TODO', @$import;
+        }
+        else {
+            push @$list, import => [grep $_ ne '$TODO', @EXPORT];
+        }
+    }
 
     return;
 }
@@ -207,12 +234,17 @@ conclusion.
 
 This is safer than and replaces the "no_plan" plan.
 
+B<Note:> You must never put C<done_testing()> inside an C<END { ... }> block.
+The plan is there to ensure your test does not exit before testing has
+completed. If you use an END block you completely bypass this protection.
+
 =back
 
 =cut
 
 sub done_testing {
-    Test::More->builder->done_testing(@_);
+    my $tb = Test::More->builder;
+    $tb->done_testing(@_);
 }
 
 =head2 Test names
@@ -282,8 +314,11 @@ This is the same as L<Test::Simple>'s C<ok()> routine.
 
 =cut
 
-sub ok ($test, $name?) {
-    Test::More->builder->ok( $test, $name );
+sub ok ($;$) {
+    my( $test, $name ) = @_;
+    my $tb = Test::More->builder;
+
+    return $tb->ok( $test, $name );
 }
 
 =item B<is>
@@ -363,14 +398,18 @@ function which is an alias of C<isnt()>.
 =cut
 
 sub is ($$;$) {
-    Test::More->builder->is_eq(@_);
+    my $tb = Test::More->builder;
+
+    return $tb->is_eq(@_);
 }
 
 sub isnt ($$;$) {
-    Test::More->builder->isnt_eq(@_);
+    my $tb = Test::More->builder;
+
+    return $tb->isnt_eq(@_);
 }
 
-# *isn't = \&isnt;
+*isn't = \&isnt;
 # ' to unconfuse syntax higlighters
 
 =item B<like>
@@ -404,7 +443,9 @@ diagnostics on failure.
 =cut
 
 sub like ($$;$) {
-    Test::More->builder->like(@_);
+    my $tb = Test::More->builder;
+
+    return $tb->like(@_);
 }
 
 =item B<unlike>
@@ -417,7 +458,9 @@ given pattern.
 =cut
 
 sub unlike ($$;$) {
-    Test::More->builder->unlike(@_);
+    my $tb = Test::More->builder;
+
+    return $tb->unlike(@_);
 }
 
 =item B<cmp_ok>
@@ -461,7 +504,9 @@ relation between values:
 =cut
 
 sub cmp_ok($$$;$) {
-    Test::More->builder->cmp_ok(@_);
+    my $tb = Test::More->builder;
+
+    return $tb->cmp_ok(@_);
 }
 
 =item B<can_ok>
@@ -493,7 +538,8 @@ as one test.  If you desire otherwise, use:
 
 =cut
 
-sub can_ok ($proto, @methods) {
+sub can_ok ($@) {
+    my( $proto, @methods ) = @_;
     my $class = ref $proto || $proto;
     my $tb = Test::More->builder;
 
@@ -558,7 +604,8 @@ you'd like them to be more specific, you can supply an $object_name
 
 =cut
 
-sub isa_ok ($thing, $class, $thing_name?) {
+sub isa_ok ($$;$) {
+    my( $thing, $class, $thing_name ) = @_;
     my $tb = Test::More->builder;
 
     my $whatami;
@@ -658,20 +705,22 @@ just a single object which isa C<$class>.
 
 =cut
 
-sub new_ok ($class, $args?, $object_name?) {
+sub new_ok {
     my $tb = Test::More->builder;
-    # $tb->croak("new_ok() must be given at least a class") unless defined $class;
+    $tb->croak("new_ok() must be given at least a class") unless @_;
+
+    my( $class, $args, $object_name ) = @_;
 
     $args ||= [];
 
     my $obj;
-    my ($success, $error) = $tb->_try( sub { $obj = $class->new(@$args); 1 } );
-    if ($success) {
+    my( $success, $error ) = $tb->_try( sub { $obj = $class->new(@$args); 1 } );
+    if($success) {
         local $Test::Builder::Level = $Test::Builder::Level + 1;
-        isa_ok($obj, $class, $object_name);
+        isa_ok $obj, $class, $object_name;
     }
     else {
-        $class = 'undef' if !length $class;
+        $class = 'undef' if !defined $class;
         $tb->ok( 0, "$class->new() died" );
         $tb->diag("    Error was:  $error");
     }
@@ -740,10 +789,22 @@ subtests are equivalent:
       done_testing();
   };
 
+Extra arguments given to C<subtest> are passed to the callback. For example:
+
+    sub my_subtest {
+        my $range = shift;
+        ...
+    }
+
+    for my $range (1, 10, 100, 1000) {
+        subtest "testing range $range", \&my_subtest, $range;
+    }
+
 =cut
 
-sub subtest ($name, $subtests, @args) {
-    Test::More->builder->subtest($name, $subtests, @args);
+sub subtest {
+    my $tb = Test::More->builder;
+    return $tb->subtest(@_);
 }
 
 =item B<pass>
@@ -764,11 +825,15 @@ Use these very, very, very sparingly.
 =cut
 
 sub pass (;$) {
-    Test::More->builder->ok( 1, @_ );
+    my $tb = Test::More->builder;
+
+    return $tb->ok( 1, @_ );
 }
 
 sub fail (;$) {
-    Test::More->builder->ok( 0, @_ );
+    my $tb = Test::More->builder;
+
+    return $tb->ok( 0, @_ );
 }
 
 =back
@@ -812,7 +877,8 @@ No exception will be thrown if the load fails.
 
 =cut
 
-sub require_ok ($module) {
+sub require_ok ($) {
+    my($module) = shift;
     my $tb = Test::More->builder;
 
     my $pack = caller;
@@ -842,7 +908,8 @@ DIAGNOSTIC
     return $ok;
 }
 
-sub _is_module_name (str $module) {
+sub _is_module_name {
+    my $module = shift;
 
     # Module names start with a letter.
     # End with an alphanumeric.
@@ -904,11 +971,15 @@ import anything, use C<require_ok>.
 
 =cut
 
-sub use_ok { #($module, @imports) { # XXX segv!
-    my ($module, @imports) = @_;
+sub use_ok ($;@) {
+    my( $module, @imports ) = @_;
+    @imports = () unless @imports;
     my $tb = Test::More->builder;
 
-    my( $pack, $filename, $line ) = caller;
+    my %caller;
+    @caller{qw/pack file line sub args want eval req strict warn/} = caller(0);
+
+    my ($pack, $filename, $line, $warn) = @caller{qw/pack file line warn/};
     $filename =~ y/\n\r/_/; # so it doesn't run off the "#line $line $f" line
 
     my $code;
@@ -917,7 +988,7 @@ sub use_ok { #($module, @imports) { # XXX segv!
         # for it to work with non-Exporter based modules.
         $code = <<USE;
 package $pack;
-
+BEGIN { \${^WARNING_BITS} = \$args[-1] if defined \$args[-1] }
 #line $line $filename
 use $module $imports[0];
 1;
@@ -926,14 +997,14 @@ USE
     else {
         $code = <<USE;
 package $pack;
-
+BEGIN { \${^WARNING_BITS} = \$args[-1] if defined \$args[-1] }
 #line $line $filename
 use $module \@{\$args[0]};
 1;
 USE
     }
 
-    my( $eval_result, $eval_error ) = _eval( $code, \@imports );
+    my ($eval_result, $eval_error) = _eval($code, \@imports, $warn);
     my $ok = $tb->ok( $eval_result, "use $module;" );
 
     unless($ok) {
@@ -950,7 +1021,8 @@ DIAGNOSTIC
     return $ok;
 }
 
-sub _eval ( $code, @args ) {
+sub _eval {
+    my( $code, @args ) = @_;
 
     # Work around oddities surrounding resetting of $@ by immediately
     # storing it.
@@ -1001,13 +1073,27 @@ improve in the future.
 L<Test::Differences> and L<Test::Deep> provide more in-depth functionality
 along these lines.
 
+B<NOTE> is_deeply() has limitations when it comes to comparing strings and
+refs:
+
+    my $path = path('.');
+    my $hash = {};
+    is_deeply( $path, "$path" ); # ok
+    is_deeply( $hash, "$hash" ); # fail
+
+This happens because is_deeply will unoverload all arguments unconditionally.
+It is probably best not to use is_deeply with overloading. For legacy reasons
+this is not likely to ever be fixed. If you would like a much better tool for
+this you should see L<Test2::Suite> Specifically L<Test2::Tools::Compare> has
+an C<is()> function that works like C<is_deeply> with many improvements.
+
 =cut
 
 our( @Data_Stack, %Refs_Seen );
 my $DNE = bless [], 'Does::Not::Exist';
 
-sub _dne ($obj) {
-    return ref $obj eq ref $DNE;
+sub _dne {
+    return ref $_[0] eq ref $DNE;
 }
 
 ## no critic (Subroutines::RequireArgUnpacking)
@@ -1017,7 +1103,7 @@ sub is_deeply {
     unless( @_ == 2 or @_ == 3 ) {
         my $msg = <<'WARNING';
 is_deeply() takes two or three args, you gave %d.
-This usually means you passed an array or hash instead
+This usually means you passed an array or hash instead 
 of a reference to it
 WARNING
         chop $msg;    # clip off newline so carp() will put in line/file
@@ -1053,7 +1139,9 @@ WARNING
     return $ok;
 }
 
-sub _format_stack (@Stack) {
+sub _format_stack {
+    my(@Stack) = @_;
+
     my $var       = '$FOO';
     my $did_arrow = 0;
     foreach my $entry (@Stack) {
@@ -1094,11 +1182,12 @@ sub _format_stack (@Stack) {
     return $out;
 }
 
-sub _type ($thing) {
+sub _type {
+    my $thing = shift;
 
     return '' if !ref $thing;
 
-    for my $type (qw(Regexp ARRAY HASH REF SCALAR GLOB CODE)) {
+    for my $type (qw(Regexp ARRAY HASH REF SCALAR GLOB CODE VSTRING)) {
         return $type if UNIVERSAL::isa( $thing, $type );
     }
 
@@ -1161,11 +1250,11 @@ don't indicate a problem.
 =cut
 
 sub diag {
-    Test::More->builder->diag(@_);
+    return Test::More->builder->diag(@_);
 }
 
 sub note {
-    Test::More->builder->note(@_);
+    return Test::More->builder->note(@_);
 }
 
 =item B<explain>
@@ -1187,7 +1276,7 @@ or
 =cut
 
 sub explain {
-    Test::More->builder->explain(@_);
+    return Test::More->builder->explain(@_);
 }
 
 =back
@@ -1253,21 +1342,25 @@ use TODO.  Read on.
 =cut
 
 ## no critic (Subroutines::RequireFinalReturn)
-sub skip ( str $why = "", Numeric $how_many = 0) {
+sub skip {
+    my( $why, $how_many ) = @_;
     my $tb = Test::More->builder;
 
-    unless ($how_many) {
-        # $how_many can only be avoided when no_plan is in use.
+    # If the plan is set, and is static, then skip needs a count. If the plan
+    # is 'no_plan' we are fine. As well if plan is undefined then we are
+    # waiting for done_testing.
+    unless (defined $how_many) {
+        my $plan = $tb->has_plan;
         _carp "skip() needs to know \$how_many tests are in the block"
-          if !defined($tb->has_plan) or $tb->has_plan ne 'no_plan';
+            if $plan && $plan =~ m/^\d+$/;
         $how_many = 1;
     }
 
-    #if ($how_many and $how_many =~ /\D/ ) {
-    #    _carp
-    #      "skip() was passed a non-numeric number of tests.  Did you get the arguments backwards?";
-    #    $how_many = 1;
-    #}
+    if( defined $how_many and $how_many =~ /\D/ ) {
+        _carp
+          "skip() was passed a non-numeric number of tests.  Did you get the arguments backwards?";
+        $how_many = 1;
+    }
 
     for( 1 .. $how_many ) {
         $tb->skip($why);
@@ -1335,13 +1428,14 @@ interpret them as passing.
 
 =cut
 
-sub todo_skip ( str $why = "", Numeric $how_many = 0) {
+sub todo_skip {
+    my( $why, $how_many ) = @_;
     my $tb = Test::More->builder;
 
-    unless ($how_many) {
+    unless( defined $how_many ) {
         # $how_many can only be avoided when no_plan is in use.
         _carp "todo_skip() needs to know \$how_many tests are in the block"
-          if !defined($tb->has_plan) or $tb->has_plan ne 'no_plan';
+          unless $tb->has_plan eq 'no_plan';
         $how_many = 1;
     }
 
@@ -1374,7 +1468,7 @@ but want to put tests in your testing script (always a good idea).
 
 =item B<BAIL_OUT>
 
-    BAIL_OUT($reason?);
+    BAIL_OUT($reason);
 
 Indicates to the harness that things are going so badly all testing
 should terminate.  This includes the running of any additional test scripts.
@@ -1389,8 +1483,11 @@ For even better control look at L<Test::Most>.
 
 =cut
 
-sub BAIL_OUT (str $reason="") {
-    Test::More->builder->BAIL_OUT($reason);
+sub BAIL_OUT {
+    my $reason = shift;
+    my $tb     = Test::More->builder;
+
+    $tb->BAIL_OUT($reason);
 }
 
 =back
@@ -1431,8 +1528,8 @@ sub eq_array {
     _deep_check(@_);
 }
 
-#sub _eq_array ( \@a1, \@a2 ) {
-sub _eq_array ( $a1, $a2 ) {
+sub _eq_array {
+    my( $a1, $a2 ) = @_;
 
     if( grep _type($_) ne 'ARRAY', $a1, $a2 ) {
         warn "eq_array passed a non-array ref";
@@ -1459,7 +1556,8 @@ sub _eq_array ( $a1, $a2 ) {
     return $ok;
 }
 
-sub _equal_nonrefs ( $e1?, $e2? ) {
+sub _equal_nonrefs {
+    my( $e1, $e2 ) = @_;
 
     return if ref $e1 or ref $e2;
 
@@ -1473,8 +1571,10 @@ sub _equal_nonrefs ( $e1?, $e2? ) {
     return;
 }
 
-sub _deep_check ( $e1?, $e2? ) {
+sub _deep_check {
+    my( $e1, $e2 ) = @_;
     my $tb = Test::More->builder;
+
     my $ok = 0;
 
     # Effectively turn %Refs_Seen into a stack.  This avoids picking up
@@ -1550,8 +1650,9 @@ sub _deep_check ( $e1?, $e2? ) {
     return $ok;
 }
 
-sub _whoa ( int $check, str $desc ) {
-    if ($check) {
+sub _whoa {
+    my( $check, $desc ) = @_;
+    if($check) {
         die <<"WHOA";
 WHOA!  $desc
 This should never happen!  Please contact the author immediately!
@@ -1566,17 +1667,15 @@ WHOA
 Determines if the two hashes contain the same keys and values.  This
 is a deep check.
 
-A third argument is currently ignored.
-
 =cut
 
-sub eq_hash ($h1?, $h2?, $?) {
+sub eq_hash {
     local @Data_Stack = ();
-    return _deep_check($h1, $h2);
+    return _deep_check(@_);
 }
 
-#sub _eq_hash (\%a1, \%a2) {
-sub _eq_hash ($a1, $a2) {
+sub _eq_hash {
+    my( $a1, $a2 ) = @_;
 
     if( grep _type($_) ne 'HASH', $a1, $a2 ) {
         warn "eq_hash passed a non-hash ref";
@@ -1605,7 +1704,7 @@ sub _eq_hash ($a1, $a2) {
 
 =item B<eq_set>
 
-  my $is_eq = eq_set(\@got, \@expected, [$desc]);
+  my $is_eq = eq_set(\@got, \@expected);
 
 Similar to C<eq_array()>, except the order of the elements is B<not>
 important.  This is a deep check, but the irrelevancy of order only
@@ -1627,12 +1726,10 @@ level.  The following is an example of a comparison which might not work:
 
 L<Test::Deep> contains much better set comparison functions.
 
-The third argument is currently ignored.
-
 =cut
 
-#sub eq_set ( \@a1, \@a2 ) {
-sub eq_set ( $a1, $a2, $desc? ) {
+sub eq_set {
+    my( $a1, $a2 ) = @_;
     return 0 unless @$a1 == @$a2;
 
     no warnings 'uninitialized';
@@ -1649,8 +1746,8 @@ sub eq_set ( $a1, $a2, $desc? ) {
     # I don't know how references would be sorted so we just don't sort
     # them.  This means eq_set doesn't really work with refs.
     return eq_array(
-      [ grep( ref, @$a1 ), sort( grep( !ref, @$a1 ) ) ],
-      [ grep( ref, @$a2 ), sort( grep( !ref, @$a2 ) ) ],
+        [ grep( ref, @$a1 ), sort( grep( !ref, @$a1 ) ) ],
+        [ grep( ref, @$a2 ), sort( grep( !ref, @$a2 ) ) ],
     );
 }
 
@@ -1862,8 +1959,6 @@ comes from.
 
 =head2 BUNDLES
 
-L<Bundle::Test> installs a whole bunch of useful test modules.
-
 L<Test::Most> Most commonly needed test functions and features.
 
 =head1 AUTHORS
@@ -1884,7 +1979,7 @@ the perl-qa gang.
 
 =head1 BUGS
 
-See F<http://rt.cpan.org> to report and view bugs.
+See F<https://github.com/Test-More/test-more/issues> to report and view bugs.
 
 
 =head1 SOURCE
@@ -1896,7 +1991,6 @@ F<http://github.com/Test-More/test-more/>.
 =head1 COPYRIGHT
 
 Copyright 2001-2008 by Michael G Schwern E<lt>schwern@pobox.comE<gt>.
-Copyright 2015 cPanel Inc
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

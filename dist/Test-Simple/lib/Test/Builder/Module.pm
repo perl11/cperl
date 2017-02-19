@@ -2,13 +2,13 @@ package Test::Builder::Module;
 
 use strict;
 
-use Test::Builder 1.00;
+use Test::Builder;
 
 require Exporter;
 our @ISA = qw(Exporter);
 
-our $VERSION = '1.401015c';
-$VERSION =~ s/c$//;
+our $VERSION = '1.302075';
+
 
 =head1 NAME
 
@@ -21,7 +21,7 @@ Test::Builder::Module - Base class for test modules
 
   my $CLASS = __PACKAGE__;
 
-  use base 'Test::Builder::Module';
+  use parent 'Test::Builder::Module';
   @EXPORT = qw(ok);
 
   sub ok ($;$) {
@@ -72,10 +72,9 @@ C<import_extra()>.
 
 =cut
 
-#sub import ($class, @args) {
 sub import {
-    my $class = shift;
-    my @args = @_;
+    my($class) = shift;
+
     # Don't run all this when loading ourself.
     return 1 if $class eq 'Test::Builder::Module';
 
@@ -85,20 +84,18 @@ sub import {
 
     $test->exported_to($caller);
 
-    # if called with arrayref
-    #if (@args and scalar(@args) == 1 and ref($args[0]) eq 'ARRAY') {
-    #    @args = ($args[0]);
-    #    warn @args;
-    #}
-    $class->import_extra( \@args );
-    my(@imports) = $class->_strip_imports( \@args );
+    $class->import_extra( \@_ );
+    my(@imports) = $class->_strip_imports( \@_ );
 
-    $test->plan(@args);
+    $test->plan(@_);
 
-    $class->export_to_level( 1, $class, @imports );
+    local $Exporter::ExportLevel = $Exporter::ExportLevel + 1;
+    $class->Exporter::import(@imports);
 }
 
-sub _strip_imports ($class, $list) {
+sub _strip_imports {
+    my $class = shift;
+    my $list  = shift;
 
     my @imports = ();
     my @other   = ();
@@ -169,7 +166,7 @@ call C<builder()> inside each function rather than store it in a global.
 
 =cut
 
-sub builder () {
+sub builder {
     return Test::Builder->new;
 }
 

@@ -1402,19 +1402,22 @@ use File::Glob qw(:case);
     },
 
     'Test::Simple' => {
-        # bumped to 1.4001014 with cperl modernizations.
+        # cperl modernizations TODO
         # Test2 based 1.3x versions are not yet modernized,
-        'DISTRIBUTION' => 'EXODIST/Test-Simple-1.4001014.tar.gz',
+        'DISTRIBUTION' => 'EXODIST/Test-Simple-1.302059.tar.gz',
         'FILES'        => q[dist/Test-Simple],
         'EXCLUDED'     => [
             qr{^t/xt},
             qr{^xt},
+            qr{^examples},
             qw( .perlcriticrc
                 .perltidyrc
+                appveyor.yml
                 examples/indent.pl
                 examples/subtest.t
                 t/00compile.t
                 t/xxx-changes_updated.t
+                t/zzz-check-breaks.t
                 ),
         ],
     },

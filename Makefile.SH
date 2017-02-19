@@ -1748,26 +1748,29 @@ _cleaner2:
 	-rmdir lib/autodie/Scope lib/autodie lib/YAML lib/XS lib/Win32API
 	-rmdir lib/VMS lib/Unicode/Collate/Locale lib/Unicode/Collate/CJK
 	-rmdir lib/Unicode/Collate lib/Tie/Hash lib/Thread lib/Text
-	-rmdir lib/Test/use lib/Test/Tester lib/Test/Builder/Tester
-	-rmdir lib/Test/Builder/IO lib/Test/Builder lib/Test lib/Term
-	-rmdir lib/TAP/Parser/YAMLish lib/TAP/Parser/SourceHandler
-	-rmdir lib/TAP/Parser/Scheduler lib/TAP/Parser/Result
-	-rmdir lib/TAP/Parser/Iterator lib/TAP/Parser lib/TAP/Harness
-	-rmdir lib/TAP/Formatter/File lib/TAP/Formatter/Console
-	-rmdir lib/TAP/Formatter lib/TAP lib/Sys/Syslog lib/Sys lib/Sub
-	-rmdir lib/Stash lib/Search lib/Scalar lib/Pod/Text lib/Pod/Simple
-	-rmdir lib/Pod/Perldoc lib/PerlIO/via lib/PerlIO lib/Perl
-	-rmdir lib/Parse/CPAN lib/Parse lib/Params lib/Net/FTP
-	-rmdir lib/Module/Load lib/Module/CoreList lib/Module lib/Memoize
-	-rmdir lib/Math/BigInt lib/Math/BigFloat lib/Math lib/MIME
-	-rmdir lib/Locale/Maketext lib/Locale lib/List/Util lib/List
-	-rmdir lib/JSON/PP lib/JSON lib/Internals lib/IPC lib/YAML
-	-rmdir lib/IO/Uncompress/Adapter lib/IO/Uncompress lib/IO/Socket
-	-rmdir lib/IO/Compress/Zlib lib/IO/Compress/Zip
-	-rmdir lib/IO/Compress/Gzip lib/IO/Compress/Base
-	-rmdir lib/IO/Compress/Adapter lib/IO/Compress lib/IO
-	-rmdir lib/I18N/LangTags lib/I18N lib/Hash/Util lib/Hash lib/HTTP
-	-rmdir lib/Filter/Util lib/Filter lib/File/Spec
+	-rmdir lib/Test2/Util lib/Test2/Tools lib/Test2/IPC/Driver
+	-rmdir lib/Test2/IPC lib/Test2/Hub/Interceptor lib/Test2/Hub
+	-rmdir lib/Test2/Formatter lib/Test2/Event/TAP lib/Test2/Event
+	-rmdir lib/Test2/API lib/Test2 lib/Test/use lib/Test/Tester
+	-rmdir lib/Test/Builder/Tester lib/Test/Builder/IO lib/Test/Builder
+	-rmdir lib/Test lib/Term lib/TAP/Parser/YAMLish
+	-rmdir lib/TAP/Parser/SourceHandler lib/TAP/Parser/Scheduler
+	-rmdir lib/TAP/Parser/Result lib/TAP/Parser/Iterator lib/TAP/Parser
+	-rmdir lib/TAP/Harness lib/TAP/Formatter/File
+	-rmdir lib/TAP/Formatter/Console lib/TAP/Formatter lib/TAP
+	-rmdir lib/Sys/Syslog lib/Sys lib/Sub lib/Stash lib/Search
+	-rmdir lib/Scalar lib/Pod/Text lib/Pod/Simple lib/Pod/Perldoc
+	-rmdir lib/PerlIO/via lib/PerlIO lib/Perl lib/Parse/CPAN lib/Parse
+	-rmdir lib/Params lib/Net/FTP lib/Module/Load lib/Module/CoreList
+	-rmdir lib/Module lib/Memoize lib/Math/BigInt lib/Math/BigFloat
+	-rmdir lib/Math lib/MIME lib/Locale/Maketext
+	-rmdir lib/Locale lib/List/Util lib/List lib/YAML lib/JSON/PP
+	-rmdir lib/JSON lib/Internals lib/IPC lib/IO/Uncompress/Adapter
+	-rmdir lib/IO/Uncompress lib/IO/Socket lib/IO/Compress/Zlib
+	-rmdir lib/IO/Compress/Zip lib/IO/Compress/Gzip
+	-rmdir lib/IO/Compress/Base lib/IO/Compress/Adapter lib/IO/Compress
+	-rmdir lib/IO lib/I18N/LangTags lib/I18N lib/Hash/Util lib/Hash
+	-rmdir lib/HTTP lib/Filter/Util lib/Filter lib/File/Spec
 	-rmdir lib/ExtUtils/Typemaps lib/ExtUtils/ParseXS
 	-rmdir lib/ExtUtils/MakeMaker/version lib/ExtUtils/MakeMaker
 	-rmdir lib/ExtUtils/Liblist lib/ExtUtils/Constant
