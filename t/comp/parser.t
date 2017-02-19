@@ -8,7 +8,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-print "1..212\n";
+print "1..213\n";
 
 sub failed {
     my ($got, $expected, $name) = @_;
@@ -738,6 +738,12 @@ is $@, "", 'substr keys assignment';
     like $@, qr/Missing right curly or square bracket/, 'RT #130311';
 }
 
+# RT #130815: crash in ck_return for malformed code
+{
+    eval 'm(@{if(0){sub d{]]])}return';
+    like $@, qr/^syntax error at \(eval \d+\) line 1, near "\{\]"/,
+        'RT #130815: null pointer deref';
+}
 
 # Add new tests HERE (above this line)
 
