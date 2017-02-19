@@ -18,7 +18,7 @@ use vars qw(
 
 @ISA = ('Pod::Simple::BlackBox');
 use cperl;
-our $VERSION = '4.32c'; # modernized
+our $VERSION = '4.35c'; # modernized
 $VERSION =~ s/c$//;
 
 @Known_formatting_codes = qw(I B C L E F S X Z); 

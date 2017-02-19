@@ -681,6 +681,14 @@ Return the port num as 5th return value with ack (jfraire).
 
 Add avhvswitch op
 
+=item Pod-Simple 4.35c
+
+Updated from CPAN 3.35: Turn off utf8 warnings when trying
+to see if a file is UTF-8 or not
+
+Merged with our cperl signature modernizations, tracked at
+L<https://github.com/rurban/pod-simple/tree/cperl>.
+
 =item POSIX 1.69_01
 
 Several defects in making its symbols exportable.

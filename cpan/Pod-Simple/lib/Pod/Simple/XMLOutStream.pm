@@ -6,7 +6,7 @@ use Carp ();
 use Pod::Simple ();
 use vars qw( $ATTR_PAD @ISA $VERSION $SORT_ATTRS);
 use cperl;
-our $VERSION = '4.32c';
+our $VERSION = '4.35c'; # modernized
 $VERSION =~ s/c$//;
 BEGIN {
   @ISA = ('Pod::Simple');

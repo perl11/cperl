@@ -5,9 +5,9 @@ use strict;
 use Pod::Simple ();
 use vars qw(@ISA $VERSION);
 use cperl;
-our $VERSION = '4.32c'; #modernized
+our $VERSION = '4.35c'; # modernized
 $VERSION =~ s/c$//;
-@ISA = ('Pod::Simple');
+BEGIN { @ISA = ('Pod::Simple'); }
 
 # Yes, we could use named variables, but I want this to be impose
 # as little an additional performance hit as possible.
@@ -150,6 +150,8 @@ Pod::Simple is maintained by:
 =item * Hans Dieter Pearcey C<hdp@cpan.org>
 
 =item * David E. Wheeler C<dwheeler@cpan.org>
+
+=item * Reini Urban C<rurban@cpan.org> for the cperl port
 
 =back
 

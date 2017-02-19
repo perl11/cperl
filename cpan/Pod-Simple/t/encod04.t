@@ -22,6 +22,13 @@ BEGIN {
     }
 }
 
+# fail with the supplied diagnostic
+
+sub my_nok {
+    my ($diag) = @_;
+    ok (1, 0, $diag);
+}
+
 ok 1;
 
 use Pod::Simple::DumpAsXML;
@@ -61,16 +68,13 @@ if( $guess ) {
     if( grep m{Dash $dash}, @output_lines ) {
       ok 1;
     } else {
-      ok 0;
-      print STDERR "# failed to find expected control character in output\n"
+      my_nok "failed to find expected control character in output";
     }
   } else {
-    ok 0;
-    print STDERR "# parser guessed wrong encoding expected 'CP1252' got '$guess'\n";
+    my_nok "parser guessed wrong encoding expected 'CP1252' got '$guess'";
   }
 } else {
-  ok 0;
-  print STDERR "# parser failed to detect non-ASCII bytes in input\n";
+  my_nok "parser failed to detect non-ASCII bytes in input";
 }
 
 
@@ -95,12 +99,10 @@ else {
         if( $guess eq 'CP1252' ) {
             ok 1;
         } else {
-            ok 0;
-            print STDERR "# parser guessed wrong encoding expected 'CP1252' got '$guess'\n";
+            my_nok "parser guessed wrong encoding expected 'CP1252' got '$guess'";
         }
     } else {
-        ok 0;
-        print STDERR "# parser failed to detect non-ASCII bytes in input\n";
+        my_nok "parser failed to detect non-ASCII bytes in input";
     }
 }
 
@@ -127,12 +129,10 @@ else {
         if( $guess eq 'CP1252' ) {
             ok 1;
         } else {
-            ok 0;
-            print STDERR "# parser guessed wrong encoding expected 'CP1252' got '$guess'\n";
+            my_nok "parser guessed wrong encoding expected 'CP1252' got '$guess'";
         }
     } else {
-        ok 0;
-        print STDERR "# parser failed to detect non-ASCII bytes in input\n";
+        my_nok "parser failed to detect non-ASCII bytes in input";
     }
 }
 
@@ -160,12 +160,10 @@ else {
         if( $guess eq 'CP1252' ) {
             ok 1;
         } else {
-            ok 0;
-            print STDERR "# parser guessed wrong encoding expected 'CP1252' got '$guess'\n";
+            my_nok "parser guessed wrong encoding expected 'CP1252' got '$guess'";
         }
     } else {
-        ok 0;
-        print STDERR "# parser failed to detect non-ASCII bytes in input\n";
+        my_nok "parser failed to detect non-ASCII bytes in input";
     }
 }
 
