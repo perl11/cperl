@@ -636,6 +636,13 @@ L<RT #107642|https://rt.cpan.org/Ticket/Display.html?id=107642>
 
 The other 2 fixes were already in cperl, plus a fix for reproducible builds.
 
+=item Filter 1.57
+
+  * added 2 more pure tests
+  * Fixes for . in @INC
+  * added filter-util.pl to t/
+  * fixed INSTALLDIRS back to site since 5.12 [gh #2]
+
 =item IO-Compress 2.070
 
 File::GlobMapper, Fix prototype errors while lazy loading the module

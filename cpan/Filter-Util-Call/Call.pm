@@ -2,6 +2,7 @@
 #
 # Copyright (c) 1995-2011 Paul Marquess. All rights reserved.
 # Copyright (c) 2011-2014 Reini Urban. All rights reserved.
+# Copyright (c) 2014-2017 cPanel Inc. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
@@ -14,17 +15,19 @@ require Exporter;
 use Carp ;
 use strict;
 use warnings;
-use vars qw($VERSION @ISA @EXPORT) ;
+use vars qw($VERSION $XS_VERSION @ISA @EXPORT) ;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw( filter_add filter_del filter_read filter_read_exact) ;
-$VERSION = "1.55" ;
+$VERSION = "1.57" ;
+$XS_VERSION = $VERSION;
+$VERSION = eval $VERSION;
 
 sub filter_read_exact($)
 {
-    my $size   = shift;
-    my $left = $size;
-    my $status;
+    my ($size)   = @_ ;
+    my ($left)   = $size ;
+    my ($status) ;
 
     croak ("filter_read_exact: size parameter must be > 0")
 	unless $size > 0 ;
@@ -42,7 +45,7 @@ sub filter_read_exact($)
 
 sub filter_add($)
 {
-    my $obj = shift;
+    my($obj) = @_ ;
 
     # Did we get a code reference?
     my $coderef = (ref $obj eq 'CODE');
@@ -525,6 +528,7 @@ Paul Marquess
 
 Copyright (c) 1995-2011 Paul Marquess. All rights reserved.
 Copyright (c) 2011-2014 Reini Urban. All rights reserved.
+Copyright (c) 2014-2017 cPanel Inc. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
