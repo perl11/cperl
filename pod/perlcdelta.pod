@@ -574,6 +574,10 @@ PUSHRE replaced by SPLIT, no xpad_cop_seq, SVpbm_VALID
 
 Improved dl_module_to_sofile without 2nd arg
 
+=item B-Debug 1.24
+
+No changes
+
 =item Carp 1.41c
 
 Handle chunk errors phrases
