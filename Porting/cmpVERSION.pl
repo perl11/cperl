@@ -107,7 +107,7 @@ my %skip;
 	cpan/Devel-PPPort/PPPort_pm.PL
 	cpan/Scalar-List-Utils/ListUtil.xs
 	cpan/IPC-SysV/SysV.xs
-	cpan/Test-Simple/lib/Test/Builder/Tester.pm
+	dist/Test-Simple/lib/Test/Builder/Tester.pm
 	dist/Pod-Simple/lib/Pod/Simple/LinkSection.pm
 	dist/Pod-Simple/lib/Pod/Simple/Debug.pm
 	cpan/CPAN/lib/CPAN.pm

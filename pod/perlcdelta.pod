@@ -739,6 +739,10 @@ ways to DoS a perl5 system. Only cperl is safe.
 Skip or croak when reading or writing 64bit large objects on 32bit
 systems.
 
+=item Test-Simple
+
+Moved from cpan to dist.
+
 =item threads 2.12_01
 
 Upstream 2.12 had no changes (!)

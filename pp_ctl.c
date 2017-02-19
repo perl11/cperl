@@ -3005,7 +3005,7 @@ PP(pp_goto)
                     PL_curcop = cx->blk_oldcop;
                     if (!CvISXSUB(cv)) {
 #ifdef PERL_GOTOSIG_TAILCALL
-                        /* cpan/Test-Simple/t/capture.t? */
+                        /* dist/Test-Simple/t/capture.t? */
                         depth = PadlistMAX(padlist);
                         DEBUG_Xv(PerlIO_printf(Perl_debug_log,
                             "Pad padlist max=%d, CvDEPTH=%d (tailcall %s)\n",

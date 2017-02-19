@@ -35,6 +35,7 @@ no_index:
     - dist/Module-CoreList
     - dist/Net-Ping
     - dist/PathTools
+    - dist/Pod-Simple
     - dist/Safe
     - dist/Search-Dict
     - dist/SelfLoader
@@ -42,6 +43,7 @@ no_index:
     - dist/Term-Complete
     - dist/Term-ReadLine
     - dist/Test
+    - dist/Test-Simple
     - dist/Text-Abbrev
     - dist/Thread-Queue
     - dist/Thread-Semaphore
