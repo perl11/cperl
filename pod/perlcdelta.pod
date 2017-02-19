@@ -666,6 +666,11 @@ aliases like *Math::BigInt::FastCalc::_xxx = \&Math::BigInt::Calc::_xxx.
 
 Use OO-calls rather than function calls. (i.e slower but overridable)
 
+=item Math-BigRat 0.2611
+
+Updated from CPAN: No functional changes,
+and the few actual changes in the test lib were for the worse.
+
 =item Net-Ping 2.56
 
 Stabilized test, geocities.com is down.
