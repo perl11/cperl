@@ -8290,8 +8290,11 @@ Perl_yylex(pTHX)
 		return REPORT(0);
 	    pl_yylval.ival = CopLINE(PL_curcop);
 	    s = skipspace(s);
-	    if (PL_expect == XSTATE && isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
+            if (PL_expect == XSTATE
+                && isIDFIRST_lazy_if_safe(s, PL_bufend, UTF))
+            {
                 int l = PL_bufend - s;
+                SSize_t s_off = s - SvPVX(PL_linestr);
 		d = s;
 
 		if (l >= 3 && memEQc(d, "my")
@@ -8325,6 +8328,9 @@ Perl_yylex(pTHX)
                 }
                 if (*d != '$' && *d != '\\')
                     Perl_croak(aTHX_ "Missing $ on loop variable");
+
+                /* The buffer may have been reallocated, update s */
+                s = SvPVX(PL_linestr) + s_off;
 	    }
 	    OPERATOR(FOR);
 
