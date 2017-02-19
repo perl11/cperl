@@ -655,6 +655,17 @@ L<RT #116538|https://rt.cpan.org/Ticket/Display.html?id=116538>
 
 Merged CPAN updates with cperl-specific c3, stricter tests and . in @INC fixes.
 
+=item Math-BigInt-FastCalc 0.5006
+
+Updated from CPAN:
+
+2 new tests files from Math-BigInt.
+
+Math::BigInt::FastCalc is now a subclass of Math::BigInt::Calc, so remove
+aliases like *Math::BigInt::FastCalc::_xxx = \&Math::BigInt::Calc::_xxx.
+
+Use OO-calls rather than function calls. (i.e slower but overridable)
+
 =item Net-Ping 2.56
 
 Stabilized test, geocities.com is down.
