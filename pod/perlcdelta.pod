@@ -671,9 +671,11 @@ Use OO-calls rather than function calls. (i.e slower but overridable)
 Updated from CPAN: No functional changes,
 and the few actual changes in the test lib were for the worse.
 
-=item Net-Ping 2.56
+=item Net-Ping 2.58
 
 Stabilized test, geocities.com is down.
+
+Return the port num as 5th return value with ack (jfraire).
 
 =item Opcode 1.35_01c
 

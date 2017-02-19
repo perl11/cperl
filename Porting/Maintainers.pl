@@ -1068,13 +1068,12 @@ use File::Glob qw(:case);
     },
 
     'Net::Ping' => {
-        'DISTRIBUTION' => 'RURBAN/Net-Ping-2.56.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Net-Ping-2.58.tar.gz',
         'FILES'        => q[dist/Net-Ping],
         'EXCLUDED'     => [
             qw{README.md.PL},
             qw{t/600_pod.t t/601_pod-coverage.t},
         ],
-        'CUSTOMIZED'   => [ qw( lib/Net/Ping.pm t/500_ping_icmp.t )],
     },
 
     'NEXT' => {

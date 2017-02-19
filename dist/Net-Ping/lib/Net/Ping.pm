@@ -21,7 +21,7 @@ use Time::HiRes;
 @ISA = qw(Exporter);
 @EXPORT = qw(pingecho);
 @EXPORT_OK = qw(wakeonlan);
-$VERSION = "2.56";
+$VERSION = "2.58";
 
 # Globals
 
@@ -1382,7 +1382,7 @@ sub ping_syn
     }
   }
 
-  my $entry = [ $host, $ip, $fh, $start_time, $stop_time ];
+  my $entry = [ $host, $ip, $fh, $start_time, $stop_time, $self->{port_num} ];
   $self->{syn}->{$fh->fileno} = $entry;
   if ($self->{stop_time} < $stop_time) {
     $self->{stop_time} = $stop_time;
@@ -1561,7 +1561,7 @@ sub ack
           }
           # Everything passed okay, return the answer
           return wantarray ?
-            ($entry->[0], &time() - $entry->[3], $self->ntop($entry->[1]))
+            ($entry->[0], &time() - $entry->[3], $self->ntop($entry->[1]), $entry->[5])
             : $entry->[0];
         } else {
           warn "Corrupted SYN entry: unknown fd [$fd] ready!";
@@ -2245,8 +2245,8 @@ SYN queued using the ping() method.  If the timeout is
 reached before the TCP ACK is received, or if the remote
 host is not listening on the port attempted, then the TCP
 connection will not be established and ack() will return
-undef.  In list context, the host, the ack time, and the
-dotted ip string will be returned instead of just the host.
+undef.  In list context, the host, the ack time, the dotted ip 
+string, and the port number will be returned instead of just the host.
 If the optional $host argument is specified, the return
 value will be pertaining to that host only.
 This call simply does nothing if you are using any protocol
