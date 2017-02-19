@@ -139,6 +139,10 @@ CCTYPE		= MSVC90FREE
 #CCTYPE		= MSVC120
 # Visual C++ 2013 Express Edition (aka Visual C++ 12.0) (free version)
 #CCTYPE		= MSVC120FREE
+# Visual C++ 2015 (aka Visual C++ 14.0) (full version)
+#CCTYPE		= MSVC140
+# Visual C++ 2015 Express Edition (aka Visual C++ 14.0) (free version)
+#CCTYPE		= MSVC140FREE
 
 #
 # If you are using Intel C++ Compiler uncomment this
@@ -484,7 +488,11 @@ DEFINES		= -DWIN32 -D_CONSOLE -DNO_STRICT
 LOCDEFS		= -DPERLDLL -DPERL_CORE
 CXX_FLAG	= -TP -EHsc
 
+!IF "$(CCTYPE)" == "MSVC140" || "$(CCTYPE)" == "MSVC140FREE"
+LIBC		= ucrt.lib
+!ELSE
 LIBC		= msvcrt.lib
+!ENDIF
 
 !IF  "$(CFG)" == "Debug"
 OPTIMIZE	= -Od -MD -Zi -DDEBUGGING
@@ -495,7 +503,11 @@ OPTIMIZE	= -Od -MD -Zi
 LINK_DBG	= -debug
 !ELSE
 !IF  "$(CFG)" == "DebugFull"
+!IF "$(CCTYPE)" == "MSVC140" || "$(CCTYPE)" == "MSVC140FREE"
+LIBC		= ucrtd.lib
+!ELSE
 LIBC		= msvcrtd.lib
+!ENDIF
 OPTIMIZE	= -Od -MDd -Zi -D_DEBUG -DDEBUGGING
 LINK_DBG	= -debug
 !ELSE
@@ -530,6 +542,11 @@ OPTIMIZE	= $(OPTIMIZE) -fp:precise
 DEFINES		= $(DEFINES) -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE
 !ENDIF
 
+# Likewise for deprecated Winsock APIs in VC++ 14.0 for now.
+!IF "$(CCTYPE)" == "MSVC140" || "$(CCTYPE)" == "MSVC140FREE"
+DEFINES		= $(DEFINES) -D_WINSOCK_DEPRECATED_NO_WARNINGS
+!ENDIF
+
 # In VS 2005 (VC++ 8.0) Microsoft changes time_t from 32-bit to
 # 64-bit, even in 32-bit mode.  It also provides the _USE_32BIT_TIME_T
 # preprocessor option to revert back to the old functionality for
@@ -549,6 +566,14 @@ LIBBASEFILES	= \
 		comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib \
 		netapi32.lib uuid.lib ws2_32.lib mpr.lib winmm.lib \
 		version.lib odbc32.lib odbccp32.lib comctl32.lib
+
+!IF "$(CCTYPE)" == "MSVC140" || "$(CCTYPE)" == "MSVC140FREE"
+!  IF  "$(CFG)" == "DebugFull"
+LIBBASEFILES	= $(LIBBASEFILES) msvcrtd.lib vcruntimed.lib
+!  ELSE
+LIBBASEFILES	= $(LIBBASEFILES) msvcrt.lib vcruntime.lib
+!  ENDIF
+!ENDIF
 
 # Avoid __intel_new_proc_init link error for libircmt.
 # libmmd is /MD equivelent, other variants exist.
@@ -951,6 +976,17 @@ perlglob$(o)  : perlglob.c
 	@echo.>>$@
 	@echo #ifndef _config_h_footer_>>$@
 	@echo #define _config_h_footer_>>$@
+!IF "$(CCTYPE)" == "MSVC140" || "$(CCTYPE)" == "MSVC140FREE"
+	@echo #undef FILE_ptr>>$@
+	@echo #define FILE_ptr(fp) PERLIO_FILE_ptr(fp)>>$@
+	@echo #undef FILE_cnt>>$@
+	@echo #define FILE_cnt(fp) PERLIO_FILE_cnt(fp)>>$@
+	@echo #undef FILE_base>>$@
+	@echo #define FILE_base(fp) PERLIO_FILE_base(fp)>>$@
+	@echo #undef FILE_bufsiz>>$@
+	@echo #define FILE_bufsiz(fp) (PERLIO_FILE_cnt(fp) + PERLIO_FILE_ptr(fp) - PERLIO_FILE_base(fp))>>$@
+	@echo #define I_STDBOOL>>$@
+!ENDIF
 	@echo #undef Off_t>>$@
 	@echo #undef LSEEKSIZE>>$@
 	@echo #undef Off_t_size>>$@
