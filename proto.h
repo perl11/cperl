@@ -1531,28 +1531,19 @@ PERL_CALLCONV char*	Perl_find_script(pTHX_ const char *scriptname, bool dosearch
 #define PERL_ARGS_ASSERT_FIND_SCRIPT	\
 	assert(scriptname)
 
-PERL_CALLCONV I32	Perl_foldEQ(const char* a, const char* b, I32 len)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__pure__
+PERL_STATIC_INLINE I32	Perl_foldEQ(const char* a, const char* b, I32 len)
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_FOLDEQ	\
 	assert(a); assert(b)
 
-PERL_CALLCONV I32	Perl_foldEQ_latin1(const char* a, const char* b, I32 len)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__pure__
+PERL_STATIC_INLINE I32	Perl_foldEQ_latin1(const char* a, const char* b, I32 len)
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_FOLDEQ_LATIN1	\
 	assert(a); assert(b)
 
-PERL_CALLCONV I32	Perl_foldEQ_locale(const char* a, const char* b, I32 len)
-			__attribute__global__
-			__attribute__warn_unused_result__
-			__attribute__pure__
+PERL_STATIC_INLINE I32	Perl_foldEQ_locale(const char* a, const char* b, I32 len)
 			__attribute__nonnull__(1)
 			__attribute__nonnull__(2);
 #define PERL_ARGS_ASSERT_FOLDEQ_LOCALE	\
