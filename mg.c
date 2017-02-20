@@ -830,6 +830,15 @@ Perl__get_encoding(pTHX)
 #include <starlet.h>
 #endif
 
+/* the strEQc checks below are not asan safe. ignore it.
+   we don't cross pages. */
+#if defined(USE_SANITIZE_ADDRESS)
+# if defined(__clang__) && defined(__has_feature) && __has_feature(address_sanitizer)
+__attribute__((no_address_safety_analysis))
+# elif defined(__GNUC__) && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 409
+__attribute__((no_sanitize_address))
+# endif
+#endif
 int
 Perl_magic_get(pTHX_ SV *sv, MAGIC *mg)
 {
