@@ -16,9 +16,9 @@ CPAN::Meta cpan/CPAN-Meta/t/parse-cpan-meta/05_errors.t 1893a3223791d2a3fd680e05
 CPAN::Meta cpan/CPAN-Meta/t/prereqs.t e448d3ab77fec103397264b4d9b2e90dd94bced6
 CPAN::Meta cpan/CPAN-Meta/t/save-load.t e7a526f3facbd4fb8ef29837977f7a725434946e
 CPAN::Meta cpan/CPAN-Meta/t/validator.t d8a663c5c9b409da6025a1bafb347fd405e742d6
-CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.pm 486e732a515c6f3f1682f19a95a2eb2420040ac7
-CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f89aec2164476eb98e93f05a5e
-CPAN::Meta::Requirements cpan/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf0eb5e96a544eba22bbdef9365
+CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.pm 486e732a515c6f3f1682f19a95a2eb2420040ac7
+CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f89aec2164476eb98e93f05a5e
+CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf0eb5e96a544eba22bbdef9365
 CPAN::Meta::YAML cpan/CPAN-Meta-YAML/t/lib/TestUtils.pm 89535dc9f122a77a8320df27e5929aa574196753
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t aa8d82945028d74b2c0ee8feba7bf127930ffd8a
 Config::Perl::V cpan/Config-Perl-V/V.pm 74b5c9278c618b0dc2534064f804228588cda18b

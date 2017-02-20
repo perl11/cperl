@@ -18,6 +18,7 @@ no_index:
     - dist/base
     - dist/Carp
     - dist/constant
+    - dist/CPAN-Meta-Requirements
     - dist/Data-Dumper
     - dist/Devel-SelfStubber
     - dist/Dumpvalue

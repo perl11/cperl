@@ -316,6 +316,7 @@ XML::LibXML
 YAML
 YAML::Syck
 YAML::Tiny
+dist/cpan-meta-requirements/lib/cpan/meta/requirements.pm	Verbatim line length including indents exceeds 79 by	2
 dist/data-dumper/changes	Verbatim line length including indents exceeds 79 by	1
 dist/data-dumper/dumper.pm	? Should you be using L<...> instead of	1
 dist/extutils-constant/lib/extutils/constant.pm	Verbatim line length including indents exceeds 79 by	1

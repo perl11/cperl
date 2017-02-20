@@ -443,14 +443,6 @@ cpan/CPAN-Meta/t/prereqs-merge.t
 cpan/CPAN-Meta/t/repository.t
 cpan/CPAN-Meta/t/save-load.t
 cpan/CPAN-Meta/t/validator.t
-cpan/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.pm
-cpan/CPAN-Meta-Requirements/t/accepts.t
-cpan/CPAN-Meta-Requirements/t/bad_version_hook.t
-cpan/CPAN-Meta-Requirements/t/basic.t
-cpan/CPAN-Meta-Requirements/t/finalize.t
-cpan/CPAN-Meta-Requirements/t/from-hash.t
-cpan/CPAN-Meta-Requirements/t/merge.t
-cpan/CPAN-Meta-Requirements/t/strings.t
 cpan/CPAN-Meta-YAML/lib/CPAN/Meta/YAML.pm		CPAN-Meta-YAML files
 cpan/CPAN-Meta-YAML/t/01_api.t
 cpan/CPAN-Meta-YAML/t/01_compile.t		CPAN-Meta-YAML files
@@ -3051,6 +3043,14 @@ dist/Carp/t/with_warnings.t		See if Carp plays nicely with warnings
 dist/constant/lib/constant.pm	For "use constant"
 dist/constant/t/constant.t	See if compile-time constants work
 dist/constant/t/utf8.t		Test Unicode constants under utf8 pragma
+dist/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.pm
+dist/CPAN-Meta-Requirements/t/accepts.t
+dist/CPAN-Meta-Requirements/t/bad_version_hook.t
+dist/CPAN-Meta-Requirements/t/basic.t
+dist/CPAN-Meta-Requirements/t/finalize.t
+dist/CPAN-Meta-Requirements/t/from-hash.t
+dist/CPAN-Meta-Requirements/t/merge.t
+dist/CPAN-Meta-Requirements/t/strings.t
 dist/Data-Dumper/Changes	Data pretty printer, changelog
 dist/Data-Dumper/Dumper.pm	Data pretty printer, module
 dist/Data-Dumper/Dumper.xs	Data pretty printer, externals

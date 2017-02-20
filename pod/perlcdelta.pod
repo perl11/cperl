@@ -623,6 +623,11 @@ L<RT #119762|https://rt.cpan.org/Ticket/Display.html?id=119762>
 with cperl support.
 See L<https://github.com/andk/cpanpm/pull/109>
 
+=item CPAN-Meta-Requirements
+
+Moved from cpan to dist.
+L<[cperl #154]|https://github.com/perl11/cperl/issues/154>.
+
 =item Cpanel-JSON-XS  3.0227
 
 fix CLONE and END
@@ -695,6 +700,7 @@ Merged with our cperl signature modernizations, tracked at
 L<https://github.com/rurban/pod-simple/tree/cperl>.
 
 Moved from cpan to dist.
+L<[cperl #154]|https://github.com/perl11/cperl/issues/154>.
 
 =item POSIX 1.69_01
 
@@ -747,6 +753,7 @@ systems.
 =item Test-Simple
 
 Moved from cpan to dist.
+L<[cperl #154]|https://github.com/perl11/cperl/issues/154>.
 
 =item threads 2.12_01
 
