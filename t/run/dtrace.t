@@ -14,9 +14,9 @@ BEGIN {
     $Perl = which_perl();
 
     `@dtrace -V` or skip_all("@dtrace unavailable");
-    if ($Config::Config{usethreads} and $^O eq 'darwin' and $ENV{TRAVIS}) {
+    if ($ENV{TEST_JOBS} and int($ENV{TEST_JOBS}) > 1 and $^O eq 'darwin') {
       # interferes with fresh_perl => SEGV
-      skip_all("dtrace darwin threads via TRAVIS");
+      skip_all("dtrace darwin with parallel testing. unset TEST_JOBS");
     }
 
     my $result = `@dtrace -qZnBEGIN -c'$Perl -e 1' 2>&1`;
