@@ -317,6 +317,7 @@ sub changes_between {
     5.025006 => '2016-10-20',
     5.025007 => '2016-11-20',
     5.025008 => '????-??-??',
+    '5.024003c' => '????-??-??',
  );
 
 sub version_sort {
@@ -12866,6 +12867,14 @@ for my $version ( sort { version_sort($a, $b) } keys %released ) {
             'Unicode::Collate'      => '1.19',
             'YAML::XS'              => '0.75',
             'YAML::LibYAML'         => '0.75',
+        },
+        removed => {
+        }
+    },
+    '5.024003c' => {
+        delta_from => '5.024002c',
+        changed => {
+            'B::Op_private'         => '5.024003',
         },
         removed => {
         }

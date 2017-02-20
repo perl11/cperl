@@ -14,9 +14,14 @@ and the cperl 5.24.2 releases.
 =head2 chdir heap-buffer-overflow
 
 Fixed heap-buffer-overflow in chdir without argument. make chdir allocate the stack
-it needs for the result, overwriting one stack entry. Note that the cperl stack is on
+it needs for the result, overwriting one stack entry. Note that the perl stack is on
 the heap, so it's not that dramatic.
 L<[perl #129130]|https://rt.perl.org/Public/Bug/Display.html?id=129130>
+
+=head2 Parse-CPAN-Meta security
+
+Sets C<$YAML::XS::DisableCode>, C<$YAML::XS::DisableBlessed> while
+parsing F<META.yml> files. See L<YAML::XS/"$YAML::XS::DisableBlessed">.
 
 =head1 Deprecations
 
@@ -30,20 +35,7 @@ embedded into C++ projects. Or the better C<do_openn> macro.
 With the system C++ compiler on darwin C<do_open>, C<do_close> are now
 undefined.  See L<[cperl #227]|https://github.com/perl11/cperl/issues/227>
 
-=head1 Performance Enhancements
-
-=over 4
-
-=item *
-
-C<-DPERL_FAKE_SIGNATURE> is now default, making most function calls 2x faster.
-See L</fake_signatures>
-
-=back
-
 =head1 Modules and Pragmata
-
-[ Within each section, list entries as a =item entry ]
 
 =head2 Updated Modules and Pragmata
 
@@ -360,7 +352,7 @@ from upstream:
 - use hv_fetchs()
 - scan for clockid_t (needed for macos Sierra)
 - darwin lacks clockid_t [rt.cpan.org #129789]
-        
+
 =item Time-Local  1.25
 
 Less runtime memory: demand-load Carp, Config.
@@ -490,40 +482,40 @@ See e.g. L<[cperl #167]|https://github.com/perl11/cperl/issues/167>
 
 =item *
 
-F<t/op/taint.t> contained a test with signatures and 6 default
-arguments, which on some 32 bit systems led to random "Reference
-parameter cannot take default value at op/taint.t line 2461"
-compile-time failures. This test has been rewritten to ony use 4 arguments.
-
-See L<[cperl #164]|https://github.com/perl11/cperl/issues/164>
-
-=item *
-
 C<clang -flto=thin> and on some systems even C<gcc -flto> with C<-O3>
 or C<-finline> leads to invisible symbols which were inlined and not
-exported, even if they should be declared as public API. Work is
-ongoing in the F<feature/gh186-lto-thin> branch, but there the
-inlining is disabled by the C<used> attribute, leading to a
-10% performance regression.  On the other hand a working
-C<clang-3.9 -flto> leads to 20% performance improvements.
-
-=item *
-
-C< until ($x = 1) { ... } > and C< ... until $x = 1 > should
-warn when syntax warnings are enabled.
-L<[perl #127333]|https://rt.perl.org/Public/Bug/Display.html?id=127333>
-
-=item *
-
-C< ${\vec %h, 0, 1} > and C< ${\substr %h, 0} > should not segfault, rather
-the lvalue context should be propagated, and list context properly handled.
-L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
+exported, even if they should be declared as public API. This is fixed
+in v5.25.2c.
 
 =back
 
 =head1 Acknowledgements
 
-XXX To be generated with:
+Perl 5.24.2 represents approximately 2 months of development since Perl 5.24.1c
+and contains approximately 170,000 lines of changes across 720 files from 4
+authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 93,000 lines of changes to 420 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements
+that became Perl 5.24.2:
+
+Reini Urban, Tony Cook, Yves Orton, Hugo van der Sanden.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
 
     cperl Porting/acknowledgements.pl cperl-5.24.1..HEAD
 
@@ -534,13 +526,17 @@ posted to the comp.lang.perl.misc newsgroup and the perl bug database at
 L<https://rt.perl.org/> .  There may also be information at
 L<http://www.perl.org/> , the Perl Home Page.
 
-If you believe you have an unreported bug, please run the L<cperlbug> program
+If you believe you have an unreported bug, please run the L<perlbug> program
 included with your release.  Be sure to trim your bug down to a tiny but
 sufficient test case.  Your bug report, along with the output of C<perl -V>,
 will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
 
-If you think it's a cperl specific bug or trust the cperl developers more 
-please file an issue at L<https://github.com/perl11/cperl/issues>.
+If you think it's a cperl specific bug or trust the cperl developers
+more please file an issue at
+L<https://github.com/perl11/cperl/issues>.  The p5p bug tracker is
+explicitly blocked for cperl developers, so we cannot see it there
+until it is fixed, which might need several years.  p5p ignores any
+cperl bugfixes, so you might want to report it twice.
 
 If the bug you are reporting has security implications which make it
 inappropriate to send to a publicly archived mailing list, then see

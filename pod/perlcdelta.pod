@@ -2,522 +2,380 @@
 
 =head1 NAME
 
-perlcdelta - what is new for cperl v5.24.2
+perlcdelta - what is new for cperl v5.24.3
 
 =head1 DESCRIPTION
 
-This document describes the differences between the cperl 5.24.1
-and the cperl 5.24.2 releases.
+This document describes the differences between the cperl 5.24.2
+and the cperl 5.24.3 releases.
+
+If you are upgrading from an earlier release such as v5.24.1c, first read
+L<perl5242cdelta>, which describes differences between v5.24.1c and v5.24.2c
+
+=head1 Notice
+
+XXX Any important notices here
+
+=head1 Core Enhancements
+
+XXX New core language features go here.  Summarize user-visible core language
+enhancements.  Particularly prominent performance optimisations could go
+here, but most should go in the L</Performance Enhancements> section.
+
+[ List each enhancement as a =head2 entry ]
 
 =head1 Security
 
-=head2 chdir heap-buffer-overflow
+XXX Any security-related notices go here.  In particular, any security
+vulnerabilities closed should be noted here rather than in the
+L</Selected Bug Fixes> section.
 
-Fixed heap-buffer-overflow in chdir without argument. make chdir allocate the stack
-it needs for the result, overwriting one stack entry. Note that the perl stack is on
-the heap, so it's not that dramatic.
-L<[perl #129130]|https://rt.perl.org/Public/Bug/Display.html?id=129130>
+[ List each security issue as a =head2 entry ]
 
-=head2 Parse-CPAN-Meta security
+=head1 Incompatible Changes
 
-Sets C<$YAML::XS::DisableCode>, C<$YAML::XS::DisableBlessed> while
-parsing F<META.yml> files. See L<YAML::XS/"$YAML::XS::DisableBlessed">.
+XXX For a release on a stable branch, this section aspires to be:
+
+    There are no changes intentionally incompatible with 5.XXX.XXX
+    If any exist, they are bugs, and we request that you submit a
+    report.  See L</Reporting Bugs> below.
+
+[ List each incompatible change as a =head2 entry ]
 
 =head1 Deprecations
 
-=head2 do_open, do_close macros
+XXX Any deprecated features, syntax, modules etc. should be listed here.
 
-Those macros clash on darwin XTools with the system iostream
-C<_OutputIterator> methods. We need to use the fullname
-B<Perl_do_open> and B<Perl_do_close> functions whenever perl needs to be
-embedded into C++ projects. Or the better C<do_openn> macro.
+=head2 Module removals
 
-With the system C++ compiler on darwin C<do_open>, C<do_close> are now
-undefined.  See L<[cperl #227]|https://github.com/perl11/cperl/issues/227>
+XXX Remove this section if inapplicable.
+
+The following modules will be removed from the core distribution in a
+future release, and will at that time need to be installed from CPAN.
+Distributions on CPAN which require these modules will need to list them as
+prerequisites.
+
+The core versions of these modules will now issue C<"deprecated">-category
+warnings to alert you to this fact.  To silence these deprecation warnings,
+install the modules in question from CPAN.
+
+Note that these are (with rare exceptions) fine modules that you are encouraged
+to continue to use.  Their disinclusion from core primarily hinges on their
+necessity to bootstrapping a fully functional, CPAN-capable Perl installation,
+not usually on concerns over their design.
+
+=over
+
+=item XXX
+
+XXX Note that deprecated modules should be listed here even if they are listed
+as an updated module in the L</Modules and Pragmata> section.
+
+=back
+
+[ List each other deprecation as a =head2 entry ]
+
+=head1 Performance Enhancements
+
+XXX Changes which enhance performance without changing behaviour go here.
+There may well be none in a stable release.
+
+[ List each enhancement as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
 
 =head1 Modules and Pragmata
+
+XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
+go here.  If Module::CoreList is updated, generate an initial draft of the
+following sections using F<Porting/corelist-perldelta.pl>.  A paragraph summary
+for important changes should then be added by hand.  In an ideal world,
+dual-life modules would have a F<Changes> file that could be cribbed.
+
+[ Within each section, list entries as a =item entry ]
+
+=head2 New Modules and Pragmata
+
+=over 4
+
+=item *
+
+XXX
+
+=back
 
 =head2 Updated Modules and Pragmata
 
 =over 4
 
-=item App::Cpan 1.64_01
+=item *
 
-Fixed C<CPAN::Shell->expand("Module", "Bundle::...")> error with Bundles,
-a regression from 1.63 and prev. cperl releases up to 5.25.0c.
-cperl only.
+L<XXX> has been upgraded from version A.xx to B.yy.
 
-=item Archive-Tar  2.18
+=back
 
-Better 09_roundtrip.t tests.
+=head2 Removed Modules and Pragmata
 
-=item base  1.23_01
+=over 4
 
-revert base.pm incdot test change and fix properly
+=item *
 
-=item B  1.62_06
+XXX
 
-fix -Wc++11-compat
+=back
 
-=item B-C  1.54_15
+=head1 Documentation
 
-Fixed IsCOW savepvn, store the last cowrefcnt.
+XXX Changes to files in F<pod/> go here.  Consider grouping entries by
+file and be sure to link to the appropriate page, e.g. L<perlfunc>.
 
-Fixed wrong savepvn length, failing with asan.
+=head2 New Documentation
 
-Optimized mro_isa_changed_in initialization.
-Added B::HV::Gv_AMG method.
+XXX Changes which create B<new> files in F<pod/> go here.
 
-Fixes heap-buffer overflow at t/c.t 11 with asan.
+=head3 L<XXX>
 
-Fixed -lcperl for shared libcperl.
+XXX Description of the purpose of the new file here
 
-=item Compress::Raw::Bzip2 2.069
+=head2 Changes to Existing Documentation
 
-Fixed APPEND_OUTPUT logic [RT #119005]
+XXX Changes which significantly change existing files in F<pod/> go here.
+However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
+section.
 
-=item Compress::Raw::Zlib 2.069
+=head3 L<XXX>
 
-Fixed APPEND_OUTPUT logic [RT #119007]
+=over 4
 
-=item Config  6.22_01
+=item *
 
-add fake_signatures, --regen support, support for dev versions.
+XXX Description of the change here
 
-=item Config::Perl::V  0.27_01
+=back
 
-=item CPAN::Meta  2.150010c
+=head1 Diagnostics
 
-And merge F<cpan/Parse-CPAN-Meta> into it. F<cpan/Parse-CPAN-Meta> is
-gone.
+The following additions or changes have been made to diagnostic output,
+including warnings and fatal error messages.  For the complete list of
+diagnostic messages, see L<perldiag>.
 
-Parse-CPAN-Meta security: set $YAML::XS::DisableCode, $YAML::XS::DisableBlessed.
+XXX New or changed warnings emitted by the core's C<C> code go here.  Also
+include any changes in L<perldiag> that reconcile it to the C<C> code.
 
-Add support for all known YAML and JSON modules: *::Syck, JSON::MaybeXS, Mojo::JSON.
-But JSON::Any is broken.
+=head2 New Diagnostics
 
-fixed UTF-8 issues, passes now all Test-CPAN-Meta tests.
+XXX Newly added diagnostic messages go under here, separated into New Errors
+and New Warnings
 
-=item CPAN  2.14c
+=head3 New Errors
 
-reapply most of our patches.
-skip cperl builtin prereqs.
+=over 4
 
-=item Cpanel-JSON-XS 3.0225
+=item *
 
-- Fixes for g++-6, stricter -fpermissive and -Wc++11-compat.
+XXX L<message|perldiag/"message">
 
-- Added tests for ill-formed utf8 sequences from Encode.
+=back
 
-- modfl() mingw 4.0 runtime bug [perl #125924]
+=head3 New Warnings
 
-- Tested with the comprehensive JSON decode spectests from
-  http://seriot.ch/parsing_json.html. Not added to core. #72
+=over 4
 
-- decode with BOM: UTF-8, UTF-16, or UTF-32.
+=item *
 
-- fixed detection of final \0 as illegal non-whitespace garbage. Fixes
-  spectest 'n_number_then_00'. #72
+XXX L<message|perldiag/"message">
 
-- warn with unicode noncharacters as in core when not in relaxed mode.
-  #74
+=back
 
-- fail decode of non-unicode raw characters above U+10FFFF
-  when not in relaxed mode.
+=head2 Changes to Existing Diagnostics
 
-- added F<t/gh70-asan.t>
+XXX Changes (i.e. rewording) of diagnostic messages go here
 
-=item Data::Dumper  1.162
+=over 4
 
-strEQc improvements
+=item *
 
-fix correct indentation for utf-8 key hash elements, [perl #128524].
+XXX Describe change here
 
-=item Devel-NYTProf 6.04
+=back
 
-Fix -Wc++11-compat warnings, and various minor issues.
+=head1 Utility Changes
 
-=item Devel::PPPort  3.35_02
+XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
+Most of these are built within the directory F<utils>.
 
-Fix -Wc++11-compat warnings.
+[ List utility changes as a =head2 entry for each utility and =item
+entries for each change
+Use L<XXX> with program names to get proper documentation linking. ]
 
-=item Digest::SHA  5.96
+=head2 L<XXX>
 
-prevented shasum from possibly running malicious code,
-remove '.' from @INC before module loading RT #116513,
-namespace cleanup (RT #105371 and #105372),
-minor code and documentation tweaks
+=over 4
 
-=item DynaLoader 2.06c
+=item *
 
-Fixed build dependency for F<dlboot.c>. No excessive rebuilds anymore.
-
-=item Encode  2.88
-
-various upstream fixes.
-plus g++-6 -fpermissive and -Wc++11-compat fixes.
-our local make -s silent patches and various others are now all upstream.
-
-=item File::Fetch  2.52
-
-* Set a cleaned env when running git clone
-* Changed git repository link in tests
-* Removed consistently failing httpbin.org tests
-* Require Module::Load::Conditional 0.66
-* Fix FTP tests for ipv6
-
-=item Getopt::Long 2.49.1
-
-* RT #114999 fix :number
-* RT #113748 fix VersionMessage ignores -output argument
-* RT #39052 sanify gnu_getopt
-
-=item HTTP::Tiny  0.070
-
-Many fixes und improvements
-
-=item Internals-DumpArenas  0.12_05
-
-Fix -Wc++11-compat warnings.
-Print empty arrays and hashes as such.
-
-=item IO-Socket-IP  0.38
-
-- Support setting custom socket options with new Sockopts
-  constructor parameter
-
-- Restore blocking mode after ->connect errors [cpan #112334]
-
-=item IPC::Cmd  0.96
-
-set $Module::Load::Conditional::FORCE_SAFE_INC = 1
-
-=item JSON::PP  2.27400_02
-
-Fixed true/false redefinition warnings.
-
-=item libnet  3.10
-
-- Remove . from @INC when loading optional modules.  [Tony Cook, Perl
-  RT#127834, CVE-2016-1238]
-
-- Increased minimum required version of IO::Socket::IP to 0.25 to hopefully
-  stop t/pop3_ipv6.t hanging.  [CPAN RT#104545]
-
-- Debug output now includes decoded (from base64) negotiation for SASL.
-  [Philip Prindeville, PR#27]
-
-- plus the suse utf8 fixes for Net::Cmd, see 5bd7010cb and
-  our darwin performance fix for hostname.
-
-=item Locale-Codes 3.42
-
-Added Czech republic aliases back in
-Lot of new codes.
-
-=item Locale::Maketext 1.28
-
-Fix optional runtime load for CVE-2016-1238
-
-Add blacklist and whitelist support, with 
-perl #127923 priority. See L<Locale::Maketext/"BRACKET NOTATION SECURITY">
-
-=item Math-BigInt  1.999726
-
-with our t/ skip count fixes.
-
-=item Module-Load-Conditional  0.68
-
-Fix unconditional @INC localisation,
-Add FORCE_SAFE_INC option to fix CVE-2016-1238.
-
-=item Module-Metadata  1.000033
-
-- Fix file operation in tests for VMS
-
-- use a more strict matching heuristic when attempting to infer the
-  "primary" module name in a parsed .pm file
-
-- only report "main" as the module name if code was seen outside another
-  namespace, fixing bad results for pod files (RT#107525)
-
-=item Net-Ping 2.55
-
-Fixed missing C<_unpack_sockaddr_in> family, which took AF_INET6 for
-a AF_INET addr in F<t/500_ping_icmp.t> and F<t/500_ping_icmp_ttl.t>.
-Use now a proper default. Detected by the new gitlab ci.
-
-Fixed C<_pack_sockaddr_in> for a proper 2nd argument type, hash or packed
-address.
-
-Improved F<500_ping_icmp.t> to try C<sudo -n> (no prompt). [RT #118451]
-
-Relaxed more tests failing with firewalled icmp on localhost. [RT #118441]
-
-Fixed ping_external argument type, either packed ip or hostname.
-[RT #113825]
-
-Fixed wrong skip message in F<t/020_external.t>
-
-=item NEXT  0.67
-
-Doc and meta changes only.
-
-=item parent  0.236
-
-improved t/parent-pmc.t,
-excluded new xt tests
-
-=item Perl-OSType  1.010
-
-Added msys
-
-=item podlators  4.09
-
-Many L<Pod::Man> bugfixes and new tests.
-See L<https://metacpan.org/changes/distribution/podlators>
-
-=item Pod-Perldoc  3.27
-
-Fix broken test on Windows and FreeBSD (RT#116551)
-Fix CVE-2016-1238 by temporarily removing '.' from @INC in world writable directories.
-Fix =head3 appearing in some perlfunc lookups
-AmigaOS patches (RT#106798) (RT#110368)
-Fall back to an English perlfunc if translation doesn't exist (RT#104695)
-FreeBSD has mandoc too, with UTF-8 support.
--U now documented and implied with -F (RT#87837)
-
-=item Pod-HTML 2.22c
-
-Improved parallel testing, relative F<testdir/test$$.lib>.
-See L<[RT #118416]|https://rt.cpan.org/Ticket/Display.html?id=118416>.
-
-=item Scalar-List-Utils  1.46_08
-
-Fix -Wc++11-compat warnings.
-Prepare for handling NUL in names for cperl-5.25.2
-
-=item Socket  2.024_05
-
-Fix -Wc++11-compat warnings.
-
-=item Sys-Syslog  0.35
-
-CVE-2016-1238: avoid loading optional modules from default . (Tony Cook).
-Patch rewrote to no longer depend upon @INC.
-See L<https://metacpan.org/changes/distribution/Sys-Syslog>
-
-Kept our smoker logic in F<t/syslog.t>, for slow darwin systems,
-the suse patch and disabled the lexical filehandle patch.
-
-=item Term-ANSIColor 4.06
-
-Add aliases ansi16 through ansi255 and on_ansi16 through on_ansi255
-(plus the corresponding constants) for the grey and rgb colors so that
-one can refer to all of the 256 ANSI colors with consistent names.
-These are aliases; the colors returned by uncolor will still use the
-grey and rgb names.  (#118267)
-
-=item Term::ReadKey 2.37_01
-
-ReadKey.pm renamed to ReadKey_pm.PL,
-expand blockoptions specific variants already at installation,
-no load-time eval, demand-load Carp, remove unneeded AutoLoader,
-harmonize formatting.
-
-patch: use faster StructCopy and fixup the XS.
-
-improved blockoptions probe when dynaloading fails.
-
-=item Thread-Semaphore  2.13
-
-Added C<down_timed> method.
-
-=item Time-HiRes  1.9741_01
-
-merge with cpan 1.9741
-
-Fix -Wc++11-compat warnings
-Keep our better C++ fixes
-Keep our t/usleep.t, t/alarm.t, t/utime.t fixes.
-Keep our do_openn improvements in typemap.
-Skip t/utime.t on ext2/ext3
-
-from upstream:
-
-- El Capitan compatibility
-- use CLOCK_REALTIME for clock_nanosleep scan
-- include file consistency in scans
-- use clockid_t consistently
-- use hv_fetchs()
-- scan for clockid_t (needed for macos Sierra)
-- darwin lacks clockid_t [rt.cpan.org #129789]
-
-=item Time-Local  1.25
-
-Less runtime memory: demand-load Carp, Config.
-reformatted
-
-=item Unicode-Collate 1.19
-
-Many new locales. Some major fixes.
-
-=item version  0.9917_02c
-
-Merge latest version with the '_' lyon concensus with the cperl extension
-of the optional final 'c' suffix. Extend version::regex for cperl.
-Now also parse the 'c' natively.
-
-=item YAML::XS  0.75
-
-fixed encoding issues: fixed wrong $YAML::XS::Encoding and
-$YAML::XS::LineBreak comparison logic.
-fixed utf8 input as handled as UTF8,
-non-utf8 honors $YAML::XS::Encoding.
-
-fixed -Wunused value warnings
-
-merged with upstream YAML-LibYAML,
-implemented $DisableBlessed (security).
+XXX
 
 =back
 
 =head1 Configuration and Compilation
 
+XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
+go here.  Any other changes to the Perl build process should be listed here.
+However, any platform-specific changes should be listed in the
+L</Platform Support> section, instead.
+
+[ List changes as a =item entry ].
+
 =over 4
 
-=item d_llabs
+=item *
 
-Probe for C<llabs()> needed for PERL_IABS on 32bit with -Duse64bitint,
-the default on mingw/cygwin. Defines C<HAS_LLABS>.
+XXX
 
 =back
 
 =head1 Testing
 
+XXX Any significant changes to the testing of a freshly built perl should be
+listed here.  Changes which create B<new> files in F<t/> go here as do any
+large changes to the testing harness (e.g. when parallel testing was added).
+Changes to existing files in F<t/> aren't worth summarizing, although the bugs
+that they represent may be covered elsewhere.
+
+[ List each test improvement as a =item entry ]
+
 =over 4
 
 =item *
 
-Added F<t/porting/embedcpp.t> to check for perl.h C++ compatibility with a modern
-C++ compiler. There must be no fatal compilation errors in the C<-c> step from
-C++ incompatibilities in any header file.
+XXX
 
-This is related to the new C<-Wc++11-compat> and C<-fpermissive> fixes.
+=back
 
-Note that Microsoft Visual C++ still throws errors. You cannot use that yet.
-See L<[cperl #227]|https://github.com/perl11/cperl/issues/227>.
+=head1 Platform Support
+
+XXX Any changes to platform support should be listed in the sections below.
+
+[ Within the sections, list each platform as a =item entry with specific
+changes as paragraphs below it. ]
+
+=head2 New Platforms
+
+XXX List any platforms that this version of perl compiles on, that previous
+versions did not.  These will either be enabled by new files in the F<hints/>
+directories, or new subdirectories and F<README> files at the top level of the
+source tree.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
+
+=back
+
+=head2 Discontinued Platforms
+
+XXX List any platforms that this version of perl no longer compiles on.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
+
+=back
+
+=head2 Platform-Specific Notes
+
+XXX List any changes for specific platforms.  This could include configuration
+and compilation changes or changes in portability/compatibility.  However,
+changes within modules for platforms should generally be listed in the
+L</Modules and Pragmata> section.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
+
+=back
+
+=head1 Internal Changes
+
+XXX Changes which affect the interface available to C<XS> code go here.  Other
+significant internal changes for future core maintainers should be noted as
+well.
+
+[ List each change as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
 
 =back
 
 =head1 Selected Bug Fixes
 
+XXX Important bug fixes in the core language are summarized here.  Bug fixes in
+files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
+
+[ List each fix as a =item entry ]
+
 =over 4
 
 =item *
 
-Fixed the range unicode bug. When the right side of the range is a UTF-8 encoded
-string, but the left side not, downgrade the right side to native octets.
-E.g.
-
-    my $r = chr 255; utf8::upgrade $r; my $num = ("a" .. $r);
-    print $num
-
-should print 26 but does 702, because the utf-8 repr. of C<\x{ff}>
-is C<"\303\277" [UTF8 "\x{ff}"]>, and the range was incremented from
-"a" to "\x{c3}\x{bf}" instead.
-See L<[cperl #218]|https://github.com/perl11/cperl/issues/218>.
-
-=item *
-
-Fixed several issues with C<-Duseshrplib>, a shared F<libcperl.$so>:
-
-install it (!!) (cperl only),
-fix ExtUtils::Embed and B-C compilation and testing,
-fix tests on darwin,
-fix configuration probe of Term::ReadKey.
-
-=item *
-
-Fixed a cperl-only failure in signatures with default blocks introducing
-a new lexical variable. As in C<sub t151($a,$b=do{my $f},$c=1){} t151($x,$x,$x)>.
-This failure was only fatal on 32bit + -Duse64bitint systems.
-
-C<SIGNATURE_arg_default_op> does not have a items arg.
-See L<[cperl #164]|https://github.com/perl11/cperl/issues/164>.
-and L<[cperl #213]|https://github.com/perl11/cperl/issues/213>.
-
-=item *
-
-v-strings with a 'c' suffix can now be parsed natively, in C<scan_vstring()>.
-See L<[cperl #211]|https://github.com/perl11/cperl/issues/211>.
+XXX
 
 =back
 
 =head1 Known Problems
 
-For open cperl problems see L<[issues]|https://github.com/perl11/cperl/issues/>.
+XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
+tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
+platform specific bugs also go here.
 
-Some of these fixes also can to be backported from perl5.25.x upstream.
+[ List each fix as a =item entry ]
 
 =over 4
 
 =item *
 
-C< until ($x = 1) { ... } > and C< ... until $x = 1 > should
-warn when syntax warnings are enabled.
-L<[perl #127333]|https://rt.perl.org/Public/Bug/Display.html?id=127333>
-
-=item *
-
-C< ${\vec %h, 0, 1} > and C< ${\substr %h, 0} > should not segfault, rather
-the lvalue context should be propagated, and list context properly handled.
-L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
-
-=item *
-
-The perl debugger doesn't yet work with signatures. It doesn't step into
-such functions and it may fail.
-See e.g. L<[cperl #167]|https://github.com/perl11/cperl/issues/167>
-
-=item *
-
-C<clang -flto=thin> and on some systems even C<gcc -flto> with C<-O3>
-or C<-finline> leads to invisible symbols which were inlined and not
-exported, even if they should be declared as public API. This is fixed
-in v5.25.2c.
+XXX
 
 =back
 
+=head1 Errata From Previous Releases
+
+=over 4
+
+=item *
+
+XXX Add anything here that we forgot to add, or were mistaken about, in
+the perldelta of a previous release.
+
+=back
+
+=head1 Obituary
+
+XXX If any significant core contributor has died, we've added a short obituary
+here.
+
 =head1 Acknowledgements
 
-Perl 5.24.2 represents approximately 2 months of development since Perl 5.24.1c
-and contains approximately 170,000 lines of changes across 720 files from 4
-authors.
+XXX Generate this with:
 
-Excluding auto-generated files, documentation and release tools, there were
-approximately 93,000 lines of changes to 420 .pm, .t, .c and .h files.
-
-The following people are known to have contributed the improvements
-that became Perl 5.24.2:
-
-Reini Urban, Tony Cook, Yves Orton, Hugo van der Sanden.
-
-The list above is almost certainly incomplete as it is automatically generated
-from version control history. In particular, it does not include the names of
-the (very much appreciated) contributors who reported issues to the Perl bug
-tracker.
-
-Many of the changes included in this version originated in the CPAN modules
-included in Perl's core. We're grateful to the entire CPAN community for
-helping Perl to flourish.
-
-For a more complete list of all of Perl's historical contributors, please see
-the F<AUTHORS> file in the Perl source distribution.
-
-Generated with:
-
-    cperl Porting/acknowledgements.pl cperl-5.24.1..HEAD
+    cperl Porting/acknowledgements.pl cperl-5.24.3..HEAD
 
 =head1 Reporting Bugs
 
@@ -526,17 +384,13 @@ posted to the comp.lang.perl.misc newsgroup and the perl bug database at
 L<https://rt.perl.org/> .  There may also be information at
 L<http://www.perl.org/> , the Perl Home Page.
 
-If you believe you have an unreported bug, please run the L<perlbug> program
+If you believe you have an unreported bug, please run the L<cperlbug> program
 included with your release.  Be sure to trim your bug down to a tiny but
 sufficient test case.  Your bug report, along with the output of C<perl -V>,
 will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
 
-If you think it's a cperl specific bug or trust the cperl developers
-more please file an issue at
-L<https://github.com/perl11/cperl/issues>.  The p5p bug tracker is
-explicitly blocked for cperl developers, so we cannot see it there
-until it is fixed, which might need several years.  p5p ignores any
-cperl bugfixes, so you might want to report it twice.
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
 
 If the bug you are reporting has security implications which make it
 inappropriate to send to a publicly archived mailing list, then see

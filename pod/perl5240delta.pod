@@ -2,12 +2,12 @@
 
 =head1 NAME
 
-perldelta - what is new for perl v5.24.2
+perl5240delta - what is new for perl v5.24.0
 
 =head1 DESCRIPTION
 
-This document describes the differences between the 5.24.1 release and the
-5.24.2 release.
+This document describes the differences between the 5.22.0 release and the
+5.24.0 release.
 
 =head1 Core Enhancements
 

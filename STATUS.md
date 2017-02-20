@@ -4,41 +4,47 @@
 
 The name **cperl** stands for **a perl with classes, types, compiler
 support, continuation of perl5 development or just a company-friendly
-perl**, but currently it's only a better variant with types, proper signatures,
-security fixes and without classes.
+perl**.
 
 cperl started Feb. 2015 when `:const` was added, parrot was killed and
 it became clear that optimizing for fun is better than waiting for
 someone else to allow it.
 
-Currently it is about 20% faster than perl5 overall, >2x faster
-then 5.14 and uses the least amount of memory measured since 5.6,
-i.e. less than 5.10 and 5.6.2, which were the previous leaders. While
-perl5.22 uses the most memory yet measured. cperl 5.24 is about 2x faster
-than 5.22. Function calls with signatures are 2x faster, normal functions with a
-`my(..) = @_;` prolog are automatically promoted to signatures.
+Currently it is about 20% faster than perl5 overall, >2x faster then
+5.14 and uses the least amount of memory measured since 5.6, i.e. less
+than 5.10 and 5.6.2, which were the previous leaders. While perl5.22
+uses the most memory yet measured. cperl 5.24 and 5.26 is about 2x
+faster than 5.22 in bigger real-world applications. Esp. function
+calls with signatures are 2x faster, normal functions with a `my(..) =
+@_;` prolog are automatically promoted to signatures.
 
 But not all of the wanted features are merged.  The plan is to support
 most perl5-compatible perl6 features (*"do not break CPAN"*), improve
 performance and memory usage, re-establish compiler (`B::C`) support,
 re-establish perl5 core development which essentially stopped 2002,
-use perl6-like development policies, and better security fixes and
-maintenance than the upstream p5p perl5. See [README.cperl](perlcperl.html).
+use perl6-like development policies, better security fixes and
+maintenance than the upstream p5p perl5, and stop the ongoing
+destruction going on in p5p. See [README.cperl](perlcperl.html).
+
+There's no class keyword yet as this needs proper field and method
+handling, multi-dispatch, aggregate type handling and class
+finalization, which is not yet finished. But classes are user-facing
+types, and type-support is builtin. use base and use fields were
+improved to behave almost like classes.
 
 Tested and developed on linux and darwin 64bit. darwin 32bit fails
 on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 
 The current stable release is
-  [5.24.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.3) - [perl5242cdelta](perl5242cdelta.html),
-the latest development release [5.25.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.25.2) - [perl5252cdelta](perl5252cdelta.html).
+  [5.24.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.2) - [perl5242cdelta](perl5242cdelta.html),
+the latest development release [5.25.3c](https://github.com/perl11/cperl/releases/tag/cperl-5.25.3) - [perl5253cdelta](perl5253cdelta.html).
 We also have [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
 
 All tests pass. CPAN works.
-
 Some fixes in my `rurban/distroprefs` repo for certain CPAN modules are needed.
 
-For 5.24.1c with some modernized core modules some signatures are
+Since 5.24.1c with some modernized core modules some signatures are
 pretty strictly typed to catch wrong usages and enforce better code.
 See the `Test::More::skip()` [FAQ](https://github.com/perl11/cperl/issues/153#issuecomment-224515895) or below.
 Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
@@ -46,13 +52,17 @@ Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
 sloppy types there neither. See below for *Known Problems*.
 
 This is still much less than with a typical major perl5 release, and
-the patches are all provided in my
-[rurban/distroprefs](https://github.com/rurban/distroprefs/), so the
+the patches are all provided in my [rurban/distroprefs](https://github.com/rurban/distroprefs/), so the
 upgrade is seemless.  E.g. Test2 (the new Test::Simple) broke >15
-modules without any patches.
+modules without any patches. Test2 is not yet supported, as it is still 20% slower,
+and has no significant benefit over the old Test-Simple.
 
-v5.24.0c, v5.24.1c and v5.24.2c have [about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere), for problems which are not fixed in perl-5.24.1.
-Ditto cperl-5.22.4c has about 20 fixes which are not in the latest perl-5.22.3.
+v5.24.0c, v5.24.1c and v5.24.2c have
+[about 24 fixes](perldelta.html#Known-Problems-fixed-elsewhere), for
+problems which are not fixed in perl-5.24.1.  Ditto cperl-5.22.4c has
+about 20 fixes which are not in the latest perl-5.22.3.  Since cperl
+development is about 10x faster than p5p development, these numbers do
+increase over time.
 
 ![Memory usage: perl -e0](cperl-m0.png)
 
@@ -70,6 +80,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * signatures are 2x faster, not 2x slower as with 5.24 or almost as slow
   as without as with 5.26.
 * function return types declarations as attribute
+* type-check assignments, since 5.26 also for user-types
 * many more builtin function attributes
 * shaped arrays with compile-time checks and optims
 * static loop optims, eliminated run-time bounds checks
@@ -80,7 +91,12 @@ For all versions see [bench-all/](bench-all/index.html)
   Security fixes for DynaLoader.
 * changed default hash function to the fastest FNV1A *(as in the stableperl fork)*
 * changed the hash collision strategy from randomize to the usual move-to-front
-* changed the default hash fill rate from 100% to 90%
+* changed the default hash fill rate from 100% to 90%. It's tunable via ccflags and
+  still fast.
+* cperl has besides java the only secure hash table implementation of all popular
+  dynamic scripting languages or static languages with internal hash table support.
+  Other secure hash tables are only found in glibc, bsd or unix kernels or various
+  public services.
 * seperate XS and PP XS calls dynamically with a new enterxssub op
 * -DI and -Dk
 * add some unicode ops
@@ -88,6 +104,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * hash keys keep the tainted info. see [perlsec](http://perldoc.perl.org/perlsec.html#Taint-mode)
   There are no known taint loopholes anymore.
 * fixes ops and modules using lexical `$_`. The lexical topic feature is supported.
+* fixed the encoding pragma, it is undeprecated.
 * readonly packages can be cloned with threads.
 * security and overlarge data fixes for Storable, YAML not yet.
 * include B-C, Cpanel::JSON::XS, YAML::XS, Devel::NYTProf, Term::ReadKey
@@ -112,6 +129,20 @@ For all versions see [bench-all/](bench-all/index.html)
 * Support clang LTO "link time optimizations", using proper linkage attributes.
   -fsanitize=cfi instead of -fstack-protector not yet.
 * Reproducible builds are default since v5.25.2c
+* Unicode *Moderately Restrictive Level* security profile for identifiers.
+  cperl is the only known unicode-enabled language following any
+  recommended security practice. python 3 does normalization but not any
+  restriction level. perl5+6, ruby, php, javascript, java, c#, python, julia,
+  haskell, lua, swift ... allow all insecure confusable characters and arbitrary
+  mixed scripts in identifiers.
+* undeprecate qw-as-parens with for. 'for qw(a b c) { print }' works again.
+* constant fold unpack in scalar context
+* range works with unicode characters
+* length and ref are optimized in boolean context
+* UNITCHECK global phase introspection
+* base/fields classes behave now like closed cperl classes: The ISA is readonly,
+  inheritance checks are performed at compile-time already. More support for
+  closed classes, esp. restricted stashes and readonly ISA.
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
@@ -275,6 +306,7 @@ are limited. So they are based on master.
 
   works for the compiler, but does not do COW yet, i.e. slower for
   uncompiled perls, faster for compiled.
+  The upstream COW implementation is still a complete mess.
 
 * [feature/CM-367-cperl-warnings-xs-carp](http://github.com/perl11/cperl/commits/feature/CM-367-cperl-warnings-xs-carp)
 * [feature/CM-367-cperl-carp-builtin](http://github.com/perl11/cperl/commits/feature/CM-367-cperl-carp-builtin)
@@ -282,13 +314,13 @@ are limited. So they are based on master.
 
   [code](http://github.com/perl11/cperl/commits/feature/gh9-warnings-xs)
 
-  much faster and much less memory, but 3 minor scope test fails.
+  much faster and much less memory, but 3 minor scope tests fails.
 
 * [feature/gh6-no-miniperl](https://github.com/perl11/cperl/issues/6)
 
   [code](http://github.com/perl11/cperl/commits/feature/gh6-no-miniperl)
 
-  Need to fix some Makefile deps and break cross-references
+  Need to fix some Makefile deps and break cross-references.
 
 * [feature/CM-626-cperl-use-dots](http://github.com/perl11/cperl/commits/feature/CM-626-cperl-use-dots)
 
@@ -302,7 +334,7 @@ are limited. So they are based on master.
 
   [code](http://github.com/perl11/cperl/commits/feature/gh102-smallhash)
 
-  optimize the speed for small hashes.
+  optimize the speed for small hashes, less keys.
 
 * [feature/gh176-unexec](https://github.com/perl11/cperl/issues/176)
 
@@ -320,7 +352,7 @@ and various [hash tables refactorings]((https://github.com/perl11/cperl/issues/2
 
 feature/gh24-base-hash feature/gh24-he-array feature/gh24-oldnew-hash-table
 featurex/gh24-array_he featurex/gh24-hash-loop featurex/gh24-hash-loop+utf8
-featurex/gh24-hash-utf8
+featurex/gh24-hash-utf8.
 
 ## A bit more work is needed for
 
@@ -350,24 +382,27 @@ They also revert some wrong decisions p5p already made.
   [code](http://github.com/perl11/cperl/commits/feature/gh24-new-hash-table)
 
   lots of small attempts, but still too hairy. needs a complete hash table rewrite.
+  getting there, but not yet finished for 5.26.
 
 * [feature/gh16-multi](https://github.com/perl11/cperl/issues/16)
 
   [code](http://github.com/perl11/cperl/commits/feature/gh16-multi)
 
-  class, method and multi keywords but no dispatch, subtyping and type checks yet.
-  in work.
+  class, method, multi, has keywords but no dispatch, subtyping and type checks yet.
+  in work. HvCLASS merged to master with 5.26.
 
 * various more hash tables:
 
-featurex/gh24-one-word-ahe featurex/gh24-open-hash
+[featurex/gh24-one-word-ahe](http://github.com/perl11/cperl/commits/featurex/gh24-one-word-ahe)
+[featurex/gh24-open-hash](http://github.com/perl11/cperl/commits/featurex/gh24-open-hash)
 
 ## Soon
 
-* user facing classes, multiple dispatch (fast for binary, slow for mega)
+* user facing classes, multiple dispatch (fast for binary, slow for mega),
+  internal-only pseudohashes.
 
 * builtin macros
 
 * builtin ffi
 
-2016-12-16 rurban
+2017-02-20 rurban
