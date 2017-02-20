@@ -9,7 +9,7 @@ use strict;
 BEGIN {
   $|  = 1;
   $^W = 1;
-  chdir "cpan/CPAN-Meta" if $ENV{PERL_CORE} and -d 'cpan/CPAN-Meta';
+  chdir "dist/CPAN-Meta" if $ENV{PERL_CORE} and -d 'cpan/CPAN-Meta';
 }
 
 use lib 't/lib';

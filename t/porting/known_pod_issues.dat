@@ -317,6 +317,24 @@ YAML
 YAML::Syck
 YAML::Tiny
 dist/cpan-meta-requirements/lib/cpan/meta/requirements.pm	Verbatim line length including indents exceeds 79 by	2
+dist/cpan-meta/lib/cpan/meta.pm	Apparent broken link	5
+dist/cpan-meta/lib/cpan/meta/converter.pm	Verbatim line length including indents exceeds 79 by	1
+dist/cpan-meta/lib/cpan/meta/history/meta_1_0.pod	Apparent broken link	1
+dist/cpan-meta/lib/cpan/meta/history/meta_1_1.pod	Apparent broken link	1
+dist/cpan-meta/lib/cpan/meta/history/meta_1_2.pod	Apparent broken link	1
+dist/cpan-meta/lib/cpan/meta/history/meta_1_2.pod	Verbatim line length including indents exceeds 79 by	1
+dist/cpan-meta/lib/cpan/meta/history/meta_1_3.pod	Apparent broken link	1
+dist/cpan-meta/lib/cpan/meta/history/meta_1_3.pod	Verbatim line length including indents exceeds 79 by	1
+dist/cpan-meta/lib/cpan/meta/history/meta_1_4.pod	Apparent broken link	1
+dist/cpan-meta/lib/cpan/meta/history/meta_1_4.pod	Verbatim line length including indents exceeds 79 by	1
+dist/cpan-meta/lib/cpan/meta/merge.pm	empty section in previous paragraph	1
+dist/cpan-meta/lib/cpan/meta/spec.pm	Apparent broken link	1
+dist/cpan-meta/lib/cpan/meta/spec.pm	Apparent internal link is missing its forward slash	1
+dist/cpan-meta/lib/cpan/meta/spec.pm	Verbatim line length including indents exceeds 79 by	1
+dist/cpan-meta/lib/cpan/meta/validator.pm	=item has no contents	1
+dist/cpan-meta/lib/parse/cpan/meta.pm	Apparent broken link	3
+dist/cpan-meta/lib/parse/cpan/meta.pm	Verbatim line length including indents exceeds 79 by	2
+dist/cpan-meta/lib/parse/cpan/meta.pm	line containing nothing but whitespace in paragraph	6
 dist/data-dumper/changes	Verbatim line length including indents exceeds 79 by	1
 dist/data-dumper/dumper.pm	? Should you be using L<...> instead of	1
 dist/extutils-constant/lib/extutils/constant.pm	Verbatim line length including indents exceeds 79 by	1
