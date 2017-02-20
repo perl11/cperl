@@ -30,7 +30,7 @@ on two unrelated core tests (issignaling setpayloadsig + chmod linked in).
 Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 
 The current stable release is
-  [5.24.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.2) - [perl5242cdelta](perl5242cdelta.html),
+  [5.24.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.3) - [perl5242cdelta](perl5242cdelta.html),
 the latest development release [5.25.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.25.2) - [perl5252cdelta](perl5252cdelta.html).
 We also have [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
 
