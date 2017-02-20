@@ -2288,7 +2288,7 @@ Perl_do_readline(pTHX)
 		}
 		fp = nextargv(PL_last_in_gv, PL_op->op_flags & OPf_SPECIAL);
 		if (!fp) { /* Note: fp != IoIFP(io) */
-		    (void)do_close(PL_last_in_gv, FALSE); /* now it does*/
+		    (void)Perl_do_close(aTHX_ PL_last_in_gv, FALSE); /* now it does*/
 		}
 	    }
 	    else if (type == OP_GLOB)
@@ -2375,10 +2375,10 @@ Perl_do_readline(pTHX)
 		fp = nextargv(PL_last_in_gv, PL_op->op_flags & OPf_SPECIAL);
 		if (fp)
 		    continue;
-		(void)do_close(PL_last_in_gv, FALSE);
+		(void)Perl_do_close(aTHX_ PL_last_in_gv, FALSE);
 	    }
 	    else if (type == OP_GLOB) {
-		if (!do_close(PL_last_in_gv, FALSE)) {
+		if (!Perl_do_close(aTHX_ PL_last_in_gv, FALSE)) {
 		    Perl_ck_warner(aTHX_ packWARN(WARN_GLOB),
 				   "glob failed (child exited with status %d%s)",
 				   (int)(STATUS_CURRENT >> 8),

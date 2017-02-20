@@ -6916,8 +6916,8 @@ extern void moncontrol(int);
 
 #define do_open(g, n, l, a, rm, rp, sf) \
 	do_openn(g, n, l, a, rm, rp, sf, (SV **) NULL, 0)
-/* nameclash with _OutputIterator */
-#if defined(__cplusplus) && defined(__APPLE__)
+/* nameclash on darwin sys clang++ with _OutputIterator, on freebsd with locale */
+#if defined(__cplusplus) && defined(__clang__)
 #undef do_open
 #undef do_close
 #endif

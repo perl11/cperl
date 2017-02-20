@@ -1630,6 +1630,16 @@ GNU libc used (previously it was an empty string when reported).
 
 VAX floating point formats are now supported.
 
+=item FreeBSD
+
+Similar to darwin with v5.25.2c the C<do_open> and C<do_close> macros
+are now undefined on clang++, which FreeBSD uses. do_close clashes on
+C++ with F<locale>. We need to use the fullname B<Perl_do_open> and
+B<Perl_do_close> functions whenever perl needs to be embedded into C++
+projects.  See L<[cperl #227]|https://github.com/perl11/cperl/issues/227>
+
+Also affected is F<modperl_io.c>, which is not used with C++.
+
 =item darwin
 
 =over 4

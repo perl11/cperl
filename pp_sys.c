@@ -673,7 +673,7 @@ PP(pp_close)
 	    }
 	}
     }
-    PUSHs(boolSV(do_close(gv, TRUE)));
+    PUSHs(boolSV(Perl_do_close(aTHX_ gv, TRUE)));
     RETURN;
 }
 
@@ -690,11 +690,11 @@ PP(pp_pipe_op)
 
     rstio = GvIOn(rgv);
     if (IoIFP(rstio))
-	do_close(rgv, FALSE);
+	Perl_do_close(aTHX_ rgv, FALSE);
 
     wstio = GvIOn(wgv);
     if (IoIFP(wstio))
-	do_close(wgv, FALSE);
+	Perl_do_close(aTHX_ wgv, FALSE);
 
     if (PerlProc_pipe(fd) < 0)
 	goto badexit;
@@ -2497,7 +2497,7 @@ PP(pp_socket)
     int fd;
 
     if (IoIFP(io))
-	do_close(gv, FALSE);
+	Perl_do_close(aTHX_ gv, FALSE);
 
     TAINT_PROPER("socket");
     fd = PerlSock_socket(domain, type, protocol);
@@ -2538,9 +2538,9 @@ PP(pp_sockpair)
     IO * const io1 = GvIOn(gv1);
 
     if (IoIFP(io1))
-	do_close(gv1, FALSE);
+	Perl_do_close(aTHX_ gv1, FALSE);
     if (IoIFP(io2))
-	do_close(gv2, FALSE);
+	Perl_do_close(aTHX_ gv2, FALSE);
 
     TAINT_PROPER("socketpair");
     if (PerlSock_socketpair(domain, type, protocol, fd) < 0)
@@ -2667,7 +2667,7 @@ PP(pp_accept)
     if (fd < 0)
 	goto badexit;
     if (IoIFP(nstio))
-	do_close(ngv, FALSE);
+	Perl_do_close(aTHX_ ngv, FALSE);
     IoIFP(nstio) = PerlIO_fdopen(fd, "r" SOCKET_OPEN_MODE);
     IoOFP(nstio) = PerlIO_fdopen(fd, "w" SOCKET_OPEN_MODE);
     IoTYPE(nstio) = IoTYPE_SOCKET;
