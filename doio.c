@@ -892,7 +892,7 @@ Perl_nextargv(pTHX_ GV *gv, bool nomagicopen)
 		    Perl_ck_warner_d(aTHX_ packWARN(WARN_INPLACE),
 				     "Can't do inplace edit: %s is not a regular file",
 				     PL_oldname );
-		    do_close(gv,FALSE);
+		    Perl_do_close(aTHX_ gv,FALSE);
 		    continue;
 		}
 		if (*PL_inplace && strNEc(PL_inplace, "*")) {
@@ -923,7 +923,7 @@ Perl_nextargv(pTHX_ GV *gv, bool nomagicopen)
 			Perl_ck_warner_d(aTHX_ packWARN(WARN_INPLACE),
 					 "Can't do inplace edit: %"SVf" would not be unique",
 					 SVfARG(sv));
-			do_close(gv,FALSE);
+			Perl_do_close(aTHX_ gv,FALSE);
 			continue;
 		    }
 #endif
@@ -933,11 +933,11 @@ Perl_nextargv(pTHX_ GV *gv, bool nomagicopen)
 			Perl_ck_warner_d(aTHX_ packWARN(WARN_INPLACE),
 					 "Can't rename %s to %"SVf": %s, skipping file",
 					 PL_oldname, SVfARG(sv), Strerror(errno));
-			do_close(gv,FALSE);
+			Perl_do_close(aTHX_ gv,FALSE);
 			continue;
 		    }
 #else
-		    do_close(gv,FALSE);
+		    Perl_do_close(aTHX_ gv,FALSE);
 		    (void)PerlLIO_unlink(SvPVX_const(sv));
 		    (void)PerlLIO_rename(PL_oldname,SvPVX_const(sv));
 		    do_open_raw(gv, SvPVX_const(sv), SvCUR(sv), O_RDONLY, 0);
@@ -948,7 +948,7 @@ Perl_nextargv(pTHX_ GV *gv, bool nomagicopen)
 			Perl_ck_warner_d(aTHX_ packWARN(WARN_INPLACE),
 					 "Can't rename %s to %"SVf": %s, skipping file",
 					 PL_oldname, SVfARG(sv), Strerror(errno) );
-			do_close(gv,FALSE);
+			Perl_do_close(aTHX_ gv,FALSE);
 			continue;
 		    }
 		    (void)UNLINK(PL_oldname);
@@ -961,7 +961,7 @@ Perl_nextargv(pTHX_ GV *gv, bool nomagicopen)
 			Perl_ck_warner_d(aTHX_ packWARN(WARN_INPLACE),
 					 "Can't remove %s: %s, skipping file",
 					 PL_oldname, Strerror(errno) );
-			do_close(gv,FALSE);
+			Perl_do_close(aTHX_ gv,FALSE);
 			continue;
 		    }
 #  endif
@@ -982,7 +982,7 @@ Perl_nextargv(pTHX_ GV *gv, bool nomagicopen)
                         )) {
 		    Perl_ck_warner_d(aTHX_ packWARN(WARN_INPLACE), "Can't do inplace edit on %s: %s",
 				     PL_oldname, Strerror(errno) );
-		    do_close(gv,FALSE);
+		    Perl_do_close(aTHX_ gv,FALSE);
 		    continue;
 		}
 		setdefout(PL_argvoutgv);
@@ -1035,7 +1035,7 @@ Perl_nextargv(pTHX_ GV *gv, bool nomagicopen)
         }
         else {
             /* maybe this is no longer wanted */
-            (void)do_close(PL_argvoutgv,FALSE);
+            (void)Perl_do_close(aTHX_ PL_argvoutgv,FALSE);
         }
 	if (io && (IoFLAGS(io) & IOf_ARGV)
 	    && PL_argvout_stack && AvFILLp(PL_argvout_stack) >= 0)

@@ -1784,9 +1784,9 @@ restart:
     win32_checkTLS(my_perl);
     /* close the std handles to avoid fd leaks */
     {
-	do_close(PL_stdingv, FALSE);
-	do_close(gv_fetchpv("STDOUT", TRUE, SVt_PVIO), FALSE); /* PL_stdoutgv - ISAGN */
-	do_close(PL_stderrgv, FALSE);
+	Perl_do_close(aTHX_ PL_stdingv, FALSE);
+	Perl_do_close(aTHX_ gv_fetchpv("STDOUT", TRUE, SVt_PVIO), FALSE); /* PL_stdoutgv - ISAGN */
+	Perl_do_close(aTHX_ PL_stderrgv, FALSE);
     }
 
     /* destroy everything (waits for any pseudo-forked children) */
