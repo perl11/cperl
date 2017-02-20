@@ -3,7 +3,7 @@ use strict;
 require Exporter;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
-our $VERSION = '2.22c';
+our $VERSION = '2.23c';
 $VERSION =~ s/c$//;
 @ISA = qw(Exporter);
 @EXPORT = qw(pod2html htmlify);
@@ -249,7 +249,7 @@ sub init_globals () {
     $Cachedir = ".";            # The directory to which directory caches
                                 #   will be written.
 
-    $Dircache = "pod2htmd.tmp";
+    $Dircache = "p2h$$.tmp";
 
     $Htmlroot = "/";            # http-server base directory from which all
                                 #   relative paths in $podpath stem.
@@ -537,7 +537,7 @@ sub parse_command_line () {
 
     warn "Flushing directory caches\n"
         if $opt_verbose && defined $opt_flush;
-    $Dircache = "$Cachedir/pod2htmd.tmp";
+    $Dircache = "$Cachedir/p2h$$.tmp";
     if (defined $opt_flush) {
         1 while unlink($Dircache);
     }

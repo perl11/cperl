@@ -67,5 +67,5 @@ is($cksum[0], $cksum[2], "CR vs CRLF");
 is($cksum[1], $cksum[2], "LF vs CRLF");
 
 END {
-    1 while unlink $podfile, $infile, @outfile, 'pod2htmd.tmp';
+    1 while unlink $podfile, $infile, @outfile, "p2h$$.tmp";
 }

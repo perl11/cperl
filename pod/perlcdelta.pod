@@ -681,6 +681,11 @@ Return the port num as 5th return value with ack (jfraire).
 
 Add avhvswitch op
 
+=item Pod-HTML 2.23c
+
+fix cache races with parallel tests.
+add the PID to the temp. cache file
+
 =item Pod-Simple 4.35c
 
 Updated from CPAN 3.35: Turn off utf8 warnings when trying

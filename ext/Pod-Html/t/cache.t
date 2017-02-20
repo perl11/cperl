@@ -16,8 +16,8 @@ use Test::More tests => 10;
 my $cwd = Pod::Html::_unixify(Cwd::cwd());
 my $infile = "t/cache.pod";
 my $outfile = "cacheout.html";
-my $cachefile = "pod2htmd.tmp";
-my $tcachefile = "t/pod2htmd.tmp";
+my $cachefile = "p2h$$.tmp";
+my $tcachefile = "t/p2h$$.tmp";
 
 unlink $cachefile, $tcachefile;
 is(-f $cachefile, undef, "No cache file to start");
