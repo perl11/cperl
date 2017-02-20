@@ -16,6 +16,7 @@ no_index:
     - dist/Attribute-Handlers
     - dist/autouse
     - dist/base
+    - dist/bignum
     - dist/Carp
     - dist/constant
     - dist/CPAN-Meta
