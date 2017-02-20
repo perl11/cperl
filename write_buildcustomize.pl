@@ -39,6 +39,9 @@ my @toolchain = qw(cpan/AutoLoader/lib
                    cpan/Text-Tabs/lib
 		   dist/constant/lib
 		   cpan/version/lib
+		   cpan/Pod-Escapes/lib
+		   cpan/Getopt-Long/lib
+		   cpan/File-Path/lib
 		   );
 
 # Text-ParseWords used only in ExtUtils::Liblist::Kid::_win32_ext()
@@ -47,7 +50,6 @@ my @toolchain = qw(cpan/AutoLoader/lib
 push @toolchain, qw(
 	cpan/Text-ParseWords/lib
 	dist/ExtUtils-ParseXS/lib
-	cpan/Getopt-Long/lib
 	cpan/parent/lib
 	dist/ExtUtils-Constant/lib
 ) if $^O eq 'MSWin32';
