@@ -641,6 +641,10 @@ L<RT #107642|https://rt.cpan.org/Ticket/Display.html?id=107642>
 
 The other 2 fixes were already in cperl, plus a fix for reproducible builds.
 
+=item DynaLoader 2.07c
+
+Fixed dl_findfile refcounts, "panic: attempt to copy freed scalar" errors.
+
 =item Filter 1.57
 
   * added 2 more pure tests

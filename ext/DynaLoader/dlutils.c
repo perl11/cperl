@@ -515,7 +515,7 @@ XS(XS_DynaLoader_dl_findfile)
         XSRETURN_UNDEF;
     SP -= items;
     if (GIMME == G_SCALAR) {
-        mXPUSHs(file);
+        XPUSHs(file);
         XSRETURN(1);
     }
     else {
@@ -523,7 +523,7 @@ XS(XS_DynaLoader_dl_findfile)
         AV* found = (AV*)file;
         if (AvFILLp(found)>=0) {
             for (i=0; i<=AvFILLp(found); i++) {
-                mXPUSHs(AvARRAY(found)[i]);
+                XPUSHs(AvARRAY(found)[i]);
             }
             XSRETURN(i+1);
         }
