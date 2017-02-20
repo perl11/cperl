@@ -1155,120 +1155,6 @@ cpan/ExtUtils-Install/t/lib/MakeMaker/Test/Setup/BFD.pm	MakeMaker test utilities
 cpan/ExtUtils-Install/t/lib/MakeMaker/Test/Utils.pm	MakeMaker test utilities
 cpan/ExtUtils-Install/t/lib/TieOut.pm			Testing library to capture prints
 cpan/ExtUtils-Install/t/Packlist.t			See if Packlist works
-cpan/ExtUtils-MakeMaker/bin/instmodsh			Give information about installed extensions
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/Command.pm		Utilities for Make on non-UNIX platforms
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm		Calling MM functions from the cmd line
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/Liblist.pm			Locates libraries
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm		Does the real work of the above
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm		Write Makefiles for extensions
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/Config.pm	MakeMaker wrapper for Config
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/FAQ.pod		MakeMaker FAQ
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/Locale.pm
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/Tutorial.pod	Writing a module with MakeMaker
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/version.pm
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/version/regex.pm
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm		Writes a bootstrap file (see MakeMaker)
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/Mksymlists.pm		Writes a linker options file for extensions
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM.pm			MakeMaker adaptor class
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_AIX.pm			MakeMaker methods for AIX
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm			MakeMaker methods for Any OS
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_BeOS.pm			MakeMaker methods for BeOS
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm		MakeMaker methods for Cygwin
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Darwin.pm		MakeMaker methods for Darwin
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_DOS.pm			MakeMaker methods for DOS
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_MacOS.pm		MakeMaker methods for MacOS
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_NW5.pm			MakeMaker methods for NetWare
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_OS2.pm			MakeMaker methods for OS/2
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_QNX.pm			MakeMaker methods for QNX
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm			MakeMaker methods for Unix
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_UWIN.pm			MakeMaker methods for U/WIN
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_VMS.pm			MakeMaker methods for VMS
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_VOS.pm			MakeMaker methods for VOS
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Win32.pm		MakeMaker methods for Win32
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Win95.pm		MakeMaker methods for Win95
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/MY.pm			MakeMaker user override class
-cpan/ExtUtils-MakeMaker/lib/ExtUtils/testlib.pm			Fixes up @INC to use just-built extension
-cpan/ExtUtils-MakeMaker/t/00compile.t				See if MakeMaker modules compile
-cpan/ExtUtils-MakeMaker/t/01perl_bugs.t
-cpan/ExtUtils-MakeMaker/t/arch_check.t				Test MakeMaker's arch_check()
-cpan/ExtUtils-MakeMaker/t/backwards.t				Check MakeMaker's backwards compatibility
-cpan/ExtUtils-MakeMaker/t/basic.t				See if MakeMaker can build a module
-cpan/ExtUtils-MakeMaker/t/build_man.t				Set if MakeMaker builds manpages
-cpan/ExtUtils-MakeMaker/t/cd.t					Test to see cd works
-cpan/ExtUtils-MakeMaker/t/config.t				Test ExtUtils::MakeMaker::Config
-cpan/ExtUtils-MakeMaker/t/cp.t					Test for ExtUtils::Command
-cpan/ExtUtils-MakeMaker/t/dir_target.t				Verify if dir_target() is supported
-cpan/ExtUtils-MakeMaker/t/echo.t				Test for ExtUtils::MakeMaker
-cpan/ExtUtils-MakeMaker/t/eu_command.t				Test for ExtUtils::Command
-cpan/ExtUtils-MakeMaker/t/FIRST_MAKEFILE.t			See if FIRST_MAKEFILE works
-cpan/ExtUtils-MakeMaker/t/fix_libs.t				Test for ExtUtils::MakeMaker
-cpan/ExtUtils-MakeMaker/t/fixin.t				See if ExtUtils::MakeMaker works
-cpan/ExtUtils-MakeMaker/t/hints.t				See if hint files are honored.
-cpan/ExtUtils-MakeMaker/t/INST.t				Check MakeMaker INST_* macros
-cpan/ExtUtils-MakeMaker/t/INST_PREFIX.t				See if MakeMaker can apply PREFIXs
-cpan/ExtUtils-MakeMaker/t/INSTALL_BASE.t			Test INSTALL_BASE in MakeMaker
-cpan/ExtUtils-MakeMaker/t/installed_file.t			Test for ExtUtils::MakeMaker
-cpan/ExtUtils-MakeMaker/t/is_of_type.t				Test for ExtUtils::MakeMaker
-cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/NoXS.pm		MakeMaker test utilities
-cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/BFD.pm	MakeMaker test utilities
-cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/MPV.pm	MakeMaker test utilities
-cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/PL_FILES.pm	MakeMaker test utilities
-cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/Problem.pm	MakeMaker test utilities
-cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/Recurs.pm	MakeMaker test utilities
-cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/SAS.pm	MakeMaker test utilities
-cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/Unicode.pm
-cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/XS.pm	MakeMaker test utilities
-cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Utils.pm		MakeMaker test utilities
-cpan/ExtUtils-MakeMaker/t/lib/TieIn.pm				Testing library for dummy input handles
-cpan/ExtUtils-MakeMaker/t/lib/TieOut.pm				Testing library to capture prints
-cpan/ExtUtils-MakeMaker/t/Liblist.t				See if ExtUtils::Liblist works
-cpan/ExtUtils-MakeMaker/t/make.t				See if make detection works
-cpan/ExtUtils-MakeMaker/t/MakeMaker_Parameters.t		test "MakeMaker Parameters" section
-cpan/ExtUtils-MakeMaker/t/maketext_filter.t			See if maketext_filter works
-cpan/ExtUtils-MakeMaker/t/meta_convert.t				See if MakeMaker works
-cpan/ExtUtils-MakeMaker/t/META_for_testing.json				test data for MakeMaker
-cpan/ExtUtils-MakeMaker/t/META_for_testing.yml				test data for MakeMaker
-cpan/ExtUtils-MakeMaker/t/META_for_testing_tricky_version.yml				test data for MakeMaker
-cpan/ExtUtils-MakeMaker/t/metafile_data.t			See if META.yml handling works
-cpan/ExtUtils-MakeMaker/t/metafile_file.t			See if META.yml handling works
-cpan/ExtUtils-MakeMaker/t/min_perl_version.t			Test the MIN_PERL_VERSION argument to WriteMakefile.
-cpan/ExtUtils-MakeMaker/t/miniperl.t				Test MakeMaker with miniperl
-cpan/ExtUtils-MakeMaker/t/Mkbootstrap.t				See if ExtUtils::Mkbootstrap works
-cpan/ExtUtils-MakeMaker/t/MM_Any.t				See if ExtUtils::MM_Any works
-cpan/ExtUtils-MakeMaker/t/MM_BeOS.t				See if ExtUtils::MM_BeOS works
-cpan/ExtUtils-MakeMaker/t/MM_Cygwin.t				See if ExtUtils::MM_Cygwin works
-cpan/ExtUtils-MakeMaker/t/MM_NW5.t				See if ExtUtils::MM_NW5 works
-cpan/ExtUtils-MakeMaker/t/MM_OS2.t				See if ExtUtils::MM_OS2 works
-cpan/ExtUtils-MakeMaker/t/MM_Unix.t				See if ExtUtils::MM_UNIX works
-cpan/ExtUtils-MakeMaker/t/MM_VMS.t				See if ExtUtils::MM_VMS works
-cpan/ExtUtils-MakeMaker/t/MM_Win32.t				See if ExtUtils::MM_Win32 works
-cpan/ExtUtils-MakeMaker/t/oneliner.t				See if MM can generate perl one-liners
-cpan/ExtUtils-MakeMaker/t/parse_abstract.t			See if parse_abstract works
-cpan/ExtUtils-MakeMaker/t/parse_version.t			See if parse_version works
-cpan/ExtUtils-MakeMaker/t/PL_FILES.t				Test PL_FILES in MakeMaker
-cpan/ExtUtils-MakeMaker/t/pm.t					See if MakeMaker can handle PM
-cpan/ExtUtils-MakeMaker/t/pm_to_blib.t				Test for ExtUtils::MakeMaker
-cpan/ExtUtils-MakeMaker/t/pod2man.t				See if MakeMaker can handle no pod2man
-cpan/ExtUtils-MakeMaker/t/postamble.t				See if postamble works
-cpan/ExtUtils-MakeMaker/t/prefixify.t				See if MakeMaker can apply a PREFIX
-cpan/ExtUtils-MakeMaker/t/prereq.t				See if MakeMaker works
-cpan/ExtUtils-MakeMaker/t/prereq_print.t				See if PREREQ_PRINT works
-cpan/ExtUtils-MakeMaker/t/problems.t				How MakeMaker reacts to build problems
-cpan/ExtUtils-MakeMaker/t/prompt.t				See if E::MM::prompt() works
-cpan/ExtUtils-MakeMaker/t/recurs.t				See if recursive builds work
-cpan/ExtUtils-MakeMaker/t/revision.t				See if $Revision is correct
-cpan/ExtUtils-MakeMaker/t/several_authors.t			See if multiple AUTHORs work
-cpan/ExtUtils-MakeMaker/t/split_command.t			See if MM's xargs-like function works
-cpan/ExtUtils-MakeMaker/t/test_boilerplate.t			MakeMaker test
-cpan/ExtUtils-MakeMaker/t/testdata/reallylongdirectoryname/arch1/Config.pm	test data for MakeMaker
-cpan/ExtUtils-MakeMaker/t/testdata/reallylongdirectoryname/arch2/Config.pm	test data for MakeMaker
-cpan/ExtUtils-MakeMaker/t/testlib.t				See if ExtUtils::testlib works
-cpan/ExtUtils-MakeMaker/t/unicode.t
-cpan/ExtUtils-MakeMaker/t/VERSION_FROM.t			See if MakeMaker's VERSION_FROM works
-cpan/ExtUtils-MakeMaker/t/vstrings.t
-cpan/ExtUtils-MakeMaker/t/WriteEmptyMakefile.t			See if WriteEmptyMakefile works
-cpan/ExtUtils-MakeMaker/t/writemakefile_args.t			See if WriteMakefile works
-cpan/ExtUtils-MakeMaker/t/xs.t					Part of MakeMaker's test suite
 cpan/ExtUtils-Manifest/lib/ExtUtils/Manifest.pm			Utilities to write MANIFEST files
 cpan/ExtUtils-Manifest/lib/ExtUtils/MANIFEST.SKIP		The default MANIFEST.SKIP
 cpan/ExtUtils-Manifest/t/Manifest.t				See if ExtUtils::Manifest works
@@ -3128,6 +3014,120 @@ dist/ExtUtils-Constant/lib/ExtUtils/Constant/ProxySubs.pm	generate XS code for p
 dist/ExtUtils-Constant/lib/ExtUtils/Constant/Utils.pm		generate XS code to import C header constants
 dist/ExtUtils-Constant/lib/ExtUtils/Constant/XS.pm		generate XS code to import C header constants
 dist/ExtUtils-Constant/t/Constant.t				See if ExtUtils::Constant works
+dist/ExtUtils-MakeMaker/bin/instmodsh			Give information about installed extensions
+dist/ExtUtils-MakeMaker/lib/ExtUtils/Command.pm		Utilities for Make on non-UNIX platforms
+dist/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm		Calling MM functions from the cmd line
+dist/ExtUtils-MakeMaker/lib/ExtUtils/Liblist.pm			Locates libraries
+dist/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm		Does the real work of the above
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm		Write Makefiles for extensions
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/Config.pm	MakeMaker wrapper for Config
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/FAQ.pod		MakeMaker FAQ
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/Locale.pm
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/Tutorial.pod	Writing a module with MakeMaker
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/version.pm
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/version/regex.pm
+dist/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm		Writes a bootstrap file (see MakeMaker)
+dist/ExtUtils-MakeMaker/lib/ExtUtils/Mksymlists.pm		Writes a linker options file for extensions
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM.pm			MakeMaker adaptor class
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_AIX.pm			MakeMaker methods for AIX
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm			MakeMaker methods for Any OS
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_BeOS.pm			MakeMaker methods for BeOS
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm		MakeMaker methods for Cygwin
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Darwin.pm		MakeMaker methods for Darwin
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_DOS.pm			MakeMaker methods for DOS
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_MacOS.pm		MakeMaker methods for MacOS
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_NW5.pm			MakeMaker methods for NetWare
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_OS2.pm			MakeMaker methods for OS/2
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_QNX.pm			MakeMaker methods for QNX
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm			MakeMaker methods for Unix
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_UWIN.pm			MakeMaker methods for U/WIN
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_VMS.pm			MakeMaker methods for VMS
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_VOS.pm			MakeMaker methods for VOS
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Win32.pm		MakeMaker methods for Win32
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Win95.pm		MakeMaker methods for Win95
+dist/ExtUtils-MakeMaker/lib/ExtUtils/MY.pm			MakeMaker user override class
+dist/ExtUtils-MakeMaker/lib/ExtUtils/testlib.pm			Fixes up @INC to use just-built extension
+dist/ExtUtils-MakeMaker/t/00compile.t				See if MakeMaker modules compile
+dist/ExtUtils-MakeMaker/t/01perl_bugs.t
+dist/ExtUtils-MakeMaker/t/arch_check.t				Test MakeMaker's arch_check()
+dist/ExtUtils-MakeMaker/t/backwards.t				Check MakeMaker's backwards compatibility
+dist/ExtUtils-MakeMaker/t/basic.t				See if MakeMaker can build a module
+dist/ExtUtils-MakeMaker/t/build_man.t				Set if MakeMaker builds manpages
+dist/ExtUtils-MakeMaker/t/cd.t					Test to see cd works
+dist/ExtUtils-MakeMaker/t/config.t				Test ExtUtils::MakeMaker::Config
+dist/ExtUtils-MakeMaker/t/cp.t					Test for ExtUtils::Command
+dist/ExtUtils-MakeMaker/t/dir_target.t				Verify if dir_target() is supported
+dist/ExtUtils-MakeMaker/t/echo.t				Test for ExtUtils::MakeMaker
+dist/ExtUtils-MakeMaker/t/eu_command.t				Test for ExtUtils::Command
+dist/ExtUtils-MakeMaker/t/FIRST_MAKEFILE.t			See if FIRST_MAKEFILE works
+dist/ExtUtils-MakeMaker/t/fix_libs.t				Test for ExtUtils::MakeMaker
+dist/ExtUtils-MakeMaker/t/fixin.t				See if ExtUtils::MakeMaker works
+dist/ExtUtils-MakeMaker/t/hints.t				See if hint files are honored.
+dist/ExtUtils-MakeMaker/t/INST.t				Check MakeMaker INST_* macros
+dist/ExtUtils-MakeMaker/t/INST_PREFIX.t				See if MakeMaker can apply PREFIXs
+dist/ExtUtils-MakeMaker/t/INSTALL_BASE.t			Test INSTALL_BASE in MakeMaker
+dist/ExtUtils-MakeMaker/t/installed_file.t			Test for ExtUtils::MakeMaker
+dist/ExtUtils-MakeMaker/t/is_of_type.t				Test for ExtUtils::MakeMaker
+dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/NoXS.pm		MakeMaker test utilities
+dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/BFD.pm	MakeMaker test utilities
+dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/MPV.pm	MakeMaker test utilities
+dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/PL_FILES.pm	MakeMaker test utilities
+dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/Problem.pm	MakeMaker test utilities
+dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/Recurs.pm	MakeMaker test utilities
+dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/SAS.pm	MakeMaker test utilities
+dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/Unicode.pm
+dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/XS.pm	MakeMaker test utilities
+dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Utils.pm		MakeMaker test utilities
+dist/ExtUtils-MakeMaker/t/lib/TieIn.pm				Testing library for dummy input handles
+dist/ExtUtils-MakeMaker/t/lib/TieOut.pm				Testing library to capture prints
+dist/ExtUtils-MakeMaker/t/Liblist.t				See if ExtUtils::Liblist works
+dist/ExtUtils-MakeMaker/t/make.t				See if make detection works
+dist/ExtUtils-MakeMaker/t/MakeMaker_Parameters.t		test "MakeMaker Parameters" section
+dist/ExtUtils-MakeMaker/t/maketext_filter.t			See if maketext_filter works
+dist/ExtUtils-MakeMaker/t/meta_convert.t				See if MakeMaker works
+dist/ExtUtils-MakeMaker/t/META_for_testing.json				test data for MakeMaker
+dist/ExtUtils-MakeMaker/t/META_for_testing.yml				test data for MakeMaker
+dist/ExtUtils-MakeMaker/t/META_for_testing_tricky_version.yml				test data for MakeMaker
+dist/ExtUtils-MakeMaker/t/metafile_data.t			See if META.yml handling works
+dist/ExtUtils-MakeMaker/t/metafile_file.t			See if META.yml handling works
+dist/ExtUtils-MakeMaker/t/min_perl_version.t			Test the MIN_PERL_VERSION argument to WriteMakefile.
+dist/ExtUtils-MakeMaker/t/miniperl.t				Test MakeMaker with miniperl
+dist/ExtUtils-MakeMaker/t/Mkbootstrap.t				See if ExtUtils::Mkbootstrap works
+dist/ExtUtils-MakeMaker/t/MM_Any.t				See if ExtUtils::MM_Any works
+dist/ExtUtils-MakeMaker/t/MM_BeOS.t				See if ExtUtils::MM_BeOS works
+dist/ExtUtils-MakeMaker/t/MM_Cygwin.t				See if ExtUtils::MM_Cygwin works
+dist/ExtUtils-MakeMaker/t/MM_NW5.t				See if ExtUtils::MM_NW5 works
+dist/ExtUtils-MakeMaker/t/MM_OS2.t				See if ExtUtils::MM_OS2 works
+dist/ExtUtils-MakeMaker/t/MM_Unix.t				See if ExtUtils::MM_UNIX works
+dist/ExtUtils-MakeMaker/t/MM_VMS.t				See if ExtUtils::MM_VMS works
+dist/ExtUtils-MakeMaker/t/MM_Win32.t				See if ExtUtils::MM_Win32 works
+dist/ExtUtils-MakeMaker/t/oneliner.t				See if MM can generate perl one-liners
+dist/ExtUtils-MakeMaker/t/parse_abstract.t			See if parse_abstract works
+dist/ExtUtils-MakeMaker/t/parse_version.t			See if parse_version works
+dist/ExtUtils-MakeMaker/t/PL_FILES.t				Test PL_FILES in MakeMaker
+dist/ExtUtils-MakeMaker/t/pm.t					See if MakeMaker can handle PM
+dist/ExtUtils-MakeMaker/t/pm_to_blib.t				Test for ExtUtils::MakeMaker
+dist/ExtUtils-MakeMaker/t/pod2man.t				See if MakeMaker can handle no pod2man
+dist/ExtUtils-MakeMaker/t/postamble.t				See if postamble works
+dist/ExtUtils-MakeMaker/t/prefixify.t				See if MakeMaker can apply a PREFIX
+dist/ExtUtils-MakeMaker/t/prereq.t				See if MakeMaker works
+dist/ExtUtils-MakeMaker/t/prereq_print.t				See if PREREQ_PRINT works
+dist/ExtUtils-MakeMaker/t/problems.t				How MakeMaker reacts to build problems
+dist/ExtUtils-MakeMaker/t/prompt.t				See if E::MM::prompt() works
+dist/ExtUtils-MakeMaker/t/recurs.t				See if recursive builds work
+dist/ExtUtils-MakeMaker/t/revision.t				See if $Revision is correct
+dist/ExtUtils-MakeMaker/t/several_authors.t			See if multiple AUTHORs work
+dist/ExtUtils-MakeMaker/t/split_command.t			See if MM's xargs-like function works
+dist/ExtUtils-MakeMaker/t/test_boilerplate.t			MakeMaker test
+dist/ExtUtils-MakeMaker/t/testdata/reallylongdirectoryname/arch1/Config.pm	test data for MakeMaker
+dist/ExtUtils-MakeMaker/t/testdata/reallylongdirectoryname/arch2/Config.pm	test data for MakeMaker
+dist/ExtUtils-MakeMaker/t/testlib.t				See if ExtUtils::testlib works
+dist/ExtUtils-MakeMaker/t/unicode.t
+dist/ExtUtils-MakeMaker/t/VERSION_FROM.t			See if MakeMaker's VERSION_FROM works
+dist/ExtUtils-MakeMaker/t/vstrings.t
+dist/ExtUtils-MakeMaker/t/WriteEmptyMakefile.t			See if WriteEmptyMakefile works
+dist/ExtUtils-MakeMaker/t/writemakefile_args.t			See if WriteMakefile works
+dist/ExtUtils-MakeMaker/t/xs.t					Part of MakeMaker's test suite
 dist/ExtUtils-ParseXS/Changes					ExtUtils::ParseXS change log
 dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm			converts Perl XS code into C code
 dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pod			ExtUtils::ParseXS documentation

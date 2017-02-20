@@ -81,8 +81,8 @@ if ($exclude_upstream) {
 # usually because they pull in their version from some other file.
 my %skip;
 @skip{
-    'cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/BFD.pm', # just a test module
-    'cpan/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/XS.pm',  # just a test module
+    'dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/BFD.pm', # just a test module
+    'dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/Setup/XS.pm',  # just a test module
     'cpan/Math-BigInt/t/Math/BigFloat/Subclass.pm', # just a test module
     'cpan/Math-BigInt/t/Math/BigInt/BareCalc.pm',   # just a test module
     'cpan/Math-BigInt/t/Math/BigInt/Scalar.pm',     # just a test module
@@ -98,8 +98,8 @@ my %skip;
 } = ();
 # cperl exceptions
 @skip{qw(cpan/Digest-MD5/MD5.xs 
-	cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm
-	cpan/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm
+	dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm
+	dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm
 	ext/Devel-Peek/Peek.xs
 	dist/lib/lib_pm.PL ext/B/t/OptreeCheck.pm lib/B/Op_private.pm
 	lib/feature.pm lib/vars.pm lib/strict.pm lib/warnings.pm

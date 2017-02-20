@@ -36,7 +36,7 @@ use File::Spec;
 
 my $instmodsh
     = File::Spec->catfile(File::Spec->catdir(File::Spec->updir,
-					     qw(cpan ExtUtils-MakeMaker bin)),
+					     qw(dist ExtUtils-MakeMaker bin)),
 			  'instmodsh');
 
 if (open(INSTMODSH, '<', $instmodsh)) {

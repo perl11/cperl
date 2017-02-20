@@ -29,7 +29,7 @@ my @toolchain = qw(cpan/AutoLoader/lib
 		   dist/Carp/lib
 		   dist/PathTools dist/PathTools/lib
 		   cpan/ExtUtils-Install/lib
-		   cpan/ExtUtils-MakeMaker/lib
+		   dist/ExtUtils-MakeMaker/lib
 		   cpan/ExtUtils-Manifest/lib
 		   cpan/File-Path/lib
 		   ext/re

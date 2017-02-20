@@ -29,6 +29,7 @@ no_index:
     - dist/Exporter
     - dist/ExtUtils-CBuilder
     - dist/ExtUtils-Constant
+    - dist/ExtUtils-MakeMaker
     - dist/ExtUtils-ParseXS
     - dist/Filter-Simple
     - dist/if
