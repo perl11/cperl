@@ -1465,6 +1465,14 @@ been fixed (by disabling Thread Safety Analysis for these configurations).
 
 =item *
 
+F<run/dtrace.t> is inheritently unsafe to run in parallel with
+C<fresh_perl>, as it causes segfaults on darwin. We added locking, but
+also re-arranged the order of parallel testing, running this test on
+darwin before all the comp tests (we have ~10s for this), before all
+the conflicting run tests.
+
+=item *
+
 XS-APItest/t/utf8.t: Several small fixes and enhancements.
 
 =item *

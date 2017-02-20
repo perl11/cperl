@@ -127,6 +127,13 @@ if (@ARGV) {
 			    ] };
 	@tests = _extract_tests ($next);
 
+        # move dtrace.t before comp, as it causes locking with fresh_perl in run.
+        # we have all comp tests in between.
+        if ($^O eq 'darwin') {
+            push @seq, 'run/dtrace.t';
+            @tests = grep{$_ ne 'run/dtrace.t'} @tests;
+        }
+
 	# This is a bit of a game, because we only want to sort these tests in
 	# speed order. base/*.t wants to run first, and ext,lib etc last and in
 	# MANIFEST order

@@ -14,10 +14,10 @@ BEGIN {
     $Perl = which_perl();
 
     `@dtrace -V` or skip_all("@dtrace unavailable");
-    if ($ENV{TEST_JOBS} and int($ENV{TEST_JOBS}) > 1 and $^O eq 'darwin') {
+    #if ($ENV{TEST_JOBS} and int($ENV{TEST_JOBS}) > 1 and $^O eq 'darwin') {
       # interferes with fresh_perl => SEGV
-      skip_all("dtrace darwin with parallel testing. unset TEST_JOBS");
-    }
+      # skip_all("dtrace darwin with parallel testing. unset TEST_JOBS");
+    #}
 
     my $result = `@dtrace -qZnBEGIN -c'$Perl -e 1' 2>&1`;
     if ($? and $^O eq 'darwin') {
