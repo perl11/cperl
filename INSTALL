@@ -84,10 +84,10 @@ directory.
 
 =head2 Changes and Incompatibilities
 
-Please see pod/perldelta.pod for a description of the changes and
+Please see F<pod/perldelta.pod> for a description of the changes and
 potential incompatibilities introduced with this release.  A few of
 the most important issues are listed below, but you should refer
-to pod/perldelta.pod for more detailed information.
+to F<pod/perldelta.pod> for more detailed information.
 
 B<WARNING:> This version is not binary compatible with versions of Perl
 earlier than 5.22.0.
@@ -103,7 +103,7 @@ The standard extensions supplied with Perl will be handled automatically.
 
 On a related issue, old modules may possibly be affected by the changes
 in the Perl language in the current release.  Please see
-pod/perldelta.pod for a description of what's changed.  See your
+F<pod/perldelta.pod> for a description of what's changed.  See your
 installed copy of the perllocal.pod file for a (possibly incomplete)
 list of locally installed modules.  Also see the L<CPAN> module's
 C<autobundle> function for one way to make a "bundle" of your currently
@@ -1011,10 +1011,10 @@ much, much more slowly than a standard perl.
 
 =head2 DTrace support
 
-On platforms where DTrace is available, it may be enabled by
-using the -Dusedtrace option to Configure. DTrace probes are available
-for subroutine entry (sub-entry) and subroutine exit (sub-exit). Here's a
-simple D script that uses them:
+On platforms where DTrace is available, it may be enabled by using the
+C<-Dusedtrace> option to Configure. DTrace probes are available
+e.g. for subroutine entry (sub-entry) and subroutine exit
+(sub-exit). Here's a simple D script that uses them:
 
   perl$target:::sub-entry, perl$target:::sub-return {
     printf("%s %s (%s:%d)\n", probename == "sub-entry" ? "->" : "<-",

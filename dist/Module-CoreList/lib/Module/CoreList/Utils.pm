@@ -5,7 +5,7 @@ use warnings;
 use vars qw[$VERSION %utilities];
 use Module::CoreList;
 
-$VERSION = '5.20170202';
+$VERSION = '5.20170220c';
 $VERSION =~ s/c$//;
 
 sub utilities {
@@ -1273,6 +1273,36 @@ our %delta :const = (
         removed => {
         }
     },
+    5.022003 => {
+        delta_from => 5.022002,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.024001 => {
+        delta_from => 5.024000,
+        changed => {
+        },
+        removed => {
+        }
+    },
+    5.025009 => {
+        delta_from => 5.025008,
+        changed => {
+        },
+        removed => {
+            'c2ph'                  => 1,
+            'pstruct'               => 1,
+        }
+    },
+    5.025010 => {
+        delta_from => 5.025009,
+        changed => {
+        },
+        removed => {
+        }
+    },
     '5.025000c' => {
         delta_from => '5.024000c',
         changed => {},
@@ -1292,6 +1322,11 @@ our %delta :const = (
     },
     '5.025003c' => {
         delta_from => '5.025002c',
+        changed => {},
+        removed => {}
+    },
+    '5.026000c' => {
+        delta_from => '5.025003c',
         changed => {},
         removed => {}
     },
@@ -1338,8 +1373,11 @@ Module::CoreList::Utils - what utilities shipped with versions of perl
 
  print $Module::CoreList::Utils::utilities{5.009003}{ptar}; # prints 1
 
- print Module::CoreList::Utils->first_release('corelist');           # prints 5.008009
- print Module::CoreList::Utils->first_release_by_date('corelist');   # prints 5.009002
+ print Module::CoreList::Utils->first_release('corelist');
+ # prints 5.008009
+
+ print Module::CoreList::Utils->first_release_by_date('corelist');
+ # prints 5.009002
 
 =head1 DESCRIPTION
 

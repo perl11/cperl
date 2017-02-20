@@ -95,9 +95,9 @@ also 2x faster because of using signatures. Some toolchain modules
 also switched over to support 10x faster and more secure XS variants
 of JSON and YAML, and support the cperl improvements (i.e. builtin
 strict, DynaLoader, XSLoader) and add more security (i.e. DynaLoader,
-YAML). These modules usually get a +1 major version bump, so you
-cannot easily override them accidently with worse cpan updates.  Such
-as EUMM, bignum or Test2.
+Storable, YAML). These modules usually get a +1 major version bump, so
+you cannot easily override them accidently with worse cpan updates.
+Such as EUMM, bignum or Test2.
 
 =over
 
@@ -622,7 +622,7 @@ in the hot hash loop, use one instead.
 
 For the old hash tables use the new default strategy
 PERL_PERTURB_KEYS_TOP to move each found bucket to the top of the
-chain. This is how you usually implement a hash table with linked
+chain. This is how you usually implement a slow hash table with linked
 lists.
 
 Use fast hash functions, not secure slow ones. We get security by
@@ -650,6 +650,9 @@ Seperate the keys from the values to fit the search into a cache line.
 Provide a special C<:const> hash table type to enable optimizations to
 perfect hashes. With C<study %hash> you can do the similar costly
 optimizations on non-const hashes at run-time to allow faster key access.
+
+Added support for restricted hashes, esp. stashes which we need for our
+class implementation, to detect wrong fields at compile-time already.
 
 =head2 Compile-time attribute hooks
 
@@ -877,13 +880,13 @@ methods are converted to functions before and then possibly inlined.
 
 This is the most important optimization, even more important then a jit.
 
-=head2 Rewrite critical core modules in C as builtins
+=head2 Rewrote critical core modules in C as builtins
 
 Builtins: C<strict>, C<attributes>, C<DynaLoader>, C<XSLoader>.
 NY: C<Carp>, C<Exporter>.
 
-As shared lib: C<Config>, C<warnings> and I<unicode folding tables> to save
-memory, startup time and reduce bloat.
+As shared lib: C<Config> and later C<warnings> and I<unicode folding
+tables> to save memory, startup time and reduce bloat.
 
 Big constant hashes and tables need to be in a shared memory segment,
 not recompiled for every fork or thread, similar to the L<Encode> tables
@@ -898,7 +901,7 @@ As builtin or shared library we go to zero startup-time overhead for those
 modules.
 With compiled Config alone the memory savings are down to 5.6 levels.
 
-=head3 strict 1.10c as builtin
+=head3 strict 1.11c as builtin
 
 Starting with cperl (based on Perl 5.22) L<strict> is now a builtin module,
 implemented as XS functions which are always available.
@@ -1075,21 +1078,24 @@ goto to signatures are now real fast tailcalls.
 
 No, not Moose, but close.  Closer to Mouse though, which is currently
 the recommended OO.  Mouse with a perl6-like syntax.  Rather an
-optimizable perl6-like object system in core.  Provide a simple MOP
-for reflection purposes, bot not for overrides, i.e. metaobjects for
-classes, proper class and method syntax, anonymous classes by pointer
-not name, proper multi dispatch with types, roles, class and method
-lookup by pointer, not by name.  Create native optimized shapes via
-mixins as in p2 (an enhanced bless). Lexical methods are private,
-optimize dispatch for single inheritance. i.e the convenient class
-syntax extends on a single class only, classes are finalizable by the
-calling application.
+optimizable perl6-like object system in core, similar to an extended
+base/fields OO with pseudohashes, roles and multi-dispatch.
+
+Provide a simple MOP for reflection purposes, bot not for overrides,
+i.e. metaobjects for classes, proper class and method syntax,
+anonymous classes by pointer not name, proper multi dispatch with
+types, roles, class and method lookup by pointer, not by name.  Create
+native optimized shapes via mixins as in perl6 or p2 (an enhanced
+bless). Lexical methods are private, optimize dispatch for single
+inheritance. i.e the convenient class syntax extends on a single class
+only, classes are finalizable by the calling application.
 
 Support multi-dispatch in perl6 syntax and optimize for early-bound
 method calls with typed arguments and closed classes.
 
 Dispatch is via C3, not the old depth-first left-to-right mro
-implementation.
+implementation. Many old core modules have broken inheritance, so C3
+could not yet be enabled as default.
 
 For type inference we will need to make C<new> a special keyword,
 which is a shortcut for C<bless> with a fixed classname. C<bless> can
@@ -1205,7 +1211,7 @@ binary names, all as UTF8. Maybe restrict to ASCII or valid
 identifiers to limit the trie memory (array of 26 vs 256).  Stashes
 point then to trie nodes and need a HV check.  Optionally provide
 partial read-only support for the compiler, as for C<PL_strtab>.
-See the branch F<feature/gh127-gvflat>
+See the branch F<feature/gh127-gvflat>.
 
 =head2 Coro support
 
@@ -1272,13 +1278,15 @@ merged, because we wait for other decisions to be made.
 =item B<< classes (not yet) >>
 
 A true perl6-like and efficient object system is in work, but not yet
-enabled.  It supports the perl6-like syntax for class, method, has,
-roles (mixins, compile-time composable classes), method modifiers
-(:before, :after, :around), multiple type dispatch (multi, no need to
-overload methods), finalizable classes (compile-time optimizations)
-and easier perl6-like syntax, which closely resembles early perl6
-designs, Damian Conway's perl5i and C<Moose> without its massive
-overhead.
+enabled publicly, but internally a lot of support had been added
+already: Core and User-types, handling of restricted stashes and
+compile-time inheritance.  It supports the perl6-like syntax for
+class, method, has, roles (mixins, compile-time composable classes),
+method modifiers (:before, :after, :around), multiple type dispatch
+(multi, no need to overload methods), finalizable classes
+(compile-time optimizations) and easier perl6-like syntax, which
+closely resembles early perl6 designs, Damian Conway's perl5i and
+C<Moose> without its massive overhead.
 
 There's no B<MOP> (meta-object protocol), but reflection. There's no need
 to override the internal behavior of the object system, the dispatch,
@@ -1304,7 +1312,7 @@ strings dynamic. There are possible workarounds such as storing all
 simple strings as hash keys, or making them immutable, but this is not
 a viable solution.
 
-With cperl we can again compile to more efficient code, with > 35%
+With cperl we can again compile to more efficient code, with >35%
 memory savings.
 
 See L<B::C|http://search.cpan.org/dist/B-C/>
