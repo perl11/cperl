@@ -761,6 +761,13 @@ Upstream 2.12 had no changes (!)
 We keep our 2 added tests. Improve the modglobal init.
 Add a longer and more realistic threads DESCRIPTION.
 
+=item Thread-Queue 3.12
+
+Calling any of the dequeue methods with COUNT greater than a queue's
+limit will generate an error.
+
+But still have to keep our test fixes for . in @INC
+
 =item threads-shared 1.54
 
 ifdef clang
