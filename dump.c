@@ -1175,8 +1175,18 @@ Dumps the optree starting at OP C<o> to C<STDERR>.
 void
 Perl_op_dump(pTHX_ const OP *o)
 {
+#ifdef DEBUGGING
+    int was_m = 0;
+    if (DEBUG_m_TEST) {PL_debug &= ~DEBUG_m_FLAG; was_m++;}
+#endif
+
     PERL_ARGS_ASSERT_OP_DUMP;
     do_op_dump(0, Perl_debug_log, o);
+
+#ifdef DEBUGGING
+    if (was_m)
+        PL_debug |= DEBUG_m_FLAG;
+#endif
 }
 
 /*
@@ -2397,12 +2407,20 @@ For an example of its output, see L<Devel::Peek>.
 void
 Perl_sv_dump(pTHX_ SV *sv)
 {
+#ifdef DEBUGGING
+    int was_m = 0;
+    if (DEBUG_m_TEST) {PL_debug &= ~DEBUG_m_FLAG; was_m++;}
+#endif
     PERL_ARGS_ASSERT_SV_DUMP;
 
     if (SvROK(sv))
 	do_sv_dump(0, Perl_debug_log, sv, 0, 4, 0, 0);
     else
 	do_sv_dump(0, Perl_debug_log, sv, 0, 0, 0, 0);
+#ifdef DEBUGGING
+    if (was_m)
+        PL_debug |= DEBUG_m_FLAG;
+#endif
 }
 
 /*
