@@ -350,6 +350,7 @@ __END__
 -times
 +tr
 -truncate
+-typeof
 -uc
 -ucfirst
 -umask

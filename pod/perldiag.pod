@@ -8145,6 +8145,11 @@ Warning is given and the operation is not done.
 (W closed) The filehandle you're writing to got itself closed sometime
 before now.  Check your control flow.
 
+=item Wrong argument type for typeof
+
+(F) The typeof argument may only be a lexical variable of a
+reference to a subroutine.  (cperl only)
+
 =item Wrong type %s, expected %s
 
 (W types) The type of the argument does not match the user-defined type of

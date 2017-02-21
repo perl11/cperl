@@ -141,7 +141,7 @@ $bits{$_}{7} = 'OPpLVAL_INTRO' for qw(aelem aslice cond_expr delete enterffi ent
 $bits{$_}{2} = 'OPpLVREF_ELEM' for qw(lvref refassign);
 $bits{$_}{3} = 'OPpLVREF_ITER' for qw(lvref refassign);
 $bits{$_}{3} = 'OPpMAYBE_LVSUB' for qw(aassign aelem aelem_u akeys aslice av2arylen avhvswitch helem hslice keys kvaslice kvhslice multideref oelem padav padhv pos rv2av rv2gv rv2hv substr values vec);
-$bits{$_}{4} = 'OPpMAYBE_TRUEBOOL' for qw(padhv ref rv2hv);
+$bits{$_}{4} = 'OPpMAYBE_TRUEBOOL' for qw(padhv ref rv2hv typeof);
 $bits{$_}{7} = 'OPpOFFBYONE' for qw(caller runcv wantarray);
 $bits{$_}{5} = 'OPpOPEN_IN_CRLF' for qw(backtick open);
 $bits{$_}{4} = 'OPpOPEN_IN_RAW' for qw(backtick open);
@@ -161,7 +161,7 @@ $bits{$_}{6} = 'OPpTRANS_GROWS' for qw(trans transr);
 $bits{$_}{2} = 'OPpTRANS_IDENTICAL' for qw(trans transr);
 $bits{$_}{3} = 'OPpTRANS_SQUASH' for qw(trans transr);
 $bits{$_}{1} = 'OPpTRANS_TO_UTF' for qw(trans transr);
-$bits{$_}{5} = 'OPpTRUEBOOL' for qw(grepwhile index length padav padhv pos ref rindex rv2av rv2hv subst);
+$bits{$_}{5} = 'OPpTRUEBOOL' for qw(grepwhile index length padav padhv pos ref rindex rv2av rv2hv subst typeof);
 
 my @bf = (
     {
@@ -575,6 +575,7 @@ $bits{telldir}{0} = $bf[0];
 @{$bits{tie}}{3,2,1,0} = ($bf[4], $bf[4], $bf[4], $bf[4]);
 $bits{tied}{0} = $bf[0];
 @{$bits{truncate}}{3,2,1,0} = ($bf[4], $bf[4], $bf[4], $bf[4]);
+$bits{typeof}{0} = $bf[0];
 @{$bits{u_add}}{1,0} = ($bf[1], $bf[1]);
 @{$bits{u_multiply}}{1,0} = ($bf[1], $bf[1]);
 @{$bits{u_subtract}}{1,0} = ($bf[1], $bf[1]);
@@ -860,7 +861,7 @@ our %ops_using = (
     OPpLVREF_ELEM            => [qw(lvref refassign)],
     OPpMAP_HASH              => [qw(mapwhile)],
     OPpMAYBE_LVSUB           => [qw(aassign aelem aelem_u akeys aslice av2arylen avhvswitch helem hslice keys kvaslice kvhslice multideref oelem padav padhv pos rv2av rv2gv rv2hv substr values vec)],
-    OPpMAYBE_TRUEBOOL        => [qw(padhv ref rv2hv)],
+    OPpMAYBE_TRUEBOOL        => [qw(padhv ref rv2hv typeof)],
     OPpMULTICONCAT_APPEND    => [qw(multiconcat)],
     OPpMULTIDEREF_DELETE     => [qw(multideref)],
     OPpOFFBYONE              => [qw(caller runcv wantarray)],
@@ -881,7 +882,7 @@ our %ops_using = (
     OPpSUBSTR_REPL_FIRST     => [qw(substr)],
     OPpTARGET_MY             => [qw(abs add atan2 chdir chmod chomp chown chr chroot concat cos crypt divide exec exp flock getpgrp getppid getpriority hex i_add i_bit_and i_bit_or i_bit_xor i_complement i_divide i_modulo i_multiply i_pow i_subtract index int kill left_shift length link log match mkdir modulo multiconcat multiply oct ord pow push qr rand rename right_shift rindex rmdir s_complement schomp setpgrp setpriority sin sleep sqrt srand stringify subst subtract symlink system time trans transr u_add u_multiply u_subtract unlink unshift utime wait waitpid)],
     OPpTRANS_COMPLEMENT      => [qw(trans transr)],
-    OPpTRUEBOOL              => [qw(grepwhile index length padav padhv pos ref rindex rv2av rv2hv subst)],
+    OPpTRUEBOOL              => [qw(grepwhile index length padav padhv pos ref rindex rv2av rv2hv subst typeof)],
 );
 
 $ops_using{OPpASSIGN_COMMON_RC1} = $ops_using{OPpASSIGN_COMMON_AGG};

@@ -2432,6 +2432,7 @@ Perl_scalarvoid(pTHX_ OP *arg)
         case OP_REF:
         case OP_REFGEN:
         case OP_SREFGEN:
+        case OP_TYPEOF:
         case OP_DEFINED:
         case OP_HEX:
         case OP_OCT:
@@ -11150,6 +11151,7 @@ S_looks_like_bool(pTHX_ const OP *o)
 	
 	case OP_DEFINED: case OP_EXISTS:
 	case OP_MATCH:	 case OP_EOF:
+	case OP_TYPEOF:
 
 	case OP_FLOP:
 
@@ -15161,6 +15163,7 @@ Calls L</refkids> to turn the argument into a reference.
 
 Remember that lock can be called on everything, scalar, ref, array, hash or sub,
 but internally we better work with a scalar reference.
+Also called by ck_defined, and used by pp_typeof.
 =cut
 */
 OP *
@@ -15170,6 +15173,27 @@ Perl_ck_rfun(pTHX_ OP *o)
 
     PERL_ARGS_ASSERT_CK_RFUN;
 
+    if ( type == OP_TYPEOF ) {
+        if (!OpKIDS(o))
+            return too_few_arguments_pv(o, "typeof", 0);
+        {
+            const OP *kid = OpFIRST(o);
+            if (OP_IS_PADVAR(kid->op_type))
+                o->op_targ = kid->op_targ; /* my Int $var; typeof $var */
+            else if (IS_TYPE(kid, SREFGEN) && OpKIDS(kid)) {
+                if (IS_TYPE(OpFIRST(OpFIRST(kid)), RV2CV))
+                    /* sub foo; typeof \&foo */
+                    o->op_targ = 0;
+                else if (OP_IS_PADVAR(OpFIRST(OpFIRST(kid))->op_type))
+                    /* typeof \$var */
+                    o->op_targ = OpFIRST(OpFIRST(kid))->op_targ;
+                else
+                    Perl_croak(aTHX_ "Wrong argument type for typeof");
+            }
+            else
+                Perl_croak(aTHX_ "Wrong argument type for typeof");
+        }
+    }
     return refkids(ck_fun(o), type);
 }
 
@@ -22250,6 +22274,7 @@ Perl_rpeep(pTHX_ OP *o)
         }
 
         case OP_REF:
+        case OP_TYPEOF:
             /* see if ref() is used in boolean context */
             if (OpWANT_SCALAR(o))
                 S_check_for_bool_cxt(o, 1, OPpTRUEBOOL, OPpMAYBE_TRUEBOOL);

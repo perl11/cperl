@@ -1,6 +1,7 @@
 /*    pp_type.c
  *
  *    Copyright (C) 2015 by cPanel Inc
+ *    Copyright (C) 2017 by Reini Urban <rurban@cpan.org>
  *
  *    You may distribute under the terms of either the GNU General Public
  *    License or the Artistic License, as specified in the README file.
@@ -24,11 +25,67 @@
 #define PERL_IN_PP_TYPE_C
 #include "perl.h"
 
-#ifdef PERL_NATIVE_TYPES
-
 #include "keywords.h"
 #include "reentr.h"
 #include "regcharclass.h"
+
+STATIC
+const char * S_typename(pTHX_ const HV* stash)
+{
+    if (!(UNLIKELY(stash)))
+        return NULL;
+    {
+        const char *const name = HvNAME(stash);
+        const int l = HvNAMELEN(stash);
+        if (!name)
+            return NULL;
+        if (l > 6 && *name == 'm' && memEQc(name, "main::"))
+            return name+6;
+        else
+            return name; /* custom blessed type or auto-created coretype */
+    }
+}
+
+/* The declared type of a &cv or lexical scalar/array/hash.
+   Not the inferred type.
+   For a lexical we get the targ, for a &cv the cvref from the stack.
+ */
+PPt(pp_typeof, "(:Ref):Str")
+{
+    dSP;
+    PADNAME * const pn = PAD_COMPNAME(PL_op->op_targ);
+    EXTEND(SP, 1);
+    if (PL_op->op_targ && pn) {
+        HV *stash = PadnameTYPE(pn);
+        const char* name = S_typename(aTHX_ stash);
+        if (name) {
+            STRLEN len = strlen(name);
+            SETs(newSVpvn_share(name, HvNAMEUTF8(stash) ? -len : len, 0));
+            RETURN;
+        }
+    } else if (SvROK(TOPs) && SvTYPE(SvRV(TOPs)) == SVt_PVCV) {
+        SV *cv = SvRV(TOPs);
+        SV* sv = newSVpvs("(");
+        if (CvSIGOP(cv))
+            sv_catsv(sv, signature_stringify((OP*)CvSIGOP(cv), (CV*)cv));
+        sv_catpvs(sv, ")");
+        if (CvTYPED(cv)) {
+            PADLIST * const padl = CvPADLIST(cv);
+            HV *stash = PadnameTYPE(PadnamelistARRAY(PadlistNAMES(padl))[0]);
+            const char* name = S_typename(aTHX_ stash);
+            if (name) {
+                sv_catpvs(sv, ":");
+                sv_catsv(sv, newSVpvn_flags(name, HvNAMELEN(stash), HvNAMEUTF8(stash)));
+            }
+        }
+        SETs(sv);
+        RETURN;
+    }
+    SETs(UNDEF);
+    RETURN;
+}
+
+#ifdef PERL_NATIVE_TYPES
 
 /* box and unbox */
 
