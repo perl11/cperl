@@ -3668,9 +3668,11 @@ S_doeval_compile(pTHX_ U8 gimme, CV* outside, U32 seq, HV *hh)
     }
 
     if (PL_unitcheckav) {
+        enum perl_phase old = PL_phase;
 	OP *es = PL_eval_start;
 	call_list(PL_scopestack_ix, PL_unitcheckav);
 	PL_eval_start = es;
+        PERL_SET_PHASE(old);
     }
 
     CvDEPTH(evalcv) = 1;

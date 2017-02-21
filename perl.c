@@ -1716,9 +1716,9 @@ perl_parse(pTHXx_ XSINIT_t xsinit, int argc, char **argv, char **env)
     PL_dowarn = G_WARN_OFF;
 
     JMPENV_PUSH(ret);
-    switch (ret) {
+    switch (ret) { /* the return value of sigsetjmp */
     case 0:
-	parse_body(env,xsinit);
+	parse_body(env, xsinit);
 	if (PL_unitcheckav) {
 	    PERL_SET_PHASE(PERL_PHASE_UNITCHECK);
 	    call_list(oldscope, PL_unitcheckav);
@@ -5424,8 +5424,10 @@ void
 Perl_xs_boot_epilog(pTHX_ const I32 ax)
 {
     if (PL_unitcheckav) {
+        enum perl_phase old = PL_phase;
         PERL_SET_PHASE(PERL_PHASE_UNITCHECK);
 	call_list(PL_scopestack_ix, PL_unitcheckav);
+        PERL_SET_PHASE(old);
     }
     XSRETURN_YES;
 }
