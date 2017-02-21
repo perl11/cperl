@@ -5542,7 +5542,7 @@ EXTCONST char PL_bincompat_options[];
 #endif
 
 /* The interpreter phases. If these ever change, PL_phase_names right below will
- * need to be updated accordingly. */
+ * need to be updated accordingly. Eventually: LINK (perl6, orig. called FINAL) */
 enum perl_phase {
     PERL_PHASE_CONSTRUCT	= 0,
     PERL_PHASE_START		= 1,
@@ -5551,7 +5551,7 @@ enum perl_phase {
     PERL_PHASE_RUN		= 4,
     PERL_PHASE_END		= 5,
     PERL_PHASE_DESTRUCT		= 6,
-    PERL_PHASE_UNITCHECK	= 8
+    PERL_PHASE_UNITCHECK	= 7 /* cperl only */
 };
 
 #ifdef DOINIT
@@ -5562,7 +5562,8 @@ EXTCONST char *const PL_phase_names[] = {
     "INIT",
     "RUN",
     "END",
-    "DESTRUCT"
+    "DESTRUCT",
+    "UNITCHECK"
 };
 #else
 EXTCONST char *const PL_phase_names[];
