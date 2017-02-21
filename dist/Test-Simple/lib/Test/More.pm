@@ -681,7 +681,7 @@ sub new_ok ($class, $args?, $object_name?) {
 
 =item B<subtest>
 
-    subtest $name => \&code;
+    subtest $name => \&code, @args;
 
 C<subtest()> runs the &code as its own little test with its own plan and
 its own result.  The main test counts this as a single test using the
@@ -742,8 +742,8 @@ subtests are equivalent:
 
 =cut
 
-sub subtest ($name, $subtests) {
-    Test::More->builder->subtest($name, $subtests);
+sub subtest ($name, $subtests, @args) {
+    Test::More->builder->subtest($name, $subtests, @args);
 }
 
 =item B<pass>

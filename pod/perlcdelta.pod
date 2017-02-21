@@ -756,6 +756,8 @@ systems.
 
 =item Test-Simple
 
+Add doc and support for optional subtest @args.
+
 Moved from cpan to dist.
 L<[cperl #154]|https://github.com/perl11/cperl/issues/154>.
 
