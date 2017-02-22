@@ -199,7 +199,7 @@ sub import {
 die "$0: Perl lib version (%s) doesn't match executable '$^X' version ($])"
     unless $^V;
 
-$] eq %s
+"$]" eq "%s"
     or die sprintf "%%s: Perl lib version (%s) doesn't match executable '$^X' version (%%vd)", $0, $^V;
 
 ENDOFBEG
