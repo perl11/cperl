@@ -2644,3 +2644,10 @@ sub {
     $a;
 }
 ;
+####
+# padrange op within pattern code blocks
+/(?{ my($x, $y) = (); })/;
+my $a;
+/$a(?{ my($x, $y) = (); })/;
+my $r1 = qr/(?{ my($x, $y) = (); })/;
+my $r2 = qr/$a(?{ my($x, $y) = (); })/;
