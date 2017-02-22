@@ -217,7 +217,8 @@ PERL_CALLCONV UV	Perl__to_utf8_upper_flags(pTHX_ const U8 *p, const U8 *e, U8* u
 PERL_CALLCONV void	Perl__warn_problematic_locale(void)
 			__attribute__global__;
 
-PERL_CALLCONV void	Perl_abort_execution(pTHX_ const char * const msg, const char * const name)
+PERL_CALLCONV_NO_RET void	Perl_abort_execution(pTHX_ const char * const msg, const char * const name)
+			__attribute__noreturn__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
 #define PERL_ARGS_ASSERT_ABORT_EXECUTION	\
