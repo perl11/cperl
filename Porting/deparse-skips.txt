@@ -198,10 +198,7 @@ __DEPARSE_FAILURES__
 ../dist/I18N-LangTags/t/07_listy.t
 ../dist/I18N-LangTags/t/20_locales.t
 ../dist/I18N-LangTags/t/55_supers_strict.t
-../dist/IO/t/io_file_export.t
-../dist/IO/t/io_multihomed.t
 ../dist/IO/t/io_sel.t
-../dist/IO/t/io_udp.t
 ../dist/Locale-Maketext/t/01_about_verbose.t
 ../dist/Locale-Maketext/t/04_use_external_lex_cache.t
 ../dist/Locale-Maketext/t/10_make.t
@@ -252,10 +249,7 @@ __DEPARSE_FAILURES__
 ../dist/bignum/t/scope_r.t
 ../dist/constant/t/constant.t
 ../dist/lib/t/01lib.t
-../dist/threads/t/err.t
 ../dist/threads/t/exit.t
-../dist/threads/t/kill2.t
-../dist/threads/t/libc.t
 ../dist/threads/t/thread.t
 ../ext/B/t/b.t
 ../ext/B/t/optree_constants.t
