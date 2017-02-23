@@ -165,6 +165,8 @@ recursive, but it's recursive on basic blocks, not on tree nodes.
 #include "feature.h"
 #include "regcomp.h"
 
+/*#define SIG_DEBUG*/
+
 #define CALL_PEEP(o) PL_peepp(aTHX_ o)
 #define CALL_RPEEP(o) PL_rpeepp(aTHX_ o)
 #define CALL_OPFREEHOOK(o) if (PL_opfreehook) PL_opfreehook(aTHX_ o)
@@ -2945,6 +2947,8 @@ S_maybe_op_signature(pTHX_ CV *cv, OP *o)
     PERL_ARGS_ASSERT_MAYBE_OP_SIGNATURE;
     PERL_UNUSED_ARG(cv);
 
+    if (PERLDB_LINE) /* no fake sigs with -d */
+        return;
     lineseq   = OpFIRST(o);
     nextstate = OpFIRST(lineseq);
     aassign   = OpSIBLING(nextstate);
@@ -7699,7 +7703,7 @@ Perl_newSTATEOP(pTHX_ I32 flags, char *label, OP *o)
     CopSTASH_set(cop, PL_curstash);
 
     if (IS_TYPE(cop, DBSTATE)) {
-	/* this line can have a breakpoint - store the cop in IV */
+	/* This line can have a breakpoint - store the cop as IV */
 	AV *av = CopFILEAVx(PL_curcop);
 	if (av) {
 	    SV * const * const svp = av_fetch(av, CopLINE(cop), FALSE);
@@ -11965,7 +11969,7 @@ OP *
 Perl_ck_sassign(pTHX_ OP *o)
 {
     dVAR;
-    OP * const right  = OpFIRST(o);
+    OP * const right = OpFIRST(o);
     OP * const left = OpLAST(o);
 
     PERL_ARGS_ASSERT_CK_SASSIGN;
@@ -12003,6 +12007,8 @@ Perl_ck_sassign(pTHX_ OP *o)
 
 	    return nullop;
 	}
+        if (IS_TYPE(right, SHIFT) && OpSPECIAL(right))
+            return o; /* skip type check on implicit shift @_ */
     }
 
     DEBUG_kv(Perl_deb(aTHX_ "ck_sassign: check types\n"));
@@ -13834,6 +13840,135 @@ Perl_ck_entersub_args_signature(pTHX_ OP *entersubop, GV *namegv, CV *cv)
     return entersubop;
 }
 
+
+/* temp. helper to convert a SIGNATURE op into old-style ops, until
+   -d is fixed with tailcalls. [cperl #167]
+   But if the last op in the body is a goto, don't consume @_.
+   Just pass it on. sig2sig/sig2pp do work fine.
+
+   sub func ($arg1 = default) { ...
+   =>
+   sub func { my $arg1 = shift || default; ...
+*/
+static void
+S_debug_undo_signature(pTHX_ CV *cv)
+{
+    const UNOP_AUX* sig = CvSIGOP(cv);
+    UNOP_AUX_item *items = sig->op_aux;
+    OP *o = newNULLLIST();
+    OP* def = NULL;
+    OP* lroot = OpFIRST(CvROOT(cv)); /* the lineseq list, not the real leavesub root */
+    OP* last = OpLAST(lroot);
+    UV actions = (++items)->uv;
+    UV action;
+    PADOFFSET pad_ix = 0;
+
+    DEBUG_k(Perl_deb(aTHX_ "sig_proto: numitems=%lu actions=0x%" UVxf "\n",
+                     sig->op_aux[-1].uv, items->uv));
+    if (IS_TYPE(last, GOTO)) /* don't consume @_ */
+        return;
+
+    while (1) {
+        switch (action = (actions & SIGNATURE_ACTION_MASK)) {
+        case SIGNATURE_reload:
+            actions = (++items)->uv;
+            continue;
+        case SIGNATURE_end:
+            goto finish;
+        case SIGNATURE_padintro:
+            pad_ix = (++items)->uv >> OPpPADRANGE_COUNTSHIFT;
+            break;
+        case SIGNATURE_arg:
+            break;
+        case SIGNATURE_arg_default_iv:
+            def = newSVOP(OP_CONST, 0, newSViv(items++->iv));
+            break;
+        case SIGNATURE_arg_default_const:
+            def = newSVOP(OP_CONST, 0, UNOP_AUX_item_sv(items++));
+            break;
+        case SIGNATURE_arg_default_padsv:
+            def = newSVOP(OP_CONST, 0, PAD_SVl(items++->pad_offset));
+            break;
+        case SIGNATURE_arg_default_gvsv:
+            def = newSVOP(OP_CONST, 0, GvSVn((GV*)UNOP_AUX_item_sv(items++)));
+            break;
+        case SIGNATURE_arg_default_op:
+            def = (OP*)UNOP_AUX_item_sv(items++);
+        case SIGNATURE_arg_default_none:
+        case SIGNATURE_arg_default_undef:
+            /* shift is enough */
+            /*def = newSVOP(OP_CONST, 0, UNDEF);*/
+            break;
+        case SIGNATURE_arg_default_0:
+            def = newSVOP(OP_CONST, 0, newSViv(0));
+            break;
+        case SIGNATURE_arg_default_1:
+            def = newSVOP(OP_CONST, 0, newSViv(1));
+            break;
+        case SIGNATURE_array:
+        case SIGNATURE_hash:
+            break;
+        default:
+            goto finish;
+        }
+        /* XXX TODO ref */
+        if (action >= SIGNATURE_arg && action < SIGNATURE_array) {
+            OP *right;
+            OP * const left = scalar(newOP(OP_PADSV,
+                                (OPf_REF|OPf_MOD|OPf_SPECIAL)|(OPpLVAL_INTRO<<8)));
+            left->op_targ = pad_ix;
+            CvUNIQUE_off(PL_compcv); /* allow shift without default kid */
+            if (def) {
+                right = scalar(newUNOP(OP_NULL, 1>>8,
+                               newLOGOP(OP_OR, 0, newOP(OP_SHIFT, OPf_SPECIAL), def)));
+                def = NULL;
+            } else {
+                right = newOP(OP_SHIFT, OPf_SPECIAL);
+            }
+            o = op_append_elem(OP_LINESEQ, o,
+                               newBINOP(OP_SASSIGN, OPf_STACKED|OPf_WANT_VOID,
+                                        right, left));
+        }
+        else if (action >= SIGNATURE_array) {
+            int base = 1; /* XXX */
+            int intro = 1;
+            int count = 1;
+            OP *left = newOP(action == SIGNATURE_array ? OP_PADAV : OP_PADHV,
+                             (OPf_REF|OPf_MOD|OPf_SPECIAL)|(OPpLVAL_INTRO<<8));
+            OP *right = newOP(OP_PADRANGE, OPf_SPECIAL);
+            left->op_targ = pad_ix;
+            right->op_targ = base;
+            right->op_private = (OPpLVAL_INTRO | intro | count);
+            right = newLISTOP(OP_LIST, 0, right,
+                      newUNOP(action == SIGNATURE_array ? OP_RV2AV : OP_RV2HV, 0,
+                              newGVOP(OP_GV, 0, PL_defgv)));
+            o = op_append_elem(OP_LINESEQ, o,
+                               newBINOP(OP_AASSIGN, OPf_STACKED|OPf_WANT_VOID,
+                                        right, force_list(left, 1)));
+        }
+        actions >>= SIGNATURE_SHIFT;
+    }
+ finish:
+    {
+        OP *stub = OpFIRST(o);
+        OP *bodystart = OpNEXT(OpNEXT(sig)); /* dbstate -> body */
+        op_sibling_splice(o, NULL, 1, NULL); /* delete the first stub */
+        /* replace the sig with the list of assignments */
+        op_sibling_splice(lroot, NULL, 1, OpFIRST(o));
+        OpNEXT(last) = NULL;
+        OpLAST(o) = last;
+        /* we intentionally leak the 2nd o lineseq. That's done everywhere */
+        o = CvSTART(cv) = LINKLIST(o);
+        OpNEXT(OpFIRST(lroot)) = OpNEXT(sig); /* fixup sassign -> body */
+        OpNEXT(OpNEXT(sig)) = bodystart;      /* restore dbstate -> body link */
+        OpNEXT(last) = CvROOT(cv); /* fixup link back to new lineseq head */
+        op_free(stub);
+        op_free((OP*)sig);
+        CvHASSIG_off(cv);
+    }
+    return;
+}
+
 /*
 =for apidoc Am|OP *|ck_entersub_args_proto|OP *entersubop|GV *namegv|SV *protosv
 
@@ -14116,8 +14251,14 @@ Perl_ck_entersub_args_proto_or_list(pTHX_ OP *entersubop,
 {
     PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_PROTO_OR_LIST;
     if (SvTYPE(protosv) == SVt_PVCV) {
-        if (CvHASSIG((CV*)protosv) && CvSIGOP((CV*)protosv))
+        if (CvHASSIG((CV*)protosv) && CvSIGOP((CV*)protosv)) {
+            if (PERLDB_LINE) {
+                (void)ck_entersub_args_signature(entersubop, namegv, (CV*)protosv);
+                S_debug_undo_signature(aTHX_ (CV*)protosv);
+                return entersubop;
+            }
             return ck_entersub_args_signature(entersubop, namegv, (CV*)protosv);
+        }
         else if (SvPOK(protosv))
             return ck_entersub_args_proto(entersubop, namegv, protosv);
     }
@@ -18202,13 +18343,9 @@ Perl_coresub_op(pTHX_ SV * const coreargssv, const int code,
 
     switch(opnum) {
     case 0:
-	return op_append_elem(OP_LINESEQ,
-	               argop,
-	               newSLICEOP(0,
-	                          newSVOP(OP_CONST, 0, newSViv(-code % 3)),
-	                          newOP(OP_CALLER,0)
-	               )
-	       );
+	return op_append_elem(OP_LINESEQ, argop,
+	               newSLICEOP(0, newSVOP(OP_CONST, 0, newSViv(-code % 3)),
+	                          newOP(OP_CALLER,0)));
     case OP_EACH:
     case OP_KEYS:
     case OP_VALUES:

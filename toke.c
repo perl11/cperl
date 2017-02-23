@@ -12901,7 +12901,9 @@ Todo:
 */
 
 /* Note that we need to replace this function with a real parse in
-   perly.y to untangle and scale this mess. */
+   perly.y to untangle and scale this mess. perl5 did it with 5.26
+   but they used a different layout, with less features, so for the
+   time being keep this one. */
 OP *
 Perl_parse_subsignature(pTHX)
 {
@@ -13275,7 +13277,7 @@ Perl_parse_subsignature(pTHX)
                                 var = newOP(OP_PADSV, 0);
                                 var->op_targ = pad_offset;
                                 defexpr = newASSIGNOP(OPf_STACKED,
-                                                        var, 0, defexpr);
+                                                      var, 0, defexpr);
                             }
                             action = SIGNATURE_arg_default_op;
                         }

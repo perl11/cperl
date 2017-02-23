@@ -206,16 +206,20 @@ and install it into drive and directory `C:\cperl`.
 
 See the github issues: [github.com/perl11/cperl/issues](https://github.com/perl11/cperl/issues)
 
-The perl debugger is unstable with signatures and tailcalls (AUTOLOAD).
-
 The following CPAN modules have no patches for 5.24.0c yet:
 
 * autovivification (mderef rpeep changes)
 * TryCatch
 * Catalyst::Runtime
 
-Time::Tiny, Date::Tiny, DateTime::Tiny feature DateTime::locale broken since 5.22.
-unrelated to cperl, -f force install.
+Time::Tiny, Date::Tiny, DateTime::Tiny feature DateTime::locale broken
+since 5.22.  unrelated to cperl, -f force install.
+
+Many other packages clash with an unneeded mix of Test::More in inc/
+or t/.  Some other use wrong undocumented Test-Simple calls, which the
+modernized improvement complains about, or use Test2, which is
+unsupported and not recommended to use in its current state. In a
+Test2 branch is a fixed version which is still 20% slower.
 
 # FAQ
 

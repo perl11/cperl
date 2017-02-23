@@ -2854,7 +2854,7 @@ for my $f ('sig2sig', 'sig2pp', 'pp2sig') {
     );
 
     $wrapper->contents_like(
-        qr{lib/perl5db/t/test-$f:2\)}ms,
+        qr{lib/perl5db/t/test-$f:\d\)}ms,
         "Step into a tailcall $f");
     $wrapper->contents_like(
         qr/^0\s+'ok'$/ms,
