@@ -4902,6 +4902,10 @@ sub unback {
 
 # Remove backslashes which precede literal control characters,
 # to avoid creating ambiguity when we escape the latter.
+#
+# Don't remove a backslash from escaped whitespace: where the T represents
+# a literal tab character, /T/x is not equivalent to /\T/x
+
 sub re_unback {
     my($str) = @_;
 
@@ -4922,6 +4926,8 @@ sub re_unback {
 
                 # only remove if the thing following is a control char
                 (?=[[:^print:]])
+                # and not whitespace
+                (?=\S)
             /$1$2/xg;
     return $str;
 }
