@@ -38,9 +38,6 @@
 #
 #    $ Porting/bump-perl-version -c 5.10.0
 #
-# XXX this script hasn't been tested against a major version bump yet,
-# eg 5.11.0 to 5.12.0; there may be things it missed - DAPM 14 Jul 09
-#
 # Note there are various files and directories that it skips; these are
 # ones that are unlikely to contain anything needing bumping, but which
 # will generate lots of false positives (eg pod/*). These are listed on
@@ -197,12 +194,12 @@ my @maps =  (
         qr/uconfig/,
     ],
 
-    # win32/Makefile.ce
+    # win32/Makefile{,.ce}
     [
         qr/(PV\s*=\s*)(\d\d{2})\b$/,
         sub { $2, "$1$newx$newy" },
         "$oldx$oldy",
-        qr/Makefile\.ce/,
+        qr/Makefile(\.ce)?/,
     ],
 );
 
