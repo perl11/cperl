@@ -1584,7 +1584,7 @@ EODUMP
 }
 # wrong destructor cache if gv_fetchmeth_autoload fails RT #126410
 $dump = _dump(\%version::);
-ok( $dump =~ /\(OOK,(SHAREKEYS,)?OVERLOAD\)\n\s+AUX_FLAGS = 0/ms,
+ok( $dump =~ /AUX_FLAGS = 0/ms,
     'No %version:: SEGV') or diag $dump;
 
 # We cannot access sv_dump via do_dump_pad, only Internals::DumpArenas does
