@@ -228,7 +228,6 @@ __DEPARSE_FAILURES__
 ../dist/PathTools/t/cwd.t
 ../dist/Storable/t/blessed.t
 ../dist/Storable/t/croak.t
-../dist/Thread-Queue/t/08_nothreads.t
 ../dist/base/t/fields-base.t
 ../dist/base/t/fields.t
 ../dist/bignum/t/big_e_pi.t
@@ -249,8 +248,6 @@ __DEPARSE_FAILURES__
 ../dist/bignum/t/scope_r.t
 ../dist/constant/t/constant.t
 ../dist/lib/t/01lib.t
-../dist/threads/t/exit.t
-../dist/threads/t/thread.t
 ../ext/B/t/b.t
 ../ext/B/t/optree_constants.t
 ../ext/B/t/optree_samples.t
@@ -310,7 +307,6 @@ op/attrs.t                # [perl #70205] my attrs
 op/bop.t
 op/caller.t
 op/each.t                 # utf8ness of deparsed strings
-op/getpid.t               # [perl #70205] my attrs
 op/goto.t
 op/gv.t                   # glob copy constants
 op/hexfp.t
