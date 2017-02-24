@@ -186,7 +186,6 @@ uni/variables.t
 uni/write.t
 ../cpan/Archive-Tar/t/03_file.t		# constant sub ref: FOO->()
 ../cpan/AutoLoader/t/01AutoLoader.t
-../cpan/CGI/t/utf8.t
 ../cpan/Cpanel-JSON-XS/t/03_types.t
 ../cpan/Cpanel-JSON-XS/t/24_freeze_recursion.t
 ../cpan/Cpanel-JSON-XS/t/25_boolean.t
@@ -197,14 +196,11 @@ uni/write.t
 ../cpan/ExtUtils-Install/t/Packlist.t
 ../cpan/Math-BigInt/t/const_mbf.t
 ../cpan/Math-BigInt/t/constant.t
-../cpan/Module-Build/t/manifypods_with_utf8.t
 ../cpan/Module-Metadata/t/metadata.t
-../cpan/Scalar-List-Utils/t/proto.t
 ../cpan/Scalar-List-Utils/t/subname.t
 ../cpan/Scalar-List-Utils/t/uniq.t
 ../cpan/Socket/t/sockaddr.t
 ../cpan/Term-Cap/test.pl
-../cpan/Term-Cap/test.t
 ../cpan/Time-Piece/t/06subclass.t
 ../cpan/autodie/t/autodie.t
 ../cpan/autodie/t/basic_exceptions.t
@@ -246,8 +242,6 @@ uni/write.t
 ../cpan/autodie/t/utf8_open.t
 ../cpan/autodie/t/utime.t
 ../cpan/autodie/t/version_tag.t
-../cpan/podlators/t/man/basic.t
-../cpan/podlators/t/man/options.t
 ../dist/Attribute-Handlers/t/constants.t
 ../dist/Attribute-Handlers/t/data_convert.t
 ../dist/Attribute-Handlers/t/linerep.t
@@ -256,14 +250,9 @@ uni/write.t
 ../dist/Data-Dumper/t/dumper.t
 ../dist/Data-Dumper/t/trailing_comma.t
 ../dist/Exporter/t/Exporter.t
-../dist/ExtUtils-MakeMaker/t/xs.t
 ../dist/Filter-Simple/t/data.t
-../dist/I18N-Collate/t/I18N-Collate.t
 ../dist/IO/t/io_sel.t
-../dist/Math-BigInt/t/const_mbf.t
-../dist/Math-BigInt/t/constant.t
 ../dist/Net-Ping/t/000_load.t
-../dist/Net-Ping/t/100_load.t
 ../dist/PathTools/t/cwd.t
 ../dist/Storable/t/blessed.t
 ../dist/Storable/t/croak.t
@@ -329,7 +318,6 @@ uni/write.t
 ../lib/charnames.t
 ../lib/dumpvar.t
 ../lib/overload.t
-../lib/universal.t
 
 __DEPARSE_SKIPS__
 
