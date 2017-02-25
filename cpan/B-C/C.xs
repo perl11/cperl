@@ -3,6 +3,11 @@
 #include <perl.h>
 #include <XSUB.h>
 
+#ifdef __cplusplus
+/* Static OP* initialization 2x */
+# error B-C cannot yet be compiled with C++
+#endif
+
 #ifndef PM_GETRE
 # if defined(USE_ITHREADS) && (PERL_VERSION > 8)
 #  define PM_GETRE(o)     (INT2PTR(REGEXP*,SvIVX(PL_regex_pad[(o)->op_pmoffset])))

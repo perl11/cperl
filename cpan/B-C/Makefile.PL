@@ -4,6 +4,13 @@ use File::Spec;
 use 5.006;
 use Carp;
 
+
+if ($Config{d_cplusplus}) {
+    # ByteLoader/Bytecode can but don't bother
+    print "error B-C cannot yet be compiled with C++\n";
+    exit(1);
+}
+
 my $CORE = $ENV{PERL_CORE} || grep { $_ eq 'PERL_CORE=1' } @ARGV;
 mkdir "lib/B/C" unless -d "lib/B/C";
 unless (-e 'lib/B/C/Config.pm') {
