@@ -44,7 +44,11 @@ close $fh or die $!;
 open $fh, '<', 'utils.lst' or die "Can't open utils.lst: $!";
 while (<$fh>) {
     die unless  m!^(\S+)!;
-    push @maybe, $1;
+    if ($Config{d_cplusplus} and m|cpan/B-C/blib/script/|) {
+      print "# skip $_ with C++\n";
+    } else {
+      push @maybe, $1;
+    }
     $maybe[$#maybe] .= '.com' if $^O eq 'VMS';
 }
 close $fh or die $!;
@@ -57,7 +61,7 @@ close $fh or die $!;
 my @victims = (qw(installman installperl regen_perly.pl regen/uconfig_h.pl));
 my %excuses = (
                'Porting/git-deltatool' => 'Git::Wrapper',
-               'Porting/podtidy' => 'Pod::Tidy',
+               'Porting/podtidy'       => 'Pod::Tidy',
                'Porting/leakfinder.pl' => 'XS::APItest',
               );
 

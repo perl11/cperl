@@ -42,7 +42,11 @@ $dist_dir_exe{'pod2html.pl'} = '../ext/Pod-Html';
 foreach (qw (cc_harness perlcc assemble disassemble pl2exe.pl)) {
     $dist_dir_exe{$_} = "../cpan/B-C/script/$_";
 };
-$dist_dir_exe{lc 'perlcc.PL'} = "../cpan/B-C/script/perlcc";
+if ($Config{d_cplusplus}) {
+  delete $dist_dir_exe{'perlcc'};
+} else {
+  $dist_dir_exe{lc 'perlcc.PL'} = "../cpan/B-C/script/perlcc"
+}
 foreach (qw (flamegraph.pl nytprofcalls nytprofcg nytprofcsv nytprofhtml
              nytprofmerge nytprofpf)) {
     $dist_dir_exe{$_} = "../cpan/Devel-NYTProf/bin/$_";
@@ -57,6 +61,7 @@ find(
     return if $name =~ /blib/;
     return unless $name =~ m{/(?:bin|scripts?)/\S+\z} && $name !~ m{/t/};
     return if $name =~ /(~|\.bak|\.orig)$/;
+    return if $Config{d_cplusplus} and $name =~ /perlcc/;
 
     push @programs, $name;
   }},
