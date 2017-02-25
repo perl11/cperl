@@ -952,7 +952,7 @@ PP(pp_tie)
                stashname = sv_2mortal(newSVpvs("main"));
            }
            DIE(aTHX_ "Can't locate object method \"%s\" via package \"%" SVf "\""
-               " (perhaps you forgot to load \"%"SVf"\"?)",
+               " (perhaps you forgot to load \"%" SVf "\"?)",
                methname, SVfARG(stashname), SVfARG(stashname));
        }
        else if (!(gv = gv_fetchmethod(stash, methname))) {

@@ -740,7 +740,7 @@ Perl_do_pmop_dump(pTHX_ I32 level, PerlIO *file, const PMOP *pm)
 	Perl_dump_indent(aTHX_ level, file, "PMf_PRE (RUNTIME)\n");
 
     if (pm->op_type == OP_SPLIT)
-        Perl_dump_indent(aTHX_ level, file, "TARGOFF/GV = 0x%"UVxf"\n",
+        Perl_dump_indent(aTHX_ level, file, "TARGOFF/GV = 0x%" UVxf "\n",
                 PTR2UV(pm->op_pmreplrootu.op_pmtargetgv));
     else {
         if (pm->op_pmreplrootu.op_pmreplroot) {

@@ -1653,12 +1653,12 @@ S_pop_eval_context_maybe_croak(pTHX_ PERL_CONTEXT *cx, SV *errsv, int action)
         inc_hv = GvHVn(PL_incgv);
         if (action == 1) {
             (void)hv_delete(inc_hv, key, klen, G_DISCARD);
-            fmt = "%"SVf" did not return a true value";
+            fmt = "%" SVf " did not return a true value";
             errsv = namesv;
         }
         else {
             (void)hv_store(inc_hv, key, klen, UNDEF, 0);
-            fmt = "%"SVf"Compilation failed in require";
+            fmt = "%" SVf "Compilation failed in require";
             if (!errsv)
                 errsv = newSVpvs_flags("Unknown error\n", SVs_TEMP);
         }
