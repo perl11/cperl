@@ -54,7 +54,7 @@ sub outlier {
   my $sqtotal = 0.0;
   foreach (@_) { $sqtotal += ($mean - $_) ** 2; }
   my $stddev = ($sqtotal / (@_-1)) ** 0.5;
-  my $Z = (($max - $mean) ** 2) / $stddev;
+  my $Z = (($max - $mean) ** 2) / ($stddev ? $stddev : 1e-6);
   my $critical_Z = 2.0; # outside of the 5% gauss-normalform confidence interval
 
   ok($Z < $critical_Z, "concat-$name outlier".
