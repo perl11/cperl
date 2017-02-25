@@ -156,7 +156,7 @@ my_runops(pTHX)
 	if (PL_debug) {
 	    if (PL_watchaddr && (*PL_watchaddr != PL_watchok))
 		PerlIO_printf(Perl_debug_log,
-			      "WARNING: %"UVxf" changed from %"UVxf" to %"UVxf"\n",
+			      "WARNING: %" UVxf " changed from %" UVxf " to %" UVxf "\n",
 			      PTR2UV(PL_watchaddr), PTR2UV(PL_watchok),
 			      PTR2UV(*PL_watchaddr));
 #if defined(DEBUGGING) \
