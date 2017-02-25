@@ -770,7 +770,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 
     if (!entry && SvREADONLY(hv) && !(action & HV_FETCH_ISEXISTS)) {
         /* If the hash has a name report it also */
-        const HEK* name = HvNAME_HEK(hv);
+        HEK *const name = HvNAME_HEK(hv);
         if (name) {
             /* But allow DESTROY calls in restricted coretypes */
             if (strNEs(key, "DESTROY") && strNEs(key, "AUTOLOAD")) {

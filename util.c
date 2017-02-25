@@ -7016,8 +7016,8 @@ PERL_CALLCONV
 void
 Perl_dtrace_probe_phase(pTHX_ enum perl_phase phase)
 {
-    const char *ph_old = strdup(PL_phase_names[PL_phase]);
-    const char *ph_new = strdup(PL_phase_names[phase]);
+    char *ph_old = strdup(PL_phase_names[PL_phase]);
+    char *ph_new = strdup(PL_phase_names[phase]);
 
     PERL_PHASE_CHANGE(ph_new, ph_old);
     free(ph_new);

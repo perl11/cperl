@@ -5906,7 +5906,7 @@ S_uvuni_get_script(pTHX_ const UV uv) {
         }
     }
     LEAVE;
-    return retval ? SvPVX_const(retval) : "";
+    return retval ? SvPVX(retval) : (char*)"";
 }
 
 PERL_STATIC_INLINE void
@@ -5952,7 +5952,7 @@ S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
     static int count = 0;
     STRLEN len = strlen((char*)s);
     const GV* gv = gv_fetchpvs("utf8::SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
-    const HV* allowed = gv ? GvHV(gv) : NULL;
+    HV* allowed = gv ? GvHV(gv) : NULL;
     PERL_ARGS_ASSERT_UTF8_ERROR_SCRIPT;
 
     if (!script) {
@@ -5964,7 +5964,7 @@ S_utf8_error_script(pTHX_ const U8 *s, const char* script, UV uv) {
        when no scripts were declared. */
     if (count == 1 && (!allowed || HvKEYS(allowed) == 3)) {
         const GV* exc = gv_fetchpvs("utf8::EXCLUDED_SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
-        const HV* excluded = exc ? GvHV(exc) : NULL;
+        HV* excluded = exc ? GvHV(exc) : NULL;
         /* Special alias rules for Japanese, Korean and Hanb */
         if (hv_exists(excluded, script, len)) {
             DEBUG_T(PerlIO_printf(Perl_debug_log, "Script %s for U+%04" UVXf
@@ -6044,7 +6044,7 @@ void
 Perl_utf8_check_script(pTHX_ const U8 *s)
 {
     const GV* gv = gv_fetchpvs("utf8::SCRIPTS", GV_NOADD_NOINIT, SVt_PVHV);
-    const HV* allowed = gv ? GvHV(gv) : NULL;
+    HV* allowed = gv ? GvHV(gv) : NULL;
 
     PERL_ARGS_ASSERT_UTF8_CHECK_SCRIPT;
 

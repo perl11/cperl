@@ -2361,12 +2361,12 @@ Perl_cv_name(pTHX_ CV *cv, SV *sv, U32 flags)
 	SV * const retsv = sv ? (sv) : sv_newmortal();
     	if (SvTYPE(cv) == SVt_PVCV) {
 	    if (CvNAMED(cv)) {
-                const HEK *cvname = CvNAME_HEK(cv);
+                HEK *const cvname = CvNAME_HEK(cv);
 		if (CvLEXICAL(cv) || flags & CV_NAME_NOTQUAL) {
 		    sv_sethek(retsv, cvname);
                     if (HEK_UTF8(cvname)) SvUTF8_on(retsv);
 		} else {
-                    const HV *pkg = CvSTASH(cv);
+                    const HV *const pkg = CvSTASH(cv);
                     if (flags & CV_NAME_NOMAIN
                         && HvNAMELEN_get(pkg) == 4
                         && strnEQ(HEK_KEY(HvNAME_HEK_NN(pkg)), "main", 4))
@@ -2374,7 +2374,7 @@ Perl_cv_name(pTHX_ CV *cv, SV *sv, U32 flags)
                         sv_sethek(retsv, cvname);
                         if (HEK_UTF8(cvname)) SvUTF8_on(retsv);
                     } else {
-                        const HEK *hvname = HvNAME_HEK(pkg);
+                        const HEK *const hvname = HvNAME_HEK(pkg);
                         sv_sethek(retsv, hvname);
                         sv_catpvs(retsv, "::");
                         sv_cathek(retsv, cvname);

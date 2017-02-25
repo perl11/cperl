@@ -119,11 +119,7 @@ is a lexical C<$_> in scope.
  * "STATIC", ie. it exports XSUB symbols. You probably don't want that.
  */
 
-#if defined(HASATTRIBUTE_UNUSED) && !defined(__cplusplus)
-#  define XSPROTO(name) void name(pTHX_ CV* cv __attribute__unused__)
-#else
-#  define XSPROTO(name) void name(pTHX_ CV* cv)
-#endif
+#define XSPROTO(name) void name(pTHX_ CV* cv __attribute__unused__)
 
 #undef XS
 #undef XS_EXTERNAL

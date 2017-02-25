@@ -4055,7 +4055,7 @@ S_require_file(pTHX_ SV *const sv)
 
     if (!path_searchable) { /* absolute path */
 	/* At this point, name is SvPVX(sv)  */
-	tryname = name;
+	tryname = (char*)name;
 	tryrsfp = doopen_pm(sv, 0); /* absolute do not expand pmc */
     }
     if (!tryrsfp && !(errno == EACCES && !path_searchable)) {
@@ -4083,7 +4083,7 @@ S_require_file(pTHX_ SV *const sv)
 
 		    Perl_sv_setpvf(aTHX_ namesv, "/loader/0x%" UVxf "/%s",
 				   PTR2UV(SvRV(dirsv)), name);
-		    tryname = SvPVX_const(namesv);
+		    tryname = SvPVX(namesv);
 		    tryrsfp = NULL;
 
 		    if (SvPADTMP(nsv)) {
@@ -4180,7 +4180,7 @@ S_require_file(pTHX_ SV *const sv)
 		       This needs to happen after the FREETMPS above.  */
 		    svp = hv_fetch(GvHVn(PL_incgv), name, len, 0);
 		    if (svp)
-			tryname = SvPV_nolen_const(*svp);
+			tryname = SvPV_nolen(*svp);
 
 		    if (tryrsfp) {
 			hook_sv = dirsv;
@@ -4262,11 +4262,11 @@ S_require_file(pTHX_ SV *const sv)
 #  endif
 #endif
 		    TAINT_PROPER(op_name);
-		    tryname = SvPVX_const(namesv);
+		    tryname = SvPVX(namesv);
 		    tryrsfp = doopen_pm(namesv, 1);
 		    if (tryrsfp) {
 #ifndef PERL_DISABLE_PMC
-                        tryname = SvPVX_const(namesv);
+                        tryname = SvPVX(namesv);
 #endif
 			if (tryname[0] == '.' && tryname[1] == '/') {
 			    ++tryname;

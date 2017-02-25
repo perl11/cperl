@@ -9487,7 +9487,7 @@ S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
              */
             const U8 *p = (U8*)*s;
             STRLEN len = UTF8SKIP(p);
-            char *t = p + len;
+            char *t = (char*)p + len;
             if (len > 1) {
                 if (UNLIKELY(!(is_LATIN_OR_COMMON_SCRIPT_utf8(p))))
                     utf8_check_script(p);

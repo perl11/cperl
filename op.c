@@ -12324,6 +12324,20 @@ Perl_ck_repeat(pTHX_ OP *o)
     return o;
 }
 
+STATIC void
+S__share_hek(pTHX_ char *s, STRLEN len, SV* sv, U32 const was_readonly)
+{
+    HEK *hek;
+    U32 hash;
+    PERL_HASH(hash, s, len);
+    if (UNLIKELY(len > I32_MAX))
+        Perl_croak(aTHX_ "panic: name too long (%" UVuf ")", (UV)len);
+    hek = share_hek(s, (I32)len * (SvUTF8(sv) ? -1 : 1), hash);
+    sv_sethek(sv, hek);
+    unshare_hek(hek);
+    SvFLAGS(sv) |= was_readonly;
+}
+
 OP *
 Perl_ck_require(pTHX_ OP *o)
 {
@@ -12333,8 +12347,6 @@ Perl_ck_require(pTHX_ OP *o)
 
     if (OpKIDS(o)) {	/* Shall we supply missing .pm? */
 	SVOP * const kid = (SVOP*)OpFIRST(o);
-	HEK *hek;
-	U32 hash;
 	char *s;
 	STRLEN len;
 
@@ -12378,14 +12390,7 @@ Perl_ck_require(pTHX_ OP *o)
                     Perl_croak(aTHX_ "Bareword in require maps to disallowed filename \"%s\"",
                                s);
 
-            share_hek:
-                PERL_HASH(hash, s, len);
-                if (UNLIKELY(len > I32_MAX))
-                    Perl_croak(aTHX_ "panic: name too long (%" UVuf ")", (UV)len);
-                hek = share_hek(s, (I32)len * (SvUTF8(sv) ? -1 : 1), hash);
-                sv_sethek(sv, hek);
-                unshare_hek(hek);
-                SvFLAGS(sv) |= was_readonly;
+                S__share_hek(aTHX_ s, len, sv, was_readonly);
             }
             else if (SvPOK(sv) && !SvNIOK(sv) && !SvGMAGICAL(sv) && !SvVOK(sv)) {
                 s = SvPV(sv, len);
@@ -12397,7 +12402,7 @@ Perl_ck_require(pTHX_ OP *o)
                 else {
                     dVAR;
                     if (was_readonly) SvREADONLY_off(sv);
-                    goto share_hek;
+                    S__share_hek(aTHX_ s, len, sv, was_readonly);
                 }
             }
 	}
@@ -12965,7 +12970,7 @@ S_can_class_typecheck(pTHX_ const HV* const stash)
     if (UNLIKELY(PL_phase >= PERL_PHASE_RUN))
         return 1;
     else if (HvCLASS(stash)) {
-        const AV* isa = mro_get_linear_isa(stash);
+        const AV* isa = mro_get_linear_isa((HV*)stash);
         return AvFILLp(isa) ? 1 : 0;
     } else
         return 0;
@@ -15868,16 +15873,21 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                  * For other things (like @{$h{k1}{k2}}) extra scope or
                  * leave ops can appear, so abandon the effort in that
                  * case */
-                if (ISNT_TYPE(o, RV2AV) &&
-                    ISNT_TYPE(o, RV2HV))
-                    goto MDEREF_FREE;
+                if (ISNT_TYPE(o, RV2AV) && ISNT_TYPE(o, RV2HV)) {
+                    if (arg_buf)
+                        PerlMemShared_free(arg_buf);
+                    return;
+                }
 
                 /* rv2av or rv2hv sKR/1 */
 
                 ASSUME(!(o->op_flags & ~(OPf_WANT|OPf_KIDS|OPf_PARENS
                                             |OPf_REF|OPf_MOD|OPf_SPECIAL)));
-                if (o->op_flags != (OPf_WANT_SCALAR|OPf_KIDS|OPf_REF))
-                    goto MDEREF_FREE;
+                if (o->op_flags != (OPf_WANT_SCALAR|OPf_KIDS|OPf_REF)) {
+                    if (arg_buf)
+                        PerlMemShared_free(arg_buf);
+                    return;
+                }
 
                 /* at this point, we wouldn't expect any of these
                  * possible private flags:
@@ -16097,10 +16107,13 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
             /* similarly for customised exists and delete with
                use autovivication */
             if (UNLIKELY
-                (  (IS_TYPE(o, AELEM)  && PL_check[o->op_type] != Perl_ck_aelem)
-                || (IS_TYPE(o, EXISTS) && PL_check[o->op_type] != Perl_ck_exists)
-                || (IS_TYPE(o, DELETE) && PL_check[o->op_type] != Perl_ck_delete)))
-                goto MDEREF_FREE;
+                  (   (IS_TYPE(o, AELEM)  && PL_check[o->op_type] != Perl_ck_aelem)
+                   || (IS_TYPE(o, EXISTS) && PL_check[o->op_type] != Perl_ck_exists)
+                   || (IS_TYPE(o, DELETE) && PL_check[o->op_type] != Perl_ck_delete))) {
+                if (arg_buf)
+                    PerlMemShared_free(arg_buf);
+                return;
+            }
 
             /* skip aelemfast if private cannot hold all bits */
             if ( (ISNT_TYPE(o, AELEM) && ISNT_TYPE(o, AELEM_U))
@@ -16199,7 +16212,9 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                 if (!action_count) {
                     DEBUG_kv(Perl_deb(aTHX_ "no multideref: %s %s\n",
                                       OP_NAME(start), OP_NAME(o)));
-                    goto MDEREF_FREE;
+                    if (arg_buf)
+                        PerlMemShared_free(arg_buf);
+                    return;
                 }
                 is_last = TRUE;
                 index_skip = action_count;
@@ -16401,7 +16416,6 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
             if (maybe_aelemfast && action_count == 1) {
                 DEBUG_kv(Perl_deb(aTHX_ "no multideref %s = > aelemfast\n",
                                   OP_NAME(start)));
-            MDEREF_FREE:
                 if (arg_buf)
                     PerlMemShared_free(arg_buf);
                 return;
