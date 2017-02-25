@@ -884,13 +884,6 @@ MAKE_FETCHMETHOD_WORK
   }
 
   # print initialization routine
-
-  print Q(<<"EOF");
-##ifdef __cplusplus
-#extern "C"
-##endif
-EOF
-
   # Windows already has __declspec(dllexport) in XS_EXTERNAL
   print Q(<<"EOF");
 #XS_EXTERNAL(boot_$self->{Module_cname}) __attribute__global__ ;
