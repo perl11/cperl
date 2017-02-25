@@ -38,7 +38,7 @@ Summary of my $package (revision $revision $version_patchlevel_string) configura
     hint=$hint, useposix=$useposix, d_sigaction=$d_sigaction
     useithreads=$useithreads, usemultiplicity=$usemultiplicity
     use64bitint=$use64bitint, use64bitall=$use64bitall, uselongdouble=$uselongdouble
-    usemymalloc=$usemymalloc, bincompat5005=undef
+    usemymalloc=$usemymalloc, bincompat5005=undef default_inc_excludes_dot=$default_inc_excludes_dot
   Compiler:
     cc='$cc', ccflags ='$ccflags',
     optimize='$optimize',
