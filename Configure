@@ -24468,6 +24468,12 @@ known_extensions=`echo $nonxs_extensions $xs_extensions  | tr ' ' $trnl | $sort 
 avail_ext=''
 for xxx in $xs_extensions ; do
 	case "$xxx" in
+	B/C|b/c)
+                case "$d_cplusplus" in
+                $define) ;;
+                *) avail_ext="$avail_ext $xxx" ;;
+		esac
+		;;
 	Amiga*)
 		case "$osname" in
 		amigaos) avail_ext="$avail_ext $xxx" ;;
@@ -24664,24 +24670,28 @@ Note that DynaLoader is always built and need not be mentioned here.
 EOM
 	case "$dynamic_ext" in
 	'')
-		: Exclude those listed in static_ext
-		dflt=''
-		for xxx in $avail_ext; do
-			case " $static_ext " in
-			*" $xxx "*) ;;
-			*) dflt="$dflt $xxx" ;;
-			esac
-		done
-		set X $dflt
-		shift
-		dflt="$*"
-		;;
-	*)	dflt="$dynamic_ext"
-		# Perhaps we are reusing an old out-of-date config.sh.
-		case "$hint" in
+	    : Exclude those listed in static_ext
+	    dflt=''
+	    for xxx in $avail_ext; do
+		case " $static_ext " in
+		    *" $xxx "*)
+	                $cat <<"EOM"
+$xxx already defined as static_ext. Skipped.
+EOM
+                        ;;
+		    *) dflt="$dflt $xxx" ;;
+		esac
+	    done
+	    set X $dflt
+	    shift
+	    dflt="$*"
+	    ;;
+	*)  dflt="$dynamic_ext"
+	    # Perhaps we are reusing an old out-of-date config.sh.
+	    case "$hint" in
 		previous)
-			if test X"$dynamic_ext" != X"$avail_ext"; then
-				$cat <<EOM
+		    if test X"$dynamic_ext" != X"$avail_ext"; then
+			$cat <<EOM
 NOTICE:  Your previous config.sh list may be incorrect.
 The extensions now available to you are
 	${avail_ext}
