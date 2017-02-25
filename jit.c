@@ -229,22 +229,21 @@ bool Perl_jit_compile(pTHX_ const CV* cv, const char* pmcpath) {
     LLVMModuleRef module      = (LLVMModuleRef)jit_checkcache(cv, pmcpath, &bcpath);
 
 #ifndef PERL_LLVM_NOBUILDER
+# ifdef USE_ITHREADS
 #  if PTRSIZE == 8
     LLVMTypeRef ptrty         = LLVMPointerType(LLVMInt8Type(), 0);
 #  else
     LLVMTypeRef ptrty         = LLVMPointerType(LLVMInt4Type(), 0);
 #  endif
-#  ifdef USE_ITHREADS
     LLVMTypeRef  param_types[]= { ptrty };
-    LLVMTypeRef  ppret_type   = LLVMFunctionType(ptrty, param_types, 1, 0);
-#  else
-    LLVMTypeRef  ppret_type   = LLVMFunctionType(ptrty, NULL, 0, 0);
-#  endif  
+    /*LLVMTypeRef  ppret_type   = LLVMFunctionType(ptrty, param_types, 1, 0);*/
+# else
+    /*LLVMTypeRef  ppret_type   = LLVMFunctionType(ptrty, NULL, 0, 0);*/
+# endif
     LLVMTypeRef  subret_type  = LLVMFunctionType(LLVMVoidType(), NULL, 0, 0);
-    LLVMValueRef sub          = LLVMAddFunction(module
-                                                  ? module
-                                                  : LLVMModuleCreateWithName(package),
-                                                subname, subret_type);
+    LLVMValueRef sub          = LLVMAddFunction
+        (module ? module
+                : LLVMModuleCreateWithName(package), subname, subret_type);
     LLVMBasicBlockRef entry   = LLVMAppendBasicBlock(sub, "entry");
     LLVMBuilderRef builder    = LLVMCreateBuilder();
     char ppname[48] = { "_Perl_pp_" };
