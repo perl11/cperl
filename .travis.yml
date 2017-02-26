@@ -45,7 +45,7 @@ env:
     - CONFIGURE_OPTION='-Duse64bitint' XCC="'gcc\ -m32'" XBITS=32
     - CONFIGURE_OPTION='-DDEBUGGING -Duseshrplib' XCC='clang'
     - CONFIGURE_OPTION='-Duse64bitall -Dusethreads -Duselongdouble' XCC='clang'
-    - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall' XCC='gcc'
+    - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='c++'
 
 matrix:
 #  allow_failures:
