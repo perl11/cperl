@@ -83,6 +83,10 @@ while (<$fh>) {
     next if /^#/;
     chomp;
     my ($path, $leaf) = m|^(\S*/(\S+))|;
+    if ($Config{d_cplusplus} and $path =~ m|cpan/B-C/|) {
+      warn("skip $path with c++\n");
+      next;
+    }
     # Have we already installed the manpage for this? (eg perldoc)
     if (!$man1{$leaf}) {
       pod2man({$leaf, $path}, $opts{man1dir}, $opts{man1ext});
