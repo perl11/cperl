@@ -19,6 +19,11 @@
 #endif
 #endif
 
+/* eg. with cplusplus */
+#ifndef PTRDIFF_MAX
+# define PTRDIFF_MAX INT_MAX
+#endif
+
 /*
  * Memory management.
  */
