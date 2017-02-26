@@ -232,13 +232,21 @@ go here.  Any other changes to the Perl build process should be listed here.
 However, any platform-specific changes should be listed in the
 L</Platform Support> section, instead.
 
-[ List changes as a =item entry ].
-
 =over 4
 
 =item *
 
-XXX
+Fixed dlopen probe and compilation with c++.
+
+The dlopen probe with c++ needs -fPIC -shared, otherwise
+dlopen will not be found. This will set ld=ld, leading to the problem below:
+
+=item *
+
+ld -f may not be used without -shared
+
+Check ld=ld (caused by the failing dlopen probe from above) and
+ldflags without -shared and disable adding -fstack-protector to it.
 
 =back
 

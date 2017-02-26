@@ -8636,12 +8636,12 @@ eval $setvar
 xxx_runnm="$runnm"
 xxx_ccflags="$ccflags"
 runnm=false
-: with g++ one needs -shared to get is-in-libc to work for dlopen
+: with g++ one temp. needs -fPIC -shared to get is-in-libc to work for dlopen
 case "$gccversion" in
 '')	;;
 *Clang*)	;;
 *)	case "$d_cplusplus" in
-	"$define") ccflags="$ccflags -shared" ;;
+	"$define") ccflags="$ccflags -fPIC -shared" ;;
 	esac
 	;;
 esac
@@ -8883,7 +8883,16 @@ EOM
 	    ''|' ') dflt='none' ;;
 	esac
 
-	case "$ldflags" in
+        : error ld -f may not be used without -shared
+        ld_ok=1
+        if test X$ld == Xld; then
+            case "$ldflags" in
+                *-shared*) ld_ok=1 ;;
+                *) ld_ok= ;;
+            esac
+        fi
+        if test X$ld_ok == X1; then
+	  case "$ldflags" in
 	    *-fsanitize=cfi*)
 		case "$dflt" in
 		    *-fsanitize=cfi*) ;; # Don't add it again
@@ -8902,15 +8911,16 @@ EOM
 		    *) dflt="$dflt -fstack-protector" ;;
 		esac
 		;;
-	esac
-	case "$ldflags" in
+	  esac
+	  case "$ldflags" in
 	    *-flto*)
 		case "$dflt" in
 		    *-flto*) ;; # Don't add it again
 		    *) dflt="$dflt -flto" ;;
 		esac
 		;;
-        esac
+          esac
+        fi
 
 	rp="Any special flags to pass to $ld to create a dynamically loaded library?"
 	. ./myread
