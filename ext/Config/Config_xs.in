@@ -187,9 +187,9 @@ typedef UV CFGSELF; /* for typemap */
 #endif
 
 /* special constants for T_STR when len == 0 */
-#define VUNDEF  ((char *)0) /* undef */
-#define VEMPTY  ((char *)1) /* empty string */
-#define VDEFINE ((char *)2) /* define */
+#define VUNDEF  0 /* undef */
+#define VEMPTY  1 /* empty string */
+#define VDEFINE 2 /* define */
 
 enum Config_types {
     T_STR, /* a low value integer constant in pointer member if len == 0
@@ -1614,13 +1614,13 @@ PPCODE:
      SP++; /* make space for 1 returned SV* */
      PUTBACK; /* let some vars go out of liveness */
 #if Size_t_size > INTSIZE
-     if(SvCUR(key) > UINT_MAX)
-         goto return_undef;
+     if (SvCUR(key) > UINT_MAX)
+         XSRETURN_UNDEF;
 #endif
      c = Config_lookup(SvPVX_const(key), (unsigned int)SvCUR(key));
      PERL_UNUSED_VAR(self);
      if (!c)
-         goto return_undef;
+         XSRETURN_UNDEF;
      if(ix == 0) { /* is FETCH */
       if (c->type == T_INT) {
           IV iv;
@@ -1642,49 +1642,49 @@ PPCODE:
            RETVAL = sv_2mortal(RETVAL);
        }
        else { /* c->type == T_STR */
-          if (c->len) {
+           if (c->len) {
 /* C bitfield endianness is UB, so pack our own bits */
 #if BYTEORDER == 0x4321 || BYTEORDER == 0x87654321  /* big-endian */
-              I16 len = (I16)c->len;
-              if (len < 0)
-                RETVAL = my_newSVstaticpvn(aTHX_ (char*)(&(c->len))+1, (len >> 8) & 0x7F);
+               I16 len = (I16)c->len;
+               if (len < 0)
+                   RETVAL = my_newSVstaticpvn(aTHX_ (char*)(&(c->len))+1, (len >> 8) & 0x7F);
 #else /* little-endian */
-            /* if we had access to x86 carry flag or very smart CC, the
-             * "len >> 1" and "if (c->len & 0x1)" would be one shr op, then a
-             * jump carry flag op, not 4 ops (mov, shr, test, jz) */
-              unsigned int len = c->len >> 1;
-              if (c->len & 0x1)
-                /*  &0x7F is effectivly a casting of len to U8 before shift,
-                 *  otherwise lowest bit from 1st string char (high byte of U16
-                 *  len) becomes part of len, aka a gibberish bit and a
-                 *  SEGV/overflow inside memcpy inside newSVpvn_flags */
-                RETVAL = my_newSVstaticpvn(aTHX_ (char*)(&(c->len))+1, len & 0x7F);
+               /* if we had access to x86 carry flag or very smart CC, the
+                * "len >> 1" and "if (c->len & 0x1)" would be one shr op, then a
+                * jump carry flag op, not 4 ops (mov, shr, test, jz) */
+               unsigned int len = c->len >> 1;
+               if (c->len & 0x1)
+                   /*  &0x7F is effectivly a casting of len to U8 before shift,
+                    *  otherwise lowest bit from 1st string char (high byte of U16
+                    *  len) becomes part of len, aka a gibberish bit and a
+                    *  SEGV/overflow inside memcpy inside newSVpvn_flags */
+                   RETVAL = my_newSVstaticpvn(aTHX_ (char*)(&(c->len))+1, len & 0x7F);
 #endif
-              else
-                RETVAL = my_newSVstaticpvn(aTHX_ c->value, len);
-          } else {
-                switch((size_t)c->value) {
-                     case (size_t)VUNDEF:
-                     return_undef:
-                          RETVAL = &PL_sv_undef;
-                          break;
-                     case (size_t)VEMPTY:
-                          RETVAL = &PL_sv_no;
-                          break;
-                     case (size_t)VDEFINE: {/* this SV * never goes away once vivified */
+               else
+                   RETVAL = my_newSVstaticpvn(aTHX_ c->value, len);
+           } else {
+               IV val = PTR2IV(c->value);
+               switch (val) {
+               case VUNDEF:
+                   RETVAL = &PL_sv_undef;
+                   break;
+               case VEMPTY:
+                   RETVAL = &PL_sv_no;
+                   break;
+               case VDEFINE: {/* this SV * never goes away once vivified */
 #ifdef USE_CPERL
-                          RETVAL = SV_CONST(define);
+                   RETVAL = SV_CONST(define);
 #else
-                          dMY_CXT;
-                          RETVAL = MY_CXT.defineSV;
+                   dMY_CXT;
+                   RETVAL = MY_CXT.defineSV;
 #endif
-                    }
-                         break;
-                    default:
-                         NOT_REACHED; /* NOTREACHED */
                }
-          }
-      }
+                   break;
+               default:
+                   NOT_REACHED; /* NOTREACHED */
+               }
+           }
+       }
      } /* is FETCH */
      else /* is EXISTS */
         RETVAL = &PL_sv_yes;

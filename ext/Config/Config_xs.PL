@@ -272,13 +272,13 @@ while (<$in>) {
         if ($type eq 'T_STR') {
             if ($v eq 'undef') {
                 $l  = 0;
-                $qv = 'ALN64I VUNDEF'
+                $qv = 'ALN64I (char*)VUNDEF'
             } elsif ($v eq 'define') {
                 $l  = 0;
-                $qv = 'ALN64I VDEFINE'
+                $qv = 'ALN64I (char*)VDEFINE'
           } elsif ($v eq '') {
               $l  = 0;
-              $qv = 'ALN64I VEMPTY'
+              $qv = 'ALN64I (char*)VEMPTY'
         } else { # a string in ASCII/characters
             my $lv = length($v);
             die "the value of Config key $k is over permitted length"
