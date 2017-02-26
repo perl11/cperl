@@ -1116,9 +1116,9 @@ diagnostic messages, see L<perldiag>.
 
 Using the empty pattern (which re-executes the last successfully-matched
 pattern) inside a code block in another regex, as in C</(?{ s!!new! })/>, has
-always previously yielded a segfault. It now produces an error: L<Use of the
-empty pattern inside of a regex code block is forbidden|perldiag/"Use of the
-empty pattern inside of a regex code block is forbidden">.
+always previously yielded a segfault. It now produces an error:
+L<Infinite recursion via empty pattern|perldiag/"Infinite recursion via empty pattern">,
+(was C<Use of the empty pattern inside of a regex code block is forbidden>).
 
 =item *
 
