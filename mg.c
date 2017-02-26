@@ -2786,10 +2786,7 @@ Perl_magic_set(pTHX_ SV *sv, MAGIC *mg)
                 else { /* Use the regular global */
                     SvREFCNT_dec(PL_encoding);
                     if (SvOK(sv) || SvGMAGICAL(sv)) {
-                        if (PL_localizing != 2) {
-                            Perl_ck_warner_d(aTHX_ packWARN(WARN_DEPRECATED),
-                                          "Setting ${^ENCODING} is deprecated");
-                        }
+                        /* Note: deprecated in perl5 */
                         PL_encoding = newSVsv(sv);
                     }
                     else {
