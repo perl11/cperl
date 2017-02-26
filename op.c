@@ -2883,18 +2883,14 @@ root and start (startp may be updated):
 static void
 S_postprocess_optree(pTHX_ CV *cv, OP *root, OP **startp)
 {
-    bool is_format = IS_TYPE(root, LEAVEWRITE);
     PERL_ARGS_ASSERT_POSTPROCESS_OPTREE;
 
     if (cv) {
         CvROOT(cv) = root;
-        /* XXX I don't know why this is isn't done for formats - DAPM */
-        if (!is_format) {
-            /* The cv no longer needs to hold a refcount on the slab, as CvROOT
-               itself has a refcount. */
-            CvSLABBED_off(cv);
-            OpslabREFCNT_dec_padok((OPSLAB *)CvSTART(cv));
-        }
+        /* The cv no longer needs to hold a refcount on the slab, as CvROOT
+           itself has a refcount. */
+        CvSLABBED_off(cv);
+        OpslabREFCNT_dec_padok((OPSLAB *)CvSTART(cv));
         CvSTART(cv) = *startp;
         startp = &CvSTART(cv);
     }
@@ -2907,9 +2903,9 @@ S_postprocess_optree(pTHX_ CV *cv, OP *root, OP **startp)
 
     /* now that optimizer has done its work, adjust pad values */
     if (cv)
-        pad_tidy(is_format
-                    ? padtidy_FORMAT
-                    : CvCLONE(cv) ? padtidy_SUBCLONE : padtidy_SUB);
+        pad_tidy(IS_TYPE(root, LEAVEWRITE) ? padtidy_FORMAT
+                 : CvCLONE(cv) ? padtidy_SUBCLONE
+                 : padtidy_SUB);
 }
 
 
