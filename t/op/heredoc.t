@@ -110,7 +110,7 @@ HEREDOC
     # [perl #125540] this asserted or crashed
     fresh_perl_like(
 	q(map d$#<<<<),
-	qr/\$# is no longer supported at - line 1\./,
+	qr/\$# is no longer supported/,
 	{},
 	"Don't assert parsing a here-doc if we hit EOF early"
     );
