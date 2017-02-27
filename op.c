@@ -11760,8 +11760,8 @@ Perl_ck_listiob(pTHX_ OP *o)
 =for apidoc ck_smartmatch
 CHECK callback for smartmatch (s2)
 
-Rearranges the kids if not SPECIAL, and optimizes the runtime MATCH to
-a compile-time QR.
+Rearranges the kids to refs if not SPECIAL, and optimizes the
+runtime MATCH to a compile-time QR.
 =cut
 */
 OP *
@@ -11769,10 +11769,11 @@ Perl_ck_smartmatch(pTHX_ OP *o)
 {
     dVAR;
     PERL_ARGS_ASSERT_CK_SMARTMATCH;
-    if (0 == (OpSPECIAL(o))) {
+    if (!OpSPECIAL(o)) {
 	OP *first  = OpFIRST(o);
 	OP *second = OpSIBLING(first);
 	
+        DEBUG_k(Perl_deb(aTHX_ "ck_smartmatch: ref kids\n"));
 	/* Implicitly take a reference to an array or hash */
 
         /* remove the original two siblings, then add back the
@@ -11787,9 +11788,11 @@ Perl_ck_smartmatch(pTHX_ OP *o)
 	
 	/* Implicitly take a reference to a regular expression */
 	if (IS_TYPE(first, MATCH) && !OpSTACKED(first)) {
+            DEBUG_kv(Perl_deb(aTHX_ "ck_smartmatch: match => qr\n"));
             OpTYPE_set(first, OP_QR);
 	}
-	if (IS_TYPE(second, MATCH) && !OpSTACKED(first)) {
+	if (IS_TYPE(second, MATCH) && !OpSTACKED(second)) {
+            DEBUG_kv(Perl_deb(aTHX_ "ck_smartmatch: 2nd match => qr\n"));
             OpTYPE_set(second, OP_QR);
         }
     }
