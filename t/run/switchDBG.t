@@ -77,8 +77,8 @@ like( runperl( switches => [ "-Dr" ], stderr => 1,
 like( runperl( switches => [ "-Dx" ], stderr => 1,
                prog => '1' ),
       is_miniperl()
-        ? qr/^\d+\s+TYPE = leave\s+===> NULL\n/m
-        : qr/^1\s+TYPE = leave\s+===> NULL\n/m,
+        ? qr/\n\d+\s+leave LISTOP\(0x[0-9a-f]+\) ===> \[0x0\]\n/m
+        : qr/\n1\s+leave LISTOP\(0x[0-9a-f]+\) ===> \[0x0\]\n/m,
       "-Dx Syntax tree dump" );
 like( runperl( switches => [ "-T -Du" ], stderr => 1,
                prog => 'print shift' ),
