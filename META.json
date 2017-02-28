@@ -1,7 +1,7 @@
 {
    "abstract" : "The cperl language interpreter",
    "author" : [
-      "rurban@cpanel.net"
+      "rurban@cpan.org"
    ],
    "dynamic_config" : 1,
    "generated_by" : "CPAN::Meta version 2.150010",
@@ -128,7 +128,7 @@
          "vxs.inc"
       ]
    },
-   "release_status" : "stable",
+   "release_status" : "testing",
    "resources" : {
       "bugtracker" : {
          "web" : "http://github.com/perl11/cperl/issues"
