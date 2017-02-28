@@ -4489,8 +4489,8 @@ PP(pp_entersub)
                 *defavp = MUTABLE_AV(SvREFCNT_inc_simple_NN(av));
                 if (UNLIKELY(items - 1 > AvMAX(av))) {
                     SV **ary = AvALLOC(av);
-                    AvMAX(av) = items - 1;
                     Renew(ary, items, SV*);
+                    AvMAX(av) = items - 1;
                     AvALLOC(av) = ary;
                     AvARRAY(av) = ary;
                 }
