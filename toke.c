@@ -1846,7 +1846,7 @@ S_incline(pTHX_ const char *s)
 	return;
     while (SPACE_OR_TAB(*s))
 	s++;
-    if (strEQs(s, "line"))
+    if (memEQc(s, "line"))
 	s += 4;
     else
 	return;
@@ -5456,7 +5456,7 @@ Perl_yylex(pTHX)
 	    }
 	    if (PL_parser->in_pod) {
 		/* Incest with pod. */
-		if (*s == '=' && strEQs(s, "=cut") && !isALPHA(s[4])) {
+		if (*s == '=' && memEQc(s, "=cut") && !isALPHA(s[4])) {
                     SvPVCLEAR(PL_linestr);
 		    PL_oldoldbufptr = PL_oldbufptr = s = PL_linestart = SvPVX(PL_linestr);
 		    PL_bufend = SvPVX(PL_linestr) + SvCUR(PL_linestr);
@@ -6533,7 +6533,7 @@ Perl_yylex(pTHX)
 			PL_expect = XTERM;
 			break;
 		    }
-		    if (strEQs(s, "sub")) {
+		    if (memEQc(s, "sub")) {
 			d = s + 3;
 			d = skipspace(d);
 			if (*d == ':') {
@@ -6671,7 +6671,7 @@ Perl_yylex(pTHX)
 	{
 	    const char tmp = *s++;
 	    if (tmp == '=') {
-	        if ((s == PL_linestart+2 || s[-3] == '\n') && strEQs(s, "=====")) {
+	        if ((s == PL_linestart+2 || s[-3] == '\n') && memEQc(s, "=====")) {
 	            s = vcs_conflict_marker(s + 5);
 	            goto retry;
 	        }
@@ -6790,7 +6790,7 @@ Perl_yylex(pTHX)
 	    if (s[1] != '<' && !strchr(s,'>'))
 		check_uni();
 	    if (s[1] == '<' && s[2] != '>') {
-	        if ((s == PL_linestart || s[-1] == '\n') && strEQs(s+2, "<<<<<")) {
+	        if ((s == PL_linestart || s[-1] == '\n') && memEQc(s+2, "<<<<<")) {
 	            s = vcs_conflict_marker(s + 7);
 	            goto retry;
 	        }
@@ -6805,7 +6805,7 @@ Perl_yylex(pTHX)
 	{
 	    char tmp = *s++;
 	    if (tmp == '<') {
-	        if ((s == PL_linestart+2 || s[-3] == '\n') && strEQs(s, "<<<<<")) {
+	        if ((s == PL_linestart+2 || s[-3] == '\n') && memEQc(s, "<<<<<")) {
                     s = vcs_conflict_marker(s + 5);
 	            goto retry;
 	        }
@@ -6850,7 +6850,7 @@ Perl_yylex(pTHX)
 	{
 	    const char tmp = *s++;
 	    if (tmp == '>') {
-	        if ((s == PL_linestart+2 || s[-3] == '\n') && strEQs(s, ">>>>>")) {
+	        if ((s == PL_linestart+2 || s[-3] == '\n') && memEQc(s, ">>>>>")) {
 	            s = vcs_conflict_marker(s + 5);
 	            goto retry;
 	        }
