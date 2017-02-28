@@ -499,7 +499,7 @@ Returns zero if non-equal, or non-zero if equal.
 /* These names are controversial, so guarding against their being used in more
  * places than they already are.  strBEGs and StrStartsWith are potential
  * candidates */
-#if defined(PERL_IN_DOIO_C) || defined(PERL_IN_GV_C) || defined(PERL_IN_HV_C) || defined(PERL_IN_LOCALE_C) || defined(PERL_IN_PERL_C) || defined(PERL_IN_TOKE_C) || defined(PERL_EXT)
+#if defined(PERL_CORE) || defined(PERL_EXT)
 #define strNEs(s1,s2) (strncmp(s1,"" s2 "", sizeof(s2)-1))
 #define strEQs(s1,s2) (!strncmp(s1,"" s2 "", sizeof(s2)-1))
 #endif

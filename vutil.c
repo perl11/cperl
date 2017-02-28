@@ -478,7 +478,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
     (void)hv_stores(MUTABLE_HV(hv), "version", newRV_noinc(MUTABLE_SV(av)));
 
     /* fix RT#19517 - special case 'undef' as string */
-    if ( strEQs(s, "undef") ) {
+    if ( strEQc(s, "undef") ) {
 	s += 5;
     }
 

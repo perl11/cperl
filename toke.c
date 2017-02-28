@@ -4743,37 +4743,37 @@ Perl_find_in_coretypes(pTHX_ const char *pkgname, STRLEN len)
     PERL_ARGS_ASSERT_FIND_IN_CORETYPES;
 
     if (len == 3) {
-        if (strEQs(pkgname, "int") ||
-            strEQs(pkgname, "str") ||
-            strEQs(pkgname, "num")) {
+        if (strEQc(pkgname, "int") ||
+            strEQc(pkgname, "str") ||
+            strEQc(pkgname, "num")) {
             SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
             return def_coretype_1(sv);
         }
-        else if (strEQs(pkgname, "Int")) {
+        else if (strEQc(pkgname, "Int")) {
             SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
             return def_coretype_2(sv, "int", 3);
         }
-        else if (strEQs(pkgname, "Num")) {
+        else if (strEQc(pkgname, "Num")) {
             SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
             return def_coretype_2(sv, "num", 3);
         }
-        else if (strEQs(pkgname, "Str")) {
+        else if (strEQc(pkgname, "Str")) {
             SV *sv = newSVpvn_flags(pkgname, 3, SVs_TEMP);
             return def_coretype_2(sv, "str", 3);
         }
     } else if (len == 4) {
-        if (strEQs(pkgname, "UInt")) {
+        if (strEQc(pkgname, "UInt")) {
             SV *sv = newSVpvn_flags(pkgname, 4, SVs_TEMP);
             return def_coretype_2(sv, "uint", 4);
         }
-        else if (strEQs(pkgname, "uint")) {
+        else if (strEQc(pkgname, "uint")) {
             SV *sv = newSVpvn_flags(pkgname, 4, SVs_TEMP);
             return def_coretype_2(sv, "int", 3);
         }
-    } else if (len == 6 && strEQs(pkgname, "Scalar")) {
+    } else if (len == 6 && strEQc(pkgname, "Scalar")) {
         SV *sv = newSVpvn_flags(pkgname, 6, SVs_TEMP);
         return def_coretype_1(sv);
-    } else if (len == 7 && strEQs(pkgname, "Numeric")) {
+    } else if (len == 7 && strEQc(pkgname, "Numeric")) {
         SV *sv = newSVpvn_flags(pkgname, 7, SVs_TEMP);
         return def_coretype_2(sv, "Scalar", 6);
     }
