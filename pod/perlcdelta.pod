@@ -56,7 +56,7 @@ Update deprecation message
 
 fix \Q$archname\E in t/basic.t
 
-=item ExtUtils::ParseXS
+=item ExtUtils::ParseXS  3.32_02
 
 XS_EXTERNAL does now extern "C"
 
@@ -72,7 +72,7 @@ Deprecated File::Glob::glob()
 
 Changed pod NAME to follow convention.
 
-=item Net-Ping
+=item Net-Ping 2.58_01
 
 Todo 010_pingecho.t on EBCDIC
 

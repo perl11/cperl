@@ -56,7 +56,7 @@ ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/Mkbootstrap.t 2f88adc65c55c7bd2e23
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fcad251b12d8b2412462b3
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/vstrings.t c60ad8cfd3496f136aeb71008f51d2db0a34eb5f
-ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 7b2a5cbfaeb66ff40379c0886cf3e8a29a727d5e
+ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 8e443741f033744f6e4cb2c5fd87d572f36c7ffd
 File::Path cpan/File-Path/lib/File/Path.pm 623799e76e11a756ca5e18749d8bc1bdc3800ecd
 File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
@@ -80,8 +80,8 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 3440f761c862ded333771daf6ce7e338385fe9a8
 Math::BigInt cpan/Math-BigInt/t/with_sub.t 2bcac73a0a31994b0e3fa24e3cd42594f5fc2889
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 41c4e112817e7936a3562146190d01878389f9ee
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm d41ff015ff8002a190a93765ac36c73255478cb4
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 0239117740c285e3a198edf3811bfb07e4c4702e
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 079c212be0d1b7dd83bd1de6b5f338eededa5d45
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
 Net::Domain cpan/libnet/lib/Net/Domain.pm 73f78880a95de5372bb234f37c386f52e43795d9

@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170220c';
+$VERSION = '5.20170228c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -335,8 +335,10 @@ our %released = (
     5.024001 => '2017-01-14',
     5.025009 => '2017-01-20',
     '5.025003c' => '2017-02-23',
+    5.025010 => '2017-02-20',
     '5.022005c' => '????-??-??',
-    5.025010 => '????-??-??',
+    '5.024003c' => '????-??-??',
+    5.025011 => '????-??-??',
     '5.026000c' => '????-??-??',
  );
 
@@ -12878,6 +12880,14 @@ our %delta = (
         removed => {
         }
     },
+    '5.024003c' => {
+        delta_from => '5.024002c',
+        changed => {
+            'B::Op_private'         => '5.024003',
+        },
+        removed => {
+        }
+    },
     5.025002 => {
         delta_from => 5.025001,
         changed => {
@@ -14249,11 +14259,33 @@ our %delta = (
     5.025010 => {
         delta_from => 5.025009,
         changed => {
+            'B'                     => '1.68',
             'B::Op_private'         => '5.025010',
+            'CPAN'                  => '2.17',
+            'CPAN::Distribution'    => '2.17',
             'Config'                => '5.02501',
+            'Getopt::Std'           => '1.12',
             'Module::CoreList'      => '5.20170220',
             'Module::CoreList::TieHashDelta'=> '5.20170220',
             'Module::CoreList::Utils'=> '5.20170220',
+            'PerlIO'                => '1.10',
+            'Storable'              => '2.62',
+            'Thread::Queue'         => '3.12',
+            'feature'               => '1.47',
+            'open'                  => '1.11',
+            'threads'               => '2.13',
+        },
+        removed => {
+        }
+    },
+    5.025011 => {
+        delta_from => 5.025010,
+        changed => {
+            'B::Op_private'         => '5.025011',
+            'Config'                => '5.025011',
+            'Module::CoreList'      => '5.20170320',
+            'Module::CoreList::TieHashDelta'=> '5.20170230',
+            'Module::CoreList::Utils'=> '5.20170320',
         },
         removed => {
         }
@@ -14577,8 +14609,20 @@ our %delta = (
         delta_from => '5.025003c',
         changed => {
             'B::Op_private'         => '5.026000',
-            'Module::CoreList'      => '5.20170220c',
-              'Module::CoreList::Utils'=> '5.20170220c',
+            'Module::CoreList'      => '5.20170228c',
+            'Module::CoreList::Utils'=> '5.20170228c',
+            'B'                     => '1.68_06',
+            'Config'                => '6.23',
+            'ExtUtils::ParseXS'     => '3.32_02',
+            'ExtUtils::ParseXS::Utilities' => '3.32_02',
+            'File::Glob'            => '1.28',
+            'Getopt::Std'           => '1.12',
+            'Net::Ping'             => '2.58_01',
+            'PerlIO'                => '1.10',
+            'Pod::Html'             => '2.23002c',
+            'feature'               => '1.47_01',
+            'open'                  => '1.11',
+            'threads'               => '2.13_01',
         },
         removed => {},
     },
