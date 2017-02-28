@@ -11,152 +11,192 @@ and the cperl 5.26.0 releases.
 
 If you are upgrading from an earlier release such as v5.24.2c, first
 read the L<perl525*cdelta> documentation, which describes differences
-between v5.25.1c and v5.26.0c
+between v5.25.0c and v5.26.0c.
 
 =head1 Notice
 
-XXX Any important notices here
-
-=head1 Core Enhancements
-
-XXX New core language features go here.  Summarize user-visible core language
-enhancements.  Particularly prominent performance optimisations could go
-here, but most should go in the L</Performance Enhancements> section.
-
-[ List each enhancement as a =head2 entry ]
-
-=head1 Security
-
-XXX Any security-related notices go here.  In particular, any security
-vulnerabilities closed should be noted here rather than in the
-L</Selected Bug Fixes> section.
-
-[ List each security issue as a =head2 entry ]
-
-=head1 Incompatible Changes
-
-XXX For a release on a stable branch, this section aspires to be:
-
-    There are no changes intentionally incompatible with 5.XXX.XXX
-    If any exist, they are bugs, and we request that you submit a
-    report.  See L</Reporting Bugs> below.
-
-[ List each incompatible change as a =head2 entry ]
+cperl v5.26.0c was merged with perl v5.26.0 (as all previous major cperl releases).
+The rejected commits for the differences have been documented at the github issues
+L<[cperl #165]|https://github.com/perl11/cperl/issues/165> and
+L<[cperl #256]|https://github.com/perl11/cperl/issues/256>.
 
 =head1 Deprecations
 
-XXX Any deprecated features, syntax, modules etc. should be listed here.
+See the new L<perldeprecation> pod.
 
-=head2 Module removals
-
-XXX Remove this section if inapplicable.
-
-The following modules will be removed from the core distribution in a
-future release, and will at that time need to be installed from CPAN.
-Distributions on CPAN which require these modules will need to list them as
-prerequisites.
-
-The core versions of these modules will now issue C<"deprecated">-category
-warnings to alert you to this fact.  To silence these deprecation warnings,
-install the modules in question from CPAN.
-
-Note that these are (with rare exceptions) fine modules that you are encouraged
-to continue to use.  Their disinclusion from core primarily hinges on their
-necessity to bootstrapping a fully functional, CPAN-capable Perl installation,
-not usually on concerns over their design.
-
-=over
-
-=item XXX
-
-XXX Note that deprecated modules should be listed here even if they are listed
-as an updated module in the L</Modules and Pragmata> section.
-
-=back
-
-[ List each other deprecation as a =head2 entry ]
+Many old deprecations got now a fixed final date, but several perl5 deprecations
+were undeprecated in cperl and rather fixed. I<(as in previous cperl releases.)>
 
 =head1 Performance Enhancements
-
-XXX Changes which enhance performance without changing behaviour go here.
-There may well be none in a stable release.
-
-[ List each enhancement as a =item entry ]
 
 =over 4
 
 =item *
 
-XXX
+Ensure that the lexer always sees large enough buffers to do fast
+wordwise memcmp comparisons, esp. with constant lengths.
 
 =back
 
 =head1 Modules and Pragmata
 
-XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
-go here.  If Module::CoreList is updated, generate an initial draft of the
-following sections using F<Porting/corelist-perldelta.pl>.  A paragraph summary
-for important changes should then be added by hand.  In an ideal world,
-dual-life modules would have a F<Changes> file that could be cribbed.
-
-[ Within each section, list entries as a =item entry ]
-
-=head2 New Modules and Pragmata
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
 =head2 Updated Modules and Pragmata
 
 =over 4
 
-=item *
+=item B  1.68_06
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+Use op_class API
 
-=back
+=item B::Terse  1.07
 
-=head2 Removed Modules and Pragmata
+Update deprecation message
 
-=over 4
+=item ExtUtils::MakeMaker
 
-=item *
+fix \Q$archname\E in t/basic.t
 
-XXX
+=item ExtUtils::ParseXS
+
+XS_EXTERNAL does now extern "C"
+
+=item feature  1.47_01
+
+Revise documentation of eval and evalbytes
+
+=item File::Glob 1.28
+
+Deprecated File::Glob::glob()
+
+=item Getopt::Std 1.12
+
+Changed pod NAME to follow convention.
+
+=item Net-Ping
+
+Todo 010_pingecho.t on EBCDIC
+
+=item open 1.11
+=item PerlIO 1.10
+
+pod: Suggest to use strict :encoding(UTF-8) PerlIO layer over not
+strict :encoding(utf8) For data exchange it is better to use strict
+UTF-8 encoding and not perl's utf8.
+
+=item Pod::Html  2.23002c
+
+Removed deprecated C<--libpods> option.
+
+=item threads 2.13_01
+
+Remove extra terminating semicolon.
+Clean up temporary directories after testing.
 
 =back
 
 =head1 Documentation
 
-XXX Changes to files in F<pod/> go here.  Consider grouping entries by
-file and be sure to link to the appropriate page, e.g. L<perlfunc>.
-
 =head2 New Documentation
 
-XXX Changes which create B<new> files in F<pod/> go here.
+=head3 L<perldeprecation>
 
-=head3 L<XXX>
+This file documents all upcoming deprecations, and some of the deprecations
+which already have been removed. The purpose of this documentation is
+two-fold: document what will disappear, and by which version, and serve
+as a guide for people dealing with code which has features that no longer
+work after an upgrade of their perl.
 
-XXX Description of the purpose of the new file here
+=head2 Changes to Existing Diagnostics
 
-=head2 Changes to Existing Documentation
-
-XXX Changes which significantly change existing files in F<pod/> go here.
-However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
-section.
-
-=head3 L<XXX>
+As of Perl 5.25.9, all new deprecations will come with a version in
+which the feature will disappear. And with a few exceptions, most
+existing deprecations will state when they'll disappear. As such, most
+deprecation messages have changed.
 
 =over 4
 
 =item *
 
-XXX Description of the change here
+Attribute "locked" is deprecated, and will disappear in Perl 5.28
+
+=item *
+
+Attribute "unique" is deprecated, and will disappear in Perl 5.28
+
+=item *
+
+Constants from lexical variables potentially modified elsewhere are
+deprecated. This will not be allowed in Perl 5.32
+
+=item *
+
+Deprecated use of my() in false conditional. This will be a fatal error
+in Perl 5.30
+
+=item *
+
+File::Glob::glob() will disappear in perl 5.30. Use File::Glob::bsd_glob()
+instead.
+
+=item *
+
+%s() is deprecated on :utf8 handles. This will be a fatal error in Perl 5.30
+
+=item *
+
+$* is no longer supported. Its use will be fatal in Perl 5.30
+
+=item *
+
+$* is no longer supported. Its use will be fatal in Perl 5.30
+
+=item *
+
+Opening dirhandle %s also as a file. This will be a fatal error in Perl 5.28
+
+=item *
+
+Opening filehandle %s also as a directory. This will be a fatal
+error in Perl 5.28
+
+=item *
+
+Setting $/ to a reference to %s as a form of slurp is deprecated,
+treating as undef. This will be fatal in Perl 5.28
+
+=item *
+
+Unescaped left brace in regex is deprecated here (and will be fatal
+in Perl 5.30), passed through in regex; marked by S<< E<lt>-- HERE >> in m/%s/
+
+=item *
+
+Unknown charname '' is deprecated. Its use will be fatal in Perl 5.28
+
+=item *
+
+Use of bare E<lt>E<lt> to mean E<lt>E<lt>"" is deprecated. Its use
+will be fatal in Perl 5.28
+
+=item *
+
+Use of code point 0x%s is deprecated; the permissible max is 0x%s.
+This will be fatal in Perl 5.28
+
+=item *
+
+Use of comma-less variable list is deprecated. Its use will be fatal
+in Perl 5.28
+
+=item *
+
+Use of inherited AUTOLOAD for non-method %s() is deprecated. This
+will be fatal in Perl 5.28
+
+=item * 
+
+Use of strings with code points over 0xFF as arguments to %s operator
+is deprecated. This will be a fatal error in Perl 5.28
 
 =back
 
@@ -166,184 +206,119 @@ The following additions or changes have been made to diagnostic output,
 including warnings and fatal error messages.  For the complete list of
 diagnostic messages, see L<perldiag>.
 
-XXX New or changed warnings emitted by the core's C<C> code go here.  Also
-include any changes in L<perldiag> that reconcile it to the C<C> code.
-
-=head2 New Diagnostics
-
-XXX Newly added diagnostic messages go under here, separated into New Errors
-and New Warnings
-
-=head3 New Errors
-
-=over 4
-
-=item *
-
-XXX L<message|perldiag/"message">
-
-=back
-
-=head3 New Warnings
-
-=over 4
-
-=item *
-
-XXX L<message|perldiag/"message">
-
-=back
-
-=head2 Changes to Existing Diagnostics
-
-XXX Changes (i.e. rewording) of diagnostic messages go here
-
-=over 4
-
-=item *
-
-XXX Describe change here
-
-=back
-
-=head1 Utility Changes
-
-XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
-Most of these are built within the directory F<utils>.
-
-[ List utility changes as a =head2 entry for each utility and =item
-entries for each change
-Use L<XXX> with program names to get proper documentation linking. ]
-
-=head2 L<XXX>
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
 =head1 Configuration and Compilation
 
-XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
-go here.  Any other changes to the Perl build process should be listed here.
-However, any platform-specific changes should be listed in the
-L</Platform Support> section, instead.
-
 =over 4
 
 =item *
 
-Fixed dlopen probe and compilation with c++.
+Fixed B<dlopen> probe and compilation with c++.
 
-The dlopen probe with c++ needs -fPIC -shared, otherwise
-dlopen will not be found. This will set ld=ld, leading to the problem below:
+The dlopen probe with C++ needs C<-fPIC -shared>, otherwise
+C<dlopen()> will not be found. This will set C<ld=ld>, leading to the
+problem below:
 
 =item *
 
-ld -f may not be used without -shared
+C<ld -f> may not be used without C<-shared>
 
-Check ld=ld (caused by the failing dlopen probe from above) and
-ldflags without -shared and disable adding -fstack-protector to it.
+Check C<ld=ld> (caused by the failing dlopen probe from above) and
+C<ldflags> without C<-shared> and disable adding C<-fstack-protector> to it.
+
+=item *
+
+Added C<default_inc_excludes_dot> to C<perl -V> and F<myconfig>.
 
 =back
 
 =head1 Testing
 
-XXX Any significant changes to the testing of a freshly built perl should be
-listed here.  Changes which create B<new> files in F<t/> go here as do any
-large changes to the testing harness (e.g. when parallel testing was added).
-Changes to existing files in F<t/> aren't worth summarizing, although the bugs
-that they represent may be covered elsewhere.
-
-[ List each test improvement as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+Added F<t/comp/parser_run.t> for parser tests requiring test.pl.
+
+=item *
+
+Added F<t/lib/warnings/toke_l1> for toke warnings tests with binary characters.
 
 =back
 
 =head1 Platform Support
 
-XXX Any changes to platform support should be listed in the sections below.
-
-[ Within the sections, list each platform as a =item entry with specific
-changes as paragraphs below it. ]
-
-=head2 New Platforms
-
-XXX List any platforms that this version of perl compiles on, that previous
-versions did not.  These will either be enabled by new files in the F<hints/>
-directories, or new subdirectories and F<README> files at the top level of the
-source tree.
-
-=over 4
-
-=item XXX-some-platform
-
-XXX
-
-=back
-
-=head2 Discontinued Platforms
-
-XXX List any platforms that this version of perl no longer compiles on.
-
-=over 4
-
-=item XXX-some-platform
-
-XXX
-
-=back
-
 =head2 Platform-Specific Notes
 
-XXX List any changes for specific platforms.  This could include configuration
-and compilation changes or changes in portability/compatibility.  However,
-changes within modules for platforms should generally be listed in the
-L</Modules and Pragmata> section.
-
 =over 4
 
-=item XXX-some-platform
-
-XXX
-
-=back
-
-=head1 Internal Changes
-
-XXX Changes which affect the interface available to C<XS> code go here.  Other
-significant internal changes for future core maintainers should be noted as
-well.
-
-[ List each change as a =item entry ]
+=item Windows
 
 =over 4
 
 =item *
 
-XXX
+Support for compiling perl on Windows using Microsoft Visual Studio 2015
+(containing Visual C++ 14.0) has been added.
+
+This version of VC++ includes a completely rewritten C run-time library, some
+of the changes in which mean that work done to resolve a socket close() bug in
+perl #120091 and perl #118059 is not workable in its current state with this
+version of VC++.  Therefore, we have effectively reverted that bug fix for
+VS2015 onwards on the basis that being able to build with VS2015 onwards is
+more important than keeping the bug fix.  We may revisit this in the future to
+attempt to fix the bug again in a way that is compatible with VS2015.
+
+These changes do not affect compilation with GCC or with Visual Studio versions
+up to and including VS2013, i.e. the bug fix is retained (unchanged) for those
+compilers.
+
+Note that you may experience compatibility problems if you mix a perl built
+with GCC or VS E<lt>= VS2013 with XS modules built with VS2015, or if you mix a
+perl built with VS2015 with XS modules built with GCC or VS E<lt>= VS2013.
+Some incompatibility may arise because of the bug fix that has been reverted
+for VS2015 builds of perl, but there may well be incompatibility anyway because
+of the rewritten CRT in VS2015 (e.g. see discussion at
+L<http://stackoverflow.com/questions/30412951>).
+
+=back
+
+=back
+
+=head1 Internal Changes
+
+=over 4
+
+=item *
+
+The C<op_class()> API function has been added. This is like the existing
+C<OP_CLASS()> macro, but can more accurately determine what struct an op
+has been allocated as. For example C<OP_CLASS()> might return
+C<OA_BASEOP_OR_UNOP> indicating that ops of this type are usually
+allocated as an C<OP> or C<UNOP>; while C<op_class()> will return
+C<OPclass_BASEOP> or C<OPclass_UNOP> as appropriate.
+
+=item *
+
+The output format of the C<op_dump()> function (as used by C<perl -Dx>)
+has changed: it now displays an "ASCII-art" tree structure, and shows more
+low-level details about each op, such as its address and class.
+
+=item *
+
+The lexer F<toke.c> is now guaranteed to work on a C<linestr> buffer SV with
+minimal PTRSIZE (4 or 8 byte) length, which enables to use fast word-wise comparison
+memcmp builtins. cperl only.
 
 =back
 
 =head1 Selected Bug Fixes
-
-XXX Important bug fixes in the core language are summarized here.  Bug fixes in
-files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =over 4
 
 =item -d with tailcalls
 
 Implemented a workaround for the debugger (C<-d>) to step into
-functions with signatures. Until the root cause with debugging
+most functions with signatures. Until the root cause with debugging
 tailcalls is fixed, we convert back a signature to old-style
 assignments under the debugger.
 This was the only perl5 regression.
@@ -362,43 +337,100 @@ error: jump to label 'float_ipow'. crosses initialization of 'unsigned int diff'
 Regression since v5.24.0c, a cperl problem only.
 L<[cperl #224]|https://github.com/perl11/cperl/issues/224>
 
+=item C<$-{$name}> leak
+
+C< $-{$name} > would leak an C<AV> on each access if the regular
+expression had no named captures.  The same applies to access to any
+hash tied with L<Tie::Hash::NamedCapture> and C<< all => 1 >>.
+L<[perl #130822]|https://rt.perl.org/Public/Bug/Display.html?id=130822>
+
+=item Fix $# use after free or buffer overflow
+
+Attempting to use the deprecated variable C<$#> as the object in an
+indirect object method call could cause a heap use after free or
+buffer overflow.
+L<[perl #129274]|https://rt.perl.org/Public/Bug/Display.html?id=129274>
+
+=item Fix lexer with indirect object method calls
+
+When checking for an indirect object method call in some rare cases
+the parser could reallocate the line buffer but then continue to use
+pointers to the old buffer.
+L<[perl #129190]|https://rt.perl.org/Public/Bug/Display.html?id=129190>
+
+=item Forbid glob as format argument
+
+Supplying a glob as the format argument to L<perlfunc/formline> would
+cause an assertion failure.
+L<[perl #130722]|https://rt.perl.org/Public/Bug/Display.html?id=130722>
+
+=item Fix optimized match to qr
+
+Code like C< $value1 =~ qr/.../ ~~ $value2 > would have the match
+converted into a qr// operator, leaving extra elements on the stack to
+confuse any surrounding expression.
+L<[perl #130705]|https://rt.perl.org/Public/Bug/Display.html?id=130705>
+
+=item Fix pad access in regex eval code blocks
+
+Since 5.24.0 in some obscure cases, a regex which included code blocks
+from multiple sources (e.g. via embedded via qr// objects) could end up
+with the wrong current pad and crash or give weird results.
+L<[perl #129881]|https://rt.perl.org/Public/Bug/Display.html?id=129881>
+
+=item Fix local in regex eval code blocks
+
+Occasionally C<local()>s in a code block within a patterns weren't being
+undone when the pattern matching backtracked over the code block.
+L<[perl #126697]|https://rt.perl.org/Public/Bug/Display.html?id=126697>
+
+=item Fix substr with a magic variable
+
+Using C<substr()> to modify a magic variable could access freed memory
+in some cases.
+L<[perl #129340]|https://rt.perl.org/Public/Bug/Display.html?id=129340>
+
+=item Fix some missing Malformed UTF-8 character warnings
+
+Perl 5.25.9 was fixed so that under C<use utf8>, the entire Perl program
+is checked that the UTF-8 is wellformed.  It turns out that several edge
+cases were missed, and are now fixed.
+L<[perl #126310]|https://rt.perl.org/Public/Bug/Display.html?id=126310> was the original
+ticket.
+
 =back
-
-=head1 Known Problems
-
-XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
-tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
-platform specific bugs also go here.
-
-[ List each fix as a =item entry ]
-
-=over 4
-
-=item *
-
-XXX
-
-=back
-
-=head1 Errata From Previous Releases
-
-=over 4
-
-=item *
-
-XXX Add anything here that we forgot to add, or were mistaken about, in
-the perldelta of a previous release.
-
-=back
-
-=head1 Obituary
-
-XXX If any significant core contributor has died, we've added a short obituary
-here.
 
 =head1 Acknowledgements
 
-XXX Generate this with:
+cperl 5.26.0 represents approximately 1 week of development since Perl 5.25.3c
+and contains approximately 19,000 lines of changes across 240 files from 23
+authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 7,000 lines of changes to 140 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the
+improvements that became cperl 5.26.0:
+
+Karl Williamson, Reini Urban, Abigail, David Mitchell, Tony Cook, Hugo van der
+Sanden, Pali, Jarkko Hietaniemi, Zefram, Aaron Crane, Yves Orton, James E
+Keenan, Renee Baecker, Dagfinn Ilmari Mannsåker, Steffen Müller, Steve Hay,
+Craig A. Berry, Andy Lester, Dominic Hargreaves, Sergey Aleynikov, Christian
+Millour, Neil Bowers, Colin Newell.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
 
     cperl Porting/acknowledgements.pl cperl-5.25.3..HEAD
 
@@ -409,7 +441,7 @@ posted to the comp.lang.perl.misc newsgroup and the perl bug database at
 L<https://rt.perl.org/> .  There may also be information at
 L<http://www.perl.org/> , the Perl Home Page.
 
-If you believe you have an unreported bug, please run the L<cperlbug> program
+If you believe you have an unreported bug, please run the L<perlbug> program
 included with your release.  Be sure to trim your bug down to a tiny but
 sufficient test case.  Your bug report, along with the output of C<perl -V>,
 will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
