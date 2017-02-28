@@ -18,10 +18,8 @@ my $result = runperl(
     prog => " foreach m0\n\$" . ("0" x 0x2000),
     stderr => 1,
 );
-is($result, <<EXPECT);
-syntax error at -e line 3, near "foreach m0
-"
-Identifier too long at -e line 3.
+is($result, <<'EXPECT');
+Missing $ on loop variable at -e line 1.
 EXPECT
 
 __END__
