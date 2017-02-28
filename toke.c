@@ -9638,7 +9638,9 @@ S_parse_ident(pTHX_ char **s, char **d, char * const e, int allow_package,
                 if (!*normalize && UNLIKELY(_is_decomposed_string(p, len)))
                     *normalize = 1;
             }
-            while (isIDCONT_utf8_safe((const U8*) t, (const U8*) PL_bufend)) {
+            while (t < PL_bufend &&
+                   isIDCONT_utf8_safe((const U8*) t, (const U8*) PL_bufend))
+            {
                 len = UTF8SKIP(t);
                 if (len > 1) {
                     if (UNLIKELY(!(is_LATIN_OR_COMMON_SCRIPT_utf8(t)
