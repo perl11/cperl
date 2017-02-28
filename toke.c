@@ -866,6 +866,7 @@ Perl_lex_start(pTHX_ SV *line, PerlIO *rsfp, U32 flags)
 	parser->linestr = newSVpvn("\n;", rsfp ? 1 : 2);
     }
 
+    SvGROW(parser->linestr, PTRSIZE-1); /* allow wordwise comparisons */
     parser->oldoldbufptr =
 	parser->oldbufptr =
 	parser->bufptr =
@@ -952,6 +953,9 @@ L</PL_parser-E<gt>bufend> points to the end of the buffer.  The current
 lexing position is pointed to by L</PL_parser-E<gt>bufptr>.  Direct use
 of these pointers is usually preferable to examination of the scalar
 through normal scalar means.
+
+cperl guarantees that the size of the buffer is minimal the PTRSIZE so
+we can use faster word-comparisons for longer strings, perl5 not.
 
 =for apidoc AmxU|char *|PL_parser-E<gt>bufend
 
@@ -1067,7 +1071,7 @@ Perl_lex_grow_linestr(pTHX_ STRLEN len)
     re_eval_start_pos = (current && PL_parser->lex_shared->re_eval_start) ?
                             PL_parser->lex_shared->re_eval_start - buf : 0;
 
-    buf = sv_grow(linestr, len);
+    buf = sv_grow(linestr, len < PTRSIZE ? PTRSIZE-1 : len);
 
     PL_parser->bufend = buf + bufend_pos;
     PL_parser->bufptr = buf + bufptr_pos;
@@ -2577,6 +2581,7 @@ S_sublex_push(pTHX)
     PL_parser->lex_shared->ls_bufptr  = PL_bufptr;
 
     PL_linestr = PL_lex_stuff;
+    SvGROW(PL_linestr, PTRSIZE-1);
     PL_lex_repl = PL_parser->lex_sub_repl;
     PL_lex_stuff = NULL;
     PL_parser->lex_sub_repl = NULL;
@@ -4186,9 +4191,9 @@ S_scan_const(pTHX_ char *start)
     }
 
     /* shrink the sv if we allocated more than we used */
-    if (SvCUR(sv) + 5 < SvLEN(sv)) {
+    /*if (SvCUR(sv) + 5 < SvLEN(sv)) {
 	SvPV_shrink_to_cur(sv);
-    }
+    }*/
 
     /* return the substring (via pl_yylval) only if we parsed anything */
     if (s > start) {
@@ -4569,6 +4574,7 @@ Perl_filter_add(pTHX_ filter_t funcp, SV *datasv)
 		    PL_parser->last_lop ? PL_parser->last_lop - buf : 0;
 		av_push(PL_rsfp_filters, linestr);
 		PL_parser->linestr = newSVpvn(SvPVX(linestr), ++s - SvPVX(linestr));
+                SvGROW(PL_parser->linestr, PTRSIZE-1);
 		buf = SvPVX(PL_parser->linestr);
 		PL_parser->bufend = buf + SvCUR(PL_parser->linestr);
 		PL_parser->bufptr = buf + bufptr_pos;
@@ -4579,7 +4585,7 @@ Perl_filter_add(pTHX_ filter_t funcp, SV *datasv)
 		    PL_parser->last_uni = buf + last_uni_pos;
 		if (PL_parser->last_lop)
 		    PL_parser->last_lop = buf + last_lop_pos;
-		SvLEN(linestr) = SvCUR(linestr);
+		/*SvLEN(linestr) = SvCUR(linestr);*/
 		SvCUR(linestr) = s - SvPVX(linestr);
 		PL_parser->filtered = 1;
 		break;
@@ -4587,7 +4593,7 @@ Perl_filter_add(pTHX_ filter_t funcp, SV *datasv)
 	    s++;
 	}
     }
-    return(datasv);
+    return datasv;
 }
 
 
@@ -10270,7 +10276,7 @@ S_scan_trans(pTHX_ char *start)
    This function scans a heredoc, which involves different methods
    depending on whether we are in a string eval, quoted construct, etc.
    This is because PL_linestr could containing a single line of input, or
-   a whole string being evalled, or the contents of the current quote-
+   a whole string being eval'ed, or the contents of the current quote-
    like operator.
 
    The two basic methods are:
@@ -10512,6 +10518,7 @@ S_scan_heredoc(pTHX_ char *s)
 	/* Copy everything from s onwards back to d. */
 	Move(s,d,bufend-s + 1,char);
 	SvCUR_set(linestr, SvCUR(linestr) - (s-d));
+        SvGROW(linestr, PTRSIZE-1);
 	/* Setting PL_bufend only applies when we have not dug deeper
 	   into other scopes, because sublex_done sets PL_bufend to
 	   SvEND(PL_linestr). */
@@ -10520,10 +10527,10 @@ S_scan_heredoc(pTHX_ char *s)
     }
     else
     {
-      SV *linestr_save;
-      char *oldbufptr_save;
-      char *oldoldbufptr_save;
-     streaming:
+        SV *linestr_save;
+        char *oldbufptr_save;
+        char *oldoldbufptr_save;
+    streaming:
       SvPVCLEAR(tmpstr);   /* avoid "uninitialized" warning */
       term = PL_tokenbuf[1];
       len--;
@@ -10532,6 +10539,7 @@ S_scan_heredoc(pTHX_ char *s)
       oldbufptr_save = PL_oldbufptr;
       oldoldbufptr_save = PL_oldoldbufptr;
       PL_linestr = newSVpvs("");
+      SvGROW(PL_linestr, PTRSIZE-1);
       PL_bufend = SvPVX(PL_linestr);
       while (1) {
 	PL_bufptr = PL_bufend;
@@ -10672,9 +10680,9 @@ S_scan_heredoc(pTHX_ char *s)
 	Safefree(indent);
 	SvREFCNT_dec_NN(newstr);
     }
-    if (SvCUR(tmpstr) + 5 < SvLEN(tmpstr)) {
+    /*if (SvCUR(tmpstr) + 5 < SvLEN(tmpstr)) {
 	SvPV_shrink_to_cur(tmpstr);
-    }
+    }*/
     if (!IN_BYTES) {
 	if (UTF && is_utf8_string((U8*)SvPVX_const(tmpstr), SvCUR(tmpstr)))
 	    SvUTF8_on(tmpstr);

@@ -1473,41 +1473,41 @@ object type. Exposed to perl code via Internals::SvREADONLY().
 		SvPV_set((sv), (MEM_WRAP_CHECK_(n,char)			\
 				(char*)saferealloc((Malloc_t)SvPVX(sv), \
 						   (MEM_SIZE)((n)))));  \
-		 } STMT_END
+        } STMT_END
 
-#define SvPV_shrink_to_cur(sv) STMT_START { \
-		   const STRLEN _lEnGtH = SvCUR(sv) + 1; \
-		   SvPV_renew(sv, _lEnGtH); \
-		 } STMT_END
+#define SvPV_shrink_to_cur(sv) STMT_START {                             \
+        const STRLEN _lEnGtH = SvCUR(sv) + 1;                           \
+        SvPV_renew(sv, _lEnGtH < PTRSIZE ? PTRSIZE : _lEnGtH);          \
+    } STMT_END
 
 #define SvPV_free(sv)							\
     STMT_START {							\
-		     assert(SvTYPE(sv) >= SVt_PV);			\
-		     if (SvLEN(sv)) {					\
-			 assert(!SvROK(sv));				\
-			 if(UNLIKELY(SvOOK(sv))) {			\
-			     STRLEN zok; 				\
-			     SvOOK_offset(sv, zok);			\
-			     SvPV_set(sv, SvPVX_mutable(sv) - zok);	\
-			     SvFLAGS(sv) &= ~SVf_OOK;			\
-			 }						\
-			 Safefree(SvPVX(sv));				\
-		     }							\
-		 } STMT_END
+        assert(SvTYPE(sv) >= SVt_PV);                                   \
+        if (SvLEN(sv)) {                                                \
+            assert(!SvROK(sv));                                         \
+            if(UNLIKELY(SvOOK(sv))) {                                   \
+                STRLEN zok;                                             \
+                SvOOK_offset(sv, zok);                                  \
+                SvPV_set(sv, SvPVX_mutable(sv) - zok);                  \
+                SvFLAGS(sv) &= ~SVf_OOK;                                \
+            }                                                           \
+            Safefree(SvPVX(sv));                                        \
+        }                                                               \
+    } STMT_END
 
 #ifdef PERL_CORE
 /* Code that crops up in three places to take a scalar and ready it to hold
    a reference */
 #  define prepare_SV_for_RV(sv)						\
     STMT_START {							\
-		    if (SvTYPE(sv) < SVt_PV && SvTYPE(sv) != SVt_IV)	\
-			sv_upgrade(sv, SVt_IV);				\
-		    else if (SvTYPE(sv) >= SVt_PV) {			\
-			SvPV_free(sv);					\
-			SvLEN_set(sv, 0);				\
-                        SvCUR_set(sv, 0);				\
-		    }							\
-		 } STMT_END
+        if (SvTYPE(sv) < SVt_PV && SvTYPE(sv) != SVt_IV)                \
+            sv_upgrade(sv, SVt_IV);                                     \
+        else if (SvTYPE(sv) >= SVt_PV) {                                \
+            SvPV_free(sv);                                              \
+            SvLEN_set(sv, 0);                                           \
+            SvCUR_set(sv, 0);                                           \
+        }                                                               \
+    } STMT_END
 #endif
 
 #ifndef PERL_CORE

@@ -13395,7 +13395,7 @@ Perl_parser_dup(pTHX_ const yy_parser *const proto, CLONE_PARAMS *const param)
     parser->in_my_stash	= hv_dup(proto->in_my_stash, param);
     parser->error_count	= proto->error_count;
     parser->recheck_utf8_validity = proto->recheck_utf8_validity;
-    parser->linestr	= sv_dup_inc(proto->linestr, param);
+    SvGROW(parser->linestr, PTRSIZE-1);
 
     {
 	char * const ols = SvPVX(proto->linestr);
