@@ -1190,7 +1190,7 @@ Randy Sims <randys@thepierianspring.org>
 
 =item *
 
-Reini Urban <rurban@cpanel.net>
+Reini Urban <rurban@cpan.org>
 
 cperl, YAML::XS, Cpanel::JSON::XS support
 

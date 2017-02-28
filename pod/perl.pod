@@ -376,7 +376,7 @@ who wish to advocate the use of Perl in their applications,
 or if you wish to simply express your gratitude to Larry and the 
 Perl developers, please write to perl-thanks@perl.org .
 
-cperl is developed by Reini Urban <rurban@cpanel.net>.
+cperl is developed by Reini Urban <rurban@cpan.org>.
 
 =head1 FILES
 

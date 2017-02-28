@@ -18,7 +18,7 @@ esac
 ./Configure -sder -Dcc=gcc -Dprefix="$prefix" $usedevel \
             -Dsitebin="$prefix/lib/cperl/site_cperl/$ver/bin" \
             -Dscriptdir="$prefix/lib/cperl/$ver/bin" \
-            -Dcf_by='rurban' -Dcf_email='rurban@cpanel.net' \
+            -Dcf_by='rurban' -Dcf_email='rurban@cpan.org' \
             -Uusethreads -Doptimize='-O3' $@
 
 sed -i -e's,-fstack-protector-strong,-fstack-protector,' config.sh Makefile cflags

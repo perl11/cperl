@@ -50,7 +50,7 @@ my %check = (
     cc              => "ccache gcc-mp-5",
     cccdlflags      => "",
     ccdlflags       => "",
-    config_args     => '-sde -Dusedevel -Dusecperl -Dprefix=/usr/local -Dcc=ccache gcc-mp-5 -Dld=ccache gcc-mp-5 -Accflags=-march=corei7 -DPERL_FAKE_SIGNATURE -Doptimize=-O3 -g -Dmake=gmake -Darchname=darwin -Darchlib=/usr/local/lib/cperl/5.22.2/darwin -Dsitebin=/usr/local/lib/cperl/site_cperl/5.22.2/bin -Dscriptdir=/usr/local/lib/cperl/5.22.2/bin -Dsitearch=/usr/local/lib/cperl/site_cperl/5.22.2/darwin -Dperlpath=/usr/local/bin/cperl5.22.2-nt -Dstartperl=#!/usr/local/bin/cperl5.22.2-nt -Dinstallman1dir=none -Dinstallman3dir=none -Dinstallsiteman1dir=none -Dinstallsiteman3dir=none -Dcf_email=rurban@cpanel.net',
+    config_args     => '-sde -Dusedevel -Dusecperl -Dprefix=/usr/local -Dcc=ccache gcc-mp-5 -Dld=ccache gcc-mp-5 -Accflags=-march=corei7 -DPERL_FAKE_SIGNATURE -Doptimize=-O3 -g -Dmake=gmake -Darchname=darwin -Darchlib=/usr/local/lib/cperl/5.22.2/darwin -Dsitebin=/usr/local/lib/cperl/site_cperl/5.22.2/bin -Dscriptdir=/usr/local/lib/cperl/5.22.2/bin -Dsitearch=/usr/local/lib/cperl/site_cperl/5.22.2/darwin -Dperlpath=/usr/local/bin/cperl5.22.2-nt -Dstartperl=#!/usr/local/bin/cperl5.22.2-nt -Dinstallman1dir=none -Dinstallman3dir=none -Dinstallsiteman1dir=none -Dinstallsiteman3dir=none -Dcf_email=rurban@cpan.org',
     gccversion      => "5.3.0",
     gnulibc_version => "",
     ivsize          => 8,
@@ -73,7 +73,7 @@ Summary of my cperl (revision 5 version 22 subversion 2) configuration:
   Platform:
     osname=darwin, osvers=15.4.0, archname=darwin-2level
     uname='darwin airc.local 15.4.0 darwin kernel version 15.4.0: fri feb 26 22:08:05 pst 2016; root:xnu-3248.40.184~3release_x86_64 x86_64 i386 macbookair6,2 darwin '
-    config_args='-sde -Dusedevel -Dusecperl -Dprefix=/usr/local -Dcc=ccache gcc-mp-5 -Dld=ccache gcc-mp-5 -Accflags=-march=corei7 -DPERL_FAKE_SIGNATURE -Doptimize=-O3 -g -Dmake=gmake -Darchname=darwin -Darchlib=/usr/local/lib/cperl/5.22.2/darwin -Dsitebin=/usr/local/lib/cperl/site_cperl/5.22.2/bin -Dscriptdir=/usr/local/lib/cperl/5.22.2/bin -Dsitearch=/usr/local/lib/cperl/site_cperl/5.22.2/darwin -Dperlpath=/usr/local/bin/cperl5.22.2-nt -Dstartperl=#!/usr/local/bin/cperl5.22.2-nt -Dinstallman1dir=none -Dinstallman3dir=none -Dinstallsiteman1dir=none -Dinstallsiteman3dir=none -Dcf_email=rurban@cpanel.net'
+    config_args='-sde -Dusedevel -Dusecperl -Dprefix=/usr/local -Dcc=ccache gcc-mp-5 -Dld=ccache gcc-mp-5 -Accflags=-march=corei7 -DPERL_FAKE_SIGNATURE -Doptimize=-O3 -g -Dmake=gmake -Darchname=darwin -Darchlib=/usr/local/lib/cperl/5.22.2/darwin -Dsitebin=/usr/local/lib/cperl/site_cperl/5.22.2/bin -Dscriptdir=/usr/local/lib/cperl/5.22.2/bin -Dsitearch=/usr/local/lib/cperl/site_cperl/5.22.2/darwin -Dperlpath=/usr/local/bin/cperl5.22.2-nt -Dstartperl=#!/usr/local/bin/cperl5.22.2-nt -Dinstallman1dir=none -Dinstallman3dir=none -Dinstallsiteman1dir=none -Dinstallsiteman3dir=none -Dcf_email=rurban@cpan.org'
     hint=recommended, useposix=true, d_sigaction=define
     useithreads=undef, usemultiplicity=undef
     use64bitint=define, use64bitall=define, uselongdouble=undef

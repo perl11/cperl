@@ -149,7 +149,7 @@ The general structure of this module was written by Paul Evans
 The XS implementation of L</set_subname> was copied from L<Sub::Name> by
 Matthijs van Duin <xmath@cpan.org>
 
-Support for binary and utf8 names added by Reini Urban <rurban@cpanel.net>
+Support for binary and utf8 names added by Reini Urban <rurban@cpan.org>
 for cperl.
 
 =cut

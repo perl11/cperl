@@ -30,7 +30,7 @@ or:
     for t in deb rpm osxpkg solaris pkgin; do
       fpm -s dir -t $t -C cperl -p ../cperl-5.26.0-inst/ \
         --version 5.26.0 \
-        -m rurban@cpanel.net \
+        -m rurban@cpan.org \
         --url http://perl11.org/cperl/$t/ \
         --deb-config Porting/debian --deb-changelog pod/perl5252cdelta.pod
     done
@@ -66,7 +66,7 @@ ccflags is architecture specific.
                 -Accflags="-msse4.2" \
                 -Dsitebin=/usr/lib/cperl/site_cperl/$ver/bin \
                 -Dscriptdir=/usr/lib/cperl/$ver/bin \
-                -Dcf_email='rurban@cpanel.net' \
+                -Dcf_email='rurban@cpan.org' \
                 -Uusethreads -Doptimize='-O3 -g'
 
     sed -i -e's,-fstack-protector-strong,-fstack-protector,' config.sh \
@@ -93,30 +93,30 @@ create packages for debian/ubuntu/mint .deb, redhat/centos/fedora
 .rpm, osx .pkg, bsd and solaris packages, but not yet windows .msi
 
     # on i386 and amd64 debian machines. needs the -1 suffix
-    fpm -s dir -t deb -n cperl -v 5.26.0-1 -m 'rurban@cpanel.net' \
+    fpm -s dir -t deb -n cperl -v 5.26.0-1 -m 'rurban@cpan.org' \
         -d 'zlib1g (>= 1:1.2.2.3)' -d libbz2-1.0 -d 'libgdbm3 (>= 1.8.3)' -d 'libdb-5.1' \
         --url http://perl11.org/cperl/deb/ \
         --deb-changelog pod/perl5222cdelta.pod \
         -C ../cperl-5.26.0-inst .
 
     # on i386 and x86_64 centos6 and a centos7 machine. no -1 suffix
-    fpm -s dir -t rpm -n cperl -v 5.26.0 -m 'rurban@cpanel.net' \
+    fpm -s dir -t rpm -n cperl -v 5.26.0 -m 'rurban@cpan.org' \
         -d 'zlib' -d bzip2-libs -d 'gdbm' -d 'db4' \
         --url http://perl11.org/cperl/rpm/ \
         -C ../cperl-5.26.0-inst .
 
     # on an amd64 osx machine
-    fpm -s dir -t osxpkg -n cperl -v 5.26.0 -m 'rurban@cpanel.net' \
+    fpm -s dir -t osxpkg -n cperl -v 5.26.0 -m 'rurban@cpan.org' \
         --url http://perl11.org/cperl/osxpkg/ \
         -C ../cperl-5.26.0-inst .
 
     # on i386 and amd64 solaris machines
-    fpm -s dir -t solaris -n cperl -v 5.26.0 -m 'rurban@cpanel.net' \
+    fpm -s dir -t solaris -n cperl -v 5.26.0 -m 'rurban@cpan.org' \
         --url http://perl11.org/cperl/solaris/ \
         -C ../cperl-5.26.0-inst .
 
     # on i386 and amd64 bsd machines
-    fpm -s dir -t pkgin -n cperl -v 5.26.0 -m 'rurban@cpanel.net' \
+    fpm -s dir -t pkgin -n cperl -v 5.26.0 -m 'rurban@cpan.org' \
         --url http://perl11.org/cperl/pkgin/ \
         -C ../cperl-5.26.0-inst .
 

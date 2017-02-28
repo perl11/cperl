@@ -26,7 +26,7 @@ Darwin)
     test -f $pkg && mv $pkg $pkg~
     fpm -s dir -t osxpkg -v $ver-$rev \
         -n cperl \
-        -m 'rurban@cpanel.net' \
+        -m 'rurban@cpan.org' \
         --vendor 'perl11.org' \
         --url 'http://perl11.org/cperl/' \
         --description 'a perl5 with classes, types, compiler support, company-friendly.' \
@@ -38,7 +38,7 @@ Linux)
         pkg=cperl-$ver-$rev-$arch.$ext
         test -f $pkg && mv $pkg $pkg~
         fpm -s dir -t rpm -n cperl -v $ver --iteration $rev --epoch '' -a $arch \
-            -m 'rurban@cpanel.net' \
+            -m 'rurban@cpan.org' \
             -d 'zlib' -d bzip2-libs -d 'gdbm' -d 'libdb4' \
             --url http://perl11.org/cperl/rpm/ \
             --description 'a perl5 with classes, types, compiler support, company-friendly.' \
@@ -53,7 +53,7 @@ Linux)
                 pkg=cperl_${ver}-${rev}_${arch}.$ext
                 test -f $pkg && mv $pkg $pkg~
                 fpm -s dir -t deb -n cperl -v $ver-$rev -a $arch \
-                    -m 'rurban@cpanel.net' \
+                    -m 'rurban@cpan.org' \
                     -d 'zlib1g >= 1:1.2.2.3' -d libbz2-1.0 -d 'libgdbm3 >= 1.8.3' \
                     -d 'libdb5.1' \
                     --url http://perl11.org/deb/ \
@@ -75,7 +75,7 @@ SunOS)
     test -f $pkg && mv $pkg $pkg~
     fpm -s dir -t solaris -v $ver-$rev \
         -n cperl \
-        -m 'rurban@cpanel.net' \
+        -m 'rurban@cpan.org' \
         --vendor 'perl11.org' \
         --url 'http://perl11.org/cperl/' \
         --description 'a perl5 with classes, types, compiler support, company-friendly.' \
@@ -87,7 +87,7 @@ SunOS)
     test -f $pkg && mv $pkg $pkg~
     fpm -s dir -t freebsd -v $ver-$rev \
         -n cperl \
-        -m 'rurban@cpanel.net' \
+        -m 'rurban@cpan.org' \
         --vendor 'perl11.org' \
         --url 'http://perl11.org/cperl/' \
         --description 'a perl5 with classes, types, compiler support, company-friendly.' \

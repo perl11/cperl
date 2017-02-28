@@ -69,7 +69,7 @@ deploy:
 notifications:
 - provider: Email
   to:
-  - rurban@cpanel.net
+  - rurban@cpan.org
   subject: cperl windows build
   on_build_success: true
   on_build_failure: true

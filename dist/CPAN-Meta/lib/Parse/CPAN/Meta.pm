@@ -504,7 +504,7 @@ Steffen Mueller <smueller@cpan.org>
 
 =item *
 
-Reini Urban <rurban@cpanel.net>
+Reini Urban <rurban@cpan.org>
 
 =back
 

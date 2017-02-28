@@ -1222,7 +1222,7 @@ robario <webmaster@robario.com>
 
 =item *
 
-Reini Urban <rurban@cpanel.net>
+Reini Urban <rurban@cpan.org>
 
 =back
 

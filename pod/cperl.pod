@@ -345,7 +345,7 @@ See L<perlrun>.
 
 Larry Wall <larry@wall.org>, with the help of oodles of other folks.
 
-Reini Urban <rurban@cpanel.net> for the cperl variant.
+Reini Urban <rurban@cpan.org> for the cperl variant.
 
 =head1 FILES
 

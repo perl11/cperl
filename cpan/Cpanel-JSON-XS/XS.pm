@@ -2227,11 +2227,11 @@ L<https://tools.ietf.org/html/rfc4627>
 
 Marc Lehmann <schmorp@schmorp.de>, http://home.schmorp.de/
 
-Reini Urban <rurban@cpanel.net>, http://cpanel.net/
+Reini Urban <rurban@cpan.org>, http://cpanel.net/
 
 =head1 MAINTAINER
 
-Reini Urban <rurban@cpanel.net>
+Reini Urban <rurban@cpan.org>
 
 =cut
 

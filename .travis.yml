@@ -12,7 +12,7 @@ addons:
     project:
       name: "perl11/cperl"
       description: "a perl5 with classes, types, compilable, company friendly"
-    notification_email: rurban@cpanel.net
+    notification_email: rurban@cpan.org
     build_command_prepend: "./Configure -des -Dusedevel -Uversiononly -Dprefix=$HOME/cperl"
     build_command: "make -s -j4 ECHO=true"
     branch_pattern: coverity
