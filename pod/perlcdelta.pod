@@ -315,6 +315,31 @@ memcmp builtins. cperl only.
 
 =over 4
 
+=item type-check list assignments and types
+
+These list assignments now properly type check:
+
+  package Bla;
+  my Bla @a;
+  my int $i = $a[0];
+  # => Type of scalar assignment to $i must be int (not Bla)
+  $i = shift @a;
+  # => Type of scalar assignment to $i must be int (not Bla)
+
+  # implicit shift
+  (my int $j) = @a;
+  # => Type of list assignment to $j must be int (not Bla)
+
+i.e. we descend into many list (array/hash) ops. mderef not.
+
+Also more builtin variables are now type-checked, such as C<@ARGV>
+as C<:Array(:Str)>
+and as C<:Str> C<$ARGV>, C<$0> and C<$^X>. Previously only C<$^O>.
+These added types do now more internal type optimizations, e.g. using
+s_eq instead of the generic eq when comparing with constants.
+
+See L<[cperl #258]|https://github.com/perl11/cperl/issues/258>.
+
 =item -d with tailcalls
 
 Implemented a workaround for the debugger (C<-d>) to step into

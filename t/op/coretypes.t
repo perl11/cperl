@@ -7,7 +7,7 @@ BEGIN {
 }
 
 use coretypes;
-plan 30;
+plan 37;
 
 # native or coretypes. the result should be the same
 my int $x = 4;
@@ -154,6 +154,51 @@ fresh_perl_is(<<'EOF', '', $args, 'even strict coretype to user-type');
 package Bla;
 my Bla %a;
 $a{"key"} = "";
+EOF
+
+fresh_perl_is(<<'EOF', '', $args, 'scalar = implicit shift list. #258');
+(my int $arg) = @_;
+EOF
+
+$err = qr/Type of list assignment to \$arg must be int \(not Bla\)/;
+fresh_perl_like(<<'EOF', $err, $args, 'scalar = typed array');
+package Bla;
+my Bla @a;
+(my int $arg) = @a;
+EOF
+
+$err = qr/Type of scalar assignment to \$arg must be int \(not Bla\)/;
+fresh_perl_like(<<'EOF', $err, $args, 'scalar = typed aelem');
+package Bla;
+my Bla @a;
+my int $arg = $a[0];
+EOF
+fresh_perl_like(<<'EOF', $err, $args, 'scalar = shift typed array');
+package Bla;
+my Bla @a;
+my int $arg = shift @a;
+EOF
+
+# Need type cast or dynamic inheritence from Bla to int
+fresh_perl_like(<<'EOF', $err, $args, 'scalar = typed hash');
+package Bla;
+my Bla %a;
+my int $arg = $a{1};
+EOF
+
+TODO: {
+  local $::TODO = 'mderef';
+  # should warn, but does not.
+  fresh_perl_like(<<'EOF', $err, $args, 'scalar = typed mderef hash');
+package Bla;
+my int %a;
+my Bla $arg = $a{1};
+EOF
+}
+
+$args = { switches => ['-Mtypes=strict'] };
+fresh_perl_is(<<'EOF', '', $args, 'scalar = helem');
+my str $arg = $h{1};
 EOF
 
 # A normal dynamic class, inheriting from a restricted coreclass

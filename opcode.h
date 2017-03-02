@@ -1176,7 +1176,7 @@ PL_op_type_str[] = {
 	"",	/* 135: uc */
 	"",	/* 136: lc */
 	"",	/* 137: quotemeta */
-	"(:Ref):Hash",	/* 138: rv2av */
+	"(:Ref):Array",	/* 138: rv2av */
 	"(:Array(:Scalar),:Int):Scalar",	/* 139: aelemfast */
 	"(:Array(:Scalar),:Int):Scalar",	/* 140: aelemfast_lex */
 	"(:Array(:Scalar),:Int):Scalar",	/* 141: aelem */
@@ -1600,7 +1600,7 @@ EXTCONST U32 PL_op_type[] = {
 	0xffffff00,	/* 135: uc "" */
 	0xffffff00,	/* 136: lc "" */
 	0xffffff00,	/* 137: quotemeta "" */
-	0x0cffff11,	/* 138: rv2av "(:Ref):Hash" */
+	0x0cffff10,	/* 138: rv2av "(:Ref):Array" */
 	0x2b05ff0b,	/* 139: aelemfast "(:Array(:Scalar),:Int):Scalar" */
 	0x2b05ff0b,	/* 140: aelemfast_lex "(:Array(:Scalar),:Int):Scalar" */
 	0x2b05ff0b,	/* 141: aelem "(:Array(:Scalar),:Int):Scalar" */

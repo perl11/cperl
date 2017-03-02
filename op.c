@@ -11903,17 +11903,27 @@ core_types_t S_stash_to_coretype(pTHX_ const HV* stash)
 }
 
 
-/* Return the type as core_types_t enum of the op.
-   User-defined types are only returned as type_Object,
-   get the name of those with S_typename.
+/*
+=for apidoc op_typed_user
 
-   TODO: add defined return types of all ops, and user-defined CV types for entersub.
-   */
+Return the type as core_types_t enum of the op.
+User-defined types are only returned as type_Object,
+get the name of those with S_typename().
+
+TODO: add defined return types of all ops, and
+user-defined CV types for entersub.
+=cut
+*/
 static core_types_t
 S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
 {
     core_types_t t;
+
+    /* descend into aggregate types: aelem-padav -> padav,
+       shift padav -> padav */
     switch (o->op_type) {
+    case OP_PADAV:
+    case OP_PADHV:
     case OP_PADSV: {
         PADNAME * const pn = PAD_COMPNAME(ck_pad(o)->op_targ);
         if (UNLIKELY(o->op_targ && SvMAGICAL(PAD_SV(o->op_targ))))
@@ -11925,6 +11935,9 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
         }
         return t;
     }
+    case OP_AELEMFAST:   /* do not exist at initial compile-time */
+    case OP_AELEMFAST_LEX:
+    case OP_AELEMFAST_LEX_U:
     case OP_CONST: {
         SV *sv = cSVOPx(o)->op_sv;
         switch (SvTYPE(sv)) {
@@ -11966,15 +11979,30 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
         }
         break;
     }
-    case OP_RV2SV: {
-        OP* kid = OpSIBLING(o);
-        if (OP_TYPE_IS(kid, OP_NULL))
-            kid = S_op_next_nn(kid);
-        /* check types of some special constants: $^O => Str */
-        if (OP_TYPE_IS(OpSIBLING(o), OP_GV)) {
-            if (cGVOPx_gv(kid) == gv_fetchpvs("^O", 0, SVt_PV))
+    case OP_RV2AV: {
+        OP* kid = OpFIRST(o);
+        /* check types of some special vars: @ARGV => Str */
+        if (OP_TYPE_IS(kid, OP_GV)) {
+            if (cGVOPx_gv(kid) == gv_fetchpvs("ARGV", 0, SVt_PV))
                 return type_Str;
         }
+        break;
+    }
+    case OP_RV2SV: {
+        OP* kid = OpFIRST(o);
+        if (OP_TYPE_IS(kid, OP_NULL))
+            kid = S_op_next_nn(kid);
+        /* check types of some special vars: $^O => Str */
+        if (OP_TYPE_IS(kid, OP_GV)) {
+            GV* gv = cGVOPx_gv(kid);
+            /* XXX This is probably slow. Maybe checking the name is faster */
+            if (   gv == gv_fetchpvs("^O", 0, SVt_PV)
+                || gv == gv_fetchpvs("ARGV", 0, SVt_PV)
+                || gv == gv_fetchpvs("0", 0, SVt_PV)
+                || gv == gv_fetchpvs("^X", 0, SVt_PV) )
+                return type_Str;
+        }
+        break;
     }
     case OP_RV2CV:
     case OP_ENTERSUB: {
@@ -11982,6 +12010,20 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
         return stash_to_coretype(PadnameTYPE(pn));
         /*return type_none;*/
         }
+    case OP_SHIFT:
+    case OP_UNSHIFT:
+    case OP_POP:
+    case OP_PUSH:
+    case OP_AELEM:
+    case OP_HELEM:
+        if (OpKIDS(o)) {
+            /* check if the list is typed */
+            t = op_typed_user(OpFIRST(o), usertype, u8);
+            /* untyped array/hash does return Array/Hash, untyped lower */
+            if (t < type_Array)
+                return t;
+        }
+        break;
     default:
         break;
     } /* switch */
@@ -13315,6 +13357,10 @@ applied to old constructs, not signatures, hence not so strict.
 
 Contravariant: Enables you to use a more generic (less derived) type
 than originally specified.
+
+But note this special implicit perl case:
+       scalar = list;       # (array|hash)
+  <=>  scalar = shift list;
 =cut
 */
 static OP*
@@ -13337,18 +13383,39 @@ S__op_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
         {
             int castable = 0;
             /* check aggregate type: Array(int), Hash(str), ... */
-            if (!PadnamePV(pn))
+            if (!PadnamePV(pn)) /* Todo: lhs method rettype */
                 ;
-            else if ((argtype == type_Hash &&
-                      PadnamePV(pn)[0] == '%' &&
-                      IS_TYPE(o, PADHV))
-                      ||
-                     (argtype == type_Array &&
-                      PadnamePV(pn)[0] == '@' &&
-                      IS_TYPE(o, PADAV)))
+            /* %a = %b (list = list). no subs yet. */
+            else if (  (argtype == type_Array &&
+                        PadnamePV(pn)[0] == '@' &&
+                        IS_TYPE(o, PADAV))
+                    || (argtype == type_Hash &&
+                        PadnamePV(pn)[0] == '%' &&
+                        IS_TYPE(o, PADHV)) )
             {
                 PADNAME * const xpn = PAD_COMPNAME(o->op_targ);
                 argtype = stash_to_coretype(PadnameTYPE(xpn));
+            }
+            /* Check special case: scalar = list;
+                                => scalar = shift list; #258.
+               Missing:
+                 lhs: lvalue subs. rhs: subs => list */
+            else if ( (argtype == type_Array &&
+                       PadnamePV(pn)[0] == '$' &&
+                       IS_TYPE(o, RV2AV))
+                   || (argtype == type_Hash &&
+                       PadnamePV(pn)[0] == '$' &&
+                       IS_TYPE(o, RV2HV)) )
+            {
+                /* it's an implicit shift */
+                core_types_t innertype = op_typed_user(OpFIRST(o), &usertype, &argu8);
+                if (usertype) {
+                    argtype = type_Object;
+                    argname = core_type_name(argtype);
+                } else {
+                    argtype = innertype;
+                    argname = "Scalar";
+                }
             }
 
             /* normal args: contravariant */

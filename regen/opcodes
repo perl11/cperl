@@ -292,7 +292,7 @@ quotemeta	quotemeta		ck_fun		fstu%	S?
 
 # Arrays.
 
-rv2av		array dereference	ck_rvconst	dt1	R	"(:Ref):Hash"
+rv2av		array dereference	ck_rvconst	dt1	R	"(:Ref):Array"
 aelemfast	constant array element	ck_aelem	ds$	A S	"(:Array(:Scalar),:Int):Scalar"
 aelemfast_lex	constant lexical array element	ck_aelem d0	A S	"(:Array(:Scalar),:Int):Scalar"
 aelem		array element		ck_aelem	s2	A S	"(:Array(:Scalar),:Int):Scalar"
