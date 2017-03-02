@@ -332,7 +332,7 @@ typedef struct
 
 #endif /* _MSC_VER */
 
-#if (!defined(_MSC_VER)) || (defined(_MSC_VER) && _MSC_VER < 1900)
+#ifndef PERLIO_FILE_file
 
 /* Note: PERLIO_FILE_ptr/base/cnt are not actually used for GCC or <VS2015
  * since FILE_ptr/base/cnt do the same thing anyway but it doesn't hurt to
