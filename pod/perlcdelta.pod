@@ -377,6 +377,15 @@ expression had no named captures.  The same applies to access to any
 hash tied with L<Tie::Hash::NamedCapture> and C<< all => 1 >>.
 L<[perl #130822]|https://rt.perl.org/Public/Bug/Display.html?id=130822>
 
+=item split ' ' under use unicode_strings
+
+C<split ' '> now handles the argument being split correctly when in the
+scope of the L<< C<unicode_strings>|feature/"The 'unicode_strings' feature"
+>> feature. Previously, when a string using the single-byte internal
+representation contained characters that are whitespace by Unicode rules but
+not by ASCII rules, it treated those characters as part of fields rather
+than as field separators. This resolves [perl #130907].
+
 =item Fix $# use after free or buffer overflow
 
 Attempting to use the deprecated variable C<$#> as the object in an

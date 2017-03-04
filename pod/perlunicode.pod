@@ -1842,6 +1842,28 @@ Prior to that, or outside its scope, no code points above 127 are quoted
 in UTF-8 encoded strings, but in byte encoded strings, code points
 between 128-255 are always quoted.
 
+=item *
+
+In the C<..> or L<range|perlop/Range Operators> operator.
+
+Starting in Perl 5.26.0, the range operator on strings treats their lengths
+consistently within the scope of C<unicode_strings>. Prior to that, or
+outside its scope, it could produce strings whose length in characters
+exceeded that of the right-hand side, where the right-hand side took up more
+bytes than the correct range endpoint.
+
+=item *
+
+In L<< C<split>'s special-case whitespace splitting|perlfunc/split >>.
+
+Starting in cperl v5.26c and Perl 5.28.0, the C<split> function with a
+pattern specified as a string containing a single space handles
+whitespace characters consistently within the scope of of
+C<unicode_strings>. Prior to that, or outside its scope, characters
+that are whitespace according to Unicode rules but not according to
+ASCII rules were treated as field contents rather than field
+separators when they appear in byte-encoded strings.
+
 =back
 
 You can see from the above that the effect of C<unicode_strings>

@@ -151,13 +151,17 @@ serious Unicode work.  The maintenance release 5.6.1 fixed many of the
 problems of the initial Unicode implementation, but for example
 regular expressions still do not work with Unicode in 5.6.1.
 Perl v5.14.0 is the first release where Unicode support is
-(almost) seamlessly integrable without some gotchas (the exception being
-some differences in L<quotemeta|perlfunc/quotemeta>, and that is fixed
-starting in Perl 5.16.0).   To enable this
-seamless support, you should C<use feature 'unicode_strings'> (which is
-automatically selected if you C<use 5.012> or higher).  See L<feature>.
-(5.14 also fixes a number of bugs and departures from the Unicode
-standard.)
+(almost) seamlessly integrable without some gotchas. (There are a few
+exceptions. Firstly, some differences in L<quotemeta|perlfunc/quotemeta>
+were fixed starting in Perl 5.16.0. Secondly, some differences in
+L<the range operator|perlop/Range Operators> were fixed starting in
+Perl 5.26.0. Thirdly, some differences in L<split|perlfunc/split> were fixed
+started in cperl v5.26c and Perl 5.28.0.)
+
+To enable this seamless support, you should C<use feature
+'unicode_strings'> (which is automatically selected if you C<use
+5.012> or higher).  See L<feature>.  (5.14 also fixes a number of bugs
+and departures from the Unicode standard.)
 
 Before Perl v5.8.0, the use of C<use utf8> was used to declare
 that operations in the current block or file would be Unicode-aware.

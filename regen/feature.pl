@@ -385,7 +385,7 @@ read_only_bottom_close_and_rename($h);
 __END__
 package feature;
 
-our $VERSION = '1.47_01';
+our $VERSION = '1.48_01';
 
 FEATURES
 
@@ -502,7 +502,10 @@ potentially using Unicode in your program, the
 C<use feature 'unicode_strings'> subpragma is B<strongly> recommended.
 
 This feature is available starting with Perl 5.12; was almost fully
-implemented in Perl 5.14; and extended in Perl 5.16 to cover C<quotemeta>.
+implemented in Perl 5.14; and extended in Perl 5.16 to cover C<quotemeta>;
+was extended further in Perl 5.26 to cover L<the range
+operator|perlop/Range Operators>; and was extended again in Perl 5.28 to
+cover L<special-cased whitespace splitting|perlfunc/split>.
 
 =head2 The 'unicode_eval' and 'evalbytes' features
 
