@@ -382,7 +382,7 @@ read_only_bottom_close_and_rename($h);
 __END__
 package feature;
 
-our $VERSION = '1.48_01';
+our $VERSION = '1.49_01';
 
 FEATURES
 

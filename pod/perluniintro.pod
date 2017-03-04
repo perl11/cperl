@@ -156,7 +156,7 @@ exceptions. Firstly, some differences in L<quotemeta|perlfunc/quotemeta>
 were fixed starting in Perl 5.16.0. Secondly, some differences in
 L<the range operator|perlop/Range Operators> were fixed starting in
 Perl 5.26.0. Thirdly, some differences in L<split|perlfunc/split> were fixed
-started in cperl v5.26c and Perl 5.28.0.)
+in cperl v5.26c and Perl 5.28.0.)
 
 To enable this seamless support, you should C<use feature
 'unicode_strings'> (which is automatically selected if you C<use
