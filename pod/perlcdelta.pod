@@ -100,6 +100,10 @@ Update documentation from the CPAN version.
 Remove extra terminating semicolon.
 Clean up temporary directories after testing.
 
+=item threads-shared  1.55
+
+Documentation
+
 =back
 
 =head1 Documentation
