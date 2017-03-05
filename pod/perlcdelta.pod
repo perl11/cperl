@@ -87,6 +87,12 @@ UTF-8 encoding and not perl's utf8.
 
 Removed deprecated C<--libpods> option.
 
+=item Storable 3.05_04
+
+Fixed wrong recursion depth error with large arrays containing another
+array.
+L<[cperl #257]|https://github.com/perl11/cperl/issues/257>
+
 =item threads 2.13_01
 
 Remove extra terminating semicolon.
