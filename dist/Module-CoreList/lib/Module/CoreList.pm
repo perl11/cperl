@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170228c';
+$VERSION = '5.20170305c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -14620,9 +14620,11 @@ our %delta = (
             'Net::Ping'             => '2.58_01',
             'PerlIO'                => '1.10',
             'Pod::Html'             => '2.23002c',
-            'feature'               => '1.47_01',
+            'Storable'              => '3.05_07',
+            'feature'               => '1.48_01',
             'open'                  => '1.11',
-            'threads'               => '2.13_01',
+            'threads'               => '2.15',
+            'threads::shared'       => '1.55',
         },
         removed => {},
     },
