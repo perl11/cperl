@@ -5,8 +5,8 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '2.13_01';
-our $XS_VERSION = $VERSION;
+our $VERSION = '2.15';
+my $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
 # Verify this Perl supports threads
@@ -133,7 +133,7 @@ threads - Perl interpreter-based threads
 
 =head1 VERSION
 
-This document describes threads version 2.12_01
+This document describes threads version 2.15
 
 =head1 WARNING
 

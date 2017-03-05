@@ -3827,9 +3827,10 @@ dist/Thread-Semaphore/t/03_nothreads.t		Thread::Semaphore tests
 dist/Thread-Semaphore/t/04_nonblocking.t	Thread::Semaphore tests
 dist/Thread-Semaphore/t/05_force.t	Thread::Semaphore tests
 dist/Thread-Semaphore/t/06_timed.t
+dist/threads/Changes		threads ChangeLog
 dist/threads/hints/hpux.pl	Hint file for HPUX
 dist/threads/hints/linux.pl	Hint file for Linux
-dist/threads/lib/threads.pm		ithreads
+dist/threads/lib/threads.pm	ithreads
 dist/threads/t/basic.t		ithreads
 dist/threads/t/blocks.t		Test threads in special blocks
 dist/threads/t/context.t	Explicit thread context

@@ -95,7 +95,7 @@ L<[cperl #257]|https://github.com/perl11/cperl/issues/257>
 
 Update documentation from the CPAN version.
 
-=item threads 2.13_01
+=item threads  2.15
 
 Remove extra terminating semicolon.
 Clean up temporary directories after testing.
