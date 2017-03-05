@@ -3,7 +3,7 @@ package File::Spec;
 use strict;
 use vars qw(@ISA);
 
-our $VERSION = '4.66c'; # modernized
+our $VERSION = '4.67c'; # modernized
 $VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
 
@@ -159,10 +159,13 @@ Returns a string representation of the parent directory.
 
 =item no_upwards
 
-Given a list of file names, strip out those that refer to a parent
-directory. (Does not strip symlinks, only '.', '..', and equivalents.)
+Given a list of files in a directory (such as from C<readdir()>),
+strip out C<'.'> and C<'..'>.
 
-    @paths = File::Spec->no_upwards( @paths );
+B<SECURITY NOTE:> This does NOT filter paths containing C<'..'>, like
+C<'../../../../etc/passwd'>, only literal matches to C<'.'> and C<'..'>.
+
+    @paths = File::Spec->no_upwards( readdir $dirhandle );
 
 =item case_tolerant
 

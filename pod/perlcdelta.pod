@@ -83,6 +83,11 @@ pod: Suggest to use strict :encoding(UTF-8) PerlIO layer over not
 strict :encoding(utf8) For data exchange it is better to use strict
 UTF-8 encoding and not perl's utf8.
 
+=item PathTools  4.67c
+
+Add security note to File::Spec::no_upwards
+L<[RT #123754|https://rt.perl.org/Public/Bug/Display.html?id=123754>
+
 =item Pod::Html  2.23002c
 
 Removed deprecated C<--libpods> option.
