@@ -4526,8 +4526,8 @@ open filehandles directly to Perl scalars via:
 
 To (re)open C<STDOUT> or C<STDERR> as an in-memory file, close it first:
 
-    close STDOUT;
-    open(STDOUT, ">", \$variable)
+    close *STDOUT;
+    open(*STDOUT, ">", \$variable)
 	or die "Can't open STDOUT: $!";
 
 See L<perliol> for detailed info on PerlIO.
@@ -5776,7 +5776,7 @@ returning the filehandle value instead, in which case the LIST may not be
 omitted:
 
     print { $files[$i] } "stuff\n";
-    print { $OK ? STDOUT : STDERR } "stuff\n";
+    print { $OK ? *STDOUT : *STDERR } "stuff\n";
 
 Printing to a closed pipe or socket will generate a SIGPIPE signal.  See
 L<perlipc> for more on signal handling.
@@ -8530,7 +8530,7 @@ vice versa):
 
     require 'syscall.ph';        # may need to run h2ph
     my $s = "hi there\n";
-    syscall(SYS_write(), fileno(STDOUT), $s, length $s);
+    syscall(SYS_write(), fileno(*STDOUT), $s, length $s);
 
 Note that Perl supports passing of up to only 14 arguments to your syscall,
 which in practice should (usually) suffice.
