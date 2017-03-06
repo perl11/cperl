@@ -685,7 +685,7 @@ use File::Glob qw(:case);
     # Note that upstream misses now the 3 xs pods
     # cperl has visibility fixes with 3.32_01
     'ExtUtils::ParseXS' => {
-        'DISTRIBUTION' => 'SMUELLER/ExtUtils-ParseXS-3.30.tar.gz',
+        'DISTRIBUTION' => 'SMUELLER/ExtUtils-ParseXS-3.34.tar.gz',
         'FILES'        => q[dist/ExtUtils-ParseXS],
         'CUSTOMIZED'   => # [perl #128517] reproducible build
           [ 'lib/ExtUtils/ParseXS.pm' ],

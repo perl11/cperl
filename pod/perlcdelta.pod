@@ -65,7 +65,7 @@ fix \Q$archname\E in t/basic.t
 
 support make -s => PERL_INSTALL_QUIET
 
-=item ExtUtils::ParseXS  3.32_02
+=item ExtUtils::ParseXS  3.34_02
 
 XS_EXTERNAL does now extern "C"
 
