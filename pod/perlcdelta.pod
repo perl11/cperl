@@ -56,6 +56,10 @@ Update deprecation message
 
 fix \Q$archname\E in t/basic.t
 
+=item ExtUtils::Install 2.04_01
+
+support make -s => PERL_INSTALL_QUIET
+
 =item ExtUtils::ParseXS  3.32_02
 
 XS_EXTERNAL does now extern "C"

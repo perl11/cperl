@@ -23,6 +23,7 @@ my $makefile = makefile_name();
 my $make     = make_run();
 
 local $ENV{PERL_INSTALL_QUIET};
+local $ENV{MAKEFLAGS}; # since ExtUtils::Install 2.04_01 -s will set PERL_INSTALL_QUIET
 
 # Setup our test environment
 {

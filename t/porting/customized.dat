@@ -43,6 +43,7 @@ Digest::MD5 cpan/Digest-MD5/MD5.xs 9b47158166b1162f11169f9766eddb75046e7917
 Digest::MD5 cpan/Digest-MD5/t/files.t c38f1ab8150ad688de807d140fd410d7cd9410de
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t b65ce65850ad1b887e38d2a081920646f162fbaa
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t 71a03fe898634486a5181ac32b6a98f03bb9a914
+ExtUtils::Install cpan/ExtUtils-Install/lib/ExtUtils/Install.pm 802cae6f7ad3579dbcb26a34b293dc96161b1f73
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm 92397ec3b85c35edd33cbe7b237d244ea2bd00b1
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm 31719e78e0a0b2c8449a20bb8d3b40b1605a211a
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 69351c5e5418046f9800b0d78cf454f5c1931e2d
@@ -53,7 +54,7 @@ ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/basic.t 7d00e360e0e59099e5f9ff407f
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/NoXS.pm 371cdff1b2375017907cfbc9c8f4a31f5ad10582
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/Liblist.t 9a3baf8a2c2281037f803b909d26e77a1bb099af
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/Mkbootstrap.t 2f88adc65c55c7bd2e23a4c808edcdf4b6134240
-ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/pm_to_blib.t 71ebcee355691ce374fcad251b12d8b2412462b3
+ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/pm_to_blib.t b0f97436c339a43a4fbcb9a2aba2275ecd0c00ef
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/vstrings.t c60ad8cfd3496f136aeb71008f51d2db0a34eb5f
 ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 8e443741f033744f6e4cb2c5fd87d572f36c7ffd
@@ -80,7 +81,7 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 3440f761c862ded333771daf6ce7e338385fe9a8
 Math::BigInt cpan/Math-BigInt/t/with_sub.t 2bcac73a0a31994b0e3fa24e3cd42594f5fc2889
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 7b0d5b2b236baff5d07f76f4ff9ad463967e822e
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 964cd0b8ea6319ef4693a10aa98f5b2ecb5a7ed3
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 079c212be0d1b7dd83bd1de6b5f338eededa5d45
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c

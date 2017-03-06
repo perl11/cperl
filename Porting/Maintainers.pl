@@ -633,6 +633,8 @@ use File::Glob qw(:case);
                 t/pod.t
                 ),
         ],
+        # support make -s => PERL_INSTALL_QUIET
+        'CUSTOMIZED'   => [ qw( lib/ExtUtils/Install.pm ) ],
     },
 
     'ExtUtils::MakeMaker' => {

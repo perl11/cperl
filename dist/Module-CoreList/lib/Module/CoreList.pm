@@ -14614,6 +14614,7 @@ our %delta = (
             'B'                     => '1.68_06',
             'Config'                => '6.23',
             'Cwd'                   => '4.67c',
+            'ExtUtils::Install'     => '2.04_01',
             'ExtUtils::ParseXS'     => '3.32_02',
             'ExtUtils::ParseXS::Utilities' => '3.32_02',
             'File::Glob'            => '1.28',
