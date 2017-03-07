@@ -661,9 +661,9 @@ my $r = eval 'use utf8; sub café {1} café()';
 #was qr/^Undefined subroutine &main::caf. called at /,
 is($r, 1, "normalized unicode spoofed identifier #228 $@");
 
-eval 'use utf8; sub Teχ텟;';
+eval 'use utf8; my $Γ=1; if ($Г) { print "no" }';
 like($@, qr/^Invalid script/, "Invalid mixed-scripts");
-eval 'use utf8 qw(Greek Hangul); sub Teχ텟;';
+eval 'use utf8 qw(Greek Cyrillic); my $Γ=1; if ($Г) { print "no" }';
 is($@, '', "declared mixed scripts #229");
 
 # And now some unicode bugs: https://github.com/jagracey/Awesome-Unicode#user-content-variable-identifiers-can-effectively-include-whitespace
