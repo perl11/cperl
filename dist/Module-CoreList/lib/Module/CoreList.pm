@@ -14613,6 +14613,7 @@ our %delta = (
             'Module::CoreList::Utils'=> '5.20170228c',
             'B'                     => '1.68_06',
             'Config'                => '6.23',
+            'Cpanel::JSON::XS'      => '3.0228',  
             'Cwd'                   => '4.67c',
             'ExtUtils::Install'     => '2.04_01',
             'ExtUtils::ParseXS'     => '3.32_02',

@@ -474,13 +474,13 @@ encode_utf8 (unsigned char *s, UV ch)
   return s;
 }
 
-/* convert offset pointer to character index, sv must be string */
+/* convert offset to character index, sv must be string */
 static STRLEN
-ptr_to_index (pTHX_ SV *sv, const U8 *offset)
+ptr_to_index (pTHX_ SV *sv, const STRLEN offset)
 {
   return SvUTF8 (sv)
-         ? utf8_distance ((U8*)offset, (U8*)SvPVX (sv))
-         : offset - (U8*)SvPVX (sv);
+    ? utf8_distance ((U8*)(SvPVX(sv)+offset), (U8*)SvPVX (sv))
+    : offset;
 }
 
 /*/////////////////////////////////////////////////////////////////////////// */
@@ -3068,7 +3068,7 @@ decode_bom(pTHX_ const char* encoding, SV* string, STRLEN offset)
 }
 
 static SV *
-decode_json (pTHX_ SV *string, JSON *json, U8 **offset_return)
+decode_json (pTHX_ SV *string, JSON *json, STRLEN *offset_return)
 {
   dec_t dec;
   SV *sv;
@@ -3080,6 +3080,7 @@ decode_json (pTHX_ SV *string, JSON *json, U8 **offset_return)
    * makes perl ignore the magic in subsequent accesses.
    * also make a copy of non-PV values, to get them into a clean
    * state (SvPV should do that, but it's buggy, see below).
+   * But breaks decode_prefix with offset.
    */
   /*SvGETMAGIC (string);*/
   if (SvMAGICAL (string) || !SvPOK (string) || SvIsCOW_shared_hash(string))
@@ -3175,8 +3176,12 @@ decode_json (pTHX_ SV *string, JSON *json, U8 **offset_return)
   decode_ws (&dec);
   sv = decode_sv (aTHX_ &dec);
 
-  if (offset_return)
-    *offset_return = (U8*)dec.cur;
+  if (offset_return) {
+    if (dec.cur < SvPVX (string) || dec.cur > SvEND (string))
+      *offset_return = 0;
+    else
+      *offset_return = dec.cur - SvPVX (string);
+  }
 
   if (!(offset_return || !sv))
     {
@@ -3213,7 +3218,7 @@ decode_json (pTHX_ SV *string, JSON *json, U8 **offset_return)
 #endif
       croak ("%s, at character offset %d (before \"%s\")",
              dec.err,
-             (int)ptr_to_index (aTHX_ string, (U8*)dec.cur),
+             (int)ptr_to_index (aTHX_ string, dec.cur-SvPVX(string)),
              dec.cur != dec.end ? SvPV_nolen (uni) : "(end of string)");
     }
 
@@ -3587,7 +3592,9 @@ void decode_prefix (JSON *self, SV *jsonstr)
     PPCODE:
 {
 	SV *sv;
-        U8 *offset;
+        STRLEN offset;
+        U8* p = (U8*)SvPVX(jsonstr);
+        U8* e = (U8*)SvEND(jsonstr);
         PUTBACK; sv = decode_json (aTHX_ jsonstr, self, &offset); SPAGAIN;
         EXTEND (SP, 2);
         PUSHs (sv);
@@ -3650,7 +3657,8 @@ void incr_parse (JSON *self, SV *jsonstr = 0)
           do
             {
               SV *sv;
-              U8 *offset;
+              STRLEN offset;
+              char *endp;
 
               if (!INCR_DONE (self))
                 {
@@ -3676,13 +3684,14 @@ void incr_parse (JSON *self, SV *jsonstr = 0)
               PUTBACK; sv = decode_json (aTHX_ self->incr_text, self, &offset); SPAGAIN;
               XPUSHs (sv);
 
-              self->incr_pos -= offset - (U8*)SvPVX (self->incr_text);
+              endp = SvPVX(self->incr_text) + offset;
+              self->incr_pos -= offset;
               self->incr_nest = 0;
               self->incr_mode = 0;
 #if PERL_VERSION > 9
-              sv_chop (self->incr_text, (const char* const)offset);
+              sv_chop (self->incr_text, (const char* const)endp);
 #else
-              sv_chop (self->incr_text, (char*)offset);
+              sv_chop (self->incr_text, (char*)endp);
 #endif
             }
           while (GIMME_V == G_ARRAY);
