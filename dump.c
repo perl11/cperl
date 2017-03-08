@@ -3515,7 +3515,7 @@ S__av_dump(pTHX_ SV* av, int level)
 {
     PerlIO* file = Perl_debug_log;
     SV **ents = AvARRAY(av);
-    U32 i;
+    SSize_t i;
     PERL_ARGS_ASSERT__AV_DUMP;
 
     if (SvTYPE(av) != SVt_PVAV)
