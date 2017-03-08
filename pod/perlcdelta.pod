@@ -101,10 +101,10 @@ L<[RT #123754|https://rt.perl.org/Public/Bug/Display.html?id=123754>
 
 Removed deprecated C<--libpods> option.
 
-=item Storable 3.05_07
+=item Storable 3.05_08
 
 Fixed wrong recursion depth error with large arrays containing another
-array.
+array. Tune the stack sizes, and added 2 APIs.
 L<[cperl #257]|https://github.com/perl11/cperl/issues/257>
 
 Update documentation from the CPAN version.
