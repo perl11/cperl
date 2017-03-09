@@ -7,5 +7,6 @@ Makefile
 Makefile.PL
 ppport.h
 Storable/storable-testfile.*
+Storable/stacksize.h
 Time-HiRes/*.inc
 Time-HiRes/xdefine
