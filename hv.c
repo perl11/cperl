@@ -808,8 +808,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
         HEK *const name = HvNAME_HEK(hv);
         if (name) {
             /* But allow DESTROY calls in restricted coretypes */
-            if ( strNEs(key, "DESTROY") && strNEs(key, "AUTOLOAD") )
-            {
+            if ( strNEc(key, "DESTROY") && strNEc(key, "AUTOLOAD") ) {
                 SV *msg = newSVpvs_flags("Attempt to access disallowed key '%" SVf "' in"
                                          " the restricted hash '%%", SVs_TEMP);
                 sv_cathek(msg, name);

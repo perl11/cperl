@@ -1974,8 +1974,8 @@ Perl_init_i18nl10n(pTHX_ int printwarn)
                         const STRLEN prefix_len = sizeof("LC_") - 1;
                         STRLEN uppers_len;
 
-                        if (     strEQs(*e, "LC_")
-                            && ! strEQs(*e, "LC_ALL=")
+                        if (     strBEGINs(*e, "LC_")
+                            && ! strBEGINs(*e, "LC_ALL=")
                             && (uppers_len = strspn(*e + prefix_len,
                                              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
                             && ((*e)[prefix_len + uppers_len] == '='))

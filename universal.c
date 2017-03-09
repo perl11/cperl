@@ -1261,7 +1261,7 @@ SV * S_fields_objcheck(SV* obj) {
     if (UNLIKELY(!obj || !SvROK(obj) ||
                  !(SvFLAGS((rv = SvRV(obj))) & SVs_OBJECT) ||
                  !HvNAME(SvSTASH(rv)) ||
-                 strNEs(HvNAME_NN(SvSTASH(rv)), "fields")))
+                 strNEc(HvNAME_NN(SvSTASH(rv)), "fields")))
 	return NULL;
     else
         return rv;

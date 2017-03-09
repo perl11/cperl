@@ -305,7 +305,7 @@ Perl_scan_version(pTHX_ const char *s, SV *rv, bool qv)
     last = PRESCAN_VERSION(s, FALSE, &errstr, &qv, &saw_decimal, &width, &alpha);
     if (errstr) {
 	/* "undef" is a special case and not an error */
-	if ( strNEs(s, "undef") ) {
+	if ( !strEQc(s, "undef") ) {
 	    Perl_croak(aTHX_ "%s", errstr);
 	}
     }

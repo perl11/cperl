@@ -802,20 +802,18 @@ opnumber(name)
 const char *	name
 CODE:
 {
- int i; 
- IV  result = -1;
- ST(0) = sv_newmortal();
- if (strEQs(name,"pp_"))
-   name += 3;
- for (i = 0; i < PL_maxo; i++)
-  {
-   if (strEQ(name, PL_op_name[i]))
-    {
-     result = i;
-     break;
+    int i;
+    IV  result = -1;
+    ST(0) = sv_newmortal();
+    if (strBEGINs(name,"pp_"))
+        name += 3;
+    for (i = 0; i < PL_maxo; i++) {
+        if (strEQ(name, PL_op_name[i])) {
+            result = i;
+            break;
+        }
     }
-  }
- sv_setiv(ST(0),result);
+    sv_setiv(ST(0), result);
 }
 
 void

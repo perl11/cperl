@@ -488,17 +488,18 @@ Returns zero if non-equal, or non-zero if equal.
 #define strnEQ(s1,s2,l) (!strncmp(s1,s2,l))
 
 /* These names are controversial, so guarding against their being used in more
- * places than they already are.  strBEGs and StrStartsWith are potential
- * candidates */
+ * places than they already are. Previously called strEQs */
 #if defined(PERL_CORE) || defined(PERL_EXT)
-#define strNEs(s1,s2) (strncmp(s1,"" s2 "", sizeof(s2)-1))
-#define strEQs(s1,s2) (!strncmp(s1,"" s2 "", sizeof(s2)-1))
+/* Whereever there's a strBEGINs you probably want memEQc. When the lhs is
+ * guaranteed to be long enough use memEQc instead.
+ */
+#define strBEGINs(s1,s2) (strncmp(s1,"" s2 "", sizeof(s2)-1) == 0)
 #endif
 
 #define memNE(s1,s2,l) (memcmp(s1,s2,l))
 #define memEQ(s1,s2,l) (!memcmp(s1,s2,l))
 
-/* memEQ and memNE where second comparand is a string constant */
+/* memEQ and memNE where second comparand is a string constant. But rather use memEQc */
 #define memEQs(s1, l, s2) \
         (((sizeof(s2)-1) == (l)) && memEQ((s1), ("" s2 ""), (sizeof(s2)-1)))
 #define memNEs(s1, l, s2) (! memEQs(s1, l, s2))
