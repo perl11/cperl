@@ -781,7 +781,7 @@ XSUBPP		= $(HPERL) -I..\..\lib ..\$(EXTUTILSDIR)\xsubpp \
 # Top targets
 #
 
-all: hostminiperl force_config_h ..\lib\buildcustomize.pl .\config.h ..\git_version.h $(CONFIGPM) $(UNIDATAFILES) $(PERLEXE) MakePPPort Extensions
+all: hostminiperl force_config_h ..\lib\buildcustomize.pl .\config.h ..\git_version.h $(CONFIGPM) $(UNIDATAFILES) $(PERLEXE) MakePPPort Extensions PostExt
 
 $(DYNALOADER)$(o) : $(DYNALOADER).c config.h $(EXTDIR)\DynaLoader\dlutils.c
 
@@ -860,6 +860,15 @@ Extensions_clean:
 
 makeppport: $(HPERL) $(CONFIGPM) $(Extensions_nonxs)
 	$(HPERL) -I..\lib ..\mkppport
+
+PostExt: rebuild_storable
+
+rebuild_storable: $(PERLEXE)
+	@set PERL_CORE=1
+	$(PERLEXE) -I..\lib -I. ..\dist\Storable\stacksize
+	cd ..\dist\Storable
+	$(MAKE) PERL_CORE=1
+	cd ..\..\win32
 
 #----------------------------------------------------------------------------------
 

@@ -238,6 +238,11 @@ diagnostic messages, see L<perldiag>.
 
 =item *
 
+Added a post-dynamic rule for Storable, to probe for the max. stacksize
+and re-compile it with that.
+
+=item *
+
 Fixed B<dlopen> probe and compilation with c++.
 
 The dlopen probe with C++ needs C<-fPIC -shared>, otherwise
