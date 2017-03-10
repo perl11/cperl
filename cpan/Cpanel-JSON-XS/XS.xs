@@ -479,7 +479,7 @@ static STRLEN
 ptr_to_index (pTHX_ SV *sv, const STRLEN offset)
 {
   return SvUTF8 (sv)
-    ? utf8_distance ((U8*)(SvPVX(sv)+offset), (U8*)SvPVX (sv))
+    ? (STRLEN)utf8_distance ((U8*)(SvPVX(sv)+offset), (U8*)SvPVX (sv))
     : offset;
 }
 
@@ -3593,8 +3593,6 @@ void decode_prefix (JSON *self, SV *jsonstr)
 {
 	SV *sv;
         STRLEN offset;
-        U8* p = (U8*)SvPVX(jsonstr);
-        U8* e = (U8*)SvEND(jsonstr);
         PUTBACK; sv = decode_json (aTHX_ jsonstr, self, &offset); SPAGAIN;
         EXTEND (SP, 2);
         PUSHs (sv);
