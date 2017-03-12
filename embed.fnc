@@ -1060,7 +1060,7 @@ s	|OP*	|ret_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
 #endif
 s	|OP*	|_op_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
 s	|void	|op_check_type  |NN OP* o|NN OP* left|NN OP* right
-#if 0 /* XXX cyclic dep on core_types_t in opcodes.h */
+#if 0 /* XXX cyclic dep on core_types_t in opcode.h */
 :s	|void	|bad_type_core	|NN const char *argname|NN GV *gv \
 :                	|core_types_t got|NN const char* gotname|bool gotu8 \
 :                	|NN const char *wanted|bool wu8

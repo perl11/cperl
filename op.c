@@ -11904,7 +11904,7 @@ core_types_t S_stash_to_coretype(pTHX_ const HV* stash)
 
 
 /*
-=for apidoc op_typed_user
+op_typed_user
 
 Return the type as core_types_t enum of the op.
 User-defined types are only returned as type_Object,
