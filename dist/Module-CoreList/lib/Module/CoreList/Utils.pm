@@ -1332,7 +1332,9 @@ our %delta :const = (
     },
     '5.026000c' => {
         delta_from => '5.025003c',
-        changed => {},
+        changed => {
+            'cperlivp'          => 1,
+        },
         removed => {}
     },
 );

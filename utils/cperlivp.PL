@@ -272,6 +272,8 @@ if ($extensions_total == $extensions_there) {
 }
 else {
     print "not ok 5 $label\n";
+    print "# extensions_total: $extensions_total\n";
+    print "# extensions_there: $extensions_there\n";
     $error_total++;
 }
 $tests_total++;
@@ -328,6 +330,9 @@ if (($installed_total == $installed_there) &&
 }
 else {
     print "not ok 6 $label\n";
+    print "# installed_total: $installed_total\n";
+    print "# installed_there: $installed_there\n";
+    print "# version_check:   $version_check\n";
     $error_total++;
 }
 $tests_total++;
