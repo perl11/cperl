@@ -171,18 +171,6 @@ recursive, but it's recursive on basic blocks, not on tree nodes.
 #define CALL_RPEEP(o) PL_rpeepp(aTHX_ o)
 #define CALL_OPFREEHOOK(o) if (PL_opfreehook) PL_opfreehook(aTHX_ o)
 
-#define op_typed(a) S_op_typed(aTHX_ a)
-#define op_typed_user(a,b,b8) S_op_typed_user(aTHX_ a, b, b8)
-#define core_type_name(t) S_core_type_name(aTHX_ t)
-#define bad_type_core(arg,gv,got,gotname,gotu8,wanted,wu8)         \
-    S_bad_type_core(aTHX_ arg,gv,got,gotname,gotu8,wanted,wu8)
-/*#define typename(stash) S_typename(aTHX_ stash)*/
-#define stash_to_coretype(stash) S_stash_to_coretype(aTHX_ stash)
-#define match_type(stash, coretype, aname, au8, castable)             \
-    S_match_type(aTHX_ stash, coretype, aname, (bool)au8, castable)
-#define match_type1(sig, arg) S_match_type1(sig, arg)
-#define match_type2(sig, arg1, arg2) S_match_type2(sig, arg1, arg2)
-
 static const char array_passed_to_stat[] =
     "Array passed to stat will be coerced to a scalar";
 
@@ -830,6 +818,7 @@ S_bad_type_core(pTHX_ const char *argname, GV *gv,
 {
     SV * const namesv = cv_name((CV *)gv, NULL, CV_NAME_NOMAIN);
     const char *name = got == type_Object ? gotname : core_type_name(got);
+    PERL_ARGS_ASSERT_BAD_TYPE_CORE;
     PERL_UNUSED_ARG(gotu8);
     PERL_UNUSED_ARG(wu8);
     assert(namesv);
@@ -11839,13 +11828,18 @@ S_maybe_targlex(pTHX_ OP *o)
     return o;
 }
 
-/* stash_to_coretype(HV* stash) converts the name of the padname type
-   to the core_types_t enum.
+/* 
+=for apidoc stash_to_coretype
 
-   For native types we still return the non-native counterpart.
-   PERL_NATIVE_TYPES is implemented in the native type branch,
-   with escape analysis, upgrading long-enough sequences to native ops
-   in rpeep */
+stash_to_coretype(HV* stash) converts the name of the padname type
+to the core_types_t enum.
+
+For native types we still return the non-native counterpart.
+PERL_NATIVE_TYPES is implemented in the native type branch,
+with escape analysis, upgrading long-enough sequences to native ops
+in rpeep.
+=cut
+*/
 PERL_STATIC_INLINE
 core_types_t S_stash_to_coretype(pTHX_ const HV* stash)
 {
@@ -11904,7 +11898,7 @@ core_types_t S_stash_to_coretype(pTHX_ const HV* stash)
 
 
 /*
-op_typed_user
+=for apidoc op_typed_user
 
 Return the type as core_types_t enum of the op.
 User-defined types are only returned as type_Object,
@@ -11918,6 +11912,7 @@ static core_types_t
 S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
 {
     core_types_t t;
+    PERL_ARGS_ASSERT_OP_TYPED_USER;
 
     /* descend into aggregate types: aelem-padav -> padav,
        shift padav -> padav */
@@ -12035,6 +12030,7 @@ S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
 PERL_STATIC_INLINE
 core_types_t S_op_typed(pTHX_ OP* o)
 {
+    PERL_ARGS_ASSERT_OP_TYPED;
     return S_op_typed_user(aTHX_ o, NULL, 0);
 }
 
@@ -13097,7 +13093,6 @@ Note that old-style package ISA's are created dynamically.
 Only classes with compile-time known ISA's can be checked at compile-time.
 Which are currently: use base/fields using Internals::HvCLASS,
 and later the perl6 syntax class Name is Parent {}
-Todo: Moose syntax
 =cut
 */
 STATIC int
@@ -13135,7 +13130,7 @@ S_match_user_type(pTHX_ const HV* const dstash,
 }
  
 /*
-for apidoc match_type
+=for apidoc match_type
 
 Match a coretype from arg or op (atyp) to
 the declared stash of a variable (dtyp).
@@ -13156,6 +13151,8 @@ int S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname,
 {
     core_types_t dtyp = stash_to_coretype(stash);
     int retval;
+    PERL_ARGS_ASSERT_MATCH_TYPE;
+
     if (LIKELY(dtyp == type_none /* no declared type */
                /* or same coretype */
                || (dtyp == atyp && dtyp != type_Object)

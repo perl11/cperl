@@ -1527,17 +1527,9 @@
 #  if !defined(WIN32)
 #define do_exec3(a,b,c)		Perl_do_exec3(aTHX_ a,b,c)
 #  endif
-#  if 0
+#  if 0 /* yet unused */
 #    if defined(PERL_IN_OP_C)
 #define ret_check_type(a,b,c)	S_ret_check_type(aTHX_ a,b,c)
-#    endif
-#  endif
-#  if 0 /* XXX cyclic dep on core_types_t in opcodes.h */
-#    if defined(PERL_IN_OP_C)
-#define core_type_name(a)	S_core_type_name(aTHX_ a)
-#define match_type1		S_match_type1
-#define match_type2		S_match_type2
-#define stash_to_coretype(a)	S_stash_to_coretype(aTHX_ a)
 #    endif
 #  endif
 #  if defined(DEBUGGING)
@@ -1710,6 +1702,7 @@
 #define apply_attrs_my(a,b,c,d)	S_apply_attrs_my(aTHX_ a,b,c,d)
 #define arg_check_type(a,b,c)	S_arg_check_type(aTHX_ a,b,c)
 #define assignment_type(a)	S_assignment_type(aTHX_ a)
+#define bad_type_core(a,b,c,d,e,f,g)	S_bad_type_core(aTHX_ a,b,c,d,e,f,g)
 #define bad_type_gv(a,b,c,d)	S_bad_type_gv(aTHX_ a,b,c,d)
 #define bad_type_pv(a,b,c,d)	S_bad_type_pv(aTHX_ a,b,c,d)
 #define can_class_typecheck(a)	S_can_class_typecheck(aTHX_ a)
@@ -1720,6 +1713,7 @@
 #define const_av_xsub(a)	S_const_av_xsub(aTHX_ a)
 #define const_sv_xsub(a)	S_const_sv_xsub(aTHX_ a)
 #define cop_free(a)		S_cop_free(aTHX_ a)
+#define core_type_name(a)	S_core_type_name(aTHX_ a)
 #define dup_attrlist(a)		S_dup_attrlist(aTHX_ a)
 #define finalize_op(a)		S_finalize_op(aTHX_ a)
 #define find_and_forget_pmops(a)	S_find_and_forget_pmops(aTHX_ a)
@@ -1733,6 +1727,9 @@
 #define is_types_strict()	S_is_types_strict(aTHX)
 #define listkids(a)		S_listkids(aTHX_ a)
 #define looks_like_bool(a)	S_looks_like_bool(aTHX_ a)
+#define match_type(a,b,c,d,e)	S_match_type(aTHX_ a,b,c,d,e)
+#define match_type1		S_match_type1
+#define match_type2		S_match_type2
 #define match_user_type(a,b,c)	S_match_user_type(aTHX_ a,b,c)
 #define maybe_multideref(a,b,c,d)	S_maybe_multideref(aTHX_ a,b,c,d)
 #define maybe_targlex(a)	S_maybe_targlex(aTHX_ a)
@@ -1752,6 +1749,8 @@
 #define op_next_nn		S_op_next_nn
 #define op_sibling_newUNOP(a,b,c,d)	S_op_sibling_newUNOP(aTHX_ a,b,c,d)
 #define op_std_init(a)		S_op_std_init(aTHX_ a)
+#define op_typed(a)		S_op_typed(aTHX_ a)
+#define op_typed_user(a,b,c)	S_op_typed_user(aTHX_ a,b,c)
 #define peep_leaveloop(a,b,c)	S_peep_leaveloop(aTHX_ a,b,c)
 #define pmtrans(a,b,c)		S_pmtrans(aTHX_ a,b,c)
 #define postprocess_optree(a,b,c)	S_postprocess_optree(aTHX_ a,b,c)
@@ -1768,6 +1767,7 @@
 #define search_const(a)		S_search_const(aTHX_ a)
 #define set_boolean(a)		S_set_boolean(aTHX_ a)
 #define simplify_sort(a)	S_simplify_sort(aTHX_ a)
+#define stash_to_coretype(a)	S_stash_to_coretype(aTHX_ a)
 #define too_few_arguments_pv(a,b,c)	S_too_few_arguments_pv(aTHX_ a,b,c)
 #define too_many_arguments_pv(a,b,c)	S_too_many_arguments_pv(aTHX_ a,b,c)
 #define typename(a)		S_typename(aTHX_ a)

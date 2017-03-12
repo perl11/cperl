@@ -1092,6 +1092,9 @@ print $oc <<"END";
 	\"freed op\",	/* $i: freed */
 };
 #endif
+END
+
+print $on <<"END";
 
 /* core types */
 
@@ -1110,12 +1113,12 @@ $coretype{Void} = 0xff;
 
 for (@coretypes) {
     if ($_ ne "") {
-        printf $oc (qq(    type_%s = %d), $_, $coretype{$_});
-        printf $oc ($_ ne "Void" ? ",\n" : "\n");
+        printf $on (qq(    type_%s = %d), $_, $coretype{$_});
+        printf $on ($_ ne "Void" ? ",\n" : "\n");
     }
 }
 
-print $oc <<"END";
+print $on <<"END";
 } core_types_t;
 
 #ifdef PERL_IN_OP_C
@@ -1124,12 +1127,17 @@ core_types_n[] = {
 END
 
 for (@coretypes) {
-    printf $oc qq(    "%s",\n), $_;
+    printf $on qq(    "%s",\n), $_;
 }
-print $oc <<"END";
+print $on <<'END';
 };
+#endif /* PERL_IN_OP_C */
 
-#ifdef DEBUGGING
+END
+
+print $oc <<"END";
+
+#if defined(PERL_IN_OP_C) && defined(DEBUGGING)
 static const char* const
 PL_op_type_str[] = {
 END
@@ -1142,8 +1150,7 @@ for (@ops) {
 print $oc <<"END";
 	\"\",	/* $i: freed */
 };
-#endif /* !DEBUGGING */
-#endif /* !PERL_IN_OP_C */
+#endif /* DEBUGGING PERL_IN_OP_C */
 
 END
 

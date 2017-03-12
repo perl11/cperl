@@ -983,59 +983,7 @@ EXTCONST char* const PL_op_desc[] = {
 };
 #endif
 
-/* core types */
-
-typedef enum {
-    type_none = 0,
-    type_int = 1,
-    type_uint = 2,
-    type_num = 3,
-    type_str = 4,
-    type_Int = 5,
-    type_UInt = 6,
-    type_Num = 7,
-    type_Str = 8,
-    type_Bool = 9,
-    type_Numeric = 10,
-    type_Scalar = 11,
-    type_Ref = 12,
-    type_Sub = 13,
-    type_Regexp = 14,
-    type_Object = 15,
-    type_Array = 16,
-    type_Hash = 17,
-    type_List = 18,
-    type_Any = 19,
-    type_Void = 255
-} core_types_t;
-
-#ifdef PERL_IN_OP_C
-static const char* const
-core_types_n[] = {
-    "",
-    "int",
-    "uint",
-    "num",
-    "str",
-    "Int",
-    "UInt",
-    "Num",
-    "Str",
-    "Bool",
-    "Numeric",
-    "Scalar",
-    "Ref",
-    "Sub",
-    "Regexp",
-    "Object",
-    "Array",
-    "Hash",
-    "List",
-    "Any",
-    "Void",
-};
-
-#ifdef DEBUGGING
+#if defined(PERL_IN_OP_C) && defined(DEBUGGING)
 static const char* const
 PL_op_type_str[] = {
 	"():Void",	/* 0: null */
@@ -1449,8 +1397,7 @@ PL_op_type_str[] = {
 	"",	/* 408: anonconst */
 	"",	/* 409: freed */
 };
-#endif /* !DEBUGGING */
-#endif /* !PERL_IN_OP_C */
+#endif /* DEBUGGING PERL_IN_OP_C */
 
 #define CORETYPE_OR_UNDEF	0x60
 #define CORETYPE_LIST_AGGR	0xa0

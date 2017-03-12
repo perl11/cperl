@@ -7243,7 +7243,7 @@ PERL_CALLCONV bool	Perl_do_exec3(pTHX_ const char *incmd, int fd, int do_report)
 	assert(incmd)
 
 #endif
-#if 0
+#if 0 /* yet unused */
 #  if defined(PERL_IN_OP_C)
 STATIC OP*	S_ret_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
 			__attribute__nonnull__(pTHX_2)
@@ -7251,22 +7251,6 @@ STATIC OP*	S_ret_check_type(pTHX_ const PADNAME* pn, OP* o, const char *opdesc)
 #define PERL_ARGS_ASSERT_RET_CHECK_TYPE	\
 	assert(o); assert(opdesc)
 
-#  endif
-#endif
-#if 0 /* XXX cyclic dep on core_types_t in opcodes.h */
-#  if defined(PERL_IN_OP_C)
-#ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE const char *	S_core_type_name(pTHX_ core_types_t t);
-#endif
-#ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE int	S_match_type1(const U32 sig, core_types_t arg1);
-#endif
-#ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE int	S_match_type2(const U32 sig, core_types_t arg1, core_types_t arg2);
-#endif
-#ifndef PERL_NO_INLINE_FUNCTIONS
-PERL_STATIC_INLINE core_types_t	S_stash_to_coretype(pTHX_ const HV* stash);
-#endif
 #  endif
 #endif
 #if defined(DEBUGGING)
@@ -8279,6 +8263,14 @@ STATIC OP*	S_arg_check_type(pTHX_ const PADNAME* pn, OP* o, GV *cvname)
 STATIC I32	S_assignment_type(pTHX_ const OP *o)
 			__attribute__warn_unused_result__;
 
+STATIC void	S_bad_type_core(pTHX_ const char *argname, GV *gv, core_types_t got, const char* gotname, bool gotu8, const char *wanted, bool wu8)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2)
+			__attribute__nonnull__(pTHX_4)
+			__attribute__nonnull__(pTHX_6);
+#define PERL_ARGS_ASSERT_BAD_TYPE_CORE	\
+	assert(argname); assert(gv); assert(gotname); assert(wanted)
+
 STATIC void	S_bad_type_gv(pTHX_ I32 n, GV *gv, const OP *kid, const char *t)
 			__attribute__nonnull__(pTHX_2)
 			__attribute__nonnull__(pTHX_3)
@@ -8335,6 +8327,9 @@ STATIC void	S_cop_free(pTHX_ COP *cop)
 #define PERL_ARGS_ASSERT_COP_FREE	\
 	assert(cop)
 
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE const char *	S_core_type_name(pTHX_ core_types_t t);
+#endif
 STATIC OP *	S_dup_attrlist(pTHX_ OP *o)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_DUP_ATTRLIST	\
@@ -8387,6 +8382,21 @@ STATIC bool	S_looks_like_bool(pTHX_ const OP* o)
 #define PERL_ARGS_ASSERT_LOOKS_LIKE_BOOL	\
 	assert(o)
 
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE int	S_match_type(pTHX_ const HV* stash, core_types_t atyp, const char* aname, bool au8, int *castable)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_5);
+#define PERL_ARGS_ASSERT_MATCH_TYPE	\
+	assert(stash); assert(aname); assert(castable)
+#endif
+
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE int	S_match_type1(const U32 sig, core_types_t arg1);
+#endif
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE int	S_match_type2(const U32 sig, core_types_t arg1, core_types_t arg2);
+#endif
 STATIC int	S_match_user_type(pTHX_ const HV* const dstash, const char* aname, bool au8)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2);
@@ -8481,6 +8491,18 @@ PERL_STATIC_INLINE OP*	S_op_std_init(pTHX_ OP *o)
 	assert(o)
 #endif
 
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE core_types_t	S_op_typed(pTHX_ OP* o)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_TYPED	\
+	assert(o)
+#endif
+
+STATIC core_types_t	S_op_typed_user(pTHX_ OP* o, char** usertype, int* u8)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_OP_TYPED_USER	\
+	assert(o)
+
 STATIC bool	S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)
@@ -8553,6 +8575,9 @@ STATIC void	S_simplify_sort(pTHX_ OP *o)
 #define PERL_ARGS_ASSERT_SIMPLIFY_SORT	\
 	assert(o)
 
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE core_types_t	S_stash_to_coretype(pTHX_ const HV* stash);
+#endif
 STATIC OP*	S_too_few_arguments_pv(pTHX_ OP *o, const char* name, U32 flags)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1)

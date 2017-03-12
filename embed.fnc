@@ -1055,24 +1055,22 @@ s	|int	|match_user_type|NN const HV* const dstash \
 				|NN const char* aname|bool au8
 i	|bool	|is_types_strict
 s	|OP*	|arg_check_type |NULLOK const PADNAME* pn|NN OP* o|NULLOK GV *cvname
-#if 0
+#if 0 /* yet unused */
 s	|OP*	|ret_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
 #endif
 s	|OP*	|_op_check_type |NULLOK const PADNAME* pn|NN OP* o|NN const char *opdesc
 s	|void	|op_check_type  |NN OP* o|NN OP* left|NN OP* right
-#if 0 /* XXX cyclic dep on core_types_t in opcode.h */
-:s	|void	|bad_type_core	|NN const char *argname|NN GV *gv \
-:                	|core_types_t got|NN const char* gotname|bool gotu8 \
-:                	|NN const char *wanted|bool wu8
-:i	|int	|match_type	|NN const HV* stash|core_types_t atyp|NN const char* aname \
-:				|bool au8|NN int *castable
-:i|core_types_t	|op_typed	|NN OP* o
-:s|core_types_t	|op_typed_user	|NN OP* o|NULLOK char** usertype|NULLOK int* u8
+s	|void	|bad_type_core	|NN const char *argname|NN GV *gv \
+                	|core_types_t got|NN const char* gotname|bool gotu8 \
+                	|NN const char *wanted|bool wu8
+i	|int	|match_type	|NN const HV* stash|core_types_t atyp|NN const char* aname \
+				|bool au8|NN int *castable
+i|core_types_t	|op_typed	|NN OP* o
+s|core_types_t	|op_typed_user	|NN OP* o|NULLOK char** usertype|NULLOK int* u8
 i|const char *  |core_type_name	|core_types_t t
 i|core_types_t	|stash_to_coretype|NULLOK const HV* stash
 in	|int	|match_type1	|const U32 sig|core_types_t arg1
 in	|int	|match_type2	|const U32 sig|core_types_t arg1|core_types_t arg2
-#endif
 #endif
 : Used in op.c and pp_sys.c
 p	|int	|mode_from_discipline	|NULLOK const char* s|STRLEN len
