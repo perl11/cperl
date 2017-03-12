@@ -52,7 +52,7 @@ Use op_class API
 
 Update deprecation message
 
-=item Cpanel-JSON-XS  3.0229
+=item Cpanel-JSON-XS  3.0230
 
 fix decode_prefix offset when the string was re-allocated.
 rather return the relative offset not the pointer to the old start.
