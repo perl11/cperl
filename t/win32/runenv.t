@@ -208,9 +208,10 @@ is ($err, '', 'No errors when determining @INC');
 my @default_inc = split /\n/, $out;
 
 if ($Config{usecperl} or $Config{default_inc_excludes_dot}) {
-  isnt ($default_inc[-1], '.', '. not last in @INC');
-} else {
-  is ($default_inc[-1], '.', '. is last in @INC');
+    ok !(grep { $_ eq '.' } @default_inc), '. is not in @INC';
+}
+else {
+    is ($default_inc[-1], '.', '. is last in @INC');
 }
 
 my $sep = $Config{path_sep};
