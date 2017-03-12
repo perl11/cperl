@@ -1630,13 +1630,13 @@ test_prep_pre: preplibrary utilities $(nonxs_ext)
 case "$targethost" in
 '') $spitshell >>$Makefile <<'!NO!SUBS!'
 test_prep test-prep: test_prep_pre $(MINIPERL_EXE) $(unidatafiles) $(PERL_EXE) \
-	$(dynamic_ext) $(TEST_PERL_DLL) runtests $(generated_pods)
+	$(dynamic_ext) extras.make $(TEST_PERL_DLL) runtests $(generated_pods)
 	cd t && (rm -f $(PERL_EXE); $(LNS) ../$(PERL_EXE) $(PERL_EXE))
 !NO!SUBS!
     ;;
 *) $spitshell >>$Makefile <<!GROK!THIS!
 test_prep test-prep: test_prep_pre \$(MINIPERL_EXE) \$(unidatafiles) \$(PERL_EXE) \
-	\$(dynamic_ext) \$(TEST_PERL_DLL) runtests \
+	\$(dynamic_ext) extras.make \$(TEST_PERL_DLL) runtests \
 	\$(generated_pods)
 	$to libperl.*
 	$to t/*
