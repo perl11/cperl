@@ -8885,13 +8885,13 @@ EOM
 
         : error ld -f may not be used without -shared
         ld_ok=1
-        if $test X$ld = Xld; then
+        if $test X"$ld" = X"ld"; then
             case "$ldflags" in
                 *-shared*) ld_ok=1 ;;
                 *) ld_ok= ;;
             esac
         fi
-        if $test X$ld_ok = X1; then
+        if $test X"$ld_ok" = X"1"; then
 	  case "$ldflags" in
 	    *-fsanitize=cfi*)
 		case "$dflt" in
