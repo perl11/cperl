@@ -1357,6 +1357,7 @@ S_require_tie_mod(pTHX_ GV *gv, const char varname, const char * name,
         GV **gvp;
         dSP;
 
+        PUSHSTACKi(PERLSI_MAGIC);
         ENTER;
 
 #define HV_FETCH_TIE_FUNC (GV **)hv_fetchs_ifexists(stash, "_tie_it", 0)
@@ -1386,6 +1387,7 @@ S_require_tie_mod(pTHX_ GV *gv, const char varname, const char * name,
         PUTBACK;
         call_sv((SV *)*gvp, G_VOID|G_DISCARD);
         LEAVE;
+        POPSTACK;
     }
 }
 
