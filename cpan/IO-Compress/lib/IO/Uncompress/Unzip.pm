@@ -6,22 +6,22 @@ require 5.006 ;
 
 use strict ;
 use warnings;
-#use bytes;
+use bytes;
 
 use IO::File;
-use IO::Uncompress::RawInflate  2.070 ;
-use IO::Compress::Base::Common  2.070 qw(:Status );
-use IO::Uncompress::Adapter::Inflate  2.070 ;
-use IO::Uncompress::Adapter::Identity 2.070 ;
-use IO::Compress::Zlib::Extra 2.070 ;
-use IO::Compress::Zip::Constants 2.070 ;
+use IO::Uncompress::RawInflate  2.074 ;
+use IO::Compress::Base::Common  2.074 qw(:Status );
+use IO::Uncompress::Adapter::Inflate  2.074 ;
+use IO::Uncompress::Adapter::Identity 2.074 ;
+use IO::Compress::Zlib::Extra 2.074 ;
+use IO::Compress::Zip::Constants 2.074 ;
 
-use Compress::Raw::Zlib  2.070 () ;
+use Compress::Raw::Zlib  2.074 () ;
 
 BEGIN
 {
     eval{ require IO::Uncompress::Adapter::Bunzip2 ;
-           import  IO::Uncompress::Adapter::Bunzip2 } ;
+          import  IO::Uncompress::Adapter::Bunzip2 } ;
     eval{ require IO::Uncompress::Adapter::UnLzma ;
           import  IO::Uncompress::Adapter::UnLzma } ;
 }
@@ -31,10 +31,10 @@ require Exporter ;
 
 our ($VERSION, @ISA, @EXPORT_OK, %EXPORT_TAGS, $UnzipError, %headerLookup);
 
-$VERSION = '2.070';
+$VERSION = '2.074';
 $UnzipError = '';
 
-@ISA    = qw(Exporter IO::Uncompress::RawInflate);
+@ISA    = qw(IO::Uncompress::RawInflate Exporter);
 @EXPORT_OK = qw( $UnzipError unzip );
 %EXPORT_TAGS = %IO::Uncompress::RawInflate::EXPORT_TAGS ;
 push @{ $EXPORT_TAGS{all} }, @EXPORT_OK ;
@@ -1861,7 +1861,7 @@ See the Changes file.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2005-2016 Paul Marquess. All rights reserved.
+Copyright (c) 2005-2017 Paul Marquess. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

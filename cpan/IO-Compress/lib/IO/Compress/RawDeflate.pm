@@ -6,18 +6,18 @@ use strict ;
 use warnings;
 use bytes;
 
-use IO::Compress::Base 2.070 ;
-use IO::Compress::Base::Common  2.070 qw(:Status );
-use IO::Compress::Adapter::Deflate 2.070 ;
+use IO::Compress::Base 2.074 ;
+use IO::Compress::Base::Common  2.074 qw(:Status );
+use IO::Compress::Adapter::Deflate 2.074 ;
 
 require Exporter ;
 
 our ($VERSION, @ISA, @EXPORT_OK, %DEFLATE_CONSTANTS, %EXPORT_TAGS, $RawDeflateError);
 
-$VERSION = '2.070';
+$VERSION = '2.074';
 $RawDeflateError = '';
 
-@ISA = qw(Exporter IO::Compress::Base);
+@ISA = qw(IO::Compress::Base Exporter);
 @EXPORT_OK = qw( $RawDeflateError rawdeflate ) ;
 push @EXPORT_OK, @IO::Compress::Adapter::Deflate::EXPORT_OK ;
 
@@ -116,8 +116,8 @@ sub getExtraParams
     return getZlibParams();
 }
 
-use IO::Compress::Base::Common  2.070 qw(:Parse);
-use Compress::Raw::Zlib  2.070 qw(Z_DEFLATED Z_DEFAULT_COMPRESSION Z_DEFAULT_STRATEGY);
+use IO::Compress::Base::Common  2.074 qw(:Parse);
+use Compress::Raw::Zlib  2.074 qw(Z_DEFLATED Z_DEFAULT_COMPRESSION Z_DEFAULT_STRATEGY);
 our %PARAMS = (
             #'method'   => [IO::Compress::Base::Common::Parse_unsigned,  Z_DEFLATED],
             'level'     => [IO::Compress::Base::Common::Parse_signed,    Z_DEFAULT_COMPRESSION],
@@ -988,7 +988,7 @@ See the Changes file.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2005-2016 Paul Marquess. All rights reserved.
+Copyright (c) 2005-2017 Paul Marquess. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

@@ -91,6 +91,11 @@ Deprecated File::Glob::glob()
 
 Changed pod NAME to follow convention.
 
+=item IO-Compress  2.074
+
+ISA fixes for c3
+L<[RT #120239|https://rt.perl.org/Public/Bug/Display.html?id=120239>
+
 =item Net-Ping 2.58_01
 
 Todo 010_pingecho.t on EBCDIC

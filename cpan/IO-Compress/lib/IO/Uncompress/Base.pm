@@ -3,18 +3,18 @@ package IO::Uncompress::Base ;
 
 use strict ;
 use warnings;
-#use bytes;
+use bytes;
 
 our (@ISA, $VERSION, @EXPORT_OK, %EXPORT_TAGS);
-@ISA    = qw(Exporter IO::File);
+@ISA    = qw(IO::File Exporter);
 
 
-$VERSION = '2.070';
+$VERSION = '2.074';
 
 use constant G_EOF => 0 ;
 use constant G_ERR => -1 ;
 
-use IO::Compress::Base::Common 2.070 ;
+use IO::Compress::Base::Common 2.074 ;
 
 use IO::File ;
 use Symbol;
@@ -1549,7 +1549,7 @@ See the Changes file.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2005-2016 Paul Marquess. All rights reserved.
+Copyright (c) 2005-2017 Paul Marquess. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

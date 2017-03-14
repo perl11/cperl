@@ -63,6 +63,8 @@ ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 32738a67af33c433
 File::Path cpan/File-Path/lib/File/Path.pm 623799e76e11a756ca5e18749d8bc1bdc3800ecd
 File::Path cpan/File-Path/t/Path_win32.t 94b9276557ce7f80b91f6fd9bfa7a0cd9bf9683e
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
+IO::Compress::Base cpan/IO-Compress/t/compress/encode.pl 776c114af5146d3c328c247c9550e021bb8bac62
+IO::Compress::Base cpan/IO-Compress/t/cz-14gzopen.t dee09dbad5cb1cad6027fd61d14552a192b68060
 IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm fb1175286262913bec59482b84a3587ec48339ea
 JSON::PP cpan/JSON-PP/lib/JSON/PP.pm da7db2b7b06467019466d3d82f29bfdb6c5b0b49
 Math::BigInt cpan/Math-BigInt/t/bare_mbf.t 6098d20f08ebff76c8099587732ca435e69b81e3
@@ -83,7 +85,7 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 3440f761c862ded333771daf6ce7e338385fe9a8
 Math::BigInt cpan/Math-BigInt/t/with_sub.t 2bcac73a0a31994b0e3fa24e3cd42594f5fc2889
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm d73cd404d84795fca04a4637c3a7c9be273a4840
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 185bdeb06abec8bdf117246fa7982d0835adf8bf
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 6e65148087aa1d4c440b40b7db75841d1a81b2b5
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c

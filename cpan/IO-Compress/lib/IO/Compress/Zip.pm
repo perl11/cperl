@@ -4,30 +4,30 @@ use strict ;
 use warnings;
 use bytes;
 
-use IO::Compress::Base::Common  2.070 qw(:Status );
-use IO::Compress::RawDeflate 2.070 ();
-use IO::Compress::Adapter::Deflate 2.070 ;
-use IO::Compress::Adapter::Identity 2.070 ;
-use IO::Compress::Zlib::Extra 2.070 ;
-use IO::Compress::Zip::Constants 2.070 ;
+use IO::Compress::Base::Common  2.074 qw(:Status );
+use IO::Compress::RawDeflate 2.074 ();
+use IO::Compress::Adapter::Deflate 2.074 ;
+use IO::Compress::Adapter::Identity 2.074 ;
+use IO::Compress::Zlib::Extra 2.074 ;
+use IO::Compress::Zip::Constants 2.074 ;
 
 use File::Spec();
 use Config;
 
-use Compress::Raw::Zlib  2.070 (); 
+use Compress::Raw::Zlib  2.074 (); 
 
 BEGIN
 {
     eval { require IO::Compress::Adapter::Bzip2 ; 
-           import  IO::Compress::Adapter::Bzip2 2.070 ; 
+           import  IO::Compress::Adapter::Bzip2 2.074 ; 
            require IO::Compress::Bzip2 ; 
-           import  IO::Compress::Bzip2 2.070 ; 
+           import  IO::Compress::Bzip2 2.074 ; 
          } ;
          
     eval { require IO::Compress::Adapter::Lzma ; 
-           import  IO::Compress::Adapter::Lzma 2.070 ; 
+           import  IO::Compress::Adapter::Lzma 2.074 ; 
            require IO::Compress::Lzma ; 
-           import  IO::Compress::Lzma 2.070 ; 
+           import  IO::Compress::Lzma 2.074 ; 
          } ;
 }
 
@@ -36,10 +36,10 @@ require Exporter ;
 
 our ($VERSION, @ISA, @EXPORT_OK, %EXPORT_TAGS, %DEFLATE_CONSTANTS, $ZipError);
 
-$VERSION = '2.070';
+$VERSION = '2.074';
 $ZipError = '';
 
-@ISA = qw(Exporter IO::Compress::RawDeflate);
+@ISA = qw(IO::Compress::RawDeflate Exporter);
 @EXPORT_OK = qw( $ZipError zip ) ;
 %EXPORT_TAGS = %IO::Compress::RawDeflate::DEFLATE_CONSTANTS ;
 
@@ -1958,7 +1958,7 @@ See the Changes file.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2005-2016 Paul Marquess. All rights reserved.
+Copyright (c) 2005-2017 Paul Marquess. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

@@ -5,19 +5,19 @@ use warnings;
 use bytes;
 require Exporter ;
 
-use IO::Compress::Base 2.070 ;
+use IO::Compress::Base 2.074 ;
 
-use IO::Compress::Base::Common  2.070 qw();
-use IO::Compress::Adapter::Bzip2 2.070 ;
+use IO::Compress::Base::Common  2.074 qw();
+use IO::Compress::Adapter::Bzip2 2.074 ;
 
 
 
 our ($VERSION, @ISA, @EXPORT_OK, %EXPORT_TAGS, $Bzip2Error);
 
-$VERSION = '2.070';
+$VERSION = '2.074';
 $Bzip2Error = '';
 
-@ISA    = qw(Exporter IO::Compress::Base);
+@ISA    = qw(IO::Compress::Base Exporter);
 @EXPORT_OK = qw( $Bzip2Error bzip2 ) ;
 %EXPORT_TAGS = %IO::Compress::Base::EXPORT_TAGS ;
 push @{ $EXPORT_TAGS{all} }, @EXPORT_OK ;
@@ -51,7 +51,7 @@ sub getExtraParams
 {
     my $self = shift ;
 
-    use IO::Compress::Base::Common  2.070 qw(:Parse);
+    use IO::Compress::Base::Common  2.074 qw(:Parse);
     
     return (  
             'blocksize100k' => [IO::Compress::Base::Common::Parse_unsigned,  1],
@@ -798,7 +798,7 @@ See the Changes file.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2005-2016 Paul Marquess. All rights reserved.
+Copyright (c) 2005-2017 Paul Marquess. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

@@ -3,21 +3,21 @@ package IO::Uncompress::RawInflate ;
 
 use strict ;
 use warnings;
-#use bytes;
+use bytes;
 
-use Compress::Raw::Zlib  2.070 ;
-use IO::Compress::Base::Common  2.070 qw(:Status );
+use Compress::Raw::Zlib  2.074 ;
+use IO::Compress::Base::Common  2.074 qw(:Status );
 
-use IO::Uncompress::Base  2.070 ;
-use IO::Uncompress::Adapter::Inflate  2.070 ;
+use IO::Uncompress::Base  2.074 ;
+use IO::Uncompress::Adapter::Inflate  2.074 ;
 
 require Exporter ;
 our ($VERSION, @ISA, @EXPORT_OK, %EXPORT_TAGS, %DEFLATE_CONSTANTS, $RawInflateError);
 
-$VERSION = '2.070';
+$VERSION = '2.074';
 $RawInflateError = '';
 
-@ISA    = qw( Exporter IO::Uncompress::Base );
+@ISA    = qw(IO::Uncompress::Base Exporter);
 @EXPORT_OK = qw( $RawInflateError rawinflate ) ;
 %DEFLATE_CONSTANTS = ();
 %EXPORT_TAGS = %IO::Uncompress::Base::EXPORT_TAGS ;
@@ -1118,7 +1118,7 @@ See the Changes file.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2005-2016 Paul Marquess. All rights reserved.
+Copyright (c) 2005-2017 Paul Marquess. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
