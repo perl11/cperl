@@ -698,12 +698,12 @@ flushParams(di_stream* s)
 
     Bytef* output = s->deflateParams_out_buffer ;
     uLong total_output = s->deflateParams_out_length;
-
     uLong have = 0;
 
     strm->next_in = NULL;
     strm->avail_in = 0;
     
+
     do 
     {
         if (output)
@@ -1133,12 +1133,14 @@ deflate (s, buf, output)
         }
 
         RETVAL = deflate(&(s->stream), Z_NO_FLUSH);
-        /* if (RETVAL != Z_STREAM_ERROR) {
+        /*
+        if (RETVAL != Z_STREAM_ERROR) {
             int done = increment -  s->stream.avail_out ;
             printf("std DEFLATEr returned %d '%s'  avail in %d, out %d wrote %d\n", RETVAL,
             GetErrorString(RETVAL), s->stream.avail_in,
-s->stream.avail_out, done);
-        } */
+s->stream.avail_out, done); 
+        }
+        */
     
         if (trace) {
             printf("DEFLATE returned %d %s, avail in %d, out %d\n", RETVAL,
@@ -1260,12 +1262,14 @@ flush(s, output, f=Z_FINISH)
         }
 
         RETVAL = deflate(&(s->stream), f);
-        /* if (RETVAL != Z_STREAM_ERROR) {
+        /*
+        if (RETVAL != Z_STREAM_ERROR) {
             int done = availableout -  s->stream.avail_out ;
             printf("flush DEFLATEr returned %d '%s'  avail in %d, out %d wrote %d\n", RETVAL,
             GetErrorString(RETVAL), s->stream.avail_in,
 s->stream.avail_out, done);
-        } */
+        }
+        */
     
         if (trace) {
             printf("flush DEFLATE returned %d '%s', avail in %d, out %d\n", RETVAL,

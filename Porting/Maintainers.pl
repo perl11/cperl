@@ -270,7 +270,7 @@ use File::Glob qw(:case);
     },
 
     'Compress::Raw::Zlib' => {
-        'DISTRIBUTION' => 'PMQS/Compress-Raw-Zlib-2.072.tar.gz',
+        'DISTRIBUTION' => 'PMQS/Compress-Raw-Zlib-2.074.tar.gz',
         'FILES'    => q[cpan/Compress-Raw-Zlib],
         'EXCLUDED' => [
             qr{^examples/},
@@ -279,7 +279,8 @@ use File::Glob qw(:case);
                 t/99pod.t
                 ),
         ],
-        # fixed so that it can compile
+        # support make -s
+        'CUSTOMIZED'   => [ qw( Makefile.PL ) ],
     },
 
     'Config' => {

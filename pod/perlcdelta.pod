@@ -52,6 +52,11 @@ Use op_class API
 
 Update deprecation message
 
+=item Compress-Raw-Zlib  2.074
+
+Comment out unused variables & remove C++-ism.
+L<RT #120272|https://rt.cpan.org/Ticket/Display.html?id=120272>
+
 =item Cpanel-JSON-XS  3.0230
 
 fix decode_prefix offset when the string was re-allocated.

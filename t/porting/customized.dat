@@ -20,6 +20,7 @@ CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.
 CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f89aec2164476eb98e93f05a5e
 CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf0eb5e96a544eba22bbdef9365
 CPAN::Meta::YAML cpan/CPAN-Meta-YAML/t/lib/TestUtils.pm 89535dc9f122a77a8320df27e5929aa574196753
+Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Makefile.PL bc48a51143c368201d2fb8e37890bcf8858da306
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t ec21436d9dde53ca06b46dd07476a109b8047464
 Config::Perl::V cpan/Config-Perl-V/V.pm 74b5c9278c618b0dc2534064f804228588cda18b
 DB_File cpan/DB_File/Makefile.PL 4e169e9717f2cc7ce0757897e6bf7ee043a785b1
@@ -82,7 +83,7 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 3440f761c862ded333771daf6ce7e338385fe9a8
 Math::BigInt cpan/Math-BigInt/t/with_sub.t 2bcac73a0a31994b0e3fa24e3cd42594f5fc2889
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 8c51cc0573560a64abed02b27e6b7b2e0ad0ce60
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 2dffd2b787e9104f69603d9b850e08935af5cd1c
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 6e65148087aa1d4c440b40b7db75841d1a81b2b5
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c

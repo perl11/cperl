@@ -14612,6 +14612,7 @@ our %delta = (
             'Module::CoreList'      => '5.20170228c',
             'Module::CoreList::Utils'=> '5.20170228c',
             'B'                     => '1.68_06',
+            'Compress::Raw::Zlib'   => '2.074',
             'Config'                => '6.23',
             'Cpanel::JSON::XS'      => '3.0230',
             'Cwd'                   => '4.67c',
