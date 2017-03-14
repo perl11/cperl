@@ -12,7 +12,7 @@ and improvements, but without breaking compatibility. CPAN works. It
 is a "perl 11", 5 + 6 = 11.
 
 The name cperl stands for a perl with classes, types, compiler
-support, contination of perl5 or just a company-friendly perl, but
+support, continuation of perl5 or just a company-friendly perl, but
 currently it's only a better 5.22 based variant without classes.
 
 Currently it is about 15%x faster than perl5.22 overall, more than 2x
