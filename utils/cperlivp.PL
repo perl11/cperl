@@ -312,6 +312,8 @@ for (@modules) {
     @missing = grep { ! /\.bs$/ } @missing;
     # man files are often compressed
     @missing = grep { ! ( -s "$_.gz" || -s "$_.bz2" ) } @missing;
+    # or ignored
+    @missing = grep { ! m|^none/.*\.[13](pm)?| } @missing;
 
     if ($#missing >= 0) {
         print "# file",+($#missing == 0) ? '' : 's'," missing from installation:\n";
@@ -333,11 +335,12 @@ else {
     print "# installed_total: $installed_total\n";
     print "# installed_there: $installed_there\n";
     print "# version_check:   $version_check\n";
+    print "# \@modules:        @modules\n";
     $error_total++;
 }
 $tests_total++;
 
-# Final report (rather than feed ousrselves to Test::Harness::runtests()
+# Final report (rather than feed ourselves to Test::Harness::runtests()
 # we simply format some output on our own to keep things simple and
 # easier to "fix" - at least for now.
 
