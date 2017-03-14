@@ -1101,6 +1101,33 @@ For type inference we will need to make C<new> a special keyword,
 which is a shortcut for C<bless> with a fixed classname. C<bless> can
 use computed classnames and thus enforces dynamic types.
 
+=head2 Macros
+
+Use the existing perl6 S06 synopsis and testcases.  In the absence of
+a signature to the contrary, a macro is called as if it were a method
+on the current match object returned from the grammar rule being
+reduced; that is, all the current parse information is available by
+treating C<self> as if it were a C<$/> object.  Macros may return
+either a string to be reparsed, or a syntax tree that needs no further
+parsing.
+
+Change the syntax a little bit to harmonize with perl5:
+
+    {{{ }}} => `` for unquote splicing.
+
+Expand the ast inside the backticks at compile-time as a subprocess
+would be expanded with its result. Use C<qx()> for subprocesses instead.
+
+    macro infix:<name> () => macro 'name' :infix ()
+
+Use perl5 attributes as perl6 operator overloaders to tell macros if they have
+non-standard position: infix, prefix, postfix, circumfix, postcircumfix.
+
+Don't support the quasi attributes C<:ast/:lang/:unquote>, other than C<:COMPILING>.
+Support the C<COMPILING::> pseudo-package.
+
+See the F<feature/gh261-macros> branch.
+
 =head2 libffi in core
 
 Declare extern functions and libraries and call them. There's no need
@@ -1115,6 +1142,7 @@ integrated with gcc for java jni support.
 
 Note that this deviates from perl6 synatx with C<is native>, but perl6
 uses the C<is> traits for all function attributes, which we do not.
+And we prefer the more natural C-like syntax over the more obscure perl6 syntax.
 
 The alternative syntax would be via a C<:native> attribute, which would allow
 options, as in C<sub atoi(str $s):int :native($libc);>.
