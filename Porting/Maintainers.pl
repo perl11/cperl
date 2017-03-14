@@ -455,6 +455,8 @@ use File::Glob qw(:case);
                 fallback.xs
                 ),
         ],
+        # cperl fixes for PERL_CORE
+        'CUSTOMIZED'   => [ qw( Makefile.PL ) ],
     },
 
     'Devel::NYTProf' => {

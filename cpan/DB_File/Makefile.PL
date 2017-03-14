@@ -3,6 +3,8 @@
 use strict ;
 use ExtUtils::MakeMaker 5.16 ;
 use Config ;
+use constant SILENT
+    => (defined $ENV{MAKEFLAGS} and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) ? 1 : 0;
 
 die "DB_File needs Perl 5.8.3 or better. This is $]\n" 
     if $] < 5.008003; 
@@ -208,7 +210,7 @@ sub ParseCONFIG
     my %Parsed = %ValidOption ;
     my $CONFIG = 'config.in' ;
 
-    print "Parsing $CONFIG...\n" ;
+    print "Parsing $CONFIG...\n" unless SILENT;
 
     # DBNAME & COMPAT185 are optional, so pretend they  have 
     # been parsed.
@@ -264,7 +266,7 @@ sub ParseCONFIG
 
 EOM
 
-    print "Looks Good.\n" ;
+    print "Looks Good.\n" unless SILENT;
 
 }
 
