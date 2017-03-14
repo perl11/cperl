@@ -5,7 +5,7 @@ BEGIN {
     chdir 't' if -d 't';
 }
 
-use experimental 'macro';
+use experimental 'macros';
 print "1..14\n";
 
 macro checkpoint {
@@ -82,7 +82,7 @@ moo();    # inside macro
 }
 
 {
-    macro infix:<comet>($rhs, $lhs) {   #OK not used
+    macro comet :infix ($rhs, $lhs) {   #OK not used
         quasi { "comet!" }
     }
 
@@ -91,7 +91,7 @@ moo();    # inside macro
 }
 
 {
-    macro infix:<+>($rhs, $lhs) {
+    macro '+' :infix ($rhs, $lhs) {
         quasi { "chickpeas" }
     }
 
@@ -127,7 +127,7 @@ moo();    # inside macro
         quasi { $param }
     }
 
-    ok blitzen("onwards") ~~ AST,
+    ok blitzen("onwards") ~~ AST, # XXX perl6 smartmatch
         "lexical lookup from quasi to macro params works";
 }
 
@@ -141,8 +141,7 @@ moo();    # inside macro
     is funny_nil(), Nil, 'Nil from an empty block turns into no code';
 }
 
-# RT #115500
-{
+{   # RT #115500
     macro rt115500v1() {
         my $q1 = quasi { 6 };
         my $q2 = quasi { 6 * 10 };
@@ -171,18 +170,18 @@ moo();    # inside macro
     is $unquote_splicings, 1, "spliced code runs at parse time";
 }
 
-#{ # building an AST from smaller ones
-#    macro bohr() {
-#        my $q1 = quasi { 6 };
-#        my $q2 = quasi { 6 * 10 };
-#        my $q3 = quasi { 100 + 200 + 300 };
-#        quasi { `$q1` + `$q2` + `$q3` }
-#    }
-#
-#    is bohr(), 666, "building quasis from smaller quasis works";
-#}
+{   # building an AST from smaller ones
+    macro bohr() {
+        my $q1 = quasi { 6 };
+        my $q2 = quasi { 6 * 10 };
+        my $q3 = quasi { 100 + 200 + 300 };
+        quasi { `$q1` + `$q2` + `$q3` }
+    }
 
-{ # building an AST incrementally
+    is bohr(), 666, "building quasis from smaller quasis works";
+}
+
+{   # building an AST incrementally
     macro einstein() {
         my $q = quasi { 2 };
         $q = quasi { 1 + `$q` };
@@ -224,9 +223,8 @@ moo();    # inside macro
                 line     => 1;
 }
 
-# RT #122746
-{
-    macro postfix:<!!>($o) {
+{   # RT #122746
+    macro '!!' :postfix ($o) {
         quasi {
             die "Null check failed for ", "$o" unless defined `$o`;
             `$o`;
