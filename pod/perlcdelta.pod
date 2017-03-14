@@ -52,6 +52,11 @@ Use op_class API
 
 Update deprecation message
 
+=item Compress-Raw-Bzip2  2.074
+
+Need Fix for Makefile.PL depending on . in @INC
+L<RT #120084|https://rt.cpan.org/Ticket/Display.html?id=120084>
+
 =item Compress-Raw-Zlib  2.074
 
 Comment out unused variables & remove C++-ism.
