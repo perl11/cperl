@@ -122,6 +122,10 @@ open SCRIPTS, "utils.lst" or die "Can't open utils.lst: $!";
 while (<SCRIPTS>) {
     next if /^#/;
     chomp;
+    if ($Config{d_cplusplus} and $_ =~ m|cpan/B-C/|) {
+      warn("skip $_ with c++\n");
+      next;
+    }
     if (/(\S*)\s*#\s*link\s*=\s*(\S*)/) {
 	push @scripts, $1;
 	push @tolink, [$1, $2];
