@@ -22414,12 +22414,15 @@ if $ar $arflags bar$_a bar2$_o bar1$_o >/dev/null 2>&1; then
     echo "$ar $arflags with support for deterministic timestamp stripping." >&4
 else
     if $test x$osname = xdarwin; then
+        oldar=$ar
         # D support since llvm-3.7 (trying macports llvm now)
         ar=llvm-ar-mp-3.9
         if $ar $arflags bar$_a bar2$_o bar1$_o >/dev/null 2>&1; then
             echo "$ar $arflags with support for deterministic timestamp stripping." >&4
             full_ar=`which $ar`
+            ranlib=:
         else
+            ar=$oldar
             arflags=cr
             echo "$ar cr needed. No support for deterministic timestamp stripping." >&4
         fi
