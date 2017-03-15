@@ -20,7 +20,7 @@ use warnings;
 use 5.010;
 use Config;
 
-plan tests => 2504;  # Update this when adding/deleting tests.
+plan tests => 2505;  # Update this when adding/deleting tests.
 
 run_tests() unless caller;
 
@@ -1137,9 +1137,14 @@ EOP
         fresh_perl_is(
             '"foo"=~/((?1)){8,0}/; print "ok"',
             "ok", {},  'RT #130561 - allowing impossible quantifier should not cause SEGVs');
+
+        my $w;
+        local $SIG{__WARN__} = sub { $w .= shift };
         my $s= "foo";
-        ok($s=~/(foo){1,0}|(?1)/,
+        ok(eval q($s=~/(foo){1,0}|(?1)/),
             "RT #130561 - allowing impossible quantifier should not break recursion");
+        like($w, qr/^Quantifier \{n,m\} with n > m can't match in regex;.*/,
+             "impossible quantifier warning");
     }
 
 } # End of sub run_tests
