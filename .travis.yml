@@ -60,7 +60,7 @@ script:
     ./Configure -des -Uversiononly -Dcc="$XCC" $CONFIGURE_OPTION -Dprefix=$HOME/cperl/usr
     && make -j4 -s
   - if [ ${TRAVIS_OS_NAME} = "linux" -o -z "`echo $CONFIGURE_OPTION | grep 'DDEBUGGING' 2>/dev/null`" ]; then
-      TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/cperl/usr/bin/cperlivp;
+      TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/cperl/usr/bin/cperlivp -v -p;
     fi
 
 # only the cfgs with XBITS set. at all 4 cfgs: linux64 linux32 osx64 osx32(?)
