@@ -5763,6 +5763,9 @@ PP(pp_splice)
                                 sp - mark);
     }
 
+    if (SvREADONLY(ary))
+        croak_no_modify_sv(ary);
+
     SP++;
 
     if (++MARK < SP) {
