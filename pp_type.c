@@ -26,8 +26,8 @@
 
 /* box and unbox */
 
-/* Replace the raw IV with a SvIV, needed on the stack
-   for ops not able to handle a raw value. */
+/* Replace the raw native IV with a SvIV, needed on the stack
+   for ops not able to handle a raw native value. */
 PPt(pp_box_int, "(:int):Int")
 {
     dSP;
@@ -441,10 +441,11 @@ PPt(pp_int_aelem, "(:Array(:int),:int):int")
 
     AV * const av = MUTABLE_AV(POPs);
     IV index = (IV)TOPm1s;
-    if (index >= 0 && index < AvFILLp(av))
+    SSize_t fill = AvFILLp(av);
+    if (index >= 0 && index < fill)
         svp = &AvARRAY(av)[index];
-    else if (index < 0 && index > -AvFILLp(av) ) { /* @a[20] just declares the len not the size */
-        svp = &AvARRAY(av)[AvFILL(av) + index];
+    else if (index < 0 && index > -fill ) { /* @a[20] just declares the len not the size */
+        svp = &AvARRAY(av)[fill + index];
     }
 
     if (UNLIKELY(!svp)) /* unassigned elem or fall through for > AvFILL */
