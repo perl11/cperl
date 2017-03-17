@@ -18043,10 +18043,10 @@ Perl_rpeep(pTHX_ OP *o)
 
 	case OP_SASSIGN:
 	    if (OP_GIMME_VOID(o)
-                || (  IS_TYPE(o->op_next, LINESEQ)
-                      && (  IS_TYPE(o->op_next->op_next, LEAVESUB)
-                      || (  IS_TYPE(o->op_next->op_next, RETURN)
-		      && !CvLVALUE(PL_compcv)))))
+                || (IS_TYPE(o->op_next, LINESEQ)
+                    && (IS_TYPE(o->op_next->op_next, LEAVESUB)
+                        || (IS_TYPE(o->op_next->op_next, RETURN)
+                            && !CvLVALUE(PL_compcv)))))
 	    {
 		OP *right = OpFIRST(o);
 		if (right) {
