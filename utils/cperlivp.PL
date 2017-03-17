@@ -347,13 +347,14 @@ $tests_total++;
 if ($error_total == 0 && $tests_total) {
     print "All tests successful.\n";
 } elsif ($tests_total==0){
-        die "FAILED--no tests were run for some reason.\n";
+    die "FAILED--no tests were run for some reason.\n";
 } else {
     my $rate = 0.0;
     if ($tests_total > 0) { $rate = sprintf "%.2f", 100.0 * ($pass__total / $tests_total); }
     printf " %d/%d subtests failed, %.2f%% okay.\n",
                               $error_total, $tests_total, $rate;
 }
+__END__
 
 =head1 NAME
 
