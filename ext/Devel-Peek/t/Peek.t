@@ -1526,39 +1526,38 @@ for my $test (
     local $TODO = 'This gets mangled by the current pipe implementation' if $^O eq 'VMS';
     my $e = <<'EODUMP';
 dumpindent is 4 at -e line 1.
-     
 1    leave LISTOP(0xNNN) ===> [0x0]
      TARG = 1
      FLAGS = (VOID,KIDS,PARENS,SLABBED)
      PRIVATE = (REFC)
      REFCNT = 1
-     |   
-2    +--enter OP(0xNNN) ===> 3 [nextstate 0xNNN]
-     |   FLAGS = (UNKNOWN,SLABBED,MORESIB)
-     |   
-3    +--nextstate COP(0xNNN) ===> 4 [pushmark 0xNNN]
-     |   FLAGS = (VOID,SLABBED,MORESIB)
-     |   LINE = 1
-     |   PACKAGE = "t"
-     |     |   
-5    +--enterxssub UNOP(0xNNN) ===> 1 [leave 0xNNN]
-         TARG = 1
-         FLAGS = (VOID,KIDS,STACKED,SLABBED)
-         PRIVATE = (TARG)
-         |   
-6        +--null (ex-list) UNOP(0xNNN) ===> 5 [enterxssub 0xNNN]
-             FLAGS = (UNKNOWN,KIDS,SLABBED)
-             |   
-4            +--pushmark OP(0xNNN) ===> 7 [gv 0xNNN]
-             |   FLAGS = (SCALAR,SLABBED,MORESIB)
-             |   
-8            +--null (ex-rv2cv) UNOP(0xNNN) ===> 6 [null 0xNNN]
-                 FLAGS = (SCALAR,KIDS,SLABBED)
-                 PRIVATE = (0x1)
-                 |   
-7                +--gv SVOP(0xNNN) ===> 5 [enterxssub 0xNNN]
-                     FLAGS = (SCALAR,SLABBED)
-                     GV = t::DumpProg (0xNNN)
+     |
+2    +-enter OP(0xNNN) ===> 3 [nextstate 0xNNN]
+     | FLAGS = (UNKNOWN,SLABBED,MORESIB)
+     |
+3    +-nextstate COP(0xNNN) ===> 4 [pushmark 0xNNN]
+     | FLAGS = (VOID,SLABBED,MORESIB)
+     | LINE = 1
+     | PACKAGE = "t"
+     |     |
+5    +-enterxssub UNOP(0xNNN) ===> 1 [leave 0xNNN]
+       TARG = 1
+       FLAGS = (VOID,KIDS,STACKED,SLABBED)
+       PRIVATE = (TARG)
+       |
+6      +-null (ex-list) UNOP(0xNNN) ===> 5 [enterxssub 0xNNN]
+         FLAGS = (UNKNOWN,KIDS,SLABBED)
+         |
+4        +-pushmark OP(0xNNN) ===> 7 [gv 0xNNN]
+         | FLAGS = (SCALAR,SLABBED,MORESIB)
+         |
+8        +-null (ex-rv2cv) UNOP(0xNNN) ===> 6 [null 0xNNN]
+           FLAGS = (SCALAR,KIDS,SLABBED)
+           PRIVATE = (0x1)
+           |
+7          +-gv SVOP(0xNNN) ===> 5 [enterxssub 0xNNN]
+             FLAGS = (SCALAR,SLABBED)
+             GV = t::DumpProg (0xNNN)
 EODUMP
 
     $e =~ s/GV = t::DumpProg \(0xNNN\)/PADIX = 2/ if $threads;
@@ -1566,17 +1565,17 @@ EODUMP
     my $out = t::runperl
                  switches => ['-Ilib'],
                  prog => 'package t; use Devel::Peek q-DumpProg-; DumpProg();',
-                                                                               stderr=>1;
+                 stderr=>1;
     my $origout = $out;
     $out =~ s/FLAGS = 0x[[:xdigit:]]+ \(/FLAGS = \(/g if $] > 5.022;
     $out =~ s/ *SEQ = .*\n//;
+    $out =~ s/\s+\n/\n/gm;
     $out =~ s/0x[0-9a-f]{2,}\]/${1}0xNNN]/g;
     $out =~ s/\(0x[0-9a-f]{3,}\)/(0xNNN)/g;
-    is $out, $e, "DumpProg() has no 'Attempt to free X prematurely' warning";
-      #or do { push @INC, '/usr/local/lib/cperl/site_cperl/5.26.0';
-      #        require Text::Diff;
-      #        diag Text::Diff::diff(\$out, \$e);
-      #};
+    is $out, $e, "DumpProg() has no 'Attempt to free X prematurely' warning"
+      or do { push @INC, $Config{sitelib};
+              require Text::Diff; diag Text::Diff::diff(\$out, \$e);
+      };
 }
 # wrong destructor cache if gv_fetchmeth_autoload fails RT #126410
 $dump = _dump(\%version::);

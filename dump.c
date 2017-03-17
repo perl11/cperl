@@ -586,14 +586,14 @@ S_opdump_indent(pTHX_ const OP *o, I32 level, UV bar, PerlIO *file,
         /* output preceding blank line */
         PerlIO_puts(file, "     ");
         for (i = level-1; i >= 0; i--)
-            PerlIO_puts(file,  i == 0 || (bar & (1 << i)) ?  "|   " : "    ");
+            PerlIO_puts(file,  i == 0 || (bar & (1 << i)) ?  "| " : "  ");
         PerlIO_puts(file, "\n");
 
         /* output sequence number */
         if (seq)
             PerlIO_printf(file, "%-4" UVuf " ", seq);
         else
-            PerlIO_puts(file, "???? ");
+            PerlIO_puts(file, "???  ");
 
     }
     else
@@ -601,9 +601,9 @@ S_opdump_indent(pTHX_ const OP *o, I32 level, UV bar, PerlIO *file,
 
     for (i = level-1; i >= 0; i--)
             PerlIO_puts(file,
-                  (i == 0 && newop) ? "+--"
-                : (bar & (1 << i))  ? "|   "
-                :                     "    ");
+                  (i == 0 && newop) ? "+-"
+                : (bar & (1 << i))  ? "| "
+                :                     "  ");
     PerlIO_vprintf(file, pat, args);
     va_end(args);
 }
@@ -1337,7 +1337,8 @@ S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o)
     file:    the IO to dump to
     o:       the op to dump
 
-Observes the global C<PL_dumpindent>, default 4, e.g. set by Devel::Peek or B::C to 2.
+Observes the initial global C<PL_dumpindent>, default 4, e.g. set by Devel::Peek or B::C to 2.
+The internal op indent between ops is hardcoded to 2 with cperl, and 4 with perl5.
 =cut
 */
 void

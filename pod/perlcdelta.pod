@@ -355,6 +355,10 @@ The output format of the C<op_dump()> function (as used by C<perl -Dx>)
 has changed: it now displays an "ASCII-art" tree structure, and shows more
 low-level details about each op, such as its address and class.
 
+The initial indent level is controlled by the global C<PL_dumpindent>,
+which is 4, and in Devel::Peek and B::C set to 2.  With cperl the
+indent-level between the ops is hardcoded to 2, in perl5 to 4.
+
 =item *
 
 The lexer F<toke.c> is now guaranteed to work on a C<linestr> buffer SV with
