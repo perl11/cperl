@@ -1640,6 +1640,7 @@ print $on <<'EO_OP_IS_COMMENT';
 #define OP_IS_LISTOP(ot) OpCLASS(ot) == OA_LISTOP
 #define OP_IS_PMOP(ot)   OpCLASS(ot) == OA_PMOP
 #define OP_IS_SVOP(ot)   (OpCLASS(ot) == OA_SVOP || OpCLASS(ot) == OA_PVOP_OR_SVOP)
+/* unused! */
 #define OP_IS_PADOP(ot)  OpCLASS(ot) == OA_PADOP
 #define OP_IS_LOOP(ot)   OpCLASS(ot) == OA_LOOP
 #define OP_IS_COP(ot)    OpCLASS(ot) == OA_COP

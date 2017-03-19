@@ -74,9 +74,14 @@ typedef PERL_BITFIELD16 Optype;
    then all the other bit-fields before/after it should change their
    types too to let VC pack them into the same 4 byte integer.*/
 
+#define OpFLAGS(o)   (o)->op_flags
+#define OpPRIVATE(o) (o)->op_private
+#define OpTYPE(o)    (o)->op_type
+#define OpTARG(o)    (o)->op_targ
+
 /* for efficiency, requires OPf_WANT_VOID == G_VOID etc */
-#define OP_GIMME(op,dfl) \
-	(((op)->op_flags & OPf_WANT) ? ((op)->op_flags & OPf_WANT) : dfl)
+#define OP_GIMME(o,dfl) \
+	((OpFLAGS(o) & OPf_WANT) ? (OpFLAGS(o) & OPf_WANT) : dfl)
 
 #define OP_GIMME_REVERSE(flags)	((flags) & G_WANT)
 
@@ -161,19 +166,19 @@ Deprecated.  Use C<GIMME_V> instead.
 #define OPf_LIST	OPf_WANT_LIST
 #define OPf_KNOW	OPf_WANT
 
-#define OpKIDS(o)    ((o)->op_flags & OPf_KIDS)
-#define OpSPECIAL(o) ((o)->op_flags & OPf_SPECIAL)
-#define OpSTACKED(o) ((o)->op_flags & OPf_STACKED)
-#define OpPARENS(o)  ((o)->op_flags & OPf_PARENS)
-#define OpDEREF(o)   ((o)->op_private & OPpDEREF)
-#define OpWANT_VOID(o) (((o)->op_flags & OPf_WANT) == OPf_WANT_VOID)
-#define OpWANT_SCALAR(o) (((o)->op_flags & OPf_WANT) == OPf_WANT_SCALAR)
-#define OpWANT_LIST(o) (((o)->op_flags & OPf_WANT) == OPf_WANT_LIST)
+#define OpKIDS(o)    (OpFLAGS(o) & OPf_KIDS)
+#define OpSPECIAL(o) (OpFLAGS(o) & OPf_SPECIAL)
+#define OpSTACKED(o) (OpFLAGS(o) & OPf_STACKED)
+#define OpPARENS(o)  (OpFLAGS(o) & OPf_PARENS)
+#define OpDEREF(o)   (OpPRIVATE(o) & OPpDEREF)
+#define OpWANT_VOID(o) ((OpFLAGS(o) & OPf_WANT) == OPf_WANT_VOID)
+#define OpWANT_SCALAR(o) ((OpFLAGS(o) & OPf_WANT) == OPf_WANT_SCALAR)
+#define OpWANT_LIST(o) ((OpFLAGS(o) & OPf_WANT) == OPf_WANT_LIST)
 
 #if !defined(PERL_CORE) && !defined(PERL_EXT)
 #  define GIMME \
-	  (PL_op->op_flags & OPf_WANT					\
-	   ? ((PL_op->op_flags & OPf_WANT) == OPf_WANT_LIST		\
+       (OpFLAGS(PL_op) & OPf_WANT                                       \
+	   ? (OpWANT_LIST(PL_op)                                        \
 	      ? G_ARRAY							\
 	      : G_SCALAR)						\
 	   : dowantarray())
@@ -205,8 +210,6 @@ typedef union  {
 #else
 #  define UNOP_AUX_item_sv(item) ((item)->sv)
 #endif
-
-
 
 
 struct op {
