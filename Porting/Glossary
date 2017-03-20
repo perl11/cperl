@@ -536,6 +536,17 @@ d_builtin_expect (d_builtin.U):
 	__builtin_expect to provide the compiler with branch prediction
 	information.
 
+d_builtin_prefetch (d_builtin.U):
+	This conditionally defines HAS_BUILTIN_PREFETCH, which indicates
+	that the compiler supports __builtin_prefetch(exp,c).  You may use
+	__builtin_prefetch to fill the processor cache line.
+
+d_builtin_ctz (d_builtin.U):
+	This conditionally defines HAS_BUILTIN_EXPECT, which indicates
+	that the compiler supports __builtin_ctz(exp,c).  You may use
+	__builtin_ctz to count trailing zero bits in a word, for fast hash split
+        calculation.
+
 d_bzero (d_bzero.U):
 	This variable conditionally defines the HAS_BZERO symbol if
 	the bzero() routine is available to set memory to 0.
