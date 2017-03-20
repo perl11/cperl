@@ -624,6 +624,8 @@ the strings?).
  Chad      5.25.7       2016-Nov-20
  Sawyer X  5.25.8       2016-Dec-20
  Abigail   5.25.9       2017-Jan-20
+ Renee     5.25.10      2017-Feb-20
+ Sawyer X  5.25.11      2017-Feb-20
 
  rurban    5.25.0c      2016-Aug-07
  rurban    5.25.1c      2016-Oct-16
