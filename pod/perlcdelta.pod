@@ -251,6 +251,11 @@ getcwdnull probe and key added. Sets HAS_GETCWDNULL
 
 d_realpath probe and key added. Sets HAS_REALPATH
 
+=item *
+
+d_builtin_clz probe and key added. Sets HAS_BUILTIN_CLZ. ("Count leading zeros").
+Needed later for fast hopscotch hashing.
+
 =back
 
 =head1 Testing

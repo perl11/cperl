@@ -541,6 +541,12 @@ d_builtin_prefetch (d_builtin.U):
 	that the compiler supports __builtin_prefetch(exp,c).  You may use
 	__builtin_prefetch to fill the processor cache line.
 
+d_builtin_clz (d_builtin.U):
+	This conditionally defines HAS_BUILTIN_CLZ, which indicates
+	that the compiler supports __builtin_clz(exp,c).  You may use
+	__builtin_clz to count leading zero bits in a word, for fast hopscotch
+        jump offset calculation.
+
 d_builtin_ctz (d_builtin.U):
 	This conditionally defines HAS_BUILTIN_EXPECT, which indicates
 	that the compiler supports __builtin_ctz(exp,c).  You may use

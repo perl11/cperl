@@ -3477,6 +3477,9 @@
 /* HAS_BUILTIN_CHOOSE_EXPR:
  *	Can we handle GCC builtin for compile-time ternary-like expressions
  */
+/* HAS_BUILTIN_CLZ:
+ *	Can we handle GCC builtin for counting leading zeros in a word
+ */
 /* HAS_BUILTIN_CTZ:
  *	Can we handle GCC builtin for counting trailing zeros in a word
  */
@@ -3488,6 +3491,7 @@
  *	Can we handle GCC builtin for filling the cache line with a buffer
  */
 /*#define HAS_BUILTIN_CHOOSE_EXPR	/ **/
+/*#define HAS_BUILTIN_CLZ	/ **/
 /*#define HAS_BUILTIN_CTZ	/ **/
 /*#define HAS_BUILTIN_EXPECT	/ **/
 /*#define HAS_BUILTIN_PREFETCH	/ **/
@@ -5517,6 +5521,6 @@
 #endif
 
 /* Generated from:
- * c603f0525529e46255ec90a2e03b12f5834ff8df60c76d09c7c4d5d330e9ebe7 config_h.SH
- * 48cc9bb04205455c5e18417ec3d0208c2db90133c50211a39f476bec690e420a uconfig.sh
+ * c0c377c7baf0e5b4d9156390a43328528fbde89e0a096b38687e22f085332d14 config_h.SH
+ * fa37929ec987a83ec6d7acfd03b9f1cb8c62515610b8c1135ec0c19a5e6fe3d3 uconfig.sh
  * ex: set ro: */

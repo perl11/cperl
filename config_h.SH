@@ -3512,6 +3512,9 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 /* HAS_BUILTIN_CHOOSE_EXPR:
  *	Can we handle GCC builtin for compile-time ternary-like expressions
  */
+/* HAS_BUILTIN_CLZ:
+ *	Can we handle GCC builtin for counting leading zeros in a word
+ */
 /* HAS_BUILTIN_CTZ:
  *	Can we handle GCC builtin for counting trailing zeros in a word
  */
@@ -3523,6 +3526,7 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  *	Can we handle GCC builtin for filling the cache line with a buffer
  */
 #$d_builtin_choose_expr HAS_BUILTIN_CHOOSE_EXPR	/**/
+#$d_builtin_clz HAS_BUILTIN_CLZ	/**/
 #$d_builtin_ctz HAS_BUILTIN_CTZ	/**/
 #$d_builtin_expect HAS_BUILTIN_EXPECT	/**/
 #$d_builtin_prefetch HAS_BUILTIN_PREFETCH	/**/
