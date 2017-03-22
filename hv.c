@@ -44,6 +44,12 @@ holds the key and hash value.
 
 #if HV_FILL_RATE == 100
 # define DO_HSPLIT(xhv) ((xhv)->xhv_keys >= (xhv)->xhv_max)
+#elseif HV_FILL_RATE == 67
+/* We split when we collide and we have a load factor over 0.667.
+ * NOTE if you change this formula so we split earlier than previously,
+ * you MUST change the logic in hv_ksplit()
+ */
+# define DO_HSPLIT(xhv) ( ((xhv)->xhv_keys + ((xhv)->xhv_keys >> 1))  > (xhv)->xhv_max )
 #else
 # define DO_HSPLIT_slow(xhv) !(xhv)->xhv_max || \
     ((U32)(((xhv)->xhv_keys * 100) / (xhv)->xhv_max) >= HV_FILL_RATE)
@@ -957,7 +963,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 	HvHASKFLAGS_on(hv);
 
     xhv->xhv_keys++;
-    if ( DO_HSPLIT(xhv) ) {
+    if ( (collisions > 0) && (DO_HSPLIT(xhv)) ) {
         const U32 oldsize = xhv->xhv_max + 1;
         const U32 items = HvPLACEHOLDERS_get(hv);
         DEBUG_H(PerlIO_printf(Perl_debug_log,
@@ -1884,12 +1890,11 @@ Perl_hv_ksplit(pTHX_ HV *hv, U32 newmax)
 
     PERL_ARGS_ASSERT_HV_KSPLIT;
 
-    newsize = newmax;
     if (newmax <= oldsize)
 	return;
-    newsize = S_ceil_to_power2(newsize);
+    newsize = S_ceil_to_power2(newmax);
     if (newsize < newmax)
-	newsize = U32_MAX;	/* overflow detection */
+	newsize = U32_MAX;				/* overflow detection */
 
     a = (char *) HvARRAY(hv);
     if (a) {
