@@ -371,6 +371,14 @@ memcmp builtins. cperl only.
 
 =over 4
 
+=item packaging: protect sitelib dirs from being uninstalled
+
+The cperl packaging recipe in F<do-make-cperl-release> allowed empty
+directories to be created, which is a huge problem with debian/rpm like
+installations, potentially removing all files and subdirectories
+manually installed via cpan into sitelib and sitearch when updating or
+removing the package.
+
 =item type-check list assignments and types
 
 These list assignments now properly type check:

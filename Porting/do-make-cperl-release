@@ -11,6 +11,9 @@ curdir=`pwd`
 arch=`uname -m`
 builddate=`perl -ne'/^cf_time=.(.*).$/ and print $1' $dir/../config.sh`
 cd $dir/../..
+# dummy files in empty dirs (sitelib, sitearch) to avoid deleting the whole tree on uninstall/updates
+touch $destdir/lib/cperl/site_cperl/$ver/.empty
+for d in `find $destdir -type d -empty`; do touch "$d"/.empty; done
 find $destdir -depth -newermt "$builddate" -print0 | \
     xargs -0r touch --no-dereference --date="$builddate"
 tar=cperl-$ver-$rev-$arch.tar.xz
