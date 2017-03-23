@@ -1,11 +1,10 @@
-/* hash a key
+/* various hash functions
  *--------------------------------------------------------------------------------------
  * The "hash seed" feature was added in Perl 5.8.1 to perturb the results
  * to avoid "algorithmic complexity attacks".
  *
- * If USE_HASH_SEED is defined, hash randomisation is done by default
- * If USE_HASH_SEED_EXPLICIT is defined, hash randomisation is done
- * only if the environment variable PERL_HASH_SEED is set.
+ * On cperl hash randomisation is off, cperl counts collisions instead.
+ * Else if USE_HASH_SEED is defined, hash randomisation is done by default.
  * (see also perl.c:perl_parse() and S_init_tls_and_interp() and util.c:get_hash_seed())
  */
 
@@ -26,12 +25,11 @@
 #define PERL_HASH_FUNC_MURMUR64B
 #endif
 
-#if HAS_QUAD
+#ifdef HAS_QUAD
 #define CAN64BITHASH
 #endif
 
-#if !( 0 \
-        || defined(PERL_HASH_FUNC_SIPHASH) \
+#if !(     defined(PERL_HASH_FUNC_SIPHASH) \
         || defined(PERL_HASH_FUNC_SDBM) \
         || defined(PERL_HASH_FUNC_DJB2) \
         || defined(PERL_HASH_FUNC_SUPERFAST) \
@@ -141,7 +139,7 @@
 #endif
 
 #ifndef PERL_HASH_SEED
-#   if defined(USE_HASH_SEED) || defined(USE_HASH_SEED_EXPLICIT)
+#   if defined(USE_HASH_SEED)
 #       define PERL_HASH_SEED PL_hash_seed
 #   elif PERL_HASH_SEED_BYTES == 4
 #       define PERL_HASH_SEED ((const U8 *)"PeRl")
@@ -224,7 +222,6 @@
   #endif
 #endif
 
-
 #ifdef UV_IS_QUAD
 #define ROTL_UV(x,r) ROTL64(x,r)
 #else
@@ -232,15 +229,11 @@
 #endif
 
 /* This is SipHash by Jean-Philippe Aumasson and Daniel J. Bernstein.
- * The authors claim it is relatively secure compared to the alternatives
- * and that performance wise it is a suitable hash for languages like Perl.
- * See:
- *
- * https://www.131002.net/siphash/
- *
- * This implementation seems to perform slightly slower than one-at-a-time for
- * short keys, but degrades slower for longer keys. Murmur Hash outperforms it
- * regardless of keys size.
+ * The authors claim it is relatively secure compared to the
+ * alternatives.  But's by far the slowest of all suitable hash functions
+ * and its security relies in the non-exposability of the seed.
+ * With the seed it's still trivially brute-forcable.
+ * See http://perl11.org/blog/seed.html
  *
  * It is 64 bit only.
  */

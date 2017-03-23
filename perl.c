@@ -326,19 +326,27 @@ perl_construct(pTHXx)
 #ifdef USE_REENTRANT_API
     Perl_reentrant_init(aTHX);
 #endif
-#if defined(USE_HASH_SEED) || defined(USE_HASH_SEED_EXPLICIT)
-        /* [perl #22371] Algorimic Complexity Attack on Perl 5.6.1, 5.8.0
-         * This MUST be done before any hash stores or fetches take place.
-         * If you set PL_hash_seed (and presumably also PL_hash_seed_set)
-         * yourself, it is your responsibility to provide a good random seed!
-         * You can also define PERL_HASH_SEED in compile time, see hv.h.
-         *
-         * XXX: fix this comment */
     if (PL_hash_seed_set == FALSE) {
+        /* Initialize the hash seed and state at startup. This must be
+         * done very early, before ANY hashes are constructed, and once
+         * setup is fixed for the lifetime of the process.
+         *
+         * If you decide to disable the seeding process you should choose
+         * a suitable seed yourself and define PERL_HASH_SEED to a well chosen
+         * string. See hv_func.h for details.
+         */
+#if defined(USE_HASH_SEED)
+        /* get the hash seed from the environment or from an RNG */
         Perl_get_hash_seed(aTHX_ PL_hash_seed);
+#else
+        /* they want a hard coded seed, check that it is long enough */
+        assert( strlen(PERL_HASH_SEED) >= PERL_HASH_SEED_BYTES );
+#endif
+
+        /* at this point we have initialized the hash function, and we can start
+         * constructing hashes */
         PL_hash_seed_set= TRUE;
     }
-#endif /* #if defined(USE_HASH_SEED) || defined(USE_HASH_SEED_EXPLICIT) */
 
     /* Note that strtab is a rather special HV.  Assumptions are made
        about not iterating on it, and not adding tie magic to it.
@@ -1903,9 +1911,6 @@ S_Internals_V(pTHX_ CV *cv)
 #  ifdef USE_FAST_STDIO
 			     " USE_FAST_STDIO"
 #  endif
-#  ifdef USE_HASH_SEED_EXPLICIT
-			     " USE_HASH_SEED_EXPLICIT"
-#  endif
 #  ifdef USE_LOCALE
 			     " USE_LOCALE"
 #  endif
@@ -2312,7 +2317,7 @@ S_parse_body(pTHX_ char **env, XSINIT_t xsinit)
 	scriptname = "-";
     }
 
-#if (defined(USE_HASH_SEED) || defined(USE_HASH_SEED_EXPLICIT) || defined(USE_HASH_SEED_DEBUG)) && !defined(NO_PERL_HASH_SEED_DEBUG)
+#if (defined(USE_HASH_SEED) || defined(USE_HASH_SEED_DEBUG)) && !defined(NO_PERL_HASH_SEED_DEBUG)
     {
         const char * const s = PerlEnv_getenv("PERL_HASH_SEED_DEBUG");
         if (
