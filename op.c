@@ -992,7 +992,9 @@ optree.
 void
 Perl_op_free(pTHX_ OP *o)
 {
+#ifdef DEBUGGING
     dVAR;
+#endif
     OPCODE type;
     SSize_t defer_ix = -1;
     SSize_t defer_stack_alloc = 0;
@@ -12120,7 +12122,6 @@ Only checks types.
 OP *
 Perl_ck_aassign(pTHX_ OP *o)
 {
-    dVAR;
     /* null->pushmark->elems... */
     OP * right = OpFIRST(o);
     OP * left  = OpLAST(o);
@@ -12419,6 +12420,7 @@ Perl_ck_repeat(pTHX_ OP *o)
 STATIC void
 S__share_hek(pTHX_ char *s, STRLEN len, SV* sv, U32 const was_readonly)
 {
+    dVAR;
     HEK *hek;
     U32 hash;
     PERL_HASH(hash, s, len);
@@ -12446,7 +12448,6 @@ Perl_ck_require(pTHX_ OP *o)
             SV * const sv = kid->op_sv;
             U32 const was_readonly = SvREADONLY(sv);
             if (kid->op_private & OPpCONST_BARE) {
-                dVAR;
                 const char *end;
                 bool disallowed = FALSE;
 
@@ -12492,7 +12493,6 @@ Perl_ck_require(pTHX_ OP *o)
                     SvREFCNT_dec_NN(sv);
                 }
                 else {
-                    dVAR;
                     if (was_readonly) SvREADONLY_off(sv);
                     S__share_hek(aTHX_ s, len, sv, was_readonly);
                 }
@@ -15040,6 +15040,7 @@ Perl_ck_pad(pTHX_ OP *o)
     if (o->op_targ) { /* newPADOP sets it, newOP only with OA_TARGET */
         SV* sv = PAD_SV(o->op_targ);
         if (IS_TYPE(o, PADSV) && SvREADONLY(sv)) {
+            dVAR;
 #ifdef DEBUGGING
             /* ensure we allocated enough room to upgrade it */
             size_t space = DIFF(OpSLOT(o), OpSLOT(o)->opslot_next);
@@ -15168,6 +15169,7 @@ Perl_ck_type(pTHX_ OP *o)
                     if ((PL_hints & HINT_INTEGER) && ((n2 & 0xff) != type_Int))
                         continue;
                     if (match_type1(n2 & 0xffffff00, type1)) {
+                        dVAR;
                         if (typ == OP_NEGATE && v == OP_I_NEGATE)
                             return o;
                         DEBUG_kv(Perl_deb(aTHX_ "%s (:%s) => %s %s\n", PL_op_name[typ],
@@ -15212,6 +15214,7 @@ Perl_ck_type(pTHX_ OP *o)
                     if ((PL_hints & HINT_INTEGER) && ((n2 & 0xff) != type_Int)) /* need an Int result, no u_ */
                         continue;
                     if (match_type2(n2 & 0xffffff00, type1, type2)) {
+                        dVAR;
                         /* Exception: Even if both / operands are int do not use intdiv.
                            TODO: Only if the lhs result needs to be int. But this needs
                            to be decided in the type checker in rpeep later. */
@@ -16654,6 +16657,7 @@ aelem_u.
 static bool
 S_peep_leaveloop(pTHX_ OP* leave, OP* from, OP* to)
 {
+    dVAR;
     SV *fromsv, *tosv;
     IV maxto = 0;
     PERL_ARGS_ASSERT_PEEP_LEAVELOOP;

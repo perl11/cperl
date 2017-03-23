@@ -1126,6 +1126,9 @@ void
 PerlIO_stdstreams(pTHX)
 {
     if (!PL_perlio) {
+#ifdef DEBUGGING
+        dVAR;
+#endif
 	PerlIO_init_table(aTHX);
 	PerlIO_fdopen(0, "Ir" PERLIO_STDTEXT);
 	PerlIO_fdopen(1, "Iw" PERLIO_STDTEXT);
@@ -4926,6 +4929,7 @@ Perl_PerlIO_stderr(pTHX)
 PerlIO *
 Perl_PerlIO_debugio(pTHX)
 {
+    dVAR;
     if (!PL_perlio) {
 	PerlIO_stdstreams(aTHX);
     }

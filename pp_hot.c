@@ -929,7 +929,7 @@ PPt(pp_aelemfast, "():Scalar")
    The constant shaped arrays indices are already checked at compile-time. */
 PPt(pp_aelemfast_lex_u, "():Scalar")
 {
-    dVAR; dSP;
+    dSP;
     SV* sv;
     AV * const av = MUTABLE_AV(PAD_SV(PL_op->op_targ));
     const U32 lval = PL_op->op_flags & OPf_MOD;
@@ -963,7 +963,7 @@ PPt(pp_aelemfast_lex_u, "():Scalar")
  */
 PPt(pp_aelem_u, "(:Array(:Scalar),:Int):Scalar")
 {
-    dVAR; dSP;
+    dSP;
     SV** svp = NULL;
     SV* elemsv = POPs;
     IV index = SvIV(elemsv);
@@ -4236,7 +4236,7 @@ Perl_clear_defarray(pTHX_ AV* av, bool abandon)
 
 PP(pp_entersub)
 {
-    dSP; dPOPss;
+    dVAR; dSP; dPOPss;
     GV *gv;
     CV *cv;
     PERL_CONTEXT *cx;
@@ -4530,7 +4530,7 @@ PP(pp_entersub)
 
 PP(pp_enterxssub)
 {
-    dSP; dPOPss;
+    dVAR; dSP; dPOPss;
     const bool hasargs = (PL_op->op_flags & OPf_STACKED) != 0;
     CV *cv;
     GV *gv;

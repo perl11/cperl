@@ -279,6 +279,7 @@ Public API:
 PERL_STATIC_INLINE
 void plant_SV(pTHX_ SV* p)
 {
+    dVAR;
     const U32 old_flags = SvFLAGS(p);
     MEM_LOG_DEL_SV(p, __FILE__, __LINE__, FUNCTION__);
     DEBUG_SV_SERIAL(p);
@@ -354,6 +355,9 @@ S_more_sv(pTHX)
 STATIC SV*
 S_new_SV(pTHX_ const char *file, int line, const char *func)
 {
+#ifdef DEBUGGING
+    dVAR;
+#endif
     SV* sv;
 
     if (PL_sv_root)

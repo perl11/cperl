@@ -162,7 +162,7 @@
 /* starting with 5.26.0 */
 #define PERL_NO_QUOTE_PKGSEPERATOR
 
-#define pVAR    struct perl_vars* my_vars PERL_UNUSED_DECL
+#define pVAR    struct perl_vars* my_vars
 
 #ifdef PERL_GLOBAL_STRUCT
 #  define dVAR		pVAR    = (struct perl_vars*)PERL_GET_VARS()

@@ -2201,7 +2201,9 @@ Perl_new_warnings_bitfield(pTHX_ STRLEN *buffer, const char *const bits,
 void
 Perl_my_setenv(pTHX_ const char *nam, const char *val)
 {
+#ifdef DEBUGGING
   dVAR;
+#endif
 #ifdef __amigaos4__
   amigaos4_obtain_environ(__FUNCTION__);
 #endif

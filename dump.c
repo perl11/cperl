@@ -2782,6 +2782,7 @@ Only avalaible with C<-DDEBUGGING>.
 STATIC void
 S_deb_hek(pTHX_ HEK* hek, SV* val)
 {
+    dVAR;
     U32 olddebug;
     if (!hek) {
         PerlIO_printf(Perl_debug_log, " [(null)]");

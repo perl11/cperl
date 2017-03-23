@@ -272,6 +272,7 @@ Do magic after a value is assigned to the SV.  See C<L</sv_magic>>.
 int
 Perl_mg_set(pTHX_ SV *sv)
 {
+    dVAR;
     const I32 mgs_ix = SSNEW(sizeof(MGS));
     MAGIC* mg;
     MAGIC* nextmg;

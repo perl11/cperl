@@ -2186,7 +2186,7 @@ S_outside_integer(pTHX_ SV *sv)
 
 PP(pp_enteriter)
 {
-    dSP; dMARK;
+    dVAR; dSP; dMARK;
     PERL_CONTEXT *cx;
     const U8 gimme = GIMME_V;
     void *itervarp; /* GV or pad slot of the iteration variable */
@@ -3858,7 +3858,7 @@ Implements 'require 5.010001', the version check part of require.
 static OP *
 S_require_version(pTHX_ SV *sv)
 {
-    dVAR; dSP;
+    dSP;
     PERL_ARGS_ASSERT_REQUIRE_VERSION;
 
     sv = sv_2mortal(new_version(sv));
@@ -3931,7 +3931,7 @@ the second form.
 static OP *
 S_require_file(pTHX_ SV *sv)
 {
-    dVAR; dSP;
+    dSP;
 
     PERL_CONTEXT *cx;
     const char *name;

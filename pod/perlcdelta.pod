@@ -342,6 +342,11 @@ L<http://stackoverflow.com/questions/30412951>).
 
 =item *
 
+Fixed many instances of wrong or missing dVAR declarations, relevant for
+C<-Accflags=-DPERL_GLOBAL_STRUCT_PRIVATE>.
+
+=item *
+
 The C<op_class()> API function has been added. This is like the existing
 C<OP_CLASS()> macro, but can more accurately determine what struct an op
 has been allocated as. For example C<OP_CLASS()> might return

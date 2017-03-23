@@ -337,6 +337,13 @@ case "$gccversion" in
   ;;
 esac
 
+# PERL_GLOBAL_STRUCT_PRIVATE needs -Wno-unused-parameter
+case "$ccflags" in
+*-DPERL_GLOBAL_STRUCT_PRIVATE*)
+    echo "cflags.SH: Adding -Wno-unused-parameter because of -DPERL_GLOBAL_STRUCT_PRIVATE"
+    warn="$warn -Wno-unused-parameter" ;;
+esac
+
 # The quadmath Q format specifier will cause -Wformat to whine.
 case "$gccversion" in
 '') ;;

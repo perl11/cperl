@@ -3299,6 +3299,9 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
 
     if (entry) {
         if (--entry->he_valu.hent_refcount == 0) {
+#ifdef DEBUGGING
+            dVAR;
+#endif
             const HEK *fhek = HeKEY_hek(entry);
             *oentry = HeNEXT(entry);
             if (UNLIKELY(!HEK_STATIC(fhek))) {
@@ -3318,6 +3321,9 @@ S_unshare_hek_or_pvn(pTHX_ const HEK *hek, const char *str, I32 len, U32 hash)
 			 hek ? HEK_KEY(hek) : str,
 			 ((k_flags & HVhek_UTF8) ? " (utf8)" : "") pTHX__VALUE);
     if (k_flags & HVhek_FREEKEY && !(k_flags & HVhek_STATIC)) {
+#ifdef DEBUGGING
+        dVAR;
+#endif
         DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%" UVxf ": unshare_pvn FREEKEY %ld len\n",
                               PTR2UV(str), (long)len));
 	Safefree(str);
@@ -3411,6 +3417,9 @@ S_share_hek_flags(pTHX_ const char *str, I32 len, U32 hash, int flags)
 	/* What used to be head of the list.
 	   If this is NULL, then we're the first entry for this slot, which
 	   means we need to increase fill.  */
+#ifdef DEBUGGING
+        dVAR;
+#endif
 	struct shared_he *new_entry;
 	HEK *hek;
 	char *k;

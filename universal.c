@@ -571,6 +571,7 @@ XS(XS_Internals_SvREADONLY)	/* This is dangerous stuff. */
 	else {
 	    /* I hope you really know what you are doing. */
 #ifdef USE_CPERL
+            dVAR;
             /*static GV* S_main_stash = gv_fetchpvs("main::", GV_NOTQUAL, SVt_PVHV); */
             /* fail on some protected values: yes, no, undef, ... */
             if (   sv == PLACEHOLDER
