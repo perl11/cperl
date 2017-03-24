@@ -2201,7 +2201,7 @@ Perl_new_warnings_bitfield(pTHX_ STRLEN *buffer, const char *const bits,
 void
 Perl_my_setenv(pTHX_ const char *nam, const char *val)
 {
-#ifdef DEBUGGING
+#if defined(DEBUGGING) || !defined(PERL_USE_SAFE_PUTENV)
   dVAR;
 #endif
 #ifdef __amigaos4__
