@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170305c';
+$VERSION = '5.20170324c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -14633,6 +14633,7 @@ our %delta = (
             'File::Spec::Unix'      => '4.67c',
             'File::Spec::Win32'     => '4.67c',
             'Getopt::Std'           => '1.12',
+            'Internals::DumpArenas' => '0.12_07',
             'IO::Compress::Adapter::Bzip2'=> '2.074',
             'IO::Compress::Adapter::Deflate'=> '2.074',
             'IO::Compress::Adapter::Identity'=> '2.074',

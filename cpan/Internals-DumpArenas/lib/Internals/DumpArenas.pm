@@ -3,7 +3,7 @@ package Internals::DumpArenas;
 
 use 5.006_000;
 
-$VERSION = '0.12_05';
+$VERSION = '0.12_07';
 
 use DynaLoader ();
 sub dl_load_flags { return 0x01 }

@@ -97,6 +97,10 @@ Deprecated File::Glob::glob()
 
 Changed pod NAME to follow convention.
 
+=item Internals::DumpArenas 0.12_07
+
+fix for PERL_GLOBAL_STRUCT_PRIVATE
+
 =item IO-Compress  2.074
 
 ISA fixes for c3

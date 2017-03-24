@@ -21,6 +21,7 @@
 #endif
 
 void DumpPointer( pTHX_ PerlIO *f, SV *sv ) {
+  dVAR;
   if ( &PL_sv_undef == sv ) {
     PerlIO_puts(f, "sv_undef");
   }
