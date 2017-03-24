@@ -5,15 +5,15 @@
 [ this is a template for a new perldelta file.  Any text flagged as XXX needs
 to be processed before release. ]
 
-perldelta - what is new for perl v5.25.11
+perldelta - what is new for perl v5.25.12
 
 =head1 DESCRIPTION
 
-This document describes differences between the 5.25.10 release and the 5.25.11
+This document describes differences between the 5.25.11 release and the 5.25.12
 release.
 
-If you are upgrading from an earlier release such as 5.25.9, first read
-L<perl52510delta>, which describes differences between 5.25.9 and 5.25.10.
+If you are upgrading from an earlier release such as 5.25.10, first read
+L<perl52511delta>, which describes differences between 5.25.10 and 5.25.11.
 
 =head1 Notice
 
@@ -120,6 +120,11 @@ XXX
 =item *
 
 L<XXX> has been upgraded from version A.xx to B.yy.
+
+=item *
+
+L<Module::CoreList> has been upgraded from version 5.20170320 to
+5.20170420.
 
 =back
 
@@ -338,19 +343,7 @@ files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
 
 =item *
 
-C< $-{$name} > would leak an C<AV> on each access if the regular
-expression had no named captures.  The same applies to access to any
-hash tied with L<Tie::Hash::NamedCapture> and C<< all => 1 >>. [perl
-#130822]
-
-=item *
-
-C<split ' '> now handles the argument being split correctly when in the
-scope of the L<< C<unicode_strings>|feature/"The 'unicode_strings' feature"
->> feature. Previously, when a string using the single-byte internal
-representation contained characters that are whitespace by Unicode rules but
-not by ASCII rules, it treated those characters as part of fields rather
-than as field separators. This resolves [perl #130907].
+XXX
 
 =back
 

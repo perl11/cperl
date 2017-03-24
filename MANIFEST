@@ -5124,6 +5124,7 @@ pod/perl5242cdelta.pod		cperl changes in version 5.24.2c
 pod/perl5250cdelta.pod		cperl changes in version 5.25.0c
 pod/perl5250delta.pod		Perl changes in version 5.25.0
 pod/perl52510delta.pod		Perl changes in version 5.25.10
+pod/perl52511delta.pod		Perl changes in version 5.25.11
 pod/perl5251cdelta.pod		cperl changes in version 5.25.1c
 pod/perl5251delta.pod		Perl changes in version 5.25.1
 pod/perl5252cdelta.pod		cperl changes in version 5.25.2c
