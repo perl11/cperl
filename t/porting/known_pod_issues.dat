@@ -417,12 +417,8 @@ pod/perl.pod	Verbatim line length including indents exceeds 79 by	8
 pod/perl5222cdelta.pod	? Should you be using F<...> or maybe L<...> instead of	1
 pod/perl5240cdelta.pod	Apparent broken link	1
 pod/perl5242cdelta.pod	Apparent broken link	2
-pod/perl5252cdelta.pod	Apparent broken link	1
-pod/perl5253cdelta.pod	Apparent broken link	1
-pod/perl5253cdelta.pod	Deleting unknown formatting code M<>	1
-pod/perl5253cdelta.pod	Verbatim line length including indents exceeds 79 by	2
-pod/perl5253cdelta.pod	unresolved internal link	2
-pod/perl5260cdelta.pod	Apparent broken link	2
+pod/perl5260cdelta.pod	Apparent broken link	3
+pod/perl5260cdelta.pod	unresolved internal link	2
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	6
 pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1
