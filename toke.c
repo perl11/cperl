@@ -5453,14 +5453,15 @@ Perl_yylex(pTHX)
 		    sv_catpvs(PL_linestr,"chomp;");
 		if (PL_minus_a) {
 		    if (PL_minus_F) {
-			if ((*PL_splitstr == '/' || *PL_splitstr == '\''
-			     || *PL_splitstr == '"')
-			      && strchr(PL_splitstr + 1, *PL_splitstr))
+                        if (   (   *PL_splitstr == '/'
+                                || *PL_splitstr == '\''
+                                || *PL_splitstr == '"')
+                              && strchr(PL_splitstr + 1, *PL_splitstr) ) {
 			    Perl_sv_catpvf(aTHX_ PL_linestr, "our @F=split(%s);",
                                            PL_splitstr);
-			else {
-			    /* "q\0${splitstr}\0" is legal perl. Yes, even NUL
-			       bytes can be used as quoting characters.  :-) */
+			} else {
+			    /* "q\0${splitstr}\0" is legal perl.
+			       NUL is an excellent quoting character. */
 			    const char *splits = PL_splitstr;
 			    sv_catpvs(PL_linestr, "our @F=split(q\0");
 			    do {
@@ -5475,8 +5476,9 @@ Perl_yylex(pTHX)
 			    sv_catpvs(PL_linestr, ");");
 			}
 		    }
-		    else
+		    else {
 		        sv_catpvs(PL_linestr,"our @F=split(' ');");
+                    }
 		}
 	    }
 	    sv_catpvs(PL_linestr, "\n");
@@ -5506,10 +5508,10 @@ Perl_yylex(pTHX)
 	    /* If it looks like the start of a BOM or raw UTF-16,
 	     * check if it in fact is. */
 	    if (bof && PL_rsfp
-                && (*s == 0
+                && (   *s == 0
                     || *(U8*)s == BOM_UTF8_FIRST_BYTE
-                        || *(U8*)s >= 0xFE
-                        || s[1] == 0))
+                    || *(U8*)s >= 0xFE
+                    || s[1] == 0))
             {
 		Off_t offset = (IV)PerlIO_tell(PL_rsfp);
 		bof = (offset == (Off_t)SvCUR(PL_linestr));
@@ -6789,8 +6791,9 @@ Perl_yylex(pTHX)
                 && isALPHA(tmp)
                 && (s == PL_linestart+1 || s[-2] == '\n') )
             {
-                if ((PL_in_eval && !PL_rsfp && !PL_parser->filtered)
-                    || PL_lex_state != LEX_NORMAL) {
+                if (   (PL_in_eval && !PL_rsfp && !PL_parser->filtered)
+                    || PL_lex_state != LEX_NORMAL)
+                {
                     d = PL_bufend;
                     while (s < d) {
                         if (*s++ == '\n') {
