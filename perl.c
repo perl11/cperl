@@ -4997,6 +4997,7 @@ S_mayberelocate(pTHX_ const char *const dir, STRLEN len, U32 flags)
 		SV *prefix_sv;
 		char *prefix;
 		char *lastslash;
+                long libsize;
 
 		/* $^X is *the* source of taint if tainting is on, hence
 		   SvPOK() won't be true.  */
@@ -5014,13 +5015,9 @@ S_mayberelocate(pTHX_ const char *const dir, STRLEN len, U32 flags)
 		   I guess that the save stack isn't correctly set up yet.  */
 		libpath = SvPVX(libdir);
 		libpath_len = SvCUR(libdir);
-
-		/* This would work more efficiently with memrchr, but as it's
-		   only a GNU extension we'd need to probe for it and
-		   implement our own. Not hard, but maybe not worth it?  */
-
 		prefix = SvPVX(prefix_sv);
-		lastslash = strrchr(prefix, '/');
+                libsize = SvEND(prefix_sv) - prefix;
+		lastslash = (char*)my_memrchr(prefix, '/', libsize);
 
 		/* First time in with the *lastslash = '\0' we just wipe off
 		   the trailing /perl from (say) /usr/foo/bin/perl
@@ -5029,7 +5026,8 @@ S_mayberelocate(pTHX_ const char *const dir, STRLEN len, U32 flags)
 		    SV *tempsv;
 		    while ((*lastslash = '\0'), /* Do that, come what may.  */
 			   (libpath_len >= 3 && memEQc(libpath, "../")
-			    && (lastslash = strrchr(prefix, '/')))) {
+                            && (lastslash = (char*)my_memrchr(prefix, '/', libsize))))
+                    {
 			if (lastslash[1] == '\0'
 			    || (lastslash[1] == '.'
 				&& (lastslash[2] == '/' /* ends "/."  */
