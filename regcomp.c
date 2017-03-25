@@ -12073,7 +12073,7 @@ S_grok_bslash_N(pTHX_ RExC_state_t *pRExC_state,
 
     RExC_parse++;	/* Skip past the '{' */
 
-    endbrace = strchr(RExC_parse, '}');
+    endbrace = (char *) memchr(RExC_parse, '}', RExC_end - RExC_parse);
     if (! endbrace) { /* no trailing brace */
         vFAIL2("Missing right brace on \\%c{}", 'N');
     }
@@ -12825,9 +12825,11 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
             else {
                 STRLEN length;
                 char name = *RExC_parse;
-                char * endbrace;
+                char * endbrace = NULL;
                 RExC_parse += 2;
-                endbrace = strchr(RExC_parse, '}');
+                if (RExC_parse < RExC_end) {
+                    endbrace = (char *) memchr(RExC_parse, '}', RExC_end - RExC_parse);
+                }
 
                 if (! endbrace) {
                     vFAIL2("Missing right brace on \\%c{}", name);
@@ -16382,7 +16384,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
 		    vFAIL2("Empty \\%c", (U8)value);
 		if (*RExC_parse == '{') {
 		    const U8 c = (U8)value;
-		    e = strchr(RExC_parse, '}');
+		    e = (char *) memchr(RExC_parse, '}', RExC_end - RExC_parse);
                     if (!e) {
                         RExC_parse++;
                         vFAIL2("Missing right brace on \\%c{}", c);
