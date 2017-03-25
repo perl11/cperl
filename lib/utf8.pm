@@ -11,6 +11,15 @@ sub import {
         require "utf8_heavy.pl";
         for my $s (@_) {
             if (valid_script($s)) {
+                # warn for the Moderately Restrictive level profile
+                if (($s eq 'Greek' and $utf8::SCRIPTS{Cyrillic})
+                    or ($s eq 'Cyrillic' and $utf8::SCRIPTS{Greek}))
+                {
+                    my $other = $s eq 'Greek' ? 'Cyrillic' : 'Greek';
+                    require warnings;
+                    warnings::warnif('utf8',
+                      "Invalid script $s, cannot be mixed with $other");
+                }
                 # if scoped (later):
                 # $^H{utf8scripts}{$_} = 1;
                 $utf8::SCRIPTS{$s} = !!1;

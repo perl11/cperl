@@ -3137,6 +3137,13 @@ than a colon or whitespace was seen between the elements of a layer list.
 If the previous attribute had a parenthesised parameter list, perhaps that
 list was terminated too soon.
 
+=item Invalid script %s in identifier, cannot be mixed with %s
+
+(W utf8) To fulfill the Moderately Restrictive Level for the Unicode
+L<General Security Profile
+|http://www.unicode.org/reports/tr39/#Restriction_Level_Detection>
+you may not mix Greek with Cyrillic identifier characters in the same program.
+
 =item Invalid script %s in identifier %s for U+%X
 
 =item Invalid script %s in identifier %s for U+%X. Have

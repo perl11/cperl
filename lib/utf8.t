@@ -696,9 +696,21 @@ chomp($@);
 }
 
 {
-    use utf8 'Greek', 'Cyrillic';
-    my $ЀΕ = 1;
-    ::ok(1, "Declared mixed script Greek Cyrillic");
+    my @w;
+    local $SIG{__WARN__} = sub { push @w, $_[0]; };
+    eval q{
+      use utf8 'Greek', 'Cyrillic';
+      my $ЀΕ = 1;
+    };
+    ::is(scalar @w, 1, "Warn with mixed scripts Greek + Cyrillic");
+    ::is(substr($w[0],0,51), "Invalid script Cyrillic, cannot be mixed with Greek");
+    @w = ();
+    eval q{
+      no warnings 'utf8';
+      use utf8 'Greek', 'Cyrillic';
+      my $ЀΕ = 1;
+    };
+    ::is(scalar @w, 0, "no warnings 'utf8' with mixed scripts Greek + Cyrillic");
     BEGIN { utf8::reset_scripts(); }
 }
 

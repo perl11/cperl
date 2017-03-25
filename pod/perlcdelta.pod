@@ -340,7 +340,8 @@ current usage.  The set of characters in Table 4, Candidate Characters for
 Exclusion from Identifiers provides candidates of these." >>>
 
 cperl honors the
-L<TR31 Candidate Characters for Exclusion from Identifiers|http://www.unicode.org/reports/tr31/#Table_Candidate_Characters_for_Exclusion_from_Identifiers>
+L<TR31 Candidate Characters for Exclusion from Identifiers
+|http://www.unicode.org/reports/tr31/#Table_Candidate_Characters_for_Exclusion_from_Identifiers>
 
 I.e. You may still declare those scripts as valid, but they are not
 automatically allowed, similar to the need to declare mixed scripts.
@@ -362,17 +363,17 @@ The scripts listed at "Table 6, Aspirational Use Scripts":
 C<Canadian_Aboriginal>, C<Miao>, C<Mongolian>, C<Tifinagh> and C<Yi>
 are included, i.e. need not to be declared.
 
-With this restriction we are close to the implementation of the
+With this restriction cperl fulfills the
 Moderately Restrictive level for identifiers by default. See
 L<http://www.unicode.org/reports/tr39/#General_Security_Profile> and
 L<http://www.unicode.org/reports/tr36/#Security_Levels_and_Alerts>.
 
-With special declarations of the used scripts you can weaken the
-restriction level to B<Minimally Restrictive>.
+Missing for more unicode security are warnings on single-, mixed and
+whole-script confusables, with a new utf8 warnings 'confusables'
+subcategory L<[cperl #265]|https://github.com/perl11/cperl/issues/265>.
 
-Missing for the B<Moderately Restrictive> level are warnings on
-single-, mixed and whole-script confusables, and warnings on certain
-incompatible mixed-script pairs such as B<Greek + Cyrillic>.
+With special declarations of the used scripts or turning off no warnings 'utf8',
+you can weaken the restriction level to B<Minimally Restrictive>.
 
 All utf8 encoded names are checked for wellformed-ness.
 
@@ -456,6 +457,13 @@ More scripts lead to parsers errors.
 Additional unicode scripts can and should be declared via
 B<use utf8 'Greek', 'script-name2'...>. This allows mixed scripts in
 identifiers. This can be scoped in blocks.
+
+=item *
+
+To fulfill the Moderately Restrictive Level for the Unicode
+L<General Security Profile
+|http://www.unicode.org/reports/tr39/#Restriction_Level_Detection>
+you may not mix Greek with Cyrillic identifier characters in the same program.
 
 =back
 
@@ -2149,6 +2157,10 @@ L<Invalid script %s in identifier for U+%04|perldiag/"Invalid script %s in ident
 =item *
 
 L<Invalid \0 character in string for SYMBOL: %s|perldiag/"Invalid \0 character in string for SYMBOL: %s">
+
+=item *
+
+L<Invalid script %s in identifier, cannot be mixed with %s|perldiag/"Invalid script %s in identifier, cannot be mixed with %s">
 
 =back
 
