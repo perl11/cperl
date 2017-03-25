@@ -3664,7 +3664,8 @@ S_scan_const(pTHX_ char *start)
 		{
 		    const char* error;
 
-		    bool valid = grok_bslash_o(&s, &uv, &error,
+		    bool valid = grok_bslash_o(&s, PL_bufend,
+                                               &uv, &error,
                                                TRUE, /* Output warning */
                                                FALSE, /* Not strict */
                                                TRUE, /* Output warnings for
@@ -3682,7 +3683,8 @@ S_scan_const(pTHX_ char *start)
 		{
 		    const char* error;
 
-		    bool valid = grok_bslash_x(&s, &uv, &error,
+		    bool valid = grok_bslash_x(&s, PL_bufend,
+                                               &uv, &error,
                                                TRUE, /* Output warning */
                                                FALSE, /* Not strict */
                                                TRUE,  /* Output warnings for
