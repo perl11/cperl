@@ -297,6 +297,13 @@ L<[perl #131371]|https://rt.perl.org/Public/Bug/Display.html?id=131371>
 Some erroneous warnings after utf8 conversion have been fixed.
 L<[perl #131190]|https://rt.perl.org/Public/Bug/Display.html?id=131190>
 
+=item *
+
+The C<jmpenv> frame to catch Perl exceptions is set up lazily, and this used to
+be a bit too lazy.  The catcher is now set up earlier, preventing some possible
+crashes.
+L<[perl #105930]|https://rt.perl.org/Public/Bug/Display.html?id=105930>
+
 =back
 
 =head1 Platform Support
