@@ -164,7 +164,7 @@ dtrace_like(<< "PERL_SCRIPT",
     BEGIN { \@INC = ('.', '../lib') }
     use vars;
     require HTTP::Tiny;
-    do "$tmp";
+    do "./$tmp";
 PERL_SCRIPT
     << 'D_SCRIPT',
     perl$target:::load-entry   { printf("load-entry <%s>\n", copyinstr(arg0)) }
@@ -174,8 +174,8 @@ D_SCRIPT
       # the original test made sure that each file generated a load-entry then a load-return,
       # but that had a race condition when the kernel would push the perl process onto a different
       # CPU, so the DTrace output would appear out of order
-      qr{load-entry <vars\.pm>.*load-entry <HTTP/Tiny\.pm>.*load-entry <\Q$tmp\E>}s,
-      qr{load-return <vars\.pm>.*load-return <HTTP/Tiny\.pm>.*load-return <\Q$tmp\E>}s,
+      qr{load-entry <vars\.pm>.*load-entry <HTTP/Tiny\.pm>.*load-entry <\Q./$tmp\E>}s,
+      qr{load-return <vars\.pm>.*load-return <HTTP/Tiny\.pm>.*load-return <\Q./$tmp\E>}s,
     ],
     'load-entry, load-return probes',
 );
