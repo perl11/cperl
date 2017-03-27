@@ -19,6 +19,14 @@
 #  define DD_USE_OLD_ID_FORMAT
 #endif
 
+#ifndef strlcpy
+#  ifdef my_strlcpy
+#    define strlcpy(d,s,l) my_strlcpy(d,s,l)
+#  else
+#    define strlcpy(d,s,l) strcpy(d,s)
+#  endif
+#endif
+
 /* These definitions are ASCII only.  But the pure-perl .pm avoids
  * calling this .xs file for releases where they aren't defined */
 
@@ -863,7 +871,7 @@ DD_dump(pTHX_ SV *val, const char *name, STRLEN namelen, SV *retval, HV *seenhv,
 	    SV * const ixsv = newSViv(0);
 	    /* allowing for a 24 char wide array index */
 	    New(0, iname, namelen+28, char);
-	    (void)strcpy(iname, name);
+	    (void) strlcpy(iname, name, namelen+28);
 	    inamelen = namelen;
 	    if (name[0] == '@') {
 		sv_catpvs(retval, "(");
@@ -1326,7 +1334,7 @@ DD_dump(pTHX_ SV *val, const char *name, STRLEN namelen, SV *retval, HV *seenhv,
 	    else {
 		sv_grow(retval, SvCUR(retval)+i+2);
 		r = SvPVX(retval)+SvCUR(retval);
-		r[0] = '*'; strcpy(r+1, c);
+		r[0] = '*'; strlcpy(r+1, c, SvLEN(retval));
 		i++;
 	    }
 	    SvCUR_set(retval, SvCUR(retval)+i);
