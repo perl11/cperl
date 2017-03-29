@@ -1418,6 +1418,10 @@ L<[RT #123754|https://rt.perl.org/Public/Bug/Display.html?id=123754>
 
 use the new get_svs, get_avs, get_hvs macros.
 
+=item PerlIO::via  0.17
+
+Omit wrong if (gv) check, detected by coverity.
+
 =item Perl-OSType  1.010
 
 Added msys
@@ -1508,9 +1512,11 @@ Removed C<i_netinet6_in6> probe.
 This was never used due to a typo.
 It cannot be used due to RFC 2553.
 
-=item Storable 3.05_10
+=item Storable 3.05_11
 
 From L<https://github.com/rurban/Storable>
+
+Added some I32_MAX checks for tainted integers.
 
 Fixed 3 null ptr dereferences leading to segfaults.
 L<[perl #130098]|https://rt.perl.org/Public/Bug/Display.html?id=130098>
