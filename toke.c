@@ -2235,14 +2235,16 @@ S_force_word(pTHX_ char *start, int token, int check_keyword, int allow_pack)
 		PL_expect = XOPERATOR;
 	    }
 	}
-        start = PL_tokenbuf;
         if (UNLIKELY(normalize)) {
-            start = pv_uni_normalize(start, len, &len);
-            Copy(start, PL_tokenbuf, len+1, char);
+            start = pv_uni_normalize(PL_tokenbuf, len, &len);
+            if (start != PL_tokenbuf) {
+                Copy(start, PL_tokenbuf, len+1, char);
+                Safefree(start);
+            }
         }
 	NEXTVAL_NEXTTOKE.opval
 	    = newSVOP(OP_CONST,0,
-			   S_newSV_maybe_utf8(aTHX_ start, len));
+			   S_newSV_maybe_utf8(aTHX_ PL_tokenbuf, len));
 	NEXTVAL_NEXTTOKE.opval->op_private |= OPpCONST_BARE;
 	force_next(token);
     }
@@ -4335,7 +4337,10 @@ S_intuit_more(pTHX_ char *s)
                     if (len > 1) {
                         if (UNLIKELY(normalize)) {
                             tmp = pv_uni_normalize(tmpbuf, len, &len);
-                            Copy(tmp, tmpbuf, len+1, char);
+                            if (tmp != tmpbuf) {
+                                Copy(tmp, tmpbuf, len+1, char);
+                                Safefree(tmp);
+                            }
                         }
                         if (gv_fetchpvn_flags(tmpbuf, len,
                                               UTF ? SVf_UTF8 : 0, SVt_PV))
