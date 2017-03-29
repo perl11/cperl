@@ -9883,8 +9883,9 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	HV *stash = name && !CvNAMED(cv) && GvSTASH(CvGV(cv))
 			? GvSTASH(CvGV(cv))
 			: PL_curstash;
-	if (!name)
+	if (!name) {
             SAVEFREESV(cv);
+        }
 	apply_attrs(stash, MUTABLE_SV(cv), attrs);
 	if (!name)
             SvREFCNT_inc_simple_void_NN(cv);
@@ -10105,7 +10106,7 @@ Perl_newCONSTSUB_flags(pTHX_ HV *stash, const char *name, STRLEN len,
     }
 
     /* Protect sv against leakage caused by fatal warnings. */
-    if (sv) SAVEFREESV(sv);
+    if (sv) { SAVEFREESV(sv); }
 
     /* file becomes the CvFILE. For an XS, it's usually static storage,
        and so doesn't get free()d.  (It's expected to be from the C pre-
