@@ -1502,6 +1502,8 @@ clock_getres(clock_id = CLOCK_REALTIME)
 #ifdef TIME_HIRES_CLOCK_GETRES_SYSCALL
 	status = syscall(SYS_clock_getres, clock_id, &ts);
 #else
+	/* CID 165491:  Error handling issues  (NEGATIVE_RETURNS)
+	   "clock_id" is passed to a parameter that cannot be negative. */
 	status = clock_getres(clock_id, &ts);
 #endif
 	RETVAL = status == 0 ? ts.tv_sec + (NV) ts.tv_nsec / NV_1E9 : -1;

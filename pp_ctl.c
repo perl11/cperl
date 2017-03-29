@@ -3193,9 +3193,8 @@ PP(pp_goto)
 	    }
 	    if (gotoprobe) {
                 OP *sibl1, *sibl2;
-
 		retop = dofindlabel(gotoprobe, label, label_len, label_flags,
-				    enterops, enterops + GOTO_DEPTH);
+				    enterops, enterops + GOTO_DEPTH-1);
 		if (retop)
 		    break;
 		if ( (sibl1 = OpSIBLING(gotoprobe)) &&
@@ -3204,7 +3203,7 @@ PP(pp_goto)
                 {
 		    retop = dofindlabel(sibl2,
 					label, label_len, label_flags, enterops,
-					enterops + GOTO_DEPTH);
+					enterops + GOTO_DEPTH-1);
 		    if (retop)
 			break;
 		}

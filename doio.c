@@ -1975,21 +1975,18 @@ nothing in the core.
 		    tot--;
 		}
 		else {
-		    if (UNLINK(s))
-		    {
-				tot--;
-			}
+		    if (UNLINK(s)) {
+                        tot--;
+                    }
 #if defined(__amigaos4__) && defined(NEWLIB)
-			else
-			{
-				/* Under AmigaOS4 unlink only 'fails' if the filename is invalid */
-				/* It may not remove the file if it's Locked, so check if it's still */
-				/* arround */
-				if((access(s,F_OK) != -1))
-				{
-					tot--;
-				}
-			}	
+                    else {
+                        /* Under AmigaOS4 unlink only 'fails' if the filename is invalid */
+                        /* It may not remove the file if it's Locked, so check if it's still */
+                        /* arround. e.g. cygwin delayed unlink. */
+                        if ((access(s,F_OK) != -1)) {
+                            tot--;
+                        }
+                    }	
 #endif
 		}
 	    }
