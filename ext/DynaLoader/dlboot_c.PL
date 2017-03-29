@@ -149,7 +149,7 @@ print OUT line_prefix(__LINE__, <<'EOT');
     newXS("XSLoader::load_file",           XS_XSLoader_load_file, xsloaderfile);
     newXS("XSLoader::bootstrap_inherit",   XS_XSLoader_bootstrap_inherit, xsloaderfile);
     /* TODO CM-604: broke t/comp/require.t test 53: require does not localise %^H at run time */
-    Perl_set_version(aTHX_ STR_WITH_LEN("XSLoader::VERSION"), STR_WITH_LEN("1.02c"), 1.02);
+    Perl_set_version(aTHX_ STR_WITH_LEN("XSLoader::VERSION"), STR_WITH_LEN("1.03c"), 1.03);
     (void)hv_store(inc_hv, "XSLoader.pm", sizeof("XSLoader.pm")-1,
                    SvREFCNT_inc_simple_NN(newSVpvs("XSLoader.c")), 0);
 

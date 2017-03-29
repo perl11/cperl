@@ -61,16 +61,16 @@ XS(XS_XSLoader_load) {
         modlibname = OutCopFILE(PL_curcop);
         if (memEQ(modlibname, "(eval ", 6)) /* This catches RT #115808 */
             modlibname = NULL;
-    }
-    if (!module) {
-        ENTER; SAVETMPS;
-        PUSHMARK(MARK);
-        PUTBACK;
-        items = call_pv("XSLoader::bootstrap_inherit", GIMME);
-        SPAGAIN;
-        PUTBACK; FREETMPS; LEAVE;
-        LEAVE;
-        XSRETURN(items);
+        if (!modlibname) {
+            ENTER; SAVETMPS;
+            PUSHMARK(MARK);
+            PUTBACK;
+            items = call_pv("XSLoader::bootstrap_inherit", GIMME);
+            SPAGAIN;
+            PUTBACK; FREETMPS; LEAVE;
+            LEAVE;
+            XSRETURN(items);
+        }
     }
     modparts = dl_split_modparts(aTHX_ module);
     modfname = AvARRAY(modparts)[AvFILLp(modparts)];

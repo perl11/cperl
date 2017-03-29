@@ -1662,6 +1662,12 @@ implemented $DisableBlessed (security).
 
 use the new get_svs, get_avs, get_hvs macros.
 
+=item XSLoader 1.03c
+
+coverity detected invalid branch:
+if (!module) is always false. we need to check
+if (!modlibname) instead.
+
 =back
 
 =head2 Removed Modules and Pragmata
