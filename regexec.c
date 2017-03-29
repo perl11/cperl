@@ -1759,19 +1759,14 @@ REXEC_FBC_SCAN( /* Loops while (s < strend) */                 \
             FBC_UTF8_A(TEST_NON_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT),           \
             TEST_NON_UTF8, RXPLACEHOLDER, REXEC_FBC_TRYIT)
 
-#ifdef DEBUGGING
-static IV
+static Size_t
 S_get_break_val_cp_checked(SV* const invlist, const UV cp_in) {
-  IV cp_out = Perl__invlist_search(invlist, cp_in);
+  SSize_t cp_out = Perl__invlist_search(invlist, cp_in);
   assert(cp_out >= 0);
-  return cp_out;
+  return cp_out >= 0 ? (Size_t)cp_out : LB_EDGE;
 }
-#  define _generic_GET_BREAK_VAL_CP_CHECKED(invlist, invmap, cp) \
+#define _generic_GET_BREAK_VAL_CP_CHECKED(invlist, invmap, cp) \
 	invmap[S_get_break_val_cp_checked(invlist, cp)]
-#else
-#  define _generic_GET_BREAK_VAL_CP_CHECKED(invlist, invmap, cp) \
-	invmap[_invlist_search(invlist, cp)]
-#endif
 
 /* Takes a pointer to an inversion list, a pointer to its corresponding
  * inversion map, and a code point, and returns the code point's value
