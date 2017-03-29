@@ -1086,10 +1086,13 @@ See L<https://github.com/andk/cpanpm/pull/109>
 Moved from cpan to dist.
 L<[cperl #154]|https://github.com/perl11/cperl/issues/154>.
 
-=item Cpanel-JSON-XS  3.0230
+=item Cpanel-JSON-XS  3.0231
 
-fix decode_prefix offset when the string was re-allocated.
-rather return the relative offset not the pointer to the old start.
+- Fix need() overallocation (#84 Matthew Horsfall) and missing
+  need() calls.
+
+- Fix decode_prefix offset when the string was re-allocated.
+  rather return the relative offset not the pointer to the old start.
 
 - Fixes for g++-6, stricter -fpermissive and -Wc++11-compat.
 
@@ -1111,15 +1114,21 @@ rather return the relative offset not the pointer to the old start.
 - fail decode of non-unicode raw characters above U+10FFFF
   when not in relaxed mode.
 
-New stringify_infnan(3) infnan_mode.
-Fix inf/nan detection on HP-UX and others.
-Use faster strEQc macros.
-Prefer memEQ for systems without memcmp, to use bcmp there.
-Add more expect_false() to inf/nan branches.
-Fix av and hv length types: protect from security sensitive overflows,
-add HVMAX_T and RITER_T
-Add new "Hash key too large" error. perl5 silently truncates it,
-but we prefer errors.
+- New stringify_infnan(3) infnan_mode.
+
+- Fix inf/nan detection on HP-UX and others.
+
+- Use faster strEQc macros.
+
+- Prefer memEQ for systems without memcmp, to use bcmp there.
+
+- Add more expect_false() to inf/nan branches.
+
+- Fix av and hv length types: protect from security sensitive overflows,
+  add HVMAX_T and RITER_T
+
+- Add new "Hash key too large" error. perl5 silently truncates it,
+  but we prefer errors.
 
 =item Config  6.22
 

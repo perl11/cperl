@@ -681,6 +681,9 @@ typedef struct
 INLINE void
 need (pTHX_ enc_t *enc, STRLEN len)
 {
+  DEBUG_v(Perl_deb(aTHX_ "need enc: %p %p %4ld, want: %ld\n", enc->cur, enc->end,
+                   enc->end - enc->cur, (long)len));
+  assert(enc->cur <= enc->end);
   if (UNLIKELY(enc->cur + len >= enc->end))
     {
       STRLEN cur = enc->cur - (char *)SvPVX (enc->sv);
@@ -717,44 +720,58 @@ encode_str (pTHX_ enc_t *enc, char *str, STRLEN len, int is_utf8)
   while (str < end)
     {
       unsigned char ch = *(unsigned char *)str;
+      DEBUG_v(Perl_deb(aTHX_ "str  enc: %p %p %4ld, want: %lu\n", enc->cur, enc->end,
+                       enc->end - enc->cur, (long unsigned)len));
 
       if (LIKELY(ch >= 0x20 && ch < 0x80)) /* most common case */
         {
+          assert(enc->cur <= enc->end);
           if (UNLIKELY(ch == '"')) /* but with slow exceptions */
             {
-              need (aTHX_ enc, len += 1);
+              need (aTHX_ enc, 2);
               *enc->cur++ = '\\';
               *enc->cur++ = '"';
+              ++len;
             }
           else if (UNLIKELY(ch == '\\'))
             {
-              need (aTHX_ enc, len += 1);
+              need (aTHX_ enc, 2);
               *enc->cur++ = '\\';
               *enc->cur++ = '\\';
+              ++len;
             }
           else if (UNLIKELY(ch == '/' && (enc->json.flags & F_ESCAPE_SLASH)))
             {
-              need (aTHX_ enc, len += 1);
+              need (aTHX_ enc, 2);
               *enc->cur++ = '\\';
               *enc->cur++ = '/';
+              ++len;
             }
-          else
+          else {
+            need (aTHX_ enc, 1);
             *enc->cur++ = ch;
+          }
 
           ++str;
         }
       else
         {
+          assert(enc->cur <= enc->end);
           switch (ch)
             {
-              case '\010': need (aTHX_ enc, len += 1); *enc->cur++ = '\\'; *enc->cur++ = 'b'; ++str; break;
-              case '\011': need (aTHX_ enc, len += 1); *enc->cur++ = '\\'; *enc->cur++ = 't'; ++str; break;
-              case '\012': need (aTHX_ enc, len += 1); *enc->cur++ = '\\'; *enc->cur++ = 'n'; ++str; break;
-              case '\014': need (aTHX_ enc, len += 1); *enc->cur++ = '\\'; *enc->cur++ = 'f'; ++str; break;
-              case '\015': need (aTHX_ enc, len += 1); *enc->cur++ = '\\'; *enc->cur++ = 'r'; ++str; break;
+            case '\010': need (aTHX_ enc, 2);
+              *enc->cur++ = '\\'; *enc->cur++ = 'b'; ++len; ++str; break;
+            case '\011': need (aTHX_ enc, 2);
+              *enc->cur++ = '\\'; *enc->cur++ = 't'; ++len; ++str; break;
+            case '\012': need (aTHX_ enc, 2);
+              *enc->cur++ = '\\'; *enc->cur++ = 'n'; ++len; ++str; break;
+            case '\014': need (aTHX_ enc, 2);
+              *enc->cur++ = '\\'; *enc->cur++ = 'f'; ++len; ++str; break;
+            case '\015': need (aTHX_ enc, 2);
+              *enc->cur++ = '\\'; *enc->cur++ = 'r'; ++len; ++str; break;
 
-              default:
-                {
+            default:
+              {
                   STRLEN clen;
                   UV uch;
 
@@ -776,49 +793,55 @@ encode_str (pTHX_ enc_t *enc, char *str, STRLEN len, int is_utf8)
 		      if (enc->json.flags & F_BINARY)
 			{
                           /* MB cannot arrive here */
-                          need (aTHX_ enc, len += 3);
+                          need (aTHX_ enc, 4);
                           *enc->cur++ = '\\';
                           *enc->cur++ = 'x';
                           *enc->cur++ = PL_hexdigit [(uch >>  4) & 15];
                           *enc->cur++ = PL_hexdigit [ uch & 15];
+                          len += 3;
 			}
                       else if (uch >= 0x10000UL)
                         {
                           if (uch >= 0x110000UL)
                             croak ("out of range codepoint (0x%lx) encountered, unrepresentable in JSON", (unsigned long)uch);
 
-                          need (aTHX_ enc, len += 11);
+                          need (aTHX_ enc, 12);
                           sprintf (enc->cur, "\\u%04x\\u%04x",
                                    (int)((uch - 0x10000) / 0x400 + 0xD800),
                                    (int)((uch - 0x10000) % 0x400 + 0xDC00));
                           enc->cur += 12;
+                          len += 11;
                         }
 		      else
                         {
-                          need (aTHX_ enc, len += 5);
+                          need (aTHX_ enc, 6);
                           *enc->cur++ = '\\';
                           *enc->cur++ = 'u';
                           *enc->cur++ = PL_hexdigit [ uch >> 12      ];
                           *enc->cur++ = PL_hexdigit [(uch >>  8) & 15];
                           *enc->cur++ = PL_hexdigit [(uch >>  4) & 15];
                           *enc->cur++ = PL_hexdigit [ uch & 15];
+                          len += 5;
                         }
 
                       str += clen;
                     }
                   else if (enc->json.flags & F_LATIN1)
                     {
+                      need (aTHX_ enc, 1);
                       *enc->cur++ = uch;
                       str += clen;
                     }
                   else if (enc->json.flags & F_BINARY)
                     {
+                      need (aTHX_ enc, 1);
                       *enc->cur++ = uch;
                       str += clen;
                     }
                   else if (is_utf8)
                     {
-                      need (aTHX_ enc, len += clen);
+                      need (aTHX_ enc, clen);
+                      len += clen;
                       do
                         {
                           *enc->cur++ = *str++;
@@ -827,9 +850,10 @@ encode_str (pTHX_ enc_t *enc, char *str, STRLEN len, int is_utf8)
                     }
                   else
                     { /* never more than 11 bytes needed */
-                      need (aTHX_ enc, len += UTF8_MAXBYTES - 1);
+                      need (aTHX_ enc, UTF8_MAXBYTES);
                       enc->cur = (char*)encode_utf8 ((U8*)enc->cur, uch);
                       ++str;
+                      len += UTF8_MAXBYTES - 1;
                     }
                 }
             }
@@ -861,7 +885,6 @@ encode_indent (pTHX_ enc_t *enc)
 INLINE void
 encode_space (pTHX_ enc_t *enc)
 {
-  need (aTHX_ enc, 1);
   encode_ch (aTHX_ enc, ' ');
 }
 
@@ -870,7 +893,6 @@ encode_nl (pTHX_ enc_t *enc)
 {
   if (enc->json.flags & F_INDENT)
     {
-      need (aTHX_ enc, 1);
       encode_ch (aTHX_ enc, '\n');
     }
 }
