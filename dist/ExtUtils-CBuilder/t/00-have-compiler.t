@@ -17,7 +17,7 @@ BEGIN {
   }
 }
 
-if ($ENV{TRAVIS}) {
+if (0 && $ENV{TRAVIS}) {
   plan skip_all => "Instable Travis-CI test";
 }
 else {

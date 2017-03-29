@@ -43,7 +43,7 @@ Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
 Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
 Digest::MD5 cpan/Digest-MD5/MD5.xs 9b47158166b1162f11169f9766eddb75046e7917
 Digest::MD5 cpan/Digest-MD5/t/files.t c38f1ab8150ad688de807d140fd410d7cd9410de
-ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t b65ce65850ad1b887e38d2a081920646f162fbaa
+ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 9061ebec404019e812d03fa7227dd435d7a71046
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t 71a03fe898634486a5181ac32b6a98f03bb9a914
 ExtUtils::Install cpan/ExtUtils-Install/lib/ExtUtils/Install.pm 802cae6f7ad3579dbcb26a34b293dc96161b1f73
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm 92397ec3b85c35edd33cbe7b237d244ea2bd00b1
