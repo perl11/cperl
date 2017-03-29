@@ -358,7 +358,8 @@ get_bool (pTHX_ const char *name)
 INLINE void
 shrink (pTHX_ SV *sv)
 {
-  sv_utf8_downgrade (sv, 1);
+  /* ignore errors */
+  (void)sv_utf8_downgrade (sv, 1);
 
   if (SvLEN (sv) > SvCUR (sv) + 1)
     {
