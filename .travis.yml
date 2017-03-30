@@ -11,9 +11,8 @@ addons:
   coverity_scan:
     project:
       name: perl11/cperl
-      description: a perl5 with classes, types, compilable, company friendly
     notification_email: rurban@cpan.org
-    build_command_prepend: ./Configure -des -Dusedevel -Uversiononly -Dprefix=$HOME/cperl
+    build_command_prepend: ./Configure -des -Dusedevel -Uversiononly -Dprefix=$HOME/cperl/usr
     build_command: make -s -j4 ECHO=true
     branch_pattern: coverity
 cache:
@@ -41,15 +40,17 @@ env:
 matrix:
   fast_finish: true
 script:
-- test -n $TRAVIS_TAG && CONFIGURE_OPTION="$CONFIGURE_OPTION -Dusedevel"; ./Configure
-  -des -Uversiononly -Dcc="$XCC" $CONFIGURE_OPTION -Dprefix=$HOME/cperl/usr && make
-  -j4 -s
+- test -n $TRAVIS_TAG && CONFIGURE_OPTION="$CONFIGURE_OPTION -Dusedevel";
+  ./Configure -des -Uversiononly -Dcc="$XCC" $CONFIGURE_OPTION -Dprefix=$HOME/cperl/usr &&
+  make -j4 -s
 - if [ ${TRAVIS_OS_NAME} = "linux" -o -z "`echo $CONFIGURE_OPTION | grep 'DDEBUGGING'
-  2>/dev/null`" ]; then TEST_JOBS=4 make -s -j4 test_harness && make -s install &&
-  $HOME/cperl/usr/bin/cperlivp -v -p; fi
+  2>/dev/null`" ]; then
+    TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/cperl/usr/bin/cperlivp -p;
+  fi
 before_deploy:
-- if [ -z $CONFIGURE_OPTION -a test -n $XBITS ]; then tar -czvf cperl-${TRAVIS_TAG}-${TRAVIS_OS_NAME}${XBITS}.tar.gz
-  -C $HOME/cperl *; fi
+- if [ -z $CONFIGURE_OPTION -a test -n $XBITS ]; then
+    tar -czvf cperl-${TRAVIS_TAG}-${TRAVIS_OS_NAME}${XBITS}.tar.gz -C $HOME/cperl *;
+  fi
 deploy:
   provider: releases
   file: cperl-${TRAVIS_TAG}-${TRAVIS_OS_NAME}${XBITS}.tar.gz
