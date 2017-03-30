@@ -336,11 +336,10 @@ our %released = (
     5.025009 => '2017-01-20',
     '5.025003c' => '2017-02-23',
     5.025010 => '2017-02-20',
-    '5.022005c' => '????-??-??',
-    '5.024003c' => '????-??-??',
     5.025011 => '2017-03-20',
     5.026000 => '????-??-??',
     '5.026000c' => '2016-04-18',
+    '5.024003c' => '????-??-??',
  );
 
 sub version_sort {
@@ -12676,14 +12675,6 @@ our %delta = (
         removed => {
         }
     },
-    '5.022005c' => {
-        delta_from => '5.022004c',
-        changed => {
-            'B::Op_private'         => '5.022005',
-        },
-        removed => {
-        }
-    },
     '5.024000c' => {
         delta_from => '5.022003c',
         changed => {
@@ -14740,7 +14731,7 @@ our %delta = (
             'Compress::Raw::Bzip2'  => '2.074',
             'Compress::Raw::Zlib'   => '2.074',
             'Config'                => '6.23',
-            'Cpanel::JSON::XS'      => '3.0230',
+            'Cpanel::JSON::XS'      => '3.0231',
             'Cwd'                   => '4.67c',
             'ExtUtils::Install'     => '2.04_01',
             'ExtUtils::ParseXS'             => '3.34_02',
@@ -14786,8 +14777,10 @@ our %delta = (
             'IO::Uncompress::Unzip' => '2.074',
             'Net::Ping'             => '2.58_01',
             'PerlIO'                => '1.10',
+            'PerlIO::via'           => '0.17',
             'Pod::Html'             => '2.23002c',
-            'Storable'              => '3.05_10',
+            'Storable'              => '3.05_11',
+            'XSLoader'              => '1.03c',
             'feature'               => '1.48_01',
             'open'                  => '1.11',
             'threads'               => '2.15',
