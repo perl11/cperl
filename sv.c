@@ -4233,8 +4233,9 @@ Perl_gv_setref(pTHX_ SV *const dstr, SV *const sstr)
 	       one stash, don't call mro_isa_changed_in directly, but let
 	       magic_clearisa do it for us, as it already has the logic for
 	       dealing with globs vs arrays of globs. */
-	    assert(mg);
-	    Perl_magic_clearisa(aTHX_ NULL, mg);
+            if (LIKELY(mg)) {
+                Perl_magic_clearisa(aTHX_ NULL, mg);
+            }
 	}
         else if (stype == SVt_PVIO) {
             DEBUG_o(Perl_deb(aTHX_ "gv_setref clearing PL_stashcache\n"));
