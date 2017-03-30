@@ -487,6 +487,7 @@ use File::Glob qw(:case);
         # cperl fixes for PERL_CORE
         'CUSTOMIZED'   => [ qw( Makefile.PL
                                 MemoryProfiling.pod
+                                FileHandle.xs
                                 lib/Devel/NYTProf/FileInfo.pm
                                 t/lib/NYTProfTest.pm
                                 t/00-load.t
