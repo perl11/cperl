@@ -5821,6 +5821,8 @@ Perl_re_printf( aTHX_  "LHS=%" UVuf " RHS=%" UVuf "\n",
             }
             if (flags & SCF_DO_STCLASS)
                 ssc_init_zero(pRExC_state, &accum);
+            else
+                accum.flags = 0; /* coverity CID 165412 */
 
             if (!trie->jump) {
                 min1= trie->minlen;
