@@ -5318,6 +5318,7 @@ S_fold_constants(pTHX_ OP *const o)
     case OP_UNPACK:
         if (OpWANT_LIST(o)) /* cannot represent a list as const SV */
             goto nope;
+        /* fall through */
     case OP_PACK:
 	if (!OpHAS_SIBLING(OpFIRST(o))
             || ISNT_TYPE(OpSIBLING(OpFIRST(o)), CONST))
