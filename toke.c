@@ -4487,6 +4487,7 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
         if (UNLIKELY(normalize)) {
             char *p = pv_uni_normalize(tmpbuf, len, &len);
             Copy(p, tmpbuf, len+1, char);
+            Safefree(p);
             /*Copy(p, &PL_tokenbuf, len+1, char);*/
         }
 	if (len > 2 && tmpbuf[len - 2] == ':' && tmpbuf[len - 1] == ':') {
@@ -12860,14 +12861,20 @@ Perl_parse_label(pTHX_ U32 flags)
 	t = PL_bufptr;
 	s = SvPVX(PL_linestr) + bufptr_pos;
 	if (t[0] == ':' && t[1] != ':') {
+            SV* sv;
+            bool need_free = FALSE;
 	    PL_oldoldbufptr = PL_oldbufptr;
 	    PL_oldbufptr = s;
 	    PL_bufptr = t+1;
             if (UNLIKELY(normalize)) {
                 s = pv_uni_normalize(s, wlen, &wlen);
                 Copy(s, &PL_tokenbuf, wlen+1, char);
+                need_free = TRUE;
             }
-	    return newSVpvn_flags(s, wlen, UTF ? SVf_UTF8 : 0);
+	    sv = newSVpvn_flags(s, wlen, UTF ? SVf_UTF8 : 0);
+            if (need_free)
+                Safefree(s);
+            return sv;
 	} else {
 	    PL_bufptr = s;
         no_label:
@@ -13189,6 +13196,7 @@ Perl_parse_subsignature(pTHX)
             if (UNLIKELY(normalize)) {
                 char *d = pv_uni_normalize(s, len, &len);
                 Copy(d, &PL_tokenbuf, len+1, char);
+                Safefree(d);
             }
             typestash = find_in_my_stash(PL_tokenbuf, len);
             if (!typestash)
