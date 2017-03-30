@@ -336,7 +336,7 @@ sub find_locales ($;$) {
         }
         close(LOCALES);
     } else { # Final fallback.  Try our list of locales hard-coded here
-
+        unshift @INC, '.';
         # This is going to be slow.
         my @Data;
 
