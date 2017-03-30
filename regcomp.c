@@ -6194,7 +6194,7 @@ S_pat_upgrade_to_utf8(pTHX_ RExC_state_t * const pRExC_state,
 {
     U8 *const src = (U8*)*pat_p;
     U8 *dst, *d;
-    int n=0;
+    int n = 0;
     STRLEN s = 0;
     bool do_end = 0;
     GET_RE_DEBUG_FLAGS_DECL;
@@ -7130,8 +7130,9 @@ Perl_re_op_compile(pTHX_ SV ** const patternp, int pat_count,
         -- dmq */
         if (flags & RESTART_PASS1) {
             if (flags & NEED_UTF8) {
+                assert(pRExC_state);
                 S_pat_upgrade_to_utf8(aTHX_ pRExC_state, &exp, &plen,
-                pRExC_state->code_blocks ? pRExC_state->code_blocks->count : 0);
+                    pRExC_state->code_blocks ? pRExC_state->code_blocks->count : 0);
             }
             else {
                 DEBUG_PARSE_r(Perl_re_printf( aTHX_
