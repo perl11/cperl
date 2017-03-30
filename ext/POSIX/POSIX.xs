@@ -1447,7 +1447,7 @@ typedef int POSIX__Fd;
 typedef struct termios* POSIX__Termios;
 #else /* Define termios types to int, and call not_here for the functions.*/
 #define POSIX__Termios int
-#define speed_t int
+#define speed_t unsigned long
 #define tcflag_t int
 #define cc_t int
 #define cfgetispeed(x) not_here("cfgetispeed")

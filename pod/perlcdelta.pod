@@ -1468,7 +1468,9 @@ L<https://github.com/rurban/pod-simple/tree/cperl>.
 Moved from cpan to dist.
 L<[cperl #154]|https://github.com/perl11/cperl/issues/154>.
 
-=item POSIX 1.69_01
+=item POSIX 1.76_02
+
+changed speed_t to unsigned long. cannot be negative.
 
 Fix -Wc++11-compat warnings
 

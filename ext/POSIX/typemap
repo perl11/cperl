@@ -8,7 +8,7 @@ Off_t			T_NV
 Dev_t			T_NV
 NV			T_NV
 fd			T_IV
-speed_t			T_IV
+speed_t			T_UV
 tcflag_t		T_IV
 cc_t			T_IV
 POSIX::SigSet		T_OPAQUEPTROBJ
