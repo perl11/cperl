@@ -2827,7 +2827,7 @@ decode_hv (pTHX_ dec_t *dec)
     {
       if (dec->json.cb_sk_object && HvKEYS (hv) == 1)
         {
-          HE *cb, *he;
+          HE *cb = NULL, *he;
 
           hv_iterinit (hv);
           he = hv_iternext (hv);
@@ -2835,7 +2835,8 @@ decode_hv (pTHX_ dec_t *dec)
 
           /* the next line creates a mortal sv each time it's called. */
           /* might want to optimise this for common cases. */
-          cb = hv_fetch_ent (dec->json.cb_sk_object, hv_iterkeysv (he), 0, 0);
+          if (he)
+            cb = hv_fetch_ent (dec->json.cb_sk_object, hv_iterkeysv (he), 0, 0);
 
           if (cb)
             {
