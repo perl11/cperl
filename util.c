@@ -946,7 +946,8 @@ Perl_fbm_instr(pTHX_ unsigned char *big, unsigned char *bigend, SV *littlestr, U
 	const MAGIC *const mg = mg_find(littlestr, PERL_MAGIC_bm);
 	const unsigned char *oldlittle;
 
-	assert(mg);
+        if (UNLIKELY(!mg))
+            return NULL;
 
 	--littlelen;			/* Last char found by table lookup */
 
