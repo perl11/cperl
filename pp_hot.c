@@ -3118,11 +3118,9 @@ PP(pp_iter_ary)
             SvREFCNT_inc_simple_void_NN(sv);
         }
     }
-    else if (av) {
+    else {
         sv = newSVavdefelem(av, ix, 0);
     }
-    else
-        sv = UNDEF;
 
     oldsv = *itersvp;
     *itersvp = sv;
