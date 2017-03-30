@@ -3477,7 +3477,7 @@ PP(pp_subst)
     }
 
   force_it:
-    if (!pm || !orig)
+    if (!orig)
 	DIE(aTHX_ "panic: pp_subst, pm=%p, orig=%p", pm, orig);
 
     strend = orig + len;
