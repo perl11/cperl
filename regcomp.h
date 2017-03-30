@@ -114,6 +114,7 @@
 #define RXi_SET(x,y) (x)->pprivate = (void*)(y)   
 #define RXi_GET(x)   ((regexp_internal *)((x)->pprivate))
 #define RXi_GET_DECL(r,ri) regexp_internal *ri = r ? RXi_GET(r) : NULL
+#define RXi_GET_DECL_NN(r,ri) regexp_internal *ri = RXi_GET(r)
 /*
  * Flags stored in regexp->intflags
  * These are used only internally to the regexp engine

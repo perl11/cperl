@@ -1861,7 +1861,7 @@ S_find_byclass(pTHX_ regexp * prog, const regnode *c, char *s,
                                    1 and 1^1 = 0 */
     _char_class_number classnum;
 
-    RXi_GET_DECL(prog,progi);
+    RXi_GET_DECL_NN(prog,progi);
 
     PERL_ARGS_ASSERT_FIND_BYCLASS;
 
@@ -3996,9 +3996,9 @@ STATIC I32
 S_reg_check_named_buff_matched(const regexp *rex, const regnode *scan)
 {
     I32 n;
-    RXi_GET_DECL(rex,rexi);
-    SV *sv_dat= MUTABLE_SV(rexi->data->data[ ARG( scan ) ]);
-    I32 *nums=(I32*)SvPVX(sv_dat);
+    RXi_GET_DECL_NN(rex,rexi);
+    SV *sv_dat = MUTABLE_SV(rexi->data->data[ ARG( scan ) ]);
+    I32 *nums = (I32*)SvPVX(sv_dat);
 
     PERL_ARGS_ASSERT_REG_CHECK_NAMED_BUFF_MATCHED;
 

@@ -18931,8 +18931,8 @@ Perl_regdump(pTHX_ const regexp *r)
 {
 #ifdef DEBUGGING
     SV * const sv = sv_newmortal();
-    SV *dsv= sv_newmortal();
-    RXi_GET_DECL(r,ri);
+    SV *dsv = sv_newmortal();
+    RXi_GET_DECL_NN(r,ri);
     GET_RE_DEBUG_FLAGS_DECL;
 
     PERL_ARGS_ASSERT_REGDUMP;
@@ -20657,7 +20657,7 @@ S_dumpuntil(pTHX_ const regexp *r, const regnode *start, const regnode *node,
     const regnode *next;
     const regnode *optstart= NULL;
 
-    RXi_GET_DECL(r,ri);
+    RXi_GET_DECL_NN(r,ri);
     GET_RE_DEBUG_FLAGS_DECL;
 
     PERL_ARGS_ASSERT_DUMPUNTIL;
