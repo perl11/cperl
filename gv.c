@@ -2915,8 +2915,9 @@ Perl_gv_handler(pTHX_ HV *stash, I32 id)
 	if (Gv_AMupdate(stash, 0) == -1)
 	    return NULL;
 	mg = mg_find((const SV *)stash, PERL_MAGIC_overload_table);
+        if (UNLIKELY(!mg))
+            return NULL;
     }
-    assert(mg);
     amtp = (AMT*)mg->mg_ptr;
     if ( amtp->was_ok_sub != newgen )
 	goto do_update;
