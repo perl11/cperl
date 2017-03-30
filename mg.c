@@ -1763,8 +1763,9 @@ Perl_magic_clearisa(pTHX_ SV *sv, MAGIC *mg)
 	/* This occurs with setisa_elem magic, which calls this
 	   same function. */
 	mg = mg_find(mg->mg_obj, PERL_MAGIC_isa);
+    if (UNLIKELY(!mg))
+        return 0;
 
-    assert(mg);
     if (SvTYPE(mg->mg_obj) == SVt_PVAV) { /* multiple stashes */
 	SV **svp = AvARRAY((AV *)mg->mg_obj);
 	I32 items = AvFILLp((AV *)mg->mg_obj) + 1;
