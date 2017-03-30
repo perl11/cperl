@@ -338,6 +338,7 @@ av_uncow(AV* av) {
     Newx(allocp, AvFILLp(av), SV*);
     Copy(AvALLOC(av), allocp, AvFILLp(av), SV*);
     AvIsCOW_off(av);
+    AvALLOC(av) = allocp;
 }
 
 /*
