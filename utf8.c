@@ -3592,7 +3592,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
     assert(listsv != UNDEF || *name || invlist);
     assert(! invlist || minbits == 1);
 
-    PL_curpm= NULL; /* reset PL_curpm so that we dont get confused between the regex
+    PL_curpm = NULL; /* reset PL_curpm so that we dont get confused between the regex
                        that triggered the swash init and the swash init perl logic itself.
                        See perl #122747 */
 
@@ -3681,7 +3681,7 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
 	}
 	if (!SvROK(retval) || SvTYPE(SvRV(retval)) != SVt_PVHV) {
 	    if (SvPOK(retval)) {
-
+            no_swash_init:
 		/* If caller wants to handle missing properties, let them */
 		if (flags_p && *flags_p & _CORE_SWASH_INIT_RETURN_IF_UNDEF) {
                     CORE_SWASH_INIT_RETURN(NULL);
@@ -3761,6 +3761,19 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
 		swash_invlist = invlist;
 	    }
 	}
+        if (UNLIKELY(!swash_invlist)) {
+#ifdef __cplusplus
+            if (flags_p && *flags_p & _CORE_SWASH_INIT_RETURN_IF_UNDEF) {
+                CORE_SWASH_INIT_RETURN(NULL);
+            }
+            Perl_croak(aTHX_
+                       "Can't find Unicode property definition \"%" SVf "\"",
+                       SVfARG(retval));
+            NOT_REACHED;
+#else
+            goto no_swash_init;
+#endif
+        }
 
         /* Here, we have computed the union of all the passed-in data.  It may
          * be that there was an inversion list in the swash which didn't get
