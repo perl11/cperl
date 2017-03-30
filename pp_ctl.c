@@ -842,6 +842,8 @@ PP(pp_formline)
 		    *t++ = ' ';
 		break;
 	    }
+	    if (UNLIKELY(!sv))
+                break;
 	    gotsome = TRUE;
 	    value = SvNV(sv);
 	    /* overflow evidence */
