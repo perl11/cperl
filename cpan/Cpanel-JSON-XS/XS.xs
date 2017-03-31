@@ -2835,7 +2835,7 @@ decode_hv (pTHX_ dec_t *dec)
 
           /* the next line creates a mortal sv each time it's called. */
           /* might want to optimise this for common cases. */
-          if (he)
+          if (LIKELY(he))
             cb = hv_fetch_ent (dec->json.cb_sk_object, hv_iterkeysv (he), 0, 0);
 
           if (cb)
