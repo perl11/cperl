@@ -292,6 +292,18 @@ L<a91233bf4cf|https://github.com/perl11/cperl/commit/a91233bf4cf6a12df8935c3530a
 See L<[cperl #244]|https://github.com/perl11/cperl/issues/244>.
 cperl only.
 
+=head2 Added SAFE_RX_ substrs accessors
+
+    SAFE_RX_CHECK_SUBSTR(rx)
+    SAFE_RX_ANCHORED_SUBSTR(rx)
+    SAFE_RX_ANCHORED_UTF8(rx)
+    SAFE_RX_FLOAT_SUBSTR(rx)
+    SAFE_RX_FLOAT_UTF8(rx)
+
+Other regex engines don't fill C<<< rx->substrs->data[] >>>, so it is unsafe
+to access it. Only allow ext/re and Perl_core_reg_engine.
+Currently only used in L<op_dump()|perlapi/op_dump>.
+
 =head1 Security
 
 =head2 Storable stack overflows

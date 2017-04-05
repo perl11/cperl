@@ -798,10 +798,40 @@ struct reg_data {
 #define check_offset_max substrs->data[2].max_offset
 #define check_end_shift substrs->data[2].end_shift
 
+/* Only if guaranteed that rx->engine is core or substrs are filled */
+#define RX_CHECK_SUBSTR(rx)	(ReANY(rx)->check_substr)
 #define RX_ANCHORED_SUBSTR(rx)	(ReANY(rx)->anchored_substr)
 #define RX_ANCHORED_UTF8(rx)	(ReANY(rx)->anchored_utf8)
 #define RX_FLOAT_SUBSTR(rx)	(ReANY(rx)->float_substr)
 #define RX_FLOAT_UTF8(rx)	(ReANY(rx)->float_utf8)
+
+/* External re engines usually don't fill the substrs->data array.
+   It is thus unsafe to access them. */
+#ifndef PLUGGABLE_RE_EXTENSION
+#ifdef PERL_IN_XSUB_RE
+#define SAFE_RX_CHECK_SUBSTR(rx)	(rx && RX_ENGINE(rx) == &my_reg_engine && \
+                                         ReANY(rx)->check_substr)
+#define SAFE_RX_ANCHORED_SUBSTR(rx)	(rx && RX_ENGINE(rx) == &my_reg_engine && \
+                                         ReANY(rx)->anchored_substr)
+#define SAFE_RX_ANCHORED_UTF8(rx)	(RX_ENGINE(rx) == &my_reg_engine && \
+                                         ReANY(rx)->anchored_utf8)
+#define SAFE_RX_FLOAT_SUBSTR(rx)	(rx && RX_ENGINE(rx) == &my_reg_engine && \
+                                         ReANY(rx)->float_substr)
+#define SAFE_RX_FLOAT_UTF8(rx)		(rx && RX_ENGINE(rx) == &my_reg_engine && \
+                                         ReANY(rx)->float_utf8)
+#else
+#define SAFE_RX_CHECK_SUBSTR(rx)	(rx && RX_ENGINE(rx) == &PL_core_reg_engine && \
+                                         ReANY(rx)->check_substr)
+#define SAFE_RX_ANCHORED_SUBSTR(rx)	(rx && RX_ENGINE(rx) == &PL_core_reg_engine && \
+                                         ReANY(rx)->anchored_substr)
+#define SAFE_RX_ANCHORED_UTF8(rx)	(RX_ENGINE(rx) == &PL_core_reg_engine && \
+                                         ReANY(rx)->anchored_utf8)
+#define SAFE_RX_FLOAT_SUBSTR(rx)	(rx && RX_ENGINE(rx) == &PL_core_reg_engine && \
+                                         ReANY(rx)->float_substr)
+#define SAFE_RX_FLOAT_UTF8(rx)		(rx && RX_ENGINE(rx) == &PL_core_reg_engine && \
+                                         ReANY(rx)->float_utf8)
+#endif
+#endif
 
 /* trie related stuff */
 

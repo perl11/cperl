@@ -7189,7 +7189,7 @@ Perl_re_op_compile(pTHX_ SV ** const patternp, int pat_count,
 
     /* non-zero initialization begins here */
     RXi_SET( r, ri );
-    r->engine= eng;
+    r->engine = eng;
     r->extflags = rx_flags;
     RXp_COMPFLAGS(r) = orig_rx_flags & RXf_PMf_FLAGCOPYMASK;
 
@@ -18881,7 +18881,7 @@ static void
 S_regdump_extflags(pTHX_ const char *lead, const U32 flags)
 {
     int bit;
-    int set=0;
+    int set = 0;
     regex_charset cs;
 
     ASSUME(REG_EXTFLAGS_NAME_SIZE <= sizeof(flags)*8);

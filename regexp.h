@@ -114,7 +114,7 @@ struct reg_code_blocks {
 	/* Information about the match that the perl core uses to */	\
 	/* manage things */						\
 	U32 extflags;	/* Flags used both externally and internally */	\
-	SSize_t minlen;	/* mininum possible number of chars in string to match */\
+	SSize_t minlen;	/* minimum possible number of chars in string to match */\
 	SSize_t minlenret; /* minimum possible number of chars in $& */		\
 	STRLEN gofs;	/* chars left of pos that we search from */	\
 	/* substring data about strings that must appear in the */	\
@@ -141,7 +141,7 @@ struct reg_code_blocks {
 	SSize_t suboffset; /* byte offset of subbeg from logical start of str */ \
 	SSize_t subcoffset; /* suboffset equiv, but in chars (for @-/@+) */ \
 	/* Information about the match that isn't often used */		\
-        SSize_t maxlen;        /* mininum possible number of chars in string to match */\
+        SSize_t maxlen;     /* maximum possible number of chars in string to match */\
         /*--------------------------------------------------------*/    \
 	/* offset from wrapped to the start of precomp */		\
 	PERL_BITFIELD32 pre_prefix:4;					\
@@ -502,10 +502,9 @@ and check for NULL.
 #define RX_WRAPPED(prog)	ReANY(prog)->xpv_len_u.xpvlenu_pv
 #define RX_WRAPPED_const(prog)	((const char *)RX_WRAPPED(prog))
 #define RX_WRAPLEN(prog)	SvCUR(prog)
-#define RX_CHECK_SUBSTR(prog)	(ReANY(prog)->check_substr)
 #define RX_REFCNT(prog)		SvREFCNT(prog)
 #define RX_EXTFLAGS(prog)	RXp_EXTFLAGS(ReANY(prog))
-#define RX_COMPFLAGS(prog)        RXp_COMPFLAGS(ReANY(prog))
+#define RX_COMPFLAGS(prog)      RXp_COMPFLAGS(ReANY(prog))
 #define RX_ENGINE(prog)		(ReANY(prog)->engine)
 #define RX_SUBBEG(prog)		(ReANY(prog)->subbeg)
 #define RX_SUBOFFSET(prog)	(ReANY(prog)->suboffset)

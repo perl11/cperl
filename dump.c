@@ -828,7 +828,6 @@ S_gv_display(pTHX_ GV *gv)
 static void
 S_do_op_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const OP *o);
 
-
 static void
 S_do_pmop_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const PMOP *pm)
 {
@@ -847,7 +846,7 @@ S_do_pmop_dump_bar(pTHX_ I32 level, UV bar, PerlIO *file, const PMOP *pm)
     else
 	S_opdump_indent(aTHX_ (OP*)pm, level, bar, file, "PMf_PRE (RUNTIME)\n");
 
-    if (pm->op_pmflags || (PM_GETRE(pm) && RX_CHECK_SUBSTR(PM_GETRE(pm)))) {
+    if (pm->op_pmflags || SAFE_RX_CHECK_SUBSTR(PM_GETRE(pm))) {
 	SV * const tmpsv = pm_description(pm);
 	S_opdump_indent(aTHX_ (OP*)pm, level, bar, file, "PMFLAGS = (%s)\n",
                         SvCUR(tmpsv) ? SvPVX_const(tmpsv) + 1 : "");
@@ -932,7 +931,7 @@ S_pm_description(pTHX_ const PMOP *pm)
     if (regex) {
         if (RX_ISTAINTED(regex))
             sv_catpv(desc, ",TAINTED");
-        if (RX_CHECK_SUBSTR(regex)) {
+        if (SAFE_RX_CHECK_SUBSTR(regex)) {
             if (!(RX_INTFLAGS(regex) & PREGf_NOSCAN))
                 sv_catpv(desc, ",SCANFIRST");
             if (RX_EXTFLAGS(regex) & RXf_CHECK_ALL)
@@ -2518,7 +2517,8 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
                                 (UV)(r->extflags), SvPVX_const(d));
 
             Perl_dump_indent(aTHX_ level, file, "  ENGINE = 0x%" UVxf " (%s)\n",
-                                PTR2UV(r->engine), (r->engine == &PL_core_reg_engine) ? "STANDARD" : "PLUG-IN" );
+                             PTR2UV(r->engine),
+                             (r->engine == &PL_core_reg_engine) ? "STANDARD" : "PLUG-IN" );
             if (r->engine == &PL_core_reg_engine) {
                 SV_SET_STRINGIFY_FLAGS(d,r->intflags,regexp_core_intflags_names);
                 Perl_dump_indent(aTHX_ level, file, "  INTFLAGS = 0x%" UVxf " (%s)\n",
