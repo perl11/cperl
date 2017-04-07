@@ -258,6 +258,13 @@ Fixed return type of C<DynaLoader::dl_find_symbol_anywhere()>,
 the address, not the name.
 L<[cperl #352]|https://github.com/perl11/cperl/issues/352>.
 
+=item *
+
+The code that vivifies a typeglob out of a code ref made some false assumptions
+that could lead to a crash in cases such as C<< $::{"A"} = sub {}; \&{"A"} >>.
+This has now been fixed.
+L<[perl #131085]|https://rt.perl.org/Public/Bug/Display.html?id=131085>
+
 =back
 
 =head1 Platform Support
