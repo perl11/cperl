@@ -1191,6 +1191,10 @@ package GV_DOWNGRADE {
 runperl(prog => '$*+=**=0');
 is ($? & 127, 0,"[cperl #299] No crash with freed GV");
 
+# [perl #131085] This used to crash; no ok() necessary.
+$::{"A131085"} = sub {}; my $x = \&{"A131085"};
+
+
 __END__
 Perl
 Rules
