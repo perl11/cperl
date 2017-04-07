@@ -3,6 +3,7 @@ use 5.010;
 use strict;
 use Config;
 BEGIN {
+    push @INC, '.' if -f 'TestInit.pm';
     push @INC, '..' if -f '../TestInit.pm';
 }
 use TestInit qw(T A); # T is chdir to the top level, A makes paths absolute
@@ -21,7 +22,7 @@ sub has_shebang {
   return $line =~ /^\#!\s*([A-Za-z0-9_\-\/\.])+\s?/ ? 1 : 0;
 }
 
-require 't/test.pl';
+require './t/test.pl';
 if ( $^O eq "MSWin32" ) {
   skip_all( "-x on MSWin32 only indicates file has executable suffix. Try Cygwin?" );
 }
