@@ -5,6 +5,10 @@ BEGIN {
     require "./t/pod2html-lib.pl";
 }
 
+END {
+    rem_test_dir();
+}
+
 use strict;
 use Cwd;
 use File::Spec::Functions;
