@@ -3,7 +3,7 @@ package Safe;
 use 5.003_11;
 use Scalar::Util qw(reftype refaddr);
 
-$Safe::VERSION = "2.39_02c";
+$Safe::VERSION = "2.40_02c";
 
 # *** Don't declare any lexicals above this point ***
 #
@@ -727,6 +727,9 @@ called from a compartment but not compiled within it.
 =head2 rdo (FILENAME)
 
 This evaluates the contents of file FILENAME inside the compartment.
+It uses the same rules a perl's build-in C<do> to locate the file,
+possibly using C<@INC>.
+
 See above documentation on the B<reval> method for further details.
 
 =head2 root (NAMESPACE)
