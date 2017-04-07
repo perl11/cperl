@@ -12,7 +12,7 @@ BEGIN {
         print "1..0 # Skip -- cperl bug CM-832 Fix B::Deparse last empty line\n";
         exit 0;
     }
-    require 'test.pl';
+    require './test.pl';
 }
 
 use warnings;
