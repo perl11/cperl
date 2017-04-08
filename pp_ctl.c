@@ -1133,8 +1133,12 @@ PP(pp_mapwhile)
 	SvTEMP_off(src);
 	if (PL_op->op_private & OPpGREP_LEX)
 	    PAD_SETSV(PL_op->op_targ, src);
-	else
-	    DEFSV_set(src);
+	else {
+            SV* def = GvSV(PL_defgv);
+            if (!UNLIKELY(SvIS_FREED(def)))
+                SvREFCNT_dec(def);
+            GvSV(PL_defgv) = SvREFCNT_inc(src);
+        }
 
 	RETURNOP(cLOGOP->op_other);
     }

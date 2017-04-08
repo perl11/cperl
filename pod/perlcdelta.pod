@@ -2960,6 +2960,15 @@ cperl-only)
 
 =over 4
 
+=item No double-free of $_ in loops
+
+Fixed L<[perl #131101]|https://rt.perl.org/Ticket/Display.html?id=131101>
+crash with something like
+
+  map /x/g, (%h = ("y", 0)), (%h = ("y", 0))
+
+cperl-only
+
 =item packaging: protect sitelib dirs from being uninstalled
 
 The cperl packaging recipe in F<do-make-cperl-release> allowed empty

@@ -10,7 +10,7 @@ BEGIN {
     set_up_inc( qw(. ../lib) );
 }
 
-plan( tests => 67 );
+plan( tests => 68 );
 
 {
     my @lol = ([qw(a b c)], [], [qw(1 2 3)]);
@@ -238,3 +238,10 @@ pass 'no double frees with grep/map { undef *_ }';
     my @a = map { 1; "$_" } 1,2;
     is("@a", "1 2", "PADTMP");
 }
+
+# No double-free of $_ [perl #131101]
+{
+    map /x/g, (%h = ("y", 0)), (%h = ("y", 0));
+    ok("alive", "[perl #131101] double-free \$_ protection");
+}
+

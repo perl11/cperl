@@ -2260,7 +2260,7 @@ PP(pp_match)
 
   nope:
     if (global && !(dynpm->op_pmflags & PMf_CONTINUE)) {
-        if (!mg)
+        if (!mg && !SvIS_FREED(TARG))
             mg = mg_find_mglob(TARG);
         if (mg)
             mg->mg_len = -1;
