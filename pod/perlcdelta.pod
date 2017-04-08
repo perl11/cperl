@@ -2247,6 +2247,8 @@ left braces are not (yet) illegal.
 
 =head1 Configuration and Compilation
 
+All changes but default_inc_excludes_do are cperl-only.
+
 =over 4
 
 =item rebuild_storable
@@ -2384,7 +2386,12 @@ intensive tests.
 
 =item *
 
-Added F<t/comp/parser_run.t> for parser tests requiring test.pl.
+Fixed F<t/re/regexp.t> handling of compile-time errors, if combined
+with other result flags. cperl only.
+
+=item *
+
+Added F<t/comp/parser_run.t> for parser tests requiring F<test.pl>.
 
 =item *
 
@@ -2400,19 +2407,23 @@ Note that Microsoft Visual C++ still throws errors. You cannot use that yet.
 See L<[cperl #227]|https://github.com/perl11/cperl/issues/227>.
 
 This is related to the new C<-Wc++11-compat> and C<-fpermissive> fixes.
+cperl only.
 
 =item *
 
 C<make minitest> has been vastly improved.
+cperl only.
 
 =item *
 
 Fix tests for the optional C<-DNODEFAULT_SHAREKEYS> configuration.
+cperl only.
 
 =item *
 
 Relax some timing sensitive smoker failures on overly slow systems,
-such as darwin on Travis with DEBUGGING:
+such as darwin on Travis with DEBUGGING.
+cperl only.
 
 Time-HiRes: skip nanosleep test,
 
