@@ -217,7 +217,7 @@ foreach (@tests) {
                         my $j = index($pat, '}', $i+2);
                         if ($j < 0) {
                             last unless $in_brackets;
-                            if ($result eq 'c') {
+                            if ($result =~ /c/) {
                                 $skip++;
                                 $reason = "Can't handle compilation errors with unmatched '{'";
                             }
@@ -350,7 +350,7 @@ foreach (@tests) {
             }
 
             if ($in_brackets && ! $skip) {
-                if ($result eq 'c') {
+                if ($result =~ /c/) {
                     $skip++;
                     $reason = "Can't figure out where to put the (?[ and ]) since is a compilation error";
                 }
@@ -433,7 +433,7 @@ EOFCODE
 	    print "ok $testname # skipped", length($reason) ? ".  $reason" : '', "\n";
 	    next TEST;
 	}
-	elsif ($result eq 'c') {
+	elsif ($result =~ /c/) {
 	    if ($err !~ m!^\Q$expect!) { print "not ok $testname$todo (compile) $input => '$err'\n"; next TEST }
 	    last;  # no need to study a syntax error
 	}
