@@ -6148,13 +6148,146 @@ Perl_get_re_arg(pTHX_ SV *sv) {
     return NULL;
 }
 
-/*
- * This code is derived from drand48() implementation from FreeBSD,
- * found in lib/libc/gen/_rand48.c.
+/* This 64bit code is derived from xoroshiro128+ from http://xoroshiro.di.unimi.it/
+ * It was changed to add a IEEE double return variant, and be re-entrant.
  *
- * The U64 implementation is original, based on the POSIX
- * specification for drand48().
- */
+ * Written in 2016 by David Blackman and Sebastiano Vigna (vigna@acm.org)
+ *
+ * To the extent possible under law, the author has dedicated all copyright
+ * and related and neighboring rights to this software to the public domain
+ * worldwide. This software is distributed without any warranty.
+ * 
+ * See <http://creativecommons.org/publicdomain/zero/1.0/>. */
+
+/* This is the successor to xorshift128+. It is the fastest full-period
+   generator passing BigCrush without systematic failures, but due to the
+   relatively short period it is acceptable only for applications with a
+   mild amount of parallelism; otherwise, use a xorshift1024* generator.
+
+   Beside passing BigCrush, this generator passes the PractRand test suite
+   up to (and included) 16TB, with the exception of binary rank tests,
+   which fail due to the lowest bit being an LFSR; all other bits pass all
+   tests. We suggest to use a sign test to extract a random Boolean value.
+
+   Note that the generator uses a simulated rotate operation, which most C
+   compilers will turn into a single instruction. In Java, you can use
+   Long.rotateLeft(). In languages that do not make low-level rotation
+   instructions accessible xorshift128+ could be faster.
+
+   The state must be seeded so that it is not everywhere zero. If you have
+   a 64-bit seed, we suggest to seed a splitmix64 generator and use its
+   output to fill xoroshiro128p_state. */
+
+#ifdef HAS_QUAD
+typedef struct xoroshiro128p_state_s { U64 i; U64 j; } xoroshiro128p_state_t;
+
+PERL_STATIC_INLINE U64
+rotl(const U64 x, int k) {
+    return (x << k) | (x >> (64 - k));
+}
+
+#if 0
+/* The original not reentrant version: */
+U64 xoroshiro128p_state[2];
+
+PERL_STATIC_INLINE U64
+xoroshiro128p_rand64(void) {
+    const U64 s0 = xoroshiro128p_state.i;
+          U64 s1 = xoroshiro128p_state.j;
+    const U64 result = s0 + s1;
+
+    s1 ^= s0;
+    s.i = rotl(s0, 55) ^ s1 ^ (s1 << 14); /* a, b */
+    s.j = rotl(s1, 36); /* c */
+
+    return result;
+}
+
+PERL_STATIC_INLINE double
+xoroshiro128p_randdbl(void) {
+    const U64 result = xoroshiro128p_rand64();
+    const union { U64 i; double d; }
+        u = { .i = UINT64_C(0x3FF) << 52 | y >> 12 };
+    return u.d - 1.0;
+}
+
+/* This is the jump (seed generator) function for the generator. It is
+   equivalent to 2^64 calls to xoroshiro128p_rand64(); it can be used
+   to generate 2^64 non-overlapping subsequences for parallel
+   computations. */
+
+void
+xoroshiro128p_jump(void) {
+    static const U64 JUMP[] = { 0xbeac0467eba5facb, 0xd86b048b86aa9922 };
+
+    U64 s0 = 0;
+    U64 s1 = 0;
+    register int i;
+    for (i = 0; i < sizeof JUMP / sizeof *JUMP; i++) {
+        register int b;
+        for (b = 0; b < 64; b++) {
+            if (JUMP[i] & 1ULL << b) {
+                s0 ^= xoroshiro128p_state.i;
+                s1 ^= xoroshiro128p_state.j;
+            }
+            (void)xoroshiro128p_rand64();
+        }
+    }
+
+    xoroshiro128p_state.i = s0;
+    xoroshiro128p_state.j = s1;
+}
+#endif
+
+PERL_STATIC_INLINE U64
+xoroshiro128p_rand64_r(xoroshiro128p_state_t *xoroshiro128p_state) {
+    const U64 s0 = xoroshiro128p_state->i;
+          U64 s1 = xoroshiro128p_state->j;
+    const U64 result = s0 + s1;
+    /*PERL_ARGS_ASSERT_XOROSHIRO128P_RAND64_R;*/
+
+    s1 ^= s0;
+    xoroshiro128p_state->i = rotl(s0, 55) ^ s1 ^ (s1 << 14); /* a, b */
+    xoroshiro128p_state->j = rotl(s1, 36); /* c */
+
+    return result;
+}
+
+PERL_STATIC_INLINE double
+xoroshiro128p_randdbl_r(xoroshiro128p_state_t *xoroshiro128p_state) {
+    const U64 result = xoroshiro128p_rand64_r(xoroshiro128p_state);
+    const union { U64 i; double d; }
+        u = { .i = UINT64_C(0x3FF) << 52 | result >> 12 };
+    /*PERL_ARGS_ASSERT_XOROSHIRO128P_RANDDBL_R;*/
+
+    return u.d - 1.0;
+}
+
+void
+Perl_xoroshiro128p_init_r(xoroshiro128p_state_t *xoroshiro128p_state, U64 seed)
+{
+    static const U64 JUMP[] = { 0xbeac0467eba5facb, 0xd86b048b86aa9922 };
+    U64 s0 = 0;
+    U64 s1 = 0;
+    register unsigned int i;
+    /*PERL_ARGS_ASSERT_XOROSHIRO128P_INIT_R;*/
+
+    for (i = 0; i < sizeof JUMP / sizeof *JUMP; i++) {
+        register int b;
+        for (b = 0; b < 64; b++) {
+            if (JUMP[i] & 1ULL << b) {
+                s0 ^= xoroshiro128p_state->i + ((U64)seed << 16);
+                s1 ^= xoroshiro128p_state->j + ((U64)seed);
+            }
+            (void)xoroshiro128p_rand64_r(xoroshiro128p_state);
+        }
+    }
+
+    xoroshiro128p_state->i = s0;
+    xoroshiro128p_state->j = s1;
+}
+
+#endif
 
 /*
 * Copyright (c) 1993 Martin Birgmeier

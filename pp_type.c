@@ -224,6 +224,32 @@ PPt(pp_uint_pow, "(:uint,:int):uint")
     RETURN;
 }
 
+/* unboxed uint rand		ck_fun		sT%	I?	"(:uint?):uint" */
+PPt(pp_uint_rand, "(:uint?):uint")
+{
+    UV value;
+    if (!PL_srand_called) {
+	(void)seedDrand01((Rand_seed_t)seed());
+	PL_srand_called = TRUE;
+    }
+    {
+        dSP; dATARGET;
+        if (MAXARG < 1) {  /* no arg */
+            EXTEND(SP, 1);
+            value = Drand01(); /* full range between [0 and UV_MAX] */
+        }
+        else { /* normalize to [0 .. arg-1] */
+            value = Drand01() / (PTR2UV(TOPs)-1);
+        }
+        TARG = (PL_op->op_private & OPpBOXRET)
+            || !(PL_op->op_flags & OPf_STACKED)
+            ? newSVuv(value)
+            : INT2PTR(SV*, value);
+        SETs(TARG);
+    }
+    RETURN;
+}
+
 /* unboxed addition (+)		ck_null	pbfT2	I I */
 /* with TARGLEX support */
 UNBOXED_INT_BINOP_T(add, +)
