@@ -1759,6 +1759,29 @@ S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
     }
 }
 
+/*
+=for apidoc hv_study
+
+Possibly optimize the internal structure of a hash.
+Clears placeholders, and for a readonly hash possibly
+re-arrange to a perfect hash.
+
+=cut
+*/
+void
+Perl_hv_study(pTHX_ HV *hv)
+{
+    PERL_ARGS_ASSERT_HV_STUDY;
+    DEBUG_H(PerlIO_printf(Perl_debug_log,
+                          "HASH study %u\t%6u\%6u \t%s\n",
+                          (unsigned)HvTOTALKEYS(hv),
+                          (unsigned)HvMAX(hv),
+                          (unsigned)HvFILL(hv),
+                          HvNAME_get(hv)?HvNAME_get(hv):""));
+    hv_clear_placeholders(hv);
+    /* for a readonly hash possibly re-arrange to perfect hash */
+}
+
 void
 Perl_hv_ksplit(pTHX_ HV *hv, U32 newmax)
 {
@@ -2385,7 +2408,7 @@ Returns the number of hash buckets that happen to be in use.
 
 This function is wrapped by the macro C<HvFILL>.
 
-As of perl 5.25 this function is used only for debugging
+Since perl 5.25 this function is used only for debugging
 purposes, and the number of used hash buckets is not
 in any way cached, thus this function can be costly
 to execute as it must iterate over all the buckets in the

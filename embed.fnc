@@ -649,6 +649,7 @@ ApMdR	|HE*	|hv_iternext_flags|NN HV *hv|I32 flags
 ApdR	|SV*	|hv_iterval	|NN HV *hv|NN HE *entry
 Ap	|void	|hv_ksplit	|NN HV *hv|U32 newmax
 Apdbm	|void	|hv_magic	|NN HV *hv|NULLOK GV *gv|int how
+Apd	|void	|hv_study	|NN HV *hv
 #if defined(PERL_IN_HV_C)
 s	|SV *	|refcounted_he_value	|NN const struct refcounted_he *he
 sRM	|void *	|hv_common_magical	|NN HV *hv|NULLOK SV **keyp \

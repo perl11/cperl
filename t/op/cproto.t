@@ -242,7 +242,7 @@ sqrt (_)
 srand (;$)
 stat (;*)
 state undef
-study (_)
+study (;\[$@%&*])
 sub undef
 substr ($$;$$)
 symlink ($$)

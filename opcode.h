@@ -2734,7 +2734,7 @@ EXT Perl_check_t PL_check[] /* or perlvars.h */
 	Perl_ck_null,		/* schomp */
 	Perl_ck_defined,	/* defined */
 	Perl_ck_fun,		/* undef */
-	Perl_ck_fun,		/* study */
+	Perl_ck_rfun,		/* study */
 	Perl_ck_fun,		/* pos */
 	Perl_ck_lfun,		/* preinc */
 	Perl_ck_lfun,		/* i_preinc */
@@ -3155,7 +3155,7 @@ EXTCONST U32 PL_opargs[] = {
 	0x00026c9c,	/* schomp */
 	0x00026c84,	/* defined */
 	0x0003ec04,	/* undef */
-	0x00026c84,	/* study */
+	0x0003ec84,	/* study */
 	0x0003ec8c,	/* pos */
 	0x00004464,	/* preinc */
 	0x00004444,	/* i_preinc */

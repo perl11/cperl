@@ -1603,6 +1603,7 @@ for my $op (@ops) {
 	elsif ($arg =~ /^L/) {
             $OP_HAS_LIST{$op} = $opnum{$op};
         }
+        # OA_OPTIONAL
 	my $argnum = ($arg =~ s/\?//) ? 8 : 0;
         die "op = $op, arg = $arg does not exist in \%argnum\n"
 	    unless exists $argnum{$arg};

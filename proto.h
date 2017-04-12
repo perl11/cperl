@@ -2332,6 +2332,12 @@ PERL_CALLCONV SV**	Perl_hv_store_flags(pTHX_ HV *hv, const char *key, I32 klen, 
 			__attribute__global__;
 #endif
 
+PERL_CALLCONV void	Perl_hv_study(pTHX_ HV *hv)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_HV_STUDY	\
+	assert(hv)
+
 /* PERL_CALLCONV void	hv_undef(pTHX_ HV *hv)
 			__attribute__global__; */
 

@@ -768,17 +768,21 @@ PP(pp_gelem)
 PP(pp_study)
 {
     dSP; dTOPss;
-    STRLEN len;
 
-    (void)SvPV(sv, len);
-    if (len == 0 || len > I32_MAX || !SvPOK(sv) || SvUTF8(sv) || SvVALID(sv)) {
-	/* Historically, study was skipped in these cases. */
-	SETs(SV_NO);
-	return NORMAL;
+    if (SvTYPE(sv) == SVt_PVHV)
+        hv_study((HV*)sv);
+    else if (SvTYPE(sv) == SVt_PVAV || SvTYPE(sv) == SVt_PVCV) {
+        ; /* ignored so far */
+    } else {
+        STRLEN len;
+        /* stringifies */
+        (void)SvPV(sv, len);
+        if (len == 0 || len > I32_MAX || !SvPOK(sv) || SvUTF8(sv) || SvVALID(sv)) {
+            /* Historically, study was skipped in these cases. */
+            SETs(SV_NO);
+            return NORMAL;
+        }
     }
-
-    /* Make study a no-op. It's no longer useful and its existence
-       complicates matters elsewhere. */
     SETs(SV_YES);
     return NORMAL;
 }
@@ -6818,7 +6822,7 @@ PP(pp_coreargs)
 		  whicharg, PL_op_name[opnum],
 		  wantscalar
 		    ? "scalar reference"
-		    : opnum == OP_LOCK || opnum == OP_UNDEF
+		    : opnum == OP_LOCK || opnum == OP_UNDEF || opnum == OP_STUDY
 		       ? "reference to one of [$@%&*]"
 		       : "reference to one of [$@%*]"
 		);

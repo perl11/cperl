@@ -72,7 +72,7 @@ chomp		chomp			ck_spair	mTs%	L	"(:List(:Str)):Scalar"
 schomp		scalar chomp		ck_null		sTu%	S?	"(:Str):Int"
 defined		defined operator	ck_defined	isu%	S?	"(:Scalar):Bool"
 undef		undef operator		ck_fun		s%	R?
-study		study			ck_fun		su%	S?
+study		study			ck_rfun		su%	R?
 pos		match position		ck_fun		stu%	R?
 
 preinc		preincrement (++)	   ck_lfun	dIs1	S	"(:Scalar):Scalar"

@@ -11410,7 +11410,10 @@ Perl_ck_fun(pTHX_ OP *o)
 		    && numargs == 1 && !(oa >> 4)
 		    && IS_TYPE(kid, LIST))
 		    return too_many_arguments_pv(o,PL_op_desc[type], 0);
-		op_lvalue(scalar(kid), type);
+                if (UNLIKELY(type == OP_STUDY))
+                    scalar(kid);
+                else
+                    op_lvalue(scalar(kid), type);
 		break;
 	    }
 	    oa >>= 4;
@@ -18439,9 +18442,10 @@ Perl_core_prototype(pTHX_ SV *sv, const char *name, const int code,
     defgv = PL_opargs[i] & OA_DEFGV;
     oa = PL_opargs[i] >> OASHIFT;
     while (oa) {
-	if (oa & OA_OPTIONAL && !seen_question && (
-	      !defgv || (oa & (OA_OPTIONAL - 1)) == OA_FILEREF
-	)) {
+	if (oa & OA_OPTIONAL && !seen_question &&
+            (!defgv || (oa & (OA_OPTIONAL - 1)) == OA_FILEREF
+                    || i  == OP_STUDY)
+            ) {
 	    seen_question = 1;
 	    str[n++] = ';';
 	}
@@ -18458,7 +18462,8 @@ Perl_core_prototype(pTHX_ SV *sv, const char *name, const int code,
 	    str[n++] = '$';
 	    str[n++] = '@';
 	    str[n++] = '%';
-	    if (i == OP_LOCK || i == OP_UNDEF) str[n++] = '&';
+	    if (i == OP_LOCK || i == OP_STUDY || i == OP_UNDEF)
+                str[n++] = '&';
 	    str[n++] = '*';
 	    str[n++] = ']';
 	}

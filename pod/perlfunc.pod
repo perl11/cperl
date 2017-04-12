@@ -8377,11 +8377,19 @@ scope.
 =item study SCALAR
 X<study>
 
+=item study HASH
+
 =item study
 
-=for Pod::Functions no-op, formerly optimized input data for repeated searches
+=for Pod::Functions possibly optimize the internal representation
 
-At this time, C<study> does nothing. This may change in the future.
+C<study> on a hash optimizes the internal structure. On other values
+stringifies it and calls get magic. Note that the perl5 documentation
+incorrectly states that study is a no-op.
+On arrays, subroutines or regexp it does nothing yet, but may help in
+supporting sparse arrays or jit compile regular expressions later.
+With hashes it only clears the placeholders, later it might optimize
+readonly hashes to perfect hashes.
 
 Prior to Perl version 5.16, it would create an inverted index of all characters
 that occurred in the given SCALAR (or L<C<$_>|perlvar/$_> if unspecified). When
