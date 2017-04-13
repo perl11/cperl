@@ -4259,8 +4259,9 @@ S_require_file(pTHX_ SV *sv)
 			filter_sub = NULL;
 		    }
 		}
-		else {
-		  if (path_searchable) {
+		else if (path_searchable) {
+                    /* match against a plain @INC element (non-searchable
+                     * paths are only matched against refs in @INC) */
 		    const char *dir;
 		    STRLEN dirlen;
 
@@ -4343,7 +4344,6 @@ S_require_file(pTHX_ SV *sv)
                          */
                         break;
                     }
-		  }
 		}
 	    }
 	}
