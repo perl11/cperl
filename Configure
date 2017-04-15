@@ -1125,6 +1125,8 @@ libpth=''
 loclibpth=''
 plibpth=''
 xlibpth=''
+sysincpth=''
+syslibpth=''
 ignore_versioned_solibs=''
 libs=''
 libsdirs=''
@@ -4812,7 +4814,7 @@ esac
 # so we will take those off from locincpth.
 case "$gccversion" in
 3*)
-    echo "main(){}">try.c
+    echo "int main(){}">try.c
     for incdir in $locincpth; do
        warn=`$cc $ccflags -I$incdir -c try.c 2>&1 | \
 	     grep '^c[cp]p*[01]: warning: changing search order '`
@@ -5047,6 +5049,12 @@ os2) cppfilter="sed -e 's|\\\\\\\\|/|g' |" ;; # path component separator is \
 *)   cppfilter='' ;;
 esac
 
+saveincpth="$incpth"
+incpth=''
+realpath=`realpath . 2>/dev/null`
+if $test -n "$realpath"; then
+    have_realpath=1
+fi
 : Use gcc to determine libpth and incpth
 # If using gcc or clang, we can get better values for libpth, incpth
 # and usrinc directly from the compiler.
@@ -5059,22 +5067,31 @@ case "$ccname" in
 	if $test $# -gt 0; then
 	    incpth="$incpth $*"
 	    incpth="`$echo $incpth|$sed 's/^ //'`"
-	    for i in $*; do
-		j="`$echo $i|$sed 's,/include$,/lib,'`"
-		if $test -d $j; then
-		    libpth="$libpth $j"
-		fi
-	    done
-	    libpth="`$echo $libpth|$sed 's/^ //'`"
-	    for xxx in $libpth $loclibpth $plibpth $glibpth; do
-		if $test -d $xxx; then
-		    case " $libpth " in
-		    *" $xxx "*) ;;
-		    *) libpth="$libpth $xxx";;
-		    esac
-		fi
-	    done
 	fi
+        incpth="$incpth $saveincpth"
+        sysincpth="$incpth"
+        # wouldnt it be nice if the linker would actually agree with this order?
+        # at least macports is lying here. /opt/local/lib is missing
+	$echo 'int main(){};' > try.c
+	set X `$cc -v try.c -l__xx 2>&1 | $awk '/^Library search paths:/'|$cppfilter $grep '/lib'`
+	shift
+	if $test $# -gt 0; then
+	    libpth="$libpth $*"
+	    libpth="`$echo $libpth|$sed 's/^ //'`"
+	fi
+        syslibpth="$libpth"
+        libpth=
+	for xxx in $syslibpth $loclibpth $plibpth $glibpth; do
+	    if $test -d $xxx; then
+                if $test -n "$have_realpath"; then
+                    xxx="`realpath $xxx`"
+                fi
+		case " $libpth " in
+		    *" $xxx "*) ;;
+		    *) libpth="$libpth $xxx" ;;
+		esac
+	    fi
+	done
 	$rm -f try.c
 	case "$usrinc" in
 	'') for i in $incpth; do
@@ -5113,6 +5130,8 @@ case "$ccname" in
 	esac
     ;;
 esac
+saveincpth=''
+unset saveincpth
 
 : Default value for incpth is just usrinc
 case "$incpth" in
@@ -5135,10 +5154,10 @@ esac
 for xxx in $dlist
 do
     if $test -d $xxx; then
-		case " $libpth " in
-		*" $xxx "*) ;;
-		*) libpth="$libpth $xxx";;
-		esac
+	case " $libpth " in
+	    *" $xxx "*) ;;
+	    *) libpth="$libpth $xxx";;
+	esac
     fi
 done
 $cat <<'EOM'
@@ -5160,10 +5179,10 @@ fi
 case "$libpth" in
 '') dflt='none';;
 *)
-	set X $libpth
-	shift
-	dflt=${1+"$@"}
-	;;
+    set X $libpth
+    shift
+    dflt=${1+"$@"}
+    ;;
 esac
 rp="Directories to use for library searches?"
 . ./myread
@@ -5607,15 +5626,21 @@ case "$mips_type" in
 *BSD*|'') inclwanted="$locincpth $usrinc";;
 *) inclwanted="$locincpth $inclwanted $usrinc/bsd";;
 esac
+: skip -I dirs which are already in sysincpth
 for thisincl in $inclwanted; do
-	if $test -d $thisincl; then
-		if $test x$thisincl != x$usrinc; then
-			case "$dflt" in
-			*" -I$thisincl "*);;
-			*) dflt="$dflt -I$thisincl ";;
-			esac
-		fi
+    if $test -d $thisincl; then
+	if $test x$thisincl != x$usrinc; then
+            case " $sysincpth " in
+                *" $thisincl "*) ;;
+                *)
+	            case "$dflt" in
+		        *" -I$thisincl "*);;
+		        *) dflt="$dflt -I$thisincl ";;
+	            esac
+                    ;;
+            esac
 	fi
+    fi
 done
 
 inctest='if $contains $2 $usrinc/$1 >/dev/null 2>&1; then
@@ -5776,15 +5801,26 @@ case "$ccflags" in
 esac
 
 : Try to guess additional flags to pick up local libraries.
+: But dont switch the order with incpth.
+: i.e. if incpth/ccflags has -I/usr/local/include -I/opt/local/include
+:      libpth may not use -L/opt/local/lib -L/usr/local/lib
+: We could also safely skip libs in syslibpth, but syslibpth was lying.
+: And we have to observe order.
+echo syslibpth=$syslibpth >&4
 for thislibdir in $libpth; do
-	case " $loclibpth " in
-	*" $thislibdir "*)
-		case "$dflt " in
-		*"-L$thislibdir "*) ;;
-		*)  dflt="$dflt -L$thislibdir" ;;
-		esac
-		;;
-	esac
+    case " $syslibpth " in
+    	*" $thislibdir "*) ;;
+        *)
+            case " $loclibpth " in
+	        *" $thislibdir "*)
+	            case "$dflt " in
+		        *"-L$thislibdir "*) ;;
+		        *)  dflt="$dflt -L$thislibdir" ;;
+	            esac
+	            ;;
+            esac
+            ;;
+    esac
 done
 
 case "$dflt" in
@@ -26036,6 +26072,8 @@ strerror_r_proto='$strerror_r_proto'
 strings='$strings'
 submit='$submit'
 subversion='$subversion'
+sysincpth='$sysincpth'
+syslibpth='$syslibpth'
 sysman='$sysman'
 sysroot='$sysroot'
 tail='$tail'

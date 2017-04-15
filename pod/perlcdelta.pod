@@ -2251,6 +2251,22 @@ All changes but default_inc_excludes_do are cperl-only.
 
 =over 4
 
+=item sysincpath, syslibpth
+
+Those two new Config keys are needed for properly identifying the true
+compiler header and library search paths. The old libpth just assumed
+paths based in the calculated incpth. Several compilers have not
+matching search paths, which lead to wrong precedence orderings of
+e.g. F</usr/local/> vs F</opt/local>, conflicting in ccflags and
+ldflags.  syslibpth is now computed.  The new keys don't add extra
+ccflags or ldflags directcories if they already exist in the compiler
+search paths. See [cperl #267] for more.
+Note that this doesn't fix other ordering issues, as -I and -L is evaluated
+before the system search paths.
+
+This fixes serious problems with updated libraries in F</usr/local/lib>
+on macports, but probably everywhere with bad compiler search paths.
+
 =item rebuild_storable
 
 Added a post-dynamic rule for Storable, to probe for the max. stacksize
