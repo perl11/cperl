@@ -683,7 +683,7 @@ INLINE void
 need (pTHX_ enc_t *enc, STRLEN len)
 {
   DEBUG_v(Perl_deb(aTHX_ "need enc: %p %p %4ld, want: %ld\n", enc->cur, enc->end,
-                   enc->end - enc->cur, (long)len));
+                   (long)(enc->end - enc->cur), (long)len));
   assert(enc->cur <= enc->end);
   if (UNLIKELY(enc->cur + len >= enc->end))
     {
@@ -722,7 +722,7 @@ encode_str (pTHX_ enc_t *enc, char *str, STRLEN len, int is_utf8)
     {
       unsigned char ch = *(unsigned char *)str;
       DEBUG_v(Perl_deb(aTHX_ "str  enc: %p %p %4ld, want: %lu\n", enc->cur, enc->end,
-                       enc->end - enc->cur, (long unsigned)len));
+                       (long)(enc->end - enc->cur), (long unsigned)len));
 
       if (LIKELY(ch >= 0x20 && ch < 0x80)) /* most common case */
         {
