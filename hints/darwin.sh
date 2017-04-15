@@ -70,12 +70,12 @@ esac
 ##
 
 # Since we can build fat, the archname doesn't need the processor type
-archname='darwin';
+archname='darwin'
 
 # nm isn't known to work after Snow Leopard and XCode 4; testing with OS X 10.5
 # and Xcode 3 shows a working nm, but pretending it doesn't work produces no
 # problems.
-usenm='false';
+usenm='false'
 
 case "$optimize" in
 '')
@@ -146,9 +146,9 @@ esac
 
 # Shared library extension is .dylib.
 # Bundle extension is .bundle.
-so='dylib';
-dlext='bundle';
-usedl='define';
+so='dylib'
+dlext='bundle'
+usedl='define'
 
 # 10.4 can use dlopen.
 # 10.4 broke poll().
@@ -452,7 +452,7 @@ esac
 ##
 
 # vfork works
-usevfork='true';
+usevfork='true'
 
 # malloc wrap works
 case "$usemallocwrap" in
@@ -473,8 +473,8 @@ esac
 malloc_cflags='ccflags="-DUSE_PERL_SBRK -DPERL_SBRK_VIA_MALLOC $ccflags"'
 
 # Locales aren't feeling well.
-LC_ALL=C; export LC_ALL;
-LANG=C; export LANG;
+LC_ALL=C; export LC_ALL
+LANG=C; export LANG
 
 #
 # The libraries are not threadsafe as of OS X 10.1.
@@ -502,7 +502,7 @@ esac
 # Fink can install a GDBM library that claims to have the ODBM interfaces
 # but Perl dynaloader cannot for some reason use that library.  We don't
 # really need ODBM_FIle, though, so let's just hint ODBM away.
-i_dbm=undef;
+i_dbm=undef
 
 # Configure doesn't detect ranlib on Tiger properly.
 # NeilW says this should be acceptable on all darwin versions.
@@ -521,7 +521,7 @@ esac
 # Case-insensitive filesystems don't get along with Makefile and
 # makefile in the same place.  Since Darwin uses GNU make, this dodges
 # the problem.
-firstmakefile=GNUmakefile;
+firstmakefile=GNUmakefile
 
 # Parts of the system call setenv(), in particular in an atfork handler.
 # This causes problems when the child tries to clean up environ[], so

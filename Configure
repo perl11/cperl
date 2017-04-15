@@ -1125,6 +1125,8 @@ libpth=''
 loclibpth=''
 plibpth=''
 xlibpth=''
+sysincpth=''
+syslibpth=''
 ignore_versioned_solibs=''
 libs=''
 libsdirs=''
@@ -5047,6 +5049,8 @@ os2) cppfilter="sed -e 's|\\\\\\\\|/|g' |" ;; # path component separator is \
 *)   cppfilter='' ;;
 esac
 
+saveincpth="$incpth"
+incpth=''
 : Use gcc to determine libpth and incpth
 # If using gcc or clang, we can get better values for libpth, incpth
 # and usrinc directly from the compiler.
@@ -5075,6 +5079,9 @@ case "$ccname" in
 		fi
 	    done
 	fi
+        incpth="$incpth $saveincpth"
+        sysincpth="$incpth"
+        syslibpth="$libpth"
 	$rm -f try.c
 	case "$usrinc" in
 	'') for i in $incpth; do
@@ -5113,6 +5120,8 @@ case "$ccname" in
 	esac
     ;;
 esac
+saveincpth=''
+unset saveincpth
 
 : Default value for incpth is just usrinc
 case "$incpth" in
@@ -5135,10 +5144,10 @@ esac
 for xxx in $dlist
 do
     if $test -d $xxx; then
-		case " $libpth " in
-		*" $xxx "*) ;;
-		*) libpth="$libpth $xxx";;
-		esac
+	case " $libpth " in
+	    *" $xxx "*) ;;
+	    *) libpth="$libpth $xxx";;
+	esac
     fi
 done
 $cat <<'EOM'
@@ -5160,10 +5169,10 @@ fi
 case "$libpth" in
 '') dflt='none';;
 *)
-	set X $libpth
-	shift
-	dflt=${1+"$@"}
-	;;
+    set X $libpth
+    shift
+    dflt=${1+"$@"}
+    ;;
 esac
 rp="Directories to use for library searches?"
 . ./myread
@@ -5607,15 +5616,21 @@ case "$mips_type" in
 *BSD*|'') inclwanted="$locincpth $usrinc";;
 *) inclwanted="$locincpth $inclwanted $usrinc/bsd";;
 esac
+: skip -I dirs which are already in sysincpth
 for thisincl in $inclwanted; do
-	if $test -d $thisincl; then
-		if $test x$thisincl != x$usrinc; then
-			case "$dflt" in
-			*" -I$thisincl "*);;
-			*) dflt="$dflt -I$thisincl ";;
-			esac
-		fi
+    if $test -d $thisincl; then
+	if $test x$thisincl != x$usrinc; then
+            case " $sysincpth " in
+                *" $thisincl "*) ;;
+                *)
+	            case "$dflt" in
+		        *" -I$thisincl "*);;
+		        *) dflt="$dflt -I$thisincl ";;
+	            esac
+                    ;;
+            esac
 	fi
+    fi
 done
 
 inctest='if $contains $2 $usrinc/$1 >/dev/null 2>&1; then
@@ -5776,15 +5791,24 @@ case "$ccflags" in
 esac
 
 : Try to guess additional flags to pick up local libraries.
+: But dont switch the order with incpth.
+: i.e. if incpth/ccflags has -I/usr/local/include -I/opt/local/include
+: libpth may not use -L/opt/local/lib -L/usr/local/lib
+: we can also safely skip libs in syslibpth
 for thislibdir in $libpth; do
-	case " $loclibpth " in
-	*" $thislibdir "*)
-		case "$dflt " in
-		*"-L$thislibdir "*) ;;
-		*)  dflt="$dflt -L$thislibdir" ;;
-		esac
-		;;
-	esac
+    case " $syslibpth " in
+	*" $thislibdir "*) ;;
+        *)
+            case " $loclibpth " in
+	        *" $thislibdir "*)
+	            case "$dflt " in
+		        *"-L$thislibdir "*) ;;
+		        *)  dflt="$dflt -L$thislibdir" ;;
+	            esac
+	            ;;
+            esac
+            ;;
+    esac
 done
 
 case "$dflt" in
