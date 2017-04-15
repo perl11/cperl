@@ -265,7 +265,7 @@ Config_lookup (register const char *str, register unsigned int len);
 
 struct Perl_Config;
 
-#define TOTAL_KEYWORDS 1292
+#define TOTAL_KEYWORDS 1294
 #define MIN_WORD_LENGTH 1
 #define MAX_WORD_LENGTH 37
 #define MIN_HASH_VALUE 3
@@ -1331,6 +1331,7 @@ struct stringpool_t
     char stringpool_str3762[sizeof ("d_getlogin")];
     char stringpool_str3776[sizeof ("d_builtin_ctz")];
     char stringpool_str3780[sizeof ("d_getpwent_r")];
+    char stringpool_str3781[sizeof ("sysincpth")];
     char stringpool_str3783[sizeof ("shmattype")];
     char stringpool_str3788[sizeof ("d_mbtowc")];
     char stringpool_str3792[sizeof ("lib_ext")];
@@ -1506,6 +1507,7 @@ struct stringpool_t
     char stringpool_str4678[sizeof ("patchlevel")];
     char stringpool_str4687[sizeof ("git_uncommitted_changes")];
     char stringpool_str4693[sizeof ("getgrnam_r_proto")];
+    char stringpool_str4704[sizeof ("syslibpth")];
     char stringpool_str4733[sizeof ("gmtime_r_proto")];
     char stringpool_str4738[sizeof ("useversionedarchname")];
     char stringpool_str4745[sizeof ("d_msg_peek")];
@@ -2626,6 +2628,7 @@ static const struct stringpool_t stringpool_contents =
     "d_getlogin",
     "d_builtin_ctz",
     "d_getpwent_r",
+    "sysincpth",
     "shmattype",
     "d_mbtowc",
     "lib_ext",
@@ -2801,6 +2804,7 @@ static const struct stringpool_t stringpool_contents =
     "patchlevel",
     "git_uncommitted_changes",
     "getgrnam_r_proto",
+    "syslibpth",
     "gmtime_r_proto",
     "useversionedarchname",
     "d_msg_peek",
@@ -5648,7 +5652,9 @@ Config_lookup (register const char *str, register unsigned int len)
       {XSCNO}, {XSCNO}, {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3780,		T_INV,0,ALN64I"@@d_getpwent_r@@"},
-      {XSCNO}, {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3781,		T_INV,0,ALN64I"@@sysincpth@@"},
+      {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str3783,		T_INV,0,ALN64I"@@shmattype@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -6159,10 +6165,13 @@ Config_lookup (register const char *str, register unsigned int len)
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4693,	T_INV,0,ALN64I"@@getgrnam_r_proto@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO},
+
+      {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4704,		T_INV,0,ALN64I"@@syslibpth@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
-      {XSCNO}, {XSCNO}, {XSCNO},
+      {XSCNO},
 
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str4733,		T_INV,0,ALN64I"@@gmtime_r_proto@@"},
       {XSCNO}, {XSCNO}, {XSCNO}, {XSCNO},
@@ -7028,7 +7037,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str9303,	T_INV,0,ALN64I"@@d_attribute_always_inline@@"}
     };
 
-#line 7031 "Config.xs"
+#line 7040 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);

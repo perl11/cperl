@@ -5364,6 +5364,14 @@ subversion (patchlevel.U):
 	In patchlevel.h, this is referred to as "PERL_SUBVERSION".
 	This is unique to perl.
 
+sysincpth (libpth.U):
+	This variable holds the list of paths which is searched for headers
+        by the compiler, without any -I argument.
+
+syslibpth (libpth.U):
+	This variable holds the list of paths which is searched for libraries
+        by the compiler, without any -L argument
+
 sysman (sysman.U):
 	This variable holds the place where the manual is located on this
 	system. It is not the place where the user wants to put his manual
