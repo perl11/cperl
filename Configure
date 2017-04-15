@@ -4812,7 +4812,7 @@ esac
 # so we will take those off from locincpth.
 case "$gccversion" in
 3*)
-    echo "main(){}">try.c
+    echo "int main(){}">try.c
     for incdir in $locincpth; do
        warn=`$cc $ccflags -I$incdir -c try.c 2>&1 | \
 	     grep '^c[cp]p*[01]: warning: changing search order '`
