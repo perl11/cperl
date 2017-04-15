@@ -5051,6 +5051,10 @@ esac
 
 saveincpth="$incpth"
 incpth=''
+realpath=`realpath . 2>/dev/null`
+if $test -n "$realpath"; then
+    have_realpath=1
+fi
 : Use gcc to determine libpth and incpth
 # If using gcc or clang, we can get better values for libpth, incpth
 # and usrinc directly from the compiler.
@@ -5076,11 +5080,15 @@ case "$ccname" in
 	    libpth="`$echo $libpth|$sed 's/^ //'`"
 	fi
         syslibpth="$libpth"
-	for xxx in $libpth $loclibpth $plibpth $glibpth; do
+        libpth=
+	for xxx in $syslibpth $loclibpth $plibpth $glibpth; do
 	    if $test -d $xxx; then
+                if $test -n "$have_realpath"; then
+                    xxx="`realpath $xxx`"
+                fi
 		case " $libpth " in
 		    *" $xxx "*) ;;
-		    *) libpth="$libpth $xxx";;
+		    *) libpth="$libpth $xxx" ;;
 		esac
 	    fi
 	done
