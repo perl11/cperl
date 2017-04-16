@@ -4395,16 +4395,45 @@ S_require_file(pTHX_ SV *sv)
 		    }
 		    if (memENDPs(name, len, ".pm")) {
 			const char *c, *e = name + len - 3;
-			sv_catpv(msg, " (you may need to install the ");
-			for (c = name; c < e; c++) {
-			    if (*c == '/') {
-				sv_catpvs(msg, "::");
-			    }
-			    else {
-				sv_catpvn(msg, c, 1);
-			    }
-			}
-			sv_catpv(msg, " module)");
+                        bool utf8 = cBOOL(SvUTF8(sv));
+
+                        /* if the filename, when converted from "Foo/Bar.pm"
+                         * form back to Foo::Bar form, makes a valid
+                         * package name (i.e. parseable by C<require
+                         * Foo::Bar>), then emit a hint.
+                         *
+                         * this loop is modelled after the one in
+                         * S_parse_ident */
+			c = name;
+                        while (c < e) {
+                            if (utf8 && isIDFIRST_utf8_safe(c, e)) {
+                                c += UTF8SKIP(c);
+                                while (c < e && isIDCONT_utf8_safe(
+                                            (const U8*) c, (const U8*) e))
+                                    c += UTF8SKIP(c);
+                            }
+                            else if (isWORDCHAR_A(*c)) {
+                                while (c < e && isWORDCHAR_A(*c))
+                                    c++;
+                            }
+			    else if (*c == '/')
+                                c++;
+                            else
+                                break;
+                        }
+
+                        if (c == e && isIDFIRST_lazy_if_safe(name, e, utf8)) {
+                            sv_catpv(msg, " (you may need to install the ");
+                            for (c = name; c < e; c++) {
+                                if (*c == '/') {
+                                    sv_catpvs(msg, "::");
+                                }
+                                else {
+                                    sv_catpvn(msg, c, 1);
+                                }
+                            }
+                            sv_catpv(msg, " module)");
+                        }
 		    }
 		    else if (memENDs(name, len, ".h")) {
 			sv_catpv(msg, " (change .h to .ph maybe?) (did you run h2ph?)");
