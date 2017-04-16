@@ -1,7 +1,7 @@
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
 CPAN cpan/CPAN/lib/App/Cpan.pm fcfc8800fa3dbff061da3688ad6a6fdd3716fbc8
-CPAN cpan/CPAN/lib/CPAN.pm 279e62dd6c8a730d079bc6f5c9f62f33c9a2b96c
-CPAN cpan/CPAN/lib/CPAN/Distribution.pm 7d5a3cd5b33b3df5ddb33da0eff5e6d7718e30a7
+CPAN cpan/CPAN/lib/CPAN.pm 0eb7416798046db5d8f923de1861280698e96634
+CPAN cpan/CPAN/lib/CPAN/Distribution.pm cbafff5b461e23ff88547875d746e7f59f8be8f3
 CPAN cpan/CPAN/lib/CPAN/FirstTime.pm f65d8af479f6737abca6aace1dacdfbcfdc0fadc
 CPAN cpan/CPAN/lib/CPAN/Version.pm 8f5144fc8c46a1eb9c1b87e5050fc2c2b3506ea4
 CPAN::Meta dist/CPAN-Meta/lib/CPAN/Meta.pm b0f88791eb04e1d0071dbd89f2773fd2a1a14df1
@@ -86,7 +86,7 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 3440f761c862ded333771daf6ce7e338385fe9a8
 Math::BigInt cpan/Math-BigInt/t/with_sub.t 2bcac73a0a31994b0e3fa24e3cd42594f5fc2889
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 64f67c11248b897dd5a1ed85b2782f47a80df69f
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm ea229bdb7a3a147d6ef63e2c254821b9165ad7eb
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 67d48d6d19234473699266139fbe0e7f582727ac
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
