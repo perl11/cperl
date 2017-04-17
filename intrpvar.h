@@ -344,6 +344,7 @@ PERLVAR(I, localpatches, const char * const *)
 PERLVARI(I, splitstr,	const char *, " ")
 
 PERLVAR(I, minus_c,	bool)
+PERLVAR(I, minus_cs,	bool)
 PERLVAR(I, minus_n,	bool)
 PERLVAR(I, minus_p,	bool)
 PERLVAR(I, minus_l,	bool)

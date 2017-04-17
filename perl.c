@@ -3446,6 +3446,16 @@ Perl_moreswitches(pTHX_ const char *s)
     case 'c':
 	PL_minus_c = TRUE;
 	s++;
+	if (*s && *s==':' && *(s+1)=='s') {
+	    /* :default = :base_core :base_mem :base_loop :base_orig :base_thread */
+	    /* :browse = :default :filesys_read :sys_db */
+	    /* :load = require dofile caller runcv */
+	    SV* sv = newSVpvs("use ops qw(:browse :load print);");
+	    Perl_av_create_and_push(aTHX_ &PL_preambleav, sv);
+	    PL_minus_cs = TRUE;
+	    s++;
+	    s++;
+	}
 	return s;
     case 'd':
 	forbid_setid('d', FALSE);

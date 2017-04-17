@@ -12,7 +12,7 @@ BEGIN {
 
 BEGIN { require "./test.pl";  require "./loc_tools.pl"; }
 
-plan(tests => 115);
+plan(tests => 117);
 
 use Config;
 
@@ -106,6 +106,34 @@ SWTEST
 	&& $r !~ /\bblock 5\b/,
 	'-c'
     );
+
+    $r = runperl(
+	switches	=> [ '-c:s' ],
+	progfile	=> $filename,
+	stderr		=> 1,
+    );
+    # Because of the stderr redirection, we can't tell reliably the order
+    # in which the output is given
+    ok(
+	$r =~ /$filename syntax OK/
+	&& $r =~ /\bblock 1\b/
+	&& $r =~ /\bblock 2\b/
+	&& $r !~ /\bblock 3\b/
+	&& $r !~ /\bblock 4\b/
+	&& $r !~ /\bblock 5\b/,
+	"-c:s"
+    );
+    open $f, ">$filename" or skip( "Can't write temp file $filename: $!" );
+    print $f <<'SWTEST';
+BEGIN { chdir ".."; }
+SWTEST
+    close $f or die "Could not close: $!";
+    $r = runperl(
+	switches	=> [ '-c:s' ],
+	progfile	=> $filename,
+	stderr		=> 1,
+    );
+    ok($r =~ /'chdir' trapped by operation mask at/, 'trapped chdir');
 }
 
 SKIP: {
