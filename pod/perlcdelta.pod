@@ -34,7 +34,7 @@ subroutine signatures feature from 5.25.4 was not added, as cperl's
 signatures are over 50% faster for over a year already and have many
 more features. In detail the new C<OP_ARGELEM>, C<OP_ARGDEFELEM> and
 C<OP_ARGCHECK> are not used, cperl still uses a single C<OP_SIGNATURE>
-op.
+op and passes its arguments properly as in XS on the stack, not via C<@_>.
 
 cperl doesn't use the slow Siphash 1-3 as default on 64bit, and no
 hybrid hash function as introduced with 5.25.8. cperl rather uses a
@@ -557,13 +557,6 @@ hash function, and not via order hiding as perl5 believes in.
 
 More discussion at L<https://github.com/google/highwayhash/issues/28> and
 L<https://github.com/google/highwayhash/issues/29>.
-
-=head2 chdir heap-buffer-overflow
-
-Fixed heap-buffer-overflow in chdir without argument. make chdir allocate the stack
-it needs for the result, overwriting one stack entry. Note that the perl stack is on
-the heap, so it's not that dramatic.
-L<[perl #129130]|https://rt.perl.org/Public/Bug/Display.html?id=129130>
 
 =head2 Warn on metasploit CVE-2015-1592
 
