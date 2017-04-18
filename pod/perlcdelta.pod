@@ -1492,6 +1492,10 @@ waiting until runtime.
 
 use the new get_svs, get_avs, get_hvs macros.
 
+=item Safe 2.40_02c
+
+Documentation only
+
 =item Scalar-List-Util 1.47_01
 
 Bumped version because upstream is still years behind:

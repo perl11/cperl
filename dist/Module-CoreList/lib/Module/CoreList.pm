@@ -14793,6 +14793,7 @@ our %delta = (
             'Pod::Perldoc::ToXml'   => '3.28',
             'POSIX'                 => '1.76_02',
             'PerlIO::via'           => '0.17',
+            'Safe'                  => '2.40_02c',
             'Storable'              => '3.05_11',
             'XSLoader'              => '1.03c',
             'feature'               => '1.48_01',
