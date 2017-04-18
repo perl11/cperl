@@ -3775,11 +3775,11 @@ intellect, wit, and spirit.
 =head1 Acknowledgements
 
 cperl 5.26.0 represents approximately 1 year of development since Perl 5.24.2c
-and contains approximately 220,000 lines of changes across 2,100 files from 75
+and contains approximately 420,000 lines of changes across 2,800 files from 75
 authors.
 
 Excluding auto-generated files, documentation and release tools, there were
-approximately 110,000 lines of changes to 920 .pm, .t, .c and .h files.
+approximately 260,000 lines of changes to 1,900 .pm, .t, .c and .h files.
 
 The following people are known to have contributed the improvements
 that became cperl 5.26.0:
