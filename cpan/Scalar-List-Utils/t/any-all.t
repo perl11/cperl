@@ -27,7 +27,7 @@ SKIP: {
     skip "lexical topic fixed only in cperl, usable 5.10 - 5.24", 1
       if ($] > 5.023 && !$Config{usecperl}) or $] < 5.010;
     chdir "t";
-    do "any-all-524.inc";
+    do "./any-all-524.inc";
     chdir "..";
 }
 
