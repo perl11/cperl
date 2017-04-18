@@ -1,4 +1,4 @@
-BEGIN { push @INC, '.'; }
+use lib '.';
 use t::TestYAMLTests tests => 7;
 
 is utf8::is_utf8(Load("--- Foo\n")), !!0, 'ASCII string does not have UTF8 flag on';

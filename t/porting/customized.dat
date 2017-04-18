@@ -106,8 +106,8 @@ Test::Harness cpan/Test-Harness/t/sample-tests/switches 350f7e96e4bfb8dbac352200
 Test::Harness cpan/Test-Harness/t/source_handler.t 54464b3f4c563f35e598d5f573942bf7dd78c799
 Time::HiRes dist/Time-HiRes/t/nanosleep.t a8f3533a873a02db243d3c378fedb95de0622876
 YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL af46c9ce20b08189cc0fa26b20c69ea051084365
-YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 37441ba0eff59df1e75d7c2db64d9b478a8ffc60
-YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm c18836415c5d185eae1cb829e0f0b3c18135d2a0
+YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 527302db61c55bf695da94adfa66e7c2f34b1f09
+YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm 9716931aaf2305fab4a41f35560362947ba3a805
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
 base dist/base/lib/base.pm 8c56f516799ba4666b1dccb198cbd1e8c1d25853
 base dist/base/lib/fields.pm 1ef6ddefc3b54c6958cdba85bdb85b16a9e3a07b

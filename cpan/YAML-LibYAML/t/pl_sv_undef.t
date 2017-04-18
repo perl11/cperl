@@ -1,3 +1,4 @@
+use lib '.';
 use t::TestYAML tests => 8;
 
 use YAML::XS qw(Dump Load);

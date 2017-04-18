@@ -1,3 +1,4 @@
+use lib '.';
 use t::TestYAMLTests tests => 6;
 
 y2n("Explicit tag on array");

@@ -1,3 +1,4 @@
+use lib '.';
 use t::TestYAMLTests tests => 2;
 
 # test CPAN::Meta conformity in NonStrict mode

@@ -1,3 +1,4 @@
+use lib '.';
 use t::TestYAMLTests tests => 5;
 
 my $array = [

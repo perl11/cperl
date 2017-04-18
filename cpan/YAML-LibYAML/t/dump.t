@@ -1,3 +1,4 @@
+use lib '.';
 use t::TestYAMLTests tests => 4;
 
 spec_file('t/data/basic.yml');
