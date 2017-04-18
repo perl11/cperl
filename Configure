@@ -5049,8 +5049,6 @@ os2) cppfilter="sed -e 's|\\\\\\\\|/|g' |" ;; # path component separator is \
 *)   cppfilter='' ;;
 esac
 
-saveincpth="$incpth"
-incpth=''
 realpath=`realpath . 2>/dev/null`
 if $test -n "$realpath"; then
     have_realpath=1
@@ -5065,23 +5063,34 @@ case "$ccname" in
 	set X `$cppstdin -v try.c 2>&1 | $awk '/^#include </,/^End of search /'|$cppfilter $grep '/include'`
 	shift
 	if $test $# -gt 0; then
-	    incpth="$incpth $*"
-	    incpth="`$echo $incpth|$sed 's/^ //'`"
+	    sysincpth="`$echo $*|$sed 's/^ //'`"
 	fi
-        incpth="$incpth $saveincpth"
-        sysincpth="$incpth"
+        if $test -z "$incpth"; then
+            incpth="$sysincpth"
+        else
+            incpth="$incpth $sysincpth"
+        fi
         # wouldnt it be nice if the linker would actually agree with this order?
         # at least macports is lying here. /opt/local/lib is missing
 	$echo 'int main(){};' > try.c
 	set X `$cc -v try.c -l__xx 2>&1 | $awk '/^Library search paths:/'|$cppfilter $grep '/lib'`
 	shift
 	if $test $# -gt 0; then
-	    libpth="$libpth $*"
-	    libpth="`$echo $libpth|$sed 's/^ //'`"
+	    syslibpth="`$echo $*|$sed 's/^ //'`"
 	fi
-        syslibpth="$libpth"
-        libpth=
-	for xxx in $syslibpth $loclibpth $plibpth $glibpth; do
+        # bring out our biggest gun, to capture -L(.*) groups
+        if $test -z "$syslibpth"; then
+	    set X `$cc -v -Wl,-v try.c -l__xx__ 2>&1 | perl -ane'print grep{s/-L(.*)/$1\n/}@F'`
+	    shift
+	    if $test $# -gt 0; then
+                for d in $*; do
+                    if $test -d "$d"; then
+	                syslibpth="$syslibpth $d"
+                    fi
+                done
+	    fi
+        fi
+        for xxx in $syslibpth $loclibpth $plibpth $glibpth; do
 	    if $test -d $xxx; then
                 if $test -n "$have_realpath"; then
                     xxx="`realpath $xxx`"
@@ -5130,8 +5139,6 @@ case "$ccname" in
 	esac
     ;;
 esac
-saveincpth=''
-unset saveincpth
 
 : Default value for incpth is just usrinc
 case "$incpth" in
