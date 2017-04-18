@@ -86,15 +86,12 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 3440f761c862ded333771daf6ce7e338385fe9a8
 Math::BigInt cpan/Math-BigInt/t/with_sub.t 2bcac73a0a31994b0e3fa24e3cd42594f5fc2889
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 091580c7242e53800a6b09826236a0e6ca32f160
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 2a895123b11ffe597376408ab2fbc94bbfda2d39
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 67d48d6d19234473699266139fbe0e7f582727ac
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
 Net::Domain cpan/libnet/lib/Net/Domain.pm 73f78880a95de5372bb234f37c386f52e43795d9
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
-Pod::Perldoc cpan/Pod-Perldoc/lib/Pod/Perldoc.pm 155770a6867b09683ad4963b86b6d8f73dfb08bc
-Pod::Perldoc cpan/Pod-Perldoc/Makefile.PL d1473c88b8cc5543d174966096b95f2d84a7fdcc
-Pod::Perldoc cpan/Pod-Perldoc/t/02_module_pod_output.t d3d315943c2d84b6f4cc68a77ea48943d96c9b8b
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
 Safe dist/Safe/Safe.pm fb1cf6efdfcd1d2dac2aca90bccd05cb8d1ac1c4
 Safe dist/Safe/t/safeops.t 47038564ccb909a2d4052cc73a049a5b4185b991

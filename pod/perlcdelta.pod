@@ -1451,7 +1451,7 @@ open brackets on EBCDIC systems.  (#118240)
 Many Pod::Man bugfixes and new tests,
 see L<https://metacpan.org/changes/distribution/podlators>
 
-=item Pod-Perldoc  3.27
+=item Pod-Perldoc  3.28
 
 Fix broken test on Windows and FreeBSD (RT#116551)
 Fix CVE-2016-1238 by temporarily removing '.' from @INC in world writable
@@ -1461,6 +1461,7 @@ AmigaOS patches (RT#106798) (RT#110368)
 Fall back to an English perlfunc if translation doesn't exist (RT#104695)
 FreeBSD has mandoc too, with UTF-8 support.
 -U now documented and implied with -F (RT#87837)
+Fixes less -R flags insertion on Windows [perl #130759]
 
 =item Pod-Simple 4.35c
 

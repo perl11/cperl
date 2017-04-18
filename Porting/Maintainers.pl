@@ -1178,9 +1178,6 @@ use File::Glob qw(:case);
         # XXX We can and should fix this, but clean up the DRY-failure in utils
         # first
         'EXCLUDED' => ['perldoc'],
-
-        # https://rt.cpan.org/Ticket/Display.html?id=106798
-        'CUSTOMIZED'   => [ qw[ lib/Pod/Perldoc.pm Makefile.PL t/02_module_pod_output.t ] ],
     },
 
     'Pod::Simple' => {
