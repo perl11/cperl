@@ -84,7 +84,7 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm b3c4cf47ddab3efc0acbf7853d86ff9c1c4b5881
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 64304483f2a3eb9ad38dc0dde54d00858c207085
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 67d48d6d19234473699266139fbe0e7f582727ac
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
@@ -111,6 +111,14 @@ base dist/base/lib/base.pm 8c56f516799ba4666b1dccb198cbd1e8c1d25853
 base dist/base/lib/fields.pm 1ef6ddefc3b54c6958cdba85bdb85b16a9e3a07b
 base dist/base/t/fields-5_6_0.t 175dea16b9325762cea401d156e8f440f916fa90
 base dist/base/t/fields-5_8_0.t ace0272fe98ed4be52b7359654ae328ce537372a
+bignum dist/bignum/lib/bigint.pm d5247087c55f3865e080e198f2b63764a3fa16e5
+bignum dist/bignum/lib/bignum.pm e6d30a2b91506baae89ef86078347b6c46a58d73
+bignum dist/bignum/lib/bigrat.pm 4b07efdf8860d04ae023b2ae9f245db38cdfb1f5
+bignum dist/bignum/t/in_effect.t d1fdc6537b487e633c06464cf28f4c3b2a9479c9
+bignum dist/bignum/t/overrides.t 8fa8c1cb3d007febe6ee7927e937b9714275b9c4
+bignum dist/bignum/t/scope_f.t 2b8cc7daffe1092e3bf550b64a37e808b2abc5f5
+bignum dist/bignum/t/scope_i.t ca81c61aff43fee8b6bf89fc698834d721825488
+bignum dist/bignum/t/scope_r.t 531216cbede50c3dbc82795c549a439e2c8ac627
 lib dist/lib/lib_pm.PL 04a3dedbc657cac6c8db1faf2f0c6a7af328a23f
 version cpan/version/lib/version.pm 46e7b7eed74b5080b23f852acd84e6ca5aab6d74
 version cpan/version/lib/version/regex.pm a2e6098571d8085340d4378ec21ad54bbcce1ceb

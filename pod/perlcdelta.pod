@@ -1045,6 +1045,10 @@ global-buffer-overflow with dynamic COW strings, wrong savepvn args.
 
 Support 5.25.6 split optimization
 
+=item bignum 0.47c
+
+See L<https://github.com/rurban/bignum/commits/cperl>
+
 =item B::Terse  1.07
 
 Update deprecation message

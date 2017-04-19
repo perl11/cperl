@@ -243,7 +243,7 @@ use File::Glob qw(:case);
     },
 
     'bignum' => {
-        'DISTRIBUTION' => 'PJACKLAM/bignum-0.43.tar.gz',
+        'DISTRIBUTION' => 'PJACKLAM/bignum-0.47.tar.gz',
         'FILES'        => q[dist/bignum],
         'EXCLUDED'     => [
             qr{^inc/Module/},
@@ -252,7 +252,13 @@ use File::Glob qw(:case);
             qw( t/pod.t
                 t/pod_cov.t
                 ),
-        ],
+          ],
+        # better cperl variant 0.47c
+        # https://github.com/rurban/bignum/commits/cperl
+        'CUSTOMIZED'   => [
+            qw[ lib/bigint.pm lib/bignum.pm lib/bigrat.pm
+                t/in_effect.t t/overrides.t t/scope_f.t t/scope_i.t t/scope_r.t
+            ]],
     },
 
     'Carp' => {
