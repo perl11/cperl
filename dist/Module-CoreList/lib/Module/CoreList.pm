@@ -14733,6 +14733,7 @@ our %delta = (
             'Math::BigInt::Calc'    => '1.999811',
             'Math::BigInt::CalcEmu' => '1.999811',
             'Math::BigInt::Lib'     => '1.999811',
+            'Math::BigRat'          => '0.2612',
             'Compress::Raw::Bzip2'  => '2.074',
             'Compress::Raw::Zlib'   => '2.074',
             'Config'                => '6.23',

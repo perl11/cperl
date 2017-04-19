@@ -1342,10 +1342,12 @@ aliases like *Math::BigInt::FastCalc::_xxx = \&Math::BigInt::Calc::_xxx.
 
 Use OO-calls rather than function calls. (i.e slower but overridable)
 
-=item Math-BigRat 0.2611
+=item Math-BigRat 0.2612
 
 Updated from CPAN: No functional changes,
 and the few actual changes in the test lib were for the worse.
+The F<bigfltpm.inc> tests are still broken and skipped, however
+I improved it.
 
 =item Module-Load-Conditional  0.68
 

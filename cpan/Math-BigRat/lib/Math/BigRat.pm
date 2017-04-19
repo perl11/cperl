@@ -18,9 +18,9 @@ use warnings;
 
 use Carp ();
 
-use Math::BigFloat '1.999718';
+use Math::BigFloat 1.999718;
 
-our $VERSION = '0.2611';
+our $VERSION = '0.2612';
 
 our @ISA = qw(Math::BigFloat);
 
@@ -1348,15 +1348,19 @@ sub blog {
     # value is used as the base, otherwise the base is assumed to be Euler's
     # constant.
 
+    my ($class, $x, $base, @r);
+
     # Don't objectify the base, since an undefined base, as in $x->blog() or
     # $x->blog(undef) signals that the base is Euler's number.
 
-    # set up parameters
-    my ($class, $x, $base, @r) = (ref($_[0]), @_);
-
-    # objectify is costly, so avoid it
-    if ((!ref($_[0])) || (ref($_[0]) ne ref($_[1]))) {
-        ($class, $x, $base, @r) = objectify(1, @_);
+    if (!ref($_[0]) && $_[0] =~ /^[A-Za-z]|::/) {
+        # E.g., Math::BigFloat->blog(256, 2)
+        ($class, $x, $base, @r) =
+          defined $_[2] ? objectify(2, @_) : objectify(1, @_);
+    } else {
+        # E.g., Math::BigFloat::blog(256, 2) or $x->blog(2)
+        ($class, $x, $base, @r) =
+          defined $_[1] ? objectify(2, @_) : objectify(1, @_);
     }
 
     return $x if $x->modify('blog');
@@ -1417,7 +1421,7 @@ sub bexp {
 
     # objectify is costly, so avoid it
     if ((!ref($_[0])) || (ref($_[0]) ne ref($_[1]))) {
-        ($class, $x, $y, @r) = objectify(2, @_);
+        ($class, $x, $y, @r) = objectify(1, @_);
     }
 
     return $x->binf(@r)  if $x->{sign} eq '+inf';

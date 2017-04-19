@@ -2,10 +2,11 @@
 
 use strict;
 use warnings;
+use vars qw($class $CL);
 
 ok ($class->config()->{lib},$CL);
 
-my $z;
+our ($x, $y, $z, $f, $setup, $try, $ans, $ans1, @args);
 
 while (<DATA>)
   {
@@ -177,7 +178,8 @@ while (<DATA>)
 
 # check whether $class->new( Math::BigInt->new()) destroys it
 # ($y == 12 in this case)
-$x = Math::BigInt->new(1200); $y = $class->new($x);
+$x = Math::BigInt->new(1200); 
+$y = $class->new($x);
 ok ($y,1200); ok ($x,1200);
 
 ###############################################################################
@@ -318,13 +320,13 @@ $x = $class->new('-3.14'); $x %= $x; ok ($x, '0');
 #Use of uninitialized value in numeric le (<=) at BigFloat.pm line 1851.
 
 $x = $class->new(0); $y = $class->new('0.1');
-ok ($x ** $y, 0, 'no warnings and zero result');
+is($x ** $y, 0, 'no warnings and zero result');
 
 #perl -MMath::BigFloat -lwe 'print Math::BigFloat->new(".222222222222222222222222222222222222222222")->bceil()'
 #Use of uninitialized value in numeric le (<=) at BigFloat.pm line 1851.
 
 $x = $class->new(".222222222222222222222222222222222222222222");
-ok ($x->bceil(), 1, 'no warnings and one as result');
+is($x->bceil(), 1, 'no warnings and one as result');
 
 ###############################################################################
 # test **=, <<=, >>=
@@ -335,7 +337,7 @@ ok ($x,"20988936657440586486151264256610222593863921");
 ok ($x->length(),length "20988936657440586486151264256610222593863921");
 
 $x = $class->new('2');
-my $y = $class->new('18');
+$y = $class->new('18');
 ok ($x <<= $y, 2 << 18);
 ok ($x, 2 << 18);
 ok ($x >>= $y, 2);
