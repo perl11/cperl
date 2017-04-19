@@ -40,9 +40,15 @@ Linux)
         ext=rpm
         pkg=cperl-$ver-$rev-$arch.$ext
         test -f $pkg && mv $pkg $pkg~
+        # centos6 has db4, centos7 libdb4
+        if grep -q -i "release 6" /etc/redhat-release; then
+            db4=db4
+        else
+            db4=libdb4
+        fi
         fpm -s dir -t rpm -n cperl -v $ver --iteration $rev --epoch '' -a $arch \
             -m 'rurban@cpan.org' \
-            -d 'zlib' -d bzip2-libs -d 'gdbm' -d 'libdb4' \
+            -d 'zlib' -d bzip2-libs -d 'gdbm' -d $db4 \
             --url http://perl11.org/cperl/rpm/ \
             --description 'a perl5 with classes, types, compiler support, company-friendly.' \
             -C $destdir .
