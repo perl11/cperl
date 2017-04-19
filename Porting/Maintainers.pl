@@ -837,7 +837,7 @@ use File::Glob qw(:case);
     },
 
     'IO::Socket::IP' => {
-        'DISTRIBUTION' => 'ATOOMIC/IO-Socket-IP-0.38.tar.gz',
+        'DISTRIBUTION' => 'ATOOMIC/IO-Socket-IP-0.39.tar.gz',
         'FILES'        => q[cpan/IO-Socket-IP],
         'EXCLUDED'     => [
             qr{^examples/},
@@ -1020,7 +1020,7 @@ use File::Glob qw(:case);
     },
 
     'Module::CoreList' => {
-        'DISTRIBUTION' => 'BINGOS/Module-CoreList-5.20161120.tar.gz',
+        'DISTRIBUTION' => 'BINGOS/Module-CoreList-5.20170320.tar.gz',
         'FILES'        => q[dist/Module-CoreList],
         # skip ending 'c' in numeric context on cperl
         'CUSTOMIZED'   => [ qw( lib/Module/CoreList.pm

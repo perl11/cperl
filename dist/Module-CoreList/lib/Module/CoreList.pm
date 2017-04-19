@@ -14767,6 +14767,7 @@ our %delta = (
             'IO::Compress::Zip::Constants'=> '2.074',
             'IO::Compress::Zlib::Constants'=> '2.074',
             'IO::Compress::Zlib::Extra'=> '2.074',
+            'IO::Socket::IP'        => '0.39',
             'IO::Uncompress::Adapter::Bunzip2'=> '2.074',
             'IO::Uncompress::Adapter::Identity'=> '2.074',
             'IO::Uncompress::Adapter::Inflate'=> '2.074',

@@ -1286,7 +1286,7 @@ Fix -Wc++11-compat warnings
 ISA fixes for c3
 L<[perl #120239|https://rt.perl.org/Public/Bug/Display.html?id=120239>
 
-=item IO::Socket::IP 0.38
+=item IO::Socket::IP 0.39_01
 
 protect sv in END during global destruction, esp. with B::C.
 fixes for missing . in @INC (cperl or -Dfortify_inc).
@@ -1297,7 +1297,10 @@ From L<https://github.com/atoomic/IO-Socket-IP/>:
   constructor parameter
 
 - Restore blocking mode after ->connect errors
-L<RT #112334|https://rt.cpan.org/Ticket/Display.html?id=112334>
+  L<RT #112334|https://rt.cpan.org/Ticket/Display.html?id=112334>
+
+- Keep demand-load Carp patch.
+  https://jira.cpanel.net/browse/CPANEL-4359
 
 =item IPC::Cmd  0.96
 
