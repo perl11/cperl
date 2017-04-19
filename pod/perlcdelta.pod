@@ -1599,6 +1599,11 @@ harmonize formatting.
 
 patch: use faster StructCopy and fixup the XS.
 
+=item Test-Harness 3.39_01
+
+Keeping our cperl and XSConfig fixes.
+See L<https://github.com/rurban/Test-Harness/tree/cperl-rebased>
+
 =item Test-Simple
 
 Add doc and support for optional subtest @args.
