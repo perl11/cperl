@@ -84,7 +84,7 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 64304483f2a3eb9ad38dc0dde54d00858c207085
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 8afea16bcc9fc1c0676f76c91de93d09dff35eb5
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 67d48d6d19234473699266139fbe0e7f582727ac
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
@@ -102,7 +102,14 @@ Test::Harness cpan/Test-Harness/t/nofork.t 17a1bde6de588ca647cd89d3786e84a68164a
 Test::Harness cpan/Test-Harness/t/regression.t 4b6448b3d3bae1f406e25c8f61d2656a2338d639
 Test::Harness cpan/Test-Harness/t/sample-tests/switches 350f7e96e4bfb8dbac352200d656e8f52a76ab7e
 Test::Harness cpan/Test-Harness/t/source_handler.t 1b9abe550c8c5383eddefb0811c083605cb66ba4
-Time::HiRes dist/Time-HiRes/t/nanosleep.t a8f3533a873a02db243d3c378fedb95de0622876
+Time::HiRes dist/Time-HiRes/HiRes.xs a18817741c643a33c16db73fa6935b2d2699c7fd
+Time::HiRes dist/Time-HiRes/t/alarm.t 1f19ec4a487abfc4725a6abfa44f1cf1d8cd8086
+Time::HiRes dist/Time-HiRes/t/clock.t acb2497e55facb882c41154805e917d1dbe5377c
+Time::HiRes dist/Time-HiRes/t/itimer.t 659db22bc635177b130e0478aef1fd5e1edf0b6d
+Time::HiRes dist/Time-HiRes/t/nanosleep.t d7b7a510d0f7c99fb8e647a961f1efb09cc033ca
+Time::HiRes dist/Time-HiRes/t/usleep.t 573121cfdb26195ed22071e38d50dcdde3c49a66
+Time::HiRes dist/Time-HiRes/t/utime.t fc7bd0876a9d18c8a0fb104fc63c46489bd5ea7c
+Time::HiRes dist/Time-HiRes/typemap 4c0a40c7cd8dbde34c3122e8cf71b8a420bc64a4
 YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL af46c9ce20b08189cc0fa26b20c69ea051084365
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 527302db61c55bf695da94adfa66e7c2f34b1f09
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm 9716931aaf2305fab4a41f35560362947ba3a805

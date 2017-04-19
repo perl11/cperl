@@ -16,6 +16,7 @@ eval { Time::HiRes::usleep(-2) };
 like $@, qr/::usleep\(-2\): negative time not invented yet/,
 	"negative time error";
 
+# Increase this to 0.60 on CI, overloaded build servers on a VM, or slow machines
 my $limit = 0.25; # 25% is acceptable slosh for testing timers
 
 my $one = CORE::time;

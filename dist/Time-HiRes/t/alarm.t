@@ -8,9 +8,10 @@ BEGIN { require_ok "Time::HiRes"; }
 
 use Config;
 
+# increase this to 0.60 on CI, overloaded build servers on a VM, or slow machines
 my $limit = 0.25; # 25% is acceptable slosh for testing timers
 
-my $xdefine = ''; 
+my $xdefine = '';
 if (open(XDEFINE, "<", "xdefine")) {
     chomp($xdefine = <XDEFINE> || "");
     close(XDEFINE);

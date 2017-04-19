@@ -8,7 +8,7 @@ BEGIN {
     }
 }
 
-use Test::More 0.82 tests => 3;
+use Test::More tests => 3;
 BEGIN { push @INC, '.' }
 use t::Watchdog;
 use Config;
@@ -38,7 +38,7 @@ SKIP: {
       ok(1, "skip nanosleep test on overly slow smoker. slept $d secs, not 0.5 secs");
     } else {
       ok ($d > 0.4 && $d < 0.9, "slept $d secs of 0.5 secs") or diag "slept $d secs $f to $f2";
-   }
+    }
 }
 
 1;

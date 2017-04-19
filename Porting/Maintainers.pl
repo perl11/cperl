@@ -1473,10 +1473,11 @@ use File::Glob qw(:case);
     },
 
     'Time::HiRes' => {
-        'DISTRIBUTION' => 'JHI/Time-HiRes-1.9741.tar.gz',
+        'DISTRIBUTION' => 'JHI/Time-HiRes-1.9742.tar.gz',
         'FILES'        => q[dist/Time-HiRes],
-        # for overly slow smokers
-        'CUSTOMIZED'   => [ 't/nanosleep.t' ],
+        # for overly slow smokers. See https://github.com/rurban/Time-HiRes
+        'CUSTOMIZED'   => [ qw( HiRes.xs t/alarm.t t/clock.t t/itimer.t
+                            t/nanosleep.t t/usleep.t t/utime.t typemap) ],
     },
 
     'Time::Local' => {

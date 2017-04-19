@@ -1645,7 +1645,7 @@ Documentation
 
 Less runtime memory: demand-load Carp, Config.
 
-=item Time-HiRes  1.9741_01
+=item Time-HiRes  1.9742_01
 
 Fix -Wc++11-compat warnings
 Keep our better C++ fixes
