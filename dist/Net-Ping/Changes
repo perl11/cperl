@@ -1,5 +1,13 @@
 CHANGES
 -------
+2.59  Tue Apr 18 08:46:48 2017 +0200 (rurban)
+       Bugfixes
+        - skip udp ping tests on more platforms: hpux, irix, aix.
+          also pingecho on os390.
+          (from perl5 core)
+       Features
+        - added a make release target
+
 2.58  Wed Feb  1 19:34:03 CET 2017 (rurban)
        Features
         - return the port num as 5th return value with ack (jfraire)

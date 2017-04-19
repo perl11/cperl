@@ -1076,7 +1076,7 @@ use File::Glob qw(:case);
     },
 
     'Net::Ping' => {
-        'DISTRIBUTION' => 'RURBAN/Net-Ping-2.58.tar.gz',
+        'DISTRIBUTION' => 'RURBAN/Net-Ping-2.59.tar.gz',
         'FILES'        => q[dist/Net-Ping],
         'EXCLUDED'     => [
             qw{README.md.PL},

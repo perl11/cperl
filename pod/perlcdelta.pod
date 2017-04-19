@@ -1355,13 +1355,14 @@ Add FORCE_SAFE_INC option to fix CVE-2016-1238.
 - only report "main" as the module name if code was seen outside another
   namespace, fixing bad results for pod files (RT#107525)
 
-=item Net-Ping 2.58_01
+=item Net-Ping 2.59
 
 Stabilized test, geocities.com is down.
 
 Return the port num as 5th return value with ack (jfraire).
 
-Todo 010_pingecho.t on EBCDIC
+Todo 010_pingecho.t on EBCDIC and os390.
+Skip udp ping tests on more platforms: hpux, irix, aix (all from perl5)
 
 Fixed missing C<_unpack_sockaddr_in> family, which took AF_INET6 for
 a AF_INET addr in F<t/500_ping_icmp.t> and F<t/500_ping_icmp_ttl.t>.
