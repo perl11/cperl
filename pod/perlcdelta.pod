@@ -1524,7 +1524,7 @@ Removed C<i_netinet6_in6> probe.
 This was never used due to a typo.
 It cannot be used due to RFC 2553.
 
-=item Storable 3.05_11
+=item Storable 3.05_12
 
 From L<https://github.com/rurban/Storable>
 
@@ -1537,9 +1537,9 @@ Fixed some important security bugs with reading from Storable files
 or memory, directly controlling the stack (not the perl stack).
 See L</Storable stack overflow or exit>.
 
-Another stack-overflow fix is for L<[cpan
-#97526]|https://rt.cpan.org/Ticket/Display.html?id=97526>, limiting
-the maximal number of nested hash or arrays to 3000.
+Another stack-overflow fix is for
+L<[cpan #97526]|https://rt.cpan.org/Ticket/Display.html?id=97526>, limiting
+the maximal number of nested hash or arrays to a computed number, ~3000-8000.
 Cpanel::JSON::XS has it at 512.
 
 Fixed up early huge buffer and index support from 3.00c, which was

@@ -77,5 +77,11 @@ stacksize.h: stacksize_in.h
 	\$(CP) stacksize_in.h stacksize.h
 
 Storable\$(OBJ_EXT) Storable.c: stacksize.h
+
+release : dist
+	git tag \$(VERSION)
+	cpan-upload \$(DISTVNAME).tar\$(SUFFIX)
+	git push
+	git push --tags
 "
 }
