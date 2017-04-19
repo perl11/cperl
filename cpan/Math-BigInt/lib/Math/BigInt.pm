@@ -20,7 +20,7 @@ use warnings;
 
 use Carp ();
 
-our $VERSION = '1.999809';
+our $VERSION = '1.999811_01';
 
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(objectify bgcd blcm);
@@ -2385,14 +2385,19 @@ sub blog {
     # value is used as the base, otherwise the base is assumed to be Euler's
     # constant.
 
+    my ($class, $x, $base, @r);
+
     # Don't objectify the base, since an undefined base, as in $x->blog() or
     # $x->blog(undef) signals that the base is Euler's number.
 
-    # set up parameters
-    my ($class, $x, $base, @r) = (undef, @_);
-    # objectify is costly, so avoid it
-    if ((!ref($_[0])) || (ref($_[0]) ne ref($_[1]))) {
-        ($class, $x, $base, @r) = objectify(2, @_);
+    if (!ref($_[0]) && $_[0] =~ /^[A-Za-z]|::/) {
+        # E.g., Math::BigInt->blog(256, 2)
+        ($class, $x, $base, @r) =
+          defined $_[2] ? objectify(2, @_) : objectify(1, @_);
+    } else {
+        # E.g., Math::BigInt::blog(256, 2) or $x->blog(2)
+        ($class, $x, $base, @r) =
+          defined $_[1] ? objectify(2, @_) : objectify(1, @_);
     }
 
     return $x if $x->modify('blog');
@@ -3750,7 +3755,8 @@ sub objectify {
     # Class->badd(Class->(1), 2);  => classname x (scalar), ref x, scalar y
     # Math::BigInt::badd(1, 2);    => scalar x, scalar y
 
-    # A shortcut for the common case $x->unary_op():
+    # A shortcut for the common case $x->unary_op(), in which case the argument
+    # list is (0, $x) or (1, $x).
 
     return (ref($_[1]), $_[1]) if @_ == 2 && ($_[0] || 0) == 1 && ref($_[1]);
 
@@ -3763,7 +3769,6 @@ sub objectify {
     # Get the number of arguments to objectify.
 
     my $count = shift;
-    $count ||= @_;
 
     # Initialize the output array.
 
@@ -3773,16 +3778,17 @@ sub objectify {
     # class name. Otherwise, if the first argument looks like a class name,
     # then use that as our class name. Otherwise, use the default class name.
 
-    {
-        if (ref($a[0])) {               # reference?
-            unshift @a, ref($a[0]);
-            last;
-        }
-        if ($a[0] =~ /^[A-Z].*::/) {    # string with class name?
-            last;
-        }
-        unshift @a, $class;             # default class name
+    my $class;
+    if (ref($a[0])) {                   # reference?
+        $class = ref($a[0]);
+    } elsif ($a[0] =~ /^[A-Z].*::/) {   # string with class name?
+        $class = shift @a;
+    } else {
+        $class = __PACKAGE__;           # default class name
     }
+
+    $count ||= @a;
+    unshift @a, $class;
 
     no strict 'refs';
 
@@ -3800,12 +3806,6 @@ sub objectify {
     }
 
     for my $i (1 .. $count) {
-
-        # Don't do anything with undefs. This special treatment is necessary
-        # because blog() might have a second operand which is undef, to signify
-        # that the default Euler base should be used.
-
-        next unless defined $a[$i];
 
         my $ref = ref $a[$i];
 

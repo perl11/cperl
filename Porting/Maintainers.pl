@@ -920,7 +920,7 @@ use File::Glob qw(:case);
     },
 
     'Math::BigInt' => {
-        'DISTRIBUTION' => 'PJACKLAM/Math-BigInt-1.999809.tar.gz',
+        'DISTRIBUTION' => 'PJACKLAM/Math-BigInt-1.999811.tar.gz',
         'FILES'        => q[cpan/Math-BigInt],
         'EXCLUDED'     => [
             qr{^inc/},
@@ -932,12 +932,9 @@ use File::Glob qw(:case);
                 t/03podcov.t
                 ),
         ],
-        # cperl c3, stricter tests and . in @INC fixes
+        # cperl stricter tests and . in @INC fixes
         'CUSTOMIZED'   => [
             qw[
-                t/Math/BigFloat/Subclass.pm
-                t/Math/BigInt/Subclass.pm
-                t/upgradef.t
                 t/bare_mbf.t
                 t/bare_mbi.t
                 t/bare_mif.t

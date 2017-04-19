@@ -1326,9 +1326,10 @@ Add blacklist and whitelist support, with
 L<[perl #127923|https://rt.perl.org/Public/Bug/Display.html?id=127923>
  priority. See L<Locale::Maketext/"BRACKET NOTATION SECURITY">
 
-=item Math-BigInt 1.999809
+=item Math-BigInt 1.999811_01
 
-Merged CPAN updates with cperl-specific c3, stricter tests and . in @INC fixes.
+Merged CPAN updates with stricter tests and . in @INC fixes.
+L<https://github.com/rurban/Math-BigInt>
 
 =item Math-BigInt-FastCalc 0.5006
 
