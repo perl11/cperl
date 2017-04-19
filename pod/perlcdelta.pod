@@ -1310,10 +1310,13 @@ set $Module::Load::Conditional::FORCE_SAFE_INC = 1
 
 Fixed true/false redefinition warnings.
 
-=item Locale-Codes 3.42
+=item Locale-Codes 3.51
 
 Added Czech republic aliases back in.
-Lot of new codes.
+Lot of new codes and code changes.
+
+Made many private API calls public.
+See L<Locale::Codes::Changes>
 
 =item Locale::Maketext 1.28
 
