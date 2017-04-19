@@ -1363,6 +1363,8 @@ It is also better compilable.
 
 =over
 
+=item C<"$^V" =~ /c$/>
+
 =item F<config.h> defines <USE_CPERL>
 
 =item F<Config.pm> defines C<usecperl>
