@@ -15,8 +15,8 @@
  */
 
 
-#ifndef H_REGCHARCLASS   /* Guard against nested #includes */
-#define H_REGCHARCLASS 1
+#ifndef PERL_REGCHARCLASS_H_ /* Guard against nested #includes */
+#define PERL_REGCHARCLASS_H_
 
 #if 'A' == 65 /* ASCII/Latin1 */
 /*
@@ -8318,7 +8318,7 @@
 
 #endif	/* EBCDIC 037 */
 
-#endif /* H_REGCHARCLASS */
+#endif /* PERL_REGCHARCLASS_H_ */
 
 /* Generated from:
  * 69b5ebb58a900be2476eb02ac79a2fed4d377e179a7cc9f9e0463908f3cd17d1 lib/Unicode/UCD.pm
@@ -8367,6 +8367,6 @@
  * 16f2ee59bf92363ffe71c8d050e865858a6c466d54515e58b77a6dd8dd268345 lib/unicore/mktables
  * cdecb300baad839a6f62791229f551a4fa33f3cbdca08e378dc976466354e778 lib/unicore/version
  * 913d2f93f3cb6cdf1664db888bf840bc4eb074eef824e082fceda24a9445e60c regen/charset_translations.pl
- * c85aaf6affb02d5ae6797602f99bb454f82918b38cb2dc223687a095fd3c984c regen/regcharclass.pl
+ * 65b2807db5cfc7fea90fdfa697d76a4d87feaf8280abd27efda6f3eb3a85f7bf regen/regcharclass.pl
  * 238f19c31ed356f1f849c63d3da8ad9bf41413ebcfddec2592c446c4555c8fb6 regen/regcharclass_multi_char_folds.pl
  * ex: set ro: */
