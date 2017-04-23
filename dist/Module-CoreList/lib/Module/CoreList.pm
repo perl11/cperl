@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170418c';
+$VERSION = '5.20170425c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -337,8 +337,8 @@ our %released = (
     '5.025003c' => '2017-02-23',
     5.025010 => '2017-02-20',
     5.025011 => '2017-03-20',
+    '5.026000c' => '2016-04-25',
     5.026000 => '????-??-??',
-    '5.026000c' => '2016-04-18',
     '5.024003c' => '????-??-??',
  );
 
@@ -14743,7 +14743,7 @@ our %delta = (
             'CPAN::Distribution'    => '2.18_01',
             'Cpanel::JSON::XS'      => '3.0231',
             'Cwd'                   => '4.67c',
-            'ExtUtils::Constant'    => '2.23_04',
+            'ExtUtils::Constant'    => '2.23_05',
             'ExtUtils::Install'     => '2.04_01',
             'ExtUtils::ParseXS'             => '3.34_02',
             'ExtUtils::ParseXS::Constants'  => '3.34_02',

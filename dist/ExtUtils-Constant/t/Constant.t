@@ -135,9 +135,9 @@ sub build_and_run {
   my ($tests, $expect, $files) = @_;
   my $core = $ENV{PERL_CORE} ? ' PERL_CORE=1' : '';
   sleep 1; # [RT #78188]
-  my @perlout = `$perl -Mblib Makefile.PL $core`;
+  my @perlout = `$perl Makefile.PL $core`;
   if ($?) {
-    print "not ok $realtest # $perl -Mblib Makefile.PL failed: $?\n";
+    print "not ok $realtest # $perl Makefile.PL failed: $?\n";
     print "# $_" foreach @perlout;
     exit($?);
   } else {

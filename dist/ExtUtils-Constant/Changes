@@ -95,3 +95,6 @@ history can be found via http://perl5.git.perl.org/perl.git/tree/HEAD:/lib ]
         Fix ProxySubs to generate code also valid for 5.8 - 5.14.
         Add testcases for the 4 ProxySubs options.
         Warn against its usage on creation.
+
+0.23_05 2017-04-23 rurban
+        Fix the tests under CORE

@@ -84,8 +84,8 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 38b3942d9c9c5e3f80a10330504eb834e3957d94
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 67d48d6d19234473699266139fbe0e7f582727ac
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm fc20daeb507ab84892b4aaebe018739b1cedc40c
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm c8c31f099f494878db6cf89d250cac5d792dd237
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
 Net::Domain cpan/libnet/lib/Net/Domain.pm 73f78880a95de5372bb234f37c386f52e43795d9

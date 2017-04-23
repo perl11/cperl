@@ -9,7 +9,7 @@ require ExtUtils::Constant::XS;
 use ExtUtils::Constant::Utils qw(C_stringify);
 use ExtUtils::Constant::XS qw(%XS_TypeSet);
 
-$VERSION = '0.23_04';
+$VERSION = '0.23_05';
 @ISA = 'ExtUtils::Constant::XS';
 
 %type_to_struct =
