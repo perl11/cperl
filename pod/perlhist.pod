@@ -633,6 +633,7 @@ the strings?).
  rurban    5.25.3c      2016-Feb-23
 
  rurban    5.26.0c-RC1  2017-Apr-19     cperl 5.26
+ rurban    5.26.0       2017-Apr-25
 
 =head2 SELECTED RELEASE MEMORY USAGE
 

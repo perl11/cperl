@@ -128,7 +128,7 @@
          "vxs.inc"
       ]
    },
-   "release_status" : "testing",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
          "web" : "http://github.com/perl11/cperl/issues"
