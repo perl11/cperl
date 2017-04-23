@@ -1210,6 +1210,12 @@ symbols.
 
 =item ExtUtils-Constant 0.23_04
 
+Fix ProxySubs to generate code also valid for 5.8 - 5.14.
+
+Add testcases for the 4 ProxySubs options.
+
+Warn against its ProxySubs usage on creation.
+
 Fix -Wc++11-compat warnings in generated const-xs.inc code.
 
 =item ExtUtils::MakeMaker

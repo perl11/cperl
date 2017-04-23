@@ -616,12 +616,8 @@ use File::Glob qw(:case);
     },
 
     'ExtUtils::Constant' => {
-        # Nick has confirmed that while we have diverged from CPAN,
-        # this package isn't primarily maintained in core
-        # Another release will happen "Sometime" 'NWCLARK/ExtUtils-Constant-0.16.tar.gz'
-        # cperl: This module could eventually be used to maintain warnings as XS and Config as XS,
-        # but unfortunately not with the current maintainership.
-        'DISTRIBUTION' => 'RURBAN/ExtUtils-Constant-0.23_03.tar.gz',
+        # Upstream broken
+        'DISTRIBUTION' => 'RURBAN/ExtUtils-Constant-0.23_04.tar.gz',
         'FILES'    => q[dist/ExtUtils-Constant],
         'EXCLUDED' => [
             qw( lib/ExtUtils/Constant/Aaargh56Hash.pm

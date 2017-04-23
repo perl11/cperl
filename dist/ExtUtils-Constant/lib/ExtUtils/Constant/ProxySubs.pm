@@ -207,7 +207,20 @@ sub WriteConstants {
 	if $push && !$can_do_pcs;
     # Until someone patches this (with test cases)
     carp ("PROXYSUBS options 'push' and 'croak_on_read' cannot be used together")
-	if $explosives && $push;
+        if $explosives && $push;
+
+    # Warn against general usage.
+    # PROXYSUBS or PROXYSUBS autoload can not yet be used with 5.6
+    if ($explosives) {
+      warn("Code created by PROXYSUBS croak_on_read can only be used with perl >= 5.24.\n"
+           ."It is NOT recommended for CPAN modules!\n");
+    } elsif ($croak_on_error) {
+      warn("Code created by PROXYSUBS croak_on_error can only be used with perl >= 5.14.\n"
+           ."It is NOT recommended for CPAN modules!\n");
+    } elsif ($push) {
+      warn("Code created by PROXYSUBS push can only be used with perl >= 5.10.\n"
+           ."It is NOT recommended for CPAN modules!\n");
+    }
 
     # If anyone is insane enough to suggest a package name containing %
     my $package_sprintf_safe = $package;
@@ -259,19 +272,28 @@ ${c_subname}_add_symbol($pthx HV *hash, const char *name, I32 namelen, SV *value
 EOADD
     if (!$can_do_pcs) {
 	print $c_fh <<'EO_NOPCS';
-    if (namelen == namelen) {
+    HE *he = NULL;
+    if (namelen) {
 EO_NOPCS
     } else {
 	print $c_fh <<"EO_PCS";
+#if PERL_VERSION < 10
+    SV **he = hv_fetch(hash, name, namelen, TRUE);
+#else
     HE *he = (HE*) hv_common_key_len(hash, name, namelen, HV_FETCH_LVALUE, NULL,
 				     0);
+#endif
     SV *sv;
 
     if (!he) {
-        croak("Couldn't add key '%s' to %%$package_sprintf_safe\::",
+        Perl_croak(aTHX_ "Couldn't add key '%s' to %%$package_sprintf_safe\::",
 	      name);
     }
+#if PERL_VERSION < 10
+    sv = *he;
+#else
     sv = HeVAL(he);
+#endif
     if (SvOK(sv) || SvTYPE(sv) == SVt_PVGV) {
 	/* Someone has been here before us - have to make a real sub.  */
 EO_PCS
@@ -306,7 +328,7 @@ static int
 Im_sorry_Dave(pTHX_ SV *sv, MAGIC *mg)
 {
     PERL_UNUSED_ARG(mg);
-    croak("Your vendor has not defined $package_sprintf_safe macro %" SVf
+    Perl_croak(aTHX_ "Your vendor has not defined $package_sprintf_safe macro %"SVf
           " used", sv);
     NORETURN_FUNCTION_END;
 }
@@ -346,8 +368,7 @@ get_missing_hash(pTHX) {
     /* We could make a hash of hashes directly, but this would confuse anything
 	at Perl space that looks at us, and as we're visible in Perl space,
 	best to play nice. */
-    SV *const *const ref
-	= hv_fetch(parent, "$key", $key_len, TRUE);
+    SV *const *const ref = hv_fetch(parent, "$key", $key_len, TRUE);
     HV *new_hv;
 
     if (!ref)
@@ -480,22 +501,36 @@ EOBOOT
 				    value_for_notfound->namelen, tripwire);
 EXPLODE
 
-		/* Need to add prototypes, else parsing will vary by platform.  */
-		HE *he = (HE*) hv_common_key_len(symbol_table,
-						 value_for_notfound->name,
-						 value_for_notfound->namelen,
-						 HV_FETCH_LVALUE, NULL, 0);
 		SV *sv;
 #ifndef SYMBIAN
 		HEK *hek;
 #endif
+		/* Need to add prototypes, else parsing will vary by platform.  */
+#if PERL_VERSION < 10
+		SV **he = hv_fetch(symbol_table,
+                                   value_for_notfound->name,
+                                   value_for_notfound->namelen,
+                                   TRUE);
+#else
+		HE *he = (HE*) hv_common_key_len(symbol_table,
+						 value_for_notfound->name,
+						 value_for_notfound->namelen,
+						 HV_FETCH_LVALUE, NULL, 0);
+#endif
 		if (!he) {
-		    croak("Couldn't add key '%s' to %%$package_sprintf_safe\::",
+		    Perl_croak(aTHX_ "Couldn't add key '%s' to %%$package_sprintf_safe\::",
 			  value_for_notfound->name);
 		}
+#if PERL_VERSION < 10
+		sv = *he;
+#else
 		sv = HeVAL(he);
+#endif
 		if (!SvOK(sv) && SvTYPE(sv) != SVt_PVGV) {
 		    /* Nothing was here before, so mark a prototype of ""  */
+#if PERL_VERSION < 10
+                    sv_upgrade(sv, SVt_PV);
+#endif
 		    sv_setpvn(sv, "", 0);
 		} else if (SvPOK(sv) && SvCUR(sv) == 0) {
 		    /* There is already a prototype of "" - do nothing  */
@@ -515,11 +550,18 @@ EXPLODE
 		    CvXSUBANY(cv).any_ptr = NULL;
 		}
 #ifndef SYMBIAN
+#if PERL_VERSION < 10
+		if (!hv_store(${c_subname}_missing, 
+                    value_for_notfound->name,
+                    value_for_notfound->namelen,
+                    &PL_sv_yes, 0))
+#else
 		hek = HeKEY_hek(he);
 		if (!hv_common(${c_subname}_missing, NULL, HEK_KEY(hek),
  			       HEK_LEN(hek), HEK_FLAGS(hek), HV_FETCH_ISSTORE,
 			       &PL_sv_yes, HEK_HASH(hek)))
-		    croak("Couldn't add key '%s' to missing_hash",
+#endif
+		    Perl_croak(aTHX_ "Couldn't add key '%s' to missing_hash",
 			  value_for_notfound->name);
 #endif
 DONT
@@ -595,10 +637,6 @@ EOBOOT
     return if !defined $xs_subname;
 
     if ($croak_on_error || $autoload) {
-        my $newSVpvtemp = $] >= 5010001
-          ? "newSVpvn_flags(SvPVX(cv), SvCUR(cv), SVs_TEMP | SvUTF8(cv))"
-          # no UTF-8 subnames < 5.10.1
-          : "sv_2mortal(newSVpvn(SvPVX(cv), SvCUR(cv)))";
         print $xs_fh $croak_on_error ? <<"EOC" : <<"EOA";
 
 void
@@ -616,7 +654,11 @@ void
 AUTOLOAD()
     PROTOTYPE: DISABLE
     PREINIT:
-	SV *sv = $newSVpvtemp;
+#if PERL_VERSION < 10
+        SV *sv = sv_2mortal(newSVpvn(SvPVX(cv), SvCUR(cv)));
+#else
+        SV *sv = newSVpvn_flags(SvPVX(cv), SvCUR(cv), SVs_TEMP | SvUTF8(cv));
+#endif
 	const COP *cop = PL_curcop;
 EOA
         print $xs_fh <<"EOC";
@@ -630,20 +672,17 @@ EOA
 	    ? get_missing_hash(aTHX) : NULL;
 	if ((C_ARRAY_LENGTH(values_for_notfound) > 1)
 	    ? hv_exists_ent(${c_subname}_missing, sv, 0) : 0) {
-	    sv = newSVpvf("Your vendor has not defined $package_sprintf_safe macro %" SVf
+	    Perl_croak(aTHX_ "Your vendor has not defined $package_sprintf_safe macro %" SVf
 			  ", used at %" COP_FILE_F " line %" UVuf "\\n", 
 			  sv, COP_FILE(cop), (UV)CopLINE(cop));
 	} else
 #endif
 	{
-	    sv = newSVpvf("%" SVf " is not a valid $package_sprintf_safe macro at %"
+	    Perl_croak(aTHX_ "%"SVf" is not a valid $package_sprintf_safe macro at %"
 			  COP_FILE_F " line %" UVuf "\\n",
 			  sv, COP_FILE(cop), (UV)CopLINE(cop));
 	}
 EOC
-        print $xs_fh $] >= 5.013001
-          ? "\tcroak_sv(sv_2mortal(sv));\n"
-          : "\tcroak(SvPV_nolen(sv_2mortal(sv)));\n";
     } else {
         print $xs_fh $explosives ? <<"EXPLODE" : <<"DONT";
 
@@ -676,7 +715,7 @@ $xs_subname(sv)
 	} else
 #endif
 	{
-	    sv = newSVpvf("%" SVf " is not a valid $package_sprintf_safe macro",
+	    sv = newSVpvf("%"SVf" is not a valid $package_sprintf_safe macro",
 			  sv);
 	}
 	PUSHs(sv_2mortal(sv));
