@@ -69,8 +69,12 @@ END {
   if (defined $orig_cwd and length $orig_cwd) {
     chdir $orig_cwd or die "Can't chdir back to '$orig_cwd': $!";
     use File::Path;
-    print "# $dir being removed...\n";
-    rmtree($dir) unless $keep_files;
+    if ($keep_files) {
+        print "# $dir kept...\n";
+    } else {
+        print "# $dir being removed...\n";
+        rmtree($dir);
+    }
   } else {
     # Can't get here.
     die "cwd at start was empty, but directory '$dir' was created" if $dir;
@@ -113,7 +117,6 @@ sub check_for_bonus_files {
   my %expect = map {($^O eq 'VMS' ? lc($_) : $_), 1} @_;
 
   my $fail;
-  print "# Missing MANIFEST with --keep-files\n" if @_ <= 2;
   opendir DIR, $dir or die "opendir '$dir': $!";
   while (defined (my $entry = readdir DIR)) {
     $entry =~ s/(.*?)\.?$/\L$1/ if $^O eq 'VMS';
@@ -360,11 +363,6 @@ sub write_and_run_extension {
   my $c = tie *C, 'TieOut';
   my $xs = tie *XS, 'TieOut';
 
-  # warn when detecting the global module being used
-  warn $INC{'ExtUtils/Constant/ProxySubs.pm'}
-    if exists $INC{'ExtUtils/Constant/ProxySubs.pm'}
-    and $INC{'ExtUtils/Constant/ProxySubs.pm'} =~ m|^/usr|;
-
   ExtUtils::Constant::WriteConstants
     (C_FH => \*C,
      XS_FH => \*XS,
@@ -531,12 +529,14 @@ my @common_items = (
                    );
 
 my @args = ([]);
-push @args, [PROXYSUBS => 1]                     if $] >= 5.008001 or $keep_files;
-push @args, [PROXYSUBS => {autoload => 1}]       if $] >= 5.008001 or $keep_files;
-# warn: work ongoing for <5.10 fixes
-push @args, [PROXYSUBS => {push => 1} ]          if $] >= 5.010 or $keep_files;
-push @args, [PROXYSUBS => {croak_on_error => 1}] if $] >= 5.014 or $keep_files;
-push @args, [PROXYSUBS => {croak_on_read => 1}]  if $] >= 5.024 or $keep_files;
+push @args, [PROXYSUBS => 1];
+push @args, [PROXYSUBS => {autoload => 1}];
+push @args, [PROXYSUBS => {push => 'CONSTANTS'}];
+push @args, [PROXYSUBS => {croak_on_error => 1}];
+push @args, [PROXYSUBS => {croak_on_read => 1}] if $] >= 5.024;
+push @args, [PROXYSUBS => {autoload => 1, push => 'CONSTANTS'}];
+push @args, [PROXYSUBS => {croak_on_error => 1, push => 'CONSTANTS'}];
+
 foreach my $args (@args)
 {
   # Simple tests
@@ -646,7 +646,12 @@ EOT
   } else {
     $cond = q{pack 'Q', $not_zero eq ~pack 'Q', 0};
   }
-  if ($args and ref $args->[1] and $args->[1]->{croak_on_read}) {
+  my $croak_NOTDEF = '^Your vendor has not defined ExtTest macro ';
+  if ($] < 5.008 and $args and ref $args->[1] and $args->[1]->{autoload}) {
+    $croak_pre = '^Undefined subroutine \&ExtTest::';
+    $croak_post = ' called at';
+    $croak_NOTDEF = '^Undefined subroutine \&ExtTest::';
+  } elsif ($args and ref $args->[1] and $args->[1]->{croak_on_read}) {
     $croak_pre = '^Your vendor has not defined ExtTest macro ';
     $croak_post = '';
   } else {
@@ -654,7 +659,7 @@ EOT
     $croak_post = ' is not a valid ExtTest macro';
   }
 
-  $test_body .= sprintf <<'EOT', $cond, $croak_pre, $croak_post;
+  $test_body .= sprintf <<'EOT', $cond, $croak_NOTDEF, $croak_pre, $croak_post;
 # UV
 my $not_zero = NOT_ZERO;
 if (%s) {
@@ -687,7 +692,7 @@ $test++;
 my $notdef = eval { NOTDEF; };
 if (defined $notdef) {
   print "not ok $test # \$notdef='$notdef'\n";
-} elsif ($@ !~ /Your vendor has not defined ExtTest macro NOTDEF/) {
+} elsif ($@ !~ /%sNOTDEF/) {
   print "not ok $test # \$@='$@'\n";
 } else {
   print "ok $test\n";

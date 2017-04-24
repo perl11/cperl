@@ -98,3 +98,9 @@ history can be found via http://perl5.git.perl.org/perl.git/tree/HEAD:/lib ]
 
 0.23_05 2017-04-23 rurban
         Fix the tests under CORE
+
+0.23_06 2017-04-24 rurban
+        Fixed PROXYSUBS autoload, push and croak_on_error for 5.8 and 5.6.
+        Fixed PROXYSUBS with all options but croak_on_read.
+        Only one 5.6 PROXYSUBS autoload limitation in the error message
+        on undefined macros.

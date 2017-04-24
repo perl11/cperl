@@ -341,7 +341,9 @@ dist/cpan-meta/lib/parse/cpan/meta.pm	Verbatim line length including indents exc
 dist/cpan-meta/lib/parse/cpan/meta.pm	line containing nothing but whitespace in paragraph	6
 dist/data-dumper/changes	Verbatim line length including indents exceeds 79 by	1
 dist/data-dumper/dumper.pm	? Should you be using L<...> instead of	1
+dist/extutils-constant/lib/extutils/constant.pm	Apparent broken link	2
 dist/extutils-constant/lib/extutils/constant.pm	Verbatim line length including indents exceeds 79 by	1
+dist/extutils-constant/lib/extutils/constant/proxysubs.pm	Apparent broken link	1
 dist/extutils-makemaker/lib/extutils/command/mm.pm	Verbatim line length including indents exceeds 79 by	2
 dist/extutils-makemaker/lib/extutils/makemaker.pm	=head3 without preceding higher level	1
 dist/extutils-makemaker/lib/extutils/makemaker.pm	? Should you be using F<...> or maybe L<...> instead of	1
