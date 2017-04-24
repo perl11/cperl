@@ -3,7 +3,7 @@ use strict;
 use vars qw($VERSION @ISA %type_to_struct %type_from_struct %type_to_sv
 	    %type_to_C_value %type_is_a_problem %type_num_args
 	    %type_temporary);
-$VERSION = '0.23_06';
+$VERSION = '0.23_07';
 @ISA = 'ExtUtils::Constant::XS';
 
 =head1 NAME
@@ -503,8 +503,13 @@ BOOT:
     HV *symbol_table = get_hv("$symbol_table", GV_ADD);
 EOBOOT
     if ($push) {
+        # silence cperl-only Used once warnings
 	print $xs_fh <<"EOC";
+#ifndef USE_CPERL
     AV *push = get_av(\"$push\", GV_ADD);
+#else
+    AV *push = get_av(\"$push\", GV_ADD|GV_ADDMULTI);
+#endif
     HE *he;
 EOC
     }

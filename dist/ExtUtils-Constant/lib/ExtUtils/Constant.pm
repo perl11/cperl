@@ -1,6 +1,6 @@
 package ExtUtils::Constant;
 use vars qw (@ISA $VERSION @EXPORT_OK %EXPORT_TAGS);
-$VERSION = '0.23_06';
+$VERSION = '0.23_07';
 $VERSION = eval $VERSION;
 
 =head1 NAME
@@ -593,6 +593,55 @@ sub WriteConstants {
 __END__
 
 =back
+
+=head1 PERFORMANCE
+
+You can calculate simple performance numbers with
+C<perl -Mblib t/Constant.t --bench --memtest >/dev/null 2>bench.lst>
+and C<grep ^# bench.lst> for 19 constants.
+
+    Option	        Memory [b]   Time [s]
+    <none>              1612758	     0.023946
+    PROXYSUBS           1593553	     0.020061
+    PROXYSUBS autoload	1588555	     0.024906
+    PROXYSUBS push	1608709	     0.023361
+    PROXYSUBS 
+    croak_on_error	1590267	     0.023052
+    PROXYSUBS
+    croak_on_read	1599747	     0.021710
+    PROXYSUBS
+    autoload push	1589737	     0.021917
+    PROXYSUBS
+    croak_on_error push	1590606	     0.021669
+
+PROXYSUBS without any option is the fastest, and on the lower
+side of memory.
+
+PROXYSUBS autoload is the slowest, but easiest to use.
+
+The old method without PROXYSUBS uses the most memory and is 2nd slowest.
+
+But with >500 constants the picture changes, with PROXYSUBS alone being
+the slowest, and PROXYSUBS autoload together with no options being the fastest,
+whilst with no options still using by far the most memory.
+
+    Option	        Memory [b]   Time [s]
+    <none>              2572650	     0.025867
+    PROXYSUBS           2145701	     0.032594
+    PROXYSUBS autoload	2133418	     0.025888
+    PROXYSUBS push	2173807	     0.037089
+    PROXYSUBS 
+    croak_on_error	2142773	     0.026721
+    PROXYSUBS
+    croak_on_read	2145648	     0.027261
+    PROXYSUBS
+    autoload push	2161453	     0.026756
+    PROXYSUBS
+    croak_on_error push	2170791	     0.026831
+
+There are no numbers compared to perfect hashes yet. The estimation is
+that EU-C is ~50% slower and bigger, as seen with L<Win32::GUI::Constants>
+and L<XSConfig>. See also L<Perfect::Hash>.
 
 =head1 AUTHOR
 

@@ -26,6 +26,15 @@ my $do_utf_tests = $] > 5.006;
 my $better_than_56 = $] > 5.007;
 # For debugging.
 my $keep_files = grep /^--keep-files$/, @ARGV;
+
+# Usage: perl -Mblib t/Constant.t --bench --memtest >/dev/null
+# Performance
+my $bench      = grep /^--bench$/, @ARGV;
+# vs Memory usage
+my $memtest   = grep /^--memtest$/, @ARGV;
+if ( $memtest and !can_run("valgrind") ) {
+    print "# valgrind not found. disabled --memtest\n";
+}
 $| = 1;
 
 # Because were are going to be changing directory before running Makefile.PL
@@ -278,6 +287,30 @@ sub build_and_run {
     }
   }
 
+  if ($memtest) {
+      $maketest = "valgrind --tool=massif --massif-out-file=memtest \"$^X\" -Mblib test.pl";
+      print "# make memcheck = '$maketest'\n";
+      system "$maketest 2>/dev/null";
+      open MASSIF, "memtest";
+      my $mem_heap = 0;
+      while(<MASSIF>) {
+          my ($mem) = ($_ =~ /^mem_heap_B=(\d+)/);
+          $mem_heap = $mem if $mem and $mem > $mem_heap;
+      }
+      close MASSIF;
+      print STDERR "# memtest: $mem_heap\n";
+      unlink "memtest";
+  }
+  if ($bench) {
+      require Time::HiRes;
+      $maketest = "\"$^X\" -Mblib test.pl";
+      print "# make bench = '$maketest'\n";
+      my $t0 = [Time::HiRes::gettimeofday()];
+      system $maketest;
+      my $time = Time::HiRes::tv_interval($t0);
+      print STDERR "# bench: $time\n";
+  }
+
   my $makeclean = "$make clean";
   print "# make = '$makeclean'\n";
   @makeout = `$makeclean`;
@@ -362,6 +395,10 @@ sub write_and_run_extension {
 
   my $c = tie *C, 'TieOut';
   my $xs = tie *XS, 'TieOut';
+  my %options;
+  if ($wc_args and ref $wc_args->[1]) {
+      $options{$_} = 1 for keys %{$wc_args->[1]};
+  }
 
   ExtUtils::Constant::WriteConstants
     (C_FH => \*C,
@@ -391,7 +428,11 @@ sub write_and_run_extension {
     }
   };
 
-  print "# $name\n# $dir/$subdir being created for $p_args ...\n";
+  if ($bench or $memtest) {
+      print STDERR "# $name\n# $dir/$subdir being created for $p_args ...\n";
+  } else {
+      print "# $name\n# $dir/$subdir being created for $p_args ...\n";
+  }
   mkdir $subdir, 0777 or die "mkdir: $!\n";
   chdir $subdir or die $!;
 
@@ -454,7 +495,7 @@ EOT
   print FH "\t$_\n" foreach (@$export_names);
   print FH ");\n";
   # Print the AUTOLOAD subroutine ExtUtils::Constant generated for us
-  print FH autoload ($package, $]);
+  print FH autoload ($package, $]) unless $options{autoload};
   print FH "bootstrap $package \$VERSION;\n1;\n__END__\n";
   close FH or die "close $pm: $!\n";
 
@@ -541,6 +582,11 @@ foreach my $args (@args)
 {
   # Simple tests
   start_tests();
+  my %options;
+  if ($args and ref $args->[1]) {
+      $options{$_} = 1 for keys %{$args->[1]};
+  }
+
   my $parent_rfc1149 =
     'A Standard for the Transmission of IP Datagrams on Avian Carriers';
   # Test the code that generates 1 and 2 letter name comparisons.
@@ -563,6 +609,15 @@ foreach my $args (@args)
 #define perl "rules"
 EOT
 
+  if ($bench) {
+    for (0..500) {
+      my $key = ''; 
+      $key .= chr(ord('A')+int(rand(57))) for 0..3+int(rand(6));
+      $key =~ s/\W//g;
+      $compass{$key} = int(rand(6));
+    }
+  }
+  
   while (my ($point, $bearing) = each %compass) {
     $header .= "#define $point $bearing\n"
   }

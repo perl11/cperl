@@ -10,7 +10,7 @@ require ExtUtils::Constant::Base;
 @ISA = qw(ExtUtils::Constant::Base Exporter);
 @EXPORT_OK = qw(%XS_Constant %XS_TypeSet);
 
-$VERSION = '0.23_06';
+$VERSION = '0.23_07';
 
 $is_perl56 = ($] < 5.007 && $] > 5.005_50);
 
