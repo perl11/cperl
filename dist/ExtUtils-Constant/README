@@ -38,11 +38,11 @@ use branch tables making the initial switch statements more efficient, and
 choosing a switch strategy to minimise the amount of linear searching of
 similar constant names.
 
-The best option seems to be PROXYSUBS without options, with the highest speed
-and on the lower side of memory usage.
-With a lot of macros, memory and speed is still not comparable to
-specialized perfect hashes, such as XSConfig or Win32::GUI::Constants
-though, but it is good enough for POSIX or Sockets.
+The best options seem to be PROXYSUBS or PROXYSUB autoload, with the
+highest speed and on the lower side of memory usage.  With a lot of
+macros, memory and speed is still not comparable to specialized
+perfect hashes, such as XSConfig or Win32::GUI::Constants though, but
+it is good enough for POSIX or Sockets.
 
 I believe ExtUtils::Constant is completely Unicode safe, but as a consequence
 of running various pathological cases as regression tests, the tests will

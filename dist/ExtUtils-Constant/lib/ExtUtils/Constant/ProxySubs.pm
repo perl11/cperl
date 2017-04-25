@@ -3,7 +3,7 @@ use strict;
 use vars qw($VERSION @ISA %type_to_struct %type_from_struct %type_to_sv
 	    %type_to_C_value %type_is_a_problem %type_num_args
 	    %type_temporary);
-$VERSION = '0.23_07';
+$VERSION = '0.23_08';
 @ISA = 'ExtUtils::Constant::XS';
 
 =head1 NAME
@@ -443,8 +443,13 @@ static MGVTBL not_defined_vtbl = {
  0, /* len */
  0, /* clear */
  0, /* free */
+#if PERL_VERSION > 6
  0, /* copy */
  0, /* dup */
+#if (PERL_VERSION > 8) || (PERL_VERSION == 8 && PERL_SUBVERSION == 9)
+ 0, /* local */
+#endif
+#endif
 };
 
 EXPLODE
@@ -456,7 +461,7 @@ EXPLODE
     $key =~ s/::$//;
     my $key_len = length $key;
 
-    print $c_fh <<"MISSING";
+    print $c_fh <<"MISSING" unless $explosives;
 
 #ifndef SYMBIAN
 
@@ -589,11 +594,17 @@ EOBOOT
 					      $add_symbol_subname, $push);
     }
 
-    print $xs_fh <<"EOBOOT";
+    print $xs_fh <<'EOBOOT';
 	if (C_ARRAY_LENGTH(values_for_notfound) > 1) {
+EOBOOT
+
+    print $xs_fh <<"EOBOOT" unless $explosives;
 #ifndef SYMBIAN
 	    HV *const ${c_subname}_missing = get_missing_hash(aTHX);
 #endif
+EOBOOT
+
+    print $xs_fh <<'EOBOOT';
 	    const struct notfound_s *value_for_notfound = values_for_notfound;
 	    do {
 EOBOOT
@@ -603,7 +614,7 @@ EOBOOT
 		
 		sv_magicext(tripwire, 0, PERL_MAGIC_ext, &not_defined_vtbl, 0, 0);
 		SvPV_set(tripwire, (char *)value_for_notfound->name);
-		if(value_for_notfound->namelen >= 0) {
+		if (value_for_notfound->namelen >= 0) {
 		    SvCUR_set(tripwire, value_for_notfound->namelen);
 	    	} else {
 		    SvCUR_set(tripwire, -value_for_notfound->namelen);

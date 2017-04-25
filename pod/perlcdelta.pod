@@ -1208,7 +1208,7 @@ warnings has been to restricted to the four magic names "EXPORT",
 with "EXPORT" will now throw the "used only once" warning as all other
 symbols.
 
-=item ExtUtils-Constant 0.23_07
+=item ExtUtils-Constant 0.23_08
 
 Fix ProxySubs to generate code also valid for 5.6 - 5.14.
 Add testcases for all ProxySubs options.
