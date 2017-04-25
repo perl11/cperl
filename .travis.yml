@@ -28,35 +28,66 @@ branches:
   - /smoke/
   - /coverity/
   - /^maint-/
+  - /^cperl-/
 env:
   matrix:
-  - CONFIGURE_OPTION='' XCC='gcc' XBITS=64
-  - CONFIGURE_OPTION='-Duse64bitint' XCC="'gcc\ -m32'" XBITS=32
-  - CONFIGURE_OPTION='-DDEBUGGING -Duseshrplib' XCC='clang'
-  - CONFIGURE_OPTION='-Duse64bitall -Dusethreads -Duselongdouble' XCC='clang'
-  - CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='c++'
+  - CONFIGURE_OPTION='' XCC='gcc' XBITS=64 DEPLOY=1
+  #- CONFIGURE_OPTION='-Duse64bitint' XCC="'gcc\ -m32'" XBITS=32
+  #- CONFIGURE_OPTION='-DDEBUGGING -Duseshrplib' XCC='clang'
+  #- CONFIGURE_OPTION='-Duse64bitall -Dusethreads -Duselongdouble' XCC='clang'
+  #- CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='c++'
   global:
     secure: t+N5w1yMOdTvDIu7g09ujEQ80Rz0p/hV+uYnoPBex0pSHJKAvEWqL/PltzTNaOwoh9BRjJiSCaO6Owbpib5skZw+kwx6G+jeMzI+m00VI2P2//xUasG2KaYH1CTu+o2BE16cmZFjDs1R2UKYuTg/2lzY0SoUuNYcAr7MDUnc6hdx/uC0B37vW//MlDb/I+3bi4Wjkg+zH2T2dWqcaKP9cL4O1Oa9ApEZgaQcSv26MmBrGJm0dKaorF5vVf1xkVe6lfKVPCepcI424wkEbmBfZs5I8FajYdWscEQ0KxYY9paWUA9/71uREhuu2tecN9sc2ym2PV5ycHn0igixwuWqMV69iTO+CW7bX+1mFdfMq/TsnhRhwGVTpt0aBTup9VOkjZAqtqcc4ziQ15R6sIrAorzz97v2oFXL+q5FPQuqtY4opw8QsrnjAmonoBjNIZau8mX1VAyBTOTJjfY2bZQXNqpxFoGAfQgDhDjA+EYiQ8dK8glBOPxlEWeCeOFgA/ddrTFSTMCbDd3f0dJIOs8aQHAGcIpKEI2/3DY2JNvotku5e1us16v3YSLJwaWV4pEh3UaGhVU74TrzfA4NiOaf54OXSjLJVuBrpEMyPwVHxF5NA3W7zj9vACxcexRQAu3ms0J6XOaGYZuk5jYkefVpUILdPuSqVhRIs7Y4LqzqAYA=
 matrix:
   fast_finish: true
+  allow_failures:
+    - env: TRAVIS_OS_NAME=linux CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='c++'
 script:
-- test -n $TRAVIS_TAG && CONFIGURE_OPTION="$CONFIGURE_OPTION -Dusedevel";
-  ./Configure -des -Uversiononly -Dcc="$XCC" $CONFIGURE_OPTION -Dprefix=$HOME/cperl/usr &&
-  make -j4 -s
-- if [ ${TRAVIS_OS_NAME} = "linux" -o -z "`echo $CONFIGURE_OPTION | grep 'DDEBUGGING'
+- test -n "$TRAVIS_TAG" && CONFIGURE_OPTION="$CONFIGURE_OPTION -Dusedevel";
+  ./Configure -des -Uversiononly -Dcc="$XCC" $CONFIGURE_OPTION &&
+  make -s -j4 || ( test "${TRAVIS_OS_NAME}" = "linux" -a
+    "${CONFIGURE_OPTION}" = "-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++" && true )
+  # skip test on darwin debugging (too slow). also: do install+cperlivp only once
+  #was: TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/cperl/usr/bin/cperlivp -p;
+- if [ "${TRAVIS_OS_NAME}" = "linux" -o -z "`echo $CONFIGURE_OPTION | grep 'DDEBUGGING'
   2>/dev/null`" ]; then
-    TEST_JOBS=4 make -s -j4 test_harness && make -s install && $HOME/cperl/usr/bin/cperlivp -p;
+    if [ -n "$DEPLOY" ]; then
+      TEST_JOBS=4 make -s -j4 all install DESTDIR=$HOME/cperl-inst && $HOME/cperl-inst/usr/local/bin/cperlivp -p;
+    else
+      TEST_JOBS=4 make -s -j4 test_harness ;
+    fi
   fi
+after_success:
+  # deploy on condition does not work
+  - if [ -z "$DEPLOY" ]; then exit 0; fi
 before_deploy:
-- if [ -z $CONFIGURE_OPTION -a test -n $XBITS ]; then
-    tar -czvf cperl-${TRAVIS_TAG}-${TRAVIS_OS_NAME}${XBITS}.tar.gz -C $HOME/cperl *;
+  # every tag release
+- if [ "${TRAVIS_OS_NAME}" = "linux" -a -n "$DEPLOY" ]; then
+    make distclean >/dev/null 2>/dev/null ;
+    git clean -dxf ;
+    perl Porting/makerel -bx ;
+  elif [ "${TRAVIS_OS_NAME}" = "darwin" -a -n "$DEPLOY" ]; then
+    version=`Porting/perl_version` ;
+    out=../`git describe --long --tags --always`.pkg ;
+    echo "<pkg-info></pkg-info>" > .pkginfo ;
+    pkgbuild --identifier cperl --root DESTDIR=$HOME/cperl-inst
+      --info .pkginfo --version $version --ownership recommended $out ;
+  else
+    exit 0 ;
   fi
 deploy:
   provider: releases
-  file: cperl-${TRAVIS_TAG}-${TRAVIS_OS_NAME}${XBITS}.tar.gz
+  file_glob: true
+  file:
+    - ../cperl-*.tar.*
+    - ../cperl-*.pkg
+  api_key:
+    secure: "cF/kOo548pG4lL4BBCIS0T5ruFJO7xq6Tkcr+5SacXxfJKbdK9hue/nUahViskVNeI3c5VpggTJwMvS+kolAIJtasBbsea1eqCw2juQHkr7GWFOqJs9MzhFSO1+FPOBMiIQghA2eTJupDeZPjandjqy8J5BB+xXuIYjxQ+m5xxwxDNnZPjEw0+V2rTvfGAmNsQA80DpUsXfiUJNSa5rD7tujDUxbtnHrUVYfSfaHpO4o6n7vvtfOqNIKXigG6IaOXGvlVYt/Zwj9lyYcj8ZJpbKSSTEDiN5A8yugwAA/JrXI/CBO5Ex802napXxTj9vC1GQU58fxiTRo0aeTjwldU5TN82GFmyDXvPRcY/teJTTH19XlDeffle7KPmd2bk33wGloAOXUkKapQJVWh7SGer57XF/DYcycPJdcbxCVZCAHOua+JxA/4JNFKn+qyLqC6ASKGimmZ4Q0AmcGtGdR36vls9IaOIOBGXyKktoA9H4yI1sr+yAnrjZV9Fk6ngdjB7zXTMtR7ccc0BSb6xX5mo90XjJPogyaRzWJEeAJrFNluM15B6R2uwv3hR3MdSFuzEAdcMcWFeiGzyvGMcnGwk556CItSgdWz8cyXa3lkdkI405drAZ79oHhRUbbRrmCJnUd1MKpPev2wb5Y4KKk/O59s2mar5V5ORML35Pfq9w="
   skip_cleanup: true
+  overwrite: true
   on:
     tags: true
+    condition: $DEPLOY=1
 notifications:
   irc:
     channels:
