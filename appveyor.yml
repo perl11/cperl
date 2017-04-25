@@ -10,16 +10,31 @@ platform:
   - x86
 environment:
   matrix:
+    - MSVC_VERSION: 12
     - MSVC_VERSION: 10
-    - MSVC_VERSION: 12  
+    - MSVC_VERSION: 14
 clone_depth: 1
 branches:
   only:
     - master
-    - /smoke/
+    - /^smoke/
     - /^maint-/
+    - /^cperl-/
 init:
   - git config --global core.autocrlf input
+  # Disable popups as they hang the build as there is nobody to click on the OK button...
+  # Hanging the build is a lot less user friendly than reporting a build failure.
+  #
+  # Disable of system hard error popup
+  # See: https://msdn.microsoft.com/en-us/library/bb513638%28VS.85%29.aspx
+  - reg add "HKLM\SYSTEM\CurrentControlSet\Control\Windows" /f /v ErrorMode /d 2
+  # Disable the following popup on program failure:
+  #     |       ** <program name> has stopped working **        |
+  #     | Windows can check online for a solution to the problem|
+  #     |  - Check online for a solution and close the program  |
+  #     |  - Close the program                                  |
+  # See: https://msdn.microsoft.com/en-us/library/bb513638%28VS.85%29.aspx
+  - reg add "HKLM\Software\Microsoft\Windows\Windows Error Reporting" /f /v DontShowUI /d 1  
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 # from https://github.com/apache/lucy-clownfish/blob/master/appveyor.yml  
@@ -27,44 +42,46 @@ build: off
 
 test_script:
   - 't\appveyor-smoke.bat'
-  
-# nope: https://ci.appveyor.com/project/rurban/cperl/build/job/ui7b0dk0gprw1eo2
-#  - cinst ruby.devkit
-#  - cinst make
-#install:
-#  - cinst mingw
-#  - SET PATH=%PATH%;C:\tools\mingw64\bin;C:\tools\mingw64\opt\bin
-#  - mingw-get install mingw-developer-toolkit
-#build_script:
-#  - cd win32
-#  - mingw32-make
-#test_script:
-#  - mingw32-make test
 
-deploy_script:
-- cmd: >-
-    if "%MSVC_VERSION%" == "10" exit /b
-    nmake install CCTYPE=MSVC120 USE_NO_REGISTRY=define
-    C:\cperl\bin\cperlivp
-    7z a -y -sfx cperl-%APPVEYOR_REPO_TAG_NAME%-win%PLATFORM%.exe c:\cperl\
-    del /s /f /q C:\cperl
-
+# appveyor cannot glob * in names
 artifacts:
-  - path: cperl-$(APPVEYOR_REPO_TAG_NAME)-win$(PLATFORM).exe
-    name: cperl-$(APPVEYOR_REPO_TAG_NAME)-win$(PLATFORM).exe
+  - path: cperl-$(appveyor_build_version)-win32.exe
+    name: nightly-32
+    type: exe
+  - path: cperl-$(appveyor_build_version)-win64.exe
+    name: nightly-64
+    type: exe
+  - path: $(APPVEYOR_REPO_TAG_NAME)-win32.exe
+    name: tagged-32
+    type: exe
+  - path: $(APPVEYOR_REPO_TAG_NAME)-win64.exe
+    name: tagged-64
     type: exe
 
 deploy:
-  release: $(APPVEYOR_REPO_TAG_NAME)
-  description: 'cperl windows sfx'
-  provider: GitHub
+- provider: GitHub
+  tag: cperl-win-$(appveyor_build_version)
+  description: 'cperl windows sfx nightly (msvcr120.dll)'
   auth_token:
-    secure: "zWVKDFnHOuiPTPwo4/BAzTmn/4TPb4MqkmBYaOpom7L46StKDYA8j81hcdsjnAqZUDKEOTY54ASXV/LqaaVn19bggqT8pZg04/uAv1Ci9bOYKKBsD1W/4kws+1o4IdIVO4m6uSlapSFZPExMl/+BNwoiPuJc6Xbfyuh86p5MQ7nqjYxycLXybDrvLtwSGm8XghxGK3/93q8/LF+BVe+ZsaCrozj8Nd0nnzzzuwxGi+VJPhbDp5BH8p06n7eCv5AMR9p1urNQ3XyrdO9GGDuRNzJf6TZHvYJXl0aM8HRklgdMZl2/FQgcRznk9PZFw5n/NttqZvLKh8mTDqfcXAv3JRHZuzSnyY2netUD1/VmUd6TCCM+8zVp3/592tkr2A6tQfmZvFMLeLH5waVC/vRw3UpljEZ0I/3Jac3gE2T36UJmF+k5DWWWBfjGnvJ2S1MTre/nlBgB+gPXZ/XZOt+dBrjFts8Q3gUTgE2IPJUrkOaGKmj8mXcPL/mES6MPIdfJGKDTVd+XwzDD2TNa6D//Y6LcfBCuIF/gQm6ipSDpQLrm52MqXAWLjGpnjj+JKoSrOcoV4GgzzrA90AJr1SBEOttHNPcuZgRJ3krMYsjsYpNR164XBCcRDXYwQl80JpHdC2bAn7Bnv59etJdF+LETxedvGsPfbRU2u9DhoCqegEU="
-  artifact: cperl-$(APPVEYOR_REPO_TAG_NAME)-win$(PLATFORM).exe
-  draft: false
-  prerelease: false
+    secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
+  artifact: nightly-32,nightly-64
+  draft: true
+  prerelease: true
+  force_update: true
+  on:
+    branch: /(master|relprep|cperl-tag-deploy-test)/
+    MSVC_VERSION: 12
+- provider: GitHub
+  tag: $(APPVEYOR_REPO_TAG_NAME)-win
+  description: 'cperl windows sfx tagged (msvcr120.dll)'
+  auth_token:
+    secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
+  artifact: tagged-32,tagged-64
+  draft: true
+  force_update: true
   on:
     appveyor_repo_tag: true
+    MSVC_VERSION: 12
 
 notifications:
 - provider: Email
