@@ -176,10 +176,11 @@ esac
 
 : is Cwd static or dynamic
 static_cwd='define'
+cwd_dep='$(PERL_EXE)'
 list_util_dep='$(PERL_EXE)'
 for f in $dynamic_ext; do
    case $f in
-       Cwd) static_cwd='undef' ;;
+       Cwd) static_cwd='undef'; cwd_dep=lib/auto/Cwd/Cwd.$dlext ;;
        List/Util) list_util_dep=lib/auto/List/Util/Util.$dlext
    esac
 done
@@ -1194,9 +1195,15 @@ uni.data: $(MINIPERL_EXE) $(CONFIGPM) lib/unicore/mktables $(nonxs_ext)
 #	can in this makefile to decide if needs to run or not
 #	touch uni.data
 
-rebuild_storable: $(PERL_EXE)
-	$(RUN_PERL) dist/Storable/stacksize --core
-	$(MAKE) -C dist/Storable PERL_CORE=1
+!NO!SUBS!
+$spitshell >>$Makefile <<!GROK!THIS!
+
+rebuild_storable: \$(PERL_EXE) $cwd_dep
+	\$(RUN_PERL) dist/Storable/stacksize --core
+	\$(MAKE) -C dist/Storable PERL_CORE=1
+
+!GROK!THIS!
+$spitshell >>$Makefile <<'!NO!SUBS!'
 
 # $(PERL_EXE) and ext because pod_lib.pl needs Digest::MD5
 # But also this ensures that all extensions are built before we try to scan
