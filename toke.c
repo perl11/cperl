@@ -2254,8 +2254,10 @@ S_force_word(pTHX_ char *start, int token, int check_keyword, int allow_pack)
 	if (check_keyword) {
             char *s2 = PL_tokenbuf;
             STRLEN len2 = len;
-            if (allow_pack && len > 6 && memEQc(s2, "CORE::"))
-                s2 += 6, len2 -= 6;
+            if (allow_pack && memBEGINPs(s2, len, "CORE::")) {
+                s2 += sizeof("CORE::") - 1;
+                len2 -= sizeof("CORE::") - 1;
+            }
             if (keyword(s2, len2, 0))
                 return start;
 	}
