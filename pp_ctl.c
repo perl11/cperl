@@ -4393,7 +4393,7 @@ S_require_file(pTHX_ SV *sv)
 			sv_catpvs(inc, " ");
 			sv_catsv(inc, *av_fetch(ar, i, TRUE));
 		    }
-		    if (len >= 4 && memEQ(name + len - 3, ".pm", 4)) {
+		    if (memENDPs(name, len, ".pm")) {
 			const char *c, *e = name + len - 3;
 			sv_catpv(msg, " (you may need to install the ");
 			for (c = name; c < e; c++) {
