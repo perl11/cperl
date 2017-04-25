@@ -2477,18 +2477,18 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
     if ( gv_magicalize(gv, stash, name, len, sv_type) ) {
         /* See 23496c6 */
         if (addmg) {
-                /* gv_magicalize magicalised this gv, so we want it
-                 * stored in the symtab.
-                 * Effectively the caller is asking, ‘Does this gv exist?’ 
-                 * And we respond, ‘Er, *now* it does!’
-                 */
-                (void)hv_store(stash,name,len,(SV *)gv,0);
+            /* gv_magicalize magicalised this gv, so we want it
+             * stored in the symtab.
+             * Effectively the caller is asking, ‘Does this gv exist?’ 
+             * And we respond, ‘Er, *now* it does!’
+             */
+            (void)hv_store(stash,name,len,(SV *)gv,0);
         }
     }
     else if (addmg) {
-                /* The temporary GV created above */
-                SvREFCNT_dec_NN(gv);
-                gv = NULL;
+        /* The temporary GV created above */
+        SvREFCNT_dec_NN(gv);
+        gv = NULL;
     }
     
     if (gv) gv_init_svtype(gv, faking_it ? SVt_PVCV : sv_type);
@@ -2508,7 +2508,7 @@ Perl_gv_fullname4(pTHX_ SV *sv, const GV *gv, const char *prefix, bool keepmain)
 
     if (hv && (name = HvNAME(hv))) {
         const STRLEN len = HvNAMELEN(hv);
-        if (keepmain || strnNE(name, "main", len)) {
+        if (keepmain || ! memBEGINs(name, len, "main")) {
             sv_catpvn_flags(sv,name,len,HvNAMEUTF8(hv)?SV_CATUTF8:SV_CATBYTES);
             sv_catpvs(sv,"::");
         }

@@ -5642,7 +5642,7 @@ S_move_proto_attr(pTHX_ OP **proto, OP **attrs, const GV * name,
     o = *attrs;
     if (IS_CONST_OP(o)) {
         pv = SvPV(cSVOPo_sv, pvlen);
-        if (pvlen >= 10 && memEQ(pv, "prototype(", 10)) {
+        if (memBEGINs(pv, pvlen, "prototype(")) {
             SV * const tmpsv = newSVpvn_flags(pv + 10, pvlen - 11, SvUTF8(cSVOPo_sv));
             SV ** const tmpo = cSVOPx_svp(o);
             SvREFCNT_dec(cSVOPo_sv);
@@ -5658,7 +5658,7 @@ S_move_proto_attr(pTHX_ OP **proto, OP **attrs, const GV * name,
         for (o = OpSIBLING(lasto); o; o = OpSIBLING(o)) {
             if (IS_CONST_OP(o)) {
                 pv = SvPV(cSVOPo_sv, pvlen);
-                if (pvlen >= 10 && memEQ(pv, "prototype(", 10)) {
+                if (memBEGINs(pv, pvlen, "prototype(")) {
                     SV * const tmpsv = newSVpvn_flags(pv + 10, pvlen - 11, SvUTF8(cSVOPo_sv));
                     SV ** const tmpo = cSVOPx_svp(o);
                     SvREFCNT_dec(cSVOPo_sv);
