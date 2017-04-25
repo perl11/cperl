@@ -167,6 +167,13 @@ annotate as methods.
 
 =item L<Unicode::Collate>  1.25_01
 
+=item L<version> 0.9918_02c
+
+Add updates from 0.9918: Add LAX_DECIMAL_VERSION, LAX_DOTTED_DECIMAL_VERSION,
+STRICT_DECIMAL_VERSION, STRICT_DOTTED_DECIMAL_VERSION regexes.
+
+Add t/11_taint.t
+
 =item L<VMS::DCLsym>  1.09
 
 =back

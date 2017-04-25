@@ -147,7 +147,7 @@ threads dist/threads/lib/threads.pm fa549502b14272e4543276f3601bae5e3b0dd5fa
 threads dist/threads/t/locale.t 9a2a5b43a39867590eb288d4a1759abac2052aa8
 threads dist/threads/threads.xs 68d0d92c37b75b510bd4d34e765d0cb97bc7296a
 threads::shared dist/threads-shared/t/waithires.t dc867159fd2fa8c09326cd7627f5a0635ca5e3b5
-version cpan/version/lib/version.pm 46e7b7eed74b5080b23f852acd84e6ca5aab6d74
-version cpan/version/lib/version/regex.pm a2e6098571d8085340d4378ec21ad54bbcce1ceb
-version vutil.c 0743d196360e6b35726049fdff765c61de5d4847
-version vxs.inc 4e088d9287125926c25fd7e01c149f0d52800278
+version cpan/version/lib/version.pm 2a13001de38b343b29720bd432612472dfd3f265
+version cpan/version/lib/version/regex.pm 78326aeeff8b3603558da9f9b86822a04c0b7be2
+version vutil.c 51f411696cdbf3b7c3f3adb2f5b6f45fbfdd2f1f
+version vxs.inc 60bac1fa8830adcbe3bb4b24c09b1826206198a0

@@ -16317,6 +16317,7 @@ our %delta = (
             'Unicode::Collate::CJK::Stroke'=> '1.25',
             'Unicode::Collate::CJK::Zhuyin'=> '1.25',
             'Unicode::Collate::Locale'=> '1.25',
+            'version'               => '0.9918_02c',
             'VMS::DCLsym'           => '1.09',
         },
         removed => {
