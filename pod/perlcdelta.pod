@@ -200,6 +200,13 @@ Unify stack reserve to 32 across all platforms.
 Improved Symbol::delete_package for readonly and protected symbols
 and classes.
 
+=item L<version> 0.9918_02c
+
+Add updates from 0.9918: Add LAX_DECIMAL_VERSION, LAX_DOTTED_DECIMAL_VERSION,
+STRICT_DECIMAL_VERSION, STRICT_DOTTED_DECIMAL_VERSION regexes.
+
+Add t/11_taint.t
+
 =back
 
 =head2 Removed Modules and Pragmata

@@ -147,7 +147,8 @@ VXS(universal_version)
 	    else {
 #if PERL_VERSION >= 8
 		Perl_croak(aTHX_
-			     "%" SVf " defines neither package nor VERSION--version check failed",
+			     "%" SVf " defines neither package nor VERSION--"
+                             "version check failed",
 			     (void*)(ST(0)) );
 #else
 		Perl_croak(aTHX_ "%s does not define $%s::VERSION--version check failed",
@@ -163,7 +164,7 @@ VXS(universal_version)
 	}
 
 	if ( VCMP( req, sv ) > 0 ) {
-	    if ( hv_existss(MUTABLE_HV(SvRV(req)), "qv") ) {
+	    if ( hv_exists(MUTABLE_HV(SvRV(req)), "qv", 2 ) ) {
 		req = VNORMAL(req);
 		sv  = VNORMAL(sv);
 	    }

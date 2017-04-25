@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170818c';
+$VERSION = '5.20171103c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -15191,6 +15191,7 @@ our %delta = (
             'Mu'                    => '0.02c',
             'Storable'              => '3.05_16',
             'Symbol'                => '1.08_01',
+            'version'               => '0.9918_02c',
         },
         removed => {
         }

@@ -104,8 +104,8 @@ Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 8000c7057453138ff48cf4cba61f0f4a1db
 Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 5508d55216c52caf26aa2e6478691c50b7856e7d
 Math::BigRat cpan/Math-BigRat/t/bigratpm.t cfd770aabeaf6b742fd942143e816db42db04fba
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 4e2f11139f1fc85041529d0a110d7219a88dd962
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 7f54b2acbfae240722634c5623b3986372768e6f
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm fa22fc96d7146651c6269f9a86d9049e7c076a5b
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 80d88f4bf991c55ac37f50d9e7181ce064388822
 Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Conditional.pm 9749bb2a08a404662d137901e7483799acbff5d8
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
@@ -156,7 +156,7 @@ threads dist/threads/lib/threads.pm fa549502b14272e4543276f3601bae5e3b0dd5fa
 threads dist/threads/t/locale.t 9a2a5b43a39867590eb288d4a1759abac2052aa8
 threads dist/threads/threads.xs a72cb4167601fb17016982c14ff2648368cdf333
 threads::shared dist/threads-shared/t/waithires.t dc867159fd2fa8c09326cd7627f5a0635ca5e3b5
-version cpan/version/lib/version.pm 46e7b7eed74b5080b23f852acd84e6ca5aab6d74
-version cpan/version/lib/version/regex.pm a2e6098571d8085340d4378ec21ad54bbcce1ceb
-version vutil.c 0743d196360e6b35726049fdff765c61de5d4847
-version vxs.inc 4e088d9287125926c25fd7e01c149f0d52800278
+version cpan/version/lib/version.pm 2a13001de38b343b29720bd432612472dfd3f265
+version cpan/version/lib/version/regex.pm 78326aeeff8b3603558da9f9b86822a04c0b7be2
+version vutil.c 51f411696cdbf3b7c3f3adb2f5b6f45fbfdd2f1f
+version vxs.inc 60bac1fa8830adcbe3bb4b24c09b1826206198a0
