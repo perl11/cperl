@@ -3843,6 +3843,19 @@
  */
 /*#define HAS_GETCWD		/ **/
 
+/* HAS_GETCWDNULL:
+ *	This symbol, if defined, indicates that the getcwd routine
+ *	accepts a NULL buffer argument, allocating it. A libc extension.
+ */
+/*#define HAS_GETCWDNULL		/ **/
+
+/* HAS_GET_CURRENT_DIR_NAME:
+ *	This symbol, if defined, indicates that the get_current_dir_name
+ *      GNU libc extension is available to get a longer than PATH_MAX
+ *      current working directory name.
+ */
+/*#define HAS_GET_CURRENT_DIR_NAME		/ **/
+ 
 /* HAS_GETESPWNAM:
  *	This symbol, if defined, indicates that the getespwnam system call is
  *	available to retrieve enhanced (shadow) password entries by name.
@@ -5498,6 +5511,6 @@
 #endif
 
 /* Generated from:
- * d6185b0a78c38e26ca03da044c402b5474a8da01617d7a0f63f2e45d0dc17f6f config_h.SH
- * 5a6ac8536718732a64e7370db0a9e892ab61d49f07add521612a34401be62eff uconfig.sh
+ * c09c2fbfaa3f26d965e987151d9a49bce3fabffdbc36d00fa5dd1909c23ca9b3 config_h.SH
+ * b251d0e40146a60b28092cf2a4dc615c528b4429fbae0886f0ffd03b178df6ed uconfig.sh
  * ex: set ro: */

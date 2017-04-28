@@ -3878,6 +3878,19 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$d_getcwd HAS_GETCWD		/**/
 
+/* HAS_GETCWDNULL:
+ *	This symbol, if defined, indicates that the getcwd routine
+ *	accepts a NULL buffer argument, allocating it. A libc extension.
+ */
+#$getcwdnull HAS_GETCWDNULL		/**/
+
+/* HAS_GET_CURRENT_DIR_NAME:
+ *	This symbol, if defined, indicates that the get_current_dir_name
+ *      GNU libc extension is available to get a longer than PATH_MAX
+ *      current working directory name.
+ */
+#$d_get_current_dir_name HAS_GET_CURRENT_DIR_NAME		/**/
+ 
 /* HAS_GETESPWNAM:
  *	This symbol, if defined, indicates that the getespwnam system call is
  *	available to retrieve enhanced (shadow) password entries by name.

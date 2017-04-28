@@ -519,6 +519,8 @@ d_gai_strerror=''
 d_Gconvert=''
 d_getaddrinfo=''
 d_getcwd=''
+getcwdnull=''
+d_get_current_dir_name=''
 d_getespwnam=''
 d_getfsstat=''
 d_getgrent=''
@@ -14795,7 +14797,7 @@ if eval $compile; then
 	esac
 else
     echo "gai_strerror() NOT found." >&4
-    fi
+fi
 set d_gai_strerror
 eval $setvar
 $rm_try
@@ -14861,6 +14863,39 @@ eval $inlibc
 : see if getcwd exists
 set getcwd d_getcwd
 eval $inlibc
+
+: see if get_current_dir_name exists
+set get_current_dir_name d_get_current_dir_name
+eval $inlibc
+
+: see if getcwd with NULL is valid
+echo " "
+$cat >try.c <<'EOCP'
+#include <stdio.h>
+int main ()
+{
+    return (getcwd(NULL, 0) ? 0 : 1);
+}
+EOCP
+set try
+val="$undef"
+if eval $compile; then
+    `$run ./try`
+    case "$?" in
+	0)  echo "getcwd(NULL) is valid." >&4
+	    val="$define" ;;
+	*)  echo "getcwd(NULL) is invalid" >&4
+	    ;;
+	esac
+else
+    echo "getcwd() NOT found." >&4
+fi
+set getcwdnull
+eval $setvar
+$rm_try
+
+: todo if dont exist getcwd check ERANGE or ENAMETOOLONG.
+: see also linux kernel bug fixed with 2.4.21 HAVE_PARTLY_WORKING_GETCWD
 
 : see if getespwnam exists
 set getespwnam d_getespwnam
@@ -25211,6 +25246,7 @@ d_futimes='$d_futimes'
 d_gai_strerror='$d_gai_strerror'
 d_gdbm_ndbm_h_uses_prototypes='$d_gdbm_ndbm_h_uses_prototypes'
 d_gdbmndbm_h_uses_prototypes='$d_gdbmndbm_h_uses_prototypes'
+d_get_current_dir_name='$d_get_current_dir_name'
 d_getaddrinfo='$d_getaddrinfo'
 d_getcwd='$d_getcwd'
 d_getespwnam='$d_getespwnam'
@@ -25660,6 +25696,7 @@ full_sed='$full_sed'
 gccansipedantic='$gccansipedantic'
 gccosandvers='$gccosandvers'
 gccversion='$gccversion'
+getcwdnull='$getcwdnull'
 getgrent_r_proto='$getgrent_r_proto'
 getgrgid_r_proto='$getgrgid_r_proto'
 getgrnam_r_proto='$getgrnam_r_proto'
