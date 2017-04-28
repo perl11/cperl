@@ -63,7 +63,7 @@
 #define MAXSYMLINKS 8
 #endif
 
-#ifndef VMS
+#if !defined(VMS) && !defined(HAS_REALPATH)
 /*
  * char *realpath(const char *path, char resolved[MAXPATHLEN]);
  *
@@ -609,22 +609,30 @@ PPCODE:
     dXSTARG;
     char *const path = pathsv ? SvPV_nolen(pathsv) : (char *)".";
     char buf[MAXPATHLEN];
-
-    if (
-#ifdef VMS
-	Perl_rmsexpand(aTHX_ path, buf, NULL, 0)
-#else
-        /* TODO: check long paths */
-	bsd_realpath(path, buf)
-#endif
-    ) {
+#if defined(HAS_REALPATH)
+    char *bufp = realpath(path, buf);
+    if (!bufp) /* maybe too long */
+        bufp = realpath(path, NULL);
+    if (bufp) {
+        sv_setpv_mg(TARG, bufp);
+        SvPOK_only(TARG);
+        SvTAINTED_on(TARG);
+    }
+#elif defined(VMS)
+    if (Perl_rmsexpand(aTHX_ path, buf, NULL, 0)) {
 	sv_setpv_mg(TARG, buf);
         SvPOK_only(TARG);
 	SvTAINTED_on(TARG);
     }
+#else
+    if (bsd_realpath(path, buf)) {
+	sv_setpv_mg(TARG, buf);
+        SvPOK_only(TARG);
+	SvTAINTED_on(TARG);
+    }
+#endif
     else
         sv_setsv(TARG, &PL_sv_undef);
-
     XSprePUSH; PUSHs(TARG);
     SvTAINTED_on(TARG);
 }

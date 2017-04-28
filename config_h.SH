@@ -3891,6 +3891,12 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
  */
 #$d_get_current_dir_name HAS_GET_CURRENT_DIR_NAME		/**/
  
+/* HAS_REALPATH:
+ *	This symbol, if defined, indicates that the realpath routine is
+ *	available to resolve a path.
+ */
+#$d_realpath HAS_REALPATH		/**/
+
 /* HAS_GETESPWNAM:
  *	This symbol, if defined, indicates that the getespwnam system call is
  *	available to retrieve enhanced (shadow) password entries by name.

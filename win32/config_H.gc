@@ -3732,6 +3732,26 @@
  */
 #define HAS_GETCWD		/**/
 
+/* HAS_GETCWDNULL:
+ *	This symbol, if defined, indicates that the getcwd routine
+ *	accepts a NULL buffer argument, allocating it. A libc extension.
+ */
+#define HAS_GETCWDNULL		/**/
+
+/* HAS_GET_CURRENT_DIR_NAME:
+ *	This symbol, if defined, indicates that the get_current_dir_name
+ *      GNU libc extension is available to get a longer than PATH_MAX
+ *      current working directory name.
+ */
+#undef HAS_GET_CURRENT_DIR_NAME		/**/
+
+/* HAS_REALPATH:
+ *	This symbol, if defined, indicates that the realpath routine is
+ *	available to resolve a path.
+ *      Not in: https://sourceforge.net/p/mingw/patches/256/
+ */
+#undef HAS_REALPATH		/**/
+
 /* HAS_GETESPWNAM:
  *	This symbol, if defined, indicates that the getespwnam system call is
  *	available to retrieve enhanced (shadow) password entries by name.

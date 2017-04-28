@@ -236,18 +236,23 @@ XXX
 
 =head1 Configuration and Compilation
 
-XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
-go here.  Any other changes to the Perl build process should be listed here.
-However, any platform-specific changes should be listed in the
-L</Platform Support> section, instead.
-
-[ List changes as a =item entry ].
-
 =over 4
 
 =item *
 
-XXX
+d_getcwd probe and key added. Sets HAS_GETCWD
+
+=item *
+
+d_get_current_dir_name probe and key added. Sets HAS_GET_CURRENT_DIR_NAME
+
+=item *
+
+getcwdnull probe and key added. Sets HAS_GETCWDNULL
+
+=item *
+
+d_realpath probe and key added. Sets HAS_REALPATH
 
 =back
 

@@ -3759,6 +3759,8 @@ char *
 ttyname(fd)
 	POSIX::Fd	fd
 
+#ifdef HAS_REALPATH
+
 char *
 realpath(path)
 	char * path
@@ -3770,6 +3772,8 @@ realpath(path)
             RETVAL = realpath(path, NULL);
     OUTPUT:
         RETVAL
+
+#endif
 
 void
 getcwd()
