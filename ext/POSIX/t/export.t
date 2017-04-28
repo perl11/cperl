@@ -178,6 +178,8 @@ my %expect = (
             POLL_IN POLL_OUT POLL_MSG POLL_ERR POLL_PRI POLL_HUP
             SI_USER SI_QUEUE SI_TIMER SI_ASYNCIO SI_MESGQ
         ),
+        # this stuff was added with cperl in 5.27
+        qw( realpath ),
     ],
 );
 
@@ -187,7 +189,9 @@ while (my ($var, $expect) = each %expect) {
     my $have = *{$POSIX::{$var}}{ARRAY};
     cmp_ok(@$have, '==', @$expect,
 	   "Correct number of entries for \@POSIX::$var");
-    is_deeply([sort @$have], $expect, "Correct entries for \@POSIX::$var");
+    is_deeply([sort @$have], $expect, "Correct entries for \@POSIX::$var")
+      or diag(join(" ",sort @$have),"\n",
+              join(" ",@$expect));
 }
 
 my %no_export_needed = map +($_ => 1),

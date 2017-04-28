@@ -4,7 +4,7 @@ use warnings;
 
 our ($AUTOLOAD, %SIGRT);
 
-our $VERSION = '1.76_02';
+our $VERSION = '1.76_03';
 our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
@@ -78,6 +78,7 @@ my %replacement = (
     puts        => 'print',
     qsort       => 'sort',
     rand        => \'non-portable, use Perl\'s rand instead',
+    realpath    => 'Cwd::abs_path',
     realloc     => undef,
     scanf       => '<> and regular expressions',
     setbuf      => 'IO::Handle::setbuf',
@@ -437,7 +438,8 @@ my %other_export_tags = (
                    EAI_OVERFLOW EAI_SERVICE  EAI_SOCKTYPE
                    EAI_SYSTEM)],
 
-    stdlib_h_c99 => [ @{$default_export_tags{stdlib_h}}, 'strtold' ],
+    # realpath has an Cwd replacement
+    stdlib_h_c99 => [ @{$default_export_tags{stdlib_h}}, qw( strtold ) ],
 
     sys_socket_h => [qw(
         MSG_CTRUNC MSG_DONTROUTE MSG_EOR MSG_OOB MSG_PEEK MSG_TRUNC MSG_WAITALL
