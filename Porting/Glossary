@@ -1078,6 +1078,12 @@ d_getcwd (d_getcwd.U):
 	indicates to the C program that the getcwd() routine is available
 	to get the current working directory.
 
+d_get_current_dir_name (d_getcwd.U):
+	This variable conditionally defines the HAS_GET_CURRENT_DIR_NAME
+        symbol, which indicates to the C program that the GNU libc extension
+        get_current_dir_name() routine is available to return a buffer larger
+        than PATH_MAX.
+
 d_getespwnam (d_getespwnam.U):
 	This variable conditionally defines HAS_GETESPWNAM if getespwnam() is
 	available to retrieve enhanced (shadow) password entries by name.
@@ -2095,6 +2101,11 @@ d_readlink (d_readlink.U):
 d_readv (d_readv.U):
 	This variable conditionally defines the HAS_READV symbol, which
 	indicates to the C program that the readv() routine is available.
+
+d_realpath (d_getcwd.U):
+	This variable conditionally defines the HAS_REALPATH symbol,
+        which indicates to the C program that the realpath() routine
+        is available to resolve a path name.
 
 d_recvmsg (d_recvmsg.U):
 	This variable conditionally defines the HAS_RECVMSG symbol, which
@@ -3169,6 +3180,11 @@ gccversion (gccvers.U):
 	If GNU cc (gcc) is used, this variable holds '1' or '2' to
 	indicate whether the compiler is version 1 or 2.  This is used in
 	setting some of the default cflags.  It is set to '' if not gcc.
+
+getcwdnull (d_getcwd.U):
+	This variable conditionally defines the HAS_GETCWDNULL symbol, which
+	indicates to the C program that the getcwd() routine accepts NULL
+        as 2nd argument to return a buffer larger than PATH_MAX.
 
 getgrent_r_proto (d_getgrent_r.U):
 	This variable encodes the prototype of getgrent_r.

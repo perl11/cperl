@@ -3856,6 +3856,12 @@
  */
 /*#define HAS_GET_CURRENT_DIR_NAME		/ **/
  
+/* HAS_REALPATH:
+ *	This symbol, if defined, indicates that the realpath routine is
+ *	available to resolve a path.
+ */
+/*#define HAS_REALPATH		/ **/
+
 /* HAS_GETESPWNAM:
  *	This symbol, if defined, indicates that the getespwnam system call is
  *	available to retrieve enhanced (shadow) password entries by name.
@@ -5511,6 +5517,6 @@
 #endif
 
 /* Generated from:
- * c09c2fbfaa3f26d965e987151d9a49bce3fabffdbc36d00fa5dd1909c23ca9b3 config_h.SH
- * b251d0e40146a60b28092cf2a4dc615c528b4429fbae0886f0ffd03b178df6ed uconfig.sh
+ * c603f0525529e46255ec90a2e03b12f5834ff8df60c76d09c7c4d5d330e9ebe7 config_h.SH
+ * 48cc9bb04205455c5e18417ec3d0208c2db90133c50211a39f476bec690e420a uconfig.sh
  * ex: set ro: */

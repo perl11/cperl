@@ -736,6 +736,7 @@ d_telldir=''
 d_readdir_r=''
 readdir_r_proto=''
 d_readlink=''
+d_realpath=''
 d_readv=''
 d_recvmsg=''
 d_re_comp=''
@@ -17925,6 +17926,10 @@ EOM
 set readlink d_readlink
 eval $inlibc
 
+: see if realpath exists
+set realpath d_realpath
+eval $inlibc
+
 : Check if there is a /proc symlink to the abs path of
 : the executing program.  We will honor hints of d_procselfexe=$undef
 : or procselfexe being non-empty, otherwise will try to determine both
@@ -25459,6 +25464,7 @@ d_readdir64_r='$d_readdir64_r'
 d_readdir='$d_readdir'
 d_readdir_r='$d_readdir_r'
 d_readlink='$d_readlink'
+d_realpath='$d_realpath'
 d_readv='$d_readv'
 d_recvmsg='$d_recvmsg'
 d_regcmp='$d_regcmp'
