@@ -48,24 +48,21 @@ my %feature_bundle = (
      all     => [ keys %feature ],
      default =>	[qw(array_base)],
     "5.9.5"  =>	[qw(say state switch array_base)],
-    "5.10"   =>	[qw(say state switch array_base)],
     "5.11"   =>	[qw(say state switch unicode_strings array_base)],
-    "5.13"   =>	[qw(say state switch unicode_strings array_base)],
     "5.15"   =>	[qw(say state switch unicode_strings unicode_eval
-		    evalbytes current_sub fc)],
-    "5.17"   =>	[qw(say state switch unicode_strings unicode_eval
-		    evalbytes current_sub fc)],
-    "5.19"   =>	[qw(say state switch unicode_strings unicode_eval
 		    evalbytes current_sub fc)],
     "5.21"   =>	[qw(say state switch unicode_strings unicode_eval
 		    evalbytes current_sub fc shaped_arrays)],
     "5.23"   =>	[qw(say state switch unicode_strings unicode_eval
 		    evalbytes current_sub fc shaped_arrays
                     postderef_qq)],
-    "5.25"   =>	[qw(say state switch unicode_strings unicode_eval
-		    evalbytes current_sub fc shaped_arrays
-                    postderef_qq)],
 );
+$feature_bundle{"5.10"} = $feature_bundle{"5.9.5"};
+$feature_bundle{"5.13"} = $feature_bundle{"5.11"};
+$feature_bundle{"5.17"} = $feature_bundle{"5.15"};
+$feature_bundle{"5.19"} = $feature_bundle{"5.15"};
+$feature_bundle{"5.25"} = $feature_bundle{"5.23"};
+$feature_bundle{"5.27"} = $feature_bundle{"5.23"};
 
 my @noops = qw( postderef lexical_subs );
 
