@@ -4242,7 +4242,8 @@ Fill C<sv> with current working directory
 
 /* Originally written in Perl by John Bazik; rewritten in C by Ben Sugars.
  * rewritten again by dougm, optimized for use with xs TARG, and to prefer
- * getcwd(3) if available
+ * getcwd(3) if available.
+ * Fixed by Reini Urban to work with long paths.
  * Comments from the original:
  *     This is a faster version of getcwd.  It's also more dangerous
  *     because you might chdir out of a directory that you can't chdir
@@ -4258,13 +4259,36 @@ Perl_getcwd_sv(pTHX_ SV *sv)
 
 #ifdef HAS_GETCWD
     {
-	char buf[MAXPATHLEN];
-
+        char *ptr;
 	/* Some getcwd()s automatically allocate a buffer of the given
-	 * size from the heap if they are given a NULL buffer pointer.
-	 * The problem is that this behaviour is not portable. */
-	if (getcwd(buf, sizeof(buf) - 1)) {
-	    sv_setpv(sv, buf);
+	 * size from the heap if they are given a NULL buffer pointer. */
+#if defined(HAS_HAS_GET_CURRENT_DIR_NAME)
+        ptr = get_current_dir_name();
+#elif defined(HAS_GETCWDNULL)
+        ptr = getcwd(NULL, 0);
+#else
+#  ifdef ENAMETOOLONG
+#   define is_ENAMETOOLONG(x) ((x) == ENAMETOOLONG)
+#  else
+#   define is_ENAMETOOLONG(x) 0
+#  endif
+	char buf[MAXPATHLEN];
+	ptr = getcwd(buf, sizeof(buf) - 1);
+        if (!ptr && errno != ENOENT) {
+            int len = MAXPATHLEN * 2;
+            char *mbuf = (char*)malloc(len);
+            ptr = getcwd(mbuf, len);
+            while (!ptr && mbuf && (errno == ERANGE || is_ENAMETOOLONG(errno))) {
+                len = len*2;
+                mbuf = (char*)realloc(mbuf, len);
+                ptr = getcwd(mbuf, len);
+            }
+            if (!ptr)
+                free(mbuf);
+        }
+#endif
+        if (ptr) {
+	    sv_setpv(sv, ptr);
 	    return TRUE;
 	}
 	else {
