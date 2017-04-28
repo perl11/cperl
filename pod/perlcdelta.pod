@@ -118,9 +118,11 @@ XXX
 
 =over 4
 
-=item *
+=item L<POSIX> 1.76_03
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+getcwd has now long path support.
+Added realpath, with long path support, if the libc supports
+NULL as 2nd argument.
 
 =back
 

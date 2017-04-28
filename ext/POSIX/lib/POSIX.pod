@@ -585,6 +585,12 @@ see L<perlfunc/getc>.
 =item C<getcwd>
 
 Returns the name of the current working directory.
+
+Since 5.27.0c getcwd() supports long paths, longer than MAXPATHLEN,
+when the filesystem supports it. It uses in this order
+C<get_current_dir_name>, or C<getcwd(NULL, 0)> or C<getcwd(buf,len)>
+until it returns a buffer without C<ERANGE> or C<ENAMETOOLONG>.
+
 See also L<Cwd>.
 
 =item C<getegid>
@@ -1321,6 +1327,10 @@ See also L<perlfunc/sysread>.
 
 This is identical to Perl's builtin C<readdir()> function
 for reading directory entries, see L<perlfunc/readdir>.
+
+=item C<realpath>
+
+Resolves a pathname, with long pathname support.
 
 =item C<realloc>
 

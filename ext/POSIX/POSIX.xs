@@ -3759,6 +3759,18 @@ char *
 ttyname(fd)
 	POSIX::Fd	fd
 
+char *
+realpath(path)
+	char * path
+    PREINIT:
+	char buf[MAXPATHLEN];
+    CODE:
+	RETVAL = realpath(path, buf);
+	if (!RETVAL)
+            RETVAL = realpath(path, NULL);
+    OUTPUT:
+        RETVAL
+
 void
 getcwd()
     PPCODE:
