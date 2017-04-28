@@ -1,5 +1,9 @@
 Revision history for Perl distribution PathTools.
 
+4.68c - 2017-04-28 14:43:14 rurban
+- Support getcwd with long paths.
+- Use libc realpath with possible long path support.
+
 3.67 - Mon Feb 27 09:33:04 EST 2017
 - Add security usage note to File::Spec::no_upwards
 

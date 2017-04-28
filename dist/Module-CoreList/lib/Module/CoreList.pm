@@ -14900,6 +14900,8 @@ our %delta = (
             'Config'                => '5.027',
             'Module::CoreList'      => '5.20170428c',
             'Module::CoreList::Utils'=> '5.20170428c',
+            'POSIX'                 => '1.76_03',
+            'Cwd'                   => '4.68c',
         },
         removed => {
         }
