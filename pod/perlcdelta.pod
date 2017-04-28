@@ -122,6 +122,10 @@ XXX
 
 L<XXX> has been upgraded from version A.xx to B.yy.
 
+=item PathTools 4.68c
+
+getcwd and abs_path have now long path support.
+
 =back
 
 =head2 Removed Modules and Pragmata

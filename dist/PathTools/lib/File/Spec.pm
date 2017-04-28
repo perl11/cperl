@@ -3,7 +3,7 @@ package File::Spec;
 use strict;
 use vars qw(@ISA);
 
-our $VERSION = '4.67c'; # modernized
+our $VERSION = '4.68c'; # modernized
 $VERSION =~ tr/_//;
 $VERSION =~ s/c$//;
 
