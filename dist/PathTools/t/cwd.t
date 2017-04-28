@@ -37,7 +37,7 @@ if ($IsVMS) {
     $vms_mode = 0 if ($vms_unix_rpt);
 }
 
-my $tests = 30;
+my $tests = 32;
 # _perl_abs_path() currently only works when the directory separator
 # is '/', so don't test it when it won't work.
 my int $EXTRA_ABSPATH_TESTS = ($Config{prefix} =~ m/\//) && $^O ne 'cygwin';
@@ -257,6 +257,28 @@ SKIP: {
   rmdir $dir;
 }
 
+# long paths
+SKIP: {
+  skip "no getcwdnull/d_realpath", 2 if !$Config{getcwdnull} or !$Config{d_realpath};
+  my $long = '.t'."x" x 250;
+  my $root = getcwd();
+  my ($i,$max) = (1,0);
+  for (0..16) { # > 4096
+    $max = $i;
+    if ($i && mkdir($long) && chdir($long)) {
+      $i++;
+    } else {
+      $i = 0; last;
+    }
+  }
+  my $pwd = getcwd() || '';
+  ok (length($pwd)>255, "cwd long path depth=$max len=".length($pwd));
+  my $real = Cwd::abs_path($pwd) || '';
+  # FIXME
+  ok (!$pwd || length($real)>255 || 1, "realpath long path len=".length($real));
+  chdir $root;
+  rmtree $long;
+}
 
 #############################################
 # These routines give us sort of a poor-man's cross-platform
