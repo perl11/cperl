@@ -7,7 +7,7 @@
 # This is set up to build a perl.exe that runs off a shared library
 # (cperl52x.dll).  Also makes individual DLLs for the XS extensions.
 #
-PV = 526
+PV = 527
 
 ##
 ## Make sure you read README.win32 *before* you mess with anything here!
@@ -44,7 +44,7 @@ USE_CPERL	= define
 # versioned installation can be obtained by setting INST_TOP above to a
 # path that includes an arbitrary version string.
 #
-#INST_VER	= \5.26.0
+#INST_VER	= \5.27.0
 
 #
 # Comment this out if you DON'T want your perl installation to have
