@@ -9348,16 +9348,16 @@ Perl__invlist_intersection_maybe_complement_2nd(pTHX_ SV* const a, SV* const b,
 
         if (len_a != 0 && complement_b) {
 
+            if (*i == NULL) {
+                *i = invlist_clone(a);
+                return;
+            }
+
             /* Here, 'a' is not empty, therefore from the enclosing 'if', 'b'
              * must be empty.  Here, also we are using 'b's complement, which
              * hence must be every possible code point.  Thus the intersection
              * is simply 'a'. */
             if (*i == a) {  /* No-op */
-                return;
-            }
-
-            if (*i == NULL) {
-                *i = invlist_clone(a);
                 return;
             }
 
