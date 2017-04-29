@@ -815,7 +815,7 @@ PP(pp_formline)
 	ff_dec:
 	    /* If the field is marked with ^ and the value is undefined,
 	       blank it out. */
-	    if ((arg & FORM_NUM_BLANK) && !SvOK(sv)) {
+	    if ((arg & FORM_NUM_BLANK) && (!sv || !SvOK(sv))) {
 		arg = fieldsize;
 		while (arg--)
 		    *t++ = ' ';
