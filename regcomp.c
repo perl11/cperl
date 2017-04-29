@@ -4071,7 +4071,7 @@ S_join_exact(pTHX_ RExC_state_t *pRExC_state, regnode *scan,
 
 #define INIT_AND_WITHP \
     assert(!and_withp); \
-    Newx(and_withp,1, regnode_ssc); \
+    Newx(and_withp, 1, regnode_ssc); \
     SAVEFREEPV(and_withp)
 
 
@@ -5788,8 +5788,8 @@ Perl_re_printf( aTHX_  "LHS=%"UVuf" RHS=%"UVuf"\n",
                 /* Cannot merge strings after this. */
                 scan_commit(pRExC_state, data, minlenp, is_inf);
             }
-            if (flags & SCF_DO_STCLASS)
-                ssc_init_zero(pRExC_state, &accum);
+            if (flags & (SCF_DO_STCLASS|SCF_DO_STCLASS_AND))
+                ssc_init_zero(pRExC_state, &accum); /* coverity CID 165412 */
 
             if (!trie->jump) {
                 min1= trie->minlen;
