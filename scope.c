@@ -1514,6 +1514,7 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_SET_SVFLAGS:
             a0 = ap[0]; a1 = ap[1]; a2 = ap[2];
+            assert(a0.any_sv);
             DEBUG_lv(Perl_deb(aTHX_ "restore SET_SVFLAGS %u %u %p\n",
                               (unsigned)a2.any_u32, (unsigned)a1.any_u32, a0.any_sv));
             SvFLAGS(a0.any_sv) &= ~(a1.any_u32);
@@ -1523,12 +1524,14 @@ Perl_leave_scope(pTHX_ I32 base)
 	    /* These are only saved in mathoms.c */
 	case SAVEt_NSTAB:
             a0 = ap[0];
+            assert(a0.any_sv);
             DEBUG_lv(Perl_deb(aTHX_ "restore NSTAB %p\n", a0.any_sv));
 	    (void)sv_clear(a0.any_sv);
 	    break;
 
 	case SAVEt_LONG:			/* long reference */
             a0 = ap[0]; a1 = ap[1];
+            assert(a1.any_ptr);
             DEBUG_lv(Perl_deb(aTHX_ "restore LONG %p %ld\n",
                               a1.any_ptr, a0.any_long));
 	    *(long*)a1.any_ptr = a0.any_long;
@@ -1536,6 +1539,7 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_IV:				/* IV reference */
             a0 = ap[0]; a1 = ap[1];
+            assert(a1.any_ptr);
             DEBUG_lv(Perl_deb(aTHX_ "restore IV %p %" IVdf "\n",
                               a1.any_ptr, a0.any_iv));
 	    *(IV*)a1.any_ptr = a0.any_iv;
@@ -1543,6 +1547,7 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_I16:				/* I16 reference */
             a0 = ap[0];
+            assert(a0.any_ptr);
             DEBUG_lv(Perl_deb(aTHX_ "restore I16 %p %d\n",
                               a0.any_ptr, (int)(I16)(uv>>8)));
 	    *(I16*)a0.any_ptr = (I16)(uv >> 8);
@@ -1557,6 +1562,7 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_DESTRUCTOR:
             a0 = ap[0]; a1 = ap[1];
+            assert(a0.any_dptr);
             DEBUG_lv(Perl_deb(aTHX_ "restore DESTRUCTOR %p(%p)\n",
                               *a0.any_dptr, a1.any_ptr));
 	    (*a0.any_dptr)(a1.any_ptr);
@@ -1573,12 +1579,14 @@ Perl_leave_scope(pTHX_ I32 base)
 
 	case SAVEt_PARSER:
             a0 = ap[0];
+            assert(a0.any_ptr);
             DEBUG_lv(Perl_deb(aTHX_ "restore PARSER %p\n", a0.any_ptr));
 	    parser_free((yy_parser *)a0.any_ptr);
 	    break;
 
 	case SAVEt_READONLY_OFF:
             a0 = ap[0];
+            assert(a0.any_sv);
             DEBUG_lv(Perl_deb(aTHX_ "restore READONLY_OFF %p\n", a0.any_sv));
 	    SvREADONLY_off(a0.any_sv);
 	    break;
