@@ -40,7 +40,7 @@ The BSD's and Solaris are only tested before a release.
 
 The current stable release is
   [5.24.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.2) - [perl5242cdelta](perl5242cdelta.html),
-the latest development release [5.26.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.0-RC1) - [perl5260cdelta](perl5260cdelta.html).
+the latest development release [5.26.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.0) - [perl5260cdelta](perl5260cdelta.html).
 We also have [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
 
 All tests pass. CPAN works.
@@ -132,6 +132,9 @@ For all versions see [bench-all/](bench-all/index.html)
 * base/fields classes behave now like closed cperl classes: The ISA is readonly,
   inheritance checks are performed at compile-time already. More support for
   closed classes, esp. restricted stashes and readonly ISA.
+* study with HASH, ARRAY, CODE
+* enhanced dtrace probes
+* support for long path names, > 4096
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
