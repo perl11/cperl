@@ -11866,7 +11866,7 @@ $rm_try
 case "$d_builtin_choose_expr" in
 '')
     echo " "
-    echo "Checking whether your compiler can handle __builtin_choose_expr ..." >&4
+    echo "Checking whether your compiler can handle __builtin_choose_expr ..."
     $cat >try.c <<'EOCP'
 #include <assert.h>
 #include <stdlib.h>
@@ -11886,10 +11886,10 @@ int main(void) {
 EOCP
     set try
     if eval $compile && $run ./try; then
-	echo "Your C compiler supports __builtin_choose_expr."
+	echo "__builtin_choose_expr() found." >&4
 	val="$define"
     else
-	echo "Your C compiler doesn't seem to understand __builtin_choose_expr."
+	echo "__builtin_choose_expr() NOT found." >&4
 	val="$undef"
     fi
 ;;
@@ -11904,7 +11904,7 @@ $rm_try
 case "$d_builtin_expect" in
 '')
     echo " "
-    echo "Checking whether your compiler can handle __builtin_expect ..." >&4
+    echo "Checking whether your compiler can handle __builtin_expect ..."
     $cat >try.c <<'EOCP'
 int main(void) {
     int n = 50;
@@ -11915,10 +11915,10 @@ int main(void) {
 EOCP
     set try
     if eval $compile && $run ./try; then
-	echo "Your C compiler supports __builtin_expect."
+	echo "__builtin_expect() found." >&4
 	val="$define"
     else
-	echo "Your C compiler doesn't seem to understand __builtin_expect."
+	echo "__builtin_expect() NOT found." >&4
 	val="$undef"
     fi
     ;;
@@ -11933,7 +11933,7 @@ $rm_try
 case "$d_builtin_prefetch" in
 '')
     echo " "
-    echo "Checking whether your compiler can handle __builtin_prefetch ..." >&4
+    echo "Checking whether your compiler can handle __builtin_prefetch ..."
     $cat >try.c <<'EOCP'
 int main(void) {
     int n = 1;
@@ -11945,10 +11945,10 @@ int main(void) {
 EOCP
     set try
     if eval $compile && $run ./try; then
-	echo "Your C compiler supports __builtin_prefetch."
+	echo "__builtin_prefetch() found." >&4
 	val="$define"
     else
-	echo "Your C compiler doesn't seem to understand __builtin_prefetch."
+	echo "__builtin_prefetch() NOT found." >&4
 	val="$undef"
     fi
     ;;
@@ -11963,7 +11963,7 @@ $rm_try
 case "$d_builtin_ctz" in
 '')
     echo " "
-    echo "Checking whether your compiler can handle __builtin_ctz ..." >&4
+    echo "Checking whether your compiler can handle __builtin_ctz ..."
     $cat >try.c <<'EOCP'
 int main(void) {
     int n = 2;
@@ -11975,10 +11975,10 @@ int main(void) {
 EOCP
     set try
     if eval $compile && $run ./try; then
-	echo "Your C compiler supports __builtin_ctz."
+	echo "__builtin_ctz() found." >&4
 	val="$define"
     else
-	echo "Your C compiler doesn't seem to understand __builtin_ctz."
+	echo "__builtin_ctz() NOT found." >&4
 	val="$undef"
     fi
     ;;
@@ -11993,7 +11993,7 @@ $rm_try
 case "$d_builtin_clz" in
 '')
     echo " "
-    echo "Checking whether your compiler can handle __builtin_clz ..." >&4
+    echo "Checking whether your compiler can handle __builtin_clz ..."
     $cat >try.c <<'EOCP'
 int main(void) {
     /* Remember shell exit code truth is 0, C truth is non-zero */
@@ -12003,10 +12003,10 @@ int main(void) {
 EOCP
     set try
     if eval $compile && $run ./try; then
-	echo "Your C compiler supports __builtin_clz."
+	echo "__builtin_clz() found." >&4
 	val="$define"
     else
-	echo "Your C compiler doesn't seem to understand __builtin_clz."
+	echo "__builtin_clz() NOT found." >&4
 	val="$undef"
     fi
     ;;
@@ -17508,7 +17508,7 @@ case "$d_builtin_arith_overflow" in
         8) suffix=l
            ;;
     esac
-    echo "Checking whether your compiler can handle all 6 __builtin_<arith>${suffix}_overflow intrinsics..." >&4
+    echo "Checking whether your compiler can handle all 6 __builtin_<arith>${suffix}_overflow intrinsics..."
     $cat >try.c <<EOCP
 #include <stdlib.h>
 #include <stdio.h>
@@ -17553,10 +17553,10 @@ int main(void) {
 EOCP
     set try
     if eval $compile && $run ./try; then
-	echo "Your C compiler supports all 6 __builtin_<arith>_overflow intrinsics."
+	echo "__builtin_arith_overflow intrinsics found (All 6)." >&4
 	val="$define"
     else
-	echo "Your C compiler doesn't support all 6 __builtin_<arith>_overflow intrinsics."
+	echo "__builtin_arith_overflow intrinsics NOT found." >&4
 	val="$undef"
     fi
     echo " "
