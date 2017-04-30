@@ -37,7 +37,6 @@ init:
   - reg add "HKLM\Software\Microsoft\Windows\Windows Error Reporting" /f /v DontShowUI /d 1  
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
-# from https://github.com/apache/lucy-clownfish/blob/master/appveyor.yml  
 build: off
 
 test_script:

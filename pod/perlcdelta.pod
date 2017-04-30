@@ -115,9 +115,9 @@ XXX
 
 =over 4
 
-=item *
+=item L<Cpanel::JSON::XS> 3.0232
 
-L<XXX> has been upgraded from version A.xx to B.yy.
+MSVC 14.0 support and higher, changed nan in the runtime.
 
 =back
 

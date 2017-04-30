@@ -14889,6 +14889,23 @@ our %delta = (
             'Config'                => '5.026',
             'Module::CoreList'      => '5.20170428c',
             'Module::CoreList::Utils'=> '5.20170428c',
+            'Cpanel::JSON::XS'      => '3.0232',
+        },
+        removed => {
+        }
+    },
+    '5.027000c' => {
+        delta_from => '5.026000c',
+        changed => {
+            'Config'                => '5.027',
+            'Module::CoreList'      => '5.20170428c',
+            'Module::CoreList::Utils'=> '5.20170428c',
+            'Cpanel::JSON::XS'      => '3.0232',
+            'Cwd'                   => '4.68c',
+            'File::Spec'            => '4.68c',
+            'File::Spec::Unix'      => '4.68c',
+            'File::Spec::Win32'     => '4.68c',
+            'POSIX'                 => '1.76_03',
         },
         removed => {
         }

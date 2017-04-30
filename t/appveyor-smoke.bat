@@ -59,10 +59,8 @@ exit /b
 :msvc_14
 if "%PLATFORM%" == "x64" set PLATFORM=amd64
 call "C:\Program Files (x86)\Microsoft Visual Studio %MSVC_VERSION%.0\VC\vcvarsall.bat" %PLATFORM%
-set
 if "%PLATFORM%" == "X64" ( set "PATH=C:\windows\system32;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\BIN\amd64;C:\Program Files (x86)\Windows Kits\8.1\bin\x64;C:\Program Files (x86)\Windows Kits\8.1\bin\x86;C:\windows;C:\Program Files\Git\cmd;C:\Program Files\Git\usr\bin;C:\Program Files\7-Zip;" ) ELSE ( set "PATH=C:\windows\system32;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\BIN;C:\Program Files (x86)\Windows Kits\8.1\bin\x86;C:\windows;C:\Program Files\Git\cmd;C:\Program Files\Git\usr\bin;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\7-Zip;" )
 
 cd win32
-rem if "%PLATFORM%" == "x86" set PERL_ENCODE_DEBUG=1
 nmake test CCTYPE=MSVC140 USE_NO_REGISTRY=define || exit /b
 exit /b

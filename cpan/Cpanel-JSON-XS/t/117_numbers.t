@@ -37,6 +37,16 @@ if ($^O eq 'MSWin32'
   $have_qnan = 0;
   ($inf, $neg_inf, $nan, $neg_nan) = ('inf','-inf','nan','-nan');
 }
+# Windows changed it with MSVC 14.0 and the ucrtd.dll runtime
+diag "ccversion = $Config{ccversion}" if $^O eq 'MSWin32' and $Config{ccversion};
+if ($^O eq 'MSWin32' and $Config{ccversion}) {
+  my $mscver = $Config{ccversion}; # "19.00.24215.1" for 14.0 (VC++ 2015)
+  $mscver =~ s/^(\d+\.\d\+).(\d+)\.(\d+)/$1$2$3/;
+  if ($mscver >= 19.0) {
+    $have_qnan = 0;
+    ($inf, $neg_inf, $nan, $neg_nan) = ('inf','-inf','nan','-nan(ind)');
+  }
+}
 # newlib and glibc 2.5 have no -nan support, just nan. The BSD's neither, but they might
 # come up with it lateron, as darwin did.
 #if ($^O eq 'cygwin' or ($Config{glibc_version} && $Config{glibc_version} < 2.6)) {
