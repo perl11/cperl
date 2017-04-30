@@ -39,17 +39,26 @@
 /* strawberry 5.22 with USE_MINGW_ANSI_STDIO and USE_LONG_DOUBLE has now 
    a proper inf/nan */
 #if defined(WIN32) && !defined(__USE_MINGW_ANSI_STDIO) && !defined(USE_LONG_DOUBLE)
-#define STR_INF "1.#INF"
-#define STR_INF2 "1.#INF.0"
-#define STR_NAN "1.#IND"
-#define STR_QNAN "1.#QNAN"
-#define HAVE_QNAN
+# if _MSC_VER > 1800
+#  define STR_INF "inf"
+#  define STR_INF2 "inf.0"
+#  define STR_NAN "nan"
+#  define STR_QNAN "nan(ind)"
+#  define HAVE_QNAN
+# else
+#  define STR_INF "1.#INF"
+#  define STR_INF2 "1.#INF.0"
+#  define STR_NAN "1.#IND"
+#  define STR_QNAN "1.#QNAN"
+#  define HAVE_QNAN
+# endif
 #elif defined(sun) || defined(__sun)
 #define STR_INF "Infinity"
 #define STR_NAN "NaN"
 #elif defined(__hpux)
 #define STR_INF "++"
 #define STR_NAN "-?"
+#define HAVE_NEG_NAN
 #define STR_NEG_INF "---"
 #define STR_NEG_NAN "?"
 #else

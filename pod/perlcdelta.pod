@@ -118,15 +118,19 @@ XXX
 
 =over 4
 
+=item L<Cpanel::JSON::XS> 3.0232
+
+MSVC 14.0 support and higher, changed nan in the runtime.
+
+=item PathTools 4.68c
+
+getcwd and abs_path have now long path support.
+
 =item L<POSIX> 1.76_03
 
 getcwd has now long path support.
 Added realpath, with long path support, if the libc supports
 NULL as 2nd argument.
-
-=item PathTools 4.68c
-
-getcwd and abs_path have now long path support.
 
 =back
 
