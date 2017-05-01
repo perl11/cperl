@@ -252,8 +252,8 @@ mingw_modfl(long double x, long double *ip)
 # define INLINE                     static
 #endif
 #ifndef LIKELY
-#define LIKELY(expr)   _expect ((expr) != 0, 1)
-#define UNLIKELY(expr) _expect ((expr) != 0, 0)
+#define LIKELY(expr)   _expect ((long)(expr) != 0, 1)
+#define UNLIKELY(expr) _expect ((long)(expr) != 0, 0)
 #endif
 
 #define IN_RANGE_INC(type,val,beg,end) \
@@ -691,8 +691,10 @@ typedef struct
 INLINE void
 need (pTHX_ enc_t *enc, STRLEN len)
 {
-  DEBUG_v(Perl_deb(aTHX_ "need enc: %p %p %4ld, want: %ld\n", enc->cur, enc->end,
-                   (long)(enc->end - enc->cur), (long)len));
+#if PERL_VERSION > 6
+  DEBUG_v(Perl_deb(aTHX_ "need enc: %p %p %4ld, want: %lu\n", enc->cur, enc->end,
+                   (long)(enc->end - enc->cur), (unsigned long)len));
+#endif
   assert(enc->cur <= enc->end);
   if (UNLIKELY(enc->cur + len >= enc->end))
     {
@@ -730,9 +732,10 @@ encode_str (pTHX_ enc_t *enc, char *str, STRLEN len, int is_utf8)
   while (str < end)
     {
       unsigned char ch = *(unsigned char *)str;
+#if PERL_VERSION > 6
       DEBUG_v(Perl_deb(aTHX_ "str  enc: %p %p %4ld, want: %lu\n", enc->cur, enc->end,
                        (long)(enc->end - enc->cur), (long unsigned)len));
-
+#endif
       if (LIKELY(ch >= 0x20 && ch < 0x80)) /* most common case */
         {
           assert(enc->cur <= enc->end);
@@ -3596,10 +3599,10 @@ void filter_json_single_key_object (JSON *self, SV *key, SV *cb = &PL_sv_undef)
           self->cb_sk_object = newHV ();
 
         if (SvOK (cb))
-          hv_store_ent (self->cb_sk_object, key, newSVsv (cb), 0);
+          (void)hv_store_ent (self->cb_sk_object, key, newSVsv (cb), 0);
         else
           {
-            hv_delete_ent (self->cb_sk_object, key, G_DISCARD, 0);
+            (void)hv_delete_ent (self->cb_sk_object, key, G_DISCARD, 0);
 
             if (!HvKEYS (self->cb_sk_object))
               {
