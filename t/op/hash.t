@@ -249,6 +249,14 @@ package Magic {
     ::is(join( ':', %inner), "x:y", "magic keys");
 }
 
-
+# study: hsplit with shrink
+{
+  my %a = (0..255);
+  delete @a{(0..12,20..228)};
+  study %a;
+  my %b = %a;
+  is(scalar keys %a, scalar keys %b, "shrink from 256 to 32: ".scalar %a." keys")
+    or diag join(" ",keys %a),"\n",join(" ",keys %b),"\n";
+}
 
 done_testing();

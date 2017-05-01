@@ -8078,6 +8078,11 @@ STATIC void	S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 #define PERL_ARGS_ASSERT_HSPLIT	\
 	assert(hv)
 
+STATIC void	S_hsplit_move_aux(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_HSPLIT_MOVE_AUX	\
+	assert(hv)
+
 STATIC struct xpvhv_aux*	S_hv_auxinit(pTHX_ HV *hv)
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_HV_AUXINIT	\

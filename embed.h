@@ -1655,6 +1655,7 @@
 #define ctz			S_ctz
 #define hfreeentries(a)		S_hfreeentries(aTHX_ a)
 #define hsplit(a,b,c)		S_hsplit(aTHX_ a,b,c)
+#define hsplit_move_aux(a,b,c)	S_hsplit_move_aux(aTHX_ a,b,c)
 #define hv_auxinit(a)		S_hv_auxinit(aTHX_ a)
 #define hv_auxinit_internal	S_hv_auxinit_internal
 #define hv_common_magical(a,b,c,d,e,f,g,h,i)	S_hv_common_magical(aTHX_ a,b,c,d,e,f,g,h,i)
