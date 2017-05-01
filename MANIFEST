@@ -421,6 +421,7 @@ cpan/Cpanel-JSON-XS/t/53_readonly.t
 cpan/Cpanel-JSON-XS/t/54_stringify.t
 cpan/Cpanel-JSON-XS/t/55_modifiable.t
 cpan/Cpanel-JSON-XS/t/96_interop.t
+cpan/Cpanel-JSON-XS/t/96_interop_pp.t
 cpan/Cpanel-JSON-XS/t/96_mojo.t
 cpan/Cpanel-JSON-XS/t/97_unshare_hek.t
 cpan/Cpanel-JSON-XS/t/98_56only.t

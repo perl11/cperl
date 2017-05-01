@@ -115,7 +115,7 @@ XXX
 
 =over 4
 
-=item L<Cpanel::JSON::XS> 3.0232
+=item L<Cpanel::JSON::XS> 3.0233
 
 MSVC 14.0 support and higher, changed nan in the runtime.
 
