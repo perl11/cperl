@@ -2159,6 +2159,7 @@ po	|SV*	|hfree_next_entry	|NN HV *hv|NN U32 *indexp
 
 #if defined(PERL_IN_HV_C)
 s	|void	|hsplit		|NN HV *hv|U32 const oldsize|U32 newsize
+s	|void	|hsplit_move_aux|NN HV *hv|U32 const oldsize|U32 newsize
 s	|void	|hfreeentries	|NN HV *hv
 s	|SV*	|hv_free_ent_ret|NN HV *hv|NN HE *entry
 sR	|HE*	|new_he
