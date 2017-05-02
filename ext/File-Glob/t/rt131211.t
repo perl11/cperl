@@ -49,7 +49,7 @@ while (++$count < 10) {
 is $count,10,
     "tried all the patterns without bailing out";
 
-cmp_ok $elapsed_fail/$elapsed_match,"<",2,
+cmp_ok $elapsed_fail/$elapsed_match,"<",2.3,
     "time to fail less than twice the time to match";
 is "@got_files", catfile($path, $files[0]),
     "only got the expected file for xa*..b";
