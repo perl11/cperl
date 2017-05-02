@@ -1836,9 +1836,19 @@ Perl_hv_study(pTHX_ HV *hv)
     if (UNLIKELY(deleted)) { /* clear */
 	clear_placeholders(hv, deleted);
     }
-    while (oldsize >= 16 && oldkeys < oldsize / 2) { /* shrink */
-        hsplit(hv, oldsize, (U32)(oldsize / 2));
-        oldsize = HvMAX(hv) + 1;
+    if (oldsize >= 16 && oldkeys < (oldsize >> 1)) { /* shrink */
+        /* get proper power of 2 */
+#if defined(HAS_LOG2)
+        U32 newsize = 1 << (U32)Perl_ceil((NV)log2((double)oldkeys));
+#else
+        U32 newsize = 1 << (U32)Perl_ceil((NV)Perl_log((NV)oldkeys) * M_LOG2E);
+#endif
+#if HV_FILL_RATE < 100
+        if (((U32)(oldkeys * 100) >> CTZ(newsize)) >= HV_FILL_RATE)
+            newsize = newsize << 1;
+#endif
+        if (LIKELY(oldsize > newsize))
+            hsplit(hv, oldsize, newsize);
         DEBUG_H(PerlIO_printf(Perl_debug_log,
                           "HASH study %u\t%6u\t%6u\t%6u \t%s\n",
                           (unsigned)oldkeys,
