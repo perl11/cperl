@@ -1660,14 +1660,13 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
 STATIC void
 S_hsplit_move_aux(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 {
-    const char *a = (char*) HvARRAY(hv);
-    struct xpvhv_aux *const dest
-        = (struct xpvhv_aux*) &a[newsize * sizeof(HE*)];
+    const HE** a = (const HE**)HvARRAY(hv);
+    struct xpvhv_aux *const dest = (struct xpvhv_aux*) &a[newsize];
     PERL_ARGS_ASSERT_HSPLIT_MOVE_AUX;
 
     if (SvOOK(hv)) {
-        /* alread have an aux, copy the old one in place. */
-        Move(&a[oldsize * sizeof(HE*)], dest, 1, struct xpvhv_aux);
+        /* copy the old one over. */
+        Move(&a[oldsize], dest, 1, struct xpvhv_aux);
         /* we reset the iterator's xhv_rand as well, so they get a totally new ordering */
 #ifdef PERL_HASH_RANDOMIZE_KEYS
         dest->xhv_rand = (U32)PL_hash_rand_bits;
@@ -1691,7 +1690,7 @@ S_hsplit_move_aux(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 STATIC void
 S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 {
-    U32 i;
+    U32 i, newmax;
     char *a = (char*) HvARRAY(hv);
     HE **aep;
 
@@ -1728,11 +1727,9 @@ S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
         PL_hash_rand_bits = ROTL_UV(PL_hash_rand_bits,1);
     }
 #endif
+    newmax = newsize - 1;
     HvARRAY(hv) = (HE**) a;
-    HvMAX(hv) = newsize - 1;
-    /* before we zero the newly added memory, we
-     * need to deal with the aux struct that may be there
-     * or have been allocated by us */
+    HvMAX(hv) = newmax;
     if (LIKELY(newsize > oldsize)) {
         if (do_aux)
             hsplit_move_aux(hv, oldsize, newsize);
@@ -1743,14 +1740,13 @@ S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
     if (!HvTOTALKEYS(hv))       /* skip rest if no entries */
         return;
 
-    newsize--;
     aep = (HE**)a;
     for (i=0; i < oldsize; i++) {
 	HE **oentry = aep + i;
 	HE *entry = aep[i];
 
 	while (entry) {				/* non-existent */
-            U32 j = (HeHASH(entry) & newsize);
+            U32 j = (HeHASH(entry) & newmax);
 #ifdef DEBUGGING
             if (DEBUG_H_TEST_ && DEBUG_v_TEST_) {
                 PerlIO_printf(Perl_debug_log, "HASH split %u->%u\n",(unsigned)i,(unsigned)j);
@@ -1800,7 +1796,7 @@ S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 	}
     }
     if (UNLIKELY(newsize < oldsize)) { /* shrinked */
-        if (do_aux)
+        if (do_aux) /* move to left */
             hsplit_move_aux(hv, oldsize, newsize);
         Renew(a, PERL_HV_ARRAY_ALLOC_BYTES(newsize)
               + (do_aux ? sizeof(struct xpvhv_aux) : 0), char);
@@ -1836,9 +1832,19 @@ Perl_hv_study(pTHX_ HV *hv)
     if (UNLIKELY(deleted)) { /* clear */
 	clear_placeholders(hv, deleted);
     }
-    while (oldsize >= 16 && oldkeys < oldsize / 2) { /* shrink */
-        hsplit(hv, oldsize, (U32)(oldsize / 2));
-        oldsize = HvMAX(hv) + 1;
+    if (oldsize >= 16 && oldkeys < (oldsize >> 1)) { /* shrink */
+        /* get proper power of 2 */
+#if defined(HAS_LOG2)
+        U32 newsize = 1 << (U32)Perl_ceil((NV)log2((double)oldkeys));
+#else
+        U32 newsize = 1 << (U32)Perl_ceil((NV)Perl_log((NV)oldkeys) * M_LOG2E);
+#endif
+#if HV_FILL_RATE < 100
+        if (((U32)(oldkeys * 100) >> CTZ(newsize)) >= HV_FILL_RATE)
+            newsize = newsize << 1;
+#endif
+        if (LIKELY(oldsize > newsize))
+            hsplit(hv, oldsize, newsize);
         DEBUG_H(PerlIO_printf(Perl_debug_log,
                           "HASH study %u\t%6u\t%6u\t%6u \t%s\n",
                           (unsigned)oldkeys,
