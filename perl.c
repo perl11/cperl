@@ -3446,7 +3446,7 @@ Perl_moreswitches(pTHX_ const char *s)
     case 'c':
 	PL_minus_c = TRUE;
 	s++;
-	if (*s && *s==':' && *(s+1)=='s') {
+	if (*s==':' && *(s+1)=='s') {
 	    /* :default = :base_core :base_mem :base_loop :base_orig :base_thread */
 	    /* :browse = :default :filesys_read :sys_db */
 	    /* :load = require dofile caller runcv */
