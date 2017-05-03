@@ -1875,11 +1875,11 @@ Perl_hv_ksplit(pTHX_ HV *hv, U32 newmax)
     newsize = newmax;
     if (newmax <= oldsize)
 	return;
-    while ((newsize & (1 + ~newsize)) != newsize) {
-	newsize &= ~(newsize & (1 + ~newsize));	/* get proper power of 2 */
-    }
-    if (newsize < newmax)
-	newsize *= 2;
+#ifndef HAS_LOG2
+    newsize = 1 << (U32)ceil(log2((double)newsize));
+#else
+    newsize = 1 << (U32)ceil((double)Perl_log((NV)newsize) * M_LOG2E);
+#endif
     if (newsize < newmax)
 	return;					/* overflow detection */
 
