@@ -1730,11 +1730,14 @@ S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
         PL_hash_rand_bits = ROTL_UV(PL_hash_rand_bits,1);
     }
 #endif
-    newmax = newsize - 1;
+    newmax = newsize == U32_MAX ? newsize : newsize - 1;
     HvARRAY(hv) = (HE**) a;
     HvMAX(hv) = newmax;
     if (LIKELY(newsize > oldsize)) {
-        if (do_aux)
+        /* on grow before we zero the newly added memory, we
+         * need to deal with the aux struct that may be there
+         * or have been allocated by us */
+        if (do_aux) /* move to realloced right */
             hsplit_move_aux(hv, oldsize, newsize);
         /* now we can safely clear the second half */
         Zero(&a[oldsize * sizeof(HE*)], (newsize-oldsize) * sizeof(HE*), char);
@@ -1801,6 +1804,7 @@ S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
     if (UNLIKELY(newsize < oldsize)) { /* shrinked */
         if (do_aux) /* move to left */
             hsplit_move_aux(hv, oldsize, newsize);
+        /* make it smaller */
         Renew(a, PERL_HV_ARRAY_ALLOC_BYTES(newsize)
               + (do_aux ? sizeof(struct xpvhv_aux) : 0), char);
         HvARRAY(hv) = (HE**) a;
@@ -1881,7 +1885,7 @@ Perl_hv_ksplit(pTHX_ HV *hv, U32 newmax)
     newsize = 1 << (U32)ceil((double)Perl_log((NV)newsize) * M_LOG2E);
 #endif
     if (newsize < newmax)
-	return;					/* overflow detection */
+	newsize = U32_MAX;	/* overflow detection */
 
     a = (char *) HvARRAY(hv);
     if (a) {
@@ -1893,7 +1897,7 @@ Perl_hv_ksplit(pTHX_ HV *hv, U32 newmax)
         hsplit(hv, oldsize, newsize);
     } else {
         Newxz(a, PERL_HV_ARRAY_ALLOC_BYTES(newsize), char);
-        xhv->xhv_max = newsize-1;
+        xhv->xhv_max = (newsize == U32_MAX) ? newsize : newsize-1;
         HvARRAY(hv) = (HE **) a;
     }
 }
