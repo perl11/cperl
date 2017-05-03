@@ -3886,6 +3886,12 @@
  */
 #define HAS_LDBL_DIG 	/**/
 
+/* HAS_LOG2:
+ *	This symbol, if defined, indicates that the log2 routine is
+ *	available to do the log2 function.
+ */
+#define HAS_LOG2		/**/
+
 /* LIBM_LIB_VERSION:
  *	This symbol, if defined, indicates that libm exports _LIB_VERSION
  *	and that math.h defines the enum to manipulate it.

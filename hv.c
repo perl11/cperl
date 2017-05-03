@@ -1843,12 +1843,7 @@ Perl_hv_study(pTHX_ HV *hv)
     test_power2();
 #endif
     if (oldsize >= 16 && oldkeys < (oldsize >> 1)) { /* shrink */
-        /* get proper power of 2 */
-#if defined(HAS_LOG2)
-        U32 newsize = 1 << (U32)Perl_ceil((NV)log2((double)oldkeys));
-#else
-        U32 newsize = 1 << (U32)Perl_ceil((NV)Perl_log((NV)oldkeys) * M_LOG2E);
-#endif
+        U32 newsize = S_ceil_to_power2(oldkeys);
 #if HV_FILL_RATE < 100
         if (((U32)(oldkeys * 100) >> CTZ(newsize)) >= HV_FILL_RATE)
             newsize = newsize << 1;
@@ -1879,11 +1874,7 @@ Perl_hv_ksplit(pTHX_ HV *hv, U32 newmax)
     newsize = newmax;
     if (newmax <= oldsize)
 	return;
-#ifndef HAS_LOG2
-    newsize = 1 << (U32)ceil(log2((double)newsize));
-#else
-    newsize = 1 << (U32)ceil((double)Perl_log((NV)newsize) * M_LOG2E);
-#endif
+    newsize = S_ceil_to_power2(newsize);
     if (newsize < newmax)
 	newsize = U32_MAX;	/* overflow detection */
 
@@ -4355,15 +4346,25 @@ Perl_hv_assert(pTHX_ HV *hv)
 
    `sh cflags "optimize='-g -O2'" hv.o` -DTEST_POWER2 hv.c; mpb -e'study %a'
  */
+/* the fallback */
 PERL_STATIC_INLINE
 U32 flt_power2_fb(U32 k) {
     return 1 << (U32)ceil((double)Perl_log((NV)k) * M_LOG2E);
 }
+/* the fastest, like 10^8 faster */
+#ifdef HAS_BUILTIN_CLZ
+PERL_STATIC_INLINE
+U32 clz_power2(U32 k) {
+    return 1 << (32 - __builtin_clz(k-1));
+}
+#endif
+/* the 2nd fastest via doubles */
 PERL_STATIC_INLINE
 U32 flt_power2(U32 k) {
-#if defined(HAS_LOG2)
+#ifdef HAS_LOG2
     return 1 << (U32)ceil(log2((double)k));
 #else
+    /* the fallback */
     return 1 << (U32)ceil((double)Perl_log((NV)k) * M_LOG2E);
 #endif
 }
@@ -4380,7 +4381,14 @@ U32 core_power2(U32 newsize) {
 static
 U32 test_all(U32 j) {
     U32 pj, other;
-#if defined(HAS_LOG2)
+#ifdef HAS_BUILTIN_CLZ
+    pj    = clz_power2(j);
+    other = flt_power2_fb(j);
+    if (pj != other)
+        PerlIO_printf(Perl_debug_log, "error: clz vs flt (%u) => %u != %u\n",
+                      j, pj, other);
+#endif
+#ifdef HAS_LOG2
     pj    = flt_power2(j);
     other = flt_power2_fb(j);
     if (pj != other)
@@ -4422,9 +4430,8 @@ void test_power2() {
     for (i=2; i<=31; i++) {
         U32 pj, pk;
         U32 k = 1<<i;
-        U32 j = k-1;
-        pj = test_all(j);
-        PerlIO_printf(Perl_debug_log, "2^%2d-1=%8u => %8u\n", i, j, pj);
+        pj = test_all(k-1);
+        PerlIO_printf(Perl_debug_log, "2^%2d-1=%8u => %8u\n", i, k-1, pj);
         pk = test_all(k);
         PerlIO_printf(Perl_debug_log, "2^%2d  =%8u => %8u\n", i, k, pk);
         if (pk != pj)
@@ -4433,14 +4440,31 @@ void test_power2() {
         PerlIO_printf(Perl_debug_log, "2^%2d+1=%8u => %8u\n", i, k+1, pj);
         if (pk == pj)
             PerlIO_printf(Perl_debug_log, "error: %8u == %8u\n", pj, pk);
+
+        pk = test_all(k+2);
+        PerlIO_printf(Perl_debug_log, "2^%2d+2=%8u => %8u\n", i, k+2, pk);
+        if (pk != pj)
+            PerlIO_printf(Perl_debug_log, "error: %8u != %8u\n", pj, pk);
         PerlIO_printf(Perl_debug_log, "\n");
     }
     /* speed: while loop as in core vs our ceil/log2 */
     PerlIO_printf(Perl_debug_log, "test power2 speed:\n");
     {
         U32 j;
-        U64 tm = rdtsc();
+        U64 tm;
 #define MAX_LOOP 536870912
+#ifndef HAS_LOG2
+        PerlIO_printf(Perl_debug_log, "have no fast log2, use fallback\n");
+#endif
+
+#ifdef HAS_BUILTIN_CLZ
+        tm = rdtsc();
+        for (j=2; j<=MAX_LOOP; j+=7) {
+            clz_power2(j);
+        }
+        PerlIO_printf(Perl_debug_log, "time clz:        %12llu\n", rdtsc()-tm);
+#endif
+        tm = rdtsc();
         for (j=2; j<=MAX_LOOP; j+=7) {
             flt_power2(j);
         }

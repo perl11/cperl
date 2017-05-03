@@ -1696,6 +1696,15 @@ S_cx_popgiven(pTHX_ PERL_CONTEXT *cx)
 /* Since MSVC 2005 */
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 PERL_STATIC_INLINE U32
+S_clz(U32 n)
+{
+    /* needs haswell: return __lzcnt(n); */
+    U32 leading_zero = 0;
+    if (_BitScanReverse(&leading_zero, n))
+        return 31 - leading_zero;
+    return 32;
+}
+PERL_STATIC_INLINE U32
 S_ctz(U32 n)
 {
     U32 tz;
@@ -1718,6 +1727,21 @@ S_ctz(U32 n)
     return S_MultiplyDeBruijnBitPosition[((U32)((n & -n) * 0x077CB531U)) >> 27];
 }
 #endif
+
+PERL_STATIC_INLINE U32
+S_ceil_to_power2(U32 n)
+{
+#ifdef HAS_BUILTIN_CLZ
+    return 1 << (32 - __builtin_clz(n-1));
+#elif defined(_MSC_VER) && _MSC_VER >= 1400
+    return 1 << (32 - S_clz(n-1));
+#elif defined(HAS_LOG2)
+    return 1 << (U32)ceil(log2((double)n));
+#else
+    return 1 << (U32)ceil((double)Perl_log((NV)n) * M_LOG2E);
+#endif
+}
+
 
 
 /* ------------------ util.h ------------------------------------------- */
