@@ -75,6 +75,9 @@ static const char S_strtab_error[]
         }                                       \
     }
 
+#ifdef TEST_POWER2
+static void test_power2();
+#endif
 
 #ifdef PURIFY
 
@@ -1832,6 +1835,9 @@ Perl_hv_study(pTHX_ HV *hv)
     if (UNLIKELY(deleted)) { /* clear */
 	clear_placeholders(hv, deleted);
     }
+#ifdef TEST_POWER2
+    test_power2();
+#endif
     if (oldsize >= 16 && oldkeys < (oldsize >> 1)) { /* shrink */
         /* get proper power of 2 */
 #if defined(HAS_LOG2)
@@ -4332,6 +4338,115 @@ Perl_hv_assert(pTHX_ HV *hv)
     }
     HvRITER_set(hv, riter);		/* Restore hash iterator state */
     HvEITER_set(hv, eiter);
+}
+
+#endif
+
+#ifdef TEST_POWER2
+/* correctness and speed of alternate power of 2 calculations.
+   compare to the 2x slower Perl_hv_ksplit:
+    while ((newsize & (1 + ~newsize)) != newsize) {
+	newsize &= ~(newsize & (1 + ~newsize));	- get proper power of 2
+    }
+
+   `sh cflags "optimize='-g -O2'" hv.o` -DTEST_POWER2 hv.c; mpb -e'study %a'
+ */
+PERL_STATIC_INLINE
+U32 flt_power2_fb(U32 k) {
+    return 1 << (U32)ceil((double)Perl_log((NV)k) * M_LOG2E);
+}
+PERL_STATIC_INLINE
+U32 flt_power2(U32 k) {
+#if defined(HAS_LOG2)
+    return 1 << (U32)ceil(log2((double)k));
+#else
+    return 1 << (U32)ceil((double)Perl_log((NV)k) * M_LOG2E);
+#endif
+}
+PERL_STATIC_INLINE
+U32 core_power2(U32 newsize) {
+    U32 newmax = newsize;
+    while ((newsize & (1 + ~newsize)) != newsize) {
+        newsize &= ~(newsize & (1 + ~newsize));	/* get proper power of 2 */
+    }
+    if (newsize < newmax)
+	newsize *= 2;
+    return newsize;
+}
+static
+U32 test_all(U32 j) {
+    U32 pj, other;
+#if defined(HAS_LOG2)
+    pj    = flt_power2(j);
+    other = flt_power2_fb(j);
+    if (pj != other)
+        PerlIO_printf(Perl_debug_log, "error: fast vs slow (%u) => %u != %u\n",
+                      j, pj, other);
+#else
+    pj    = flt_power2(j);
+#endif
+    other = core_power2(j);
+    if (pj != other)
+        PerlIO_printf(Perl_debug_log, "error: new vs old (%u) => %u != %u\n",
+                      j, pj, other);
+    return pj;
+}
+
+#ifdef _MSC_VER
+#define rdtsc() __rdtsc()
+#else
+static __inline__
+unsigned long long int rdtsc()
+{
+#ifdef __x86_64__
+    unsigned int a, d;
+    __asm__ volatile ("rdtsc" : "=a" (a), "=d" (d));
+    return (unsigned long)a | ((unsigned long)d << 32);
+#elif defined(__i386__)
+    unsigned long long int x;
+    __asm__ volatile ("rdtsc" : "=A" (x));
+    return x;
+#else
+    return 0;
+#endif
+}
+#endif
+
+void test_power2() {
+    int i;
+    PerlIO_printf(Perl_debug_log, "test power2 correctness:\n");
+    for (i=2; i<=31; i++) {
+        U32 pj, pk;
+        U32 k = 1<<i;
+        U32 j = k-1;
+        pj = test_all(j);
+        PerlIO_printf(Perl_debug_log, "2^%2d-1=%8u => %8u\n", i, j, pj);
+        pk = test_all(k);
+        PerlIO_printf(Perl_debug_log, "2^%2d  =%8u => %8u\n", i, k, pk);
+        if (pk != pj)
+            PerlIO_printf(Perl_debug_log, "error: %8u != %8u\n", pj, pk);
+        pj = test_all(k+1);
+        PerlIO_printf(Perl_debug_log, "2^%2d+1=%8u => %8u\n", i, k+1, pj);
+        if (pk == pj)
+            PerlIO_printf(Perl_debug_log, "error: %8u == %8u\n", pj, pk);
+        PerlIO_printf(Perl_debug_log, "\n");
+    }
+    /* speed: while loop as in core vs our ceil/log2 */
+    PerlIO_printf(Perl_debug_log, "test power2 speed:\n");
+    {
+        U32 j;
+        U64 tm = rdtsc();
+#define MAX_LOOP 536870912
+        for (j=2; j<=MAX_LOOP; j+=7) {
+            flt_power2(j);
+        }
+        PerlIO_printf(Perl_debug_log, "time ceil(log2): %12llu\n", rdtsc()-tm);
+        tm = rdtsc();
+        for (j=2; j<=MAX_LOOP; j+=7) {
+            core_power2(j);
+        }
+        PerlIO_printf(Perl_debug_log, "time old core:   %12llu\n", rdtsc()-tm);
+    }
 }
 
 #endif
