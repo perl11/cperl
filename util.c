@@ -4258,6 +4258,11 @@ Perl_getcwd_sv(pTHX_ SV *sv)
     PERL_ARGS_ASSERT_GETCWD_SV;
 
 #ifdef HAS_GETCWD
+    /* getcwd is deprecated since Visual C++ 2005 (8.0) */
+#if defined(WIN32) && _MSC_VER >= 1400
+#  define getcwd(b,s) _getcwd(b,s)
+#endif
+
     {
         char *ptr;
 	/* Some getcwd()s automatically allocate a buffer of the given
