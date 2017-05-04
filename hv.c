@@ -419,7 +419,9 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     int masked_flags;
     const int return_svp = action & HV_FETCH_JUST_SV;
     int collisions = -1;
+#if defined(USE_DTRACE)
     int dtrace_mode = PERL_DTRACE_HASH_MODE_FETCH;
+#endif
     U32 hindex;
     bool is_utf8;
 #ifdef DEBUGGING
