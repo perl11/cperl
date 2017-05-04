@@ -1724,7 +1724,7 @@ S_ctz(U32 n)
     };
 
     assert(n==1 || !(n & 0x1));
-    return S_MultiplyDeBruijnBitPosition[((U32)((n & -n) * 0x077CB531U)) >> 27];
+    return S_MultiplyDeBruijnBitPosition[((U32)((n & -(I32)n) * 0x077CB531U)) >> 27];
 }
 #endif
 
