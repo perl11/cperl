@@ -1814,8 +1814,8 @@ S_hsplit(pTHX_ HV *hv, U32 const oldsize, U32 newsize)
 /*
 =for apidoc hv_study
 
-Possibly optimize the internal structure of a hash.
-Clears placeholders, and for a readonly hash possibly
+Optimizes the internal structure of a hash.
+Clears placeholders, shrinks it, and later for a readonly hash possibly
 re-arrange to a perfect hash.
 
 =cut

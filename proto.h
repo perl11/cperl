@@ -402,6 +402,12 @@ PERL_CALLCONV SV**	Perl_av_store(pTHX_ AV *av, SSize_t key, SV *val)
 #define PERL_ARGS_ASSERT_AV_STORE	\
 	assert(av)
 
+PERL_CALLCONV void	Perl_av_study(pTHX_ AV *av)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_AV_STUDY	\
+	assert(av)
+
 /* PERL_CALLCONV SSize_t	Perl_av_tindex(pTHX_ AV *av)
 			__attribute__global__
 			__attribute__warn_unused_result__
@@ -1085,6 +1091,12 @@ PERL_CALLCONV void	Perl_cv_set_call_checker_flags(pTHX_ CV *cv, Perl_call_checke
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_CV_SET_CALL_CHECKER_FLAGS	\
 	assert(cv); assert(ckfun); assert(ckobj)
+
+PERL_CALLCONV void	Perl_cv_study(pTHX_ CV *cv)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_CV_STUDY	\
+	assert(cv)
 
 PERL_CALLCONV void	Perl_cv_undef(pTHX_ CV* cv)
 			__attribute__global__
@@ -4519,6 +4531,12 @@ PERL_CALLCONV REGEXP*	Perl_re_op_compile(pTHX_ SV ** const patternp, int pat_cou
 			__attribute__nonnull__(pTHX_4);
 #define PERL_ARGS_ASSERT_RE_OP_COMPILE	\
 	assert(eng)
+
+PERL_CALLCONV void	Perl_re_study(pTHX_ REGEXP *rx)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_RE_STUDY	\
+	assert(rx)
 
 PERL_CALLCONV Malloc_t	Perl_realloc(Malloc_t where, MEM_SIZE nbytes)
 			__attribute__global__

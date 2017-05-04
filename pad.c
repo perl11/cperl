@@ -2949,5 +2949,21 @@ Perl_padname_dup(pTHX_ PADNAME *src, CLONE_PARAMS *param)
 #endif /* USE_ITHREADS */
 
 /*
+=for apidoc Apd	|void	|cv_study	|NN CV *cv
+
+Possibly optimizes the internal representation of the sub, esp. more
+expensive loop analysis or more expensive jit optimizations.
+For now does nothing.
+=cut
+*/
+void
+Perl_cv_study(pTHX_ CV *cv)
+{
+    PERL_ARGS_ASSERT_CV_STUDY;
+    PERL_UNUSED_ARG(cv);
+    NOOP;
+}
+
+/*
  * ex: set ts=8 sts=4 sw=4 et:
  */

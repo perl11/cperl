@@ -763,7 +763,7 @@ PP(pp_gelem)
     RETURN;
 }
 
-/* Pattern matching */
+/* Possible internal optimizations */
 
 PP(pp_study)
 {
@@ -771,9 +771,13 @@ PP(pp_study)
 
     if (SvTYPE(sv) == SVt_PVHV)
         hv_study((HV*)sv);
-    else if (SvTYPE(sv) == SVt_PVAV || SvTYPE(sv) == SVt_PVCV) {
-        ; /* ignored so far */
-    } else {
+    else if (SvTYPE(sv) == SVt_PVAV)
+        av_study((AV*)sv);
+    else if (SvTYPE(sv) == SVt_PVCV)
+        cv_study((CV*)sv);
+    else if (SvTYPE(sv) == SVt_REGEXP)
+        re_study((REGEXP*)sv);
+    else {
         STRLEN len;
         /* stringifies */
         (void)SvPV(sv, len);

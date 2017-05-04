@@ -68,6 +68,7 @@
 #define av_push(a,b)		Perl_av_push(aTHX_ a,b)
 #define av_shift(a)		Perl_av_shift(aTHX_ a)
 #define av_store(a,b,c)		Perl_av_store(aTHX_ a,b,c)
+#define av_study(a)		Perl_av_study(aTHX_ a)
 #define av_top_index(a)		S_av_top_index(aTHX_ a)
 #define av_undef(a)		Perl_av_undef(aTHX_ a)
 #define av_unshift(a,b)		Perl_av_unshift(aTHX_ a,b)
@@ -114,6 +115,7 @@
 #define cv_name(a,b,c)		Perl_cv_name(aTHX_ a,b,c)
 #define cv_set_call_checker(a,b,c)	Perl_cv_set_call_checker(aTHX_ a,b,c)
 #define cv_set_call_checker_flags(a,b,c,d)	Perl_cv_set_call_checker_flags(aTHX_ a,b,c,d)
+#define cv_study(a)		Perl_cv_study(aTHX_ a)
 #define cv_undef(a)		Perl_cv_undef(aTHX_ a)
 #define cx_dump(a)		Perl_cx_dump(aTHX_ a)
 #define cxinc()			Perl_cxinc(aTHX)
@@ -519,6 +521,7 @@
 #define re_compile(a,b)		Perl_re_compile(aTHX_ a,b)
 #define re_intuit_start(a,b,c,d,e,f,g)	Perl_re_intuit_start(aTHX_ a,b,c,d,e,f,g)
 #define re_intuit_string(a)	Perl_re_intuit_string(aTHX_ a)
+#define re_study(a)		Perl_re_study(aTHX_ a)
 #define reentrant_free()	Perl_reentrant_free(aTHX)
 #define reentrant_init()	Perl_reentrant_init(aTHX)
 #define reentrant_retry		Perl_reentrant_retry

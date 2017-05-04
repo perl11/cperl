@@ -293,6 +293,7 @@ ApdoxM	|SV**	|av_create_and_unshift_one|NN AV **const avp|NN SV *const val
 Apd	|void	|av_unshift	|NN AV *av|SSize_t num
 Apo	|SV**	|av_arylen_p	|NN AV *av
 Apo	|IV*	|av_iter_p	|NN AV *av
+Apd	|void	|av_study	|NN AV *av
 #if defined(PERL_IN_AV_C)
 s	|MAGIC*	|get_aux_mg	|NN AV *av
 #endif
@@ -1365,6 +1366,7 @@ Ap	|char*	|re_intuit_start|NN REGEXP * const rx \
 				|const U32 flags \
 				|NULLOK re_scream_pos_data *data
 Ap	|SV*	|re_intuit_string|NN REGEXP  *const r
+Apd	|void	|re_study	|NN REGEXP *rx
 Ap	|I32	|regexec_flags	|NN REGEXP *const rx|NN char *stringarg \
 				|NN char *strend|NN char *strbeg \
 				|SSize_t minend|NN SV *sv \
@@ -3051,6 +3053,7 @@ sd	|void	|cv_dump	|NN const CV *cv|NN const char *title
 #endif
 Apd	|CV*	|cv_clone	|NN CV* proto
 p	|CV*	|cv_clone_into	|NN CV* proto|NN CV *target
+Apd	|void	|cv_study	|NN CV *cv
 pd	|void	|pad_fixup_inner_anons|NN PADLIST *padlist|NN CV *old_cv|NN CV *new_cv
 pdX	|void	|pad_push	|NN PADLIST *padlist|int depth
 ApbdR	|HV*	|pad_compname_type|const PADOFFSET po

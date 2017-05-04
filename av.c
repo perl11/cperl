@@ -1236,5 +1236,20 @@ Perl_av_iter_p(pTHX_ AV *av) {
 }
 
 /*
+=for apidoc Apd	|void	|av_study	|NN AV *av
+
+Possibly optimizes the internal representation of an array if typed or sparse.
+For now does nothing.
+=cut
+*/
+void
+Perl_av_study(pTHX_ AV *av)
+{
+    PERL_ARGS_ASSERT_AV_STUDY;
+    PERL_UNUSED_ARG(av);
+    NOOP;
+}
+
+/*
  * ex: set ts=8 sts=4 sw=4 et:
  */

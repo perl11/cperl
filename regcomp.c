@@ -19440,7 +19440,6 @@ Perl_regprop(pTHX_ const regexp *prog, SV *sv, const regnode *o, const regmatch_
 }
 
 
-
 SV *
 Perl_re_intuit_string(pTHX_ REGEXP * const r)
 {				/* Assume that RE_INTUIT is set */
@@ -19520,6 +19519,23 @@ Perl_pregfree2(pTHX_ REGEXP *rx)
     if (r->recurse_locinput)
         Safefree(r->recurse_locinput);
     rx->sv_u.svu_rx = 0;
+}
+
+/*
+=for apidoc Apd	|void	|re_study	|NN REGEXP *rx
+
+Possibly optimizes the internal representation of a regex.
+E.g. jit with pcre2, prepares compiled utf and ascii patterns.
+
+For now does nothing.
+=cut
+*/
+void
+Perl_re_study(pTHX_ REGEXP *rx)
+{
+    PERL_ARGS_ASSERT_RE_STUDY;
+    PERL_UNUSED_ARG(rx);
+    NOOP;
 }
 
 /*  reg_temp_copy()

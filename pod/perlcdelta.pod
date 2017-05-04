@@ -338,7 +338,10 @@ well.
 
 =item *
 
-XXX
+Added study API functions for possible internal costly optimizations
+of hv, av, cv, and rx, such as hash shrinking, regex and cv jit
+compilation, and av type promotion.  For now implemented is
+C<hv_study()>, the rest are stubs.
 
 =back
 
