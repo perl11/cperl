@@ -658,13 +658,45 @@ PPCODE:
     else
         croak("Usage: getdcwd(DRIVE)");
 
-    New(0,dir,MAXPATHLEN,char);
-    if (_getdcwd(drive, dir, MAXPATHLEN)) {
+    New(0,dir,MAX_PATH+1,char);
+    /* Not MAXPATHLEN. Either 259 or 32767 */
+    if (_getdcwd(drive, dir, MAX_PATH)) {
         sv_setpv_mg(TARG, dir);
         SvPOK_only(TARG);
     }
-    else
-        sv_setsv(TARG, &PL_sv_undef);
+    else if (errno == ERANGE) { /* overlong paths */
+        /* #define PATHCCH_MAX_CCH 0x8000 NTFS */
+        DWORD size = GetCurrentDirectoryW(0, NULL);
+        LPWSTR wdir;
+        New(0,wdir,size+1,wchar_t);
+        if (GetCurrentDirectoryW(size, wdir)) {
+            int ulen = WideCharToMultiByte(CP_UTF8, 0, wdir, -1, 0, 0, 0, 0);
+            char* udir = malloc(ulen);
+            if (!ulen) {
+                sv_setsv(TARG, &PL_sv_undef);
+            } else {
+                WideCharToMultiByte(CP_UTF8, 0, wdir, -1, udir, ulen, 0, 0);
+                /* strip \\?\ prefix for long paths */
+                if (ulen > 4
+                    && udir[0] == '\\' && udir[1] == '\\'
+                    && udir[2] == '?'  && udir[3] == '\\')
+                    sv_setpv_mg(TARG, &udir[4]);
+                else
+                    sv_setpv_mg(TARG, udir);
+                /* check if it is the wanted dir.
+                   no \\?\UNC\ shares, check for the : */
+                if (toUPPER(*SvPVX(TARG)) != drive + 'A' - 1
+                    || SvPVX(TARG)[1] != ':')
+                    sv_setsv(TARG, &PL_sv_undef);
+                else
+                    SvPOK_only(TARG);
+                free(udir);
+            }
+        } else {
+            sv_setsv(TARG, &PL_sv_undef);
+        }
+        Safefree(wdir);
+    }
 
     Safefree(dir);
 

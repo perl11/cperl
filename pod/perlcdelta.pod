@@ -121,7 +121,9 @@ MSVC 14.0 support and higher, changed nan in the runtime.
 
 =item PathTools 4.68c
 
-getcwd and abs_path have now long path support.
+getcwd, getdcwd and abs_path have now long path support.
+getdcwd (Windows only) also supports unicode paths, using
+the wide API.
 
 =item L<POSIX> 1.76_03
 
