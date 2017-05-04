@@ -1351,7 +1351,7 @@ Ap	|void*	|regdupe_internal|NN REGEXP * const r|NN CLONE_PARAMS* param
 #endif
 EXp	|regexp_engine const *|current_re_engine
 Ap	|REGEXP*|pregcomp	|NN SV * const pattern|const U32 flags
-p	|REGEXP*|re_op_compile	|NULLOK SV ** const patternp \
+Ap	|REGEXP*|re_op_compile	|NULLOK SV ** const patternp \
 				|int pat_count|NULLOK OP *expr \
 				|NN const regexp_engine* eng \
 				|NULLOK REGEXP *old_re \
