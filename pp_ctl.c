@@ -3790,7 +3790,7 @@ Includes optional compiled module .pmc handling.
 */
 #ifndef PERL_DISABLE_PMC
 STATIC PerlIO *
-S_doopen_pm(pTHX_ SV *name, bool pmc)
+S_doopen_pm(pTHX_ SV *name, bool do_pmc)
 {
     STRLEN namelen;
     const char *p = SvPV_const(name, namelen);
@@ -3804,7 +3804,7 @@ S_doopen_pm(pTHX_ SV *name, bool pmc)
     if (!IS_SAFE_PATHNAME(p, namelen, "require"))
         return NULL;
 
-    if (pmc && namelen > 3 && memEQs(p + namelen - 3, 3, ".pm")) {
+    if (do_pmc && namelen > 3 && memEQs(p + namelen - 3, 3, ".pm")) {
 	SV *const pmcsv = sv_newmortal();
 	PerlIO * pmcio;
 
@@ -3821,7 +3821,7 @@ S_doopen_pm(pTHX_ SV *name, bool pmc)
     return check_type_and_open(name);
 }
 #else
-#  define doopen_pm(name, pmc) check_type_and_open(name, pmc)
+#  define doopen_pm(name, do_pmc) check_type_and_open(name)
 #endif /* !PERL_DISABLE_PMC */
 
 /*
@@ -4083,7 +4083,7 @@ S_require_file(pTHX_ SV *sv)
     if (!path_searchable) { /* absolute path */
 	/* At this point, name is SvPVX(sv)  */
 	tryname = (char*)name;
-	tryrsfp = doopen_pm(sv, 0); /* absolute do not expand pmc */
+	tryrsfp = doopen_pm(sv, FALSE); /* absolute do not expand pmc */
     }
     if (!tryrsfp && !(errno == EACCES && !path_searchable)) {
 	AV * const ar = GvAVn(PL_incgv);
@@ -4290,7 +4290,7 @@ S_require_file(pTHX_ SV *sv)
 #endif
 		    TAINT_PROPER(op_name);
 		    tryname = SvPVX(namesv);
-		    tryrsfp = doopen_pm(namesv, 1);
+		    tryrsfp = doopen_pm(namesv, TRUE);
 		    if (tryrsfp) {
 #ifndef PERL_DISABLE_PMC
                         tryname = SvPVX(namesv);
