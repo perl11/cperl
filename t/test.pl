@@ -906,7 +906,7 @@ sub _num_to_alpha{
 }
 
 my %tmpfiles;
-END { unlink_all keys %tmpfiles }
+END { unlink_all keys %tmpfiles unless $ENV{PERL_TEST_KEEP_TMP} }
 
 # A regexp that matches the tempfile names
 $::tempfile_regexp = 'tmp\d+[A-Z][A-Z]?';
@@ -1379,12 +1379,14 @@ sub run_multiple_progs {
             ok($ok, $name);
         }
 
-	foreach (@temps) {
-	    unlink $_ if $_;
-	}
-	foreach (@temp_path) {
+        unless ($ENV{PERL_TEST_KEEP_TMP}) {
+          foreach (@temps) {
+            unlink $_ if $_;
+          }
+          foreach (@temp_path) {
 	    File::Path::rmtree $_ if -d $_;
-	}
+          }
+        }
     }
 }
 
