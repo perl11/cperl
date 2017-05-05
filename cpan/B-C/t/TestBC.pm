@@ -868,10 +868,9 @@ sub run_cc_test {
            ." -L../.. -l$pkg ".$Config{libs}
           : ExtUtils::Embed::ldopts('-std');
         # At least cygwin gcc-4.3 crashes with 2x -fstack-protector
-        $linkargs =~ s/-fstack-protector\b//
-          if $linkargs !~ /-fstack-protector-strong\b/
-          and $command =~ /-fstack-protector\b/
-          and $linkargs =~ /-fstack-protector\b/;
+        $linkargs =~ s/-fstack-protector //
+          if $command =~ /-fstack-protector /
+          and $linkargs =~ /-fstack-protector /;
 
         if ($^O =~ /^(cygwin|MSWin32|msys)/) {
             if (index($command, "Win32CORE") < 0) {

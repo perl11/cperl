@@ -160,10 +160,10 @@ if ($^O eq 'MSWin32' && $Config{cc} =~ 'cl') {
 
 my $ccflags = $Config{ccflags};
 # crashes on cygwin
-if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector\b/
-                    and $linkargs =~ /-fstack-protector\b/)
+if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector /
+                    and $linkargs =~ /-fstack-protector /)
 {
-  $linkargs =~ s/-fstack-protector\b//;
+  $linkargs =~ s/-fstack-protector //;
 }
 #-pedantic -Wextra -Wconversion
 if ($debug and $Config{cc} =~ /gcc/) {
