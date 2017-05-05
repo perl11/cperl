@@ -12257,6 +12257,10 @@ S_swallow_bom(pTHX_ U8 *s)
             if (DEBUG_p_TEST || DEBUG_T_TEST) PerlIO_printf(Perl_debug_log, "UTF-8 script encoding (BOM)\n");
 #endif
             s += len + 1;                      /* UTF-8 */
+
+            /* set the hints */
+            PL_hints |= (HINT_UTF8 | HINT_UNI_8_BIT);
+            notify_parser_that_changed_to_utf8();
         }
         break;
     }
@@ -12435,6 +12439,10 @@ S_add_utf16_textfilter(pTHX_ U8 *const s, bool reversed)
     SV *filter = filter_add(S_utf16_textfilter, NULL);
 
     PERL_ARGS_ASSERT_ADD_UTF16_TEXTFILTER;
+
+    /* set the hints */
+    PL_hints |= (HINT_UTF8 | HINT_UNI_8_BIT);
+    notify_parser_that_changed_to_utf8();
 
     IoTOP_GV(filter) = MUTABLE_GV(newSVpvn((char *)s, PL_bufend - (char*)s));
     SvPVCLEAR(filter);

@@ -104,9 +104,12 @@ See L<utf8/Valid scripts> and L<perldata/Identifier parsing> or L<perlsec/Unicod
 If a Perl script begins with the Unicode C<BOM> (UTF-16LE,
 UTF16-BE, or UTF-8), or if the script looks like non-C<BOM>-marked
 UTF-16 of either endianness, Perl will correctly read in the script as
-the appropriate Unicode encoding.  (C<BOM>-less UTF-8 cannot be
-effectively recognized or differentiated from ISO 8859-1 or other
-eight-bit encodings.)
+the appropriate Unicode encoding. The utf8 and unicode hints are set for
+compile-time.
+(C<BOM>-less UTF-8 cannot be effectively recognized or differentiated
+from ISO 8859-1 or other eight-bit encodings.)
+
+UTF-32 BOM's and scripts cannot be handled yet.
 
 =back
 
