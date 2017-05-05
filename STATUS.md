@@ -135,6 +135,7 @@ For all versions see [bench-all/](bench-all/index.html)
 * study with HASH, ARRAY, CODE
 * enhanced dtrace probes
 * support for long path names, > 4096
+* support for unicode BOMs, setting the unicode hints
 
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.

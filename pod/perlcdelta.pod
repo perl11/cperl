@@ -349,16 +349,18 @@ C<hv_study()>, the rest are stubs.
 
 =head1 Selected Bug Fixes
 
-XXX Important bug fixes in the core language are summarized here.  Bug fixes in
-files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
-
-[ List each fix as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+The three supported unicode BOM's UTF-8, UTF-16LE and UTF-16BE set the
+utf8 and unicode compile-time hints to match the documentation and
+expectation.
+
+Perl5 broke with L<[perl
+#121292]|https://rt.perl.org/Public/Bug/Display.html?id=121292> the
+documentation to match the broken implementation,
+L<[cperl #269|https://github.com/perl11/cperl/issues/269> fixed both.
 
 =back
 

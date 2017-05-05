@@ -4611,10 +4611,8 @@ Perl_filter_del(pTHX_ filter_t funcp)
 
     PERL_ARGS_ASSERT_FILTER_DEL;
 
-#ifdef DEBUGGING
     DEBUG_P(PerlIO_printf(Perl_debug_log, "filter_del func %p",
 			  FPTR2DPTR(void*, funcp)));
-#endif
     if (!PL_parser || !PL_rsfp_filters || AvFILLp(PL_rsfp_filters) < 0)
 	return;
     /* if filter is on top of stack (usual case) just pop it off */
@@ -12257,6 +12255,10 @@ S_swallow_bom(pTHX_ U8 *s)
             if (DEBUG_p_TEST || DEBUG_T_TEST) PerlIO_printf(Perl_debug_log, "UTF-8 script encoding (BOM)\n");
 #endif
             s += len + 1;                      /* UTF-8 */
+
+            /* set the hints */
+            PL_hints |= (HINT_UTF8 | HINT_UNI_8_BIT);
+            notify_parser_that_changed_to_utf8();
         }
         break;
     }
@@ -12414,7 +12416,7 @@ S_utf16_textfilter(pTHX_ int idx, SV *sv, int maxlen)
 	/* No need to keep this SV "well-formed" with a '\0' after the end, as
 	   it's private to us, and utf16_to_utf8{,reversed} take a
 	   (pointer,length) pair, rather than a NUL-terminated string.  */
-	if(SvCUR(utf16_buffer) & 1) {
+	if (SvCUR(utf16_buffer) & 1) {
 	    *SvPVX(utf16_buffer) = SvEND(utf16_buffer)[-1];
 	    SvCUR_set(utf16_buffer, 1);
 	} else {
@@ -12433,8 +12435,13 @@ static U8 *
 S_add_utf16_textfilter(pTHX_ U8 *const s, bool reversed)
 {
     SV *filter = filter_add(S_utf16_textfilter, NULL);
+    IV status;
 
     PERL_ARGS_ASSERT_ADD_UTF16_TEXTFILTER;
+
+    /* set the hints */
+    PL_hints |= (HINT_UTF8 | HINT_UNI_8_BIT);
+    notify_parser_that_changed_to_utf8();
 
     IoTOP_GV(filter) = MUTABLE_GV(newSVpvn((char *)s, PL_bufend - (char*)s));
     SvPVCLEAR(filter);
@@ -12444,11 +12451,9 @@ S_add_utf16_textfilter(pTHX_ U8 *const s, bool reversed)
     /* Sadly, we have to return a valid pointer, come what may, so we have to
        ignore any error return from this.  */
     SvCUR_set(PL_linestr, 0);
-    if (FILTER_READ(0, PL_linestr, 0)) {
-	SvUTF8_on(PL_linestr);
-    } else {
-	SvUTF8_on(PL_linestr);
-    }
+    SvUTF8_on(PL_linestr);
+    status = FILTER_READ(0, PL_linestr, 0);
+    DEBUG_P(PerlIO_printf(Perl_debug_log, "add_utf16_textfilter status=%" IVdf " SvCUR(sv)=%" UVuf "\n", status, (UV)SvCUR(PL_linestr)));
     PL_bufend = SvEND(PL_linestr);
     return (U8*)SvPVX(PL_linestr);
 }
