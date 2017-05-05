@@ -3316,7 +3316,7 @@ Perl_get_debug_opts(pTHX_ const char **s, bool givehelp)
       "  t  Trace execution\n"
       "  o  Method and overloading resolution\n",
       "  c  String/numeric conversions\n"
-      "  P  Print profiling info, source file input state\n"
+      "  P  Print profiling info + source filtering\n"
       "  m  Memory and SV allocation\n"
       "  f  Format processing\n"
       "  r  Regular expression parsing and execution\n"
