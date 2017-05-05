@@ -196,7 +196,7 @@ my @maps =  (
 
     # win32/Makefile{,.ce}
     [
-        qr/(PV\s*=\s*)(\d\d{2})\b$/,
+        qr/(PV\s*:?=\s*)(\d\d{2})\b$/,
         sub { $2, "$1$newx$newy" },
         "$oldx$oldy",
         qr/(GNUm|M)akefile(\.ce)?/,

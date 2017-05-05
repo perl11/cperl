@@ -7,7 +7,7 @@
 #
 # This is set up to build a perl.exe that runs off a shared library
 # (cperl52x.dll).  Also makes individual DLLs for the XS extensions.
-PV := 526
+PV := 527
 
 # The easiest way to customize the build process is to use parameters like this:
 #
