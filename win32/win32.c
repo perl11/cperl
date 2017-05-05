@@ -1143,7 +1143,7 @@ chown(const char *path, uid_t owner, gid_t group)
  *   -- BKS, 11-11-200
 */
 #if !defined(__MINGW64_VERSION_MAJOR) || __MINGW64_VERSION_MAJOR < 4
-int mkstemp(const char *path)
+int mkstemp(char *path)
 {
     dTHX;
     char buf[MAX_PATH+1];
