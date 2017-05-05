@@ -414,7 +414,7 @@ extern  void	*sbrk(ptrdiff_t need);
 extern	char *	getlogin(void);
 extern	int	chown(const char *p, uid_t o, gid_t g);
 #if !defined(__MINGW64_VERSION_MAJOR) || __MINGW64_VERSION_MAJOR < 4
-extern  int	mkstemp(const char *path);
+extern  int	mkstemp(char *path);
 #endif
 #endif
 
