@@ -11797,7 +11797,6 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 #endif
         NV nv;
 	STRLEN float_need; /* what PL_efloatsize needs to become */
-	STRLEN gap;
 	const char *dotstr = ".";
 	STRLEN dotstrlen = 1;
 	I32 efix = 0; /* explicit format parameter index */
@@ -13210,8 +13209,10 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	}
 
 
+        /* append esignbuf, filler, zeroes, eptr and dotstr to sv */
+
         {
-            STRLEN need, have;
+            STRLEN need, have, gap;
 
             /* signed value that's wrapped? */
             assert(elen  <= ((~(STRLEN)0) >> 1));
@@ -13225,7 +13226,6 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
             if (need >= (((STRLEN)~0) - SvCUR(sv) - dotstrlen - 1))
                 croak_memory_wrap();
             SvGROW(sv, SvCUR(sv) + need + dotstrlen + 1);
-        }
 
             p = SvEND(sv);
             if (esignlen && fill == '0') {
@@ -13269,6 +13269,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                 SvUTF8_on(sv);
             *p = '\0';
             SvCUR_set(sv, p - SvPVX_const(sv));
+        }
 
 	if (vectorize) {
 	    esignlen = 0;
