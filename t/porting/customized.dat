@@ -53,11 +53,11 @@ ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 69351c5e54
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm d79b98465a632dc3bde76a0210d01014d2257dc6
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm 3857ce6550b897d8bbc626e11b63c2266d624e07
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm 01638a386424cafbed6a53b0c9b780c4d8637a92
-ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/basic.t 7d00e360e0e59099e5f9ff407f5f42f3f1816791
+ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/basic.t 1869f4985038f567d0511d7b5a8f3d847b58adba
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/lib/MakeMaker/Test/NoXS.pm 371cdff1b2375017907cfbc9c8f4a31f5ad10582
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/Liblist.t 9a3baf8a2c2281037f803b909d26e77a1bb099af
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/Mkbootstrap.t 2f88adc65c55c7bd2e23a4c808edcdf4b6134240
-ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/pm_to_blib.t b0f97436c339a43a4fbcb9a2aba2275ecd0c00ef
+ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/pm_to_blib.t 0f63d0a73963992b4004cee8b80641c4cae008cc
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/prereq.t c1fe6e8ce96e8a648043ee8066e60a871fb4e0ba
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/vstrings.t c60ad8cfd3496f136aeb71008f51d2db0a34eb5f
 ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 32738a67af33c4339d70ef720811a0a9d0b643bd
