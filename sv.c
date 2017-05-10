@@ -12976,16 +12976,17 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                                     exponent);
 
                 if (elen < width) {
+                    STRLEN gap = (STRLEN)(width - elen);
                     if (left) {
                         /* Pad the back with spaces. */
-                        memset(PL_efloatbuf + elen, ' ', width - elen);
+                        memset(PL_efloatbuf + elen, ' ', gap);
                     }
                     else if (fill == '0') {
                         /* Insert the zeros after the "0x" and the
                          * the potential sign, but before the digits,
                          * otherwise we end up with "0000xH.HHH...",
                          * when we want "0x000H.HHH..."  */
-                        STRLEN nzero = width - elen;
+                        STRLEN nzero = gap;
                         char* zerox = PL_efloatbuf + 2;
                         STRLEN nmove = elen - 2;
                         if (negative || plus) {
@@ -12997,10 +12998,10 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                     }
                     else {
                         /* Move it to the right. */
-                        Move(PL_efloatbuf, PL_efloatbuf + width - elen,
+                        Move(PL_efloatbuf, PL_efloatbuf + gap,
                              elen, char);
                         /* Pad the front with spaces. */
-                        memset(PL_efloatbuf, ' ', width - elen);
+                        memset(PL_efloatbuf, ' ', gap);
                     }
                     elen = width;
                 }
@@ -13010,15 +13011,16 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                 if (elen) {
                     /* Not affecting infnan output: precision, alt, fill. */
                     if (elen < width) {
+                        STRLEN gap = (STRLEN)(width - elen);
                         if (left) {
                             /* Pack the back with spaces. */
-                            memset(PL_efloatbuf + elen, ' ', width - elen);
+                            memset(PL_efloatbuf + elen, ' ', gap);
                         } else {
                             /* Move it to the right. */
-                            Move(PL_efloatbuf, PL_efloatbuf + width - elen,
+                            Move(PL_efloatbuf, PL_efloatbuf + gap,
                                  elen, char);
                             /* Pad the front with spaces. */
-                            memset(PL_efloatbuf, ' ', width - elen);
+                            memset(PL_efloatbuf, ' ', gap);
                         }
                         elen = width;
                     }
