@@ -11,19 +11,23 @@ use strict;
 use warnings;
 
 use Test::More;
-
 my $TB = Test::More->builder;
-
 plan tests => 466;
 
 # We are going to override rename() later on but Perl has to see an override
 # at compile time to honor it.
 BEGIN { *CORE::GLOBAL::rename = sub { CORE::rename($_[0], $_[1]) }; }
 
-
 use File::Copy qw(copy move cp);
 use Config;
 
+sub is_miniperl {
+    return !defined &DynaLoader::boot_DynaLoader;
+}
+if ($^O eq 'cygwin' && !is_miniperl) {
+  require Win32;
+  Win32->import;
+}
 
 foreach my $code ("copy()", "copy('arg')", "copy('arg', 'arg', 'arg', 'arg')",
                   "move()", "move('arg')", "move('arg', 'arg', 'arg')"
@@ -265,6 +269,9 @@ SKIP: {
           if $^O eq 'VMS';
     skip "Copy doesn't set file permissions correctly on Win32.",  $skips
           if $^O eq "MSWin32";
+    skip "Copy doesn't set file permissions correctly on Cywgin as AdminUser.", $skips
+          if $^O eq 'cygwin' && (is_miniperl() || Win32::IsAdminUser());
+
     skip "Copy maps POSIX permissions to VOS permissions.", $skips
           if $^O eq "vos";
     skip "There be dragons here with DragonflyBSD.", $skips

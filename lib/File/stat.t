@@ -12,6 +12,13 @@ use Config qw( %Config );
 use File::Temp qw( tempfile tempdir );
 
 use File::stat;
+sub is_miniperl {
+    return !defined &DynaLoader::boot_DynaLoader;
+}
+if ($^O eq 'cygwin' && !is_miniperl) {
+  require Win32;
+  Win32->import;
+}
 
 my (undef, $file) = tempfile(UNLINK => 1);
 
@@ -57,10 +64,16 @@ sub test_X_ops {
     my $stat = File::stat::stat($file);
     my $lstat = File::stat::lstat($file);
     isa_ok($stat, 'File::stat', 'should build a stat object');
+    my $cygwin_skip = $^O eq 'cygwin' &&
+      (is_miniperl() || Win32::IsAdminUser()) ? 1 : 0;
 
     for my $op (split //, "rwxoRWXOezsfdlpSbcugkMCA") {
         if ($skip && $op =~ $skip) {
             note("Not testing -A $desc_tail");
+            next;
+        }
+        if ($cygwin_skip and $op =~ /[RWXrwx]/) {
+            note("Not testing $op $desc_tail as cygwin admin");
             next;
         }
         my $stat = $op eq 'l' ? $lstat : $stat;
