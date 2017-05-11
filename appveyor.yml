@@ -11,11 +11,11 @@ platform:
   - x86
 environment:
   matrix:
-    - MSVC_VERSION: 12
-    #- MINGW: 1
+    #- MSVC_VERSION: 12
+    - MINGW: 1
     - CYGWIN: 1
-    - MSVC_VERSION: 10
-    - MSVC_VERSION: 14
+    #- MSVC_VERSION: 10
+    #- MSVC_VERSION: 14
 matrix:
   exclude:
     - platform: x86
@@ -25,6 +25,9 @@ matrix:
   allow_failures:
     - MINGW: 1
 clone_depth: 1
+build:
+  parallel: true
+  verbosity: minimal
 branches:
   only:
     - master
@@ -55,7 +58,7 @@ init:
   - if "%MINGW%"=="1" set PROCESSOR_ARCHITECTURE=%PLATFORM%
   - if "%MINGW%"=="1" set MKOPT="CFG=Debug"
   - if "%PLATFORM%"=="x64" set PROCESSOR_ARCHITECTURE=AMD64
-  - if "%PLATFORM%"=="x64" set CCLIBDIR=%MSYS64%\lib
+  - if "%PLATFORM%"=="x64" set MKOPT="CFG=Debug CCLIBDIR=%MSYS64%\lib"
   - if "%MINGW%"=="1" set PATH=%MSYS64%\bin;c:\Windows\system32;c:\Windows;C:\MinGW\msys\1.0\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\Program Files\Git\cmd
   #- set
   #- dir C:\mingw-w64\
@@ -69,14 +72,14 @@ init:
   - if "%CYGWIN%"=="1" set PATH=%CYGR%\bin;c:\Windows\system32;c:\Windows;c:\Windows\system32\Wbem
 
 build_script:
-  - if "%MINGW%"=="1"  make -s -C win32 %MKOPT%
+  - if "%MINGW%"=="1"  make -C win32 %MKOPT%
   - if "%CYGWIN%"=="1" sh ./Configure -des -Dusedevel & make
 
 test_script:
   - ps: if ($env:MSVC_VERSION -gt 0) { $env:MSVC = 1 }
   - if "%MSVC%"=="1"   t\appveyor-smoke.bat
   - if "%CYGWIN%"=="1" make -s test
-  - if "%MINGW%"=="1"  make -s -C win32 %MKOPT% test
+  - if "%MINGW%"=="1"  make -C win32 %MKOPT% test
 
 before_deploy:  
   - if "%CYGWIN%"=="1" %CYGR%\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/cygdrive/c/projects/cperl/inst && cd /cygdrive/c/projects/cperl/inst && tar Jcvf ../${APPVEYOR_REPO_TAG_NAME}-cygwin-${platform}.tar.xz *"

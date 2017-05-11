@@ -2181,6 +2181,12 @@ sub is_bool($) {
   or (exists $INC{'Types/Serializer.pm'} and Types::Serialiser::is_bool($_[0]))
 }
 
+# mingw error
+if ($^O eq 'MSWin32') {
+  require Config;
+  Config->import;
+  $ENV{PERL_DL_DEBUG} = 5 if $Config{gccversion};
+}
 XSLoader::load 'Cpanel::JSON::XS', $XS_VERSION;
 
 package
