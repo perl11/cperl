@@ -305,6 +305,11 @@ subtest 'dumpxs' => sub{
     unless ( $Config::Config{usedl} ) {
       plan skip_all => 'Statically linked perl';
     }
+    # todo: probably need a dll
+    if ( $^O eq 'cygwin' and $ENV{PERL_CORE} ) {
+      plan skip_all => 'cygwin CORE';
+    }
+
     _test('use Module::Load;
 	    load("Data::Dumper","Dumper","DumperX");
     	    Data::Dumper->Dump([$WORLD]);');
