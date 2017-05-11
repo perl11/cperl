@@ -47,7 +47,7 @@ endif
 # newly built perl.
 #
 INST_DRV := c:
-INST_TOP := $(INST_DRV)\perl
+INST_TOP := $(INST_DRV)\cperl
 
 #
 # Comment this out if you don't want cperl enhanced features.
@@ -1535,9 +1535,9 @@ MakePPPort : $(HAVEMINIPERL) $(CONFIGPM)
 
 # also known as $(HAVE_COREDIR)
 .coreheaders : $(CORE_H)
-	$(XCOPY) *.h $(COREDIR)\\*.*
-	$(RCOPY) include $(COREDIR)\\*.*
-	$(XCOPY) ..\\*.h $(COREDIR)\\*.*
+	$(XCOPY) /k *.h $(COREDIR)\\*.*
+	$(RCOPY) /k include $(COREDIR)\\*.*
+	$(XCOPY) /k ..\\*.h $(COREDIR)\\*.*
 	rem. > $@
 
 perlmain$(o) : runperl.c $(CONFIGPM)
