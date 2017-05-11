@@ -1474,7 +1474,7 @@ MakePPPort : $(HAVEMINIPERL) $(CONFIGPM)
 
 # also known as $(HAVE_COREDIR)
 .\.coreheaders : $(CORE_H)
-	$(XCOPY) *.h $(COREDIR)\*.* && $(RCOPY) include $(COREDIR)\*.* && $(XCOPY) ..\*.h $(COREDIR)\*.*
+	$(XCOPY) /k *.h $(COREDIR)\*.* && $(RCOPY) /k include $(COREDIR)\*.* && $(XCOPY) /k ..\*.h $(COREDIR)\*.*
 	rem. > $@
 
 perlmain$(o) : runperl.c $(CONFIGPM)
