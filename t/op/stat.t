@@ -190,11 +190,12 @@ SKIP: {
     SKIP: {
         # Going to try to switch away from root.  Might not work.
         my $olduid = $>;
+	my $root_uid = $Is_Cygwin ? 18 : 0;
         eval { $> = 1; };
 	skip "Can't test if an admin user in miniperl", 2,
 	  if $Is_Cygwin && is_miniperl();
         skip "Can't test -r or -w meaningfully if you're superuser", 2
-          if ($> == 0);
+          if ($> == $root_uid or ($Is_Cygwin && Win32::IsAdminUser()));
 
         SKIP: {
             skip "Can't test -r meaningfully?", 1 if $Is_Dos;
