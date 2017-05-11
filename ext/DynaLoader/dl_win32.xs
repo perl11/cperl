@@ -115,7 +115,7 @@ MODULE = DynaLoader	PACKAGE = DynaLoader
 BOOT:
     (void)dl_private_init(aTHX);
 
-void
+IV
 dl_load_file(filename,flags=0)
     char *		filename
 #flags is unused
@@ -123,26 +123,22 @@ dl_load_file(filename,flags=0)
     PREINIT:
     void *retv;
     SV * retsv;
-    CODE:
-  {
+  CODE:
     PERL_UNUSED_VAR(flags);
     DLDEBUG(1,PerlIO_printf(Perl_debug_log,"dl_load_file(%s):\n", filename));
-    if (dl_static_linked(filename) == 0) {
+    if (dl_static_linked(filename) == 0)
 	retv = PerlProc_DynaLoad(filename);
-    }
     else
 	retv = (void*) Win_GetModuleHandle(NULL);
     DLDEBUG(2,PerlIO_printf(Perl_debug_log," libref=%x\n", retv));
-
     if (retv == NULL) {
-	SaveError(aTHX_ "dl_load_file:%s",
-		  OS_Error_String(aTHX)) ;
-	retsv = &PL_sv_undef;
+	SaveError(aTHX_ "dl_load_file:%s", OS_Error_String(aTHX)) ;
+	XSRETURN_UNDEF;
     }
     else
-	retsv = sv_2mortal(newSViv((IV)retv));
-    ST(0) = retsv;
-  }
+	RETVAL = (IV)retv;
+  OUTPUT:
+    RETVAL
 
 int
 dl_unload_file(libref)
