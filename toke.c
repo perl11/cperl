@@ -12454,6 +12454,9 @@ S_add_utf16_textfilter(pTHX_ U8 *const s, bool reversed)
     SvUTF8_on(PL_linestr);
     status = FILTER_READ(0, PL_linestr, 0);
     DEBUG_P(PerlIO_printf(Perl_debug_log, "add_utf16_textfilter status=%" IVdf " SvCUR(sv)=%" UVuf "\n", status, (UV)SvCUR(PL_linestr)));
+    if (status < 0) {
+        IoPAGE(filter) = status; /* Error */
+    }
     PL_bufend = SvEND(PL_linestr);
     return (U8*)SvPVX(PL_linestr);
 }
