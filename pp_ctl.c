@@ -942,7 +942,7 @@ PP(pp_formline)
 	    FmLINES(PL_formtarget) += lines;
 	    SP = ORIGMARK;
 	    if (fpc[-1] == FF_BLANK)
-		RETURNOP(cLISTOP->op_first);
+		RETURNOP(OpFIRST(PL_op));
 	    else
 		RETPUSHYES;
 	}
@@ -955,23 +955,23 @@ PP(pp_grepstart)
     dSP;
     SV *src;
 
-    if (PL_stack_base + TOPMARK == SP) {
+    if (UNLIKELY(PL_stack_base + TOPMARK == SP)) { 	/* empty stack ? */
 	(void)POPMARK;
 	if (GIMME_V == G_SCALAR)
 	    mXPUSHi(0);
-	RETURNOP(PL_op->op_next->op_next);
+	RETURNOP(OpNEXT(OpNEXT(PL_op)));
     }
-    PL_stack_sp = PL_stack_base + TOPMARK + 1;
+    PL_stack_sp = PL_stack_base + TOPMARK + 1;		/* first stack element only */
     Perl_pp_pushmark(aTHX);				/* push dst */
     Perl_pp_pushmark(aTHX);				/* push src */
-    ENTER_with_name("grep");					/* enter outer scope */
+    ENTER_with_name("grep");				/* enter outer scope */
 
     SAVETMPS;
     if (PL_op->op_private & OPpGREP_LEX)
 	SAVESPTR(PAD_SVl(PL_op->op_targ));
     else
-	SAVE_DEFSV;
-    ENTER_with_name("grep_item");					/* enter inner scope */
+	SAVE_DEFSV; 					/* save and init $_ */
+    ENTER_with_name("grep_item");			/* enter inner scope */
     SAVEVPTR(PL_curpm);
 
     src = PL_stack_base[TOPMARK];
@@ -987,8 +987,8 @@ PP(pp_grepstart)
 
     PUTBACK;
     if (PL_op->op_type == OP_MAPSTART)
-	Perl_pp_pushmark(aTHX);			/* push top */
-    return ((LOGOP*)PL_op->op_next)->op_other;
+	Perl_pp_pushmark(aTHX);				/* push top */
+    return OpOTHER(OpNEXT(PL_op));
 }
 
 PP(pp_mapwhile)
@@ -1093,13 +1093,13 @@ PP(pp_mapwhile)
     else {
 	FREETMPS;
     }
-    LEAVE_with_name("grep_item");					/* exit inner scope */
+    LEAVE_with_name("grep_item");		/* exit inner scope */
 
     /* All done yet? */
     if (PL_markstack_ptr[-1] > TOPMARK) {
 
 	(void)POPMARK;				/* pop top */
-	LEAVE_with_name("grep");					/* exit outer scope */
+	LEAVE_with_name("grep");		/* exit outer scope */
 	(void)POPMARK;				/* pop src */
 	items = --*PL_markstack_ptr - PL_markstack_ptr[-1];
 	(void)POPMARK;				/* pop dst */
@@ -1122,7 +1122,7 @@ PP(pp_mapwhile)
     else {
 	SV *src;
 
-	ENTER_with_name("grep_item");					/* enter inner scope */
+	ENTER_with_name("grep_item");			/* enter inner scope */
 	SAVEVPTR(PL_curpm);
 
 	/* set $_ to the new source item */
