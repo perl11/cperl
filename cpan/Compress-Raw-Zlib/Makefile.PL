@@ -23,8 +23,8 @@ if ($Config{'gccversion'} and $OPTIMIZE =~ /-g (gdb)? 3/x) {
   $OPTIMIZE =~ s/-g(gdb)?3/-g/g; # [88936] out of memory with -g3 since 2.062
 }
 
-#$WALL = ' -pedantic ' if $Config{'cc'} =~ /gcc/ ;
-#$WALL = ' -Wall -Wno-comment ' if $Config{'cc'} =~ /gcc/ ;
+#$WALL = ' -pedantic ' if $Config{'cc'} =~ /\bgcc/ and $Config{gccversion} ;
+#$WALL = ' -Wall -Wno-comment ' if $Config{'cc'} =~ /\bgcc/ and $Config{gccversion} ;
 
 # Ticket #18986 says that ExtUtils::Install 1.39 fixes the in-use issue
 # on win32/cygwin, so make the code below conditional on the version of
