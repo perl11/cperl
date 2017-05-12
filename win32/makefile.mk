@@ -538,9 +538,9 @@ LOCDEFS		= -DPERLDLL -DPERL_CORE
 CXX_FLAG	= -xc++
 
 # Current releases of MinGW 5.1.4 (as of 11-Aug-2009) will fail to link
-# correctly if -lmsvcrt is specified explicitly.
-LIBC		=
-#LIBC		= -lmsvcrt
+# correctly if -lmsvcrt is specified explicitly. MSVCRT_VERSION < 800
+#LIBC		=
+LIBC		= -lmsvcrt
 
 # same libs as MSVC
 LIBFILES	= $(LIBC) -lmoldname -lkernel32 -luser32 -lgdi32 -lwinspool \

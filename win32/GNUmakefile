@@ -563,7 +563,7 @@ LIBFILES	= $(LIBC) -lmoldname -lkernel32 -luser32 -lgdi32 -lwinspool \
 	-luuid -lws2_32 -lmpr -lwinmm -lversion -lodbc32 -lodbccp32 -lcomctl32
 
 ifeq ($(CFG),Debug)
-OPTIMIZE	= -g -O2 -DDEBUGGING
+OPTIMIZE	= -g -O1 -DDEBUGGING
 LINK_DBG	= -g
 else
 OPTIMIZE	= -s -O2
