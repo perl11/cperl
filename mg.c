@@ -645,7 +645,7 @@ Perl_magic_regdata_cnt(pTHX_ SV *sv, MAGIC *mg)
     if (PL_curpm) {
         REGEXP * const rx = PM_GETRE(PL_curpm);
 	if (rx) {
-            UV uv= (UV)mg->mg_obj;
+            const UV uv = PTR2UV(mg->mg_obj);
             if (uv == '+') {          /* @+ */
 		/* return the number possible */
 		return RX_NPARENS(rx);
@@ -681,7 +681,7 @@ Perl_magic_regdatum_get(pTHX_ SV *sv, MAGIC *mg)
     if (PL_curpm) {
         REGEXP * const rx = PM_GETRE(PL_curpm);
 	if (rx) {
-            const UV uv= (UV)mg->mg_obj;
+            const UV uv = PTR2UV(mg->mg_obj);
             /* @{^CAPTURE} does not contain $&, so we need to increment by 1 */
             const I32 paren = mg->mg_len
                             + (uv == '\003' ? 1 : 0);

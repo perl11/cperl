@@ -2864,7 +2864,7 @@ PP(pp_goto)
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
                              "goto %s from sig with sig: keep %ld args\n",
                              SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
-                             argc));
+                             (long)argc));
                         padp = &PL_curpad[1]; /* from old pad. 0 has @_ */
                         for (; stack <= cx->blk_sub.argarray; ) {
                             /* against SAVEt_CLEARSV with leave_scope */
@@ -2889,7 +2889,7 @@ PP(pp_goto)
                     DEBUG_k(PerlIO_printf(Perl_debug_log,
                         "goto %s with sig: keep %ld args\n",
                         SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
-                        AvFILLp(arg)+1)); /* sig arg has no fill */
+                        (long)AvFILLp(arg)+1)); /* sig arg has no fill */
                     CX_LEAVE_SCOPE(cx);
                 }
                 /* We are going to donate the current @_ from the old sub
@@ -2920,7 +2920,7 @@ PP(pp_goto)
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
                             "goto sig2pp %s: copy %ld args\n",
                             SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
-                            argc));
+                            (long)argc));
                         /* Note that this can still leave AvARRAY(@_) at 0x0.
                            With args this is alloced at av_store. */
                         for (; index < argc; index++) {
@@ -2938,7 +2938,7 @@ PP(pp_goto)
                         DEBUG_k(PerlIO_printf(Perl_debug_log,
                             "goto pp %s: keep %ld args\n",
                             SvPVX_const(cv_name(cv, NULL, CV_NAME_NOMAIN)),
-                            arg ? AvFILLp(arg)+1 : 0));
+                            arg ? (long)AvFILLp(arg)+1 : 0));
                     }
                 }
 	    }

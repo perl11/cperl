@@ -590,7 +590,8 @@ XS(XS_DynaLoader_dl_find_symbol_anywhere)
         items = call_sv(dl_find_symbol, G_SCALAR);
         SPAGAIN;
         if (items == 1 && SvIOK(TOPs)) {
-            DLDEBUG(2,PerlIO_printf(Perl_debug_log, " symbolref=0x%lx\n", TOPi));
+            DLDEBUG(2,PerlIO_printf(Perl_debug_log, " symbolref=0x%" UVxf "\n",
+                                    (UV)TOPi));
             XSRETURN(1);
         }
     }
@@ -744,8 +745,8 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
             boot_symbol_ref = POPs;
         else
             boot_symbol_ref = NULL;
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got loaded boot_symbol_ref => %lx\n",
-            boot_symbol_ref ? SvIVX(boot_symbol_ref) : 0));
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got loaded boot_symbol_ref => 0x%" UVxf "\n",
+                                boot_symbol_ref ? (UV)SvIVX(boot_symbol_ref) : 0));
         if (boot_symbol_ref)
             goto boot;
         dl_last_error = (char*)save_last_error;
@@ -753,7 +754,7 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
 
     {
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Enter XS dl_load_file with '%s' %ld\n",
-                                SvPVX(file), flags));
+                                SvPVX(file), (long)flags));
         cv_load_file = get_cvs("DynaLoader::dl_load_file", 0);
         PUSHMARK(SP);
         XPUSHs(file);
@@ -765,8 +766,8 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
             libref = POPs;
         else
             libref = NULL;
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got libref=%lx\n",
-                libref ? SvIVX(libref) : 0));
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got libref => 0x%" UVxf "\n",
+                                libref ? (UV)SvIVX(libref) : 0));
     }
     if (!libref) {
         SaveError(aTHX_ "Can't load '%s' for module %s: %s", file, modulename, dl_last_error);
@@ -814,8 +815,8 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
             boot_symbol_ref = POPs;
         else
             boot_symbol_ref = NULL;
-	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got boot_symbol_ref => %lx\n",
-                                boot_symbol_ref ? SvIVX(boot_symbol_ref) : 0));
+	DLDEBUG(3,PerlIO_printf(Perl_debug_log, "DynaLoader: Got boot_symbol_ref => 0x%" UVxf "\n",
+                                boot_symbol_ref ? (UV)SvIVX(boot_symbol_ref) : 0));
     }
     if (!boot_symbol_ref) {
         Perl_die(aTHX_ "Can't find '%s' symbol in %s\n", SvPVX(bootname), SvPVX(file));
@@ -829,8 +830,8 @@ dl_load_file(pTHX_ I32 ax, SV* file, SV *module, int gimme)
         CV *dl_install_xsub = get_cvs("DynaLoader::dl_install_xsub", 0);
         SV *bootstrap = newSVpvs("");
 	DLDEBUG(3,PerlIO_printf(Perl_debug_log,
-            "DynaLoader: Enter dl_install_xsub with %s::bootstrap %lx %s\n",
-            modulename, SvIVX(boot_symbol_ref), SvPVX(file)));
+            "DynaLoader: Enter dl_install_xsub with %s::bootstrap 0x%" UVxf " %s\n",
+            modulename, (UV)SvIVX(boot_symbol_ref), SvPVX(file)));
         PUSHMARK(SP);
         sv_catsv(bootstrap, module);
         sv_catpvs(bootstrap, "::bootstrap");

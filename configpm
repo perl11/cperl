@@ -1189,11 +1189,11 @@ require $Config_PM;
 require $Config_heavy;
 import Config;
 
-if($^O ne 'MSWin32') {
+if ($^O ne 'MSWin32') {
     system ($Config{'cp'}, $Config_PM, $Config_mini);
 } else {
     my ($Config_PM, $Config_mini) = ($Config_PM, $Config_mini);
-    #cmd.exe's copy doesn't allow /s only \s
+    # cmd.exe's copy doesn't allow /s only \s
     $Config_PM =~ tr|/|\\|;
     $Config_mini =~ tr|/|\\|;
     system ('copy', $Config_PM, $Config_mini);

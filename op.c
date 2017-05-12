@@ -419,10 +419,11 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
 	o = *too;
         space = o ? DIFF(OpSLOT(o), OpSLOT(o)->opslot_next) : 0;
 	DEBUG_S_warn((aTHX_ "found free op at %p, slab %p, size %lu for %lu",
-                      (void*)o, (void*)slab, space, sz));
+                      (void*)o, (void*)slab, (unsigned long)space, (unsigned long)sz));
         assert(space < INT_MAX);
 	while (o && (space = DIFF(OpSLOT(o), OpSLOT(o)->opslot_next)) < sz) {
-	    DEBUG_S_warn((aTHX_ "Alas! too small %lu < %lu", space, sz));
+	    DEBUG_S_warn((aTHX_ "Alas! too small %lu < %lu",
+                          (unsigned long)space, (unsigned long)sz));
 	    o = *(too = &OpNEXT(o));
 	    if (o) {
                 DEBUG_S_warn((aTHX_ "found another free op at %p", (void*)o));
@@ -455,7 +456,7 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
     slab2 = slab->opslab_next ? slab->opslab_next : slab;
     if ((space = DIFF(&slab2->opslab_slots, slab2->opslab_first)) < sz) {
         DEBUG_S_warn((aTHX_ "remaining slab space is too small %lu < %lu",
-                      space, sz));
+                      (unsigned long)space, (unsigned long)sz));
 	/* If we can fit a BASEOP, add it to the free chain, so as not
 	   to waste it. */
 	if (space >= SIZE_TO_PSIZE(sizeof(OP)) + OPSLOT_HEADER_P) {
@@ -476,7 +477,7 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
 	slab2->opslab_next = slab->opslab_next;
 	slab->opslab_next = slab2;
         DEBUG_S_warn((aTHX_ "created new slab space twice as large %lu",
-                      DIFF(&slab2->opslab_slots, slab2->opslab_first)));
+                      (unsigned long)DIFF(&slab2->opslab_slots, slab2->opslab_first)));
     }
     assert((space = DIFF(&slab2->opslab_slots, slab2->opslab_first)) >= sz);
 
@@ -488,7 +489,7 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
 	slot = &slab2->opslab_slots;
     INIT_OPSLOT;
     DEBUG_S_warn((aTHX_ "allocating op at %p, slab %p, in space %lu >= %lu",
-                  (void*)o, (void*)slab, space, sz));
+                  (void*)o, (void*)slab, (unsigned long)space, (unsigned long)sz));
 
   gotit:
     assert(!o->op_rettype);
@@ -586,7 +587,7 @@ Perl_Slab_Free(pTHX_ void *op)
     space = OpSLOT(o)->opslot_next ? DIFF(OpSLOT(o), OpSLOT(o)->opslot_next) : 0;
 #endif
     DEBUG_S_warn((aTHX_ "free op at %p, recorded in slab %p, size %lu", (void*)o,
-                  (void*)slab, space));
+                  (void*)slab, (unsigned long)space));
     assert(space < 1000); /* maxop size, catch slab corruption by external modules (Variable::Magic) */
     OpslabREFCNT_dec_padok(slab);
 }
@@ -13991,7 +13992,7 @@ S_debug_undo_signature(pTHX_ CV *cv)
     UV action;
     PADOFFSET pad_ix = 0;
 
-    DEBUG_k(Perl_deb(aTHX_ "sig_proto: numitems=%lu actions=0x%" UVxf "\n",
+    DEBUG_k(Perl_deb(aTHX_ "sig_proto: numitems=%" UVuf " actions=0x%" UVxf "\n",
                      sig->op_aux[-1].uv, items->uv));
     if (IS_TYPE(last, GOTO)) /* don't consume @_ */
         return;
