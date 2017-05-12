@@ -161,7 +161,9 @@ case "$optimize" in
             esac
         ;;
     esac
-    optimize="$optimize --pipe"
+    if test "$cc" != "pgcc"; then
+        optimize="$optimize --pipe"
+    fi
     ;;
 esac
 

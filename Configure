@@ -4810,6 +4810,10 @@ EOM
    esac
    ;;
 esac
+if test "$cc" = "pgcc"; then
+    cpp=$cc
+    cpprun="$cc -E"
+fi
 case "$ccname" in
 '') ccname="$cc" ;;
 esac
@@ -4828,6 +4832,17 @@ case "$gccversion" in
     done
     $rm -f try try.*
 esac
+
+if test "$cc" = "pgcc"; then
+    case "$ccflags" in
+    *-fPIC*) ;;
+    *) ccflags="$ccflags -fPIC" ;;
+    esac
+    case "$ldflags" in
+    *-fPIC*) ;;
+    *) ldflags="$ldflags -fPIC" ;;
+    esac
+fi
 
 # gcc 4.9 by default does some optimizations that break perl.
 # see ticket 121505.
