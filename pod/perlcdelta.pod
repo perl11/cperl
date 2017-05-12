@@ -115,9 +115,25 @@ XXX
 
 =over 4
 
+=item L<B::C>
+
+Support pgcc, seperate it from gcc
+
+=item L<Compress::Raw::Bzip2>
+
+Support pgcc, seperate it from gcc
+
+=item L<Compress::Raw::Zlib>
+
+Support pgcc, seperate it from gcc
+
 =item L<Cpanel::JSON::XS> 3.0233
 
 MSVC 14.0 support and higher, changed nan in the runtime.
+
+=item L<DB_File>
+
+Support pgcc, seperate it from gcc
 
 =item PathTools 4.68c
 
@@ -130,6 +146,10 @@ the wide API.
 getcwd has now long path support.
 Added realpath, with long path support, if the libc supports
 NULL as 2nd argument.
+
+=item L<Storable>
+
+fix cygwin stack probing
 
 =back
 
