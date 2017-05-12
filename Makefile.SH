@@ -1018,9 +1018,11 @@ lib/buildcustomize.pl: $& $(miniperl_objs) write_buildcustomize.pl
 		*) case "$ldflags" in
 		    *"-flat_namespace"*) ;;
 		    *) # to allow opmini.o to override stuff in libperl.dylib
-		$spitshell >>$Makefile <<!NO!SUBS!
+                        if test "$cc" != "pgcc"; then
+		            $spitshell >>$Makefile <<!NO!SUBS!
 NAMESPACEFLAGS = -force_flat_namespace
 !NO!SUBS!
+                        fi
 		       ;;
 		    esac
 		    ;;

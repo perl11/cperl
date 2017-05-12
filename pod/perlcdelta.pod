@@ -117,6 +117,19 @@ Fix xsubpp warnings
 
 =back
 
+=head1 Configuration and Compilation
+
+=over
+
+=item *
+
+Added support for the pgcc pgi compiler http://www.pgroup.com/.
+pgcc is very slow though. pgcc -O2 is 40% slower than gcc-6 -O3,
+pgcc -fast 30% slower.
+L<[cperl #279]|https://github.com/perl11/cperl/issues/279>.
+
+=back
+
 =head1 Utility Changes
 
 =head2 L<cperlivp>

@@ -77,29 +77,79 @@ archname='darwin'
 # problems.
 usenm='false'
 
+# Shared library extension is .dylib.
+# Bundle extension is .bundle.
+so='dylib'
+dlext='bundle'
+usedl='define'
+
+# 10.4 can use dlopen.
+# 10.4 broke poll().
+# at least 14.3 fixed poll
+# dtrace came with 10.5
+case "$osvers" in
+[1-7].*)
+    dlsrc='dl_dyld.xs';
+    ;;
+[89].*)
+    dlsrc='dl_dlopen.xs';
+    ;;
+1[123456789].*)
+    dlsrc='dl_dlopen.xs';
+    test -z $usedtrace && usedtrace=define
+    ;;
+10.[123].*)
+    dlsrc='dl_dlopen.xs';
+    ;;
+10.*)
+    dlsrc='dl_dlopen.xs';
+    test -z $usedtrace && usedtrace=define
+    d_poll='undef';
+    i_poll='undef';
+    ;;
+*)
+    dlsrc='dl_dlopen.xs';
+    ;;
+esac
+
+case "$ccdlflags" in		# If passed in from command line, presume user knows best
+'')
+   cccdlflags=' '; # space, not empty, because otherwise we get -fpic
+;;
+esac
+
+case "$cc" in
+    pgcc) optimize=${optimize:--fast}
+          ccflags="${ccflags} -DPERL_DARWIN"
+          ldflags="${optimize} $ldflags"
+          ;;
+esac
+
 case "$optimize" in
 '')
-#    Optimizing for size also mean less resident memory usage on the part
-# of Perl.  Apple asserts that this is a more important optimization than
-# saving on CPU cycles.  Given that memory speed has not increased at
-# pace with CPU speed over time (on any platform), this is probably a
-# reasonable assertion.
-if [ -z "${optimize}" ]; then
-  case "`${cc:-gcc} -v 2>&1`" in
-    *"gcc version 3."*) optimize='-Os' ;;
-    *) optimize='-O3' ;;
-  esac
-else
-  optimize='-O3'
-fi
-;;
+    #    Optimizing for size also mean less resident memory usage on the part
+    # of Perl.  Apple asserts that this is a more important optimization than
+    # saving on CPU cycles.  Given that memory speed has not increased at
+    # pace with CPU speed over time (on any platform), this is probably a
+    # reasonable assertion.
+    if [ -z "${optimize}" ]; then
+        case "`${cc:-gcc} -v 2>&1`" in
+            *"gcc version 3."*) optimize='-Os' ;;
+            *) optimize='-O3' ;;
+        esac
+    else
+        optimize='-O3'
+    fi
+    ;;
 esac
 
 # -fno-common because common symbols are not allowed in MH_DYLIB
 # -DPERL_DARWIN: apparently the __APPLE__ is not sanctioned by Apple
 # as the way to differentiate Mac OS X.  (The official line is that
 # *no* cpp symbol does differentiate Mac OS X.)
-ccflags="${ccflags} -fno-common -DPERL_DARWIN"
+if test "$cc" != "pgcc"; then
+    ccflags="${ccflags} -fno-common -DPERL_DARWIN"
+fi
 
 # At least on Darwin 1.3.x:
 #
@@ -142,47 +192,6 @@ fi
 # Known optimizer problems.
 case "`${cc} -v 2>&1`" in
   *"3.1 20020105"*) toke_cflags='optimize=""' ;;
-esac
-
-# Shared library extension is .dylib.
-# Bundle extension is .bundle.
-so='dylib'
-dlext='bundle'
-usedl='define'
-
-# 10.4 can use dlopen.
-# 10.4 broke poll().
-# at least 14.3 fixed poll
-# dtrace came with 10.5
-case "$osvers" in
-[1-7].*)
-    dlsrc='dl_dyld.xs';
-    ;;
-[89].*)
-    dlsrc='dl_dlopen.xs';
-    ;;
-1[123456789].*)
-    dlsrc='dl_dlopen.xs';
-    test -z $usedtrace && usedtrace=define
-    ;;
-10.[123].*)
-    dlsrc='dl_dlopen.xs';
-    ;;
-10.*)
-    dlsrc='dl_dlopen.xs';
-    test -z $usedtrace && usedtrace=define
-    d_poll='undef';
-    i_poll='undef';
-    ;;
-*)
-    dlsrc='dl_dlopen.xs';
-    ;;
-esac
-
-case "$ccdlflags" in		# If passed in from command line, presume user knows best
-'')
-   cccdlflags=' '; # space, not empty, because otherwise we get -fpic
-;;
 esac
 
 # Allow the user to override ld, but modify it as necessary below
@@ -293,7 +302,8 @@ add_macosx_version_min () {
 # Perl bundles do not expect two-level namespace, added in Darwin 1.4.
 # But starting from perl 5.8.1/Darwin 7 the default is the two-level.
 # And starting with 11.0 the default is flat again
-case "$osvers" in  # Note: osvers is the kernel version, not the 10.x
+if test "$cc" != "pgcc"; then
+  case "$osvers" in  # Note: osvers is the kernel version, not the 10.x
 1.[0-3].*) # OS X 10.0.x
    lddlflags="${ldflags} -bundle -undefined suppress"
    ;;
@@ -373,6 +383,7 @@ EOM
    lddlflags="${ldflags} -bundle -undefined dynamic_lookup"
    ;;
 esac
+fi
 
 ldlibpthname='DYLD_LIBRARY_PATH';
 

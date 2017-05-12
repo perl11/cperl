@@ -3806,7 +3806,7 @@ EXTERN_C int perl_tsa_mutex_unlock(perl_mutex* mutex)
 /* For functions that are marked as __attribute__noreturn__, it's not
    appropriate to call return.  In either case, include the lint directive.
  */
-#ifdef HASATTRIBUTE_NORETURN
+#if defined(HASATTRIBUTE_NORETURN) && !defined(__PGIC__)
 #  define NORETURN_FUNCTION_END NOT_REACHED;
 #else
 #  define NORETURN_FUNCTION_END NOT_REACHED; return 0
