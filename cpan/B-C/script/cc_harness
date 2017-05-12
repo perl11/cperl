@@ -166,7 +166,7 @@ if ($^O eq 'cygwin' and $ccflags =~ /-fstack-protector /
   $linkargs =~ s/-fstack-protector //;
 }
 #-pedantic -Wextra -Wconversion
-if ($debug and $Config{cc} =~ /gcc/) {
+if ($debug and $Config{cc} =~ /\bgcc/ and $Config{gccversion}) {
   $ccflags .= " -ansi -Wall -Wshadow -Wcast-qual -Wwrite-strings"
     if !$quiet;
   # remove conflicting flags, esp. -s for strip
@@ -177,7 +177,7 @@ if ($debug and $Config{cc} =~ /gcc/) {
 
 # -Wl,--warn-once is not gold compatible
 $ccflags .= " --no-warn"
-  if $Config{cc} =~ /gcc/ and $quiet and $^O ne 'darwin';
+  if $Config{cc} =~ /\bgcc/ and $Config{gccversion} and $quiet and $^O ne 'darwin';
 $ccflags .= " -DHAVE_INDEPENDENT_COMALLOC" if $B::C::Config::have_independent_comalloc;
 $ccflags .= $B::C::Config::extra_cflags;
 
