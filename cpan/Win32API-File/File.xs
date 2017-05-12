@@ -54,25 +54,24 @@
 #else
 # define	Debug(list)	ErrPrintf list
 # include <stdarg.h>
-    static void
-    ErrPrintf( const char *sFmt, ... )
-    {
-      va_list pAList;
-      static char *sEnv= NULL;
-      DWORD uErr= GetLastError();
-	if(  NULL == sEnv  ) {
-	    if(  NULL == ( sEnv= getenv("DEBUG_WIN32API_FILE") )  )
-		sEnv= "";
-	}
-	if(  '\0' == *sEnv  )
-	    return;
-	va_start( pAList, sFmt );
-	vfprintf( stderr, sFmt, pAList );
-	va_end( pAList );
-	SetLastError( uErr );
-    }
+  static void
+  ErrPrintf( const char *sFmt, ... )
+  {
+    va_list pAList;
+    static char *sEnv= NULL;
+    DWORD uErr= GetLastError();
+      if(  NULL == sEnv  ) {
+          if(  NULL == ( sEnv= getenv("DEBUG_WIN32API_FILE") )  )
+      	sEnv= "";
+      }
+      if(  '\0' == *sEnv  )
+          return;
+      va_start( pAList, sFmt );
+      vfprintf( stderr, sFmt, pAList );
+      va_end( pAList );
+      SetLastError( uErr );
+  }
 #endif /* DEBUGGING */
-
 
 #include "buffers.h"	/* Include this after DEBUGGING setup finished */
 
@@ -147,7 +146,7 @@ CreateFileA( sPath, uAccess, uShare, pSecAttr, uCreate, uFlags, hModel )
 	DWORD	uFlags
 	HANDLE	hModel
     CODE:
-	RETVAL= CreateFileA( sPath, uAccess, uShare,
+	RETVAL = CreateFileA( sPath, uAccess, uShare,
 	  (LPSECURITY_ATTRIBUTES)pSecAttr, uCreate, uFlags, hModel );
 	if(  INVALID_HANDLE_VALUE == RETVAL  ) {
 	    SaveErr( 1 );
@@ -157,7 +156,6 @@ CreateFileA( sPath, uAccess, uShare, pSecAttr, uCreate, uFlags, hModel )
 	} else {
 	    XSRETURN_UV( PTR2UV(RETVAL) );
 	}
-
 
 HANDLE
 CreateFileW( swPath, uAccess, uShare, pSecAttr, uCreate, uFlags, hModel )
@@ -241,7 +239,7 @@ DeviceIoControl( hDevice, uIoControlCode, pInBuf, lInBuf, opOutBuf, lOutBuf, olR
 		lInBuf= SvCUR(ST(2));
 	    } else if(  SvCUR(ST(2)) < lInBuf  ) {
 		croak( "%s: pInBuf shorter than specified (%d < %d)",
-		  "Win32API::File::DeviceIoControl", SvCUR(ST(2)), lInBuf );
+                       "Win32API::File::DeviceIoControl", (int)SvCUR(ST(2)), (int)lInBuf );
 	    }
 	}
 	grow_buf_l( opOutBuf,ST(4),char *, lOutBuf,ST(5) );
@@ -601,7 +599,7 @@ SetFilePointer( hFile, ivOffset, ioivOffsetHigh, uFromWhere )
 	DWORD	uFromWhere
     CODE:
 	RETVAL= SetFilePointer( hFile, ivOffset, ioivOffsetHigh, uFromWhere );
-	if(  RETVAL == INVALID_SET_FILE_POINTER && (GetLastError() != NO_ERROR)  ) {
+        if (RETVAL == (LONG)INVALID_SET_FILE_POINTER && (GetLastError() != NO_ERROR)) {
 	    SaveErr( 1 );
 	    XST_mNO(0);
 	} else if(  0 == RETVAL  ) {
@@ -638,7 +636,7 @@ WriteFile( hFile, pBuffer, lBytes, ouBytesWritten, pOverlapped )
 	    lBytes= SvCUR(ST(1));
 	} else if(  SvCUR(ST(1)) < lBytes  ) {
 	    croak( "%s: pBuffer value too short (%d < %d)",
-	      "Win32API::File::WriteFile", SvCUR(ST(1)), lBytes );
+                   "Win32API::File::WriteFile", (int)SvCUR(ST(1)), (int)lBytes );
 	}
 	RETVAL= WriteFile( hFile, pBuffer, lBytes,
 		  &ouBytesWritten, (LPOVERLAPPED)pOverlapped );

@@ -1573,6 +1573,8 @@ use File::Glob qw(:case);
         'EXCLUDED'     => [
             qr{^ex/},
         ],
+        # -Wformat warnings
+        'CUSTOMIZED'   => [ qw( File.xs ) ],
 
         # Currently all EOL differences. Waiting for a new upstream release:
         # All the files in the GitHub repo have UNIX EOLs already.
