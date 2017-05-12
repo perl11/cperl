@@ -25,7 +25,7 @@ if (defined $DB_NAME)
   { $LIBS = $DB_NAME }
 else {
     if ($^O eq 'MSWin32')
-      { $LIBS = $Config{cc} =~ /gcc/ ? '-ldb' : '-llibdb' }
+      { $LIBS = ($Config{cc} =~ /\bgcc/ and $Config{gccversion}) ? '-ldb' : '-llibdb' }
     else
       { $LIBS = '-ldb' }
 }
