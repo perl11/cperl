@@ -187,7 +187,7 @@ SKIP: {
     skip("EBCDIC platform doesnt have 'use encoding' used by open ':locale'", 1)
                                                                 if $::IS_EBCDIC;
 
-    eval q[use Encode::Alias;use open ":std", ":locale"];
+    eval q[use Encode::Alias; use open ":std", ":locale"];
     is($@, '', 'can use :std and :locale');
 }
 

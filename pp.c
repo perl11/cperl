@@ -91,28 +91,34 @@ PP(pp_padav)
     gimme = GIMME_V;
     if (gimme == G_ARRAY) {
         /* XXX see also S_pushav in pp_hot.c */
-	const SSize_t maxarg = AvFILL(MUTABLE_AV(TARG)) + 1;
-	EXTEND(SP, maxarg);
+	const SSize_t elems = AvFILL(MUTABLE_AV(TARG)) + 1;
+        if ((OpPRIVATE(PL_op) & OPpHASHPAIRS) && (elems % 2)) {
+            Perl_croak(aTHX_
+                       "Only pairs in hash assignment allowed while \"strict hashpairs\","
+                       " got %" IVdf " elements", (IV)elems);
+            OpPRIVATE(PL_op) &= ~OPpHASHPAIRS;
+        }
+	EXTEND(SP, elems);
 	if (SvMAGICAL(TARG)) {
 	    SSize_t i;
-	    for (i=0; i < maxarg; i++) {
+	    for (i=0; i < elems; i++) {
 		SV * const * const svp = av_fetch(MUTABLE_AV(TARG), i, FALSE);
 		SP[i+1] = (svp) ? *svp : UNDEF;
 	    }
 	}
 	else {
 	    SSize_t i;
-	    for (i=0; i < maxarg; i++) {
+	    for (i=0; i < elems; i++) {
 		SV * const sv = AvARRAY((const AV *)TARG)[i];
 		SP[i+1] = sv ? sv : UNDEF;
 	    }
 	}
-	SP += maxarg;
+	SP += elems;
     }
     else if (gimme == G_SCALAR) {
 	SV* const sv = sv_newmortal();
-	const SSize_t maxarg = AvFILL(MUTABLE_AV(TARG)) + 1;
-	sv_setiv(sv, maxarg);
+	const SSize_t elems = AvFILL(MUTABLE_AV(TARG)) + 1;
+	sv_setiv(sv, elems);
 	PUSHs(sv);
     }
     RETURN;
@@ -310,7 +316,7 @@ PP(pp_rv2gv)
 
     sv = S_rv2gv(aTHX_
                  sv, PL_op->op_private & OPpDEREF,
-                 PL_op->op_private & HINT_STRICT_REFS,
+                 PL_op->op_private & OPpHINT_STRICT_REFS,
                  ((PL_op->op_flags & OPf_SPECIAL) && !(PL_op->op_flags & OPf_MOD))
                  || PL_op->op_type == OP_READLINE
                  );
@@ -330,7 +336,7 @@ Perl_softref2xv(pTHX_ SV *sv, const char *const what,
 
     PERL_ARGS_ASSERT_SOFTREF2XV;
 
-    if (PL_op->op_private & HINT_STRICT_REFS) {
+    if (PL_op->op_private & OPpHINT_STRICT_REFS) {
 	if (SvOK(sv))
 	    Perl_die(aTHX_ PL_no_symref_sv, sv,
 		     (SvPOKp(sv) && SvCUR(sv)>32 ? "..." : ""), what);
@@ -6800,7 +6806,7 @@ PP(pp_coreargs)
 		const bool constr = PL_op->op_private & whicharg;
 		PUSHs(S_rv2gv(aTHX_
 		    svp && *svp ? *svp : UNDEF,
-		    constr, cBOOL(CopHINTS_get(PL_curcop) & HINT_STRICT_REFS),
+		    constr, cBOOL(CopHINTS_get(PL_curcop) & OPpHINT_STRICT_REFS),
 		    !constr
 		));
 	    }

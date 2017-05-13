@@ -20,6 +20,7 @@ my $fail_ref      = 'Reference found where even-sized list expected at ';
 my $fail_not_hr   = 'Not a HASH reference at ';
 
 {
+    no strict "hashpairs";
     @warnings = ();
     fieldhash my %hash;
     %hash = (1..3);

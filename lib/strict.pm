@@ -1,5 +1,5 @@
 package strict;
-$strict::VERSION = "1.11c";
+$strict::VERSION = "1.12c";
 
 BEGIN {
     # Verify that we're called correctly so that strictures will work.
@@ -24,6 +24,8 @@ strict - Perl pragma to restrict unsafe constructs
     use strict "refs";
     use strict "subs";
 
+    use strict "hashpairs";
+
     use strict;
     no strict "vars";
 
@@ -35,8 +37,8 @@ effect of this pragma is limited to the current file or scope block.
 
 If no import list is supplied, all possible restrictions are assumed.
 (This is the safest mode to operate in, but is sometimes too strict for
-casual programming.)  Currently, there are three possible things to be
-strict about:  "subs", "vars", and "refs".
+casual programming.)  Currently, there are four possible things to be
+strict about:  "subs", "vars", "refs" and "hashpairs".
 
 =over 6
 
@@ -97,6 +99,21 @@ on the left hand side of the C<< => >> symbol.
     $SIG{PIPE} = "Plumber"; # fine: quoted string is always ok
     $SIG{PIPE} = \&Plumber; # preferred form
 
+
+=item C<strict hashpairs>
+
+This allows only empty lists or pairs, i.e. a list with two entries to
+be assigned to an hash entry, or if used in list assignment only pairs
+of elements.
+
+   use strict 'hashpairs';
+   %h = ();	 	# ok
+   %h = (a=>1);		# ok
+   %h = (0..3);		# ok
+   %h = (0..2);		# error
+   %h = map {0,1,2} (0..2); # error
+   %h = map {0..3}  (0..2); # error
+
 =back
 
 See L<perlmodlib/Pragmatic Modules>.
@@ -118,5 +135,13 @@ systems.
 
 Starting with cperl (based on Perl 5.22) strict is now a builtin module,
 implemented as XS functions which are always available.
+
+With version 1.12c (cperl 5.27.0 only) 'hashpairs' was added to prevent from
+accidental uneven hash assignment or silently adding too many elements.
+
+use strict 'names' was initially planned for cperl to prevent from
+invalid names to be added, but cperl-5.26 started disallowing names
+with embedded NUL characters which were added with perl-5.16, so it's
+not that urgent anymore.
 
 =cut

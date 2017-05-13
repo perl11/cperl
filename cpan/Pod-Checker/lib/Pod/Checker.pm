@@ -432,6 +432,7 @@ sub new {
     $new->{'output_fh'} ||= *STDERR{IO};
 
     # Set options
+    no strict "hashpairs";
     my %opts = @_;
     $new->{'-warnings'} = defined $opts{'-warnings'} ?
                                   $opts{'-warnings'} : 1; # default on

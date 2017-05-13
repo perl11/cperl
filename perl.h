@@ -5673,13 +5673,19 @@ typedef enum {
 
 #define HINT_FEATURE_MASK	0x1c000000 /* 3 bits for feature bundles */
 
+#define HINT_STRICT_HASHPAIRS	0x20000000 /* strict pragma */
+#ifdef HINT_M_VMSISH_STATUS
+#define HINT_STRICT_NAMES	0x0        /* ignored */
+#else
+#define HINT_STRICT_NAMES	0x40000000 /* strict pragma, not on VMS */
+#endif
 				/* Note: Used for HINT_M_VMSISH_*,
 				   currently defined by vms/vmsish.h:
 				0x40000000
 				0x80000000
 				 */
 
-/* The following are stored in $^H{sort}, not in PL_hints */
+/* The following are stored in $^H{sort} and PL_op->op_private, not in PL_hints */
 #define HINT_SORT_SORT_BITS	0x000000FF /* allow 256 different ones */
 #define HINT_SORT_QUICKSORT	0x00000001
 #define HINT_SORT_MERGESORT	0x00000002

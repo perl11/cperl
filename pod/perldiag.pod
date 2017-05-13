@@ -4427,6 +4427,13 @@ C<sysread()>ing a file, or when seeking past the end of a scalar opened
 for I/O (in anticipation of future reads and to imitate the behavior
 with real files).
 
+=item Only pair in map hash assignment allowed while "strict hashpairs", got %d elements
+
+=item Only pairs in hash assignment allowed while "strict hashpairs", got %d elements
+
+(F) With "strict hashpairs" in use, odd numbers of elements are
+forbidden to be assigned to hashes. Within a map only a pair.
+
 =item %s() on unopened %s
 
 (W unopened) An I/O operation was attempted on a filehandle that was

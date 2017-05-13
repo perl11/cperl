@@ -12151,9 +12151,33 @@ Perl_ck_aassign(pTHX_ OP *o)
     while (left && right) {
         /* my int %a; my str %b; %a = %b; (...) = (...); */
         op_check_type(o, left, right);
-        if (IS_TYPE(left, RV2HV) && IS_TYPE(right, MAPWHILE)) {
-            OpPRIVATE(right) |= OPpMAP_PAIR;
-            DEBUG_kv(Perl_deb(aTHX_ "ck_aassign: %%hash = mappair\n"));
+        if (IS_TYPE(left, RV2HV) || IS_TYPE(left, PADHV)) {
+            if (PL_hints & HINT_STRICT_HASHPAIRS) {
+                AV* av = NULL;
+                DEBUG_kv(Perl_deb(aTHX_ "ck_aassign: strict hashpairs\n"));
+                if (IS_TYPE(right, PADAV)) {
+                    av = (AV*)PAD_SVl(right->op_targ);
+                    OpPRIVATE(right) |= OPpHASHPAIRS;
+                } else if (IS_TYPE(right, RV2AV) && OpKIDS(right)) {
+                    OP *k = OpFIRST(right);
+                    OpPRIVATE(right) |= OPpHASHPAIRS;
+                    if (IS_TYPE(k, CONST))
+                        av = (AV*)cSVOPx_sv(k);
+                    /* defer to run-time with GV, esp. with %hash = @_; */
+                } else if (IS_TYPE(right, MAPWHILE)) {
+                    OpPRIVATE(right) |= OPpHASHPAIRS;
+                }
+                if (av && (AvFILL(av)+1) % 2) {
+                    qerror(Perl_mess(aTHX_
+                        "Only pairs in hash assignment allowed while \"strict hashpairs\","
+                        " got %" IVdf " elements", (IV)AvFILL(av)+1));
+                    OpPRIVATE(right) &= ~OPpHASHPAIRS;
+                }
+            }
+            if (IS_TYPE(right, MAPWHILE)) {
+                OpPRIVATE(right) |= OPpMAP_HASH;
+                DEBUG_kv(Perl_deb(aTHX_ "ck_aassign: %%hash = map_hash\n"));
+            }
         }
         if (left == OpNEXT(left))  /* not yet LINKLIST'ed */
             break;

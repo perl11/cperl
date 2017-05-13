@@ -1007,8 +1007,16 @@ PP(pp_mapwhile)
 
     /* if there are new items, push them into the destination list */
     if (items && gimme != G_VOID) {
-        /* TODO: if use strict 'maphash' accept only pairs, skip the rest [cperl #280] */
-        if ((OpPRIVATE(PL_op) & OPpMAP_PAIR) && (items % 2)) {
+        /* if use strict 'hashpairs' accept only pairs, skip the rest [cperl #280] */
+        if (((OpPRIVATE(PL_op) & (OPpMAP_HASH|OPpHASHPAIRS)) == (OPpMAP_HASH|OPpHASHPAIRS))
+            && !(!items || items == 2))
+        {
+            DEBUG_kv(Perl_deb(aTHX_ "map: strict hashpairs\n"));
+            Perl_croak(aTHX_ "Only pair in map hash assignment allowed while \"strict hashpairs\","
+                       " got %" IVdf " elements", (IV)items);
+        }
+        /* check odd elements with hash assignments */
+        if ((OpPRIVATE(PL_op) & OPpMAP_HASH) && (items % 2)) {
             if (!warned_pair || warned_pair != PL_op) { /* warn once per map */
                 warned_pair = PL_op;
                 Perl_ck_warner(aTHX_ packWARN(WARN_MISC),

@@ -734,7 +734,10 @@ for (grep { $_ !~ /^l?stat$/ } ops_with_flag('-')) {
 addbits($_, 1 => qw(OPpGREP_LEX GREPLEX)) # iterate over lexical $_
     for qw(mapwhile mapstart grepwhile grepstart);
 
-addbits('mapwhile', 2 => qw(OPpMAP_PAIR MAPPAIR)); # accept only pairs
+addbits('mapwhile', 2 => qw(OPpMAP_HASH  HASH)); # is a hash assignment
+
+addbits($_, 4 => qw(OPpHASHPAIRS HASHPAIRS)) # use strict 'hashpairs'
+    for qw(rv2av padav mapwhile);
 
 addbits('entereval',
     1 => qw(OPpEVAL_HAS_HH       HAS_HH ), # Does it have a copy of %^H ?

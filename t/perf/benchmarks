@@ -876,7 +876,7 @@
     },
     'expr::aassign::lh_2ts' => {
         desc    => 'assign 2 temp strings to empty lexical hash',
-        setup   => 'my %h',
+        setup   => 'no strict "hashpairs"; my %h',
         code    => '%h = (); %h = map $_, qw(k1 abc k2 defg);',
     },
     'expr::aassign::lhn_2s' => {
@@ -886,7 +886,7 @@
     },
     'expr::aassign::lhn_2ts' => {
         desc    => 'assign 2 temp strings to non-empty lexical hash',
-        setup   => 'my %h = qw(k1 abc k2 defg);',
+        setup   => 'no strict "hashpairs"; my %h = qw(k1 abc k2 defg);',
         code    => '%h = map $_, qw(k1 abc k2 defg);',
     },
 

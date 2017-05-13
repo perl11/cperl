@@ -214,7 +214,7 @@ boot_coretypes(pTHX_ SV *xsfile)
 static void
 boot_strict(pTHX_ SV *xsfile)
 {
-    Perl_set_version(aTHX_ STR_WITH_LEN("strict::VERSION"), STR_WITH_LEN("1.11c"), 1.11);
+    Perl_set_version(aTHX_ STR_WITH_LEN("strict::VERSION"), STR_WITH_LEN("1.12c"), 1.12);
 
     newXS("strict::bits",	XS_strict_bits,		file);
     newXS("strict::import",	XS_strict_import,	file);
@@ -282,20 +282,27 @@ Perl_boot_core_xsutils(pTHX)
 */
 
 /* perl.h */
-/* TODO: use strict "names" */
-#define HINT_ALL_STRICTS (HINT_STRICT_REFS      \
-        | HINT_STRICT_SUBS                      \
-        | HINT_STRICT_VARS)
+#define HINT_ALL_STRICTS     \
+    (  HINT_STRICT_REFS      \
+     | HINT_STRICT_SUBS      \
+     | HINT_STRICT_VARS      \
+     | HINT_STRICT_HASHPAIRS \
+     | HINT_STRICT_NAMES     \
+    )
 /* 3 EXPLICIT bits used only once in use >= v5.11 (on) vs use <= v5.10 (off).
+   To be turned on with no strict;
    TODO:
    This needs to be replaced by a single bit to denote argless import vs
-   argful import. We need this to support strict "names" CM-327 and no magic.
+   argful import. We need this to support strict "hashpairs" #280 and no magic.
 */
-#define HINT_ALL_EXPLICIT_STRICTS (HINT_EXPLICIT_STRICT_REFS \
-        | HINT_EXPLICIT_STRICT_SUBS  \
-        | HINT_EXPLICIT_STRICT_VARS)
+#define HINT_ALL_EXPLICIT_STRICTS   \
+    (                               \
+       HINT_EXPLICIT_STRICT_REFS    \
+     | HINT_EXPLICIT_STRICT_SUBS    \
+     | HINT_EXPLICIT_STRICT_VARS    \
+    )
 
-/* Needed by B::Deparse and vars */
+/* Needed by B::Deparse and vars. $^H bits */
 XS_EXTERNAL(XS_strict_bits)
 {
     dVAR;
@@ -316,6 +323,10 @@ XS_EXTERNAL(XS_strict_bits)
             bits |= HINT_STRICT_SUBS;
         else if (strEQc(name, "vars"))
             bits |= HINT_STRICT_VARS;
+        else if (strEQc(name, "hashpairs"))
+            bits |= HINT_STRICT_HASHPAIRS;
+        else if (strEQc(name, "names"))
+            bits |= HINT_STRICT_NAMES;
         else /* Maybe join all the wrong names. or not */
             Perl_croak(aTHX_ "Unknown 'strict' tag(s) '%s'", name);
     }
@@ -347,6 +358,10 @@ XS_EXTERNAL(XS_strict_import)
                 PL_hints |= HINT_STRICT_SUBS | HINT_EXPLICIT_STRICT_SUBS;
             else if (strEQc(name, "vars"))
                 PL_hints |= HINT_STRICT_VARS | HINT_EXPLICIT_STRICT_VARS;
+            else if (strEQc(name, "hashpairs"))
+                PL_hints |= HINT_STRICT_HASHPAIRS;
+            else if (strEQc(name, "names"))
+                PL_hints |= HINT_STRICT_NAMES;
             else /* Maybe join all the wrong names. or not */
                 Perl_croak(aTHX_ "Unknown 'strict' tag(s) '%s'", name);
         }
@@ -380,6 +395,10 @@ XS_EXTERNAL(XS_strict_unimport)
                 PL_hints &= ~(HINT_STRICT_SUBS | HINT_EXPLICIT_STRICT_SUBS);
             else if (strEQc(name, "vars"))
                 PL_hints &= ~(HINT_STRICT_VARS | HINT_EXPLICIT_STRICT_VARS);
+            else if (strEQc(name, "hashpairs"))
+                PL_hints &= ~HINT_STRICT_HASHPAIRS;
+            else if (strEQc(name, "names"))
+                PL_hints &= ~HINT_STRICT_NAMES;
             else /* Maybe join all the wrong names. or not */
                 Perl_croak(aTHX_ "Unknown 'strict' tag(s) '%s'", name);
         }

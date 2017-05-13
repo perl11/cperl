@@ -223,3 +223,9 @@ Execution of - aborted due to compilation errors.
 EXPECT
 Type of arg 1 to each must be hash or array (not constant item) at - line 1, near "FRED ;"
 Execution of - aborted due to compilation errors.
+########
+# NAME Only pairs in hash assignment, compile-time
+use strict; my %h=(0..2);
+EXPECT
+Only pairs in hash assignment allowed while "strict hashpairs", got 3 elements at - line 1.
+Execution of - aborted due to compilation errors.

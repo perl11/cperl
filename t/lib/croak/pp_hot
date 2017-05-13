@@ -58,3 +58,8 @@ Can't use an undefined value as a subroutine reference at - line 1.
    &$tied;
 EXPECT
 Can't use an undefined value as a subroutine reference at - line 4.
+########
+# NAME Only pairs in hash assignment
+use strict "hashpairs"; @a=(0,1,2); %h=@a;
+EXPECT
+Only pairs in hash assignment allowed while "strict hashpairs", got 3 elements at - line 1.

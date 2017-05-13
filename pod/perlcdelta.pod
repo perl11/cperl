@@ -151,6 +151,14 @@ NULL as 2nd argument.
 
 fix cygwin stack probing
 
+=item L<strict> 1.12c
+
+Added C<use strict 'hashpairs'> to allow only pairs for hash assignments,
+within a map even only a pair.
+See L<[cperl #280|https://github.com/perl11/cperl/issues/280>.
+
+Also reserved C<use strict 'names'>, which is not yet implemented.
+
 =back
 
 =head2 Removed Modules and Pragmata

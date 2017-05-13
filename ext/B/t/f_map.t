@@ -96,7 +96,7 @@ checkOptree(note   => q{},
 # 4  <#> gv[*array] s
 # 5  <1> rv2av[t8] lKM/1
 # 6  <@> mapstart lK
-# 7  <|> mapwhile(other->8)[t9] lK/MAPPAIR
+# 7  <|> mapwhile(other->8)[t9] lK/HASH
 # 8      <0> enter l
 # 9      <;> nextstate(main 475 (eval 10):1) v:{
 # a      <0> pushmark s
@@ -118,7 +118,7 @@ EOT_EOT
 # 4  <$> gv(*array) s
 # 5  <1> rv2av[t3] lKM/1
 # 6  <@> mapstart lK
-# 7  <|> mapwhile(other->8)[t4] lK/MAPPAIR
+# 7  <|> mapwhile(other->8)[t4] lK/HASH
 # 8      <0> enter l
 # 9      <;> nextstate(main 559 (eval 15):1) v:{
 # a      <0> pushmark s
@@ -236,7 +236,7 @@ checkOptree(note   => q{},
 # 4  <#> gv[*array] s
 # 5  <1> rv2av[t7] lKM/1
 # 6  <@> mapstart lK
-# 7  <|> mapwhile(other->8)[t9] lK/MAPPAIR
+# 7  <|> mapwhile(other->8)[t9] lK/HASH
 # 8      <#> gvsv[*_] s
 # 9      <1> lc[t4] sK/1
 # a      <$> const[IV 1] s
@@ -253,7 +253,7 @@ EOT_EOT
 # 4  <$> gv(*array) s
 # 5  <1> rv2av[t4] lKM/1
 # 6  <@> mapstart lK
-# 7  <|> mapwhile(other->8)[t5] lK/MAPPAIR
+# 7  <|> mapwhile(other->8)[t5] lK/HASH
 # 8      <$> gvsv(*_) s
 # 9      <1> lc[t2] sK/1
 # a      <$> const(IV 1) s
@@ -282,7 +282,7 @@ checkOptree(note   => q{},
 # 4  <#> gv[*array] s
 # 5  <1> rv2av[t7] lKM/1
 # 6  <@> mapstart lK
-# 7  <|> mapwhile(other->8)[t9] lK/MAPPAIR
+# 7  <|> mapwhile(other->8)[t9] lK/HASH
 # 8      <#> gvsv[*_] s
 # 9      <1> lc[t4] sK/1
 # a      <$> const[IV 1] s
@@ -299,7 +299,7 @@ EOT_EOT
 # 4  <$> gv(*array) s
 # 5  <1> rv2av[t4] lKM/1
 # 6  <@> mapstart lK
-# 7  <|> mapwhile(other->8)[t5] lK/MAPPAIR
+# 7  <|> mapwhile(other->8)[t5] lK/HASH
 # 8      <$> gvsv(*_) s
 # 9      <1> lc[t2] sK/1
 # a      <$> const(IV 1) s
@@ -328,7 +328,7 @@ checkOptree(note   => q{},
 # 4  <#> gv[*array] s
 # 5  <1> rv2av[t6] lKM/1
 # 6  <@> mapstart lK
-# 7  <|> mapwhile(other->8)[t8] lK/MAPPAIR
+# 7  <|> mapwhile(other->8)[t8] lK/HASH
 # 8      <#> gvsv[*_] s
 # 9      <1> lc[t4] sK/1
 # a      <$> const[IV 1] s
@@ -345,7 +345,7 @@ EOT_EOT
 # 4  <$> gv(*array) s
 # 5  <1> rv2av[t3] lKM/1
 # 6  <@> mapstart lK
-# 7  <|> mapwhile(other->8)[t4] lK/MAPPAIR
+# 7  <|> mapwhile(other->8)[t4] lK/HASH
 # 8      <$> gvsv(*_) s
 # 9      <1> lc[t2] sK/1
 # a      <$> const(IV 1) s
@@ -374,7 +374,7 @@ checkOptree(note   => q{},
 # 4  <#> gv[*array] s
 # 5  <1> rv2av[t6] lKM/1
 # 6  <@> mapstart lK
-# 7  <|> mapwhile(other->8)[t7] lK/MAPPAIR
+# 7  <|> mapwhile(other->8)[t7] lK/HASH
 # 8      <#> gvsv[*_] s
 # 9      <1> lc[t4] sK/1
 # a      <$> const[IV 1] s
@@ -391,7 +391,7 @@ EOT_EOT
 # 4  <$> gv(*array) s
 # 5  <1> rv2av[t3] lKM/1
 # 6  <@> mapstart lK
-# 7  <|> mapwhile(other->8)[t4] lK/MAPPAIR
+# 7  <|> mapwhile(other->8)[t4] lK/HASH
 # 8      <$> gvsv(*_) s
 # 9      <1> lc[t2] sK/1
 # a      <$> const(IV 1) s
@@ -420,7 +420,7 @@ checkOptree(note   => q{},
 # 4  <0> pushmark s
 # 5  <$> const[IV 1] sM
 # 6  <@> mapstart lK
-# 7  <|> mapwhile(other->8)[t5] lK/MAPPAIR
+# 7  <|> mapwhile(other->8)[t5] lK/HASH
 # 8      <#> gvsv[*_] s
 # 9      <1> lc[t4] sK/1
 #            goto 7
@@ -439,7 +439,7 @@ EOT_EOT
 # 4  <0> pushmark s
 # 5  <$> const(IV 1) sM
 # 6  <@> mapstart lK
-# 7  <|> mapwhile(other->8)[t3] lK/MAPPAIR
+# 7  <|> mapwhile(other->8)[t3] lK/HASH
 # 8      <$> gvsv(*_) s
 # 9      <1> lc[t2] sK/1
 #            goto 7

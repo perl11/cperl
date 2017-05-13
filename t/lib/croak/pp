@@ -23,3 +23,8 @@ Attempt to bless into a reference at - line 2.
 sub foo{} bless [], bless []
 EXPECT
 Attempt to bless into a reference at - line 1.
+########
+# NAME Only pairs in hash assignment, lex
+use strict; my @a=(0..2); my %h=@a;
+EXPECT
+Only pairs in hash assignment allowed while "strict hashpairs", got 3 elements at - line 1.

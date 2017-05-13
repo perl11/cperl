@@ -133,6 +133,7 @@ sub import {
         return;
     }
     $name = _get_locale_encoding() if $name eq ':locale';
+    no strict 'hashpairs';
     my %arg = @_;
     $name = $ENV{PERL_ENCODING} unless defined $name;
     my $enc = find_encoding($name);

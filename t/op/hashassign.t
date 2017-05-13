@@ -6,9 +6,9 @@ BEGIN {
     set_up_inc('../lib');
 }
 
-# use strict;
+use strict;
 
-plan tests => 309;
+plan tests => 311;
 
 my @comma = ("key", "value");
 
@@ -323,6 +323,7 @@ SKIP: {
 
 # test odd hash assignment warnings
 {
+    no strict 'hashpairs'; # cperl only
     my ($s, %h);
     warning_like(sub {%h = (1..3)}, qr/^Odd number of elements in hash assignment/);
     warning_like(sub {%h = ({})}, qr/^Reference found where even-sized list expected/);
@@ -333,6 +334,7 @@ SKIP: {
 
 # hash assignment in scalar and list context with odd number of elements
 {
+    no strict 'hashpairs'; # cperl only
     no warnings 'misc', 'uninitialized';
     my %h; my $x;
     is( join( ':', %h = (1..3)), '1:2:3:',
@@ -352,6 +354,7 @@ SKIP: {
 # hash assignment in scalar and list context with odd number of elements
 # and duplicates
 {
+    no strict 'hashpairs'; # cperl only
     no warnings 'misc', 'uninitialized';
     my %h; my $x;
     is( (join ':', %h = (1,1,1)), '1:',
@@ -471,7 +474,7 @@ SKIP: {
 # not enough elements on rhs
 # ($x,$y,$z,...) = (1);
 {
-    my ($x,$y,$z,@a,%h);
+    my ($x,$y,$z,@a,%h,@h);
     is( join(':', map $_ // 'undef', (($x, $y, %h) = (1))), '1:undef',
         'only assigned elements are returned in list context');
     is( join(':', ($x, $y, %h) = (1,1)), '1:1',
@@ -530,4 +533,12 @@ SKIP: {
     ok( eq_array([$x,$y,%h,$z], [1,2,2,1,1]), "all assigned values are returned" );
 }
 
-
+{
+  use strict;
+  # Allow empty map pair in hash assignment
+  my %h = map{()} (0..1);
+  ok(!%h);
+  # Allow single map pair in hash assignment
+  %h = map{$_ => 1} (0..1);
+  ok(%h);
+}

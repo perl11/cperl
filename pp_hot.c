@@ -1155,6 +1155,13 @@ PP(pp_rv2av)
 	AV *const av = MUTABLE_AV(sv);
 	/* The guts of pp_rv2av  */
 	if (gimme == G_ARRAY) {
+            const SSize_t elems = AvFILL(av) + 1;
+            if ((OpPRIVATE(PL_op) & OPpHASHPAIRS) && (elems % 2)) {
+                Perl_croak(aTHX_
+                    "Only pairs in hash assignment allowed while \"strict hashpairs\","
+                    " got %" IVdf " elements", (IV)elems);
+                OpPRIVATE(PL_op) &= ~OPpHASHPAIRS;
+            }
             SP--;
             PUTBACK;
             S_pushav(aTHX_ av);
@@ -2569,7 +2576,7 @@ STATIC GV *
 S_softref2xv_lite(pTHX_ SV *const sv, const char *const what,
 		const svtype type)
 {
-    if (PL_op->op_private & HINT_STRICT_REFS) {
+    if (PL_op->op_private & OPpHINT_STRICT_REFS) {
 	if (SvOK(sv))
 	    Perl_die(aTHX_ PL_no_symref_sv, sv,
 		     (SvPOKp(sv) && SvCUR(sv)>32 ? "..." : ""), what);
@@ -4311,7 +4318,7 @@ PP(pp_entersub)
                 }
 
                 sym = SvPV_nomg_const(sv, len);
-                if (PL_op->op_private & HINT_STRICT_REFS)
+                if (PL_op->op_private & OPpHINT_STRICT_REFS)
                     DIE(aTHX_ "Can't use string (\"%" SVf32 "\"%s) as a subroutine ref while \"strict refs\" in use", sv, len>32 ? "..." : "");
                 cv = get_cvn_flags(sym, len, GV_ADD|SvUTF8(sv));
                 break;
@@ -4577,7 +4584,7 @@ PP(pp_enterxssub)
                 if (!SvOK(sv))
                     DIE(aTHX_ PL_no_usym, "a subroutine");
                 sym = SvPV_nomg_const(sv, len);
-                if (PL_op->op_private & HINT_STRICT_REFS)
+                if (PL_op->op_private & OPpHINT_STRICT_REFS)
                     DIE(aTHX_ "Can't use string (\"%" SVf32 "\"%s) as a subroutine ref while \"strict refs\" in use", sv, len>32 ? "..." : "");
                 cv = get_cvn_flags(sym, len, GV_ADD|SvUTF8(sv));
                 break;

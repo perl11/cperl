@@ -16,3 +16,18 @@ use 5.01;
 default{}
 EXPECT
 Can't "default" outside a topicalizer at - line 2.
+########
+# NAME Only map pairs in hash assignment
+use strict; my %h = map{$_ => (1,2)} (0..1);
+EXPECT
+Only pair in map hash assignment allowed while "strict hashpairs", got 3 elements at - line 1.
+########
+# NAME Only map pairs in hash assignment
+use strict; my %h = map{$_} (0..1);
+EXPECT
+Only pair in map hash assignment allowed while "strict hashpairs", got 1 elements at - line 1.
+########
+# NAME Only single map pairs in hash assignment
+use strict; my %h = map{$_ => 1, $_+1 => 2} (0..1);
+EXPECT
+Only pair in map hash assignment allowed while "strict hashpairs", got 4 elements at - line 1.

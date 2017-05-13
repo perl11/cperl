@@ -8,7 +8,7 @@ BEGIN {
 
 plan( tests => 18 );
 
-use strict;
+use strict; no strict 'hashpairs';
 use warnings;
 
 use vars qw{ @warnings };
