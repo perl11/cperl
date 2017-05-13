@@ -1006,6 +1006,12 @@ PP(pp_mapwhile)
 
     /* if there are new items, push them into the destination list */
     if (items && gimme != G_VOID) {
+        /* TODO: if use strict 'maphash' accept only pairs, skip the rest [cperl #280] */
+        if ((OpPRIVATE(PL_op) & OPpMAP_PAIR) && (items % 2)) {
+            /* TODO warn only once */
+            Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
+                           "Odd number of map elements in hash assignment");
+        }
 	/* might need to make room back there first */
 	if (items > PL_markstack_ptr[-1] - PL_markstack_ptr[-2]) {
 	    /* XXX this implementation is very pessimal because the stack

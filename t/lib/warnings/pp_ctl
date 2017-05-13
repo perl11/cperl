@@ -264,3 +264,15 @@ do "./dounknown";
 unlink "dounknown";
 EXPECT
 do "dounknown" failed, '.' is no longer in @INC; did you mean do "./dounknown" at - line 3.
+########
+# pp_ctl.c
+use warnings 'misc' ;
+%h = map {$_,0,1} (0..1);
+EXPECT
+Odd number of map elements in hash assignment at - line 3.
+Odd number of map elements in hash assignment at - line 3.
+########
+# pp_ctl.c
+use warnings 'misc' ;
+map {$_,0,1} (0..1);
+EXPECT

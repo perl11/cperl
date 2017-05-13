@@ -471,7 +471,7 @@ checkOptree ( name	=> '%h = map { getkey($_) => $_ } @a',
 # 5  <1> rv2av[t8] lKM/1
 # 6  <@> mapstart lK*                 < 5.017002
 # 6  <@> mapstart lK                  >=5.017002
-# 7  <|> mapwhile(other->8)[t9] lK
+# 7  <|> mapwhile(other->8)[t9] lK/MAPPAIR
 # 8      <0> enter l
 # 9      <;> nextstate(main 500 (eval 22):1) v:{
 # a      <0> pushmark s
@@ -495,7 +495,7 @@ EOT_EOT
 # 5  <1> rv2av[t3] lKM/1
 # 6  <@> mapstart lK*                 < 5.017002
 # 6  <@> mapstart lK                  >=5.017002
-# 7  <|> mapwhile(other->8)[t4] lK
+# 7  <|> mapwhile(other->8)[t4] lK/MAPPAIR
 # 8      <0> enter l
 # 9      <;> nextstate(main 500 (eval 22):1) v:{
 # a      <0> pushmark s

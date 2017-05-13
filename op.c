@@ -12121,7 +12121,7 @@ Perl_ck_sassign(pTHX_ OP *o)
 =for apidoc ck_aassign
 CHECK callback for aassign (t2	L L	"(:List,:List):List")
 
-Only checks types.
+Checks types and adds C<OPpMAP_PAIR> to C<%hash = map>.
 
 =cut
 */
@@ -12146,11 +12146,15 @@ Perl_ck_aassign(pTHX_ OP *o)
     right = OpFIRST(right);
     if (IS_TYPE(right, PUSHMARK) || IS_TYPE(right, PADRANGE))
         right = OpSIBLING(right);
-    DEBUG_kv(Perl_deb(aTHX_ "ck_aassign: check types\n"));
 
+    DEBUG_kv(Perl_deb(aTHX_ "ck_aassign: check types\n"));
     while (left && right) {
         /* my int %a; my str %b; %a = %b; (...) = (...); */
         op_check_type(o, left, right);
+        if (IS_TYPE(left, RV2HV) && IS_TYPE(right, MAPWHILE)) {
+            OpPRIVATE(right) |= OPpMAP_PAIR;
+            DEBUG_kv(Perl_deb(aTHX_ "ck_aassign: %%hash = mappair\n"));
+        }
         if (left == OpNEXT(left))  /* not yet LINKLIST'ed */
             break;
         if (right == OpNEXT(right))

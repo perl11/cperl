@@ -734,7 +734,7 @@ for (grep { $_ !~ /^l?stat$/ } ops_with_flag('-')) {
 addbits($_, 1 => qw(OPpGREP_LEX GREPLEX)) # iterate over lexical $_
     for qw(mapwhile mapstart grepwhile grepstart);
 
-
+addbits('mapwhile', 2 => qw(OPpMAP_PAIR MAPPAIR)); # accept only pairs
 
 addbits('entereval',
     1 => qw(OPpEVAL_HAS_HH       HAS_HH ), # Does it have a copy of %^H ?

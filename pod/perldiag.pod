@@ -4410,6 +4410,12 @@ which is odd, because hashes come in key/value pairs.
 (W misc) You specified an odd number of elements to initialize a hash,
 which is odd, because hashes come in key/value pairs.
 
+=item Odd number of map elements in hash assignment
+
+(W misc) A map block which is assigned to a hash produced an odd
+number of elements, which is odd, because hashes come in key/value
+pairs.
+
 =item Offset outside string
 
 (F)(W layer) You tried to do a read/write/send/recv/seek operation
