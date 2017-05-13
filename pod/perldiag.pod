@@ -4414,7 +4414,8 @@ which is odd, because hashes come in key/value pairs.
 
 (W misc) A map block which is assigned to a hash produced an odd
 number of elements, which is odd, because hashes come in key/value
-pairs.
+pairs. This warning is only printed once at the very first map iteration.
+Four or more values are still valid though, they create two or more pairs.
 
 =item Offset outside string
 

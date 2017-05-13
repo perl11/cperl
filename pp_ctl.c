@@ -1000,6 +1000,7 @@ PP(pp_mapwhile)
     I32 shift;
     SV** src;
     SV** dst;
+    static OP *warned_pair = NULL;
 
     /* first, move source pointer to the next item in the source list */
     ++PL_markstack_ptr[-1];
@@ -1008,9 +1009,11 @@ PP(pp_mapwhile)
     if (items && gimme != G_VOID) {
         /* TODO: if use strict 'maphash' accept only pairs, skip the rest [cperl #280] */
         if ((OpPRIVATE(PL_op) & OPpMAP_PAIR) && (items % 2)) {
-            /* TODO warn only once */
-            Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
-                           "Odd number of map elements in hash assignment");
+            if (!warned_pair || warned_pair != PL_op) { /* warn once per map */
+                warned_pair = PL_op;
+                Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
+                               "Odd number of map elements in hash assignment");
+            }
         }
 	/* might need to make room back there first */
 	if (items > PL_markstack_ptr[-1] - PL_markstack_ptr[-2]) {

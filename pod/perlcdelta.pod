@@ -225,7 +225,7 @@ XXX L<message|perldiag/"message">
 L<Odd number of map elements in hash assignment|perldiag/"Odd number of map elements in hash assignment">
 
 Added a new MAPPAIR private bit to the mapwhile op when a map is assigned
-to a hash, to be able to warn on uneven hashmap assignments. See
+to a hash, to be able to warn once per map on uneven hashmap assignments. See
 L<[cperl #280|https://github.com/perl11/cperl/issues/280>.
 
 =back
