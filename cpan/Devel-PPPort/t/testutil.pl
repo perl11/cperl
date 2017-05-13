@@ -42,6 +42,7 @@
     else {
       print "not ok $__ntest\n"
     }
+    $ok
   }
 }
 
