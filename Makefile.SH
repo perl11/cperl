@@ -1646,8 +1646,9 @@ check-syntax:
 	test -n "$(CHK_SOURCES)" && \
 	  `sh $(shellflags) cflags "optimize='$(OPTIMIZE)'" $(CHK_SOURCES)` -o /dev/null -S $(CHK_SOURCES)
 
+# The _test target is there just for Test::Smoke, which does a make test_prep
+# always before invoking this target, thus preventing checking again
 _test:
-	echo >&2 The _test target is deprecated. Please upgrade your smoker
 	$(RUN_TESTS) choose
 
 # Cannot delegate rebuilding of t/perl to make
