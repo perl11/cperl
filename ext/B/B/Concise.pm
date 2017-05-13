@@ -596,9 +596,14 @@ require B::Op_private;
 
 
 our %hints; # used to display each COP's op_hints values
+my $strict_hints = $^O eq 'VMS'? 0x200007e2 : 0x600007e2;
 
-# strict refs, subs, vars
-@hints{0x2,0x200,0x400,0x20,0x40,0x80} = ('$', '&', '*', 'x$', 'x&', 'x*');
+# strict refs, subs, vars, hashpairs
+@hints{$strict_hints} = 'strict';
+@hints{0x2,0x200,0x400,0x20,0x40,0x80,0x20000000} = ('$', '&', '*', 'x$', 'x&', 'x*', 'x%');
+# strict names
+@hints{0x40000000} = 'n' if $^O ne 'VMS';
+
 # integers, locale, bytes
 @hints{0x1,0x4,0x8,0x10} = ('i', 'l', 'b');
 # block scope, localise %^H, $^OPEN (in), $^OPEN (out)
@@ -618,7 +623,7 @@ our %hints; # used to display each COP's op_hints values
 require feature;
 
 sub hints_flags {
-    my($x) = @_;
+    my ($x) = @_;
     my @s;
     for my $flag (sort {$b <=> $a} keys %hints) {
 	if ($hints{$flag} and $x & $flag and $x >= $flag) {
