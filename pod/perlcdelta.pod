@@ -119,6 +119,10 @@ XXX
 
 Support pgcc, seperate it from gcc
 
+=item L<B::Concise>
+
+Support the new strict hints flags and abbrevate all strict flags as strict.
+
 =item L<Compress::Raw::Bzip2>
 
 Support pgcc, seperate it from gcc
@@ -135,11 +139,23 @@ MSVC 14.0 support and higher, changed nan in the runtime.
 
 Support pgcc, seperate it from gcc
 
+=item L<Devel::PPPort> 3.35_03
+
+Support strict hashpairs, fix for . in @INC
+
+=item L<Encode>
+
+no strict hashpairs in encoding
+
 =item PathTools 4.68c
 
 getcwd, getdcwd and abs_path have now long path support.
 getdcwd (Windows only) also supports unicode paths, using
 the wide API.
+
+=item L<Pod::Checker>
+
+no strict hashpairs
 
 =item L<POSIX> 1.76_03
 

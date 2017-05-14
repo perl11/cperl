@@ -513,6 +513,7 @@ use File::Glob qw(:case);
         ],
         # cperl fix to support make -s.
         # 5.16 binary support: https://github.com/rurban/Devel-PPPort/tree/516gvhv
+        # strict hashpairs support
         'CUSTOMIZED'   => [ qw( PPPort_pm.PL
 				PPPort_xs.PL
 				ppport_h.PL
@@ -522,6 +523,8 @@ use File::Glob qw(:case);
 				parts/inc/misc
 				parts/todo/5013007
 				parts/todo/5015004
+				parts/inc/ppphbin
+				t/testutil.pl
 			      )],
     },
 
