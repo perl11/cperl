@@ -15,7 +15,7 @@
 
 use strict;
 $^W = 1;
-require "parts/ppptools.pl";
+require "./parts/ppptools.pl";
 
 my $INCLUDE = 'parts/inc';
 my $DPPP = 'DPPP_';
@@ -541,7 +541,7 @@ package Devel::PPPort;
 use strict;
 use vars qw($VERSION $data);
 
-$VERSION = '3.35_02';
+$VERSION = '3.35_03';
 
 sub _init_data
 {
