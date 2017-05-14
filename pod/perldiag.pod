@@ -4432,7 +4432,8 @@ with real files).
 =item Only pairs in hash assignment allowed while "strict hashpairs", got %d elements
 
 (F) With "strict hashpairs" in use, odd numbers of elements are
-forbidden to be assigned to hashes. Within a map only a pair.
+forbidden to be assigned to hashes. Within a map block only a single
+or empty pair.
 
 =item %s() on unopened %s
 
