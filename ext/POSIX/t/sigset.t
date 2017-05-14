@@ -74,9 +74,15 @@ expected_signals($sigset, 'after addset', $signo[1], $signo[2]);
 is($sigset->addset($signo[0]), '0 but true', 'addset');
 expected_signals($sigset, 'after addset', $signo[0], $signo[1], $signo[2]);
 is($sigset->delset($signo[4]), '0 but true', 'delset');
-expected_signals($sigset, 'after delset', $signo[0], $signo[1], $signo[2]);
+TODO: {
+  local $TODO = 'cygwin 32bit' if $^O eq 'cygwin' and length(pack "P",-1) == 4;
+  expected_signals($sigset, 'after delset', $signo[0], $signo[1], $signo[2]);
+}
 is($sigset->delset($signo[1]), '0 but true', 'delset');
-expected_signals($sigset, 'after delset', $signo[0], $signo[2]);
+TODO: {
+  local $TODO = 'cygwin 32bit' if $^O eq 'cygwin' and length(pack "P",-1) == 4;
+  expected_signals($sigset, 'after delset', $signo[0], $signo[2]);
+}
 is($sigset->delset($signo[0]), '0 but true', 'delset');
 expected_signals($sigset, 'after addset', $signo[2]);
 is($sigset->delset($signo[2]), '0 but true', 'delset');
