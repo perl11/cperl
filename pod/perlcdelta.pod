@@ -86,6 +86,11 @@ Russ Cox L<https://research.swtch.com/glob>.
 
 =over 4
 
+=item L<Archive::Tar> 0.26
+
+'0' is a valid name for an archive, change 'iter' to check definedness.
+See L<https://metacpan.org/changes/distribution/Archive-Tar>
+
 =item L<B::C>
 
 Support pgcc, seperate it from gcc
