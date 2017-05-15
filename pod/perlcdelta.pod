@@ -35,6 +35,11 @@ hash lookup, not two.
 
 =over 4
 
+=item L<Archive::Tar> 0.26
+
+'0' is a valid name for an archive, change 'iter' to check definedness.
+See L<https://metacpan.org/changes/distribution/Archive-Tar>
+
 =item L<B> 1.68_07
 
 Add non-destructive $cv->PUREGV method, which does not create a GV
