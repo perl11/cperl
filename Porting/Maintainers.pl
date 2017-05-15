@@ -128,6 +128,8 @@ use File::Glob qw(:case);
             qw(t/07_ptardiff.t
                t/99_pod.t),
         ],
+        # CPAN RT 121685
+        'CUSTOMIZED'   => [ qw( t/90_symlink.t ) ],
     },
 
     'Attribute::Handlers' => {
