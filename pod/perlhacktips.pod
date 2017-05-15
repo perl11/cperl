@@ -1267,6 +1267,58 @@ See also
 L<http://code.google.com/p/address-sanitizer/wiki/AddressSanitizer>.
 
 
+=head1 FUZZING
+
+=head2 afl-fuzz
+
+Install L<http://lcamtuf.coredump.cx/afl/>
+and read L<https://medium.com/@dgryski/fuzzing-perl-xs-modules-with-afl-4bfc2335dd90>.
+
+On darwin and Windows recommended is the llvm_mode C<CC=afl-clang-fast> variant.
+On MacPorts you need to build with
+C<LLVM_CONFIG=llvm-config-mp-xx CC=clang-mp-xx CXX=clang++-mp-xx>
+and compile with C<AFL_CC=clang-mp-xx>.
+With llvm be sure to use the very same C<AFL_CC> settings.
+On linux/freebsd it's still about 20% faster due to a faster C<fork()>.
+
+afl-fuzz creates variations of src files in the C<-i> directory as input.
+
+My sample build cmdline for macports is this. On linux just leave out the C<AFL_CC>.
+
+    unset ASAN_OPTIONS
+    export ASAN_OPTIONS
+    export AFL_QUIET=1
+    export AFL_CC=clang-mp-3.8
+    ver=$(Porting/perl_version)
+    prefix=/usr/local
+    arch=`uname -s | tr A-Z a-z`
+    CC=afl-clang-fast archname="$arch-afl-clang-fast" exesuffix=-afl \
+      ./Configure -sder -Dcc="$CC" -Dld="$CC" -Accflags="-DNO_MATHOMS -march=native" \
+      -Doptimize="-O3 -g" -Dmake=gmake \
+      -Darchname="$archname" -Darchlib="$prefix/lib/cperl/$ver/$archname" \
+      -Dsitebin="$prefix/lib/cperl/site_cperl/$ver/bin" \
+      -Dscriptdir="$prefix/lib/cperl/$ver/bin" \
+      -Dsitearch="$prefix/lib/cperl/site_cperl/$ver/$archname" \
+      -Dperlpath="$prefix/bin/cperl$ver$exesuffix" -Dstartperl="#!$prefix/bin/cperl$ver$exesuffix" \
+      -Dinstallman1dir=none -Dinstallman3dir=none -Dinstallsiteman1dir=none -Dinstallsiteman3dir=none
+    make -s -j4 miniperl
+
+    afl-fuzz -i .fuzz-in -o .fuzz-out -- ./miniperl
+
+Fuzzing with L<asan|/AddressSanitizer> or C<DEBUGGING> is also
+possible, but very slow.
+
+For testing an XS library and avoid the C<fork()> overhead, check the
+C<afl_persistent_loop> as described in the medium blog post and
+L<https://lcamtuf.blogspot.de/2015/06/new-in-afl-persistent-mode.html>
+
+=head2 LibFuzzer
+
+See L<http://llvm.org/docs/LibFuzzer.html> with C<-Accflags=-fsanitize=fuzzer>,
+esp. since clang-6.0.
+
+Contrary to afl-fuzz you need a compiled-in fuzz target C<LLVMFuzzerTestOneInput>.
+
 =head1 PROFILING
 
 Depending on your platform there are various ways of profiling Perl.

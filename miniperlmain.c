@@ -64,6 +64,16 @@ static struct perl_vars* my_plvarsp;
 struct perl_vars* Perl_GetVarsPrivate(void) { return my_plvarsp; }
 #endif
 
+#ifdef __AFL_COMPILER
+GCC_DIAG_IGNORE(-Wunused-variable)
+# ifdef HASATTRIBUTE_USED
+    __attribute__used__
+# endif
+static volatile char *__afl_persistent_sig = "##SIG_AFL_PERSISTENT##";
+GCC_DIAG_RESTORE
+#endif
+
+
 #ifdef NO_ENV_ARRAY_IN_MAIN
 extern char **environ;
 int

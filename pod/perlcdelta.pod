@@ -138,6 +138,10 @@ XXX
 mkppport called PPPort_pm.PL without
 passing through MAKEFLAGS. Add --quiet support there
 
+=item L<ExtUtils::Miniperl> 1.08
+
+Support for C<-DAFL_FUZZ> with L<afl-clang-fast|perlhacktips/"afl-fuzz">
+
 =item L<I18N::LangTags>  0.42_01
 
 Linkify docs.

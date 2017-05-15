@@ -6,7 +6,7 @@ use ExtUtils::Embed 1.31, qw(xsi_header xsi_protos xsi_body);
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(writemain);
-our $VERSION = '1.07';
+our $VERSION = '1.08';
 
 # blead will run this with miniperl, hence we can't use autodie or File::Temp
 my $temp;
@@ -90,6 +90,16 @@ static PerlInterpreter *my_perl;
 static struct perl_vars* my_plvarsp;
 struct perl_vars* Perl_GetVarsPrivate(void) { return my_plvarsp; }
 #endif
+
+#ifdef __AFL_COMPILER
+GCC_DIAG_IGNORE(-Wunused-variable)
+# ifdef HASATTRIBUTE_USED
+    __attribute__used__
+# endif
+static volatile char *__afl_persistent_sig = "##SIG_AFL_PERSISTENT##";
+GCC_DIAG_RESTORE
+#endif
+
 
 #ifdef NO_ENV_ARRAY_IN_MAIN
 extern char **environ;
