@@ -450,7 +450,8 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
        which isn't using the slab allocator, like a block-less ffi decl.
        If our sanity checks aren't met, don't use a slab, but allocate the
        OP directly from the heap. */
-    if (!PL_compcv || CvROOT(PL_compcv) || CvEXTERN(PL_compcv)
+    if (!PL_compcv || CvROOT(PL_compcv)
+        || CvEXTERN(PL_compcv) || CvLAZY(PL_compcv)
         || (CvSTART(PL_compcv) && !CvSLABBED(PL_compcv)))
     {
 	o = (OP*)PerlMemShared_calloc(1, sz);
@@ -6659,16 +6660,20 @@ is the body of the block.
 
 Returns the block, possibly modified.
 
+Note that with lazy parsing the seq block will be empty.
+
 =cut
 */
-
 OP*
 Perl_block_end(pTHX_ I32 floor, OP *seq)
 {
     const int needblockscope = PL_hints & HINT_BLOCK_SCOPE;
     OP* retval = scalarseq(seq);
-    OP *o;
+    OP* o;
 
+#ifdef LAZY_PARSE
+    if (!seq) return retval; /* ok, a stub */
+#endif
     /* XXX Is the null PL_parser check necessary here? */
     assert(PL_parser); /* Let’s find out under debugging builds.  */
     if (PL_parser && PL_parser->parsed_sub) {
@@ -6749,6 +6754,21 @@ Perl_block_end(pTHX_ I32 floor, OP *seq)
 }
 
 /*
+=for apidoc Am|OP *	|block_end_lazy	|I32 floor|OP *seq
+
+(XXX WIP, not sure if needed at all)
+Deferred variant of block_end, only called from sub block.
+Stores all info in PL_compcv to call block_end later.
+
+=cut
+*/
+OP*
+Perl_block_end_lazy(pTHX_ I32 floor, OP *seq)
+{
+    return block_end_lazy(floor, seq);
+}
+
+/*
 =head1 Compile-time scope hooks
 
 =for apidoc Aox|	|blockhook_register	|BHK* hk
@@ -6769,6 +6789,8 @@ Perl_blockhook_register(pTHX_ BHK *hk)
 
 /*
 =for apidoc newPROG
+
+Adds an eval block or sub block
 =cut
 */
 void
@@ -6877,8 +6899,8 @@ Perl_localize(pTHX_ OP *o, I32 lex)
     PERL_ARGS_ASSERT_LOCALIZE;
 
     if (OpPARENS(o))
-/* [perl #17376]: this appears to be premature, and results in code such as
-   C< our(%x); > executing in list mode rather than void mode */
+        /* [perl #17376]: this appears to be premature, and results in code such as
+           C< our(%x); > executing in list mode rather than void mode */
 #if 0
 	list(o);
 #else

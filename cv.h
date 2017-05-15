@@ -53,6 +53,13 @@ See L<perlguts/Autoloading with XSUBs>.
 /* Used as temp. library handle :native($lib), and then as ffi_cif handle,
    the signature */
 #define CvFFILIB(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_start_u.xcv_ffilib
+#ifdef LAZY_PARSE
+#define CvLAZY(sv)	(!CvROOT(sv) && CvLAZYBUF(sv))
+#define CvLAZYBUF(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_start_u.xcv_lazy
+#else
+#define CvLAZY(sv)	0
+#define CvLAZYBUF(sv)	NULL
+#endif
 #define CvGV(sv)	S_CvGV(aTHX_ (CV *)(sv))
 #define CvGV_set(cv,gv)	Perl_cvgv_set(aTHX_ cv, gv)
 #define CvHASGV(cv)	cBOOL(SvANY(cv)->xcv_gv_u.xcv_gv)
@@ -156,10 +163,17 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CVf_PURE	0x100000 /* purely functional, side-effect free */
 #define CVf_STATIC	0x200000 /* statically allocated padlist and proto */
 #define CVf_INLINABLE	0x400000 /* Should be inlined */
+<<<<<<< HEAD
 #define CVf_EXTERN	0x800000 /* ffi declaration. extern or :native */
 #define CVf_MULTI	0x1000000 /* multi dispatch on types (nyi) */
 #define CVf_LAZYPARSE	0x2000000 /* TODO GH #274 */
 #define CVf_FFILIB_HANDLE 0x4000000 /* If is a DynaLoader libhandle */
+||||||| merged common ancestors
+#define CVf_MULTI	0x800000 /* multi dispatch on types */
+=======
+#define CVf_MULTI	0x800000 /* multi dispatch on types */
+#define CVf_LAZYPARSE	0x1000000 /*  */
+>>>>>>> lazyparse: #274 WIP
 
 /* This symbol for optimised communication between toke.c and op.c: */
 #define CVf_BUILTIN_ATTRS	(CVf_METHOD|CVf_LVALUE|CVf_CONST|CVf_ANONCONST \
@@ -264,6 +278,7 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvPURE(cv)		(CvFLAGS(cv) & CVf_PURE)
 #define CvPURE_on(cv)		(CvFLAGS(cv) |= CVf_PURE)
 #define CvSTATIC(cv)		(CvFLAGS(cv) & CVf_STATIC)
+<<<<<<< HEAD
 #define CvEXTERN(cv)		(CvFLAGS(cv) & CVf_EXTERN)
 #ifdef PERL_CORE
 #define CvEXTERN_on(cv)	        (CvFLAGS(cv) |= (CVf_EXTERN|CVf_ISXSUB), CvSLABBED_off(cv))
@@ -271,6 +286,11 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvFFILIB_HANDLE_on(cv)  (CvFLAGS(cv) |= CVf_FFILIB_HANDLE)
 #define CvFFILIB_HANDLE_off(cv) (CvFLAGS(cv) &= ~CVf_FFILIB_HANDLE)
 #endif
+||||||| merged common ancestors
+=======
+#define CvLAZYPARSE(cv)		(CvFLAGS(cv) & CVf_LAZYPARSE)
+#define CvLAZYPARSE_on(cv)	(CvFLAGS(cv) |= CVf_LAZYPARSE)
+>>>>>>> lazyparse: #274 WIP
 
 #define CvMULTI(cv)		(CvFLAGS(cv) & CVf_MULTI)
 #define CvMULTI_on(cv)		(CvFLAGS(cv) |= CVf_MULTI)

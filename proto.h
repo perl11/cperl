@@ -445,6 +445,10 @@ PERL_CALLCONV OP*	Perl_block_end(pTHX_ I32 floor, OP* seq)
 			__attribute__global__
 			__attribute__warn_unused_result__;
 
+PERL_CALLCONV OP*	Perl_block_end_lazy(pTHX_ I32 floor, OP* seq)
+			__attribute__global__
+			__attribute__warn_unused_result__;
+
 PERL_CALLCONV U8	Perl_block_gimme(pTHX)
 			__attribute__global__
 			__attribute__warn_unused_result__;

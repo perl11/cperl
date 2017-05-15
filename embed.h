@@ -68,6 +68,7 @@
 #define av_undef(a)		Perl_av_undef(aTHX_ a)
 #define av_unshift(a,b)		Perl_av_unshift(aTHX_ a,b)
 #define block_end(a,b)		Perl_block_end(aTHX_ a,b)
+#define block_end_lazy(a,b)	Perl_block_end_lazy(aTHX_ a,b)
 #define block_gimme()		Perl_block_gimme(aTHX)
 #define block_start(a)		Perl_block_start(aTHX_ a)
 #define bytes_cmp_utf8(a,b,c,d)	Perl_bytes_cmp_utf8(aTHX_ a,b,c,d)

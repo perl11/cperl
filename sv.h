@@ -674,6 +674,7 @@ typedef U32 cv_flags_t;
     HV *	xcv_stash;							\
     union {									\
 	OP *	xcv_start;							\
+        SV *    xcv_lazy;                                                       \
 	ANY	xcv_xsubany;							\
 	IV      xcv_ffilib;                                               	\
     }		xcv_start_u;					    		\

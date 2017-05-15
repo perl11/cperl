@@ -747,8 +747,8 @@ This will assert (under -DDEBUGGING) if the entry doesn't contain a valid
 pointer.
 
 =for apidoc mx|void|CALL_BLOCK_HOOKS|which|arg
-Call all the registered block hooks for type C<which>.  C<which> is a
-preprocessing token; the type of C<arg> depends on C<which>.
+Call all the registered block hooks for type C<which> in reverse order (last first).
+C<which> is a preprocessing token; the type of C<arg> depends on C<which>.
 
 =cut
 */

@@ -314,11 +314,12 @@ s	|MAGIC*	|get_aux_mg	|NN AV *av
 #endif
 : Used in perly.y
 pR	|OP*	|bind_match	|I32 type|NN OP *left|NN OP *right
-: Used in perly.y
 ApdR	|OP*	|block_end	|I32 floor|NULLOK OP* seq
+ApdR	|OP*	|block_end_lazy	|I32 floor|NULLOK OP* seq
+ApdR	|int	|block_start	|int full
+
 ApR	|U8	|block_gimme
 : Used in perly.y
-ApdR	|int	|block_start	|int full
 Aodp	|void	|blockhook_register |NN BHK *hk
 : Used in perl.c
 p	|void	|boot_core_UNIVERSAL
