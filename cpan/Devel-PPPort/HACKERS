@@ -193,7 +193,7 @@ section.
 
 =item *
 
-The code required to add to PPPort.xs for testing the implementation.
+The code required to add to F<PPPort.xs> for testing the implementation.
 This code goes into the C<=xshead>, C<=xsinit>, C<=xsmisc>, C<=xsboot>
 and C<=xsubs> section. Have a look at the template at the bottom
 of F<PPPort_xs.PL> to see where the code ends up.
@@ -232,7 +232,14 @@ instead of
   #  define macro    some definition
   #endif
 
-The macro can have optional arguments and the definition can even
+If you use this, you don't have to list C<"macro"> in the C<=provides> section.
+But that section must contain a single line
+
+ __UNDEFINED__
+
+which acts as a stand-in for all the macros defined through its use.
+
+C<"macro"> can have optional arguments and the definition can even
 span multiple lines, like in
 
   __UNDEFINED__ SvMAGIC_set(sv, val) \
@@ -242,8 +249,8 @@ span multiple lines, like in
 This usually makes the code more compact and readable. And you
 only have to add C<__UNDEFINED__> to the C<=provided> section.
 
-Version checking can be tricky if you want to do it correct.
-You can use
+Version checking can be tricky if you want to do it correctly.
+C<Devel::PPPort> provides a facility to make it easier.  You can use
 
   #if { VERSION < 5.9.3 }
 

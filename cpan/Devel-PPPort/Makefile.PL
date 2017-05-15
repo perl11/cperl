@@ -83,7 +83,7 @@ sub configure
     # Devel::PPPort is in the core since 5.7.3
     # 5.11.0+ has site before perl
     push @moreopts, INSTALLDIRS => (
-      ($] >= 5.007003 and $] < 5.011)
+      ("$]" >= 5.007003 and "$]" < 5.011)
         ? 'perl'
         : 'site'
     );
@@ -106,9 +106,17 @@ sub configure
   };
 }
 
-sub MY::postamble
+package MY;
+
+sub depend {
+  "
+t/warn.t : mktests.PL regen_tests
+RealPPPort.c : ppport.h
+"
+}
+
+sub postamble
 {
-  package MY;
   my $post = shift->SUPER::postamble(@_);
   $post .= <<'POSTAMBLE';
 
@@ -116,16 +124,16 @@ purge_all: realclean
 	@$(RM_F) PPPort.pm t/*.t
 
 regen_pm:
-	$(PERL) -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) PPPort_pm.PL
+	$(PERL) -I. -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) PPPort_pm.PL
 
 regen_xs:
-	$(PERL) -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) PPPort_xs.PL
+	$(PERL) -I. -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) PPPort_xs.PL
 
 regen_tests:
-	$(PERL) -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) mktests.PL
+	$(PERL) -I. -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) mktests.PL
 
 regen_h:
-	$(PERL) -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) ppport_h.PL
+	$(PERL) -I. -I$(INST_ARCHLIB) -I$(INST_LIB) -I$(PERL_ARCHLIB) -I$(PERL_LIB) ppport_h.PL
 
 regen: regen_pm regen_xs regen_tests regen_h
 
@@ -133,9 +141,8 @@ POSTAMBLE
   return $post;
 }
 
-sub MY::c_o
+sub c_o
 {
-  package MY;
   my $co = shift->SUPER::c_o(@_);
 
   if ($::opt{'apicheck'} && $co !~ /^\.c\.i:/m) {

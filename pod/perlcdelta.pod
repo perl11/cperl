@@ -61,6 +61,10 @@ Add cperl features.
 
 MSVC 14.0 support and higher, changed nan in the runtime.
 
+=item L<Devel::PPPort> 3.36_01
+
+Support strict hashpairs, fix for . in @INC.
+
 =item L<Encode>
 
 Skip the flapping test F<t/Aliases.t> on threaded smokers, with random
