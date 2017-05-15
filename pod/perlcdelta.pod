@@ -115,9 +115,10 @@ MSVC 14.0 support and higher, changed nan in the runtime.
 
 Support pgcc, seperate it from gcc
 
-=item L<Devel::PPPort> 3.35_03
+=item L<Devel::PPPort> 3.36_01
 
-Support strict hashpairs, fix for . in @INC
+Support strict hashpairs, fix for . in @INC.
+Merged with 3.36
 
 =item L<Encode> 2.89
 
