@@ -14904,6 +14904,7 @@ our %delta = (
             'Cpanel::JSON::XS'      => '3.0233',
             'Cwd'                   => '4.68c',
             'Devel::PPPort'         => '3.35_03',
+            'Encode'                => '2.89',
             'File::Spec'            => '4.68c',
             'File::Spec::Unix'      => '4.68c',
             'File::Spec::Win32'     => '4.68c',

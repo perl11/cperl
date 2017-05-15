@@ -1,5 +1,5 @@
 #
-# $Id: GSM0338.pm,v 2.5 2013/09/14 07:51:59 dankogai Exp $
+# $Id: GSM0338.pm,v 2.6 2017/04/21 05:20:14 dankogai Exp dankogai $
 #
 package Encode::GSM0338;
 
@@ -8,7 +8,7 @@ use warnings;
 use Carp;
 
 use vars qw($VERSION);
-$VERSION = do { my @r = ( q$Revision: 2.5 $ =~ /\d+/g ); sprintf "%d." . "%02d" x $#r, @r };
+$VERSION = do { my @r = ( q$Revision: 2.6 $ =~ /\d+/g ); sprintf "%d." . "%02d" x $#r, @r };
 
 use Encode qw(:fallbacks);
 
@@ -171,6 +171,7 @@ our $NBSP   = "\x{00A0}";
 
 sub decode ($$;$) {
     my ( $obj, $bytes, $chk ) = @_;
+    return undef unless defined $bytes;
     my $str = substr($bytes, 0, 0); # to propagate taintedness;
     while ( length $bytes ) {
         my $c = substr( $bytes, 0, 1, '' );
@@ -216,6 +217,7 @@ sub decode ($$;$) {
 
 sub encode($$;$) {
     my ( $obj, $str, $chk ) = @_;
+    return undef unless defined $str;
     my $bytes = substr($str, 0, 0); # to propagate taintedness
     while ( length $str ) {
         my $u = substr( $str, 0, 1, '' );

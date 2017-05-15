@@ -1,10 +1,10 @@
 #
-# $Id: Encode.pm,v 2.88 2016/11/29 23:30:30 dankogai Exp dankogai $
+# $Id: Encode.pm,v 2.89 2017/04/21 05:20:14 dankogai Exp dankogai $
 #
 package Encode;
 use strict;
 use warnings;
-our $VERSION = sprintf "%d.%02d", q$Revision: 2.88 $ =~ /(\d+)/g;
+our $VERSION = sprintf "%d.%02d", q$Revision: 2.89 $ =~ /(\d+)/g;
 use constant DEBUG => !!$ENV{PERL_ENCODE_DEBUG};
 use XSLoader ();
 XSLoader::load( __PACKAGE__, $VERSION );
@@ -516,13 +516,15 @@ ISO-8859-1, also known as Latin1:
 
   $octets = encode("iso-8859-1", $string);
 
-B<CAVEAT>: When you run C<$octets = encode("utf8", $string)>, then
+B<CAVEAT>: When you run C<$octets = encode("UTF-8", $string)>, then
 $octets I<might not be equal to> $string.  Though both contain the
 same data, the UTF8 flag for $octets is I<always> off.  When you
 encode anything, the UTF8 flag on the result is always off, even when it
-contains a completely valid utf8 string. See L</"The UTF8 flag"> below.
+contains a completely valid UTF-8 string. See L</"The UTF8 flag"> below.
 
 If the $string is C<undef>, then C<undef> is returned.
+
+C<str2bytes> may be used as an alias for C<encode>.
 
 =head3 decode
 
@@ -544,12 +546,14 @@ internal format:
 
   $string = decode("iso-8859-1", $octets);
 
-B<CAVEAT>: When you run C<$string = decode("utf8", $octets)>, then $string
+B<CAVEAT>: When you run C<$string = decode("UTF-8", $octets)>, then $string
 I<might not be equal to> $octets.  Though both contain the same data, the
 UTF8 flag for $string is on.  See L</"The UTF8 flag">
 below.
 
 If the $string is C<undef>, then C<undef> is returned.
+
+C<bytes2str> may be used as an alias for C<decode>.
 
 =head3 find_encoding
 
@@ -559,11 +563,11 @@ Returns the I<encoding object> corresponding to I<ENCODING>.  Returns
 C<undef> if no matching I<ENCODING> is find.  The returned object is
 what does the actual encoding or decoding.
 
-  $utf8 = decode($name, $bytes);
+  $string = decode($name, $bytes);
 
 is in fact
 
-    $utf8 = do {
+    $string = do {
         $obj = find_encoding($name);
         croak qq(encoding "$name" not found) unless ref $obj;
         $obj->decode($bytes);
@@ -575,8 +579,8 @@ You can therefore save time by reusing this object as follows;
 
     my $enc = find_encoding("iso-8859-1");
     while(<>) {
-        my $utf8 = $enc->decode($_);
-        ... # now do something with $utf8;
+        my $string = $enc->decode($_);
+        ... # now do something with $string;
     }
 
 Besides L</decode> and L</encode>, other methods are
@@ -624,13 +628,13 @@ and C<undef> on error.
 
 B<CAVEAT>: The following operations may look the same, but are not:
 
-  from_to($data, "iso-8859-1", "utf8"); #1
+  from_to($data, "iso-8859-1", "UTF-8"); #1
   $data = decode("iso-8859-1", $data);  #2
 
 Both #1 and #2 make $data consist of a completely valid UTF-8 string,
 but only #2 turns the UTF8 flag on.  #1 is equivalent to:
 
-  $data = encode("utf8", decode("iso-8859-1", $data));
+  $data = encode("UTF-8", decode("iso-8859-1", $data));
 
 See L</"The UTF8 flag"> below.
 
@@ -655,7 +659,11 @@ followed by C<encode> as follows:
 Equivalent to C<$octets = encode("utf8", $string)>.  The characters in
 $string are encoded in Perl's internal format, and the result is returned
 as a sequence of octets.  Because all possible characters in Perl have a
-(loose, not strict) UTF-8 representation, this function cannot fail.
+(loose, not strict) utf8 representation, this function cannot fail.
+
+B<WARNING>: do not use this function for data exchange as it can produce
+not strict utf8 $octets! For strictly valid UTF-8 output use
+C<$octets = encode("UTF-8", $string)>.
 
 =head3 decode_utf8
 
@@ -663,10 +671,14 @@ as a sequence of octets.  Because all possible characters in Perl have a
 
 Equivalent to C<$string = decode("utf8", $octets [, CHECK])>.
 The sequence of octets represented by $octets is decoded
-from UTF-8 into a sequence of logical characters.
-Because not all sequences of octets are valid UTF-8,
+from (loose, not strict) utf8 into a sequence of logical characters.
+Because not all sequences of octets are valid not strict utf8,
 it is quite possible for this function to fail.
 For CHECK, see L</"Handling Malformed Data">.
+
+B<WARNING>: do not use this function for data exchange as it can produce
+$string with not strict utf8 representation! For strictly valid UTF-8
+$string representation use C<$string = decode("UTF-8", $octets [, CHECK])>.
 
 B<CAVEAT>: the input I<$octets> might be modified in-place depending on
 what is set in CHECK. See L</LEAVE_SRC> if you want your inputs to be
@@ -903,15 +915,14 @@ octets that represent the fallback character.  For instance:
 
 Acts like C<FB_PERLQQ> but U+I<XXXX> is used instead of C<\x{I<XXXX>}>.
 
-Even the fallback for C<decode> must return octets, which are
-then decoded with the character encoding that C<decode> accepts. So for
+Fallback for C<decode> must return decoded string (sequence of characters)
+and takes a list of ordinal values as its arguments. So for
 example if you wish to decode octets as UTF-8, and use ISO-8859-15 as
 a fallback for bytes that are not valid UTF-8, you could write
 
     $str = decode 'UTF-8', $octets, sub {
-        my $tmp = chr shift;
-        from_to $tmp, 'ISO-8859-15', 'UTF-8';
-        return $tmp;
+        my $tmp = join '', map chr, @_;
+        return decode 'ISO-8859-15', $tmp;
     };
 
 =head1 Defining Encodings
@@ -980,9 +991,9 @@ When you I<encode>, the resulting UTF8 flag is always B<off>.
 
 When you I<decode>, the resulting UTF8 flag is B<on>--I<unless> you can
 unambiguously represent data.  Here is what we mean by "unambiguously".
-After C<$utf8 = decode("foo", $octet)>,
+After C<$str = decode("foo", $octet)>,
 
-  When $octet is...   The UTF8 flag in $utf8 is
+  When $octet is...    The UTF8 flag in $str is
   ---------------------------------------------
   In ASCII only (or EBCDIC only)            OFF
   In ISO-8859-1                              ON

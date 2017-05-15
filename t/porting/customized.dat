@@ -46,6 +46,9 @@ Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
 Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
 Digest::MD5 cpan/Digest-MD5/MD5.xs 9b47158166b1162f11169f9766eddb75046e7917
 Digest::MD5 cpan/Digest-MD5/t/files.t c38f1ab8150ad688de807d140fd410d7cd9410de
+Encode cpan/Encode/encoding.pm 779656f3a83bf7c39625a9fc3a0b1d6723dc29b5
+Encode cpan/Encode/t/enc_eucjp.t 1b4730669db441e9ae84cff445f4750ad5e82d97
+Encode cpan/Encode/t/enc_utf8.t d3b1c9b3e4410a3e41d2b6dec1b02e6bf4d012e4
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 9061ebec404019e812d03fa7227dd435d7a71046
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t 71a03fe898634486a5181ac32b6a98f03bb9a914
 ExtUtils::Install cpan/ExtUtils-Install/lib/ExtUtils/Install.pm 802cae6f7ad3579dbcb26a34b293dc96161b1f73
@@ -86,7 +89,7 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 775ba67e29638228635bcbb4fc6ba5e16586e56d
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 1b17e0ff5a04ac2cc54866d0220fbed123308222
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 988e528336a48333ff9a28fe1197a56a640e3792
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c

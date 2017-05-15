@@ -2,7 +2,7 @@ package Encode::MIME::Header;
 use strict;
 use warnings;
 
-our $VERSION = do { my @r = ( q$Revision: 2.24 $ =~ /\d+/g ); sprintf "%d." . "%02d" x $#r, @r };
+our $VERSION = do { my @r = ( q$Revision: 2.25 $ =~ /\d+/g ); sprintf "%d." . "%02d" x $#r, @r };
 
 use Carp ();
 use Encode ();
@@ -74,6 +74,7 @@ our $STRICT_DECODE = 0;
 
 sub decode($$;$) {
     my ($obj, $str, $chk) = @_;
+    return undef unless defined $str;
 
     my $re_match_decode = $STRICT_DECODE ? $re_match_strict : $re_match;
     my $re_capture_decode = $STRICT_DECODE ? $re_capture_strict : $re_capture;
@@ -202,6 +203,7 @@ sub _decode_octets {
 
 sub encode($$;$) {
     my ($obj, $str, $chk) = @_;
+    return undef unless defined $str;
     my $output = $obj->_fold_line($obj->_encode_string($str, $chk));
     $_[1] = $str if not ref $chk and $chk and !($chk & Encode::LEAVE_SRC);
     return $output . substr($str, 0, 0); # to propagate taintedness

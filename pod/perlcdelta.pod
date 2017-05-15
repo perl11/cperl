@@ -114,9 +114,11 @@ Support pgcc, seperate it from gcc
 
 Support strict hashpairs, fix for . in @INC
 
-=item L<Encode>
+=item L<Encode> 2.89
 
-no strict hashpairs in encoding
+no strict hashpairs in encoding.
+fixed some -Wsign-compare
+See L<https://metacpan.org/changes/distribution/Encode>
 
 =item PathTools 4.68c
 
