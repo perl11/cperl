@@ -73,14 +73,14 @@ build_script:
   - if "%CYGWIN%"=="1" sh ./Configure -des -Dusedevel & make
 
 test_script:
-  - ps: if ($env:MSVC_VERSION -gt 0) {
-      $A = Start-Process -FilePath .\t\appveyor-smoke.bat -Wait -passthru;$a.ExitCode }
+  - ps: if ($env:MSVC_VERSION -gt 0) { $env:MSVC = 1 }
+  - if "%MSVC%"=="1"   t\appveyor-smoke.bat
   - if "%CYGWIN%"=="1" make -s test
   - if "%MINGW%"=="1"  make -s -C win32 %MKOPT% test
 
 before_deploy:  
-  - if "%CYGWIN%"=="1" %CYGR%\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/cygdrive/c/projects/cperl/inst && tar cvfj ${APPVEYOR_REPO_TAG_NAME}-cygwin-${platform}.tar.bz2 -C /cygdrive/c/projects/cperl/inst"
-  - if "%MINGW%"=="1" sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/c/projects/cperl/inst && tar cvfj ${APPVEYOR_REPO_TAG_NAME}-mingw-${platform}.tar.bz2 -C /c/projects/cperl/inst"
+  - if "%CYGWIN%"=="1" %CYGR%\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/cygdrive/c/projects/cperl/inst && cd /cygdrive/c/projects/cperl/inst && tar Jcvf ${APPVEYOR_REPO_TAG_NAME}-cygwin-${platform}.tar.xz *"
+  - if "%MINGW%"=="1" sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/c/projects/cperl/inst && cd /c/projects/cperl/inst && tar Jcvf ${APPVEYOR_REPO_TAG_NAME}-mingw-${platform}.tar.xz *"
 
 # appveyor cannot glob * in names
 artifacts:
@@ -96,16 +96,16 @@ artifacts:
   - path: $(APPVEYOR_REPO_TAG_NAME)-win64.exe
     name: tagged-64
     type: exe
-  - path: $(APPVEYOR_REPO_TAG_NAME)-cygwin-x86.tar.bz2
+  - path: $(APPVEYOR_REPO_TAG_NAME)-cygwin-x86.tar.xz
     name: cygwin-32
     type: tar
-  - path: $(APPVEYOR_REPO_TAG_NAME)-cygwin-x64.tar.bz2
+  - path: $(APPVEYOR_REPO_TAG_NAME)-cygwin-x64.tar.xz
     name: cygwin-64
     type: tar
-  - path: $(APPVEYOR_REPO_TAG_NAME)-mingw-x86.tar.bz2
+  - path: $(APPVEYOR_REPO_TAG_NAME)-mingw-x86.tar.xz
     name: mingw-32
     type: tar
-  - path: $(APPVEYOR_REPO_TAG_NAME)-mingw-x64.tar.bz2
+  - path: $(APPVEYOR_REPO_TAG_NAME)-mingw-x64.tar.xz
     name: mingw-64
     type: tar
 
@@ -121,13 +121,13 @@ deploy:
   force_update: true
   on:
     branch: /(master|relprep|cperl-tag-deploy-test)/
-    MSVC_VERSION: 12
 - provider: GitHub
   tag: $(APPVEYOR_REPO_TAG_NAME)-win
   description: 'cperl windows sfx tagged (msvcr120.dll)'
   auth_token:
     secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
-  artifact: tagged-32,tagged-64,cygwin-32,cygwin-64,mingw-32,mingw-64
+  artifact: tagged-32,tagged-64,cygwin-32,cygwin-64
+  #artifact: tagged-32,tagged-64,cygwin-32,cygwin-64,mingw-32,mingw-64
   draft: true
   force_update: true
   on:

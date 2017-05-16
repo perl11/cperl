@@ -189,6 +189,17 @@ L<perldtrace/"glob/gv call statistics"> sections.
 
 =back
 
+=head3 L<perldata>, L<perlfunc>
+
+=over 4
+
+=item *
+
+Added new pairwise hash contruction limitations to L<perldata/"List
+value constructors"> and L<perlfunc/"map EXPR,LIST">.
+
+=back
+
 =head1 Diagnostics
 
 The following additions or changes have been made to diagnostic output,

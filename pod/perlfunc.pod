@@ -3427,9 +3427,9 @@ relatives.  In particular, it is not limited to using regular expressions.
 
 Evaluates the BLOCK or EXPR for each element of LIST (locally setting
 L<C<$_>|perlvar/$_> to each element) and returns the list value
-consisting of those
-elements for which the expression evaluated to true.  In scalar
-context, returns the number of times the expression was true.
+consisting of those elements for which the expression evaluated to
+true.  In scalar context, returns the number of times the expression
+was true.
 
     my @foo = grep(!/^#/, @bar);    # weed out comments
 
@@ -3438,15 +3438,14 @@ or equivalently,
     my @foo = grep {!/^#/} @bar;    # weed out comments
 
 Note that L<C<$_>|perlvar/$_> is an alias to the list value, so it can
-be used to
-modify the elements of the LIST.  While this is useful and supported,
-it can cause bizarre results if the elements of LIST are not variables.
-Similarly, grep returns aliases into the original list, much as a for
-loop's index variable aliases the list elements.  That is, modifying an
-element of a list returned by grep (for example, in a C<foreach>,
-L<C<map>|/map BLOCK LIST> or another L<C<grep>|/grep BLOCK LIST>)
-actually modifies the element in the original list.
-This is usually something to be avoided when writing clear code.
+be used to modify the elements of the LIST.  While this is useful and
+supported, it can cause bizarre results if the elements of LIST are
+not variables.  Similarly, grep returns aliases into the original
+list, much as a for loop's index variable aliases the list elements.
+That is, modifying an element of a list returned by grep (for example,
+in a C<foreach>, L<C<map>|/map BLOCK LIST> or another L<C<grep>|/grep
+BLOCK LIST>) actually modifies the element in the original list.  This
+is usually something to be avoided when writing clear code.
 
 If C<$_> is lexical in the scope where the C<grep> appears, because it has
 been declared with C<my $_>, then, in addition to being locally aliased to
@@ -4076,12 +4075,11 @@ X<map>
 =for Pod::Functions apply a change to a list to get back a new list with the changes
 
 Evaluates the BLOCK or EXPR for each element of LIST (locally setting
-L<C<$_>|perlvar/$_> to each element) and returns the list value composed
-of the
-results of each such evaluation.  In scalar context, returns the
-total number of elements so generated.  Evaluates BLOCK or EXPR in
-list context, so each element of LIST may produce zero, one, or
-more elements in the returned value.
+L<C<$_>|perlvar/$_> to each element) and returns the list value
+composed of the results of each such evaluation.  In scalar context,
+returns the total number of elements so generated.  Evaluates BLOCK or
+EXPR in list context, so each element of LIST may produce zero, one,
+or more elements in the returned value.
 
     my @chars = map(chr, @numbers);
 
@@ -4122,21 +4120,21 @@ clearer in most cases.  See also L<C<grep>|/grep BLOCK LIST> for a
 list composed of those items of the original list for which the BLOCK
 or EXPR evaluates to true.
 
-If C<$_> is lexical in the scope where the C<map> appears (because it has
-been declared with the deprecated C<my $_> construct),
-then, in addition to being locally aliased to
-the list elements, C<$_> keeps being lexical inside the block; that is, it
-can't be seen from the outside, avoiding any potential side-effects.
+If C<$_> is lexical in the scope where the C<map> appears (because it
+has been declared with the deprecated C<my $_> construct), then, in
+addition to being locally aliased to the list elements, C<$_> keeps
+being lexical inside the block; that is, it can't be seen from the
+outside, avoiding any potential side-effects.
 
-C<{> starts both hash references and blocks, so C<map { ...> could be either
-the start of map BLOCK LIST or map EXPR, LIST.  Because Perl doesn't look
-ahead for the closing C<}> it has to take a guess at which it's dealing with
-based on what it finds just after the
-C<{>.  Usually it gets it right, but if it
-doesn't it won't realize something is wrong until it gets to the C<}> and
-encounters the missing (or unexpected) comma.  The syntax error will be
-reported close to the C<}>, but you'll need to change something near the C<{>
-such as using a unary C<+> or semicolon to give Perl some help:
+C<{> starts both hash references and blocks, so C<map { ...> could be
+either the start of map BLOCK LIST or map EXPR, LIST.  Because Perl
+doesn't look ahead for the closing C<}> it has to take a guess at
+which it's dealing with based on what it finds just after the C<{>.
+Usually it gets it right, but if it doesn't it won't realize something
+is wrong until it gets to the C<}> and encounters the missing (or
+unexpected) comma.  The syntax error will be reported close to the
+C<}>, but you'll need to change something near the C<{> such as using
+a unary C<+> or semicolon to give Perl some help:
 
  my %hash = map {  "\L$_" => 1  } @array # perl guesses EXPR. wrong
  my %hash = map { +"\L$_" => 1  } @array # perl guesses BLOCK. right
@@ -4153,6 +4151,24 @@ or to force an anon hash constructor use C<+{>:
                                               # comma at end
 
 to get a list of anonymous hashes each with only one entry apiece.
+
+Assignment to hashes is stricter under use L<strict> with the default
+C<'hashpairs'> in cperl. Without strict hashpairs the list elements
+constructed in the block can be of arbitrary size, only under C<use
+warnings 'misc'> an odd number of elements is warned about.  With
+strict hashpairs the list elements constructed in the block can only
+be an empty pair or a single pair, but not an odd number and not
+multiple pairs. I<cperl only>
+
+    use strict; my %h = map{ $_ } @_;
+
+    => Error: Only pair in map hash assignment allowed while "strict
+              hashpairs", got 1 elements
+
+    use strict; my %h = map{$_ => 1, $_+1 => 2} (0..1);
+
+    => Error: Only pair in map hash assignment allowed while "strict
+              hashpairs", got 4 elements
 
 =item mkdir FILENAME,MASK
 X<mkdir> X<md> X<directory, create>

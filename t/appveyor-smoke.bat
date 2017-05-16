@@ -32,6 +32,7 @@ nmake test CCTYPE=MSVC120 USE_NO_REGISTRY=define || exit /b
 
 rem install on master/relprep/tag
 if "%APPVEYOR_REPO_TAG%" == "true" goto tag
+echo branch %APPVEYOR_REPO_BRANCH%
 if "%APPVEYOR_REPO_BRANCH%" == "master" goto nightly
 if "%APPVEYOR_REPO_BRANCH%" == "smoke/relprep" goto nightly
 if "%APPVEYOR_REPO_BRANCH%" == "cperl-tag-deploy-test" goto nightly

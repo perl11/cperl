@@ -1018,12 +1018,30 @@ This can be used to provide overridable configuration defaults:
     # values in %args take priority over %config_defaults
     %config = (%config_defaults, %args);
 
+
+Hashes need to be assigned from list pairs. Under C<use warnings 'misc'>
+an odd number of list elements is warned with "Odd number of elements
+in hash assignment". Since cperl 5.27 under C<use strict> hash assignment
+from lists must be from pairs, and from map even from an empty or
+single pair only.
+
+    {
+      no strict;
+      my %h = (0..2); # warning
+      my %h = map {$_} (0..1); # warning
+    }
+    {
+      use strict;
+      my %h = (0..2);          # error
+      my %h = map {$_} (0..1); # error
+      my %h = map {$_=>1, $_+1=>1} (0..1); # error
+    }
+
 =head2 Subscripts
 
-An array can be accessed one scalar at a
-time by specifying a dollar sign (C<$>), then the
-name of the array (without the leading C<@>), then the subscript inside
-square brackets.  For example:
+An array can be accessed one scalar at a time by specifying a dollar
+sign (C<$>), then the name of the array (without the leading C<@>),
+then the subscript inside square brackets.  For example:
 
     @myarray = (5, 50, 500, 5000);
     print "The Third Element is", $myarray[2], "\n";
