@@ -126,6 +126,16 @@ no strict hashpairs in encoding.
 fixed some -Wsign-compare
 See L<https://metacpan.org/changes/distribution/Encode>
 
+=item L<ExtUtils::Install> 2.08
+
+Optimisations:
+  use our instead of vars
+  lazy load modules
+  make OS variables into constants
+  move some calculations out of a loop
+
+Keep our make -s support  
+
 =item PathTools 4.68c
 
 getcwd, getdcwd and abs_path have now long path support.

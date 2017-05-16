@@ -54,7 +54,7 @@ Encode cpan/Encode/t/enc_eucjp.t 1b4730669db441e9ae84cff445f4750ad5e82d97
 Encode cpan/Encode/t/enc_utf8.t d3b1c9b3e4410a3e41d2b6dec1b02e6bf4d012e4
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 9061ebec404019e812d03fa7227dd435d7a71046
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t 71a03fe898634486a5181ac32b6a98f03bb9a914
-ExtUtils::Install cpan/ExtUtils-Install/lib/ExtUtils/Install.pm 802cae6f7ad3579dbcb26a34b293dc96161b1f73
+ExtUtils::Install cpan/ExtUtils-Install/lib/ExtUtils/Install.pm 0004c64c78cd90f20dc8186261c1b1e291537b9f
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm 92397ec3b85c35edd33cbe7b237d244ea2bd00b1
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm 31719e78e0a0b2c8449a20bb8d3b40b1605a211a
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 69351c5e5418046f9800b0d78cf454f5c1931e2d
@@ -92,7 +92,7 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 74258fdeb5a1775085c10fb8262c39122f9db795
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm a29fba440c06e6458a8148447261a841db974849
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 988e528336a48333ff9a28fe1197a56a640e3792
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c

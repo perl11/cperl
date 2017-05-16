@@ -14908,6 +14908,7 @@ our %delta = (
             'Cwd'                   => '4.68c',
             'Devel::PPPort'         => '3.35_03',
             'Encode'                => '2.89',
+            'ExtUtils::Install'     => '2.08',
             'File::Spec'            => '4.68c',
             'File::Spec::Unix'      => '4.68c',
             'File::Spec::Win32'     => '4.68c',
