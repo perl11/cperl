@@ -136,6 +136,14 @@ Optimisations:
 
 Keep our make -s support  
 
+=item L<IPC::Cmd> 0.98
+
+Enhancements:
+  Added wait_loop_callback for run_forked()
+
+Bug fixes:
+  Only search in curdir in can_run() when on Win32 RT#105601
+
 =item PathTools 4.68c
 
 getcwd, getdcwd and abs_path have now long path support.
