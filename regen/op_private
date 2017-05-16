@@ -469,11 +469,10 @@ for (qw(length)) {
 }
 
 
-
 addbits($_, 1 => qw(OPpHINT_STRICT_REFS STRICT))
     for qw(rv2sv rv2av rv2hv rv2gv multideref);
 
-
+addbits('rv2sv', 2 => qw(OPpHINT_STRICT_NAMES NAMES));
 
 # Treat caller(1) as caller(2)
 addbits($_, 7 => qw(OPpOFFBYONE  +1)) for qw(caller wantarray runcv);

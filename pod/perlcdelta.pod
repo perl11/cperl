@@ -25,6 +25,38 @@ here, but most should go in the L</Performance Enhancements> section.
 
 [ List each enhancement as a =head2 entry ]
 
+=head2 Check and normalize stringified names
+
+Before symbols and identifiers created from strings at run-time were
+added asis. Now those names are treated almost as in the parser at
+compile-time, i.e. unicode is normalized, mixed Unicode scripts are
+checked at run-time also. cperl-only.
+
+Behaviour of L<perlapi/valid_ident>:
+
+    ${"\xc3\x28"}       => FALSE.  Illegal unicode, but no warning or error,
+                           unless under strict names.
+    ${"E\x{45}\x{301}"} => TRUE.   Normalized to $E\x{c9}
+    ${"एxṰர::ʦፖㄡsȨ"}   => FALSE. Error: Invalid script Tamil in identifier
+                            ர::ʦፖㄡsȨ for U+0BB0. Have Devanagari
+
+See below L</strict names>. C<use strict> fatalizes now any run-time
+identifier parsing problem.
+
+=head2 strict names
+
+strict names is the default when using C<use strict>.  Reject illegal
+identifiers at run-time when created dynamically from strings, which
+would be rejected at compile-time. cperl-only.
+
+    use strict "names";
+    ${"\$var"}    => Invalid identifier "$var" while "strict names"
+    ${"\xff"}     => Invalid identifier "\377" while "strict names"
+    ${"\xc3\x28"} => Invalid identifier "\303(" while "strict names"
+
+See L<perldata/"Identifier parsing"> and
+L<http://perl11.org/blog/strict-names.html>
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security

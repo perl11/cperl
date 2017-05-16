@@ -286,8 +286,8 @@ test_opcount(0, 'multideref exists',
                          $f=$lex, $g=$pkg) { },
                     {
                         signature  => 1,
-                        nextstate  => 1,
-                        sassign    => 0,
+                        nextstate  => 2,
+                        sassign    => 1,
                         add        => 0,
                     },
                 );

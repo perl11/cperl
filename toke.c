@@ -9721,7 +9721,7 @@ S_scan_word(pTHX_ char *s, char *dest, STRLEN destlen, int allow_package,
     return s;
 }
 
-/* Is the byte 'd' a legal single character identifier name?  'u' is true
+/* Is the byte 's' a legal single character identifier name?  'is_utf8' is true
  * iff Unicode semantics are to be used.  The legal ones are any of:
  *  a) all ASCII characters except:
  *          1) control and space-type ones, like NUL, SOH, \t, and SPACE;
@@ -13430,8 +13430,8 @@ Perl_parse_subsignature(pTHX)
                                      |OPf_SPECIAL|OPf_PARENS)));
                             ASSUME(!(defexpr->op_private &
                                             ~(OPpARG1_MASK
-                                             |OPpHINT_STRICT_REFS|OPpOUR_INTRO
-                                             |OPpDEREF|OPpLVAL_INTRO)));
+                                             |OPpHINT_STRICT_REFS|OPpHINT_STRICT_NAMES
+                                             |OPpOUR_INTRO|OPpDEREF|OPpLVAL_INTRO)));
 
                             ASSUME(!(gvop->op_flags & ~(OPf_WANT|OPf_SPECIAL)));
                             ASSUME(!(gvop->op_private & ~(OPpEARLY_CV)));

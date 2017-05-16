@@ -2764,6 +2764,104 @@ Perl__is_utf8_mark(pTHX_ const U8 *p)
 }
 
 /*
+=for apidoc valid_ident
+
+Is the SV a valid identifier?
+Returns a boolean and checks for mixed unicode scripts and normalizes the string
+if needed. Sets normalize then.
+
+To detect illegal but valid builtin global C<$main::> variables, such
+as <$">, you need to set allow_package and use the "main::" or "::"
+prefix.
+
+normalizep must not be NULL.
+On strict_names it will die and not return FALSE.
+Similar code as in toke.c but member of the public API.
+But in toke.c illegal UTF-8 will error with "Unrecognized character".
+
+    ${"\xc3\x28"}       => FALSE.  Illegal unicode, but no warning or error.
+    ${"E\x{45}\x{301}"} => TRUE.   Normalized to $E\x{c9}
+    ${"एxṰர::ʦፖㄡsȨ"}   => FALSE. Error: Invalid script Tamil in identifier
+                             ர::ʦፖㄡsȨ for U+0BB0. Have Devanagari
+
+=cut
+*/
+
+bool
+Perl_valid_ident(pTHX_ const SV* sv, bool strict_names, bool allow_package,
+                 int *normalizep)
+{
+    char *s = SvPVX(sv);
+    STRLEN len = SvCUR(sv);
+    char *e = s + len;
+    const bool is_utf8 = SvUTF8(sv);
+    PERL_ARGS_ASSERT_VALID_IDENT;
+
+    if (SvCUR(sv) > TOKENBUF_SIZE) {
+        if (strict_names)
+            Perl_croak(aTHX_ "Identifier too long"); /* same string as in toke.c:102 */
+        return FALSE;
+    }
+    *normalizep = 0;
+    while (s < e) {
+        if (is_utf8 && isIDFIRST_utf8_safe(s, e)) {
+            const U8 *p = (U8*)s;
+            STRLEN l = UTF8SKIP(p);
+            if (l > 1) {
+                if (UNLIKELY(!(is_LATIN_OR_COMMON_SCRIPT_utf8(p))))
+                    utf8_check_script(p);
+                if (!*normalizep && UNLIKELY(_is_decomposed_string(p, l)))
+                    *normalizep = 1;
+            }
+            s += l;
+            while (s < e && isIDCONT_utf8_safe((const U8*)s, (const U8*)e)) {
+                l = UTF8SKIP(s);
+                if (l > 1) {
+                    if (UNLIKELY(!(is_LATIN_OR_COMMON_SCRIPT_utf8(s)
+                                || is_INHERITED_SCRIPT_utf8(s))))
+                        utf8_check_script((U8*)s);
+                    if (!*normalizep && UNLIKELY(_is_decomposed_string((U8*)s, l)))
+                        *normalizep = 1;
+                }
+                s += l;
+            }
+        }
+        else if (isIDFIRST_A(*s)) {
+            do { s++; } while (isIDCONT_A(*s) && s < e);
+        }
+        else if (allow_package && *s == ':' && s[1] == ':') {
+            s++;
+            s++;
+        }
+        else
+            break;
+    }
+    if (s != e) {
+        if (strict_names) {
+            SV * const dsv = sv_newmortal();
+            DEBUG_kv(Perl_deb(aTHX_ "at %s\n", s));
+            s = pv_pretty( dsv, SvPVX(sv), len, 60, NULL, NULL,
+                           PERL_PV_PRETTY_DUMP);
+            /* different error as in the parser */
+            Perl_croak(aTHX_ "Invalid identifier %s while \"strict names\" in use", s);
+            OpPRIVATE(PL_op) &= ~OPpHINT_STRICT_NAMES; /* only once */
+        }
+        return FALSE;
+    }
+    if (UNLIKELY(*normalizep)) {
+        s = pv_uni_normalize(SvPVX(sv), len, &len);
+        if (s != SvPVX_const(sv)) {
+            sv_grow(sv, len);
+            Copy(s, SvPVX(sv), len+1, char);
+            Safefree(s);
+        }
+        SvCUR_set(sv, len);
+    }
+    return TRUE;
+}
+
+
+/*
 =for apidoc to_utf8_case
 
 Instead use the appropriate one of L</toUPPER_utf8_safe>,

@@ -6594,6 +6594,13 @@ PERL_CALLCONV U8*	Perl_uvuni_to_utf8_flags(pTHX_ U8 *d, UV uv, UV flags)
 #define PERL_ARGS_ASSERT_UVUNI_TO_UTF8_FLAGS	\
 	assert(d)
 
+PERL_CALLCONV bool	Perl_valid_ident(pTHX_ const SV* sv, bool strict_names, bool allow_package, int *normalizep)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_4);
+#define PERL_ARGS_ASSERT_VALID_IDENT	\
+	assert(sv); assert(normalizep)
+
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE UV	Perl_valid_utf8_to_uvchr(const U8 *s, STRLEN *retlen)
 			__attribute__warn_unused_result__

@@ -3060,6 +3060,13 @@ S<<-- HERE> in m/%s/
 number.  Either it is empty, or you tried to use a character other than
 0 - 9 or A - F, a - f in a hexadecimal number.
 
+=item Invalid identifier %s while "strict names" in use
+
+(F) With "strict names" in use, an identifier: package, subroutine or
+variable name created from a dynamic string needs to follow the same
+identifier rules as a constant identifier being parsed.
+See L<perldata/"Identifier parsing"> and L<strict>. cperl only.
+
 =item Invalid modification of shaped array: %s
 
 =item Invalid modification of shaped array: %s %s

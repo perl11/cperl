@@ -3067,9 +3067,8 @@ you can use C<*s = uv>.
 
 =item *
 
-Mixing UTF-8 and non-UTF-8 strings is
-tricky.  Use C<bytes_to_utf8> to get
-a new string which is UTF-8 encoded, and then combine them.
+Mixing UTF-8 and non-UTF-8 strings is tricky.  Use C<bytes_to_utf8> to
+get a new string which is UTF-8 encoded, and then combine them.
 
 =back
 

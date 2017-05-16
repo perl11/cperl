@@ -177,7 +177,7 @@ $cv = sub {
     use utf8 'Han';
     our $戦国 = 10;
     {
-        no strict 'refs';
+        no strict; # \346\210\246\345\233\275 is illegal
         my ($symref, $encoded_sym) = (__PACKAGE__ . "::戦国") x 2;
         utf8::encode($encoded_sym);
         return [ $戦国, ${$symref}, ${$encoded_sym} ];

@@ -28,3 +28,34 @@ Attempt to bless into a reference at - line 1.
 use strict; my @a=(0..2); my %h=@a;
 EXPECT
 Only pairs in hash assignment allowed while "strict hashpairs", got 3 elements at - line 1.
+########
+# NAME Invalid unicode variable name
+use utf8; use strict "names";
+${"\xc3\x28"} = 1;
+EXPECT
+Invalid identifier "\303(" while "strict names" in use at - line 2.
+########
+# NAME Invalid unicode variable name from SV
+use utf8; use strict "names";
+my $s = "\xe2\x28\xa1";
+${$s}++
+EXPECT
+Invalid identifier "\342(\241" while "strict names" in use at - line 3.
+########
+# NAME Invalid unicode package name
+use utf8; use strict "names";
+my $s = "\xe2\x28\xa1";
+${"$s\::xx"}++
+EXPECT
+Invalid identifier "\342(\241::xx" while "strict names" in use at - line 3.
+########
+# NAME Invalid variable name with NUL
+use utf8; use strict "names";
+${"\xe2\x0\xa1"}
+EXPECT
+Invalid identifier "\342\0\241" while "strict names" in use at - line 2.
+########
+# NAME Invalid internal variable name
+use strict "names"; ${"\cTAINT"}
+EXPECT
+Invalid identifier "\24AINT" while "strict names" in use at - line 1.

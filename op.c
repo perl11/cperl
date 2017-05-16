@@ -11010,7 +11010,9 @@ Perl_ck_rvconst(pTHX_ OP *o)
 
     PERL_ARGS_ASSERT_CK_RVCONST;
 
-    o->op_private |= (PL_hints & HINT_STRICT_REFS);
+    OpPRIVATE(o) |= (PL_hints & HINT_STRICT_REFS);
+    if (IS_TYPE(o, RV2SV) && PL_hints & HINT_STRICT_NAMES)
+        OpPRIVATE(o) |= OPpHINT_STRICT_NAMES;
 
     if (IS_CONST_OP(kid)) {
 	int iscv;
@@ -11024,7 +11026,7 @@ Perl_ck_rvconst(pTHX_ OP *o)
 	    return o;
 	}
 	if (SvTYPE(kidsv) == SVt_PVAV) return o;
-	if ((o->op_private & HINT_STRICT_REFS) && (kid->op_private & OPpCONST_BARE)) {
+	if ((OpPRIVATE(o) & HINT_STRICT_REFS) && (OpPRIVATE(kid) & OPpCONST_BARE)) {
 	    const char *badthing;
 	    switch (o->op_type) {
 	    case OP_RV2SV:
@@ -11045,6 +11047,16 @@ Perl_ck_rvconst(pTHX_ OP *o)
 			   "Can't use bareword (\"%" SVf "\") as %s ref while \"strict refs\" in use",
 			   SVfARG(kidsv), badthing);
 	}
+#if 0
+        /* TODO Could also be scope null-const, not detected here.
+           This also rejects all our existing magic names, like "$!".
+         */
+        if (IS_TYPE(o, RV2SV) && OpPRIVATE(o) & OPpHINT_STRICT_NAMES) {
+            int normalize;
+            DEBUG_kv(Perl_deb("op check strict names \"%" SVf "\"\n", SVfARG(kidsv)));
+            (void)valid_ident(kidsv, TRUE, TRUE, &normalize);
+        }
+#endif
 	/*
 	 * This is a little tricky.  We only want to add the symbol if we
 	 * didn't add it in the lexer.  Otherwise we get duplicate strict
@@ -16213,11 +16225,13 @@ S_maybe_multideref(pTHX_ OP *start, OP *orig_o, UV orig_action, U8 hints)
                              |OPf_SPECIAL|OPf_PARENS)));
                     ASSUME(!(kid->op_private &
                                     ~(OPpARG1_MASK
+                                     |OPpHINT_STRICT_NAMES
                                      |OPpHINT_STRICT_REFS|OPpOUR_INTRO
                                      |OPpDEREF|OPpLVAL_INTRO)));
                     if(   (kid->op_flags &~ OPf_PARENS)
                             != (OPf_WANT_SCALAR|OPf_KIDS)
-                       || (kid->op_private & ~(OPpARG1_MASK|HINT_STRICT_REFS))
+                       || (kid->op_private &
+                           ~(OPpARG1_MASK|HINT_STRICT_REFS|OPpHINT_STRICT_NAMES))
                     )
                         break;
 
@@ -17052,6 +17066,7 @@ Perl_rpeep(pTHX_ OP *o)
                     break;
 
                 ASSUME(!(o2->op_private & ~(OPpARG1_MASK|HINT_STRICT_REFS
+                                    |OPpHINT_STRICT_NAMES
                                     |OPpOUR_INTRO|OPpDEREF|OPpLVAL_INTRO)));
                 if (o2->op_private & (OPpOUR_INTRO|OPpLVAL_INTRO))
                     break;

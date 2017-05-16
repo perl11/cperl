@@ -136,10 +136,13 @@ unicode identifiers.
 
 With cperl all utf8 identifiers and literals are parsed and stored as
 normalized NFC variants, which prevents from various TR39 and TR36
-unicode confusable and spoofing security problems.  However,
-dynamically created symbols via string refs are not normalized.
-C<${"$decomposed"}> stays decomposed.  This is similar to Python 3,
-but Python 3 normalizes to the non-canonical NFKC.  See
+unicode confusable and spoofing security problems.  However, prio to
+cperl 5.27.1 dynamically created symbols via string refs were not
+normalized.  C<${"$decomposed"}> stayed decomposed. Since cperl 5.27.1
+under use strict names the dynamic run-time rules match the static
+parser rules.  Normalization is similar to Perl 6 and Python 3, but
+Perl 6 normalized to their own NFG format and Python 3 normalizes to
+the non-canonical NFKC format.  See
 L<http://www.unicode.org/reports/tr36/> and
 L<http://www.unicode.org/reports/tr39>.
 
@@ -300,6 +303,9 @@ Since 5.16 up and until cperl v5.25.2c, binary names were silently
 allowed in names, such symbols and packages. Before 5.16 names were
 silently stripped, since v5.25.2c names are stripped with a prominent
 security warning.
+
+Since cperl 5.27.1 under use strict names, the parsing rules are
+enforced even with dynamically created identifiers.
 
 =head2 Context
 X<context> X<scalar context> X<list context>
