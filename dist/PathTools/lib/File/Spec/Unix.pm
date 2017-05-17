@@ -174,7 +174,7 @@ sub _cached_tmpdir {
     return $tmpdir;
 }
 sub _tmpdir ($self, @dirlist) {
-    my $taint = do { no strict 'refs'; ${"\cTAINT"} };
+    my $taint = do { no strict; ${"\cTAINT"} };
     if ($taint) { # Check for taint mode on perl >= 5.8.0
 	require Scalar::Util;
 	@dirlist = grep { ! Scalar::Util::tainted($_) } @dirlist;
