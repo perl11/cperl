@@ -44,7 +44,7 @@ matrix:
     - env: CONFIGURE_OPTION='-Dusethreads -DDEBUGGING -Duse64bitall -Dld=c++' XCC='c++'
 script:
 - function shell_session_update { true; } ; CFG=$CONFIGURE_OPTION ;
-  test -z "$TRAVIS_TAG" && CONFIGURE_OPTION="$CFG -Dusedevel";
+  CONFIGURE_OPTION="$CFG -Dusedevel";
   test -z "$DEPLOY" && CONFIGURE_OPTION="$CONFIGURE_OPTION -Dprefix=$HOME/cperl/usr";
   ./Configure -des -Uversiononly -Dcc="$XCC" $CONFIGURE_OPTION &&
   make -s -j4 || ( test "${TRAVIS_OS_NAME}" = "linux" -a
