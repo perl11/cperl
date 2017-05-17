@@ -128,6 +128,12 @@ pgcc is very slow though. pgcc -O2 is 40% slower than gcc-6 -O3,
 pgcc -fast 30% slower.
 L<[cperl #279]|https://github.com/perl11/cperl/issues/279>.
 
+=item *
+
+C<-Dusedevel> is not needed to be added to all development versions
+anymore, it is now the default on such. A big warning is still being
+displayed, even in the usual silent auto mode C<-des>.
+
 =back
 
 =head1 Utility Changes
@@ -162,7 +168,14 @@ Fixed F<Porting/cmpVERSION.pl> resp. F<t/porting/cmp_version.t>
 
 =over 4
 
+<<<<<<< HEAD
 =item mingw
+||||||| parent of 962c7a2... Configure: -Dusedevel automatic default
+=item *
+
+XXX
+=======
+>>>>>>> 962c7a2... Configure: -Dusedevel automatic default
 
 cperl on mingw was previously unsupported and didn't compile nor work.
 
