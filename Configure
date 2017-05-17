@@ -2934,7 +2934,6 @@ case "$lns" in
 *)	echo "No symbolic links, so not testing for their testing..." >&4
 	;;
 esac
-echo " "
 
 : Make symlinks util
 case "$mksymlinks" in
@@ -17765,8 +17764,9 @@ $volatile int bletched = 0;
 $signal_t blech(int s) { bletched = 1; }
 #endif
 
-int checkit($nvtype d, char *where) {
-    unsigned char *p = (char *)&d;
+int checkit($nvtype d, const char *where) {
+    void *v = &d;
+    unsigned char *p = (unsigned char *)v;
     unsigned char *end = p + sizeof(d);
     int fail = 0;
 
@@ -17776,7 +17776,7 @@ int checkit($nvtype d, char *where) {
     if (!fail)
 	return 0;
 
-    p = (char *)&d;
+    p = (unsigned char *)v;
     printf("No - %s: 0x", where);
     while (p < end)
 	printf ("%02X", *p++);
@@ -21235,10 +21235,13 @@ $cat >try.c <<EOP
 #define LONG_DOUBLEKIND $longdblkind
 #endif
 #$i_math I_MATH
+#$i_string I_STRING
 #ifdef I_MATH
 #include <math.h>
 #endif
-#include <string.h>
+#ifdef I_STRING
+#  include <string.h>
+#endif
 #include <stdio.h>
 typedef unsigned char* U8;
 /* Note that whether the sign bit is on or off
@@ -21256,7 +21259,8 @@ typedef unsigned char* U8;
  * to even mention, causing immediate SIGFPE or equivalent: this is
  * the case with VAX floating point, for example.
  */
-static void bytes(U8 p, unsigned int n) {
+static void bytes(void *v, unsigned int n) {
+  unsigned char *p = (unsigned char *)v;
   int i;
 #ifdef HAS_LONG_DOUBLE
 # if LONGDBLKIND == 3 || LONGDBLKIND == 4
@@ -23675,7 +23679,7 @@ main(int argc, char **argv) {
 	return 4;
     }
 
-    buffer = malloc(size);
+    buffer = (char *)malloc(size);
     if (!buffer) {
 	perror("malloc");
 	return 5;
@@ -23774,7 +23778,7 @@ main(int argc, char **argv) {
 	return 2;
     }
 
-    buffer = malloc(size);
+    buffer = (char *)malloc(size);
     if (!buffer) {
 	perror("malloc");
 	return 3;
