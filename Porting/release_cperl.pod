@@ -9,11 +9,13 @@ covered here, or tools may need updating.
 
 =head1 SYNOPSIS
 
-There's no C<make release> target yet.
-
     less Porting/release_manager_guide.pod
 
-    Porting/do-conf-cperl-release
+There's no C<make release> target yet. But it is just:
+
+    git tag cperl-$VERSION
+    git push --tags
+    Porting/do-make-srctarball
     Porting/do-make-cperl-release
 
 or:
@@ -38,6 +40,9 @@ or:
 So far we have no upstream accepted C<cperl> packages yet, so we
 publish it by our own.  It's trivial.
 
+Windows binaries fall out of appveyor and are pushed to github releases
+automatically. You just need to edit the Draft and announcement there.
+
 =head1 DETAILS
 
 =head2 makerel the src tarball
@@ -47,6 +52,7 @@ C<.tar.gz> release.
 
 In short: Start in a fresh dir, because we don't want to loose our
 internal test files.
+F<Porting/do-make-srctarball> contains this:
 
     mkdir ../cperl-5.27.0-build
     cp -rp .git ../cperl-5.27.0-build/
@@ -57,7 +63,7 @@ internal test files.
 
 =head2 make the native binaries
 
-My C<../do-conf-cperl-release> contains this.
+F<Porting/do-conf-cperl-release> contains this:
 ccflags is architecture specific.
 
     ver=5.27.0
@@ -121,12 +127,14 @@ create packages for debian/ubuntu/mint .deb, redhat/centos/fedora
         -C ../cperl-5.27.0-inst .
 
     # on i386 and amd64 windows machines
-    # TODO (see strawberry for .msi)
+    # done by tag and branch name by appveyor for MSVC12
+    # (users need the msvcrt120.dll),
+    # and (untested) for cygwin32 and cygwin64.
 
 =head2 prepare the repos on perl11.org
 
-You need write permissions to the C<perl11/perl11.github.com> repo on github,
-i.e. member of the C<perl11/mongers> group.
+You need write permissions to the F<perl11/perl11.github.com> repo on github,
+i.e. member of the F<perl11/mongers> group.
 Releases are just static files on the web somewhere, for .deb, .rpm and the others.
 We use our static L<http://perl11.org/cperl/> website on github for now.
 

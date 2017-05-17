@@ -39,9 +39,17 @@ Windows is smoked with MSVC 10 and 12 for 32 and 64bit.
 The BSD's and Solaris are only tested before a release.
 
 The current stable release is
-  [5.24.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.2) - [perl5242cdelta](perl5242cdelta.html),
-the latest development release [5.26.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.0) - [perl5260cdelta](perl5260cdelta.html).
-We also have [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
+
+* [5.26.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.26.0) - [perl5260cdelta](perl5260cdelta.html).
+  
+the latest development release:
+
+* [5.27.0c](https://github.com/perl11/cperl/releases/tag/cperl-5.27.0) - [perl5270cdelta](perl5270cdelta.html).
+
+We also have:
+
+* [5.24.2c](https://github.com/perl11/cperl/releases/tag/cperl-5.24.2) - [perl5242cdelta](perl5242cdelta.html),
+* [5.22.4c](https://github.com/perl11/cperl/releases/tag/cperl-5.22.4), [perl5224cdelta](perl5224cdelta.html).
 
 All tests pass. CPAN works.
 Some fixes in my `rurban/distroprefs` repo for certain CPAN modules are needed.
@@ -62,7 +70,7 @@ done within p5p increases, these numbers do increase over time.
 ![Benchmarks](cperl-bench26.png)
 For all versions see [bench-all/](bench-all/index.html)
 
-# In the stable master branch are the following major features
+# In the latest stable releases are the following major features:
 
 * coretypes (Int, UInt, Num, Str. lowercase native types accepted)
 * types in signatures as designed and also as attribute.
@@ -132,6 +140,9 @@ For all versions see [bench-all/](bench-all/index.html)
 * base/fields classes behave now like closed cperl classes: The ISA is readonly,
   inheritance checks are performed at compile-time already. More support for
   closed classes, esp. restricted stashes and readonly ISA.
+  
+# In the latest development releases additionally:
+  
 * study with HASH, ARRAY, CODE
 * enhanced dtrace probes
 * support for long path names, > 4096
@@ -140,9 +151,9 @@ For all versions see [bench-all/](bench-all/index.html)
 Most of them only would have a chance to be merged upstream if a p5p
 committer would have written it.
 
-But some features revert decisions p5p already made. See
-[README.cperl](perlcperl.html).  When in doubt I went with the
-decisions and policies perl5 made before 2001, before p5p went
+But some features revert decisions p5p already
+made. See [README.cperl](perlcperl.html).  When in doubt I went with
+the decisions and policies perl5 made before 2001, before p5p went
 downwards. It is very unlikely that p5p will revert their own design
 mistakes. It never happened so far.
 
@@ -192,8 +203,7 @@ download the pkg installer from [http://perl11.org/osx/](http://perl11.org/osx/)
 ## windows
 
 download the self-extracting zip from [http://perl11.org/win/](http://perl11.org/win/)
-and install it into drive and directory `C:\cperl`.
-
+and install it into `C:\cperl` via the `cperl-5.26.0-win64.exe -InstallPath="C:\\cperl"` cmdline option.
 
 # Known bugs
 
@@ -230,6 +240,7 @@ Patches are needed for `Module::Build`, `IO::Socket::SSL` and `Net::SSLeay`.
 * Missing . in @INC
   (*cperl removed . from @INC 2 years ago already, but ran the cpan tests and
   installer with PERL_USE_UNSAFE_INC. This is now a general 5.26 problem.*)
+* %hash = map under [use strict](/blog/strict-hashpairs.html) (hashpairs since 5.27.0)
 
 Breakage is much less than with a typical major perl5 release, and the
 patches for most common CPAN modules are provided in
@@ -357,7 +368,8 @@ are limited. So they are based on master.
 
   [code](http://github.com/perl11/cperl/commits/feature/gh102-smallhash)
 
-  optimize the speed for small hashes, less keys.
+  optimize the speed for small hashes, less keys, inline 3-7 as array.
+  esp. needed for the new objects.
 
 * [feature/gh176-unexec](https://github.com/perl11/cperl/issues/176)
 
@@ -395,17 +407,17 @@ They also revert some wrong decisions p5p already made.
 
   [code](http://github.com/perl11/cperl/commits/feature/gh23-inline-subs)
 
-  some compiler fixes needed
+  some compiler fixes needed.
 
 * [feature/CM-712-cperl-types-proto](http://github.com/perl11/cperl/commits/feature/CM-712-cperl-types-proto)
 
-  constant fold everything, not only with empty `()` protos
+  constant fold everything, not only with empty `()` protos.
 
 * [feature/gh24-new-hash-table](https://github.com/perl11/cperl/issues/24)
 
   [code](http://github.com/perl11/cperl/commits/feature/gh24-new-hash-table)
 
-  lots of small attempts, but still too hairy. needs a complete hash table rewrite.
+  lots of small attempts, but still too hairy. might need a complete hash table rewrite.
   getting there, but not yet finished for 5.26.
 
 * [feature/gh16-multi](https://github.com/perl11/cperl/issues/16)
@@ -417,21 +429,21 @@ They also revert some wrong decisions p5p already made.
 
 * various more hash tables:
 
-[featurex/gh24-one-word-ahe](http://github.com/perl11/cperl/commits/featurex/gh24-one-word-ahe)
-[featurex/gh24-open-hash](http://github.com/perl11/cperl/commits/featurex/gh24-open-hash)
-[featurex/gh24-hopscotch-hash](http://github.com/perl11/cperl/commits/featurex/gh24-hopscotch-hash)
+  [featurex/gh24-one-word-ahe](http://github.com/perl11/cperl/commits/featurex/gh24-one-word-ahe), 
+  [featurex/gh24-open-hash](http://github.com/perl11/cperl/commits/featurex/gh24-open-hash), 
+  [featurex/gh24-hopscotch-hash](http://github.com/perl11/cperl/commits/featurex/gh24-hopscotch-hash)
 
 ## Soon
 
-* the jit
+* [the jit](https://github.com/perl11/cperl/issues/220) code: [feature/gh220-llvmjit](http://github.com/perl11/cperl/commits/feature/gh220-llvmjit)
 
 * user facing classes, multiple dispatch (fast for binary, slow for mega),
   internal-only pseudohashes.
 
-* builtin macros
+* [builtin macros](https://github.com/perl11/cperl/issues/261)
 
 * builtin ffi
 
 --
 
-2017-04-19 rurban
+2017-05-17 rurban
