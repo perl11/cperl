@@ -238,7 +238,9 @@ L</Platform Support> section, instead.
 
 =item *
 
-XXX
+C<-Dusedevel> is needed to be added to all development versions anymore,
+it is now the default on such. A big warning is still being displayed,
+even in the usual silent auto mode C<-des>.
 
 =back
 

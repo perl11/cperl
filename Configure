@@ -2353,12 +2353,12 @@ $define|true|[yY]*)
     It is most seriously suggested that you do not continue any further
     unless you want to help in developing and debugging Perl.
 
-    If you *still* want to build perl, you can answer 'y' now,
+    If you *still* want to build perl, you can press Enter now,
     or pass -Dusedevel to Configure.
 
 EOH
 	rp='Do you really want to continue?'
-	dflt='n'
+	dflt='y'
 	. ./myread
 	case "$ans" in
 	[yY]) echo >&4 "Okay, continuing."
@@ -2368,8 +2368,9 @@ EOH
 	   ;;
 	esac
 	;;
+   *) usedevel="$undef"
+      ;;
     esac
-    usedevel="$undef"
     ;;
 esac
 case "$usedevel" in
