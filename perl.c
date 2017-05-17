@@ -3736,7 +3736,7 @@ S_minus_v(pTHX)
 {
 	PerlIO * PIO_stdout;
 	{
-	    const char * const level_str = "v" PERL_VERSION_STRING;
+	    const char const level_str [] = "v" PERL_VERSION_STRING;
 	    const STRLEN level_len = sizeof("v" PERL_VERSION_STRING)-1;
 #ifdef PERL_PATCHNUM
 	    SV* level;
@@ -4046,7 +4046,7 @@ S_open_script(pTHX_ const char *scriptname, bool dosearch, bool *suidscript)
 	char tmpname[sizeof(FAKE_BIT_BUCKET_TEMPLATE)] = {
 	    FAKE_BIT_BUCKET_TEMPLATE
 	};
-	const char * const err = "Failed to create a fake bit bucket";
+	const char const err[] = "Failed to create a fake bit bucket";
 	if (strEQc(scriptname, BIT_BUCKET)) {
 #ifdef HAS_MKSTEMP /* Hopefully mkstemp() is safe here. */
             int old_umask = umask(0177);

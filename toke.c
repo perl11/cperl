@@ -10935,10 +10935,10 @@ S_scan_str(pTHX_ char *start, int keep_bracketed_quoted, int keep_delims, int re
     line_t herelines;
 
     /* The delimiters that have a mirror-image closing one */
-    const char * opening_delims = "([{<";
-    const char * closing_delims = ")]}>";
+    const char opening_delims[] = "([{<";
+    const char closing_delims[] = ")]}>";
 
-    const char * non_grapheme_msg = "Use of unassigned code point or"
+    const char non_grapheme_msg[] = "Use of unassigned code point or"
                                     " non-standalone grapheme for a delimiter";
     /* The only non-UTF character that isn't a stand alone grapheme is
      * white-space, hence can't be a delimiter.  So can skip for non-UTF-8 */
