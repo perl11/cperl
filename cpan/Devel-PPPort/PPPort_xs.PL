@@ -44,7 +44,8 @@ for $file (all_files_in_dir('parts/inc')) {
   my $msg = 0;
   for $sec (keys %SECTION) {
     if (exists $spec->{$sec}) {
-      unless ($ENV{PERL_CORE}) {
+      unless (defined $ENV{MAKEFLAGS}
+              and $ENV{MAKEFLAGS} =~ /\b(s|silent|quiet)\b/) {
         $msg++ or print "adding XS code from $file\n";
       }
       if (exists $SECTION{$sec}{header}) {
