@@ -2,201 +2,161 @@
 
 =head1 NAME
 
-perlcdelta - what is new for cperl v5.27.0
+perlcdelta - what is new for cperl v5.27.1
 
 =head1 DESCRIPTION
 
-This document describes the differences between the cperl 5.26.0
-and the cperl 5.27.0 releases.
+This document describes the differences between the cperl 5.27.0
+and the cperl 5.27.1 releases.
 
 If you are upgrading from an earlier release such as v5.24.2c, first
 read the L<perl525*cdelta> documentation, which describes differences
 between v5.25.1c and v5.26.0c
 
+=head1 Notice
+
+XXX Any important notices here
+
 =head1 Core Enhancements
 
-=head2 study HASH CODE ARRAY
+XXX New core language features go here.  Summarize user-visible core language
+enhancements.  Particularly prominent performance optimisations could go
+here, but most should go in the L</Performance Enhancements> section.
 
-study does not stringify hashes anymore, it rather calls the new
-L<hv_study|perlapi/hv_study> function on hashes, which optimizes the
-internal structure of a hash.  Currently clears all placeholders, and
-optionally shrinks its size if the new size falls below a power of
-two.  On code, regex and arrays it does nothing yet, but might add type
-optimizations on the current dynamic status.
+[ List each enhancement as a =head2 entry ]
 
-=head2 New strict hashpairs
+=head1 Security
 
-Added C<use strict 'hashpairs'> to allow only pairs for hash assignments,
-within a map even only an empty or single pair.
-See L<[cperl #281|https://github.com/perl11/cperl/issues/281>.
+XXX Any security-related notices go here.  In particular, any security
+vulnerabilities closed should be noted here rather than in the
+L</Selected Bug Fixes> section.
 
-=head2 Honor the BOM
-
-With any of three supported BOMs set C<use utf8> and C<use feature
-'unicode_strings'> at compile-time as documented until perl 5.26.
-
-With 5.26 perl5 decided to change the documentation to match the
-broken implementation.
-With cperl 5.27.0c the implementation was fixed instead.
-See L<[cperl #269]|https://github.com/perl11/cperl/issues/269>
-and L<[perl #121292]|https://rt.perl.org/Public/Bug/Display.html?id=121292>.
-
-=head2 Safer perl -c:s cmdline flag
-
-Avoid undoable and unsafe sideeffects (io, ...) in the CHECK mode,
-esp. for editor syntax checks.
-See L<[cperl #263]|https://github.com/perl11/cperl/issues/263>
-
-Essentially prepend C<-Mops=:browse,:load,print> with C<-c:s>.
+[ List each security issue as a =head2 entry ]
 
 =head1 Incompatible Changes
 
-=head3 use strict hashpairs
+XXX For a release on a stable branch, this section aspires to be:
 
-With C<use strict> this will now fail:
+    There are no changes intentionally incompatible with 5.XXX.XXX
+    If any exist, they are bugs, and we request that you submit a
+    report.  See L</Reporting Bugs> below.
 
-  my %xsc = map { /(.*)\.xs$/ ? ("$1.c" => 1, "$1.cc" => 1) : () } @files;
+[ List each incompatible change as a =head2 entry ]
 
-Two pairs being added in a map block violates strict hashpairs.
-Add the second pair in a second loop or C<no strict 'hashpairs'>.
+=head1 Deprecations
 
-  my %xsc = map { /(.*)\.xs$/ && ("$1.c" => 1) } @files;
-  /^(.*)\.xs$/) && $xsc{"$1.cc"} = 1 for @files;
+XXX Any deprecated features, syntax, modules etc. should be listed here.
+
+=head2 Module removals
+
+XXX Remove this section if inapplicable.
+
+The following modules will be removed from the core distribution in a
+future release, and will at that time need to be installed from CPAN.
+Distributions on CPAN which require these modules will need to list them as
+prerequisites.
+
+The core versions of these modules will now issue C<"deprecated">-category
+warnings to alert you to this fact.  To silence these deprecation warnings,
+install the modules in question from CPAN.
+
+Note that these are (with rare exceptions) fine modules that you are encouraged
+to continue to use.  Their disinclusion from core primarily hinges on their
+necessity to bootstrapping a fully functional, CPAN-capable Perl installation,
+not usually on concerns over their design.
+
+=over
+
+=item XXX
+
+XXX Note that deprecated modules should be listed here even if they are listed
+as an updated module in the L</Modules and Pragmata> section.
+
+=back
+
+[ List each other deprecation as a =head2 entry ]
 
 =head1 Performance Enhancements
+
+XXX Changes which enhance performance without changing behaviour go here.
+There may well be none in a stable release.
+
+[ List each enhancement as a =item entry ]
 
 =over 4
 
 =item *
 
-On hash split and shrink the rounding up to a power of 2 has been
-improved by a factor of 10^8 on modern hardware. On old hardware by a
-factor of 2.
-
-=item *
-
-Replaced the old quadratic bsd glob with a linear glob, detected by
-Russ Cox L<https://research.swtch.com/glob>.
+XXX
 
 =back
 
 =head1 Modules and Pragmata
 
+XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
+go here.  If Module::CoreList is updated, generate an initial draft of the
+following sections using F<Porting/corelist-perldelta.pl>.  A paragraph summary
+for important changes should then be added by hand.  In an ideal world,
+dual-life modules would have a F<Changes> file that could be cribbed.
+
+[ Within each section, list entries as a =item entry ]
+
+=head2 New Modules and Pragmata
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
 =head2 Updated Modules and Pragmata
 
 =over 4
 
-=item L<Archive::Tar> 0.26
+=item *
 
-'0' is a valid name for an archive, change 'iter' to check definedness.
-See L<https://metacpan.org/changes/distribution/Archive-Tar>
+L<XXX> has been upgraded from version A.xx to B.yy.
 
-=item L<B::C>
+=back
 
-Support pgcc, seperate it from gcc
+=head2 Removed Modules and Pragmata
 
-=item L<B::Concise> 0.9991c
+=over 4
 
-Support the new strict hints flags and abbrevate all strict flags as strict.
+=item *
 
-=item L<Compress::Raw::Bzip2>
-
-Support pgcc, seperate it from gcc
-
-=item L<Compress::Raw::Zlib>
-
-Support pgcc, seperate it from gcc
-
-=item L<Cpanel::JSON::XS> 3.0233
-
-MSVC 14.0 support and higher, changed nan in the runtime.
-
-=item L<DB_File>
-
-Support pgcc, seperate it from gcc
-
-=item L<Devel::PPPort> 3.36_01
-
-Support strict hashpairs, fix for . in @INC.
-Merged with 3.36
-
-=item L<Encode> 2.89
-
-no strict hashpairs in encoding.
-fixed some -Wsign-compare
-See L<https://metacpan.org/changes/distribution/Encode>
-
-=item L<ExtUtils::Install> 2.08
-
-Optimisations:
-  use our instead of vars
-  lazy load modules
-  make OS variables into constants
-  move some calculations out of a loop
-
-Keep our make -s support  
-
-=item L<IPC::Cmd> 0.98
-
-Enhancements:
-  Added wait_loop_callback for run_forked()
-
-Bug fixes:
-  Only search in curdir in can_run() when on Win32 RT#105601
-
-=item PathTools 4.68c
-
-getcwd, getdcwd and abs_path have now long path support.
-getdcwd (Windows only) also supports unicode paths, using
-the wide API.
-
-=item L<Pod::Checker>
-
-no strict hashpairs
-
-=item L<POSIX> 1.76_03
-
-getcwd has now long path support.
-Added realpath, with long path support, if the libc supports
-NULL as 2nd argument.
-
-=item L<Storable>
-
-fix cygwin stack probing
-
-=item L<strict> 1.12c
-
-Added C<use strict 'hashpairs'> to allow only pairs for hash assignments,
-within a map even only an empty or single pair.
-See L<[cperl #281|https://github.com/perl11/cperl/issues/281>.
-
-Also reserved C<use strict 'names'>, which is not yet implemented.
+XXX
 
 =back
 
 =head1 Documentation
 
+XXX Changes to files in F<pod/> go here.  Consider grouping entries by
+file and be sure to link to the appropriate page, e.g. L<perlfunc>.
+
+=head2 New Documentation
+
+XXX Changes which create B<new> files in F<pod/> go here.
+
+=head3 L<XXX>
+
+XXX Description of the purpose of the new file here
+
 =head2 Changes to Existing Documentation
 
-=head3 L<perldtrace>
+XXX Changes which significantly change existing files in F<pod/> go here.
+However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
+section.
+
+=head3 L<XXX>
 
 =over 4
 
 =item *
 
-Added L<perldtrace/"What hash operations dominate"> and
-L<perldtrace/"glob/gv call statistics"> sections.
-
-=back
-
-=head3 L<perldata>, L<perlfunc>
-
-=over 4
-
-=item *
-
-Added new pairwise hash contruction limitations to L<perldata/"List
-value constructors"> and L<perlfunc/"map EXPR,LIST">.
+XXX Description of the change here
 
 =back
 
@@ -206,7 +166,13 @@ The following additions or changes have been made to diagnostic output,
 including warnings and fatal error messages.  For the complete list of
 diagnostic messages, see L<perldiag>.
 
+XXX New or changed warnings emitted by the core's C<C> code go here.  Also
+include any changes in L<perldiag> that reconcile it to the C<C> code.
+
 =head2 New Diagnostics
+
+XXX Newly added diagnostic messages go under here, separated into New Errors
+and New Warnings
 
 =head3 New Errors
 
@@ -214,15 +180,7 @@ diagnostic messages, see L<perldiag>.
 
 =item *
 
-L<Only pair in map hash assignment allowed while "strict hashpairs", got %d elements
-|perldiag/"Only pair in map hash assignment allowed while "strict hashpairs", got %d elements">
-
-L<Only pairs in hash assignment allowed while "strict hashpairs", got %d elements
-|perldiag/"Only pairs in hash assignment allowed while "strict hashpairs", got %d elements">
-
-With "strict hashpairs" in use, odd numbers of elements are forbidden
-to be assigned to hashes. Within a map block only a single or empty
-pair.
+XXX L<message|perldiag/"message">
 
 =back
 
@@ -232,195 +190,193 @@ pair.
 
 =item *
 
-L<Odd number of map elements in hash assignment
-|perldiag/"Odd number of map elements in hash assignment">
-
-Added a new HASH private bit to the mapwhile op when a map is assigned
-to a hash, to be able to warn once per map on uneven hashmap assignments. See
-L<[cperl #281|https://github.com/perl11/cperl/issues/281> and L<strict> hashpairs.
+XXX L<message|perldiag/"message">
 
 =back
 
 =head2 Changes to Existing Diagnostics
 
+XXX Changes (i.e. rewording) of diagnostic messages go here
+
 =over 4
 
 =item *
 
-L<do "%s" failed, '.' is no longer in @INC; did you mean do "./%s"?
-|perldiag/"do \"%s\" failed, '.' is no longer in @INC; did you mean do \"./%s\"?">
-
-Was changed from "do "%s" failed, '.' is no longer in @INC".
+XXX Describe change here
 
 =back
 
 =head1 Utility Changes
 
-=head2 L<dtrace>
+XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
+Most of these are built within the directory F<utils>.
+
+[ List utility changes as a =head2 entry for each utility and =item
+entries for each change
+Use L<XXX> with program names to get proper documentation linking. ]
+
+=head2 L<XXX>
 
 =over 4
 
 =item *
 
-Four new dtrace probes for hash and glob. See L<perldtrace> and
-L<#240|https://github.com/perl11/cperl/issues/240>.
+XXX
 
 =back
 
 =head1 Configuration and Compilation
 
+XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
+go here.  Any other changes to the Perl build process should be listed here.
+However, any platform-specific changes should be listed in the
+L</Platform Support> section, instead.
+
+[ List changes as a =item entry ].
+
 =over 4
 
 =item *
 
-Added support for the pgcc pgi compiler http://www.pgroup.com/.
-pgcc is very slow though. pgcc -O2 is 40% slower than gcc-6 -O3,
-pgcc -fast 30% slower.
-L<#279|https://github.com/perl11/cperl/issues/279>.
+XXX
+
+=back
+
+=head1 Testing
+
+XXX Any significant changes to the testing of a freshly built perl should be
+listed here.  Changes which create B<new> files in F<t/> go here as do any
+large changes to the testing harness (e.g. when parallel testing was added).
+Changes to existing files in F<t/> aren't worth summarizing, although the bugs
+that they represent may be covered elsewhere.
+
+[ List each test improvement as a =item entry ]
+
+=over 4
 
 =item *
 
-d_getcwd probe and key added. Sets HAS_GETCWD
-
-=item *
-
-d_get_current_dir_name probe and key added. Sets HAS_GET_CURRENT_DIR_NAME
-
-=item *
-
-getcwdnull probe and key added. Sets HAS_GETCWDNULL
-
-=item *
-
-d_realpath probe and key added. Sets HAS_REALPATH
-
-=item *
-
-d_builtin_clz probe and key added. Sets HAS_BUILTIN_CLZ. ("Count leading zeros").
-Needed later for fast hopscotch hashing.
-
-=item *
-
-Travis and appveyor deploy now automatically master builds, besides tags.
+XXX
 
 =back
 
 =head1 Platform Support
 
+XXX Any changes to platform support should be listed in the sections below.
+
+[ Within the sections, list each platform as a =item entry with specific
+changes as paragraphs below it. ]
+
 =head2 New Platforms
+
+XXX List any platforms that this version of perl compiles on, that previous
+versions did not.  These will either be enabled by new files in the F<hints/>
+directories, or new subdirectories and F<README> files at the top level of the
+source tree.
 
 =over 4
 
-=item pgcc
+=item XXX-some-platform
 
-Preliminary support for the Portland pgcc compiler (Linux, Darwin, Win32 only)
-has been added.
+XXX
+
+=back
+
+=head2 Discontinued Platforms
+
+XXX List any platforms that this version of perl no longer compiles on.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
 
 =back
 
 =head2 Platform-Specific Notes
 
-Support for long paths have been added to all platforms, for C<cwd>
-longer than 4096.  Many kernels have limited support for it, but
-filesystems do. See L<[cperl #270]|https://github.com/perl11/cperl/issues/270>.
+XXX List any changes for specific platforms.  This could include configuration
+and compilation changes or changes in portability/compatibility.  However,
+changes within modules for platforms should generally be listed in the
+L</Modules and Pragmata> section.
 
 =over 4
 
-=item linux
+=item XXX-some-platform
 
-Fixed hints for pgcc.
-
-Use for C<getcwd(NULL)> or C<get_current_dir_name()>,
-which can return paths longer than 4096.
-
-=item darwin
-
-Fixed hints for pgcc
-
-=item MSWin32
-
-More mingw build improvements, but the smoker still not pass the
-tests, and my local vm seems to be broken.
-
-Fixed invalid check_type_and_open macro on mingw miniperl.
-
-Cygwin and the MSVC versions 10,12,14 smoke now ok with 32-bit and 64-bit.
-
-Fixed upstream mkstemp API changes.
-
-getcwd is deprecated on Windows. use _getcwd() instead.
-
-PathTools: Support overlong paths for getdcwd(), using the wide API for overlong paths.
-
-=item cygwin
-
-Fixed Storable stacksize probing.
-Fixed a lot of admin-specific file-permission tests
+XXX
 
 =back
 
 =head1 Internal Changes
 
+XXX Changes which affect the interface available to C<XS> code go here.  Other
+significant internal changes for future core maintainers should be noted as
+well.
+
+[ List each change as a =item entry ]
+
 =over 4
 
 =item *
 
-Export C<re_op_compile> needed for re engines.
-
-=item *
-
-Added study API functions for possible internal costly optimizations
-of hv, av, cv, and rx, such as hash shrinking, regex and cv jit
-compilation, and av type promotion.  For now implemented is
-C<hv_study()>, the rest are stubs.
+XXX
 
 =back
 
 =head1 Selected Bug Fixes
 
+XXX Important bug fixes in the core language are summarized here.  Bug fixes in
+files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
+
+[ List each fix as a =item entry ]
+
 =over 4
 
 =item *
 
-The three supported unicode BOM's UTF-8, UTF-16LE and UTF-16BE set the
-utf8 and unicode compile-time hints to match the documentation and
-expectation.
-
-=item *
-
-Fixed several minor coverity issues.
+XXX
 
 =back
 
+=head1 Known Problems
+
+XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
+tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
+platform specific bugs also go here.
+
+[ List each fix as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Errata From Previous Releases
+
+=over 4
+
+=item *
+
+XXX Add anything here that we forgot to add, or were mistaken about, in
+the perldelta of a previous release.
+
+=back
+
+=head1 Obituary
+
+XXX If any significant core contributor has died, we've added a short obituary
+here.
+
 =head1 Acknowledgements
 
-Perl 5.27.0 represents approximately 3 weeks of development since Perl 5.26.0c
-and contains approximately 21,000 lines of changes across 180 files from 4
-authors.
+XXX Generate this with:
 
-Excluding auto-generated files, documentation and release tools, there were
-approximately 2,300 lines of changes to 81 .pm, .t, .c and .h files.
-
-The following people are known to have contributed the improvements
-that became Perl 5.26.1:
-
-Reini Urban, François Perrad, Yves Orton, vendethiel.
-
-The list above is almost certainly incomplete as it is automatically generated
-from version control history. In particular, it does not include the names of
-the (very much appreciated) contributors who reported issues to the Perl bug
-tracker.
-
-Many of the changes included in this version originated in the CPAN modules
-included in Perl's core. We're grateful to the entire CPAN community for
-helping Perl to flourish.
-
-For a more complete list of all of Perl's historical contributors, please see
-the F<AUTHORS> file in the Perl source distribution.
-
-Generated with:
-
-    cperl Porting/acknowledgements.pl cperl-5.26.0..HEAD
+    cperl Porting/acknowledgements.pl cperl-5.27.0..HEAD
 
 =head1 Reporting Bugs
 
@@ -429,7 +385,7 @@ posted to the comp.lang.perl.misc newsgroup and the perl bug database at
 L<https://rt.perl.org/> .  There may also be information at
 L<http://www.perl.org/> , the Perl Home Page.
 
-If you believe you have an unreported bug, please run the L<perlbug> program
+If you believe you have an unreported bug, please run the L<cperlbug> program
 included with your release.  Be sure to trim your bug down to a tiny but
 sufficient test case.  Your bug report, along with the output of C<perl -V>,
 will be sent off to perlbug@perl.org to be analysed by the Perl porting team.

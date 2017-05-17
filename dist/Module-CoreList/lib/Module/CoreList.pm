@@ -3,7 +3,7 @@ use strict;
 use vars qw/$VERSION %released %version %families %upstream
 	    %bug_tracker %deprecated %delta/;
 use version;
-$VERSION = '5.20170514c';
+$VERSION = '5.20170518c';
 $VERSION =~ s/c$//;
 
 sub _undelta {
@@ -342,6 +342,7 @@ our %released = (
     '5.024003c' => '????-??-??',
     '5.026001c' => '????-??-??',
     '5.027000c' => '2017-05-17',
+    '5.027001c' => '????-??-??',
  );
 
 sub version_sort {
@@ -14914,6 +14915,18 @@ our %delta = (
             'File::Spec::Unix'      => '4.68c',
             'File::Spec::Win32'     => '4.68c',
             'POSIX'                 => '1.76_03',
+            'strict'                => '1.12c',
+        },
+        removed => {
+        }
+    },
+    '5.027001c' => {
+        delta_from => '5.027000c',
+        changed => {
+            'Config'                => '5.027001',
+            'Module::CoreList'      => '5.20170518c',
+            'Module::CoreList::Utils'=> '5.20170518c',
+            'strict'                => '1.13c',
         },
         removed => {
         }

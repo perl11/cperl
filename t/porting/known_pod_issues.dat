@@ -429,6 +429,8 @@ pod/perl5270cdelta.pod	Apparent broken link	3
 pod/perl5270cdelta.pod	Apparent internal link is missing its forward slash	1
 pod/perl5270cdelta.pod	Verbatim line length including indents exceeds 79 by	1
 pod/perl5270cdelta.pod	alternative text. contains non-escaped | or /	1
+pod/perl5271cdelta.pod	Apparent broken link	3
+pod/perl5271cdelta.pod	Apparent internal link is missing its forward slash	5
 pod/perlandroid.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlapi.pod	Verbatim line length including indents exceeds 79 by	6
 pod/perlbook.pod	Verbatim line length including indents exceeds 79 by	1
@@ -470,7 +472,6 @@ pod/perltypes.pod	Apparent broken link	3
 pod/perltypes.pod	Verbatim line length including indents exceeds 79 by	3
 pod/perlwin32.pod	Verbatim line length including indents exceeds 79 by	7
 porting/epigraphs.pod	Verbatim line length including indents exceeds 79 by	24
-porting/release_cperl.pod	? Should you be using F<...> or maybe L<...> instead of	1
 porting/release_cperl.pod	Verbatim line length including indents exceeds 79 by	4
 porting/release_cperl.pod	line containing nothing but whitespace in paragraph	2
 porting/release_managers_guide.pod	Verbatim line length including indents exceeds 79 by	1
