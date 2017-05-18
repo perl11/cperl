@@ -151,6 +151,12 @@ XXX
 
 Restore silence under C<make -s>. I broke it in cperl 5.27.0
 
+=item L<strict> 1.13c
+
+Implemented C<strict 'names'> to reject illegal identifiers created via
+C<no strict 'refs'> also at run-time, not only at compile-time.  See
+L<[cperl #282|https://github.com/perl11/cperl/issues/282>.
+
 =back
 
 =head2 Removed Modules and Pragmata

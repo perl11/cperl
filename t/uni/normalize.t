@@ -5,6 +5,7 @@
 #
 # All possible parsed identifiers: variables, sub, format, packages, global,
 # my, our state, label, lexsubs.
+# Also checks strict names, the valid_ident API.
 # 
 
 BEGIN {
@@ -61,7 +62,7 @@ while (@nfc) {
 }
 
 {
-    # then check all 24 places in the lexer for identifiers
+    # Then check all 24 places in the lexer for identifiers
     # where pv_uni_normalize is called.
     # E\314\201 (E\x301 45cc81) => \303\211 (\xc9 c389)
     no strict;
@@ -127,8 +128,13 @@ while (@nfc) {
     $i++;
 
     ${"eÉ"} = $i; ${"eÉ"} = 0; ($orig, $norm) = (${"eÉ"}, ${"eÉ"});
-    is( $orig, $i, "dynamic string ref \${\"$qfrom\"}");
-    is( $norm, 0,  "not normalized");
+    if ($] < 5.027001) {
+        is( $orig, $i, "dynamic string ref \${\"$qfrom\"}");
+    } else {
+        # The rv2sv symbol is now also normalized since 5.27.1
+        is( $orig, 0, "dynamic string ref \${\"$qto\"} normalized");
+    }
+    is( $norm, 0,  "normalized");
 }
 
 # almost illegal unicode: double combiners

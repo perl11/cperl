@@ -333,6 +333,8 @@ Perl_softref2xv(pTHX_ SV *sv, const char *const what,
 {
     GV *gv;
     const char *null_at;
+    const bool strict_names = cBOOL(OpPRIVATE(PL_op) & OPpHINT_STRICT_NAMES);
+    int normalize;
 
     PERL_ARGS_ASSERT_SOFTREF2XV;
 
@@ -342,11 +344,6 @@ Perl_softref2xv(pTHX_ SV *sv, const char *const what,
 		     (SvPOKp(sv) && SvCUR(sv)>32 ? "..." : ""), what);
 	else
 	    Perl_die(aTHX_ PL_no_usym, what);
-    }
-    if (OpPRIVATE(PL_op) & OPpHINT_STRICT_NAMES) {
-        int normalize;
-        DEBUG_kv(Perl_deb("check strict names \"%" SVf "\"\n", SVfARG(sv)));
-        (void)valid_ident(sv, TRUE, TRUE, &normalize);
     }
     if (!SvOK(sv)) {
 	if (PL_op->op_flags & OPf_REF)
@@ -377,6 +374,9 @@ Perl_softref2xv(pTHX_ SV *sv, const char *const what,
                            pv_display(tmp, pv, SvCUR(sv), SvCUR(sv), 127));
         sv = newsv;
     }
+    DEBUG_kv(Perl_deb("check strict names \"%" SVf "\"\n", SVfARG(sv)));
+    (bool)valid_ident(sv, strict_names, TRUE, &normalize);
+
     if (OpSPECIAL(PL_op) && !(PL_op->op_flags & OPf_MOD)) {
         if (!(gv = gv_fetchsv_nomg(sv, GV_ADDMG, type))) {
             **spp = UNDEF;

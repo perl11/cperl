@@ -184,7 +184,7 @@ ok(ฟọ::バッズ->new, 'parent using -norequire, in a UTF-8 package.');
 ok(ฟọ::バッズ->nèw, 'Also works with UTF-8 methods');
 ok(ฟọ::バッズ->ニュー, 'Even methods from an UTF-8 parent');
 
-BEGIN {no strict 'refs';
+BEGIN {no strict; # invalid names
        ++${"\xff::foo"} if $::IS_ASCII;
        ++${"\xdf::foo"} if $::IS_EBCDIC;
        } # autovivify the package

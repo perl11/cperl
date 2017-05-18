@@ -2791,18 +2791,98 @@ bool
 Perl_valid_ident(pTHX_ const SV* sv, bool strict_names, bool allow_package,
                  int *normalizep)
 {
-    char *s = SvPVX(sv);
-    STRLEN len = SvCUR(sv);
-    char *e = s + len;
-    const bool is_utf8 = SvUTF8(sv);
+    char *s;
+    STRLEN len;
+    char *e;
+    char *t = NULL;
+    bool is_utf8;
     PERL_ARGS_ASSERT_VALID_IDENT;
 
-    if (SvCUR(sv) > TOKENBUF_SIZE) {
+    *normalizep = 0;
+    if (!SvOK(sv) || !SvPOK(sv))
+        return FALSE;
+    len = SvCUR(sv);
+    if (len > TOKENBUF_SIZE) {
         if (strict_names)
             Perl_croak(aTHX_ "Identifier too long"); /* same string as in toke.c:102 */
         return FALSE;
     }
-    *normalizep = 0;
+    s = SvPVX(sv);
+    len = SvCUR(sv);
+    e = s + len;
+    is_utf8 = SvUTF8(sv);
+
+    /* special check for builtins, which are technically invalid names */
+    if (allow_package && len) {
+        STRLEN l = len;
+        if (memEQc(s, "main::")) {
+            t = s+6;
+            l -= 6;
+        }
+        else if (memEQc(s, "::")) {
+            t = s+2;
+            l -= 2;
+        }
+        if (t && !isIDFIRST_A(*t)) {
+            if (l == 1) {
+                switch (*t) {
+                case '\001':
+                case '\003':
+                case '\004':
+                case '!':
+                case '\006':
+                case '\010':
+                case '\011':
+                case '\017':
+                case '\020':
+                case '\023':
+                case '\024':
+                case '\027':
+                case '+':
+                case '\016':
+                case '.':
+                case '?':
+                case '^':
+                case '~':
+                case '=':
+                case '-':
+                case '%':
+                case ':':
+                case '/':
+                case '"':
+                case '[':
+                case ']':
+                case '|':
+                case '\\':
+                case '$':
+                case '<':
+                case '>':
+                case '(':
+                case ')':
+                case '0':
+                    return TRUE;
+                }
+            } else {
+                if (strEQc(t, "\003HILD_ERROR_NATIVE") ||
+                    strEQc(t, "\005NCODING") ||
+                    strEQc(t, "\005_NCODING") ||
+                    strEQc(t, "\007LOBAL_PHASE") ||
+                    strEQc(t, "\014LAST_FH") ||
+                    strEQc(t, "\017PEN") ||
+                    strEQc(t, "\024AINT") ||
+                    strEQc(t, "\025NICODE") ||
+                    strEQc(t, "\025TF8LOCALE") ||
+                    strEQc(t, "\025T8CACHE") ||
+#ifdef WIN32
+                    strEQc(t, "\027IN32_SLOPPY_STATS") ||
+#endif
+                    strEQc(t, "\027ARNING_BITS")
+                   )
+                    return TRUE;
+            }
+        }
+    }
+    /* The unicode IDFirst/IDCont checks, with script and normalize checks */
     while (s < e) {
         if (is_utf8 && isIDFIRST_utf8_safe(s, e)) {
             const U8 *p = (U8*)s;
@@ -2836,6 +2916,8 @@ Perl_valid_ident(pTHX_ const SV* sv, bool strict_names, bool allow_package,
         else
             break;
     }
+
+    /* early break: error */
     if (s != e) {
         if (strict_names) {
             SV * const dsv = sv_newmortal();
@@ -2848,6 +2930,8 @@ Perl_valid_ident(pTHX_ const SV* sv, bool strict_names, bool allow_package,
         }
         return FALSE;
     }
+
+    /* normalize all stringified unicode symbols at run-time */
     if (UNLIKELY(*normalizep)) {
         s = pv_uni_normalize(SvPVX(sv), len, &len);
         if (s != SvPVX_const(sv)) {
