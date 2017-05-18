@@ -15880,6 +15880,7 @@ our %delta = (
             'B::Op_private'         => '5.024003',
             'Module::CoreList'      => '5.20180101c',
             'Module::CoreList::Utils'=> '5.20180101c',
+            'Config'                => '6.23',
             'ExtUtils::MM_Unix'	    => '8.04_05',
             'IO'                    => '1.38',
             'IO::Handle'            => '1.37',
