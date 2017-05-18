@@ -7911,7 +7911,14 @@ else {
 
 ($pversion, $aversion, $vsn5005) = map {
     pack "sss", split m/[._]/, "$_.0.0" } $version, $api_versionstring, "5.005";
+my $major = qr/^5.(\d?\d)\./;
+my $uneven = qr/^5.(\d?[13579])\./;
 foreach $d (@candidates) {
+    $version =~ $major;
+    my $this = $1;
+    if ($d->[0] =~ $uneven) {
+        next if $this != $1; # skip older uneven versions
+    }
     if ($d->[1] lt $pversion) {
 	if ($d->[1] ge $aversion) {
 	    unshift(@inc_version_list, grep { -d } $d->[0]."/$archname", $d->[0]);
