@@ -238,9 +238,16 @@ L</Platform Support> section, instead.
 
 =item *
 
+C<inc_version_list> skips now older development versions. It only
+includes older non-devel versions with even numbers.
+See L<[cperl #284]|https://github.com/perl11/cperl/issues/284>
+
+=item *
+
 C<-Dusedevel> is needed to be added to all development versions anymore,
 it is now the default on such. A big warning is still being displayed,
 even in the usual silent auto mode C<-des>.
+See L<[cperl #283]|https://github.com/perl11/cperl/issues/283>
 
 =back
 
