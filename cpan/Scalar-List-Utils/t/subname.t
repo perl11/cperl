@@ -196,6 +196,7 @@ for my $ord (@test_ordinals) {
         $expected = "aliased::native::$fullname";
         {
             no strict 'refs';
+            BEGIN {strict->unimport('names') if $] >= 5.027001 and $^V =~ /c$/}
             *palatable:: = *{"aliased::native::${pkg}::"};
             # now palatable:: literally means aliased::native::${pkg}::
             warnings->unimport('security') if $Config{usecperl} and $] >= 5.025;
