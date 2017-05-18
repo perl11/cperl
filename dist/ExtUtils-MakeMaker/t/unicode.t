@@ -6,16 +6,19 @@ BEGIN {
 chdir 't';
 
 use strict;
+use ExtUtils::MM;
+use MakeMaker::Test::Setup::Unicode;
+use MakeMaker::Test::Utils qw(makefile_name make make_run run);
 use Test::More;
 use Config;
 BEGIN {
   plan skip_all => 'Need perlio and perl 5.8+.'
     if $] < 5.008 or !$Config{useperlio};
+  plan skip_all => 'cross-compiling and make not available'
+    if !MM->can_run(make()) && $ENV{PERL_CORE} && $Config{'usecrosscompile'};
+
   plan tests => 9;
 }
-use ExtUtils::MM;
-use MakeMaker::Test::Setup::Unicode;
-use MakeMaker::Test::Utils qw(makefile_name make_run run);
 use TieOut;
 
 my $MM = bless { DIR => ['.'] }, 'MM';
