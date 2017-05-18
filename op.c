@@ -11141,7 +11141,7 @@ Perl_ck_ftst(pTHX_ OP *o)
             }
             else {
                 /* diag_listed_as: Array passed to stat will be coerced to a scalar%s */
-                Perl_warner(aTHX_ packWARN(WARN_SYNTAX), array_passed_to_stat);
+                Perl_warner(aTHX_ packWARN(WARN_SYNTAX), "%s", array_passed_to_stat);
             }
        }
 	scalar((OP *) kid);

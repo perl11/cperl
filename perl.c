@@ -3736,7 +3736,7 @@ S_minus_v(pTHX)
 {
 	PerlIO * PIO_stdout;
 	{
-	    const char const level_str [] = "v" PERL_VERSION_STRING;
+	    static const char level_str [] = "v" PERL_VERSION_STRING;
 	    const STRLEN level_len = sizeof("v" PERL_VERSION_STRING)-1;
 #ifdef PERL_PATCHNUM
 	    SV* level;
