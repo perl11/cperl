@@ -16211,9 +16211,10 @@ our %delta = (
     '5.026002c' => {
         delta_from => '5.026001c',
         changed => {
-            'Config'                => '5.026',
-            'Module::CoreList'      => '5.20170807c',
-            'Module::CoreList::Utils'=> '5.20170807c',
+            'B::Op_private'         => '5.026002',
+            'Module::CoreList'      => '5.20180106c',
+            'Module::CoreList::Utils'=> '5.20180106c',
+            'Config'                => '6.23',
             'Storable'              => '3.05_14',
             'VMS::DCLsym'           => '1.09',
         },

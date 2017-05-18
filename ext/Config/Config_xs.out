@@ -37,6 +37,7 @@
 
 Copyright (C) 2015-2017 cPanel Inc
 Copyright (C) 2015 Daniel Dragan
+Copyright (C) 2017 Reini Urban
 
 =head1 NAME
 
@@ -7037,7 +7038,7 @@ Config_lookup (register const char *str, register unsigned int len)
       {(U16)(long)&((struct stringpool_t *)0)->stringpool_str9303,	T_INV,0,ALN64I"@@d_attribute_always_inline@@"}
     };
 
-#line 7040 "Config.xs"
+#line 7041 "Config.xs"
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
     {
       register int key = Config_hash (str, len);
