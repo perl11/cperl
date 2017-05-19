@@ -372,10 +372,13 @@ Perl_softref2xv(pTHX_ SV *sv, const char *const what,
             Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
                            "Invalid \\0 character in string for SYMBOL: %s",
                            pv_display(tmp, pv, SvCUR(sv), SvCUR(sv), 127));
+        /* when warnings are disabled, error with the \0 */
+        (bool)valid_ident(sv, strict_names, TRUE, &normalize);
         sv = newsv;
+    } else {
+        DEBUG_kv(Perl_deb("check strict names \"%" SVf "\"\n", SVfARG(sv)));
+        (bool)valid_ident(sv, strict_names, TRUE, &normalize);
     }
-    DEBUG_kv(Perl_deb("check strict names \"%" SVf "\"\n", SVfARG(sv)));
-    (bool)valid_ident(sv, strict_names, TRUE, &normalize);
 
     if (OpSPECIAL(PL_op) && !(PL_op->op_flags & OPf_MOD)) {
         if (!(gv = gv_fetchsv_nomg(sv, GV_ADDMG, type))) {
