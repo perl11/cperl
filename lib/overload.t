@@ -2114,7 +2114,7 @@ fresh_perl_is
         bless my $obj = \$n, ref $self || $self;
     }
     sub str {
-        no strict qw/refs/;
+        no strict;
         my $s = "(${$_[0]} ";
         $s .= "nomethod, " if defined ${ref($_[0]).'::(nomethod'};
         my $fb = ${ref($_[0]).'::()'};

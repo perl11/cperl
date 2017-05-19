@@ -1,7 +1,9 @@
 #!./perl
 
 use utf8 qw( Tamil Runic Cyrillic Devanagari Vai Hangul Rejang Canadian_Aboriginal
-             Greek Georgian Oriya Katakana Gujarati Lao Arabic Bopomofo Hiragana );
+             Greek Georgian Oriya Katakana Gujarati Lao Arabic Bopomofo Hiragana
+             Ethiopic
+           );
 use open qw( :utf8 :std );
 use strict;
 use warnings;
@@ -305,7 +307,7 @@ is(eval { MRO_ᕡ->텟tf운ꜿ() }, 123);
     # This broke Class::Trait. See [perl #79024].
     {package Class::Trait::Base}
     no strict 'refs';
-    undef   *{"एxṰர::ʦፖㄡsȨ::ISA"};
+    undef   *{"एxṰர::ʦፖㄡsȨ::ISA"}; # Ethiopic
     'एxṰர::ʦፖㄡsȨ'->isa('Class::Trait::Base'); # cache the mro
     unshift @{"एxṰர::ʦፖㄡsȨ::ISA"}, 'Class::Trait::Base';
     ok 'एxṰர::ʦፖㄡsȨ'->isa('Class::Trait::Base'),

@@ -1068,7 +1068,7 @@ DebugWrap->new({
     );
 
     $wrapper->contents_like(
-        qr[Scalar/Util\.pm],
+        qr[Devel/Peek\.pm],
         'M (module list) works fine',
     );
 }

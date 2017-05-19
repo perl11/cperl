@@ -8046,7 +8046,7 @@ sub list_modules {    # versions
 
         # If the package has a $VERSION package global (as all good packages
         # should!) decode it and save as partial message.
-        my $pkg_version = do { no strict 'refs'; ${ $_ . '::VERSION' } };
+        my $pkg_version = do { no strict; ${ $_ . '::VERSION' } };
         if ( defined $pkg_version ) {
             $version{$file} = "$pkg_version from ";
         }
