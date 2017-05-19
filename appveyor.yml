@@ -79,8 +79,8 @@ test_script:
   - if "%MINGW%"=="1"  make -s -C win32 %MKOPT% test
 
 before_deploy:  
-  - if "%CYGWIN%"=="1" %CYGR%\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/cygdrive/c/projects/cperl/inst && cd /cygdrive/c/projects/cperl/inst && tar Jcvf ${APPVEYOR_REPO_TAG_NAME}-cygwin-${platform}.tar.xz *"
-  - if "%MINGW%"=="1" sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/c/projects/cperl/inst && cd /c/projects/cperl/inst && tar Jcvf ${APPVEYOR_REPO_TAG_NAME}-mingw-${platform}.tar.xz *"
+  - if "%CYGWIN%"=="1" %CYGR%\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/cygdrive/c/projects/cperl/inst && cd /cygdrive/c/projects/cperl/inst && tar Jcvf ${APPVEYOR_REPO_TAG_NAME}-cygwin-${PLATFORM}.tar.xz *"
+  - if "%MINGW%"=="1" sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/c/projects/cperl/inst && cd /c/projects/cperl/inst && tar Jcvf ${APPVEYOR_REPO_TAG_NAME}-mingw-${PLATFORM}.tar.xz *"
 
 # appveyor cannot glob * in names
 artifacts:
