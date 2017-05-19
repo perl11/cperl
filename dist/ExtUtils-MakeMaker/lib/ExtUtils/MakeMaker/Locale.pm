@@ -1,7 +1,7 @@
 package ExtUtils::MakeMaker::Locale;
 
 use strict;
-our $VERSION = "8.04_03";
+our $VERSION = "8.04_04";
 
 use base 'Exporter';
 our @EXPORT_OK = qw(
@@ -130,13 +130,13 @@ sub _init {
 
 _init();
 Encode::Alias::define_alias(sub {
-    no strict 'refs';
+    no strict; # no strict names. "-" is an invalid IDCont
     no warnings 'once';
     return ${"ENCODING_" . uc(shift)};
 }, "locale");
 
 sub _flush_aliases {
-    no strict 'refs';
+    no strict;
     for my $a (keys %Encode::Alias::Alias) {
 	if (defined ${"ENCODING_" . uc($a)}) {
 	    delete $Encode::Alias::Alias{$a};

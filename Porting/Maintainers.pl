@@ -679,6 +679,7 @@ use File::Glob qw(:case);
                 lib/ExtUtils/MM_Unix.pm
                 lib/ExtUtils/Command/MM.pm
                 lib/ExtUtils/MakeMaker.pm
+                lib/ExtUtils/MakeMaker/Locale.pm
                 lib/ExtUtils/Mkbootstrap.pm
                 lib/ExtUtils/Liblist/Kid.pm
                 t/basic.t

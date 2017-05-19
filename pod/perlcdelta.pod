@@ -151,6 +151,10 @@ XXX
 
 Restore silence under C<make -s>. I broke it in cperl 5.27.0
 
+=item L<ExtUtils::MakeMaker::Locale> 8.04_04
+
+no strict 'names' for C<$ENCODING_UTF-8>.
+
 =item L<strict> 1.13c
 
 Implemented C<strict 'names'> to reject illegal identifiers created via

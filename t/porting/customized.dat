@@ -58,6 +58,7 @@ ExtUtils::Install cpan/ExtUtils-Install/lib/ExtUtils/Install.pm 0004c64c78cd90f2
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Command/MM.pm 92397ec3b85c35edd33cbe7b237d244ea2bd00b1
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm 31719e78e0a0b2c8449a20bb8d3b40b1605a211a
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 69351c5e5418046f9800b0d78cf454f5c1931e2d
+ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/Locale.pm da4e6cd57984dc1c0455320a050a8aac7415a4f4
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Mkbootstrap.pm d79b98465a632dc3bde76a0210d01014d2257dc6
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm 3857ce6550b897d8bbc626e11b63c2266d624e07
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm 01638a386424cafbed6a53b0c9b780c4d8637a92
@@ -92,7 +93,7 @@ Math::BigInt cpan/Math-BigInt/t/sub_mif.t e87738bd15116665c38d9f41b310cfe7fbf6da
 Math::BigInt cpan/Math-BigInt/t/upgrade.t 7c15cac7f321ca396648ec45da6389a1283e1546
 Math::BigInt cpan/Math-BigInt/t/upgradef.t 06610e9883ce805bcd6543ab959a9826f598eb40
 Math::BigInt cpan/Math-BigInt/t/with_sub.t c040328e223df6f56250f5d67dcb2c9a2f23c110
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm d70c19530c803d11a4244fbf5892258868936f0e
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm d141af9679eb1947023b0c94da6dd07d49af771f
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm d61589dac6c385336599d93bceae63a115cb20f2
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
