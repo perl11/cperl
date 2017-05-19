@@ -6,7 +6,7 @@ use Carp;
 
 @ISA = 'Exporter';
 @EXPORT_OK = qw(C_stringify perl_stringify);
-$VERSION = '0.23_08';
+$VERSION = '0.23_09';
 
 use constant is_perl55 => ($] < 5.005_50);
 use constant is_perl56 => ($] < 5.007 && $] > 5.005_50);

@@ -14926,6 +14926,7 @@ our %delta = (
             'Config'                => '5.027001',
             'Module::CoreList'      => '5.20170518c',
             'Module::CoreList::Utils'=> '5.20170518c',
+            'ExtUtils::Constant'    => '0.23_09',
             'ExtUtils::MakeMaker::Locale' => '8.04_04',
             'strict'                => '1.13c',
         },

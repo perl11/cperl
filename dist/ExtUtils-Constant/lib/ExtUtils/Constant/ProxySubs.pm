@@ -3,7 +3,7 @@ use strict;
 use vars qw($VERSION @ISA %type_to_struct %type_from_struct %type_to_sv
 	    %type_to_C_value %type_is_a_problem %type_num_args
 	    %type_temporary);
-$VERSION = '0.23_08';
+$VERSION = '0.23_09';
 @ISA = 'ExtUtils::Constant::XS';
 
 =head1 NAME
@@ -432,7 +432,7 @@ static int
 Im_sorry_Dave(pTHX_ SV *sv, MAGIC *mg)
 {
     PERL_UNUSED_ARG(mg);
-    Perl_croak(aTHX_ "Your vendor has not defined $package_sprintf_safe macro %"SVf
+    Perl_croak(aTHX_ "Your vendor has not defined $package_sprintf_safe macro %" SVf
           " used", sv);
     NORETURN_FUNCTION_END;
 }
@@ -834,7 +834,7 @@ EOA
 	} else
 #endif
 	{
-	    Perl_croak(aTHX_ "%"SVf" is not a valid $package_sprintf_safe macro at %"
+	    Perl_croak(aTHX_ "%" SVf " is not a valid $package_sprintf_safe macro at %"
 			  COP_FILE_F " line %" UVuf "\\n",
 			  sv, COP_FILE(cop), (UV)CopLINE(cop));
 	}
@@ -871,7 +871,7 @@ $xs_subname(sv)
 	} else
 #endif
 	{
-	    sv = newSVpvf("%"SVf" is not a valid $package_sprintf_safe macro",
+	    sv = newSVpvf("%" SVf " is not a valid $package_sprintf_safe macro",
 			  sv);
 	}
 	PUSHs(sv_2mortal(sv));
