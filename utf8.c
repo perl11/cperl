@@ -2567,7 +2567,7 @@ S_warn_on_first_deprecated_use(pTHX_ const char * const name,
 
 bool
 Perl__is_utf8_FOO(pTHX_       U8   classnum,
-                        const U8   *p,
+                        const U8   * const p,
                         const char * const name,
                         const char * const alternative,
                         const bool use_utf8,
@@ -2657,8 +2657,8 @@ Perl__is_utf8_FOO(pTHX_       U8   classnum,
 }
 
 bool
-Perl__is_utf8_FOO_with_len(pTHX_ const U8 classnum, const U8 *p,
-                                                            const U8 * const e)
+Perl__is_utf8_FOO_with_len(pTHX_ const U8 classnum, const U8 * const p,
+                                 const U8 * const e)
 {
     PERL_ARGS_ASSERT__IS_UTF8_FOO_WITH_LEN;
 
@@ -2788,7 +2788,7 @@ But in toke.c illegal UTF-8 will error with "Unrecognized character".
 */
 
 bool
-Perl_valid_ident(pTHX_ const SV* sv, bool strict_names, bool allow_package,
+Perl_valid_ident(pTHX_ SV* sv, bool strict_names, bool allow_package,
                  int *normalizep)
 {
     char *s;
@@ -2808,9 +2808,8 @@ Perl_valid_ident(pTHX_ const SV* sv, bool strict_names, bool allow_package,
         return FALSE;
     }
     s = SvPVX(sv);
-    len = SvCUR(sv);
     e = s + len;
-    is_utf8 = SvUTF8(sv);
+    is_utf8 = cBOOL(SvUTF8(sv));
 
     /* special check for builtins, which are technically invalid names */
     if (allow_package && len) {
@@ -3863,7 +3862,9 @@ Perl__core_swash_init(pTHX_ const char* pkg, const char* name, SV *listsv, I32 m
 	}
 	if (!SvROK(retval) || SvTYPE(SvRV(retval)) != SVt_PVHV) {
 	    if (SvPOK(retval)) {
+#ifndef __cplusplus
             no_swash_init:
+#endif
 		/* If caller wants to handle missing properties, let them */
 		if (flags_p && *flags_p & _CORE_SWASH_INIT_RETURN_IF_UNDEF) {
                     CORE_SWASH_INIT_RETURN(NULL);

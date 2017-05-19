@@ -861,7 +861,7 @@ ADMpR	|bool	|is_utf8_xdigit		|NN const U8 *p
 ADMpR	|bool	|is_utf8_mark		|NN const U8 *p
 AMpR	|bool	|_is_utf8_mark		|NN const U8 *p
 AMpR	|bool	|_is_decomposed_string	|NN const U8 *p|STRLEN len
-AMp	|bool	|valid_ident		|NN const SV* sv|bool strict_names \
+AMp	|bool	|valid_ident		|NN SV* sv|bool strict_names \
     		        		|bool allow_package|NN int *normalizep
 : Used in perly.y
 p	|OP*	|jmaybe			|NN OP *o

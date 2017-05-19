@@ -6594,7 +6594,7 @@ PERL_CALLCONV U8*	Perl_uvuni_to_utf8_flags(pTHX_ U8 *d, UV uv, UV flags)
 #define PERL_ARGS_ASSERT_UVUNI_TO_UTF8_FLAGS	\
 	assert(d)
 
-PERL_CALLCONV bool	Perl_valid_ident(pTHX_ const SV* sv, bool strict_names, bool allow_package, int *normalizep)
+PERL_CALLCONV bool	Perl_valid_ident(pTHX_ SV* sv, bool strict_names, bool allow_package, int *normalizep)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_4);
