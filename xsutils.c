@@ -308,7 +308,7 @@ XS_EXTERNAL(XS_strict_bits)
     dVAR;
     dXSARGS;
     UV bits = 0;
-    int i;
+    I32 i;
 
     for (i=0; i<items; i++) {
         SV *pv = ST(i);
@@ -326,7 +326,21 @@ XS_EXTERNAL(XS_strict_bits)
         else if (strEQc(name, "hashpairs"))
             bits |= HINT_STRICT_HASHPAIRS;
         else if (strEQc(name, "names"))
+#ifdef HINT_M_VMSISH_STATUS
+        {
+            HV* const hinthv = GvHV(PL_hintgv);
+            SV ** const svp = hv_fetchs(hinthv, "strict", TRUE);
+            PL_hints |= HINT_LOCALIZE_HH;
+            if (!SvIOK(*svp)) {
+                sv_upgrade(*svp, SVt_IV);
+                SvIVX(*svp) = HINT_M_VMSISH_STATUS;
+            }
+            else
+                SvIVX(*svp) |= HINT_M_VMSISH_STATUS;
+        }
+#else
             bits |= HINT_STRICT_NAMES;
+#endif
         else /* Maybe join all the wrong names. or not */
             Perl_croak(aTHX_ "Unknown 'strict' tag(s) '%s'", name);
     }
@@ -340,7 +354,7 @@ XS_EXTERNAL(XS_strict_import)
 {
     dVAR;
     dXSARGS;
-    int i;
+    I32 i;
 
     if (items == 1) {
         PL_hints |= (HINT_ALL_STRICTS | HINT_ALL_EXPLICIT_STRICTS);
@@ -361,7 +375,21 @@ XS_EXTERNAL(XS_strict_import)
             else if (strEQc(name, "hashpairs"))
                 PL_hints |= HINT_STRICT_HASHPAIRS;
             else if (strEQc(name, "names"))
+#ifdef HINT_M_VMSISH_STATUS
+            {
+                HV* const hinthv = GvHV(PL_hintgv);
+                SV ** const svp = hv_fetchs(hinthv, "strict", TRUE);
+                PL_hints |= HINT_LOCALIZE_HH;
+                if (!SvIOK(*svp)) {
+                    sv_upgrade(*svp, SVt_IV);
+                    SvIVX(*svp) = HINT_M_VMSISH_STATUS;
+                }
+                else
+                    SvIVX(*svp) |= HINT_M_VMSISH_STATUS;
+            }
+#else
                 PL_hints |= HINT_STRICT_NAMES;
+#endif
             else /* Maybe join all the wrong names. or not */
                 Perl_croak(aTHX_ "Unknown 'strict' tag(s) '%s'", name);
         }
@@ -376,7 +404,7 @@ XS_EXTERNAL(XS_strict_unimport)
 {
     dVAR;
     dXSARGS;
-    int i;
+    I32 i;
 
     if (items == 1) {
         PL_hints &= ~HINT_ALL_STRICTS;
@@ -398,7 +426,17 @@ XS_EXTERNAL(XS_strict_unimport)
             else if (strEQc(name, "hashpairs"))
                 PL_hints &= ~HINT_STRICT_HASHPAIRS;
             else if (strEQc(name, "names"))
+#ifdef HINT_M_VMSISH_STATUS
+            {
+                HV* const hinthv = GvHV(PL_hintgv);
+                SV ** const svp = hv_fetchs(hinthv, "strict", TRUE);
+                PL_hints |= HINT_LOCALIZE_HH;
+                if (SvIOK(*svp))
+                    SvIVX(*svp) &= ~HINT_M_VMSISH_STATUS;
+            }
+#else
                 PL_hints &= ~HINT_STRICT_NAMES;
+#endif
             else /* Maybe join all the wrong names. or not */
                 Perl_croak(aTHX_ "Unknown 'strict' tag(s) '%s'", name);
         }

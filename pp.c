@@ -376,7 +376,7 @@ Perl_softref2xv(pTHX_ SV *sv, const char *const what,
         (bool)valid_ident(sv, strict_names, TRUE, &normalize);
         sv = newsv;
     } else {
-        DEBUG_kv(Perl_deb("check strict names \"%" SVf "\"\n", SVfARG(sv)));
+        DEBUG_kv(Perl_deb(aTHX_ "check strict names \"%" SVf "\"\n", SVfARG(sv)));
         (bool)valid_ident(sv, strict_names, TRUE, &normalize);
     }
 

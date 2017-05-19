@@ -5674,10 +5674,13 @@ typedef enum {
 #define HINT_FEATURE_MASK	0x1c000000 /* 3 bits for feature bundles */
 
 #define HINT_STRICT_HASHPAIRS	0x20000000 /* strict pragma */
-#ifdef HINT_M_VMSISH_STATUS
-#define HINT_STRICT_NAMES	0x0        /* ignored */
-#else
+
+/* define HINT_M_VMSISH_STATUS  0x40000000 */ /* define for temp !VMS testing.
+                                              only 3 B-optree tests will fail */
+#ifndef HINT_M_VMSISH_STATUS
 #define HINT_STRICT_NAMES	0x40000000 /* strict pragma, not on VMS */
+#else
+#define HINT_STRICT_NAMES	0x0        /* on VMS we use $^H{strict} instead */
 #endif
 				/* Note: Used for HINT_M_VMSISH_*,
 				   currently defined by vms/vmsish.h:

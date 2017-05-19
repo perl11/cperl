@@ -11010,10 +11010,21 @@ Perl_ck_rvconst(pTHX_ OP *o)
 
     PERL_ARGS_ASSERT_CK_RVCONST;
 
-    OpPRIVATE(o) |= (PL_hints & HINT_STRICT_REFS);
+#ifdef HINT_M_VMSISH_STATUS
+    if (IS_TYPE(o, RV2SV)) {
+        HV* const hinthv = PL_hints & HINT_LOCALIZE_HH ? GvHV(PL_hintgv) : NULL;
+        SV ** const svp = hv_fetchs(hinthv, "strict", FALSE);
+        if (svp && SvIOK(*svp)) {
+            if (SvIV(*svp) & HINT_M_VMSISH_STATUS)
+                OpPRIVATE(o) |= OPpHINT_STRICT_NAMES;
+        }
+    }
+#else
     if (IS_TYPE(o, RV2SV) && PL_hints & HINT_STRICT_NAMES)
         OpPRIVATE(o) |= OPpHINT_STRICT_NAMES;
+#endif
 
+    OpPRIVATE(o) |= (PL_hints & HINT_STRICT_REFS);
     if (IS_CONST_OP(kid)) {
 	int iscv;
 	GV *gv;
@@ -12642,14 +12653,14 @@ Perl_ck_sort(pTHX_ OP *o)
     PERL_ARGS_ASSERT_CK_SORT;
 
     if (hinthv) {
-	    SV ** const svp = hv_fetchs(hinthv, "sort", FALSE);
-	    if (svp) {
-		const I32 sorthints = (I32)SvIV(*svp);
-		if ((sorthints & HINT_SORT_QUICKSORT) != 0)
-		    o->op_private |= OPpSORT_QSORT;
-		if ((sorthints & HINT_SORT_STABLE) != 0)
-		    o->op_private |= OPpSORT_STABLE;
-	    }
+        SV ** const svp = hv_fetchs(hinthv, "sort", FALSE);
+        if (svp) {
+            const I32 sorthints = (I32)SvIV(*svp);
+            if ((sorthints & HINT_SORT_QUICKSORT) != 0)
+                o->op_private |= OPpSORT_QSORT;
+            if ((sorthints & HINT_SORT_STABLE) != 0)
+                o->op_private |= OPpSORT_STABLE;
+        }
     }
 
     if (OpSTACKED(o))
