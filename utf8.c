@@ -2908,6 +2908,10 @@ Perl_valid_ident(pTHX_ SV* sv, bool strict_names, bool allow_package,
         else if (isIDFIRST_A(*s)) {
             do { s++; } while (isIDCONT_A(*s) && s < e);
         }
+        /* Special identifier form 1: L<perldata/Identifier Parsing> */
+        else if (*s >= '0' && *s <= '9') {
+            do { s++; } while (*s >= '0' && *s <= '9' && s < e);
+        }
         else if (allow_package && *s == ':' && s[1] == ':') {
             s++;
             s++;
