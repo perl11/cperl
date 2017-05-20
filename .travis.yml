@@ -54,7 +54,7 @@ script:
 - if [ "${TRAVIS_OS_NAME}" = "linux" -o -z "`echo $CONFIGURE_OPTION | grep 'DDEBUGGING'
   2>/dev/null`" ]; then
     if [ -n "$DEPLOY" ]; then
-      TEST_JOBS=4 make -s -j4 all test_harness install DESTDIR=$HOME/cperl-inst ;
+      TEST_JOBS=4 make -s -j4 all test_harness && make install DESTDIR=$HOME/cperl-inst ;
     else
       TEST_JOBS=4 make -s -j4 test_harness ;
     fi
