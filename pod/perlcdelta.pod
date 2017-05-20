@@ -52,6 +52,12 @@ than all other arithmetic ops, and the two unicode multiplication ops
 C<⋅> U+022C5 (dot operator) and C<∙> U+2219 (multiplication dot),
 which binds the same as C<*>.
 
+=head2 L<C<delete>|perlfunc/delete EXPR> on key/value slices
+
+L<C<delete>|perlfunc/delete EXPR> can now be used on key/value slices,
+returning the keys along with the deleted values.
+L<[perl #131328]|https://rt.perl.org/Ticket/Display.html?id=131328>
+
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
