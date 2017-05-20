@@ -2814,14 +2814,16 @@ Perl_valid_ident(pTHX_ SV* sv, bool strict_names, bool allow_package,
     /* special check for builtins, which are technically invalid names */
     if (allow_package && len) {
         STRLEN l = len;
-        if (memEQc(s, "main::")) {
+        if (l > 6 && memEQc(s, "main::")) {
             t = s+6;
             l -= 6;
         }
-        else if (memEQc(s, "::")) {
+        else if (l > 2 && memEQc(s, "::")) {
             t = s+2;
             l -= 2;
         }
+        /* Technically the documenation would allow them also in other packages,
+           but practically not. They are magic main names only. A doc bug. */
         if (t && !isIDFIRST_A(*t)) {
             if (l == 1) {
                 switch (*t) {
@@ -6101,7 +6103,8 @@ S_uvuni_get_script(pTHX_ const UV uv) {
     EXTEND(SP,1);
     mPUSHu(uv);
     PUTBACK;
-    if ((errsv_save = GvSV(PL_errgv))) SAVEFREESV(errsv_save);
+    if ((errsv_save = GvSV(PL_errgv)))
+        SAVEFREESV(errsv_save);
     GvSV(PL_errgv) = NULL;
     /* TODO: Convert this to C. UCD access is still primitive and huge. */
     if (call_sv(newSVpvs_flags("Unicode::UCD::charscript", SVs_TEMP), G_SCALAR)) {

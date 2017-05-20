@@ -326,7 +326,21 @@ PP(pp_rv2gv)
     RETURN;
 }
 
-/* Helper function for pp_rv2sv and pp_rv2av  */
+/*
+=for apidoc softref2xv
+
+Helper function for pp_rv2sv and pp_rv2av.
+Interns the string to a symbol.
+
+Optionally also consumes the local stackptr pointing to the sv
+(*spp[0] == sv) to use a subsequent LVAL NULL kid in the calling
+rv2sv.
+
+Note:
+sv might change. Get it with GvSV of the result afterwards.
+
+=cut
+*/
 GV *
 Perl_softref2xv(pTHX_ SV *sv, const char *const what,
 		const svtype type, SV ***spp)
@@ -372,12 +386,14 @@ Perl_softref2xv(pTHX_ SV *sv, const char *const what,
             Perl_ck_warner(aTHX_ packWARN(WARN_MISC),
                            "Invalid \\0 character in string for SYMBOL: %s",
                            pv_display(tmp, pv, SvCUR(sv), SvCUR(sv), 127));
-        /* when warnings are disabled, error with the \0 */
-        (bool)valid_ident(sv, strict_names, TRUE, &normalize);
+        /* Error with the long name with \0, not the shortened newsv */
+        (void)valid_ident(sv, strict_names, TRUE, &normalize);
+        *spp = PL_stack_sp; /* [cperl #290] */
         sv = newsv;
     } else {
-        DEBUG_kv(Perl_deb(aTHX_ "check strict names \"%" SVf "\"\n", SVfARG(sv)));
-        (bool)valid_ident(sv, strict_names, TRUE, &normalize);
+        DEBUG_kv(Perl_deb(aTHX_ "check valid name \"%" SVf "\"\n", SVfARG(sv)));
+        (void)valid_ident(sv, strict_names, TRUE, &normalize);
+        *spp = PL_stack_sp; /* [cperl #290] */
     }
 
     if (OpSPECIAL(PL_op) && !(PL_op->op_flags & OPf_MOD)) {
@@ -418,7 +434,7 @@ PP(pp_rv2sv)
     }
     if (PL_op->op_flags & OPf_MOD) {
 	if (PL_op->op_private & OPpLVAL_INTRO) {
-	    if (cUNOP->op_first->op_type == OP_NULL)
+	    if (OpFIRST(PL_op)->op_type == OP_NULL)
 		sv = save_scalar(MUTABLE_GV(TOPs));
 	    else if (gv)
 		sv = save_scalar(gv);
