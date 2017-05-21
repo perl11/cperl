@@ -417,6 +417,11 @@ platform specific bugs also go here.
 
 XXX
 
+=item *
+
+Detect shared-only import libraries like F<libNAME.dll.a>, which have no static
+counterpart F<libNAME.a>, which happens e.g. for C<libffi> on B<cygwin> or msys.
+
 =back
 
 =head1 Errata From Previous Releases
