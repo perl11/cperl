@@ -48,7 +48,7 @@ Linux)
         fi
         fpm -s dir -t rpm -n cperl -v $ver --iteration $rev --epoch '' -a $arch \
             -m 'rurban@cpan.org' \
-            -d 'zlib' -d bzip2-libs -d 'gdbm' -d $db4 \
+            -d 'zlib' -d bzip2-libs -d 'gdbm' -d 'libffi' -d $db4 \
             --url http://perl11.org/cperl/rpm/ \
             --description 'a perl5 with classes, types, compiler support, company-friendly.' \
             -C $destdir .
@@ -64,7 +64,7 @@ Linux)
                 fpm -s dir -t deb -n cperl -v $ver-$rev -a $arch \
                     -m 'rurban@cpan.org' \
                     -d 'zlib1g >= 1:1.2.2.3' -d libbz2-1.0 -d 'libgdbm3 >= 1.8.3' \
-                    -d 'libdb5.1' \
+                    -d 'libdb5.1' -d 'libffi6' \
                     --url http://perl11.org/deb/ \
                     --deb-changelog cperl/pod/perlcdelta.pod \
                     --description 'a perl5 with classes, types, compiler support, company-friendly.' \
@@ -85,6 +85,7 @@ SunOS)
     fpm -s dir -t solaris -v $ver-$rev \
         -n cperl \
         -m 'rurban@cpan.org' \
+        -d 'libffi6' \
         --vendor 'perl11.org' \
         --url 'http://perl11.org/cperl/' \
         --description 'a perl5 with classes, types, compiler support, company-friendly.' \
@@ -97,6 +98,7 @@ SunOS)
     fpm -s dir -t freebsd -v $ver-$rev \
         -n cperl \
         -m 'rurban@cpan.org' \
+        -d 'libffi' \
         --vendor 'perl11.org' \
         --url 'http://perl11.org/cperl/' \
         --description 'a perl5 with classes, types, compiler support, company-friendly.' \

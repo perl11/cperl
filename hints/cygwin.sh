@@ -33,6 +33,11 @@ test -z "$use64bitint" && use64bitint='define'
 test -z "$useithreads" && useithreads='undef'
 ccflags="$ccflags -DPERL_USE_SAFE_PUTENV -U__STRICT_ANSI__ -D_GNU_SOURCE"
 archname="`uname -m`-cygwin"
+#if [ -f /usr/lib/libffi.dll.a ]; then
+#    libs="$libs -lffi"
+#    libsfound="$libsfiles /usr/lib/libffi.dll.a"
+#    libsfiles="$libsfiles libffi.dll.a"
+#fi
 
 # dynamic loading
 # - otherwise -fpic
