@@ -998,6 +998,9 @@ i_fcntl=''
 i_fenv=''
 i_fp=''
 i_fp_class=''
+useffi=''
+d_libffi=''
+i_ffi=''
 i_gdbm=''
 d_grpasswd=''
 i_grp=''
@@ -1517,7 +1520,7 @@ libswanted_uselargefiles=''
 : set usesocks on the Configure command line to enable socks.
 : List of libraries we want.
 : If anyone needs extra -lxxx, put those in a hint file.
-libswanted="cl pthread socket bind inet nsl ndbm gdbm dbm db malloc dl ld"
+libswanted="cl pthread socket bind inet nsl ffi ndbm gdbm dbm db malloc dl ld"
 libswanted="$libswanted sun m crypt sec util c cposix posix ucb bsd BSD"
 : We probably want to search /usr/shlib before most other libraries.
 : This is only used by the lib/ExtUtils/MakeMaker.pm routine extliblist.
@@ -14496,6 +14499,41 @@ set d_gai_strerror
 eval $setvar
 $rm_try
 
+: see if ffi.h/libffi is available
+: ffi.h is typically under a seperate lib/libffi-3.2.1/include/ffi.h
+: best look for a pkgconfig/libffi.pc
+: or Alien::FFI auto/share/dist/Alien-FFI/_alien/alien.json
+set ffi.h i_ffi
+eval $inhdr
+
+if $test "$i_ffi" = "$undef"; then
+    i_ffi=''
+    set ../lib/libffi-3.2.1/include/ffi.h i_ffi
+    eval $inhdr
+    if $test "$i_ffi" = "$define"; then
+        ccflags="$ccflags -I../lib/libffi-3.2.1/include/"
+    fi
+fi
+val="$undef"
+if $test "$i_ffi" = "$define"; then
+    : see if ffi_raw_call exists
+    set ffi_raw_call d_libffi
+    eval $inlibc
+    case "$d_libffi" in
+	$undef)
+	    i_ffi="$undef"
+	    echo "We won't be including <ffi.h>"
+	    val="$undef"
+	    ;;
+	*) val="$define"
+	   ;;
+    esac
+fi
+set d_libffi
+eval $setvar
+set useffi
+eval $setvar
+
 : see if ndbm.h is available
 set ndbm.h i_ndbm
 eval $inhdr
@@ -24658,6 +24696,7 @@ d_ldexpl='$d_ldexpl'
 d_lgamma='$d_lgamma'
 d_lgamma_r='$d_lgamma_r'
 d_libm_lib_version='$d_libm_lib_version'
+d_libffi='$d_libffi'
 d_libname_unique='$d_libname_unique'
 d_link='$d_link'
 d_linkat='$d_linkat'
@@ -25075,6 +25114,7 @@ i_dlfcn='$i_dlfcn'
 i_execinfo='$i_execinfo'
 i_fcntl='$i_fcntl'
 i_fenv='$i_fenv'
+i_ffi='$i_ffi'
 i_fp='$i_fp'
 i_fp_class='$i_fp_class'
 i_gdbm='$i_gdbm'
@@ -25469,6 +25509,7 @@ usedevel='$usedevel'
 usedl='$usedl'
 usedtrace='$usedtrace'
 usefaststdio='$usefaststdio'
+useffi='$useffi'
 useithreads='$useithreads'
 usekernprocpathname='$usekernprocpathname'
 uselanginfo='$uselanginfo'
