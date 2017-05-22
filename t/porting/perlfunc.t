@@ -23,6 +23,7 @@
 
 BEGIN {
     @INC = ('..', '../lib') if -f '../TestInit.pm';
+    @INC = ('.', 'lib')     if -f 'TestInit.pm';
 }
 
 use Config;

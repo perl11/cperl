@@ -769,9 +769,16 @@ X<triple-dot operator>
 Beginning in Perl 5.12, Perl accepts an ellipsis, "C<...>", as a
 placeholder for code that you haven't implemented yet.  This form of
 ellipsis, the unimplemented statement, should not be confused with the
-binary flip-flop C<...> operator.  One is a statement and the other an
-operator.  (Perl doesn't usually confuse them because usually Perl can tell
-whether it wants an operator or a statement, but see below for exceptions.)
+three-dot variant of binary flip-flop C<...> operator. (See
+L<perlop/"Range Operators">).  One is a statement and the other an
+operator.  (Perl doesn't usually confuse them because usually Perl can
+tell whether it wants an operator or a statement, but see below for
+exceptions.)
+
+With cperl the C<...> in a signature will denote varargs, and the
+C<...> in a body will then not be interpreted as ellipsis
+C<Unimplemented> error, but as placeholder for the unnamed rest arguments.
+Usage of C<...> as ellipsis is therefore discouraged.
 
 When Perl 5.12 or later encounters an ellipsis statement, it parses this
 without error, but if and when you should actually try to execute it, Perl

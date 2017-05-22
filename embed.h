@@ -1032,6 +1032,10 @@
 #define pad_setsv(a,b)		Perl_pad_setsv(aTHX_ a,b)
 #define pad_sv(a)		Perl_pad_sv(aTHX_ a)
 #endif
+#if defined(D_LIBFFI) && defined(USE_FFI)
+#define prep_ffi_ret(a,b,c)	Perl_prep_ffi_ret(aTHX_ a,b,c)
+#define prep_ffi_sig(a,b,c,d)	Perl_prep_ffi_sig(aTHX_ a,b,c,d)
+#endif
 #if defined(HAS_SIGACTION) && defined(SA_SIGINFO)
 #define csighandler		Perl_csighandler
 #endif
@@ -1404,6 +1408,7 @@
 #define amagic_is_enabled(a)	Perl_amagic_is_enabled(aTHX_ a)
 #define apply(a,b,c)		Perl_apply(aTHX_ a,b,c)
 #define attrs_has_const(a,b)	Perl_attrs_has_const(aTHX_ a,b)
+#define attrs_runtime(a,b)	Perl_attrs_runtime(aTHX_ a,b)
 #define av_extend_guts(a,b,c,d,e)	Perl_av_extend_guts(aTHX_ a,b,c,d,e)
 #define av_nonelem(a,b)		Perl_av_nonelem(aTHX_ a,b)
 #define bind_match(a,b,c)	Perl_bind_match(aTHX_ a,b,c)
@@ -2276,6 +2281,9 @@
 #define mem_log_common		S_mem_log_common
 #    endif
 #  endif
+#  if defined(PERL_IN_XSUTILS_C)
+#define prep_cif(a,b)		S_prep_cif(aTHX_ a,b)
+#  endif
 #  if defined(PERL_MEM_LOG)
 #define mem_log_alloc		Perl_mem_log_alloc
 #define mem_log_free		Perl_mem_log_free
@@ -2286,6 +2294,10 @@
 #  endif
 #  if defined(USE_C_BACKTRACE)
 #define get_c_backtrace(a,b)	Perl_get_c_backtrace(aTHX_ a,b)
+#  endif
+#  if defined(USE_FFI)
+#define magic_getffi_encoded(a,b)	Perl_magic_getffi_encoded(aTHX_ a,b)
+#define magic_setffi_encoded(a,b)	Perl_magic_setffi_encoded(aTHX_ a,b)
 #  endif
 #  if defined(USE_ITHREADS)
 #define mro_meta_dup(a,b)	Perl_mro_meta_dup(aTHX_ a,b)

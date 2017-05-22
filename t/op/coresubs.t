@@ -72,6 +72,7 @@ while(<$kh>) {
       *{"my$word"} = \&{"CORE::$word"};
       is prototype \&{"my$word"}, $proto, "prototype of &CORE::$word";
 
+      next if $word eq 'extern';
       CORE::state $protochar = qr/([^\\]|\\(?:[^[]|\[[^]]+\]))/;
       my $numargs =
             $word eq 'delete' || $word eq 'exists' ? 1 :

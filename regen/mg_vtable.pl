@@ -45,6 +45,8 @@ my %mg =
 		  desc => '%ENV hash element' },
      fm => { char => 'f', vtable => 'regexp', value_magic => 1,
 	     readonly_acceptable => 1, desc => "Formline ('compiled' format)" },
+     ffienc => { char => 'F', value_magic => 1,
+                 readonly_acceptable => 1, desc => "FFI :encoded" },
      regex_global => { char => 'g', vtable => 'mglob', value_magic => 1,
 		       readonly_acceptable => 1, desc => 'm//g target' },
      hints => { char => 'H', vtable => 'hints', desc => '%^H hash' },
@@ -154,6 +156,8 @@ my %sig =
      'checkcall' => {copy => 'copycallchecker'},
      'debugvar' => { set => 'setdebugvar', get => 'getdebugvar' },
      'lvref' => {set => 'setlvref'},
+     'ffienc' => {get => 'getffi_encoded', set => 'setffi_encoded',
+                  cond => '#ifdef USE_FFI'},
 );
 
 my ($vt, $raw, $names) = map {

@@ -636,10 +636,11 @@ least an C<UNOP>.
 
 #ifdef PERL_CORE
 #  define my(o)	my_attrs((o), NULL)
-#  define OpTYPE_set(o,type) \
-    STMT_START {				\
-	o->op_type = (OPCODE)type;		\
-	o->op_ppaddr = PL_ppaddr[type];		\
+#  define OpTYPE_set(o,t) \
+    STMT_START {                                 \
+        OPCODE _type = (OPCODE)(t);              \
+        o->op_type = _type;                      \
+	o->op_ppaddr = PL_ppaddr[_type];         \
     } STMT_END
 #endif
 

@@ -10,6 +10,9 @@ addons:
     #- gcc-4.8
     - gcc-multilib
     - libgdbm-dev:i386
+    - libffi6:i386
+    - libffi-dev
+    - libffi-dev:i386
   # FAQ: Up to 14 builds per week, with a maximum of 2 build per day (850Kloc)
   # https://scan.coverity.com/projects/perl11-cperl
   coverity_scan:

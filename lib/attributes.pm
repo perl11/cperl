@@ -1,7 +1,7 @@
 package attributes;
 
 # TODO: convert import also to XS
-our $VERSION = '1.14c';
+our $VERSION = '1.15c';
 $VERSION =~ s/c$//;
 #@EXPORT_OK = qw(get reftype);
 @EXPORT = ();
@@ -296,10 +296,97 @@ The cperl variant uses coretypes which declares these types.  For
 subroutines these types declare the strict return type for the
 subroutine.
 
+=item native
+=item native(STRING)
+=item native(STRING, INT or STRING)
+
+Mark a subroutine as extern (I<ffi>) and optionally define a shared
+library name for it.  The lib prefix and the extension suffix may be
+omitted. So :native("mysqlclient") will search for "libmysqlclient.so"
+on linux. See L<DynaLoader> for the rules.  cperl-only.
+
+The optional 2nd argument specifies the minimal soname version. It
+defaults to 0, which is being ignored when searching for matching
+filenames. Note that perl6 uses a 'v' prefixed version, and can thereby handle
+triples, like C<v1.2.0 => libfoo.so.1.2.0>
+We use the version not as number but merely as search hint string for the name of
+the shared library.
+C<:native("mysqlclient", 18)> will find F<libmysqlclient.so.18> on ELF
+platforms, F<cygmysqlclient-18.dll> on cygwin,
+F<libmysqlclient.18.dylib> on darwin, F<mysqlclient.dll> but not
+F<libmysql.dll> on windows.
+
+Note that C<:native> may and L<C<:symbol>|/symbol(STRING)> must take
+an argument list which is expanded at run-time,
+e.g. C<:native($libname)>. A bareword is used as constant,
+a function call is prefixed with C<&> (NYI).
+I.e.
+
+    sub x :native(libname);
+     => CvFFILIB(\&x) = DynaLoader::dl_load_file("libname");
+    sub x :native(&libname("arg"));
+     => CvFFILIB(\&x) = DynaLoader::dl_load_file(libname(arg));
+
+Note: perl5 and perl6 cannot handle variables in attribute/trait
+arguments, only compile-time values. That's a severe limitation, as
+you cannot run-time DynaLoad specific shared libraries, which is
+problematic as the names for shared libraries don't follow a proper
+naming scheme on some platforms.
+
+The C<CvFFILIB> field is later re-used for the libffi C<ffi_cif* struct>,
+holding the signature: the arity and argument and return types.
+
+=item symbol(STRING)
+
+Only valid for L<C<:native>|/native> extern subroutines, to define a
+non-default C symbol name.  The C<_> prefix rule for the C ABI is used
+from DynaLoader, so it can be omitted.  cperl-only.
+
+The mandatory argument is expanded.
+It is used as argument to C<DynaLoader::dl_find_symbol()> to resolve
+the ffi function symbol in the shared library.
+I.e. C<sub x :native :symbol("X");> 
+=> C<CvXSUB(\&x) = DynaLoader::dl_find_symbol(CvFFILIB(\&x), "X");>
+
+=item encoded(STRING)
+
+Specifies an encoding translation layer for strings passed to or from
+native calls. The argument must be a valid L<Encode::Alias>.
+
+E.g.
+
+  extern sub message_box(Str :encoded('utf8'));
+  extern sub input_box() :Str :encoded('utf8');
+
+=item nativeconv(STRING)
+
+Specifies a different native calling convention, the ABI, than the
+platform and libffi default. Only valid in a C<:native> or C<extern sub>
+declaration.
+
+It defaults to the C<"DEFAULT"> ABI, matching FFI_DEFAULT_ABI. Valid
+ABI's are libffi and platform-specific. Platforms with multiple ABI's
+are (see F<libffi/src/*/ffitarget.h>):
+
+    arm (not aarch64): VFP, SYSV
+    mips: O32, N32, N64, O32_SOFT_FLOAT, N32_SOFT_FLOAT, N64_SOFT_FLOAT
+    powerpc: AIX, DARWIN
+    powerpc (not aix, not darwin): SYSV, COMPAT_SYSV, COMPAT_GCC_SYSV,
+             COMPAT_LINUX64, COMPAT_LINUX, COMPAT_LINUX_SOFT_FLOAT
+      or powerpc64: LINUX
+    x86_64: UNIX64, WIN64
+    x86: SYSV, STDCALL, THISCALL, FASTCALL, MS_CDECL, PASCAL, REGISTER
+
+Note the the names differ from perl6. perl6 uses the F<dyncall>
+library with different ABI support and names. The only tested perl6
+C<nativeconv> is "thisgnu", i.e. cdecl or SYSV.
+cperl uses F<libffi>.
+
 =item Any other name
 
 cperl lets you declare function return types. Any other name is
 the strict return type for the subroutine.
+If the type does not exist an error is thrown.
 
 =back
 
@@ -363,12 +450,13 @@ closures.  (See L<perlref/"Making References"> for information on closures.)
 Package-specific attribute handling may change incompatibly in a future
 release.
 
-When an attribute list is present in a declaration, a check is made to see
-whether an attribute 'modify' handler is present in the appropriate package
-(or its @ISA inheritance tree).  Similarly, when C<attributes::get> is
-called on a valid reference, a check is made for an appropriate attribute
-'fetch' handler.  See L<"EXAMPLES"> to see how the "appropriate package"
-determination works.
+When an attribute list is present in a declaration, a check is made to
+see whether an attribute MODIFY_I<type>_ATTRIBUTES 'modify' handler is
+present in the appropriate package (or its @ISA inheritance tree).
+Similarly, when C<attributes::get> is called on a valid reference, a
+check is made for an appropriate attribute FETCH_I<type>_ATTRIBUTES
+'fetch' handler.  See L<"EXAMPLES"> to see how the "appropriate
+package" determination works.
 
 The handler names are based on the underlying type of the variable being
 declared or of the reference passed.  Because these attributes are
@@ -581,7 +669,7 @@ As we return an empty list, everything is fine.
      my ($class,$code,@attrs) = @_;
 
      my $allowed = 'MyAttribute';
-     my @bad = grep{ $_ ne $allowed }@attrs;
+     my @bad = grep{ $_ ne $allowed } @attrs;
 
      return @bad;
   }

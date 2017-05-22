@@ -140,6 +140,10 @@ See L</Protected hash iterators>.
 
 =over 4
 
+=item L<attributes> 1.15c
+
+Add ffi support, :native(), :encoded(), :nativeconv(), :symbol().
+
 =item L<Errno> 1.29_01
 
 Protect from including some avx512 intrinsics directly on mingw.

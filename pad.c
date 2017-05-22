@@ -65,7 +65,8 @@ implementation detail subject to change.  To test for them, use
 C<!PadnamePV(name)> and S<C<PadnamePV(name) && !PadnameLEN(name)>>,
 respectively.
 
-Only lexical variable slots get valid names (i.e. my/our/state/has).
+Only lexical variable slots get valid names (i.e. my/our/state/has,
+signature variables).
 The rest are op targets/GVs/constants which are statically allocated
 or resolved at compile time.  These don't have names by which they
 can be looked up from Perl code at run time through eval"" the way
@@ -116,10 +117,9 @@ is a CV representing a possible closure.
 Note that formats are treated as anon subs, and are cloned each time
 write is called (if necessary).
 
-The flag C<SVs_PADSTALE> is cleared on lexicals each time the C<my()> is executed,
-and set on scope exit.  This allows the
-C<"Variable $x is not available"> warning
-to be generated in evals, such as 
+The flag C<SVs_PADSTALE> is cleared on lexicals each time the C<my()>
+is executed, and set on scope exit.  This allows the C<"Variable $x is
+not available"> warning to be generated in evals, such as
 
     { my $x = 1; sub f { eval '$x'} } f();
 
@@ -172,7 +172,7 @@ Perl_set_padlist(CV * cv, PADLIST *padlist){
 #  else
 #    error unknown pointer size
 #  endif
-    assert(!CvISXSUB(cv));
+    assert(CvEXTERN(cv) || !CvISXSUB(cv));
     ((XPVCV*)MUTABLE_PTR(SvANY(cv)))->xcv_padlist_u.xcv_padlist = padlist;
 }
 #endif
@@ -367,6 +367,8 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
     }
     else { /* dont bother checking if CvXSUB(cv) is true, less branching */
 	CvXSUB(&cvbody) = NULL;
+        if (CvEXTERN(&cvbody)) /* the cif */
+            Safefree(INT2PTR(void*,CvFFILIB(cv)));
     }
     SvPOK_off(MUTABLE_SV(cv));		/* forget prototype */
     sv_unmagic((SV *)cv, PERL_MAGIC_checkcall);
@@ -381,7 +383,7 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
     /* This statement and the subsequence if block was pad_undef().  */
     pad_peg("pad_undef");
 
-    if (!CvISXSUB(&cvbody) && CvPADLIST(&cvbody)) {
+    if ((!CvISXSUB(&cvbody) || CvEXTERN(&cvbody)) && CvPADLIST(&cvbody)) {
 	PADOFFSET ix;
 	const PADLIST *padlist = CvPADLIST(&cvbody);
 
@@ -758,8 +760,9 @@ Perl_pad_alloc(pTHX_ I32 optype, U32 tmptype)
 	     * can be reused; not so for constants.
 	     */
 	    PADNAME *pn;
-	    if (++retval <= names_fill &&
-		   (pn = names[retval]) && PadnamePV(pn))
+	    if (  ++retval <= names_fill &&
+		  (pn = names[retval]) &&
+                  PadnamePV(pn) )
 		continue;
 	    sv = *av_fetch(PL_comppad, retval, TRUE);
 	    if (!(SvFLAGS(sv) &

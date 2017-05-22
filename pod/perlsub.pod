@@ -30,6 +30,16 @@ X<subroutine, anonymous>
     $subref = sub (PROTO) : ATTRS BLOCK; # with proto and attributes
     $subref = sub (SIG) : ATTRS BLOCK;   # with signature and attributes
 
+To declare external subroutines:
+X<subroutine, extern> X<extern> X<ffi>
+
+    extern sub NAME (SIG) :ATTRS;            # signature must contain types
+    extern sub NAME (SIG);                   # default return type
+    sub NAME (SIG) :native;                  # no library name
+    sub NAME (SIG) :native("mysqlclient");   # constant library name
+    sub NAME (SIG) :native($libname);        # variable library name
+    sub NAME (SIG) :native :symbol("cname"); # other c symbol name
+
 To import subroutines:
 X<import>
 
@@ -566,6 +576,29 @@ C<$self> is not added with C<sub> and the C<:method> attribute.
     }
 
 
+With extern or :native subroutine declarations the types in the
+signature are mandatory, and the block is empty. Some FFI specific
+types are imported via the L<ffi> module. The functions are searched
+in all loaded shared libraries, a new shared library must be specified
+via the :native argument, are loaded beforehand via
+C<DynaLoader::dl_load_file()>.
+An alternate name for the C function may be declared via the :symbol
+argument.
+
+    extern sub rand() :int;
+
+    use ffi;
+    extern sub srand(uint $i) :void;
+
+    sub mysql_fetch_row ($result :ptr)
+        :native("mysqlclient", 20) :long;
+
+The :native attribute accepts a string for the library name, searched
+via C<dl_load_file()>, plus an optional numeric argument for
+the soname version to find it easier on windows-like platforms without
+symlink support, and an optional int for the soname version.
+See L<attributes/native>.
+
 =head2 Private Variables via my()
 X<my> X<variable, lexical> X<lexical> X<lexical variable> X<scope, lexical>
 X<lexical scope> X<attributes, my>
@@ -589,7 +622,7 @@ confined to the enclosing block, conditional
 or C<do>/C<require>/C<use>'d file.  If more than one value is listed, the
 list must be placed in parentheses.  All listed elements must be
 legal lvalues.  Only alphanumeric identifiers may be lexically
-scoped--magical built-ins like C<$/> must currently be C<local>ized
+scoped--magical built-ins like C<$/> must currently be localized
 with C<local> instead.
 
 Unlike dynamic variables created by the C<local> operator, lexical

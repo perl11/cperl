@@ -16,7 +16,7 @@
 #
 # This script is normally invoked from regen.pl.
 
-$VERSION = '1.42';
+$VERSION = '1.43';
 
 BEGIN {
     require './regen/regen_lib.pl';
@@ -121,6 +121,7 @@ my $tree = {
         'types'         => [ 5.024, DEFAULT_OFF],
         'security'      => [ 5.025, DEFAULT_ON],
         'shadow'        => [ 5.027, DEFAULT_OFF],
+        'ffi'           => [ 5.029, DEFAULT_OFF],
 
          #'default'     => [ 5.008, DEFAULT_ON ],
 }]};

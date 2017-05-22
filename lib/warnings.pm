@@ -9,7 +9,7 @@ BEGIN {
     keys(%warnings::) = 64; # pre-extend the stash
 }
 
-our $VERSION = "1.42";
+our $VERSION = "1.43";
 
 # Verify that we're called correctly so that warnings will work.
 # Can't use Carp, since Carp uses us!
@@ -110,6 +110,9 @@ our %Offsets = (
     'experimental::alpha_assertions'	=> 140,
     'experimental::script_run'		=> 142,
     'shadow'				=> 144,
+
+    # Warnings Categories added in Perl 5.029
+    'ffi'				=> 146,
 );
 
 our %Bits = (
@@ -138,6 +141,7 @@ our %Bits = (
     'experimental::signatures'		=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00", # [57]
     'experimental::smartmatch'		=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00", # [55]
     'experimental::win32_perlio'	=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00", # [63]
+    'ffi'				=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04", # [73]
     'glob'				=> "\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", # [4]
     'illegalproto'			=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00", # [47]
     'imprecision'			=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00", # [46]
@@ -214,6 +218,7 @@ our %DeadBits = (
     'experimental::signatures'		=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00\x00", # [57]
     'experimental::smartmatch'		=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00\x00\x00", # [55]
     'experimental::win32_perlio'	=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00", # [63]
+    'ffi'				=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08", # [73]
     'glob'				=> "\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", # [4]
     'illegalproto'			=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00\x00\x00\x00\x00", # [47]
     'imprecision'			=> "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00", # [46]
@@ -267,7 +272,7 @@ our %DeadBits = (
 # These are used by various things, including our own tests
 our $NONE				=  "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 our $DEFAULT				=  "\x10\x01\x00\x00\x00\x50\x04\x00\x00\x00\x00\x00\x00\x54\x51\x54\x01\x55\x00", # [2,4,22,23,25,53..56,58,59,61..64,68..71]
-our $LAST_BIT				=  146 ;
+our $LAST_BIT				=  148 ;
 our $BYTES				=  19 ;
 
 sub Croaker
@@ -817,6 +822,7 @@ The current hierarchy is:
          |                 +- experimental::signatures
          |                 +- experimental::smartmatch
          |                 +- experimental::win32_perlio
+         +- ffi
          +- glob
          +- imprecision
          +- io ------------+

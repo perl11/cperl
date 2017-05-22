@@ -23,6 +23,22 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#if defined(USE_FFI) && defined(I_FFI)
+# include <ffi.h>
+#endif
+#if defined(I_DLFCN) && !defined(_MSC_VER)
+#  include <dlfcn.h> /* for RTLD_DEFAULT: -2 on bsd */
+#endif
+#ifndef RTLD_DEFAULT
+# if defined(PERL_DARWIN) || defined(__APPLE__)   || defined(BSD) || \
+     defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) || \
+     defined(__bsdi__)    || defined(__DragonFly__)
+#  define RTLD_DEFAULT -2
+# else /* linux, qnx, aix, windows, cygwin */
+#  define RTLD_DEFAULT 0
+# endif
+#endif
+
 /* public XS package methods */
 /* -- converted to XS */
 XS_EXTERNAL(XS_strict_bits);
@@ -226,10 +242,10 @@ boot_strict(pTHX_ SV *xsfile)
 static void
 boot_attributes(pTHX_ SV *xsfile)
 {
-    PERL_UNUSED_VAR(xsfile);
+    PERL_UNUSED_ARG(xsfile);
     /* The version needs to be still on disc, as we still have the .pm
        around for a while */
-    /*Perl_set_version(aTHX_ STR_WITH_LEN("attributes::VERSION"), STR_WITH_LEN("1.10c"), 1.10);*/
+    /*Perl_set_version(aTHX_ STR_WITH_LEN("attributes::VERSION"), STR_WITH_LEN("1.13c"), 1.13);*/
 
     newXS("attributes::bootstrap",     	   XS_attributes_bootstrap,file);
     newXS("attributes::_modify_attrs",     XS_attributes__modify_attrs, file);
@@ -451,18 +467,836 @@ XS_EXTERNAL(XS_strict_unimport)
  * Extended by cPanel.
  */
 
+/* ffi helpers */
+
+/* compile-time */
+
+#if defined(D_LIBFFI) && defined(USE_FFI)
+static ffi_type*
+S_prep_sig(pTHX_ const char *name, int l)
+{
+    if (l>6 && memEQc(name, "main::")) {
+        name += 6;
+        l -= 6;
+    }
+    if (l == 3) {
+        if (memEQc(name, "int") ||
+            memEQc(name, "Int")) {
+            return &ffi_type_sint;
+        }
+        else if (memEQc(name, "str") || /* Uni */
+                 memEQc(name, "Str") ||
+                 memEQc(name, "ptr")) {
+            return &ffi_type_pointer;
+        }
+        else if (memEQc(name, "num") ||
+                 memEQc(name, "Num")) {
+            return &ffi_type_double;
+        }
+    }
+    else if (l == 4) {
+        if (memEQc(name, "void")) {
+            return &ffi_type_void;
+        }
+        else if (memEQc(name, "long")) {
+            return &ffi_type_slong;
+        }
+        else if (memEQc(name, "uint") ||
+                 memEQc(name, "UInt")) {
+            return &ffi_type_uint;
+        }
+        else if (memEQc(name, "char") ||
+                 memEQc(name, "int8")) {
+            return &ffi_type_schar;
+        }
+        else if (memEQc(name, "bool")) {
+            return &ffi_type_schar;
+        }
+        else if (memEQc(name, "byte")) {
+            return &ffi_type_uchar;
+        }
+    } else if (l == 5) {
+        if (memEQc(name, "int32")) {
+            return &ffi_type_sint32;
+        }
+        else if (memEQc(name, "int16")) {
+            return &ffi_type_sint16;
+        }
+        else if (memEQc(name, "int64")) {
+            /* TODO: on 32bit check overflow => Math::BigInt */
+#ifdef HAS_QUAD
+            return &ffi_type_sint64;
+#else
+            Perl_warner(aTHX_ packWARN(WARN_FFI),
+                        "ffi: Possible %s overflow %" IVdf,
+                        name, (I64TYPE)rvalue);
+            return &ffi_type_sint64;
+#endif
+        }
+        else if (memEQc(name, "uint8")) {
+            return &ffi_type_uint8;
+        }
+        else if (memEQc(name, "ulong")) {
+            return &ffi_type_ulong;
+        }
+        else if (memEQc(name, "float") ||
+                 memEQc(name, "num32")) {
+            return &ffi_type_float;
+        }
+        else if (memEQc(name, "num64")) {
+            return &ffi_type_double;
+        }
+    } else if (l == 6) {
+        if (memEQc(name, "uint32")) {
+            return &ffi_type_uint32;
+        }
+        else if (memEQc(name, "uint16")) {
+            return &ffi_type_uint16;
+        }
+        else if (memEQc(name, "uint64")) {
+            /* TODO: on 32bit check overflow => Math::BigInt */
+#ifdef HAS_QUAD
+            return &ffi_type_uint64;
+#else
+            Perl_warner(aTHX_ packWARN(WARN_FFI),
+                        "ffi: Possible %s overflow %" UVuf,
+                        name, (UV)rvalue);
+            return &ffi_type_uint64;
+#endif
+        }
+        else if (memEQc(name, "size_t")) {
+            return &ffi_type_sint;
+        }
+        else if (memEQc(name, "double")) {
+            return &ffi_type_double;
+        }
+    } else {
+        if (memEQs(name, l, "longlong")) {
+#ifdef HAS_LONG_LONG
+            return &ffi_type_sint64;
+#elif defined(HAS_QUAD)
+            return &ffi_type_sint64;
+#else
+            /* TODO: check overflow => Math::BigInt */
+            Perl_warner(aTHX_ packWARN(WARN_FFI),
+                        "ffi: Possible %s overflow %" IVdf,
+                        name, (IV)rvalue);
+            return &ffi_type_sint64;
+#endif
+        }
+        if (memEQs(name, l, "longdouble")) {
+#ifdef ffi_type_longdouble
+            return &ffi_type_longdouble;
+#else
+            return &ffi_type_double;
+#endif
+        }
+        else if (memEQs(name, l, "OpaquePointer") ||
+                 memEQs(name, l, "Pointer")) {
+            return &ffi_type_pointer;
+        }
+    }
+    Perl_ck_warner_d(aTHX_ packWARN(WARN_FFI),
+                     "Unknown ffi return type :%s, assume :void", name);
+    return &ffi_type_void;
+}
+#endif
+
+/*
+=for apidoc prep_cif
+
+Prepare the compile-time argument and return types and arity for an
+extern sub for C<ffi_prep_cif()>.
+
+See C<man ffi_prep_cif>.
+=cut
+*/
+static void
+S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
+{
+#if defined(D_LIBFFI) && defined(USE_FFI)
+    UNOP_AUX *sigop = CvSIGOP(cv);
+    UNOP_AUX_item *items = sigop->op_aux;
+    ffi_cif* cif = (ffi_cif*)safemalloc(sizeof(ffi_cif));
+
+    const UV   params      = items[0].uv;
+    const UV   mand_params = params >> 16;
+    const UV   opt_params  = params & ((1<<15)-1);
+    /*const bool slurpy      = cBOOL((params >> 15) & 1);*/
+    const unsigned int num_args = mand_params + opt_params;
+    unsigned int i;
+    UV  actions;
+    PADOFFSET pad_ix = 0;
+    PADNAMELIST *namepad = PadlistNAMES(CvPADLIST(cv));
+#define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
+    PADNAME *argname;
+
+    /* alloca? ffi_prep_cif does not copy the ret and argtypes,
+       so we need it on the heap. */
+    ffi_type **argtypes;
+    ffi_type *rtype;
+    ffi_status status;
+    ffi_abi abi = FFI_DEFAULT_ABI;
+    PERL_ARGS_ASSERT_PREP_CIF;
+
+    if (!CvXFFI(cv)) /* miniperl */
+        return;
+    argtypes = (ffi_type**)safemalloc(num_args * sizeof(ffi_type*));
+
+#define CHK_ABI(conv)                    \
+        if (strEQc(nativeconv, #conv)) { \
+            abi = FFI_ ## conv;          \
+        } else
+
+    if (nativeconv && *nativeconv) {
+#ifdef HAVE_FFI_SYSV
+        CHK_ABI(SYSV)
+#endif
+#ifdef HAVE_FFI_UNIX64
+        CHK_ABI(UNIX64)
+#endif
+#ifdef HAVE_FFI_WIN64
+        CHK_ABI(WIN64)
+#endif
+#ifdef HAVE_FFI_STDCALL
+        CHK_ABI(STDCALL)
+#endif
+#ifdef HAVE_FFI_THISCALL
+        CHK_ABI(THISCALL)
+#endif
+#ifdef HAVE_FFI_FASTCALL
+        CHK_ABI(FASTCALL)
+#endif
+#ifdef HAVE_FFI_MS_CDECL
+        CHK_ABI(MS_CDECL)
+#endif
+#ifdef HAVE_FFI_PASCAL
+        CHK_ABI(PASCAL)
+#endif
+#ifdef HAVE_FFI_REGISTER
+        CHK_ABI(REGISTER)
+#endif
+#ifdef HAVE_FFI_VFP
+        CHK_ABI(VFP)
+#endif
+#ifdef HAVE_FFI_O32
+        CHK_ABI(O32)
+#endif
+#ifdef HAVE_FFI_N32
+        CHK_ABI(N32)
+#endif
+#ifdef HAVE_FFI_N64
+        CHK_ABI(N64)
+#endif
+#ifdef HAVE_FFI_O32_SOFT_FLOAT
+        CHK_ABI(O32_SOFT_FLOAT)
+#endif
+#ifdef HAVE_FFI_N32_SOFT_FLOAT
+        CHK_ABI(N32_SOFT_FLOAT)
+#endif
+#ifdef HAVE_FFI_N64_SOFT_FLOAT
+        CHK_ABI(N64_SOFT_FLOAT)
+#endif
+#ifdef HAVE_FFI_AIX
+        CHK_ABI(AIX)
+#endif
+#ifdef HAVE_FFI_DARWIN
+        CHK_ABI(DARWIN)
+#endif
+#ifdef HAVE_FFI_COMPAT_SYSV
+        CHK_ABI(COMPAT_SYSV)
+#endif
+#ifdef HAVE_FFI_COMPAT_GCC_SYSV
+        CHK_ABI(COMPAT_GCC_SYSV)
+#endif
+#ifdef HAVE_FFI_COMPAT_LINUX64
+        CHK_ABI(COMPAT_LINUX64)
+#endif
+#ifdef HAVE_FFI_COMPAT_LINUX
+        CHK_ABI(COMPAT_LINUX)
+#endif
+#ifdef HAVE_FFI_COMPAT_LINUX_SOFT_FLOAT
+        CHK_ABI(COMPAT_LINUX_SOFT_FLOAT)
+#endif
+#ifdef HAVE_FFI_V9
+        CHK_ABI(V9)
+#endif
+#ifdef HAVE_FFI_V8
+        CHK_ABI(V8)
+#endif
+        if (strEQc(nativeconv, "DEFAULT"))
+            abi = FFI_DEFAULT_ABI;
+        else
+            Perl_croak(aTHX_ "Illegal :nativeconv(%s) argument", nativeconv);
+    }
+    /* TODO walk sigs to perform compile-time type checks: sample long labs(long) */
+#if 0
+    argtypes[0] = &ffi_type_sint64;
+    rtype = &ffi_type_sint64;
+#else
+    argname = PAD_NAME(0);
+    if (argname && PadnameTYPE(argname)) {
+        HV *type = PadnameTYPE(argname);
+        rtype = S_prep_sig(aTHX_ HvNAME(type), HvNAMELEN(type));
+    } else {
+        rtype = &ffi_type_void;
+    }
+    if (!num_args)
+        return;
+
+    actions = (++items)->uv;
+    for (i=0; i<num_args; i++) {
+        UV action = actions & SIGNATURE_ACTION_MASK;
+        if (action == SIGNATURE_reload) {
+            actions = (++items)->uv;
+            action = actions & SIGNATURE_ACTION_MASK;
+        } else if (action == SIGNATURE_padintro) {
+            UV data = (++items)->uv;
+            /*UV varcount = data & OPpPADRANGE_COUNTMASK;*/
+            pad_ix = data >> OPpPADRANGE_COUNTSHIFT;
+            /*padp = &(PAD_SVl(pad_ix));*/
+            actions >>= SIGNATURE_SHIFT;
+            action = actions & SIGNATURE_ACTION_MASK;
+        }
+        argname = PAD_NAME(pad_ix);
+        switch (action) {
+        case SIGNATURE_arg:
+            if (UNLIKELY(actions & SIGNATURE_FLAG_ref)) {
+                /* ffi(\$i :int) semantics: pointer to int? */
+                argtypes[i] = &ffi_type_pointer;
+                /* Perl_c roak(aTHX_ "Illegal ref argument for extern sub");*/
+            }
+            items--;
+        case SIGNATURE_arg_default_iv:
+        case SIGNATURE_arg_default_const:
+        case SIGNATURE_arg_default_padsv:
+        case SIGNATURE_arg_default_gvsv:
+            items++; /* the default sv/gv */
+        case SIGNATURE_arg_default_op:
+        case SIGNATURE_arg_default_none:
+        case SIGNATURE_arg_default_undef:
+        case SIGNATURE_arg_default_0:
+        case SIGNATURE_arg_default_1:
+            /*arg++;*/
+            if (argname && PadnameTYPE(argname)) {
+                HV *type = PadnameTYPE(argname);
+                /* ffi(\$i :int) semantics: pointer to int? */
+                if (UNLIKELY(actions & SIGNATURE_FLAG_ref)) {
+                    argtypes[i] = &ffi_type_pointer;
+                } else {
+                    argtypes[i] = S_prep_sig(aTHX_ HvNAME(type), HvNAMELEN(type));
+                }
+            } else {
+                Perl_croak(aTHX_ "Missing type for extern sub argument %s",
+                           PadnamePV(argname));
+            }
+            if (UNLIKELY(actions & SIGNATURE_FLAG_skip)) {
+                items--;
+                break;
+            }
+            /*
+            if (UNLIKELY(action != SIGNATURE_arg)) {
+                DEBUG_kv(Perl_deb(aTHX_
+                    "ck_sig: default action=%d (default ignored)\n", (int)action));
+                optional = TRUE;
+                if (actions & SIGNATURE_FLAG_ref) {
+                    Perl_croak(aTHX_ "Reference parameter cannot take default value");
+                }
+            }*/
+        }
+        pad_ix++;
+    }
+#endif
+
+    status = ffi_prep_cif(cif, abi, num_args, rtype, argtypes);
+    if (status != FFI_OK) {
+        Perl_croak(aTHX_ "ffi_prep_cif error %d", status );
+    }
+    CvFFILIB(cv) = PTR2ul(cif);
+#else
+    PERL_UNUSED_ARG(cv);
+    PERL_UNUSED_ARG(nativeconv);
+    Perl_warner(aTHX_ packWARN(WARN_SYNTAX),
+                "libffi not available");
+#endif
+}
+
+#if defined(D_LIBFFI) && defined(USE_FFI)
+
+/* run-time */
+/*
+=for apidoc prep_ffi_sig
+
+Check the given arguments for type and arity, and fill the void* argvalue[]
+array with it. Similar to C<pp_signature>, just matching ffi types to libffi,
+not coretypes to perl types.
+
+The ffi_cif at CvFFLIB(cv) contains information describing the data
+types, sizes and alignments of the arguments to and return value from
+fn. See C<man ffi_call>.
+
+=cut
+*/
+void
+Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **argvalues)
+{
+    unsigned int i;
+    UNOP_AUX *sigop = CvSIGOP(cv);
+    UNOP_AUX_item *items = sigop->op_aux;
+    /*SV **padp;*/       /* pad slot for signature var */
+    UV   params      = items[0].uv;
+    UV   mand_params = params >> 16;
+    UV   opt_params  = params & ((1<<15)-1);
+    UV   actions;
+    PADNAMELIST *namepad = PadlistNAMES(CvPADLIST(cv));
+#define PAD_NAME(pad_ix) padnamelist_fetch(namepad, pad_ix)
+    HV*  type;
+    PADOFFSET pad_ix = 0;
+    bool slurpy      = cBOOL((params >> 15) & 1);
+    PERL_ARGS_ASSERT_PREP_FFI_SIG;
+
+    if (UNLIKELY(num_args < mand_params)) {
+	/* diag_listed_as: Not enough arguments for %s */
+        Perl_croak(aTHX_ "Not enough arguments for %s%s%s %s. Want: %" UVuf
+                   ", but got: %u",
+                   CvDESC3(cv),
+                   SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                   mand_params, num_args);
+    }
+    if (UNLIKELY(!slurpy && num_args > mand_params + opt_params)) {
+        if (opt_params)
+            /* diag_listed_as: Too many arguments for %s */
+            Perl_croak(aTHX_ "Too many arguments for %s%s%s %s. Want: %" UVuf "-%" UVuf
+                       ", but got: %u",
+                       CvDESC3(cv),
+                       SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                       mand_params, mand_params + opt_params, num_args);
+        else
+            /* diag_listed_as: Too many arguments for %s */
+            Perl_croak(aTHX_ "Too many arguments for %s%s%s %s. Want: %" UVuf
+                       ", but got: %u",
+                       CvDESC3(cv),
+                       SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                       mand_params, num_args);
+    }
+    /* For an empty signature, our only task was to check that the caller
+     * didn't provide any args */
+    if (!params)
+        return;
+
+    actions = (++items)->uv;
+    for (i=0; i<num_args; i++) {
+        UV action = actions & SIGNATURE_ACTION_MASK;
+        PADNAME* argname;
+        ffi_type *argtype;
+        /* if (actions & SIGNATURE_FLAG_ref) yet unhandled: (\$i :int) */
+        if (action == SIGNATURE_reload) {
+            actions = (++items)->uv;
+            action = actions & SIGNATURE_ACTION_MASK;
+        } else if (action == SIGNATURE_padintro) {
+            UV data = (++items)->uv;
+            /*UV varcount = data & OPpPADRANGE_COUNTMASK;*/
+            pad_ix = data >> OPpPADRANGE_COUNTSHIFT;
+            /* padp = &(PAD_SVl(pad_ix)); */
+        }
+        argname = PAD_NAME(pad_ix);
+        if (argname && PadnameTYPE(argname)) {
+            type = PadnameTYPE(argname);
+            argtype = S_prep_sig(aTHX_ HvNAME(type), HvNAMELEN(type));
+        } else {
+            Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                       argname ? PadnamePV(argname) : "",
+                       SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                       "declared", "empty");
+        }
+
+        /* TODO: walk sig items, add run-time type-checks, add missing default values */
+        if (SvPOK(*argp)) {
+            if (argtype == &ffi_type_pointer)
+                *argvalues++ = &SvPVX(*argp++);
+            else
+                Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                           PadnamePV(argname),
+                           SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                           "of ptr", HvNAME(type));
+        }
+        else if (SvIOK(*argp)) {
+            if (argtype != &ffi_type_pointer)
+                *argvalues++ = &SvIVX(*argp++);
+            else
+                Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                           PadnamePV(argname),
+                           SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                           "of int", HvNAME(type));
+        }
+        else if (SvNOK(*argp)) {
+            if (argtype != &ffi_type_pointer)
+                *argvalues++ = &SvNVX(*argp++);
+            else
+                Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                           PadnamePV(argname),
+                           SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                           "of num", HvNAME(type));
+        } else {
+            Perl_croak(aTHX_ "Type of arg %s to %s must be %s (not %s)",
+                       PadnamePV(argname),
+                       SvPVX_const(cv_name(cv,NULL,CV_NAME_NOMAIN)),
+                       "valid", HvNAME(type));
+        }
+
+        actions >>= SIGNATURE_SHIFT;
+        pad_ix++;
+    }
+}
+
+/*
+=for apidoc prep_ffi_ret
+
+Translate the ffi_call return value back to the perl type.
+The types were declared as sub attribute, defaulting to :void,
+same as perl6.
+
+Via use ffi there are more types than coretypes supported:
+void, ptr, float, double, long,
+ulong, char, byte (U8), int8, int16, int64, uint8, uint16, uint32, uint64,
+longlong, num32, num64, longdouble, bool, size_t, Pointer, OpaquePointer (deprecated),
+but they need a declaration via C<use ffi>.
+
+=cut
+*/
+void
+Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
+{
+    const HV* typestash = PadnameTYPE(PAD_COMPNAME(0)); /* first slot: rettype */
+    PERL_UNUSED_ARG(cv);
+    PERL_ARGS_ASSERT_PREP_FFI_RET;
+    if (!typestash) { /* perl6 has default :void */
+        PL_stack_sp--;
+        return;
+    } else {
+        const char *name = HvNAME(typestash);
+        int l = HvNAMELEN(typestash);
+#ifdef __cplusplus
+#define RET_IV(type)                                \
+    if (!SvIOK(*sp))                                \
+        *sp = sv_2mortal(newSViv(0));               \
+    memcpy(&SvIVX(*sp), &rvalue, sizeof(type));     \
+    return
+#define RET_UV(type)                                \
+    if (!SvIOK(*sp))                                \
+        *sp = sv_2mortal(newSVuv(0));               \
+    else                                            \
+        SvIsUV_on(*sp);                             \
+    memcpy(&SvUVX(*sp), &rvalue, sizeof(type));     \
+    return
+#define RET_NV(type)                                \
+    if (!SvNOK(*sp))                                \
+        *sp = sv_2mortal(newSVnv(0));               \
+    memcpy(&SvNVX(*sp), &rvalue, sizeof(type));     \
+    return
+#else
+#define RET_IV(type)                                \
+    if (SvIOK(*sp))                                 \
+        SvIVX(*sp) = (IV)INT2PTR(type,rvalue);      \
+    else                                            \
+        *sp = sv_2mortal(newSViv((IV)INT2PTR(type,rvalue))); \
+    return
+#define RET_UV(type)                                \
+    if (SvIOK(*sp)) {                               \
+        SvIsUV_on(*sp);                             \
+        SvUVX(*sp) = (UV)INT2PTR(type,rvalue);      \
+    } else                                          \
+        *sp = sv_2mortal(newSVuv((UV)INT2PTR(type,rvalue))); \
+    return
+#define RET_NV(type)                                \
+    if (SvNOK(*sp))                                 \
+        SvNVX(*sp) = (NV)NUM2PTR(type,rvalue);      \
+    else                                            \
+        *sp = sv_2mortal(newSVnv((NV)NUM2PTR(type,rvalue))); \
+    return
+#endif
+
+        if (!name) { /* default :void */
+            PL_stack_sp--;
+            return;
+        }
+        if (l>6 && memEQc(name, "main::")) {
+            name += 6;
+            l -= 6;
+        }
+        GCC60_DIAG_IGNORE(-Wnonnull-compare)
+#ifndef __cplusplus
+        GCC_DIAG_IGNORE(-Wpointer-to-int-cast)
+#endif
+
+        if (l == 3) {
+            if (memEQc(name, "int") ||
+                memEQc(name, "Int")) {
+                RET_IV(int);
+            }
+            else if (memEQc(name, "str") || /* Uni */
+                     memEQc(name, "Str")) {
+                /* TODO encoded layer, as magic */
+                if (SvPOK(*sp)) {
+                    SvPV_set(*sp, rvalue);
+                    SvCUR_set(*sp, strlen(rvalue));
+                    SvUTF8_off(*sp);
+                }
+                else
+                    *sp = sv_2mortal(newSVpvn(rvalue,
+                                              strlen(rvalue)));
+                return;
+            }
+            else if (memEQc(name, "ptr")) {
+                RET_IV(long);
+            }
+            else if (memEQc(name, "num") ||
+                     memEQc(name, "Num")) {
+                RET_NV(NV);
+            }
+        }
+        else if (l == 4) {
+            if (memEQc(name, "void")) {
+                PL_stack_sp--;
+                return;
+            }
+            else if (memEQc(name, "long")) {
+                RET_IV(long);
+            }
+            else if (memEQc(name, "uint") ||
+                     memEQc(name, "UInt")) {
+                RET_UV(unsigned int);
+            }
+            else if (memEQc(name, "char") ||
+                     memEQc(name, "int8")) {
+                RET_IV(signed char);
+            }
+            else if (memEQc(name, "bool")) {
+                RET_IV(bool);
+            }
+            else if (memEQc(name, "byte")) {
+                RET_UV(unsigned char);
+            }
+        } else if (l == 5) {
+            if (memEQc(name, "int32")) {
+                RET_IV(I32TYPE);
+            }
+            else if (memEQc(name, "int16")) {
+                RET_IV(I16TYPE);
+            }
+            else if (memEQc(name, "int64")) {
+                /* TODO: on 32bit check overflow => Math::BigInt */
+#ifdef HAS_QUAD
+                RET_IV(I64TYPE);
+#else
+                Perl_warner(aTHX_ packWARN(WARN_FFI),
+                            "ffi: Possible %s overflow %" IVdf,
+                            name, (I64TYPE)rvalue);
+                return;
+#endif
+            }
+            else if (memEQc(name, "uint8")) {
+                RET_UV(U8);
+            }
+            else if (memEQc(name, "ulong")) {
+                RET_UV(unsigned long);
+            }
+            else if (memEQc(name, "float") ||
+                memEQc(name, "num32")) {
+                RET_NV(float);
+            }
+            else if (memEQc(name, "num64")) {
+                RET_NV(double);
+            }
+        } else if (l == 6) {
+            if (memEQc(name, "uint32")) {
+                RET_UV(U32);
+            }
+            else if (memEQc(name, "uint16")) {
+                RET_UV(U16);
+            }
+            else if (memEQc(name, "uint64")) {
+                /* TODO: on 32bit check overflow => Math::BigInt */
+#ifdef HAS_QUAD
+                RET_UV(U64);
+#else
+                Perl_warner(aTHX_ packWARN(WARN_FFI),
+                            "ffi: Possible %s overflow %" UVuf,
+                            name, (UV)rvalue);
+                return;
+#endif
+            }
+            else if (memEQc(name, "size_t")) {
+                RET_IV(size_t);
+            }
+            else if (memEQc(name, "double")) {
+                RET_NV(double);
+            }
+        } else {
+            if (memEQs(name, l, "longlong")) {
+#ifdef HAS_LONG_LONG
+                RET_IV(long long);
+#elif defined(HAS_QUAD)
+                RET_IV(Quad_t);
+#else
+                /* TODO: check overflow => Math::BigInt */
+                Perl_warner(aTHX_ packWARN(WARN_FFI),
+                            "ffi: Possible %s overflow %" IVdf,
+                            name, (IV)rvalue);
+                RET_IV(long);
+#endif
+            }
+            else if (memEQs(name, l, "OpaquePointer") ||
+                     memEQs(name, l, "Pointer")) {
+                RET_IV(long);
+            }
+        }
+        Perl_ck_warner_d(aTHX_ packWARN(WARN_FFI),
+                         "Unknown ffi return type :%s, assume :void", name);
+        PL_stack_sp--;
+        GCC_DIAG_RESTORE
+        GCC60_DIAG_RESTORE
+    }
+}
+
+#endif
+
+/* ffi helper to find the c symbol */
+static void
+S_find_symbol(pTHX_ CV* cv, char *name)
+{
+    dSP;
+    SV *pv = name ? newSVpvn_flags(name,strlen(name),SVs_TEMP)
+                  : cv_name(cv, NULL, CV_NAME_NOTQUAL);
+    CV *dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol", 0);
+    int nret;
+    /* can be NULL, searches all libs then */
+    IV handle = CvFFILIB(cv) ? (IV)CvFFILIB(cv) : (IV)RTLD_DEFAULT;
+
+    if (!dl_find_symbol) {
+        CvFFILIB(cv) = 0;
+        CvXFFI(cv) = NULL;
+        Perl_ck_warner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader");
+        return; /* miniperl */
+    }
+    /* still slabbed PL_compcv? */
+    if (CvSLABBED(cv) && cv == PL_compcv && CvFFILIB(cv))
+        handle = (IV)RTLD_DEFAULT;
+#ifdef WIN32
+    /* GetProcAddress(NULL) will fail.
+       dl_load_file already tried GetModuleHandle() and dl_find_symbol_anywhere */
+    if (!handle) {
+        return;
+    }
+#endif
+
+    SPAGAIN;
+    PUSHMARK(SP);
+    mXPUSHs(newSViv(handle));
+    XPUSHs(pv);
+    mXPUSHs(newSViv(1)); /* ignore error. supported by cperl-only */
+    PUTBACK;
+    nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
+    SPAGAIN;
+    if (nret == 1 && SvIOK(TOPs)) {
+#ifdef __cplusplus
+        long ptr = POPl;
+        memcpy(&CvXFFI(cv), &ptr, sizeof(XSUBADDR_t));
+#else
+        CvXFFI(cv) = INT2PTR(XSUBADDR_t, POPl);
+#endif
+        CvFFILIB(cv) = 0;
+        CvSLABBED_off(cv);
+    }
+}
+
+/* ffi helper to find a shared library handle */
+static void
+S_find_native(pTHX_ CV* cv, char *libname)
+{
+    dSP;
+    int nret;
+    CvEXTERN_on(cv);
+    if (libname) { /* void *libref = dl_load_file(SvPVX(pv)); */
+        CV *dl_load_file = get_cvs("DynaLoader::dl_load_file", 0);
+        SV *pv = newSVpvn_flags(libname,strlen(libname),SVs_TEMP);
+        if (!dl_load_file) {
+            Perl_ck_warner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader");
+            return; /* miniperl */
+        }
+
+        SPAGAIN;
+        PUSHMARK(SP);
+        XPUSHs(pv);
+        PUTBACK;
+        nret = call_sv((SV*)dl_load_file, G_SCALAR);
+        SPAGAIN;
+        if (nret == 1 && SvIOK(TOPs))
+            CvFFILIB(cv) = POPi;
+        else
+            CvFFILIB(cv) = 0;
+
+        /* On some platforms an empty library handle works.
+           Searches all loaded shared libs, not just the our XS dynaloaded libs */
+        S_find_symbol(aTHX_ cv, NULL);
+    } else {
+        CvFFILIB(cv) = 0;
+    }
+    if (!libname && !CvFFILIB(cv)) {
+        /* Desperation: lib not found,
+           or no libname provided, and not found by dlopen(0) */
+        CV *dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol_anywhere", 0);
+        SV *symname;
+        if (!dl_find_symbol) {
+            Perl_ck_warner(aTHX_ packWARN(WARN_FFI), "no ffi without DynaLoader");
+            return; /* miniperl */
+        }
+
+        if (!libname) {
+            S_find_symbol(aTHX_ cv, NULL);
+            if (CvXFFI(cv))
+                return;
+        }
+        assert(dl_find_symbol);
+        symname = cv_name(cv, NULL, CV_NAME_NOTQUAL);
+
+        SPAGAIN;
+        PUSHMARK(SP);
+        mXPUSHs(newSViv(CvFFILIB(cv)));
+        XPUSHs(symname);
+        PUTBACK;
+        nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
+        SPAGAIN;
+        if (nret == 1 && SvIOK(TOPs)) {
+#ifdef __cplusplus
+            long ptr = POPl;
+            memcpy(&CvXFFI(cv), &ptr, sizeof(XSUBADDR_t));
+#else
+            CvXFFI(cv) = INT2PTR(XSUBADDR_t, POPl);
+#endif
+            CvFFILIB(cv) = 0;
+            CvSLABBED_off(cv);
+        }
+    }
+}
+
 /* helper for the default modify handler for builtin attributes */
 static int
 modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 {
     SV *attr;
     int nret;
+    bool is_native = FALSE;
+    char nativeconv[14];
+    char encoded[14];
 
+    nativeconv[0] = '\0';
+    encoded[0]    = '\0';
     for (nret = 0 ; numattrs && (attr = *attrlist++); numattrs--) {
 	STRLEN len;
-	const char *name = SvPV_const(attr, len);
+	char *name = SvPV(attr, len);
 	const bool negated = (*name == '-');
-        HV *typestash;
+	HV *typestash;
 
 	if (negated) {
 	    name++;
@@ -470,6 +1304,8 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 	}
 	switch (SvTYPE(sv)) {
 	case SVt_PVCV:
+            /* pure,const,lvalue,method,native,native(,symbol(,prototype(),
+               nativeconv(,encoded( */
 	    switch ((int)len) {
 	    case 4:
 		if (memEQc(name, "pure")) {
@@ -524,15 +1360,49 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                         goto next_attr;
 		    }
 		    break;
+		case 'i':
+		    if (memEQc(name, "native")) {
+                        CV *cv = MUTABLE_CV(sv);
+			if (negated) {
+			    CvFLAGS(cv) &= ~CVf_EXTERN;
+                            CvFFILIB(cv) = 0;
+                            CvXFFI(cv) = NULL;
+                        }
+			else {
+                            is_native = TRUE;
+                            S_find_native(aTHX_ cv, NULL);
+                        }
+                        goto next_attr;
+		    }
+		    break;
+		case 'b':
+		    if (memEQc(name, "symbol")) {
+			if (negated) {
+			    CvFLAGS(MUTABLE_CV(sv)) &= ~CVf_EXTERN;
+                            CvXFFI(MUTABLE_CV(sv)) = NULL;
+                        }
+			else {
+                            Perl_croak(aTHX_ ":%s() attribute argument missing", name);
+                        }
+                        goto next_attr;
+		    }
+		    break;
 		}
 		break;
 	    default:
 		if (len > 10 && memEQc(name, "prototype(")) {
 		    SV * proto = newSVpvn(name+10,len-11);
-		    HEK *const hek = CvNAME_HEK((CV *)sv);
+#ifdef __cplusplus
+                    CV *cv = MUTABLE_CV(sv);
+		    HEK * hek = CvNAME_HEK(cv);
+#else
+                    const CV *cv = MUTABLE_CV(sv);
+		    HEK *const hek = CvNAME_HEK(cv);
+#endif
 		    SV *subname;
 		    if (name[len-1] != ')')
-			Perl_croak(aTHX_ "Unterminated attribute parameter in attribute list");
+			Perl_croak(aTHX_
+                            "Unterminated attribute parameter in attribute list");
 		    if (hek)
 			subname = sv_2mortal(newSVhek(hek));
 		    else
@@ -547,6 +1417,106 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    if (SvUTF8(attr)) SvUTF8_on(MUTABLE_SV(sv));
 		    goto next_attr;
 		}
+		else if (len >= 7 && memEQc(name, "native(") && !negated) {
+                    /* TODO: sig: libname, version */
+                    CV *cv = MUTABLE_CV(sv);
+                    is_native = TRUE;
+                    if (len == 7 && numattrs>1) {
+                        attr = *attrlist++;
+                        numattrs--;
+                        if (SvPOK(attr))
+                            S_find_native(aTHX_ cv, SvPVX(attr));
+                        else
+                            /* diag_listed_as: Invalid :%s(%s) attribute argument type */
+                            Perl_croak(aTHX_
+                                    "Invalid :%s%" SVf ") attribute argument type",
+                                    name, SVfARG(attr));
+                        goto next_attr;
+                    }
+                    else if (len > 7) {
+                        name[len-1] = '\0';
+                        S_find_native(aTHX_ cv, name+7);
+                        goto next_attr;
+                    }
+                }
+		else if (len >= 7 && memEQc(name, "symbol(") && !negated) {
+                    CV *cv = MUTABLE_CV(sv);
+                    if (!CvEXTERN(cv))
+                        Perl_warn(aTHX_ ":%s is only valid for :native or extern sub",
+                                  "symbol");
+                    /* sub EXISTING_SYM () :native :symbol(OTHERSYM);
+                     but works fine with extern sub EXISTING_SYM () :symbol(OTHERSYM);*/
+                    else {
+#ifdef __cplusplus
+                        char *old;
+                        memcpy(&old, &CvXFFI(cv), sizeof(char*));
+#else
+                        char *old = INT2PTR(char*,CvXFFI(cv));
+#endif
+                        if (len == 7 && numattrs>1) {
+                            attr = *attrlist++;
+                            numattrs--;
+                            if (SvPOK(attr))
+                                S_find_symbol(aTHX_ cv, SvPVX(attr));
+                            else
+                                /* diag_listed_as: Invalid :%s(%s) attribute argument type */
+                                Perl_croak(aTHX_
+                                    "Invalid :%s%" SVf ") attribute argument type",
+                                    name, SVfARG(attr));
+                        } else {
+                            name[len-1] = '\0';
+                            S_find_symbol(aTHX_ cv, name+7);
+                        }
+                        /* only warn on superfluous :symbol() redefinition */
+                        if (old && old == INT2PTR(char*,CvXFFI(cv)))
+                            Perl_ck_warner(aTHX_ packWARN(WARN_REDEFINE),
+                                           ":symbol is already resolved");
+                    }
+                    goto next_attr;
+                }
+		else if (len >= 11 && memEQc(name, "nativeconv(") && !negated) {
+                    CV *cv = MUTABLE_CV(sv);
+                    if (!CvEXTERN(cv))
+                        Perl_warn(aTHX_ ":%s is only valid for :native or extern sub",
+                                  "nativeconv");
+                    name[len-1] = '\0';
+                    Copy(&name[11], nativeconv, len-11, char);
+                    goto next_attr;
+                }
+		else if (len >= 8 && memEQc(name, "encoded(") && !negated) {
+                    /* TODO: affects the previous argument or the return type if a string.
+                       Need to find it and attach to the SVOP or rettype*/
+                    CV *cv = MUTABLE_CV(sv);
+                    if (!CvEXTERN(cv))
+                        Perl_warn(aTHX_ ":%s is only valid for :native or extern sub",
+                                  "encoded");
+                    name[len-1] = '\0';
+                    Copy(&name[8], encoded, len-8, char);
+                    goto next_attr;
+                }
+                else if (len == 7 && strEQc(name, "encoded")) {
+                    if (negated) {
+                        /* TODO: remove parameter encoding layer. see ffienc magic */
+                        encoded[0] = '\0';
+                    }
+                    else {
+                        Copy("utf-8", encoded, 5, char);
+                    }
+                    goto next_attr;
+                }
+                else if (len == 10 && strEQc(name, "nativeconv")) {
+                    if (negated) {
+                        /* update nativeconv ABI */
+                        if (!is_native)
+                            prep_cif((CV*)sv, NULL);
+                        else /* handled below */
+                            nativeconv[0] = '\0';
+                    }
+                    else {
+                        Perl_croak(aTHX_ ":%s() attribute argument missing", name);
+                    }
+                    goto next_attr;
+                }
 		break;
 	    }
             if (!negated && (typestash = gv_stashpvn(name, len, SvUTF8(attr)))) {
@@ -596,8 +1566,11 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
         ;
     }
 
+    if (is_native)
+        prep_cif((CV*)sv, (const char*)nativeconv);
     return nret;
 }
+
 
 /* helper to return the stash for a svref, (Sv|Cv|Gv|GvE)STASH */
 static HV*
@@ -732,6 +1705,10 @@ S_attributes__push_fetch(pTHX_ SV *sv)
 	if (cvflags & CVf_CONST) {
             XPUSHs(newSVpvs_flags("const", SVs_TEMP));
         }
+	if (cvflags & CVf_EXTERN) {
+            XPUSHs(newSVpvs_flags("native", SVs_TEMP));
+            /* TODO: symbol, nativeconv, encoded */
+        }
 	if (cvflags & CVf_TYPED) {
             HV *typestash = CvTYPE((CV*)sv);
             if (typestash)
@@ -798,7 +1775,7 @@ usage:
             GV * const gv = gv_fetchmeth_pv(stash, name, -1, 0);
             if (gv && isGV(gv) && (cb = MUTABLE_SV(GvCV(gv)))) {
                 SV *pkgname = newSVpvn_flags(HvNAME(stash), HvNAMELEN(stash),
-                                             HvNAMEUTF8(stash));
+                                             HvNAMEUTF8(stash)|SVs_TEMP);
                 PUSHMARK(SP);
                 XPUSHs(pkgname);
                 XPUSHs(rv);

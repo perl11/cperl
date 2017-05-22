@@ -1066,6 +1066,10 @@ p	|int	|magic_getvec		|NN SV* sv|NN MAGIC* mg
 p	|int	|magic_nextpack		|NN SV *sv|NN MAGIC *mg|NN SV *key
 p	|U32	|magic_regdata_cnt	|NN SV* sv|NN MAGIC* mg
 p	|int	|magic_regdatum_get	|NN SV* sv|NN MAGIC* mg
+#ifdef USE_FFI
+p	|int	|magic_getffi_encoded	|NN SV* sv|NN MAGIC* mg
+p	|int	|magic_setffi_encoded	|NN SV* sv|NN MAGIC* mg
+#endif
 :removing noreturn to silence a warning for this function resulted in no
 :change to the interpreter DLL image under VS 2003 -O1 -GL 32 bits only because
 :this is used in a magic vtable, do not use this on conventionally called funcs
@@ -1430,6 +1434,7 @@ s	|void	|pidgone	|Pid_t pid|int status
 : Used in perly.y
 p	|OP*	|pmruntime	|NN OP *o|NN OP *expr|NULLOK OP *repl \
 				|UV flags|I32 floor
+pM	|OP *	|attrs_runtime	|NN CV *cv|NN OP *attrs
 #if defined(PERL_IN_OP_C)
 s	|OP*	|pmtrans	|NN OP* o|NN OP* expr|NN OP* repl
 #endif
@@ -3503,6 +3508,15 @@ XEop	|void   |dtrace_probe_op   |NN const OP *op
 XEop	|void   |dtrace_probe_phase|enum perl_phase phase
 XEop	|void   |dtrace_probe_glob |int mode|NN const char *name|bool is_entry
 XEop	|void   |dtrace_probe_hash |int mode|NN const char *name|bool is_entry
+#endif
+
+#if defined(PERL_IN_XSUTILS_C)
+s	|void	|prep_cif	|NN CV* cv|NULLOK const char *nativeconv
+#endif
+#if defined(D_LIBFFI) && defined(USE_FFI)
+Apd	|void	|prep_ffi_sig	|NN CV* cv|const unsigned int num_args \
+				|NN SV** argp|NN void **argvalues
+Apd	|void	|prep_ffi_ret	|NN CV* cv|NN SV** sp|NULLOK char *rvalue
 #endif
 
 : ex: set ts=8 sts=4 sw=4 noet:

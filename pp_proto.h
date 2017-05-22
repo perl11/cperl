@@ -59,6 +59,7 @@ PERL_CALLCONV OP *Perl_pp_each(pTHX);
 PERL_CALLCONV OP *Perl_pp_ehostent(pTHX);
 PERL_CALLCONV OP *Perl_pp_enter(pTHX);
 PERL_CALLCONV OP *Perl_pp_entereval(pTHX);
+PERL_CALLCONV OP *Perl_pp_enterffi(pTHX);
 PERL_CALLCONV OP *Perl_pp_entergiven(pTHX);
 PERL_CALLCONV OP *Perl_pp_enteriter(pTHX);
 PERL_CALLCONV OP *Perl_pp_enterloop(pTHX);
