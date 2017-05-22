@@ -9759,6 +9759,8 @@ S_to_byte_substr(pTHX_ regexp *prog)
     return TRUE;
 }
 
+#ifndef PERL_IN_XSUB_RE
+
 bool
 Perl__is_grapheme(pTHX_ const U8 * strbeg, const U8 * s, const U8 * strend, const UV cp)
 {
@@ -9814,6 +9816,7 @@ Perl__is_grapheme(pTHX_ const U8 * strbeg, const U8 * s, const U8 * strend, cons
     return isGCB(cp_gcb_val, next_cp_gcb_val, strbeg, s, TRUE);
 }
 
+#endif
 
 
 
