@@ -47,10 +47,12 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvSTASH_set(cv,st) Perl_cvstash_set(aTHX_ cv, st)
 #define CvSTART(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_start_u.xcv_start
 #define CvXSUBANY(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_start_u.xcv_xsubany
+/* Used as temp. library handle :native($lib), and then as ffi_cif handle,
+   the signature */
 #define CvFFILIB(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_start_u.xcv_ffilib
 #define CvROOT(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_root_u.xcv_root
 #define CvXSUB(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_root_u.xcv_xsub
-#define CvFFISYM(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_root_u.xcv_ffisym
+#define CvXFFI(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_root_u.xcv_xffi
 #define CvGV(sv)	S_CvGV(aTHX_ (CV *)(sv))
 #define CvGV_set(cv,gv)	Perl_cvgv_set(aTHX_ cv, gv)
 #define CvHASGV(cv)	cBOOL(SvANY(cv)->xcv_gv_u.xcv_gv)

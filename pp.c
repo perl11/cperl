@@ -546,6 +546,38 @@ PP(pp_anoncode)
     RETURN;
 }
 
+PP(pp_enterffi)
+{
+    dVAR; dSP; dPOPss;
+    const bool hasargs = (PL_op->op_flags & OPf_STACKED) != 0;
+    CV *cv = MUTABLE_CV(sv);
+    bool is_scalar = cBOOL(GIMME_V == G_SCALAR);
+    SSize_t markix = TOPMARK;
+    if (UNLIKELY(!sv))
+	DIE(aTHX_ "Not a CODE reference");
+    /* see enterxssub with argtype dispatch */
+
+    assert(CvXSUB(cv));
+    CvXFFI(cv)();
+    
+    /* Enforce some sanity in scalar context. */
+    if (is_scalar) {
+        SV **svp = PL_stack_base + markix + 1;
+        if (svp != PL_stack_sp) {
+            *svp = svp > PL_stack_sp ? UNDEF : *PL_stack_sp;
+            PL_stack_sp = svp;
+        }
+    }
+    return NORMAL;
+}
+
+PP(pp_leaveffi)
+{
+    dVAR; dSP;
+    /* see leavesub with rettype dispatch */
+    RETURN;
+}
+
 PP(pp_srefgen)
 {
     dSP;

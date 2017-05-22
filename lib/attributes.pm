@@ -389,12 +389,13 @@ closures.  (See L<perlref/"Making References"> for information on closures.)
 Package-specific attribute handling may change incompatibly in a future
 release.
 
-When an attribute list is present in a declaration, a check is made to see
-whether an attribute 'modify' handler is present in the appropriate package
-(or its @ISA inheritance tree).  Similarly, when C<attributes::get> is
-called on a valid reference, a check is made for an appropriate attribute
-'fetch' handler.  See L<"EXAMPLES"> to see how the "appropriate package"
-determination works.
+When an attribute list is present in a declaration, a check is made to
+see whether an attribute MODIFY_I<type>_ATTRIBUTES 'modify' handler is
+present in the appropriate package (or its @ISA inheritance tree).
+Similarly, when C<attributes::get> is called on a valid reference, a
+check is made for an appropriate attribute FETCH_I<type>_ATTRIBUTES
+'fetch' handler.  See L<"EXAMPLES"> to see how the "appropriate
+package" determination works.
 
 The handler names are based on the underlying type of the variable being
 declared or of the reference passed.  Because these attributes are
@@ -607,7 +608,7 @@ As we return an empty list, everything is fine.
      my ($class,$code,@attrs) = @_;
 
      my $allowed = 'MyAttribute';
-     my @bad = grep{ $_ ne $allowed }@attrs;
+     my @bad = grep{ $_ ne $allowed } @attrs;
 
      return @bad;
   }

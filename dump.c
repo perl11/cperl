@@ -912,10 +912,16 @@ Perl_dump_sub_perl(pTHX_ const GV *gv, bool justperl)
     SV_SET_STRINGIFY_FLAGS(tmpsv,CvFLAGS(cv),cv_flags_names);
     Perl_dump_indent(aTHX_ 0, Perl_debug_log, "\n    CVFLAGS = 0x%" UVxf " (%s)\n",
                      (UV)CvFLAGS(cv), SvPVX_const(tmpsv));
-    if (CvISXSUB(cv))
-	Perl_dump_indent(aTHX_ 0, Perl_debug_log, "(xsub 0x%" UVxf " %d)\n",
-	    PTR2UV(CvXSUB(cv)),
-	    (int)CvXSUBANY(cv).any_i32);
+    if (CvISXSUB(cv)) {
+        if (CvEXTERN(cv))
+            Perl_dump_indent(aTHX_ 0, Perl_debug_log, "(extern 0x%" UVxf " 0x%" UVxf ")\n",
+                             PTR2UV(CvXFFI(cv)),
+                             PTR2UV(CvFFILIB(cv)));
+        else
+            Perl_dump_indent(aTHX_ 0, Perl_debug_log, "(xsub 0x%" UVxf " %d)\n",
+                             PTR2UV(CvXSUB(cv)),
+                             (int)CvXSUBANY(cv).any_i32);
+    }
     else if (CvROOT(cv))
 	op_dump_cv(CvROOT(cv), cv);
     else
@@ -3705,6 +3711,7 @@ Perl_debop(pTHX_ const OP *o)
         break;
     case OP_ENTERSUB:
     case OP_ENTERXSSUB:
+    case OP_ENTERFFI:
         {
             SV* const sv = *PL_stack_sp;
             if (sv && SvTYPE(sv) == SVt_PVCV) /* no GV or PV yet */

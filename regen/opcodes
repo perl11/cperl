@@ -388,8 +388,9 @@ andassign	logical and assignment (&&=)	ck_null		s|
 orassign	logical or assignment (||=)	ck_null		s|	
 dorassign	defined or assignment (//=)	ck_null		s|
 
-entersub	subroutine entry	ck_subr		dm1	L
-enterxssub	XS subroutine entry	ck_subr		dm1	L
+entersub	subroutine entry	ck_subr		dm1	L	
+enterxssub	XS subroutine entry	ck_subr		dm1	L	
+enterffi	extern call entry	ck_subr		dm1	L	
 method		method lookup		ck_method	d.
 method_named	named method		ck_null		d.
 method_super	named super method	ck_null		d.
@@ -397,6 +398,7 @@ method_redir	redirect named method	ck_null		d.
 method_redir_super redirect named super	ck_null		d.
 leavesub	subroutine exit		ck_null		1	
 leavesublv	lvalue subroutine return	ck_null		1	
+leaveffi	extern call exit		ck_null		1	
 signature	subroutine signature processing	ck_null		+	
 caller		caller			ck_fun		t%	S?
 warn		warn			ck_fun		imst@	L
