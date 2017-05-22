@@ -524,6 +524,15 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                         goto next_attr;
 		    }
 		    break;
+		case 'i':
+		    if (memEQc(name, "native")) {
+			if (negated)
+			    CvFLAGS(MUTABLE_CV(sv)) &= ~CVf_EXTERN;
+			else
+			    CvFLAGS(MUTABLE_CV(sv)) |= CVf_EXTERN;
+                        goto next_attr;
+		    }
+		    break;
 		}
 		break;
 	    default:
@@ -547,6 +556,46 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    if (SvUTF8(attr)) SvUTF8_on(MUTABLE_SV(sv));
 		    goto next_attr;
 		}
+		if (len > 7 && memEQc(name, "native(") && !negated) {
+                    dSP;
+                    int nret;
+                    CV *cv = MUTABLE_CV(sv);
+                    SV * pv = newSVpvn_flags(name+7,len-8,SVs_TEMP);
+                    /* TODO: eval variable name: :native($libname) or const string */
+                    CV *dl_load_file = get_cvs("DynaLoader::dl_load_file", 0);
+                    CvEXTERN_on(cv);
+                    /*void *libref = dl_load_file(SvPVX(pv));*/
+                    SPAGAIN;
+                    PUSHMARK(SP);
+                    XPUSHs(pv);
+                    PUTBACK;
+                    nret = call_sv((SV*)dl_load_file, G_SCALAR);
+                    SPAGAIN;
+                    if (nret == 1 && SvIOK(TOPs))
+                        CvFFILIB(cv) = POPi;
+                    goto next_attr;
+                }
+		if (len > 7 && memEQc(name, "symbol(") && !negated) {
+                    CV *cv = MUTABLE_CV(sv);
+                    if (!CvEXTERN(cv))
+                        Perl_warn(":symbol is only valid for :native or extern sub");
+                    else {
+                        dSP;
+                        int nret;
+                        SV * pv = newSVpvn_flags(name+7,len-8,SVs_TEMP);
+                        CV *dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol", 0);
+                        SPAGAIN;
+                        PUSHMARK(SP);
+                        mXPUSHs(newSViv(CvFFILIB(cv)));
+                        XPUSHs(pv);
+                        PUTBACK;
+                        nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
+                        SPAGAIN;
+                        if (nret == 1 && SvIOK(TOPs))
+                            CvXSUB(cv) = (XSUBADDR_t)POPl;
+                    }
+                    goto next_attr;
+                }
 		break;
 	    }
             if (!negated && (typestash = gv_stashpvn(name, len, SvUTF8(attr)))) {

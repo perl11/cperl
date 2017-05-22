@@ -6318,6 +6318,46 @@ Perl_yylex(pTHX)
                             Perl_croak(aTHX_
                                 "Unterminated attribute parameter in attribute list");
                         }
+                        if (len == 6 && (memEQc(s, "native") || memEQc(s, "symbol"))) {
+                            /* evaluate scalars and barewords, resp. add CONST strings.
+                               :native($lib) :native("mysqlclient") :native(msqlclient) :symbol('c_sym')
+                               but not with:
+                               :prototype($$;@)
+                               they are passed unparsed to attributes->import.
+                            */
+                            char *a = SvPVX(PL_lex_stuff);
+                            STRLEN l = SvCUR(PL_lex_stuff) - 2; /* without the parens */
+                            U32 utf8 = SvUTF8(PL_lex_stuff);
+                            OP *arg;
+                            DEBUG_T(PerlIO_printf(Perl_debug_log,  "### evaluate :%s%s\n",
+                                                  SvPVX(sv), a));
+                            a++;
+                            sv_chop(PL_lex_stuff, a);
+                            SvCUR_set(PL_lex_stuff, l);
+                            if (*a == '$') {
+                                PADOFFSET pad = pad_findmy_sv(PL_lex_stuff, 0);
+                                if (pad == NOT_IN_PAD) {
+                                    if (!utf8)
+                                        SvUTF8_off(PL_lex_stuff);
+                                    sv_chop(PL_lex_stuff, a+1);
+                                    arg = newGVOP(OP_GV, 0, gv_fetchsv(PL_lex_stuff, GV_ADDMULTI, SVt_PV));
+                                }
+                                else {
+                                    arg = newOP(OP_PADSV, 0);
+                                    arg->op_targ = pad;
+                                }
+                            } else if (*a == '"' || *a == '\'') {
+                                arg = newSVOP(OP_CONST, 0, PL_lex_stuff);
+                            } else { /* XXX bareword as call or const? for now only const asis */
+                                arg = newSVOP(OP_CONST, 0, PL_lex_stuff);
+                            }
+                            attrs = op_append_elem(OP_LIST, attrs,
+                                                   op_prepend_elem(OP_LIST,
+                                                                   newSVOP(OP_CONST, 0, sv),
+                                                                   arg));
+                            SvREFCNT_dec_NN(PL_lex_stuff);
+                            PL_lex_stuff = NULL;
+                        }
                         COPLINE_SET_FROM_MULTI_END;
                     }
                     if (PL_lex_stuff) {
@@ -6344,8 +6384,8 @@ Perl_yylex(pTHX)
                                     /*cv_method_on(PL_compcv);*/
                                 }
                                 else if (memEQc(pv, "native")) {
-                                    sv_free(sv);
                                     CvEXTERN_on(PL_compcv);
+                                    goto load_attributes;
                                 }
                                 /* Scalar */
                                 else if (!find_in_coretypes(pv, len))
@@ -6396,12 +6436,6 @@ Perl_yylex(pTHX)
                             sv_free(sv);
                             CvMULTI_on(PL_compcv);
                         }
-                        else if (memEQs(pv, len, "native(")) {
-                            /* also allow :symbol("C_NAME") with native */
-                            sv_free(sv);
-                            CvEXTERN_on(PL_compcv);
-                            goto load_attributes;
-                        }
                         /* Check sub return type here, so we can pass an empty attrs
                            to newATTRSUB. This allows any known user or core type
                            to be used. */
@@ -6428,7 +6462,7 @@ Perl_yylex(pTHX)
                            justified by the performance win for the common case
                            of applying only built-in attributes.) */
                         else {
-                        load_attributes:
+                          load_attributes:
                             attrs = op_append_elem(OP_LIST, attrs, newSVOP(OP_CONST, 0, sv));
                         }
                     }

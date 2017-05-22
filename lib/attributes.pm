@@ -296,10 +296,36 @@ The cperl variant uses coretypes which declares these types.  For
 subroutines these types declare the strict return type for the
 subroutine.
 
+=item native
+
+=item native(STRING)
+
+Mark a subroutine as extern (I<ffi>) and optionally define a shared libraryname for it.
+The lib prefix and the extension suffix may be omitted. So :native("mysqlclient")
+will search for "libmysqlclient.so" on linux. See L<DynaLoader> for the rules.
+cperl-only.
+
+Note that :native may and :symbol must take an argument list which is
+expanded at run-time, e.g. C<:native($libname)>. A bareword will call a function.
+I.e. C<sub x :native(libname);> => C<CvFFILIB(\&x) = DynaLoader::dl_load_file(libname());>
+
+=item symbol(STRING)
+
+Only valid for :native extern subroutines, to define a non-default C symbol name.
+The C<_> prefix rule is used from DynaLoader, so it can be omitted.
+cperl-only.
+
+The mandatory argument is expanded.
+It is used as argument to C<DynaLoader::dl_find_symbol()> to resolve the ffi function symbol
+in the shared library.
+I.e. C<sub x :native :symbol("X");> 
+=> C<CvXSUB(\&x) = DynaLoader::dl_find_symbol(CvFFILIB(\&x), "X");>
+
 =item Any other name
 
 cperl lets you declare function return types. Any other name is
 the strict return type for the subroutine.
+If the type does not exist an error is thrown.
 
 =back
 
