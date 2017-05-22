@@ -632,7 +632,7 @@
  *	This symbol, if defined, indicates that <dlfcn.h> exists and should
  *	be included.
  */
-#define I_DLFCN		/**/
+/*#define I_DLFCN		/ **/
 
 /* I_FCNTL:
  *	This manifest constant tells the C program to include <fcntl.h>.
@@ -5218,6 +5218,37 @@
  */
 #ifndef PERL_BUILD_DATE
 #define PERL_BUILD_DATE "$cf_time"
+#endif
+
+/* USE_FFI:
+ *	C header equivalent to \$Config{useffi}, if -lffi is enabled and linked.
+ */
+/* I_FFI:
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include <ffi.h>. The incpath is already added to ccflags.
+ */
+/* D_LIBFFI:
+ *	This symbol, if defined, indicates to the C program that libffi is usable.
+ */
+/* HAVE_FFI_*:
+ *	These symbols if existing are platform specific alternatives to the
+ *      DEFAULT libffi ABI, needed for :nativeconv(STRING).
+ */
+/*#define	USE_FFI		/ **/
+#ifdef USE_FFI
+#define 	I_FFI		/**/
+#define 	D_LIBFFI        /**/
+#ifdef WIN64
+# define HAVE_FFI_WIN64
+#else
+# define HAVE_FFI_SYSV
+# define HAVE_FFI_STDCALL
+# define HAVE_FFI_THISCALL
+# define HAVE_FFI_FASTCALL
+# define HAVE_FFI_MS_CDECL
+# define HAVE_FFI_PASCAL
+# define HAVE_FFI_REGISTER
+#endif
 #endif
 
 #endif

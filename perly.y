@@ -51,7 +51,7 @@
 %token <opval> FUNC0OP FUNC0SUB UNIOPSUB LSTOPSUB
 %token <opval> PLUGEXPR PLUGSTMT CLASSDECL
 %token <pval> LABEL
-%token <ival> FORMAT SUB METHDECL MULTIDECL ANONSUB PACKAGE USE
+%token <ival> FORMAT SUB METHDECL MULTIDECL ANONSUB EXTERNSUB PACKAGE USE
 %token <ival> WHILE UNTIL IF UNLESS ELSE ELSIF CONTINUE FOR
 %token <ival> GIVEN WHEN DEFAULT
 %token <ival> LOOPEX DOTDOT YADAYADA
@@ -271,6 +271,7 @@ barestmt:	PLUGSTMT
 			  if (CvOUTSIDE(fmtcv) && !CvEVAL(CvOUTSIDE(fmtcv)))
 			      pad_add_weakref(fmtcv);
 			  parser->parsed_sub = 1;
+			  parser->in_sub = 0;
 			}
 	|	subdecl subname startsub
 			{
@@ -281,12 +282,13 @@ barestmt:	PLUGSTMT
                         }
 		proto subattrlist optsubbody
 			{
+                          CV *cv; OP* attr = $6;
 			  SvREFCNT_inc_simple_void(PL_compcv);
-			  $2->op_type == OP_CONST
-			      ? newATTRSUB($3, $2, $5, $6, $7)
-			      : newMYSUB($3, $2, $5, $6, $7)
+			  cv = ($2->op_type == OP_CONST)
+			      ? newATTRSUB($3, $2, $5, attr, $7)
+			      : newMYSUB($3, $2, $5, attr, $7)
 			  ;
-			  $$ = NULL;
+                          $$ = cv && attr ? attrs_runtime(cv, attr) : NULL;
 			  intro_my();
 			  parser->parsed_sub = 1;
 			}
@@ -315,7 +317,7 @@ barestmt:	PLUGSTMT
 			}
 		remember subsignature subattrlist '{' stmtseq '}'
 			{
-			  OP *sig = $6, *body = $9;
+                          OP *sig = $6, *body = $9, *attr = $7; CV *cv;
                           /* empty sig sub needs a nextstate at the end
                            * to clear the stack of any default expression
                            * detritus */
@@ -327,11 +329,36 @@ barestmt:	PLUGSTMT
 				op_append_list(OP_LINESEQ, sig, body));
 
 			  SvREFCNT_inc_simple_void(PL_compcv);
-			  $2->op_type == OP_CONST
-			      ? newATTRSUB($3, $2, NULL, $7, body)
-			      : newMYSUB($3, $2, NULL, $7, body);
-			  $$ = NULL;
+			  cv = ($2->op_type == OP_CONST)
+			      ? newATTRSUB($3, $2, NULL, attr, body)
+			      : newMYSUB($3, $2, NULL, attr, body);
+                          $$ = attr ? attrs_runtime(cv, attr) : NULL;
 			  intro_my();
+			  parser->parsed_sub = 1;
+			}
+	|	EXTERNSUB subname startsub
+			{
+			  if ($2->op_type != OP_CONST) {
+                              /* XXX lexical: my extern sub name */
+                              if (CvANON(CvOUTSIDE(PL_compcv))
+                               || CvCLONE(CvOUTSIDE(PL_compcv))
+                               || !PadnameIsSTATE(PadlistNAMESARRAY(CvPADLIST(
+                                      CvOUTSIDE(PL_compcv)))[$2->op_targ])) {
+                                  CvCLONE_on(PL_compcv);
+                              }
+                          }
+			  parser->in_my = 0;
+			  parser->in_my_stash = NULL;
+                          CvFLAGS(PL_compcv) |= $<ival>1;
+			}
+		subsignature subattrlist ';'
+			{
+                          OP *sig = $5, *name = $2, *attr = $6; CV *cv;
+			  SvREFCNT_inc_simple_void(PL_compcv);
+			  cv = (name->op_type == OP_CONST)
+			      ? newATTRSUB($3, name, NULL, attr, sig)
+			      : newMYSUB($3, name, NULL, attr, sig);
+                          $$ = attr ? attrs_runtime(cv, attr) : NULL;
 			  parser->parsed_sub = 1;
 			}
 	|	PACKAGE BAREWORD BAREWORD ';'
@@ -342,7 +369,8 @@ barestmt:	PLUGSTMT
 			  $$ = NULL;
 			}
 	|	USE startsub
-			{ CvSPECIAL_on(PL_compcv); /* It's a BEGIN {} */ }
+			{ CvSPECIAL_on(PL_compcv); /* It's a BEGIN {} */
+			  parser->in_sub = 0; }
 		BAREWORD BAREWORD optlistexpr ';'
 			{
 			  SvREFCNT_inc_simple_void(PL_compcv);
@@ -640,11 +668,11 @@ proto	:	/* NULL */
 
 /* Optional list of subroutine attributes */
 subattrlist:	/* NULL */
-			{ $$ = NULL; }
+			{ parser->in_sub = 0; $$ = NULL; }
 	|	COLONATTR THING
-			{ $$ = $2; }
+			{ parser->in_sub = 0; $$ = $2; }
 	|	COLONATTR
-			{ $$ = NULL; }
+			{ parser->in_sub = 0; $$ = NULL; }
 	;
 
 /* List of attributes for a "my" variable declaration */
@@ -655,7 +683,8 @@ myattrlist:	COLONATTR THING
 	;
 
 /* Subroutine signature */
-subsignature:	'('
+subsignature:
+                '('
 			{
 #ifndef USE_CPERL
 			  /* We shouldn't get here otherwise */
@@ -669,7 +698,11 @@ subsignature:	'('
 		')'
 			{
 			  $$ = $<opval>2;
-			  parser->expect = XATTRBLOCK;
+                          if (parser->lex_attr_state == XATTRBLOCK ||
+                              parser->lex_attr_state == XATTRTERM) {
+			      parser->expect = parser->lex_attr_state;
+                              parser->lex_attr_state = XOPERATOR;
+                          }
 			}
 	;
 
@@ -1074,6 +1107,7 @@ term:		termbinop
 			    {
 				$<ival>$ = start_subparse(FALSE, CVf_ANON);
 				SAVEFREESV(PL_compcv);
+				parser->in_sub = 0;
 			    } else
 				$<ival>$ = 0;
 			}

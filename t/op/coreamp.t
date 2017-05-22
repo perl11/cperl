@@ -1195,7 +1195,7 @@ like $@, qr'^Undefined format "STDOUT" called',
       next if
        $word =~ /^(?:s(?:tate|ort|ay|ub)?|d(?:ef
                   ault|ump|o)|p(?:rintf?|ackag
-                  e)|e(?:ls(?:if|e)|val|q)|g(?:[et]|iven|oto
+                  e)|e(?:(?:ls(?:if|e))|xtern|val|q)|g(?:[et]|iven|oto
                   |rep)|u(?:n(?:less|til)|se)|l(?:(?:as)?t|ocal|e)|re
                   (?:quire|turn|do)|__(?:DATA|END)__|for(?:each|mat)?|(?:
                   AUTOLOA|EN)D|n(?:e(?:xt)?|o)|C(?:HECK|ORE)|wh(?:ile|en)

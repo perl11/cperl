@@ -198,7 +198,7 @@ use strict;
 
     # find which ops use 0,1,2,3 or 4 bits of op_private for arg count info
 
-    $args0{$_} = 1 for qw(entersub enterxssub avhvswitch
+    $args0{$_} = 1 for qw(entersub enterxssub enterffi avhvswitch
                           rv2hv); # UNOPs that usurp bit 0
 
     $args1{$_} = 1 for (
@@ -301,7 +301,8 @@ for (qw(nextstate dbstate)) {
 
 addbits($_, 7 => qw(OPpLVAL_INTRO LVINTRO))
     for qw(gvsv rv2sv rv2hv rv2gv rv2av aelem helem oelem aslice split
-           hslice delete padsv padav padhv enteriter entersub enterxssub padrange
+           hslice delete padsv padav padhv enteriter entersub enterxssub enterffi 
+           padrange
            pushmark cond_expr refassign lvref lvrefslice lvavref multideref
            multiconcat),
            #qw(int_padsv uint_padsv str_padsv num_padsv),
@@ -415,7 +416,7 @@ addbits($_, 7 => qw(OPpLVALUE LV)) for qw(leave leaveloop);
 
 
 # autovivify: Want ref to something, disabled for aelem*_u
-for (qw(rv2gv rv2sv padsv aelem helem entersub enterxssub)) {
+for (qw(rv2gv rv2sv padsv aelem helem entersub enterxssub enterffi)) {
         #int_padsv uint_padsv str_padsv num_padsv
     addbits($_, '4..5' => {
                 mask_def  => 'OPpDEREF',
@@ -565,7 +566,7 @@ addbits('repeat', 6 => qw(OPpREPEAT_DOLIST DOLIST)); # List replication
 
 # OP_ENTERSUB and OP_RV2CV flags
 #
-# Flags are set on entersub, enterxssub and rv2cv in three phases:
+# Flags are set on entersub, enterxssub, enterffi and rv2cv in three phases:
 #   parser  - the parser passes the flag to the op constructor
 #   check   - the check routine called by the op constructor sets the flag
 #   context - application of scalar/ref/lvalue context applies the flag
@@ -598,7 +599,7 @@ addbits($_,
     # 4..5 => OPpDEREF,      already defined above
     6      => qw(OPpENTERSUB_DB       DBG   ), # Debug the subroutine
     # 7    => OPpLVAL_INTRO, already defined above
-) for qw(entersub enterxssub);
+) for qw(entersub enterxssub enterffi);
 
 # note that some of these flags are just left-over from when an entersub
 # is converted into an rv2cv, and could probably be cleared/re-assigned

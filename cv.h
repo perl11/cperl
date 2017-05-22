@@ -49,6 +49,10 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvXSUBANY(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_start_u.xcv_xsubany
 #define CvROOT(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_root_u.xcv_root
 #define CvXSUB(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_root_u.xcv_xsub
+#define CvXFFI(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_root_u.xcv_xffi
+/* Used as temp. library handle :native($lib), and then as ffi_cif handle,
+   the signature */
+#define CvFFILIB(sv)	((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_start_u.xcv_ffilib
 #define CvGV(sv)	S_CvGV(aTHX_ (CV *)(sv))
 #define CvGV_set(cv,gv)	Perl_cvgv_set(aTHX_ cv, gv)
 #define CvHASGV(cv)	cBOOL(SvANY(cv)->xcv_gv_u.xcv_gv)
@@ -67,7 +71,7 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvDEPTHunsafe(sv) ((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_depth
 
 /* these CvPADLIST/CvRESERVED asserts can be reverted one day, once stabilized */
-#define CvPADLIST(sv)	  (*(assert_(!CvISXSUB((CV*)(sv))) \
+#define CvPADLIST(sv)	  (*(assert_(CvEXTERN(sv) || !CvISXSUB(sv)) \
 	&(((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_padlist_u.xcv_padlist)))
 /* CvPADLIST_set is not public API, it can be removed one day, once stabilized */
 #ifdef DEBUGGING
@@ -75,7 +79,7 @@ See L<perlguts/Autoloading with XSUBs>.
 #else
 #  define CvPADLIST_set(sv, padlist) (CvPADLIST(sv) = (padlist))
 #endif
-#define CvHSCXT(sv)	  *(assert_(CvISXSUB((CV*)(sv))) \
+#define CvHSCXT(sv)	  *(assert_(CvISXSUB(sv)) \
 	&(((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_padlist_u.xcv_hscxt))
 #ifdef DEBUGGING
 #  if PTRSIZE == 8
@@ -97,8 +101,11 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvSIGOP(sv)	  ((XPVCV*)MUTABLE_PTR(SvANY(sv)))->xcv_sigop
 
 /* experimental: print the type of a cv in %s%s%s style */
-#define CvDESC3(cv)       CvISXSUB(cv) ? "XS " : "", CvMULTI(cv) ? "multi ": "", \
-                          CvMETHOD(cv) ? "method" : "subroutine"
+#define CvDESC3(cv)       \
+        CvEXTERN(cv) ? "extern "                       \
+                     : CvISXSUB(cv) ? "XS " : "",      \
+        CvMULTI(cv)  ? "multi ": "",                   \
+        CvMETHOD(cv) ? "method" : "subroutine"
 
 /* These two are sometimes called on non-CVs */
 #define CvPROTO(sv)                               \
@@ -149,11 +156,13 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CVf_PURE	0x100000 /* purely functional, side-effect free */
 #define CVf_STATIC	0x200000 /* statically allocated padlist and proto */
 #define CVf_INLINABLE	0x400000 /* Should be inlined */
-#define CVf_MULTI	0x800000 /* multi dispatch on types */
+#define CVf_EXTERN	0x800000 /* ffi declaration. extern or :native */
+#define CVf_MULTI	0x1000000 /* multi dispatch on types (nyi) */
+#define CVf_LAZYPARSE	0x2000000 /* TODO GH #274 */
 
 /* This symbol for optimised communication between toke.c and op.c: */
 #define CVf_BUILTIN_ATTRS	(CVf_METHOD|CVf_LVALUE|CVf_CONST|CVf_ANONCONST \
-                                 |CVf_TYPED|CVf_PURE|CVf_INLINABLE|CVf_MULTI)
+                                 |CVf_TYPED|CVf_PURE|CVf_INLINABLE|CVf_EXTERN|CVf_MULTI)
 
 #define CvCLONE(cv)		(CvFLAGS(cv) & CVf_CLONE)
 #define CvCLONE_on(cv)		(CvFLAGS(cv) |= CVf_CLONE)
@@ -253,6 +262,10 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvPURE(cv)		(CvFLAGS(cv) & CVf_PURE)
 #define CvPURE_on(cv)		(CvFLAGS(cv) |= CVf_PURE)
 #define CvSTATIC(cv)		(CvFLAGS(cv) & CVf_STATIC)
+#define CvEXTERN(cv)		(CvFLAGS(cv) & CVf_EXTERN)
+#ifdef PERL_CORE
+#define CvEXTERN_on(cv)	        (CvFLAGS(cv) |= (CVf_EXTERN|CVf_ISXSUB), CvSLABBED_off(cv))
+#endif
 
 #define CvMULTI(cv)		(CvFLAGS(cv) & CVf_MULTI)
 #define CvMULTI_on(cv)		(CvFLAGS(cv) |= CVf_MULTI)

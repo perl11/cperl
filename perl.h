@@ -479,6 +479,17 @@
 #  define GCC47_DIAG_RESTORE
 #endif
 
+/* for GCC60_DIAG_IGNORE(-Wnonnull-compare) since 6.0 */
+#if (!defined(__clang__) && !defined(__clang)) &&                       \
+     (defined( __GNUC__) && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 600)
+#  define GCC60_DIAG_IGNORE(w) _Pragma("GCC diagnostic push")         \
+                             GCC_DIAG_PRAGMA(GCC diagnostic ignored #w)
+#  define GCC60_DIAG_RESTORE   _Pragma("GCC diagnostic pop")
+#else
+#  define GCC60_DIAG_IGNORE(w)
+#  define GCC60_DIAG_RESTORE
+#endif
+
 /* for CLANG35_DIAG_IGNORE(-Wpointer-bool-conversion) */
 /* for the version matches see https://trac.macports.org/wiki/XcodeVersionInfo */
 #if defined(__clang__) && \

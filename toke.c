@@ -69,6 +69,7 @@ Individual members of C<PL_parser> have their own documentation.
 #define PL_lex_repl             (PL_parser->lex_repl)
 #define PL_lex_starts           (PL_parser->lex_starts)
 #define PL_lex_stuff            (PL_parser->lex_stuff)
+#define PL_lex_attr_state       (PL_parser->lex_attr_state)
 #define PL_multi_start          (PL_parser->multi_start)
 #define PL_multi_open           (PL_parser->multi_open)
 #define PL_multi_close          (PL_parser->multi_close)
@@ -91,6 +92,7 @@ Individual members of C<PL_parser> have their own documentation.
 #define PL_in_my                (PL_parser->in_my)
 #define PL_in_my_stash          (PL_parser->in_my_stash)
 #define PL_in_class             (PL_parser->in_class)
+#define PL_in_sub               (PL_parser->in_sub)
 #define PL_in_pod               (PL_parser->in_pod)
 #define PL_tokenbuf             (PL_parser->tokenbuf)
 #define PL_multi_end            (PL_parser->multi_end)
@@ -389,6 +391,7 @@ static struct debug_tokens {
     { ELSE,             TOKENTYPE_NONE,         "ELSE" },
     { ELSIF,            TOKENTYPE_IVAL,         "ELSIF" },
     { EQOP,             TOKENTYPE_OPNUM,        "EQOP" },
+    { EXTERNSUB,	TOKENTYPE_NONE,		"EXTERNSUB" },
     { FOR,              TOKENTYPE_IVAL,         "FOR" },
     { FORMAT,           TOKENTYPE_NONE,         "FORMAT" },
     { FORMLBRACK,       TOKENTYPE_NONE,         "FORMLBRACK" },
@@ -4622,13 +4625,13 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
                 return 0;       /* no assumptions -- "=>" quotes bareword */
       bare_package:
             NEXTVAL_NEXTTOKE.opval = newSVOP(OP_CONST, 0,
-                                       S_newSV_maybe_utf8(aTHX_ tmpbuf, len));
-            NEXTVAL_NEXTTOKE.opval->op_private = OPpCONST_BARE;
-            PL_expect = XTERM;
-            force_next(BAREWORD);
-            PL_bufptr = s;
-            return *s == '(' ? FUNCMETH : METHOD;
-        }
+                                             S_newSV_maybe_utf8(aTHX_ tmpbuf, len));
+	    NEXTVAL_NEXTTOKE.opval->op_private = OPpCONST_BARE;
+	    PL_expect = XTERM;
+	    force_next(BAREWORD);
+	    PL_bufptr = s;
+	    return *s == '(' ? FUNCMETH : METHOD;
+	}
     }
     return 0;
 }
@@ -6265,8 +6268,11 @@ Perl_yylex(pTHX)
             OP *attrs;
 
             switch (PL_expect) {
+            default:
+                break;
             case XOPERATOR:
-                if (!PL_in_my || PL_lex_state != LEX_NORMAL)
+                /* attrs allowed in my or sub decls. not global, local */
+                if (!(PL_in_my || PL_in_sub) || PL_lex_state != LEX_NORMAL)
                     break;
                 PL_bufptr = s;  /* update in case we back off */
                 if (*s == '=') {
@@ -6285,6 +6291,7 @@ Perl_yylex(pTHX)
                 while (isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
                     I32 tmp;
                     SV *sv;
+                    bool saw_native = FALSE;
                     d = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, FALSE,
                                   &len, &normalize);
                     if (isLOWER(*s) && (tmp = keyword(PL_tokenbuf, len, 0))) {
@@ -6304,8 +6311,8 @@ Perl_yylex(pTHX)
                         }
                     }
                     if (UNLIKELY(normalize)) {
-                        char *s1 = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf),
-                                                    &len);
+                        char *s1 = pv_uni_normalize(PL_tokenbuf,
+                                                    strlen(PL_tokenbuf), &len);
                         Copy(s1, PL_tokenbuf, len+1, char);
                     }
                     sv = newSVpvn_flags(s, len, UTF ? SVf_UTF8 : 0);
@@ -6316,14 +6323,78 @@ Perl_yylex(pTHX)
                                 op_free(attrs);
                             sv_free(sv);
                             Perl_croak(aTHX_
-                                "Unterminated attribute parameter in attribute list");
+                                "Unterminated attribute parameter in "
+                                "attribute list");
+                        }
+                        /* handle run-time variables in attrs args */
+                        /* evaluate scalars and barewords, resp. add
+                           CONST strings.  :native($lib)
+                           :native("mysqlclient") :native(msqlclient)
+                           :symbol('c_sym'), ...  but not with:
+                           :prototype($$;@) they are passed unparsed
+                           to attributes->import.
+                        */
+                        if (PL_in_sub &&
+                            ((len == 6 && (memEQc(s, "native")
+                                           || memEQc(s, "symbol")))
+                             || strEQc(s, "nativeconv")
+                             || strEQc(s, "encoded"))) {
+                            char *a  = SvPVX(PL_lex_stuff);
+                            /* -2: without the parens */
+                            STRLEN l = SvCUR(PL_lex_stuff) - 2;
+                            U32 utf8 = SvUTF8(PL_lex_stuff);
+                            SV *sarg = newSVpvn_flags(a+1, l, utf8|SVs_TEMP);
+                            OP *arg;
+                            a = skipspace(SvPVX(sarg));
+                            if (*a == '$') {
+                                PADOFFSET pad = pad_findmy_sv(sarg, 0);
+                                DEBUG_T(PerlIO_printf(Perl_debug_log,
+                                    "### run-time :%s%s\n", SvPVX(sv), a));
+                                if (pad == NOT_IN_PAD) {
+                                    if (!utf8)
+                                        SvUTF8_off(sarg);
+                                    sv_chop(sarg, a+1);
+                                    arg = newSVREF(newGVOP(OP_GV, 0,
+                                              gv_fetchsv(sarg, GV_ADDMULTI,
+                                                         SVt_PV)));
+                                }
+                                else {
+                                    arg = newOP(OP_PADSV, 0);
+                                    arg->op_targ = pad;
+                                }
+                            }
+                            /* compile-time import */
+                            else if (*a == '"' || *a == '\'') {
+                                sv_chop(sarg, a+1);
+                                SvCUR_set(sarg, l-2);
+                                SvTEMP_off(sarg);
+                                arg = newSVOP(OP_CONST, 0,
+                                              SvREFCNT_inc_NN(sarg));
+                            } else { /* XXX bareword as call or const?
+                                        for now only const asis */
+                                SvTEMP_off(sarg);
+                                arg = newSVOP(OP_CONST, 0,
+                                              SvREFCNT_inc_NN(sarg));
+                            }
+                            SvCUR_set(PL_lex_stuff, 0);
+                            /* len+1: keep the final ( in "native(" to
+                               announce attributes->import a single
+                               argument. No structure. */
+                            /* produce flat lists for dup_attrlist */
+                            attrs = op_append_elem(OP_LIST, attrs,
+                                      newSVOP(OP_CONST, 0, newSVpvn(s, len+1)));
+                            attrs = op_append_elem(OP_LIST, attrs, arg);
                         }
                         COPLINE_SET_FROM_MULTI_END;
                     }
+                    /* A proper (..) arg list set by scan_str.
+                       Unparsed to attributes->import. */
                     if (PL_lex_stuff) {
-                        sv_catsv(sv, PL_lex_stuff);
-                        attrs = op_append_elem(OP_LIST, attrs,
-                                               newSVOP(OP_CONST, 0, sv));
+                        if (SvCUR(PL_lex_stuff)) {
+                            sv_catsv(sv, PL_lex_stuff);
+                            attrs = op_append_elem(OP_LIST, attrs,
+                                                   newSVOP(OP_CONST, 0, sv));
+                        }
                         SvREFCNT_dec_NN(PL_lex_stuff);
                         PL_lex_stuff = NULL;
                     }
@@ -6343,6 +6414,12 @@ Perl_yylex(pTHX)
                                     CvMETHOD_on(PL_compcv);
                                     /*cv_method_on(PL_compcv);*/
                                 }
+                                else if (memEQc(pv, "native")) {
+                                    saw_native = TRUE;
+                                    CvEXTERN_on(PL_compcv);
+                                    /* need to call DynaLoader::dl_load_file */
+                                    goto load_attributes;
+                                }
                                 /* Scalar */
                                 else if (!find_in_coretypes(pv, len))
                                     goto load_attributes;
@@ -6354,7 +6431,7 @@ Perl_yylex(pTHX)
 #ifdef USE_CPERL
                         if (len == 5 && memEQc(pv, "const"))
                         {
-                            if (!PL_in_my) {
+                            if (PL_in_sub) {
                                 sv_free(sv);
                                 CvCONST_on(PL_compcv); /* inlinable */
                                 if (CvANON(PL_compcv))
@@ -6370,13 +6447,13 @@ Perl_yylex(pTHX)
                             }
                         }
 #else
-                        if (!PL_in_my &&
-                            len == 5 && memEQc(pv, "const"))
-                        {
+                        if (PL_in_sub &&
+                            len == 5 && memEQc(pv, "const")) {
                             sv_free(sv);
                             Perl_ck_warner_d(aTHX_
-                               packWARN(WARN_EXPERIMENTAL__CONST_ATTR),
-                               ":const is experimental");
+                                packWARN(WARN_EXPERIMENTAL__CONST_ATTR),
+                                ":const is experimental"
+                                             );
                             CvANONCONST_on(PL_compcv);
                             if (!CvANON(PL_compcv))
                                 yyerror(":const is not permitted on named "
@@ -6384,18 +6461,19 @@ Perl_yylex(pTHX)
                         }
 #endif
 #ifdef USE_CPERL
-                        else if (!PL_in_my && len == 4 && memEQc(pv, "pure")) {
+                        else if (PL_in_sub && len == 4 && memEQc(pv, "pure")) {
                             sv_free(sv);
                             CvPURE_on(PL_compcv);
                         }
-                        else if (!PL_in_my && memEQs(pv, len, "multi")) {
+                        else if (PL_in_sub && memEQs(pv, len, "multi")) {
                             sv_free(sv);
                             CvMULTI_on(PL_compcv);
                         }
-                        /* Check sub return type here, so we can pass an empty attrs
-                           to newATTRSUB. This allows any known user or core type
-                           to be used. */
-                        else if ((typestash = find_in_my_stash(pv, len))) {
+                        /* Check sub return type here, so we can pass
+                           an empty attrs to newATTRSUB. This allows
+                           any known user or core type to be used. */
+                        else if (PL_in_sub &&
+                                 (typestash = find_in_my_stash(pv, len))) {
                             CvTYPED_on(PL_compcv);
                             /* skip attr callback for existing coretypes */
                             if (!find_in_coretypes(pv, len))
@@ -6407,19 +6485,18 @@ Perl_yylex(pTHX)
                         else if (find_in_coretypes(pv, len))
                             sv_free(sv);
 #endif
-                        /* After we've set the flags, it could be argued that
-                           we don't need to do the attributes.pm-based setting
-                           process, and shouldn't bother appending recognized
-                           flags.  To experiment with that, uncomment the
-                           following "else".  (Note that's already been
-                           uncommented.  That keeps the above-applied built-in
-                           attributes from being intercepted (and possibly
-                           rejected) by a package's attribute routines, but is
-                           justified by the performance win for the common case
-                           of applying only built-in attributes.) */
+                        /* Handle only the rest via attributes->import */
                         else {
+                            OP* o;
                         load_attributes:
-                            attrs = op_append_elem(OP_LIST, attrs, newSVOP(OP_CONST, 0, sv));
+                            /* implicit extern sub */
+                            if (PL_in_sub && CvEXTERN(PL_compcv) && !saw_native) {
+                                saw_native = TRUE;
+                                attrs = op_append_elem(OP_LIST, attrs,
+                                            newSVOP(OP_CONST, 0, newSVpvs("native")));
+                            }
+                            o = newSVOP(OP_CONST, 0, sv);
+                            attrs = op_append_elem(OP_LIST, attrs, o);
                         }
                     }
                     s = skipspace(d);
@@ -6429,11 +6506,11 @@ Perl_yylex(pTHX)
                         break;  /* require real whitespace or :'s */
                     /* XXX losing whitespace on sequential attributes here */
                 }
-                if (*s != ';'
-                    && *s != '}'
-                    && !(PL_expect == XOPERATOR
-                         ? (*s == '=' ||  *s == ')')
-                         : (*s == '{' ||  *s == '(')))
+                if (*s != ';' &&
+                    *s != '}' &&
+                    !(PL_expect == XOPERATOR
+                      ? (*s == '=' ||  *s == ')')
+                      : (*s == '{' ||  *s == '(')))
                 {
                     const char q = ((*s == '\'') ? '"' : '\'');
                     /* If here for an expression, and parsed no attrs, back
@@ -6446,11 +6523,10 @@ Perl_yylex(pTHX)
                        context messages from yyerror().
                     */
                     PL_bufptr = s;
-                    yyerror( (const char *)
-                             (*s
-                              ? Perl_form(aTHX_ "Invalid separator character "
-                                          "%c%c%c in attribute list", q, *s, q)
-                              : "Unterminated attribute list" ) );
+                    yyerror((const char *)(*s
+                          ? Perl_form(aTHX_ "Invalid separator character "
+                              "%c%c%c in attribute list", q, *s, q)
+                          : "Unterminated attribute list" ));
                     if (attrs)
                         op_free(attrs);
                     OPERATOR(':');
@@ -6461,16 +6537,15 @@ Perl_yylex(pTHX)
                     force_next(THING);
                 }
                 TOKEN(COLONATTR);
-            default:
-                break;
             }
         }
+        PL_in_sub = 0;
         if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_CLOSING) {
-            s--;
-            TOKEN(0);
-        }
-        PL_lex_allbrackets--;
-        OPERATOR(':');
+	    s--;
+	    TOKEN(0);
+	}
+	PL_lex_allbrackets--;
+	OPERATOR(':');
     case '(':
         s++;
         if (PL_last_lop == PL_oldoldbufptr || PL_last_uni == PL_oldoldbufptr)
@@ -6481,12 +6556,13 @@ Perl_yylex(pTHX)
         PL_lex_allbrackets++;
         TOKEN('(');
     case ';':
-        if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_NONEXPR)
-            TOKEN(0);
-        CLINE;
-        s++;
-        PL_expect = XSTATE;
-        TOKEN(';');
+	if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_NONEXPR)
+	    TOKEN(0);
+	CLINE;
+	s++;
+	PL_expect = XSTATE;
+        PL_in_sub = 0;
+	TOKEN(';');
     case ')':
         if (!PL_lex_allbrackets && PL_lex_fakeeof >= LEX_FAKEEOF_CLOSING)
             TOKEN(0);
@@ -7317,20 +7393,20 @@ Perl_yylex(pTHX)
 #else
             && (s[1] == '\n' || (s[1] == '\r' && s[2] == '\n'))
 #endif
-            && (s == PL_linestart || s[-1] == '\n') )
-        {
-            PL_expect = XSTATE;
-            formbrack = 2; /* dot seen where arguments expected */
-            goto rightbracket;
-        }
-        if (PL_expect == XSTATE && s[1] == '.' && s[2] == '.') {
-            s += 3;
-            TERM(YADAYADA);
-        }
-        if (PL_expect == XOPERATOR || !isDIGIT(s[1])) {
-            char tmp = *s++;
-            if (*s == tmp) {
-                if (!PL_lex_allbrackets
+	    && (s == PL_linestart || s[-1] == '\n') )
+	{
+	    PL_expect = XSTATE;
+	    formbrack = 2; /* dot seen where arguments expected */
+	    goto rightbracket;
+	}
+	if (PL_expect == XSTATE && s[1] == '.' && s[2] == '.') {
+	    s += 3;
+	    TERM(YADAYADA); /* really ELLIPSIS */
+	}
+	if (PL_expect == XOPERATOR || !isDIGIT(s[1])) {
+	    char tmp = *s++;
+	    if (*s == tmp) {
+		if (!PL_lex_allbrackets
                     && PL_lex_fakeeof >= LEX_FAKEEOF_RANGE)
                 {
                     s--;
@@ -8613,10 +8689,10 @@ Perl_yylex(pTHX)
                 PL_bufptr = s;
                 /* allow sub has, and hash fields (YAML::Mo) */
                 goto just_a_word; /* old-style sub or hash field */
-            }
+	    }
             assert(tmp < 65536); /* max U16 */
-            PL_in_my = (U16)tmp;
-            s = skipspace(s);
+	    PL_in_my = (U16)tmp;
+	    s = skipspace(s);
             if (isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
                 int normalize;
                 s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
@@ -8749,10 +8825,17 @@ Perl_yylex(pTHX)
             s = skipspace(s);
             if (isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
                 int normalize;
-                s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
-                if (memEQs(PL_tokenbuf, len, "sub")) {
-                    goto really_sub;
-                } else if (UNLIKELY(normalize)) {
+		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
+		if (len == 3 && memEQc(PL_tokenbuf, "sub")) {
+		    goto really_sub;
+		} else if (len == 6 && memEQc(PL_tokenbuf, "extern")) {
+                    s = skipspace(s);
+                    s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
+                    if (len == 3 && memEQc(PL_tokenbuf, "sub")) {
+                        tmp = KEY_extern;
+                        goto really_sub;
+                    }
+		} else if (UNLIKELY(normalize)) {
                     d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
                     Copy(d, PL_tokenbuf, len+1, char);
                 }
@@ -9291,23 +9374,31 @@ Perl_yylex(pTHX)
         case KEY_substr:
             LOP(OP_SUBSTR,XTERM);
 
-        case KEY_format:
-        case KEY_sub:
-        case KEY_method:
-        case KEY_multi:
-          really_sub:
-            {
-                char * tmpbuf = PL_tokenbuf + 1;
+	case KEY_extern:
+            d = skipspace(s);
+            /* allow extern as a user func. only "extern sub" is handled by us now. */
+            if (!memEQc(d, "sub"))
+                goto just_a_word;
+            /* fall through */
+            s = d + 3;
+	case KEY_format:
+	case KEY_sub:
+	case KEY_method:
+	case KEY_multi:
+	  really_sub:
+	    {
+		char * tmpbuf = PL_tokenbuf + 1;
                 SV *format_name = NULL;
-                const int key = tmp;
-                expectation attrful;
-                bool have_name, have_proto;
+		expectation attrful;
+                bool is_extern = cBOOL(tmp == KEY_extern);
+		bool have_name, have_proto;
                 bool try_signature = FALSE;
-                int cvflags = key == KEY_method ? CVf_METHOD : 0;
+		const int key = is_extern ? KEY_sub : tmp;
+                int cvflags = tmp == KEY_method ? CVf_METHOD : 0;
                 SSize_t off = s - SvPVX(PL_linestr);
 
-                d = s;
-                s = skipspace(s);
+                PL_lex_stuff = NULL;
+		s = skipspace(s);
                 d = SvPVX(PL_linestr) + off;
 
                 if (   isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)
@@ -9348,16 +9439,16 @@ Perl_yylex(pTHX)
                     }
                     if (SvUTF8(PL_linestr) || normalize)
                         SvUTF8_on(PL_subname);
-                    have_name = TRUE;
+		    have_name = TRUE;
 
-                    s = skipspace(d);
-                }
-                else {
-                    if (key == KEY_my || key == KEY_our || key==KEY_state) {
-                        *d = '\0';
-                        /* diag_listed_as: Missing name in "%s sub" */
-                        Perl_croak(aTHX_ "Missing name in \"%s\"", PL_bufptr);
-                    }
+		    s = skipspace(d);
+		}
+		else {
+		    if (key == KEY_my || key == KEY_our || key==KEY_state || is_extern) {
+			*d = '\0';
+			/* diag_listed_as: Missing name in "%s sub" */
+			Perl_croak(aTHX_ "Missing name in \"%s\"", PL_bufptr);
+		    }
                     else if (key == KEY_multi || key == KEY_method) {
                         goto just_a_word; /* old-style sub: call method() */
                     }
@@ -9396,30 +9487,52 @@ Perl_yylex(pTHX)
                         have_proto = validate_proto(PL_subname, PL_lex_stuff,
                                                     ckWARN(WARN_ILLEGALPROTO), FALSE, TRUE);
                     }
+                    s = skipspace(s);
+                    /* empty prototypes () are sigs for METHODS and EXTERNSUB */
                     if (have_proto) {
-                        if (PL_parser->in_class && cvflags & CVf_METHOD && !SvCUR(PL_lex_stuff)) {
-                            SV* sig = newSVpvn_flags(SvPVX(PL_curstname), SvCUR(PL_curstname),
-                                                     SvUTF8(PL_curstname)|SVs_TEMP);
-                            DEBUG_T(printbuf("### Empty method signature %s\n", d));
-                            PL_bufptr = d+1;
-                            sv_catpvs(sig, " $self");
-                            DEBUG_T(printbuf("### Stuff %s\n", SvPVX(sig)));
-                            lex_stuff_pvn(SvPVX(sig), SvCUR(sig), 0);
-                            s = PL_bufptr-1;
+                        /* method NAME () or extern sub NAME () */
+                        if (!SvCUR(PL_lex_stuff) &&
+                            ( (PL_in_class && cvflags & CVf_METHOD )
+                              || is_extern))
+                        {
+                            DEBUG_T(printbuf("### Empty signature %s\n", d));
+                            s = PL_bufptr = d;
+                            if (!is_extern) {
+                                SV* sig = newSVpvn_flags(SvPVX(PL_curstname), SvCUR(PL_curstname),
+                                                         SvUTF8(PL_curstname)|SVs_TEMP);
+                                PL_bufptr++;
+                                sv_catpvs(sig, " $self");
+                                DEBUG_T(printbuf("### Stuff %s\n", SvPVX(sig)));
+                                lex_stuff_pvn(SvPVX(sig), SvCUR(sig), 0);
+                                s = PL_bufptr-1;
+                            }
                             PL_lex_stuff = NULL;
                         } else {
                             DEBUG_T(printbuf("### Is prototype %s\n", d));
+                            if (is_extern)
+                                goto extern_no_sig;
                         }
-                        s = skipspace(s);
-                    } else {
-                        DEBUG_T(printbuf("### No prototype %s, signature probably\n", d));
+                    } else { /* !have_proto */
                         try_signature = TRUE;
+                        if (*s == ':' && s[1] != ':') {
+                            PL_lex_attr_state = attrful; /* XATTRBLOCK or XATTRTERM */
+                            if (memEQc(&s[1], "native"))
+                                is_extern = TRUE;
+                        }
+                        DEBUG_T(printbuf("### No prototype %s, signature probably\n", d));
                         s = PL_bufptr = d;
                         PL_lex_stuff = NULL;
                     }
+		}
+		else { /* no ( */
+                    /* method NAME {} or extern sub NAME {} */
+		    have_proto = FALSE;
+                    if (is_extern) {
+                    extern_no_sig:
+                        Perl_croak(aTHX_ "Illegal declaration of extern subroutine %" SVf
+                                   ". Need signature", SVfARG(PL_subname));
+                    }
                 }
-                else
-                    have_proto = FALSE;
 
                 if (UNLIKELY(!PL_in_class && (cvflags & CVf_METHOD)))
                     Perl_croak(aTHX_ "Can declare method %s only within a class",
@@ -9446,7 +9559,7 @@ Perl_yylex(pTHX)
                         PL_lex_stuff = NULL;
                         force_next(THING);
                     }
-                } else if (!try_signature && PL_parser->in_class && (cvflags & CVf_METHOD)) {
+		} else if (!try_signature && PL_in_class && (cvflags & CVf_METHOD)) {
                     SV* sig = newSVpvs("(");
                     PL_bufptr = s;
                     sv_catsv(sig, PL_curstname);
@@ -9455,20 +9568,23 @@ Perl_yylex(pTHX)
                     lex_stuff_pvn(SvPVX(sig), SvCUR(sig), 0);
                     s = PL_bufptr;
                 }
-                if (!have_name) {
-                    if (PL_curstash)
-                        sv_setpvs(PL_subname, "__ANON__");
-                    else
-                        sv_setpvs(PL_subname, "__ANON__::__ANON__");
-                    TOKEN(ANONSUB);
-                }
-                force_ident_maybe_lex('&');
-                if (key == KEY_multi) /* multi sub, multi, multi method */
+		if (!have_name) {
+		    if (PL_curstash)
+			sv_setpvs(PL_subname, "__ANON__");
+		    else
+			sv_setpvs(PL_subname, "__ANON__::__ANON__");
+		    TOKEN(ANONSUB);
+		}
+		force_ident_maybe_lex('&');
+                if (is_extern)
+                    ITOKEN(CVf_EXTERN|CVf_ISXSUB|cvflags,EXTERNSUB);
+                else if (key == KEY_multi) /* multi sub, multi, multi method */
                     ITOKEN(CVf_MULTI|cvflags,MULTIDECL);
                 else if (key == KEY_method)
                     ITOKEN(CVf_METHOD|cvflags,METHDECL);
-                ITOKEN(cvflags,SUB);
-            }
+		else
+                    ITOKEN(cvflags,SUB);
+	    }
 
         case KEY_system:
             LOP(OP_SYSTEM,XREF);
@@ -12434,16 +12550,18 @@ Perl_start_subparse(pTHX_ I32 is_format, U32 flags)
     SAVEI32(PL_subline);
     save_item(PL_subname);
     SAVESPTR(PL_compcv);
+    if (LIKELY(PL_parser))
+        PL_in_sub = 1;
 
     PL_compcv = MUTABLE_CV(newSV_type(is_format ? SVt_PVFM : SVt_PVCV));
     CvFLAGS(PL_compcv) |= flags;
-
     PL_subline = CopLINE(PL_curcop);
+
     CvPADLIST(PL_compcv) = pad_new(padnew_SAVE|padnew_SAVESUB);
     CvOUTSIDE(PL_compcv) = MUTABLE_CV(SvREFCNT_inc_simple(outsidecv));
     CvOUTSIDE_SEQ(PL_compcv) = PL_cop_seqmax;
-    if (outsidecv && CvPADLIST(outsidecv))
-        CvPADLIST(PL_compcv)->xpadl_outid = CvPADLIST(outsidecv)->xpadl_id;
+    if (LIKELY(outsidecv && CvPADLIST(outsidecv)))
+	CvPADLIST(PL_compcv)->xpadl_outid = CvPADLIST(outsidecv)->xpadl_id;
 
     return oldsavestack_ix;
 }
@@ -12653,6 +12771,7 @@ Perl_yyerror_pvn(pTHX_ const char *const s, STRLEN len, U32 flags)
         }
     }
     PL_in_my = 0;
+    PL_in_sub = 0;
     PL_in_my_stash = NULL;
     return 0;
 }

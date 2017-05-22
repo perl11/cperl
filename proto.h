@@ -311,6 +311,12 @@ PERL_CALLCONV int	Perl_attrs_has_const(pTHX_ OP* o, bool from_assign)
 			__attribute__warn_unused_result__
 			__attribute__pure__;
 
+PERL_CALLCONV OP *	Perl_attrs_runtime(pTHX_ CV *cv, OP *attrs)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_ATTRS_RUNTIME	\
+	assert(cv); assert(attrs)
+
 PERL_CALLCONV SV**	Perl_av_arylen_p(pTHX_ AV *av)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
@@ -7934,6 +7940,23 @@ PERL_CALLCONV void	Perl_dump_sv_child(pTHX_ SV *sv)
 	assert(sv)
 
 #endif
+#if defined(D_LIBFFI) && defined(USE_FFI)
+PERL_CALLCONV void	Perl_prep_ffi_ret(pTHX_ CV* cv, SV** sp, char *rvalue)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_PREP_FFI_RET	\
+	assert(cv); assert(sp)
+
+PERL_CALLCONV void	Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **argvalues)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_4);
+#define PERL_ARGS_ASSERT_PREP_FFI_SIG	\
+	assert(cv); assert(argp); assert(argvalues)
+
+#endif
 #if defined(HAS_MEMMEM)
 PERL_CALLCONV char*	Perl_ninstr(const char* big, const char* bigend, const char* little, const char* lend)
 			__attribute__global__
@@ -11173,6 +11196,13 @@ STATIC void	S_mem_log_common(enum mem_log_type mlt, const UV n, const UV typesiz
 
 #  endif
 #endif
+#if defined(PERL_IN_XSUTILS_C)
+STATIC void	S_prep_cif(pTHX_ CV* cv, const char *nativeconv)
+			__attribute__nonnull__(pTHX_1);
+#define PERL_ARGS_ASSERT_PREP_CIF	\
+	assert(cv)
+
+#endif
 #if defined(PERL_MEM_LOG)
 PERL_CALLCONV Malloc_t	Perl_mem_log_alloc(const UV nconst, UV typesize, const char *type_name, Malloc_t newalloc, const char *filename, const int linenumber, const char *funcname)
 			__attribute__nonnull__(3)
@@ -11262,6 +11292,20 @@ PERL_CALLCONV void	Perl_dtrace_probe_op(pTHX_ const OP *op)
 
 PERL_CALLCONV void	Perl_dtrace_probe_phase(pTHX_ enum perl_phase phase)
 			__attribute__global__;
+
+#endif
+#if defined(USE_FFI)
+PERL_CALLCONV int	Perl_magic_getffi_encoded(pTHX_ SV* sv, MAGIC* mg)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_MAGIC_GETFFI_ENCODED	\
+	assert(sv); assert(mg)
+
+PERL_CALLCONV int	Perl_magic_setffi_encoded(pTHX_ SV* sv, MAGIC* mg)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_MAGIC_SETFFI_ENCODED	\
+	assert(sv); assert(mg)
 
 #endif
 #if defined(USE_ITHREADS)

@@ -44,7 +44,7 @@ ignored by the alphabetical order, as are all characters other than
 letters.  To look up your message, just ignore anything that is not a
 letter.
 
-Specially handled security warnings are listed as (S security).
+Specially handled security warnings are listed as B<(S security)>.
 
 =over 4
 
@@ -2439,6 +2439,15 @@ PDP-11 or something?
 (F) A tied array claimed to have a negative number of elements, which
 is not possible.
 
+=item ffi: Possible %s overflow %d
+
+(W ffi) The numeric conversion might be lossy. See L<ffi>.
+
+=item ffi_prep_cif error %d
+
+(F) The libffi call failed. See C<man ffi_prep_cif>.
+The error means either FFI_BAD_TYPEDEF (1) or FFI_BAD_ABI (2).
+
 =item Field %s from %s already exists in %s during role composition
 
 (F) Copying duplicate fields from inherited roles or classes is
@@ -2771,6 +2780,11 @@ prototype in a C<:prototype()> attribute.
 (F) When using the C<sub> keyword to construct an anonymous subroutine,
 you must always specify a block of code.  See L<perlsub>.
 
+=item Illegal declaration of extern subroutine %s. Need signature
+
+(F) An extern subroutine was not declared correctly. extern sub need a
+mandatory signature declaration, even if empty. See L<perlsub>.
+
 =item Illegal declaration of subroutine %s
 
 (F) A subroutine was not declared correctly.  See L<perlsub>.
@@ -2791,6 +2805,18 @@ number stopped before the illegal character.
 
 (F) You tried to divide a number by 0 to get the remainder.  Most
 numbers don't take to this kindly.
+
+=item Illegal :encoded(%s) argument
+
+(F) Wrong encoding string. Check L<attributes/encoded(STRING)>.
+Valid encodings are checked with L<Encode::resolve_alias|Encode/"Defining Aliases">.
+
+=item Illegal :nativeconv(%s) argument
+
+(F) This platform does not define the nativeconv argument
+FFI_%s. Check L<attributes/nativeconv(STRING)> or your F<ffitarget.h>
+for valid calling conventions, or use the default ABI by skipping this
+attribute.
 
 =item Illegal number of bits in vec
 
@@ -3075,6 +3101,11 @@ Fix the pattern and retry.
 
 (F) The indicated attribute for a subroutine or variable was not recognized
 by Perl or by a user-supplied handler.  See L<attributes>.
+
+=item Invalid :%s(%s) attribute argument type
+
+(F) The indicated attribute argument for a subroutine or variable was not recognized
+by Perl.  See L<attributes>.
 
 =item Invalid %s attributes: %s
 
@@ -3533,6 +3564,11 @@ it is necessary to stuff, stuffing only plain ASCII is recommended.
 
 (F) Lexing code supplied by an extension violated the lexer's API in a
 detectable way.
+
+=item libffi not available
+
+(F) This perl is not linked against libffi. extern sub declarations
+are fine, but calls will fail. Check C<$Config{useffi}>.
 
 =item listen() on closed socket %s
 
@@ -4038,6 +4074,10 @@ were last editing.
 "%s found where operator expected".  Don't automatically put a semicolon on
 the previous line just because you saw this message.
 
+=item Missing type for extern sub argument %s
+
+(F) extern sub declarations need mandatory types. See L<ffi/types>.
+
 =item Modification of a read-only value attempted
 
 (F) You tried, directly or indirectly, to change the value of a
@@ -4169,6 +4209,11 @@ format) are considered the same; if a program uses $c only once
 but also uses any of the others it will not trigger this warning.
 Symbols beginning with an underscore and symbols using special
 identifiers (q.v. L<perldata>) are exempt from this warning.
+
+=item :nativeconv is only valid for :native or extern sub
+
+(S) The C<:nativeconv()> attribute to specify the calling convention or ABI
+for external ffi functions cannot be used for non-ffi functions.
 
 =item Need exactly 3 octal digits in regex; marked by S<<-- HERE> in m/%s/
 
@@ -4582,6 +4627,13 @@ an C</l> regular expression modifier, as that would require deferring
 to run-time the calculation of what it should evaluate to, and it is
 regex compile-time only.
 
+=item no ffi without DynaLoader
+
+(W ffi) miniperl has no DynaLoader, but DynaLoader is needed to find the
+shared library and to resolve the function name to the pointer.
+The function declarations do compile with this warning, but run-time calls will
+fail with L</Null extern sub symbol>, caused by the empty function pointer.
+
 =item no UTC offset information; assuming local time is UTC
 
 (S) A warning peculiar to VMS.  Perl was unable to find the local
@@ -4594,6 +4646,13 @@ need to be added to UTC to get local time.
 
 (S debugging) Some internal routine called run() with a null opcode
 pointer.
+
+=item Null extern sub symbol
+
+(F) Run-time error when calling extern ffi subroutines with an empty
+function pointer. Either the shared library or the function symbol in it was
+not found, or you are running miniperl, without DynaLoader.
+See L</no ffi without DynaLoader> which is the associated compile-time warning.
 
 =item Null picture in formline
 
@@ -6338,6 +6397,23 @@ position.  See L<perlre>.
 (F) While under the C<use filetest> pragma, we cannot switch the real
 and effective uids or gids.
 
+=item :%s() attribute argument missing
+
+(F) The C<:symbol()> and C<:nativeconv()> attributes
+require a string argument or negation. See L<attributes>.
+
+=item :%s is only valid for :native or extern sub
+
+(S) The C<:symbol()>, C<:nativeconv()>, C<:encoded()> attributes for
+external ffi functions cannot be used for non-ffi functions.
+
+=item :symbol is already resolved
+
+(W redefine) The C<:native> declaration already succeeded finding the
+same symbol in one of the loaded shared libraries. It's superfluous.
+However if the C<:symbol> attribute leads to a different symbol, no
+redefine warning is printed.
+
 =item syntax error
 
 (F) Probably means you had a syntax error.  Common reasons include:
@@ -6650,6 +6726,8 @@ Configure knows about.
 to be a hard reference to data of the specified type.  Overloading is
 ignored, so a reference to an object that is not the specified type, but
 nonetheless has overloading to handle it, will still not be accepted.
+
+=item Type of arg %s to %s must be %s (not %s)
 
 =item Type of arg %d to %s must be %s (not %s)
 
@@ -6987,6 +7065,11 @@ compiler does not recognize.  Check your spelling.
 
 (P) Perl was about to print an error message in C<$@>, but the C<$@> variable
 did not exist, even after an attempt to create it.
+
+=item Unknown ffi return type :%s, assume :void
+
+(S ffi) The extern subroutine return type declaration is not a valid
+package name. See L<ffi>.
 
 =item Unknown locale category %d; can't set it to %s
 

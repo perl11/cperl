@@ -736,6 +736,11 @@ unless ($define{'USE_QUADMATH'}) {
   ++$skip{Perl_quadmath_format_single};
 }
 
+if (!$Config{useffi} || !$Config{d_libffi} || !$define{USE_FFI}) {
+  ++$skip{Perl_prep_ffi_ret};
+  ++$skip{Perl_prep_ffi_sig};
+}
+
 ###############################################################################
 
 # At this point all skip lists should be completed, as we are about to test

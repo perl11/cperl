@@ -30,6 +30,9 @@
 
 #include "reentr.h"
 #include "regcharclass.h"
+#if defined(I_FFI) && defined(USE_FFI)
+#include <ffi.h>
+#endif
 
 static const STRLEN small_mu_len = sizeof(GREEK_SMALL_LETTER_MU_UTF8) - 1;
 static const STRLEN capital_iota_len = sizeof(GREEK_CAPITAL_LETTER_IOTA_UTF8) - 1;
@@ -543,6 +546,72 @@ PP(pp_anoncode)
 	cv = MUTABLE_CV(sv_2mortal(MUTABLE_SV(cv_clone(cv))));
     EXTEND(SP,1);
     PUSHs(MUTABLE_SV(cv));
+    RETURN;
+}
+
+/* really just callffi, handling also the signature and retval */
+PP(pp_enterffi)
+{
+    dVAR; dSP; dPOPss;
+    CV *cv;
+    const bool hasargs = (PL_op->op_flags & OPf_STACKED) != 0;
+    if (UNLIKELY(!sv))
+	DIE(aTHX_ "Not a CODE reference");
+    /* see enterxssub with argtype dispatch */
+    if (LIKELY( (SvFLAGS(sv) & (SVf_ROK|SVs_GMG)) == SVf_ROK)) {
+        cv = MUTABLE_CV(SvRV(sv));
+    }
+    else if (SvTYPE(sv) == SVt_PVGV)
+        cv = GvCVu((const GV *)sv);
+    /* no PVLV! */
+    else
+        cv = MUTABLE_CV(sv);
+
+    assert(SvTYPE(cv) == SVt_PVCV);
+#ifndef PERL_IS_MINIPERL
+    if (UNLIKELY(!CvXFFI(cv)))
+        DIE(aTHX_ "Null extern sub symbol");
+    if (!hasargs && GIMME_V == G_VOID) {
+        /* TODO: segv signal handler */
+        CvXFFI(cv)();
+    } else {
+#if defined(D_LIBFFI) && defined(USE_FFI)
+        dMARK;
+        void **argvalues;
+        ffi_arg rvalue;
+        const unsigned int num_args = SP - MARK;
+
+        if (CvHASSIG(cv) && num_args) {
+            /* XXX prefer alloca() */
+            argvalues = (void**)malloc(num_args * sizeof(ffi_arg));
+            prep_ffi_sig(cv, num_args, MARK+1, argvalues);
+        } else { /* no sig and no args given */
+            argvalues = NULL;
+        }
+
+        ffi_call(INT2PTR(ffi_cif*, CvFFILIB(cv)), CvXFFI(cv),
+                 &rvalue, argvalues);
+        SP = MARK+1; /* PL_stack_base + POPMARK; */
+        PUTBACK;
+        if (GIMME_V != G_VOID) { /* assume XSRETURN(1) */
+            prep_ffi_ret(cv, SP, (char*)rvalue);
+        } else
+            PL_stack_sp--;
+
+        free(argvalues); /* if not alloca */
+#else
+        DIE(aTHX_ "libffi not available");
+#endif
+    }
+#endif
+
+    return NORMAL;
+}
+
+PP(pp_leaveffi)
+{
+    dVAR; dSP;
+    /* see leavesub with rettype dispatch */
     RETURN;
 }
 

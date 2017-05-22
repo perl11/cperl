@@ -13,7 +13,7 @@ BEGIN {
         or skip_all("XS::APItest not available");
 }
 
-plan tests => 151;
+plan tests => 156;
 use Config;
 
 # run some code N times. If the number of SVs at the end of loop N is
@@ -305,11 +305,24 @@ leak(2,0,sub { !$^V }, '[perl #109762] version object in boolean context');
 eleak(2, 0, q{ my $x = "x"; "abc" =~ /$x/ for 1..5 }, '#114356');
 
 eleak(2, 0, 'sub', '"sub" with nothing following');
-eleak(2, 0, '+sub:a{}', 'anon subs with invalid attributes');
+eleak(2, 1, '+sub:a{}', 'anon subs with invalid attributes');
 eleak(2, 0, 'no warnings; sub a{1 1}', 'sub with syntax error');
 eleak(2, 0, 'no warnings; sub {1 1}', 'anon sub with syntax error');
 eleak(2, 0, 'no warnings; use feature ":all"; my sub a{1 1}',
-     'my sub with syntax error');
+            'my sub with syntax error');
+{
+  local $::TODO = 'compile-time attrs leaks';
+  eleak(2, 0, '+sub:a{}', 'anon subs with invalid attributes');
+  eleak(2, 0, 'extern sub labs ();', 'extern sub');
+  eleak(2, 0, 'sub labs () :native("c");', 'sub :native("c")');
+  eleak(2, 0, 'sub ffiabs () :native :symbol("labs");', 'extern sub :symbol("name")');
+}
+if ($Config{useffi}) {
+  leak(2, 0, sub { extern sub labs (int $i) :int; my $i = labs(-1) },
+       'extern sub run-time');
+} else {
+  ok(1, "skip no useffi");
+}
 
 # Reification (or lack thereof)
 leak(2, 0, sub { sub { local $_[0]; shift }->(1) },

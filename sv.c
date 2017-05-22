@@ -244,9 +244,10 @@ Public API:
 #  define FREE_SV_DEBUG_FILE(sv) STMT_START { \
 	if ((sv)->sv_debug_file) PerlMemShared_free((sv)->sv_debug_file);  \
     } STMT_END
-#  define DEBUG_SV_SERIAL(sv)						   \
-    DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%" UVxf ": (%05ld) del_SV\n", \
-        PTR2UV(sv), (long)(sv)->sv_debug_serial))
+#  define DEBUG_SV_SERIAL(sv)                                           \
+    DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%" UVxf ": (%05ld) del_SV %s:%d\n", \
+                          PTR2UV(sv), (long)(sv)->sv_debug_serial,      \
+                          (sv)->sv_debug_file, (int)(sv)->sv_debug_line))
 #else
 #  define FREE_SV_DEBUG_FILE(sv)
 #  define DEBUG_SV_SERIAL(sv)	NOOP
@@ -384,8 +385,8 @@ S_new_SV(pTHX_ const char *file, int line, const char *func)
     sv->sv_debug_serial = PL_sv_serial++;
 
     MEM_LOG_NEW_SV(sv, file, line, func);
-    DEBUG_m(PerlIO_printf(Perl_debug_log, "0x%" UVxf ": (%05ld) new_SV (from %s:%d [%s])\n",
-	    PTR2UV(sv), (long)sv->sv_debug_serial, file, line, func));
+    DEBUG_m(Perl_deb(aTHX_ "0x%" UVxf ": (%05ld) new_SV (from %s:%d [%s])\n",
+                     PTR2UV(sv), (long)sv->sv_debug_serial, file, line, func));
 
     return sv;
 }

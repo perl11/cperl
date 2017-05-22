@@ -98,7 +98,9 @@ const struct flag_to_name cv_flags_names[] = {
     {CVf_PURE, "PURE,"},
     {CVf_STATIC, "STATIC,"},
     {CVf_INLINABLE, "INLINABLE,"},
-    {CVf_MULTI, "MULTI,"}
+    {CVf_EXTERN, "EXTERN,"},
+    {CVf_MULTI, "MULTI,"},
+    {CVf_LAZYPARSE, "LAZYPARSE,"}
 };
 
 const struct flag_to_name hints_flags_names[] = {
@@ -907,16 +909,23 @@ Perl_dump_sub_perl(pTHX_ const GV *gv, bool justperl)
                      CvMETHOD(cv)?"METHOD":CvMULTI(cv)?"MULTI":"SUB",
                      generic_pv_escape(tmpsv, name, len, SvUTF8(sv)));
     SV_SET_STRINGIFY_FLAGS(tmpsv,CvFLAGS(cv),cv_flags_names);
-    Perl_dump_indent(aTHX_ 0, Perl_debug_log, "\n    CVFLAGS = 0x%" UVxf " (%s)\n",
-                     (UV)CvFLAGS(cv), SvPVX_const(tmpsv));
-    if (CvISXSUB(cv))
-	Perl_dump_indent(aTHX_ 0, Perl_debug_log, "(xsub 0x%" UVxf " %d)\n",
-	    PTR2UV(CvXSUB(cv)),
-	    (int)CvXSUBANY(cv).any_i32);
-    else if (CvROOT(cv))
-	op_dump_cv(CvROOT(cv), cv);
-    else
-	Perl_dump_indent(aTHX_ 0, Perl_debug_log, "<undef>\n");
+    {
+        CV* cv = GvCV(gv);
+        if (CvISXSUB(cv)) {
+            if (CvEXTERN(cv))
+                Perl_dump_indent(aTHX_ 0, Perl_debug_log, "(extern 0x%" UVxf " 0x%" UVxf ")\n",
+                                 PTR2UV(CvXFFI(cv)),
+                                 PTR2UV(CvFFILIB(cv)));
+            else
+                Perl_dump_indent(aTHX_ 0, Perl_debug_log, "(xsub 0x%" UVxf " %d)\n",
+                                 PTR2UV(CvXSUB(cv)),
+                                 (int)CvXSUBANY(cv).any_i32);
+        }
+        else if (CvROOT(cv))
+            op_dump_cv(CvROOT(cv), cv);
+        else
+            Perl_dump_indent(aTHX_ 0, Perl_debug_log, "<undef>\n");
+    }
 }
 
 /*
@@ -2756,7 +2765,12 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	    SV * const constant = cv_const_sv((const CV *)sv);
 
 	    Perl_dump_indent(aTHX_ level, file, "  XSUB = 0x%" UVxf "\n", PTR2UV(CvXSUB(sv)));
-	    if (constant) {
+            /* TODO The extern name of the ffi/XS symbol would be nice, eg. :symbol("name") */
+            if (CvEXTERN(sv))
+                Perl_dump_indent(aTHX_ level, file,
+				 "  FFILIB = 0x%" UVxf "\n",
+				 PTR2UV(CvFFILIB(sv)));
+	    else if (constant) {
 		Perl_dump_indent(aTHX_ level, file, "  XSUBANY = 0x%" UVxf
 				 " (CONST SV)\n",
 				 PTR2UV(CvXSUBANY(sv).any_ptr));
@@ -2789,7 +2803,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
         else
             Perl_dump_indent(aTHX_ level, file, "  OUTSIDE_SEQ = %" UVuf "\n",
                              (UV)CvOUTSIDE_SEQ(sv));
-	if (!CvISXSUB(sv)) {
+	if (!CvISXSUB(sv) || CvEXTERN(sv)) {
 	    Perl_dump_indent(aTHX_ level, file, "  PADLIST = 0x%" UVxf " [%" IVdf "] :%s\n",
                              PTR2UV(CvPADLIST(sv)),
                              CvPADLIST(sv) ? (IV)PadlistMAX(CvPADLIST(sv)) : 0,
@@ -3705,6 +3719,7 @@ Perl_debop(pTHX_ const OP *o)
         break;
     case OP_ENTERSUB:
     case OP_ENTERXSSUB:
+    case OP_ENTERFFI:
         {
             SV* const sv = *PL_stack_sp;
             if (sv && SvTYPE(sv) == SVt_PVCV) /* no GV or PV yet */

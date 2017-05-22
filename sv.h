@@ -675,10 +675,12 @@ typedef U32 cv_flags_t;
     union {									\
 	OP *	xcv_start;							\
 	ANY	xcv_xsubany;							\
+	unsigned long xcv_ffilib;                                               \
     }		xcv_start_u;					    		\
     union {									\
 	OP *	xcv_root;							\
 	void	(*xcv_xsub) (pTHX_ CV*);					\
+	void	(*xcv_xffi) ();  						\
     }		xcv_root_u;							\
     union {								\
 	GV *	xcv_gv;							\
@@ -693,7 +695,7 @@ typedef U32 cv_flags_t;
     U32		xcv_outside_seq; /* the COP sequence (at the point of our	\
 				  * compilation) in the lexically enclosing	\
 				  * sub */					\
-    cv_flags_t	xcv_flags;						\
+    cv_flags_t	xcv_flags;	/* U32 */                               	\
     I32	        xcv_depth;	/* >= 2 indicates recursive call */             \
     UNOP_AUX *	xcv_sigop
 

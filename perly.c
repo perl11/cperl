@@ -253,7 +253,7 @@ Perl_yyparse (pTHX_ int gramtype)
     /* Lookahead token as an internal (translated) token number.  */
     int yytoken = 0;
 
-    yy_parser *parser;	    /* the parser object */
+    yy_parser *parser;	   /* the parser object */
     yy_stack_frame  *ps;   /* current parser stack frame */
 
 #define YYPOPSTACK   parser->ps = --ps
