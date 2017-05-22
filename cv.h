@@ -150,10 +150,11 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CVf_STATIC	0x200000 /* statically allocated padlist and proto */
 #define CVf_INLINABLE	0x400000 /* Should be inlined */
 #define CVf_MULTI	0x800000 /* multi dispatch on types */
+#define CVf_EXTERN	0x1000000 /* ffi declaration. extern or :native */
 
 /* This symbol for optimised communication between toke.c and op.c: */
 #define CVf_BUILTIN_ATTRS	(CVf_METHOD|CVf_LVALUE|CVf_CONST|CVf_ANONCONST \
-                                 |CVf_TYPED|CVf_PURE|CVf_INLINABLE|CVf_MULTI)
+                                 |CVf_TYPED|CVf_PURE|CVf_INLINABLE|CVf_MULTI|CVf_EXTERN)
 
 #define CvCLONE(cv)		(CvFLAGS(cv) & CVf_CLONE)
 #define CvCLONE_on(cv)		(CvFLAGS(cv) |= CVf_CLONE)
@@ -253,6 +254,8 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvPURE(cv)		(CvFLAGS(cv) & CVf_PURE)
 #define CvPURE_on(cv)		(CvFLAGS(cv) |= CVf_PURE)
 #define CvSTATIC(cv)		(CvFLAGS(cv) & CVf_STATIC)
+#define CvEXTERN(cv)		(CvFLAGS(cv) & CVf_EXTERN)
+#define CvEXTERN_on(cv)		(CvFLAGS(cv) != CVf_EXTERN)
 
 #define CvMULTI(cv)		(CvFLAGS(cv) & CVf_MULTI)
 #define CvMULTI_on(cv)		(CvFLAGS(cv) |= CVf_MULTI)

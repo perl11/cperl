@@ -51,7 +51,7 @@
 %token <opval> FUNC0OP FUNC0SUB UNIOPSUB LSTOPSUB
 %token <opval> PLUGEXPR PLUGSTMT CLASSDECL
 %token <pval> LABEL
-%token <ival> FORMAT SUB METHDECL MULTIDECL ANONSUB PACKAGE USE
+%token <ival> FORMAT SUB METHDECL MULTIDECL ANONSUB EXTERN PACKAGE USE
 %token <ival> WHILE UNTIL IF UNLESS ELSE ELSIF CONTINUE FOR
 %token <ival> GIVEN WHEN DEFAULT
 %token <ival> LOOPEX DOTDOT YADAYADA
@@ -330,6 +330,33 @@ barestmt:	PLUGSTMT
 			  $2->op_type == OP_CONST
 			      ? newATTRSUB($3, $2, NULL, $7, body)
 			      : newMYSUB($3, $2, NULL, $7, body);
+			  $$ = NULL;
+			  intro_my();
+			  parser->parsed_sub = 1;
+			}
+	|	EXTERN SUB subname startsub
+			{
+                          CvEXTERN_on(PL_compcv);
+			  if ($3->op_type == OP_CONST) {
+			    const char *const name =
+				SvPV_nolen_const(((SVOP*)$3)->op_sv);
+			  }
+			  else /* lexical extern sub */
+                              if (CvANON(CvOUTSIDE(PL_compcv))
+                               || CvCLONE(CvOUTSIDE(PL_compcv))
+                               || !PadnameIsSTATE(PadlistNAMESARRAY(CvPADLIST(
+                                      CvOUTSIDE(PL_compcv)))[$3->op_targ]))
+                                  CvCLONE_on(PL_compcv);
+			  parser->in_my = 0;
+			  parser->in_my_stash = NULL;
+			}
+		remember subsignature subattrlist
+			{
+			  SvREFCNT_inc_simple_void(PL_compcv);
+			  $3->op_type == OP_CONST
+			      ? newATTRSUB($4, $3, $6, $7, $8)
+			      : newMYSUB($4, $3, $6, $7, $8)
+			  ;
 			  $$ = NULL;
 			  intro_my();
 			  parser->parsed_sub = 1;
