@@ -11626,7 +11626,7 @@ static STRLEN
 S_format_hexfp(pTHX_ char * const buf, const STRLEN bufsize, const char c,
                     const NV nv, const vcatpvfn_long_double_t fv,
                     bool has_precis, STRLEN precis, STRLEN width,
-                    bool alt, char plus, bool left, char fill)
+                    bool alt, char plus, bool left, bool fill)
 {
     /* Hexadecimal floating point. */
     char* p = buf;
@@ -11870,7 +11870,7 @@ S_format_hexfp(pTHX_ char * const buf, const STRLEN bufsize, const char c,
             /* Pad the back with spaces. */
             memset(buf + elen, ' ', gap);
         }
-        else if (fill == '0') {
+        else if (fill) {
             /* Insert the zeros after the "0x" and the
              * the potential sign, but before the digits,
              * otherwise we end up with "0000xH.HHH...",
@@ -11883,7 +11883,7 @@ S_format_hexfp(pTHX_ char * const buf, const STRLEN bufsize, const char c,
                 nmove--;
             }
             Move(zerox, zerox + nzero, nmove, char);
-            memset(zerox, fill, nzero);
+            memset(zerox, fill ? '0' : ' ', nzero);
         }
         else {
             /* Move it to the right. */
@@ -12038,7 +12038,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	char intsize     = 0;         /* size qualifier in "%hi..." etc */
 	bool alt         = FALSE;     /* has      "%#..."    */
 	bool left        = FALSE;     /* has      "%-..."    */
-	char fill        = ' ';       /* has      "%0..."    */
+	bool fill        = FALSE;     /* has      "%0..."    */
 	char plus        = 0;         /* has      "%+..."    */
 	STRLEN width     = 0;         /* value of "%NNN..."  */
 	bool has_precis  = FALSE;     /* has      "%.NNN..." */
@@ -12134,7 +12134,8 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 		continue;
 
 	    case '0':
-		fill = *q++;
+		fill = TRUE;
+                q++;
 		continue;
 
 	    case '#':
@@ -12177,8 +12178,10 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 
 	if (!asterisk)
 	{
-	    if ( *q == '0' )
-		fill = *q++;
+	    if ( *q == '0' ) {
+		fill = TRUE;
+                q++;
+            }
 	    width = expect_number(&q);
 	}
 
@@ -12489,7 +12492,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 
             if (   args
                 && !intsize
-                && fill == ' '
+                && !fill
                 && !plus
                 && !has_precis
                 && !asterisk
@@ -12780,9 +12783,8 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 			     && !(base == 8 && alt)) /* "%#.0o" prints "0" */
 			elen = 0;
 
-		/* a precision nullifies the 0 flag. */
-		    if (fill == '0')
-			fill = ' ';
+                    /* a precision nullifies the 0 flag. */
+                    fill = FALSE;
 		}
 	    }
 	    break;
@@ -12900,7 +12902,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                 && !precis
                 && has_precis
                 && !(width || left || plus || alt)
-                && fill != '0'
+                && !fill
                 && intsize != 'q'
                 && ((eptr = F0convert(nv, ebuf + sizeof ebuf, &elen)))
             )
@@ -13035,7 +13037,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                 && float_need < sizeof(ebuf)
                 && sizeof(ebuf) - float_need > precis
                 && !(width || left || plus || alt)
-                && fill != '0'
+                && !fill
                 && intsize != 'q'
             ) {
                 SNPRINTF_G(fv, ebuf, sizeof(ebuf), precis);
@@ -13111,8 +13113,8 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 		    base = width;
 		    do { *--ptr = '0' + (base % 10); } while (base /= 10);
 		}
-		if (fill == '0')
-		    *--ptr = fill;
+		if (fill)
+		    *--ptr = '0';
 		if (left)
 		    *--ptr = '-';
 		if (plus)
@@ -13342,16 +13344,16 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
             SvGROW(sv, need);
 
             p = SvEND(sv);
-            if (esignlen && fill == '0') {
+            if (esignlen && fill) {
                 int i;
                 for (i = 0; i < (int)esignlen; i++)
                     *p++ = esignbuf[i];
             }
             if (gap && !left) {
-                memset(p, fill, gap);
+                memset(p, (fill ? '0' : ' '), gap);
                 p += gap;
             }
-            if (esignlen && fill != '0') {
+            if (esignlen && !fill) {
                 int i;
                 for (i = 0; i < (int)esignlen; i++)
                     *p++ = esignbuf[i];
