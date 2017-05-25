@@ -1404,6 +1404,7 @@
 #define amagic_is_enabled(a)	Perl_amagic_is_enabled(aTHX_ a)
 #define apply(a,b,c)		Perl_apply(aTHX_ a,b,c)
 #define attrs_has_const(a,b)	Perl_attrs_has_const(aTHX_ a,b)
+#define attrs_runtime(a,b)	Perl_attrs_runtime(aTHX_ a,b)
 #define av_extend_guts(a,b,c,d,e)	Perl_av_extend_guts(aTHX_ a,b,c,d,e)
 #define av_nonelem(a,b)		Perl_av_nonelem(aTHX_ a,b)
 #define bind_match(a,b,c)	Perl_bind_match(aTHX_ a,b,c)

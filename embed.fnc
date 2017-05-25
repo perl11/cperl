@@ -1430,6 +1430,7 @@ s	|void	|pidgone	|Pid_t pid|int status
 : Used in perly.y
 p	|OP*	|pmruntime	|NN OP *o|NN OP *expr|NULLOK OP *repl \
 				|UV flags|I32 floor
+p	|OP *	|attrs_runtime	|NN CV *cv|NN OP *attrs
 #if defined(PERL_IN_OP_C)
 s	|OP*	|pmtrans	|NN OP* o|NN OP* expr|NN OP* repl
 #endif

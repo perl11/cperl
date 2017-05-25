@@ -6318,6 +6318,7 @@ Perl_yylex(pTHX)
                             Perl_croak(aTHX_
                                 "Unterminated attribute parameter in attribute list");
                         }
+                        /* handle run-time variables in attrs args */
                         if (len == 6 && (memEQc(s, "native") || memEQc(s, "symbol"))) {
                             /* evaluate scalars and barewords, resp. add CONST strings.
                                :native($lib) :native("mysqlclient") :native(msqlclient) :symbol('c_sym')
@@ -6328,38 +6329,40 @@ Perl_yylex(pTHX)
                             char *a = SvPVX(PL_lex_stuff);
                             STRLEN l = SvCUR(PL_lex_stuff) - 2; /* without the parens */
                             U32 utf8 = SvUTF8(PL_lex_stuff);
+                            SV *sarg = newSVpvn_flags(a+1, l, utf8|SVs_TEMP);
                             OP *arg;
-                            DEBUG_T(PerlIO_printf(Perl_debug_log,  "### evaluate :%s%s\n",
-                                                  SvPVX(sv), a));
-                            a++;
-                            sv_chop(PL_lex_stuff, a);
-                            SvCUR_set(PL_lex_stuff, l);
+                            DEBUG_T(PerlIO_printf(Perl_debug_log,
+                                              "### compile-time or run-time :%s%s\n",
+                                              SvPVX(sv), a));
+                            a = skipspace(SvPVX(sarg));
                             if (*a == '$') {
-                                PADOFFSET pad = pad_findmy_sv(PL_lex_stuff, 0);
+                                PADOFFSET pad = pad_findmy_sv(sarg, 0);
                                 if (pad == NOT_IN_PAD) {
                                     if (!utf8)
-                                        SvUTF8_off(PL_lex_stuff);
-                                    sv_chop(PL_lex_stuff, a+1);
-                                    arg = newGVOP(OP_GV, 0, gv_fetchsv(PL_lex_stuff, GV_ADDMULTI, SVt_PV));
+                                        SvUTF8_off(sarg);
+                                    sv_chop(sarg, a+1);
+                                    arg = newGVOP(OP_GV, 0,
+                                                  gv_fetchsv(sarg, GV_ADDMULTI, SVt_PV));
                                 }
                                 else {
                                     arg = newOP(OP_PADSV, 0);
                                     arg->op_targ = pad;
                                 }
-                            } else if (*a == '"' || *a == '\'') {
-                                arg = newSVOP(OP_CONST, 0, PL_lex_stuff);
-                            } else { /* XXX bareword as call or const? for now only const asis */
-                                arg = newSVOP(OP_CONST, 0, PL_lex_stuff);
                             }
-                            attrs = op_append_elem(OP_LIST, attrs,
-                                                   op_prepend_elem(OP_LIST,
-                                                                   newSVOP(OP_CONST, 0, sv),
-                                                                   arg));
-                            SvREFCNT_dec_NN(PL_lex_stuff);
-                            PL_lex_stuff = NULL;
+                            /* compile-time import */
+                            else if (*a == '"' || *a == '\'') {
+                                arg = newSVOP(OP_CONST, 0, sarg);
+                            } else { /* XXX bareword as call or const? for now only const asis */
+                                arg = newSVOP(OP_CONST, 0, sarg);
+                            }
+                            SvCUR_set(PL_lex_stuff, 0);
+                            arg = op_prepend_elem(OP_LIST,
+                                      newSVOP(OP_CONST, 0, newSVpvn(s, len)), arg);
+                            attrs = op_append_elem(OP_LIST, attrs, arg);
                         }
                         COPLINE_SET_FROM_MULTI_END;
                     }
+                    /* A proper (..) arg list set by scan_str. Unparsed to attributes->import. */
                     if (PL_lex_stuff) {
                         sv_catsv(sv, PL_lex_stuff);
                         attrs = op_append_elem(OP_LIST, attrs,
@@ -6452,16 +6455,7 @@ Perl_yylex(pTHX)
                         else if (find_in_coretypes(pv, len))
                             sv_free(sv);
 #endif
-                        /* After we've set the flags, it could be argued that
-                           we don't need to do the attributes.pm-based setting
-                           process, and shouldn't bother appending recognized
-                           flags.  To experiment with that, uncomment the
-                           following "else".  (Note that's already been
-                           uncommented.  That keeps the above-applied built-in
-                           attributes from being intercepted (and possibly
-                           rejected) by a package's attribute routines, but is
-                           justified by the performance win for the common case
-                           of applying only built-in attributes.) */
+                        /* Handle only the rest via attributes->import */
                         else {
                           load_attributes:
                             attrs = op_append_elem(OP_LIST, attrs, newSVOP(OP_CONST, 0, sv));

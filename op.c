@@ -5586,10 +5586,44 @@ Perl_attrs_has_const(pTHX_ OP *o, bool from_assign)
 }
 
 /*
+=for apidoc attrs_runtime
+
+Extract the run-time part of attributes with arguments,
+i.e. variables, not just constant barewords or strings.
+
+=cut
+*/
+OP*
+Perl_attrs_runtime(pTHX_ CV *cv, OP *attrs)
+{
+    PERL_ARGS_ASSERT_ATTRS_RUNTIME;
+    {
+        OP *o = attrs;
+	HV *stash = !CvNAMED(cv) && GvSTASH(CvGV(cv))
+                      ? GvSTASH(CvGV(cv))
+                      : PL_curstash;
+        /* check for run-time variables */
+        for (; o; o = OpKIDS(o) ? OpFIRST(o) : OpSIBLING(o)) {
+            if (IS_TYPE(o, PADSV) || IS_TYPE(o, GV)) {
+                OP *result;	/* avoid the my part */
+                apply_attrs_my(stash, newSVREF(cv), attrs, &result);
+                return result;
+            }
+        }
+    }
+    return NULL;
+}
+
+/*
 =for apidoc apply_attrs
 
 Calls the attribute importer with the target and a list of attributes.
-As manually done via C<use attributes $pkg, $rv, @attrs>.
+As manually done via C<BEGIN{ require; attributes->import($pkg, $rv, @attrs)} >.
+
+See L</apply_attrs_my> for the variant which defers the import call to run-time,
+enabling run-time attribute arguments, i.e. variables, not only constant barewords,
+and see L</attrs_runtime> which extracts the run-time part of attrs.
+
 
 =cut
 */
@@ -5599,22 +5633,28 @@ S_apply_attrs(pTHX_ HV *stash, SV *target, OP *attrs)
     PERL_ARGS_ASSERT_APPLY_ATTRS;
     {
         SV * const stashsv = newSVhek(HvNAME_HEK(stash));
+        OP *o = attrs;
+        /* skip run-time variables */
+        for (; o; o = OpKIDS(o) ? OpFIRST(o) : OpSIBLING(o)) {
+            if (IS_TYPE(o, PADSV) || IS_TYPE(o, GV)) {
+                return;
+            }
+        }
 
         /* fake up C<use attributes $pkg,$rv,@attrs> */
 
 #define ATTRSMODULE "attributes"
 #define ATTRSMODULE_PM "attributes.pm"
 
-        Perl_load_module(
-          aTHX_ PERL_LOADMOD_IMPORT_OPS,
+        Perl_load_module(aTHX_
+          PERL_LOADMOD_IMPORT_OPS,
           newSVpvs(ATTRSMODULE),
           NULL,
           op_prepend_elem(OP_LIST,
-                          newSVOP(OP_CONST, 0, stashsv),
-                          op_prepend_elem(OP_LIST,
-                                          newSVOP(OP_CONST, 0,
-                                                  newRV(target)),
-                                          dup_attrlist(attrs))));
+              newSVOP(OP_CONST, 0, stashsv),
+              op_prepend_elem(OP_LIST,
+                  newSVOP(OP_CONST, 0, newRV(target)),
+                  dup_attrlist(attrs))));
     }
 }
 
@@ -5624,9 +5664,13 @@ S_apply_attrs(pTHX_ HV *stash, SV *target, OP *attrs)
 Similar to L</apply_attrs> calls the attribute importer with the
 target, which must be a lexical and a list of attributes.  As manually
 done via C<use attributes $pkg, $rv, @attrs>.
-This variant defers the import call to run-time.
+But contrary to L</apply_attrs> this defers C<attributes->import()> to run-time.
 
 Returns the list of attributes in the **imopsp argument.
+
+Used in cperl with non-constant attrs arguments to defer the import
+to run-time. [cperl #291]
+perl5 cannot handle run-time args like :native($lib).
 
 =cut
 */
@@ -5667,11 +5711,8 @@ S_apply_attrs_my(pTHX_ HV *stash, OP *target, OP *attrs, OP **imopsp)
         if (ISNT_TYPE(target, RV2SV))
             OpTYPE_set(arg, target->op_type);
         arg = newUNOP(OP_REFGEN,0,arg);
-    } else {
-        /* This will be extended later for the ffi and its deferred sub attrs */
-        arg = NULL;
-	Perl_croak(aTHX_ "panic: invalid target %s in apply_attrs_my",
-                   OP_NAME(target));
+    } else { /* extern sub */
+        arg = newUNOP(OP_REFGEN,0,target);
     }
     arg = op_prepend_elem(OP_LIST,
               newSVOP(OP_CONST, 0, stashsv),
@@ -5719,24 +5760,25 @@ Perl_apply_attrs_string(pTHX_ const char *stashpv, CV *cv,
     }
 
     while (len) {
+        /* XXX Latin1 only, no utf8 ATTRS */
         for (; isSPACE(*attrstr) && len; --len, ++attrstr) ;
         if (len) {
             const char * const sstr = attrstr;
             for (; !isSPACE(*attrstr) && len; --len, ++attrstr) ;
             attrs = op_append_elem(OP_LIST, attrs,
-                                newSVOP(OP_CONST, 0,
-                                        newSVpvn(sstr, attrstr-sstr)));
+                        newSVOP(OP_CONST, 0, newSVpvn(sstr, attrstr-sstr)));
         }
     }
 
-    Perl_load_module(aTHX_ PERL_LOADMOD_IMPORT_OPS,
-		     newSVpvs(ATTRSMODULE),
-                     NULL, op_prepend_elem(OP_LIST,
-				  newSVOP(OP_CONST, 0, newSVpv(stashpv,0)),
-				  op_prepend_elem(OP_LIST,
-					       newSVOP(OP_CONST, 0,
-						       newRV(MUTABLE_SV(cv))),
-                                               attrs)));
+    Perl_load_module(aTHX_
+        PERL_LOADMOD_IMPORT_OPS,
+	newSVpvs(ATTRSMODULE),
+        NULL,
+        op_prepend_elem(OP_LIST,
+            newSVOP(OP_CONST, 0, newSVpv(stashpv,0)),
+            op_prepend_elem(OP_LIST,
+                newSVOP(OP_CONST, 0, newRV(MUTABLE_SV(cv))),
+                attrs)));
 }
 
 /*
@@ -12204,23 +12246,21 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 
     if (block && has_name) {
 	if (PERLDB_SUBLINE && PL_curstash != PL_debstash) {
-	    SV * const tmpstr = cv_name(cv, NULL, CV_NAME_NOMAIN);
+	    SV * const cvname = cv_name(cv, NULL, CV_NAME_NOMAIN);
 	    GV * const db_postponed = gv_fetchpvs("DB::postponed",
 						  GV_ADDMULTI, SVt_PVHV);
-	    HV *hv;
-            I32 klen = SvUTF8(tmpstr) ? -(I32)SvCUR(tmpstr) : (I32)SvCUR(tmpstr);
 	    SV * const sv = Perl_newSVpvf(aTHX_ "%s:%ld-%ld",
 					  CopFILE(PL_curcop),
 					  (long)PL_subline,
 					  (long)CopLINE(PL_curcop));
-	    (void)hv_store(GvHV(PL_DBsub), SvPVX_const(tmpstr), klen, sv, 0);
-	    hv = GvHVn(db_postponed);
-	    if (HvTOTALKEYS(hv) > 0 && hv_exists(hv, SvPVX_const(tmpstr), klen)) {
+	    HV *hv = GvHVn(db_postponed);
+ 	    hv_store_ent_void(GvHV(PL_DBsub), cvname, sv, 0);
+	    if (HvTOTALKEYS(hv) > 0 && hv_exists_ent(hv, cvname, 0)) {
 		CV * const pcv = GvCV(db_postponed);
 		if (pcv) {
 		    dSP;
 		    PUSHMARK(SP);
-		    XPUSHs(tmpstr);
+		    XPUSHs(cvname);
 		    PUTBACK;
 		    call_sv(MUTABLE_SV(pcv), G_DISCARD);
 		}

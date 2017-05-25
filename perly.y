@@ -281,12 +281,13 @@ barestmt:	PLUGSTMT
                         }
 		proto subattrlist optsubbody
 			{
+                          CV *cv;
 			  SvREFCNT_inc_simple_void(PL_compcv);
-			  $2->op_type == OP_CONST
+			  cv = ($2->op_type == OP_CONST)
 			      ? newATTRSUB($3, $2, $5, $6, $7)
 			      : newMYSUB($3, $2, $5, $6, $7)
 			  ;
-			  $$ = NULL;
+			  $$ = cv && $6 ? attrs_runtime(cv, $6) : NULL;
 			  intro_my();
 			  parser->parsed_sub = 1;
 			}
@@ -315,7 +316,7 @@ barestmt:	PLUGSTMT
 			}
 		remember subsignature subattrlist '{' stmtseq '}'
 			{
-			  OP *sig = $6, *body = $9;
+			  OP *sig = $6, *body = $9; CV *cv;
                           /* empty sig sub needs a nextstate at the end
                            * to clear the stack of any default expression
                            * detritus */
@@ -327,38 +328,40 @@ barestmt:	PLUGSTMT
 				op_append_list(OP_LINESEQ, sig, body));
 
 			  SvREFCNT_inc_simple_void(PL_compcv);
-			  $2->op_type == OP_CONST
+			  cv = ($2->op_type == OP_CONST)
 			      ? newATTRSUB($3, $2, NULL, $7, body)
 			      : newMYSUB($3, $2, NULL, $7, body);
-			  $$ = NULL;
+			  $$ = $7 ? attrs_runtime(cv, $7) : NULL;
 			  intro_my();
 			  parser->parsed_sub = 1;
 			}
 	|	EXTERN SUB subname startsub
 			{
                           CvEXTERN_on(PL_compcv);
-			  if ($3->op_type == OP_CONST) {
-			    const char *const name =
-				SvPV_nolen_const(((SVOP*)$3)->op_sv);
-			  }
-			  else /* lexical extern sub */
+			  if ($3->op_type != OP_CONST) {
+                              /* lexical extern sub */
                               if (CvANON(CvOUTSIDE(PL_compcv))
                                || CvCLONE(CvOUTSIDE(PL_compcv))
                                || !PadnameIsSTATE(PadlistNAMESARRAY(CvPADLIST(
-                                      CvOUTSIDE(PL_compcv)))[$3->op_targ]))
+                                      CvOUTSIDE(PL_compcv)))[$3->op_targ])) {
                                   CvCLONE_on(PL_compcv);
+                              }
+                          }
 			  parser->in_my = 0;
 			  parser->in_my_stash = NULL;
 			}
-		remember subsignature subattrlist
+		remember subsignature subattrlist ';'
 			{
+                          CV *cv;
+			  OP *body = block_end($6,
+				op_append_list(OP_LINESEQ, $7, NULL));
+
 			  SvREFCNT_inc_simple_void(PL_compcv);
-			  $3->op_type == OP_CONST
-			      ? newATTRSUB($4, $3, $6, $7, $8)
-			      : newMYSUB($4, $3, $6, $7, $8)
+			  cv = ($3->op_type == OP_CONST)
+			      ? newATTRSUB($4, $3, NULL, $8, body)
+			      : newMYSUB($4, $3, NULL, $8, body)
 			  ;
-			  $$ = NULL;
-			  intro_my();
+			  $$ = $8 ? attrs_runtime(cv, $8) : NULL;
 			  parser->parsed_sub = 1;
 			}
 	|	PACKAGE BAREWORD BAREWORD ';'

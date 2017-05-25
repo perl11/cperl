@@ -311,6 +311,12 @@ PERL_CALLCONV int	Perl_attrs_has_const(pTHX_ OP* o, bool from_assign)
 			__attribute__warn_unused_result__
 			__attribute__pure__;
 
+PERL_CALLCONV OP *	Perl_attrs_runtime(pTHX_ CV *cv, OP *attrs)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_ATTRS_RUNTIME	\
+	assert(cv); assert(attrs)
+
 PERL_CALLCONV SV**	Perl_av_arylen_p(pTHX_ AV *av)
 			__attribute__global__
 			__attribute__nonnull__(pTHX_1);
