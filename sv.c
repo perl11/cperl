@@ -12338,17 +12338,23 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 
 	/* CONVERSION */
 
-	if (*q == '%') {
-	    eptr = q++;
+	c = *q++; /* c now holds the conversion type */
+
+        /* '%' doesn't have an arg, so skip arg processing */
+	if (c == '%') {
+	    eptr = q - 1;
 	    elen = 1;
-	    if (vectorize) {
-		c = '%';
+	    if (vectorize)
 		goto unknown;
-	    }
 	    goto string;
 	}
 
+        /* get next arg */
+
 	if (vectorize) {
+            if (!strchr("BbDdiOouUXx", c))
+		goto unknown;
+
 	    if (args) {
                 vecsv = va_arg(*args, SV*);
                 vecstr = (U8*)SvPV_const(vecsv,veclen);
@@ -12392,15 +12398,11 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	    }
 	}
 
-	c = *q++; /* c now holds the conversion type */
-
 	switch (c) {
 
 	    /* STRINGS */
 
 	case 's':
-	    if (vectorize)
-		goto unknown;
 	    if (args) {
 		eptr = va_arg(*args, char*);
 		if (eptr)
@@ -12439,7 +12441,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	    /* INTEGERS */
 
 	case 'p':
-	    if (alt || vectorize)
+	    if (alt)
 		goto unknown;
 
             /* %p extensions:
@@ -12519,8 +12521,6 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	    goto do_integer;
 
 	case 'c':
-	    if (vectorize)
-		goto unknown;
             /* Ignore any size specifiers, since they're not documented as
              * being allowed for %c (ideally we should warn on e.g. '%hc').
              * Setting a default intsize, along with a positive
@@ -12621,6 +12621,8 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                          esignbuf[esignlen++] = plus;
                 }
 
+              /* This is the re-entry point for when we're iterating
+               * over the individual characters of a vector arg */
 	      vector:
 		if (!veclen)
                     goto donevalidconversion;
@@ -12844,9 +12846,6 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 
             vcatpvfn_long_double_t fv;
             NV                     nv;
-
-	    if (vectorize)
-		goto unknown;
 
 	    /* This is evil, but floating point is even more evil */
 
@@ -13216,7 +13215,6 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 
             assert(!zeros);
             assert(!esignlen);
-            assert(!vectorize);
             assert(elen);
             assert(elen >= width);
 
@@ -13245,8 +13243,6 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	case 'n':
             {
                 int i;
-                if (vectorize)
-                    goto unknown;
                 /* XXX ideally we should warn if any flags etc have been
                  * set, e.g. "%-4.5n" */
                 /* XXX if sv was originally non-utf8 with a char in the
