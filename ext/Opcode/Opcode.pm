@@ -6,7 +6,7 @@ use strict;
 
 our($VERSION, $XS_VERSION, @ISA, @EXPORT_OK);
 
-$VERSION = "1.40_02c";
+$VERSION = "1.40_03c";
 $XS_VERSION = $VERSION;
 $VERSION =~ s/_//g; $VERSION =~ s/c$//;
 

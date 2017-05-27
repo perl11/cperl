@@ -15280,11 +15280,11 @@ our %delta :const = (
             'JSON::PP'              => '2.94_01',
             'JSON::PP::Boolean'     => '2.94_01',
             'Locale::Codes'         => '3.53',
-            'Opcode'                => '1.39_02c',
             'Math::BigRat'          => '0.2613',
             'Metamodel'             => '',
             'Mu'                    => '0.01c',
             'Net::Ping'             => '2.61',
+            'Opcode'                => '1.39_02c',
             'Search::Dict'          => '1.07_01',
             'SelectSaver'           => '1.02_01',
             'Storable'              => '3.05_13',
@@ -17661,7 +17661,9 @@ our %delta :const = (
             'Cwd'                   => '4.75c',
             'Errno'                 => '1.29_01',
             'hashiter'              => '0.02',
+            'Opcode'                => '1.40_03c',
             'Storable'              => '3.11_02',
+            'warnings'              => '1.43',
         },
         removed => {
         }
