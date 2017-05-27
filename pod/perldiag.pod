@@ -6315,6 +6315,19 @@ position.  See L<perlre>.
 (F) While under the C<use filetest> pragma, we cannot switch the real
 and effective uids or gids.
 
+=item :symbol() argument missing
+
+(S) The C<:symbol()> needs a string argument.
+
+=item :symbol is already resolved
+
+(W misc) The C<:native> declaration already succeeded finding a symbol.
+
+=item :symbol is only valid for :native or extern sub
+
+(S) The C<:symbol()> attribute for external ffi functions cannot be
+used for non-ffi functions.
+
 =item syntax error
 
 (F) Probably means you had a syntax error.  Common reasons include:

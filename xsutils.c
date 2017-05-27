@@ -594,7 +594,8 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                     if (!CvEXTERN(cv))
                         Perl_warn(":symbol is only valid for :native or extern sub");
                     else if (CvXFFI(cv))
-                        Perl_warn(":symbol is already resolved");
+                        Perl_warner(aTHX_ packWARN(WARN_MISC),
+                                  ":symbol is already resolved");
                     else {
                         dSP;
                         int nret;
