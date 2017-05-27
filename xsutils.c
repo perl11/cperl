@@ -229,7 +229,7 @@ boot_attributes(pTHX_ SV *xsfile)
     PERL_UNUSED_VAR(xsfile);
     /* The version needs to be still on disc, as we still have the .pm
        around for a while */
-    /*Perl_set_version(aTHX_ STR_WITH_LEN("attributes::VERSION"), STR_WITH_LEN("1.10c"), 1.10);*/
+    /*Perl_set_version(aTHX_ STR_WITH_LEN("attributes::VERSION"), STR_WITH_LEN("1.11c"), 1.11);*/
 
     newXS("attributes::bootstrap",     	   XS_attributes_bootstrap,file);
     newXS("attributes::_modify_attrs",     XS_attributes__modify_attrs, file);

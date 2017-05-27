@@ -1653,6 +1653,11 @@ Improve error message for bogus -MO=… arguments
 
 Added new 'oelem' and 'oelemfast' to :base_core
 
+Support the new core attributes :native, :native($libname),
+:symbol($c_name).
+
+Restrict the new ops enterffi, leaveffi.
+
 =item L<OS2::Process>  1.12_01
 
 =item L<overload> 1.30

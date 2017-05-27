@@ -6,7 +6,7 @@ use strict;
 
 our($VERSION, $XS_VERSION, @ISA, @EXPORT_OK);
 
-$VERSION = "1.40_02c";
+$VERSION = "1.43_02c";
 $XS_VERSION = $VERSION;
 $VERSION =~ s/_//g; $VERSION =~ s/c$//;
 
@@ -563,6 +563,7 @@ about calling environment and args.
 =item :still_to_be_decided
 
     enterxssub -- can do everything
+    enterffi leaveffi -- even more
 
     chdir
     flock ioctl
