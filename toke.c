@@ -12476,18 +12476,16 @@ Perl_start_subparse(pTHX_ I32 is_format, U32 flags)
     SAVEI32(PL_subline);
     save_item(PL_subname);
     SAVESPTR(PL_compcv);
-    if (PL_compcv && CvEXTERN(PL_compcv))
-        return oldsavestack_ix;
 
     PL_compcv = MUTABLE_CV(newSV_type(is_format ? SVt_PVFM : SVt_PVCV));
     CvFLAGS(PL_compcv) |= flags;
-
     PL_subline = CopLINE(PL_curcop);
+
     CvPADLIST(PL_compcv) = pad_new(padnew_SAVE|padnew_SAVESUB);
     CvOUTSIDE(PL_compcv) = MUTABLE_CV(SvREFCNT_inc_simple(outsidecv));
     CvOUTSIDE_SEQ(PL_compcv) = PL_cop_seqmax;
-    if (outsidecv && CvPADLIST(outsidecv))
-        CvPADLIST(PL_compcv)->xpadl_outid = CvPADLIST(outsidecv)->xpadl_id;
+    if (outsidecv && !CvEXTERN(outsidecv) && CvPADLIST(outsidecv))
+	CvPADLIST(PL_compcv)->xpadl_outid = CvPADLIST(outsidecv)->xpadl_id;
 
     return oldsavestack_ix;
 }

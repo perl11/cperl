@@ -451,6 +451,86 @@ XS_EXTERNAL(XS_strict_unimport)
  * Extended by cPanel.
  */
 
+/* ffi helper to find the c symbol */
+static void
+S_find_symbol(pTHX_ CV* cv, char *name)
+{
+    dSP;
+    SV *pv = name ? newSVpvn_flags(name,strlen(name),SVs_TEMP)
+                  : cv_name(cv, NULL, CV_NAME_NOTQUAL);
+    CV *dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol", 0);
+    int nret;
+    /* can be NULL, searches all libs then */
+#ifndef RTLD_DEFAULT
+#define RTLD_DEFAULT -2
+#endif
+    IV handle = CvFFILIB(cv) ? CvFFILIB(cv) : (int)RTLD_DEFAULT;
+
+    SPAGAIN;
+    PUSHMARK(SP);
+    mXPUSHs(newSViv(handle));
+    XPUSHs(pv);
+    PUTBACK;
+    nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
+    SPAGAIN;
+    if (nret == 1 && SvIOK(TOPs))
+        CvXFFI(cv) = (XSUBADDR_t)POPl;
+}
+
+/* ffi helper to find a shared library handle */
+static void
+S_find_native(pTHX_ CV* cv, char *libname)
+{
+    dSP;
+    int nret;
+
+    CvEXTERN_on(cv);
+    if (libname) { /* void *libref = dl_load_file(SvPVX(pv)); */
+        CV *dl_load_file = get_cvs("DynaLoader::dl_load_file", 0);
+        SV *pv = newSVpvn_flags(libname,strlen(libname),SVs_TEMP);
+
+        SPAGAIN;
+        PUSHMARK(SP);
+        XPUSHs(pv);
+        PUTBACK;
+        nret = call_sv((SV*)dl_load_file, G_SCALAR);
+        SPAGAIN;
+        if (nret == 1 && SvIOK(TOPs))
+            CvFFILIB(cv) = POPi;
+        else
+            CvFFILIB(cv) = 0;
+
+        /* On some platforms an empty library handle works.
+           Searches all loaded shared libs, not just the our XS dynaloaded libs */
+        S_find_symbol(aTHX_ cv, NULL);
+    } else {
+        CvFFILIB(cv) = 0;
+    }
+    if (!libname && !CvFFILIB(cv)) {
+        /* Desperation: lib not found,
+           or no libname provided, and not found by dlopen(0) */
+        CV *dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol_anywhere", 0);
+        SV *symname;
+
+        if (!libname) {
+            S_find_symbol(aTHX_ cv, NULL);
+            if (CvXFFI(cv))
+                return;
+        }
+        symname = cv_name(cv, NULL, CV_NAME_NOTQUAL);
+
+        SPAGAIN;
+        PUSHMARK(SP);
+        mXPUSHs(newSViv(CvFFILIB(cv)));
+        XPUSHs(symname);
+        PUTBACK;
+        nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
+        SPAGAIN;
+        if (nret == 1 && SvIOK(TOPs))
+            CvXFFI(cv) = (XSUBADDR_t)POPl;
+    }
+}
+
 /* helper for the default modify handler for builtin attributes */
 static int
 modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
@@ -460,7 +540,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 
     for (nret = 0 ; numattrs && (attr = *attrlist++); numattrs--) {
 	STRLEN len;
-	const char *name = SvPV_const(attr, len);
+	char *name = SvPV_const(attr, len);
 	const bool negated = (*name == '-');
         HV *typestash;
 
@@ -526,10 +606,27 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    break;
 		case 'i':
 		    if (memEQc(name, "native")) {
-			if (negated)
+                        CV *cv = MUTABLE_CV(sv);
+			if (negated) {
+			    CvFLAGS(cv) &= ~CVf_EXTERN;
+                            CvFFILIB(cv) = 0;
+                            CvXFFI(cv) = NULL;
+                        }
+			else {
+                            S_find_native(aTHX_ cv, NULL);
+                        }
+                        goto next_attr;
+		    }
+		    break;
+		case 'b':
+		    if (memEQc(name, "symbol")) {
+			if (negated) {
 			    CvFLAGS(MUTABLE_CV(sv)) &= ~CVf_EXTERN;
-			else
-			    CvEXTERN_on(MUTABLE_CV(sv));
+                            CvXFFI(MUTABLE_CV(sv)) = NULL;
+                        }
+			else {
+                            Perl_warn(":symbol() argument missing");
+                        }
                         goto next_attr;
 		    }
 		    break;
@@ -557,36 +654,8 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    goto next_attr;
 		}
 		if (len > 7 && memEQc(name, "native(") && !negated) {
-                    dSP;
-                    int nret;
-                    CV *cv = MUTABLE_CV(sv);
-                    SV * pv = newSVpvn_flags(name+7,len-8,SVs_TEMP);
-                    CV *dl_find_symbol;
-                    CV *dl_load_file = get_cvs("DynaLoader::dl_load_file", 0);
-                    CvEXTERN_on(cv);
-                    /*void *libref = dl_load_file(SvPVX(pv));*/
-                    SPAGAIN;
-                    PUSHMARK(SP);
-                    XPUSHs(pv);
-                    PUTBACK;
-                    nret = call_sv((SV*)dl_load_file, G_SCALAR);
-                    SPAGAIN;
-                    if (nret == 1 && SvIOK(TOPs))
-                        CvFFILIB(cv) = POPi;
-                    else
-                        CvFFILIB(cv) = 0;
-
-                    pv = cv_name(cv, NULL, CV_NAME_NOTQUAL);
-                    dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol", 0);
-                    SPAGAIN;
-                    PUSHMARK(SP);
-                    mXPUSHs(newSViv(CvFFILIB(cv)));
-                    XPUSHs(pv);
-                    PUTBACK;
-                    nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
-                    SPAGAIN;
-                    if (nret == 1 && SvIOK(TOPs))
-                        CvXFFI(cv) = (XSUBADDR_t)POPl;
+                    name[len-1] = '\0';
+                    S_find_native(aTHX_ MUTABLE_CV(sv), name+7);
                     goto next_attr;
                 }
 		if (len > 7 && memEQc(name, "symbol(") && !negated) {
@@ -597,19 +666,8 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                         Perl_warner(aTHX_ packWARN(WARN_MISC),
                                   ":symbol is already resolved");
                     else {
-                        dSP;
-                        int nret;
-                        SV * pv = newSVpvn_flags(name+7,len-8,SVs_TEMP);
-                        CV *dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol", 0);
-                        SPAGAIN;
-                        PUSHMARK(SP);
-                        mXPUSHs(newSViv(CvFFILIB(cv)));
-                        XPUSHs(pv);
-                        PUTBACK;
-                        nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
-                        SPAGAIN;
-                        if (nret == 1 && SvIOK(TOPs))
-                            CvXFFI(cv) = (XSUBADDR_t)POPl;
+                        name[len-1] = '\0';
+                        S_find_symbol(aTHX_ cv, name+7);
                     }
                     goto next_attr;
                 }
