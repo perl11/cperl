@@ -6326,23 +6326,22 @@ Perl_yylex(pTHX)
                                :prototype($$;@)
                                they are passed unparsed to attributes->import.
                             */
-                            char *a = SvPVX(PL_lex_stuff);
+                            char *a  = SvPVX(PL_lex_stuff);
                             STRLEN l = SvCUR(PL_lex_stuff) - 2; /* without the parens */
                             U32 utf8 = SvUTF8(PL_lex_stuff);
                             SV *sarg = newSVpvn_flags(a+1, l, utf8|SVs_TEMP);
                             OP *arg;
-                            DEBUG_T(PerlIO_printf(Perl_debug_log,
-                                              "### compile-time or run-time :%s%s\n",
-                                              SvPVX(sv), a));
                             a = skipspace(SvPVX(sarg));
                             if (*a == '$') {
                                 PADOFFSET pad = pad_findmy_sv(sarg, 0);
+                                DEBUG_T(PerlIO_printf(Perl_debug_log,
+                                    "### run-time :%s%s\n", SvPVX(sv), a));
                                 if (pad == NOT_IN_PAD) {
                                     if (!utf8)
                                         SvUTF8_off(sarg);
                                     sv_chop(sarg, a+1);
                                     arg = newGVOP(OP_GV, 0,
-                                                  gv_fetchsv(sarg, GV_ADDMULTI, SVt_PV));
+                                              gv_fetchsv(sarg, GV_ADDMULTI, SVt_PV));
                                 }
                                 else {
                                     arg = newOP(OP_PADSV, 0);
@@ -6351,13 +6350,16 @@ Perl_yylex(pTHX)
                             }
                             /* compile-time import */
                             else if (*a == '"' || *a == '\'') {
+                                sv_chop(sarg, a+1);
+                                SvCUR_set(sarg, l-2);
                                 arg = newSVOP(OP_CONST, 0, sarg);
                             } else { /* XXX bareword as call or const? for now only const asis */
                                 arg = newSVOP(OP_CONST, 0, sarg);
                             }
                             SvCUR_set(PL_lex_stuff, 0);
+                            /* len+1: keep the final ( to announce attributes->import an arg */
                             arg = op_prepend_elem(OP_LIST,
-                                      newSVOP(OP_CONST, 0, newSVpvn(s, len)), arg);
+                                      newSVOP(OP_CONST, 0, newSVpvn(s, len+1)), arg);
                             attrs = op_append_elem(OP_LIST, attrs, arg);
                         }
                         COPLINE_SET_FROM_MULTI_END;

@@ -465,6 +465,10 @@ S_find_symbol(pTHX_ CV* cv, char *name)
 #define RTLD_DEFAULT -2
 #endif
     IV handle = CvFFILIB(cv) ? CvFFILIB(cv) : (int)RTLD_DEFAULT;
+    if (!dl_find_symbol) {
+        Perl_warn(aTHX_ "no ffi with miniperl");
+        return; /* miniperl */
+    }
 
     SPAGAIN;
     PUSHMARK(SP);
@@ -473,8 +477,10 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     PUTBACK;
     nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
     SPAGAIN;
-    if (nret == 1 && SvIOK(TOPs))
+    if (nret == 1 && SvIOK(TOPs)) {
         CvXFFI(cv) = (XSUBADDR_t)POPl;
+        CvSLABBED_off(cv);
+    }
 }
 
 /* ffi helper to find a shared library handle */
@@ -483,11 +489,14 @@ S_find_native(pTHX_ CV* cv, char *libname)
 {
     dSP;
     int nret;
-
     CvEXTERN_on(cv);
     if (libname) { /* void *libref = dl_load_file(SvPVX(pv)); */
         CV *dl_load_file = get_cvs("DynaLoader::dl_load_file", 0);
         SV *pv = newSVpvn_flags(libname,strlen(libname),SVs_TEMP);
+        if (!dl_load_file) {
+            Perl_warn(aTHX_ "no ffi with miniperl");
+            return; /* miniperl */
+        }
 
         SPAGAIN;
         PUSHMARK(SP);
@@ -511,12 +520,17 @@ S_find_native(pTHX_ CV* cv, char *libname)
            or no libname provided, and not found by dlopen(0) */
         CV *dl_find_symbol = get_cvs("DynaLoader::dl_find_symbol_anywhere", 0);
         SV *symname;
+        if (!dl_find_symbol) {
+            Perl_warn(aTHX_ "no ffi with miniperl");
+            return; /* miniperl */
+        }
 
         if (!libname) {
             S_find_symbol(aTHX_ cv, NULL);
             if (CvXFFI(cv))
                 return;
         }
+        assert(dl_find_symbol);
         symname = cv_name(cv, NULL, CV_NAME_NOTQUAL);
 
         SPAGAIN;
@@ -526,8 +540,10 @@ S_find_native(pTHX_ CV* cv, char *libname)
         PUTBACK;
         nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
         SPAGAIN;
-        if (nret == 1 && SvIOK(TOPs))
+        if (nret == 1 && SvIOK(TOPs)) {
             CvXFFI(cv) = (XSUBADDR_t)POPl;
+            CvSLABBED_off(cv);
+        }
     }
 }
 
@@ -634,8 +650,9 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		break;
 	    default:
 		if (len > 10 && memEQc(name, "prototype(")) {
+                    const CV *cv = MUTABLE_CV(sv);
 		    SV * proto = newSVpvn(name+10,len-11);
-		    HEK *const hek = CvNAME_HEK((CV *)sv);
+		    HEK *const hek = CvNAME_HEK(cv);
 		    SV *subname;
 		    if (name[len-1] != ')')
 			Perl_croak(aTHX_ "Unterminated attribute parameter in attribute list");
@@ -653,12 +670,21 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    if (SvUTF8(attr)) SvUTF8_on(MUTABLE_SV(sv));
 		    goto next_attr;
 		}
-		if (len > 7 && memEQc(name, "native(") && !negated) {
-                    name[len-1] = '\0';
-                    S_find_native(aTHX_ MUTABLE_CV(sv), name+7);
-                    goto next_attr;
+		if (len >= 7 && memEQc(name, "native(") && !negated) {
+                    CV *cv = MUTABLE_CV(sv);
+                    if (len == 7 && numattrs>1) {
+                        attr = *attrlist++;
+                        numattrs--;
+                        S_find_native(aTHX_ cv, SvPVX(attr));
+                        goto next_attr;
+                    }
+                    else if (len > 7) {
+                        name[len-1] = '\0';
+                        S_find_native(aTHX_ cv, name+7);
+                        goto next_attr;
+                    }
                 }
-		if (len > 7 && memEQc(name, "symbol(") && !negated) {
+		if (len >= 7 && memEQc(name, "symbol(") && !negated) {
                     CV *cv = MUTABLE_CV(sv);
                     if (!CvEXTERN(cv))
                         Perl_warn(":symbol is only valid for :native or extern sub");
@@ -666,8 +692,14 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
                         Perl_warner(aTHX_ packWARN(WARN_MISC),
                                   ":symbol is already resolved");
                     else {
-                        name[len-1] = '\0';
-                        S_find_symbol(aTHX_ cv, name+7);
+                        if (len == 7 && numattrs>1) {
+                            attr = *attrlist++;
+                            numattrs--;
+                            S_find_symbol(aTHX_ cv, SvPVX(attr));
+                        } else {
+                            name[len-1] = '\0';
+                            S_find_symbol(aTHX_ cv, name+7);
+                        }
                     }
                     goto next_attr;
                 }
