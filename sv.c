@@ -11124,7 +11124,7 @@ Usually used via one of its frontends C<sv_vsetpvf> and C<sv_vsetpvf_mg>.
 
 void
 Perl_sv_vsetpvfn(pTHX_ SV *const sv, const char *const pat, const STRLEN patlen,
-                 va_list *const args, SV **const svargs, const I32 svmax, bool *const maybe_tainted)
+                 va_list *const args, SV **const svargs, const Size_t svmax, bool *const maybe_tainted)
 {
     PERL_ARGS_ASSERT_SV_VSETPVFN;
 
@@ -11221,7 +11221,7 @@ S_F0convert(NV nv, char *const endbuf, STRLEN *const len)
 
 void
 Perl_sv_vcatpvfn(pTHX_ SV *const sv, const char *const pat, const STRLEN patlen,
-                 va_list *const args, SV **const svargs, const I32 svmax, bool *const maybe_tainted)
+                 va_list *const args, SV **const svargs, const Size_t svmax, bool *const maybe_tainted)
 {
     PERL_ARGS_ASSERT_SV_VCATPVFN;
 
@@ -11948,14 +11948,14 @@ Usually used via one of its frontends C<sv_vcatpvf> and C<sv_vcatpvf_mg>.
 
 
 Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN patlen,
-                       va_list *const args, SV **const svargs, const I32 svmax, bool *const maybe_tainted,
+                       va_list *const args, SV **const svargs, const Size_t svmax, bool *const maybe_tainted,
                        const U32 flags)
 {
     char *p;
     char *q;
     const char *patend;
     STRLEN origlen;
-    I32 svix = 0;
+    Size_t svix = 0;
     static const char nullstr[] = "(null)";
     SV *argsv = NULL;
     bool has_utf8 = DO_UTF8(sv);    /* has the result utf8? */
@@ -11973,7 +11973,6 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 
     PERL_ARGS_ASSERT_SV_VCATPVFN_FLAGS;
     PERL_UNUSED_ARG(maybe_tainted);
-    ASSUME(svmax >= 0); /* so we can cast it to unsigned below */
 
     if (flags & SV_GMAGIC)
         SvGETMAGIC(sv);
@@ -12064,8 +12063,8 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	const char *dotstr = NULL;    /* separator string for %v */
 	STRLEN dotstrlen;             /* length of separator string for %v */
 
-	I32 efix         = 0;         /* explicit format parameter index */
-	const I32 osvix  = svix;      /* original index in case of bad fmt */
+	Size_t efix      = 0;         /* explicit format parameter index */
+	const Size_t osvix  = svix;   /* original index in case of bad fmt */
 
 	bool is_utf8     = FALSE;     /* is this item utf8?   */
         bool arg_missing = FALSE;     /* give "Missing argument" warning */
@@ -12113,7 +12112,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                     Perl_croak_nocontext(
                         "Cannot yet reorder sv_catpvfn() arguments from va_list");
 		++q;
-		efix = width;
+		efix = (Size_t)width;
                 width = 0;
                 used_explicit_ix = TRUE;
 	    } else {
@@ -12384,7 +12383,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                 vecstr = (U8*)SvPV_const(vecsv,veclen);
                 vec_utf8 = DO_UTF8(vecsv);
 	    }
-	    else if (efix ? (efix > 0 && efix <= svmax) : svix < svmax) {
+	    else if (efix ? efix <= svmax : svix < svmax) {
 		vecsv = svargs[efix ? efix-1 : svix++];
 		vecstr = (U8*)SvPV_const(vecsv,veclen);
 		vec_utf8 = DO_UTF8(vecsv);
@@ -12414,11 +12413,9 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	}
         else if (!args) {
 	    if (efix) {
-		const I32 i = efix-1;
-                FETCH_VCATPVFN_ARGUMENT(argsv, i >= 0 && i < svmax, svargs[i]);
+                FETCH_VCATPVFN_ARGUMENT(argsv, efix <= svmax, svargs[efix - 1]);
 	    } else {
-                FETCH_VCATPVFN_ARGUMENT(argsv, svix >= 0 && svix < svmax,
-                                        svargs[svix++]);
+                FETCH_VCATPVFN_ARGUMENT(argsv, svix < svmax, svargs[svix++]);
 	    }
 	}
 
