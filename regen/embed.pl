@@ -158,7 +158,11 @@ my ($embed, $core, $ext, $api) = setup_embed();
 		     && ($temp_arg !~ / PERL_UNUSED_DECL/) ) {
 		    die_at_end "$func: $arg ($n) doesn't have a name\n";
 		}
-		if (defined $1 && $nn && !($commented_out && !$binarycompat)) {
+		if (defined $1 && $nn 
+                    && !($commented_out && !$binarycompat)
+                    && $1 ne 'strip_spaces' # inline.h ignoring proto.h
+                  )
+                {
 		    push @names_of_nn, $1 if $1 ne 'PERL_UNUSED_DECL';
 		}
 	    }

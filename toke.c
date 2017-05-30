@@ -7820,31 +7820,21 @@ Perl_yylex(pTHX)
 		    PL_last_lop = PL_oldbufptr;
 		    PL_last_lop_op = OP_ENTERSUB;
 		    /* Is there a prototype? */
-		    if (
-			SvPOK(cv))
-		    {
+		    if (SvPOK(cv)) {
 			STRLEN protolen = CvPROTOLEN(cv);
 			const char *proto = CvPROTO(cv);
 			bool optional;
-			proto = S_strip_spaces(aTHX_ proto, &protolen);
+			proto = strip_spaces(proto, &protolen);
 			if (!protolen)
 			    TERM(FUNC0SUB);
 			if ((optional = *proto == ';'))
 			  do
 			    proto++;
 			  while (*proto == ';');
-			if (
-			    (
-			        (
-			            *proto == '$' || *proto == '_'
-			         || *proto == '*' || *proto == '+'
-			        )
-			     && proto[1] == '\0'
-			    )
-			 || (
-			     *proto == '\\' && proto[1] && proto[2] == '\0'
-			    )
-			)
+			if (((   *proto == '$' || *proto == '_'
+                              || *proto == '*' || *proto == '+' )
+			     && proto[1] == '\0')
+                            || ( *proto == '\\' && proto[1] && proto[2] == '\0' ))
 			    UNIPROTO(UNIOPSUB,optional);
 			if (*proto == '\\' && proto[1] == '[') {
 			    const char *p = proto + 2;

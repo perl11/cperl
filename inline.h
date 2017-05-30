@@ -40,16 +40,23 @@ S_CvDEPTHp(const CV * const sv)
     return &((XPVCV*)SvANY(sv))->xcv_depth;
 }
 
+/* ------------------------------- toke.c, op.c ----------------------- */
+
 /*
- CvPROTO returns the prototype as stored, which is not necessarily what
- the interpreter should be using. Specifically, the interpreter assumes
- that spaces have been stripped, which has been the case if the prototype
- was added by toke.c, but is generally not the case if it was added elsewhere.
- Since we can't enforce the spacelessness at assignment time, this routine
- provides a temporary copy at parse time with spaces removed.
- I<orig> is the start of the original buffer, I<len> is the length of the
- prototype and will be updated when this returns.
- */
+=for apidoc i|char*  |strip_spaces   |NN const char * orig|NN STRLEN * const len
+
+CvPROTO returns the prototype as stored, which is not necessarily what
+the interpreter should be using. Specifically, the interpreter assumes
+that spaces have been stripped, which has been the case if the prototype
+was added by toke.c, but is generally not the case if it was added elsewhere.
+
+Since we can't enforce the spacelessness at assignment time, this routine
+provides a temporary copy of the string at parse time with spaces removed.
+I<orig> is the start of the original string, I<len> is the length of the
+string and will be updated when this returns.
+
+=cut
+*/
 
 #ifdef PERL_CORE
 PERL_STATIC_INLINE char *
@@ -57,6 +64,8 @@ S_strip_spaces(pTHX_ const char * orig, STRLEN * const len)
 {
     SV * tmpsv;
     char * tmps;
+    PERL_ARGS_ASSERT_STRIP_SPACES;
+
     tmpsv = newSVpvn_flags(orig, *len, SVs_TEMP);
     tmps = SvPVX(tmpsv);
     while ((*len)--) {

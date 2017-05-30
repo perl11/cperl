@@ -532,6 +532,7 @@ i	|OP*	|newMETHOP_internal	|I32 type|I32 flags|NULLOK OP* dynamic_meth \
 					|NULLOK SV* const_meth
 : FIXME
 s	|OP*	|fold_constants	|NN OP * const o
+s       |SV*    |op_const_sv    |NN const OP *o|NN CV *cv|bool allow_lex
 #endif
 #if defined(USE_ITHREADS)
 pXo	|void	|op_relocate_sv	|NN SV** svp|NN PADOFFSET* targp
@@ -539,6 +540,9 @@ pXo	|void	|op_relocate_sv	|NN SV** svp|NN PADOFFSET* targp
 Afpd	|char*	|form		|NN const char* pat|...
 Ap	|char*	|vform		|NN const char* pat|NULLOK va_list* args
 Ap	|void	|free_tmps
+#if defined(PERL_CORE)
+ix      |char*  |strip_spaces   |NN const char * orig|NN STRLEN * const len
+#endif
 #if defined(PERL_IN_OP_C)
 s	|OP*	|gen_constant_list|NULLOK OP* o
 #endif
@@ -2240,7 +2244,7 @@ s	|void	|op_clear_gv	|NULLOK OP* o|NN PADOFFSET *ixp
 s	|void	|op_clear_gv	|NULLOK OP* o|NN SV** svp
 #endif
 s	|OP*	|op_sibling_newUNOP	|NULLOK OP *parent|NULLOK OP *start|I32 type|I32 flags
-s	|void	|postprocess_optree	|NULLOK CV *cv|NN OP *root|NN OP **startp
+sM	|void	|postprocess_optree	|NULLOK CV *cv|NN OP *root|NN OP **startp
 s	|void	|check_hash_fields_and_hekify	|NULLOK UNOP *rop|NN SVOP *key_op
 #ifdef PERL_FAKE_SIGNATURE
 s	|void	|maybe_op_signature|NN CV *cv|NN OP *o

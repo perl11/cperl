@@ -7645,6 +7645,14 @@ PERL_STATIC_INLINE bool	S_should_warn_nl(const char *pv)
 	assert(pv)
 #endif
 
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE char*	S_strip_spaces(pTHX_ const char * orig, STRLEN * const len)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_STRIP_SPACES	\
+	assert(orig); assert(len)
+#endif
+
 #  if defined(PERL_DEBUG_READONLY_OPS)
 PERL_CALLCONV void	Perl_Slab_to_ro(pTHX_ OPSLAB *slab)
 			__attribute__nonnull__(pTHX_1);
@@ -8502,6 +8510,12 @@ STATIC void	S_op_check_type(pTHX_ OP* o, OP* left, OP* right)
 			__attribute__nonnull__(pTHX_3);
 #define PERL_ARGS_ASSERT_OP_CHECK_TYPE	\
 	assert(o); assert(left); assert(right)
+
+STATIC SV*	S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_OP_CONST_SV	\
+	assert(o); assert(cv)
 
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE void	S_op_destroy(pTHX_ OP* o);

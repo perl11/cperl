@@ -1585,6 +1585,7 @@
 #define opslab_free_nopad(a)	Perl_opslab_free_nopad(aTHX_ a)
 #define parser_free_nexttoke_ops(a,b)	Perl_parser_free_nexttoke_ops(aTHX_ a,b)
 #define should_warn_nl		S_should_warn_nl
+#define strip_spaces(a,b)	S_strip_spaces(aTHX_ a,b)
 #    if defined(PERL_DEBUG_READONLY_OPS)
 #define Slab_to_ro(a)		Perl_Slab_to_ro(aTHX_ a)
 #define Slab_to_rw(a)		Perl_Slab_to_rw(aTHX_ a)
@@ -1750,6 +1751,7 @@
 #define no_bareword_allowed(a)	S_no_bareword_allowed(aTHX_ a)
 #define no_fh_allowed(a)	S_no_fh_allowed(aTHX_ a)
 #define op_check_type(a,b,c)	S_op_check_type(aTHX_ a,b,c)
+#define op_const_sv(a,b,c)	S_op_const_sv(aTHX_ a,b,c)
 #define op_destroy(a)		S_op_destroy(aTHX_ a)
 #define op_integerize(a)	S_op_integerize(aTHX_ a)
 #define op_next_nn		S_op_next_nn

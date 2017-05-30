@@ -402,7 +402,7 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
        details.  */
     if (!CvSTART(PL_compcv)) {
 	CvSTART(PL_compcv) =
-	    (OP *)(slab = S_new_slab(aTHX_ PERL_SLAB_SIZE));
+	    (OP *)(slab = new_slab(PERL_SLAB_SIZE));
 	CvSLABBED_on(PL_compcv);
 	slab->opslab_refcnt = 2; /* one for the CV; one for the new OP */
     }
@@ -470,10 +470,9 @@ Perl_Slab_Alloc(pTHX_ size_t sz)
 	/* Create a new slab.  Make this one twice as big. */
 	slot = slab2->opslab_first;
 	while (slot->opslot_next) slot = slot->opslot_next;
-	slab2 = S_new_slab(aTHX_
-                           (DIFF(slab2, slot)+1)*2 > PERL_MAX_SLAB_SIZE
-                             ? PERL_MAX_SLAB_SIZE
-                             : (DIFF(slab2, slot)+1)*2);
+	slab2 = new_slab((DIFF(slab2, slot)+1)*2 > PERL_MAX_SLAB_SIZE
+                         ? PERL_MAX_SLAB_SIZE
+                         : (DIFF(slab2, slot)+1)*2);
 	slab2->opslab_next = slab->opslab_next;
 	slab->opslab_next = slab2;
         DEBUG_S_warn((aTHX_ "created new slab space twice as large %lu",
@@ -1107,15 +1106,15 @@ Perl_op_free(pTHX_ OP *o)
 /*
 =for apidoc op_clear_gv
 
-free a GV attached to an OP
+Free a GV attached to an OP
 
 =cut
 */
-STATIC
+static void
 #ifdef USE_ITHREADS
-void S_op_clear_gv(pTHX_ OP *o, PADOFFSET *ixp)
+S_op_clear_gv(pTHX_ OP *o, PADOFFSET *ixp)
 #else
-void S_op_clear_gv(pTHX_ OP *o, SV**svp)
+S_op_clear_gv(pTHX_ OP *o, SV**svp)
 #endif
 {
 
@@ -1198,9 +1197,9 @@ Perl_op_clear(pTHX_ OP *o)
     case OP_GV:
     case OP_AELEMFAST:
 #ifdef USE_ITHREADS
-            S_op_clear_gv(aTHX_ o, &(cPADOPx(o)->op_padix));
+            op_clear_gv(o, &(cPADOPx(o)->op_padix));
 #else
-            S_op_clear_gv(aTHX_ o, &(cSVOPx(o)->op_sv));
+            op_clear_gv(o, &(cSVOPx(o)->op_sv));
 #endif
 	break;
     case OP_METHOD_REDIR:
@@ -1341,9 +1340,9 @@ Perl_op_clear(pTHX_ OP *o)
                     is_hash = TRUE;
                 case MDEREF_AV_gvav_aelem:
 #ifdef USE_ITHREADS
-                    S_op_clear_gv(aTHX_ o, &((++items)->pad_offset));
+                    op_clear_gv(o, &((++items)->pad_offset));
 #else
-                    S_op_clear_gv(aTHX_ o, &((++items)->sv));
+                    op_clear_gv(o, &((++items)->sv));
 #endif
                     goto do_elem;
 
@@ -1351,9 +1350,9 @@ Perl_op_clear(pTHX_ OP *o)
                     is_hash = TRUE;
                 case MDEREF_AV_gvsv_vivify_rv2av_aelem:
 #ifdef USE_ITHREADS
-                    S_op_clear_gv(aTHX_ o, &((++items)->pad_offset));
+                    op_clear_gv(o, &((++items)->pad_offset));
 #else
-                    S_op_clear_gv(aTHX_ o, &((++items)->sv));
+                    op_clear_gv(o, &((++items)->sv));
 #endif
                     goto do_vivify_rv2xv_elem;
 
@@ -1391,9 +1390,9 @@ Perl_op_clear(pTHX_ OP *o)
                         break;
                     case MDEREF_INDEX_gvsv:
 #ifdef USE_ITHREADS
-                        S_op_clear_gv(aTHX_ o, &((++items)->pad_offset));
+                        op_clear_gv(o, &((++items)->pad_offset));
 #else
-                        S_op_clear_gv(aTHX_ o, &((++items)->sv));
+                        op_clear_gv(o, &((++items)->sv));
 #endif
                         break;
                     }
@@ -1444,9 +1443,9 @@ Perl_op_clear(pTHX_ OP *o)
 
                 case SIGNATURE_arg_default_gvsv:
 #ifdef USE_ITHREADS
-                    S_op_clear_gv(aTHX_ o, &((++items)->pad_offset));
+                    op_clear_gv(o, &((++items)->pad_offset));
 #else
-                    S_op_clear_gv(aTHX_ o, &((++items)->sv));
+                    op_clear_gv(o, &((++items)->sv));
 #endif
                     break;
 
@@ -2862,7 +2861,7 @@ S_check_hash_fields_and_hekify(pTHX_ UNOP *rop, SVOP *key_op)
 /*
 =for apidoc s|void	|postprocess_optree	|NULLOK CV *cv|NN OP *root|NN OP **startp
 
-do the post-compilation processing of an op_tree with specified
+Do the post-compilation processing of an op_tree with specified
 root and start (startp may be updated):
 
   * attach it to cv (if non-null)
@@ -5070,7 +5069,7 @@ Perl_newPROG(pTHX_ OP *o)
 	i = PL_savestack_ix;
 	SAVEFREEOP(o);
 	ENTER;
-        S_postprocess_optree(aTHX_ NULL, PL_eval_root, &PL_eval_start);
+        postprocess_optree(NULL, PL_eval_root, &PL_eval_start);
 	LEAVE;
 	PL_savestack_ix = i;
     }
@@ -5112,7 +5111,7 @@ Perl_newPROG(pTHX_ OP *o)
 	PL_curcop = &PL_compiling;
 	PL_main_start = LINKLIST(PL_main_root);
 	OpNEXT(PL_main_root) = NULL;
-        S_postprocess_optree(aTHX_ NULL, PL_main_root, &PL_main_start);
+        postprocess_optree(NULL, PL_main_root, &PL_main_start);
 	cv_forget_slab(PL_compcv);
 	PL_compcv = 0;
 
@@ -8873,8 +8872,8 @@ Perl_cv_ckproto_len_flags(pTHX_ const CV *cv, const GV *gv, const char *p,
 	return;
 
     if (p && cvp) {
-	p = S_strip_spaces(aTHX_ p, &plen);
-	cvp = S_strip_spaces(aTHX_ cvp, &clen);
+	p   = strip_spaces(p, &plen);
+	cvp = strip_spaces(cvp, &clen);
 	if ((flags & SVf_UTF8) == SvUTF8(cv)) {
 	    if (plen == clen && memEQ(cvp, p, plen))
 		return;
@@ -8967,28 +8966,30 @@ Perl_cv_const_sv_or_av(const CV * const cv)
     return CvCONST(cv) ? MUTABLE_SV(CvXSUBANY(cv).any_ptr) : NULL;
 }
 
-/* op_const_sv:  examine an optree to determine whether it's in-lineable.
- * Can be called in 2 ways:
- *
- * !allow_lex
- * 	look for a single OP_CONST with attached value: return the value
- *
- * allow_lex && !CvCONST(cv);
- *
- * 	examine the clone prototype, and if contains only a single
- * 	OP_CONST, return the value; or if it contains a single PADSV ref-
- * 	erencing an outer lexical, turn on CvCONST to indicate the CV is
- * 	a candidate for "constizing" at clone time, and return NULL.
- */
+/*
+=for apidoc s|SV*    |op_const_sv    |NN const OP *o|NN CV *cv|bool allow_lex
+
+op_const_sv:  examine an optree to determine whether it's in-lineable.
+Can be called in 2 ways:
+
+!allow_lex
+	look for a single OP_CONST with attached value: return the value
+
+allow_lex && !CvCONST(cv);
+
+	examine the clone prototype, and if contains only a single
+	OP_CONST, return the value; or if it contains a single PADSV ref-
+	erencing an outer lexical, turn on CvCONST to indicate the CV is
+	a candidate for "constizing" at clone time, and return NULL.
+=cut
+*/
 
 static SV *
 S_op_const_sv(pTHX_ const OP *o, CV *cv, bool allow_lex)
 {
     SV *sv = NULL;
     bool padsv = FALSE;
-
-    assert(o);
-    assert(cv);
+    PERL_ARGS_ASSERT_OP_CONST_SV;
 
     for (; o; o = OpNEXT(o)) {
 	const OPCODE type = o->op_type;
@@ -9193,7 +9194,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 	start = LINKLIST(block);
 	OpNEXT(block) = NULL;
         if (ps && !*ps && !attrs && !CvLVALUE(compcv))
-            const_sv = S_op_const_sv(aTHX_ start, compcv, FALSE);
+            const_sv = op_const_sv(start, compcv, FALSE);
     }
 
     if (cv) {
@@ -9276,8 +9277,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 	    OP * const cvstart = CvSTART(cv);
 
 	    SvPOK_off(cv);
-	    CvFLAGS(cv) =
-		CvFLAGS(compcv) | preserved_flags;
+	    CvFLAGS(cv) = CvFLAGS(compcv) | preserved_flags;
 	    CvOUTSIDE(cv) = CvOUTSIDE(compcv);
 	    CvOUTSIDE_SEQ(cv) = CvOUTSIDE_SEQ(compcv);
 	    CvPADLIST_set(cv, CvPADLIST(compcv));
@@ -9350,7 +9350,7 @@ Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 #ifdef PERL_DEBUG_READONLY_OPS
         slab = (OPSLAB *)CvSTART(cv);
 #endif
-        S_postprocess_optree(aTHX_ cv, block, &start);
+        postprocess_optree(cv, block, &start);
     }
 
   attrs:
@@ -9623,10 +9623,10 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 		   : newUNOP(OP_LEAVESUB, 0, scalarseq(block));
 	start = LINKLIST(block);
 	OpNEXT(block) = NULL;
+        /* XXX attrs might be :const */
         if (ps && !*ps && !attrs && !CvLVALUE(PL_compcv))
-            const_sv =
-                S_op_const_sv(aTHX_ start, PL_compcv,
-                                        cBOOL(CvCLONE(PL_compcv)));
+            const_sv = op_const_sv(start, PL_compcv,
+                                   cBOOL(CvCLONE(PL_compcv)));
         else
             const_sv = NULL;
     }
@@ -9647,8 +9647,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
            TODO: return an OP* to be able to inline more ops than just one SV*.
            TODO: should :const enforce inlining?
          */
-	const_sv =
-	    S_op_const_sv(aTHX_ start, PL_compcv, cBOOL(CvCLONE(PL_compcv)));
+	const_sv = op_const_sv(start, PL_compcv, cBOOL(CvCLONE(PL_compcv)));
 
     if (SvPOK(gv) || (SvROK(gv) && SvTYPE(SvRV(gv)) != SVt_PVCV)) {
 	cv_ckproto_len_flags((const CV *)gv,
@@ -9876,7 +9875,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 #ifdef PERL_DEBUG_READONLY_OPS
         slab = (OPSLAB *)CvSTART(cv);
 #endif
-        S_postprocess_optree(aTHX_ cv, block, &start);
+        postprocess_optree(cv, block, &start);
     }
 
   attrs:
@@ -10223,7 +10222,7 @@ Perl_newXS_len_flags(pTHX_ const char *name, STRLEN len,
         }
 
         CvGV_set(cv, gv);
-        if(filename) {
+        if (filename) {
             /* XSUBs can't be perl lang/perl5db.pl debugged
             if (PERLDB_LINE_OR_SAVESRC)
                 (void)gv_fetchfile(filename); */
@@ -10325,7 +10324,7 @@ Perl_newFORM(pTHX_ I32 floor, OP *o, OP *block)
     root = newUNOP(OP_LEAVEWRITE, 0, scalarseq(block));
     start = LINKLIST(root);
     OpNEXT(root) = NULL;
-    S_postprocess_optree(aTHX_ cv, root, &start);
+    postprocess_optree(cv, root, &start);
     cv_forget_slab(cv);
 
   finish:
@@ -14204,7 +14203,7 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
         proto = SvPV(protosv, proto_len);
     if (!proto)
         return entersubop;
-    proto = S_strip_spaces(aTHX_ proto, &proto_len);
+    proto = strip_spaces(proto, &proto_len);
     proto_end = proto + proto_len;
     parent = entersubop;
     aop = OpFIRST(entersubop);
@@ -14219,13 +14218,16 @@ Perl_ck_entersub_args_proto(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 	OP* o3 = aop;
 
 	if (proto >= proto_end) {
-            /* we really want the sub name here, and maybe decide between subroutine, method and multi */
+            /* we really want the sub name here, and maybe decide between
+               subroutine, method and multi */
             SV * const namesv = cv_name((CV *)namegv, NULL, CV_NAME_NOMAIN);
-            SV* tmpbuf = newSVpvn_flags(OP_DESC(entersubop), strlen(OP_DESC(entersubop)),
+            SV* tmpbuf = newSVpvn_flags(OP_DESC(entersubop),
+                                        strlen(OP_DESC(entersubop)),
                                         SVs_TEMP|SvUTF8(namesv));
             sv_catpvs(tmpbuf, " ");
             sv_catsv(tmpbuf, namesv);
-            return too_many_arguments_pv(entersubop, SvPVX_const(tmpbuf), SvUTF8(namesv));
+            return too_many_arguments_pv(entersubop, SvPVX_const(tmpbuf),
+                                         SvUTF8(namesv));
 	}
 
 	switch (*proto) {
@@ -14468,7 +14470,7 @@ Perl_ck_entersub_args_core(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
 	op_free(entersubop);
 	switch(GvNAME(namegv)[2]) {
 	case 'F': return newSVOP(OP_CONST, 0,
-					newSVpv(CopFILE(PL_curcop),0));
+                                 newSVpv(CopFILE(PL_curcop),0));
 	case 'L': return newSVOP(
 	                   OP_CONST, 0,
                            Perl_newSVpvf(aTHX_
