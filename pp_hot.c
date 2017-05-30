@@ -5438,7 +5438,15 @@ PP(pp_method)
             if (isGV(gv) && GvCV(gv) && (!GvCVGEN(gv) || GvCVGEN(gv)	\
                 == (PL_sub_generation + HvMROMETA(stash)->cache_gen)))  \
             {                                                           \
-                XPUSHs(MUTABLE_SV(GvCV(gv)));                           \
+                CV *cv = GvCV(gv);                                      \
+                if (CvISXSUB(cv) && !CvCONST(cv) && CvROOT(cv) && !PL_perldb \
+                    && OpTYPE(PL_op->op_next) == OP_ENTERSUB)           \
+                {                                                       \
+                    DEBUG_k(Perl_deb(aTHX_ "method_named -> xs %" SVf "\n",\
+                            SVfARG(cv_name(cv, NULL, CV_NAME_NOMAIN))));\
+                    OpTYPE_set(PL_op->op_next, OP_ENTERXSSUB);          \
+                }                                                       \
+                XPUSHs(MUTABLE_SV(cv));                                 \
                 RETURN;                                                 \
             }                                                           \
         }                                                               \
@@ -5457,8 +5465,20 @@ PP(pp_method_named)
 
     gv = gv_fetchmethod_sv_flags(stash, meth, GV_AUTOLOAD|GV_CROAK);
     assert(gv);
-
-    XPUSHs(isGV(gv) ? MUTABLE_SV(GvCV(gv)) : MUTABLE_SV(gv));
+    if (isGV(gv))
+        XPUSHs(MUTABLE_SV(GvCV(gv)));
+    else { /* RV or CV */
+#if 0
+        if (   SvTYPE(gv) == SVt_PVCV && CvISXSUB(gv)
+               && !CvCONST(gv) && CvROOT(cv) && !PL_perldb
+               && OpTYPE(PL_op->op_next) == OP_ENTERSUB) {
+            DEBUG_k(Perl_deb(aTHX_ "method_named -> xs %" SVf "\n",
+                             SVfARG(cv_name((CV *)gv, NULL, CV_NAME_NOMAIN))));
+            OpTYPE_set(PL_op->op_next, OP_ENTERXSSUB);
+        }
+#endif
+        XPUSHs(MUTABLE_SV(gv));
+    }
     RETURN;
 }
 

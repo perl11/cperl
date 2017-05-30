@@ -123,7 +123,7 @@ See L<perlguts/Autoloading with XSUBs>.
 
 #define CVf_METHOD	0x0001	/* CV is explicitly marked as a method */
 #define CVf_LVALUE	0x0002  /* CV return value can be used as lvalue */
-#define CVf_CONST	0x0004  /* inlinable sub */
+#define CVf_CONST	0x0004  /* inlined sub to one single SV */
 #define CVf_ISXSUB	0x0008	/* CV is an XSUB, not pure perl.  */
 
 #define CVf_WEAKOUTSIDE	0x0010  /* CvOUTSIDE isn't ref counted */

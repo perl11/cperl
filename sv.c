@@ -4123,27 +4123,25 @@ Perl_gv_setref(pTHX_ SV *const dstr, SV *const sstr)
 		    /* redundant check that avoids creating the extra SV
 		       most of the time: */
 		    (CvCONST(cv) || ckWARN(WARN_REDEFINE)))
-		    {
-			SV * const new_const_sv =
-			    CvCONST((const CV *)sref)
-				 ? cv_const_sv((const CV *)sref)
-				 : NULL;
-                        HV * const stash = GvSTASH((const GV *)dstr);
-			report_redefined_cv(
-			   sv_2mortal(
-                             stash
-                               ? Perl_newSVpvf(aTHX_
-				    "%" HEKf "::%" HEKf,
-				    HEKfARG(HvNAME_HEK(stash)),
-				    HEKfARG(GvENAME_HEK(MUTABLE_GV(dstr))))
-                               : Perl_newSVpvf(aTHX_
-				    "%" HEKf,
-				    HEKfARG(GvENAME_HEK(MUTABLE_GV(dstr))))
-			   ),
-			   cv,
-			   CvCONST((const CV *)sref) ? &new_const_sv : NULL
-			);
-		    }
+		{
+                    const bool is_const = CvCONST((const CV *)sref);
+                    SV * const const_sv = is_const
+                        ? cv_const_sv((const CV *)sref)
+                        : NULL;
+                    HV * const stash = GvSTASH((const GV *)dstr);
+                    report_redefined_cv(
+                            sv_2mortal(
+                                   stash
+                                   ? Perl_newSVpvf(aTHX_
+                                         "%" HEKf "::%" HEKf,
+                                         HEKfARG(HvNAME_HEK(stash)),
+                                         HEKfARG(GvENAME_HEK(MUTABLE_GV(dstr))))
+                                   : Perl_newSVpvf(aTHX_
+                                         "%" HEKf,
+                                         HEKfARG(GvENAME_HEK(MUTABLE_GV(dstr))))),
+                            cv,
+                            is_const ? &const_sv : NULL);
+                }
 		if (!intro)
 		    cv_ckproto_len_flags(cv, (const GV *)dstr,
 				   SvPOK(sref) ? CvPROTO(sref) : NULL,

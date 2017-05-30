@@ -9732,8 +9732,7 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 		    GvCV_set(gv, NULL);
 		cv = newCONSTSUB_flags(
 		    NULL, name, namlen, name_is_utf8 ? SVf_UTF8 : 0,
-		    const_sv
-		);
+		    const_sv);
 		CvFLAGS(cv) |= CvMETHOD(PL_compcv);
 	    }
 	    else {
@@ -14434,15 +14433,24 @@ Perl_ck_entersub_args_proto_or_list(pTHX_ OP *entersubop,
     PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_PROTO_OR_LIST;
     if (SvTYPE(protosv) == SVt_PVCV) {
         if (CvHASSIG((CV*)protosv) && CvSIGOP((CV*)protosv)) {
-            if (PERLDB_LINE) {
+            if (PERLDB_SUB) {
                 (void)ck_entersub_args_signature(entersubop, namegv, (CV*)protosv);
                 S_debug_undo_signature(aTHX_ (CV*)protosv);
                 return entersubop;
             }
             return ck_entersub_args_signature(entersubop, namegv, (CV*)protosv);
         }
-        else if (SvPOK(protosv))
-            return ck_entersub_args_proto(entersubop, namegv, protosv);
+        else {
+            /* Try XS call beforehand. Most XS calls are via CV not GV */
+            if (CvISXSUB(protosv) && !CvCONST(protosv)
+                && CvROOT(protosv) && !PL_perldb) {
+                DEBUG_k(Perl_deb(aTHX_ "entersub -> xs %" SVf "\n",
+                        SVfARG(cv_name((CV *)protosv, NULL, CV_NAME_NOMAIN))));
+                OpTYPE_set(entersubop, OP_ENTERXSSUB);
+            }
+            if (SvPOK(protosv))
+                return ck_entersub_args_proto(entersubop, namegv, protosv);
+        }
     }
     else if (SvOK(protosv))
         return ck_entersub_args_proto(entersubop, namegv, protosv);
@@ -17625,8 +17633,7 @@ Perl_rpeep(pTHX_ OP *o)
             assert(followop);
             if (gvoid) {
                 if (IS_TYPE(followop, LIST)
-                    && OP_GIMME_VOID(followop)
-                   )
+                    && OP_GIMME_VOID(followop))
                 {
                     followop = OpNEXT(followop); /* skip OP_LIST */
 
