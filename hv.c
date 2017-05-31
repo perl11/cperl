@@ -446,7 +446,7 @@ Perl_hv_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
     if (SvTYPE(hv) == (svtype)SVTYPEMASK)
 	return NULL;
 
-    assert(SvTYPE(hv) == SVt_PVHV);
+    assert(SvIS_TYPE(hv, PVHV));
 #if defined(USE_DTRACE)
     if (PERL_HASH_ENTRY_ENABLED()) {
         if (action & (HV_FETCH_JUST_SV | HV_FETCH_LVALUE)) {
@@ -1612,7 +1612,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
             if (((klen > 1 && key[klen-2] == ':' && key[klen-1] == ':')
                  || (klen == 1 && key[0] == ':'))
                 && (klen != 6 || hv != PL_defstash || memNEc(key,"main::"))
-                && SvTYPE(gv) == SVt_PVGV && (stash = GvHV((GV *)gv))
+                && SvIS_TYPE(gv, PVGV) && (stash = GvHV((GV *)gv))
                 && HvENAME_get(stash)) {
                 /* A previous version of this code checked that the
                  * GV was still in the symbol table by fetching the
@@ -1657,7 +1657,7 @@ S_hv_delete_common(pTHX_ HV *hv, SV *keysv, const char *key, I32 klen,
                         SSize_t index;
                         SSize_t items;
 
-                        assert(SvTYPE(mg->mg_obj) == SVt_PVAV);
+                        assert(SvIS_TYPE(mg->mg_obj, PVAV));
 
                         /* remove the stash from the magic array */
                         arrayp = svp = AvARRAY(av);
@@ -3139,7 +3139,7 @@ Perl_hv_kill_backrefs(pTHX_ HV *hv) {
     if (av) {
 	HvAUX(hv)->xhv_backreferences = 0;
 	Perl_sv_kill_backrefs(aTHX_ MUTABLE_SV(hv), av);
-	if (SvTYPE(av) == SVt_PVAV)
+	if (SvIS_TYPE(av, PVAV))
 	    SvREFCNT_dec_NN(av);
     }
 }

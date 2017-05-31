@@ -50,8 +50,8 @@ Perl_gv_add_by_type(pTHX_ GV *gv, svtype type)
     if (
         !gv
      || (
-            SvTYPE((const SV *)gv) != SVt_PVGV
-         && SvTYPE((const SV *)gv) != SVt_PVLV
+            SvISNT_TYPE((const SV *)gv, PVGV)
+         && SvISNT_TYPE((const SV *)gv, PVLV)
         )
     ) {
 	const char *what;
@@ -158,9 +158,10 @@ Perl_gv_const_sv(pTHX_ GV *gv)
     PERL_ARGS_ASSERT_GV_CONST_SV;
     PERL_UNUSED_CONTEXT;
 
-    if (SvTYPE(gv) == SVt_PVGV)
+    if (SvIS_TYPE(gv, PVGV))
 	return cv_const_sv(GvCVu(gv));
-    return SvROK(gv) && SvTYPE(SvRV(gv)) != SVt_PVAV && SvTYPE(SvRV(gv)) != SVt_PVCV ? SvRV(gv) : NULL;
+    return SvROK(gv) && SvISNT_TYPE(SvRV(gv), PVAV) &&
+           SvISNT_TYPE(SvRV(gv), PVCV) ? SvRV(gv) : NULL;
 }
 
 GP *
@@ -269,7 +270,7 @@ Perl_cvgv_from_hek(pTHX_ CV *cv)
     GV *gv;
     SV **svp;
     PERL_ARGS_ASSERT_CVGV_FROM_HEK;
-    assert(SvTYPE(cv) == SVt_PVCV);
+    assert(SvIS_TYPE(cv, PVCV));
     if (!CvSTASH(cv)) return NULL;
     ASSUME(CvNAME_HEK(cv));
     /* This will fail with missing names from classes */
@@ -430,7 +431,7 @@ Perl_gv_init_pvn(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len, U32 flag
     gv_name_set(gv, name, len, GV_ADD | ( flags & SVf_UTF8 ? SVf_UTF8 : 0 ));
     if (flags & GV_ADDMULTI || doproto)	/* doproto means it */
 	GvMULTI_on(gv);			/* _was_ mentioned */
-    if (has_constant && SvTYPE(has_constant) == SVt_PVCV) {
+    if (has_constant && SvIS_TYPE(has_constant, PVCV)) {
 	/* Not actually a constant.  Just a regular sub.  */
 	CV * const cv = (CV *)has_constant;
 	GvCV_set(gv,cv);
@@ -771,7 +772,7 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
         topgv = *gvp;
       have_gv:
         assert(topgv);
-        if (SvTYPE(topgv) != SVt_PVGV) {
+        if (SvISNT_TYPE(topgv, PVGV)) {
             if (!name) {
                 assert(meth);
                 name = SvPV_nomg(meth, len);
@@ -838,9 +839,9 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
         else candidate = *gvp;
     have_candidate:
         assert(candidate);
-        if (SvTYPE(candidate) != SVt_PVGV)
+        if (SvISNT_TYPE(candidate, PVGV))
             gv_init_pvn(candidate, cstash, name, len, GV_ADDMULTI|is_utf8);
-        if (SvTYPE(candidate) == SVt_PVGV &&
+        if (SvIS_TYPE(candidate, PVGV) &&
             (cand_cv = GvCV(candidate)) && !GvCVGEN(candidate)) {
             /*
              * Found real method, cache method in topgv if:
@@ -1535,7 +1536,7 @@ S_gv_stashsvpvn_cached(pTHX_ SV *namesv, const char *name, U32 namelen, I32 flag
         HV *hv;
         assert(SvIOK(sv));
         hv = INT2PTR(HV*, SvIVX(sv));
-        assert(SvTYPE(hv) == SVt_PVHV);
+        assert(SvIS_TYPE(hv, PVHV));
         return hv;
     }
     else if (flags & GV_CACHE_ONLY) return NULL;
@@ -1690,7 +1691,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                     goto notok;
                 }
                 /* here we know that *gv && *gv != &PL_sv_undef */
-                if (SvTYPE(*gv) != SVt_PVGV)
+                if (SvISNT_TYPE(*gv, PVGV))
                     gv_init_pvn(*gv, *stash, key, *len, (add & GV_ADDMULTI)|is_utf8);
                 else
                     GvMULTI_on(*gv);
@@ -1736,7 +1737,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
             if (*name == name_end) {
                 if (!*gv) {
 		    *gv = MUTABLE_GV(*hv_fetchs(PL_defstash, "main::", TRUE));
-		    if (SvTYPE(*gv) != SVt_PVGV) {
+		    if (SvISNT_TYPE(*gv, PVGV)) {
 			gv_init_pvn(*gv, PL_defstash, "main::", 6,
 				    GV_ADDMULTI);
 			GvHV(*gv)=MUTABLE_HV(SvREFCNT_inc_simple(PL_defstash));
@@ -1842,7 +1843,7 @@ S_find_default_stash(pTHX_ HV **stash, const char *name, STRLEN len,
             {
                 GV**gvp = (GV**)hv_fetch_ifexists(*stash,name,is_utf8 ? -(I32)len : (I32)len,0);
                 if (!gvp || *gvp == (const GV *)UNDEF ||
-                    SvTYPE(*gvp) != SVt_PVGV)
+                    SvISNT_TYPE(*gvp, PVGV))
                 {
                     *stash = NULL;
                 }
@@ -2415,7 +2416,7 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
 
     if (!stash && !find_default_stash(&stash, name, len, is_utf8, add, sv_type))
         return NULL;
-    if (SvTYPE(stash) != SVt_PVHV)
+    if (SvISNT_TYPE(stash, PVHV))
         return NULL;
     
     /* By this point we should have a stash and a name */
@@ -2471,7 +2472,7 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
             free (stashname);
     }
 
-    if (SvTYPE(gv) == SVt_PVGV) {
+    if (SvIS_TYPE(gv, PVGV)) {
         /* The GV already exists, so return it, but check if we need to do
          * anything else with it before that.
          */
@@ -2642,7 +2643,7 @@ Perl_gv_check(pTHX_ HV *stash)
             {
                 const char *file;
 		gv = MUTABLE_GV(HeVAL(entry));
-		if (SvTYPE(gv) != SVt_PVGV || GvMULTI(gv))
+		if (SvISNT_TYPE(gv, PVGV) || GvMULTI(gv))
 		    continue;
 		file = GvFILE(gv);
 		CopLINE_set(PL_curcop, GvLINE(gv));
@@ -2744,11 +2745,11 @@ Perl_gp_free(pTHX_ GV *gv)
 
       SvREFCNT_dec(sv);
       /* @_ may be some random SP* already freed. [cperl #134] */
-      if (av && SvTYPE(av) == SVt_PVAV)
+      if (av && SvIS_TYPE(av, PVAV))
           SvREFCNT_dec_NN(av);
       /* FIXME - another reference loop GV -> symtab -> GV ?
          Somehow gp->gp_hv can end up pointing at freed garbage.  */
-      if (hv && SvTYPE(hv) == SVt_PVHV) {
+      if (hv && SvIS_TYPE(hv, PVHV)) {
         const HEK *hvname_hek = HvNAME_HEK(hv);
         if (PL_stashcache && hvname_hek) {
            DEBUG_o(Perl_deb(aTHX_
@@ -2770,7 +2771,7 @@ Perl_gp_free(pTHX_ GV *gv)
 	io_close(io, gv, FALSE, TRUE);
       SvREFCNT_dec(io);
       /* Safe may have already freed &Safe::Root0::strict::import */
-      if (cv && SvTYPE(cv) == SVt_PVCV)
+      if (cv && SvIS_TYPE(cv, PVCV))
           SvREFCNT_dec_NN(cv);
       SvREFCNT_dec(form);
 
@@ -3772,12 +3773,12 @@ Perl_gv_try_downgrade(pTHX_ GV *gv)
        destruction? */
     if (PL_phase == PERL_PHASE_DESTRUCT) return;
 
-    if (!(SvREFCNT(gv) == 1 && SvTYPE(gv) == SVt_PVGV && !SvFAKE(gv) &&
-	    !SvOBJECT(gv) && !SvREADONLY(gv) &&
-	    isGV_with_GP(gv) && GvGP(gv) &&
-	    !GvINTRO(gv) && GvREFCNT(gv) == 1 &&
-	    !GvSV(gv) && !GvAV(gv) && !GvHV(gv) && !GvIOp(gv) && !GvFORM(gv) &&
-	    GvEGVx(gv) == gv && (stash = GvSTASH(gv))))
+    if (!(SvREFCNT(gv) == 1 && SvIS_TYPE(gv, PVGV) && !SvFAKE(gv) &&
+          !SvOBJECT(gv) && !SvREADONLY(gv) &&
+          isGV_with_GP(gv) && GvGP(gv) &&
+          !GvINTRO(gv) && GvREFCNT(gv) == 1 &&
+          !GvSV(gv) && !GvAV(gv) && !GvHV(gv) && !GvIOp(gv) && !GvFORM(gv) &&
+          GvEGVx(gv) == gv && (stash = GvSTASH(gv))))
 	return;
     if (gv == PL_statgv || gv == PL_last_in_gv || gv == PL_stderrgv)
 	return;
@@ -3802,7 +3803,8 @@ Perl_gv_try_downgrade(pTHX_ GV *gv)
 	    !CvNODEBUG(cv) && !CvCLONE(cv) && !CvCLONED(cv) && !CvANON(cv) &&
 	    (namehek = GvNAME_HEK(gv)) &&
 	    (gvp = hv_fetchhek_ifexists(stash, namehek, 0)) &&
-	    *gvp == (SV*)gv) {
+	    *gvp == (SV*)gv)
+    {
 	SV *value = SvREFCNT_inc(CvXSUBANY(cv).any_ptr);
 	const bool imported = !!GvIMPORTED_CV(gv);
 	SvREFCNT(gv) = 0;
@@ -3825,7 +3827,7 @@ Perl_gv_override(pTHX_ const char * const name, const STRLEN len)
     PERL_ARGS_ASSERT_GV_OVERRIDE;
     if (gv && GvCVu(gv) && GvIMPORTED_CV(gv))
         return gv;
-    if (SvTYPE(PL_globalstash) != SVt_PVHV)
+    if (SvISNT_TYPE(PL_globalstash, PVHV))
         return NULL;
     gvp = (GV**)hv_fetch(PL_globalstash, name, len, FALSE);
     gv = gvp ? *gvp : NULL;

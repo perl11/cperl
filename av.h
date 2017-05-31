@@ -94,7 +94,7 @@ Same as C<av_top_index()>.
  *      SvGETMAGIC(av); IV x = av_tindex_nomg(av);
  */
 #   define av_top_index_skip_len_mg(av)                                     \
-                            (__ASSERT_(SvTYPE(av) == SVt_PVAV) AvFILLp(av))
+                            (__ASSERT_(SvIS_TYPE(av, PVAV)) AvFILLp(av))
 #   define av_tindex_skip_len_mg(av)  av_top_index_skip_len_mg(av)
 
 #define NEGATIVE_INDICES_VAR "NEGATIVE_INDICES"

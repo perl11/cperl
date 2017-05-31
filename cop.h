@@ -629,7 +629,7 @@ struct block_format {
 #define CX_POP_SAVEARRAY(cx)						\
     STMT_START {							\
         AV *cx_pop_savearray_av = GvAV(PL_defgv);                       \
-        if (cx->blk_sub.savearray && SvTYPE(cx->blk_sub.savearray) == SVt_PVAV) \
+        if (cx->blk_sub.savearray && SvIS_TYPE(cx->blk_sub.savearray, PVAV)) \
             GvAV(PL_defgv) = cx->blk_sub.savearray;                     \
         else                                                            \
             GvAV(PL_defgv) = NULL;                                      \

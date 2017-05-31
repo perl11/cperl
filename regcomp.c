@@ -6698,7 +6698,7 @@ S_concat_pat(pTHX_ RExC_state_t * const pRExC_state,
         else if (delim)
             use_delim = TRUE;
 
-        if (SvTYPE(msv) == SVt_PVAV) {
+        if (SvIS_TYPE(msv, PVAV)) {
             /* we've encountered an interpolated array within
              * the pattern, e.g. /...@a..../. Expand the list of elements,
              * then recursively append elements.
@@ -6772,7 +6772,7 @@ S_concat_pat(pTHX_ RExC_state_t * const pRExC_state,
             if (sv) {
                 if (SvROK(sv))
                     sv = SvRV(sv);
-                if (SvTYPE(sv) != SVt_REGEXP)
+                if (SvISNT_TYPE(sv, REGEXP))
                     Perl_croak(aTHX_ "Overloaded qr did not return a REGEXP");
                 msv = sv;
             }
@@ -6801,7 +6801,7 @@ S_concat_pat(pTHX_ RExC_state_t * const pRExC_state,
                 msv = sv;
                 SvGETMAGIC(msv);
             }
-            if (SvROK(msv) && SvTYPE(SvRV(msv)) == SVt_REGEXP)
+            if (SvROK(msv) && SvIS_TYPE(SvRV(msv), REGEXP))
                 msv = SvRV(msv);
 
             if (pat) {
@@ -6825,7 +6825,9 @@ S_concat_pat(pTHX_ RExC_state_t * const pRExC_state,
                  * it is properly null terminated or we will fail asserts
                  * later. In theory we probably shouldn't get such SV's,
                  * but if we do we should handle it gracefully. */
-                if ( SvTYPE(msv) != SVt_PV || (SvLEN(msv) > SvCUR(msv) && *(SvEND(msv)) == 0) || SvIsCOW_shared_hash(msv) ) {
+                if ( SvISNT_TYPE(msv, PV) ||
+                     (SvLEN(msv) > SvCUR(msv) && *(SvEND(msv)) == 0) ||
+                     SvIsCOW_shared_hash(msv) ) {
                     /* not a string, or a string with a trailing null */
                     pat = msv;
                 } else {
@@ -6840,7 +6842,7 @@ S_concat_pat(pTHX_ RExC_state_t * const pRExC_state,
         }
 
         /* extract any code blocks within any embedded qr//'s */
-        if (rx && SvTYPE(rx) == SVt_REGEXP
+        if (rx && SvIS_TYPE(rx, REGEXP)
             && RX_ENGINE((REGEXP*)rx)->op_comp)
         {
 
@@ -7052,7 +7054,7 @@ S_compile_runtime_code(pTHX_ RExC_state_t * const pRExC_state,
 	}
 	assert(SvROK(qr_ref));
 	qr = SvRV(qr_ref);
-	assert(SvTYPE(qr) == SVt_REGEXP && RX_ENGINE((REGEXP*)qr)->op_comp);
+	assert(SvIS_TYPE(qr, REGEXP) && RX_ENGINE((REGEXP*)qr)->op_comp);
 	/* the leaving below frees the tmp qr_ref.
 	 * Give qr a life of its own */
 	SvREFCNT_inc(qr);
@@ -7481,7 +7483,7 @@ Perl_re_op_compile(pTHX_ SV ** const patternp, int pat_count,
         SV *re = pat;
         if (SvROK(re))
             re = SvRV(re);
-        if (SvTYPE(re) == SVt_REGEXP) {
+        if (SvIS_TYPE(re, REGEXP)) {
             if (is_bare_re)
                 *is_bare_re = TRUE;
             SvREFCNT_inc(re);
@@ -10304,7 +10306,6 @@ S_get_invlist_iter_addr(SV* invlist)
 {
     /* Return the address of the UV that contains the current iteration
      * position */
-
     PERL_ARGS_ASSERT_GET_INVLIST_ITER_ADDR;
 
     assert(is_invlist(invlist));
@@ -10316,7 +10317,6 @@ PERL_STATIC_INLINE void
 S_invlist_iterinit(SV* invlist)	/* Initialize iterator for invlist */
 {
     PERL_ARGS_ASSERT_INVLIST_ITERINIT;
-
     *get_invlist_iter_addr(invlist) = 0;
 }
 
@@ -10330,9 +10330,7 @@ S_invlist_iterfinish(SV* invlist)
      * iteration.  If they were, the addition would make the iteration
      * problematical: if the iteration hadn't reached the place where things
      * were being added, it would be ok */
-
     PERL_ARGS_ASSERT_INVLIST_ITERFINISH;
-
     *get_invlist_iter_addr(invlist) = (STRLEN) UV_MAX;
 }
 
@@ -20828,7 +20826,7 @@ Perl_reg_temp_copy(pTHX_ REGEXP *dsv, REGEXP *ssv)
 {
     struct regexp *drx;
     struct regexp *const srx = ReANY(ssv);
-    const bool islv = dsv && SvTYPE(dsv) == SVt_PVLV;
+    const bool islv = dsv && SvIS_TYPE(dsv, PVLV);
 
     PERL_ARGS_ASSERT_REG_TEMP_COPY;
 
@@ -21384,7 +21382,7 @@ Perl_save_re_context(pTHX)
 
         if (gvp) {
             GV * const gv = *gvp;
-	    if (SvTYPE(gv) == SVt_PVGV && GvSV(gv)) {
+	    if (SvIS_TYPE(gv, PVGV) && GvSV(gv)) {
 		/* this is a copy of save_scalar() without the GETMAGIC call, RT#76538 */
 		SV ** const sptr = &GvSVn(gv);
 		SV * osv = *sptr;

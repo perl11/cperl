@@ -500,7 +500,7 @@ PPt(pp_i_aelem, "(:Array(:Int),:Int):Int")
 	Perl_warner(aTHX_ packWARN(WARN_MISC),
 		    "Use of reference \"%" SVf "\" as array index",
 		    SVfARG(elemsv));
-    if (UNLIKELY(SvTYPE(av) != SVt_PVAV))
+    if (UNLIKELY(SvISNT_TYPE(av, PVAV)))
 	RETPUSHUNDEF;
 
     svp = av_fetch(av, elem, lval && !defer);

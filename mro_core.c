@@ -930,7 +930,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 	/* Update the effective name. */
 	if (HvENAME_get(oldstash)) {
 	    const HEK * const enamehek = HvENAME_HEK(oldstash);
-	    if (SvTYPE(namesv) == SVt_PVAV) {
+	    if (SvIS_TYPE(namesv, PVAV)) {
 		items = AvFILLp((AV *)namesv) + 1;
 		svp = AvARRAY((AV *)namesv);
 	    }
@@ -980,7 +980,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
     }
    check_stash:
     if (stash) {
-	if (SvTYPE(namesv) == SVt_PVAV) {
+	if (SvIS_TYPE(namesv, PVAV)) {
 	    items = AvFILLp((AV *)namesv) + 1;
 	    svp = AvARRAY((AV *)namesv);
 	}
@@ -1053,7 +1053,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 	    svp = hv_fetchhek(PL_isarev, hvename, 0);
 	    if (svp) isarev = MUTABLE_HV(*svp);
 	}
-	else if (SvTYPE(namesv) == SVt_PVAV) {
+	else if (SvIS_TYPE(namesv, PVAV)) {
 	    items = AvFILLp((AV *)namesv) + 1;
 	    svp = AvARRAY((AV *)namesv);
 	}
@@ -1131,7 +1131,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 			/* Add :: and the key (minus the trailing ::)
 			   to each name. */
 			SV *subname;
-			if (SvTYPE(namesv) == SVt_PVAV) {
+			if (SvIS_TYPE(namesv, PVAV)) {
 			    SV *aname;
 			    items = AvFILLp((AV *)namesv) + 1;
 			    svp = AvARRAY((AV *)namesv);
@@ -1210,7 +1210,7 @@ S_mro_gather_and_rename(pTHX_ HV * const stashes, HV * const seen_stashes,
 
 			/* Add :: and the key (minus the trailing ::)
 			   to each name. */
-			if (SvTYPE(namesv) == SVt_PVAV) {
+			if (SvIS_TYPE(namesv, PVAV)) {
 			    SV *aname;
 			    items = AvFILLp((AV *)namesv) + 1;
 			    svp = AvARRAY((AV *)namesv);

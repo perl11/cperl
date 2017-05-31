@@ -397,6 +397,14 @@ and smaller.
 =for apidoc Am|svtype|SvTYPE|SV* sv
 Returns the type of the SV.  See C<L</svtype>>.
 
+=for apidoc Am|bool|SvIS_TYPE|SV* sv|type
+Returns true or false if the type of the SV is the given abbrevated type,
+without the C<SVt_> prefix.
+
+=for apidoc Am|bool|SvISNT_TYPE|SV* sv|type
+Returns true if the type of the SV is not the given abbrevated type,
+without the C<SVt_> prefix.
+
 =for apidoc Am|void|SvUPGRADE|SV* sv|svtype type
 Used to upgrade an SV to a more complex form.  Uses C<sv_upgrade> to
 perform the upgrade if necessary.  See C<L</svtype>>.
@@ -430,6 +438,9 @@ perform the upgrade if necessary.  See C<L</svtype>>.
 
 #define SVTYPEMASK	0xff
 #define SvTYPE(sv)	((svtype)(SvFLAGS(sv) & SVTYPEMASK))
+/* cperl only, analog to op */
+#define SvIS_TYPE(sv,type)   (SvTYPE(sv) == SVt_ ## type)
+#define SvISNT_TYPE(sv,type) (SvTYPE(sv) != SVt_ ## type)
 
 /* Sadly there are some parts of the core that have pointers to already-freed
    SV heads, and rely on being able to tell that they are now free. So mark

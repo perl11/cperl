@@ -332,9 +332,9 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
     if (!CvISXSUB(&cvbody)) {
         assert(!CvEXTERN(&cvbody));
         if (CvROOT(&cvbody)) {
-            assert(SvTYPE(cv) == SVt_PVCV || SvTYPE(cv) == SVt_PVFM); /*unsafe is safe */
+            assert(SvIS_TYPE(cv, PVCV) || SvIS_TYPE(cv, PVFM)); /*unsafe is safe */
             if (CvDEPTHunsafe(&cvbody)) {
-                assert(SvTYPE(cv) == SVt_PVCV);
+                assert(SvIS_TYPE(cv, PVCV));
                 if (PL_phase != PERL_PHASE_DESTRUCT) /* TODO tailcalls */
                     Perl_croak_nocontext("Can't undef active subroutine");
             }
@@ -425,7 +425,7 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
 			CV * const innercv = MUTABLE_CV(curpad[ix]);
 			U32 inner_rc;
 			assert(innercv);
-			assert(SvTYPE(innercv) != SVt_PVFM);
+			assert(SvISNT_TYPE(innercv, PVFM));
 			inner_rc = SvREFCNT(innercv);
 			assert(inner_rc);
 
@@ -436,7 +436,7 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
 			}
 
 			/* in use, not just a prototype */
-			if (inner_rc && SvTYPE(innercv) == SVt_PVCV
+			if (inner_rc && SvIS_TYPE(innercv, PVCV)
 			 && (CvOUTSIDE(innercv) == cv))
 			{
 			    assert(CvWEAKOUTSIDE(innercv));
@@ -494,7 +494,7 @@ Perl_cv_undef_flags(pTHX_ CV *cv, U32 flags)
     }
     if (CvCONST(&cvbody) && CvISXSUB(&cvbody)) {
         SV *sv = MUTABLE_SV(CvXSUBANY(&cvbody).any_ptr);
-        if (sv && SvTYPE(sv) != SVt_PVAV && SvREFCNT(sv))
+        if (sv && SvISNT_TYPE(sv, PVAV) && SvREFCNT(sv))
             SvREFCNT_dec_NN(sv);
     }
     /* delete all flags except WEAKOUTSIDE and CVGV_RC, which indicate the
@@ -828,7 +828,7 @@ Perl_pad_add_anon(pTHX_ CV* func, I32 optype)
     PADNAME * const name = newPADNAMEpvn_flags("&", 1, 0);
 
     PERL_ARGS_ASSERT_PAD_ADD_ANON;
-    assert (SvTYPE(func) == SVt_PVCV);
+    assert (SvIS_TYPE(func, PVCV));
 
     pad_peg("add_anon");
     /* These two aren't used; just make sure they're not equal to
@@ -1258,7 +1258,7 @@ padadd_STALEOK.
 #define CvCOMPILED(cv)	CvROOT(cv)
 
 /* the CV does late binding of its lexicals */
-#define CvLATE(cv) (CvANON(cv) || CvCLONE(cv) || SvTYPE(cv) == SVt_PVFM)
+#define CvLATE(cv) (CvANON(cv) || CvCLONE(cv) || SvIS_TYPE(cv, PVFM))
 
 static void
 S_unavailable(pTHX_ PADNAME *name)
@@ -2045,7 +2045,7 @@ S_cv_dump(pTHX_ const CV *cv, const char *title)
 		  title,
 		  PTR2UV(cv),
 		  (CvANON(cv) ? "ANON"
-		   : (SvTYPE(cv) == SVt_PVFM) ? "FORMAT"
+		   : (SvIS_TYPE(cv, PVFM)) ? "FORMAT"
 		   : (cv == PL_main_cv) ? "MAIN"
 		   : CvUNIQUE(cv) ? "UNIQUE"
 		   : CvGV(cv) ? GvNAME(CvGV(cv)) : "UNDEFINED"),
@@ -2178,7 +2178,7 @@ S_cv_clone_pad(pTHX_ CV *proto, CV *cv, CV *outside, HV *cloned,
 		       to put a stub here and then clone into it on the
 		       second pass. */
 		    if (PadnameIsSTATE(namesv) && !CvCLONED(ppad[ix])) {
-			assert(SvTYPE(ppad[ix]) == SVt_PVCV);
+			assert(SvIS_TYPE(ppad[ix], PVCV));
 			subclones ++;
 			if (CvOUTSIDE(ppad[ix]) != proto)
 			     trouble = TRUE;
@@ -2527,13 +2527,13 @@ SV *
 Perl_cv_name(pTHX_ CV *cv, SV *sv, U32 flags)
 {
     PERL_ARGS_ASSERT_CV_NAME;
-    if (!isGV_with_GP(cv) && SvTYPE(cv) != SVt_PVCV) {
+    if (!isGV_with_GP(cv) && SvISNT_TYPE(cv, PVCV)) {
 	if (sv) sv_setsv(sv,(SV *)cv);
 	return sv ? (sv) : (SV *)cv;
     }
     {
-        SV * const retsv = sv ? (sv) : sv_newmortal();
-        if (SvTYPE(cv) == SVt_PVCV) {
+	SV * const retsv = sv ? (sv) : sv_newmortal();
+	if (SvIS_TYPE(cv, PVCV)) {
 	    if (CvNAMED(cv)) {
                 HEK *const cvname = CvNAME_HEK(cv);
 		if (CvLEXICAL(cv) || flags & CV_NAME_NOTQUAL) {
@@ -2612,7 +2612,7 @@ Perl_pad_fixup_inner_anons(pTHX_ PADLIST *padlist, CV *old_cv, CV *new_cv)
               PADNAME **names = namepad;
               PADOFFSET i = ix;
               while (PadnameOUTER(name)) {
-                  assert(SvTYPE(cv) == SVt_PVCV);
+                  assert(SvIS_TYPE(cv, PVCV));
                   cv = CvOUTSIDE(cv);
                   names = PadlistNAMESARRAY(CvPADLIST(cv));
                   i = PARENT_PAD_INDEX(name);
@@ -2620,7 +2620,7 @@ Perl_pad_fixup_inner_anons(pTHX_ PADLIST *padlist, CV *old_cv, CV *new_cv)
               }
               innercv = (CV *)PadARRAY(PadlistARRAY(CvPADLIST(cv))[1])[i];
 	  }
-	  if (SvTYPE(innercv) == SVt_PVCV) {
+	  if (SvIS_TYPE(innercv, PVCV)) {
 	    /* XXX 0afba48f added code here to check for a proto CV
 		   attached to the pad entry by magic.  But shortly there-
 		   after 81df9f6f95 moved the magic to the pad name.  The

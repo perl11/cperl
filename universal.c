@@ -608,7 +608,7 @@ XS(XS_Internals_HvCLASS)	/* Needed for base to fake cperl classes */
             Perl_croak(aTHX_ "Internals::HvCLASS: Unknown classname %s",
                        SvPVX(SvRV(svz)));
     }
-    if (SvTYPE(stash) != SVt_PVHV)
+    if (SvISNT_TYPE(stash, PVHV))
         croak_xs_usage(cv, "STASH[, ON] (HV)");
 
     if (items == 1) {
@@ -654,7 +654,7 @@ XS(XS_constant__make_const)	/* This is dangerous stuff. */
     sv = SvRV(svz);
 
     SvREADONLY_on(sv);
-    if (SvTYPE(sv) == SVt_PVAV && AvFILLp(sv) != -1) {
+    if (SvIS_TYPE(sv, PVAV) && AvFILLp(sv) != -1) {
 	/* for constant.pm; nobody else should be calling this
 	   on arrays anyway. */
 	SV **svp;

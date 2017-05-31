@@ -2578,7 +2578,7 @@ S_sublex_start(pTHX)
         PL_lex_stuff = NULL;
         sv = tokeq(sv);
 
-        if (SvTYPE(sv) == SVt_PVIV) {
+        if (SvIS_TYPE(sv, PVIV)) {
             /* Overloaded constants, nothing fancy: Convert to SVt_PV: */
             STRLEN len;
             const char * const p = SvPV_const(sv, len);
@@ -2870,7 +2870,7 @@ Perl_get_and_check_backslash_N_name(pTHX_ const char* s,
     table = GvHV(PL_hintgv);             /* ^H */
     cvp = hv_fetchs(table, "charnames", FALSE);
     if (cvp && (cv = *cvp) && SvROK(cv) && (rv = SvRV(cv),
-        SvTYPE(rv) == SVt_PVCV) && ((stash = CvSTASH(rv)) != NULL))
+        SvIS_TYPE(rv, PVCV)) && ((stash = CvSTASH(rv)) != NULL))
     {
         const char * const name = HvNAME(stash);
         if (memEQs(name, HvNAMELEN(stash), "_charnames")) {
@@ -4624,7 +4624,7 @@ S_intuit_method(pTHX_ char *start, SV *ioname, CV *cv)
 
     PERL_ARGS_ASSERT_INTUIT_METHOD;
 
-    if (gv && SvTYPE(gv) == SVt_PVGV && GvIO(gv))
+    if (gv && SvIS_TYPE(gv, PVGV) && GvIO(gv))
         return 0;
     if (cv && SvPOK(cv) && !CvEXTERN(cv)) {
         const char *proto = CvPROTO(cv);
@@ -7947,7 +7947,7 @@ Perl_yylex(pTHX)
                     cv = lex
                         ? isGV(gv)
                             ? GvCV(gv)
-                            : SvROK(gv) && SvTYPE(SvRV(gv)) == SVt_PVCV
+                            : SvROK(gv) && SvIS_TYPE(SvRV(gv), PVCV)
                                 ? (CV *)SvRV(gv)
                                 : ((CV *)gv)
                         : rv2cv_op_cv(rv2cv_op, RV2CVOPCV_RETURN_STUB);

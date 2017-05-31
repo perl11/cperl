@@ -29,29 +29,29 @@ struct gp {
 #if defined (DEBUGGING) && defined(__GNUC__) && !defined(PERL_GCC_BRACE_GROUPS_FORBIDDEN) && !defined(__INTEL_COMPILER)
 #  define GvGP(gv)							\
 	(0+(*({GV *const _gvgp = (GV *) (gv);				\
-	    assert(SvTYPE(_gvgp) == SVt_PVGV || SvTYPE(_gvgp) == SVt_PVLV); \
+            assert(SvIS_TYPE(_gvgp, PVGV) || SvIS_TYPE(_gvgp, PVLV));   \
 	    assert(isGV_with_GP(_gvgp));				\
 	    &((_gvgp)->sv_u.svu_gp);})))
 #  define GvGP_set(gv,gp)						\
-	{GV *const _gvgp = (GV *) (gv);				\
-	    assert(SvTYPE(_gvgp) == SVt_PVGV || SvTYPE(_gvgp) == SVt_PVLV); \
+	{GV *const _gvgp = (GV *) (gv);				        \
+            assert(SvIS_TYPE(_gvgp, PVGV) || SvIS_TYPE(_gvgp, PVLV));   \
 	    assert(isGV_with_GP(_gvgp));				\
 	    (_gvgp)->sv_u.svu_gp = (gp); }
 #  define GvFLAGS(gv)							\
 	(*({GV *const _gvflags = (GV *) (gv);				\
-	    assert(SvTYPE(_gvflags) == SVt_PVGV || SvTYPE(_gvflags) == SVt_PVLV); \
+            assert(SvIS_TYPE(_gvflags, PVGV) || SvIS_TYPE(_gvflags, PVLV)); \
 	    assert(isGV_with_GP(_gvflags));				\
 	    &(GvXPVGV(_gvflags)->xpv_cur);}))
 #  define GvSTASH(gv)							\
 	(*({ GV * const _gvstash = (GV *) (gv);				\
 	    assert(isGV_with_GP(_gvstash));				\
-	    assert(SvTYPE(_gvstash) == SVt_PVGV || SvTYPE(_gvstash) >= SVt_PVLV); \
+	    assert(SvIS_TYPE(_gvstash, PVGV) || SvTYPE(_gvstash) >= SVt_PVLV); \
 	    &(GvXPVGV(_gvstash)->xnv_u.xgv_stash);			\
 	 }))
 #  define GvNAME_HEK(gv)						\
     (*({ GV * const _gvname_hek = (GV *) (gv);				\
 	   assert(isGV_with_GP(_gvname_hek));				\
-	   assert(SvTYPE(_gvname_hek) == SVt_PVGV || SvTYPE(_gvname_hek) >= SVt_PVLV); \
+	   assert(SvIS_TYPE(_gvname_hek, PVGV) || SvTYPE(_gvname_hek) >= SVt_PVLV); \
 	   &(GvXPVGV(_gvname_hek)->xiv_u.xivu_namehek);			\
 	 }))
 #  define GvNAME_get(gv)	({ assert(GvNAME_HEK(gv)); (char *)HEK_KEY(GvNAME_HEK(gv)); })
@@ -107,8 +107,8 @@ Return the CV from the GV.
  (                                        \
      (gv)                                  \
   && (                                      \
-         SvTYPE((const SV*)(gv)) == SVt_PVGV \
-      || SvTYPE((const SV*)(gv)) == SVt_PVLV  \
+         SvIS_TYPE((const SV*)(gv), PVGV)    \
+      || SvIS_TYPE((const SV*)(gv), PVLV)     \
      )                                         \
   && GvGP(gv)                                   \
    ? GvIOp(gv)                                   \
@@ -120,8 +120,8 @@ Return the CV from the GV.
 #define GvIO_NN(gv)                       \
  (                                         \
   (                                         \
-   SvTYPE((const SV*)(gv)) == SVt_PVGV       \
-   || SvTYPE((const SV*)(gv)) == SVt_PVLV     \
+      SvIS_TYPE((const SV*)(gv), PVGV)       \
+   || SvIS_TYPE((const SV*)(gv), PVLV)        \
   )                                            \
   && GvGP(gv)                                   \
    ? GvIOp(gv)                                   \

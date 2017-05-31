@@ -2189,7 +2189,7 @@ Perl_my_stat_flags(pTHX_ const U32 flags)
 	if ((gv = MAYBE_DEREF_GV_flags(sv,flags))) {
 	    goto do_fstat;
 	}
-        else if (SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVIO) {
+        else if (SvROK(sv) && SvIS_TYPE(SvRV(sv), PVIO)) {
             io = MUTABLE_IO(SvRV(sv));
 	    gv = NULL;
             goto do_fstat_have_io;
@@ -2253,7 +2253,7 @@ Perl_my_lstat_flags(pTHX_ const U32 flags)
     PL_laststype = OP_LSTAT;
     PL_statgv = NULL;
     if ( (  (SvROK(sv) && (  isGV_with_GP(SvRV(sv))
-                          || (isio = SvTYPE(SvRV(sv)) == SVt_PVIO)  )
+                          || (isio = SvIS_TYPE(SvRV(sv), PVIO))  )
             )
          || isGV_with_GP(sv)
          )

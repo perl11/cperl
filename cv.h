@@ -111,14 +111,14 @@ See L<perlguts/Autoloading with XSUBs>.
 #define CvPROTO(sv)                               \
 	(                                          \
 	 SvPOK(sv)                                  \
-	  ? SvTYPE(sv) == SVt_PVCV && CvAUTOLOAD(sv) \
+	  ? SvIS_TYPE(sv, PVCV) && CvAUTOLOAD(sv) \
 	     ? SvEND(sv)+1 : SvPVX_const(sv)          \
 	  : NULL                                       \
 	)
 #define CvPROTOLEN(sv)	                          \
 	(                                          \
 	 SvPOK(sv)                                  \
-	  ? SvTYPE(sv) == SVt_PVCV && CvAUTOLOAD(sv) \
+	  ? SvIS_TYPE(sv, PVCV) && CvAUTOLOAD(sv) \
 	     ? SvLEN(sv)-SvCUR(sv)-2                  \
 	     : SvCUR(sv)                               \
 	  : 0                                           \

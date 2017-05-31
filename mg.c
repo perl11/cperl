@@ -460,7 +460,7 @@ MAGIC *
 Perl_mg_find_mglob(pTHX_ SV *sv)
 {
     PERL_ARGS_ASSERT_MG_FIND_MGLOB;
-    if (SvTYPE(sv) == SVt_PVLV && LvTYPE(sv) == 'y') {
+    if (SvIS_TYPE(sv, PVLV) && LvTYPE(sv) == 'y') {
         /* This sv is only a delegate.  //g magic must be attached to
            its target. */
         vivify_defelem(sv);
@@ -1863,14 +1863,14 @@ Perl_magic_clearisa(pTHX_ SV *sv, MAGIC *mg)
     if (sv)
 	av_clear(MUTABLE_AV(sv));
 
-    if (SvTYPE(mg->mg_obj) != SVt_PVGV && SvSMAGICAL(mg->mg_obj))
+    if (SvISNT_TYPE(mg->mg_obj, PVGV) && SvSMAGICAL(mg->mg_obj))
 	/* This occurs with setisa_elem magic, which calls this
 	   same function. */
 	mg = mg_find(mg->mg_obj, PERL_MAGIC_isa);
     if (UNLIKELY(!mg))
         return 0;
 
-    if (SvTYPE(mg->mg_obj) == SVt_PVAV) { /* multiple stashes */
+    if (SvIS_TYPE(mg->mg_obj, PVAV)) { /* multiple stashes */
 	SV **svp = AvARRAY((AV *)mg->mg_obj);
 	I32 items = AvFILLp((AV *)mg->mg_obj) + 1;
 	while (items--) {
@@ -2688,15 +2688,15 @@ Perl_magic_setlvref(pTHX_ SV *sv, MAGIC *mg)
 	    bad = " SCALAR";
 	break;
     case OPpLVREF_AV:
-	if (SvTYPE(SvRV(sv)) != SVt_PVAV)
+	if (SvISNT_TYPE(SvRV(sv), PVAV))
 	    bad = "n ARRAY";
 	break;
     case OPpLVREF_HV:
-	if (SvTYPE(SvRV(sv)) != SVt_PVHV)
+	if (SvISNT_TYPE(SvRV(sv), PVHV))
 	    bad = " HASH";
 	break;
     case OPpLVREF_CV:
-	if (SvTYPE(SvRV(sv)) != SVt_PVCV)
+	if (SvISNT_TYPE(SvRV(sv), PVCV))
 	    bad = " CODE";
     }
     if (bad)
@@ -3434,7 +3434,7 @@ Perl_sighandler(int sig)
     }
     /* sv_2cv is too complicated, try a simpler variant first: */
     if (!SvROK(PL_psig_ptr[sig]) || !(cv = MUTABLE_CV(SvRV(PL_psig_ptr[sig])))
-	|| SvTYPE(cv) != SVt_PVCV) {
+	|| SvISNT_TYPE(cv, PVCV)) {
 	HV *st;
 	cv = sv_2cv(PL_psig_ptr[sig], &st, &gv, GV_ADD);
     }

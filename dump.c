@@ -806,10 +806,10 @@ Perl_dump_packsubs_perl(pTHX_ const HV *stash, bool justperl)
         const HE *entry;
 	for (entry = HvARRAY(stash)[i]; entry; entry = HeNEXT(entry)) {
 	    GV * gv = (GV *)HeVAL(entry);
-            if (SvROK(gv) && SvTYPE(SvRV(gv)) == SVt_PVCV)
+            if (SvROK(gv) && SvIS_TYPE(SvRV(gv), PVCV))
                 /* unfake a fake GV */
                 (void)CvGV(SvRV(gv));
-	    if (SvTYPE(gv) != SVt_PVGV || !GvGP(gv))
+	    if (SvISNT_TYPE(gv, PVGV) || !GvGP(gv))
 		continue;
 	    if (GvCVu(gv))
 		dump_sub_perl(gv, justperl);
@@ -979,7 +979,7 @@ Perl_gv_display(pTHX_ GV *gv)
             gv_fullname3(raw, gv, NULL);
         else {
             assert(SvROK(gv));
-            assert(SvTYPE(SvRV(gv)) == SVt_PVCV);
+            assert(SvIS_TYPE(SvRV(gv), PVCV));
             Perl_sv_catpvf(aTHX_ raw, "CVREF %s",
                     SvPV_nolen_const(cv_name((CV *)SvRV(gv), name, 0)));
         }
@@ -2919,7 +2919,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	Perl_dump_indent(aTHX_ level, file, "  LINES_LEFT = %" IVdf "\n", (IV)IoLINES_LEFT(sv));
         if (IoTOP_NAME(sv))
             Perl_dump_indent(aTHX_ level, file, "  TOP_NAME = \"%s\"\n", IoTOP_NAME(sv));
-	if (!IoTOP_GV(sv) || SvTYPE(IoTOP_GV(sv)) == SVt_PVGV)
+	if (!IoTOP_GV(sv) || SvIS_TYPE(IoTOP_GV(sv), PVGV))
 	    do_gv_dump (level, file, "  TOP_GV", IoTOP_GV(sv));
 	else {
 	    Perl_dump_indent(aTHX_ level, file, "  TOP_GV = 0x%" UVxf "\n",
@@ -2931,7 +2931,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	   be careful out there.  */
         if (IoFMT_NAME(sv))
             Perl_dump_indent(aTHX_ level, file, "  FMT_NAME = \"%s\"\n", IoFMT_NAME(sv));
-	if (!IoFMT_GV(sv) || SvTYPE(IoFMT_GV(sv)) == SVt_PVGV)
+	if (!IoFMT_GV(sv) || SvIS_TYPE(IoFMT_GV(sv), PVGV))
 	    do_gv_dump (level, file, "  FMT_GV", IoFMT_GV(sv));
 	else {
 	    Perl_dump_indent(aTHX_ level, file, "  FMT_GV = 0x%" UVxf "\n",
@@ -2941,7 +2941,7 @@ Perl_do_sv_dump(pTHX_ I32 level, PerlIO *file, SV *sv, I32 nest, I32 maxnest,
 	}
         if (IoBOTTOM_NAME(sv))
             Perl_dump_indent(aTHX_ level, file, "  BOTTOM_NAME = \"%s\"\n", IoBOTTOM_NAME(sv));
-	if (!IoBOTTOM_GV(sv) || SvTYPE(IoBOTTOM_GV(sv)) == SVt_PVGV)
+	if (!IoBOTTOM_GV(sv) || SvIS_TYPE(IoBOTTOM_GV(sv), PVGV))
 	    do_gv_dump (level, file, "  BOTTOM_GV", IoBOTTOM_GV(sv));
 	else {
 	    Perl_dump_indent(aTHX_ level, file, "  BOTTOM_GV = 0x%" UVxf "\n",
@@ -3713,7 +3713,7 @@ Perl_debop(pTHX_ const OP *o)
     case OP_GOTO: /* a loopexop or PVOP */
         if (PL_op->op_flags & OPf_STACKED) {
             SV* const sv = *PL_stack_sp;
-            if (SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVCV)
+            if (SvROK(sv) && SvIS_TYPE(SvRV(sv), PVCV))
                 /* goto \&subref */
                 PerlIO_printf(Perl_debug_log, "(\\&%" SVf ")",
                               SVfARG(cv_name((CV*)SvRV(sv), NULL, CV_NAME_NOMAIN)));
@@ -3731,7 +3731,7 @@ Perl_debop(pTHX_ const OP *o)
     case OP_ENTERFFI:
         {
             SV* const sv = *PL_stack_sp;
-            if (sv && SvTYPE(sv) == SVt_PVCV) /* no GV or PV yet */
+            if (sv && SvIS_TYPE(sv, PVCV)) /* no GV or PV yet */
                 PerlIO_printf(Perl_debug_log, "(%" SVf ")",
                     SVfARG(cv_name((CV*)sv, NULL, CV_NAME_NOMAIN)));
             break;
@@ -3995,7 +3995,7 @@ S__hv_dump(pTHX_ SV* sv, bool with_values, int level)
     U32 i;
     PERL_ARGS_ASSERT__HV_DUMP;
 
-    if (SvTYPE(sv) != SVt_PVHV)
+    if (SvISNT_TYPE(sv, PVHV))
         return;
     Perl_dump_indent(aTHX_ level, file, "KEYS = %u\n", (unsigned)HvUSEDKEYS(sv));
     Perl_dump_indent(aTHX_ level, file, "ARRAY = 0x%" UVxf "\n", PTR2UV(ents));
@@ -4008,10 +4008,10 @@ S__hv_dump(pTHX_ SV* sv, bool with_values, int level)
                     SV *v = HeVAL(h);
                     PerlIO_printf(file, "\"%s\" => %s",
                                      HeKEY(h), sv_peek(v));
-                    if (v && SvTYPE(v) == SVt_PVAV) {
+                    if (v && SvIS_TYPE(v, PVAV)) {
                         _av_dump(v, level+1);
                     }
-                    else if (v && SvTYPE(v) == SVt_PVHV) {
+                    else if (v && SvIS_TYPE(v, PVHV)) {
                         _hv_dump(v, 1, level+1);
                     }
                 }
@@ -4049,7 +4049,7 @@ S__av_dump(pTHX_ SV* av, int level)
     SSize_t i;
     PERL_ARGS_ASSERT__AV_DUMP;
 
-    if (SvTYPE(av) != SVt_PVAV)
+    if (SvISNT_TYPE(av, PVAV))
         return;
     Perl_dump_indent(aTHX_ level, file, "FILL = %" IVdf "\n", (IV)AvFILL(av));
     Perl_dump_indent(aTHX_ level, file, "MAX = %" IVdf "\n", (IV)AvMAX(av));
@@ -4058,10 +4058,10 @@ S__av_dump(pTHX_ SV* av, int level)
         for (i = 0; i <= AvFILLp(av); i++) {
             Perl_dump_indent(aTHX_ level, file, "[%u]: %s\n",
                              (unsigned)i, sv_peek(ents[i]));
-            if (ents[i] && SvTYPE(ents[i]) == SVt_PVAV) {
+            if (ents[i] && SvIS_TYPE(ents[i], PVAV)) {
                 _av_dump(ents[i], level+1);
             }
-            else if (ents[i] && SvTYPE(ents[i]) == SVt_PVHV) {
+            else if (ents[i] && SvIS_TYPE(ents[i], PVHV)) {
                 _hv_dump(ents[i], 0, level+1);
             }
         }

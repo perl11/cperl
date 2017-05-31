@@ -1443,7 +1443,7 @@ Perl_mess_sv(pTHX_ SV *basemsg, bool consume)
         }
 
 	/* Seems that GvIO() can be untrustworthy during global destruction. */
-	if (GvIO(PL_last_in_gv) && (SvTYPE(GvIOp(PL_last_in_gv)) == SVt_PVIO)
+	if (GvIO(PL_last_in_gv) && (SvIS_TYPE(GvIOp(PL_last_in_gv), PVIO))
 		&& IoLINES(GvIOp(PL_last_in_gv)))
 	{
 	    STRLEN l;
@@ -6034,7 +6034,7 @@ Perl_get_db_sub(pTHX_ SV *sv, CV *cv)
 	     || ( /* Could be imported, and old sub redefined. */
 		 (GvCV(gv) != cv || !S_gv_has_usable_name(aTHX_ gv))
 		 &&
-		 !( (SvTYPE(sv) == SVt_PVGV)
+		 !( (SvIS_TYPE(sv, PVGV))
 		    && (GvCV((const GV *)sv) == cv)
 		    /* Use GV from the stack as a fallback. */
 		    && S_gv_has_usable_name(aTHX_ gv = (GV *)sv)
@@ -6958,7 +6958,7 @@ Perl_dtrace_probe_call(pTHX_ CV *cv, bool is_call)
 
     PERL_ARGS_ASSERT_DTRACE_PROBE_CALL;
 
-    if (LIKELY(SvTYPE(cv) == SVt_PVCV)) {
+    if (LIKELY(SvIS_TYPE(cv, PVCV))) {
         func = CvNAMED(cv) ? CvNAMEPV(cv) : GvENAME(CvGV(cv));
         if (UNLIKELY(!func))
             func = "__ANON__";

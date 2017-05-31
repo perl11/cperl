@@ -601,7 +601,7 @@ PP(pp_open)
     STRLEN len;
     bool ok;
 
-    if (!isGV(gv) && !(SvTYPE(gv) == SVt_PVLV && isGV_with_GP(gv)))
+    if (!isGV(gv) && !(SvIS_TYPE(gv, PVLV) && isGV_with_GP(gv)))
 	DIE(aTHX_ PL_no_usym, "filehandle");
 
     if ((io = GvIOp(gv))) {
@@ -900,7 +900,7 @@ PP(pp_tie)
 		varsv = MUTABLE_SV(GvIOp(varsv));
 		break;
 	    }
-	    if (SvTYPE(varsv) == SVt_PVLV && LvTYPE(varsv) == 'y') {
+	    if (SvIS_TYPE(varsv, PVLV) && LvTYPE(varsv) == 'y') {
 		vivify_defelem(varsv);
 		varsv = LvTARG(varsv);
 	    }
@@ -975,8 +975,8 @@ PP(pp_tie)
 	sv_unmagic(varsv, how);
 	/* Croak if a self-tie on an aggregate is attempted. */
 	if (varsv == SvRV(sv) &&
-	    (SvTYPE(varsv) == SVt_PVAV ||
-	     SvTYPE(varsv) == SVt_PVHV))
+	    (SvIS_TYPE(varsv, PVAV) ||
+	     SvIS_TYPE(varsv, PVHV)))
 	    Perl_croak(aTHX_
 		       "Self-ties of arrays and hashes are not supported");
 	sv_magic(varsv, (SvRV(sv) == varsv ? NULL : sv), how, NULL, 0);
@@ -995,13 +995,13 @@ PP(pp_untie)
     dSP;
     MAGIC *mg;
     SV *sv = POPs;
-    const char how = (SvTYPE(sv) == SVt_PVHV || SvTYPE(sv) == SVt_PVAV)
-		? PERL_MAGIC_tied : PERL_MAGIC_tiedscalar;
+    const char how = (SvIS_TYPE(sv, PVHV) || SvIS_TYPE(sv, PVAV))
+        ? PERL_MAGIC_tied : PERL_MAGIC_tiedscalar;
 
     if (isGV_with_GP(sv) && !SvFAKE(sv) && !(sv = MUTABLE_SV(GvIOp(sv))))
 	RETPUSHYES;
 
-    if (SvTYPE(sv) == SVt_PVLV && LvTYPE(sv) == 'y' &&
+    if (SvIS_TYPE(sv, PVLV) && LvTYPE(sv) == 'y' &&
 	!(sv = defelem_target(sv, NULL))) RETPUSHUNDEF;
 
     if ((mg = SvTIED_mg(sv, how))) {
@@ -1035,13 +1035,13 @@ PP(pp_tied)
     dSP;
     const MAGIC *mg;
     dTOPss;
-    const char how = (SvTYPE(sv) == SVt_PVHV || SvTYPE(sv) == SVt_PVAV)
-		? PERL_MAGIC_tied : PERL_MAGIC_tiedscalar;
+    const char how = (SvIS_TYPE(sv, PVHV) || SvIS_TYPE(sv, PVAV))
+        ? PERL_MAGIC_tied : PERL_MAGIC_tiedscalar;
 
     if (isGV_with_GP(sv) && !SvFAKE(sv) && !(sv = MUTABLE_SV(GvIOp(sv))))
 	goto ret_undef;
 
-    if (SvTYPE(sv) == SVt_PVLV && LvTYPE(sv) == 'y' &&
+    if (SvIS_TYPE(sv, PVLV) && LvTYPE(sv) == 'y' &&
 	!(sv = defelem_target(sv, NULL))) goto ret_undef;
 
     if ((mg = SvTIED_mg(sv, how))) {
@@ -2292,7 +2292,7 @@ PP(pp_truncate)
 		}
 	    }
 	}
-	else if (SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVIO) {
+	else if (SvROK(sv) && SvIS_TYPE(SvRV(sv), PVIO)) {
 		io = MUTABLE_IO(SvRV(sv)); /* *main::FRED{IO} for example */
 		goto do_ftruncate_io;
 	}
@@ -2880,7 +2880,7 @@ PP(pp_stat)
         const char *file;
         const char *temp;
         STRLEN len;
-	if (SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVIO) { 
+	if (SvROK(sv) && SvIS_TYPE(SvRV(sv), PVIO)) { 
             io = MUTABLE_IO(SvRV(sv));
             if (PL_op->op_type == OP_LSTAT)
                 goto do_fstat_warning_check;
@@ -3434,7 +3434,7 @@ PP(pp_fttext)
     if (gv) {
 	if (gv == PL_defgv) {
 	    if (PL_statgv)
-		io = SvTYPE(PL_statgv) == SVt_PVIO
+		io = SvIS_TYPE(PL_statgv, PVIO)
 		    ? (IO *)PL_statgv
 		    : GvIO(PL_statgv);
 	    else {

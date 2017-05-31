@@ -1944,7 +1944,7 @@ PP(pp_caller)
 
     CX_DEBUG(cx, "CALLER");
     assert(CopSTASH(cx->blk_oldcop));
-    stash_hek = SvTYPE(CopSTASH(cx->blk_oldcop)) == SVt_PVHV
+    stash_hek = SvIS_TYPE(CopSTASH(cx->blk_oldcop), PVHV)
       ? HvNAME_HEK((HV*)CopSTASH(cx->blk_oldcop))
       : NULL;
     if (gimme != G_ARRAY) {
@@ -2259,7 +2259,7 @@ PP(pp_enteriter)
                 cxflags |= CXp_FOR_DEF;
         }
         else {                          /* LV ref: for \$foo (...) */
-            assert(SvTYPE(sv) == SVt_PVMG);
+            assert(SvIS_TYPE(sv, PVMG));
             assert(SvMAGIC(sv));
             assert(SvMAGIC(sv)->mg_type == PERL_MAGIC_lvref);
             itersave = NULL;
@@ -2283,7 +2283,7 @@ PP(pp_enteriter)
          * single AV on the stack, or a range: for (1..5), with 1 and 5 on
          * the stack.  */
 	SV *maybe_ary = POPs;
-	if (SvTYPE(maybe_ary) != SVt_PVAV) {
+	if (SvISNT_TYPE(maybe_ary, PVAV)) {
             /* range */
 	    dPOPss;
 	    SV * const right = maybe_ary;
@@ -2320,7 +2320,7 @@ PP(pp_enteriter)
 		}
             }
 	}
-	else /* SvTYPE(maybe_ary) == SVt_PVAV */ {
+	else /* SvIS_TYPE(maybe_ary, PVAV) */ {
             /* for (@array) {} */
             cx->cx_type |= CXt_LOOP_ARY;
             assert(PL_op->op_next->op_type == OP_ITER
@@ -2862,7 +2862,7 @@ PP(pp_goto)
            sig2pp: goto pad=>@_, pp2sig: goto @=>stack, signature stack=>pad.
            BTW: Not using a real stack but a heap array doesn't help neither.
         */
-	if (SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVCV) {
+	if (SvROK(sv) && SvIS_TYPE(SvRV(sv), PVCV)) {
 	    I32 cxix;
 	    PERL_CONTEXT *cx;
 	    CV *cv = MUTABLE_CV(SvRV(sv));
@@ -2990,10 +2990,10 @@ PP(pp_goto)
                         /* XXX #173 */
                         if (!arg || (av == arg) || AvREAL(av))
                             clear_defarray(av, arg && (av == arg));
-                        if (!arg || SvTYPE(arg) != SVt_PVAV) {
+                        if (!arg || SvISNT_TYPE(arg, PVAV)) {
                             arg = GvAV(gv_AVadd(PL_defgv));
                             /* how can this be corrupt? restore stack most likely */
-                            if (SvTYPE(arg) != SVt_PVAV) {
+                            if (SvISNT_TYPE(arg, PVAV)) {
                                 GvAV(PL_defgv) = NULL;
                                 arg = GvAV(gv_AVadd(PL_defgv));
                             }
@@ -3639,7 +3639,7 @@ S_doeval_compile(pTHX_ U8 gimme, CV* outside, U32 seq, HV *hh)
     if (CopSTASH_ne(PL_curcop, PL_curstash)) {
 	SAVEGENERICSV(PL_curstash);
 	PL_curstash = (HV *)CopSTASH(PL_curcop);
-	if (SvTYPE(PL_curstash) != SVt_PVHV) PL_curstash = NULL;
+	if (SvISNT_TYPE(PL_curstash, PVHV)) PL_curstash = NULL;
 	else {
 	    SvREFCNT_inc_simple_void(PL_curstash);
 	    save_item(PL_curstname);
@@ -4219,7 +4219,7 @@ S_require_file(pTHX_ SV *sv)
 		    SV **svp;
 		    SV *loader = dirsv;
 
-		    if (SvTYPE(SvRV(loader)) == SVt_PVAV && !SvOBJECT(SvRV(loader))) {
+		    if (SvIS_TYPE(SvRV(loader), PVAV) && !SvOBJECT(SvRV(loader))) {
 			loader = *av_fetch(MUTABLE_AV(SvRV(loader)), 0, TRUE);
 			SvGETMAGIC(loader);
 		    }
@@ -4292,7 +4292,7 @@ S_require_file(pTHX_ SV *sv)
 			    }
 			}
 
-			if (SvROK(arg) && SvTYPE(SvRV(arg)) == SVt_PVCV) {
+			if (SvROK(arg) && SvIS_TYPE(SvRV(arg), PVCV)) {
 			    filter_sub = arg;
 			    SvREFCNT_inc_simple_void_NN(filter_sub);
 
@@ -5071,12 +5071,12 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	object_on_left = TRUE;
 
     /* ~~ sub */
-    if (SvROK(e) && SvTYPE(SvRV(e)) == SVt_PVCV) {
+    if (SvROK(e) && SvIS_TYPE(SvRV(e), PVCV)) {
 	I32 c;
 	if (object_on_left) {
 	    goto sm_any_sub; /* Treat objects like scalars */
 	}
-	else if (SvROK(d) && SvTYPE(SvRV(d)) == SVt_PVHV) {
+	else if (SvROK(d) && SvIS_TYPE(SvRV(d), PVHV)) {
 	    /* Test sub truth for each key */
 	    HE *he;
 	    bool andedresults = TRUE;
@@ -5106,7 +5106,7 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	    else
 		RETPUSHNO;
 	}
-	else if (SvROK(d) && SvTYPE(SvRV(d)) == SVt_PVAV) {
+	else if (SvROK(d) && SvIS_TYPE(SvRV(d), PVAV)) {
 	    /* Test sub truth for each element */
 	    AV *av = (AV*) SvRV(d);
 	    const SSize_t len = av_tindex(av);
@@ -5159,7 +5159,7 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	}
     }
     /* ~~ %hash */
-    else if (SvROK(e) && SvTYPE(SvRV(e)) == SVt_PVHV) {
+    else if (SvROK(e) && SvIS_TYPE(SvRV(e), PVHV)) {
 	if (object_on_left) {
 	    goto sm_any_hash; /* Treat objects like scalars */
 	}
@@ -5167,7 +5167,7 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	    DEBUG_M(Perl_deb(aTHX_ "    applying rule Any-Hash ($a undef)\n"));
 	    RETPUSHNO;
 	}
-	else if (SvROK(d) && SvTYPE(SvRV(d)) == SVt_PVHV) {
+	else if (SvROK(d) && SvIS_TYPE(SvRV(d), PVHV)) {
 	    /* Check that the key-sets are identical */
 	    HE *he;
 	    HV *other_hv = MUTABLE_HV(SvRV(d));
@@ -5222,7 +5222,7 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	    else
 		RETPUSHYES;
 	}
-	else if (SvROK(d) && SvTYPE(SvRV(d)) == SVt_PVAV) {
+	else if (SvROK(d) && SvIS_TYPE(SvRV(d), PVAV)) {
 	    AV * const other_av = MUTABLE_AV(SvRV(d));
 	    const SSize_t other_len = av_tindex(other_av) + 1;
 	    SSize_t i;
@@ -5273,11 +5273,11 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	}
     }
     /* ~~ @array */
-    else if (SvROK(e) && SvTYPE(SvRV(e)) == SVt_PVAV) {
+    else if (SvROK(e) && SvIS_TYPE(SvRV(e), PVAV)) {
 	if (object_on_left) {
 	    goto sm_any_array; /* Treat objects like scalars */
 	}
-	else if (SvROK(d) && SvTYPE(SvRV(d)) == SVt_PVHV) {
+	else if (SvROK(d) && SvIS_TYPE(SvRV(d), PVHV)) {
 	    AV * const other_av = MUTABLE_AV(SvRV(e));
 	    const SSize_t other_len = av_tindex(other_av) + 1;
 	    SSize_t i;
@@ -5294,7 +5294,7 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
 	    }
 	    RETPUSHNO;
 	}
-	if (SvROK(d) && SvTYPE(SvRV(d)) == SVt_PVAV) {
+	if (SvROK(d) && SvIS_TYPE(SvRV(d), PVAV)) {
 	    AV *other_av = MUTABLE_AV(SvRV(d));
 	    DEBUG_M(Perl_deb(aTHX_ "    applying rule Array-Array\n"));
 	    if (av_tindex(MUTABLE_AV(SvRV(e))) != av_tindex(other_av))
@@ -5417,12 +5417,12 @@ S_do_smartmatch(pTHX_ HV *seen_this, HV *seen_other, const bool copied)
     }
     /* ~~ qr// */
     else if (SvROK(e) && SvTYPE(SvRV(e)) == SVt_REGEXP) {
-	if (!object_on_left && SvROK(d) && SvTYPE(SvRV(d)) == SVt_PVHV) {
+	if (!object_on_left && SvROK(d) && SvIS_TYPE(SvRV(d), PVHV)) {
 	    SV *t = d; d = e; e = t;
 	    DEBUG_M(Perl_deb(aTHX_ "    applying rule Hash-Regex\n"));
 	    goto sm_regex_hash;
 	}
-	else if (!object_on_left && SvROK(d) && SvTYPE(SvRV(d)) == SVt_PVAV) {
+	else if (!object_on_left && SvROK(d) && SvIS_TYPE(SvRV(d), PVAV)) {
 	    SV *t = d; d = e; e = t;
 	    DEBUG_M(Perl_deb(aTHX_ "    applying rule Array-Regex\n"));
 	    goto sm_regex_array;
