@@ -110,16 +110,52 @@ as an updated module in the L</Modules and Pragmata> section.
 
 =head1 Performance Enhancements
 
-XXX Changes which enhance performance without changing behaviour go here.
-There may well be none in a stable release.
-
-[ List each enhancement as a =item entry ]
-
 =over 4
 
 =item *
 
-XXX
+XS calls were made faster again. Previously cperl (with 5.22.1c) fell
+from pure perl calls to XS calls and changed the call type to
+ENTERXSSUB for faster subsequent invocations. This made bigger
+examples ~10% faster.  Now the compiler detects calls to XS code and
+changes the type to ENTERXSSUB.  Also the method cache code checks now
+for an XS call and changes the type of the next OP. Overall the
+improvement is ~3.5%, but it depends on the frequency of XS
+calls. It's 0.5-1% slower without any XS call.  Note that p5p decided
+to delete this feature request from it's TODO list.
+
+The optree is a bit slimmer.
+Before:
+
+    $ cperl5.27.0d-nt -Dt -e'use strict'
+    (-e:1)	nextstate
+    (-e:1)	const(PV("strict.pm"))
+    (-e:1)	require
+    (-e:1)	nextstate
+    (-e:1)	pushmark
+    (-e:1)	const(PV("strict"))
+    (-e:1)	method_named(->import)
+    (-e:1)	entersub(strict::import)
+    (-e:1)	enterxssub(strict::import)
+    (-e:1)	leavesub
+
+Now:
+
+    $ cperl5.27.1d-nt -Dt -e'use strict'
+    (-e:1)	nextstate
+    (-e:1)	const(PV("strict.pm"))
+    (-e:1)	require
+    (-e:1)	nextstate
+    (-e:1)	pushmark
+    (-e:1)	const(PV("strict"))
+    (-e:1)	method_named(->import)
+    (-e:1)	enterxssub(strict::import)
+    (-e:1)	leavesub
+
+Note that this is still not optimal, as strict::import can be
+compile-time optimized from a dynamic method call to a static function
+call. A regression from 5.22.1c.
+See L<http://blogs.perl.org/users/rurban/2011/06/how-perl-calls-subs-and-methods.html>
 
 =back
 

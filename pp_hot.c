@@ -5429,6 +5429,7 @@ PP(pp_method)
     RETURN;
 }
 
+/* collapsed the XS check into one bit in the cached gv: GvXSCV */
 #define METHOD_CHECK_CACHE(stash,cache,meth) 				\
     if (SvREADONLY(stash) && !hv_exists_ent(stash, meth, 0)) { ;        \
     } else {                                                            \
@@ -5439,7 +5440,7 @@ PP(pp_method)
                 == (PL_sub_generation + HvMROMETA(stash)->cache_gen)))  \
             {                                                           \
                 CV *cv = GvCV(gv);                                      \
-                if (CvISXSUB(cv) && !CvCONST(cv) && CvROOT(cv) && !PL_perldb \
+                if (GvXSCV(gv) && !PL_perldb                            \
                     && OpTYPE(PL_op->op_next) == OP_ENTERSUB)           \
                 {                                                       \
                     DEBUG_k(Perl_deb(aTHX_ "method_named -> xs %" SVf "\n",\

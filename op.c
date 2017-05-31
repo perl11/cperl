@@ -10220,6 +10220,7 @@ Perl_newXS_len_flags(pTHX_ const char *name, STRLEN len,
             }
         }
 
+        GvXSCV_on(gv);
         CvGV_set(cv, gv);
         if (filename) {
             /* XSUBs can't be perl lang/perl5db.pl debugged
@@ -18620,11 +18621,14 @@ Perl_coresub_op(pTHX_ SV * const coreargssv, const int code,
 
 /*
 =for apidoc report_redefined_cv
+
+If a CV is overwritten, warn by whom
+when use warnings 'redefine' is in effect.
 =cut
 */
 void
 Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_cv,
-			       SV * const *new_const_svp)
+                         SV * const *new_const_svp)
 {
     const char *hvname;
     bool is_const = !!CvCONST(old_cv);
@@ -18677,10 +18681,10 @@ Perl_report_redefined_cv(pTHX_ const SV *name, const CV *old_cv,
         } else {
         no_caller:
             Perl_warner(aTHX_ packWARN(WARN_REDEFINE),
-			  is_const
-			    ? "Constant subroutine %" SVf " redefined"
-			    : "Subroutine %" SVf " redefined",
-                          SVfARG(name));
+                        is_const
+                          ? "Constant subroutine %" SVf " redefined"
+                          : "Subroutine %" SVf " redefined",
+                        SVfARG(name));
         }
     }
 }

@@ -176,6 +176,7 @@ Return the CV from the GV.
 #define GVf_IMPORTED_AV	  0x20
 #define GVf_IMPORTED_HV	  0x40
 #define GVf_IMPORTED_CV	  0x80
+#define GVf_XSCV	  0x100
 
 #define GvINTRO(gv)		(GvFLAGS(gv) & GVf_INTRO)
 #define GvINTRO_on(gv)		(GvFLAGS(gv) |= GVf_INTRO)
@@ -210,6 +211,11 @@ Return the CV from the GV.
 #define GvIMPORTED_CV(gv)	(GvFLAGS(gv) & GVf_IMPORTED_CV)
 #define GvIMPORTED_CV_on(gv)	(GvFLAGS(gv) |= GVf_IMPORTED_CV)
 #define GvIMPORTED_CV_off(gv)	(GvFLAGS(gv) &= ~GVf_IMPORTED_CV)
+
+/* for the cache only */
+#define GvXSCV(gv)		(GvFLAGS(gv) & GVf_XSCV)
+#define GvXSCV_on(gv)		(GvFLAGS(gv) |= GVf_XSCV)
+#define GvXSCV_off(gv)		(GvFLAGS(gv) &= ~GVf_XSCV)
 
 #ifndef PERL_CORE
 #  define GvIN_PAD(gv)		0

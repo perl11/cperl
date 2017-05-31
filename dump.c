@@ -1711,6 +1711,7 @@ const struct flag_to_name gv_flags_names[] = {
     {GVf_MULTI, "MULTI,"},
     {GVf_ASSUMECV, "ASSUMECV,"},
     {GVf_STATIC, "STATIC,"},
+    {GVf_XSCV, "XSCV,"},
 };
 
 const struct flag_to_name gv_flags_imported_names[] = {

@@ -4129,6 +4129,8 @@ Perl_gv_setref(pTHX_ SV *const dstr, SV *const sstr)
                         ? cv_const_sv((const CV *)sref)
                         : NULL;
                     HV * const stash = GvSTASH((const GV *)dstr);
+                    if (GvXSCV(dstr) && (const_sv || !CvISXSUB(cv)))
+                        GvXSCV_off(dstr);
                     report_redefined_cv(
                             sv_2mortal(
                                    stash
