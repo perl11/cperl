@@ -14432,9 +14432,15 @@ Perl_ck_entersub_args_proto_or_list(pTHX_ OP *entersubop,
 	GV *namegv, SV *protosv)
 {
     PERL_ARGS_ASSERT_CK_ENTERSUB_ARGS_PROTO_OR_LIST;
-    if (SvTYPE(protosv) == SVt_PVCV) {
+    /* Which types do arrive here? 99% CV */
+    DEBUG_kv(Perl_deb(aTHX_ "ck_entersub %s %" SVf "\n",
+                     SvTYPE(protosv) == SVt_PVCV
+                       ? "CV" : SvTYPE(protosv) == SVt_PVGV
+                       ? "GV" : "RV",
+                     SVfARG(cv_name((CV*)protosv, NULL, CV_NAME_NOMAIN))));
+    if (LIKELY(SvTYPE(protosv) == SVt_PVCV)) {
         if (CvHASSIG((CV*)protosv) && CvSIGOP((CV*)protosv)) {
-            if (PERLDB_SUB) {
+            if (UNLIKELY(PERLDB_SUB)) {
                 (void)ck_entersub_args_signature(entersubop, namegv, (CV*)protosv);
                 S_debug_undo_signature(aTHX_ (CV*)protosv);
                 return entersubop;
@@ -14442,11 +14448,15 @@ Perl_ck_entersub_args_proto_or_list(pTHX_ OP *entersubop,
             return ck_entersub_args_signature(entersubop, namegv, (CV*)protosv);
         }
         else {
-            /* Try XS call beforehand. Most XS calls are via CV not GV */
-            if (CvISXSUB(protosv) && !CvCONST(protosv)
-                && CvROOT(protosv) && !PL_perldb) {
+            /* Try XS call beforehand. Most XS calls are via CV not GV.
+               GvXSCV is safe, because CvCONST and CvEXTERN are never set via newXS()
+               which sets this flag.
+             */
+            if (UNLIKELY(CvISXSUB((CV*)protosv) && CvROOT((CV*)protosv) &&
+                         GvXSCV(CvGV((CV*)protosv)) && !PL_perldb))
+            {
                 DEBUG_k(Perl_deb(aTHX_ "entersub -> xs %" SVf "\n",
-                        SVfARG(cv_name((CV *)protosv, NULL, CV_NAME_NOMAIN))));
+                        SVfARG(cv_name((CV*)protosv, NULL, CV_NAME_NOMAIN))));
                 OpTYPE_set(entersubop, OP_ENTERXSSUB);
             }
             if (SvPOK(protosv))
