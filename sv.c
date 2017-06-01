@@ -12106,7 +12106,6 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	STRLEN width     = 0;         /* value of "%NNN..."  */
 	bool has_precis  = FALSE;     /* has      "%.NNN..." */
 	STRLEN precis    = 0;         /* value of "%.NNN..." */
-        bool used_explicit_ix = FALSE;/* has      "%n$..."   */
 	int base         = 0;         /* base to print in, e.g. 8 for %o */
 	UV uv            = 0;         /* the value to print of int-ish args */
 
@@ -12168,7 +12167,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 		++q;
 		efix = (Size_t)width;
                 width = 0;
-                used_explicit_ix = TRUE;
+                no_redundant_warning = TRUE;
 	    } else {
 		goto gotwidth;
 	    }
@@ -12233,7 +12232,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                     if (args)
                         Perl_croak_nocontext(
                             "Cannot yet reorder sv_catpvfn() arguments from va_list");
-                    used_explicit_ix = TRUE;
+                    no_redundant_warning = TRUE;
                 } else
 		    goto unknown;
             }
@@ -12318,7 +12317,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                         if (args)
                             Perl_croak_nocontext(
                                 "Cannot yet reorder sv_catpvfn() arguments from va_list");
-                        used_explicit_ix = TRUE;
+                        no_redundant_warning = TRUE;
                     } else
                         goto unknown;
                 }
@@ -12534,7 +12533,6 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
                     /* not %*p or %*1$p - any width was explicit */
                 && q[-2] != '*'
                 && q[-2] != '$'
-                && !used_explicit_ix
             ) {
                 if (left) {			/* %-p (SVf), %-NNNp */
                     if (width) {
@@ -13396,6 +13394,9 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
             sv_catpvn_nomg(sv, p, 1);
             q = p + 1;
 	    svix = osvix;
+            /* Any "redundant arg" warning from now onwards will probably
+             * just be misleading, so don't bother. */
+            no_redundant_warning = TRUE;
 	    continue;	/* not "break" */
 	}
 
@@ -13499,8 +13500,7 @@ Perl_sv_vcatpvfn_flags(pTHX_ SV *const sv, const char *const pat, const STRLEN p
 	}
 
       donevalidconversion:
-        if (used_explicit_ix)
-            no_redundant_warning = TRUE;
+
         if (arg_missing)
             S_warn_vcatpvfn_missing_argument(aTHX);
     }
