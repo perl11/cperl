@@ -694,7 +694,7 @@ void
 Perl_av_undef(pTHX_ AV *av)
 {
     bool real;
-    SSize_t orig_ix;
+    SSize_t orig_ix = PL_tmps_ix; /* silence bogus warning about possible unitialized use */
 
     PERL_ARGS_ASSERT_AV_UNDEF;
     assert(SvTYPE(av) == SVt_PVAV);
@@ -703,7 +703,8 @@ Perl_av_undef(pTHX_ AV *av)
     if (UNLIKELY(SvTIED_mg((const SV *)av, PERL_MAGIC_tied)))
 	av_fill(av, -1);
 
-    if ((real = cBOOL(AvREAL(av)))) {
+    real = cBOOL(AvREAL(av));
+    if (real) {
 	SSize_t key = AvFILLp(av) + 1;
 
         /* avoid av being freed when calling destructors below */
