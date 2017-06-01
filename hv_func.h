@@ -19,14 +19,15 @@
 #ifdef PERL_HASH_FUNC_ONE_AT_A_TIME_HARD
 #define PERL_HASH_FUNC_OAAT_HARD
 #endif
-#ifdef PERL_HASH_FUNC_ONE_AT_A_TIME_OLD
-#define PERL_HASH_FUNC_OAAT_OLD
-#endif
 #ifdef PERL_HASH_FUNC_MURMUR_HASH_64A
 #define PERL_HASH_FUNC_MURMUR64A
 #endif
 #ifdef PERL_HASH_FUNC_MURMUR_HASH_64B
 #define PERL_HASH_FUNC_MURMUR64B
+#endif
+
+#if IVSZIE == 8
+#define CAN64BITHASH
 #endif
 
 #if !( 0 \
@@ -37,7 +38,6 @@
         || defined(PERL_HASH_FUNC_MURMUR3) \
         || defined(PERL_HASH_FUNC_OAAT) \
         || defined(PERL_HASH_FUNC_OAAT_HARD) \
-        || defined(PERL_HASH_FUNC_OAAT_OLD) \
         || defined(PERL_HASH_FUNC_MURMUR64A) \
         || defined(PERL_HASH_FUNC_MURMUR64B) \
         || defined(PERL_HASH_FUNC_FNV1A) \
@@ -53,7 +53,15 @@
    See https://github.com/rurban/smhasher#smhasher
    and https://github.com/rurban/perl-hash-stats
  */
-#define PERL_HASH_FUNC_FNV1A
+# ifdef USE_CPERL
+#  define PERL_HASH_FUNC_FNV1A
+# else
+#  ifdef CAN64BITHASH
+#   define PERL_HASH_FUNC_HYBRID_OAATHU_SIPHASH13
+#  else
+#   define PERL_HASH_FUNC_ONE_AT_A_TIME_HARD
+#  endif
+# endif
 #endif
 
 #if defined(PERL_HASH_FUNC_SIPHASH)
@@ -84,10 +92,6 @@
 #   define PERL_HASH_FUNC "ONE_AT_A_TIME"
 #   define PERL_HASH_SEED_BYTES 4
 #   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_one_at_a_time((seed),(U8*)(str),(len))
-#elif defined(PERL_HASH_FUNC_OAAT_OLD)
-#   define PERL_HASH_FUNC "ONE_AT_A_TIME_OLD"
-#   define PERL_HASH_SEED_BYTES 4
-#   define PERL_HASH_WITH_SEED(seed,hash,str,len) (hash)= S_perl_hash_old_one_at_a_time((seed),(U8*)(str),(len))
 #elif defined(PERL_HASH_FUNC_MURMUR64A)
 #   define PERL_HASH_FUNC "MURMUR_HASH_64A"
 #   define PERL_HASH_SEED_BYTES 8
@@ -197,7 +201,7 @@
   #define UNALIGNED_SAFE 1
 #endif
 
-#ifdef HAS_QUAD
+#ifdef CAN64BITHASH
 #ifndef U64TYPE
 /* This probably isn't going to work, but failing with a compiler error due to
    lack of uint64_t is no worse than failing right now with an #error.  */
@@ -209,13 +213,13 @@
 #if defined(_MSC_VER)
   #include <stdlib.h>  /* Microsoft put _rotl declaration in here */
   #define ROTL32(x,r)  _rotl(x,r)
-  #ifdef HAS_QUAD
+  #ifdef CAN64BITHASH
     #define ROTL64(x,r)  _rotl64(x,r)
   #endif
 #else
   /* gcc recognises this code and generates a rotate instruction for CPUs with one */
   #define ROTL32(x,r)  (((U32)x << r) | ((U32)x >> (32 - r)))
-  #ifdef HAS_QUAD
+  #ifdef CAN64BITHASH
     #define ROTL64(x,r)  (((U64)x << r) | ((U64)x >> (64 - r)))
   #endif
 #endif
@@ -242,7 +246,7 @@
  */
 
 #if defined(PERL_HASH_FUNC_SIPHASH)
-#ifdef HAS_QUAD
+#ifdef CAN64BITHASH
 
 #define U8TO64_LE(p) \
   (((U64)((p)[0])      ) | \
@@ -319,7 +323,7 @@ S_perl_hash_siphash_2_4(const unsigned char * const seed, const unsigned char *i
   b = v0 ^ v1 ^ v2  ^ v3;
   return (U32)(b & U32_MAX);
 }
-#endif /* defined(HAS_QUAD) */
+#endif /* defined(CAN64BITHASH) */
 #endif /* defined(PERL_HASH_FUNC_SIPHASH) */
 
 /* FYI: This is the "Super-Fast" algorithm mentioned by Bob Jenkins in
@@ -558,7 +562,6 @@ S_perl_hash_sdbm(const unsigned char * const seed, const unsigned char *str, con
 #endif /* defined(PERL_HASH_FUNC_SDBM) */
 
 /* - ONE_AT_A_TIME_HARD is the 5.17+ recommend ONE_AT_A_TIME algorithm
- * - ONE_AT_A_TIME_OLD is the unmodified 5.16 and older algorithm
  * - ONE_AT_A_TIME is a 5.17+ tweak of ONE_AT_A_TIME_OLD to
  *   prevent strings of only \0 but different lengths from colliding
  *
@@ -629,22 +632,7 @@ S_perl_hash_one_at_a_time_hard(const unsigned char * const seed, const unsigned 
 }
 #endif /* defined(PERL_HASH_FUNC_ONE_AT_A_TIME_HARD) */
 
-#if defined(PERL_HASH_FUNC_ONE_AT_A_TIME_OLD)
-PERL_STATIC_INLINE U32
-S_perl_hash_old_one_at_a_time(const unsigned char * const seed, const unsigned char *str, const STRLEN len) {
-    const unsigned char * const end = (const unsigned char *)str + len;
-    U32 hash = *((const U32*)seed);
-    assert(hash);
-    while (str < end) {
-        hash += *str++;
-        hash += (hash << 10);
-        hash ^= (hash >> 6);
-    }
-    hash += (hash << 3);
-    hash ^= (hash >> 11);
-    return (hash + (hash << 15));
-}
-#endif /* defined(PERL_HASH_FUNC_ONE_AT_A_TIME_OLD) */
+#ifdef CAN64BITHASH
 
 #ifdef PERL_HASH_FUNC_MURMUR64A
 /* This code is from Austin Appleby and is in the public domain.
@@ -773,6 +761,7 @@ S_perl_hash_murmur_hash_64b (const unsigned char * const seed, const unsigned ch
         return h2;
 }
 #endif
+#endif /* defined(CAN64BITHASH) */
 
 #ifdef PERL_HASH_FUNC_FNV1A
 /* schmorp: without any experiments, fnv1a should be faster than
@@ -882,7 +871,7 @@ S_perl_hash_crc32(const unsigned char * const seed, const unsigned char *str, ST
 }
 #endif
 
-#if defined(HAS_QUAD) && (defined(PERL_HASH_FUNC_METRO64CRC) || defined(PERL_HASH_FUNC_METRO64))
+#if defined(CAN64BITHASH) && (defined(PERL_HASH_FUNC_METRO64CRC) || defined(PERL_HASH_FUNC_METRO64))
 /* rotate right idiom recognized by compiler*/
 inline static U64TYPE rotate_right(U64TYPE v, unsigned k) {
     return (v >> k) | (v << (64 - k));
@@ -978,7 +967,7 @@ S_perl_hash_metro64crc(const unsigned char * const seed, const unsigned char *st
 }
 #endif
 
-#if defined(PERL_HASH_FUNC_METRO64) && defined(HAS_QUAD)
+#if defined(PERL_HASH_FUNC_METRO64) && defined(CAN64BITHASH)
 PERL_STATIC_INLINE U32
 S_perl_hash_metro64(const unsigned char * const seed, const unsigned char *str, STRLEN len) {
     static const U64TYPE k0 = 0xC83A91E1;
@@ -1043,7 +1032,7 @@ S_perl_hash_metro64(const unsigned char * const seed, const unsigned char *str, 
 }
 #endif
 
-#if defined(PERL_HASH_FUNC_SPOOKY32) && defined(HAS_QUAD)
+#if defined(PERL_HASH_FUNC_SPOOKY32) && defined(CAN64BITHASH)
 
 /* Spooky Hash
    A 128-bit noncryptographic hash, for checksums and table lookup
