@@ -292,6 +292,11 @@ L<[perl #131575]|https://rt.perl.org/Public/Bug/Display.html?id=131575>
 C<perldoc -f s> now finds C<s///>.
 L<[perl #131371]|https://rt.perl.org/Public/Bug/Display.html?id=131371>
 
+=item *
+
+Some erroneous warnings after utf8 conversion have been fixed.
+L<[perl #131190]|https://rt.perl.org/Public/Bug/Display.html?id=131190>
+
 =back
 
 =head1 Platform Support
