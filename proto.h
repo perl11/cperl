@@ -10161,7 +10161,7 @@ STATIC bool	S_curse(pTHX_ SV * const sv, const bool check_refcnt)
 #define PERL_ARGS_ASSERT_CURSE	\
 	assert(sv)
 
-STATIC STRLEN	S_expect_number(pTHX_ char **const pattern)
+STATIC STRLEN	S_expect_number(pTHX_ const char **const pattern)
 			__attribute__warn_unused_result__
 			__attribute__nonnull__(pTHX_1);
 #define PERL_ARGS_ASSERT_EXPECT_NUMBER	\
