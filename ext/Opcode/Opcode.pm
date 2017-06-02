@@ -563,7 +563,7 @@ about calling environment and args.
 =item :still_to_be_decided
 
     enterxssub -- can do everything
-    enterffi leaveffi -- even more
+    enterffi   -- even more
 
     chdir
     flock ioctl

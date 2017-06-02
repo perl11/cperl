@@ -30,6 +30,9 @@
 
 #include "reentr.h"
 #include "regcharclass.h"
+#if defined(I_FFI) && defined(USE_FFI)
+#include <ffi.h>
+#endif
 
 static const STRLEN small_mu_len = sizeof(GREEK_SMALL_LETTER_MU_UTF8) - 1;
 static const STRLEN capital_iota_len = sizeof(GREEK_CAPITAL_LETTER_IOTA_UTF8) - 1;
@@ -546,6 +549,7 @@ PP(pp_anoncode)
     RETURN;
 }
 
+/* really just callffi, handling also the signature and retval */
 PP(pp_enterffi)
 {
     dVAR; dSP; dPOPss;
@@ -571,7 +575,29 @@ PP(pp_enterffi)
     if (!hasargs) { /* and !is_scalar, rather is_void */
         CvXFFI(cv)();
     } else {
-        /* use libffi */
+#if defined(D_LIBFFI) && defined(USE_FFI)
+        ffi_arg rvalue;
+        PERL_CONTEXT *cx = &cxstack[cxstack_ix];
+        SV **argp = cx->blk_sub.argarray; /* really -1 */
+        SV **st = (SV**)cx->blk_sub.savearray;
+        const unsigned int num_args = st - argp + 1;
+        void **argvalues;
+
+        if (CvHASSIG(cv) && num_args) {
+            /* XXX prefer alloca() */
+            argvalues = (void**)malloc(num_args * sizeof(ffi_arg));
+            prep_ffi_sig(cv, num_args, argp, argvalues);
+        } else {
+            argvalues = NULL;
+        }
+        ffi_call(INT2PTR(ffi_cif*, CvFFILIB(cv)), CvXFFI(cv),
+                 &rvalue, argvalues);
+        prep_ffi_ret(cv, (void*)rvalue);
+
+        free(argvalues); /* if not alloca */
+#else
+        DIE(aTHX_ "libffi not available");
+#endif
     }
 #endif
 

@@ -11270,6 +11270,23 @@ PERL_CALLCONV void	Perl_dtrace_probe_phase(pTHX_ enum perl_phase phase)
 			__attribute__global__;
 
 #endif
+#if defined(USE_FFI)
+PERL_CALLCONV void	Perl_prep_ffi_ret(pTHX_ CV* cv, void *rvalue)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_2);
+#define PERL_ARGS_ASSERT_PREP_FFI_RET	\
+	assert(cv); assert(rvalue)
+
+PERL_CALLCONV void	Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **argvalues)
+			__attribute__global__
+			__attribute__nonnull__(pTHX_1)
+			__attribute__nonnull__(pTHX_3)
+			__attribute__nonnull__(pTHX_4);
+#define PERL_ARGS_ASSERT_PREP_FFI_SIG	\
+	assert(cv); assert(argp); assert(argvalues)
+
+#endif
 #if defined(USE_ITHREADS)
 PERL_CALLCONV PADOFFSET	Perl_alloccopstash(pTHX_ HV *hv)
 			__attribute__global__

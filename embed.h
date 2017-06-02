@@ -1082,6 +1082,10 @@
 #define dump_c_backtrace(a,b,c)	Perl_dump_c_backtrace(aTHX_ a,b,c)
 #define get_c_backtrace_dump(a,b)	Perl_get_c_backtrace_dump(aTHX_ a,b)
 #endif
+#if defined(USE_FFI)
+#define prep_ffi_ret(a,b)	Perl_prep_ffi_ret(aTHX_ a,b)
+#define prep_ffi_sig(a,b,c,d)	Perl_prep_ffi_sig(aTHX_ a,b,c,d)
+#endif
 #if defined(USE_ITHREADS)
 #define alloccopstash(a)	Perl_alloccopstash(aTHX_ a)
 #define any_dup(a,b)		Perl_any_dup(aTHX_ a,b)

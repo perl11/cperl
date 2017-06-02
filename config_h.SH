@@ -5455,6 +5455,22 @@ sed <<!GROK!THIS! >$CONFIG_H -e 's!^#undef\(.*/\)\*!/\*#define\1 \*!' -e 's!^#un
 #define PERL_BUILD_DATE "$cf_time"
 #endif
 
+/* USE_FFI:
+ *	header equivalent to \$Config{useffi}, if -lffi is linked.
+ */
+/* I_FFI:
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include <ffi.h>. The incpath is already added to ccflags.
+ */
+/* D_LIBFFI:
+ *	This symbol, if defined, indicates to the C program that libffi is usable.
+ */
+#ifndef USE_FFI
+#$useffi	USE_FFI		/**/
+#endif
+#$i_ffi 	I_FFI		/**/
+#$d_libffi 	D_LIBFFI        /**/
+
 #endif
 !GROK!THIS!
 ;;

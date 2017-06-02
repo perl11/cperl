@@ -23,6 +23,10 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#if defined(I_FFI) && defined(USE_FFI)
+#include <ffi.h>
+#endif
+
 /* public XS package methods */
 /* -- converted to XS */
 XS_EXTERNAL(XS_strict_bits);
@@ -451,6 +455,103 @@ XS_EXTERNAL(XS_strict_unimport)
  * Extended by cPanel.
  */
 
+/* ffi helpers */
+#if defined(D_LIBFFI) && defined(USE_FFI)
+
+/* compile-time */
+/*
+=for apidoc prep_cif
+
+Prepare the compile-time argument and return types and arity for an
+extern sub for C<ffi_prep_cif()>.
+
+See C<man ffi_prep_cif>.
+=cut
+*/
+static void*
+S_prep_cif(pTHX_ CV* cv)
+{
+    UNOP_AUX *sigop = CvSIGOP(cv);
+    UNOP_AUX_item *items = sigop->op_aux;
+    ffi_cif* cif = (ffi_cif*)safemalloc(sizeof(ffi_cif));
+
+    const UV   params      = items[0].uv;
+    const UV   mand_params = params >> 16;
+    const UV   opt_params  = params & ((1<<15)-1);
+    const bool slurpy      = cBOOL((params >> 15) & 1);
+    const unsigned int num_args = mand_params + opt_params;
+    /* alloca? Does ffi_prep_cif copy the ret and argtypes? No */
+    ffi_type argtypes[] = (ffi_type*)safemalloc(num_args * sizeof(ffi_type));
+    ffi_type rtype;
+    ffi_status status;
+
+    /* XXX walk sigs */
+    argtypes[0] = &ffi_type_sint;
+    rtype = &ffi_type_sint;
+
+    if ((status = ffi_prep_cif(cif,
+         FFI_DEFAULT_ABI, /* use stdcall on win32? */
+         num_args, &rtype, &argtypes)) != FFI_OK )
+    {
+        Perl_croak(aTHX_ "ffi_prep_cif error %d", status );
+    }
+    CvFFILIB(cv) = PTR2ul(cif);
+}
+
+/* run-time */
+/*
+=for apidoc prep_ffi_sig
+
+Check the given arguments for type and arity, and fill the void* argvalue[]
+array with it.
+
+The ffi_cif at CvFFLIB(cv) contains information describing the data
+types, sizes and alignments of the arguments to and return value from
+fn. See C<man ffi_call>.
+
+=cut
+*/
+void
+Perl_prep_ffi_sig(pTHX_ CV* cv, const unsigned int num_args, SV** argp, void **argvalues)
+{
+    unsigned int i;
+    UNOP_AUX *sigop = CvSIGOP(cv);
+    UNOP_AUX_item *items = cUNOP_AUXx(sigop)->op_aux;
+    UV   params      = items[0].uv;
+    UV   mand_params = params >> 16;
+    UV   opt_params  = params & ((1<<15)-1);
+    bool slurpy      = cBOOL((params >> 15) & 1);
+    PERL_ARGS_ASSERT_PREP_FFI_SIG;
+
+    for (i=0; i<num_args; i++) {
+        /* TODO: walk sig items, add run-time type-checks, add missing default values */
+        if (SvPOK(*argp))
+            *argvalues++ = &SvPVX(*argp++);
+        else if (SvIOK(*argp))
+            *argvalues++ = &SvIVX(*argp++);
+        else if (SvNOK(*argp))
+            *argvalues++ = &SvNVX(*argp++);
+    }
+}
+
+/*
+=for apidoc prep_ffi_ret
+
+Translate the ffi_call return value back to the perl type.
+
+=cut
+*/
+void
+Perl_prep_ffi_ret(pTHX_ CV* cv, void *rvalue)
+{
+    dSP; dTARG;
+    PERL_ARGS_ASSERT_PREP_FFI_RET;
+
+    PUSHi((IV)*((long*)rvalue));
+}
+
+#endif
+
 /* ffi helper to find the c symbol */
 static void
 S_find_symbol(pTHX_ CV* cv, char *name)
@@ -466,6 +567,7 @@ S_find_symbol(pTHX_ CV* cv, char *name)
 #endif
     IV handle = CvFFILIB(cv) ? CvFFILIB(cv) : (int)RTLD_DEFAULT;
     if (!dl_find_symbol) {
+        CvFFILIB(cv) = 0;
         Perl_warn(aTHX_ "no ffi with miniperl");
         return; /* miniperl */
     }
@@ -478,6 +580,7 @@ S_find_symbol(pTHX_ CV* cv, char *name)
     nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
     SPAGAIN;
     if (nret == 1 && SvIOK(TOPs)) {
+        CvFFILIB(cv) = 0;
         CvXFFI(cv) = (XSUBADDR_t)POPl;
         CvSLABBED_off(cv);
     }
@@ -541,6 +644,7 @@ S_find_native(pTHX_ CV* cv, char *libname)
         nret = call_sv((SV*)dl_find_symbol, G_SCALAR);
         SPAGAIN;
         if (nret == 1 && SvIOK(TOPs)) {
+            CvFFILIB(cv) = 0;
             CvXFFI(cv) = (XSUBADDR_t)POPl;
             CvSLABBED_off(cv);
         }
@@ -671,6 +775,7 @@ modify_SV_attributes(pTHX_ SV *sv, SV **retlist, SV **attrlist, int numattrs)
 		    goto next_attr;
 		}
 		if (len >= 7 && memEQc(name, "native(") && !negated) {
+                    /* TODO: sig: libname, version, abi */
                     CV *cv = MUTABLE_CV(sv);
                     if (len == 7 && numattrs>1) {
                         attr = *attrlist++;

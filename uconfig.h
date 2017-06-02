@@ -5420,9 +5420,25 @@
 #define PERL_BUILD_DATE "Thu Jan  1 00:00:00 GMT 1970"
 #endif
 
+/* USE_FFI:
+ *	header equivalent to $Config{useffi}, if -lffi is linked.
+ */
+/* I_FFI:
+ *	This symbol, if defined, indicates to the C program that it should
+ *	include <ffi.h>. The incpath is already added to ccflags.
+ */
+/* D_LIBFFI:
+ *	This symbol, if defined, indicates to the C program that libffi is usable.
+ */
+#ifndef USE_FFI
+#	USE_FFI		/**/
+#endif
+# 	I_FFI		/**/
+# 	D_LIBFFI        /**/
+
 #endif
 
 /* Generated from:
- * c14ad4883087af42d6cb700c812fe141604c4ec0217fecdbd99ccec4da9576e6 config_h.SH
+ * 64bfac1a714a76fe2c91218d4657965bf89c09870dfdff786bc5bb27e1d7cdbb config_h.SH
  * ade96344f643206c63123edcdb0e0ddb3dfdb6fa6041def5ecbbd11ae792d056 uconfig.sh
  * ex: set ro: */

@@ -3506,4 +3506,10 @@ XEop	|void   |dtrace_probe_glob |int mode|NN const char *name|bool is_entry
 XEop	|void   |dtrace_probe_hash |int mode|NN const char *name|bool is_entry
 #endif
 
+#ifdef USE_FFI
+Apd	|void	|prep_ffi_sig	|NN CV* cv|const unsigned int num_args \
+				|NN SV** argp|NN void **argvalues
+Apd	|void	|prep_ffi_ret	|NN CV* cv|NN void *rvalue
+#endif
+
 : ex: set ts=8 sts=4 sw=4 noet:
