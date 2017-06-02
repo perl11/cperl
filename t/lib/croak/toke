@@ -389,3 +389,20 @@ BEGIN{$0="";$^H=hex join""=>A00000}p?
 EXPECT
 syntax error at - line 1, at EOF
 Execution of - aborted due to compilation errors.
+########
+# NAME bare <<
+$a = <<;
+
+EXPECT
+Use of bare << to mean <<"" is forbidden at - line 1.
+########
+# NAME bare <<~
+$a = <<~;
+EXPECT
+Use of bare << to mean <<"" is forbidden at - line 1.
+########
+# NAME bare <<~
+$a = <<~ ;
+
+EXPECT
+Use of bare << to mean <<"" is forbidden at - line 1.
