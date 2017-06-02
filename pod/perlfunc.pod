@@ -427,10 +427,13 @@ L<C<time>|/time>, L<C<times>|/times>
 =for Pod::Functions =!Non-functions
 
 C<and>, C<AUTOLOAD>, C<BEGIN>, C<CHECK>, C<cmp>, C<CORE>, C<__DATA__>,
-C<default>, C<DESTROY>, C<else>, C<elseif>, C<elsif>, C<END>, C<__END__>,
-C<eq>, C<for>, C<foreach>, C<ge>, C<given>, C<gt>, C<if>, C<INIT>, C<le>,
-C<lt>, C<ne>, C<not>, C<or>, C<UNITCHECK>, C<unless>, C<until>, C<when>,
-C<while>, C<x>, C<xor>
+C<default>, C<DESTROY>, C<else>, C<elseif>, C<elsif>, C<END>,
+C<__END__>, C<eq>, L<C<extern>|/"extern sub NAME ();">, C<for>,
+C<foreach>, C<ge>, C<given>, C<gt>, C<if>, C<INIT>, C<le>, C<lt>,
+C<ne>, C<not>, C<or>, C<UNITCHECK>, C<unless>, C<until>, C<when>,
+C<while>, C<x>, C<xor>.
+
+See L<perlsyn/"Statement Modifiers"> and L<perlsyn/"Compound Statements">
 
 =back
 
@@ -2586,6 +2589,17 @@ X<exp> X<exponential> X<antilog> X<antilogarithm> X<e>
 
 Returns I<e> (the natural logarithm base) to the power of EXPR.
 If EXPR is omitted, gives C<exp($_)>.
+
+=item extern sub NAME ();
+X<ffi> X<extern>
+
+=for Pod::Functions declare an external ffi subroutine
+
+This is a declaration of an external FFI subroutine, with a mandatory
+signature. The signature must declare the incoming types to uniquely match
+the possible C types, the return type declaration defaults to C<:long>.
+
+C<extern> may be replaced by the L<C<:native>|attributes/native> attribute.
 
 =item fc EXPR
 X<fc> X<foldcase> X<casefold> X<fold-case> X<case-fold>
