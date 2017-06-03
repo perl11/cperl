@@ -44,7 +44,7 @@ ignored by the alphabetical order, as are all characters other than
 letters.  To look up your message, just ignore anything that is not a
 letter.
 
-Specially handled security warnings are listed as (S security).
+Specially handled security warnings are listed as B<(S security)>.
 
 =over 4
 
