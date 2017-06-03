@@ -2434,6 +2434,11 @@ PDP-11 or something?
 (F) A tied array claimed to have a negative number of elements, which
 is not possible.
 
+=item ffi_prep_cif error %d
+
+(F) The libffi call failed. See C<man ffi_prep_cif>.
+The error means either FFI_BAD_TYPEDEF (1) or FFI_BAD_ABI (2).
+
 =item Field %s from %s already exists in %s during role composition
 
 (F) Copying duplicate fields from inherited roles or classes is
@@ -2765,6 +2770,11 @@ prototype in a C<:prototype()> attribute.
 
 (F) When using the C<sub> keyword to construct an anonymous subroutine,
 you must always specify a block of code.  See L<perlsub>.
+
+=item Illegal declaration of extern subroutine %s. Need signature
+
+(F) An extern subroutine was not declared correctly. extern sub need a
+mandatory signature declaration, even if empty. See L<perlsub>.
 
 =item Illegal declaration of subroutine %s
 
@@ -3528,6 +3538,11 @@ it is necessary to stuff, stuffing only plain ASCII is recommended.
 
 (F) Lexing code supplied by an extension violated the lexer's API in a
 detectable way.
+
+=item libffi not available
+
+(F) This perl is not linked against libffi. extern sub declarations
+are fine, but calls will fail. Check C<$Config{useffi}>.
 
 =item listen() on closed socket %s
 
@@ -4576,6 +4591,13 @@ yourself.
 an C</l> regular expression modifier, as that would require deferring
 to run-time the calculation of what it should evaluate to, and it is
 regex compile-time only.
+
+=item no ffi with miniperl
+
+(S) miniperl has no DynaLoader, but DynaLoader is needed to find the
+shared library and to resolve the function name to the pointer.
+Declarations do compile, but calls do fail with the empty function
+pointer.
 
 =item no UTC offset information; assuming local time is UTC
 

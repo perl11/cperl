@@ -12237,6 +12237,13 @@ Perl_newATTRSUB_x(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs,
 	apply_attrs(stash, MUTABLE_SV(cv), attrs);
 	if (!name)
             SvREFCNT_inc_simple_void_NN(cv);
+    } else
+    if (CvEXTERN(cv)) {
+	HV *stash = GvSTASH(CvGV(cv))
+            ? GvSTASH(CvGV(cv))
+            : PL_curstash;
+        attrs = newSVOP(OP_CONST, 0, newSVpvs("native"));
+	apply_attrs(stash, MUTABLE_SV(cv), attrs);
     }
 
     if (block && has_name) {
@@ -17130,7 +17137,6 @@ Perl_ck_entersub_args_proto_or_list(pTHX_ OP *entersubop,
             return ck_entersub_args_signature(entersubop, namegv, cv);
         }
         else {
-            assert(!CvEXTERN(cv));
             /* Try XS call beforehand. Most XS calls are via CV not GV.
                GvXSCV is safe, because CvCONST and CvEXTERN are never set via newXS()
                which sets this flag. */

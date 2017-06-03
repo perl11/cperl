@@ -51,7 +51,7 @@
 %token <opval> FUNC0OP FUNC0SUB UNIOPSUB LSTOPSUB
 %token <opval> PLUGEXPR PLUGSTMT CLASSDECL
 %token <pval> LABEL
-%token <ival> FORMAT SUB METHDECL MULTIDECL ANONSUB EXTERN PACKAGE USE
+%token <ival> FORMAT SUB METHDECL MULTIDECL ANONSUB EXTERNSUB PACKAGE USE
 %token <ival> WHILE UNTIL IF UNLESS ELSE ELSIF CONTINUE FOR
 %token <ival> GIVEN WHEN DEFAULT
 %token <ival> LOOPEX DOTDOT YADAYADA
@@ -335,33 +335,29 @@ barestmt:	PLUGSTMT
 			  intro_my();
 			  parser->parsed_sub = 1;
 			}
-	|	EXTERN SUB subname startsub
+	|	EXTERNSUB subname startsub
 			{
                           CvEXTERN_on(PL_compcv);
-			  if ($3->op_type != OP_CONST) {
-                              /* lexical extern sub */
+			  if ($2->op_type != OP_CONST) {
+                              /* XXX lexical: my extern sub name */
                               if (CvANON(CvOUTSIDE(PL_compcv))
                                || CvCLONE(CvOUTSIDE(PL_compcv))
                                || !PadnameIsSTATE(PadlistNAMESARRAY(CvPADLIST(
-                                      CvOUTSIDE(PL_compcv)))[$3->op_targ])) {
+                                      CvOUTSIDE(PL_compcv)))[$2->op_targ])) {
                                   CvCLONE_on(PL_compcv);
                               }
                           }
 			  parser->in_my = 0;
 			  parser->in_my_stash = NULL;
 			}
-		remember subsignature subattrlist ';'
+		subsignature subattrlist ';'
 			{
-                          CV *cv;
-			  OP *body = block_end($6,
-				op_append_list(OP_LINESEQ, $7, NULL));
-
+                          OP *sig = $5, *name = $2, *attrs = $6; CV *cv;
 			  SvREFCNT_inc_simple_void(PL_compcv);
-			  cv = ($3->op_type == OP_CONST)
-			      ? newATTRSUB($4, $3, NULL, $8, body)
-			      : newMYSUB($4, $3, NULL, $8, body)
-			  ;
-			  $$ = $8 ? attrs_runtime(cv, $8) : NULL;
+			  cv = (name->op_type == OP_CONST)
+			      ? newATTRSUB($3, name, NULL, attrs, sig)
+			      : newMYSUB($3, name, NULL, attrs, sig);
+			  $$ = attrs ? attrs_runtime(cv, attrs) : NULL;
 			  parser->parsed_sub = 1;
 			}
 	|	PACKAGE BAREWORD BAREWORD ';'
@@ -699,7 +695,7 @@ subsignature:	'('
 		')'
 			{
 			  $$ = $<opval>2;
-			  parser->expect = XATTRBLOCK;
+			  /*parser->expect = XATTRBLOCK;*/
 			}
 	;
 

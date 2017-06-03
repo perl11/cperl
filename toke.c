@@ -388,6 +388,7 @@ static struct debug_tokens {
     { DOTDOT,           TOKENTYPE_IVAL,         "DOTDOT" },
     { ELSE,             TOKENTYPE_NONE,         "ELSE" },
     { ELSIF,            TOKENTYPE_IVAL,         "ELSIF" },
+    { EXTERNSUB,	TOKENTYPE_NONE,		"EXTERNSUB" },
     { EQOP,             TOKENTYPE_OPNUM,        "EQOP" },
     { FOR,              TOKENTYPE_IVAL,         "FOR" },
     { FORMAT,           TOKENTYPE_NONE,         "FORMAT" },
@@ -7366,7 +7367,7 @@ Perl_yylex(pTHX)
         }
         if (PL_expect == XSTATE && s[1] == '.' && s[2] == '.') {
             s += 3;
-            TERM(YADAYADA);
+	    TERM(YADAYADA); /* really ELLIPSIS */
         }
         if (PL_expect == XOPERATOR || !isDIGIT(s[1])) {
             char tmp = *s++;
@@ -8793,10 +8794,17 @@ Perl_yylex(pTHX)
             s = skipspace(s);
             if (isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
                 int normalize;
-                s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
-                if (memEQs(PL_tokenbuf, len, "sub")) {
-                    goto really_sub;
-                } else if (UNLIKELY(normalize)) {
+		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
+		if (len == 3 && memEQc(PL_tokenbuf, "sub")) {
+		    goto really_sub;
+		} else if (len == 6 && memEQc(PL_tokenbuf, "extern")) {
+                    s = skipspace(s);
+                    s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len, &normalize);
+                    if (len == 3 && memEQc(PL_tokenbuf, "sub")) {
+                        tmp = KEY_extern;
+                        goto really_sub;
+                    }
+		} else if (UNLIKELY(normalize)) {
                     d = pv_uni_normalize(PL_tokenbuf, strlen(PL_tokenbuf), &len);
                     Copy(d, PL_tokenbuf, len+1, char);
                 }
@@ -9335,26 +9343,33 @@ Perl_yylex(pTHX)
         case KEY_substr:
             LOP(OP_SUBSTR,XTERM);
 
-        case KEY_extern:
-            return (PL_expect = XTERM,PL_bufptr = s, REPORT(OP_NULL));
-        case KEY_format:
-        case KEY_sub:
+	case KEY_extern:
+            d = skipspace(s);
+            /* allow extern as a user func. only "extern sub" is handled by us now. */
+            if (!memEQc(d, "sub"))
+                goto just_a_word;
+            /* fall through */
+            s = d + 3;
+            /*Copy(d, &PL_tokenbuf, 3, char);
+              Zero(&PL_tokenbuf[3], 8, char);*/
+	case KEY_format:
         case KEY_method:
         case KEY_multi:
-          really_sub:
-            {
-                char * tmpbuf = PL_tokenbuf + 1;
+	case KEY_sub:
+	  really_sub:
+	    {
+		char * tmpbuf = PL_tokenbuf + 1;
                 SV *format_name = NULL;
-                const int key = tmp;
                 expectation attrful;
                 bool have_name, have_proto;
                 bool try_signature = FALSE;
-                int cvflags = key == KEY_method ? CVf_METHOD : 0;
+                bool was_extern = cBOOL(tmp == KEY_extern);
+		const int key = was_extern ? KEY_sub : tmp;
                 SSize_t off = s - SvPVX(PL_linestr);
 
-                d = s;
-                s = skipspace(s);
-                d = SvPVX(PL_linestr) + off;
+                PL_lex_stuff = NULL;
+		s = skipspace(s);
+                d = SvPVX(PL_linestr)+off;
 
                 if (   isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)
 #ifndef PERL_NO_QUOTE_PKGSEPERATOR
@@ -9399,7 +9414,7 @@ Perl_yylex(pTHX)
                     s = skipspace(d);
                 }
                 else {
-                    if (key == KEY_my || key == KEY_our || key==KEY_state) {
+                    if (key == KEY_my || key == KEY_our || key==KEY_state || was_extern) {
                         *d = '\0';
                         /* diag_listed_as: Missing name in "%s sub" */
                         Perl_croak(aTHX_ "Missing name in \"%s\"", PL_bufptr);
@@ -9457,6 +9472,9 @@ Perl_yylex(pTHX)
                             DEBUG_T(printbuf("### Is prototype %s\n", d));
                         }
                         s = skipspace(s);
+                        if (was_extern)
+                            Perl_croak(aTHX_ "Illegal declaration of extern subroutine %" SVf
+                               ". Need signature", SVfARG(PL_subname));
                     } else {
                         DEBUG_T(printbuf("### No prototype %s, signature probably\n", d));
                         try_signature = TRUE;
@@ -9464,8 +9482,12 @@ Perl_yylex(pTHX)
                         PL_lex_stuff = NULL;
                     }
                 }
-                else
+                else {
                     have_proto = FALSE;
+                    if (was_extern)
+                        Perl_croak(aTHX_ "Illegal declaration of extern subroutine %" SVf
+                                   ". Need signature", SVfARG(PL_subname));
+                }
 
                 if (UNLIKELY(!PL_in_class && (cvflags & CVf_METHOD)))
                     Perl_croak(aTHX_ "Can declare method %s only within a class",
@@ -9513,7 +9535,10 @@ Perl_yylex(pTHX)
                     ITOKEN(CVf_MULTI|cvflags,MULTIDECL);
                 else if (key == KEY_method)
                     ITOKEN(CVf_METHOD|cvflags,METHDECL);
-                ITOKEN(cvflags,SUB);
+                if (was_extern)
+                    ITOKEN(cvflags,EXTERNSUB);
+                else
+                    ITOKEN(cvflags,SUB);
             }
 
         case KEY_system:
